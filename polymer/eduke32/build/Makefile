@@ -5,15 +5,6 @@
 include ../Makefile.common
 
 
-# SDK locations for Windows - adjust to match your setup
-#
-ifneq ($(DXROOT_OVERRIDE),)
-    DXROOT=$(DXROOT_OVERRIDE)
-else
-    DXROOT=../../sdk/dx
-    #DXROOT=c:/sdks/directx/dx8
-endif
-
 # Build locations - OBJ gets overridden to the game-specific objects dir
 #
 OBJ?=obj.gnu
@@ -135,6 +126,10 @@ endif
 ifeq ($(RENDERTYPE),SDL)
     ENGINEOBJS+= $(OBJ)/sdlayer.$o
 
+    ifeq ($(PLATFORM),WINDOWS)
+        OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+    endif
+
     ifeq ($(PLATFORM),DARWIN)
         ifneq ($(findstring x86_64,$(ARCH)),x86_64)
             ifeq (,$(ARCH))
@@ -164,7 +159,7 @@ ifeq ($(RENDERTYPE),SDL)
     endif
 endif
 ifeq ($(RENDERTYPE),WIN)
-    OURCOMMONFLAGS+= -I$(DXROOT)/include
+    OURCOMMONFLAGS+= -I$(DXROOT) -I$(DXROOT)/include
     ENGINEOBJS+= $(OBJ)/winlayer.$o $(OBJ)/rawinput.$o
 endif
 
@@ -261,13 +256,13 @@ cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.
 	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 enumdisplay$(EXESUFFIX): $(OBJ)/enumdisplay.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 getdxdidf$(EXESUFFIX): $(OBJ)/getdxdidf.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -ldinput; then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT) -I$(DXROOT)/include -ldinput; then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 makesdlkeytrans$(EXESUFFIX): $(OBJ)/makesdlkeytrans.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL; then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 arttool$(EXESUFFIX): $(OBJ)/arttool.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(L_CXX) -o $@ $^ $(OURLDFLAGS) $(STATICSTDCPP) $(STDCPPLIB) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi

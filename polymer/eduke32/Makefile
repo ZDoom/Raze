@@ -5,15 +5,6 @@
 include Makefile.common
 
 
-# SDK locations for Windows - adjust to match your setup
-#
-ifneq ($(DXROOT_OVERRIDE),)
-    DXROOT=$(DXROOT_OVERRIDE)
-else
-    DXROOT=../sdk/dx
-    #DXROOT=c:/sdks/directx/dx8
-endif
-
 # Build locations
 #
 SRC=source
@@ -64,15 +55,10 @@ endif
 
 include $(EROOT)/Makefile.shared
 
-
 OURLIBS=$(LIBS) $(BASELIBS) $(BUILDLIBS)
 
 
 ifneq (0,$(USE_LIBVPX))
-    ifeq ($(PLATFORM),WINDOWS)
-        LIBS+= -LWindows/lib
-        OURCOMMONFLAGS+= -IWindows/include
-    endif
     ifeq ($(PLATFORM),DARWIN)
         # vpx headers and lib from 'port install libvpx' or 'brew install libvpx'
         LIBS+= -L/opt/local/lib -L/usr/local/lib
@@ -221,7 +207,7 @@ ifeq ($(PLATFORM),WII)
 endif
 
 ifeq ($(PLATFORM),DARWIN)
-    OURCOMMONFLAGS += -fno-pic -I$(abspath Apple) -I$(abspath Apple/include)
+    OURCOMMONFLAGS += -fno-pic
 
     ifneq ($(findstring x86_64,$(ARCH)),x86_64)
         ifeq (,$(ARCH))
@@ -273,7 +259,7 @@ ifeq ($(PLATFORM),WINDOWS)
     JAUDIOLIB=libjfaudiolib_win32.a
     ENETLIB=libenet_win32.a
     ifeq ($(RENDERTYPE),WIN)
-        OURCOMMONFLAGS += -I$(DXROOT)/include
+        OURCOMMONFLAGS += -I$(DXROOT) -I$(DXROOT)/include
         LIBS+= -ldsound
         GAMEOBJS+= $(OBJ)/music.$o $(OBJ)/midi.$o $(OBJ)/mpu401.$o
     endif
@@ -281,7 +267,8 @@ endif
 # -lGLU to build with gluBuild2DMipmaps
 ifeq ($(RENDERTYPE),SDL)
     ifeq ($(PLATFORM),WINDOWS)
-        LIBS+= Windows/lib/SDL_mixer.lib
+        OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+        LIBS+= Windows/lib/SDL_mixer.lib -L$(SDLROOT)/lib
     else
         ifneq ($(PLATFORM),DARWIN)
             LIBS+= -l$(SDLNAME)_mixer

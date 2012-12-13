@@ -1,10 +1,20 @@
 # Shared make information between Build engine and games
 
+MAKEFILE_SHARED:=$(lastword $(MAKEFILE_LIST))
+
 ENGINELIB=libengine.a
 EDITORLIB=libbuild.a
 
+
+# SDK locations - adjust to match your setup
+# Overrides must use absolute paths since this Makefile is included at different directory levels
+#
 SDLCONFIG = /usr/local/bin/sdl-config
 SDLNAME = SDL
+
+DXROOT=$(abspath $(dir $(MAKEFILE_COMMON))../sdk/dx)
+#DXROOT=/c/sdks/directx/dx8
+SDLROOT=$(abspath $(dir $(MAKEFILE_COMMON))../sdk/SDL)
 
 ifeq ($(wildcard $(SDLCONFIG)),$(SDLCONFIG))
 #    $(info Detected locally installed SDL 1.X)
@@ -26,6 +36,16 @@ else
 endif
 
 SDL_FRAMEWORK	= 0
+
+DXROOT_OVERRIDE ?=
+SDLROOT_OVERRIDE ?=
+ifneq ($(DXROOT_OVERRIDE),)
+    DXROOT=$(DXROOT_OVERRIDE)
+endif
+ifneq ($(SDLROOT_OVERRIDE),)
+    SDLROOT=$(SDLROOT_OVERRIDE)
+endif
+
 
 ifeq (4,$(GCC_MAJOR))
     L_SSP := -lssp
@@ -202,7 +222,7 @@ ifeq ($(RENDERTYPE),SDL)
     endif
 else
     ifeq ($(RENDERTYPE),WIN)
-        BUILDLIBS+= -L$(DXROOT)/lib -ldxguid
+        BUILDLIBS+= -ldxguid
     endif
 endif
 
@@ -247,9 +267,7 @@ endif
 
 ifeq ($(PLATFORM),WINDOWS)
     ifneq ($(USE_LIBPNG),0)
-        # XXX: these assume that the compiler runs from build/. Ugh.
-        BUILDLIBS+= -L../Windows/lib -lpng_mini -lz_mini
-        BUILDCOMMONFLAGS+= -I../Windows/include
+        BUILDLIBS+= -lpng_mini -lz_mini
     endif
 else
     ifeq ($(PLATFORM),DARWIN)

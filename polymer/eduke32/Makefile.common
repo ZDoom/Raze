@@ -2,6 +2,8 @@
 ## common definitions for Makefile, build/Makefile, source/enet/Makefile and
 ## source/jaudiolib/Makefile
 
+MAKEFILE_COMMON:=$(lastword $(MAKEFILE_LIST))
+
 # Use colored output
 PRETTY_OUTPUT ?= 1
 
@@ -89,11 +91,6 @@ endif
 
 # Binary suffix override:
 EXESUFFIX_OVERRIDE ?=
-
-# DirectX SDK location - if nonempty, overrides the DXROOTs of the individual
-# Makefiles. Should be set to an absolute path since this Makefile is included
-# at different directory levels
-DXROOT_OVERRIDE:=
 
 # Mac OS X Frameworks location
 # Like above, use absolute paths.
@@ -331,6 +328,16 @@ ifeq (0,$(NETCODE))
 endif
 
 
+# Set up target-specific headers and libs that work across all Makefiles
+ifeq ($(PLATFORM),WINDOWS)
+    BASELIBS+= -L$(abspath $(dir $(MAKEFILE_COMMON))Windows/lib)
+    BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))Windows/include)
+endif
+ifeq ($(PLATFORM),DARWIN)
+    BASELIBS+= -L$(abspath $(dir $(MAKEFILE_COMMON))Apple/lib)
+    BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))Apple/include)
+endif
+
 #### Lunatic development, do not touch!
 LUNATIC=0
 LUAJIT=luajit
@@ -351,7 +358,7 @@ ifneq ($(LUNATIC),0)
     BASECOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC
 
     ifeq ($(PLATFORM),WINDOWS)
-        BASELIBS+= -LWindows/lib -lluajit
+        BASELIBS+= -lluajit
     else
         BASELIBS+= -lluajit-5.1
     endif

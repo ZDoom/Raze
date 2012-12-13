@@ -6,14 +6,6 @@ OBJNAME=libjfaudiolib.a
 SRC=src
 INC=include
 
-# SDK locations - adjust to match your setup
-ifneq ($(DXROOT_OVERRIDE),)
-    DXROOT ?= $(DXROOT_OVERRIDE)
-else
-    DXROOT=../../../sdk/dx
-    #DXROOT ?= c:/sdks/directx/dx8
-endif
-
 # for BUILD_ECHOFLAGS:
 OURCOMMONFLAGS=$(BASECOMMONFLAGS) $(BUILDCOMMONFLAGS) -I$(INC) -I$(SRC)
 ifneq ($(PLATFORM),WII)
@@ -29,11 +21,12 @@ OURCXXFLAGS=$(BASECXXFLAGS)
 PRINTLDFLAGS=$(BASELDFLAGS)
 OURASFLAGS=$(BASEASFLAGS)
 
-ifeq (1,$(SDL_FRAMEWORK))
-    ifeq ($(PLATFORM),DARWIN)
-        APPLE_INCLUDE_DIR:=../../Apple/include
-        OURCOMMONFLAGS += -I$(APPLE_INCLUDE_DIR) -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
+ifeq ($(PLATFORM),DARWIN)
+    ifeq (1,$(SDL_FRAMEWORK))
+        OURCOMMONFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                 -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
+    else
+        OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
     endif
 endif
 
@@ -54,7 +47,7 @@ OBJECTS=$(OBJ)/drivers.o \
 
 ifeq ($(PLATFORM),WINDOWS)
     ifeq ($(RENDERTYPE),WIN)
-        OURCOMMONFLAGS+= -DHAVE_DS -I$(DXROOT)/include
+        OURCOMMONFLAGS+= -DHAVE_DS -I$(DXROOT) -I$(DXROOT)/include
         OBJECTS+= $(OBJ)/driver_directsound.o
     endif
 
@@ -65,6 +58,9 @@ endif
 
 ifeq ($(RENDERTYPE),SDL)
     OURCOMMONFLAGS+= -DHAVE_SDL
+    ifeq ($(PLATFORM),WINDOWS)
+        OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+    endif
     ifneq ($(PLATFORM),DARWIN)
         ifneq ($(PLATFORM),WINDOWS)
             OURCOMMONFLAGS+=`pkg-config --cflags vorbis`
