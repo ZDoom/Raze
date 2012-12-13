@@ -10405,11 +10405,12 @@ void AlignWallPoint2(int32_t w0)
 //  8: align TROR nextwalls
 int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 {
-    int32_t z0, z1, tilenum, w1;
     static int32_t numaligned, wall0, cstat0;
     static uint32_t lenrepquot;
 
-    tilenum = wall[w0].picnum;
+    int32_t z0 = GetWallBaseZ(w0);
+    int32_t w1 = wall[w0].point2;
+    const int32_t tilenum = wall[w0].picnum;
 
     if (nrecurs == 0)
     {
@@ -10421,10 +10422,6 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
         wall0 = w0;
         cstat0 = wall[w0].cstat & ALIGN_WALLS_CSTAT_MASK;  // top/bottom orientation; x/y-flip
     }
-
-    z0 = GetWallBaseZ(w0);
-
-    w1 = wall[w0].point2;
 
     //loop through walls at this vertex in point2 order
     while (1)
@@ -10462,30 +10459,31 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 
         if (wall[w1].picnum == tilenum)
         {
-            int32_t visible = 0;
+            int32_t visible = 1;
             const int32_t nextsec = wall[w1].nextsector;
 
-            z1 = GetWallBaseZ(w1);
-
-            if (nextsec < 0)
-                visible = 1;
-            else
+            if (nextsec >= 0)
             {
                 int32_t cz,fz, czn,fzn;
                 const int32_t sectnum = NEXTWALL(w1).nextsector;
 
                 //ignore two sided walls that have no visible face
+                // TODO: can be more precise (i.e. taking into account the wall face)
+                //  ... needs to be factored out from some engine code maybe...
+                // as is the whole "z base" determination.
                 getzsofslope(sectnum, wall[w1].x,wall[w1].y, &cz, &fz);
                 getzsofslope(nextsec, wall[w1].x,wall[w1].y, &czn, &fzn);
 
-                if (cz < czn || fz > fzn)
-                    visible = 1;
+                if (czn <= cz && fzn >= fz)
+                    visible = 0;
             }
 
             if (visible)
             {
-                if ((flags&4) && w0!=wall0)
-                    fixxrepeat(w0, lenrepquot);
+                const int32_t z1 = GetWallBaseZ(w1);
+
+                if ((flags&4) && w1!=wall0)
+                    fixxrepeat(w1, lenrepquot);
                 AlignWalls(w0,z0, w1,z1, 1);
                 wall[w1].cstat &= ~ALIGN_WALLS_CSTAT_MASK;
                 wall[w1].cstat |= cstat0;
@@ -10499,9 +10497,11 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
                     w0 = w1;
                     z0 = GetWallBaseZ(w0);
                     w1 = wall[w0].point2;
+
                     continue;
                 }
-                else if (flags&1)
+
+                if (flags&1)
                     AutoAlignWalls(w1, flags, nrecurs+1);
             }
         }
