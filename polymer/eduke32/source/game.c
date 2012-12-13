@@ -3950,6 +3950,8 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 {
     int32_t p;
     int32_t i;
+    spritetype *s;
+    spritetype spr_temp;
 
     // NetAlloc
     if (Net_IsRelevantStat(s_ss))
@@ -3960,9 +3962,8 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     {
         i = insertsprite(whatsect,s_ss);
     }
-	
-    spritetype *s = &sprite[i];
-    spritetype spr_temp;
+
+    s = &sprite[i];
 
     memset(&spr_temp, 0, sizeof(spritetype));
     spr_temp.x = s_x;
