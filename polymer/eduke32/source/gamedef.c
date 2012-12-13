@@ -2337,7 +2337,7 @@ static int32_t C_ParseCommand(int32_t loop)
             }
 
             C_GetNextValue(LABEL_DEFINE);
-            Gv_NewArray(label+(g_numLabels<<6),*(g_scriptPtr-1));
+            Gv_NewArray(label+(g_numLabels<<6),NULL,*(g_scriptPtr-1), GAMEARRAY_NORMAL);
 
             g_scriptPtr -= 2; // no need to save in script...
             continue;
@@ -3863,6 +3863,13 @@ static int32_t C_ParseCommand(int32_t loop)
             {
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=i;
+
+                if (aGameArrays[i].dwFlags & GAMEARRAY_READONLY)
+                {
+                    C_ReportError(ERROR_ARRAYREADONLY);
+                    g_numCompilerErrors++;
+                    return 1;
+                }
             }
             else
             {
@@ -3894,15 +3901,23 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_RESIZEARRAY:
             C_GetNextLabelName();
             i=GetADefID(label+(g_numLabels<<6));
-            if (i < 0)
+            if (i >= 0)
+            {
+                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+                *g_scriptPtr++ = i;
+                if (tw==CON_RESIZEARRAY && (aGameArrays[i].dwFlags & GAMEARRAY_TYPE_MASK))
+                {
+                    C_ReportError(-1);
+                    initprintf("can't resize system array `%s'.", label+(g_numLabels<<6));
+                    return 1;
+                }
+            }
+            else
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_NOTAGAMEARRAY);
                 return 1;
             }
-
-            bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-            *g_scriptPtr++=i;
 
             C_SkipComments();
             C_GetNextVarType(tw==CON_GETARRAYSIZE ? GAMEVAR_READONLY : 0);
@@ -6031,10 +6046,10 @@ void C_Compile(const char *filenam)
         initprintf("Script compiled in %dms, %ld*%db, version %s\n", getticks() - startcompiletime,
                    (unsigned long)(g_scriptPtr-script), (int32_t)sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
 
-        initprintf("%d/%d labels, %d/%d variables\n", g_numLabels,
+        initprintf("%d/%d labels, %d/%d variables, %d/%d arrays\n", g_numLabels,
                    (int32_t)min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
                                 MAXSPRITES * sizeof(spritetype)/(1<<6)),
-                   g_gameVarCount, MAXGAMEVARS);
+                   g_gameVarCount, MAXGAMEVARS, g_gameArrayCount, MAXGAMEARRAYS);
 
         for (i=MAXQUOTES-1; i>=0; i--)
             if (ScriptQuotes[i])
@@ -6219,6 +6234,9 @@ void C_ReportError(int32_t iError)
         break;
     case ERROR_VARREADONLY:
         initprintf("%s:%d: error: variable `%s' is read-only.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case ERROR_ARRAYREADONLY:
+        initprintf("%s:%d: error: array `%s' is read-only.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     case ERROR_VARTYPEMISMATCH:
         initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));

@@ -52,11 +52,13 @@ static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
         if (i >= MAXGAMEARRAYS)
             continue;
 
-        if (aGameArrays[i].plValues)
+        if ((aGameArrays[i].dwFlags & GAMEARRAY_NORMAL) && aGameArrays[i].plValues)
+        {
             Bfree(aGameArrays[i].plValues);
+            aGameArrays[i].plValues=NULL;
+        }
 
-        aGameArrays[i].plValues=NULL;
-        aGameArrays[i].bReset=1;
+        aGameArrays[i].dwFlags |= GAMEARRAY_RESET;
     }
     g_gameVarCount=g_gameArrayCount=0;
     hash_init(&h_gamevars);
@@ -76,7 +78,6 @@ static void Gv_Clear(void)
         if (aGameVars[i].szLabel)
             Bfree(aGameVars[i].szLabel);
         aGameVars[i].szLabel=NULL;
-        aGameVars[i].dwFlags=0;
 
         if ((aGameVars[i].dwFlags & GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
         {
@@ -91,10 +92,12 @@ static void Gv_Clear(void)
             Bfree(aGameArrays[i].szLabel);
         aGameArrays[i].szLabel=NULL;
 
-        if (aGameArrays[i].plValues)
+        if ((aGameArrays[i].dwFlags & GAMEARRAY_NORMAL) && aGameArrays[i].plValues)
+        {
             Bfree(aGameArrays[i].plValues);
-        aGameArrays[i].plValues=NULL;
-        aGameArrays[i].bReset=1;
+            aGameArrays[i].plValues=NULL;
+        }
+        aGameArrays[i].dwFlags |= GAMEARRAY_RESET;
     }
     g_gameVarCount=g_gameArrayCount=0;
     hash_init(&h_gamevars);
@@ -379,12 +382,12 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
 
     for (i=0; i<MAXGAMEARRAYS; i++)
     {
-        if (aGameArrays[i].szLabel != NULL && aGameArrays[i].bReset)
-            Gv_NewArray(aGameArrays[i].szLabel,aGameArrays[i].size);
+        if (aGameArrays[i].szLabel != NULL && (aGameArrays[i].dwFlags & GAMEARRAY_RESET))
+            Gv_NewArray(aGameArrays[i].szLabel,aGameArrays[i].plValues,aGameArrays[i].size,aGameArrays[i].dwFlags);
     }
 }
 
-int32_t Gv_NewArray(const char *pszLabel, int32_t asize)
+int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t dwFlags)
 {
     int32_t i;
 
@@ -404,11 +407,20 @@ int32_t Gv_NewArray(const char *pszLabel, int32_t asize)
         return 0;
     }
     i = hash_find(&h_arrays,pszLabel);
-    if (i >=0 && !aGameArrays[i].bReset)
+    if (i >=0 && !(aGameArrays[i].dwFlags & GAMEARRAY_RESET))
     {
         // found it it's a duplicate in error
+
         g_numCompilerWarnings++;
-        C_ReportError(WARNING_DUPLICATEDEFINITION);
+
+        if (aGameArrays[i].dwFlags&GAMEARRAY_TYPE_MASK)
+        {
+            C_ReportError(-1);
+            initprintf("ignored redefining system array `%s'.", pszLabel);
+        }
+        else
+            C_ReportError(WARNING_DUPLICATEDEFINITION);
+
         return 0;
     }
 
@@ -418,9 +430,15 @@ int32_t Gv_NewArray(const char *pszLabel, int32_t asize)
         aGameArrays[i].szLabel=(char *)Bcalloc(MAXVARLABEL,sizeof(uint8_t));
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
-    aGameArrays[i].plValues=(intptr_t *)Bcalloc(asize,GAR_ELTSZ);
+
+    if (!(dwFlags & GAMEARRAY_TYPE_MASK))
+        aGameArrays[i].plValues=(intptr_t *)Bcalloc(asize,GAR_ELTSZ);
+    else
+        aGameArrays[i].plValues=(intptr_t *)arrayptr;
+
     aGameArrays[i].size=asize;
-    aGameArrays[i].bReset=0;
+    aGameArrays[i].dwFlags = dwFlags & ~GAMEARRAY_RESET;
+
     g_gameArrayCount++;
     hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
     return 1;
@@ -753,16 +771,33 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
             if (id&(MAXGAMEVARS<<2)) // array
             {
                 register int32_t index=Gv_GetVarX(*insptr++);
+                int32_t siz;
 
                 id &= (MAXGAMEVARS-1);// ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
 
-                if ((unsigned)index >= (unsigned)aGameArrays[id].size)
+                if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
+                    siz = Gv_GetVarX(aGameArrays[id].size);
+                else
+                    siz = aGameArrays[id].size;
+
+                if (index < 0 || index >= siz)
                 {
                     negateResult = index;
                     goto badindex;
                 }
 
-                return ((aGameArrays[id].plValues[index] ^ -negateResult) + negateResult);
+                switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPE_MASK)
+                {
+                case 0:
+                case GAMEARRAY_OFINT:
+                    return (((int32_t *)aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
+                case GAMEARRAY_OFSHORT:
+                    return (((int16_t *)aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
+                case GAMEARRAY_OFCHAR:
+                    return (((uint8_t *)aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
+                default:
+                    goto arraywtf;
+                }
             }
 
             if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
@@ -878,8 +913,12 @@ badwall:
         CON_ERRPRINTF("Gv_GetVarX(): invalid wall ID %d\n", id);
         return -1;
 
+arraywtf:
+        CON_ERRPRINTF("Gv_GetVarX() (array): WTF?\n");
+        return -1;
+
 wtf:
-        CON_ERRPRINTF("Gv_GetVar(): WTF?\n");
+        CON_ERRPRINTF("Gv_GetVarX(): WTF?\n");
         return -1;
     }
 }
@@ -1624,6 +1663,12 @@ static void Gv_AddSystemVars(void)
 #else
     Gv_NewVar("rendmode", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
 #endif
+
+    // must be first!
+    Gv_NewArray(".LOCALS_BASE", NULL, 0, GAMEARRAY_OFINT);
+
+    Gv_NewArray("tilesizx", (void *)tilesizx, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("tilesizy", (void *)tilesizy, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 }
 
 void Gv_Init(void)

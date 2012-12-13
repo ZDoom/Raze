@@ -44,7 +44,6 @@ static void Gv_Clear(void)
             Bfree(aGameVars[i].szLabel);
 
         aGameVars[i].szLabel = NULL;
-        aGameVars[i].dwFlags = 0;
 
         if ((aGameVars[i].dwFlags & GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
         {
@@ -63,10 +62,12 @@ static void Gv_Clear(void)
 
         aGameArrays[i].szLabel = NULL;
 
-        if (aGameArrays[i].vals)
+        if ((aGameArrays[i].dwFlags & GAMEARRAY_NORMAL) && aGameArrays[i].vals)
+        {
             Bfree(aGameArrays[i].vals);
+            aGameArrays[i].vals=NULL;
+        }
 
-        aGameArrays[i].vals = NULL;
         aGameArrays[i].dwFlags |= GAMEARRAY_RESET;
     }
 

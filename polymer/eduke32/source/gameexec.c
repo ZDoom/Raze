@@ -4196,6 +4196,11 @@ nullquote:
                         j,vm.g_i,TrackerCast(sprite[vm.g_i].picnum),vm.g_p);
                     continue;
                 }
+                if (aGameArrays[j].dwFlags & GAMEARRAY_READONLY)
+                {
+                    OSD_Printf("Tried to set on read-only array `%s'", aGameArrays[j].szLabel);
+                    continue;
+                }
                 aGameArrays[j].plValues[index]=value;
                 continue;
             }
@@ -4265,7 +4270,8 @@ nullquote:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(*insptr++,aGameArrays[j].size);
+                Gv_SetVarX(*insptr++, (aGameArrays[j].dwFlags&GAMEARRAY_VARSIZE) ?
+                           Gv_GetVarX(aGameArrays[j].size) : aGameArrays[j].size);
             }
             continue;
 
@@ -4287,16 +4293,53 @@ nullquote:
         case CON_COPY:
             insptr++;
             {
-                int32_t j=*insptr++;
-                int32_t index = Gv_GetVarX(*insptr++);
-                int32_t j1=*insptr++;
-                int32_t index1 = Gv_GetVarX(*insptr++);
-                int32_t value = Gv_GetVarX(*insptr++);
+                int32_t si=*insptr++, ssiz = 0;
+                int32_t sidx = Gv_GetVarX(*insptr++); //, vm.g_i, vm.g_p);
+                int32_t di=*insptr++, dsiz = 0;
+                int32_t didx = Gv_GetVarX(*insptr++);
+                int32_t numelts = Gv_GetVarX(*insptr++);
 
-                if (index > aGameArrays[j].size || index1 > aGameArrays[j1].size) continue;
-                if ((index+value)>aGameArrays[j].size) value=aGameArrays[j].size-index;
-                if ((index1+value)>aGameArrays[j1].size) value=aGameArrays[j1].size-index1;
-                Bmemcpy(aGameArrays[j1].plValues+index1, aGameArrays[j].plValues+index, value * sizeof(intptr_t));
+                if (si<0 || si>=g_gameArrayCount)
+                {
+                    CON_ERRPRINTF("Invalid array %d!", si);
+                    dsiz = 1;
+                }
+                if (di<0 || di>=g_gameArrayCount)
+                {
+                    CON_ERRPRINTF("Invalid array %d!", di);
+                    dsiz = 1;
+                }
+                if (aGameArrays[di].dwFlags & GAMEARRAY_READONLY)
+                {
+                    CON_ERRPRINTF("Array %d is read-only!", di);
+                    dsiz = 1;
+                }
+                if (dsiz) continue; // dirty replacement for VMFLAG_ERROR
+
+                ssiz = (aGameArrays[si].dwFlags&GAMEARRAY_VARSIZE) ?
+                       Gv_GetVarX(aGameArrays[si].size) : aGameArrays[si].size;
+                dsiz = (aGameArrays[di].dwFlags&GAMEARRAY_VARSIZE) ?
+                       Gv_GetVarX(aGameArrays[si].size) : aGameArrays[di].size;
+
+                if (sidx > ssiz || didx > dsiz) continue;
+                if ((sidx+numelts) > ssiz) numelts = ssiz-sidx;
+                if ((didx+numelts) > dsiz) numelts = dsiz-didx;
+
+                switch (aGameArrays[si].dwFlags & GAMEARRAY_TYPE_MASK)
+                {
+                case 0:
+                case GAMEARRAY_OFINT:
+                    Bmemcpy((int32_t *)aGameArrays[di].plValues + didx, (int32_t *)aGameArrays[si].plValues + sidx, numelts * sizeof(int32_t));
+                    break;
+                case GAMEARRAY_OFSHORT:
+                    for (; numelts>0; numelts--)
+                        ((int32_t *)aGameArrays[di].plValues)[didx++] = ((int16_t *)aGameArrays[si].plValues)[sidx++];
+                    break;
+                case GAMEARRAY_OFCHAR:
+                    for (; numelts>0; numelts--)
+                        ((int32_t *)aGameArrays[di].plValues)[didx++] = ((uint8_t *)aGameArrays[si].plValues)[sidx++];
+                    break;
+                }
                 continue;
             }
 

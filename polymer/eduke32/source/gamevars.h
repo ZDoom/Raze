@@ -52,8 +52,20 @@ enum GamevarFlags_t {
 #define MAXARRAYLABEL MAXVARLABEL
 
 enum GamearrayFlags_t {
-    GAMEARRAY_NORMAL   = 0,
-    GAMEARRAY_NORESET  = 0x00000001,
+
+    GAMEARRAY_READONLY = 0x00001000,
+    GAMEARRAY_WARN = 0x00002000,
+
+    GAMEARRAY_NORMAL   = 0x00004000,
+    GAMEARRAY_OFCHAR   = 0x00000001,
+    GAMEARRAY_OFSHORT  = 0x00000002,
+    GAMEARRAY_OFINT    = 0x00000004,
+    GAMEARRAY_TYPE_MASK = GAMEARRAY_OFCHAR|GAMEARRAY_OFSHORT|GAMEARRAY_OFINT,
+
+    GAMEARRAY_VARSIZE = 0x00000020,
+
+    GAMEARRAY_RESET    = 0x00000008,
+///    GAMEARRAY_NORESET  = 0x00000001,
 };
 
 #pragma pack(push,1)
@@ -71,7 +83,7 @@ typedef struct {
     char *szLabel;
     intptr_t *plValues;     // array of values
     intptr_t size;
-    intptr_t bReset;
+    intptr_t dwFlags;
 } gamearray_t;
 #pragma pack(pop)
 
@@ -85,7 +97,7 @@ extern int32_t g_gameArrayCount;
 int32_t __fastcall Gv_GetVar(register int32_t id,register int32_t iActor,register int32_t iPlayer);
 int32_t __fastcall Gv_GetVarX(register int32_t id);
 int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t lDefault,int32_t iActor,int32_t iPlayer);
-int32_t Gv_NewArray(const char *pszLabel,int32_t asize);
+int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
 void __fastcall A_ResetVars(register int32_t iActor);
