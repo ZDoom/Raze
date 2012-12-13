@@ -326,7 +326,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
     case WM_CTLCOLORSTATIC:
         if ((HWND)lParam == pages[TAB_MESSAGES])
-            return (BOOL)GetSysColorBrush(COLOR_WINDOW);
+            return (BOOL)(intptr_t)GetSysColorBrush(COLOR_WINDOW);
         break;
 
     default:

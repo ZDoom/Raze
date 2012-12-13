@@ -125,9 +125,9 @@ uint16_t *joydead, *joysatur;
 //
 // win_gethinstance() -- gets the application instance
 //
-int32_t win_gethinstance(void)
+HINSTANCE win_gethinstance(void)
 {
-    return (int32_t)(HINSTANCE)GetModuleHandle(NULL);
+    return (HINSTANCE)GetModuleHandle(NULL);
 }
 #endif
 
@@ -897,7 +897,11 @@ uint32_t getticks(void)
 uint64_t gethiticks(void)
 {
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
-# if _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
+# if defined _WIN32
+    return win_gethiticks();
+# elif defined __APPLE__
+    return mach_absolute_time();
+# elif _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
     // This is SDL HG's SDL_GetPerformanceCounter() when clock_gettime() is
     // available.
     uint64_t ticks;
@@ -908,10 +912,6 @@ uint64_t gethiticks(void)
     ticks *= 1000000000;
     ticks += now.tv_nsec;
     return (ticks);
-# elif defined _WIN32
-    return win_gethiticks();
-# elif defined __APPLE__
-    return mach_absolute_time();
 # else
 // Blar. This pragma is unsupported on earlier GCC versions.
 // At least we'll get a warning and a reference to this line...
@@ -926,15 +926,15 @@ uint64_t gethiticks(void)
 uint64_t gethitickspersec(void)
 {
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
-# if _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
-    return 1000000000;
-# elif defined _WIN32
+# if defined _WIN32
     return win_timerfreq;
 # elif defined __APPLE__
     static mach_timebase_info_data_t ti;
     if (ti.denom == 0)
         (void)mach_timebase_info(&ti);  // ti.numer/ti.denom: nsec/(m_a_t() tick)
     return (1000000000LL*ti.denom)/ti.numer;
+# elif _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
+    return 1000000000;
 # else
     return 1000;
 # endif

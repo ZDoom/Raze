@@ -1,0 +1,3 @@
+LIBRARY "dpnlobby.dll"
+EXPORTS
+DirectPlay8LobbyCreate@12

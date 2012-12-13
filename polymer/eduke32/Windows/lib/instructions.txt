@@ -1,0 +1,115 @@
+Instructions for Building EDuke32's Library Dependencies Targeting Win32 and Win64
+
+First, follow these instructions:
+http://wiki.eduke32.com/wiki/Building_EDuke32_on_Windows
+
+Download the latest sources from:
+https://www.xiph.org/downloads/
+http://zlib.net/
+http://www.libpng.org/pub/png/libpng.html
+http://www.webmproject.org/code/
+http://www.libsdl.org/download-1.2.php
+http://www.libsdl.org/projects/SDL_mixer/
+
+The build output listed as "Desired Results" is what EDuke32 needs to function.
+
+The desired results for each library in some cases may need to be installed to the compiler. "x depends on the results of y to compile" means that the build output of x must be added to the compiler in this way. Copy files listed in each category to the appropriate destinations:
+
+For MinGW (MinGW32):
+from the compiler root (ex. C:\MinGW\)
+headers: include\
+libraries: lib\
+
+For MinGW-w64:
+from the compiler root (ex. C:\MinGW-w64\mingw32-dw2\)
+headers: <target>-w64-mingw32\include\
+libraries: <target>-w64-mingw32\lib\
+
+Binaries need to be present with the finished EDuke32 executables. They are not needed during compilation.
+
+NB: Text in [] are commands to be pasted into the Windows command prompt, sans [].
+http://wiki.eduke32.com/wiki/Working_with_the_Windows_Command_Prompt
+
+
+
+libogg:
+To build:
+[sh ./configure && make]
+Desired Results:
+ - headers: ogg\config_types.h ogg\ogg.h ogg\os_types.h
+ - libraries: libogg.a
+
+libvorbis:
+To build:
+[sh ./configure && make]
+Desired Results:
+ - headers: vorbis\codec.h vorbis\vorbisfile.h
+ - libraries: libvorbis.a libvorbisfile.a
+libvorbis depends on the results of libogg to compile.
+
+
+zlib:
+You may want to change -O3 to -O2 in win32\Makefile.gcc for stability and possibly performance benefits.
+To build:
+[make -f win32\Makefile.gcc]
+[ar rcs libz_mini.a crc32.o deflate.o adler32.o zutil.o trees.o]
+Desired Results:
+ - headers: (none)
+ - libraries: libz_mini.a
+
+
+libpng:
+Edit scripts\Makefile.gcc so that ZLIBINC and ZLIBLIB point to the directory of zlib from above, or, rename your zlib directory so that, relative to the libpng directory, it is "../zlib". You will get a compile-time error if this is omitted or done incorrectly.
+Copy the file "minipng.dfa" to the root of the libpng data.
+To build:
+[make -f scripts/pnglibconf.mak DFA_XTRA=./minipng.dfa CPP="gcc -E"]
+[make -f scripts/makefile.gcc libpng.a]
+[ren libpng.a libpng_mini.a]
+Desired Results:
+ - headers: png.h pngconf.h pnglibconf.h
+ - libraries: libpng_mini.a
+
+
+libvpx:
+Download the binary of yasm (http://yasm.tortall.net/) for your host system architecture. Both builds target both architectures.
+The build environment needs pr.exe (https://mingw-lib.googlecode.com/files/coreutils-5.97-MSYS-1.0.11-snapshot.tar.bz2).
+If the configure scripts do not recognize your 64-bit compiler, you may need to apply the included patch "libvpx with MinGW-w64.patch".
+To build:
+[sh ./configure --disable-vp8-encoder --disable-multithread --disable-spatial-resampling --as=yasm && make]
+Desired Results:
+ - headers: vpx\vp8.h vpx\vp8dx.h vpx\vpx_codec.h vpx\vpx_codec_impl_bottom.h vpx\vpx_codec_impl_top.h vpx\vpx_decoder.h vpx\vpx_decoder_compat.h vpx\vpx_image.h vpx\vpx_integer.h
+ - libraries: libvpx.a libvpx_g.a
+
+
+SDL:
+To build:
+[sh ./configure && make]
+Desired Results:
+ - headers: SDL_*.h
+ - libraries: libSDL.a libSDL.dll.a libSDLmain.a
+ - binaries: SDL.dll
+
+SDL_mixer:
+Download SDL_mixer-devel-<version>-VC.zip.
+The library used for linking can be found at these paths:
+32-bit: SDL_mixer-<version>/lib/x86/SDL_mixer.lib
+64-bit: SDL_mixer-<version>/lib/x64/SDL_mixer.lib
+Compiling SDL_mixer has not been shown to work with either MinGW. If you would like to try anyway:
+To build:
+[sh ./configure && make]
+SDL_mixer depends on the results of SDL to compile. Note that the headers must be installed without the "SDL" prefix directory.
+Note: With just this bare bones setup all the external libraries and formats will be disabled, but that's OK.
+Desired Results:
+ - headers: SDL_mixer.h
+ - libraries: SDL_mixer.lib
+ - binaries: SDL_mixer.dll
+
+
+dsound:
+dxguid:
+See Windows\src\dxlibs.
+To build:
+[make]
+Desired Results:
+ - headers: ddraw.h dinput.h dsound.h (pre-positioned in Windows\include)
+ - libraries: libdsound.a libdxguid.a

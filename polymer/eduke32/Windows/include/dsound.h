@@ -16,6 +16,8 @@
 #define DIRECTSOUND_VERSION 0x0900  /* Version 9.0 */
 #endif
 
+#include "dx_compat.h" // EDuke32
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus

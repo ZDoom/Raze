@@ -69,4 +69,8 @@ BEGIN
     END
 END
 
-1 24 "rsrc/manifest.build.xml"
+#if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
+1 24 "rsrc/64/manifest.build.xml"
+#else
+1 24 "rsrc/32/manifest.build.xml"
+#endif

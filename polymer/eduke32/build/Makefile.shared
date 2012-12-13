@@ -9,33 +9,35 @@ EDITORLIB=libbuild.a
 # SDK locations - adjust to match your setup
 # Overrides must use absolute paths since this Makefile is included at different directory levels
 #
-SDLCONFIG = /usr/local/bin/sdl-config
-SDLNAME = SDL
+SDLCONFIG ?= sdl-config
+SDLNAME ?= SDL
+SDL_FRAMEWORK ?= 1
 
 DXROOT=$(abspath $(dir $(MAKEFILE_COMMON))../sdk/dx)
 #DXROOT=/c/sdks/directx/dx8
 SDLROOT=$(abspath $(dir $(MAKEFILE_COMMON))../sdk/SDL)
 
-ifeq ($(wildcard $(SDLCONFIG)),$(SDLCONFIG))
-#    $(info Detected locally installed SDL 1.X)
-    SDLROOT		= /usr/local
-else
-    # Swap the commenting in the following two lines to
-    # enable SDL 2.X detection
-    SDLCONFIG = /usr/local/file_that_does_not_exist
-#    SDLCONFIG = /usr/local/bin/sdl2-config
+ifneq ($(PLATFORM),WINDOWS)
+    SDLVERSION:=$(strip $(shell $(SDLCONFIG) --version))
+    ifneq ($(SDLVERSION),)
+        SDLROOT:=$(strip $(shell $(SDLCONFIG) --prefix))
+    endif
 
-    ifeq ($(wildcard $(SDLCONFIG)),$(SDLCONFIG))
-#        $(info Detected locally installed SDL 2.X)
-        SDLROOT = /usr/local
-        SDLNAME = SDL2
-    else
-#        $(info Detected system-wide installed SDL 1.X)
-        SDLCONFIG	= /usr/bin/sdl-config
+    # Uncomment the following line to enable SDL 2.X detection
+    #TRYSDL2=1
+    ifeq ($(TRYSDL2),1)
+        SDL2CONFIG ?= sdl2-config
+        SDL2NAME ?= SDL2
+
+        SDL2VERSION:=$(strip $(shell $(SDL2CONFIG) --version))
+        ifneq ($(SDL2VERSION),)
+            SDLVERSION:=$(SDL2VERSION)
+            SDLCONFIG:=$(SDL2CONFIG)
+            SDLNAME:=$(SDL2NAME)
+            SDLROOT:=$(strip $(shell $(SDLCONFIG) --prefix))
+        endif
     endif
 endif
-
-SDL_FRAMEWORK	= 0
 
 DXROOT_OVERRIDE ?=
 SDLROOT_OVERRIDE ?=
@@ -47,12 +49,13 @@ ifneq ($(SDLROOT_OVERRIDE),)
 endif
 
 
-ifeq (4,$(GCC_MAJOR))
+ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     L_SSP := -lssp
 endif
 
 BUILDCOMMONFLAGS=$(ARCH)
 BUILDLIBS=
+BUILDLIBDIRS=
 
 ifeq ($(SUBPLATFORM),LINUX)
     STDCPPLIB:=
@@ -66,10 +69,11 @@ ifeq ($(SUBPLATFORM),LINUX)
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     GTKCOMPAT32=0
 
-    ifeq ($(findstring x86_64,$(shell uname -m)),x86_64)
+    ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
         ifeq (1,$(BUILD32_ON_64))
             # On my 64bit Gentoo these are the 32bit emulation libs
-            BUILDLIBS+= -m32 -L/emul/linux/x86/usr/lib
+            BUILDLIBS+= -m32
+            BUILDLIBDIRS+= -L/emul/linux/x86/usr/lib
             BUILDCOMMONFLAGS+= -m32
             # Override WITHOUT_GTK=0
             GTKCOMPAT32=1
@@ -83,7 +87,6 @@ ifeq ($(PLATFORM),DARWIN)
     STDCPPLIB:=-lstdc++
     BUILDCOMMONFLAGS    += -DHAVE_INTTYPES
     GTKCOMPAT32    = 0
-    SDL_FRAMEWORK    = 1
 
     ifeq (1,$(DARWIN9))
         BUILDCOMMONFLAGS += -DDARWIN9
@@ -93,7 +96,7 @@ ifeq ($(PLATFORM),DARWIN)
         ARCH=-arch i386
     else
         # ASM won't work on PowerPC or x86_64
-        override NOASM    = 1
+        override NOASM=1
     endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
@@ -102,14 +105,20 @@ ifeq ($(PLATFORM),WINDOWS)
     SDL_FRAMEWORK=1
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     EXESUFFIX=.exe
-    BUILDLIBS+= -lmingwex -lwsock32 -lcomctl32 -lwinmm
+    BUILDLIBS+= -Wl,--enable-auto-import -mwindows -lmingwex -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32
     #-lshfolder
+    #BUILDLIBDIRS+= -L$(ENETROOT)
     #STDCPPLIB:=-lstdc++
+    ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
+        ifneq (1,$(BUILD32_ON_64))
+            override NOASM=1
+        endif
+    endif
 endif
 ifeq ($(PLATFORM),BSD)
     RENDERTYPE=SDL
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
-    ifneq ($(findstring i386, $(SYSARCH)), i386)
+    ifneq ($(findstring i386,$(SYSARCH)),i386)
         override NOASM=1
     endif
     STDCPPLIB:=-lstdc++
@@ -122,21 +131,11 @@ ifeq ($(PLATFORM),SKYOS)
     RENDERTYPE=SDL
     EXESUFFIX=.app
     override NOASM=1
-    BUILDCOMMONFLAGS+= -DUNDERSCORES
+    BUILDCOMMONFLAGS+= -DUNDERSCORES -I/boot/programs/sdk/include/sdl
     SDLCONFIG=
-    SDLCONFIG_COMMONFLAGS=-I/boot/programs/sdk/include/sdl
     BUILDLIBS+= -lSDL -lnet
 endif
 ifeq ($(PLATFORM),WII)
-    ifeq ($(strip $(DEVKITPPC)),)
-    $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
-    endif
-
-    include $(DEVKITPPC)/wii_rules
-
-    RANLIB=powerpc-eabi-ranlib
-    STRIP=powerpc-eabi-strip
-
     RENDERTYPE=SDL
     EXESUFFIX=.elf
     override USE_OPENGL=0
@@ -176,30 +175,29 @@ ifneq (0,$(CLANG))
 endif
 
 ifeq ($(RENDERTYPE),SDL)
-
     ifeq ($(SDL_FRAMEWORK),1)
-        SDLCONFIG_COMMONFLAGS += -DSDL_FRAMEWORK
+        BUILDCOMMONFLAGS += -DSDL_FRAMEWORK
     endif
 
     ifneq ($(PLATFORM),WINDOWS)
         ifeq ($(SDL_FRAMEWORK),1)
             ifeq ($(PLATFORM),DARWIN)
-                SDLCONFIG_LIBS        += -Wl,-framework,SDL
-                SDLCONFIG_COMMONFLAGS+= -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers
+                BUILDLIBS        += -Wl,-framework,SDL
+                BUILDCOMMONFLAGS+= -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers
             endif
         else
             ifneq ($(SDLCONFIG),)
-                SDLCONFIG_COMMONFLAGS+=$(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
-                SDLCONFIG_LIBS+= $(shell $(SDLCONFIG) --libs)
+                SDLCONFIG_COMMONFLAGS:=$(subst -Dmain=SDL_main,,$(strip $(shell $(SDLCONFIG) --cflags)))
+                SDLCONFIG_LIBS:=$(strip $(shell $(SDLCONFIG) --libs))
+
+                BUILDLIBS+= $(SDLCONFIG_LIBS)
+                BUILDCOMMONFLAGS+= $(SDLCONFIG_COMMONFLAGS)
             endif
         endif
     else
-        SDLCONFIG_COMMONFLAGS += -D_GNU_SOURCE=1
-        SDLCONFIG_LIBS+= -lmingw32 -lSDLmain -lSDL
+        BUILDCOMMONFLAGS += -D_GNU_SOURCE=1
+        BUILDLIBS+= -lmingw32 -lSDLmain -lSDL
     endif
-
-    BUILDLIBS+= $(SDLCONFIG_LIBS)
-    BUILDCOMMONFLAGS+= $(SDLCONFIG_COMMONFLAGS)
 
     ifeq (1,$(WITHOUT_GTK))
         HAVE_GTK2=0
@@ -272,19 +270,13 @@ ifeq ($(PLATFORM),WINDOWS)
 else
     ifeq ($(PLATFORM),DARWIN)
         ifneq ($(USE_LIBPNG),0)
-            BUILDCOMMONFLAGS+= -I/opt/local/include -I/sw/include -I/usr/local/include 
-            BUILDLIBS+= -L/opt/local/lib -L/usr/local/lib -lpng # -lz
+            BUILDLIBS+= -lpng # -lz
         endif
     else
         ifneq ($(USE_LIBPNG),0)
             BUILDLIBS+= -lpng -lz
         endif
     endif
-endif
-
-ifeq ($(PLATFORM),WINDOWS)
-    BUILDLIBS+= $(L_SSP) -Wl,--enable-auto-import
-    BUILDLIBS+= -mwindows -lwsock32 -lws2_32 #-L$(ENETROOT)
 endif
 
 

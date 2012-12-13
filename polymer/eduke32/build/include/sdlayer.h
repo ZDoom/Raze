@@ -10,7 +10,7 @@
 #include "baselayer.h"
 
 #ifdef _WIN32
-int32_t win_gethinstance(void);
+HINSTANCE win_gethinstance(void);
 #endif
 
 struct sdlappicon {

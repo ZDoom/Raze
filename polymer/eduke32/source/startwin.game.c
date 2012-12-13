@@ -365,7 +365,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             return TRUE;
         case IDCDATA:
         {
-            int32_t i;
+            intptr_t i;
             if (HIWORD(wParam) != LBN_SELCHANGE) break;
             i = ListBox_GetCurSel((HWND)lParam);
             if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
@@ -603,7 +603,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
     case WM_CTLCOLORSTATIC:
         if ((HWND)lParam == pages[TAB_MESSAGES])
-            return (BOOL)GetSysColorBrush(COLOR_WINDOW);
+            return (BOOL)(intptr_t)GetSysColorBrush(COLOR_WINDOW);
         break;
 
     default:

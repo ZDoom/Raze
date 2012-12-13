@@ -4,14 +4,17 @@
 #ifndef __build_interface_layer__
 #define __build_interface_layer__ WIN
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 extern uint32_t maxrefreshfreq;
 
 extern int32_t glusecds;
 
 extern char di_disabled;
 
-int32_t win_gethwnd(void);
-int32_t win_gethinstance(void);
+HWND win_gethwnd(void);
+HINSTANCE win_gethinstance(void);
 
 extern void idle_waitevent_timeout(uint32_t timeout);
 

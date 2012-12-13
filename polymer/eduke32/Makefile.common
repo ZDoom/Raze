@@ -30,19 +30,43 @@ ifneq (0,$(CLANG))
 #    RANLIB=llvm-ranlib
 endif
 
+
+ifeq ($(PLATFORM),WII)
+    ifeq ($(strip $(DEVKITPPC)),)
+        $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
+    endif
+
+    include $(DEVKITPPC)/wii_rules
+
+    RANLIB=powerpc-eabi-ranlib
+    STRIP=powerpc-eabi-strip
+endif
+
 # GCC version, for conditional selection of flags.
-# This is easier than trying to squeeze it out of gcc --version:
-GCC_MAJOR?=4
+ifndef GCC_MAJOR
+    GCC_MAJOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f1)
+endif
+ifeq ($(GCC_MAJOR),)
+    GCC_MAJOR    := 4
+endif
+ifndef GCC_MINOR
+    GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
+endif
+ifeq ($(GCC_MINOR),)
+    GCC_MINOR    := 7
+endif
 
 # Detect machine architecture
-SYSARCH?=$(strip $(shell uname -m))
+ifndef SYSARCH
+    SYSARCH:=$(strip $(shell uname -m))
+endif
 
 # Detect the platform if it wasn't explicitly given to us from
 # the outside world. This allows cross-compilation by overriding
 # CC and giving us PLATFORM specifically.
 #
 ifndef PLATFORM
-    uname=$(strip $(shell uname -s))
+    uname:=$(strip $(shell uname -s))
     PLATFORM=UNKNOWN
     ifeq ($(findstring Linux,$(uname)),Linux)
         PLATFORM=LINUX
@@ -89,14 +113,16 @@ ifndef SUBPLATFORM
     endif
 endif
 
+
+
 # Binary suffix override:
 EXESUFFIX_OVERRIDE ?=
 
 # Mac OS X Frameworks location
 # Like above, use absolute paths.
 APPLE_FRAMEWORKS ?=/Library/Frameworks
-# Since the OS X startup window is generating errors, disable it by default.
-OSX_STARTUPWINDOW ?= 0
+# Since the OS X startup window is generating errors, give it an off switch.
+OSX_STARTUPWINDOW ?= 1
 
 # Engine options
 #  USE_OPENGL     - enables basic OpenGL Polymost renderer
@@ -152,10 +178,7 @@ ifndef LTO
     endif
 endif
 
-ifeq (4,$(GCC_MAJOR))
-endif
-
-ifeq (4,$(GCC_MAJOR))
+ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     F_NO_STACK_PROTECTOR := -fno-stack-protector
     # there are some link-time issues with stack protectors, so make it possible to override
     F_STACK_PROTECTOR_ALL ?= -fstack-protector-all
@@ -167,8 +190,24 @@ ifeq (4,$(GCC_MAJOR))
     W_STRICT_OVERFLOW := -Wstrict-overflow=1
 endif
 
+ifeq ($(PLATFORM),WINDOWS)
+    ifndef COMPILERTARGET
+        COMPILERTARGET:=$(strip $(shell $(CC) -dumpmachine))
+    endif
+
+    WINBITS=32
+    ifeq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
+        SYSARCH:=x86_64
+        WINBITS=64
+    endif
+
+    WINLIB?=/$(WINBITS)
+endif
+
 ifeq ($(PLATFORM),DARWIN)
-    DARWINVERSION?=$(strip $(shell uname -r | cut -d . -f 1))
+    ifndef DARWINVERSION
+        DARWINVERSION:=$(strip $(shell uname -r | cut -d . -f 1))
+    endif
     ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 10)))
         DARWIN9 ?= 1
     endif
@@ -221,11 +260,18 @@ endif
 
 
 # compiler flags etc.
-BASECFLAGS= -Wno-attributes
+BASECFLAGS=
 BASECONLYFLAGS=-Wimplicit -Wdeclaration-after-statement
 BASECXXFLAGS= -fno-exceptions -fno-rtti -fpermissive -Wno-write-strings -Wno-narrowing
 BASEASFLAGS=-s #-g
 BASELDFLAGS=
+
+
+ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
+    ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 1)))
+        BASECFLAGS+= -Wno-attributes
+    endif
+endif
 
 ifeq ($(PLATFORM),WII)
     override USE_LIBPNG = 0
@@ -233,6 +279,7 @@ ifeq ($(PLATFORM),WII)
 endif
 
 BASELIBS=-lm
+BASELIBDIRS=
 ifneq (0,$(USE_LIBVPX))
     # On Windows, we link statically to libvpx
     BASELIBS+= -lvpx
@@ -255,6 +302,14 @@ ifneq (0,$(RELEASE))
     debug+= -O$(OPTLEVEL)
     ifeq (0,$(CLANG))
         debug+= -funswitch-loops
+        ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \< 4)))
+            LTO=0
+        endif
+        ifeq (1,$(strip $(shell expr $(GCC_MAJOR) = 4)))
+            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 6)))
+                LTO=0
+            endif
+        endif
     endif
     ifeq (0,$(DEBUGANYWAY))
         debug+= -fomit-frame-pointer -DNDEBUG
@@ -290,8 +345,9 @@ else
         debug+= -fmudflapth
     endif
     ifneq (0,$(PROFILER))
-        # might need to be disabled for Darwin:
-        BASELIBS+= -lprofiler
+        ifneq ($(PLATFORM),DARWIN)
+            BASELIBS+= -lprofiler
+        endif
         debug+= -pg
     endif
     ifneq (0,$(KRANDDEBUG))
@@ -299,12 +355,15 @@ else
     endif
 endif
 
+W_NO_UNUSED_RESULT :=
 ifeq (0,$(CLANG))
 #    W_NO_UNUSED_RESULT := $(shell echo '' | $(CC) -E -Wno-unused-result - 2>/dev/null && echo -Wno-unused-result)
 #    W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
-    W_NO_UNUSED_RESULT := -Wno-unused-result
-else
-    W_NO_UNUSED_RESULT :=
+    ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
+        ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 4)))
+            W_NO_UNUSED_RESULT := -Wno-unused-result
+        endif
+    endif
 endif
 
 CWARNS := -W -Wall -Werror-implicit-function-declaration \
@@ -330,12 +389,15 @@ endif
 
 # Set up target-specific headers and libs that work across all Makefiles
 ifeq ($(PLATFORM),WINDOWS)
-    BASELIBS+= -L$(abspath $(dir $(MAKEFILE_COMMON))Windows/lib)
+    BASELIBDIRS+= -L$(abspath $(dir $(MAKEFILE_COMMON))Windows/lib$(WINLIB))
     BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))Windows/include)
 endif
 ifeq ($(PLATFORM),DARWIN)
-    BASELIBS+= -L$(abspath $(dir $(MAKEFILE_COMMON))Apple/lib)
-    BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))Apple/include)
+    # include port and brew
+    BASELIBDIRS+= -L$(abspath $(dir $(MAKEFILE_COMMON))Apple/lib) \
+        -L/opt/local/lib -L/usr/local/lib
+    BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))Apple/include) \
+        -I/opt/local/include -I/sw/include -I/usr/local/include
 endif
 
 #### Lunatic development, do not touch!

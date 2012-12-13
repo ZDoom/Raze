@@ -16,6 +16,9 @@ o=obj
 res=res
 asm=masm
 
+# When we support 64-bit targets with MSVC, if a 64-bit build is selected:
+# NOASM=1
+
 ENGINELIB=engine.lib
 EDITORLIB=build.lib
 

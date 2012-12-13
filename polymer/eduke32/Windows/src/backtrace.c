@@ -43,7 +43,13 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "compat.h"
+#include <stdint.h>
+
+#if defined __GNUC__ || defined __clang__
+# define ATTRIBUTE(attrlist) __attribute__(attrlist)
+#else
+# define ATTRIBUTE(attrlist)
+#endif
 
 #define BUFFER_MAX (16*1024)
 

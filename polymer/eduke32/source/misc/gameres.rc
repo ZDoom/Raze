@@ -77,4 +77,8 @@ BEGIN
     END
 END
 
-1 24 "rsrc/manifest.game.xml"
+#if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
+1 24 "rsrc/64/manifest.game.xml"
+#else
+1 24 "rsrc/32/manifest.game.xml"
+#endif

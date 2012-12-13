@@ -194,18 +194,18 @@ static struct _joydef
 //
 // win_gethwnd() -- gets the window handle
 //
-int32_t win_gethwnd(void)
+HWND win_gethwnd(void)
 {
-    return (int32_t)hWindow;
+    return hWindow;
 }
 
 
 //
 // win_gethinstance() -- gets the application instance
 //
-int32_t win_gethinstance(void)
+HINSTANCE win_gethinstance(void)
 {
-    return (int32_t)hInstance;
+    return hInstance;
 }
 
 

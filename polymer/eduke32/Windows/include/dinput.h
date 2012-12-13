@@ -20,6 +20,8 @@
 
 #endif /* DIJ_RINGZERO */
 
+#include "dx_compat.h" // EDuke32
+
 #ifdef __cplusplus
 extern "C" {
 #endif

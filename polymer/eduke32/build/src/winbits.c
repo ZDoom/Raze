@@ -12,6 +12,14 @@
 # include "nedmalloc.h"
 #endif
 
+#if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
+# define EBACKTRACEDLL "ebacktrace1-64.dll"
+# define NEDMALLOCDLL "nedmalloc-64.dll"
+#else
+# define EBACKTRACEDLL "ebacktrace1.dll"
+# define NEDMALLOCDLL "nedmalloc.dll"
+#endif
+
 int32_t backgroundidle = 1;
 
 int64_t win_timerfreq = 0;
@@ -174,7 +182,7 @@ static void ToggleDesktopComposition(BOOL compEnable)
 void win_open(void)
 {
 #ifndef DEBUGGINGAIDS
-    if ((nedhandle = LoadLibrary("nedmalloc.dll")))
+    if ((nedhandle = LoadLibrary(NEDMALLOCDLL)))
     {
 #ifdef __cplusplus
         nedalloc::nedpool_t *(WINAPI *nedcreatepool)(size_t, int);
@@ -186,7 +194,7 @@ void win_open(void)
             nedcreatepool(SYSTEM_POOL_SIZE, -1);
     }
 #else
-    LoadLibraryA("ebacktrace1.dll");
+    LoadLibraryA(EBACKTRACEDLL);
 /*
         wm_msgbox("boo","didn't load backtrace DLL (code %d)\n", (int)GetLastError());
     else

@@ -41,12 +41,12 @@
 #endif
 
 #ifndef _MSC_VER
-#  if defined(__GNUC__) && defined(__i386__)
-#    ifndef __fastcall
+#  ifndef __fastcall
+#    if defined(__GNUC__) && defined(__i386__)
 #      define __fastcall __attribute__((fastcall))
+#    else
+#      define __fastcall
 #    endif
-#  else
-#    define __fastcall
 #  endif
 #endif
 

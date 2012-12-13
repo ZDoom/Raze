@@ -9,6 +9,16 @@ INC=$(SRC)
 RSRC=rsrc
 o=obj
 
+WINLIB=\32
+DXLIB=\x86
+
+# When we support 64-bit targets with MSVC, if a 64-bit build is selected:
+# WINLIB=\64
+# DXLIB=\x64 # Presumably. Could be x86_64, amd64, etc.
+# verify if anything needs to happen with vorbisfile_static.lib vorbis_static.lib ogg_static.lib
+
+# TODO: add MSVC support for libvpx, libpng, zlib
+
 JAUDIOLIBDIR=$(SRC)\jaudiolib
 JAUDIOLIB=libjfaudiolib.lib
 
@@ -150,12 +160,12 @@ EDITOROBJS=$(OBJ)\astub.$o \
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) # duke3d_w32$(EXESUFFIX);
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB) $(ENETDIR)\$(ENETLIB)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86 $(flags_link) /MAP $** $(LIBS) 
-	$(MT) -manifest $(RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib$(DXLIB) $(flags_link) /MAP $** $(LIBS)
+	$(MT) -manifest $(RSRC)$(WINLIB)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86 $(flags_link) /MAP $** $(LIBS) 
-	$(MT) -manifest $(RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib$(DXLIB) $(flags_link) /MAP $** $(LIBS)
+	$(MT) -manifest $(RSRC)$(WINLIB)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 !include Makefile.deps
 

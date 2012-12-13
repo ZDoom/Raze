@@ -996,7 +996,7 @@ policies...
 		void policy_throwbadalloc(size_t bytes) const
 		{
             UNREFERENCED_PARAMETER(bytes);
-#ifndef DISABLE_EXCEPTIONS
+#if defined __EXCEPTIONS && !defined DISABLE_EXCEPTIONS
 			throw std::bad_alloc();
 #endif
 		}
@@ -1213,7 +1213,7 @@ namespace nedpolicy
 			void policy_throwbadalloc(size_t bytes) const
 			{
                 UNREFERENCED_PARAMETER(bytes);
-#ifndef DISABLE_EXCEPTIONS
+#if defined __EXCEPTIONS && !defined DISABLE_EXCEPTIONS
 				throw T();
 #endif
 			}

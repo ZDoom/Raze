@@ -643,7 +643,7 @@ static int32_t C_SetScriptSize(int32_t size)
 
     if (script != newscript)
     {
-        initprintf("Relocating compiled code from to 0x%lx to 0x%lx\n", (unsigned long)script, (unsigned long)newscript);
+        initprintf("Relocating compiled code from to 0x%" PRIxPTR " to 0x%" PRIxPTR "\n", (intptr_t)script, (intptr_t)newscript);
         script = newscript;
     }
 

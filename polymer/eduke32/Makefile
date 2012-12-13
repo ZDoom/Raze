@@ -39,6 +39,7 @@ GAMELDFLAGS=
 EDITORLDFLAGS=
 
 LIBS=
+LIBDIRS=
 
 JAUDIOLIBDIR=$(SRC)/jaudiolib
 JAUDIOLIB=libjfaudiolib.a
@@ -55,16 +56,8 @@ endif
 
 include $(EROOT)/Makefile.shared
 
-OURLIBS=$(LIBS) $(BASELIBS) $(BUILDLIBS)
-
-
-ifneq (0,$(USE_LIBVPX))
-    ifeq ($(PLATFORM),DARWIN)
-        # vpx headers and lib from 'port install libvpx' or 'brew install libvpx'
-        LIBS+= -L/opt/local/lib -L/usr/local/lib
-        OURCOMMONFLAGS+= -I/opt/local/include -I/usr/local/include
-    endif
-endif
+# The reasoning for this order is so SDL_mixer can link to SDL, etc.
+OURLIBS=$(LIBDIRS) $(BASELIBDIRS) $(BUILDLIBDIRS) $(LIBS) $(BASELIBS) $(BUILDLIBS)
 
 
 EDUKE32 ?= eduke32$(EXESUFFIX)
@@ -81,17 +74,9 @@ EBACKTRACEDLL_TARGET:=$(EBACKTRACEDLL)
 ifeq ($(PLATFORM),WINDOWS)
     OBJ=obj_win
     EOBJ=eobj_win
-    LIBS+= $(L_SSP) -Wl,--enable-auto-import
 else
     ifeq ($(SUBPLATFORM),LINUX)
-        LIBS+= -ldl -lrt
-    endif
-    LIBS+= -pthread
-    ifneq (0,$(PROFILER))
-        ifneq ($(PLATFORM),DARWIN)
-            LIBS+= -lprofiler
-        endif
-        debug+= -pg
+        LIBS+= -lrt
     endif
     OBJ=obj
     EOBJ=eobj
@@ -203,7 +188,8 @@ ifeq ($(SUBPLATFORM),LINUX)
 endif
 
 ifeq ($(PLATFORM),WII)
-    LIBS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib -lvorbisidec -lfreetype -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
+    LIBS += -lvorbisidec -lfreetype -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
+    LIBDIRS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib
 endif
 
 ifeq ($(PLATFORM),DARWIN)
@@ -223,7 +209,7 @@ ifeq ($(PLATFORM),DARWIN)
         OURCOMMONFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                 -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
 
-        LIBS += -LApple/lib -lvorbisfile -lvorbis -logg -lm \
+        LIBS += -lvorbisfile -lvorbis -logg -lm \
                 -Wl,-framework,SDL -Wl,-framework,SDL_mixer Apple/lib/libSDLmain.a \
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
@@ -253,7 +239,8 @@ endif
 ifeq ($(PLATFORM),WINDOWS)
     OURCOMMONFLAGS	+= -fno-pic -DUNDERSCORES
     OURASFLAGS+= -DUNDERSCORES -f win32
-    LIBS		+= -L$(JAUDIOLIBDIR)/third-party/mingw32/lib -lvorbisfile -lvorbis -logg -lwsock32 -lws2_32 -lwinmm
+    LIBS += -lvorbisfile -lvorbis -logg
+    LIBDIRS += -L$(abspath $(JAUDIOLIBDIR)/third-party/mingw32/lib$(WINLIB))
     GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o
     EDITOROBJS+= $(OBJ)/buildres.$o
     JAUDIOLIB=libjfaudiolib_win32.a
@@ -268,7 +255,8 @@ endif
 ifeq ($(RENDERTYPE),SDL)
     ifeq ($(PLATFORM),WINDOWS)
         OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
-        LIBS+= Windows/lib/SDL_mixer.lib -L$(SDLROOT)/lib
+        LIBS+= Windows/lib$(WINLIB)/SDL_mixer.lib
+        LIBDIRS+= -L$(SDLROOT)/lib
     else
         ifneq ($(PLATFORM),DARWIN)
             LIBS+= -l$(SDLNAME)_mixer
@@ -289,7 +277,9 @@ endif
 OURCOMMONFLAGS+= $(BUILDCOMMONFLAGS)
 
 ifeq ($(PLATFORM),WINDOWS)
-    PRINTLDFLAGS+= -Wl,--large-address-aware
+    ifneq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
+        PRINTLDFLAGS+= -Wl,--large-address-aware
+    endif
 endif
 #ifneq (0,$(KRANDDEBUG))
 ifeq ($(PLATFORM),DARWIN)

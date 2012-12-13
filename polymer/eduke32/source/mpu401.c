@@ -114,7 +114,7 @@ void MPU_Unpause(void)
 }
 
 
-void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
+void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2)
 {
     int32_t i;
 
@@ -127,7 +127,7 @@ void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWO
         midiOutUnprepareHeader((HMIDIOUT)handle, (MIDIHDR *)dwParam1, sizeof(MIDIHDR));
         for (i=0; i<NUMBUFFERS; i++)
         {
-            if (dwParam1 == (uint32_t)&bufferheaders[i])
+            if ((MIDIHDR *)dwParam1 == &bufferheaders[i])
             {
                 eventcnt[i] = 0;	// marks the buffer as free
 //					printf("Finished buffer %d\n",i);
@@ -280,7 +280,7 @@ int32_t MPU_Init
 
     if (midiOutGetDevCaps(mididevice, &midicaps, sizeof(MIDIOUTCAPS)) != MMSYSERR_NOERROR) return MPU_Error;
 
-    if (midiStreamOpen(&hmido,(LPUINT)&mididevice,1,(DWORD)MPU_MIDICallback,0L,CALLBACK_FUNCTION) != MMSYSERR_NOERROR) return(MPU_Error);
+    if (midiStreamOpen(&hmido,(LPUINT)&mididevice,1,(DWORD_PTR)MPU_MIDICallback,0L,CALLBACK_FUNCTION) != MMSYSERR_NOERROR) return(MPU_Error);
 
     return(MPU_Ok);
 }
