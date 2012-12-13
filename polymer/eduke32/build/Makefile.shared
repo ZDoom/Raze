@@ -68,6 +68,7 @@ ifeq ($(SUBPLATFORM),LINUX)
     RENDERTYPE=SDL
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     GTKCOMPAT32=0
+    SDL_FRAMEWORK=0
 
     ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
         ifeq (1,$(BUILD32_ON_64))

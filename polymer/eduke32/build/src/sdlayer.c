@@ -39,11 +39,11 @@
 # include "gtkbits.h"
 #endif
 
-#if (!defined __APPLE__ && !defined HAVE_GTK2) || (defined __APPLE__) // && defined __BIG_ENDIAN__)
-#undef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(x) x=x
+#if defined __APPLE__ || !defined HAVE_GTK2
+# undef UNREFERENCED_PARAMETER
+# define UNREFERENCED_PARAMETER(x) x=x
 
-# if !defined _WIN32 && !defined OSX_STARTUPWINDOW
+# if !defined _WIN32 && (!defined __APPLE__ || !defined OSX_STARTUPWINDOW)
 int32_t startwin_open(void) { return 0; }
 int32_t startwin_close(void) { return 0; }
 int32_t startwin_puts(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
