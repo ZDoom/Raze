@@ -5542,8 +5542,12 @@ static void Keys3d(void)
                         else
                         {
                             clamped = addtobyte(&AIMED_CF_SEL(shade), tsign);
+                            // TODO: factor formatting stuff out and use elsewhere?
                             (clamped ? message : silentmessage)
-                                ("%s %d shade %d%s", Typestr[searchstat], i,
+                                ("%s %s%d shade %d%s", Typestr[searchstat],
+                                 AIMING_AT_CEILING_OR_FLOOR ? "of sector " : "",
+                                 AIMING_AT_WALL_OR_MASK ? SELECT_WALL() :
+                                     (AIMING_AT_CEILING_OR_FLOOR ? searchsector : searchwall),
                                  AIMED_CF_SEL(shade), clamped ? " (clamped)":"");
                         }
                     }
