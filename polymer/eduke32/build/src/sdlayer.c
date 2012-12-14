@@ -1662,8 +1662,6 @@ void resetvideomode(void)
 //
 void begindrawing(void)
 {
-    int32_t i,j;
-
     if (bpp > 8)
     {
         if (offscreenrendering) return;
@@ -1685,10 +1683,9 @@ void begindrawing(void)
     if (sdl_surface->pitch != bytesperline || modechange)
     {
         bytesperline = sdl_surface->pitch;
-        setvlinebpl(bytesperline);
 
-        j = 0;
-        for (i=0; i<=ydim; i++) ylookup[i] = j, j += bytesperline;
+        calc_ylookup(bytesperline, ydim);
+
         modechange=0;
     }
 }

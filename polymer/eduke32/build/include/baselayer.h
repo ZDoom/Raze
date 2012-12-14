@@ -40,6 +40,8 @@ extern char offscreenrendering;
 
 extern void (*baselayer_onvideomodechange)(int32_t);
 
+void calc_ylookup(int32_t bpl, int32_t lastyidx);
+
 #ifdef USE_OPENGL
 void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f);
 extern int32_t osdcmd_glinfo(const osdfuncparm_t *parm);

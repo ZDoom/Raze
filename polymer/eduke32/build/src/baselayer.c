@@ -5,6 +5,7 @@
 
 #include "renderlayer.h"
 
+#include "a.h"
 #include "polymost.h"
 
 // input
@@ -124,6 +125,22 @@ void readjoybstatus(int32_t *b)
 {
     if (!appactive) { *b = 0; return; }
     *b = joyb;
+}
+
+// Calculate ylookup[] and call setvlinebpl()
+void calc_ylookup(int32_t bpl, int32_t lastyidx)
+{
+    int32_t i, j=0;
+
+    Bassert(lastyidx <= MAXYDIM);
+
+    for (i=0; i<=lastyidx; i++)
+    {
+        ylookup[i] = j;
+        j += bpl;
+    }
+
+    setvlinebpl(bpl);
 }
 
 #ifdef USE_OPENGL

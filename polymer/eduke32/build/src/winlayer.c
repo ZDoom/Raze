@@ -1908,13 +1908,7 @@ void begindrawing(void)
         bytesperline = xres|1;
     }
 
-    setvlinebpl(bytesperline);
-
-    {
-        int32_t i = 0, j = 0;
-        for (; i<=ydim; i++)
-            ylookup[i] = j, j += bytesperline;
-    }
+    calc_ylookup(bytesperline, ydim);
 }
 
 

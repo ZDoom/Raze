@@ -10312,7 +10312,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 extern char videomodereset;
 int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp)
 {
-    int32_t i, j;
+    int32_t j;
 
 #ifdef USE_OPENGL
     extern char nogl;
@@ -10370,9 +10370,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     //Force drawrooms to call dosetaspect & recalculate stuff
     oxyaspect = oxdimen = oviewingrange = -1;
 
-    setvlinebpl(bytesperline);
-    j = 0;
-    for (i=0; i<=ydim; i++) ylookup[i] = j, j += bytesperline;
+    calc_ylookup(bytesperline, ydim);
 
     setview(0L,0L,xdim-1,ydim-1);
     clearallviews(0L);
@@ -14066,8 +14064,6 @@ char getpixel(int32_t x, int32_t y)
 //
 void setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
-    int32_t i, j;
-
     //DRAWROOMS TO TILE BACKUP&SET CODE
     tilesizx[tilenume] = xsiz; tilesizy[tilenume] = ysiz;
     bakxsiz[setviewcnt] = xsiz; bakysiz[setviewcnt] = ysiz;
@@ -14089,8 +14085,8 @@ void setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     offscreenrendering = 1;
     setview(0,0,ysiz-1,xsiz-1);
     setaspect(65536,65536);
-    j = 0; for (i=0; i<=xsiz; i++) { ylookup[i] = j, j += ysiz; }
-    setvlinebpl(ysiz);
+
+    calc_ylookup(ysiz, xsiz);
 }
 
 
@@ -14100,7 +14096,7 @@ void setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 extern char modechange;
 void setviewback(void)
 {
-    int32_t i, j, k;
+    int32_t k;
 
     if (setviewcnt <= 0) return;
     setviewcnt--;
@@ -14119,12 +14115,13 @@ void setviewback(void)
     copybufbyte(&bakumost[windowx1],&startumost[windowx1],(windowx2-windowx1+1)*sizeof(startumost[0]));
     copybufbyte(&bakdmost[windowx1],&startdmost[windowx1],(windowx2-windowx1+1)*sizeof(startdmost[0]));
     frameplace = bakframeplace[setviewcnt];
+
     if (setviewcnt == 0)
         k = bakxsiz[0];
     else
         k = max(bakxsiz[setviewcnt-1],bakxsiz[setviewcnt]);
-    j = 0; for (i=0; i<=k; i++) ylookup[i] = j, j += bytesperline;
-    setvlinebpl(bytesperline);
+    calc_ylookup(bytesperline, k);
+
     modechange=1;
 }
 
