@@ -2052,8 +2052,8 @@ cheat_for_port_credits:
             minitext(160-(Bstrlen(p)<<1), 138+10-l, p, 8, 10+16+128);
 
             p = "Visit www.eduke32.com for news and updates";
-            minitext(161-(Bstrlen(p)<<1), 136+10+10+10+10+4-l, p, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 135+10+10+10+10+4-l, p, 8, 10+16+128);
+            minitext(161-(Bstrlen(p)<<1), 139+10+10+10+10+4-l, p, 4, 10+16+128);
+            minitext(160-(Bstrlen(p)<<1), 138+10+10+10+10+4-l, p, 8, 10+16+128);
             break;
 
         case MENU_CREDITS5:
@@ -2064,7 +2064,7 @@ cheat_for_port_credits2:
             if (g_scriptVersion == 13) l = (-2);
             mgametext(160,38-l,"License and Other Contributors",0,2+8+16);
             {
-                const char *scroller[] =
+                const char *header[] =
                 {
                     "This program is distributed under the terms of the",
                     "GNU General Public License version 2 as published by the",
@@ -2072,6 +2072,9 @@ cheat_for_port_credits2:
                     " ",
                     "Thanks to the following people for their contributions:",
                     " ",
+                };
+                const char *body[] =
+                {
                     "Adam Fazakerley",   // netcode NAT traversal
                     "Alan Ondra",        // testing
                     "Bioman",            // GTK work, APT repository and package upkeep
@@ -2102,41 +2105,42 @@ cheat_for_port_credits2:
                     "Stephen Anthony",   // early 64-bit porting work
                     "tueidj",            // Wii port
                     " ",
+                };
+                const char *footer[] =
+                {
                     " ",
                     "BUILD engine technology available under BUILDLIC.",
-                    " ",
-                    "--x--",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " ",
-                    " "
                 };
-                const int32_t numlines = sizeof(scroller)/sizeof(char *);
-                for (m=0,i=(totalclock/104)%numlines; m<18; m++,i++)
+
+                const int32_t header_numlines = sizeof(header)/sizeof(char *);
+                const int32_t body_numlines = sizeof(body)/sizeof(char *);
+                const int32_t footer_numlines = sizeof(footer)/sizeof(char *);
+
+                i = 0;
+                for (m=0; m<header_numlines; m++)
                 {
-                    if (i==numlines) i=0;
-                    minitext(161-(Bstrlen(scroller[i])<<1), 18+10+10+8+4+(m*7)-l, scroller[i], 4, 10+16+128);
-                    minitext(160-(Bstrlen(scroller[i])<<1), 17+10+10+8+4+(m*7)-l, scroller[i], 8, 10+16+128);
+                    minitext(161-(Bstrlen(header[m])<<1), 18+10+10+8+4+(m*7)-l, header[m], 4, 10+16+128);
+                    minitext(160-(Bstrlen(header[m])<<1), 17+10+10+8+4+(m*7)-l, header[m], 8, 10+16+128);
+                }
+                i += m;
+#define CCOLUMNS 3
+#define CCOLXBUF 20
+                for (m=0; m<body_numlines; m++)
+                {
+                    minitext(CCOLXBUF+((320-CCOLXBUF*2)/(CCOLUMNS*2))+1+((320-CCOLXBUF*2)/CCOLUMNS)*(m/(body_numlines/CCOLUMNS))-(Bstrlen(body[m])<<1), 18+10+10+8+4+((m%(body_numlines/CCOLUMNS))*7)+(i*7)-l, body[m], 4, 10+16+128);
+                    minitext(CCOLXBUF+((320-CCOLXBUF*2)/(CCOLUMNS*2))  +((320-CCOLXBUF*2)/CCOLUMNS)*(m/(body_numlines/CCOLUMNS))-(Bstrlen(body[m])<<1), 17+10+10+8+4+((m%(body_numlines/CCOLUMNS))*7)+(i*7)-l, body[m], 8, 10+16+128);
+                }
+                i += m/CCOLUMNS;
+                for (m=0; m<footer_numlines; m++)
+                {
+                    minitext(161-(Bstrlen(footer[m])<<1), 18+10+10+8+4+(m*7)+(i*7)-l, footer[m], 4, 10+16+128);
+                    minitext(160-(Bstrlen(footer[m])<<1), 17+10+10+8+4+(m*7)+(i*7)-l, footer[m], 8, 10+16+128);
                 }
             }
 
             p = "Visit www.eduke32.com for news and updates";
-            minitext(161-(Bstrlen(p)<<1), 136+10+10+10+10+4-l, p, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 135+10+10+10+10+4-l, p, 8, 10+16+128);
+            minitext(161-(Bstrlen(p)<<1), 139+10+10+10+10+4-l, p, 4, 10+16+128);
+            minitext(160-(Bstrlen(p)<<1), 138+10+10+10+10+4-l, p, 8, 10+16+128);
 
             break;
         }
