@@ -3388,7 +3388,8 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 
         if (g_mirrorCount==0)
         {
-            // XXX: can we have g_mirrorCount==0 but gotpic'd MIRROR?
+            // NOTE: We can have g_mirrorCount==0 but gotpic'd MIRROR,
+            // for example in LNGA2.
             gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
 #ifdef DEBUGGINGAIDS
             initprintf("Called G_HandleMirror() with g_mirrorCount==0!\n");
@@ -8154,6 +8155,7 @@ static void G_ShowDebugHelp(void)
 #endif
               "-nologo\t\tSkip the logo anim\n"
               "-ns/-nm\t\tDisable sound or music\n"
+              "-rotatesprite-no-widescreen\tpass bit 1024 to all CON rotatesprite calls\n"
               "-q#\t\tFake multiplayer with # (2-8) players\n"
               "-z#/-condebug\tEnable line-by-line CON compile debugging at level #\n"
               "-conversion YYYYMMDD\tSelects CON script version for compatibility with older mods\n"
@@ -8904,6 +8906,12 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 if (!Bstrcasecmp(c+1,"nologo"))
                 {
                     g_noLogo = 1;
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"rotatesprite-no-widescreen"))
+                {
+                    g_rotatespriteNoWidescreen = 1;
                     i++;
                     continue;
                 }
