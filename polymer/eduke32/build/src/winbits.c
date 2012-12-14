@@ -215,7 +215,7 @@ void win_init(void)
 
 void win_setvideomode(int32_t c)
 {
-    if (osv.dwMajorVersion >= 6)
+    if (osv.dwMajorVersion >= 6 && osv.dwMinorVersion < 2)
         ToggleDesktopComposition(c < 16);
 }
 
