@@ -30,8 +30,9 @@ EDITORLIB=build.lib
 
 # the WDK allows us to link against msvcrt.dll instead of msvcrxxx.dll
 # this path should match build\Makefile.msvc
-WDKROOT="H:\WinDDK\7600.16385.1"
-DXROOT="H:\Microsoft DirectX SDK (February 2010)"
+# WDKROOT="H:\WinDDK\7600.16385.1"
+DXROOT="C:\SDKs\Microsoft DirectX SDK (February 2010)"
+VORBISSDK="C:\SDKs\oggvorbis-win32sdk-1.0.1"
 
 !ifdef DEBUG
 # debugging options
@@ -56,7 +57,7 @@ MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
 	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(ENETDIR)\include \
  	/W2 $(ENGINEOPTS) \
- 	/I$(DXROOT)\include /DRENDERTYPEWIN=1
+ 	/I$(DXROOT)\include /I$(VORBISSDK)\include /DRENDERTYPEWIN=1
  	
 LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib dxguid.lib comctl32.lib \
      vorbisfile_static.lib vorbis_static.lib ogg_static.lib dsound.lib advapi32.lib   
@@ -160,11 +161,11 @@ EDITOROBJS=$(OBJ)\astub.$o \
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) # duke3d_w32$(EXESUFFIX);
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB) $(ENETDIR)\$(ENETLIB)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib$(DXLIB) $(flags_link) /MAP $** $(LIBS)
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib$(DXLIB) /LIBPATH:$(VORBISSDK)\lib $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $(RSRC)$(WINLIB)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib$(DXLIB) $(flags_link) /MAP $** $(LIBS)
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib$(DXLIB) /LIBPATH:$(VORBISSDK)\lib $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $(RSRC)$(WINLIB)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 !include Makefile.deps

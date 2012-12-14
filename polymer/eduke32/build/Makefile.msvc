@@ -23,7 +23,7 @@ ENGINELIB=engine.lib
 EDITORLIB=build.lib
 
 # this path should match eduke32\Makefile.msvc
-WDKROOT="H:\WinDDK\7600.16385.1"
+# WDKROOT="H:\WinDDK\7600.16385.1"
 
 # /D these to enable certain features of the port's compile process
 # NOASM     When defined, uses C instead of assembly code

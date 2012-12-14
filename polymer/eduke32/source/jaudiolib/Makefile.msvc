@@ -18,8 +18,8 @@ flags_lib=/LTCG
 CC=cl
 LINK=link /opt:ref /nologo
 
-DXROOT=U:\SDKs\Microsoft DirectX SDK (April 2007)
-VORBISSDK=U:\SDKs\oggvorbis-win32sdk-1.0.1
+DXROOT=C:\SDKs\Microsoft DirectX SDK (April 2010)
+VORBISSDK=C:\SDKs\oggvorbis-win32sdk-1.0.1
 
 CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(SRC) /I"$(VORBISSDK)\include" /I"$(DXROOT)\include"
 !ifdef DEBUG
