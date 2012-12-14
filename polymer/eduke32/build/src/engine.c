@@ -3393,6 +3393,17 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
     return(bad);
 }
 
+// globalpicnum --> globalxshift, globalyshift
+static void calc_globalshifts(void)
+{
+    globalxshift = (8-(picsiz[globalpicnum]&15));
+    globalyshift = (8-(picsiz[globalpicnum]>>4));
+    if (globalorientation&8) { globalxshift++; globalyshift++; }
+    // PK: the following can happen for large (>= 512) tile sizes.
+    // NOTE that global[xy]shift are unsigned chars.
+    if (globalxshift > 31) globalxshift=0;
+    if (globalyshift > 31) globalyshift=0;
+}
 
 static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
                                  int32_t picnum, int32_t shade, int32_t stat,
@@ -3451,9 +3462,8 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
     }
     globalx2 = mulscale16(globalx2,viewingrangerecip);
     globaly1 = mulscale16(globaly1,viewingrangerecip);
-    globalxshift = (8-(picsiz[globalpicnum]&15));
-    globalyshift = (8-(picsiz[globalpicnum]>>4));
-    if (globalorientation&8) { globalxshift++; globalyshift++; }
+
+    calc_globalshifts();
 
     if ((globalorientation&0x4) > 0)
     {
@@ -9217,9 +9227,8 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 globalx2 = mulscale12(globalx2,i);
                 globaly2 = mulscale12(globaly2,i);
             }
-            globalxshift = (8-(picsiz[globalpicnum]&15));
-            globalyshift = (8-(picsiz[globalpicnum]>>4));
-            if (globalorientation&8) {globalxshift++; globalyshift++; }
+
+            calc_globalshifts();
 
             sethlinesizes(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4,globalbufplc);
 
