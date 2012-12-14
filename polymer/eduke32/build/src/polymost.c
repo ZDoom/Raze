@@ -2289,9 +2289,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         {
             float pc[4];
-            int32_t shadebound = (shadescale_unbounded || globalshade>=numshades) ? numshades : numshades-1;
-            f = ((float)(numshades-min(max((globalshade * shadescale),0),shadebound)))/((float)numshades);
-            pc[0] = pc[1] = pc[2] = f;
+            pc[0] = pc[1] = pc[2] = getshadefactor(globalshade);
             switch (method&3)
             {
             default:
@@ -5948,7 +5946,6 @@ void polymost_fillpolygon(int32_t npoints)
     pthtyp *pth;
     float f,a=0.0;
     int32_t i;
-    int32_t shadebound = (shadescale_unbounded || globalshade>=numshades) ? numshades : numshades-1;
 
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);
@@ -5972,7 +5969,7 @@ void polymost_fillpolygon(int32_t npoints)
     pth = gltexcache(globalpicnum,globalpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
-    f = ((float)(numshades-min(max((globalshade * shadescale),0),shadebound)))/((float)numshades);
+    f = getshadefactor(globalshade);
     switch ((globalorientation>>7)&3)
     {
     case 0:

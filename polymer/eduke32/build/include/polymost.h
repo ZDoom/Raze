@@ -93,6 +93,13 @@ extern float alphahackarray[MAXTILES];
 
 extern int32_t r_usenewshading;
 
+static inline float getshadefactor(int32_t shade)
+{
+    int32_t shadebound = (shadescale_unbounded || shade>=numshades) ? numshades : numshades-1;
+    float clamped_shade = min(max(shade*shadescale, 0), shadebound);
+    return ((float)(numshades-clamped_shade))/(float)numshades;
+}
+
 typedef struct pthtyp_t
 {
     struct pthtyp_t *next;

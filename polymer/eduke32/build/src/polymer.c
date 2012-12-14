@@ -3781,8 +3781,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
         pth = gltexcache(picnum, palnum, 0);
         glpics[i] = pth ? pth->glpic : 0;
 
-        glcolors[i][0] = glcolors[i][1] = glcolors[i][2] =
-                ((float)(numshades-min(max(shade*shadescale,0),numshades)))/((float)numshades);
+        glcolors[i][0] = glcolors[i][1] = glcolors[i][2] = getshadefactor(shade);
 
         if (pth && (pth->flags & 2))
         {
@@ -3871,8 +3870,7 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
         drawingskybox = i + 1;
         pth = gltexcache(tilenum, palnum, 4);
 
-        color[0] = color[1] = color[2] =
-                ((float)(numshades-min(max(shade*shadescale,0),numshades)))/((float)numshades);
+        color[0] = color[1] = color[2] = getshadefactor(shade);
 
         if (pth && (pth->flags & 2))
         {
@@ -4495,7 +4493,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
-            (GLubyte)(((float)(numshades-min(max((shade  * shadescale),0),numshades)))/((float)numshades) * 0xFF);
+            (GLubyte)(getshadefactor(shade) * 0xFF);
  
         if (pth->flags & 2)
         {
