@@ -332,6 +332,7 @@ else
 
     ifneq (0,$(CLANG))
 #        CLANG_MAJOR := $(shell clang -dM -E -x c /dev/null | grep __clang_major__ | awk '{ print $$3 }')
+        # KEEPINSYNC with build/Makefile:
         BASECFLAGS+= -Xclang -fcatch-undefined-behavior
 #        ifeq ($(CLANG_MAJOR),3)
 #            debug+= -faddress-sanitizer

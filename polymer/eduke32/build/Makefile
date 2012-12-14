@@ -287,10 +287,11 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
 	if $(AS) $(OURASFLAGS) $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
-# comment out to debug a-c.o
+# Comment out the following rule to debug a-c.o
 $(OBJ)/a-c.$o: $(SRC)/a-c.c
 	$(COMPILE_STATUS)
-	if $(COMPILER) $(subst -O0,-O2,$(subst -fcatch-undefined-behavior,,$(OURCFLAGS))) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(subst -O0,-O2,$(subst -Xclang -fcatch-undefined-behavior,,$(OURCFLAGS))) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+# KEEPINSYNC the "... -fcatch-undefined-behavior" with Makefile.common
 
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
