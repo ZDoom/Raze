@@ -75,10 +75,7 @@ typedef struct cacheitem_t texcacheindex;
 
 #define TEXCACHEMAGIC "QLZ1"
 
-//extern texcacheindex *firstcacheindex;
-//extern texcacheindex *curcacheindex;
 extern texcacheindex *cacheptrs[MAXTILES<<1];
-//extern int32_t numcacheentries;
 
 int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, void *midbuf, char *packbuf, uint32_t miplen);
 int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked);
@@ -121,13 +118,14 @@ pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;
 
-extern double gyxscale, gxyaspect, /*gviewxrange,*/ ghalfx, grhalfxdown10 /*, ghoriz*/;
+extern double gyxscale, gxyaspect, ghalfx, grhalfxdown10;
 
 #define FOGSCALE 0.0000768
 
+extern char nofog;  // in windows/SDL layers
 extern float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
 
-static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal)
+static inline void fogcalc(int32_t shade, int32_t vis, int32_t pal)
 {
     float f;
 
@@ -154,7 +152,25 @@ static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t
     Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));
 }
 
+static inline void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal)
+{
+    if (!nofog)
+    {
+        fogcalc(shade, vis, pal);
+        bglFogf(GL_FOG_DENSITY, fogresult);
+        bglFogfv(GL_FOG_COLOR, fogcol);
+    }
+}
 
+static inline void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float factor)
+{
+    if (!nofog)
+    {
+        fogcalc(shade, vis, pal);
+        bglFogf(GL_FOG_DENSITY, fogresult*factor);
+        bglFogfv(GL_FOG_COLOR, fogcol);
+    }
+}
 #endif
 
 #endif

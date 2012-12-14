@@ -161,7 +161,6 @@ int32_t glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 int32_t glwidescreen = 0;
 int32_t glprojectionhacks = 1;
 static GLuint polymosttext = 0;
-extern char nofog;
 int32_t glrendmode = 3;
 
 // This variable, and 'shadeforfullbrightpass' control the drawing of
@@ -3303,14 +3302,9 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
     {
         if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
     }
-#ifdef USE_OPENGL
-    if (!nofog)
-    {
-        fogcalc(global_cf_shade,sec->visibility,global_cf_pal);
-        bglFogf(GL_FOG_DENSITY,fogresult);
-        bglFogfv(GL_FOG_COLOR,fogcol);
-    }
-#endif
+
+    calc_and_apply_fog(global_cf_shade, sec->visibility, global_cf_pal);
+
     pow2xsplit = 0;
     if (have_floor)
         domost(x0,cf_y0,x1,cf_y1); //flor
@@ -3466,12 +3460,7 @@ static void polymost_drawalls(int32_t bunch)
 #ifdef USE_OPENGL
             if (rendmode >= 3)
             {
-                if (!nofog)
-                {
-                    fogcalc(sec->floorshade,sec->visibility,sec->floorpal);
-                    bglFogf(GL_FOG_DENSITY,fogresult * 0.005);
-                    bglFogfv(GL_FOG_COLOR,fogcol);
-                }
+                calc_and_apply_fog_factor(sec->floorshade, sec->visibility, sec->floorpal, 0.005);
 
                 //Use clamping for tiled sky textures
                 for (i=(1<<dapskybits)-1; i>0; i--)
@@ -3747,12 +3736,8 @@ static void polymost_drawalls(int32_t bunch)
 #ifdef USE_OPENGL
             if (rendmode >= 3)
             {
-                if (!nofog)
-                {
-                    fogcalc(sec->ceilingshade,sec->visibility,sec->ceilingpal);
-                    bglFogf(GL_FOG_DENSITY,fogresult * 0.005);
-                    bglFogfv(GL_FOG_COLOR,fogcol);
-                }
+                calc_and_apply_fog_factor(sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005);
+
                 //Use clamping for tiled sky textures
                 for (i=(1<<dapskybits)-1; i>0; i--)
                     if (dapskyoff[i] != dapskyoff[i-1])
@@ -4064,14 +4049,9 @@ static void polymost_drawalls(int32_t bunch)
                     guo = gdo*t - guo;
                 }
                 if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
-#ifdef USE_OPENGL
-                if (!nofog)
-                {
-                    fogcalc(wal->shade,sec->visibility,sec->floorpal);
-                    bglFogf(GL_FOG_DENSITY,fogresult);
-                    bglFogfv(GL_FOG_COLOR,fogcol);
-                }
-#endif
+
+                calc_and_apply_fog(wal->shade, sec->visibility, sec->floorpal);
+
                 pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
                 if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
             }
@@ -4101,14 +4081,9 @@ static void polymost_drawalls(int32_t bunch)
                     guo = gdo*t - guo;
                 }
                 if (nwal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
-#ifdef USE_OPENGL
-                if (!nofog)
-                {
-                    fogcalc(nwal->shade,sec->visibility,sec->floorpal);
-                    bglFogf(GL_FOG_DENSITY,fogresult);
-                    bglFogfv(GL_FOG_COLOR,fogcol);
-                }
-#endif
+
+                calc_and_apply_fog(nwal->shade, sec->visibility, sec->floorpal);
+
                 pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
                 if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
             }
@@ -4134,14 +4109,9 @@ static void polymost_drawalls(int32_t bunch)
                 guo = gdo*t - guo;
             }
             if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
-#ifdef USE_OPENGL
-            if (!nofog)
-            {
-                fogcalc(wal->shade,sec->visibility,sec->floorpal);
-                bglFogf(GL_FOG_DENSITY,fogresult);
-                bglFogfv(GL_FOG_COLOR,fogcol);
-            }
-#endif
+
+            calc_and_apply_fog(wal->shade, sec->visibility, sec->floorpal);
+
             pow2xsplit = 1; domost(x0,-10000,x1,-10000);
         }
 
@@ -4706,17 +4676,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     method = 1; pow2xsplit = 1;
     if (wal->cstat&128) { if (!(wal->cstat&512)) method = 2; else method = 3; }
 
-#ifdef USE_OPENGL
-    if (!nofog)
-    {
-        if (rendmode >= 3)
-        {
-            fogcalc(wal->shade,sec->visibility,sec->floorpal);
-            bglFogf(GL_FOG_DENSITY,fogresult);
-            bglFogfv(GL_FOG_COLOR,fogcol);
-        }
-    }
-#endif
+    calc_and_apply_fog(wal->shade, sec->visibility, sec->floorpal);
 
     for (i=0; i<2; i++)
     {
@@ -4870,13 +4830,7 @@ void polymost_drawsprite(int32_t snum)
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
 
 #ifdef USE_OPENGL
-
-    if (!nofog && rendmode >= 3)
-    {
-        fogcalc(globalshade,sector[tspr->sectnum].visibility,sector[tspr->sectnum].floorpal);
-        bglFogf(GL_FOG_DENSITY,fogresult);
-        bglFogfv(GL_FOG_COLOR,fogcol);
-    }
+    calc_and_apply_fog(globalshade, sector[tspr->sectnum].visibility, sector[tspr->sectnum].floorpal);
 
     while (rendmode >= 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD))
     {
