@@ -440,7 +440,7 @@ EXTERN int16_t numshades;
 EXTERN char *palookup[MAXPALOOKUPS];
 EXTERN char parallaxtype, showinvisibility;
 EXTERN int32_t parallaxyoffs, parallaxyscale;
-EXTERN int32_t visibility, parallaxvisibility;
+EXTERN int32_t g_visibility, parallaxvisibility;
 EXTERN int32_t g_rotatespriteNoWidescreen;
 
 EXTERN int32_t windowx1, windowy1, windowx2, windowy2;

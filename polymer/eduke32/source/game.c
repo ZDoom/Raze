@@ -3429,8 +3429,8 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 
             preparemirror(x,y,z,a,horiz,g_mirrorWall[i],g_mirrorSector[i],&tposx,&tposy,&tang);
 
-            j = visibility;
-            visibility = (j>>1) + (j>>2);
+            j = g_visibility;
+            g_visibility = (j>>1) + (j>>2);
 
             if (getrendermode()==0)
             {
@@ -3451,7 +3451,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 
             drawmasks();
             completemirror();   //Reverse screen x-wise in this function
-            visibility = j;
+            g_visibility = j;
         }
 
         if (!g_fakeMultiMode)
@@ -3497,7 +3497,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     else
         smoothratio = clamp((totalclock-ototalclock)*(65536/4), 0, 65536);
 
-    visibility = (int32_t)(p->visibility * (numplayers > 1 ? 1.f : r_ambientlightrecip));
+    g_visibility = (int32_t)(p->visibility * (numplayers > 1 ? 1.f : r_ambientlightrecip));
 
     ud.camerasect = p->cursectnum;
 

@@ -3375,24 +3375,6 @@ static void polymost_drawalls(int32_t bunch)
 
     sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
 
-#if 0 // USE_OPENGL
-    if (!nofog)
-    {
-        if (rendmode >= 3)
-        {
-            float col[4];
-            col[0] = (float)palookupfog[sec->floorpal].r / 63.f;
-            col[1] = (float)palookupfog[sec->floorpal].g / 63.f;
-            col[2] = (float)palookupfog[sec->floorpal].b / 63.f;
-            col[3] = 0;
-            bglFogfv(GL_FOG_COLOR,col);
-            bglFogf(GL_FOG_DENSITY,fogcalc(sec->floorshade,sec->visibility));
-
-            //            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((uint8_t)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-        }
-    }
-#endif
-
     //DRAW WALLS SECTION!
     for (z=bunchfirst[bunch]; z>=0; z=p2[z])
     {
@@ -3484,13 +3466,6 @@ static void polymost_drawalls(int32_t bunch)
 #ifdef USE_OPENGL
             if (rendmode >= 3)
             {
-                /*                if (!nofog) {
-                                    bglDisable(GL_FOG);
-                                    //r = ((float)globalpisibility)*((float)((uint8_t)(sec->visibility<240?sec->visibility+16:sec->visibility-239)))*FOGSCALE;
-                                    //r *= ((double)xdimscale*(double)viewingrange*gdo) / (65536.0*65536.0);
-                                    //bglFogf(GL_FOG_DENSITY,r);
-                                } */
-
                 if (!nofog)
                 {
                     fogcalc(sec->floorshade,sec->visibility,sec->floorpal);
@@ -3732,10 +3707,7 @@ static void polymost_drawalls(int32_t bunch)
             {
                 skyclamphack = 0;
                 if (!nofog)
-                {
                     bglEnable(GL_FOG);
-                    //bglFogf(GL_FOG_DENSITY,gvisibility*((float)((uint8_t)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-                }
             }
 #endif
         }
@@ -3775,13 +3747,6 @@ static void polymost_drawalls(int32_t bunch)
 #ifdef USE_OPENGL
             if (rendmode >= 3)
             {
-                /*                if (!nofog) {
-                                    bglDisable(GL_FOG);
-                                    //r = ((float)globalpisibility)*((float)((uint8_t)(sec->visibility<240?sec->visibility+16:sec->visibility-239)))*FOGSCALE;
-                                    //r *= ((double)xdimscale*(double)viewingrange*gdo) / (65536.0*65536.0);
-                                    //bglFogf(GL_FOG_DENSITY,r);
-                                }
-                */
                 if (!nofog)
                 {
                     fogcalc(sec->ceilingshade,sec->visibility,sec->ceilingpal);
@@ -4025,10 +3990,7 @@ static void polymost_drawalls(int32_t bunch)
             {
                 skyclamphack = 0;
                 if (!nofog)
-                {
                     bglEnable(GL_FOG);
-                    //bglFogf(GL_FOG_DENSITY,gvisibility*((float)((uint8_t)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-                }
             }
 #endif
         }

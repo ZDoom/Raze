@@ -3421,7 +3421,7 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
 
     globalshade = shade;
     globvis = globalcisibility;
-    if (sec->visibility != 0) globvis = mulscale4(globvis, (int32_t)((uint8_t)(sec->visibility+16)));
+    if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
     globalorientation = stat;
 
     if ((globalorientation&64) == 0)
@@ -4303,7 +4303,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     asm1 = -(globalzd>>(16-BITSOFPRECISION));
 
     globvis = globalvisibility;
-    if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
+    if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
     globvis = mulscale13(globvis,daz);
     globvis = mulscale16(globvis,xdimscale);
     j = FP_OFF(palookup[globalpal]);
@@ -4381,7 +4381,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     globalhorizbak = globalhoriz;
     globvis = globalpisibility;
     //globalorientation = 0L;
-    if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
+    if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
 
     if (dastat == 0)
     {
@@ -4568,7 +4568,7 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
 
     globvis = globalvisibility;
     if (secvisibility != 0)
-        globvis = mulscale4(globvis, (int32_t)((uint8_t)(secvisibility+16)));
+        globvis = mulscale4(globvis, (uint8_t)(secvisibility+16));
 
     globalshiftval = logtilesizy;
 #if !defined CLASSIC_NONPOW2_YSIZE_WALLS
@@ -5420,7 +5420,7 @@ static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
     globalypanning = 0;
 
     globvis = globalvisibility;
-    if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
+    if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
 
     logtilesizy = (picsiz[globalpicnum]>>4);
     tsizy = tilesizy[globalpicnum];
@@ -6205,7 +6205,7 @@ draw_as_face_sprite:
         globalbufplc = waloff[globalpicnum];
 
         globvis = mulscale16(globalhisibility,viewingrange);
-        if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
+        if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
 
         x = picsiz[globalpicnum]; y = ((x>>4)&15); x &= 15;
 #if 0
@@ -6324,7 +6324,7 @@ draw_as_face_sprite:
         tspr->z -= mulscale14(yoff,nyrepeat);
 
         globvis = globalvisibility;
-        if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
+        if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
 
 #ifdef YAX_ENABLE
         if (yax_globallev==YAX_MAXDRAWS || searchit==2)
@@ -8344,7 +8344,7 @@ int32_t initengine(void)
 //    automapping = 0;
 
     totalclock = 0;
-    visibility = 512;
+    g_visibility = 512;
     parallaxvisibility = 512;
 
     if (loadpalette())
@@ -8491,17 +8491,17 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         // switch on renderers to make fog look almost the same everywhere
 
     case 0:
-        globalvisibility = mulscale16(visibility,i);
+        globalvisibility = mulscale16(g_visibility,i);
         break;
 #ifdef USE_OPENGL
     case 3:
         // I have no idea what the significance of this constant is,
         // it was found out experimentally.             v  v
-        globalvisibility = scale(visibility<<2, xdimen, 1100);
+        globalvisibility = scale(g_visibility<<2, xdimen, 1100);
         break;
 # ifdef POLYMER
     case 4:
-        globalvisibility = visibility<<2;
+        globalvisibility = g_visibility<<2;
         break;
 # endif
 #endif
@@ -9190,7 +9190,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             globalbufplc = waloff[globalpicnum];
             globalshade = max(min(sec->floorshade,numshades-1),0);
             globvis = globalhisibility;
-            if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
+            if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
             globalpolytype = 0;
             if ((globalorientation&64) == 0)
             {
@@ -9324,7 +9324,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             globalshade = max(min(globalshade+spr->shade+6,numshades-1),0);
             asm3 = FP_OFF(palookup[spr->pal]+(globalshade<<8));
             globvis = globalhisibility;
-            if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
+            if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
             globalpolytype = ((spr->cstat&2)>>1)+1;
 
             //relative alignment stuff

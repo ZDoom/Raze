@@ -5477,10 +5477,10 @@ static void Keys3d(void)
                 if (eitherCTRL)  //CTRL
                 {
                     if (tsign==1)
-                        visibility <<= (int)(visibility < 16384);
+                        g_visibility <<= (int)(g_visibility < 16384);
                     else
-                        visibility >>= (int)(visibility > 32);
-                    silentmessage("Global visibility %d", visibility);
+                        g_visibility >>= (int)(g_visibility > 32);
+                    silentmessage("Global visibility %d", g_visibility);
                 }
                 else
                 {
