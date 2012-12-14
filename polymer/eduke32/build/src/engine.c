@@ -2413,6 +2413,11 @@ static inline int32_t getpalookup(int32_t davis, int32_t dashade)
     return(min(max(dashade+(davis>>8),0),numshades-1));
 }
 
+static inline int32_t getpalookupsh(int32_t davis)
+{
+    return getpalookup(davis, globalshade)<<8;
+}
+
 static void setpalettefade_calc(uint8_t offset);
 
 void fade_screen_black(int32_t moreopaquep)
@@ -2734,7 +2739,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
         if (y2ve[0] <= y1ve[0]) continue;
 
-        palookupoffse[0] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x],globvis),globalshade)<<8);
+        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
 
         bufplce[0] = lwal[x] + globalxpanning;
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
@@ -2764,8 +2769,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         }
         if (bad == 15) continue;
 
-        palookupoffse[0] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x],globvis),globalshade)<<8);
-        palookupoffse[3] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x+3],globvis),globalshade)<<8);
+        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
+        palookupoffse[3] = fpalookup + getpalookupsh(mulscale16(swal[x+3],globvis));
 
         if ((palookupoffse[0] == palookupoffse[3]) && ((bad&0x9) == 0))
         {
@@ -2774,8 +2779,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         }
         else
         {
-            palookupoffse[1] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x+1],globvis),globalshade)<<8);
-            palookupoffse[2] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x+2],globvis),globalshade)<<8);
+            palookupoffse[1] = fpalookup + getpalookupsh(mulscale16(swal[x+1],globvis));
+            palookupoffse[2] = fpalookup + getpalookupsh(mulscale16(swal[x+2],globvis));
         }
 
         u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
@@ -2812,7 +2817,7 @@ do_mvlineasm1:
         y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
         if (y2ve[0] <= y1ve[0]) continue;
 
-        palookupoffse[0] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x],globvis),globalshade)<<8);
+        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
 
         bufplce[0] = lwal[x] + globalxpanning;
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
@@ -2969,7 +2974,7 @@ static inline void hline(int32_t xr, int32_t yp)
     r = horizlookup2[yp-globalhoriz+horizycent];
     asm1 = (int64_t)globalx1*r;
     asm2 = (int64_t)globaly2*r;
-    s = getpalookup(mulscale16(r,globvis),globalshade)<<8;
+    s = getpalookupsh(mulscale16(r,globvis));
 
     hlineasm4(xr-xl,0,s,(uint32_t)globalx2*r+globalypanning,(uint32_t)globaly1*r+globalxpanning,
               ylookup[yp]+xr+frameoffset);
@@ -2988,7 +2993,7 @@ static inline void slowhline(int32_t xr, int32_t yp)
     asm1 = (int64_t)globalx1*r;
     asm2 = (int64_t)globaly2*r;
 
-    asm3 = (intptr_t)globalpalwritten + (getpalookup(mulscale16(r,globvis),globalshade)<<8);
+    asm3 = (intptr_t)globalpalwritten + getpalookupsh(mulscale16(r,globvis));
     if (!(globalorientation&256))
     {
         mhline(globalbufplc,(uint32_t)globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
@@ -3726,7 +3731,7 @@ static void wallscan(int32_t x1, int32_t x2,
         y2ve[0] = min(dwal[x],dmost[x]);
         if (y2ve[0] <= y1ve[0]) continue;
 
-        palookupoffse[0] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x],globvis),globalshade)<<8);
+        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
 
         bufplce[0] = lwal[x] + globalxpanning;
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
@@ -3756,8 +3761,8 @@ static void wallscan(int32_t x1, int32_t x2,
         }
         if (bad == 15) continue;
 
-        palookupoffse[0] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x],globvis),globalshade)<<8);
-        palookupoffse[3] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x+3],globvis),globalshade)<<8);
+        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
+        palookupoffse[3] = fpalookup + getpalookupsh(mulscale16(swal[x+3],globvis));
 
         if ((palookupoffse[0] == palookupoffse[3]) && ((bad&0x9) == 0))
         {
@@ -3766,8 +3771,8 @@ static void wallscan(int32_t x1, int32_t x2,
         }
         else
         {
-            palookupoffse[1] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x+1],globvis),globalshade)<<8);
-            palookupoffse[2] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x+2],globvis),globalshade)<<8);
+            palookupoffse[1] = fpalookup + getpalookupsh(mulscale16(swal[x+1],globvis));
+            palookupoffse[2] = fpalookup + getpalookupsh(mulscale16(swal[x+2],globvis));
         }
 
         u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
@@ -3804,7 +3809,7 @@ do_vlineasm1:
         y2ve[0] = min(dwal[x],dmost[x]);
         if (y2ve[0] <= y1ve[0]) continue;
 
-        palookupoffse[0] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x],globvis),globalshade)<<8);
+        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
 
         bufplce[0] = lwal[x] + globalxpanning;
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
@@ -3841,7 +3846,7 @@ static void transmaskvline(int32_t x)
     y2v--;
     if (y2v < y1v) return;
 
-    palookupoffs = FP_OFF(palookup[globalpal]) + (getpalookup((int32_t)mulscale16(swall[x],globvis),globalshade)<<8);
+    palookupoffs = FP_OFF(palookup[globalpal]) + getpalookupsh(mulscale16(swall[x],globvis));
 
     vinc = (int64_t)swall[x]*globalyscale;
     vplc = globalzd + (uint32_t)vinc*(y1v-globalhoriz+1);
@@ -3884,8 +3889,8 @@ static void transmaskvline2(int32_t x)
     y2ve[1] = min(dwall[x2],startdmost[x2+windowx1]-windowy1)-1;
     if (y2ve[1] < y1ve[1]) { transmaskvline(x); return; }
 
-    palookupoffse[0] = FP_OFF(palookup[globalpal]) + (getpalookup((int32_t)mulscale16(swall[x],globvis),globalshade)<<8);
-    palookupoffse[1] = FP_OFF(palookup[globalpal]) + (getpalookup((int32_t)mulscale16(swall[x2],globvis),globalshade)<<8);
+    palookupoffse[0] = FP_OFF(palookup[globalpal]) + getpalookupsh(mulscale16(swall[x],globvis));
+    palookupoffse[1] = FP_OFF(palookup[globalpal]) + getpalookupsh(mulscale16(swall[x2],globvis));
 
     setuptvlineasm2(globalshiftval,palookupoffse[0],palookupoffse[1]);
 
@@ -4074,7 +4079,7 @@ static inline void ceilspritehline(int32_t x2, int32_t y)
     asm1 = mulscale14(globalx2,v);
     asm2 = mulscale14(globaly2,v);
 
-    asm3 = FP_OFF(palookup[globalpal]) + (getpalookup((int32_t)mulscale28(klabs(v),globvis),globalshade)<<8);
+    asm3 = FP_OFF(palookup[globalpal]) + getpalookupsh(mulscale28(klabs(v),globvis));
 
     if (globalispow2)
     {
@@ -4143,7 +4148,7 @@ static void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, int32_t 
     setupslopevlin(logylogx, bufplc, pinc);
     gglogx = (logylogx&255); gglogy = (logylogx>>8);
     ggbuf = (char *)bufplc; ggpinc = pinc;
-    ggpal = palookup[globalpal] + (getpalookup(0,globalshade)<<8);
+    ggpal = palookup[globalpal] + getpalookupsh(0);
 }
 
 // cnt iterations
@@ -4327,12 +4332,12 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
             nptr2 = &slopalookup[y2+(shoffs>>15)];
             while (nptr1 <= mptr1)
             {
-                *mptr1-- = j + (getpalookup(mulscale24(krecipasm(m1),globvis),globalshade)<<8);
+                *mptr1-- = j + getpalookupsh(mulscale24(krecipasm(m1),globvis));
                 m1 -= l;
             }
             while (nptr2 >= mptr2)
             {
-                *mptr2++ = j + (getpalookup(mulscale24(krecipasm(m2),globvis),globalshade)<<8);
+                *mptr2++ = j + getpalookupsh(mulscale24(krecipasm(m2),globvis));
                 m2 += l;
             }
 
@@ -5150,7 +5155,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     sprsinang = sintable[dasprang&2047];
 
     i = klabs(dmulscale6(dasprx-globalposx,cosang,daspry-globalposy,sinang));
-    j = (int32_t)(getpalookup((int32_t)mulscale21(globvis,i),(int32_t)dashade)<<8);
+    j = getpalookup(mulscale21(globvis,i), dashade)<<8;
     setupdrawslab(ylookup[1],FP_OFF(palookup[dapal])+j);
     j = 1310720;
     j *= min(daxscale,dayscale); j >>= 6;  //New hacks (for sized-down voxels)
@@ -7123,7 +7128,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     bufplc = waloff[picnum];
 
     if (palookup[dapalnum] == NULL) dapalnum = 0;
-    palookupoffs = FP_OFF(palookup[dapalnum]) + (getpalookup(0L,(int32_t)dashade)<<8);
+    palookupoffs = FP_OFF(palookup[dapalnum]) + (getpalookup(0, dashade)<<8);
 
     i = divscale32(1L,z);
     xv = mulscale14(sinang,i);
