@@ -7,6 +7,8 @@
 
 #include "compat.h"
 
+#include <utime.h>
+
 #define MAXFILES 4096
 
 static char buf[65536];
@@ -36,6 +38,7 @@ void findfiles(const char *dafilespec)
 int main(int argc, char **argv)
 {
     int i, j, k, l, fil, fil2;
+    struct Bstat stbuf;
 
     int onlylist = (argc==2);
 
@@ -126,6 +129,9 @@ int main(int argc, char **argv)
         return(0);
     }
 
+    if (Bfstat(fil, &stbuf) == -1)
+        stbuf.st_mtime = 0;
+
     for(i=0;i<numfiles;i++)
     {
         if (marked4extraction[i] == 0) continue;
@@ -152,6 +158,16 @@ int main(int argc, char **argv)
             }
         }
         Bclose(fil2);
+
+        if (stbuf.st_mtime != 0)
+        {
+            struct utimbuf times;
+
+            times.modtime = stbuf.st_mtime;
+            times.actime = Btime();
+
+            Butime(filelist[i],&times);
+        }
     }
     Bclose(fil);
 

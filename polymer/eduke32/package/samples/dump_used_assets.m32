@@ -5,7 +5,7 @@
     enableevent all
 
     Open your map.
-    In 2D mode, press CTRL+C to search for the tiles and sounds used in the current map.
+    In 2D mode, press CTRL+V to search for the tiles and sounds used in the current map.
     You can set the gamevar "verbose" to 1 if you want verbose .csv formatted information that would normally clog up the output.
     Tip: With pk_quickmapcycling enabled, Ctrl-(LShift-)X loads the next (previous) map in a directory.
 

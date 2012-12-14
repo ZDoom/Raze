@@ -587,6 +587,7 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # define Bgetcwd getcwd
 # define Bgetenv getenv
 # define Btime() time(NULL)
+# define Butime utime
 
 #else
 
