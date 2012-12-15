@@ -157,7 +157,12 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
     if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,fil) != 1) goto corrupt;
     for (i=0; i<g_gameArrayCount; i++)
     {
-        if (kdfread(&(aGameArrays[i]),sizeof(gamearray_t),1,fil) != 1) goto corrupt;
+        if (aGameArrays[i].dwFlags&GAMEARRAY_READONLY)
+            continue;
+
+        // read for .size and .dwFlags (the rest are pointers):
+        if (kdfread(&aGameArrays[i],sizeof(gamearray_t),1,fil) != 1) goto corrupt;
+
         aGameArrays[i].szLabel = (char *)Bcalloc(MAXARRAYLABEL,sizeof(uint8_t));
         if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
         hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
@@ -275,7 +280,12 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
 
     for (i=0; i<g_gameArrayCount; i++)
     {
-        dfwrite(&(aGameArrays[i]),sizeof(gamearray_t),1,fil);
+        if (aGameArrays[i].dwFlags&GAMEARRAY_READONLY)
+            continue;
+
+        // write for .size and .dwFlags (the rest are pointers):
+        dfwrite(&aGameArrays[i],sizeof(gamearray_t),1,fil);
+
         dfwrite(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil);
         dfwrite(aGameArrays[i].plValues, GAR_ELTSZ * aGameArrays[i].size, 1, fil);
     }
@@ -1663,9 +1673,6 @@ static void Gv_AddSystemVars(void)
 #else
     Gv_NewVar("rendmode", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
 #endif
-
-    // must be first!
-    Gv_NewArray(".LOCALS_BASE", NULL, 0, GAMEARRAY_OFINT);
 
     Gv_NewArray("tilesizx", (void *)tilesizx, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
     Gv_NewArray("tilesizy", (void *)tilesizy, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
