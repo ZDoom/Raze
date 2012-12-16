@@ -3082,6 +3082,21 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 } while (0)
 
 
+static inline void pushDisableFog(void)
+{
+#ifdef USE_OPENGL
+    bglPushAttrib(GL_ENABLE_BIT);
+    bglDisable(GL_FOG);
+#endif
+}
+
+static inline void popDisableFog(void)
+{
+#ifdef USE_OPENGL
+    bglPopAttrib();
+#endif
+}
+
 static int32_t m32gettile(int32_t idInitialTile)
 {
     int32_t gap, temp, zoomsz;
@@ -3094,6 +3109,8 @@ static int32_t m32gettile(int32_t idInitialTile)
 
     int32_t noTilesMarked=1;
     int32_t mark_lastk = -1;
+
+    pushDisableFog();
 
     // Enable following line for testing. I couldn't work out how to change vidmode on the fly
     // s_Zoom = NUM_ZOOMS - 1;
@@ -3609,6 +3626,8 @@ static int32_t m32gettile(int32_t idInitialTile)
 
     keystatus[KEYSC_ESC] = 0;
     keystatus[KEYSC_ENTER] = 0;
+
+    popDisableFog();
 
     return idSelectedTile;
 }

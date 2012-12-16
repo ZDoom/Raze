@@ -6074,6 +6074,12 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     bglDisable(GL_ALPHA_TEST);
     bglDepthMask(GL_FALSE);	// disable writing to the z-buffer
 
+    bglPushAttrib(GL_POLYGON_BIT|GL_ENABLE_BIT);
+    // XXX: Don't fogify the OSD text in Mapster32 with r_usenewshading=2.
+    bglDisable(GL_FOG);
+    // We want to have readable text in wireframe mode, too:
+    bglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     if (backcol >= 0)
     {
         bglColor4ub(b.r,b.g,b.b,255);
@@ -6086,9 +6092,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         bglVertex2i(xpos+(c<<(3-fontsize)),ypos);
         bglEnd();
     }
-
-    bglPushAttrib(GL_POLYGON_BIT);  // we want to have readable text in wireframe mode, too
-    bglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     bglEnable(GL_TEXTURE_2D);
     bglEnable(GL_BLEND);
