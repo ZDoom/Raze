@@ -395,14 +395,28 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_prog
         "",
         // frag_def
+#ifdef PR_LINEAR_FOG
+        "uniform bool linearFog;\n"
+#endif
         "",
         // frag_prog
         "  float fragDepth;\n"
         "  float fogFactor;\n"
         "\n"
         "  fragDepth = gl_FragCoord.z / gl_FragCoord.w / 35.0;\n"
-        "  fragDepth *= fragDepth;\n"
-        "  fogFactor = exp2(-gl_Fog.density * gl_Fog.density * fragDepth * 1.442695);\n"
+#ifdef PR_LINEAR_FOG
+        "  if (!linearFog) {\n"
+#endif
+        "    fragDepth *= fragDepth;\n"
+        "    fogFactor = exp2(-gl_Fog.density * gl_Fog.density * fragDepth * 1.442695);\n"
+#ifdef PR_LINEAR_FOG
+        /* 0.65127==150/230, another constant found out by experiment. :/
+         * (150 is Polymost's FOGDISTCONST.) */
+        "  } else {\n"
+        "    fogFactor = gl_Fog.scale * (gl_Fog.end - fragDepth*0.65217);\n"
+        "    fogFactor = clamp(fogFactor, 0.0, 1.0);"
+        "  }\n"
+#endif
         "  result.rgb = mix(gl_Fog.color.rgb, result.rgb, fogFactor);\n"
         "\n",
     },
@@ -4810,7 +4824,12 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
 
         texunit++;
     }
-
+#ifdef PR_LINEAR_FOG
+    if (programbits & prprogrambits[PR_BIT_FOG].bit)
+    {
+        bglUniform1iARB(prprograms[programbits].uniform_linearFog, r_usenewshading==2);
+    }
+#endif
     // PR_BIT_GLOW_MAP
     if (programbits & prprogrambits[PR_BIT_GLOW_MAP].bit)
     {
@@ -5103,7 +5122,12 @@ static void         polymer_compileprogram(int32_t programbits)
     {
         prprograms[programbits].uniform_mirrorMap = bglGetUniformLocationARB(program, "mirrorMap");
     }
-
+#ifdef PR_LINEAR_FOG
+    if (programbits & prprogrambits[PR_BIT_FOG].bit)
+    {
+        prprograms[programbits].uniform_linearFog = bglGetUniformLocationARB(program, "linearFog");        
+    }
+#endif
     // PR_BIT_GLOW_MAP
     if (programbits & prprogrambits[PR_BIT_GLOW_MAP].bit)
     {

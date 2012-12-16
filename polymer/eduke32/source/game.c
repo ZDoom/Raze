@@ -3044,7 +3044,7 @@ void G_DisplayRest(int32_t smoothratio)
     }
 }
 
-static void G_DoThirdPerson(DukePlayer_t *pp, vec3_t *vect,int16_t *vsectnum, int32_t ang, int32_t horiz)
+static void G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int32_t ang, int32_t horiz)
 {
     spritetype *sp = &sprite[pp->i];
     int32_t i, hx, hy;
@@ -7868,10 +7868,11 @@ FAKE_F2:
                     return;
                 }
                 M_ChangeMenu(350);
+
                 g_screenCapture = 1;
                 G_DrawRooms(myconnectindex,65536);
-                //savetemp("duke3d.tmp",waloff[TILE_SAVESHOT],160*100);
                 g_screenCapture = 0;
+
                 FX_StopAllSounds();
                 S_ClearSoundLocks();
 
@@ -7938,8 +7939,8 @@ FAKE_F3:
             }
             g_screenCapture = 1;
             G_DrawRooms(myconnectindex,65536);
-            //savetemp("duke3d.tmp",waloff[TILE_SAVESHOT],160*100);
             g_screenCapture = 0;
+
             if (g_lastSaveSlot >= 0)
             {
                 /*                inputloc = Bstrlen(&ud.savegame[g_lastSaveSlot][0]);

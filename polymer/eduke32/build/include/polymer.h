@@ -28,6 +28,8 @@
 # include "polymost.h"
 # include "pragmas.h"
 
+#define PR_LINEAR_FOG
+
 // CVARS
 extern int32_t      pr_lighting;
 extern int32_t      pr_normalmapping;
@@ -149,6 +151,10 @@ typedef struct      s_prrograminfo {
     GLint           uniform_specMaterial;
     // PR_BIT_MIRROR_MAP
     GLint           uniform_mirrorMap;
+#ifdef PR_LINEAR_FOG
+    // PR_BIT_FOG
+    GLint           uniform_linearFog;
+#endif
     // PR_BIT_GLOW_MAP
     GLint           uniform_glowMap;
     // PR_BIT_PROJECTION_MAP

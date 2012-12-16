@@ -113,7 +113,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 float shadescale = 1.3f;
 int32_t shadescale_unbounded = 0;
 
-int32_t r_usenewshading = 1;
+int32_t r_usenewshading = 2;
 
 static double gviewxrange, ghoriz;
 double gyxscale, gxyaspect, ghalfx, grhalfxdown10, grhalfxdown10x;
@@ -197,7 +197,7 @@ int32_t r_downsize = 1;
 int32_t r_downsizevar = -1;
 
 // used for fogcalc
-float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
+float fogresult, fogresult2, fogcol[4], fogtable[4*MAXPALOOKUPS];
 #endif
 
 static char ptempbuf[MAXWALLSB<<1];
@@ -711,26 +711,16 @@ static void clear_cache_internal(void)
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
 {
-    GLfloat col[4];
     int32_t     i;
 
     if (!Bstrcmp(glinfo.vendor, "NVIDIA Corporation"))
-    {
-        bglHint(GL_FOG_HINT,GL_NICEST);
-    }
+        bglHint(GL_FOG_HINT, GL_NICEST);
     else
-    {
-        bglHint(GL_FOG_HINT,GL_DONT_CARE);
-    }
+        bglHint(GL_FOG_HINT, GL_DONT_CARE);
 
     bglFogi(GL_FOG_MODE, GL_EXP2);
-    bglFogf(GL_FOG_DENSITY,1.0); //must be > 0, default is 1
-    /*    bglFogf(GL_FOG_START,0.0); //default is 0
-        bglFogf(GL_FOG_END,1.0); //default is 1 */
-    col[0] = 0; col[1] = 0; col[2] = 0; col[3] = 0; //range:0 to 1
-    bglFogfv(GL_FOG_COLOR,col); //default is 0,0,0,0
 
-    bglBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     bglPixelStorei(GL_PACK_ALIGNMENT, 1);
 
@@ -5996,6 +5986,61 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
 #endif
 }
 
+static int32_t gen_font_glyph_tex(void)
+{
+    // construct a 256x128 8-bit alpha-only texture for the font glyph matrix
+    char *tbuf, *cptr, *tptr;
+    int32_t h,i,j;
+
+    bglGenTextures(1,&polymosttext);
+    if (!polymosttext) return -1;
+
+    tbuf = (char *)Bmalloc(256*128);
+    if (!tbuf)
+    {
+        bglDeleteTextures(1,&polymosttext);
+        polymosttext = 0;
+        return -1;
+    }
+    Bmemset(tbuf, 0, 256*128);
+
+    cptr = (char *)textfont;
+    for (h=0; h<256; h++)
+    {
+        tptr = tbuf + (h%32)*8 + (h/32)*256*8;
+        for (i=0; i<8; i++)
+        {
+            for (j=0; j<8; j++)
+            {
+                if (cptr[h*8+i] & pow2char[7-j]) tptr[j] = 255;
+            }
+            tptr += 256;
+        }
+    }
+
+    cptr = (char *)smalltextfont;
+    for (h=0; h<256; h++)
+    {
+        tptr = tbuf + 256*64 + (h%32)*8 + (h/32)*256*8;
+        for (i=1; i<7; i++)
+        {
+            for (j=2; j<6; j++)
+            {
+                if (cptr[h*8+i] & pow2char[7-j]) tptr[j-2] = 255;
+            }
+            tptr += 256;
+        }
+    }
+
+    bglBindTexture(GL_TEXTURE_2D, polymosttext);
+    bglTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,256,128,0,GL_ALPHA,GL_UNSIGNED_BYTE,(GLvoid *)tbuf);
+    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    Bfree(tbuf);
+
+    return 0;
+}
+
 int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
 {
 #ifndef USE_OPENGL
@@ -6017,57 +6062,13 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
     if (!polymosttext)
     {
-        // construct a 256x128 8-bit alpha-only texture for the font glyph matrix
-        char *tbuf, *cptr, *tptr;
-        int32_t h,i,j;
-
-        bglGenTextures(1,&polymosttext);
-        if (!polymosttext) return -1;
-
-        tbuf = (char *)Bmalloc(256*128);
-        if (!tbuf)
-        {
-            bglDeleteTextures(1,&polymosttext);
-            polymosttext = 0;
+        if (gen_font_glyph_tex() < 0)
             return -1;
-        }
-        Bmemset(tbuf, 0, 256*128);
-
-        cptr = (char *)textfont;
-        for (h=0; h<256; h++)
-        {
-            tptr = tbuf + (h%32)*8 + (h/32)*256*8;
-            for (i=0; i<8; i++)
-            {
-                for (j=0; j<8; j++)
-                {
-                    if (cptr[h*8+i] & pow2char[7-j]) tptr[j] = 255;
-                }
-                tptr += 256;
-            }
-        }
-
-        cptr = (char *)smalltextfont;
-        for (h=0; h<256; h++)
-        {
-            tptr = tbuf + 256*64 + (h%32)*8 + (h/32)*256*8;
-            for (i=1; i<7; i++)
-            {
-                for (j=2; j<6; j++)
-                {
-                    if (cptr[h*8+i] & pow2char[7-j]) tptr[j-2] = 255;
-                }
-                tptr += 256;
-            }
-        }
-
-        bglBindTexture(GL_TEXTURE_2D, polymosttext);
-        bglTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,256,128,0,GL_ALPHA,GL_UNSIGNED_BYTE,(GLvoid *)tbuf);
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        Bfree(tbuf);
     }
-    else bglBindTexture(GL_TEXTURE_2D, polymosttext);
+    else
+    {
+        bglBindTexture(GL_TEXTURE_2D, polymosttext);
+    }
 
     setpolymost2dview();	// disables blending, texturing, and depth testing
     bglDisable(GL_ALPHA_TEST);
@@ -6283,7 +6284,7 @@ void polymost_initosdfuncs(void)
         { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *) &gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },
         { "r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",(void *) &gltexmiplevel, CVAR_INT, 0, 6 },
         { "r_texturemode", "r_texturemode: changes the texture filtering settings", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
-        { "r_usenewshading", "r_usenewshading: enable/disable new shading/visibility code", (void *) &r_usenewshading, CVAR_BOOL, 0, 1 },
+        { "r_usenewshading", "r_usenewshading: visibility code: 0: Polymost, 2: Classic", (void *) &r_usenewshading, CVAR_INT, 0, 2 },
         { "r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",(void *) &r_vbocount, CVAR_INT, 1, 256 },
         { "r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",(void *) &r_vbos, CVAR_BOOL, 0, 1 },
         { "r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",(void *) &r_vertexarrays, CVAR_BOOL, 0, 1 },
