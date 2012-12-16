@@ -1,17 +1,15 @@
-/* 
+/*
  	Copyright (c) 2010 ,
  		Cloud Wu . All rights reserved.
- 
+
  		http://www.codingnow.com
- 
+
  	Use, modification and distribution are subject to the "New BSD License"
  	as listed at <url: http://www.opensource.org/licenses/bsd-license.php >.
- 
+
    filename: backtrace.c
 
-   compiler: gcc 3.4.5 (mingw-win32)
-
-   build command: gcc -O2 -shared -Wall -o backtrace.dll backtrace.c -lbfd -liberty -limagehlp 
+   build command: gcc -O2 -shared -Wall -o backtrace.dll backtrace.c -lbfd -liberty -limagehlp
 
    how to use: Call LoadLibraryA("backtrace.dll"); at beginning of your program .
 
@@ -19,9 +17,24 @@
 
 /* modified from original for EDuke32 */
 
+// warnings cleaned up and ported to 64-bit by Hendricks266
+
+#define CRASH_LOG_FILE "eduke32_or_mapster32.crashlog"
+
 #include <windows.h>
 #include <excpt.h>
 #include <imagehlp.h>
+
+// Tenuous: MinGW provides _IMAGEHLP_H while MinGW-w64 defines _IMAGEHLP_.
+#ifdef _IMAGEHLP_H
+# define EBACKTRACE_MINGW32
+#endif
+#ifdef _IMAGEHLP_
+# define EBACKTRACE_MINGW_W64
+#endif
+#if defined(EBACKTRACE_MINGW32) && !defined(EBACKTRACE_MINGW_W64)
+# include "_dbg_common.h"
+#endif
 
 #ifndef PACKAGE
 # define PACKAGE EBACKTRACE1
@@ -44,6 +57,7 @@
 #include <time.h>
 
 #include <stdint.h>
+
 
 #if defined __GNUC__ || defined __clang__
 # define ATTRIBUTE(attrlist) __attribute__(attrlist)
@@ -102,7 +116,7 @@ output_print(struct output_buffer *ob, const char * format, ...)
 	ob->ptr = strlen(ob->buf + ob->ptr) + ob->ptr;
 }
 
-static void 
+static void
 lookup_section(bfd *abfd, asection *sec, void *opaque_data)
 {
 	struct find_info *data = opaque_data;
@@ -111,11 +125,11 @@ lookup_section(bfd *abfd, asection *sec, void *opaque_data)
 	if (data->func)
 		return;
 
-	if (!(bfd_get_section_flags(abfd, sec) & SEC_ALLOC)) 
+	if (!(bfd_get_section_flags(abfd, sec) & SEC_ALLOC))
 		return;
 
 	vma = bfd_get_section_vma(abfd, sec);
-	if (data->counter < vma || vma + bfd_get_section_size(sec) <= data->counter) 
+	if (data->counter < vma || vma + bfd_get_section_size(sec) <= data->counter)
 		return;
 
 	bfd_find_nearest_line(abfd, sec, data->symbol, data->counter - vma, &(data->file), &(data->func), &(data->line));
@@ -233,12 +247,18 @@ release_set(struct bfd_set *set)
 
 static char procname[MAX_PATH];
 
+#if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
+# define MachineType IMAGE_FILE_MACHINE_AMD64
+#else
+# define MachineType IMAGE_FILE_MACHINE_I386
+#endif
+
 static void
 _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT context)
 {
-	STACKFRAME frame;
+	STACKFRAME64 frame;
     HANDLE process, thread;
-	char symbol_buffer[sizeof(IMAGEHLP_SYMBOL) + 255];
+	char symbol_buffer[sizeof(IMAGEHLP_SYMBOL64) + 255];
 	char module_name_raw[MAX_PATH];
 	struct bfd_ctx *bc = NULL;
 
@@ -246,26 +266,33 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 
 	memset(&frame,0,sizeof(frame));
 
+#if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
+	frame.AddrPC.Offset = context->Rip;
+	frame.AddrStack.Offset = context->Rsp;
+	frame.AddrFrame.Offset = context->Rbp;
+#else
 	frame.AddrPC.Offset = context->Eip;
-	frame.AddrPC.Mode = AddrModeFlat;
 	frame.AddrStack.Offset = context->Esp;
-	frame.AddrStack.Mode = AddrModeFlat;
 	frame.AddrFrame.Offset = context->Ebp;
+#endif
+
+	frame.AddrPC.Mode = AddrModeFlat;
+	frame.AddrStack.Mode = AddrModeFlat;
 	frame.AddrFrame.Mode = AddrModeFlat;
 
 	process = GetCurrentProcess();
 	thread = GetCurrentThread();
 
-	while(StackWalk(IMAGE_FILE_MACHINE_I386, 
-		process, 
-		thread, 
-		&frame, 
-		context, 
-		0, 
-		SymFunctionTableAccess, 
-		SymGetModuleBase, 0)) {
-        IMAGEHLP_SYMBOL *symbol;
-		DWORD module_base;
+	while(StackWalk64(MachineType,
+		process,
+		thread,
+		&frame,
+		context,
+		NULL,
+		SymFunctionTableAccess64,
+		SymGetModuleBase64, NULL)) {
+		IMAGEHLP_SYMBOL64 *symbol;
+		DWORD64 module_base;
 		const char * module_name = "[unknown module]";
 
 		const char * file = NULL;
@@ -276,14 +303,14 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 		if (depth < 0)
 			break;
 
-		symbol = (IMAGEHLP_SYMBOL *)symbol_buffer;
+		symbol = (IMAGEHLP_SYMBOL64 *)symbol_buffer;
 		symbol->SizeOfStruct = (sizeof *symbol) + 255;
 		symbol->MaxNameLength = 254;
 
-		module_base = SymGetModuleBase(process, frame.AddrPC.Offset);
+		module_base = SymGetModuleBase64(process, frame.AddrPC.Offset);
 
-		if (module_base && 
-			GetModuleFileNameA((HINSTANCE)module_base, module_name_raw, MAX_PATH)) {
+		if (module_base &&
+			GetModuleFileNameA((HINSTANCE)(intptr_t)module_base, module_name_raw, MAX_PATH)) {
 			module_name = module_name_raw;
 			bc = get_bc(ob, set, module_name);
 		}
@@ -293,8 +320,8 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 		}
 
 		if (file == NULL) {
-			DWORD dummy = 0;
-			if (SymGetSymFromAddr(process, frame.AddrPC.Offset, &dummy, symbol)) {
+			DWORD64 dummy = 0;
+			if (SymGetSymFromAddr64(process, frame.AddrPC.Offset, &dummy, symbol)) {
 				file = symbol->Name;
 			}
 			else {
@@ -302,13 +329,13 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 			}
 		}
 		if (func == NULL) {
-			output_print(ob,"0x%x : %s : %s \n", 
+			output_print(ob,"0x%x : %s : %s \n",
 				frame.AddrPC.Offset,
 				module_name,
 				file);
 		}
 		else {
-			output_print(ob,"0x%x : %s : %s (%d) : in function (%s) \n", 
+			output_print(ob,"0x%x : %s : %s (%d) : in function (%s) \n",
 				frame.AddrPC.Offset,
 				module_name,
 				file,
@@ -321,7 +348,7 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 static char * g_output = NULL;
 static LPTOP_LEVEL_EXCEPTION_FILTER g_prev = NULL;
 
-static LONG WINAPI 
+static LONG WINAPI
 exception_filter(LPEXCEPTION_POINTERS info)
 {
 	struct output_buffer ob;
@@ -340,7 +367,7 @@ exception_filter(LPEXCEPTION_POINTERS info)
 		SymCleanup(GetCurrentProcess());
 	}
 
-    logfd = open("eduke32_or_mapster32.crashlog", O_APPEND | O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    logfd = open(CRASH_LOG_FILE, O_APPEND | O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 
     if (logfd) {
         time_t curtime;
@@ -389,7 +416,7 @@ backtrace_unregister(void)
 	}
 }
 
-BOOL WINAPI 
+BOOL WINAPI
 DllMain(HANDLE hinstDLL ATTRIBUTE((unused)), DWORD dwReason, LPVOID lpvReserved ATTRIBUTE((unused)))
 {
 	switch (dwReason) {

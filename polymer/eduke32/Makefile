@@ -68,7 +68,12 @@ ifneq ($(PLATFORM),WII)
     MAPSTER32_TARGET:=$(MAPSTER32)
 endif
 
-EBACKTRACEDLL ?= ebacktrace1.dll
+ifndef EBACKTRACEDLL
+    EBACKTRACEDLL = ebacktrace1.dll
+    ifeq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
+        EBACKTRACEDLL = ebacktrace1-64.dll
+    endif
+endif
 EBACKTRACEDLL_TARGET:=$(EBACKTRACEDLL)
 
 ifeq ($(PLATFORM),WINDOWS)

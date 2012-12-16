@@ -11,7 +11,7 @@ clean=veryclean
 # the following file paths are relative to $source
 targets=( eduke32.exe mapster32.exe )
 package=package
-not_src_packaged=( psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple/lib $package/ebacktrace1.dll )
+not_src_packaged=( psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple/lib )
 
 # group that owns the resulting packages
 group=dukeworld
