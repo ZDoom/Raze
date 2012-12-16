@@ -158,7 +158,7 @@ EDITOROBJS=$(OBJ)\astub.$o \
 
 
 # TARGETS
-all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) # duke3d_w32$(EXESUFFIX);
+all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) 
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB) $(ENETDIR)\$(ENETLIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib$(DXLIB) /LIBPATH:$(VORBISSDK)\lib $(flags_link) /MAP $** $(LIBS)
@@ -196,7 +196,7 @@ $(ENETDIR)\$(ENETLIB): enet ;
 
 # PHONIES	
 clean:
-	-del /Q $(OBJ)\* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX) \
+	-del /Q $(OBJ)\* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) \
             *.pdb *.map *.manifest
 	cd $(JAUDIOLIBDIR)
 	nmake /f Makefile.msvc clean
