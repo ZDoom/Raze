@@ -74,7 +74,13 @@ extern int16_t p2[MAXWALLSB];
 extern int16_t numscans, numbunches;
 
 #ifdef USE_OPENGL
+
+// For GL_EXP2 fog:
+#define FOGSCALE 0.0000768
+
 extern palette_t palookupfog[MAXPALOOKUPS];
+void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal);
+void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float factor);
 #endif
 
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);

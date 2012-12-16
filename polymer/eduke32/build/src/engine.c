@@ -44,7 +44,7 @@
 #include "engine_priv.h"
 
 #define CACHEAGETIME 16
-// #define CLASSIC_NONPOW2_YSIZE_WALLS
+//#define CLASSIC_NONPOW2_YSIZE_WALLS
 #define CLASSIC_NONPOW2_YSIZE_SPRITES
 
 #if !defined DEBUG_MAIN_ARRAYS

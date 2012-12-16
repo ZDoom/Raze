@@ -716,6 +716,10 @@ CDECLENDSET 6
 	ALIGN 16
 vlineasm1nonpow2:
 CDECLBEGINSET 6
+	; NOTE: this seems to be not debuggable with valgrind --smc-check=all,
+	; a crash reading the dummy address 0xbeeff0XX appears, as if only the
+	; low byte has been written into.
+	; (Valgrind bug?)
 	mov dword [np2_do_palookup+2], ebx
 	push ebp
 	mov ebp, edx  ; ebp: vertical place
