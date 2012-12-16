@@ -50,6 +50,6 @@ static DIOBJECTDATAFORMAT c_dfDIJoystick_odf[] = {
     { NULL, 79, 0x80FFFF0C, 0x00000000 }
 };
 
-const DIDATAFORMAT c_dfDIJoystick = { 24, 16, 0x00000001, 80, 44, c_dfDIJoystick_odf };
+const DIDATAFORMAT c_dfDIJoystick = { sizeof(DIDATAFORMAT), sizeof(DIOBJECTDATAFORMAT), 0x00000001, 80, 44, c_dfDIJoystick_odf };
 
 #endif // __dxdidf_h__

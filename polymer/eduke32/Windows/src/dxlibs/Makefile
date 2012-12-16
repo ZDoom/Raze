@@ -28,6 +28,10 @@ libdxguid.a : dxguid.o
 	ar -r libdxguid.a dxguid.o
 	ranlib libdxguid.a
 
+libdinput_custom.a : dinput.o
+	ar r libdinput_custom.a dinput.o
+	ranlib libdinput_custom.a
+
 libdinput8.a : dinput8.def dinput.o
 	dlltool -k --output-lib libdinput8.a --def dinput8.def
 	ar r libdinput8.a dinput.o

@@ -177,7 +177,7 @@ static struct
 {
     char *name;
     LPDIRECTINPUTDEVICE7A *did;
-    const DIDATAFORMAT *df;
+    LPCDIDATAFORMAT df;
 } devicedef = { "joystick", &lpDID, &c_dfDIJoystick };
 
 static struct _joydef

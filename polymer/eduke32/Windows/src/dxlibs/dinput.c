@@ -1,7 +1,7 @@
 #include <dinput.h>
 /* This is a replacement for parts of dinput.lib. */
 
-const DIOBJECTDATAFORMAT rgodf_c_dfDIKeyboard[] = {
+DIOBJECTDATAFORMAT rgodf_c_dfDIKeyboard[] = {
 {&GUID_Key, 0, -2147483636, 0},
 {&GUID_Key, 1, -2147483380, 0},
 {&GUID_Key, 2, -2147483124, 0},
@@ -260,14 +260,14 @@ const DIOBJECTDATAFORMAT rgodf_c_dfDIKeyboard[] = {
 {&GUID_Key, 255, -2147418356, 0}
 };
 
-const DIDATAFORMAT c_dfDIKeyboard = {24,
-16,
-2,
+const DIDATAFORMAT c_dfDIKeyboard = {sizeof(DIDATAFORMAT),
+sizeof(DIOBJECTDATAFORMAT),
+0x00000002,
 256,
 256,
 &rgodf_c_dfDIKeyboard[0]};
 
-const DIOBJECTDATAFORMAT rgodf_c_dfDIMouse[] = {
+DIOBJECTDATAFORMAT rgodf_c_dfDIMouse[] = {
 {&GUID_XAxis, 0, 16776963, 0},
 {&GUID_YAxis, 4, 16776963, 0},
 {&GUID_ZAxis, 8, -2130706685, 0},
@@ -275,14 +275,14 @@ const DIOBJECTDATAFORMAT rgodf_c_dfDIMouse[] = {
 {0, 13, 16776972, 0},
 {0, 14, -2130706676, 0},
 {0, 15, -2130706676, 0}};
-const DIDATAFORMAT c_dfDIMouse = {24,
-16,
-2,
+const DIDATAFORMAT c_dfDIMouse = {sizeof(DIDATAFORMAT),
+sizeof(DIOBJECTDATAFORMAT),
+0x00000002,
 16,
 7,
 rgodf_c_dfDIMouse};
 
-const DIOBJECTDATAFORMAT rgodf_c_dfDIMouse2[] = {
+DIOBJECTDATAFORMAT rgodf_c_dfDIMouse2[] = {
 {&GUID_XAxis, 0, 16776963, 0},
 {&GUID_YAxis, 4, 16776963, 0},
 {&GUID_ZAxis, 8, -2130706685, 0},
@@ -294,14 +294,14 @@ const DIOBJECTDATAFORMAT rgodf_c_dfDIMouse2[] = {
 {0, 17, -2130706676, 0},
 {0, 18, -2130706676,0},
 {0, 19, -2130706676, 0}};
-const DIDATAFORMAT c_dfDIMouse2 = {24,
-16,
-2,
+const DIDATAFORMAT c_dfDIMouse2 = {sizeof(DIDATAFORMAT),
+sizeof(DIOBJECTDATAFORMAT),
+0x00000002,
 20,
 11,
 rgodf_c_dfDIMouse2};
 
-const DIOBJECTDATAFORMAT rgodf_c_dfDIJoystick[] = {
+DIOBJECTDATAFORMAT rgodf_c_dfDIJoystick[] = {
 {&GUID_XAxis, 0, -2130706685, 256},
 {&GUID_YAxis, 4, -2130706685, 256},
 {&GUID_ZAxis, 8, -2130706685, 256},
@@ -346,14 +346,14 @@ const DIOBJECTDATAFORMAT rgodf_c_dfDIJoystick[] = {
 {0, 77, -2130706676, 0},
 {0, 78, -2130706676, 0},
 {0, 79, -2130706676, 0}};
-const DIDATAFORMAT c_dfDIJoystick = {24,
-16,
-1,
+const DIDATAFORMAT c_dfDIJoystick = {sizeof(DIDATAFORMAT),
+sizeof(DIOBJECTDATAFORMAT),
+0x00000001,
 80,
 44,
 rgodf_c_dfDIJoystick};
 
-const DIOBJECTDATAFORMAT rgodf_c_dfDIJoystick2[] = {
+DIOBJECTDATAFORMAT rgodf_c_dfDIJoystick2[] = {
 {&GUID_XAxis, 0, -2130706685, 256},
 {&GUID_YAxis, 4, -2130706685, 256},
 {&GUID_ZAxis, 8, -2130706685, 256},
@@ -518,9 +518,9 @@ const DIOBJECTDATAFORMAT rgodf_c_dfDIJoystick2[] = {
 {&GUID_RzAxis, 260, -2130706685, 1024},
 {&GUID_Slider, 24, -2130706685, 1024},
 {&GUID_Slider, 28, -2130706685, 1024}};
-const DIDATAFORMAT c_dfDIJoystick2 = {24,
-16,
-1,
+const DIDATAFORMAT c_dfDIJoystick2 = {sizeof(DIDATAFORMAT),
+sizeof(DIOBJECTDATAFORMAT),
+0x00000001,
 272,
 164,
 rgodf_c_dfDIJoystick2};
