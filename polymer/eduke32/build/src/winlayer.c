@@ -71,8 +71,6 @@
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
 
-#define FAKE_FS(x, y, bpp) (bpp == 8 && x == desktopxdim && y == desktopydim)
-
 static mutex_t m_initprintf;
 static int32_t winlayer_have_ATI = 0;
 
@@ -1840,17 +1838,6 @@ void getvalidmodes(void)
                 }
         }
     }
-
-    for (i=0; i<validmodecnt; i++)
-        if (validmode[i].fs && validmode[i].bpp == 8)
-            break;
-
-    if (i == validmodecnt)
-    {
-        initprintf("No fullscreen 8-bit modes exposed\n");
-        ADDMODE(desktopxdim, desktopydim, 8, 1, -1);
-    }
-
 #ifdef USE_OPENGL
     cdsenummodes();
 #endif
@@ -1906,13 +1893,13 @@ void begindrawing(void)
 
     if (offscreenrendering) return;
 
-    frameplace = fullscreen && !FAKE_FS(xres, yres, bpp) ? (intptr_t)lpOffscreen : (intptr_t)lpPixels;
+    frameplace = fullscreen ? (intptr_t)lpOffscreen : (intptr_t)lpPixels;
 
     if (!modechange) return;
 
     modechange=0;
 
-    if (!fullscreen || FAKE_FS(xres, yres, bpp))
+    if (!fullscreen)
     {
         bytesperline = xres|4;
     }
@@ -1974,7 +1961,7 @@ void showframe(int32_t w)
         while (lockcount) enddrawing();
     }
 
-    if (!fullscreen || FAKE_FS(xres, yres, bpp))
+    if (!fullscreen)
     {
         BitBlt(hDC, 0, 0, xres, yres, hDCSection, 0, 0, SRCCOPY);
         return;
@@ -2062,8 +2049,8 @@ int32_t setpalette(int32_t start, int32_t num)
     Bmemcpy(lpal.palPalEntry, curpalettefaded, sizeof(lpal.palPalEntry));
     for (i=start, n=num-1; n>0; i++, n--)
         curpalettefaded[i].f = lpal.palPalEntry[i].peFlags = PC_NOCOLLAPSE;
-    
-    if (fullscreen && !FAKE_FS(xres, yres, bpp))
+
+    if (fullscreen)
     {
         if (!lpDDPalette) return -1;
         result = IDirectDrawPalette_SetEntries(lpDDPalette, 0, 0, 256, (LPPALETTEENTRY)lpal.palPalEntry);
@@ -2118,7 +2105,7 @@ return 0;
 //
 static int32_t setgammaramp(WORD gt[3][256])
 {
-    if (!fullscreen || bpp > 8 || FAKE_FS(xres, yres, bpp))
+    if (!fullscreen || bpp > 8)
     {
         // GL and windowed mode use DIB method
         int32_t i;
@@ -2191,9 +2178,8 @@ int32_t setgamma(void)
 
 static int32_t getgammaramp(WORD gt[3][256])
 {
-    return -1;
     if (!hWindow) return -1;
-    if (!fullscreen || bpp > 8 || FAKE_FS(xres, yres, bpp))
+    if (!fullscreen || bpp > 8)
     {
         int32_t i;
         HDC hDC = GetDC(hWindow);
@@ -2992,13 +2978,8 @@ static BOOL CreateAppWindow(int32_t modenum)
 
         ShowWindow(hWindow, SW_HIDE);	// so Windows redraws what's behind if the window shrinks
     }
-    
-    if (fs && FAKE_FS(width, height, bitspp))
-    {
-        stylebitsex = 0;
-        stylebits = WS_POPUP | WS_MAXIMIZE | WS_VISIBLE | WS_CLIPSIBLINGS;
-    }
-    else if (fs)
+
+    if (fs)
     {
         stylebitsex = WS_EX_TOPMOST;
         stylebits = WS_POPUP;
@@ -3039,7 +3020,7 @@ static BOOL CreateAppWindow(int32_t modenum)
     }
 
     // resize the window
-    if (!fs && !FAKE_FS(width, height, bitspp))
+    if (!fs)
     {
         rect.left = 0;
         rect.top = 0;
@@ -3073,7 +3054,7 @@ static BOOL CreateAppWindow(int32_t modenum)
     SetWindowPos(hWindow, HWND_TOP, windowpos?windowx:x, windowpos?windowy:y, w, h, 0);
 
     // fullscreen?
-    if (!fs || FAKE_FS(width, height, bitspp))
+    if (!fs)
     {
         if (bitspp > 8)
         {
