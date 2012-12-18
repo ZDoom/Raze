@@ -249,16 +249,18 @@ static char procname[MAX_PATH];
 
 #if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
 # define MachineType IMAGE_FILE_MACHINE_AMD64
+# define MAYBE64(x) x ## 64
 #else
 # define MachineType IMAGE_FILE_MACHINE_I386
+# define MAYBE64(x) x
 #endif
 
 static void
 _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT context)
 {
-	STACKFRAME64 frame;
+	MAYBE64(STACKFRAME) frame;
     HANDLE process, thread;
-	char symbol_buffer[sizeof(IMAGEHLP_SYMBOL64) + 255];
+	char symbol_buffer[sizeof(MAYBE64(IMAGEHLP_SYMBOL)) + 255];
 	char module_name_raw[MAX_PATH];
 	struct bfd_ctx *bc = NULL;
 
@@ -283,16 +285,16 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 	process = GetCurrentProcess();
 	thread = GetCurrentThread();
 
-	while(StackWalk64(MachineType,
+	while(MAYBE64(StackWalk)(MachineType,
 		process,
 		thread,
 		&frame,
 		context,
 		NULL,
-		SymFunctionTableAccess64,
-		SymGetModuleBase64, NULL)) {
-		IMAGEHLP_SYMBOL64 *symbol;
-		DWORD64 module_base;
+		MAYBE64(SymFunctionTableAccess),
+		MAYBE64(SymGetModuleBase), NULL)) {
+		MAYBE64(IMAGEHLP_SYMBOL) *symbol;
+		MAYBE64(DWORD) module_base;
 		const char * module_name = "[unknown module]";
 
 		const char * file = NULL;
@@ -303,11 +305,11 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 		if (depth < 0)
 			break;
 
-		symbol = (IMAGEHLP_SYMBOL64 *)symbol_buffer;
+		symbol = (MAYBE64(IMAGEHLP_SYMBOL) *)symbol_buffer;
 		symbol->SizeOfStruct = (sizeof *symbol) + 255;
 		symbol->MaxNameLength = 254;
 
-		module_base = SymGetModuleBase64(process, frame.AddrPC.Offset);
+		module_base = MAYBE64(SymGetModuleBase)(process, frame.AddrPC.Offset);
 
 		if (module_base &&
 			GetModuleFileNameA((HINSTANCE)(intptr_t)module_base, module_name_raw, MAX_PATH)) {
@@ -320,8 +322,8 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 		}
 
 		if (file == NULL) {
-			DWORD64 dummy = 0;
-			if (SymGetSymFromAddr64(process, frame.AddrPC.Offset, &dummy, symbol)) {
+			MAYBE64(DWORD) dummy = 0;
+			if (MAYBE64(SymGetSymFromAddr)(process, frame.AddrPC.Offset, &dummy, symbol)) {
 				file = symbol->Name;
 			}
 			else {
