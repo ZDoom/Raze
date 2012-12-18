@@ -7202,7 +7202,7 @@ static void Keys3d(void)
                 wall[searchwall].xpanning = tempxpanning;
                 wall[searchwall].ypanning = tempypanning;
 
-                SET_PROTECT_BITS(wall[searchwall].cstat, tempcstat, YAX_NEXTWALLBITS|(4 + 1+64 + 8+256));
+                SET_PROTECT_BITS(wall[searchwall].cstat, tempcstat, ~(4 + 1+64 + 8+256));
 
                 wall[searchwall].hitag = temphitag;
 #ifdef YAX_ENABLE
@@ -7223,8 +7223,6 @@ static void Keys3d(void)
                 wall[searchbottomwall].picnum = temppicnum;
                 wall[searchbottomwall].shade = tempshade;
                 wall[searchbottomwall].pal = temppal;
-
-                asksave = 1;
             }
             else if (AIMING_AT_MASKWALL)
             {
