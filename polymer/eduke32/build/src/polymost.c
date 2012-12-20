@@ -839,7 +839,7 @@ void polymost_glinit()
 extern char nofog;  // in windows/SDL layers
 
 // For GL_LINEAR fog:
-#define FOGDISTCONST 150
+#define FOGDISTCONST 600
 #define FULLVIS_BEGIN 2.9e38
 #define FULLVIS_END 3.0e38
 
@@ -849,7 +849,7 @@ static inline void fogcalc(int32_t shade, int32_t vis, int32_t pal)
 
     if (r_usenewshading==2)
     {
-        float combvis = (float)(g_visibility * (uint8_t)(vis+16));
+        float combvis = (float)globalvisibility * (uint8_t)(vis+16);
 
         bglFogi(GL_FOG_MODE, GL_LINEAR);
 

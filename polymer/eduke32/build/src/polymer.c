@@ -411,7 +411,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "    fogFactor = exp2(-gl_Fog.density * gl_Fog.density * fragDepth * 1.442695);\n"
 #ifdef PR_LINEAR_FOG
         /* 0.65127==150/230, another constant found out by experiment. :/
-         * (150 is Polymost's FOGDISTCONST.) */
+         * (150 is Polymost's old FOGDISTCONST.) */
         "  } else {\n"
         "    fogFactor = gl_Fog.scale * (gl_Fog.end - fragDepth*0.65217);\n"
         "    fogFactor = clamp(fogFactor, 0.0, 1.0);"

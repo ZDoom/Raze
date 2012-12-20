@@ -8505,9 +8505,11 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         break;
 #ifdef USE_OPENGL
     case 3:
-        // I have no idea what the significance of this constant is,
-        // it was found out experimentally.             v  v
-        globalvisibility = scale(g_visibility<<2, xdimen, 1100);
+        // NOTE: In Polymost, the fragment depth depends on the x screen size!
+        if (r_usenewshading==2)
+            globalvisibility = scale(g_visibility<<2, xdimen, 1680);
+        else
+            globalvisibility = scale(g_visibility<<2, xdimen, 1100);
         break;
 # ifdef POLYMER
     case 4:
