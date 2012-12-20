@@ -4266,7 +4266,6 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
         dx = mulscale14(wall[wal->point2].x-wal->x,dasqr);
         dy = mulscale14(wall[wal->point2].y-wal->y,dasqr);
 
-        // NOTE: sector[].*heinum is int16_t and not supposed to be <0.
         i = nsqrtasm(daslope*daslope+16777216);
 
         x = globalx; y = globaly;
@@ -15803,12 +15802,13 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 
         for (i=0; name[i]; i++)
         {
+            // TODO: factor out!
             if (name[i] == '^' && isdigit(name[i+1]))
             {
                 char smallbuf[8];
                 int32_t bi=0;
 
-                while (isdigit(name[i+1]) && bi<8)
+                while (isdigit(name[i+1]) && bi<3)
                 {
                     smallbuf[bi++]=name[i+1];
                     i++;
@@ -15863,7 +15863,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
         {
             char smallbuf[8];
             int32_t bi=0;
-            while (isdigit(name[i+1]) && bi<8)
+            while (isdigit(name[i+1]) && bi<3)
             {
                 smallbuf[bi++]=name[i+1];
                 i++;

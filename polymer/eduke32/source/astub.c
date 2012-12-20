@@ -4190,16 +4190,19 @@ restart:
 #define WIND1X   3
 #define WIND1Y 150
 
+static char *tileinfo_colorstr = "";
+
 static void tileinfo_doprint(int32_t x, int32_t y, char *buf, const char *label, int32_t value, int32_t pos)
 {
     int32_t small = (xdimgame<=640), i = ydimgame>>6;
-    Bsprintf(buf,"%s:%4d",label,value);
+    Bsprintf(buf,"%s:%s%4d", label, tileinfo_colorstr, value);
     printext256(x+2, y+2+i*pos, 0, -1, buf, small);
     printext256(x, y+i*pos, whitecol, -1, buf, small);
 }
 
 // flags: 1:draw asterisk for lotag
 //        2:draw asterisk for extra
+//        4:print bottom-swapped wall members colored
 static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,int32_t pal,int32_t cstat,
                          int32_t lotag,int32_t hitag,int32_t extra, uint32_t flags)
 {
@@ -4233,10 +4236,13 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
     printext256(x+2,y+2,0,-1,title,small);
     printext256(x,y,255-13,-1,title,small);
 
+    if (flags&4)
+        tileinfo_colorstr = "^242";
     tileinfo_doprint(x, y, buf, "Pic", picnum, 1);
     tileinfo_doprint(x, y, buf, "Shd", shade, 2);
     tileinfo_doprint(x, y, buf, "Pal", pal, 3);
     tileinfo_doprint(x, y, buf, "Cst", cstat, 4);
+    tileinfo_colorstr = "";
     tileinfo_doprint(x, y, buf, (flags&1)?"Lo*":"Lot", lotag, 5);
     tileinfo_doprint(x, y, buf, "Hit", hitag, 6);
     tileinfo_doprint(x, y, buf, (flags&2)?"Ex*":"Ext", extra, 7);
@@ -4842,26 +4848,29 @@ static void Keys3d(void)
     if (searchsector > -1 && searchsector < numsectors)
     {
         char lines[8][64];
-        int32_t dist, height1=0,height2=0,height3=0, num=0;
+        int32_t num=0;
         int32_t x,y,flags=0;
-        int16_t w;
 
         if (infobox&1)
         {
-            height2 = sector[searchsector].floorz - sector[searchsector].ceilingz;
+            int32_t height2 = sector[searchsector].floorz - sector[searchsector].ceilingz;
 
             switch (searchstat)
             {
             case SEARCH_WALL:
             case SEARCH_MASKWALL:
-                w = SELECT_WALL();
+            {
+                int32_t dist, height1=0, height3=0;
+                const int32_t w = SELECT_WALL();
+                const int32_t swappedbot = (int32_t)(w != searchwall);
+                flags |= (swappedbot<<2);
 #ifdef YAX_ENABLE
                 flags |= (yax_getnextwall(searchwall, YAX_CEILING)>=0) + 2*(yax_getnextwall(searchwall, YAX_FLOOR)>=0);
 #endif
                 drawtileinfo("Current", WIND1X,WIND1Y,
                              AIMING_AT_WALL ? wall[w].picnum : wall[w].overpicnum,
-                             wall[w].shade, wall[w].pal, wall[searchwall].cstat,
-                             wall[searchwall].lotag, wall[searchwall].hitag, wall[searchwall].extra,flags);
+                             wall[w].shade, wall[w].pal, wall[w].cstat,
+                             wall[searchwall].lotag, wall[searchwall].hitag, wall[searchwall].extra, flags);
 
                 dist = wallength(searchwall);
 
@@ -4873,7 +4882,8 @@ static void Keys3d(void)
                     height3 = sector[nextsect].ceilingz - sector[searchsector].ceilingz;
                 }
 
-                Bsprintf_nowarn(lines[num++],"Panning: %d, %d", TrackerCast(wall[w].xpanning), TrackerCast(wall[w].ypanning));
+                Bsprintf_nowarn(lines[num++],"Panning:%s %d, %d", swappedbot?"^242":"",
+                                TrackerCast(wall[w].xpanning), TrackerCast(wall[w].ypanning));
                 Bsprintf_nowarn(lines[num++],"Repeat:  %d, %d", TrackerCast(wall[searchwall].xrepeat), TrackerCast(wall[searchwall].yrepeat));
                 Bsprintf_nowarn(lines[num++],"Overpic: %d", TrackerCast(wall[searchwall].overpicnum));
                 lines[num++][0]=0;
@@ -4881,13 +4891,17 @@ static void Keys3d(void)
                 if (getmessageleng)
                     break;
 
-                Bsprintf(lines[num++],"^251Wall %d^31", searchwall);
+                if (searchwall != searchbottomwall)
+                    Bsprintf(lines[num++],"^251Wall %d ->^242 %d", searchwall, searchbottomwall);
+                else
+                    Bsprintf(lines[num++],"^251Wall %d", searchwall);
 
                 if (wall[searchwall].nextsector!=-1)
                     Bsprintf(lines[num++],"LoHeight:%d, HiHeight:%d, Length:%d",height1,height3,dist);
                 else
                     Bsprintf(lines[num++],"Height:%d, Length:%d",height2,dist);
                 break;
+            }
 
             case SEARCH_CEILING:
             case SEARCH_FLOOR:
@@ -5339,7 +5353,7 @@ static void Keys3d(void)
 
     if (PRESSED_KEYSC(2))  // 2 (bottom wall swapping)
     {
-        if (searchstat != SEARCH_SPRITE)
+        if (!AIMING_AT_SPRITE && searchwall>=0)
         {
             wall[searchwall].cstat ^= 2;
             message("Wall %d bottom texture swap bit %s", searchwall, ONOFF(wall[searchwall].cstat&2));

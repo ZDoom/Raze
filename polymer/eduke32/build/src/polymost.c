@@ -6200,7 +6200,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         {
             char smallbuf[8];
             int32_t bi=0;
-            while (isdigit(name[c+1]) && bi<8)
+            while (isdigit(name[c+1]) && bi<3)
             {
                 smallbuf[bi++]=name[c+1];
                 c++;
