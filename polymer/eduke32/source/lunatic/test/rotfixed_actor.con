@@ -1,0 +1,6 @@
+useractor  4  58 1 NO NO 0
+    // usertype 4 is "rotation-fixed actor"
+    // tile 58 is the space suit
+
+    state killme
+enda

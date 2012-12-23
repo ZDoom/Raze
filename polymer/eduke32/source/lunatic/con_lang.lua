@@ -182,6 +182,7 @@ labels =
         SFLAG_NOTELEPORT       = 0x00004000,
 --        SFLAG_BADGUYSTAYPUT    = 0x00008000,
 --        SFLAG_CACHE            = 0x00010000,
+--        SFLAG_ROTFIXED         = 0x00020000,
     },
 
     {

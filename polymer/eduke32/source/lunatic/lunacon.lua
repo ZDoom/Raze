@@ -743,7 +743,7 @@ end
 local Ci = {
     -- these can appear anywhere in the script
     ["break"] = cmd()
-        / "do return end",  -- TODO: more exact semantics
+        / "do return end",
     ["return"] = cmd()  -- NLCF
         / "_con.longjmp()",  -- TODO: test with code from Wiki "return" entry
 

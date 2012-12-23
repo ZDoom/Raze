@@ -1,0 +1,22 @@
+state teststate_break
+    ifvare 1 1
+    {
+        redefinequote 114 BEFORE
+        echo 114
+
+        break
+
+        redefinequote 114 AFTER
+        echo 114
+    }
+
+    redefinequote 114 STILL LIVE INNER
+    echo 114
+ends
+
+onevent EVENT_INIT
+    state teststate_break
+
+    redefinequote 114 STILL LIVE OUTER
+    echo 114
+endevent
