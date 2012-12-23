@@ -47,6 +47,7 @@
 //#define CLASSIC_NONPOW2_YSIZE_WALLS
 #define CLASSIC_NONPOW2_YSIZE_SPRITES
 
+#define MULTI_COLUMN_VLINE
 //#define DEBUG_TILESIZY_512
 
 #if !defined DEBUG_MAIN_ARRAYS
@@ -1026,8 +1027,6 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
     g_nodraw = 0;
     scansector_collectsprites = 0;
 
-#if 1
-//def ENGINE_CLEAR_SCREEN
     if (editstatus==1)
     {
         if (getrendermode()==0)
@@ -1043,7 +1042,6 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
         }
 #endif
     }
-#endif
 
     for (cf=0; cf<2; cf++)
     {
@@ -2691,13 +2689,12 @@ skipitaddwall:
 static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32_t *swal, int32_t *lwal)
 {
     int32_t x,/* startx,*/ xnice, ynice;
-    intptr_t startx, p, pp, fpalookup;
+    intptr_t startx, p, fpalookup;
     int32_t y1ve[4], y2ve[4], tsizx, tsizy;
-#if 1 //ndef ENGINE_USING_A_C
+#ifdef MULTI_COLUMN_VLINE
     char bad;
     int32_t i, u4, d4, dax, z;
 #endif
-
     setgotpic(globalpicnum);
     if (globalshiftval < 0)
         return;
@@ -2735,6 +2732,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         goto do_mvlineasm1;
 #endif
 
+#ifdef MULTI_COLUMN_VLINE
     for (; (x<=x2)&&(p&3); x++,p++)
     {
         y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
@@ -2754,6 +2752,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
     }
     for (; x<=x2-3; x+=4,p+=4)
     {
+        intptr_t pp;
+
         bad = 0;
         for (z=3,dax=x+3; z>=0; z--,dax--)
         {
@@ -2810,6 +2810,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         if (y2ve[2] > d4) mvlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],pp+2);
         if (y2ve[3] > d4) mvlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],pp+3);
     }
+#endif
+
 #ifdef NONPOW2_YSIZE_ASM
 do_mvlineasm1:
 #endif
@@ -3696,11 +3698,12 @@ static void wallscan(int32_t x1, int32_t x2,
     int32_t x, xnice, ynice;
     intptr_t fpalookup;
     int32_t y1ve[4], y2ve[4], tsizx, tsizy;
-#if 1 //ndef ENGINE_USING_A_C
+#ifdef MULTI_COLUMN_VLINE
     char bad;
     int32_t i, u4, d4, z;
     uintptr_t p;
 #endif
+
 #ifdef YAX_ENABLE
     if (g_nodraw)
         return;
@@ -3737,6 +3740,7 @@ static void wallscan(int32_t x1, int32_t x2,
         goto do_vlineasm1;
 #endif
 
+#ifdef MULTI_COLUMN_VLINE
     for (; (x<=x2)&&((x+frameoffset)&3); x++)
     {
         y1ve[0] = max(uwal[x],umost[x]);
@@ -3812,6 +3816,8 @@ static void wallscan(int32_t x1, int32_t x2,
         if (y2ve[2] > d4) prevlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],p+2);
         if (y2ve[3] > d4) prevlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],p+3);
     }
+#endif
+
 #ifdef NONPOW2_YSIZE_ASM
 do_vlineasm1:
 #endif
@@ -3881,7 +3887,7 @@ static void transmaskvline(int32_t x)
 //
 // transmaskvline2 (internal)
 //
-#if 1 //ndef ENGINE_USING_A_C
+#ifdef MULTI_COLUMN_VLINE
 static void transmaskvline2(int32_t x)
 {
     int32_t i, y1, y2, x2;
@@ -3982,7 +3988,7 @@ static void transmaskwallscan(int32_t x1, int32_t x2)
     else
 #endif
     {
-#if 1 //ndef ENGINE_USING_A_C
+#ifdef MULTI_COLUMN_VLINE
         if ((x <= x2) && (x&1)) transmaskvline(x), x++;
         while (x < x2) transmaskvline2(x), x += 2;
 #endif
@@ -7194,7 +7200,6 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 #if defined ENGINE_USING_A_C
     if ((dastat&1)==0 && ((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
 #else
-//#if !defined ENGINE_USING_A_C  // (1)
     if ((dastat&1) == 0)
 #endif
     {
@@ -7437,7 +7442,6 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 #endif  // !defined ENGINE_USING_A_C
     }
     else
-//#endif  // !defined ENGINE_USING_A_C  // (1)
     {
         if ((dastat&1) == 0)
         {
@@ -11731,7 +11735,6 @@ restart_grand:
                 if (((intz-sv->z)^vz) < 0) continue;
                 if ((cstat&64) != 0)
                     if ((sv->z > intz) == ((cstat&8)==0)) continue;
-
 #if 1
                 // Abyss crash prevention code ((intz-sv->z)*zx overflowing a 8-bit word)
                 // PK: the reason for the crash is not the overflowing (even if it IS a problem;
@@ -11745,7 +11748,6 @@ restart_grand:
                 intx = sv->x+scale(intz-sv->z,vx,vz);
                 inty = sv->y+scale(intz-sv->z,vy,vz);
 #endif
-
                 if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
                     continue;
 
