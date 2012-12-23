@@ -87,6 +87,7 @@ enum scripttoken_t
     T_NOFLOORPALRANGE,
     T_TEXHITSCANRANGE,
     T_NOFULLBRIGHTRANGE,
+    T_MAPINFO, T_MAPFILE, T_MAPTITLE, T_MAPMD4, T_MHKFILE,
     T_ECHO,
 };
 
@@ -244,6 +245,7 @@ static int32_t defsparser(scriptfile *script)
         { "cachesize",       T_CACHESIZE        },
         { "dummytilefrompic",T_IMPORTTILE       },
         { "tilefromtexture", T_TILEFROMTEXTURE  },
+        { "mapinfo",         T_MAPINFO          },  // dummy
         { "echo",            T_ECHO             },
     };
 
@@ -1994,6 +1996,39 @@ static int32_t defsparser(scriptfile *script)
                     scriptfile_getstring(script,&dummy2);
                     break;
                 case T_FILE:
+                    scriptfile_getstring(script,&dummy2);
+                    break;
+                }
+            }
+        }
+        break;
+
+        case T_MAPINFO:
+        {
+            char *dummy, *dummy2;
+            static const tokenlist mapinfotokens[] =
+            {
+                { "mapfile",    T_MAPFILE },
+                { "maptitle",   T_MAPTITLE },
+                { "mapmd4",     T_MAPMD4 },
+                { "mhkfile",    T_MHKFILE },
+            };
+
+            if (scriptfile_getbraces(script,&dummy)) break;
+            while (script->textptr < dummy)
+            {
+                switch (getatoken(script,mapinfotokens,sizeof(mapinfotokens)/sizeof(tokenlist)))
+                {
+                case T_MAPFILE:
+                    scriptfile_getstring(script,&dummy2);
+                    break;
+                case T_MAPTITLE:
+                    scriptfile_getstring(script,&dummy2);
+                    break;
+                case T_MAPMD4:
+                    scriptfile_getstring(script,&dummy2);
+                    break;
+                case T_MHKFILE:
                     scriptfile_getstring(script,&dummy2);
                     break;
                 }
