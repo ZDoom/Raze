@@ -555,10 +555,10 @@ GAMEEXEC_STATIC void VM_Move(void)
 
     if (vm.g_t[1] == 0 || a == 0)
     {
-        if (deadflag || (actor[vm.g_i].bposx != vm.g_sp->x) || (actor[vm.g_i].bposy != vm.g_sp->y))
+        if (deadflag || (actor[vm.g_i].bpos.x != vm.g_sp->x) || (actor[vm.g_i].bpos.y != vm.g_sp->y))
         {
-            actor[vm.g_i].bposx = vm.g_sp->x;
-            actor[vm.g_i].bposy = vm.g_sp->y;
+            actor[vm.g_i].bpos.x = vm.g_sp->x;
+            actor[vm.g_i].bpos.y = vm.g_sp->y;
             setsprite(vm.g_i, (vec3_t *)vm.g_sp);
         }
         return;

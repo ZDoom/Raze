@@ -662,9 +662,9 @@ void P_ResetPlayer(int32_t snum)
     tmpvect.y = pl->pos.y;
     tmpvect.z = pl->pos.z+PHEIGHT;
     P_RandomSpawnPoint(snum);
-    sp->x = actor[pl->i].bposx = pl->bobposx = pl->opos.x = pl->pos.x;
-    sp->y = actor[pl->i].bposy = pl->bobposy = pl->opos.y = pl->pos.y;
-    sp->z = actor[pl->i].bposy = pl->opos.z =pl->pos.z;
+    sp->x = actor[pl->i].bpos.x = pl->bobposx = pl->opos.x = pl->pos.x;
+    sp->y = actor[pl->i].bpos.y = pl->bobposy = pl->opos.y = pl->pos.y;
+    sp->z = actor[pl->i].bpos.y = pl->opos.z =pl->pos.z;
     updatesector(pl->pos.x,pl->pos.y,&pl->cursectnum);
     setsprite(pl->i,&tmpvect);
     sp->cstat = 257;
@@ -1619,9 +1619,9 @@ static void resetpspritevars(char g)
                 g_player[j].ps->autostep = (20L<<8);
                 g_player[j].ps->autostep_sbw = (4L<<8);
 
-                actor[i].bposx = g_player[j].ps->bobposx = g_player[j].ps->opos.x = g_player[j].ps->pos.x =        s->x;
-                actor[i].bposy = g_player[j].ps->bobposy = g_player[j].ps->opos.y = g_player[j].ps->pos.y =        s->y;
-                actor[i].bposz = g_player[j].ps->opos.z = g_player[j].ps->pos.z =        s->z;
+                actor[i].bpos.x = g_player[j].ps->bobposx = g_player[j].ps->opos.x = g_player[j].ps->pos.x =        s->x;
+                actor[i].bpos.y = g_player[j].ps->bobposy = g_player[j].ps->opos.y = g_player[j].ps->pos.y =        s->y;
+                actor[i].bpos.z = g_player[j].ps->opos.z = g_player[j].ps->pos.z =        s->z;
                 g_player[j].ps->oang  = g_player[j].ps->ang  =        s->ang;
 
                 updatesector(s->x,s->y,&g_player[j].ps->cursectnum);

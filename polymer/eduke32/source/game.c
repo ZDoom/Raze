@@ -3991,7 +3991,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     Bmemcpy(s, &spr_temp, sizeof(spritetype));
     Bmemset(&actor[i], 0, sizeof(actor_t));
-    Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t)); // update bposx/y/z
+    Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t)); // update bposx/y/z
 
     if ((unsigned)s_ow < MAXSPRITES)
     {
@@ -4085,7 +4085,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         i = pn;
 
         Bmemset(&actor[i], 0, sizeof(actor_t));
-        Bmemcpy(&actor[i].bposx, &sprite[i], sizeof(vec3_t));
+        Bmemcpy(&actor[i].bpos.x, &sprite[i], sizeof(vec3_t));
 
         actor[i].picnum = PN;
 
@@ -6353,9 +6353,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         else if ((s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER ||
                  s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR)
         {
-            t->x -= mulscale16(65536-smoothratio,s->x-actor[i].bposx);
-            t->y -= mulscale16(65536-smoothratio,s->y-actor[i].bposy);
-            t->z -= mulscale16(65536-smoothratio,s->z-actor[i].bposz);
+            t->x -= mulscale16(65536-smoothratio,s->x-actor[i].bpos.x);
+            t->y -= mulscale16(65536-smoothratio,s->y-actor[i].bpos.y);
+            t->z -= mulscale16(65536-smoothratio,s->z-actor[i].bpos.z);
         }
 
         sect = s->sectnum;

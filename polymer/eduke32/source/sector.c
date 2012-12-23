@@ -249,7 +249,7 @@ void G_DoSectorAnimations(void)
             if (animateptr[i] == &sector[animatesect[i]].floorz)
                 for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
                     if (sprite[j].statnum != STAT_EFFECTOR)
-                        actor[j].bposz = sprite[j].z;
+                        actor[j].bpos.z = sprite[j].z;
 
             g_animateCount--;
             animateptr[i] = animateptr[g_animateCount];
@@ -294,7 +294,7 @@ void G_DoSectorAnimations(void)
             for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
                 if (sprite[j].statnum != STAT_EFFECTOR)
                 {
-                    actor[j].bposz = sprite[j].z;
+                    actor[j].bpos.z = sprite[j].z;
                     sprite[j].z += v;
                     actor[j].floorz = sector[dasect].floorz+v;
                 }

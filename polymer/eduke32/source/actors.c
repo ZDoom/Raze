@@ -418,7 +418,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                                 spr->y += (sprite[OW].y-SY);
                                 spr->z = sector[sprite[OW].sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
 
-                                Bmemcpy(&actor[spritenum].bposx, &sprite[spritenum], sizeof(vec3_t));
+                                Bmemcpy(&actor[spritenum].bpos.x, &sprite[spritenum], sizeof(vec3_t));
                                 changespritesect(spritenum,sprite[OW].sectnum);
                             }
 
@@ -435,7 +435,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                                 spr->y += (sprite[OW].y-SY);
                                 spr->z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
 
-                                Bmemcpy(&actor[spritenum].bposx, &sprite[spritenum], sizeof(vec3_t));
+                                Bmemcpy(&actor[spritenum].bpos.x, &sprite[spritenum], sizeof(vec3_t));
                                 changespritesect(spritenum,sprite[OW].sectnum);
                             }
 
@@ -1053,7 +1053,7 @@ ACTOR_STATIC void G_MovePlayers(void)
             {
                 s->x = p->opos.x;
                 s->y = p->opos.y;
-                actor[i].bposz = s->z = p->opos.z+PHEIGHT;
+                actor[i].bpos.z = s->z = p->opos.z+PHEIGHT;
                 s->ang = p->oang;
                 setsprite(i,(vec3_t *)s);
             }
@@ -1150,7 +1150,7 @@ ACTOR_STATIC void G_MovePlayers(void)
             if (p->holoduke_on == -1)
                 KILLIT(i);
 
-            Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
+            Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
             s->cstat = 0;
 
             if (s->xrepeat < 42)
@@ -1441,7 +1441,7 @@ ACTOR_STATIC void G_MoveStandables(void)
 
         // 'fixed' sprites in rotating sectors already have bpos* updated
         if ((t[7]&(0xffff0000))!=0x18190000)
-            Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
+            Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
 
         IFWITHIN(CRANE,CRANE+3)
         {
@@ -1611,7 +1611,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 {
                     setsprite(s->owner,(vec3_t *)s);
 
-                    Bmemcpy(&actor[s->owner].bposx, s, sizeof(vec3_t));
+                    Bmemcpy(&actor[s->owner].bpos.x, s, sizeof(vec3_t));
 
                     s->zvel = 0;
                 }
@@ -2256,7 +2256,7 @@ CLEAR_THE_BOLT:
                     }
                     else
                     {
-                        actor[i].bposz = s->z = t[0];
+                        actor[i].bpos.z = s->z = t[0];
                         t[1] = 48+(krand()&31);
                     }
                 }
@@ -2522,7 +2522,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
         if (s->sectnum < 0)
             KILLIT(i);
 
-        Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
+        Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
 
         /* Custom projectiles */
         if (A_CheckSpriteFlags(i,SPRITE_PROJECTILE))
@@ -3296,9 +3296,9 @@ ACTOR_STATIC void G_MoveTransports(void)
                             else ps->pos.z = sprite[OW].z+6144;
                             ps->opos.z = ps->pos.z;
 
-                            actor[ps->i].bposx = ps->pos.x;
-                            actor[ps->i].bposy = ps->pos.y;
-                            actor[ps->i].bposz = ps->pos.z;
+                            actor[ps->i].bpos.x = ps->pos.x;
+                            actor[ps->i].bpos.y = ps->pos.y;
+                            actor[ps->i].bpos.z = ps->pos.z;
 
                             changespritesect(j,sprite[OW].sectnum);
                             ps->cursectnum = sprite[OW].sectnum;
@@ -3416,7 +3416,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                 sprite[j].z = sectlotag==ST_1_ABOVE_WATER ?
                                     sector[osect].ceilingz : sector[osect].floorz;
 
-                                Bmemcpy(&actor[j].bposx, &sprite[j], sizeof(vec3_t));
+                                Bmemcpy(&actor[j].bpos.x, &sprite[j], sizeof(vec3_t));
 
                                 changespritesect(j, sprite[OW].sectnum);
                             }
@@ -3432,7 +3432,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                         sprite[j].z -= SZ - sector[sprite[OW].sectnum].floorz;
                                         sprite[j].ang = sprite[OW].ang;
 
-                                        Bmemcpy(&actor[j].bposx, &sprite[j], sizeof(vec3_t));
+                                        Bmemcpy(&actor[j].bpos.x, &sprite[j], sizeof(vec3_t));
 
                                         if (sprite[i].pal == 0)
                                         {
@@ -3458,7 +3458,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                     sprite[j].y += (sprite[OW].y-SY);
                                     sprite[j].z = sprite[OW].z+4096;
 
-                                    Bmemcpy(&actor[j].bposx, &sprite[j], sizeof(vec3_t));
+                                    Bmemcpy(&actor[j].bpos.x, &sprite[j], sizeof(vec3_t));
 
                                     changespritesect(j,sprite[OW].sectnum);
                                 }
@@ -3517,7 +3517,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
         t = &actor[i].t_data[0];
 
-        Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
+        Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
 
         switchpicnum=s->picnum;
 
@@ -4875,7 +4875,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
         if (sect < 0 || s->xrepeat == 0)
             KILLIT(i);
 
-        Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
+        Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
 
         switchpicnum = s->picnum;
         if (s->picnum > NUKEBUTTON && s->picnum <= NUKEBUTTON+3)
@@ -5453,7 +5453,7 @@ static void HandleSE31(int32_t i, int32_t zref, int32_t t2val, int32_t movesigne
                     g_player[sprite[j].yvel].ps->pos.z += l;
             if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
             {
-                actor[j].bposz = sprite[j].z += l;
+                actor[j].bpos.z = sprite[j].z += l;
                 actor[j].floorz = sc->floorz;
             }
         }
@@ -5682,8 +5682,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             sprite[p].z += zchange;
 
                             // interpolation fix
-                            actor[p].bposx = sprite[p].x;
-                            actor[p].bposy = sprite[p].y;
+                            actor[p].bpos.x = sprite[p].x;
+                            actor[p].bpos.y = sprite[p].y;
 
                             if (move_fixed_sprite(p, j, t[2]))
                                 rotatepoint(sprite[j].x,sprite[j].y,sprite[p].x,sprite[p].y,(q*l),&sprite[p].x,&sprite[p].y);
@@ -5706,8 +5706,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             if (sprite[p].picnum == APLAYER && sprite[p].owner >= 0)
                                 continue;
 
-                            actor[p].bposx = sprite[p].x;
-                            actor[p].bposy = sprite[p].y;
+                            actor[p].bpos.x = sprite[p].x;
+                            actor[p].bpos.y = sprite[p].y;
                         }
                 }
             }
@@ -5909,8 +5909,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         // fix interpolation
                         if (numplayers < 2 && !g_netServer)
                         {
-                            actor[j].bposx = sprite[j].x;
-                            actor[j].bposy = sprite[j].y;
+                            actor[j].bpos.x = sprite[j].x;
+                            actor[j].bpos.y = sprite[j].y;
                         }
 
                         if (move_fixed_sprite(j, s-sprite, t[2]))
@@ -5923,8 +5923,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                         if (g_netServer || numplayers > 1)
                         {
-                            actor[j].bposx = sprite[j].x;
-                            actor[j].bposy = sprite[j].y;
+                            actor[j].bpos.x = sprite[j].x;
+                            actor[j].bpos.y = sprite[j].y;
                         }
                     }
                     j = nextspritesect[j];
@@ -5961,8 +5961,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             (sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == SE_49_POINT_LIGHT||sprite[j].lotag == SE_50_SPOT_LIGHT))
                             && sprite[j].picnum != LOCATORS)
                     {
-                        actor[j].bposx = sprite[j].x;
-                        actor[j].bposy = sprite[j].y;
+                        actor[j].bpos.x = sprite[j].x;
+                        actor[j].bpos.y = sprite[j].y;
                     }
                 }
             }
@@ -6013,8 +6013,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         {
                             if (sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
                             {
-                                actor[j].bposx = sprite[j].x;
-                                actor[j].bposy = sprite[j].y;
+                                actor[j].bpos.x = sprite[j].x;
+                                actor[j].bpos.y = sprite[j].y;
                             }
                             j = nextspritesect[j];
                         }
@@ -6068,8 +6068,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     {
                         if (numplayers < 2 && !g_netServer)
                         {
-                            actor[j].bposx = sprite[j].x;
-                            actor[j].bposy = sprite[j].y;
+                            actor[j].bpos.x = sprite[j].x;
+                            actor[j].bpos.y = sprite[j].y;
                         }
 
                         sprite[j].x += l;
@@ -6077,8 +6077,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                         if (g_netServer || numplayers > 1)
                         {
-                            actor[j].bposx = sprite[j].x;
-                            actor[j].bposy = sprite[j].y;
+                            actor[j].bpos.x = sprite[j].x;
+                            actor[j].bpos.y = sprite[j].y;
                         }
                     }
                     j = nextspritesect[j];
@@ -6769,7 +6769,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
                 if (sprite[j].statnum != STAT_EFFECTOR)
                 {
-                    actor[j].bposz = sprite[j].z;
+                    actor[j].bpos.z = sprite[j].z;
                     sprite[j].z += q;
                 }
 
@@ -6848,7 +6848,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         sprite[k].z = sector[sprite[j].sectnum].floorz-
                                       (sc->floorz-sprite[k].z);
 
-                        Bmemcpy(&actor[k].bposx, &sprite[k], sizeof(vec3_t));
+                        Bmemcpy(&actor[k].bpos.x, &sprite[k], sizeof(vec3_t));
 
                         changespritesect(k,sprite[j].sectnum);
                         setsprite(k,(vec3_t *)&sprite[k]);
@@ -6889,7 +6889,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                                     g_player[sprite[j].yvel].ps->pos.z += sc->extra;
                             if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
                             {
-                                actor[j].bposz = sprite[j].z += sc->extra;
+                                actor[j].bpos.z = sprite[j].z += sc->extra;
                                 actor[j].floorz = sc->floorz;
                             }
                             j = nextspritesect[j];
@@ -6923,7 +6923,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                                     g_player[sprite[j].yvel].ps->pos.z -= sc->extra;
                             if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
                             {
-                                actor[j].bposz = sprite[j].z -= sc->extra;
+                                actor[j].bpos.z = sprite[j].z -= sc->extra;
                                 actor[j].floorz = sc->floorz;
                             }
                             j = nextspritesect[j];
@@ -7209,8 +7209,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         {
                             if (sprite[j].z > (actor[j].floorz-(16<<8)))
                             {
-                                actor[j].bposx = sprite[j].x;
-                                actor[j].bposy = sprite[j].y;
+                                actor[j].bpos.x = sprite[j].x;
+                                actor[j].bpos.y = sprite[j].y;
 
                                 sprite[j].x += x>>2;
                                 sprite[j].y += l>>2;
@@ -7321,8 +7321,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 nextj = nextspritesect[j];
                 if (sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PLAYER)
                 {
-                    actor[j].bposx = sprite[j].x;
-                    actor[j].bposy = sprite[j].y;
+                    actor[j].bpos.x = sprite[j].x;
+                    actor[j].bpos.y = sprite[j].y;
 
                     sprite[j].x += l;
                     sprite[j].y += x;

@@ -135,7 +135,8 @@ local ACTOR_STRUCT = [[
     const struct action ac;
     const int16_t _padding[1];
 
-    int32_t flags, bposx,bposy,bposz; //16b
+    int32_t flags; //4b
+    vec3_t bpos; //12b
     int32_t floorz,ceilingz,lastvx,lastvy; //16b
     int32_t lasttransport; //4b
 

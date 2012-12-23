@@ -110,7 +110,8 @@ typedef struct {
     const int16_t padding_;
 #endif
 
-    int32_t flags, bposx,bposy,bposz; //16b
+    int32_t flags; //4b
+    vec3_t bpos; //12b
     int32_t floorz,ceilingz,lastvx,lastvy; //16b
     int32_t lasttransport; //4b
 
@@ -157,7 +158,8 @@ typedef struct {
     const int16_t padding_;
 #endif
 
-    int32_t flags, bposx,bposy,bposz; //16b
+    int32_t flags; //4b
+    vec3_t bpos; //12b
     int32_t floorz,ceilingz,lastvx,lastvy; //16b
     int32_t lasttransport; //4b
 

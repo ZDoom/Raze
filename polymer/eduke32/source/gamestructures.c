@@ -2610,15 +2610,15 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
         return;
 
     case ACTOR_HTBPOSX:
-        actor[iActor].bposx=lVar1;
+        actor[iActor].bpos.x=lVar1;
         return;
 
     case ACTOR_HTBPOSY:
-        actor[iActor].bposy=lVar1;
+        actor[iActor].bpos.y=lVar1;
         return;
 
     case ACTOR_HTBPOSZ:
-        actor[iActor].bposz=lVar1;
+        actor[iActor].bpos.z=lVar1;
         return;
 
     case ACTOR_HTG_T:
@@ -2860,15 +2860,15 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
         return;
 
     case ACTOR_HTBPOSX:
-        Gv_SetVarX(lVar2,actor[iActor].bposx);
+        Gv_SetVarX(lVar2,actor[iActor].bpos.x);
         return;
 
     case ACTOR_HTBPOSY:
-        Gv_SetVarX(lVar2,actor[iActor].bposy);
+        Gv_SetVarX(lVar2,actor[iActor].bpos.y);
         return;
 
     case ACTOR_HTBPOSZ:
-        Gv_SetVarX(lVar2,actor[iActor].bposz);
+        Gv_SetVarX(lVar2,actor[iActor].bpos.z);
         return;
 
     case ACTOR_HTG_T:
@@ -3518,9 +3518,9 @@ static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int
     case ACTOR_HTCEILINGZ: return actor[iActor].ceilingz;
     case ACTOR_HTLASTVX: return actor[iActor].lastvx;
     case ACTOR_HTLASTVY: return actor[iActor].lastvy;
-    case ACTOR_HTBPOSX: return actor[iActor].bposx;
-    case ACTOR_HTBPOSY: return actor[iActor].bposy;
-    case ACTOR_HTBPOSZ: return actor[iActor].bposz;
+    case ACTOR_HTBPOSX: return actor[iActor].bpos.x;
+    case ACTOR_HTBPOSY: return actor[iActor].bpos.y;
+    case ACTOR_HTBPOSZ: return actor[iActor].bpos.z;
     case ACTOR_HTG_T: return actor[iActor].t_data[lParm2];
     case ACTOR_ANGOFF: return spriteext[iActor].angoff;
     case ACTOR_PITCH: return spriteext[iActor].pitch;
