@@ -64,7 +64,7 @@ typedef struct
 local C = ffi.C
 
 
-local MAX =
+MAX =
 {
     SECTORS = { [7]=1024, [8]=4096, [9]=4096 },
     WALLS = { [7]=8192, [8]=16384, [9]=16384 },
@@ -343,7 +343,8 @@ function loadarts(filenames)
         end
 
         local localtilestart = cd[2]
-        local numtileshere = cd[3]-localtilestart
+        local numtileshere = cd[3]-localtilestart+1
+--        print(fn.. ": "..cd[2].. ", "..cd[3])
 
         if (numtileshere < 0 or localtilestart+numtileshere >= MAX.TILES) then
             fh:close()
