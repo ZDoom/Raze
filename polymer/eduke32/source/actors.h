@@ -209,6 +209,9 @@ enum sflags_t {
     SPRITE_NOTELEPORT       = 0x00004000,
     SPRITE_BADGUYSTAYPUT    = 0x00008000,
     SPRITE_CACHE            = 0x00010000,
+    // rotation-fixed wrt a pivot point to prevent position diverging due to
+    // roundoff error accumulation:
+    SPRITE_ROTFIXED         = 0x00020000,
 };
 
 // custom projectiles

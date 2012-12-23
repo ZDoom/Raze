@@ -2771,6 +2771,9 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 if (j & 2)
                     g_tile[*g_scriptPtr].flags |= (SPRITE_BADGUY|SPRITE_BADGUYSTAYPUT);
+
+                if (j & 4)
+                    g_tile[*g_scriptPtr].flags |= SPRITE_ROTFIXED;
             }
 
             for (j=0; j<4; j++)

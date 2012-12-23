@@ -1003,9 +1003,9 @@ static void premap_setup_fixed_sprites(void)
             {
                 // TRIPBOMB uses t_data[7] for its own purposes. Wouldn't be
                 // too useful with moving sectors anyway
-                if ((FIXSPR_STATNUMP(sprite[j].statnum) && sprite[j].picnum!=TRIPBOMB) ||
+                if ((ROTFIXSPR_STATNUMP(sprite[j].statnum) && sprite[j].picnum!=TRIPBOMB) ||
                     ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) &&
-                    A_CheckSpriteTileFlags(sprite[j].picnum, SPRITE_BADGUY)))
+                     A_CheckSpriteTileFlags(sprite[j].picnum, SPRITE_ROTFIXED)))
                 {
                     pivot = i;
                     if (sprite[i].lotag==0)
@@ -1013,7 +1013,7 @@ static void premap_setup_fixed_sprites(void)
                     if (j!=i && j!=pivot && pivot>=0 && pivot<MAXSPRITES)
                     {
                         // let's hope we don't step on anyone's toes here
-                        actor[j].t_data[7] = 0x18190000 | pivot; // 'rs' magic + pivot SE sprite index
+                        actor[j].t_data[7] = ROTFIXSPR_MAGIC | pivot; // 'rs' magic + pivot SE sprite index
                         actor[j].t_data[8] = sprite[j].x - sprite[pivot].x;
                         actor[j].t_data[9] = sprite[j].y - sprite[pivot].y;
                     }

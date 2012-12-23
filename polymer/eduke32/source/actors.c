@@ -632,12 +632,12 @@ void Sect_ClearInterpolation(int32_t sectnum)
     }
 }
 
-static int32_t move_fixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
+static int32_t move_rotfixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
 {
-    if ((FIXSPR_STATNUMP(sprite[j].statnum) ||
+    if ((ROTFIXSPR_STATNUMP(sprite[j].statnum) ||
          ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) &&
-         A_CheckSpriteTileFlags(sprite[j].picnum, SPRITE_BADGUY)))
-            && actor[j].t_data[7]==(0x18190000|pivotspr))
+          A_CheckSpriteTileFlags(sprite[j].picnum, SPRITE_ROTFIXED)))
+        && actor[j].t_data[7]==(ROTFIXSPR_MAGIC|pivotspr))
     {
         rotatepoint(0,0, actor[j].t_data[8],actor[j].t_data[9], daang&2047, &sprite[j].x,&sprite[j].y);
         sprite[j].x += sprite[pivotspr].x;
@@ -1440,7 +1440,7 @@ ACTOR_STATIC void G_MoveStandables(void)
             KILLIT(i);
 
         // 'fixed' sprites in rotating sectors already have bpos* updated
-        if ((t[7]&(0xffff0000))!=0x18190000)
+        if ((t[7]&(0xffff0000))!=ROTFIXSPR_MAGIC)
             Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
 
         IFWITHIN(CRANE,CRANE+3)
@@ -5685,7 +5685,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             actor[p].bpos.x = sprite[p].x;
                             actor[p].bpos.y = sprite[p].y;
 
-                            if (move_fixed_sprite(p, j, t[2]))
+                            if (move_rotfixed_sprite(p, j, t[2]))
                                 rotatepoint(sprite[j].x,sprite[j].y,sprite[p].x,sprite[p].y,(q*l),&sprite[p].x,&sprite[p].y);
                         }
                 }
@@ -5913,7 +5913,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             actor[j].bpos.y = sprite[j].y;
                         }
 
-                        if (move_fixed_sprite(j, s-sprite, t[2]))
+                        if (move_rotfixed_sprite(j, s-sprite, t[2]))
                             rotatepoint(s->x,s->y,sprite[j].x,sprite[j].y,q,&sprite[j].x,&sprite[j].y);
 
                         sprite[j].x+= m;
