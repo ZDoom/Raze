@@ -196,6 +196,8 @@ int32_t loadsetup(const char *fn)
         glusetexcompr = !!atoi_safe(val);
     if (readconfig(fp, "r_shadescale", val, VL) > 0)
         shadescale = clampd(Bstrtod(val, NULL), 0.0, 10.0);
+    if (readconfig(fp, "r_usenewshading", val, VL) > 0)
+        r_usenewshading = clamp(atoi_safe(val), 0, 2);
 #endif
     if (readconfig(fp, "r_usenewaspect", val, VL) > 0)
         r_usenewaspect = !!atoi_safe(val);
@@ -394,6 +396,7 @@ int32_t writesetup(const char *fn)
              "r_downsize = %d\n"
              "r_texcompr = %d\n"
              "r_shadescale = %g\n"
+             "r_usenewshading = %d\n"
              "\n"
 #endif
              "; Use new aspect determination code? (classic/Polymost)\n"
@@ -577,7 +580,7 @@ int32_t writesetup(const char *fn)
 #ifdef USE_OPENGL
              usemodels, usehightile, g_lazy_tileselector,
              glusetexcache, glusememcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
-             shadescale,
+             shadescale, r_usenewshading,
 #endif
              r_usenewaspect,
 #ifndef RENDERTYPEWIN
