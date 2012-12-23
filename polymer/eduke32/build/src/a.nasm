@@ -699,8 +699,12 @@ vlineasm1_nosetup:
 fixchain1a: sub edi, 320
 beginvline:
 	mov ebx, edx
+	; Here, the right shift value is supposed to be >= 24,
+	; translating into tiles with y sizes <= 256 ...
+	; (ebx is what is called "vplc" in the C replacement code.)
 mach3a: shr ebx, 32
 fixchain1b: add edi, 320
+	; ... so that the upper 24 bits of ebx are clear here:
 	mov bl, byte [esi+ebx]
 	add edx, eax
 	dec ecx

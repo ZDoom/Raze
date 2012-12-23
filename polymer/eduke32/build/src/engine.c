@@ -47,6 +47,8 @@
 //#define CLASSIC_NONPOW2_YSIZE_WALLS
 #define CLASSIC_NONPOW2_YSIZE_SPRITES
 
+//#define DEBUG_TILESIZY_512
+
 #if !defined DEBUG_MAIN_ARRAYS
 const int32_t engine_main_arrays_are_static = 0;  // for Lunatic
 #else
@@ -4382,6 +4384,8 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     static const int16_t zeropskyoff[MAXPSKYTILES] = { 0 };
     const int16_t *dapskyoff;
 
+    int32_t logtilesizy, tsizy;
+
     UNREFERENCED_PARAMETER(dax1);
     UNREFERENCED_PARAMETER(dax2);
 
@@ -4390,7 +4394,8 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     globalhorizbak = globalhoriz;
     globvis = globalpisibility;
     //globalorientation = 0L;
-    if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
+    if (sec->visibility != 0)
+        globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
 
     if (dastat == 0)
     {
@@ -4415,11 +4420,32 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
 
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
     DO_TILE_ANIM(globalpicnum, sectnum);
-    globalshiftval = (picsiz[globalpicnum]>>4);
-    if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
-    globalshiftval = 32-globalshiftval;
-    globalzd = (((tilesizy[globalpicnum]>>1)+parallaxyoffs)<<globalshiftval)+((uint32_t)globalypanning<<24);
-    globalyscale = (8<<(globalshiftval-19));
+
+    logtilesizy = (picsiz[globalpicnum]>>4);
+    tsizy = tilesizy[globalpicnum];
+
+    globalshiftval = logtilesizy;
+#if !defined CLASSIC_NONPOW2_YSIZE_WALLS
+    // before proper non-power-of-two tilesizy drawing
+    if (pow2long[logtilesizy] != tsizy)
+        globalshiftval++;
+#else
+    // non power-of-two y size textures!
+    if (pow2long[logtilesizy] != tsizy || tsizy >= 512)
+    {
+        globaltilesizy = tsizy;
+        globalyscale = 65536 / tsizy;
+        globalshiftval = 0;
+        globalzd = divscale32(((tsizy>>1)+parallaxyoffs), tsizy) + ((uint32_t)globalypanning<<24);
+    }
+    else
+#endif
+    {
+        globalshiftval = 32-globalshiftval;
+        globalyscale = (8<<(globalshiftval-19));
+        globalzd = (((tsizy>>1)+parallaxyoffs)<<globalshiftval) + ((uint32_t)globalypanning<<24);
+    }
+
     //if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
 
     dapskyoff = zeropskyoff;
@@ -4582,11 +4608,17 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
     globalshiftval = logtilesizy;
 #if !defined CLASSIC_NONPOW2_YSIZE_WALLS
     // before proper non-power-of-two tilesizy drawing
-    if (pow2long[logtilesizy] != tilesizy[globalpicnum])
+    if (pow2long[logtilesizy] != tsizy)
         globalshiftval++;
 #else
     // non power-of-two y size textures!
-    if (pow2long[logtilesizy] == tsizy)
+    if (pow2long[logtilesizy] != tsizy || tsizy >= 512)
+    {
+        globaltilesizy = tsizy;
+        globalyscale = divscale13(wal->yrepeat, tsizy);
+        globalshiftval = 0;
+    }
+    else
 #endif
     {
         // globalshiftval==13 --> globalshiftval==19
@@ -4594,14 +4626,6 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
         globalshiftval = 32-globalshiftval;
         globalyscale = wal->yrepeat<<(globalshiftval-19);
     }
-#if defined CLASSIC_NONPOW2_YSIZE_WALLS
-    else
-    {
-        globaltilesizy = tsizy;
-        globalyscale = divscale13(wal->yrepeat, tsizy);
-        globalshiftval = 0;
-    }
-#endif
 
     if ((globalorientation&4) == 0)
         globalzd = (((int64_t)(globalposz-topzref)*globalyscale)<<8);
@@ -5441,20 +5465,18 @@ static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
         globalshiftval++;
 #else
     // non power-of-two y size textures!
-    if (pow2long[logtilesizy] == tsizy)
-#endif
-    {
-        globalshiftval = 32-globalshiftval;
-        globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
-    }
-#if defined CLASSIC_NONPOW2_YSIZE_SPRITES
-    else
+    if (pow2long[logtilesizy] != tsizy || tsizy >= 512)
     {
         globaltilesizy = tsizy;
         globalyscale = (1<<22)/(tsizy*tspr->yrepeat);
         globalshiftval = 0;
     }
+    else
 #endif
+    {
+        globalshiftval = 32-globalshiftval;
+        globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
+    }
 
     globalzd = ((int64_t)(globalposz-z1)*globalyscale)<<8;
     if ((cstat&8) > 0)
@@ -7695,6 +7717,18 @@ static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
 }
 
 
+static void alloc_palookup(int32_t pal)
+{
+#if defined ENGINE_USING_A_C || (defined CLASSIC_NONPOW2_YSIZE_WALLS && defined CLASSIC_NONPOW2_YSIZE_SPRITES)
+    palookup[pal] = (char *)Bmalloc(numshades*256);
+#else
+    // The asm functions vlineasm1, mvlineasm1 (maybe others?) access the next
+    // palookup[...] shade entry for tilesizy==512 tiles.
+    // See DEBUG_TILESIZY_512 and the comment in a.nasm: vlineasm1.
+    palookup[pal] = (char *)Bcalloc(numshades+1, 256);
+#endif
+}
+
 //
 // loadpalette (internal)
 //
@@ -7713,7 +7747,8 @@ static int32_t loadpalette(void)
     kread(fil,palette,768);
     kread(fil,&numshades,2); numshades = B_LITTLE16(numshades);
 
-    palookup[0] = (char *)Bmalloc(numshades<<8);
+    alloc_palookup(0);
+
     transluc = (char *)Bmalloc(65536);
     if (palookup[0] == NULL || transluc == NULL)
         exit(1);
@@ -7727,6 +7762,15 @@ static int32_t loadpalette(void)
     kread(fil,transluc,65536);  // read translucency (blending) table
 
     kclose(fil);
+
+#ifdef DEBUG_TILESIZY_512
+    {
+        int32_t i;
+        // Bump shade 1 by 16.
+        for (i=256; i<512; i++)
+            palookup[0][i] = palookup[0][i+(16<<8)];
+    }
+#endif
 
     if (crc32once((uint8_t *)transluc, 65536)==0x94a1fac6)  // Duke3D 1.5 GRP
     {
@@ -10642,6 +10686,7 @@ void loadtile(int16_t tilenume)
         waloff[tilenume] = (intptr_t)(artptrs[i]) + tilefileoffs[tilenume];
         faketimerhandler();
         // OSD_Printf("loaded tile %d from zip\n", tilenume);
+
         return;
     }
 #endif
@@ -10698,6 +10743,16 @@ void loadtile(int16_t tilenume)
     kread(artfil, (char *)waloff[tilenume], dasiz);
     faketimerhandler();
     artfilplc = tilefileoffs[tilenume]+dasiz;
+
+#ifdef DEBUG_TILESIZY_512
+    if (tilesizy[tilenume] >= 512)
+    {
+        int32_t i;
+        char *p = (char *)waloff[tilenume];
+        for (i=0; i<tilesizx[tilenume]*tilesizy[tilenume]; i++)
+            p[i] = i;
+    }
+#endif
 }
 
 //
@@ -13680,8 +13735,7 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
 
     if (palookup[palnum] == NULL || (palnum!=0 && palookup[palnum] == palookup[0]))
     {
-        //Allocate palookup buffer
-        palookup[palnum] = (char *)Bmalloc(numshades<<8);
+        alloc_palookup(palnum);
         if (palookup[palnum] == NULL)
             exit(1);
     }
