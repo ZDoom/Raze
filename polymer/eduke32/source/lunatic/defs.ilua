@@ -985,9 +985,57 @@ G_._VERSION = _VERSION
 
 G_._G = G_
 
+local gameactor_internal = gameactor_internal  -- included in lunatic.c
+-- gameactor(tilenum [, strength [, act [, mov [, movflags]]]], actor_func)
+local function our_gameactor(tilenum, ...)
+    local args = {...}
+    if (type(tilenum) ~= "number") then
+        error("invalid argument #1 to gameactor: must be a number", 2)
+    end
+    if (tilenum >= ffiC.MAXTILES+0ULL) then
+        error("invalid argument #1 to gameactor: must be a tile number (0 .. MAXTILES-1)", 2)
+    end
+    if (#args == 0) then
+        error("invalid call to gameactor: must have at least two arguments (tilenum, func)", 2)
+    end
+    if (type(args[#args]) ~= "function") then
+        error("invalid last argument to gameactor: must be a function", 2)
+    end
+
+    local strength = (#args >= 2) and args[1] or 0
+    if (type(strength) ~= "number") then
+        error("invalid 'strength' argument to gameactor: must be a number", 2)
+    end
+
+    -- TODO: literal number action other than 0?
+    local act = (#args >= 3) and args[2] or "NO"
+    if (type(act)=="string") then
+        act = AC[act]
+    end
+    if (not ffi.istype(con_action_ct, act)) then
+        error("invalid 'act' argument to gameactor: must be a string or action", 2)
+    end
+
+    -- TODO: literal number move other than 0?
+    local mov = (#args >= 4) and args[3] or "NO"
+    if (type(mov)=="string") then
+        mov = MV[mov]
+    end
+    if (not ffi.istype(con_move_ct, mov)) then
+        error("invalid 'mov' argument to gameactor: must be a string or move", 2)
+    end
+
+    local movflags = (#args >= 5) and args[4] or 0
+    if (type(movflags) ~= "number") then
+        error("invalid 'movflags' argument to gameactor: must be a number", 2)
+    end
+
+    gameactor_internal(tilenum, strength, act, mov, movflags, args[#args])
+end
+
 --- non-default data and functions
 G_.gameevent = gameevent  -- included in lunatic.c
-G_.gameactor = gameactor  -- included in lunatic.c
+G_.gameactor = our_gameactor
 G_.player = player  -- from above
 
 

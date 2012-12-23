@@ -4016,6 +4016,20 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 #endif
         s->hitag = *(g_tile[s_pn].execPtr+3);
     }
+#ifdef LUNATIC
+    else if (El_HaveActor(s_pn))
+    {
+        // ^^^ C-CON takes precedence for now.
+        const el_actor_t *a = &g_elActors[s_pn];
+
+        s->extra = a->strength;
+        s->hitag = a->movflags;
+        T5 = a->act.id;
+        T2 = a->mov.id;
+        Bmemcpy(&actor[i].ac, &a->act.ac, sizeof(struct action));
+        Bmemcpy(&actor[i].mv, &a->mov.mv, sizeof(struct move));
+    }
+#endif
 
     if (show2dsector[SECT>>3]&(1<<(SECT&7))) show2dsprite[i>>3] |= (1<<(i&7));
     else show2dsprite[i>>3] &= ~(1<<(i&7));

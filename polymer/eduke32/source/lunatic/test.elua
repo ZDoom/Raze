@@ -176,7 +176,7 @@ checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
 -- no pointer arithmetic!
 checkfail('local spr = sprite[0]; local x=spr+1', "attempt to perform arithmetic on")
 
-checkfail('gameactor(1680, 0)', "bad argument #3 to 'gameactor' (function expected, got number)")
+checkfail('gameactor(1680, 0)', "invalid last argument to gameactor: must be a function")
 
 checkfail("do local bt=require'bittest'; bt.QWE=1; end", "modifying module table forbidden")
 -- the cdata returned by player[] can't be made into a pointer!
@@ -236,6 +236,7 @@ local hs = stat.new()
 
 local con = require("con")
 local AC, MV = con.AC, con.MV
+con.action("TROOPSTAND",0,1,5,1,1)
 con.action("TROOPFLINTCH", 50, 1, 1, 1, 6)
 con.move("SHRUNKVELS", 32)
 con.ai("AITEMP", AC.TROOPFLINTCH, MV.SHRUNKVELS, 0)  -- TODO: test
@@ -245,7 +246,9 @@ con.ai("AITEMP", AC.TROOPFLINTCH, MV.SHRUNKVELS, 0)  -- TODO: test
 -- Or will we allow only one definition per label ever?
 con.ai("AITEMP", "TROOPFLINTCH", "SHRUNKVELS", 0)
 
-gameactor(1680,  -- LIZTROOP
+local TROOPSTRENGTH = 30
+
+gameactor(1680, TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
           function(i, playeri, dist)
               sprite[i].pal = math.random(32)
 --              sprite[i].ang = bit.band(sprite[i].ang-20, 2047)

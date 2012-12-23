@@ -19,7 +19,7 @@ L_State g_ElState;
 uint8_t g_elEvents[MAXEVENTS];
 
 // same thing for actors:
-uint8_t g_elActors[MAXTILES];
+el_actor_t g_elActors[MAXTILES];
 
 // for timing events and actors
 uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
@@ -116,7 +116,7 @@ static void El_StateSetup(lua_State *L)
     lua_pushcfunction(L, SetEvent_luacf);
     lua_setglobal(L, "gameevent");
     lua_pushcfunction(L, SetActor_luacf);
-    lua_setglobal(L, "gameactor");
+    lua_setglobal(L, "gameactor_internal");
 
     Bassert(lua_gettop(L)==0);
 }
@@ -152,19 +152,35 @@ static int32_t SetEvent_luacf(lua_State *L)
     return 0;
 }
 
-// gameactor(<actortile>, lua_function)
+// gameactor(actortile, strength, act, mov, movflags, lua_function)
 static int32_t SetActor_luacf(lua_State *L)
 {
-    int32_t actortile;
+    int32_t actortile, strength, movflags;
+    const con_action_t *act;
+    const con_move_t *mov;
 
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "gameactor: must pass exactly two arguments");
+    el_actor_t *a;
+
+    Bassert(lua_gettop(L) == 6);
 
     actortile = luaL_checkint(L, 1);
+    Bassert((unsigned)actortile < MAXTILES);
 
-    luaL_argcheck(L, (unsigned)actortile < MAXTILES, 1, "must be an tile number (0 .. MAXTILES-1)");
-    L_CheckAndRegisterFunction(L, &g_elActors[actortile]);
-    g_elActors[actortile] = 1;
+    strength = luaL_checkint(L, 2);
+    movflags = luaL_checkint(L, 5);
+
+    act = lua_topointer(L, 3);
+    mov = lua_topointer(L, 4);
+
+    a = &g_elActors[actortile];
+    L_CheckAndRegisterFunction(L, a);
+    a->haveit = 1;
+
+    a->strength = strength;
+    a->movflags = movflags;
+
+    Bmemcpy(&a->act, act, sizeof(con_action_t));
+    Bmemcpy(&a->mov, mov, sizeof(con_move_t));
 
     return 0;
 }

@@ -9,9 +9,18 @@
 
 extern L_State g_ElState;
 
+// actor initialization data
+typedef struct
+{
+    con_move_t mov;
+    int16_t movflags;
+    int16_t strength;
+    con_action_t act;
+    uint8_t haveit;  // shouldn't be used directly
+} el_actor_t;
 
 extern uint8_t g_elEvents[MAXEVENTS];  // shouldn't be used directly
-extern uint8_t g_elActors[MAXTILES];  // shouldn't be used directly
+extern el_actor_t g_elActors[MAXTILES];
 
 extern uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
 extern double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES];
@@ -26,6 +35,6 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
 int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t iPlayer, int32_t lDist);
 
 static inline int32_t El_HaveEvent(int32_t eventidx) { return g_elEvents[eventidx]!=0; }
-static inline int32_t El_HaveActor(int32_t actortile) { return g_elActors[actortile]!=0; }
+static inline int32_t El_HaveActor(int32_t actortile) { return g_elActors[actortile].haveit!=0; }
 
 #endif

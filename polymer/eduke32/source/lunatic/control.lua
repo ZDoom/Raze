@@ -25,7 +25,11 @@ module(...)
 
 
 local lastid = { action=0, move=0, ai=0 }
-local def = { action={}, move={}, ai={} }
+local def = {
+    action = {NO=ffi.new("con_action_t")},
+    move = {NO=ffi.new("con_move_t")},
+    ai = {NO=ffi.new("con_ai_t")},
+}
 
 local function forbidden() error("newindex forbidden", 2) end
 

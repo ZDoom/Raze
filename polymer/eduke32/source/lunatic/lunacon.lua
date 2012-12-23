@@ -17,6 +17,7 @@ local pairs = pairs
 local pcall = pcall
 local print = print
 local tonumber = tonumber
+local tostring = tostring
 local type = type
 
 if (string.dump) then
@@ -24,7 +25,7 @@ if (string.dump) then
 end
 
 
-module(...)
+module("lunacon")
 
 
 -- I think that the "too many pending calls/choices" is unavoidable in general.
@@ -107,11 +108,26 @@ local function addcodef(fmt, ...)
 end
 
 local function on_actor_end(usertype, tsamm, codetab)
-    -- TODO: strength, action, move, moveflags
     local tilenum = tsamm[1]
 
-    -- usertype is non-nil only for 'useractor'
-    addcodef("gameactor(%d, function(_aci, _pli, _dist)", tilenum)
+    local str = ""
+    for i=2,math.min(#tsamm,4) do
+        if ((i==3 or i==4) and tsamm[i]=="0") then
+            -- HACK, gameactor() currently doesn't support literals
+            tsamm[i] = "'NO'"
+        end
+        str = str .. tostring(tsamm[i])..","
+    end
+    if (#tsamm==5) then
+        local flags = 0
+        for i=5,#tsamm do
+            flags = bit.bor(flags, tsamm[i])
+        end
+        str = str .. flags..","
+    end
+
+    -- TODO: usertype (is non-nil only for 'useractor')
+    addcodef("gameactor(%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
     assert(type(codetab)=="table")
     g_actor_code[tilenum] = codetab
 
@@ -121,7 +137,7 @@ end
 
 local function on_state_end(statename, codetab)
     -- TODO: mangle names, make them accessible from other translation units
-    addcodef("local function %s()", statename)
+    addcodef("local function %s(_aci, _pli, _dist)", statename)
     assert(type(codetab)=="table")
     addcode(codetab)
     addcode("end")
@@ -732,7 +748,7 @@ local Ci = {
         / "_con.longjmp()",  -- TODO: test with code from Wiki "return" entry
 
     state = cmd(I)
-        / "%1()",  -- TODO: mangle names
+        / "%1(_aci, _pli, _dist)",  -- TODO: mangle names
 
     --- 1. get*, set*
     getactor = getstructcmd,
@@ -930,7 +946,8 @@ local Ci = {
     insertspriteq = cmd(),
     killit = cmd()  -- NLCF
         / "_con.killit()",
-    mikesnd = cmd(),
+    mikesnd = cmd()
+        / "",  -- TODO
     nullop = cmd()
         / "",  -- NOTE: really generate no code
     pkick = cmd()
@@ -1095,9 +1112,9 @@ local Cif = {
     ifrnd = cmd(D)
         / "_con.rnd(%1)",
     ifpdistl = cmd(D)
-        / "_dist<%1",  -- TODO: maybe set actor[].timetosleep afterwards
+        / "_dist<%1",  -- TODO: conditionally set actor[].timetosleep afterwards
     ifpdistg = cmd(D)
-        / "_dist>%1",  -- TODO: maybe set actor[].timetosleep afterwards
+        / "_dist>%1",  -- TODO: conditionally set actor[].timetosleep afterwards
     ifactioncount = cmd(D)
         / ACS":get_acount()==%1",
     ifcount = cmd(D)
@@ -1160,11 +1177,12 @@ local Cif = {
     ifoutside = cmd()
         / format("_bit.band(sector[%s].ceilingstat,1)~=0", SPS".sectnum"),
     ifonwater = cmd()
-        / format("sectnum[%s].lotag==1 and _math.abs(%s-sector[%s].floorz)<32*256",
+        / format("sector[%s].lotag==1 and _math.abs(%s-sector[%s].floorz)<32*256",
                  SPS".sectnum", SPS".z", SPS".sectnum"),
     ifnotmoving = cmd()
         / "_bit.band(actor[_aci].movflag,49152)>16384",
-    ifnosounds = cmd(),
+    ifnosounds = cmd()
+        / "false",
     ifmultiplayer = cmd()
         / "false",  -- TODO?
     ifinwater = cmd()
@@ -1182,7 +1200,7 @@ local Cif = {
     ifclient = cmd(),
     ifcanshoottarget = cmd()
         / "_con._canshoottarget(_dist,_aci)",
-    ifcanseetarget = cmd()  -- TODO: maybe set timetosleep afterwards
+    ifcanseetarget = cmd()  -- TODO: conditionally set timetosleep afterwards
         / format("_con._canseetarget(%s,%s)", SPS"", PLS""),
     ifcansee = cmd() * #sp1
         / format("_con._cansee(_aci,%s)", PLS""),
@@ -1576,7 +1594,10 @@ end
 ---=== EXPORTED FUNCTIONS ===---
 
 local function new_initial_perfile_codetab()
-    return { "local _con=require'con'; local _bit=require'bit'" }
+    return {
+        "local _con, _bit, _math = require'con', require'bit', require'math';",
+        "local sector, sprite, actor, player = sector, sprite, actor, player;"
+           }
 end
 
 function parse(contents)  -- local
@@ -1713,7 +1734,7 @@ if (string.dump) then
         end
 
 --[[
-        local file = require("io").stdout
+        local file = require("io").stderr
         for filename,codetab in pairs(g_file_code) do
             file:write(format("-- GENERATED CODE for \"%s\":\n", filename))
             file:write(table.concat(flatten_codetab(codetab), "\n"))
@@ -1721,7 +1742,4 @@ if (string.dump) then
         end
 --]]
     end
-else
-    --- embedded
-    return { parse=parse }
 end

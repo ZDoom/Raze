@@ -82,6 +82,9 @@ struct action {
 struct move {
     int16_t hvel, vvel;
 };
+
+typedef struct { int32_t id; struct move mv; } con_move_t;
+typedef struct { int32_t id; struct action ac; } con_action_t;
 #endif
 
 typedef struct {
