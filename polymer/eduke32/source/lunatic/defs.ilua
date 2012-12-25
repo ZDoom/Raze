@@ -20,10 +20,8 @@ local rawset = rawset
 local setmetatable = setmetatable
 local setfenv = setfenv
 local tonumber = tonumber
-local type = type
-
-local print = print
 local tostring = tostring
+local type = type
 
 
 --== First, load the definitions common to the game's and editor's Lua interface.
@@ -60,6 +58,10 @@ local defs_c = require("defs_common")
 local cansee = defs_c.cansee
 local strip_const = defs_c.strip_const
 local setmtonce = defs_c.setmtonce
+
+-- Must be after loading "defs_common" which redefines "print" to use
+-- OSD_Printf()
+local print = print
 
 
 ---=== EDuke32 game definitions ===---
@@ -963,7 +965,7 @@ G_.error = our_error
 G_.ipairs = ipairs
 G_.pairs = pairs
 G_.pcall = pcall
-G_.print = print  -- TODO: --> initprintf or OSD_Printf; why not needed on linux?
+G_.print = print
 G_.module = our_module
 G_.next = next
 G_.require = our_require

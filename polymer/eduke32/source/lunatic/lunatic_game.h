@@ -28,6 +28,9 @@ extern double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES];
 // -- functions --
 void El_PrintTimes(void);
 
+void El_ClearErrors(void);
+void El_DisplayErrors(void);
+
 int32_t El_CreateState(L_State *estate, const char *name);
 void El_DestroyState(L_State *estate);
 

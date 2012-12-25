@@ -3013,6 +3013,10 @@ void G_DisplayRest(int32_t smoothratio)
     if (g_Debug)
         G_ShowCacheLocks();
 
+#ifdef LUNATIC
+    El_DisplayErrors();
+#endif
+
     if (VOLUMEONE)
     {
         if (ud.show_help == 0 && g_showShareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)

@@ -16,6 +16,15 @@ local setmetatable = setmetatable
 local decl = decl
 local getfenv = getfenv
 
+decl "void OSD_Printf(const char *fmt, ...);"
+print = function(str)
+    str = tostring(str)
+    if (type(str) ~= "string") then
+        error("invalid argument to print: must be convertible to a string")
+    end
+    ffiC.OSD_Printf("%s\n", str)
+end
+
 local print=print
 
 

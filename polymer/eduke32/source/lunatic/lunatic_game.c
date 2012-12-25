@@ -5,6 +5,8 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#include "build.h"  // printext256
+
 #include "lunatic_game.h"
 
 #include "osd.h"
@@ -101,6 +103,92 @@ void El_PrintTimes(void)
     OSD_Printf(" },\n}\n");
 }
 
+////////// ERROR REPORTING //////////
+#define EL_MAXERRORS 2
+static int32_t el_numErrors=0, el_tooMuchErrors;
+static char *el_errorMsgs[EL_MAXERRORS];
+
+// Compare against all other error messages.
+// Strictly seen, this is quadratic-time, but EL_MAXERRORS is small and
+// errors should be fixed anyway.
+static int32_t cmp_against_others(const char *str, int32_t slen)
+{
+    int32_t i;
+    for (i=0; i<el_numErrors; i++)
+        if (!Bstrncmp(str, el_errorMsgs[i], slen))
+            return 1;
+    return 0;
+}
+
+static void El_OnError(const char *str)
+{
+    if (!el_tooMuchErrors)
+    {
+        char *errstr = NULL;
+        const char *nl = Bstrchr(str, '\n');
+
+        // First, check whether the error message matches an already saved one
+        if (nl)
+        {
+            // cut off string after the newline
+            if (cmp_against_others(str, nl-str))
+                return;
+        }
+        else
+        {
+            // save string fully
+            if (cmp_against_others(str, Bstrlen(str)))
+                return;
+        }
+
+        // If the (EL_MAXERRORS+1)'th distinct error appeared, we have too many.
+        if (el_numErrors==EL_MAXERRORS)
+        {
+            el_tooMuchErrors = 1;
+            return;
+        }
+
+        // Otherwise, allocate storage for the potentially clipped error string...
+        if (nl)
+        {
+            errstr = Bmalloc(nl-str+1);
+            if (errstr)
+            {
+                Bmemcpy(errstr, str, nl-str);
+                errstr[nl-str] = 0;
+            }
+        }
+        else
+        {
+            errstr = Bstrdup(str);
+        }
+
+        // ...and save it:
+        if (errstr)
+            el_errorMsgs[el_numErrors++] = errstr;
+    }
+}
+
+void El_ClearErrors(void)
+{
+    int32_t i;
+    for (i=0; i<EL_MAXERRORS; i++)
+    {
+        Bfree(el_errorMsgs[i]);
+        el_errorMsgs[i] = NULL;
+    }
+    el_numErrors = el_tooMuchErrors = 0;
+}
+
+void El_DisplayErrors(void)
+{
+    int32_t i;
+    for (i=0; i<el_numErrors; i++)
+        printext256(8, 8+8*i, 242, 0, el_errorMsgs[i], 0);
+    if (el_tooMuchErrors)
+        printext256(8, 8+8*EL_MAXERRORS, 242, 0, "(more distinct errors ...)", 0);
+}
+
 
 ////////// STATE CREATION/DESTRUCTIION //////////
 
@@ -124,6 +212,8 @@ static void El_StateSetup(lua_State *L)
 // 0: success, <0: failure
 int32_t El_CreateState(L_State *estate, const char *name)
 {
+    L_ErrorFunc = El_OnError;
+
     return L_CreateState(estate, name, &El_StateSetup);
 }
 
@@ -223,15 +313,20 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
 
     if (i == LUA_ERRRUN)
     {
+        const char *errstr;
+
         if (lua_isboolean(L, -1))
         {
             lua_pop(L, 1);
             return 0;
         }
 
+        errstr = lua_tostring(L, -1);
         Bassert(lua_type(L, -1)==LUA_TSTRING);
-        OSD_Printf("event \"%s\" (state \"%s\") runtime error: %s\n", EventNames[eventidx],
-                   estate->name, lua_tostring(L, -1));  // get err msg
+        OSD_Printf(OSD_ERROR "event \"%s\" (state \"%s\") runtime error: %s\n",
+                   EventNames[eventidx], estate->name, errstr);
+        if (L_ErrorFunc)
+            L_ErrorFunc(errstr);
         lua_pop(L, 1);
         return -1;
     }
@@ -247,6 +342,8 @@ int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t
 
     if (i == LUA_ERRRUN)
     {
+        const char *errstr;
+
         if (lua_isboolean(L, -1))
         {
             int32_t killit = lua_toboolean(L, -1);
@@ -255,8 +352,11 @@ int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t
         }
 
         Bassert(lua_type(L, -1)==LUA_TSTRING);
-        OSD_Printf("actor %d (sprite %d, state \"%s\") runtime error: %s\n", actortile, iActor,
-                   estate->name, lua_tostring(L, -1));  // get err msg
+        errstr = lua_tostring(L, -1);
+        OSD_Printf(OSD_ERROR "actor %d (sprite %d, state \"%s\") runtime error: %s\n",
+                   actortile, iActor, estate->name, errstr);
+        if (L_ErrorFunc)
+            L_ErrorFunc(errstr);
         lua_pop(L, 1);
         return -1;
     }

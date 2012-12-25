@@ -112,6 +112,7 @@ void L_DestroyState(L_State *estate)
     estate->L = NULL;
 }
 
+void (*L_ErrorFunc)(const char *) = NULL;
 
 int L_RunString(L_State *estate, char *buf, int dofreebuf)
 {
@@ -139,7 +140,7 @@ int L_RunString(L_State *estate, char *buf, int dofreebuf)
 
     if (i == LUA_ERRSYNTAX)
     {
-        OSD_Printf("state \"%s\" syntax error: %s\n", estate->name,
+        OSD_Printf(OSD_ERROR "state \"%s\" syntax error: %s\n", estate->name,
                    lua_tostring(L, -1));  // get err msg
         lua_pop(L, 2);  // pop errmsg and debug.traceback
         return 3;
@@ -159,11 +160,13 @@ int L_RunString(L_State *estate, char *buf, int dofreebuf)
 
     if (i == LUA_ERRRUN)
     {
-        int32_t stringp = (lua_type(L, -1)==LUA_TSTRING);
-
         // get error message if possible
-        OSD_Printf("state \"%s\" runtime error: %s\n", estate->name,
-                   stringp ? lua_tostring(L, -1) : "??? (errmsg not a string)");
+        const char *errstr = (lua_type(L, -1)==LUA_TSTRING) ?
+            lua_tostring(L, -1) : "??? (errmsg not a string)";
+
+        OSD_Printf(OSD_ERROR "state \"%s\" runtime error: %s\n", estate->name, errstr);
+        if (L_ErrorFunc)
+            L_ErrorFunc(errstr);
         lua_pop(L, 2);  // pop errmsg and debug.traceback
         return 4;
     }

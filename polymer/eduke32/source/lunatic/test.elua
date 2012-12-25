@@ -16,12 +16,13 @@ end
 local function checkfail(funcstr, expectedmsg)
     local status, errmsg = pcall(DBG_.loadstring(funcstr))
     if (status) then
-        print('ERROR: '..funcstr.." DIDN'T fail")
+        print('^21ERROR:^O '..funcstr.." DIDN'T fail")
     else
         if (expectedmsg==nil or string.find(errmsg, expectedmsg, 1, true)) then
-            print('SUCCESS: '..funcstr.." failed: "..errmsg)
+            print("^11SUCCESS:^O "..funcstr.." failed: "..errmsg)
         else
-            print('ERROR*: '..funcstr.." failed: "..errmsg..
+            -- XXX: beginning with "^10" is counted as error in OSD_Printf()
+            print("^10ERROR*:^O "..funcstr.." failed: "..errmsg..
                   ", but expected error message was: "..expectedmsg)
         end
     end
@@ -182,13 +183,14 @@ checkfail("do local bt=require'bittest'; bt.QWE=1; end", "modifying module table
 -- the cdata returned by player[] can't be made into a pointer!
 checkfail("do local pl=player[0]; i=pl[1]; end")
 checkfail("do local ud=gv.ud.camera; end", "dummy variable: read access forbidden")  -- test for proper decl()
-checkfail("sprite[0]:set_picnum(-10)", "attempt to set invalid picnum")
+checkfail("sprite[0]:set_picnum(-10)", "attempt to set invalid picnums")
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 
 gameevent(gv.EVENT_JUMP,
           function(actori, playeri, dist)
               printf("jump i=%d p=%d d=%d", actori, playeri, dist)
+              error("greetings from EVENT_JUMP")
           end
          )
 
@@ -263,6 +265,7 @@ gameactor(1680, TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
               if (hs.n == 300) then
                   printf("hitscan: %s", tostring(hs:getstats()))
                   hs:reset()
+                  error("greetings from LIZTROOP actor")
               end
 
               if (dist < 4096) then

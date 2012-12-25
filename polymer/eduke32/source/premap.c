@@ -1371,7 +1371,7 @@ static inline void prelevel(char g)
     {
         i = L_RunOnce(&g_ElState, "test.elua");
         if (i)
-            OSD_Printf("Error running the test ELua script (code %d)\n", i);
+            OSD_Printf(OSD_ERROR "Error running the test ELua script (code %d)\n", i);
         else
             initprintf("ELua test script run ok!\n");
     }
