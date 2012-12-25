@@ -15928,6 +15928,10 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
             if (col)col = Batol(smallbuf);
             continue;
         }
+
+        if (stx-fontsize+charxsiz > xdim)
+            break;
+
         letptr = &fontptr[name[i]<<3];
         ptr = (char *)(ylookup[ypos+7]+(stx-fontsize)+frameplace);
         for (y=7; y>=0; y--)

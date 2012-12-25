@@ -1525,6 +1525,12 @@ void OSD_Printf(const char *fmt, ...)
     Bvsnprintf(tmpstr, 8192, fmt, va);
     va_end(va);
 
+    if (tmpstr[0]==0)
+    {
+        mutex_unlock(&m_osdprintf);
+        return;
+    }
+
     if (tmpstr[0]=='^' && tmpstr[1]=='1' && tmpstr[2]=='0' && ++OSD_errors > MAX_ERRORS)
     {
         if (OSD_errors == MAX_ERRORS + 1)
