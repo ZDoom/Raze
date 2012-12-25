@@ -418,3 +418,25 @@ int32_t dist(const spritetype *s1, const spritetype *s2)
         return (x - (x>>4) + (t>>2) + (t>>3));
     }
 }
+
+
+// Clear OSD background
+void COMMON_clearbackground(int32_t numcols, int32_t numrows)
+{
+    UNREFERENCED_PARAMETER(numcols);
+
+# ifdef USE_OPENGL
+    if (rendmode>=3 && qsetmode==200)
+    {
+        setpolymost2dview();
+        bglColor4f(0,0,0,0.67f);
+        bglEnable(GL_BLEND);
+        bglRectd(0,0, xdim,8*numrows+8);
+        bglColor4f(0,0,0,1);
+        bglRectd(0,8*numrows+4, xdim,8*numrows+8);
+        return;
+    }
+# endif
+
+    CLEARLINES2D(0, min(ydim, numrows*8+8), editorcolors[16]);
+}

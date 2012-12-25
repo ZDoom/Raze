@@ -155,6 +155,8 @@ typedef void (APIENTRY * bglVertex3fvProcPtr)( const GLfloat *v );
 extern bglVertex3fvProcPtr bglVertex3fv;
 typedef void (APIENTRY * bglVertex3dvProcPtr)( const GLdouble *v );
 extern bglVertex3dvProcPtr bglVertex3dv;
+typedef void (APIENTRY * bglRectdProcPtr)( GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2 );
+extern bglRectdProcPtr bglRectd;
 typedef void (APIENTRY * bglColor4fProcPtr)( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha );
 extern bglColor4fProcPtr bglColor4f;
 typedef void (APIENTRY * bglColor4ubProcPtr)( GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha );

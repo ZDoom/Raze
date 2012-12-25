@@ -10015,8 +10015,8 @@ int32_t app_main(int32_t argc, const char **argv)
         GAME_drawosdcursor,
         GAME_getcolumnwidth,
         GAME_getrowheight,
-        GAME_clearbackground,
-        (int32_t( *)(void))GetTime,
+        COMMON_clearbackground,
+        GetTime,
         GAME_onshowosd
     );
     Bstrcpy(tempbuf, APPNAME);

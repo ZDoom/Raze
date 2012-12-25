@@ -82,6 +82,9 @@ extern "C" {
 #define SPRITES_OF(Statnum, Iter)  Iter=headspritestat[Statnum]; Iter>=0; Iter=nextspritestat[Iter]
 #define SPRITES_OF_SECT(Sectnum, Iter)  Iter=headspritesect[Sectnum]; Iter>=0; Iter=nextspritesect[Iter]
 
+#define CLEARLINES2D(Startline, Numlines, Color) \
+    clearbuf((char *)(frameplace + ((Startline)*bytesperline)), (bytesperline*(Numlines))>>2, (Color))
+
 
 ////////// True Room over Room (YAX == rot -17 of "PRO") //////////
 #define YAX_ENABLE

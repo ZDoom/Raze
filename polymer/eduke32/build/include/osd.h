@@ -116,7 +116,7 @@ void OSD_SetLogFile(const char *fn);
 // sets the functions the OSD will call to interrogate the environment
 void OSD_SetFunctions(
 		void (*drawchar)(int32_t,int32_t,char,int32_t,int32_t),
-		void (*drawstr)(int32_t,int32_t,char*,int32_t,int32_t,int32_t),
+		void (*drawstr)(int32_t,int32_t,const char*,int32_t,int32_t,int32_t),
 		void (*drawcursor)(int32_t,int32_t,int32_t,int32_t),
 		int32_t (*colwidth)(int32_t),
 		int32_t (*rowheight)(int32_t),

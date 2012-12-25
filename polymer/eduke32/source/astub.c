@@ -9521,138 +9521,22 @@ static int32_t registerosdcommands(void)
     return 0;
 }
 
-#define DUKEOSD
-#ifdef DUKEOSD
-# if 0
-void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
-{
-    int32_t ac;
 
-    if (ch == 32) return;
-    ac = ch-'!'+STARTALPHANUM;
-    if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
-
-    rotatesprite_fs(((x<<3)+x)<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16);
-}
-
-void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade, int32_t pal)
-{
-    int32_t ac;
-
-    for (x = (x<<3)+x; len>0; len--, ch++, x++)
-    {
-        if (*ch == 32)
-        {
-            x+=5;
-            continue;
-        }
-        ac = *ch-'!'+STARTALPHANUM;
-        if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
-
-        rotatesprite_fs(x<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16);
-        if (*ch >= '0' && *ch <= '9') x+=8;
-        else x += tilesizx[ac];
-    }
-}
-# endif
-
+////////// ALL THINGS OSD //////////
 static int32_t GetTime(void)
 {
     return totalclock;
 }
 
-# if 0
-void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress)
-{
-    int32_t ac;
-
-    if (type) ac = SMALLFNTCURSOR;
-    else ac = '_'-'!'+STARTALPHANUM;
-
-    if (!((GetTime()-lastkeypress) & 0x40l))
-        rotatesprite_fs(((x<<3)+x)<<16, ((y<<3)+(type?-1:2))<<16, 65536l, 0, ac, 0, 8, 8|16);
-}
-
-int32_t GAME_getcolumnwidth(int32_t w)
-{
-    return w/9;
-}
-
-int32_t GAME_getrowheight(int32_t w)
-{
-    return w>>3;
-}
-# endif
-
-//#define BGTILE 311
-//#define BGTILE 1156
-#define BGTILE 1141	// BIGHOLE
-#define BORDTILE 3250	// VIEWBORDER
-#define BITSTH 1+32+8+16	// high translucency
-#define BITSTL 1+8+16	// low translucency
-#define BITS 8+16+64		// solid
-#define SHADE 16
-#define PALETTE 4
-void GAME_clearbackground(int32_t numcols, int32_t numrows)
-{
-    UNREFERENCED_PARAMETER(numcols);
-
-# ifdef USE_OPENGL
-//    if (getrendermode() < 3) bits = BITS;
-//    else 
-    if (rendmode>=3 && qsetmode==200)
-    {
-        int32_t x, y, xsiz, ysiz, tx2, ty2;
-        int32_t daydim, bits;
-
-        bits = BITSTL;
-
-        daydim = numrows<<3;
-
-        xsiz = tilesizx[BGTILE];
-        tx2 = xdim/xsiz;
-        ysiz = tilesizy[BGTILE];
-        ty2 = daydim/ysiz;
-
-        setpolymost2dview();
-        bglEnable(GL_TEXTURE_2D);
-
-        for (x=0; x<=tx2; x++)
-            for (y=0; y<=ty2; y++)
-                rotatesprite(x*xsiz<<16,y*ysiz<<16,65536L,0,BGTILE,SHADE,PALETTE,bits,0,0,xdim,daydim);
-
-        xsiz = tilesizy[BORDTILE];
-        tx2 = xdim/xsiz;
-        ysiz = tilesizx[BORDTILE];
-
-        for (x=0; x<=tx2; x++)
-            rotatesprite(x*xsiz<<16,(daydim+ysiz+1)<<16,65536L,1536,
-                         BORDTILE,SHADE-12,PALETTE,BITS,0,0,xdim,daydim+ysiz+1);
-
-        return;
-    }
-# endif
-
-    CLEARLINES2D(0, min(ydim, numrows*8+8), editorcolors[16]);
-}
-
 static void m32_osdsetfunctions(void)
 {
     OSD_SetFunctions(
-/*
-        GAME_drawosdchar,
-        GAME_drawosdstr,
-        GAME_drawosdcursor,
-        GAME_getcolumnwidth,
-        GAME_getrowheight,
-*/
-        0,0,0,0,0,
-        GAME_clearbackground,
-        /*(int32_t( *)(void))*/GetTime,
+        NULL, NULL, NULL, NULL, NULL,
+        COMMON_clearbackground,
+        GetTime,
         NULL
     );
 }
-#endif  // defined DUKEOSD
 
 enum
 {
@@ -10560,9 +10444,7 @@ int32_t ExtInit(void)
     Bsprintf(apptitle, "Mapster32 %s %s", VERSION, s_buildRev);
     autosavetimer = totalclock+120*autosave;
 
-#if defined(DUKEOSD)
     m32_osdsetfunctions();
-#endif
 
     OSD_SetParameters(0,2, 0,0, 4,0);
     registerosdcommands();
@@ -11229,9 +11111,8 @@ static void Keys2d3d(void)
     {
         getmessageleng = 0;
         getmessagetimeoff = 0;
-#if defined(DUKEOSD)
+
         m32_osdsetfunctions();
-#endif
     }
 
     if (getmessageleng > 0)

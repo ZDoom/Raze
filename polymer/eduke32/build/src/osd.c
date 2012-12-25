@@ -27,7 +27,7 @@ static int32_t _internal_osdfunc_alias(const osdfuncparm_t *);
 
 static int32_t white=-1;            // colour of white (used by default display routines)
 static void _internal_drawosdchar(int32_t, int32_t, char, int32_t, int32_t);
-static void _internal_drawosdstr(int32_t, int32_t, char *, int32_t, int32_t, int32_t);
+static void _internal_drawosdstr(int32_t, int32_t, const char *, int32_t, int32_t, int32_t);
 static void _internal_drawosdcursor(int32_t,int32_t,int32_t,int32_t);
 static int32_t _internal_getcolumnwidth(int32_t);
 static int32_t _internal_getrowheight(int32_t);
@@ -105,7 +105,7 @@ static hashtable_t h_osd      = { MAXSYMBOLS<<1, NULL };
 
 // application callbacks
 static void (*drawosdchar)(int32_t, int32_t, char, int32_t, int32_t) = _internal_drawosdchar;
-static void (*drawosdstr)(int32_t, int32_t, char *, int32_t, int32_t, int32_t) = _internal_drawosdstr;
+static void (*drawosdstr)(int32_t, int32_t, const char *, int32_t, int32_t, int32_t) = _internal_drawosdstr;
 static void (*drawosdcursor)(int32_t, int32_t, int32_t, int32_t) = _internal_drawosdcursor;
 static int32_t (*getcolumnwidth)(int32_t) = _internal_getcolumnwidth;
 static int32_t (*getrowheight)(int32_t) = _internal_getrowheight;
@@ -114,7 +114,7 @@ static int32_t (*gettime)(void) = _internal_gettime;
 static void (*onshowosd)(int32_t) = _internal_onshowosd;
 
 static void (*_drawosdchar)(int32_t, int32_t, char, int32_t, int32_t) = _internal_drawosdchar;
-static void (*_drawosdstr)(int32_t, int32_t, char *, int32_t, int32_t, int32_t) = _internal_drawosdstr;
+static void (*_drawosdstr)(int32_t, int32_t, const char *, int32_t, int32_t, int32_t) = _internal_drawosdstr;
 static void (*_drawosdcursor)(int32_t, int32_t, int32_t, int32_t) = _internal_drawosdcursor;
 static int32_t (*_getcolumnwidth)(int32_t) = _internal_getcolumnwidth;
 static int32_t (*_getrowheight)(int32_t) = _internal_getrowheight;
@@ -314,6 +314,13 @@ int32_t OSD_GetTextMode(void)
     return osdtextmode;
 }
 
+static inline void swapptr(void *a, void *b)
+{
+	intptr_t t = *(intptr_t*)a;
+	*(intptr_t*)a = *(intptr_t*)b;
+	*(intptr_t*)b = t;
+}
+
 void OSD_SetTextMode(int32_t mode)
 {
     osdtextmode = (mode != 0);
@@ -321,20 +328,20 @@ void OSD_SetTextMode(int32_t mode)
     {
         if (drawosdchar != _internal_drawosdchar)
         {
-            swaplong(&_drawosdchar,&drawosdchar);
-            swaplong(&_drawosdstr,&drawosdstr);
-            swaplong(&_drawosdcursor,&drawosdcursor);
-            swaplong(&_getcolumnwidth,&getcolumnwidth);
-            swaplong(&_getrowheight,&getrowheight);
+            swapptr(&_drawosdchar,&drawosdchar);
+            swapptr(&_drawosdstr,&drawosdstr);
+            swapptr(&_drawosdcursor,&drawosdcursor);
+            swapptr(&_getcolumnwidth,&getcolumnwidth);
+            swapptr(&_getrowheight,&getrowheight);
         }
     }
     else if (drawosdchar == _internal_drawosdchar)
     {
-        swaplong(&_drawosdchar,&drawosdchar);
-        swaplong(&_drawosdstr,&drawosdstr);
-        swaplong(&_drawosdcursor,&drawosdcursor);
-        swaplong(&_getcolumnwidth,&getcolumnwidth);
-        swaplong(&_getrowheight,&getrowheight);
+        swapptr(&_drawosdchar,&drawosdchar);
+        swapptr(&_drawosdstr,&drawosdstr);
+        swapptr(&_drawosdcursor,&drawosdcursor);
+        swapptr(&_getcolumnwidth,&getcolumnwidth);
+        swapptr(&_getrowheight,&getrowheight);
     }
     if (qsetmode == 200)
         OSD_ResizeDisplay(xdim, ydim);
@@ -415,7 +422,7 @@ static void _internal_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, 
     printext256(4+(x<<3),4+(y<<3), white, -1, st, 0);
 }
 
-static void _internal_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade, int32_t pal)
+static void _internal_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t len, int32_t shade, int32_t pal)
 {
     char st[1024];
 
@@ -792,7 +799,7 @@ void OSD_SetLogFile(const char *fn)
 //
 void OSD_SetFunctions(
     void (*drawchar)(int32_t,int32_t,char,int32_t,int32_t),
-    void (*drawstr)(int32_t,int32_t,char *,int32_t,int32_t,int32_t),
+    void (*drawstr)(int32_t,int32_t,const char *,int32_t,int32_t,int32_t),
     void (*drawcursor)(int32_t,int32_t,int32_t,int32_t),
     int32_t (*colwidth)(int32_t),
     int32_t (*rowheight)(int32_t),
@@ -2133,4 +2140,3 @@ void OSD_WriteCvars(FILE *fp)
             }
     }
 }
-

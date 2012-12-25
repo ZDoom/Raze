@@ -28,6 +28,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 int32_t osdhightile = 0;
 
+static int32_t GAME_isspace(int32_t ch)
+{
+    return (ch==32 || ch==9);
+}
+
+static int32_t GAME_getchartile(int32_t ch)
+{
+    int32_t ac = ch-'!'+STARTALPHANUM;
+    if (ac < STARTALPHANUM || ac > ENDALPHANUM)
+        ac = -1;
+    return ac;
+}
+
 void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
 {
     int16_t ac;
@@ -36,70 +49,48 @@ void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
 #endif
     int32_t ht = usehightile;
 
-    if (ch == 32) return;
-    ac = ch-'!'+STARTALPHANUM;
-    if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
+    if (GAME_isspace(ch)) return;
+    if ((ac = GAME_getchartile(ch)) == -1)
+        return;
+
     usehightile = (osdhightile && ht);
-    rotatesprite_fs(((x<<3)+x)<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16);
+    rotatesprite_fs((9*x)<<16, (y<<3)<<16, 65536, 0, ac, shade, pal, 8|16);
     usehightile = ht;
 }
 
-void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade, int32_t pal)
+void GAME_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t len, int32_t shade, int32_t pal)
 {
     int16_t ac;
-    char *ptr = OSD_GetTextPtr();
-    char *fmt = OSD_GetFmtPtr();
-#ifndef USE_OPENGL
-    int32_t usehightile = 0;
-#endif
-    int32_t ht = usehightile;
-
+    const char *const ptr = OSD_GetTextPtr();
+    const char *const fmt = OSD_GetFmtPtr();
+    const int32_t use_format = (ch > ptr && ch < (ptr + TEXTSIZE));
+#ifdef USE_OPENGL
+    const int32_t ht = usehightile;
     usehightile = (osdhightile && ht);
-    x = (x<<3)+x;
+#endif
 
-    if (ch > ptr && ch < (ptr + TEXTSIZE))
-    {
-        do
-        {
-            if (*ch == 32)
-            {
-                x += OSDCHAR_WIDTH+1;
-                ch++;
-                continue;
-            }
-            ac = *ch-'!'+STARTALPHANUM;
-            if (ac < STARTALPHANUM || ac > ENDALPHANUM) { usehightile = ht; return; }
-
-            // use the format byte if the text falls within the bounds of the console buffer
-            rotatesprite_fs(x<<16, (y<<3)<<16, 65536, 0, ac, (*(ch-ptr+fmt)&~0x1F)>>4,
-                            *(ch-ptr+fmt)&~0xE0, 8|16);
-            x += OSDCHAR_WIDTH+1;
-            ch++;
-        }
-        while (--len);
-
-        usehightile = ht;
-        return;
-    }
+    x *= 9;
 
     do
     {
-        if (*ch == 32)
-        {
-            x += OSDCHAR_WIDTH+1;
-            ch++;
-            continue;
-        }
-        ac = *ch-'!'+STARTALPHANUM;
-        if (ac < STARTALPHANUM || ac > ENDALPHANUM) { usehightile = ht; return; }
+        if (!GAME_isspace(*ch))
+            if ((ac = GAME_getchartile(*ch)) >= 0)
+            {
+                // use the format byte if the text falls within the bounds of the console buffer
+                const int32_t tshade = use_format ? (fmt[ch-ptr]&~0x1F)>>4 : shade;
+                const int32_t tpal = use_format ? fmt[ch-ptr]&~0xE0 : pal;
 
-        rotatesprite_fs(x<<16, (y<<3)<<16, 65536, 0, ac, shade, pal, 8|16);
+                rotatesprite_fs(x<<16, (y<<3)<<16, 65536, 0, ac, tshade, tpal, 8|16);
+            }
+
         x += OSDCHAR_WIDTH+1;
         ch++;
     }
     while (--len);
 
+#ifdef USE_OPENGL
     usehightile = ht;
+#endif
 }
 
 void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress)
@@ -109,8 +100,8 @@ void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress
     if (type) ac = SMALLFNTCURSOR;
     else ac = '_'-'!'+STARTALPHANUM;
 
-    if (!((GetTime()-lastkeypress) & 0x40l))
-        rotatesprite_fs(((x<<3)+x)<<16, ((y<<3)+(type?-1:2))<<16, 65536l, 0, ac, 0, 8, 8|16);
+    if (((GetTime()-lastkeypress) & 0x40)==0)
+        rotatesprite_fs((9*x)<<16, ((y<<3)+(type?-1:2))<<16, 65536, 0, ac, 0, 8, 8|16);
 }
 
 int32_t GAME_getcolumnwidth(int32_t w)
@@ -123,71 +114,12 @@ int32_t GAME_getrowheight(int32_t w)
     return w>>3;
 }
 
-//#define BGTILE 311
-//#define BGTILE 1156
-#define BGTILE 1141	// BIGHOLE
-#define BGTILE_SIZEX 128
-#define BGTILE_SIZEY 128
-#define BORDTILE 3250	// VIEWBORDER
-#define BITSTH 1+32+8+16	// high translucency
-#define BITSTL 1+8+16	// low translucency
-#define BITS 8+16+64		// solid
-#define SHADE 0
-#define PALETTE 4
-
 void GAME_onshowosd(int32_t shown)
 {
-    // fix for TCs like Layre which don't have the BGTILE for some reason
-    // most of this is copied from my dummytile stuff in defs.c
-    if (!tilesizx[BGTILE] || !tilesizy[BGTILE])
-    {
-        set_tilesiz(BGTILE, BGTILE_SIZEX, BGTILE_SIZEY);
-        Bmemset(&picanm[BGTILE], 0, sizeof(picanm_t));
-        faketilesiz[BGTILE] = -1;
-    }
-
     G_UpdateScreenArea();
 
-    if (numplayers == 1 && ((shown && !ud.pause_on) || (!shown && ud.pause_on)))
-        KB_KeyDown[sc_Pause] = 1;
+    UNREFERENCED_PARAMETER(shown);
+    // XXX: it's weird to fake a keypress like this.
+//    if (numplayers == 1 && ((shown && !ud.pause_on) || (!shown && ud.pause_on)))
+//        KB_KeyDown[sc_Pause] = 1;
 }
-
-void GAME_clearbackground(int32_t c, int32_t r)
-{
-    int32_t x, y, xsiz, ysiz, tx2, ty2;
-    int32_t daydim, bits;
-
-    UNREFERENCED_PARAMETER(c);
-
-    if (getrendermode() < 3) bits = BITS;
-    else bits = BITSTL;
-
-    daydim = r<<3;
-
-    xsiz = tilesizx[BGTILE];
-    ysiz = tilesizy[BGTILE];
-
-    if (xsiz <= 0 || ysiz <= 0)
-        return;
-
-    tx2 = xdim/xsiz;
-//    ty2 = ydim/ysiz;
-    ty2 = daydim/ysiz;
-
-    for (x=tx2; x>=0; x--)
-        for (y=ty2; y>=0; y--)
-//        for (y=ty2+1;y>=1;y--)
-//            rotatesprite(x*xsiz<<16,((daydim-ydim)+(y*ysiz))<<16,65536L,0,BGTILE,SHADE,PALETTE,bits,0,0,xdim,daydim);
-            rotatesprite(x*xsiz<<16,y*ysiz<<16,65536L,0,BGTILE,SHADE,PALETTE,bits,0,0,xdim,daydim);
-
-    xsiz = tilesizy[BORDTILE];
-    if (xsiz <= 0)
-        return;
-
-    tx2 = xdim/xsiz;
-    ysiz = tilesizx[BORDTILE];
-
-    for (x=tx2; x>=0; x--)
-        rotatesprite(x*xsiz<<16,(daydim+ysiz+1)<<16,65536L,1536,BORDTILE,SHADE-12,PALETTE,BITS,0,0,xdim,daydim+ysiz+1);
-}
-

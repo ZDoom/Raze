@@ -292,7 +292,7 @@ int32_t hicclearsubst(int32_t picnum, int32_t palnum)
     return 0;
 }
 
-#else /* POLYMOST */
+#else /* USE_OPENGL */
 
 #include "inttypes.h"
 

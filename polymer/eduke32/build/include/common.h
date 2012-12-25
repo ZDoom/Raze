@@ -70,6 +70,8 @@ int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char
 int32_t ldist(const spritetype *s1, const spritetype *s2);
 int32_t dist(const spritetype *s1, const spritetype *s2);
 
+void COMMON_clearbackground(int32_t numcols, int32_t numrows);
+
 // timer defs for profiling function chunks the simple way
 #define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=getticks();
 #define EDUKE32_TMRTIC t[ti++]=getticks()
