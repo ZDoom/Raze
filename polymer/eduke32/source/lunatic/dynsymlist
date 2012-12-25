@@ -50,6 +50,7 @@ OSD_Printf;
 
 g_sizes_of_what;
 g_sizes_of;
+g_elCallDepth;
 
 kopen4loadfrommod;
 kfilelength;

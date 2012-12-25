@@ -12,12 +12,14 @@ local string = require("string")
 local error = error
 local pairs = pairs
 local setmetatable = setmetatable
+local tostring = tostring
 
 local decl = decl
 local getfenv = getfenv
 
 decl "void OSD_Printf(const char *fmt, ...);"
 print = function(str)
+    -- our "print" doesn't use the global "tostring", but the initial one
     str = tostring(str)
     if (type(str) ~= "string") then
         error("invalid argument to print: must be convertible to a string")

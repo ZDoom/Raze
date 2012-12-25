@@ -7,6 +7,9 @@ local string = require("string")
 local bit = require("bit")
 local math = require("math")
 
+local pcall = pcall
+local DBG_ = DBG_
+
 print('---=== ELua Test script ===---')
 
 local function printf(fmt, ...)
@@ -183,7 +186,7 @@ checkfail("do local bt=require'bittest'; bt.QWE=1; end", "modifying module table
 -- the cdata returned by player[] can't be made into a pointer!
 checkfail("do local pl=player[0]; i=pl[1]; end")
 checkfail("do local ud=gv.ud.camera; end", "dummy variable: read access forbidden")  -- test for proper decl()
-checkfail("sprite[0]:set_picnum(-10)", "attempt to set invalid picnums")
+checkfail("sprite[0]:set_picnum(-10)", "attempt to set invalid picnum")
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 
@@ -191,6 +194,13 @@ gameevent(gv.EVENT_JUMP,
           function(actori, playeri, dist)
               printf("jump i=%d p=%d d=%d", actori, playeri, dist)
               error("greetings from EVENT_JUMP")
+          end
+         )
+
+-- test event chaining
+gameevent("JUMP",
+          function(actori, playeri, dist)
+              print("I'm first!")
           end
          )
 
@@ -230,6 +240,9 @@ gameevent(gv.EVENT_ENTERLEVEL,
 
               printf("sqrt(0xffffffff) = %f(ksqrt) %f(math.sqrt)",
                      gv.ksqrt(0xffffffff), math.sqrt(0xffffffff))
+
+              checkfail("gameevent('GAME', function() print('qwe') end)",
+                        "must be called from top level")
           end
          )
 

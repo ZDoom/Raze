@@ -1,0 +1,20 @@
+definequote 125 FIRST
+definequote 126 SECOND
+definequote 127 THIRD
+
+onevent EVENT_INIT
+    echo 125
+endevent
+
+onevent EVENT_INIT
+    echo 126
+endevent
+
+onevent EVENT_INIT
+    echo 127
+endevent
+
+// output:
+// THIRD
+// SECOND
+// FIRST

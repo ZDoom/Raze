@@ -24,8 +24,6 @@ local tostring = tostring
 local type = type
 
 
---== First, load the definitions common to the game's and editor's Lua interface.
-
 -- The "gv" global will provide access to C global *scalars* and safe functions.
 -- XXX: still exposes C library functions etc. contained in ffi.C, problem?
 local gv_ = {
@@ -53,7 +51,7 @@ function decl(str)
     ffi.cdef(str)
 end
 
--- load the common definitions!
+-- Load the definitions common to the game's and editor's Lua interface.
 local defs_c = require("defs_common")
 local cansee = defs_c.cansee
 local strip_const = defs_c.strip_const
@@ -449,6 +447,7 @@ typedef struct {
 decl[[
 const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
+int32_t g_elCallDepth;
 actor_t actor[MAXSPRITES];
 user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
@@ -990,6 +989,10 @@ G_._G = G_
 local gameactor_internal = gameactor_internal  -- included in lunatic.c
 -- gameactor(tilenum [, strength [, act [, mov [, movflags]]]], actor_func)
 local function our_gameactor(tilenum, ...)
+    if (ffiC.g_elCallDepth > 0) then
+        error("Invalid use of gameactor: must be called from top level", 2)
+    end
+
     local args = {...}
     if (type(tilenum) ~= "number") then
         error("invalid argument #1 to gameactor: must be a number", 2)
@@ -999,6 +1002,9 @@ local function our_gameactor(tilenum, ...)
     end
     if (#args == 0) then
         error("invalid call to gameactor: must have at least two arguments (tilenum, func)", 2)
+    end
+    if (#args > 6) then
+        error("invalid call to gameactor: must have at most six arguments", 2)
     end
     if (type(args[#args]) ~= "function") then
         error("invalid last argument to gameactor: must be a function", 2)
@@ -1035,8 +1041,52 @@ local function our_gameactor(tilenum, ...)
     gameactor_internal(tilenum, strength, act, mov, movflags, args[#args])
 end
 
+-- Event functions, saved for event chaining
+local event_funcs = {}
+
+local gameevent_internal = gameevent_internal  -- included in lunatic.c
+-- gameevent(<event idx or string>, <event function>)
+local function our_gameevent(event, func)
+    if (ffiC.g_elCallDepth > 0) then
+        error("Invalid use of gameevent: must be called from top level", 2)
+    end
+    if (type(event) == "string") then
+        if (event:sub(1,6) ~= "EVENT_") then
+            event = "EVENT_"..event
+        end
+        local eventidx = con_lang.labels[3][event]  -- 3: event list
+        if (eventidx == nil) then
+            errorf(2, "gameevent: invalid event label %q", event)
+        end
+        event = eventidx
+    end
+    if (type(event) ~= "number") then
+        error("invalid argument #1 to gameevent: must be a number", 2)
+    end
+    if (event >= con_lang.MAXEVENTS+0ULL) then
+        error("invalid argument #1 to gameevent: must be an event number (0 .. MAXEVENTS-1)", 2)
+    end
+
+    if (type(func) ~= "function") then
+        error("invalid argument #2 to gameevent: must be a function", 2)
+    end
+
+    local newfunc = func
+    local oldfunc = event_funcs[event]
+    -- event chaining: events defined later come first
+    if (oldfunc ~= nil) then
+        newfunc = function(aci, pli, dist)
+            func(aci, pli, dist)
+            oldfunc(aci, pli, dist)
+        end
+    end
+
+    gameevent_internal(event, newfunc)
+    event_funcs[event] = newfunc
+end
+
 --- non-default data and functions
-G_.gameevent = gameevent  -- included in lunatic.c
+G_.gameevent = our_gameevent
 G_.gameactor = our_gameactor
 G_.player = player  -- from above
 
@@ -1052,8 +1102,6 @@ local lunacon = require("lunacon")
 setfenv(1, G_)
 
 -- Print keys and values of a table.
--- REMEMBER special position of 'tostring' (it's looked up and used as a global
--- from 'print')
 local function printkv(label, table)
     print("========== Keys and values of "..label.." ("..tostring(table)..")")
     for k,v in pairs(table) do

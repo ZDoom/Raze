@@ -23,6 +23,8 @@ uint8_t g_elEvents[MAXEVENTS];
 // same thing for actors:
 el_actor_t g_elActors[MAXTILES];
 
+int32_t g_elCallDepth = 0;
+
 // for timing events and actors
 uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
 double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES];
@@ -104,7 +106,7 @@ void El_PrintTimes(void)
 }
 
 ////////// ERROR REPORTING //////////
-#define EL_MAXERRORS 2
+#define EL_MAXERRORS 20
 static int32_t el_numErrors=0, el_tooMuchErrors;
 static char *el_errorMsgs[EL_MAXERRORS];
 
@@ -202,7 +204,7 @@ static void El_StateSetup(lua_State *L)
 
     // create misc. global functions in the Lua state
     lua_pushcfunction(L, SetEvent_luacf);
-    lua_setglobal(L, "gameevent");
+    lua_setglobal(L, "gameevent_internal");
     lua_pushcfunction(L, SetActor_luacf);
     lua_setglobal(L, "gameactor_internal");
 
@@ -230,12 +232,10 @@ static int32_t SetEvent_luacf(lua_State *L)
 {
     int32_t eventidx;
 
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "gameevent: must pass exactly two arguments");
-
+    Bassert(lua_gettop(L) == 2);
     eventidx = luaL_checkint(L, 1);
+    Bassert((unsigned)eventidx < MAXEVENTS);
 
-    luaL_argcheck(L, (unsigned)eventidx < MAXEVENTS, 1, "must be an event number (0 .. MAXEVENTS-1)");
     L_CheckAndRegisterFunction(L, &g_elEvents[eventidx]);
     g_elEvents[eventidx] = 1;
 
@@ -308,8 +308,11 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
     //      make a global?
 
     lua_State *const L = estate->L;
+    int32_t i;
 
-    int32_t i = call_regd_function3(L, &g_elEvents[eventidx], iActor, iPlayer, lDist);
+    g_elCallDepth++;
+    i = call_regd_function3(L, &g_elEvents[eventidx], iActor, iPlayer, lDist);
+    g_elCallDepth--;
 
     if (i == LUA_ERRRUN)
     {
@@ -337,8 +340,11 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
 int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
     lua_State *const L = estate->L;
+    int32_t i;
 
-    int32_t i = call_regd_function3(L, &g_elActors[actortile], iActor, iPlayer, lDist);
+    g_elCallDepth++;
+    i = call_regd_function3(L, &g_elActors[actortile], iActor, iPlayer, lDist);
+    g_elCallDepth--;
 
     if (i == LUA_ERRRUN)
     {
