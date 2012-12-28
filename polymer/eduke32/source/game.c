@@ -3950,6 +3950,46 @@ static void G_DumpDebugInfo(void)
               g_player[myconnectindex].ps->cursectnum);
 }
 
+// if <set_movflag_uncond> is true, set the moveflag unconditionally,
+// else only if it equals 0.
+static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncond)
+{
+    if (g_tile[tilenum].execPtr)
+    {
+        SH = *(g_tile[tilenum].execPtr);
+        T5 = *(g_tile[tilenum].execPtr+1);
+        T2 = *(g_tile[tilenum].execPtr+2);
+#ifdef LUNATIC
+        set_action_members(i);
+        set_move_members(i);
+#endif
+        if (set_movflag_uncond || SHT == 0)
+            SHT = *(g_tile[tilenum].execPtr+3);
+
+        return 1;
+    }
+#ifdef LUNATIC
+    else if (El_HaveActor(tilenum))
+    {
+        // ^^^ C-CON takes precedence for now.
+        const el_actor_t *a = &g_elActors[tilenum];
+
+        SH = a->strength;
+        T5 = a->act.id;
+        T2 = a->mov.id;
+        Bmemcpy(&actor[i].ac, &a->act.ac, sizeof(struct action));
+        Bmemcpy(&actor[i].mv, &a->mov.mv, sizeof(struct move));
+
+        if (set_movflag_uncond || SHT == 0)
+            SHT = a->movflags;
+
+        return 1;
+    }
+#endif
+
+    return 0;
+}
+
 int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,
                        int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss)
 {
@@ -3967,8 +4007,6 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     {
         i = insertsprite(whatsect,s_ss);
     }
-
-    s = &sprite[i];
 
     memset(&spr_temp, 0, sizeof(spritetype));
     spr_temp.x = s_x;
@@ -3989,9 +4027,11 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     {
         G_DumpDebugInfo();
         OSD_Printf_nowarn("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
-                   s_pn,TrackerCast(sprite[s_ow].picnum),s_ow,s_x,s_y,s_z,whatsect);
+                          s_pn,TrackerCast(s_ow < 0 ? -1 : sprite[s_ow].picnum),s_ow,s_x,s_y,s_z,whatsect);
         G_GameExit("Too many sprites spawned.");
     }
+
+    s = &sprite[i];
 
     Bmemcpy(s, &spr_temp, sizeof(spritetype));
     Bmemset(&actor[i], 0, sizeof(actor_t));
@@ -4009,31 +4049,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     // sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
-    if (g_tile[s_pn].execPtr)
-    {
-        s->extra = *g_tile[s_pn].execPtr;
-        T5 = *(g_tile[s_pn].execPtr+1);
-        T2 = *(g_tile[s_pn].execPtr+2);
-#ifdef LUNATIC
-        set_action_members(i);
-        set_move_members(i);
-#endif
-        s->hitag = *(g_tile[s_pn].execPtr+3);
-    }
-#ifdef LUNATIC
-    else if (El_HaveActor(s_pn))
-    {
-        // ^^^ C-CON takes precedence for now.
-        const el_actor_t *a = &g_elActors[s_pn];
-
-        s->extra = a->strength;
-        s->hitag = a->movflags;
-        T5 = a->act.id;
-        T2 = a->mov.id;
-        Bmemcpy(&actor[i].ac, &a->act.ac, sizeof(struct action));
-        Bmemcpy(&actor[i].mv, &a->mov.mv, sizeof(struct move));
-    }
-#endif
+    G_InitActor(i, s_pn, 1);
 
     if (show2dsector[SECT>>3]&(1<<(SECT&7))) show2dsprite[i>>3] |= (1<<(i&7));
     else show2dsprite[i>>3] &= ~(1<<(i&7));
@@ -4045,7 +4061,6 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     if (G_HaveEvent(EVENT_EGS))
     {
-        extern int32_t block_deletesprite;
         int32_t pl=A_FindPlayer(s, &p);
 
         block_deletesprite++;
@@ -4053,7 +4068,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
         block_deletesprite--;
     }
 
-    return(i);
+    return i;
 }
 
 #ifdef YAX_ENABLE
@@ -4086,20 +4101,25 @@ static void Yax_SetBunchInterpolation(int32_t sectnum, int32_t cf)
 # define Yax_SetBunchInterpolation(sectnum, cf)
 #endif
 
+// A_Spawn has two forms with arguments having different meaning:
+//
+// 1. j>=0: Spawn from parent sprite <j> with picnum <pn>
+// 2. j<0: Spawn from already *existing* sprite <pn>
 int32_t A_Spawn(int32_t j, int32_t pn)
 {
-    int32_t i, s, startwall, endwall, sect, clostest=0;
-    int32_t x, y, d, p;
+    int32_t i, s, startwall, endwall, sect;
     spritetype *sp;
 
     if (j >= 0)
     {
-        i = A_InsertSprite(sprite[j].sectnum,sprite[j].x,sprite[j].y,sprite[j].z
-                           ,pn,0,0,0,0,0,0,j,0);
+        // spawn from parent sprite <j>
+        i = A_InsertSprite(sprite[j].sectnum,sprite[j].x,sprite[j].y,sprite[j].z,
+                           pn,0,0,0,0,0,0,j,0);
         actor[i].picnum = sprite[j].picnum;
     }
     else
     {
+        // spawn from already existing sprite <pn>
         i = pn;
 
         Bmemset(&actor[i], 0, sizeof(actor_t));
@@ -4150,21 +4170,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         s = PN;
 
-        if (CS&1) CS |= 256;
+        if (CS&1)
+            CS |= 256;
 
-        if (g_tile[s].execPtr)
-        {
-            SH = *(g_tile[s].execPtr);
-            T5 = *(g_tile[s].execPtr+1);
-            T2 = *(g_tile[s].execPtr+2);
-#ifdef LUNATIC
-            set_action_members(i);
-            set_move_members(i);
-#endif
-            if (*(g_tile[s].execPtr+3) && SHT == 0)
-                SHT = *(g_tile[s].execPtr+3);
-        }
-        else T2 = T5 = 0;
+        if (!G_InitActor(i, s, 0))
+            T2 = T5 = 0;
     }
 
     sp = &sprite[i];
@@ -4880,9 +4890,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             if (j >= 0)
             {
-                x = getflorzofslope(sp->sectnum,sp->x,sp->y);
-                if (sp->z > x-(12<<8))
-                    sp->z = x-(12<<8);
+                int32_t z = getflorzofslope(sp->sectnum,sp->x,sp->y);
+                if (sp->z > z-(12<<8))
+                    sp->z = z-(12<<8);
             }
 
             changespritestat(i, STAT_MISC);
@@ -5583,7 +5593,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                         endwall = startwall+sector[sect].wallnum;
                         for (j=startwall; j<endwall; j++)
                         {
-                            x = wall[j].nextsector;
+                            int32_t x = wall[j].nextsector;
                             if (x >= 0)
                                 if (!(sector[x].ceilingstat&1))
                                 {
@@ -5643,14 +5653,13 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             case SE_20_STRETCH_BRIDGE:
             {
-                int32_t q;
+                int32_t x, y, d, q = INT32_MAX;
+                int32_t clostest=0;
 
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
 
                 //find the two most clostest wall x's and y's
-                q = INT32_MAX;
-
                 for (s=startwall; s<endwall; s++)
                 {
                     x = wall[s].x;
@@ -5831,12 +5840,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                         OSD_Printf_nowarn(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
                             TrackerCast(sp->x),TrackerCast(sp->y));
                         changespritestat(i, STAT_ACTOR);
-                        if (G_HaveEvent(EVENT_SPAWN))
-                        {
-                            int32_t pl=A_FindPlayer(&sprite[i],&p);
-                            VM_OnEvent(EVENT_SPAWN,i, pl, p, 0);
-                        }
-                        return i;
+                        goto SPAWN_END;
                     }
                     sp->owner = j;
                 }
@@ -6064,6 +6068,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 SPAWN_END:
     if (G_HaveEvent(EVENT_SPAWN))
     {
+        int32_t p;
         int32_t pl=A_FindPlayer(&sprite[i],&p);
         VM_OnEvent(EVENT_SPAWN,i, pl, p, 0);
     }

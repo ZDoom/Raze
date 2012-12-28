@@ -984,12 +984,12 @@ static inline void G_SetupBackdrop(int16_t sky)
 // tweak moving sectors with these SE lotags
 #define FIXSPR_SELOTAGP(k) ((k==0) || (k==6) || (k==14))
 
-// setup sprites in moving sectors that are to be fixed wrt a certain pivot
+// Set up sprites in moving sectors that are to be fixed wrt a certain pivot
 // position and should not diverge from it due to roundoff error in the future.
-// has to be after the spawning stuff.
-static void premap_setup_fixed_sprites(void)
+// Has to be after the spawning stuff.
+static void G_SetupRotfixedSprites(void)
 {
-    int32_t i, j, pivot;
+    int32_t i;
 
     for (i=headspritestat[STAT_EFFECTOR]; i>=0; i=nextspritestat[i])
     {
@@ -998,7 +998,7 @@ static void premap_setup_fixed_sprites(void)
 #ifdef YAX_ENABLE
             int32_t firstrun = 1;
 #endif
-            j = headspritesect[sprite[i].sectnum];
+            int32_t j = headspritesect[sprite[i].sectnum];
             while (j>=0)
             {
                 // TRIPBOMB uses t_data[7] for its own purposes. Wouldn't be
@@ -1007,7 +1007,8 @@ static void premap_setup_fixed_sprites(void)
                     ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) &&
                      A_CheckSpriteTileFlags(sprite[j].picnum, SPRITE_ROTFIXED)))
                 {
-                    pivot = i;
+                    int32_t pivot = i;
+
                     if (sprite[i].lotag==0)
                         pivot = sprite[i].owner;
                     if (j!=i && j!=pivot && pivot>=0 && pivot<MAXSPRITES)
@@ -1162,7 +1163,7 @@ static inline void prelevel(char g)
                 A_Spawn(-1,i);
         }
 
-    premap_setup_fixed_sprites();
+    G_SetupRotfixedSprites();
 
     for (i=headspritestat[STAT_DEFAULT]; i>=0; i=nextspritestat[i])
     {
