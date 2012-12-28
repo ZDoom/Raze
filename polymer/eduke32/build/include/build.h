@@ -818,10 +818,27 @@ void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y,
                    int16_t daang, int32_t *x2, int32_t *y2) ATTRIBUTE((nonnull(6,7)));
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, int16_t direction);
-int32_t   getceilzofslope(int16_t sectnum, int32_t dax, int32_t day);
-int32_t   getflorzofslope(int16_t sectnum, int32_t dax, int32_t day);
-void   getzsofslope(int16_t sectnum, int32_t dax, int32_t day,
-                    int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(4,5)));
+
+int32_t   getceilzofslopeptr(const sectortype *sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
+int32_t   getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
+void   getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day,
+                       int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(1,4,5)));
+
+static inline int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+{
+    return getceilzofslopeptr(&sector[sectnum], dax, day);
+}
+
+static inline int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+{
+    return getflorzofslopeptr(&sector[sectnum], dax, day);
+}
+
+static inline void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+{
+    getzsofslopeptr(&sector[sectnum], dax, day, ceilz, florz);
+}
+
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t   sectorofwall(int16_t theline);

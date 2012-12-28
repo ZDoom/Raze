@@ -14297,57 +14297,42 @@ int32_t sectorofwall_noquick(int16_t theline)
 }
 
 
-//
-// getceilzofslope
-//
-int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+int32_t getceilzofslopeptr(const sectortype *sec, int32_t dax, int32_t day)
 {
-    if (!(sector[sectnum].ceilingstat&2)) return(sector[sectnum].ceilingz);
+    if (!(sec->ceilingstat&2)) return(sec->ceilingz);
 
     {
         int32_t dx, dy, i, j;
-        walltype *wal;
+        const walltype *wal = &wall[sec->wallptr];
 
-        wal = &wall[sector[sectnum].wallptr];
         // floor(sqrt(2**31-1)) == 46340
         dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
-        i = (nsqrtasm(uhypsq(dx,dy))<<5); if (i == 0) return(sector[sectnum].ceilingz);
+        i = (nsqrtasm(uhypsq(dx,dy))<<5); if (i == 0) return(sec->ceilingz);
         j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-        return(sector[sectnum].ceilingz+(scale(sector[sectnum].ceilingheinum,j>>1,i)<<1));
+        return(sec->ceilingz+(scale(sec->ceilingheinum,j>>1,i)<<1));
     }
 }
 
-
-//
-// getflorzofslope
-//
-int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+int32_t getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day)
 {
-    if (!(sector[sectnum].floorstat&2)) return(sector[sectnum].floorz);
+    if (!(sec->floorstat&2)) return(sec->floorz);
 
     {
         int32_t dx, dy, i, j;
-        walltype *wal;
+        const walltype *wal = &wall[sec->wallptr];
 
-        wal = &wall[sector[sectnum].wallptr];
         dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
-        i = (nsqrtasm(uhypsq(dx,dy))<<5); if (i == 0) return(sector[sectnum].floorz);
+        i = (nsqrtasm(uhypsq(dx,dy))<<5); if (i == 0) return(sec->floorz);
         j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-        return(sector[sectnum].floorz+(scale(sector[sectnum].floorheinum,j>>1,i)<<1));
+        return(sec->floorz+(scale(sec->floorheinum,j>>1,i)<<1));
     }
 }
 
-
-//
-// getzsofslope
-//
-void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+void getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     int32_t dx, dy, i, j;
     walltype *wal, *wal2;
-    sectortype *sec;
 
-    sec = &sector[sectnum];
     *ceilz = sec->ceilingz; *florz = sec->floorz;
     if ((sec->ceilingstat|sec->floorstat)&2)
     {
