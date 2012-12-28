@@ -170,51 +170,18 @@ static int32_t no_radarang2 = 0;
 static int16_t radarang[1280], radarang2[MAXXDIM];
 
 uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
-
-void initialize_engine_globals(void)
+const char pow2char[8] = {1,2,4,8,16,32,64,128};
+const int32_t pow2long[32] =
 {
-    pow2char[0] = 1;
-    pow2char[1] = 2;
-    pow2char[2] = 4;
-    pow2char[3] = 8;
-    pow2char[4] = 16;
-    pow2char[5] = 32;
-    pow2char[6] = 64;
-    pow2char[7] = 128;
-
-    pow2long[0] = 1L;
-    pow2long[1] = 2L;
-    pow2long[2] = 4L;
-    pow2long[3] = 8L;
-    pow2long[4] = 16L;
-    pow2long[5] = 32L;
-    pow2long[6] = 64L;
-    pow2long[7] = 128L;
-    pow2long[8] = 256L;
-    pow2long[9] = 512L;
-    pow2long[10] = 1024L;
-    pow2long[11] = 2048L;
-    pow2long[12] = 4096L;
-    pow2long[13] = 8192L;
-    pow2long[14] = 16384L;
-    pow2long[15] = 32768L;
-    pow2long[16] = 65536L;
-    pow2long[17] = 131072L;
-    pow2long[18] = 262144L;
-    pow2long[19] = 524288L;
-    pow2long[20] = 1048576L;
-    pow2long[21] = 2097152L;
-    pow2long[22] = 4194304L;
-    pow2long[23] = 8388608L;
-    pow2long[24] = 16777216L;
-    pow2long[25] = 33554432L;
-    pow2long[26] = 67108864L;
-    pow2long[27] = 134217728L;
-    pow2long[28] = 268435456L;
-    pow2long[29] = 536870912L;
-    pow2long[30] = 1073741824L;
-    pow2long[31] = 2147483647L;
-}
+    1, 2, 4, 8,
+    16, 32, 64, 128,
+    256, 512, 1024, 2048,
+    4096, 8192, 16384, 32768,
+    65536, 131072, 262144, 524288,
+    1048576, 2097152, 4194304, 8388608,
+    16777216, 33554432, 67108864, 134217728,
+    268435456, 536870912, 1073741824, 2147483647
+};
 
 char britable[16][256]; // JBF 20040207: full 8bit precision
 

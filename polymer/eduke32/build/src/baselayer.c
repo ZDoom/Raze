@@ -414,8 +414,6 @@ int32_t baselayer_init(void)
     polymost_initosdfuncs();
 #endif
 
-    initialize_engine_globals();
-
     return 0;
 }
 

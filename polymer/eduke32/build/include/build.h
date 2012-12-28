@@ -472,8 +472,8 @@ EXTERN char walock[MAXTILES];
 #ifdef __cplusplus
 extern "C" {
 #endif
-EXTERN char pow2char[8];
-EXTERN int32_t pow2long[32];
+extern const char pow2char[8];
+extern const int32_t pow2long[32];
 #ifdef __cplusplus
 };
 #endif
