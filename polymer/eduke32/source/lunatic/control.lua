@@ -11,6 +11,7 @@ local setmetatable = setmetatable
 
 local error = error
 local type = type
+local unpack = unpack
 
 local player = assert(player)
 local defs_c = require("defs_common")
@@ -73,6 +74,8 @@ local function action_or_move(what, numargs, tab, name, ...)
     tab[name] = ffi.new("const con_"..what.."_t", lastid[what], args)
 end
 
+---=== ACTION / MOVE / AI ===---
+
 function action(name, ...)
     action_or_move("action", 5, def.action, name, ...)
 end
@@ -124,9 +127,116 @@ end
 
 ---=== RUNTIME CON FUNCTIONS ===---
 
+-- TODO: also check whether sprite exists in the game world (statnum != MAXSTATUS)
+local function check_sprite_idx(i)
+    if (i >= ffiC.MAXSPRITES+0ULL) then
+        error("invalid argument: must be a valid sprite index", 3)
+    end
+end
+
+local function check_tile_idx(tilenum)
+    if (tilenum >= ffiC.MAXTILES+0ULL) then
+        error("invalid argument: must be a valid tile number", 3)
+    end
+end
+
+local function krandand(mask)
+    return bit.band(ffiC.krand(), mask)
+end
+
+-- Lunatic's "insertsprite" is a wrapper around the game "A_InsertSprite", not
+-- the engine "insertsprite".
+--
+-- Forms:
+--  1. table-call: insertsprite{tilenum, pos, sectnum [, owner [, statnum]] [, key=val...]}
+--     valid keys are: owner, statnum, shade, xrepeat, yrepeat, xvel, zvel
+--  2. position-call: insertsprite(tilenum, pos, sectnum [, owner [, statnum]])
+function insertsprite(tab_or_tilenum, ...)
+    local tilenum, pos, sectnum  -- mandatory
+    -- optional with defaults:
+    local owner, statnum
+    local shade, xrepeat, yrepeat, xvel, zvel = 0, 48, 48, 0, 0
+
+    if (type(tab_or_sectnum)=="table") then
+        local tab = tab_or_tilenum
+        tilenum, pos, sectnum = unpack(tab, 1, 3)
+        owner = tab[4] or tab.owner or -1
+        statnum = tab[5] or tab.statnum or 0
+        shade = shade and tab.shade
+        xrepeat = xrepeat and tab.xrepeat
+        yrepeat = yrepeat and tab.yrepeat
+        xvel = xvel and tab.xvel
+        zvel = zvel and tab.zvel
+    else
+        tilenum = table_or_tilenum
+        local args = {...}
+        pos, sectnum = unpack(args, 1, 2)
+        owner = args[3] or -1
+        statnum = args[4] or 0
+    end
+
+    if (type(sectnum)~="number" or type(tilenum) ~= "number") then
+        error("invalid insertsprite call: 'sectnum' and 'tilenum' must be numbers", 2)
+    end
+    check_tile_idx(tilenum)
+    defs_c.check_sector_idx(sectnum)
+    if (statnum >= ffiC.MAXSTATUS) then
+        error("invalid 'statnum' argument to insertsprite: must be a status number (0 .. MAXSTATUS-1)", 2)
+    end
+
+    return ffiC.A_InsertSprite(sectnum, pos.x, pos.y, pos.z, tilenum,
+                              shade, xrepeat, yrepeat, ang, xvel, zvel,
+                              owner, statnum)
+end
+
+-- INTERNAL USE ONLY.
+function _addtodelqueue(spritenum)
+    check_sprite_idx(spritenum)
+    ffiC.A_AddToDeleteQueue(spritenum)
+end
+
+-- This corresponds to the first (spawn from parent sprite) form of A_Spawn().
+function spawn(parentspritenum, tilenum, addtodelqueue)
+    check_sprite_idx(parentspritenum)
+    check_tile_idx(tilenum)
+
+    if (addtodelqueue and ffiC.g_spriteDeleteQueueSize == 0) then
+        return -1
+    end
+
+    local i = ffiC.A_Spawn(parentspritenum, tilenum)
+    if (addtodelqueue) then
+        ffiC.A_AddToDeleteQueue(i)
+    end
+    return i
+end
+
+-- This is the second A_Spawn() form. INTERNAL USE ONLY.
+function _spawnexisting(spritenum)
+    check_sprite_idx(spritenum)
+    return ffiC.A_Spawn(-1, spritenum)
+end
+
+-- A_SpawnMultiple clone
+-- ow: parent sprite number
+function _spawnmany(ow, tilenum, n)
+    local spr = sprite[ow]
+
+    for i=n,1, -1 do
+        local j = insertsprite{ tilenum, spr^(ffiC.krand()%(47*256)), spr.sectnum, ow, 5,
+                                shade=-32, xrepeat=8, yrepeat=8, ang=krandand(2047) }
+        _spawnexisting(j)
+        sprite[j].cstat = krandand(8+4)
+    end
+end
+
+function isenemytile(tilenum)
+    return (bit.band(ffiC.g_tile[tilenum], ffiC.SFLAG_BADGUY)~=0)
+end
+
 function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
                       cx1, cy1, cx2, cy2)
-    if (type(tilenum) ~= "number" or not (tilenum >= 0 and tilenum < ffiC.MAXTILES)) then
+    if (type(tilenum) ~= "number" or tilenum >= ffiC.MAXTILES+0ULL) then
         error("bad argument #5 to rotatesprite: must be number in [0.."..ffiC.MAXTILES.."]", 2)
     end
 
@@ -187,17 +297,68 @@ local D = {
     HEATSENSOR = 59,
     BOOTS = 61,
     HOLODUKE = 1348,
+
+    GLASSPIECES = 1031,
+    COMMANDER = 1920,
+    JIBS2 = 2250,
+    SCRAP1 = 2400,
+    BLIMP = 3400,
 }
 
-local function check_sprite_idx(i)
-    if (i >= ffiC.MAXSPRITES+0ULL) then
-        error("invalid argument: must be a valid sprite index", 3)
+function _A_DoGuts(i, gutstile, n)
+    check_tile_idx(gutstile)
+    local spr = sprite[i]
+    local smallguts = spr.xrepeat < 16 and spr:isenemy()
+    local xsz = smallguts and 8 or 32
+    local ysz = xsz
+    local z = math.min(spr, sector[spr.sectnum]:floorzat(spr)) - 8*256
+
+    if (spr.picnum == D.COMMANDER) then
+        z = z - (24*256)
+    end
+
+    for i=n,1, -1 do
+        local pos = geom.vec3(spr.x+krandand(255)-128, spr.y+krandand(255)-128, z-krandand(8191))
+        local j = insertsprite{ gutstile, pos, spr.sectnum, i, 5, shade=-32, xrepeat=xsz, yrepeat=ysz,
+                                ang=krandand(2047), xvel=48+krandand(31), zvel=-512-krandand(2047) }
+        local newspr = sprite[j]
+        if (newspr.picnum==D.JIBS2) then
+            -- This looks silly, but EVENT_EGS code could have changed the size
+            -- between the insertion and here.
+            newspr.xrepeat = newspr.xrepeat/4
+            newspr.yrepeat = newspr.yrepeat/4
+        end
+        newspr.pal = spr.pal
     end
 end
 
-local function check_tile_idx(tilenum)
-    if (tilenum >= ffiC.MAXTILES+0ULL) then
-        error("invalid argument: must be a valid tile number", 3)
+function _debris(i, dtile, n)
+    local spr = sprite[i]
+    if (spr.sectnum >= ffiC.numsectors+0ULL) then
+        return
+    end
+
+    for j=n-1,0, -1 do
+        local isblimpscrap = (spr.picnum==D.BLIMP and dtile==D.SCRAP1)
+        local picofs = isblimpscrap and 0 or krandand(3)
+        local pos = spr + geom.vec3(krandand(255)-128, krandand(255)-128, -(8*256)-krandand(8191))
+        local jj = insertsprite{ dtile+picofs, pos, spr.sectnum, i, 5,
+                                 shade=spr.shade, xrepeat=32+krandand(15), yrepeat=32+krandand(15),
+                                 ang=krandand(2047), xvel=32+krandand(127), zvel=-krandand(2047) }
+        -- NOTE: BlimpSpawnSprites[14] (its array size if 15) will never be chosen
+        sprite[jj].yvel = isblimpscrap and ffiC.BlimpSpawnSprites[math.mod(jj, 14)] or -1
+        sprite[jj].pal = spr.pal
+    end
+end
+
+function _A_SpawnGlass(i, n)
+    local spr = sprite[i]
+
+    for j=n,1, -1 do
+        local k = insertsprite{ D.GLASSPIECES+n%3, spr^(256*krandand(16)), spr.sectnum, i, 5,
+                                shade=krandand(15), xrepeat=36, yrepeat=36, ang=krandand(2047),
+                                xvel=32+krandand(63), zvel=-512-krandand(2047) }
+        sprite[k].pal = spr.pal
     end
 end
 
@@ -401,10 +562,6 @@ function _awayfromwall(spr, d)
         end
     end
     return true
-end
-
-local function krandand(mask)
-    return bit.band(ffiC.krand(), mask)
 end
 
 local BANG2RAD = math.pi/1024

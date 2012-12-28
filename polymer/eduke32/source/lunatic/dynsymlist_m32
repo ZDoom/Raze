@@ -17,6 +17,10 @@ ydim;
 
 yax_getbunch;
 
+getceilzofslopeptr;
+getflorzofslopeptr;
+getzsofslopeptr;
+
 headspritesect;
 headspritestat;
 prevspritesect;

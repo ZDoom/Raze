@@ -303,6 +303,11 @@ require("test/test_rotspr")
 
 print('---=== END TEST SCRIPT ===---')
 
+function check_sector_idx()
+    error("bla")
+end
+spritesofsect(0)
+
 -- This will complain about wrong usage of 'error'. In particular,
 -- the nil must not propagate to C!
 error(nil)

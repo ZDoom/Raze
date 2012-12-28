@@ -19,6 +19,7 @@ local print = print
 local tonumber = tonumber
 local tostring = tostring
 local type = type
+local unpack = unpack
 
 if (string.dump) then
     require("strict")
@@ -119,10 +120,7 @@ local function on_actor_end(usertype, tsamm, codetab)
         str = str .. tostring(tsamm[i])..","
     end
     if (#tsamm==5) then
-        local flags = 0
-        for i=5,#tsamm do
-            flags = bit.bor(flags, tsamm[i])
-        end
+        local flags = bit.bor(unpack(tsamm, 5))
         str = str .. flags..","
     end
 
@@ -690,7 +688,7 @@ local varvarop = cmd(W,R)
 -- Allow nesting... stuff like
 --   ifvarl actorvar[sprite[THISACTOR].owner].burning 0
 -- is kinda breaking the classic "no array nesting" rules
--- (if there ever were any) and making our life harder else.
+-- (if there ever were any) but making our life harder else.
 local arraypat = sp0 * "[" * sp0 * t_rvar * sp0 * "]"
 
 -- Have to bite the bullet here and list actor/player members with second parameters,
@@ -887,11 +885,11 @@ local Ci = {
     addweapon = cmd(D,D)  -- NLCF
         / format("if (%s) then _con.longjmp() end", PLS":addweapon(%1,%2)"),
     debris = cmd(D,D)
-        / "",  -- TODO
+        / "_con._debris(_aci, %1, %2)",
     addinventory = cmd(D,D)
         / PLS":addinventory(%1,%2)",
     guts = cmd(D,D)
-        / "",  -- TODO
+        / "_con._A_DoGuts(_aci,%1,%2)",
 
     -- cont'd
     addkills = cmd(D)
@@ -908,14 +906,16 @@ local Ci = {
     espawn = cmd(D),
     globalsound = cmd(D)
         / "",
-    lotsofglass = cmd(D),
+    lotsofglass = cmd(D)
+        / "_con._A_SpawnGlass(_aci,%1)",
     mail = cmd(D)
-        / "",  -- TODO
+        / "_con._spawnmany(_aci,4410,%1)",  -- TODO: dyntile
     money = cmd(D)
-        / "",  -- TODO
+        / "_con._spawnmany(_aci,1233,%1)",  -- TODO: dyntile
     paper = cmd(D)
-        / "",  -- TODO
-    qspawn = cmd(D),
+        / "_con._spawnmany(_aci,4460,%1)",  -- TODO: dyntile
+    qspawn = cmd(D)
+        / "_con.spawn(_aci,%1,true)",
     quote = cmd(D)
         / "",  -- TODO
     savenn = cmd(D),
@@ -925,7 +925,8 @@ local Ci = {
     soundonce = cmd(D),
     sound = cmd(D)
         / "",  -- TODO: all things audio...
-    spawn = cmd(D),
+    spawn = cmd(D)
+        / "_con.spawn(_aci, %1)",
     stopsound = cmd(D)
         / "",
 
@@ -943,7 +944,8 @@ local Ci = {
         / format("_con._flash(%s,%s)", ACS"", SPS""),
     getlastpal = cmd()
         / "_con._getlastpal(_aci)",
-    insertspriteq = cmd(),
+    insertspriteq = cmd()
+        / "_con._addtodelqueue(_aci)",
     killit = cmd()  -- NLCF
         / "_con.killit()",
     mikesnd = cmd()
@@ -1483,8 +1485,8 @@ local Grammar = Pat{
 
     -- Some often-used terminals follow.  These appear here because we're
     -- hitting a limit with LPeg else.
-
     -- http://lua-users.org/lists/lua-l/2008-11/msg00462.html
+
     -- NOTE: NW demo (NWSNOW.CON) contains a Ctrl-Z char (decimal 26)
     whitespace = Set(" \t\r\26") + newline + Set("(),;") + comment + linecomment,
 

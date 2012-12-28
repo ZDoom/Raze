@@ -209,6 +209,11 @@ const int16_t headsectbunch[2][MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
 
 int16_t yax_getbunch(int16_t i, int16_t cf);
 
+int32_t   getceilzofslopeptr(const sectortype *sec, int32_t dax, int32_t day);
+int32_t   getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day);
+void   getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day,
+                       int32_t *ceilz, int32_t *florz);
+
 int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                 hitdata_t *hitinfo, uint32_t cliptype);
 int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
@@ -247,6 +252,19 @@ local ivec3_mt = {
     end,
 }
 ivec3_ = ffi.metatype("vec3_t", ivec3_mt)
+
+local sectortype_mt = {
+    __index = {
+        ceilingzat = function(s, pos)
+            return ffiC.getceilzofslope(s, pos.x, pos.y)
+        end,
+
+        floorzat = function(s, pos)
+            return ffiC.getflorzofslope(s, pos.x, pos.y)
+        end,
+    }
+}
+ffi.metatype("sectortype", sectortype_mt)
 
 local walltype_mt = {
     __index = {
@@ -356,7 +374,7 @@ nextspritestat = creategtab(ffiC.nextspritestat, ffiC.MAXSPRITES, 'nextspritesta
 prevspritesect = creategtab(ffiC.prevspritesect, ffiC.MAXSPRITES, 'prevspritesect[]')
 prevspritestat = creategtab(ffiC.prevspritestat, ffiC.MAXSPRITES, 'prevspritestat[]')
 
-local function check_sector_idx(sectnum)
+function check_sector_idx(sectnum)
     if (sectnum >= ffiC.numsectors+0ULL) then
         error("passed out-of-bounds sector number "..sectnum, 3)
     end

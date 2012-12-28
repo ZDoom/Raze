@@ -17,6 +17,10 @@ ydim;
 
 yax_getbunch;
 
+getceilzofslopeptr;
+getflorzofslopeptr;
+getzsofslopeptr;
+
 headspritesect;
 headspritestat;
 prevspritesect;
@@ -63,6 +67,8 @@ g_player;
 
 playerswhenstarted;
 lastvisinc;
+g_spriteDeleteQueueSize;
+BlimpSpawnSprites;
 
 luaJIT_BC_lunacon;
 luaJIT_BC_con_lang;
@@ -86,4 +92,7 @@ VM_ResetPlayer2;
 A_RadiusDamage;
 G_OperateSectors;
 A_Dodge;
+A_InsertSprite;
+A_Spawn;
+A_AddToDeleteQueue;
 };
