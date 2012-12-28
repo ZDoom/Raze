@@ -974,6 +974,7 @@ int32_t Gv_GetVarByLabel(const char *szGameLabel, int32_t lDefault, int32_t iAct
     return Gv_GetVar(i, iActor, iPlayer);
 }
 
+#if !defined LUNATIC
 static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 {
     int32_t i = hash_find(&h_gamevars,szGameLabel);
@@ -990,12 +991,15 @@ static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 
     return &(aGameVars[i].val.lValue);
 }
+#endif
 
 void Gv_ResetSystemDefaults(void)
 {
     // call many times...
 
-    int32_t i,j;
+    int32_t i;
+#if !defined LUNATIC
+    int32_t j;
     char aszBuf[64];
 
     //AddLog("ResetWeaponDefaults");
@@ -1046,7 +1050,7 @@ void Gv_ResetSystemDefaults(void)
             aplWeaponFlashColor[i][j]=Gv_GetVarByLabel(aszBuf,0, -1, j);
         }
     }
-
+#endif
     g_iReturnVarID=Gv_GetVarIndex("RETURN");
     g_iWeaponVarID=Gv_GetVarIndex("WEAPON");
     g_iWorksLikeVarID=Gv_GetVarIndex("WORKSLIKE");
@@ -1185,16 +1189,26 @@ static int32_t G_StaticToDynamicTile(int32_t tile)
     }
 }
 
-#define ADDWEAPONVAR(Weapidx, Membname) do { \
+#ifdef LUNATIC
+# define ADDWEAPONVAR(Weapidx, Membname) do { \
+    int32_t j; \
+    for (j=0; j<MAXPLAYERS; j++) \
+        g_playerWeapon[j][Weapidx].Membname = weapondefaults[Weapidx].Membname; \
+} while (0)
+#else
+# define ADDWEAPONVAR(Weapidx, Membname) do { \
     Bsprintf(aszBuf, "WEAPON%d_" #Membname, Weapidx); \
     Bstrupr(aszBuf); \
     Gv_NewVar(aszBuf, weapondefaults[Weapidx].Membname, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM); \
 } while (0)
+#endif
 
 static void Gv_AddSystemVars(void)
 {
     // only call ONCE
+#if !defined LUNATIC
     char aszBuf[64];
+#endif
     int32_t i;
 
     if (NAM)
@@ -1379,6 +1393,7 @@ void Gv_Init(void)
 
 void Gv_InitWeaponPointers(void)
 {
+#if !defined LUNATIC
     int32_t i;
     char aszBuf[64];
     // called from game Init AND when level is loaded...
@@ -1432,6 +1447,7 @@ void Gv_InitWeaponPointers(void)
         Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",i);
         aplWeaponFlashColor[i]=Gv_GetVarDataPtr(aszBuf);
     }
+#endif
 }
 
 void Gv_RefreshPointers(void)

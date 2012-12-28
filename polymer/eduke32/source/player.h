@@ -243,9 +243,38 @@ typedef struct {
 } playerdata_t;
 #pragma pack(pop)
 
+typedef struct
+{
+    // NOTE: the member names must be identical to aplWeapon* suffixes.
+    int32_t WorksLike;  // What the original works like
+    int32_t Clip;  // number of items in magazine
+    int32_t Reload;  // delay to reload (include fire)
+    int32_t FireDelay;  // delay to fire
+    int32_t TotalTime;  // The total time the weapon is cycling before next fire.
+    int32_t HoldDelay;  // delay after release fire button to fire (0 for none)
+    int32_t Flags;  // Flags for weapon
+    int32_t Shoots;  // what the weapon shoots
+    int32_t SpawnTime;  // the frame at which to spawn an item
+    int32_t Spawn;  // the item to spawn
+    int32_t ShotsPerBurst;  // number of shots per 'burst' (one ammo per 'burst')
+    int32_t InitialSound;  // Sound made when weapon starts firing. zero for no sound
+    int32_t FireSound;  // Sound made when firing (each time for automatic)
+    int32_t Sound2Time;  // Alternate sound time
+    int32_t Sound2Sound;  // Alternate sound sound ID
+    int32_t ReloadSound1;  // Sound of magazine being removed
+    int32_t ReloadSound2;  // Sound of magazine being inserted
+    int32_t SelectSound;  // Sound of weapon being selected
+    int32_t FlashColor;  // Muzzle flash color
+} weapondata_t;
+
 extern int8_t             g_numPlayerSprites;
 extern int32_t          fricxv,fricyv;
 
+#ifdef LUNATIC
+# define PWEAPON(Player, Weapon, Wmember) (g_playerWeapon[Player][Weapon].Wmember)
+extern weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
+#else
+# define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])
 extern intptr_t         *aplWeaponClip[MAX_WEAPONS];            // number of items in clip
 extern intptr_t         *aplWeaponReload[MAX_WEAPONS];          // delay to reload (include fire)
 extern intptr_t         *aplWeaponFireDelay[MAX_WEAPONS];       // delay to fire
@@ -265,6 +294,7 @@ extern intptr_t         *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of maga
 extern intptr_t         *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 extern intptr_t         *aplWeaponSelectSound[MAX_WEAPONS];     // Sound for weapon selection
 extern intptr_t         *aplWeaponFlashColor[MAX_WEAPONS];      // Color for polymer muzzle flash
+#endif
 
 #pragma pack(push,1)
 extern input_t          inputfifo[MOVEFIFOSIZ][MAXPLAYERS];

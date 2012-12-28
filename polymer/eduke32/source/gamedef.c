@@ -111,6 +111,9 @@ static int32_t C_SetScriptSize(int32_t size);
 
 int32_t g_numQuoteRedefinitions = 0;
 
+#ifdef LUNATIC
+weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
+#else
 // pointers to weapon gamevar data
 intptr_t *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
 intptr_t *aplWeaponReload[MAX_WEAPONS];     // delay to reload (include fire)
@@ -131,6 +134,7 @@ intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being remo
 intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 intptr_t *aplWeaponSelectSound[MAX_WEAPONS];     // Sound of weapon being selected
 intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
+#endif
 
 int32_t g_iReturnVarID=-1;      // var ID of "RETURN"
 int32_t g_iWeaponVarID=-1;      // var ID of "WEAPON"

@@ -4614,7 +4614,7 @@ DETONATEB:
                         if ((ps->gotweapon & (1<<HANDBOMB_WEAPON)) == 0 || s->owner == ps->i)
                         {
                             /* P_AddWeapon(ps,HANDBOMB_WEAPON); */
-                            if (!(ps->weaponswitch & 1) && *aplWeaponWorksLike[ps->curr_weapon] != HANDREMOTE_WEAPON)
+                            if (!(ps->weaponswitch & 1) && PWEAPON(0, ps->curr_weapon, WorksLike) != HANDREMOTE_WEAPON)
                                 P_AddWeaponNoSwitch(ps,HANDBOMB_WEAPON);
                             else P_AddWeapon(ps,HANDBOMB_WEAPON);
                         }

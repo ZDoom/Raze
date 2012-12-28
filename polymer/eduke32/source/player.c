@@ -239,8 +239,8 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
 
     j = -1;
 
-    gotshrinker = (s->picnum == APLAYER && *aplWeaponWorksLike[g_player[s->yvel].ps->curr_weapon] == SHRINKER_WEAPON);
-    gotfreezer = (s->picnum == APLAYER && *aplWeaponWorksLike[g_player[s->yvel].ps->curr_weapon] == FREEZE_WEAPON);
+    gotshrinker = (s->picnum == APLAYER && PWEAPON(0, g_player[s->yvel].ps->curr_weapon, WorksLike) == SHRINKER_WEAPON);
+    gotfreezer = (s->picnum == APLAYER && PWEAPON(0, g_player[s->yvel].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
 
     smax = INT32_MAX;
 
@@ -1616,7 +1616,7 @@ SKIPBULLETHOLE:
                 }
             }
 
-            else if (*aplWeaponWorksLike[g_player[p].ps->curr_weapon] == DEVISTATOR_WEAPON)
+            else if (PWEAPON(0, g_player[p].ps->curr_weapon, WorksLike) == DEVISTATOR_WEAPON)
             {
                 sprite[j].extra >>= 2;
                 sprite[j].ang += 16-(krand()&31);
@@ -2094,38 +2094,38 @@ void P_FireWeapon(DukePlayer_t *p)
     {
         if (p->weapon_pos != 0) return;
 
-        if (aplWeaponWorksLike[p->curr_weapon][snum] != KNEE_WEAPON)
+        if (PWEAPON(snum, p->curr_weapon, WorksLike) != KNEE_WEAPON)
             p->ammo_amount[p->curr_weapon]--;
 
-        if (aplWeaponFireSound[p->curr_weapon][snum] > 0)
-            A_PlaySound(aplWeaponFireSound[p->curr_weapon][snum],p->i);
+        if (PWEAPON(snum, p->curr_weapon, FireSound) > 0)
+            A_PlaySound(PWEAPON(snum, p->curr_weapon, FireSound),p->i);
 
         Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-        Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-//        OSD_Printf("doing %d %d %d\n",aplWeaponShoots[p->curr_weapon][snum],p->curr_weapon,snum);
-        A_Shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
+        Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike), p->i, snum);
+//        OSD_Printf("doing %d %d %d\n",PWEAPON(snum, p->curr_weapon, Shoots),p->curr_weapon,snum);
+        A_Shoot(p->i,PWEAPON(snum, p->curr_weapon, Shoots));
 
-        for (i=aplWeaponShotsPerBurst[p->curr_weapon][snum]-1; i > 0; i--)
+        for (i=PWEAPON(snum, p->curr_weapon, ShotsPerBurst)-1; i > 0; i--)
         {
-            if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FIREEVERYOTHER)
+            if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_FIREEVERYOTHER)
             {
                 // this makes the projectiles fire on a delay from player code
-                actor[p->i].t_data[7] = (aplWeaponShotsPerBurst[p->curr_weapon][snum])<<1;
+                actor[p->i].t_data[7] = (PWEAPON(snum, p->curr_weapon, ShotsPerBurst))<<1;
             }
             else
             {
-                if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_AMMOPERSHOT &&
-                        aplWeaponWorksLike[p->curr_weapon][snum] != KNEE_WEAPON)
+                if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_AMMOPERSHOT &&
+                        PWEAPON(snum, p->curr_weapon, WorksLike) != KNEE_WEAPON)
                 {
                     if (p->ammo_amount[p->curr_weapon] > 0)
                         p->ammo_amount[p->curr_weapon]--;
                     else break;
                 }
-                A_Shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
+                A_Shoot(p->i,PWEAPON(snum, p->curr_weapon, Shoots));
             }
         }
 
-        if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_NOVISIBLE))
+        if (!(PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_NOVISIBLE))
         {
 #ifdef POLYMER
             spritetype *s = &sprite[p->i];
@@ -2133,7 +2133,7 @@ void P_FireWeapon(DukePlayer_t *p)
 
             s->x += x;
             s->y += y;
-            G_AddGameLight(0, p->i, PHEIGHT, 8192, aplWeaponFlashColor[p->curr_weapon][snum],PR_LIGHT_PRIO_MAX_GAME);
+            G_AddGameLight(0, p->i, PHEIGHT, 8192, PWEAPON(snum, p->curr_weapon, FlashColor),PR_LIGHT_PRIO_MAX_GAME);
             actor[p->i].lightcount = 2;
             s->x -= x;
             s->y -= y;
@@ -2148,12 +2148,12 @@ void P_DoWeaponSpawn(DukePlayer_t *p)
 {
     int32_t j, snum = sprite[p->i].yvel;
 
-    if (aplWeaponSpawn[p->curr_weapon][snum] <= 0)  // <=0 : AMC TC beta/RC2 has WEAPONx_SPAWN -1
+    if (PWEAPON(snum, p->curr_weapon, Spawn) <= 0)  // <=0 : AMC TC beta/RC2 has WEAPONx_SPAWN -1
         return;
 
-    j = A_Spawn(p->i, aplWeaponSpawn[p->curr_weapon][snum]);
+    j = A_Spawn(p->i, PWEAPON(snum, p->curr_weapon, Spawn));
 
-    if ((aplWeaponFlags[p->curr_weapon][snum] & WEAPON_SPAWNTYPE3))
+    if ((PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_SPAWNTYPE3))
     {
         // like chaingun shells
         sprite[j].ang += 1024;
@@ -2303,9 +2303,9 @@ void P_DisplayWeapon(int32_t snum)
     gun_pos -= (p->hard_landing<<3);
 
     if (p->last_weapon >= 0)
-        cw = aplWeaponWorksLike[p->last_weapon][snum];
+        cw = PWEAPON(snum, p->last_weapon, WorksLike);
     else
-        cw = aplWeaponWorksLike[p->curr_weapon][snum];
+        cw = PWEAPON(snum, p->curr_weapon, WorksLike);
 
     g_gun_pos=gun_pos;
     g_looking_arc=looking_arc;
@@ -2536,7 +2536,7 @@ void P_DisplayWeapon(int32_t snum)
                         break;
 
                     default:
-                        if (*kb > *aplWeaponFireDelay[CHAINGUN_WEAPON] && *kb < *aplWeaponTotalTime[CHAINGUN_WEAPON])
+                        if (*kb > PWEAPON(0, CHAINGUN_WEAPON, FireDelay) && *kb < PWEAPON(0, CHAINGUN_WEAPON, TotalTime))
                         {
                             i = 0;
                             if (sprite[p->i].pal != 1) i = rand()&7;
@@ -2547,7 +2547,7 @@ void P_DisplayWeapon(int32_t snum)
                                 CHAINGUN+5+((*kb-4)/5),gs,o,pal,0);
                         }
 
-                        if (*kb < *aplWeaponTotalTime[CHAINGUN_WEAPON]-4)
+                        if (*kb < PWEAPON(0, CHAINGUN_WEAPON, TotalTime)-4)
                         {
                             i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+162-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
@@ -2566,12 +2566,12 @@ void P_DisplayWeapon(int32_t snum)
             case PISTOL_WEAPON:
                 if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0) == 0)
                 {
-                    if ((*kb) < *aplWeaponTotalTime[PISTOL_WEAPON]+1)
+                    if ((*kb) < PWEAPON(0, PISTOL_WEAPON, TotalTime)+1)
                     {
                         static uint8_t kb_frames[] = { 0, 1, 2 };
                         int32_t l = 195-12+weapon_xoffset;
 
-                        if ((*kb) == *aplWeaponFireDelay[PISTOL_WEAPON])
+                        if ((*kb) == PWEAPON(0, PISTOL_WEAPON, FireDelay))
                             l -= 3;
 
                         guniqhudid = cw;
@@ -2581,20 +2581,20 @@ void P_DisplayWeapon(int32_t snum)
                     else
                     {
 
-                        if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-17)
+                        if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload)-17)
                         {
                             guniqhudid = cw;
                             G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+230-gun_pos,FIRSTGUN+4,gs,o|512,pal,0);
                             guniqhudid = 0;
                         }
-                        else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-12)
+                        else if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload)-12)
                         {
                             G_DrawWeaponTile(244-((*kb)<<3)-(p->look_ang>>1),looking_arc+130-gun_pos+((*kb)<<4),FIRSTGUN+6,gs,o|512,pal,0);
                             guniqhudid = cw;
                             G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o|512,pal,0);
                             guniqhudid = 0;
                         }
-                        else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-7)
+                        else if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload)-7)
                         {
                             G_DrawWeaponTile(124+((*kb)<<1)-(p->look_ang>>1),looking_arc+430-gun_pos-((*kb)<<3),FIRSTGUN+6,gs,o|512,pal,0);
                             guniqhudid = cw;
@@ -2602,21 +2602,21 @@ void P_DisplayWeapon(int32_t snum)
                             guniqhudid = 0;
                         }
 
-                        else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-4)
+                        else if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload)-4)
                         {
                             G_DrawWeaponTile(184-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+8,gs,o|512,pal,0);
                             guniqhudid = cw;
                             G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+210-gun_pos,FIRSTGUN+5,gs,o|512,pal,0);
                             guniqhudid = 0;
                         }
-                        else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-2)
+                        else if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload)-2)
                         {
                             G_DrawWeaponTile(164-(p->look_ang>>1),looking_arc+245-gun_pos,FIRSTGUN+8,gs,o|512,pal,0);
                             guniqhudid = cw;
                             G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o|512,pal,0);
                             guniqhudid = 0;
                         }
-                        else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON])
+                        else if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload))
                         {
                             guniqhudid = cw;
                             G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+5,gs,o|512,pal,0);
@@ -2633,7 +2633,7 @@ void P_DisplayWeapon(int32_t snum)
                     guniqhudid = cw;
                     if ((*kb))
                     {
-                        if ((*kb) < (*aplWeaponTotalTime[p->curr_weapon]))
+                        if ((*kb) < (PWEAPON(0, p->curr_weapon, TotalTime)))
                         {
 
                             static uint8_t throw_frames[] = {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2};
@@ -2672,7 +2672,7 @@ void P_DisplayWeapon(int32_t snum)
             case DEVISTATOR_WEAPON:
                 if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0) == 0)
                 {
-                    if ((*kb) < (*aplWeaponTotalTime[DEVISTATOR_WEAPON]+1) && (*kb) > 0)
+                    if ((*kb) < (PWEAPON(0, DEVISTATOR_WEAPON, TotalTime)+1) && (*kb) > 0)
                     {
                         static uint8_t cycloidy[] = {0,4,12,24,12,4,0};
 
@@ -2709,7 +2709,7 @@ void P_DisplayWeapon(int32_t snum)
             case FREEZE_WEAPON:
                 if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0) == 0)
                 {
-                    if ((*kb) < (aplWeaponTotalTime[p->curr_weapon][snum]+1) && (*kb) > 0)
+                    if ((*kb) < (PWEAPON(snum, p->curr_weapon, TotalTime)+1) && (*kb) > 0)
                     {
                         static uint8_t cat_frames[] = { 0,0,1,1,2,2 };
 
@@ -2740,7 +2740,7 @@ void P_DisplayWeapon(int32_t snum)
                     weapon_xoffset += 28;
                     looking_arc += 18;
 
-                    if ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum] && (*kb) > 0)
+                    if ((*kb) < PWEAPON(snum, p->curr_weapon, TotalTime) && (*kb) > 0)
                     {
                         if (sprite[p->i].pal != 1)
                         {
@@ -2780,7 +2780,7 @@ void P_DisplayWeapon(int32_t snum)
                     weapon_xoffset += 28;
                     looking_arc += 18;
 
-                    if (((*kb) > 0) && ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum]))
+                    if (((*kb) > 0) && ((*kb) < PWEAPON(snum, p->curr_weapon, TotalTime)))
                     {
                         if (sprite[p->i].pal != 1)
                         {
@@ -3080,7 +3080,7 @@ void getinput(int32_t snum)
     if (BUTTON(gamefunc_Dpad_Aiming))
         vel = 0;
 
-    if (aplWeaponFlags[g_player[snum].ps->curr_weapon][snum] & WEAPON_SEMIAUTO && BUTTON(gamefunc_Fire))
+    if (PWEAPON(snum, g_player[snum].ps->curr_weapon, Flags) & WEAPON_SEMIAUTO && BUTTON(gamefunc_Fire))
         CONTROL_ClearButton(gamefunc_Fire);
 
     loc.extbits = 0;
@@ -3333,7 +3333,7 @@ int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATI
 void P_DropWeapon(DukePlayer_t *p)
 {
     int32_t snum = sprite[p->i].yvel,
-            cw = aplWeaponWorksLike[p->curr_weapon][snum];
+            cw = PWEAPON(snum, p->curr_weapon, WorksLike);
 
     if ((unsigned)cw >= MAX_WEAPONS) return;
       
@@ -3368,11 +3368,11 @@ void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
             p->gotweapon |= (1<<GROW_WEAPON);
     }
 
-    if (aplWeaponSelectSound[p->curr_weapon][snum] > 0)
-        S_StopEnvSound(aplWeaponSelectSound[p->curr_weapon][snum],p->i);
+    if (PWEAPON(snum, p->curr_weapon, SelectSound) > 0)
+        S_StopEnvSound(PWEAPON(snum, p->curr_weapon, SelectSound),p->i);
 
-    if (aplWeaponSelectSound[weapon][snum] > 0)
-        A_PlaySound(aplWeaponSelectSound[weapon][snum],p->i);
+    if (PWEAPON(snum, weapon, SelectSound) > 0)
+        A_PlaySound(PWEAPON(snum, weapon, SelectSound),p->i);
 }
 
 void P_ChangeWeapon(DukePlayer_t *p,int32_t weapon)
@@ -3409,7 +3409,7 @@ void P_ChangeWeapon(DukePlayer_t *p,int32_t weapon)
 
     Gv_SetVar(g_iWeaponVarID, p->curr_weapon, p->i, snum);
     Gv_SetVar(g_iWorksLikeVarID,
-              (unsigned)p->curr_weapon < MAX_WEAPONS ? aplWeaponWorksLike[p->curr_weapon][snum] : -1,
+              (unsigned)p->curr_weapon < MAX_WEAPONS ? PWEAPON(snum, p->curr_weapon, WorksLike) : -1,
               p->i, snum);
 }
 
@@ -3783,7 +3783,7 @@ void P_ProcessWeapon(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_FIRE))
     {
         Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-        Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],p->i,snum);
+        Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike),p->i,snum);
         
         if (VM_OnEvent(EVENT_PRESSEDFIRE, p->i, snum, -1, 0) != 0)
             sb_snum &= ~BIT(SK_FIRE);
@@ -3792,11 +3792,11 @@ void P_ProcessWeapon(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_HOLSTER))   // 'Holster Weapon
     {
         Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-        Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],p->i,snum);
+        Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike),p->i,snum);
         
         if (VM_OnEvent(EVENT_HOLSTER, p->i, snum, -1, 0) == 0)
         {
-            if (*aplWeaponWorksLike[p->curr_weapon] != KNEE_WEAPON)
+            if (PWEAPON(0, p->curr_weapon, WorksLike) != KNEE_WEAPON)
             {
                 if (p->holster_weapon == 0 && p->weapon_pos == 0)
                 {
@@ -3812,14 +3812,14 @@ void P_ProcessWeapon(int32_t snum)
                 }
             }
 
-            if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_HOLSTER_CLEARS_CLIP)
+            if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_HOLSTER_CLEARS_CLIP)
             {
-                if (p->ammo_amount[p->curr_weapon] > aplWeaponClip[p->curr_weapon][snum]
-                        && (p->ammo_amount[p->curr_weapon] % aplWeaponClip[p->curr_weapon][snum]) != 0)
+                if (p->ammo_amount[p->curr_weapon] > PWEAPON(snum, p->curr_weapon, Clip)
+                        && (p->ammo_amount[p->curr_weapon] % PWEAPON(snum, p->curr_weapon, Clip)) != 0)
                 {
                     p->ammo_amount[p->curr_weapon]-=
-                        p->ammo_amount[p->curr_weapon] % aplWeaponClip[p->curr_weapon][snum] ;
-                    (*kb) = aplWeaponTotalTime[p->curr_weapon][snum];
+                        p->ammo_amount[p->curr_weapon] % PWEAPON(snum, p->curr_weapon, Clip) ;
+                    (*kb) = PWEAPON(snum, p->curr_weapon, TotalTime);
                     sb_snum &= ~BIT(SK_FIRE); // not firing...
                 }
                 return;
@@ -3827,7 +3827,7 @@ void P_ProcessWeapon(int32_t snum)
         }
     }
 
-    if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_GLOWS)
+    if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_GLOWS)
     {
         p->random_club_frame += 64; // Glowing
 
@@ -3839,7 +3839,7 @@ void P_ProcessWeapon(int32_t snum)
 
             s->x += x;
             s->y += y;
-            G_AddGameLight(0, p->i, PHEIGHT, max(r, 0), aplWeaponFlashColor[p->curr_weapon][snum],PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, p->i, PHEIGHT, max(r, 0), PWEAPON(snum, p->curr_weapon, FlashColor),PR_LIGHT_PRIO_HIGH_GAME);
             actor[p->i].lightcount = 2;
             s->x -= x;
             s->y -= y;
@@ -3853,7 +3853,7 @@ void P_ProcessWeapon(int32_t snum)
         actor[p->i].t_data[7]--;
         if (p->last_weapon == -1 && actor[p->i].t_data[7] != 0 && ((actor[p->i].t_data[7] & 1) == 0))
         {
-            if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_AMMOPERSHOT)
+            if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_AMMOPERSHOT)
             {
                 if (p->ammo_amount[p->curr_weapon] > 0)
                     p->ammo_amount[p->curr_weapon]--;
@@ -3865,7 +3865,7 @@ void P_ProcessWeapon(int32_t snum)
             }
 
             if (actor[p->i].t_data[7] != 0)
-                A_Shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
+                A_Shoot(p->i,PWEAPON(snum, p->curr_weapon, Shoots));
         }
     }
 
@@ -3894,38 +3894,38 @@ void P_ProcessWeapon(int32_t snum)
         else
         {
             Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-            Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],p->i,snum);
+            Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike),p->i,snum);
 
             if (VM_OnEvent(EVENT_FIRE, p->i, snum, -1, 0) == 0)
             {
                 if (G_HaveEvent(EVENT_FIREWEAPON)) // this event is deprecated
                     VM_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1, 0);
 
-                switch (aplWeaponWorksLike[p->curr_weapon][snum])
+                switch (PWEAPON(snum, p->curr_weapon, WorksLike))
                 {
                 case HANDBOMB_WEAPON:
                     p->hbomb_hold_delay = 0;
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
                         (*kb)=1;
-                        if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
-                            A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
+                        if (PWEAPON(snum, p->curr_weapon, InitialSound) > 0)
+                            A_PlaySound(PWEAPON(snum, p->curr_weapon, InitialSound), p->i);
                     }
                     break;
 
                 case HANDREMOTE_WEAPON:
                     p->hbomb_hold_delay = 0;
                     (*kb) = 1;
-                    if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
-                        A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
+                    if (PWEAPON(snum, p->curr_weapon, InitialSound) > 0)
+                        A_PlaySound(PWEAPON(snum, p->curr_weapon, InitialSound), p->i);
                     break;
 
                 case SHOTGUN_WEAPON:
                     if (p->ammo_amount[p->curr_weapon] > 0 && p->random_club_frame == 0)
                     {
                         (*kb)=1;
-                        if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
-                            A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
+                        if (PWEAPON(snum, p->curr_weapon, InitialSound) > 0)
+                            A_PlaySound(PWEAPON(snum, p->curr_weapon, InitialSound), p->i);
                     }
                     break;
 
@@ -3971,9 +3971,9 @@ void P_ProcessWeapon(int32_t snum)
                                     p->pos.z = p->opos.z;
                                     p->vel.z = 0;
                                     (*kb) = 1;
-                                    if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
+                                    if (PWEAPON(snum, p->curr_weapon, InitialSound) > 0)
                                     {
-                                        A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
+                                        A_PlaySound(PWEAPON(snum, p->curr_weapon, InitialSound), p->i);
                                     }
                                 }
                     }
@@ -3988,8 +3988,8 @@ void P_ProcessWeapon(int32_t snum)
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
                         (*kb) = 1;
-                        if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
-                            A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
+                        if (PWEAPON(snum, p->curr_weapon, InitialSound) > 0)
+                            A_PlaySound(PWEAPON(snum, p->curr_weapon, InitialSound), p->i);
                     }
                     break;
 
@@ -3998,8 +3998,8 @@ void P_ProcessWeapon(int32_t snum)
                     {
                         (*kb) = 1;
                         p->hbomb_hold_delay = !p->hbomb_hold_delay;
-                        if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
-                            A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
+                        if (PWEAPON(snum, p->curr_weapon, InitialSound) > 0)
+                            A_PlaySound(PWEAPON(snum, p->curr_weapon, InitialSound), p->i);
                     }
                     break;
 
@@ -4007,8 +4007,8 @@ void P_ProcessWeapon(int32_t snum)
                     if (p->quick_kick == 0)
                     {
                         (*kb) = 1;
-                        if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
-                            A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
+                        if (PWEAPON(snum, p->curr_weapon, InitialSound) > 0)
+                            A_PlaySound(PWEAPON(snum, p->curr_weapon, InitialSound), p->i);
                     }
                     break;
                 }
@@ -4017,15 +4017,15 @@ void P_ProcessWeapon(int32_t snum)
     }
     else if (*kb)
     {
-        if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDBOMB_WEAPON)
+        if (PWEAPON(snum, p->curr_weapon, WorksLike) == HANDBOMB_WEAPON)
         {
-            if (aplWeaponHoldDelay[p->curr_weapon][snum] && ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum]) && TEST_SYNC_KEY(sb_snum, SK_FIRE))
+            if (PWEAPON(snum, p->curr_weapon, HoldDelay) && ((*kb) == PWEAPON(snum, p->curr_weapon, FireDelay)) && TEST_SYNC_KEY(sb_snum, SK_FIRE))
             {
                 p->rapid_fire_hold = 1;
                 return;
             }
 
-            if (++(*kb) == aplWeaponHoldDelay[p->curr_weapon][snum])
+            if (++(*kb) == PWEAPON(snum, p->curr_weapon, HoldDelay))
             {
                 int32_t lPipeBombControl;
 
@@ -4047,7 +4047,7 @@ void P_ProcessWeapon(int32_t snum)
                     j = A_InsertSprite(p->cursectnum,
                                        p->pos.x+(sintable[(p->ang+512)&2047]>>6),
                                        p->pos.y+(sintable[p->ang&2047]>>6),
-                                       p->pos.z,aplWeaponShoots[p->curr_weapon][snum],-16,9,9,
+                                       p->pos.z,PWEAPON(snum, p->curr_weapon, Shoots),-16,9,9,
                                        p->ang,(k+(p->hbomb_hold_delay<<5)),i,p->i,1);
 
                     lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
@@ -4079,9 +4079,9 @@ void P_ProcessWeapon(int32_t snum)
 
                 p->hbomb_on = 1;
             }
-            else if ((*kb) < aplWeaponHoldDelay[p->curr_weapon][snum] && TEST_SYNC_KEY(sb_snum, SK_FIRE))
+            else if ((*kb) < PWEAPON(snum, p->curr_weapon, HoldDelay) && TEST_SYNC_KEY(sb_snum, SK_FIRE))
                 p->hbomb_hold_delay++;
-            else if ((*kb) > aplWeaponTotalTime[p->curr_weapon][snum])
+            else if ((*kb) > PWEAPON(snum, p->curr_weapon, TotalTime))
             {
                 (*kb) = 0;
                 p->weapon_pos = 10;
@@ -4094,27 +4094,27 @@ void P_ProcessWeapon(int32_t snum)
                 else P_CheckWeapon(p);
             }
         }
-        else if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON)
+        else if (PWEAPON(snum, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
         {
-            if (++(*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
+            if (++(*kb) == PWEAPON(snum, p->curr_weapon, FireDelay))
             {
-                if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_BOMB_TRIGGER)
+                if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_BOMB_TRIGGER)
                     p->hbomb_on = 0;
 
-                if (aplWeaponShoots[p->curr_weapon][snum] != 0)
+                if (PWEAPON(snum, p->curr_weapon, Shoots) != 0)
                 {
-                    if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_NOVISIBLE))
+                    if (!(PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_NOVISIBLE))
                     {
                         lastvisinc = totalclock+32;
                         p->visibility = 0;
                     }
                     Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-                    Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-                    A_Shoot(p->i, aplWeaponShoots[p->curr_weapon][snum]);
+                    Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike), p->i, snum);
+                    A_Shoot(p->i, PWEAPON(snum, p->curr_weapon, Shoots));
                 }
             }
 
-            if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
+            if ((*kb) >= PWEAPON(snum, p->curr_weapon, TotalTime))
             {
                 (*kb) = 0;
                 if ((p->ammo_amount[HANDBOMB_WEAPON] > 0) &&
@@ -4128,64 +4128,64 @@ void P_ProcessWeapon(int32_t snum)
             // the basic weapon...
             (*kb)++;
 
-            if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_CHECKATRELOAD)
+            if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_CHECKATRELOAD)
             {
-                if (aplWeaponWorksLike[p->curr_weapon][snum] == TRIPBOMB_WEAPON)
+                if (PWEAPON(snum, p->curr_weapon, WorksLike) == TRIPBOMB_WEAPON)
                 {
-                    if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
+                    if ((*kb) >= PWEAPON(snum, p->curr_weapon, TotalTime))
                     {
                         (*kb) = 0;
                         P_CheckWeapon(p);
                         p->weapon_pos = -9;
                     }
                 }
-                else if (*kb >= aplWeaponReload[p->curr_weapon][snum])
+                else if (*kb >= PWEAPON(snum, p->curr_weapon, Reload))
                     P_CheckWeapon(p);
             }
-            else if (aplWeaponWorksLike[p->curr_weapon][snum]!=KNEE_WEAPON && *kb >= aplWeaponFireDelay[p->curr_weapon][snum])
+            else if (PWEAPON(snum, p->curr_weapon, WorksLike)!=KNEE_WEAPON && *kb >= PWEAPON(snum, p->curr_weapon, FireDelay))
                 P_CheckWeapon(p);
 
-            if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_STANDSTILL
-                    && *kb < (aplWeaponFireDelay[p->curr_weapon][snum]+1))
+            if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_STANDSTILL
+                    && *kb < (PWEAPON(snum, p->curr_weapon, FireDelay)+1))
             {
                 p->pos.z = p->opos.z;
                 p->vel.z = 0;
             }
 
-            if (*kb == aplWeaponSound2Time[p->curr_weapon][snum])
-                if (aplWeaponSound2Sound[p->curr_weapon][snum] > 0)
-                    A_PlaySound(aplWeaponSound2Sound[p->curr_weapon][snum],p->i);
+            if (*kb == PWEAPON(snum, p->curr_weapon, Sound2Time))
+                if (PWEAPON(snum, p->curr_weapon, Sound2Sound) > 0)
+                    A_PlaySound(PWEAPON(snum, p->curr_weapon, Sound2Sound),p->i);
 
-            if (*kb == aplWeaponSpawnTime[p->curr_weapon][snum])
+            if (*kb == PWEAPON(snum, p->curr_weapon, SpawnTime))
                 P_DoWeaponSpawn(p);
 
-            if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
+            if ((*kb) >= PWEAPON(snum, p->curr_weapon, TotalTime))
             {
-                if (/*!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_CHECKATRELOAD) && */ p->reloading == 1 ||
-                        (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum] && p->ammo_amount[p->curr_weapon] > 0
-                         && (aplWeaponClip[p->curr_weapon][snum]) && (((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))))
+                if (/*!(PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_CHECKATRELOAD) && */ p->reloading == 1 ||
+                        (PWEAPON(snum, p->curr_weapon, Reload) > PWEAPON(snum, p->curr_weapon, TotalTime) && p->ammo_amount[p->curr_weapon] > 0
+                         && (PWEAPON(snum, p->curr_weapon, Clip)) && (((p->ammo_amount[p->curr_weapon]%(PWEAPON(snum, p->curr_weapon, Clip)))==0))))
                 {
-                    int32_t i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
+                    int32_t i = PWEAPON(snum, p->curr_weapon, Reload) - PWEAPON(snum, p->curr_weapon, TotalTime);
 
                     p->reloading = 1;
 
-                    if ((*kb) != (aplWeaponTotalTime[p->curr_weapon][snum]))
+                    if ((*kb) != (PWEAPON(snum, p->curr_weapon, TotalTime)))
                     {
-                        if ((*kb) == (aplWeaponTotalTime[p->curr_weapon][snum]+1))
+                        if ((*kb) == (PWEAPON(snum, p->curr_weapon, TotalTime)+1))
                         {
-                            if (aplWeaponReloadSound1[p->curr_weapon][snum] > 0)
-                                A_PlaySound(aplWeaponReloadSound1[p->curr_weapon][snum],p->i);
+                            if (PWEAPON(snum, p->curr_weapon, ReloadSound1) > 0)
+                                A_PlaySound(PWEAPON(snum, p->curr_weapon, ReloadSound1),p->i);
                         }
-                        else if (((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i/3)) &&
-                                  !(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RELOAD_TIMING)) ||
+                        else if (((*kb) == (PWEAPON(snum, p->curr_weapon, Reload) - (i/3)) &&
+                                  !(PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RELOAD_TIMING)) ||
 
-                                 ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - i+4) &&
-                                  (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RELOAD_TIMING)))
+                                 ((*kb) == (PWEAPON(snum, p->curr_weapon, Reload) - i+4) &&
+                                  (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RELOAD_TIMING)))
                         {
-                            if (aplWeaponReloadSound2[p->curr_weapon][snum] > 0)
-                                A_PlaySound(aplWeaponReloadSound2[p->curr_weapon][snum],p->i);
+                            if (PWEAPON(snum, p->curr_weapon, ReloadSound2) > 0)
+                                A_PlaySound(PWEAPON(snum, p->curr_weapon, ReloadSound2),p->i);
                         }
-                        else if ((*kb) >= (aplWeaponReload[p->curr_weapon][snum]))
+                        else if ((*kb) >= (PWEAPON(snum, p->curr_weapon, Reload)))
                         {
                             *kb=0;
                             p->reloading = 0;
@@ -4194,12 +4194,12 @@ void P_ProcessWeapon(int32_t snum)
                 }
                 else
                 {
-                    if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_AUTOMATIC &&
-                            (aplWeaponWorksLike[p->curr_weapon][snum]==KNEE_WEAPON?1:p->ammo_amount[p->curr_weapon] > 0))
+                    if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_AUTOMATIC &&
+                            (PWEAPON(snum, p->curr_weapon, WorksLike)==KNEE_WEAPON?1:p->ammo_amount[p->curr_weapon] > 0))
                     {
                         if (TEST_SYNC_KEY(sb_snum, SK_FIRE))
                         {
-                            if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RANDOMRESTART)
+                            if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RANDOMRESTART)
                                 *kb = 1+(krand()&3);
                             else *kb=1;
                         }
@@ -4207,24 +4207,24 @@ void P_ProcessWeapon(int32_t snum)
                     }
                     else *kb = 0;
 
-                    if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RESET &&
-                            ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
+                    if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RESET &&
+                            ((PWEAPON(snum, p->curr_weapon, WorksLike) == KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
                     {
                         if (TEST_SYNC_KEY(sb_snum, SK_FIRE)) *kb = 1;
                         else *kb = 0;
                     }
                 }
             }
-            else if (*kb >= aplWeaponFireDelay[p->curr_weapon][snum] && (*kb) < aplWeaponTotalTime[p->curr_weapon][snum]
-                     && ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
+            else if (*kb >= PWEAPON(snum, p->curr_weapon, FireDelay) && (*kb) < PWEAPON(snum, p->curr_weapon, TotalTime)
+                     && ((PWEAPON(snum, p->curr_weapon, WorksLike) == KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
             {
-                if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_AUTOMATIC)
+                if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_AUTOMATIC)
                 {
-                    if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_SEMIAUTO))
+                    if (!(PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_SEMIAUTO))
                     {
-                        if (TEST_SYNC_KEY(sb_snum, SK_FIRE) == 0 && aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RESET)
+                        if (TEST_SYNC_KEY(sb_snum, SK_FIRE) == 0 && PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RESET)
                             *kb = 0;
-                        if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FIREEVERYTHIRD)
+                        if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_FIREEVERYTHIRD)
                         {
                             if (((*(kb))%3) == 0)
                             {
@@ -4232,22 +4232,22 @@ void P_ProcessWeapon(int32_t snum)
                                 P_DoWeaponSpawn(p);
                             }
                         }
-                        else if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FIREEVERYOTHER)
+                        else if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_FIREEVERYOTHER)
                         {
                             P_FireWeapon(p);
                             P_DoWeaponSpawn(p);
                         }
                         else
                         {
-                            if (*kb == aplWeaponFireDelay[p->curr_weapon][snum])
+                            if (*kb == PWEAPON(snum, p->curr_weapon, FireDelay))
                             {
                                 P_FireWeapon(p);
                                 //                                P_DoWeaponSpawn(p);
                             }
                         }
-                        if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RESET &&
-                                (*kb) > aplWeaponTotalTime[p->curr_weapon][snum]-aplWeaponHoldDelay[p->curr_weapon][snum] &&
-                                ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON) || p->ammo_amount[p->curr_weapon] > 0))
+                        if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RESET &&
+                                (*kb) > PWEAPON(snum, p->curr_weapon, TotalTime)-PWEAPON(snum, p->curr_weapon, HoldDelay) &&
+                                ((PWEAPON(snum, p->curr_weapon, WorksLike) == KNEE_WEAPON) || p->ammo_amount[p->curr_weapon] > 0))
                         {
                             if (TEST_SYNC_KEY(sb_snum, SK_FIRE)) *kb = 1;
                             else *kb = 0;
@@ -4255,14 +4255,14 @@ void P_ProcessWeapon(int32_t snum)
                     }
                     else
                     {
-                        if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FIREEVERYOTHER)
+                        if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_FIREEVERYOTHER)
                         {
                             P_FireWeapon(p);
                             P_DoWeaponSpawn(p);
                         }
                         else
                         {
-                            if (*kb == aplWeaponFireDelay[p->curr_weapon][snum])
+                            if (*kb == PWEAPON(snum, p->curr_weapon, FireDelay))
                             {
                                 P_FireWeapon(p);
                                 //                                P_DoWeaponSpawn(p);
@@ -4270,7 +4270,7 @@ void P_ProcessWeapon(int32_t snum)
                         }
                     }
                 }
-                else if (*kb == aplWeaponFireDelay[p->curr_weapon][snum])
+                else if (*kb == PWEAPON(snum, p->curr_weapon, FireDelay))
                     P_FireWeapon(p);
             }
         }
@@ -4602,7 +4602,7 @@ void P_ProcessInput(int32_t snum)
         P_UpdatePosWhenViewingCam(p);
         P_DoCounters(p);
 
-        if (*aplWeaponWorksLike[p->curr_weapon] == HANDREMOTE_WEAPON)
+        if (PWEAPON(0, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
             P_ProcessWeapon(snum);
 
         return;
@@ -5046,8 +5046,8 @@ void P_ProcessInput(int32_t snum)
     }
 
     if (p->fist_incs || p->transporter_hold > 2 || p->hard_landing || p->access_incs > 0 || p->knee_incs > 0 ||
-            (*aplWeaponWorksLike[p->curr_weapon] == TRIPBOMB_WEAPON &&
-             *kb > 1 && *kb < *aplWeaponFireDelay[p->curr_weapon]))
+            (PWEAPON(0, p->curr_weapon, WorksLike) == TRIPBOMB_WEAPON &&
+             *kb > 1 && *kb < PWEAPON(0, p->curr_weapon, FireDelay)))
     {
         doubvel = 0;
         p->vel.x = 0;
@@ -5169,7 +5169,7 @@ void P_ProcessInput(int32_t snum)
 
         if (psectlotag == ST_2_UNDERWATER)
             j = 0x1400;
-        else if (p->on_ground && (TEST_SYNC_KEY(sb_snum, SK_CROUCH) || (*kb > 10 && aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)))
+        else if (p->on_ground && (TEST_SYNC_KEY(sb_snum, SK_CROUCH) || (*kb > 10 && PWEAPON(snum, p->curr_weapon, WorksLike) == KNEE_WEAPON)))
             j = 0x2000;
 
         p->vel.x = mulscale16(p->vel.x,p->runspeed-j);

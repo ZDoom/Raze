@@ -807,9 +807,9 @@ void P_ResetStatus(int32_t snum)
 
     p->on_crane          = -1;
 
-    if ((aplWeaponWorksLike[p->curr_weapon][snum] == PISTOL_WEAPON) &&
-            (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]))
-        p->kickback_pic  = aplWeaponTotalTime[p->curr_weapon][snum];
+    if ((PWEAPON(snum, p->curr_weapon, WorksLike) == PISTOL_WEAPON) &&
+            (PWEAPON(snum, p->curr_weapon, Reload) > PWEAPON(snum, p->curr_weapon, TotalTime)))
+        p->kickback_pic  = PWEAPON(snum, p->curr_weapon, TotalTime);
     else p->kickback_pic = 0;
 
     p->weapon_pos        = 6;
@@ -840,7 +840,7 @@ void P_ResetWeapons(int32_t snum)
 
     p->weapon_pos = 6;
     p->curr_weapon = PISTOL_WEAPON;
-    p->kickback_pic = aplWeaponTotalTime[p->curr_weapon][snum];
+    p->kickback_pic = PWEAPON(snum, p->curr_weapon, TotalTime);
     p->gotweapon = ((1<<PISTOL_WEAPON) | (1<<KNEE_WEAPON) | (1<<HANDREMOTE_WEAPON));
     p->ammo_amount[PISTOL_WEAPON] = min(p->max_ammo_amount[PISTOL_WEAPON], 48);
     p->last_weapon = -1;
@@ -885,9 +885,9 @@ static void resetprestat(int32_t snum,int32_t g)
     p->lastrandomspot = 0;
     p->weapon_pos = 6;
 
-    if ((aplWeaponWorksLike[p->curr_weapon][snum] == PISTOL_WEAPON) &&
-            (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]))
-        p->kickback_pic  = aplWeaponTotalTime[p->curr_weapon][snum];
+    if ((PWEAPON(snum, p->curr_weapon, WorksLike) == PISTOL_WEAPON) &&
+            (PWEAPON(snum, p->curr_weapon, Reload) > PWEAPON(snum, p->curr_weapon, TotalTime)))
+        p->kickback_pic  = PWEAPON(snum, p->curr_weapon, TotalTime);
     else p->kickback_pic = 0;
 
     p->last_weapon = -1;
@@ -1459,15 +1459,15 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
     {
         for (i=0; i<MAX_WEAPONS; i++)
         {
-            if (aplWeaponWorksLike[i][0]==PISTOL_WEAPON)
+            if (PWEAPON(0, i, WorksLike)==PISTOL_WEAPON)
             {
                 p->curr_weapon = i;
                 p->gotweapon |= (1<<i);
                 p->ammo_amount[i] = min(p->max_ammo_amount[i], 48);
             }
-            else if (aplWeaponWorksLike[i][0]==KNEE_WEAPON)
+            else if (PWEAPON(0, i, WorksLike)==KNEE_WEAPON)
                 p->gotweapon |= (1<<i);
-            else if (aplWeaponWorksLike[i][0]==HANDREMOTE_WEAPON)
+            else if (PWEAPON(0, i, WorksLike)==HANDREMOTE_WEAPON)
                 p->gotweapon |= (1<<i);
         }
         p->last_weapon = -1;
