@@ -1367,7 +1367,7 @@ static int32_t defsparser(scriptfile *script)
                 case T_TILE1:
                     scriptfile_getsymbol(script,&tile1);
 
-                    if (check_tile_range("hud", &tile0, &tile1, script, voxeltokptr))
+                    if (check_tile_range("voxel", &tile0, &tile1, script, voxeltokptr))
                         break;
 
                     for (tilex=tile0; tilex<=tile1; tilex++)
