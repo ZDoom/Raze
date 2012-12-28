@@ -50,6 +50,8 @@ updatesectorbreadth;
 gethitickms;
 OSD_Printf;
 
+luaJIT_BC_defs_common;
+
 
 
 g_sizes_of_what;

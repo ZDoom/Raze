@@ -83,7 +83,7 @@ local g_ifseqlevel = 0
 
 
 ---=== Code generation ===---
-local g_file_code = {}  -- a [filename]=gencode_table mapping
+local g_have_file = {}  -- [filename]=true
 local g_curcode = nil  -- a table of string pieces or other "gencode" tables
 
 local g_actor_code = {}  -- [actornum]=gencode_table
@@ -93,10 +93,20 @@ local g_loadactor_code = {}  -- [actornum]=gencode_table
 
 local function getlinecol(pos) end -- fwd-decl
 
+local function new_initial_codetab()
+    return {
+        "local _con, _bit, _math = require'con', require'bit', require'math';",
+        "local sector, sprite, actor, player = sector, sprite, actor, player;"
+           }
+end
+
 local function reset_codegen()
-    g_file_code = {}
-    g_curcode = nil
+    g_have_file = {}
+    g_curcode = new_initial_codetab()
     g_actor_code, g_event_code, g_loadactor_code = {}, {}, {}
+
+    g_recurslevel = -1
+    g_numerrors = 0
 end
 
 local function addcode(x)
@@ -211,6 +221,8 @@ local g_labeldef = {}  -- Lua numbers for numbers, strings for composites
 local g_labeltype = {}
 
 local function reset_labels()
+    g_badids = {}
+
     -- NO is also a valid `move', `ai' or `action', but they are handled
     -- separately in lookup_composite().
     g_labeldef = { NO=0 }
@@ -289,9 +301,14 @@ local function lookup_composite(labeltype, pos, identifier)
         perrprintf(pos, "label \"%s\" is not defined", identifier)
         return "_NOTDEF"
     elseif (g_labeltype[identifier] ~= labeltype) then
-        perrprintf(pos, "label \"%s\" is not a%s `%s' value", identifier,
-                   labeltype==LABEL.MOVE and "" or "n", LABEL[labeltype])
-        return "_WRONGTYPE"
+        if (identifier=="randomangle" and labeltype==LABEL.MOVE) then
+            pwarnprintf(pos, "label \"randomangle\" is not a `move' value, assuming 0")
+            return "0"
+        else
+            perrprintf(pos, "label \"%s\" is not a%s `%s' value", identifier,
+                       labeltype==LABEL.MOVE and "" or "n", LABEL[labeltype])
+            return "_WRONGTYPE"
+        end
     end
 
     -- Generate a quoted identifier name.
@@ -371,7 +388,7 @@ else
             end
         end
 
-        if (g_file_code[filename] ~= nil) then
+        if (g_have_file[filename] ~= nil) then
             printf("[%d] Fatal error: infinite loop including \"%s\"", filename)
             g_numerrors = inf
             return
@@ -389,7 +406,7 @@ else
             return
         end
 
-        printf("%s[%d] Parsing file \"%s\"", (g_recurslevel==-1 and "\n---- ") or "",
+        printf("%s[%d] Translating file \"%s\"", (g_recurslevel==-1 and "\n---- ") or "",
                g_recurslevel+1, dirname..filename);
 
         local oldfilename = g_filename
@@ -1469,7 +1486,7 @@ local function check_else_Cmt()
     -- match an 'else' only at the outermost level
     local good = (g_ifseqlevel==0)
     if (good) then
-        return good, "else"
+        return true, "else"
     end
 
     -- return nothing, making the Cmt fail
@@ -1595,22 +1612,15 @@ end
 
 ---=== EXPORTED FUNCTIONS ===---
 
-local function new_initial_perfile_codetab()
-    return {
-        "local _con, _bit, _math = require'con', require'bit', require'math';",
-        "local sector, sprite, actor, player = sector, sprite, actor, player;"
-           }
-end
+local g_printcode = true
 
 function parse(contents)  -- local
     -- save outer state
     local lastkw, lastkwpos, numerrors = g_lastkw, g_lastkwpos, g_numerrors
     local newlineidxs = g_newlineidxs
-    local curcode = g_curcode
 
     g_ifseqlevel = 0
-    g_curcode = new_initial_perfile_codetab()
-    g_file_code[g_filename] = g_curcode
+    g_have_file[g_filename] = true
 
     -- set up new state
     -- TODO: pack into one "parser state" table?
@@ -1618,6 +1628,8 @@ function parse(contents)  -- local
     g_newlineidxs = setup_newlineidxs(contents)
 
     g_recurslevel = g_recurslevel+1
+
+    addcodef("-- BEGIN %s", g_filename)
 
     local idx = lpeg.match(Grammar, contents)
 
@@ -1629,14 +1641,14 @@ function parse(contents)  -- local
             printf("[%d] Matched whole contents (%d errors).",
                    g_recurslevel, g_numerrors)
         elseif (g_recurslevel==0) then
-            print("[0] Matched whole contents.")
+            printf("[0] Matched whole contents.")
         end
     else
         local i, col = getlinecol(idx)
         local bi, ei = g_newlineidxs[i-1]+1, g_newlineidxs[i]-1
 
-        printf("[%d] Match succeeded up to %d (line %d, col %d; len=%d)",
-               g_recurslevel, idx, i, col, #contents)
+        printf("[%d] Match succeeded up to line %d, col %d (pos=%d, len=%d)",
+               g_recurslevel, i, col, idx, #contents)
         g_numerrors = inf
 
 --        printf("Line goes from %d to %d", bi, ei)
@@ -1645,7 +1657,7 @@ function parse(contents)  -- local
             ei = bi+76
             suffix = " (...)"
         end
-        print(string.sub(contents, bi, ei)..suffix)
+        printf("%s%s", string.sub(contents, bi, ei), suffix)
 
         if (g_lastkwpos) then
             i, col = getlinecol(g_lastkwpos)
@@ -1653,7 +1665,7 @@ function parse(contents)  -- local
         end
     end
 
-    g_curcode = curcode
+    addcodef("-- END %s", g_filename)
     g_recurslevel = g_recurslevel-1
 
     -- restore outer state
@@ -1710,14 +1722,9 @@ if (string.dump) then
     for argi=1,#arg do
         local filename = arg[argi]
 
-        g_recurslevel = -1
-        g_badids = {}
-
         reset_labels()
         reset_gamedata()
         reset_codegen()
-
-        g_numerrors = 0
 
         g_directory = filename:match("(.*/)") or ""
         filename = filename:sub(#g_directory+1, -1)
@@ -1735,13 +1742,11 @@ if (string.dump) then
             print(msg)
         end
 
---[[
-        local file = require("io").stderr
-        for filename,codetab in pairs(g_file_code) do
+        if (g_printcode) then
+            local file = require("io").stderr
             file:write(format("-- GENERATED CODE for \"%s\":\n", filename))
-            file:write(table.concat(flatten_codetab(codetab), "\n"))
+            file:write(table.concat(flatten_codetab(g_curcode), "\n"))
             file:write("\n")
         end
---]]
     end
 end
