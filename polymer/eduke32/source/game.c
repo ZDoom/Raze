@@ -4028,7 +4028,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     {
         G_DumpDebugInfo();
         OSD_Printf_nowarn("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
-                          s_pn,TrackerCast(s_ow < 0 ? -1 : sprite[s_ow].picnum),s_ow,s_x,s_y,s_z,whatsect);
+                          s_pn,s_ow < 0 ? -1 : TrackerCast(sprite[s_ow].picnum),s_ow,s_x,s_y,s_z,whatsect);
         G_GameExit("Too many sprites spawned.");
     }
 

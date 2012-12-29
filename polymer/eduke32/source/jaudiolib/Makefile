@@ -45,13 +45,17 @@ OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/vorbis.o \
 	$(OBJ)/driver_nosound.o
 
+ifeq ($(PLATFORM),DARWIN)
+    OURCOMMONFLAGS+= -Ithird-party/common/include
+endif
+
 ifeq ($(PLATFORM),WINDOWS)
     ifeq ($(RENDERTYPE),WIN)
         OURCOMMONFLAGS+= -DHAVE_DS -I$(DXROOT) -I$(DXROOT)/include
         OBJECTS+= $(OBJ)/driver_directsound.o
     endif
 
-    OURCOMMONFLAGS+= -Ithird-party/mingw32/include
+    OURCOMMONFLAGS+= -Ithird-party/common/include
     OBJNAME=libjfaudiolib_win32.a
     OBJ=obj_win
 endif

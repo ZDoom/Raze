@@ -226,6 +226,9 @@ ifeq ($(PLATFORM),DARWIN)
             BASECOMMONFLAGS += $(F_NO_STACK_PROTECTOR)
         endif
     endif
+    ifneq (0,$(OSX_STARTUPWINDOW))
+        BASECOMMONFLAGS+= -DOSX_STARTUPWINDOW
+    endif
 endif
 
 ifndef OPTOPT
@@ -448,9 +451,6 @@ ifneq (0,$(USE_LIBPNG))
 endif
 ifneq (0,$(USE_LIBVPX))
     BASECOMMONFLAGS+= -DUSE_LIBVPX
-endif
-ifneq (0,$(OSX_STARTUPWINDOW))
-    BASECOMMONFLAGS+= -DOSX_STARTUPWINDOW
 endif
 
 ifneq (0,$(EFENCE))

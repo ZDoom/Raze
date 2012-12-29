@@ -199,6 +199,7 @@ endif
 
 ifeq ($(PLATFORM),DARWIN)
     OURCOMMONFLAGS += -fno-pic
+    LIBDIRS += -L$(abspath $(JAUDIOLIBDIR)/third-party/Apple/lib)
 
     ifneq ($(findstring x86_64,$(ARCH)),x86_64)
         ifeq (,$(ARCH))
@@ -234,8 +235,7 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 
     ifneq (0,$(OSX_STARTUPWINDOW))
-#        EDITOROBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
-        GAMEOBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
+        GAMEOBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/startosx.game.$o
     endif
 
     OURASFLAGS += -f macho
@@ -245,7 +245,7 @@ ifeq ($(PLATFORM),WINDOWS)
     OURCOMMONFLAGS	+= -fno-pic -DUNDERSCORES
     OURASFLAGS+= -DUNDERSCORES -f win32
     LIBS += -lvorbisfile -lvorbis -logg
-    LIBDIRS += -L$(abspath $(JAUDIOLIBDIR)/third-party/mingw32/lib$(WINLIB))
+    LIBDIRS += -L$(abspath $(JAUDIOLIBDIR)/third-party/Windows/lib$(WINLIB))
     GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o
     EDITOROBJS+= $(OBJ)/buildres.$o
     JAUDIOLIB=libjfaudiolib_win32.a
@@ -468,6 +468,10 @@ $(SRC)/lunatic/mapster32.def: $(SRC)/lunatic/dynsymlist_m32
 ####
 
 $(OBJ)/%.$o: Apple/%.m
+	$(COMPILE_STATUS)
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
+$(OBJ)/%.$o: $(SRC)/%.m
 	$(COMPILE_STATUS)
 	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 

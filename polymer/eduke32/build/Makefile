@@ -100,7 +100,7 @@ endif
 ifeq ($(PLATFORM),DARWIN)
     ENGINEOBJS += $(OBJ)/osxbits.$o
     ifneq (0,$(OSX_STARTUPWINDOW))
-        ENGINEOBJS += $(OBJ)/StartupWinController.editor.$o
+        ENGINEOBJS += $(OBJ)/startosx.editor.$o
     endif
     OURASFLAGS     += -f macho -DUNDERSCORES
     OURCOMMONFLAGS   += -fno-pic -DUNDERSCORES
