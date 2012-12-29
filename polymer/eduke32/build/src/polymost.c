@@ -4232,7 +4232,6 @@ void polymost_scansector(int32_t sectnum)
     int32_t xs, ys, x1, y1, x2, y2;
 
     if (sectnum < 0) return;
-//    if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum&7];
 
     sectorborder[0] = sectnum, sectorbordercnt = 1;
     do

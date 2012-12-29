@@ -2505,8 +2505,6 @@ static void scansector(int16_t sectnum)
 
     if (sectnum < 0) return;
 
-//    if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum&7];
-
     sectorborder[0] = sectnum, sectorbordercnt = 1;
     do
     {
@@ -6387,7 +6385,6 @@ draw_as_face_sprite:
 #endif
         drawvox(tspr->x,tspr->y,tspr->z,i,daxrepeat,(int32_t)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
     }
-//    if (automapping == 1) show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
 }
 
 
@@ -8365,7 +8362,6 @@ int32_t initengine(void)
     clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
     clearbuf(&show2dwall[0],(int32_t)((MAXWALLS+3)>>5),0L);
 */
-//    automapping = 0;
 
     totalclock = 0;
     g_visibility = 512;
@@ -8719,12 +8715,6 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         }
 
         drawalls(closest);
-
-//        if (automapping)
-//        {
-//            for (z=bunchfirst[closest]; z>=0; z=p2[z])
-//                show2dwall[thewall[z]>>3] |= pow2char[thewall[z]&7];
-//        }
 
         numbunches--;
         bunchfirst[closest] = bunchfirst[numbunches];

@@ -517,14 +517,10 @@ EXTERN int32_t windowpos, windowx, windowy;
     //And if you want draw2dscreen() to not show sprite #54 then you say:
     //   spritenum = 54;
     //   show2dsprite[spritenum>>3] &= ~(1<<(spritenum&7));
-    //Automapping defaults to 0 (do nothing).  If you set automapping to 1,
-    //   then in 3D mode, the walls and sprites that you see will show up the
-    //   next time you flip to 2D mode.
 
 EXTERN char show2dsector[(MAXSECTORS+7)>>3];
 EXTERN char show2dwall[(MAXWALLS+7)>>3];
 EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
-//EXTERN char automapping;
 
 // In the editor, gotpic is only referenced from inline assembly;
 // the compiler needs that hint or building with LTO will discard it.
