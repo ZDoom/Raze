@@ -40,15 +40,14 @@ extern "C" {
 #endif
 
 enum FX_ERRORS
-   {
-   FX_Warning = -2,
-   FX_Error = -1,
-   FX_Ok = 0,
-   FX_ASSVersion,
-   FX_SoundCardError,
-   FX_InvalidCard,
-   FX_MultiVocError,
-   };
+{
+    FX_Warning = -2,
+    FX_Error = -1,
+    FX_Ok = 0,
+    FX_SoundCardError,
+    FX_InvalidCard,
+    FX_MultiVocError,
+};
 
 #define FX_MUSIC_PRIORITY	INT_MAX
 

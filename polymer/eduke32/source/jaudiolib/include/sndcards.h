@@ -31,15 +31,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __SNDCARDS_H
 #define __SNDCARDS_H
 
-#define ASS_VERSION_STRING "JonoF 20090718"
-
 typedef enum
-   {
-   ASS_NoSound,
-   ASS_SDL,
-   ASS_DirectSound,
-   ASS_NumSoundCards,
-	ASS_AutoDetect = -2
-   } soundcardnames;
+{
+    ASS_NoSound,
+    ASS_SDL,
+    ASS_DirectSound,
+    ASS_NumSoundCards,
+    ASS_AutoDetect = -2
+} soundcardnames;
 
 #endif

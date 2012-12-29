@@ -80,12 +80,6 @@ const char *FX_ErrorString
         ErrorString = "Fx ok.";
         break;
 
-    case FX_ASSVersion :
-        ErrorString = "Apogee Sound System Version " ASS_VERSION_STRING "  "
-                      "Programmed by Jim Dose\n"
-                      "(c) Copyright 1995 James R. Dose.  All Rights Reserved.\n";
-        break;
-
     case FX_SoundCardError :
         ErrorString = SoundDriver_ErrorString(SoundDriver_GetError());
         break;
