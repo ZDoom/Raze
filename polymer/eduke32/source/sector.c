@@ -2092,7 +2092,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     case FUELPOD__STATIC:
     case SOLARPANNEL__STATIC:
     case ANTENNA__STATIC:
-        if (sprite[sn].extra != *g_tile[SHOTSPARK1].execPtr)
+        if (sprite[sn].extra != G_InitialActorStrength(SHOTSPARK1))
         {
             for (j=15; j>0; j--)
                 A_InsertSprite(SECT,SX,SY,sector[SECT].floorz-(12<<8)-(j<<9),SCRAP1+(krand()&15),-8,64,64,

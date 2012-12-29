@@ -1288,7 +1288,7 @@ DOSKIPBULLETHOLE:
             if (p >= 0)
             {
                 k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
-                sprite[k].extra = *g_tile[atwith].execPtr;
+                sprite[k].extra = G_InitialActorStrength(atwith);
                 sprite[k].extra += (krand()%6);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
                 A_SetHitData(k, &hit);
@@ -1408,7 +1408,7 @@ SKIPBULLETHOLE:
             else
             {
                 k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
-                sprite[k].extra = *g_tile[atwith].execPtr;
+                sprite[k].extra = G_InitialActorStrength(atwith);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
                 A_SetHitData(k, &hit);
 
@@ -3756,9 +3756,9 @@ void P_FragPlayer(int32_t snum)
 
 void P_ProcessWeapon(int32_t snum)
 {
-    DukePlayer_t *p = g_player[snum].ps;
-    uint8_t *kb = &p->kickback_pic;
-    int32_t shrunk = (sprite[p->i].yrepeat < 32);
+    DukePlayer_t *const p = g_player[snum].ps;
+    uint8_t *const kb = &p->kickback_pic;
+    const int32_t shrunk = (sprite[p->i].yrepeat < 32);
     uint32_t sb_snum = g_player[snum].sync->bits;
     int32_t i, j, k;
 
@@ -4390,7 +4390,7 @@ void P_ProcessInput(int32_t snum)
 
     int32_t j, i, k, doubvel = TICSPERFRAME, shrunk;
     int32_t fz, cz, hz, lz, truefdist, x, y, psectlotag;
-    uint8_t *kb = &p->kickback_pic;
+    const uint8_t *const kb = &p->kickback_pic;
     int16_t tempsect;
 
     if (g_player[snum].playerquitflag == 0)

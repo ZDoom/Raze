@@ -145,6 +145,24 @@ static inline int32_t G_HaveEvent(int32_t iEventID)
         apScriptGameEvent[iEventID]!=NULL;
 }
 
+static inline int32_t G_HaveActor(int32_t actortile)
+{
+    return
+#ifdef LUNATIC
+        El_HaveActor(actortile) ||
+#endif
+        g_tile[actortile].execPtr!=NULL;
+}
+
+static inline int32_t G_InitialActorStrength(int32_t actortile)
+{
+#ifdef LUNATIC_ONLY
+    return g_elActors[actortile].strength;
+#else
+    return g_tile[actortile].execPtr[0];
+#endif
+}
+
 #ifdef EXTERNC
 }
 #endif

@@ -1095,7 +1095,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                     otherx = 0;
                 }
 
-                if (g_tile[sprite[i].picnum].execPtr)
+                if (G_HaveActor(sprite[i].picnum))
                     A_Execute(i,s->yvel,otherx);
 
                 if (g_netServer || ud.multimode > 1)
@@ -2386,7 +2386,7 @@ CLEAR_THE_BOLT:
         case STEAM__STATIC:
         case CEILINGSTEAM__STATIC:
         case WATERBUBBLEMAKER__STATIC:
-            if (!g_tile[sprite[i].picnum].execPtr)
+            if (!G_HaveActor(sprite[i].picnum))
                 goto BOLT;
             {
                 int32_t p = A_FindPlayer(s, &x);
@@ -2772,7 +2772,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
                     if (proj->workslike & PROJECTILE_HITSCAN)
                     {
-                        if (!g_tile[sprite[i].picnum].execPtr)
+                        if (!G_HaveActor(sprite[i].picnum))
                             goto BOLT;
                         {
                             int32_t p = A_FindPlayer(s,&x);
@@ -3092,7 +3092,7 @@ COOLEXPLOSION:
             goto BOLT;
 
         case SHOTSPARK1__STATIC:
-            if (!g_tile[sprite[i].picnum].execPtr)
+            if (!G_HaveActor(sprite[i].picnum))
                 goto BOLT;
             {
                 int32_t p = A_FindPlayer(s,&x);
@@ -4844,7 +4844,7 @@ DETONATEB:
             }
         }
 
-        if (!g_tile[sprite[i].picnum].execPtr)
+        if (!G_HaveActor(sprite[i].picnum))
             goto BOLT;
         {
             int32_t p = A_FindPlayer(s,&x);
@@ -5285,7 +5285,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
             case TRANSPORTERSTAR__STATIC:
             case TRANSPORTERBEAM__STATIC:
             {
-                if (!g_tile[sprite[i].picnum].execPtr)
+                if (!G_HaveActor(sprite[i].picnum))
                     goto BOLT;
                 {
                     int32_t p = A_FindPlayer(s,&x);

@@ -4218,7 +4218,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
     else switch (DYNAMICTILEMAP(sp->picnum))
         {
         default:
-            if (g_tile[sp->picnum].execPtr)
+            if (G_HaveActor(sp->picnum))
             {
                 if (j == -1 && sp->lotag > ud.player_skill)
                 {
@@ -6744,7 +6744,7 @@ PALONLY:
             break;
         }
 
-        if (g_tile[s->picnum].execPtr)
+        if (G_HaveActor(s->picnum))
         {
             /*
             if (ud.angleinterpolation)

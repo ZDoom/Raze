@@ -882,7 +882,7 @@ static void VM_Fall(void)
 #endif
 
             if ((vm.g_sp->hitag & jumptoplayer) ||
-                (g_tile[vm.g_sp->picnum].execPtr &&
+                (G_HaveActor(vm.g_sp->picnum) &&
 #ifndef LUNATIC
                  (unsigned)moveScriptOfs < (unsigned)g_scriptSize-1 && script[moveScriptOfs + 1]
 #else
