@@ -18,15 +18,14 @@ flags_lib=/LTCG
 CC=cl
 LINK=link /opt:ref /nologo
 
-DXROOT=C:\SDKs\Microsoft DirectX SDK (April 2010)
 VORBISSDK=C:\SDKs\oggvorbis-win32sdk-1.0.1
 
-CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(SRC) /I"$(VORBISSDK)\include" /I"$(DXROOT)\include"
+CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(SRC) /I"$(VORBISSDK)\include" 
 !ifdef DEBUG
 CFLAGS=$(CFLAGS) /DDEBUGGINGAIDS
 !endif
 
-CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /D "_CRT_SECURE_NO_DEPRECATE" /W2 /DHAVE_VORBIS /Iinclude/msvc /DWIN32
+CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /D "_CRT_SECURE_NO_DEPRECATE" /W2 /DHAVE_VORBIS /Iinclude/msvc /DWIN32 /DHAVE_DS
 
 OBJECTS=$(OBJ)\drivers.o \
 	$(OBJ)\fx_man.o \
@@ -43,7 +42,7 @@ OBJECTS=$(OBJ)\drivers.o \
 
 jfaudiolib: $(JFAUDIOLIB)
 $(JFAUDIOLIB): $(OBJECTS)
-	lib $(flags_lib) /out:$@ /nologo $**
+	lib $(flags_lib) /out:$@ /nologo $** 
 
 clean:
 	-del /Q $(OBJ)\* $(JFAUDIOLIB)

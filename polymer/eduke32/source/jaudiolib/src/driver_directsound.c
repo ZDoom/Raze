@@ -25,6 +25,11 @@
 #define WIN32_LEAN_AND_MEAN
 #define DIRECTSOUND_VERSION  0x0700
 #define CINTERFACE
+
+#ifdef _MSC_VER
+#include <InitGuid.h>
+#endif
+
 #include <windows.h>
 #include <mmsystem.h>
 #include <dsound.h>
@@ -58,19 +63,19 @@ static int32_t ErrorCode = DSErr_Ok;
 static int32_t Initialised = 0;
 static int32_t Playing = 0;
 
-static char *MixBuffer = 0;
+static char *MixBuffer = NULL;
 static int32_t MixBufferSize = 0;
 static int32_t MixBufferCount = 0;
 static int32_t MixBufferCurrent = 0;
 static int32_t MixBufferUsed = 0;
-static void ( *MixCallBack )( void ) = 0;
+static void ( *MixCallBack )( void ) = NULL;
 
-static LPDIRECTSOUND lpds = 0;
-static LPDIRECTSOUNDBUFFER lpdsbprimary = 0, lpdsbsec = 0;
-static LPDIRECTSOUNDNOTIFY lpdsnotify = 0;
+static LPDIRECTSOUND lpds = NULL;
+static LPDIRECTSOUNDBUFFER lpdsbprimary = NULL, lpdsbsec = NULL;
+static LPDIRECTSOUNDNOTIFY lpdsnotify = NULL;
 static DSBPOSITIONNOTIFY notifyPositions[3] = { { 0,0 }, { 0,0 }, { 0,0 } };
-static HANDLE mixThread = 0;
-static HANDLE mutex = 0;
+static HANDLE mixThread = NULL;
+static HANDLE mutex = NULL;
 
 
 static void FillBufferPortion(char * ptr, int32_t remaining)
@@ -292,11 +297,11 @@ static void TeardownDSound(HRESULT err)
     notifyPositions[0].hEventNotify =
     notifyPositions[1].hEventNotify =
     notifyPositions[2].hEventNotify = 0;
-    mutex = 0;
-    lpdsnotify = 0;
-    lpdsbsec = 0;
-    lpdsbprimary = 0;
-    lpds = 0;
+    mutex = NULL;
+    lpdsnotify = NULL;
+    lpdsbsec = NULL;
+    lpdsbprimary = NULL;
+    lpds = NULL;
 }
 
 int32_t DirectSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *samplebits, void * initdata)

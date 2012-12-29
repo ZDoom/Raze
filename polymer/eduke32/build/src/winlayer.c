@@ -28,6 +28,10 @@
 # define bREFIID                  &
 #endif
 
+#ifdef _MSC_VER
+#include <InitGuid.h>
+#endif
+
 #include <windows.h>
 #include <ddraw.h>
 #include <dinput.h>
