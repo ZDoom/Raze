@@ -66,6 +66,7 @@ static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
     return;
 }
 
+#if !defined LUNATIC_ONLY
 static void Gv_Clear(void)
 {
     // only call this function ONCE...
@@ -104,6 +105,7 @@ static void Gv_Clear(void)
     hash_init(&h_arrays);
     return;
 }
+#endif
 
 int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
 {
@@ -558,12 +560,13 @@ void __fastcall A_ResetVars(register int32_t iActor)
     while (i--);
 }
 
+#if !defined LUNATIC_ONLY
 static int32_t Gv_GetVarIndex(const char *szGameLabel)
 {
     int32_t i = hash_find(&h_gamevars,szGameLabel);
     if (i == -1)
     {
-        OSD_Printf(OSD_ERROR "Gv_GetVarDataPtr(): INTERNAL ERROR: couldn't find gamevar %s!\n",szGameLabel);
+        OSD_Printf(OSD_ERROR "Gv_GetVarIndex(): INTERNAL ERROR: couldn't find gamevar %s!\n",szGameLabel);
         return 0;
     }
     return i;
@@ -762,6 +765,7 @@ badindex:
                aGameVars[id].szLabel,vm.g_i,vm.g_p);
     return;
 }
+#endif
 
 int32_t __fastcall Gv_GetVarX(register int32_t id)
 {
@@ -993,6 +997,13 @@ static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 }
 #endif
 
+static void G_InitProjectileData(void)
+{
+    int32_t i;
+    for (i=MAXTILES-1; i>=0; i--)
+        Bmemcpy(&ProjectileData[i], &g_tile[i].defproj, sizeof(projectile_t));
+}
+
 void Gv_ResetSystemDefaults(void)
 {
     // call many times...
@@ -1051,6 +1062,7 @@ void Gv_ResetSystemDefaults(void)
         }
     }
 #endif
+#if !defined LUNATIC_ONLY
     g_iReturnVarID=Gv_GetVarIndex("RETURN");
     g_iWeaponVarID=Gv_GetVarIndex("WEAPON");
     g_iWorksLikeVarID=Gv_GetVarIndex("WORKSLIKE");
@@ -1067,9 +1079,8 @@ void Gv_ResetSystemDefaults(void)
     g_iWallVarID=Gv_GetVarIndex("wall");
     g_iPlayerVarID=Gv_GetVarIndex("player");
     g_iActorVarID=Gv_GetVarIndex("actorvar");
-
-    for (i=MAXTILES-1; i>=0; i--)
-        Bmemcpy(&ProjectileData[i], &g_tile[i].defproj, sizeof(projectile_t));
+#endif
+    G_InitProjectileData();
 
     //AddLog("EOF:ResetWeaponDefaults");
 }
@@ -1252,7 +1263,7 @@ static void Gv_AddSystemVars(void)
         ADDWEAPONVAR(i, SelectSound);
         ADDWEAPONVAR(i, FlashColor);
     }
-
+#if !defined LUNATIC_ONLY
     Gv_NewVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Gv_NewVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
@@ -1362,14 +1373,15 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("Numsprites",(intptr_t)&Numsprites, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
 
     Gv_NewVar("lastsavepos",(intptr_t)&g_lastSaveSlot, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-#ifdef USE_OPENGL
+# ifdef USE_OPENGL
     Gv_NewVar("rendmode",(intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-#else
+# else
     Gv_NewVar("rendmode", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
-#endif
+# endif
 
     Gv_NewArray("tilesizx", (void *)tilesizx, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
     Gv_NewArray("tilesizy", (void *)tilesizy, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+#endif
 }
 
 void Gv_Init(void)
@@ -1384,11 +1396,15 @@ void Gv_Init(void)
 
     //  initprintf("Initializing game variables\n");
     //AddLog("Gv_Init");
-
+#ifdef LUNATIC_ONLY
+    Gv_AddSystemVars();  // set up weapon defaults, g_playerWeapon[][]
+    Gv_ResetSystemDefaults();
+#else
     Gv_Clear();
     Gv_AddSystemVars();
     Gv_InitWeaponPointers();
     Gv_ResetSystemDefaults();
+#endif
 }
 
 void Gv_InitWeaponPointers(void)
@@ -1452,6 +1468,7 @@ void Gv_InitWeaponPointers(void)
 
 void Gv_RefreshPointers(void)
 {
+#if !defined LUNATIC_ONLY
     aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].val.lValue = (intptr_t)&ud.respawn_monsters;
     aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].val.lValue = (intptr_t)&ud.respawn_items;
     aGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].val.lValue = (intptr_t)&ud.respawn_inventory;
@@ -1531,7 +1548,8 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("Numsprites")].val.lValue = (intptr_t)&Numsprites;
 
     aGameVars[Gv_GetVarIndex("lastsavepos")].val.lValue = (intptr_t)&g_lastSaveSlot;
-#ifdef USE_OPENGL
+# ifdef USE_OPENGL
     aGameVars[Gv_GetVarIndex("rendmode")].val.lValue = (intptr_t)&rendmode;
+# endif
 #endif
 }

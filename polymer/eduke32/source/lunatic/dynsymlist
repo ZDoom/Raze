@@ -63,6 +63,9 @@ kfilelength;
 kclose;
 kread;
 
+G_ConFile;
+G_DoGameStartup;
+
 actor;
 ud;
 g_player;
@@ -71,6 +74,7 @@ playerswhenstarted;
 lastvisinc;
 g_spriteDeleteQueueSize;
 BlimpSpawnSprites;
+g_scriptVersion;
 
 luaJIT_BC_lunacon;
 luaJIT_BC_con_lang;

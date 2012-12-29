@@ -9488,7 +9488,7 @@ static void G_Cleanup(void)
         if (g_sounds[i].filename != NULL) Bfree(g_sounds[i].filename);
         if (g_sounds[i].filename1 != NULL) Bfree(g_sounds[i].filename1);
     }
-
+#if !defined LUNATIC_ONLY
     if (label != NULL && label != (char *)&sprite[0]) Bfree(label);
     if (labelcode != NULL && labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
     if (script != NULL) Bfree(script);
@@ -9500,6 +9500,7 @@ static void G_Cleanup(void)
     hash_free(&h_arrays);
     hash_free(&h_labels);
     hash_free(&h_gamefuncs);
+#endif
 }
 
 /*
@@ -9532,15 +9533,18 @@ void G_Shutdown(void)
 
 static void G_CompileScripts(void)
 {
+#if !defined LUNATIC_ONLY
     int32_t psm = pathsearchmode;
 
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (int32_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
     labeltype = (int32_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
+#endif
 
     if (g_scriptNamePtr != NULL)
         Bcorrectfilename(g_scriptNamePtr,0);
 
+#if !defined LUNATIC_ONLY
     // if we compile for a V7 engine wall[] should be used for label names since it's bigger
     pathsearchmode = 1;
 
@@ -9575,6 +9579,7 @@ static void G_CompileScripts(void)
 
     VM_OnEvent(EVENT_INIT, -1, -1, -1, 0);
     pathsearchmode = psm;
+#endif
 }
 
 static inline void G_CheckGametype(void)
@@ -10530,20 +10535,18 @@ int32_t app_main(int32_t argc, const char **argv)
     OSD_Exec("autoexec.cfg");
 
 #ifdef LUNATIC
-    i = El_CreateState(&g_ElState, "test");
-    if (i)
+    if ((i = El_CreateState(&g_ElState, "test")))
     {
         initprintf("Lunatic: Error initializing global ELua state (code %d)\n", i);
     }
-    else
+    else if ((i = L_RunOnce(&g_ElState, "defs.ilua")))
     {
-        i = L_RunOnce(&g_ElState, "defs.ilua");
-        if (i)
-        {
-            initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
-            El_DestroyState(&g_ElState);
-        }
+        initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
+        El_DestroyState(&g_ElState);
     }
+
+    if (i)
+        G_GameExit("Failure setting up Lunatic!");
 #endif
 
     if (g_networkMode != NET_DEDICATED_SERVER)

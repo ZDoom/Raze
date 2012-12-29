@@ -456,6 +456,7 @@ const int32_t playerswhenstarted;
 int32_t lastvisinc;
 int16_t g_spriteDeleteQueueSize;
 int16_t BlimpSpawnSprites[15];
+int32_t g_scriptVersion;
 
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
 void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap);
@@ -479,6 +480,9 @@ int32_t kopen4loadfrommod(const char *filename, char searchfirst);
 int32_t kfilelength(int32_t handle);
 void kclose(int32_t handle);
 int32_t kread(int32_t handle, void *buffer, int32_t leng);
+
+const char *G_ConFile(void);
+void G_DoGameStartup(const int32_t *params);
 ]]
 
 
@@ -840,17 +844,17 @@ local modname_stack = {}
 local ERRLEV = 5
 
 local function readintostr(fn)
-    -- XXX: this is pretty much the same as the code in El_RunOnce()
+    -- XXX: this is pretty much the same as the code in L_RunOnce()
 
     local fd = ffiC.kopen4loadfrommod(fn, 0)  -- TODO: g_loadFromGroupOnly
     if (fd < 0) then
-        errorf(ERRLEV, "Couldn't open file \"%s\"", fn)
+        return nil
     end
 
     local sz = ffiC.kfilelength(fd)
     if (sz == 0) then
         ffiC.kclose(fd)
-        errorf(ERRLEV, "Didn't load module \"%s\": zero-length file", fn)
+        return ""
     end
 
     if (sz < 0) then
@@ -890,8 +894,11 @@ local function our_require(modname)
         return package_loaded[modname]
     end
 
-    -- TODO: better pattern-matching (permit "", ".lua", ".elua" ?)
-    local str = readintostr(modname .. ".lua")
+    local modfn = modname .. ".lua"
+    local str = readintostr(modfn)
+    if (str == nil) then
+        errorf(ERRLEV-1, "Couldn't open file \"%s\"", modfn)
+    end
 
     local modfunc, errmsg = loadstring(str)
     if (modfunc == nil) then
@@ -1099,8 +1106,16 @@ G_.player = player  -- from above
 
 ---=== Lunatic interpreter setup ===---
 
-local lunacon = require("lunacon")
+local concode
 
+--- Compile CONs
+do
+    read_into_string = readintostr  -- for lunacon
+    local lunacon = require("lunacon")
+
+    local confn = ffi.string(ffiC.G_ConFile())
+    concode = lunacon.compile(confn)
+end
 
 -- change the environment of this chunk to the table G_
 -- NOTE: all references to global variables from this point on
@@ -1111,9 +1126,9 @@ setfenv(1, G_)
 local function printkv(label, table)
     print("========== Keys and values of "..label.." ("..tostring(table)..")")
     for k,v in pairs(table) do
-        print(k .. ': ' .. tostring(v))
+        print(k .. ": " .. tostring(v))
     end
-    print('----------')
+    print("----------")
 end
 
 --printkv('_G AFTER SETFENV', _G)
@@ -1124,8 +1139,8 @@ end
 -- error(..., 2) is to blame the caller and get its line numbers
 
 local tmpmt = {
-    __index = function() error('dummy variable: read access forbidden', 2) end,
-    __newindex = function() error('dummy variable: write access forbidden', 2) end,
+    __index = function() error("dummy variable: read access forbidden", 2) end,
+    __newindex = function() error("dummy variable: write access forbidden", 2) end,
 }
 setmtonce(dummy_empty_table, tmpmt)
 
@@ -1140,7 +1155,7 @@ setmtonce(gv, tmpmt)
 defs_c.create_globals(_G)
 
 ---- indirect C array access ----
-actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, 'actor[]')
+actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, "actor[]")
 
 function TEMP_getvollev()  -- REMOVE
     return ffiC.ud.volume_number+1, ffiC.ud.level_number+1
@@ -1295,3 +1310,12 @@ setmetatable(
 -- In particular, we need the functions defined after setting this chunk's
 -- environment earlier.
 setfenv(0, _G)
+
+-- Finally, run the CON code translated into Lua.
+if (concode) then
+    local confunc, conerrmsg = loadstring(concode, "CON")
+    if (confunc == nil) then
+        error("Failure loading translated CON code: "..conerrmsg)
+    end
+    confunc()
+end

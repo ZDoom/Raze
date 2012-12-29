@@ -94,15 +94,21 @@ extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t g_gameVarCount;
 extern int32_t g_gameArrayCount;
 
+#if defined LUNATIC_ONLY
+# define Gv_GetVar(id, iActor, iPlayer) (OSD_Printf("Gv_GetVar @ %s:%d\n", __FILE__, __LINE__), 0)
+# define Gv_SetVar(id, lValue, iActor, iPlayer) OSD_Printf("Gv_SetVar @ %s:%d\n", __FILE__, __LINE__)
+#else
 int32_t __fastcall Gv_GetVar(register int32_t id,register int32_t iActor,register int32_t iPlayer);
+void __fastcall Gv_SetVar(register int32_t id,register int32_t lValue,register int32_t iActor,register int32_t iPlayer);
+#endif
 int32_t __fastcall Gv_GetVarX(register int32_t id);
+void __fastcall Gv_SetVarX(register int32_t id,register int32_t lValue);
+
 int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t lDefault,int32_t iActor,int32_t iPlayer);
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
 void __fastcall A_ResetVars(register int32_t iActor);
-void __fastcall Gv_SetVar(register int32_t id,register int32_t lValue,register int32_t iActor,register int32_t iPlayer);
-void __fastcall Gv_SetVarX(register int32_t id,register int32_t lValue);
 void G_FreeMapState(int32_t mapnum);
 void Gv_DumpValues(void);
 void Gv_Init(void);

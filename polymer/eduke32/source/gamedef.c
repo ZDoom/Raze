@@ -2057,6 +2057,47 @@ static void check_filename_case(const char *fn)
 static void check_filename_case(const char *fn) { UNREFERENCED_PARAMETER(fn); }
 #endif
 
+void G_DoGameStartup(const int32_t *params)
+{
+    int32_t j = 0;
+
+    ud.const_visibility = params[j++];
+    g_impactDamage = params[j++];
+    g_maxPlayerHealth = g_player[0].ps->max_player_health = g_player[0].ps->max_shield_amount = params[j++];
+    g_startArmorAmount = params[j++];
+    g_actorRespawnTime = params[j++];
+    g_itemRespawnTime = params[j++];
+    g_playerFriction = params[j++];
+    if (g_scriptVersion == 14) g_spriteGravity = params[j++];
+    g_rpgBlastRadius = params[j++];
+    g_pipebombBlastRadius = params[j++];
+    g_shrinkerBlastRadius = params[j++];
+    g_tripbombBlastRadius = params[j++];
+    g_morterBlastRadius = params[j++];
+    g_bouncemineBlastRadius = params[j++];
+    g_seenineBlastRadius = params[j++];
+    g_player[0].ps->max_ammo_amount[PISTOL_WEAPON] = params[j++];
+    g_player[0].ps->max_ammo_amount[SHOTGUN_WEAPON] = params[j++];
+    g_player[0].ps->max_ammo_amount[CHAINGUN_WEAPON] = params[j++];
+    g_player[0].ps->max_ammo_amount[RPG_WEAPON] = params[j++];
+    g_player[0].ps->max_ammo_amount[HANDBOMB_WEAPON] = params[j++];
+    g_player[0].ps->max_ammo_amount[SHRINKER_WEAPON] = params[j++];
+    g_player[0].ps->max_ammo_amount[DEVISTATOR_WEAPON] = params[j++];
+    g_player[0].ps->max_ammo_amount[TRIPBOMB_WEAPON] = params[j++];
+    g_player[0].ps->max_ammo_amount[FREEZE_WEAPON] = params[j++];
+    if (g_scriptVersion == 14) g_player[0].ps->max_ammo_amount[GROW_WEAPON] = params[j++];
+    g_damageCameras = params[j++];
+    g_numFreezeBounces = params[j++];
+    g_freezerSelfDamage = params[j++];
+    if (g_scriptVersion == 14)
+    {
+        g_spriteDeleteQueueSize = params[j++];
+        g_spriteDeleteQueueSize = clamp(g_spriteDeleteQueueSize, 0, 1024);
+
+        g_tripbombLaserMode = params[j++];
+    }
+}
+
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw, otw;
@@ -5678,42 +5719,7 @@ repeatcase:
                 TRIPBOMBLASERMODE
                 */
 
-                j = 0;
-                ud.const_visibility = params[j++];
-                g_impactDamage = params[j++];
-                g_maxPlayerHealth = g_player[0].ps->max_player_health = g_player[0].ps->max_shield_amount = params[j++];
-                g_startArmorAmount = params[j++];
-                g_actorRespawnTime = params[j++];
-                g_itemRespawnTime = params[j++];
-                g_playerFriction = params[j++];
-                if (g_scriptVersion == 14) g_spriteGravity = params[j++];
-                g_rpgBlastRadius = params[j++];
-                g_pipebombBlastRadius = params[j++];
-                g_shrinkerBlastRadius = params[j++];
-                g_tripbombBlastRadius = params[j++];
-                g_morterBlastRadius = params[j++];
-                g_bouncemineBlastRadius = params[j++];
-                g_seenineBlastRadius = params[j++];
-                g_player[0].ps->max_ammo_amount[PISTOL_WEAPON] = params[j++];
-                g_player[0].ps->max_ammo_amount[SHOTGUN_WEAPON] = params[j++];
-                g_player[0].ps->max_ammo_amount[CHAINGUN_WEAPON] = params[j++];
-                g_player[0].ps->max_ammo_amount[RPG_WEAPON] = params[j++];
-                g_player[0].ps->max_ammo_amount[HANDBOMB_WEAPON] = params[j++];
-                g_player[0].ps->max_ammo_amount[SHRINKER_WEAPON] = params[j++];
-                g_player[0].ps->max_ammo_amount[DEVISTATOR_WEAPON] = params[j++];
-                g_player[0].ps->max_ammo_amount[TRIPBOMB_WEAPON] = params[j++];
-                g_player[0].ps->max_ammo_amount[FREEZE_WEAPON] = params[j++];
-                if (g_scriptVersion == 14) g_player[0].ps->max_ammo_amount[GROW_WEAPON] = params[j++];
-                g_damageCameras = params[j++];
-                g_numFreezeBounces = params[j++];
-                g_freezerSelfDamage = params[j++];
-                if (g_scriptVersion == 14)
-                {
-                    g_spriteDeleteQueueSize = params[j++];
-                    g_spriteDeleteQueueSize = clamp(g_spriteDeleteQueueSize, 0, 1024);
-
-                    g_tripbombLaserMode = params[j++];
-                }
+                G_DoGameStartup(params);
             }
             continue;
         }
@@ -5723,8 +5729,8 @@ repeatcase:
     return 0;
 }
 
+#if !defined LUNATIC_ONLY
 /* Anything added with C_AddDefinition() cannot be overwritten in the CONs */
-
 static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
 {
     Bstrcpy(label+(g_numLabels<<6),lLabel);
@@ -5863,12 +5869,14 @@ static void C_InitProjectiles(void)
     }
 }
 #pragma pack(pop)
+#endif
 
 extern int32_t g_numObituaries;
 extern int32_t g_numSelfObituaries;
 
 void C_Compile(const char *filenam)
 {
+#if !defined LUNATIC_ONLY
     char *mptr;
     int32_t i;
     int32_t fs,fp;
@@ -5880,7 +5888,9 @@ void C_Compile(const char *filenam)
         Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
 
     C_InitHashes();
+#endif
     Gv_Init();
+#if !defined LUNATIC_ONLY
     C_InitProjectiles();
 
     fp = kopen4loadfrommod((char *)filenam,g_loadFromGroupOnly);
@@ -5890,7 +5900,7 @@ void C_Compile(const char *filenam)
 
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
-#ifdef WIN32
+# ifdef WIN32
             Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n\n"
                      "You can find \"%s\" in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.\n\n"
                      "If you don't already own a copy of Duke or haven't seen your disc in years, don't worry -- you can download the full, registered "
@@ -5916,13 +5926,13 @@ void C_Compile(const char *filenam)
                     G_GameExit("Error launching default system browser!");
             }
             G_GameExit("");
-#else
+# else
             Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n"
                      "You can find \"%s\" in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.\n\n"
                      "EDuke32 will now close.",
                      G_GrpFile(),G_GrpFile());
             G_GameExit(tempbuf);
-#endif
+# endif
         }
         else
         {
@@ -6020,10 +6030,10 @@ void C_Compile(const char *filenam)
                 }
                 else
                 {
-#if (defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2)))
+# if (defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2)))
                     while (!quitevent) // keep the window open so people can copy CON errors out of it
                         handleevents();
-#endif
+# endif
                     G_GameExit("");
                 }
             }
@@ -6175,6 +6185,7 @@ void C_Compile(const char *filenam)
             }
         }
     }
+#endif  // !defined LUNATIC_ONLY
 }
 
 void C_ReportError(int32_t iError)

@@ -21,6 +21,10 @@ local tostring = tostring
 local type = type
 local unpack = unpack
 
+-- non-nil if running from EDuke32
+-- (read_into_string~=nil  iff  string.dump==nil)
+local read_into_string = read_into_string
+
 if (string.dump) then
     require("strict")
 end
@@ -366,13 +370,22 @@ end
 
 local function parse(contents) end -- fwd-decl
 
-local function do_include_file(dirname, filename) end
-local function cmd_include(filename) end
+local function do_include_file(dirname, filename)
+    assert(type(filename)=="string")
 
-if (not string.dump) then
-    -- NOT IMPLEMENTED
-else
-    function do_include_file(dirname, filename)
+    if (g_have_file[filename] ~= nil) then
+        printf("[%d] Fatal error: infinite loop including \"%s\"", filename)
+        g_numerrors = inf
+        return
+    end
+
+    local contents
+
+    if (read_into_string) then
+        -- running from EDuke32
+        contents = read_into_string(filename)
+    else
+        -- running stand-alone
         local io = require("io")
 
         local fd, msg = io.open(dirname..filename)
@@ -388,36 +401,30 @@ else
             end
         end
 
-        if (g_have_file[filename] ~= nil) then
-            printf("[%d] Fatal error: infinite loop including \"%s\"", filename)
-            g_numerrors = inf
-            return
-        end
-
-        local contents = fd:read("*all")
+        contents = fd:read("*all")
         fd:close()
-
-        if (contents == nil) then
-            -- maybe that file name turned out to be a directory or other
-            -- special file accidentally
-            printf("[%d] Fatal error: couldn't read from \"%s\"",
-                   g_recurslevel, dirname..filename)
-            g_numerrors = inf
-            return
-        end
-
-        printf("%s[%d] Translating file \"%s\"", (g_recurslevel==-1 and "\n---- ") or "",
-               g_recurslevel+1, dirname..filename);
-
-        local oldfilename = g_filename
-        g_filename = filename
-        parse(contents)
-        g_filename = oldfilename
     end
 
-    function cmd_include(filename)
-        do_include_file(g_directory, filename)
+    if (contents == nil) then
+        -- maybe that file name turned out to be a directory or other
+        -- special file accidentally
+        printf("[%d] Fatal error: couldn't read from \"%s\"",
+               g_recurslevel, dirname..filename)
+        g_numerrors = inf
+        return
     end
+
+    printf("%s[%d] Translating file \"%s\"", (g_recurslevel==-1 and "\n---- ") or "",
+           g_recurslevel+1, dirname..filename);
+
+    local oldfilename = g_filename
+    g_filename = filename
+    parse(contents)
+    g_filename = oldfilename
+end
+
+function cmd_include(filename)
+    do_include_file(g_directory, filename)
 end
 
 --- Per-module game data
@@ -497,14 +504,26 @@ local function cmd_definequote(qnum, quotestr)
 end
 
 local function cmd_gamestartup(...)
-    local nums = {...}
+    local args = {...}
 
-    if (#nums ~= 26 and #nums ~= 30) then
+    if (#args ~= 26 and #args ~= 30) then
         errprintf("must pass either 26 (1.3D) or 30 (1.5) values")
         return
     end
 
-    g_data.startup = nums  -- TODO: sanity-check them
+    if (string.dump == nil) then
+        -- running from EDuke32
+        local ffi = require("ffi")
+        local ffiC = ffi.C
+
+        if (args == 30) then
+            ffiC.g_scriptVersion = 14
+        end
+        local params = ffi.new("int32_t [30]", args)
+        ffiC.G_DoGameStartup(params)
+    end
+
+    g_data.startup = args  -- TODO: sanity-check them
 end
 
 local function cmd_definesound(sndnum, fn, ...)
@@ -1609,6 +1628,10 @@ local function flatten_codetab(codetab)
     return tmpcode
 end
 
+local function get_code_string(codetab)
+    return table.concat(flatten_codetab(g_curcode), "\n")
+end
+
 
 ---=== EXPORTED FUNCTIONS ===---
 
@@ -1707,8 +1730,21 @@ local function handle_cmdline_arg(str)
     end
 end
 
+local function reset_all()
+    reset_labels()
+    reset_gamedata()
+    reset_codegen()
+end
+
+local function print_on_failure(msg)
+    if (g_lastkwpos ~= nil) then
+        printf("LAST KEYWORD POSITION: %s, %s", linecolstr(g_lastkwpos), g_lastkw)
+    end
+    print(msg)
+end
+
 if (string.dump) then
-    --- stand-alone
+    -- running stand-alone
 
     local i = 1
     while (arg[i]) do
@@ -1722,9 +1758,7 @@ if (string.dump) then
     for argi=1,#arg do
         local filename = arg[argi]
 
-        reset_labels()
-        reset_gamedata()
-        reset_codegen()
+        reset_all()
 
         g_directory = filename:match("(.*/)") or ""
         filename = filename:sub(#g_directory+1, -1)
@@ -1736,17 +1770,27 @@ if (string.dump) then
 --        local ok, msg = true, do_include_file(g_directory, filename)
 
         if (not ok) then
-            if (g_lastkwpos ~= nil) then
-                printf("LAST KEYWORD POSITION: %s, %s", linecolstr(g_lastkwpos), g_lastkw)
-            end
-            print(msg)
+            print_on_failure(msg)
         end
 
         if (g_printcode) then
             local file = require("io").stderr
             file:write(format("-- GENERATED CODE for \"%s\":\n", filename))
-            file:write(table.concat(flatten_codetab(g_curcode), "\n"))
+            file:write(get_code_string(g_curcode))
             file:write("\n")
+        end
+    end
+else
+    -- running from EDuke32
+    function compile(filename)
+        -- TODO: pathsearchmode=1 set in G_CompileScripts
+        reset_all()
+        local ok, msg = pcall(do_include_file, "", filename)
+        if (not ok) then
+            print_on_failure(msg)
+            return nil
+        else
+            return get_code_string(g_curcode)
         end
     end
 end

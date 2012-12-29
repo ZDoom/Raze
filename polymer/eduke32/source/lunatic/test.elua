@@ -89,6 +89,8 @@ if (vol==1 and lev==1) then  -- E1L1
     actor[562].flags = bit.bor(actor[562].flags, 2);   -- pal 6 with goggles on front SEENINE
 end
 
+--[[
+-- TODO: better API for all TROR things?
 if (vol==1 and lev==8) then
     print('tweaking bunch 1');
     -- trueror1.map
@@ -99,6 +101,7 @@ if (vol==1 and lev==8) then
         sector[i].floorz = sector[i].floorz - 3*1024;
     end
 end
+--]]
 
 local unsafe = pcall(function() string.UNSAFE=true; end)
 
