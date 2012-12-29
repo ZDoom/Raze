@@ -84,7 +84,7 @@ uint32_t PITCH_GetScale(int32_t pitchoffset)
         PITCH_Init();
 
     if (pitchoffset == 0)
-        return(PitchTable[ 0 ][ 0 ]);
+        return PitchTable[ 0 ][ 0 ];
 
     noteshift = pitchoffset % 1200;
     if (noteshift < 0)

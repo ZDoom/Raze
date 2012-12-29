@@ -37,10 +37,7 @@
 # include "SDL_thread.h"
 #endif
 #include "driver_sdl.h"
-
-#ifndef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(P) (P)=(P)
-#endif
+#include "multivoc.h"
 
 enum {
    SDLErr_Warning = -2,

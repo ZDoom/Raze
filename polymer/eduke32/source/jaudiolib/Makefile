@@ -42,6 +42,7 @@ OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/mix.o \
 	$(OBJ)/mixst.o \
 	$(OBJ)/pitch.o \
+	$(OBJ)/formats.o \
 	$(OBJ)/vorbis.o \
 	$(OBJ)/flac.o \
 	$(OBJ)/driver_nosound.o

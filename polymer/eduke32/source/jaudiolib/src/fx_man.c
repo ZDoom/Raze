@@ -97,7 +97,7 @@ const char *FX_ErrorString
         break;
     }
 
-    return(ErrorString);
+    return ErrorString;
 }
 
 
@@ -164,7 +164,7 @@ int32_t FX_Init
         FX_Installed = TRUE;
     }
 
-    return(status);
+    return status;
 }
 
 
@@ -184,7 +184,7 @@ int32_t FX_Shutdown
 
     if (!FX_Installed)
     {
-        return(FX_Ok);
+        return FX_Ok;
     }
 
     status = MV_Shutdown();
@@ -196,7 +196,7 @@ int32_t FX_Shutdown
 
     FX_Installed = FALSE;
 
-    return(status);
+    return status;
 }
 
 
@@ -218,7 +218,7 @@ int32_t FX_SetCallBack
 
     MV_SetCallBack(function);
 
-    return(status);
+    return status;
 }
 
 
@@ -254,7 +254,7 @@ int32_t FX_GetVolume
 
     volume = MV_GetVolume();
 
-    return(volume);
+    return volume;
 }
 
 
@@ -408,7 +408,7 @@ int32_t FX_PauseVoice
         status = FX_Warning;
     }
 
-    return(status);
+    return status;
 }
 
 
@@ -434,7 +434,7 @@ int32_t FX_EndLooping
         status = FX_Warning;
     }
 
-    return(status);
+    return status;
 }
 
 /*---------------------------------------------------------------------
@@ -462,7 +462,7 @@ int32_t FX_SetPan
         status = FX_Warning;
     }
 
-    return(status);
+    return status;
 }
 
 
@@ -488,7 +488,7 @@ int32_t FX_SetPitch
         status = FX_Warning;
     }
 
-    return(status);
+    return status;
 }
 
 
@@ -514,7 +514,7 @@ int32_t FX_SetFrequency
         status = FX_Warning;
     }
 
-    return(status);
+    return status;
 }
 
 
@@ -537,17 +537,7 @@ int32_t FX_PlayVOC
 )
 
 {
-    int32_t handle;
-
-    handle = MV_PlayVOC(ptr, ptrlength, pitchoffset, vol, left, right,
-                        priority, callbackval);
-    if (handle < MV_Ok)
-    {
-        FX_SetErrorCode(FX_MultiVocError);
-        handle = FX_Warning;
-    }
-
-    return(handle);
+    return FX_PlayLoopedVOC(ptr, ptrlength, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
 }
 
 
@@ -574,7 +564,7 @@ int32_t FX_PlayLoopedVOC
 {
     int32_t handle;
 
-    handle = MV_PlayLoopedVOC(ptr, ptrlength, loopstart, loopend, pitchoffset,
+    handle = MV_PlayVOC(ptr, ptrlength, loopstart, loopend, pitchoffset,
                               vol, left, right, priority, callbackval);
     if (handle < MV_Ok)
     {
@@ -582,7 +572,7 @@ int32_t FX_PlayLoopedVOC
         handle = FX_Warning;
     }
 
-    return(handle);
+    return handle;
 }
 
 
@@ -605,17 +595,7 @@ int32_t FX_PlayWAV
 )
 
 {
-    int32_t handle;
-
-    handle = MV_PlayWAV(ptr, ptrlength, pitchoffset, vol, left, right,
-                        priority, callbackval);
-    if (handle < MV_Ok)
-    {
-        FX_SetErrorCode(FX_MultiVocError);
-        handle = FX_Warning;
-    }
-
-    return(handle);
+    return FX_PlayLoopedWAV(ptr, ptrlength, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
 }
 
 
@@ -642,7 +622,7 @@ int32_t FX_PlayLoopedWAV
 {
     int32_t handle;
 
-    handle = MV_PlayLoopedWAV(ptr, ptrlength, loopstart, loopend,
+    handle = MV_PlayWAV(ptr, ptrlength, loopstart, loopend,
                               pitchoffset, vol, left, right, priority, callbackval);
     if (handle < MV_Ok)
     {
@@ -650,7 +630,7 @@ int32_t FX_PlayLoopedWAV
         handle = FX_Warning;
     }
 
-    return(handle);
+    return handle;
 }
 
 
@@ -683,7 +663,7 @@ int32_t FX_PlayVOC3D
         handle = FX_Warning;
     }
 
-    return(handle);
+    return handle;
 }
 
 
@@ -716,7 +696,7 @@ int32_t FX_PlayWAV3D
         handle = FX_Warning;
     }
 
-    return(handle);
+    return handle;
 }
 
 
@@ -740,17 +720,7 @@ int32_t FX_PlayRaw
 )
 
 {
-    int32_t handle;
-
-    handle = MV_PlayRaw(ptr, length, rate, pitchoffset,
-                        vol, left, right, priority, callbackval);
-    if (handle < MV_Ok)
-    {
-        FX_SetErrorCode(FX_MultiVocError);
-        handle = FX_Warning;
-    }
-
-    return(handle);
+    return FX_PlayLoopedRaw(ptr, length, NULL, NULL, rate, pitchoffset, vol, left, right, priority, callbackval);
 }
 
 
@@ -778,7 +748,7 @@ int32_t FX_PlayLoopedRaw
 {
     int32_t handle;
 
-    handle = MV_PlayLoopedRaw(ptr, length, loopstart, loopend,
+    handle = MV_PlayRaw(ptr, length, loopstart, loopend,
                               rate, pitchoffset, vol, left, right, priority, callbackval);
     if (handle < MV_Ok)
     {
@@ -786,7 +756,7 @@ int32_t FX_PlayLoopedRaw
         handle = FX_Warning;
     }
 
-    return(handle);
+    return handle;
 }
 
 
@@ -808,7 +778,7 @@ int32_t FX_Pan3D(int32_t handle,int32_t angle,int32_t distance)
         status = FX_Warning;
     }
 
-    return(status);
+    return status;
 }
 
 
@@ -820,7 +790,7 @@ int32_t FX_Pan3D(int32_t handle,int32_t angle,int32_t distance)
 
 int32_t FX_SoundActive(int32_t handle)
 {
-    return(MV_VoicePlaying(handle));
+    return MV_VoicePlaying(handle);
 }
 
 
@@ -832,7 +802,7 @@ int32_t FX_SoundActive(int32_t handle)
 
 int32_t FX_SoundsPlaying(void)
 {
-    return(MV_VoicesPlaying());
+    return MV_VoicesPlaying();
 }
 
 
@@ -850,10 +820,10 @@ int32_t FX_StopSound(int32_t handle)
     if (status != MV_Ok)
     {
         FX_SetErrorCode(FX_MultiVocError);
-        return(FX_Warning);
+        return FX_Warning;
     }
 
-    return(FX_Ok);
+    return FX_Ok;
 }
 
 
@@ -875,10 +845,10 @@ int32_t FX_StopAllSounds
     if (status != MV_Ok)
     {
         FX_SetErrorCode(FX_MultiVocError);
-        return(FX_Warning);
+        return FX_Warning;
     }
 
-    return(FX_Ok);
+    return FX_Ok;
 }
 
 
@@ -911,9 +881,38 @@ int32_t FX_StartDemandFeedPlayback
         handle = FX_Warning;
     }
 
-    return(handle);
+    return handle;
 }
 
+
+static wavedata FX_AutoDetectFormat(const char *ptr)
+{
+    switch (LITTLE32(*(int32_t *)ptr))
+    {
+    case 'C'+('r'<<8)+('e'<<16)+('a'<<24): // Crea
+        return VOC;
+        break;
+    case 'R'+('I'<<8)+('F'<<16)+('F'<<24): // RIFF
+        return WAV;
+        break;
+    case 'O'+('g'<<8)+('g'<<16)+('S'<<24): // OggS
+        return Vorbis;
+        break;
+    case 'f'+('L'<<8)+('a'<<16)+('C'<<24): // fLaC
+        return FLAC;
+        break;
+    default:
+        switch (LITTLE32(*(int32_t *)(ptr + 8)))
+        {
+        case 'W'+('A'<<8)+('V'<<16)+('E'<<24): // WAVE
+            return WAV;
+            break;
+        }
+        break;
+    }
+
+    return Unknown;
+}
 
 /*---------------------------------------------------------------------
    Function: FX_PlayAuto
@@ -923,50 +922,7 @@ int32_t FX_StartDemandFeedPlayback
 int32_t FX_PlayAuto(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol,
                 int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
-    int32_t handle = -1;
-
-    switch (LITTLE32(*(int32_t *)ptr))
-    {
-    case 'C'+('r'<<8)+('e'<<16)+('a'<<24):
-        handle = MV_PlayVOC(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
-        break;
-    case 'R'+('I'<<8)+('F'<<16)+('F'<<24):
-        handle = MV_PlayWAV(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
-        break;
-#ifdef HAVE_VORBIS
-    case 'O'+('g'<<8)+('g'<<16)+('S'<<24):
-        handle = MV_PlayVorbis(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
-        break;
-#endif
-#ifdef HAVE_FLAC
-    case 'f'+('L'<<8)+('a'<<16)+('C'<<24):
-        handle = MV_PlayFLAC(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
-        break;
-#endif
-    default:
-        switch (LITTLE32(*(int32_t *)(ptr + 8)))
-        {
-        case 'W'+('A'<<8)+('V'<<16)+('E'<<24):
-            handle = MV_PlayWAV(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
-            break;
-        }
-        break;
-    }
-
-    if (handle <= MV_Ok)
-    {
-        FX_SetErrorCode(FX_MultiVocError);
-        handle = FX_Warning;
-    }
-
-    return handle;
-}
-
-int32_t FX_SetPrintf(void (*function)(const char *, ...))
-{
-    MV_SetPrintf(function);
-
-    return FX_Ok;
+    return FX_PlayLoopedAuto(ptr, length, -1, -1, pitchoffset, vol, left, right, priority, callbackval);;
 }
 
 /*---------------------------------------------------------------------
@@ -979,39 +935,31 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
                       uint32_t callbackval)
 {
     int32_t handle = -1;
-#if 0
+
+    switch (FX_AutoDetectFormat(ptr))
     {
-        char fmtstr[5];
-        Bmemcpy(fmtstr, ptr, 4);
-        fmtstr[4] = 0;
-        printf("FX_PlayLoopedAuto %s\n", fmtstr);
-    }
-#endif
-    switch (LITTLE32(*(int32_t *)ptr))
-    {
-    case 'C'+('r'<<8)+('e'<<16)+('a'<<24):
-        handle = MV_PlayLoopedVOC(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+    case VOC:
+        handle = MV_PlayVOC(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
         break;
-    case 'R'+('I'<<8)+('F'<<16)+('F'<<24):
-        handle = MV_PlayLoopedWAV(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+    case WAV:
+        handle = MV_PlayWAV(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
         break;
+    case Vorbis:
 #ifdef HAVE_VORBIS
-    case 'O'+('g'<<8)+('g'<<16)+('S'<<24):
-        handle = MV_PlayLoopedVorbis(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
-        break;
+        handle = MV_PlayVorbis(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+#else
+        MV_Printf("FX_PlayLoopedAuto: OggVorbis support not included in this binary.\n");
 #endif
+        break;
+    case FLAC:
 #ifdef HAVE_FLAC
-    case 'f'+('L'<<8)+('a'<<16)+('C'<<24):
-        handle = MV_PlayLoopedFLAC(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
-        break;
+        handle = MV_PlayFLAC(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+#else
+        MV_Printf("FX_PlayLoopedAuto: FLAC support not included in this binary.\n");
 #endif
+        break;
     default:
-        switch (LITTLE32(*(int32_t *)(ptr + 8)))
-        {
-        case 'W'+('A'<<8)+('V'<<16)+('E'<<24):
-            handle = MV_PlayLoopedWAV(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
-            break;
-        }
+        MV_Printf("FX_PlayLoopedAuto: Unknown or unsupported format.\n");
         break;
     }
 
@@ -1035,31 +983,30 @@ int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t pitchoffset, int32_t a
 {
     int32_t handle = -1;
 
-    switch (LITTLE32(*(int32_t *)ptr))
+    switch (FX_AutoDetectFormat(ptr))
     {
-    case 'C'+('r'<<8)+('e'<<16)+('a'<<24): // Crea
+    case VOC:
         handle = MV_PlayVOC3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
         break;
-    case 'R'+('I'<<8)+('F'<<16)+('F'<<24): // RIFF
+    case WAV:
         handle = MV_PlayWAV3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
         break;
+    case Vorbis:
 #ifdef HAVE_VORBIS
-    case 'O'+('g'<<8)+('g'<<16)+('S'<<24): // OggS
         handle = MV_PlayVorbis3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
-        break;
+#else
+        MV_Printf("FX_PlayAuto3D: OggVorbis support not included in this binary.\n");
 #endif
+        break;
+    case FLAC:
 #ifdef HAVE_FLAC
-    case 'f'+('L'<<8)+('a'<<16)+('C'<<24): // fLaC
         handle = MV_PlayFLAC3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
-        break;
+#else
+        MV_Printf("FX_PlayAuto3D: FLAC support not included in this binary.\n");
 #endif
+        break;
     default:
-        switch (LITTLE32(*(int32_t *)(ptr + 8)))
-        {
-        case 'W'+('A'<<8)+('V'<<16)+('E'<<24): // WAVE
-            handle = MV_PlayWAV3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
-            break;
-        }
+        MV_Printf("FX_PlayAuto3D: Unknown or unsupported format.\n");
         break;
     }
 
@@ -1080,8 +1027,15 @@ int32_t FX_SetVoiceCallback(int32_t handle, uint32_t callbackval)
     if (status != MV_Ok)
     {
         FX_SetErrorCode(FX_MultiVocError);
-        return(FX_Warning);
+        return FX_Warning;
     }
 
-    return(FX_Ok);
+    return FX_Ok;
+}
+
+int32_t FX_SetPrintf(void (*function)(const char *, ...))
+{
+    MV_SetPrintf(function);
+
+    return FX_Ok;
 }

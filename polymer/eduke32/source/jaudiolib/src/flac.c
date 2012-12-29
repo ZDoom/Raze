@@ -42,21 +42,6 @@
 #include "_multivc.h"
 
 
-#ifndef min
-#define min(x,y) ((x) < (y) ? (x) : (y))
-#endif
-#ifndef max
-#define max(x,y) ((x) > (y) ? (x) : (y))
-#endif
-
-# if defined(_MSC_VER)
-#  define strcasecmp _stricmp
-#  define strncasecmp _strnicmp
-# elif defined(__QNX__)
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
-# endif
-
 typedef struct {
    void * ptr;
    size_t length;
@@ -232,6 +217,7 @@ FLAC__StreamDecoderWriteStatus write_flac_stream(const FLAC__StreamDecoder *deco
     voice->length       = ((samples * (voice->bits/8))/2)<<voice->bits;
     voice->position     = 0;
     voice->BlockLength  = 0;
+    // CODEDUP multivoc.c MV_SetVoicePitch
     voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
     voice->FixedPointBufferSize = ( voice->RateScale * MV_MIXBUFFERSIZE ) - voice->RateScale;
     MV_SetVoiceMixMode( voice );
@@ -352,12 +338,13 @@ static playbackstatus MV_GetNextFLACBlock
     voice->channels     = FLAC__stream_decoder_get_channels(fd->stream);
     voice->bits         = FLAC__stream_decoder_get_bits_per_sample(fd->stream);
     voice->SamplingRate = FLAC__stream_decoder_get_sample_rate(fd->stream);
+    // CODEDUP multivoc.c MV_SetVoicePitch
     voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
     voice->FixedPointBufferSize = ( voice->RateScale * MV_MIXBUFFERSIZE ) - voice->RateScale;
     MV_SetVoiceMixMode( voice );
 #endif
 
-    return( KeepPlaying );
+    return KeepPlaying;
 }
 
 
@@ -389,7 +376,7 @@ int32_t MV_PlayFLAC3D
    if ( !MV_Installed )
    {
       MV_SetErrorCode( MV_NotInstalled );
-      return( MV_Error );
+      return MV_Error;
    }
 
    if ( distance < 0 )
@@ -407,10 +394,9 @@ int32_t MV_PlayFLAC3D
    right = MV_PanTable[ angle ][ volume ].right;
    mid   = max( 0, 255 - distance );
 
-   status = MV_PlayFLAC( ptr, ptrlength, pitchoffset, mid, left, right, priority,
-                           callbackval );
+   status = MV_PlayFLAC(ptr, ptrlength, pitchoffset, -1, -1, mid, left, right, priority, callbackval);
 
-   return( status );
+   return status;
 }
 
 
@@ -422,35 +408,6 @@ priority.
 ---------------------------------------------------------------------*/
 
 int32_t MV_PlayFLAC
-(
- char *ptr,
- uint32_t ptrlength,
- int32_t   pitchoffset,
- int32_t   vol,
- int32_t   left,
- int32_t   right,
- int32_t   priority,
- uint32_t callbackval
- )
-
-{
-   int32_t status;
-
-   status = MV_PlayLoopedFLAC( ptr, ptrlength, -1, -1, pitchoffset, vol, left, right,
-                                 priority, callbackval );
-
-   return( status );
-}
-
-
-/*---------------------------------------------------------------------
-Function: MV_PlayLoopedFLAC
-
-Begin playback of sound data with the given sound levels and
-priority.
----------------------------------------------------------------------*/
-
-int32_t MV_PlayLoopedFLAC
 (
  char *ptr,
  uint32_t ptrlength,
@@ -474,7 +431,7 @@ int32_t MV_PlayLoopedFLAC
    if ( !MV_Installed )
    {
       MV_SetErrorCode( MV_NotInstalled );
-      return( MV_Error );
+      return MV_Error;
    }
 
    fd = (flac_data *) malloc( sizeof(flac_data) );
@@ -506,7 +463,7 @@ int32_t MV_PlayLoopedFLAC
             /*metadata_flac_stream*/ NULL,
             error_flac_stream,
             (void*) fd) != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
-      MV_Printf("MV_PlayLoopedFLAC: %s\n", FLAC__stream_decoder_get_resolved_state_string(fd->stream));
+      MV_Printf("MV_PlayFLAC: %s\n", FLAC__stream_decoder_get_resolved_state_string(fd->stream));
       MV_SetErrorCode( MV_InvalidFLACFile );
       return MV_Error;
    }
@@ -519,7 +476,7 @@ int32_t MV_PlayLoopedFLAC
       FLAC__stream_decoder_delete(fd->stream);
       free(fd);
       MV_SetErrorCode( MV_NoVoices );
-      return( MV_Error );
+      return MV_Error;
    }
 
    fd->owner = voice;
@@ -665,6 +622,7 @@ int32_t MV_PlayLoopedFLAC
     else
         MV_Printf("Error allocating FLAC__Metadata_Chain!\n");
 
+   // CODEDUP multivoc.c MV_SetVoicePitch
    voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
    voice->FixedPointBufferSize = ( voice->RateScale * MV_MIXBUFFERSIZE ) -
       voice->RateScale;
@@ -673,7 +631,7 @@ int32_t MV_PlayLoopedFLAC
    MV_SetVoiceVolume( voice, vol, left, right );
    MV_PlayVoice( voice );
 
-   return( voice->handle );
+   return voice->handle;
 }
 
 

@@ -43,14 +43,8 @@
 # include "vorbis/vorbisfile.h"
 #endif
 
-#ifndef min
-#define min(x,y) ((x) < (y) ? (x) : (y))
-#endif
-#ifndef max
-#define max(x,y) ((x) > (y) ? (x) : (y))
-#endif
-
 #define BLOCKSIZE 0x8000
+
 
 typedef struct {
    void * ptr;
@@ -280,7 +274,7 @@ static playbackstatus MV_GetNextVorbisBlock
    voice->BlockLength = 0;
    voice->length      = bytesread << 16; // ???: Should the literal 16 be voice->bits?
    
-   return( KeepPlaying );
+   return KeepPlaying;
 }
 
 
@@ -312,7 +306,7 @@ int32_t MV_PlayVorbis3D
    if ( !MV_Installed )
    {
       MV_SetErrorCode( MV_NotInstalled );
-      return( MV_Error );
+      return MV_Error;
    }
    
    if ( distance < 0 )
@@ -330,10 +324,9 @@ int32_t MV_PlayVorbis3D
    right = MV_PanTable[ angle ][ volume ].right;
    mid   = max( 0, 255 - distance );
    
-   status = MV_PlayVorbis( ptr, ptrlength, pitchoffset, mid, left, right, priority,
-                           callbackval );
+   status = MV_PlayVorbis(ptr, ptrlength, -1, -1, pitchoffset, mid, left, right, priority, callbackval);
    
-   return( status );
+   return status;
 }
 
 
@@ -345,35 +338,6 @@ priority.
 ---------------------------------------------------------------------*/
 
 int32_t MV_PlayVorbis
-(
- char *ptr,
- uint32_t ptrlength,
- int32_t   pitchoffset,
- int32_t   vol,
- int32_t   left,
- int32_t   right,
- int32_t   priority,
- uint32_t callbackval
- )
-
-{
-   int32_t status;
-   
-   status = MV_PlayLoopedVorbis( ptr, ptrlength, -1, -1, pitchoffset, vol, left, right,
-                                 priority, callbackval );
-   
-   return( status );
-}
-
-
-/*---------------------------------------------------------------------
-Function: MV_PlayLoopedVorbis
-
-Begin playback of sound data with the given sound levels and
-priority.
----------------------------------------------------------------------*/
-
-int32_t MV_PlayLoopedVorbis
 (
  char *ptr,
  uint32_t ptrlength,
@@ -398,7 +362,7 @@ int32_t MV_PlayLoopedVorbis
    if ( !MV_Installed )
    {
       MV_SetErrorCode( MV_NotInstalled );
-      return( MV_Error );
+      return MV_Error;
    }
    
    vd = (vorbis_data *) malloc( sizeof(vorbis_data) );
@@ -415,7 +379,7 @@ int32_t MV_PlayLoopedVorbis
    
    status = ov_open_callbacks((void *) vd, &vd->vf, 0, 0, vorbis_callbacks);
    if (status < 0) {
-      MV_Printf("MV_PlayLoopedVorbis: err %d\n", status);
+      MV_Printf("MV_PlayVorbis: err %d\n", status);
       MV_SetErrorCode( MV_InvalidVorbisFile );
       return MV_Error;
    }
@@ -442,7 +406,7 @@ int32_t MV_PlayLoopedVorbis
       ov_clear(&vd->vf);
       free(vd);
       MV_SetErrorCode( MV_NoVoices );
-      return( MV_Error );
+      return MV_Error;
    }
    
    voice->wavetype    = Vorbis;
@@ -454,7 +418,6 @@ int32_t MV_PlayLoopedVorbis
    voice->DemandFeed  = NULL;
    voice->LoopCount   = 0;
    voice->BlockLength = 0;
-   voice->PitchScale  = PITCH_GetScale( pitchoffset );
    voice->length      = 0;
    voice->next        = NULL;
    voice->prev        = NULL;
@@ -470,17 +433,14 @@ int32_t MV_PlayLoopedVorbis
 
    voice->Playing     = TRUE;
    voice->Paused      = FALSE;
-   
-   voice->SamplingRate = vi->rate;
-   voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
-   voice->FixedPointBufferSize = ( voice->RateScale * MV_MIXBUFFERSIZE ) -
-      voice->RateScale;
+
+   MV_SetVoicePitch(voice, vi->rate, pitchoffset);
    MV_SetVoiceMixMode( voice );
 
    MV_SetVoiceVolume( voice, vol, left, right );
    MV_PlayVoice( voice );
    
-   return( voice->handle );
+   return voice->handle;
 }
 
 void MV_ReleaseVorbisVoice( VoiceNode * voice )

@@ -94,16 +94,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 typedef enum
    {
-   Raw,
-   VOC,
-   DemandFeed,
-   WAV,
-   Vorbis,
-   FLAC
-   } wavedata;
-
-typedef enum
-   {
    NoMoreData,
    KeepPlaying
    } playbackstatus;
@@ -237,6 +227,7 @@ VoiceNode *MV_AllocVoice( int32_t priority );
 
 void MV_SetVoiceMixMode( VoiceNode *voice );
 void MV_SetVoiceVolume ( VoiceNode *voice, int32_t vol, int32_t left, int32_t right );
+void MV_SetVoicePitch  ( VoiceNode *voice, uint32_t rate, int32_t pitchoffset );
 
 void MV_ReleaseVorbisVoice( VoiceNode * voice );
 void MV_ReleaseFLACVoice( VoiceNode * voice );

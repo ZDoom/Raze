@@ -32,8 +32,46 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __MULTIVOC_H
 
 #ifndef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(x) x=x
+# define UNREFERENCED_PARAMETER(x) x=x
 #endif
+
+#ifdef _MSC_VER
+# define inline __inline
+#endif
+
+#ifdef __POWERPC__
+# define LITTLE16 SWAP16
+# define LITTLE32 SWAP32
+#else
+# define LITTLE16
+# define LITTLE32
+#endif
+
+#ifndef min
+# define min(x,y) ((x) < (y) ? (x) : (y))
+#endif
+#ifndef max
+# define max(x,y) ((x) > (y) ? (x) : (y))
+#endif
+
+#if defined(_MSC_VER)
+# define strcasecmp _stricmp
+# define strncasecmp _strnicmp
+#elif defined(__QNX__)
+# define strcasecmp stricmp
+# define strncasecmp strnicmp
+#endif
+
+typedef enum
+{
+   Unknown,
+   Raw,
+   VOC,
+   DemandFeed,
+   WAV,
+   Vorbis,
+   FLAC,
+} wavedata;
 
 #define MV_MINVOICEHANDLE  1
 
@@ -83,38 +121,27 @@ int32_t   MV_StartDemandFeedPlayback( void ( *function )( char **ptr, uint32_t *
          int32_t rate, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
          int32_t priority, uint32_t callbackval );
 int32_t   MV_PlayRaw( char *ptr, uint32_t length,
-         unsigned rate, int32_t pitchoffset, int32_t vol, int32_t left,
-         int32_t right, int32_t priority, uint32_t callbackval );
-int32_t   MV_PlayLoopedRaw( char *ptr, uint32_t length,
          char *loopstart, char *loopend, unsigned rate, int32_t pitchoffset,
          int32_t vol, int32_t left, int32_t right, int32_t priority,
          uint32_t callbackval );
-int32_t   MV_PlayWAV( char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol, int32_t left,
-         int32_t right, int32_t priority, uint32_t callbackval );
 int32_t   MV_PlayWAV3D( char *ptr, uint32_t length, int32_t pitchoffset, int32_t angle, int32_t distance,
          int32_t priority, uint32_t callbackval );
-int32_t   MV_PlayLoopedWAV( char *ptr, uint32_t length, int32_t loopstart, int32_t loopend,
+int32_t   MV_PlayWAV( char *ptr, uint32_t length, int32_t loopstart, int32_t loopend,
          int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
          uint32_t callbackval );
 int32_t   MV_PlayVOC3D( char *ptr, uint32_t length, int32_t pitchoffset, int32_t angle, int32_t distance,
          int32_t priority, uint32_t callbackval );
-int32_t   MV_PlayVOC( char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
-         int32_t priority, uint32_t callbackval );
-int32_t   MV_PlayLoopedVOC( char *ptr, uint32_t length, int32_t loopstart, int32_t loopend,
+int32_t   MV_PlayVOC( char *ptr, uint32_t length, int32_t loopstart, int32_t loopend,
          int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
          uint32_t callbackval );
 int32_t   MV_PlayVorbis3D( char *ptr, uint32_t length, int32_t pitchoffset, int32_t angle, int32_t distance,
                     int32_t priority, uint32_t callbackval );
-int32_t   MV_PlayVorbis( char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
-                  int32_t priority, uint32_t callbackval );
-int32_t   MV_PlayLoopedVorbis( char *ptr, uint32_t length, int32_t loopstart, int32_t loopend,
+int32_t   MV_PlayVorbis( char *ptr, uint32_t length, int32_t loopstart, int32_t loopend,
                         int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
                         uint32_t callbackval );
 int32_t   MV_PlayFLAC3D( char *ptr, uint32_t length, int32_t pitchoffset, int32_t angle, int32_t distance,
                     int32_t priority, uint32_t callbackval );
-int32_t   MV_PlayFLAC( char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
-                  int32_t priority, uint32_t callbackval );
-int32_t   MV_PlayLoopedFLAC( char *ptr, uint32_t length, int32_t loopstart, int32_t loopend,
+int32_t   MV_PlayFLAC( char *ptr, uint32_t length, int32_t loopstart, int32_t loopend,
                         int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
                         uint32_t callbackval );
 //void  MV_CreateVolumeTable( int32_t index, int32_t volume, int32_t MaxVolume );
