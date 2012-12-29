@@ -451,6 +451,7 @@ int32_t g_elCallDepth;
 actor_t actor[MAXSPRITES];
 user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
+tiledata_t g_tile[MAXTILES];
 
 const int32_t playerswhenstarted;
 int32_t lastvisinc;
@@ -510,7 +511,7 @@ end
 
 -- Add game-side metamethods to "spritetype" and register it with "metatype"
 defs_c.spritetype_mt.__index.isenemy = function(s)
-    return (bit.band(ffiC.g_tile[s.picnum], ffiC.SFLAG_BADGUY)~=0)
+    return (bit.band(ffiC.g_tile[s.picnum].flags, ffiC.SFLAG_BADGUY)~=0)
 end
 ffi.metatype("spritetype", defs_c.spritetype_mt)
 
@@ -527,9 +528,12 @@ local tmpmt = {
 }
 player = setmtonce({}, tmpmt)
 
+-- needed by "control"
+actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, "actor[]")
+
 --== Custom operations for BUILD data structures ==--
--- declares struct action and struct move, and their ID-wrapped types
--- con_action_t and con_move_t
+-- Among other things, declares struct action and struct move, and their
+-- ID-wrapped types con_action_t and con_move_t
 local con = require("control")
 local MV, AC, AI = con.MV, con.AC, con.AI
 
@@ -623,6 +627,7 @@ local actor_mt = {
 
             a.t_data[0] = 0
             local i = a-ffi.cast(actor_ptr_ct, ffiC.actor[0])
+            assert(not (i >= ffiC.MAXSPRITES+0ULL))
             ffiC.sprite[i].hitag = movflags or 0
 
             -- TODO: random angle moveflag
@@ -1102,6 +1107,7 @@ end
 G_.gameevent = our_gameevent
 G_.gameactor = our_gameactor
 G_.player = player  -- from above
+G_.actor = actor  -- from above
 
 
 ---=== Lunatic interpreter setup ===---
@@ -1153,9 +1159,6 @@ setmtonce(gv, tmpmt)
 
 -- This will create 'sprite', 'wall', etc. HERE, i.e. in the environment of this chunk
 defs_c.create_globals(_G)
-
----- indirect C array access ----
-actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, "actor[]")
 
 function TEMP_getvollev()  -- REMOVE
     return ffiC.ud.volume_number+1, ffiC.ud.level_number+1

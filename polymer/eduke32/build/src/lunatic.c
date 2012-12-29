@@ -35,6 +35,14 @@ void L_SetupDebugTraceback(lua_State *L)
     lua_pop(L, 2);
 }
 
+void L_PushDebugTraceback(lua_State *L)
+{
+    // get debug.traceback
+    lua_pushlightuserdata(L, &debug_traceback_key);
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    Bassert(lua_isfunction(L, -1));
+}
+
 
 static int32_t read_whole_file(const char *fn, char **retbufptr)
 {
@@ -122,10 +130,7 @@ int L_RunString(L_State *estate, char *buf, int dofreebuf)
     // -- lua --
     Bassert(lua_gettop(L)==0);
 
-    // get debug.traceback
-    lua_pushlightuserdata(L, &debug_traceback_key);
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    Bassert(lua_isfunction(L, -1));
+    L_PushDebugTraceback(L);
 
     i = luaL_loadstring(L, buf);
     Bassert(lua_gettop(L)==2);

@@ -870,7 +870,7 @@ local Ci = {
     clipdist = cmd(D)
         / SPS".clipdist=%1",
     sizeto = cmd(D,D)
-        / "_con._sizeto(_aci)",  -- TODO: see control.lua:_sizeto
+        / "_con._sizeto(_aci,%1,%2)",  -- TODO: see control.lua:_sizeto
     sizeat = cmd(D,D)
         / (SPS".xrepeat,"..SPS".yrepeat=%1,%2"),
     strength = cmd(D)

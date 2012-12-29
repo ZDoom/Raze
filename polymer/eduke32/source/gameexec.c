@@ -106,6 +106,7 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
 #ifdef LUNATIC
     const double t = gethitickms();
 
+    // TODO: handling of RETURN gamevar / iReturn / this function's return value
     if (L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
         El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist);
 #endif
@@ -2002,6 +2003,8 @@ nullquote:
                     actor[i].flags = 0;
                     sprite[i].hitag = 0;
 
+#if !defined LUNATIC_ONLY
+// TODO: Lunatic
                     if (g_tile[sprite[i].picnum].execPtr)
                     {
                         // offsets
@@ -2009,6 +2012,7 @@ nullquote:
                         T2 = *(g_tile[sprite[i].picnum].execPtr+2);  // move
                         sprite[i].hitag = *(g_tile[sprite[i].picnum].execPtr+3);  // ai bits
                     }
+#endif
                 }
                 changespritestat(i,j);
                 continue;
@@ -5230,13 +5234,19 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 
     if (L_IsInitialized(&g_ElState) && El_HaveActor(vm.g_sp->picnum))
         killit = (El_CallActor(&g_ElState, vm.g_sp->picnum, iActor, iPlayer, lDist)==1);
+    else if (g_tile[vm.g_sp->picnum].execPtr)
+    {
 #endif
 
-    insptr = 4 + (g_tile[vm.g_sp->picnum].execPtr);
-    VM_Execute(1);
-    insptr = NULL;
+#if !defined LUNATIC_ONLY
+        insptr = 4 + (g_tile[vm.g_sp->picnum].execPtr);
+        VM_Execute(1);
+        insptr = NULL;
+#endif
 
 #ifdef LUNATIC
+    }
+
     g_actorTotalMs[vm.g_sp->picnum] += gethitickms()-t;
     g_actorCalls[vm.g_sp->picnum]++;
 #endif

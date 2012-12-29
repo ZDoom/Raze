@@ -17,6 +17,7 @@ typedef struct
 
 // helpers taking the lua_State directly:
 void L_SetupDebugTraceback(lua_State *L);
+void L_PushDebugTraceback(lua_State *L);
 void L_CheckAndRegisterFunction(lua_State *L, void *regkeyaddr);
 
 // Callback on Lua error. <str> must be used immediately or strdup'd.

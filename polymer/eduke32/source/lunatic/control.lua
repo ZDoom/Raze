@@ -13,14 +13,13 @@ local error = error
 local type = type
 local unpack = unpack
 
-local player = assert(player)
-local defs_c = require("defs_common")
-local cansee = defs_c.cansee
-local neartag = defs_c.neartag
-local inside = defs_c.inside
+local actor, player = assert(actor), assert(player)
+local dc = require("defs_common")
+local cansee, hitscan, neartag = dc.cansee, dc.hitscan, dc.neartag
+local inside = dc.inside
 
--- NOTE FOR RELEASE: the usually global stuff like "sprite" etc. ought to be
--- accessed as locals here
+local sector, wall, sprite = dc.sector, dc.wall, dc.sprite
+local spritesofsect = dc.spritesofsect
 
 module(...)
 
@@ -155,9 +154,9 @@ function insertsprite(tab_or_tilenum, ...)
     local tilenum, pos, sectnum  -- mandatory
     -- optional with defaults:
     local owner, statnum
-    local shade, xrepeat, yrepeat, xvel, zvel = 0, 48, 48, 0, 0
+    local shade, xrepeat, yrepeat, ang, xvel, zvel = 0, 48, 48, 0, 0, 0
 
-    if (type(tab_or_sectnum)=="table") then
+    if (type(tab_or_tilenum)=="table") then
         local tab = tab_or_tilenum
         tilenum, pos, sectnum = unpack(tab, 1, 3)
         owner = tab[4] or tab.owner or -1
@@ -165,10 +164,11 @@ function insertsprite(tab_or_tilenum, ...)
         shade = shade and tab.shade
         xrepeat = xrepeat and tab.xrepeat
         yrepeat = yrepeat and tab.yrepeat
+        ang = ang and (tab.ang % 2048)
         xvel = xvel and tab.xvel
         zvel = zvel and tab.zvel
     else
-        tilenum = table_or_tilenum
+        tilenum = tab_or_tilenum
         local args = {...}
         pos, sectnum = unpack(args, 1, 2)
         owner = args[3] or -1
@@ -179,7 +179,7 @@ function insertsprite(tab_or_tilenum, ...)
         error("invalid insertsprite call: 'sectnum' and 'tilenum' must be numbers", 2)
     end
     check_tile_idx(tilenum)
-    defs_c.check_sector_idx(sectnum)
+    dc.check_sector_idx(sectnum)
     if (statnum >= ffiC.MAXSTATUS) then
         error("invalid 'statnum' argument to insertsprite: must be a status number (0 .. MAXSTATUS-1)", 2)
     end
@@ -231,7 +231,7 @@ function _spawnmany(ow, tilenum, n)
 end
 
 function isenemytile(tilenum)
-    return (bit.band(ffiC.g_tile[tilenum], ffiC.SFLAG_BADGUY)~=0)
+    return (bit.band(ffiC.g_tile[tilenum].flags, ffiC.SFLAG_BADGUY)~=0)
 end
 
 function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
@@ -577,12 +577,12 @@ local function manhatdist(v1, v2)
 end
 
 -- "otherspr" is either player or holoduke sprite
-local function A_GetFurthestVisiblePoint(aci, otherspr)
-    if (bit.band(actor[aci].get_t_data(0), 63) ~= 0) then
+local function A_FurthestVisiblePoint(aci, otherspr)
+    if (bit.band(actor[aci]:get_t_data(0), 63) ~= 0) then
         return
     end
 
-    local angincs = (ud.player_skill < 3) and 1024 or 2048/(1+krandand(1))
+    local angincs = (ffiC.ud.player_skill < 3) and 1024 or 2048/(1+krandand(1))
 
     local j = 0
     repeat
@@ -590,7 +590,7 @@ local function A_GetFurthestVisiblePoint(aci, otherspr)
         local hit = hitscan(otherspr^(16*256), otherspr.sectnum,
                             c, s, 16384-krandand(32767), ffiC.CLIPMASK1)
         local dother = manhatdist(hit.pos, otherspr)
-        local dactor = manhatdist(hit.pos, spr)
+        local dactor = manhatdist(hit.pos, sprite[aci])
 
         if (dother < dactor and hit.sect >= 0) then
             if (cansee(hit.pos, hit.sect, otherspr^(16*256), otherspr.sectnum)) then
@@ -609,7 +609,7 @@ function _cansee(aci, ps)
     local spr = sprite[aci]
     local s = sprite[ps.i]
 
-    if (ps.holoduke_on) then
+    if (ps.holoduke_on >= 0) then
         -- If holoduke is on, let them target holoduke first.
         local hs = sprite[ps.holoduke_on]
 
@@ -623,7 +623,7 @@ function _cansee(aci, ps)
 
     if (not can) then
         -- Search around for target player.
-        local hit = A_GetFurthestVisiblePoint(aci, s)
+        local hit = A_FurthestVisiblePoint(aci, s)
         if (hit ~= nil) then
             can = true
             actor[aci].lastvx = hit.pos.x
@@ -728,7 +728,7 @@ local SK = {
     RUN = 5,
 }
 
-local function _ifp(flags, pli, aci)
+function _ifp(flags, pli, aci)
     local l = flags
     local ps = player[pli]
     local vel = sprite[ps.i].xvel
@@ -747,7 +747,7 @@ local function _ifp(flags, pli, aci)
         j = true
     elseif (band(l,4)~=0 and vel >= 8 and _testkey(pli, SK.RUN)) then
         j = true
-    elseif (band(l,64)~=0 and ps.pos.z < (sprite[_aci].z-(48*256))) then
+    elseif (band(l,64)~=0 and ps.pos.z < (sprite[aci].z-(48*256))) then
         j = true
     elseif (band(l,128)~=0 and vel <= -8 and not _testkey(pli, SK.RUN)) then
         j = true
@@ -769,7 +769,7 @@ local function _ifp(flags, pli, aci)
         j = true
     elseif (band(l,65536)~=0) then
         -- TODO: multiplayer branch
-        if (_angdiffabs(ps.ang, ffiC.getangle(sprite[_aci].x-ps.pos.x, sprite[_aci].y-ps.pos.y)) < 128) then
+        if (_angdiffabs(ps.ang, ffiC.getangle(sprite[aci].x-ps.pos.x, sprite[aci].y-ps.pos.y)) < 128) then
             j = true
         end
     end
@@ -803,12 +803,12 @@ local INVENTILE = {
 
 function _checkrespawn(spr)
     if (spr:isenemy()) then
-        return (ud.respawn_monsters~=0)
+        return (ffiC.ud.respawn_monsters~=0)
     end
     if (INVENTILE[spr.picnum]) then
-        return (ud.respawn_inventory~=0)
+        return (ffiC.ud.respawn_inventory~=0)
     end
-    return (ud.respawn_items~=0)
+    return (ffiC.ud.respawn_items~=0)
 end
 
 

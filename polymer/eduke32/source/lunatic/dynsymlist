@@ -69,6 +69,7 @@ G_DoGameStartup;
 actor;
 ud;
 g_player;
+g_tile;
 
 playerswhenstarted;
 lastvisinc;

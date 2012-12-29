@@ -281,7 +281,9 @@ static int32_t call_regd_function3(lua_State *L, void *keyaddr,
                                    int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
     int32_t i;
-
+#ifdef DEBUGGINGAIDS
+    L_PushDebugTraceback(L);
+#endif
     // get the Lua function from the registry
     lua_pushlightuserdata(L, keyaddr);
     lua_gettable(L, LUA_REGISTRYINDEX);
@@ -292,7 +294,12 @@ static int32_t call_regd_function3(lua_State *L, void *keyaddr,
 
     // -- call it! --
 
+#ifdef DEBUGGINGAIDS
+    i = lua_pcall(L, 3, 0, 1);
+#else
     i = lua_pcall(L, 3, 0, 0);
+#endif
+
     if (i == LUA_ERRMEM)
     {
         lua_pop(L, 1);
