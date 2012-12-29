@@ -49,11 +49,8 @@ G_EXTERN int32_t connectpoint2[MAXPLAYERS];
 #include "sector.h"
 #include "quotes.h"
 
-void initialize_globals(void);
-
 G_EXTERN int32_t myconnectindex, numplayers;
 
-G_EXTERN const char *s_buildRev;
 G_EXTERN DukeStatus_t sbar;
 G_EXTERN actor_t actor[MAXSPRITES];
 // g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game
@@ -61,30 +58,21 @@ G_EXTERN tiledata_t g_tile[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
 G_EXTERN char *ScriptQuotes[MAXQUOTES],*ScriptQuoteRedefinitions[MAXQUOTES];
 G_EXTERN char *label;
-G_EXTERN char CheatKeys[2];
 G_EXTERN char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
-G_EXTERN char EpisodeNames[MAXVOLUMES][33];
-G_EXTERN char GametypeNames[MAXGAMETYPES][33];
-G_EXTERN char SkillNames[MAXSKILLS][33];
 G_EXTERN char g_RTSPlaying;
 G_EXTERN int32_t g_musicIndex;
-G_EXTERN char g_numGametypes;
 G_EXTERN char g_loadFromGroupOnly;
-G_EXTERN char g_numVolumes;
 G_EXTERN char g_numSkills;
 G_EXTERN char myjumpingtoggle,myonground,myhardlanding,myreturntocenter;
 G_EXTERN char pus,pub;
 G_EXTERN char ready2send;
-G_EXTERN char setupfilename[BMAX_PATH];
 G_EXTERN char szPlayerName[32];
 G_EXTERN char tempbuf[MAXSECTORS<<1],packbuf[PACKBUF_SIZE],menutextbuf[128],buf[1024];
 G_EXTERN char typebuflen,typebuf[141];
-G_EXTERN const char *s_buildDate;
 G_EXTERN input_t avg;
 G_EXTERN input_t loc;
 G_EXTERN input_t recsync[RECSYNCBUFSIZ];
-G_EXTERN int16_t BlimpSpawnSprites[15];
-G_EXTERN int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos,g_spriteDeleteQueueSize;
+G_EXTERN int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
 G_EXTERN int16_t animatesect[MAXANIMATES];
 G_EXTERN int16_t camsprite;
 G_EXTERN int16_t cyclers[MAXCYCLERS][6],g_numCyclers;
@@ -96,7 +84,6 @@ G_EXTERN int16_t myang,omyang,mycursectnum,myjumpingcounter;
 G_EXTERN int16_t myhoriz,omyhoriz,myhorizoff,omyhorizoff;
 G_EXTERN int16_t neartagsector,neartagwall,neartagsprite;
 G_EXTERN int32_t *animateptr[MAXANIMATES];
-G_EXTERN int32_t GametypeFlags[MAXGAMETYPES];
 G_EXTERN int32_t animategoal[MAXANIMATES],animatevel[MAXANIMATES],g_animateCount;
 G_EXTERN int32_t cloudtotalclock;
 G_EXTERN int32_t fricxv,fricyv;
@@ -108,17 +95,11 @@ G_EXTERN char g_earthquakeTime;
 G_EXTERN int32_t g_gameQuit;
 G_EXTERN int32_t g_groupFileHandle;
 G_EXTERN int32_t g_impactDamage,g_maxPlayerHealth;
-G_EXTERN int32_t g_lastSaveSlot;
 G_EXTERN int32_t g_musicSize;
-G_EXTERN int32_t g_numFreezeBounces;
 G_EXTERN int32_t g_numLabels,g_numDefaultLabels;
 G_EXTERN int32_t g_numRealPalettes;
-G_EXTERN int32_t g_playerFriction;
 G_EXTERN int32_t g_scriptDebug;
-G_EXTERN int32_t g_scriptSize;
 G_EXTERN int32_t g_showShareware;
-G_EXTERN int32_t g_spriteGravity;
-G_EXTERN int32_t g_timerTicsPerSecond;
 G_EXTERN int8_t g_numPlayerSprites;
 G_EXTERN int32_t g_tripbombLaserMode;
 G_EXTERN int32_t msx[2048],msy[2048];
@@ -126,7 +107,7 @@ G_EXTERN int32_t neartaghitdist,lockclock,g_startArmorAmount;
 G_EXTERN int32_t playerswhenstarted;
 G_EXTERN int32_t screenpeek;
 G_EXTERN int32_t startofdynamicinterpolations;
-G_EXTERN int32_t vel,svel,angvel,horiz,ototalclock,g_actorRespawnTime;
+G_EXTERN int32_t vel,svel,angvel,horiz,ototalclock;
 G_EXTERN intptr_t *g_parsingActorPtr;
 G_EXTERN intptr_t *g_scriptPtr,*insptr;
 G_EXTERN int32_t *labelcode,*labeltype;
@@ -151,9 +132,31 @@ G_EXTERN int32_t g_shrinkerBlastRadius;
 G_EXTERN int32_t g_morterBlastRadius;
 G_EXTERN int32_t g_bouncemineBlastRadius;
 G_EXTERN int32_t g_seenineBlastRadius;
-G_EXTERN int32_t g_itemRespawnTime;
 G_EXTERN int32_t g_restorePalette;
 G_EXTERN int32_t g_screenCapture;
 G_EXTERN int32_t g_noEnemies;
+
+#ifndef __global_c__
+G_EXTERN const char *s_buildRev;
+G_EXTERN const char *s_buildDate;
+G_EXTERN int32_t g_spriteGravity;
+G_EXTERN int16_t g_spriteDeleteQueueSize;
+G_EXTERN char EpisodeNames[MAXVOLUMES][33];
+G_EXTERN char SkillNames[MAXSKILLS][33];
+G_EXTERN char GametypeNames[MAXGAMETYPES][33];
+G_EXTERN int32_t GametypeFlags[MAXGAMETYPES];
+G_EXTERN char g_numGametypes;
+G_EXTERN char g_numVolumes;
+G_EXTERN int32_t g_timerTicsPerSecond;
+G_EXTERN int32_t g_actorRespawnTime;
+G_EXTERN int32_t g_itemRespawnTime;
+G_EXTERN int32_t g_scriptSize;
+G_EXTERN int16_t BlimpSpawnSprites[15];
+G_EXTERN int32_t g_playerFriction;
+G_EXTERN int32_t g_numFreezeBounces;
+G_EXTERN int32_t g_lastSaveSlot;
+G_EXTERN char CheatKeys[2];
+G_EXTERN char setupfilename[BMAX_PATH];
+#endif
 
 #endif

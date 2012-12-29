@@ -56,7 +56,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # include "lunatic_m32.h"
 #endif
 
-static const char *s_buildRev;
+static const char *
+    #include "rev.h"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -8872,8 +8873,6 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
     Bcorrectfilename(tempbuf,1);
     //chdir(tempbuf);
 #endif
-
-    #include "rev.h"
 
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersion("Mapster32" " " VERSION,0,2);

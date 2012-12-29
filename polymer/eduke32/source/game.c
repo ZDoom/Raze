@@ -9972,8 +9972,6 @@ int32_t app_main(int32_t argc, const char **argv)
     Bassert(sizeof(actor_t)==128);
     Bassert(sizeof(DukePlayer_t)%4 == 0);
 
-    initialize_globals();
-
 #ifdef GEKKO
 	L2Enhance();
 	CON_EnableGecko(1, 1);

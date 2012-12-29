@@ -26,72 +26,65 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 user_defs ud;
 
-void initialize_globals(void)
-{
+const char *
     #include "rev.h"
-    s_buildDate = "20120522";
 
-    // JBF: g_spriteGravity modified to default to Atomic ed. default when using 1.3d CONs
-    g_spriteGravity = 176;
+const char *s_buildDate = "20120522";
 
-    g_spriteDeleteQueueSize = 64;
+// JBF: g_spriteGravity modified to default to Atomic ed. default when using 1.3d CONs
+int32_t g_spriteGravity=176;
 
-    strcpy(EpisodeNames[0], "L.A. Meltdown");
-    strcpy(EpisodeNames[1], "Lunar Apocalypse");
-    strcpy(EpisodeNames[2], "Shrapnel City");
+int16_t g_spriteDeleteQueueSize = 64;
 
-    strcpy(SkillNames[0], "Piece Of Cake");
-    strcpy(SkillNames[1], "Let's Rock");
-    strcpy(SkillNames[2], "Come Get Some");
-    strcpy(SkillNames[3], "Damn I'm Good");
+char EpisodeNames[MAXVOLUMES][33] = { "L.A. Meltdown", "Lunar Apocalypse", "Shrapnel City" };
+char SkillNames[MAXSKILLS][33] = { "Piece Of Cake", "Let's Rock", "Come Get Some", "Damn I'm Good" };
 
-    strcpy(GametypeNames[0], "DukeMatch (Spawn)");
-    strcpy(GametypeNames[1], "Cooperative Play");
-    strcpy(GametypeNames[2], "DukeMatch (No Spawn)");
-    strcpy(GametypeNames[3], "Team DM (Spawn)");
-    strcpy(GametypeNames[4], "Team DM (No Spawn)");
+char GametypeNames[MAXGAMETYPES][33] = { "DukeMatch (Spawn)", "Cooperative Play", "DukeMatch (No Spawn)", "Team DM (Spawn)", "Team DM (No Spawn)" };
 
-    GametypeFlags[0] = /*4+*/8+16+1024+2048+16384;
-    GametypeFlags[1] = 1+2+32+64+128+256+512+4096+8192+32768;
-    GametypeFlags[2] = 2+/*4+*/8+16+16384;
-    GametypeFlags[3] = /*4+*/8+16+1024+2048+16384+65536+131072;
-    GametypeFlags[4] = 2+/*4+*/8+16+16384+65536+131072;
+int32_t GametypeFlags[MAXGAMETYPES] =
+{
+    /*4+*/8+16+1024+2048+16384,
+    1+2+32+64+128+256+512+4096+8192+32768,
+    2+/*4+*/8+16+16384,
+    /*4+*/8+16+1024+2048+16384+65536+131072,
+    2+/*4+*/8+16+16384+65536+131072
+};
+char g_numGametypes = 5;
 
-    g_numGametypes = 5;
+char g_numVolumes = 3;
 
-    g_numVolumes = 3;
+int32_t g_timerTicsPerSecond = TICRATE;
 
-    g_timerTicsPerSecond = TICRATE;
+int32_t g_actorRespawnTime = 768;
+int32_t g_itemRespawnTime = 768;
 
-    g_actorRespawnTime = 768;
-    g_itemRespawnTime = 768;
+int32_t g_scriptSize = 1048576;
 
-    g_scriptSize = 1048576;
+int16_t BlimpSpawnSprites[15] =
+{
+    RPGSPRITE__STATIC,
+    CHAINGUNSPRITE__STATIC,
+    DEVISTATORAMMO__STATIC,
+    RPGAMMO__STATIC,
+    RPGAMMO__STATIC,
+    JETPACK__STATIC,
+    SHIELD__STATIC,
+    FIRSTAID__STATIC,
+    STEROIDS__STATIC,
+    RPGAMMO__STATIC,
+    RPGAMMO__STATIC,
+    RPGSPRITE__STATIC,
+    RPGAMMO__STATIC,
+    FREEZESPRITE__STATIC,
+    FREEZEAMMO__STATIC
+};
 
-    BlimpSpawnSprites[0] = RPGSPRITE__STATIC;
-    BlimpSpawnSprites[1] = CHAINGUNSPRITE__STATIC;
-    BlimpSpawnSprites[2] = DEVISTATORAMMO__STATIC;
-    BlimpSpawnSprites[3] = RPGAMMO__STATIC;
-    BlimpSpawnSprites[4] = RPGAMMO__STATIC;
-    BlimpSpawnSprites[5] = JETPACK__STATIC;
-    BlimpSpawnSprites[6] = SHIELD__STATIC;
-    BlimpSpawnSprites[7] = FIRSTAID__STATIC;
-    BlimpSpawnSprites[8] = STEROIDS__STATIC;
-    BlimpSpawnSprites[9] = RPGAMMO__STATIC;
-    BlimpSpawnSprites[10] = RPGAMMO__STATIC;
-    BlimpSpawnSprites[11] = RPGSPRITE__STATIC;
-    BlimpSpawnSprites[12] = RPGAMMO__STATIC;
-    BlimpSpawnSprites[13] = FREEZESPRITE__STATIC;
-    BlimpSpawnSprites[14] = FREEZEAMMO__STATIC;
+int32_t g_playerFriction = 0xcc00;
 
-    g_playerFriction = 0xcc00;
+int32_t g_numFreezeBounces = 3;
 
-    g_numFreezeBounces=3;
+int32_t g_lastSaveSlot = -1;
 
-    g_lastSaveSlot = -1;
+char CheatKeys[2] = { sc_D, sc_N };
 
-    CheatKeys[0] = sc_D;
-    CheatKeys[1] = sc_N;
-
-    strcpy(setupfilename, SETUPFILENAME);
-}
+char setupfilename[BMAX_PATH] = SETUPFILENAME;
