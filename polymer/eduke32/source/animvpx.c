@@ -208,12 +208,10 @@ const char *animvpx_nextpic_errmsg[] = {
 // retrieves one picture-frame from the stream
 //  pic format:  lines of [Y U V 0] pixels
 //  *picptr==NULL means EOF has been reached
-#if !defined __clang__ && !defined USING_LTO
-# ifdef DEBUGGINGAIDS
-ATTRIBUTE((optimize("O1")))
-# else
-ATTRIBUTE((optimize("O3")))
-# endif
+#ifdef DEBUGGINGAIDS
+ATTRIBUTE_OPTIMIZE("O1")
+#else
+ATTRIBUTE_OPTIMIZE("O3")
 #endif
 int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **picptr)
 {

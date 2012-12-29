@@ -20,6 +20,12 @@
 # define ATTRIBUTE(attrlist)
 #endif
 
+#if !defined __clang__ && !defined USING_LTO
+# define ATTRIBUTE_OPTIMIZE(str) ATTRIBUTE((optimize(str)))
+#else
+# define ATTRIBUTE_OPTIMIZE(str)
+#endif
+
 #ifndef min
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #endif
