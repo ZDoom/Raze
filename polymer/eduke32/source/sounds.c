@@ -202,7 +202,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     if (MapInfo[sel].alt_musicfn != NULL)
         alt = fn = MapInfo[sel].alt_musicfn;
 
-    testfn = (char *) Bmalloc(strlen(fn) + 5);
+    testfn = (char *) Bmalloc(strlen(fn) + 6);
     strcpy(testfn, fn);
     extension = strrchr(testfn, '.');
 
@@ -211,8 +211,17 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
         if (extension && !Bstrcasecmp(extension, ".mid"))
         {
             // we've been asked to load a .mid file, but first let's see
-            // if there's an ogg with the same base name lying around
+            // if there's a flac or an ogg with the same base name lying around
+            strcpy(extension, ".flac");
+            extension[5] = '\0';
+            fp = kopen4loadfrommod(testfn, 0);
+            if (fp >= 0)
+            {
+                Bfree(testfn);
+                break;
+            }
             strcpy(extension, ".ogg");
+            extension[4] = '\0';
             fp = kopen4loadfrommod(testfn, 0);
             if (fp >= 0)
             {

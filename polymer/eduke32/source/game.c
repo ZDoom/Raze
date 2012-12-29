@@ -8193,30 +8193,37 @@ static void G_ShowDebugHelp(void)
 #endif
 }
 
-static char *S_OggifyFilename(char *destname, char *OGGname, const char *origname)
+static char *S_OggifyFilename(char *outputname, char *newname, const char *origname)
 {
     if (!origname)
-        return destname;
+        return outputname;
 
-    destname = (char *)Brealloc(destname, Bstrlen(OGGname) + Bstrlen(origname) + 1);
+    outputname = (char *)Brealloc(outputname, Bstrlen(newname) + Bstrlen(origname) + 1);
 
-    if (!destname)
+    if (!outputname)
         return NULL;
 
-    Bstrcpy(destname, *OGGname ? OGGname : origname);
+    Bstrcpy(outputname, *newname ? newname : origname);
 
-    if (*OGGname && OGGname[Bstrlen(OGGname)-1] == '/')
+    // a special case for specifying a prefix directory
+    if (*newname && newname[Bstrlen(newname)-1] == '/')
     {
         while (*origname == '/')
             origname++;
-        Bstrcat(destname, origname);
+        Bstrcat(outputname, origname);
     }
 
-    if ((OGGname = Bstrchr(destname, '.')))
-        Bstrcpy(OGGname, ".ogg");
-    else Bstrcat(destname, ".ogg");
+#if 0
+    // XXX: I don't see why we were previously clobbering the extension regardless of what it is.
+    if ((newname = Bstrchr(outputname, '.')))
+        Bstrcpy(newname, ".ogg");
+    else Bstrcat(outputname, ".ogg");
+#endif
 
-    return destname;
+    if (Bstrchr(outputname, '.') == NULL)
+        Bstrcat(outputname, ".ogg");
+
+    return outputname;
 }
 
 static int32_t S_DefineSound(int32_t ID,char *name)

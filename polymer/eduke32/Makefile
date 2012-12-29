@@ -189,7 +189,7 @@ ifeq ($(SUBPLATFORM),LINUX)
         OURCOMMONFLAGS	+= -fno-pic
     endif
     OURASFLAGS	+= -f elf
-    LIBS		+= -lvorbisfile -lvorbis -logg
+    LIBS		+= -lFLAC -lvorbisfile -lvorbis -logg
 endif
 
 ifeq ($(PLATFORM),WII)
@@ -215,7 +215,7 @@ ifeq ($(PLATFORM),DARWIN)
         OURCOMMONFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                 -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
 
-        LIBS += -lvorbisfile -lvorbis -logg -lm \
+        LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lm \
                 -Wl,-framework,SDL -Wl,-framework,SDL_mixer Apple/lib/libSDLmain.a \
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
@@ -227,7 +227,7 @@ ifeq ($(PLATFORM),DARWIN)
         GAMEOBJS+=$(OBJ)/SDLMain.$o
     else
         OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
-        LIBS += -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
+        LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
                 -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
@@ -244,7 +244,7 @@ endif
 ifeq ($(PLATFORM),WINDOWS)
     OURCOMMONFLAGS	+= -fno-pic -DUNDERSCORES
     OURASFLAGS+= -DUNDERSCORES -f win32
-    LIBS += -lvorbisfile -lvorbis -logg
+    LIBS += -lFLAC -lvorbisfile -lvorbis -logg
     LIBDIRS += -L$(abspath $(JAUDIOLIBDIR)/third-party/Windows/lib$(WINLIB))
     GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o
     EDITOROBJS+= $(OBJ)/buildres.$o

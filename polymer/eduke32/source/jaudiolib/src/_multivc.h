@@ -98,7 +98,8 @@ typedef enum
    VOC,
    DemandFeed,
    WAV,
-   Vorbis
+   Vorbis,
+   FLAC
    } wavedata;
 
 typedef enum
@@ -238,6 +239,7 @@ void MV_SetVoiceMixMode( VoiceNode *voice );
 void MV_SetVoiceVolume ( VoiceNode *voice, int32_t vol, int32_t left, int32_t right );
 
 void MV_ReleaseVorbisVoice( VoiceNode * voice );
+void MV_ReleaseFLACVoice( VoiceNode * voice );
 
 // implemented in mix.c
 void ClearBuffer_DW( void *ptr, unsigned data, int32_t length );
@@ -309,6 +311,13 @@ extern const int16_t *MV_LeftVolume;
 extern const int16_t *MV_RightVolume;
 extern int32_t    MV_SampleSize;
 extern int32_t    MV_RightChannelOffset;
+
+#define loopStartTagCount 2
+extern const char *loopStartTags[loopStartTagCount];
+#define loopEndTagCount 2
+extern const char *loopEndTags[loopEndTagCount];
+#define loopLengthTagCount 2
+extern const char *loopLengthTags[loopLengthTagCount];
 
 #if defined __POWERPC__ || defined GEKKO
 # define BIGENDIAN

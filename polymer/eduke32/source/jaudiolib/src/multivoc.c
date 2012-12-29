@@ -215,6 +215,9 @@ const char *MV_ErrorString(int32_t ErrorNumber)
     case MV_InvalidVorbisFile :
         return "Invalid OggVorbis file passed in to Multivoc.";
 
+    case MV_InvalidFLACFile :
+        return "Invalid FLAC file passed in to Multivoc.";
+
     case MV_InvalidMixMode :
         return "Invalid mix mode request in Multivoc.";
 
@@ -337,6 +340,10 @@ static void MV_StopVoice(VoiceNode *voice)
 #ifdef HAVE_VORBIS
     if (voice->wavetype == Vorbis)
         MV_ReleaseVorbisVoice(voice);
+#endif
+#ifdef HAVE_FLAC
+    if (voice->wavetype == FLAC)
+        MV_ReleaseFLACVoice(voice);
 #endif
 
     voice->handle = 0;
@@ -461,6 +468,10 @@ static void MV_ServiceVoc(void)
 #ifdef HAVE_VORBIS
             if (voice->wavetype == Vorbis)
                 MV_ReleaseVorbisVoice(voice);
+#endif
+#ifdef HAVE_FLAC
+            if (voice->wavetype == FLAC)
+                MV_ReleaseFLACVoice(voice);
 #endif
             voice->handle = 0;
 
@@ -2731,6 +2742,20 @@ void MV_SetPrintf(void (*function)(const char *, ...))
 {
     MV_Printf = function;
 }
+
+
+const char *loopStartTags[loopStartTagCount] = {
+    "LOOP_START",
+    "LOOPSTART"
+};
+const char *loopEndTags[loopEndTagCount] = {
+    "LOOP_END",
+    "LOOPEND"
+};
+const char *loopLengthTags[loopLengthTagCount] = {
+    "LOOP_LENGTH",
+    "LOOPLENGTH"
+};
 
 
 // vim:ts=3:expandtab:

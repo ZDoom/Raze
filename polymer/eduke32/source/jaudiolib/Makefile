@@ -9,7 +9,7 @@ INC=include
 # for BUILD_ECHOFLAGS:
 OURCOMMONFLAGS=$(BASECOMMONFLAGS) $(BUILDCOMMONFLAGS) -I$(INC) -I$(SRC)
 ifneq ($(PLATFORM),WII)
-    OURCOMMONFLAGS+= -DHAVE_VORBIS
+    OURCOMMONFLAGS+= -DHAVE_VORBIS -DHAVE_FLAC
 endif
 ifneq ($(RELEASE),0)
     # Debugging disabled
@@ -43,6 +43,7 @@ OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/mixst.o \
 	$(OBJ)/pitch.o \
 	$(OBJ)/vorbis.o \
+	$(OBJ)/flac.o \
 	$(OBJ)/driver_nosound.o
 
 ifeq ($(PLATFORM),DARWIN)

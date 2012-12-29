@@ -938,6 +938,11 @@ int32_t FX_PlayAuto(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol
         handle = MV_PlayVorbis(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
         break;
 #endif
+#ifdef HAVE_FLAC
+    case 'f'+('L'<<8)+('a'<<16)+('C'<<24):
+        handle = MV_PlayFLAC(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
+        break;
+#endif
     default:
         switch (LITTLE32(*(int32_t *)(ptr + 8)))
         {
@@ -995,6 +1000,11 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
         handle = MV_PlayLoopedVorbis(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
         break;
 #endif
+#ifdef HAVE_FLAC
+    case 'f'+('L'<<8)+('a'<<16)+('C'<<24):
+        handle = MV_PlayLoopedFLAC(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+        break;
+#endif
     default:
         switch (LITTLE32(*(int32_t *)(ptr + 8)))
         {
@@ -1036,6 +1046,11 @@ int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t pitchoffset, int32_t a
 #ifdef HAVE_VORBIS
     case 'O'+('g'<<8)+('g'<<16)+('S'<<24): // OggS
         handle = MV_PlayVorbis3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
+        break;
+#endif
+#ifdef HAVE_FLAC
+    case 'f'+('L'<<8)+('a'<<16)+('C'<<24): // fLaC
+        handle = MV_PlayFLAC3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
         break;
 #endif
     default:

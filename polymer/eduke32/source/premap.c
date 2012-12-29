@@ -1754,6 +1754,7 @@ static void realloc_and_copy_musicfn(int32_t level_number, const char *levnamebu
 }
 
 // levnamebuf should have at least size BMAX_PATH
+// FIXME: This function should be rolled into a loop, testing .flac, then .ogg, then .mid.
 void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int32_t level_number)
 {
     char *p;
@@ -1789,6 +1790,7 @@ void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int3
     Bmemcpy(p+1, "mid", 4);
     fil = kopen4loadfrommod(levnamebuf,0);
 
+    // XXX: should pull in a "default user map" song entry, probably E1L8 (which would need to not get clobbered)
     if (fil == -1)
         Bstrcpy(levnamebuf, "dethtoll.mid");
     else kclose(fil);
