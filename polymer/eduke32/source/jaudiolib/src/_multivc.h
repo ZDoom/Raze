@@ -28,11 +28,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    (c) Copyright 1993 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
-#include "limits.h"
-#include "inttypes.h"
-
 #ifndef ___MULTIVC_H
 #define ___MULTIVC_H
+
+#include "limits.h"
+#include "inttypes.h"
+#include "multivoc.h"
 
 #define TRUE  ( 1 == 1 )
 #define FALSE ( !TRUE )
