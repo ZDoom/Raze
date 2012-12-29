@@ -139,6 +139,7 @@ int32_t FX_Init
 #elif defined HAVE_SDL
         SoundCard = ASS_SDL;
 #else
+#warning No sound driver selected!
         SoundCard = ASS_NoSound;
 #endif
     }
