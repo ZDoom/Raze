@@ -2577,6 +2577,7 @@ static void M32_MoveFX(void)
                     x = dist((spritetype *)&pos,s);
                     if (x < ht && (T1&1) == 0 && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
                     {
+                        char om = g_sounds[s->lotag].m;
                         if (g_numEnvSoundsPlaying == NumVoices)
                         {
                             for (j = headspritestat[0]; j >= 0; j = nextspritestat[j])
@@ -2591,7 +2592,9 @@ static void M32_MoveFX(void)
                             }
                             if (j == -1) continue;
                         }
+                        g_sounds[s->lotag].m |= 1;
                         A_PlaySound(s->lotag,i);
+                        g_sounds[s->lotag].m = om;
                         T1 |= 1;
                     }
                     if (x >= ht && (T1&1) == 1)

@@ -393,6 +393,8 @@ int32_t MV_PlayLoopedVorbis
    vorbis_data * vd = 0;
    vorbis_info * vi = 0;
 
+   UNREFERENCED_PARAMETER(loopend);
+
    if ( !MV_Installed )
    {
       MV_SetErrorCode( MV_NotInstalled );
@@ -459,13 +461,12 @@ int32_t MV_PlayLoopedVorbis
    voice->priority    = priority;
    voice->callbackval = callbackval;
 
-   voice->LoopStart   = (char *) (intptr_t)(loopstart >= 0 ? loopstart : 0);
-   voice->LoopEnd     = (char *) (intptr_t)(loopstart >= 0 && loopend > 0 ? loopend : 0);
+   voice->LoopStart   = 0;
+   voice->LoopEnd     = 0;
    voice->LoopSize    = (loopstart >= 0 ? 1 : 0);
 
     // load loop tags from metadata
-    if (loopstart < 1)
-        MV_GetVorbisCommentLoops(voice, ov_comment(&vd->vf, 0));
+    MV_GetVorbisCommentLoops(voice, ov_comment(&vd->vf, 0));
 
    voice->Playing     = TRUE;
    voice->Paused      = FALSE;

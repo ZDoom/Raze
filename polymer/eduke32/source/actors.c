@@ -1267,6 +1267,7 @@ ACTOR_STATIC void G_MoveFX(void)
 
                     if (x < ht && T1 == 0 && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
                     {
+                        char om = g_sounds[s->lotag].m;
                         if (g_numEnvSoundsPlaying == ud.config.NumVoices)
                         {
                             int32_t j;
@@ -1284,7 +1285,9 @@ ACTOR_STATIC void G_MoveFX(void)
                                 goto BOLT;
                         }
 
+                        g_sounds[s->lotag].m |= 1;
                         A_PlaySound(s->lotag,i);
+                        g_sounds[s->lotag].m = om;
                         T1 = 1;
                     }
                     else if (x >= ht && T1 == 1)

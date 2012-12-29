@@ -469,6 +469,8 @@ int32_t MV_PlayLoopedFLAC
    flac_data * fd = 0;
    FLAC__Metadata_Chain* metadata_chain;
 
+   UNREFERENCED_PARAMETER(loopend);
+
    if ( !MV_Installed )
    {
       MV_SetErrorCode( MV_NotInstalled );
@@ -538,8 +540,8 @@ int32_t MV_PlayLoopedFLAC
    voice->Playing     = TRUE;
    voice->Paused      = FALSE;
 
-   voice->LoopStart   = (char *) (intptr_t)(loopstart >= 0 ? loopstart : 0);
-   voice->LoopEnd     = (char *) (intptr_t)(loopstart >= 0 && loopend > 0 ? loopend : 0);
+   voice->LoopStart   = 0;
+   voice->LoopEnd     = 0;
    voice->LoopSize    = (loopstart >= 0 ? 1 : 0);
 
     // parse metadata
@@ -585,7 +587,7 @@ int32_t MV_PlayLoopedFLAC
                     }
 
                     // load loop tags from metadata
-                    if (tags->type == FLAC__METADATA_TYPE_VORBIS_COMMENT && loopstart < 1)
+                    if (tags->type == FLAC__METADATA_TYPE_VORBIS_COMMENT)
                     {
                         FLAC__uint32 comment;
                         uint8_t loopTagCount;
@@ -617,40 +619,37 @@ int32_t MV_PlayLoopedFLAC
                 }
                 while (FLAC__metadata_iterator_next(metadata_iterator));
 
-                if (loopstart < 1)
+                if (vc_loopstart != NULL)
                 {
-                    if (vc_loopstart != NULL)
                     {
+                        const FLAC__int64 flac_loopstart = atol(vc_loopstart);
+                        if (flac_loopstart >= 0) // a loop starting at 0 is valid
                         {
-                            const FLAC__int64 flac_loopstart = atol(vc_loopstart);
-                            if (flac_loopstart >= 0) // a loop starting at 0 is valid
-                            {
-                                voice->LoopStart = (const char *) (intptr_t) flac_loopstart;
-                                voice->LoopSize = 1;
-                            }
+                            voice->LoopStart = (const char *) (intptr_t) flac_loopstart;
+                            voice->LoopSize = 1;
                         }
-                        free(vc_loopstart);
                     }
-                    if (vc_loopend != NULL)
+                    free(vc_loopstart);
+                }
+                if (vc_loopend != NULL)
+                {
+                    if (voice->LoopSize > 0)
                     {
-                        if (voice->LoopSize > 0)
-                        {
-                            const FLAC__int64 flac_loopend = atol(vc_loopend);
-                            if (flac_loopend > 0) // a loop ending at 0 is invalid
-                                voice->LoopEnd = (const char *) (intptr_t) flac_loopend;
-                        }
-                        free(vc_loopend);
+                        const FLAC__int64 flac_loopend = atol(vc_loopend);
+                        if (flac_loopend > 0) // a loop ending at 0 is invalid
+                            voice->LoopEnd = (const char *) (intptr_t) flac_loopend;
                     }
-                    if (vc_looplength != NULL)
+                    free(vc_loopend);
+                }
+                if (vc_looplength != NULL)
+                {
+                    if (voice->LoopSize > 0 && voice->LoopEnd == 0)
                     {
-                        if (voice->LoopSize > 0 && voice->LoopEnd == 0)
-                        {
-                            const FLAC__int64 flac_looplength = atol(vc_looplength);
-                            if (flac_looplength > 0) // a loop of length 0 is invalid
-                                voice->LoopEnd = (const char *) ((intptr_t) flac_looplength + (intptr_t) voice->LoopStart);
-                        }
-                        free(vc_looplength);
+                        const FLAC__int64 flac_looplength = atol(vc_looplength);
+                        if (flac_looplength > 0) // a loop of length 0 is invalid
+                            voice->LoopEnd = (const char *) ((intptr_t) flac_looplength + (intptr_t) voice->LoopStart);
                     }
+                    free(vc_looplength);
                 }
 
                 FLAC__metadata_iterator_delete(metadata_iterator);

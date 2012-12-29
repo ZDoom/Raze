@@ -419,7 +419,7 @@ static void MV_ServiceVoc(void)
                 else
                     MV_16BitReverbFast(source, dest, count / 2, MV_ReverbLevel);
             }
-            else
+            else // if (MV_Bits == 8)
             {
                 if (MV_ReverbTable != NULL)
                     MV_8BitReverb((int8_t *) source, (int8_t *) dest, MV_ReverbTable, count);
@@ -1960,7 +1960,7 @@ int32_t MV_PlayLoopedRaw
     voice->callbackval = callbackval;
     voice->LoopStart   = loopstart;
     voice->LoopEnd     = loopend;
-    voice->LoopSize    = (voice->LoopEnd - voice->LoopStart) + 1;
+    voice->LoopSize    = loopend > (char*) 0 ? (uintptr_t) loopend - (uintptr_t) loopstart + 1 : length;
 
     MV_SetVoicePitch(voice, rate, pitchoffset);
     MV_SetVoiceVolume(voice, vol, left, right);
@@ -2080,8 +2080,6 @@ int32_t MV_PlayLoopedWAV
     VoiceNode     *voice;
     int32_t length;
 
-    UNREFERENCED_PARAMETER(loopend);
-
     if (!MV_Installed)
     {
         MV_SetErrorCode(MV_NotInstalled);
@@ -2167,7 +2165,6 @@ int32_t MV_PlayLoopedWAV
     voice->Playing     = TRUE;
     voice->Paused      = FALSE;
     voice->DemandFeed  = NULL;
-    voice->LoopStart   = NULL;
     voice->LoopCount   = 0;
     voice->position    = 0;
     voice->length      = 0;
@@ -2179,7 +2176,7 @@ int32_t MV_PlayLoopedWAV
     voice->callbackval = callbackval;
     voice->LoopStart   = loopstart >= 0 ? voice->NextBlock : NULL;
     voice->LoopEnd     = NULL;
-    voice->LoopSize    = length;
+    voice->LoopSize    = loopend > 0 ? loopend - loopstart + 1 : length;
 
     MV_SetVoicePitch(voice, format.nSamplesPerSec, pitchoffset);
     MV_SetVoiceVolume(voice, vol, left, right);
@@ -2328,7 +2325,6 @@ int32_t MV_PlayLoopedVOC
     voice->GetSound    = MV_GetNextVOCBlock;
     voice->NextBlock   = ptr + LITTLE16(*(uint16_t *)(ptr + 0x14));
     voice->DemandFeed  = NULL;
-    voice->LoopStart   = NULL;
     voice->LoopCount   = 0;
     voice->BlockLength = 0;
     voice->PitchScale  = PITCH_GetScale(pitchoffset);
@@ -2337,15 +2333,9 @@ int32_t MV_PlayLoopedVOC
     voice->prev        = NULL;
     voice->priority    = priority;
     voice->callbackval = callbackval;
-    voice->LoopStart   = loopstart >= 0 ? voice->NextBlock : 0;
-    voice->LoopEnd     = 0;
+    voice->LoopStart   = loopstart >= 0 ? voice->NextBlock : NULL;
+    voice->LoopEnd     = NULL;
     voice->LoopSize    = loopend - loopstart + 1;
-
-    if (loopstart < 0)
-    {
-        voice->LoopStart = NULL;
-        voice->LoopEnd   = NULL;
-    }
 
     MV_SetVoiceVolume(voice, vol, left, right);
     MV_PlayVoice(voice);
