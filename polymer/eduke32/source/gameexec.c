@@ -2552,7 +2552,7 @@ nullquote:
 
                 G_HandleMirror(x, y, z, a, horiz, smoothratio);
 #ifdef POLYMER
-                if (getrendermode() == 4)
+                if (getrendermode() == REND_POLYMER)
                     polymer_setanimatesprites(G_DoSpriteAnimations, x,y,a,smoothratio);
 #endif
                 yax_preparedrawrooms();

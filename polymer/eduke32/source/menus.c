@@ -2610,7 +2610,7 @@ cheat_for_port_credits2:
             yy = 37;
             for (ii=io=0; opts[ii]; ii++)
             {
-                if (getrendermode()==0 && io >= 2)
+                if (getrendermode() == REND_CLASSIC && io >= 2)
                     break;
 
                 if (opts[ii][0] == '-' && !opts[ii][1])
@@ -2635,7 +2635,7 @@ cheat_for_port_credits2:
             yy = 37;
             for (ii=io=0; opts[ii]; ii++)
             {
-                if (getrendermode()==0 && io >= 2)
+                if (getrendermode() == REND_CLASSIC && io >= 2)
                     break;
 
                 if (opts[ii][0] == '-' && !opts[ii][1])
@@ -2648,7 +2648,7 @@ cheat_for_port_credits2:
                 switch (io)
                 {
                 case 0:
-                    if (getrendermode() <= 3)
+                    if (getrendermode() <= REND_POLYMOST)
                     {
 #ifdef USE_OPENGL
                         int32_t tmp = r_usenewaspect ? 2 : glwidescreen;
@@ -2989,13 +2989,13 @@ cheat_for_port_credits2:
                     int32_t i;
                     i = ud.screen_size;
                     barsm(d+8,yy+7, &ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),0);
-                    if (getrendermode() >= 3 && i < ud.screen_size && i == 8 && ud.statusbarmode == 1)
+                    if (getrendermode() >= REND_POLYMOST && i < ud.screen_size && i == 8 && ud.statusbarmode == 1)
                     {
                         ud.statusbarmode = 0;
                         if (ud.statusbarscale != 100)
                             ud.screen_size = i;
                     }
-                    else if (getrendermode() >= 3 && i > ud.screen_size && i == 8 && ud.statusbarmode == 0)
+                    else if (getrendermode() >= REND_POLYMOST && i > ud.screen_size && i == 8 && ud.statusbarmode == 0)
                     {
                         if (ud.statusbarscale != 100)
                         {
@@ -3303,7 +3303,7 @@ cheat_for_port_credits2:
                     vidsets[dax++] = 0x20000|validmode[day].bpp|((validmode[day].fs&1)<<16);
             }
             for (dax = 0; dax < (int32_t)(sizeof(vidsets)/sizeof(vidsets[1])) && vidsets[dax] != -1; dax++)
-                if (vidsets[dax] == (((getrendermode()>=2)<<17)|(fullscreen<<16)|bpp)) break;
+                if (vidsets[dax] == (((getrendermode() >= REND_POLYMOST)<<17)|(fullscreen<<16)|bpp)) break;
             if (dax < (int32_t)(sizeof(vidsets)/sizeof(vidsets[1]))) newvidset = dax;
             curvidset = newvidset;
 
@@ -3339,11 +3339,11 @@ cheat_for_port_credits2:
         margin = MENU_MARGIN_REGULAR;
 
 #ifdef USE_OPENGL
-        x = (7/*+(getrendermode() >= 3)*/);
+        x = (7/*+(getrendermode() >= REND_POLYMOST)*/);
 #else
         x = 7;
 #endif
-//        onbar = (!getrendermode() && probey == 6); // (probey == 4);
+//        onbar = (getrendermode() == REND_CLASSIC && probey == 6); // (probey == 4);
         if (probey == 0 || probey == 1 || probey == 2)
             x = M_Probe(margin,50,16,x);
         else if (probey == 3)
@@ -3580,7 +3580,7 @@ cheat_for_port_credits2:
             break;
 
         case 5:
-            if (!getrendermode())
+            if (getrendermode() == REND_CLASSIC)
             {
                 ud.detail = 1-ud.detail;
                 break;
@@ -3593,7 +3593,7 @@ cheat_for_port_credits2:
             break;
 #endif
         case 6:
-//            if (!getrendermode()) break;
+//            if (getrendermode() == REND_CLASSIC) break;
             M_ChangeMenu(230);
             break;
         }
@@ -3627,7 +3627,7 @@ cheat_for_port_credits2:
                     }
                 }
         */
-        if (!getrendermode())
+        if (getrendermode() == REND_CLASSIC)
         {
             menutext(margin,50+62+16+16,MENUHIGHLIGHT(5),0,"Pixel Doubling");
             menutext(margin+168,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"Off":"On");
@@ -3665,7 +3665,7 @@ cheat_for_port_credits2:
             modval(0,5,(int32_t *)&gltexfiltermode,1,probey==5);
             if (gltexfiltermode != filter)
                 gltexapplyprops();
-            mgametextpal(margin+168,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),!getrendermode());
+            mgametextpal(margin+168,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),getrendermode() == REND_CLASSIC);
         }
 #endif
         menutext(margin,50+62+16+16+16,MENUHIGHLIGHT(6),0 /*bpp==8*/,"Renderer Setup");

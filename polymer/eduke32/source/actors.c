@@ -486,7 +486,7 @@ void A_DeleteSprite(int32_t s)
     }
 
 #ifdef POLYMER
-    if (getrendermode() == 4 && actor[s].lightptr != NULL)
+    if (getrendermode() == REND_POLYMER && actor[s].lightptr != NULL)
         A_DeleteLight(s);
 #endif
 
@@ -689,7 +689,7 @@ void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t 
 #ifdef POLYMER
     spritetype *s = &sprite[srcsprite];
 
-    if (getrendermode() != 4)
+    if (getrendermode() != REND_POLYMER)
         return;
 
     if (actor[srcsprite].lightptr == NULL)
@@ -7714,7 +7714,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
 #ifdef POLYMER
         case SE_49_POINT_LIGHT:
         {
-            if (!A_CheckSpriteFlags(i, SPRITE_NOLIGHT) && getrendermode() == 4 &&
+            if (!A_CheckSpriteFlags(i, SPRITE_NOLIGHT) && getrendermode() == REND_POLYMER &&
                     !(A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
             {
                 if (actor[i].lightptr == NULL)
@@ -7780,7 +7780,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
         }
         case SE_50_SPOT_LIGHT:
         {
-            if (!A_CheckSpriteFlags(i, SPRITE_NOLIGHT) && getrendermode() == 4 &&
+            if (!A_CheckSpriteFlags(i, SPRITE_NOLIGHT) && getrendermode() == REND_POLYMER &&
                     !(A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
             {
                 if (actor[i].lightptr == NULL)
@@ -8254,7 +8254,7 @@ void G_MoveWorld(void)
             int32_t j = nextspritestat[i];
 
 #ifdef POLYMER
-            if (getrendermode() == 4)
+            if (getrendermode() == REND_POLYMER)
                 A_DoLight(i);
 #endif
             if (!G_HaveEvent(EVENT_GAME) || A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))

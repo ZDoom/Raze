@@ -602,13 +602,13 @@ void G_UpdateScreenArea(void)
         if (j >= 12) y1 += 8;
     }
 
-    if (ud.screen_size >= 8 && !(getrendermode() >= 3 && ud.screen_size == 8 && ud.statusbarmode))
+    if (ud.screen_size >= 8 && !(getrendermode() >= REND_POLYMOST && ud.screen_size == 8 && ud.statusbarmode))
         y2 -= (ss+scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100));
 
     y1 = scale(y1,ydim,200);
     y2 = scale(y2,ydim,200);
 
-    setview(x1,y1,x2-1,y2-(getrendermode() < 3));
+    setview(x1,y1,x2-1,y2-(getrendermode() == REND_CLASSIC));
 
     G_GetCrosshairColor();
     G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);

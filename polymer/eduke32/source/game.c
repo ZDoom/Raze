@@ -758,7 +758,7 @@ static void G_DrawInvNum(int32_t x, int32_t yofs, int32_t y, char num1, char ha,
 
     if (num1 > 99)
     {
-        if (shd && ud.screen_size == 4 && getrendermode() >= 3 && althud_shadows)
+        if (shd && ud.screen_size == 4 && getrendermode() >= REND_POLYMOST && althud_shadows)
         {
             for (i=0; i<=2; i++)
                 rotatesprite_fs(sbarx(x+(-4+4*i)+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[i]-'0',
@@ -772,7 +772,7 @@ static void G_DrawInvNum(int32_t x, int32_t yofs, int32_t y, char num1, char ha,
 
     if (num1 > 9)
     {
-        if (shd && ud.screen_size == 4 && getrendermode() >= 3 && althud_shadows)
+        if (shd && ud.screen_size == 4 && getrendermode() >= REND_POLYMOST && althud_shadows)
         {
             rotatesprite_fs(sbarx(x+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits);
             rotatesprite_fs(sbarx(x+4+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits);
@@ -1038,7 +1038,7 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
         for (k=0; k<i; k++)
         {
             p = althud_numbertile + b[k]-'0';
-            if (shd && getrendermode() >= 3 && althud_shadows)
+            if (shd && getrendermode() >= REND_POLYMOST && althud_shadows)
                 rotatesprite_fs(sbarxr(c+j-1),sbary(y+1),sbscale,0,p,s,4,cs|POLYMOSTTRANS2);
             rotatesprite_fs(sbarxr(c+j),sbary(y),sbscale,0,p,s,althud_numberpal,cs);
             j -= tilesizx[p]+1;
@@ -1050,7 +1050,7 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
     for (k=0; k<i; k++)
     {
         p = althud_numbertile + b[k]-'0';
-        if (shd && getrendermode() >= 3 && althud_shadows)
+        if (shd && getrendermode() >= REND_POLYMOST && althud_shadows)
             rotatesprite_fs(sbarx(c+j+1),sbary(y+1),sbscale,0,p,s,4,cs|POLYMOSTTRANS2);
         rotatesprite_fs(sbarx(c+j),sbary(y),sbscale,0,p,s,althud_numberpal,cs);
         j += tilesizx[p]+1;
@@ -1206,7 +1206,7 @@ static void G_DrawStatusBar(int32_t snum)
         Bmemcpy(item_icons, iicons, sizeof(item_icons));
     }
 
-    if (getrendermode() >= 3) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
+    if (getrendermode() >= REND_POLYMOST) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
 
     if ((g_netServer || ud.multimode > 1) && ((GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR) || g_fakeMultiMode))
     {
@@ -1251,7 +1251,7 @@ static void G_DrawStatusBar(int32_t snum)
 
 //            rotatesprite_fs(sbarx(5+1),sbary(200-25+1),sb15h,0,SIXPAK,0,4,10+16+1+32);
 //            rotatesprite_fs(sbarx(5),sbary(200-25),sb15h,0,SIXPAK,0,0,10+16);
-            if (getrendermode() >= 3 && althud_shadows)
+            if (getrendermode() >= REND_POLYMOST && althud_shadows)
                 rotatesprite_fs(sbarx(2+1),sbary(200-21+1),sb15h,0,COLA,0,4,10+16+256+POLYMOSTTRANS2);
             rotatesprite_fs(sbarx(2),sbary(200-21),sb15h,0,COLA,0,0,10+16+256);
 
@@ -1265,7 +1265,7 @@ static void G_DrawStatusBar(int32_t snum)
                 G_DrawAltDigiNum(40,-(200-22),p->last_extra,s,10+16+256);
             }
 
-            if (getrendermode() >= 3 && althud_shadows)
+            if (getrendermode() >= REND_POLYMOST && althud_shadows)
                 rotatesprite_fs(sbarx(62+1),sbary(200-25+1),sb15h,0,SHIELD,0,4,10+16+POLYMOSTTRANS2+256);
             rotatesprite_fs(sbarx(62),sbary(200-25),sb15h,0,SHIELD,0,0,10+16+256);
 
@@ -1275,7 +1275,7 @@ static void G_DrawStatusBar(int32_t snum)
                 G_DrawAltDigiNum(105,-(200-22),lAmount,-16,10+16+256);
             }
 
-            if (getrendermode() >= 3 && althud_shadows)
+            if (getrendermode() >= REND_POLYMOST && althud_shadows)
             {
                 if (p->got_access&1) rotatesprite_fs(sbarxr(39-1),sbary(200-43+1),sb15,0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
                 if (p->got_access&4) rotatesprite_fs(sbarxr(34-1),sbary(200-41+1),sb15,0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
@@ -1288,7 +1288,7 @@ static void G_DrawStatusBar(int32_t snum)
 
             i = (p->curr_weapon == PISTOL_WEAPON) ? 16384 : 32768;
 
-            if (getrendermode() >= 3 && althud_shadows)
+            if (getrendermode() >= REND_POLYMOST && althud_shadows)
                 rotatesprite_fs(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,10+POLYMOSTTRANS2+512);
             rotatesprite_fs(sbarxr(57),sbary(200-15),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512);
 
@@ -1309,12 +1309,12 @@ static void G_DrawStatusBar(int32_t snum)
                 i = ((unsigned)p->inven_icon < ICON_MAX) ? item_icons[p->inven_icon] : -1;
                 if (i >= 0)
                 {
-                    if (getrendermode() >= 3 && althud_shadows)
+                    if (getrendermode() >= REND_POLYMOST && althud_shadows)
                         rotatesprite_fs(sbarx(231-o+1),sbary(200-21-2+1),sb16,0,i,0,4, orient+POLYMOSTTRANS2);
                     rotatesprite_fs(sbarx(231-o),sbary(200-21-2),sb16,0,i,0,0,orient);
                 }
 
-                if (getrendermode() >= 3 && althud_shadows)
+                if (getrendermode() >= REND_POLYMOST && althud_shadows)
                     minitext(292-30-o+1,190-3+1,"%",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                 minitext(292-30-o,190-3,"%",6, orient+ROTATESPRITE_MAX);
 
@@ -1325,20 +1325,20 @@ static void G_DrawStatusBar(int32_t snum)
 
                 if (j > 0)
                 {
-                    if (getrendermode() >= 3 && althud_shadows)
+                    if (getrendermode() >= REND_POLYMOST && althud_shadows)
                         minitext(288-30-o+1,180-3+1,"On",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                     minitext(288-30-o,180-3,"On",0, orient+ROTATESPRITE_MAX);
                 }
                 else if ((uint32_t)j != 0x80000000)
                 {
-                    if (getrendermode() >= 3 && althud_shadows)
+                    if (getrendermode() >= REND_POLYMOST && althud_shadows)
                         minitext(284-30-o+1,180-3+1,"Off",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                     minitext(284-30-o,180-3,"Off",2, orient+ROTATESPRITE_MAX);
                 }
 
                 if (p->inven_icon >= ICON_SCUBA)
                 {
-                    if (getrendermode() >= 3 && althud_shadows)
+                    if (getrendermode() >= REND_POLYMOST && althud_shadows)
                         minitext(284-35-o+1,180-3+1,"Auto",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                     minitext(284-35-o,180-3,"Auto",2, orient+ROTATESPRITE_MAX);
                 }
@@ -1949,7 +1949,7 @@ void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
 {
     setpalettefade(r,g,b,e&63);
 
-//    if (getrendermode() >= 3) pus = pub = NUMPAGES; // JBF 20040110: redraw the status bar next time
+//    if (getrendermode() >= REND_POLYMOST) pus = pub = NUMPAGES; // JBF 20040110: redraw the status bar next time
     if ((e&128) == 0)
     {
         int32_t tc;
@@ -1965,7 +1965,7 @@ void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
 // STEP must evenly divide END-START, i.e. abs(end-start)%step == 0
 void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step)
 {
-    if (getrendermode() >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         G_FadePalette(r, g, b, end);
         return;
@@ -2483,7 +2483,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
     if (ii <= 0) return;
 
-    if (getrendermode() < 3)
+    if (getrendermode() != REND_CLASSIC)
         i = getclosestcol(CrosshairColors.r>>2, CrosshairColors.g>>2, CrosshairColors.b>>2);
     else i = getclosestcol(63, 63, 63); // use white in GL so we can tint it to the right color
 
@@ -2623,7 +2623,7 @@ void G_DisplayRest(int32_t smoothratio)
 
 #ifdef USE_OPENGL
     // this takes care of fullscreen tint for OpenGL
-    if (getrendermode() >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         if (pp->palette == WATERPAL)
         {
@@ -3139,7 +3139,7 @@ void G_DrawBackground(void)
         clearallviews(0);
 
         // when not rendering a game, fullscreen wipe
-#define MENUTILE (!getrendermode()?MENUSCREEN:LOADSCREEN)
+#define MENUTILE (getrendermode() == REND_CLASSIC?MENUSCREEN:LOADSCREEN)
 //        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
         bgtile = (tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE);
         if (G_HaveEvent(EVENT_GETMENUTILE))
@@ -3321,7 +3321,7 @@ static void G_SE40(int32_t smoothratio)
             }
 
 #ifdef POLYMER
-            if (getrendermode() == 4)
+            if (getrendermode() == REND_POLYMER)
                 polymer_setanimatesprites(G_DoSpriteAnimations, ud.camera.x, ud.camera.y, ud.cameraang, smoothratio);
 #endif
 
@@ -3384,7 +3384,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 {
     if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
 #ifdef POLYMER
-        && (getrendermode() != 4)
+        && (getrendermode() != REND_POLYMER)
 #endif
         )
     {
@@ -3436,7 +3436,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
             j = g_visibility;
             g_visibility = (j>>1) + (j>>2);
 
-            if (getrendermode()==0)
+            if (getrendermode() == REND_CLASSIC)
             {
                 int32_t didmirror;
 
@@ -3480,14 +3480,14 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     if (g_networkMode == NET_DEDICATED_SERVER) return;
 
-    if (pub > 0 || getrendermode() >= 3) // JBF 20040101: redraw background always
+    if (pub > 0 || getrendermode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
         if (ud.screen_size >= 8)
             G_DrawBackground();
         pub = 0;
     }
 
-    if (ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && getrendermode() < 3))
+    if (ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && getrendermode() != REND_CLASSIC))
         return;
 
     if (r_usenewaspect)
@@ -3522,7 +3522,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         G_SE40(smoothratio);
 
 #ifdef POLYMER
-        if (getrendermode() == 4)
+        if (getrendermode() == REND_POLYMER)
             polymer_setanimatesprites(G_DoSpriteAnimations, s->x, s->y, ud.cameraang, smoothratio);
 #endif
         yax_preparedrawrooms();
@@ -3538,7 +3538,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         const int32_t vr = divscale22(1,sprite[p->i].yrepeat+28);
         const int32_t software_screen_tilting =
-            (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang && !g_fakeMultiMode) || !ud.detail));
+            (getrendermode() == REND_CLASSIC && ((ud.screen_tilting && p->rotscrnang && !g_fakeMultiMode) || !ud.detail));
 
         if (!r_usenewaspect)
         {
@@ -3558,7 +3558,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             if (waloff[TILE_SAVESHOT] == 0)
                 allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
 
-            if (getrendermode()==0)
+            if (getrendermode() == REND_CLASSIC)
                 setviewtotile(TILE_SAVESHOT, 200, 320);
         }
         else if (software_screen_tilting)
@@ -3622,7 +3622,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             tmpvr = i>>1;
             tmpyx = (65536*ydim*8)/(xdim*5);
         }
-        else if (getrendermode() > 0 && (ud.screen_tilting && !g_fakeMultiMode) /*&& (p->rotscrnang || p->orotscrnang)*/)
+        else if (getrendermode() >= REND_POLYMOST && (ud.screen_tilting && !g_fakeMultiMode) /*&& (p->rotscrnang || p->orotscrnang)*/)
         {
 #ifdef USE_OPENGL
             setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024, smoothratio));
@@ -3743,7 +3743,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             G_SE40(smoothratio);
 
 #ifdef POLYMER
-            if (getrendermode() == 4)
+            if (getrendermode() == REND_POLYMER)
                 polymer_setanimatesprites(G_DoSpriteAnimations, ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
 #endif
             // for G_PrintCoords
@@ -3794,7 +3794,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         {
             g_screenCapture = 0;
 
-            if (getrendermode()==0)
+            if (getrendermode() == REND_CLASSIC)
             {
                 setviewback();
 //                walock[TILE_SAVESHOT] = 1;
@@ -6275,7 +6275,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 continue;
             case CHAIR3__STATIC:
 #ifdef USE_OPENGL
-                if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     t->cstat &= ~4;
                     break;
@@ -6489,7 +6489,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             break;
         case RPG__STATIC:
 #ifdef USE_OPENGL
-            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
+            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
                     !(spriteext[i].flags & SPREXT_NOTMD))
             {
                 int32_t v = getangle(t->xvel, t->zvel>>4);
@@ -6505,7 +6505,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
         case RECON__STATIC:
 #ifdef USE_OPENGL
-            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -6621,7 +6621,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             if (s->owner == -1)
             {
 #ifdef USE_OPENGL
-                if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     k = 0;
                     t->cstat &= ~4;
@@ -6664,7 +6664,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 if (s->owner >= 0 && display_mirror == 0 && g_player[p].ps->over_shoulder_on == 0)
                     if ((!g_netServer && ud.multimode < 2) || ((g_netServer || ud.multimode > 1) && p == screenpeek))
                     {
-                        if (getrendermode() == 4)
+                        if (getrendermode() == REND_POLYMER)
                             t->cstat |= 16384;
                         else
                         {
@@ -6674,7 +6674,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                         }
 
 #ifdef USE_OPENGL
-                        if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                        if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                         {
                             k = 0;
                             t->cstat &= ~4;
@@ -6766,7 +6766,7 @@ PALONLY:
 #endif
 
 #ifdef USE_OPENGL
-            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 k = 0;
                 t->cstat &= ~4;
@@ -6851,7 +6851,7 @@ skip:
                 if (actor[i].flags & SPRITE_NOFLOORSHADOW)
                     continue;
 
-                if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != 4)
+                if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != REND_POLYMER)
                 {
                     int32_t daz;
 
@@ -6885,14 +6885,14 @@ skip:
                         newt->yrepeat = yrep;
                         */
 #ifdef USE_OPENGL
-                        if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
+                        if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
                         {
                             newt->yrepeat = 0;
                             // 512:trans reverse
                             //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
                             newt->cstat |= (512+1024);
                         }
-                        else if (getrendermode() >= 3)
+                        else if (getrendermode() >= REND_POLYMOST)
                         {
                             int32_t ii;
 
@@ -6953,7 +6953,7 @@ skip:
             break;
         case PLAYERONWATER__STATIC:
 #ifdef USE_OPENGL
-            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 k = 0;
                 t->cstat &= ~4;
@@ -7009,7 +7009,7 @@ skip:
         case CAMERA1__STATIC:
         case RAT__STATIC:
 #ifdef USE_OPENGL
-            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -7553,7 +7553,7 @@ void G_HandleLocalKeys(void)
             {
                 if (ud.screen_size > 0)
                     S_PlaySound(THUD);
-                if (getrendermode() >= 3 && ud.screen_size == 8 && ud.statusbarmode == 0)
+                if (getrendermode() >= REND_POLYMOST && ud.screen_size == 8 && ud.statusbarmode == 0)
                     ud.statusbarmode = 1;
                 else ud.screen_size -= 4;
 
@@ -7577,7 +7577,7 @@ void G_HandleLocalKeys(void)
             if (!SHIFTS_IS_PRESSED)
             {
                 if (ud.screen_size < 64) S_PlaySound(THUD);
-                if (getrendermode() >= 3 && ud.screen_size == 8 && ud.statusbarmode == 1)
+                if (getrendermode() >= REND_POLYMOST && ud.screen_size == 8 && ud.statusbarmode == 1)
                     ud.statusbarmode = 0;
                 else ud.screen_size += 4;
             }
@@ -10807,7 +10807,7 @@ MAIN_LOOP_RESTART:
         if (framewaiting)
         {
             framewaiting--;
-            if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || !getrendermode()))
+            if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || getrendermode() == REND_CLASSIC))
             {
                 ud.statusbarmode = 0;
                 G_UpdateScreenArea();
@@ -10831,7 +10831,7 @@ MAIN_LOOP_RESTART:
                 i = 65536;
 
             G_DrawRooms(screenpeek,i);
-            if (getrendermode() >= 3)
+            if (getrendermode() >= REND_POLYMOST)
                 G_DrawBackground();
             G_DisplayRest(i);
 

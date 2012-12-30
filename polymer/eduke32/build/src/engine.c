@@ -683,7 +683,7 @@ static void yax_scanbunches(int32_t bbeg, int32_t numhere, const uint8_t *lastgo
             if (checkthisec)
             {
                 numscans = numbunches = 0;
-                if (getrendermode()==0)
+                if (getrendermode() == REND_CLASSIC)
                     scansector(k);
 #ifdef USE_OPENGL
                 else
@@ -823,14 +823,14 @@ static void yax_copytsprites()
 
 void yax_preparedrawrooms(void)
 {
-    if (getrendermode()==4 || numyaxbunches==0)
+    if (getrendermode() == REND_POLYMER || numyaxbunches==0)
         return;
 
     g_nodraw = 1;
     Bmemset(yax_spritesortcnt, 0, sizeof(yax_spritesortcnt));
     Bmemset(haveymost, 0, (numyaxbunches+7)>>3);
 
-    if (getrendermode()==0 && ymostallocsize < xdimen*numyaxbunches)
+    if (getrendermode() == REND_CLASSIC && ymostallocsize < xdimen*numyaxbunches)
     {
         ymostallocsize = xdimen*numyaxbunches;
         yumost = (int16_t *)Brealloc(yumost, ymostallocsize*sizeof(int16_t));
@@ -864,7 +864,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
     uint64_t t;
 #endif
 
-    if (getrendermode()==4 || numyaxbunches==0)
+    if (getrendermode() == REND_POLYMER || numyaxbunches==0)
     {
 #ifdef ENGINE_SCREENSHOT_DEBUG
         engine_screenshot = 0;
@@ -906,7 +906,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                 j = yax_getbunch(i, cf);
                 if (j >= 0 && !(havebunch[j>>3]&(1<<(j&7))))
                 {
-                    if (getrendermode()==0 && (haveymost[j>>3]&(1<<(j&7)))==0)
+                    if (getrendermode() == REND_CLASSIC && (haveymost[j>>3]&(1<<(j&7)))==0)
                     {
                         yaxdebug("%s, l %d: skipped bunch %d (no *most)", cf?"v":"^", lev, j);
                         continue;
@@ -996,7 +996,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 
     if (editstatus==1)
     {
-        if (getrendermode()==0)
+        if (getrendermode() == REND_CLASSIC)
         {
             begindrawing();
             draw_rainbow_background();
@@ -1097,7 +1097,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 #endif
 
 #ifdef YAX_DEBUG_YMOSTS
-    if (getrendermode()==0 && numyaxbunches>0)
+    if (getrendermode() == REND_CLASSIC && numyaxbunches>0)
     {
         char purple = getclosestcol(63, 0, 63);
         char yellow = getclosestcol(63, 63, 0);
@@ -2390,7 +2390,7 @@ static void setpalettefade_calc(uint8_t offset);
 void fade_screen_black(int32_t moreopaquep)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         fullscreen_tint_gl(0,0,0, moreopaquep ? 168 : 84);
     }
@@ -8510,11 +8510,11 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     {
         // switch on renderers to make fog look almost the same everywhere
 
-    case 0:
+    case REND_CLASSIC:
         globalvisibility = mulscale16(g_visibility,i);
         break;
 #ifdef USE_OPENGL
-    case 3:
+    case REND_POLYMOST:
         // NOTE: In Polymost, the fragment depth depends on the x screen size!
         if (r_usenewshading==2)
             globalvisibility = scale(g_visibility<<2, xdimen, 1680);
@@ -8522,7 +8522,7 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
             globalvisibility = scale(g_visibility<<2, xdimen, 1100);
         break;
 # ifdef POLYMER
-    case 4:
+    case REND_POLYMER:
         globalvisibility = g_visibility<<2;
         break;
 # endif
@@ -8545,7 +8545,7 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     Bmemset(gotsector, 0, ((numsectors+7)>>3));
 
-    if (getrendermode()!=0
+    if (getrendermode() != REND_CLASSIC
 #ifdef YAX_ENABLE
         || yax_globallev==YAX_MAXDRAWS
 #endif
@@ -13470,7 +13470,7 @@ int32_t setaspect_new_use_dimen = 0;
 
 void setaspect_new()
 {
-    if (r_usenewaspect && newaspect_enable && getrendermode()!=4)
+    if (r_usenewaspect && newaspect_enable && getrendermode() != REND_POLYMER)
     {
         // the correction factor 100/107 has been found
         // out experimentally. squares ftw!

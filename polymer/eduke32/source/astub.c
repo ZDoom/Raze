@@ -4162,7 +4162,7 @@ restart:
 
     tilescreen_drawrest(iSelected, showmsg);
 
-    if (getrendermode()>=3 && qsetmode==200 && lazyselector)
+    if (getrendermode() >= REND_POLYMOST && qsetmode==200 && lazyselector)
     {
         if (runi==0)
         {
@@ -10589,7 +10589,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 #ifdef POLYMER
                     if (sprite[i].lotag == 49)
                     {
-                        if (getrendermode() == 4)
+                        if (getrendermode() == REND_POLYMER)
                         {
                             if (spritelightptr[i] == NULL)
                             {
@@ -10622,7 +10622,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     }
                     if (sprite[i].lotag == 50)
                     {
-                        if (getrendermode() == 4)
+                        if (getrendermode() == REND_POLYMER)
                         {
                             if (spritelightptr[i] == NULL)
                             {

@@ -241,7 +241,7 @@ void G_PlayAnim(const char *fn,char t)
     }
 
 #ifdef USE_LIBVPX
-    while (getrendermode() >= 3 && glinfo.glsl)  // if, really
+    while (getrendermode() >= REND_POLYMOST && glinfo.glsl)  // if, really
     {
         char vpxfn[BMAX_PATH], *dot;
         animvpx_ivf_header_t info;

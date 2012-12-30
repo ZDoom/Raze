@@ -1521,7 +1521,7 @@ static void sv_postactordata()
     int32_t i;
 
 #if 0  // POLYMER
-    if (getrendermode() == 4)
+    if (getrendermode() == REND_POLYMER)
         polymer_resetlights();
 #endif
 
@@ -1731,7 +1731,7 @@ int32_t sv_updatestate(int32_t frominit)
     if (frominit)
         postloadplayer(0);
 #ifdef POLYMER
-    if (getrendermode()==4)
+    if (getrendermode() == REND_POLYMER)
         polymer_resetlights();  // must do it after polymer_loadboard() !!!
 #endif
 
@@ -1862,10 +1862,10 @@ static void postloadplayer(int32_t savegamep)
 
 #ifdef POLYMER
     //9
-    if (getrendermode() == 4)
+    if (getrendermode() == REND_POLYMER)
         polymer_loadboard();
 #elif 0
-    if (getrendermode() == 4)
+    if (getrendermode() == REND_POLYMER)
     {
         int32_t i = 0;
 

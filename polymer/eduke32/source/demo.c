@@ -796,7 +796,7 @@ nextdemo_nomenu:
             {
                 framewaiting--;
 #if 0
-                if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || !getrendermode()))
+                if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || getrendermode() == REND_CLASSIC))
                 {
                     ud.statusbarmode = 0;
                     G_UpdateScreenArea();

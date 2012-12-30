@@ -734,7 +734,7 @@ void onvideomodechange(int32_t newmode)
         palid = BASEPAL;
 
 #ifdef POLYMER
-    if (getrendermode() == 4)
+    if (getrendermode() == REND_POLYMER)
     {
         int32_t i = 0;
 

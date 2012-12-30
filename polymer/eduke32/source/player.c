@@ -1970,7 +1970,7 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     }
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= 3 && usemodels && md_tilehasmodel(tilenum,p) >= 0)
+    if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(tilenum,p) >= 0)
         y += (224-weapsc(224));
 #endif
     rotatesprite(weapsc(x<<16) + ((xoff-weapsc(xoff))<<16),
