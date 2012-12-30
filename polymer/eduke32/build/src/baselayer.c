@@ -215,19 +215,27 @@ static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
     int32_t m;
     char *p;
 
-    const char *modestrs[] =
-    {
-        "classic software", "",
-        "", "polygonal OpenGL", "great justice (Polymer)"
-    };
-
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
     m = Bstrtol(parm->parms[0], &p, 10);
 
-    if (m < 0 || m > 4) return OSDCMD_SHOWHELP;
+    if (m < REND_CLASSIC || m > REND_POLYMER) return OSDCMD_SHOWHELP;
 
     setrendermode(m);
-    OSD_Printf("Rendering method changed to %s\n", modestrs[ getrendermode()]);
+
+    switch(getrendermode())
+    {
+    case REND_CLASSIC:
+        p = "classic software";
+        break;
+    case REND_POLYMOST:
+        p = "polygonal OpenGL";
+        break;
+    case REND_POLYMER:
+        p = "great justice (Polymer)";
+        break;
+    }
+
+    OSD_Printf("Rendering method changed to %s\n", p);
 
     return OSDCMD_OK;
 }

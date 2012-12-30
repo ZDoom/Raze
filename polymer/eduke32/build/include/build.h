@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-enum {
+enum rendmode_t {
     REND_CLASSIC,
     REND_POLYMOST = 3,
     REND_POLYMER
@@ -579,7 +579,7 @@ EXTERN int32_t editorzrange[2];
 static inline int32_t getrendermode(void)
 {
 #ifndef USE_OPENGL
-    return 0;
+    return REND_CLASSIC;
 #else
     return rendmode;
 #endif
