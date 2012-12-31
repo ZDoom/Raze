@@ -560,7 +560,9 @@ extern char palfadedelta;
 
 extern int32_t novoxmips;
 
+#ifdef DEBUGGINGAIDS
 extern float debug1, debug2;
+#endif
 
 extern int16_t tiletovox[MAXTILES];
 extern int32_t usevoxels, voxscale[MAXVOXELS];

@@ -62,7 +62,9 @@ const int32_t engine_v8 = 1;
 const int32_t engine_v8 = 0;
 #endif
 
+#ifdef DEBUGGINGAIDS
 float debug1, debug2;
+#endif
 
 static void drawpixel_safe(void *s, char a)
 {
