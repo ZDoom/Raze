@@ -133,7 +133,7 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
     if ((osdflags & OSD_INITIALIZED) == 0)
         OSD_Init();
 
-    if (!cvar->name || !cvar->name[0] || !cvar->var)
+    if (!cvar->name || !cvar->name[0] || !cvar->vptr)
     {
         OSD_Printf("OSD_RegisterCvar(): can't register null cvar\n");
         return -1;
@@ -165,16 +165,16 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
     {
     case CVAR_BOOL:
     case CVAR_INT:
-        cvars[osdnumcvars].dval.i = *(int32_t *)cvar->var;
+        cvars[osdnumcvars].dval.i = *(int32_t *)cvar->vptr;
         break;
     case CVAR_UINT:
-        cvars[osdnumcvars].dval.uint = *(uint32_t *)cvar->var;
+        cvars[osdnumcvars].dval.uint = *(uint32_t *)cvar->vptr;
         break;
     case CVAR_FLOAT:
-        cvars[osdnumcvars].dval.f = *(float *)cvar->var;
+        cvars[osdnumcvars].dval.f = *(float *)cvar->vptr;
         break;
     case CVAR_DOUBLE:
-        cvars[osdnumcvars].dval.d = *(double *)cvar->var;
+        cvars[osdnumcvars].dval.d = *(double *)cvar->vptr;
         break;
     }
 
@@ -188,23 +188,23 @@ static int32_t OSD_CvarModified(const osdcvar_t *cvar)
     if ((osdflags & OSD_INITIALIZED) == 0)
         return 0;
 
-    if (!cvar->var)
+    if (!cvar->c.vptr)
     {
         OSD_Printf("OSD_CvarModified(): null cvar?!\n");
         return 0;
     }
 
-    switch (cvar->type & (CVAR_BOOL|CVAR_INT|CVAR_UINT|CVAR_FLOAT|CVAR_DOUBLE))
+    switch (cvar->c.type & (CVAR_BOOL|CVAR_INT|CVAR_UINT|CVAR_FLOAT|CVAR_DOUBLE))
     {
     case CVAR_BOOL:
     case CVAR_INT:
-        return (cvar->dval.i != *(int32_t *)cvar->var);
+        return (cvar->dval.i != *(int32_t *)cvar->c.vptr);
     case CVAR_UINT:
-        return (cvar->dval.uint != *(uint32_t *)cvar->var);
+        return (cvar->dval.uint != *(uint32_t *)cvar->c.vptr);
     case CVAR_FLOAT:
-        return (cvar->dval.f != *(float *)cvar->var);
+        return (cvar->dval.f != *(float *)cvar->c.vptr);
     case CVAR_DOUBLE:
-        return (cvar->dval.d != *(double *)cvar->var);
+        return (cvar->dval.d != *(double *)cvar->c.vptr);
     default:
         return 0;
     }
@@ -710,15 +710,15 @@ static int32_t _internal_osdfunc_toggle(const osdfuncparm_t *parm)
 
     if (i == -1)
         for (i = osdnumcvars-1; i >= 0; i--)
-            if (!Bstrcasecmp(parm->parms[0], cvars[i].name)) break;
+            if (!Bstrcasecmp(parm->parms[0], cvars[i].c.name)) break;
 
-    if (i == -1 || (cvars[i].type & CVAR_BOOL) != CVAR_BOOL)
+    if (i == -1 || (cvars[i].c.type & CVAR_BOOL) != CVAR_BOOL)
     {
         OSD_Printf("Bad cvar name or cvar not boolean\n");
         return OSDCMD_OK;
     }
 
-    *(int32_t *)cvars[i].var = 1 - *(int32_t *)cvars[i].var;
+    *(int32_t *)cvars[i].c.vptr = 1 - *(int32_t *)cvars[i].c.vptr;
     return OSDCMD_OK;
 }
 
@@ -2005,38 +2005,38 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
 
     if (i < 0)
         for (i = osdnumcvars-1; i >= 0; i--)
-            if (!Bstrcasecmp(parm->name, cvars[i].name)) break;
+            if (!Bstrcasecmp(parm->name, cvars[i].c.name)) break;
 
     if (i > -1)
     {
-        if (cvars[i].type & CVAR_LOCKED)
+        if (cvars[i].c.type & CVAR_LOCKED)
         {
             // sound the alarm
-            OSD_Printf("Cvar \"%s\" is read only.\n",cvars[i].name);
+            OSD_Printf("Cvar \"%s\" is read only.\n",cvars[i].c.name);
             return OSDCMD_OK;
         }
 
-        switch (cvars[i].type&(CVAR_FLOAT|CVAR_DOUBLE|CVAR_INT|CVAR_UINT|CVAR_BOOL|CVAR_STRING))
+        switch (cvars[i].c.type&(CVAR_FLOAT|CVAR_DOUBLE|CVAR_INT|CVAR_UINT|CVAR_BOOL|CVAR_STRING))
         {
         case CVAR_FLOAT:
         {
             float val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(float *)cvars[i].var,(char *)cvars[i].desc);
+                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].c.name,*(float *)cvars[i].c.vptr,(char *)cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
             sscanf(parm->parms[0], "%f", &val);
 
-            if (val < cvars[i].min || val > cvars[i].max)
+            if (val < cvars[i].c.min || val > cvars[i].c.max)
             {
-                OSD_Printf("%s value out of range\n",cvars[i].name);
+                OSD_Printf("%s value out of range\n",cvars[i].c.name);
                 return OSDCMD_OK;
             }
-            *(float *)cvars[i].var = val;
+            *(float *)cvars[i].c.vptr = val;
             if (!OSD_ParsingScript())
-                OSD_Printf("%s %f",cvars[i].name,val);
+                OSD_Printf("%s %f",cvars[i].c.name,val);
         }
         break;
         case CVAR_DOUBLE:
@@ -2044,20 +2044,20 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             double val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(double *)cvars[i].var,(char *)cvars[i].desc);
+                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].c.name,*(double *)cvars[i].c.vptr,(char *)cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
             sscanf(parm->parms[0], "%lf", &val);
 
-            if (val < cvars[i].min || val > cvars[i].max)
+            if (val < cvars[i].c.min || val > cvars[i].c.max)
             {
-                OSD_Printf("%s value out of range\n",cvars[i].name);
+                OSD_Printf("%s value out of range\n",cvars[i].c.name);
                 return OSDCMD_OK;
             }
-            *(double *)cvars[i].var = val;
+            *(double *)cvars[i].c.vptr = val;
             if (!OSD_ParsingScript())
-                OSD_Printf("%s %f",cvars[i].name,val);
+                OSD_Printf("%s %f",cvars[i].c.name,val);
         }
         break;
         case CVAR_INT:
@@ -2067,35 +2067,35 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             int32_t val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].name,*(int32_t *)cvars[i].var,(char *)cvars[i].desc);
+                OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].c.name,*(int32_t *)cvars[i].c.vptr,(char *)cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
             val = Batoi(parm->parms[0]);
-            if (cvars[i].type & CVAR_BOOL) val = val != 0;
+            if (cvars[i].c.type & CVAR_BOOL) val = val != 0;
 
-            if (val < cvars[i].min || val > cvars[i].max)
+            if (val < cvars[i].c.min || val > cvars[i].c.max)
             {
-                OSD_Printf("%s value out of range\n",cvars[i].name);
+                OSD_Printf("%s value out of range\n",cvars[i].c.name);
                 return OSDCMD_OK;
             }
-            *(int32_t *)cvars[i].var = val;
+            *(int32_t *)cvars[i].c.vptr = val;
             if (!OSD_ParsingScript())
-                OSD_Printf("%s %d",cvars[i].name,val);
+                OSD_Printf("%s %d",cvars[i].c.name,val);
         }
         break;
         case CVAR_STRING:
         {
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].name,(char *)cvars[i].var,(char *)cvars[i].desc);
+                OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].c.name,(char *)cvars[i].c.vptr,(char *)cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
-            Bstrncpy((char *)cvars[i].var, parm->parms[0], cvars[i].max-1);
-            ((char *)cvars[i].var)[cvars[i].max-1] = 0;
+            Bstrncpy((char *)cvars[i].c.vptr, parm->parms[0], cvars[i].c.max-1);
+            ((char *)cvars[i].c.vptr)[cvars[i].c.max-1] = 0;
             if (!OSD_ParsingScript())
-                OSD_Printf("%s %s",cvars[i].name,(char *)cvars[i].var);
+                OSD_Printf("%s %s",cvars[i].c.name,(char *)cvars[i].c.vptr);
         }
         break;
         default:
@@ -2118,22 +2118,22 @@ void OSD_WriteCvars(FILE *fp)
 
     for (i=0; i<osdnumcvars; i++)
     {
-        if (!(cvars[i].type & CVAR_NOSAVE) && OSD_CvarModified(&cvars[i]))
-            switch (cvars[i].type&(CVAR_FLOAT|CVAR_DOUBLE|CVAR_INT|CVAR_UINT|CVAR_BOOL|CVAR_STRING))
+        if (!(cvars[i].c.type & CVAR_NOSAVE) && OSD_CvarModified(&cvars[i]))
+            switch (cvars[i].c.type&(CVAR_FLOAT|CVAR_DOUBLE|CVAR_INT|CVAR_UINT|CVAR_BOOL|CVAR_STRING))
             {
             case CVAR_FLOAT:
-                fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(float *)cvars[i].var);
+                fprintf(fp,"%s \"%f\"\n",cvars[i].c.name,*(float *)cvars[i].c.vptr);
                 break;
             case CVAR_DOUBLE:
-                fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(double *)cvars[i].var);
+                fprintf(fp,"%s \"%f\"\n",cvars[i].c.name,*(double *)cvars[i].c.vptr);
                 break;
             case CVAR_INT:
             case CVAR_UINT:
             case CVAR_BOOL:
-                fprintf(fp,"%s \"%d\"\n",cvars[i].name,*(int32_t *)cvars[i].var);
+                fprintf(fp,"%s \"%d\"\n",cvars[i].c.name,*(int32_t *)cvars[i].c.vptr);
                 break;
             case CVAR_STRING:
-                fprintf(fp,"%s \"%s\"\n",cvars[i].name,(char *)cvars[i].var);
+                fprintf(fp,"%s \"%s\"\n",cvars[i].c.name,(char *)cvars[i].c.vptr);
                 break;
             default:
                 break;
