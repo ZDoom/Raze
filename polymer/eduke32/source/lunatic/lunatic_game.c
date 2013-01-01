@@ -31,8 +31,8 @@ double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES];
 
 
 // forward-decls...
-static int32_t SetEvent_luacf(lua_State *L);
-static int32_t SetActor_luacf(lua_State *L);
+static int32_t SetEvent_CF(lua_State *L);
+static int32_t SetActor_CF(lua_State *L);
 
 // in lpeg.o
 extern int luaopen_lpeg(lua_State *L);
@@ -171,6 +171,12 @@ static void El_OnError(const char *str)
     }
 }
 
+static void El_OnOutOfMem(void)
+{
+    extern void G_GameExit(const char *msg);
+    G_GameExit("Out of memory in Lunatic.");
+}
+
 void El_ClearErrors(void)
 {
     int32_t i;
@@ -194,27 +200,48 @@ void El_DisplayErrors(void)
 
 ////////// STATE CREATION/DESTRUCTIION //////////
 
+static int our_traceback_CF(lua_State *L)
+{
+    Bassert(lua_gettop(L)==1);
+
+    if (lua_type(L, 1)==LUA_TBOOLEAN)
+    {
+        lua_pushvalue(L, 1);  // duplicate it
+        return 1;  // and tell Lua to return it
+    }
+
+    Bassert(lua_type(L, 1)==LUA_TSTRING);
+
+    // call debug.traceback with the string
+    L_PushDebugTraceback(L);
+    lua_pushvalue(L, 1);
+    lua_call(L, 1, 1);
+    Bassert(lua_gettop(L)==2);  // Lua will pop off args
+
+    return 1;
+}
+
 static void El_StateSetup(lua_State *L)
 {
-    luaL_openlibs(L);  // NOTE: we set up the sandbox in defs.ilua
     luaopen_lpeg(L);
     lua_pop(L, lua_gettop(L));  // pop off whatever lpeg leaves on the stack
 
-    L_SetupDebugTraceback(L);
-
     // create misc. global functions in the Lua state
-    lua_pushcfunction(L, SetEvent_luacf);
+    lua_pushcfunction(L, SetEvent_CF);
     lua_setglobal(L, "gameevent_internal");
-    lua_pushcfunction(L, SetActor_luacf);
+    lua_pushcfunction(L, SetActor_CF);
     lua_setglobal(L, "gameactor_internal");
 
     Bassert(lua_gettop(L)==0);
+
+    lua_pushcfunction(L, &our_traceback_CF);
 }
 
 // 0: success, <0: failure
 int32_t El_CreateState(L_State *estate, const char *name)
 {
     L_ErrorFunc = El_OnError;
+    L_OutOfMemFunc = El_OnOutOfMem;
 
     return L_CreateState(estate, name, &El_StateSetup);
 }
@@ -228,7 +255,7 @@ void El_DestroyState(L_State *estate)
 ////////// Lua_CFunctions //////////
 
 // gameevent(EVENT_..., lua_function)
-static int32_t SetEvent_luacf(lua_State *L)
+static int32_t SetEvent_CF(lua_State *L)
 {
     int32_t eventidx;
 
@@ -243,7 +270,7 @@ static int32_t SetEvent_luacf(lua_State *L)
 }
 
 // gameactor(actortile, strength, act, mov, movflags, lua_function)
-static int32_t SetActor_luacf(lua_State *L)
+static int32_t SetActor_CF(lua_State *L)
 {
     int32_t actortile, strength, movflags;
     const con_action_t *act;
@@ -281,8 +308,8 @@ static int32_t call_regd_function3(lua_State *L, void *keyaddr,
                                    int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
     int32_t i;
-#ifdef DEBUGGINGAIDS
-    L_PushDebugTraceback(L);
+#if !defined NDEBUG
+    int32_t top = lua_gettop(L);
 #endif
     // get the Lua function from the registry
     lua_pushlightuserdata(L, keyaddr);
@@ -293,20 +320,22 @@ static int32_t call_regd_function3(lua_State *L, void *keyaddr,
     lua_pushinteger(L, lDist);
 
     // -- call it! --
-
 #ifdef DEBUGGINGAIDS
     i = lua_pcall(L, 3, 0, 1);
 #else
     i = lua_pcall(L, 3, 0, 0);
 #endif
 
-    if (i == LUA_ERRMEM)
-    {
-        lua_pop(L, 1);
-        // XXX: should be more sophisticated.  Clean up stack? Do GC?
-    }
+    Bassert(lua_gettop(L) == top+(i!=0));
 
     return i;
+}
+
+static int32_t g_eventIdx = 0;
+static void El_EventErrorPrint(const char *errmsg)
+{
+    OSD_Printf(OSD_ERROR "event \"%s\" runtime error: %s\n",
+               EventNames[g_eventIdx], errmsg);
 }
 
 int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist)
@@ -321,27 +350,20 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
     i = call_regd_function3(L, &g_elEvents[eventidx], iActor, iPlayer, lDist);
     g_elCallDepth--;
 
-    if (i == LUA_ERRRUN)
+    if (i != 0)
     {
-        const char *errstr;
-
-        if (lua_isboolean(L, -1))
-        {
-            lua_pop(L, 1);
-            return 0;
-        }
-
-        errstr = lua_tostring(L, -1);
-        Bassert(lua_type(L, -1)==LUA_TSTRING);
-        OSD_Printf(OSD_ERROR "event \"%s\" (state \"%s\") runtime error: %s\n",
-                   EventNames[eventidx], estate->name, errstr);
-        if (L_ErrorFunc)
-            L_ErrorFunc(errstr);
-        lua_pop(L, 1);
-        return -1;
+        g_eventIdx = eventidx;
+        return L_HandleError(L, i, &El_EventErrorPrint);
     }
 
     return 0;
+}
+
+static int32_t g_actorTile, g_iActor;
+static void El_ActorErrorPrint(const char *errmsg)
+{
+    OSD_Printf(OSD_ERROR "actor %d (sprite %d) runtime error: %s\n",
+               g_actorTile, g_iActor, errmsg);
 }
 
 int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t iPlayer, int32_t lDist)
@@ -353,25 +375,11 @@ int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t
     i = call_regd_function3(L, &g_elActors[actortile], iActor, iPlayer, lDist);
     g_elCallDepth--;
 
-    if (i == LUA_ERRRUN)
+    if (i != 0)
     {
-        const char *errstr;
-
-        if (lua_isboolean(L, -1))
-        {
-            int32_t killit = lua_toboolean(L, -1);
-            lua_pop(L, 1);
-            return killit;
-        }
-
-        Bassert(lua_type(L, -1)==LUA_TSTRING);
-        errstr = lua_tostring(L, -1);
-        OSD_Printf(OSD_ERROR "actor %d (sprite %d, state \"%s\") runtime error: %s\n",
-                   actortile, iActor, estate->name, errstr);
-        if (L_ErrorFunc)
-            L_ErrorFunc(errstr);
-        lua_pop(L, 1);
-        return -1;
+        g_actorTile = actortile;
+        g_iActor = iActor;
+        return L_HandleError(L, i, &El_ActorErrorPrint);
     }
 
     return 0;

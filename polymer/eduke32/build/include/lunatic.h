@@ -16,12 +16,14 @@ typedef struct
 // -- functions --
 
 // helpers taking the lua_State directly:
-void L_SetupDebugTraceback(lua_State *L);
 void L_PushDebugTraceback(lua_State *L);
 void L_CheckAndRegisterFunction(lua_State *L, void *regkeyaddr);
+int L_HandleError(lua_State *L, int errcode, void (*ErrorPrintFunc)(const char *));
 
 // Callback on Lua error. <str> must be used immediately or strdup'd.
 void (*L_ErrorFunc)(const char *str);
+// Out-of-memory handler, supposed to terminate the host program.
+void (*L_OutOfMemFunc)(void);
 
 int L_CreateState(L_State *estate, const char *name, void (*StateSetupFunc)(lua_State *));
 void L_DestroyState(L_State *estate);

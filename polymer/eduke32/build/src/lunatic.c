@@ -25,7 +25,7 @@ void L_CheckAndRegisterFunction(lua_State *L, void *regkeyaddr)
     lua_settable(L, LUA_REGISTRYINDEX);  // "registry[regkeyaddr] = <lua function>", pop 2
 }
 
-void L_SetupDebugTraceback(lua_State *L)
+static void L_SetupDebugTraceback(lua_State *L)
 {
     // get debug.traceback
     lua_getglobal(L, "debug");
@@ -103,7 +103,17 @@ int L_CreateState(L_State *estate, const char *name, void (*StateSetupFunc)(lua_
         return -2;
     }
 
-    StateSetupFunc(L);
+    luaL_openlibs(L);
+    L_SetupDebugTraceback(L);
+    if (StateSetupFunc)
+        StateSetupFunc(L);
+
+    if (lua_gettop(L)==0)
+        L_PushDebugTraceback(L);
+    // Otherwise, it is assumed that StateSetupFunc pushed a custom traceback
+    // function onto the stack.
+
+    Bassert(lua_gettop(L)==1);
 
     return 0;
 }
@@ -120,7 +130,55 @@ void L_DestroyState(L_State *estate)
     estate->L = NULL;
 }
 
+static void L_OnOutOfMem(void)
+{
+    extern void uninitengine(void);
+    OSD_Printf("Out of memory in Lunatic.\n");
+    uninitengine();
+    exit(127);
+}
+
 void (*L_ErrorFunc)(const char *) = NULL;
+void (*L_OutOfMemFunc)(void) = L_OnOutOfMem;
+
+int L_HandleError(lua_State *L, int errcode, void (*ErrorPrintFunc)(const char *))
+{
+    if (errcode == LUA_ERRMEM)
+        L_OutOfMemFunc();
+
+    if (errcode == LUA_ERRRUN || errcode == LUA_ERRERR)
+    {
+        if (lua_isboolean(L, -1))
+        {
+            int32_t killit = lua_toboolean(L, -1);
+            lua_pop(L, 1);
+            return killit;
+        }
+        else
+        {
+            const char *errstr = (lua_type(L, -1)==LUA_TSTRING) ?
+                lua_tostring(L, -1) : "??? (error message not a string)";
+
+            ErrorPrintFunc(errstr);
+            if (L_ErrorFunc)
+                L_ErrorFunc(errstr);
+            lua_pop(L, 1);
+            return -1;
+        }
+    }
+
+    /* unreachable */
+#ifdef NDEBUG
+    return 0;
+#else
+    Bassert(0);
+#endif
+}
+
+static void L_ErrorPrint(const char *errmsg)
+{
+    OSD_Printf(OSD_ERROR "runtime error: %s\n", errmsg);
+}
 
 int L_RunString(L_State *estate, char *buf, int dofreebuf)
 {
@@ -128,9 +186,7 @@ int L_RunString(L_State *estate, char *buf, int dofreebuf)
     lua_State *L = estate->L;
 
     // -- lua --
-    Bassert(lua_gettop(L)==0);
-
-    L_PushDebugTraceback(L);
+    Bassert(lua_gettop(L)==1);  // on top: a traceback function
 
     i = luaL_loadstring(L, buf);
     Bassert(lua_gettop(L)==2);
@@ -138,47 +194,26 @@ int L_RunString(L_State *estate, char *buf, int dofreebuf)
         Bfree(buf);
 
     if (i == LUA_ERRMEM)
-    {
-        lua_pop(L, 2);
-        return -1;
-    }
+        L_OutOfMemFunc();
 
     if (i == LUA_ERRSYNTAX)
     {
         OSD_Printf(OSD_ERROR "state \"%s\" syntax error: %s\n", estate->name,
                    lua_tostring(L, -1));  // get err msg
-        lua_pop(L, 2);  // pop errmsg and debug.traceback
+        lua_pop(L, 1);  // pop errmsg
         return 3;
     }
 
-    // -- call the lua chunk! --
+    // call the lua chunk!
+    i = lua_pcall(L, 0, 0, 1);
+    Bassert(lua_gettop(L) == 1 + (i!=0));
 
-    i = lua_pcall(L, 0, 0, -2);
-    Bassert(lua_gettop(L) == 1+!!i);
-    Bassert(i != LUA_ERRERR);  // we expect debug.traceback not to fail
+    if (i != 0)
+        L_HandleError(L, i, &L_ErrorPrint);
 
-    if (i == LUA_ERRMEM)  // XXX: should be more sophisticated.  Clean up stack? Do GC?
-    {
-        lua_pop(L, 2);
-        return -1;
-    }
+    Bassert(lua_gettop(L)==1);
 
-    if (i == LUA_ERRRUN)
-    {
-        // get error message if possible
-        const char *errstr = (lua_type(L, -1)==LUA_TSTRING) ?
-            lua_tostring(L, -1) : "??? (errmsg not a string)";
-
-        OSD_Printf(OSD_ERROR "state \"%s\" runtime error: %s\n", estate->name, errstr);
-        if (L_ErrorFunc)
-            L_ErrorFunc(errstr);
-        lua_pop(L, 2);  // pop errmsg and debug.traceback
-        return 4;
-    }
-
-    lua_pop(L, 1);
-
-    return 0;
+    return i ? 4 : 0;
 }
 
 // -1: alloc failure
