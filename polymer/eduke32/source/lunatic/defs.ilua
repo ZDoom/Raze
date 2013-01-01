@@ -484,6 +484,7 @@ int32_t kread(int32_t handle, void *buffer, int32_t leng);
 
 const char *G_ConFile(void);
 void G_DoGameStartup(const int32_t *params);
+int32_t C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5]);
 ]]
 
 

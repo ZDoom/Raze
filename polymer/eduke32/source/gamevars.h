@@ -105,7 +105,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id);
 void __fastcall Gv_SetVarX(register int32_t id,register int32_t lValue);
 
 #ifdef LUNATIC_ONLY
-# define Gv_GetVarByLabel(szGameLabel, lDefault, iActor, iPlayer) (-1)
+# define Gv_GetVarByLabel(szGameLabel, lDefault, iActor, iPlayer) (lDefault)
 #else
 int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t lDefault,int32_t iActor,int32_t iPlayer);
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);

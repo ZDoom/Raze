@@ -65,6 +65,7 @@ kread;
 
 G_ConFile;
 G_DoGameStartup;
+C_DefineSound;
 
 actor;
 ud;

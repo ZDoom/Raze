@@ -2052,6 +2052,7 @@ static void C_Include(const char *confile)
 
     Bfree(mptr);
 }
+#endif  // !defined LUNATIC_ONLY
 
 #ifdef _WIN32
 static void check_filename_case(const char *fn)
@@ -2063,8 +2064,6 @@ static void check_filename_case(const char *fn)
 #else
 static void check_filename_case(const char *fn) { UNREFERENCED_PARAMETER(fn); }
 #endif
-
-#endif  // !defined LUNATIC_ONLY
 
 void G_DoGameStartup(const int32_t *params)
 {
@@ -2106,6 +2105,30 @@ void G_DoGameStartup(const int32_t *params)
         g_tripbombLaserMode = params[j++];
     }
 }
+
+#ifdef LUNATIC
+void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
+{
+    Bassert((unsigned)sndidx < MAXSOUNDS);
+
+    {
+        sound_t *const snd = &g_sounds[sndidx];
+
+        Bfree(snd->filename);
+        snd->filename = dup_filename(fn);
+        check_filename_case(snd->filename);
+
+        snd->ps = args[0];
+        snd->pe = args[1];
+        snd->pr = args[2];
+        snd->m = args[3];
+        snd->vo = args[4];
+
+        if (sndidx > g_maxSoundPos)
+            g_maxSoundPos = sndidx;
+    }
+}
+#endif
 
 #if !defined LUNATIC_ONLY
 static int32_t C_ParseCommand(int32_t loop)

@@ -256,11 +256,11 @@ ivec3_ = ffi.metatype("vec3_t", ivec3_mt)
 local sectortype_mt = {
     __index = {
         ceilingzat = function(s, pos)
-            return ffiC.getceilzofslope(s, pos.x, pos.y)
+            return ffiC.getceilzofslopeptr(s, pos.x, pos.y)
         end,
 
         floorzat = function(s, pos)
-            return ffiC.getflorzofslope(s, pos.x, pos.y)
+            return ffiC.getflorzofslopeptr(s, pos.x, pos.y)
         end,
     }
 }
@@ -300,7 +300,12 @@ spritetype_mt = {
                 error("attempt to set invalid picnum "..tilenum, 2)
             end
             ffi.cast(spritetype_ptr_ct, s).picnum = tilenum
-        end
+        end,
+
+        set_yvel = function(s, yvel)
+            -- XXX: for now, no checking
+            ffi.cast(spritetype_ptr_ct, s).yvel = yvel
+        end,
     },
 }
 -- The user of this module can insert additional "spritetype" metamethods and

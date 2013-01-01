@@ -24,9 +24,13 @@ local unpack = unpack
 -- non-nil if running from EDuke32
 -- (read_into_string~=nil  iff  string.dump==nil)
 local read_into_string = read_into_string
+local ffi, ffiC
 
 if (string.dump) then
     require("strict")
+else
+    ffi = require("ffi")
+    ffiC = ffi.C
 end
 
 
@@ -511,12 +515,9 @@ local function cmd_gamestartup(...)
         return
     end
 
-    if (string.dump == nil) then
+    if (ffi) then
         -- running from EDuke32
-        local ffi = require("ffi")
-        local ffiC = ffi.C
-
-        if (args == 30) then
+        if (#args == 30) then
             ffiC.g_scriptVersion = 14
         end
         local params = ffi.new("int32_t [30]", args)
@@ -527,12 +528,17 @@ local function cmd_gamestartup(...)
 end
 
 local function cmd_definesound(sndnum, fn, ...)
-    if (sndnum < 0 or sndnum >= conl.MAXSOUNDS) then
+    if (sndnum >= conl.MAXSOUNDS+0ULL) then
         errprintf("sound number is or exceeds sound limit of %d", conl.MAXSOUNDS)
         return
     end
 
     local params = {...}  -- TODO: sanity-check them
+    if (ffi) then
+        local cparams = ffi.new("int32_t [5]", params)
+        assert(type(fn)=="string")
+        ffiC.C_DefineSound(sndnum, fn, cparams)
+    end
 
     g_data.sound[sndnum] = { fn=fn, params=params }
 end
@@ -880,7 +886,7 @@ local Ci = {
     spritepal = cmd(D),
 
     hitradius = cmd(D,D,D,D,D)
-        / "_con._A_RadiusDamage(%1,%2,%3,%4,%5)",
+        / "_con._A_RadiusDamage(_aci,%1,%2,%3,%4,%5)",
     hitradiusvar = cmd(R,R,R,R,R),
 
     -- some commands taking read vars
@@ -1230,7 +1236,7 @@ local Cif = {
     ifinouterspace = cmd()
         / format("_con._checkspace(%s,true)", SPS".sectnum"),
     ifhitweapon = cmd()
-        / "_con._A_IncurDamage(_aci)",
+        / "_con._A_IncurDamage(_aci)>=0",
     ifhitspace = cmd()
         / "_con._testkey(_pli,29)",  -- XXX
     ifdead = cmd()

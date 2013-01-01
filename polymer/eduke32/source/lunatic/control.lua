@@ -21,6 +21,7 @@ local inside = dc.inside
 local sector, wall, sprite = dc.sector, dc.wall, dc.sprite
 local spritesofsect = dc.spritesofsect
 
+
 module(...)
 
 
@@ -161,12 +162,12 @@ function insertsprite(tab_or_tilenum, ...)
         tilenum, pos, sectnum = unpack(tab, 1, 3)
         owner = tab[4] or tab.owner or -1
         statnum = tab[5] or tab.statnum or 0
-        shade = shade and tab.shade
-        xrepeat = xrepeat and tab.xrepeat
-        yrepeat = yrepeat and tab.yrepeat
-        ang = ang and (tab.ang % 2048)
-        xvel = xvel and tab.xvel
-        zvel = zvel and tab.zvel
+        shade = tab.shade or shade
+        xrepeat = tab.xrepeat or xrepeat
+        yrepeat = tab.yrepeat or yrepeat
+        ang = tab.ang or ang
+        xvel = tab.xvel or xvel
+        zvel = tab.zvel or zvel
     else
         tilenum = tab_or_tilenum
         local args = {...}
@@ -311,7 +312,7 @@ function _A_DoGuts(i, gutstile, n)
     local smallguts = spr.xrepeat < 16 and spr:isenemy()
     local xsz = smallguts and 8 or 32
     local ysz = xsz
-    local z = math.min(spr, sector[spr.sectnum]:floorzat(spr)) - 8*256
+    local z = math.min(spr.z, sector[spr.sectnum]:floorzat(spr)) - 8*256
 
     if (spr.picnum == D.COMMANDER) then
         z = z - (24*256)
@@ -346,7 +347,7 @@ function _debris(i, dtile, n)
                                  shade=spr.shade, xrepeat=32+krandand(15), yrepeat=32+krandand(15),
                                  ang=krandand(2047), xvel=32+krandand(127), zvel=-krandand(2047) }
         -- NOTE: BlimpSpawnSprites[14] (its array size if 15) will never be chosen
-        sprite[jj].yvel = isblimpscrap and ffiC.BlimpSpawnSprites[math.mod(jj, 14)] or -1
+        sprite[jj]:set_yvel(isblimpscrap and ffiC.BlimpSpawnSprites[math.mod(jj, 14)] or -1)
         sprite[jj].pal = spr.pal
     end
 end
@@ -498,7 +499,7 @@ function _testkey(pli, synckey)
     if (synckey >= 32ULL) then
         error("Invalid argument #2 to _testkey: must be in [0..31]", 2)
     end
-    local bits = ffiC.player[pli].sync.bits
+    local bits = ffiC.g_player[pli].sync.bits
     return (bit.band(bits, bit.lshift(1,synckey)) ~= 0)
 end
 
@@ -568,7 +569,7 @@ local BANG2RAD = math.pi/1024
 
 local function cossinb(bang)
     -- XXX: better use the precalc'd arrays instead?
-    local ang = BANG2RAD*(bang)
+    local ang = BANG2RAD*bang
     return 16384*math.cos(ang), 16384*math.sin(ang)
 end
 
@@ -681,7 +682,7 @@ function _canshoottarget(dist, aci)
 
         for i=1,3 do
             if (i > 1) then
-                hitspr, hitdist = A_CheckHitSprite(aci, angdifs[i])
+                hitspr, hitdist = A_CheckHitSprite(spr, angdifs[i])
             end
 
             if (hitspr >= 0 and sprite[hitspr].picnum == spr.picnum) then
