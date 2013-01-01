@@ -1563,8 +1563,7 @@ static void sv_quoteload()
     {
         if (savegame_quotedef[i>>3]&(1<<(i&7)))
         {
-            if (!ScriptQuotes[i])
-                ScriptQuotes[i] = (char *)Bcalloc(1, MAXQUOTELEN);
+            C_AllocQuote(i);
             Bmemcpy(ScriptQuotes[i], savegame_quotes[i], MAXQUOTELEN);
         }
     }

@@ -7994,10 +7994,10 @@ FAKE_F3:
         {
             KB_ClearKeyDown(sc_F5);
             if (MapInfo[g_musicIndex].alt_musicfn != NULL)
-                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],&MapInfo[g_musicIndex].alt_musicfn[0]);
+                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],MapInfo[g_musicIndex].alt_musicfn);
             else if (MapInfo[g_musicIndex].musicfn != NULL)
             {
-                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],&MapInfo[g_musicIndex].musicfn[0]);
+                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],MapInfo[g_musicIndex].musicfn);
                 Bstrcat(ScriptQuotes[QUOTE_MUSIC],".  Use SHIFT-F5 to change.");
             }
             else ScriptQuotes[QUOTE_MUSIC][0] = '\0';
@@ -10550,6 +10550,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if (i)
         G_GameExit("Failure setting up Lunatic!");
+    C_InitQuotes();
 #endif
 
     if (g_networkMode != NET_DEDICATED_SERVER)

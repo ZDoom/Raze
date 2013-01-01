@@ -96,6 +96,9 @@ extern const memberlabel_t userdeflabels[];
 extern const memberlabel_t InputLabels[];
 extern const memberlabel_t TsprLabels[];
 
+int32_t C_AllocQuote(int32_t qnum);
+void C_InitQuotes(void);
+
 void C_ReportError(int32_t iError);
 #if !defined LUNATIC_ONLY
 void C_Compile(const char *filenam);
