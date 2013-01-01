@@ -381,19 +381,26 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
 
 static void Proj_MaybeSpawn(int32_t k, int32_t atwith, const hitdata_t *hit)
 {
-    if (ProjectileData[atwith].spawns >= 0)
-    {
-        int32_t wh = A_Spawn(k,ProjectileData[atwith].spawns);
+    // atwith < 0 is for hard-coded projectiles
+    int32_t spawntile = atwith < 0 ? -atwith : ProjectileData[atwith].spawns;
 
-        if (ProjectileData[atwith].sxrepeat > 4)
-            sprite[wh].xrepeat = ProjectileData[atwith].sxrepeat;
-        if (ProjectileData[atwith].syrepeat > 4)
-            sprite[wh].yrepeat = ProjectileData[atwith].syrepeat;
+    if (spawntile >= 0)
+    {
+        int32_t wh = A_Spawn(k, spawntile);
+
+        if (atwith >= 0)
+        {
+            if (ProjectileData[atwith].sxrepeat > 4)
+                sprite[wh].xrepeat = ProjectileData[atwith].sxrepeat;
+            if (ProjectileData[atwith].syrepeat > 4)
+                sprite[wh].yrepeat = ProjectileData[atwith].syrepeat;
+        }
 
         A_SetHitData(wh, hit);
     }
 }
 
+// <extra>: damage that this shotspark does
 static int32_t Proj_InsertShotspark(const hitdata_t *hit, int32_t i, int32_t atwith,
                                     int32_t xyrepeat, int32_t ang, int32_t extra)
 {
@@ -516,9 +523,9 @@ static void A_PreFireHitscan(const spritetype *s, vec3_t *srcvect, int32_t *zvel
     }
 }
 
-static inline int32_t Proj_DoHitscan(int32_t i, int32_t cstatmask,
-                                     const vec3_t *srcvect, int32_t zvel, int16_t sa,
-                                     hitdata_t *hit)
+static int32_t Proj_DoHitscan(int32_t i, int32_t cstatmask,
+                              const vec3_t *srcvect, int32_t zvel, int16_t sa,
+                              hitdata_t *hit)
 {
     spritetype *const s = &sprite[i];
 
@@ -535,6 +542,172 @@ static inline int32_t Proj_DoHitscan(int32_t i, int32_t cstatmask,
     s->cstat |= cstatmask;
 
     return (hit->sect < 0);
+}
+
+// Finish shooting hitscan weapon from player <p>. <k> is the inserted SHOTSPARK1.
+// * <spawnatimpacttile> is passed to Proj_MaybeSpawn()
+// * <decaltile> and <damagewalltile> are for wall impact
+// * <damagewalltile> is passed to A_DamageWall()
+// * <flags> is for decals upon wall impact:
+//    1: handle random decal size (tile <atwith>)
+//    2: set cstat to wall-aligned + random x/y flip
+//
+// TODO: maybe split into 3 cases (hit neither wall nor sprite, hit sprite, hit wall)?
+static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i, int32_t atwith, int32_t zvel,
+                                 int32_t spawnatimpacttile, int32_t decaltile, int32_t damagewalltile,
+                                 int32_t flags)
+{
+    if (hit->wall == -1 && hit->sprite == -1)
+    {
+        if (zvel < 0)
+        {
+            if (sector[hit->sect].ceilingstat&1)
+            {
+                sprite[k].xrepeat = 0;
+                sprite[k].yrepeat = 0;
+                return -1;
+            }
+            else
+                Sect_DamageCeiling(hit->sect);
+        }
+
+        Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+    }
+    else if (hit->sprite >= 0)
+    {
+        A_DamageObject(hit->sprite, k);
+
+        if (sprite[hit->sprite].picnum == APLAYER &&
+            (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
+                               g_player[sprite[hit->sprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
+        {
+            int32_t l = A_Spawn(k, JIBS6);
+            sprite[k].xrepeat = sprite[k].yrepeat = 0;
+            sprite[l].z += (4<<8);
+            sprite[l].xvel = 16;
+            sprite[l].xrepeat = sprite[l].yrepeat = 24;
+            sprite[l].ang += 64-(krand()&127);
+        }
+        else
+        {
+            Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+        }
+
+        if (p >= 0 && CheckShootSwitchTile(sprite[hit->sprite].picnum))
+        {
+            P_ActivateSwitch(p, hit->sprite, 1);
+            return -1;
+        }
+    }
+    else if (hit->wall >= 0)
+    {
+        const walltype *const hitwal = &wall[hit->wall];
+
+        Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+
+        if (CheckDoorTile(hitwal->picnum) == 1)
+            goto SKIPBULLETHOLE;
+
+        if (p >= 0 && CheckShootSwitchTile(hitwal->picnum))
+        {
+            P_ActivateSwitch(p, hit->wall, 0);
+            return -1;
+        }
+
+        if (hitwal->hitag != 0 || (hitwal->nextwall >= 0 && wall[hitwal->nextwall].hitag != 0))
+            goto SKIPBULLETHOLE;
+
+        if (hit->sect >= 0 && sector[hit->sect].lotag == 0)
+            if (hitwal->overpicnum != BIGFORCE && (hitwal->cstat&16) == 0)
+                if ((hitwal->nextsector >= 0 && sector[hitwal->nextsector].lotag == 0) ||
+                    (hitwal->nextsector == -1 && sector[hit->sect].lotag == 0))
+                {
+                    int32_t l;
+
+                    if (hitwal->nextsector >= 0)
+                        for (SPRITES_OF_SECT(hitwal->nextsector, l))
+                            if (sprite[l].statnum == STAT_EFFECTOR && sprite[l].lotag == SE_13_EXPLOSIVE)
+                                goto SKIPBULLETHOLE;
+
+                    for (SPRITES_OF(STAT_MISC, l))
+                        if (sprite[l].picnum == decaltile)
+                            if (dist(&sprite[l],&sprite[k]) < (12+(krand()&7)))
+                                goto SKIPBULLETHOLE;
+
+                    if (decaltile >= 0)
+                    {
+                        l = A_Spawn(k, decaltile);
+
+                        if (!A_CheckSpriteFlags(l , SPRITE_DECAL))
+                            actor[l].flags |= SPRITE_DECAL;
+
+                        sprite[l].xvel = -1;
+                        sprite[l].ang = getangle(hitwal->x-wall[hitwal->point2].x,
+                                                 hitwal->y-wall[hitwal->point2].y)+512;
+
+                        if (flags&1)
+                        {
+                            if (ProjectileData[atwith].workslike & PROJECTILE_RANDDECALSIZE)
+                            {
+                                int32_t wh = (krand()&ProjectileData[atwith].xrepeat);
+                                if (wh < ProjectileData[atwith].yrepeat)
+                                    wh = ProjectileData[atwith].yrepeat;
+                                sprite[l].xrepeat = wh;
+                                sprite[l].yrepeat = wh;
+                            }
+                            else
+                            {
+                                sprite[l].xrepeat = ProjectileData[atwith].xrepeat;
+                                sprite[l].yrepeat = ProjectileData[atwith].yrepeat;
+                            }
+                        }
+
+                        if (flags&2)
+                            sprite[l].cstat = 16+(krand()&(8+4));
+
+                        sprite[l].x -= sintable[(sprite[l].ang+2560)&2047]>>13;
+                        sprite[l].y -= sintable[(sprite[l].ang+2048)&2047]>>13;
+
+                        A_SetSprite(l, CLIPMASK0);
+
+                        // BULLETHOLE already adds itself to the deletion queue in
+                        // A_Spawn(). However, some other tiles do as well.
+                        if (decaltile != BULLETHOLE)
+                            A_AddToDeleteQueue(l);
+                    }
+                }
+
+SKIPBULLETHOLE:
+        // Handle bottom-swapped walls.
+        if ((hitwal->cstat&2) && hitwal->nextsector >= 0)
+            if (hit->pos.z >= sector[hitwal->nextsector].floorz)
+                hit->wall = hitwal->nextwall;
+
+        A_DamageWall(k, hit->wall, &hit->pos, damagewalltile);
+    }
+
+    return 0;
+}
+
+// Finish shooting hitscan weapon from actor (sprite <i>).
+static int32_t A_PostFireHitscan(const hitdata_t *hit, int32_t i, int32_t atwith, int32_t sa, int32_t extra,
+                                 int32_t spawnatimpacttile, int32_t damagewalltile)
+{
+    int32_t k = Proj_InsertShotspark(hit, i, atwith, 24, sa, extra);
+
+    if (hit->sprite >= 0)
+    {
+        A_DamageObject(hit->sprite, k);
+
+        if (sprite[hit->sprite].picnum != APLAYER)
+            Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+        else
+            sprite[k].xrepeat = sprite[k].yrepeat = 0;
+    }
+    else if (hit->wall >= 0)
+        A_DamageWall(k, hit->wall, &hit->pos, damagewalltile);
+
+    return k;
 }
 
 int32_t A_Shoot(int32_t i, int32_t atwith)
@@ -851,149 +1024,18 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             {
                 k = Proj_InsertShotspark(&hit, i, atwith, 10, sa, Proj_GetExtra(atwith));
 
-                if (hit.wall == -1 && hit.sprite == -1)
-                {
-                    if (zvel < 0)
-                    {
-                        if (sector[hit.sect].ceilingstat&1)
-                        {
-                            sprite[k].xrepeat = 0;
-                            sprite[k].yrepeat = 0;
-                            return -1;
-                        }
-                        else
-                            Sect_DamageCeiling(hit.sect);
-                    }
-
-                    Proj_MaybeSpawn(k, atwith, &hit);
-                }
-
-                if (hit.sprite >= 0)
-                {
-                    A_DamageObject(hit.sprite,k);
-                    if (sprite[hit.sprite].picnum == APLAYER &&
-                            (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
-                                               g_player[sprite[hit.sprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
-                    {
-                        l = A_Spawn(k,JIBS6);
-                        sprite[k].xrepeat = sprite[k].yrepeat = 0;
-                        sprite[l].z += (4<<8);
-                        sprite[l].xvel = 16;
-                        sprite[l].xrepeat = sprite[l].yrepeat = 24;
-                        sprite[l].ang += 64-(krand()&127);
-                    }
-                    else
-                    {
-                        Proj_MaybeSpawn(k, atwith, &hit);
-                    }
-
-                    if (p >= 0 && CheckShootSwitchTile(sprite[hit.sprite].picnum))
-                    {
-                        P_ActivateSwitch(p,hit.sprite,1);
-                        return -1;
-                    }
-                }
-                else if (hit.wall >= 0)
-                {
-                    Proj_MaybeSpawn(k, atwith, &hit);
-
-                    if (CheckDoorTile(wall[hit.wall].picnum) == 1)
-                        goto DOSKIPBULLETHOLE;
-                    if (p >= 0 && CheckShootSwitchTile(wall[hit.wall].picnum))
-                    {
-                        P_ActivateSwitch(p,hit.wall,0);
-                        return -1;
-                    }
-
-                    if (wall[hit.wall].hitag != 0 || (wall[hit.wall].nextwall >= 0 && wall[wall[hit.wall].nextwall].hitag != 0))
-                        goto DOSKIPBULLETHOLE;
-
-                    if (hit.sect >= 0 && sector[hit.sect].lotag == 0)
-                        if (wall[hit.wall].overpicnum != BIGFORCE)
-                            if ((wall[hit.wall].nextsector >= 0 && sector[wall[hit.wall].nextsector].lotag == 0) ||
-                                    (wall[hit.wall].nextsector == -1 && sector[hit.sect].lotag == 0))
-                                if ((wall[hit.wall].cstat&16) == 0)
-                                {
-                                    if (wall[hit.wall].nextsector >= 0)
-                                    {
-                                        l = headspritesect[wall[hit.wall].nextsector];
-                                        while (l >= 0)
-                                        {
-                                            if (sprite[l].statnum == STAT_EFFECTOR && sprite[l].lotag == SE_13_EXPLOSIVE)
-                                                goto DOSKIPBULLETHOLE;
-                                            l = nextspritesect[l];
-                                        }
-                                    }
-
-                                    l = headspritestat[STAT_MISC];
-                                    while (l >= 0)
-                                    {
-                                        if (sprite[l].picnum == ProjectileData[atwith].decal)
-                                            if (dist(&sprite[l],&sprite[k]) < (12+(krand()&7)))
-                                                goto DOSKIPBULLETHOLE;
-                                        l = nextspritestat[l];
-                                    }
-                                    if (ProjectileData[atwith].decal >= 0)
-                                    {
-                                        l = A_Spawn(k,ProjectileData[atwith].decal);
-
-                                        if (!A_CheckSpriteFlags(l , SPRITE_DECAL))
-                                            actor[l].flags |= SPRITE_DECAL;
-
-                                        sprite[l].xvel = -1;
-                                        sprite[l].ang = getangle(wall[hit.wall].x-wall[wall[hit.wall].point2].x,
-                                                                 wall[hit.wall].y-wall[wall[hit.wall].point2].y)+512;
-                                        if (ProjectileData[atwith].workslike & PROJECTILE_RANDDECALSIZE)
-                                        {
-                                            int32_t wh = (krand()&ProjectileData[atwith].xrepeat);
-                                            if (wh < ProjectileData[atwith].yrepeat)
-                                                wh = ProjectileData[atwith].yrepeat;
-                                            sprite[l].xrepeat = wh;
-                                            sprite[l].yrepeat = wh;
-                                        }
-                                        else
-                                        {
-                                            sprite[l].xrepeat = ProjectileData[atwith].xrepeat;
-                                            sprite[l].yrepeat = ProjectileData[atwith].yrepeat;
-                                        }
-                                        sprite[l].cstat = 16+(krand()&12);
-                                        sprite[l].x -= mulscale13(1,sintable[(sprite[l].ang+2560)&2047]);
-                                        sprite[l].y -= mulscale13(1,sintable[(sprite[l].ang+2048)&2047]);
-
-                                        A_SetSprite(l,CLIPMASK0);
-                                        A_AddToDeleteQueue(l);
-                                    }
-                                }
-
-DOSKIPBULLETHOLE:
-
-                    if (wall[hit.wall].cstat&2)
-                        if (wall[hit.wall].nextsector >= 0)
-                            if (hit.pos.z >= (sector[wall[hit.wall].nextsector].floorz))
-                                hit.wall = wall[hit.wall].nextwall;
-
-                    A_DamageWall(k,hit.wall,&hit.pos,atwith);
-                }
+                if (P_PostFireHitscan(p, k, &hit, i, atwith, zvel,
+                                      atwith, ProjectileData[atwith].decal, atwith, 1+2) < 0)
+                    return -1;
             }
             else
             {
-                k = Proj_InsertShotspark(&hit, i, atwith, 24, sa, Proj_GetExtra(atwith));
-
-                if (hit.sprite >= 0)
-                {
-                    A_DamageObject(hit.sprite,k);
-                    if (sprite[hit.sprite].picnum != APLAYER)
-                    {
-                        Proj_MaybeSpawn(k, atwith, &hit);
-                    }
-                    else sprite[k].xrepeat = sprite[k].yrepeat = 0;
-                }
-                else if (hit.wall >= 0)
-                    A_DamageWall(k,hit.wall,&hit.pos,atwith);
+                k = A_PostFireHitscan(&hit, i, atwith, sa, Proj_GetExtra(atwith),
+                                      atwith, atwith);
             }
 
             if ((krand()&255) < 4 && ProjectileData[atwith].isound >= 0)
-                S_PlaySound3D(ProjectileData[atwith].isound,k,&hit.pos);
+                S_PlaySound3D(ProjectileData[atwith].isound, k, &hit.pos);
 
             return -1;
         }
@@ -1256,141 +1298,18 @@ DOSKIPBULLETHOLE:
                 k = Proj_InsertShotspark(&hit, i, atwith, 10, sa,
                                          G_InitialActorStrength(atwith) + (krand()%6));
 
-                if (hit.wall == -1 && hit.sprite == -1)
-                {
-                    if (zvel < 0)
-                    {
-                        if (sector[hit.sect].ceilingstat&1)
-                        {
-                            sprite[k].xrepeat = 0;
-                            sprite[k].yrepeat = 0;
-                            return -1;
-                        }
-                        else
-                            Sect_DamageCeiling(hit.sect);
-                    }
-                    l = A_Spawn(k,SMALLSMOKE);
-                    A_SetHitData(l, &hit);
-                }
-
-                if (hit.sprite >= 0)
-                {
-                    A_DamageObject(hit.sprite,k);
-                    if (sprite[hit.sprite].picnum == APLAYER &&
-                            (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
-                                               g_player[sprite[hit.sprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
-                    {
-                        l = A_Spawn(k,JIBS6);
-                        sprite[k].xrepeat = sprite[k].yrepeat = 0;
-                        sprite[l].z += (4<<8);
-                        sprite[l].xvel = 16;
-                        sprite[l].xrepeat = sprite[l].yrepeat = 24;
-                        sprite[l].ang += 64-(krand()&127);
-                    }
-                    else
-                    {
-                        l = A_Spawn(k,SMALLSMOKE);
-                        A_SetHitData(l, &hit);
-                    }
-
-                    if (p >= 0 && CheckShootSwitchTile(sprite[hit.sprite].picnum))
-                    {
-                        P_ActivateSwitch(p,hit.sprite,1);
-                        return -1;
-                    }
-                }
-                else if (hit.wall >= 0)
-                {
-                    l = A_Spawn(k,SMALLSMOKE);
-                    A_SetHitData(l, &hit);
-
-                    if (CheckDoorTile(wall[hit.wall].picnum) == 1)
-                        goto SKIPBULLETHOLE;
-                    if (p >= 0 && CheckShootSwitchTile(wall[hit.wall].picnum))
-                    {
-                        P_ActivateSwitch(p,hit.wall,0);
-                        return -1;
-                    }
-
-                    if (wall[hit.wall].hitag != 0 || (wall[hit.wall].nextwall >= 0 && wall[wall[hit.wall].nextwall].hitag != 0))
-                        goto SKIPBULLETHOLE;
-
-                    if (hit.sect >= 0 && sector[hit.sect].lotag == 0)
-                        if (wall[hit.wall].overpicnum != BIGFORCE)
-                            if ((wall[hit.wall].nextsector >= 0 && sector[wall[hit.wall].nextsector].lotag == 0) ||
-                                    (wall[hit.wall].nextsector == -1 && sector[hit.sect].lotag == 0))
-                                if ((wall[hit.wall].cstat&16) == 0)
-                                {
-                                    if (wall[hit.wall].nextsector >= 0)
-                                    {
-                                        l = headspritesect[wall[hit.wall].nextsector];
-                                        while (l >= 0)
-                                        {
-                                            if (sprite[l].statnum == STAT_EFFECTOR && sprite[l].lotag == SE_13_EXPLOSIVE)
-                                                goto SKIPBULLETHOLE;
-                                            l = nextspritesect[l];
-                                        }
-                                    }
-
-                                    l = headspritestat[STAT_MISC];
-                                    while (l >= 0)
-                                    {
-                                        if (sprite[l].picnum == BULLETHOLE)
-                                            if (dist(&sprite[l],&sprite[k]) < (12+(krand()&7)))
-                                                goto SKIPBULLETHOLE;
-                                        l = nextspritestat[l];
-                                    }
-
-                                    {
-                                        l = A_Spawn(k,BULLETHOLE);
-
-                                        if (!A_CheckSpriteFlags(l , SPRITE_DECAL))
-                                            actor[l].flags |= SPRITE_DECAL;
-
-                                        sprite[l].xvel = -1;
-                                        sprite[l].x = hit.pos.x;
-                                        sprite[l].y = hit.pos.y;
-                                        sprite[l].z = hit.pos.z;
-
-                                        sprite[l].ang = getangle(wall[hit.wall].x-wall[wall[hit.wall].point2].x,
-                                                                 wall[hit.wall].y-wall[wall[hit.wall].point2].y)+512;
-
-                                        sprite[l].x -= mulscale13(1,sintable[(sprite[l].ang+2560)&2047]);
-                                        sprite[l].y -= mulscale13(1,sintable[(sprite[l].ang+2048)&2047]);
-                                        A_SetSprite(l,CLIPMASK0);
-                                    }
-                                }
-
-SKIPBULLETHOLE:
-
-                    if (wall[hit.wall].cstat&2)
-                        if (wall[hit.wall].nextsector >= 0)
-                            if (hit.pos.z >= (sector[wall[hit.wall].nextsector].floorz))
-                                hit.wall = wall[hit.wall].nextwall;
-
-                    A_DamageWall(k,hit.wall,&hit.pos,SHOTSPARK1);
-                }
+                if (P_PostFireHitscan(p, k, &hit, i, atwith, zvel,
+                                      -SMALLSMOKE, BULLETHOLE, SHOTSPARK1, 0) < 0)
+                    return -1;
             }
             else
             {
-                k = Proj_InsertShotspark(&hit, i, atwith, 24, sa, G_InitialActorStrength(atwith));
-
-                if (hit.sprite >= 0)
-                {
-                    A_DamageObject(hit.sprite,k);
-                    if (sprite[hit.sprite].picnum != APLAYER)
-                    {
-                        l = A_Spawn(k,SMALLSMOKE);
-                        A_SetHitData(l, &hit);
-                    }
-                    else sprite[k].xrepeat = sprite[k].yrepeat = 0;
-                }
-                else if (hit.wall >= 0)
-                    A_DamageWall(k,hit.wall,&hit.pos,SHOTSPARK1);
+                k = A_PostFireHitscan(&hit, i, atwith, sa, G_InitialActorStrength(atwith),
+                                      -SMALLSMOKE, SHOTSPARK1);
             }
 
             if ((krand()&255) < 4)
-                S_PlaySound3D(PISTOL_RICOCHET,k, &hit.pos);
+                S_PlaySound3D(PISTOL_RICOCHET, k, &hit.pos);
 
             return -1;
 
