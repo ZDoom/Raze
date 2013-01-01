@@ -336,7 +336,7 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
                                const vec3_t *srcvect, int32_t vel,
                                int32_t *zvel, int16_t *sa)
 {
-    int32_t j;
+    int32_t j = -1;
 
     Bassert((unsigned)p < MAXPLAYERS);
 
@@ -345,7 +345,6 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
     if (G_HaveEvent(EVENT_GETAUTOAIMANGLE))
         VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
 
-    j = -1;
     {
         int32_t aimang = Gv_GetVar(g_iAimAngleVarID, i, p);
         if (aimang > 0)
@@ -384,25 +383,36 @@ static void Proj_MaybeSpawn(int32_t k, int32_t atwith, const hitdata_t *hit)
 {
     if (ProjectileData[atwith].spawns >= 0)
     {
-        int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
-        if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
-        if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
+        int32_t wh = A_Spawn(k,ProjectileData[atwith].spawns);
+
+        if (ProjectileData[atwith].sxrepeat > 4)
+            sprite[wh].xrepeat = ProjectileData[atwith].sxrepeat;
+        if (ProjectileData[atwith].syrepeat > 4)
+            sprite[wh].yrepeat = ProjectileData[atwith].syrepeat;
+
         A_SetHitData(wh, hit);
     }
 }
 
-static int32_t Proj_InsertShotspark(const hitdata_t *hit, int32_t i, int32_t atwith, int32_t sz, int32_t ang)
+static int32_t Proj_InsertShotspark(const hitdata_t *hit, int32_t i, int32_t atwith,
+                                    int32_t xyrepeat, int32_t ang, int32_t extra)
 {
-    int32_t k = A_InsertSprite(hit->sect,hit->pos.x,hit->pos.y,hit->pos.z,SHOTSPARK1,-15,
-                               sz,sz,ang,0,0,i,4);
-
-    sprite[k].extra = ProjectileData[atwith].extra;
-    if (ProjectileData[atwith].extra_rand > 0)
-        sprite[k].extra += (krand()%ProjectileData[atwith].extra_rand);
-    sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
+    int32_t k = A_InsertSprite(hit->sect, hit->pos.x, hit->pos.y, hit->pos.z,
+                               SHOTSPARK1,-15, xyrepeat,xyrepeat, ang,0,0,i,4);
+    sprite[k].extra = extra;
+    // This is a hack to allow you to detect which weapon spawned a SHOTSPARK1:
+    sprite[k].yvel = atwith;
     A_SetHitData(k, hit);
 
     return k;
+}
+
+static int32_t Proj_GetExtra(int32_t atwith)
+{
+    int32_t extra = ProjectileData[atwith].extra;
+    if (ProjectileData[atwith].extra_rand > 0)
+        extra += (krand()%ProjectileData[atwith].extra_rand);
+    return extra;
 }
 
 static void Proj_MaybeAddSpread(int32_t not_accurate_p, int32_t *zvel, int16_t *sa,
@@ -504,6 +514,27 @@ static void A_PreFireHitscan(const spritetype *s, vec3_t *srcvect, int32_t *zvel
 
         Proj_MaybeAddSpread(not_accurate_p, zvel, sa, 256, 128);
     }
+}
+
+static inline int32_t Proj_DoHitscan(int32_t i, int32_t cstatmask,
+                                     const vec3_t *srcvect, int32_t zvel, int16_t sa,
+                                     hitdata_t *hit)
+{
+    spritetype *const s = &sprite[i];
+
+    s->cstat &= ~cstatmask;
+
+    if (actor[i].shootzvel)
+        zvel = actor[i].shootzvel;
+
+    hitscan(srcvect, s->sectnum,
+            sintable[(sa+512)&2047],
+            sintable[sa&2047],
+            zvel<<6, hit, CLIPMASK1);
+
+    s->cstat |= cstatmask;
+
+    return (hit->sect < 0);
 }
 
 int32_t A_Shoot(int32_t i, int32_t atwith)
@@ -798,23 +829,12 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                 A_PreFireHitscan(s, &srcvect, &zvel, &sa,
                                  !(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE));
 
-            if (ProjectileData[atwith].cstat >= 0) s->cstat &= ~ProjectileData[atwith].cstat;
-            else s->cstat &= ~257;
+            if (Proj_DoHitscan(i, (ProjectileData[atwith].cstat >= 0) ? ProjectileData[atwith].cstat : 256+1,
+                               &srcvect, zvel, sa, &hit))
+                return -1;
 
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-            hitscan((const vec3_t *)&srcvect,sect,
-                    sintable[(sa+512)&2047],
-                    sintable[sa&2047],
-                    zvel<<6,&hit,CLIPMASK1);
-
-
-            if (ProjectileData[atwith].cstat >= 0) s->cstat |= ProjectileData[atwith].cstat;
-            else s->cstat |= 257;
-
-            if (hit.sect < 0) return -1;
-
-            if ((ProjectileData[atwith].range > 0) &&
-                    ((klabs(srcvect.x-hit.pos.x)+klabs(srcvect.y-hit.pos.y)) > ProjectileData[atwith].range))
+            if (ProjectileData[atwith].range > 0 &&
+                    klabs(srcvect.x-hit.pos.x)+klabs(srcvect.y-hit.pos.y) > ProjectileData[atwith].range)
                 return -1;
 
             if (ProjectileData[atwith].trail >= 0)
@@ -823,12 +843,13 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             if (ProjectileData[atwith].workslike & PROJECTILE_WATERBUBBLES)
             {
                 if ((krand()&15) == 0 && sector[hit.sect].lotag == ST_2_UNDERWATER)
-                    A_DoWaterTracers(hit.pos.x,hit.pos.y,hit.pos.z,srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
+                    A_DoWaterTracers(hit.pos.x,hit.pos.y,hit.pos.z,
+                                     srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
             }
 
             if (p >= 0)
             {
-                k = Proj_InsertShotspark(&hit, i, atwith, 10, sa);
+                k = Proj_InsertShotspark(&hit, i, atwith, 10, sa, Proj_GetExtra(atwith));
 
                 if (hit.wall == -1 && hit.sprite == -1)
                 {
@@ -956,7 +977,7 @@ DOSKIPBULLETHOLE:
             }
             else
             {
-                k = Proj_InsertShotspark(&hit, i, atwith, 24, sa);
+                k = Proj_InsertShotspark(&hit, i, atwith, 24, sa, Proj_GetExtra(atwith));
 
                 if (hit.sprite >= 0)
                 {
@@ -1223,15 +1244,8 @@ DOSKIPBULLETHOLE:
             else
                 A_PreFireHitscan(s, &srcvect, &zvel, &sa, 1);
 
-            s->cstat &= ~257;
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-            hitscan((const vec3_t *)&srcvect,sect,
-                    sintable[(sa+512)&2047],
-                    sintable[sa&2047],
-                    zvel<<6,&hit,CLIPMASK1);
-            s->cstat |= 257;
-
-            if (hit.sect < 0) return -1;
+            if (Proj_DoHitscan(i, 256+1, &srcvect, zvel, sa, &hit))
+                return -1;
 
             if ((krand()&15) == 0 && sector[hit.sect].lotag == ST_2_UNDERWATER)
                 A_DoWaterTracers(hit.pos.x,hit.pos.y,hit.pos.z,
@@ -1239,12 +1253,8 @@ DOSKIPBULLETHOLE:
 
             if (p >= 0)
             {
-                k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
-                sprite[k].extra = G_InitialActorStrength(atwith);
-                sprite[k].extra += (krand()%6);
-                sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                A_SetHitData(k, &hit);
-
+                k = Proj_InsertShotspark(&hit, i, atwith, 10, sa,
+                                         G_InitialActorStrength(atwith) + (krand()%6));
 
                 if (hit.wall == -1 && hit.sprite == -1)
                 {
@@ -1266,8 +1276,9 @@ DOSKIPBULLETHOLE:
                 if (hit.sprite >= 0)
                 {
                     A_DamageObject(hit.sprite,k);
-                    if (sprite[hit.sprite].picnum == APLAYER && (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) &&
-                            GTFLAGS(GAMETYPE_TDM) && g_player[sprite[hit.sprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
+                    if (sprite[hit.sprite].picnum == APLAYER &&
+                            (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
+                                               g_player[sprite[hit.sprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
                     {
                         l = A_Spawn(k,JIBS6);
                         sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -1329,22 +1340,25 @@ DOSKIPBULLETHOLE:
                                                 goto SKIPBULLETHOLE;
                                         l = nextspritestat[l];
                                     }
-                                    l = A_Spawn(k,BULLETHOLE);
 
-                                    if (!A_CheckSpriteFlags(l , SPRITE_DECAL))
-                                        actor[l].flags |= SPRITE_DECAL;
+                                    {
+                                        l = A_Spawn(k,BULLETHOLE);
 
-                                    sprite[l].xvel = -1;
-                                    sprite[l].x = hit.pos.x;
-                                    sprite[l].y = hit.pos.y;
-                                    sprite[l].z = hit.pos.z;
+                                        if (!A_CheckSpriteFlags(l , SPRITE_DECAL))
+                                            actor[l].flags |= SPRITE_DECAL;
 
-                                    sprite[l].ang = getangle(wall[hit.wall].x-wall[wall[hit.wall].point2].x,
-                                                             wall[hit.wall].y-wall[wall[hit.wall].point2].y)+512;
+                                        sprite[l].xvel = -1;
+                                        sprite[l].x = hit.pos.x;
+                                        sprite[l].y = hit.pos.y;
+                                        sprite[l].z = hit.pos.z;
 
-                                    sprite[l].x -= mulscale13(1,sintable[(sprite[l].ang+2560)&2047]);
-                                    sprite[l].y -= mulscale13(1,sintable[(sprite[l].ang+2048)&2047]);
-                                    A_SetSprite(l,CLIPMASK0);
+                                        sprite[l].ang = getangle(wall[hit.wall].x-wall[wall[hit.wall].point2].x,
+                                                                 wall[hit.wall].y-wall[wall[hit.wall].point2].y)+512;
+
+                                        sprite[l].x -= mulscale13(1,sintable[(sprite[l].ang+2560)&2047]);
+                                        sprite[l].y -= mulscale13(1,sintable[(sprite[l].ang+2048)&2047]);
+                                        A_SetSprite(l,CLIPMASK0);
+                                    }
                                 }
 
 SKIPBULLETHOLE:
@@ -1359,10 +1373,7 @@ SKIPBULLETHOLE:
             }
             else
             {
-                k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
-                sprite[k].extra = G_InitialActorStrength(atwith);
-                sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                A_SetHitData(k, &hit);
+                k = Proj_InsertShotspark(&hit, i, atwith, 24, sa, G_InitialActorStrength(atwith));
 
                 if (hit.sprite >= 0)
                 {
