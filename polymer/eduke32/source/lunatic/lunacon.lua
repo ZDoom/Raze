@@ -4,7 +4,7 @@
 local require = require
 local lpeg = require("lpeg")
 
-local bit = require("bit")
+local bit
 local math = require("math")
 local string = require("string")
 local table = require("table")
@@ -27,8 +27,12 @@ local read_into_string = read_into_string
 local ffi, ffiC
 
 if (string.dump) then
+    bit = require("bit")
+    -- For Rio Lua:
+    bit = { bor=function() return 0 end }
     require("strict")
 else
+    bit = require("bit")
     ffi = require("ffi")
     ffiC = ffi.C
 end
@@ -497,14 +501,30 @@ local function cmd_definevolumename(vol, name)
 end
 
 local function cmd_definequote(qnum, quotestr)
+--[[
     -- have the INT_MAX limit simply for some sanity
-    if (qnum < 0 or qnum > 0x7fffffff) then
+    if (not (qnum >= 0 and <= 0x7fffffff)) then
         errprintf("quote number is negative or exceeds limit of INT32_MAX.")
+        return
+    end
+--]]
+    if (not (qnum >= 0 and qnum < conl.MAXQUOTES)) then
+        errprintf("quote number is negative or exceeds limit of %d.", conl.MAXQUOTES-1)
         return
     end
 
     -- strip whitespace from front and back
-    g_data.quote[qnum] = quotestr:match("^%s*(.*)%s*$")
+    quotestr = quotestr:match("^%s*(.*)%s*$")
+
+    if (ffi) then
+        if (#quotestr >= conl.MAXQUOTELEN) then
+            warnprintf("quote %d truncated to %d characters.", conl.MAXQUOTELEN-1)
+        end
+
+        ffiC.C_DefineQuote(qnum, quotestr)
+    end
+
+    g_data.quote[qnum] = quotestr
 end
 
 local function cmd_gamestartup(...)
@@ -528,7 +548,7 @@ local function cmd_gamestartup(...)
 end
 
 local function cmd_definesound(sndnum, fn, ...)
-    if (sndnum >= conl.MAXSOUNDS+0ULL) then
+    if (not (sndnum >= 0 and sndnum < conl.MAXSOUNDS)) then
         errprintf("sound number is or exceeds sound limit of %d", conl.MAXSOUNDS)
         return
     end
@@ -937,7 +957,7 @@ local Ci = {
     addkills = cmd(D)
         / (PLS".actors_killed="..PLS".actors_killed+%1;"..ACS".actorstayput=-1"),
     addphealth = cmd(D)
-        / "",  -- TODO
+        / format("_con._addphealth(%s,%s,%%1)", PLS"", SPS""),
     angoff = cmd(D)
         / "spritext[_aci].angoff=%1",
     debug = cmd(D)
@@ -959,7 +979,7 @@ local Ci = {
     qspawn = cmd(D)
         / "_con.spawn(_aci,%1,true)",
     quote = cmd(D)
-        / "",  -- TODO
+        / "_con._quote(_pli,%1)",
     savenn = cmd(D),
     save = cmd(D),
     sleeptime = cmd(D)
@@ -1156,9 +1176,9 @@ local Cif = {
     ifrnd = cmd(D)
         / "_con.rnd(%1)",
     ifpdistl = cmd(D)
-        / "_dist<%1",  -- TODO: conditionally set actor[].timetosleep afterwards
+        / function(val) return "_dist<"..val end, --, "_con.sleepcheck(_aci,_dist)" end,
     ifpdistg = cmd(D)
-        / "_dist>%1",  -- TODO: conditionally set actor[].timetosleep afterwards
+        / function(val) return "_dist>"..val end, --"_con.sleepcheck(_aci,_dist)" end,
     ifactioncount = cmd(D)
         / ACS":get_acount()==%1",
     ifcount = cmd(D)
@@ -1376,8 +1396,9 @@ local function after_if_cmd_Cmt(subj, pos, ...)
         return nil
     end
 
-    if (type(capts[1])=="string" and capts[2]==nil) then
-        return true, capts[1]
+    if (type(capts[1])=="string" and (capts[2]==nil or type(capts[2])=="string") and capts[3]==nil) then
+        assert(capts[2]==nil or capts[2]=="_con.sleepcheck(_aci,_dist)")
+        return true, capts[1], capts[2]
     end
 
     return true
@@ -1495,16 +1516,34 @@ local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09"
 -- This is broken in itself, so we ought to make a compatibility/modern CON switch.
 local t_broken_identifier = BadIdent(-((t_number + t_good_identifier) * (sp1 + Set("[]:"))) *
                                      (alphanum + Set("_/\\*?")) * (alphanum + Set("_/\\*-+?"))^0)
+local g_ifStack = {}
 
-local function begin_if_fn(condstr)
+local function begin_if_fn(condstr, endifstr)
     g_ifseqlevel = g_ifseqlevel+1
     condstr = condstr or "TODO"
     assert(type(condstr)=="string")
+
+    if (endifstr ~= nil) then
+        assert(type(endifstr)=="string")
+        g_ifStack[#g_ifStack+1] = endifstr
+    end
+
     return format("if (%s) then", condstr)
 end
 
 local function end_if_fn()
+    local code
+    if (#g_ifStack > 0) then
+        code = g_ifStack[#g_ifStack]
+        g_ifStack[#g_ifStack] = nil
+    end
+
     g_ifseqlevel = g_ifseqlevel-1
+    if (code) then
+        -- The condition above is significant here.
+        -- (See lpeg.c: functioncap(), where a lua_call(..., LUA_MULTRET) is done)
+        return code
+    end
 end
 
 local function check_else_Cmt()

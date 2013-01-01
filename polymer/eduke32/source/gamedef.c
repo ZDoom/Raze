@@ -2128,6 +2128,12 @@ void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
             g_maxSoundPos = sndidx;
     }
 }
+
+void C_DefineQuote(int32_t qnum, const char *qstr)
+{
+    C_AllocQuote(qnum);
+    Bstrncpyz(ScriptQuotes[qnum], qstr, MAXQUOTELEN);
+}
 #endif
 
 int32_t C_AllocQuote(int32_t qnum)

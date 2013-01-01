@@ -20,6 +20,10 @@ MAXSKILLS = 7
 MAXEVENTS = 95  -- KEEPINSYNC with EVENT_* list
 MAXSOUNDS = 4096
 
+-- KEEPINSYNC quotes.h
+MAXQUOTES = 16384
+MAXQUOTELEN = 128
+
 
 -- KEEPINSYNC with gamedef.c:C_AddDefaultDefinitions() and the respective
 -- defines. These are exported to the ffi.C namespace and as literal defines

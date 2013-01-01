@@ -66,11 +66,14 @@ kread;
 G_ConFile;
 G_DoGameStartup;
 C_DefineSound;
+C_DefineQuote;
 
 actor;
 ud;
 g_player;
 g_tile;
+
+ScriptQuotes;
 
 playerswhenstarted;
 lastvisinc;
@@ -103,4 +106,6 @@ A_Dodge;
 A_InsertSprite;
 A_Spawn;
 A_AddToDeleteQueue;
+P_DoQuote;
+G_ClearCameraView;
 };

@@ -6,6 +6,7 @@ local ffiC = ffi.C
 local bit = require("bit")
 local math = require("math")
 local geom = require("geom")
+local con_lang = require("con_lang")
 
 local setmetatable = setmetatable
 
@@ -286,6 +287,20 @@ end
 --- expose the functionality in a better fashion than merely giving access to
 --- the C functions.)
 
+function _quote(pli, qnum)
+    local MAXQUOTES = con_lang.MAXQUOTES
+    if (qnum >= MAXQUOTES+0ULL) then
+        error("invalid quote number "..qnum)
+    end
+
+    if (ffiC.ScriptQuotes[qnum] == nil) then
+        error("null quote "..qnum)
+    end
+
+    local p = player[pli]  -- bound-check
+    ffiC.P_DoQuote(qnum+MAXQUOTES, ffiC.g_player[pli].ps)
+end
+
 local D = {
     -- TODO: dynamic tile remapping
     ACTIVATOR = 2,
@@ -299,6 +314,7 @@ local D = {
     BOOTS = 61,
     HOLODUKE = 1348,
 
+    ATOMICHEALTH = 100,
     GLASSPIECES = 1031,
     COMMANDER = 1920,
     JIBS2 = 2250,
@@ -437,6 +453,7 @@ local ICONS = {
     [ffiC.GET_BOOTS] = 7,
 }
 
+-- XXX
 function _addinventory(ps, inv, amount, pal)
     if (inv == ffiC.GET_ACCESS) then
         if (PALBITS[pal]) then
@@ -467,6 +484,49 @@ function _getinventory(ps, inv, i)
     else
         return ps:get_inv_amount(inv)
     end
+end
+
+function _addphealth(ps, spr, hlthadd)
+    if (ps.newowner >= 0) then
+        ffiC.G_ClearCameraView(ps)
+    end
+
+    if (ffiC.ud.god ~= 0) then
+        return
+    end
+
+    local notatomic = (spr.picnum ~= D.ATOMICHEALTH)
+    local j = sprite[ps.i].extra
+
+    if (notatomic and j > ps.max_player_health and hlthadd > 0) then
+        return
+    end
+
+    if (j > 0) then
+        j = j + hlthadd
+    end
+
+    if (notatomic) then
+        if (hlthadd > 0) then
+            j = math.min(j, ps.max_player_health)
+        end
+    else
+        j = math.min(j, 2*ps.max_player_health)
+    end
+
+    j = math.max(j, 0)
+
+    if (hlthadd > 0) then
+        local qmaxhlth = bit.rshift(ps.max_player_health, 2)
+        if (j-hlthadd < qmaxhlth and j >= qmaxhlth) then
+            -- TODO
+            --A_PlaySound(DUKE_GOTHEALTHATLOW, ps->i)
+        end
+
+        ps.last_extra = j
+    end
+
+    sprite[ps.i].extra = j
 end
 
 -- The return value is true iff the ammo was at the weapon's max.
@@ -603,6 +663,7 @@ local function A_FurthestVisiblePoint(aci, otherspr)
     until (j >= 2048)
 end
 
+local MAXSLEEPDIST = 16384
 local SLEEPTIME = 1536
 
 function _cansee(aci, ps)
@@ -641,6 +702,13 @@ function _cansee(aci, ps)
     end
 
     return can
+end
+
+function _sleepcheck(aci, dist)
+    local acs = actor[aci]
+    if (dist > MAXSLEEPDIST and acs.timetosleep == 0) then
+        acs.timetosleep = SLEEPTIME
+    end
 end
 
 function _canseetarget(spr, ps)
@@ -734,48 +802,47 @@ function _ifp(flags, pli, aci)
     local ps = player[pli]
     local vel = sprite[ps.i].xvel
     local band = bit.band
-    local j = false
 
     if (band(l,8)~=0 and ps.on_ground and _testkey(pli, SK.CROUCH)) then
-        j = true
+        return true
     elseif (band(l,16)~=0 and ps.jumping_counter == 0 and not ps.on_ground and ps.vel.z > 2048) then
-        j = true
+        return true
     elseif (band(l,32)~=0 and ps.jumping_counter > 348) then
-        j = true
+        return true
     elseif (band(l,1)~=0 and vel >= 0 and vel < 8) then
-        j = true
+        return true
     elseif (band(l,2)~=0 and vel >= 8 and not _testkey(pli, SK.RUN)) then
-        j = true
+        return true
     elseif (band(l,4)~=0 and vel >= 8 and _testkey(pli, SK.RUN)) then
-        j = true
+        return true
     elseif (band(l,64)~=0 and ps.pos.z < (sprite[aci].z-(48*256))) then
-        j = true
+        return true
     elseif (band(l,128)~=0 and vel <= -8 and not _testkey(pli, SK.RUN)) then
-        j = true
+        return true
     elseif (band(l,256)~=0 and vel <= -8 and _testkey(pli, SK.RUN)) then
-        j = true
+        return true
     elseif (band(l,512)~=0 and (ps.quick_kick > 0 or (ps.curr_weapon == ffiC.KNEE_WEAPON and ps.kickback_pic > 0))) then
-        j = true
+        return true
     elseif (band(l,1024)~=0 and sprite[ps.i].xrepeat < 32) then
-        j = true
+        return true
     elseif (band(l,2048)~=0 and ps.jetpack_on) then
-        j = true
+        return true
     elseif (band(l,4096)~=0 and ps:get_inv_amount(ffiC.GET_STEROIDS) > 0 and ps:get_inv_amount(ffiC.GET_STEROIDS) < 400) then
-        j = true
+        return true
     elseif (band(l,8192)~=0 and ps.on_ground) then
-        j = true
+        return true
     elseif (band(l,16384)~=0 and sprite[ps.i].xrepeat > 32 and sprite[ps.i].extra > 0 and ps.timebeforeexit == 0) then
-        j = true
+        return true
     elseif (band(l,32768)~=0 and sprite[ps.i].extra <= 0) then
-        j = true
+        return true
     elseif (band(l,65536)~=0) then
         -- TODO: multiplayer branch
         if (_angdiffabs(ps.ang, ffiC.getangle(sprite[aci].x-ps.pos.x, sprite[aci].y-ps.pos.y)) < 128) then
-            j = true
+            return true
         end
     end
 
-    return j
+    return false
 end
 
 function _checkspace(sectnum, floorp)
