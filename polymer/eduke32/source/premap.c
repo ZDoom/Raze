@@ -1101,7 +1101,9 @@ static inline void prelevel(char g)
     while (i >= 0)
     {
         nexti = nextspritestat[i];
+#if !defined LUNATIC_ONLY
         A_ResetVars(i);
+#endif
         A_LoadActor(i);
         VM_OnEvent(EVENT_LOADACTOR, i, -1, -1, 0);
         if (sprite[i].lotag == UINT16_MAX && (sprite[i].cstat&16))
@@ -1367,7 +1369,7 @@ static inline void prelevel(char g)
         }
     }
 
-#ifdef LUNATIC
+#if 0 //def LUNATIC
     if (L_IsInitialized(&g_ElState))
     {
         i = L_RunOnce(&g_ElState, "test.elua");
@@ -1437,6 +1439,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
     p->zoom            = 768;
     p->gm              = 0;
 
+#if !defined LUNATIC_ONLY
     //AddLog("Newgame");
     Gv_ResetVars();
 
@@ -1447,7 +1450,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
     Gv_RefreshPointers();
 
     Gv_ResetSystemDefaults();
-
+#endif
     for (i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
         if (MapInfo[i].savedstate)
         {

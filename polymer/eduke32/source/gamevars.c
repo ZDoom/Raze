@@ -28,7 +28,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "savegame.h"
 
 #define _gamevars_c_
-#include "gamestructures.c"
+#if !defined LUNATIC_ONLY
+# include "gamestructures.c"
+#endif
 
 extern int32_t OSD_errors;
 
@@ -109,6 +111,7 @@ static void Gv_Clear(void)
 
 int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
 {
+#if !defined LUNATIC_ONLY
     int32_t i, j;
     char savedstate[MAXVOLUMES*MAXLEVELS];
     char tbuf[12];
@@ -243,11 +246,13 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
 #endif
     return(0);
 corrupt:
+#endif
     return(1);
 }
 
 void Gv_WriteSave(FILE *fil, int32_t newbehav)
 {
+#if !defined LUNATIC_ONLY
     int32_t i, j;
     char savedstate[MAXVOLUMES*MAXLEVELS];
 
@@ -331,8 +336,10 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
     }
     else
         fwrite("EOF: EDuke32", 12, 1, fil);
+#endif
 }
 
+#if !defined LUNATIC_ONLY
 void Gv_DumpValues(void)
 {
     int32_t i;
@@ -453,6 +460,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
 
     g_gameArrayCount++;
     hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
+
     return 1;
 }
 
@@ -560,7 +568,6 @@ void __fastcall A_ResetVars(register int32_t iActor)
     while (i--);
 }
 
-#if !defined LUNATIC_ONLY
 static int32_t Gv_GetVarIndex(const char *szGameLabel)
 {
     int32_t i = hash_find(&h_gamevars,szGameLabel);
@@ -765,7 +772,6 @@ badindex:
                aGameVars[id].szLabel,vm.g_i,vm.g_p);
     return;
 }
-#endif
 
 int32_t __fastcall Gv_GetVarX(register int32_t id)
 {
@@ -977,6 +983,7 @@ int32_t Gv_GetVarByLabel(const char *szGameLabel, int32_t lDefault, int32_t iAct
 
     return Gv_GetVar(i, iActor, iPlayer);
 }
+#endif
 
 #if !defined LUNATIC
 static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
@@ -1407,9 +1414,9 @@ void Gv_Init(void)
 #endif
 }
 
+#if !defined LUNATIC
 void Gv_InitWeaponPointers(void)
 {
-#if !defined LUNATIC
     int32_t i;
     char aszBuf[64];
     // called from game Init AND when level is loaded...
@@ -1463,12 +1470,10 @@ void Gv_InitWeaponPointers(void)
         Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",i);
         aplWeaponFlashColor[i]=Gv_GetVarDataPtr(aszBuf);
     }
-#endif
 }
 
 void Gv_RefreshPointers(void)
 {
-#if !defined LUNATIC_ONLY
     aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].val.lValue = (intptr_t)&ud.respawn_monsters;
     aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].val.lValue = (intptr_t)&ud.respawn_items;
     aGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].val.lValue = (intptr_t)&ud.respawn_inventory;
@@ -1551,5 +1556,5 @@ void Gv_RefreshPointers(void)
 # ifdef USE_OPENGL
     aGameVars[Gv_GetVarIndex("rendmode")].val.lValue = (intptr_t)&rendmode;
 # endif
-#endif
 }
+#endif

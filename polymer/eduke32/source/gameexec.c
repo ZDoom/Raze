@@ -61,15 +61,18 @@ int32_t g_tw;
 
 int32_t g_currentEventExec = -1;
 
+#if !defined LUNATIC_ONLY
 GAMEEXEC_STATIC void VM_Execute(int32_t loop);
 
-#include "gamestructures.c"
+# include "gamestructures.c"
+#endif
 
 #define VM_CONDITIONAL(xxx) { if ((xxx) || ((insptr = (intptr_t *)*(insptr+1)) && (((*insptr) & 0xfff) == CON_ELSE))) \
 { insptr += 2; VM_Execute(0); } }
 
 void VM_ScriptInfo(void)
 {
+#if !defined LUNATIC_ONLY
     intptr_t *p;
 
     if (!script)
@@ -98,6 +101,7 @@ void VM_ScriptInfo(void)
         initprintf_nowarn("current actor: %d (%d)\n",vm.g_i,TrackerCast(vm.g_sp->picnum));
 
     initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
+#endif
 }
 
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
@@ -110,6 +114,8 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
     if (L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
         El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist);
 #endif
+
+#if !defined LUNATIC_ONLY
     if (apScriptGameEvent[iEventID])
     {
         intptr_t *oinsptr=insptr;
@@ -148,6 +154,7 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
         iReturn = aGameVars[g_iReturnVarID].val.lValue;
         aGameVars[g_iReturnVarID].val.lValue = backupReturnVar;
     }
+#endif
 
 #ifdef LUNATIC
     g_eventTotalMs[iEventID] += gethitickms()-t;
@@ -773,6 +780,7 @@ void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
         P_AddWeaponNoSwitch(ps, weap);
 }
 
+#if !defined LUNATIC_ONLY
 static void P_AddWeaponAmmoCommon(DukePlayer_t *ps, int32_t weap, int32_t amount)
 {
     P_AddAmmo(weap, ps, amount);
@@ -803,6 +811,7 @@ static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
 
     return 0;
 }
+#endif
 
 static void VM_Fall(void)
 {
@@ -956,6 +965,7 @@ static void VM_ResetPlayer(void)
     //AddLog("EOF: resetplayer");
 }
 
+#if !defined LUNATIC_ONLY
 GAMEEXEC_STATIC void VM_Execute(int32_t loop)
 {
     register int32_t tw = *insptr;
@@ -5132,10 +5142,12 @@ nullquote:
         }
     }
 }
+#endif
 
 // NORECURSE
 void A_LoadActor(int32_t iActor)
 {
+#if !defined LUNATIC_ONLY
     vm.g_i = iActor;    // Sprite ID
     vm.g_p = -1; // iPlayer;    // Player ID
     vm.g_x = -1; // lDist;    // ?
@@ -5161,6 +5173,7 @@ void A_LoadActor(int32_t iActor)
 
     if (vm.g_flags & VM_KILL)
         A_DeleteSprite(vm.g_i);
+#endif
 }
 
 // NORECURSE
@@ -5487,7 +5500,7 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&lockclock,&save->lockclock,sizeof(lockclock));
         Bmemcpy(&randomseed,&save->randomseed,sizeof(randomseed));
         Bmemcpy(&g_globalRandom,&save->g_globalRandom,sizeof(g_globalRandom));
-
+#if !defined LUNATIC_ONLY
         for (i=g_gameVarCount-1; i>=0; i--)
         {
             if (aGameVars[i].dwFlags & GAMEVAR_NORESET) continue;
@@ -5505,7 +5518,7 @@ void G_RestoreMapState(mapstate_t *save)
         }
 
         Gv_RefreshPointers();
-
+#endif
         for (i=0; i<playerswhenstarted; i++)
             sprite[g_player[i].ps->i].extra = phealth[i];
 

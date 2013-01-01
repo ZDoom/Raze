@@ -95,8 +95,8 @@ extern int32_t g_gameVarCount;
 extern int32_t g_gameArrayCount;
 
 #if defined LUNATIC_ONLY
-# define Gv_GetVar(id, iActor, iPlayer) (OSD_Printf("Gv_GetVar @ %s:%d\n", __FILE__, __LINE__), 0)
-# define Gv_SetVar(id, lValue, iActor, iPlayer) OSD_Printf("Gv_SetVar @ %s:%d\n", __FILE__, __LINE__)
+# define Gv_GetVar(id, iActor, iPlayer) 0 // (OSD_Printf("Gv_GetVar @ %s:%d\n", __FILE__, __LINE__), 0)
+# define Gv_SetVar(id, lValue, iActor, iPlayer) do{}while(0) //OSD_Printf("Gv_SetVar @ %s:%d\n", __FILE__, __LINE__)
 #else
 int32_t __fastcall Gv_GetVar(register int32_t id,register int32_t iActor,register int32_t iPlayer);
 void __fastcall Gv_SetVar(register int32_t id,register int32_t lValue,register int32_t iActor,register int32_t iPlayer);
@@ -104,19 +104,22 @@ void __fastcall Gv_SetVar(register int32_t id,register int32_t lValue,register i
 int32_t __fastcall Gv_GetVarX(register int32_t id);
 void __fastcall Gv_SetVarX(register int32_t id,register int32_t lValue);
 
+#ifdef LUNATIC_ONLY
+# define Gv_GetVarByLabel(szGameLabel, lDefault, iActor, iPlayer) (-1)
+#else
 int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t lDefault,int32_t iActor,int32_t iPlayer);
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
-int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
 void __fastcall A_ResetVars(register int32_t iActor);
 void G_FreeMapState(int32_t mapnum);
 void Gv_DumpValues(void);
-void Gv_Init(void);
 void Gv_InitWeaponPointers(void);
-void Gv_RefreshPointers(void);
 void Gv_RefreshPointers(void);
 void Gv_ResetSystemDefaults(void);
 void Gv_ResetVars(void);
+#endif
+int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
+void Gv_Init(void);
 void Gv_WriteSave(FILE *fil,int32_t newbehav);
 
 #define GV_VAROP(func, operator) static inline void __fastcall func(register int32_t id, register int32_t lValue) \

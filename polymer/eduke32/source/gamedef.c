@@ -178,6 +178,7 @@ enum
     LABEL_MOVE   = 32,
 };
 
+#if !defined LUNATIC_ONLY
 static const char *C_GetLabelType(int32_t type)
 {
     int32_t i;
@@ -572,6 +573,7 @@ const char *keyw[] =
     "showviewunbiased",         // 363
     "<null>"
 };
+#endif
 
 // KEEPINSYNC with enum GameEvent_t and lunatic/con_lang.lua
 const char *EventNames[MAXEVENTS] =
@@ -673,6 +675,7 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_CHANGEMENU"
 };
 
+#if !defined LUNATIC_ONLY
 const memberlabel_t SectorLabels[]=
 {
     { "wallptr", SECTOR_WALLPTR, 0, 0 },
@@ -1136,12 +1139,16 @@ const memberlabel_t InputLabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
+#endif
+
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_POINTER 1
 
 hashtable_t h_gamevars    = { MAXGAMEVARS>>1, NULL };
 hashtable_t h_arrays      = { MAXGAMEARRAYS>>1, NULL };
 hashtable_t h_labels      = { 11264>>1, NULL };
+
+#if !defined LUNATIC_ONLY
 static hashtable_t h_keywords       = { CON_END>>1, NULL };
 
 static hashtable_t sectorH     = { SECTOR_END>>1, NULL };
@@ -2057,6 +2064,8 @@ static void check_filename_case(const char *fn)
 static void check_filename_case(const char *fn) { UNREFERENCED_PARAMETER(fn); }
 #endif
 
+#endif  // !defined LUNATIC_ONLY
+
 void G_DoGameStartup(const int32_t *params)
 {
     int32_t j = 0;
@@ -2098,6 +2107,7 @@ void G_DoGameStartup(const int32_t *params)
     }
 }
 
+#if !defined LUNATIC_ONLY
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw, otw;
@@ -5729,7 +5739,6 @@ repeatcase:
     return 0;
 }
 
-#if !defined LUNATIC_ONLY
 /* Anything added with C_AddDefinition() cannot be overwritten in the CONs */
 static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
 {
@@ -5869,14 +5878,12 @@ static void C_InitProjectiles(void)
     }
 }
 #pragma pack(pop)
-#endif
 
 extern int32_t g_numObituaries;
 extern int32_t g_numSelfObituaries;
 
 void C_Compile(const char *filenam)
 {
-#if !defined LUNATIC_ONLY
     char *mptr;
     int32_t i;
     int32_t fs,fp;
@@ -5888,9 +5895,9 @@ void C_Compile(const char *filenam)
         Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
 
     C_InitHashes();
-#endif
+
     Gv_Init();
-#if !defined LUNATIC_ONLY
+
     C_InitProjectiles();
 
     fp = kopen4loadfrommod((char *)filenam,g_loadFromGroupOnly);
@@ -6185,11 +6192,12 @@ void C_Compile(const char *filenam)
             }
         }
     }
-#endif  // !defined LUNATIC_ONLY
 }
+#endif  // !defined LUNATIC_ONLY
 
 void C_ReportError(int32_t iError)
 {
+#if !defined LUNATIC_ONLY
     if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
     {
         if (g_parsingEventPtr || g_processingState || g_parsingActorPtr)
@@ -6278,4 +6286,5 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     }
+#endif
 }

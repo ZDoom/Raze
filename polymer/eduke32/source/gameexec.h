@@ -146,7 +146,7 @@ void G_RestoreMapState(mapstate_t *save);
 void G_RestoreMapState(mapstate_t *save);
 void G_SaveMapState(mapstate_t *save);
 void G_SaveMapState(mapstate_t *save);
-void Gv_RefreshPointers(void);
+//void Gv_RefreshPointers(void);
 int32_t VM_OnEvent(int32_t iEventID,int32_t iActor,int32_t iPlayer,int32_t lDist, int32_t iReturn);
 void VM_ScriptInfo(void);
 

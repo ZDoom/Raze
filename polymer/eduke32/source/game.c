@@ -3912,7 +3912,7 @@ static void G_DumpDebugInfo(void)
         }
         OSD_Printf("\n");
     }
-#endif
+
     for (x=0; x<MAXSTATUS; x++)
     {
         j = headspritestat[x];
@@ -3947,6 +3947,7 @@ static void G_DumpDebugInfo(void)
     }
     Gv_DumpValues();
 //    fclose(fp);
+#endif
     saveboard("debug.map", &g_player[myconnectindex].ps->pos, g_player[myconnectindex].ps->ang,
               g_player[myconnectindex].ps->cursectnum);
 }
@@ -4057,9 +4058,9 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     Bmemset(&spriteext[i], 0, sizeof(spriteext_t));
     Bmemset(&spritesmooth[i], 0, sizeof(spritesmooth_t));
-
+#if !defined LUNATIC_ONLY
     A_ResetVars(i);
-
+#endif
     if (G_HaveEvent(EVENT_EGS))
     {
         int32_t pl=A_FindPlayer(s, &p);
@@ -9544,7 +9545,9 @@ static void G_CompileScripts(void)
     if (g_scriptNamePtr != NULL)
         Bcorrectfilename(g_scriptNamePtr,0);
 
-#if !defined LUNATIC_ONLY
+#if defined LUNATIC_ONLY
+    Gv_Init();
+#else
     // if we compile for a V7 engine wall[] should be used for label names since it's bigger
     pathsearchmode = 1;
 

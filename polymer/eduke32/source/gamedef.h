@@ -97,7 +97,9 @@ extern const memberlabel_t InputLabels[];
 extern const memberlabel_t TsprLabels[];
 
 void C_ReportError(int32_t iError);
+#if !defined LUNATIC_ONLY
 void C_Compile(const char *filenam);
+#endif
 
 /*
 extern void VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2);
