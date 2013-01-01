@@ -405,6 +405,107 @@ static int32_t Proj_InsertShotspark(const hitdata_t *hit, int32_t i, int32_t atw
     return k;
 }
 
+static void Proj_MaybeAddSpread(int32_t not_accurate_p, int32_t *zvel, int16_t *sa,
+                                int32_t zRange, int32_t angRange)
+{
+    if (not_accurate_p)
+    {
+        // NOTE: if {z,ang}Range is 0, there is a huge spread
+        *zvel += (zRange/2)-(krand()&(zRange-1));
+        *sa += (angRange/2)-(krand()&(angRange-1));
+    }
+}
+
+// Prepare hitscan weapon fired from player p.
+static void P_PreFireHitscan(int32_t i, int32_t p, int32_t atwith,
+                             vec3_t *srcvect, int32_t *zvel, int16_t *sa,
+                             int32_t accurate_autoaim_p,
+                             int32_t not_accurate_p)
+{
+    int32_t angRange=32;
+    int32_t zRange=256;
+
+    int32_t j = GetAutoAimAngle(i, p, atwith, 5<<8, 0+1, srcvect, 256, zvel, sa);
+    const DukePlayer_t *const ps = g_player[p].ps;
+
+    Gv_SetVar(g_iAngRangeVarID,angRange, i,p);
+    Gv_SetVar(g_iZRangeVarID,zRange,i,p);
+
+    if (G_HaveEvent(EVENT_GETSHOTRANGE))
+        VM_OnEvent(EVENT_GETSHOTRANGE, i,p, -1, 0);
+#if !defined LUNATIC_ONLY
+    // TODO
+    angRange=Gv_GetVar(g_iAngRangeVarID,i,p);
+    zRange=Gv_GetVar(g_iZRangeVarID,i,p);
+#endif
+    if (accurate_autoaim_p)
+    {
+        if (!ps->auto_aim)
+        {
+            hitdata_t hit;
+
+            *zvel = (100-ps->horiz-ps->horizoff)<<5;
+            if (actor[i].shootzvel)
+                *zvel = actor[i].shootzvel;
+
+            hitscan(srcvect, sprite[i].sectnum, sintable[(*sa+512)&2047], sintable[*sa&2047],
+                    *zvel<<6,&hit,CLIPMASK1);
+
+            if (hit.sprite != -1)
+            {
+                const int32_t hitstatnumsbitmap =
+                    ((1<<STAT_ACTOR) | (1<<STAT_ZOMBIEACTOR) | (1<<STAT_PLAYER) | (1<<STAT_DUMMYPLAYER));
+                const int32_t st = sprite[hit.sprite].statnum;
+
+                if (st>=0 && st<=30 && (hitstatnumsbitmap&(1<<st)))
+                    j = hit.sprite;
+            }
+        }
+
+        if (j == -1)
+        {
+            *zvel = (100-ps->horiz-ps->horizoff)<<5;
+            Proj_MaybeAddSpread(not_accurate_p, zvel, sa, zRange, angRange);
+        }
+    }
+    else
+    {
+        if (j == -1)  // no target
+            *zvel = (100-ps->horiz-ps->horizoff)<<5;
+        Proj_MaybeAddSpread(not_accurate_p, zvel, sa, zRange, angRange);
+    }
+
+    srcvect->z -= (2<<8);
+}
+
+// Hitscan weapon fired from actor (sprite s);
+static void A_PreFireHitscan(const spritetype *s, vec3_t *srcvect, int32_t *zvel, int16_t *sa,
+                             int32_t not_accurate_p)
+{
+    int32_t dummydist;
+    const int32_t j = A_FindPlayer(s, &dummydist);
+    const DukePlayer_t *targetps = g_player[j].ps;
+
+    int32_t d = ldist(&sprite[targetps->i], s);
+
+    if (d == 0)
+        d++;
+    *zvel = ((targetps->pos.z-srcvect->z)<<8) / d;
+
+    srcvect->z -= (4<<8);
+
+    if (s->picnum != BOSS1)
+    {
+        Proj_MaybeAddSpread(not_accurate_p, zvel, sa, 256, 64);
+    }
+    else
+    {
+        *sa = getangle(targetps->pos.x-srcvect->x, targetps->pos.y-srcvect->y);
+
+        Proj_MaybeAddSpread(not_accurate_p, zvel, sa, 256, 128);
+    }
+}
+
 int32_t A_Shoot(int32_t i, int32_t atwith)
 {
     int16_t l, sa, j, k=-1;
@@ -690,88 +791,12 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             if (s->extra >= 0) s->shade = ProjectileData[atwith].shade;
 
             if (p >= 0)
-            {
-                int32_t angRange=32;
-                int32_t zRange=256;
-
-                j = GetAutoAimAngle(i, p, atwith, 5<<8, 0+1, &srcvect, 256, &zvel, &sa);
-
-                Gv_SetVar(g_iAngRangeVarID,angRange, i,p);
-                Gv_SetVar(g_iZRangeVarID,zRange,i,p);
-
-                if (G_HaveEvent(EVENT_GETSHOTRANGE))
-                    VM_OnEvent(EVENT_GETSHOTRANGE, i,p, -1, 0);
-
-                angRange=Gv_GetVar(g_iAngRangeVarID,i,p);
-                zRange=Gv_GetVar(g_iZRangeVarID,i,p);
-
-                if (ProjectileData[atwith].workslike & PROJECTILE_ACCURATE_AUTOAIM)
-                {
-                    if (!ps->auto_aim)
-                    {
-                        zvel = (100-ps->horiz-ps->horizoff)<<5;
-                        if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-                        hitscan((const vec3_t *)&srcvect,sect,sintable[(sa+512)&2047],sintable[sa&2047],
-                                zvel<<6,&hit,CLIPMASK1);
-                        if (hit.sprite != -1)
-                        {
-                            if (sprite[hit.sprite].statnum == STAT_ACTOR || sprite[hit.sprite].statnum == STAT_ZOMBIEACTOR || sprite[hit.sprite].statnum == STAT_PLAYER || sprite[hit.sprite].statnum == STAT_DUMMYPLAYER)
-                                j = hit.sprite;
-                        }
-                    }
-
-                    if (j == -1)
-                    {
-                        zvel = (100-ps->horiz-ps->horizoff)<<5;
-                        if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
-                        {
-                            sa += (angRange/2)-(krand()&(angRange-1));
-                            zvel += (zRange/2)-(krand()&(zRange-1));
-                        }
-                    }
-                }
-                else
-                {
-                    if (j == -1)
-                    {
-                        // no target
-                        zvel = (100-ps->horiz-ps->horizoff)<<5;
-                    }
-                    if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
-                    {
-                        sa += (angRange/2)-(krand()&(angRange-1));
-                        zvel += (zRange/2)-(krand()&(zRange-1));
-                    }
-                }
-                srcvect.z -= (2<<8);
-            }
+                P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa,
+                              ProjectileData[atwith].workslike & PROJECTILE_ACCURATE_AUTOAIM,
+                              !(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE));
             else
-            {
-                j = A_FindPlayer(s,&x);
-                srcvect.z -= (4<<8);
-                hit.pos.x = ldist(&sprite[g_player[j].ps->i], s);
-                if (hit.pos.x == 0)
-                    hit.pos.x++;
-                zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hit.pos.x;
-                if (s->picnum != BOSS1)
-                {
-                    if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
-                    {
-                        zvel += 128-(krand()&255);
-                        sa += 32-(krand()&63);
-                    }
-                }
-                else
-                {
-                    sa = getangle(g_player[j].ps->pos.x-srcvect.x,g_player[j].ps->pos.y-srcvect.y);
-
-                    if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
-                    {
-                        zvel += 128-(krand()&255);
-                        sa += 64-(krand()&127);
-                    }
-                }
-            }
+                A_PreFireHitscan(s, &srcvect, &zvel, &sa,
+                                 !(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE));
 
             if (ProjectileData[atwith].cstat >= 0) s->cstat &= ~ProjectileData[atwith].cstat;
             else s->cstat &= ~257;
@@ -1194,76 +1219,9 @@ DOSKIPBULLETHOLE:
             if (s->extra >= 0) s->shade = -96;
 
             if (p >= 0)
-            {
-                int32_t angRange=32;
-                int32_t zRange=256;
-
-                j = GetAutoAimAngle(i, p, atwith, 5<<8, 0+1, &srcvect, 256, &zvel, &sa);
-
-                Gv_SetVar(g_iAngRangeVarID,angRange, i,p);
-                Gv_SetVar(g_iZRangeVarID,zRange,i,p);
-
-                if (G_HaveEvent(EVENT_GETSHOTRANGE))
-                    VM_OnEvent(EVENT_GETSHOTRANGE, i,p, -1, 0);
-
-                angRange=Gv_GetVar(g_iAngRangeVarID,i,p);
-                zRange=Gv_GetVar(g_iZRangeVarID,i,p);
-
-                if (atwith == SHOTSPARK1__STATIC && !WW2GI && !NAM)
-                {
-                    if (!ps->auto_aim)
-                    {
-                        zvel = (100-ps->horiz-ps->horizoff)<<5;
-                        if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-                        hitscan((const vec3_t *)&srcvect,sect,sintable[(sa+512)&2047],sintable[sa&2047],
-                                zvel<<6,&hit,CLIPMASK1);
-                        if (hit.sprite != -1)
-                        {
-                            if (sprite[hit.sprite].statnum == STAT_ACTOR || sprite[hit.sprite].statnum == STAT_ZOMBIEACTOR ||
-                                    sprite[hit.sprite].statnum == STAT_PLAYER || sprite[hit.sprite].statnum == STAT_DUMMYPLAYER)
-                                j = hit.sprite;
-                        }
-                    }
-
-                    if (j == -1)
-                    {
-                        sa += (angRange/2)-(krand()&(angRange-1));
-                        zvel = (100-ps->horiz-ps->horizoff)<<5;
-                        zvel += (zRange/2)-(krand()&(zRange-1));
-                    }
-                }
-                else
-                {
-                    sa += (angRange/2)-(krand()&(angRange-1));
-                    if (j == -1)
-                    {
-                        // no target
-                        zvel = (100-ps->horiz-ps->horizoff)<<5;
-                    }
-                    zvel += (zRange/2)-(krand()&(zRange-1));
-                }
-
-                srcvect.z -= (2<<8);
-            }
+                P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa, 1, 1);
             else
-            {
-                j = A_FindPlayer(s,&x);
-                srcvect.z -= (4<<8);
-                hit.pos.x = ldist(&sprite[g_player[j].ps->i], s);
-                if (hit.pos.x == 0)
-                    hit.pos.x++;
-                zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hit.pos.x;
-                if (s->picnum != BOSS1)
-                {
-                    zvel += 128-(krand()&255);
-                    sa += 32-(krand()&63);
-                }
-                else
-                {
-                    zvel += 128-(krand()&255);
-                    sa = getangle(g_player[j].ps->pos.x-srcvect.x,g_player[j].ps->pos.y-srcvect.y)+64-(krand()&127);
-                }
-            }
+                A_PreFireHitscan(s, &srcvect, &zvel, &sa, 1);
 
             s->cstat &= ~257;
             if (actor[i].shootzvel) zvel = actor[i].shootzvel;
