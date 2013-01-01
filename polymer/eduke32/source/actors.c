@@ -102,16 +102,18 @@ void G_ClearCameraView(DukePlayer_t *ps)
 
 void A_RadiusDamage(int32_t i, int32_t  r, int32_t  hp1, int32_t  hp2, int32_t  hp3, int32_t  hp4)
 {
-    spritetype *s=&sprite[i],*sj;
-    walltype *wal;
+    const spritetype *const s=&sprite[i];
+    const walltype *wal;
     int32_t d, q, x1, y1;
     int32_t sectcnt, sectend, dasect, startwall, endwall, nextsect;
-    int32_t j,k,x,nextj;
+    int32_t j,k,x;
     int16_t sect=-1;
-    char statlist[] = {STAT_DEFAULT,STAT_ACTOR,STAT_STANDABLE,
-                       STAT_PLAYER,STAT_FALLER,STAT_ZOMBIEACTOR,STAT_MISC
-                      };
-    int16_t *tempshort = (int16_t *)tempbuf;
+    char statlist[] = {
+        STAT_DEFAULT,STAT_ACTOR,STAT_STANDABLE,
+        STAT_PLAYER,STAT_FALLER,STAT_ZOMBIEACTOR,STAT_MISC
+    };
+
+    int16_t *const tempshort = (int16_t *)tempbuf;
 
     if (s->picnum == RPG && s->xrepeat < 11) goto SKIPWALLCHECK;
 
@@ -176,8 +178,8 @@ SKIPWALLCHECK:
         j = headspritestat[(uint8_t)statlist[x]];
         while (j >= 0)
         {
-            nextj = nextspritestat[j];
-            sj = &sprite[j];
+            int32_t nextj = nextspritestat[j];
+            spritetype *const sj = &sprite[j];
 
             if (x == 0 || x >= 5 || AFLAMABLE(sj->picnum))
             {

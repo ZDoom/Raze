@@ -380,6 +380,31 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
     return j;
 }
 
+static void Proj_MaybeSpawn(int32_t k, int32_t atwith, const hitdata_t *hit)
+{
+    if (ProjectileData[atwith].spawns >= 0)
+    {
+        int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
+        if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
+        if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
+        A_SetHitData(wh, hit);
+    }
+}
+
+static int32_t Proj_InsertShotspark(const hitdata_t *hit, int32_t i, int32_t atwith, int32_t sz, int32_t ang)
+{
+    int32_t k = A_InsertSprite(hit->sect,hit->pos.x,hit->pos.y,hit->pos.z,SHOTSPARK1,-15,
+                               sz,sz,ang,0,0,i,4);
+
+    sprite[k].extra = ProjectileData[atwith].extra;
+    if (ProjectileData[atwith].extra_rand > 0)
+        sprite[k].extra += (krand()%ProjectileData[atwith].extra_rand);
+    sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
+    A_SetHitData(k, hit);
+
+    return k;
+}
+
 int32_t A_Shoot(int32_t i, int32_t atwith)
 {
     int16_t l, sa, j, k=-1;
@@ -778,12 +803,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
 
             if (p >= 0)
             {
-                k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
-                sprite[k].extra = ProjectileData[atwith].extra;
-                if (ProjectileData[atwith].extra_rand > 0)
-                    sprite[k].extra += (krand()%ProjectileData[atwith].extra_rand);
-                sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                A_SetHitData(k, &hit);
+                k = Proj_InsertShotspark(&hit, i, atwith, 10, sa);
 
                 if (hit.wall == -1 && hit.sprite == -1)
                 {
@@ -798,13 +818,8 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                         else
                             Sect_DamageCeiling(hit.sect);
                     }
-                    if (ProjectileData[atwith].spawns >= 0)
-                    {
-                        int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
-                        if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
-                        if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                        A_SetHitData(wh, &hit);
-                    }
+
+                    Proj_MaybeSpawn(k, atwith, &hit);
                 }
 
                 if (hit.sprite >= 0)
@@ -823,14 +838,9 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                     }
                     else
                     {
-                        if (ProjectileData[atwith].spawns >= 0)
-                        {
-                            int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
-                            if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
-                            if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                            A_SetHitData(wh, &hit);
-                        }
+                        Proj_MaybeSpawn(k, atwith, &hit);
                     }
+
                     if (p >= 0 && CheckShootSwitchTile(sprite[hit.sprite].picnum))
                     {
                         P_ActivateSwitch(p,hit.sprite,1);
@@ -839,13 +849,8 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                 }
                 else if (hit.wall >= 0)
                 {
-                    if (ProjectileData[atwith].spawns >= 0)
-                    {
-                        int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
-                        if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
-                        if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                        A_SetHitData(wh, &hit);
-                    }
+                    Proj_MaybeSpawn(k, atwith, &hit);
+
                     if (CheckDoorTile(wall[hit.wall].picnum) == 1)
                         goto DOSKIPBULLETHOLE;
                     if (p >= 0 && CheckShootSwitchTile(wall[hit.wall].picnum))
@@ -926,25 +931,14 @@ DOSKIPBULLETHOLE:
             }
             else
             {
-                k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
-                sprite[k].extra = ProjectileData[atwith].extra;
-                if (ProjectileData[atwith].extra_rand > 0)
-                    sprite[k].extra += (krand()%ProjectileData[atwith].extra_rand);
-                sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                A_SetHitData(k, &hit);
+                k = Proj_InsertShotspark(&hit, i, atwith, 24, sa);
 
                 if (hit.sprite >= 0)
                 {
                     A_DamageObject(hit.sprite,k);
                     if (sprite[hit.sprite].picnum != APLAYER)
                     {
-                        if (ProjectileData[atwith].spawns >= 0)
-                        {
-                            int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
-                            if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
-                            if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                            A_SetHitData(wh, &hit);
-                        }
+                        Proj_MaybeSpawn(k, atwith, &hit);
                     }
                     else sprite[k].xrepeat = sprite[k].yrepeat = 0;
                 }
@@ -1863,7 +1857,7 @@ static void P_DisplaySpit(int32_t snum)
     }
 }
 
-static int32_t get_hud_pal(const DukePlayer_t *p)
+static int32_t P_GetHudPal(const DukePlayer_t *p)
 {
     if (sprite[p->i].pal == 1)
         return 1;
@@ -1898,7 +1892,7 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
 
     fistz = 194 + (sintable[((6+fisti)<<7)&2047]>>9);
 
-    fistpal = get_hud_pal(ps);
+    fistpal = P_GetHudPal(ps);
 
     // XXX: this is outdated, doesn't handle above/below split.
     if (g_fakeMultiMode==2)
@@ -1945,7 +1939,7 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
         break;
     }
 
-    // for G_DrawTileScaled, bit 4 means "flip x"
+    // bit 4 means "flip x" for G_DrawTileScaled
     if (orientation&4)
         ang = 1024;
 
@@ -2054,7 +2048,7 @@ static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
 
     looking_arc -= (ps->hard_landing<<3);
 
-    pal = get_hud_pal(ps);
+    pal = P_GetHudPal(ps);
     if (pal == 0)
         pal = ps->palookup;
 
@@ -2077,7 +2071,7 @@ static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
 
     looking_arc -= (ps->hard_landing<<3);
 
-    pal = get_hud_pal(ps);
+    pal = P_GetHudPal(ps);
 
     G_DrawTileScaled(160+(g_player[snum].sync->avel>>4)-(ps->look_ang>>1),
                      looking_arc+180-((ps->horiz-ps->horizoff)>>4),
@@ -2086,7 +2080,7 @@ static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
     return 1;
 }
 
-void P_FireWeapon(DukePlayer_t *p)
+static void P_FireWeapon(DukePlayer_t *p)
 {
     int32_t i, snum = sprite[p->i].yvel;
 
@@ -2170,7 +2164,7 @@ void P_DisplayScuba(int32_t snum)
 {
     if (g_player[snum].ps->scuba_on)
     {
-        int32_t p = get_hud_pal(g_player[snum].ps);
+        int32_t p = P_GetHudPal(g_player[snum].ps);
 
         g_snum = snum;
         G_DrawTileScaled(43, (200-tilesizy[SCUBAMASK]), SCUBAMASK, 0, 2+16+DRAWEAP_CENTER, p);
@@ -2197,7 +2191,7 @@ static int32_t P_DisplayTip(int32_t gs,int32_t snum)
     looking_arc = klabs(ps->look_ang)/9;
     looking_arc -= (ps->hard_landing<<3);
 
-    p = get_hud_pal(ps);
+    p = P_GetHudPal(ps);
 
     /*    if(ps->access_spritenum >= 0)
             p = sprite[ps->access_spritenum].pal;
@@ -2269,7 +2263,7 @@ void P_DisplayWeapon(int32_t snum)
     int32_t weapon_xoffset, i, j;
     int32_t o = 0,pal = 0;
     DukePlayer_t *const p = g_player[snum].ps;
-    uint8_t *kb = &p->kickback_pic;
+    const uint8_t *const kb = &p->kickback_pic;
     int32_t gs;
 
     g_snum = snum;
@@ -2320,7 +2314,7 @@ void P_DisplayWeapon(int32_t snum)
         j = 14-p->quick_kick;
         if (j != 14 || p->last_quick_kick)
         {
-            pal = get_hud_pal(p);
+            pal = P_GetHudPal(p);
             if (pal == 0)
                 pal = p->palookup;
 
@@ -2335,7 +2329,7 @@ void P_DisplayWeapon(int32_t snum)
 
         if (sprite[p->i].xrepeat < 40)
         {
-            pal = get_hud_pal(p);
+            pal = P_GetHudPal(p);
 
             if (p->jetpack_on == 0)
             {
@@ -2356,7 +2350,7 @@ void P_DisplayWeapon(int32_t snum)
         }
         else
         {
-            pal = get_hud_pal(p);
+            pal = P_GetHudPal(p);
 
             switch (cw)
             {
@@ -3754,7 +3748,7 @@ void P_FragPlayer(int32_t snum)
     }
 }
 
-void P_ProcessWeapon(int32_t snum)
+static void P_ProcessWeapon(int32_t snum)
 {
     DukePlayer_t *const p = g_player[snum].ps;
     uint8_t *const kb = &p->kickback_pic;
