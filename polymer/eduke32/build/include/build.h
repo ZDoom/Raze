@@ -843,6 +843,13 @@ static inline void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32
     getzsofslopeptr(&sector[sectnum], dax, day, ceilz, florz);
 }
 
+// Is <wal> a red wall in a safe fashion, i.e.
+// .nextsector >= 0 iff .nextwall >= 0 ?
+static inline int32_t redwallp(const walltype *wal)
+{
+    return (wal->nextwall >= 0 && wal->nextsector >= 0);
+}
+
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t   sectorofwall(int16_t theline);
