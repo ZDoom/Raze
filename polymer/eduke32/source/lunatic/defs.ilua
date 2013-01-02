@@ -164,6 +164,9 @@ local DUKEPLAYER_STRUCT = [[
 
     uint32_t interface_toggle_flag;
 
+    int32_t zrange;
+    int16_t angrange, autoaimang;
+
     uint16_t max_actors_killed, actors_killed;
     uint16_t gotweapon, zoom;
 
@@ -455,6 +458,7 @@ tiledata_t g_tile[MAXTILES];
 char *ScriptQuotes[];
 
 const int32_t playerswhenstarted;
+const int32_t screenpeek;
 int32_t lastvisinc;
 int16_t g_spriteDeleteQueueSize;
 int16_t BlimpSpawnSprites[15];
@@ -476,6 +480,11 @@ int32_t A_Spawn(int32_t j, int32_t pn);
 void A_AddToDeleteQueue(int32_t i);
 void P_DoQuote(int32_t q, DukePlayer_t *p);
 void G_ClearCameraView(DukePlayer_t *ps);
+
+int32_t A_CheckAnySoundPlaying(int32_t i);
+int32_t A_PlaySound(uint32_t num, int32_t i);
+int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
+void S_StopSound(int32_t num);
 ]]
 
 -- functions
@@ -792,7 +801,7 @@ local player_mt = {
 }
 ffi.metatype("DukePlayer_t", player_mt)
 
-
+-- Declare all con_lang.labels constants in the global FFI namespace.
 for i=1,#con_lang.labels do
     local strbuf = {"enum {"}
 
@@ -1077,7 +1086,7 @@ local function our_gameevent(event, func)
         if (event:sub(1,6) ~= "EVENT_") then
             event = "EVENT_"..event
         end
-        local eventidx = con_lang.labels[3][event]  -- 3: event list
+        local eventidx = con_lang.labels.EVENT[event]
         if (eventidx == nil) then
             errorf(2, "gameevent: invalid event label %q", event)
         end

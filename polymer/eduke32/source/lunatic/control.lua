@@ -20,7 +20,7 @@ local cansee, hitscan, neartag = dc.cansee, dc.hitscan, dc.neartag
 local inside = dc.inside
 
 local sector, wall, sprite = dc.sector, dc.wall, dc.sprite
-local spritesofsect = dc.spritesofsect
+local spritesofsect, spritesofstat = dc.spritesofsect, dc.spritesofstat
 
 
 module(...)
@@ -304,6 +304,7 @@ end
 local D = {
     -- TODO: dynamic tile remapping
     ACTIVATOR = 2,
+    RESPAWN = 9,
     APLAYER = 1405,
 
     FIRSTAID = 53,
@@ -314,8 +315,23 @@ local D = {
     BOOTS = 61,
     HOLODUKE = 1348,
 
+    STATUE = 753,
+    NAKED1 = 603,
+    PODFEM1 = 1294,
+    FEM1 = 1312,
+    FEM2 = 1317,
+    FEM3 = 1321,
+    FEM5 = 1323,
+    FEM4 = 1325,
+    FEM6 = 1334,
+    FEM8 = 1336,
+    FEM7 = 1395,
+    FEM9 = 3450,
+    FEM10 = 4864,
+
     ATOMICHEALTH = 100,
     GLASSPIECES = 1031,
+    TRANSPORTERSTAR = 1630,
     COMMANDER = 1920,
     JIBS2 = 2250,
     SCRAP1 = 2400,
@@ -713,7 +729,7 @@ end
 
 function _canseetarget(spr, ps)
     -- NOTE: &41 ?
-    return cansee(spr^krandand(41), spr.sectnum,
+    return cansee(spr^(256*krandand(41)), spr.sectnum,
                   ps.pos, sprite[ps.i].sectnum)
 end
 
@@ -855,8 +871,53 @@ end
 
 function _flash(spr, ps)
    spr.shade = -127
-   ps.visibility = -127
+   ps.visibility = -127  -- XXX
    ffiC.lastvisinc = ffiC.totalclock+32
+end
+
+local function G_OperateRespawns(tag)
+    for i in spritesofstat(ffiC.STAT_FX) do
+        local spr = sprite[i]
+
+        if (spr.lotag==tag and spr.picnum==D.RESPAWN) then
+            if (ffiC.ud.monsters_off~=0 and isenemytile(spr.hitag)) then
+                return
+            end
+
+            local j = spawn(i, D.TRANSPORTERSTAR)
+            sprite[j].z = sprite[j].z - (32*256)
+
+            -- Just a way to killit (see G_MoveFX(): RESPAWN__STATIC)
+            spr.extra = 66-12
+        end
+    end
+end
+
+local RESPAWN_USE_YVEL =
+{
+    [D.STATUE] = true,
+    [D.NAKED1] = true,
+    [D.PODFEM1] = true,
+    [D.FEM1] = true,
+    [D.FEM2] = true,
+    [D.FEM3] = true,
+    [D.FEM5] = true,
+    [D.FEM4] = true,
+    [D.FEM6] = true,
+    [D.FEM8] = true,
+    [D.FEM7] = true,
+    [D.FEM9] = true,
+    [D.FEM10] = true,
+}
+
+function _respawnhitag(spr)
+    if (RESPAWN_USE_YVEL[spr.picnum]) then
+        if (spr.yvel ~= 0) then
+            G_OperateRespawns(spr.yvel)
+        end
+    else
+        G_OperateRespawns(spr.hitag)
+    end
 end
 
 local INVENTILE = {
@@ -877,6 +938,48 @@ function _checkrespawn(spr)
         return (ffiC.ud.respawn_inventory~=0)
     end
     return (ffiC.ud.respawn_items~=0)
+end
+
+-- SOUNDS
+
+local function check_sound_idx(sndidx)
+    if (sndidx >= con_lang.MAXSOUNDS+0ULL) then
+        error("invalid sound number "..sndidx, 2)
+    end
+end
+
+function _ianysound(aci)
+    check_sprite_idx(aci)
+    return (ffiC.A_CheckAnySoundPlaying(aci)~=0)
+end
+
+function _sound(aci, sndidx)
+    check_sprite_idx(aci)
+    ffiC.A_PlaySound(sndidx, aci)
+end
+
+function _globalsound(pli, sndidx)
+    -- TODO: conditional on coop, fake multimode
+    if (pli==ffiC.screenpeek) then
+        _sound(player[pli].i, sndidx)
+    end
+end
+
+function _stopsound(aci, sndidx)
+    check_sprite_idx(aci)
+    check_sound_idx(sndidx)
+    -- XXX: This is weird: the checking is done wrt a sprite, but the sound not.
+    -- NOTE: S_StopSound() stops sound <sndidx> that started playing most recently.
+    if (ffiC.S_CheckSoundPlaying(aci, sndidx) ~= 0) then
+        S_StopSound(sndidx)
+    end
+end
+
+function _soundonce(aci, sndidx)
+    check_sound_idx(sndidx)
+    if (ffiC.S_CheckSoundPlaying(aci, sndidx) == 0) then
+        _sound(aci, sndidx)
+    end
 end
 
 

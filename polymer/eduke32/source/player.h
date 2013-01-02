@@ -164,7 +164,10 @@ typedef struct {
     int32_t autostep, autostep_sbw;
 
     uint32_t interface_toggle_flag;
-
+#ifdef LUNATIC
+    int32_t zrange;
+    int16_t angrange, autoaimang;
+#endif
     uint16_t max_actors_killed, actors_killed;
     uint16_t gotweapon, zoom;
 

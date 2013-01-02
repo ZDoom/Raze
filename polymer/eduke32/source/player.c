@@ -342,13 +342,21 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
 
     Bassert((unsigned)p < MAXPLAYERS);
 
+#ifdef LUNATIC
+    g_player[p].ps->autoaimang = AUTO_AIM_ANGLE;
+#else
     Gv_SetVar(g_iAimAngleVarID, AUTO_AIM_ANGLE, i, p);
+#endif
 
     if (G_HaveEvent(EVENT_GETAUTOAIMANGLE))
         VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
 
     {
+#ifdef LUNATIC
+        int32_t aimang = g_player[p].ps->autoaimang;
+#else
         int32_t aimang = Gv_GetVar(g_iAimAngleVarID, i, p);
+#endif
         if (aimang > 0)
             j = A_FindTargetSprite(&sprite[i], aimang, atwith);
     }
@@ -445,18 +453,27 @@ static void P_PreFireHitscan(int32_t i, int32_t p, int32_t atwith,
     int32_t zRange=256;
 
     int32_t j = GetAutoAimAngle(i, p, atwith, 5<<8, 0+1, srcvect, 256, zvel, sa);
-    const DukePlayer_t *const ps = g_player[p].ps;
+    DukePlayer_t *const ps = g_player[p].ps;
 
+#ifdef LUNATIC
+    ps->angrange = angRange;
+    ps->zrange = zRange;
+#else
     Gv_SetVar(g_iAngRangeVarID,angRange, i,p);
     Gv_SetVar(g_iZRangeVarID,zRange,i,p);
+#endif
 
     if (G_HaveEvent(EVENT_GETSHOTRANGE))
         VM_OnEvent(EVENT_GETSHOTRANGE, i,p, -1, 0);
-#if !defined LUNATIC_ONLY
-    // TODO
+
+#if defined LUNATIC
+    angRange = ps->angrange;
+    zRange = ps->zrange;
+#else
     angRange=Gv_GetVar(g_iAngRangeVarID,i,p);
     zRange=Gv_GetVar(g_iZRangeVarID,i,p);
 #endif
+
     if (accurate_autoaim_p)
     {
         if (!ps->auto_aim)

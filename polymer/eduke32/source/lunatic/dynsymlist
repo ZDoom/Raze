@@ -75,6 +75,7 @@ g_tile;
 
 ScriptQuotes;
 
+screenpeek;
 playerswhenstarted;
 lastvisinc;
 g_spriteDeleteQueueSize;
@@ -108,4 +109,9 @@ A_Spawn;
 A_AddToDeleteQueue;
 P_DoQuote;
 G_ClearCameraView;
+
+A_CheckAnySoundPlaying;
+A_PlaySound;
+S_CheckSoundPlaying;
+S_StopSound;
 };

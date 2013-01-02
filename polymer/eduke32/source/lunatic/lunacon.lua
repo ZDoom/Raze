@@ -29,7 +29,7 @@ local ffi, ffiC
 if (string.dump) then
     bit = require("bit")
     -- For Rio Lua:
-    bit = { bor=function() return 0 end }
+--    bit = { bor=function() return 0 end }
     require("strict")
 else
     bit = require("bit")
@@ -91,8 +91,8 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true,
 
 -- How many 'if' statements are following immediately each other,
 -- needed to cope with CONs dangling-else resolution
-local g_ifseqlevel = 0
-
+local g_iflevel = 0
+local g_ifelselevel = 0
 
 ---=== Code generation ===---
 local g_have_file = {}  -- [filename]=true
@@ -108,7 +108,8 @@ local function getlinecol(pos) end -- fwd-decl
 local function new_initial_codetab()
     return {
         "local _con, _bit, _math = require'con', require'bit', require'math';",
-        "local sector, sprite, actor, player = sector, sprite, actor, player;"
+        "local sector, sprite, actor, player = sector, sprite, actor, player;",
+        "local gameactor=gameactor;"
            }
 end
 
@@ -156,7 +157,7 @@ local function on_actor_end(usertype, tsamm, codetab)
 end
 
 local function on_state_end(statename, codetab)
-    -- TODO: mangle names, make them accessible from other translation units
+    -- TODO: mangle names
     addcodef("local function %s(_aci, _pli, _dist)", statename)
     assert(type(codetab)=="table")
     addcode(codetab)
@@ -278,7 +279,7 @@ local function do_define_label(identifier, num)
         else
             -- conl.labels[...]: don't warn for wrong PROJ_ redefinitions
             if (g_warn["not-redefined"]) then
-                if (oldval ~= num and conl.labels[2][identifier]==nil) then
+                if (oldval ~= num and conl.labels.PROJ[identifier]==nil) then
                     warnprintf("label \"%s\" not redefined with new value %d (old: %d)",
                                identifier, num, oldval)
                 end
@@ -796,6 +797,10 @@ local function handle_move(mv, ...)
     return format(ACS":set_move(%s,%d)", mv, (flags[1] and bit.bor(...)) or 0)
 end
 
+local function handle_debug(val)
+    return format("print('%s:%d: debug %d')", g_filename, getlinecol(g_lastkwpos), val)
+end
+
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
 -- that have no arguments and that are prefixes of other commands MUST be
 -- suffixed with a "* #sp1" pattern.
@@ -961,13 +966,13 @@ local Ci = {
     angoff = cmd(D)
         / "spritext[_aci].angoff=%1",
     debug = cmd(D)
-        / "",  -- TODO?
+        / handle_debug,
     endofgame = cmd(D)
         / "_con._endofgame(_pli,%1)",
     eqspawn = cmd(D),
     espawn = cmd(D),
     globalsound = cmd(D)
-        / "",
+        / "_con._globalsound(_pli,%1)",
     lotsofglass = cmd(D)
         / "_con._A_SpawnGlass(_aci,%1)",
     mail = cmd(D)
@@ -984,13 +989,14 @@ local Ci = {
     save = cmd(D),
     sleeptime = cmd(D)
         / ACS".timetosleep=%1",
-    soundonce = cmd(D),
+    soundonce = cmd(D)
+        / "_con._soundonce(_aci,%1)",
     sound = cmd(D)
-        / "",  -- TODO: all things audio...
+        / "_con._sound(_aci,%1)",
     spawn = cmd(D)
-        / "_con.spawn(_aci, %1)",
+        / "_con.spawn(_aci,%1)",
     stopsound = cmd(D)
-        / "",
+        / "_con._stopsound(_aci,%1)",
 
     eshoot = cmd(D),
     ezshoot = cmd(R,D),
@@ -1003,7 +1009,7 @@ local Ci = {
     fall = cmd()
         / "_con._VM_FallSprite(_aci)",
     flash = cmd()
-        / format("_con._flash(%s,%s)", ACS"", SPS""),
+        / format("_con._flash(%s,%s)", SPS"", PLS""),
     getlastpal = cmd()
         / "_con._getlastpal(_aci)",
     insertspriteq = cmd()
@@ -1011,7 +1017,7 @@ local Ci = {
     killit = cmd()  -- NLCF
         / "_con.killit()",
     mikesnd = cmd()
-        / "",  -- TODO
+        / format("_con._soundonce(_aci,%s)", SPS".yvel"),
     nullop = cmd()
         / "",  -- NOTE: really generate no code
     pkick = cmd()
@@ -1025,7 +1031,7 @@ local Ci = {
     resetplayer = cmd()  -- NLCF
         / "if (_con._VM_ResetPlayer2(_pli,_aci)) then _con.longjmp() end",
     respawnhitag = cmd()
-        / "",  -- TODO
+        / format("_con._respawnhitag(%s)", SPS""),
     tip = cmd()
         / PLS".tipincs=26",
     tossweapon = cmd()
@@ -1176,13 +1182,13 @@ local Cif = {
     ifrnd = cmd(D)
         / "_con.rnd(%1)",
     ifpdistl = cmd(D)
-        / function(val) return "_dist<"..val end, --, "_con.sleepcheck(_aci,_dist)" end,
+        / function(val) return "_dist<"..val, "", "_con._sleepcheck(_aci,_dist)" end,
     ifpdistg = cmd(D)
-        / function(val) return "_dist>"..val end, --"_con.sleepcheck(_aci,_dist)" end,
+        / function(val) return "_dist>"..val, "", "_con._sleepcheck(_aci,_dist)" end,
     ifactioncount = cmd(D)
-        / ACS":get_acount()==%1",
+        / ACS":get_acount()>=%1",
     ifcount = cmd(D)
-        / ACS":get_count()==%1",
+        / ACS":get_count()>=%1",
     ifactor = cmd(D)
         / SPS".picnum==%1",
     ifstrength = cmd(D)
@@ -1246,7 +1252,7 @@ local Cif = {
     ifnotmoving = cmd()
         / "_bit.band(actor[_aci].movflag,49152)>16384",
     ifnosounds = cmd()
-        / "false",
+        / "not _con._ianysound()",
     ifmultiplayer = cmd()
         / "false",  -- TODO?
     ifinwater = cmd()
@@ -1264,8 +1270,8 @@ local Cif = {
     ifclient = cmd(),
     ifcanshoottarget = cmd()
         / "_con._canshoottarget(_dist,_aci)",
-    ifcanseetarget = cmd()  -- TODO: conditionally set timetosleep afterwards
-        / format("_con._canseetarget(%s,%s)", SPS"", PLS""),
+    ifcanseetarget = cmd()  -- XXX: 1536 is SLEEPTIME
+        / function() return format("_con._canseetarget(%s,%s)", SPS"", PLS""), ACS".timetosleep=1536" end,
     ifcansee = cmd() * #sp1
         / format("_con._cansee(_aci,%s)", PLS""),
     ifbulletnear = cmd()
@@ -1396,9 +1402,12 @@ local function after_if_cmd_Cmt(subj, pos, ...)
         return nil
     end
 
-    if (type(capts[1])=="string" and (capts[2]==nil or type(capts[2])=="string") and capts[3]==nil) then
-        assert(capts[2]==nil or capts[2]=="_con.sleepcheck(_aci,_dist)")
-        return true, capts[1], capts[2]
+    if (capts[1] ~= nil) then
+        assert(#capts <= 3)
+        for i=1,#capts do
+            assert(type(capts[i]=="string"))
+        end
+        return true, unpack(capts, 1, #capts)
     end
 
     return true
@@ -1516,39 +1525,60 @@ local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09"
 -- This is broken in itself, so we ought to make a compatibility/modern CON switch.
 local t_broken_identifier = BadIdent(-((t_number + t_good_identifier) * (sp1 + Set("[]:"))) *
                                      (alphanum + Set("_/\\*?")) * (alphanum + Set("_/\\*-+?"))^0)
-local g_ifStack = {}
 
-local function begin_if_fn(condstr, endifstr)
-    g_ifseqlevel = g_ifseqlevel+1
+-- These two tables hold code to be inserted at a later point: either at
+-- the end of the "if" body, or the end of the whole "if [else]" block.
+-- For CON interpreter patterns like these:
+--  VM_CONDITIONAL(<condition>);
+--  <do_something_afterwards>
+-- (Still not the same if the body returns or jumps out)
+local g_endIfCode = {}
+local g_endIfElseCode = {}
+
+local function add_deferred_code(tab, lev, str)
+    if (str ~= nil) then
+        assert(type(str)=="string")
+        tab[lev] = str
+    end
+end
+
+local function get_deferred_code(tab, lev, code)
+    if (tab[lev]) then
+        code = code..tab[lev]
+        tab[lev] = nil
+    end
+    return code
+end
+
+local function begin_if_fn(condstr, endifstr, endifelsestr)
     condstr = condstr or "TODO"
     assert(type(condstr)=="string")
 
-    if (endifstr ~= nil) then
-        assert(type(endifstr)=="string")
-        g_ifStack[#g_ifStack+1] = endifstr
-    end
+    add_deferred_code(g_endIfCode, g_iflevel, endifstr)
+    add_deferred_code(g_endIfElseCode, g_ifelselevel, endifelsestr)
+
+    g_iflevel = g_iflevel+1
+    g_ifelselevel = g_ifelselevel+1
 
     return format("if (%s) then", condstr)
 end
 
 local function end_if_fn()
-    local code
-    if (#g_ifStack > 0) then
-        code = g_ifStack[#g_ifStack]
-        g_ifStack[#g_ifStack] = nil
-    end
-
-    g_ifseqlevel = g_ifseqlevel-1
-    if (code) then
-        -- The condition above is significant here.
-        -- (See lpeg.c: functioncap(), where a lua_call(..., LUA_MULTRET) is done)
+    g_iflevel = g_iflevel-1
+    local code = get_deferred_code(g_endIfCode, g_iflevel, "")
+    if (code ~= "") then
         return code
     end
 end
 
+local function end_if_else_fn()
+    g_ifelselevel = g_ifelselevel-1
+    return get_deferred_code(g_endIfElseCode, g_ifelselevel, "end ")
+end
+
 local function check_else_Cmt()
     -- match an 'else' only at the outermost level
-    local good = (g_ifseqlevel==0)
+    local good = (g_iflevel==0)
     if (good) then
         return true, "else"
     end
@@ -1610,7 +1640,7 @@ local Grammar = Pat{
     if_stmt = con_if_begs/begin_if_fn * sp1
         * Var("single_stmt") * (Pat("")/end_if_fn)
         * (sp1 * lpeg.Cmt(Pat("else"), check_else_Cmt) * sp1 * Var("single_stmt"))^-1
-        * lpeg.Cc("end"),
+        * (Pat("")/end_if_else_fn),
 
     -- TODO?: SST TC has "state ... else ends"
     while_stmt = Keyw("whilevarvarn") * sp1 * t_rvar * sp1 * t_rvar * sp1 * Var("single_stmt")
@@ -1687,7 +1717,8 @@ function parse(contents)  -- local
     local lastkw, lastkwpos, numerrors = g_lastkw, g_lastkwpos, g_numerrors
     local newlineidxs = g_newlineidxs
 
-    g_ifseqlevel = 0
+    g_iflevel = 0
+    g_ifelselevel = 0
     g_have_file[g_filename] = true
 
     -- set up new state
