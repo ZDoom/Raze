@@ -913,6 +913,23 @@ int32_t A_CheckSoundPlaying(int32_t i, int32_t num)
     return (i == -1) ? g_sounds[num].num : 0;
 }
 
+// Check if actor <i> is playing any sound.
+int32_t A_CheckAnySoundPlaying(int32_t i)
+{
+    int32_t j;
+
+    for (j=g_maxSoundPos; j>=0; j--)
+    {
+        int32_t k;
+
+        for (k=0; k<MAXSOUNDINSTANCES; k++)
+            if (g_sounds[j].SoundOwner[k].ow == i)
+                return 1;
+    }
+
+    return 0;
+}
+
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num)
 {
     if (num > g_maxSoundPos || num < 0) return 0;

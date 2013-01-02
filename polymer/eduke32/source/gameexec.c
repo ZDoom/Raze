@@ -5084,22 +5084,8 @@ nullquote:
 
         case CON_IFNOSOUNDS:
         {
-            int32_t j = MAXSOUNDS-1;
-            for (; j>=0; j--)
-            {
-                int32_t k = 0;
-
-                for (; k<MAXSOUNDINSTANCES; k++)
-                {
-                    if (g_sounds[j].SoundOwner[k].ow == vm.g_i)
-                        break;
-                }
-
-                if (k != MAXSOUNDINSTANCES)
-                    break;
-            }
-
-            VM_CONDITIONAL(j < 0);
+            int32_t j = !A_CheckAnySoundPlaying(vm.g_i);
+            VM_CONDITIONAL(j);
         }
         continue;
 
