@@ -11670,14 +11670,20 @@ restart_grand:
                 {
                     if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)
                     {
-                        // daz-intz > 0 && daz-intz < k
-                        int32_t xtex = mulscale16(ucoefup16, tilesizx[tilenum]);
-                        int32_t vcoefup16 = 65536-divscale16(daz-intz, k);
-                        int32_t ytex = mulscale16(vcoefup16, tilesizy[tilenum]);
+                        if (!waloff[tilenum])
+                            loadtile(tilenum);
 
-                        const char *texel = (char *)(waloff[tilenum] + tilesizy[tilenum]*xtex + ytex);
-                        if (*texel == 255)
-                            continue;
+                        if (waloff[tilenum])
+                        {
+                            // daz-intz > 0 && daz-intz < k
+                            int32_t xtex = mulscale16(ucoefup16, tilesizx[tilenum]);
+                            int32_t vcoefup16 = 65536-divscale16(daz-intz, k);
+                            int32_t ytex = mulscale16(vcoefup16, tilesizy[tilenum]);
+
+                            const char *texel = (char *)(waloff[tilenum] + tilesizy[tilenum]*xtex + ytex);
+                            if (*texel == 255)
+                                continue;
+                        }
                     }
 
                     hit_set(hit, dasector, -1, z, intx, inty, intz);
