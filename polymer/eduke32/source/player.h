@@ -165,8 +165,6 @@ typedef struct {
 
     uint32_t interface_toggle_flag;
 
-    uint8_t palette;
-
     uint16_t max_actors_killed, actors_killed;
     uint16_t gotweapon, zoom;
 
@@ -213,6 +211,7 @@ typedef struct {
     int8_t numloogs, loogcnt, scream_voice;
     int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire, curr_weapon;
 
+    uint8_t palette;
     palette_t pals;
 
     char name[32];

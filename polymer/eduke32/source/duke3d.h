@@ -57,7 +57,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define VOLUMEONE           (g_Shareware == 1)
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
-#define BYTEVERSION_JF      267
+#define BYTEVERSION_JF      270
 
 #define BYTEVERSION_13      27
 #define BYTEVERSION_14      116
