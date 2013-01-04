@@ -52,22 +52,6 @@ static int16_t     *MV_GetVolumeTable( int32_t vol );
 static void       MV_CalcVolume( int32_t MaxLevel );
 static void       MV_CalcPanTable( void );
 
-static inline uint16_t SWAP16(uint16_t s)
-{
-    return (s >> 8) | (s << 8);
-}
-
-static inline uint32_t SWAP32(uint32_t s)
-{
-    return (s >> 24) | (s << 24) | ((s&0xff00) << 8) | ((s & 0xff0000) >> 8);
-}
-
-#ifndef min
-#define min(x,y) ((x) < (y) ? (x) : (y))
-#endif
-#ifndef max
-#define max(x,y) ((x) > (y) ? (x) : (y))
-#endif
 /*
 #define RoundFixed( fixedval, bits )            \
         (                                       \

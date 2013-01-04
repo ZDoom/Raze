@@ -36,17 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "multivoc.h"
 #include "fx_man.h"
 
-#if defined __POWERPC__ || defined GEKKO
-#define LITTLE16(s) (((uint16_t)(s) >> 8) | ((uint16_t)(s) << 8))
-#define LITTLE32(s) ((uint32_t)(s) >> 24) | ((uint32_t)(s) << 24) | (((uint32_t)(s)&0xff00) << 8) | (((uint32_t)(s) & 0xff0000) >> 8)
-#else
-#define LITTLE16
-#define LITTLE32
-#endif
-
-#define TRUE  ( 1 == 1 )
-#define FALSE ( !TRUE )
-
 int32_t FX_ErrorCode = FX_Ok;
 int32_t FX_Installed = FALSE;
 

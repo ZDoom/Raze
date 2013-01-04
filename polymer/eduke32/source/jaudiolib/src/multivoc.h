@@ -39,12 +39,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # define inline __inline
 #endif
 
-#ifdef __POWERPC__
-# define LITTLE16 SWAP16
-# define LITTLE32 SWAP32
+#if defined __POWERPC__ || defined GEKKO
+static inline uint16_t SWAP16(uint16_t s)
+{
+    return (s >> 8) | (s << 8);
+}
+static inline uint32_t SWAP32(uint32_t s)
+{
+    return (s >> 24) | (s << 24) | ((s&0xff00) << 8) | ((s & 0xff0000) >> 8);
+}
+# define LITTLE16(s) SWAP16(s)
+# define LITTLE32(s) SWAP32(s)
 #else
 # define LITTLE16
 # define LITTLE32
+#endif
+
+#ifndef TRUE
+# define TRUE  ( 1 == 1 )
+#endif
+#ifndef FALSE
+# define FALSE ( !TRUE )
 #endif
 
 #ifndef min

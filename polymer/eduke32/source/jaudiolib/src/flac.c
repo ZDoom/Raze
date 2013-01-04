@@ -256,11 +256,7 @@ FLAC__StreamDecoderWriteStatus write_flac_stream(const FLAC__StreamDecoder *deco
                     val=(1<<(voice->bits-1))-1;
                 else if(val<-(1<<(voice->bits-1)))
                     val=-(1<<(voice->bits-1));
-#ifdef BIGENDIAN
-                for (byte = voice->bits-8; byte >=0; byte -= 8)
-#else
                 for (byte = 0; byte < voice->bits; byte += 8)
-#endif
                     *obuffer++=((val>>byte)&0x000000FF);
             }
     }

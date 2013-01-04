@@ -35,9 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "inttypes.h"
 #include "multivoc.h"
 
-#define TRUE  ( 1 == 1 )
-#define FALSE ( !TRUE )
-
 #define VOC_8BIT            0x0
 #define VOC_CT4_ADPCM       0x1
 #define VOC_CT3_ADPCM       0x2
