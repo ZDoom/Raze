@@ -5,6 +5,7 @@
 
 #include "build.h"
 #include "baselayer.h"
+#include "osd.h"
 #include "winbits.h"
 
 #ifndef DEBUGGINGAIDS
@@ -33,6 +34,8 @@ static HANDLE instanceflag = NULL;
 static OSVERSIONINFOEX osv;
 
 static HMODULE nedhandle = NULL;
+
+static int32_t togglecomp = 1;
 
 //
 // CheckWinVersion() -- check to see what version of Windows we happen to be running under
@@ -207,6 +210,21 @@ void win_open(void)
 
 void win_init(void)
 {
+    uint32_t i;
+
+    cvar_t cvars_win[] =
+    {
+        { "r_togglecomposition","r_togglecomposition: enable/disable toggle of desktop composition when initializing screen modes",(void *) &togglecomp, CVAR_BOOL, 0, 1 },
+    };
+
+    for (i=0; i<sizeof(cvars_win)/sizeof(cvars_win[0]); i++)
+    {
+        if (OSD_RegisterCvar(&cvars_win[i]))
+            continue;
+
+        OSD_RegisterFunction(cvars_win[i].name, cvars_win[i].desc, osdcmd_cvar_set);
+    }
+
     win_printversion();
 
     if (nedhandle)
@@ -215,7 +233,7 @@ void win_init(void)
 
 void win_setvideomode(int32_t c)
 {
-    if (osv.dwMajorVersion >= 6 && osv.dwMinorVersion < 2)
+    if (togglecomp && osv.dwMajorVersion == 6 && osv.dwMinorVersion < 2)
         ToggleDesktopComposition(c < 16);
 }
 
