@@ -1233,7 +1233,7 @@ static void Gv_AddSystemVars(void)
     {
         weapondefaults[PISTOL_WEAPON].Clip = 20;
         weapondefaults[PISTOL_WEAPON].Reload = 50;
-        weapondefaults[PISTOL_WEAPON].Flags = WEAPON_HOLSTER_CLEARS_CLIP;
+        weapondefaults[PISTOL_WEAPON].Flags |= WEAPON_HOLSTER_CLEARS_CLIP;
 
         weapondefaults[SHRINKER_WEAPON].TotalTime = 30;
 
