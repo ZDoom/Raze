@@ -39,17 +39,12 @@
 # include "gtkbits.h"
 #endif
 
-#if defined __APPLE__ || !defined HAVE_GTK2
-# undef UNREFERENCED_PARAMETER
-# define UNREFERENCED_PARAMETER(x) x=x
-
-# if !defined _WIN32 && (!defined __APPLE__ || !defined OSX_STARTUPWINDOW)
+#if !defined _WIN32 && !defined HAVE_GTK2 && !defined __APPLE__
 int32_t startwin_open(void) { return 0; }
 int32_t startwin_close(void) { return 0; }
 int32_t startwin_puts(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_idle(void *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_settitle(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
-# endif
 #endif
 
 #if SDL_MAJOR_VERSION==2

@@ -121,7 +121,7 @@ EXESUFFIX_OVERRIDE ?=
 # Mac OS X Frameworks location
 # Like above, use absolute paths.
 APPLE_FRAMEWORKS ?=/Library/Frameworks
-# Since the OS X startup window is generating errors, give it an off switch.
+# Without the resource files packaged in the .app bundle, the startupwindow produces errors, so give it an off switch.
 OSX_STARTUPWINDOW ?= 1
 
 # Engine options
