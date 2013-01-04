@@ -1894,13 +1894,6 @@ DECLARE_INTERFACE_(IDirectSoundCaptureFXNoiseSuppress, IUnknown)
 #ifndef _IDirectSoundFullDuplex_
 #define _IDirectSoundFullDuplex_
 
-#ifdef __cplusplus
-// 'struct' not 'class' per the way DECLARE_INTERFACE_ is defined
-struct IDirectSoundFullDuplex;
-#endif // __cplusplus
-
-typedef struct IDirectSoundFullDuplex *LPDIRECTSOUNDFULLDUPLEX;
-
 DEFINE_GUID(IID_IDirectSoundFullDuplex, 0xedcb4c7a, 0xdaab, 0x4216, 0xa4, 0x2e, 0x6c, 0x50, 0x59, 0x6d, 0xdc, 0x1d);
 
 #undef INTERFACE
