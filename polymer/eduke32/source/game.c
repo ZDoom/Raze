@@ -3877,6 +3877,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
 static void G_DumpDebugInfo(void)
 {
+#if !defined LUNATIC
     int32_t i,j,x;
     //    FILE * fp=fopen("condebug.log","w");
 
@@ -3884,7 +3885,7 @@ static void G_DumpDebugInfo(void)
     OSD_Printf("\n");
 
     OSD_Printf("Current gamevar values:\n");
-#if !defined LUNATIC
+
     for (i=0; i<MAX_WEAPONS; i++)
     {
         for (j=0; j<numplayers; j++)

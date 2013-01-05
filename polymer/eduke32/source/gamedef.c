@@ -98,8 +98,10 @@ int32_t g_totalLines,g_lineNumber;
 static int32_t g_checkingIfElse, g_processingState, g_lastKeyword = -1;
 char g_szBuf[1024];
 
-intptr_t *g_caseScriptPtr=NULL;      // the pointer to the start of the case table in a switch statement
-// first entry is 'default' code.
+#if !defined LUNATIC_ONLY
+// The pointer to the start of the case table in a switch statement.
+// First entry is 'default' code.
+static intptr_t *g_caseScriptPtr=NULL;
 static intptr_t *previous_event=NULL;
 static int32_t g_numCases = 0;
 static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
@@ -108,6 +110,7 @@ static int32_t g_numBraces = 0;
 
 static int32_t C_ParseCommand(int32_t loop);
 static int32_t C_SetScriptSize(int32_t size);
+#endif
 
 int32_t g_numQuoteRedefinitions = 0;
 
@@ -160,9 +163,7 @@ gamearray_t aGameArrays[MAXGAMEARRAYS];
 int32_t g_gameVarCount=0;
 int32_t g_gameArrayCount=0;
 
-extern int32_t qsetmode;
-
-char *textptr;
+static char *textptr;
 int32_t g_numCompilerErrors,g_numCompilerWarnings;
 
 extern int32_t g_maxSoundPos;
@@ -2129,10 +2130,53 @@ void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
     }
 }
 
+void C_DefineMusic(int32_t vol, int32_t lev, const char *fn)
+{
+    Bassert((unsigned)vol < MAXVOLUMES+1);
+    Bassert((unsigned)lev < MAXLEVELS);
+
+    {
+        map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
+
+        Bfree(map->musicfn);
+        map->musicfn = dup_filename(fn);
+        check_filename_case(map->musicfn);
+    }
+}
+
 void C_DefineQuote(int32_t qnum, const char *qstr)
 {
     C_AllocQuote(qnum);
     Bstrncpyz(ScriptQuotes[qnum], qstr, MAXQUOTELEN);
+}
+
+void C_DefineVolumeName(int32_t vol, const char *name)
+{
+    Bassert((unsigned)vol < MAXVOLUMES);
+    Bstrncpyz(EpisodeNames[vol], name, sizeof(EpisodeNames[vol]));
+    g_numVolumes = max(g_numVolumes, vol+1);
+}
+
+void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
+                       int32_t partime, int32_t designertime,
+                       const char *levelname)
+{
+    Bassert((unsigned)vol < MAXVOLUMES);
+    Bassert((unsigned)lev < MAXLEVELS);
+
+    {
+        map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
+
+        Bfree(map->filename);
+        map->filename = dup_filename(fn);
+
+        // TODO: truncate to 32 chars?
+        Bfree(map->name);
+        map->name = Bstrdup(levelname);
+
+        map->partime = REALGAMETICSPERSEC * partime;
+        map->designertime = REALGAMETICSPERSEC * designertime;
+    }
 }
 #endif
 

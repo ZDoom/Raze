@@ -66,7 +66,10 @@ kread;
 G_ConFile;
 G_DoGameStartup;
 C_DefineSound;
+C_DefineMusic;
 C_DefineQuote;
+C_DefineVolumeName;
+C_DefineLevelName;
 
 actor;
 ud;
@@ -113,5 +116,5 @@ G_ClearCameraView;
 A_CheckAnySoundPlaying;
 A_PlaySound;
 S_CheckSoundPlaying;
-S_StopSound;
+S_StopEnvSound;
 };

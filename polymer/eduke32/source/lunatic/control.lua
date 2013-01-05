@@ -10,7 +10,9 @@ local con_lang = require("con_lang")
 
 local setmetatable = setmetatable
 
+local assert = assert
 local error = error
+local print = print
 local type = type
 local unpack = unpack
 
@@ -287,18 +289,36 @@ end
 --- expose the functionality in a better fashion than merely giving access to
 --- the C functions.)
 
-function _quote(pli, qnum)
-    local MAXQUOTES = con_lang.MAXQUOTES
+local MAXQUOTES = con_lang.MAXQUOTES
+
+local function check_quote_idx(qnum)
     if (qnum >= MAXQUOTES+0ULL) then
-        error("invalid quote number "..qnum)
+        error("invalid quote number "..qnum, 3)
     end
 
     if (ffiC.ScriptQuotes[qnum] == nil) then
-        error("null quote "..qnum)
+        error("null quote "..qnum, 3)
     end
+end
+
+function _definequote(qnum, quotestr)
+    check_quote_idx(qnum)
+    assert(type(quotestr)=="string")
+    ffiC.C_DefineQuote(qnum, quotestr)
+    return (#quotestr >= con_lang.MAXQUOTELEN)
+end
+
+function _quote(pli, qnum)
+    check_quote_idx(qnum)
 
     local p = player[pli]  -- bound-check
     ffiC.P_DoQuote(qnum+MAXQUOTES, ffiC.g_player[pli].ps)
+end
+
+function _echo(qnum)
+    check_quote_idx(qnum)
+    -- XXX: ugly round-trip
+    print(ffi.string(ffiC.ScriptQuotes[qnum]))
 end
 
 local D = {
@@ -963,6 +983,11 @@ function _globalsound(pli, sndidx)
     if (pli==ffiC.screenpeek) then
         _sound(player[pli].i, sndidx)
     end
+end
+
+-- This is a macro for EDuke32 (game.h)
+local function S_StopSound(sndidx)
+    ffiC.S_StopEnvSound(sndidx, -1)
 end
 
 function _stopsound(aci, sndidx)

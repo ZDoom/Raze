@@ -484,7 +484,7 @@ void G_ClearCameraView(DukePlayer_t *ps);
 int32_t A_CheckAnySoundPlaying(int32_t i);
 int32_t A_PlaySound(uint32_t num, int32_t i);
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
-void S_StopSound(int32_t num);
+void S_StopEnvSound(int32_t num, int32_t i);
 ]]
 
 -- functions
@@ -497,7 +497,12 @@ int32_t kread(int32_t handle, void *buffer, int32_t leng);
 const char *G_ConFile(void);
 void G_DoGameStartup(const int32_t *params);
 int32_t C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5]);
+void C_DefineMusic(int32_t vol, int32_t lev, const char *fn);
 void C_DefineQuote(int32_t qnum, const char *qstr);
+void C_DefineVolumeName(int32_t vol, const char *name);
+void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
+                       int32_t partime, int32_t designertime,
+                       const char *levelname);
 ]]
 
 

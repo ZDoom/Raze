@@ -131,6 +131,12 @@ local function addcodef(fmt, ...)
     addcode(format(fmt, ...))
 end
 
+local function add_code_and_end(codetab, endstr)
+    assert(type(codetab)=="table")
+    addcode(codetab)
+    addcode(endstr)
+end
+
 local function on_actor_end(usertype, tsamm, codetab)
     local tilenum = tsamm[1]
 
@@ -149,19 +155,22 @@ local function on_actor_end(usertype, tsamm, codetab)
 
     -- TODO: usertype (is non-nil only for 'useractor')
     addcodef("gameactor(%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
-    assert(type(codetab)=="table")
-    g_actor_code[tilenum] = codetab
+    add_code_and_end(codetab, "end)")
 
-    addcode(codetab)
-    addcode("end)")
+    g_actor_code[tilenum] = codetab
 end
 
 local function on_state_end(statename, codetab)
     -- TODO: mangle names
     addcodef("local function %s(_aci, _pli, _dist)", statename)
-    assert(type(codetab)=="table")
-    addcode(codetab)
-    addcode("end")
+    add_code_and_end(codetab, "end")
+end
+
+local function on_event_end(eventidx, codetab)
+    addcodef("gameevent(%d, function (_aci, _pli, _dist)", eventidx)
+    add_code_and_end(codetab, "end)")
+
+    g_event_code[eventidx] = codetab
 end
 
 ----------
@@ -279,7 +288,7 @@ local function do_define_label(identifier, num)
         else
             -- conl.labels[...]: don't warn for wrong PROJ_ redefinitions
             if (g_warn["not-redefined"]) then
-                if (oldval ~= num and conl.labels.PROJ[identifier]==nil) then
+                if (oldval ~= num and conl.PROJ[identifier]==nil) then
                     warnprintf("label \"%s\" not redefined with new value %d (old: %d)",
                                identifier, num, oldval)
                 end
@@ -478,9 +487,15 @@ local function cmd_definelevelname(vol, lev, fn, ptstr, dtstr, levname)
         return (m and s) and m*60+s or 0
     end
 
-    g_data.level[EPMUL*vol+lev] = {
-        ptime=secs(ptstr), dtime=secs(dtstr), fn=fn, name="/"..levname
+    local map = {
+        ptime=secs(ptstr), dtime=secs(dtstr), fn="/"..fn, name=levname
     }
+
+    if (ffi) then
+        ffiC.C_DefineLevelName(vol, lev, map.fn, map.ptime, map.dtime, map.name)
+    end
+
+    g_data.level[EPMUL*vol+lev] = map
 end
 
 local function cmd_defineskillname(skillnum, name)
@@ -498,7 +513,20 @@ local function cmd_definevolumename(vol, name)
         return
     end
 
-    g_data.volname[vol] = name:upper()
+    name = name:upper()
+    if (ffi) then
+        ffiC.C_DefineVolumeName(vol, name)
+        if (#name > 32) then
+            warnprintf("volume %d name truncated to 32 characters.", vol)
+        end
+    end
+
+    g_data.volname[vol] = name
+end
+
+-- strip whitespace from front and back
+local function stripws(str)
+    return str:match("^%s*(.*)%s*$")
 end
 
 local function cmd_definequote(qnum, quotestr)
@@ -514,8 +542,7 @@ local function cmd_definequote(qnum, quotestr)
         return
     end
 
-    -- strip whitespace from front and back
-    quotestr = quotestr:match("^%s*(.*)%s*$")
+    quotestr = stripws(quotestr)
 
     if (ffi) then
         if (#quotestr >= conl.MAXQUOTELEN) then
@@ -550,7 +577,7 @@ end
 
 local function cmd_definesound(sndnum, fn, ...)
     if (not (sndnum >= 0 and sndnum < conl.MAXSOUNDS)) then
-        errprintf("sound number is or exceeds sound limit of %d", conl.MAXSOUNDS)
+        errprintf("sound number is negative or exceeds sound limit of %d", conl.MAXSOUNDS-1)
         return
     end
 
@@ -565,8 +592,9 @@ local function cmd_definesound(sndnum, fn, ...)
 end
 
 local function cmd_music(volnum, ...)
-    if (volnum < 0 or volnum >= conl.MAXVOLUMES+1) then
-        errprintf("volume number is negative or exceeds maximum volume count+1")
+    if (not (volnum >= 0 and volnum < conl.MAXVOLUMES+1)) then
+        -- NOTE: MAXVOLUMES is OK, since it's MapInfo[(MAXVOLUMES+1)*MAXLEVELS]
+        errprintf("volume number is negative or exceeds MAXVOLUMES=%d", conl.MAXVOLUMES)
         return
     end
 
@@ -576,6 +604,13 @@ local function cmd_music(volnum, ...)
         warnprintf("ignoring extraneous %d music file names", #filenames-conl.MAXLEVELS)
         for i=conl.MAXLEVELS+1,#filenames do
             filenames[i] = nil
+        end
+    end
+
+    if (ffi) then
+        for i=1,#filenames do
+            assert(type(filenames[i])=="string")
+            ffiC.C_DefineMusic(volnum, i-1, "/"..filenames[i])
         end
     end
 
@@ -940,7 +975,8 @@ local Ci = {
     savegamevar = cmd(R),
     readgamevar = cmd(R),
     userquote = cmd(R),
-    echo = cmd(R),
+echo = cmd(D) / "_con._echo(%1)",  -- XXX: TEMP
+--    echo = cmd(R),
     starttrackvar = cmd(R),
     clearmapstate = cmd(R),
     activatecheat = cmd(R),
@@ -1122,7 +1158,8 @@ local Ci = {
     readarrayfromfile = cmd(I,D),
     writearraytofile = cmd(I,D),
 
-    redefinequote = sp1 * t_define * newline_term_string,
+    redefinequote = sp1 * t_define * newline_term_string
+        / function(qnum, qstr) return format("_con._definequote(%d,%q)", qnum, stripws(qstr)) end,
     resizearray = cmd(I,R),
     getarraysize = cmd(I,W),
     rotatepoint = cmd(R,R,R,R,R,W,W),
@@ -1219,7 +1256,8 @@ local Cif = {
 
     ifvarl = cmd(R,D),
     ifvarg = cmd(R,D),
-    ifvare = cmd(R,D),
+    ifvare = cmd(R,D)
+        / "%1==%2",
     ifvarn = cmd(R,D),
     ifvarand = cmd(R,D),
     ifvaror = cmd(R,D),
@@ -1505,7 +1543,8 @@ local Cb = {
     eventloadactor = lpeg.Cc(nil) * sp1 * lpeg.Ct(t_define)
         * sp1 * stmt_list_or_eps * "enda" / on_actor_end,
 
-    onevent = sp1 * t_define * sp1 * stmt_list_or_eps * "endevent",
+    onevent = sp1 * t_define * sp1 * stmt_list_or_eps * "endevent"
+        / on_event_end,
 
     state = sp1 * t_identifier * sp1 * stmt_list_or_eps * "ends"
         / on_state_end,
@@ -1578,6 +1617,7 @@ end
 
 local function check_else_Cmt()
     -- match an 'else' only at the outermost level
+    -- XXX: THIS IS STILL WRONG
     local good = (g_iflevel==0)
     if (good) then
         return true, "else"
