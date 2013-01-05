@@ -1439,7 +1439,7 @@ local function after_if_cmd_Cmt(subj, pos, ...)
     if (g_numerrors == inf) then
         return nil
     end
-
+---[[
     if (capts[1] ~= nil) then
         assert(#capts <= 3)
         for i=1,#capts do
@@ -1447,7 +1447,7 @@ local function after_if_cmd_Cmt(subj, pos, ...)
         end
         return true, unpack(capts, 1, #capts)
     end
-
+--]]
     return true
 end
 
@@ -1615,16 +1615,6 @@ local function end_if_else_fn()
     return get_deferred_code(g_endIfElseCode, g_ifelselevel, "end ")
 end
 
-local function check_else_Cmt()
-    -- match an 'else' only at the outermost level
-    -- XXX: THIS IS STILL WRONG
-    local good = (g_iflevel==0)
-    if (good) then
-        return true, "else"
-    end
-
-    -- return nothing, making the Cmt fail
-end
 
 --- The final grammar!
 local Grammar = Pat{
@@ -1677,23 +1667,29 @@ local Grammar = Pat{
 
     default_block = sp1 * Keyw("default") * (sp0*":"*sp0 + sp1) * stmt_list_nosp_or_eps,  -- * "break",
 
+    optional_else = (sp1 * lpeg.C("else") * sp1 * Var("single_stmt"))^-1,
+
+    if_else_bodies = Var("single_stmt2") * (Pat("")/end_if_fn) * Var("optional_else"),
+
     if_stmt = con_if_begs/begin_if_fn * sp1
-        * Var("single_stmt") * (Pat("")/end_if_fn)
-        * (sp1 * lpeg.Cmt(Pat("else"), check_else_Cmt) * sp1 * Var("single_stmt"))^-1
+        * Var("if_else_bodies")
+        * (Pat("")/end_if_else_fn),
+
+    if_stmt2 = con_if_begs/begin_if_fn * sp1
+        * (-con_if_begs * Var("single_stmt") * (Pat("")/end_if_fn)
+          + Var("if_else_bodies"))
         * (Pat("")/end_if_else_fn),
 
     -- TODO?: SST TC has "state ... else ends"
     while_stmt = Keyw("whilevarvarn") * sp1 * t_rvar * sp1 * t_rvar * sp1 * Var("single_stmt")
         + Keyw("whilevarn") * sp1 * t_rvar * sp1 * t_define/"WHILE_XXX" * sp1 * Var("single_stmt"),
 
-    -- TODO: some sp1 --> sp0?
-    single_stmt = Stmt(
-        lone_else^-1 *
-            ( Keyw("{") * sp1 * "}"  -- space separation of commands in CON is for a reason!
-              + Keyw("{") * sp1 * stmt_list * sp1 * "}"
-              + (con_inner_command + Var("switch_stmt") + Var("if_stmt") + Var("while_stmt"))
---              + lpeg.Cmt(t_newline_term_str, function (subj, curpos) print("Error at "..curpos) end)
-            )),
+    stmt_common = Keyw("{") * sp1 * "}"  -- space separation of commands in CON is for a reason!
+        + Keyw("{") * sp1 * stmt_list * sp1 * "}"
+        + con_inner_command + Var("switch_stmt") + Var("while_stmt"),
+
+    single_stmt = Stmt( lone_else^-1 * (Var("stmt_common") + Var("if_stmt")) ),
+    single_stmt2 = Stmt( lone_else^-1 * (Var("stmt_common") + Var("if_stmt2")) ),
 
     -- a non-empty statement/command list
     stmt_list = Var("single_stmt") * (sp1 * Var("single_stmt"))^0,
