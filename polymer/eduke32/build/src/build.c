@@ -2447,6 +2447,7 @@ static int32_t backup_drawn_walls(int32_t restore)
             if (newnumwalls <= numwalls)  // shouldn't happen
                 return 2;
 
+            Bfree(tmpwall);
             tmpwall = (walltype *)Bmalloc((newnumwalls-numwalls) * sizeof(walltype));
             if (!tmpwall)
                 return 1;
@@ -2465,13 +2466,18 @@ static int32_t backup_drawn_walls(int32_t restore)
     {
         if (restore==1)  // really restore
         {
-            int32_t i;
+            const int32_t nnumwalls = numwalls + ovh.bak_wallsdrawn;
 
-            Bmemcpy(&wall[numwalls], tmpwall, ovh.bak_wallsdrawn*sizeof(walltype));
+            if (nnumwalls < MAXWALLS)  // else, silently discard drawn walls
+            {
+                int32_t i;
 
-            newnumwalls = numwalls + ovh.bak_wallsdrawn;
-            for (i=numwalls; i<newnumwalls; i++)
-                wall[i].point2 = i+1;
+                Bmemcpy(&wall[numwalls], tmpwall, ovh.bak_wallsdrawn*sizeof(walltype));
+
+                newnumwalls = nnumwalls;
+                for (i=numwalls; i<newnumwalls; i++)
+                    wall[i].point2 = i+1;
+            }
         }
 
         Bfree(tmpwall);
@@ -2755,9 +2761,14 @@ static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const 
     return ask_if_sure(querystr, 0);
 }
 
-// high-level insert point, handles TROR constrained walls too
-//  onewnumwalls: old numwalls + drawn walls
-//  mapwallnum: see insertpoint()
+// High-level insert point, handles TROR constrained walls too
+//  onewnumwalls: old numwalls + drawn walls.
+// <mapwallnum>: see insertpoint()
+// Returns:
+//  0 if wall limit would be reached.
+//  1 if inserted point on a plain white or 2 points on a plain red wall.
+//  N >= 2 if inserted N points on TROR-constrained wall.
+//  N|(EXPECTED<<16) if inserted N points but EXPECTED walls were expected. 
 static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_t onewnumwalls, int32_t *mapwallnum)
 {
 #ifdef YAX_ENABLE
@@ -6518,7 +6529,7 @@ end_join_sectors:
             {
                 if (linehighlight >= 0)
                 {
-#ifdef YAX_ENABLE
+#if 0 //def YAX_ENABLE
                     j = linehighlight;
 
                     if (yax_islockedwall(j) ||
@@ -6551,28 +6562,28 @@ end_join_sectors:
 
             if (tempint2 != 0)
             {
-                int32_t ps = 2, goodtogo, err=0;
-                int32_t centerx, centery, circlerad;
-                int16_t circleang1, circleang2;
+                int32_t goodtogo, err=0;
 
-                centerx = ((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1;
-                centery = ((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1;
+                const int32_t centerx = ((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1;
+                const int32_t centery = ((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1;
+                const int32_t circlerad = ksqrt(dmulscale4(centerx-x1,centerx-x1, centery-y1,centery-y1))<<2;
+
+                const int32_t circleang1 = getangle(x1-centerx,y1-centery);
+                const int32_t circleang2 = getangle(x2-centerx,y2-centery);
+
+                const int32_t redw = (int32_t)(wall[circlewall].nextwall >= 0);
+                int32_t insdpoints = 0;
 
                 draw_cross(centerx, centery, 2, editorcolors[14]);
 
-                circleang1 = getangle(x1-centerx,y1-centery);
-                circleang2 = getangle(x2-centerx,y2-centery);
-
-//                circleangdir = 1;
                 k = ((circleang2-circleang1)&2047);
                 if (mulscale4(x3-x1,y2-y1) < mulscale4(x2-x1,y3-y1))
                 {
-//                    circleangdir = -1;
                     k = -((circleang1-circleang2)&2047);
                 }
 
-                circlerad = ksqrt(dmulscale4(centerx-x1,centerx-x1, centery-y1,centery-y1))<<2;
-                goodtogo = (numwalls+circlepoints <= MAXWALLS);
+                // XXX: Still too permissive for TROR insertion
+                goodtogo = (numwalls+(1+redw)*circlepoints <= MAXWALLS);
 
                 if (bad > 0 && goodtogo)
                 {
@@ -6587,6 +6598,8 @@ end_join_sectors:
 
                 for (i=circlepoints; i>0; i--)
                 {
+                    const int32_t ps = 2;
+
                     j = (circleang1 + scale(i,k,circlepoints+1))&2047;
                     dax = centerx + mulscale14(sintable[(j+512)&2047],circlerad);
                     day = centery + mulscale14(sintable[j],circlerad);
@@ -6595,10 +6608,25 @@ end_join_sectors:
                     inpclamp(&day, -editorgridextent, editorgridextent);
 
                     if (bad > 0 && goodtogo)
-                        insertpoint(circlewall, dax,day, &circlewall);
+                    {
+                        int32_t inspts = M32_InsertPoint(circlewall, dax,day, -1, &circlewall);
+
+                        if (inspts==0)
+                        {
+                            message("Wall limit exceeded while inserting points.");
+                            goto end_circle_insertion;
+                        }
+                        else if (inspts >= 65536)
+                        {
+                            message("ERR: Inserted %d points for constr. wall (exp. %d; %d already ins'd)",
+                                    inspts&65535, inspts>>16, insdpoints);
+                            goto end_circle_insertion;
+                        }
+
+                        insdpoints += inspts;
+                    }
 
                     draw_square(dax, day, ps, editorcolors[14]);
-//                    drawcircle16(dax, day, 3, 14);
                 }
 
                 if (bad > 0 && goodtogo)
@@ -6610,8 +6638,8 @@ end_join_sectors:
                     {
                         asksave = 1;
                         printmessage16("Circle points inserted.");
+end_circle_insertion:
                         circlewall = -1;
-
                         mkonwinvalid();
                     }
                     else
@@ -7197,7 +7225,7 @@ end_space_handling:
             {
                 if (newnumwalls > numwalls)  // batch insert points
                 {
-                    int32_t numdrawnwalls = newnumwalls-numwalls;
+                    const int32_t numdrawnwalls = newnumwalls-numwalls;
                     vec2_t *point = (vec2_t *)tempxyar;  // [MAXWALLS][2]
                     int32_t insdpoints = 0;
 
@@ -7233,16 +7261,14 @@ end_space_handling:
                                 printmessage16("Wall limit exceeded while inserting points.");
                                 goto end_batch_insert_points;
                             }
-                            else if (inspts > 0 && inspts < 65536)
-                            {
-                                insdpoints += inspts;
-                            }
-                            else  // inspts >= 65536
+                            else if (inspts >= 65536)
                             {
                                 message("ERR: Inserted %d points for constr. wall (exp. %d; %d already ins'd)",
                                         inspts&65535, inspts>>16, insdpoints);
                                 goto end_batch_insert_points;
                             }
+
+                            insdpoints += inspts;
                         }
                     }
 
