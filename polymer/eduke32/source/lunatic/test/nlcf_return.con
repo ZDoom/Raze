@@ -15,11 +15,8 @@ onevent EVENT_EGS
     }
 endevent
 
-onevent EVENT_LOADACTOR
-    ifvarvare THISACTOR 0
-    {
-        // the concrete actor is irrelevant, only placeholder
-        spawn HEAVYHBOMB  // --> EVENT_EGS
-        userquote 125
-    }
+onevent EVENT_FIRE
+    // the concrete actor is irrelevant, only placeholder
+    spawn HEAVYHBOMB  // --> EVENT_EGS
+    userquote 125
 endevent

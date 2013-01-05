@@ -36,6 +36,8 @@ extern int32_t OSD_errors;
 
 void Gv_RefreshPointers(void);
 extern void G_FreeMapState(int32_t mapnum);
+
+#if !defined LUNATIC_ONLY
 static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
 {
     // call this function as many times as needed.
@@ -68,7 +70,6 @@ static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
     return;
 }
 
-#if !defined LUNATIC_ONLY
 static void Gv_Clear(void)
 {
     // only call this function ONCE...
@@ -1109,7 +1110,7 @@ static weapondata_t weapondefaults[MAX_WEAPONS] = {
 
     {
         PISTOL_WEAPON, /*NAM?20:*/12, /*NAM?50:*/27, 2, 5, 0,
-        /*NAM?WEAPON_HOLSTER_CLEARS_CLIP:*/0 | WEAPON_RELOAD_TIMING,
+        /*(NAM?WEAPON_HOLSTER_CLEARS_CLIP:0) |*/ WEAPON_RELOAD_TIMING,
         SHOTSPARK1__STATIC, 2, SHELL__STATIC, 0, 0, PISTOL_FIRE, 0, 0,
         EJECT_CLIP, INSERT_CLIP, INSERT_CLIP, 255+(95<<8)
     },

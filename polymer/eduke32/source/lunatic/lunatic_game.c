@@ -234,6 +234,7 @@ static void El_StateSetup(lua_State *L)
 
     Bassert(lua_gettop(L)==0);
 
+    // This is for engine-side Lua:
     lua_pushcfunction(L, &our_traceback_CF);
 }
 
@@ -307,10 +308,12 @@ static int32_t SetActor_CF(lua_State *L)
 static int32_t call_regd_function3(lua_State *L, void *keyaddr,
                                    int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
-    int32_t i;
-#if !defined NDEBUG
+    int32_t i, haveerr;
+
     int32_t top = lua_gettop(L);
-#endif
+
+    lua_pushcfunction(L, &our_traceback_CF);
+
     // get the Lua function from the registry
     lua_pushlightuserdata(L, keyaddr);
     lua_gettable(L, LUA_REGISTRYINDEX);
@@ -320,11 +323,10 @@ static int32_t call_regd_function3(lua_State *L, void *keyaddr,
     lua_pushinteger(L, lDist);
 
     // -- call it! --
-#ifdef DEBUGGINGAIDS
-    i = lua_pcall(L, 3, 0, 1);
-#else
-    i = lua_pcall(L, 3, 0, 0);
-#endif
+    i = lua_pcall(L, 3, 0, -5);
+    haveerr = (i != 0);
+    Bassert(lua_iscfunction(L, -1-haveerr));
+    lua_remove(L, -1-haveerr);
 
     Bassert(lua_gettop(L) == top+(i!=0));
 

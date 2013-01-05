@@ -52,7 +52,7 @@ lpeg.setmaxstack(1024);
 local Pat, Set, Range, Var = lpeg.P, lpeg.S, lpeg.R, lpeg.V
 local POS = lpeg.Cp
 
----- All keywords pattern -- needed for CON syntax
+-- CON language definitions (among other things, all keywords pattern).
 local conl = require("con_lang")
 
 
@@ -95,6 +95,9 @@ local g_iflevel = 0
 local g_ifelselevel = 0
 
 ---=== Code generation ===---
+-- CON --> mangled Lua function name, also existence check:
+local g_funcname = {}
+
 local g_have_file = {}  -- [filename]=true
 local g_curcode = nil  -- a table of string pieces or other "gencode" tables
 
@@ -109,11 +112,13 @@ local function new_initial_codetab()
     return {
         "local _con, _bit, _math = require'con', require'bit', require'math';",
         "local sector, sprite, actor, player = sector, sprite, actor, player;",
-        "local gameactor=gameactor;"
+        "local gameactor, gameevent = gameactor, gameevent;"
            }
 end
 
 local function reset_codegen()
+    g_funcname = {}
+
     g_have_file = {}
     g_curcode = new_initial_codetab()
     g_actor_code, g_event_code, g_loadactor_code = {}, {}, {}
@@ -160,9 +165,26 @@ local function on_actor_end(usertype, tsamm, codetab)
     g_actor_code[tilenum] = codetab
 end
 
-local function on_state_end(statename, codetab)
-    -- TODO: mangle names
-    addcodef("local function %s(_aci, _pli, _dist)", statename)
+local BAD_ID_CHARS0 = "_/\\*?"  -- allowed 1st identifier chars
+local BAD_ID_CHARS1 = "_/\\*-+?"  -- allowed following identifier chars
+
+local function mangle_name(name, prefix)
+    -- NOTE: the underscore char has to be replaced too, because we're using
+    -- it as the escape char.
+    for i=1,#BAD_ID_CHARS1 do
+        name = name:gsub(BAD_ID_CHARS1:sub(i,i), "_"..i)
+    end
+    return prefix..name
+end
+
+local function on_state_begin(statename)
+    local ourname = mangle_name(statename, "F")
+    g_funcname[statename] = ourname
+    return ourname
+end
+
+local function on_state_end(funcname, codetab)
+    addcodef("local function %s(_aci, _pli, _dist)", funcname)
     add_code_and_end(codetab, "end")
 end
 
@@ -215,7 +237,7 @@ local function warnprintf(fmt, ...)
 end
 
 local function parse_number(pos, numstr)
-    local num = tonumber(numstr)
+    local num = tonumber((numstr:gsub("h$", "")))
 
     if (num==nil or num < -0x80000000 or num > 0xffffffff) then
         perrprintf(pos, "number %s out of the range of a 32-bit integer", numstr)
@@ -441,7 +463,7 @@ local function do_include_file(dirname, filename)
     g_filename = oldfilename
 end
 
-function cmd_include(filename)
+local function cmd_include(filename)
     do_include_file(g_directory, filename)
 end
 
@@ -498,13 +520,25 @@ local function cmd_definelevelname(vol, lev, fn, ptstr, dtstr, levname)
     g_data.level[EPMUL*vol+lev] = map
 end
 
+local function defineXname(what, ffiCfuncname, X, name)
+    name = name:upper()
+    if (ffi) then
+        ffiC[ffiCfuncname](X, name)
+        if (#name > 32) then
+            warnprintf("%s %d name truncated to 32 characters.", what, X)
+        end
+    end
+    return name
+end
+
 local function cmd_defineskillname(skillnum, name)
     if (skillnum < 0 or skillnum >= conl.MAXSKILLS) then
-        errprintf("volume number is negative or exceeds maximum skill count.")
+        errprintf("skill number is negative or exceeds maximum skill count.")
         return
     end
 
-    g_data.skillname[skillnum] = name:upper()
+    name = defineXname("skill", "C_DefineSkillName", skillnum, name)
+    g_data.skillname[skillnum] = name
 end
 
 local function cmd_definevolumename(vol, name)
@@ -513,14 +547,7 @@ local function cmd_definevolumename(vol, name)
         return
     end
 
-    name = name:upper()
-    if (ffi) then
-        ffiC.C_DefineVolumeName(vol, name)
-        if (#name > 32) then
-            warnprintf("volume %d name truncated to 32 characters.", vol)
-        end
-    end
-
+    name = defineXname("volume", "C_DefineVolumeName", vol, name)
     g_data.volname[vol] = name
 end
 
@@ -640,7 +667,8 @@ local alphanum = alpha + Range("09")
 --- basic lexical elements ("tokens")
 local t_maybe_minus = (Pat("-") * sp0)^-1;
 local t_number = POS() * lpeg.C(
-    t_maybe_minus * ((Pat("0x") + "0X")*Range("09", "af", "AF")^1 + Range("09")^1)
+    t_maybe_minus * ((Pat("0x") + "0X") * Range("09", "af", "AF")^1 * Pat("h")^-1
+                     + Range("09")^1)
                        ) / parse_number
 -- Valid identifier names are disjunct from keywords!
 -- XXX: CON is more permissive with identifier name characters:
@@ -836,6 +864,14 @@ local function handle_debug(val)
     return format("print('%s:%d: debug %d')", g_filename, getlinecol(g_lastkwpos), val)
 end
 
+local function handle_state(statename)
+    if (g_funcname[statename]==nil) then
+        errprintf("state `%s' not found.", statename)
+        return "_NULLSTATE()"
+    end
+    return format("%s(_aci,_pli,_dist)", g_funcname[statename])
+end
+
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
 -- that have no arguments and that are prefixes of other commands MUST be
 -- suffixed with a "* #sp1" pattern.
@@ -845,10 +881,10 @@ local Ci = {
     ["break"] = cmd()
         / "do return end",
     ["return"] = cmd()  -- NLCF
-        / "_con.longjmp()",  -- TODO: test with code from Wiki "return" entry
+        / "_con.longjmp()",
 
     state = cmd(I)
-        / "%1(_aci, _pli, _dist)",  -- TODO: mangle names
+        / handle_state,
 
     --- 1. get*, set*
     getactor = getstructcmd,
@@ -943,7 +979,8 @@ local Ci = {
         / SPS".extra=%1",
     addstrength = cmd(D)
         / (SPS".extra="..SPS".extra+%1"),
-    spritepal = cmd(D),
+    spritepal = cmd(D)
+        / SPS".pal=%1",
 
     hitradius = cmd(D,D,D,D,D)
         / "_con._A_RadiusDamage(_aci,%1,%2,%3,%4,%5)",
@@ -975,8 +1012,7 @@ local Ci = {
     savegamevar = cmd(R),
     readgamevar = cmd(R),
     userquote = cmd(R),
-echo = cmd(D) / "_con._echo(%1)",  -- XXX: TEMP
---    echo = cmd(R),
+    echo = cmd(R) / "_con._echo(%1)",
     starttrackvar = cmd(R),
     clearmapstate = cmd(R),
     activatecheat = cmd(R),
@@ -1546,7 +1582,7 @@ local Cb = {
     onevent = sp1 * t_define * sp1 * stmt_list_or_eps * "endevent"
         / on_event_end,
 
-    state = sp1 * t_identifier * sp1 * stmt_list_or_eps * "ends"
+    state = sp1 * (t_identifier/on_state_begin) * sp1 * stmt_list_or_eps * "ends"
         / on_state_end,
 }
 
@@ -1563,7 +1599,7 @@ local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09"
 -- in CON, so a trailing "-" is "OK", too.)
 -- This is broken in itself, so we ought to make a compatibility/modern CON switch.
 local t_broken_identifier = BadIdent(-((t_number + t_good_identifier) * (sp1 + Set("[]:"))) *
-                                     (alphanum + Set("_/\\*?")) * (alphanum + Set("_/\\*-+?"))^0)
+                                     (alphanum + Set(BAD_ID_CHARS0)) * (alphanum + Set(BAD_ID_CHARS1))^0)
 
 -- These two tables hold code to be inserted at a later point: either at
 -- the end of the "if" body, or the end of the whole "if [else]" block.

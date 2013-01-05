@@ -2157,6 +2157,13 @@ void C_DefineVolumeName(int32_t vol, const char *name)
     g_numVolumes = max(g_numVolumes, vol+1);
 }
 
+void C_DefineSkillName(int32_t skill, const char *name)
+{
+    Bassert((unsigned)skill < MAXSKILLS);
+    Bstrncpyz(SkillNames[skill], name, sizeof(SkillNames[skill]));
+    g_numSkills = max(g_numSkills, skill+1);
+}
+
 void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
                        int32_t partime, int32_t designertime,
                        const char *levelname)

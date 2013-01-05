@@ -69,6 +69,7 @@ C_DefineSound;
 C_DefineMusic;
 C_DefineQuote;
 C_DefineVolumeName;
+C_DefineSkillName;
 C_DefineLevelName;
 
 actor;

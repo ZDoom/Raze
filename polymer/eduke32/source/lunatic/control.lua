@@ -30,9 +30,9 @@ module(...)
 
 local lastid = { action=0, move=0, ai=0 }
 local def = {
-    action = {NO=ffi.new("con_action_t")},
-    move = {NO=ffi.new("con_move_t")},
-    ai = {NO=ffi.new("con_ai_t")},
+    action = { NO=ffi.new("con_action_t") },
+    move = { NO=ffi.new("con_move_t") },
+    ai = { NO=ffi.new("con_ai_t") },
 }
 
 local function forbidden() error("newindex forbidden", 2) end
@@ -278,7 +278,7 @@ end
 local function P_AddWeaponAmmoCommon(ps, weap, amount)
     P_AddAmmo(ps, weap, amount)
 
-    if (ps.curr_weapon==ffiC.KNEE_WEAPON and have_weapon(weap)) then
+    if (ps.curr_weapon==ffiC.KNEE_WEAPON and have_weapon(ps, weap)) then
         ffiC.P_AddWeaponMaybeSwitch(ps, weap);
     end
 end
@@ -398,7 +398,7 @@ function _debris(i, dtile, n)
         local jj = insertsprite{ dtile+picofs, pos, spr.sectnum, i, 5,
                                  shade=spr.shade, xrepeat=32+krandand(15), yrepeat=32+krandand(15),
                                  ang=krandand(2047), xvel=32+krandand(127), zvel=-krandand(2047) }
-        -- NOTE: BlimpSpawnSprites[14] (its array size if 15) will never be chosen
+        -- NOTE: BlimpSpawnSprites[14] (its array size is 15) will never be chosen
         sprite[jj]:set_yvel(isblimpscrap and ffiC.BlimpSpawnSprites[math.mod(jj, 14)] or -1)
         sprite[jj].pal = spr.pal
     end
@@ -441,7 +441,7 @@ function _sizeto(i, xr, yr)
     spr.yrepeat = spr.yrepeat + ((dr == 0) and 0 or (dr < 0 and -1 or 1))
 end
 
--- NOTE: function args have overloaded meaning
+-- NOTE: function args of the C function have overloaded meaning
 function _A_Spawn(j, pn)
     local bound_check = sector[sprite[j].sectnum]  -- two in one whack
     check_tile_idx(pn)
@@ -458,7 +458,7 @@ function _pstomp(ps, i)
                 end
             end
             ps.actorsqu = i
-            ps.knee_incs = -1
+            ps.knee_incs = 1
             if (ps.weapon_pos == 0) then
                 ps.weapon_pos = -1
             end

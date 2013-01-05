@@ -500,6 +500,7 @@ int32_t C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5]);
 void C_DefineMusic(int32_t vol, int32_t lev, const char *fn);
 void C_DefineQuote(int32_t qnum, const char *qstr);
 void C_DefineVolumeName(int32_t vol, const char *name);
+void C_DefineSkillName(int32_t skill, const char *name);
 void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
                        int32_t partime, int32_t designertime,
                        const char *levelname);
@@ -1114,7 +1115,7 @@ local function our_gameevent(event, func)
     if (oldfunc ~= nil) then
         newfunc = function(aci, pli, dist)
             func(aci, pli, dist)
-            oldfunc(aci, pli, dist)
+            return oldfunc(aci, pli, dist)
         end
     end
 

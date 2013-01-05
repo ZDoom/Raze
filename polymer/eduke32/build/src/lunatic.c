@@ -186,7 +186,9 @@ int L_RunString(L_State *estate, char *buf, int dofreebuf)
     lua_State *L = estate->L;
 
     // -- lua --
-    Bassert(lua_gettop(L)==1);  // on top: a traceback function
+    Bassert(lua_gettop(L)==1);
+    // on top: a traceback function
+    Bassert(lua_iscfunction(L, 1));
 
     i = luaL_loadstring(L, buf);
     Bassert(lua_gettop(L)==2);

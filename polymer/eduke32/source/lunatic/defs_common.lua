@@ -2,6 +2,7 @@
 -- This file contains LuaJIT definitions of stuff that's common to the game and
 -- editor.  The 'decl' function is expected to be defined in the global
 -- environment.
+-- See the included license file "BUILDLIC.TXT" for license info.
 
 local ffi = require("ffi")
 local ffiC = ffi.C
@@ -253,6 +254,9 @@ local ivec3_mt = {
 }
 ivec3_ = ffi.metatype("vec3_t", ivec3_mt)
 
+local xor = bit.bxor
+local wallsofsec  -- fwd-decl
+
 local sectortype_mt = {
     __index = {
         ceilingzat = function(s, pos)
@@ -261,6 +265,29 @@ local sectortype_mt = {
 
         floorzat = function(s, pos)
             return ffiC.getflorzofslopeptr(s, pos.x, pos.y)
+        end,
+
+        -- inside() port
+        contains = function(s, pos)
+            local x, y = pos.x, pos.y
+            local cnt = 0
+
+            for w in wallsofsec(s) do
+                local wal2 = ffiC.wall[ffiC.wall[w].point2]
+                local y1, y2 = ffiC.wall[w].y-y, wal2.y-y
+
+                if (xor(y1, y2) < 0) then
+                    local x1, x2 = ffiC.wall[w].x-x, wal2.x-x
+
+                    if (xor(x1, x2)>=0) then
+                        cnt = xor(cnt, x1)
+                    else
+                        cnt = xor(cnt, xor(x1*y2-x2*y1, y2))
+                    end
+                end
+            end
+
+            return (cnt < 0)
         end,
     }
 }
@@ -385,6 +412,22 @@ function check_sector_idx(sectnum)
     end
 end
 
+local function iter_wallsofsec(endwall, w)
+    w = w+1
+    if (w < endwall) then
+        return w
+    end
+end
+
+wallsofsec = function(sec)  -- local
+    return iter_wallsofsec, sec.wallptr+sec.wallnum, sec.wallptr-1
+end
+
+function wallsofsect(sect)
+    check_sector_idx(sect)
+    return iter_wallsofsec, sector[sect].wallptr+sector[sect].wallnum, sector[sect].wallptr-1
+end
+
 --== Per-sector/per-statnum sprite iterators ==--
 local function iter_spritesofsect(sect, i)
     if (i < 0) then
@@ -431,10 +474,10 @@ local function iter_sectorsofbunch(cf, i)
 end
 
 function sectorsofbunch(bunchnum, cf)
-    if (bunchnum < 0 or bunchnum >= ffiC.numyaxbunches) then
+    if (bunchnum >= ffiC.numyaxbunches+0ULL) then
         error("passed invalid bunchnum to sectorsofbunch iterator", 2)
     end
-    if (cf ~= 0 and cf ~= 1) then
+    if (not (cf == 0 or cf == 1)) then
         error("passed invalid 'cf' to sectorsofbunch iterator, must be 0 or 1", 2)
     end
 
@@ -443,7 +486,7 @@ end
 
 function getbunch(sectnum, cf)
     check_sector_idx(sectnum)
-    if (cf ~= 0 and cf ~= 1) then
+    if (not (cf == 0 or cf == 1)) then
         error("passed invalid 'cf' to getbunch, must be 0 or 1", 2)
     end
 
@@ -495,9 +538,6 @@ function neartag(pos, sectnum, ang, range, tagsearch)
     return neartag_ret_ct(a[0], b[0], c[0], d[0])
 end
 
--- TODO: reimplement in Lua (benefit: no int overflow)?  On the engine side,
--- make it take a sectortype pointer, and add as metamethod to our LuaJIT
--- sector type ("contains"?)
 function inside(pos, sectnum)
     check_sector_idx(sectnum)
     return (ffiC.inside(pos.x, pos.y, sectnum)==1)
@@ -526,9 +566,13 @@ function updatesectorz(pos, sectnum)
     return sect[0]
 end
 
+function printf(fmt, ...)
+    print(string.format(fmt, ...))
+end
+
 
 -- This is supposed to be run from the file that 'require's this module to take
--- over the non-local variables from here into the global environment.
+-- over the non-local variables from here into its global environment.
 function create_globals(_G_their)
     local _G_our = getfenv(1)
     vars_to_ignore["create_globals"] = true

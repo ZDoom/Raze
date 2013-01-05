@@ -7,8 +7,6 @@ local ffiC = ffi.C
 local geom = require "geom"
 local stat = require "stat"
 
-local function printf(fmt, ...) print(string.format(fmt, ...)) end
-
 
 -- set to nil to disable saving positions
 g_posns = {}
