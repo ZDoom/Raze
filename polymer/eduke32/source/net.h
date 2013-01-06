@@ -327,6 +327,14 @@ void    faketimerhandler(void);
 #define Net_SyncPlayer(...) ((void)0)
 #define Net_WaitForServer(...) ((void)0)
 
+#define Net_ActorsAreDifferent(...) 0
+#define Net_IsRelevantSprite(...) 0
+#define Net_IsRelevantStat(...) 0
+#define Net_InsertSprite(...) 0
+#define Net_DeleteSprite(...) ((void)0)
+
+#define Net_NotifyNewGame(...) ((void)0)
+
 #endif
 
 #endif // __netplay_h__
