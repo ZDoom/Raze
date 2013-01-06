@@ -3538,7 +3538,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         const int32_t vr = divscale22(1,sprite[p->i].yrepeat+28);
         const int32_t software_screen_tilting =
-            (getrendermode() == REND_CLASSIC && ((ud.screen_tilting && p->rotscrnang && !g_fakeMultiMode) || !ud.detail));
+            (getrendermode() == REND_CLASSIC && ((ud.screen_tilting && p->rotscrnang && !g_fakeMultiMode)));
 
         if (!r_usenewaspect)
         {
@@ -3588,8 +3588,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 // If the view is rotated (not 0 or 180 degrees modulo 360 degrees),
                 // we render onto a square tile and display a portion of that
                 // rotated on-screen later on.
-                const int32_t viewtilexsiz = ((tang&1023) ? tiltcx : tiltcy)>>(int)!ud.detail;
-                const int32_t viewtileysiz = tiltcx>>(int)!ud.detail;
+                const int32_t viewtilexsiz = (tang&1023) ? tiltcx : tiltcy;
+                const int32_t viewtileysiz = tiltcx;
 
                 walock[TILE_TILT] = 255;
                 if (waloff[TILE_TILT] == 0)
@@ -3601,8 +3601,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             if ((tang&1023) == 512)
             {
                 //Block off unscreen section of 90ø tilted screen
-                j = ((tiltcx-(60*tiltcs))>>(int)!ud.detail);
-                for (i=((60*tiltcs)>>(int)!ud.detail)-1; i>=0; i--)
+                j = tiltcx-(60*tiltcs);
+                for (i=(60*tiltcs)-1; i>=0; i--)
                 {
                     startumost[i] = 1;
                     startumost[i+j] = 1;
@@ -3850,13 +3850,31 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             if (i > 256)
                 i = 512-i;
             i = sintable[i+512]*8 + sintable[i]*5;
-            if (ud.detail)
-                i >>= 1;
-            i >>= (tiltcs-1); // JBF 20030807
+            i >>= tiltcs; // JBF 20030807
 
             rotatesprite_win(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64);
             walock[TILE_TILT] = 199;
         }
+    }
+
+    if (!ud.detail && getrendermode()==REND_CLASSIC && ((xdim|ydim)&1)==0)
+    {
+        begindrawing();
+        {
+            uint8_t *const f = (uint8_t *)frameplace;
+            int32_t x, y;
+
+            for (x=0; x<xdim; x+=2)
+                for (y=0; y<ydim; y+=2)
+                {
+                    const int32_t yl0 = ylookup[y];
+                    const int32_t yl1 = ylookup[y+1];
+
+                    uint8_t newpal = f[yl0+x];
+                    f[yl0+x] = f[yl0+x+1] = f[yl1+x] = f[yl1+x+1] = newpal;
+                }
+        }
+        enddrawing();
     }
 
     G_RestoreInterpolations();
