@@ -522,7 +522,7 @@ function _getinventory(ps, inv, i)
     end
 end
 
-function _addphealth(ps, spr, hlthadd)
+function _addphealth(ps, aci, hlthadd)
     if (ps.newowner >= 0) then
         ffiC.G_ClearCameraView(ps)
     end
@@ -531,7 +531,7 @@ function _addphealth(ps, spr, hlthadd)
         return
     end
 
-    local notatomic = (spr.picnum ~= D.ATOMICHEALTH)
+    local notatomic = (sprite[aci].picnum ~= D.ATOMICHEALTH)
     local j = sprite[ps.i].extra
 
     if (notatomic and j > ps.max_player_health and hlthadd > 0) then
@@ -555,8 +555,8 @@ function _addphealth(ps, spr, hlthadd)
     if (hlthadd > 0) then
         local qmaxhlth = bit.rshift(ps.max_player_health, 2)
         if (j-hlthadd < qmaxhlth and j >= qmaxhlth) then
-            -- TODO
-            --A_PlaySound(DUKE_GOTHEALTHATLOW, ps->i)
+            -- XXX: DUKE_GOTHEALTHATLOW
+            _sound(229, aci)
         end
 
         ps.last_extra = j

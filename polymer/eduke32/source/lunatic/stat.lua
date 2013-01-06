@@ -5,6 +5,8 @@ local ffi = require("ffi")
 local math = require("math")
 local string = require("string")
 
+local tostring = tostring
+
 
 module(...)
 
@@ -73,6 +75,10 @@ local mt = {
         getstats = function(s)
             local var = s.n > 1 and s.s/(s.n-1) or NaN
             return rstatres(s.n, s.m, var, math.sqrt(var), s.min, s.max)
+        end,
+
+        getstatstr = function(s)
+            return tostring(s:getstats())
         end,
 
         reset = function(s)

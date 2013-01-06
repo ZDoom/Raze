@@ -1034,7 +1034,7 @@ local Ci = {
     addkills = cmd(D)
         / (PLS".actors_killed="..PLS".actors_killed+%1;"..ACS".actorstayput=-1"),
     addphealth = cmd(D)
-        / format("_con._addphealth(%s,%s,%%1)", PLS"", SPS""),
+        / format("_con._addphealth(%s,_aci,%%1)", PLS""),
     angoff = cmd(D)
         / "spritext[_aci].angoff=%1",
     debug = cmd(D)
@@ -1143,7 +1143,7 @@ local Ci = {
     activatebysector = cmd(R,R),
     addlogvar = cmd(R),
     addlog = cmd() * #sp1,
-    addweaponvar = cmd(R,R),  -- exec SPECIAL HANDLING!
+    addweaponvar = cmd(R,R),  -- NLCF
     cansee = cmd(R,R,R,R,R,R,R,R,W),
     canseespr = cmd(R,R,W),
     changespritesect = cmd(R,R),

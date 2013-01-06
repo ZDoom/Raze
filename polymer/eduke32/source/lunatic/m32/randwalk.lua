@@ -85,8 +85,8 @@ function randwalk(N, spritenum, minlen, maxlen, randofs, funci, logfn)
            minlen, maxlen, randofs, logfn)
     printf("-- Times [ms] (total=%f)", N*stallres.mean)
     print("All: ".. tostring(stallres))
-    print("Succeeded: ".. tostring(st.succ:getstats()))
-    print("Failed: ".. tostring(st.fail:getstats()))
+    print("Succeeded: ".. st.succ:getstatstr())
+    print("Failed: ".. st.fail:getstatstr())
 
     if (logfn ~= nil) then
         local logfile, errmsg = io.open(logfn, "w")

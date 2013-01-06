@@ -1092,7 +1092,7 @@ local function our_gameevent(event, func)
         if (event:sub(1,6) ~= "EVENT_") then
             event = "EVENT_"..event
         end
-        local eventidx = con_lang.labels.EVENT[event]
+        local eventidx = con_lang.EVENT[event]
         if (eventidx == nil) then
             errorf(2, "gameevent: invalid event label %q", event)
         end
@@ -1309,6 +1309,12 @@ DBG_.printkv = printkv
 DBG_.loadstring = loadstring
 DBG_.serializeGamevars = serializeGamevars
 DBG_.loadGamevarsString = loadGamevarsString
+DBG_.oom = function()
+    local s = "1"
+    for i=1,math.huge do
+        s = s..s
+    end
+end
 
 
 ---=== Finishing environment setup ===---

@@ -204,6 +204,7 @@ gameevent(gv.EVENT_JUMP,
 gameevent("JUMP",
           function(actori, playeri, dist)
               print("I'm first!")
+--              DBG_.oom()
           end
          )
 
@@ -279,7 +280,7 @@ gameactor(1680, TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
               hs:add(1000*(gv.gethitickms()-t))
 
               if (hs.n == 300) then
-                  printf("hitscan: %s", tostring(hs:getstats()))
+                  printf("hitscan: %s", hs:getstatstr())
                   hs:reset()
                   error("greetings from LIZTROOP actor")
               end
@@ -310,6 +311,8 @@ function check_sector_idx()
     error("bla")
 end
 spritesofsect(0)
+
+--DBG_.oom()
 
 -- This will complain about wrong usage of 'error'. In particular,
 -- the nil must not propagate to C!

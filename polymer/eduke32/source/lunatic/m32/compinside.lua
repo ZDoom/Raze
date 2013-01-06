@@ -80,6 +80,6 @@ function compinside(n)
     end
 
     print("====================")
-    print("inside(): " .. tostring(sti:getstats()))
-    print("contains(): " .. tostring(sts:getstats()))
+    print("inside(): " .. sti:getstatstr())
+    print("contains(): " .. sts:getstatstr())
 end

@@ -56,8 +56,8 @@ if (numreps > 1) then
         local key = keys[i]
         if (unit[key] ~= nil) then
             print("== "..key.." times:")
-            print("   "..tostring(st[key]:getstats()).."  ["..unit[key].."]")
-            print("   "..tostring(stperx[key]:getstats()).."  ["..unitperx[key].."]")
+            print("   "..st[key]:getstatstr().."  ["..unit[key].."]")
+            print("   "..stperx[key]:getstatstr().."  ["..unitperx[key].."]")
         end
     end
 end
