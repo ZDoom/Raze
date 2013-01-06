@@ -1478,13 +1478,13 @@ int16_t             polymer_addlight(_prlight* light)
 
     if (lighti == PR_MAXLIGHTS)
         return (-1);
-
+#if 0
     // Spot lights disabled on ATI cards because they cause crashes with
     // Catalyst 12.8 drivers.
     // See: http://forums.duke4.net/topic/5723-hrp-polymer-crash/
     if (pr_ati_fboworkaround && light->radius)
         return (-1);
-
+#endif
     Bmemcpy(&prlights[lighti], light, sizeof(_prlight));
 
     if (light->radius) {
