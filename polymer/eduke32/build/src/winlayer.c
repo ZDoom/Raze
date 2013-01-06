@@ -316,7 +316,6 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 {
     int32_t r;
     char *argp;
-    FILE *fp;
     HDC hdc;
 
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -419,19 +418,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         }
     }
 
-    // pipe standard outputs to files
-    if ((argp = Bgetenv("BUILD_LOGSTDOUT")) != NULL)
-        if (!Bstrcasecmp(argp, "TRUE"))
-        {
-            fp = freopen("stdout.txt", "w", stdout);
-            if (!fp)
-            {
-                fp = fopen("stdout.txt", "w");
-            }
-            if (fp) setvbuf(fp, 0, _IONBF, 0);
-            *stdout = *fp;
-            *stderr = *fp;
-        }
+    maybe_redirect_outputs();
 
 #ifdef USE_OPENGL
     if ((argp = Bgetenv("BUILD_NOFOG")) != NULL)

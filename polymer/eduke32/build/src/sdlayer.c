@@ -206,7 +206,6 @@ int32_t main(int32_t argc, char *argv[])
 {
     int32_t r;
     char *argp;
-    FILE *fp;
 
     buildkeytranslationtable();
 
@@ -229,24 +228,7 @@ int32_t main(int32_t argc, char *argv[])
     _buildargc = argc;
     _buildargv = (const char **)argv;
 
-#if !(defined __APPLE__ && defined __BIG_ENDIAN__)
-    // pipe standard outputs to files
-    if ((argp = Bgetenv("BUILD_LOGSTDOUT")) != NULL)
-        if (!Bstrcasecmp(argp, "TRUE"))
-        {
-            fp = freopen("stdout.txt", "w", stdout);
-
-            if (!fp)
-                fp = fopen("stdout.txt", "w");
-
-            if (fp)
-            {
-                setvbuf(fp, 0, _IONBF, 0);
-                *stdout = *fp;
-                *stderr = *fp;
-            }
-        }
-#endif
+    maybe_redirect_outputs();
 
 #ifdef USE_OPENGL
     if ((argp = Bgetenv("BUILD_NOFOG")) != NULL)

@@ -181,6 +181,7 @@ void wm_setapptitle(char *name);
 int32_t baselayer_init();
 
 void makeasmwriteable(void);
+void maybe_redirect_outputs(void);
 
 #ifdef EXTERNC
 }

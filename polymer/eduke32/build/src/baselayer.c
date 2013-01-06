@@ -476,3 +476,27 @@ void makeasmwriteable(void)
 # endif
 #endif
 }
+
+void maybe_redirect_outputs(void)
+{
+#if !(defined __APPLE__ && defined __BIG_ENDIAN__)
+    char *argp;
+
+    // pipe standard outputs to files
+    if ((argp = Bgetenv("BUILD_LOGSTDOUT")) != NULL)
+        if (!Bstrcasecmp(argp, "TRUE"))
+        {
+            FILE *fp = freopen("stdout.txt", "w", stdout);
+
+            if (!fp)
+                fp = fopen("stdout.txt", "w");
+
+            if (fp)
+            {
+                setvbuf(fp, 0, _IONBF, 0);
+                *stdout = *fp;
+                *stderr = *fp;
+            }
+        }
+#endif
+}
