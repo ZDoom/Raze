@@ -55,8 +55,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
 extern float curpolygonoffset;
 
-extern int32_t cachefilehandle;
-extern FILE *cacheindexptr;
 extern int32_t cachepos;
 
 struct cacheitem_t

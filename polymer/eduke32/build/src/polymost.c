@@ -265,12 +265,14 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
 //
 
 
-int32_t cachefilehandle = -1; // texture cache file handle
-FILE *cacheindexptr = NULL;
+static int32_t cachefilehandle = -1; // texture cache file handle
+static FILE *cacheindexptr = NULL;
 static uint8_t *memcachedata = NULL;
 static int32_t memcachesize = -1;
 int32_t cachepos = 0;
-// Set to 1 when we failed (re)allocating space for the memcache:
+// Set to 1 when we failed (re)allocating space for the memcache or failing to
+// read into it (which would presumably generate followup errors spamming the
+// log otherwise):
 static int32_t dont_alloc_memcache = 0;
 
 static hashtable_t h_texcache    = { 1024, NULL };
@@ -604,8 +606,16 @@ static void polymost_cachesync(void)
         {
             initprintf("Syncing memcache to texcache\n");
             Blseek(cachefilehandle, memcachesize, BSEEK_SET);
-            Bread(cachefilehandle, memcachedata + memcachesize, len - memcachesize);
-            memcachesize = len;
+            if (Bread(cachefilehandle, memcachedata + memcachesize, len - memcachesize) != (bssize_t)(len-memcachesize))
+            {
+                initprintf("polymost_cachesync: Failed reading texcache into memcache!\n");
+                clear_memcache();
+                dont_alloc_memcache = 1;
+            }
+            else
+            {
+                memcachesize = len;
+            }
         }
     }
 }
@@ -788,6 +798,7 @@ void polymost_glinit()
                 {
                     initprintf("Failed reading texcache into memcache!\n");
                     clear_memcache();
+                    dont_alloc_memcache = 1;
                 }
             }
         }
@@ -1411,6 +1422,29 @@ static void phex(char v, char *s)
     s[1] = x<10 ? (x+'0') : (x-10+'a');
 }
 
+// Read from on-disk texcache or its in-memory cache.
+static int32_t read_from_cache(void *dest, int32_t len)
+{
+    const int32_t ocachepos = cachepos;
+
+    cachepos += len;
+
+    if (memcachedata && memcachesize >= ocachepos+len)
+    {
+//        initprintf("using memcache!\n");
+        Bmemcpy(dest, memcachedata+ocachepos, len);
+    }
+    else
+    {
+        Blseek(cachefilehandle, ocachepos, BSEEK_SET);
+
+        if (Bread(cachefilehandle, dest, len) < len)
+            return 1;
+    }
+
+    return 0;
+}
+
 int32_t polymost_trytexcache(const char *fn, int32_t len, int32_t dameth, char effect,
                              texcacheheader *head, int32_t modelp)
 {
@@ -1447,26 +1481,16 @@ int32_t polymost_trytexcache(const char *fn, int32_t len, int32_t dameth, char e
 
 //    initprintf("Loading cached tex: %s\n", cachefn);
 
-    if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(texcacheheader)))
+    if (read_from_cache(head, sizeof(texcacheheader)))
     {
-//        initprintf("using memcache!\n");
-        Bmemcpy(head, memcachedata + cachepos, sizeof(texcacheheader));
-        cachepos += sizeof(texcacheheader);
-    }
-    else
-    {
-        Blseek(cachefilehandle, cachepos, BSEEK_SET);
-        cachepos += sizeof(texcacheheader);
-        if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader))
-        {
-            err = 0;
-            goto failure;
-        }
+        err = 0;
+        goto failure;
     }
 
     // checks...
     if (Bmemcmp(head->magic, TEXCACHEMAGIC, 4)) { err=1; goto failure; }
 
+    // native (little-endian) -> internal
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
@@ -1560,6 +1584,7 @@ void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texca
 
     if (glusetexcache == 2) head->flags |= 4;
 
+    // native -> external (little-endian)
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
@@ -1585,6 +1610,7 @@ void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texca
 #ifdef __APPLE__
         if (pr_ati_textureformat_one && gi == 1) gi = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 #endif
+        // native -> external (little endian)
         pict.format = B_LITTLE32(gi);
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, &gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
@@ -1674,7 +1700,7 @@ success:
 
 static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t *doalloc, pthtyp *pth,int32_t dapalnum)
 {
-    int32_t level, r;
+    int32_t level;
     texcachepicture pict;
     char *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
@@ -1703,20 +1729,13 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
     // load the mipmaps
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
     {
-        if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(texcachepicture)))
+        if (read_from_cache(&pict, sizeof(texcachepicture)))
         {
-            //        initprintf("using memcache!\n");
-            Bmemcpy(&pict, memcachedata + cachepos, sizeof(texcachepicture));
-            cachepos += sizeof(texcachepicture);
-        }
-        else
-        {
-            Blseek(fil, cachepos, BSEEK_SET);
-            r = Bread(fil, &pict, sizeof(texcachepicture));
-            cachepos += sizeof(texcachepicture);
-            if (r < (int32_t)sizeof(texcachepicture)) { err=1; goto failure; }
+            err=1;
+            goto failure;
         }
 
+        // external (little endian) -> native
         pict.size = B_LITTLE32(pict.size);
         pict.format = B_LITTLE32(pict.format);
         pict.xdim = B_LITTLE32(pict.xdim);
@@ -6500,6 +6519,7 @@ static void dxt_handle_io(int32_t fil, int32_t len, void *midbuf, char *packbuf)
         writebuf = midbuf;
     }
 
+    // native -> external (little endian)
     j = B_LITTLE32(cleng);
     Bwrite(fil, &j, sizeof(j));
     Bwrite(fil, writebuf, cleng);
@@ -6511,24 +6531,15 @@ static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
     void *inbuf;
     int32_t cleng;
 
-    if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(int32_t)))
-    {
-        cleng = *(int32_t *)(memcachedata + cachepos);
-        cachepos += sizeof(int32_t);
-    }
-    else
-    {
-        Blseek(fil, cachepos, BSEEK_SET);
-        cachepos += sizeof(int32_t);
-        if (Bread(fil, &cleng, sizeof(int32_t)) < (signed)sizeof(int32_t))
-            return -1;
+    if (read_from_cache(&cleng, sizeof(int32_t)))
+        return -1;
 
-        cleng = B_LITTLE32(cleng);
-    }
+    // external (little endian) -> native
+    cleng = B_LITTLE32(cleng);
 
     inbuf = (ispacked && cleng < j) ? packbuf : midbuf;
 
-    if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
+    if (memcachedata && memcachesize >= cachepos + cleng)
     {
         if (ispacked && cleng < j)
         {
@@ -6596,6 +6607,7 @@ Description of Ken's filter to improve LZW compression of DXT1 format by ~15%: (
  I think this improved compression by a few % :)
  */
 
+// NOTE: <pict> members are in external (little) endianness.
 int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, void *midbuf, char *packbuf, uint32_t miplen)
 {
     uint32_t j, k, offs, stride;
@@ -6643,16 +6655,16 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     return 0;
 }
 
+// NOTE: <pict> members are in native endianness.
 int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked)
 {
     int32_t j, k, offs, stride;
     char *cptr;
 
-    if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
-            (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
-    else if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)) ||
-             (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
-
+    if ((pict->format == GL_COMPRESSED_RGB_S3TC_DXT1_EXT) ||
+            (pict->format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)) { offs = 0; stride = 8; }
+    else if ((pict->format == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT) ||
+             (pict->format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)) { offs = 8; stride = 16; }
     else { offs = 0; stride = 8; }
 
     if (stride == 16) //If DXT3...
