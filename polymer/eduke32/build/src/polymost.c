@@ -6484,6 +6484,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 #endif
 }
 
+#ifdef USE_OPENGL
 static uint16_t hicosub(uint16_t c)
 {
     int32_t r, g, b;
@@ -6500,6 +6501,86 @@ static uint16_t hicoadd(uint16_t c)
     r = ((c>>11)+(g>>1))&31;
     b = ((c>> 0)+(g>>1))&31;
     return((r<<11)+(g<<5)+b);
+}
+
+static void dxt_handle_io(int32_t fil, int32_t len, void *midbuf, char *packbuf)
+{
+    void *writebuf;
+    int32_t j, cleng;
+
+    if (glusetexcache == 2)
+    {
+        cleng = qlz_compress(midbuf, packbuf, len, state_compress);
+
+        if (cleng == 0 || cleng > len-1)
+        {
+            cleng = len;
+            writebuf = midbuf;
+        }
+        else writebuf = packbuf;
+    }
+    else
+    {
+        cleng = len;
+        writebuf = midbuf;
+    }
+
+    j = B_LITTLE32(cleng);
+    Bwrite(fil, &j, sizeof(j));
+    Bwrite(fil, writebuf, cleng);
+}
+
+static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
+                               void *midbuf, char *packbuf, int32_t ispacked)
+{
+    void *inbuf;
+    int32_t cleng;
+
+    if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(int32_t)))
+    {
+        cleng = *(int32_t *)(memcachedata + cachepos);
+        cachepos += sizeof(int32_t);
+    }
+    else
+    {
+        Blseek(fil, cachepos, BSEEK_SET);
+        cachepos += sizeof(int32_t);
+        if (Bread(fil, &cleng, sizeof(int32_t)) < (signed)sizeof(int32_t))
+            return -1;
+
+        cleng = B_LITTLE32(cleng);
+    }
+
+    inbuf = (ispacked && cleng < j) ? packbuf : midbuf;
+
+    if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
+    {
+        if (ispacked && cleng < j)
+        {
+            if (qlz_decompress((const char *)memcachedata + cachepos, midbuf, state_decompress) == 0)
+            {
+                cachepos += cleng;
+                return -1;
+            }
+        }
+        else Bmemcpy(inbuf, memcachedata + cachepos, cleng);
+
+        cachepos += cleng;
+    }
+    else
+    {
+        Blseek(fil, cachepos, BSEEK_SET);
+        cachepos += cleng;
+
+        if (Bread(fil, inbuf, cleng) < cleng)
+            return -1;
+
+        if (ispacked && cleng < j)
+            if (qlz_decompress(packbuf, midbuf, state_decompress) == 0)
+                return -1;
+    }
+
+    return 0;
 }
 
 /*
@@ -6540,11 +6621,9 @@ Description of Ken's filter to improve LZW compression of DXT1 format by ~15%: (
  I think this improved compression by a few % :)
  */
 
-#ifdef USE_OPENGL
 int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, void *midbuf, char *packbuf, uint32_t miplen)
 {
-    void *writebuf;
-    uint32_t j, k, offs, stride, cleng;
+    uint32_t j, k, offs, stride;
     char *cptr;
 
     if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
@@ -6560,25 +6639,8 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
         for (k=0; k<8; k++) *cptr++ = pic[k];
         for (j=stride; (unsigned)j<miplen; j+=stride)
             for (k=0; k<8; k++) *cptr++ = pic[j+k];
-        if (glusetexcache == 2)
-        {
-            j = (miplen/stride)<<3;
-            cleng = qlz_compress(midbuf,packbuf,j,state_compress);
-            if (cleng == 0 || cleng > j-1)
-            {
-                cleng = j;
-                writebuf = midbuf;
-            }
-            else writebuf = packbuf;
-        }
-        else
-        {
-            cleng = (miplen/stride)<<3;
-            writebuf = midbuf;
-        }
-        j = B_LITTLE32(cleng);
-        Bwrite(fil,&j,sizeof(j));
-        Bwrite(fil,writebuf,cleng);
+
+        dxt_handle_io(fil, (miplen/stride)<<3, midbuf, packbuf);
     }
 
     //rgb0,rgb1
@@ -6586,25 +6648,8 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     for (k=0; k<=2; k+=2)
         for (j=0; (unsigned)j<miplen; j+=stride)
             { *(int16_t *)cptr = hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
-    if (glusetexcache == 2)
-    {
-        j = (miplen/stride)<<2;
-        cleng = qlz_compress(midbuf,packbuf,j,state_compress);
-        if (cleng == 0 || cleng > j-1)
-        {
-            cleng = j;
-            writebuf = midbuf;
-        }
-        else writebuf = packbuf;
-    }
-    else
-    {
-        cleng = (miplen/stride)<<2;
-        writebuf = midbuf;
-    }
-    j = B_LITTLE32(cleng);
-    Bwrite(fil,&j,sizeof(j));
-    Bwrite(fil,writebuf,cleng);
+
+    dxt_handle_io(fil, (miplen/stride)<<2, midbuf, packbuf);
 
     //index_4x4
     cptr = (char *)midbuf;
@@ -6617,86 +6662,29 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
         cptr[3] = ((c2[0]>>6)&3) + (((c2[1]>>6)&3)<<2) + (((c2[2]>>6)&3)<<4) + (((c2[3]>>6)&3)<<6);
         cptr += 4;
     }
-    if (glusetexcache == 2)
-    {
-        j = (miplen/stride)<<2;
-        cleng = qlz_compress(midbuf,packbuf,j,state_compress);
-        if (cleng == 0 || cleng > j-1)
-        {
-            cleng = j;
-            writebuf = midbuf;
-        }
-        else writebuf = packbuf;
-    }
-    else
-    {
-        cleng = (miplen/stride)<<2;
-        writebuf = midbuf;
-    }
-    j = B_LITTLE32(cleng);
-    Bwrite(fil,&j,sizeof(j));
-    Bwrite(fil,writebuf,cleng);
+
+    dxt_handle_io(fil, (miplen/stride)<<2, midbuf, packbuf);
+
     return 0;
 }
 
 int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked)
 {
-    void *inbuf;
-    int32_t j, k, offs, stride, cleng;
+    int32_t j, k, offs, stride;
     char *cptr;
-
-    if (ispacked) inbuf = packbuf; else inbuf = midbuf;
 
     if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
             (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
     else if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)) ||
              (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
+
     else { offs = 0; stride = 8; }
 
     if (stride == 16) //If DXT3...
     {
         //alpha_4x4
-        if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(int32_t)))
-        {
-            cleng = *(int32_t *)(memcachedata + cachepos);
-            cachepos += sizeof(int32_t);
-        }
-        else
-        {
-            Blseek(fil, cachepos, BSEEK_SET);
-            cachepos += sizeof(int32_t);
-            if (Bread(fil,&cleng,sizeof(int32_t)) < (signed)sizeof(int32_t)) return -1;
-            cleng = B_LITTLE32(cleng);
-        }
-
-        j = (pict->size/stride)*8;
-
-        if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
-
-        if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
-        {
-            if (ispacked && cleng < j)
-            {
-                if (qlz_decompress((const char *)memcachedata + cachepos,midbuf,state_decompress) == 0)
-                {
-                    cachepos += cleng;
-                    return -1;
-                }
-            }
-            else Bmemcpy(inbuf, memcachedata + cachepos, cleng);
-
-            cachepos += cleng;
-        }
-        else
-        {
-            Blseek(fil, cachepos, BSEEK_SET);
-            cachepos += cleng;
-            if (Bread(fil,inbuf,cleng) < cleng) return -1;
-
-
-            if (ispacked && cleng < j)
-                if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
-        }
+        if (dedxt_handle_io(fil, (pict->size/stride)*8, midbuf, packbuf, ispacked))
+            return -1;
 
         cptr = (char *)midbuf;
         for (k=0; k<8; k++) pic[k] = *cptr++;
@@ -6705,45 +6693,8 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     }
 
     //rgb0,rgb1
-    if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(int32_t)))
-    {
-        cleng = *(int32_t *)(memcachedata + cachepos);
-        cachepos += sizeof(int32_t);
-    }
-    else
-    {
-        Blseek(fil, cachepos, BSEEK_SET);
-        cachepos += sizeof(int32_t);
-        if (Bread(fil,&cleng,sizeof(int32_t)) < (signed)sizeof(int32_t)) return -1;
-        cleng = B_LITTLE32(cleng);
-    }
-
-    j = (pict->size/stride)*4;
-    if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
-
-    if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
-    {
-        if (ispacked && cleng < j)
-        {
-            if (qlz_decompress((const char *)memcachedata + cachepos,midbuf,state_decompress) == 0)
-            {
-                cachepos += cleng;
-                return -1;
-            }
-        }
-        else Bmemcpy(inbuf, memcachedata + cachepos, cleng);
-
-        cachepos += cleng;
-    }
-    else
-    {
-        Blseek(fil, cachepos, BSEEK_SET);
-        cachepos += cleng;
-        if (Bread(fil,inbuf,cleng) < cleng) return -1;
-
-        if (ispacked && cleng < j)
-            if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
-    }
+    if (dedxt_handle_io(fil, (pict->size/stride)*4, midbuf, packbuf, ispacked))
+        return -1;
 
     cptr = (char *)midbuf;
     for (k=0; k<=2; k+=2)
@@ -6756,45 +6707,8 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     }
 
     //index_4x4:
-    if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(int32_t)))
-    {
-        cleng = *(int32_t *)(memcachedata + cachepos);
-        cachepos += sizeof(int32_t);
-    }
-    else
-    {
-        Blseek(fil, cachepos, BSEEK_SET);
-        cachepos += sizeof(int32_t);
-        if (Bread(fil,&cleng,sizeof(int32_t)) < (signed)sizeof(int32_t)) return -1;
-        cleng = B_LITTLE32(cleng);
-    }
-
-    j = (pict->size/stride)*4;
-    if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
-
-    if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
-    {
-        if (ispacked && cleng < j)
-        {
-            if (qlz_decompress((const char *)memcachedata + cachepos,midbuf,state_decompress) == 0)
-            {
-                cachepos += cleng;
-                return -1;
-            }
-        }
-        else Bmemcpy(inbuf, memcachedata + cachepos, cleng);
-
-        cachepos += cleng;
-    }
-    else
-    {
-        Blseek(fil, cachepos, BSEEK_SET);
-        cachepos += cleng;
-        if (Bread(fil,inbuf,cleng) < cleng) return -1;
-
-        if (ispacked && cleng < j)
-            if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
-    }
+    if (dedxt_handle_io(fil, (pict->size/stride)*4, midbuf, packbuf, ispacked))
+        return -1;
 
     cptr = (char *)midbuf;
     for (j=0; j<pict->size; j+=stride)
@@ -6805,6 +6719,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
         pic[j+offs+7] = ((cptr[0]>>6)&3) + (((cptr[1]>>6)&3)<<2) + (((cptr[2]>>6)&3)<<4) + (((cptr[3]>>6)&3)<<6);
         cptr += 4;
     }
+
     return 0;
 }
 #endif
