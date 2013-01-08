@@ -9206,10 +9206,10 @@ static int32_t osdcmd_tint(const osdfuncparm_t *parm)
     }
     else if (parm->numparms==0)
     {
-        palette_t empty = { 0xFF, 0xFF, 0xFF, 0x00 };
+        palette_t notint = { 0xFF, 0xFF, 0xFF, 0x00 };
         OSD_Printf("Hightile tintings:\n");
         for (i=0,p=&hictinting[0]; i<=M32_MAXPALOOKUPS; i++,p++)
-            if (*(int32_t *)&hictinting[i] != *(int32_t *)&empty)
+            if (Bmemcmp(&hictinting[i], &notint, 4))
                 OSD_Printf("pal %d: rgb %3d %3d %3d  f %d\n", i, p->r, p->g, p->b, p->f);
     }
     else if (parm->numparms>=2)

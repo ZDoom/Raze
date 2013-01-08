@@ -192,8 +192,7 @@ int32_t r_modelocclusionchecking = 0;
 int32_t r_fullbrights = 1;
 
 // texture downsizing
-// is medium quality a good default?
-int32_t r_downsize = 1;
+int32_t r_downsize = 0;
 int32_t r_downsizevar = -1;
 
 // used for fogcalc
