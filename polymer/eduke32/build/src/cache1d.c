@@ -792,7 +792,7 @@ int32_t kopen4load(const char *filename, char searchfirst)
 
             if (status == -1)
             {
-                initprintf("SHGetFileInfo failed with error code %lu\n", GetLastError());
+//                initprintf("SHGetFileInfo failed with error code %lu\n", GetLastError());
             }
             else if (status == 1)
             {
