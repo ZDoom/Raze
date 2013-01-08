@@ -304,7 +304,9 @@ static int32_t defsparser(scriptfile *script)
             if (check_file_exist(fn))
                 break;
 
+#ifdef USE_OPENGL
             hicsetsubsttex(tile,pal,fn,-1.0,1.0,1.0,1.0,1.0,0);
+#endif
         }
         break;
         case T_DEFINESKYBOX:
@@ -323,7 +325,9 @@ static int32_t defsparser(scriptfile *script)
                     happy = 0;
             }
             if (i < 6 || !happy) break;
+#ifdef USE_OPENGL
             hicsetskybox(tile,pal,fn);
+#endif
         }
         break;
         case T_DEFINETINT:
@@ -335,7 +339,9 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&g)) break;
             if (scriptfile_getnumber(script,&b)) break;
             if (scriptfile_getnumber(script,&f)) break; //effects
+#ifdef USE_OPENGL
             hicsetpalettetint(pal,r,g,b,f);
+#endif
         }
         break;
         case T_ALPHAHACK:
@@ -353,8 +359,11 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_ALPHAHACKRANGE:
         {
-            int32_t tilenume1,tilenume2,i;
+            int32_t tilenume1,tilenume2;
             double alpha;
+#ifdef USE_OPENGL
+            int32_t i;
+#endif
 
             if (scriptfile_getsymbol(script,&tilenume1)) break;
             if (scriptfile_getsymbol(script,&tilenume2)) break;
@@ -702,8 +711,9 @@ static int32_t defsparser(scriptfile *script)
             char *framename;
 #ifdef USE_OPENGL
             char happy=1;
+            int32_t tilex;
 #endif
-            int32_t ftilenume, ltilenume, tilex;
+            int32_t ftilenume, ltilenume;
 
             if (scriptfile_getstring(script,&framename)) break;
             if (scriptfile_getnumber(script,&ftilenume)) break; //first tile number
@@ -943,8 +953,12 @@ static int32_t defsparser(scriptfile *script)
                 case T_FRAME:
                 {
                     char *frametokptr = script->ltextptr;
-                    char *frameend, *framename = 0, happy=1;
-                    int32_t ftilenume = -1, ltilenume = -1, tilex = 0, framei;
+                    char *frameend, *framename = 0;
+#ifdef USE_OPENGL
+                    char happy=1;
+                    int32_t tilex = 0, framei;
+#endif
+                    int32_t ftilenume = -1, ltilenume = -1;
                     double smoothduration = 0.1f;
 
                     static const tokenlist modelframetokens[] =
@@ -1188,8 +1202,12 @@ static int32_t defsparser(scriptfile *script)
                 case T_HUD:
                 {
                     char *hudtokptr = script->ltextptr;
-                    char happy=1, *frameend;
-                    int32_t ftilenume = -1, ltilenume = -1, tilex = 0, flags = 0, fov = -1;
+                    char *frameend;
+#ifdef USE_OPENGL
+                    char happy=1;
+                    int32_t tilex = 0;
+#endif
+                    int32_t ftilenume = -1, ltilenume = -1, flags = 0, fov = -1;
                     double xadd = 0.0, yadd = 0.0, zadd = 0.0, angadd = 0.0;
 
                     static const tokenlist modelhudtokens[] =
@@ -1444,7 +1462,9 @@ static int32_t defsparser(scriptfile *script)
             }
             if (!happy) break;
 
+#ifdef USE_OPENGL
             hicsetskybox(tile,pal,fn);
+#endif
         }
         break;
         case T_HIGHPALOOKUP:
@@ -1583,7 +1603,9 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
+#ifdef USE_OPENGL
             hicsetpalettetint(pal,red,green,blue,flags);
+#endif
         }
         break;
         case T_MAKEPALOOKUP:
@@ -1704,7 +1726,9 @@ static int32_t defsparser(scriptfile *script)
                     int32_t pal=-1;
                     char *fn = NULL;
                     double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
+#ifdef USE_OPENGL
                     char flags = 0;
+#endif
 
                     static const tokenlist texturetokens_pal[] =
                     {
@@ -1736,10 +1760,12 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&specpower); break;
                         case T_SPECFACTOR:
                             scriptfile_getdouble(script,&specfactor); break;
+#ifdef USE_OPENGL
                         case T_NOCOMPRESS:
                             flags |= 1; break;
                         case T_NODOWNSIZE:
                             flags |= 16; break;
+#endif
                         default:
                             break;
                         }
@@ -1762,19 +1788,23 @@ static int32_t defsparser(scriptfile *script)
                     if (check_file_exist(fn))
                         break;
 
+#ifdef USE_OPENGL
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
 
                     hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale, specpower, specfactor,flags);
+#endif
                 }
                 break;
                 case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
                 {
                     char *detailtokptr = script->ltextptr, *detailend;
+#ifdef USE_OPENGL
                     int32_t pal = 0;
+                    char flags = 0;
+#endif
                     char *fn = NULL;
                     double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
-                    char flags = 0;
 
                     static const tokenlist texturetokens_pal[] =
                     {
@@ -1803,10 +1833,12 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&specpower); break;
                         case T_SPECFACTOR:
                             scriptfile_getdouble(script,&specfactor); break;
+#ifdef USE_OPENGL
                         case T_NOCOMPRESS:
                             flags |= 1; break;
                         case T_NODOWNSIZE:
                             flags |= 16; break;
+#endif
                         default:
                             break;
                         }
@@ -1823,6 +1855,7 @@ static int32_t defsparser(scriptfile *script)
                     if (check_file_exist(fn))
                         break;
 
+#ifdef USE_OPENGL
                     switch (token)
                     {
                     case T_DETAIL:
@@ -1841,6 +1874,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
                     hicsetsubsttex(tile,pal,fn,-1.0f,xscale,yscale, specpower, specfactor,flags);
+#endif
                 }
                 break;
                 default:
@@ -1911,7 +1945,10 @@ static int32_t defsparser(scriptfile *script)
         case T_UNDEFTEXTURE:
         case T_UNDEFTEXTURERANGE:
         {
-            int32_t r0,r1,i;
+            int32_t r0,r1;
+#ifdef USE_OPENGL
+            int32_t i;
+#endif
 
             if (scriptfile_getsymbol(script,&r0)) break;
             if (tokn == T_UNDEFTEXTURERANGE)
@@ -1929,9 +1966,11 @@ static int32_t defsparser(scriptfile *script)
                     break;
             }
 
+#ifdef USE_OPENGL
             for (; r0 <= r1; r0++)
                 for (i=MAXPALOOKUPS-1; i>=0; i--)
                     hicclearsubst(r0,i);
+#endif
         }
         break;
 

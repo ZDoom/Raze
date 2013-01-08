@@ -6547,10 +6547,10 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     uint32_t j, k, offs, stride, cleng;
     char *cptr;
 
-    if ((pict->format == B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
-            (pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
-    else if ((pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)) ||
-             (pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
+    if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
+            (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
+    else if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)) ||
+             (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
     else { offs = 0; stride = 8; }
 
     if (stride == 16) //If DXT3...
@@ -6647,10 +6647,10 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
 
     if (ispacked) inbuf = packbuf; else inbuf = midbuf;
 
-    if ((pict->format == GL_COMPRESSED_RGB_S3TC_DXT1_EXT) ||
-            (pict->format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)) { offs = 0; stride = 8; }
-    else if ((pict->format == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT) ||
-             (pict->format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)) { offs = 8; stride = 16; }
+    if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
+            (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
+    else if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)) ||
+             (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
     else { offs = 0; stride = 8; }
 
     if (stride == 16) //If DXT3...
@@ -6811,10 +6811,17 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
 
 #else /* if !defined USE_OPENGL */
 
-#include "inttypes.h"
+#include "compat.h"
+
 int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen,
                                 int32_t usehitile, uint8_t *loadedhitile)
 {
+    UNREFERENCED_PARAMETER(tilex);
+    UNREFERENCED_PARAMETER(tiley);
+    UNREFERENCED_PARAMETER(wallnum);
+    UNREFERENCED_PARAMETER(dimen);
+    UNREFERENCED_PARAMETER(usehitile);
+    UNREFERENCED_PARAMETER(loadedhitile);
     return -1;
 }
 

@@ -294,12 +294,37 @@ int32_t hicclearsubst(int32_t picnum, int32_t palnum)
 
 #else /* USE_OPENGL */
 
-#include "inttypes.h"
+#include "compat.h"
 
-void hicsetpalettetint(int32_t palnum, char r, char g, char b, char effect) { }
-int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float alphacut) { return 0; }
-int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6]) { return 0; }
-int32_t hicclearsubst(int32_t picnum, int32_t palnum) { return 0; }
+void hicsetpalettetint(int32_t palnum, char r, char g, char b, char effect)
+{
+    UNREFERENCED_PARAMETER(palnum);
+    UNREFERENCED_PARAMETER(r);
+    UNREFERENCED_PARAMETER(g);
+    UNREFERENCED_PARAMETER(b);
+    UNREFERENCED_PARAMETER(effect);
+}
+int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float alphacut)
+{
+    UNREFERENCED_PARAMETER(picnum);
+    UNREFERENCED_PARAMETER(palnum);
+    UNREFERENCED_PARAMETER(filen);
+    UNREFERENCED_PARAMETER(alphacut);
+    return 0;
+}
+int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
+{
+    UNREFERENCED_PARAMETER(picnum);
+    UNREFERENCED_PARAMETER(palnum);
+    UNREFERENCED_PARAMETER(faces);
+    return 0;
+}
+int32_t hicclearsubst(int32_t picnum, int32_t palnum)
+{
+    UNREFERENCED_PARAMETER(picnum);
+    UNREFERENCED_PARAMETER(palnum);
+    return 0;
+}
 
 #endif
 

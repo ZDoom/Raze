@@ -9414,6 +9414,10 @@ static void finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t
 {
     int32_t i;
 
+#if !defined USE_OPENGL || !defined POLYMER
+    UNREFERENCED_PARAMETER(myflags);
+#endif
+
     for (i=0; i<numsprites; i++)
     {
         if ((sprite[i].cstat & 48) == 48)
@@ -13775,14 +13779,19 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
     int32_t i, j, nohwgamma;
     const uint8_t *dapal;
 
-    int32_t paldidchange, palsumdidchange;
+#ifdef USE_OPENGL
+    int32_t paldidchange;
+#endif
+    int32_t palsumdidchange;
 //    uint32_t lastbright = curbrightness;
 
     Bassert((flags&4)==0);
 
     if (dapalid >= basepalcount)
         dapalid = 0;
+#ifdef USE_OPENGL
     paldidchange = (curbasepal != dapalid || basepalreset);
+#endif
     curbasepal = dapalid;
     basepalreset = 0;
 

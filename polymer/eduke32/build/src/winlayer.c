@@ -117,9 +117,11 @@ static inline void DI_PollJoysticks(void);
 static int32_t SetupDirectDraw(int32_t width, int32_t height);
 static void UninitDIB(void);
 static int32_t SetupDIB(int32_t width, int32_t height);
+#ifdef USE_OPENGL
 static void ReleaseOpenGL(void);
 static void UninitOpenGL(void);
 static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp);
+#endif
 static BOOL RegisterWindowClass(void);
 static BOOL CreateAppWindow(int32_t modenum);
 static void DestroyAppWindow(void);
@@ -315,7 +317,9 @@ static void divcommon(int32_t *ap, int32_t *bp)
 int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int32_t nCmdShow)
 {
     int32_t r;
+#ifdef USE_OPENGL
     char *argp;
+#endif
     HDC hdc;
 
     UNREFERENCED_PARAMETER(lpCmdLine);
