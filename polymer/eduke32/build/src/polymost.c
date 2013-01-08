@@ -264,33 +264,16 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
 //   every virtual texture, I use a cache where indexing is managed through a hash table.
 //
 
-// moved into polymost.h
-/*typedef struct pthtyp_t
-{
-    struct pthtyp_t *next;
-    GLuint glpic;
-    short picnum;
-    char palnum;
-    char effects;
-    char flags;      // 1 = clamped (dameth&4), 2 = hightile, 4 = skybox face, 8 = hasalpha, 16 = hasfullbright, 128 = invalidated
-    char skyface;
-    hicreplctyp *hicr;
-
-    unsigned short sizx, sizy;
-    float scalex, scaley;
-    struct pthtyp_t *wofb; // without fullbright
-    struct pthtyp_t *ofb; // only fullbright
-} pthtyp;*/
 
 int32_t cachefilehandle = -1; // texture cache file handle
 FILE *cacheindexptr = NULL;
-uint8_t *memcachedata = NULL;
-int32_t memcachesize = -1;
+static uint8_t *memcachedata = NULL;
+static int32_t memcachesize = -1;
 int32_t cachepos = 0;
 // Set to 1 when we failed (re)allocating space for the memcache:
 static int32_t dont_alloc_memcache = 0;
 
-hashtable_t h_texcache    = { 1024, NULL };
+static hashtable_t h_texcache    = { 1024, NULL };
 
 char TEXCACHEFILE[BMAX_PATH] = "textures";
 
@@ -299,7 +282,7 @@ float alphahackarray[MAXTILES];
 
 static texcacheindex *firstcacheindex = NULL;
 static texcacheindex *curcacheindex = NULL;
-texcacheindex *cacheptrs[MAXTILES<<1];
+static texcacheindex *cacheptrs[MAXTILES<<1];
 static int32_t numcacheentries = 0;
 
 
@@ -596,26 +579,30 @@ static void Cachefile_Free(void)
         }
 }
 
+static void clear_memcache(void)
+{
+    Bfree(memcachedata);
+    memcachedata = NULL;
+    memcachesize = -1;
+}
 
-void polymost_cachesync(void)
+static void polymost_cachesync(void)
 {
     if (memcachedata && cachefilehandle != -1 && filelength(cachefilehandle) > memcachesize)
     {
         size_t len = filelength(cachefilehandle);
-        uint8_t *tmpptr = (uint8_t *)Brealloc(memcachedata, len);
 
-        if (!tmpptr)
+        memcachedata = (uint8_t *)Brealloc(memcachedata, len);
+
+        if (!memcachedata)
         {
-            Bfree(memcachedata);
-            memcachedata = NULL;
-            memcachesize = -1;
+            clear_memcache();
             initprintf("Failed syncing memcache to texcache, disabling memcache.\n");
             dont_alloc_memcache = 1;
         }
         else
         {
             initprintf("Syncing memcache to texcache\n");
-            memcachedata = tmpptr;
             Blseek(cachefilehandle, memcachesize, BSEEK_SET);
             Bread(cachefilehandle, memcachedata + memcachesize, len - memcachesize);
             memcachesize = len;
@@ -689,14 +676,7 @@ void polymost_glreset()
 static void clear_cache_internal(void)
 {
     Cachefile_CloseBoth();
-
-    if (memcachedata)
-    {
-        Bfree(memcachedata);
-        memcachedata = NULL;
-        memcachesize = -1;
-    }
-
+    clear_memcache();
     Cachefile_Free();
 
     curcacheindex = firstcacheindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
@@ -785,8 +765,8 @@ void polymost_glinit()
         glusetexcache = 0;
         return;
     }
-    else
-        initprintf("Opened \"%s\" as cache file\n", TEXCACHEFILE);
+
+    initprintf("Opened \"%s\" as cache file\n", TEXCACHEFILE);
 
     if (glusememcache && !dont_alloc_memcache)
     {
@@ -794,27 +774,20 @@ void polymost_glinit()
 
         if (memcachesize > 0)
         {
-            uint8_t *tmpptr = (uint8_t *)Brealloc(memcachedata, memcachesize);
+            memcachedata = (uint8_t *)Brealloc(memcachedata, memcachesize);
 
-            if (!tmpptr)
+            if (!memcachedata)
             {
                 initprintf("Failed allocating %d bytes for memcache, disabling memcache.\n", memcachesize);
-                if (memcachedata)
-                    Bfree(memcachedata);
-                memcachedata = NULL;
-                memcachesize = -1;
+                clear_memcache();
                 dont_alloc_memcache = 1;
             }
             else
             {
-                memcachedata = tmpptr;
-
                 if (Bread(cachefilehandle, memcachedata, memcachesize) != memcachesize)
                 {
                     initprintf("Failed reading texcache into memcache!\n");
-                    Bfree(memcachedata);
-                    memcachedata = NULL;
-                    memcachesize = -1;
+                    clear_memcache();
                 }
             }
         }
@@ -1086,7 +1059,7 @@ static void fixtransparency(int32_t dapicnum, coltype *dapic, int32_t daxsiz, in
                     const coltype *onedown = &dapic[(y+1)*daxsiz2+x];
                     if (wpptr->a==0 && onedown->a!=0)
                         Bmemcpy(wpptr, onedown, sizeof(coltype));
-                    // Comment out to see what texels are affected:
+                    // Remove the comment to see what texels are affected:
                     //wpptr->r=255; wpptr->g = wpptr->b = 0; wpptr->a = 255;
                     continue;
                 }
@@ -1483,13 +1456,12 @@ int32_t polymost_trytexcache(const char *fn, int32_t len, int32_t dameth, char e
     else
     {
         Blseek(cachefilehandle, cachepos, BSEEK_SET);
+        cachepos += sizeof(texcacheheader);
         if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader))
         {
-            cachepos += sizeof(texcacheheader);
             err = 0;
             goto failure;
         }
-        cachepos += sizeof(texcacheheader);
     }
 
     // checks...
@@ -1539,13 +1511,11 @@ failure:
 
 void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
 {
-    int32_t fp;
-    char cachefn[BMAX_PATH], *cp;
+    char cachefn[BMAX_PATH];
     uint8_t mdsum[16];
-    texcachepicture pict;
     char *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
-    uint32_t alloclen=0, level, miplen;
+    uint32_t alloclen=0, level;
     uint32_t padx=0, pady=0;
     GLint gi;
     int32_t offset = 0;
@@ -1565,7 +1535,7 @@ void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texca
     }
 
     gi = GL_FALSE;
-    bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, (GLint *)&gi);
+    bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &gi);
     if (gi != GL_TRUE)
     {
         OSD_Printf("Error: glGetTexLevelParameteriv returned GL_FALSE!\n");
@@ -1574,9 +1544,12 @@ void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texca
 
     md4once((const uint8_t *)fn, strlen(fn), mdsum);
 
-    cp = cachefn;
-    for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
-    Bsprintf(cp, "-%x-%x%x", len, dameth, effect);
+    {
+        int32_t fp;
+        char *cp = cachefn;
+        for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
+        Bsprintf(cp, "-%x-%x%x", len, dameth, effect);
+    }
 
     Blseek(cachefilehandle, 0, BSEEK_END);
 
@@ -1601,42 +1574,45 @@ void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texca
 
     for (level = 0; level==0 || (padx > 1 || pady > 1); level++)
     {
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_ARB, (GLint *)&gi);
+        uint32_t miplen;
+        texcachepicture pict;
+
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_ARB, &gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         if (gi != GL_TRUE) goto failure;   // an uncompressed mipmap
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, (GLint *)&gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
 #ifdef __APPLE__
         if (pr_ati_textureformat_one && gi == 1) gi = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 #endif
         pict.format = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, (GLint *)&gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, &gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         padx = gi; pict.xdim = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_HEIGHT, (GLint *)&gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_HEIGHT, &gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         pady = gi; pict.ydim = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_BORDER, (GLint *)&gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_BORDER, &gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         pict.border = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_DEPTH, (GLint *)&gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_DEPTH, &gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         pict.depth = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, (GLint *)&gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
-        miplen = (int32_t)gi; pict.size = B_LITTLE32(gi);
+        miplen = gi; pict.size = B_LITTLE32(gi);
 
         if (alloclen < miplen)
         {
-            char *picc = (char *)Brealloc(pic, miplen);
-            if (!picc) goto failure; else pic = picc;
+            pic = (char *)Brealloc(pic, miplen);
+            if (!pic) goto failure;
+
             alloclen = miplen;
+            packbuf = (char *)Brealloc(packbuf, alloclen+400);
+            if (!packbuf) goto failure;
 
-            picc = (char *)Brealloc(packbuf, alloclen+400);
-            if (!picc) goto failure; else packbuf = picc;
-
-            picc = (char *)Brealloc(midbuf, miplen);
-            if (!picc) goto failure; else midbuf = picc;
+            midbuf = Brealloc(midbuf, miplen);
+            if (!midbuf) goto failure;
         }
 
         bglGetCompressedTexImageARB(GL_TEXTURE_2D, level, pic);
@@ -1691,9 +1667,9 @@ failure:
     Bmemset(curcacheindex->name,0,sizeof(curcacheindex->name));
 
 success:
-    if (midbuf) Bfree(midbuf);
-    if (pic) Bfree(pic);
-    if (packbuf) Bfree(packbuf);
+    Bfree(midbuf);
+    Bfree(pic);
+    Bfree(packbuf);
 }
 
 static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t *doalloc, pthtyp *pth,int32_t dapalnum)
@@ -1750,15 +1726,15 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
 
         if (alloclen < pict.size)
         {
-            char *picc = (char *)Brealloc(pic, pict.size);
-            if (!picc) goto failure; else pic = picc;
+            pic = (char *)Brealloc(pic, pict.size);
+            if (!pic) goto failure;
+
             alloclen = pict.size;
+            packbuf = (char *)Brealloc(packbuf, alloclen+16);
+            if (!packbuf) goto failure;
 
-            picc = (char *)Brealloc(packbuf, alloclen+16);
-            if (!picc) goto failure; else packbuf = picc;
-
-            picc = (char *)Brealloc(midbuf, pict.size);
-            if (!picc) goto failure; else midbuf = picc;
+            midbuf = Brealloc(midbuf, pict.size);
+            if (!midbuf) goto failure;
         }
 
         if (dedxtfilter(fil, &pict, pic, midbuf, packbuf, (head->flags&4)==4))
@@ -1774,7 +1750,6 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
             GLint format;
             bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);
             if ((glerr = bglGetError()) != GL_NO_ERROR) { err=4; goto failure; }
-//            format = B_LITTLE32(format);
             if (pict.format != format)
             {
                 OSD_Printf("gloadtile_cached: invalid texture cache file format %d %d\n", pict.format, format);
@@ -1784,9 +1759,9 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
 
     }
 
-    if (midbuf) Bfree(midbuf);
-    if (pic) Bfree(pic);
-    if (packbuf) Bfree(packbuf);
+    Bfree(midbuf);
+    Bfree(pic);
+    Bfree(packbuf);
     return 0;
 
 failure:
@@ -1803,9 +1778,9 @@ failure:
             initprintf("gloadtile_cached: %s  (glerr=%x)\n", errmsgs[err], glerr);
     }
 
-    if (midbuf) Bfree(midbuf);
-    if (pic) Bfree(pic);
-    if (packbuf) Bfree(packbuf);
+    Bfree(midbuf);
+    Bfree(pic);
+    Bfree(packbuf);
     return -1;
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
@@ -2030,7 +2005,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
 
     texture_setup(dameth);
 
-    if (pic) Bfree(pic);
+    Bfree(pic); pic=NULL;
 
     if (tsizx>>r_downsize <= tilesizx[dapic] || tsizy>>r_downsize <= tilesizy[dapic])
         hicr->flags |= (16+1);

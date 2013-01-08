@@ -9437,7 +9437,6 @@ static void finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t
 
 #ifdef USE_OPENGL
         Bmemset(spritesmooth, 0, sizeof(spritesmooth_t)*(MAXSPRITES+MAXUNIQHUDID));
-//        polymost_cachesync();
 
 # ifdef POLYMER
         if (rendmode == 4)

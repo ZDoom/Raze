@@ -47,7 +47,6 @@ void polymost_drawrooms(void);
 
 void polymost_glinit(void);
 void polymost_glreset(void);
-void polymost_cachesync(void);
 
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
 void gltexinvalidateall(void);
@@ -58,9 +57,6 @@ extern float curpolygonoffset;
 
 extern int32_t cachefilehandle;
 extern FILE *cacheindexptr;
-extern hashtable_t h_texcache;
-extern uint8_t *memcachedata;
-extern int32_t memcachesize;
 extern int32_t cachepos;
 
 struct cacheitem_t
@@ -74,8 +70,6 @@ struct cacheitem_t
 typedef struct cacheitem_t texcacheindex;
 
 #define TEXCACHEMAGIC "QLZ1"
-
-extern texcacheindex *cacheptrs[MAXTILES<<1];
 
 int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, void *midbuf, char *packbuf, uint32_t miplen);
 int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked);
