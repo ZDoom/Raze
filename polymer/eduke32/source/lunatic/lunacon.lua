@@ -472,7 +472,10 @@ local function do_include_file(dirname, filename)
     g_filename = oldfilename
 end
 
-local function cmd_include(filename)
+-- Table of various outer command handling functions.
+local Cmd = {}
+
+function Cmd.include(filename)
     do_include_file(g_directory, filename)
 end
 
@@ -499,7 +502,7 @@ local function reset_gamedata()
     g_data.music = {}
 end
 
-local function cmd_definelevelname(vol, lev, fn, ptstr, dtstr, levname)
+function Cmd.definelevelname(vol, lev, fn, ptstr, dtstr, levname)
     if (vol < 0 or vol >= conl.MAXVOLUMES) then
         errprintf("volume number exceeds maximum volume count.")
         return
@@ -540,7 +543,7 @@ local function defineXname(what, ffiCfuncname, X, name)
     return name
 end
 
-local function cmd_defineskillname(skillnum, name)
+function Cmd.defineskillname(skillnum, name)
     if (skillnum < 0 or skillnum >= conl.MAXSKILLS) then
         errprintf("skill number is negative or exceeds maximum skill count.")
         return
@@ -550,7 +553,7 @@ local function cmd_defineskillname(skillnum, name)
     g_data.skillname[skillnum] = name
 end
 
-local function cmd_definevolumename(vol, name)
+function Cmd.definevolumename(vol, name)
     if (vol < 0 or vol >= conl.MAXVOLUMES) then
         errprintf("volume number is negative or exceeds maximum volume count.")
         return
@@ -565,7 +568,7 @@ local function stripws(str)
     return str:match("^%s*(.*)%s*$")
 end
 
-local function cmd_definequote(qnum, quotestr)
+function Cmd.definequote(qnum, quotestr)
 --[[
     -- have the INT_MAX limit simply for some sanity
     if (not (qnum >= 0 and <= 0x7fffffff)) then
@@ -591,7 +594,7 @@ local function cmd_definequote(qnum, quotestr)
     g_data.quote[qnum] = quotestr
 end
 
-local function cmd_gamestartup(...)
+function Cmd.gamestartup(...)
     local args = {...}
 
     if (#args ~= 26 and #args ~= 30) then
@@ -611,7 +614,7 @@ local function cmd_gamestartup(...)
     g_data.startup = args  -- TODO: sanity-check them
 end
 
-local function cmd_definesound(sndnum, fn, ...)
+function Cmd.definesound(sndnum, fn, ...)
     if (not (sndnum >= 0 and sndnum < conl.MAXSOUNDS)) then
         errprintf("sound number is negative or exceeds sound limit of %d", conl.MAXSOUNDS-1)
         return
@@ -627,7 +630,7 @@ local function cmd_definesound(sndnum, fn, ...)
     g_data.sound[sndnum] = { fn=fn, params=params }
 end
 
-local function cmd_music(volnum, ...)
+function Cmd.music(volnum, ...)
     if (not (volnum >= 0 and volnum < conl.MAXVOLUMES+1)) then
         -- NOTE: MAXVOLUMES is OK, since it's MapInfo[(MAXVOLUMES+1)*MAXLEVELS]
         errprintf("volume number is negative or exceeds MAXVOLUMES=%d", conl.MAXVOLUMES)
@@ -656,7 +659,7 @@ end
 
 --- GAMEVARS / GAMEARRAYS
 
-local function cmd_gamevar(identifier, initval, flags)
+function Cmd.gamevar(identifier, initval, flags)
     local invalid_code = "local _INVALIDGV"
 
     if (bit.band(flags, bit.bnot(GVFLAG.PERX_MASK)) ~= 0) then
@@ -742,54 +745,62 @@ local alphanum = alpha + Range("09")
 
 --- Basic lexical elements ("tokens"). See the final grammar ("Grammar") for
 --- their definitions.
-local t_maybe_minus = (Pat("-") * sp0)^-1;
-local t_number = Var("t_number")
--- Valid identifier names are disjunct from keywords!
--- XXX: CON is more permissive with identifier name characters:
-local t_identifier = Var("t_identifier")
--- This one matches keywords, too:
-local t_identifier_all = Var("t_identifier_all")
-local t_define = Var("t_define")
-local t_move = Var("t_move")
-local t_ai = Var("t_ai")
-local t_action = Var("t_action")
--- NOTE: no chance to whitespace and double quotes in filenames:
-local t_filename = lpeg.C((anychar-Set(" \t\r\n\""))^1)
-local t_newline_term_str = match_until(anychar, newline)
+local tok =
+{
+    maybe_minus = (Pat("-") * sp0)^-1,
+    number = Var("t_number"),
 
--- new-style inline arrays and structures:
-local t_arrayexp = Var("t_arrayexp")
+    -- Valid identifier names are disjunct from keywords!,
+    -- XXX: CON is more permissive with identifier name characters:,
+    identifier = Var("t_identifier"),
+    -- This one matches keywords, too:,
+    identifier_all = Var("t_identifier_all"),
+    define = Var("t_define"),
+    move = Var("t_move"),
+    ai = Var("t_ai"),
+    action = Var("t_action"),
 
-local t_rvar = Var("t_rvar")
-local t_wvar = Var("t_wvar")
+    -- NOTE: no chance to whitespace and double quotes in filenames:,
+    filename = lpeg.C((anychar-Set(" \t\r\n\""))^1),
+    newline_term_str = match_until(anychar, newline),
+
+    -- new-style inline arrays and structures:,
+    arrayexp = Var("t_arrayexp"),
+
+    rvar = Var("t_rvar"),
+    wvar = Var("t_wvar"),
+
+    -- for definelevelname,
+    time = lpeg.C(alphanum*alphanum^-1*":"*alphanum*alphanum^-1),
+}
 
 
 ---- helper patterns / pattern constructing functions
-local maybe_quoted_filename = ('"' * t_filename * '"' + t_filename)
+local maybe_quoted_filename = ('"' * tok.filename * '"' + tok.filename)
 -- empty string is handled too; we must not eat the newline then!
 local newline_term_string = (#newline + EOF)*lpeg.Cc("")
-    + (whitespace-newline)^1 * lpeg.C(t_newline_term_str)
+    + (whitespace-newline)^1 * lpeg.C(tok.newline_term_str)
 
 
--- (sp1 * t_define) repeated exactly n times
+-- (sp1 * tok.define) repeated exactly n times
 local function n_defines(n)  -- works well only for small n
     local pat = Pat(true)
     for i=1,n do
-        pat = sp1 * t_define * pat
+        pat = sp1 * tok.define * pat
     end
     return pat
 end
 
 
 local D, R, W, I, AC, MV, AI = -1, -2, -3, -4, -5, -6, -7
-local TOKEN_PATTERN = { [D]=t_define, [R]=t_rvar, [W]=t_wvar, [I]=t_identifier,
-                        [AC]=t_action, [MV]=t_move, [AI]=t_ai }
+local TOKEN_PATTERN = { [D]=tok.define, [R]=tok.rvar, [W]=tok.wvar, [I]=tok.identifier,
+                        [AC]=tok.action, [MV]=tok.move, [AI]=tok.ai }
 
 -- Generic command pattern, types given by varargs.
 -- The command name to be matched is attached later.
 -- Example:
 --  "command" writtenvar readvar def def:  gencmd(W,R,D,D)
---    -->  sp1 * t_wvar * sp1 * t_rvar * sp1 * t_define * sp1 * t_define
+--    -->  sp1 * tok.wvar * sp1 * tok.rvar * sp1 * tok.define * sp1 * tok.define
 --  "command_with_no_args":  gencmd()
 --    --> Pat(true)
 local function cmd(...)
@@ -804,22 +815,20 @@ local function cmd(...)
 end
 
 
-local t_time = lpeg.C(alphanum*alphanum^-1*":"*alphanum*alphanum^-1)  -- for definelevelname
-
 -- The command names will be attached to the front of the patterns later!
 
 --== Top level CON commands ==--
 -- XXX: many of these are also allowed inside actors/states/events in CON.
-local Co = {
+local Couter = {
     --- 1. Preprocessor
-    include = sp1 * maybe_quoted_filename / cmd_include,
+    include = sp1 * maybe_quoted_filename / Cmd.include,
     includedefault = cmd(),
     define = cmd(I,D) / do_define_label,
 
     --- 2. Defines and Meta-Settings
     dynamicremap = cmd(),
-    setcfgname = sp1 * t_filename,
-    setdefname = sp1 * t_filename,
+    setcfgname = sp1 * tok.filename,
+    setdefname = sp1 * tok.filename,
     setgamename = newline_term_string,
 
     precache = cmd(D,D,D),
@@ -830,21 +839,21 @@ local Co = {
     definecheat = newline_term_string,  -- XXX: actually tricker syntax (TS)
     definegamefuncname = newline_term_string,  -- XXX: TS?
     definegametype = n_defines(2) * newline_term_string,
-    definelevelname = n_defines(2) * sp1 * t_filename * sp1 * t_time * sp1 * t_time *
-        newline_term_string / cmd_definelevelname,
-    defineskillname = sp1 * t_define * newline_term_string / cmd_defineskillname,
-    definevolumename = sp1 * t_define * newline_term_string / cmd_definevolumename,
+    definelevelname = n_defines(2) * sp1 * tok.filename * sp1 * tok.time * sp1 * tok.time *
+        newline_term_string / Cmd.definelevelname,
+    defineskillname = sp1 * tok.define * newline_term_string / Cmd.defineskillname,
+    definevolumename = sp1 * tok.define * newline_term_string / Cmd.definevolumename,
 
-    definequote = sp1 * t_define * newline_term_string / cmd_definequote,
+    definequote = sp1 * tok.define * newline_term_string / Cmd.definequote,
     defineprojectile = cmd(D,D,D),
-    definesound = sp1 * t_define * sp1 * maybe_quoted_filename * n_defines(5) / cmd_definesound,
+    definesound = sp1 * tok.define * sp1 * maybe_quoted_filename * n_defines(5) / Cmd.definesound,
 
     -- NOTE: gamevar.ogg and the like is OK, too
-    music = sp1 * t_define * match_until(sp1 * t_filename, sp1 * conl.keyword * sp1) / cmd_music,
+    music = sp1 * tok.define * match_until(sp1 * tok.filename, sp1 * conl.keyword * sp1) / Cmd.music,
 
     --- 3. Game Settings
     -- gamestartup has 26/30 fixed defines, depending on 1.3D/1.5 version:
-    gamestartup = (sp1 * t_define)^26 / cmd_gamestartup,
+    gamestartup = (sp1 * tok.define)^26 / Cmd.gamestartup,
     spritenopal = cmd(D),
     spritenoshade = cmd(D),
     spritenvg = cmd(D),
@@ -853,20 +862,20 @@ local Co = {
     spriteflags = cmd(D,D),  -- also see inner
 
     --- 4. Game Variables / Arrays
-    gamevar = cmd(I,D,D) / cmd_gamevar,
+    gamevar = cmd(I,D,D) / Cmd.gamevar,
     gamearray = cmd(I,D),
 
     --- 5. Top level commands that are also run-time commands
-    move = sp1 * t_identifier * (sp1 * t_define)^-2 /  -- hvel, vvel
+    move = sp1 * tok.identifier * (sp1 * tok.define)^-2 /  -- hvel, vvel
         function(...) do_define_composite(LABEL.MOVE, ...) end,
 
     -- startframe, numframes, viewtype, incval, delay:
-    action = sp1 * t_identifier * (sp1 * t_define)^-5 /
+    action = sp1 * tok.identifier * (sp1 * tok.define)^-5 /
         function(...) do_define_composite(LABEL.ACTION, ...) end,
 
     -- action, move, flags...:
-    ai = sp1 * t_identifier * (sp1 * t_action *
-                               (sp1 * t_move * (sp1 * t_define)^0)^-1
+    ai = sp1 * tok.identifier * (sp1 * tok.action *
+                               (sp1 * tok.move * (sp1 * tok.define)^0)^-1
                               )^-1 /
         function(...) do_define_composite(LABEL.AI, ...) end,
 
@@ -885,7 +894,7 @@ local varvarop = cmd(W,R)
 --   ifvarl actorvar[sprite[THISACTOR].owner].burning 0
 -- is kinda breaking the classic "no array nesting" rules
 -- (if there ever were any) but making our life harder else.
-local arraypat = sp0 * "[" * sp0 * t_rvar * sp0 * "]"
+local arraypat = sp0 * "[" * sp0 * tok.rvar * sp0 * "]"
 
 -- Have to bite the bullet here and list actor/player members with second parameters,
 -- even though it's ugly to make it part of the syntax.  Also, stuff like
@@ -893,60 +902,64 @@ local arraypat = sp0 * "[" * sp0 * t_rvar * sp0 * "]"
 -- will be wrongly accepted at the parsing stage because we don't discriminate between
 -- actor and player (but it will be rejected later).
 local parm2memberpat = (Pat("htg_t") + "loogiex" + "loogiey" + "ammo_amount" +
-                        "weaprecs" + "gotweapon" + "pals" + "max_ammo_amount") * sp1 * t_rvar
+                        "weaprecs" + "gotweapon" + "pals" + "max_ammo_amount") * sp1 * tok.rvar
 -- The member name must match keywords, too (_all), because e.g. cstat is a member
 -- of sprite[].
-local memberpat = sp0 * "." * sp0 * (parm2memberpat + t_identifier_all)
+local memberpat = sp0 * "." * sp0 * (parm2memberpat + tok.identifier_all)
 
 local getstructcmd =  -- get<structname>[<idx>].<member> (<parm2>)? <<var>>
     -- existence of a second parameter is determined later
 -- This is wrong,  (sp1 id)? will match (sp1 wvar) if there's no 2nd param:
---    arraypat * memberpat * (sp1 * t_identifier)^-1 * sp1 * t_wvar
-    arraypat * memberpat * sp1 * (t_rvar * sp1 * t_wvar + t_wvar)
+--    arraypat * memberpat * (sp1 * tok.identifier)^-1 * sp1 * tok.wvar
+    arraypat * memberpat * sp1 * (tok.rvar * sp1 * tok.wvar + tok.wvar)
 
 local setstructcmd =  -- set<structname>[<idx>].<member> (<parm2>)? <var>
     -- existence of a second parameter is determined later
-    arraypat * memberpat * sp1 * (t_rvar * sp1 * t_rvar + t_rvar)
+    arraypat * memberpat * sp1 * (tok.rvar * sp1 * tok.rvar + tok.rvar)
 
 local getperxvarcmd =  -- get<actor/player>var[<idx>].<member> <<var>>
-    arraypat * memberpat * sp1 * t_wvar
+    arraypat * memberpat * sp1 * tok.wvar
 
 local setperxvarcmd = -- set<actor/player>var[<idx>].<member> <var>
-    arraypat * memberpat * sp1 * t_rvar
+    arraypat * memberpat * sp1 * tok.rvar
 
 
 local function ACS(s) return "actor[_aci]"..s end
 local function SPS(s) return "sprite[_aci]"..s end
 local function PLS(s) return "player[_pli]"..s end
 
-local function handle_palfrom(...)
-    local v = {...}
-    return format(PLS":_palfrom(%d,%d,%d,%d)",
-                  v[1] or 0, v[2] or 0, v[3] or 0, v[4] or 0)
-end
+-- Various inner command handling functions.
+local handle =
+{
+    palfrom = function(...)
+        local v = {...}
+        return format(PLS":_palfrom(%d,%d,%d,%d)",
+                      v[1] or 0, v[2] or 0, v[3] or 0, v[4] or 0)
+    end,
 
-local function handle_move(mv, ...)
-    local flags = {...}
-    return format(ACS":set_move(%s,%d)", mv, (flags[1] and bit.bor(...)) or 0)
-end
+    move = function(mv, ...)
+        local flags = {...}
+        return format(ACS":set_move(%s,%d)", mv, (flags[1] and bit.bor(...)) or 0)
+    end,
 
-local function handle_debug(val)
-    return format("print('%s:%d: debug %d')", g_filename, getlinecol(g_lastkwpos), val)
-end
+    debug = function(val)
+        return format("print('%s:%d: debug %d')", g_filename, getlinecol(g_lastkwpos), val)
+    end,
 
-local function handle_state(statename)
-    if (g_funcname[statename]==nil) then
-        errprintf("state `%s' not found.", statename)
-        return "_NULLSTATE()"
-    end
-    return format("%s(_aci,_pli,_dist)", g_funcname[statename])
-end
+    state = function(statename)
+        if (g_funcname[statename]==nil) then
+            errprintf("state `%s' not found.", statename)
+            return "_NULLSTATE()"
+        end
+        return format("%s(_aci,_pli,_dist)", g_funcname[statename])
+    end,
+}
 
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
 -- that have no arguments and that are prefixes of other commands MUST be
 -- suffixed with a "* #sp1" pattern.
 
-local Ci = {
+local Cinner = {
     -- these can appear anywhere in the script
     ["break"] = cmd()
         / "do return end",
@@ -954,7 +967,7 @@ local Ci = {
         / "_con.longjmp()",
 
     state = cmd(I)
-        / handle_state,
+        / handle.state,
 
     --- 1. get*, set*
     getactor = getstructcmd,
@@ -967,7 +980,7 @@ local Ci = {
     -- NOTE: {get,set}userdef is the only struct that can be accessed without
     -- an "array part", e.g.  H266MOD has "setuserdef .weaponswitch 0" (space
     -- between keyword and "." is mandatory)
-    getuserdef = (arraypat + sp1) * memberpat * sp1 * (t_rvar * sp1 * t_wvar + t_wvar),
+    getuserdef = (arraypat + sp1) * memberpat * sp1 * (tok.rvar * sp1 * tok.wvar + tok.wvar),
 --    getuserdef = getstructcmd,
     getwall = getstructcmd,
 
@@ -981,7 +994,7 @@ local Ci = {
     setsector = setstructcmd,
     setthisprojectile = setstructcmd,
     settspr = setstructcmd,
-    setuserdef = (arraypat + sp1) * memberpat * sp1 * (t_rvar * sp1 * t_wvar + t_rvar),
+    setuserdef = (arraypat + sp1) * memberpat * sp1 * (tok.rvar * sp1 * tok.wvar + tok.rvar),
 --    setuserdef = setstructcmd,
     setwall = setstructcmd,
 
@@ -1028,8 +1041,8 @@ local Ci = {
         / ACS":set_action(%1)",
     ai = cmd(AI)
         / ACS":set_ai(%1)",
-    move = sp1 * t_move * (sp1 * t_define)^0
-        / handle_move,
+    move = sp1 * tok.move * (sp1 * tok.define)^0
+        / handle.move,
 
     cactor = cmd(D)
         / SPS":set_picnum(%1)",
@@ -1108,7 +1121,7 @@ local Ci = {
     angoff = cmd(D)
         / "spritext[_aci].angoff=%1",
     debug = cmd(D)
-        / handle_debug,
+        / handle.debug,
     endofgame = cmd(D)
         / "_con._endofgame(_pli,%1)",
     eqspawn = cmd(D),
@@ -1198,7 +1211,7 @@ local Ci = {
     findnearactor = cmd(D,D,W),
 
     -- quotes
-    qsprintf = sp1 * t_rvar * sp1 * t_rvar * (sp1 * t_rvar)^-32,
+    qsprintf = sp1 * tok.rvar * sp1 * tok.rvar * (sp1 * tok.rvar)^-32,
     qgetsysstr = cmd(R,R),
     qstrcat = cmd(R,R),
     qstrcpy = cmd(R,R),
@@ -1207,8 +1220,8 @@ local Ci = {
     qsubstr = cmd(R,R),
 
     -- array stuff
-    copy = sp1 * t_identifier * arraypat * sp1 * t_identifier * arraypat * sp1 * t_rvar,
-    setarray = sp1 * t_identifier * arraypat * sp1 * t_rvar,
+    copy = sp1 * tok.identifier * arraypat * sp1 * tok.identifier * arraypat * sp1 * tok.rvar,
+    setarray = sp1 * tok.identifier * arraypat * sp1 * tok.rvar,
 
     activatebysector = cmd(R,R),
     addlogvar = cmd(R),
@@ -1243,8 +1256,8 @@ local Ci = {
     neartag = cmd(R,R,R,R,R,W,W,W,W,R,R),
     operateactivators = cmd(R,R),
     operatesectors = cmd(R,R),
-    palfrom = (sp1 * t_define)^-4
-        / handle_palfrom,
+    palfrom = (sp1 * tok.define)^-4
+        / handle.palfrom,
 
     operate = cmd() * #sp1
         / "_con._operate(_aci)",
@@ -1264,7 +1277,7 @@ local Ci = {
     readarrayfromfile = cmd(I,D),
     writearraytofile = cmd(I,D),
 
-    redefinequote = sp1 * t_define * newline_term_string
+    redefinequote = sp1 * tok.define * newline_term_string
         / function(qnum, qstr) return format("_con._definequote(%d,%q)", qnum, stripws(qstr)) end,
     resizearray = cmd(I,R),
     getarraysize = cmd(I,W),
@@ -1381,7 +1394,7 @@ local Cif = {
 
     ifactorsound = cmd(R,R),
 
-    ifp = (sp1 * t_define)^1
+    ifp = (sp1 * tok.define)^1
         / function (...) return format("_con._ifp(%d,_pli,_aci)", bit.bor(...)) end,
     ifsquished = cmd()
         / "false",  -- TODO
@@ -1522,7 +1535,7 @@ local function Ident(idname) return TraceFunc(idname, "id", false) end
 local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", false) end
 
 --local function Temp(kwname) return TraceFunc(kwname, "temp", true) end
---Ci["myosx"] = Temp(Ci["myosx"])
+--Cinner["myosx"] = Temp(Cinner["myosx"])
 
 ----==== Translator continued ====----
 local function after_inner_cmd_Cmt(subj, pos, ...)
@@ -1576,8 +1589,8 @@ local function attachnames(kwtab, matchtimefunc)
     end
 end
 
-attachnames(Co, after_cmd_Cmt)
-attachnames(Ci, after_inner_cmd_Cmt)
+attachnames(Couter, after_cmd_Cmt)
+attachnames(Cinner, after_inner_cmd_Cmt)
 attachnames(Cif, after_if_cmd_Cmt)
 
 
@@ -1618,7 +1631,7 @@ local function warn_on_lonely_else(pos)
     pwarnprintf(pos, "found `else' with no `if'")
 end
 
-local con_inner_command = all_alt_pattern(Ci)
+local con_inner_command = all_alt_pattern(Cinner)
 local con_if_begs = all_alt_pattern(Cif)
 
 local lone_else = (POS() * "else" * sp1)/warn_on_lonely_else
@@ -1629,34 +1642,34 @@ local stmt_list_or_eps = lpeg.Ct((stmt_list * sp1)^-1)
 local stmt_list_nosp_or_eps = (stmt_list * (sp1 * stmt_list)^0)^-1
 
 -- common to actor and useractor: <name/tilenum> [<strength> [<action> [<move> [<flags>... ]]]]
-local common_actor_end = sp1 * lpeg.Ct(t_define *
-    (sp1 * t_define *
-     (sp1 * t_action *
-      (sp1 * t_move *
-       (sp1 * t_define)^0
+local common_actor_end = sp1 * lpeg.Ct(tok.define *
+    (sp1 * tok.define *
+     (sp1 * tok.action *
+      (sp1 * tok.move *
+       (sp1 * tok.define)^0
       )^-1
      )^-1
     )^-1)
 * sp1 * stmt_list_or_eps * "enda"
 
 --== block delimiters (no recursion) ==--
-local Cb = {
+local Cblock = {
     -- actor (...)
     actor = lpeg.Cc(nil) * common_actor_end / on_actor_end,
     -- useractor <actortype> (...)
-    useractor = sp1 * t_define * common_actor_end / on_actor_end,
+    useractor = sp1 * tok.define * common_actor_end / on_actor_end,
     -- eventloadactor <name/tilenum>
-    eventloadactor = lpeg.Cc(nil) * sp1 * lpeg.Ct(t_define)
+    eventloadactor = lpeg.Cc(nil) * sp1 * lpeg.Ct(tok.define)
         * sp1 * stmt_list_or_eps * "enda" / on_actor_end,
 
-    onevent = sp1 * t_define * sp1 * stmt_list_or_eps * "endevent"
+    onevent = sp1 * tok.define * sp1 * stmt_list_or_eps * "endevent"
         / on_event_end,
 
-    state = sp1 * (t_identifier/on_state_begin) * sp1 * stmt_list_or_eps * "ends"
+    state = sp1 * (tok.identifier/on_state_begin) * sp1 * stmt_list_or_eps * "ends"
         / on_state_end,
 }
 
-attachnames(Cb, after_cmd_Cmt)
+attachnames(Cblock, after_cmd_Cmt)
 
 
 local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09")^0
@@ -1668,7 +1681,7 @@ local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09"
 -- there's no ambiguity with unary minus.  (Commands must be separated by spaces
 -- in CON, so a trailing "-" is "OK", too.)
 -- This is broken in itself, so we ought to make a compatibility/modern CON switch.
-local t_broken_identifier = BadIdent(-((t_number + t_good_identifier) * (sp1 + Set("[]:"))) *
+local t_broken_identifier = BadIdent(-((tok.number + t_good_identifier) * (sp1 + Set("[]:"))) *
                                      (alphanum + Set(BAD_ID_CHARS0)) * (alphanum + Set(BAD_ID_CHARS1))^0)
 
 -- These two tables hold code to be inserted at a later point: either at
@@ -1728,7 +1741,7 @@ local Grammar = Pat{
     -- A translation unit is a (possibly empty) sequence of outer CON
     -- commands, separated by at least one whitespace which may be
     -- omitted at the EOF.
-    sp0 * (all_alt_pattern(Co, Cb) * sp1)^0,
+    sp0 * (all_alt_pattern(Couter, Cblock) * sp1)^0,
 
     -- Some often-used terminals follow.  These appear here because we're
     -- hitting a limit with LPeg else.
@@ -1738,7 +1751,7 @@ local Grammar = Pat{
     whitespace = Set(" \t\r\26") + newline + Set("(),;") + comment + linecomment,
 
     t_number = POS() * lpeg.C(
-        t_maybe_minus * ((Pat("0x") + "0X") * Range("09", "af", "AF")^1 * Pat("h")^-1
+        tok.maybe_minus * ((Pat("0x") + "0X") * Range("09", "af", "AF")^1 * Pat("h")^-1
                          + Range("09")^1)
                              ) / parse_number,
 
@@ -1751,35 +1764,35 @@ local Grammar = Pat{
     --   getactor[THISACTOR].x x
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
-    t_identifier = -NotKeyw(conl.keyword * (sp1 + "[")) * lpeg.C(t_identifier_all),
-    t_define = (POS() * lpeg.C(t_maybe_minus) * t_identifier / lookup_defined_label) + t_number,
+    t_identifier = -NotKeyw(conl.keyword * (sp1 + "[")) * lpeg.C(tok.identifier_all),
+    t_define = (POS() * lpeg.C(tok.maybe_minus) * tok.identifier / lookup_defined_label) + tok.number,
 
     -- Defines and constants can take the place of vars that are only read.
-    -- XXX: now, when t_rvar fails, the t_define failure message is printed.
-    t_rvar = t_arrayexp + lpeg.Cmt(t_identifier, maybe_gamevar_Cmt) + t_define,
+    -- XXX: now, when tok.rvar fails, the tok.define failure message is printed.
+    t_rvar = tok.arrayexp + lpeg.Cmt(tok.identifier, maybe_gamevar_Cmt) + tok.define,
     -- not so with written-to vars:
-    t_wvar = t_arrayexp + (t_identifier/lookup_gamevar),
+    t_wvar = tok.arrayexp + (tok.identifier/lookup_gamevar),
 
     t_move =
-        POS()*t_identifier / function(...) return lookup_composite(LABEL.MOVE, ...) end +
-        POS()*t_number / function(...) return check_composite_literal(LABEL.MOVE, ...) end,
+        POS()*tok.identifier / function(...) return lookup_composite(LABEL.MOVE, ...) end +
+        POS()*tok.number / function(...) return check_composite_literal(LABEL.MOVE, ...) end,
 
     t_ai =
-        POS()*t_identifier / function(...) return lookup_composite(LABEL.AI, ...) end +
-        POS()*t_number / function(...) return check_composite_literal(LABEL.AI, ...) end,
+        POS()*tok.identifier / function(...) return lookup_composite(LABEL.AI, ...) end +
+        POS()*tok.number / function(...) return check_composite_literal(LABEL.AI, ...) end,
 
     t_action =
-        POS()*t_identifier / function(...) return lookup_composite(LABEL.ACTION, ...) end +
-        POS()*t_number / function(...) return check_composite_literal(LABEL.ACTION, ...) end,
+        POS()*tok.identifier / function(...) return lookup_composite(LABEL.ACTION, ...) end +
+        POS()*tok.number / function(...) return check_composite_literal(LABEL.ACTION, ...) end,
 
-    t_arrayexp = t_identifier * arraypat * memberpat^-1,
+    t_arrayexp = tok.identifier * arraypat * memberpat^-1,
 
     -- SWITCH
-    switch_stmt = Keyw("switch") * sp1 * t_rvar *
+    switch_stmt = Keyw("switch") * sp1 * tok.rvar *
         (Var("case_block") + Var("default_block"))^0 * sp1 * "endswitch",
 
     -- NOTE: some old DNWMD has "case: PIGCOP".  I don't think I'll allow that.
-    case_block = (sp1 * Keyw("case") * sp1 * t_define/"XXX_CASE" * (sp0*":")^-1)^1 * sp1 *
+    case_block = (sp1 * Keyw("case") * sp1 * tok.define/"XXX_CASE" * (sp0*":")^-1)^1 * sp1 *
         stmt_list_nosp_or_eps, -- * "break",
 
     default_block = sp1 * Keyw("default") * (sp0*":"*sp0 + sp1) * stmt_list_nosp_or_eps,  -- * "break",
@@ -1798,8 +1811,8 @@ local Grammar = Pat{
         * (Pat("")/end_if_else_fn),
 
     -- TODO?: SST TC has "state ... else ends"
-    while_stmt = Keyw("whilevarvarn") * sp1 * t_rvar * sp1 * t_rvar * sp1 * Var("single_stmt")
-        + Keyw("whilevarn") * sp1 * t_rvar * sp1 * t_define/"WHILE_XXX" * sp1 * Var("single_stmt"),
+    while_stmt = Keyw("whilevarvarn") * sp1 * tok.rvar * sp1 * tok.rvar * sp1 * Var("single_stmt")
+        + Keyw("whilevarn") * sp1 * tok.rvar * sp1 * tok.define/"WHILE_XXX" * sp1 * Var("single_stmt"),
 
     stmt_common = Keyw("{") * sp1 * "}"  -- space separation of commands in CON is for a reason!
         + Keyw("{") * sp1 * stmt_list * sp1 * "}"
