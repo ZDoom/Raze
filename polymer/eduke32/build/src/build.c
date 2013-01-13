@@ -826,21 +826,6 @@ CANCEL:
     return(0);
 }
 
-/*
-void showmouse(void)
-{
-    int32_t i;
-
-    for (i=1;i<=4;i++)
-    {
-        plotpixel(searchx+i,searchy,whitecol);
-        plotpixel(searchx-i,searchy,whitecol);
-        plotpixel(searchx,searchy-i,whitecol);
-        plotpixel(searchx,searchy+i,whitecol);
-    }
-}
-*/
-
 static int32_t mhk=0;
 static void loadmhk(int32_t domessage)
 {

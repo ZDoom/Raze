@@ -14017,12 +14017,6 @@ void plotpixel(int32_t x, int32_t y, char col)
     {
         palette_t p = getpal(col);
 
-        setpolymost2dview();	// JBF 20040205: more efficient setup
-
-//         bglBegin(GL_POINTS);
-//         bglColor4ub(p.r,p.g,p.b,255);
-//         bglVertex2i(x,y);
-//         bglEnd();
         bglRasterPos4i(x, y, 0, 1);
         bglDrawPixels(1, 1, GL_RGB, GL_UNSIGNED_BYTE, &p);
         bglRasterPos4i(0, 0, 0, 1);
@@ -14031,7 +14025,7 @@ void plotpixel(int32_t x, int32_t y, char col)
 #endif
 
     begindrawing(); //{{{
-    drawpixel_safe((void *)(ylookup[y]+x+frameplace),(int32_t)col);
+    drawpixel_safe((void *)(ylookup[y]+x+frameplace), col);
     enddrawing();   //}}}
 }
 

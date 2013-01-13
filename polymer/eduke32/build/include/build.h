@@ -1051,9 +1051,9 @@ void hash_delete(hashtable_t *t, const char *s);
 #ifdef POLYMER
 # include "polymer.h"
 #else
-#ifdef USE_OPENGL
-# include "polymost.h"
-#endif
+# ifdef USE_OPENGL
+#  include "polymost.h"
+# endif
 #endif
 
 extern void initialize_engine_globals(void);

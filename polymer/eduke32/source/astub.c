@@ -2922,6 +2922,22 @@ static void ReadPaletteTable(void)
 }// end ReadPaletteTable
 
 
+// XXX: this belongs into some engine header?
+static inline void push_nofog(void)
+{
+#ifdef USE_OPENGL
+    bglPushAttrib(GL_ENABLE_BIT);
+    bglDisable(GL_FOG);
+#endif
+}
+
+static inline void pop_nofog(void)
+{
+#ifdef USE_OPENGL
+    bglPopAttrib();
+#endif
+}
+
 static void m32_showmouse(void)
 {
     int32_t i, col;
@@ -2949,6 +2965,8 @@ static void m32_showmouse(void)
         col = whitecol;
         break;
     }
+
+    push_nofog();
 
     if (col != whitecol)
     {
@@ -2986,6 +3004,8 @@ static void m32_showmouse(void)
             plotpixel(searchx,searchy+i,whitecol);
         }
     }
+
+    pop_nofog();
 }
 
 static int32_t AskIfSure(const char *text)
@@ -6011,13 +6031,10 @@ static void Keys3d(void)
 
         j = max((searchy+16)-(ydim-1), 0);
 
-        //            printext16(searchx+6-i,searchy+6-j,11,-1,tempbuf,0);
         printext256(searchx+4+2-i, searchy+4+2-j, 0,-1,tempbuf,!(xdimgame > 640));
         printext256(searchx+4-i,   searchy+4-j,   whitecol,-1,tempbuf,!(xdimgame > 640));
-
-        //        printext256(searchx+4+2,searchy+4+2,0,-1,tempbuf,!(xdimgame > 640));
-        //        printext256(searchx+4,searchy+4,whitecol,-1,tempbuf,!(xdimgame > 640));
     }
+
     if (helpon==1)
     {
         int32_t small = !(xdimgame > 640);
@@ -6091,18 +6108,16 @@ static void Keys3d(void)
     //Also choose your own key scan codes
 
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(D)) // ' d
-        /* { ShowHelpText("SectorEffector"); } */
     {
         skill = (skill+1)%MAXSKILL;
         message("%s", SKILLMODE[skill]);
-        //        printext256(1*4,1*8,11,-1,tempbuf,0);
     }
 
     if (keystatus[KEYSC_I])
     {
         keystatus[KEYSC_I] = 0;
 
-        if (keystatus[KEYSC_QUOTE])
+        if (keystatus[KEYSC_QUOTE])  // ' i
         {
             if (AIMING_AT_SPRITE)
             {
@@ -6110,7 +6125,7 @@ static void Keys3d(void)
                 message("Sprite %d made %svisible", searchwall, (sprite[searchwall].cstat&32768) ? "in":"");
             }
         }
-        else  // ' i
+        else
         {
             showinvisibility = !showinvisibility;
 #ifndef YAX_ENABLE
@@ -6219,19 +6234,7 @@ static void Keys3d(void)
                 sprite[searchwall].lotag = getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j);
         }
     }
-#if 0
-    if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(H)) // ' H
-    {
-        if (ASSERT_AIMING)
-        {
-            int16_t ohitag = AIMED(hitag);
-            Bsprintf(tempbuf, "%s hitag: ", Typestr_wss[searchstat]);
-            AIMED(hitag) = getnumber256(tempbuf, ohitag, BTAG_MAX,0);
-            if (AIMED(hitag) != ohitag)
-                asksave = 1;
-        }
-    }
-#endif
+
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(S)) // ' S
     {
         if (ASSERT_AIMING)
@@ -6251,38 +6254,6 @@ static void Keys3d(void)
         else
             usedcount = !usedcount;
     }
-
-#if 0
-    if (keystatus[KEYSC_TAB])  // TAB : USED
-    {
-        //        usedcount=!usedcount;
-        count=0;
-
-        for (i=0; i<numwalls; i++)
-        {
-            if (wall[i].picnum == temppicnum) count++;
-            if (wall[i].overpicnum == temppicnum) count++;
-        }
-        for (i=0; i<numsectors; i++)  // JBF 20040307: was numwalls, thanks Semicharm
-        {
-            if (sector[i].ceilingpicnum == temppicnum) count++;
-            if (sector[i].floorpicnum == temppicnum) count++;
-        }
-
-        statnum = 0;        //status 1
-        i = headspritestat[statnum];
-        while (i != -1)
-        {
-            nexti = nextspritestat[i];
-
-            //your code goes here
-            //ex: printf("Sprite %d has a status of 1 (active)\n",i,statnum);
-
-            if (sprite[i].picnum == temppicnum) count++;
-            i = nexti;
-        }
-    }
-#endif
 
     if (PRESSED_KEYSC(F1)) // F1
     {
