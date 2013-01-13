@@ -63,6 +63,9 @@ kfilelength;
 kclose;
 kread;
 
+g_scriptModules;
+g_scriptModulesNum;
+
 G_ConFile;
 G_DoGameStartup;
 C_DefineSound;

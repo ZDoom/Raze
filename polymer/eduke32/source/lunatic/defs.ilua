@@ -494,6 +494,9 @@ int32_t kfilelength(int32_t handle);
 void kclose(int32_t handle);
 int32_t kread(int32_t handle, void *buffer, int32_t leng);
 
+char **g_scriptModules;
+int32_t g_scriptModulesNum;
+
 const char *G_ConFile(void);
 void G_DoGameStartup(const int32_t *params);
 int32_t C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5]);
@@ -1139,7 +1142,17 @@ do
     read_into_string = readintostr  -- for lunacon
     local lunacon = require("lunacon")
 
-    local confn = ffi.string(ffiC.G_ConFile())
+    local confn = { ffi.string(ffiC.G_ConFile()) }
+
+    local nummods = ffiC.g_scriptModulesNum
+    if (nummods > 0) then
+        assert(ffiC.g_scriptModules ~= nil)
+
+        for i=1,nummods do
+            confn[i+1] = ffi.string(ffiC.g_scriptModules[i-1])
+        end
+    end
+
     concode = lunacon.compile(confn)
 end
 

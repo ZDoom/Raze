@@ -4,19 +4,19 @@ definequote 127 RAN TEST STATE
 
 state teststate1
     return
-    userquote 127
+    quote 127
 ends
 
 onevent EVENT_EGS
     ifactor HEAVYHBOMB
     {
         state teststate1  // after teststate1's return, return from EVENT_EGS!
-        userquote 126
+        quote 126
     }
 endevent
 
 onevent EVENT_FIRE
     // the concrete actor is irrelevant, only placeholder
     spawn HEAVYHBOMB  // --> EVENT_EGS
-    userquote 125
+    quote 125
 endevent

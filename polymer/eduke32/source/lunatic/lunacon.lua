@@ -13,6 +13,7 @@ local table = require("table")
 local arg = arg
 
 local assert = assert
+local ipairs = ipairs
 local pairs = pairs
 local pcall = pcall
 local print = print
@@ -1930,15 +1931,19 @@ if (string.dump) then
     end
 else
     -- running from EDuke32
-    function compile(filename)
+    function compile(filenames)
         -- TODO: pathsearchmode=1 set in G_CompileScripts
+
         reset_all()
-        local ok, msg = pcall(do_include_file, "", filename)
-        if (not ok) then
-            print_on_failure(msg)
-            return nil
-        else
-            return get_code_string(g_curcode)
+
+        for _, fname in ipairs(filenames) do
+            local ok, msg = pcall(do_include_file, "", fname)
+            if (not ok) then
+                print_on_failure(msg)
+                return nil
+            end
         end
+
+        return get_code_string(g_curcode)
     end
 end
