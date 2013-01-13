@@ -784,11 +784,14 @@ local player_mt = {
 
         addinventory = con._addinventory,
 
-        pstomp = con._pstomp,
+        stomp = con._pstomp,
 
-        wack = function(p)
+        -- XXX: is the correct spelling "whack"?
+        wack = function(p, no_return_to_center)
             p.horiz = p.horiz + 64
-            p.return_to_center = 9
+            if (not no_return_to_center) then
+                p.return_to_center = 9
+            end
             local n = bit.arshift(128-bit.band(ffiC.krand(),255), 1)
             p.rotscrnang = n
             p.look_ang = n
@@ -890,7 +893,7 @@ local function readintostr(fn)
         error("INTERNAL ERROR: kfilelength() returned negative length", ERRLEV)
     end
 
-    local str = ffi.new("char [?]", sz)  -- XXX: what does it do on out of mem?
+    local str = ffi.new("char [?]", sz)
     local readlen = ffiC.kread(fd, str, sz)
 
     ffiC.kclose(fd); fd=-1
@@ -905,9 +908,10 @@ end
 -- The "require" function accessible to Lunatic code.
 -- Base modules in allowed_modules are wrapped so that they cannot be
 -- modified, user modules are searched in the EDuke32 search
--- path.  Also, our require never messes with the global environment,
--- it only returns the module.
-local function our_require(modname)
+-- path.  Also, our require
+--  * never messes with the global environment, it only returns the module.
+--  * allows passing varargs beyond the name to the module.
+local function our_require(modname, ...)
     check_valid_modname(modname, 2)
 
     -- see whether it's a base module name first
@@ -937,7 +941,7 @@ local function our_require(modname)
     table.insert(modname_stack, modname)
 
     -- Run the module code!
-    modfunc(modname)  -- TODO: call protected and report errors here later
+    modfunc(modname, ...)  -- TODO: call protected and report errors here later
 
     table.remove(modname_stack)
 
@@ -958,9 +962,6 @@ local function our_require(modname)
     return modtab
 end
 
-
--- _G tweaks -- pull in only 'safe' stuff
-local G_ = {}  -- our soon-to-be global environment
 
 local module_mt = {
     __index = function (_, n)
@@ -999,6 +1000,10 @@ local function our_error(errmsg, level)
 
     error(errmsg, 2)
 end
+
+
+-- _G tweaks -- pull in only 'safe' stuff
+local G_ = {}  -- our soon-to-be global environment
 
 G_.assert = assert
 G_.error = our_error
@@ -1154,6 +1159,9 @@ do
     end
 
     concode = lunacon.compile(confn)
+    if (concode == nil) then
+        error("Failure compiling CON code, exiting.", 0)
+    end
 end
 
 -- change the environment of this chunk to the table G_

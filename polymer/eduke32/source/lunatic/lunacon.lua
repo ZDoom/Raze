@@ -96,15 +96,18 @@ local g_iflevel = 0
 local g_ifelselevel = 0
 
 ---=== Code generation ===---
+local GVFLAG = { PERPLAYER=1, PERACTOR=2, PERX_MASK=3, }
+
 -- CON --> mangled Lua function name, also existence check:
 local g_funcname = {}
+-- [identifier] = { name=<mangled name>, flags=<gamevar flags> }
+local g_gamevar = {}
 
 local g_have_file = {}  -- [filename]=true
 local g_curcode = nil  -- a table of string pieces or other "gencode" tables
 
-local g_actor_code = {}  -- [actornum]=gencode_table
-local g_event_code = {}  -- [eventnum]=gencode_table
-local g_loadactor_code = {}  -- [actornum]=gencode_table
+-- [{actor, event, actor}num]=gencode_table
+local g_code = { actor={}, event={}, loadactor={} }
 
 
 local function getlinecol(pos) end -- fwd-decl
@@ -119,10 +122,11 @@ end
 
 local function reset_codegen()
     g_funcname = {}
+    g_gamevar = {}
 
     g_have_file = {}
     g_curcode = new_initial_codetab()
-    g_actor_code, g_event_code, g_loadactor_code = {}, {}, {}
+    g_code.actor, g_code.event, g_code.loadactor = {}, {}, {}
 
     g_recurslevel = -1
     g_numerrors = 0
@@ -163,7 +167,7 @@ local function on_actor_end(usertype, tsamm, codetab)
     addcodef("gameactor(%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
     add_code_and_end(codetab, "end)")
 
-    g_actor_code[tilenum] = codetab
+    g_code.actor[tilenum] = codetab
 end
 
 local BAD_ID_CHARS0 = "_/\\*?"  -- allowed 1st identifier chars
@@ -193,7 +197,7 @@ local function on_event_end(eventidx, codetab)
     addcodef("gameevent(%d, function (_aci, _pli, _dist)", eventidx)
     add_code_and_end(codetab, "end)")
 
-    g_event_code[eventidx] = codetab
+    g_code.event[eventidx] = codetab
 end
 
 ----------
@@ -318,6 +322,10 @@ local function do_define_label(identifier, num)
             end
         end
     else
+        if (g_gamevar[identifier]) then
+            warnprintf("symbol `%s' already used for game variable", identifier)
+        end
+
         -- New definition of a label
         g_labeldef[identifier] = num
         g_labeltype[identifier] = LABEL.NUMBER
@@ -646,6 +654,73 @@ local function cmd_music(volnum, ...)
 end
 
 
+--- GAMEVARS / GAMEARRAYS
+
+local function cmd_gamevar(identifier, initval, flags)
+    local invalid_code = "local _INVALIDGV"
+
+    if (bit.band(flags, bit.bnot(GVFLAG.PERX_MASK)) ~= 0) then
+        -- TODO: a couple of the presumably safe ones
+        errprintf("gamevar flags other than PERPLAYER or PERACTOR: NYI or forbidden")
+        return invalid_code
+    end
+
+    if (flags==GVFLAG.PERPLAYER+GVFLAG.PERACTOR) then
+        errprintf("invalid gamevar flags: must be either PERPLAYER or PERACTOR, not both")
+        return invalid_code
+    end
+
+    local ogv = g_gamevar[identifier]
+
+    if (ogv ~= nil) then
+        if (ogv.flags ~= flags) then
+            errprintf("duplicate gamevar definition `%s' has different flags", identifier)
+            return invalid_code
+        else
+            warnprintf("duplicate gamevar definition `%s' ignored", identifier)
+            return ""
+        end
+    end
+
+    local ltype = g_labeltype[identifier]
+    if (ltype ~= nil) then
+        warnprintf("symbol `%s' already used for a defined %s", identifier, LABEL[ltype])
+    end
+
+    local gv = { name=mangle_name(identifier, "V"), flags=flags }
+    g_gamevar[identifier] = gv
+
+    -- TODO: Write gamevar system on the Lunatic side and hook it up.
+    -- TODO: per-player gamevars
+    if (flags==GVFLAG.PERACTOR) then
+        return format("local %s=_con.peractorvar(%d)", gv.name, initval)
+    else
+        return format("local %s=%d", gv.name, initval)
+    end
+end
+
+local function lookup_gamevar(identifier)
+    local gv = g_gamevar[identifier]
+
+    if (gv == nil) then
+        errprintf("symbol `%s' is not a game variable", identifier)
+        return "_INVALIDGV"
+    end
+
+    if (gv.flags==GVFLAG.PERACTOR) then
+        return format("%s[_aci]", gv.name)
+    else
+        return gv.name
+    end
+end
+
+local function maybe_gamevar_Cmt(subj, pos, identifier)
+    if (g_gamevar[identifier]) then
+        return true, lookup_gamevar(identifier)
+    end
+end
+
+
 ----==== patterns ====----
 
 ---- basic ones
@@ -665,12 +740,10 @@ local alpha = Range("AZ", "az")  -- locale?
 local alphanum = alpha + Range("09")
 --local alnumtok = alphanum + Set("{}/\\*-_.")  -- see isaltok() in gamedef.c
 
---- basic lexical elements ("tokens")
+--- Basic lexical elements ("tokens"). See the final grammar ("Grammar") for
+--- their definitions.
 local t_maybe_minus = (Pat("-") * sp0)^-1;
-local t_number = POS() * lpeg.C(
-    t_maybe_minus * ((Pat("0x") + "0X") * Range("09", "af", "AF")^1 * Pat("h")^-1
-                     + Range("09")^1)
-                       ) / parse_number
+local t_number = Var("t_number")
 -- Valid identifier names are disjunct from keywords!
 -- XXX: CON is more permissive with identifier name characters:
 local t_identifier = Var("t_identifier")
@@ -687,12 +760,8 @@ local t_newline_term_str = match_until(anychar, newline)
 -- new-style inline arrays and structures:
 local t_arrayexp = Var("t_arrayexp")
 
--- defines and constants can take the place of vars that are only read:
--- NOTE: when one of t_identifier+t_define matches, we don't actually know
---  whether it's the right one yet, since their syntax overlaps.
-local t_rvar = t_arrayexp + t_identifier + t_define
--- not so with written-to vars:
-local t_wvar = t_arrayexp + t_identifier
+local t_rvar = Var("t_rvar")
+local t_wvar = Var("t_wvar")
 
 
 ---- helper patterns / pattern constructing functions
@@ -784,7 +853,7 @@ local Co = {
     spriteflags = cmd(D,D),  -- also see inner
 
     --- 4. Game Variables / Arrays
-    gamevar = cmd(I,D,D),
+    gamevar = cmd(I,D,D) / cmd_gamevar,
     gamearray = cmd(I,D),
 
     --- 5. Top level commands that are also run-time commands
@@ -1096,7 +1165,7 @@ local Ci = {
     pkick = cmd()
         / format("_con._pkick(%s,%s)", PLS"", ACS""),
     pstomp = cmd()
-        / PLS":pstomp(_aci)",
+        / PLS":stomp(_aci)",
     resetactioncount = cmd()
         / ACS":reset_acount()",
     resetcount = cmd()
@@ -1668,6 +1737,11 @@ local Grammar = Pat{
     -- NOTE: NW demo (NWSNOW.CON) contains a Ctrl-Z char (decimal 26)
     whitespace = Set(" \t\r\26") + newline + Set("(),;") + comment + linecomment,
 
+    t_number = POS() * lpeg.C(
+        t_maybe_minus * ((Pat("0x") + "0X") * Range("09", "af", "AF")^1 * Pat("h")^-1
+                         + Range("09")^1)
+                             ) / parse_number,
+
     t_identifier_all = t_broken_identifier + t_good_identifier,
     -- NOTE: -conl.keyword alone would be wrong, e.g. "state breakobject":
     -- NOTE 2: The + "[" is so that stuff like
@@ -1679,6 +1753,12 @@ local Grammar = Pat{
     -- This is in need of cleanup!
     t_identifier = -NotKeyw(conl.keyword * (sp1 + "[")) * lpeg.C(t_identifier_all),
     t_define = (POS() * lpeg.C(t_maybe_minus) * t_identifier / lookup_defined_label) + t_number,
+
+    -- Defines and constants can take the place of vars that are only read.
+    -- XXX: now, when t_rvar fails, the t_define failure message is printed.
+    t_rvar = t_arrayexp + lpeg.Cmt(t_identifier, maybe_gamevar_Cmt) + t_define,
+    -- not so with written-to vars:
+    t_wvar = t_arrayexp + (t_identifier/lookup_gamevar),
 
     t_move =
         POS()*t_identifier / function(...) return lookup_composite(LABEL.MOVE, ...) end +
@@ -1780,6 +1860,17 @@ local function get_code_string(codetab)
     return table.concat(flatten_codetab(g_curcode), "\n")
 end
 
+local function on_parse_begin()
+    g_iflevel = 0
+    g_ifelselevel = 0
+    g_have_file[g_filename] = true
+
+    -- set up new state
+    -- TODO: pack into one "parser state" table?
+    g_lastkw, g_lastkwpos, g_numerrors = nil, nil, 0
+    g_recurslevel = g_recurslevel+1
+end
+
 
 ---=== EXPORTED FUNCTIONS ===---
 
@@ -1790,16 +1881,9 @@ function parse(contents)  -- local
     local lastkw, lastkwpos, numerrors = g_lastkw, g_lastkwpos, g_numerrors
     local newlineidxs = g_newlineidxs
 
-    g_iflevel = 0
-    g_ifelselevel = 0
-    g_have_file[g_filename] = true
+    on_parse_begin()
 
-    -- set up new state
-    -- TODO: pack into one "parser state" table?
-    g_lastkw, g_lastkwpos, g_numerrors = nil, nil, 0
     g_newlineidxs = setup_newlineidxs(contents)
-
-    g_recurslevel = g_recurslevel+1
 
     addcodef("-- BEGIN %s", g_filename)
 

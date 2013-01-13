@@ -1020,3 +1020,35 @@ function killit()
     -- TODO: guard against deletion of player sprite?
     error(true)
 end
+
+
+-- Per-actor variable
+-- TODO: serialization
+local peractorvar_mt = {
+    __index = function(acv, idx)
+        check_sprite_idx(idx)
+        return acv._defval
+    end,
+
+    __newindex = function(acv, idx, val)
+        check_sprite_idx(idx)
+        acv[idx] = val
+    end,
+
+    -- Calling a per-actor variable causes its cleanup:
+    --  * All values for sprite not in the game world are cleared.
+    --  * All values equal to the default one are cleared.
+    __call = function(acv)
+        for i=0,ffiC.MAXSPRITES-1 do
+            if (ffiC.sprite[i].statnum == ffiC.MAXSTATUS or acv[i]==acv._defval) then
+                acv[i] = nil
+            end
+        end
+    end,
+
+    __metatable = true,
+}
+
+function peractorvar(initval)
+    return setmetatable({ _defval=initval }, peractorvar_mt)
+end
