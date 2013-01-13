@@ -657,7 +657,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     if (g_sounds[num].m&1)
     {
-        if (g_sounds[num].num > 0)
+        if ((g_sounds[num].m&32) && g_sounds[num].num > 0)
         {
             g_soundlocks[num]--;
             return -1;

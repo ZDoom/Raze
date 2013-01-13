@@ -2122,7 +2122,9 @@ void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
         snd->ps = args[0];
         snd->pe = args[1];
         snd->pr = args[2];
-        snd->m = args[3];
+        snd->m = args[3] & ~32;
+        if (args[3] & 1)
+            snd->m |= 32;
         snd->vo = args[4];
 
         if (sndidx > g_maxSoundPos)
@@ -5743,8 +5745,12 @@ repeatcase:
             g_sounds[k].pe = *(g_scriptPtr-1);
             C_GetNextValue(LABEL_DEFINE);
             g_sounds[k].pr = *(g_scriptPtr-1);
+
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].m = *(g_scriptPtr-1);
+            g_sounds[k].m = *(g_scriptPtr-1) & ~32;
+            if (*(g_scriptPtr-1) & 1)
+                g_sounds[k].m |= 32;
+
             C_GetNextValue(LABEL_DEFINE);
             g_sounds[k].vo = *(g_scriptPtr-1);
             g_scriptPtr -= 5;
