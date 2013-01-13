@@ -10435,6 +10435,9 @@ int32_t app_main(int32_t argc, const char **argv)
     for (i=0; i<MAXPLAYERS; i++)
     {
         if (!g_player[i].ps) g_player[i].ps = (DukePlayer_t *)Bcalloc(1, sizeof(DukePlayer_t));
+#ifdef LUNATIC
+        g_player[i].ps->idx = i;
+#endif
         if (!g_player[i].sync) g_player[i].sync = (input_t *)Bcalloc(1, sizeof(input_t));
     }
 

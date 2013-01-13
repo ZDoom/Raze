@@ -219,7 +219,13 @@ typedef struct {
 
     char name[32];
 
+#ifdef LUNATIC
+    // The player index. Always valid since we have no loose DukePlayer_t's
+    // anywhere (like with spritetype_t): g_player[i].ps->idx == i.
+    int8_t idx;
+#else
     int8_t padding_;
+#endif
 } DukePlayer_t;
 
 typedef struct {
@@ -245,6 +251,7 @@ typedef struct {
 } playerdata_t;
 #pragma pack(pop)
 
+// KEEPINSYNC lunatic/con_lang.lua
 typedef struct
 {
     // NOTE: the member names must be identical to aplWeapon* suffixes.

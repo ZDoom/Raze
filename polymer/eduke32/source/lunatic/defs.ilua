@@ -232,7 +232,7 @@ local DUKEPLAYER_STRUCT = [[
 
     const char name[32];
 
-    const int8_t padding_[1];
+    const int8_t idx;
 }
 ]]
 
@@ -269,6 +269,9 @@ local function mangle_arrays(structstr)
 end
 
 --print(mangle_arrays(ACTOR_STRUCT))
+
+--- default defines etc.
+local con_lang = require("con_lang")
 
 ffi.cdef([[
 #pragma pack(push, 1)
@@ -335,6 +338,11 @@ typedef struct {
     projectile_t defproj;
 } tiledata_t;
 #pragma pack(pop)
+
+// NOTE: not packed!
+typedef struct {
+]] .. table.concat(con_lang.wdata_members, ';')..';' .. [[
+} weapondata_t;
 
 enum
 {
@@ -453,6 +461,7 @@ int32_t g_elCallDepth;
 actor_t actor[MAXSPRITES];
 user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
+weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
 tiledata_t g_tile[MAXTILES];
 
 char *ScriptQuotes[];
@@ -717,9 +726,6 @@ local actor_mt = {
 ffi.metatype("actor_t", actor_mt)
 
 
---- default defines etc.
-local con_lang = require("con_lang")
-
 local function check_weapon_idx(weap)
     if (weap >= ffiC.MAX_WEAPONS+0ULL) then
         error("Invalid weapon ID "..weap, 3)
@@ -730,6 +736,55 @@ local function check_inventory_idx(inv)
     if (inv >= ffiC.GET_MAX+0ULL) then
         error("Invalid inventory ID "..inv, 3)
     end
+end
+
+-- XXX: CODEDUP control.lua
+local function check_sound_idx(sndidx)
+    if (sndidx >= con_lang.MAXSOUNDS+0ULL) then
+        error("invalid sound number "..sndidx, 3)
+    end
+end
+
+-- XXX: CODEDUP control.lua
+local function check_tile_idx(tilenum)
+    if (tilenum >= ffiC.MAXTILES+0ULL) then
+        error("invalid argument: must be a valid tile number", 3)
+    end
+end
+
+local weapondata_accessor = {}
+local function get_weapondata_accessor(pli, weap)
+    assert(pli < ffiC.MAXPLAYERS+0ULL)
+
+    local wdaidx = pli*1024 + weap
+
+    if (weapondata_accessor[wdaidx] ~= nil) then
+        return weapondata_accessor[wdaidx]
+    end
+
+    local weapondata_mt = {
+        __index = ffiC.g_playerWeapon[pli][weap],
+
+        __newindex = function(_, member, val)
+            if (string.match(member, "sound")) then
+                check_sound_idx(val)
+            elseif (member=="workslike") then
+                check_weapon_idx(val)
+            elseif (member=="shoots" or member=="spawn") then
+                -- TODO: set to 0 if oob? (e.g. AMC TC)
+                check_tile_idx(val)
+            end
+
+            ffiC.g_playerWeapon[pli][weap][member] = val
+        end,
+
+        __metatable = true,
+    }
+
+    local tab = setmetatable({}, weapondata_mt)
+    weapondata_accessor[wdaidx] = tab
+
+    return tab
 end
 
 local player_mt = {
@@ -775,6 +830,13 @@ local player_mt = {
                 error("Invalid sound number "..soundnum, 2)
             end
             ffi.cast(player_ptr_ct, p).customexitsound = soundnum
+        end,
+
+        -- Access to weapon data (g_playerWeapon)
+        -- TODO: Make syntax e.g. "player[0].weapon.KNEE.shoots" possible
+        weapon = function(p, weap)
+            check_weapon_idx(weap)
+            return get_weapondata_accessor(p.idx, weap)
         end,
 
         -- CON-like addammo/addweapon, but without the non-local control flow
@@ -971,6 +1033,7 @@ local module_mt = {
 
 -- Our 'module' replacement doesn't get the module name from the function args
 -- since a malicious user could remove other loaded modules this way.
+-- Also, our 'module' has no varargs ("option functions" in Lua).
 -- TODO: make transactional?
 local function our_module()
     local modname = modname_stack[#modname_stack]

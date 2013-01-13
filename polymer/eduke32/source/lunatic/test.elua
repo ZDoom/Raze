@@ -205,6 +205,7 @@ gameevent("JUMP",
           function(actori, playeri, dist)
               print("I'm first!")
 --              DBG_.oom()
+              player[playeri]:weapon(gv.PISTOL_WEAPON).shoots = 2605 -- RPG
           end
          )
 

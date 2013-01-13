@@ -252,6 +252,26 @@ function rnd(x)
     return (bit.rshift(ffiC.krand(), 8) >= (255-x))
 end
 
+-- Legacy operators
+
+function _rand(x)
+    return bit.rshift(ffiC.krand()*(x+1), 16)
+end
+
+function _div(a,b)
+    if (b==0) then
+        error("divide by zero", 2)
+    end
+    return (a - math.fmod(a,b))/b
+end
+
+function _mod(a,b)
+    if (b==0) then
+        error("mod by zero", 2)
+    end
+    return math.fmod(a,b)
+end
+
 
 ---=== Weapon stuff ===---
 
@@ -964,7 +984,7 @@ end
 
 local function check_sound_idx(sndidx)
     if (sndidx >= con_lang.MAXSOUNDS+0ULL) then
-        error("invalid sound number "..sndidx, 2)
+        error("invalid sound number "..sndidx, 3)
     end
 end
 

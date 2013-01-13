@@ -276,6 +276,30 @@ labels =
     GAMEFUNC,
 }
 
+-- KEEPINSYNC player.h
+wdata_members =
+{
+    -- NOTE: they are lowercased for Lunatic
+    "int32_t workslike",
+    "int32_t clip",
+    "int32_t reload",
+    "int32_t firedelay",
+    "int32_t totaltime",
+    "int32_t holddelay",
+    "int32_t flags",
+    "int32_t shoots",
+    "int32_t spawntime",
+    "int32_t spawn",
+    "int32_t shotsperburst",
+    "int32_t initialsound",
+    "int32_t firesound",
+    "int32_t sound2time",
+    "int32_t sound2sound",
+    "int32_t reloadsound1",
+    "int32_t reloadsound2",
+    "int32_t selectsound",
+    "int32_t flashcolor",
+}
 
 -- NOTE: These MUST be in reverse lexicographical order!
 -- Per CON syntax, valid identifiers names are disjunct from keywords,

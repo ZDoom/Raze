@@ -90,17 +90,24 @@ local g_numerrors = 0
 local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true,
                  ["number-conversion"]=true, }
 
+-- Code generation options.
+local g_cgopt = { ["no"]=false, }
+
 -- How many 'if' statements are following immediately each other,
 -- needed to cope with CONs dangling-else resolution
 local g_iflevel = 0
 local g_ifelselevel = 0
 
 ---=== Code generation ===---
-local GVFLAG = { PERPLAYER=1, PERACTOR=2, PERX_MASK=3, }
+local GVFLAG = {
+    PERPLAYER=1, PERACTOR=2, PERX_MASK=3,
+    SYSTEM   = 0x00000800,
+    READONLY = 0x00001000,
+}
 
 -- CON --> mangled Lua function name, also existence check:
 local g_funcname = {}
--- [identifier] = { name=<mangled name>, flags=<gamevar flags> }
+-- [identifier] = { name=<mangled name / code>, flags=<gamevar flags> }
 local g_gamevar = {}
 
 local g_have_file = {}  -- [filename]=true
@@ -108,6 +115,11 @@ local g_curcode = nil  -- a table of string pieces or other "gencode" tables
 
 -- [{actor, event, actor}num]=gencode_table
 local g_code = { actor={}, event={}, loadactor={} }
+
+
+local function ACS(s) return "actor[_aci]"..s end
+local function SPS(s) return "sprite[_aci]"..s end
+local function PLS(s) return "player[_pli]"..s end
 
 
 local function getlinecol(pos) end -- fwd-decl
@@ -120,9 +132,31 @@ local function new_initial_codetab()
            }
 end
 
+-- Creates the table of predefined game variables.
+-- KEEPINSYNC gamevars.c: Gv_AddSystemVars()
+local function new_initial_gvartab()
+    local wmembers = conl.wdata_members
+    local gamevar = {}
+
+    local MAX_WEAPONS = ffiC and ffiC.MAX_WEAPONS or 12
+
+    for w=0,MAX_WEAPONS-1 do
+        for i=1,#wmembers do
+            local member = wmembers[i]:gsub(".* ","")  -- strip e.g. "int32_t "
+            local name = format("WEAPON%d_%s", w, member:upper())
+
+            local code = format(PLS":weapon(%d).%s", w, member)
+
+            gamevar[name] = { name=code, flags=GVFLAG.PERPLAYER+GVFLAG.SYSTEM }
+        end
+    end
+
+    return gamevar
+end
+
 local function reset_codegen()
     g_funcname = {}
-    g_gamevar = {}
+    g_gamevar = new_initial_gvartab()
 
     g_have_file = {}
     g_curcode = new_initial_codetab()
@@ -696,18 +730,23 @@ function Cmd.gamevar(identifier, initval, flags)
     -- TODO: Write gamevar system on the Lunatic side and hook it up.
     -- TODO: per-player gamevars
     if (flags==GVFLAG.PERACTOR) then
-        return format("local %s=_con.peractorvar(%d)", gv.name, initval)
+        addcodef("local %s=_con.peractorvar(%d)", gv.name, initval)
     else
-        return format("local %s=%d", gv.name, initval)
+        addcodef("local %s=%d", gv.name, initval)
     end
 end
 
-local function lookup_gamevar(identifier)
+local function lookup_gamevar(identifier, writable)
     local gv = g_gamevar[identifier]
 
     if (gv == nil) then
         errprintf("symbol `%s' is not a game variable", identifier)
         return "_INVALIDGV"
+    end
+
+    if (writable and bit.band(gv.flags, GVFLAG.READONLY) ~= 0) then
+        errprintf("variable `%s' is read-only", identifier)
+        return "_READONLYGV"
     end
 
     if (gv.flags==GVFLAG.PERACTOR) then
@@ -890,6 +929,22 @@ local Couter = {
 local varop = cmd(W,D)
 local varvarop = cmd(W,R)
 
+local function varopf(op)
+    if (#op == 1) then
+        return varop / ("%1=%1"..op.."%2")
+    else
+        return varop / ("%1="..op.."(%1,%2)")
+    end
+end
+
+local function varvaropf(op)
+    if (#op == 1) then
+        return varvarop / ("%1=%1"..op.."%2")
+    else
+        return varvarop / ("%1="..op.."(%1,%2)")
+    end
+end
+
 -- Allow nesting... stuff like
 --   ifvarl actorvar[sprite[THISACTOR].owner].burning 0
 -- is kinda breaking the classic "no array nesting" rules
@@ -923,10 +978,6 @@ local getperxvarcmd =  -- get<actor/player>var[<idx>].<member> <<var>>
 local setperxvarcmd = -- set<actor/player>var[<idx>].<member> <var>
     arraypat * memberpat * sp1 * tok.rvar
 
-
-local function ACS(s) return "actor[_aci]"..s end
-local function SPS(s) return "sprite[_aci]"..s end
-local function PLS(s) return "player[_pli]"..s end
 
 -- Various inner command handling functions.
 local handle =
@@ -1003,29 +1054,29 @@ local Cinner = {
 
     setsprite = cmd(R,R,R,R),
 
-    setvarvar = varvarop,
-    addvarvar = varvarop,
-    subvarvar = varvarop,
-    mulvarvar = varvarop,
-    divvarvar = varvarop,
-    modvarvar = varvarop,
-    andvarvar = varvarop,
-    orvarvar = varvarop,
-    xorvarvar = varvarop,
-    randvarvar = varvarop,
+    setvarvar = varvarop / "%1=%2",
+    addvarvar = varvaropf "+",
+    subvarvar = varvaropf "-",
+    mulvarvar = varvaropf "*",
+    divvarvar = varvaropf "_con._div",
+    modvarvar = varvaropf "_con._mod",
+    andvarvar = varvaropf "_bit.band",
+    orvarvar = varvaropf "_bit.bor",
+    xorvarvar = varvaropf "_bit.bxor",
+    randvarvar = varvarop / "%1=_con._rand(%2)",
 
-    setvar = varop,
-    addvar = varop,
-    subvar = varop,
-    mulvar = varop,
-    divvar = varop,
-    modvar = varop,
-    andvar = varop,
-    orvar = varop,
-    xorvar = varop,
-    randvar = varop,
-    shiftvarl = varop,
-    shiftvarr = varop,
+    setvar = varop / "%1=%2",
+    addvar = varopf "+",
+    subvar = varopf "-",
+    mulvar = varopf "*",
+    divvar = varopf "_con._div",
+    modvar = varopf "_con._mod",
+    andvar = varopf "_bit.band",
+    orvar = varopf "_bit.bor",
+    xorvar = varopf "_bit.bxor",
+    randvar = varop / "%1=_con._rand(%2)",
+    shiftvarl = varopf "_bit.lshift",
+    shiftvarr = varopf "_bit.rshift",
 
     --- 2. Math operations
     sqrt = cmd(R,W),
@@ -1771,7 +1822,7 @@ local Grammar = Pat{
     -- XXX: now, when tok.rvar fails, the tok.define failure message is printed.
     t_rvar = tok.arrayexp + lpeg.Cmt(tok.identifier, maybe_gamevar_Cmt) + tok.define,
     -- not so with written-to vars:
-    t_wvar = tok.arrayexp + (tok.identifier/lookup_gamevar),
+    t_wvar = tok.arrayexp + (tok.identifier / function(id) return lookup_gamevar(id, true) end),
 
     t_move =
         POS()*tok.identifier / function(...) return lookup_composite(LABEL.MOVE, ...) end +
@@ -1887,8 +1938,6 @@ end
 
 ---=== EXPORTED FUNCTIONS ===---
 
-local g_printcode = true
-
 function parse(contents)  -- local
     -- save outer state
     local lastkw, lastkwpos, numerrors = g_lastkw, g_lastkwpos, g_numerrors
@@ -1965,6 +2014,9 @@ local function handle_cmdline_arg(str)
                     g_warn[warnstr] = val
                     ok = true
                 end
+            elseif (str:sub(2)=="fno") then
+                -- Disable printing code.
+                g_cgopt["no"] = true
             end
 
             if (not ok) then
@@ -2019,7 +2071,7 @@ if (string.dump) then
             print_on_failure(msg)
         end
 
-        if (g_printcode) then
+        if (not g_cgopt["no"]) then
             local file = require("io").stderr
             file:write(format("-- GENERATED CODE for \"%s\":\n", filename))
             file:write(get_code_string(g_curcode))
