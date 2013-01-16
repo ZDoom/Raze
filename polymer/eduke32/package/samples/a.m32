@@ -1404,6 +1404,10 @@ gamevar scrshot 0 1
 onevent EVENT_DRAW3DSCREEN
     ifge searchwall 0, ifl searchwall MAXWALLS
     {
+        // Which wall is considered targeted?
+        qsprintf TQUOTE "searchwall = %d" searchwall
+        printext256 TQUOTE 30 30 -15 0 0
+
         qsprintf TQUOTE "y panning = %d" wall[searchwall].ypanning
         printext256 TQUOTE 30 30 -15 0 0
     }

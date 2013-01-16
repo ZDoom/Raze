@@ -5460,8 +5460,6 @@ end_after_dragging:
                             }
 
                             dragpoint(pointhighlight,dax,day,2);
-                            if ((unsigned)linehighlight < MAXWALLS)
-                                wall[linehighlight].cstat |= (1<<14);
                             wall[lastwall(pointhighlight)].cstat |= (1<<14);
                         }
                         else if ((pointhighlight&0xc000) == 16384)
@@ -8380,61 +8378,47 @@ static void flipwalls(int16_t numwalls, int16_t newnumwalls)
     }
 }
 
-// returns number of points inserted (1; or 2 if wall had a nextwall)
-//  *mapwallnum contains the new wallnum of the former (pre-insertpoint) *mapwallnum
-//  (the new one can only be >= than the old one; ptr may be NULL if we don't care)
-static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day, int32_t *mapwallnum)
+static void do_insertpoint(int32_t w, int32_t dax, int32_t day, int32_t *mapwallnum)
 {
-    int16_t sucksect;
-    int32_t i, j, k;
-    uint32_t templenrepquot;
-
-    j = linehighlight;
-    sucksect = sectorofwall(j);
-    templenrepquot = getlenbyrep(wallength(j), wall[j].xrepeat);
+    int32_t i;
+    const int32_t sucksect = sectorofwall(w);
+    const uint32_t lenbyrep = getlenbyrep(wallength(w), wall[w].xrepeat);
 
     sector[sucksect].wallnum++;
     for (i=sucksect+1; i<numsectors; i++)
         sector[i].wallptr++;
 
-    if (mapwallnum && *mapwallnum >= j+1)
+    if (mapwallnum && *mapwallnum >= w+1)
         (*mapwallnum)++;
-    movewalls(j+1, +1);
-    Bmemcpy(&wall[j+1], &wall[j], sizeof(walltype));
+
+    movewalls(w+1, +1);
+    Bmemcpy(&wall[w+1], &wall[w], sizeof(walltype));
 #ifdef YAX_ENABLE
-    wall[j+1].cstat &= ~(1<<14);
+    wall[w+1].cstat &= ~(1<<14);
 #endif
-    wall[j].point2 = j+1;
-    wall[j+1].x = dax;
-    wall[j+1].y = day;
-    fixxrepeat(j, templenrepquot);
-    AlignWallPoint2(j);
-    fixxrepeat(j+1, templenrepquot);
+    wall[w].point2 = w+1;
+    wall[w+1].x = dax;
+    wall[w+1].y = day;
+
+    fixxrepeat(w, lenbyrep);
+    AlignWallPoint2(w);
+    fixxrepeat(w+1, lenbyrep);
+}
+
+// Returns number of points inserted (1; or 2 if wall had a nextwall).
+//  *mapwallnum is set to the new wallnum of the former (pre-insertpoint) *mapwallnum
+//  (the new one can only be >= than the old one; ptr may be NULL if we don't care)
+static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day, int32_t *mapwallnum)
+{
+    int32_t j = linehighlight;
+
+    do_insertpoint(j, dax, day, mapwallnum);
 
     if (wall[j].nextwall >= 0)
     {
-        k = wall[j].nextwall;
-        templenrepquot = getlenbyrep(wallength(k), wall[k].xrepeat);
+        int32_t k = wall[j].nextwall;
 
-        sucksect = sectorofwall(k);
-
-        sector[sucksect].wallnum++;
-        for (i=sucksect+1; i<numsectors; i++)
-            sector[i].wallptr++;
-
-        if (mapwallnum && *mapwallnum >= k+1)
-            (*mapwallnum)++;
-        movewalls(k+1, +1);
-        Bmemcpy(&wall[k+1], &wall[k], sizeof(walltype));
-#ifdef YAX_ENABLE
-        wall[k+1].cstat &= ~(1<<14);
-#endif
-        wall[k].point2 = k+1;
-        wall[k+1].x = dax;
-        wall[k+1].y = day;
-        fixxrepeat(k, templenrepquot);
-        AlignWallPoint2(k);
-        fixxrepeat(k+1, templenrepquot);
+        do_insertpoint(k, dax, day, mapwallnum);
 
         j = wall[k].nextwall;
         wall[j].nextwall = k+1;
