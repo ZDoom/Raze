@@ -266,13 +266,14 @@ int32_t loadsetup(const char *fn)
 
     if (readconfig(fp, "turndecel", val, VL) > 0) pk_turndecel = atoi_safe(val);
 
-//    if (readconfig(fp, "autosave", val, VL) > 0) autosave = atoi_safe(val)*60;
     if (readconfig(fp, "autosavesec", val, VL) > 0) autosave = max(0, atoi_safe(val));
     if (readconfig(fp, "autocorruptchecksec", val, VL) > 0) autocorruptcheck = max(0, atoi_safe(val));
     if (readconfig(fp, "corruptcheck_noalreadyrefd", val, VL) > 0)
         corruptcheck_noalreadyrefd = !!atoi_safe(val);
     if (readconfig(fp, "fixmaponsave_sprites", val, VL) > 0)
         fixmaponsave_sprites = !!atoi_safe(val);
+    if (readconfig(fp, "keeptexturestretch", val, VL) > 0)
+        keeptexturestretch = !!atoi_safe(val);
 
     if (readconfig(fp, "showheightindicators", val, VL) > 0)
         showheightindicators = clamp(atoi_safe(val), 0, 2);
@@ -488,6 +489,9 @@ int32_t writesetup(const char *fn)
              "; Fix sprite sectnums when saving a map or entering 3D mode\n"
              "fixmaponsave_sprites = %d\n"
              "\n"
+             "; Keep texture stretching when dragging wall vertices\n"
+             "keeptexturestretch = %d\n"
+             "\n"
              "; Height indicators (0:none, 1:only 2-sided&different, 2:all)\n"
              "showheightindicators = %d\n"
              "\n"
@@ -497,8 +501,8 @@ int32_t writesetup(const char *fn)
              "; TROR: Automatic grayout of plain (non-extended) sectors,\n"
              ";       toggled with Ctrl-A:\n"
              "autogray = %d\n"
-             "; TROR: Show inner gray walls, toggled with Ctrl-Alt-A:\n"
-             "showinnergray = %d\n"
+//             "; TROR: Show inner gray walls, toggled with Ctrl-Alt-A:\n"
+//             "showinnergray = %d\n"
              "\n"
              "; 2D mode display type (0:classic, 1:textured, 2:textured/animated)\n"
              "graphicsmode = %d\n"
@@ -598,8 +602,9 @@ int32_t writesetup(const char *fn)
              msens, unrealedlook, pk_uedaccel, quickmapcycling,
              sideview_reversehrot,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,autocorruptcheck,
-             corruptcheck_noalreadyrefd, fixmaponsave_sprites, showheightindicators,showambiencesounds,
-             autogray,showinnergray,
+             corruptcheck_noalreadyrefd, fixmaponsave_sprites, keeptexturestretch,
+             showheightindicators,showambiencesounds,
+             autogray, //showinnergray,
              graphicsmode,
              MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,
 #if 1

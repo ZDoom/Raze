@@ -141,6 +141,8 @@ extern int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz) ATTRIBUT
 extern int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 extern void setup_sideview_sincos(void);
 
+extern int8_t keeptexturestretch;
+
 extern int32_t wallength(int16_t i);
 extern void fixrepeats(int16_t i);
 extern uint32_t getlenbyrep(int32_t len, int32_t repeat);

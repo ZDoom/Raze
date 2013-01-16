@@ -199,6 +199,7 @@ int32_t pk_turnaccel=16;
 int32_t pk_turndecel=12;
 int32_t pk_uedaccel=3;
 
+int8_t keeptexturestretch = 1;
 int8_t sideview_reversehrot = 0;
 
 char lastpm16buf[156];
@@ -5185,7 +5186,7 @@ end_autoredwall:
                     if (dragwall[i] < 0)
                         break;
 
-                    if (olen[i] != 0)
+                    if (keeptexturestretch && olen[i] != 0)
                     {
 #ifndef YAX_ENABLE
                         j = dragwall[i];

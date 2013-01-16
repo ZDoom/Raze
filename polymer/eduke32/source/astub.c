@@ -9105,6 +9105,14 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
+    if (!Bstrcasecmp(parm->name, "keeptexturestretch"))
+    {
+        keeptexturestretch = !keeptexturestretch;
+        OSD_Printf("Keep texture stretching when dragging wall vertices: %s\n",
+                   ONOFF(keeptexturestretch));
+        return OSDCMD_OK;
+    }
+
     if (!Bstrcasecmp(parm->name, "corruptcheck"))
     {
         if (parm->numparms >= 1)
@@ -9501,6 +9509,8 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("show_heightindicators", "show_heightindicators {0, 1 or 2}: sets display of height indicators in 2D mode", osdcmd_vars_pk);
     OSD_RegisterFunction("show_ambiencesounds", "show_ambiencesounds {0, 1 or 2}>: sets display of MUSICANDSFX circles in 2D mode", osdcmd_vars_pk);
     OSD_RegisterFunction("corruptcheck_noalreadyrefd", "corruptcheck_noalreadyrefd: toggles ignoring of one-to-many red wall connections", osdcmd_vars_pk);
+    OSD_RegisterFunction("keeptexturestretch", "toggles keeping texture stretching when dragging wall vertices", osdcmd_vars_pk);
+
     OSD_RegisterFunction("corruptcheck", "corruptcheck {<seconds>|now|tryfix}: sets auto corruption check interval if <seconds> given, otherwise as indicated", osdcmd_vars_pk);
 #ifdef USE_OPENGL
     OSD_RegisterFunction("tint", "tint <pal> <r> <g> <b> <flags>: queries or sets hightile tinting", osdcmd_tint);
