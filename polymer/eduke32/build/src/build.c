@@ -10368,6 +10368,9 @@ static int32_t GetWallBaseZ(int32_t wallnum)
     return z;
 }
 
+
+////////// AUTOMATIC WALL ALIGNMENT //////////
+
 static void AlignWalls(int32_t w0, int32_t z0, int32_t w1, int32_t z1, int32_t doxpanning)
 {
     int32_t n;
@@ -10395,8 +10398,8 @@ void AlignWallPoint2(int32_t w0)
 #define ALIGN_WALLS_CSTAT_MASK (4+8+256)
 
 // flags:
-//  1: recurse nextwalls
-//  2: iterate point2's
+//  1: more than once
+//  2: (unused)
 //  4: carry pixel width from first wall over to the rest
 //  8: align TROR nextwalls
 // 16: iterate lastwall()s (point2 in reverse)
@@ -10487,11 +10490,12 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
                 wall[w1].cstat |= cstat0;
                 numaligned++;
 
+                if ((flags&1)==0)
+                    return 1;
+
                 //if wall was 1-sided, no need to recurse
                 if (wall[w1].nextwall < 0)
                 {
-                    if (!(flags&2))
-                        break;
                     w0 = w1;
                     z0 = GetWallBaseZ(w0);
                     w1 = totheleft ? lastwall(w0) : wall[w0].point2;
@@ -10499,12 +10503,11 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
                     continue;
                 }
 
-                if (flags&1)
-                    AutoAlignWalls(w1, flags, nrecurs+1);
+                AutoAlignWalls(w1, flags, nrecurs+1);
             }
         }
 
-        if (wall[w1].nextwall < 0 || !(flags&2))
+        if (wall[w1].nextwall < 0)
             break;
         w1 = totheleft ? lastwall(wall[w1].nextwall) : NEXTWALL(w1).point2;
     }

@@ -5242,18 +5242,22 @@ static void Keys3d(void)
             ShowFileText("sthelp.hlp");
     }
 
-    // . Search & fix panning to the right (3D)
+    // [.] or [,]: Search & fix panning to the right or left (3D)
     if (AIMING_AT_WALL_OR_MASK && ((tsign=PRESSED_KEYSC(PERIOD)) || PRESSED_KEYSC(COMMA)))
     {
-        uint32_t flags = eitherCTRL | ((!eitherSHIFT)<<1) | (tsign?0:16) |
+        uint32_t flags = (!eitherSHIFT) | (tsign?0:16) |
             (eitherALT<<2) | ((!!keystatus[KEYSC_QUOTE])<<3);
+
         int32_t naligned=AutoAlignWalls(searchwall, flags, 0);
+        // Do it a second time because the first one is wrong. FIXME!!!
+        AutoAlignWalls(searchwall, flags, 0);
+
         message("Aligned %d wall%s based on wall %d%s%s%s%s", naligned,
-                naligned==1?"":"s", searchwall,
-                eitherCTRL?", recursing nextwalls":"",
-                !eitherSHIFT?", iterating point2s":"",
-                eitherALT?", aligning xrepeats":"",
-                keystatus[KEYSC_QUOTE]?", aligning TROR-nextwalls":"");
+                naligned==1 ? "" : "s", searchwall,
+                !eitherSHIFT ? " iteratively" : "",
+                eitherALT ? ", aligning xrepeats" : "",
+                keystatus[KEYSC_QUOTE] ? ", aligning TROR-nextwalls" : "",
+                (wall[searchwall].cstat&4) ? "" : ". WARNING: top-aligned");
     }
 
     tsign = 0;
