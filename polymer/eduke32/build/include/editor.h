@@ -103,8 +103,6 @@ extern int32_t m32_osd_tryscript;
 extern int32_t showheightindicators;
 extern int32_t showambiencesounds;
 
-extern int32_t dragpoint_noreset;
-
 extern int32_t numgraysects;
 extern uint8_t graysectbitmap[MAXSECTORS>>3];
 extern uint8_t graywallbitmap[MAXWALLS>>3];

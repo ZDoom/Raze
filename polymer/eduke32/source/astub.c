@@ -8246,7 +8246,7 @@ static void Keys2d(void)
             j = getnumber16(tempbuf, j, editorgridextent, 1);
             Bsprintf(tempbuf, "Wall %d y: ", i);
             k = getnumber16(tempbuf, k, editorgridextent, 1);
-            dragpoint(i, j, k);
+            dragpoint(i, j, k, 0);
             printmessage16("Wall %d updated", i);
         }
     }

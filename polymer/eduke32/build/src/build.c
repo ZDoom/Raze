@@ -4700,6 +4700,7 @@ end_yax: ;
                     else
                     {
                         int32_t tx, ty, onlySprites=eitherCTRL;
+                        int32_t accum_dragged_verts = 0;
 
                         if (!setop)
                         {
@@ -4739,8 +4740,9 @@ end_yax: ;
                                 {
                                     if (numgraysects > 0 || m32_sideview)
                                     {
-                                        dragpoint(i, wall[i].x, wall[i].y);
-                                        dragpoint_noreset = 1;  // vvv
+                                        // Only called to find out which walls would get dragged:
+                                        dragpoint(i, wall[i].x, wall[i].y, accum_dragged_verts);
+                                        accum_dragged_verts = 1;
                                     }
                                     else
                                         show2dwall[i>>3] |= (1<<(i&7));
@@ -4749,7 +4751,6 @@ end_yax: ;
                                     show2dwall[i>>3] &= ~(1<<(i&7));
                             }
                         }
-                        dragpoint_noreset = 0;  // ^^^
 
                         if (!sub && (numgraysects > 0 || m32_sideview))
                         {
@@ -5458,7 +5459,7 @@ end_after_dragging:
                                 goto end_point_dragging;
                             }
 
-                            dragpoint(pointhighlight,dax,day);
+                            dragpoint(pointhighlight,dax,day,2);
                             if ((unsigned)linehighlight < MAXWALLS)
                                 wall[linehighlight].cstat |= (1<<14);
                             wall[lastwall(pointhighlight)].cstat |= (1<<14);

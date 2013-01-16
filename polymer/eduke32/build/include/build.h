@@ -802,7 +802,7 @@ void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum,
                          const uint8_t *excludesectbitmap) ATTRIBUTE((nonnull(3,4)));
 void   updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum) ATTRIBUTE((nonnull(4)));
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
-void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day);
+void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags);
 void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
 
 extern const int16_t *chsecptr_onextwall;

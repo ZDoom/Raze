@@ -2115,7 +2115,7 @@ badindex:
                     M32_ERROR("Invalid wall %d", wallnum);
                     continue;
                 }
-                dragpoint(wallnum,newx,newy);
+                dragpoint(wallnum,newx,newy,0);
                 continue;
             }
 

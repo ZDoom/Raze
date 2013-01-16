@@ -2183,7 +2183,7 @@ nullquote:
                     CON_ERRPRINTF("Invalid wall %d\n", wallnum);
                     continue;
                 }
-                dragpoint(wallnum,newx,newy);
+                dragpoint(wallnum,newx,newy,0);
                 continue;
             }
 

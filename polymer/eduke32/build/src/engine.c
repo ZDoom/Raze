@@ -11889,8 +11889,10 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
 //
 // dragpoint
 //
-int32_t dragpoint_noreset = 0;
-void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
+// flags:
+//  1: don't reset walbitmap[] (the bitmap of already dragged vertices)
+//  2: In the editor, do wall[].cstat |= (1<<14) also for the lastwall().
+void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
 #ifdef YAX_ENABLE
 {
     int32_t i, numyaxwalls=0;
@@ -11898,7 +11900,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 
     uint8_t *const walbitmap = (uint8_t *)tempbuf;
 
-    if (!dragpoint_noreset)
+    if ((flags&1)==0)
         Bmemset(walbitmap, 0, (numwalls+7)>>3);
     yaxwalls[numyaxwalls++] = pointhighlight;
 
@@ -11973,7 +11975,11 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
         // TODO: extern a separate bitmap instead?
         for (w=0; w<numwalls; w++)
             if (walbitmap[w>>3] & (1<<(w&7)))
+            {
                 wall[w].cstat |= (1<<14);
+                if (flags&2)
+                    wall[lastwall(w)].cstat |= (1<<14);
+            }
     }
 }
 #else

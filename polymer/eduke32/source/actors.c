@@ -667,7 +667,7 @@ static void A_MoveSector(int32_t i)
         for (; x<endwall; x++)
         {
             rotatepoint(0,0,msx[j],msy[j],k&2047,&tx,&ty);
-            dragpoint(x,s->x+tx,s->y+ty);
+            dragpoint(x,s->x+tx,s->y+ty,0);
 
             j++;
         }
@@ -7082,8 +7082,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     j = nextj;
                 }
 
-                dragpoint((int16_t)t[1],wall[t[1]].x+x,wall[t[1]].y+l);
-                dragpoint((int16_t)t[2],wall[t[2]].x+x,wall[t[2]].y+l);
+                dragpoint((int16_t)t[1],wall[t[1]].x+x,wall[t[1]].y+l,0);
+                dragpoint((int16_t)t[2],wall[t[2]].x+x,wall[t[2]].y+l,0);
 
                 for (TRAVERSE_CONNECT(p))
                 {
