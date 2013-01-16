@@ -8982,112 +8982,132 @@ static int32_t osdcmd_testplay_addparam(const osdfuncparm_t *parm)
 
 
 //PK vvv ------------
+// FIXME: The way the different options are handled is horribly inconsistent.
 static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
 {
-    int32_t showval = (parm->numparms < 1);
+    const int32_t setval = (parm->numparms >= 1);
 
     // this is something of a misnomer, since it's actually accel+decel
     if (!Bstrcasecmp(parm->name, "pk_turnaccel"))
     {
-        if (showval)
-            OSD_Printf("Turning acceleration+declaration is %d\n", pk_turnaccel);
-        else
+        if (setval)
         {
             pk_turnaccel = atoi_safe(parm->parms[0]);
             pk_turnaccel = pk_turnaccel<=pk_turndecel ? (pk_turndecel+1):pk_turnaccel;
             pk_turnaccel = pk_turnaccel>256 ? 256:pk_turnaccel;
         }
+
+        OSD_Printf("Turning acceleration+declaration is %d\n", pk_turnaccel);
+        return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "pk_turndecel"))
+
+    if (!Bstrcasecmp(parm->name, "pk_turndecel"))
     {
-        if (showval)
-            OSD_Printf("Turning deceleration is %d\n", pk_turndecel);
-        else
+        if (setval)
         {
             pk_turndecel = atoi_safe(parm->parms[0]);
             pk_turndecel = pk_turndecel<=0 ? 1:pk_turndecel;
             pk_turndecel = pk_turndecel>=pk_turnaccel ? (pk_turnaccel-1):pk_turndecel;
             pk_turndecel = pk_turndecel>128 ? 128:pk_turndecel;
         }
+
+        OSD_Printf("Turning deceleration is %d\n", pk_turndecel);
+        return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "pk_quickmapcycling"))
+
+    if (!Bstrcasecmp(parm->name, "pk_quickmapcycling"))
     {
         OSD_Printf("Quick map cycling ((LShift-)Ctrl-X): %s\n",
                    (quickmapcycling = !quickmapcycling) ? "enabled":"disabled");
+        return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "pk_uedaccel"))
+
+    if (!Bstrcasecmp(parm->name, "pk_uedaccel"))
     {
-        if (parm->numparms==1)
+        if (parm->numparms > 1)
+            return OSDCMD_SHOWHELP;
+
+        if (setval)
         {
             pk_uedaccel = atoi_safe(parm->parms[0]);
             pk_uedaccel = pk_uedaccel<0 ? 0:pk_uedaccel;
             pk_uedaccel = pk_uedaccel>5 ? 5:pk_uedaccel;
         }
 
-        if (parm->numparms <= 1)
-            OSD_Printf("UnrealEd mouse navigation acceleration is %d\n", pk_uedaccel);
-        else
-            return OSDCMD_SHOWHELP;
+        OSD_Printf("UnrealEd mouse navigation acceleration is %d\n", pk_uedaccel);
+        return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "osd_tryscript"))
+
+    if (!Bstrcasecmp(parm->name, "osd_tryscript"))
     {
         m32_osd_tryscript = !m32_osd_tryscript;
         OSD_Printf("Try M32 script execution on invalid OSD command: %s\n", m32_osd_tryscript?"on":"off");
+        return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "sideview_reversehorizrot"))
+
+    if (!Bstrcasecmp(parm->name, "sideview_reversehorizrot"))
     {
         sideview_reversehrot = !sideview_reversehrot;
         OSD_Printf("Side view reverse horizontal rotation: %s\n", sideview_reversehrot?"on":"off");
+        return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "script_expertmode"))
+
+    if (!Bstrcasecmp(parm->name, "script_expertmode"))
     {
         m32_script_expertmode = !m32_script_expertmode;
         if (m32_script_expertmode)
             OSD_Printf("M32 Script expert mode ENABLED.  Be sure to know what you are doing!\n");
         else
             OSD_Printf("M32 Script expert mode DISABLED.\n");
+        return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "fixmaponsave_sprites"))
+
+    if (!Bstrcasecmp(parm->name, "fixmaponsave_sprites"))
     {
         OSD_Printf("Fix sprite sectnums on map saving: %s\n",
                    (fixmaponsave_sprites = !fixmaponsave_sprites) ? "enabled":"disabled");
+        return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "show_heightindicators"))
+
+    if (!Bstrcasecmp(parm->name, "show_heightindicators"))
     {
         static const char *how[3] = {"none", "two-sided walls only", "all"};
 
-        if (parm->numparms == 1)
-            showheightindicators = clamp(atoi_safe(parm->parms[0]), 0, 2);
-
-        if (parm->numparms <= 1)
-            OSD_Printf("height indicators: %s\n", how[showheightindicators]);
-        else
+        if (parm->numparms > 1)
             return OSDCMD_SHOWHELP;
+
+        if (setval)
+            showheightindicators = clamp(atoi_safe(parm->parms[0]), 0, 2);
+        OSD_Printf("height indicators: %s\n", how[showheightindicators]);
+
+        return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "show_ambiencesounds"))
+
+    if (!Bstrcasecmp(parm->name, "show_ambiencesounds"))
     {
         static const char *how[3] = {"none", "current sector only", "all"};
 
-        if (parm->numparms == 1)
-            showambiencesounds = clamp(atoi_safe(parm->parms[0]), 0, 2);
-
-        if (parm->numparms <= 1)
-            OSD_Printf("ambience sound circles: %s\n", how[showambiencesounds]);
-        else
+        if (parm->numparms > 1)
             return OSDCMD_SHOWHELP;
+
+        if (setval)
+            showambiencesounds = clamp(atoi_safe(parm->parms[0]), 0, 2);
+        OSD_Printf("ambience sound circles: %s\n", how[showambiencesounds]);
+
+        return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "corruptcheck_noalreadyrefd"))
+
+    if (!Bstrcasecmp(parm->name, "corruptcheck_noalreadyrefd"))
     {
         corruptcheck_noalreadyrefd = !corruptcheck_noalreadyrefd;
-        OSD_Printf("%s 'already referenced' corruption\n",
+        OSD_Printf("%s 'already referenced' corruption (i.e. one-to-many nextwalls)\n",
                    corruptcheck_noalreadyrefd?"Ignore":"Regard");
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "corruptcheck"))
-    {
-        int32_t tryfix = parm->numparms>=1 && !Bstrcasecmp(parm->parms[0], "tryfix");
 
-        if (parm->numparms >= 1 || tryfix)
+    if (!Bstrcasecmp(parm->name, "corruptcheck"))
+    {
+        if (parm->numparms >= 1)
         {
             if (!Bstrcasecmp(parm->parms[0], "now"))
             {
@@ -9098,7 +9118,8 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
                     OSD_Printf("All OK.\n");
                 return OSDCMD_OK;
             }
-            else if (tryfix)
+
+            if (!Bstrcasecmp(parm->parms[0], "tryfix"))
             {
                 uint64_t whicherrs = parm->numparms==1 ? 0xffffffffffffffffull : 0;
                 corrupt_tryfix_alt = 0;
@@ -9143,11 +9164,14 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
                 CheckMapCorruption(whicherrs?5:3, whicherrs);
                 return OSDCMD_OK;
             }
-            else if (isdigit(parm->parms[0][0]))
+
+            if (isdigit(parm->parms[0][0]))
             {
                 autocorruptcheck = clamp(atoi_safe(parm->parms[0]), 0, 3600);
                 corruptchecktimer = totalclock + 120*autocorruptcheck;
             }
+
+            return OSDCMD_OK;
         }
 
         if (parm->numparms <= 1)
@@ -9156,9 +9180,10 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
                 OSD_Printf("auto corruption check: %d seconds\n", autocorruptcheck);
             else
                 OSD_Printf("auto corruption check: off\n");
+            return OSDCMD_OK;
         }
-        else if (!tryfix)
-            return OSDCMD_SHOWHELP;
+
+        return OSDCMD_SHOWHELP;
     }
 
     return OSDCMD_OK;
