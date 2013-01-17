@@ -248,27 +248,26 @@ enum gametokens
 };
 
 
+static int32_t sbarsc(int32_t sc)
+{
+    return scale(sc,ud.statusbarscale,100);
+}
 
 static int32_t sbarx(int32_t x)
 {
-    if (ud.screen_size == 4 /*|| ud.statusbarmode == 1*/) return scale(x<<16,ud.statusbarscale,100);
-    return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
+    if (ud.screen_size == 4) return sbarsc(x<<16);
+    return (((320<<16) - sbarsc(320<<16)) >> 1) + sbarsc(x<<16);
 }
 
 static int32_t sbarxr(int32_t x)
 {
-    if (ud.screen_size == 4 /*|| ud.statusbarmode == 1*/) return (320l<<16) - scale(x<<16,ud.statusbarscale,100);
-    return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
+    if (ud.screen_size == 4) return (320<<16) - sbarsc(x<<16);
+    return (((320<<16) - sbarsc(320<<16)) >> 1) + sbarsc(x<<16);
 }
 
 static int32_t sbary(int32_t y)
 {
-    return ((200l<<16) - scale(200l<<16,ud.statusbarscale,100) + scale(y<<16,ud.statusbarscale,100));
-}
-
-static int32_t sbarsc(int32_t sc)
-{
-    return scale(sc,ud.statusbarscale,100);
+    return (200<<16) - sbarsc(200<<16) + sbarsc(y<<16);
 }
 
 int32_t textsc(int32_t sc)
@@ -283,23 +282,14 @@ int32_t textsc(int32_t sc)
 
 static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
-    int32_t scl, tx, ty;
-    int32_t clx1,cly1,clx2,cly2,clofx,clofy;
+    int32_t scl = sbarsc(65536);
+    int32_t tx = sbarx(0), ty = sbary(200-tilesizy[BOTTOMSTATUSBAR]);
 
-    scl = sbarsc(65536);
-    tx = sbarx(0);
-    ty = sbary(200-tilesizy[BOTTOMSTATUSBAR]);
+    int32_t clx1 = sbarsc(scale(x1,xdim,320)), cly1 = sbarsc(scale(y1,ydim,200));
+    int32_t clx2 = sbarsc(scale(x2,xdim,320)), cly2 = sbarsc(scale(y2,ydim,200));
+    int32_t clofx = (xdim - sbarsc(xdim)) >> 1, clofy = (ydim - sbarsc(ydim));
 
-    clx1 = scale(scale(x1,xdim,320),ud.statusbarscale,100);
-    cly1 = scale(scale(y1,ydim,200),ud.statusbarscale,100);
-    clx2 = scale(scale(x2,xdim,320),ud.statusbarscale,100);
-    cly2 = scale(scale(y2,ydim,200),ud.statusbarscale,100);
-    clofx = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;
-    clofy = (ydim - scale(ydim,ud.statusbarscale,100));
-
-//    if (ud.statusbarmode == 0)
     rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1+clofx,cly1+clofy,clx2+clofx-1,cly2+clofy-1);
-//    else rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1,cly1,clx2+clofx-1,cly2+clofy-1);
 }
 
 void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set)
@@ -2950,12 +2940,12 @@ void G_DisplayRest(int32_t smoothratio)
 
         if (ud.screen_size == 4)
         {
-            i = scale(ud.althud?tilesizy[BIGALPHANUM]+10:tilesizy[INVENTORYBOX]+2,ud.statusbarscale,100);
-//            j = scale(scale(6,ud.config.ScreenWidth,320),ud.statusbarscale,100);
+            i = sbarsc(ud.althud?tilesizy[BIGALPHANUM]+10:tilesizy[INVENTORYBOX]+2);
+//            j = sbarsc(scale(6,ud.config.ScreenWidth,320));
         }
         else if (ud.screen_size > 2)
         {
-            i = scale(tilesizy[BOTTOMSTATUSBAR]+1,ud.statusbarscale,100);
+            i = sbarsc(tilesizy[BOTTOMSTATUSBAR]+1);
             //          j = scale(2,ud.config.ScreenWidth,320);
         }
         else
@@ -3154,7 +3144,7 @@ void G_DrawBackground(void)
         return;
     }
 
-    y2 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);
+    y2 = scale(ydim,200-sbarsc(tilesizy[BOTTOMSTATUSBAR]),200);
 
     if (ud.screen_size > 8)
     {
@@ -3194,7 +3184,7 @@ void G_DrawBackground(void)
             }
             */
         // when not rendering a game, fullscreen wipe
-        x2 = (xdim - scale((int32_t)(ydim*1.333333333333333333f),ud.statusbarscale,100)) >> 1;
+        x2 = (xdim - sbarsc((int32_t)(ydim*1.333333333333333333f))) >> 1;
         for (y=y2-y2%tilesizy[dapicnum]; y<ydim; y+=tilesizy[dapicnum])
             for (x=0; x<xdim>>1; x+=tilesizx[dapicnum])
             {
@@ -3216,7 +3206,7 @@ void G_DrawBackground(void)
         x1 = max(windowx1-4,0);
         y1 = max(windowy1-4,y);
         x2 = min(windowx2+4,xdim-1);
-        y2 = min(windowy2+4,scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200)-1);
+        y2 = min(windowy2+4,scale(ydim,200-sbarsc(tilesizy[BOTTOMSTATUSBAR]),200)-1);
 
         for (y=y1+4; y<y2-4; y+=64)
         {
