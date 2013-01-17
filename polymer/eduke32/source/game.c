@@ -3171,18 +3171,6 @@ void G_DrawBackground(void)
     // draw in the bits to the left and right of the non-fullsize status bar
     if (ud.screen_size >= 8 && ud.statusbarmode == 0)
     {
-        /*
-        y1 = y2;
-        x2 = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;
-        x1 = xdim-x2;
-        x1 -= x1%tilesizx[dapicnum];
-        for (y=y1-y1%tilesizy[dapicnum]; y<y2; y+=tilesizy[dapicnum])
-            for (x=0;x<x2 || x1+x<xdim; x+=tilesizx[dapicnum])
-            {
-                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y1,x2-1,ydim-1);
-                rotatesprite((x+x1)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,xdim-x2,y1,xdim-1,ydim-1);
-            }
-            */
         // when not rendering a game, fullscreen wipe
         x2 = (xdim - sbarsc((int32_t)(ydim*1.333333333333333333f))) >> 1;
         for (y=y2-y2%tilesizy[dapicnum]; y<ydim; y+=tilesizy[dapicnum])
@@ -7559,10 +7547,12 @@ void G_HandleLocalKeys(void)
         if (BUTTON(gamefunc_Enlarge_Screen))
         {
             CONTROL_ClearButton(gamefunc_Enlarge_Screen);
+
             if (!SHIFTS_IS_PRESSED)
             {
                 if (ud.screen_size > 0)
                     S_PlaySound(THUD);
+
                 if (getrendermode() >= REND_POLYMOST && ud.screen_size == 8 && ud.statusbarmode == 0)
                     ud.statusbarmode = 1;
                 else ud.screen_size -= 4;
@@ -7575,29 +7565,30 @@ void G_HandleLocalKeys(void)
             }
             else
             {
-                ud.statusbarscale += 4;
-                G_SetStatusBarScale(ud.statusbarscale);
+                G_SetStatusBarScale(ud.statusbarscale+4);
             }
+
             G_UpdateScreenArea();
         }
 
         if (BUTTON(gamefunc_Shrink_Screen))
         {
             CONTROL_ClearButton(gamefunc_Shrink_Screen);
+
             if (!SHIFTS_IS_PRESSED)
             {
-                if (ud.screen_size < 64) S_PlaySound(THUD);
+                if (ud.screen_size < 64)
+                    S_PlaySound(THUD);
+
                 if (getrendermode() >= REND_POLYMOST && ud.screen_size == 8 && ud.statusbarmode == 1)
                     ud.statusbarmode = 0;
                 else ud.screen_size += 4;
             }
             else
             {
-                ud.statusbarscale -= 4;
-                if (ud.statusbarscale < 37)
-                    ud.statusbarscale = 37;
-                G_SetStatusBarScale(ud.statusbarscale);
+                G_SetStatusBarScale(max(ud.statusbarscale-4, 37));
             }
+
             G_UpdateScreenArea();
         }
     }

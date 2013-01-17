@@ -2227,7 +2227,7 @@ static int32_t swall[MAXXDIM], lwall[MAXXDIM+4];
 int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
 int32_t ydimen;
 static int32_t wx1, wy1, wx2, wy2;
-intptr_t /*viewoffset,*/ frameoffset;
+intptr_t frameoffset;
 
 static int32_t nrx1[8], nry1[8], nrx2[8], nry2[8]; // JBF 20031206: Thanks Ken
 
@@ -8606,7 +8606,6 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         draw_rainbow_background();
 #endif
 
-    //frameoffset = frameplace + viewoffset;
     frameoffset = frameplace + windowy1*bytesperline + windowx1;
 
     //if (smostwallcnt < 0)
@@ -13555,12 +13554,6 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     for (i=windowx1; i<=windowx2; i++)
         { startumost[i] = windowy1, startdmost[i] = windowy2+1; }
     for (i=windowx2+1; i<xdim; i++) { startumost[i] = 1, startdmost[i] = 0; }
-
-    /*
-    begindrawing(); //{{{
-    viewoffset = windowy1*bytesperline + windowx1;
-    enddrawing();   //}}}
-    */
 }
 
 

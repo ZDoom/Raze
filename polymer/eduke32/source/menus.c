@@ -2986,21 +2986,26 @@ cheat_for_port_credits2:
                 break;
                 case 3:
                 {
-                    int32_t i;
-                    i = ud.screen_size;
+                    const int32_t ossize = ud.screen_size;
+
                     barsm(d+8,yy+7, &ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),0);
-                    if (getrendermode() >= REND_POLYMOST && i < ud.screen_size && i == 8 && ud.statusbarmode == 1)
+
+                    // ud.screen_size 8 is the largest classic HUD
+                    if (getrendermode() >= REND_POLYMOST && ossize == 8)
                     {
-                        ud.statusbarmode = 0;
-                        if (ud.statusbarscale != 100)
-                            ud.screen_size = i;
-                    }
-                    else if (getrendermode() >= REND_POLYMOST && i > ud.screen_size && i == 8 && ud.statusbarmode == 0)
-                    {
-                        if (ud.statusbarscale != 100)
+                        if (ud.screen_size > ossize && ud.statusbarmode == 1)
                         {
-                            ud.statusbarmode = 1;
-                            ud.screen_size = i;
+                            ud.statusbarmode = 0;
+                            if (ud.statusbarscale != 100)
+                                ud.screen_size = ossize;
+                        }
+                        else if (ud.screen_size < ossize && ud.statusbarmode == 0)
+                        {
+                            if (ud.statusbarscale != 100)
+                            {
+                                ud.statusbarmode = 1;
+                                ud.screen_size = ossize;
+                            }
                         }
                     }
                 }
@@ -3011,10 +3016,7 @@ cheat_for_port_credits2:
                     sbs = sbsl = ud.statusbarscale-37;
                     barsm(d+8,yy+7, &sbs,4,x==io,MENUHIGHLIGHT(io),0);
                     if (x == io && sbs != sbsl)
-                    {
-                        sbs += 37;
-                        G_SetStatusBarScale(sbs);
-                    }
+                        G_SetStatusBarScale(sbs+37);
                 }
                 break;
                 case 5:
