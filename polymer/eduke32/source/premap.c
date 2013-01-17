@@ -576,39 +576,43 @@ void G_SetupCamTile(int32_t i,int32_t wn)
 
 void G_UpdateScreenArea(void)
 {
-    int32_t i, j, ss, x1, x2, y1, y2;
-
-    if (qsetmode != 200) return;
+    if (qsetmode != 200)
+        return;
 
     ud.screen_size = clamp(ud.screen_size, 0, 64);
-    if (ud.screen_size == 0) flushperms();
+    if (ud.screen_size == 0)
+        flushperms();
 
-    ss = max(ud.screen_size-8,0);
-
-    x1 = scale(ss,xdim,160);
-    x2 = xdim-x1;
-
-    y1 = ss;
-    y2 = 200;
-    if (ud.screen_size > 0 && (GametypeFlags[ud.coop]&GAMETYPE_FRAGBAR) && (g_netServer || ud.multimode > 1))
     {
-        j = 0;
-        for (TRAVERSE_CONNECT(i))
-            if (i > j) j = i;
+        const int32_t ss = max(ud.screen_size-8,0);
 
-        if (j >= 1) y1 += 8;
-        if (j >= 4) y1 += 8;
-        if (j >= 8) y1 += 8;
-        if (j >= 12) y1 += 8;
+        const int32_t x1 = scale(ss,xdim,160);
+        const int32_t x2 = xdim-x1;
+
+        int32_t y1 = ss;
+        int32_t y2 = 200;
+
+        if (ud.screen_size > 0 && (GametypeFlags[ud.coop]&GAMETYPE_FRAGBAR) && (g_netServer || ud.multimode > 1))
+        {
+            int32_t i, j = 0;
+
+            for (TRAVERSE_CONNECT(i))
+                if (i > j) j = i;
+
+            if (j >= 1) y1 += 8;
+            if (j >= 4) y1 += 8;
+            if (j >= 8) y1 += 8;
+            if (j >= 12) y1 += 8;
+        }
+
+        if (ud.screen_size >= 8 && ud.statusbarmode==0)
+            y2 -= (ss+scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100));
+
+        y1 = scale(y1,ydim,200);
+        y2 = scale(y2,ydim,200);
+
+        setview(x1,y1,x2-1,y2-(getrendermode() == REND_CLASSIC));
     }
-
-    if (ud.screen_size >= 8 && !(getrendermode() >= REND_POLYMOST && ud.screen_size == 8 && ud.statusbarmode))
-        y2 -= (ss+scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100));
-
-    y1 = scale(y1,ydim,200);
-    y2 = scale(y2,ydim,200);
-
-    setview(x1,y1,x2-1,y2-(getrendermode() == REND_CLASSIC));
 
     G_GetCrosshairColor();
     G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);

@@ -37,6 +37,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk);
 void G_ResetTimers(void);
 void G_SetCrosshairColor(int32_t r,int32_t g,int32_t b);
 void G_UpdateScreenArea(void);
+void G_SetViewportShrink(int32_t dir);
 void P_RandomSpawnPoint(int32_t snum);
 void P_ResetInventory(int32_t snum);
 void P_ResetPlayer(int32_t snum);

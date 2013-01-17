@@ -2979,44 +2979,29 @@ cheat_for_port_credits2:
                     }
                 case 2:
                 {
-                    int32_t sbs = ud.crosshairscale;
-                    sliderbar(1,d+8,yy+7, &sbs,5,x==io,MENUHIGHLIGHT(io),0,25,100);
-                    ud.crosshairscale = min(100,max(10,sbs));
+                    int32_t chs = ud.crosshairscale;
+                    sliderbar(1,d+8,yy+7, &chs,5,x==io,MENUHIGHLIGHT(io),0,25,100);
+                    ud.crosshairscale = clamp(chs, 10, 100);
                 }
                 break;
                 case 3:
                 {
-                    const int32_t ossize = ud.screen_size;
+                    int32_t vpsize = ud.screen_size + 4*(ud.screen_size>=8 && ud.statusbarmode==0);
+                    const int32_t ovpsize = vpsize;
 
-                    barsm(d+8,yy+7, &ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),0);
+                    sliderbar(1,d+8,yy+7, &vpsize,-4,x==io,MENUHIGHLIGHT(io),0,0,68);
 
-                    // ud.screen_size 8 is the largest classic HUD
-                    if (getrendermode() >= REND_POLYMOST && ossize == 8)
-                    {
-                        if (ud.screen_size > ossize && ud.statusbarmode == 1)
-                        {
-                            ud.statusbarmode = 0;
-                            if (ud.statusbarscale != 100)
-                                ud.screen_size = ossize;
-                        }
-                        else if (ud.screen_size < ossize && ud.statusbarmode == 0)
-                        {
-                            if (ud.statusbarscale != 100)
-                            {
-                                ud.statusbarmode = 1;
-                                ud.screen_size = ossize;
-                            }
-                        }
-                    }
+                    if (vpsize-ovpsize)
+                        G_SetViewportShrink(vpsize-ovpsize);
                 }
                 break;
                 case 4:
                 {
-                    int32_t sbs, sbsl;
-                    sbs = sbsl = ud.statusbarscale-37;
-                    barsm(d+8,yy+7, &sbs,4,x==io,MENUHIGHLIGHT(io),0);
-                    if (x == io && sbs != sbsl)
-                        G_SetStatusBarScale(sbs+37);
+                    int32_t sbs = ud.statusbarscale;
+                    const int32_t osbs = sbs;
+                    sliderbar(1,d+8,yy+7, &sbs,4,x==io,MENUHIGHLIGHT(io),0,36,100);
+                    if (x == io && sbs != osbs)
+                        G_SetStatusBarScale(sbs);
                 }
                 break;
                 case 5:

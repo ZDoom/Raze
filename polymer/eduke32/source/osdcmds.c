@@ -1326,7 +1326,14 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 
     if (r != OSDCMD_OK) return r;
 
-    if (!Bstrcasecmp(parm->name, "r_maxfps"))
+    if (!Bstrcasecmp(parm->name, "r_size"))
+    {
+        ud.statusbarmode = (ud.screen_size < 8);
+        G_UpdateScreenArea();
+
+        return r;
+    }
+    else if (!Bstrcasecmp(parm->name, "r_maxfps"))
     {
         if (r_maxfps) g_frameDelay = (1000/r_maxfps);
         else g_frameDelay = 0;
@@ -1456,7 +1463,7 @@ int32_t registerosdcommands(void)
         { "hud_shadows", "hud_shadows: enable/disable althud shadows", (void *)&althud_shadows, CVAR_BOOL, 0, 1 },
         { "hud_flashing", "hud_flashing: enable/disable althud flashing", (void *)&althud_flashing, CVAR_BOOL, 0, 1 },
         { "hud_glowingquotes", "hud_glowingquotes: enable/disable \"glowing\" quote text", (void *)&hud_glowingquotes, CVAR_BOOL, 0, 1 },
-        { "hud_scale","hud_scale: changes the hud scale", (void *)&ud.statusbarscale, CVAR_INT|CVAR_FUNCPTR, 10, 100 },
+        { "hud_scale","hud_scale: changes the hud scale", (void *)&ud.statusbarscale, CVAR_INT|CVAR_FUNCPTR, 36, 100 },
         { "hud_showmapname", "hud_showmapname: enable/disable map name display on load", (void *)&hud_showmapname, CVAR_BOOL, 0, 1 },
         { "hud_stats", "hud_stats: enable/disable level statistics display", (void *)&ud.levelstats, CVAR_BOOL, 0, 1 },
         { "hud_textscale", "hud_textscale: sets multiplayer chat message size", (void *)&ud.textscale, CVAR_INT, 100, 400 },
@@ -1483,7 +1490,7 @@ int32_t registerosdcommands(void)
         { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "r_showfps: show the frame rate counter", (void *)&ud.tickrate, CVAR_BOOL, 0, 1 },
         { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
-        { "r_size", "r_size: change size of viewable area", (void *)&ud.screen_size, CVAR_INT, 0, 64 },
+        { "r_size", "r_size: change size of viewable area", (void *)&ud.screen_size, CVAR_INT|CVAR_FUNCPTR, 0, 64 },
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void *)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
 
         { "r_ambientlight", "r_ambientlight: sets the global map light level",(void *)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },

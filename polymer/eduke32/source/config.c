@@ -230,7 +230,7 @@ void CONFIG_SetDefaults(void)
     ud.screen_size = 4;
     ud.screen_tilting = 1;
     ud.shadows = 1;
-    ud.statusbarmode = 0;
+    ud.statusbarmode = 1;
     ud.statusbarscale = 100;
     ud.team = 0;
     ud.viewbob = 1;

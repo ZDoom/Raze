@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 EXTERN_INLINE void G_SetStatusBarScale(int32_t sc)
 {
-    ud.statusbarscale = min(100,max(10,sc));
+    ud.statusbarscale = clamp(sc, 36, 100);
     G_UpdateScreenArea();
 }
 

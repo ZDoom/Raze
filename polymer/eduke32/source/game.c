@@ -1939,7 +1939,6 @@ void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
 {
     setpalettefade(r,g,b,e&63);
 
-//    if (getrendermode() >= REND_POLYMOST) pus = pub = NUMPAGES; // JBF 20040110: redraw the status bar next time
     if ((e&128) == 0)
     {
         int32_t tc;
@@ -2604,7 +2603,7 @@ static void G_FadePalaccum(const palaccum_t *pa)
 
 void G_DisplayRest(int32_t smoothratio)
 {
-    int32_t a, i, j;
+    int32_t i, j;
     palaccum_t tint = PALACCUM_INITIALIZER;
 
     DukePlayer_t *const pp = g_player[screenpeek].ps;
@@ -2783,8 +2782,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             if (ud.overhead_on == 2)
             {
-                if (ud.screen_size > 0) a = 147;
-                else a = 179;
+                const int32_t a = (ud.screen_size > 0) ? 147 : 179;
                 minitext(5,a+6,EpisodeNames[ud.volume_number],0,2+8+16+256);
                 minitext(5,a+6+6,MapInfo[ud.volume_number*MAXLEVELS + ud.level_number].name,0,2+8+16+256);
             }
@@ -2870,7 +2868,8 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
     {
-        a = VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        int32_t a = VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+
         if (a == 0 || a > 1)
         {
             int32_t x, y;
@@ -2939,20 +2938,12 @@ void G_DisplayRest(int32_t smoothratio)
         const DukePlayer_t *myps = g_player[myconnectindex].ps;
 
         if (ud.screen_size == 4)
-        {
             i = sbarsc(ud.althud?tilesizy[BIGALPHANUM]+10:tilesizy[INVENTORYBOX]+2);
-//            j = sbarsc(scale(6,ud.config.ScreenWidth,320));
-        }
         else if (ud.screen_size > 2)
-        {
             i = sbarsc(tilesizy[BOTTOMSTATUSBAR]+1);
-            //          j = scale(2,ud.config.ScreenWidth,320);
-        }
         else
-        {
             i = 2;
-            //        j = scale(2,ud.config.ScreenWidth,320);
-        }
+
         j = scale(2,ud.config.ScreenWidth,320);
 
 
@@ -2978,12 +2969,14 @@ void G_DisplayRest(int32_t smoothratio)
                          myps->max_actors_killed>myps->actors_killed?
                          myps->max_actors_killed:myps->actors_killed);
         }
+
         G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(14),
                         tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (myps->secret_rooms == myps->max_secret_rooms)
             Bsprintf(tempbuf,"S:%d/%d", myps->secret_rooms, myps->max_secret_rooms);
         else Bsprintf(tempbuf,"S:^15%d/%d", myps->secret_rooms, myps->max_secret_rooms);
+
         G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(7),
                         tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
     }
@@ -3099,12 +3092,10 @@ static void G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsect
 //REPLACE FULLY
 void G_DrawBackground(void)
 {
-    int32_t dapicnum;
+    const int32_t dapicnum = BIGHOLE;
     int32_t x,y,x1,y1,x2,y2,rx;
 
     flushperms();
-
-    dapicnum = BIGHOLE;
 
     if (tilesizx[dapicnum] == 0 || tilesizy[dapicnum] == 0)
     {
@@ -7518,6 +7509,15 @@ FOUNDCHEAT:
     }
 }
 
+void G_SetViewportShrink(int32_t dir)
+{
+    if (ud.screen_size == 8 && dir!=0 && (dir>0)==(int32_t)ud.statusbarmode)
+        ud.statusbarmode = !ud.statusbarmode;
+    else
+        ud.screen_size += dir;
+    G_UpdateScreenArea();
+}
+
 void G_HandleLocalKeys(void)
 {
     int32_t i,ch;
@@ -7551,16 +7551,9 @@ void G_HandleLocalKeys(void)
             if (!SHIFTS_IS_PRESSED)
             {
                 if (ud.screen_size > 0)
-                    S_PlaySound(THUD);
-
-                if (getrendermode() >= REND_POLYMOST && ud.screen_size == 8 && ud.statusbarmode == 0)
-                    ud.statusbarmode = 1;
-                else ud.screen_size -= 4;
-
-                if (ud.statusbarscale == 100 && ud.statusbarmode == 1)
                 {
-                    ud.statusbarmode = 0;
-                    ud.screen_size -= 4;
+                    S_PlaySound(THUD);
+                    G_SetViewportShrink(-4);
                 }
             }
             else
@@ -7578,15 +7571,14 @@ void G_HandleLocalKeys(void)
             if (!SHIFTS_IS_PRESSED)
             {
                 if (ud.screen_size < 64)
+                {
                     S_PlaySound(THUD);
-
-                if (getrendermode() >= REND_POLYMOST && ud.screen_size == 8 && ud.statusbarmode == 1)
-                    ud.statusbarmode = 0;
-                else ud.screen_size += 4;
+                    G_SetViewportShrink(+4);
+                }
             }
             else
             {
-                G_SetStatusBarScale(max(ud.statusbarscale-4, 37));
+                G_SetStatusBarScale(ud.statusbarscale-4);
             }
 
             G_UpdateScreenArea();
@@ -10814,11 +10806,6 @@ MAIN_LOOP_RESTART:
         if (framewaiting)
         {
             framewaiting--;
-            if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || getrendermode() == REND_CLASSIC))
-            {
-                ud.statusbarmode = 0;
-                G_UpdateScreenArea();
-            }
             nextpage();
         }
 
