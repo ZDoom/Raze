@@ -110,7 +110,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
 
-float shadescale = 1.3f;
+float shadescale = 1.0f;
 int32_t shadescale_unbounded = 0;
 
 int32_t r_usenewshading = 2;
