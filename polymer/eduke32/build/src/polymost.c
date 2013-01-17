@@ -952,10 +952,32 @@ void invalidatecache(void)
         initprintf("Deleted and reopened \"%s\" as cache file\n", TEXCACHEFILE);
 }
 
+static float get_projhack_ratio(void)
+{
+    // Legacy widescreen
+    if (glwidescreen && !r_usenewaspect)
+        return 1.2f;
+
+    if (glprojectionhacks == 1)
+    {
+        double mul = (gshang*gshang);
+        return 1.05f + mul*mul*mul*mul;
+    }
+
+    if (glprojectionhacks == 2)
+    {
+        float abs_shang = fabs(gshang);
+        if (abs_shang > 0.7f)
+            return 1.05f + 4.f*(abs_shang-0.7f);
+    }
+
+    // No projection hacks (legacy or new-aspect)
+    return 1.0f;
+}
+
 static void resizeglcheck(void)
 {
     float m[4][4];
-    int32_t fovcorrect;
 
     if (glredbluemode < lastglredbluemode)
     {
@@ -992,41 +1014,23 @@ static void resizeglcheck(void)
 
     if ((glox1 != windowx1) || (gloy1 != windowy1) || (glox2 != windowx2) || (gloy2 != windowy2))
     {
-        double ratio = 1.05;
-
-        if (glwidescreen && !r_usenewaspect)
-            ratio = 1.2f;
-        else if (glprojectionhacks == 1)
-        {
-            double mul = (gshang*gshang);
-            ratio += mul*mul*mul*mul;
-        }
-        else if (glprojectionhacks == 2)
-        {
-            if (gshang > 0.7f)
-                ratio += 4.f*(gshang-0.7f);
-            if (gshang < -0.7f)
-                ratio += 4.f*(-gshang-0.7f);
-        }
+        const int32_t ourxdimen = (windowx2-windowx1+1);
+        const float ratio = get_projhack_ratio();
+        const int32_t fovcorrect = (ratio==0) ? 0 : (int32_t)(ourxdimen*ratio - ourxdimen);
 
         glox1 = (float)windowx1; gloy1 = (float)windowy1;
         glox2 = (float)windowx2; gloy2 = (float)windowy2;
 
-        fovcorrect = (int32_t)(glprojectionhacks ?
-                               ((glwidescreen && !r_usenewaspect) ? 0 :
-                                (((windowx2-windowx1+1) * ratio) - (windowx2-windowx1+1))):0);
-
         bglViewport(windowx1-(fovcorrect/2), yres-(windowy2+1),
-                    windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
+                    ourxdimen+fovcorrect, windowy2-windowy1+1);
 
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
-        m[0][0] = (float)ydimen / (glprojectionhacks?ratio:1.f); m[0][2] = 1.0;
+        m[0][0] = (float)ydimen / ratio; m[0][2] = 1.0;
         m[1][1] = (float)xdimen; m[1][2] = 1.0;
-        m[2][2] = 1.0; m[2][3] = (float)ydimen / (glprojectionhacks?ratio:1.f);
+        m[2][2] = 1.0; m[2][3] = (float)ydimen / ratio;
         m[3][2] =-1.0;
         bglLoadMatrixf(&m[0][0]);
-        //bglLoadIdentity();
 
         bglMatrixMode(GL_MODELVIEW);
         bglLoadIdentity();
@@ -4446,24 +4450,8 @@ void polymost_drawrooms()
         int32_t cz, fz;
         hitdata_t hit;
         vec3_t vect;
-        double ratio = 1.05;
 
-#ifdef USE_OPENGL
-        if (glwidescreen)
-            ratio = 1.2f;
-        else if (glprojectionhacks == 1)
-        {
-            double mul = (gshang*gshang);
-            ratio += mul*mul*mul*mul;
-        }
-        else if (glprojectionhacks == 2)
-        {
-            if (gshang > 0.7f)
-                ratio += 4.f*(gshang-0.7f);
-            if (gshang < -0.7f)
-                ratio += 4.f*(-gshang-0.7f);
-        }
-#endif
+        const float ratio = get_projhack_ratio();
 
         ox2 = (searchx-ghalfx)/ratio;
         oy2 = (searchy-ghoriz)/ratio;  // ghoriz is (ydimen>>1) here
