@@ -11654,7 +11654,7 @@ restart_grand:
             case 16:
             {
                 int32_t ucoefup16;
-                const int32_t tilenum = spr->picnum;
+                int32_t tilenum = spr->picnum;
 
                 get_wallspr_points(spr, &x1, &x2, &y1, &y2);
 
@@ -11672,6 +11672,8 @@ restart_grand:
                 {
                     if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)
                     {
+                        DO_TILE_ANIM(tilenum, 0);
+
                         if (!waloff[tilenum])
                             loadtile(tilenum);
 
