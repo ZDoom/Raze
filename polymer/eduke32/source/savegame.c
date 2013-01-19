@@ -1744,8 +1744,8 @@ static void postloadplayer(int32_t savegamep)
     //1
     if (g_player[myconnectindex].ps->over_shoulder_on != 0)
     {
-        g_cameraDistance = 0;
-        g_cameraClock = 0;
+        CAMERADIST = 0;
+        CAMERACLOCK = 0;
         g_player[myconnectindex].ps->over_shoulder_on = 1;
     }
 

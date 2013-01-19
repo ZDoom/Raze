@@ -74,8 +74,28 @@ typedef enum basepal_ {
 
 void A_DeleteSprite(int32_t s);
 
+#ifdef LUNATIC
 typedef struct {
-    vec3_t camera;
+    vec3_t pos;
+    int32_t dist, clock;
+    int16_t ang, horiz, sect;
+} camera_t;
+
+extern camera_t g_camera;
+
+# define CAMERA(Membname) (g_camera.Membname)
+# define CAMERADIST (g_camera.dist)
+# define CAMERACLOCK (g_camera.clock)
+#else
+# define CAMERA(Membname) (ud.camera ## Membname)
+# define CAMERADIST g_cameraDistance
+# define CAMERACLOCK g_cameraClock
+#endif
+
+typedef struct {
+#if !defined LUNATIC
+    vec3_t camerapos;
+#endif
     int32_t const_visibility,uw_framerate;
     int32_t camera_time,folfvel,folavel,folx,foly,fola;
     int32_t reccnt,crosshairscale;
@@ -95,8 +115,9 @@ typedef struct {
     int32_t player_skill,level_number,volume_number,m_marker,marker,mouseflip;
 
     int32_t configversion;
-
+#if !defined LUNATIC
     int16_t cameraang, camerasect, camerahoriz;
+#endif
     int16_t pause_on,from_bonus;
     int16_t camerasprite,last_camsprite;
     int16_t last_level,secretlevel, bgstretch;
@@ -204,9 +225,10 @@ extern int32_t althud_shadows;
 extern int32_t cacnum;
 //extern int32_t drawing_ror;
 extern int32_t g_Shareware;
+#if !defined LUNATIC
 extern int32_t g_cameraClock;
 extern int32_t g_cameraDistance;
-extern int32_t g_cameraDistance;
+#endif
 extern int32_t g_crosshairSum;
 extern int32_t g_doQuickSave;
 extern int32_t g_forceWeaponChoice;

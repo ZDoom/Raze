@@ -5418,7 +5418,7 @@ VOLUME_ALL_40x:
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)
     {
         G_UpdateScreenArea();
-        g_cameraClock = totalclock;
-        g_cameraDistance = 65536L;
+        CAMERACLOCK = totalclock;
+        CAMERADIST = 65536;
     }
 }

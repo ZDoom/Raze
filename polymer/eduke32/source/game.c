@@ -89,7 +89,11 @@ static int32_t usecwd = 0;
 
 int32_t g_quitDeadline = 0;
 
+#ifdef LUNATIC
+camera_t g_camera;
+#else
 int32_t g_cameraDistance = 0, g_cameraClock = 0;
+#endif
 static int32_t g_quickExit;
 static int32_t g_commandSetup = 0;
 int32_t g_noSetup = 0;
@@ -2833,8 +2837,8 @@ void G_DisplayRest(int32_t smoothratio)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
-                g_cameraClock = totalclock;
-                g_cameraDistance = 65536L;
+                CAMERACLOCK = totalclock;
+                CAMERADIST = 65536;
             }
             walock[TILE_SAVESHOT] = 199;
             G_UpdateScreenArea();
@@ -3075,14 +3079,14 @@ static void G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsect
         }
         if (klabs(n.x) > klabs(n.y)) i = divscale16(hx,n.x);
         else i = divscale16(hy,n.y);
-        if (i < g_cameraDistance) g_cameraDistance = i;
+        if (i < CAMERADIST) CAMERADIST = i;
     }
-    vect->x += mulscale16(n.x,g_cameraDistance);
-    vect->y += mulscale16(n.y,g_cameraDistance);
-    vect->z += mulscale16(n.z,g_cameraDistance);
+    vect->x += mulscale16(n.x,CAMERADIST);
+    vect->y += mulscale16(n.y,CAMERADIST);
+    vect->z += mulscale16(n.z,CAMERADIST);
 
-    g_cameraDistance = min(g_cameraDistance+((totalclock-g_cameraClock)<<10),65536);
-    g_cameraClock = totalclock;
+    CAMERADIST = min(CAMERADIST+((totalclock-CAMERACLOCK)<<10),65536);
+    CAMERACLOCK = totalclock;
 
     updatesectorz(vect->x,vect->y,vect->z,vsectnum);
 
@@ -3228,9 +3232,9 @@ static void G_SE40(int32_t smoothratio)
         if (klabs(sector[sp->sectnum].floorz - sp->z) < klabs(sector[sprite[sprite2].sectnum].floorz - sprite[sprite2].z))
             level = 1;
 
-        x = ud.camera.x - sp->x;
-        y = ud.camera.y - sp->y;
-        z = ud.camera.z - (level ? sector[sp->sectnum].floorz : sector[sp->sectnum].ceilingz);
+        x = CAMERA(pos.x) - sp->x;
+        y = CAMERA(pos.y) - sp->y;
+        z = CAMERA(pos.z) - (level ? sector[sp->sectnum].floorz : sector[sp->sectnum].ceilingz);
 
         sect = sprite[sprite2].sectnum;
         updatesector(sprite[sprite2].x + x, sprite[sprite2].y + y, &sect);
@@ -3291,11 +3295,11 @@ static void G_SE40(int32_t smoothratio)
 
 #ifdef POLYMER
             if (getrendermode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, ud.camera.x, ud.camera.y, ud.cameraang, smoothratio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), CAMERA(ang), smoothratio);
 #endif
 
             drawrooms(sprite[sprite2].x + x, sprite[sprite2].y + y,
-                      z + renderz, ud.cameraang, ud.camerahoriz, sect);
+                      z + renderz, CAMERA(ang), CAMERA(horiz), sect);
             drawing_ror = 1 + level;
 
             // dupe the sprites touching the portal to the other sector
@@ -3323,7 +3327,7 @@ static void G_SE40(int32_t smoothratio)
                 }
             }
 
-            G_DoSpriteAnimations(ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
+            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothratio);
             drawmasks();
 
             if (level)
@@ -3472,7 +3476,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     g_visibility = (int32_t)(p->visibility * (numplayers > 1 ? 1.f : r_ambientlightrecip));
 
-    ud.camerasect = p->cursectnum;
+    CAMERA(sect) = p->cursectnum;
 
     G_DoInterpolations(smoothratio);
     G_AnimateCamSprite();
@@ -3485,19 +3489,19 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         if (s->yvel < 0) s->yvel = -100;
         else if (s->yvel > 199) s->yvel = 300;
 
-        ud.cameraang = actor[ud.camerasprite].tempang +
+        CAMERA(ang) = actor[ud.camerasprite].tempang +
             mulscale16(((s->ang+1024-actor[ud.camerasprite].tempang)&2047)-1024, smoothratio);
 
         G_SE40(smoothratio);
 
 #ifdef POLYMER
         if (getrendermode() == REND_POLYMER)
-            polymer_setanimatesprites(G_DoSpriteAnimations, s->x, s->y, ud.cameraang, smoothratio);
+            polymer_setanimatesprites(G_DoSpriteAnimations, s->x, s->y, CAMERA(ang), smoothratio);
 #endif
         yax_preparedrawrooms();
-        drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
+        drawrooms(s->x,s->y,s->z-(4<<8),CAMERA(ang),s->yvel,s->sectnum);
         yax_drawrooms(G_DoSpriteAnimations, s->sectnum, 0, smoothratio);
-        G_DoSpriteAnimations(s->x,s->y,ud.cameraang,smoothratio);
+        G_DoSpriteAnimations(s->x,s->y,CAMERA(ang),smoothratio);
         drawmasks();
     }
     else
@@ -3606,10 +3610,10 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                            p->opos.z+mulscale16(p->pos.z-p->opos.z, smoothratio)
                          };
 
-            Bmemcpy(&ud.camera, &cam, sizeof(vec3_t));
-            ud.cameraang = p->oang + mulscale16(((p->ang+1024-p->oang)&2047)-1024, smoothratio);
-            ud.cameraang += p->look_ang;
-            ud.camerahoriz = p->ohoriz+p->ohorizoff
+            Bmemcpy(&CAMERA(pos), &cam, sizeof(vec3_t));
+            CAMERA(ang) = p->oang + mulscale16(((p->ang+1024-p->oang)&2047)-1024, smoothratio);
+            CAMERA(ang) += p->look_ang;
+            CAMERA(horiz) = p->ohoriz+p->ohorizoff
                 + mulscale16((p->horiz+p->horizoff-p->ohoriz-p->ohorizoff), smoothratio);
 
             if (ud.viewbob)
@@ -3618,22 +3622,22 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 if (p->over_shoulder_on)
                     addz >>= 3;
 
-                ud.camera.z += addz;
+                CAMERA(pos.z) += addz;
             }
 
             if (p->over_shoulder_on)
             {
-                ud.camera.z -= 3072;
-                G_DoThirdPerson(p,&ud.camera,&ud.camerasect,ud.cameraang,ud.camerahoriz);
+                CAMERA(pos.z) -= 3072;
+                G_DoThirdPerson(p,&CAMERA(pos),&CAMERA(sect),CAMERA(ang),CAMERA(horiz));
             }
         }
         else
         {
             // looking through viewscreen
-            Bmemcpy(&ud.camera, &p->pos, sizeof(vec3_t));
-            ud.cameraang = p->ang + p->look_ang;
-            ud.camerahoriz = 100+sprite[p->newowner].shade;
-            ud.camerasect = sprite[p->newowner].sectnum;
+            Bmemcpy(&CAMERA(pos), &p->pos, sizeof(vec3_t));
+            CAMERA(ang) = p->ang + p->look_ang;
+            CAMERA(horiz) = 100+sprite[p->newowner].shade;
+            CAMERA(sect) = sprite[p->newowner].sectnum;
             smoothratio = 65536;
         }
 
@@ -3642,53 +3646,53 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         if (g_earthquakeTime > 0 && p->on_ground == 1)
         {
-            ud.camera.z += 256-(((g_earthquakeTime)&1)<<9);
-            ud.cameraang += (2-((g_earthquakeTime)&2))<<2;
+            CAMERA(pos.z) += 256-(((g_earthquakeTime)&1)<<9);
+            CAMERA(ang) += (2-((g_earthquakeTime)&2))<<2;
         }
 
         if (sprite[p->i].pal == 1)
-            ud.camera.z -= (18<<8);
+            CAMERA(pos.z) -= (18<<8);
 
         if (p->newowner < 0 && p->spritebridge == 0)
         {
             // NOTE: when shrunk, p->pos.z can be below the floor.  This puts the
             // camera into the sector again then.
 
-            if (ud.camera.z < (p->truecz + (4<<8)))
-                ud.camera.z = cz + (4<<8);
-            else if (ud.camera.z > (p->truefz - (4<<8)))
-                ud.camera.z = fz - (4<<8);
+            if (CAMERA(pos.z) < (p->truecz + (4<<8)))
+                CAMERA(pos.z) = cz + (4<<8);
+            else if (CAMERA(pos.z) > (p->truefz - (4<<8)))
+                CAMERA(pos.z) = fz - (4<<8);
         }
 
-        while (ud.camerasect >= 0)  // if, really
+        while (CAMERA(sect) >= 0)  // if, really
         {
-            getzsofslope(ud.camerasect,ud.camera.x,ud.camera.y,&cz,&fz);
+            getzsofslope(CAMERA(sect),CAMERA(pos.x),CAMERA(pos.y),&cz,&fz);
 #ifdef YAX_ENABLE
-            if (yax_getbunch(ud.camerasect, YAX_CEILING) >= 0)
+            if (yax_getbunch(CAMERA(sect), YAX_CEILING) >= 0)
             {
-                if (ud.camera.z < cz)
+                if (CAMERA(pos.z) < cz)
                 {
-                    updatesectorz(ud.camera.x, ud.camera.y, ud.camera.z, &ud.camerasect);
-                    break;  // since ud.camerasect might have been updated to -1
+                    updatesectorz(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), &CAMERA(sect));
+                    break;  // since CAMERA(sect) might have been updated to -1
                     // NOTE: fist discovered in WGR2 SVN r134, til' death level 1
                     //  (Lochwood Hollow).  A problem REMAINS with Polymost, maybe classic!
                 }
             }
             else
 #endif
-                if (ud.camera.z < cz+(4<<8))
-                    ud.camera.z = cz+(4<<8);
+                if (CAMERA(pos.z) < cz+(4<<8))
+                    CAMERA(pos.z) = cz+(4<<8);
 
 #ifdef YAX_ENABLE
-            if (yax_getbunch(ud.camerasect, YAX_FLOOR) >= 0)
+            if (yax_getbunch(CAMERA(sect), YAX_FLOOR) >= 0)
             {
-                if (ud.camera.z > fz)
-                    updatesectorz(ud.camera.x, ud.camera.y, ud.camera.z, &ud.camerasect);
+                if (CAMERA(pos.z) > fz)
+                    updatesectorz(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), &CAMERA(sect));
             }
             else
 #endif
-                if (ud.camera.z > fz-(4<<8))
-                    ud.camera.z = fz-(4<<8);
+                if (CAMERA(pos.z) > fz-(4<<8))
+                    CAMERA(pos.z) = fz-(4<<8);
 
             break;
         }
@@ -3699,7 +3703,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         if (G_HaveEvent(EVENT_DISPLAYROOMS))
             dont_draw = VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
-        ud.camerahoriz = clamp(ud.camerahoriz, HORIZ_MIN, HORIZ_MAX);
+        CAMERA(horiz) = clamp(CAMERA(horiz), HORIZ_MIN, HORIZ_MAX);
 
         if (dont_draw != 1)  // event return values other than 0 and 1 are reserved
         {
@@ -3707,21 +3711,21 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
                            "other values are reserved.\n");
 
-            G_HandleMirror(ud.camera.x, ud.camera.y, ud.camera.z, ud.cameraang, ud.camerahoriz, smoothratio);
+            G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(ang), CAMERA(horiz), smoothratio);
 
             G_SE40(smoothratio);
 
 #ifdef POLYMER
             if (getrendermode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothratio);
 #endif
             // for G_PrintCoords
             dr_viewingrange = viewingrange;
             dr_yxaspect = yxaspect;
 
             yax_preparedrawrooms();
-            drawrooms(ud.camera.x,ud.camera.y,ud.camera.z,ud.cameraang,ud.camerahoriz,ud.camerasect);
-            yax_drawrooms(G_DoSpriteAnimations, ud.camerasect, 0, smoothratio);
+            drawrooms(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(ang),CAMERA(horiz),CAMERA(sect));
+            yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothratio);
 
             // dupe the sprites touching the portal to the other sector
 
@@ -3753,7 +3757,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 }
             }
 
-            G_DoSpriteAnimations(ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
+            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothratio);
 
             drawing_ror = 0;
             drawmasks();
@@ -7363,8 +7367,8 @@ FOUNDCHEAT:
                     else
                     {
                         g_player[myconnectindex].ps->over_shoulder_on = 1;
-                        g_cameraDistance = 0;
-                        g_cameraClock = totalclock;
+                        CAMERADIST = 0;
+                        CAMERACLOCK = totalclock;
                     }
 //                    P_DoQuote(QUOTE_CHEATS_DISABLED,g_player[myconnectindex].ps);
                     end_cheat();
@@ -7976,8 +7980,8 @@ FAKE_F3:
             else
             {
                 g_player[myconnectindex].ps->over_shoulder_on = 1;
-                g_cameraDistance = 0;
-                g_cameraClock = totalclock;
+                CAMERADIST = 0;
+                CAMERACLOCK = totalclock;
             }
             P_DoQuote(QUOTE_VIEW_MODE_OFF+g_player[myconnectindex].ps->over_shoulder_on,g_player[myconnectindex].ps);
         }

@@ -600,10 +600,10 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
                 return -1;
     }
 
-    cs = ud.camerasect;
-    ca = ud.cameraang;
+    cs = CAMERA(sect);
+    ca = CAMERA(ang);
 
-    explosionp = S_CalcDistAndAng(i, num, cs, ca, &ud.camera, pos, &sndist, &sndang);
+    explosionp = S_CalcDistAndAng(i, num, cs, ca, &CAMERA(pos), pos, &sndist, &sndang);
 
     pitch = S_GetPitch(num);
     peekps = g_player[screenpeek].ps;
@@ -828,9 +828,9 @@ void S_Update(void)
 
     if (ud.camerasprite == -1)
     {
-        c = &ud.camera;
-        cs = ud.camerasect;
-        ca = ud.cameraang;
+        c = &CAMERA(pos);
+        cs = CAMERA(sect);
+        ca = CAMERA(ang);
     }
     else
     {

@@ -339,6 +339,13 @@ typedef struct {
 } tiledata_t;
 #pragma pack(pop)
 
+typedef struct {
+    vec3_t pos;
+    int32_t dist, clock;
+    int16_t ang, horiz;
+    int16_t sect;
+} camera_t;
+
 // NOTE: not packed!
 typedef struct {
 ]] .. table.concat(con_lang.wdata_members, ';')..';' .. [[
@@ -355,7 +362,6 @@ enum
 
 // NOTE: not packed!
 typedef struct {
-    vec3_t camera;
     int32_t const_visibility,uw_framerate;
     int32_t camera_time,folfvel,folavel,folx,foly,fola;
     int32_t reccnt,crosshairscale;
@@ -376,7 +382,6 @@ typedef struct {
 
     int32_t configversion;
 
-    int16_t cameraang, camerasect, camerahoriz;
     int16_t pause_on,from_bonus;
     int16_t camerasprite,last_camsprite;
     int16_t last_level,secretlevel, bgstretch;

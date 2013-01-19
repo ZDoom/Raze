@@ -466,7 +466,7 @@ static void P_PreFireHitscan(int32_t i, int32_t p, int32_t atwith,
     if (G_HaveEvent(EVENT_GETSHOTRANGE))
         VM_OnEvent(EVENT_GETSHOTRANGE, i,p, -1, 0);
 
-#if defined LUNATIC
+#ifdef LUNATIC
     angRange = ps->angrange;
     zRange = ps->zrange;
 #else
