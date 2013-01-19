@@ -1271,7 +1271,20 @@ static void Gv_AddSystemVars(void)
         ADDWEAPONVAR(i, SelectSound);
         ADDWEAPONVAR(i, FlashColor);
     }
-#if !defined LUNATIC_ONLY
+#ifdef LUNATIC
+    for (i=0; i<MAXPLAYERS; i++)
+    {
+        DukePlayer_t *ps = g_player[i].ps;
+
+        ps->pipebombControl = NAM ? PIPEBOMB_TIMER : PIPEBOMB_REMOTE;
+        ps->pipebombLifetime = NAM_GRENADE_LIFETIME;
+        ps->pipebombLifetimeVar = NAM_GRENADE_LIFETIME_VAR;
+
+        ps->tripbombControl = TRIPBOMB_TRIPWIRE;
+        ps->tripbombLifetime = NAM_GRENADE_LIFETIME;
+        ps->tripbombLifetimeVar = NAM_GRENADE_LIFETIME_VAR;
+    }
+#else
     Gv_NewVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Gv_NewVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 

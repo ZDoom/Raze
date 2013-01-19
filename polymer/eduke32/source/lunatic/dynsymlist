@@ -11,9 +11,15 @@ numsectors;
 numwalls;
 numyaxbunches;
 
+rendmode;
 totalclock;
+randomseed;
 xdim;
 ydim;
+windowx1;
+windowy1;
+windowx2;
+windowy2;
 
 yax_getbunch;
 
@@ -85,11 +91,13 @@ g_tile;
 ScriptQuotes;
 
 screenpeek;
+hudweap;
 playerswhenstarted;
 lastvisinc;
 g_spriteDeleteQueueSize;
 BlimpSpawnSprites;
 g_scriptVersion;
+g_currentFrameRate;
 
 luaJIT_BC_lunacon;
 luaJIT_BC_con_lang;

@@ -11,9 +11,15 @@ numsectors;
 numwalls;
 numyaxbunches;
 
+rendmode;
 totalclock;
+randomseed;
 xdim;
 ydim;
+windowx1;
+windowy1;
+windowx2;
+windowy2;
 
 yax_getbunch;
 

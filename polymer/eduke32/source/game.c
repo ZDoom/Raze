@@ -10405,10 +10405,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
     Net_GetPackets();
 
-    G_Startup(); // a bunch of stuff including compiling cons
-
-    g_player[0].playerquitflag = 1;
-
+    // NOTE: Allocating the DukePlayer_t structs has to be before compiling scripts,
+    // because in Lunatic, the {pipe,trip}bomb* members are initialized.
     for (i=0; i<MAXPLAYERS; i++)
     {
         if (!g_player[i].ps) g_player[i].ps = (DukePlayer_t *)Bcalloc(1, sizeof(DukePlayer_t));
@@ -10417,6 +10415,10 @@ int32_t app_main(int32_t argc, const char **argv)
 #endif
         if (!g_player[i].sync) g_player[i].sync = (input_t *)Bcalloc(1, sizeof(input_t));
     }
+
+    G_Startup(); // a bunch of stuff including compiling cons
+
+    g_player[0].playerquitflag = 1;
 
     g_player[myconnectindex].ps->palette = BASEPAL;
 

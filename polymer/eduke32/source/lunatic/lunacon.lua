@@ -156,10 +156,21 @@ local function new_initial_gvartab()
 
         xdim = RO "_gv.xdim",
         ydim = RO "_gv.ydim",
+        windowx1 = RO "_gv.windowx1",
+        windowy1 = RO "_gv.windowy1",
+        windowx2 = RO "_gv.windowx2",
+        windowy2 = RO "_gv.windowy2",
 
         numsectors = RO "_gv.numsectors",
         NUMSECTORS = RO "_gv.numsectors",
         NUMWALLS = RO "_gv.numwalls",
+
+        randomseed = RW "_gv.randomseed",
+        totalclock = RO "_gv.totalclock",
+        framerate = RO "_gv._get_framerate()",
+        rendmode = RO "_gv.currentRenderMode()",
+
+        screenpeek = RO "_gv.screenpeek",
 
         camerax = RW "_gv.cam.pos.x",
         cameray = RW "_gv.cam.pos.y",
@@ -169,6 +180,30 @@ local function new_initial_gvartab()
         camerasect = RW "_gv.cam.sect",
         cameradist = RW "_gv.cam.dist",
         cameraclock = RW "_gv.cam.clock",
+
+        -- HUD weapon gamevars
+        currentweapon = RW "_gv.hudweap.cur",
+        weaponcount = RW "_gv.hudweap.count",
+        weapon_xoffset = RW "_gv.hudweap.gunposx",
+        looking_angSR1 = RW "_gv.hudweap.lookhalfang",
+        gun_pos = RW "_gv.hudweap.gunposy",
+        looking_arc = RW "_gv.hudweap.lookhoriz",
+        gs = RW "_gv.hudweap.shade",
+
+        -- Some per-player gamevars
+        ZRANGE = RW(PLS".zrange"),
+        ANGRANGE = RW(PLS".angrange"),
+        AUTOAIMANGLE = RW(PLS".autoaimang"),
+
+        PIPEBOMB_CONTROL = RW(PLS".pipebombControl"),
+        GRENADE_LIFETIME = RW(PLS".pipebombLifetime"),
+        GRENADE_LIFETIME_VAR = RW(PLS".pipebombLifetimeVar"),
+        TRIPBOMB_CONTROL = RW(PLS".tripbombControl"),
+        STICKYBOMB_LIFETIME = RW(PLS".tripbombLifetime"),
+        STICKYBOMB_LIFETIME_VAR = RW(PLS".tripbombLifetimeVar"),
+
+        VOLUME = RO "_gv.currentEpisode()",
+        LEVEL = RO "_gv.currentLevel()",
     }
 
     for w=0,MAX_WEAPONS-1 do
@@ -247,10 +282,14 @@ local function mangle_name(name, prefix)
     return prefix..name
 end
 
-local function on_state_begin(statename)
+local function on_state_begin_Cmt(_subj, _pos, statename)
+    -- We must register the state name early (Cmt) because otherwise, it won't
+    -- be found in a recursive state. XXX: The real issue seems to be the use
+    -- of "Cmt"s in other places, which messes up the sequence of running the
+    -- semantic actions.
     local ourname = mangle_name(statename, "F")
     g_funcname[statename] = ourname
-    return ourname
+    return true, ourname
 end
 
 local function on_state_end(funcname, codetab)
@@ -290,8 +329,8 @@ local function errprintf(fmt, ...)
         perrprintf(g_lastkwpos, fmt, ...)
     else
         printf("%s ???: error: "..fmt, g_filename, ...)
+        increment_numerrors()
     end
-    increment_numerrors()
 end
 
 local function pwarnprintf(pos, fmt, ...)
@@ -852,6 +891,10 @@ local tok =
 
     -- for definelevelname,
     time = lpeg.C(alphanum*alphanum^-1*":"*alphanum*alphanum^-1),
+
+    state_ends = Pat("ends")
+        + POS() * "else" * sp1 * "ends"
+        / function(pos) pwarnprintf(pos, "stray `else' at end of state") end,
 }
 
 
@@ -1760,7 +1803,7 @@ local common_actor_end = sp1 * lpeg.Ct(tok.define *
     )^-1)
 * sp1 * stmt_list_or_eps * "enda"
 
---== block delimiters (no recursion) ==--
+--== block delimiters (no syntactic recursion) ==--
 local Cblock = {
     -- actor (...)
     actor = lpeg.Cc(nil) * common_actor_end / on_actor_end,
@@ -1773,7 +1816,7 @@ local Cblock = {
     onevent = sp1 * tok.define * sp1 * stmt_list_or_eps * "endevent"
         / on_event_end,
 
-    state = sp1 * (tok.identifier/on_state_begin) * sp1 * stmt_list_or_eps * "ends"
+    state = sp1 * (lpeg.Cmt(tok.identifier, on_state_begin_Cmt)) * sp1 * stmt_list_or_eps * tok.state_ends
         / on_state_end,
 }
 

@@ -165,6 +165,9 @@ typedef struct {
 
     uint32_t interface_toggle_flag;
 #ifdef LUNATIC
+    int32_t pipebombControl, pipebombLifetime, pipebombLifetimeVar;
+    int32_t tripbombControl, tripbombLifetime, tripbombLifetimeVar;
+
     int32_t zrange;
     int16_t angrange, autoaimang;
 #endif

@@ -27,7 +27,7 @@ local type = type
 -- NOTE: This exposes C library functions from e.g. the global C namespace, but
 -- without their declarations, they will be sitting there like a stone.
 local gv_ = {}
--- [key]=true forbids, [key]=<table> overrides
+-- [key]=<boolean> forbids, [key]=<non-boolean (e.g. table, function)> overrides
 local gv_access = {}
 
 -- This is for declarations of arrays or pointers which should not be
@@ -162,6 +162,9 @@ local DUKEPLAYER_STRUCT = [[
     int32_t autostep, autostep_sbw;
 
     uint32_t interface_toggle_flag;
+
+    int32_t pipebombControl, pipebombLifetime, pipebombLifetimeVar;
+    int32_t tripbombControl, tripbombLifetime, tripbombLifetimeVar;
 
     int32_t zrange;
     int16_t angrange, autoaimang;
@@ -470,6 +473,13 @@ typedef struct {
 } user_defs;
 ]])
 
+-- EXTERNALLY EXPOSED GAME VARIABLES
+ffi.cdef[[
+const int32_t screenpeek;
+hudweapon_t hudweap;
+]]
+
+-- INTERNAL VARIABLES/FUNCTIONS
 decl[[
 const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
@@ -484,11 +494,11 @@ tiledata_t g_tile[MAXTILES];
 char *ScriptQuotes[];
 
 const int32_t playerswhenstarted;
-const int32_t screenpeek;
 int32_t lastvisinc;
 int16_t g_spriteDeleteQueueSize;
 int16_t BlimpSpawnSprites[15];
 int32_t g_scriptVersion;
+const int32_t g_currentFrameRate;
 
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
 void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap);
@@ -513,7 +523,6 @@ int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
 void S_StopEnvSound(int32_t num, int32_t i);
 ]]
 
--- functions
 decl[[
 int32_t kopen4loadfrommod(const char *filename, char searchfirst);
 int32_t kfilelength(int32_t handle);
@@ -879,6 +888,7 @@ local player_mt = {
 }
 ffi.metatype("DukePlayer_t", player_mt)
 
+--- CUSTOM "gv" VARIABLES
 local camera_mt = {
     -- TODO: "set position" method, which also updates the sectnum
     __index = ffiC.g_camera,
@@ -892,6 +902,23 @@ local camera_mt = {
 }
 
 gv_access.cam = setmetatable({}, camera_mt)
+
+function gv_access._get_framerate()
+    return ffiC.g_currentFrameRate
+end
+
+function gv_access.currentEpisode()
+    return ffiC.ud.volume_number
+end
+
+function gv_access.currentLevel()
+    return ffiC.ud.level_number
+end
+
+function gv_access.currentRenderMode()
+    -- TODO: USE_OPENGL=0 build
+    return ffiC.rendmode
+end
 
 -- Declare all con_lang.labels constants in the global FFI namespace.
 for i=1,#con_lang.labels do
@@ -1272,7 +1299,7 @@ local tmpmt = {
         if (gv_access[key] == nil) then
             return ffiC[key]
         end
-        if (type(gv_access[key])=="table") then
+        if (type(gv_access[key])~="boolean") then
             -- overridden...
             return gv_access[key]
         end

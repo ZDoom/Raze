@@ -200,10 +200,13 @@ ffi.cdef[[
 const int16_t numsectors, numwalls;
 const int32_t numyaxbunches;  // XXX
 const int32_t totalclock;
+int32_t randomseed;  // DEPRECATED
 const int32_t xdim, ydim;
+const int32_t windowx1, windowy1, windowx2, windowy2;
 ]]
 
 decl[[
+const int32_t rendmode;
 const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 const int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 const int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
