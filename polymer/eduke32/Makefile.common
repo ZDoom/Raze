@@ -421,7 +421,7 @@ ifneq ($(LUNATIC),0)
     else
         BASECOMMONFLAGS+= -I/usr/local/include/luajit-2.0
     endif
-    BASECOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC -DLUNATIC_ONLY
+    BASECOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC
 
     ifeq ($(PLATFORM),WINDOWS)
         BASELIBS+= -lluajit

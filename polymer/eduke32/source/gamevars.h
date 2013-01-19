@@ -94,7 +94,7 @@ extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t g_gameVarCount;
 extern int32_t g_gameArrayCount;
 
-#if defined LUNATIC_ONLY
+#if defined LUNATIC
 # define Gv_GetVar(id, iActor, iPlayer) 0 // (OSD_Printf("Gv_GetVar @ %s:%d\n", __FILE__, __LINE__), 0)
 # define Gv_SetVar(id, lValue, iActor, iPlayer) do{}while(0) //OSD_Printf("Gv_SetVar @ %s:%d\n", __FILE__, __LINE__)
 #else
@@ -104,7 +104,7 @@ void __fastcall Gv_SetVar(register int32_t id,register int32_t lValue,register i
 int32_t __fastcall Gv_GetVarX(register int32_t id);
 void __fastcall Gv_SetVarX(register int32_t id,register int32_t lValue);
 
-#ifdef LUNATIC_ONLY
+#ifdef LUNATIC
 # define Gv_GetVarByLabel(szGameLabel, lDefault, iActor, iPlayer) (lDefault)
 #else
 int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t lDefault,int32_t iActor,int32_t iPlayer);

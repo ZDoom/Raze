@@ -92,7 +92,7 @@ int32_t C_AllocQuote(int32_t qnum);
 void C_InitQuotes(void);
 
 void C_ReportError(int32_t iError);
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 void C_Compile(const char *filenam);
 #endif
 

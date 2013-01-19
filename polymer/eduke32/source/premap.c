@@ -1105,7 +1105,7 @@ static inline void prelevel(char g)
     while (i >= 0)
     {
         nexti = nextspritestat[i];
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
         A_ResetVars(i);
 #endif
         A_LoadActor(i);
@@ -1443,7 +1443,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
     p->zoom            = 768;
     p->gm              = 0;
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     //AddLog("Newgame");
     Gv_ResetVars();
 

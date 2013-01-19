@@ -98,7 +98,7 @@ int32_t g_totalLines,g_lineNumber;
 static int32_t g_checkingIfElse, g_processingState, g_lastKeyword = -1;
 char g_szBuf[1024];
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 // The pointer to the start of the case table in a switch statement.
 // First entry is 'default' code.
 static intptr_t *g_caseScriptPtr=NULL;
@@ -179,7 +179,7 @@ enum
     LABEL_MOVE   = 32,
 };
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 static const char *C_GetLabelType(int32_t type)
 {
     int32_t i;
@@ -676,7 +676,7 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_CHANGEMENU"
 };
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 const memberlabel_t SectorLabels[]=
 {
     { "wallptr", SECTOR_WALLPTR, 0, 0 },
@@ -1149,7 +1149,7 @@ hashtable_t h_gamevars    = { MAXGAMEVARS>>1, NULL };
 hashtable_t h_arrays      = { MAXGAMEARRAYS>>1, NULL };
 hashtable_t h_labels      = { 11264>>1, NULL };
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 static hashtable_t h_keywords       = { CON_END>>1, NULL };
 
 static hashtable_t sectorH     = { SECTOR_END>>1, NULL };
@@ -2053,7 +2053,7 @@ static void C_Include(const char *confile)
 
     Bfree(mptr);
 }
-#endif  // !defined LUNATIC_ONLY
+#endif  // !defined LUNATIC
 
 #ifdef _WIN32
 static void check_filename_case(const char *fn)
@@ -2304,7 +2304,7 @@ void C_InitQuotes(void)
     }
 }
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw, otw;
@@ -6288,11 +6288,11 @@ void C_Compile(const char *filenam)
         C_InitQuotes();
     }
 }
-#endif  // !defined LUNATIC_ONLY
+#endif  // !defined LUNATIC
 
 void C_ReportError(int32_t iError)
 {
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
     {
         if (g_parsingEventPtr || g_processingState || g_parsingActorPtr)

@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "savegame.h"
 
 #define _gamevars_c_
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 # include "gamestructures.c"
 #endif
 
@@ -37,7 +37,7 @@ extern int32_t OSD_errors;
 void Gv_RefreshPointers(void);
 extern void G_FreeMapState(int32_t mapnum);
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
 {
     // call this function as many times as needed.
@@ -112,7 +112,7 @@ static void Gv_Clear(void)
 
 int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
 {
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     int32_t i, j;
     char savedstate[MAXVOLUMES*MAXLEVELS];
     char tbuf[12];
@@ -253,7 +253,7 @@ corrupt:
 
 void Gv_WriteSave(FILE *fil, int32_t newbehav)
 {
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     int32_t i, j;
     char savedstate[MAXVOLUMES*MAXLEVELS];
 
@@ -340,7 +340,7 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
 #endif
 }
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 void Gv_DumpValues(void)
 {
     int32_t i;
@@ -1070,7 +1070,7 @@ void Gv_ResetSystemDefaults(void)
         }
     }
 #endif
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     g_iReturnVarID=Gv_GetVarIndex("RETURN");
     g_iWeaponVarID=Gv_GetVarIndex("WEAPON");
     g_iWorksLikeVarID=Gv_GetVarIndex("WORKSLIKE");
@@ -1417,7 +1417,7 @@ void Gv_Init(void)
 
     //  initprintf("Initializing game variables\n");
     //AddLog("Gv_Init");
-#ifdef LUNATIC_ONLY
+#ifdef LUNATIC
     Gv_AddSystemVars();  // set up weapon defaults, g_playerWeapon[][]
     Gv_ResetSystemDefaults();
 #else

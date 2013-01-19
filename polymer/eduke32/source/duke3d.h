@@ -156,7 +156,7 @@ static inline int32_t G_HaveActor(int32_t actortile)
 
 static inline int32_t G_InitialActorStrength(int32_t actortile)
 {
-#ifdef LUNATIC_ONLY
+#ifdef LUNATIC
     return g_elActors[actortile].strength;
 #else
     return g_tile[actortile].execPtr[0];

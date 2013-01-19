@@ -61,7 +61,7 @@ int32_t g_tw;
 
 int32_t g_currentEventExec = -1;
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 GAMEEXEC_STATIC void VM_Execute(int32_t loop);
 
 # include "gamestructures.c"
@@ -72,7 +72,7 @@ GAMEEXEC_STATIC void VM_Execute(int32_t loop);
 
 void VM_ScriptInfo(void)
 {
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     intptr_t *p;
 
     if (!script)
@@ -115,7 +115,7 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
         El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist);
 #endif
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     if (apScriptGameEvent[iEventID])
     {
         intptr_t *oinsptr=insptr;
@@ -780,7 +780,7 @@ void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
         P_AddWeaponNoSwitch(ps, weap);
 }
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 static void P_AddWeaponAmmoCommon(DukePlayer_t *ps, int32_t weap, int32_t amount)
 {
     P_AddAmmo(weap, ps, amount);
@@ -965,7 +965,7 @@ static void VM_ResetPlayer(void)
     //AddLog("EOF: resetplayer");
 }
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 GAMEEXEC_STATIC void VM_Execute(int32_t loop)
 {
     register int32_t tw = *insptr;
@@ -2013,7 +2013,7 @@ nullquote:
                     actor[i].flags = 0;
                     sprite[i].hitag = 0;
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
 // TODO: Lunatic
                     if (g_tile[sprite[i].picnum].execPtr)
                     {
@@ -5133,7 +5133,7 @@ nullquote:
 // NORECURSE
 void A_LoadActor(int32_t iActor)
 {
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     vm.g_i = iActor;    // Sprite ID
     vm.g_p = -1; // iPlayer;    // Player ID
     vm.g_x = -1; // lDist;    // ?
@@ -5237,7 +5237,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     {
 #endif
 
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
         insptr = 4 + (g_tile[vm.g_sp->picnum].execPtr);
         VM_Execute(1);
         insptr = NULL;
@@ -5486,7 +5486,7 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&lockclock,&save->lockclock,sizeof(lockclock));
         Bmemcpy(&randomseed,&save->randomseed,sizeof(randomseed));
         Bmemcpy(&g_globalRandom,&save->g_globalRandom,sizeof(g_globalRandom));
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
         for (i=g_gameVarCount-1; i>=0; i--)
         {
             if (aGameVars[i].dwFlags & GAMEVAR_NORESET) continue;

@@ -4050,7 +4050,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     Bmemset(&spriteext[i], 0, sizeof(spriteext_t));
     Bmemset(&spritesmooth[i], 0, sizeof(spritesmooth_t));
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     A_ResetVars(i);
 #endif
     if (G_HaveEvent(EVENT_EGS))
@@ -9485,7 +9485,7 @@ static void G_Cleanup(void)
         if (g_sounds[i].filename != NULL) Bfree(g_sounds[i].filename);
         if (g_sounds[i].filename1 != NULL) Bfree(g_sounds[i].filename1);
     }
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     if (label != NULL && label != (char *)&sprite[0]) Bfree(label);
     if (labelcode != NULL && labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
     if (script != NULL) Bfree(script);
@@ -9530,7 +9530,7 @@ void G_Shutdown(void)
 
 static void G_CompileScripts(void)
 {
-#if !defined LUNATIC_ONLY
+#if !defined LUNATIC
     int32_t psm = pathsearchmode;
 
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
@@ -9541,7 +9541,7 @@ static void G_CompileScripts(void)
     if (g_scriptNamePtr != NULL)
         Bcorrectfilename(g_scriptNamePtr,0);
 
-#if defined LUNATIC_ONLY
+#if defined LUNATIC
     Gv_Init();
 #else
     // if we compile for a V7 engine wall[] should be used for label names since it's bigger
