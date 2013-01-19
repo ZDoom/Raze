@@ -231,7 +231,10 @@ local DUKEPLAYER_STRUCT = [[
 
     const char name[32];
 
-    const int8_t idx;
+    // NOTE: In C, the struct type has no name. We only have it here to define
+    // a metatype later.
+    const weaponaccess_t weapon;
+    const int8_t _padding;
 }
 ]]
 
@@ -281,6 +284,8 @@ actor_t;
 typedef struct
 ]].. strip_const(ACTOR_STRUCT).. [[
 actor_u_t;  // The _u_t versions are unrestricted variants for internal use.
+
+typedef struct { int32_t _p; } weaponaccess_t;
 
 typedef struct
 ]].. mangle_arrays(DUKEPLAYER_STRUCT) ..[[
@@ -536,7 +541,9 @@ for i=0,7 do
     local what = ffi.string(ffiC.g_sizes_of_what[i])
     local fsz = ffi.sizeof(what)
     local csz = ffiC.g_sizes_of[i]
---    print(i..": "..what..": C sizeof = "..tostring(csz)..", FFI sizeof = "..tostring(fsz))
+    if (ffiC._DEBUG_LUNATIC ~= 0) then
+        print(i..": "..what..": C sizeof = "..tostring(csz)..", FFI sizeof = "..tostring(fsz))
+    end
     if (fsz ~= csz) then
         good = false;
     end
@@ -758,20 +765,9 @@ local function check_tile_idx(tilenum)
     end
 end
 
-local weapondata_accessor = {}
-local function get_weapondata_accessor(pli, weap)
-    assert(pli < ffiC.MAXPLAYERS+0ULL)
-
-    local wdaidx = pli*1024 + weap
-
-    if (weapondata_accessor[wdaidx] ~= nil) then
-        return weapondata_accessor[wdaidx]
-    end
-
-    local weapondata_mt = {
-        __index = ffiC.g_playerWeapon[pli][weap],
-
-        __newindex = function(_, member, val)
+--- PER-PLAYER WEAPON SETTINGS
+local weapondata_mt = {
+    __newindex = function(wd, member, val)
             if (string.match(member, "sound")) then
                 -- TODO: set to 0 if oob? (e.g. CrackDown)
                 check_sound_idx(val)
@@ -782,17 +778,23 @@ local function get_weapondata_accessor(pli, weap)
                 check_tile_idx(val)
             end
 
-            ffiC.g_playerWeapon[pli][weap][member] = val
-        end,
+            wd[member] = val
+    end,
+}
+ffi.metatype("weapondata_t", weapondata_mt)
 
-        __metatable = true,
-    }
+local weaponaccess_mt = {
+    -- Make syntax like "player[0].weapon.KNEE.shoots" possible
+    __index = function(wa, key)
+        if (type(key)=="number") then
+            check_weapon_idx(key)
+            return ffiC.g_playerWeapon[wa._p][key]
+        end
 
-    local tab = setmetatable({}, weapondata_mt)
-    weapondata_accessor[wdaidx] = tab
-
-    return tab
-end
+        return ffiC.g_playerWeapon[wa._p][ffiC[key.."_WEAPON"]]
+    end,
+}
+ffi.metatype("weaponaccess_t", weaponaccess_mt)
 
 local player_mt = {
     __index = {
@@ -837,13 +839,6 @@ local player_mt = {
                 error("Invalid sound number "..soundnum, 2)
             end
             ffi.cast(player_ptr_ct, p).customexitsound = soundnum
-        end,
-
-        -- Access to weapon data (g_playerWeapon)
-        -- TODO: Make syntax e.g. "player[0].weapon.KNEE.shoots" possible
-        weapon = function(p, weap)
-            check_weapon_idx(weap)
-            return get_weapondata_accessor(p.idx, weap)
         end,
 
         -- CON-like addammo/addweapon, but without the non-local control flow

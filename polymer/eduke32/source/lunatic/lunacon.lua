@@ -176,7 +176,7 @@ local function new_initial_gvartab()
             local member = wmembers[i]:gsub(".* ","")  -- strip e.g. "int32_t "
             local name = format("WEAPON%d_%s", w, member:upper())
 
-            local code = format(PLS":weapon(%d).%s", w, member)
+            local code = format(PLS".weapon[%d].%s", w, member)
 
             gamevar[name] = { name=code, flags=GVFLAG.PERPLAYER+GVFLAG.SYSTEM }
         end

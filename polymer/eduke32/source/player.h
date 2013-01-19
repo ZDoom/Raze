@@ -221,11 +221,10 @@ typedef struct {
 
 #ifdef LUNATIC
     // The player index. Always valid since we have no loose DukePlayer_t's
-    // anywhere (like with spritetype_t): g_player[i].ps->idx == i.
-    int8_t idx;
-#else
-    int8_t padding_;
+    // anywhere (like with spritetype_t): g_player[i].ps->wa.idx == i.
+    struct { int32_t idx; } wa;
 #endif
+    int8_t padding_;
 } DukePlayer_t;
 
 typedef struct {
