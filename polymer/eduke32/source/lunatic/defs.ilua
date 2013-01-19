@@ -317,6 +317,13 @@ typedef struct {
 } playerdata_t;
 
 typedef struct {
+    int32_t cur, count;
+    int32_t gunposx, lookhalfang;
+    int32_t gunposy, lookhoriz;
+    int32_t shade;
+} hudweapon_t;
+
+typedef struct {
     int32_t workslike, cstat; // 8b
     int32_t hitradius, range, flashcolor; // 12b
     int16_t spawns, sound, isound, vel; // 8b

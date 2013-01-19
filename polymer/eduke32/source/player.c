@@ -28,14 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "enet/enet.h"
 
 int32_t lastvisinc;
-int32_t g_currentweapon;
-int32_t g_gun_pos;
-int32_t g_looking_arc;
-int32_t g_weapon_offset;
-int32_t g_gs;
-int32_t g_kb;
-int32_t g_looking_angSR1;
-int32_t g_weapon_xoffset;
+hudweapon_t hudweap;
+
 static int32_t g_snum;
 
 extern int32_t g_levelTextTime, ticrandomseed;
@@ -1775,7 +1769,7 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     int32_t wy[2] = { windowy1, windowy2 };
     int32_t yofs = 0;
 
-    switch (g_currentweapon)
+    switch (hudweap.cur)
     {
     case DEVISTATOR_WEAPON:
     case TRIPBOMB_WEAPON:
@@ -1862,7 +1856,7 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
         const DukePlayer_t *const ps = g_player[screenpeek].ps;
         const int32_t sc = scale(65536,ud.statusbarscale,100);
 
-        switch (g_currentweapon)
+        switch (hudweap.cur)
         {
         case PISTOL_WEAPON:
         case CHAINGUN_WEAPON:
@@ -1876,7 +1870,7 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
         case HANDBOMB_WEAPON:
         case SHOTGUN_WEAPON:
             rotatesprite_win(160<<16,(180+(ps->weapon_pos*ps->weapon_pos))<<16,
-                             sc,0,g_currentweapon==GROW_WEAPON?GROWSPRITEICON:WeaponPickupSprites[g_currentweapon],
+                             sc,0,hudweap.cur==GROW_WEAPON?GROWSPRITEICON:WeaponPickupSprites[hudweap.cur],
                              0,0,2);
             return;
         default:
@@ -2152,13 +2146,13 @@ void P_DisplayWeapon(int32_t snum)
     else
         cw = PWEAPON(snum, p->curr_weapon, WorksLike);
 
-    g_gun_pos=gun_pos;
-    g_looking_arc=looking_arc;
-    g_currentweapon=cw;
-    g_weapon_xoffset=weapon_xoffset;
-    g_gs=gs;
-    g_kb=*kb;
-    g_looking_angSR1=p->look_ang>>1;
+    hudweap.gunposy=gun_pos;
+    hudweap.lookhoriz=looking_arc;
+    hudweap.cur=cw;
+    hudweap.gunposx=weapon_xoffset;
+    hudweap.shade=gs;
+    hudweap.count=*kb;
+    hudweap.lookhalfang=p->look_ang>>1;
 
     if (VM_OnEvent(EVENT_DISPLAYWEAPON, p->i, screenpeek, -1, 0) == 0)
     {

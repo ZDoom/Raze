@@ -1313,13 +1313,13 @@ static void Gv_AddSystemVars(void)
 
     Gv_NewVar("myconnectindex", (intptr_t)&myconnectindex, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("screenpeek", (intptr_t)&screenpeek, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("currentweapon",(intptr_t)&g_currentweapon, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("gs",(intptr_t)&g_gs, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("looking_arc",(intptr_t)&g_looking_arc, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("gun_pos",(intptr_t)&g_gun_pos, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("weapon_xoffset",(intptr_t)&g_weapon_xoffset, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("weaponcount",(intptr_t)&g_kb, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("looking_angSR1",(intptr_t)&g_looking_angSR1, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("currentweapon",(intptr_t)&hudweap.cur, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("gs",(intptr_t)&hudweap.shade, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("looking_arc",(intptr_t)&hudweap.lookhoriz, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("gun_pos",(intptr_t)&hudweap.gunposy, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("weapon_xoffset",(intptr_t)&hudweap.gunposx, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("weaponcount",(intptr_t)&hudweap.count, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("looking_angSR1",(intptr_t)&hudweap.lookhalfang, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("xdim",(intptr_t)&xdim, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
     Gv_NewVar("ydim",(intptr_t)&ydim, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
     Gv_NewVar("windowx1",(intptr_t)&windowx1, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
@@ -1489,13 +1489,13 @@ void Gv_RefreshPointers(void)
 
     aGameVars[Gv_GetVarIndex("myconnectindex")].val.lValue = (intptr_t)&myconnectindex;
     aGameVars[Gv_GetVarIndex("screenpeek")].val.lValue = (intptr_t)&screenpeek;
-    aGameVars[Gv_GetVarIndex("currentweapon")].val.lValue = (intptr_t)&g_currentweapon;
-    aGameVars[Gv_GetVarIndex("gs")].val.lValue = (intptr_t)&g_gs;
-    aGameVars[Gv_GetVarIndex("looking_arc")].val.lValue = (intptr_t)&g_looking_arc;
-    aGameVars[Gv_GetVarIndex("gun_pos")].val.lValue = (intptr_t)&g_gun_pos;
-    aGameVars[Gv_GetVarIndex("weapon_xoffset")].val.lValue = (intptr_t)&g_weapon_xoffset;
-    aGameVars[Gv_GetVarIndex("weaponcount")].val.lValue = (intptr_t)&g_kb;
-    aGameVars[Gv_GetVarIndex("looking_angSR1")].val.lValue = (intptr_t)&g_looking_angSR1;
+    aGameVars[Gv_GetVarIndex("currentweapon")].val.lValue = (intptr_t)&hudweap.cur;
+    aGameVars[Gv_GetVarIndex("gs")].val.lValue = (intptr_t)&hudweap.shade;
+    aGameVars[Gv_GetVarIndex("looking_arc")].val.lValue = (intptr_t)&hudweap.lookhoriz;
+    aGameVars[Gv_GetVarIndex("gun_pos")].val.lValue = (intptr_t)&hudweap.gunposy;
+    aGameVars[Gv_GetVarIndex("weapon_xoffset")].val.lValue = (intptr_t)&hudweap.gunposx;
+    aGameVars[Gv_GetVarIndex("weaponcount")].val.lValue = (intptr_t)&hudweap.count;
+    aGameVars[Gv_GetVarIndex("looking_angSR1")].val.lValue = (intptr_t)&hudweap.lookhalfang;
     aGameVars[Gv_GetVarIndex("xdim")].val.lValue = (intptr_t)&xdim;
     aGameVars[Gv_GetVarIndex("ydim")].val.lValue = (intptr_t)&ydim;
     aGameVars[Gv_GetVarIndex("windowx1")].val.lValue = (intptr_t)&windowx1;

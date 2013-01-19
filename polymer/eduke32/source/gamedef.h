@@ -59,14 +59,6 @@ extern int32_t g_iActorVarID;
 extern intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
 
 extern int32_t otherp;
-extern int32_t g_currentweapon;
-extern int32_t g_gun_pos;
-extern int32_t g_looking_arc;
-extern int32_t g_currentweapon;
-extern int32_t g_weapon_xoffset;
-extern int32_t g_gs;
-extern int32_t g_kb;
-extern int32_t g_looking_angSR1;
 extern int32_t lastvisinc;
 extern char CheatStrings[][MAXCHEATLEN];
 extern char g_szScriptFileName[BMAX_PATH];

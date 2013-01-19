@@ -304,6 +304,14 @@ extern intptr_t         *aplWeaponSelectSound[MAX_WEAPONS];     // Sound for wea
 extern intptr_t         *aplWeaponFlashColor[MAX_WEAPONS];      // Color for polymer muzzle flash
 #endif
 
+// KEEPINSYNC lunatic/defs.ilua
+typedef struct {
+    int32_t cur, count;  // "cur" is the only member that is *used*
+    int32_t gunposx, lookhalfang;  // weapon_xoffset, ps->look_ang>>1
+    int32_t gunposy, lookhoriz;  // gun_pos, looking_arc
+    int32_t shade;
+} hudweapon_t;
+
 #pragma pack(push,1)
 extern input_t          inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
@@ -312,18 +320,11 @@ extern playerdata_t     g_player[MAXPLAYERS];
 //extern char             dashow2dsector[(MAXSECTORS+7)>>3];
 //extern int16_t          searchsect[MAXSECTORS],searchparent[MAXSECTORS];
 extern int16_t          WeaponPickupSprites[MAX_WEAPONS];
-extern int32_t          g_currentweapon;
-extern int32_t          g_gs;
-extern int32_t          g_gun_pos;
-extern int32_t          g_kb;
+extern hudweapon_t      hudweap;
 extern int32_t          g_levelTextTime;
-extern int32_t          g_looking_angSR1;
-extern int32_t          g_looking_arc;
 extern int32_t          g_myAimMode;
 extern int32_t          g_numObituaries;
 extern int32_t          g_numSelfObituaries;
-extern int32_t          g_weapon_offset;
-extern int32_t          g_weapon_xoffset;
 extern int32_t          g_emuJumpTics;
 extern int32_t          lastvisinc;
 extern int32_t          mouseyaxismode;
