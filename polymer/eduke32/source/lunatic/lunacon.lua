@@ -91,7 +91,7 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true,
                  ["number-conversion"]=true, }
 
 -- Code generation options.
-local g_cgopt = { ["no"]=false, }
+local g_cgopt = { ["no"]=false, ["_incomplete"]=false, }
 
 -- How many 'if' statements are following immediately each other,
 -- needed to cope with CONs dangling-else resolution
@@ -128,7 +128,7 @@ local function new_initial_codetab()
     return {
         "local _con, _bit, _math = require'con', require'bit', require'math';",
         "local sector, sprite, actor, player = sector, sprite, actor, player;",
-        "local gameactor, gameevent = gameactor, gameevent;"
+        "local gameactor, gameevent, _gv = gameactor, gameevent, gv;"
            }
 end
 
@@ -136,9 +136,40 @@ end
 -- KEEPINSYNC gamevars.c: Gv_AddSystemVars()
 local function new_initial_gvartab()
     local wmembers = conl.wdata_members
-    local gamevar = {}
-
     local MAX_WEAPONS = ffiC and ffiC.MAX_WEAPONS or 12
+
+    local RW = function(varname)
+        return { name=varname, flags=GVFLAG.SYSTEM }
+    end
+
+    local RO = function(varname)
+        return { name=varname, flags=GVFLAG.SYSTEM+GVFLAG.READONLY }
+    end
+
+    local gamevar = {
+        -- XXX: TODO: THISACTOR can mean different things in some contexts,
+        -- e.g. sector[THISACTOR]  is  sector[sprite[<current actor>].sectnum]
+        THISACTOR = RO "_aci",
+
+        -- TODO
+        RETURN = RW "_RETURN_",
+
+        xdim = RO "_gv.xdim",
+        ydim = RO "_gv.ydim",
+
+        numsectors = RO "_gv.numsectors",
+        NUMSECTORS = RO "_gv.numsectors",
+        NUMWALLS = RO "_gv.numwalls",
+
+        camerax = RW "_gv.cam.pos.x",
+        cameray = RW "_gv.cam.pos.y",
+        cameraz = RW "_gv.cam.pos.z",
+        cameraang = RW "_gv.cam.ang",
+        camerahoriz = RW "_gv.cam.horiz",
+        camerasect = RW "_gv.cam.sect",
+        cameradist = RW "_gv.cam.dist",
+        cameraclock = RW "_gv.cam.clock",
+    }
 
     for w=0,MAX_WEAPONS-1 do
         for i=1,#wmembers do
@@ -308,8 +339,18 @@ local function reset_labels()
 
     -- NO is also a valid `move', `ai' or `action', but they are handled
     -- separately in lookup_composite().
-    g_labeldef = { NO=0 }
-    g_labeltype = { NO=LABEL.NUMBER }
+    g_labeldef = {
+        NO = 0,
+        -- NOTE: these are read-only gamevars in C-CON
+        CLIPMASK0 = 65536+1,  -- blocking
+        CLIPMASK1 = (256*65536)+64,  -- hittable
+    }
+
+    g_labeltype = {
+        NO = LABEL.NUMBER,
+        CLIPMASK0 = LABEL.NUMBER,
+        CLIPMASK1 = LABEL.NUMBER,
+    }
 
     -- Initialize default defines.
     for i=1,#conl.labels do
@@ -1208,7 +1249,7 @@ local Cinner = {
     ezshoot = cmd(R,D),
     ezshootvar = cmd(R,R),
     shoot = cmd(D)
-        / "_con._A_Shoot(_aci, %1)",
+        / "_con._A_Shoot(_aci,%1)",
     zshoot = cmd(R,D),
     zshootvar = cmd(R,R),
 
@@ -1419,31 +1460,47 @@ local Cif = {
     ifangdiffl = cmd(D)
         / format("_con._angdiffabs(%s,%s)<=%%1", PLS".ang", SPS".ang"),
     ifsound = cmd(D)
-        / "",
+        / "_con._soundplaying(_aci,%1)",
     -- vvv TODO: this is not correct for GET_ACCESS or GET_SHIELD.
     ifpinventory = cmd(D,D)
         / format("_con._getinventory(%s,%%1,_aci)~=%%2", PLS""),
 
-    ifvarl = cmd(R,D),
-    ifvarg = cmd(R,D),
+    ifvarl = cmd(R,D)
+        / "%1<%2",
+    ifvarg = cmd(R,D)
+        / "%1>%2",
     ifvare = cmd(R,D)
         / "%1==%2",
-    ifvarn = cmd(R,D),
-    ifvarand = cmd(R,D),
-    ifvaror = cmd(R,D),
-    ifvarxor = cmd(R,D),
-    ifvareither = cmd(R,D),
+    ifvarn = cmd(R,D)
+        / "%1~=%2",
+    ifvarand = cmd(R,D)
+        / "_bit.band(%1,%2)~=0",
+    ifvaror = cmd(R,D)
+        / "_bit.bor(%1,%2)~=0",
+    ifvarxor = cmd(R,D)
+        / "_bit.bxor(%1,%2)~=0",
+    ifvareither = cmd(R,D)
+        / "%1~=0 or %2~=0",
 
-    ifvarvarg = cmd(R,R),
-    ifvarvarl = cmd(R,R),
-    ifvarvare = cmd(R,R),
-    ifvarvarn = cmd(R,R),
-    ifvarvarand = cmd(R,R),
-    ifvarvaror = cmd(R,R),
-    ifvarvarxor = cmd(R,R),
-    ifvarvareither = cmd(R,R),
+    ifvarvarl = cmd(R,R)
+        / "%1<%2",
+    ifvarvarg = cmd(R,R)
+        / "%1>%2",
+    ifvarvare = cmd(R,R)
+        / "%1==%2",
+    ifvarvarn = cmd(R,R)
+        / "%1~=%2",
+    ifvarvarand = cmd(R,R)
+        / "_bit.band(%1,%2)~=0",
+    ifvarvaror = cmd(R,R)
+        / "_bit.bor(%1,%2)~=0",
+    ifvarvarxor = cmd(R,R)
+        / "_bit.bxor(%1,%2)~=0",
+    ifvarvareither = cmd(R,R)
+        / "%1~=0 or %2~=0",
 
-    ifactorsound = cmd(R,R),
+    ifactorsound = cmd(R,R)
+        / "_con._soundplaying(%1,%2)",
 
     ifp = (sp1 * tok.define)^1
         / function (...) return format("_con._ifp(%d,_pli,_aci)", bit.bor(...)) end,
@@ -1609,15 +1666,15 @@ local function after_if_cmd_Cmt(subj, pos, ...)
     if (g_numerrors == inf) then
         return nil
     end
----[[
-    if (capts[1] ~= nil) then
+
+    if (not g_cgopt["_incomplete"] and capts[1] ~= nil) then
         assert(#capts <= 3)
         for i=1,#capts do
             assert(type(capts[i]=="string"))
         end
         return true, unpack(capts, 1, #capts)
     end
---]]
+
     return true
 end
 
@@ -2017,6 +2074,11 @@ local function handle_cmdline_arg(str)
             elseif (str:sub(2)=="fno") then
                 -- Disable printing code.
                 g_cgopt["no"] = true
+                ok = true
+            elseif (str:sub(2)=="f_incomplete") then
+                -- TEMP
+                g_cgopt["_incomplete"] = true
+                ok = true
             end
 
             if (not ok) then

@@ -77,11 +77,8 @@ if (vol==1 and lev==1) then  -- E1L1
     spriteext[i].roll = 256;
 
     for spr in spritesofsect(307) do  -- some fence sprites in E1L1
-        print('spr', spr)
+        printf('spr %d', spr)
         sprite[spr].pal = 6
-    end
-    for spr in spritesofsect(236) do
-        print('#spr', spr)
     end
 
     --this is a problem
@@ -110,30 +107,31 @@ local unsafe = pcall(function() string.UNSAFE=true; end)
 --DBG_.printkv('_G in test.elua', _G)
 
 -- direct gv array access forbidden
-checkfail('gv.sprite[0].yrepeat = 100', "dummy variable: read access forbidden")
+checkfail('gv.sprite[0].yrepeat = 100', "access forbidden")
 
 -- indexing struct array with non-numeric type
 checkfail('local i = sprite["qwe"]')  -- this will produce an error inside the sprite metatable
 
 checkfail('print(sprite[100000].ceilingpal)', "out-of-bounds sprite[] struct read access")
 
--- NOTE: gv.sprite doesn't fail, but we can't use it
-checkfail('print(gv.sprite[0])', "dummy variable: read access forbidden")
+checkfail('print(gv.sprite[0])', "access forbidden")
 
 -- set metatable forbidden
 checkfail('setmetatable(sprite, {})', "attempt to read undeclared variable 'setmetatable'")
 
--- oob write access
-checkfail('sector[-1].ceilingpal = 4', "out-of-bounds sector[] read access")  -- note the strange err msg
+-- OOB write access.
+-- Note that indexing ("reading") sector fails, even if the user wants to
+-- assign to a sector member. Potentially confusing error message.
+checkfail('sector[-1].ceilingpal = 4', "out-of-bounds sector[] read access")
 
 -- wallnum member is read-only
 checkfail('sector[0].wallnum = 0', "attempt to write to constant location")  -- this comes from LJ/FFI
 
 -- gv.numsectors is read-only
-checkfail('gv.numsectors = 4', "cannot create new or write into existing fields of 'gv'")
+checkfail('gv.numsectors = 4', "write access forbidden")
 
 -- cannot create new fields in 'gv'
-checkfail('gv.QWE = 4', "cannot create new or write into existing fields of 'gv'")
+checkfail('gv.QWE = 4', "write access forbidden")
 
 -- direct sector write access forbidden
 checkfail('sector[4] = sector[6]', "cannot write directly to sector[] struct")
@@ -154,7 +152,7 @@ checkfail('wall[4].QWE = 123', "has no member named 'QWE'")
 checkfail("new_global = 345", "attempt to write to undeclared variable 'new_global'")
 
 -- can't redefine constants in 'gv'
-checkfail('gv.CEILING = 3', "cannot create new or write into existing fields of 'gv'")
+checkfail('gv.CEILING = 3', "write access forbidden")
 
 -- string.dump is unavailable
 checkfail('local s=require[[string]]; local tmp=s.dump(gameevent)',
@@ -174,8 +172,8 @@ print('')
 checkfail('gv.luaJIT_setmode(nil, 0, 0)', "missing declaration for symbol 'luaJIT_setmode'")
 
 checkfail('gv.luaJIT_BC_con_lang', "attempt to call a nil value")
-checkfail('gv.yax_getbunch(0,0)', "attempt to call field 'yax_getbunch' (a table value)")
-checkfail('gv.gethitickms = nil', "cannot create new or write into existing fields of 'gv'")
+checkfail('gv.yax_getbunch(0,0)', "access forbidden")
+checkfail('gv.gethitickms = nil', "write access forbidden")
 
 -- we don't have arrays in Lua-accessible structs now
 checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
@@ -188,8 +186,10 @@ checkfail('gameactor(1680, 0)', "invalid last argument to gameactor: must be a f
 checkfail("do local bt=require'bittest'; bt.QWE=1; end", "modifying module table forbidden")
 -- the cdata returned by player[] can't be made into a pointer!
 checkfail("do local pl=player[0]; i=pl[1]; end")
-checkfail("do local ud=gv.ud.camera; end", "dummy variable: read access forbidden")  -- test for proper decl()
+checkfail("do local ud=gv.ud.camerasprite; end", "access forbidden")  -- test for proper decl()
 checkfail("sprite[0]:set_picnum(-10)", "attempt to set invalid picnum")
+checkfail("gv.g_sizes_of=nil; print(gv.g_sizes_of[0])", "write access forbidden")
+checkfail("gv.cam.sect=-1", "passed out-of-bounds sector number")
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 
@@ -298,6 +298,13 @@ gameactor(1680, TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
           end
          )
 
+gameevent("DISPLAYROOMS",
+          function()
+              local cam = gv.cam
+              cam.pos.z = cam.pos.z + 64*16*math.sin(gv.totalclock/30)
+          end
+         )
+
 printf("EVENT_INIT = %d", gv.EVENT_INIT)  -- tests default defines
 
 local bittest = require "bittest"
@@ -308,9 +315,11 @@ require("test/test_rotspr")
 
 print('---=== END TEST SCRIPT ===---')
 
+--[[
 function check_sector_idx()
     error("bla")
 end
+--]]
 spritesofsect(0)
 
 --DBG_.oom()

@@ -76,6 +76,7 @@ C_DefineSkillName;
 C_DefineLevelName;
 
 actor;
+g_camera;
 ud;
 g_player;
 g_playerWeapon;

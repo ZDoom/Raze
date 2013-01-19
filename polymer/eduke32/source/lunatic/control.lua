@@ -995,6 +995,9 @@ end
 
 function _sound(aci, sndidx)
     check_sprite_idx(aci)
+    -- A_PlaySound() returns early if the sound index is oob, but IMO it's good
+    -- style to throw an error in instead of silently failing.
+    check_sound_idx(sndidx)
     ffiC.A_PlaySound(sndidx, aci)
 end
 
@@ -1010,19 +1013,22 @@ local function S_StopSound(sndidx)
     ffiC.S_StopEnvSound(sndidx, -1)
 end
 
-function _stopsound(aci, sndidx)
+function _soundplaying(aci, sndidx)
     check_sprite_idx(aci)
     check_sound_idx(sndidx)
+    return (ffiC.S_CheckSoundPlaying(aci, sndidx) ~= 0)
+end
+
+function _stopsound(aci, sndidx)
     -- XXX: This is weird: the checking is done wrt a sprite, but the sound not.
     -- NOTE: S_StopSound() stops sound <sndidx> that started playing most recently.
-    if (ffiC.S_CheckSoundPlaying(aci, sndidx) ~= 0) then
+    if (_soundplaying(aci, sndidx)) then
         S_StopSound(sndidx)
     end
 end
 
 function _soundonce(aci, sndidx)
-    check_sound_idx(sndidx)
-    if (ffiC.S_CheckSoundPlaying(aci, sndidx) == 0) then
+    if (not _soundplaying(aci, sndidx)) then
         _sound(aci, sndidx)
     end
 end

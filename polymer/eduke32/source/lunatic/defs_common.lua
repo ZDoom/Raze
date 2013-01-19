@@ -7,6 +7,8 @@
 local ffi = require("ffi")
 local ffiC = ffi.C
 
+ffi.cdef "enum { _DEBUG_LUNATIC=1 }"
+
 local bit = require("bit")
 local string = require("string")
 
@@ -133,7 +135,7 @@ typedef struct {
 local vec3_ct = ffi.typeof("vec3_t")
 local hitdata_ct = ffi.typeof("hitdata_t")
 
-ffi.cdef[[const int32_t engine_main_arrays_are_static, engine_v8;]]
+decl[[const int32_t engine_main_arrays_are_static, engine_v8;]]
 
 
 --== Engine data and functions ==--
@@ -196,7 +198,7 @@ enum {
 
 ffi.cdef[[
 const int16_t numsectors, numwalls;
-const int32_t numyaxbunches;
+const int32_t numyaxbunches;  // XXX
 const int32_t totalclock;
 const int32_t xdim, ydim;
 ]]
@@ -384,10 +386,18 @@ function creategtab(ctab, maxidx, name)
     return setmtonce(tab, tmpmt)
 end
 
+function check_sector_idx(sectnum)
+    if (sectnum >= ffiC.numsectors+0ULL) then
+        error("passed out-of-bounds sector number "..sectnum, 3)
+    end
+end
+
 
 local vars_to_ignore = {}
 for varname,_ in pairs(getfenv(1)) do
---    print("IGNORE "..varname)
+    if (ffiC._DEBUG_LUNATIC ~= 0) then
+        print("IGNORE "..varname)
+    end
     vars_to_ignore[varname] = true
 end
 
@@ -405,12 +415,6 @@ nextspritesect = creategtab(ffiC.nextspritesect, ffiC.MAXSPRITES, 'nextspritesec
 nextspritestat = creategtab(ffiC.nextspritestat, ffiC.MAXSPRITES, 'nextspritestat[]')
 prevspritesect = creategtab(ffiC.prevspritesect, ffiC.MAXSPRITES, 'prevspritesect[]')
 prevspritestat = creategtab(ffiC.prevspritestat, ffiC.MAXSPRITES, 'prevspritestat[]')
-
-function check_sector_idx(sectnum)
-    if (sectnum >= ffiC.numsectors+0ULL) then
-        error("passed out-of-bounds sector number "..sectnum, 3)
-    end
-end
 
 local function iter_wallsofsec(endwall, w)
     w = w+1
@@ -579,7 +583,9 @@ function create_globals(_G_their)
 
     for varname,obj in pairs(_G_our) do
         if (not vars_to_ignore[varname]) then
---            print("EXPORT "..varname)
+            if (ffiC._DEBUG_LUNATIC ~= 0) then
+                print("EXPORT "..varname)
+            end
             _G_their[varname] = obj
         end
     end

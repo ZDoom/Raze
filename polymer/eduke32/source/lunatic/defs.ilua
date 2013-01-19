@@ -23,15 +23,12 @@ local tonumber = tonumber
 local tostring = tostring
 local type = type
 
-
 -- The "gv" global will provide access to C global *scalars* and safe functions.
--- XXX: still exposes C library functions etc. contained in ffi.C, problem?
-local gv_ = {
-    -- All non-scalars need to be explicitly listed here and access to them is
-    -- redirected to the dummy empty table...
-}
-
-local dummy_empty_table = {}
+-- NOTE: This exposes C library functions from e.g. the global C namespace, but
+-- without their declarations, they will be sitting there like a stone.
+local gv_ = {}
+-- [key]=true forbids, [key]=<table> overrides
+local gv_access = {}
 
 -- This is for declarations of arrays or pointers which should not be
 -- accessible through the "gv" global. The "defs_common" module will
@@ -44,8 +41,10 @@ function decl(str)
     -- NOTE that the regexp also catches non-array/non-function identifiers
     -- like "user_defs ud;"
     for varname in string.gmatch(str, "([%a_][%w_]*)[[(;]") do
---        print("DUMMY "..varname)
-        gv_[varname] = dummy_empty_table
+        if (ffiC._DEBUG_LUNATIC ~= 0) then
+            print("FORBID "..varname)
+        end
+        gv_access[varname] = true
     end
 
     ffi.cdef(str)
@@ -464,6 +463,7 @@ const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
 int32_t g_elCallDepth;
 actor_t actor[MAXSPRITES];
+camera_t g_camera;
 user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
 weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
@@ -513,7 +513,7 @@ int32_t g_scriptModulesNum;
 
 const char *G_ConFile(void);
 void G_DoGameStartup(const int32_t *params);
-int32_t C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5]);
+int32_t C_DefineSound(int32_t sndidx, const char *fn, int32_t args [5]);
 void C_DefineMusic(int32_t vol, int32_t lev, const char *fn);
 void C_DefineQuote(int32_t qnum, const char *qstr);
 void C_DefineVolumeName(int32_t vol, const char *name);
@@ -548,6 +548,7 @@ end
 
 -- Add game-side metamethods to "spritetype" and register it with "metatype"
 defs_c.spritetype_mt.__index.isenemy = function(s)
+    -- CODEDUP control.lua: isenemytile
     return (bit.band(ffiC.g_tile[s.picnum].flags, ffiC.SFLAG_BADGUY)~=0)
 end
 ffi.metatype("spritetype", defs_c.spritetype_mt)
@@ -772,6 +773,7 @@ local function get_weapondata_accessor(pli, weap)
 
         __newindex = function(_, member, val)
             if (string.match(member, "sound")) then
+                -- TODO: set to 0 if oob? (e.g. CrackDown)
                 check_sound_idx(val)
             elseif (member=="workslike") then
                 check_weapon_idx(val)
@@ -871,14 +873,23 @@ local player_mt = {
             pals.f = f
             pals.r, pals.g, pals.b = r, g, b
         end,
-
-        -- XXX: is this so useful without z offset?
-        _cansee = function(p, otherpos, othersect)
-            return cansee(p.pos, sprite[p.i].sectnum, otherpos, othersect)
-        end,
     },
 }
 ffi.metatype("DukePlayer_t", player_mt)
+
+local camera_mt = {
+    -- TODO: "set position" method, which also updates the sectnum
+    __index = ffiC.g_camera,
+    __newindex = function(_, key, val)
+        if (key=="sect") then
+            defs_c.check_sector_idx(val)
+        end
+        ffiC.g_camera[key] = val
+    end,
+    __metatable = true
+}
+
+gv_access.cam = setmetatable({}, camera_mt)
 
 -- Declare all con_lang.labels constants in the global FFI namespace.
 for i=1,#con_lang.labels do
@@ -1253,16 +1264,19 @@ end
 
 -- error(..., 2) is to blame the caller and get its line numbers
 
-local tmpmt = {
-    __index = function() error("dummy variable: read access forbidden", 2) end,
-    __newindex = function() error("dummy variable: write access forbidden", 2) end,
-}
-setmtonce(dummy_empty_table, tmpmt)
-
 gv = gv_
 local tmpmt = {
-    __index = ffiC,
-    __newindex = function() error("cannot create new or write into existing fields of 'gv'", 2) end,
+    __index = function(gv, key)
+        if (gv_access[key] == nil) then
+            return ffiC[key]
+        end
+        if (type(gv_access[key])=="table") then
+            -- overridden...
+            return gv_access[key]
+        end
+        error("access forbidden", 2)
+    end,
+    __newindex = function() error("write access forbidden", 2) end,
 }
 setmtonce(gv, tmpmt)
 
