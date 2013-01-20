@@ -41,9 +41,9 @@ extern void G_FreeMapState(int32_t mapnum);
 static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
 {
     // call this function as many times as needed.
-    int32_t i=(MAXGAMEVARS-1);
-    //  AddLog("Gv_Free");
-    for (; i>=0; i--)
+    int32_t i;
+
+    for (i=MAXGAMEVARS-1; i>=0; i--)
     {
         if ((aGameVars[i].dwFlags & GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
         {
@@ -64,49 +64,33 @@ static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
 
         aGameArrays[i].dwFlags |= GAMEARRAY_RESET;
     }
-    g_gameVarCount=g_gameArrayCount=0;
+
+    g_gameVarCount = g_gameArrayCount = 0;
     hash_init(&h_gamevars);
     hash_init(&h_arrays);
-    return;
 }
 
 static void Gv_Clear(void)
 {
     // only call this function ONCE...
-    int32_t i=(MAXGAMEVARS-1);
+    int32_t i;
 
-    //AddLog("Gv_Clear");
+    Gv_Free();
 
-    for (; i>=0; i--)
+    // Now, only do work that Gv_Free() hasn't done.
+    for (i=MAXGAMEVARS-1; i>=0; i--)
     {
-        if (aGameVars[i].szLabel)
-            Bfree(aGameVars[i].szLabel);
+        Bfree(aGameVars[i].szLabel);
         aGameVars[i].szLabel=NULL;
 
-        if ((aGameVars[i].dwFlags & GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
-        {
-            Bfree(aGameVars[i].val.plValues);
-            aGameVars[i].val.plValues=NULL;
-        }
         aGameVars[i].val.lValue=0;
-        aGameVars[i].dwFlags |= GAMEVAR_RESET;
+
         if (i >= MAXGAMEARRAYS)
             continue;
-        if (aGameArrays[i].szLabel)
-            Bfree(aGameArrays[i].szLabel);
-        aGameArrays[i].szLabel=NULL;
 
-        if ((aGameArrays[i].dwFlags & GAMEARRAY_NORMAL) && aGameArrays[i].plValues)
-        {
-            Bfree(aGameArrays[i].plValues);
-            aGameArrays[i].plValues=NULL;
-        }
-        aGameArrays[i].dwFlags |= GAMEARRAY_RESET;
+        Bfree(aGameArrays[i].szLabel);
+        aGameArrays[i].szLabel=NULL;
     }
-    g_gameVarCount=g_gameArrayCount=0;
-    hash_init(&h_gamevars);
-    hash_init(&h_arrays);
-    return;
 }
 #endif
 
@@ -511,20 +495,22 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if (i == -1)
         i = g_gameVarCount;
 
-    // Set values
+    // If it's a user gamevar...
     if ((aGameVars[i].dwFlags & GAMEVAR_SYSTEM) == 0)
     {
+        // Allocate and set its label
         if (aGameVars[i].szLabel == NULL)
             aGameVars[i].szLabel = (char *)Bcalloc(MAXVARLABEL,sizeof(uint8_t));
         if (aGameVars[i].szLabel != pszLabel)
             Bstrcpy(aGameVars[i].szLabel,pszLabel);
+
+        // and the flags
         aGameVars[i].dwFlags=dwFlags;
 
         if (aGameVars[i].dwFlags & GAMEVAR_USER_MASK)
         {
-            // only free if not system
-            if (aGameVars[i].val.plValues)
-                Bfree(aGameVars[i].val.plValues);
+            // only free if per-{actor,player}
+            Bfree(aGameVars[i].val.plValues);
             aGameVars[i].val.plValues=NULL;
         }
     }
@@ -539,6 +525,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         hash_add(&h_gamevars, aGameVars[i].szLabel, g_gameVarCount++, 0);
     }
 
+    // Set initial values. (Or, override values for system gamevars.)
     if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
     {
         if (!aGameVars[i].val.plValues)
