@@ -2535,7 +2535,7 @@ repeatcase:
             // global var: can't define default
             if (g_numCompilerErrors==0)
             {
-                Gv_NewVar(tlabel, *(g_scriptPtr-2), *(g_scriptPtr-1) & ~GAMEVAR_DEFAULT);
+                Gv_NewVar(tlabel, *(g_scriptPtr-2), *(g_scriptPtr-1));
                 g_scriptPtr -= 2; // no need to save in script...
             }
         }

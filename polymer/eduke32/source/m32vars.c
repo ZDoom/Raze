@@ -166,7 +166,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
             initprintf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
             return 0;
         }
-        else if (!(aGameVars[i].dwFlags & GAMEVAR_DEFAULT) && !(aGameVars[i].dwFlags & GAMEVAR_SYSTEM))
+        else if (!(aGameVars[i].dwFlags & GAMEVAR_SYSTEM))
         {
             // it's a duplicate in error
 //            g_numCompilerWarnings++;

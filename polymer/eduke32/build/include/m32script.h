@@ -111,7 +111,6 @@ enum GamevarFlags_t {
     GAMEVAR_USER_MASK = GAMEVAR_PERBLOCK,
 
     GAMEVAR_RESET      = 0x00000008, // marks var for to default
-    GAMEVAR_DEFAULT    = 0x00000100, // allow override
 
     GAMEVAR_SYSTEM     = 0x00000800, // cannot change mode flags...(only default value)
     GAMEVAR_READONLY   = 0x00001000, // values are read-only (no setvar allowed)
