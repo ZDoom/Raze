@@ -2005,7 +2005,7 @@ static void P_FireWeapon(DukePlayer_t *p)
     }
 }
 
-void P_DoWeaponSpawn(DukePlayer_t *p)
+static void P_DoWeaponSpawn(const DukePlayer_t *p)
 {
     int32_t j, snum = sprite[p->i].yvel;
 
@@ -3341,7 +3341,7 @@ void P_CheckWeapon(DukePlayer_t *p)
     P_ChangeWeapon(p, weapon);
 }
 
-void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
+static void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
 {
     if ((obj = VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, sprite[p->i].yvel, -1, obj)) == -1)
         return;
@@ -3415,7 +3415,7 @@ void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
     }
 }
 
-int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t tex)
+static int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t tex)
 {
     spritetype *s = &sprite[p->i];
 
@@ -4043,7 +4043,6 @@ static void P_ProcessWeapon(int32_t snum)
                         }
                         else if (((*kb) == (PWEAPON(snum, p->curr_weapon, Reload) - (i/3)) &&
                                   !(PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RELOAD_TIMING)) ||
-
                                  ((*kb) == (PWEAPON(snum, p->curr_weapon, Reload) - i+4) &&
                                   (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RELOAD_TIMING)))
                         {
@@ -4142,7 +4141,7 @@ static void P_ProcessWeapon(int32_t snum)
     }
 }
 
-int32_t P_DoFist(DukePlayer_t *p)
+static int32_t P_DoFist(DukePlayer_t *p)
 {
     // the fist punching NUKEBUTTON
 
