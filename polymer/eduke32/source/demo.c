@@ -173,58 +173,58 @@ void G_OpenDemoWrite(void)
             }
         }
 
-        do
+    do
+    {
+        if (demonum == MAXDEMOS)
+            return;
+
+        if (G_ModDirSnprintf(demofn, sizeof(demofn), DEMOFN_FMT, demonum))
         {
-            if (demonum == MAXDEMOS)
-                return;
-
-            if (G_ModDirSnprintf(demofn, sizeof(demofn), DEMOFN_FMT, demonum))
-            {
-                initprintf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
-                goto error_wopen_demo;
-            }
-
-            demonum++;
-
-            g_demo_filePtr = Bfopen(demofn, "rb");
-            if (g_demo_filePtr == NULL)
-                break;
-
-            MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
+            initprintf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
+            goto error_wopen_demo;
         }
-        while (1);
 
-        g_demo_filePtr = Bfopen(demofn,"wb");
+        demonum++;
+
+        g_demo_filePtr = Bfopen(demofn, "rb");
         if (g_demo_filePtr == NULL)
-            return;
+            break;
 
-        i=sv_saveandmakesnapshot(g_demo_filePtr, -1, demorec_diffs_cvar, demorec_diffcompress_cvar,
-            demorec_synccompress_cvar|(demorec_seeds_cvar<<1));
-        if (i)
-        {
-            MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
+        MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
+    }
+    while (1);
+
+    g_demo_filePtr = Bfopen(demofn,"wb");
+    if (g_demo_filePtr == NULL)
+        return;
+
+    i=sv_saveandmakesnapshot(g_demo_filePtr, -1, demorec_diffs_cvar, demorec_diffcompress_cvar,
+                             demorec_synccompress_cvar|(demorec_seeds_cvar<<1));
+    if (i)
+    {
+        MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
 error_wopen_demo:
-            Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
-            P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-            ud.recstat = ud.m_recstat = 0;
-            return;
-        }
-
-        demorec_seeds = demorec_seeds_cvar;
-        demorec_diffs = demorec_diffs_cvar;
-        demo_synccompress = demorec_synccompress_cvar;
-        demorec_difftics = demorec_difftics_cvar;
-
-        Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "DEMO %d RECORDING STARTED", demonum-1);
+        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+        ud.recstat = ud.m_recstat = 0;
+        return;
+    }
 
-        ud.reccnt = 0;
-        ud.recstat = ud.m_recstat = 1;  //
+    demorec_seeds = demorec_seeds_cvar;
+    demorec_diffs = demorec_diffs_cvar;
+    demo_synccompress = demorec_synccompress_cvar;
+    demorec_difftics = demorec_difftics_cvar;
+
+    Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "DEMO %d RECORDING STARTED", demonum-1);
+    P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+
+    ud.reccnt = 0;
+    ud.recstat = ud.m_recstat = 1;  //
 
 #if KRANDDEBUG
-        krd_enable(1);
+    krd_enable(1);
 #endif
-        g_demo_cnt = 1;
+    g_demo_cnt = 1;
 }
 
 // demo_profile: < 0: prepare
