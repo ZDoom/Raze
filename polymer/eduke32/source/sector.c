@@ -2756,8 +2756,7 @@ CHECKINV1:
                     }
                 }
 
-                Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike),p->i,snum);
-                Gv_SetVar(g_iWeaponVarID,j, p->i, snum);
+                P_SetWeaponGamevars(snum, p);
 
                 j = VM_OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1, j);
 

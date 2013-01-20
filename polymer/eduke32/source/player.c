@@ -1925,6 +1925,20 @@ static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
     return 1;
 }
 
+void P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p)
+{
+#ifdef LUNATIC
+    UNREFERENCED_PARAMETER(snum);
+    UNREFERENCED_PARAMETER(p);
+#else
+    Gv_SetVar(g_iWeaponVarID, p->curr_weapon, p->i, snum);
+    Gv_SetVar(g_iWorksLikeVarID,
+              ((unsigned)p->curr_weapon < MAX_WEAPONS) ? PWEAPON(snum, p->curr_weapon, WorksLike) : -1,
+              p->i, snum);
+#endif
+}
+
+
 static void P_FireWeapon(DukePlayer_t *p)
 {
     int32_t i, snum = sprite[p->i].yvel;
@@ -1939,8 +1953,7 @@ static void P_FireWeapon(DukePlayer_t *p)
         if (PWEAPON(snum, p->curr_weapon, FireSound) > 0)
             A_PlaySound(PWEAPON(snum, p->curr_weapon, FireSound),p->i);
 
-        Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-        Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike), p->i, snum);
+        P_SetWeaponGamevars(snum, p);
 //        OSD_Printf("doing %d %d %d\n",PWEAPON(snum, p->curr_weapon, Shoots),p->curr_weapon,snum);
         A_Shoot(p->i,PWEAPON(snum, p->curr_weapon, Shoots));
 
@@ -3246,10 +3259,7 @@ void P_ChangeWeapon(DukePlayer_t *p,int32_t weapon)
 
     p->kickback_pic = 0;
 
-    Gv_SetVar(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-    Gv_SetVar(g_iWorksLikeVarID,
-              (unsigned)p->curr_weapon < MAX_WEAPONS ? PWEAPON(snum, p->curr_weapon, WorksLike) : -1,
-              p->i, snum);
+    P_SetWeaponGamevars(snum, p);
 }
 
 void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
@@ -3621,8 +3631,7 @@ static void P_ProcessWeapon(int32_t snum)
 
     if (TEST_SYNC_KEY(sb_snum, SK_FIRE))
     {
-        Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-        Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike),p->i,snum);
+        P_SetWeaponGamevars(snum, p);
         
         if (VM_OnEvent(EVENT_PRESSEDFIRE, p->i, snum, -1, 0) != 0)
             sb_snum &= ~BIT(SK_FIRE);
@@ -3630,8 +3639,7 @@ static void P_ProcessWeapon(int32_t snum)
 
     if (TEST_SYNC_KEY(sb_snum, SK_HOLSTER))   // 'Holster Weapon
     {
-        Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-        Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike),p->i,snum);
+        P_SetWeaponGamevars(snum, p);
         
         if (VM_OnEvent(EVENT_HOLSTER, p->i, snum, -1, 0) == 0)
         {
@@ -3732,8 +3740,7 @@ static void P_ProcessWeapon(int32_t snum)
         }
         else
         {
-            Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-            Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike),p->i,snum);
+            P_SetWeaponGamevars(snum, p);
 
             if (VM_OnEvent(EVENT_FIRE, p->i, snum, -1, 0) == 0)
             {
@@ -3947,8 +3954,8 @@ static void P_ProcessWeapon(int32_t snum)
                         lastvisinc = totalclock+32;
                         p->visibility = 0;
                     }
-                    Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-                    Gv_SetVar(g_iWorksLikeVarID,PWEAPON(snum, p->curr_weapon, WorksLike), p->i, snum);
+
+                    P_SetWeaponGamevars(snum, p);
                     A_Shoot(p->i, PWEAPON(snum, p->curr_weapon, Shoots));
                 }
             }
