@@ -202,6 +202,12 @@ local function new_initial_gvartab()
         STICKYBOMB_LIFETIME = RW(PLS".tripbombLifetime"),
         STICKYBOMB_LIFETIME_VAR = RW(PLS".tripbombLifetimeVar"),
 
+        -- These are not 100% authentic (they're only updated in certain
+        -- circumstances, see player.c: P_SetWeaponGamevars()). But IMO it's
+        -- more useful like this.
+        WEAPON = RO(PLS".curr_weapon"),
+        WORKSLIKE = RO(format(PLS".weapon[%s].workslike", PLS".curr_weapon")),
+
         VOLUME = RO "_gv.currentEpisode()",
         LEVEL = RO "_gv.currentLevel()",
     }

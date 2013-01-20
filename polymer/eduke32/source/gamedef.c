@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 uint32_t g_scriptDateVersion = 99999999;  // YYYYMMDD
+#if !defined LUNATIC
 static uint32_t g_scriptLastKeyword; // = NUMKEYWORDS-1;
 
 #define NUMKEYWDATES (int32_t)(sizeof(g_keywdate)/sizeof(g_keywdate[0]))
@@ -90,6 +91,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_ECHO, 20120304 },
     { CON_SHOWVIEWUNBIASED, 20120331 },
 };
+#endif
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
 static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
@@ -158,10 +160,12 @@ int32_t g_iActorVarID=-1;
 intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
 static intptr_t *g_parsingEventPtr=NULL;
 
+#if !defined LUNATIC
 gamevar_t aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
 int32_t g_gameVarCount=0;
 int32_t g_gameArrayCount=0;
+#endif
 
 static char *textptr;
 int32_t g_numCompilerErrors,g_numCompilerWarnings;
@@ -1145,11 +1149,11 @@ const memberlabel_t InputLabels[]=
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_POINTER 1
 
+#if !defined LUNATIC
 hashtable_t h_gamevars    = { MAXGAMEVARS>>1, NULL };
 hashtable_t h_arrays      = { MAXGAMEARRAYS>>1, NULL };
 hashtable_t h_labels      = { 11264>>1, NULL };
 
-#if !defined LUNATIC
 static hashtable_t h_keywords       = { CON_END>>1, NULL };
 
 static hashtable_t sectorH     = { SECTOR_END>>1, NULL };
@@ -6288,11 +6292,9 @@ void C_Compile(const char *filenam)
         C_InitQuotes();
     }
 }
-#endif  // !defined LUNATIC
 
 void C_ReportError(int32_t iError)
 {
-#if !defined LUNATIC
     if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
     {
         if (g_parsingEventPtr || g_processingState || g_parsingActorPtr)
@@ -6381,5 +6383,5 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     }
-#endif
 }
+#endif

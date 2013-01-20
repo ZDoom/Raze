@@ -64,9 +64,8 @@ for i = 0, gv.numsectors/2 do
     sector[i].ceilingpal = 2;
 end
 
-local vol, lev
-vol, lev = TEMP_getvollev()
-print('volume='..vol..', level='..lev)
+local vol, lev = gv.currentEpisode()+1, gv.currentLevel()+1
+printf('volume=%d, level=%d', vol, lev)
 
 if (vol==1 and lev==1) then  -- E1L1
     print('tweaking some sprites 2')
@@ -203,10 +202,14 @@ gameevent(gv.EVENT_JUMP,
 -- test event chaining
 gameevent("JUMP",
           function(actori, playeri, dist)
+              local ps = player[playeri]
               print("I'm first!")
 --              DBG_.oom()
-              player[playeri].weapon.PISTOL.shoots = 2605 -- RPG
-              player[playeri].weapon[gv.PISTOL_WEAPON].firesound = 351 -- thunder
+              ps.weapon.PISTOL.shoots = 2605 -- RPG
+              ps.weapon[gv.PISTOL_WEAPON].firesound = 351 -- thunder
+
+              ps.pipebombControl = 2
+              ps.tripbombControl = 2
           end
          )
 

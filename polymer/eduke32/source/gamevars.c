@@ -1069,8 +1069,7 @@ void Gv_ResetSystemDefaults(void)
             aplWeaponFlashColor[i][j]=Gv_GetVarByLabel(aszBuf,0, -1, j);
         }
     }
-#endif
-#if !defined LUNATIC
+
     g_iReturnVarID=Gv_GetVarIndex("RETURN");
     g_iWeaponVarID=Gv_GetVarIndex("WEAPON");
     g_iWorksLikeVarID=Gv_GetVarIndex("WORKSLIKE");

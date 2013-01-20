@@ -39,6 +39,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef LUNATIC
 # include "lunatic_game.h"
+
+int32_t g_testLua = 0;
 #endif
 
 static int32_t g_whichPalForPlayer = 9;
@@ -1373,17 +1375,20 @@ static inline void prelevel(char g)
         }
     }
 
-#if 0 //def LUNATIC
-    if (L_IsInitialized(&g_ElState))
+#ifdef LUNATIC
+    if (g_testLua)
     {
-        i = L_RunOnce(&g_ElState, "test.elua");
-        if (i)
-            OSD_Printf(OSD_ERROR "Error running the test ELua script (code %d)\n", i);
+        if (L_IsInitialized(&g_ElState))
+        {
+            i = L_RunOnce(&g_ElState, "test.elua");
+            if (i)
+                OSD_Printf(OSD_ERROR "Error running the test ELua script (code %d)\n", i);
+            else
+                initprintf("ELua test script run ok!\n");
+        }
         else
-            initprintf("ELua test script run ok!\n");
+            initprintf("ELua test script: not inited!\n");
     }
-    else
-        initprintf("ELua test script: not inited!\n");
 #endif
 }
 
@@ -2051,7 +2056,7 @@ int32_t G_EnterLevel(int32_t g)
 void G_FreeMapState(int32_t mapnum)
 {
     int32_t j;
-
+#if !defined LUNATIC
     for (j=0; j<g_gameVarCount; j++)
     {
         if (aGameVars[j].dwFlags & GAMEVAR_NORESET) continue;
@@ -2066,6 +2071,7 @@ void G_FreeMapState(int32_t mapnum)
                 Bfree(MapInfo[mapnum].savedstate->vars[j]);
         }
     }
+#endif
     Bfree(MapInfo[mapnum].savedstate);
     MapInfo[mapnum].savedstate = NULL;
 }

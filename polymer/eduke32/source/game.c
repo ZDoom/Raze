@@ -8945,6 +8945,15 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
+#ifdef LUNATIC
+                if (!Bstrcasecmp(c+1,"testlua"))
+                {
+                    extern int32_t g_testLua;
+                    g_testLua = 1;
+                    i++;
+                    continue;
+                }
+#endif
 #if !defined(_WIN32)
                 if (!Bstrcasecmp(c+1,"usecwd"))
                 {

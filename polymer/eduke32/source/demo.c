@@ -153,7 +153,7 @@ void G_OpenDemoWrite(void)
         ud.recstat = ud.m_recstat = 0;
         return;
     }
-
+#if !defined LUNATIC
     if (demorec_diffs_cvar && !demorec_force_cvar)
         for (i=1; i<g_scriptSize-2; i++)
         {
@@ -172,7 +172,7 @@ void G_OpenDemoWrite(void)
                 return;
             }
         }
-
+#endif
     do
     {
         if (demonum == MAXDEMOS)

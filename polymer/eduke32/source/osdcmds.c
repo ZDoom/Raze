@@ -533,6 +533,7 @@ static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+#if !defined LUNATIC
 static int32_t osdcmd_setvar(const osdfuncparm_t *parm)
 {
     int32_t i, varval;
@@ -612,6 +613,7 @@ static int32_t osdcmd_setactorvar(const osdfuncparm_t *parm)
         Gv_SetVar(i, varval, ID, -1);
     return OSDCMD_OK;
 }
+#endif
 
 static int32_t osdcmd_addpath(const osdfuncparm_t *parm)
 {
@@ -1595,11 +1597,12 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
-
+#if !defined LUNATIC
     OSD_RegisterFunction("addlogvar","addlogvar <gamevar>: prints the value of a gamevar", osdcmd_addlogvar);
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
     OSD_RegisterFunction("setvarvar","setvarvar <gamevar1> <gamevar2>: sets the value of <gamevar1> to <gamevar2>", osdcmd_setvar);
     OSD_RegisterFunction("setactorvar","setactorvar <actor#> <gamevar> <value>: sets the value of <actor#>'s <gamevar> to <value>", osdcmd_setactorvar);
+#endif
     OSD_RegisterFunction("screenshot","screenshot: takes a screenshot.  See r_scrcaptureformat.", osdcmd_screenshot);
 
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);

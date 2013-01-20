@@ -48,6 +48,8 @@ enum GamevarFlags_t {
     GAMEVAR_NOMULTI    = 0x00080000, // don't attach to multiplayer packets
 };
 
+#if !defined LUNATIC
+
 #define MAXGAMEARRAYS (MAXGAMEVARS>>2) // must be lower than MAXGAMEVARS
 #define MAXARRAYLABEL MAXVARLABEL
 
@@ -94,15 +96,11 @@ extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t g_gameVarCount;
 extern int32_t g_gameArrayCount;
 
-#if defined LUNATIC
-# define Gv_GetVar(id, iActor, iPlayer) 0 // (OSD_Printf("Gv_GetVar @ %s:%d\n", __FILE__, __LINE__), 0)
-# define Gv_SetVar(id, lValue, iActor, iPlayer) do{}while(0) //OSD_Printf("Gv_SetVar @ %s:%d\n", __FILE__, __LINE__)
-#else
 int32_t __fastcall Gv_GetVar(register int32_t id,register int32_t iActor,register int32_t iPlayer);
 void __fastcall Gv_SetVar(register int32_t id,register int32_t lValue,register int32_t iActor,register int32_t iPlayer);
-#endif
 int32_t __fastcall Gv_GetVarX(register int32_t id);
 void __fastcall Gv_SetVarX(register int32_t id,register int32_t lValue);
+#endif
 
 #ifdef LUNATIC
 # define Gv_GetVarByLabel(szGameLabel, lDefault, iActor, iPlayer) (lDefault)
@@ -122,6 +120,7 @@ int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
 void Gv_Init(void);
 void Gv_WriteSave(FILE *fil,int32_t newbehav);
 
+#if !defined LUNATIC
 #define GV_VAROP(func, operator) static inline void __fastcall func(register int32_t id, register int32_t lValue) \
 { \
     switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) \
@@ -157,5 +156,6 @@ GV_VAROP(Gv_ModVar, %=)
 GV_VAROP(Gv_AndVar, &=)
 GV_VAROP(Gv_XorVar, ^=)
 GV_VAROP(Gv_OrVar, |=)
+#endif
 
 #endif

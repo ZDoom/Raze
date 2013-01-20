@@ -1045,6 +1045,7 @@ static uint8_t *svdiff;
 // setup gamevar data spec for snapshotting and diffing... gamevars must be loaded when called
 static void sv_makevarspec()
 {
+#if !defined LUNATIC
     static char *magic = "blK:vars";
     int32_t i, j, numsavedvars=0, per;
 
@@ -1085,6 +1086,7 @@ static void sv_makevarspec()
     }
 
     svgm_vars[j].flags = DS_END;
+#endif
 }
 
 void sv_freemem()

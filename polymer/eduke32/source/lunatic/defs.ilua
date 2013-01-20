@@ -1312,10 +1312,6 @@ setmtonce(gv, tmpmt)
 -- This will create 'sprite', 'wall', etc. HERE, i.e. in the environment of this chunk
 defs_c.create_globals(_G)
 
-function TEMP_getvollev()  -- REMOVE
-    return ffiC.ud.volume_number+1, ffiC.ud.level_number+1
-end
-
 
 ---=== Game variables ===---
 

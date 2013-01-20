@@ -33,12 +33,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MAXCHEATLEN             20
 #define NUMCHEATCODES           (int32_t)(sizeof(CheatStrings)/sizeof(CheatStrings[0]))
 
+extern hashtable_t h_gamefuncs;
+
+#if !defined LUNATIC
 extern hashtable_t h_gamevars;
 extern hashtable_t h_arrays;
-//extern hashtable_t h_keywords;
-extern hashtable_t h_gamefuncs;
 extern hashtable_t h_labels;
-
 
 extern int32_t g_iReturnVarID;      // var ID of "RETURN"
 extern int32_t g_iWeaponVarID;      // var ID of "WEAPON"
@@ -57,6 +57,7 @@ extern int32_t g_iPlayerVarID;
 extern int32_t g_iActorVarID;
 
 extern intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
+#endif
 
 extern int32_t otherp;
 extern int32_t lastvisinc;
@@ -68,6 +69,9 @@ extern int32_t g_scriptVersion;
 extern uint32_t g_scriptDateVersion;  // YYYYMMDD
 extern char g_szBuf[1024];
 
+extern const char *EventNames[];  // MAXEVENTS
+
+#if !defined LUNATIC
 extern intptr_t *g_scriptPtr;
 
 typedef struct
@@ -78,7 +82,6 @@ typedef struct
     int32_t maxParm2;
 } memberlabel_t;
 
-extern const char *EventNames[];  // MAXEVENTS
 extern const memberlabel_t SectorLabels[];
 extern const memberlabel_t WallLabels[];
 extern const memberlabel_t ActorLabels[];
@@ -87,27 +90,10 @@ extern const memberlabel_t ProjectileLabels[];
 extern const memberlabel_t userdeflabels[];
 extern const memberlabel_t InputLabels[];
 extern const memberlabel_t TsprLabels[];
+#endif
 
 int32_t C_AllocQuote(int32_t qnum);
 void C_InitQuotes(void);
-
-void C_ReportError(int32_t iError);
-#if !defined LUNATIC
-void C_Compile(const char *filenam);
-#endif
-
-/*
-extern void VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2);
-extern void VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-extern void VM_AccessPlayer(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2);
-extern void VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-extern void VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-extern void VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-extern void VM_AccessSprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2);
-extern void VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-extern void VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-*/
-
 
 typedef struct {
     int32_t g_i, g_p, g_x;
@@ -117,6 +103,10 @@ typedef struct {
 } vmstate_t;
 
 extern vmstate_t vm;
+
+#if !defined LUNATIC
+void C_ReportError(int32_t iError);
+void C_Compile(const char *filenam);
 
 extern int32_t g_errorLineNum;
 extern int32_t g_tw;
@@ -945,4 +935,7 @@ enum ScriptKeywords_t
     CON_SHOWVIEWUNBIASED,   // 363
     CON_END
 };
+#endif
+
+
 #endif

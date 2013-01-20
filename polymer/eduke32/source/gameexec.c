@@ -5388,7 +5388,7 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->lockclock,&lockclock,sizeof(lockclock));
         Bmemcpy(&save->randomseed,&randomseed,sizeof(randomseed));
         Bmemcpy(&save->g_globalRandom,&g_globalRandom,sizeof(g_globalRandom));
-
+#if !defined LUNATIC
         for (i=g_gameVarCount-1; i>=0; i--)
         {
             if (aGameVars[i].dwFlags & GAMEVAR_NORESET) continue;
@@ -5406,7 +5406,7 @@ void G_SaveMapState(mapstate_t *save)
             }
             else save->vars[i] = (intptr_t *)aGameVars[i].val.lValue;
         }
-
+#endif
         ototalclock = totalclock;
     }
 }
