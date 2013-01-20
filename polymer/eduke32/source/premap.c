@@ -43,6 +43,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 int32_t g_testLua = 0;
 #endif
 
+halfdimen_t g_halfScreen;
+int32_t g_halveScreenArea = 0;
+
 static int32_t g_whichPalForPlayer = 9;
 
 static uint8_t precachehightile[2][MAXTILES>>3];
@@ -589,7 +592,7 @@ void G_UpdateScreenArea(void)
         const int32_t ss = max(ud.screen_size-8,0);
 
         const int32_t x1 = scale(ss,xdim,160);
-        const int32_t x2 = xdim-x1;
+        int32_t x2 = xdim-x1;
 
         int32_t y1 = ss;
         int32_t y2 = 200;
@@ -611,9 +614,22 @@ void G_UpdateScreenArea(void)
             y2 -= (ss+scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100));
 
         y1 = scale(y1,ydim,200);
-        y2 = scale(y2,ydim,200);
+        y2 = scale(y2,ydim,200)+(getrendermode() != REND_CLASSIC);
 
-        setview(x1,y1,x2-1,y2-(getrendermode() == REND_CLASSIC));
+        if (g_halveScreenArea)
+        {
+            int32_t ourxdimen=x2-x1, ourydimen=y2-y1;
+
+            g_halfScreen.x1 = x1;
+            g_halfScreen.y1 = y1;
+            g_halfScreen.xdimen = (ourxdimen>>1);
+            g_halfScreen.ydimen = (ourydimen>>1);
+
+            x2 = x1 + (ourxdimen>>1);
+            y2 = y1 + (ourydimen>>1);
+        }
+
+        setview(x1,y1,x2-1,y2-1);
     }
 
     G_GetCrosshairColor();

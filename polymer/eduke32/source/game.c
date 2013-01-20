@@ -3584,6 +3584,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         const int32_t vr = divscale22(1,sprite[p->i].yrepeat+28);
         const int32_t software_screen_tilting =
             (getrendermode() == REND_CLASSIC && ((ud.screen_tilting && p->rotscrnang && !g_fakeMultiMode)));
+        int32_t pixelDoubling = 0;
 
         if (!r_usenewaspect)
         {
@@ -3667,12 +3668,18 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             tmpvr = i>>1;
             tmpyx = (65536*ydim*8)/(xdim*5);
         }
-        else if (getrendermode() >= REND_POLYMOST && (ud.screen_tilting && !g_fakeMultiMode) /*&& (p->rotscrnang || p->orotscrnang)*/)
+        else if (getrendermode() >= REND_POLYMOST && (ud.screen_tilting && !g_fakeMultiMode))
         {
 #ifdef USE_OPENGL
             setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024, smoothratio));
 #endif
             p->orotscrnang = p->rotscrnang; // JBF: save it for next time
+        }
+        else if (!ud.detail && getrendermode()==REND_CLASSIC)
+        {
+            pixelDoubling = 1;
+            g_halveScreenArea = 1;
+            G_UpdateScreenArea();
         }
 
         if (p->newowner < 0)
@@ -3837,26 +3844,39 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             rotatesprite_win(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64);
             walock[TILE_TILT] = 199;
         }
-    }
-
-    if (!ud.detail && getrendermode()==REND_CLASSIC && ((xdim|ydim)&1)==0)
-    {
-        begindrawing();
+        else if (pixelDoubling)
         {
-            uint8_t *const f = (uint8_t *)frameplace;
-            int32_t x, y;
+            Bassert(g_halfScreen.xdimen!=0);
+            g_halveScreenArea = 0;
+            G_UpdateScreenArea();
 
-            for (x=0; x<xdim; x+=2)
-                for (y=0; y<ydim; y+=2)
-                {
-                    const int32_t yl0 = ylookup[y];
-                    const int32_t yl1 = ylookup[y+1];
+            begindrawing();
+            {
+                uint8_t *const f = (uint8_t *)frameplace;
+                const int32_t x1=g_halfScreen.x1, y1=g_halfScreen.y1;
+                const int32_t xd=g_halfScreen.xdimen, yd=g_halfScreen.ydimen;
+                int32_t dx, dy;
 
-                    uint8_t newpal = f[yl0+x];
-                    f[yl0+x] = f[yl0+x+1] = f[yl1+x] = f[yl1+x+1] = newpal;
-                }
+                // Commented out: naive, per-byte access version.
+                // Live: optimized version: may access memory unaligned, relies
+                // on little-endian byte ordering.
+
+                for (dy=2*yd-1; dy>=0; dy--)
+//                    for (dx=2*xd-1; dx>=0; dx--)
+                    for (dx=2*xd-4; dx>=0; dx-=4)
+                    {
+                        const int32_t ylsrc = ylookup[y1+(dy>>1)];
+                        const int32_t yldst = ylookup[y1+dy];
+
+//                        f[yldst+x1+dx] = f[ylsrc+x1+(dx>>1)];
+                        uint8_t pixr = f[ylsrc+x1+((dx+3)>>1)];
+                        uint8_t pixl = f[ylsrc+x1+((dx+1)>>1)];
+
+                        *(uint32_t *)&f[yldst+x1+dx] = pixl|(pixl<<8)|(pixr<<16)|(pixr<<24);
+                    }
+            }
+            enddrawing();
         }
-        enddrawing();
     }
 
     G_RestoreInterpolations();
