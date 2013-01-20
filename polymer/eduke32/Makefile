@@ -164,18 +164,22 @@ ifneq (0,$(LUNATIC))
         # strip on OSX says: removing global symbols from a final linked no longer supported.
         #                    Use -exported_symbols_list at link time when building
         # But, following _their_ directions does not give us the symbols! wtf?
-        STRIP+= -s $(SRC)/lunatic/dynsymlist_osx
+        ifneq ($(STRIP),0)
+            STRIP+= -s $(SRC)/lunatic/dynsymlist_osx
+        endif
 
         MISCGAMEDEPS+= $(SRC)/lunatic/dynsymlist_osx
         PRINTLDFLAGS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(SRC)/lunatic/aliases_list #-exported_symbols_list $(SRC)/lunatic/dynsymlist_osx
     endif
     ifeq ($(PLATFORM),WINDOWS)
+        STRIP=
         MISCGAMEDEPS+= $(SRC)/lunatic/eduke32.def
         GAMELDFLAGS+= $(SRC)/lunatic/eduke32.def
         MISCEDITORDEPS+= $(SRC)/lunatic/mapster32.def
         EDITORLDFLAGS+= $(SRC)/lunatic/mapster32.def
     endif
     ifeq ($(SUBPLATFORM),LINUX)
+        STRIP=
         GAMELDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
         EDITORLDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist_m32
     endif
@@ -344,12 +348,8 @@ finish:
 $(EDUKE32): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENET_TARGET) $(MISCGAMEDEPS)
 	$(LINK_STATUS)
 	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(GAMELDFLAGS) $(OURLIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
-ifeq (1,$(RELEASE))
-  ifeq (0,$(DEBUGANYWAY))
-    ifneq ($(PLATFORM),WII)
-	  $(STRIP) $(EDUKE32)
-    endif
-  endif
+ifneq ($(STRIP),)
+	$(STRIP) $(EDUKE32)
 endif
 ifeq ($(PLATFORM),DARWIN)
 	cp -RPf "Apple/bundles/EDuke32.app" "./"
@@ -360,12 +360,8 @@ endif
 $(MAPSTER32): $(EDITOROBJS) $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(MISCEDITORDEPS)
 	$(LINK_STATUS)
 	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(EDITORLDFLAGS) $(OURLIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
-ifeq (1,$(RELEASE))	
-  ifeq (0,$(DEBUGANYWAY))
-    ifneq ($(PLATFORM),WII)
-	  $(STRIP) $(MAPSTER32)
-    endif
-  endif
+ifneq ($(STRIP),)
+	$(STRIP) $(MAPSTER32)
 endif
 ifeq ($(PLATFORM),DARWIN)
 	cp -RPf "Apple/bundles/Mapster32.app" "./"

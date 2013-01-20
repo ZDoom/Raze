@@ -26,8 +26,6 @@ ifneq (0,$(CLANG))
     CXX=clang -x c++
     L_CC=clang -std=gnu89
     L_CXX=clang
-#    AR=llvm-ar
-#    RANLIB=llvm-ranlib
 endif
 
 
@@ -168,6 +166,13 @@ DMALLOC?=0
 OPTLEVEL?=2
 PROFILER?=0
 MUDFLAP?=0
+
+ifeq ($(RELEASE),0)
+    STRIP=
+endif
+ifneq ($(DEBUGANYWAY),0)
+    STRIP=
+endif
 
 ifndef LTO
     LTO=1
