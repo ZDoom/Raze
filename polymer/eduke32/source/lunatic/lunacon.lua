@@ -138,13 +138,16 @@ local function new_initial_gvartab()
     local wmembers = conl.wdata_members
     local MAX_WEAPONS = ffiC and ffiC.MAX_WEAPONS or 12
 
-    local RW = function(varname)
-        return { name=varname, flags=GVFLAG.SYSTEM }
+    local function GamevarCreationFunc(addflags)
+        return function(varname)
+            return { name=varname, flags=GVFLAG.SYSTEM+addflags }
+        end
     end
 
-    local RO = function(varname)
-        return { name=varname, flags=GVFLAG.SYSTEM+GVFLAG.READONLY }
-    end
+    local RW = GamevarCreationFunc(0)
+    local RO = GamevarCreationFunc(GVFLAG.READONLY)
+    local PRW = GamevarCreationFunc(GVFLAG.PERPLAYER)
+    local PRO = GamevarCreationFunc(GVFLAG.READONLY+GVFLAG.PERPLAYER)
 
     local gamevar = {
         -- XXX: TODO: THISACTOR can mean different things in some contexts,
@@ -191,22 +194,22 @@ local function new_initial_gvartab()
         gs = RW "_gv.hudweap.shade",
 
         -- Some per-player gamevars
-        ZRANGE = RW(PLS".zrange"),
-        ANGRANGE = RW(PLS".angrange"),
-        AUTOAIMANGLE = RW(PLS".autoaimang"),
+        ZRANGE = PRW(PLS".zrange"),
+        ANGRANGE = PRW(PLS".angrange"),
+        AUTOAIMANGLE = PRW(PLS".autoaimang"),
 
-        PIPEBOMB_CONTROL = RW(PLS".pipebombControl"),
-        GRENADE_LIFETIME = RW(PLS".pipebombLifetime"),
-        GRENADE_LIFETIME_VAR = RW(PLS".pipebombLifetimeVar"),
-        TRIPBOMB_CONTROL = RW(PLS".tripbombControl"),
-        STICKYBOMB_LIFETIME = RW(PLS".tripbombLifetime"),
-        STICKYBOMB_LIFETIME_VAR = RW(PLS".tripbombLifetimeVar"),
+        PIPEBOMB_CONTROL = PRW(PLS".pipebombControl"),
+        GRENADE_LIFETIME = PRW(PLS".pipebombLifetime"),
+        GRENADE_LIFETIME_VAR = PRW(PLS".pipebombLifetimeVar"),
+        TRIPBOMB_CONTROL = PRW(PLS".tripbombControl"),
+        STICKYBOMB_LIFETIME = PRW(PLS".tripbombLifetime"),
+        STICKYBOMB_LIFETIME_VAR = PRW(PLS".tripbombLifetimeVar"),
 
         -- These are not 100% authentic (they're only updated in certain
         -- circumstances, see player.c: P_SetWeaponGamevars()). But IMO it's
         -- more useful like this.
-        WEAPON = RO(PLS".curr_weapon"),
-        WORKSLIKE = RO(format(PLS".weapon[%s].workslike", PLS".curr_weapon")),
+        WEAPON = PRO(PLS".curr_weapon"),
+        WORKSLIKE = PRO(format(PLS".weapon[%s].workslike", PLS".curr_weapon")),
 
         VOLUME = RO "_gv.currentEpisode()",
         LEVEL = RO "_gv.currentLevel()",
@@ -216,10 +219,7 @@ local function new_initial_gvartab()
         for i=1,#wmembers do
             local member = wmembers[i]:gsub(".* ","")  -- strip e.g. "int32_t "
             local name = format("WEAPON%d_%s", w, member:upper())
-
-            local code = format(PLS".weapon[%d].%s", w, member)
-
-            gamevar[name] = { name=code, flags=GVFLAG.PERPLAYER+GVFLAG.SYSTEM }
+            gamevar[name] = PRW(format(PLS".weapon[%d].%s", w, member))
         end
     end
 
@@ -623,12 +623,12 @@ local function reset_gamedata()
 end
 
 function Cmd.definelevelname(vol, lev, fn, ptstr, dtstr, levname)
-    if (vol < 0 or vol >= conl.MAXVOLUMES) then
+    if (not (vol >= 0 and vol < conl.MAXVOLUMES)) then
         errprintf("volume number exceeds maximum volume count.")
         return
     end
 
-    if (lev < 0 or lev >= conl.MAXLEVELS) then
+    if (not (lev >= 0 and lev < conl.MAXLEVELS)) then
         errprintf("level number exceeds maximum number of levels per episode.")
         return
     end
@@ -664,7 +664,7 @@ local function defineXname(what, ffiCfuncname, X, name)
 end
 
 function Cmd.defineskillname(skillnum, name)
-    if (skillnum < 0 or skillnum >= conl.MAXSKILLS) then
+    if (not (skillnum >= 0 and skillnum < conl.MAXSKILLS)) then
         errprintf("skill number is negative or exceeds maximum skill count.")
         return
     end
@@ -674,7 +674,7 @@ function Cmd.defineskillname(skillnum, name)
 end
 
 function Cmd.definevolumename(vol, name)
-    if (vol < 0 or vol >= conl.MAXVOLUMES) then
+    if (not (vol >= 0 and vol < conl.MAXVOLUMES)) then
         errprintf("volume number is negative or exceeds maximum volume count.")
         return
     end
@@ -780,25 +780,51 @@ end
 --- GAMEVARS / GAMEARRAYS
 
 function Cmd.gamevar(identifier, initval, flags)
-    local invalid_code = "local _INVALIDGV"
+    local failure_code = "local _INVALIDGV"
 
     if (bit.band(flags, bit.bnot(GVFLAG.PERX_MASK)) ~= 0) then
         -- TODO: a couple of the presumably safe ones
         errprintf("gamevar flags other than PERPLAYER or PERACTOR: NYI or forbidden")
-        return invalid_code
+        return failure_code
     end
 
     if (flags==GVFLAG.PERPLAYER+GVFLAG.PERACTOR) then
         errprintf("invalid gamevar flags: must be either PERPLAYER or PERACTOR, not both")
-        return invalid_code
+        return failure_code
     end
 
     local ogv = g_gamevar[identifier]
 
     if (ogv ~= nil) then
-        if (ogv.flags ~= flags) then
+        local oflags = ogv.flags
+        if (oflags ~= flags) then
+            if (bit.band(oflags, GVFLAG.SYSTEM) ~= 0) then
+                -- Attempt to override a system gamevar. See if it's read-only...
+                if (bit.band(oflags, GVFLAG.READONLY) ~= 0) then
+                    errprintf("attempt to override read-only system gamevar `%s'", identifier)
+                    return failure_code
+                end
+
+                local flagsnosys = bit.band(oflags, bit.bnot(GVFLAG.SYSTEM))
+                if (flagsnosys ~= flags) then
+                    warnprintf("overrode initial value of `%s', but kept "..
+                               "flags (%d)", identifier, flagsnosys)
+                end
+
+                -- Emit code to set the variable at Lua parse time.
+                if (bit.band(oflags, GVFLAG.PERPLAYER) ~= 0) then
+                    -- Replace player index by 0.
+                    -- TODO: init for all players.
+                    local pvar, numrepls = ogv.name:gsub("_pli", "0")
+                    assert(numrepls>=1)
+                    addcodef("%s=%d", pvar, initval)
+                else
+                    addcodef("%s=%d", ogv.name, initval)
+                end
+            end
+
             errprintf("duplicate gamevar definition `%s' has different flags", identifier)
-            return invalid_code
+            return failure_code
         else
             warnprintf("duplicate gamevar definition `%s' ignored", identifier)
             return ""
@@ -1967,7 +1993,6 @@ local Grammar = Pat{
           + Var("if_else_bodies"))
         * (Pat("")/end_if_else_fn),
 
-    -- TODO?: SST TC has "state ... else ends"
     while_stmt = Keyw("whilevarvarn") * sp1 * tok.rvar * sp1 * tok.rvar * sp1 * Var("single_stmt")
         + Keyw("whilevarn") * sp1 * tok.rvar * sp1 * tok.define/"WHILE_XXX" * sp1 * Var("single_stmt"),
 

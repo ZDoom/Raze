@@ -996,7 +996,7 @@ end
 function _sound(aci, sndidx)
     check_sprite_idx(aci)
     -- A_PlaySound() returns early if the sound index is oob, but IMO it's good
-    -- style to throw an error in instead of silently failing.
+    -- style to throw an error instead of silently failing.
     check_sound_idx(sndidx)
     ffiC.A_PlaySound(sndidx, aci)
 end
