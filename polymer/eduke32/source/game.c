@@ -3119,17 +3119,18 @@ void G_DrawBackground(void)
     }
     else
     {
-        int32_t bgtile;
+        const int32_t MENUTILE = (getrendermode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
+        const int32_t fstilep = tilesizx[MENUTILE]==320 && tilesizy[MENUTILE]==200;
+        int32_t bgtile = (fstilep ? MENUTILE : BIGHOLE);
 
         clearallviews(0);
 
         // when not rendering a game, fullscreen wipe
-#define MENUTILE (getrendermode() == REND_CLASSIC?MENUSCREEN:LOADSCREEN)
 //        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
-        bgtile = (tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE);
         if (G_HaveEvent(EVENT_GETMENUTILE))
             bgtile = VM_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1, bgtile);
-        if (Gv_GetVarByLabel("MENU_TILE", tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?0:1, -1, -1))
+        // MENU_TILE: is the menu tile tileable?
+        if (Gv_GetVarByLabel("MENU_TILE", !fstilep, -1, -1))
         {
             for (y=y1; y<y2; y+=tilesizy[bgtile])
                 for (x=0; x<xdim; x+=tilesizx[bgtile])

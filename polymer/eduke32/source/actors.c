@@ -4516,13 +4516,8 @@ ACTOR_STATIC void G_MoveActors(void)
                 s->xvel >>= 1;
             }
 
-            //      int32_t lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, -1);
-
 DETONATEB:
-
-            //  if(lPipeBombControl & PIPEBOMB_TIMER)
-            //       {
-
+            // Pipebomb control set to timer? (see player.c)
             if (s->picnum == HEAVYHBOMB && t[6] == 1)
             {
                 /*                if(s->extra >= 1)
@@ -4540,7 +4535,6 @@ DETONATEB:
                 if (t[7] == 0)
                     t[6] = 3;
             }
-            //      }
 
             if ((l >= 0 && g_player[l].ps->hbomb_on == 0 && t[6] == 2) || t[3] == 1)
                 t[6] = 3;

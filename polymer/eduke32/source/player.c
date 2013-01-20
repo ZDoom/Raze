@@ -1517,12 +1517,21 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             if (j == 1)
             {
                 int32_t lTripBombControl = (p < 0) ? 0 :
+#ifdef LUNATIC
+                    g_player[p].ps->tripbombControl;
+#else
                     Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
+#endif
                 k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,TRIPBOMB,-16,4,5,sa,0,0,i,6);
                 if (lTripBombControl & TRIPBOMB_TIMER)
                 {
+#ifdef LUNATIC
+                    int32_t lLifetime = g_player[p].ps->tripbombLifetime;
+                    int32_t lLifetimeVar = g_player[p].ps->tripbombLifetimeVar;
+#else
                     int32_t lLifetime=Gv_GetVarByLabel("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, g_player[p].ps->i, p);
                     int32_t lLifetimeVar=Gv_GetVarByLabel("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, g_player[p].ps->i, p);
+#endif
                     // set timer.  blows up when at zero....
                     actor[k].t_data[7]=lLifetime
                                        + mulscale(krand(),lLifetimeVar, 14)
@@ -3603,6 +3612,12 @@ void P_FragPlayer(int32_t snum)
     }
 }
 
+#ifdef LUNATIC
+# define PIPEBOMB_CONTROL(snum) (g_player[snum].ps->pipebombControl)
+#else
+# define PIPEBOMB_CONTROL(snum) (Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum))
+#endif
+
 static void P_ProcessWeapon(int32_t snum)
 {
     DukePlayer_t *const p = g_player[snum].ps;
@@ -3873,12 +3888,12 @@ static void P_ProcessWeapon(int32_t snum)
 
             if (++(*kb) == PWEAPON(snum, p->curr_weapon, HoldDelay))
             {
-                int32_t lPipeBombControl;
-
                 p->ammo_amount[p->curr_weapon]--;
 
                 if (numplayers < 2 || g_netServer)
                 {
+                    int32_t lPipeBombControl;
+
                     if (p->on_ground && TEST_SYNC_KEY(sb_snum, SK_CROUCH))
                     {
                         k = 15;
@@ -3896,13 +3911,18 @@ static void P_ProcessWeapon(int32_t snum)
                                        p->pos.z,PWEAPON(snum, p->curr_weapon, Shoots),-16,9,9,
                                        p->ang,(k+(p->hbomb_hold_delay<<5)),i,p->i,1);
 
-                    lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
+                    lPipeBombControl = PIPEBOMB_CONTROL(snum);
 
                     if (lPipeBombControl & PIPEBOMB_TIMER)
                     {
+#ifdef LUNATIC
+                        int32_t ltime = g_player[snum].ps->pipebombLifetime;
+                        int32_t lv = g_player[snum].ps->pipebombLifetimeVar;
+#else
+                        int32_t ltime = Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
                         int32_t lv=Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
-
-                        actor[j].t_data[7]= Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum)
+#endif
+                        actor[j].t_data[7]= ltime
                                             + mulscale(krand(),lv, 14)
                                             - lv;
                         actor[j].t_data[6]=1;
@@ -3931,8 +3951,7 @@ static void P_ProcessWeapon(int32_t snum)
             {
                 (*kb) = 0;
                 p->weapon_pos = 10;
-
-                if (Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum) == PIPEBOMB_REMOTE)
+                if (PIPEBOMB_CONTROL(snum) == PIPEBOMB_REMOTE)
                 {
                     p->curr_weapon = HANDREMOTE_WEAPON;
                     p->last_weapon = -1;
@@ -3964,7 +3983,7 @@ static void P_ProcessWeapon(int32_t snum)
             {
                 (*kb) = 0;
                 if ((p->ammo_amount[HANDBOMB_WEAPON] > 0) &&
-                        Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum) == PIPEBOMB_REMOTE)
+                        PIPEBOMB_CONTROL(snum) == PIPEBOMB_REMOTE)
                     P_AddWeapon(p,HANDBOMB_WEAPON);
                 else P_CheckWeapon(p);
             }
