@@ -465,6 +465,9 @@ BDIR*		Bopendir(const char *name);
 struct Bdirent*	Breaddir(BDIR *dir);
 int32_t		Bclosedir(BDIR *dir);
 
+#ifdef _MSC_VER
+typedef intptr_t ssize_t;
+#endif
 
 #ifdef __compat_h_macrodef__
   typedef FILE BFILE;
