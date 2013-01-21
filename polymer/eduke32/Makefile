@@ -172,14 +172,14 @@ ifneq (0,$(LUNATIC))
         PRINTLDFLAGS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(SRC)/lunatic/aliases_list #-exported_symbols_list $(SRC)/lunatic/dynsymlist_osx
     endif
     ifeq ($(PLATFORM),WINDOWS)
-        STRIP=
+        override STRIP=
         MISCGAMEDEPS+= $(SRC)/lunatic/eduke32.def
         GAMELDFLAGS+= $(SRC)/lunatic/eduke32.def
         MISCEDITORDEPS+= $(SRC)/lunatic/mapster32.def
         EDITORLDFLAGS+= $(SRC)/lunatic/mapster32.def
     endif
     ifeq ($(SUBPLATFORM),LINUX)
-        STRIP=
+        override STRIP=
         GAMELDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
         EDITORLDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist_m32
     endif

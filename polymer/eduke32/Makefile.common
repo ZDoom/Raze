@@ -168,10 +168,10 @@ PROFILER?=0
 MUDFLAP?=0
 
 ifeq ($(RELEASE),0)
-    STRIP=
+    override STRIP=
 endif
 ifneq ($(DEBUGANYWAY),0)
-    STRIP=
+    override STRIP=
 endif
 
 ifndef LTO
