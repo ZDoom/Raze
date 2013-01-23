@@ -1047,8 +1047,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
             l = sprite[num].lotag;
             if (l>=0 && l<=63 && (taglab_nolink_SEs&(1ull<<l)))
                 break;
-//            if (sprite[num].hitag > 0)
-                link = 2;
+            link = 2;
             break;
 
             // various lotag-linkers
@@ -1059,8 +1058,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
         case DIPSWITCH: case TECHSWITCH: case ALIENSWITCH: case TARGET: case DUCK:
         case REACTOR:
         case CAMERA1:
-//            if (sprite[num].lotag > 0)
-                link = 1;
+            link = 1;
             break;
 
             // various hitag-linkers
@@ -1071,8 +1069,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
         case SEENINE: case OOZFILTER:
         case CRANEPOLE: case CRANE:
         case NATURALLIGHTNING:
-//            if (sprite[num].hitag > 0)
-                link = 2;
+            link = 2;
             break;
         }
     }
@@ -1086,8 +1083,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
         case TECHLIGHT2: case TECHLIGHT4: case WALLLIGHT4:
         case WALLLIGHT3: case WALLLIGHT1: case WALLLIGHT2:
         case BIGFORCE: case W_FORCEFIELD:
-//            if (wall[num].lotag > 0)
-                link = 1;
+            link = 1;
             break;
         }
     }
@@ -1110,8 +1106,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
         case DOORTILE22: case DOORTILE18: case DOORTILE19: case DOORTILE20:
         case DOORTILE14: case DOORTILE16: case DOORTILE15: case DOORTILE21:
         case DOORTILE17: case DOORTILE11: case DOORTILE12: case DOORTILE23:  // ---
-//            if ((!spritep && wall[num].lotag>0) || (spritep && sprite[num].lotag>0))
-                link = 1;
+            link = 1;
             break;
         }
     }
@@ -8134,7 +8129,7 @@ static void Keys2d(void)
                 {
                     tmpspritenum += tsign;
                     if ((unsigned)tmpspritenum >= MAXSPRITES)
-                        tmpspritenum = (MAXSPRITES+tmpspritenum)%MAXSPRITES;
+                        tmpspritenum = (tmpspritenum < 0) ? MAXSPRITES-1 : 0;
 
                     if (tmpspritenum==refspritenum)
                     {
@@ -8146,12 +8141,15 @@ static void Keys2d(void)
                     {
                         int32_t oog = jump_to_sprite(tmpspritenum);
 
-                        // center cursor so that we can repeat this
-                        searchx = halfxdim16;
-                        searchy = midydim16;
+                        if (!oog)
+                        {
+                            // center cursor so that we can repeat this
+                            searchx = halfxdim16;
+                            searchy = midydim16;
+                        }
 
-                        silentmessage("Next sprite with tag %d: %d%s", reftag, tmpspritenum,
-                                      oog ? "(out of grid)" : "");
+                        silentmessage("%s sprite with tag %d: %d%s", tsign>0 ? "Next" : "Previous",
+                                      reftag, tmpspritenum, oog ? "(out of grid)" : "");
                         break;
                     }
                 }
