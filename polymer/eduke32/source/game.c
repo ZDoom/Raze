@@ -3478,6 +3478,7 @@ static void G_OROR_DupeSprites(void)
     }
 }
 
+#ifdef USE_OPENGL
 static void G_ReadGLFrame(void)
 {
     // Save OpenGL screenshot with Duke3D palette
@@ -3515,6 +3516,7 @@ static void G_ReadGLFrame(void)
     }
     enddrawing();
 }
+#endif
 
 void G_DrawRooms(int32_t snum, int32_t smoothratio)
 {
