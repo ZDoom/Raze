@@ -212,6 +212,7 @@ enum sflags_t {
     // rotation-fixed wrt a pivot point to prevent position diverging due to
     // roundoff error accumulation:
     SPRITE_ROTFIXED         = 0x00020000,
+    SPRITE_HARDCODED_BADGUY = 0x00040000,
 };
 
 // custom projectiles

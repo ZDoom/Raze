@@ -8151,6 +8151,9 @@ void A_PlayAlertSound(int32_t i)
 
 int32_t A_CheckEnemyTile(int32_t pn)
 {
+    if (g_tile[pn].flags & SPRITE_HARDCODED_BADGUY)
+        return 1;
+
     return A_CheckSpriteTileFlags(pn, SPRITE_BADGUY);
 }
 

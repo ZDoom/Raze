@@ -9673,7 +9673,7 @@ static void G_LoadExtraPalettes(void)
     kclose(fp);
 }
 
-#define SETBGFLAG(Tilenum) g_tile[Tilenum].flags |= SPRITE_BADGUY
+#define SETBGFLAG(Tilenum) g_tile[Tilenum].flags |= SPRITE_HARDCODED_BADGUY
 
 // Has to be after setting the dynamic names (e.g. SHARK).
 static void A_InitEnemyFlags(void)
