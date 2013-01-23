@@ -3546,7 +3546,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     if (ud.pause_on || g_player[snum].ps->on_crane > -1)
         smoothratio = 65536;
     else
-        smoothratio = clamp((totalclock-ototalclock)*(65536/4), 0, 65536);
+        smoothratio = calc_smoothratio(totalclock, ototalclock);
 
     g_visibility = (int32_t)(p->visibility * (numplayers > 1 ? 1.f : r_ambientlightrecip));
 
