@@ -780,17 +780,15 @@ end
 --- GAMEVARS / GAMEARRAYS
 
 function Cmd.gamevar(identifier, initval, flags)
-    local failure_code = "local _INVALIDGV"
-
     if (bit.band(flags, bit.bnot(GVFLAG.PERX_MASK)) ~= 0) then
         -- TODO: a couple of the presumably safe ones
         errprintf("gamevar flags other than PERPLAYER or PERACTOR: NYI or forbidden")
-        return failure_code
+        return
     end
 
     if (flags==GVFLAG.PERPLAYER+GVFLAG.PERACTOR) then
         errprintf("invalid gamevar flags: must be either PERPLAYER or PERACTOR, not both")
-        return failure_code
+        return
     end
 
     local ogv = g_gamevar[identifier]
@@ -802,7 +800,7 @@ function Cmd.gamevar(identifier, initval, flags)
                 -- Attempt to override a system gamevar. See if it's read-only...
                 if (bit.band(oflags, GVFLAG.READONLY) ~= 0) then
                     errprintf("attempt to override read-only system gamevar `%s'", identifier)
-                    return failure_code
+                    return
                 end
 
                 local flagsnosys = bit.band(oflags, bit.bnot(GVFLAG.SYSTEM))
@@ -821,13 +819,14 @@ function Cmd.gamevar(identifier, initval, flags)
                 else
                     addcodef("%s=%d", ogv.name, initval)
                 end
+                return
             end
 
             errprintf("duplicate gamevar definition `%s' has different flags", identifier)
-            return failure_code
+            return
         else
             warnprintf("duplicate gamevar definition `%s' ignored", identifier)
-            return ""
+            return
         end
     end
 

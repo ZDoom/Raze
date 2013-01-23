@@ -235,6 +235,9 @@ function _spawnmany(ow, tilenum, n)
 end
 
 function isenemytile(tilenum)
+    if (bit.band(ffiC.g_tile[tilenum].flags, 0x00040000)~=0) then
+        return true
+    end
     return (bit.band(ffiC.g_tile[tilenum].flags, ffiC.SFLAG_BADGUY)~=0)
 end
 

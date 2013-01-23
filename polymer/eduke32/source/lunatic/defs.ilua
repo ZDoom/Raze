@@ -569,13 +569,6 @@ if (not good) then
     error("Some sizes don't match between C and LuaJIT/FFI.")
 end
 
--- Add game-side metamethods to "spritetype" and register it with "metatype"
-defs_c.spritetype_mt.__index.isenemy = function(s)
-    -- CODEDUP control.lua: isenemytile
-    return (bit.band(ffiC.g_tile[s.picnum].flags, ffiC.SFLAG_BADGUY)~=0)
-end
-ffi.metatype("spritetype", defs_c.spritetype_mt)
-
 -- "player" global, needed by the "control" module
 local tmpmt = {
     __index = function(tab, key)
@@ -597,6 +590,12 @@ actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, "actor[]")
 -- ID-wrapped types con_action_t and con_move_t
 local con = require("control")
 local MV, AC, AI = con.MV, con.AC, con.AI
+
+-- Add game-side metamethods to "spritetype" and register it with "metatype"
+defs_c.spritetype_mt.__index.isenemy = function(s)
+    return con.isenemytile(s.picnum)
+end
+ffi.metatype("spritetype", defs_c.spritetype_mt)
 
 -- All-zero action and move
 local nullac, nullmv = ffi.new("const struct action"), ffi.new("const struct move")
