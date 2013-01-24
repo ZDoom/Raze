@@ -98,6 +98,7 @@ g_spriteDeleteQueueSize;
 BlimpSpawnSprites;
 g_scriptVersion;
 g_currentFrameRate;
+g_currentMenu;
 
 luaJIT_BC_lunacon;
 luaJIT_BC_con_lang;
@@ -131,4 +132,6 @@ A_CheckAnySoundPlaying;
 A_PlaySound;
 S_CheckSoundPlaying;
 S_StopEnvSound;
+FX_StopAllSounds;
+S_ChangeSoundPitch;
 };

@@ -499,6 +499,7 @@ int16_t g_spriteDeleteQueueSize;
 int16_t BlimpSpawnSprites[15];
 int32_t g_scriptVersion;
 const int32_t g_currentFrameRate;
+const int32_t g_currentMenu;
 
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
 void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap);
@@ -521,6 +522,8 @@ int32_t A_CheckAnySoundPlaying(int32_t i);
 int32_t A_PlaySound(uint32_t num, int32_t i);
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
 void S_StopEnvSound(int32_t num, int32_t i);
+int32_t FX_StopAllSounds(void);
+void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset);
 ]]
 
 decl[[
@@ -900,8 +903,12 @@ local camera_mt = {
 
 gv_access.cam = setmetatable({}, camera_mt)
 
-function gv_access._get_framerate()
+function gv_access._currentFramerate()
     return ffiC.g_currentFrameRate
+end
+
+function gv_access._currentMenu()
+    return ffiC.g_currentMenu
 end
 
 function gv_access.currentEpisode()

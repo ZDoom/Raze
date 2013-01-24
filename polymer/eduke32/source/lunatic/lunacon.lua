@@ -103,7 +103,13 @@ local GVFLAG = {
     PERPLAYER=1, PERACTOR=2, PERX_MASK=3,
     SYSTEM   = 0x00000800,
     READONLY = 0x00001000,
+
+    NODEFAULT = 0x00000400,  -- don't reset on actor spawn
+    NORESET   = 0x00020000,  -- don't reset when restoring map state
 }
+
+-- NOTE: This differs from enum GamevarFlags_t's GAMEVAR_USER_MASK
+GVFLAG.USER_MASK = GVFLAG.PERX_MASK + GVFLAG.NODEFAULT + GVFLAG.NORESET
 
 -- CON --> mangled Lua function name, also existence check:
 local g_funcname = {}
@@ -170,7 +176,8 @@ local function new_initial_gvartab()
 
         randomseed = RW "_gv.randomseed",
         totalclock = RO "_gv.totalclock",
-        framerate = RO "_gv._get_framerate()",
+        framerate = RO "_gv._currentFramerate()",
+        current_menu = RO "_gv._currentMenu()",
         rendmode = RO "_gv.currentRenderMode()",
 
         screenpeek = RO "_gv.screenpeek",
@@ -389,13 +396,15 @@ local function reset_labels()
         -- NOTE: these are read-only gamevars in C-CON
         CLIPMASK0 = 65536+1,  -- blocking
         CLIPMASK1 = (256*65536)+64,  -- hittable
+        -- TODO...?
+        COOP = 0,
+        MULTIMODE = 0,
+        numplayers = 1,
     }
 
-    g_labeltype = {
-        NO = LABEL.NUMBER,
-        CLIPMASK0 = LABEL.NUMBER,
-        CLIPMASK1 = LABEL.NUMBER,
-    }
+    for varname,_ in pairs(g_labeldef) do
+        g_labeltype[varname] = LABEL.NUMBER
+    end
 
     -- Initialize default defines.
     for i=1,#conl.labels do
@@ -780,9 +789,10 @@ end
 --- GAMEVARS / GAMEARRAYS
 
 function Cmd.gamevar(identifier, initval, flags)
-    if (bit.band(flags, bit.bnot(GVFLAG.PERX_MASK)) ~= 0) then
+    -- TODO: handle user bits like NORESET or NODEFAULT
+    if (bit.band(flags, bit.bnot(GVFLAG.USER_MASK)) ~= 0) then
         -- TODO: a couple of the presumably safe ones
-        errprintf("gamevar flags other than PERPLAYER or PERACTOR: NYI or forbidden")
+        errprintf("gamevar flags other than 1, 2, 1024 or 131072: NYI or forbidden")
         return
     end
 
@@ -1094,9 +1104,25 @@ local setperxvarcmd = -- set<actor/player>var[<idx>].<member> <var>
     arraypat * memberpat * sp1 * tok.rvar
 
 
--- Various inner command handling functions.
+-- Various inner command handling functions / string capture strings.
 local handle =
 {
+    NYI = function()
+        errprintf("command `%s' not yet implemented", g_lastkw)
+    end,
+
+    addlog = function()
+        return format("print('%s:%d: addlog')", g_filename, getlinecol(g_lastkwpos))
+    end,
+
+    addlogvar = function(val)
+        return format("printf('%s:%d: addlogvar %%s', %s)", g_filename, getlinecol(g_lastkwpos), val)
+    end,
+
+    debug = function(val)
+        return format("print('%s:%d: debug %d')", g_filename, getlinecol(g_lastkwpos), val)
+    end,
+
     palfrom = function(...)
         local v = {...}
         return format(PLS":_palfrom(%d,%d,%d,%d)",
@@ -1108,10 +1134,6 @@ local handle =
         return format(ACS":set_move(%s,%d)", mv, (flags[1] and bit.bor(...)) or 0)
     end,
 
-    debug = function(val)
-        return format("print('%s:%d: debug %d')", g_filename, getlinecol(g_lastkwpos), val)
-    end,
-
     state = function(statename)
         if (g_funcname[statename]==nil) then
             errprintf("state `%s' not found.", statename)
@@ -1121,6 +1143,12 @@ local handle =
     end,
 
     addweapon = format("if (%s) then _con.longjmp() end", PLS":addweapon(%1,%2)"),
+
+    -- Sound commands
+    sound = "_con._sound(_aci,%1)",
+    globalsound = "_con._globalsound(_pli,%1)",
+    stopsound = "_con._stopsound(_aci,%1)",
+    soundonce = "_con._soundonce(_aci,%1)",
 }
 
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
@@ -1246,17 +1274,14 @@ local Cinner = {
     operaterespawns = cmd(R),
     operatemasterswitches = cmd(R),
     checkactivatormotion = cmd(R),
-    time = cmd(R),  -- no-op
+    time = cmd(R)  -- no-op
+        / "",
     inittimer = cmd(R),
     lockplayer = cmd(R),
     shootvar = cmd(R),
     quake = cmd(R),
     jump = cmd(R),
     cmenu = cmd(R),
-    soundvar = cmd(R),
-    globalsoundvar = cmd(R),
-    stopsoundvar = cmd(R),
-    soundoncevar = cmd(R),
     angoffvar = cmd(R),
     checkavailweapon = cmd(R),
     checkavailinven = cmd(R),
@@ -1264,11 +1289,38 @@ local Cinner = {
     savegamevar = cmd(R),
     readgamevar = cmd(R),
     userquote = cmd(R),
-    echo = cmd(R) / "_con._echo(%1)",
+    echo = cmd(R)
+        / "_con._echo(%1)",
     starttrackvar = cmd(R),
     clearmapstate = cmd(R),
     activatecheat = cmd(R),
     setgamepalette = cmd(R),
+
+    -- Sound commands
+    sound = cmd(D)
+        / handle.sound,
+    soundvar = cmd(R)
+        / handle.sound,
+    globalsound = cmd(D)
+        / handle.globalsound,
+    globalsoundvar = cmd(R)
+        / handle.globalsound,
+    stopsound = cmd(D)
+        / handle.stopsound,
+    stopsoundvar = cmd(R)
+        / handle.stopsound,
+    soundonce = cmd(D)
+        / handle.soundonce,
+    soundoncevar = cmd(R)
+        / handle.soundonce,
+    stopactorsound = cmd(R,R)
+        / "_stopactorsound(%1,%2)",
+    stopallsounds = cmd()
+        / "_stopallsounds()",
+    mikesnd = cmd()
+        / format("_con._soundonce(_aci,%s)", SPS".yvel"),
+    setactorsoundpitch = cmd(R,R,R)
+        / "_con._setactorsoundpitch(%1,%2,%3)",
 
     -- some commands taking defines
     addammo = cmd(D,D)  -- NLCF
@@ -1281,6 +1333,8 @@ local Cinner = {
         / format("_con._addinventory(%s,%%1,%%2,_aci)", PLS""),
     guts = cmd(D,D)
         / "_con._A_DoGuts(_aci,%1,%2)",
+    spawn = cmd(D)
+        / "_con.spawn(_aci,%1)",
 
     -- cont'd
     addkills = cmd(D)
@@ -1295,8 +1349,6 @@ local Cinner = {
         / "_con._endofgame(_pli,%1)",
     eqspawn = cmd(D),
     espawn = cmd(D),
-    globalsound = cmd(D)
-        / "_con._globalsound(_pli,%1)",
     lotsofglass = cmd(D)
         / "_con._A_SpawnGlass(_aci,%1)",
     mail = cmd(D)
@@ -1313,14 +1365,6 @@ local Cinner = {
     save = cmd(D),
     sleeptime = cmd(D)
         / ACS".timetosleep=%1",
-    soundonce = cmd(D)
-        / "_con._soundonce(_aci,%1)",
-    sound = cmd(D)
-        / "_con._sound(_aci,%1)",
-    spawn = cmd(D)
-        / "_con.spawn(_aci,%1)",
-    stopsound = cmd(D)
-        / "_con._stopsound(_aci,%1)",
 
     eshoot = cmd(D),
     ezshoot = cmd(R,D),
@@ -1340,8 +1384,6 @@ local Cinner = {
         / "_con._addtodelqueue(_aci)",
     killit = cmd()  -- NLCF
         / "_con.killit()",
-    mikesnd = cmd()
-        / format("_con._soundonce(_aci,%s)", SPS".yvel"),
     nullop = cmd()
         / "",  -- NOTE: really generate no code
     pkick = cmd()
@@ -1393,8 +1435,10 @@ local Cinner = {
     setarray = sp1 * tok.identifier * arraypat * sp1 * tok.rvar,
 
     activatebysector = cmd(R,R),
-    addlogvar = cmd(R),
-    addlog = cmd() * #sp1,
+    addlogvar = cmd(R)
+        / handle.addlogvar,
+    addlog = cmd() * #sp1
+        / handle.addlog,
     addweaponvar = cmd(R,R)  -- NLCF
         / handle.addweapon,
     cansee = cmd(R,R,R,R,R,R,R,R,W),
@@ -1472,8 +1516,6 @@ local Cinner = {
     ssp = cmd(R,R),
     startlevel = cmd(R,R),
     starttrack = cmd(D),
-    stopactorsound = cmd(R,R),
-    stopallsounds = cmd(),
     updatesector = cmd(R,R,W),
     updatesectorz = cmd(R,R,R,W),
 
@@ -1494,7 +1536,6 @@ local Cinner = {
     gettimedate = cmd(W,W,W,W,W,W,W,W),
     getzrange = cmd(R,R,R,R,W,W,W,W,R,R),
 
-    setactorsoundpitch = cmd(R,R,R),
     setaspect = cmd(R,R),
 }
 
@@ -1952,6 +1993,10 @@ local Grammar = Pat{
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
     t_identifier = -NotKeyw(conl.keyword * (sp1 + "[")) * lpeg.C(tok.identifier_all),
+    -- TODO?: SST TC has e.g. "1267AT", relying on it to be parsed as a number "1267".
+    -- However, this conflicts with bad-identifiers, so it should be checked last.
+    -- This would also handle LNGA2's "00000000h", though would give problems with
+    -- e.g. "800h" (hex 0x800 or decimal 800?).
     t_define = (POS() * lpeg.C(tok.maybe_minus) * tok.identifier / lookup_defined_label) + tok.number,
 
     -- Defines and constants can take the place of vars that are only read.

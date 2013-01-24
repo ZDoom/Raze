@@ -1028,10 +1028,28 @@ function _stopsound(aci, sndidx)
     end
 end
 
+function _stopactorsound(aci, sndidx)
+    if (_soundplaying(aci, sndidx)) then
+        ffiC.S_StopEnvSound(sndidx, aci)
+    end
+end
+
 function _soundonce(aci, sndidx)
     if (not _soundplaying(aci, sndidx)) then
         _sound(aci, sndidx)
     end
+end
+
+function _stopallsounds(pli)
+    if (ffiC.screenpeek==pli) then
+        ffiC.FX_StopAllSounds()
+    end
+end
+
+function _setactorsoundpitch(aci, sndidx, pitchoffset)
+    check_sprite_idx(aci)
+    check_sound_idx(sndidx)
+    ffiC.S_ChangeSoundPitch(sndidx, aci, pitchoffset)
 end
 
 
