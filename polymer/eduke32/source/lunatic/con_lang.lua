@@ -302,6 +302,75 @@ wdata_members =
     "int32_t flashcolor",
 }
 
+ActorLabels =
+{
+    x = "sprite[%s].x",
+    y = "sprite[%s].y",
+    z = "sprite[%s].z",
+    cstat = "sprite[%s].cstat",
+    picnum = "sprite[%s].picnum",
+    shade = "sprite[%s].shade",
+    pal = "sprite[%s].pal",
+    clipdist = "sprite[%s].clipdist",
+--    filler = "sprite[%s].filler",
+    detail = "sprite[%s].filler",
+    xrepeat = "sprite[%s].xrepeat",
+    yrepeat = "sprite[%s].yrepeat",
+    xoffset = "sprite[%s].xoffset",
+    yoffset = "sprite[%s].yoffset",
+    sectnum = "sprite[%s].sectnum",
+    statnum = "sprite[%s].statnum",
+    ang = "sprite[%s].ang",
+    owner = "sprite[%s].owner",
+    xvel = "sprite[%s].xvel",
+    yvel = "sprite[%s].yvel",
+    zvel = "sprite[%s].zvel",
+    lotag = "sprite[%s].lotag",
+    hitag = "sprite[%s].hitag",
+    extra = "sprite[%s].extra",
+
+    -- { get, set }
+    -- Read access differs from write:
+    ulotag = { "(sprite[%s].lotag+65536)%65535", "sprite[%s].lotag" },
+    uhitag = { "(sprite[%s].hitag+65536)%65535", "sprite[%s].hitag" },
+
+    -- ActorExtra labels...
+    htcgg = "actor[%s].cgg",
+    htpicnum = "actor[%s].picnum",
+    htang = "actor[%s].ang",
+    htextra = "actor[%s].extra",
+    htowner = "actor[%s].owner",
+    htmovflag = "actor[%s].movflag",
+    httempang = "actor[%s].tempang",
+    htactorstayput = "actor[%s].actorstayput",
+    htdispicnum = "actor[%s].dispicnum",
+    httimetosleep = "actor[%s].timetosleep",
+    htfloorz = "actor[%s].floorz",
+    htceilingz = "actor[%s].ceilingz",
+    htlastvx = "actor[%s].lastvx",
+    htlastvy = "actor[%s].lastvy",
+    htbposx = "actor[%s].bpos.x",
+    htbposy = "actor[%s].bpos.y",
+    htbposz = "actor[%s].bpos.z",
+    -- Read access differs from write, write not available:
+    htg_t = { "actor[%s].get_t_data(%s)" },
+    htflags = "actor[%s].flags",
+
+    -- model flags
+    angoff = "spriteext[%s].angoff",
+    pitch = "spriteext[%s].pitch",
+    roll = "spriteext[%s].roll",
+    mdxoff = "spriteext[%s].xoff",
+    mdyoff = "spriteext[%s].yoff",
+    mdzoff = "spriteext[%s].zoff",
+    mdflags = "spriteext[%s].mdflags",
+    xpanning = "spriteext[%s].xpanning",
+    ypanning = "spriteext[%s].ypanning",
+
+    alpha = { "_math.floor(spriteext[%s].alpha*255)" },
+}
+
+
 -- NOTE: These MUST be in reverse lexicographical order!
 -- Per CON syntax, valid identifiers names are disjunct from keywords,
 -- so that a rule like

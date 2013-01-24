@@ -400,6 +400,7 @@ local function reset_labels()
         COOP = 0,
         MULTIMODE = 0,
         numplayers = 1,
+        myconnectindex = 0,
     }
 
     for varname,_ in pairs(g_labeldef) do
@@ -910,27 +911,24 @@ local tok =
     maybe_minus = (Pat("-") * sp0)^-1,
     number = Var("t_number"),
 
-    -- Valid identifier names are disjunct from keywords!,
-    -- XXX: CON is more permissive with identifier name characters:,
+    -- Valid identifier names are disjunct from keywords!
+    -- XXX: CON is more permissive with identifier name characters:
     identifier = Var("t_identifier"),
-    -- This one matches keywords, too:,
+    -- This one matches keywords, too:
     identifier_all = Var("t_identifier_all"),
     define = Var("t_define"),
     move = Var("t_move"),
     ai = Var("t_ai"),
     action = Var("t_action"),
 
-    -- NOTE: no chance to whitespace and double quotes in filenames:,
+    -- NOTE: no chance to whitespace and double quotes in filenames:
     filename = lpeg.C((anychar-Set(" \t\r\n\""))^1),
     newline_term_str = match_until(anychar, newline),
-
-    -- new-style inline arrays and structures:,
-    arrayexp = Var("t_arrayexp"),
 
     rvar = Var("t_rvar"),
     wvar = Var("t_wvar"),
 
-    -- for definelevelname,
+    -- for definelevelname
     time = lpeg.C(alphanum*alphanum^-1*":"*alphanum*alphanum^-1),
 
     state_ends = Pat("ends")
@@ -1076,32 +1074,74 @@ end
 -- (if there ever were any) but making our life harder else.
 local arraypat = sp0 * "[" * sp0 * tok.rvar * sp0 * "]"
 
--- Have to bite the bullet here and list actor/player members with second parameters,
--- even though it's ugly to make it part of the syntax.  Also, stuff like
+-- Have to bite the bullet here and list actor/player members with second
+-- parameters, even though it's ugly to make it part of the syntax.  Also,
+-- stuff like
 --   actor[xxx].loogiex parm2 x
--- will be wrongly accepted at the parsing stage because we don't discriminate between
--- actor and player (but it will be rejected later).
-local parm2memberpat = (Pat("htg_t") + "loogiex" + "loogiey" + "ammo_amount" +
-                        "weaprecs" + "gotweapon" + "pals" + "max_ammo_amount") * sp1 * tok.rvar
+-- will be wrongly accepted at the parsing stage (loogiex is player's member)
+-- because we don't discriminate between actor and player here.
+local parm2memberpat = lpeg.C(Pat("htg_t") + "loogiex" + "loogiey" + "ammo_amount" +
+                              "weaprecs" + "gotweapon" + "pals" + "max_ammo_amount") * sp1 * tok.rvar
 -- The member name must match keywords, too (_all), because e.g. cstat is a member
 -- of sprite[].
-local memberpat = sp0 * "." * sp0 * (parm2memberpat + tok.identifier_all)
+local bothmemberpat = sp0 * "." * sp0 * lpeg.Ct(parm2memberpat + tok.identifier_all)
+local singlememberpat = sp0 * "." * sp0 * tok.identifier_all
 
 local getstructcmd =  -- get<structname>[<idx>].<member> (<parm2>)? <<var>>
-    -- existence of a second parameter is determined later
--- This is wrong,  (sp1 id)? will match (sp1 wvar) if there's no 2nd param:
---    arraypat * memberpat * (sp1 * tok.identifier)^-1 * sp1 * tok.wvar
-    arraypat * memberpat * sp1 * (tok.rvar * sp1 * tok.wvar + tok.wvar)
+    arraypat * bothmemberpat * sp1 * tok.wvar
 
-local setstructcmd =  -- set<structname>[<idx>].<member> (<parm2>)? <var>
-    -- existence of a second parameter is determined later
-    arraypat * memberpat * sp1 * (tok.rvar * sp1 * tok.rvar + tok.rvar)
+local setstructcmd =  -- set<structname>[<idx>].<<member>> (<parm2>)? <var>
+    arraypat * bothmemberpat * sp1 * tok.rvar
 
 local getperxvarcmd =  -- get<actor/player>var[<idx>].<member> <<var>>
-    arraypat * memberpat * sp1 * tok.wvar
+    arraypat * singlememberpat * sp1 * tok.wvar
 
-local setperxvarcmd = -- set<actor/player>var[<idx>].<member> <var>
-    arraypat * memberpat * sp1 * tok.rvar
+local setperxvarcmd = -- set<actor/player>var[<idx>].<<member>> <var>
+    arraypat * singlememberpat * sp1 * tok.rvar
+
+local Access =
+{
+    -- <writtenp>: whether the actor is written to.
+    actor = function(writtenp, index, membertab)
+        assert(type(membertab)=="table")
+        local member, parm2 = membertab[1], membertab[2]
+        assert(member ~= nil)
+
+        -- Look up array+member name first, e.g. "spriteext[%s].angoff".
+        local armembcode = conl.ActorLabels[member]
+        if (armembcode == nil) then
+            errprintf("invalid CON actor member `%s'", member)
+            return "_MEMBINVALID"
+        end
+
+        if (type(armembcode)=="table") then
+            -- Read and write accesses differ.
+            armembcode = armembcode[writtenp and 2 or 1]
+            if (armembcode==nil) then
+                assert(writtenp)
+                errprintf("write access to CON actor[].%s is not available", member)
+                return "_MEMBRO"
+            end
+        end
+
+        local _, numparms = armembcode:gsub("%%s", "%%s", 2)
+        if (#membertab ~= numparms) then
+            local one = numparms==1
+            errprintf("CON actor[].%s has %s parameter%s, but %d given", member,
+                      one and "one" or "two", one and "" or "s", #membertab)
+            return "_MEMBINVPARM"
+        end
+
+        return format(armembcode, index, parm2)
+    end,
+}
+
+local function GetStructCmd(accessfunc)
+    local pattern = getstructcmd / function(idx, memb, var)
+        return format("%s=%s", var, accessfunc(false, idx, memb))
+    end
+    return pattern
+end
 
 
 -- Various inner command handling functions / string capture strings.
@@ -1166,7 +1206,7 @@ local Cinner = {
         / handle.state,
 
     --- 1. get*, set*
-    getactor = getstructcmd,
+    getactor = GetStructCmd(Access.actor),
     getinput = getstructcmd,
     getplayer = getstructcmd,
     getprojectile = getstructcmd,
@@ -1175,9 +1215,13 @@ local Cinner = {
     gettspr = getstructcmd,
     -- NOTE: {get,set}userdef is the only struct that can be accessed without
     -- an "array part", e.g.  H266MOD has "setuserdef .weaponswitch 0" (space
-    -- between keyword and "." is mandatory)
-    getuserdef = (arraypat + sp1) * memberpat * sp1 * (tok.rvar * sp1 * tok.wvar + tok.wvar),
---    getuserdef = getstructcmd,
+    -- between keyword and "." is mandatory).
+    -- NOTE2: userdef has at least three members with a second parameter:
+    -- user_name, ridecule, savegame. Then there's wchoice. Given that they're
+    -- arrays, I highly doubt that they worked (much less were safe) in CON.
+    -- We disallow them unless CONs in the wild crop up that actually used
+    -- these.
+    getuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.wvar,
     getwall = getstructcmd,
 
     getactorvar = getperxvarcmd,
@@ -1190,8 +1234,7 @@ local Cinner = {
     setsector = setstructcmd,
     setthisprojectile = setstructcmd,
     settspr = setstructcmd,
-    setuserdef = (arraypat + sp1) * memberpat * sp1 * (tok.rvar * sp1 * tok.wvar + tok.rvar),
---    setuserdef = setstructcmd,
+    setuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.rvar,
     setwall = setstructcmd,
 
     setactorvar = setperxvarcmd,
@@ -1983,7 +2026,7 @@ local Grammar = Pat{
                          + Range("09")^1)
                              ) / parse_number,
 
-    t_identifier_all = t_broken_identifier + t_good_identifier,
+    t_identifier_all = lpeg.C(t_broken_identifier + t_good_identifier),
     -- NOTE: -conl.keyword alone would be wrong, e.g. "state breakobject":
     -- NOTE 2: The + "[" is so that stuff like
     --   getactor[THISACTOR].x x
@@ -1992,7 +2035,7 @@ local Grammar = Pat{
     --   getactor[THISACTOR].x x
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
-    t_identifier = -NotKeyw(conl.keyword * (sp1 + "[")) * lpeg.C(tok.identifier_all),
+    t_identifier = -NotKeyw(conl.keyword * (sp1 + "[")) * tok.identifier_all,
     -- TODO?: SST TC has e.g. "1267AT", relying on it to be parsed as a number "1267".
     -- However, this conflicts with bad-identifiers, so it should be checked last.
     -- This would also handle LNGA2's "00000000h", though would give problems with
@@ -2001,9 +2044,12 @@ local Grammar = Pat{
 
     -- Defines and constants can take the place of vars that are only read.
     -- XXX: now, when tok.rvar fails, the tok.define failure message is printed.
-    t_rvar = tok.arrayexp + lpeg.Cmt(tok.identifier, maybe_gamevar_Cmt) + tok.define,
-    -- not so with written-to vars:
-    t_wvar = tok.arrayexp + (tok.identifier / function(id) return lookup_gamevar(id, true) end),
+    t_rvar = Var("t_botharrayexp") / function() --[[warnprintf("t_rvar: array exprs NYI")--]] return "_NYIVAR" end
+        + lpeg.Cmt(tok.identifier, maybe_gamevar_Cmt) + tok.define,
+    -- For written-to vars, only (non-parm2) array exprs and writable gamevars
+    -- are permitted.  NOTE: C-CON doesn't support inline array exprs here.
+    t_wvar = Var("t_singlearrayexp") / function() errprintf("t_wvar: array exprs NYI") return "_NYIVAR" end
+        + (tok.identifier / function(id) return lookup_gamevar(id, true) end),
 
     t_move =
         POS()*tok.identifier / function(...) return lookup_composite(LABEL.MOVE, ...) end +
@@ -2017,7 +2063,9 @@ local Grammar = Pat{
         POS()*tok.identifier / function(...) return lookup_composite(LABEL.ACTION, ...) end +
         POS()*tok.number / function(...) return check_composite_literal(LABEL.ACTION, ...) end,
 
-    t_arrayexp = tok.identifier * arraypat * memberpat^-1,
+    -- New-style inline arrays and structures.
+    t_botharrayexp = tok.identifier * arraypat * bothmemberpat^-1,
+    t_singlearrayexp = tok.identifier * arraypat * singlememberpat^-1,
 
     -- SWITCH
     switch_stmt = Keyw("switch") * sp1 * tok.rvar *
