@@ -924,6 +924,8 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
 {
     int32_t lValue=0,proj=vm.g_i;
 
+    // http://forums.duke4.net/topic/775-eduke32-20-and-polymer/page__view__findpost__p__143260
+
     if (lVar1 != g_iThisActorID)
         proj=Gv_GetVarX(lVar1);
 
