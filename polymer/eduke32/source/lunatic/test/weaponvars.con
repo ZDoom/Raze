@@ -1,0 +1,9 @@
+gamevar snd 351 0  // thunder sound
+gamevar shoots 2605 2  // RPG
+
+gamevar WEAPON1_SHOOTS 2605 0
+
+onevent EVENT_GAME
+    setvarvar WEAPON1_FIRESOUND snd
+//    setvarvar WEAPON1_SHOOTS shoots
+endevent

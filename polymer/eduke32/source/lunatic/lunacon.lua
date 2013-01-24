@@ -1119,6 +1119,8 @@ local handle =
         end
         return format("%s(_aci,_pli,_dist)", g_funcname[statename])
     end,
+
+    addweapon = format("if (%s) then _con.longjmp() end", PLS":addweapon(%1,%2)"),
 }
 
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
@@ -1233,7 +1235,8 @@ local Cinner = {
 
     hitradius = cmd(D,D,D,D,D)
         / "_con._A_RadiusDamage(_aci,%1,%2,%3,%4,%5)",
-    hitradiusvar = cmd(R,R,R,R,R),
+    hitradiusvar = cmd(R,R,R,R,R)
+        / "_con._A_RadiusDamage(_aci,%1,%2,%3,%4,%5)",
 
     -- some commands taking read vars
     eshootvar = cmd(R),
@@ -1271,11 +1274,11 @@ local Cinner = {
     addammo = cmd(D,D)  -- NLCF
         / format("if (%s) then _con.longjmp() end", PLS":addammo(%1,%2)"),
     addweapon = cmd(D,D)  -- NLCF
-        / format("if (%s) then _con.longjmp() end", PLS":addweapon(%1,%2)"),
+        / handle.addweapon,
     debris = cmd(D,D)
         / "_con._debris(_aci, %1, %2)",
     addinventory = cmd(D,D)
-        / PLS":addinventory(%1,%2)",
+        / format("_con._addinventory(%s,%%1,%%2,_aci)", PLS""),
     guts = cmd(D,D)
         / "_con._A_DoGuts(_aci,%1,%2)",
 
@@ -1392,7 +1395,8 @@ local Cinner = {
     activatebysector = cmd(R,R),
     addlogvar = cmd(R),
     addlog = cmd() * #sp1,
-    addweaponvar = cmd(R,R),  -- NLCF
+    addweaponvar = cmd(R,R)  -- NLCF
+        / handle.addweapon,
     cansee = cmd(R,R,R,R,R,R,R,R,W),
     canseespr = cmd(R,R,W),
     changespritesect = cmd(R,R),
@@ -1433,12 +1437,12 @@ local Cinner = {
     myospal = cmd(R,R,R,R,R,R),
     myospalx = cmd(R,R,R,R,R,R),
 
-    headspritesect = cmd(R,R),
-    headspritestat = cmd(R,R),
-    nextspritesect = cmd(R,R),
-    nextspritestat = cmd(R,R),
-    prevspritesect = cmd(R,R),
-    prevspritestat = cmd(R,R),
+    headspritesect = cmd(W,R),
+    headspritestat = cmd(W,R),
+    nextspritesect = cmd(W,R),
+    nextspritestat = cmd(W,R),
+    prevspritesect = cmd(W,R),
+    prevspritestat = cmd(W,R),
 
     readarrayfromfile = cmd(I,D),
     writearraytofile = cmd(I,D),
@@ -1461,7 +1465,8 @@ local Cinner = {
 
     showview = cmd(R,R,R,R,R,R,R,R,R,R),  -- 10R
     showviewunbiased = cmd(R,R,R,R,R,R,R,R,R,R),  -- 10R
-    smaxammo = cmd(R,R),
+    smaxammo = cmd(R,R)
+        / PLS":set_max_ammo_amount(%1,%2)",
     gmaxammo = cmd(R,W),
     spriteflags = cmd(R),  -- also see outer
     ssp = cmd(R,R),
@@ -1537,7 +1542,7 @@ local Cif = {
         / "_con._soundplaying(_aci,%1)",
     -- vvv TODO: this is not correct for GET_ACCESS or GET_SHIELD.
     ifpinventory = cmd(D,D)
-        / format("_con._getinventory(%s,%%1,_aci)~=%%2", PLS""),
+        / format("_con._checkpinventory(%s,%%1,%%2,_aci)", PLS""),
 
     ifvarl = cmd(R,D)
         / "%1<%2",

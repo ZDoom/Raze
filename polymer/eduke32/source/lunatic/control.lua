@@ -512,9 +512,9 @@ local ICONS = {
     [ffiC.GET_BOOTS] = 7,
 }
 
--- XXX
-function _addinventory(ps, inv, amount, pal)
+function _addinventory(ps, inv, amount, i)
     if (inv == ffiC.GET_ACCESS) then
+        local pal = sprite[i].pal
         if (PALBITS[pal]) then
             ps.got_access = bit.bor(ps.got_access, PALBITS[pal])
         end
@@ -532,16 +532,14 @@ function _addinventory(ps, inv, amount, pal)
     end
 end
 
--- For GET_ACCESS: returns logical: whether player has card given by PAL
--- Else: returns inventory amount
-function _getinventory(ps, inv, i)
-    if (inv == ffiC.GET_ACCESS) then
-        if (PALBITS[sprite[i].pal]) then
-            return (bit.band(ps.got_access, PALBITS[sprite[i].pal])~=0)
-        end
-        return false
+function _checkpinventory(ps, inv, amount, i)
+    if (inv==ffiC.GET_SHIELD) then
+        return ps:get_inv_amount(inv) ~= ps.max_shield_amount
+    elseif (inv==ffiC.GET_ACCESS) then
+        local palbit = PALBITS[sprite[i].pal]
+        return palbit and (bit.band(ps.got_access, palbit)~=0)
     else
-        return ps:get_inv_amount(inv)
+        return ps:get_inv_amount(inv) ~= amount
     end
 end
 

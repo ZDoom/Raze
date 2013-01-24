@@ -861,8 +861,6 @@ local player_mt = {
         addammo = con._addammo,
         addweapon = con._addweapon,
 
-        addinventory = con._addinventory,
-
         stomp = con._pstomp,
 
         -- XXX: is the correct spelling "whack"?
