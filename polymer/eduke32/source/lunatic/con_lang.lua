@@ -302,74 +302,382 @@ wdata_members =
     "int32_t flashcolor",
 }
 
-ActorLabels =
-{
-    x = "sprite[%s].x",
-    y = "sprite[%s].y",
-    z = "sprite[%s].z",
-    cstat = "sprite[%s].cstat",
-    picnum = "sprite[%s].picnum",
-    shade = "sprite[%s].shade",
-    pal = "sprite[%s].pal",
-    clipdist = "sprite[%s].clipdist",
---    filler = "sprite[%s].filler",
-    detail = "sprite[%s].filler",
-    xrepeat = "sprite[%s].xrepeat",
-    yrepeat = "sprite[%s].yrepeat",
-    xoffset = "sprite[%s].xoffset",
-    yoffset = "sprite[%s].yoffset",
-    sectnum = "sprite[%s].sectnum",
-    statnum = "sprite[%s].statnum",
-    ang = "sprite[%s].ang",
-    owner = "sprite[%s].owner",
-    xvel = "sprite[%s].xvel",
-    yvel = "sprite[%s].yvel",
-    zvel = "sprite[%s].zvel",
-    lotag = "sprite[%s].lotag",
-    hitag = "sprite[%s].hitag",
-    extra = "sprite[%s].extra",
+
+local SP = function(memb) return "sprite[%s]"..memb end
+local AC = function(memb) return "actor[%s]"..memb end
+local SX = function(memb) return "spriteext[%s]"..memb end
+
+-- Generate code to access a signed member as unsigned.
+local function s2u(label)
+    return "(_bit.band("..label.."+65536),65535)"
+end
+
+local function S2U(label)
+    return { s2u(label), label }
+end
+
+local ActorLabels = {
+    x = SP".x",
+    y = SP".y",
+    z = SP".z",
+    cstat = SP".cstat",
+    picnum = SP".picnum",
+    shade = SP".shade",
+    pal = SP".pal",
+    clipdist = SP".clipdist",
+--    filler = SP".filler",
+    detail = SP".filler",  -- NAME
+    xrepeat = SP".xrepeat",
+    yrepeat = SP".yrepeat",
+    xoffset = SP".xoffset",
+    yoffset = SP".yoffset",
+    sectnum = SP".sectnum",
+    statnum = SP".statnum",
+    ang = SP".ang",
+    owner = SP".owner",
+    xvel = SP".xvel",
+    yvel = SP".yvel",
+    zvel = SP".zvel",
+    lotag = SP".lotag",
+    hitag = SP".hitag",
+    extra = SP".extra",
 
     -- { get, set }
     -- Read access differs from write:
-    ulotag = { "(sprite[%s].lotag+65536)%65535", "sprite[%s].lotag" },
-    uhitag = { "(sprite[%s].hitag+65536)%65535", "sprite[%s].hitag" },
+    ulotag = S2U(SP".lotag"),
+    uhitag = S2U(SP".hitag"),
 
     -- ActorExtra labels...
-    htcgg = "actor[%s].cgg",
-    htpicnum = "actor[%s].picnum",
-    htang = "actor[%s].ang",
-    htextra = "actor[%s].extra",
-    htowner = "actor[%s].owner",
-    htmovflag = "actor[%s].movflag",
-    httempang = "actor[%s].tempang",
-    htactorstayput = "actor[%s].actorstayput",
-    htdispicnum = "actor[%s].dispicnum",
-    httimetosleep = "actor[%s].timetosleep",
-    htfloorz = "actor[%s].floorz",
-    htceilingz = "actor[%s].ceilingz",
-    htlastvx = "actor[%s].lastvx",
-    htlastvy = "actor[%s].lastvy",
-    htbposx = "actor[%s].bpos.x",
-    htbposy = "actor[%s].bpos.y",
-    htbposz = "actor[%s].bpos.z",
+    htcgg = AC".cgg",
+    htpicnum = AC".picnum",
+    htang = AC".ang",
+    htextra = AC".extra",
+    htowner = AC".owner",
+    htmovflag = AC".movflag",
+    httempang = AC".tempang",
+    htactorstayput = AC".actorstayput",
+    htdispicnum = AC".dispicnum",
+    httimetosleep = AC".timetosleep",
+    htfloorz = AC".floorz",
+    htceilingz = AC".ceilingz",
+    htlastvx = AC".lastvx",
+    htlastvy = AC".lastvy",
+    htbposx = AC".bpos.x",
+    htbposy = AC".bpos.y",
+    htbposz = AC".bpos.z",
     -- Read access differs from write, write not available:
-    htg_t = { "actor[%s].get_t_data(%s)" },
-    htflags = "actor[%s].flags",
+    htg_t = { AC":get_t_data(%s)" },
+    htflags = AC".flags",
 
     -- model flags
-    angoff = "spriteext[%s].angoff",
-    pitch = "spriteext[%s].pitch",
-    roll = "spriteext[%s].roll",
-    mdxoff = "spriteext[%s].xoff",
-    mdyoff = "spriteext[%s].yoff",
-    mdzoff = "spriteext[%s].zoff",
-    mdflags = "spriteext[%s].mdflags",
-    xpanning = "spriteext[%s].xpanning",
-    ypanning = "spriteext[%s].ypanning",
+    angoff = SX".angoff",
+    pitch = SX".pitch",
+    roll = SX".roll",
+    mdxoff = SX".xoff",
+    mdyoff = SX".yoff",
+    mdzoff = SX".zoff",
+    mdflags = SX".mdflags",
+    xpanning = SX".xpanning",
+    ypanning = SX".ypanning",
 
     alpha = { "_math.floor(spriteext[%s].alpha*255)" },
 }
 
+local PL = function(memb) return "player[%s]"..memb end
+
+local PlayerLabels = {
+    posx = PL".pos.x",
+    posy = PL".pos.y",
+    posz = PL".pos.z",
+    oposx = PL".opos.x",
+    oposy = PL".opos.y",
+    oposz = PL".opos.z",
+    posxv = PL".vel.x",  -- NAME
+    posyv = PL".vel.y",
+    poszv = PL".vel.z",
+    -- NOTE: no access for .npos
+    bobposx = PL".bobposx",
+    bobposy = PL".bobposy",
+
+    truefz = PL".truefz",
+    truecz = PL".truecz",
+    player_par = PL".player_par",
+
+    randomflamex = PL".randomflamex",
+    exitx = PL".exitx",
+    exity = PL".exity",
+
+    runspeed = PL".runspeed",
+    max_player_health = PL".max_player_health",
+    max_shield_amount = PL".max_shield_amount",
+
+    autostep = PL".autostep",
+    autostep_sbw = PL".autostep_sbw",
+
+    interface_toggle_flag = PL".interface_toggle_flag",
+
+    -- NOTE: *bombControl etc. are accessed by gamevars in CON
+
+    max_actors_killed = PL".max_actors_killed",
+    actors_killed = PL".actors_killed",
+
+    -- NOTE the special case:
+    gotweapon = { "("..PL":have_weapon(%s) and 1 or 0)" },
+    zoom = PL".zoom",
+
+    loogiex = {},
+    loogiey = {},
+
+    sbs = PL".sbs",
+    sound_pitch = PL".sound_pitch",
+
+    ang = PL".ang",
+    oang = PL".oang",
+    angvel = PL".angvel",
+
+    cursectnum = PL".cursectnum",
+
+    look_ang = PL".look_ang",
+    last_extra = PL".last_extra",
+    subweapon = PL".subweapon",
+
+    max_ammo_amount = { PL":get_max_ammo_amount(%s)" },
+    ammo_amount = { PL":get_ammo_amount(%s)" },
+    -- NOTE: no direct access for .inv_amount (but see end)
+
+    wackedbyactor = PL".wackedbyactor",
+    pyoff = PL".pyoff",
+    opyoff = PL".opyoff",
+
+    horiz = PL".horiz",
+    horizoff = PL".horizoff",
+    ohoriz = PL".ohoriz",
+    ohorizoff = PL".ohorizoff",
+
+    newowner = { PL".newowner" },
+
+    jumping_counter = PL".jumping_counter",
+    airleft = PL".airleft",
+
+    fta = PL".fta",
+    ftq = PL".ftq",
+    access_wallnum = PL".access_wallnum",
+    access_spritenum = PL".access_spritenum",
+
+    got_access = PL".got_access",
+    weapon_ang = PL".weapon_ang",
+    visibility = PL".visibility",
+
+    somethingonplayer = PL".somethingonplayer",
+    on_crane = PL".on_crane",
+
+    i = { PL".i" },
+
+    one_parallax_sectnum = { PL".one_parallax_sectnum" },
+
+    random_club_frame = PL".random_club_frame",
+    one_eighty_count = PL".one_eighty_count",
+
+    dummyplayersprite = { PL".dummyplayersprite" },
+    extra_extra8 = PL".extra_extra8",
+
+    actorsqu = PL".actorsqu",
+    timebeforeexit = PL".timebeforeexit",
+    customexitsound = { PL".customexitsound" },
+
+    last_pissed_time = PL".last_pissed_time",
+
+    weaprecs = { PL".weaprecs" },
+
+    weapon_sway = PL".weapon_sway",
+    crack_time = PL".crack_time",
+    bobcounter = PL".bobcounter",
+
+    -- NOTE: no access for .orotscrnang
+    rotscrnang = PL".rotscrnang",
+    dead_flag = PL".dead_flag",
+
+    holoduke_on = PL".holoduke_on",
+    pycount = PL".pycount",
+    transporter_hold = PL".transporter_hold",
+
+    max_secret_rooms = PL".max_secret_rooms",
+    secret_rooms = PL".secret_rooms",
+
+    frag = PL".frag",
+    fraggedself = PL".fraggedself",
+    quick_kick = PL".quick_kick",
+    last_quick_kick = PL".last_quick_kick",
+
+    return_to_center = PL".return_to_center",
+    reloading = PL".reloading",
+    weapreccnt = PL".weapreccnt",
+
+    aim_mode = PL".aim_mode",
+    auto_aim = PL".auto_aim",
+    weaponswitch = PL".weaponswitch",
+    movement_lock = PL".movement_lock",
+    team = PL".team",
+
+    tipincs = PL".tipincs",
+    hbomb_hold_delay = PL".hbomb_hold_delay",
+    frag_ps = PL".frag_ps",
+    kickback_pic = PL".kickback_pic",
+
+    gm = PL".gm",
+    on_warping_sector = PL".on_warping_sector",
+    footprintcount = PL".footprintcount",
+    hurt_delay = PL".hurt_delay",
+
+    hbomb_on = PL".hbomb_on",
+    jumping_toggle = PL".jumping_toggle",
+    rapid_fire_hold = PL".rapid_fire_hold",
+    on_ground = PL".on_ground",
+
+    inven_icon = PL".inven_icon",
+    buttonpalette = PL".buttonpalette",
+    over_shoulder_on = PL".over_shoulder_on",
+    show_empty_weapon = PL".show_empty_weapon",
+
+    jetpack_on = PL".jetpack_on",
+    spritebridge = PL".spritebridge",
+    lastrandomspot = PL".lastrandomspot",
+
+    scuba_on = PL".scuba_on",
+    footprintpal = PL".footprintpal",
+    heat_on = PL".heat_on",
+    invdisptime = PL".invdisptime",
+    holster_weapon = PL".holster_weapon",
+    falling_counter = PL".falling_counter",
+    footprintshade = PL".footprintshade",
+
+    refresh_inventory = PL".refresh_inventory",
+    last_full_weapon = PL".last_full_weapon",
+
+    walking_snd_toggle = PL".walking_snd_toggle",
+    palookup = PL".palookup",
+    hard_landing = PL".hard_landing",
+    fist_incs = PL".fist_incs",
+
+    toggle_key_flag = PL".toggle_key_flag",
+    knuckle_incs = PL".knuckle_incs",
+    knee_incs = PL".knee_incs",
+    access_incs = PL".access_incs",
+
+    numloogs = PL".numloogs",
+    loogcnt = PL".loogcnt",
+    scream_voice = PL".scream_voice",
+
+    last_weapon = PL".last_weapon",
+    cheat_phase = PL".cheat_phase",
+    weapon_pos = PL".weapon_pos",
+    wantweaponfire = PL".wantweaponfire",
+
+    curr_weapon = { PL".curr_weapon" },
+
+    palette = PL".palette",
+
+    -- NOTE the special case:
+    pals = {},
+    pals_time = PL".pals.f",
+
+    name = {},
+
+    -- Access to .inv_amount
+    steroids_amount = { PL":get_inv_amount(0)", },
+    shield_amount = { PL":get_inv_amount(1)", },
+    scuba_amount = { PL":get_inv_amount(2)", },
+    holoduke_amount = { PL":get_inv_amount(3)", },
+    jetpack_amount = { PL":get_inv_amount(4)", },
+    -- 5: dummy
+    -- 6: no "access_amount"
+    heat_amount = { PL":get_inv_amount(7)" },
+    -- 8: dummy
+    firstaid_amount = { PL":get_inv_amount(9)" },
+    boot_amount = { PL":get_inv_amount(10)" },
+}
+
+local SEC = function(memb) return "sector[%s]"..memb end
+local SECRO = function(memb) return { "sector[%s]"..memb } end
+
+local SectorLabels = {
+    wallptr = SECRO".wallptr",
+    wallnum = SECRO".wallnum",
+
+    ceilingz = SEC".ceilingz",
+    floorz = SEC".floorz",
+
+    ceilingstat = SEC".ceilingstat",
+    floorstat = SEC".floorstat",
+
+    -- CEILING
+    ceilingpicnum = SECRO".ceilingpicnum",
+
+    ceilingslope = SEC".ceilingheinum",  -- NAME
+    ceilingshade = SEC".ceilingshade",
+
+    ceilingpal = SEC".ceilingpal",
+    ceilingxpanning = SEC".ceilingxpanning",
+    ceilingypanning = SEC".ceilingypanning",
+
+    -- FLOOR
+    floorpicnum = SECRO".floorpicnum",
+
+    floorslope = SEC".floorheinum",  -- NAME
+    floorshade = SEC".floorshade",
+
+    floorpal = SEC".floorpal",
+    floorxpanning = SEC".floorxpanning",
+    floorypanning = SEC".floorypanning",
+
+    visibility = SEC".visibility",
+    filler = SEC".filler",
+    alignto = SEC".filler",  -- NAME
+
+    lotag = SEC".lotag",
+    hitag = SEC".hitag",
+    extra = SEC".extra",
+
+    ceilingbunch = {},
+    floorbunch = {},
+
+    ulotag = S2U(SEC".lotag"),
+    uhitag = S2U(SEC".hitag"),
+}
+
+local WAL = function(memb) return "wall[%s]"..memb end
+local WALRO = function(memb) return { "wall[%s]"..memb } end
+
+local WallLabels = {
+    x = WAL".x",
+    y = WAL".y",
+    point2 = WALRO".point2",
+    nextwall = WALRO".nextwall",
+    nextsector = WALRO".nextsector",
+    cstat = WAL".cstat",
+    picnum = WALRO".picnum",
+    overpicnum = WALRO".overpicnum",
+    shade = WAL".shade",
+    pal = WAL".pal",
+    xrepeat = WAL".xrepeat",
+    yrepeat = WAL".yrepeat",
+    xpanning = WAL".xpanning",
+    ypanning = WAL".ypanning",
+    lotag = WAL".lotag",
+    hitag = WAL".hitag",
+    extra = WAL".extra",
+
+    ulotag = S2U(WAL".lotag"),
+    uhitag = S2U(WAL".hitag"),
+}
+
+StructAccessCode =
+{
+    sector = SectorLabels,
+    wall = WallLabels,
+    sprite = ActorLabels,
+    player = PlayerLabels,
+}
 
 -- NOTE: These MUST be in reverse lexicographical order!
 -- Per CON syntax, valid identifiers names are disjunct from keywords,

@@ -281,10 +281,6 @@ end
 
 --- Helper functions (might be exported later) ---
 
-local function have_weapon(ps, weap)
-    return (bit.band(ps.gotweapon, bit.lshift(1, weap)) ~= 0)
-end
-
 local function have_ammo_at_max(ps, weap)
     return (ps:get_ammo_amount(weap) >= ps:get_max_ammo_amount(weap))
 end
@@ -301,7 +297,7 @@ end
 local function P_AddWeaponAmmoCommon(ps, weap, amount)
     P_AddAmmo(ps, weap, amount)
 
-    if (ps.curr_weapon==ffiC.KNEE_WEAPON and have_weapon(ps, weap)) then
+    if (ps.curr_weapon==ffiC.KNEE_WEAPON and ps:have_weapon(weap)) then
         ffiC.P_AddWeaponMaybeSwitch(ps, weap);
     end
 end
@@ -597,7 +593,7 @@ function _addweapon(ps, weap, amount)
         error("Invalid weapon ID "..weap, 2)
     end
 
-    if (not have_weapon(ps, weap)) then
+    if (not ps:have_weapon(weap)) then
         ffiC.P_AddWeaponMaybeSwitch(ps, weap);
     elseif (have_ammo_at_max(ps, weap)) then
         return true

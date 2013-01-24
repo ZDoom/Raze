@@ -390,7 +390,7 @@ local function reset_labels()
     g_badids = {}
 
     -- NO is also a valid `move', `ai' or `action', but they are handled
-    -- separately in lookup_composite().
+    -- separately in lookup.composite().
     g_labeldef = {
         NO = 0,
         -- NOTE: these are read-only gamevars in C-CON
@@ -416,7 +416,10 @@ local function reset_labels()
     end
 end
 
-local function lookup_defined_label(pos, maybe_minus_str, identifier)
+-- Table of functions doing various lookups (label, gamevar, ...)
+local lookup = {}
+
+function lookup.defined_label(pos, maybe_minus_str, identifier)
     local num = g_labeldef[identifier]
 
     if (num == nil) then
@@ -471,7 +474,7 @@ local function check_composite_literal(labeltype, pos, num)
     end
 end
 
-local function lookup_composite(labeltype, pos, identifier)
+function lookup.composite(labeltype, pos, identifier)
     if (identifier=="NO") then
         -- NO is a special case and is valid for move, action and ai,
         -- being the same as passing a literal 0.
@@ -858,7 +861,7 @@ function Cmd.gamevar(identifier, initval, flags)
     end
 end
 
-local function lookup_gamevar(identifier, writable)
+function lookup.gamevar(identifier, writable)
     local gv = g_gamevar[identifier]
 
     if (gv == nil) then
@@ -880,7 +883,7 @@ end
 
 local function maybe_gamevar_Cmt(subj, pos, identifier)
     if (g_gamevar[identifier]) then
-        return true, lookup_gamevar(identifier)
+        return true, lookup.gamevar(identifier)
     end
 end
 
@@ -1099,41 +1102,57 @@ local getperxvarcmd =  -- get<actor/player>var[<idx>].<member> <<var>>
 local setperxvarcmd = -- set<actor/player>var[<idx>].<<member>> <var>
     arraypat * singlememberpat * sp1 * tok.rvar
 
+-- Function generating code for a struct read/write access.
+local function StructAccess(Structname, writep, index, membertab)
+    assert(type(membertab)=="table")
+    local member, parm2 = membertab[1], membertab[2]
+    assert(member ~= nil)
+
+    -- Look up array+member name first, e.g. "spriteext[%s].angoff".
+    local armembcode = conl.StructAccessCode[Structname][member]
+    if (armembcode == nil) then
+        errprintf("invalid %s member `.%s'", Structname, member)
+        return "_MEMBINVALID"
+    end
+
+    if (type(armembcode)=="table") then
+        -- Read and write accesses differ.
+        armembcode = armembcode[writep and 2 or 1]
+        if (armembcode==nil) then
+            errprintf("%s access to %s[].%s is not available",
+                      writep and "write" or "read", Structname, member)
+            return "_MEMBNOACCESS"
+        end
+    end
+
+    local _, numparms = armembcode:gsub("%%s", "%%s", 2)
+    if (#membertab ~= numparms) then
+        local nums = { "one", "two" }
+        errprintf("%s[].%s has %s parameter%s, but %s given", Structname,
+                  member, nums[numparms], numparms==1 and "" or "s",
+                  nums[#membertab])
+        return "_MEMBINVPARM"
+    end
+
+    return format(armembcode, index, parm2)
+end
+
+
+function lookup.array_expr(writep, structname, index, membertab)
+    if (conl.StructAccessCode[structname] == nil) then
+--        warnprintf("gamearray access: NYI")
+        return "_NYI"
+    end
+
+    return StructAccess(structname, writep, index, membertab)
+end
+
 local Access =
 {
-    -- <writtenp>: whether the actor is written to.
-    actor = function(writtenp, index, membertab)
-        assert(type(membertab)=="table")
-        local member, parm2 = membertab[1], membertab[2]
-        assert(member ~= nil)
-
-        -- Look up array+member name first, e.g. "spriteext[%s].angoff".
-        local armembcode = conl.ActorLabels[member]
-        if (armembcode == nil) then
-            errprintf("invalid CON actor member `%s'", member)
-            return "_MEMBINVALID"
-        end
-
-        if (type(armembcode)=="table") then
-            -- Read and write accesses differ.
-            armembcode = armembcode[writtenp and 2 or 1]
-            if (armembcode==nil) then
-                assert(writtenp)
-                errprintf("write access to CON actor[].%s is not available", member)
-                return "_MEMBRO"
-            end
-        end
-
-        local _, numparms = armembcode:gsub("%%s", "%%s", 2)
-        if (#membertab ~= numparms) then
-            local one = numparms==1
-            errprintf("CON actor[].%s has %s parameter%s, but %d given", member,
-                      one and "one" or "two", one and "" or "s", #membertab)
-            return "_MEMBINVPARM"
-        end
-
-        return format(armembcode, index, parm2)
-    end,
+    sector = function(...) return StructAccess("sector", ...) end,
+    wall = function(...) return StructAccess("wall", ...) end,
+    xsprite = function(...) return StructAccess("sprite", ...) end,
+    player = function(...) return StructAccess("player", ...) end,
 }
 
 local function GetStructCmd(accessfunc)
@@ -1206,11 +1225,11 @@ local Cinner = {
         / handle.state,
 
     --- 1. get*, set*
-    getactor = GetStructCmd(Access.actor),
+    getactor = GetStructCmd(Access.xsprite),
     getinput = getstructcmd,
-    getplayer = getstructcmd,
+    getplayer = GetStructCmd(Access.player),
     getprojectile = getstructcmd,
-    getsector = getstructcmd,
+    getsector = GetStructCmd(Access.sector),
     getthisprojectile = getstructcmd,
     gettspr = getstructcmd,
     -- NOTE: {get,set}userdef is the only struct that can be accessed without
@@ -1222,7 +1241,7 @@ local Cinner = {
     -- We disallow them unless CONs in the wild crop up that actually used
     -- these.
     getuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.wvar,
-    getwall = getstructcmd,
+    getwall = GetStructCmd(Access.wall),
 
     getactorvar = getperxvarcmd,
     getplayervar = getperxvarcmd,
@@ -2040,31 +2059,31 @@ local Grammar = Pat{
     -- However, this conflicts with bad-identifiers, so it should be checked last.
     -- This would also handle LNGA2's "00000000h", though would give problems with
     -- e.g. "800h" (hex 0x800 or decimal 800?).
-    t_define = (POS() * lpeg.C(tok.maybe_minus) * tok.identifier / lookup_defined_label) + tok.number,
+    t_define = (POS() * lpeg.C(tok.maybe_minus) * tok.identifier / lookup.defined_label) + tok.number,
 
     -- Defines and constants can take the place of vars that are only read.
     -- XXX: now, when tok.rvar fails, the tok.define failure message is printed.
-    t_rvar = Var("t_botharrayexp") / function() --[[warnprintf("t_rvar: array exprs NYI")--]] return "_NYIVAR" end
-        + lpeg.Cmt(tok.identifier, maybe_gamevar_Cmt) + tok.define,
+    t_rvar = Var("t_botharrayexp") + lpeg.Cmt(tok.identifier, maybe_gamevar_Cmt) + tok.define,
     -- For written-to vars, only (non-parm2) array exprs and writable gamevars
     -- are permitted.  NOTE: C-CON doesn't support inline array exprs here.
     t_wvar = Var("t_singlearrayexp") / function() errprintf("t_wvar: array exprs NYI") return "_NYIVAR" end
-        + (tok.identifier / function(id) return lookup_gamevar(id, true) end),
+        + (tok.identifier / function(id) return lookup.gamevar(id, true) end),
 
     t_move =
-        POS()*tok.identifier / function(...) return lookup_composite(LABEL.MOVE, ...) end +
+        POS()*tok.identifier / function(...) return lookup.composite(LABEL.MOVE, ...) end +
         POS()*tok.number / function(...) return check_composite_literal(LABEL.MOVE, ...) end,
 
     t_ai =
-        POS()*tok.identifier / function(...) return lookup_composite(LABEL.AI, ...) end +
+        POS()*tok.identifier / function(...) return lookup.composite(LABEL.AI, ...) end +
         POS()*tok.number / function(...) return check_composite_literal(LABEL.AI, ...) end,
 
     t_action =
-        POS()*tok.identifier / function(...) return lookup_composite(LABEL.ACTION, ...) end +
+        POS()*tok.identifier / function(...) return lookup.composite(LABEL.ACTION, ...) end +
         POS()*tok.number / function(...) return check_composite_literal(LABEL.ACTION, ...) end,
 
     -- New-style inline arrays and structures.
-    t_botharrayexp = tok.identifier * arraypat * bothmemberpat^-1,
+    t_botharrayexp = tok.identifier * arraypat * bothmemberpat^-1
+        / function(...) return lookup.array_expr(false, ...) end,
     t_singlearrayexp = tok.identifier * arraypat * singlememberpat^-1,
 
     -- SWITCH

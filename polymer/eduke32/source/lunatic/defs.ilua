@@ -227,7 +227,7 @@ local DUKEPLAYER_STRUCT = [[
 
     int8_t numloogs, loogcnt, scream_voice;
     int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire;
-    int8_t const curr_weapon;
+    const int8_t curr_weapon;
 
     uint8_t palette;
     palette_t pals;
@@ -865,6 +865,10 @@ local player_mt = {
         addweapon = con._addweapon,
 
         stomp = con._pstomp,
+
+        have_weapon = function(p, weap)
+            return (bit.band(p.gotweapon, bit.lshift(1, weap)) ~= 0)
+        end,
 
         -- XXX: is the correct spelling "whack"?
         wack = function(p, no_return_to_center)
