@@ -1889,6 +1889,8 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     }
 }
 
+#define ARRAY_SIZE(Ar) (sizeof(Ar)/sizeof((Ar)[0]))
+
 static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
 {
     static const int8_t knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
@@ -1896,7 +1898,8 @@ static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
 
     const DukePlayer_t *const ps = g_player[snum].ps;
 
-    if (ps->knee_incs > 11 || ps->knee_incs == 0 || sprite[ps->i].extra <= 0) return 0;
+    if (ps->knee_incs == 0 || ps->knee_incs >= ARRAY_SIZE(knee_y) || sprite[ps->i].extra <= 0)
+        return 0;
 
     looking_arc = knee_y[ps->knee_incs] + klabs(ps->look_ang)/9;
 
@@ -1919,7 +1922,8 @@ static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
 
     const DukePlayer_t *const ps = g_player[snum].ps;
 
-    if (ps->knuckle_incs == 0 || sprite[ps->i].extra <= 0) return 0;
+    if (ps->knuckle_incs == 0 || ps->knuckle_incs >= ARRAY_SIZE(knuckle_frames) || sprite[ps->i].extra <= 0)
+        return 0;
 
     looking_arc = klabs(ps->look_ang)/9;
 
@@ -2041,7 +2045,7 @@ void P_DisplayScuba(int32_t snum)
 
 static int32_t P_DisplayTip(int32_t gs,int32_t snum)
 {
-    int32_t p,looking_arc, i, tipy;
+    int32_t p,looking_arc, tipy;
 
     static const int16_t tip_y[] = {
         0,-8,-16,-32,-64,
@@ -2053,7 +2057,8 @@ static int32_t P_DisplayTip(int32_t gs,int32_t snum)
 
     const DukePlayer_t *const ps = g_player[snum].ps;
 
-    if (ps->tipincs == 0) return 0;
+    if (ps->tipincs == 0 || ps->tipincs >= ARRAY_SIZE(tip_y))
+        return 0;
 
     looking_arc = klabs(ps->look_ang)/9;
     looking_arc -= (ps->hard_landing<<3);
@@ -2066,10 +2071,7 @@ static int32_t P_DisplayTip(int32_t gs,int32_t snum)
             p = wall[ps->access_wallnum].pal;
       */
 
-    // FIXME?
-    // OOB access of tip_y[] happens in 'Spider Den' of WGR2 SVN r72
-    i = ps->tipincs;
-    tipy = ((unsigned)i < sizeof(tip_y)/sizeof(tip_y[0])) ? (tip_y[i]>>1) : 0;
+    tipy = tip_y[ps->tipincs]>>1;
 
     G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(ps->look_ang>>1),
                      tipy+looking_arc+240-((ps->horiz-ps->horizoff)>>4),
@@ -2091,7 +2093,8 @@ static int32_t P_DisplayAccess(int32_t gs,int32_t snum)
     int32_t looking_arc, p = 0;
     const DukePlayer_t *const ps = g_player[snum].ps;
 
-    if (ps->access_incs == 0 || sprite[ps->i].extra <= 0) return 0;
+    if (ps->access_incs == 0 || ps->access_incs >= ARRAY_SIZE(access_y) || sprite[ps->i].extra <= 0)
+        return 0;
 
     looking_arc = access_y[ps->access_incs] + klabs(ps->look_ang)/9 -
                   (ps->hard_landing<<3);
