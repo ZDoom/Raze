@@ -257,7 +257,7 @@ local ivec3_mt = {
         return ivec3_(v.x, v.y, v.z-zofs)
     end,
 }
-ivec3_ = ffi.metatype("vec3_t", ivec3_mt)
+ivec3_ = ffi.metatype(vec3_ct, ivec3_mt)
 
 local xor = bit.bxor
 local wallsofsec  -- fwd-decl

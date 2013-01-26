@@ -10,10 +10,9 @@ local error = error
 module(...)
 
 
-ffi.cdef[[
-typedef struct { double x, y; } dvec2_t;
-typedef struct { double x, y, z; } dvec3_t;
-]]
+local dvec2_t = ffi.typeof("struct { double x, y; }")
+local dvec3_t = ffi.typeof("struct { double x, y, z; }")
+
 
 local vec2_
 local vec2_mt = {
@@ -40,6 +39,8 @@ local vec2_mt = {
     end,
 
     __eq = function(a,b)
+        -- XXX: will error if <a> is not a ctype (can only happen if __eq was
+        -- called by <b>)
         return (ffi.istype(a,b) and a.x==b.x and a.y==b.y)
     end,
 
@@ -77,6 +78,7 @@ local vec3_mt = {
     end,
 
     __eq = function(a,b)
+        -- XXX: see vec2
         return (ffi.istype(a,b) and a.x==b.x and a.y==b.y and a.z==b.z)
     end,
 
@@ -92,7 +94,7 @@ local vec3_mt = {
 -- VEC2 user data constructor.
 --  * vec2(<table>), <table> should be indexable with "x" and "y"
 --  * vec2(x, y), assuming that x and y are numbers
-vec2_ = ffi.metatype("dvec2_t", vec2_mt)
+vec2_ = ffi.metatype(dvec2_t, vec2_mt)
 vec2 = vec2_
 
 -- Returns a vec2 from anything indexable with "x" and "y"
@@ -100,7 +102,7 @@ vec2 = vec2_
 function tovec2(t) return vec2(t.x, t.y) end
 
 -- Same for vec3
-vec3_ = ffi.metatype("dvec3_t", vec3_mt)
+vec3_ = ffi.metatype(dvec3_t, vec3_mt)
 vec3 = vec3_
 function tovec3(t) return vec3(t.x, t.y, t.z) end
 
@@ -108,11 +110,10 @@ function tovec3(t) return vec3(t.x, t.y, t.z) end
 -- integer values, e.g. geom.ivec3(x, y, z) is a reasonable way to round
 -- a vec3.  It can be also used as the RHS to the vec2/vec3 arithmetic
 -- methods.
-ffi.cdef[[
-#pragma pack(push,1)
-typedef struct { int32_t x, y, z; } vec3_t;
-#pragma pack(pop)
-]]
+-- NOTE: We must have a typedef with that exact name, because for
+-- Lunatic (i.e. not stand-alone), it is a duplicate (and ignored)
+-- declaration for an already metatype'd type.
+ffi.cdef "typedef struct { int32_t x, y, z; } vec3_t;"
 ivec3 = ffi.typeof("vec3_t")
 
 

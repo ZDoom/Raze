@@ -16,11 +16,7 @@ local tostring = tostring
 module(...)
 
 
-ffi.cdef[[
-struct bitar { const double maxbidx, maxidx; const intptr_t arptr; }
-]]
-
-local bitar_ct = ffi.typeof("struct bitar")
+local bitar_ct = ffi.typeof("struct { const double maxbidx, maxidx; const intptr_t arptr; }")
 local ptr_to_int = ffi.typeof("int32_t *")
 
 local anchor = {}
@@ -216,7 +212,7 @@ local mt = {
     end,
 }
 
-local bitar = ffi.metatype("struct bitar", mt)
+local bitar = ffi.metatype(bitar_ct, mt)
 
 -- Create new bit array.
 function new(maxbidx, initval)

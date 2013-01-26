@@ -1,4 +1,4 @@
--- Implementation of a bound-checked array type factory for LuaJIT.
+-- Implementation of a bound-checked array type factory for LuaJIT 2.0 or later.
 --
 -- Usage example:
 --
@@ -36,7 +36,7 @@ function flatten_array(nelts, rng)
     return table.concat(strtab)
 end
 
--- ct = bcarray.new(basetype, numelts, showname [, typename] [, rng] [, mtadd])
+-- ctype = bcarray.new(basetype, numelts, showname [, typename] [, rng] [, mtadd])
 -- (optional fields may be nil)
 --
 -- <numelts>: Number of elements in array (small number)
@@ -44,7 +44,7 @@ end
 -- <typename>: If non-nil, the name under which the derived type is typedef'd
 -- <rng>: Random generator state + method :getu32(). If nil, then members are
 --  named _a1, _a2, ...
--- <mtadd>: A table containing functions __index and/or __index. They are
+-- <mtadd>: A table containing functions __index and/or __newindex. They are
 --  called first and the bound-checking ones are tail-called then.
 function new(basetype, numelts, showname, typename, rng, mtadd)
     local eltptr_t = ffi.typeof("$ *", ffi.typeof(basetype))

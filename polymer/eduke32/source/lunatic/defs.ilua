@@ -290,19 +290,11 @@ typedef struct
 ]].. mangle_arrays(ACTOR_STRUCT) ..[[
 actor_t;
 
-typedef struct
-]].. strip_const(ACTOR_STRUCT).. [[
-actor_u_t;  // The _u_t versions are unrestricted variants for internal use.
-
 typedef struct { int32_t _p; } weaponaccess_t;
 
 typedef struct
 ]].. mangle_arrays(DUKEPLAYER_STRUCT) ..[[
 DukePlayer_t;
-
-typedef struct
-]].. strip_const(DUKEPLAYER_STRUCT) ..[[
-DukePlayer_u_t;
 
 typedef struct {
     uint32_t bits; // 4b
@@ -619,8 +611,9 @@ local function check_literal_am(am, typename)
     end
 end
 
-local actor_ptr_ct = ffi.typeof("actor_u_t *")  -- an unrestricted actor_t pointer
-local player_ptr_ct = ffi.typeof("DukePlayer_u_t *")
+-- An unrestricted actor_t pointer, for internal use:
+local actor_ptr_ct = ffi.typeof("$ *", ffi.typeof("struct"..strip_const(ACTOR_STRUCT)))
+local player_ptr_ct = ffi.typeof("$ *", ffi.typeof("struct"..strip_const(DUKEPLAYER_STRUCT)))
 local con_action_ct = ffi.typeof("con_action_t")
 local con_move_ct = ffi.typeof("con_move_t")
 local con_ai_ct = ffi.typeof("con_ai_t")

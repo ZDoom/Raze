@@ -140,5 +140,8 @@ if (string.dump) then
     print(p-p)  -- test set difference
     print(-p)
 --]]
+
+    -- Set difference of self with self is the same as set intersection of self
+    -- with complement of self:
     assert(p-p == p*(-p))
 end
