@@ -20,8 +20,8 @@
 
 # include "compat.h"
 # include "baselayer.h"
-# include "build.h"
 # include "glbuild.h"
+# include "build.h"
 # include "osd.h"
 # include "hightile.h"
 # include "mdsprite.h"

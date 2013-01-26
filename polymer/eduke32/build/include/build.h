@@ -1058,6 +1058,27 @@ void hash_delete(hashtable_t *t, const char *s);
 
 extern void initialize_engine_globals(void);
 
+// XXX: These assume that glbuild.h is already #include'd
+static inline void push_nofog(void)
+{
+#ifdef USE_OPENGL
+    if (rendmode >= REND_POLYMOST)
+    {
+        bglPushAttrib(GL_ENABLE_BIT);
+        bglDisable(GL_FOG);
+    }
+#endif
+}
+
+static inline void pop_nofog(void)
+{
+#ifdef USE_OPENGL
+    if (rendmode >= REND_POLYMOST)
+        bglPopAttrib();
+#endif
+}
+
+
 #ifdef EXTERNC
 }
 #endif

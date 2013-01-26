@@ -2143,6 +2143,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     xvect2 = mulscale16(xvect,yxaspect);
     yvect2 = mulscale16(yvect,yxaspect);
 
+    push_nofog();
+
     //Draw red lines
     for (i=numsectors-1; i>=0; i--)
     {
@@ -2187,6 +2189,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             drawline256(x1,y1,x2,y2,col);
         }
     }
+
+    pop_nofog();
 
     //Draw sprites
     k = g_player[screenpeek].ps->i;
@@ -2334,6 +2338,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         }
     }
 
+    push_nofog();
+
     //Draw white lines
     for (i=numsectors-1; i>=0; i--)
     {
@@ -2375,6 +2381,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             drawline256(x1,y1,x2,y2,24);
         }
     }
+
+    pop_nofog();
 
     setaspect_new();
 

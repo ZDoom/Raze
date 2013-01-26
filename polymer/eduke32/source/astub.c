@@ -2917,22 +2917,6 @@ static void ReadPaletteTable(void)
 }// end ReadPaletteTable
 
 
-// XXX: this belongs into some engine header?
-static inline void push_nofog(void)
-{
-#ifdef USE_OPENGL
-    bglPushAttrib(GL_ENABLE_BIT);
-    bglDisable(GL_FOG);
-#endif
-}
-
-static inline void pop_nofog(void)
-{
-#ifdef USE_OPENGL
-    bglPopAttrib();
-#endif
-}
-
 static void m32_showmouse(void)
 {
     int32_t i, col;
