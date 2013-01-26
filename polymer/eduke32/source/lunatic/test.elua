@@ -250,6 +250,8 @@ gameevent(gv.EVENT_ENTERLEVEL,
               printf("sqrt(0xffffffff) = %f(ksqrt) %f(math.sqrt)",
                      gv.ksqrt(0xffffffff), math.sqrt(0xffffffff))
 
+              player[0].max_ammo_amount[gv.RPG_WEAPON] = 17
+
               checkfail("gameevent('GAME', function() print('qwe') end)",
                         "must be called from top level")
           end

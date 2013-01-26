@@ -152,6 +152,13 @@ local ACTOR_STRUCT = [[
 }
 ]]
 
+local bcarray = require("bcarray")
+
+-- TODO: randomize member names
+bcarray.new("int16_t", 64, "loogie", "int16_x_64")
+bcarray.new("int16_t", ffiC.MAX_WEAPONS, "weapon", "int16_x_MAX_WEAPONS")
+bcarray.new("int16_t", ffiC.GET_MAX, "inventory", "int16_x_GET_MAX")
+
 local DUKEPLAYER_STRUCT = [[
 {
     vec3_t pos, opos, vel, npos;
@@ -172,16 +179,16 @@ local DUKEPLAYER_STRUCT = [[
     uint16_t max_actors_killed, actors_killed;
     uint16_t gotweapon, zoom;
 
-    const int16_t loogiex[64];
-    const int16_t loogiey[64];
+    int16_x_64 loogiex;
+    int16_x_64 loogiey;
     int16_t sbs, sound_pitch;
 
     int16_t ang, oang, angvel;
     const int16_t cursectnum;
     int16_t look_ang, last_extra, subweapon;
-    const int16_t max_ammo_amount[MAX_WEAPONS];
-    const int16_t ammo_amount[MAX_WEAPONS];
-    const int16_t inv_amount[GET_MAX];
+    int16_x_MAX_WEAPONS max_ammo_amount;
+    int16_x_MAX_WEAPONS ammo_amount;
+    int16_x_GET_MAX inv_amount;
     int16_t wackedbyactor, pyoff, opyoff;
 
     int16_t horiz, horizoff, ohoriz, ohorizoff;
@@ -199,7 +206,7 @@ local DUKEPLAYER_STRUCT = [[
     const int16_t customexitsound;
     int16_t last_pissed_time;
 
-    const int16_t weaprecs[MAX_WEAPONS];
+    int16_x_MAX_WEAPONS weaprecs;
     int16_t weapon_sway, crack_time, bobcounter;
 
     int16_t orotscrnang, rotscrnang, dead_flag;   // JBF 20031220: added orotscrnang
@@ -257,10 +264,9 @@ local function ma_replace_array(typestr, neltstr)
     local strtab = { "const ", typestr.." " }
     for i=1,nelts do
         local ch1 = 97 + (ma_rand:getu32() % 25)  -- 'a'..'z'
-        strtab[i+2] = string.format("_%c%x%s", ch1, ma_count, (i<nelts) and "," or "")
+        strtab[i+2] = string.format("_%c%x%s", ch1, ma_count, (i<nelts) and "," or ";")
         ma_count = ma_count+1
     end
-    strtab[#strtab+1] = ";"
 
     return table.concat(strtab)
 end
@@ -818,38 +824,31 @@ local player_mt = {
     __index = {
         --- Getters/setters
         get_ammo_amount = function(p, weap)
-            check_weapon_idx(weap)
-            return ffi.cast(player_ptr_ct, p).ammo_amount[weap]
+            return p.ammo_amount[weap]
         end,
 
         set_ammo_amount = function(p, weap, amount)
-            check_weapon_idx(weap)
-            ffi.cast(player_ptr_ct, p).ammo_amount[weap] = amount
+            p.ammo_amount[weap] = amount
         end,
 
         get_max_ammo_amount = function(p, weap)
-            check_weapon_idx(weap)
-            return ffi.cast(player_ptr_ct, p).max_ammo_amount[weap]
+            return p.max_ammo_amount[weap]
         end,
 
         set_max_ammo_amount = function(p, weap, amount)
-            check_weapon_idx(weap)
-            ffi.cast(player_ptr_ct, p).max_ammo_amount[weap] = amount
+            p.max_ammo_amount[weap] = amount
         end,
 
         set_curr_weapon = function(p, weap)
-            check_weapon_idx(weap)
-            ffi.cast(player_ptr_ct, p).curr_weapon = weap
+            p.curr_weapon = weap
         end,
 
         get_inv_amount = function(p, inv)
-            check_inventory_idx(inv)
-            return ffi.cast(player_ptr_ct, p).inv_amount[inv]
+            return p.inv_amount[inv]
         end,
 
         set_inv_amount = function(p, inv, amount)
-            check_inventory_idx(inv)
-            ffi.cast(player_ptr_ct, p).inv_amount[inv] = amount
+            p.inv_amount[inv] = amount
         end,
 
         set_customexitsound = function(p, soundnum)
@@ -902,10 +901,9 @@ local camera_mt = {
         end
         ffiC.g_camera[key] = val
     end,
-    __metatable = true
 }
 
-gv_access.cam = setmetatable({}, camera_mt)
+gv_access.cam = setmtonce({}, camera_mt)
 
 function gv_access._currentFramerate()
     return ffiC.g_currentFrameRate
@@ -964,11 +962,10 @@ for modname, themodule in pairs(allowed_modules) do
         __newindex = function(tab,idx,val)
             error("modifying base module table forbidden", 2)
         end,
-        __metatable = true,
     }
 
     -- Comment out to make base modules not protected:
-    allowed_modules[modname] = setmetatable({}, mt)
+    allowed_modules[modname] = setmtonce({}, mt)
 end
 
 local function check_valid_modname(modname, errlev)
@@ -1165,7 +1162,7 @@ local function our_gameactor(tilenum, ...)
     if (#args == 0) then
         error("invalid call to gameactor: must have at least two arguments (tilenum, func)", 2)
     end
-    if (#args > 6) then
+    if (#args > 5) then
         error("invalid call to gameactor: must have at most six arguments", 2)
     end
     if (type(args[#args]) ~= "function") then

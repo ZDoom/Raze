@@ -441,8 +441,8 @@ local PlayerLabels = {
     last_extra = PL".last_extra",
     subweapon = PL".subweapon",
 
-    max_ammo_amount = { PL":get_max_ammo_amount(%s)" },
-    ammo_amount = { PL":get_ammo_amount(%s)" },
+    max_ammo_amount = PL".max_ammo_amount[%s]" ,
+    ammo_amount = PL".ammo_amount[%s]" ,
     -- NOTE: no direct access for .inv_amount (but see end)
 
     wackedbyactor = PL".wackedbyactor",
@@ -487,7 +487,7 @@ local PlayerLabels = {
 
     last_pissed_time = PL".last_pissed_time",
 
-    weaprecs = { PL".weaprecs" },
+    weaprecs = PL".weaprecs[%s]" ,
 
     weapon_sway = PL".weapon_sway",
     crack_time = PL".crack_time",
@@ -584,17 +584,17 @@ local PlayerLabels = {
     name = {},
 
     -- Access to .inv_amount
-    steroids_amount = { PL":get_inv_amount(0)", },
-    shield_amount = { PL":get_inv_amount(1)", },
-    scuba_amount = { PL":get_inv_amount(2)", },
-    holoduke_amount = { PL":get_inv_amount(3)", },
-    jetpack_amount = { PL":get_inv_amount(4)", },
+    steroids_amount = PL".inv_amount[0]",
+    shield_amount = PL".inv_amount[1]",
+    scuba_amount = PL".inv_amount[2]",
+    holoduke_amount = PL".inv_amount[3]",
+    jetpack_amount = PL".inv_amount[4]",
     -- 5: dummy
     -- 6: no "access_amount"
-    heat_amount = { PL":get_inv_amount(7)" },
+    heat_amount = PL".inv_amount[7]",
     -- 8: dummy
-    firstaid_amount = { PL":get_inv_amount(9)" },
-    boot_amount = { PL":get_inv_amount(10)" },
+    firstaid_amount = PL".inv_amount[9]",
+    boot_amount = PL".inv_amount[10]",
 }
 
 local SEC = function(memb) return "sector[%s]"..memb end
