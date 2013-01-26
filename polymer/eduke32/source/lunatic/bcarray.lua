@@ -1,0 +1,102 @@
+-- Implementation of a bound-checked array type factory for LuaJIT.
+--
+-- Usage example:
+--
+-- > bcarray.new("int8_t", 3, "test", "three_pigs")
+-- > a = ffi.new("struct { int32_t a; three_pigs p; int16_t b; }")
+-- > =ffi.sizeof(a)  --> 12
+-- > b = ffi.new("__attribute__((packed)) struct { int32_t a; three_pigs p; int16_t b; }")
+-- > =ffi.sizeof(b)  --> 9
+
+local ffi = require("ffi")
+
+local string = require("string")
+local table = require("table")
+
+local assert = assert
+local error = error
+local pairs = pairs
+local type = type
+
+
+module(...)
+
+
+-- Generate C decl for a sequence of <nelts> const struct members.
+-- For example, for 4 elements,
+--  "const $ _r1, _f2, _u3, _n4;"
+function flatten_array(nelts, rng)
+    local strtab = { "const $ " }
+
+    for i=1,nelts do
+        local ch = 97 + (rng and (rng:getu32() % 25) or 0)  -- 'a'..'z'
+        strtab[i+1] = string.format("_%c%x%s", ch, i, (i<nelts) and "," or ";")
+    end
+
+    return table.concat(strtab)
+end
+
+-- ct = bcarray.new(basetype, numelts, showname [, typename] [, rng] [, mtadd])
+-- (optional fields may be nil)
+--
+-- <numelts>: Number of elements in array (small number)
+-- <showname>: The name to be shown for the derived type in error messages
+-- <typename>: If non-nil, the name under which the derived type is typedef'd
+-- <rng>: Random generator state + method :getu32(). If nil, then members are
+--  named _a1, _a2, ...
+-- <mtadd>: A table containing functions __index and/or __index. They are
+--  called first and the bound-checking ones are tail-called then.
+function new(basetype, numelts, showname, typename, rng, mtadd)
+    local eltptr_t = ffi.typeof("$ *", ffi.typeof(basetype))
+
+    local mt = {
+        __index = function(ar, idx)
+            if (idx >= numelts+0ULL) then
+                error("out-of-bounds "..showname.." read access", 2)
+            end
+            return ffi.cast(eltptr_t, ar)[idx]
+        end,
+
+        -- NOTE: this function will be dead code if the prefixed __newindex
+        -- errors out unconditionally or the bcarray is declared 'const'.
+        __newindex = function(ar, idx, val)
+            if (idx >= numelts+0ULL) then
+                error("out-of-bounds "..showname.." write access", 2)
+            end
+            ffi.cast(eltptr_t, ar)[idx] = val
+        end,
+    }
+
+    if (mtadd ~= nil) then
+        local curindexf, curnewindexf = mt.__index, mt.__newindex
+        local addindexf, addnewindexf = mtadd.__index, mtadd.__newindex
+
+        if (addindexf) then
+            mt.__index = function(ar, idx)
+                addindexf(ar, idx)
+                return curindexf(ar, idx)
+            end
+        end
+
+        if (addnewindexf) then
+            mt.__newindex = function(ar, idx, val)
+                addnewindexf(ar, idx, val)
+                return curnewindexf(ar, idx, val)
+            end
+        end
+    end
+
+    local cdeclstr = "struct {"..flatten_array(numelts, rng).."}"
+    local bcarray_t = ffi.typeof(cdeclstr, ffi.typeof(basetype));
+
+    bcarray_t = ffi.metatype(bcarray_t, mt)
+    assert(ffi.sizeof(bcarray_t) == ffi.sizeof(basetype)*numelts)
+
+    if (typename ~= nil) then
+        -- Register the type name in the global namespace.
+        assert(type(typename)=="string")
+        ffi.cdef("typedef $ $;", bcarray_t, typename)
+    end
+
+    return bcarray_t
+end
