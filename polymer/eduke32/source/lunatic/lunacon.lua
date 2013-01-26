@@ -85,10 +85,14 @@ local g_directory = ""  -- with trailing slash if not empty
 local g_maxerrors = 20
 local g_numerrors = 0
 
+-- Default directory to search for GAME.CON etc.
+-- Stand-alone LunaCON only.
+local g_defaultDir = nil
+
 -- Warning options. Key names are the same as cmdline options, e.g.
 -- -Wno-bad-identifier for disabling the "bad identifier" warning.
 local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true,
-                 ["number-conversion"]=true, }
+                 ["number-conversion"]=true, ["system-gamevar"]=true, }
 
 -- Code generation options.
 local g_cgopt = { ["no"]=false, ["_incomplete"]=false, }
@@ -361,8 +365,11 @@ end
 local function parse_number(pos, numstr)
     local num = tonumber((numstr:gsub("h$", "")))
 
-    if (num==nil or num < -0x80000000 or num > 0xffffffff) then
+    -- num==nil for Rio Lua, which doesn't handle large hex literals.
+    if (num==nil or not (num >= -0x80000000 and num <= 0xffffffff)) then
         perrprintf(pos, "number %s out of the range of a 32-bit integer", numstr)
+        -- Be careful not to write bound checks like
+        -- "if (i<LOWBOUND or i>HIGHBOUND) then error('...') end":
         num = NaN
     elseif (num >= 0x80000000 and numstr:sub(1,2):lower()~="0x") then
         if (g_warn["number-conversion"]) then
@@ -573,8 +580,15 @@ local function do_include_file(dirname, filename)
         local fd, msg = io.open(dirname..filename)
         if (fd == nil) then
             -- strip up to and including first slash:
-            filename = string.gsub(filename, "^.-/", "")
+            filename = filename:gsub("^.-/", "")
             fd, msg = io.open(dirname..filename)
+
+            -- As a last resort, try the "default directory"
+            if (fd==nil and g_defaultDir) then
+                -- strip up to and including last slash (if any):
+                filename = filename:gsub("^.*/", "")
+                fd, msg = io.open(g_defaultDir.."/"..filename)
+            end
 
             if (fd == nil) then
                 printf("[%d] Fatal error: couldn't open %s", g_recurslevel, msg)
@@ -596,6 +610,8 @@ local function do_include_file(dirname, filename)
         return
     end
 
+    -- XXX: File name that's displayed here may not be the actual opened one
+    -- (esp. for stand-alone version).
     printf("%s[%d] Translating file \"%s\"", (g_recurslevel==-1 and "\n---- ") or "",
            g_recurslevel+1, dirname..filename);
 
@@ -818,7 +834,7 @@ function Cmd.gamevar(identifier, initval, flags)
                 end
 
                 local flagsnosys = bit.band(oflags, bit.bnot(GVFLAG.SYSTEM))
-                if (flagsnosys ~= flags) then
+                if (flagsnosys ~= flags and g_warn["system-gamevar"]) then
                     warnprintf("overrode initial value of `%s', but kept "..
                                "flags (%d)", identifier, flagsnosys)
                 end
@@ -1162,6 +1178,13 @@ local function GetStructCmd(accessfunc)
     return pattern
 end
 
+local function SetStructCmd(accessfunc)
+    local pattern = setstructcmd / function(idx, memb, var)
+        return format("%s=%s", accessfunc(true, idx, memb), var)
+    end
+    return pattern
+end
+
 
 -- Various inner command handling functions / string capture strings.
 local handle =
@@ -1225,11 +1248,13 @@ local Cinner = {
         / handle.state,
 
     --- 1. get*, set*
-    getactor = GetStructCmd(Access.xsprite),
-    getinput = getstructcmd,
-    getplayer = GetStructCmd(Access.player),
-    getprojectile = getstructcmd,
     getsector = GetStructCmd(Access.sector),
+    getwall = GetStructCmd(Access.wall),
+    getactor = GetStructCmd(Access.xsprite),
+    getplayer = GetStructCmd(Access.player),
+
+    getinput = getstructcmd,
+    getprojectile = getstructcmd,
     getthisprojectile = getstructcmd,
     gettspr = getstructcmd,
     -- NOTE: {get,set}userdef is the only struct that can be accessed without
@@ -1241,20 +1266,20 @@ local Cinner = {
     -- We disallow them unless CONs in the wild crop up that actually used
     -- these.
     getuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.wvar,
-    getwall = GetStructCmd(Access.wall),
 
     getactorvar = getperxvarcmd,
     getplayervar = getperxvarcmd,
 
-    setactor = setstructcmd,
+    setsector = SetStructCmd(Access.sector),
+    setwall = SetStructCmd(Access.wall),
+    setactor = SetStructCmd(Access.xsprite),
+    setplayer = SetStructCmd(Access.player),
+
     setinput = setstructcmd,
-    setplayer = setstructcmd,
     setprojectile = setstructcmd,
-    setsector = setstructcmd,
     setthisprojectile = setstructcmd,
     settspr = setstructcmd,
     setuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.rvar,
-    setwall = setstructcmd,
 
     setactorvar = setperxvarcmd,
     setplayervar = setperxvarcmd,
@@ -2268,6 +2293,10 @@ local function handle_cmdline_arg(str)
             elseif (str:sub(2)=="f_incomplete") then
                 -- TEMP
                 g_cgopt["_incomplete"] = true
+                ok = true
+            elseif (kind=="I" and #str >= 3) then
+                -- default directory (only ONCE, not search path)
+                g_defaultDir = str:sub(3)
                 ok = true
             end
 
