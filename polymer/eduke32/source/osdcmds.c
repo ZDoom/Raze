@@ -1337,7 +1337,7 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->name, "r_maxfps"))
     {
-        if (r_maxfps) g_frameDelay = (1000/r_maxfps);
+        if (r_maxfps) g_frameDelay = (int32_t)nearbyintf(1000.f/(float)r_maxfps);
         else g_frameDelay = 0;
 
         return r;
