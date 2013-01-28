@@ -7831,7 +7831,7 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 ///// sector lists of sprites /////
 
 // insert sprite at the head of sector list, change .sectnum
-static void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum)
+void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum)
 {
     int16_t ohead = headspritesect[sectnum];
 
@@ -7845,7 +7845,7 @@ static void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum)
 }
 
 // remove sprite 'deleteme' from its sector list
-static void do_deletespritesect(int16_t deleteme)
+void do_deletespritesect(int16_t deleteme)
 {
     int32_t sectnum = sprite[deleteme].sectnum;
     int32_t prev = prevspritesect[deleteme], next = nextspritesect[deleteme];
@@ -7861,7 +7861,7 @@ static void do_deletespritesect(int16_t deleteme)
 ///// now, status lists /////
 
 // insert sprite at head of status list, change .statnum
-static void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum)
+void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum)
 {
     int16_t ohead = headspritestat[statnum];
 
@@ -7875,7 +7875,7 @@ static void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum)
 }
 
 // insertspritestat (internal)
-static int32_t insertspritestat(int16_t statnum)
+int32_t insertspritestat(int16_t statnum)
 {
     int16_t blanktouse;
 

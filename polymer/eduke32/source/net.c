@@ -53,7 +53,7 @@ static int32_t g_chatPlayer = -1;
 // sprites of these statnums are synced to clients by the server
 int16_t g_netStatnums[] =
 {
-    //STAT_PROJECTILE,
+    STAT_PROJECTILE,
     //STAT_PLAYER,
     STAT_STANDABLE,
     //STAT_ACTIVATOR,
@@ -61,8 +61,9 @@ int16_t g_netStatnums[] =
     //STAT_EFFECTOR,
     STAT_ACTOR,
     STAT_ZOMBIEACTOR,
-    //STAT_MISC,
+    STAT_MISC,
     STAT_DEFAULT,
+    STAT_NETALLOC,
     MAXSTATUS
 };
 
@@ -1100,7 +1101,7 @@ void Net_SaveMapState(netmapstate_t *save)
         i = headspritestat[g_netStatnums[statIndex]];
         for (; i >= 0; i = nextspritestat[i])
         {
-            if (Net_IsRelevantSprite(i))
+            if (Net_IsRelevantSprite(i) && sprite[i].statnum != STAT_NETALLOC)
             {
                 netactor_t *tempActor = &save->actor[save->numActors];
                 Net_CopyToNet(i, tempActor);
@@ -1253,34 +1254,29 @@ void Net_CopyToNet(int32_t i, netactor_t *netactor)
     //netactor->dispicnum = actor[i].dispicnum;
     netactor->shootzvel = actor[i].shootzvel;
     netactor->cgg = actor[i].cgg;
-	netactor->owner = actor[i].owner;
+    netactor->owner = actor[i].owner;
 
-    netactor->sprite.owner = sprite[i].owner;
-    netactor->sprite.statnum = sprite[i].statnum;
-    netactor->sprite.sectnum = sprite[i].sectnum;
-    netactor->sprite.x = sprite[i].x;
-    netactor->sprite.y = sprite[i].y;
-    netactor->sprite.z = sprite[i].z;
-    netactor->sprite.picnum = sprite[i].picnum;
-    netactor->sprite.shade = sprite[i].shade;
-    netactor->sprite.xrepeat = sprite[i].xrepeat;
-    netactor->sprite.yrepeat = sprite[i].yrepeat;
-    netactor->sprite.ang = sprite[i].ang;
-    netactor->sprite.xvel = sprite[i].xvel;
-    netactor->sprite.yvel = sprite[i].yvel;
-    netactor->sprite.zvel = sprite[i].zvel;
-    netactor->sprite.owner = sprite[i].owner;
+    Bmemcpy(netactor->t_data, actor[i].t_data, 10 * sizeof(int32_t));
+
+    Bmemcpy(&netactor->sprite, &sprite[i], sizeof(spritetype));
 }
 
 void Net_CopyFromNet(int32_t i, netactor_t *netactor)
 {
-    if (sprite[i].statnum != netactor->sprite.statnum)
+    if (netactor->sprite.statnum == STAT_NETALLOC)
+    {
+        // Do nothing if it's going to be deleted
+        return;
+    }
+    else if (sprite[i].statnum == STAT_NETALLOC)
     {
         changespritestat(i, netactor->sprite.statnum);
+        do_insertsprite_at_headofsect(i, netactor->sprite.sectnum);
     }
-
-    if (sprite[i].sectnum != netactor->sprite.sectnum)
+    else
     {
+        // These functions already check to see if the sprite already has the stat/sect value. No need to do it twice.
+        changespritestat(i, netactor->sprite.statnum);
         changespritesect(i, netactor->sprite.sectnum);
     }
 
@@ -1302,18 +1298,9 @@ void Net_CopyFromNet(int32_t i, netactor_t *netactor)
     actor[i].cgg = netactor->cgg;
     actor[i].owner = netactor->owner;
 
-    sprite[i].x = netactor->sprite.x;
-    sprite[i].y = netactor->sprite.y;
-    sprite[i].z = netactor->sprite.z;
-    sprite[i].picnum = netactor->sprite.picnum;
-    sprite[i].shade = netactor->sprite.shade;
-    sprite[i].xrepeat = netactor->sprite.xrepeat;
-    sprite[i].yrepeat = netactor->sprite.yrepeat;
-    sprite[i].ang = netactor->sprite.ang;
-    sprite[i].xvel = netactor->sprite.xvel;
-    sprite[i].yvel = netactor->sprite.yvel;
-    sprite[i].zvel = netactor->sprite.zvel;
-    sprite[i].owner = netactor->sprite.owner;
+    Bmemcpy(actor[i].t_data, netactor->t_data, 10 * sizeof(int32_t));
+
+    Bmemcpy(&sprite[i], &netactor->sprite, sizeof(spritetype));
 }
 
 int32_t Net_ActorsAreDifferent(netactor_t *actor1, netactor_t *actor2)
@@ -1347,7 +1334,7 @@ int32_t Net_ActorsAreDifferent(netactor_t *actor1, netactor_t *actor2)
         //actor1->sprite.shade	!= actor2->sprite.shade ||
         actor1->sprite.xrepeat	!= actor2->sprite.xrepeat ||
         actor1->sprite.yrepeat	!= actor2->sprite.yrepeat;// ||
-	    //actor1->sprite.ang	!= actor2->sprite.ang ||
+        //actor1->sprite.ang	!= actor2->sprite.ang ||
 
     nonStandableDiff =
         actor1->sprite.x		!= actor2->sprite.x ||
@@ -1408,15 +1395,22 @@ int32_t Net_InsertSprite(int32_t sect, int32_t stat)
         return -1;
     }
 
-    changespritesect(i, sect);
     changespritestat(i, stat);
+    do_insertsprite_at_headofsect(i, sect);
 
     return i;
 }
 
 void Net_DeleteSprite(int32_t spritenum)
 {
+    if (sprite[spritenum].statnum == STAT_NETALLOC)
+    {
+        return;
+    }
+
     changespritestat(spritenum, STAT_NETALLOC);
+    do_deletespritesect(spritenum);
+    sprite[spritenum].sectnum = MAXSECTORS;
 }
 
 extern void Gv_RefreshPointers(void);
@@ -1894,7 +1888,9 @@ void Net_NotifyNewGame()
     numSpritesToNetAlloc = (MAXSPRITES - numSprites) / 2;
     for (i = 0; i < numSpritesToNetAlloc; ++i)
     {
-        insertsprite(0, STAT_NETALLOC);
+        int32_t newSprite = insertspritestat(STAT_NETALLOC);
+        sprite[newSprite].sectnum = MAXSECTORS;
+        Numsprites++;
     }
 
     Net_SaveMapState(&g_mapStartState);
