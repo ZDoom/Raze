@@ -133,7 +133,7 @@ checkfail('gv.numsectors = 4', "write access forbidden")
 checkfail('gv.QWE = 4', "write access forbidden")
 
 -- direct sector write access forbidden
-checkfail('sector[4] = sector[6]', "cannot write directly to sector[] struct")
+checkfail('sector[4] = sector[6]', "cannot write directly to sector[]")
 
 -- that would be horrible...
 checkfail('nextspritesect[4] = -666', "cannot write directly to nextspritesect[]")
@@ -285,6 +285,8 @@ local TROOPSTRENGTH = 30
 
 gameactor(1680, TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
           function(i, playeri, dist)
+              spriteext[i]:make_animated()
+
               sprite[i].pal = math.random(32)
 --              sprite[i].ang = bit.band(sprite[i].ang-20, 2047)
 
@@ -319,6 +321,18 @@ gameevent("DISPLAYROOMS",
               cam.pos.z = cam.pos.z + 64*16*math.sin(gv.totalclock/30)
           end
          )
+
+gameevent("ANIMATESPRITES",
+function(aci)
+    local tspr = atsprite[aci]
+    if (tspr.picnum==1680) then
+--[[
+        local tspr2 = tspr:dup()
+        tspr2.x = tspr2.x + 512*math.cos(gv.totalclock/120)
+        tspr2.y = tspr2.y + 512*math.sin(gv.totalclock/120)
+--]]
+    end
+end)
 
 printf("EVENT_INIT = %d", gv.EVENT_INIT)  -- tests default defines
 

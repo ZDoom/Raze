@@ -5,11 +5,13 @@ engine_v8;
 sector;
 wall;
 sprite;
+tsprite;
 spriteext;
 
 numsectors;
 numwalls;
 numyaxbunches;
+spritesortcnt;
 
 rendmode;
 totalclock;

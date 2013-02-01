@@ -18,6 +18,7 @@ local pairs = pairs
 local require = require
 local setmetatable = setmetatable
 local tostring = tostring
+local type = type
 
 local decl = decl
 local getfenv = getfenv
@@ -100,6 +101,7 @@ ffi.cdef([[
 typedef $ sectortype;
 typedef $ walltype;
 typedef $ spritetype;
+typedef $ tspritetype;
 
 typedef struct {
     const uint32_t mdanimtims;
@@ -110,8 +112,10 @@ typedef struct {
     uint8_t xpanning, ypanning;
     const uint8_t filler;
     float alpha;
-    const int32_t _do_not_use1;
-    const int32_t _do_not_use2;
+    union {
+        const intptr_t _tspr;
+        struct { const int32_t _dummy0, _dummy1; };
+    };
 } spriteext_t;
 
 typedef struct {
@@ -123,7 +127,11 @@ typedef struct {
     int16_t sprite, wall, sect;
 } hitdata_t;
 #pragma pack(pop)
-]], ffi.typeof(SECTOR_STRUCT), ffi.typeof(WALL_STRUCT), ffi.typeof(SPRITE_STRUCT))
+]],
+ffi.typeof(SECTOR_STRUCT), ffi.typeof(WALL_STRUCT),
+ffi.typeof(SPRITE_STRUCT), ffi.typeof(SPRITE_STRUCT))
+-- NOTE: spritetype and tspritetype are different types with the same layout.
+-- (XXX: is there a better way?)
 
 -- Define the "palette_t" type, which for us has .{r,g,b} fields and a
 -- bound-checking array of length 3 overlaid.
@@ -154,6 +162,7 @@ if (ffiC.engine_main_arrays_are_static ~= 0) then
     sectortype sector[];
     walltype wall[];
     spritetype sprite[];
+    tspritetype tsprite[];
     spriteext_t spriteext[];
     ]]
 else
@@ -161,6 +170,7 @@ else
     sectortype *sector;
     walltype *wall;
     spritetype *sprite;
+    tspritetype *tsprite;
     spriteext_t *spriteext;
     ]]
 end
@@ -191,6 +201,7 @@ ffi.cdef[[
 enum {
     MAXSTATUS = 1024,
     MAXTILES = 30720,
+    MAXSPRITESONSCREEN = 4096,
 
     MAXBUNCHES = 256,
     CEILING = 0,
@@ -211,6 +222,7 @@ const int32_t windowx1, windowy1, windowx2, windowy2;
 ]]
 
 decl[[
+int32_t spritesortcnt;
 const int32_t rendmode;
 const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 const int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
@@ -257,6 +269,7 @@ int32_t __fastcall getangle(int32_t xvect, int32_t yvect);
 
 local bcheck = require("bcheck")
 local check_sector_idx = bcheck.sector_idx
+local check_sprite_idx = bcheck.sprite_idx
 local check_tile_idx = bcheck.tile_idx
 
 local ivec3_
@@ -368,9 +381,19 @@ local walltype_mt = {
 }
 ffi.metatype("walltype", walltype_mt)
 
+local spriteext_mt = {
+    __index = {
+        -- Enable EVENT_ANIMATESPRITES for this sprite.
+        make_animated = function(sx)
+            sx.flags = bit.bor(sx.flags, 16)
+        end,
+    },
+}
+ffi.metatype("spriteext_t", spriteext_mt)
+
 local spritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SPRITE_STRUCT)))
 
-spritetype_mt = {
+local spritetype_mt = {
     __pow = function(s, zofs)
         return ivec3_(s.x, s.y, s.z-zofs)
     end,
@@ -387,8 +410,46 @@ spritetype_mt = {
         end,
     },
 }
--- The user of this module can insert additional "spritetype" metamethods and
--- register them with "ffi.metatype".
+
+local function deep_copy(tab)
+    local ntab = {}
+    for key, val in pairs(tab) do
+        if (type(val)=="table") then
+            ntab[key] = deep_copy(val)
+        else
+            assert(type(val)=="function")
+            ntab[key] = val
+        end
+    end
+    return ntab
+end
+
+local tspritetype_mt = deep_copy(spritetype_mt)
+
+-- Methods that are specific to tsprites
+-- XXX: doesn't work with LuaJIT git f772bed34b39448e3a9ab8d07f6d5c0c26300e1b
+function tspritetype_mt.__index.dup(tspr)
+    if (ffiC.spritesortcnt >= ffiC.MAXSPRITESONSCREEN+0ULL) then
+        return nil
+    end
+
+    local newtspr = ffi.tsprite[ffiC.spritesortcnt]
+    ffi.copy(newtspr, tspr, ffi.sizeof(tspr))
+    ffiC.spritesortcnt = ffiC.spritesortcnt+1
+
+    return newtspr
+end
+
+-- The user of this module can insert additional "spritetype" index
+-- methods and register them with "ffi.metatype".
+function finish_spritetype(mt_index)
+    for name, func in pairs(mt_index) do
+        spritetype_mt.__index[name] = func
+        tspritetype_mt.__index[name] = func
+    end
+    ffi.metatype("spritetype", spritetype_mt)
+    ffi.metatype("tspritetype", tspritetype_mt)
+end
 
 
 ---=== Restricted access to C variables from Lunatic ===---
@@ -406,7 +467,7 @@ local sector_mt = {
         error('out-of-bounds sector[] read access', 2)
     end,
 
-    __newindex = function(tab, key, val) error('cannot write directly to sector[] struct', 2) end,
+    __newindex = function() error('cannot write directly to sector[]', 2) end,
 }
 
 local wall_mt = {
@@ -415,7 +476,23 @@ local wall_mt = {
         error('out-of-bounds wall[] read access', 2)
     end,
 
-    __newindex = function(tab, key, val) error('cannot write directly to wall[] struct', 2) end,
+    __newindex = function() error('cannot write directly to wall[]', 2) end,
+}
+
+local atsprite_mt = {
+    __index = function(tab, idx)
+        check_sprite_idx(idx)
+
+        local tspr = ffi.cast(spritetype_ptr_ct, ffiC.spriteext[idx]._tspr)
+        if (tspr == nil) then
+            error("tsprite of actor "..idx.." unavailable", 2)
+        end
+
+        -- Return a reference to a tsprite[] element.
+        return tspr[0]
+    end,
+
+    __newindex = function() error('cannot write directly to atsprite[]', 2) end,
 }
 
 -- create a safe indirection for an ffi.C array
@@ -428,7 +505,7 @@ function creategtab(ctab, maxidx, name)
             end
             error('out-of-bounds '..name..' read access', 2)
         end,
-        __newindex = function(tab, key, val)
+        __newindex = function()
             error('cannot write directly to '..name, 2)
         end,
     }
@@ -449,8 +526,9 @@ end
 
 sector = setmtonce({}, sector_mt)
 wall = setmtonce({}, wall_mt)
-sprite = creategtab(ffiC.sprite, ffiC.MAXSPRITES, 'sprite[] struct')
-spriteext = creategtab(ffiC.spriteext, ffiC.MAXSPRITES, 'spriteext[] struct')
+sprite = creategtab(ffiC.sprite, ffiC.MAXSPRITES, 'sprite[]')
+spriteext = creategtab(ffiC.spriteext, ffiC.MAXSPRITES, 'spriteext[]')
+atsprite = setmtonce({}, atsprite_mt)
 
 headspritesect = creategtab(ffiC.headspritesect, ffiC.MAXSECTORS, 'headspritesect[]')
 -- TODO: allow sprite freelist access via the status list for CON compatibility?

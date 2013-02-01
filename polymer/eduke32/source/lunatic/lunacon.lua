@@ -1274,10 +1274,10 @@ local Cinner = {
     getactor = GetStructCmd(Access.xsprite),
     getplayer = GetStructCmd(Access.player),
 
-    getinput = getstructcmd,
-    getprojectile = getstructcmd,
-    getthisprojectile = getstructcmd,
-    gettspr = getstructcmd,
+    getinput = getstructcmd / handle.NYI,
+    getprojectile = getstructcmd / handle.NYI,
+    getthisprojectile = getstructcmd / handle.NYI,
+    gettspr = getstructcmd / handle.NYI,
     -- NOTE: {get,set}userdef is the only struct that can be accessed without
     -- an "array part", e.g.  H266MOD has "setuserdef .weaponswitch 0" (space
     -- between keyword and "." is mandatory).
@@ -1286,21 +1286,21 @@ local Cinner = {
     -- arrays, I highly doubt that they worked (much less were safe) in CON.
     -- We disallow them unless CONs in the wild crop up that actually used
     -- these.
-    getuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.wvar,
+    getuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.wvar / handle.NYI,
 
-    getactorvar = getperxvarcmd,
-    getplayervar = getperxvarcmd,
+    getactorvar = getperxvarcmd / handle.NYI,
+    getplayervar = getperxvarcmd / handle.NYI,
 
     setsector = SetStructCmd(Access.sector),
     setwall = SetStructCmd(Access.wall),
     setactor = SetStructCmd(Access.xsprite),
     setplayer = SetStructCmd(Access.player),
 
-    setinput = setstructcmd,
-    setprojectile = setstructcmd,
-    setthisprojectile = setstructcmd,
-    settspr = setstructcmd,
-    setuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.rvar,
+    setinput = setstructcmd / handle.NYI,
+    setprojectile = setstructcmd / handle.NYI,
+    setthisprojectile = setstructcmd / handle.NYI,
+    settspr = setstructcmd / handle.NYI,
+    setuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.rvar / handle.NYI,
 
     setactorvar = setperxvarcmd,
     setplayervar = setperxvarcmd,

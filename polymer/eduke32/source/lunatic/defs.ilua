@@ -560,7 +560,7 @@ string.dump = nil
 
 -- sanity-check struct type sizes
 local good = true
-for i=0,7 do
+for i=0,8 do
     local what = ffi.string(ffiC.g_sizes_of_what[i])
     local fsz = ffi.sizeof(what)
     local csz = ffiC.g_sizes_of[i]
@@ -599,10 +599,12 @@ local con = require("control")
 local MV, AC, AI = con.MV, con.AC, con.AI
 
 -- Add game-side metamethods to "spritetype" and register it with "metatype"
-defs_c.spritetype_mt.__index.isenemy = function(s)
-    return con.isenemytile(s.picnum)
-end
-ffi.metatype("spritetype", defs_c.spritetype_mt)
+local spr_mt_index_add = {
+    isenemy = function(s)
+        return con.isenemytile(s.picnum)
+    end,
+}
+defs_c.finish_spritetype(spr_mt_index_add)
 
 -- All-zero action and move
 local nullac, nullmv = ffi.new("const struct action"), ffi.new("const struct move")

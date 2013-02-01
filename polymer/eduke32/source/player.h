@@ -40,17 +40,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define PIPEBOMB_TIMER          0x00000002
 
 enum dukeinv_t {
-    GET_STEROIDS,
+    GET_STEROIDS,  // 0
     GET_SHIELD,
     GET_SCUBA,
     GET_HOLODUKE,
     GET_JETPACK,
-    GET_DUMMY1,
+    GET_DUMMY1,  // 5
     GET_ACCESS,
     GET_HEATS,
     GET_DUMMY2,
     GET_FIRSTAID,
-    GET_BOOTS,
+    GET_BOOTS,  // 10
     GET_MAX
 };
 
