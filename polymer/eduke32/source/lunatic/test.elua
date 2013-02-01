@@ -210,6 +210,12 @@ gameevent("JUMP",
 
               ps.pipebombControl = 2
               ps.tripbombControl = 2
+
+              -- Test of INTERNAL member _pals.
+              -- NOTE: setting colors partially is bad! E.g. after an item is
+              -- picked up, col[0] and col[1] remain and tint everything greenish.
+              ps._pals.col[2] = 20
+              ps._pals.f = 30
           end
          )
 
@@ -250,7 +256,10 @@ gameevent(gv.EVENT_ENTERLEVEL,
               printf("sqrt(0xffffffff) = %f(ksqrt) %f(math.sqrt)",
                      gv.ksqrt(0xffffffff), math.sqrt(0xffffffff))
 
-              player[0].max_ammo_amount[gv.RPG_WEAPON] = 17
+              local pl = player[0]
+              pl.max_ammo_amount[gv.RPG_WEAPON] = 17
+              pl:give_weapon(gv.RPG_WEAPON)
+              pl.ammo_amount[gv.RPG_WEAPON] = 54
 
               checkfail("gameevent('GAME', function() print('qwe') end)",
                         "must be called from top level")

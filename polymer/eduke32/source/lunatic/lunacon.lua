@@ -1141,7 +1141,8 @@ local function StructAccess(Structname, writep, index, membertab)
         end
     end
 
-    local _, numparms = armembcode:gsub("%%s", "%%s", 2)
+    -- Count number of parameters ("%s"), don't count "%%s".
+    local _, numparms = armembcode:gsub("[^%%]%%s", "", 2)
     if (#membertab ~= numparms) then
         local nums = { "one", "two" }
         errprintf("%s[].%s has %s parameter%s, but %s given", Structname,
@@ -1150,7 +1151,10 @@ local function StructAccess(Structname, writep, index, membertab)
         return "_MEMBINVPARM"
     end
 
-    return format(armembcode, index, parm2)
+    -- METHOD_MEMBER
+    local ismethod = (armembcode:find("%%s",1,true)~=nil)
+    -- If ismethod is true, then the formatted string will now have an "%s"
+    return format(armembcode, index, parm2), ismethod
 end
 
 
@@ -1160,7 +1164,11 @@ function lookup.array_expr(writep, structname, index, membertab)
         return "_NYI"
     end
 
-    return StructAccess(structname, writep, index, membertab)
+    local membercode, ismethod = StructAccess(structname, writep, index, membertab)
+    -- Written METHOD_MEMBER syntax not supported as "qwe:method(asd) = val"
+    -- isn't valid Lua syntax.
+    assert(not (writep and ismethod))
+    return membercode
 end
 
 local Access =
@@ -1180,7 +1188,20 @@ end
 
 local function SetStructCmd(accessfunc)
     local pattern = setstructcmd / function(idx, memb, var)
-        return format("%s=%s", accessfunc(true, idx, memb), var)
+        local membercode, ismethod = accessfunc(true, idx, memb)
+        if (ismethod) then
+            -- METHOD_MEMBER syntax
+
+            -- BE EXTRA CAREFUL! We must be sure that percent characters have
+            -- not been smuggled into the member code string via variable names
+            -- etc.
+            local _, numpercents = membercode:gsub("%%", "", 2)
+            assert(numpercents==1)
+
+            return format(membercode, var)
+        else
+            return format("%s=%s", membercode, var)
+        end
     end
     return pattern
 end

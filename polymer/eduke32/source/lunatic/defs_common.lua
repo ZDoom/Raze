@@ -12,8 +12,10 @@ ffi.cdef "enum { _DEBUG_LUNATIC=1 }"
 local bit = require("bit")
 local string = require("string")
 
+local assert = assert
 local error = error
 local pairs = pairs
+local require = require
 local setmetatable = setmetatable
 local tostring = tostring
 
@@ -125,12 +127,20 @@ typedef struct {
     vec3_t pos;
     int16_t sprite, wall, sect;
 } hitdata_t;
-
-typedef struct {
-    unsigned char r,g,b,f;
-} palette_t;
 #pragma pack(pop)
 ]])
+
+-- Define the "palette_t" type, which for us has .{r,g,b} fields and a
+-- bound-checking array of length 3 overlaid.
+-- TODO: bcarray really should allow to simply declare the struct with
+-- passed member names instead of "hidden" ones... because wrapping it
+-- in a union like this is doing things inside-out really.
+local rgbarray_t = require("bcarray").new("uint8_t", 3, "RGB array")
+ffi.cdef("typedef union { \
+    struct { uint8_t r, g, b, f; }; \
+    $ col; \
+} palette_t", rgbarray_t)
+assert(ffi.alignof("palette_t")==1)
 
 local vec3_ct = ffi.typeof("vec3_t")
 local hitdata_ct = ffi.typeof("hitdata_t")

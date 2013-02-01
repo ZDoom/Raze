@@ -215,7 +215,8 @@ local DUKEPLAYER_STRUCT = [[
 
     uint8_t max_secret_rooms, secret_rooms;
     uint8_t frag, fraggedself, quick_kick, last_quick_kick;
-    uint8_t return_to_center, reloading, weapreccnt;
+    uint8_t return_to_center, reloading;
+    const uint8_t weapreccnt;
     uint8_t aim_mode, auto_aim, weaponswitch, movement_lock, team;
     uint8_t tipincs, hbomb_hold_delay, frag_ps, kickback_pic;
 
@@ -237,7 +238,7 @@ local DUKEPLAYER_STRUCT = [[
     const int8_t curr_weapon;
 
     uint8_t palette;
-    palette_t pals;
+    palette_t _pals;
 
     const char name[32];
 
@@ -833,6 +834,7 @@ local player_mt = {
         end,
 
         set_curr_weapon = function(p, weap)
+            check_weapon_idx(weap)
             p.curr_weapon = weap
         end,
 
@@ -862,6 +864,23 @@ local player_mt = {
             return (bit.band(p.gotweapon, bit.lshift(1, weap)) ~= 0)
         end,
 
+        give_weapon = function(p, weap)
+            p.gotweapon = bit.bor(p.gotweapon, bit.lshift(1, weap))
+        end,
+
+        take_weapon = function(p, weap)
+            p.gotweapon = bit.band(p.gotweapon, bit.bnot(bit.lshift(1, weap)))
+        end,
+
+        -- Give or take weapon, for implementation of CON's .gotweapon access.
+        _gt_weapon = function(p, weap, give_p)
+            if (give_p ~= 0) then
+                p:give_weapon(weap)
+            else
+                p:take_weapon(weap)
+            end
+        end,
+
         -- XXX: is the correct spelling "whack"?
         wack = function(p, no_return_to_center)
             p.horiz = p.horiz + 64
@@ -875,8 +894,9 @@ local player_mt = {
 
         --- Not fully specified, off-limits to users.  Might disappear, change
         --- signature, etc...
+        -- TODO: need to think about external API: 0-255 based? 0-1 based?
         _palfrom = function(p, f, r,g,b)
-            local pals = p.pals
+            local pals = p._pals
             pals.f = f
             pals.r, pals.g, pals.b = r, g, b
         end,

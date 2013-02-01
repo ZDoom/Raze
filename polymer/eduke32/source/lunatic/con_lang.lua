@@ -421,8 +421,9 @@ local PlayerLabels = {
     max_actors_killed = PL".max_actors_killed",
     actors_killed = PL".actors_killed",
 
-    -- NOTE the special case:
-    gotweapon = { "("..PL":have_weapon(%s) and 1 or 0)" },
+    -- NOTE the special case; "%%s" is used to mark settable members
+    -- with METHOD_MEMBER syntax, it's the value to be set.
+    gotweapon = { "("..PL":have_weapon(%s) and 1 or 0)", PL":_gt_weapon(%s,%%s)" },
     zoom = PL".zoom",
 
     loogiex = {},
@@ -511,7 +512,7 @@ local PlayerLabels = {
 
     return_to_center = PL".return_to_center",
     reloading = PL".reloading",
-    weapreccnt = PL".weapreccnt",
+    weapreccnt = { PL".weapreccnt" },
 
     aim_mode = PL".aim_mode",
     auto_aim = PL".auto_aim",
@@ -573,13 +574,13 @@ local PlayerLabels = {
     weapon_pos = PL".weapon_pos",
     wantweaponfire = PL".wantweaponfire",
 
-    curr_weapon = { PL".curr_weapon" },
+    curr_weapon = { PL".curr_weapon", PL":set_curr_weapon(%%s)" },
 
     palette = PL".palette",
 
     -- NOTE the special case:
-    pals = {},
-    pals_time = PL".pals.f",
+    pals = PL"._pals[%s]",
+    pals_time = PL"._pals.f",
 
     name = {},
 
