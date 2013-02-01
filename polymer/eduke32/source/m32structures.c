@@ -387,7 +387,7 @@ readonly:
 // how: bitfield: 1=set? 2=vars? 4=use spriteext[].tspr? (otherwise use tsprite[])
 static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int32_t lValue, lightp = (lLabelID >= LIGHT_X);
+    int32_t lightp = (lLabelID >= LIGHT_X);
     int32_t i = (how&ACCESS_USEVARS) ? vm.g_i : lVar1;
     spritetype *datspr = NULL;
     const memberlabel_t *dalabel = lightp ? &LightLabels[lLabelID-LIGHT_X] : SpriteLabels;
@@ -446,7 +446,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
 
     if (how&ACCESS_SET)
     {
-        int32_t damin, damax;
+        int32_t lValue, damin, damax;
 
         if (!m32_script_expertmode && (dalabel->flags & 1))
             goto readonly;
@@ -520,6 +520,8 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
     }
     else
     {
+        int32_t lValue;
+
         switch (lLabelID)
         {
         case SPRITE_X: lValue=datspr->x; break;

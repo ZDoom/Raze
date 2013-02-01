@@ -34,6 +34,10 @@ gamevar dayx 65536 0
 // (notebook/netbook convenience, see EVENT_KEYPRESS for details)
 gamevar use_notebook_keys 0 0
 
+// Whether RESPAWN sprites show the respawned sprite picnum unconditionally instead of
+// only when aimed at (and locked onto) the RESPAWN sprite in 3D mode.
+gamevar showrespawn_always 0 0
+
 // see end of file for more user settings and examples
 
 ////////// END USER SETTINGS //////////
@@ -1033,7 +1037,45 @@ defstate tduplin
     }
 ends
 
+defstate respawnpreview
+    var ts ow pic z
+    var k onumtspr
+
+    ife showrespawn_always 0
+    {
+        ifaimingsprite ife sprite[searchwall].picnum RESPAWN nullop
+        else break
+    }
+
+    set onumtspr spritesortcnt
+
+    for ts range onumtspr
+    {
+        set ow tsprite[ts].owner
+        ife showrespawn_always 0 ifn ow searchwall nullop else
+        {
+            ife sprite[ow].picnum RESPAWN
+            {
+                set k spritesortcnt
+                tdupsprite ow
+
+                // XXX: doesn't work with E1L5 boss RESPAWN...
+                // Something's wrong with setting tsprite[] members.
+                sub tsprite[k].z 4096
+
+                set tsprite[k].xrepeat 16
+                set tsprite[k].yrepeat 16
+
+                set pic sprite[ow].hitag
+                ifge pic 0 ifl pic MAXTILES
+                    set tsprite[k].picnum pic
+            }
+        }
+    }
+ends
+
 onevent EVENT_ANALYZESPRITES
+    state respawnpreview
     state tduprot
     state tduplin
 endevent
@@ -1409,7 +1451,7 @@ onevent EVENT_DRAW3DSCREEN
         printext256 TQUOTE 30 30 -15 0 0
 
         qsprintf TQUOTE "y panning = %d" wall[searchwall].ypanning
-        printext256 TQUOTE 30 30 -15 0 0
+        printext256 TQUOTE 30 40 -15 0 0
     }
 endevent
 */
