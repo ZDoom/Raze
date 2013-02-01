@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // how: bitfield: 1=set? 2=vars? 4=use spriteext[].tspr? (otherwise use tsprite[])
 #define ACCESS_SET 1
 #define ACCESS_USEVARS 2
-#define ACCESS_SPRITEEXT 4
 
 
 /// This file is #included into other files, so don't define variables here!
@@ -397,20 +396,9 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
 
     if (!lightp)
     {
-        if (how&ACCESS_SPRITEEXT)
-        {
-            if ((unsigned)i >= MAXSPRITES)
-                goto badsprite;
-            datspr = spriteext[i].tspr;
-            if (!datspr)
-                goto badtspr;
-        }
-        else
-        {
-            if (i<0 || i>=spritesortcnt)
-                goto badsprite;
-            datspr = &tsprite[i];
-        }
+        if (i<0 || i>=spritesortcnt)
+            goto badsprite;
+        datspr = &tsprite[i];
     }
     else
     {
@@ -580,9 +568,6 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
 badsprite:
     M32_ERROR("invalid target sprite (%d)", i);
     return -1;
-badtspr:
-    M32_ERROR("Internal bug, tsprite is unavailable");
-    return -1;
 readonly:
     M32_ERROR("structure member `%s' is read-only.", dalabel->name);
     return -1;
@@ -590,4 +575,3 @@ readonly:
 
 #undef ACCESS_SET
 #undef ACCESS_USEVARS
-#undef ACCESS_SPRITEEXT
