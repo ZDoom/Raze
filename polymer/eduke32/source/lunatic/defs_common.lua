@@ -39,39 +39,8 @@ module(...)
 
 
 --== Core engine structs ==--
-local SPRITE_STRUCT = [[
-{
-    int32_t x, y, z;
-    uint16_t cstat;
-    const int16_t picnum;
-    int8_t shade;
-    uint8_t pal, clipdist, filler;
-    uint8_t xrepeat, yrepeat;
-    int8_t xoffset, yoffset;
-    const int16_t sectnum, statnum;
-    int16_t ang;
-    // NOTE: yvel is often used as player index in game code. Make xvel/zvel
-    // "const" for consistency, too.
-    const int16_t owner, xvel, yvel, zvel;
-    int16_t lotag, hitag, extra;
-}
-]]
-
--- Converts a template struct definition to an internal, unrestricted one.
-function strip_const(structstr)
-    return string.gsub(structstr, "const ", "");
-end
-
--- NOTE for FFI definitions: we're compiling EDuke32 with -funsigned-char, so
--- we need to take care to declare chars as unsigned whenever it matters, for
--- example if it represents a palette index.  (I think it's harmless for stuff
--- like passing a function argument, but it should be done there for clarity.)
-
--- TODO: provide getters for unsigned {hi,lo}tag?
-ffi.cdef([[
-#pragma pack(push,1)
-typedef struct
-{
+local SECTOR_STRUCT = [[
+struct {
     const int16_t wallptr, wallnum;
     int32_t ceilingz, floorz;
     uint16_t ceilingstat, floorstat;
@@ -85,10 +54,27 @@ typedef struct
     uint8_t floorpal, floorxpanning, floorypanning;
     uint8_t visibility, filler;
     int16_t lotag, hitag, extra;
-} sectortype;
+}]]
 
-typedef struct
-{
+local SPRITE_STRUCT = [[
+struct {
+    int32_t x, y, z;
+    uint16_t cstat;
+    const int16_t picnum;
+    int8_t shade;
+    uint8_t pal, clipdist, filler;
+    uint8_t xrepeat, yrepeat;
+    int8_t xoffset, yoffset;
+    const int16_t sectnum, statnum;
+    int16_t ang;
+    // NOTE: yvel is often used as player index in game code. Make xvel/zvel
+    // "const" for consistency, too.
+    const int16_t owner, xvel, yvel, zvel;
+    int16_t lotag, hitag, extra;
+}]]
+
+local WALL_STRUCT = [[
+struct {
     int32_t x, y;
     const int16_t point2, nextwall, nextsector;
     uint16_t cstat;
@@ -96,15 +82,24 @@ typedef struct
     int8_t shade;
     uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
     int16_t lotag, hitag, extra;
-} walltype;
+}]]
 
-typedef struct
-]].. SPRITE_STRUCT ..[[
-spritetype;
+-- Converts a template struct definition to an internal, unrestricted one.
+function strip_const(structstr)
+    return (string.gsub(structstr, "const ", ""));
+end
 
-typedef struct
-]].. strip_const(SPRITE_STRUCT) ..[[
-spritetype_u_t;
+-- NOTE for FFI definitions: we're compiling EDuke32 with -funsigned-char, so
+-- we need to take care to declare chars as unsigned whenever it matters, for
+-- example if it represents a palette index.  (I think it's harmless for stuff
+-- like passing a function argument, but it should be done there for clarity.)
+
+-- TODO: provide getters for unsigned {hi,lo}tag?
+ffi.cdef([[
+#pragma pack(push,1)
+typedef $ sectortype;
+typedef $ walltype;
+typedef $ spritetype;
 
 typedef struct {
     const uint32_t mdanimtims;
@@ -128,7 +123,7 @@ typedef struct {
     int16_t sprite, wall, sect;
 } hitdata_t;
 #pragma pack(pop)
-]])
+]], ffi.typeof(SECTOR_STRUCT), ffi.typeof(WALL_STRUCT), ffi.typeof(SPRITE_STRUCT))
 
 -- Define the "palette_t" type, which for us has .{r,g,b} fields and a
 -- bound-checking array of length 3 overlaid.
@@ -262,6 +257,7 @@ int32_t __fastcall getangle(int32_t xvect, int32_t yvect);
 
 local bcheck = require("bcheck")
 local check_sector_idx = bcheck.sector_idx
+local check_tile_idx = bcheck.tile_idx
 
 local ivec3_
 local ivec3_mt = {
@@ -275,8 +271,22 @@ ivec3_ = ffi.metatype(vec3_ct, ivec3_mt)
 local xor = bit.bxor
 local wallsofsec  -- fwd-decl
 
+local sectortype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SECTOR_STRUCT)))
+
 local sectortype_mt = {
     __index = {
+        --- Setters
+        set_ceilingpicnum = function(s, picnum)
+            check_tile_idx(picnum)
+            ffi.cast(sectortype_ptr_ct, s).ceilingpicnum = picnum
+        end,
+
+        set_floorpicnum = function(s, picnum)
+            check_tile_idx(picnum)
+            ffi.cast(sectortype_ptr_ct, s).floorpicnum = picnum
+        end,
+
+        --- Other methods
         ceilingzat = function(s, pos)
             return ffiC.getceilzofslopeptr(s, pos.x, pos.y)
         end,
@@ -311,8 +321,34 @@ local sectortype_mt = {
 }
 ffi.metatype("sectortype", sectortype_mt)
 
+local walltype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(WALL_STRUCT)))
+
 local walltype_mt = {
     __index = {
+        --- Setters
+        set_picnum = function(w, picnum)
+            check_tile_idx(picnum)
+            ffi.cast(walltype_ptr_ct, w).picnum = picnum
+        end,
+
+        set_overpicnum = function(w, picnum)
+            check_tile_idx(picnum)
+            ffi.cast(walltype_ptr_ct, w).overpicnum = picnum
+        end,
+
+        _set_nextwall = function(w, nextwall)
+            -- XXX: this disallows making a red wall white
+            bcheck.wall_idx(nextwall)
+            ffi.cast(walltype_ptr_ct, w).nextwall = nextwall
+        end,
+
+        _set_nextsector = function(w, nextsector)
+            -- XXX: this disallows making a red wall white
+            check_sector_idx(nextsector)
+            ffi.cast(walltype_ptr_ct, w).nextsector = nextsector
+        end,
+
+        --- Predicates
         isblocking = function(w)
             return (bit.band(w.cstat, 1)~=0)
         end,
@@ -332,7 +368,7 @@ local walltype_mt = {
 }
 ffi.metatype("walltype", walltype_mt)
 
-local spritetype_ptr_ct = ffi.typeof("spritetype_u_t *")
+local spritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SPRITE_STRUCT)))
 
 spritetype_mt = {
     __pow = function(s, zofs)
@@ -341,9 +377,7 @@ spritetype_mt = {
 
     __index = {
         set_picnum = function(s, tilenum)
-            if (tilenum >= ffiC.MAXTILES+0ULL) then
-                error("attempt to set invalid picnum "..tilenum, 2)
-            end
+            check_tile_idx(tilenum)
             ffi.cast(spritetype_ptr_ct, s).picnum = tilenum
         end,
 

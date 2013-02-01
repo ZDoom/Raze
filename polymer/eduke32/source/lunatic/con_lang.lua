@@ -342,8 +342,6 @@ local ActorLabels = {
     hitag = SP".hitag",
     extra = SP".extra",
 
-    -- { get, set }
-    -- Read access differs from write:
     ulotag = S2U(SP".lotag"),
     uhitag = S2U(SP".hitag"),
 
@@ -365,8 +363,8 @@ local ActorLabels = {
     htbposx = AC".bpos.x",
     htbposy = AC".bpos.y",
     htbposz = AC".bpos.z",
-    -- Read access differs from write, write not available:
-    htg_t = { AC":get_t_data(%s)" },
+    -- Read access differs from write ({ get, set }):
+    htg_t = { AC":get_t_data(%s)", AC":_set_t_data(%s,%%s)" },
     htflags = AC".flags",
 
     -- model flags
@@ -380,6 +378,7 @@ local ActorLabels = {
     xpanning = SX".xpanning",
     ypanning = SX".ypanning",
 
+    -- Read access differs from write, write not available:
     alpha = { "_math.floor(spriteext[%s].alpha*255)" },
 }
 
@@ -612,7 +611,7 @@ local SectorLabels = {
     floorstat = SEC".floorstat",
 
     -- CEILING
-    ceilingpicnum = SECRO".ceilingpicnum",
+    ceilingpicnum = { SEC".ceilingpicnum", SEC":set_ceilingpicnum(%%s)" },
 
     ceilingslope = SEC".ceilingheinum",  -- NAME
     ceilingshade = SEC".ceilingshade",
@@ -622,7 +621,7 @@ local SectorLabels = {
     ceilingypanning = SEC".ceilingypanning",
 
     -- FLOOR
-    floorpicnum = SECRO".floorpicnum",
+    floorpicnum = { SEC".floorpicnum", SEC":set_floorpicnum(%%s)" },
 
     floorslope = SEC".floorheinum",  -- NAME
     floorshade = SEC".floorshade",
@@ -653,11 +652,11 @@ local WallLabels = {
     x = WAL".x",
     y = WAL".y",
     point2 = WALRO".point2",
-    nextwall = WALRO".nextwall",
-    nextsector = WALRO".nextsector",
+    nextwall = { WAL".nextwall", WAL":_set_nextwall(%%s)" },
+    nextsector = { WAL".nextsector", WAL":_set_nextsector(%%s)" },
     cstat = WAL".cstat",
-    picnum = WALRO".picnum",
-    overpicnum = WALRO".overpicnum",
+    picnum = { WAL".picnum", WAL":set_picnum(%%s)" },
+    overpicnum = { WAL".overpicnum", WAL":set_overpicnum(%%s)" },
     shade = WAL".shade",
     pal = WAL".pal",
     xrepeat = WAL".xrepeat",

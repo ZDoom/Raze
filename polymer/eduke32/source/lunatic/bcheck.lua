@@ -1,3 +1,4 @@
+-- Bound-checking functions for engine and game "things".
 
 local ffiC = require("ffi").C
 
@@ -8,6 +9,12 @@ local bcheck = {}
 function bcheck.sector_idx(sectnum)
     if (sectnum >= ffiC.numsectors+0ULL) then
         error("invalid sector number "..sectnum, 3)
+    end
+end
+
+function bcheck.wall_idx(wallnum)
+    if (wallnum >= ffiC.numwalls+0ULL) then
+        error("invalid wall number "..wallnum, 3)
     end
 end
 

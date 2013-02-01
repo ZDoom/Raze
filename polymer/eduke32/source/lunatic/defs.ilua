@@ -751,11 +751,19 @@ local actor_mt = {
         end,
 
         -- Getters/setters.
+        -- TODO: make a bcarray instead.
         get_t_data = function(a, idx)
             if (idx >= 10ULL) then
                 error("Invalid t_data index "..idx, 2)
             end
             return ffi.cast(actor_ptr_ct, a).t_data[idx]
+        end,
+
+        _set_t_data = function(a, idx, val)
+            if (idx >= 10ULL) then
+                error("Invalid t_data index "..idx, 2)
+            end
+            ffi.cast(actor_ptr_ct, a).t_data[idx] = val
         end,
     },
 }
