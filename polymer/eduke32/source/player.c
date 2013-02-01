@@ -1239,7 +1239,9 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             if (s->extra >= 0) s->shade = -96;
 
             if (p >= 0)
-                P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa, 1, 1);
+                P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa,
+                                 atwith == SHOTSPARK1__STATIC && !WW2GI && !NAM,
+                                 1);
             else
                 A_PreFireHitscan(s, &srcvect, &zvel, &sa, 1);
 
