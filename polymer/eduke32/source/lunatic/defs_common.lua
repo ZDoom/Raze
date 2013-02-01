@@ -260,6 +260,9 @@ int32_t ksqrt(uint32_t num);
 int32_t __fastcall getangle(int32_t xvect, int32_t yvect);
 ]]
 
+local bcheck = require("bcheck")
+local check_sector_idx = bcheck.sector_idx
+
 local ivec3_
 local ivec3_mt = {
     -- '^' is the "translate upwards" operator
@@ -397,12 +400,6 @@ function creategtab(ctab, maxidx, name)
     }
 
     return setmtonce(tab, tmpmt)
-end
-
-function check_sector_idx(sectnum)
-    if (sectnum >= ffiC.numsectors+0ULL) then
-        error("passed out-of-bounds sector number "..sectnum, 3)
-    end
 end
 
 

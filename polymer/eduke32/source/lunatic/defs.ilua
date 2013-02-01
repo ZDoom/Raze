@@ -154,6 +154,11 @@ local ACTOR_STRUCT = [[
 
 local bcarray = require("bcarray")
 
+local bcheck = require("bcheck")
+local check_sector_idx, check_tile_idx = bcheck.sector_idx, bcheck.tile_idx
+local check_weapon_idx, check_inventory_idx = bcheck.weapon_idx, bcheck.inventory_idx
+local check_sound_idx = bcheck.sound_idx
+
 -- TODO: randomize member names
 bcarray.new("int16_t", 64, "loogie", "int16_x_64")
 bcarray.new("int16_t", ffiC.MAX_WEAPONS, "weapon", "int16_x_MAX_WEAPONS")
@@ -757,32 +762,6 @@ local actor_mt = {
 ffi.metatype("actor_t", actor_mt)
 
 
-local function check_weapon_idx(weap)
-    if (weap >= ffiC.MAX_WEAPONS+0ULL) then
-        error("Invalid weapon ID "..weap, 3)
-    end
-end
-
-local function check_inventory_idx(inv)
-    if (inv >= ffiC.GET_MAX+0ULL) then
-        error("Invalid inventory ID "..inv, 3)
-    end
-end
-
--- XXX: CODEDUP control.lua
-local function check_sound_idx(sndidx)
-    if (sndidx >= con_lang.MAXSOUNDS+0ULL) then
-        error("invalid sound number "..sndidx, 3)
-    end
-end
-
--- XXX: CODEDUP control.lua
-local function check_tile_idx(tilenum)
-    if (tilenum >= ffiC.MAXTILES+0ULL) then
-        error("invalid argument: must be a valid tile number", 3)
-    end
-end
-
 --- PER-PLAYER WEAPON SETTINGS
 local weapondata_mt = {
     __newindex = function(wd, member, val)
@@ -910,7 +889,7 @@ local camera_mt = {
     __index = ffiC.g_camera,
     __newindex = function(_, key, val)
         if (key=="sect") then
-            defs_c.check_sector_idx(val)
+            check_sector_idx(val)
         end
         ffiC.g_camera[key] = val
     end,

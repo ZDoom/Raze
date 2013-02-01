@@ -1,5 +1,6 @@
 -- Game control module for Lunatic.
 
+local require = require
 local ffi = require("ffi")
 local ffiC = ffi.C
 
@@ -130,18 +131,13 @@ end
 
 ---=== RUNTIME CON FUNCTIONS ===---
 
--- TODO: also check whether sprite exists in the game world (statnum != MAXSTATUS)
-local function check_sprite_idx(i)
-    if (i >= ffiC.MAXSPRITES+0ULL) then
-        error("invalid argument: must be a valid sprite index", 3)
-    end
-end
+local bcheck = require("bcheck")
+local check_sector_idx = bcheck.sector_idx
+local check_tile_idx = bcheck.tile_idx
+local check_sprite_idx = bcheck.sprite_idx
+local check_player_idx = bcheck.player_idx
+local check_sound_idx = bcheck.sound_idx
 
-local function check_tile_idx(tilenum)
-    if (tilenum >= ffiC.MAXTILES+0ULL) then
-        error("invalid argument: must be a valid tile number", 3)
-    end
-end
 
 local function krandand(mask)
     return bit.band(ffiC.krand(), mask)
@@ -182,8 +178,10 @@ function insertsprite(tab_or_tilenum, ...)
     if (type(sectnum)~="number" or type(tilenum) ~= "number") then
         error("invalid insertsprite call: 'sectnum' and 'tilenum' must be numbers", 2)
     end
+
     check_tile_idx(tilenum)
-    dc.check_sector_idx(sectnum)
+    check_sector_idx(sectnum)
+
     if (statnum >= ffiC.MAXSTATUS) then
         error("invalid 'statnum' argument to insertsprite: must be a status number (0 .. MAXSTATUS-1)", 2)
     end
@@ -329,8 +327,7 @@ end
 
 function _quote(pli, qnum)
     check_quote_idx(qnum)
-
-    local p = player[pli]  -- bound-check
+    check_player_idx(pli)
     ffiC.P_DoQuote(qnum+MAXQUOTES, ffiC.g_player[pli].ps)
 end
 
@@ -978,13 +975,6 @@ function _checkrespawn(spr)
 end
 
 -- SOUNDS
-
-local function check_sound_idx(sndidx)
-    if (sndidx >= con_lang.MAXSOUNDS+0ULL) then
-        error("invalid sound number "..sndidx, 3)
-    end
-end
-
 function _ianysound(aci)
     check_sprite_idx(aci)
     return (ffiC.A_CheckAnySoundPlaying(aci)~=0)
