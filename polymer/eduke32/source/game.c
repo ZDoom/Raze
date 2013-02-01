@@ -6223,11 +6223,15 @@ static int32_t G_CheckAdultTile(int32_t pic)
 
 static void G_DoEventAnimSprites(int32_t j)
 {
-    if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-    if ((unsigned)tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
+    const int32_t ow = tsprite[j].owner;
+
+    if (display_mirror)
+        tsprite[j].statnum = TSPR_MIRROR;
+
+    if ((unsigned)ow < MAXSPRITES && spriteext[ow].flags & SPREXT_TSPRACCESS)
     {
-        spriteext[tsprite[j].owner].tspr = &tsprite[j];
-        VM_OnEvent(EVENT_ANIMATESPRITES, tsprite[j].owner, myconnectindex, -1, 0);
+        spriteext[ow].tspr = &tsprite[j];
+        VM_OnEvent(EVENT_ANIMATESPRITES, ow, myconnectindex, -1, 0);
     }
 }
 

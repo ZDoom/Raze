@@ -814,7 +814,6 @@ static void yax_copytsprites()
             break;
 
         Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(spritetype));
-        spriteext[spritenum].tspr = &tsprite[spritesortcnt];
         tsprite[spritesortcnt].owner = spritenum;
 
         tsprite[spritesortcnt].sectnum = sectnum;  // potentially tweak sectnum!
@@ -2435,8 +2434,7 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
             if (spritesortcnt >= MAXSPRITESONSCREEN)
                 return 1;
 
-            copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
-            spriteext[z].tspr = (spritetype *)&tsprite[spritesortcnt];
+            Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(spritetype));
             tsprite[spritesortcnt++].owner = z;
 
 #ifdef YAX_ENABLE
