@@ -6236,17 +6236,10 @@ static void G_DoEventAnimSprites(int32_t j)
     }
 }
 
-#if 0 // def _MSC_VER
-// Visual C thought this was a bit too hard to optimise so we'd better
-// tell it not to try... such a pussy it is.
-//#pragma auto_inline(off)
-#pragma optimize("g",off)
-#endif
 void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothratio)
 {
-    int32_t i, j, k, p, sect;
+    int32_t j, k, p, sect;
     intptr_t l;
-    spritetype *s,*t;
 
     if (!spritesortcnt) return;
 
@@ -6254,9 +6247,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
     for (j=spritesortcnt-1; j>=0; j--)
     {
-        t = &tsprite[j];
-        i = t->owner;
-        s = &sprite[i];
+        spritetype *const t = &tsprite[j];
+        const int32_t i = t->owner;
+        const spritetype *const s = &sprite[i];
 
         switch (DYNAMICTILEMAP(s->picnum))
         {
@@ -6281,9 +6274,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
     for (j=spritesortcnt-1; j>=0; j--)
     {
-        t = &tsprite[j];
-        i = t->owner;
-        s = &sprite[t->owner];
+        spritetype *const t = &tsprite[j];
+        const int32_t i = t->owner;
+        const spritetype *const s = &sprite[i];
 
 /*
         if (A_CheckSpriteFlags(i, SPRITE_NULL))
@@ -6383,9 +6376,11 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         int32_t startframe, viewtype;
 #endif
         //is the perfect time to animate sprites
-        t = &tsprite[j];
-        i = t->owner;
-        s = (i < 0 ? &tsprite[j] : &sprite[i]);
+        spritetype *const t = &tsprite[j];
+        const int32_t i = t->owner;
+        // XXX: what's up with the (i < 0) check?
+        // NOTE: not const spritetype because set at SET_SPRITE_NOT_TSPRITE (see below).
+        spritetype *const s = (i < 0) ? &tsprite[j] : &sprite[i];
 
         if (ud.lockout && G_CheckAdultTile(DYNAMICTILEMAP(s->picnum)))
         {
@@ -6679,6 +6674,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             if (g_player[p].ps->on_crane == -1 && (sector[s->sectnum].lotag&0x7ff) != 1)  // ST_1_ABOVE_WATER ?
             {
                 l = s->z-actor[g_player[p].ps->i].floorz+(3<<8);
+                // SET_SPRITE_NOT_TSPRITE
                 if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
                     s->yoffset = (int8_t)(l/(s->yrepeat<<2));
                 else s->yoffset=0;
@@ -7071,10 +7067,7 @@ skip:
             G_DoEventAnimSprites(j);
     }
 }
-#if 0 // def _MSC_VER
-//#pragma auto_inline()
-#pragma optimize("",on)
-#endif
+
 
 // KEEPINSYNC game.h: enum cheatindex_t
 char CheatStrings[][MAXCHEATLEN] =
