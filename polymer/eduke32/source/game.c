@@ -6232,6 +6232,7 @@ static void G_DoEventAnimSprites(int32_t j)
     {
         spriteext[ow].tspr = &tsprite[j];
         VM_OnEvent(EVENT_ANIMATESPRITES, ow, myconnectindex, -1, 0);
+        spriteext[ow].tspr = NULL;
     }
 }
 

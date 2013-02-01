@@ -5333,11 +5333,9 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->sector[0],&sector[0],sizeof(sectortype)*MAXSECTORS);
         Bmemcpy(&save->sprite[0],&sprite[0],sizeof(spritetype)*MAXSPRITES);
 
+        // If we're in EVENT_ANIMATESPRITES, we'll be saving pointer values to disk :-/
         if (g_currentEventExec == EVENT_ANIMATESPRITES)
             initprintf("Line %d: savemapstate called from EVENT_ANIMATESPRITES. WHY?\n", g_errorLineNum);
-        else
-            for (i=0; i<MAXSPRITES; i++)
-                spriteext[i].tspr = NULL;
         Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
 
         save->numsprites = Numsprites;
@@ -5433,11 +5431,15 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&sector[0],&save->sector[0],sizeof(sectortype)*MAXSECTORS);
         Bmemcpy(&sprite[0],&save->sprite[0],sizeof(spritetype)*MAXSPRITES);
         Bmemcpy(&spriteext[0],&save->spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
+
+        // If we're restoring from EVENT_ANIMATESPRITES, all spriteext[].tspr
+        // will be overwritten, so NULL them.
         if (g_currentEventExec == EVENT_ANIMATESPRITES)
+        {
             initprintf("Line %d: loadmapstate called from EVENT_ANIMATESPRITES. WHY?\n",g_errorLineNum);
-        else
             for (i=0; i<MAXSPRITES; i++)
                 spriteext[i].tspr = NULL;
+        }
 
         Numsprites = save->numsprites;
         tailspritefree = save->tailspritefree;
