@@ -346,9 +346,6 @@ typedef struct {
 } projectile_t;
 
 typedef struct {
-    intptr_t *execPtr;
-    intptr_t *loadPtr;
-
     uint32_t flags;
 
     int16_t cacherange;

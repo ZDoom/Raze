@@ -3987,22 +3987,20 @@ static void G_DumpDebugInfo(void)
 // else only if it equals 0.
 static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncond)
 {
+#if !defined LUNATIC
     if (g_tile[tilenum].execPtr)
     {
         SH = *(g_tile[tilenum].execPtr);
         T5 = *(g_tile[tilenum].execPtr+1);
         T2 = *(g_tile[tilenum].execPtr+2);
-#ifdef LUNATIC
-        set_action_members(i);
-        set_move_members(i);
-#endif
+
         if (set_movflag_uncond || SHT == 0)
             SHT = *(g_tile[tilenum].execPtr+3);
 
         return 1;
     }
-#ifdef LUNATIC
-    else if (El_HaveActor(tilenum))
+#else
+    if (El_HaveActor(tilenum))
     {
         // ^^^ C-CON takes precedence for now.
         const el_actor_t *a = &g_elActors[tilenum];

@@ -177,9 +177,10 @@ typedef struct {
 } netactor_t;
 
 typedef struct {
+#if !defined LUNATIC
     intptr_t *execPtr; // pointer to CON script for this tile, formerly actorscrptr
     intptr_t *loadPtr; // pointer to load time CON script, formerly actorLoadEventScrPtr or something
-
+#endif
     uint32_t flags;    // formerly SpriteFlags, ActorType
 
     int16_t cacherange; // formerly SpriteCache
@@ -251,33 +252,6 @@ extern intptr_t         *g_parsingActorPtr;
 extern projectile_t     SpriteProjectile[MAXSPRITES];
 
 
-#ifdef LUNATIC
-// Legacy action/move setters from the CON script + t_data pointer:
-extern intptr_t *script;
-
-// tptr[4] expected to be set
-static inline void set_action_members(int32_t i)
-{
-    actor_t *const aptr = &actor[i];
-    int32_t acofs = aptr->t_data[4];
-
-    aptr->ac.startframe = script[acofs];
-    aptr->ac.numframes = script[acofs+1];
-    aptr->ac.viewtype = script[acofs+2];
-    aptr->ac.incval = script[acofs+3];
-    aptr->ac.delay = script[acofs+4];
-}
-
-// tptr[1] expected to be set
-static inline void set_move_members(int32_t i)
-{
-    actor_t *const aptr = &actor[i];
-    int32_t mvofs = aptr->t_data[1];
-
-    aptr->mv.hvel = script[mvofs];
-    aptr->mv.vvel = script[mvofs+1];
-}
-#endif
 
 void                A_AddToDeleteQueue(int32_t i);
 int32_t             A_CheckEnemyTile(int32_t pn);

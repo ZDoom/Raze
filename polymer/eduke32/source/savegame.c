@@ -844,10 +844,12 @@ static uint32_t calcsz(const dataspec_t *spec)
 static void sv_prespriteextsave();
 static void sv_postspriteext();
 #endif
+#if !defined LUNATIC
 static void sv_calcbitptrsize();
 static void sv_prescriptsave_once();
 static void sv_prescriptload_once();
 static void sv_postscript_once();
+#endif
 static void sv_preactordatasave();
 static void sv_postactordata();
 static void sv_preanimateptrsave();
@@ -962,17 +964,20 @@ static const dataspec_t svgm_secwsp[] =
 static const dataspec_t svgm_script[] =
 {
     { DS_STRING, (void *)"blK:scri", 0, 1 },
+#if !defined LUNATIC
     { DS_NOCHK, &g_scriptSize, sizeof(g_scriptSize), 1 },
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_calcbitptrsize, 0, 1 },
     { DS_DYNAMIC|DS_CNT(savegame_bitptrsize)|DS_NOCHK, &bitptr, sizeof(bitptr[0]), (intptr_t)&savegame_bitptrsize },
 
     { DS_SAVEFN|DS_NOCHK, (void *)&sv_prescriptsave_once, 0, 1 },
+#endif
     { DS_NOCHK, &g_tile[0], sizeof(tiledata_t), MAXTILES },
+#if !defined LUNATIC
     { DS_LOADFN|DS_NOCHK, (void *)&sv_prescriptload_once, 0, 1 },
     { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &script, sizeof(script[0]), (intptr_t)&g_scriptSize },
 //    { DS_NOCHK, &apScriptGameEvent[0], sizeof(apScriptGameEvent[0]), MAXGAMEEVENTS },
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_postscript_once, 0, 1 },
-
+#endif
     { DS_SAVEFN, (void *)&sv_preactordatasave, 0, 1 },
     { 0, &actor[0], sizeof(actor_t), MAXSPRITES },
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
@@ -1475,6 +1480,7 @@ void sv_postyaxload(void)
 }
 #endif
 
+#if !defined LUNATIC
 static void sv_calcbitptrsize()
 {
     savegame_bitptrsize = (g_scriptSize+7)>>3;
@@ -1506,6 +1512,7 @@ static void sv_postscript_once()
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
             script[i] = (intptr_t)(script + script[i]);
 }
+#endif
 
 static void sv_preactordatasave()
 {

@@ -1172,16 +1172,11 @@ skip_check:
             vm.g_t[5] = *insptr++; // Ai
 
             vm.g_t[4] = *(script + vm.g_t[5]);  // Action
-#ifdef LUNATIC
-            set_action_members(vm.g_i);
-#endif
+
             // NOTE: "if (g_t[5])" added in r1155. It used to be a pointer though.
             if (vm.g_t[5])
             {
                 vm.g_t[1] = *(script + vm.g_t[5] + 1);  // move
-#ifdef LUNATIC
-                set_move_members(vm.g_i);
-#endif
             }
             vm.g_sp->hitag = *(script + vm.g_t[5] + 2);  // move flags
 
@@ -1195,9 +1190,6 @@ skip_check:
             insptr++;
             vm.g_t[2] = vm.g_t[3] = 0;
             vm.g_t[4] = *insptr++;
-#ifdef LUNATIC
-            set_action_members(vm.g_i);
-#endif
             continue;
 
         case CON_IFPDISTL:
@@ -1608,9 +1600,6 @@ skip_check:
             insptr++;
             vm.g_t[0]=0;
             vm.g_t[1] = *insptr++;
-#ifdef LUNATIC
-            set_move_members(vm.g_i);
-#endif
             vm.g_sp->hitag = *insptr++;
             if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
                 continue;
@@ -5233,21 +5222,13 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 
     if (L_IsInitialized(&g_ElState) && El_HaveActor(vm.g_sp->picnum))
         killit = (El_CallActor(&g_ElState, vm.g_sp->picnum, iActor, iPlayer, lDist)==1);
-    else if (g_tile[vm.g_sp->picnum].execPtr)
-    {
-#endif
-
-#if !defined LUNATIC
-        insptr = 4 + (g_tile[vm.g_sp->picnum].execPtr);
-        VM_Execute(1);
-        insptr = NULL;
-#endif
-
-#ifdef LUNATIC
-    }
 
     g_actorTotalMs[vm.g_sp->picnum] += gethitickms()-t;
     g_actorCalls[vm.g_sp->picnum]++;
+#else
+    insptr = 4 + (g_tile[vm.g_sp->picnum].execPtr);
+    VM_Execute(1);
+    insptr = NULL;
 #endif
 
     if ((vm.g_flags & VM_KILL)

@@ -147,11 +147,11 @@ static inline int32_t G_HaveEvent(int32_t iEventID)
 
 static inline int32_t G_HaveActor(int32_t actortile)
 {
-    return
 #ifdef LUNATIC
-        El_HaveActor(actortile) ||
+    return El_HaveActor(actortile);
+#else
+    return g_tile[actortile].execPtr!=NULL;
 #endif
-        g_tile[actortile].execPtr!=NULL;
 }
 
 static inline int32_t G_InitialActorStrength(int32_t actortile)
