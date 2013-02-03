@@ -1,12 +1,10 @@
--- Use this file like
---  require("lpeg")
---  con = require("con_lang")
---
--- Contains:
---   * con.labels
---   * con.keyword
+-- CON language definitions
 
-local lpeg = lpeg
+local lpeg = require("lpeg")
+
+local pairs = pairs
+local print = print
+local type = type
 
 
 module(...)
@@ -304,6 +302,7 @@ wdata_members =
 
 
 local SP = function(memb) return "sprite[%s]"..memb end
+local ATSP = function(memb) return "atsprite[%s]"..memb end
 local AC = function(memb) return "actor[%s]"..memb end
 local SX = function(memb) return "spriteext[%s]"..memb end
 
@@ -321,7 +320,7 @@ local ActorLabels = {
     y = SP".y",
     z = SP".z",
     cstat = SP".cstat",
-    picnum = SP".picnum",
+    picnum = { SP".picnum", SP":set_picnum(%%s)" },
     shade = SP".shade",
     pal = SP".pal",
     clipdist = SP".clipdist",
@@ -331,12 +330,12 @@ local ActorLabels = {
     yrepeat = SP".yrepeat",
     xoffset = SP".xoffset",
     yoffset = SP".yoffset",
-    sectnum = SP".sectnum",
-    statnum = SP".statnum",
+    sectnum = { SP".sectnum" },
+    statnum = { SP".statnum" },
     ang = SP".ang",
-    owner = SP".owner",
+    owner = { SP".owner" },
     xvel = SP".xvel",
-    yvel = SP".yvel",
+    yvel = { SP".yvel" },
     zvel = SP".zvel",
     lotag = SP".lotag",
     hitag = SP".hitag",
@@ -347,14 +346,14 @@ local ActorLabels = {
 
     -- ActorExtra labels...
     htcgg = AC".cgg",
-    htpicnum = AC".picnum",
+    htpicnum = { AC".picnum", AC":set_picnum(%%s)" },
     htang = AC".ang",
     htextra = AC".extra",
-    htowner = AC".owner",
+    htowner = { AC".owner", AC":set_owner(%%s)" },
     htmovflag = AC".movflag",
     httempang = AC".tempang",
     htactorstayput = AC".actorstayput",
-    htdispicnum = AC".dispicnum",
+    htdispicnum = { AC".dispicnum" },
     httimetosleep = AC".timetosleep",
     htfloorz = AC".floorz",
     htceilingz = AC".ceilingz",
@@ -374,13 +373,33 @@ local ActorLabels = {
     mdxoff = SX".xoff",
     mdyoff = SX".yoff",
     mdzoff = SX".zoff",
-    mdflags = SX".mdflags",
+    mdflags = SX".flags",
     xpanning = SX".xpanning",
     ypanning = SX".ypanning",
 
     -- Read access differs from write, write not available:
     alpha = { "_math.floor(spriteext[%s].alpha*255)" },
 }
+
+local function spr2tspr(code)
+    if (code and code:find(SP"", 1, true)==1) then
+        return ATSP(code:sub(#SP"" + 1))
+    end
+    -- else return nothing
+end
+
+local TspriteLabels = {}
+
+for member, code in pairs(ActorLabels) do
+    if (type(code)=="string") then
+        TspriteLabels["tspr"..member] = spr2tspr(code)
+    else
+        local rwcodetab = { spr2tspr(code[1]), spr2tspr(code[2]) }
+        if (#rwcodetab > 0) then
+            TspriteLabels["tspr"..member] = rwcodetab
+        end
+    end
+end
 
 local PL = function(memb) return "player[%s]"..memb end
 
@@ -677,6 +696,12 @@ StructAccessCode =
     wall = WallLabels,
     sprite = ActorLabels,
     player = PlayerLabels,
+}
+
+-- These structs cannot be accessed by inline array exprs in CON:
+StructAccessCode2 =
+{
+    tspr = TspriteLabels,
 }
 
 -- NOTE: These MUST be in reverse lexicographical order!

@@ -1124,8 +1124,9 @@ local function StructAccess(Structname, writep, index, membertab)
     local member, parm2 = membertab[1], membertab[2]
     assert(member ~= nil)
 
+    local MemberCode = conl.StructAccessCode[Structname] or conl.StructAccessCode2[Structname]
     -- Look up array+member name first, e.g. "spriteext[%s].angoff".
-    local armembcode = conl.StructAccessCode[Structname][member]
+    local armembcode = MemberCode[member]
     if (armembcode == nil) then
         errprintf("invalid %s member `.%s'", Structname, member)
         return "_MEMBINVALID"
@@ -1177,6 +1178,8 @@ local Access =
     wall = function(...) return StructAccess("wall", ...) end,
     xsprite = function(...) return StructAccess("sprite", ...) end,
     player = function(...) return StructAccess("player", ...) end,
+
+    tspr = function(...) return StructAccess("tspr", ...) end,
 }
 
 local function GetStructCmd(accessfunc)
@@ -1277,7 +1280,7 @@ local Cinner = {
     getinput = getstructcmd / handle.NYI,
     getprojectile = getstructcmd / handle.NYI,
     getthisprojectile = getstructcmd / handle.NYI,
-    gettspr = getstructcmd / handle.NYI,
+    gettspr = GetStructCmd(Access.tspr),
     -- NOTE: {get,set}userdef is the only struct that can be accessed without
     -- an "array part", e.g.  H266MOD has "setuserdef .weaponswitch 0" (space
     -- between keyword and "." is mandatory).
@@ -1299,7 +1302,7 @@ local Cinner = {
     setinput = setstructcmd / handle.NYI,
     setprojectile = setstructcmd / handle.NYI,
     setthisprojectile = setstructcmd / handle.NYI,
-    settspr = setstructcmd / handle.NYI,
+    settspr = SetStructCmd(Access.tspr),
     setuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.rvar / handle.NYI,
 
     setactorvar = setperxvarcmd,

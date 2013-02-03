@@ -767,6 +767,17 @@ local actor_mt = {
             end
             ffi.cast(actor_ptr_ct, a).t_data[idx] = val
         end,
+
+        set_picnum = function(a, picnum)
+            check_tile_idx(picnum)
+            ffi.cast(actor_ptr_ct, a).picnum = picnum
+        end,
+
+        set_owner = function(a, owner)
+            -- XXX: is it permissible to set to -1?
+            check_sprite_idx(owner)
+            ffi.cast(actor_ptr_ct, a).owner = owner
+        end,
     },
 }
 ffi.metatype("actor_t", actor_mt)

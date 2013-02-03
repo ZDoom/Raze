@@ -68,9 +68,13 @@ struct {
     int8_t xoffset, yoffset;
     const int16_t sectnum, statnum;
     int16_t ang;
-    // NOTE: yvel is often used as player index in game code. Make xvel/zvel
-    // "const" for consistency, too.
-    const int16_t owner, xvel, yvel, zvel;
+
+    const int16_t owner;
+    int16_t xvel;
+    // NOTE: yvel is often used as player index in game code.
+    const int16_t yvel;
+    int16_t zvel;
+
     int16_t lotag, hitag, extra;
 }]]
 
@@ -107,6 +111,7 @@ typedef struct {
     const uint32_t mdanimtims;
     const int16_t mdanimcur;
     int16_t angoff, pitch, roll;
+    // TODO: make into an ivec3_t
     int32_t xoff, yoff, zoff;
     uint8_t flags;
     uint8_t xpanning, ypanning;
@@ -399,6 +404,7 @@ local spritetype_mt = {
     end,
 
     __index = {
+        --- Setters
         set_picnum = function(s, tilenum)
             check_tile_idx(tilenum)
             ffi.cast(spritetype_ptr_ct, s).picnum = tilenum

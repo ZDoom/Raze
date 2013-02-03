@@ -174,7 +174,7 @@ checkfail('gv.luaJIT_BC_con_lang', "attempt to call a nil value")
 checkfail('gv.yax_getbunch(0,0)', "access forbidden")
 checkfail('gv.gethitickms = nil', "write access forbidden")
 
--- we don't have arrays in Lua-accessible structs now
+-- actor[].t_data[] is not accessible for now
 checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
 
 -- no pointer arithmetic!
@@ -348,8 +348,8 @@ print('---=== END TEST SCRIPT ===---')
 function check_sector_idx()
     error("bla")
 end
---]]
 spritesofsect(0)
+--]]
 
 --DBG_.oom()
 
