@@ -71,7 +71,6 @@ enum uactortypes_t {
     enemystayput
 };
 
-#pragma pack(push,1)
 
 #ifdef LUNATIC
 struct action {
@@ -83,8 +82,10 @@ struct move {
     int16_t hvel, vvel;
 };
 
+#pragma pack(push,1)
 typedef struct { int32_t id; struct move mv; } con_move_t;
 typedef struct { int32_t id; struct action ac; } con_action_t;
+#pragma pack(pop)
 #endif
 
 typedef struct {
@@ -102,6 +103,7 @@ typedef struct {
     int8_t filler[6]; // 6b
 } projectile_t;
 
+#pragma pack(push,1)
 // (+ 40 16 16 4 8 6 8 6 4 20)
 typedef struct {
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
@@ -175,6 +177,7 @@ typedef struct {
     int16_t netIndex;
 
 } netactor_t;
+#pragma pack(pop)
 
 typedef struct {
 #if !defined LUNATIC
@@ -183,13 +186,12 @@ typedef struct {
 #endif
     uint32_t flags;    // formerly SpriteFlags, ActorType
 
-    int16_t cacherange; // formerly SpriteCache
+    int32_t cacherange; // formerly SpriteCache
 
     // todo: make this a pointer and allocate at runtime
     projectile_t defproj;
 } tiledata_t;
 
-#pragma pack(pop)
 
 // KEEPINSYNC lunatic/con_lang.lua
 enum sflags_t {

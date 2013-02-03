@@ -128,7 +128,7 @@ typedef struct {
 -- to make more 'const'), but still has array members exposed, so is unsuited
 -- for external exposure.
 local ACTOR_STRUCT = [[
-{
+__attribute__((packed)) struct {
     const int32_t t_data[10];  // 56b sometimes used to hold offsets to con code
     const struct move mv;
     const struct action ac;
@@ -165,7 +165,7 @@ bcarray.new("int16_t", ffiC.MAX_WEAPONS, "weapon", "int16_x_MAX_WEAPONS")
 bcarray.new("int16_t", ffiC.GET_MAX, "inventory", "int16_x_GET_MAX")
 
 local DUKEPLAYER_STRUCT = [[
-{
+__attribute__((packed)) struct {
     vec3_t pos, opos, vel, npos;
     int32_t bobposx, bobposy;
     int32_t truefz, truecz, player_par;
@@ -291,16 +291,7 @@ end
 local con_lang = require("con_lang")
 
 ffi.cdef([[
-#pragma pack(push, 1)
-typedef struct
-]].. mangle_arrays(ACTOR_STRUCT) ..[[
-actor_t;
-
 typedef struct { int32_t _p; } weaponaccess_t;
-
-typedef struct
-]].. mangle_arrays(DUKEPLAYER_STRUCT) ..[[
-DukePlayer_t;
 
 typedef struct {
     uint32_t bits; // 4b
@@ -308,6 +299,15 @@ typedef struct {
     int8_t avel, horz; // 2b
     int8_t extbits, filler; // 2b
 } input_t;
+
+#pragma pack(push, 1)
+typedef
+]].. mangle_arrays(ACTOR_STRUCT) ..[[
+actor_t;
+
+typedef
+]].. mangle_arrays(DUKEPLAYER_STRUCT) ..[[
+DukePlayer_t;
 
 typedef struct {
     DukePlayer_t *ps;
@@ -322,6 +322,7 @@ typedef struct {
     char user_name[32];
     uint32_t revision;
 } playerdata_t;
+#pragma pack(pop)
 
 typedef struct {
     int32_t cur, count;
@@ -347,12 +348,9 @@ typedef struct {
 
 typedef struct {
     uint32_t flags;
-
-    int16_t cacherange;
-
+    int32_t cacherange;
     projectile_t defproj;
 } tiledata_t;
-#pragma pack(pop)
 
 typedef struct {
     vec3_t pos;
@@ -361,7 +359,6 @@ typedef struct {
     int16_t sect;
 } camera_t;
 
-// NOTE: not packed!
 typedef struct {
 ]] .. table.concat(con_lang.wdata_members, ';')..';' .. [[
 } weapondata_t;
@@ -617,8 +614,8 @@ local function check_literal_am(am, typename)
 end
 
 -- An unrestricted actor_t pointer, for internal use:
-local actor_ptr_ct = ffi.typeof("$ *", ffi.typeof("struct"..strip_const(ACTOR_STRUCT)))
-local player_ptr_ct = ffi.typeof("$ *", ffi.typeof("struct"..strip_const(DUKEPLAYER_STRUCT)))
+local actor_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(ACTOR_STRUCT)))
+local player_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(DUKEPLAYER_STRUCT)))
 local con_action_ct = ffi.typeof("con_action_t")
 local con_move_ct = ffi.typeof("con_move_t")
 local con_ai_ct = ffi.typeof("con_ai_t")

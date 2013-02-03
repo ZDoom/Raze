@@ -135,7 +135,6 @@ enum playeraction_t {
     pfacing                     = 0x00010000
 };
 
-#pragma pack(push,1)
 typedef struct {
     int32_t ox,oy,oz;
     int16_t oa,os;
@@ -149,6 +148,14 @@ typedef struct {
     char inven_icon, jetpack_on, heat_on;
 } DukeStatus_t;
 
+typedef struct {
+    uint32_t bits; // 4b
+    int16_t fvel, svel; // 4b
+    int8_t avel, horz; // 2b
+    int8_t extbits, filler; // 2b
+} input_t;
+
+#pragma pack(push,1)
 // XXX: r1625 changed a lot types here, among others
 //  * int32_t --> int16_t
 //  * int16_t --> int8_t
@@ -231,13 +238,6 @@ typedef struct {
     int8_t padding_;
 } DukePlayer_t;
 
-typedef struct {
-    uint32_t bits; // 4b
-    int16_t fvel, svel; // 4b
-    int8_t avel, horz; // 2b
-    int8_t extbits, filler; // 2b
-} input_t;
-
 // KEEPINSYNC lunatic/defs.ilua
 typedef struct {
     DukePlayer_t *ps;
@@ -316,11 +316,9 @@ typedef struct {
     int32_t shade;
 } hudweapon_t;
 
-#pragma pack(push,1)
 extern input_t          inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
 extern playerdata_t     g_player[MAXPLAYERS];
-#pragma pack(pop)
 //extern char             dashow2dsector[(MAXSECTORS+7)>>3];
 //extern int16_t          searchsect[MAXSECTORS],searchparent[MAXSECTORS];
 extern int16_t          WeaponPickupSprites[MAX_WEAPONS];
