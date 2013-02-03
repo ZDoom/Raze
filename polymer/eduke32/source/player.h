@@ -220,6 +220,7 @@ typedef struct {
     uint8_t palette;
     palette_t pals;
 
+    // UNUSED
     char name[32];
 
 #ifdef LUNATIC

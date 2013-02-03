@@ -101,7 +101,6 @@ end
 
 -- TODO: provide getters for unsigned {hi,lo}tag?
 ffi.cdef([[
-#pragma pack(push,1)
 typedef $ sectortype;
 typedef $ walltype;
 typedef $ spritetype;
@@ -131,7 +130,6 @@ typedef struct {
     vec3_t pos;
     int16_t sprite, wall, sect;
 } hitdata_t;
-#pragma pack(pop)
 ]],
 ffi.typeof(SECTOR_STRUCT), ffi.typeof(WALL_STRUCT),
 ffi.typeof(SPRITE_STRUCT), ffi.typeof(SPRITE_STRUCT))

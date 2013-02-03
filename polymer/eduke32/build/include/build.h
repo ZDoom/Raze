@@ -211,7 +211,20 @@ static inline void sprite_tracker_hook(uintptr_t address);
 
 #endif // __cplusplus
 
-#pragma pack(push,1)
+// Links to various ABIs specifying (or documenting non-normatively) the
+// alignment requirements of aggregates:
+//
+//  System V AMD64: http://www.x86-64.org/documentation/abi-0.99.pdf
+//   (x86-64.org down as of 2013-02-02?)
+//  "An array uses the same alignment as its elements, except that a local or global
+//   array variable of length at least 16 bytes or a C99 variable-length array variable
+//   always has alignment of at least 16 bytes."
+//   (Not reproducible with GCC or LuaJIT on Ubuntu)
+//
+//  Win64: http://msdn.microsoft.com/en-us/library/9dbwhz68.aspx
+//
+//  x86: http://en.wikipedia.org/wiki/Data_structure_alignment#Typical_alignment_of_C_structs_on_x86
+
 
 //ceilingstat/floorstat:
 //   bit 0: 1 = parallaxing, 0 = not                                 "P"
@@ -319,6 +332,7 @@ typedef struct {
     uint8_t xpanning, ypanning;
     uint8_t filler;
     float alpha;
+    // NOTE: keep 'tspr' on an 8-byte boundary:
     spritetype *tspr;
 #if !defined UINTPTR_MAX
 # error Need UINTPTR_MAX define to select between 32- and 64-bit structs
@@ -702,7 +716,6 @@ typedef struct {
     int16_t sprite, wall, sect;
 } hitdata_t;
 
-#pragma pack(pop)
 
 int32_t    preinitengine(void);	// a partial setup of the engine used for launch windows
 int32_t    initengine(void);
