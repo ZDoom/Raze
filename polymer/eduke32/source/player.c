@@ -929,7 +929,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             }
 
             if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-            hitscan((const vec3_t *)&srcvect,sect,
+            hitscan(&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],zvel<<6,
                     &hit,CLIPMASK1);
@@ -1189,7 +1189,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             }
 
             if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-            hitscan((const vec3_t *)&srcvect,sect,
+            hitscan(&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],zvel<<6,
                     &hit,CLIPMASK1);
@@ -1494,7 +1494,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             if (actor[i].shootzvel) zvel = actor[i].shootzvel;
 
             srcvect.z -= zoff;
-            hitscan((const vec3_t *)&srcvect,sect,
+            hitscan(&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
                     zvel<<6,&hit,CLIPMASK1);
@@ -1610,7 +1610,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
 
             s->cstat &= ~257;
             if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-            hitscan((const vec3_t *)&srcvect,sect,
+            hitscan(&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
                     zvel<<6,&hit,CLIPMASK1);
