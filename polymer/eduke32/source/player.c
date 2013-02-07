@@ -824,7 +824,6 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
     int32_t vel, zvel = 0, x, oldzvel;
     hitdata_t hit;
     vec3_t srcvect;
-    char sizx,sizy;
     spritetype *const s = &sprite[i];
     const int16_t sect = s->sectnum;
 
@@ -928,11 +927,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                 }
             }
 
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-            hitscan(&srcvect,sect,
-                    sintable[(sa+512)&2047],
-                    sintable[sa&2047],zvel<<6,
-                    &hit,CLIPMASK1);
+            Proj_DoHitscan(i, 0, &srcvect, zvel, sa, &hit);
 
             if (proj->workslike & PROJECTILE_BLOOD)
             {
@@ -1159,11 +1154,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                 }
             }
 
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-            hitscan(&srcvect,sect,
-                    sintable[(sa+512)&2047],
-                    sintable[sa&2047],zvel<<6,
-                    &hit,CLIPMASK1);
+            Proj_DoHitscan(i, 0, &srcvect, zvel, sa, &hit);
 
             if (atwith >= BLOODSPLAT1 && atwith <= BLOODSPLAT4)
             {
@@ -1246,6 +1237,8 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
         case FIRELASER__STATIC:
         case SPIT__STATIC:
         case COOLEXPLOSION1__STATIC:
+        {
+            int32_t tsiz;
 
             if (s->extra >= 0) s->shade = -96;
 
@@ -1285,26 +1278,26 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
 
             if (atwith == SPIT)
             {
-                sizx = sizy = 18;
+                tsiz = 18;
                 srcvect.z -= (10<<8);
             }
             else if (p >= 0)
-                sizx = sizy = 7;
+                tsiz = 7;
             else
             {
                 if (atwith == FIRELASER)
                 {
                     if (p >= 0)
-                        sizx = sizy = 34;
+                        tsiz = 34;
                     else
-                        sizx = sizy = 18;
+                        tsiz = 18;
                 }
                 else
-                    sizx = sizy = 18;
+                    tsiz = 18;
             }
 
             j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,
-                               atwith,-127,sizx,sizy,sa,vel,zvel,i,4);
+                               atwith,-127,tsiz,tsiz,sa,vel,zvel,i,4);
             sprite[j].extra += (krand()&7);
 
             if (atwith == COOLEXPLOSION1)
@@ -1327,6 +1320,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             zvel = oldzvel+512-(krand()&1023);
 
             return j;
+        }
 
         case FREEZEBLAST__STATIC:
             srcvect.z += (3<<8);
@@ -1459,13 +1453,9 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             if (p >= 0)
                 zvel = (100-ps->horiz-ps->horizoff)*32;
             else zvel = 0;
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
 
             srcvect.z -= zoff;
-            hitscan(&srcvect,sect,
-                    sintable[(sa+512)&2047],
-                    sintable[sa&2047],
-                    zvel<<6,&hit,CLIPMASK1);
+            Proj_DoHitscan(i, 0, &srcvect, zvel, sa, &hit);
             srcvect.z += zoff;
 
             j = 0;
@@ -1574,14 +1564,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             //            RESHOOTGROW:
             if (sect < 0) break;
 
-            s->cstat &= ~257;
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-            hitscan(&srcvect,sect,
-                    sintable[(sa+512)&2047],
-                    sintable[sa&2047],
-                    zvel<<6,&hit,CLIPMASK1);
-
-            s->cstat |= 257;
+            Proj_DoHitscan(i, 256+1, &srcvect, zvel, sa, &hit);
 
             j = A_InsertSprite(sect,hit.pos.x,hit.pos.y,hit.pos.z,GROWSPARK,-16,28,28,sa,0,0,i,1);
 
