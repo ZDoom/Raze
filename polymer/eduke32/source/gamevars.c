@@ -28,16 +28,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "savegame.h"
 
 #define _gamevars_c_
+
 #if !defined LUNATIC
 # include "gamestructures.c"
-#endif
 
 extern int32_t OSD_errors;
 
 void Gv_RefreshPointers(void);
 extern void G_FreeMapState(int32_t mapnum);
 
-#if !defined LUNATIC
 static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
 {
     // call this function as many times as needed.
@@ -216,7 +215,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         if (Bmemcmp(tbuf, "EOF: EDuke32", 12)) { OSD_Printf("EOF ERR\n"); return 2; }
     }
 
-#if 0
+# if 0
     {
         FILE *fp;
         AddLog("Dumping Vars...");
@@ -228,7 +227,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         }
         AddLog("Done Dumping...");
     }
-#endif
+# endif
     return(0);
 corrupt:
 #endif
@@ -971,9 +970,7 @@ int32_t Gv_GetVarByLabel(const char *szGameLabel, int32_t lDefault, int32_t iAct
 
     return Gv_GetVar(i, iActor, iPlayer);
 }
-#endif
 
-#if !defined LUNATIC
 static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 {
     int32_t i = hash_find(&h_gamevars,szGameLabel);
@@ -1002,9 +999,8 @@ static void G_InitProjectileData(void)
 void Gv_ResetSystemDefaults(void)
 {
     // call many times...
-
-    int32_t i;
 #if !defined LUNATIC
+    int32_t i;
     int32_t j;
     char aszBuf[64];
 
@@ -1405,13 +1401,12 @@ void Gv_Init(void)
     //AddLog("Gv_Init");
 #ifdef LUNATIC
     Gv_AddSystemVars();  // set up weapon defaults, g_playerWeapon[][]
-    Gv_ResetSystemDefaults();
 #else
     Gv_Clear();
     Gv_AddSystemVars();
     Gv_InitWeaponPointers();
-    Gv_ResetSystemDefaults();
 #endif
+    Gv_ResetSystemDefaults();
 }
 
 #if !defined LUNATIC

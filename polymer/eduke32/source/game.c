@@ -9587,6 +9587,7 @@ static void G_CompileScripts(void)
 
 #if defined LUNATIC
     Gv_Init();
+    C_InitProjectiles();
 #else
     // if we compile for a V7 engine wall[] should be used for label names since it's bigger
     pathsearchmode = 1;

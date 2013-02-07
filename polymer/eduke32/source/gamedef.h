@@ -94,6 +94,7 @@ extern const memberlabel_t TsprLabels[];
 
 int32_t C_AllocQuote(int32_t qnum);
 void C_InitQuotes(void);
+void C_InitProjectiles(void);
 
 typedef struct {
     int32_t g_i, g_p, g_x;

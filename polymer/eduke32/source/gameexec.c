@@ -450,7 +450,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
 {
     const int32_t ticselapsed = (vm.g_t[0])&31;
 
-#ifndef LUNATIC
+#if !defined LUNATIC
     const intptr_t *moveptr;
     if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize-1)
 
@@ -526,7 +526,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
     }
 }
 
-static void do_face_player_addang(int32_t shr, int32_t goalang)
+static void VM_AddAngle(int32_t shr, int32_t goalang)
 {
     int32_t angdif = G_GetAngleDelta(vm.g_sp->ang,goalang)>>shr;
 
@@ -536,7 +536,7 @@ static void do_face_player_addang(int32_t shr, int32_t goalang)
     vm.g_sp->ang += angdif;
 }
 
-static void do_face_player(int32_t shr)
+static void VM_FacePlayer(int32_t shr)
 {
     int32_t goalang;
     const DukePlayer_t *const ps = g_player[vm.g_p].ps;
@@ -546,16 +546,16 @@ static void do_face_player(int32_t shr)
     else
         goalang = getangle(ps->pos.x-vm.g_sp->x, ps->pos.y-vm.g_sp->y);
 
-    do_face_player_addang(shr, goalang);
+    VM_AddAngle(shr, goalang);
 }
 
 GAMEEXEC_STATIC void VM_Move(void)
 {
-#ifndef LUNATIC
+#if !defined LUNATIC
     const intptr_t *moveptr;
 #endif
-    int32_t a = vm.g_sp->hitag, goalang, angdif;
-    int32_t deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
+    int32_t a = vm.g_sp->hitag, angdif;
+    const int32_t deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
 
     if (a == -1) a = 0;
 
@@ -575,13 +575,13 @@ GAMEEXEC_STATIC void VM_Move(void)
     if (deadflag) goto dead;
 
     if (a&face_player)
-        do_face_player(2);
+        VM_FacePlayer(2);
 
     if (a&spin)
         vm.g_sp->ang += sintable[((vm.g_t[0]<<3)&2047)]>>6;
 
     if (a&face_player_slow)
-        do_face_player(4);
+        VM_FacePlayer(4);
 
     if ((a&jumptoplayer) == jumptoplayer)
     {
@@ -595,13 +595,12 @@ GAMEEXEC_STATIC void VM_Move(void)
         int32_t newx = ps->pos.x + (ps->vel.x/768);
         int32_t newy = ps->pos.y + (ps->vel.y/768);
 
-        goalang = getangle(newx-vm.g_sp->x,newy-vm.g_sp->y);
-
-        do_face_player_addang(2, goalang);
+        int32_t goalang = getangle(newx-vm.g_sp->x,newy-vm.g_sp->y);
+        VM_AddAngle(2, goalang);
     }
 
 dead:
-#ifndef LUNATIC
+#if !defined LUNATIC
     if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize-1)
     {
         vm.g_t[1] = 0;
@@ -813,7 +812,7 @@ static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
 }
 #endif
 
-static void VM_Fall(void)
+static void VM_Fall()
 {
     vm.g_sp->xoffset = vm.g_sp->yoffset = 0;
 
@@ -887,13 +886,13 @@ static void VM_Fall(void)
         default:
             // fix for flying/jumping monsters getting stuck in water
         {
-#ifndef LUNATIC
+#if !defined LUNATIC
             int32_t moveScriptOfs = vm.g_t[1];
 #endif
 
             if ((vm.g_sp->hitag & jumptoplayer) ||
                 (G_HaveActor(vm.g_sp->picnum) &&
-#ifndef LUNATIC
+#if !defined LUNATIC
                  (unsigned)moveScriptOfs < (unsigned)g_scriptSize-1 && script[moveScriptOfs + 1]
 #else
                  actor[vm.g_i].mv.vvel != 0
@@ -914,6 +913,7 @@ static void VM_Fall(void)
         }
         return;
     }
+
     vm.g_sp->zvel = 0;
 }
 
@@ -2001,8 +2001,6 @@ nullquote:
                     T1=T2=T3=T4=T5=T6=T7=T8=T9=0;
                     actor[i].flags = 0;
                     sprite[i].hitag = 0;
-
-#if !defined LUNATIC
 // TODO: Lunatic
                     if (g_tile[sprite[i].picnum].execPtr)
                     {
@@ -2011,7 +2009,6 @@ nullquote:
                         T2 = *(g_tile[sprite[i].picnum].execPtr+2);  // move
                         sprite[i].hitag = *(g_tile[sprite[i].picnum].execPtr+3);  // ai bits
                     }
-#endif
                 }
                 changespritestat(i,j);
                 continue;
@@ -5187,13 +5184,13 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
      * (whether it is int32_t vs intptr_t), Although it is specifically cast to intptr_t*
      * which might be corrected if the code is converted to use offsets */
     /* Helixhorned: let's do away with intptr_t's... */
-#ifndef LUNATIC
+#if !defined LUNATIC
     // NOTE: for Lunatic, need split into numeric literal / action label
     // (maybe >=0/<0, respectively?)
     if (vm.g_t[4]!=0 && (unsigned)vm.g_t[4] + 4 < (unsigned)g_scriptSize)
 #endif
     {
-#ifndef LUNATIC
+#if !defined LUNATIC
         const int32_t action_frames = *(script + vm.g_t[4] + 1);
         const int32_t action_incval = *(script + vm.g_t[4] + 3);
         const int32_t action_delay = *(script + vm.g_t[4] + 4);

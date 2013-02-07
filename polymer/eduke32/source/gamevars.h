@@ -113,9 +113,9 @@ void G_FreeMapState(int32_t mapnum);
 void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
-void Gv_ResetSystemDefaults(void);
 void Gv_ResetVars(void);
 #endif
+void Gv_ResetSystemDefaults(void);
 int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
 void Gv_Init(void);
 void Gv_WriteSave(FILE *fil,int32_t newbehav);
