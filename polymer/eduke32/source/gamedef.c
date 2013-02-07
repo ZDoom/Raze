@@ -2193,6 +2193,73 @@ void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
 }
 #endif
 
+// NOTE: external linkage for Lunatic
+void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
+{
+    switch (what)
+    {
+    case PROJ_WORKSLIKE:
+        g_tile[j].defproj.workslike = ProjectileData[j].workslike = val; break;
+    case PROJ_SPAWNS:
+        g_tile[j].defproj.spawns = ProjectileData[j].spawns = val; break;
+    case PROJ_SXREPEAT:
+        g_tile[j].defproj.sxrepeat = ProjectileData[j].sxrepeat = val; break;
+    case PROJ_SYREPEAT:
+        g_tile[j].defproj.syrepeat = ProjectileData[j].syrepeat = val; break;
+    case PROJ_SOUND:
+        g_tile[j].defproj.sound = ProjectileData[j].sound = val; break;
+    case PROJ_ISOUND:
+        g_tile[j].defproj.isound = ProjectileData[j].isound = val; break;
+    case PROJ_VEL:
+        g_tile[j].defproj.vel = ProjectileData[j].vel = val; break;
+    case PROJ_EXTRA:
+        g_tile[j].defproj.extra = ProjectileData[j].extra = val; break;
+    case PROJ_DECAL:
+        g_tile[j].defproj.decal = ProjectileData[j].decal = val; break;
+    case PROJ_TRAIL:
+        g_tile[j].defproj.trail = ProjectileData[j].trail = val; break;
+    case PROJ_TXREPEAT:
+        g_tile[j].defproj.txrepeat = ProjectileData[j].txrepeat = val; break;
+    case PROJ_TYREPEAT:
+        g_tile[j].defproj.tyrepeat = ProjectileData[j].tyrepeat = val; break;
+    case PROJ_TOFFSET:
+        g_tile[j].defproj.toffset = ProjectileData[j].toffset = val; break;
+    case PROJ_TNUM:
+        g_tile[j].defproj.tnum = ProjectileData[j].tnum = val; break;
+    case PROJ_DROP:
+        g_tile[j].defproj.drop = ProjectileData[j].drop = val; break;
+    case PROJ_CSTAT:
+        g_tile[j].defproj.cstat = ProjectileData[j].cstat = val; break;
+    case PROJ_CLIPDIST:
+        g_tile[j].defproj.clipdist = ProjectileData[j].clipdist = val; break;
+    case PROJ_SHADE:
+        g_tile[j].defproj.shade = ProjectileData[j].shade = val; break;
+    case PROJ_XREPEAT:
+        g_tile[j].defproj.xrepeat = ProjectileData[j].xrepeat = val; break;
+    case PROJ_YREPEAT: 
+        g_tile[j].defproj.yrepeat = ProjectileData[j].yrepeat = val; break;
+    case PROJ_PAL:
+        g_tile[j].defproj.pal = ProjectileData[j].pal = val; break;
+    case PROJ_EXTRA_RAND:
+        g_tile[j].defproj.extra_rand = ProjectileData[j].extra_rand = val; break;
+    case PROJ_HITRADIUS:
+        g_tile[j].defproj.hitradius = ProjectileData[j].hitradius = val; break;
+    case PROJ_MOVECNT:
+        g_tile[j].defproj.movecnt = ProjectileData[j].movecnt = val; break;
+    case PROJ_OFFSET:
+        g_tile[j].defproj.offset = ProjectileData[j].offset = val; break;
+    case PROJ_BOUNCES:
+        g_tile[j].defproj.bounces = ProjectileData[j].bounces = val; break;
+    case PROJ_BSOUND:
+        g_tile[j].defproj.bsound = ProjectileData[j].bsound = val; break;
+    case PROJ_RANGE:
+        g_tile[j].defproj.range = ProjectileData[j].range = val; break;
+    default: break;
+    }
+
+    g_tile[j].flags |= SPRITE_PROJECTILE;
+}
+
 int32_t C_AllocQuote(int32_t qnum)
 {
     if (ScriptQuotes[qnum] == NULL)
@@ -4298,68 +4365,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     continue;
                 }
 
-                switch (y)
-                {
-                case PROJ_WORKSLIKE:
-                    g_tile[j].defproj.workslike = ProjectileData[j].workslike = z; break;
-                case PROJ_SPAWNS:
-                    g_tile[j].defproj.spawns = ProjectileData[j].spawns = z; break;
-                case PROJ_SXREPEAT:
-                    g_tile[j].defproj.sxrepeat = ProjectileData[j].sxrepeat = z; break;
-                case PROJ_SYREPEAT:
-                    g_tile[j].defproj.syrepeat = ProjectileData[j].syrepeat = z; break;
-                case PROJ_SOUND:
-                    g_tile[j].defproj.sound = ProjectileData[j].sound = z; break;
-                case PROJ_ISOUND:
-                    g_tile[j].defproj.isound = ProjectileData[j].isound = z; break;
-                case PROJ_VEL:
-                    g_tile[j].defproj.vel = ProjectileData[j].vel = z; break;
-                case PROJ_EXTRA:
-                    g_tile[j].defproj.extra = ProjectileData[j].extra = z; break;
-                case PROJ_DECAL:
-                    g_tile[j].defproj.decal = ProjectileData[j].decal = z; break;
-                case PROJ_TRAIL:
-                    g_tile[j].defproj.trail = ProjectileData[j].trail = z; break;
-                case PROJ_TXREPEAT:
-                    g_tile[j].defproj.txrepeat = ProjectileData[j].txrepeat = z; break;
-                case PROJ_TYREPEAT:
-                    g_tile[j].defproj.tyrepeat = ProjectileData[j].tyrepeat = z; break;
-                case PROJ_TOFFSET:
-                    g_tile[j].defproj.toffset = ProjectileData[j].toffset = z; break;
-                case PROJ_TNUM:
-                    g_tile[j].defproj.tnum = ProjectileData[j].tnum = z; break;
-                case PROJ_DROP:
-                    g_tile[j].defproj.drop = ProjectileData[j].drop = z; break;
-                case PROJ_CSTAT:
-                    g_tile[j].defproj.cstat = ProjectileData[j].cstat = z; break;
-                case PROJ_CLIPDIST:
-                    g_tile[j].defproj.clipdist = ProjectileData[j].clipdist = z; break;
-                case PROJ_SHADE:
-                    g_tile[j].defproj.shade = ProjectileData[j].shade = z; break;
-                case PROJ_XREPEAT:
-                    g_tile[j].defproj.xrepeat = ProjectileData[j].xrepeat = z; break;
-                case PROJ_YREPEAT: 
-                    g_tile[j].defproj.yrepeat = ProjectileData[j].yrepeat = z; break;
-                case PROJ_PAL:
-                    g_tile[j].defproj.pal = ProjectileData[j].pal = z; break;
-                case PROJ_EXTRA_RAND:
-                    g_tile[j].defproj.extra_rand = ProjectileData[j].extra_rand = z; break;
-                case PROJ_HITRADIUS:
-                    g_tile[j].defproj.hitradius = ProjectileData[j].hitradius = z; break;
-                case PROJ_MOVECNT:
-                    g_tile[j].defproj.movecnt = ProjectileData[j].movecnt = z; break;
-                case PROJ_OFFSET:
-                    g_tile[j].defproj.offset = ProjectileData[j].offset = z; break;
-                case PROJ_BOUNCES:
-                    g_tile[j].defproj.bounces = ProjectileData[j].bounces = z; break;
-                case PROJ_BSOUND:
-                    g_tile[j].defproj.bsound = ProjectileData[j].bsound = z; break;
-                case PROJ_RANGE:
-                    g_tile[j].defproj.range = ProjectileData[j].range = z; break;
-                default: break;
-                }
-
-                g_tile[j].flags |= SPRITE_PROJECTILE;
+                C_DefineProjectile(j, y, z);
                 continue;
             }
 

@@ -743,6 +743,18 @@ function Cmd.definequote(qnum, quotestr)
     g_data.quote[qnum] = quotestr
 end
 
+function Cmd.defineprojectile(tilenum, what, val)
+    if (not (tilenum >= 0 and tilenum < (ffiC and ffiC.MAXTILES or 30720))) then
+        errprintf("invalid tile number %d", tilenum)
+        return
+    end
+
+    if (ffi) then
+        -- TODO: potentially bound-check some members?
+        ffiC.C_DefineProjectile(tilenum, what, val)
+    end
+end
+
 function Cmd.gamestartup(...)
     local args = {...}
 
@@ -1026,7 +1038,7 @@ local Couter = {
     definevolumename = sp1 * tok.define * newline_term_string / Cmd.definevolumename,
 
     definequote = sp1 * tok.define * newline_term_string / Cmd.definequote,
-    defineprojectile = cmd(D,D,D),
+    defineprojectile = cmd(D,D,D) / Cmd.defineprojectile,
     definesound = sp1 * tok.define * sp1 * maybe_quoted_filename * n_defines(5) / Cmd.definesound,
 
     -- NOTE: gamevar.ogg and the like is OK, too
@@ -1180,6 +1192,7 @@ local Access =
     player = function(...) return StructAccess("player", ...) end,
 
     tspr = function(...) return StructAccess("tspr", ...) end,
+    projectile = function(...) return StructAccess("projectile", ...) end,
 }
 
 local function GetStructCmd(accessfunc)
@@ -1278,7 +1291,7 @@ local Cinner = {
     getplayer = GetStructCmd(Access.player),
 
     getinput = getstructcmd / handle.NYI,
-    getprojectile = getstructcmd / handle.NYI,
+    getprojectile = GetStructCmd(Access.projectile),
     getthisprojectile = getstructcmd / handle.NYI,
     gettspr = GetStructCmd(Access.tspr),
     -- NOTE: {get,set}userdef is the only struct that can be accessed without
@@ -1300,7 +1313,7 @@ local Cinner = {
     setplayer = SetStructCmd(Access.player),
 
     setinput = setstructcmd / handle.NYI,
-    setprojectile = setstructcmd / handle.NYI,
+    setprojectile = SetStructCmd(Access.projectile),
     setthisprojectile = setstructcmd / handle.NYI,
     settspr = SetStructCmd(Access.tspr),
     setuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.rvar / handle.NYI,

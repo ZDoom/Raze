@@ -533,6 +533,7 @@ enum InputLabel_t
     INPUT_END
 };
 
+#endif
 // KEEPINSYNC lunatic/con_lang.lua
 enum ProjectileLabel_t
 {
@@ -567,6 +568,7 @@ enum ProjectileLabel_t
     PROJ_FLASH_COLOR,
     PROJ_END
 };
+#if !defined LUNATIC
 
 enum ScriptKeywords_t
 {

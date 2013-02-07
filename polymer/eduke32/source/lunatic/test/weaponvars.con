@@ -3,6 +3,22 @@ gamevar shoots 2605 2  // RPG
 
 gamevar WEAPON1_SHOOTS 2605 0
 
+define MORTER2 1653
+defineprojectile MORTER2 PROJ_WORKSLIKE 6150
+defineprojectile MORTER2 PROJ_SPAWNS EXPLOSION2
+defineprojectile MORTER2 PROJ_SOUND MORTER2_SHOOT
+defineprojectile MORTER2 PROJ_VEL 600
+defineprojectile MORTER2 PROJ_EXTRA 165
+defineprojectile MORTER2 PROJ_EXTRA_RAND 10
+defineprojectile MORTER2 PROJ_DROP 0  // tested in test.elua
+defineprojectile MORTER2 PROJ_ISOUND PIPEBOMB_EXPLODE
+defineprojectile MORTER2 PROJ_HITRADIUS 2800
+defineprojectile MORTER2 PROJ_BOUNCES 4
+defineprojectile MORTER2 PROJ_OFFSET 128
+defineprojectile MORTER2 PROJ_CLIPDIST 24
+defineprojectile MORTER2 PROJ_TRAIL SMALLSMOKE
+defineprojectile MORTER2 PROJ_TNUM 6
+
 onevent EVENT_GAME
     setvarvar WEAPON1_FIRESOUND snd
 //    setvarvar WEAPON1_SHOOTS shoots

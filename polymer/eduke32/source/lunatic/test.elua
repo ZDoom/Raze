@@ -261,6 +261,10 @@ gameevent(gv.EVENT_ENTERLEVEL,
               pl:give_weapon(gv.RPG_WEAPON)
               pl.ammo_amount[gv.RPG_WEAPON] = 54
 
+              -- MORTER2 from test/weaponvars.con
+              player[0].weapon.SHOTGUN.shoots = 1653
+              projectile[1653].drop = -200
+
               checkfail("gameevent('GAME', function() print('qwe') end)",
                         "must be called from top level")
           end

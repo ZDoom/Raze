@@ -102,7 +102,6 @@ enum {
 ]]
 
 ffi.cdef[[
-#pragma pack(push,1)
 struct action {
     int16_t startframe, numframes;
     int16_t viewtype, incval, delay;
@@ -112,8 +111,10 @@ struct move {
     int16_t hvel, vvel;
 };
 
+#pragma pack(push,1)
 typedef struct { int32_t id; struct move mv; } con_move_t;
 typedef struct { int32_t id; struct action ac; } con_action_t;
+#pragma pack(pop)
 
 typedef struct {
     int32_t id;
@@ -121,7 +122,6 @@ typedef struct {
     con_move_t mov;
     int32_t movflags;
 } con_ai_t;
-#pragma pack(pop)
 ]]
 
 -- Struct template for actor_t. It already has 'const' fields (TODO: might need
@@ -300,7 +300,6 @@ typedef struct {
     int8_t extbits, filler; // 2b
 } input_t;
 
-#pragma pack(push, 1)
 typedef
 ]].. mangle_arrays(ACTOR_STRUCT) ..[[
 actor_t;
@@ -309,7 +308,7 @@ typedef
 ]].. mangle_arrays(DUKEPLAYER_STRUCT) ..[[
 DukePlayer_t;
 
-typedef struct {
+typedef __attribute__((packed)) struct {
     DukePlayer_t *ps;
     input_t *sync;
 
@@ -322,7 +321,6 @@ typedef struct {
     char user_name[32];
     uint32_t revision;
 } playerdata_t;
-#pragma pack(pop)
 
 typedef struct {
     int32_t cur, count;
@@ -332,18 +330,20 @@ typedef struct {
 } hudweapon_t;
 
 typedef struct {
-    int32_t workslike, cstat; // 8b
-    int32_t hitradius, range, flashcolor; // 12b
-    int16_t spawns, sound, isound, vel; // 8b
-    int16_t decal, trail, tnum, drop; // 8b
-    int16_t offset, bounces, bsound; // 6b
-    int16_t toffset; // 2b
-    int16_t extra, extra_rand; // 4b
-    int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
-    int8_t shade, xrepeat, yrepeat, pal; // 4b
-    int8_t movecnt; // 1b
-    uint8_t clipdist; // 1b
-    int8_t filler[6]; // 6b
+    int32_t workslike, cstat;
+    int32_t hitradius, range, flashcolor;
+    const int16_t spawns;
+    int16_t sound, isound, vel;
+    const int16_t decal, trail;
+    int16_t tnum, drop;
+    int16_t offset, bounces, bsound;
+    int16_t toffset;
+    int16_t extra, extra_rand;
+    int8_t sxrepeat, syrepeat, txrepeat, tyrepeat;
+    int8_t shade, xrepeat, yrepeat, pal;
+    int8_t movecnt;
+    uint8_t clipdist;
+    int8_t filler[6];
 } projectile_t;
 
 typedef struct {
@@ -372,7 +372,6 @@ enum
     NUMGAMEFUNCTIONS = 56,
 };
 
-// NOTE: not packed!
 typedef struct {
     int32_t const_visibility,uw_framerate;
     int32_t camera_time,folfvel,folavel,folx,foly,fola;
@@ -488,6 +487,8 @@ user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
 weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
 tiledata_t g_tile[MAXTILES];
+projectile_t ProjectileData[MAXTILES];
+projectile_t SpriteProjectile[MAXSPRITES];
 
 char *ScriptQuotes[];
 
@@ -543,6 +544,7 @@ void C_DefineSkillName(int32_t skill, const char *name);
 void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
                        int32_t partime, int32_t designertime,
                        const char *levelname);
+void C_DefineProjectile(int32_t j, int32_t what, int32_t val);
 ]]
 
 
@@ -585,6 +587,8 @@ player = setmtonce({}, tmpmt)
 
 -- needed by "control"
 actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, "actor[]")
+
+local projectile = defs_c.creategtab(ffiC.ProjectileData, ffiC.MAXTILES, "projectile[]")
 
 --== Custom operations for BUILD data structures ==--
 -- Among other things, declares struct action and struct move, and their
@@ -780,17 +784,17 @@ ffi.metatype("actor_t", actor_mt)
 --- PER-PLAYER WEAPON SETTINGS
 local weapondata_mt = {
     __newindex = function(wd, member, val)
-            if (string.match(member, "sound")) then
-                -- TODO: set to 0 if oob? (e.g. CrackDown)
-                check_sound_idx(val)
-            elseif (member=="workslike") then
-                check_weapon_idx(val)
-            elseif (member=="shoots" or member=="spawn") then
-                -- TODO: set to 0 if oob? (e.g. AMC TC)
-                check_tile_idx(val)
-            end
+        if (string.match(member, "sound")) then
+            -- TODO: set to 0 if oob? (e.g. CrackDown)
+            check_sound_idx(val)
+        elseif (member=="workslike") then
+            check_weapon_idx(val)
+        elseif (member=="shoots" or member=="spawn") then
+            -- TODO: set to 0 if oob? (e.g. AMC TC)
+            check_tile_idx(val)
+        end
 
-            wd[member] = val
+        wd[member] = val
     end,
 }
 ffi.metatype("weapondata_t", weapondata_mt)
@@ -1254,8 +1258,10 @@ end
 --- non-default data and functions
 G_.gameevent = our_gameevent
 G_.gameactor = our_gameactor
-G_.player = player  -- from above
-G_.actor = actor  -- from above
+-- These come from above:
+G_.player = player
+G_.actor = actor
+G_.projectile = projectile
 
 
 ---=== Lunatic interpreter setup ===---

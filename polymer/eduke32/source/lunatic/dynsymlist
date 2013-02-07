@@ -82,6 +82,7 @@ C_DefineQuote;
 C_DefineVolumeName;
 C_DefineSkillName;
 C_DefineLevelName;
+C_DefineProjectile;
 
 actor;
 g_camera;
@@ -89,6 +90,8 @@ ud;
 g_player;
 g_playerWeapon;
 g_tile;
+ProjectileData;
+SpriteProjectile;
 
 ScriptQuotes;
 
