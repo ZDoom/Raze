@@ -56,12 +56,11 @@ enum vmflags_t {
 
 vmstate_t vm;
 
-int32_t g_errorLineNum;
+#if !defined LUNATIC
 int32_t g_tw;
-
+int32_t g_errorLineNum;
 int32_t g_currentEventExec = -1;
 
-#if !defined LUNATIC
 GAMEEXEC_STATIC void VM_Execute(int32_t loop);
 
 # include "gamestructures.c"
@@ -812,76 +811,76 @@ static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
 }
 #endif
 
-static void VM_Fall()
+static void VM_Fall(int32_t g_i, spritetype *g_sp)
 {
-    vm.g_sp->xoffset = vm.g_sp->yoffset = 0;
+    g_sp->xoffset = g_sp->yoffset = 0;
 
     {
         int32_t j = g_spriteGravity;
 
-        if (G_CheckForSpaceCeiling(vm.g_sp->sectnum) || sector[vm.g_sp->sectnum].lotag == ST_2_UNDERWATER)
+        if (G_CheckForSpaceCeiling(g_sp->sectnum) || sector[g_sp->sectnum].lotag == ST_2_UNDERWATER)
             j = g_spriteGravity/6;
-        else if (G_CheckForSpaceFloor(vm.g_sp->sectnum))
+        else if (G_CheckForSpaceFloor(g_sp->sectnum))
             j = 0;
 
-        if (!actor[vm.g_i].cgg-- || (sector[vm.g_sp->sectnum].floorstat&2))
+        if (!actor[g_i].cgg-- || (sector[g_sp->sectnum].floorstat&2))
         {
-            A_GetZLimits(vm.g_i);
-            actor[vm.g_i].cgg = 3;
+            A_GetZLimits(g_i);
+            actor[g_i].cgg = 3;
         }
 
-        if (vm.g_sp->z < (actor[vm.g_i].floorz-ZOFFSET))
+        if (g_sp->z < (actor[g_i].floorz-ZOFFSET))
         {
-            vm.g_sp->z += vm.g_sp->zvel = min(6144, vm.g_sp->zvel+j);
+            g_sp->z += g_sp->zvel = min(6144, g_sp->zvel+j);
 #ifdef YAX_ENABLE
-            j = yax_getbunch(vm.g_sp->sectnum, YAX_FLOOR);
-            if (j >= 0 && (sector[vm.g_sp->sectnum].floorstat&512)==0)
-                setspritez(vm.g_i, (vec3_t *)vm.g_sp);
+            j = yax_getbunch(g_sp->sectnum, YAX_FLOOR);
+            if (j >= 0 && (sector[g_sp->sectnum].floorstat&512)==0)
+                setspritez(g_i, (vec3_t *)g_sp);
             else
 #endif
-                if (vm.g_sp->z > (actor[vm.g_i].floorz - ZOFFSET))
-                    vm.g_sp->z = (actor[vm.g_i].floorz - ZOFFSET);
+                if (g_sp->z > (actor[g_i].floorz - ZOFFSET))
+                    g_sp->z = (actor[g_i].floorz - ZOFFSET);
             return;
         }
-        vm.g_sp->z = actor[vm.g_i].floorz - ZOFFSET;
+        g_sp->z = actor[g_i].floorz - ZOFFSET;
 
-        if (A_CheckEnemySprite(vm.g_sp) || (vm.g_sp->picnum == APLAYER && vm.g_sp->owner >= 0))
+        if (A_CheckEnemySprite(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
         {
-            if (vm.g_sp->zvel > 3084 && vm.g_sp->extra <= 1)
+            if (g_sp->zvel > 3084 && g_sp->extra <= 1)
             {
                 // I'm guessing this DRONE check is from a beta version of the game
                 // where they crashed into the ground when killed
-                if (!(vm.g_sp->picnum == APLAYER && vm.g_sp->extra > 0) && vm.g_sp->pal != 1 && vm.g_sp->picnum != DRONE)
+                if (!(g_sp->picnum == APLAYER && g_sp->extra > 0) && g_sp->pal != 1 && g_sp->picnum != DRONE)
                 {
-                    A_DoGuts(vm.g_i,JIBS6,15);
-                    A_PlaySound(SQUISHED,vm.g_i);
-                    A_Spawn(vm.g_i,BLOODPOOL);
+                    A_DoGuts(g_i,JIBS6,15);
+                    A_PlaySound(SQUISHED,g_i);
+                    A_Spawn(g_i,BLOODPOOL);
                 }
-                actor[vm.g_i].picnum = SHOTSPARK1;
-                actor[vm.g_i].extra = 1;
-                vm.g_sp->zvel = 0;
+                actor[g_i].picnum = SHOTSPARK1;
+                actor[g_i].extra = 1;
+                g_sp->zvel = 0;
             }
-            else if (vm.g_sp->zvel > 2048  && sector[vm.g_sp->sectnum].lotag != ST_1_ABOVE_WATER)
+            else if (g_sp->zvel > 2048  && sector[g_sp->sectnum].lotag != ST_1_ABOVE_WATER)
             {
-                j = vm.g_sp->sectnum;
-                pushmove((vec3_t *)vm.g_sp,(int16_t *)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
+                j = g_sp->sectnum;
+                pushmove((vec3_t *)g_sp,(int16_t *)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
                 if ((unsigned)j < MAXSECTORS)
-                    changespritesect(vm.g_i,j);
-                A_PlaySound(THUD,vm.g_i);
+                    changespritesect(g_i,j);
+                A_PlaySound(THUD,g_i);
             }
         }
     }
 
-    if (vm.g_sp->z > (actor[vm.g_i].floorz - ZOFFSET))
+    if (g_sp->z > (actor[g_i].floorz - ZOFFSET))
     {
-        A_GetZLimits(vm.g_i);
-        if (actor[vm.g_i].floorz != sector[vm.g_sp->sectnum].floorz)
-            vm.g_sp->z = (actor[vm.g_i].floorz - ZOFFSET);
+        A_GetZLimits(g_i);
+        if (actor[g_i].floorz != sector[g_sp->sectnum].floorz)
+            g_sp->z = (actor[g_i].floorz - ZOFFSET);
         return;
     }
-    else if (sector[vm.g_sp->sectnum].lotag == ST_1_ABOVE_WATER)
+    else if (sector[g_sp->sectnum].lotag == ST_1_ABOVE_WATER)
     {
-        switch (DYNAMICTILEMAP(vm.g_sp->picnum))
+        switch (DYNAMICTILEMAP(g_sp->picnum))
         {
         default:
             // fix for flying/jumping monsters getting stuck in water
@@ -890,12 +889,12 @@ static void VM_Fall()
             int32_t moveScriptOfs = vm.g_t[1];
 #endif
 
-            if ((vm.g_sp->hitag & jumptoplayer) ||
-                (G_HaveActor(vm.g_sp->picnum) &&
+            if ((g_sp->hitag & jumptoplayer) ||
+                (G_HaveActor(g_sp->picnum) &&
 #if !defined LUNATIC
                  (unsigned)moveScriptOfs < (unsigned)g_scriptSize-1 && script[moveScriptOfs + 1]
 #else
-                 actor[vm.g_i].mv.vvel != 0
+                 actor[g_i].mv.vvel != 0
 #endif
                     ))
             {
@@ -904,8 +903,8 @@ static void VM_Fall()
             }
         }
 
-//        OSD_Printf("hitag: %d\n",vm.g_sp->hitag);
-        vm.g_sp->z += (24<<8);
+//        OSD_Printf("hitag: %d\n",g_sp->hitag);
+        g_sp->z += (24<<8);
         case OCTABRAIN__STATIC:
         case COMMANDER__STATIC:
         case DRONE__STATIC:
@@ -914,44 +913,45 @@ static void VM_Fall()
         return;
     }
 
-    vm.g_sp->zvel = 0;
+    g_sp->zvel = 0;
 }
 
-static void VM_ResetPlayer(void)
+static int32_t VM_ResetPlayer(int32_t g_p, int32_t g_flags)
 {
     //AddLog("resetplayer");
-    if ((!g_netServer && ud.multimode < 2))
+    if (!g_netServer && ud.multimode < 2)
     {
         if (g_lastSaveSlot >= 0 && ud.recstat != 2)
         {
-            g_player[vm.g_p].ps->gm |= MODE_MENU;
+            g_player[g_p].ps->gm |= MODE_MENU;
             KB_ClearKeyDown(sc_Space);
             M_ChangeMenu(15000);
         }
-        else g_player[vm.g_p].ps->gm = MODE_RESTART;
-        vm.g_flags |= VM_NOEXECUTE;
+        else g_player[g_p].ps->gm = MODE_RESTART;
+
+        g_flags |= VM_NOEXECUTE;
     }
     else
     {
-        if (vm.g_p == myconnectindex)
+        if (g_p == myconnectindex)
         {
             CAMERADIST = 0;
             CAMERACLOCK = totalclock;
         }
 
         if (g_fakeMultiMode)
-            P_ResetPlayer(vm.g_p);
+            P_ResetPlayer(g_p);
 #ifndef NETCODE_DISABLE
         if (g_netServer)
         {
             int32_t jj = 0;
 
-            P_ResetPlayer(vm.g_p);
+            P_ResetPlayer(g_p);
 
             packbuf[jj++] = PACKET_PLAYER_SPAWN;
-            packbuf[jj++] = vm.g_p;
+            packbuf[jj++] = g_p;
 
-            Bmemcpy(&packbuf[jj], &g_player[vm.g_p].ps->pos.x, sizeof(vec3_t) * 2);
+            Bmemcpy(&packbuf[jj], &g_player[g_p].ps->pos.x, sizeof(vec3_t) * 2);
             jj += sizeof(vec3_t) * 2;
 
             packbuf[jj++] = 0;
@@ -961,8 +961,11 @@ static void VM_ResetPlayer(void)
         }
 #endif
     }
-    P_UpdateScreenPal(g_player[vm.g_p].ps);
+
+    P_UpdateScreenPal(g_player[g_p].ps);
     //AddLog("EOF: resetplayer");
+
+    return g_flags;
 }
 
 #if !defined LUNATIC
@@ -1433,7 +1436,7 @@ skip_check:
 
         case CON_FALL:
             insptr++;
-            VM_Fall();
+            VM_Fall(vm.g_i, vm.g_sp);
             continue;
 
         case CON_RETURN:
@@ -3137,7 +3140,7 @@ nullquote:
         case CON_RESETPLAYER:
         {
             insptr++;
-            VM_ResetPlayer();
+            vm.g_flags = VM_ResetPlayer(vm.g_p, vm.g_flags);
         }
         continue;
 
@@ -5312,8 +5315,10 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->sprite[0],&sprite[0],sizeof(spritetype)*MAXSPRITES);
 
         // If we're in EVENT_ANIMATESPRITES, we'll be saving pointer values to disk :-/
+#if !defined LUNATIC
         if (g_currentEventExec == EVENT_ANIMATESPRITES)
             initprintf("Line %d: savemapstate called from EVENT_ANIMATESPRITES. WHY?\n", g_errorLineNum);
+#endif
         Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
 
         save->numsprites = Numsprites;
@@ -5412,13 +5417,14 @@ void G_RestoreMapState(mapstate_t *save)
 
         // If we're restoring from EVENT_ANIMATESPRITES, all spriteext[].tspr
         // will be overwritten, so NULL them.
+#if !defined LUNATIC
         if (g_currentEventExec == EVENT_ANIMATESPRITES)
         {
             initprintf("Line %d: loadmapstate called from EVENT_ANIMATESPRITES. WHY?\n",g_errorLineNum);
             for (i=0; i<MAXSPRITES; i++)
                 spriteext[i].tspr = NULL;
         }
-
+#endif
         Numsprites = save->numsprites;
         tailspritefree = save->tailspritefree;
         Bmemcpy(&headspritesect[0],&save->headspritesect[0],sizeof(headspritesect));
@@ -5534,16 +5540,11 @@ void G_RestoreMapState(mapstate_t *save)
 #ifdef LUNATIC
 void VM_FallSprite(int32_t i)
 {
-    vm.g_i = i;
-    vm.g_sp = &sprite[i];
-    VM_Fall();
+    VM_Fall(i, &sprite[i]);
 }
 
 int32_t VM_ResetPlayer2(int32_t snum)
 {
-    vm.g_p = snum;
-    vm.g_flags &= ~VM_NOEXECUTE;
-    VM_ResetPlayer();
-    return (vm.g_flags&VM_NOEXECUTE);
+    return VM_ResetPlayer(snum, 0);
 }
 #endif

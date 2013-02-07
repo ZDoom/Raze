@@ -128,12 +128,14 @@ enum GameEvent_t {
     MAXEVENTS
 };
 
-extern int32_t g_errorLineNum;
-extern int32_t g_tw;
 extern int32_t ticrandomseed;
-extern vmstate_t vm;
 
+extern vmstate_t vm;
+#if !defined LUNATIC
+extern int32_t g_tw;
+extern int32_t g_errorLineNum;
 extern int32_t g_currentEventExec;
+#endif
 
 void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist);
 void A_Fall(int32_t iActor);
