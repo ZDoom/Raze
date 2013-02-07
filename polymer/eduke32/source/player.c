@@ -324,6 +324,12 @@ static int32_t CheckShootSwitchTile(int32_t pn)
         pn == HANDSWITCH || pn == HANDSWITCH+1;
 }
 
+static int32_t safeldist(int32_t spritenum1, const spritetype *s2)
+{
+    int32_t dst = ldist(&sprite[spritenum1], s2);
+    return dst ? dst : 1;
+}
+
 // flags:
 //  1: do sprite center adjustment (cen-=(8<<8)) for GREENSLIME or ROTATEGUN
 //  2: do auto getangle only if not RECON (if clear, do unconditionally)
@@ -370,10 +376,7 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
             }
         }
 
-        dst = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
-        if (dst == 0)
-            dst++;
-
+        dst = safeldist(g_player[p].ps->i, &sprite[j]);
         *zvel = ((spr->z - srcvect->z - cen)*vel) / dst;
 
         if (!(flags&2) || sprite[j].picnum != RECON)
@@ -516,10 +519,7 @@ static void A_PreFireHitscan(const spritetype *s, vec3_t *srcvect, int32_t *zvel
     const int32_t j = A_FindPlayer(s, &dummydist);
     const DukePlayer_t *targetps = g_player[j].ps;
 
-    int32_t d = ldist(&sprite[targetps->i], s);
-
-    if (d == 0)
-        d++;
+    int32_t d = safeldist(targetps->i, s);
     *zvel = ((targetps->pos.z-srcvect->z)<<8) / d;
 
     srcvect->z -= (4<<8);
@@ -1060,10 +1060,6 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
 
         if (proj->workslike & PROJECTILE_RPG)
         {
-
-            /*            if(tile[atwith].proj.workslike & PROJECTILE_FREEZEBLAST)
-            sz += (3<<8);*/
-
             if (s->extra >= 0) s->shade = proj->shade;
 
             vel = proj->vel;
@@ -1076,7 +1072,6 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
 
                 if (j < 0)
                     zvel = (100-ps->horiz-ps->horizoff)*(proj->vel/8);
-                //                zvel = (100-ps->horiz-ps->horizoff)*81;
 
                 if (proj->sound >= 0)
                     A_PlaySound(proj->sound,i);
@@ -1088,9 +1083,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                     j = A_FindPlayer(s,&x);
                     sa = getangle(g_player[j].ps->opos.x-srcvect.x,g_player[j].ps->opos.y-srcvect.y);
 
-                    l = ldist(&sprite[g_player[j].ps->i],s);
-                    if (l == 0)
-                        l++;
+                    l = safeldist(g_player[j].ps->i, s);
                     zvel = ((g_player[j].ps->opos.z-srcvect.z)*vel) / l;
 
                     if (A_CheckEnemySprite(s) && (s->hitag&face_player_smart))
@@ -1098,18 +1091,12 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                 }
             }
 
-
-
             if (p >= 0 && j >= 0)
                 l = j;
             else l = -1;
 
             if (numplayers > 1 && g_netClient) return -1;
 
-            /*                        j = A_InsertSprite(sect,
-            sx+(sintable[(348+sa+512)&2047]/448),
-            sy+(sintable[(sa+348)&2047]/448),
-            sz-(1<<8),atwith,0,14,14,sa,vel,zvel,i,4);*/
             if (actor[i].shootzvel) zvel = actor[i].shootzvel;
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(348+sa+512)&2047]/proj->offset),
@@ -1119,7 +1106,6 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             sprite[j].xrepeat=proj->xrepeat;
             sprite[j].yrepeat=proj->yrepeat;
 
-
             if (proj->extra_rand > 0)
                 sprite[j].extra += (krand()&proj->extra_rand);
             if (!(proj->workslike & PROJECTILE_BOUNCESOFFWALLS))
@@ -1128,21 +1114,9 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             {
                 if (proj->bounces >= 1) sprite[j].yvel = proj->bounces;
                 else sprite[j].yvel = g_numFreezeBounces;
-                //                sprite[j].xrepeat >>= 1;
-                //                sprite[j].yrepeat >>= 1;
                 sprite[j].zvel -= (2<<4);
             }
-            /*
-            if(p == -1)
-            {
-            if(!(tile[atwith].proj.workslike & PROJECTILE_BOUNCESOFFWALLS))
-            {
-            sprite[j].xrepeat = tile[atwith].proj.xrepeat; // 30
-            sprite[j].yrepeat = tile[atwith].proj.yrepeat;
-            sprite[j].extra >>= 2;
-            }
-            }
-            */
+
             if (proj->cstat >= 0) sprite[j].cstat = proj->cstat;
             else sprite[j].cstat = 128;
             if (proj->clipdist != 255) sprite[j].clipdist = proj->clipdist;
@@ -1152,9 +1126,6 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                 int32_t picnum = sprite[j].picnum;
                 Bmemcpy(&SpriteProjectile[j], &ProjectileData[picnum], sizeof(projectile_t));
             }
-
-            //            sa = s->ang+32-(krand()&63);
-            //            zvel = oldzvel+512-(krand()&1023);
 
             return j;
         }
@@ -1306,8 +1277,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                 j = A_FindPlayer(s,&x);
                 //                sa = getangle(g_player[j].ps->opos.x-sx,g_player[j].ps->opos.y-sy);
                 sa += 16-(krand()&31);
-                hit.pos.x = ldist(&sprite[g_player[j].ps->i],s);
-                if (hit.pos.x == 0) hit.pos.x++;
+                hit.pos.x = safeldist(g_player[j].ps->i, s);
                 zvel = ((g_player[j].ps->opos.z - srcvect.z + (3<<8))*vel) / hit.pos.x;
             }
             if (actor[i].shootzvel) zvel = actor[i].shootzvel;
@@ -1390,9 +1360,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                     srcvect.z += 24<<8;
                 }
 
-                l = ldist(&sprite[g_player[j].ps->i],s);
-                if (l == 0)
-                    l++;
+                l = safeldist(g_player[j].ps->i, s);
                 zvel = ((g_player[j].ps->opos.z-srcvect.z)*vel) / l;
 
                 if (A_CheckEnemySprite(s) && (s->hitag&face_player_smart))
@@ -1595,9 +1563,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             {
                 j = A_FindPlayer(s,&x);
                 srcvect.z -= (4<<8);
-                hit.pos.x = ldist(&sprite[g_player[j].ps->i], s);
-                if (hit.pos.x == 0)
-                    hit.pos.x++;
+                hit.pos.x = safeldist(g_player[j].ps->i, s);
                 zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hit.pos.x;
                 zvel += 128-(krand()&255);
                 sa += 32-(krand()&63);
@@ -1666,9 +1632,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             else if (s->statnum != STAT_EFFECTOR)
             {
                 j = A_FindPlayer(s,&x);
-                l = ldist(&sprite[g_player[j].ps->i],s);
-                if (l == 0)
-                    l++;
+                l = safeldist(g_player[j].ps->i, s);
                 zvel = ((g_player[j].ps->opos.z-srcvect.z)*512) / l ;
             }
             else zvel = 0;
