@@ -2513,6 +2513,14 @@ static void G_WeaponHitCeilingOrFloor(int32_t i, spritetype *s, int32_t *j)
     }
 }
 
+static void Proj_BounceOffWall(spritetype *s, int32_t j)
+{
+    int32_t k = getangle(
+        wall[wall[j].point2].x-wall[j].x,
+        wall[wall[j].point2].y-wall[j].y);
+    s->ang = ((k<<1) - s->ang)&2047;
+}
+
 ACTOR_STATIC void G_MoveWeapons(void)
 {
     int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, q;
@@ -2705,10 +2713,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                         if (proj->workslike & PROJECTILE_BOUNCESOFFMIRRORS &&
                             (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
                         {
-                            k = getangle(
-                                wall[wall[j].point2].x-wall[j].x,
-                                wall[wall[j].point2].y-wall[j].y);
-                            s->ang = ((k<<1) - s->ang)&2047;
+                            Proj_BounceOffWall(s, j);
                             s->owner = i;
                             A_Spawn(i,TRANSPORTERSTAR);
                             goto BOLT;
@@ -2723,10 +2728,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                                 if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
                                     s->yvel--;
 
-                                k = getangle(
-                                    wall[wall[j].point2].x-wall[j].x,
-                                    wall[wall[j].point2].y-wall[j].y);
-                                s->ang = ((k<<1) - s->ang)&2047;
+                                Proj_BounceOffWall(s, j);
 
                                 if (proj->bsound >= 0)
                                     A_PlaySound(proj->bsound,i);
@@ -2963,10 +2965,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
                     if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
                     {
-                        k = getangle(
-                            wall[wall[j].point2].x-wall[j].x,
-                            wall[wall[j].point2].y-wall[j].y);
-                        s->ang = ((k<<1) - s->ang)&2047;
+                        Proj_BounceOffWall(s, j);
                         s->owner = i;
                         A_Spawn(i,TRANSPORTERSTAR);
                         goto BOLT;
@@ -2984,10 +2983,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                                 s->yvel--;
                             }
 
-                            k = getangle(
-                                wall[wall[j].point2].x-wall[j].x,
-                                wall[wall[j].point2].y-wall[j].y);
-                            s->ang = ((k<<1) - s->ang)&2047;
+                            Proj_BounceOffWall(s, j);
                             goto BOLT;
                         }
                     }
@@ -3657,10 +3653,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     if ((j&49152) == 32768)
                     {
                         j &= (MAXWALLS-1);
-                        k = getangle(
-                                wall[wall[j].point2].x-wall[j].x,
-                                wall[wall[j].point2].y-wall[j].y);
-                        s->ang = ((k<<1) - s->ang)&2047;
+                        Proj_BounceOffWall(s, j);
                     }
                     else if ((j&49152) == 49152)
                     {
@@ -4508,11 +4501,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 Bmemcpy(&davect, s, sizeof(vec3_t));
                 A_DamageWall(i,j,&davect,s->picnum);
 
-                k = getangle(
-                        wall[wall[j].point2].x-wall[j].x,
-                        wall[wall[j].point2].y-wall[j].y);
-
-                s->ang = ((k<<1) - s->ang)&2047;
+                Proj_BounceOffWall(s, j);
                 s->xvel >>= 1;
             }
 
