@@ -502,7 +502,7 @@ const int32_t g_currentMenu;
 
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
 void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap);
-int32_t A_Shoot(int32_t i, int32_t atwith);
+int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel);
 int32_t A_IncurDamage(int32_t sn);
 int32_t A_Spawn(int32_t j, int32_t pn);
 void VM_FallSprite(int32_t i);

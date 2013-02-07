@@ -123,6 +123,8 @@ typedef struct {
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; //6b
 
+    // NOTE: shootzvel is not exposed but only used temporarily in player.c
+    // shooting routines.
     int16_t actorstayput, dispicnum, shootzvel, cgg; // 8b
     int16_t lightId, lightcount, lightmaxrange; //6b
 

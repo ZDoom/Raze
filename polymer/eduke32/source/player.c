@@ -440,6 +440,14 @@ static void Proj_MaybeAddSpread(int32_t not_accurate_p, int32_t *zvel, int16_t *
     }
 }
 
+
+static int32_t use_actor_shootzvel = 0;
+
+static int32_t A_GetShootZvel(int32_t i, int32_t defaultzvel)
+{
+    return use_actor_shootzvel ? actor[i].shootzvel : defaultzvel;
+}
+
 // Prepare hitscan weapon fired from player p.
 static void P_PreFireHitscan(int32_t i, int32_t p, int32_t atwith,
                              vec3_t *srcvect, int32_t *zvel, int16_t *sa,
@@ -477,9 +485,7 @@ static void P_PreFireHitscan(int32_t i, int32_t p, int32_t atwith,
         {
             hitdata_t hit;
 
-            *zvel = (100-ps->horiz-ps->horizoff)<<5;
-            if (actor[i].shootzvel)
-                *zvel = actor[i].shootzvel;
+            *zvel = A_GetShootZvel(i, (100-ps->horiz-ps->horizoff)<<5);
 
             hitscan(srcvect, sprite[i].sectnum, sintable[(*sa+512)&2047], sintable[*sa&2047],
                     *zvel<<6,&hit,CLIPMASK1);
@@ -544,8 +550,7 @@ static int32_t Proj_DoHitscan(int32_t i, int32_t cstatmask,
 
     s->cstat &= ~cstatmask;
 
-    if (actor[i].shootzvel)
-        zvel = actor[i].shootzvel;
+    zvel = A_GetShootZvel(i, zvel);
 
     hitscan(srcvect, s->sectnum,
             sintable[(sa+512)&2047],
@@ -818,7 +823,7 @@ static void Proj_HandleKnee(hitdata_t *hit, int32_t i, int32_t p, int32_t atwith
     }
 }
 
-int32_t A_Shoot(int32_t i, int32_t atwith)
+int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 {
     int16_t l, sa, j, k=-1;
     int32_t vel, zvel = 0, x, oldzvel;
@@ -829,6 +834,16 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
 
     const int32_t p = (s->picnum == APLAYER) ? s->yvel : -1;
     DukePlayer_t *const ps = p >= 0 ? g_player[p].ps : NULL;
+
+    if (override_zvel != SHOOT_HARDCODED_ZVEL)
+    {
+        use_actor_shootzvel = 1;
+        actor[i].shootzvel = override_zvel;
+    }
+    else
+    {
+        use_actor_shootzvel = 0;
+    }
 
     if (s->picnum == APLAYER)
     {
@@ -1092,7 +1107,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
 
             if (numplayers > 1 && g_netClient) return -1;
 
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
+            zvel = A_GetShootZvel(i, zvel);
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(348+sa+512)&2047]/proj->offset),
                                srcvect.y+(sintable[(sa+348)&2047]/proj->offset),
@@ -1273,8 +1288,9 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                 hit.pos.x = safeldist(g_player[j].ps->i, s);
                 zvel = ((g_player[j].ps->opos.z - srcvect.z + (3<<8))*vel) / hit.pos.x;
             }
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
-            oldzvel = zvel;
+
+            zvel = A_GetShootZvel(i, zvel);
+            oldzvel = zvel;  // NOTE: assigned to after last store to zvel, so redundant
 
             if (atwith == SPIT)
             {
@@ -1367,7 +1383,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
 
             if (numplayers > 1 && g_netClient) return -1;
 
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
+            zvel = A_GetShootZvel(i, zvel);
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(348+sa+512)&2047]/448),
                                srcvect.y+(sintable[(sa+348)&2047]/448),
@@ -1527,7 +1543,8 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             if (zvel < -4096)
                 zvel = -2048;
             vel = x>>4;
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
+
+            zvel = A_GetShootZvel(i, zvel);
             A_InsertSprite(sect,
                            srcvect.x+(sintable[(512+sa+512)&2047]>>8),
                            srcvect.y+(sintable[(sa+512)&2047]>>8),
@@ -1619,7 +1636,8 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                 zvel = ((g_player[j].ps->opos.z-srcvect.z)*512) / l ;
             }
             else zvel = 0;
-            if (actor[i].shootzvel) zvel = actor[i].shootzvel;
+
+            zvel = A_GetShootZvel(i, zvel);
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(512+sa+512)&2047]>>12),
                                srcvect.y+(sintable[(sa+512)&2047]>>12),
@@ -1628,10 +1646,10 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
             sprite[j].cstat = 128;
             sprite[j].clipdist = 32;
 
-
             return j;
         }
     }
+
     return -1;
 }
 

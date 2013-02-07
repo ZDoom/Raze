@@ -332,8 +332,15 @@ extern int32_t          lastvisinc;
 extern int32_t          mouseyaxismode;
 extern int32_t          ticrandomseed;
 
+#define SHOOT_HARDCODED_ZVEL INT32_MIN
+
+int32_t     A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel);
+static inline int32_t A_Shoot(int32_t i, int32_t atwith)
+{
+    return A_ShootWithZvel(i, atwith, SHOOT_HARDCODED_ZVEL);
+}
+
 int32_t     A_GetHitscanRange(int32_t i);
-int32_t     A_Shoot(int32_t i,int32_t atwith);
 void        getinput(int32_t snum);
 void        P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount);
 void        P_AddWeapon(DukePlayer_t *p,int32_t weapon);

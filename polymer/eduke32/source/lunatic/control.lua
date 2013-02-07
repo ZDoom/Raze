@@ -434,7 +434,7 @@ end
 function _A_Shoot(i, atwith)
     check_sprite_idx(i)
     check_tile_idx(atwith)
-    return ffiC.A_Shoot(i, atwith)
+    return ffiC.A_ShootWithZvel(i, atwith, 0x80000000)  -- SHOOT_HARDCODED_ZVEL
 end
 
 function _A_IncurDamage(sn)

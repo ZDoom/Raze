@@ -2321,31 +2321,24 @@ nullquote:
         case CON_EZSHOOT:
         case CON_ZSHOOT:
             insptr++;
-
             {
                 int32_t j;
-
-                if (tw != CON_ESHOOT)
-                {
-                    actor[vm.g_i].shootzvel = Gv_GetVarX(*insptr++);
-                    if (actor[vm.g_i].shootzvel == 0)
-                        actor[vm.g_i].shootzvel = 1;
-                }
+                // NOTE: (int16_t) cast because actor[].shootzvel is int16_t
+                // and we want exclude that SHOOT_HARDCODED_ZVEL is passed.
+                const int32_t zvel = (tw == CON_ESHOOT) ?
+                    SHOOT_HARDCODED_ZVEL : (int16_t)Gv_GetVarX(*insptr++);
 
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
                     CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.g_sp->sectnum));
                     insptr++;
-                    actor[vm.g_i].shootzvel=0;
                     continue;
                 }
 
-                j = A_Shoot(vm.g_i,*insptr++);
+                j = A_ShootWithZvel(vm.g_i,*insptr++,zvel);
 
                 if (tw != CON_ZSHOOT)
                     aGameVars[g_iReturnVarID].val.lValue = j;
-
-                actor[vm.g_i].shootzvel=0;
             }
             continue;
 
@@ -2358,40 +2351,31 @@ nullquote:
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
                     CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.g_sp->sectnum));
-                    actor[vm.g_i].shootzvel=0;
                     continue;
                 }
 
                 j = A_Shoot(vm.g_i, j);
                 if (tw == CON_ESHOOTVAR)
                     aGameVars[g_iReturnVarID].val.lValue = j;
-                actor[vm.g_i].shootzvel=0;
                 continue;
             }
 
         case CON_EZSHOOTVAR:
         case CON_ZSHOOTVAR:
             insptr++;
-
-            actor[vm.g_i].shootzvel = Gv_GetVarX(*insptr++);
-
-            if (actor[vm.g_i].shootzvel == 0)
-                actor[vm.g_i].shootzvel = 1;
-
             {
+                const int32_t zvel = (int16_t)Gv_GetVarX(*insptr++);
                 int32_t j=Gv_GetVarX(*insptr++);
 
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
                     CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.g_sp->sectnum));
-                    actor[vm.g_i].shootzvel=0;
                     continue;
                 }
 
-                j = A_Shoot(vm.g_i, j);
+                j = A_ShootWithZvel(vm.g_i, j, zvel);
                 if (tw == CON_EZSHOOTVAR)
                     aGameVars[g_iReturnVarID].val.lValue = j;
-                actor[vm.g_i].shootzvel=0;
                 continue;
             }
 

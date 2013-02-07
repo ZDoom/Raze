@@ -64,6 +64,7 @@ PROJ = {
 }
 
 -- PROJ_* define -> projectile_t member name
+--[[
 PROJ_MEMBNAME = {
     [PROJ.PROJ_WORKSLIKE] = "workslike",
     [PROJ.PROJ_SPAWNS] = "spawns",
@@ -95,6 +96,7 @@ PROJ_MEMBNAME = {
     [PROJ.PROJ_RANGE] = "range",
     [PROJ.PROJ_FLASH_COLOR] = "flashcolor",  -- NAME
 }
+--]]
 
 -- TODO: EVENT_INIT currently can't run since we init Lunatic state only afterwards
 EVENT = {
@@ -387,6 +389,7 @@ local ActorLabels = {
     httempang = AC".tempang",
     htactorstayput = AC".actorstayput",
     htdispicnum = { AC".dispicnum" },
+    -- NOTE: no access for .shootzvel
     httimetosleep = AC".timetosleep",
     htfloorz = AC".floorz",
     htceilingz = AC".ceilingz",
@@ -734,35 +737,35 @@ StructAccessCode =
 local PROJ = function(memb) return "projectile[%s]"..memb end
 
 local ProjectileLabels = {
-    workslike = PROJ"workslike",
-    cstat = PROJ"cstat",
-    hitradius = PROJ"hitradius",
-    range = PROJ"range",
-    flashcolor = PROJ"flashcolor",
-    spawns = { PROJ"spawns" },
-    sound = PROJ"sound",
-    isound = PROJ"isound",
-    vel = PROJ"vel",
-    decal = { PROJ"decal" },
-    trail = { PROJ"trail" },
-    tnum = PROJ"tnum",
-    drop = PROJ"drop",
-    offset = PROJ"offset",
-    bounces = PROJ"bounces",
-    bsound = PROJ"bsound",
-    toffset = PROJ"toffset",
-    extra = PROJ"extra",
-    extra_rand = PROJ"extra_rand",
-    sxrepeat = PROJ"sxrepeat",
-    syrepeat = PROJ"syrepeat",
-    txrepeat = PROJ"txrepeat",
-    tyrepeat = PROJ"tyrepeat",
-    shade = PROJ"shade",
-    xrepeat = PROJ"xrepeat",
-    yrepeat = PROJ"yrepeat",
-    pal = PROJ"pal",
-    velmult = PROJ"movecnt",  -- NAME
-    clipdist = PROJ"clipdist",
+    workslike = PROJ".workslike",
+    cstat = PROJ".cstat",
+    hitradius = PROJ".hitradius",
+    range = PROJ".range",
+    flashcolor = PROJ".flashcolor",
+    spawns = { PROJ".spawns" },
+    sound = PROJ".sound",
+    isound = PROJ".isound",
+    vel = PROJ".vel",
+    decal = { PROJ".decal" },
+    trail = { PROJ".trail" },
+    tnum = PROJ".tnum",
+    drop = PROJ".drop",
+    offset = PROJ".offset",
+    bounces = PROJ".bounces",
+    bsound = PROJ".bsound",
+    toffset = PROJ".toffset",
+    extra = PROJ".extra",
+    extra_rand = PROJ".extra_rand",
+    sxrepeat = PROJ".sxrepeat",
+    syrepeat = PROJ".syrepeat",
+    txrepeat = PROJ".txrepeat",
+    tyrepeat = PROJ".tyrepeat",
+    shade = PROJ".shade",
+    xrepeat = PROJ".xrepeat",
+    yrepeat = PROJ".yrepeat",
+    pal = PROJ".pal",
+    velmult = PROJ".movecnt",  -- NAME
+    clipdist = PROJ".clipdist",
 }
 
 -- These structs cannot be accessed by inline array exprs in CON:
