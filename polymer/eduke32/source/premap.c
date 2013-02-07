@@ -513,8 +513,9 @@ void G_CacheMapData(void)
                             // this is the CROSSHAIR_COLOR, see comment in game.c
                             if (k == MAXPALOOKUPS-RESERVEDPALS-1)
                                 break;
-
+#ifdef POLYMER
                             if (rendmode!=4 || !polymer_havehighpalookup(0, k))
+#endif
                                 polymost_precache(i,k,type);
                         }
 

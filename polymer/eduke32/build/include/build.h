@@ -11,6 +11,7 @@
 
 #include "compat.h"
 #include "pragmas.h"
+#include "glbuild.h"
 
 #ifdef EXTERNC
 extern "C" {
@@ -1076,7 +1077,6 @@ void hash_delete(hashtable_t *t, const char *s);
 
 extern void initialize_engine_globals(void);
 
-// XXX: These assume that glbuild.h is already #include'd
 static inline void push_nofog(void)
 {
 #ifdef USE_OPENGL

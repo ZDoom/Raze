@@ -14,6 +14,7 @@
 #include "kplib.h"
 #include "quicklz.h"
 #include "common.h"
+#include "mdsprite.h"  // md3model_t
 
 enum scripttoken_t
 {
@@ -699,8 +700,10 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
             md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0,0.0,0);
+# ifdef POLYMER
             if (glrendmode==4)
                 md3postload_polymer((md3model_t *)models[lastmodelid]);
+# endif
 #endif
             modelskin = lastmodelskin = 0;
             seenframe = 0;

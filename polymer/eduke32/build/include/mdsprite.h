@@ -1,6 +1,7 @@
 #ifndef _mdsprite_h_
 # define _mdsprite_h_
 
+#ifdef USE_OPENGL
 #include "hightile.h"
 
 #define SHIFTMOD32(a) ((a)&31)
@@ -226,4 +227,5 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr);
 int      md3postload_polymer(md3model_t* m);
 //int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap);
 
+#endif // defined USE_OPENGL
 #endif // !_mdsprite_h_
