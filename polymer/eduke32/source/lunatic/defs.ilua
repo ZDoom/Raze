@@ -624,6 +624,12 @@ local con_action_ct = ffi.typeof("con_action_t")
 local con_move_ct = ffi.typeof("con_move_t")
 local con_ai_ct = ffi.typeof("con_ai_t")
 
+local function get_actor_idx(a)
+    local i = ffi.cast(actor_ptr_ct, a)-ffi.cast(actor_ptr_ct, ffiC.actor)
+    assert(not (i >= ffiC.MAXSPRITES+0ULL))
+    return i
+end
+
 local actor_mt = {
     __index = {
         -- action
@@ -694,8 +700,7 @@ local actor_mt = {
             end
 
             a.t_data[0] = 0
-            local i = a-ffi.cast(actor_ptr_ct, ffiC.actor[0])
-            assert(not (i >= ffiC.MAXSPRITES+0ULL))
+            local i = get_actor_idx(a)
             ffiC.sprite[i].hitag = movflags or 0
 
             -- TODO: random angle moveflag
@@ -778,6 +783,15 @@ local actor_mt = {
         end,
     },
 }
+
+local function actor_index_index(a, key)
+    -- actor[].proj gets an actor's projectile ([gs]etthisprojectile in CON)
+    if (key=="proj") then
+        return ffiC.SpriteProjectile[get_actor_idx(a)]
+    end
+end
+
+setmtonce(actor_mt.__index, { __index = actor_index_index })
 ffi.metatype("actor_t", actor_mt)
 
 
@@ -915,6 +929,9 @@ local camera_mt = {
 }
 
 gv_access.cam = setmtonce({}, camera_mt)
+
+-- Support for some CON global system gamevars
+gv_access._csv = ffi.new "struct { int32_t RETURN; }"
 
 function gv_access._currentFramerate()
     return ffiC.g_currentFrameRate

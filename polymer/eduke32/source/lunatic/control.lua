@@ -232,6 +232,18 @@ function _spawnmany(ow, tilenum, n)
     end
 end
 
+local int16_st = ffi.typeof "struct { int16_t s; }"
+
+function _shoot(i, tilenum, zvel)
+    check_sprite_idx(i)
+    check_sector_idx(sprite[i].sectnum)  -- accessed in A_ShootWithZvel
+    check_tile_idx(tilenum)
+
+    zvel = zvel and int16_st(zvel).s or 0x80000000  -- SHOOT_HARDCODED_ZVEL
+
+    return ffiC.A_ShootWithZvel(i, tilenum, zvel)
+end
+
 function isenemytile(tilenum)
     if (bit.band(ffiC.g_tile[tilenum].flags, 0x00040000)~=0) then
         return true

@@ -430,10 +430,7 @@ for member, code in pairs(ActorLabels) do
     if (type(code)=="string") then
         TspriteLabels["tspr"..member] = spr2tspr(code)
     else
-        local rwcodetab = { spr2tspr(code[1]), spr2tspr(code[2]) }
-        if (#rwcodetab > 0) then
-            TspriteLabels["tspr"..member] = rwcodetab
-        end
+        TspriteLabels["tspr"..member] = { spr2tspr(code[1]), spr2tspr(code[2]) }
     end
 end
 
@@ -735,6 +732,7 @@ StructAccessCode =
 }
 
 local PROJ = function(memb) return "projectile[%s]"..memb end
+local THISPROJ = function(memb) return "actor[%s].proj"..memb end
 
 local ProjectileLabels = {
     workslike = PROJ".workslike",
@@ -768,10 +766,30 @@ local ProjectileLabels = {
     clipdist = PROJ".clipdist",
 }
 
+-- XXX: kind of CODEDUP form above
+local function proj2thisproj(code)
+    if (code and code:find(PROJ"", 1, true)==1) then
+        return THISPROJ(code:sub(#PROJ"" + 1))
+    end
+    -- else return nothing
+end
+
+local SpriteProjectileLabels = {}
+
+for member, code in pairs(ProjectileLabels) do
+    if (type(code)=="string") then
+        SpriteProjectileLabels[member] = proj2thisproj(code)
+    else
+        SpriteProjectileLabels[member] = { proj2thisproj(code[1]), proj2thisproj(code[2]) }
+    end
+end
+
 -- These structs cannot be accessed by inline array exprs in CON:
 StructAccessCode2 =
 {
     tspr = TspriteLabels,
+    projectile = ProjectileLabels,
+    thisprojectile = SpriteProjectileLabels,
 }
 
 -- NOTE: These MUST be in reverse lexicographical order!

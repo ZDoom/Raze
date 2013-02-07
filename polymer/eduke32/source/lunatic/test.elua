@@ -208,6 +208,7 @@ gameevent("JUMP",
               ps.weapon.PISTOL.shoots = 2605 -- RPG
               ps.weapon[gv.PISTOL_WEAPON].firesound = 351 -- thunder
 
+              -- XXX: provide either named constants or methods?
               ps.pipebombControl = 2
               ps.tripbombControl = 2
 

@@ -142,6 +142,8 @@ local function new_initial_codetab()
            }
 end
 
+local RETURN_VAR_CODE = "gv._csv.RETURN"
+
 -- Creates the table of predefined game variables.
 -- KEEPINSYNC gamevars.c: Gv_AddSystemVars()
 local function new_initial_gvartab()
@@ -164,8 +166,7 @@ local function new_initial_gvartab()
         -- e.g. sector[THISACTOR]  is  sector[sprite[<current actor>].sectnum]
         THISACTOR = RO "_aci",
 
-        -- TODO
-        RETURN = RW "_RETURN_",
+        RETURN = RW(RETURN_VAR_CODE),
 
         xdim = RO "_gv.xdim",
         ydim = RO "_gv.ydim",
@@ -1193,6 +1194,7 @@ local Access =
 
     tspr = function(...) return StructAccess("tspr", ...) end,
     projectile = function(...) return StructAccess("projectile", ...) end,
+    thisprojectile = function(...) return StructAccess("thisprojectile", ...) end,
 }
 
 local function GetStructCmd(accessfunc)
@@ -1292,7 +1294,7 @@ local Cinner = {
 
     getinput = getstructcmd / handle.NYI,
     getprojectile = GetStructCmd(Access.projectile),
-    getthisprojectile = getstructcmd / handle.NYI,
+    getthisprojectile = GetStructCmd(Access.thisprojectile),
     gettspr = GetStructCmd(Access.tspr),
     -- NOTE: {get,set}userdef is the only struct that can be accessed without
     -- an "array part", e.g.  H266MOD has "setuserdef .weaponswitch 0" (space
@@ -1314,7 +1316,7 @@ local Cinner = {
 
     setinput = setstructcmd / handle.NYI,
     setprojectile = SetStructCmd(Access.projectile),
-    setthisprojectile = setstructcmd / handle.NYI,
+    setthisprojectile = SetStructCmd(Access.thisprojectile),
     settspr = SetStructCmd(Access.tspr),
     setuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.rvar / handle.NYI,
 
@@ -1490,13 +1492,18 @@ local Cinner = {
     sleeptime = cmd(D)
         / ACS".timetosleep=%1",
 
-    eshoot = cmd(D),
-    ezshoot = cmd(R,D),
-    ezshootvar = cmd(R,R),
+    eshoot = cmd(D)
+        / (RETURN_VAR_CODE.."=_con._shoot(_aci,%1)"),
+    ezshoot = cmd(R,D)
+        / (RETURN_VAR_CODE.."=_con._shoot(_aci,%2,%1)"),
+    ezshootvar = cmd(R,R)
+        / (RETURN_VAR_CODE.."=_con._shoot(_aci,%2,%1)"),
     shoot = cmd(D)
-        / "_con._A_Shoot(_aci,%1)",
-    zshoot = cmd(R,D),
-    zshootvar = cmd(R,R),
+        / "_con._shoot(_aci,%1)",
+    zshoot = cmd(R,D)
+        / "_con._shoot(_aci,%2,%1)",
+    zshootvar = cmd(R,R)
+        / "_con._shoot(_aci,%2,%1)",
 
     fall = cmd()
         / "_con._VM_FallSprite(_aci)",
