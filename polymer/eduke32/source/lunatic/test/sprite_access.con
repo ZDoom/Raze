@@ -1,0 +1,57 @@
+// Timing test for four 0..MAXSPRITES-1 access loops,
+// fwd->back->fwd->back.
+// Results with a LTO=1 RELEASE=1 C-CON build on x86: 42 ms for N=10.
+// (Compare with Lunatic results in test.elua)
+
+define N 10
+gamevar n 0 0
+gamevar i 0 0
+gamevar t 0 0
+gamevar t2 0 0
+define MAXSPRITES 16384
+define MAXSPRM1 16383  // MAXSPRITES-1
+
+onevent EVENT_ENTERLEVEL
+    getticks t
+
+    setvar n 0
+    whilevarn n N
+    {
+        setvar i 0
+        whilevarvarn i MAXSPRITES
+        {
+            setactor[i].detail 1
+            addvar i 1
+        }
+
+        setvar i MAXSPRM1
+        whilevarvarn i -1
+        {
+            setactor[i].shade 1
+            subvar i 1
+        }
+
+        setvar i 0
+        whilevarvarn i MAXSPRITES
+        {
+            setactor[i].xoffset 0
+            addvar i 1
+        }
+
+        setvar i MAXSPRM1
+        whilevarvarn i -1
+        {
+            setactor[i].yoffset 0
+            subvar i 1
+        }
+
+        addvar n 1
+    }
+
+    getticks t2
+    subvarvar t2 t
+
+    redefinequote 114 %d x four 0..MAXSPITES-1 iterations took %d ms in total
+    qsprintf 115 114 n t2
+    echo 115
+endevent

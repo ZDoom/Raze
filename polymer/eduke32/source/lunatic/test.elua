@@ -111,7 +111,7 @@ checkfail('gv.sprite[0].yrepeat = 100', "access forbidden")
 -- indexing struct array with non-numeric type
 checkfail('local i = sprite["qwe"]')  -- this will produce an error inside the sprite metatable
 
-checkfail('print(sprite[100000].ceilingpal)', "out-of-bounds sprite[] struct read access")
+checkfail('print(sprite[100000].ceilingpal)', "out-of-bounds sprite[] read access")
 
 checkfail('print(gv.sprite[0])', "access forbidden")
 
@@ -186,9 +186,9 @@ checkfail("do local bt=require'bittest'; bt.QWE=1; end", "modifying module table
 -- the cdata returned by player[] can't be made into a pointer!
 checkfail("do local pl=player[0]; i=pl[1]; end")
 checkfail("do local ud=gv.ud.camerasprite; end", "access forbidden")  -- test for proper decl()
-checkfail("sprite[0]:set_picnum(-10)", "attempt to set invalid picnum")
+checkfail("sprite[0]:set_picnum(-10)", "invalid tile number")
 checkfail("gv.g_sizes_of=nil; print(gv.g_sizes_of[0])", "write access forbidden")
-checkfail("gv.cam.sect=-1", "passed out-of-bounds sector number")
+checkfail("gv.cam.sect=-1", "invalid sector number")
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 
@@ -266,6 +266,29 @@ gameevent(gv.EVENT_ENTERLEVEL,
               player[0].weapon.SHOTGUN.shoots = 1653
               projectile[1653].drop = 0
 
+              t = gv.gethitickms()
+              local N=1
+              for n=1,N do
+                  for i=0,gv.MAXSPRITES-1 do
+                      sprite[i].filler = 1
+                  end
+                  for i=gv.MAXSPRITES-1,0,-1 do
+                      sprite[i].shade = 1
+                  end
+                  for i=0,gv.MAXSPRITES-1 do
+                      sprite[i].xoffset = 0
+                  end
+                  for i=gv.MAXSPRITES-1,0,-1 do
+                      sprite[i].yoffset = 1
+                  end
+              end
+              t = gv.gethitickms()-t
+              printf("%d x four 0..MAXSPRITES-1 iterations took %.03f us per outer iteration", N, (1000*t)/N)
+              -- Results on x86:
+              -- N=1: 480-1000 us (too large variance)
+              -- N=10: 190-210 us * 10 = 1.9-2.1 ms
+              -- N=100: about 160 us * 100 = about 16 ms
+
               checkfail("gameevent('GAME', function() print('qwe') end)",
                         "must be called from top level")
           end
@@ -327,15 +350,18 @@ gameevent("DISPLAYROOMS",
           end
          )
 
+local CS = sprite.CSTAT
+
 gameevent("ANIMATESPRITES",
 function(aci)
     local tspr = atsprite[aci]
-    if (tspr.picnum==1680) then
---[[
+    if (tspr:getspr().picnum==1680) then
         local tspr2 = tspr:dup()
-        tspr2.x = tspr2.x + 512*math.cos(gv.totalclock/120)
-        tspr2.y = tspr2.y + 512*math.sin(gv.totalclock/120)
---]]
+        if (tspr2) then
+            tspr2.x = tspr2.x + 512*math.cos(gv.totalclock/60)
+            tspr2.y = tspr2.y + 512*math.sin(gv.totalclock/60)
+            tspr2:set_cstat_bits(CS.TRANSLUCENT_BOTH_BITS)
+        end
     end
 end)
 

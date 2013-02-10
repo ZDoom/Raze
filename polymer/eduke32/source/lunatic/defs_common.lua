@@ -11,6 +11,7 @@ ffi.cdef "enum { _DEBUG_LUNATIC=1 }"
 
 local bit = require("bit")
 local string = require("string")
+local table = require("table")
 
 local assert = assert
 local error = error
@@ -103,8 +104,9 @@ end
 ffi.cdef([[
 typedef $ sectortype;
 typedef $ walltype;
+// NOTE: spritetype and tspritetype are different types with the same data members.
 typedef $ spritetype;
-typedef $ tspritetype;
+typedef struct { spritetype; } tspritetype;
 
 typedef struct {
     const uint32_t mdanimtims;
@@ -132,9 +134,7 @@ typedef struct {
 } hitdata_t;
 ]],
 ffi.typeof(SECTOR_STRUCT), ffi.typeof(WALL_STRUCT),
-ffi.typeof(SPRITE_STRUCT), ffi.typeof(SPRITE_STRUCT))
--- NOTE: spritetype and tspritetype are different types with the same layout.
--- (XXX: is there a better way?)
+ffi.typeof(SPRITE_STRUCT))
 
 -- Define the "palette_t" type, which for us has .{r,g,b} fields and a
 -- bound-checking array of length 3 overlaid.
@@ -337,6 +337,12 @@ local sectortype_mt = {
 }
 ffi.metatype("sectortype", sectortype_mt)
 
+local band = bit.band
+local bor = bit.bor
+local bnot = bit.bnot
+local lshift = bit.lshift
+local rshift = bit.rshift
+
 local walltype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(WALL_STRUCT)))
 
 local walltype_mt = {
@@ -366,19 +372,19 @@ local walltype_mt = {
 
         --- Predicates
         isblocking = function(w)
-            return (bit.band(w.cstat, 1)~=0)
+            return (band(w.cstat, 1)~=0)
         end,
 
         ismasked = function(w)
-            return (bit.band(w.cstat, 16)~=0)
+            return (band(w.cstat, 16)~=0)
         end,
 
         isoneway = function(w)
-            return (bit.band(w.cstat, 32)~=0)
+            return (band(w.cstat, 32)~=0)
         end,
 
         ishittable = function(w)
-            return (bit.band(w.cstat, 64)~=0)
+            return (band(w.cstat, 64)~=0)
         end,
     }
 }
@@ -388,13 +394,15 @@ local spriteext_mt = {
     __index = {
         -- Enable EVENT_ANIMATESPRITES for this sprite.
         make_animated = function(sx)
-            sx.flags = bit.bor(sx.flags, 16)
+            sx.flags = bor(sx.flags, 16)
         end,
     },
 }
 ffi.metatype("spriteext_t", spriteext_mt)
 
 local spritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SPRITE_STRUCT)))
+-- NOTE: this is the *protected* tspritetype pointer.
+local tspritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof("tspritetype"))
 
 local spritetype_mt = {
     __pow = function(s, zofs)
@@ -411,6 +419,15 @@ local spritetype_mt = {
         set_yvel = function(s, yvel)
             -- XXX: for now, no checking
             ffi.cast(spritetype_ptr_ct, s).yvel = yvel
+        end,
+
+        --- Custom setters
+        set_cstat_bits = function(s, bits)
+            s.cstat = bor(s.cstat, bits)
+        end,
+
+        clear_cstat_bits = function(s, bits)
+            s.cstat = band(s.cstat, bnot(bits))
         end,
     },
 }
@@ -430,19 +447,28 @@ end
 
 local tspritetype_mt = deep_copy(spritetype_mt)
 
+print(spritetype_mt)
+print(spritetype_mt.__index)
+print(tspritetype_mt)
+print(tspritetype_mt.__index)
+
 -- Methods that are specific to tsprites
--- XXX: doesn't work with LuaJIT git f772bed34b39448e3a9ab8d07f6d5c0c26300e1b
 function tspritetype_mt.__index.dup(tspr)
     if (ffiC.spritesortcnt >= ffiC.MAXSPRITESONSCREEN+0ULL) then
         return nil
     end
 
-    local newtspr = ffi.tsprite[ffiC.spritesortcnt]
+    local newtspr = ffiC.tsprite[ffiC.spritesortcnt]
     ffi.copy(newtspr, tspr, ffi.sizeof(tspr))
     ffiC.spritesortcnt = ffiC.spritesortcnt+1
 
     return newtspr
 end
+
+function tspritetype_mt.__index.getspr(tspr)
+    return sprite[tspr.owner]
+end
+
 
 -- The user of this module can insert additional "spritetype" index
 -- methods and register them with "ffi.metatype".
@@ -465,29 +491,76 @@ function setmtonce(tab, mt)
 end
 
 ---- indirect C array access ----
-local sector_mt = {
-    __index = function(tab, key)
-        if (key >= 0 and key < ffiC.numsectors) then return ffiC.sector[key] end
-        error('out-of-bounds sector[] read access', 2)
-    end,
 
-    __newindex = function() error('cannot write directly to sector[]', 2) end,
+-- Construct const struct from table
+local function conststruct(tab)
+    local strtab = { "const struct { int32_t " }
+    local vals = {}
+
+    for member, val in pairs(tab) do
+        strtab[#strtab+1] = member..","
+        vals[#vals+1] = val
+    end
+    strtab[#strtab] = strtab[#strtab]:gsub(',',';')
+    strtab[#strtab+1] = "}"
+
+    return ffi.new(table.concat(strtab), vals)
+end
+
+-- Static, non-instance members. Used to hold constants, for example
+-- sprite.CSTAT.TRANSLUCENT1
+local static_members = { sector={}, wall={}, sprite={} }
+
+static_members.sector.STAT = conststruct
+{
+    MASKED = 128,
+    -- NOTE the reversed order
+    TRANSLUCENT2 = 128,
+    TRANSLUCENT1 = 256,
+    TRANSLUCENT_BOTH_BITS = 256+128,
 }
 
-local wall_mt = {
-    __index = function(tab, key)
-        if (key >= 0 and key < ffiC.numwalls) then return ffiC.wall[key] end
-        error('out-of-bounds wall[] read access', 2)
-    end,
-
-    __newindex = function() error('cannot write directly to wall[]', 2) end,
+static_members.wall.CSTAT = conststruct
+{
+    MASKED = 64,
+    TRANSLUCENT1 = 128,
+    TRANSLUCENT2 = 512,
+    TRANSLUCENT_BOTH_BITS = 512+128,
 }
+
+static_members.sprite.CSTAT = conststruct
+{
+    TRANSLUCENT1 = 2,
+    TRANSLUCENT2 = 512,
+    TRANSLUCENT_BOTH_BITS = 512+2,
+}
+
+local function GenStructMetatable(Structname, Boundname)
+    return {
+        __index = function(tab, key)
+            if (type(key)=="number") then
+                if (key >= 0 and key < ffiC[Boundname]) then
+                    return ffiC[Structname][key]
+                end
+                error("out-of-bounds "..Structname.."[] read access", 2)
+            elseif (type(key)=="string") then
+                return static_members[Structname][key]
+            end
+        end,
+
+        __newindex = function() error("cannot write directly to "..Structname.."[]", 2) end,
+    }
+end
+
+local sector_mt = GenStructMetatable("sector", "numsectors")
+local wall_mt = GenStructMetatable("wall", "numwalls")
+local sprite_mt = GenStructMetatable("sprite", "MAXSPRITES")
 
 local atsprite_mt = {
     __index = function(tab, idx)
         check_sprite_idx(idx)
 
-        local tspr = ffi.cast(spritetype_ptr_ct, ffiC.spriteext[idx]._tspr)
+        local tspr = ffi.cast(tspritetype_ptr_ct, ffiC.spriteext[idx]._tspr)
         if (tspr == nil) then
             error("tsprite of actor "..idx.." unavailable", 2)
         end
@@ -530,7 +603,7 @@ end
 
 sector = setmtonce({}, sector_mt)
 wall = setmtonce({}, wall_mt)
-sprite = creategtab(ffiC.sprite, ffiC.MAXSPRITES, 'sprite[]')
+sprite = setmtonce({}, sprite_mt)
 spriteext = creategtab(ffiC.spriteext, ffiC.MAXSPRITES, 'spriteext[]')
 atsprite = setmtonce({}, atsprite_mt)
 
