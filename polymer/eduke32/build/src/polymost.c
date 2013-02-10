@@ -5785,7 +5785,7 @@ static void drawtrap(float x0, float x1, float y0, float x2, float x3, float y1)
     bglEnd();
 }
 
-static void tessectrap(float *px, float *py, int32_t *point2, int32_t numpoints)
+static void tessectrap(const float *px, const float *py, const int32_t *point2, int32_t numpoints)
 {
     float x0, x1, m0, m1;
     int32_t i, j, k, z, i0, i1, i2, i3, npoints, gap, numrst;

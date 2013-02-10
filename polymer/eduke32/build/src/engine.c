@@ -2651,10 +2651,12 @@ skipitaddwall:
 //
 // maskwallscan (internal)
 //
-static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32_t *swal, int32_t *lwal)
+static void maskwallscan(int32_t x1, int32_t x2,
+                         const int16_t *uwal, const int16_t *dwal,
+                         const int32_t *swal, const int32_t *lwal)
 {
-    int32_t x,/* startx,*/ xnice, ynice;
-    intptr_t startx, p, fpalookup;
+    int32_t x, xnice, ynice;
+    intptr_t p, fpalookup;
     int32_t y1ve[4], y2ve[4], tsizx, tsizy;
 #ifdef MULTI_COLUMN_VLINE
     char bad;
@@ -2672,8 +2674,6 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
 
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
-    startx = x1;
-
     xnice = (pow2long[picsiz[globalpicnum]&15] == tsizx);
     if (xnice) tsizx = (tsizx-1);
     ynice = (pow2long[picsiz[globalpicnum]>>4] == tsizy);
@@ -2687,8 +2687,9 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
     setupmvlineasm(globalshiftval);
 
 
-    x = startx;
-    while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2)) x++;
+    x = x1;
+    while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2))
+        x++;
 
     p = x+frameoffset;
 
@@ -5689,6 +5690,7 @@ draw_as_face_sprite:
     {
         int32_t swapped, top, bot, topinc, botinc;
         int32_t xv, yv, hplc, hinc;
+        int32_t sx1, sx2, sy1, sy2;
 
         if ((cstat&4) > 0) xoff = -xoff;
         if ((cstat&8) > 0) yoff = -yoff;
@@ -5725,51 +5727,51 @@ draw_as_face_sprite:
             if (xp1 > yp1) return;
 
             if (yp1 == 0) return;
-            xb1[MAXWALLSB-1] = halfxdimen + scale(xp1,halfxdimen,yp1);
-            if (xp1 >= 0) xb1[MAXWALLSB-1]++;   //Fix for SIGNED divide
-            if (xb1[MAXWALLSB-1] >= xdimen) xb1[MAXWALLSB-1] = xdimen-1;
-            yb1[MAXWALLSB-1] = yp1;
+            sx1 = halfxdimen + scale(xp1,halfxdimen,yp1);
+            if (xp1 >= 0) sx1++;   //Fix for SIGNED divide
+            if (sx1 >= xdimen) sx1 = xdimen-1;
+            sy1 = yp1;
         }
         else
         {
             if (xp2 < -yp2) return;
-            xb1[MAXWALLSB-1] = 0;
+            sx1 = 0;
             i = yp1-yp2+xp1-xp2;
             if (i == 0) return;
-            yb1[MAXWALLSB-1] = yp1 + scale(yp2-yp1,xp1+yp1,i);
+            sy1 = yp1 + scale(yp2-yp1,xp1+yp1,i);
         }
         if (xp2 <= yp2)
         {
             if (xp2 < -yp2) return;
 
             if (yp2 == 0) return;
-            xb2[MAXWALLSB-1] = halfxdimen + scale(xp2,halfxdimen,yp2) - 1;
-            if (xp2 >= 0) xb2[MAXWALLSB-1]++;   //Fix for SIGNED divide
-            if (xb2[MAXWALLSB-1] >= xdimen) xb2[MAXWALLSB-1] = xdimen-1;
-            yb2[MAXWALLSB-1] = yp2;
+            sx2 = halfxdimen + scale(xp2,halfxdimen,yp2) - 1;
+            if (xp2 >= 0) sx2++;   //Fix for SIGNED divide
+            if (sx2 >= xdimen) sx2 = xdimen-1;
+            sy2 = yp2;
         }
         else
         {
             if (xp1 > yp1) return;
 
-            xb2[MAXWALLSB-1] = xdimen-1;
+            sx2 = xdimen-1;
             i = xp2-xp1+yp1-yp2;
             if (i == 0) return;
-            yb2[MAXWALLSB-1] = yp1 + scale(yp2-yp1,yp1-xp1,i);
+            sy2 = yp1 + scale(yp2-yp1,yp1-xp1,i);
         }
 
-        if ((yb1[MAXWALLSB-1] < 256) || (yb2[MAXWALLSB-1] < 256) || (xb1[MAXWALLSB-1] > xb2[MAXWALLSB-1]))
+        if ((sy1 < 256) || (sy2 < 256) || (sx1 > sx2))
             return;
 
         topinc = -mulscale10(yp1,xspan);
-        top = (((mulscale10(xp1,xdimen) - mulscale9(xb1[MAXWALLSB-1]-halfxdimen,yp1))*xspan)>>3);
+        top = (((mulscale10(xp1,xdimen) - mulscale9(sx1-halfxdimen,yp1))*xspan)>>3);
         botinc = ((yp2-yp1)>>8);
-        bot = mulscale11(xp1-xp2,xdimen) + mulscale2(xb1[MAXWALLSB-1]-halfxdimen,botinc);
+        bot = mulscale11(xp1-xp2,xdimen) + mulscale2(sx1-halfxdimen,botinc);
 
-        j = xb2[MAXWALLSB-1]+3;
+        j = sx2+3;
         z = mulscale20(top,krecipasm(bot));
-        lwall[xb1[MAXWALLSB-1]] = (z>>8);
-        for (x=xb1[MAXWALLSB-1]+4; x<=j; x+=4)
+        lwall[sx1] = (z>>8);
+        for (x=sx1+4; x<=j; x+=4)
         {
             top += topinc; bot += botinc;
             zz = z; z = mulscale20(top,krecipasm(bot));
@@ -5780,22 +5782,23 @@ draw_as_face_sprite:
             lwall[x-1] = ((i+z)>>9);
         }
 
-        if (lwall[xb1[MAXWALLSB-1]] < 0) lwall[xb1[MAXWALLSB-1]] = 0;
-        if (lwall[xb2[MAXWALLSB-1]] >= xspan) lwall[xb2[MAXWALLSB-1]] = xspan-1;
+        if (lwall[sx1] < 0) lwall[sx1] = 0;
+        if (lwall[sx2] >= xspan) lwall[sx2] = xspan-1;
 
         if ((swapped^((cstat&4)>0)) > 0)
         {
             j = xspan-1;
-            for (x=xb1[MAXWALLSB-1]; x<=xb2[MAXWALLSB-1]; x++)
+            for (x=sx1; x<=sx2; x++)
                 lwall[x] = j-lwall[x];
         }
 
+        // XXX: UNUSED?
         rx1[MAXWALLSB-1] = xp1; ry1[MAXWALLSB-1] = yp1;
         rx2[MAXWALLSB-1] = xp2; ry2[MAXWALLSB-1] = yp2;
 
-        hplc = divscale19(xdimenscale,yb1[MAXWALLSB-1]);
-        hinc = divscale19(xdimenscale,yb2[MAXWALLSB-1]);
-        hinc = (hinc-hplc)/(xb2[MAXWALLSB-1]-xb1[MAXWALLSB-1]+1);
+        hplc = divscale19(xdimenscale,sy1);
+        hinc = divscale19(xdimenscale,sy2);
+        hinc = (hinc-hplc)/(sx2-sx1+1);
 
         setup_globals_sprite1(tspr, sec, yspan, yoff, tilenum, cstat, &z1, &z2);
 
@@ -5804,21 +5807,25 @@ draw_as_face_sprite:
         if (((sec->floorstat&1) == 0) && (z2 > sec->floorz))
             z2 = sec->floorz;
 
-        owallmost(uwall,(int32_t)(MAXWALLSB-1),z1-globalposz);
-        owallmost(dwall,(int32_t)(MAXWALLSB-1),z2-globalposz);
-        for (i=xb1[MAXWALLSB-1]; i<=xb2[MAXWALLSB-1]; i++)
+        xb1[MAXWALLSB-1] = sx1;
+        xb2[MAXWALLSB-1] = sx2;
+        yb1[MAXWALLSB-1] = sy1;
+        yb2[MAXWALLSB-1] = sy2;
+        owallmost(uwall, MAXWALLSB-1, z1-globalposz);
+        owallmost(dwall, MAXWALLSB-1, z2-globalposz);
+        for (i=sx1; i<=sx2; i++)
             { swall[i] = (krecipasm(hplc)<<2); hplc += hinc; }
 
         for (i=smostwallcnt-1; i>=0; i--)
         {
             j = smostwall[i];
 
-            if ((xb1[j] > xb2[MAXWALLSB-1]) || (xb2[j] < xb1[MAXWALLSB-1])) continue;
+            if ((xb1[j] > sx2) || (xb2[j] < sx1)) continue;
 
             dalx2 = xb1[j]; darx2 = xb2[j];
-            if (max(yb1[MAXWALLSB-1],yb2[MAXWALLSB-1]) > min(yb1[j],yb2[j]))
+            if (max(sy1,sy2) > min(yb1[j],yb2[j]))
             {
-                if (min(yb1[MAXWALLSB-1],yb2[MAXWALLSB-1]) > max(yb1[j],yb2[j]))
+                if (min(sy1,sy2) > max(yb1[j],yb2[j]))
                 {
                     x = INT32_MIN;
                 }
@@ -5877,15 +5884,15 @@ draw_as_face_sprite:
 
                 if (x < 0)
                 {
-                    if (dalx2 < xb1[MAXWALLSB-1]) dalx2 = xb1[MAXWALLSB-1];
-                    if (darx2 > xb2[MAXWALLSB-1]) darx2 = xb2[MAXWALLSB-1];
+                    if (dalx2 < sx1) dalx2 = sx1;
+                    if (darx2 > sx2) darx2 = sx2;
 
                     switch (smostwalltype[i])
                     {
                     case 0:
                         if (dalx2 <= darx2)
                         {
-                            if ((dalx2 == xb1[MAXWALLSB-1]) && (darx2 == xb2[MAXWALLSB-1])) return;
+                            if ((dalx2 == sx1) && (darx2 == sx2)) return;
                             //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
                             for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
                         }
@@ -5909,7 +5916,7 @@ draw_as_face_sprite:
 #ifdef YAX_ENABLE
         if (yax_globallev==YAX_MAXDRAWS || searchit==2)
 #endif
-        if ((searchit >= 1) && (searchx >= xb1[MAXWALLSB-1]) && (searchx <= xb2[MAXWALLSB-1]))
+        if ((searchit >= 1) && (searchx >= sx1) && (searchx <= sx2))
             if ((searchy >= uwall[searchx]) && (searchy <= dwall[searchx]))
             {
                 searchsector = sectnum; searchwall = spritenum;
@@ -5918,11 +5925,11 @@ draw_as_face_sprite:
 
         if ((cstat&2) == 0)
         {
-            maskwallscan(xb1[MAXWALLSB-1],xb2[MAXWALLSB-1],uwall,dwall,swall,lwall);
+            maskwallscan(sx1,sx2,uwall,dwall,swall,lwall);
         }
         else
         {
-            transmaskwallscan(xb1[MAXWALLSB-1],xb2[MAXWALLSB-1]);
+            transmaskwallscan(sx1,sx2);
         }
     }
     else if ((cstat&48) == 32)
