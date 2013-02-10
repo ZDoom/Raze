@@ -491,6 +491,7 @@ actor_t actor[MAXSPRITES];
 camera_t g_camera;
 user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
+DukePlayer_t *g_player_ps[MAXPLAYERS];
 weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
 tiledata_t g_tile[MAXTILES];
 projectile_t ProjectileData[MAXTILES];
@@ -578,18 +579,55 @@ if (not good) then
     error("Some sizes don't match between C and LuaJIT/FFI.")
 end
 
--- "player" global, needed by the "control" module
-local tmpmt = {
-    __index = function(tab, key)
-                  if (key >= 0 and key < ffiC.playerswhenstarted) then
-                      return ffiC.g_player[key].ps[0]
-                  end
-                  error('out-of-bounds player[] read access', 2)
-              end,
 
-    __newindex = function(tab, key, val) error('cannot write directly to player[] struct', 2) end,
+--== "player" global, needed by the "control" module ==--
+
+local player_static_members = {}
+
+player_static_members.INPUT_BITS = defs_c.conststruct
+{
+    JUMP =                      1,
+    CROUCH =                    2,
+    FIRE =                      4,
+    AIM_UP =                    8,
+    AIM_DOWN =                 16,
+    RUNNING =                  32,
+    LOOK_LEFT =                64,
+    LOOK_RIGHT =              128,
+    -- weapons...
+    STEROIDS =               4096,
+    LOOK_UP =                8192,
+    LOOK_DOWN =             16384,
+    NIGHTVISION =           32768,
+    MEDKIT =                65536,
+    RESERVED =             131072,
+    CENTER_VIEW =          262144,
+    HOLSTER_WEAPON =       524288,
+    INVENTORY_LEFT =      1048576,
+    PAUSE =               2097152,
+    QUICK_KICK =          4194304,
+    AIM_MODE =            8388608,
+    HOLODUKE =           16777216,
+    JETPACK =            33554432,
+    QUIT =               67108864,
+    INVENTORY_RIGHT =   134217728,
+    TURN_AROUND =       268435456,
+    OPEN =              536870912,
+    INVENTORY =        1073741824,
+    ESC =              2147483648,
 }
-player = setmtonce({}, tmpmt)
+
+player_static_members.INPUT_EXT_BITS = defs_c.conststruct
+{
+    INPUT_MOVE_FORWARD =  1,
+    INPUT_MOVE_BACKWARD = 2,
+    INPUT_STRAFE_LEFT =   4,
+    INPUT_STRAFE_RIGHT =  8,
+    INPUT_TURN_LEFT =    16,
+    INPUT_TURN_RIGHT =   32,
+}
+
+player = setmtonce({}, defs_c.GenStructMetatable("g_player_ps", "playerswhenstarted", player_static_members))
 
 -- needed by "control"
 actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, "actor[]")
@@ -921,6 +959,14 @@ local player_mt = {
         end,
     },
 }
+
+local function player_index_index(p, key)
+    if (key=="_input") then
+        return ffiC.g_player[p.weapon._p].sync[0]
+    end
+end
+
+setmtonce(player_mt.__index, { __index = player_index_index })
 ffi.metatype("DukePlayer_t", player_mt)
 
 local function GenProjectileSetFunc(Member)

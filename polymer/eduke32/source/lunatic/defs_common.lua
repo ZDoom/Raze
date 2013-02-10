@@ -461,11 +461,6 @@ end
 
 local tspritetype_mt = deep_copy(spritetype_mt)
 
-print(spritetype_mt)
-print(spritetype_mt.__index)
-print(tspritetype_mt)
-print(tspritetype_mt.__index)
-
 -- Methods that are specific to tsprites
 function tspritetype_mt.__index.dup(tspr)
     if (ffiC.spritesortcnt >= ffiC.MAXSPRITESONSCREEN+0ULL) then
@@ -507,7 +502,7 @@ end
 ---- indirect C array access ----
 
 -- Construct const struct from table
-local function conststruct(tab)
+function conststruct(tab)
     local strtab = { "const struct { int32_t " }
     local vals = {}
 
@@ -567,7 +562,9 @@ function static_members.sprite.changestat(spritenum, statnum)
     end
 end
 
-local function GenStructMetatable(Structname, Boundname)
+function GenStructMetatable(Structname, Boundname, StaticMembersTab)
+    StaticMembersTab = StaticMembersTab or static_members[Structname]
+
     return {
         __index = function(tab, key)
             if (type(key)=="number") then
@@ -576,7 +573,7 @@ local function GenStructMetatable(Structname, Boundname)
                 end
                 error("out-of-bounds "..Structname.."[] read access", 2)
             elseif (type(key)=="string") then
-                return static_members[Structname][key]
+                return StaticMembersTab[key]
             end
         end,
 

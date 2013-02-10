@@ -823,6 +823,17 @@ local UserdefLabels = {
     weaponswitch = UD".weaponswitch",
 }
 
+local INP = function(memb) return PL"._input"..memb end
+
+local InputLabels = {
+    avel = INP".avel",
+    horz = INP".horz",
+    fvel = INP".fvel",
+    svel = INP".svel",
+    bits = INP".bits",
+    extbits = INP".extbits",
+}
+
 -- These structs cannot be accessed by inline array exprs in CON:
 StructAccessCode2 =
 {
@@ -830,6 +841,7 @@ StructAccessCode2 =
     projectile = ProjectileLabels,
     thisprojectile = SpriteProjectileLabels,
     userdef = UserdefLabels,
+    input = InputLabels,
 }
 
 -- NOTE: These MUST be in reverse lexicographical order!

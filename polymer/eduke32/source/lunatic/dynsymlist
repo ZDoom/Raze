@@ -92,6 +92,7 @@ actor;
 g_camera;
 ud;
 g_player;
+g_player_ps;
 g_playerWeapon;
 g_tile;
 ProjectileData;

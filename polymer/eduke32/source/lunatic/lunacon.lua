@@ -1208,6 +1208,7 @@ local Access =
     projectile = function(...) return StructAccess("projectile", ...) end,
     thisprojectile = function(...) return StructAccess("thisprojectile", ...) end,
     userdef = function(...) return StructAccess("userdef", ...) end,
+    input = function(...) return StructAccess("input", ...) end,
 }
 
 local function GetStructCmd(accessfunc, pattern)
@@ -1329,7 +1330,7 @@ local Cinner = {
     getactor = GetStructCmd(Access.xsprite),
     getplayer = GetStructCmd(Access.player),
 
-    getinput = getstructcmd / handle.NYI,
+    getinput = GetStructCmd(Access.input),
     getprojectile = GetStructCmd(Access.projectile),
     getthisprojectile = GetStructCmd(Access.thisprojectile),
     gettspr = GetStructCmd(Access.tspr),
@@ -1351,7 +1352,7 @@ local Cinner = {
     setactor = SetStructCmd(Access.xsprite),
     setplayer = SetStructCmd(Access.player),
 
-    setinput = setstructcmd / handle.NYI,
+    setinput = SetStructCmd(Access.input),
     setprojectile = SetStructCmd(Access.projectile),
     setthisprojectile = SetStructCmd(Access.thisprojectile),
     settspr = SetStructCmd(Access.tspr),

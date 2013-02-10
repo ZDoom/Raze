@@ -10005,6 +10005,8 @@ int32_t g_sizes_of[] = {
     sizeof(sectortype), sizeof(walltype), sizeof(spritetype), sizeof(spriteext_t),
     sizeof(actor_t), sizeof(DukePlayer_t), sizeof(playerdata_t),
     sizeof(user_defs), sizeof(tiledata_t) };
+
+DukePlayer_t *g_player_ps[MAXPLAYERS];
 #endif
 
 void G_MaybeAllocPlayer(int32_t pnum)
@@ -10017,7 +10019,8 @@ void G_MaybeAllocPlayer(int32_t pnum)
     if (g_player[pnum].ps == NULL || g_player[pnum].sync == NULL)
         G_GameExit("OUT OF MEMORY");
 #ifdef LUNATIC
-        g_player[pnum].ps->wa.idx = pnum;
+    g_player_ps[pnum] = g_player[pnum].ps;
+    g_player[pnum].ps->wa.idx = pnum;
 #endif
 }
 
