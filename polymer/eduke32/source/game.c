@@ -7237,7 +7237,7 @@ FOUNDCHEAT:
                     break;
 
                 case CHEAT_CLIP:
-                    ud.noclip = 1-ud.noclip;
+                    ud.noclip = !ud.noclip;
                     P_DoQuote(QUOTE_CHEAT_NOCLIP-!ud.noclip, g_player[myconnectindex].ps);
                     end_cheat();
                     return;

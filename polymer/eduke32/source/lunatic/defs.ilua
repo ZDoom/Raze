@@ -941,6 +941,24 @@ local projectile_mt = {
 }
 ffi.metatype("projectile_t", projectile_mt)
 
+local user_defs_mt = {
+    __index = {
+        set_screen_size = function(ud, screen_size)
+            -- TODO: modify .statusbarmode accordingly
+            ud.screen_size = screen_size
+        end,
+
+        set_volume_number = function(ud, volume_number)
+            -- XXX: should volume_number==MAXVOLUMES be allowed too?
+            if (volume_number >= con_lang.MAXVOLUMES+0ULL) then
+                error("invalid volume number "..volume_number, 2)
+            end
+            ud.volume_number = volume_number
+        end,
+    },
+}
+ffi.metatype("user_defs", user_defs_mt)
+
 --- CUSTOM "gv" VARIABLES
 local camera_mt = {
     -- TODO: "set position" method, which also updates the sectnum
@@ -954,6 +972,7 @@ local camera_mt = {
 }
 
 gv_access.cam = setmtonce({}, camera_mt)
+gv_access._ud = ffiC.ud
 
 -- Support for some CON global system gamevars
 gv_access._csv = ffi.new "struct { int32_t RETURN; }"
@@ -1524,7 +1543,7 @@ setmetatable(
 
 -- Change the environment of the running Lua thread so that everything
 -- what we've set up will be available when this chunk is left.
--- In particular, we need the functions defined after setting this chunk's
+-- In particular, we need the globals defined after setting this chunk's
 -- environment earlier.
 setfenv(0, _G)
 

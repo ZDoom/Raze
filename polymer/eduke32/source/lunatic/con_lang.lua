@@ -784,12 +784,48 @@ for member, code in pairs(ProjectileLabels) do
     end
 end
 
+local UD = function(memb) return "gv._ud"..memb end
+local UDRO = function(memb) return { UD(memb) } end
+
+-- NOTE: Only members that actually encountered in existing mods are added here.
+local UserdefLabels = {
+    althud = UD".althud",
+    auto_run = UDRO".auto_run",
+    camerasprite = UDRO".camerasprite",
+    cashman = UDRO".cashman",
+    clipping = UD".noclip",  -- NAME
+    const_visibility = UD".const_visibility",
+    crosshair = UD".crosshair",
+    crosshairscale = UDRO".crosshairscale",
+    detail = { "1" },
+    display_bonus_screen = UD".display_bonus_screen",
+    drawweapon = UDRO".drawweapon",
+    ffire = UDRO".ffire",
+    fta_on = UD".fta_on",
+    god = UDRO".god",
+    lockout = UDRO".lockout",
+    pause_on = UDRO".pause_on",
+    player_skill = UD".player_skill",
+    m_volume_number = UDRO".m_volume_number",
+    mouseflip = UDRO".mouseflip",
+    multimode = { "1" },
+    overhead_on = UD".overhead_on",
+    show_level_text = UD".show_level_text",
+    screen_size = { UD".screen_size", UD":set_screen_size(%%s)" },
+    screen_tilting = UD".screen_tilting",
+    showallmap = UDRO".showallmap",
+    showweapons = UDRO".showweapons",
+    volume_number = { UD".volume_number", UD":set_volume_number(%%s)" },
+    weaponswitch = UD".weaponswitch",
+}
+
 -- These structs cannot be accessed by inline array exprs in CON:
 StructAccessCode2 =
 {
     tspr = TspriteLabels,
     projectile = ProjectileLabels,
     thisprojectile = SpriteProjectileLabels,
+    userdef = UserdefLabels,
 }
 
 -- NOTE: These MUST be in reverse lexicographical order!

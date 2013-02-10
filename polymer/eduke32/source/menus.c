@@ -3025,7 +3025,7 @@ cheat_for_port_credits2:
                     mgametextpal(d,yy, ud.shadows ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
                 case 9:
-                    if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
+                    if (x==io) ud.screen_tilting = !ud.screen_tilting;
 #ifdef USE_OPENGL
                     if (!ud.screen_tilting) setrollangle(0);
 #endif
@@ -3162,7 +3162,7 @@ cheat_for_port_credits2:
                         break;
                     }
                 case 3:
-                    if (x==io) ud.althud = 1-ud.althud;
+                    if (x==io) ud.althud = !ud.althud;
                     modval(0,1,(int32_t *)&ud.althud,1,probey==io);
                     mgametextpal(d,yy, ud.althud ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;

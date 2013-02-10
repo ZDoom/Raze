@@ -1135,14 +1135,14 @@ local setperxvarcmd = -- set<actor/player>var[<idx>].<<varname>> <var>
 -- Function generating code for a struct read/write access.
 local function StructAccess(Structname, writep, index, membertab)
     assert(type(membertab)=="table")
-    local member, parm2 = membertab[1], membertab[2]
-    assert(member ~= nil)
+    -- Lowercase the member name for CON compatibility
+    local member, parm2 = membertab[1]:lower(), membertab[2]
 
     local MemberCode = conl.StructAccessCode[Structname] or conl.StructAccessCode2[Structname]
     -- Look up array+member name first, e.g. "spriteext[%s].angoff".
     local armembcode = MemberCode[member]
     if (armembcode == nil) then
-        errprintf("invalid %s member `.%s'", Structname, member)
+        errprintf("%s: invalid %s member `.%s'", g_lastkw, Structname, member)
         return "_MEMBINVALID"
     end
 
@@ -1156,20 +1156,29 @@ local function StructAccess(Structname, writep, index, membertab)
         end
     end
 
-    -- Count number of parameters ("%s"), don't count "%%s".
-    local _, numparms = armembcode:gsub("[^%%]%%s", "", 2)
-    if (#membertab ~= numparms) then
-        local nums = { "one", "two" }
-        errprintf("%s[].%s has %s parameter%s, but %s given", Structname,
-                  member, nums[numparms], numparms==1 and "" or "s",
-                  nums[#membertab])
-        return "_MEMBINVPARM"
+    if (Structname~="userdef") then
+        -- Count number of parameters ("%s"), don't count "%%s".
+        local _, numparms = armembcode:gsub("[^%%]%%s", "", 2)
+        if (#membertab ~= numparms) then
+            local nums = { "one", "two" }
+            errprintf("%s[].%s has %s parameter%s, but %s given", Structname,
+                      member, nums[numparms], numparms==1 and "" or "s",
+                      nums[#membertab])
+            return "_MEMBINVPARM"
+        end
     end
 
     -- METHOD_MEMBER
     local ismethod = (armembcode:find("%%s",1,true)~=nil)
     -- If ismethod is true, then the formatted string will now have an "%s"
-    return format(armembcode, index, parm2), ismethod
+
+    if (Structname=="userdef") then
+--        assert(index==nil)
+        assert(parm2==nil)
+        return format(armembcode, parm2), ismethod
+    else
+        return format(armembcode, index, parm2), ismethod
+    end
 end
 
 
@@ -1196,19 +1205,17 @@ local Access =
     tspr = function(...) return StructAccess("tspr", ...) end,
     projectile = function(...) return StructAccess("projectile", ...) end,
     thisprojectile = function(...) return StructAccess("thisprojectile", ...) end,
+    userdef = function(...) return StructAccess("userdef", ...) end,
 }
 
-local function GetStructCmd(accessfunc)
-    local pattern = getstructcmd /
+local function GetStructCmd(accessfunc, pattern)
+    return (pattern or getstructcmd) /
       function(idx, memb, var)
         return format("%s=%s", var, accessfunc(false, idx, memb))
       end
-    return pattern
 end
 
-local function SetStructCmd(accessfunc)
-    local pattern = setstructcmd
-
+local function SetStructCmd(accessfunc, pattern)
     local function capfunc(idx, memb, var)
         local membercode, ismethod = accessfunc(true, idx, memb)
         if (ismethod) then
@@ -1226,7 +1233,7 @@ local function SetStructCmd(accessfunc)
         end
     end
 
-    return pattern / capfunc
+    return (pattern or setstructcmd) / capfunc
 end
 
 -- <Setp>: whether the perxvar is set
@@ -1298,6 +1305,8 @@ local handle =
     soundonce = "_con._soundonce(_aci,%1)",
 }
 
+local userdef_common_pat = (arraypat + sp1)/{} * lpeg.Cc(0) * lpeg.Ct(singlememberpat) * sp1
+
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
 -- that have no arguments and that are prefixes of other commands MUST be
 -- suffixed with a "* #sp1" pattern.
@@ -1330,7 +1339,7 @@ local Cinner = {
     -- arrays, I highly doubt that they worked (much less were safe) in CON.
     -- We disallow them unless CONs in the wild crop up that actually used
     -- these.
-    getuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.wvar / handle.NYI,
+    getuserdef = GetStructCmd(Access.userdef, userdef_common_pat * tok.wvar),
 
     getplayervar = GetOrSetPerxvarCmd(false, false),
     getactorvar = GetOrSetPerxvarCmd(false, true),
@@ -1344,7 +1353,7 @@ local Cinner = {
     setprojectile = SetStructCmd(Access.projectile),
     setthisprojectile = SetStructCmd(Access.thisprojectile),
     settspr = SetStructCmd(Access.tspr),
-    setuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.rvar / handle.NYI,
+    setuserdef = SetStructCmd(Access.userdef, userdef_common_pat * tok.rvar),
 
     setplayervar = GetOrSetPerxvarCmd(true, false),
     setactorvar = GetOrSetPerxvarCmd(true, true),
