@@ -175,6 +175,8 @@ local function new_initial_gvartab()
         windowx2 = RO "_gv.windowx2",
         windowy2 = RO "_gv.windowy2",
 
+        yxaspect = RO "_gv._get_yxaspect()",
+
         numsectors = RO "_gv.numsectors",
         NUMSECTORS = RO "_gv.numsectors",
         NUMWALLS = RO "_gv.numwalls",

@@ -977,6 +977,10 @@ gv_access._ud = ffiC.ud
 -- Support for some CON global system gamevars
 gv_access._csv = ffi.new "struct { int32_t RETURN; }"
 
+function gv_access._get_yxaspect()
+    return ffiC.yxaspect
+end
+
 function gv_access._currentFramerate()
     return ffiC.g_currentFrameRate
 end
@@ -1520,6 +1524,27 @@ DBG_.oom = function()
     local s = "1"
     for i=1,math.huge do
         s = s..s
+    end
+end
+
+-- Test reading from all struct members
+function DBG_.testmembread()
+    for _1, sac in pairs { con_lang.StructAccessCode, con_lang.StructAccessCode2 } do
+        for what, labels in pairs(sac) do
+            if (what~="tspr") then
+                for _3, membaccode in pairs(labels) do
+                    if (type(membaccode)=="table") then
+                        membaccode = membaccode[1]
+                    end
+                    if (membaccode) then
+                        local codestr = "do local _bit,_math=require'bit',require'math'; local tmp="..
+                            membaccode:gsub("%%s","0").." end"
+                        local code = assert(loadstring(codestr))
+                        code()
+                    end
+                end
+            end
+        end
     end
 end
 

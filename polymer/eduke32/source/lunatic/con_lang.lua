@@ -235,7 +235,7 @@ STAT = {
     STAT_FALLER = 12,
     STAT_DUMMYPLAYER = 13,
     STAT_LIGHT = 14,
-    STAT_NETALLOC = 15,
+--    STAT_NETALLOC = 15,
 }
 
 local GAMEFUNC = {
@@ -343,7 +343,7 @@ local SX = function(memb) return "spriteext[%s]"..memb end
 
 -- Generate code to access a signed member as unsigned.
 local function s2u(label)
-    return "(_bit.band("..label.."+65536),65535)"
+    return "(_bit.band("..label.."+65536,65535))"
 end
 
 local function S2U(label)
@@ -365,12 +365,12 @@ local ActorLabels = {
     yrepeat = SP".yrepeat",
     xoffset = SP".xoffset",
     yoffset = SP".yoffset",
-    sectnum = { SP".sectnum" },
-    statnum = { SP".statnum" },
+    sectnum = { SP".sectnum", SP".sectnum" },  -- set: for tsprite
+    statnum = { SP".statnum", SP".statnum" },  -- set: for tsprite
     ang = SP".ang",
-    owner = { SP".owner" },
+    owner = { SP".owner", SP":_set_owner(%%s)" },
     xvel = SP".xvel",
-    yvel = { SP".yvel" },
+    yvel = { SP".yvel", SP":_set_yvel(%%s)" },  -- XXX
     zvel = SP".zvel",
     lotag = SP".lotag",
     hitag = SP".hitag",
@@ -433,6 +433,10 @@ for member, code in pairs(ActorLabels) do
         TspriteLabels["tspr"..member] = { spr2tspr(code[1]), spr2tspr(code[2]) }
     end
 end
+
+-- Sprites set stat- and sectnum via sprite.change{stat,sect} functions.
+ActorLabels.sectnum[2] = "sprite.changesect(%s,%%s)"
+ActorLabels.statnum[2] = "sprite.changestat(%s,%%s)"
 
 local PL = function(memb) return "player[%s]"..memb end
 
@@ -630,7 +634,7 @@ local PlayerLabels = {
     palette = PL".palette",
 
     -- NOTE the special case:
-    pals = PL"._pals[%s]",
+    pals = PL"._pals.col[%s]",
     pals_time = PL"._pals.f",
 
     name = {},

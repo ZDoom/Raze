@@ -225,6 +225,7 @@ const int32_t windowx1, windowy1, windowx2, windowy2;
 ]]
 
 decl[[
+int32_t yxaspect;
 int32_t spritesortcnt;
 const int32_t rendmode;
 const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
@@ -239,6 +240,9 @@ int32_t   getceilzofslopeptr(const sectortype *sec, int32_t dax, int32_t day);
 int32_t   getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day);
 void   getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day,
                        int32_t *ceilz, int32_t *florz);
+
+int32_t changespritesect(int16_t spritenum, int16_t newsectnum);
+int32_t changespritestat(int16_t spritenum, int16_t newstatnum);
 
 int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                 hitdata_t *hitinfo, uint32_t cliptype);
@@ -416,9 +420,19 @@ local spritetype_mt = {
             ffi.cast(spritetype_ptr_ct, s).picnum = tilenum
         end,
 
-        set_yvel = function(s, yvel)
-            -- XXX: for now, no checking
+        _set_yvel = function(s, yvel)
+            -- XXX: no protection against malicious use (might set picnum to
+            -- another one temporarily)
+            -- XXX: this belongs into game-side Lunatic
+            if (s.picnum==1405) then  -- APLAYER
+                error("setting yvel on an APLAYER sprite forbidden", 2)
+            end
             ffi.cast(spritetype_ptr_ct, s).yvel = yvel
+        end,
+
+        _set_owner = function(s, owner)
+            check_sprite_idx(owner)
+            ffi.cast(spritetype_ptr_ct, s).owner = owner
         end,
 
         --- Custom setters
@@ -534,6 +548,24 @@ static_members.sprite.CSTAT = conststruct
     TRANSLUCENT2 = 512,
     TRANSLUCENT_BOTH_BITS = 512+2,
 }
+
+function static_members.sprite.changesect(spritenum, sectnum)
+    check_sprite_idx(spritenum)
+    check_sector_idx(sectnum)
+    if (ffiC.changespritesect(spritenum, sectnum)==-1) then
+        error("cannot change sector number of sprite not in the game world", 2)
+    end
+end
+
+function static_members.sprite.changestat(spritenum, statnum)
+    check_sprite_idx(spritenum)
+    if (statnum >= ffiC.MAXSTATUS+0ULL) then
+        error("invalid status number "..statnum, 2)
+    end
+    if (ffiC.changespritestat(spritenum, statnum)==-1) then
+        error("cannot change status number of sprite not in the game world", 2)
+    end
+end
 
 local function GenStructMetatable(Structname, Boundname)
     return {

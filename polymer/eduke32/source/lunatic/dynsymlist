@@ -22,12 +22,16 @@ windowx1;
 windowy1;
 windowx2;
 windowy2;
+yxaspect;
 
 yax_getbunch;
 
 getceilzofslopeptr;
 getflorzofslopeptr;
 getzsofslopeptr;
+
+changespritesect;
+changespritestat;
 
 headspritesect;
 headspritestat;

@@ -222,6 +222,10 @@ gameevent("JUMP",
 
 gameevent(gv.EVENT_ENTERLEVEL,
           function()
+              if (gv._DEBUG_LUNATIC) then
+                  DBG_.testmembread()
+              end
+
               -- NOTE: times are for helixhorned (Core2Duo 3GHz)
               local i
               local N = 1e6
@@ -290,6 +294,11 @@ gameevent(gv.EVENT_ENTERLEVEL,
               -- N=1: 480-1000 us (too large variance)
               -- N=10: 190-210 us * 10 = 1.9-2.1 ms
               -- N=100: about 160 us * 100 = about 16 ms
+
+              -- Make the DUKECAR in E1L1 into a static object
+              if (sprite[24].picnum==2491) then
+                  sprite.changestat(24, gv.STAT_DEFAULT)
+              end
 
               checkfail("gameevent('GAME', function() print('qwe') end)",
                         "must be called from top level")

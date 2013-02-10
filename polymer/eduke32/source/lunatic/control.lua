@@ -427,7 +427,7 @@ function _debris(i, dtile, n)
                                  shade=spr.shade, xrepeat=32+krandand(15), yrepeat=32+krandand(15),
                                  ang=krandand(2047), xvel=32+krandand(127), zvel=-krandand(2047) }
         -- NOTE: BlimpSpawnSprites[14] (its array size is 15) will never be chosen
-        sprite[jj]:set_yvel(isblimpscrap and ffiC.BlimpSpawnSprites[math.mod(jj, 14)] or -1)
+        sprite[jj]:_set_yvel(isblimpscrap and ffiC.BlimpSpawnSprites[math.mod(jj, 14)] or -1)
         sprite[jj].pal = spr.pal
     end
 end
