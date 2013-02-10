@@ -7997,12 +7997,13 @@ int32_t deletesprite(int16_t spritenum)
 //
 int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
 {
-    if ((newsectnum < 0) || (newsectnum > MAXSECTORS))
+    // XXX: NOTE: MAXSECTORS is allowed
+    if (newsectnum < 0 || newsectnum > MAXSECTORS)
+        return(-1);
+    if (sprite[spritenum].sectnum == MAXSECTORS)
         return(-1);
     if (sprite[spritenum].sectnum == newsectnum)
         return(0);
-    if (sprite[spritenum].sectnum == MAXSECTORS)
-        return(-1);
 
     do_deletespritesect(spritenum);
     do_insertsprite_at_headofsect(spritenum, newsectnum);
@@ -8015,12 +8016,13 @@ int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
 //
 int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
 {
-    if ((newstatnum < 0) || (newstatnum > MAXSTATUS))
+    // XXX: NOTE: MAXSTATUS is allowed
+    if (newstatnum < 0 || newstatnum > MAXSTATUS)
         return(-1);
-    if (sprite[spritenum].statnum == newstatnum)
-        return(0);  // sprite already has desired statnum
     if (sprite[spritenum].statnum == MAXSTATUS)
         return(-1);  // can't set the statnum of a sprite not in the world
+    if (sprite[spritenum].statnum == newstatnum)
+        return(0);  // sprite already has desired statnum
 
     do_deletespritestat(spritenum);
     do_insertsprite_at_headofstat(spritenum, newstatnum);
