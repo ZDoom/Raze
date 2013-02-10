@@ -18,7 +18,7 @@ defineprojectile MORTER2 PROJ_HITRADIUS 2800
 defineprojectile MORTER2 PROJ_BOUNCES 4
 defineprojectile MORTER2 PROJ_OFFSET 128
 defineprojectile MORTER2 PROJ_CLIPDIST 24
-defineprojectile MORTER2 PROJ_TRAIL SMALLSMOKE
+defineprojectile MORTER2 PROJ_TRAIL -1  // overridden in test.elua
 defineprojectile MORTER2 PROJ_TNUM 6
 
 onevent EVENT_GAME

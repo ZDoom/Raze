@@ -890,7 +890,8 @@ function Cmd.gamevar(identifier, initval, flags)
     end
 end
 
-function lookup.gamevar(identifier, writable)
+-- <aorpvar>: code for actor or player index
+function lookup.gamevar(identifier, aorpvar, writable)
     local gv = g_gamevar[identifier]
 
     if (gv == nil) then
@@ -903,8 +904,8 @@ function lookup.gamevar(identifier, writable)
         return "_READONLYGV"
     end
 
-    if (gv.flags==GVFLAG.PERACTOR) then
-        return format("%s[_aci]", gv.name)
+    if (bit.band(gv.flags, GVFLAG.PERACTOR)~=0) then
+        return format("%s[%s]", gv.name, aorpvar)
     else
         return gv.name
     end
@@ -912,7 +913,7 @@ end
 
 local function maybe_gamevar_Cmt(subj, pos, identifier)
     if (g_gamevar[identifier]) then
-        return true, lookup.gamevar(identifier)
+        return true, lookup.gamevar(identifier, "_aci", false)
     end
 end
 
@@ -1125,10 +1126,10 @@ local getstructcmd =  -- get<structname>[<idx>].<member> (<parm2>)? <<var>>
 local setstructcmd =  -- set<structname>[<idx>].<<member>> (<parm2>)? <var>
     arraypat * bothmemberpat * sp1 * tok.rvar
 
-local getperxvarcmd =  -- get<actor/player>var[<idx>].<member> <<var>>
+local getperxvarcmd =  -- get<actor/player>var[<idx>].<varname> <<var>>
     arraypat * singlememberpat * sp1 * tok.wvar
 
-local setperxvarcmd = -- set<actor/player>var[<idx>].<<member>> <var>
+local setperxvarcmd = -- set<actor/player>var[<idx>].<<varname>> <var>
     arraypat * singlememberpat * sp1 * tok.rvar
 
 -- Function generating code for a struct read/write access.
@@ -1198,14 +1199,17 @@ local Access =
 }
 
 local function GetStructCmd(accessfunc)
-    local pattern = getstructcmd / function(idx, memb, var)
+    local pattern = getstructcmd /
+      function(idx, memb, var)
         return format("%s=%s", var, accessfunc(false, idx, memb))
-    end
+      end
     return pattern
 end
 
 local function SetStructCmd(accessfunc)
-    local pattern = setstructcmd / function(idx, memb, var)
+    local pattern = setstructcmd
+
+    local function capfunc(idx, memb, var)
         local membercode, ismethod = accessfunc(true, idx, memb)
         if (ismethod) then
             -- METHOD_MEMBER syntax
@@ -1221,7 +1225,29 @@ local function SetStructCmd(accessfunc)
             return format("%s=%s", membercode, var)
         end
     end
-    return pattern
+
+    return pattern / capfunc
+end
+
+-- <Setp>: whether the perxvar is set
+local function GetOrSetPerxvarCmd(Setp, Actorp)
+    local EXPECTED_PERX_BIT = Actorp and GVFLAG.PERACTOR or GVFLAG.PERPLAYER
+    local pattern = (Setp and setperxvarcmd or getperxvarcmd)
+
+    local function capfunc(idx, perxvarname, var)
+        local gv = g_gamevar[perxvarname]
+        if (gv and bit.band(gv.flags, GVFLAG.PERX_MASK)~=EXPECTED_PERX_BIT) then
+            errprintf("variable `%s' is not per-%s", perxvarname, Actorp and "actor" or "player")
+        end
+
+        if (Setp) then
+            return format("%s=%s", lookup.gamevar(perxvarname, idx, true), var)
+        else
+            return format("%s=%s", var, lookup.gamevar(perxvarname, idx, false))
+        end
+    end
+
+    return pattern / capfunc
 end
 
 
@@ -1306,8 +1332,8 @@ local Cinner = {
     -- these.
     getuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.wvar / handle.NYI,
 
-    getactorvar = getperxvarcmd / handle.NYI,
-    getplayervar = getperxvarcmd / handle.NYI,
+    getplayervar = GetOrSetPerxvarCmd(false, false),
+    getactorvar = GetOrSetPerxvarCmd(false, true),
 
     setsector = SetStructCmd(Access.sector),
     setwall = SetStructCmd(Access.wall),
@@ -1320,8 +1346,8 @@ local Cinner = {
     settspr = SetStructCmd(Access.tspr),
     setuserdef = (arraypat + sp1)/{} * singlememberpat * sp1 * tok.rvar / handle.NYI,
 
-    setactorvar = setperxvarcmd,
-    setplayervar = setperxvarcmd,
+    setplayervar = GetOrSetPerxvarCmd(true, false),
+    setactorvar = GetOrSetPerxvarCmd(true, true),
 
     setsprite = cmd(R,R,R,R),
 
@@ -2136,7 +2162,7 @@ local Grammar = Pat{
     -- For written-to vars, only (non-parm2) array exprs and writable gamevars
     -- are permitted.  NOTE: C-CON doesn't support inline array exprs here.
     t_wvar = Var("t_singlearrayexp") / function() errprintf("t_wvar: array exprs NYI") return "_NYIVAR" end
-        + (tok.identifier / function(id) return lookup.gamevar(id, true) end),
+        + (tok.identifier / function(id) return lookup.gamevar(id, "_aci", true) end),
 
     t_move =
         POS()*tok.identifier / function(...) return lookup.composite(LABEL.MOVE, ...) end +

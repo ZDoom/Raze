@@ -264,7 +264,9 @@ gameevent(gv.EVENT_ENTERLEVEL,
 
               -- MORTER2 from test/weaponvars.con
               player[0].weapon.SHOTGUN.shoots = 1653
-              projectile[1653].drop = 0
+              local proj = projectile[1653]
+              proj.drop = 0
+              proj:set_trail(2329)  -- SMALLSMOKE
 
               t = gv.gethitickms()
               local N=1

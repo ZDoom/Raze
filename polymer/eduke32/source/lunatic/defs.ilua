@@ -254,6 +254,25 @@ __attribute__((packed)) struct {
 }
 ]]
 
+local PROJECTILE_STRUCT = [[
+struct {
+    int32_t workslike, cstat;
+    int32_t hitradius, range, flashcolor;
+    const int16_t spawns;
+    int16_t sound, isound, vel;
+    const int16_t decal, trail;
+    int16_t tnum, drop;
+    int16_t offset, bounces, bsound;
+    int16_t toffset;
+    int16_t extra, extra_rand;
+    int8_t sxrepeat, syrepeat, txrepeat, tyrepeat;
+    int8_t shade, xrepeat, yrepeat, pal;
+    int8_t movecnt;
+    uint8_t clipdist;
+    int8_t filler[6];
+}
+]]
+
 local randgen = require("randgen")
 local geom = require("geom")
 
@@ -329,22 +348,9 @@ typedef struct {
     int32_t shade;
 } hudweapon_t;
 
-typedef struct {
-    int32_t workslike, cstat;
-    int32_t hitradius, range, flashcolor;
-    const int16_t spawns;
-    int16_t sound, isound, vel;
-    const int16_t decal, trail;
-    int16_t tnum, drop;
-    int16_t offset, bounces, bsound;
-    int16_t toffset;
-    int16_t extra, extra_rand;
-    int8_t sxrepeat, syrepeat, txrepeat, tyrepeat;
-    int8_t shade, xrepeat, yrepeat, pal;
-    int8_t movecnt;
-    uint8_t clipdist;
-    int8_t filler[6];
-} projectile_t;
+typedef
+]].. PROJECTILE_STRUCT ..[[
+projectile_t;
 
 typedef struct {
     uint32_t flags;
@@ -620,6 +626,7 @@ end
 -- An unrestricted actor_t pointer, for internal use:
 local actor_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(ACTOR_STRUCT)))
 local player_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(DUKEPLAYER_STRUCT)))
+local projectile_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(PROJECTILE_STRUCT)))
 local con_action_ct = ffi.typeof("con_action_t")
 local con_move_ct = ffi.typeof("con_move_t")
 local con_ai_ct = ffi.typeof("con_ai_t")
@@ -915,6 +922,24 @@ local player_mt = {
     },
 }
 ffi.metatype("DukePlayer_t", player_mt)
+
+local function GenProjectileSetFunc(Member)
+    return function(self, picnum)
+        if (picnum >= 0) then
+            check_tile_idx(picnum)
+        end
+        ffi.cast(projectile_ptr_ct, self)[Member] = picnum
+    end
+end
+
+local projectile_mt = {
+    __index = {
+        set_spawns = GenProjectileSetFunc "spawns",
+        set_decal = GenProjectileSetFunc "decal",
+        set_trail = GenProjectileSetFunc "trail",
+    },
+}
+ffi.metatype("projectile_t", projectile_mt)
 
 --- CUSTOM "gv" VARIABLES
 local camera_mt = {
