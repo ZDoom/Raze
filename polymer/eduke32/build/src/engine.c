@@ -8500,6 +8500,15 @@ void initspritelists(void)
 }
 
 
+void set_globalang(int16_t ang)
+{
+    globalang = ang&2047;
+    cosglobalang = sintable[(globalang+512)&2047];
+    singlobalang = sintable[globalang&2047];
+    cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
+    sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
+}
+
 //
 // drawrooms
 //
@@ -8515,7 +8524,7 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     indrawroomsandmasks = 1;
 
     globalposx = daposx; globalposy = daposy; globalposz = daposz;
-    globalang = (daang&2047);
+    set_globalang(daang);
 
     global100horiz = dahoriz;
 
@@ -8556,11 +8565,6 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     globalcursectnum = dacursectnum;
     totalclocklock = totalclock;
-
-    cosglobalang = sintable[(globalang+512)&2047];
-    singlobalang = sintable[globalang&2047];
-    cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
-    sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
 
     if ((xyaspect != oxyaspect) || (xdimen != oxdimen) || (viewingrange != oviewingrange))
         dosetaspect();

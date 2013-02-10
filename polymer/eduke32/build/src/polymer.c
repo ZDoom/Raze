@@ -1087,11 +1087,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
 
     // build globals used by rotatesprite
     viewangle = daang;
-    globalang = (daang&2047);
-    cosglobalang = sintable[(globalang+512)&2047];
-    singlobalang = sintable[globalang&2047];
-    cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
-    sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
+    set_globalang(daang);
 
     // polymost globals used by polymost_dorotatesprite
     gcosang = ((double)cosglobalang)/262144.0;
@@ -1953,11 +1949,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
     if (depth)
     {
-        // drawmasks needs these
-        cosglobalang = sintable[(viewangle+512)&2047];
-        singlobalang = sintable[viewangle&2047];
-        cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
-        sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
+        set_globalang(viewangle);
 
         if (mirrors[depth - 1].plane)
             display_mirror = 1;
@@ -5554,8 +5546,6 @@ static inline void  polymer_culllight(int16_t lighti)
 static void         polymer_prepareshadows(void)
 {
     int16_t         oviewangle, oglobalang;
-    int32_t         ocosglobalang, osinglobalang;
-    int32_t         ocosviewingrangeglobalang, osinviewingrangeglobalang;
     int32_t         i, j, k;
     int32_t         gx, gy, gz;
     int32_t         oldoverridematerial;
@@ -5567,10 +5557,6 @@ static void         polymer_prepareshadows(void)
     // build globals used by drawmasks
     oviewangle = viewangle;
     oglobalang = globalang;
-    ocosglobalang = cosglobalang;
-    osinglobalang = singlobalang;
-    ocosviewingrangeglobalang = cosviewingrangeglobalang;
-    osinviewingrangeglobalang = sinviewingrangeglobalang;
 
     i = j = k = 0;
 
@@ -5607,11 +5593,7 @@ static void         polymer_prepareshadows(void)
 
             // build globals used by rotatesprite
             viewangle = prlights[i].angle;
-            globalang = (prlights[i].angle&2047);
-            cosglobalang = sintable[(globalang+512)&2047];
-            singlobalang = sintable[globalang&2047];
-            cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
-            sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
+            set_globalang(prlights[i].angle);
 
             oldoverridematerial = overridematerial;
             // smooth model shadows
@@ -5646,11 +5628,7 @@ static void         polymer_prepareshadows(void)
     globalposz = gz;
 
     viewangle = oviewangle;
-    globalang = oglobalang;
-    cosglobalang = ocosglobalang;
-    singlobalang = osinglobalang;
-    cosviewingrangeglobalang = ocosviewingrangeglobalang;
-    sinviewingrangeglobalang = osinviewingrangeglobalang;
+    set_globalang(oglobalang);
 }
 
 // RENDER TARGETS

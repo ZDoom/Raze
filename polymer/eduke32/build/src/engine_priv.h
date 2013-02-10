@@ -87,6 +87,8 @@ void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float fa
 int32_t wallfront(int32_t l1, int32_t l2);
 int32_t animateoffs(int16_t tilenum, int16_t fakevar);
 
+void set_globalang(int16_t ang);
+
 #define DO_TILE_ANIM(Picnum, Fakevar) do { \
         if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum, Fakevar); \
     } while (0)
