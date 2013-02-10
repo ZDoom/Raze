@@ -153,15 +153,7 @@ void Net_SyncPlayer(ENetEvent *event)
 
     connectpoint2[playerswhenstarted-1] = -1;
 
-    if (!g_player[i].ps)
-    {
-        g_player[i].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
-    }
-
-    if (!g_player[i].sync)
-    {
-        g_player[i].sync = (input_t *) Bcalloc(1, sizeof(input_t));
-    }
+    G_MaybeAllocPlayer(i);
 
     ++numplayers;
     ++ud.multimode;

@@ -1911,7 +1911,7 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
 
 
 ////////// OFTEN-USED FEW-LINERS //////////
-static void handle_events_while_no_input(void)
+static void G_HandleEventsWhileNoInput(void)
 {
     I_ClearInputWaiting();
 
@@ -1921,7 +1921,7 @@ static void handle_events_while_no_input(void)
     I_ClearInputWaiting();
 }
 
-static int32_t play_sound_while_no_input(int32_t soundnum)
+static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
 {
     S_PlaySound(soundnum);
     I_ClearInputWaiting();
@@ -10007,6 +10007,20 @@ int32_t g_sizes_of[] = {
     sizeof(user_defs), sizeof(tiledata_t) };
 #endif
 
+void G_MaybeAllocPlayer(int32_t pnum)
+{
+    if (g_player[pnum].ps == NULL)
+        g_player[pnum].ps = (DukePlayer_t *)Bcalloc(1, sizeof(DukePlayer_t));
+    if (g_player[pnum].sync == NULL)
+        g_player[pnum].sync = (input_t *)Bcalloc(1, sizeof(input_t));
+
+    if (g_player[pnum].ps == NULL || g_player[pnum].sync == NULL)
+        G_GameExit("OUT OF MEMORY");
+#ifdef LUNATIC
+        g_player[pnum].ps->wa.idx = pnum;
+#endif
+}
+
 int32_t app_main(int32_t argc, const char **argv)
 {
     int32_t i = 0, j;
@@ -10106,8 +10120,7 @@ int32_t app_main(int32_t argc, const char **argv)
     ud.multimode = 1;
 
     // this needs to happen before G_CheckCommandLine because G_GameExit accesses g_player[0]
-    g_player[0].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
-    g_player[0].sync = (input_t *) Bcalloc(1, sizeof(input_t));
+    G_MaybeAllocPlayer(0);
 
     G_CheckCommandLine(argc,argv);
 
@@ -10453,13 +10466,7 @@ int32_t app_main(int32_t argc, const char **argv)
     // NOTE: Allocating the DukePlayer_t structs has to be before compiling scripts,
     // because in Lunatic, the {pipe,trip}bomb* members are initialized.
     for (i=0; i<MAXPLAYERS; i++)
-    {
-        if (!g_player[i].ps) g_player[i].ps = (DukePlayer_t *)Bcalloc(1, sizeof(DukePlayer_t));
-#ifdef LUNATIC
-        g_player[i].ps->wa.idx = i;
-#endif
-        if (!g_player[i].sync) g_player[i].sync = (input_t *)Bcalloc(1, sizeof(input_t));
-    }
+        G_MaybeAllocPlayer(i);
 
     G_Startup(); // a bunch of stuff including compiling cons
 
@@ -11217,7 +11224,7 @@ void G_BonusScreen(int32_t bonusonly)
 
             rotatesprite_fs(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0));
             fadepal(0,0,0, 63,0,-1);
-            handle_events_while_no_input();
+            G_HandleEventsWhileNoInput();
             fadepal(0,0,0, 0,63,1);
             S_StopMusic();
             FX_StopAllSounds();
@@ -11246,7 +11253,7 @@ void G_BonusScreen(int32_t bonusonly)
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
             rotatesprite_fs(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0));
             fadepal(0,0,0, 63,0,-1);
-            handle_events_while_no_input();
+            G_HandleEventsWhileNoInput();
             fadepal(0,0,0, 0,63,1);
 
             break;
@@ -11292,7 +11299,7 @@ void G_BonusScreen(int32_t bonusonly)
             fadepal(0,0,0, 63,0,-3);
             nextpage();
             I_ClearInputWaiting();
-            handle_events_while_no_input();
+            G_HandleEventsWhileNoInput();
             fadepal(0,0,0, 0,63,3);
 
             clearallviews(0L);
@@ -11301,7 +11308,7 @@ void G_BonusScreen(int32_t bonusonly)
             G_PlayAnim("DUKETEAM.ANM",4);
 
             I_ClearInputWaiting();
-            handle_events_while_no_input();
+            G_HandleEventsWhileNoInput();
 
             clearallviews(0L);
             nextpage();
@@ -11336,11 +11343,11 @@ void G_BonusScreen(int32_t bonusonly)
 
             if (ud.lockout == 0 && !I_CheckInputWaiting())
             {
-                if (play_sound_while_no_input(ENDSEQVOL3SND5)) goto ENDANM;
-                if (play_sound_while_no_input(ENDSEQVOL3SND6)) goto ENDANM;
-                if (play_sound_while_no_input(ENDSEQVOL3SND7)) goto ENDANM;
-                if (play_sound_while_no_input(ENDSEQVOL3SND8)) goto ENDANM;
-                if (play_sound_while_no_input(ENDSEQVOL3SND9)) goto ENDANM;
+                if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND5)) goto ENDANM;
+                if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND6)) goto ENDANM;
+                if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND7)) goto ENDANM;
+                if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND8)) goto ENDANM;
+                if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND9)) goto ENDANM;
             }
 
             I_ClearInputWaiting();
@@ -11355,7 +11362,7 @@ void G_BonusScreen(int32_t bonusonly)
 			}
             else
             {
-                handle_events_while_no_input();
+                G_HandleEventsWhileNoInput();
 			}
 
 ENDANM:
@@ -11371,7 +11378,7 @@ ENDANM:
 				G_PlayAnim("DUKETEAM.ANM",4);
 
                 I_ClearInputWaiting();
-                handle_events_while_no_input();
+                G_HandleEventsWhileNoInput();
 
                 clearallviews(0L);
                 nextpage();
