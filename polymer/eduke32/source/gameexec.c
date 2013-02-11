@@ -2057,8 +2057,6 @@ nullquote:
                 int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), tilenum=Gv_GetVarX(*insptr++);
                 int32_t shade=Gv_GetVarX(*insptr++), orientation=Gv_GetVarX(*insptr++);
 
-                orientation &= (ROTATESPRITE_MAX-1);
-
                 switch (tw)
                 {
                 case CON_MYOS:

@@ -695,18 +695,21 @@ int32_t A_CheckInventorySprite(spritetype *s)
     }
 }
 
-static void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
+// MYOS* CON commands. NOTE: external linkage for Lunatic.
+void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
                               int32_t shade, int32_t orientation, int32_t p)
 {
     int32_t a = 0;
 
+    orientation &= (ROTATESPRITE_MAX-1);
+
     if (orientation&4)
         a = 1024;
 
-    rotatesprite_win((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
-                     zoom,a,tilenum,shade,p,2|orientation);
+    rotatesprite_win(x<<16, y<<16, zoom,a,tilenum,shade,p,2|orientation);
 }
 
+#if !defined LUNATIC
 void G_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
 {
     DukePlayer_t *ps = g_player[screenpeek].ps;
@@ -732,6 +735,7 @@ void G_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, in
 {
     G_DrawTileGeneric(x,y,32768, tilenum,shade,orientation, p);
 }
+#endif
 
 #define POLYMOSTTRANS (1)
 #define POLYMOSTTRANS2 (1|32)
