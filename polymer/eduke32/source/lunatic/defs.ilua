@@ -245,8 +245,6 @@ __attribute__((packed)) struct {
     uint8_t palette;
     palette_t _pals;
 
-    const char name[32];
-
     // NOTE: In C, the struct type has no name. We only have it here to define
     // a metatype later.
     const weaponaccess_t weapon;

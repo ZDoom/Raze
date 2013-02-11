@@ -91,7 +91,7 @@ G_EXTERN int32_t g_currentFrameRate;
 G_EXTERN int32_t g_currentMenu;
 G_EXTERN int32_t g_damageCameras,g_freezerSelfDamage;
 G_EXTERN int32_t g_doQuickSave;
-G_EXTERN char g_earthquakeTime;
+G_EXTERN uint16_t g_earthquakeTime;
 G_EXTERN int32_t g_gameQuit;
 G_EXTERN int32_t g_groupFileHandle;
 G_EXTERN int32_t g_impactDamage,g_maxPlayerHealth;

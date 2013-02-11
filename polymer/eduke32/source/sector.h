@@ -65,7 +65,7 @@ typedef struct {
     int16_t prevspritestat[MAXSPRITES];
     int16_t pskyoff[MAXPSKYTILES], pskybits;
 
-    uint8_t g_earthquakeTime;
+    uint16_t g_earthquakeTime;
     int8_t g_numPlayerSprites;
 
     uint8_t show2dsector[(MAXSECTORS+7)>>3];

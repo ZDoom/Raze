@@ -227,9 +227,6 @@ typedef struct {
     uint8_t palette;
     palette_t pals;
 
-    // UNUSED
-    char name[32];
-
 #ifdef LUNATIC
     // The player index. Always valid since we have no loose DukePlayer_t's
     // anywhere (like with spritetype_t): g_player[i].ps->wa.idx == i.

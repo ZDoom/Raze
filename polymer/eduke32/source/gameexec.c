@@ -3112,7 +3112,7 @@ nullquote:
 
         case CON_QUAKE:
             insptr++;
-            g_earthquakeTime = (uint8_t)Gv_GetVarX(*insptr++);
+            g_earthquakeTime = Gv_GetVarX(*insptr++);
             A_PlaySound(EARTHQUAKE,g_player[screenpeek].ps->i);
             continue;
 
