@@ -225,7 +225,7 @@ const int32_t windowx1, windowy1, windowx2, windowy2;
 ]]
 
 decl[[
-int32_t yxaspect;
+int32_t yxaspect, viewingrange;
 int32_t spritesortcnt;
 const int32_t rendmode;
 const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
@@ -267,6 +267,7 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 
 -- misc. functions
 ffi.cdef[[
+uint32_t getticks(void);
 double gethitickms(void);
 
 int32_t krand(void);

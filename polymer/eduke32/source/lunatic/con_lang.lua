@@ -414,7 +414,7 @@ local ActorLabels = {
     ypanning = SX".ypanning",
 
     -- Read access differs from write, write not available:
-    alpha = { "_math.floor(spriteext[%s].alpha*255)" },
+    alpha = { "_math.floor(spriteext[%s].alpha*255)", "spriteext[%s].alpha=(%%s)/255" },
 }
 
 local function spr2tspr(code)

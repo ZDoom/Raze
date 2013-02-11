@@ -23,6 +23,7 @@ windowy1;
 windowx2;
 windowy2;
 yxaspect;
+viewingrange;
 
 yax_getbunch;
 
@@ -59,6 +60,7 @@ updatesector;
 updatesectorz;
 updatesectorbreadth;
 
+getticks;
 gethitickms;
 OSD_Printf;
 
@@ -97,7 +99,6 @@ g_playerWeapon;
 g_tile;
 ProjectileData;
 SpriteProjectile;
-
 ScriptQuotes;
 
 screenpeek;
@@ -109,6 +110,7 @@ BlimpSpawnSprites;
 g_scriptVersion;
 g_currentFrameRate;
 g_currentMenu;
+g_earthquakeTime;
 
 luaJIT_BC_lunacon;
 luaJIT_BC_con_lang;
@@ -137,6 +139,7 @@ A_Spawn;
 A_AddToDeleteQueue;
 P_DoQuote;
 G_ClearCameraView;
+G_DrawTileGeneric;
 
 A_CheckAnySoundPlaying;
 A_PlaySound;

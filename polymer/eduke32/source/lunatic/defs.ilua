@@ -504,6 +504,7 @@ int16_t BlimpSpawnSprites[15];
 int32_t g_scriptVersion;
 const int32_t g_currentFrameRate;
 const int32_t g_currentMenu;
+uint16_t g_earthquakeTime;
 
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
 void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap);
@@ -521,6 +522,8 @@ int32_t A_Spawn(int32_t j, int32_t pn);
 void A_AddToDeleteQueue(int32_t i);
 void P_DoQuote(int32_t q, DukePlayer_t *p);
 void G_ClearCameraView(DukePlayer_t *ps);
+void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
+                       int32_t shade, int32_t orientation, int32_t p);
 
 int32_t A_CheckAnySoundPlaying(int32_t i);
 int32_t A_PlaySound(uint32_t num, int32_t i);
@@ -1019,10 +1022,14 @@ gv_access.cam = setmtonce({}, camera_mt)
 gv_access._ud = ffiC.ud
 
 -- Support for some CON global system gamevars
-gv_access._csv = ffi.new "struct { int32_t RETURN; }"
+gv_access._csv = ffi.new "struct { int32_t RETURN, LOTAG, HITAG, TEXTURE; }"
 
 function gv_access._get_yxaspect()
     return ffiC.yxaspect
+end
+
+function gv_access._get_viewingrange()
+    return ffiC.viewingrange
 end
 
 function gv_access._currentFramerate()
@@ -1044,6 +1051,13 @@ end
 function gv_access.currentRenderMode()
     -- TODO: USE_OPENGL=0 build
     return ffiC.rendmode
+end
+
+function gv_access.doQuake(gametics, snd)
+    ffiC.g_earthquakeTime = gametics
+    if (snd ~= nil) then
+        con._globalsound(ffiC.screenpeek, snd)
+    end
 end
 
 -- Declare all con_lang.labels constants in the global FFI namespace.

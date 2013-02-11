@@ -23,6 +23,7 @@ windowy1;
 windowx2;
 windowy2;
 yxaspect;
+viewingrange;
 
 yax_getbunch;
 
@@ -59,6 +60,7 @@ updatesector;
 updatesectorz;
 updatesectorbreadth;
 
+getticks;
 gethitickms;
 OSD_Printf;
 

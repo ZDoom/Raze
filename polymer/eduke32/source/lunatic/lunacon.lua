@@ -142,7 +142,8 @@ local function new_initial_codetab()
            }
 end
 
-local RETURN_VAR_CODE = "gv._csv.RETURN"
+-- CON global system gamevar
+local function CSV(var) return "gv._csv"..var end
 
 -- Creates the table of predefined game variables.
 -- KEEPINSYNC gamevars.c: Gv_AddSystemVars()
@@ -166,7 +167,10 @@ local function new_initial_gvartab()
         -- e.g. sector[THISACTOR]  is  sector[sprite[<current actor>].sectnum]
         THISACTOR = RO "_aci",
 
-        RETURN = RW(RETURN_VAR_CODE),
+        RETURN = RW(CSV".RETURN"),
+        HITAG = RW(CSV".HITAG"),
+        LOTAG = RW(CSV".LOTAG"),
+        TEXTURE = RW(CSV".TEXTURE"),
 
         xdim = RO "_gv.xdim",
         ydim = RO "_gv.ydim",
@@ -176,6 +180,7 @@ local function new_initial_gvartab()
         windowy2 = RO "_gv.windowy2",
 
         yxaspect = RO "_gv._get_yxaspect()",
+        viewingrange = RO "_gv._get_viewingrange()",
 
         numsectors = RO "_gv.numsectors",
         NUMSECTORS = RO "_gv.numsectors",
@@ -1291,6 +1296,14 @@ local handle =
         return format(ACS":set_move(%s,%d)", mv, (flags[1] and bit.bor(...)) or 0)
     end,
 
+    rotatesprite = function(...)
+        return format("_con.rotatesprite(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", ...)
+    end,
+
+    rotatesprite16 = function(...)
+        return format("_con.rotatesprite(%s,%s/65536,%s/65536,%s,%s,%s,%s,%s,%s,%s,%s,%s)", ...)
+    end,
+
     state = function(statename)
         if (g_funcname[statename]==nil) then
             errprintf("state `%s' not found.", statename)
@@ -1388,13 +1401,17 @@ local Cinner = {
     shiftvarr = varopf "_bit.rshift",
 
     --- 2. Math operations
-    sqrt = cmd(R,W),
-    calchypotenuse = cmd(W,R,R),
+    sqrt = cmd(R,W)
+        / "%2=gv.ksqrt(%1)",
+    calchypotenuse = cmd(W,R,R)
+        / "%1=_con._hypot(%2,%3)",
     sin = cmd(W,R),
     cos = cmd(W,R),
     mulscale = cmd(W,R,R,R),
-    getangle = cmd(W,R,R),
-    getincangle = cmd(W,R,R),
+    getangle = cmd(W,R,R)
+        / "%1=gv.getangle(%2,%3)",
+    getincangle = cmd(W,R,R)
+        / "%1=_con._angdiff(%2,%3)",
 
     --- 3. Actors
     action = cmd(AC)
@@ -1431,10 +1448,6 @@ local Cinner = {
         / "_con._A_RadiusDamage(_aci,%1,%2,%3,%4,%5)",
 
     -- some commands taking read vars
-    eshootvar = cmd(R),
-    espawnvar = cmd(R),
-    qspawnvar = cmd(R),
-    eqspawnvar = cmd(R),
     operaterespawns = cmd(R),
     operatemasterswitches = cmd(R),
     checkactivatormotion = cmd(R),
@@ -1442,11 +1455,12 @@ local Cinner = {
         / "",
     inittimer = cmd(R),
     lockplayer = cmd(R),
-    shootvar = cmd(R),
-    quake = cmd(R),
-    jump = cmd(R),
-    cmenu = cmd(R),
-    angoffvar = cmd(R),
+    quake = cmd(R)
+        / "gv.doQuake(%1,81)",  -- EARTHQUAKE
+    jump = cmd(R)
+        / handle.NYI,  -- will never be
+    cmenu = cmd(R)
+        / handle.NYI,
     checkavailweapon = cmd(R),
     checkavailinven = cmd(R),
     guniqhudid = cmd(R),
@@ -1497,22 +1511,36 @@ local Cinner = {
         / format("_con._addinventory(%s,%%1,%%2,_aci)", PLS""),
     guts = cmd(D,D)
         / "_con._A_DoGuts(_aci,%1,%2)",
+
     spawn = cmd(D)
         / "_con.spawn(_aci,%1)",
+    espawn = cmd(D)
+        / CSV".RETURN=_con.spawn(_aci,%1)",
+    espawnvar = cmd(R)
+        / CSV".RETURN=_con.spawn(_aci,%1)",
+    qspawn = cmd(D)
+        / "_con.spawn(_aci,%1,true)",
+    qspawnvar = cmd(R)
+        / "_con.spawn(_aci,%1,true)",
+    eqspawn = cmd(D)
+        / CSV".RETURN=_con.spawn(_aci,%1,true)",
+    eqspawnvar = cmd(R)
+        / CSV".RETURN=_con.spawn(_aci,%1,true)",
+
+    angoff = cmd(D)
+        / "spriteext[_aci].angoff=%1",
+    angoffvar = cmd(R)
+        / "spriteext[_aci].angoff=%1",
 
     -- cont'd
     addkills = cmd(D)
         / (PLS".actors_killed="..PLS".actors_killed+%1;"..ACS".actorstayput=-1"),
     addphealth = cmd(D)
         / format("_con._addphealth(%s,_aci,%%1)", PLS""),
-    angoff = cmd(D)
-        / "spritext[_aci].angoff=%1",
     debug = cmd(D)
         / handle.debug,
     endofgame = cmd(D)
         / "_con._endofgame(_pli,%1)",
-    eqspawn = cmd(D),
-    espawn = cmd(D),
     lotsofglass = cmd(D)
         / "_con._A_SpawnGlass(_aci,%1)",
     mail = cmd(D)
@@ -1521,8 +1549,6 @@ local Cinner = {
         / "_con._spawnmany(_aci,1233,%1)",  -- TODO: dyntile
     paper = cmd(D)
         / "_con._spawnmany(_aci,4460,%1)",  -- TODO: dyntile
-    qspawn = cmd(D)
-        / "_con.spawn(_aci,%1,true)",
     quote = cmd(D)
         / "_con._quote(_pli,%1)",
     savenn = cmd(D),
@@ -1531,12 +1557,16 @@ local Cinner = {
         / ACS".timetosleep=%1",
 
     eshoot = cmd(D)
-        / (RETURN_VAR_CODE.."=_con._shoot(_aci,%1)"),
+        / CSV".RETURN=_con._shoot(_aci,%1)",
+    eshootvar = cmd(R)
+        / CSV".RETURN=_con._shoot(_aci,%1)",
     ezshoot = cmd(R,D)
-        / (RETURN_VAR_CODE.."=_con._shoot(_aci,%2,%1)"),
+        / CSV".RETURN=_con._shoot(_aci,%2,%1)",
     ezshootvar = cmd(R,R)
-        / (RETURN_VAR_CODE.."=_con._shoot(_aci,%2,%1)"),
+        / CSV".RETURN=_con._shoot(_aci,%2,%1)",
     shoot = cmd(D)
+        / "_con._shoot(_aci,%1)",
+    shootvar = cmd(R)
         / "_con._shoot(_aci,%1)",
     zshoot = cmd(R,D)
         / "_con._shoot(_aci,%2,%1)",
@@ -1612,8 +1642,10 @@ local Cinner = {
         / handle.addweapon,
     cansee = cmd(R,R,R,R,R,R,R,R,W),
     canseespr = cmd(R,R,W),
-    changespritesect = cmd(R,R),
-    changespritestat = cmd(R,R),
+    changespritesect = cmd(R,R)
+        / "sprite.changesect(%1,%2)",
+    changespritestat = cmd(R,R)
+        / "sprite.changestat(%1,%2)",
     clipmove = cmd(W,W,W,R,W,R,R,R,R,R,R),
     clipmovenoslide = cmd(W,W,W,R,W,R,R,R,R,R,R),
     displayrand = cmd(W),
@@ -1645,10 +1677,14 @@ local Cinner = {
     operate = cmd() * #sp1
         / "_con._operate(_aci)",
 
-    myos = cmd(R,R,R,R,R),
-    myosx = cmd(R,R,R,R,R),
-    myospal = cmd(R,R,R,R,R,R),
-    myospalx = cmd(R,R,R,R,R,R),
+    myos = cmd(R,R,R,R,R)
+        / "_con._myos(%1,%2,65536,%3,%4,%5)",
+    myosx = cmd(R,R,R,R,R)
+        / "_con._myos(%1,%2,32768,%3,%4,%5)",
+    myospal = cmd(R,R,R,R,R,R)
+        / "_con._myos(%1,%2,65536,%3,%4,%5,%6)",
+    myospalx = cmd(R,R,R,R,R,R)
+        / "_con._myos(%1,%2,32768,%3,%4,%5,%6)",
 
     headspritesect = cmd(W,R),
     headspritestat = cmd(W,R),
@@ -1665,43 +1701,61 @@ local Cinner = {
     resizearray = cmd(I,R),
     getarraysize = cmd(I,W),
     rotatepoint = cmd(R,R,R,R,R,W,W),
-    rotatesprite = cmd(R,R,R,R,R,R,R,R,R,R,R,R),  -- 12R
-    rotatesprite16 = cmd(R,R,R,R,R,R,R,R,R,R,R,R),  -- 12R
+    rotatesprite = cmd(R,R,R,R,R,R,R,R,R,R,R,R)  -- 12R
+        / handle.rotatesprite,
+    rotatesprite16 = cmd(R,R,R,R,R,R,R,R,R,R,R,R)  -- 12R
+        / handle.rotatesprite16,
     sectorofwall = cmd(W,R,R),
     sectclearinterpolation = cmd(R),
     sectsetinterpolation = cmd(R),
 
-    sectgethitag = cmd(),
-    sectgetlotag = cmd(),
-    spgethitag = cmd(),
-    spgetlotag = cmd(),
+    sectgethitag = cmd()
+        / (CSV".HITAG=sector["..SPS".sectnum].hitag"),
+    sectgetlotag = cmd()
+        / (CSV".LOTAG=sector["..SPS".sectnum].lotag"),
+    spgethitag = cmd()
+        / (CSV".HITAG="..SPS".hitag"),
+    spgetlotag = cmd()
+        / (CSV".LOTAG="..SPS".lotag"),
+    gettextureceiling = cmd()
+        / (CSV".TEXTURE=sector["..SPS".sectnum].ceilingpicnum"),
+    gettexturefloor = cmd()
+        / (CSV".TEXTURE=sector["..SPS".sectnum].floorpicnum"),
 
     showview = cmd(R,R,R,R,R,R,R,R,R,R),  -- 10R
     showviewunbiased = cmd(R,R,R,R,R,R,R,R,R,R),  -- 10R
     smaxammo = cmd(R,R)
         / PLS":set_max_ammo_amount(%1,%2)",
-    gmaxammo = cmd(R,W),
-    spriteflags = cmd(R),  -- also see outer
-    ssp = cmd(R,R),
+    gmaxammo = cmd(R,W)
+        / ("%2="..PLS".max_ammo_amount[%1]"),
+    spriteflags = cmd(R)  -- also see outer
+        / ACS".flags=%1",
+    ssp = cmd(R,R)
+        / handle.NYI,
     startlevel = cmd(R,R),
     starttrack = cmd(D),
     updatesector = cmd(R,R,W),
     updatesectorz = cmd(R,R,R,W),
 
-    getactorangle = cmd(W),
+    getactorangle = cmd(W)
+        / ("%1="..SPS".ang"),
     setactorangle = cmd(R),
-    getplayerangle = cmd(W),
+    getplayerangle = cmd(W)
+        / ("%1="..PLS".ang"),
     setplayerangle = cmd(R),
-    getangletotarget = cmd(W),
+    getangletotarget = cmd(W)
+        / "%1=_con._angtotarget(_aci)",
 
-    getceilzofslope = cmd(R,R,R,W),
-    getflorzofslope = cmd(R,R,R,W),
-    getcurraddress = cmd(W),  -- XXX
+    getceilzofslope = cmd(R,R,R,W)
+        / "%4=sector[%1]:ceilingzat(%2,%3)",
+    getflorzofslope = cmd(R,R,R,W)
+        / "%4=sector[%1]:floorzat(%2,%3)",
+    getcurraddress = cmd(W)
+        / handle.NYI,  -- will never be
     getkeyname = cmd(R,R,R),
     getpname = cmd(R,R),
-    gettextureceiling = cmd(),
-    gettexturefloor = cmd(),
-    getticks = cmd(W),
+    getticks = cmd(W)
+        / "%1=gv.getticks()",
     gettimedate = cmd(W,W,W,W,W,W,W,W),
     getzrange = cmd(R,R,R,R,W,W,W,W,R,R),
 

@@ -253,12 +253,22 @@ end
 
 function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
                       cx1, cy1, cx2, cy2)
-    if (type(tilenum) ~= "number" or tilenum >= ffiC.MAXTILES+0ULL) then
-        error("bad argument #5 to rotatesprite: must be number in [0.."..ffiC.MAXTILES.."]", 2)
-    end
+    check_tile_idx(tilenum)
+    orientation = bit.band(orientation, 2047)  -- ROTATESPRITE_MAX-1
 
+    -- TODO: check that it works correctly with all coordinates, also if one
+    -- border is outside the screen etc...
     ffiC.rotatesprite(65536*x, 65536*y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
                       cx1, cy1, cx2, cy2)
+end
+
+function _myos(x, y, zoom, tilenum, shade, orientation, pal)
+    if (pal==nil) then
+        local sect = player[ffiC.screenpeek].cursectnum
+        pal = (sect>=0) and sector[sect].floorpal or 0
+    end
+
+    ffiC.G_DrawTileGeneric(x, y, zoom, tilenum, shade, orientation, pal)
 end
 
 function rnd(x)
@@ -282,7 +292,7 @@ function _mod(a,b)
     if (b==0) then
         error("mod by zero", 2)
     end
-    return math.fmod(a,b)
+    return (math.fmod(a,b))
 end
 
 
@@ -839,7 +849,7 @@ function _getlastpal(spritenum)
     actor[spritenum].tempang = 0
 end
 
--- abs(G_GetAngleDelta(a1, a2))
+-- G_GetAngleDelta(a1, a2)
 function _angdiffabs(a1, a2)
     a1 = bit.band(a1, 2047)
     a2 = bit.band(a2, 2047)
@@ -851,7 +861,20 @@ function _angdiffabs(a1, a2)
     if (a2 > 1024) then a2=a2-2048 end
     if (a1 > 1024) then a1=a1-2048 end
     -- a1 and a2 is in [-1023, 1024]
-    return math.abs(a2-a1)
+    return a2-a1
+end
+
+function _angdiffabs(a1, a2)
+    return math.abs(_angdiff(a1, a2))
+end
+
+function _angtotarget(aci)
+    local spr = sprite[aci]
+    return ffiC.getangle(actor[aci].lastvx-spr.x, actor[aci].lastvy-spr.y)
+end
+
+function _hypot(a, b)
+    return math.sqrt(a*a + b*b)
 end
 
 local SK = {
