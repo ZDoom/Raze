@@ -2651,9 +2651,7 @@ skipitaddwall:
 //
 // maskwallscan (internal)
 //
-static void maskwallscan(int32_t x1, int32_t x2,
-                         const int16_t *uwal, const int16_t *dwal,
-                         const int32_t *swal, const int32_t *lwal)
+static void maskwallscan(int32_t x1, int32_t x2)
 {
     int32_t x, xnice, ynice;
     intptr_t p, fpalookup;
@@ -2669,8 +2667,8 @@ static void maskwallscan(int32_t x1, int32_t x2,
     tsizx = tilesizx[globalpicnum];
     tsizy = tilesizy[globalpicnum];
     if ((tsizx <= 0) || (tsizy <= 0)) return;
-    if ((uwal[x1] > ydimen) && (uwal[x2] > ydimen)) return;
-    if ((dwal[x1] < 0) && (dwal[x2] < 0)) return;
+    if ((uwall[x1] > ydimen) && (uwall[x2] > ydimen)) return;
+    if ((dwall[x1] < 0) && (dwall[x2] < 0)) return;
 
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
@@ -2701,17 +2699,17 @@ static void maskwallscan(int32_t x1, int32_t x2,
 #ifdef MULTI_COLUMN_VLINE
     for (; (x<=x2)&&(p&3); x++,p++)
     {
-        y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
-        y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
+        y1ve[0] = max(uwall[x],startumost[x+windowx1]-windowy1);
+        y2ve[0] = min(dwall[x],startdmost[x+windowx1]-windowy1);
         if (y2ve[0] <= y1ve[0]) continue;
 
-        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
+        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
 
-        bufplce[0] = lwal[x] + globalxpanning;
+        bufplce[0] = lwall[x] + globalxpanning;
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
         if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
 
-        vince[0] = (int64_t)swal[x]*globalyscale;
+        vince[0] = (int64_t)swall[x]*globalyscale;
         vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
         mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
@@ -2723,22 +2721,22 @@ static void maskwallscan(int32_t x1, int32_t x2,
         bad = 0;
         for (z=3,dax=x+3; z>=0; z--,dax--)
         {
-            y1ve[z] = max(uwal[dax],startumost[dax+windowx1]-windowy1);
-            y2ve[z] = min(dwal[dax],startdmost[dax+windowx1]-windowy1)-1;
+            y1ve[z] = max(uwall[dax],startumost[dax+windowx1]-windowy1);
+            y2ve[z] = min(dwall[dax],startdmost[dax+windowx1]-windowy1)-1;
             if (y2ve[z] < y1ve[z]) { bad += pow2char[z]; continue; }
 
-            i = lwal[dax] + globalxpanning;
+            i = lwall[dax] + globalxpanning;
             if (i >= tsizx) { if (xnice == 0) i %= tsizx; else i &= tsizx; }
             if (ynice == 0) i *= tsizy; else i <<= tsizy;
             bufplce[z] = waloff[globalpicnum]+i;
 
-            vince[z] = (int64_t)swal[dax]*globalyscale;
+            vince[z] = (int64_t)swall[dax]*globalyscale;
             vplce[z] = globalzd + (uint32_t)vince[z]*(y1ve[z]-globalhoriz+1);
         }
         if (bad == 15) continue;
 
-        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
-        palookupoffse[3] = fpalookup + getpalookupsh(mulscale16(swal[x+3],globvis));
+        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
+        palookupoffse[3] = fpalookup + getpalookupsh(mulscale16(swall[x+3],globvis));
 
         if ((palookupoffse[0] == palookupoffse[3]) && ((bad&0x9) == 0))
         {
@@ -2747,8 +2745,8 @@ static void maskwallscan(int32_t x1, int32_t x2,
         }
         else
         {
-            palookupoffse[1] = fpalookup + getpalookupsh(mulscale16(swal[x+1],globvis));
-            palookupoffse[2] = fpalookup + getpalookupsh(mulscale16(swal[x+2],globvis));
+            palookupoffse[1] = fpalookup + getpalookupsh(mulscale16(swall[x+1],globvis));
+            palookupoffse[2] = fpalookup + getpalookupsh(mulscale16(swall[x+2],globvis));
         }
 
         u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
@@ -2783,17 +2781,17 @@ do_mvlineasm1:
 #endif
     for (; x<=x2; x++,p++)
     {
-        y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
-        y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
+        y1ve[0] = max(uwall[x],startumost[x+windowx1]-windowy1);
+        y2ve[0] = min(dwall[x],startdmost[x+windowx1]-windowy1);
         if (y2ve[0] <= y1ve[0]) continue;
 
-        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
+        palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
 
-        bufplce[0] = lwal[x] + globalxpanning;
+        bufplce[0] = lwall[x] + globalxpanning;
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
         if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
 
-        vince[0] = (int64_t)swal[x]*globalyscale;
+        vince[0] = (int64_t)swall[x]*globalyscale;
         vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
 #ifdef NONPOW2_YSIZE_ASM
@@ -5682,7 +5680,7 @@ draw_as_face_sprite:
         clearbuf(&swall[lx],rx-lx+1,mulscale19(yp,xdimscale));
 
         if ((cstat&2) == 0)
-            maskwallscan(lx,rx,uwall,dwall,swall,lwall);
+            maskwallscan(lx,rx);
         else
             transmaskwallscan(lx,rx);
     }
@@ -5925,7 +5923,7 @@ draw_as_face_sprite:
 
         if ((cstat&2) == 0)
         {
-            maskwallscan(sx1,sx2,uwall,dwall,swall,lwall);
+            maskwallscan(sx1,sx2);
         }
         else
         {
@@ -6509,7 +6507,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
 
     if ((globalorientation&128) == 0)
     {
-        maskwallscan(xb1[z],xb2[z],uwall,dwall,swall,lwall);
+        maskwallscan(xb1[z],xb2[z]);
     }
     else
     {
