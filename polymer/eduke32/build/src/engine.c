@@ -10741,8 +10741,9 @@ void loadtile(int16_t tilenume)
     if ((unsigned)tilenume >= (unsigned)MAXTILES) return;
     if ((dasiz = tilesizx[tilenume]*tilesizy[tilenume]) <= 0) return;
 
-#ifdef WITHKPLIB
     i = tilefilenum[tilenume];
+
+#ifdef WITHKPLIB
     if (artptrs[i]) // from zip
     {
         waloff[tilenume] = (intptr_t)(artptrs[i]) + tilefileoffs[tilenume];

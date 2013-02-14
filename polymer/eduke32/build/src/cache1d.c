@@ -1190,6 +1190,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
         while (search);
     }
 
+#ifdef WITHKPLIB
     if (!pathsearchmode)  	// next, zip files
     {
         char buf[BMAX_PATH+4];
@@ -1259,7 +1260,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
             }
         }
     }
-
+#endif
     // then, grp files
     if (!pathsearchmode && !*path && (type & CACHE1D_FIND_FILE))
     {
