@@ -47,6 +47,7 @@
 //#define CLASSIC_NONPOW2_YSIZE_WALLS
 #define CLASSIC_NONPOW2_YSIZE_SPRITES
 
+#define HIGH_PRECISION_SPRITE
 #define MULTI_COLUMN_VLINE
 //#define DEBUG_TILESIZY_512
 
@@ -2223,6 +2224,9 @@ static int16_t uplc[MAXXDIM], dplc[MAXXDIM];
 static int16_t uwall[MAXXDIM], dwall[MAXXDIM];
 static int32_t swplc[MAXXDIM], lplc[MAXXDIM];
 static int32_t swall[MAXXDIM], lwall[MAXXDIM+4];
+#ifdef HIGH_PRECISION_SPRITE
+static float swallf[MAXXDIM];
+#endif
 int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
 int32_t ydimen;
 static int32_t wx1, wy1, wx2, wy2;
@@ -2252,7 +2256,12 @@ static int32_t globalxpanning, globalypanning;
 int32_t globalshade, globalorientation;
 int16_t globalpicnum;
 static int16_t globalshiftval;
-static int32_t globalzd, globalyscale;
+#ifdef HIGH_PRECISION_SPRITE
+static int64_t globalzd;
+#else
+static int32_t globalzd;
+#endif
+static int32_t globalyscale;
 static int32_t globalxspan, globalyspan, globalispow2=1;  // true if texture has power-of-two x and y size
 static intptr_t globalbufplc;
 
@@ -2679,10 +2688,36 @@ static WSHELPER_DECL void calc_bufplc(intptr_t *bufplc, int32_t lw, int32_t tsiz
     *bufplc = waloff[globalpicnum] + i;
 }
 
-static WSHELPER_DECL void calc_vplcinc(uint32_t *vplc, int32_t *vinc, int64_t sw, int32_t y1v)
+static WSHELPER_DECL void calc_vplcinc_wall(uint32_t *vplc, int32_t *vinc, int64_t sw, int32_t y1v)
 {
     *vinc = sw*globalyscale;
     *vplc = globalzd + (uint32_t)(*vinc)*(y1v-globalhoriz+1);
+}
+
+#ifdef HIGH_PRECISION_SPRITE
+static WSHELPER_DECL void calc_vplcinc_sprite(uint32_t *vplc, int32_t *vinc, int32_t x, int32_t y1v)
+{
+    int64_t tmpvinc = swallf[x];
+    int64_t tmpvplc = globalzd + tmpvinc*(y1v-globalhoriz+1);
+
+    *vinc = tmpvinc;
+    // Clamp the vertical texture coordinate!
+    *vplc = min(max(0, tmpvplc), UINT32_MAX);
+}
+#endif
+
+static int32_t drawing_sprite = 0;
+
+static WSHELPER_DECL void calc_vplcinc(uint32_t *vplc, int32_t *vinc, const int32_t *swal, int32_t x, int32_t y1v)
+{
+#if !defined HIGH_PRECISION_SPRITE
+    (void)drawing_sprite;
+#else
+    if (drawing_sprite)
+        calc_vplcinc_sprite(vplc, vinc, x, y1v);
+    else
+#endif
+        calc_vplcinc_wall(vplc, vinc, swal[x], y1v);
 }
 
 #undef NONPOW2_YSIZE_ASM
@@ -2748,7 +2783,7 @@ static void maskwallscan(int32_t x1, int32_t x2)
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
 
         calc_bufplc(&bufplce[0], lwall[x], tsizx, tsizy);
-        calc_vplcinc(&vplce[0], &vince[0], swall[x], y1ve[0]);
+        calc_vplcinc(&vplce[0], &vince[0], swall, x, y1ve[0]);
 
         mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0],p+ylookup[y1ve[0]]);
     }
@@ -2764,7 +2799,7 @@ static void maskwallscan(int32_t x1, int32_t x2)
             if (y2ve[z] < y1ve[z]) { bad += pow2char[z]; continue; }
 
             calc_bufplc(&bufplce[z], lwall[dax], tsizx, tsizy);
-            calc_vplcinc(&vplce[z], &vince[z], swall[dax], y1ve[z]);
+            calc_vplcinc(&vplce[z], &vince[z], swall, dax, y1ve[z]);
         }
         if (bad == 15) continue;
 
@@ -2821,7 +2856,7 @@ do_mvlineasm1:
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
 
         calc_bufplc(&bufplce[0], lwall[x], tsizx, tsizy);
-        calc_vplcinc(&vplce[0], &vince[0], swall[x], y1ve[0]);
+        calc_vplcinc(&vplce[0], &vince[0], swall, x, y1ve[0]);
 
 #ifdef NONPOW2_YSIZE_ASM
         if (globalshiftval==0)
@@ -3740,7 +3775,7 @@ static void wallscan(int32_t x1, int32_t x2,
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
 
         calc_bufplc(&bufplce[0], lwal[x], tsizx, tsizy);
-        calc_vplcinc(&vplce[0], &vince[0], swal[x], y1ve[0]);
+        calc_vplcinc(&vplce[0], &vince[0], swal, x, y1ve[0]);
 
         vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0],x+frameoffset+ylookup[y1ve[0]]);
     }
@@ -3754,7 +3789,7 @@ static void wallscan(int32_t x1, int32_t x2,
             if (y2ve[z] < y1ve[z]) { bad += pow2char[z]; continue; }
 
             calc_bufplc(&bufplce[z], lwal[x+z], tsizx, tsizy);
-            calc_vplcinc(&vplce[z], &vince[z], swal[x+z], y1ve[z]);
+            calc_vplcinc(&vplce[z], &vince[z], swal, x+z, y1ve[z]);
         }
         if (bad == 15) continue;
 
@@ -3811,7 +3846,7 @@ do_vlineasm1:
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
 
         calc_bufplc(&bufplce[0], lwal[x], tsizx, tsizy);
-        calc_vplcinc(&vplce[0], &vince[0], swal[x], y1ve[0]);
+        calc_vplcinc(&vplce[0], &vince[0], swal, x, y1ve[0]);
 
 #ifdef NONPOW2_YSIZE_ASM
         if (globalshiftval==0)
@@ -3845,7 +3880,7 @@ static void transmaskvline(int32_t x)
     palookupoffs = FP_OFF(palookup[globalpal]) + getpalookupsh(mulscale16(swall[x],globvis));
 
     calc_bufplc(&bufplc, lwall[x], -tilesizx[globalpicnum], -tilesizy[globalpicnum]);
-    calc_vplcinc(&vplc, &vinc, swall[x], y1v);
+    calc_vplcinc(&vplc, &vinc, swall, x, y1v);
 
     p = ylookup[y1v]+x+frameoffset;
 
@@ -3888,8 +3923,8 @@ static void transmaskvline2(int32_t x)
 
     calc_bufplc(&bufplce[0], lwall[x], -tilesizx[globalpicnum], -tilesizy[globalpicnum]);
     calc_bufplc(&bufplce[1], lwall[x2], -tilesizx[globalpicnum], -tilesizy[globalpicnum]);
-    calc_vplcinc(&vplce[0], &vince[0], swall[x], y1ve[0]);
-    calc_vplcinc(&vplce[1], &vince[1], swall[x2], y1ve[1]);
+    calc_vplcinc(&vplce[0], &vince[0], swall, x, y1ve[0]);
+    calc_vplcinc(&vplce[1], &vince[1], swall, x2, y1ve[1]);
 
     y1 = max(y1ve[0],y1ve[1]);
     y2 = min(y2ve[0],y2ve[1]);
@@ -4070,18 +4105,14 @@ static inline void ceilspritehline(int32_t x2, int32_t y)
         if ((globalorientation&2) == 0)
             mhline(globalbufplc,bx,(x2-x1)<<16,0L,by,ylookup[y]+x1+frameoffset);
         else
-        {
             thline(globalbufplc,bx,(x2-x1)<<16,0L,by,ylookup[y]+x1+frameoffset);
-        }
     }
     else
     {
         if ((globalorientation&2) == 0)
             nonpow2_mhline(globalbufplc,bx,(x2-x1)<<16,0L,by,(char *)(ylookup[y]+x1+frameoffset));
         else
-        {
             nonpow2_thline(globalbufplc,bx,(x2-x1)<<16,0L,by,(char *)(ylookup[y]+x1+frameoffset));
-        }
     }
 }
 
@@ -5681,16 +5712,32 @@ draw_as_face_sprite:
         qinterpolatedown16((intptr_t)&lwall[lx],rx-lx+1,linum,linuminc);
         clearbuf(&swall[lx],rx-lx+1,mulscale19(yp,xdimscale));
 
+        {
+#ifdef HIGH_PRECISION_SPRITE
+            union { float f; int32_t i; } sw = {
+                // initialize the float of the union
+                ((cstat&8) ? -1 : 1)
+                * (float)yp * xdimscale
+                * (1<<(22-19)) / (yspan*tspr->yrepeat)
+            };
+
+            clearbuf(&swallf[lx], rx-lx+1, sw.i);
+#endif
+        }
+
+        drawing_sprite = 1;
+
         if ((cstat&2) == 0)
             maskwallscan(lx,rx);
         else
             transmaskwallscan(lx,rx);
+
+        drawing_sprite = 0;
     }
     else if ((cstat&48) == 16)
     {
         int32_t swapped, top, bot, topinc, botinc;
-        int32_t xv, yv, hplc, hinc;
-        int32_t sx1, sx2, sy1, sy2;
+        int32_t xv, yv, sx1, sx2, sy1, sy2;
 
         if ((cstat&4) > 0) xoff = -xoff;
         if ((cstat&8) > 0) yoff = -yoff;
@@ -5796,10 +5843,6 @@ draw_as_face_sprite:
         rx1[MAXWALLSB-1] = xp1; ry1[MAXWALLSB-1] = yp1;
         rx2[MAXWALLSB-1] = xp2; ry2[MAXWALLSB-1] = yp2;
 
-        hplc = divscale19(xdimenscale,sy1);
-        hinc = divscale19(xdimenscale,sy2);
-        hinc = (hinc-hplc)/(sx2-sx1+1);
-
         setup_globals_sprite1(tspr, sec, yspan, yoff, tilenum, cstat, &z1, &z2);
 
         if (((sec->ceilingstat&1) == 0) && (z1 < sec->ceilingz))
@@ -5813,8 +5856,29 @@ draw_as_face_sprite:
         yb2[MAXWALLSB-1] = sy2;
         owallmost(uwall, MAXWALLSB-1, z1-globalposz);
         owallmost(dwall, MAXWALLSB-1, z2-globalposz);
-        for (i=sx1; i<=sx2; i++)
-            { swall[i] = (krecipasm(hplc)<<2); hplc += hinc; }
+
+        {
+            int32_t hplc = divscale19(xdimenscale,sy1);
+            const int32_t hplc2 = divscale19(xdimenscale,sy2);
+            int32_t hinc = sx2-sx1 ? (hplc2-hplc)/(sx2-sx1) : 0;
+
+#ifdef HIGH_PRECISION_SPRITE
+            const float cc = ((1<<19)*(float)xdimen*yxaspect)/320.f;
+            float hplcf = cc/sy1;
+            const float hincf = sx2-sx1 ? (cc/sy2 - hplcf)/(sx2-sx1) : 0;
+            const float loopcc = ((cstat&8) ? -1 : 1)*((float)(1<<30)*(1<<24))
+                / (yspan*tspr->yrepeat);
+#endif
+            for (i=sx1; i<=sx2; i++)
+            {
+                swall[i] = (krecipasm(hplc)<<2);
+                hplc += hinc;
+#ifdef HIGH_PRECISION_SPRITE
+                swallf[i] = loopcc/hplcf;
+                hplcf += hincf;
+#endif
+            }
+        }
 
         for (i=smostwallcnt-1; i>=0; i--)
         {
@@ -5923,14 +5987,14 @@ draw_as_face_sprite:
                 searchstat = 3; searchit = 1;
             }
 
+        drawing_sprite = 1;
+
         if ((cstat&2) == 0)
-        {
             maskwallscan(sx1,sx2);
-        }
         else
-        {
             transmaskwallscan(sx1,sx2);
-        }
+
+        drawing_sprite = 0;
     }
     else if ((cstat&48) == 32)
     {
@@ -6271,8 +6335,8 @@ draw_as_face_sprite:
         lx = 0; rx = xdim-1;
         for (x=lx; x<=rx; x++)
         {
-            lwall[x] = (int32_t)startumost[x+windowx1]-windowy1;
-            swall[x] = (int32_t)startdmost[x+windowx1]-windowy1;
+            lwall[x] = startumost[x+windowx1]-windowy1;
+            swall[x] = startdmost[x+windowx1]-windowy1;
         }
         for (i=smostwallcnt-1; i>=0; i--)
         {
