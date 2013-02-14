@@ -2640,6 +2640,51 @@ skipitaddwall:
     while (sectorbordercnt > 0);
 }
 
+
+////////// *WALLSCAN HELPERS //////////
+
+#define WSHELPER_DECL inline //ATTRIBUTE((always_inline))
+
+static WSHELPER_DECL void tweak_tsizes(int32_t *tsizx, int32_t *tsizy)
+{
+    if (pow2long[picsiz[globalpicnum]&15] == *tsizx)
+        *tsizx = *tsizx-1;
+    else
+        *tsizx = -*tsizx;
+
+    if (pow2long[picsiz[globalpicnum]>>4] == *tsizy)
+        *tsizy = (picsiz[globalpicnum]>>4);
+    else
+        *tsizy = -*tsizy;
+}
+
+static WSHELPER_DECL void calc_bufplc(intptr_t *bufplc, int32_t lw, int32_t tsizx, int32_t tsizy)
+{
+    int32_t i = lw + globalxpanning;
+
+    if (i >= tsizx)
+    {
+        if (tsizx < 0)
+            i %= tsizx;
+        else
+            i &= tsizx;
+    }
+
+    if (tsizy < 0)
+        i *= -tsizy;
+    else
+        i <<= tsizy;
+
+    // Address is at the first row of tile storage (which is column-major).
+    *bufplc = waloff[globalpicnum] + i;
+}
+
+static WSHELPER_DECL void calc_vplcinc(uint32_t *vplc, int32_t *vinc, int64_t sw, int32_t y1v)
+{
+    *vinc = sw*globalyscale;
+    *vplc = globalzd + (uint32_t)(*vinc)*(y1v-globalhoriz+1);
+}
+
 #undef NONPOW2_YSIZE_ASM
 #if !defined ENGINE_USING_A_C
 # if defined CLASSIC_NONPOW2_YSIZE_WALLS || defined CLASSIC_NONPOW2_YSIZE_SPRITES
@@ -2653,12 +2698,12 @@ skipitaddwall:
 //
 static void maskwallscan(int32_t x1, int32_t x2)
 {
-    int32_t x, xnice, ynice;
+    int32_t x;
     intptr_t p, fpalookup;
     int32_t y1ve[4], y2ve[4], tsizx, tsizy;
 #ifdef MULTI_COLUMN_VLINE
     char bad;
-    int32_t i, u4, d4, dax, z;
+    int32_t u4, d4, dax, z;
 #endif
     setgotpic(globalpicnum);
     if (globalshiftval < 0)
@@ -2672,10 +2717,7 @@ static void maskwallscan(int32_t x1, int32_t x2)
 
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
-    xnice = (pow2long[picsiz[globalpicnum]&15] == tsizx);
-    if (xnice) tsizx = (tsizx-1);
-    ynice = (pow2long[picsiz[globalpicnum]>>4] == tsizy);
-    if (ynice) tsizy = (picsiz[globalpicnum]>>4);
+    tweak_tsizes(&tsizx, &tsizy);
 
     if (palookup[globalpal] == NULL)
         globalpal = 0;
@@ -2705,14 +2747,10 @@ static void maskwallscan(int32_t x1, int32_t x2)
 
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
 
-        bufplce[0] = lwall[x] + globalxpanning;
-        if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
-        if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
+        calc_bufplc(&bufplce[0], lwall[x], tsizx, tsizy);
+        calc_vplcinc(&vplce[0], &vince[0], swall[x], y1ve[0]);
 
-        vince[0] = (int64_t)swall[x]*globalyscale;
-        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
-
-        mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
+        mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0],p+ylookup[y1ve[0]]);
     }
     for (; x<=x2-3; x+=4,p+=4)
     {
@@ -2725,13 +2763,8 @@ static void maskwallscan(int32_t x1, int32_t x2)
             y2ve[z] = min(dwall[dax],startdmost[dax+windowx1]-windowy1)-1;
             if (y2ve[z] < y1ve[z]) { bad += pow2char[z]; continue; }
 
-            i = lwall[dax] + globalxpanning;
-            if (i >= tsizx) { if (xnice == 0) i %= tsizx; else i &= tsizx; }
-            if (ynice == 0) i *= tsizy; else i <<= tsizy;
-            bufplce[z] = waloff[globalpicnum]+i;
-
-            vince[z] = (int64_t)swall[dax]*globalyscale;
-            vplce[z] = globalzd + (uint32_t)vince[z]*(y1ve[z]-globalhoriz+1);
+            calc_bufplc(&bufplce[z], lwall[dax], tsizx, tsizy);
+            calc_vplcinc(&vplce[z], &vince[z], swall[dax], y1ve[z]);
         }
         if (bad == 15) continue;
 
@@ -2787,19 +2820,15 @@ do_mvlineasm1:
 
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
 
-        bufplce[0] = lwall[x] + globalxpanning;
-        if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
-        if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
-
-        vince[0] = (int64_t)swall[x]*globalyscale;
-        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
+        calc_bufplc(&bufplce[0], lwall[x], tsizx, tsizy);
+        calc_vplcinc(&vplce[0], &vince[0], swall[x], y1ve[0]);
 
 #ifdef NONPOW2_YSIZE_ASM
         if (globalshiftval==0)
-            mvlineasm1nonpow2(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
+            mvlineasm1nonpow2(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0],p+ylookup[y1ve[0]]);
         else
 #endif
-        mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
+        mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0],p+ylookup[y1ve[0]]);
     }
 
     faketimerhandler();
@@ -3659,12 +3688,12 @@ static void wallscan(int32_t x1, int32_t x2,
                      const int16_t *uwal, const int16_t *dwal,
                      const int32_t *swal, const int32_t *lwal)
 {
-    int32_t x, xnice, ynice;
+    int32_t x;
     intptr_t fpalookup;
     int32_t y1ve[4], y2ve[4], tsizx, tsizy;
 #ifdef MULTI_COLUMN_VLINE
     char bad;
-    int32_t i, u4, d4, z;
+    int32_t u4, d4, z;
     uintptr_t p;
 #endif
 
@@ -3686,10 +3715,7 @@ static void wallscan(int32_t x1, int32_t x2,
 
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
-    xnice = (pow2long[picsiz[globalpicnum]&15] == tsizx);
-    if (xnice) tsizx--;
-    ynice = (pow2long[picsiz[globalpicnum]>>4] == tsizy);
-    if (ynice) tsizy = (picsiz[globalpicnum]>>4);
+    tweak_tsizes(&tsizx, &tsizy);
 
     fpalookup = FP_OFF(palookup[globalpal]);
 
@@ -3713,14 +3739,10 @@ static void wallscan(int32_t x1, int32_t x2,
 
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
 
-        bufplce[0] = lwal[x] + globalxpanning;
-        if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
-        if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
+        calc_bufplc(&bufplce[0], lwal[x], tsizx, tsizy);
+        calc_vplcinc(&vplce[0], &vince[0], swal[x], y1ve[0]);
 
-        vince[0] = (int64_t)swal[x]*globalyscale;
-        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
-
-        vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
+        vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0],x+frameoffset+ylookup[y1ve[0]]);
     }
     for (; x<=x2-3; x+=4)
     {
@@ -3731,13 +3753,8 @@ static void wallscan(int32_t x1, int32_t x2,
             y2ve[z] = min(dwal[x+z],dmost[x+z])-1;
             if (y2ve[z] < y1ve[z]) { bad += pow2char[z]; continue; }
 
-            i = lwal[x+z] + globalxpanning;
-            if (i >= tsizx) { if (xnice == 0) i %= tsizx; else i &= tsizx; }
-            if (ynice == 0) i *= tsizy; else i <<= tsizy;
-            bufplce[z] = waloff[globalpicnum]+i;
-
-            vince[z] = (int64_t)swal[x+z]*globalyscale;
-            vplce[z] = globalzd + (uint32_t)vince[z]*(y1ve[z]-globalhoriz+1);
+            calc_bufplc(&bufplce[z], lwal[x+z], tsizx, tsizy);
+            calc_vplcinc(&vplce[z], &vince[z], swal[x+z], y1ve[z]);
         }
         if (bad == 15) continue;
 
@@ -3793,19 +3810,15 @@ do_vlineasm1:
 
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swal[x],globvis));
 
-        bufplce[0] = lwal[x] + globalxpanning;
-        if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
-        if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
-
-        vince[0] = (int64_t)swal[x]*globalyscale;
-        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
+        calc_bufplc(&bufplce[0], lwal[x], tsizx, tsizy);
+        calc_vplcinc(&vplce[0], &vince[0], swal[x], y1ve[0]);
 
 #ifdef NONPOW2_YSIZE_ASM
         if (globalshiftval==0)
-            vlineasm1nonpow2(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
+            vlineasm1nonpow2(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0],x+frameoffset+ylookup[y1ve[0]]);
         else
 #endif
-        vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
+        vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0],x+frameoffset+ylookup[y1ve[0]]);
     }
 
     faketimerhandler();
@@ -3816,10 +3829,11 @@ do_vlineasm1:
 //
 static void transmaskvline(int32_t x)
 {
-    int32_t vplc, vinc, i;
+    uint32_t vplc;
+    int32_t vinc;
     intptr_t palookupoffs;
     intptr_t bufplc,p;
-    int16_t y1v, y2v;
+    int32_t y1v, y2v;
 
     if ((x < 0) || (x >= xdimen)) return;
 
@@ -3830,12 +3844,8 @@ static void transmaskvline(int32_t x)
 
     palookupoffs = FP_OFF(palookup[globalpal]) + getpalookupsh(mulscale16(swall[x],globvis));
 
-    vinc = (int64_t)swall[x]*globalyscale;
-    vplc = globalzd + (uint32_t)vinc*(y1v-globalhoriz+1);
-
-    i = lwall[x]+globalxpanning;
-    if (i >= tilesizx[globalpicnum]) i %= tilesizx[globalpicnum];
-    bufplc = waloff[globalpicnum]+i*tilesizy[globalpicnum];
+    calc_bufplc(&bufplc, lwall[x], -tilesizx[globalpicnum], -tilesizy[globalpicnum]);
+    calc_vplcinc(&vplc, &vinc, swall[x], y1v);
 
     p = ylookup[y1v]+x+frameoffset;
 
@@ -3854,8 +3864,8 @@ static void transmaskvline(int32_t x)
 #ifdef MULTI_COLUMN_VLINE
 static void transmaskvline2(int32_t x)
 {
-    int32_t i, y1, y2, x2;
-    int16_t y1ve[2], y2ve[2];
+    int32_t y1, y2, x2;
+    int32_t y1ve[2], y2ve[2];
 
     uintptr_t p;
 
@@ -3876,18 +3886,10 @@ static void transmaskvline2(int32_t x)
 
     setuptvlineasm2(globalshiftval,palookupoffse[0],palookupoffse[1]);
 
-    vince[0] = (int64_t)swall[x]*globalyscale;
-    vince[1] = (int64_t)swall[x2]*globalyscale;
-    vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
-    vplce[1] = globalzd + (uint32_t)vince[1]*(y1ve[1]-globalhoriz+1);
-
-    i = lwall[x] + globalxpanning;
-    if (i >= tilesizx[globalpicnum]) i %= tilesizx[globalpicnum];
-    bufplce[0] = waloff[globalpicnum]+i*tilesizy[globalpicnum];
-
-    i = lwall[x2] + globalxpanning;
-    if (i >= tilesizx[globalpicnum]) i %= tilesizx[globalpicnum];
-    bufplce[1] = waloff[globalpicnum]+i*tilesizy[globalpicnum];
+    calc_bufplc(&bufplce[0], lwall[x], -tilesizx[globalpicnum], -tilesizy[globalpicnum]);
+    calc_bufplc(&bufplce[1], lwall[x2], -tilesizx[globalpicnum], -tilesizy[globalpicnum]);
+    calc_vplcinc(&vplce[0], &vince[0], swall[x], y1ve[0]);
+    calc_vplcinc(&vplce[1], &vince[1], swall[x2], y1ve[1]);
 
     y1 = max(y1ve[0],y1ve[1]);
     y2 = min(y2ve[0],y2ve[1]);
