@@ -59,5 +59,17 @@ function bcheck.inventory_idx(inv)
     end
 end
 
+function bcheck.volume_idx(volume)
+    if (volume >= con_lang.MAXVOLUMES+0ULL) then
+        error("invalid volume number "..volume)
+    end
+end
+
+function bcheck.level_idx(level)
+    if (level >= con_lang.MAXLEVELS+0ULL) then
+        error("invalid level number "..level)
+    end
+end
+
 
 return bcheck

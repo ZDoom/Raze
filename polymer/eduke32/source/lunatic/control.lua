@@ -284,14 +284,20 @@ function _gettimedate()
     return v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]
 end
 
+local rshift = bit.rshift
+
 function rnd(x)
-    return (bit.rshift(ffiC.krand(), 8) >= (255-x))
+    return (rshift(ffiC.krand(), 8) >= (255-x))
 end
 
 -- Legacy operators
 
 function _rand(x)
-    return bit.rshift(ffiC.krand()*(x+1), 16)
+    return rshift(ffiC.krand()*(x+1), 16)
+end
+
+function _displayrand(x)
+    return rshift(math.random(0, 32767)*(x+1), 15)
 end
 
 function _div(a,b)
@@ -846,6 +852,20 @@ function _canseespr(s1, s2)
     return cansee(sprite[s1], sprite[s1].sectnum, sprite[s2], sprite[s2].sectnum) and 1 or 0
 end
 
+-- CON "hitscan" command
+function _hitscan(x, y, z, sectnum, vx, vy, vz, cliptype)
+    local srcv = geom.ivec3(x, y, z)
+    local hit = hitscan(srcv, sectnum, vx, vy, vz, cliptype)
+    return hit.sect, hit.wall, hit.sprite, hit.pos.x, hit.pos.y, hit.pos.z
+end
+
+-- CON "neartag" command
+function _neartag(x, y, z, sectnum, ang, range, tagsearch)
+    local pos = geom.ivec3(x, y, z)
+    local near = neartag(pos, sectnum, ang, range, tagsearch)
+    return near.sector, near.wall, near.sprite, near.dist
+end
+
 function _sleepcheck(aci, dist)
     local acs = actor[aci]
     if (dist > MAXSLEEPDIST and acs.timetosleep == 0) then
@@ -857,6 +877,12 @@ function _canseetarget(spr, ps)
     -- NOTE: &41 ?
     return cansee(spr^(256*krandand(41)), spr.sectnum,
                   ps.pos, sprite[ps.i].sectnum)
+end
+
+function _movesprite(spritenum, x, y, z, cliptype)
+    check_sprite_idx(spritenum)
+    local vel = geom.ivec3(x, y, z)
+    return ffiC.A_MoveSprite(spritenum, vel, cliptype)
 end
 
 local function A_CheckHitSprite(spr, angadd)
@@ -945,6 +971,13 @@ end
 
 function _hypot(a, b)
     return math.sqrt(a*a + b*b)
+end
+
+function _rotatepoint(pivotx, pivoty, posx, posy, ang)
+    local pos = geom.ivec3(posx, posy)
+    local pivot = geom.ivec3(pivotx, pivoty)
+    pos = xmath.rotate(pos, pivot, ang):toivec3()
+    return pos.x, pos.y
 end
 
 local SK = {
@@ -1150,6 +1183,28 @@ function _setactorsoundpitch(aci, sndidx, pitchoffset)
     check_sprite_idx(aci)
     check_sound_idx(sndidx)
     ffiC.S_ChangeSoundPitch(sndidx, aci, pitchoffset)
+end
+
+function _starttrack(level)
+    bcheck.level_idx(level)
+
+    if (ffiC.G_StartTrack(level) ~= 0) then
+        error("null music for volume "..ffiC.ud.volume_number..
+              " level "..level)
+    end
+end
+
+function _startlevel(volume, level)
+    bcheck.volume_idx(volume)
+    bcheck.level_idx(level)
+
+    ffiC.ud.m_volume_number = volume
+    ffiC.ud.m_level_number = level
+
+    ffiC.ud.display_bonus_screen = 0
+
+    -- TODO_MP
+    player[0].gm = bit.bor(player[0].gm, 0x00000008)  -- MODE_EOL
 end
 
 

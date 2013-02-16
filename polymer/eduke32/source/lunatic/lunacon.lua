@@ -1287,6 +1287,28 @@ local handle =
         return format("print('%s:%d: debug %d')", g_filename, getlinecol(g_lastkwpos), val)
     end,
 
+    hitscan = function(...)
+        local v = {...}
+        assert(#v == 14)  -- 7R 6W 1R
+        local vals = {
+            v[8], v[9], v[10], v[11], v[12], v[13],  -- outargs
+            v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[14]  -- inargs
+        }
+        return format("%s,%s,%s,%s,%s,%s=_con._hitscan(%s,%s,%s,%s,%s,%s,%s,%s)",
+                     unpack(vals))
+    end,
+
+    neartag = function(...)
+        local v = {...}
+        assert(#v == 11)  -- 5R 4W 2R
+        local vals = {
+            v[6], v[7], v[8], v[9],  -- outargs
+            v[1], v[2], v[3], v[4], v[5], v[10], v[11]  -- inargs
+        }
+        return format("%s,%s,%s,%s=_con._neartag(%s,%s,%s,%s,%s,%s,%s)",
+                      unpack(vals))
+    end,
+
     palfrom = function(...)
         local v = {...}
         return format(PLS":_palfrom(%d,%d,%d,%d)",
@@ -1478,7 +1500,6 @@ local Cinner = {
     userquote = cmd(R),
     echo = cmd(R)
         / "_con._echo(%1)",
-    starttrackvar = cmd(R),
     activatecheat = cmd(R)
         / handle.NYI,
     setgamepalette = cmd(R),
@@ -1662,19 +1683,38 @@ local Cinner = {
         / "sprite.changesect(%1,%2)",
     changespritestat = cmd(R,R)
         / "sprite.changestat(%1,%2)",
-    clipmove = cmd(W,W,W,R,W,R,R,R,R,R,R)
-        / handle.NYI,
-    clipmovenoslide = cmd(W,W,W,R,W,R,R,R,R,R,R)
-        / handle.NYI,
-    displayrand = cmd(W),
-    displayrandvar = cmd(W,D),
-    displayrandvarvar = cmd(W,R),
+    displayrand = cmd(W)
+        / "%1=_con._displayrand(32767)",
+    displayrandvar = cmd(W,D)
+        / "%1=_con._displayrand(%2)",
+    displayrandvarvar = cmd(W,R)
+        / "%1=_con._displayrand(%2)",
     dist = cmd(W,R,R)
         / "%1=_xmath.dist(sprite[%1],sprite[%2])",
     ldist = cmd(W,R,R)
         / "%1=_xmath.ldist(sprite[%1],sprite[%2])",
-    dragpoint = cmd(R,R,R),
-    hitscan = cmd(R,R,R,R,R,R,R,W,W,W,W,W,W,R), -- 7R 6W 1R
+    dragpoint = cmd(R,R,R)
+        / handle.NYI,
+    rotatepoint = cmd(R,R,R,R,R,W,W)
+        / "%6,%7=_con._rotatepoint(%1,%2,%3,%4,%5)",
+
+    -- collision detection etc.
+    hitscan = cmd(R,R,R,R,R,R,R,W,W,W,W,W,W,R)  -- 7R 6W 1R
+        / handle.hitscan,
+    clipmove = cmd(W,W,W,R,W,R,R,R,R,R,R)
+        / handle.NYI,
+    clipmovenoslide = cmd(W,W,W,R,W,R,R,R,R,R,R)
+        / handle.NYI,
+    lineintersect = cmd(R,R,R,R,R,R,R,R,R,R,W,W,W,W)  -- 10R 4W
+        / handle.NYI,
+    rayintersect = cmd(R,R,R,R,R,R,R,R,R,R,W,W,W,W)  -- 10R 4W
+        / handle.NYI,
+    movesprite = cmd(R,R,R,R,R,W)
+        / "%6=_con._movesprite(%1,%2,%3,%4,%5)",
+    neartag = cmd(R,R,R,R,R,W,W,W,W,R,R)  -- 5R 4W 2R
+        / handle.neartag,
+    getzrange = cmd(R,R,R,R,W,W,W,W,R,R)
+        / handle.NYI,
 
     -- screen text and numbers display
     gametext = cmd(R,R,R,R,R,R,R,R,R,R,R),  -- 11 R
@@ -1683,12 +1723,6 @@ local Cinner = {
     digitalnumberz = cmd(R,R,R,R,R,R,R,R,R,R,R,R),  -- 12R
     minitext = cmd(R,R,R,R,R),
 
-    lineintersect = cmd(R,R,R,R,R,R,R,R,R,R,W,W,W,W)  -- 10R 4W
-        / handle.NYI,
-    rayintersect = cmd(R,R,R,R,R,R,R,R,R,R,W,W,W,W)  -- 10R 4W
-        / handle.NYI,
-    movesprite = cmd(R,R,R,R,R,W),
-    neartag = cmd(R,R,R,R,R,W,W,W,W,R,R),
     palfrom = (sp1 * tok.define)^-4
         / handle.palfrom,
 
@@ -1726,7 +1760,6 @@ local Cinner = {
 
     redefinequote = sp1 * tok.define * newline_term_string
         / function(qnum, qstr) return format("_con._definequote(%d,%q)", qnum, stripws(qstr)) end,
-    rotatepoint = cmd(R,R,R,R,R,W,W),
     rotatesprite = cmd(R,R,R,R,R,R,R,R,R,R,R,R)  -- 12R
         / handle.rotatesprite,
     rotatesprite16 = cmd(R,R,R,R,R,R,R,R,R,R,R,R)  -- 12R
@@ -1751,6 +1784,13 @@ local Cinner = {
     gettexturefloor = cmd()
         / (CSV".TEXTURE=sector["..SPS".sectnum].floorpicnum"),
 
+    startlevel = cmd(R,R)
+        / "_con._startlevel(%1,%2)",
+    starttrack = cmd(D)
+        / "_con._starttrack(%1)",
+    starttrackvar = cmd(R)
+        / "_con._starttrack(%1)",
+
     showview = cmd(R,R,R,R,R,R,R,R,R,R),  -- 10R
     showviewunbiased = cmd(R,R,R,R,R,R,R,R,R,R),  -- 10R
     smaxammo = cmd(R,R)
@@ -1761,17 +1801,17 @@ local Cinner = {
         / ACS".flags=%1",
     ssp = cmd(R,R)
         / handle.NYI,
-    startlevel = cmd(R,R),
-    starttrack = cmd(D),
     updatesector = cmd(R,R,W),
     updatesectorz = cmd(R,R,R,W),
 
     getactorangle = cmd(W)
         / ("%1="..SPS".ang"),
-    setactorangle = cmd(R),
+    setactorangle = cmd(R)
+        / SPS".ang=_bit.band(%1,2047)",
     getplayerangle = cmd(W)
         / ("%1="..PLS".ang"),
-    setplayerangle = cmd(R),
+    setplayerangle = cmd(R)
+        / PLS".ang=_bit.band(%1,2047)",
     getangletotarget = cmd(W)
         / "%1=_con._angtotarget(_aci)",
 
@@ -1787,7 +1827,6 @@ local Cinner = {
         / "%1=_gv.getticks()",
     gettimedate = cmd(W,W,W,W,W,W,W,W)
         / "%1,%2,%3,%4,%5,%6,%7,%8=_con._gettimedate()",
-    getzrange = cmd(R,R,R,R,W,W,W,W,R,R),
 
     setaspect = cmd(R,R),
 }

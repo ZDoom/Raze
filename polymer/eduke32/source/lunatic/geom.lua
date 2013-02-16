@@ -10,6 +10,17 @@ local error = error
 module(...)
 
 
+-- This has no metamethods, but can be useful for calculations expecting
+-- integer values, e.g. geom.ivec3(x, y, z) is a reasonable way to round
+-- a vec3.  It can be also used as the RHS to the vec2/vec3 arithmetic
+-- methods.
+-- NOTE: We must have a typedef with that exact name, because for
+-- Lunatic (i.e. not stand-alone), it is a duplicate (and ignored)
+-- declaration for an already metatype'd type.
+ffi.cdef "typedef struct { int32_t x, y, z; } vec3_t;"
+ivec3 = ffi.typeof("vec3_t")
+
+
 local dvec2_t = ffi.typeof("struct { double x, y; }")
 local dvec3_t = ffi.typeof("struct { double x, y, z; }")
 
@@ -92,6 +103,10 @@ local vec3_mt = {
         lensq = function(a) return a.x*a.x + a.y*a.y + a.z*a.z end,
         -- Manhattan distance:
         len1 = function(a) return math.abs(a.x)+math.abs(a.y)+math.abs(a.z) end,
+
+        toivec3 = function(v)
+            return ivec3(v.x, v.y, v.z)
+        end,
     },
 }
 
@@ -110,16 +125,6 @@ function tovec2(t) return vec2(t.x, t.y) end
 vec3_ = ffi.metatype(dvec3_t, vec3_mt)
 vec3 = vec3_
 function tovec3(t) return vec3(t.x, t.y, t.z) end
-
--- This has no metamethods, but can be useful for calculations expecting
--- integer values, e.g. geom.ivec3(x, y, z) is a reasonable way to round
--- a vec3.  It can be also used as the RHS to the vec2/vec3 arithmetic
--- methods.
--- NOTE: We must have a typedef with that exact name, because for
--- Lunatic (i.e. not stand-alone), it is a duplicate (and ignored)
--- declaration for an already metatype'd type.
-ffi.cdef "typedef struct { int32_t x, y, z; } vec3_t;"
-ivec3 = ffi.typeof("vec3_t")
 
 
 -- Two-element vector cross product.

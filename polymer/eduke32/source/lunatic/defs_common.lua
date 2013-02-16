@@ -767,10 +767,10 @@ typedef struct {
 ]]
 local neartag_ret_ct = ffi.typeof("const neartag_ret_t")
 
+local function newar() return ffi.new("int16_t [1]") end
 -- TODO: make tagsearch something more convenient
 function neartag(pos, sectnum, ang, range, tagsearch)
     check_sector_idx(sectnum)
-    local newar = function() return ffi.new("int16_t [1]") end
     local a, b, c, d = newar(), newar(), newar(), ffi.new("int32_t [1]")
     ffiC.neartag(pos.x, pos.y, pos.z, sectnum, ang, a, b, c, d, range, tagsearch, nil)
     return neartag_ret_ct(a[0], b[0], c[0], d[0])

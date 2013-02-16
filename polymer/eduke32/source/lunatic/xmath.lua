@@ -5,6 +5,8 @@ local ffi = require("ffi")
 local bit = require("bit")
 local math = require("math")
 
+local geom = require("geom")
+
 local assert = assert
 
 
@@ -95,4 +97,16 @@ function dist(pos1, pos2)
 
     local t = y + z
     return x - arshift(x,4) + arshift(t,2) + arshift(t,3)
+end
+
+
+-- Point rotation. Note the different order of arguments from engine function.
+-- XXX: passing mixed vec2/vec3 is problematic. Get rid of geom.vec2?
+-- <ang>: BUILD angle (0-2047 based)
+function rotate(pos, pivot, ang)
+    local p = geom.tovec3(pos)-pivot
+    local c, s = cosb(ang), sinb(ang)
+    p.x = pivot.x + (c*p.x - s*p.y)
+    p.y = pivot.y + (c*p.y + s*p.x)
+    return p
 end
