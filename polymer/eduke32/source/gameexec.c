@@ -987,6 +987,24 @@ void G_GetTimeDate(int32_t *vals)
     vals[7] = ti->tm_yday;
 }
 
+int32_t G_StartTrack(int32_t level)
+{
+    if ((unsigned)level < MAXLEVELS)
+    {
+        int32_t musicIndex = MAXLEVELS*ud.volume_number + level;
+
+        if (MapInfo[g_musicIndex].musicfn != NULL)
+        {
+            g_musicIndex = musicIndex;
+            S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
+
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 #if !defined LUNATIC
 GAMEEXEC_STATIC void VM_Execute(int32_t loop)
 {
@@ -4618,14 +4636,14 @@ nullquote:
         case CON_STARTTRACK:
         case CON_STARTTRACKVAR:
             insptr++;
-            if (tw == CON_STARTTRACK) g_musicIndex=(ud.volume_number*MAXLEVELS)+(*(insptr++));
-            else g_musicIndex=(ud.volume_number*MAXLEVELS)+(Gv_GetVarX(*(insptr++)));
-            if (MapInfo[g_musicIndex].musicfn == NULL)
             {
-                CON_ERRPRINTF("null music for map %d\n", g_musicIndex);
-                continue;
+                int32_t level = (tw == CON_STARTTRACK) ? *(insptr++) :
+                    Gv_GetVarX(*(insptr++));
+
+                if (G_StartTrack(level))
+                    CON_ERRPRINTF("invalid level %d or null music for volume %d level %d\n",
+                                  level, ud.volume_number, level);
             }
-            S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0],g_musicIndex);
             continue;
 
         case CON_ACTIVATECHEAT:
