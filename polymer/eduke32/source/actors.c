@@ -36,16 +36,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern int32_t g_numEnvSoundsPlaying;
 extern int32_t g_noEnemies;
 
-void G_SetInterpolation(int32_t *posptr)
+int32_t G_SetInterpolation(int32_t *posptr)
 {
     int32_t i=g_numInterpolations-1;
 
-    if (g_numInterpolations >= MAXINTERPOLATIONS) return;
+    if (g_numInterpolations >= MAXINTERPOLATIONS)
+        return 1;
+
     for (; i>=0; i--)
-        if (curipos[i] == posptr) return;
+        if (curipos[i] == posptr)
+            return 0;
+
     curipos[g_numInterpolations] = posptr;
     oldipos[g_numInterpolations] = *posptr;
     g_numInterpolations++;
+    return 0;
 }
 
 void G_StopInterpolation(int32_t *posptr)
@@ -594,44 +599,47 @@ void A_DoGutsDir(int32_t sp, int32_t gtype, int32_t n)
     }
 }
 
-void Sect_SetInterpolation(int32_t sectnum)
+// NOTE: external linkage for Lunatic
+int32_t G_ToggleWallInterpolation(int32_t w, int32_t doset)
+{
+    if (doset)
+    {
+        return G_SetInterpolation(&wall[w].x)
+            || G_SetInterpolation(&wall[w].y);
+    }
+    else
+    {
+        G_StopInterpolation(&wall[w].x);
+        G_StopInterpolation(&wall[w].y);
+        return 0;
+    }
+}
+
+static void Sect_ToggleInterpolation(int32_t sectnum, int32_t doset)
 {
     int32_t k, j = sector[sectnum].wallptr, endwall = j+sector[sectnum].wallnum;
 
     for (; j<endwall; j++)
     {
-        G_SetInterpolation(&wall[j].x);
-        G_SetInterpolation(&wall[j].y);
+        G_ToggleWallInterpolation(j, doset);
+
         k = wall[j].nextwall;
         if (k >= 0)
         {
-            G_SetInterpolation(&wall[k].x);
-            G_SetInterpolation(&wall[k].y);
-            k = wall[k].point2;
-            G_SetInterpolation(&wall[k].x);
-            G_SetInterpolation(&wall[k].y);
+            G_ToggleWallInterpolation(k, doset);
+            G_ToggleWallInterpolation(wall[k].point2, doset);
         }
     }
 }
 
+void Sect_SetInterpolation(int32_t sectnum)
+{
+    Sect_ToggleInterpolation(sectnum, 1);
+}
+
 void Sect_ClearInterpolation(int32_t sectnum)
 {
-    int32_t k, j = sector[sectnum].wallptr, endwall = j+sector[sectnum].wallnum;
-
-    for (; j<endwall; j++)
-    {
-        G_StopInterpolation(&wall[j].x);
-        G_StopInterpolation(&wall[j].y);
-        k = wall[j].nextwall;
-        if (k >= 0)
-        {
-            G_StopInterpolation(&wall[k].x);
-            G_StopInterpolation(&wall[k].y);
-            k = wall[k].point2;
-            G_StopInterpolation(&wall[k].x);
-            G_StopInterpolation(&wall[k].y);
-        }
-    }
+    Sect_ToggleInterpolation(sectnum, 0);
 }
 
 static int32_t move_rotfixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)

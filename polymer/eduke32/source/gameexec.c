@@ -968,6 +968,25 @@ static int32_t VM_ResetPlayer(int32_t g_p, int32_t g_flags)
     return g_flags;
 }
 
+void G_GetTimeDate(int32_t *vals)
+{
+    time_t rawtime;
+    struct tm *ti;
+
+    time(&rawtime);
+    ti=localtime(&rawtime);
+    // initprintf("Time&date: %s\n",asctime (ti));
+
+    vals[0] = ti->tm_sec;
+    vals[1] = ti->tm_min;
+    vals[2] = ti->tm_hour;
+    vals[3] = ti->tm_mday;
+    vals[4] = ti->tm_mon;
+    vals[5] = ti->tm_year+1900;
+    vals[6] = ti->tm_wday;
+    vals[7] = ti->tm_yday;
+}
+
 #if !defined LUNATIC
 GAMEEXEC_STATIC void VM_Execute(int32_t loop)
 {
@@ -2891,22 +2910,13 @@ nullquote:
         case CON_GETTIMEDATE:
             insptr++;
             {
-                int32_t v1=*insptr++,v2=*insptr++,v3=*insptr++,v4=*insptr++,v5=*insptr++,v6=*insptr++,v7=*insptr++,v8=*insptr++;
-                time_t rawtime;
-                struct tm *ti;
+                int32_t i, vals[8];
 
-                time(&rawtime);
-                ti=localtime(&rawtime);
-                // initprintf("Time&date: %s\n",asctime (ti));
+                G_GetTimeDate(vals);
 
-                Gv_SetVarX(v1, ti->tm_sec);
-                Gv_SetVarX(v2, ti->tm_min);
-                Gv_SetVarX(v3, ti->tm_hour);
-                Gv_SetVarX(v4, ti->tm_mday);
-                Gv_SetVarX(v5, ti->tm_mon);
-                Gv_SetVarX(v6, ti->tm_year+1900);
-                Gv_SetVarX(v7, ti->tm_wday);
-                Gv_SetVarX(v8, ti->tm_yday);
+                for (i=0; i<8; i++)
+                    Gv_SetVarX(*insptr++, vals[i]);
+
                 continue;
             }
 
