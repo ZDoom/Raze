@@ -9227,7 +9227,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 case 'v':
                     c++;
                     ud.warp_on = 1;
-                    ud.m_volume_number = ud.volume_number = Batoi(c)-1;
+                    ud.m_volume_number = ud.volume_number = (Batoi(c)-1)%MAXVOLUMES;
                     break;
                 case 'w':
                     ud.coords = 1;
