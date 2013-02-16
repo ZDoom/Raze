@@ -133,6 +133,8 @@ VM_FallSprite;
 VM_ResetPlayer2;
 A_RadiusDamage;
 G_OperateSectors;
+G_OperateActivators;
+G_CheckActivatorMotion;
 A_Dodge;
 A_InsertSprite;
 A_Spawn;
@@ -140,6 +142,9 @@ A_AddToDeleteQueue;
 P_DoQuote;
 G_ClearCameraView;
 G_DrawTileGeneric;
+G_InitTimer;
+G_GetTimeDate;
+G_ToggleWallInterpolation;
 
 A_CheckAnySoundPlaying;
 A_PlaySound;

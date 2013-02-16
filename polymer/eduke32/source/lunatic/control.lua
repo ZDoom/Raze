@@ -271,6 +271,19 @@ function _myos(x, y, zoom, tilenum, shade, orientation, pal)
     ffiC.G_DrawTileGeneric(x, y, zoom, tilenum, shade, orientation, pal)
 end
 
+function _inittimer(ticspersec)
+    if (not (ticspersec >= 1)) then
+        error("ticspersec must be >= 1", 2)
+    end
+    ffiC.G_InitTimer(ticspersec)
+end
+
+function _gettimedate()
+    v = ffi.new("int32_t [8]")
+    ffiC.G_GetTimeDate(v)
+    return v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]
+end
+
 function rnd(x)
     return (bit.rshift(ffiC.krand(), 8) >= (255-x))
 end
@@ -293,6 +306,31 @@ function _mod(a,b)
         error("mod by zero", 2)
     end
     return (math.fmod(a,b))
+end
+
+-- Sect_ToggleInterpolation() clone
+function _togglesectinterp(sectnum, doset)
+    for w in wallsofsect(sectnum) do
+        ffiC.G_ToggleWallInterpolation(w, doset)
+
+        local nw = wall[w].nextwall
+        if (nw >= 0) then
+            ffiC.G_ToggleWallInterpolation(nw, doset)
+            ffiC.G_ToggleWallInterpolation(wall[nw].point2, doset)
+        end
+    end
+end
+
+--- player/actor/sprite searching functions ---
+
+local function A_FP_ManhattanDist(ps, spr)
+    return (ps.pos - spr^(28*256)):blen1()
+end
+
+-- Returns: player index, distance
+-- TODO: MP case
+function _findplayer(ps, spritenum)
+    return 0, A_FP_ManhattanDist(ps, sprite[spritenum])
 end
 
 
@@ -362,6 +400,7 @@ end
 local D = {
     -- TODO: dynamic tile remapping
     ACTIVATOR = 2,
+    MASTERSWITCH = 8,
     RESPAWN = 9,
     APLAYER = 1405,
 
@@ -675,6 +714,35 @@ function _operate(spritenum)
     end
 end
 
+function _operatesectors(sectnum, spritenum)
+    check_sector_idx(sectnum)
+    check_sprite_idx(spritenum)  -- XXX: -1 permissible under certain circumstances?
+    ffiC.G_OperateSectors(sectnum, spritenum)
+end
+
+function _operateactivators(tag, playernum)
+    check_player_idx(playernum)
+    -- NOTE: passing oob playernum would be safe because G_OperateActivators
+    -- bound-checks it
+    ffiC.G_OperateActivators(tag, playernum)
+end
+
+function _activatebysector(sectnum, spritenum)
+    local didit = false
+    for i in spriteofsect(sectnum) do
+        if (sprite[i].picnum==D.ACTIVATOR) then
+            ffiC.G_OperateActivators(sprite[i].lotag, -1)
+        end
+    end
+    if (didit) then
+        _operatesectors(sectnum, spritenum)
+    end
+end
+
+function _checkactivatormotion(tag)
+    return ffiC.G_CheckActivatorMotion(tag)
+end
+
 function _endofgame(pli, timebeforeexit)
     player[pli].timebeforeexit = timebeforeexit
     player[pli].customexitsound = -1
@@ -944,7 +1012,7 @@ function _flash(spr, ps)
    ffiC.lastvisinc = ffiC.totalclock+32
 end
 
-local function G_OperateRespawns(tag)
+function _G_OperateRespawns(tag)
     for i in spritesofstat(ffiC.STAT_FX) do
         local spr = sprite[i]
 
@@ -958,6 +1026,15 @@ local function G_OperateRespawns(tag)
 
             -- Just a way to killit (see G_MoveFX(): RESPAWN__STATIC)
             spr.extra = 66-12
+        end
+    end
+end
+
+function _G_OperateMasterSwitches(tag)
+    for i in spritesofstat(ffiC.STAT_STANDABLE) do
+        local spr = sprite[i]
+        if (spr.picnum==D.MASTERSWITCH and spr.lotag==tag and spr.yvel==0) then
+            spr:_set_yvel(1)
         end
     end
 end
@@ -982,10 +1059,10 @@ local RESPAWN_USE_YVEL =
 function _respawnhitag(spr)
     if (RESPAWN_USE_YVEL[spr.picnum]) then
         if (spr.yvel ~= 0) then
-            G_OperateRespawns(spr.yvel)
+            _G_OperateRespawns(spr.yvel)
         end
     else
-        G_OperateRespawns(spr.hitag)
+        _G_OperateRespawns(spr.hitag)
     end
 end
 

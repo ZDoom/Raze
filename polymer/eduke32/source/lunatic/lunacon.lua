@@ -1353,8 +1353,7 @@ local Cinner = {
     -- NOTE2: userdef has at least three members with a second parameter:
     -- user_name, ridecule, savegame. Then there's wchoice. Given that they're
     -- arrays, I highly doubt that they worked (much less were safe) in CON.
-    -- We disallow them unless CONs in the wild crop up that actually used
-    -- these.
+    -- We disallow them, recent EDuke32 versions didn't expose them either.
     getuserdef = GetStructCmd(Access.userdef, userdef_common_pat * tok.wvar),
 
     getplayervar = GetOrSetPerxvarCmd(false, false),
@@ -1448,13 +1447,18 @@ local Cinner = {
         / "_con._A_RadiusDamage(_aci,%1,%2,%3,%4,%5)",
 
     -- some commands taking read vars
-    operaterespawns = cmd(R),
-    operatemasterswitches = cmd(R),
-    checkactivatormotion = cmd(R),
+    operaterespawns = cmd(R)
+        / "_con._G_OperateRespawns(%1)",
+    operatemasterswitches = cmd(R)
+        / "_con._G_OperateMasterSwitches(%1)",
+    checkactivatormotion = cmd(R)
+        / CSV".RETURN=_con._checkactivatormotion(%1)",
     time = cmd(R)  -- no-op
         / "",
-    inittimer = cmd(R),
-    lockplayer = cmd(R),
+    inittimer = cmd(R)
+        / "_con._inittimer(%1)",
+    lockplayer = cmd(R)
+        / PLS".transporter_hold=%1",
     quake = cmd(R)
         / "gv.doQuake(%1,81)",  -- EARTHQUAKE
     jump = cmd(R)
@@ -1471,7 +1475,8 @@ local Cinner = {
         / "_con._echo(%1)",
     starttrackvar = cmd(R),
     clearmapstate = cmd(R),
-    activatecheat = cmd(R),
+    activatecheat = cmd(R)
+        / handle.NYI,
     setgamepalette = cmd(R),
 
     -- Sound commands
@@ -1605,8 +1610,10 @@ local Cinner = {
         / PLS":wack()",
 
     -- player/sprite searching
-    findplayer = cmd(W),
-    findotherplayer = cmd(W),
+    findplayer = cmd(W)
+        / CSV".RETURN,%1=_con._findplayer(_pli,_aci)",  -- player index, distance
+    findotherplayer = cmd(W)
+        / CSV".RETURN,%1=0,0x7fffffff",  -- TODO: MP case
     findnearspritezvar = cmd(D,R,R,W),
     findnearspritez = cmd(D,D,D,W),
     findnearsprite3dvar = cmd(D,R,W),
@@ -1632,8 +1639,11 @@ local Cinner = {
     -- array stuff
     copy = sp1 * tok.identifier * arraypat * sp1 * tok.identifier * arraypat * sp1 * tok.rvar,
     setarray = sp1 * tok.identifier * arraypat * sp1 * tok.rvar,
+    resizearray = cmd(I,R),
+    getarraysize = cmd(I,W),
+    readarrayfromfile = cmd(I,D),
+    writearraytofile = cmd(I,D),
 
-    activatebysector = cmd(R,R),
     addlogvar = cmd(R)
         / handle.addlogvar,
     addlog = cmd() * #sp1
@@ -1669,11 +1679,18 @@ local Cinner = {
     savemapstate = cmd(),
     movesprite = cmd(R,R,R,R,R,W),
     neartag = cmd(R,R,R,R,R,W,W,W,W,R,R),
-    operateactivators = cmd(R,R),
-    operatesectors = cmd(R,R),
     palfrom = (sp1 * tok.define)^-4
         / handle.palfrom,
 
+    activatebysector = cmd(R,R)
+        / "_con._activatebysector(%1,%2)",
+    operateactivators = cmd(R,R)  -- THISACTOR
+        / function(tag, pli)
+              return format("_con._operateactivators(%s,%s)", tag,
+                            (pli=="_aci") and "_pli" or pli)
+          end,
+    operatesectors = cmd(R,R)
+        / "_con._operatesectors(%1,%2)",
     operate = cmd() * #sp1
         / "_con._operate(_aci)",
 
@@ -1693,21 +1710,19 @@ local Cinner = {
     prevspritesect = cmd(W,R),
     prevspritestat = cmd(W,R),
 
-    readarrayfromfile = cmd(I,D),
-    writearraytofile = cmd(I,D),
-
     redefinequote = sp1 * tok.define * newline_term_string
         / function(qnum, qstr) return format("_con._definequote(%d,%q)", qnum, stripws(qstr)) end,
-    resizearray = cmd(I,R),
-    getarraysize = cmd(I,W),
     rotatepoint = cmd(R,R,R,R,R,W,W),
     rotatesprite = cmd(R,R,R,R,R,R,R,R,R,R,R,R)  -- 12R
         / handle.rotatesprite,
     rotatesprite16 = cmd(R,R,R,R,R,R,R,R,R,R,R,R)  -- 12R
         / handle.rotatesprite16,
-    sectorofwall = cmd(W,R,R),
-    sectclearinterpolation = cmd(R),
-    sectsetinterpolation = cmd(R),
+    sectorofwall = cmd(W,R,R)
+        / handle.NYI,
+    sectclearinterpolation = cmd(R)
+        / "_con._togglesectinterp(%1,0)",
+    sectsetinterpolation = cmd(R)
+        / "_con._togglesectinterp(%1,1)",
 
     sectgethitag = cmd()
         / (CSV".HITAG=sector["..SPS".sectnum].hitag"),
@@ -1756,7 +1771,8 @@ local Cinner = {
     getpname = cmd(R,R),
     getticks = cmd(W)
         / "%1=gv.getticks()",
-    gettimedate = cmd(W,W,W,W,W,W,W,W),
+    gettimedate = cmd(W,W,W,W,W,W,W,W)
+        / "%1,%2,%3,%4,%5,%6,%7,%8=_con._gettimedate()",
     getzrange = cmd(R,R,R,R,W,W,W,W,R,R),
 
     setaspect = cmd(R,R),

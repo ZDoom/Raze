@@ -50,6 +50,8 @@ local vec2_mt = {
 
     __index = {
         lensq = function(a) return a.x*a.x + a.y*a.y end,
+        -- Manhattan distance:
+        len1 = function(a) return math.abs(a.x)+math.abs(a.y) end,
     },
 }
 
@@ -88,6 +90,8 @@ local vec3_mt = {
 
     __index = {
         lensq = function(a) return a.x*a.x + a.y*a.y + a.z*a.z end,
+        -- Manhattan distance:
+        len1 = function(a) return math.abs(a.x)+math.abs(a.y)+math.abs(a.z) end,
     },
 }
 
@@ -98,7 +102,8 @@ vec2_ = ffi.metatype(dvec2_t, vec2_mt)
 vec2 = vec2_
 
 -- Returns a vec2 from anything indexable with "x" and "y"
--- (vec2(t) works if t is such a table, but not if it's a vec2 or other cdata)
+-- (vec2(t) works if t is such a table, but not if it's a vec2 or a cdata of
+-- different type)
 function tovec2(t) return vec2(t.x, t.y) end
 
 -- Same for vec3

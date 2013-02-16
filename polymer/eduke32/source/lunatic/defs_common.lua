@@ -10,6 +10,7 @@ local ffiC = ffi.C
 ffi.cdef "enum { _DEBUG_LUNATIC=1 }"
 
 local bit = require("bit")
+local math = require("math")
 local string = require("string")
 local table = require("table")
 
@@ -280,16 +281,29 @@ local check_sector_idx = bcheck.sector_idx
 local check_sprite_idx = bcheck.sprite_idx
 local check_tile_idx = bcheck.tile_idx
 
+local band = bit.band
+local bor = bit.bor
+local bnot = bit.bnot
+local lshift = bit.lshift
+local rshift = bit.rshift
+local xor = bit.bxor
+
 local ivec3_
 local ivec3_mt = {
     -- '^' is the "translate upwards" operator
     __pow = function(v, zofs)
         return ivec3_(v.x, v.y, v.z-zofs)
     end,
+
+    __index = {
+        -- Manhattan distance with z right-shifted by 4 bits
+        blen1 = function(v)
+            return math.abs(v.x) + math.abs(v.y) + math.abs(bit.arshift(v.z,4))
+        end,
+    },
 }
 ivec3_ = ffi.metatype(vec3_ct, ivec3_mt)
 
-local xor = bit.bxor
 local wallsofsec  -- fwd-decl
 
 local sectortype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SECTOR_STRUCT)))
@@ -341,12 +355,6 @@ local sectortype_mt = {
     }
 }
 ffi.metatype("sectortype", sectortype_mt)
-
-local band = bit.band
-local bor = bit.bor
-local bnot = bit.bnot
-local lshift = bit.lshift
-local rshift = bit.rshift
 
 local walltype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(WALL_STRUCT)))
 
