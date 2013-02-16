@@ -765,12 +765,10 @@ function _awayfromwall(spr, d)
     return true
 end
 
-local BANG2RAD = math.pi/1024
+local xmath = require("xmath")
 
 local function cossinb(bang)
-    -- XXX: better use the precalc'd arrays instead?
-    local ang = BANG2RAD*bang
-    return 16384*math.cos(ang), 16384*math.sin(ang)
+    return xmath.cosb(bang), xmath.sinb(bang)
 end
 
 local function manhatdist(v1, v2)
@@ -842,6 +840,10 @@ function _cansee(aci, ps)
     end
 
     return can
+end
+
+function _canseespr(s1, s2)
+    return cansee(sprite[s1], sprite[s1].sectnum, sprite[s2], sprite[s2].sectnum) and 1 or 0
 end
 
 function _sleepcheck(aci, dist)

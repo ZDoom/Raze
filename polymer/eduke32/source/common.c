@@ -387,7 +387,7 @@ int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char
 }
 
 
-// Approximations to the 2D and 3D euclidean distances. Initial EDuke32 SVN import says
+// Approximations to 2D and 3D Euclidean distances. Initial EDuke32 SVN import says
 // in jmact/mathutil.c: "Ken's reverse-engineering job".
 // Note that jmact/mathutil.c contains practically the same code, but where the
 // individual x/y(/z) distances are passed instead.

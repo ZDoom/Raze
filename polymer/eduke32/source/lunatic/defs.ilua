@@ -1091,6 +1091,7 @@ local allowed_modules = {
     geom = geom,
     stat = require("stat"),
     bitar = require("bitar"),
+    xmath = require("xmath"),
 
     con = con,
 }

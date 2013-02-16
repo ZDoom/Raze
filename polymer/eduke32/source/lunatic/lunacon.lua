@@ -137,13 +137,15 @@ local function getlinecol(pos) end -- fwd-decl
 local function new_initial_codetab()
     return {
         "local _con, _bit, _math = require'con', require'bit', require'math';",
+        "local _xmath, _geom = require'xmath', require'geom';",
         "local sector, sprite, actor, player = sector, sprite, actor, player;",
-        "local gameactor, gameevent, _gv = gameactor, gameevent, gv;"
+        "local gameactor, gameevent, _gv = gameactor, gameevent, gv;",
+        "local cansee = cansee;"
            }
 end
 
 -- CON global system gamevar
-local function CSV(var) return "gv._csv"..var end
+local function CSV(var) return "_gv._csv"..var end
 
 -- Creates the table of predefined game variables.
 -- KEEPINSYNC gamevars.c: Gv_AddSystemVars()
@@ -1401,14 +1403,17 @@ local Cinner = {
 
     --- 2. Math operations
     sqrt = cmd(R,W)
-        / "%2=gv.ksqrt(%1)",
+        / "%2=_gv.ksqrt(%1)",
     calchypotenuse = cmd(W,R,R)
         / "%1=_con._hypot(%2,%3)",
-    sin = cmd(W,R),
-    cos = cmd(W,R),
-    mulscale = cmd(W,R,R,R),
+    sin = cmd(W,R)
+        / "%1=_xmath.ksin(%2)",
+    cos = cmd(W,R)
+        / "%1=_xmath.kcos(%2)",
+    mulscale = cmd(W,R,R,R)
+        / "%1=_gv.Mulscale(%1,%2,%3)",
     getangle = cmd(W,R,R)
-        / "%1=gv.getangle(%2,%3)",
+        / "%1=_gv.getangle(%2,%3)",
     getincangle = cmd(W,R,R)
         / "%1=_con._angdiff(%2,%3)",
 
@@ -1460,7 +1465,7 @@ local Cinner = {
     lockplayer = cmd(R)
         / PLS".transporter_hold=%1",
     quake = cmd(R)
-        / "gv.doQuake(%1,81)",  -- EARTHQUAKE
+        / "_gv.doQuake(%1,81)",  -- EARTHQUAKE
     jump = cmd(R)
         / handle.NYI,  -- will never be
     cmenu = cmd(R)
@@ -1474,7 +1479,6 @@ local Cinner = {
     echo = cmd(R)
         / "_con._echo(%1)",
     starttrackvar = cmd(R),
-    clearmapstate = cmd(R),
     activatecheat = cmd(R)
         / handle.NYI,
     setgamepalette = cmd(R),
@@ -1650,18 +1654,25 @@ local Cinner = {
         / handle.addlog,
     addweaponvar = cmd(R,R)  -- NLCF
         / handle.addweapon,
-    cansee = cmd(R,R,R,R,R,R,R,R,W),
-    canseespr = cmd(R,R,W),
+    cansee = cmd(R,R,R,R,R,R,R,R,W)
+        / "%9=cansee(_geom.ivec3(%1,%2,%3),%4, _geom.ivec3(%5,%6,%7),%8) and 1 or 0",
+    canseespr = cmd(R,R,W)
+        / "%3=_con._canseespr(%1,%2)",
     changespritesect = cmd(R,R)
         / "sprite.changesect(%1,%2)",
     changespritestat = cmd(R,R)
         / "sprite.changestat(%1,%2)",
-    clipmove = cmd(W,W,W,R,W,R,R,R,R,R,R),
-    clipmovenoslide = cmd(W,W,W,R,W,R,R,R,R,R,R),
+    clipmove = cmd(W,W,W,R,W,R,R,R,R,R,R)
+        / handle.NYI,
+    clipmovenoslide = cmd(W,W,W,R,W,R,R,R,R,R,R)
+        / handle.NYI,
     displayrand = cmd(W),
     displayrandvar = cmd(W,D),
     displayrandvarvar = cmd(W,R),
-    dist = cmd(W,R,R),
+    dist = cmd(W,R,R)
+        / "%1=_xmath.dist(sprite[%1],sprite[%2])",
+    ldist = cmd(W,R,R)
+        / "%1=_xmath.ldist(sprite[%1],sprite[%2])",
     dragpoint = cmd(R,R,R),
     hitscan = cmd(R,R,R,R,R,R,R,W,W,W,W,W,W,R), -- 7R 6W 1R
 
@@ -1672,11 +1683,10 @@ local Cinner = {
     digitalnumberz = cmd(R,R,R,R,R,R,R,R,R,R,R,R),  -- 12R
     minitext = cmd(R,R,R,R,R),
 
-    ldist = cmd(W,R,R),
-    lineintersect = cmd(R,R,R,R,R,R,R,R,R,R,W,W,W,W),  -- 10R 4W
-    rayintersect = cmd(R,R,R,R,R,R,R,R,R,R,W,W,W,W),  -- 10R 4W
-    loadmapstate = cmd(),
-    savemapstate = cmd(),
+    lineintersect = cmd(R,R,R,R,R,R,R,R,R,R,W,W,W,W)  -- 10R 4W
+        / handle.NYI,
+    rayintersect = cmd(R,R,R,R,R,R,R,R,R,R,W,W,W,W)  -- 10R 4W
+        / handle.NYI,
     movesprite = cmd(R,R,R,R,R,W),
     neartag = cmd(R,R,R,R,R,W,W,W,W,R,R),
     palfrom = (sp1 * tok.define)^-4
@@ -1702,6 +1712,10 @@ local Cinner = {
         / "_con._myos(%1,%2,65536,%3,%4,%5,%6)",
     myospalx = cmd(R,R,R,R,R,R)
         / "_con._myos(%1,%2,32768,%3,%4,%5,%6)",
+
+    clearmapstate = cmd(R),
+    loadmapstate = cmd(),
+    savemapstate = cmd(),
 
     headspritesect = cmd(W,R),
     headspritestat = cmd(W,R),
@@ -1770,7 +1784,7 @@ local Cinner = {
     getkeyname = cmd(R,R,R),
     getpname = cmd(R,R),
     getticks = cmd(W)
-        / "%1=gv.getticks()",
+        / "%1=_gv.getticks()",
     gettimedate = cmd(W,W,W,W,W,W,W,W)
         / "%1,%2,%3,%4,%5,%6,%7,%8=_con._gettimedate()",
     getzrange = cmd(R,R,R,R,W,W,W,W,R,R),

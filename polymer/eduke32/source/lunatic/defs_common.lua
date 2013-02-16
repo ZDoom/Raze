@@ -274,6 +274,7 @@ double gethitickms(void);
 int32_t krand(void);
 int32_t ksqrt(uint32_t num);
 int32_t __fastcall getangle(int32_t xvect, int32_t yvect);
+int32_t Mulscale(int32_t a, int32_t b, int32_t sh);
 ]]
 
 local bcheck = require("bcheck")
@@ -750,12 +751,8 @@ function hitscan(pos, sectnum, vx,vy,vz, cliptype)
 end
 
 function cansee(pos1,sect1, pos2,sect2)
-    if (sect1 >= ffiC.numsectors+0ULL) then
-        error("passed out-of-bounds first sector number "..sect1, 2)
-    end
-    if (sect2 >= ffiC.numsectors+0ULL) then
-        error("passed out-of-bounds second sector number "..sect2, 2)
-    end
+    check_sector_idx(sect1)
+    check_sector_idx(sect2)
 
     local ret = ffiC.cansee(pos1.x,pos1.y,pos1.z, sect1,
                             pos2.x,pos2.y,pos2.z, sect2)

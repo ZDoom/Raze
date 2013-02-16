@@ -400,6 +400,34 @@ bittest.sieve()
 require("test/test_geom")
 require("test/test_rotspr")
 
+do
+    -- Test ksin vs. sinb
+    local xmath = require "xmath"
+    local sum = 0
+
+    local N = 1000
+    local t = gv.gethitickms()
+    for i=0,N*2048-1 do
+        sum = sum+xmath.ksin(i)
+    end
+    t = gv.gethitickms()-t
+    sum = sum*1e12
+    printf("ksin: sum*1e12=%.03f, %.03fus per 0-2047 cycle", sum, t)
+
+    sum = 0
+    local t = gv.gethitickms()
+    for i=0,N*2048-1 do
+        sum = sum+xmath.sinb(i)
+    end
+    t = gv.gethitickms()-t
+    sum = sum*1e12
+    printf("sinb: sum*1e12=%.03f, %.03fus per 0-2047 cycle", sum, t)
+
+    -- Results (helixhorned x86):
+    -- ksin: sum*1e12=0.000, 3.801us per 0-2047 cycle
+    -- sinb: sum*1e12=0.052, 2.886us per 0-2047 cycle
+end
+
 print('---=== END TEST SCRIPT ===---')
 
 --[[

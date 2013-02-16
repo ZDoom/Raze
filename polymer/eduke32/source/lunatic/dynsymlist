@@ -119,6 +119,9 @@ luaJIT_BC_randgen;
 luaJIT_BC_stat;
 luaJIT_BC_bitar;
 luaJIT_BC_control;
+luaJIT_BC_bcarray;
+luaJIT_BC_bcheck;
+luaJIT_BC_xmath;
 
 rand_jkiss_u32;
 rand_jkiss_dbl;

@@ -157,7 +157,8 @@ ifneq (0,$(LUNATIC))
                $(OBJ)/luaJIT_BC_bitar.$o \
                $(OBJ)/luaJIT_BC_control.$o \
                $(OBJ)/luaJIT_BC_bcarray.$o \
-               $(OBJ)/luaJIT_BC_bcheck.$o
+               $(OBJ)/luaJIT_BC_bcheck.$o \
+               $(OBJ)/luaJIT_BC_xmath.$o
 
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
     # executable no matter what the debugging level
