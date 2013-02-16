@@ -2238,15 +2238,7 @@ nullquote:
 
         case CON_INITTIMER:
             insptr++;
-            {
-                int32_t j = Gv_GetVarX(*insptr++);
-
-                if (g_timerTicsPerSecond == j)
-                    continue;
-
-                uninittimer();
-                inittimer((g_timerTicsPerSecond = j));
-            }
+            G_InitTimer(Gv_GetVarX(*insptr++));
             continue;
 
         case CON_TIME:

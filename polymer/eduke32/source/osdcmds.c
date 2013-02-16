@@ -1158,20 +1158,13 @@ static int32_t osdcmd_restorestate(const osdfuncparm_t *parm)
 #ifdef DEBUGGINGAIDS
 static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
 {
-    int32_t j;
-
     if (parm->numparms != 1)
     {
         OSD_Printf("%dHz timer\n",g_timerTicsPerSecond);
         return OSDCMD_SHOWHELP;
     }
 
-    j = Batol(parm->parms[0]);
-    if (g_timerTicsPerSecond == j)
-        return OSDCMD_OK;
-    uninittimer();
-    inittimer(j);
-    g_timerTicsPerSecond = j;
+    G_InitTimer(Batol(parm->parms[0]));
 
     OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;

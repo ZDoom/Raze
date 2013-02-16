@@ -321,6 +321,7 @@ void P_SetGamePalette(DukePlayer_t *player,uint8_t palid,int32_t set);
 int32_t app_main(int32_t argc,const char **argv);
 void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);
 //void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);
+void G_InitTimer(int32_t ticpersec);
 
 static inline int32_t G_GetTeamPalette(int32_t team)
 {

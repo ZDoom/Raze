@@ -7561,6 +7561,16 @@ void G_SetViewportShrink(int32_t dir)
     G_UpdateScreenArea();
 }
 
+void G_InitTimer(int32_t ticspersec)
+{
+    if (g_timerTicsPerSecond != ticspersec)
+    {
+        uninittimer();
+        inittimer(ticspersec);
+        g_timerTicsPerSecond = ticspersec;
+    }
+}
+
 void G_HandleLocalKeys(void)
 {
     int32_t i,ch;
@@ -7707,27 +7717,15 @@ void G_HandleLocalKeys(void)
 #if 0
         if (KB_KeyPressed(sc_kpad_Plus))
         {
-            if (g_timerTicsPerSecond != 240)
-            {
-                uninittimer();
-                inittimer(240);
-                g_timerTicsPerSecond = 240;
-            }
+            G_InitTimer(240);
         }
         else if (KB_KeyPressed(sc_kpad_Minus))
         {
-            if (g_timerTicsPerSecond != 60)
-            {
-                uninittimer();
-                inittimer(60);
-                g_timerTicsPerSecond = 60;
-            }
+            G_InitTimer(60);
         }
         else if (g_timerTicsPerSecond != 120)
         {
-            uninittimer();
-            inittimer(120);
-            g_timerTicsPerSecond = 120;
+            G_InitTimer(120);
         }
 #endif
 
