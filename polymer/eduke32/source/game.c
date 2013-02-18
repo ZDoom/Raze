@@ -352,7 +352,7 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
                 t++;
                 if (isdigit(*(t+1)))
                     t++;
-//                t += 1 + isdigit(*(t+2));   // This code is wrong, see C99 6.5.16 #3
+//                t += 1 + isdigit(*(t+2));   // This code is wrong, see C99 6.5 #2
                 continue;
             }
 
@@ -988,9 +988,8 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
 {
     int32_t i, j = 0, k, p, c;
     char b[12];
-    int32_t shift = (cs&ROTATESPRITE_MAX)?0:16;
+    const int32_t shift = 16;
 
-    //ltoa(n,b,10);
     i = Bsprintf(b,"%d",n);
 
     for (k=i-1; k>=0; k--)

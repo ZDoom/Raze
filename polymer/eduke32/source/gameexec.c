@@ -2672,8 +2672,6 @@ nullquote:
                     continue;
                 }
 
-                orientation &= (ROTATESPRITE_MAX-1);
-
                 G_DrawTXDigiNumZ(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2,z);
                 continue;
             }
