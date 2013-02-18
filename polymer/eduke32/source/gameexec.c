@@ -2642,8 +2642,6 @@ nullquote:
                 if ((ScriptQuotes[q] == NULL))
                 {
                     CON_ERRPRINTF("null quote %d\n", q);
-                    if (tw == CON_GAMETEXTZ)
-                        Gv_GetVarX(*insptr++);
                     continue;
                 }
 
