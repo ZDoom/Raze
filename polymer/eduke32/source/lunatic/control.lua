@@ -486,6 +486,78 @@ function _qstrcat(qdst, qsrc)
     cstr_dst[i] = 0
 end
 
+local buf = ffi.new("char [?]", MAXQUOTELEN)
+
+function _qsprintf(qdst, qsrc, ...)
+    local dst = bcheck.quote_idx(qdst)
+    local src = bcheck.quote_idx(qsrc)
+    local vals = {...}
+
+    local i, j, vi = 0, 0, 0
+
+    while (true) do
+        local ch = src[j]
+        local didfmt = false
+
+        if (ch==0) then
+            break
+        end
+
+        if (ch=='%') then
+            local nch = src[j+1]
+            if (nch=='d' or (nch=='l' and src[j+2]=='d')) then
+                -- number
+                didfmt = true
+
+                if (vi == #vals) then
+                    break
+                end
+
+                local numstr = tostring(vals[vi])
+                assert(type(numstr)=="string")
+                vi = vi+1
+
+                local ncopied = math.min(#numstr, MAXQUOTELEN-1-i)
+                ffi.copy(buf+i, numstr, ncopied)
+
+                i = i+ncopied
+                j = j+1+(nch=='d' and 1 or 2)
+            elseif (nch=='s') then
+                -- string
+                didfmt = true
+
+                if (vi == #vals) then
+                    break
+                end
+
+                local k = -1
+                local tmpsrc = bcheck.quote_idx(vals[vi])
+
+                repeat
+                    k = k+1
+                    buf[i] = tmpsrc[k]
+                    i = i+1
+                until (i < MAXQUOTELEN-1 and tmpsrc[k]~=0)
+
+                j = j+2
+            end
+        end
+
+        if (not didfmt) then
+            buf[i] = src[j]
+            i = i+1
+            j = j+1
+        end
+
+        if (i >= MAXQUOTELEN-1) then
+            break
+        end
+    end
+
+    buf[i] = 0
+    strcpy(dst, buf)
+end
+
 function _getkeyname(qdst, gfuncnum, which)
     local cstr_dst = bcheck.quote_idx(qdst)
 

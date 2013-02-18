@@ -51,7 +51,12 @@ onevent EVENT_ENTERLEVEL
     getticks t2
     subvarvar t2 t
 
-    redefinequote 114 %d x four 0..MAXSPITES-1 iterations took %d ms in total
-    qsprintf 115 114 n t2
+    // qsprintf test
+    redefinequote 116 0..MAXSPITES-1
+    redefinequote 117 in total
+
+    redefinequote 114 %d x four %s iterations took %d ms %s
+    qsprintf 115 /*<-*/ 114 /*args:*/ n 116 t2 117
+
     echo 115
 endevent

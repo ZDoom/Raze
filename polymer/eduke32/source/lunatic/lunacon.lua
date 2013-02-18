@@ -1351,6 +1351,10 @@ local function GetOrSetPerxvarCmd(Setp, Actorp)
 end
 
 
+local function n_s_fmt(n)
+    return string.rep("%s,", n-1).."%s"
+end
+
 -- Various inner command handling functions / string capture strings.
 local handle =
 {
@@ -1398,6 +1402,11 @@ local handle =
                       v[1] or 0, v[2] or 0, v[3] or 0, v[4] or 0)
     end,
 
+    qsprintf = function(qdst, qsrc, ...)
+        local codes = {...}
+        return format("_con._qsprintf(%d,%d,%s)", qdst, qsrc, table.concat(codes, ','))
+    end,
+
     move = function(mv, ...)
         local flags = {...}
         return format(ACS":set_move(%s,%d)", mv, (flags[1] and bit.bor(...)) or 0)
@@ -1427,10 +1436,6 @@ local handle =
     stopsound = "_con._stopsound(_aci,%1)",
     soundonce = "_con._soundonce(_aci,%1)",
 }
-
-local function n_s_fmt(n)
-    return string.rep("%s,", n-1).."%s"
-end
 
 local userdef_common_pat = (arraypat + sp1)/{} * lpeg.Cc(0) * lpeg.Ct(singlememberpat) * sp1
 
@@ -1750,7 +1755,8 @@ local Cinner = {
         / "%3=_con._findnear(_aci,false,'d2',%1,%2)",
 
     -- quotes
-    qsprintf = sp1 * tok.rvar * sp1 * tok.rvar * (sp1 * tok.rvar)^-32,
+    qsprintf = sp1 * tok.rvar * sp1 * tok.rvar * (sp1 * tok.rvar)^-32
+        / handle.qsprintf,
     qgetsysstr = cmd(R,R)
         / handle.NYI,
     qstrcat = cmd(R,R)
