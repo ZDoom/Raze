@@ -418,13 +418,15 @@ end
 --- expose the functionality in a better fashion than merely giving access to
 --- the C functions.)
 
+-- quotes
 local MAXQUOTES = con_lang.MAXQUOTES
+local MAXQUOTELEN = con_lang.MAXQUOTELEN
 
 function _definequote(qnum, quotestr)
     bcheck.quote_idx(qnum)
     assert(type(quotestr)=="string")
     ffiC.C_DefineQuote(qnum, quotestr)
-    return (#quotestr >= con_lang.MAXQUOTELEN)
+    return (#quotestr >= MAXQUOTELEN)
 end
 
 function _quote(pli, qnum)
@@ -434,10 +436,83 @@ function _quote(pli, qnum)
 end
 
 function _echo(qnum)
-    bcheck.quote_idx(qnum)
-    -- XXX: ugly round-trip
-    print(ffi.string(ffiC.ScriptQuotes[qnum]))
+    local cstr = bcheck.quote_idx(qnum)
+    ffiC.OSD_Printf("%s\n", cstr)
 end
+
+function _userquote(qnum)
+    local cstr = bcheck.quote_idx(qnum)
+    -- NOTE: G_AddUserQuote strcpy's the string
+    ffiC.G_AddUserQuote(cstr)
+end
+
+local function strlen(cstr)
+    for i=0,math.huge do
+        if (cstr[i]==0) then
+            return i
+        end
+    end
+    assert(false)
+end
+
+local function strcpy(dst, src)
+    local i=-1
+    repeat
+        i = i+1
+        dst[i] = src[i]
+    until (src[i]~=0)
+end
+
+function _qstrlen(qnum)
+    return strlen(bcheck.quote_idx(qnum))
+end
+
+function _qstrcpy(qdst, qsrc)
+    local cstr_dst = bcheck.quote_idx(qdst)
+    local cstr_src = bcheck.quote_idx(qsrc)
+    strcpy(cstr_dst, cstr_src)
+end
+
+function _qstrcat(qdst, qsrc)
+    local cstr_dst = bcheck.quote_idx(qdst)
+    local cstr_src = bcheck.quote_idx(qsrc)
+
+    local i, j = strlen(cstr_dst), 0
+    while (i < MAXQUOTELEN-1) do
+        cstr_dst[i] = cstr_src[j]
+        i = i+1
+        j = j+1
+    end
+    cstr_dst[i] = 0
+end
+
+function _getkeyname(qdst, gfuncnum, which)
+    local cstr_dst = bcheck.quote_idx(qdst)
+
+    if (gfuncnum >= ffiC.NUMGAMEFUNCTIONS+0ULL) then
+        error("invalid game function number "..gfuncnum, 2)
+    end
+
+    if (which >= 3+0ULL) then
+        error("third argument to getkeyname must be 0, 1 or 2", 2)
+    end
+
+    local cstr_src
+
+    for i = (which==2 and 0 or which), (which==2 and 1 or which) do
+        local scancode = ffiC.ud.config.KeyboardKeys[gfuncnum][i]
+        cstr_src = ffiC.KB_ScanCodeToString(scancode)
+        if (cstr_src[0] ~= 0) then
+            break
+        end
+    end
+
+    if (cstr_src[0] ~= 0) then
+        -- All key names are short, no problem strcpy'ing them
+        strcpy(cstr_dst, cstr_src)
+    end
+end
+
 
 -- text rendering
 function _minitext(x, y, qnum, shade, pal)

@@ -144,12 +144,15 @@ A_Spawn;
 A_AddToDeleteQueue;
 A_MoveSprite;
 P_DoQuote;
+G_AddUserQuote;
 G_ClearCameraView;
 G_DrawTileGeneric;
 G_InitTimer;
 G_GetTimeDate;
 G_ToggleWallInterpolation;
 G_StartTrack;
+
+KB_ScanCodeToString;
 
 A_CheckAnySoundPlaying;
 A_PlaySound;

@@ -1751,17 +1751,26 @@ local Cinner = {
 
     -- quotes
     qsprintf = sp1 * tok.rvar * sp1 * tok.rvar * (sp1 * tok.rvar)^-32,
-    qgetsysstr = cmd(R,R),
-    qstrcat = cmd(R,R),
-    qstrcpy = cmd(R,R),
-    qstrlen = cmd(R,R),
-    qstrncat = cmd(R,R),
-    qsubstr = cmd(R,R),
+    qgetsysstr = cmd(R,R)
+        / handle.NYI,
+    qstrcat = cmd(R,R)
+        / "_con._qstrcat(%1,%2)",
+    qstrcpy = cmd(R,R)
+        / "_con._qstrcpy(%1,%2)",
+    qstrlen = cmd(W,R)
+        / "%1=_con._qstrlen(%2)",
+    qstrncat = cmd(R,R)
+        / handle.NYI,
+    qsubstr = cmd(R,R)
+        / handle.NYI,
     quote = cmd(D)
         / "_con._quote(_pli,%1)",
-    userquote = cmd(R),
-    getkeyname = cmd(R,R,R),
-    getpname = cmd(R,R),
+    userquote = cmd(R)
+        / "_con._userquote(%1)",
+    getkeyname = cmd(R,R,R)
+        / "_con._getkeyname(%1,%2,%3)",
+    getpname = cmd(R,R)
+        / handle.NYI,
 
     -- array stuff
     copy = sp1 * tok.gamearray * arraypat * sp1 * tok.gamearray * arraypat * sp1 * tok.rvar
@@ -2469,8 +2478,10 @@ local Grammar = Pat{
           + Var("if_else_bodies"))
         * (Pat("")/end_if_else_fn),
 
-    while_stmt = Keyw("whilevarvarn") * sp1 * tok.rvar * sp1 * tok.rvar * sp1 * Var("single_stmt")
-        + Keyw("whilevarn") * sp1 * tok.rvar * sp1 * tok.define/"WHILE_XXX" * sp1 * Var("single_stmt"),
+    while_stmt = Keyw("whilevarvarn") * sp1 * tok.rvar * sp1 * tok.rvar / "while (%1~=%2) do"
+          * sp1 * Var("single_stmt") * lpeg.Cc("end")
+        + Keyw("whilevarn") * sp1 * tok.rvar * sp1 * tok.define / "while (%1~=%2) do"
+          * sp1 * Var("single_stmt") * lpeg.Cc("end"),
 
     stmt_common = Keyw("{") * sp1 * "}"  -- space separation of commands in CON is for a reason!
         + Keyw("{") * sp1 * stmt_list * sp1 * "}"
