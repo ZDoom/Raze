@@ -37,6 +37,10 @@
 # include <mach/mach_time.h>
 #elif defined HAVE_GTK2
 # include "gtkbits.h"
+#elif defined GEKKO
+# define HW_RVL
+# include <ogc/lwp.h>
+# include <ogc/lwp_watchdog.h>
 #endif
 
 #if !defined _WIN32 && !defined HAVE_GTK2 && !defined __APPLE__
@@ -890,7 +894,9 @@ uint64_t gethiticks(void)
     ticks = now.tv_sec;
     ticks *= 1000000000;
     ticks += now.tv_nsec;
-    return (ticks);
+    return ticks;
+# elif defined GEKKO
+    return ticks_to_nanosecs(gettime());
 # else
 // Blar. This pragma is unsupported on earlier GCC versions.
 // At least we'll get a warning and a reference to this line...
@@ -914,6 +920,8 @@ uint64_t gethitickspersec(void)
     return (1000000000LL*ti.denom)/ti.numer;
 # elif _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
     return 1000000000;
+# elif defined GEKKO
+    return TB_NSPERSEC;
 # else
     return 1000;
 # endif

@@ -282,7 +282,6 @@ ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
 endif
 
 ifeq ($(PLATFORM),WII)
-    override USE_LIBPNG = 0
     override USE_LIBVPX = 0
 endif
 

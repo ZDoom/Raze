@@ -37,8 +37,11 @@
 
 #define OV_EXCLUDE_STATIC_CALLBACKS
 
-#ifdef __APPLE__
+#if defined __APPLE__
 # include <vorbis/vorbisfile.h>
+#elif defined GEKKO
+# define USING_TREMOR
+# include <tremor/ivorbisfile.h>
 #else
 # include "vorbis/vorbisfile.h"
 #endif
@@ -60,18 +63,41 @@ typedef struct {
 // designed with multiple calls in mind
 static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
 {
+    int32_t comment;
     uint8_t loopTagCount;
+
+    const char *vc_loopstart = NULL;
+    const char *vc_loopend = NULL;
+    const char *vc_looplength = NULL;
 
     if (vc == NULL)
         return;
 
+    for (comment = 0; comment < vc->comments; ++comment)
     {
-        char *vc_loopstart = NULL;
+        const char *entry = (const char *) vc->user_comments[comment];
+        if (entry != NULL && entry[0] != '\0')
+        {
+            const char *value = strchr(entry,'=');
+            const size_t field = value-entry;
+            value += 1;
 
-        for (loopTagCount = 0; loopTagCount < loopStartTagCount && vc_loopstart == NULL; ++loopTagCount)
-            vc_loopstart = vorbis_comment_query(vc, loopStartTags[loopTagCount], 0);
+            for (loopTagCount = 0; loopTagCount < loopStartTagCount && vc_loopstart == NULL; ++loopTagCount)
+                if (strncasecmp(entry, loopStartTags[loopTagCount], field) == 0)
+                    vc_loopstart = value;
 
-        if (vc_loopstart != NULL)
+            for (loopTagCount = 0; loopTagCount < loopEndTagCount && vc_loopend == NULL; ++loopTagCount)
+                if (strncasecmp(entry, loopEndTags[loopTagCount], field) == 0)
+                    vc_loopend = value;
+
+            for (loopTagCount = 0; loopTagCount < loopLengthTagCount && vc_looplength == NULL; ++loopTagCount)
+                if (strncasecmp(entry, loopLengthTags[loopTagCount], field) == 0)
+                    vc_looplength = value;
+        }
+    }
+
+    if (vc_loopstart != NULL)
+    {
         {
             const ogg_int64_t ov_loopstart = atol(vc_loopstart);
             if (ov_loopstart >= 0) // a loop starting at 0 is valid
@@ -81,36 +107,22 @@ static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
             }
         }
     }
-
-    if (voice->LoopSize > 0)
+    if (vc_loopend != NULL)
     {
+        if (voice->LoopSize > 0)
         {
-            char *vc_loopend = NULL;
-
-            for (loopTagCount = 0; loopTagCount < loopEndTagCount && vc_loopend == NULL; ++loopTagCount)
-                vc_loopend = vorbis_comment_query(vc, loopEndTags[loopTagCount], 0);
-
-            if (vc_loopend != NULL)
-            {
-                const ogg_int64_t ov_loopend = atol(vc_loopend);
-                if (ov_loopend > 0) // a loop ending at 0 is invalid
-                    voice->LoopEnd = (const char *) (intptr_t) ov_loopend;
-            }
+            const ogg_int64_t ov_loopend = atol(vc_loopend);
+            if (ov_loopend > 0) // a loop ending at 0 is invalid
+                voice->LoopEnd = (const char *) (intptr_t) ov_loopend;
         }
-
-        if (voice->LoopEnd == 0)
+    }
+    if (vc_looplength != NULL)
+    {
+        if (voice->LoopSize > 0 && voice->LoopEnd == 0)
         {
-            char *vc_looplength = NULL;
-
-            for (loopTagCount = 0; loopTagCount < loopLengthTagCount && vc_looplength == NULL; ++loopTagCount)
-                vc_looplength = vorbis_comment_query(vc, loopLengthTags[loopTagCount], 0);
-
-            if (vc_looplength != NULL)
-            {
-                const ogg_int64_t ov_looplength = atol(vc_looplength);
-                if (ov_looplength > 0) // a loop of length 0 is invalid
-                    voice->LoopEnd = (const char *) ((intptr_t) ov_looplength + (intptr_t) voice->LoopStart);
-            }
+            const ogg_int64_t ov_looplength = atol(vc_looplength);
+            if (ov_looplength > 0) // a loop of length 0 is invalid
+                voice->LoopEnd = (const char *) ((intptr_t) ov_looplength + (intptr_t) voice->LoopStart);
         }
     }
 }
@@ -209,7 +221,11 @@ static playbackstatus MV_GetNextVorbisBlock
    
    bytesread = 0;
    do {
+#ifdef USING_TREMOR
+       bytes = ov_read(&vd->vf, vd->block + bytesread, BLOCKSIZE - bytesread, &bitstream);
+#else
        bytes = ov_read(&vd->vf, vd->block + bytesread, BLOCKSIZE - bytesread, 0, 2, 1, &bitstream);
+#endif
        //fprintf(stderr, "ov_read = %d\n", bytes);
        if (bytes > 0) {
            bytesread += bytes;
@@ -273,6 +289,16 @@ static playbackstatus MV_GetNextVorbisBlock
    voice->sound       = vd->block;
    voice->BlockLength = 0;
    voice->length      = bytesread << 16; // ???: Should the literal 16 be voice->bits?
+
+#ifdef GEKKO
+    {
+        // If libtremor had the three additional ov_read() parameters that libvorbis has,
+        // this would be better handled using the endianness parameter.
+        int16_t *data = (int16_t*)(voice->sound); // assumes signed 16-bit
+        for (bytesread = 0; bytesread < BLOCKSIZE / 2; ++bytesread)
+            data[bytesread] = (data[bytesread] & 0xff) << 8 | ((data[bytesread] & 0xff00) >> 8);
+    }
+#endif
    
    return KeepPlaying;
 }
