@@ -29,8 +29,6 @@ local ffi, ffiC
 
 if (string.dump) then
     bit = require("bit")
-    -- For Rio Lua:
---    bit = { bor=function() return 0 end }
     require("strict")
 else
     bit = require("bit")
@@ -1492,12 +1490,14 @@ local Cinner = {
         / handle.NYI,  -- will never be
     cmenu = cmd(R)
         / handle.NYI,
-    checkavailweapon = cmd(R),
-    checkavailinven = cmd(R),
-    guniqhudid = cmd(R),
+    checkavailweapon = cmd(R)  -- THISACTOR
+        / handle.NYI,
+    checkavailinven = cmd(R)  -- THISACTOR
+        / handle.NYI,
+    guniqhudid = cmd(R)
+        / "_gv._set_guniqhudid(%1)",
     savegamevar = cmd(R),
     readgamevar = cmd(R),
-    userquote = cmd(R),
     echo = cmd(R)
         / "_con._echo(%1)",
     activatecheat = cmd(R)
@@ -1579,8 +1579,6 @@ local Cinner = {
         / "_con._spawnmany(_aci,1233,%1)",  -- TODO: dyntile
     paper = cmd(D)
         / "_con._spawnmany(_aci,4460,%1)",  -- TODO: dyntile
-    quote = cmd(D)
-        / "_con._quote(_pli,%1)",
     savenn = cmd(D),
     save = cmd(D),
     sleeptime = cmd(D)
@@ -1630,7 +1628,7 @@ local Cinner = {
     tip = cmd()
         / PLS".tipincs=26",
     tossweapon = cmd()
-        / "",  -- TODO
+        / "",  -- TODO_MP
     wackplayer = cmd()
         / PLS":wack()",
 
@@ -1638,19 +1636,31 @@ local Cinner = {
     findplayer = cmd(W)
         / CSV".RETURN,%1=_con._findplayer(_pli,_aci)",  -- player index, distance
     findotherplayer = cmd(W)
-        / CSV".RETURN,%1=0,0x7fffffff",  -- TODO: MP case
-    findnearspritezvar = cmd(D,R,R,W),
-    findnearspritez = cmd(D,D,D,W),
-    findnearsprite3dvar = cmd(D,R,W),
-    findnearsprite3d = cmd(D,D,W),
-    findnearspritevar = cmd(D,R,W),
-    findnearsprite = cmd(D,D,W),
-    findnearactorzvar = cmd(D,R,R,W),
-    findnearactorz = cmd(D,D,D,W),
-    findnearactor3dvar = cmd(D,R,W),
-    findnearactor3d = cmd(D,D,W),
-    findnearactorvar = cmd(D,R,W),
-    findnearactor = cmd(D,D,W),
+        / CSV".RETURN,%1=0,0x7fffffff",  -- TODO_MP
+    findnearspritezvar = cmd(D,R,R,W)
+        / "%4=_con._findnear(_aci,true,'z',%1,%2,%3)",
+    findnearspritez = cmd(D,D,D,W)
+        / "%4=_con._findnear(_aci,true,'z',%1,%2,%3)",
+    findnearsprite3dvar = cmd(D,R,W)
+        / "%3=_con._findnear(_aci,true,'d3',%1,%2)",
+    findnearsprite3d = cmd(D,D,W)
+        / "%3=_con._findnear(_aci,true,'d3',%1,%2)",
+    findnearspritevar = cmd(D,R,W)
+        / "%3=_con._findnear(_aci,true,'d2',%1,%2)",
+    findnearsprite = cmd(D,D,W)
+        / "%3=_con._findnear(_aci,true,'d2',%1,%2)",
+    findnearactorzvar = cmd(D,R,R,W)
+        / "%4=_con._findnear(_aci,false,'z',%1,%2,%3)",
+    findnearactorz = cmd(D,D,D,W)
+        / "%4=_con._findnear(_aci,false,'z',%1,%2,%3)",
+    findnearactor3dvar = cmd(D,R,W)
+        / "%3=_con._findnear(_aci,false,'d3',%1,%2)",
+    findnearactor3d = cmd(D,D,W)
+        / "%3=_con._findnear(_aci,false,'d3',%1,%2)",
+    findnearactorvar = cmd(D,R,W)
+        / "%3=_con._findnear(_aci,false,'d2',%1,%2)",
+    findnearactor = cmd(D,D,W)
+        / "%3=_con._findnear(_aci,false,'d2',%1,%2)",
 
     -- quotes
     qsprintf = sp1 * tok.rvar * sp1 * tok.rvar * (sp1 * tok.rvar)^-32,
@@ -1660,6 +1670,11 @@ local Cinner = {
     qstrlen = cmd(R,R),
     qstrncat = cmd(R,R),
     qsubstr = cmd(R,R),
+    quote = cmd(D)
+        / "_con._quote(_pli,%1)",
+    userquote = cmd(R),
+    getkeyname = cmd(R,R,R),
+    getpname = cmd(R,R),
 
     -- array stuff
     copy = sp1 * tok.identifier * arraypat * sp1 * tok.identifier * arraypat * sp1 * tok.rvar,
@@ -1751,12 +1766,18 @@ local Cinner = {
     loadmapstate = cmd(),
     savemapstate = cmd(),
 
-    headspritesect = cmd(W,R),
-    headspritestat = cmd(W,R),
-    nextspritesect = cmd(W,R),
-    nextspritestat = cmd(W,R),
-    prevspritesect = cmd(W,R),
-    prevspritestat = cmd(W,R),
+    headspritesect = cmd(W,R)
+        / "%1=sprite._headspritesect[%2]",
+    headspritestat = cmd(W,R)
+        / "%1=sprite._headspritestat[%2]",
+    nextspritesect = cmd(W,R)
+        / "%1=sprite._nextspritesect[%2]",
+    nextspritestat = cmd(W,R)
+        / "%1=sprite._nextspritestat[%2]",
+    prevspritesect = cmd(W,R)
+        / "%1=sprite._prevspritesect[%2]",
+    prevspritestat = cmd(W,R)
+        / "%1=sprite._prevspritestat[%2]",
 
     redefinequote = sp1 * tok.define * newline_term_string
         / function(qnum, qstr) return format("_con._definequote(%d,%q)", qnum, stripws(qstr)) end,
@@ -1821,8 +1842,6 @@ local Cinner = {
         / "%4=sector[%1]:floorzat(%2,%3)",
     getcurraddress = cmd(W)
         / handle.NYI,  -- will never be
-    getkeyname = cmd(R,R,R),
-    getpname = cmd(R,R),
     getticks = cmd(W)
         / "%1=_gv.getticks()",
     gettimedate = cmd(W,W,W,W,W,W,W,W)
@@ -1868,7 +1887,7 @@ local Cif = {
     ifspritepal = cmd(D)
         / SPS".pal==%1",
     ifgotweaponce = cmd(D)
-        / "false",  -- TODO? (multiplayer only)
+        / "false",  -- TODO_MP
     ifangdiffl = cmd(D)
         / format("_con._angdiffabs(%s,%s)<=%%1", PLS".ang", SPS".ang"),
     ifsound = cmd(D)
@@ -1931,7 +1950,7 @@ local Cif = {
     ifnosounds = cmd()
         / "not _con._ianysound()",
     ifmultiplayer = cmd()
-        / "false",  -- TODO?
+        / "false",  -- TODO_MP
     ifinwater = cmd()
         / format("sector[%s].lotag==2", SPS".sectnum"),
     ifinspace = cmd()

@@ -516,9 +516,9 @@ local PlayerLabels = {
     airleft = PL".airleft",
 
     fta = PL".fta",
-    ftq = PL".ftq",
-    access_wallnum = PL".access_wallnum",
-    access_spritenum = PL".access_spritenum",
+    ftq = { PL".ftq", PL":set_ftq(%%s)" },
+    access_wallnum = { PL".access_wallnum" },
+    access_spritenum = { PL".access_spritenum" },
 
     got_access = PL".got_access",
     weapon_ang = PL".weapon_ang",

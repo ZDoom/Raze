@@ -2032,12 +2032,6 @@ static int32_t P_DisplayTip(int32_t gs,int32_t snum)
 
     p = P_GetHudPal(ps);
 
-    /*    if(ps->access_spritenum >= 0)
-            p = sprite[ps->access_spritenum].pal;
-        else
-            p = wall[ps->access_wallnum].pal;
-      */
-
     tipy = tip_y[ps->tipincs]>>1;
 
     G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(ps->look_ang>>1),
@@ -2068,9 +2062,6 @@ static int32_t P_DisplayAccess(int32_t gs,int32_t snum)
 
     if (ps->access_spritenum >= 0)
         p = sprite[ps->access_spritenum].pal;
-
-    //    else
-    //        p = wall[ps->access_wallnum].pal;
 
     if ((ps->access_incs-3) > 0 && (ps->access_incs-3)>>3)
     {

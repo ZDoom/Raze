@@ -136,10 +136,10 @@ checkfail('gv.QWE = 4', "write access forbidden")
 checkfail('sector[4] = sector[6]', "cannot write directly to sector[]")
 
 -- that would be horrible...
-checkfail('nextspritesect[4] = -666', "cannot write directly to nextspritesect[]")
+checkfail('sprite._nextspritesect[4] = -666', "cannot write directly to nextspritesect[]")
 
 -- we're indexing a plain array!
-checkfail('print(nextspritesect[4].whatfield)', "attempt to index a number value")
+checkfail('print(sprite._nextspritesect[4].whatfield)', "attempt to index a number value")
 
 -- creating new keys forbidden... handled by LuaJit
 checkfail('wall[4].QWE = 123', "has no member named 'QWE'")

@@ -228,6 +228,7 @@ const int32_t windowx1, windowy1, windowx2, windowy2;
 decl[[
 int32_t yxaspect, viewingrange;
 int32_t spritesortcnt;
+int32_t guniqhudid;
 const int32_t rendmode;
 const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 const int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
@@ -511,6 +512,24 @@ end
 
 ---- indirect C array access ----
 
+-- create a safe indirection for an ffi.C array
+function creategtab(ctab, maxidx, name)
+    local tab = {}
+    local tmpmt = {
+        __index = function(tab, key)
+            if (key>=0 and key < maxidx) then
+                return ctab[key]
+            end
+            error('out-of-bounds '..name..' read access', 2)
+        end,
+        __newindex = function()
+            error('cannot write directly to '..name, 2)
+        end,
+    }
+
+    return setmtonce(tab, tmpmt)
+end
+
 -- Construct const struct from table
 function conststruct(tab)
     local strtab = { "const struct { int32_t " }
@@ -553,6 +572,15 @@ static_members.sprite.CSTAT = conststruct
     TRANSLUCENT2 = 512,
     TRANSLUCENT_BOTH_BITS = 512+2,
 }
+
+local sms = static_members.sprite
+sms._headspritesect = creategtab(ffiC.headspritesect, ffiC.MAXSECTORS, 'headspritesect[]')
+-- NOTE: don't allow freelist access
+sms._headspritestat = creategtab(ffiC.headspritestat, ffiC.MAXSTATUS, 'headspritestat[]')
+sms._nextspritesect = creategtab(ffiC.nextspritesect, ffiC.MAXSPRITES, 'nextspritesect[]')
+sms._nextspritestat = creategtab(ffiC.nextspritestat, ffiC.MAXSPRITES, 'nextspritestat[]')
+sms._prevspritesect = creategtab(ffiC.prevspritesect, ffiC.MAXSPRITES, 'prevspritesect[]')
+sms._prevspritestat = creategtab(ffiC.prevspritestat, ffiC.MAXSPRITES, 'prevspritestat[]')
 
 function static_members.sprite.changesect(spritenum, sectnum)
     check_sprite_idx(spritenum)
@@ -611,24 +639,6 @@ local atsprite_mt = {
     __newindex = function() error('cannot write directly to atsprite[]', 2) end,
 }
 
--- create a safe indirection for an ffi.C array
-function creategtab(ctab, maxidx, name)
-    local tab = {}
-    local tmpmt = {
-        __index = function(tab, key)
-            if (key>=0 and key < maxidx) then
-                return ctab[key]
-            end
-            error('out-of-bounds '..name..' read access', 2)
-        end,
-        __newindex = function()
-            error('cannot write directly to '..name, 2)
-        end,
-    }
-
-    return setmtonce(tab, tmpmt)
-end
-
 
 local vars_to_ignore = {}
 for varname,_ in pairs(getfenv(1)) do
@@ -645,14 +655,6 @@ wall = setmtonce({}, wall_mt)
 sprite = setmtonce({}, sprite_mt)
 spriteext = creategtab(ffiC.spriteext, ffiC.MAXSPRITES, 'spriteext[]')
 atsprite = setmtonce({}, atsprite_mt)
-
-headspritesect = creategtab(ffiC.headspritesect, ffiC.MAXSECTORS, 'headspritesect[]')
--- TODO: allow sprite freelist access via the status list for CON compatibility?
-headspritestat = creategtab(ffiC.headspritestat, ffiC.MAXSTATUS, 'headspritestat[]')
-nextspritesect = creategtab(ffiC.nextspritesect, ffiC.MAXSPRITES, 'nextspritesect[]')
-nextspritestat = creategtab(ffiC.nextspritestat, ffiC.MAXSPRITES, 'nextspritestat[]')
-prevspritesect = creategtab(ffiC.prevspritesect, ffiC.MAXSPRITES, 'prevspritesect[]')
-prevspritestat = creategtab(ffiC.prevspritestat, ffiC.MAXSPRITES, 'prevspritestat[]')
 
 local function iter_wallsofsec(endwall, w)
     w = w+1

@@ -329,6 +329,10 @@ end
 
 --- player/actor/sprite searching functions ---
 
+local xmath = require("xmath")
+local abs = math.abs
+local dist, ldist = xmath.dist, xmath.ldist
+
 local function A_FP_ManhattanDist(ps, spr)
     return (ps.pos - spr^(28*256)):blen1()
 end
@@ -337,6 +341,48 @@ end
 -- TODO: MP case
 function _findplayer(ps, spritenum)
     return 0, A_FP_ManhattanDist(ps, sprite[spritenum])
+end
+
+local FN_STATNUMS = {
+    [false] = { con_lang.STAT.STAT_ACTOR },
+    [true] = {},
+}
+
+-- TODO: Python-like range() and xrange()?
+for i=0,ffiC.MAXSTATUS-1 do
+    FN_STATNUMS[true][i+1] = ffiC.MAXSTATUS-1-i
+end
+
+local FN_DISTFUNC = {
+    d2 = function(s1, s2, d)
+        return (xmath.ldist(s1, s2) < d)
+    end,
+
+    d3 = function(s1, s2, d)
+        return (xmath.dist(s1, s2) < d)
+    end,
+
+    z = function(s1, s2, d, zd)
+        return (xmath.ldist(s1, s2) < d and abs(s1.z-s2.z) < zd)
+    end,
+}
+
+function _findnear(spritenum, allspritesp, distkind, picnum, maxdist, maxzdist)
+    local statnums = FN_STATNUMS[allspritesp]
+    local distfunc = FN_DISTFUNC[distkind]
+    local spr = sprite[spritenum]
+
+    for st=1,#statnums do
+        for i in spritesofstat(st) do
+            if (i ~= spritenum and sprite[i].picnum==picnum) then
+                if (distfunc(spr, sprite[i], maxdist, maxzdist)) then
+                    return i
+                end
+            end
+        end
+    end
+
+    return -1
 end
 
 
@@ -374,31 +420,21 @@ end
 
 local MAXQUOTES = con_lang.MAXQUOTES
 
-local function check_quote_idx(qnum)
-    if (qnum >= MAXQUOTES+0ULL) then
-        error("invalid quote number "..qnum, 3)
-    end
-
-    if (ffiC.ScriptQuotes[qnum] == nil) then
-        error("null quote "..qnum, 3)
-    end
-end
-
 function _definequote(qnum, quotestr)
-    check_quote_idx(qnum)
+    bcheck.quote_idx(qnum)
     assert(type(quotestr)=="string")
     ffiC.C_DefineQuote(qnum, quotestr)
     return (#quotestr >= con_lang.MAXQUOTELEN)
 end
 
 function _quote(pli, qnum)
-    check_quote_idx(qnum)
+    bcheck.quote_idx(qnum)
     check_player_idx(pli)
     ffiC.P_DoQuote(qnum+MAXQUOTES, ffiC.g_player[pli].ps)
 end
 
 function _echo(qnum)
-    check_quote_idx(qnum)
+    bcheck.quote_idx(qnum)
     -- XXX: ugly round-trip
     print(ffi.string(ffiC.ScriptQuotes[qnum]))
 end
@@ -771,14 +807,12 @@ function _awayfromwall(spr, d)
     return true
 end
 
-local xmath = require("xmath")
-
 local function cossinb(bang)
     return xmath.cosb(bang), xmath.sinb(bang)
 end
 
 local function manhatdist(v1, v2)
-    return math.abs(v1.x-v2.x) + math.abs(v1.y-v2.y)
+    return abs(v1.x-v2.x) + abs(v1.y-v2.y)
 end
 
 -- "otherspr" is either player or holoduke sprite
@@ -950,8 +984,8 @@ function _angdiffabs(a1, a2)
     a1 = bit.band(a1, 2047)
     a2 = bit.band(a2, 2047)
     -- a1 and a2 are in [0, 2047]
-    if (math.abs(a2-a1) < 1024) then
-        return math.abs(a2-a1)
+    if (abs(a2-a1) < 1024) then
+        return abs(a2-a1)
     end
     -- |a2-a1| >= 1024
     if (a2 > 1024) then a2=a2-2048 end
@@ -961,7 +995,7 @@ function _angdiffabs(a1, a2)
 end
 
 function _angdiffabs(a1, a2)
-    return math.abs(_angdiff(a1, a2))
+    return abs(_angdiff(a1, a2))
 end
 
 function _angtotarget(aci)

@@ -199,7 +199,8 @@ __attribute__((packed)) struct {
     int16_t horiz, horizoff, ohoriz, ohorizoff;
     const int16_t newowner;
     int16_t jumping_counter, airleft;
-    int16_t fta, ftq, access_wallnum, access_spritenum;
+    int16_t fta;
+    const int16_t ftq, access_wallnum, access_spritenum;
     int16_t got_access, weapon_ang, visibility;
     int16_t somethingonplayer, on_crane;
     const int16_t i;
@@ -911,6 +912,11 @@ local player_mt = {
             p.inv_amount[inv] = amount
         end,
 
+        set_ftq = function(p, ftq)
+            bcheck.quote_idx(ftq)
+            ffi.cast(player_ptr_ct, p).ftq = ftq
+        end,
+
         set_customexitsound = function(p, soundnum)
             if (soundnum >= con_lang.MAXSOUNDS+0ULL) then
                 error("Invalid sound number "..soundnum, 2)
@@ -1047,6 +1053,15 @@ function gv_access._currentMenu()
     return ffiC.g_currentMenu
 end
 
+function gv_access._set_guniqhudid(id)
+    local MAXUNIQHUDID = 256  -- KEEPINSYNC build.h
+    if (id >= MAXUNIQHUDID+0ULL) then
+        error("invalid unique HUD ID "..id)
+    end
+    ffiC.guniqhudid = id
+end
+
+-- TODO: make return 1-based index
 function gv_access.currentEpisode()
     return ffiC.ud.volume_number
 end

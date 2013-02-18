@@ -1,6 +1,7 @@
 -- Bound-checking functions for engine and game "things".
 
 local ffiC = require("ffi").C
+local con_lang = require("con_lang")
 
 local bcheck = {}
 
@@ -68,6 +69,16 @@ end
 function bcheck.level_idx(level)
     if (level >= con_lang.MAXLEVELS+0ULL) then
         error("invalid level number "..level)
+    end
+end
+
+function bcheck.quote_idx(qnum)
+    if (qnum >= con_lang.MAXQUOTES+0ULL) then
+        error("invalid quote number "..qnum, 3)
+    end
+
+    if (ffiC.ScriptQuotes[qnum] == nil) then
+        error("null quote "..qnum, 3)
     end
 end
 
