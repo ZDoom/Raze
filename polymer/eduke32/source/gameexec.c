@@ -3491,12 +3491,13 @@ nullquote:
                 }
 
                 {
-                    int32_t arg[32], i = 0, j = 0, k = 0;
+                    int32_t arg[32], i = 0, j = 0, k = 0, numargs;
                     int32_t len = Bstrlen(ScriptQuotes[sq]);
                     char tempbuf[MAXQUOTELEN];
 
                     while ((*insptr & 0xFFF) != CON_NULLOP && i < 32)
                         arg[i++] = Gv_GetVarX(*insptr++);
+                    numargs = i;
 
                     insptr++; // skip the NOP
 
@@ -3524,8 +3525,10 @@ nullquote:
                             case 'd':
                             {
                                 char buf[16];
-                                int32_t ii = 0;
+                                int32_t ii;
 
+                                if (i >= numargs)
+                                    goto finish_qsprintf;
                                 Bsprintf(buf, "%d", arg[i++]);
 
                                 ii = Bstrlen(buf);
@@ -3537,10 +3540,15 @@ nullquote:
 
                             case 's':
                             {
-                                int32_t ii = Bstrlen(ScriptQuotes[arg[i]]);
+                                int32_t ii;
+
+                                if (i >= numargs)
+                                    goto finish_qsprintf;
+                                ii = Bstrlen(ScriptQuotes[arg[i]]);
 
                                 Bmemcpy(&tempbuf[j], ScriptQuotes[arg[i]], ii);
                                 j += ii;
+                                i++;
                                 k++;
                             }
                             break;
@@ -3552,9 +3560,9 @@ nullquote:
                         }
                     }
                     while (k < len && j < MAXQUOTELEN);
-
+finish_qsprintf:
                     tempbuf[j] = '\0';
-                    Bstrcpy(ScriptQuotes[dq], tempbuf);
+                    Bstrncpyz(ScriptQuotes[dq], tempbuf, MAXQUOTELEN);
                     continue;
                 }
             }
