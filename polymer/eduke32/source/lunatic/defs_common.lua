@@ -265,6 +265,8 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum);
 void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                   int8_t dashade, unsigned char dapalnum, int32_t dastat,
                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
+
+void setaspect(int32_t daxrange, int32_t daaspect);
 ]]
 
 -- misc. functions
@@ -471,6 +473,25 @@ local function deep_copy(tab)
 end
 
 local tspritetype_mt = deep_copy(spritetype_mt)
+
+local function get_sprite_idx(spr)
+    local i = ffi.cast(spritetype_ptr_ct, spr)-ffi.cast(spritetype_ptr_ct, ffiC.sprite)
+    assert(not (i >= ffiC.MAXSPRITES+0ULL))
+    return i
+end
+
+-- Methods that are specific to sprites
+function spritetype_mt.__index.setpos(spr, pos)  -- setsprite() clone
+    spr.x, spr.y, spr.z = pos.x, pos.y, pos.z
+
+    local newsect = updatesector(spr, spr.sectnum)
+    if (newsect < 0) then
+        return -1
+    end
+
+    ffiC.changespritesect(get_sprite_idx(spr), newsect)
+    return newsect
+end
 
 -- Methods that are specific to tsprites
 function tspritetype_mt.__index.dup(tspr)

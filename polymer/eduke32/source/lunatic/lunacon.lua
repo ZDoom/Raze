@@ -138,7 +138,7 @@ local function new_initial_codetab()
         "local _xmath, _geom = require'xmath', require'geom';",
         "local sector, sprite, actor, player = sector, sprite, actor, player;",
         "local gameactor, gameevent, _gv = gameactor, gameevent, gv;",
-        "local cansee = cansee;"
+        "local updatesector, updatesectorz, cansee = updatesector, updatesectorz, cansee;"
            }
 end
 
@@ -1343,6 +1343,10 @@ local handle =
     soundonce = "_con._soundonce(_aci,%1)",
 }
 
+local function n_s_fmt(n)
+    return string.rep("%s,", n-1).."%s"
+end
+
 local userdef_common_pat = (arraypat + sp1)/{} * lpeg.Cc(0) * lpeg.Ct(singlememberpat) * sp1
 
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
@@ -1394,8 +1398,6 @@ local Cinner = {
 
     setplayervar = GetOrSetPerxvarCmd(true, false),
     setactorvar = GetOrSetPerxvarCmd(true, true),
-
-    setsprite = cmd(R,R,R,R),
 
     setvarvar = varvarop / "%1=%2",
     addvarvar = varvaropf "+",
@@ -1732,11 +1734,24 @@ local Cinner = {
         / handle.NYI,
 
     -- screen text and numbers display
-    gametext = cmd(R,R,R,R,R,R,R,R,R,R,R),  -- 11 R
-    gametextz = cmd(R,R,R,R,R,R,R,R,R,R,R,R),  -- 12 R
-    digitalnumber = cmd(R,R,R,R,R,R,R,R,R,R,R),  -- 11R
-    digitalnumberz = cmd(R,R,R,R,R,R,R,R,R,R,R,R),  -- 12R
-    minitext = cmd(R,R,R,R,R),
+    gametext = cmd(R,R,R,R,R,R,R,R,R,R,R)  -- 11 R
+        / function(...)
+              return format("_con._gametext("..n_s_fmt(11)..",65536)", ...)
+          end,
+    gametextz = cmd(R,R,R,R,R,R,R,R,R,R,R,R)  -- 12 R
+        / function(...)
+              return format("_con._gametext("..n_s_fmt(12)..")", ...)
+          end,
+    digitalnumber = cmd(R,R,R,R,R,R,R,R,R,R,R)  -- 11R
+        / function(...)
+              return format("_con._digitalnumber("..n_s_fmt(11)..",65536)", ...)
+          end,
+    digitalnumberz = cmd(R,R,R,R,R,R,R,R,R,R,R,R)  -- 12R
+        / function(...)
+              return format("_con._digitalnumber("..n_s_fmt(12)..")", ...)
+          end,
+    minitext = cmd(R,R,R,R,R)
+        / "_con._minitext(%1,%2,%3,%4,%5)",
 
     palfrom = (sp1 * tok.define)^-4
         / handle.palfrom,
@@ -1812,6 +1827,8 @@ local Cinner = {
     starttrackvar = cmd(R)
         / "_con._starttrack(%1)",
 
+    setaspect = cmd(R,R)
+        / "_con._setaspect(%1,%2)",
     showview = cmd(R,R,R,R,R,R,R,R,R,R),  -- 10R
     showviewunbiased = cmd(R,R,R,R,R,R,R,R,R,R),  -- 10R
     smaxammo = cmd(R,R)
@@ -1822,8 +1839,12 @@ local Cinner = {
         / ACS".flags=%1",
     ssp = cmd(R,R)
         / handle.NYI,
-    updatesector = cmd(R,R,W),
-    updatesectorz = cmd(R,R,R,W),
+    setsprite = cmd(R,R,R,R)
+        / "sprite[%1]:setpos(_geom.ivec3(%1,%2,%3))",
+    updatesector = cmd(R,R,W)
+        / format("%%3=updatesector(_geom.ivec3(%%1,%%2),%s)", SPS".sectnum"),
+    updatesectorz = cmd(R,R,R,W)
+        / format("%%4=updatesectorz(_geom.ivec3(%%1,%%2,%%3),%s)", SPS".sectnum"),
 
     getactorangle = cmd(W)
         / ("%1="..SPS".ang"),
@@ -1837,17 +1858,15 @@ local Cinner = {
         / "%1=_con._angtotarget(_aci)",
 
     getceilzofslope = cmd(R,R,R,W)
-        / "%4=sector[%1]:ceilingzat(%2,%3)",
+        / "%4=sector[%1]:ceilingzat(_geom.ivec3(%2,%3))",
     getflorzofslope = cmd(R,R,R,W)
-        / "%4=sector[%1]:floorzat(%2,%3)",
+        / "%4=sector[%1]:floorzat(_geom.ivec3(%2,%3))",
     getcurraddress = cmd(W)
         / handle.NYI,  -- will never be
     getticks = cmd(W)
         / "%1=_gv.getticks()",
     gettimedate = cmd(W,W,W,W,W,W,W,W)
         / "%1,%2,%3,%4,%5,%6,%7,%8=_con._gettimedate()",
-
-    setaspect = cmd(R,R),
 }
 
 local Cif = {
@@ -1937,7 +1956,8 @@ local Cif = {
         / function (...) return format("_con._ifp(%d,_pli,_aci)", bit.bor(...)) end,
     ifsquished = cmd()
         / "false",  -- TODO
-    ifserver = cmd(),
+    ifserver = cmd()
+        / "false",  -- TODO_MP
     ifrespawn = cmd()
         / format("_con._checkrespawn(%s)", SPS""),
     ifoutside = cmd()
@@ -1963,7 +1983,8 @@ local Cif = {
         / "_con._testkey(_pli,29)",  -- XXX
     ifdead = cmd()
         / SPS".extra<=0",
-    ifclient = cmd(),
+    ifclient = cmd()
+        / "false",  -- TODO_MP
     ifcanshoottarget = cmd()
         / "_con._canshoottarget(_dist,_aci)",
     ifcanseetarget = cmd()  -- XXX: 1536 is SLEEPTIME

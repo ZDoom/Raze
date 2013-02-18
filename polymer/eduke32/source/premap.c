@@ -1120,6 +1120,22 @@ static inline void prelevel(char g)
         }
     }
 
+#ifdef LUNATIC
+    if (g_testLua)
+    {
+        if (L_IsInitialized(&g_ElState))
+        {
+            i = L_RunOnce(&g_ElState, "test.elua");
+            if (i)
+                OSD_Printf(OSD_ERROR "Error running the test ELua script (code %d)\n", i);
+            else
+                initprintf("ELua test script run ok!\n");
+        }
+        else
+            initprintf("ELua test script: not inited!\n");
+    }
+#endif
+
     i = headspritestat[STAT_DEFAULT];
     while (i >= 0)
     {
@@ -1391,22 +1407,6 @@ static inline void prelevel(char g)
                 wall[j].pal = 4;
         }
     }
-
-#ifdef LUNATIC
-    if (g_testLua)
-    {
-        if (L_IsInitialized(&g_ElState))
-        {
-            i = L_RunOnce(&g_ElState, "test.elua");
-            if (i)
-                OSD_Printf(OSD_ERROR "Error running the test ELua script (code %d)\n", i);
-            else
-                initprintf("ELua test script run ok!\n");
-        }
-        else
-            initprintf("ELua test script: not inited!\n");
-    }
-#endif
 }
 
 

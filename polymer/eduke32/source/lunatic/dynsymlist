@@ -157,4 +157,8 @@ S_CheckSoundPlaying;
 S_StopEnvSound;
 FX_StopAllSounds;
 S_ChangeSoundPitch;
+
+minitext_;
+G_DrawTXDigiNumZ;
+G_PrintGameText;
 };

@@ -311,15 +311,34 @@ gameevent(gv.EVENT_ENTERLEVEL,
               -- N=10: 190-210 us * 10 = 1.9-2.1 ms
               -- N=100: about 160 us * 100 = about 16 ms
 
-              -- Make the DUKECAR in E1L1 into a static object
+              -- Make the DUKECAR in E1L1 into a zombie actor (temporarily)
               if (sprite[24].picnum==2491) then
-                  sprite.changestat(24, gv.STAT_DEFAULT)
+                  sprite.changestat(24, gv.STAT_ZOMBIEACTOR)
               end
 
               checkfail("gameevent('GAME', function() print('qwe') end)",
                         "must be called from top level")
           end
          )
+
+local geom = require "geom"
+
+gameevent("LOADACTOR", function(i)
+    local spr = sprite[i]
+    if (i==614 and spr.picnum==930) then
+        -- "police line" ribbon in E1L1
+        -- clear the hitag so that it doesn't spawn as FALLER from premap
+        spr.hitag = 0
+    end
+end)
+
+gameactor(930, 1, function(i)  -- "police line" ribbon
+    local spr = sprite[i]
+    local r = math.random
+    local d = 20
+    local v = geom.tovec3(spr) + geom.vec3(r(-d,d), r(-d,d))
+    spr:setpos(v)
+end)
 
 local stat = require("stat")
 local hs = stat.new()

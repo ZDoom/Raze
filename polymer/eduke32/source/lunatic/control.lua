@@ -439,6 +439,35 @@ function _echo(qnum)
     print(ffi.string(ffiC.ScriptQuotes[qnum]))
 end
 
+-- text rendering
+function _minitext(x, y, qnum, shade, pal)
+    local cstr = bcheck.quote_idx(qnum)
+    ffiC.minitext_(x, y, cstr, shade, pal, 2+8+16)
+end
+
+function _digitalnumber(tilenum, x, y, num, shade, pal,
+                        orientation, cx1, cy1, cx2, cy2, zoom)
+    if (tilenum >= ffiC.MAXTILES-9+0ULL) then
+        error("invalid base tile number "..tilenum, 2)
+    end
+
+    ffiC.G_DrawTXDigiNumZ(tilenum, x, y, num, shade, pal,
+                          orientation, cx1, cy1, cx2, cy2, zoom)
+end
+
+function _gametext(tilenum, x, y, qnum, shade, pal, orientation,
+                   cx1, cy1, cx2, cy2, zoom)
+    if (tilenum >= ffiC.MAXTILES-255+0ULL) then
+        error("invalid base tile number "..tilenum, 2)
+    end
+
+    local cstr = bcheck.quote_idx(qnum)
+
+    orientation = bit.band(orientation, 2047)  -- ROTATESPRITE_MAX-1
+    ffiC.G_PrintGameText(0, tilenum, bit.arshift(x,1), y, cstr, shade, pal,
+                        orientation, cx1, cy1, cx2, cy2, zoom)
+end
+
 local D = {
     -- TODO: dynamic tile remapping
     ACTIVATOR = 2,
@@ -1239,6 +1268,11 @@ function _startlevel(volume, level)
 
     -- TODO_MP
     player[0].gm = bit.bor(player[0].gm, 0x00000008)  -- MODE_EOL
+end
+
+function _setaspect(viewingrange, yxaspect)
+    -- XXX: surely not all values are sane
+    ffiC.setaspect(viewingrange, yxaspect)
 end
 
 

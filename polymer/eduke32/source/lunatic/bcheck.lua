@@ -77,9 +77,12 @@ function bcheck.quote_idx(qnum)
         error("invalid quote number "..qnum, 3)
     end
 
-    if (ffiC.ScriptQuotes[qnum] == nil) then
+    local cstr = ffiC.ScriptQuotes[qnum]
+    if (cstr == nil) then
         error("null quote "..qnum, 3)
     end
+
+    return cstr
 end
 
 
