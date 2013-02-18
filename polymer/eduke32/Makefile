@@ -199,11 +199,6 @@ ifeq ($(SUBPLATFORM),LINUX)
     LIBS		+= -lFLAC -lvorbisfile -lvorbis -logg
 endif
 
-ifeq ($(PLATFORM),WII)
-    LIBS += -lvorbisidec -lfreetype -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
-    LIBDIRS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib
-endif
-
 ifeq ($(PLATFORM),DARWIN)
     OURCOMMONFLAGS += -fno-pic
     LIBDIRS += -L$(abspath $(JAUDIOLIBDIR)/third-party/Apple/lib)

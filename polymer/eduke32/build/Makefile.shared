@@ -147,7 +147,8 @@ ifeq ($(PLATFORM),WII)
         -DGEKKO -DHAVE_INTTYPES -D__POWERPC__ \
         -I$(LIBOGC_INC) -I$(LIBOGC_INC)/SDL -I$(PORTLIBS)/include
     SDLCONFIG=
-    BUILDLIBS+= -lSDL_mixer -lsmpeg -lSDL -laesnd
+    BUILDLIBS+= -lSDL_mixer -lsmpeg -lSDL -laesnd -lvorbisidec -lfreetype -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
+    BUILDLIBDIRS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib
 endif
 ifeq ($(PLATFORM),QNX)
     RENDERTYPE=SDL

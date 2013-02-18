@@ -16,6 +16,7 @@
 # define setsockopt net_setsockopt
 # define accept net_accept
 # define select net_select
+# define shutdown net_shutdown
 struct msghdr {
     void         *msg_name;       /* optional address */
     socklen_t     msg_namelen;    /* size of address */

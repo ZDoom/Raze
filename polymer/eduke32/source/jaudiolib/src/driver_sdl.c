@@ -25,7 +25,7 @@
 
 #if defined(SDL_FRAMEWORK)
 # include <SDL/SDL.h>
-# if defined(_WIN32)
+# if defined(_WIN32) || defined(GEKKO)
 #  include <SDL/SDL_mixer.h>
 # else
 #  include <SDL_mixer/SDL_mixer.h>

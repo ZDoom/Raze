@@ -28,7 +28,7 @@ Minimum required SDL versions:
 
 #if defined(_NEED_SDLMIXER)
 # if defined(SDL_FRAMEWORK)
-#  if defined(_WIN32)
+#  if defined(_WIN32) || defined(GEKKO)
 #   include <SDL/SDL_mixer.h>
 #  else
 #   include <SDL_mixer/SDL_mixer.h>
