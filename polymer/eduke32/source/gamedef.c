@@ -4954,9 +4954,12 @@ repeatcase:
         case CON_STARTLEVEL:
         case CON_QSTRCAT:
         case CON_QSTRCPY:
-        case CON_QSTRLEN:
         case CON_QGETSYSSTR:
             C_GetManyVars(2);
+            continue;
+        case CON_QSTRLEN:
+            C_GetNextVarType(GAMEVAR_READONLY);
+            C_GetNextVar();
             continue;
         case CON_HEADSPRITESTAT:
         case CON_PREVSPRITESTAT:
