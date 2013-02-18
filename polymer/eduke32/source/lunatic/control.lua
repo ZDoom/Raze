@@ -1276,6 +1276,75 @@ function _setaspect(viewingrange, yxaspect)
 end
 
 
+--- Game arrays ---
+
+local function check_gamearray_idx(gar, idx, addstr)
+    if (idx >= gar._size+0ULL) then
+        addstr = addstr or ""
+        error("invalid "..addstr.."array index "..idx, 3)
+    end
+end
+
+local gamearray_methods = {
+    resize = function(gar, newsize)
+        -- NOTE: size 0 is valid (then, no index is valid)
+        if (newsize < 0) then
+            error("invalid new array size "..newsize, 2)
+        end
+
+        -- clear trailing elements in case we're shrinking
+        for i=gar._size,newsize-1 do
+            gar[i] = nil
+        end
+
+        gar._size = newsize
+    end,
+
+    copyto = function(sar, sidx, dar, didx, numelts)
+        -- XXX: Strictest bound checking, see later if we need to relax it.
+        check_gamearray_idx(sar, sidx, "lower source ")
+        check_gamearray_idx(sar, sidx+numelts-1, "upper source ")
+        check_gamearray_idx(dar, didx, "lower destination ")
+        check_gamearray_idx(dar, didx+numelts-1, "upper destination ")
+        for i=0,numelts-1 do
+            dar[dsix+i] = sar[sidx+i]
+        end
+    end,
+}
+
+local gamearray_mt = {
+    __index = function(gar, key)
+        if (type(key)=="number") then
+            check_gamearray_idx(key)
+            return 0
+        else
+            return gamearray_methods[key]
+        end
+    end,
+
+    __newindex = function(gar, idx, val)
+        check_gamearray_idx(idx)
+        gar[idx] = val
+    end,
+
+    -- Calling a gamearray causes its cleanup:
+    --  * All values equal to the default one (0) are cleared.
+    __call = function(gar)
+        for i=0,gar._size-1 do
+            if (gar[i]==0) then
+                gar[i] = nil
+            end
+        end
+    end,
+
+    __metatable = true,
+}
+
+function _gamearray(size)
+    return setmetatable({ _size=size }, gamearray_mt)
+end
+
+
 --- Exported functions ---
 
 -- Non-local control flow. These ones call the original error(), not our

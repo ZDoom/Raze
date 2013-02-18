@@ -117,6 +117,8 @@ GVFLAG.USER_MASK = GVFLAG.PERX_MASK + GVFLAG.NODEFAULT + GVFLAG.NORESET
 local g_funcname = {}
 -- [identifier] = { name=<mangled name / code>, flags=<gamevar flags> }
 local g_gamevar = {}
+-- [identifier] = { name=<mangled name / code>, size=<initial size> }
+local g_gamearray = {}
 
 local g_have_file = {}  -- [filename]=true
 local g_curcode = nil  -- a table of string pieces or other "gencode" tables
@@ -248,6 +250,7 @@ end
 local function reset_codegen()
     g_funcname = {}
     g_gamevar = new_initial_gvartab()
+    g_gamearray = {}
 
     g_have_file = {}
     g_curcode = new_initial_codetab()
@@ -452,7 +455,18 @@ function lookup.defined_label(pos, maybe_minus_str, identifier)
     return (maybe_minus_str=="" and 1 or -1) * num
 end
 
+local function check_sysvar_def_attempt(identifier)
+    if (identifier=="actorvar") then
+        errprintf("cannot define reserved symbol `actorvar'")
+        return true
+    end
+end
+
 local function do_define_label(identifier, num)
+    if (check_sysvar_def_attempt(identifier)) then
+        return
+    end
+
     local oldtype = g_labeltype[identifier]
     local oldval = g_labeldef[identifier]
 
@@ -726,13 +740,6 @@ local function stripws(str)
 end
 
 function Cmd.definequote(qnum, quotestr)
---[[
-    -- have the INT_MAX limit simply for some sanity
-    if (not (qnum >= 0 and <= 0x7fffffff)) then
-        errprintf("quote number is negative or exceeds limit of INT32_MAX.")
-        return
-    end
---]]
     if (not (qnum >= 0 and qnum < conl.MAXQUOTES)) then
         errprintf("quote number is negative or exceeds limit of %d.", conl.MAXQUOTES-1)
         return
@@ -828,7 +835,42 @@ end
 
 --- GAMEVARS / GAMEARRAYS
 
+function Cmd.gamearray(identifier, initsize)
+    if (check_sysvar_def_attempt(identifier)) then
+        return
+    end
+
+    if (initsize >= 0x7fffffff+0ULL) then
+        errprintf("invalid initial size %d for gamearray `%s'", initsize, identifier)
+        return
+    end
+
+    local oga = g_gamearray[identifier]
+    if (oga) then
+        if (initsize ~= oga.size) then
+            errprintf("duplicate gamearray definition `%s' has different size", identifier)
+            return
+        else
+            warnprintf("duplicate gamearray definition `%s' ignored", identifier)
+            return
+        end
+    end
+
+    if (g_gamevar[identifier]) then
+        warnprintf("symbol `%s' already used for game variable", identifier)
+    end
+
+    local ga = { name=mangle_name(identifier, "A"), size=initsize }
+    g_gamearray[identifier] = ga
+
+    addcodef("local %s=_con._gamearray(%d)", ga.name, initsize)
+end
+
 function Cmd.gamevar(identifier, initval, flags)
+    if (check_sysvar_def_attempt(identifier)) then
+        return
+    end
+
     -- TODO: handle user bits like NORESET or NODEFAULT
     if (bit.band(flags, bit.bnot(GVFLAG.USER_MASK)) ~= 0) then
         -- TODO: a couple of the presumably safe ones
@@ -895,6 +937,15 @@ function Cmd.gamevar(identifier, initval, flags)
     else
         addcodef("local %s=%d", gv.name, initval)
     end
+end
+
+function lookup.gamearray(identifier)
+    local ga = g_gamearray[identifier]
+    if (ga == nil) then
+        errprintf("symbol `%s' is not a game array", identifier)
+        return "_INVALIDGA"
+    end
+    return ga.name
 end
 
 -- <aorpvar>: code for actor or player index
@@ -967,6 +1018,7 @@ local tok =
 
     rvar = Var("t_rvar"),
     wvar = Var("t_wvar"),
+    gamearray = Var("t_gamearray"),
 
     -- for definelevelname
     time = lpeg.C(alphanum*alphanum^-1*":"*alphanum*alphanum^-1),
@@ -994,8 +1046,9 @@ local function n_defines(n)  -- works well only for small n
 end
 
 
-local D, R, W, I, AC, MV, AI = -1, -2, -3, -4, -5, -6, -7
-local TOKEN_PATTERN = { [D]=tok.define, [R]=tok.rvar, [W]=tok.wvar, [I]=tok.identifier,
+local D, R, W, I, GARI, AC, MV, AI = -1, -2, -3, -4, -5, -6, -7, -8
+local TOKEN_PATTERN = { [D]=tok.define, [R]=tok.rvar, [W]=tok.wvar,
+                        [I]=tok.identifier, [GARI]=tok.gamearray,
                         [AC]=tok.action, [MV]=tok.move, [AI]=tok.ai }
 
 -- Generic command pattern, types given by varargs.
@@ -1065,7 +1118,7 @@ local Couter = {
 
     --- 4. Game Variables / Arrays
     gamevar = cmd(I,D,D) / Cmd.gamevar,
-    gamearray = cmd(I,D),
+    gamearray = cmd(I,D) / Cmd.gamearray,
 
     --- 5. Top level commands that are also run-time commands
     move = sp1 * tok.identifier * (sp1 * tok.define)^-2 /  -- hvel, vvel
@@ -1188,11 +1241,43 @@ local function StructAccess(Structname, writep, index, membertab)
     end
 end
 
-
 function lookup.array_expr(writep, structname, index, membertab)
     if (conl.StructAccessCode[structname] == nil) then
---        warnprintf("gamearray access: NYI")
-        return "_NYI"
+        -- Try a gamearray
+        local ga = (g_gamearray[structname]) and lookup.gamearray(structname)
+        if (ga == nil) then
+            if (structname=="actorvar") then
+                -- actorvar[] inline array expr
+                -- XXX: kind of CODEDUP with GetOrSetPerxvarCmd() factory
+                local gv = g_gamevar[structname]
+                if (gv and bit.band(gv.flags, GVFLAG.PERX_MASK)~=GVFLAG.PERACTOR) then
+                    errprintf("variable `%s' is not per-actor", structname, "actor")
+                end
+
+                if (membertab == nil) then
+                    errprintf("actorvar[] requires a pseudo member (gamevar) name")
+                    return "_INVALIDAV"
+                end
+
+                if (#membertab > 1) then
+                    errprintf("actorvar[] cannot be used with a second parameter")
+                    return "_INVALIDAV"
+                end
+
+                assert(#membertab == 1)
+                return lookup.gamevar(membertab[1], index, writep)
+            end
+
+            errprintf("symbol `%s' is neither a struct nor a gamearray", structname)
+            return "_INVALIDAR"
+        end
+
+        if (membertab ~= nil) then
+            errprintf("gamearrays cannot be indexed with member names")
+            return "_INVALIDAR"
+        end
+
+        return format("%s[%s]", ga.name, index)
     end
 
     local membercode, ismethod = StructAccess(structname, writep, index, membertab)
@@ -1679,12 +1764,16 @@ local Cinner = {
     getpname = cmd(R,R),
 
     -- array stuff
-    copy = sp1 * tok.identifier * arraypat * sp1 * tok.identifier * arraypat * sp1 * tok.rvar,
-    setarray = sp1 * tok.identifier * arraypat * sp1 * tok.rvar,
-    resizearray = cmd(I,R),
-    getarraysize = cmd(I,W),
-    readarrayfromfile = cmd(I,D),
-    writearraytofile = cmd(I,D),
+    copy = sp1 * tok.gamearray * arraypat * sp1 * tok.gamearray * arraypat * sp1 * tok.rvar
+        / "%1:copyto(%2,%3,%4,%5)",
+    setarray = sp1 * tok.gamearray * arraypat * sp1 * tok.rvar
+        / "%1[%2]=%3",
+    resizearray = cmd(GARI,R)
+        / "%1:resize(%2)",
+    getarraysize = cmd(GARI,W)
+        / "%2=%1._size",
+    readarrayfromfile = cmd(GARI,D),
+    writearraytofile = cmd(GARI,D),
 
     addlogvar = cmd(R)
         / handle.addlogvar,
@@ -2269,7 +2358,6 @@ local function get_deferred_code(tab, lev, code)
 end
 
 local function begin_if_fn(condstr, endifstr, endifelsestr)
-    condstr = condstr or "TODO"
     assert(type(condstr)=="string")
 
     add_deferred_code(g_endIfCode, g_iflevel, endifstr)
@@ -2338,6 +2426,8 @@ local Grammar = Pat{
     -- are permitted.  NOTE: C-CON doesn't support inline array exprs here.
     t_wvar = Var("t_singlearrayexp") / function() errprintf("t_wvar: array exprs NYI") return "_NYIVAR" end
         + (tok.identifier / function(id) return lookup.gamevar(id, "_aci", true) end),
+
+    t_gamearray = Var("t_identifier") / lookup.gamearray,
 
     t_move =
         POS()*tok.identifier / function(...) return lookup.composite(LABEL.MOVE, ...) end +
