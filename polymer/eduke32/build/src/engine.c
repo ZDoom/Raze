@@ -5516,6 +5516,8 @@ static void drawsprite_opengl(int32_t snum)
         bglDisable(GL_ALPHA_TEST);
     }
 # endif
+#else
+    UNREFERENCED_PARAMETER(snum);
 #endif
     //============================================================================= //POLYMOST ENDS
 }
@@ -14325,7 +14327,7 @@ void completemirror(void)
     for (dy=mirrorsy2-mirrorsy1-1; dy>=0; dy--)
     {
         copybufbyte((void *)(p+1),tempbuf,mirrorsx2+1);
-        tempbuf[mirrorsx2] = tempbuf[mirrorsx2-1];
+        tempbuf[mirrorsx2] = tempbuf[mirrorsx2-1]; // FIXME: with GEKKO, array subscripts are below array bounds
         copybufreverse(&tempbuf[mirrorsx2],(void *)(p+i),mirrorsx2+1);
         p += ylookup[1];
         faketimerhandler();
@@ -16187,10 +16189,14 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
 
 static int32_t screencapture_tga(const char *filename, char inverseit)
 {
-    int32_t i,j;
+    int32_t i;
     char *ptr, head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
     //char palette[4*256];
-    char *fn = Bstrdup(filename), *inversebuf;
+    char *fn = Bstrdup(filename);
+# ifdef USE_OPENGL
+    int32_t j;
+    char *inversebuf;
+# endif
     BFILE *fil;
 
     i = screencapture_common1(fn, "tga", &fil);

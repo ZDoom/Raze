@@ -69,7 +69,9 @@ ifeq ($(RENDERTYPE),SDL)
     endif
     ifneq ($(PLATFORM),DARWIN)
         ifneq ($(PLATFORM),WINDOWS)
-            OURCOMMONFLAGS+=`pkg-config --cflags vorbis`
+            ifneq ($(PLATFORM),WII)
+                OURCOMMONFLAGS+=`pkg-config --cflags vorbis`
+            endif
         endif
     endif
     OBJECTS+= $(OBJ)/driver_sdl.o

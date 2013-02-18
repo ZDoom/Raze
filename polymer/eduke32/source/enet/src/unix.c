@@ -4,6 +4,10 @@
 */
 #ifndef WIN32
 
+#ifndef UNREFERENCED_PARAMETER
+    #define UNREFERENCED_PARAMETER(x) x=x
+#endif
+
 #if defined(GEKKO)
 # include <network.h>
 # define gethostbyname net_gethostbyname
@@ -172,8 +176,9 @@ enet_address_get_host_ip (const ENetAddress * address, char * name, size_t nameL
 int
 enet_address_get_host (const ENetAddress * address, char * name, size_t nameLength)
 {
-    struct in_addr in;
     struct hostent * hostEntry = NULL;
+#ifndef GEKKO
+    struct in_addr in;
 #ifdef HAS_GETHOSTBYADDR_R
     struct hostent hostData;
     char buffer [2048];
@@ -190,6 +195,7 @@ enet_address_get_host (const ENetAddress * address, char * name, size_t nameLeng
     in.s_addr = address -> host;
 
     hostEntry = gethostbyaddr ((char *) & in, sizeof (struct in_addr), AF_INET);
+#endif
 #endif
 
     if (hostEntry == NULL)
@@ -342,9 +348,10 @@ enet_socket_send (ENetSocket socket,
                   const ENetBuffer * buffers,
                   size_t bufferCount)
 {
+    int sentLength = -1;
+#ifndef GEKKO
     struct msghdr msgHdr;
     struct sockaddr_in sin;
-    int sentLength;
 
     memset (& msgHdr, 0, sizeof (struct msghdr));
 
@@ -364,6 +371,12 @@ enet_socket_send (ENetSocket socket,
     msgHdr.msg_iovlen = bufferCount;
 
     sentLength = sendmsg (socket, & msgHdr, MSG_NOSIGNAL);
+#else
+    UNREFERENCED_PARAMETER(socket);
+    UNREFERENCED_PARAMETER(address);
+    UNREFERENCED_PARAMETER(buffers);
+    UNREFERENCED_PARAMETER(bufferCount);
+#endif
     
     if (sentLength == -1)
     {
@@ -382,9 +395,10 @@ enet_socket_receive (ENetSocket socket,
                      ENetBuffer * buffers,
                      size_t bufferCount)
 {
+    int recvLength = -1;
+#ifndef GEKKO
     struct msghdr msgHdr;
     struct sockaddr_in sin;
-    int recvLength;
 
     memset (& msgHdr, 0, sizeof (struct msghdr));
 
@@ -398,6 +412,12 @@ enet_socket_receive (ENetSocket socket,
     msgHdr.msg_iovlen = bufferCount;
 
     recvLength = recvmsg (socket, & msgHdr, MSG_NOSIGNAL);
+#else
+    UNREFERENCED_PARAMETER(socket);
+    UNREFERENCED_PARAMETER(address);
+    UNREFERENCED_PARAMETER(buffers);
+    UNREFERENCED_PARAMETER(bufferCount);
+#endif
 
     if (recvLength == -1)
     {
@@ -407,6 +427,7 @@ enet_socket_receive (ENetSocket socket,
        return -1;
     }
 
+#ifndef GEKKO
 #ifdef HAS_MSGHDR_FLAGS
     if (msgHdr.msg_flags & MSG_TRUNC)
       return -1;
@@ -417,6 +438,7 @@ enet_socket_receive (ENetSocket socket,
         address -> host = (enet_uint32) sin.sin_addr.s_addr;
         address -> port = ENET_NET_TO_HOST_16 (sin.sin_port);
     }
+#endif
 
     return recvLength;
 }

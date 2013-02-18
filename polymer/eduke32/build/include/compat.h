@@ -42,6 +42,17 @@
 #ifdef HAVE_INTTYPES
 #  include <stdint.h>
 #  include <inttypes.h>
+
+// Ghetto. Blame devkitPPC's faulty headers.
+#ifdef GEKKO
+#  undef PRIdPTR
+#  define PRIdPTR "d"
+#  undef PRIxPTR
+#  define PRIxPTR "x"
+#  undef SCNx32
+#  define SCNx32 "x"
+#endif
+
 #elif defined(_MSC_VER)
 #  include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
 #endif

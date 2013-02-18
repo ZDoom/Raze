@@ -878,6 +878,7 @@ int access(const char *pathname, int mode)
         return -1;
 
     // TODO: Check mode against st_mode
+    UNREFERENCED_PARAMETER(mode);
 
     return 0;
 }

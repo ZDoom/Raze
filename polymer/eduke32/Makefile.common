@@ -390,6 +390,7 @@ BASECOMMONFLAGS=$(debug) $(OPTOPT) $(CWARNS) \
 ifneq (0,$(CLANG))
     BASECOMMONFLAGS+= -Wno-unused-value -Wno-parentheses
 endif
+BASECOMMONFLAGS+= -Wno-char-subscripts
 
 ifeq (0,$(NETCODE))
     BASECOMMONFLAGS+= -DNETCODE_DISABLE
