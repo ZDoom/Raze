@@ -9104,7 +9104,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 case 'l':
                     ud.warp_on = 1;
                     c++;
-                    ud.m_level_number = ud.level_number = (Batoi(c)-1)%MAXLEVELS;
+                    ud.m_level_number = ud.level_number = ((unsigned)(Batoi(c)-1))%MAXLEVELS;
                     break;
                 case 'm':
                     if (*(c+1) != 'a' && *(c+1) != 'A')
@@ -9226,7 +9226,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 case 'v':
                     c++;
                     ud.warp_on = 1;
-                    ud.m_volume_number = ud.volume_number = (Batoi(c)-1)%MAXVOLUMES;
+                    ud.m_volume_number = ud.volume_number = ((unsigned)(Batoi(c)-1))%MAXVOLUMES;
                     break;
                 case 'w':
                     ud.coords = 1;
