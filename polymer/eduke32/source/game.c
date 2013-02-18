@@ -7838,6 +7838,10 @@ void G_HandleLocalKeys(void)
             if (ud.lockout == 0)
                 if (ud.config.SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && g_RTSPlaying == 0 && (ud.config.VoiceToggle & 1))
                 {
+#if 0
+                    // FIXME: http://forums.duke4.net/topic/6308-eduke32-crashed-when-press-altprintscreen/
+                    // HINT: keeping temp-sounding variables like "i" live for
+                    //  a long time surely is recipe for disaster :/.
                     FX_PlayAuto3D((char *)RTS_GetSound(i-1),RTS_SoundLength(i-1),0,0,0,255,-i);
 
                     g_RTSPlaying = 7;
@@ -7856,7 +7860,7 @@ void G_HandleLocalKeys(void)
 #endif
                     pus = NUMPAGES;
                     pub = NUMPAGES;
-
+#endif
                     return;
                 }
         }
