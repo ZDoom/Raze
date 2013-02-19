@@ -50,7 +50,8 @@ uint8_t buildkeys[NUMBUILDKEYS] =
 vec3_t pos;
 int32_t horiz = 100;
 int16_t ang, cursectnum;
-int32_t hvel, vel, svel, angvel;
+static int32_t hvel, vel, svel, angvel;
+int32_t g_doHardcodedMovement;
 
 static int32_t mousexsurp = 0, mouseysurp = 0;
 
@@ -10195,8 +10196,11 @@ void showspritedata(int16_t spritenum, int16_t small)
 #undef DOPRINT
 
 // gets called once per totalclock increment since last call
-void keytimerstuff(void)
+static void keytimerstuff(void)
 {
+    if (!g_doHardcodedMovement)
+        return;
+
     if (DOWN_BK(STRAFE) == 0)
     {
         if (DOWN_BK(TURNLEFT)) angvel = max(angvel-pk_turnaccel, -128);

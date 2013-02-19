@@ -39,6 +39,7 @@
 extern int32_t horiz;
 extern vec3_t pos;
 extern int16_t ang, cursectnum;
+extern int32_t g_doHardcodedMovement;
 
 extern int8_t m32_clipping;  // 0: none, 1: only white walls, 2: like game
 
