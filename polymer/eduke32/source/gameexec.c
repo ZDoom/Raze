@@ -1985,7 +1985,8 @@ skip_check:
                     break;
                 case CON_QSTRCPY:
                     if ((ScriptQuotes[i] == NULL || ScriptQuotes[j] == NULL)) goto nullquote;
-                    Bstrcpy(ScriptQuotes[i],ScriptQuotes[j]);
+                    if (i != j)
+                        Bstrcpy(ScriptQuotes[i],ScriptQuotes[j]);
                     break;
                 case CON_CHANGESPRITESECT:
                     if ((unsigned)i >= MAXSPRITES)
