@@ -127,8 +127,8 @@ local g_gamearray = {}
 local g_have_file = {}  -- [filename]=true
 local g_curcode = nil  -- a table of string pieces or other "gencode" tables
 
--- [{actor, event, actor}num]=gencode_table
-local g_code = { actor={}, event={}, loadactor={} }
+-- will be a table, see reset_codegen()
+local g_code = nil
 
 
 local function ACS(s) return "actor[_aci]"..s end
@@ -263,7 +263,8 @@ local function reset_codegen()
 
     g_have_file = {}
     g_curcode = new_initial_codetab()
-    g_code.actor, g_code.event, g_code.loadactor = {}, {}, {}
+    -- [{actor, event, actor}num]=gencode_table
+    g_code = { actor={}, event={}, loadactor={} }
 
     g_recurslevel = -1
     g_numerrors = 0
@@ -283,6 +284,8 @@ local function add_code_and_end(codetab, endstr)
     addcode(codetab)
     addcode(endstr)
 end
+
+local function warnprintf() end  -- fwd-decl
 
 local on = {}
 
@@ -306,6 +309,10 @@ function on.actor_end(usertype, tsamm, codetab)
     addcodef("gameactor(%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
     add_code_and_end(codetab, "end)")
 
+    if (g_code.actor[tilenum] ~= nil) then
+        -- XXX: position will be that of last command in actor code
+        warnprintf("redefined actor %d", tilenum)
+    end
     g_code.actor[tilenum] = codetab
 end
 
@@ -343,6 +350,20 @@ function on.event_end(eventidx, codetab)
     g_code.event[eventidx] = codetab
 end
 
+function on.eventloadactor_end(tilenum, codetab)
+    -- Translate eventloadactor into a chained EVENT_LOADACTOR block
+    addcode("gameevent('LOADACTOR', function (_aci, _pli, _dist)")
+    addcodef("if (%s==%d) then", SPS".picnum", tilenum)
+    addcode(codetab)
+    addcode("end")
+    addcode("end)")
+
+    if (g_code.loadactor[tilenum] ~= nil) then
+        warnprintf("redefined loadactor %d", tilenum)
+    end
+    g_code.loadactor[tilenum] = codetab
+end
+
 ----------
 
 local function linecolstr(pos)
@@ -376,7 +397,7 @@ local function pwarnprintf(pos, fmt, ...)
     printf("%s %s: warning: "..fmt, g_filename, linecolstr(pos), ...)
 end
 
-local function warnprintf(fmt, ...)
+function warnprintf(fmt, ...)  -- local
     if (g_lastkwpos) then
         pwarnprintf(g_lastkwpos, fmt, ...)
     else
@@ -2351,8 +2372,8 @@ local Cblock = {
     -- useractor <actortype> (...)
     useractor = sp1 * tok.define * common.actor_end / on.actor_end,
     -- eventloadactor <name/tilenum>
-    eventloadactor = lpeg.Cc(nil) * sp1 * lpeg.Ct(tok.define)
-        * sp1 * stmt_list_or_eps * "enda" / on.actor_end,
+    eventloadactor = sp1 * tok.define * sp1 * stmt_list_or_eps * "enda"
+        / on.eventloadactor_end,
 
     onevent = sp1 * tok.define * sp1 * stmt_list_or_eps * "endevent"
         / on.event_end,

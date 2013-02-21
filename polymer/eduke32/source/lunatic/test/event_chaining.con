@@ -14,6 +14,15 @@ onevent EVENT_INIT
     echo 127
 endevent
 
+eventloadactor 930  // "police line" ribbon
+    // make non-destroyable
+    setactor[THISACTOR].hitag 0
+enda
+
+eventloadactor 2491  // DUKECAR
+    killit
+enda
+
 // output:
 // THIRD
 // SECOND
