@@ -115,6 +115,10 @@ GVFLAG.USER_MASK = GVFLAG.PERX_MASK + GVFLAG.NODEFAULT + GVFLAG.NORESET
 
 -- CON --> mangled Lua function name, also existence check:
 local g_funcname = {}
+-- while parsing a block, it is a table of "gencode" tables:
+local g_switchCode = nil
+-- Global number of switch statements:
+local g_switchCount = 0
 -- [identifier] = { name=<mangled name / code>, flags=<gamevar flags> }
 local g_gamevar = {}
 -- [identifier] = { name=<mangled name / code>, size=<initial size> }
@@ -140,7 +144,10 @@ local function new_initial_codetab()
         "local _xmath, _geom = require'xmath', require'geom';",
         "local sector, sprite, actor, player = sector, sprite, actor, player;",
         "local gameactor, gameevent, _gv = gameactor, gameevent, gv;",
-        "local updatesector, updatesectorz, cansee = updatesector, updatesectorz, cansee;"
+        "local updatesector, updatesectorz, cansee = updatesector, updatesectorz, cansee;",
+
+        -- switch function table, indexed by global switch sequence number:
+        "local _SW = {};",
            }
 end
 
@@ -249,6 +256,8 @@ end
 
 local function reset_codegen()
     g_funcname = {}
+    g_switchCode = nil
+    g_switchCount = 0
     g_gamevar = new_initial_gvartab()
     g_gamearray = {}
 
@@ -275,7 +284,9 @@ local function add_code_and_end(codetab, endstr)
     addcode(endstr)
 end
 
-local function on_actor_end(usertype, tsamm, codetab)
+local on = {}
+
+function on.actor_end(usertype, tsamm, codetab)
     local tilenum = tsamm[1]
 
     local str = ""
@@ -310,7 +321,7 @@ local function mangle_name(name, prefix)
     return prefix..name
 end
 
-local function on_state_begin_Cmt(_subj, _pos, statename)
+function on.state_begin_Cmt(_subj, _pos, statename)
     -- We must register the state name early (Cmt) because otherwise, it won't
     -- be found in a recursive state. XXX: The real issue seems to be the use
     -- of "Cmt"s in other places, which messes up the sequence of running the
@@ -320,12 +331,12 @@ local function on_state_begin_Cmt(_subj, _pos, statename)
     return true, ourname
 end
 
-local function on_state_end(funcname, codetab)
+function on.state_end(funcname, codetab)
     addcodef("local function %s(_aci, _pli, _dist)", funcname)
     add_code_and_end(codetab, "end")
 end
 
-local function on_event_end(eventidx, codetab)
+function on.event_end(eventidx, codetab)
     addcodef("gameevent(%d, function (_aci, _pli, _dist)", eventidx)
     add_code_and_end(codetab, "end)")
 
@@ -2248,9 +2259,10 @@ end
 -- attach the command names at the front!
 local function attachnames(kwtab, matchtimefunc)
     for cmdname,cmdpat in pairs(kwtab) do
-        -- The match-time function capture at the end is so that every
-        -- command acts as a barrier to captures to prevent stack overflow (and
-        -- to make lpeg.match return a subject position at the end)
+        -- The match-time function capture at the end is so that every command
+        -- acts as a barrier to captures to delay (but not fully prevent) stack
+        -- overflow (and to make lpeg.match return a subject position at the
+        -- end)
         kwtab[cmdname] = lpeg.Cmt(Keyw(cmdname) * cmdpat, matchtimefunc)
     end
 end
@@ -2305,10 +2317,13 @@ local lone_else = (POS() * "else" * sp1)/warn_on_lonely_else
 local stmt_list = Var("stmt_list")
 -- possibly empty statement list:
 local stmt_list_or_eps = lpeg.Ct((stmt_list * sp1)^-1)
-local stmt_list_nosp_or_eps = (stmt_list * (sp1 * stmt_list)^0)^-1
+local stmt_list_nosp_or_eps = lpeg.Ct((stmt_list * (sp1 * stmt_list)^0)^-1)
+
+-- Reused LPeg patterns
+local common = {}
 
 -- common to actor and useractor: <name/tilenum> [<strength> [<action> [<move> [<flags>... ]]]]
-local common_actor_end = sp1 * lpeg.Ct(tok.define *
+common.actor_end = sp1 * lpeg.Ct(tok.define *
     (sp1 * tok.define *
      (sp1 * tok.action *
       (sp1 * tok.move *
@@ -2318,22 +2333,37 @@ local common_actor_end = sp1 * lpeg.Ct(tok.define *
     )^-1)
 * sp1 * stmt_list_or_eps * "enda"
 
+common.block_begin = lpeg.Cc(nil) / function()
+    g_switchCode = {}
+end
+
+common.block_end = lpeg.Cc(nil) / function()
+    if (#g_switchCode > 0) then
+        addcode(g_switchCode)
+    end
+    g_switchCode = nil
+end
+
 --== block delimiters (no syntactic recursion) ==--
 local Cblock = {
     -- actor (...)
-    actor = lpeg.Cc(nil) * common_actor_end / on_actor_end,
+    actor = lpeg.Cc(nil) * common.actor_end / on.actor_end,
     -- useractor <actortype> (...)
-    useractor = sp1 * tok.define * common_actor_end / on_actor_end,
+    useractor = sp1 * tok.define * common.actor_end / on.actor_end,
     -- eventloadactor <name/tilenum>
     eventloadactor = lpeg.Cc(nil) * sp1 * lpeg.Ct(tok.define)
-        * sp1 * stmt_list_or_eps * "enda" / on_actor_end,
+        * sp1 * stmt_list_or_eps * "enda" / on.actor_end,
 
     onevent = sp1 * tok.define * sp1 * stmt_list_or_eps * "endevent"
-        / on_event_end,
+        / on.event_end,
 
-    state = sp1 * (lpeg.Cmt(tok.identifier, on_state_begin_Cmt)) * sp1 * stmt_list_or_eps * tok.state_ends
-        / on_state_end,
+    state = sp1 * (lpeg.Cmt(tok.identifier, on.state_begin_Cmt)) * sp1 * stmt_list_or_eps * tok.state_ends
+        / on.state_end,
 }
+
+for cmdname, cmdpat in pairs(Cblock) do
+    Cblock[cmdname] = common.block_begin * cmdpat * common.block_end
+end
 
 attachnames(Cblock, after_cmd_Cmt)
 
@@ -2397,6 +2427,54 @@ end
 local function end_if_else_fn()
     g_ifelselevel = g_ifelselevel-1
     return get_deferred_code(g_endIfElseCode, g_ifelselevel, "end ")
+end
+
+function on.switch_end(testvar, blocks)
+    local SW = format("_SW[%d]", g_switchCount)
+    local swcode = { format("%s={", SW) }
+    local have = {}
+    local havedefault = false
+
+    for i=1,#blocks do
+        local block = blocks[i]
+        assert(#block >= 1)
+        local isdefault = (#block==1)
+        local index = isdefault and "'default'" or tostring(block[1])
+
+        if (have[index]) then
+            if (isdefault) then
+                errprintf("duplicate 'default' block in switch statement")
+                return "_INVALIDSW()"
+            else
+                warnprintf("duplicate case %s in switch statement", index)
+            end
+        end
+        have[index] = true
+
+        swcode[#swcode+1] = format("[%s]=function(_aci,_pli,_dist)", index)
+        -- insert the case/default code:
+        swcode[#swcode+1] = block[#block]
+        swcode[#swcode+1] = "end,"
+    end
+
+    swcode[#swcode+1] = "}"
+
+    -- insert additional case test numbers (e.g. case 0: >>> case 1 <<<: <code...>)
+    for i=1,#blocks do
+        local block = blocks[i]
+        for j=2,#block-1 do
+            local index = tostring(block[j])
+            swcode[#swcode+1] = format("%s[%d]=%s[%d]", SW, index, SW, tostring(block[1]))
+        end
+    end
+
+    assert(g_switchCode ~= nil)
+    g_switchCode[#g_switchCode+1] = swcode
+
+    -- The code for the switch statement itself:
+    local code = format("_con._switch(_SW[%d], %s, _aci,_pli,_dist)", g_switchCount, testvar)
+    g_switchCount = g_switchCount+1
+    return code
 end
 
 
@@ -2465,13 +2543,15 @@ local Grammar = Pat{
 
     -- SWITCH
     switch_stmt = Keyw("switch") * sp1 * tok.rvar *
-        (Var("case_block") + Var("default_block"))^0 * sp1 * "endswitch",
+        lpeg.Ct((Var("case_block") + Var("default_block"))^0) * sp1 * "endswitch"
+        / on.switch_end,
 
     -- NOTE: some old DNWMD has "case: PIGCOP".  I don't think I'll allow that.
-    case_block = (sp1 * Keyw("case") * sp1 * tok.define/"XXX_CASE" * (sp0*":")^-1)^1 * sp1 *
-        stmt_list_nosp_or_eps, -- * "break",
+    case_block = lpeg.Ct((sp1 * Keyw("case") * sp1 * tok.define * (sp0*":")^-1)^1 * sp1 *
+                         stmt_list_nosp_or_eps), -- * "break",
 
-    default_block = sp1 * Keyw("default") * (sp0*":"*sp0 + sp1) * stmt_list_nosp_or_eps,  -- * "break",
+    default_block = lpeg.Ct(sp1 * Keyw("default") * (sp0*":"*sp0 + sp1) *
+                            stmt_list_nosp_or_eps),  -- * "break",
 
     optional_else = (sp1 * lpeg.C("else") * sp1 * Var("single_stmt"))^-1,
 
@@ -2550,7 +2630,7 @@ local function get_code_string(codetab)
     return table.concat(flatten_codetab(g_curcode), "\n")
 end
 
-local function on_parse_begin()
+function on.parse_begin()
     g_iflevel = 0
     g_ifelselevel = 0
     g_have_file[g_filename] = true
@@ -2569,7 +2649,7 @@ function parse(contents)  -- local
     local lastkw, lastkwpos, numerrors = g_lastkw, g_lastkwpos, g_numerrors
     local newlineidxs = g_newlineidxs
 
-    on_parse_begin()
+    on.parse_begin()
 
     g_newlineidxs = setup_newlineidxs(contents)
 
@@ -2614,7 +2694,7 @@ function parse(contents)  -- local
 
     -- restore outer state
     g_lastkw, g_lastkwpos = lastkw, lastkwpos
-    g_numerrors = (g_numerrors==inf and inf) or numerrors
+    g_numerrors = math.max(g_numerrors, numerrors)
     g_newlineidxs = newlineidxs
 end
 

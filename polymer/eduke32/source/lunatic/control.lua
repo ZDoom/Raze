@@ -656,6 +656,15 @@ function _qgetsysstr(qdst, what, pli)
 end
 
 
+-- switch statement support
+function _switch(swtab, testval, aci,pli,dist)
+    local func = swtab[testval] or swtab.default
+    if (func) then
+        func(aci, pli, dist)
+    end
+end
+
+
 -- text rendering
 function _minitext(x, y, qnum, shade, pal)
     local cstr = bcheck.quote_idx(qnum)
