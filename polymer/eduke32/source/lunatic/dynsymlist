@@ -68,6 +68,7 @@ luaJIT_BC_defs_common;
 
 
 
+s_buildRev;
 g_sizes_of_what;
 g_sizes_of;
 g_elCallDepth;

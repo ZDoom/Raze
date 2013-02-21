@@ -1760,7 +1760,7 @@ local Cinner = {
     qsprintf = sp1 * tok.rvar * sp1 * tok.rvar * (sp1 * tok.rvar)^-32
         / handle.qsprintf,
     qgetsysstr = cmd(R,R)
-        / handle.NYI,
+        / "_con._qgetsysstr(%1,%2,_pli)",
     qstrcat = cmd(R,R)
         / "_con._qstrcat(%1,%2)",
     qstrcpy = cmd(R,R)

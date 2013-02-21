@@ -37,7 +37,7 @@ local gv_access = {}
 -- Notes: do not declare multiple pointers on one line (this is bad:
 -- "int32_t *a, *b"). Do not name array arguments (or add a space
 -- between the identifier and the '[' instead).
-function decl(str)
+function decl(str, ...)
     -- NOTE that the regexp also catches non-array/non-function identifiers
     -- like "user_defs ud;"
     for varname in string.gmatch(str, "([%a_][%w_]*)[[(;]") do
@@ -47,7 +47,7 @@ function decl(str)
         gv_access[varname] = true
     end
 
-    ffi.cdef(str)
+    ffi.cdef(str, ...)
 end
 
 -- Load the definitions common to the game's and editor's Lua interface.
@@ -473,6 +473,12 @@ typedef struct {
     char display_bonus_screen;
     char show_level_text;
 } user_defs;
+
+typedef struct {
+    int32_t partime, designertime;
+    char *name, *filename, *musicfn, *alt_musicfn;
+    void *savedstate;
+} map_t;
 ]])
 
 -- EXTERNALLY EXPOSED GAME VARIABLES
@@ -482,7 +488,10 @@ hudweapon_t hudweap;
 ]]
 
 -- INTERNAL VARIABLES/FUNCTIONS
+decl("map_t MapInfo[($+1)*$];", con_lang.MAXVOLUMES, con_lang.MAXLEVELS)
+
 decl[[
+const char *s_buildRev;
 const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
 int32_t g_elCallDepth;

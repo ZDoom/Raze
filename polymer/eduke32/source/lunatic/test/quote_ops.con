@@ -6,6 +6,14 @@ gamevar n -12345678 0  // a number having length 9 in the decimal representation
 // overlong string at definition (should warn)
 definequote 400 123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789=123456789-
 
+// alloc some quotes, test empty quote syntax
+definequote 401
+definequote 402
+definequote 403
+definequote 404
+definequote 405
+definequote 406
+
 onevent EVENT_ENTERLEVEL
     redefinequote 114 QWE
 
@@ -63,4 +71,19 @@ onevent EVENT_ENTERLEVEL
     redefinequote 117 123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789=123456789-
     userquote 117  // should end in "=1234567" (= total length 127 = MAXQUOTELEN-1)
     userquote 400  // same thing
+
+    // test passing empty quote
+    userquote 401
+
+    // qgetsysstr test
+    qgetsysstr 401 STR_MAPNAME
+    qgetsysstr 402 STR_MAPFILENAME
+    qgetsysstr 403 STR_PLAYERNAME
+    qgetsysstr 404 STR_VERSION
+    qgetsysstr 405 STR_GAMETYPE
+    qgetsysstr 406 STR_VOLUMENAME
+
+    redefinequote 400 %s | %s | %s | %s | %s | %s
+    qsprintf 400 /*<-*/ 400 /*args:*/ 401 402 403 404 405 406
+    userquote 400
 endevent

@@ -615,6 +615,46 @@ function _getkeyname(qdst, gfuncnum, which)
     end
 end
 
+local EDUKE32_VERSION_STR = "EDuke32 2.0.0devel "..ffi.string(ffiC.s_buildRev)
+
+local function quote_strcpy(dst, src)
+    local i=-1
+    repeat
+        i = i+1
+        dst[i] = src[i]
+    until (src[i]==0 or i==MAXQUOTELEN-1)
+    dst[i] = 0
+end
+
+function _qgetsysstr(qdst, what, pli)
+    local dst = bcheck.quote_idx(qdst)
+
+    local idx = ffiC.ud.volume_number*con_lang.MAXLEVELS + ffiC.ud.level_number
+    local MAXIDX = ffi.sizeof(ffiC.MapInfo) / ffi.sizeof(ffiC.MapInfo[0])
+
+    if (what == ffiC.STR_MAPNAME) then
+        assert(not (idx >= MAXIDX+0ULL))
+        local src = ffiC.MapInfo[idx].name
+        assert(src ~= nil)
+        quote_strcpy(dst, src)
+    elseif (what == ffiC.STR_MAPFILENAME) then
+        assert(not (idx >= MAXIDX+0ULL))
+        local src = ffiC.MapInfo[idx].filename
+        assert(src ~= nil)
+        quote_strcpy(dst, src)
+    elseif (what == ffiC.STR_PLAYERNAME) then
+        ffi.copy(dst, ffiC.g_player[pli].user_name, ffi.sizeof(ffiC.g_player[0].user_name))
+    elseif (what == ffiC.STR_VERSION) then
+        ffi.copy(dst, EDUKE32_VERSION_STR)
+    elseif (what == ffiC.STR_GAMETYPE) then
+        ffi.copy(dst, "multiplayer not yet implemented")  -- TODO_MP
+    elseif (what == ffiC.STR_VOLUMENAME) then
+        ffi.copy(dst, "STR_VOLUMENAME: NYI")
+    else
+        error("unknown system string ID "..what, 2)
+    end
+end
+
 
 -- text rendering
 function _minitext(x, y, qnum, shade, pal)
