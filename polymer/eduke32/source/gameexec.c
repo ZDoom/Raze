@@ -103,18 +103,34 @@ void VM_ScriptInfo(void)
 #endif
 }
 
+static void VM_KillIt(int32_t iActor, int32_t iPlayer)
+{
+    if (iActor >= 0)
+    {
+        // if player was set to squish, first stop that...
+        if (iPlayer >= 0 && g_player[iPlayer].ps->actorsqu == iActor)
+            g_player[iPlayer].ps->actorsqu = -1;
+
+        A_DeleteSprite(iActor);
+    }
+}
+
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
 int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
 #ifdef LUNATIC
+    int32_t killit;
     const double t = gethitickms();
 
     // TODO: handling of RETURN gamevar / iReturn / this function's return value
     if (L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
-        El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist);
-#endif
+        if (El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist)==1)
+            VM_KillIt(iActor, iPlayer);
 
-#if !defined LUNATIC
+    g_eventTotalMs[iEventID] += gethitickms()-t;
+    g_eventCalls[iEventID]++;
+#else
+
     if (apScriptGameEvent[iEventID])
     {
         intptr_t *oinsptr=insptr;
@@ -138,13 +154,7 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
         VM_Execute(1);
 
         if (vm.g_flags & VM_KILL)
-        {
-            // if player was set to squish, first stop that...
-            if (vm.g_p >= 0 && g_player[vm.g_p].ps->actorsqu == vm.g_i)
-                g_player[vm.g_p].ps->actorsqu = -1;
-
-            A_DeleteSprite(vm.g_i);
-        }
+            VM_KillIt(iActor, iPlayer);
 
         Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
         insptr = oinsptr;
@@ -155,10 +165,6 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
     }
 #endif
 
-#ifdef LUNATIC
-    g_eventTotalMs[iEventID] += gethitickms()-t;
-    g_eventCalls[iEventID]++;
-#endif
     return iReturn;
 }
 
@@ -5124,12 +5130,10 @@ finish_qsprintf:
         }
     }
 }
-#endif
 
 // NORECURSE
 void A_LoadActor(int32_t iActor)
 {
-#if !defined LUNATIC
     vm.g_i = iActor;    // Sprite ID
     vm.g_p = -1; // iPlayer;    // Player ID
     vm.g_x = -1; // lDist;    // ?
@@ -5155,8 +5159,9 @@ void A_LoadActor(int32_t iActor)
 
     if (vm.g_flags & VM_KILL)
         A_DeleteSprite(vm.g_i);
-#endif
+
 }
+#endif
 
 // NORECURSE
 void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
@@ -5244,11 +5249,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 #endif
         )
     {
-        // if player was set to squish, first stop that...
-        if (vm.g_p >= 0 && g_player[vm.g_p].ps->actorsqu == vm.g_i)
-            g_player[vm.g_p].ps->actorsqu = -1;
-
-        A_DeleteSprite(vm.g_i);
+        VM_KillIt(iActor, iPlayer);
         return;
     }
 

@@ -1142,8 +1142,8 @@ static inline void prelevel(char g)
         nexti = nextspritestat[i];
 #if !defined LUNATIC
         A_ResetVars(i);
-#endif
         A_LoadActor(i);
+#endif
         VM_OnEvent(EVENT_LOADACTOR, i, -1, -1, 0);
         if (sprite[i].lotag == UINT16_MAX && (sprite[i].cstat&16))
         {
