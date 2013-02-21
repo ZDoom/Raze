@@ -747,11 +747,13 @@ function Cmd.definequote(qnum, quotestr)
 
     quotestr = stripws(quotestr)
 
-    if (ffi) then
-        if (#quotestr >= conl.MAXQUOTELEN) then
-            warnprintf("quote %d truncated to %d characters.", conl.MAXQUOTELEN-1)
-        end
+    if (#quotestr >= conl.MAXQUOTELEN) then
+        -- NOTE: Actually, C_DefineQuote takes care of this! That is,
+        -- standalone, the string isn't truncated.
+        warnprintf("quote %d truncated to %d characters.", qnum, conl.MAXQUOTELEN-1)
+    end
 
+    if (ffi) then
         ffiC.C_DefineQuote(qnum, quotestr)
     end
 
@@ -2720,8 +2722,11 @@ else
 
         for _, fname in ipairs(filenames) do
             local ok, msg = pcall(do_include_file, "", fname)
-            if (not ok) then
-                print_on_failure(msg)
+            if (not ok or g_numerrors > 0) then
+                if (not ok) then
+                    -- Unexpected error in the Lua code (i.e. a bug here).
+                    print_on_failure(msg)
+                end
                 return nil
             end
         end

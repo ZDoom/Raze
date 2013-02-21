@@ -1,0 +1,66 @@
+// Don't try in C-CON!
+
+gamevar slen 0 0
+gamevar n -12345678 0  // a number having length 9 in the decimal representation
+
+// overlong string at definition (should warn)
+definequote 400 123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789=123456789-
+
+onevent EVENT_ENTERLEVEL
+    redefinequote 114 QWE
+
+    redefinequote 115 012345678|
+    // qstrcat X Y, where X==Y: duplicates the quote
+    qstrcat 115 115
+    userquote 115  // "012345678|012345678|"
+
+    // simple qstrcpy test
+    qstrcpy 116 115
+    userquote 116  // "012345678|012345678|"
+
+    redefinequote 117 %s -- %d -- %s -- %d slen=%d
+    // test:
+    // - same destination quote as the format quote
+    // - multiple conversions
+    qstrlen slen 115  // -> 10
+    qsprintf 117 /*<-*/ 117 /*args:*/ 116 9999 114 5555 slen
+    userquote 117  // "012345678|012345678| -- 9999 -- QWE -- 5555 slen=10"
+
+    redefinequote 117 %s -- %d -- %s -- %d slen=%d
+    // test:
+    // - same destination quote as on of the source quotes under %s conversion
+    qsprintf 116 /*<-*/ 117 /*args:*/ 116 9999 116 5555 slen
+    userquote 116  // "012345678|012345678| -- 9999 -- 012345678|012345678| -- 5555 slen=10"
+
+    // aliased qstrcpy test (a no-op)
+    qstrcpy 115 115
+    userquote 115  // still "012345678|012345678|"
+
+    qstrcat 115 115  // len 40
+    qstrcat 115 115  // len 80
+    qstrcat 115 115
+    // result now: 12 x "012345678|" concantenated with "0123456" (= total length 127 = MAXQUOTELEN-1)
+    qstrcat 115 115  // this one is redundant, but must not overflow the quote buffer
+    userquote 115
+
+    redefinequote 117 X%s
+    qsprintf 117 /*<-*/ 117 /*args:*/ 115
+    userquote 117  // result: "X" .. 12 x "012345678|" .. "012345" (= total length 127 = MAXQUOTELEN-1)
+
+    // 32 %d (or %ld) conversion
+    redefinequote 117 %ld|%d|%ld|%d|%ld|%ld|%d|%ld|%d|%ld/%ld|%d|%ld|%d|%ld|%ld|%d|%ld|%d|%ld/%ld|%d|%ld|%d|%ld|%ld|%d|%ld|%d|%ld/%d/%d
+    // string shorter than MAXQUOTELEN-1:
+    qsprintf 116 /*<-*/ 117 /*args:*/ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    // result: "0|1|2|3|4|5|6|7|8|9/0|1|2|3|4|5|6|7|8|9/0|1|2|3|4|5|6|7|8|9/0/1"
+    userquote 116
+
+    // string longer than MAXQUOTELEN-1:
+    qsprintf 116 /*<-*/ 117 /*args:*/ n n n n n n n n n n /**/ n n n n n n n n n n /**/ n n
+    userquote 116
+    // result: 10 x "-12345678" .. "/-12345678|-12345678|-123456" (= total length 127 = MAXQUOTELEN-1)
+
+    // overlong string at redefinition
+    redefinequote 117 123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789=123456789-
+    userquote 117  // should end in "=1234567" (= total length 127 = MAXQUOTELEN-1)
+    userquote 400  // same thing
+endevent

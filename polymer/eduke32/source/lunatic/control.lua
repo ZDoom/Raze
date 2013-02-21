@@ -9,11 +9,13 @@ local math = require("math")
 local geom = require("geom")
 local con_lang = require("con_lang")
 
+local byte = require("string").byte
 local setmetatable = setmetatable
 
 local assert = assert
 local error = error
 local print = print
+local tostring = tostring
 local type = type
 local unpack = unpack
 
@@ -455,12 +457,13 @@ local function strlen(cstr)
     assert(false)
 end
 
+-- NOTE: dst==src is OK (effectively a no-op)
 local function strcpy(dst, src)
     local i=-1
     repeat
         i = i+1
         dst[i] = src[i]
-    until (src[i]~=0)
+    until (src[i]==0)
 end
 
 function _qstrlen(qnum)
@@ -473,16 +476,42 @@ function _qstrcpy(qdst, qsrc)
     strcpy(cstr_dst, cstr_src)
 end
 
+-- NOTE: qdst==qsrc is OK (duplicates the quote)
 function _qstrcat(qdst, qsrc)
     local cstr_dst = bcheck.quote_idx(qdst)
     local cstr_src = bcheck.quote_idx(qsrc)
 
-    local i, j = strlen(cstr_dst), 0
-    while (i < MAXQUOTELEN-1) do
-        cstr_dst[i] = cstr_src[j]
+    if (cstr_src[0]==0) then
+        return
+    end
+
+    if (cstr_dst[0]==0) then
+        return strcpy(cstr_dst, cstr_src)
+    end
+
+    -- From here on: destination and source quote (potentially aliased) are
+    -- nonempty.
+
+    local slen_dst = strlen(cstr_dst)
+    assert(slen_dst <= MAXQUOTELEN-1)
+
+    if (slen_dst == MAXQUOTELEN-1) then
+        return
+    end
+
+    local i = slen_dst
+    local j = 0
+
+    repeat
+        -- NOTE: don't copy the first char yet, so that the qdst==qsrc case
+        -- works correctly.
         i = i+1
         j = j+1
-    end
+        cstr_dst[i] = cstr_src[j]
+    until (i >= MAXQUOTELEN-1 or cstr_src[j]==0)
+
+    -- Now copy the first char!
+    cstr_dst[slen_dst] = cstr_src[0]
     cstr_dst[i] = 0
 end
 
@@ -493,7 +522,7 @@ function _qsprintf(qdst, qsrc, ...)
     local src = bcheck.quote_idx(qsrc)
     local vals = {...}
 
-    local i, j, vi = 0, 0, 0
+    local i, j, vi = 0, 0, 1
 
     while (true) do
         local ch = src[j]
@@ -503,13 +532,13 @@ function _qsprintf(qdst, qsrc, ...)
             break
         end
 
-        if (ch=='%') then
+        if (ch==byte'%') then
             local nch = src[j+1]
-            if (nch=='d' or (nch=='l' and src[j+2]=='d')) then
+            if (nch==byte'd' or (nch==byte'l' and src[j+2]==byte'd')) then
                 -- number
                 didfmt = true
 
-                if (vi == #vals) then
+                if (vi > #vals) then
                     break
                 end
 
@@ -521,23 +550,24 @@ function _qsprintf(qdst, qsrc, ...)
                 ffi.copy(buf+i, numstr, ncopied)
 
                 i = i+ncopied
-                j = j+1+(nch=='d' and 1 or 2)
-            elseif (nch=='s') then
+                j = j+1+(nch==byte'd' and 1 or 2)
+            elseif (nch==byte's') then
                 -- string
                 didfmt = true
-
-                if (vi == #vals) then
+                if (vi > #vals) then
                     break
                 end
 
                 local k = -1
                 local tmpsrc = bcheck.quote_idx(vals[vi])
+                vi = vi+1
 
+                i = i-1
                 repeat
+                    i = i+1
                     k = k+1
                     buf[i] = tmpsrc[k]
-                    i = i+1
-                until (i < MAXQUOTELEN-1 and tmpsrc[k]~=0)
+                until (i >= MAXQUOTELEN-1 or tmpsrc[k]==0)
 
                 j = j+2
             end
