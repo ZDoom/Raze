@@ -149,6 +149,8 @@ local function new_initial_codetab()
 
         -- switch function table, indexed by global switch sequence number:
         "local _SW = {};",
+        -- CON "states" (subroutines), gamevars and gamearrays (see mangle_name())
+        "local _F,_V,_A={},{},{};"
            }
 end
 
@@ -319,13 +321,10 @@ end
 local BAD_ID_CHARS0 = "_/\\*?"  -- allowed 1st identifier chars
 local BAD_ID_CHARS1 = "_/\\*-+?"  -- allowed following identifier chars
 
+-- Return the Lua code by which the CON object <name> is referenced in the
+-- translated code.
 local function mangle_name(name, prefix)
-    -- NOTE: the underscore char has to be replaced too, because we're using
-    -- it as the escape char.
-    for i=1,#BAD_ID_CHARS1 do
-        name = name:gsub(BAD_ID_CHARS1:sub(i,i), "_"..i)
-    end
-    return prefix..name
+    return format("_%s[%q]", prefix, name)
 end
 
 function on.state_begin_Cmt(_subj, _pos, statename)
@@ -339,7 +338,7 @@ function on.state_begin_Cmt(_subj, _pos, statename)
 end
 
 function on.state_end(funcname, codetab)
-    addcodef("local function %s(_aci, _pli, _dist)", funcname)
+    addcodef("%s=function(_aci, _pli, _dist)", funcname)
     add_code_and_end(codetab, "end")
 end
 
@@ -962,7 +961,7 @@ function Cmd.gamearray(identifier, initsize)
     local ga = { name=mangle_name(identifier, "A"), size=initsize }
     g_gamearray[identifier] = ga
 
-    addcodef("local %s=_con._gamearray(%d)", ga.name, initsize)
+    addcodef("%s=_con._gamearray(%d)", ga.name, initsize)
 end
 
 function Cmd.gamevar(identifier, initval, flags)
@@ -1032,9 +1031,9 @@ function Cmd.gamevar(identifier, initval, flags)
     -- TODO: Write gamevar system on the Lunatic side and hook it up.
     -- TODO: per-player gamevars
     if (flags==GVFLAG.PERACTOR) then
-        addcodef("local %s=_con.peractorvar(%d)", gv.name, initval)
+        addcodef("%s=_con.peractorvar(%d)", gv.name, initval)
     else
-        addcodef("local %s=%d", gv.name, initval)
+        addcodef("%s=%d", gv.name, initval)
     end
 end
 
