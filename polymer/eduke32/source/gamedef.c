@@ -2191,7 +2191,25 @@ void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
         map->designertime = REALGAMETICSPERSEC * designertime;
     }
 }
+
+void C_DefineGameFuncName(int32_t idx, const char *name)
+{
+    assert(idx < NUMGAMEFUNCTIONS);
+
+    Bstrncpyz(gamefunctions[idx], name, MAXGAMEFUNCLEN);
+    Bstrncpyz(keydefaults[3*idx], name, MAXGAMEFUNCLEN);
+}
 #endif
+
+// NOTE: external linkage for Lunatic
+int32_t C_SetDefName(const char *name)
+{
+    clearDefNamePtr();
+    g_defNamePtr = dup_filename(name);
+    if (g_defNamePtr)
+        initprintf("Using DEF file: %s.\n", g_defNamePtr);
+    return (g_defNamePtr==NULL);
+}
 
 // NOTE: external linkage for Lunatic
 void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
@@ -5368,10 +5386,7 @@ repeatcase:
                 }
                 tempbuf[j] = '\0';
 
-                clearDefNamePtr();
-                g_defNamePtr = dup_filename(tempbuf);
-
-                initprintf("Using DEF file: %s.\n",g_defNamePtr);
+                C_SetDefName(tempbuf);
             }
             continue;
 

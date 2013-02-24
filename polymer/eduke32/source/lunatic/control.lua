@@ -5,6 +5,7 @@ local ffi = require("ffi")
 local ffiC = ffi.C
 
 local bit = require("bit")
+local io = require("io")
 local math = require("math")
 local geom = require("geom")
 local con_lang = require("con_lang")
@@ -14,7 +15,10 @@ local setmetatable = setmetatable
 
 local assert = assert
 local error = error
+local ipairs = ipairs
 local print = print
+local rawget = rawget
+local rawset = rawset
 local tostring = tostring
 local type = type
 local unpack = unpack
@@ -306,14 +310,16 @@ function _div(a,b)
     if (b==0) then
         error("divide by zero", 2)
     end
-    return (a - math.fmod(a,b))/b
+    -- NOTE: math.modf() is compiled, math.fmod() is not:
+    -- http://wiki.luajit.org/NYI#Math-Library
+    return (a - math.modf(a,b))/b
 end
 
 function _mod(a,b)
     if (b==0) then
         error("mod by zero", 2)
     end
-    return (math.fmod(a,b))
+    return (math.modf(a,b))
 end
 
 -- Sect_ToggleInterpolation() clone
@@ -424,8 +430,11 @@ end
 local MAXQUOTES = con_lang.MAXQUOTES
 local MAXQUOTELEN = con_lang.MAXQUOTELEN
 
+-- CON redefinequote command
 function _definequote(qnum, quotestr)
-    bcheck.quote_idx(qnum)
+    -- NOTE: this is more permissive than C-CON: we allow to redefine quotes
+    -- that were not previously defined.
+    bcheck.quote_idx(qnum, true)
     assert(type(quotestr)=="string")
     ffiC.C_DefineQuote(qnum, quotestr)
     return (#quotestr >= MAXQUOTELEN)
@@ -518,6 +527,11 @@ end
 local buf = ffi.new("char [?]", MAXQUOTELEN)
 
 function _qsprintf(qdst, qsrc, ...)
+    -- NOTE: more permissive than C-CON, see _definequote
+    if (bcheck.quote_idx(qdst, true) == nil) then
+        ffiC.C_DefineQuote(qdst, "")  -- allocate quote
+    end
+
     local dst = bcheck.quote_idx(qdst)
     local src = bcheck.quote_idx(qsrc)
     local vals = {...}
@@ -892,6 +906,32 @@ function _checkpinventory(ps, inv, amount, i)
     else
         return ps:get_inv_amount(inv) ~= amount
     end
+end
+
+local INV_SELECTION_ORDER = {
+    ffiC.GET_FIRSTAID,
+    ffiC.GET_STEROIDS,
+    ffiC.GET_JETPACK,
+    ffiC.GET_HOLODUKE,
+    ffiC.GET_HEATS,
+    ffiC.GET_SCUBA,
+    ffiC.GET_BOOTS,
+}
+
+-- checkavailinven CON command
+function _selectnextinv(ps)
+    for _,inv in ipairs(INV_SELECTION_ORDER) do
+        if (ps:get_inv_amount(inv) > 0) then
+            ps.inven_icon = ICONS[inv]
+            return
+        end
+    end
+
+    ps.inven_icon = 0
+end
+
+function _checkavailweapon(pli)
+    ffiC.P_CheckWeapon(player[pli])
 end
 
 function _addphealth(ps, aci, hlthadd)
@@ -1504,12 +1544,54 @@ end
 
 --- Game arrays ---
 
+local function moddir_filename(cstr_fn)
+    local fn = ffi.string(cstr_fn)
+    local moddir = ffi.string(ffiC.g_modDir);
+
+    if (moddir=="/") then
+        return fn
+    else
+        return format("%s/%s", moddir, fn)
+    end
+end
+
+local GAR_FOOTER = "##EDuke32GameArray##"
+local GAR_FOOTER_SIZE = #GAR_FOOTER
+
+local function gamearray_file_common(qnum, writep)
+    local fn = moddir_filename(bcheck.quote_idx(qnum))
+
+    local f, errmsg = io.open(fn);
+    if (f == nil) then
+        if (not writep) then
+            error([[failed opening "%s" for reading: %s]], fn, errmsg, 3)
+        else
+            return nil, nil, true, fn
+        end
+    end
+
+    local fsize, errmsg = assert(f:seek("end"))
+
+    local isnewgar = false
+    if (fsize >= GAR_FOOTER_SIZE) then
+        assert(f:seek("end", -GAR_FOOTER_SIZE))
+        isnewgar = (assert(f:read(GAR_FOOTER_SIZE)) == GAR_FOOTER)
+        if (isnewgar) then
+            fsize = fsize - GAR_FOOTER_SIZE
+        end
+    end
+
+    return f, math.floor(fsize/4), isnewgar, fn
+end
+
 local function check_gamearray_idx(gar, idx, addstr)
     if (idx >= gar._size+0ULL) then
         addstr = addstr or ""
         error("invalid "..addstr.."array index "..idx, 3)
     end
 end
+
+local intbytes_t = ffi.typeof("union { int32_t i; uint8_t b[4]; }")
 
 local gamearray_methods = {
     resize = function(gar, newsize)
@@ -1518,9 +1600,15 @@ local gamearray_methods = {
             error("invalid new array size "..newsize, 2)
         end
 
+        local MAXELTS = math.floor(0x7fffffff/4)
+        if (newsize > MAXELTS) then
+            -- mainly for some sanity with kread() (which we don't use, but still)
+            error("new array size "..newsize.." too large (max="..MAXELTS.." elements)", 2)
+        end
+
         -- clear trailing elements in case we're shrinking
         for i=gar._size,newsize-1 do
-            gar[i] = nil
+            rawset(gar, i, nil)
         end
 
         gar._size = newsize
@@ -1533,15 +1621,70 @@ local gamearray_methods = {
         check_gamearray_idx(dar, didx, "lower destination ")
         check_gamearray_idx(dar, didx+numelts-1, "upper destination ")
         for i=0,numelts-1 do
-            dar[dsix+i] = sar[sidx+i]
+            rawset(dar, didx+i, rawget(sar, sidx+i))
         end
     end,
+
+    read = function(gar, qnum)
+        local f, nelts, isnewgar = gamearray_file_common(qnum, false)
+
+        assert(f:seek("set"))
+        local str, errmsg = f:read(4*nelts)
+        if (#str ~= 4*nelts) then
+            error("failed reading whole file into gamearray: %s", errmsg, 2)
+        end
+
+        gar:resize(nelts)
+
+        for i=0,nelts-1 do
+            local b1, b2, b3, b4 = byte(str, 4*i+1, 4*i+4)
+            -- ints on disk are litte-endian
+            local int = b1 + 256*b2 + 256^2*b3 + 256^3*b4
+
+            rawset(gar, i, (int==0) and nil or int)
+        end
+
+        f:close()
+    end,
+
+    write = function(gar, qnum)
+        local f, _, isnewgar, fn = gamearray_file_common(qnum, true)
+
+        if (f ~= nil) then
+            f:close()
+        end
+
+        if (not isnewgar) then
+            error("refusing to overwrite a file not created by a previous `writearraytofile'", 2)
+        end
+
+        f = io.open(fn, "w+")
+        if (f == nil) then
+            error([[failed opening "%s" for writing: %s]], fn, errmsg, 3)
+        end
+
+        local nelts = gar._size
+        local cstr = ffi.new("uint8_t [?]", 4*nelts)
+        local isbe = ffi.abi("be")  -- is big-endian?
+
+        for i=0,nelts-1 do
+            local diskval = intbytes_t(isbe and bit.bswap(gar[i]) or gar[i])
+            for bi=0,3 do
+                cstr[4*i+bi] = diskval.b[bi]
+            end
+        end
+
+        f:write(ffi.string(cstr, 4*nelts))
+        f:write(GAR_FOOTER)
+
+        f:close()
+    end
 }
 
 local gamearray_mt = {
     __index = function(gar, key)
         if (type(key)=="number") then
-            check_gamearray_idx(key)
+            check_gamearray_idx(gar, key)
             return 0
         else
             return gamearray_methods[key]
@@ -1549,16 +1692,16 @@ local gamearray_mt = {
     end,
 
     __newindex = function(gar, idx, val)
-        check_gamearray_idx(idx)
-        gar[idx] = val
+        check_gamearray_idx(gar, idx)
+        rawset(gar, idx, val)
     end,
 
     -- Calling a gamearray causes its cleanup:
     --  * All values equal to the default one (0) are cleared.
     __call = function(gar)
         for i=0,gar._size-1 do
-            if (gar[i]==0) then
-                gar[i] = nil
+            if (rawget(gar, i)==0) then
+                rawset(gar, i, nil)
             end
         end
     end,

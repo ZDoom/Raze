@@ -145,6 +145,7 @@ local function new_initial_codetab()
         "local sector, sprite, actor, player = sector, sprite, actor, player;",
         "local gameactor, gameevent, _gv = gameactor, gameevent, gv;",
         "local updatesector, updatesectorz, cansee = updatesector, updatesectorz, cansee;",
+        "local print = print;",
 
         -- switch function table, indexed by global switch sequence number:
         "local _SW = {};",
@@ -172,8 +173,7 @@ local function new_initial_gvartab()
     local PRO = GamevarCreationFunc(GVFLAG.READONLY+GVFLAG.PERPLAYER)
 
     local gamevar = {
-        -- XXX: TODO: THISACTOR can mean different things in some contexts,
-        -- e.g. sector[THISACTOR]  is  sector[sprite[<current actor>].sectnum]
+        -- NOTE: THISACTOR can mean different things in some contexts.
         THISACTOR = RO "_aci",
 
         RETURN = RW(CSV".RETURN"),
@@ -422,6 +422,16 @@ local function parse_number(pos, numstr)
     end
 
     return num
+end
+
+-- returns: OK?
+local function check_tilenum(tilenum)
+    if (not (tilenum >= 0 and tilenum < (ffiC and ffiC.MAXTILES or 30720))) then
+        errprintf("invalid tile number %d", tilenum)
+        return false
+    end
+
+    return true
 end
 
 
@@ -678,6 +688,18 @@ end
 -- Table of various outer command handling functions.
 local Cmd = {}
 
+function Cmd.NYI(msg)
+    return function()
+        errprintf(msg.." not yet implemented")
+    end
+end
+
+function Cmd.nyi(msg)
+    return function()
+        warnprintf(msg.." not yet implemented")
+    end
+end
+
 function Cmd.include(filename)
     do_include_file(g_directory, filename)
 end
@@ -766,6 +788,22 @@ function Cmd.definevolumename(vol, name)
     g_data.volname[vol] = name
 end
 
+function Cmd.definegamefuncname(idx, name)
+    local NUMGAMEFUNCTIONS = (ffi and ffiC.NUMGAMEFUNCTIONS or 56)
+    if (not (idx >= 0 and idx < NUMGAMEFUNCTIONS)) then
+        errprintf("function number exceeds number of game functions.")
+        return
+    end
+
+    assert(type(name)=="string")
+    -- XXX: in place of C-CON's "invalid character in function name" report:
+    name:gsub("[^A-Za-z0-9]", "_")
+
+    if (ffi) then
+        ffiC.C_DefineGameFuncName(idx, name)
+    end
+end
+
 -- strip whitespace from front and back
 local function stripws(str)
     return str:match("^%s*(.*)%s*$")
@@ -793,14 +831,41 @@ function Cmd.definequote(qnum, quotestr)
 end
 
 function Cmd.defineprojectile(tilenum, what, val)
-    if (not (tilenum >= 0 and tilenum < (ffiC and ffiC.MAXTILES or 30720))) then
-        errprintf("invalid tile number %d", tilenum)
-        return
-    end
+    local ok = check_tilenum(tilenum)
 
-    if (ffi) then
+    if (ffi and ok) then
         -- TODO: potentially bound-check some members?
         ffiC.C_DefineProjectile(tilenum, what, val)
+    end
+end
+
+-- flags: if string, look up in ffiC and OR, else set number directly.
+function Cmd.xspriteflags(tilenum, flags)
+    local ok = check_tilenum(tilenum)
+
+    if (ffi and ok) then
+        if (type(flags)=="number") then
+            ffiC.g_tile[tilenum].flags = flags
+        else
+            assert(type(flags)=="string")
+            ffiC.g_tile[tilenum].flags = bit.bor(ffiC.g_tile[tilenum].flags, ffiC[flags])
+        end
+    end
+end
+
+function Cmd.cheatkeys(sc1, sc2)
+    if (ffi) then
+        ffiC.CheatKeys[0] = sc1
+        ffiC.CheatKeys[1] = sc2
+    end
+end
+
+function Cmd.setdefname(filename)
+    assert(type(filename)=="string")
+    if (ffi) then
+        if (ffiC.C_SetDefName(filename) ~= 0) then
+            error("OUT OF MEMORY", 0)
+        end
     end
 end
 
@@ -1110,63 +1175,90 @@ end
 -- XXX: many of these are also allowed inside actors/states/events in CON.
 local Couter = {
     --- 1. Preprocessor
-    include = sp1 * maybe_quoted_filename / Cmd.include,
-    includedefault = cmd(),
-    define = cmd(I,D) / do_define_label,
+    include = sp1 * maybe_quoted_filename
+        / Cmd.include,
+    includedefault = cmd()
+        / Cmd.NYI("`includedefault'"),
+    define = cmd(I,D)
+        / do_define_label,
 
     --- 2. Defines and Meta-Settings
-    dynamicremap = cmd(),
-    setcfgname = sp1 * tok.filename,
-    setdefname = sp1 * tok.filename,
-    setgamename = newline_term_string,
+    dynamicremap = cmd()
+        / Cmd.NYI("dynamic tile remapping"),
+    setcfgname = sp1 * tok.filename
+        / Cmd.nyi("`setcfgname'"),
+    setdefname = sp1 * tok.filename
+        / Cmd.setdefname,
+    setgamename = newline_term_string
+        / Cmd.nyi("`setgamename'"),
 
-    precache = cmd(D,D,D),
+    precache = cmd(D,D,D)
+        , -- / Cmd.nyi("`precache'"),
     scriptsize = cmd(D)
         / "",  -- no-op
-    cheatkeys = cmd(D,D),
+    cheatkeys = cmd(D,D)
+        / Cmd.cheatkeys,
 
-    definecheat = newline_term_string,  -- XXX: actually tricker syntax (TS)
-    definegamefuncname = newline_term_string,  -- XXX: TS?
-    definegametype = n_defines(2) * newline_term_string,
+    definecheat = newline_term_string  -- XXX: actually tricker syntax (TS)
+        , -- / Cmd.nyi("`definecheat'"),
+    definegamefuncname = sp1 * tok.define * newline_term_string  -- XXX: TS?
+        / Cmd.definegamefuncname,
+    definegametype = n_defines(2) * newline_term_string
+        / Cmd.NYI("`definegametype'"),  -- TODO_MP
     definelevelname = n_defines(2) * sp1 * tok.filename * sp1 * tok.time * sp1 * tok.time *
-        newline_term_string / Cmd.definelevelname,
-    defineskillname = sp1 * tok.define * newline_term_string / Cmd.defineskillname,
-    definevolumename = sp1 * tok.define * newline_term_string / Cmd.definevolumename,
+        newline_term_string
+        / Cmd.definelevelname,
+    defineskillname = sp1 * tok.define * newline_term_string
+        / Cmd.defineskillname,
+    definevolumename = sp1 * tok.define * newline_term_string
+        / Cmd.definevolumename,
 
-    definequote = sp1 * tok.define * newline_term_string / Cmd.definequote,
-    defineprojectile = cmd(D,D,D) / Cmd.defineprojectile,
-    definesound = sp1 * tok.define * sp1 * maybe_quoted_filename * n_defines(5) / Cmd.definesound,
+    definequote = sp1 * tok.define * newline_term_string
+        / Cmd.definequote,
+    defineprojectile = cmd(D,D,D)
+        / Cmd.defineprojectile,
+    definesound = sp1 * tok.define * sp1 * maybe_quoted_filename * n_defines(5)
+        / Cmd.definesound,
 
     -- NOTE: gamevar.ogg and the like is OK, too
-    music = sp1 * tok.define * match_until(sp1 * tok.filename, sp1 * conl.keyword * sp1) / Cmd.music,
+    music = sp1 * tok.define * match_until(sp1 * tok.filename, sp1 * conl.keyword * sp1)
+        / Cmd.music,
 
     --- 3. Game Settings
     -- gamestartup has 26/30 fixed defines, depending on 1.3D/1.5 version:
-    gamestartup = (sp1 * tok.define)^26 / Cmd.gamestartup,
-    spritenopal = cmd(D),
-    spritenoshade = cmd(D),
-    spritenvg = cmd(D),
-    spriteshadow = cmd(D),
+    gamestartup = (sp1 * tok.define)^26
+        / Cmd.gamestartup,
+    spritenopal = cmd(D)
+        / function(tilenum, flags) Cmd.xspriteflags(tilenum, "SFLAG_NOPAL") end,
+    spritenoshade = cmd(D)
+        / function(tilenum, flags) Cmd.xspriteflags(tilenum, "SFLAG_NOSHADE") end,
+    spritenvg = cmd(D)
+        / function(tilenum, flags) Cmd.xspriteflags(tilenum, "SFLAG_NVG") end,
+    spriteshadow = cmd(D)
+        / function(tilenum, flags) Cmd.xspriteflags(tilenum, "SFLAG_SHADOW") end,
 
-    spriteflags = cmd(D,D),  -- also see inner
+    spriteflags = cmd(D,D)  -- also see inner
+        / function(tilenum, flags) Cmd.xspriteflags(tilenum, flags) end,
 
     --- 4. Game Variables / Arrays
-    gamevar = cmd(I,D,D) / Cmd.gamevar,
-    gamearray = cmd(I,D) / Cmd.gamearray,
+    gamevar = cmd(I,D,D)
+        / Cmd.gamevar,
+    gamearray = cmd(I,D)
+        / Cmd.gamearray,
 
     --- 5. Top level commands that are also run-time commands
-    move = sp1 * tok.identifier * (sp1 * tok.define)^-2 /  -- hvel, vvel
-        function(...) do_define_composite(LABEL.MOVE, ...) end,
+    move = sp1 * tok.identifier * (sp1 * tok.define)^-2  -- hvel, vvel
+        / function(...) do_define_composite(LABEL.MOVE, ...) end,
 
     -- startframe, numframes, viewtype, incval, delay:
-    action = sp1 * tok.identifier * (sp1 * tok.define)^-5 /
-        function(...) do_define_composite(LABEL.ACTION, ...) end,
+    action = sp1 * tok.identifier * (sp1 * tok.define)^-5
+        / function(...) do_define_composite(LABEL.ACTION, ...) end,
 
     -- action, move, flags...:
     ai = sp1 * tok.identifier * (sp1 * tok.action *
-                               (sp1 * tok.move * (sp1 * tok.define)^0)^-1
-                              )^-1 /
-        function(...) do_define_composite(LABEL.AI, ...) end,
+                                 (sp1 * tok.move * (sp1 * tok.define)^0)^-1
+                                )^-1
+        / function(...) do_define_composite(LABEL.AI, ...) end,
 
     --- 6. Deprecated TLCs
     betaname = newline_term_string,
@@ -1226,6 +1318,10 @@ local getperxvarcmd =  -- get<actor/player>var[<idx>].<varname> <<var>>
 local setperxvarcmd = -- set<actor/player>var[<idx>].<<varname>> <var>
     arraypat * singlememberpat * sp1 * tok.rvar
 
+local function thisactor_to_pli(var)
+    return (var=="_aci") and "_pli" or var
+end
+
 -- Function generating code for a struct read/write access.
 local function StructAccess(Structname, writep, index, membertab)
     assert(type(membertab)=="table")
@@ -1262,6 +1358,15 @@ local function StructAccess(Structname, writep, index, membertab)
         end
     end
 
+    -- THISACTOR special meanings
+    if (Structname=="player" or Structname=="input") then
+        index = thisactor_to_pli(index)
+    elseif (Structname=="sector") then
+        if (index=="_aci") then
+            index = SPS".sectnum"
+        end
+    end
+
     -- METHOD_MEMBER
     local ismethod = (armembcode:find("%%s",1,true)~=nil)
     -- If ismethod is true, then the formatted string will now have an "%s"
@@ -1278,8 +1383,8 @@ end
 function lookup.array_expr(writep, structname, index, membertab)
     if (conl.StructAccessCode[structname] == nil) then
         -- Try a gamearray
-        local ga = (g_gamearray[structname]) and lookup.gamearray(structname)
-        if (ga == nil) then
+        local ganame = g_gamearray[structname] and lookup.gamearray(structname)
+        if (ganame == nil) then
             if (structname=="actorvar") then
                 -- actorvar[] inline array expr
                 -- XXX: kind of CODEDUP with GetOrSetPerxvarCmd() factory
@@ -1311,7 +1416,8 @@ function lookup.array_expr(writep, structname, index, membertab)
             return "_INVALIDAR"
         end
 
-        return format("%s[%s]", ga.name, index)
+        assert(type(ganame)=="string")
+        return format("%s[%s]", ganame, index)
     end
 
     local membercode, ismethod = StructAccess(structname, writep, index, membertab)
@@ -1374,6 +1480,11 @@ local function GetOrSetPerxvarCmd(Setp, Actorp)
             errprintf("variable `%s' is not per-%s", perxvarname, Actorp and "actor" or "player")
         end
 
+        if (not Actorp) then
+            -- THISACTOR -> player index for {g,s}etplayervar
+            idx = thisactor_to_pli(idx)
+        end
+
         if (Setp) then
             return format("%s=%s", lookup.gamevar(perxvarname, idx, true), var)
         else
@@ -1394,6 +1505,12 @@ local handle =
 {
     NYI = function()
         errprintf("command `%s' not yet implemented", g_lastkw)
+    end,
+
+    dynNYI = function()
+        -- XXX: what if file name contains a double quote? (Similarly commands below.)
+        return format([[print("%s:%d: `%s' not yet implemented")]],
+                      g_filename, getlinecol(g_lastkwpos), g_lastkw)
     end,
 
     addlog = function()
@@ -1506,7 +1623,7 @@ local Cinner = {
     -- We disallow them, recent EDuke32 versions didn't expose them either.
     getuserdef = GetStructCmd(Access.userdef, userdef_common_pat * tok.wvar),
 
-    getplayervar = GetOrSetPerxvarCmd(false, false),
+    getplayervar = GetOrSetPerxvarCmd(false, false),  -- THISACTOR
     getactorvar = GetOrSetPerxvarCmd(false, true),
 
     setsector = SetStructCmd(Access.sector),
@@ -1520,7 +1637,7 @@ local Cinner = {
     settspr = SetStructCmd(Access.tspr),
     setuserdef = SetStructCmd(Access.userdef, userdef_common_pat * tok.rvar),
 
-    setplayervar = GetOrSetPerxvarCmd(true, false),
+    setplayervar = GetOrSetPerxvarCmd(true, false),  -- THISACTOR
     setactorvar = GetOrSetPerxvarCmd(true, true),
 
     setvarvar = varvarop / "%1=%2",
@@ -1617,13 +1734,15 @@ local Cinner = {
     cmenu = cmd(R)
         / handle.NYI,
     checkavailweapon = cmd(R)  -- THISACTOR
-        / handle.NYI,
+        / function(pli)
+              return format("_con._checkavailweapon(%s)", thisactor_to_pli(pli))
+          end,
     checkavailinven = cmd(R)  -- THISACTOR
-        / handle.NYI,
+        / function(pli)
+              return format("_con._selectnextinv(player[%s])", thisactor_to_pli(pli))
+          end,
     guniqhudid = cmd(R)
         / "_gv._set_guniqhudid(%1)",
-    savegamevar = cmd(R),
-    readgamevar = cmd(R),
     echo = cmd(R)
         / "_con._echo(%1)",
     activatecheat = cmd(R)
@@ -1705,8 +1824,6 @@ local Cinner = {
         / "_con._spawnmany(_aci,1233,%1)",  -- TODO: dyntile
     paper = cmd(D)
         / "_con._spawnmany(_aci,4460,%1)",  -- TODO: dyntile
-    savenn = cmd(D),
-    save = cmd(D),
     sleeptime = cmd(D)
         / ACS".timetosleep=%1",
 
@@ -1809,7 +1926,7 @@ local Cinner = {
         / "_con._userquote(%1)",
     getkeyname = cmd(R,R,R)
         / "_con._getkeyname(%1,%2,%3)",
-    getpname = cmd(R,R)
+    getpname = cmd(R,R)  -- THISACTOR
         / handle.NYI,
 
     -- array stuff
@@ -1821,8 +1938,26 @@ local Cinner = {
         / "%1:resize(%2)",
     getarraysize = cmd(GARI,W)
         / "%2=%1._size",
-    readarrayfromfile = cmd(GARI,D),
-    writearraytofile = cmd(GARI,D),
+    readarrayfromfile = cmd(GARI,D)
+        / "%1:read(%2)",
+    writearraytofile = cmd(GARI,D)
+        / "%1:write(%2)",
+
+    -- Persistence
+    clearmapstate = cmd(R)
+        / handle.dynNYI,
+    loadmapstate = cmd()
+        / handle.dynNYI,
+    savemapstate = cmd()
+        / handle.dynNYI,
+    savegamevar = cmd(R)
+        / handle.dynNYI,
+    readgamevar = cmd(R)
+        / handle.dynNYI,
+    savenn = cmd(D)
+        / handle.dynNYI,
+    save = cmd(D)
+        / handle.dynNYI,
 
     addlogvar = cmd(R)
         / handle.addlogvar,
@@ -1898,8 +2033,7 @@ local Cinner = {
         / "_con._activatebysector(%1,%2)",
     operateactivators = cmd(R,R)  -- THISACTOR
         / function(tag, pli)
-              return format("_con._operateactivators(%s,%s)", tag,
-                            (pli=="_aci") and "_pli" or pli)
+              return format("_con._operateactivators(%s,%s)", tag, thisactor_to_pli(pli))
           end,
     operatesectors = cmd(R,R)
         / "_con._operatesectors(%1,%2)",
@@ -1914,10 +2048,6 @@ local Cinner = {
         / "_con._myos(%1,%2,65536,%3,%4,%5,%6)",
     myospalx = cmd(R,R,R,R,R,R)
         / "_con._myos(%1,%2,32768,%3,%4,%5,%6)",
-
-    clearmapstate = cmd(R),
-    loadmapstate = cmd(),
-    savemapstate = cmd(),
 
     headspritesect = cmd(W,R)
         / "%1=sprite._headspritesect[%2]",

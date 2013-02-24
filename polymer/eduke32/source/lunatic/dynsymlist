@@ -72,6 +72,7 @@ s_buildRev;
 g_sizes_of_what;
 g_sizes_of;
 g_elCallDepth;
+g_modDir;
 
 kopen4loadfrommod;
 kfilelength;
@@ -90,6 +91,8 @@ C_DefineVolumeName;
 C_DefineSkillName;
 C_DefineLevelName;
 C_DefineProjectile;
+C_DefineGameFuncName;
+C_SetDefName;
 
 actor;
 g_camera;
@@ -130,7 +133,8 @@ md4once;
 
 A_IncurDamage;
 P_AddWeaponMaybeSwitch;
-A_Shoot;
+P_CheckWeapon;
+A_ShootWithZvel;
 A_IncurDamage;
 A_Spawn;
 VM_FallSprite;

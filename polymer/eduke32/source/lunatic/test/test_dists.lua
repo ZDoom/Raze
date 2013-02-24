@@ -81,7 +81,7 @@ t = os.clock()-t
 
 printf("rotate: %.03fns per call", (1e9)/Nsq)
 
--- Results (helixhorned x86_64)
+-- Results (helixhorned x86, x86_64)
 -- number of points: 10000, testing 100000000 distances
 -- edist: 6.300ns per call, mean=6286.597
 -- ldist: 17.600ns per call, mean=8692.612

@@ -228,6 +228,8 @@ __attribute__((packed)) struct {
 
     uint8_t gm, on_warping_sector, footprintcount, hurt_delay;
     uint8_t hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
+    // NOTE: there's array indexing with inven_icon, but always after a
+    // bound check:
     uint8_t inven_icon, buttonpalette, over_shoulder_on, show_empty_weapon;
 
     uint8_t jetpack_on, spritebridge, lastrandomspot;
@@ -456,7 +458,7 @@ typedef struct {
         int32_t ForceSetup;
         int32_t NoAutoLoad;
 
-        int32_t scripthandle;
+        const int32_t scripthandle;
         int32_t setupread;
 
         int32_t CheckForUpdates;
@@ -488,13 +490,14 @@ hudweapon_t hudweap;
 ]]
 
 -- INTERNAL VARIABLES/FUNCTIONS
-decl("map_t MapInfo[($+1)*$];", con_lang.MAXVOLUMES, con_lang.MAXLEVELS)
+decl("map_t MapInfo[$*$];", con_lang.MAXVOLUMES+1, con_lang.MAXLEVELS)
 
 decl[[
 const char *s_buildRev;
 const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
 int32_t g_elCallDepth;
+char g_modDir[];
 actor_t actor[MAXSPRITES];
 camera_t g_camera;
 user_defs ud;
@@ -515,9 +518,11 @@ int32_t g_scriptVersion;
 const int32_t g_currentFrameRate;
 const int32_t g_currentMenu;
 uint16_t g_earthquakeTime;
+char CheatKeys[2];
 
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
 void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap);
+void P_CheckWeapon(DukePlayer_t *p);
 int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel);
 int32_t A_IncurDamage(int32_t sn);
 int32_t A_Spawn(int32_t j, int32_t pn);
@@ -580,6 +585,8 @@ void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
                        int32_t partime, int32_t designertime,
                        const char *levelname);
 void C_DefineProjectile(int32_t j, int32_t what, int32_t val);
+void C_DefineGameFuncName(int32_t idx, const char *name);
+int32_t C_SetDefName(const char *name);
 ]]
 
 

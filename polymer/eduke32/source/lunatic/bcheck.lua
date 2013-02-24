@@ -72,9 +72,13 @@ function bcheck.level_idx(level)
     end
 end
 
-function bcheck.quote_idx(qnum)
+function bcheck.quote_idx(qnum, onlyidx)
     if (qnum >= con_lang.MAXQUOTES+0ULL) then
         error("invalid quote number "..qnum, 3)
+    end
+
+    if (onlyidx) then
+        return nil
     end
 
     local cstr = ffiC.ScriptQuotes[qnum]
