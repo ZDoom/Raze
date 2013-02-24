@@ -342,13 +342,15 @@ local abs = math.abs
 local dist, ldist = xmath.dist, xmath.ldist
 
 local function A_FP_ManhattanDist(ps, spr)
-    return (ps.pos - spr^(28*256)):blen1()
+    local distvec = (geom.tovec3(ps.pos) - spr^(28*256))
+    -- XXX
+    return geom.ivec3(distvec.x, distvec.y, distvec.z):blen1()
 end
 
 -- Returns: player index, distance
 -- TODO: MP case
-function _findplayer(ps, spritenum)
-    return 0, A_FP_ManhattanDist(ps, sprite[spritenum])
+function _findplayer(pli, spritenum)
+    return 0, A_FP_ManhattanDist(player[pli], sprite[spritenum])
 end
 
 local FN_STATNUMS = {
@@ -380,7 +382,7 @@ function _findnear(spritenum, allspritesp, distkind, picnum, maxdist, maxzdist)
     local distfunc = FN_DISTFUNC[distkind]
     local spr = sprite[spritenum]
 
-    for st=1,#statnums do
+    for _,st in ipairs(statnums) do
         for i in spritesofstat(st) do
             if (i ~= spritenum and sprite[i].picnum==picnum) then
                 if (distfunc(spr, sprite[i], maxdist, maxzdist)) then
@@ -1738,7 +1740,7 @@ local peractorvar_mt = {
 
     __newindex = function(acv, idx, val)
         check_sprite_idx(idx)
-        acv[idx] = val
+        rawset(acv, idx, val)
     end,
 
     -- Calling a per-actor variable causes its cleanup:
@@ -1747,7 +1749,7 @@ local peractorvar_mt = {
     __call = function(acv)
         for i=0,ffiC.MAXSPRITES-1 do
             if (ffiC.sprite[i].statnum == ffiC.MAXSTATUS or acv[i]==acv._defval) then
-                acv[i] = nil
+                rawset(acv, i, nil)
             end
         end
     end,

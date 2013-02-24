@@ -7,7 +7,14 @@
 local ffi = require("ffi")
 local ffiC = ffi.C
 
+-- Lunatic debugging:
+--  1: pront diagnostic information
+--  2: also disable JIT compilation
 ffi.cdef "enum { _DEBUG_LUNATIC=1 }"
+
+if (ffiC._DEBUG_LUNATIC >= 2) then
+    require("jit").off()
+end
 
 local bit = require("bit")
 local math = require("math")
