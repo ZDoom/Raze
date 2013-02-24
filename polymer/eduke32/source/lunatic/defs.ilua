@@ -520,26 +520,12 @@ const int32_t g_currentMenu;
 uint16_t g_earthquakeTime;
 char CheatKeys[2];
 
-// Functions marked with 'EVENT' may call events.
-// http://www.freelists.org/post/luajit/intermitten-lua-pcall-crash-on-x86-64-linux,1
+// Must not have functions here that may call events directly or
+// indirectly. See lunatic_game.c.
 
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
-void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap);  // EVENT
-void P_CheckWeapon(DukePlayer_t *p);  // EVENT
-int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel);  // EVENT
-int32_t A_Spawn(int32_t j, int32_t pn);  // EVENT
-void VM_FallSprite(int32_t i);  // EVENT
-int32_t VM_ResetPlayer2(int32_t snum);  // EVENT
-void A_RadiusDamage(int32_t i, int32_t r, int32_t, int32_t, int32_t, int32_t);  // EVENT
-void G_OperateSectors(int32_t sn, int32_t ii);  // EVENT
-void G_OperateActivators(int32_t low,int32_t snum);  // EVENT
 int32_t G_CheckActivatorMotion(int32_t lotag);
 int32_t A_Dodge(spritetype *s);
-// EVENT:
-int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,
-                       int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss);
-int32_t A_Spawn(int32_t j, int32_t pn);  // EVENT
-void A_AddToDeleteQueue(int32_t i);  // EVENT
 int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype);
 void P_DoQuote(int32_t q, DukePlayer_t *p);
 void G_AddUserQuote(const char *daquote);
@@ -554,7 +540,6 @@ int32_t G_StartTrack(int32_t level);
 const char *KB_ScanCodeToString(uint8_t scancode);
 
 int32_t A_CheckAnySoundPlaying(int32_t i);
-int32_t A_PlaySound(uint32_t num, int32_t i);  // EVENT
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
 void S_StopEnvSound(int32_t num, int32_t i);
 int32_t FX_StopAllSounds(void);

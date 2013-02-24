@@ -221,6 +221,106 @@ static int our_traceback_CF(lua_State *L)
     return 1;
 }
 
+////// Lua C-API interfaces for C game functions that may call events.
+// http://www.freelists.org/post/luajit/intermitten-lua-pcall-crash-on-x86-64-linux,1
+
+// Some of these are duplicate declarations:
+extern void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap);
+extern void P_CheckWeaponI(int32_t snum);
+extern int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel);
+extern int32_t A_Spawn(int32_t j, int32_t pn);
+extern void VM_FallSprite(int32_t i);
+extern int32_t VM_ResetPlayer2(int32_t snum);
+extern void A_RadiusDamage(int32_t i, int32_t r, int32_t, int32_t, int32_t, int32_t);
+extern void G_OperateSectors(int32_t sn, int32_t ii);
+extern void G_OperateActivators(int32_t low,int32_t snum);
+extern int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,
+                              int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss);
+extern void A_AddToDeleteQueue(int32_t i);
+extern int32_t A_PlaySound(uint32_t num, int32_t i);
+
+#define LARG(index) lua_tointeger(L, index)
+
+#define ONE_ARG LARG(1)
+#define TWO_ARGS LARG(1), LARG(2)
+#define THREE_ARGS LARG(1), LARG(2), LARG(3)
+
+#define CALL_WITH_RET(Name, ...) \
+    int32_t ret = Name(__VA_ARGS__); \
+    lua_pushinteger(L, ret); \
+    return 1
+
+#define CALL_WITHOUT_RET(Name, ...) \
+    Name(__VA_ARGS__); \
+    return 0
+
+#define DEFINE_RET_CFUNC(Name, ...) \
+static int32_t Name##_CF(lua_State *L) \
+{ \
+    CALL_WITH_RET(Name, __VA_ARGS__); \
+}
+
+#define DEFINE_VOID_CFUNC(Name, ...) \
+static int32_t Name##_CF(lua_State *L) \
+{ \
+    CALL_WITHOUT_RET(Name, __VA_ARGS__); \
+}
+
+// NOTE: player struct -> player index -> player struct ugliness because
+// pointers to FFI cdata apparently can't be reliably passed via lua_getpointer().
+// Not to mention that lua_getpointer() returns _const_ void*.
+DEFINE_VOID_CFUNC(P_AddWeaponMaybeSwitchI, TWO_ARGS)
+DEFINE_VOID_CFUNC(P_CheckWeaponI, ONE_ARG)
+DEFINE_RET_CFUNC(A_ShootWithZvel, THREE_ARGS)
+DEFINE_RET_CFUNC(A_Spawn, TWO_ARGS)
+DEFINE_VOID_CFUNC(VM_FallSprite, ONE_ARG)
+DEFINE_RET_CFUNC(VM_ResetPlayer2, ONE_ARG)
+DEFINE_VOID_CFUNC(A_RadiusDamage, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LARG(6))
+DEFINE_VOID_CFUNC(G_OperateSectors, TWO_ARGS)
+DEFINE_VOID_CFUNC(G_OperateActivators, TWO_ARGS)
+DEFINE_RET_CFUNC(A_InsertSprite, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LARG(6),
+                 LARG(7), LARG(8), LARG(9), LARG(10), LARG(11), LARG(12), LARG(13))
+DEFINE_VOID_CFUNC(A_AddToDeleteQueue, ONE_ARG)
+DEFINE_RET_CFUNC(A_PlaySound, TWO_ARGS)
+
+#define CFUNC_REG(Name) { #Name, Name##_CF }
+
+struct { const char *name; lua_CFunction func; } cfuncs[] =
+{
+    CFUNC_REG(P_AddWeaponMaybeSwitchI),
+    CFUNC_REG(P_CheckWeaponI),
+    CFUNC_REG(A_ShootWithZvel),
+    CFUNC_REG(A_Spawn),
+    CFUNC_REG(VM_FallSprite),
+    CFUNC_REG(VM_ResetPlayer2),
+    CFUNC_REG(A_RadiusDamage),
+    CFUNC_REG(G_OperateSectors),
+    CFUNC_REG(G_OperateActivators),
+    CFUNC_REG(A_InsertSprite),
+    CFUNC_REG(A_Spawn),
+    CFUNC_REG(A_AddToDeleteQueue),
+    CFUNC_REG(A_PlaySound),
+};
+
+// Creates a global table "CF" containing the functions from cfuncs[].
+static void El_PushCFunctions(lua_State *L)
+{
+    int32_t i;
+
+    lua_newtable(L);
+
+    for (i=0; i<(signed)sizeof(cfuncs)/(signed)sizeof(cfuncs[0]); i++)
+    {
+        lua_pushstring(L, cfuncs[i].name);
+        lua_pushcfunction(L, cfuncs[i].func);
+        lua_settable(L, -3);
+    }
+
+    lua_setglobal(L, "CF");
+}
+
+//////
+
 static void El_StateSetup(lua_State *L)
 {
     luaopen_lpeg(L);
@@ -231,6 +331,8 @@ static void El_StateSetup(lua_State *L)
     lua_setglobal(L, "gameevent_internal");
     lua_pushcfunction(L, SetActor_CF);
     lua_setglobal(L, "gameactor_internal");
+
+    El_PushCFunctions(L);
 
     Bassert(lua_gettop(L)==0);
 

@@ -752,8 +752,7 @@ dead:
     else vm.g_sp->shade += (sector[vm.g_sp->sectnum].floorshade-vm.g_sp->shade)>>1;
 }
 
-// NOTE: Used from Lunatic
-void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
+static void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
 {
     if ((ps->weaponswitch & 1) && (ps->weaponswitch & 4))
     {
@@ -784,7 +783,12 @@ void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
         P_AddWeaponNoSwitch(ps, weap);
 }
 
-#if !defined LUNATIC
+#if defined LUNATIC
+void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap)
+{
+    P_AddWeaponMaybeSwitch(g_player[snum].ps, weap);
+}
+#else
 static void P_AddWeaponAmmoCommon(DukePlayer_t *ps, int32_t weap, int32_t amount)
 {
     P_AddAmmo(weap, ps, amount);

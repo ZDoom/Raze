@@ -4,6 +4,9 @@ local require = require
 local ffi = require("ffi")
 local ffiC = ffi.C
 
+-- Lua C API functions, this comes from El_PushCFunctions() in lunatic_game.c.
+local CF = CF
+
 local bit = require("bit")
 local io = require("io")
 local math = require("math")
@@ -149,6 +152,13 @@ local function krandand(mask)
     return bit.band(ffiC.krand(), mask)
 end
 
+local function check_isnumber(...)
+    local vals = {...}
+    for i=1,#vals do
+        assert(type(vals[i])=="number")
+    end
+end
+
 -- Lunatic's "insertsprite" is a wrapper around the game "A_InsertSprite", not
 -- the engine "insertsprite".
 --
@@ -187,20 +197,21 @@ function insertsprite(tab_or_tilenum, ...)
 
     check_tile_idx(tilenum)
     check_sector_idx(sectnum)
+    check_isnumber(shade, xrepeat, yrepeat, ang, xvel, zvel, owner)
 
-    if (statnum >= ffiC.MAXSTATUS) then
+    if (statnum >= ffiC.MAXSTATUS+0ULL) then
         error("invalid 'statnum' argument to insertsprite: must be a status number (0 .. MAXSTATUS-1)", 2)
     end
 
-    return ffiC.A_InsertSprite(sectnum, pos.x, pos.y, pos.z, tilenum,
-                              shade, xrepeat, yrepeat, ang, xvel, zvel,
-                              owner, statnum)
+    return CF.A_InsertSprite(sectnum, pos.x, pos.y, pos.z, tilenum,
+                             shade, xrepeat, yrepeat, ang, xvel, zvel,
+                             owner, statnum)
 end
 
 -- INTERNAL USE ONLY.
 function _addtodelqueue(spritenum)
     check_sprite_idx(spritenum)
-    ffiC.A_AddToDeleteQueue(spritenum)
+    CF.A_AddToDeleteQueue(spritenum)
 end
 
 -- This corresponds to the first (spawn from parent sprite) form of A_Spawn().
@@ -212,9 +223,9 @@ function spawn(parentspritenum, tilenum, addtodelqueue)
         return -1
     end
 
-    local i = ffiC.A_Spawn(parentspritenum, tilenum)
+    local i = CF.A_Spawn(parentspritenum, tilenum)
     if (addtodelqueue) then
-        ffiC.A_AddToDeleteQueue(i)
+        CF.A_AddToDeleteQueue(i)
     end
     return i
 end
@@ -222,7 +233,7 @@ end
 -- This is the second A_Spawn() form. INTERNAL USE ONLY.
 function _spawnexisting(spritenum)
     check_sprite_idx(spritenum)
-    return ffiC.A_Spawn(-1, spritenum)
+    return CF.A_Spawn(-1, spritenum)
 end
 
 -- A_SpawnMultiple clone
@@ -247,7 +258,7 @@ function _shoot(i, tilenum, zvel)
 
     zvel = zvel and int16_st(zvel).s or 0x80000000  -- SHOOT_HARDCODED_ZVEL
 
-    return ffiC.A_ShootWithZvel(i, tilenum, zvel)
+    return CF.A_ShootWithZvel(i, tilenum, zvel)
 end
 
 function isenemytile(tilenum)
@@ -418,7 +429,7 @@ local function P_AddWeaponAmmoCommon(ps, weap, amount)
     P_AddAmmo(ps, weap, amount)
 
     if (ps.curr_weapon==ffiC.KNEE_WEAPON and ps:have_weapon(weap)) then
-        ffiC.P_AddWeaponMaybeSwitch(ps, weap);
+        CF.P_AddWeaponMaybeSwitchI(ps.weapon._p, weap);
     end
 end
 
@@ -808,7 +819,7 @@ end
 function _A_Shoot(i, atwith)
     check_sprite_idx(i)
     check_tile_idx(atwith)
-    return ffiC.A_ShootWithZvel(i, atwith, 0x80000000)  -- SHOOT_HARDCODED_ZVEL
+    return CF.A_ShootWithZvel(i, atwith, 0x80000000)  -- SHOOT_HARDCODED_ZVEL
 end
 
 function _A_IncurDamage(sn)
@@ -818,7 +829,7 @@ end
 
 function _VM_FallSprite(i)
     check_sprite_idx(i)
-    ffiC.VM_FallSprite(i)
+    CF.VM_FallSprite(i)
 end
 
 function _sizeto(i, xr, yr)
@@ -835,7 +846,7 @@ end
 function _A_Spawn(j, pn)
     local bound_check = sector[sprite[j].sectnum]  -- two in one whack
     check_tile_idx(pn)
-    return ffiC.A_Spawn(j, pn)
+    return CF.A_Spawn(j, pn)
 end
 
 function _pstomp(ps, i)
@@ -864,8 +875,8 @@ function _pkick(ps, spr)
 end
 
 function _VM_ResetPlayer2(snum)
-    local bound_check = player[snum]
-    return (ffiC.VM_ResetPlayer2(snum)~=0)
+    check_player_idx(snum)
+    return (CF.VM_ResetPlayer2(snum)~=0)
 end
 
 local PALBITS = { [0]=1, [21]=2, [23]=4 }
@@ -933,7 +944,8 @@ function _selectnextinv(ps)
 end
 
 function _checkavailweapon(pli)
-    ffiC.P_CheckWeapon(player[pli])
+    check_player_idx(pli)
+    CF.P_CheckWeaponI(pli)
 end
 
 function _addphealth(ps, aci, hlthadd)
@@ -991,7 +1003,7 @@ function _addweapon(ps, weap, amount)
     end
 
     if (not ps:have_weapon(weap)) then
-        ffiC.P_AddWeaponMaybeSwitch(ps, weap);
+        CF.P_AddWeaponMaybeSwitchI(ps.weapon._p, weap);
     elseif (have_ammo_at_max(ps, weap)) then
         return true
     end
@@ -1001,7 +1013,8 @@ end
 
 function _A_RadiusDamage(i, r, hp1, hp2, hp3, hp4)
     check_sprite_idx(i)
-    ffiC.A_RadiusDamage(i, r, hp1, hp2, hp3, hp4)
+    check_isnumber(r, hp1, hp2, hp3, hp4)
+    CF.A_RadiusDamage(i, r, hp1, hp2, hp3, hp4)
 end
 
 function _testkey(pli, synckey)
@@ -1045,7 +1058,7 @@ function _operate(spritenum)
                                 return
                             end
                         end
-                        ffiC.G_OperateSectors(tag.sector, spritenum)
+                        CF.G_OperateSectors(tag.sector, spritenum)
                     end
                 end
             end
@@ -1056,21 +1069,22 @@ end
 function _operatesectors(sectnum, spritenum)
     check_sector_idx(sectnum)
     check_sprite_idx(spritenum)  -- XXX: -1 permissible under certain circumstances?
-    ffiC.G_OperateSectors(sectnum, spritenum)
+    CF.G_OperateSectors(sectnum, spritenum)
 end
 
 function _operateactivators(tag, playernum)
     check_player_idx(playernum)
     -- NOTE: passing oob playernum would be safe because G_OperateActivators
     -- bound-checks it
-    ffiC.G_OperateActivators(tag, playernum)
+    assert(type(tag)=="number")
+    CF.G_OperateActivators(tag, playernum)
 end
 
 function _activatebysector(sectnum, spritenum)
     local didit = false
     for i in spriteofsect(sectnum) do
         if (sprite[i].picnum==D.ACTIVATOR) then
-            ffiC.G_OperateActivators(sprite[i].lotag, -1)
+            CF.G_OperateActivators(sprite[i].lotag, -1)
         end
     end
     if (didit) then
@@ -1463,7 +1477,7 @@ function _sound(aci, sndidx)
     -- A_PlaySound() returns early if the sound index is oob, but IMO it's good
     -- style to throw an error instead of silently failing.
     check_sound_idx(sndidx)
-    ffiC.A_PlaySound(sndidx, aci)
+    CF.A_PlaySound(sndidx, aci)
 end
 
 function _globalsound(pli, sndidx)

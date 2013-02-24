@@ -3302,6 +3302,13 @@ void P_CheckWeapon(DukePlayer_t *p)
     P_ChangeWeapon(p, weapon);
 }
 
+#ifdef LUNATIC
+void P_CheckWeaponI(int32_t snum)
+{
+    P_CheckWeapon(g_player[snum].ps);
+}
+#endif
+
 static void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
 {
     if ((obj = VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, sprite[p->i].yvel, -1, obj)) == -1)
