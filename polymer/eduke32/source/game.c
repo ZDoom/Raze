@@ -10603,10 +10603,16 @@ int32_t app_main(int32_t argc, const char **argv)
     {
         initprintf("Lunatic: Error initializing global ELua state (code %d)\n", i);
     }
-    else if ((i = L_RunOnce(&g_ElState, "defs.ilua")))
+    else
     {
-        initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
-        El_DestroyState(&g_ElState);
+        extern const char luaJIT_BC_defs[];
+
+        if ((i = L_RunString(&g_ElState, (char *)luaJIT_BC_defs, 0,
+                             LUNATIC_DEFS_BC_SIZE, "defs.ilua")))
+        {
+            initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
+            El_DestroyState(&g_ElState);
+        }
     }
 
     if (i)

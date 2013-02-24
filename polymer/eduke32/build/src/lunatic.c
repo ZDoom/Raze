@@ -180,7 +180,9 @@ static void L_ErrorPrint(const char *errmsg)
     OSD_Printf(OSD_ERROR "runtime error: %s\n", errmsg);
 }
 
-int L_RunString(L_State *estate, char *buf, int dofreebuf)
+// size < 0: length of <buf> is determined using strlen()
+// size >= 0: size given, for loading of LuaJIT bytecode
+int L_RunString(L_State *estate, char *buf, int dofreebuf, int size, const char *name)
 {
     int32_t i;
     lua_State *L = estate->L;
@@ -190,7 +192,10 @@ int L_RunString(L_State *estate, char *buf, int dofreebuf)
     // on top: a traceback function
     Bassert(lua_iscfunction(L, 1));
 
-    i = luaL_loadstring(L, buf);
+    if (size < 0)
+        i = luaL_loadstring(L, buf);
+    else
+        i = luaL_loadbuffer(L, buf, size, name);
     Bassert(lua_gettop(L)==2);
     if (dofreebuf)
         Bfree(buf);
@@ -233,5 +238,5 @@ int L_RunOnce(L_State *estate, const char *fn)
     if (i != 0)
         return i;
 
-    return L_RunString(estate, buf, 1);
+    return L_RunString(estate, buf, 1, -1, fn);
 }

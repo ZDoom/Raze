@@ -158,7 +158,8 @@ ifneq (0,$(LUNATIC))
                $(OBJ)/luaJIT_BC_control.$o \
                $(OBJ)/luaJIT_BC_bcarray.$o \
                $(OBJ)/luaJIT_BC_bcheck.$o \
-               $(OBJ)/luaJIT_BC_xmath.$o
+               $(OBJ)/luaJIT_BC_xmath.$o \
+               $(OBJ)/luaJIT_BC_defs.$o \
 
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
     # executable no matter what the debugging level
@@ -437,6 +438,10 @@ ifeq ($(PLATFORM),DARWIN)
 else
 	if $(LUAJIT) -bg $< $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 endif
+
+# Same thing for defs.ilua which I'm too reluctant to rename now:
+$(OBJ)/luaJIT_BC_%.$o: $(SRC)/lunatic/%.ilua
+	if $(LUAJIT) -bg $< $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/lunatic/%.c
 	$(COMPILE_STATUS)

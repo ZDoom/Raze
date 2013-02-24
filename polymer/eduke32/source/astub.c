@@ -9262,7 +9262,7 @@ static int32_t osdcmd_lua(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
-    ret = L_RunString(&g_EmState, (char *)parm->parms[0], 0);
+    ret = L_RunString(&g_EmState, (char *)parm->parms[0], 0, -1, "console");
     if (ret != 0)
         OSD_Printf("Error running the Lua code (error code %d)\n", ret);
     else

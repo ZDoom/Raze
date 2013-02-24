@@ -126,6 +126,7 @@ luaJIT_BC_control;
 luaJIT_BC_bcarray;
 luaJIT_BC_bcheck;
 luaJIT_BC_xmath;
+luaJIT_BC_defs;
 
 rand_jkiss_u32;
 rand_jkiss_dbl;

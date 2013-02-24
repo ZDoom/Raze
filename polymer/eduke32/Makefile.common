@@ -414,7 +414,7 @@ LUNATIC=0
 LUAJIT=luajit
 
 # for LJ headers:
-LUAJIT_WIN_SRC:= g:/mod/LuaJIT-2.0.0-beta8/src
+LUAJIT_WIN_SRC:= g:/mod/luajit-2.0/src
 
 ifneq ($(LUNATIC),0)
     # FIXME: Lunatic doesn't build with inlining because of wacky include
@@ -427,6 +427,11 @@ ifneq ($(LUNATIC),0)
         BASECOMMONFLAGS+= -I/usr/local/include/luajit-2.0
     endif
     BASECOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC
+
+    # Determine size of defs.ilua bytecode
+    # XXX: Runs way too many times because it's a "recursively expanded" variable.
+    DEFS_BC_SIZE = $(shell $(LUAJIT) -bg -t h $(SRC)/lunatic/defs.ilua -)
+    BASECOMMONFLAGS+= -DLUNATIC_DEFS_BC_SIZE=$(word 3, $(DEFS_BC_SIZE))
 
     ifeq ($(PLATFORM),WINDOWS)
         BASELIBS+= -lluajit
