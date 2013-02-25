@@ -45,30 +45,12 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 //
 //****************************************************************************
 
-#define BUTTON0_SCAN_1   sc_Space
-#define BUTTON0_SCAN_2   sc_Enter
-#define BUTTON0_SCAN_3   sc_kpad_Enter
-#define BUTTON1_SCAN     sc_Escape
-
 #define AXISUNDEFINED   0x7f
 #define BUTTONUNDEFINED 0x7f
 #define KEYUNDEFINED    0x7f
 
-#define SENSITIVE        0x400
-//#define MINSENSITIVE     0x30
-
 #define THRESHOLD        0x200
 #define MINTHRESHOLD     0x80
-
-#define USERINPUTDELAY   200
-
-#define ResetMouse       0
-#define GetMouseButtons  3
-#define GetMouseDelta    11
-
-#define MouseInt         0x33
-#define JoyMax           0xa00
-#define MaxJoyValue      5000
 
 #define DEFAULTMOUSESENSITIVITY 7 // 0x7000+MINIMUMMOUSESENSITIVITY
 
@@ -77,28 +59,24 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #define MAXCONTROLVALUE  0x7fff
 
-// Maximum number of buttons for any controller
-#define MAXBUTTONS 32
-
 // Number of Mouse buttons
 
-#define MAXMOUSEBUTTONS 10
+//#define MAXMOUSEBUTTONS 10
 
 // Number of Mouse Axes
-
+// KEEPINSYNC gamedefs.h
 #define MAXMOUSEAXES 2
 
 // Number of JOY buttons
-
+// XXX: out of sync with gamedefs.h
 #define MAXJOYBUTTONS 32
 
 // Number of JOY axes
-
+// KEEPINSYNC gamedefs.h
 #define MAXJOYAXES 8
 
 // NORMAL axis scale
-
-#define NORMALAXISSCALE (65536)
+#define NORMALAXISSCALE 65536
 
 #define BUTTONSET(x,value) (CONTROL_ButtonState |= ((uint64_t)value<<((uint64_t)(x))))
 #define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64_t)1<<((uint64_t)(x))))

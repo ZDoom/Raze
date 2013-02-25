@@ -45,78 +45,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #define SETUPFILENAME "eduke32.cfg"
 
-
-// Max number of players
-
-#define MAXPLAYERS 16
-
-// Number of Mouse buttons
-
-#define MAXMOUSEBUTTONS 10
-
 // Number of JOY buttons
-
+// XXX: out of sync with jmact/_control.h
 #define MAXJOYBUTTONS (32+4)
 
-// Number of EXTERNAL buttons
-
-//#define MAXEXTERNALBUTTONS 6
-
-//
-// modem string defines
-//
-
-#define MAXMODEMSTRING 50
-
-// MACRO defines
-
-#define MAXMACROS      10
-#define MAXMACROLENGTH 34
-
-// Phone list defines
-
-#define PHONENUMBERLENGTH 28
-#define PHONENAMELENGTH   16
-#define MAXPHONEENTRIES   10
-
-// length of program functions
-
-#define MAXFUNCTIONLENGTH 30
-
-// length of axis functions
-
-#define MAXAXISFUNCTIONLENGTH 30
-
-// Max Player Name length
-
-#define MAXPLAYERNAMELENGTH 11
-
-// Max RTS Name length
-
-#define MAXRTSNAMELENGTH 15
-
 // Number of Mouse Axes
-
+// KEEPINSYNC jmact/_control.h
 #define MAXMOUSEAXES 2
 
 // Number of JOY axes
-
+// KEEPINSYNC jmact/_control.h
 #define MAXJOYAXES 8
 
-// MIN/MAX scale value for controller scales
-
-#define MAXCONTROLSCALEVALUE (1<<19)
-
-// DEFAULT scale value for controller scales
-
-#define DEFAULTCONTROLSCALEVALUE (1<<16)
-
-// base value for controller scales
-
-#define BASECONTROLSCALEVALUE (1<<16)
-
 // DEFAULT mouse sensitivity scale
-
 #define DEFAULTMOUSESENSITIVITY             7
 #define DEFAULTMOUSEANALOGUESCALE           65536
 

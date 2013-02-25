@@ -78,12 +78,11 @@ static int32_t changesmade, newvidmode, curvidmode, newfullscreen;
 static int32_t vidsets[16] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
 static int32_t curvidset, newvidset = 0;
 static int32_t soundbits, soundvoices, soundrate;
-#undef MAXMOUSEBUTTONS
-//#define MAXMOUSEBUTTONS 7 // FIXME: menu needs an update for extra buttons
 #define NUMDOUBLEMBTNS 3  // # of mouse buttons that can be double-clicked (mouse1 - mouse3)
 #define NUMSINGLEMBTNS 4  // # of mouse buttons that can only be single-clicked (the rest)
 #define NUMMOUSEFUNCTIONS (NUMDOUBLEMBTNS*2+NUMSINGLEMBTNS)
-static const char *mousebuttonnames[] =
+// NOTE: NUMMOUSEFUNCTIONS must equal MAXMOUSEBUTTONS!!!
+static const char *mousebuttonnames[NUMMOUSEFUNCTIONS==MAXMOUSEBUTTONS ? MAXMOUSEBUTTONS : -1] =
 { "Mouse1", "Mouse2", "Mouse3", "Mouse4", "Wheel Up",
   "Wheel Down", "Mouse5", "Mouse6", "Mouse7", "Mouse8"
 };
