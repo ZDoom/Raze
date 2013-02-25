@@ -344,8 +344,12 @@ function on.state_end(funcname, codetab)
 end
 
 function on.event_end(eventidx, codetab)
+    assert(type(codetab)=="table")
     addcodef("gameevent(%d, function (_aci, _pli, _dist)", eventidx)
-    add_code_and_end(codetab, "end)")
+    addcode(CSV".RETURN=gv._RETURN()")
+    addcode(codetab)
+    addcodef("gv._RETURN(%s)", CSV".RETURN")
+    addcode("end)")
 
     g_code.event[eventidx] = codetab
 end
@@ -1780,9 +1784,9 @@ local Cinner = {
     soundoncevar = cmd(R)
         / handle.soundonce,
     stopactorsound = cmd(R,R)
-        / "_stopactorsound(%1,%2)",
+        / "_con._stopactorsound(%1,%2)",
     stopallsounds = cmd()
-        / "_stopallsounds()",
+        / "_con._stopallsounds()",
     mikesnd = cmd()
         / format("_con._soundonce(_aci,%s)", SPS".yvel"),
     setactorsoundpitch = cmd(R,R,R)

@@ -157,6 +157,7 @@ local bcarray = require("bcarray")
 
 local bcheck = require("bcheck")
 local check_sector_idx, check_tile_idx = bcheck.sector_idx, bcheck.tile_idx
+local check_sprite_idx = bcheck.sprite_idx
 local check_weapon_idx, check_inventory_idx = bcheck.weapon_idx, bcheck.inventory_idx
 local check_sound_idx = bcheck.sound_idx
 
@@ -498,6 +499,7 @@ const char *s_buildRev;
 const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
 int32_t g_elCallDepth;
+int32_t g_elEventRETURN;
 char g_modDir[];
 actor_t actor[MAXSPRITES];
 camera_t g_camera;
@@ -1075,6 +1077,14 @@ function gv_access._set_guniqhudid(id)
         error("invalid unique HUD ID "..id)
     end
     ffiC.guniqhudid = id
+end
+
+function gv_access._RETURN(setval)
+    if (setval ~= nil) then
+        ffiC.g_elEventRETURN = setval
+    else
+        return ffiC.g_elEventRETURN
+    end
 end
 
 -- TODO: make return 1-based index

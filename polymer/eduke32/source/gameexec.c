@@ -124,7 +124,7 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
 
     // TODO: handling of RETURN gamevar / iReturn / this function's return value
     if (L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
-        if (El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist)==1)
+        if (El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist, &iReturn)==1)
             VM_KillIt(iActor, iPlayer);
 
     g_eventTotalMs[iEventID] += gethitickms()-t;

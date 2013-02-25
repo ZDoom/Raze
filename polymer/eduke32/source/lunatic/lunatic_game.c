@@ -24,6 +24,7 @@ uint8_t g_elEvents[MAXEVENTS];
 el_actor_t g_elActors[MAXTILES];
 
 int32_t g_elCallDepth = 0;
+int32_t g_elEventRETURN;
 
 // for timing events and actors
 uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
@@ -442,7 +443,7 @@ static void El_EventErrorPrint(const char *errmsg)
                EventNames[g_eventIdx], errmsg);
 }
 
-int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist)
+int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t *iReturn)
 {
     // XXX: estate must be the one where the events were registered...
     //      make a global?
@@ -450,9 +451,13 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
     lua_State *const L = estate->L;
     int32_t i;
 
+    g_elEventRETURN = *iReturn;
+
     g_elCallDepth++;
     i = call_regd_function3(L, &g_elEvents[eventidx], iActor, iPlayer, lDist);
     g_elCallDepth--;
+
+    *iReturn = g_elEventRETURN;
 
     if (i != 0)
     {
