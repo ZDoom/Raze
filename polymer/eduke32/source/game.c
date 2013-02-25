@@ -9749,6 +9749,28 @@ static void G_Startup(void)
 
     setbasepaltable(basepaltable, BASEPALCOUNT);
 
+#ifdef LUNATIC
+    if ((i = El_CreateState(&g_ElState, "test")))
+    {
+        initprintf("Lunatic: Error initializing global ELua state (code %d)\n", i);
+    }
+    else
+    {
+        extern const char luaJIT_BC_defs[];
+
+        if ((i = L_RunString(&g_ElState, (char *)luaJIT_BC_defs, 0,
+                             LUNATIC_DEFS_BC_SIZE, "defs.ilua")))
+        {
+            initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
+            El_DestroyState(&g_ElState);
+        }
+    }
+
+    if (i)
+        G_GameExit("Failure setting up Lunatic!");
+    C_InitQuotes();
+#endif
+
     G_InitDynamicTiles();
     A_InitEnemyFlags();
 
@@ -10452,6 +10474,7 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 #endif
     numplayers = 1;
+    playerswhenstarted = ud.multimode;  // Lunatic needs this (player[] bound)
 
     if (!g_fakeMultiMode)
     {
@@ -10459,8 +10482,6 @@ int32_t app_main(int32_t argc, const char **argv)
     }
     else
     {
-        playerswhenstarted = ud.multimode;
-
         for (i=0; i<ud.multimode-1; i++)
             connectpoint2[i] = i+1;
         connectpoint2[ud.multimode-1] = -1;
@@ -10526,7 +10547,7 @@ int32_t app_main(int32_t argc, const char **argv)
         }
     }
 
-    playerswhenstarted = ud.multimode;
+    playerswhenstarted = ud.multimode;  // XXX: redundant?
     ud.last_level = 0;
 
     // the point of this block is to avoid overwriting the default in the cfg while asserting our selection
@@ -10597,28 +10618,6 @@ int32_t app_main(int32_t argc, const char **argv)
 #endif
 
     OSD_Exec("autoexec.cfg");
-
-#ifdef LUNATIC
-    if ((i = El_CreateState(&g_ElState, "test")))
-    {
-        initprintf("Lunatic: Error initializing global ELua state (code %d)\n", i);
-    }
-    else
-    {
-        extern const char luaJIT_BC_defs[];
-
-        if ((i = L_RunString(&g_ElState, (char *)luaJIT_BC_defs, 0,
-                             LUNATIC_DEFS_BC_SIZE, "defs.ilua")))
-        {
-            initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
-            El_DestroyState(&g_ElState);
-        }
-    }
-
-    if (i)
-        G_GameExit("Failure setting up Lunatic!");
-    C_InitQuotes();
-#endif
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
