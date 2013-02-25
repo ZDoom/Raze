@@ -16428,15 +16428,12 @@ void setpolymost2dview(void)
 #ifdef USE_OPENGL
     if (rendmode < 3) return;
 
-    if (gloy1 != -1)
-    {
-        bglViewport(0,0,xres,yres);
-        bglMatrixMode(GL_PROJECTION);
-        bglLoadIdentity();
-        bglOrtho(0,xres,yres,0,-1,1);
-        bglMatrixMode(GL_MODELVIEW);
-        bglLoadIdentity();
-    }
+    bglViewport(0,0,xres,yres);
+    bglMatrixMode(GL_PROJECTION);
+    bglLoadIdentity();
+    bglOrtho(0,xres,yres,0,-1,1);
+    bglMatrixMode(GL_MODELVIEW);
+    bglLoadIdentity();
 
     gloy1 = -1;
 
