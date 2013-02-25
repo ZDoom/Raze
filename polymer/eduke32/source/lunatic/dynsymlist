@@ -137,6 +137,7 @@ G_CheckActivatorMotion;
 A_Dodge;
 A_MoveSprite;
 P_DoQuote;
+P_SetGamePalette;
 G_AddUserQuote;
 G_ClearCameraView;
 G_DrawTileGeneric;

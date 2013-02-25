@@ -1291,7 +1291,7 @@ function _getlastpal(spritenum)
 end
 
 -- G_GetAngleDelta(a1, a2)
-function _angdiffabs(a1, a2)
+function _angdiff(a1, a2)
     a1 = bit.band(a1, 2047)
     a2 = bit.band(a2, 2047)
     -- a1 and a2 are in [0, 2047]
@@ -1557,6 +1557,10 @@ function _setaspect(viewingrange, yxaspect)
     ffiC.setaspect(viewingrange, yxaspect)
 end
 
+function _setgamepalette(pli, basepal)
+    ffiC.P_SetGamePalette(player[pli], basepal)
+end
+
 
 --- Game arrays ---
 
@@ -1762,7 +1766,7 @@ local peractorvar_mt = {
     --  * All values equal to the default one are cleared.
     __call = function(acv)
         for i=0,ffiC.MAXSPRITES-1 do
-            if (ffiC.sprite[i].statnum == ffiC.MAXSTATUS or acv[i]==acv._defval) then
+            if (ffiC.sprite[i].statnum == ffiC.MAXSTATUS or rawget(acv, i)==acv._defval) then
                 rawset(acv, i, nil)
             end
         end

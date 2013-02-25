@@ -14,6 +14,7 @@ local arg = arg
 
 local assert = assert
 local ipairs = ipairs
+local loadstring = loadstring
 local pairs = pairs
 local pcall = pcall
 local print = print
@@ -93,7 +94,7 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true,
                  ["number-conversion"]=true, ["system-gamevar"]=true, }
 
 -- Code generation options.
-local g_cgopt = { ["no"]=false, ["_incomplete"]=false, }
+local g_cgopt = { ["no"]=false, }
 
 -- How many 'if' statements are following immediately each other,
 -- needed to cope with CONs dangling-else resolution
@@ -1271,7 +1272,7 @@ local varop = cmd(W,D)
 local varvarop = cmd(W,R)
 
 local function varopf(op)
-    if (#op == 1) then
+    if (#op <= 2) then
         return varop / ("%1=%1"..op.."%2")
     else
         return varop / ("%1="..op.."(%1,%2)")
@@ -1279,7 +1280,7 @@ local function varopf(op)
 end
 
 local function varvaropf(op)
-    if (#op == 1) then
+    if (#op <= 2) then
         return varvarop / ("%1=%1"..op.."%2")
     else
         return varvarop / ("%1="..op.."(%1,%2)")
@@ -1504,6 +1505,7 @@ local handle =
 {
     NYI = function()
         errprintf("command `%s' not yet implemented", g_lastkw)
+        return ""
     end,
 
     dynNYI = function()
@@ -1554,7 +1556,8 @@ local handle =
 
     qsprintf = function(qdst, qsrc, ...)
         local codes = {...}
-        return format("_con._qsprintf(%d,%d,%s)", qdst, qsrc, table.concat(codes, ','))
+        return format("_con._qsprintf(%d,%d%s%s)", qdst, qsrc,
+                      #codes>0 and "," or "", table.concat(codes, ','))
     end,
 
     move = function(mv, ...)
@@ -1641,7 +1644,9 @@ local Cinner = {
 
     setvarvar = varvarop / "%1=%2",
     addvarvar = varvaropf "+",
-    subvarvar = varvaropf "-",
+    -- NOTE the space after the minus sign so that e.g. "subvar x -1" won't get
+    -- translated to "x=x--1" (-- being the Lua line comment start).
+    subvarvar = varvaropf "- ",
     mulvarvar = varvaropf "*",
     divvarvar = varvaropf "_con._div",
     modvarvar = varvaropf "_con._mod",
@@ -1652,7 +1657,7 @@ local Cinner = {
 
     setvar = varop / "%1=%2",
     addvar = varopf "+",
-    subvar = varopf "-",
+    subvar = varopf "- ",
     mulvar = varopf "*",
     divvar = varopf "_con._div",
     modvar = varopf "_con._mod",
@@ -1746,7 +1751,8 @@ local Cinner = {
         / "_con._echo(%1)",
     activatecheat = cmd(R)
         / handle.NYI,
-    setgamepalette = cmd(R),
+    setgamepalette = cmd(R)
+        / "_con._setgamepalette(_pli,%1)",
 
     -- Sound commands
     sound = cmd(D)
@@ -1951,7 +1957,7 @@ local Cinner = {
         / handle.dynNYI,
     savegamevar = cmd(R)
         / handle.dynNYI,
-    readgamevar = cmd(R)
+    readgamevar = cmd(W)
         / handle.dynNYI,
     savenn = cmd(D)
         / handle.dynNYI,
@@ -2096,8 +2102,10 @@ local Cinner = {
 
     setaspect = cmd(R,R)
         / "_con._setaspect(%1,%2)",
-    showview = cmd(R,R,R,R,R,R,R,R,R,R),  -- 10R
-    showviewunbiased = cmd(R,R,R,R,R,R,R,R,R,R),  -- 10R
+    showview = cmd(R,R,R,R,R,R,R,R,R,R)  -- 10R
+        / "",  -- TODO
+    showviewunbiased = cmd(R,R,R,R,R,R,R,R,R,R)  -- 10R
+        / "",  -- TODO
     smaxammo = cmd(R,R)
         / PLS":set_max_ammo_amount(%1,%2)",
     gmaxammo = cmd(R,W)
@@ -2386,7 +2394,7 @@ local function after_if_cmd_Cmt(subj, pos, ...)
         return nil
     end
 
-    if (not g_cgopt["_incomplete"] and capts[1] ~= nil) then
+    if (capts[1] ~= nil) then
         assert(#capts <= 3)
         for i=1,#capts do
             assert(type(capts[i]=="string"))
@@ -2870,14 +2878,15 @@ local function handle_cmdline_arg(str)
                     g_warn[warnstr] = val
                     ok = true
                 end
-            elseif (str:sub(2)=="fno") then
+            elseif (str:sub(2,4)=="fno") then
                 -- Disable printing code.
-                g_cgopt["no"] = true
-                ok = true
-            elseif (str:sub(2)=="f_incomplete") then
-                -- TEMP
-                g_cgopt["_incomplete"] = true
-                ok = true
+                if (#str >= 5 and str:sub(5)=="=onlycheck") then
+                    g_cgopt["no"] = "onlycheck"
+                    ok = true
+                else
+                    g_cgopt["no"] = true
+                    ok = true
+                end
             elseif (kind=="I" and #str >= 3) then
                 -- default directory (only ONCE, not search path)
                 g_defaultDir = str:sub(3)
@@ -2936,11 +2945,23 @@ if (string.dump) then
             print_on_failure(msg)
         end
 
-        if (not g_cgopt["no"]) then
-            local file = require("io").stderr
+        if (not (g_cgopt["no"]==true)) then
+            local onlycheck = (g_cgopt["no"] == "onlycheck")
+            local io = require("io")
+            local file = onlycheck and io.stdout or io.stderr
+
+            local code = get_code_string(g_curcode)
+            local func, errmsg = loadstring(code, "CON")
+
             file:write(format("-- GENERATED CODE for \"%s\":\n", filename))
-            file:write(get_code_string(g_curcode))
-            file:write("\n")
+            if (func == nil) then
+                file:write(format("-- (invalid Lua code: %s)\n", errmsg))
+            end
+
+            if (not onlycheck) then
+                file:write(code)
+                file:write("\n")
+            end
         end
     end
 else
