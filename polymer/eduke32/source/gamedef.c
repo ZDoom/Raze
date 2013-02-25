@@ -4048,7 +4048,6 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_CHECKAVAILINVEN:
         case CON_GUNIQHUDID:
         case CON_SAVEGAMEVAR:
-        case CON_READGAMEVAR:
         case CON_USERQUOTE:
         case CON_ECHO:
         case CON_STARTTRACKVAR:
@@ -4056,6 +4055,9 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_ACTIVATECHEAT:
         case CON_SETGAMEPALETTE:
             C_GetNextVar();
+            continue;
+        case CON_READGAMEVAR:
+            C_GetNextVarType(GAMEVAR_READONLY);
             continue;
 
         case CON_ENHANCED:
