@@ -1526,6 +1526,14 @@ local handle =
         return format("print('%s:%d: debug %d')", g_filename, getlinecol(g_lastkwpos), val)
     end,
 
+    getzrange = function(...)
+        local v = {...}
+        assert(#v == 10)  -- 4R 4W 2R
+        return format("%s,%s,%s,%s=_con._getzrange(%s,%s,%s,%s,%s,%s)",
+                      v[5], v[6], v[7], v[8],  -- outargs
+                      v[1], v[2], v[3], v[4], v[9], v[10])  -- inargs
+    end,
+
     hitscan = function(...)
         local v = {...}
         assert(#v == 14)  -- 7R 6W 1R
@@ -2009,7 +2017,7 @@ local Cinner = {
     neartag = cmd(R,R,R,R,R,W,W,W,W,R,R)  -- 5R 4W 2R
         / handle.neartag,
     getzrange = cmd(R,R,R,R,W,W,W,W,R,R)
-        / handle.NYI,
+        / handle.getzrange,
 
     -- screen text and numbers display
     gametext = cmd(R,R,R,R,R,R,R,R,R,R,R)  -- 11 R

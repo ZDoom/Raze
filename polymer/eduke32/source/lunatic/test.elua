@@ -393,6 +393,16 @@ gameevent("DISPLAYROOMS",
           function()
               local cam = gv.cam
               cam.pos.z = cam.pos.z + 64*16*math.sin(gv.totalclock/30)
+
+              local ps = player[0]
+              if (ps.cursectnum >= 0) then
+                  local hit = sector[ps.cursectnum]:zrangeat(cam.pos)
+                  if (gv.totalclock%200==0) then
+                      printf("hit %s %d at z=%d, %s %d at z=%d",
+                             hit.c.spritep and "sprite" or "sector", hit.c.num, hit.c.z,
+                             hit.f.spritep and "sprite" or "sector", hit.f.num, hit.f.z)
+                  end
+              end
           end
          )
 

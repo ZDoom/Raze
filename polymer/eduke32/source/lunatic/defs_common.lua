@@ -260,6 +260,9 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
 void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall,
              int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch,
              int32_t (*blacklist_sprite_func)(int32_t));
+void getzrange(const vec3_t *pos, int16_t sectnum,
+               int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit,
+               int32_t walldist, uint32_t cliptype);
 
 int32_t ldist(const spritetype *s1, const spritetype *s2);
 int32_t dist(const spritetype *s1, const spritetype *s2);
@@ -319,6 +322,21 @@ local wallsofsec  -- fwd-decl
 
 local sectortype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SECTOR_STRUCT)))
 
+local function get_sector_idx(sec)
+    local i = ffi.cast(sectortype_ptr_ct, sec)-ffi.cast(sectortype_ptr_ct, ffiC.sector)
+    assert(not (i >= ffiC.numsectors+0ULL))
+    return i
+end
+
+local zret = ffi.new("int32_t [4]")
+local zret_t = ffi.typeof[[const struct {
+    struct {
+        bool spritep;
+        int32_t num;  // number of sector or sprite
+        int32_t z;
+    } c, f;
+}]]
+
 local sectortype_mt = {
     __index = {
         --- Setters
@@ -339,6 +357,21 @@ local sectortype_mt = {
 
         floorzat = function(s, pos)
             return ffiC.getflorzofslopeptr(s, pos.x, pos.y)
+        end,
+
+        -- getzrange() interface
+        zrangeat = function(s, pos, walldist, cliptype)
+            local sectnum = get_sector_idx(s)
+            local ipos = vec3_ct(pos.x, pos.y, pos.z)
+            walldist = walldist or 128
+            cliptype = cliptype or ffiC.CLIPMASK0
+
+            ffiC.getzrange(ipos, sectnum, zret+0, zret+1, zret+2, zret+3,
+                           walldist, cliptype)
+            local ceilz, ceilhit, florz, florhit = zret[0], zret[1], zret[2], zret[3]
+
+            return zret_t({ ceilhit>=49152, bit.band(ceilhit,16383), ceilz },
+                          { florhit>=49152, bit.band(florhit,16383), florz })
         end,
 
         -- inside() port

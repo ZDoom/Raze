@@ -1211,6 +1211,16 @@ function _neartag(x, y, z, sectnum, ang, range, tagsearch)
     return near.sector, near.wall, near.sprite, near.dist
 end
 
+-- CON "getzrange" command
+function _getzrange(x, y, z, sectnum, walldist, clipmask)
+    check_sector_idx(sectnum)
+    local ipos = geom.ivec3(x, y, z)
+    local hit = sector[sectnum]:zrangeat(ipos, walldist, clipmask)
+    -- return: ceilz, ceilhit, florz, florhit
+    return hit.c.z, hit.c.num + (hit.c.spritep and 49152 or 16384),
+           hit.f.z, hit.f.num + (hit.f.spritep and 49152 or 16384)
+end
+
 function _sleepcheck(aci, dist)
     local acs = actor[aci]
     if (dist > MAXSLEEPDIST and acs.timetosleep == 0) then
