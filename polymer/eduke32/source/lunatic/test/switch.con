@@ -107,4 +107,21 @@ onevent EVENT_ENTERLEVEL
         userquote 30
     endswitch
 */
+
+    // nested whilevar*n
+    setvar j -1
+    setvar k -1
+    whilevarn j 0
+    {
+        whilevarn k 0
+        {
+            setvar k 0
+            break
+            setvar k 1
+        }
+
+        setvar j 0
+        break
+        setvar j -1
+    }
 endevent

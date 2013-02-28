@@ -94,6 +94,9 @@ C_DefineProjectile;
 C_DefineGameFuncName;
 C_SetDefName;
 
+SCRIPT_GetNumber;
+SCRIPT_PutNumber;
+
 actor;
 g_camera;
 ud;

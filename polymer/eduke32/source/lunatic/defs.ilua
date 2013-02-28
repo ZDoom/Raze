@@ -595,6 +595,10 @@ void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
 void C_DefineProjectile(int32_t j, int32_t what, int32_t val);
 void C_DefineGameFuncName(int32_t idx, const char *name);
 int32_t C_SetDefName(const char *name);
+
+int32_t SCRIPT_GetNumber(int32_t scripthandle, const char *sectionname, const char *entryname, int32_t *number);
+void SCRIPT_PutNumber(int32_t scripthandle, const char *sectionname, const char *entryname, int32_t number,
+                      int32_t hexadecimal, int32_t defaultvalue);
 ]]
 
 

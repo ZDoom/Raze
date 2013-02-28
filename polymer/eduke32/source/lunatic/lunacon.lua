@@ -28,8 +28,12 @@ local unpack = unpack
 local read_into_string = read_into_string
 local ffi, ffiC
 
-if (string.dump) then
-    bit = require("bit")
+if (string.dump) then  -- running stand-alone
+    local ljp = pcall(function() require("ffi") end)
+    -- "lbit" is the same module as LuaJIT's "bit" (LuaBitOp:
+    -- http://bitop.luajit.org/), but under a different name for (IMO) less
+    -- confusion. Useful for running with Rio Lua for cross-checking.
+    bit = ljp and require("bit") or require("lbit")
     require("strict")
 else
     bit = require("bit")
@@ -948,7 +952,7 @@ function Cmd.gamearray(identifier, initsize)
         return
     end
 
-    if (initsize >= 0x7fffffff+0ULL) then
+    if (not (initsize >= 0 and initsize < 0x7fffffff)) then
         errprintf("invalid initial size %d for gamearray `%s'", initsize, identifier)
         return
     end
@@ -1587,7 +1591,35 @@ local handle =
     end,
 
     rotatesprite16 = function(...)
-        return format("_con.rotatesprite(%s,%s/65536,%s/65536,%s,%s,%s,%s,%s,%s,%s,%s,%s)", ...)
+        return format("_con.rotatesprite(%s/65536,%s/65536,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", ...)
+    end,
+
+    -- readgamevar or savegamevar
+    RSgamevar = function(identifier, dosave)
+        -- check identifier for sanity
+        if (not identifier:match("^[A-Za-z][A-Za-z0-9_]*$")) then
+            errprintf("%s: invalid identifier name `%s' for config file persistence",
+                      g_lastkw)
+            return "_BADRSGV()"
+        end
+
+        local gv = g_gamevar[identifier]
+        if (gv and bit.band(gv.flags, GVFLAG.PERX_MASK)==GVFLAG.PERACTOR) then
+            -- Per-player are kind of global without multiplayer anyway. TODO_MP
+            errprintf("can only %s global or per-player gamevars", g_lastkw,
+                      dosave and "save" or "read")
+            return "_BADRSGV()"
+        end
+
+        -- NOTE: more strict than C-CON: we require the gamevar being writable
+        -- even if we're saving it.
+        local code = lookup.gamevar(identifier, nil, true)
+
+        if (dosave) then
+            return format("_con._savegamevar(%q,%s)", identifier, code)
+        else
+            return format("%s=_con._readgamevar(%q)", code, identifier)
+        end
     end,
 
     state = function(statename)
@@ -1618,7 +1650,7 @@ local Cinner = {
     ["break"] = cmd()
         / function()
               return g_isWhile[#g_isWhile]
-                  and format("goto l%d", g_whilenum)
+                  and format("goto l%d", #g_isWhile)
                   or "do return end"
           end,
     ["return"] = cmd()  -- NLCF
@@ -1976,10 +2008,10 @@ local Cinner = {
         / handle.dynNYI,
     savemapstate = cmd()
         / handle.dynNYI,
-    savegamevar = cmd(R)
-        / handle.dynNYI,
-    readgamevar = cmd(W)
-        / handle.dynNYI,
+    savegamevar = cmd(I)
+        / function(id) return handle.RSgamevar(id, true) end,
+    readgamevar = cmd(I)
+        / function(id) return handle.RSgamevar(id, false) end,
     savenn = cmd(D)
         / handle.dynNYI,
     save = cmd(D)
@@ -2621,10 +2653,9 @@ function on.while_begin(v1, v2)
 end
 
 function on.while_end()
+    local whilenum = #g_isWhile
     table.remove(g_isWhile)
-    local code=format("::l%d:: end", g_whilenum)
-    g_whilenum = g_whilenum+1
-    return code
+    return format("::l%d:: end", whilenum)
 end
 
 function on.switch_begin()
@@ -2838,7 +2869,6 @@ function on.parse_begin()
     g_iflevel = 0
     g_ifelselevel = 0
     g_isWhile = {}
-    g_whilenum = 0
     g_have_file[g_filename] = true
 
     -- set up new state

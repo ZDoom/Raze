@@ -276,6 +276,13 @@ function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
     check_tile_idx(tilenum)
     orientation = bit.band(orientation, 2047)  -- ROTATESPRITE_MAX-1
 
+    -- XXX: This is the same as the check in gameexec.c, but ideally we'd want
+    -- rotatesprite to accept all coordinates and simply draw nothing if they
+    -- denote an area beyond the screen.
+    if (not (x >= -320 and x < 640) or not (y >= -200 and y < 400)) then
+        error(format("invalid coordinates (%.03f, %.03f)", x, y), 2)
+    end
+
     -- TODO: check that it works correctly with all coordinates, also if one
     -- border is outside the screen etc...
     ffiC.rotatesprite(65536*x, 65536*y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
@@ -1576,6 +1583,34 @@ end
 
 function _setgamepalette(pli, basepal)
     ffiC.P_SetGamePalette(player[pli], basepal)
+end
+
+-- Gamevar persistence in the configuration file
+
+function _savegamevar(name, val)
+    if (ffiC.ud.config.scripthandle < 0) then
+        return
+    end
+
+    assert(type(name)=="string")
+    assert(type(val)=="number")
+
+    ffiC.SCRIPT_PutNumber(ffiC.ud.config.scripthandle, "Gamevars", name,
+                          val, 0, 0);
+end
+
+function _readgamevar(name)
+    if (ffiC.ud.config.scripthandle < 0) then
+        return
+    end
+
+    assert(type(name)=="string")
+
+    local v = ffi.new("int32_t [1]")
+    ffiC.SCRIPT_GetNumber(ffiC.ud.config.scripthandle, "Gamevars", name, v);
+    -- NOTE: doesn't examine SCRIPT_GetNumber() return value and returns 0 if
+    -- there was no such gamevar saved, like C-CON.
+    return v[0]
 end
 
 
