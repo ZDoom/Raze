@@ -160,6 +160,7 @@ ifneq (0,$(LUNATIC))
                $(OBJ)/luaJIT_BC_bcheck.$o \
                $(OBJ)/luaJIT_BC_xmath.$o \
                $(OBJ)/luaJIT_BC_defs.$o \
+               $(OBJ)/luaJIT_BC_v.$o \
 
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
     # executable no matter what the debugging level

@@ -2198,6 +2198,8 @@ void C_DefineGameFuncName(int32_t idx, const char *name)
 
     Bstrncpyz(gamefunctions[idx], name, MAXGAMEFUNCLEN);
     Bstrncpyz(keydefaults[3*idx], name, MAXGAMEFUNCLEN);
+
+    hash_add(&h_gamefuncs, gamefunctions[idx], idx, 0);
 }
 #endif
 

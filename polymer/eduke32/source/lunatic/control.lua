@@ -3,6 +3,7 @@
 local require = require
 local ffi = require("ffi")
 local ffiC = ffi.C
+local jit = require("jit")
 
 -- Lua C API functions, this comes from El_PushCFunctions() in lunatic_game.c.
 local CF = CF
@@ -323,16 +324,15 @@ function _div(a,b)
     if (b==0) then
         error("divide by zero", 2)
     end
-    -- NOTE: math.modf() is compiled, math.fmod() is not:
-    -- http://wiki.luajit.org/NYI#Math-Library
-    return (a - math.modf(a,b))/b
+    -- NOTE: don't confuse with math.modf!
+    return (a - math.fmod(a,b))/b
 end
 
 function _mod(a,b)
     if (b==0) then
         error("mod by zero", 2)
     end
-    return (math.modf(a,b))
+    return (math.fmod(a,b))
 end
 
 -- Sect_ToggleInterpolation() clone
@@ -720,8 +720,13 @@ function _gametext(tilenum, x, y, qnum, shade, pal, orientation,
 
     orientation = bit.band(orientation, 2047)  -- ROTATESPRITE_MAX-1
     ffiC.G_PrintGameText(0, tilenum, bit.arshift(x,1), y, cstr, shade, pal,
-                        orientation, cx1, cy1, cx2, cy2, zoom)
+                         orientation, cx1, cy1, cx2, cy2, zoom)
 end
+-- XXX: JIT-compiling FFI calls to G_PrintGameText crashes LuaJIT somewhere in
+-- its internal routines.  I'm not sure who is to blame here but I suspect we
+-- have some undefined behavior somewhere.  Reproducible with DukePlus 2.35 on
+-- x86 when clicking wildly through its menu.
+jit.off(_gametext)
 
 local D = {
     -- TODO: dynamic tile remapping

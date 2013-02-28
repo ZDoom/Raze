@@ -203,6 +203,7 @@ typedef struct {
     int16_t transporter_hold;
 
     uint8_t max_secret_rooms, secret_rooms;
+    // XXX: 255 values for frag(gedself) seems too small.
     uint8_t frag, fraggedself, quick_kick, last_quick_kick;
     uint8_t return_to_center, reloading, weapreccnt;
     uint8_t aim_mode, auto_aim, weaponswitch, movement_lock, team;

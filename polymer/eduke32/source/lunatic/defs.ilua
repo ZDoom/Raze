@@ -34,8 +34,8 @@ local gv_access = {}
 -- accessible through the "gv" global. The "defs_common" module will
 -- use this function.
 --
--- Notes: do not declare multiple pointers on one line (this is bad:
--- "int32_t *a, *b"). Do not name array arguments (or add a space
+-- Notes: do not declare multiple scalars on one line (this is bad:
+-- "int32_t a, b"). Do not name array arguments (or add a space
 -- between the identifier and the '[' instead).
 function decl(str, ...)
     -- NOTE that the regexp also catches non-array/non-function identifiers
@@ -166,6 +166,11 @@ bcarray.new("int16_t", 64, "loogie", "int16_x_64")
 bcarray.new("int16_t", ffiC.MAX_WEAPONS, "weapon", "int16_x_MAX_WEAPONS")
 bcarray.new("int16_t", ffiC.GET_MAX, "inventory", "int16_x_GET_MAX")
 
+-- NOTE: writing e.g. "ps.jetpack_on" in Lua when "ps.jetpack_on~=0" was meant
+-- is probably one of the most commonly committed errors, so we make it a bool
+-- type instead of uint8_t. The only issue is that if CON coders used these
+-- fields to store more than just one bit, we're in trouble.
+-- This will need to be documented and frozen for release.
 local DUKEPLAYER_STRUCT = [[
 __attribute__((packed)) struct {
     vec3_t pos, opos, vel, npos;
@@ -223,24 +228,35 @@ __attribute__((packed)) struct {
 
     uint8_t max_secret_rooms, secret_rooms;
     uint8_t frag, fraggedself, quick_kick, last_quick_kick;
-    uint8_t return_to_center, reloading;
+    uint8_t return_to_center;
+    bool reloading;
     const uint8_t weapreccnt;
     uint8_t aim_mode, auto_aim, weaponswitch, movement_lock, team;
     uint8_t tipincs, hbomb_hold_delay, frag_ps, kickback_pic;
 
-    uint8_t gm, on_warping_sector, footprintcount, hurt_delay;
-    uint8_t hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
+    uint8_t gm;
+    bool on_warping_sector;
+    uint8_t footprintcount, hurt_delay;
+    bool hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
     // NOTE: there's array indexing with inven_icon, but always after a
     // bound check:
-    uint8_t inven_icon, buttonpalette, over_shoulder_on, show_empty_weapon;
+    uint8_t inven_icon, buttonpalette;
+    bool over_shoulder_on;
+    uint8_t show_empty_weapon;
 
-    uint8_t jetpack_on, spritebridge, lastrandomspot;
-    uint8_t scuba_on, footprintpal, heat_on, invdisptime;
+    bool jetpack_on, spritebridge;
+    uint8_t lastrandomspot;  // unused
+    bool scuba_on;
+    uint8_t footprintpal;
+    bool heat_on;
+    uint8_t invdisptime;
 
-    uint8_t holster_weapon, falling_counter, footprintshade;
+    bool holster_weapon;
+    uint8_t falling_counter, footprintshade;
     uint8_t refresh_inventory, last_full_weapon;
 
-    uint8_t toggle_key_flag, knuckle_incs, knee_incs, access_incs;
+    bool toggle_key_flag;
+    uint8_t knuckle_incs, knee_incs, access_incs;
     uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
 
     int8_t numloogs, loogcnt, scream_voice;
@@ -920,7 +936,7 @@ local player_mt = {
 
         set_curr_weapon = function(p, weap)
             check_weapon_idx(weap)
-            p.curr_weapon = weap
+            ffi.cast(player_ptr_ct, p).curr_weapon = weap
         end,
 
         get_inv_amount = function(p, inv)
@@ -1217,9 +1233,14 @@ local function our_require(modname, ...)
 
     --- search user modules
 
-    if (package_loaded[modname] ~= nil) then
+    local omod = package_loaded[modname]
+    if (omod ~= nil) then
+        if (omod==true) then
+            error("Loop while loading modules", ERRLEV-1)
+        end
+
         -- already loaded
-        return package_loaded[modname]
+        return omod
     end
 
     local modfn = modname .. ".lua"
@@ -1624,6 +1645,7 @@ end
 
 -- REMOVE this for release
 DBG_ = {}
+DBG_.debug = require("debug")
 DBG_.printkv = printkv
 DBG_.loadstring = loadstring
 DBG_.serializeGamevars = serializeGamevars

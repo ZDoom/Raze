@@ -406,6 +406,14 @@ gameevent("DISPLAYROOMS",
           end
          )
 
+gameevent("DISPLAYREST", function()
+    for i=0,10 do
+        for j=1,100 do
+            con._gametext(2822, j, i, 12, 0, 0, 16, 0,0,gv.xdim,gv.ydim,8192)
+        end
+    end
+end)
+
 local CS = sprite.CSTAT
 
 gameevent("ANIMATESPRITES",

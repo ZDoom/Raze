@@ -6,17 +6,22 @@
 
 local ffi = require("ffi")
 local ffiC = ffi.C
+local bit = require("bit")
 
--- Lunatic debugging:
---  1: pront diagnostic information
---  2: also disable JIT compilation
+-- Lunatic debugging (mostly bitfield):
+-- ~=0: print diagnostic information
+--   2: disable JIT compilation
+--   4: load LuaJIT's 'v' module, printing trace info
 ffi.cdef "enum { _DEBUG_LUNATIC=1 }"
 
-if (ffiC._DEBUG_LUNATIC >= 2) then
+if (bit.band(ffiC._DEBUG_LUNATIC, 2)~=0) then
     require("jit").off()
 end
 
-local bit = require("bit")
+if (bit.band(ffiC._DEBUG_LUNATIC, 4)~=0) then
+    require("v").on()
+end
+
 local math = require("math")
 local string = require("string")
 local table = require("table")
@@ -159,7 +164,10 @@ assert(ffi.alignof("palette_t")==1)
 local vec3_ct = ffi.typeof("vec3_t")
 local hitdata_ct = ffi.typeof("hitdata_t")
 
-decl[[const int32_t engine_main_arrays_are_static, engine_v8;]]
+decl[[
+const int32_t engine_main_arrays_are_static;
+const int32_t engine_v8;
+]]
 
 
 --== Engine data and functions ==--
@@ -233,7 +241,8 @@ const int32_t windowx1, windowy1, windowx2, windowy2;
 ]]
 
 decl[[
-int32_t yxaspect, viewingrange;
+int32_t yxaspect;
+int32_t viewingrange;
 int32_t spritesortcnt;
 int32_t guniqhudid;
 const int32_t rendmode;
