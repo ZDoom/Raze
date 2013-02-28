@@ -152,7 +152,7 @@ ScriptLineType * SCRIPT_AddLine
 ScriptSectionType * SCRIPT_SectionExists
    (
    int32_t scripthandle,
-   char * sectionname
+   const char * sectionname
    );
 
 /*
@@ -162,7 +162,7 @@ ScriptSectionType * SCRIPT_SectionExists
 =
 ==============
 */
-ScriptSectionType * SCRIPT_AddSection( int32_t scripthandle, char * sectionname );
+ScriptSectionType * SCRIPT_AddSection( int32_t scripthandle, const char * sectionname );
 
 /*
 ==============
@@ -174,7 +174,7 @@ ScriptSectionType * SCRIPT_AddSection( int32_t scripthandle, char * sectionname 
 ScriptEntryType * SCRIPT_EntryExists
    (
    ScriptSectionType * section,
-   char * entryname
+   const char * entryname
    );
 
 /*
@@ -187,9 +187,9 @@ ScriptEntryType * SCRIPT_EntryExists
 void SCRIPT_AddEntry
    (
    int32_t scripthandle,
-   char * sectionname,
-   char * entryname,
-   char * entryvalue
+   const char * sectionname,
+   const char * entryname,
+   const char * entryvalue
    );
 
 /*

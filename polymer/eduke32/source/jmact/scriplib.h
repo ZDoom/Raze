@@ -162,8 +162,8 @@ int32_t SCRIPT_GetDoubleString
 int32_t SCRIPT_GetNumber
    (
    int32_t scripthandle,
-   char * sectionname,
-   char * entryname,
+   const char * sectionname,
+   const char * entryname,
    int32_t * number
    );
 
@@ -247,8 +247,8 @@ void SCRIPT_PutDoubleString
 void SCRIPT_PutNumber
    (
    int32_t scripthandle,
-   char * sectionname,
-   char * entryname,
+   const char * sectionname,
+   const char * entryname,
    int32_t number,
    int32_t hexadecimal,
    int32_t defaultvalue

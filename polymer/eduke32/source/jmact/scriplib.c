@@ -138,7 +138,7 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
 		(e)->preventry = (e); \
 	}
 
-ScriptSectionType * SCRIPT_SectionExists(int32_t scripthandle, char * sectionname)
+ScriptSectionType * SCRIPT_SectionExists(int32_t scripthandle, const char * sectionname)
 {
     ScriptSectionType *s, *ls=NULL;
 
@@ -153,7 +153,7 @@ ScriptSectionType * SCRIPT_SectionExists(int32_t scripthandle, char * sectionnam
     return NULL;
 }
 
-ScriptSectionType * SCRIPT_AddSection(int32_t scripthandle, char * sectionname)
+ScriptSectionType * SCRIPT_AddSection(int32_t scripthandle, const char * sectionname)
 {
     ScriptSectionType *s,*s2;
 
@@ -181,7 +181,7 @@ ScriptSectionType * SCRIPT_AddSection(int32_t scripthandle, char * sectionname)
     return s;
 }
 
-ScriptEntryType * SCRIPT_EntryExists(ScriptSectionType * section, char * entryname)
+ScriptEntryType * SCRIPT_EntryExists(ScriptSectionType * section, const char * entryname)
 {
     ScriptEntryType *e,*le=NULL;
 
@@ -195,7 +195,7 @@ ScriptEntryType * SCRIPT_EntryExists(ScriptSectionType * section, char * entryna
     return NULL;
 }
 
-void SCRIPT_AddEntry(int32_t scripthandle, char * sectionname, char * entryname, char * entryvalue)
+void SCRIPT_AddEntry(int32_t scripthandle, const char * sectionname, const char * entryname, const char * entryvalue)
 {
     ScriptSectionType *s;
     ScriptEntryType *e,*e2;
@@ -738,7 +738,7 @@ breakme:
     return 0;
 }
 
-int32_t SCRIPT_GetNumber(int32_t scripthandle, char * sectionname, char * entryname, int32_t * number)
+int32_t SCRIPT_GetNumber(int32_t scripthandle, const char * sectionname, const char * entryname, int32_t * number)
 {
     ScriptSectionType *s;
     ScriptEntryType *e;
@@ -899,8 +899,8 @@ void SCRIPT_PutDoubleString
 void SCRIPT_PutNumber
 (
     int32_t scripthandle,
-    char * sectionname,
-    char * entryname,
+    const char * sectionname,
+    const char * entryname,
     int32_t number,
     int32_t hexadecimal,
     int32_t defaultvalue
