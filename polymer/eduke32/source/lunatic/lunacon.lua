@@ -100,6 +100,11 @@ local g_cgopt = { ["no"]=false, }
 -- needed to cope with CONs dangling-else resolution
 local g_iflevel = 0
 local g_ifelselevel = 0
+-- Stack with *true* on top if the innermost block is a "whilevar*n".
+local g_isWhile = {}
+-- Sequence number of 'while' statements, used to implement CON "break" inside
+-- whilevar*n, which really behaves like what sane languages call "continue"...
+local g_whilenum = 0
 
 ---=== Code generation ===---
 local GVFLAG = {
@@ -1611,7 +1616,11 @@ local userdef_common_pat = (arraypat + sp1)/{} * lpeg.Cc(0) * lpeg.Ct(singlememb
 local Cinner = {
     -- these can appear anywhere in the script
     ["break"] = cmd()
-        / "do return end",
+        / function()
+              return g_isWhile[#g_isWhile]
+                  and format("goto l%d", g_whilenum)
+                  or "do return end"
+          end,
     ["return"] = cmd()  -- NLCF
         / "_con.longjmp()",
 
@@ -1678,7 +1687,7 @@ local Cinner = {
     xorvar = varopf "_bit.bxor",
     randvar = varop / "%1=_con._rand(%2)",
     shiftvarl = varopf "_bit.lshift",
-    shiftvarr = varopf "_bit.rshift",
+    shiftvarr = varopf "_bit.arshift",
 
     --- 2. Math operations
     sqrt = cmd(R,W)
@@ -2378,7 +2387,7 @@ end
 -- if desired.
 local function Keyw(kwname) return TraceFunc(kwname, "kw", false) end
 local function NotKeyw(text) return TraceFunc(text, "!kw", false) end
-local function Ident(idname) return TraceFunc(idname, "id", false) end
+--local function Ident(idname) return TraceFunc(idname, "id", false) end
 local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", false) end
 
 --local function Temp(kwname) return TraceFunc(kwname, "temp", true) end
@@ -2433,7 +2442,14 @@ local function attachnames(kwtab, matchtimefunc)
         -- acts as a barrier to captures to delay (but not fully prevent) stack
         -- overflow (and to make lpeg.match return a subject position at the
         -- end)
-        kwtab[cmdname] = lpeg.Cmt(Keyw(cmdname) * cmdpat, matchtimefunc)
+        local newpat = Keyw(cmdname) * cmdpat
+        if (cmdname~="break") then
+            kwtab[cmdname] = lpeg.Cmt(newpat, matchtimefunc)
+        else
+            -- Must not attack a Cmt to "break" because it would break the
+            -- while/switch sequencing.
+            kwtab[cmdname] = newpat
+        end
     end
 end
 
@@ -2574,7 +2590,7 @@ local function get_deferred_code(tab, lev, code)
     return code
 end
 
-local function begin_if_fn(condstr, endifstr, endifelsestr)
+function on.if_begin(condstr, endifstr, endifelsestr)
     assert(type(condstr)=="string")
 
     add_deferred_code(g_endIfCode, g_iflevel, endifstr)
@@ -2586,7 +2602,7 @@ local function begin_if_fn(condstr, endifstr, endifelsestr)
     return format("if (%s) then", condstr)
 end
 
-local function end_if_fn()
+function on.if_end()
     g_iflevel = g_iflevel-1
     local code = get_deferred_code(g_endIfCode, g_iflevel, "")
     if (code ~= "") then
@@ -2594,9 +2610,25 @@ local function end_if_fn()
     end
 end
 
-local function end_if_else_fn()
+function on.if_else_end()
     g_ifelselevel = g_ifelselevel-1
     return get_deferred_code(g_endIfElseCode, g_ifelselevel, "end ")
+end
+
+function on.while_begin(v1, v2)
+    table.insert(g_isWhile, true)
+    return format("while (%s~=%s) do", v1, v2)
+end
+
+function on.while_end()
+    table.remove(g_isWhile)
+    local code=format("::l%d:: end", g_whilenum)
+    g_whilenum = g_whilenum+1
+    return code
+end
+
+function on.switch_begin()
+    table.insert(g_isWhile, false)
 end
 
 function on.switch_end(testvar, blocks)
@@ -2604,6 +2636,8 @@ function on.switch_end(testvar, blocks)
     local swcode = { format("%s={", SW) }
     local have = {}
     local havedefault = false
+
+    table.remove(g_isWhile)
 
     for i=1,#blocks do
         local block = blocks[i]
@@ -2712,7 +2746,7 @@ local Grammar = Pat{
     t_singlearrayexp = tok.identifier * arraypat * singlememberpat^-1,
 
     -- SWITCH
-    switch_stmt = Keyw("switch") * sp1 * tok.rvar *
+    switch_stmt = Keyw("switch") * sp1 * tok.rvar * (lpeg.Cc(nil)/on.switch_begin) *
         lpeg.Ct((Var("case_block") + Var("default_block"))^0) * sp1 * "endswitch"
         / on.switch_end,
 
@@ -2725,21 +2759,21 @@ local Grammar = Pat{
 
     optional_else = (sp1 * lpeg.C("else") * sp1 * Var("single_stmt"))^-1,
 
-    if_else_bodies = Var("single_stmt2") * (Pat("")/end_if_fn) * Var("optional_else"),
+    if_else_bodies = Var("single_stmt2") * (Pat("")/on.if_end) * Var("optional_else"),
 
-    if_stmt = con_if_begs/begin_if_fn * sp1
+    if_stmt = con_if_begs/on.if_begin * sp1
         * Var("if_else_bodies")
-        * (Pat("")/end_if_else_fn),
+        * (Pat("")/on.if_else_end),
 
-    if_stmt2 = con_if_begs/begin_if_fn * sp1
-        * (-con_if_begs * Var("single_stmt") * (Pat("")/end_if_fn)
+    if_stmt2 = con_if_begs/on.if_begin * sp1
+        * (-con_if_begs * Var("single_stmt") * (Pat("")/on.if_end)
           + Var("if_else_bodies"))
-        * (Pat("")/end_if_else_fn),
+        * (Pat("")/on.if_else_end),
 
-    while_stmt = Keyw("whilevarvarn") * sp1 * tok.rvar * sp1 * tok.rvar / "while (%1~=%2) do"
-          * sp1 * Var("single_stmt") * lpeg.Cc("end")
-        + Keyw("whilevarn") * sp1 * tok.rvar * sp1 * tok.define / "while (%1~=%2) do"
-          * sp1 * Var("single_stmt") * lpeg.Cc("end"),
+    while_stmt = Keyw("whilevarvarn") * sp1 * tok.rvar * sp1 * tok.rvar / on.while_begin
+          * sp1 * Var("single_stmt") * (lpeg.Cc(nil) / on.while_end)
+        + Keyw("whilevarn") * sp1 * tok.rvar * sp1 * tok.define / on.while_begin
+          * sp1 * Var("single_stmt") * (lpeg.Cc(nil) / on.while_end),
 
     stmt_common = Keyw("{") * sp1 * "}"  -- space separation of commands in CON is for a reason!
         + Keyw("{") * sp1 * stmt_list * sp1 * "}"
@@ -2803,6 +2837,8 @@ end
 function on.parse_begin()
     g_iflevel = 0
     g_ifelselevel = 0
+    g_isWhile = {}
+    g_whilenum = 0
     g_have_file[g_filename] = true
 
     -- set up new state

@@ -654,6 +654,7 @@ player_static_members.INPUT_EXT_BITS = defs_c.conststruct
     INPUT_TURN_RIGHT =   32,
 }
 
+-- XXX: error message will say "g_player_ps"
 player = setmtonce({}, defs_c.GenStructMetatable("g_player_ps", "playerswhenstarted", player_static_members))
 
 -- needed by "control"

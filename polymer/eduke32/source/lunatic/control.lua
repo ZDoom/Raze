@@ -26,6 +26,8 @@ local tostring = tostring
 local type = type
 local unpack = unpack
 
+local format = require("string").format
+
 local actor, player = assert(actor), assert(player)
 local dc = require("defs_common")
 local cansee, hitscan, neartag = dc.cansee, dc.hitscan, dc.neartag
