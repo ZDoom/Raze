@@ -51,7 +51,7 @@ vec3_t pos;
 int32_t horiz = 100;
 int16_t ang, cursectnum;
 static int32_t hvel, vel, svel, angvel;
-int32_t g_doHardcodedMovement;
+int32_t g_doHardcodedMovement = 1;
 
 static int32_t mousexsurp = 0, mouseysurp = 0;
 
