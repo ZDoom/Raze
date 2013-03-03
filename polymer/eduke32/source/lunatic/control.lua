@@ -12,6 +12,7 @@ local bit = require("bit")
 local io = require("io")
 local math = require("math")
 local geom = require("geom")
+local bcheck = require("bcheck")
 local con_lang = require("con_lang")
 
 local byte = require("string").byte
@@ -93,17 +94,19 @@ end
 ---=== ACTION / MOVE / AI ===---
 
 function action(name, ...)
+    bcheck.top_level("action")
     action_or_move("action", 5, def.action, name, ...)
 end
 
 function move(name, ...)
+    bcheck.top_level("move")
     action_or_move("move", 2, def.move, name, ...)
 end
 
-
+-- Get action or move for an 'ai' definition.
 local function get_action_or_move(what, val, argi)
     if (val == nil) then
-        return {}  -- will init the struct to all zeros
+        return {}  -- ffi.new will init the struct to all zeros
     elseif (type(val)=="string") then
         local am = def[what][val]
         if (am==nil) then
@@ -112,13 +115,20 @@ local function get_action_or_move(what, val, argi)
         return am
     elseif (ffi.istype("con_"..what.."_t", val)) then
         return val
+    elseif (type(val)=="number") then
+        if (val==0 or val==1) then
+            -- Create an action or move with an ID of 0 or 1 but all other
+            -- fields cleared.
+            return ffi.new("con_"..what.."_t", val)
+        end
     end
 
-    -- TODO: literal number actions/moves?
-    error("bad argument #"..argi.." to ai: must be string or "..what, 3)
+    error("bad argument #"..argi.." to ai: must be string or (literal) "..what, 3)
 end
 
 function ai(name, action, move, flags)
+    bcheck.top_level("ai")
+
     if (lastid.ai <= -(2^31)) then
         error("Too many AIs defined", 2);
     end
@@ -143,7 +153,6 @@ end
 
 ---=== RUNTIME CON FUNCTIONS ===---
 
-local bcheck = require("bcheck")
 local check_sector_idx = bcheck.sector_idx
 local check_tile_idx = bcheck.tile_idx
 local check_sprite_idx = bcheck.sprite_idx
@@ -1584,7 +1593,7 @@ function _setaspect(viewingrange, yxaspect)
 end
 
 function _setgamepalette(pli, basepal)
-    ffiC.P_SetGamePalette(player[pli], basepal)
+    ffiC.P_SetGamePalette(player[pli], basepal, 2+16)
 end
 
 -- Gamevar persistence in the configuration file

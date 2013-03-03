@@ -308,7 +308,8 @@ function on.actor_end(usertype, tsamm, codetab)
     local str = ""
     for i=2,math.min(#tsamm,4) do
         if ((i==3 or i==4) and tsamm[i]=="0") then
-            -- HACK, gameactor() currently doesn't support literals
+            -- HACK, gameactor() currently doesn't support literals for actions
+            -- and moves.
             tsamm[i] = "'NO'"
         end
         str = str .. tostring(tsamm[i])..","
@@ -603,11 +604,12 @@ local function do_define_composite(labeltype, identifier, ...)
         return
     end
 
-    -- Fill up omitted arguments with zeros.
+    -- Fill up omitted arguments denoting composites with zeros.
     local isai = (labeltype == LABEL.AI)
     local args = {...}
     for i=#args+1,labeltype do
-        -- passing nil to con.ai will make the action/move the null one
+        -- Passing nil/nothing as remaining args to con.ai will make the
+        -- action/move the null one.
         args[i] = (isai and i<=2) and "nil" or 0
     end
 

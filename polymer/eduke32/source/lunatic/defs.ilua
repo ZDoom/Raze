@@ -1360,9 +1360,7 @@ G_._G = G_
 local gameactor_internal = gameactor_internal  -- included in lunatic.c
 -- gameactor(tilenum [, strength [, act [, mov [, movflags]]]], actor_func)
 local function our_gameactor(tilenum, ...)
-    if (ffiC.g_elCallDepth > 0) then
-        error("Invalid use of gameactor: must be called from top level", 2)
-    end
+    bcheck.top_level("gameactor")
 
     local args = {...}
     if (type(tilenum) ~= "number") then
