@@ -30,6 +30,9 @@ int32_t g_elEventRETURN;
 uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
 double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES];
 
+// Used as Lua registry key to the tweak_traceback_msg() function, set to 1 if
+// such a function has been registered.
+static uint8_t g_tweakTracebackMsg = 0;
 
 // forward-decls...
 static int32_t SetEvent_CF(lua_State *L);
@@ -219,8 +222,31 @@ static int our_traceback_CF(lua_State *L)
     lua_call(L, 1, 1);
     Bassert(lua_gettop(L)==2);  // Lua will pop off args
 
+    if (g_tweakTracebackMsg)
+    {
+        // Get tweak_traceback_msg() onto the stack.
+        lua_pushlightuserdata(L, &g_tweakTracebackMsg);
+        lua_gettable(L, LUA_REGISTRYINDEX);
+
+        lua_pushvalue(L, -2);  // push copy of error message string
+        Bassert(lua_type(L, -1)==LUA_TSTRING);
+
+        // Call tweak_traceback_msg(). CAREFUL, it's unprotected!
+        lua_call(L, 1, 1);
+    }
+
     return 1;
 }
+
+// Registers a function: str = tweak_traceback_msg(str)
+static int32_t SetTweakTracebackMsg_CF(lua_State *L)
+{
+    Bassert(lua_gettop(L)==1);
+    L_CheckAndRegisterFunction(L, &g_tweakTracebackMsg);
+    g_tweakTracebackMsg = 1;
+    return 0;
+}
+
 
 ////// Lua C-API interfaces for C game functions that may call events.
 // http://www.freelists.org/post/luajit/intermitten-lua-pcall-crash-on-x86-64-linux,1
@@ -332,6 +358,8 @@ static void El_StateSetup(lua_State *L)
     lua_setglobal(L, "gameevent_internal");
     lua_pushcfunction(L, SetActor_CF);
     lua_setglobal(L, "gameactor_internal");
+    lua_pushcfunction(L, SetTweakTracebackMsg_CF);
+    lua_setglobal(L, "set_tweak_traceback_internal");
 
     El_PushCFunctions(L);
 

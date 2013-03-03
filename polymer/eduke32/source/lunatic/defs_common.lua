@@ -425,14 +425,18 @@ local walltype_mt = {
         end,
 
         _set_nextwall = function(w, nextwall)
-            -- XXX: this disallows making a red wall white
-            bcheck.wall_idx(nextwall)
+            -- NOTE: Allow setting a wall to white too, but no checking of the
+            -- consistency invariant ".nextwall>=0 iff .nextsector>=0".
+            if (not (nextwall < 0)) then
+                bcheck.wall_idx(nextwall)
+            end
             ffi.cast(walltype_ptr_ct, w).nextwall = nextwall
         end,
 
         _set_nextsector = function(w, nextsector)
-            -- XXX: this disallows making a red wall white
-            check_sector_idx(nextsector)
+            if (not (nextsector < 0)) then
+                check_sector_idx(nextsector)
+            end
             ffi.cast(walltype_ptr_ct, w).nextsector = nextsector
         end,
 
@@ -679,7 +683,7 @@ function GenStructMetatable(Structname, Boundname, StaticMembersTab)
                 if (key >= 0 and key < ffiC[Boundname]) then
                     return ffiC[Structname][key]
                 end
-                error("out-of-bounds "..Structname.."[] read access", 2)
+                error("out-of-bounds "..Structname.."[] read access with index "..key, 2)
             elseif (type(key)=="string") then
                 return StaticMembersTab[key]
             end

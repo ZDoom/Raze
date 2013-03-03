@@ -1482,10 +1482,26 @@ do
         end
     end
 
-    concode = lunacon.compile(confn)
+    local lineinfo
+    concode, lineinfo = lunacon.compile(confn)
+    assert(lineinfo)
+
     if (concode == nil) then
         error("Failure compiling CON code, exiting.", 0)
     end
+
+    -- Translate one Lua line number to a CON file name + line number
+    local function transline(lnum)
+        return string.format("%s:%d", lineinfo:getfline(tonumber(lnum)))
+    end
+
+    -- Register the function that tweaks an error message, looking out for
+    -- errors from CON and translating the line numbers.
+    local function tweak_traceback_msg(errmsg)
+        return errmsg:gsub('%[string "CON"%]:([0-9]+)', transline)
+    end
+
+    set_tweak_traceback_internal(tweak_traceback_msg)
 end
 
 -- change the environment of this chunk to the table G_

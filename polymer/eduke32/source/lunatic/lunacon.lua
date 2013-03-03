@@ -18,6 +18,7 @@ local loadstring = loadstring
 local pairs = pairs
 local pcall = pcall
 local print = print
+local setmetatable = setmetatable
 local tonumber = tonumber
 local tostring = tostring
 local type = type
@@ -98,7 +99,7 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true,
                  ["number-conversion"]=true, ["system-gamevar"]=true, }
 
 -- Code generation options.
-local g_cgopt = { ["no"]=false, }
+local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, }
 
 -- How many 'if' statements are following immediately each other,
 -- needed to cope with CONs dangling-else resolution
@@ -2038,9 +2039,9 @@ local Cinner = {
     displayrandvarvar = cmd(W,R)
         / "%1=_con._displayrand(%2)",
     dist = cmd(W,R,R)
-        / "%1=_xmath.dist(sprite[%1],sprite[%2])",
+        / "%1=_xmath.dist(sprite[%2],sprite[%3])",
     ldist = cmd(W,R,R)
-        / "%1=_xmath.ldist(sprite[%1],sprite[%2])",
+        / "%1=_xmath.ldist(sprite[%2],sprite[%3])",
     dragpoint = cmd(R,R,R)
         / handle.NYI,
     rotatepoint = cmd(R,R,R,R,R,W,W)
@@ -2420,7 +2421,7 @@ end
 -- These are tracers for specific patterns which can be disabled
 -- if desired.
 local function Keyw(kwname) return TraceFunc(kwname, "kw", false) end
-local function NotKeyw(text) return TraceFunc(text, "!kw", false) end
+--local function NotKeyw(text) return TraceFunc(text, "!kw", false) end
 --local function Ident(idname) return TraceFunc(idname, "id", false) end
 local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", false) end
 
@@ -2428,33 +2429,37 @@ local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", false) end
 --Cinner["myosx"] = Temp(Cinner["myosx"])
 
 ----==== Translator continued ====----
-local function after_inner_cmd_Cmt(subj, pos, ...)
-    local capts = {...}
+local function attachlinenum(capts, pos)
+    capts[1] = capts[1].."--"..getlinecol(pos)
+    return capts[1]
+end
 
+local function after_inner_cmd_Cmt(subj, pos, ...)
     if (g_numerrors == inf) then
         return nil
     end
 
+    local capts = {...}
     if (type(capts[1])=="string" and capts[2]==nil) then
-        return true, capts[1] .."--"..linecolstr(pos) --TEMP
+        return true, attachlinenum(capts, pos)
     end
 
     return true
 end
 
 local function after_if_cmd_Cmt(subj, pos, ...)
-    local capts = {...}
-
     if (g_numerrors == inf) then
         return nil
     end
 
+    local capts = {...}
     if (capts[1] ~= nil) then
         assert(#capts <= 3)
         for i=1,#capts do
             assert(type(capts[i]=="string"))
         end
-        return true, unpack(capts, 1, #capts)
+--        attachlinenum(capts, pos)
+        return true, unpack(capts)
     end
 
     return true
@@ -2745,7 +2750,7 @@ local Grammar = Pat{
     --   getactor[THISACTOR].x x
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
-    t_identifier = -NotKeyw(conl.keyword * (sp1 + "[")) * tok.identifier_all,
+    t_identifier = -(conl.keyword * (sp1 + "[")) * tok.identifier_all,
     -- TODO?: SST TC has e.g. "1267AT", relying on it to be parsed as a number "1267".
     -- However, this conflicts with bad-identifiers, so it should be checked last.
     -- This would also handle LNGA2's "00000000h", though would give problems with
@@ -2853,8 +2858,77 @@ local function flatten_codetab(codetab)
     return tmpcode
 end
 
-local function get_code_string(codetab)
-    return table.concat(flatten_codetab(g_curcode), "\n")
+
+--== Lua -> CON line number mapping for error messages ==--
+
+local lineinfo_mt = {
+    __index = {
+        -- Get CON file name and CON line number from Lua line number.
+        getfline = function(self, lualine)
+            local llines, lfiles = self.llines, self.lfiles
+            assert(lualine >= 1 and lualine <= #llines)
+
+            -- Get the CON line number: a simple lookup.
+            local conline = llines[lualine]
+
+            -- Find the CON file name next.
+            local confile = nil
+            for i=1,#lfiles do
+                if (lfiles[i].line > lualine) then
+                    break
+                end
+                -- Shorten the file name by stripping the directory parts.
+                confile = lfiles[i].name:match("[^/]+$")
+            end
+
+            return confile or "???", conline
+        end,
+    },
+
+    __metatable = true,
+}
+
+-- Construct Lua->CON line mapping info.  This walks the generated code and
+-- looks for our inserted comment strings, so it's kind of hackish.
+local function get_lineinfo(flatcode)
+    local curline, curfile = { 0 }, { "<none>" }  -- stacks
+    -- llines: [<Lua code line number>] = <CON code line number>
+    -- lfiles: [<sequence number>] = { line=<Lua line number>, name=<filename> }
+    local llines, lfiles = {}, {}
+
+    for i=1,#flatcode do
+        local code = flatcode[i]
+
+        local lnumstr = code:match("%-%-([0-9]+)$")
+        local begfn = lnumstr and nil or code:match("^%-%- BEGIN (.+)$")
+        local endfn = lnumstr and nil or code:match("^%-%- END (.+)$")
+
+        if (lnumstr) then
+            curline[#curline] = assert(tonumber(lnumstr))
+        elseif (begfn) then
+            curfile[#curfile+1] = begfn
+            curline[#curline+1] = 1
+            -- Begin an included file.
+            lfiles[#lfiles+1] = { line=i, name=begfn }
+        elseif (endfn) then
+            assert(endfn==curfile[#curfile])  -- assert proper nesting
+            curfile[#curfile] = nil
+            curline[#curline] = nil
+            -- End an included file, so reset the name to the includer's one.
+            lfiles[#lfiles+1] = { line=i, name=curfile[#curfile] }
+        end
+
+        llines[i] = assert(curline[#curline])
+    end
+
+    return setmetatable({ llines=llines, lfiles=lfiles }, lineinfo_mt)
+end
+
+-- <lineinfop>: Get line info?
+local function get_code_string(codetab, lineinfop)
+    local flatcode = flatten_codetab(codetab)
+    local lineinfo = lineinfop and get_lineinfo(flatcode)
+    return table.concat(flatcode, "\n"), lineinfo
 end
 
 function on.parse_begin()
@@ -2957,6 +3031,9 @@ local function handle_cmdline_arg(str)
                     g_cgopt["no"] = true
                     ok = true
                 end
+            elseif (str:sub(2)=="fdebug-lineinfo") then
+                g_cgopt["debug-lineinfo"] = true
+                ok = true
             elseif (kind=="I" and #str >= 3) then
                 -- default directory (only ONCE, not search path)
                 g_defaultDir = str:sub(3)
@@ -3020,15 +3097,19 @@ if (string.dump) then
             local io = require("io")
             local file = onlycheck and io.stdout or io.stderr
 
-            local code = get_code_string(g_curcode)
+            local code, lineinfo = get_code_string(g_curcode, g_cgopt["debug-lineinfo"])
             local func, errmsg = loadstring(code, "CON")
 
-            file:write(format("-- GENERATED CODE for \"%s\":\n", filename))
+--            file:write(format("-- GENERATED CODE for \"%s\":\n", filename))
             if (func == nil) then
-                file:write(format("-- (invalid Lua code: %s)\n", errmsg))
+                file:write(format("-- INVALID Lua CODE: %s\n", errmsg))
             end
 
-            if (not onlycheck) then
+            if (lineinfo) then
+                for i=1,#lineinfo.llines do
+                    file:write(format("%d -> %s:%d\n", i, lineinfo:getfline(i)))
+                end
+            elseif (not onlycheck) then
                 file:write(code)
                 file:write("\n")
             end
@@ -3052,6 +3133,6 @@ else
             end
         end
 
-        return get_code_string(g_curcode)
+        return get_code_string(g_curcode, true)
     end
 end
