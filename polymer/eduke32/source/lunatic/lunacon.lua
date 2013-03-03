@@ -54,7 +54,7 @@ lpeg.setmaxstack(1024);
 
 
 local Pat, Set, Range, Var = lpeg.P, lpeg.S, lpeg.R, lpeg.V
-local POS = lpeg.Cp
+local POS, Cc, Ctab = lpeg.Cp, lpeg.Cc, lpeg.Ct
 
 -- CON language definitions (among other things, all keywords pattern).
 local conl = require("con_lang")
@@ -1597,9 +1597,9 @@ local handle =
     -- readgamevar or savegamevar
     RSgamevar = function(identifier, dosave)
         -- check identifier for sanity
-        if (not identifier:match("^[A-Za-z][A-Za-z0-9_]*$")) then
-            errprintf("%s: invalid identifier name `%s' for config file persistence",
-                      g_lastkw)
+        if (not identifier:match("^[A-Za-z][A-Za-z0-9_%-]*$")) then
+            errprintf("%s: bad identifier `%s' for config file persistence",
+                      g_lastkw, identifier)
             return "_BADRSGV()"
         end
 
@@ -2207,10 +2207,10 @@ local Cif = {
 
     ifrnd = cmd(D)
         / "_con.rnd(%1)",
-    ifpdistl = cmd(D)
-        / function(val) return "_dist<"..val, "", "_con._sleepcheck(_aci,_dist)" end,
-    ifpdistg = cmd(D)
-        / function(val) return "_dist>"..val, "", "_con._sleepcheck(_aci,_dist)" end,
+    ifpdistl = cmd(D)  -- DEFER
+        / function(val) return { "_dist<"..val, nil, "_con._sleepcheck(_aci,_dist)" } end,
+    ifpdistg = cmd(D)  -- DEFER
+        / function(val) return { "_dist>"..val, nil, "_con._sleepcheck(_aci,_dist)" } end,
     ifactioncount = cmd(D)
         / ACS":get_acount()>=%1",
     ifcount = cmd(D)
@@ -2315,8 +2315,10 @@ local Cif = {
         / "false",  -- TODO_MP
     ifcanshoottarget = cmd()
         / "_con._canshoottarget(_dist,_aci)",
-    ifcanseetarget = cmd()  -- XXX: 1536 is SLEEPTIME
-        / function() return format("_con._canseetarget(%s,%s)", SPS"", PLS""), ACS".timetosleep=1536" end,
+    ifcanseetarget = cmd()  -- DEFER -- XXX: 1536 is SLEEPTIME
+        / function()
+              return { format("_con._canseetarget(%s,%s)", SPS"", PLS""), ACS".timetosleep=1536" }
+          end,
     ifcansee = cmd() * #sp1
         / format("_con._cansee(_aci,%s)", PLS""),
     ifbulletnear = cmd()
@@ -2467,7 +2469,7 @@ local function after_cmd_Cmt(subj, pos, ...)
     return true  -- don't return any captures
 end
 
--- attach the command names at the front!
+-- Attach the command names at the front!
 local function attachnames(kwtab, matchtimefunc)
     for cmdname,cmdpat in pairs(kwtab) do
         -- The match-time function capture at the end is so that every command
@@ -2598,53 +2600,54 @@ local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09"
 local t_broken_identifier = BadIdent(-((tok.number + t_good_identifier) * (sp1 + Set("[]:"))) *
                                      (alphanum + Set(BAD_ID_CHARS0)) * (alphanum + Set(BAD_ID_CHARS1))^0)
 
--- These two tables hold code to be inserted at a later point: either at
--- the end of the "if" body, or the end of the whole "if [else]" block.
--- For CON interpreter patterns like these:
---  VM_CONDITIONAL(<condition>);
---  <do_something_afterwards>
--- (Still not the same if the body returns or jumps out)
-local g_endIfCode = {}
-local g_endIfElseCode = {}
+function on.if_else_end(ifconds, ifstmt, elsestmt, ...)
+    assert(#{...}==0)
+    assert(type(ifconds)=="table" and #ifconds>=1)
 
-local function add_deferred_code(tab, lev, str)
-    if (str ~= nil) then
-        assert(type(str)=="string")
-        tab[lev] = str
-    end
-end
+    -- A condition may be a table carrying "deferred" code to add either
+    --  [1] after the 'if' or
+    --  [2] after the whole if/else block.
+    -- In CON, it's always the same code for the same kind of "deferedness",
+    -- and it's always idempotent (executing it multiple times has the same
+    -- effect as executing it once), so generate code for it only once, too.
+    local deferred = { nil, nil }
 
-local function get_deferred_code(tab, lev, code)
-    if (tab[lev]) then
-        code = code..tab[lev]
-        tab[lev] = nil
+    local ifcondstr = {}
+    for i=1,#ifconds do
+        local cond = ifconds[i]
+        local hasmore = type(cond=="table")
+
+        ifcondstr[i] = hasmore and cond[1] or cond
+        assert(type(ifcondstr[i])=="string")
+
+        if (hasmore) then
+            for i=1,2 do
+                if (deferred[i]==nil) then
+                    deferred[i] = cond[i+1]
+                end
+            end
+        end
     end
+
+    -- Construct a string of ANDed conditions
+    local conds = "(" .. table.concat(ifcondstr, ")and(") .. ")"
+
+    local code = {
+        format("if %s then", conds),
+        ifstmt,
+    }
+
+    code[#code+1] = deferred[1]
+
+    if (elsestmt~=nil) then
+        code[#code+1] = "else"
+        code[#code+1] = elsestmt
+    end
+
+    code[#code+1] = "end"
+    code[#code+1] = deferred[2]
+
     return code
-end
-
-function on.if_begin(condstr, endifstr, endifelsestr)
-    assert(type(condstr)=="string")
-
-    add_deferred_code(g_endIfCode, g_iflevel, endifstr)
-    add_deferred_code(g_endIfElseCode, g_ifelselevel, endifelsestr)
-
-    g_iflevel = g_iflevel+1
-    g_ifelselevel = g_ifelselevel+1
-
-    return format("if (%s) then", condstr)
-end
-
-function on.if_end()
-    g_iflevel = g_iflevel-1
-    local code = get_deferred_code(g_endIfCode, g_iflevel, "")
-    if (code ~= "") then
-        return code
-    end
-end
-
-function on.if_else_end()
-    g_ifelselevel = g_ifelselevel-1
-    return get_deferred_code(g_endIfElseCode, g_ifelselevel, "end ")
 end
 
 function on.while_begin(v1, v2)
@@ -2788,18 +2791,8 @@ local Grammar = Pat{
     default_block = lpeg.Ct(sp1 * Keyw("default") * (sp0*":"*sp0 + sp1) *
                             stmt_list_nosp_or_eps),  -- * "break",
 
-    optional_else = (sp1 * lpeg.C("else") * sp1 * Var("single_stmt"))^-1,
-
-    if_else_bodies = Var("single_stmt2") * (Pat("")/on.if_end) * Var("optional_else"),
-
-    if_stmt = con_if_begs/on.if_begin * sp1
-        * Var("if_else_bodies")
-        * (Pat("")/on.if_else_end),
-
-    if_stmt2 = con_if_begs/on.if_begin * sp1
-        * (-con_if_begs * Var("single_stmt") * (Pat("")/on.if_end)
-          + Var("if_else_bodies"))
-        * (Pat("")/on.if_else_end),
+    if_stmt = lpeg.Ct((con_if_begs * sp1)^1) * Var("single_stmt")
+        * (sp1 * Keyw("else") * sp1 * Var("single_stmt"))^-1 / on.if_else_end,
 
     while_stmt = Keyw("whilevarvarn") * sp1 * tok.rvar * sp1 * tok.rvar / on.while_begin
           * sp1 * Var("single_stmt") * (lpeg.Cc(nil) / on.while_end)
@@ -2807,11 +2800,10 @@ local Grammar = Pat{
           * sp1 * Var("single_stmt") * (lpeg.Cc(nil) / on.while_end),
 
     stmt_common = Keyw("{") * sp1 * "}"  -- space separation of commands in CON is for a reason!
-        + Keyw("{") * sp1 * stmt_list * sp1 * "}"
-        + con_inner_command + Var("switch_stmt") + Var("while_stmt"),
+        + Keyw("{") * sp1 * lpeg.Ct(stmt_list) * sp1 * "}"
+        + con_inner_command + Var("switch_stmt") + lpeg.Ct(Var("while_stmt")),
 
     single_stmt = Stmt( lone_else^-1 * (Var("stmt_common") + Var("if_stmt")) ),
-    single_stmt2 = Stmt( lone_else^-1 * (Var("stmt_common") + Var("if_stmt2")) ),
 
     -- a non-empty statement/command list
     stmt_list = Var("single_stmt") * (sp1 * Var("single_stmt"))^0,
