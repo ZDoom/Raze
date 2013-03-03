@@ -98,8 +98,8 @@ local g_defaultDir = nil
 local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true,
                  ["number-conversion"]=true, ["system-gamevar"]=true, }
 
--- Code generation options.
-local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, }
+-- Code generation and output options.
+local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil, }
 
 -- How many 'if' statements are following immediately each other,
 -- needed to cope with CONs dangling-else resolution
@@ -3031,6 +3031,11 @@ local function handle_cmdline_arg(str)
                     g_cgopt["no"] = true
                     ok = true
                 end
+            elseif (str:sub(2,8)=="fgendir") then
+                if (#str >= 10 and str:sub(9,9)=="=") then
+                    g_cgopt["gendir"] = str:sub(10)
+                    ok = true
+                end
             elseif (str:sub(2)=="fdebug-lineinfo") then
                 g_cgopt["debug-lineinfo"] = true
                 ok = true
@@ -3079,7 +3084,17 @@ if (string.dump) then
     local function compile(filename)
         reset_all()
 
-        g_directory = filename:match("(.*/)") or ""
+        -- Construct file name for the output code: (...)/xxx/qwe.con -->
+        -- xxx_qwe.con, so that common root CON file names like EDUKE.CON will
+        -- result in distinct file names for different mods. From that name,
+        -- strip the extension.
+        local codedir = g_cgopt["gendir"]
+        local codefn = codedir and
+            codedir.."/"..filename:match("[^/]+/[^/]+$"):gsub('/','_')..".lua"
+
+        -- Get the directory part...
+        g_directory = filename:match(".*/") or ""
+        -- ...and the file name alone.
         filename = filename:sub(#g_directory+1, -1)
 
         -- NOTE: xpcall isn't useful here since the traceback won't give us
@@ -3094,23 +3109,27 @@ if (string.dump) then
 
         if (not (g_cgopt["no"]==true)) then
             local onlycheck = (g_cgopt["no"] == "onlycheck")
-            local file = onlycheck and io.stdout or io.stderr
+            -- The file for the output messages:
+            local msgfile = onlycheck and io.stdout or io.stderr
 
             local code, lineinfo = get_code_string(g_curcode, g_cgopt["debug-lineinfo"])
             local func, errmsg = loadstring(code, "CON")
 
---            file:write(format("-- GENERATED CODE for \"%s\":\n", filename))
+--            msgfile:write(format("-- GENERATED CODE for \"%s\":\n", filename))
             if (func == nil) then
-                file:write(format("-- INVALID Lua CODE: %s\n", errmsg))
+                msgfile:write(format("-- INVALID Lua CODE: %s\n", errmsg))
             end
 
             if (lineinfo) then
                 for i=1,#lineinfo.llines do
-                    file:write(format("%d -> %s:%d\n", i, lineinfo:getfline(i)))
+                    msgfile:write(format("%d -> %s:%d\n", i, lineinfo:getfline(i)))
                 end
             elseif (not onlycheck) then
-                file:write(code)
-                file:write("\n")
+                -- The file for the generated code:
+                local codefile = codefn and assert(io.open(codefn, "w+")) or msgfile
+
+                codefile:write(code)
+                codefile:write("\n")
             end
         end
     end
