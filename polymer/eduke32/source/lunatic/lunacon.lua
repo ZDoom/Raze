@@ -470,7 +470,7 @@ local function reset_labels()
         -- NOTE: these are read-only gamevars in C-CON
         CLIPMASK0 = 65536+1,  -- blocking
         CLIPMASK1 = (256*65536)+64,  -- hittable
-        -- TODO...?
+        -- TODO_MP
         COOP = 0,
         MULTIMODE = 0,
         numplayers = 1,
@@ -1045,7 +1045,7 @@ function Cmd.gamevar(identifier, initval, flags)
 
     -- TODO: Write gamevar system on the Lunatic side and hook it up.
     -- TODO: per-player gamevars
-    if (flags==GVFLAG.PERACTOR) then
+    if (bit.band(flags, GVFLAG.PERX_MASK)==GVFLAG.PERACTOR) then
         addcodef("%s=_con.peractorvar(%d)", gv.name, initval)
     else
         addcodef("%s=%d", gv.name, initval)

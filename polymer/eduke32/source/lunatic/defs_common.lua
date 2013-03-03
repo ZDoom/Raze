@@ -860,22 +860,19 @@ end
 -- TODO: should these rather be one function, and the specific kind of updating
 -- controlled by an argument?
 function updatesector(pos, sectnum)
-    local sect = ffi.new("int16_t [1]")
-    sect[0] = sectnum
+    local sect = ffi.new("int16_t [1]", sectnum)
     ffiC.updatesector(pos.x, pos.y, sect)
     return sect[0]
 end
 
 function updatesectorbreadth(pos, sectnum)
-    local sect = ffi.new("int16_t [1]")
-    sect[0] = sectnum
+    local sect = ffi.new("int16_t [1]", sectnum)
     ffiC.updatesectorbreadth(pos.x, pos.y, sect)
     return sect[0]
 end
 
 function updatesectorz(pos, sectnum)
-    local sect = ffi.new("int16_t [1]")
-    sect[0] = sectnum
+    local sect = ffi.new("int16_t [1]", sectnum)
     ffiC.updatesectorz(pos.x, pos.y, pos.z, sect)
     return sect[0]
 end

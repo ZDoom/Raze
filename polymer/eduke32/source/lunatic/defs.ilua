@@ -956,10 +956,13 @@ local player_mt = {
             ffi.cast(player_ptr_ct, p).ftq = ftq
         end,
 
+        set_cursectnum = function(p, sectnum)
+            check_sector_idx(sectnum)
+            ffi.cast(player_ptr_ct, p).cursectnum = sectnum
+        end,
+
         set_customexitsound = function(p, soundnum)
-            if (soundnum >= con_lang.MAXSOUNDS+0ULL) then
-                error("Invalid sound number "..soundnum, 2)
-            end
+            check_sound_idx(soundnum)
             ffi.cast(player_ptr_ct, p).customexitsound = soundnum
         end,
 

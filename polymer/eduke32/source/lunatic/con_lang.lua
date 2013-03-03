@@ -439,6 +439,8 @@ ActorLabels.sectnum[2] = "sprite.changesect(%s,%%s)"
 ActorLabels.statnum[2] = "sprite.changestat(%s,%%s)"
 
 local PL = function(memb) return "player[%s]"..memb end
+-- Access to DukePlayer_t's bool members: they must be read as numbers.
+local PLBOOL = function(memb) return { "("..PL(memb).." and 1 or 0)", PL(memb) } end
 
 local PlayerLabels = {
     posx = PL".pos.x",
@@ -491,7 +493,7 @@ local PlayerLabels = {
     oang = PL".oang",
     angvel = PL".angvel",
 
-    cursectnum = PL".cursectnum",
+    cursectnum = { PL".cursectnum", PL":set_cursectnum(%%s)" },
 
     look_ang = PL".look_ang",
     last_extra = PL".last_extra",
@@ -566,7 +568,7 @@ local PlayerLabels = {
     last_quick_kick = PL".last_quick_kick",
 
     return_to_center = PL".return_to_center",
-    reloading = PL".reloading",
+    reloading = PLBOOL".reloading",
     weapreccnt = { PL".weapreccnt" },
 
     aim_mode = PL".aim_mode",
@@ -581,29 +583,29 @@ local PlayerLabels = {
     kickback_pic = PL".kickback_pic",
 
     gm = PL".gm",
-    on_warping_sector = PL".on_warping_sector",
+    on_warping_sector = PLBOOL".on_warping_sector",
     footprintcount = PL".footprintcount",
     hurt_delay = PL".hurt_delay",
 
-    hbomb_on = PL".hbomb_on",
-    jumping_toggle = PL".jumping_toggle",
-    rapid_fire_hold = PL".rapid_fire_hold",
-    on_ground = PL".on_ground",
+    hbomb_on = PLBOOL".hbomb_on",
+    jumping_toggle = PLBOOL".jumping_toggle",
+    rapid_fire_hold = PLBOOL".rapid_fire_hold",
+    on_ground = PLBOOL".on_ground",
 
     inven_icon = PL".inven_icon",
     buttonpalette = PL".buttonpalette",
-    over_shoulder_on = PL".over_shoulder_on",
+    over_shoulder_on = PLBOOL".over_shoulder_on",
     show_empty_weapon = PL".show_empty_weapon",
 
-    jetpack_on = PL".jetpack_on",
-    spritebridge = PL".spritebridge",
+    jetpack_on = PLBOOL".jetpack_on",
+    spritebridge = PLBOOL".spritebridge",
     lastrandomspot = PL".lastrandomspot",
 
-    scuba_on = PL".scuba_on",
+    scuba_on = PLBOOL".scuba_on",
     footprintpal = PL".footprintpal",
-    heat_on = PL".heat_on",
+    heat_on = PLBOOL".heat_on",
     invdisptime = PL".invdisptime",
-    holster_weapon = PL".holster_weapon",
+    holster_weapon = PLBOOL".holster_weapon",
     falling_counter = PL".falling_counter",
     footprintshade = PL".footprintshade",
 
@@ -615,7 +617,7 @@ local PlayerLabels = {
     hard_landing = PL".hard_landing",
     fist_incs = PL".fist_incs",
 
-    toggle_key_flag = PL".toggle_key_flag",
+    toggle_key_flag = PLBOOL".toggle_key_flag",
     knuckle_incs = PL".knuckle_incs",
     knee_incs = PL".knee_incs",
     access_incs = PL".access_incs",

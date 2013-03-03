@@ -106,7 +106,8 @@ end
 function rotate(pos, pivot, ang)
     local p = geom.tovec3(pos)-pivot
     local c, s = cosb(ang), sinb(ang)
-    p.x = pivot.x + (c*p.x - s*p.y)
-    p.y = pivot.y + (c*p.y + s*p.x)
+    local x, y = p.x, p.y
+    p.x = pivot.x + (c*x - s*y)
+    p.y = pivot.y + (c*y + s*x)
     return p
 end

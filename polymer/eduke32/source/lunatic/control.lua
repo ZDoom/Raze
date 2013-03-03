@@ -1568,7 +1568,9 @@ function _startlevel(volume, level)
     bcheck.level_idx(level)
 
     ffiC.ud.m_volume_number = volume
+    ffiC.ud.volume_number = volume
     ffiC.ud.m_level_number = level
+    ffiC.ud.level_number = level
 
     ffiC.ud.display_bonus_screen = 0
 
