@@ -3064,7 +3064,9 @@ end
 
 if (string.dump) then
     -- running stand-alone
+    local io = require("io")
 
+    -- Handle command-line arguments and remove those that have been processed.
     local i = 1
     while (arg[i]) do
         if (handle_cmdline_arg(arg[i])) then
@@ -3074,9 +3076,7 @@ if (string.dump) then
         end
     end
 
-    for argi=1,#arg do
-        local filename = arg[argi]
-
+    local function compile(filename)
         reset_all()
 
         g_directory = filename:match("(.*/)") or ""
@@ -3094,7 +3094,6 @@ if (string.dump) then
 
         if (not (g_cgopt["no"]==true)) then
             local onlycheck = (g_cgopt["no"] == "onlycheck")
-            local io = require("io")
             local file = onlycheck and io.stdout or io.stderr
 
             local code, lineinfo = get_code_string(g_curcode, g_cgopt["debug-lineinfo"])
@@ -3113,6 +3112,28 @@ if (string.dump) then
                 file:write(code)
                 file:write("\n")
             end
+        end
+    end
+
+    local havelists = false
+
+    for argi=1,#arg do
+        local filename = arg[argi]
+
+        if (filename=="@") then
+            -- Start file list processing from the next positional argument on.
+            havelists = true
+        elseif (havelists) then
+            printf("\n------ Handling list of CON files \"%s\"", filename)
+            for fn in io.lines(filename) do
+                -- A hash at the beginning of a line denotes a comment, an
+                -- empty line is skipped.
+                if (#fn>0 and not fn:match("^#")) then
+                    compile(fn)
+                end
+            end
+        else
+            compile(filename)
         end
     end
 else
