@@ -1003,10 +1003,11 @@ int32_t G_StartTrack(int32_t level)
     {
         int32_t musicIndex = MAXLEVELS*ud.volume_number + level;
 
-        if (MapInfo[g_musicIndex].musicfn != NULL)
+        if (MapInfo[musicIndex].musicfn != NULL)
         {
+            // Only set g_musicIndex on success.
             g_musicIndex = musicIndex;
-            S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
+            S_PlayMusic(MapInfo[musicIndex].musicfn, g_musicIndex);
 
             return 0;
         }
