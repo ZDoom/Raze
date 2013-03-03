@@ -794,6 +794,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                 switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPE_MASK)
                 {
                 case 0:
+                    return ((aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
                 case GAMEARRAY_OFINT:
                     return (((int32_t *)aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
                 case GAMEARRAY_OFSHORT:
