@@ -3070,6 +3070,8 @@ void domost(float x0, float y0, float x1, float y1)
     float spx[4], /*spy[4],*/ cy[2], cv[2];
     int32_t i, j, k, z, ni, vcnt = 0, scnt, newi, dir, spt[4];
 
+    alpha = 0.f;
+
     if (x0 < x1)
     {
         dir = 1; //clip dmost (floor)
@@ -3456,6 +3458,8 @@ static void polymost_drawalls(int32_t bunch)
     int16_t dapskybits;
     static const int16_t zeropskyoff[MAXPSKYTILES] = { 0 };
     const int16_t *dapskyoff;
+
+    alpha = 0.f;
 
     sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
 
@@ -5736,6 +5740,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             z = zz;
         }
         while (z);
+
+        alpha = 0.f;
 #ifdef USE_OPENGL
         if (!nofog) bglDisable(GL_FOG);
         pow2xsplit = 0; drawpoly(px,py,n,method);
