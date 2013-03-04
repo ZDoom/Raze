@@ -2085,7 +2085,10 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
 //    n must be <= 8 (assume clipping can double number of vertices)
 //method: 0:solid, 1:masked(255 is transparent), 2:transluscent #1, 3:transluscent #2
 //    +4 means it's a sprite, so wraparound isn't needed
+
+// drawpoly's hack globals
 static int32_t pow2xsplit = 0, skyclamphack = 0;
+static float alpha = 0.f;
 
 void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 {
@@ -2383,6 +2386,10 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             case 3:
                 pc[3] = 0.33f; break;
             }
+
+            // spriteext full alpha control
+            pc[3] *= 1.0f - alpha;
+
             // tinting happens only to hightile textures, and only if the texture we're
             // rendering isn't for the same palette as what we asked for
             if (!(hictinting[globalpal].f&4))
@@ -3388,6 +3395,7 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
     calc_and_apply_fog(global_cf_shade, sec->visibility, global_cf_pal);
 
     pow2xsplit = 0;
+    alpha = 0.f;
     if (have_floor)
         domost(x0,cf_y0,x1,cf_y1); //flor
     else
@@ -4807,6 +4815,9 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     }
     if (n < 3) return;
 
+    pow2xsplit = 0;
+    skyclamphack = 0;
+    alpha = 0.f;
     drawpoly(dpx,dpy,n,method);
 }
 
@@ -4893,6 +4904,8 @@ void polymost_drawsprite(int32_t snum)
 
     method = 1+4;
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
+
+    alpha = spriteext[tspr->owner].alpha;
 
 #ifdef USE_OPENGL
     calc_and_apply_fog(globalshade, sector[tspr->sectnum].visibility, sector[tspr->sectnum].floorpal);
