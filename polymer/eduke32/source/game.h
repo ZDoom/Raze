@@ -58,7 +58,8 @@ enum LogoFlags_t {
     LOGO_THREEDEE          = 0x00000040,
     LOGO_PLUTOPAKSPRITE    = 0x00000080,
     LOGO_SHAREWARESCREENS  = 0x00000100,
-    LOGO_TENSCREEN         = 0x00000200
+    LOGO_TENSCREEN         = 0x00000200,
+    LOGO_STOPANIMSOUNDS    = 0x00000400
 };
 
 typedef enum basepal_ {
