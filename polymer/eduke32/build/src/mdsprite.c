@@ -2182,7 +2182,8 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     }
 
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66f; else pc[3] = 0.33f; }
-    else pc[3] = 1.0;
+    else pc[3] = 1.0f;
+    pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
     if (m->usesalpha) //Sprites with alpha in texture
     {
         //      bglEnable(GL_BLEND);// bglBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -2198,7 +2199,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     }
     else
     {
-        if (tspr->cstat&2) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
+        if ((tspr->cstat&2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     }
     bglColor4f(pc[0],pc[1],pc[2],pc[3]);
     //if (m->head.flags == 1337)
@@ -3349,8 +3350,9 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
     pc[1] *= (float)hictinting[globalpal].g / 255.0;
     pc[2] *= (float)hictinting[globalpal].b / 255.0;
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66f; else pc[3] = 0.33f; }
-    else pc[3] = 1.0;
-    if (tspr->cstat&2) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
+    else pc[3] = 1.0f;
+    pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
+    if ((tspr->cstat&2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     //------------
 
     //transform to Build coords
