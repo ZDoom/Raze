@@ -77,14 +77,14 @@ endif
 EBACKTRACEDLL_TARGET:=$(EBACKTRACEDLL)
 
 ifeq ($(PLATFORM),WINDOWS)
-    OBJ=obj_win
-    EOBJ=eobj_win
+    OBJ=$(SRC)/obj_win
+    EOBJ=$(SRC)/eobj_win
 else
     ifeq ($(SUBPLATFORM),LINUX)
         LIBS+= -lrt
     endif
-    OBJ=obj
-    EOBJ=eobj
+    OBJ=$(SRC)/obj
+    EOBJ=$(SRC)/eobj
 endif
 
 JMACTOBJ=$(OBJ)/file_lib.$o \
@@ -220,7 +220,7 @@ ifeq ($(PLATFORM),DARWIN)
                 -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
 
         LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lm \
-                -Wl,-framework,SDL -Wl,-framework,SDL_mixer Apple/lib/libSDLmain.a \
+                -Wl,-framework,SDL -Wl,-framework,SDL_mixer platform/Apple/lib/libSDLmain.a \
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
                 -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
@@ -264,7 +264,7 @@ endif
 ifeq ($(RENDERTYPE),SDL)
     ifeq ($(PLATFORM),WINDOWS)
         OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
-        LIBS+= Windows/lib$(WINLIB)/SDL_mixer.lib
+        LIBS+= platform/Windows/lib$(WINLIB)/SDL_mixer.lib
         LIBDIRS+= -L$(SDLROOT)/lib
     else
         ifneq ($(PLATFORM),DARWIN)
@@ -352,7 +352,7 @@ ifneq ($(STRIP),)
 	$(STRIP) $(EDUKE32)
 endif
 ifeq ($(PLATFORM),DARWIN)
-	cp -RPf "Apple/bundles/EDuke32.app" "./"
+	cp -RPf "platform/Apple/bundles/EDuke32.app" "./"
 	mkdir -p "EDuke32.app/Contents/MacOS"
 	cp -f "$(EDUKE32)" "EDuke32.app/Contents/MacOS/"
 endif
@@ -364,7 +364,7 @@ ifneq ($(STRIP),)
 	$(STRIP) $(MAPSTER32)
 endif
 ifeq ($(PLATFORM),DARWIN)
-	cp -RPf "Apple/bundles/Mapster32.app" "./"
+	cp -RPf "platform/Apple/bundles/Mapster32.app" "./"
 	mkdir -p "Mapster32.app/Contents/MacOS"
 	cp -f "$(MAPSTER32)" "Mapster32.app/Contents/MacOS/"
 endif
@@ -405,7 +405,7 @@ endif
 
 # RULES
 
-$(EBACKTRACEDLL): Windows/src/backtrace.c
+$(EBACKTRACEDLL): platform/Windows/src/backtrace.c
 	$(COMPILE_STATUS)
 	if $(CC) $(OURCONLYFLAGS) -O2 -shared -Wall -Wextra -I$(EINC) -o $@ $^ -lbfd -liberty -limagehlp; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
@@ -467,7 +467,7 @@ $(SRC)/lunatic/mapster32.def: $(SRC)/lunatic/dynsymlist_m32
 
 ####
 
-$(OBJ)/%.$o: Apple/%.m
+$(OBJ)/%.$o: platform/Apple/%.m
 	$(COMPILE_STATUS)
 	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 

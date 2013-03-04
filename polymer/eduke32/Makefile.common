@@ -398,14 +398,14 @@ endif
 
 # Set up target-specific headers and libs that work across all Makefiles
 ifeq ($(PLATFORM),WINDOWS)
-    BASELIBDIRS+= -L$(abspath $(dir $(MAKEFILE_COMMON))Windows/lib$(WINLIB))
-    BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))Windows/include)
+    BASELIBDIRS+= -L$(abspath $(dir $(MAKEFILE_COMMON))platform/Windows/lib$(WINLIB))
+    BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))platform/Windows/include)
 endif
 ifeq ($(PLATFORM),DARWIN)
     # include port and brew
-    BASELIBDIRS+= -L$(abspath $(dir $(MAKEFILE_COMMON))Apple/lib) \
+    BASELIBDIRS+= -L$(abspath $(dir $(MAKEFILE_COMMON))platform/Apple/lib) \
         -L/opt/local/lib -L/usr/local/lib
-    BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))Apple/include) \
+    BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))platform/Apple/include) \
         -I/opt/local/include -I/sw/include -I/usr/local/include
 endif
 

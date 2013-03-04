@@ -1,10 +1,10 @@
 # EDuke32 Makefile for Microsoft NMake
 CPLUSPLUS=1
 SRC=source
-OBJ=obj_win
+OBJ=$(SRC)\obj_win
 EROOT=build
 EINC=$(EROOT)\include
-EOBJ=eobj_win
+EOBJ=$(SRC)\eobj_win
 INC=$(SRC)
 RSRC=rsrc
 o=obj
