@@ -823,6 +823,7 @@ static void Proj_HandleKnee(hitdata_t *hit, int32_t i, int32_t p, int32_t atwith
     }
 }
 
+#define MinibossScale(s) (((s)*sprite[i].yrepeat)/80)
 int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 {
     int16_t l, sa, j, k=-1;
@@ -1322,7 +1323,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 if (PN == BOSS2)
                 {
                     l = sprite[j].xvel;
-                    sprite[j].xvel = 1024;
+                    sprite[j].xvel = MinibossScale(1024);
                     A_SetSprite(j,CLIPMASK0);
                     sprite[j].xvel = l;
                     sprite[j].ang += 128-(krand()&255);
@@ -1363,11 +1364,11 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 j = A_FindPlayer(s,&x);
                 sa = getangle(g_player[j].ps->opos.x-srcvect.x,g_player[j].ps->opos.y-srcvect.y);
                 if (PN == BOSS3)
-                    srcvect.z -= (32<<8);
+                    srcvect.z -= MinibossScale(32<<8);
                 else if (PN == BOSS2)
                 {
                     vel += 128;
-                    srcvect.z += 24<<8;
+                    srcvect.z += MinibossScale(24<<8);
                 }
 
                 l = safeldist(g_player[j].ps->i, s);
@@ -1406,24 +1407,24 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 {
                     if (krand()&1)
                     {
-                        sprite[j].x -= sintable[sa&2047]>>6;
-                        sprite[j].y -= sintable[(sa+1024+512)&2047]>>6;
-                        sprite[j].ang -= 8;
+                        sprite[j].x -= MinibossScale(sintable[sa&2047]>>6);
+                        sprite[j].y -= MinibossScale(sintable[(sa+1024+512)&2047]>>6);
+                        sprite[j].ang -= MinibossScale(8);
                     }
                     else
                     {
-                        sprite[j].x += sintable[sa&2047]>>6;
-                        sprite[j].y += sintable[(sa+1024+512)&2047]>>6;
-                        sprite[j].ang += 4;
+                        sprite[j].x += MinibossScale(sintable[sa&2047]>>6);
+                        sprite[j].y += MinibossScale(sintable[(sa+1024+512)&2047]>>6);
+                        sprite[j].ang += MinibossScale(4);
                     }
-                    sprite[j].xrepeat = 42;
-                    sprite[j].yrepeat = 42;
+                    sprite[j].xrepeat = MinibossScale(42);
+                    sprite[j].yrepeat = MinibossScale(42);
                 }
                 else if (PN == BOSS2)
                 {
-                    sprite[j].x -= sintable[sa&2047]/56;
-                    sprite[j].y -= sintable[(sa+1024+512)&2047]/56;
-                    sprite[j].ang -= 8+(krand()&255)-128;
+                    sprite[j].x -= MinibossScale(sintable[sa&2047]/56);
+                    sprite[j].y -= MinibossScale(sintable[(sa+1024+512)&2047]/56);
+                    sprite[j].ang -= MinibossScale(8)+(krand()&255)-128;
                     sprite[j].xrepeat = 24;
                     sprite[j].yrepeat = 24;
                 }

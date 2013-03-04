@@ -8122,21 +8122,22 @@ void A_PlayAlertSound(int32_t i)
             A_PlaySound(OCTA_RECOG,i);
             break;
         case BOSS1__STATIC:
+        case BOSS1STAYPUT__STATIC:
             S_PlaySound(BOS1_RECOG);
             break;
         case BOSS2__STATIC:
-            if (sprite[i].pal == 1)
+            if (sprite[i].pal != 0)
                 S_PlaySound(BOS2_RECOG);
             else S_PlaySound(WHIPYOURASS);
             break;
         case BOSS3__STATIC:
-            if (sprite[i].pal == 1)
+            if (sprite[i].pal != 0)
                 S_PlaySound(BOS3_RECOG);
             else S_PlaySound(RIPHEADNECK);
             break;
         case BOSS4__STATIC:
         case BOSS4STAYPUT__STATIC:
-            if (sprite[i].pal == 1)
+            if (sprite[i].pal != 0)
                 S_PlaySound(BOS4_RECOG);
             S_PlaySound(BOSS4_FIRSTSEE);
             break;
