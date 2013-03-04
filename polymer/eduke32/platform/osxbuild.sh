@@ -2,6 +2,8 @@
 
 # build debug/release x86/x86_64/ppc versions of mapster32 and eduke32 on OS X
 
+cd ..
+
 # Variable presets:
 buildppc=1
 build86=1
