@@ -72,6 +72,7 @@ s_buildRev;
 g_sizes_of_what;
 g_sizes_of;
 g_elCallDepth;
+g_elEventRETURN;
 g_modDir;
 
 kopen4loadfrommod;
@@ -131,6 +132,7 @@ luaJIT_BC_bcarray;
 luaJIT_BC_bcheck;
 luaJIT_BC_xmath;
 luaJIT_BC_defs;
+luaJIT_BC_v;
 
 rand_jkiss_u32;
 rand_jkiss_dbl;

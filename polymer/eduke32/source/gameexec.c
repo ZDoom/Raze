@@ -5172,7 +5172,6 @@ void A_LoadActor(int32_t iActor)
 void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 {
 #ifdef LUNATIC
-    double t;
     int32_t killit=0;
 #endif
     vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
@@ -5235,13 +5234,19 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     }
 
 #ifdef LUNATIC
-    t = gethitickms();
+    {
+        double t = gethitickms();
+        const int32_t picnum = vm.g_sp->picnum;
 
-    if (L_IsInitialized(&g_ElState) && El_HaveActor(vm.g_sp->picnum))
-        killit = (El_CallActor(&g_ElState, vm.g_sp->picnum, iActor, iPlayer, lDist)==1);
+        if (L_IsInitialized(&g_ElState) && El_HaveActor(picnum))
+            killit = (El_CallActor(&g_ElState, picnum, iActor, iPlayer, lDist)==1);
 
-    g_actorTotalMs[vm.g_sp->picnum] += gethitickms()-t;
-    g_actorCalls[vm.g_sp->picnum]++;
+        t = gethitickms()-t;
+        g_actorTotalMs[picnum] += t;
+        g_actorMinMs[picnum] = min(g_actorMinMs[picnum], t);
+        g_actorMaxMs[picnum] = max(g_actorMaxMs[picnum], t);
+        g_actorCalls[picnum]++;
+    }
 #else
     insptr = 4 + (g_tile[vm.g_sp->picnum].execPtr);
     VM_Execute(1);

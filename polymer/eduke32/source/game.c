@@ -1182,6 +1182,8 @@ static int32_t G_GetMorale(int32_t p_i, int32_t snum)
 #if !defined LUNATIC
     return Gv_GetVarByLabel("PLR_MORALE",-1, p_i, snum);
 #else
+    UNREFERENCED_PARAMETER(p_i);
+    UNREFERENCED_PARAMETER(snum);
     return -1;
 #endif
 }

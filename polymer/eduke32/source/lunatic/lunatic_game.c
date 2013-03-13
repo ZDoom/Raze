@@ -28,7 +28,7 @@ int32_t g_elEventRETURN;
 
 // for timing events and actors
 uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
-double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES];
+double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
 
 // Used as Lua registry key to the tweak_traceback_msg() function, set to 1 if
 // such a function has been registered.
@@ -100,12 +100,14 @@ void El_PrintTimes(void)
         }
 
     OSD_Printf(" },\n\n {\n");
-    OSD_Printf("  -- actor times, [tile]={ total calls, total time [ms], mean time/call [us] }\n");
+    OSD_Printf("  -- actor times, [tile]={ total calls, total time [ms], {min,mean,max} time/call [us] }\n");
     for (i=0; i<MAXTILES; i++)
         if (g_actorCalls[i])
-            OSD_Printf("  [%5d]={ %8d, %9.3f, %9.3f },\n",
+            OSD_Printf("  [%5d]={ %8d, %9.3f, %9.3f, %9.3f, %9.3f },\n",
                        i, g_actorCalls[i], g_actorTotalMs[i],
-                       1000*g_actorTotalMs[i]/g_actorCalls[i]);
+                       1000*g_actorMinMs[i],
+                       1000*g_actorTotalMs[i]/g_actorCalls[i],
+                       1000*g_actorMaxMs[i]);
     OSD_Printf(" },\n}\n");
 }
 
@@ -372,6 +374,11 @@ static void El_StateSetup(lua_State *L)
 // 0: success, <0: failure
 int32_t El_CreateState(L_State *estate, const char *name)
 {
+    int32_t i;
+
+    for (i=0; i<MAXTILES; i++)
+        g_actorMinMs[i] = 1e308;
+
     L_ErrorFunc = El_OnError;
     L_OutOfMemFunc = El_OnOutOfMem;
 
@@ -440,9 +447,9 @@ static int32_t call_regd_function3(lua_State *L, void *keyaddr,
                                    int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
     int32_t i, haveerr;
-
+#if !defined NDEBUG
     int32_t top = lua_gettop(L);
-
+#endif
     lua_pushcfunction(L, &our_traceback_CF);
 
     // get the Lua function from the registry
