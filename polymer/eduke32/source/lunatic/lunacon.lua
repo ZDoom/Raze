@@ -161,7 +161,14 @@ local function new_initial_codetab()
         -- switch function table, indexed by global switch sequence number:
         "local _SW = {};",
         -- CON "states" (subroutines), gamevars and gamearrays (see mangle_name())
-        "local _F,_V,_A={},{},{};"
+        "local _F,_V,_A={},{},{};",
+
+        -- Static ivec3s so that no allocations need to be made.
+        "local _IVEC = { _geom.ivec3(), _geom.ivec3() }",
+        [[local function _IV(num, x, y, z)
+              local v=_IVEC[num]; v.x=x; v.y=y; v.z=z; return v;
+          end
+        ]],
            }
 end
 
@@ -926,9 +933,14 @@ function Cmd.definesound(sndnum, fn, ...)
 end
 
 function Cmd.music(volnum, ...)
-    if (not (volnum >= 0 and volnum < conl.MAXVOLUMES+1)) then
-        -- NOTE: MAXVOLUMES is OK, since it's MapInfo[(MAXVOLUMES+1)*MAXLEVELS]
-        errprintf("volume number is negative or exceeds MAXVOLUMES=%d", conl.MAXVOLUMES)
+    if (volnum==0) then
+        warnprintf("`music' for volume 0 not yet implemented")
+        return
+    end
+
+    if (not (volnum >= 1 and volnum <= conl.MAXVOLUMES)) then
+        -- NOTE: Don't allow MAXVOLUMES+1 for now.
+        errprintf("volume number must be between 1 and MAXVOLUMES=%d", conl.MAXVOLUMES)
         return
     end
 
@@ -944,7 +956,7 @@ function Cmd.music(volnum, ...)
     if (ffi) then
         for i=1,#filenames do
             assert(type(filenames[i])=="string")
-            ffiC.C_DefineMusic(volnum, i-1, "/"..filenames[i])
+            ffiC.C_DefineMusic(volnum-1, i-1, "/"..filenames[i])
         end
     end
 
@@ -2031,7 +2043,7 @@ local Cinner = {
     addweaponvar = cmd(R,R)  -- NLCF
         / handle.addweapon,
     cansee = cmd(R,R,R,R,R,R,R,R,W)
-        / "%9=cansee(_geom.ivec3(%1,%2,%3),%4, _geom.ivec3(%5,%6,%7),%8) and 1 or 0",
+        / "%9=cansee(_IV(1,%1,%2,%3),%4, _IV(2,%5,%6,%7),%8) and 1 or 0",
     canseespr = cmd(R,R,W)
         / "%3=_con._canseespr(%1,%2)",
     changespritesect = cmd(R,R)
@@ -2175,11 +2187,11 @@ local Cinner = {
     ssp = cmd(R,R)
         / handle.NYI,
     setsprite = cmd(R,R,R,R)
-        / "sprite[%1]:setpos(_geom.ivec3(%1,%2,%3))",
+        / "sprite[%1]:setpos(_IV(1,%2,%3,%4))",
     updatesector = cmd(R,R,W)
-        / format("%%3=updatesector(_geom.ivec3(%%1,%%2),%s)", SPS".sectnum"),
+        / format("%%3=updatesector(_IV(1,%%1,%%2,0),%s)", SPS".sectnum"),
     updatesectorz = cmd(R,R,R,W)
-        / format("%%4=updatesectorz(_geom.ivec3(%%1,%%2,%%3),%s)", SPS".sectnum"),
+        / format("%%4=updatesectorz(_IV(1,%%1,%%2,%%3),%s)", SPS".sectnum"),
 
     getactorangle = cmd(W)
         / ("%1="..SPS".ang"),
@@ -2193,9 +2205,9 @@ local Cinner = {
         / "%1=_con._angtotarget(_aci)",
 
     getceilzofslope = cmd(R,R,R,W)
-        / "%4=sector[%1]:ceilingzat(_geom.ivec3(%2,%3))",
+        / "%4=sector[%1]:ceilingzat(_IV(1,%2,%3,0))",
     getflorzofslope = cmd(R,R,R,W)
-        / "%4=sector[%1]:floorzat(_geom.ivec3(%2,%3))",
+        / "%4=sector[%1]:floorzat(_IV(1,%2,%3,0))",
     getcurraddress = cmd(W)
         / handle.NYI,  -- will never be
     getticks = cmd(W)

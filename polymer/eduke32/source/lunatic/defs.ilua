@@ -1486,11 +1486,11 @@ do
 
     local lineinfo
     concode, lineinfo = lunacon.compile(confn)
-    assert(lineinfo)
 
     if (concode == nil) then
         error("Failure compiling CON code, exiting.", 0)
     end
+    assert(lineinfo)
 
     -- Translate one Lua line number to a CON file name + line number
     local function transline(lnum)
@@ -1735,7 +1735,7 @@ setfenv(0, _G)
 if (concode) then
     local confunc, conerrmsg = loadstring(concode, "CON")
     if (confunc == nil) then
-        error("Failure loading translated CON code: "..conerrmsg)
+        error("Failure loading translated CON code: "..conerrmsg, 0)
     end
     confunc()
 end

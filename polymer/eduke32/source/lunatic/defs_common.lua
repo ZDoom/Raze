@@ -859,22 +859,24 @@ end
 
 -- TODO: should these rather be one function, and the specific kind of updating
 -- controlled by an argument?
+local us_retsect = ffi.new("int16_t [1]")
+
 function updatesector(pos, sectnum)
-    local sect = ffi.new("int16_t [1]", sectnum)
-    ffiC.updatesector(pos.x, pos.y, sect)
-    return sect[0]
+    us_retsect[0] = sectnum
+    ffiC.updatesector(pos.x, pos.y, us_retsect)
+    return us_retsect[0]
 end
 
 function updatesectorbreadth(pos, sectnum)
-    local sect = ffi.new("int16_t [1]", sectnum)
-    ffiC.updatesectorbreadth(pos.x, pos.y, sect)
-    return sect[0]
+    us_retsect[0] = sectnum
+    ffiC.updatesectorbreadth(pos.x, pos.y, us_retsect)
+    return us_retsect[0]
 end
 
 function updatesectorz(pos, sectnum)
-    local sect = ffi.new("int16_t [1]", sectnum)
-    ffiC.updatesectorz(pos.x, pos.y, pos.z, sect)
-    return sect[0]
+    us_retsect[0] = sectnum
+    ffiC.updatesectorz(pos.x, pos.y, pos.z, us_retsect)
+    return us_retsect[0]
 end
 
 function printf(fmt, ...)

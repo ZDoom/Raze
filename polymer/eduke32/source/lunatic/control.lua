@@ -1220,6 +1220,9 @@ function _canseespr(s1, s2)
     return cansee(sprite[s1], sprite[s1].sectnum, sprite[s2], sprite[s2].sectnum) and 1 or 0
 end
 
+-- TODO: replace ivec3 allocations with stores to a static ivec3, like in
+-- updatesector*?
+
 -- CON "hitscan" command
 function _hitscan(x, y, z, sectnum, vx, vy, vz, cliptype)
     local srcv = geom.ivec3(x, y, z)
