@@ -194,6 +194,10 @@ local function new_initial_gvartab()
         LOTAG = RW(CSV".LOTAG"),
         TEXTURE = RW(CSV".TEXTURE"),
 
+        -- This will warn when defining from CON, but it's the most
+        -- straightforward implementation.
+        LOGO_FLAGS = RW "_gv.g_logoFlags",
+
         xdim = RO "_gv.xdim",
         ydim = RO "_gv.ydim",
         windowx1 = RO "_gv.windowx1",

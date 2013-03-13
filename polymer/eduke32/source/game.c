@@ -1177,6 +1177,15 @@ static int32_t G_GetInvOn(const DukePlayer_t *p)
     return 0x80000000;
 }
 
+static int32_t G_GetMorale(int32_t p_i, int32_t snum)
+{
+#if !defined LUNATIC
+    return Gv_GetVarByLabel("PLR_MORALE",-1, p_i, snum);
+#else
+    return -1;
+#endif
+}
+
 static void G_DrawStatusBar(int32_t snum)
 {
     const DukePlayer_t *const p = g_player[snum].ps;
@@ -1267,8 +1276,9 @@ static void G_DrawStatusBar(int32_t snum)
             rotatesprite_fs(sbarx(62),sbary(200-25),sb15h,0,SHIELD,0,0,10+16+256);
 
             {
-                int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
-                if (lAmount == -1) lAmount = p->inv_amount[GET_SHIELD];
+                int32_t lAmount = G_GetMorale(p->i, snum);
+                if (lAmount == -1)
+                    lAmount = p->inv_amount[GET_SHIELD];
                 G_DrawAltDigiNum(105,-(200-22),lAmount,-16,10+16+256);
             }
 
@@ -1442,11 +1452,9 @@ static void G_DrawStatusBar(int32_t snum)
     }
 
     {
-        int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
-
+        int32_t lAmount = G_GetMorale(p->i, snum);
         if (lAmount == -1)
             lAmount = p->inv_amount[GET_SHIELD];
-
         if (sbar.inv_amount[GET_SHIELD] != lAmount)
         {
             sbar.inv_amount[GET_SHIELD] = lAmount;
@@ -1585,8 +1593,11 @@ static void G_DrawStatusBar(int32_t snum)
     }
     if (u&2)
     {
-        int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
-        if (u != -1) G_PatchStatusBar(52,SBY+17,75,SBY+17+11);
+        int32_t lAmount = G_GetMorale(p->i, snum);
+
+        if (u != -1)
+            G_PatchStatusBar(52,SBY+17,75,SBY+17+11);
+
         if (lAmount == -1)
             G_DrawDigiNum(64,SBY+17,p->inv_amount[GET_SHIELD],-16,10+16);
         else
@@ -2009,9 +2020,22 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
     while (start != end+step);
 }
 
+#ifdef LUNATIC
+int32_t g_logoFlags = 255;
+#endif
+
+static int32_t G_GetLogoFlags(void)
+{
+#if !defined LUNATIC
+    return Gv_GetVarByLabel("LOGO_FLAGS",255, -1, -1);
+#else
+    return g_logoFlags;
+#endif
+}
+
 static void G_DisplayExtraScreens(void)
 {
-    int32_t flags = Gv_GetVarByLabel("LOGO_FLAGS",255, -1, -1);
+    int32_t flags = G_GetLogoFlags();
 
     S_StopMusic();
     FX_StopAllSounds();
@@ -3141,7 +3165,11 @@ void G_DrawBackground(void)
         if (G_HaveEvent(EVENT_GETMENUTILE))
             bgtile = VM_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1, bgtile);
         // MENU_TILE: is the menu tile tileable?
+#if !defined LUNATIC
         if (Gv_GetVarByLabel("MENU_TILE", !fstilep, -1, -1))
+#else
+        if (!fstilep)
+#endif
         {
             for (y=y1; y<y2; y+=tilesizy[bgtile])
                 for (x=0; x<xdim; x+=tilesizx[bgtile])
@@ -9320,7 +9348,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 static void G_DisplayLogo(void)
 {
     int32_t soundanm = 0;
-    int32_t logoflags=Gv_GetVarByLabel("LOGO_FLAGS",255, -1, -1);
+    int32_t logoflags = G_GetLogoFlags();
 
     ready2send = 0;
 

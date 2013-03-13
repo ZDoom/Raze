@@ -505,6 +505,7 @@ typedef struct {
 ffi.cdef[[
 const int32_t screenpeek;
 hudweapon_t hudweap;
+int32_t g_logoFlags;
 ]]
 
 -- INTERNAL VARIABLES/FUNCTIONS
@@ -1538,7 +1539,14 @@ local tmpmt = {
         end
         error("access forbidden", 2)
     end,
-    __newindex = function() error("write access forbidden", 2) end,
+
+    __newindex = function(gv, key, val)
+        if (key=="g_logoFlags") then
+            ffiC[key] = val
+        else
+            error("write access forbidden", 2)
+        end
+    end,
 }
 setmtonce(gv, tmpmt)
 
