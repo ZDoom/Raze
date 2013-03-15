@@ -372,9 +372,9 @@ typedef
 projectile_t;
 
 typedef struct {
-    uint32_t flags;
-    int32_t cacherange;
-    projectile_t defproj;
+    uint32_t flags;  // XXX: do we want to have this accessible at game time?
+    const int32_t _cacherange;
+    const projectile_t _defproj;
 } tiledata_t;
 
 typedef struct {
@@ -675,6 +675,10 @@ player_static_members.INPUT_EXT_BITS = defs_c.conststruct
     INPUT_TURN_RIGHT =   32,
 }
 
+local tile_static_members = {}
+tile_static_members.sizx = defs_c.creategtab(ffiC.tilesizx, ffiC.MAXTILES, "tilesizx[]")
+tile_static_members.sizy = defs_c.creategtab(ffiC.tilesizy, ffiC.MAXTILES, "tilesizy[]")
+
 -- XXX: error message will say "g_player_ps"
 player = setmtonce({}, defs_c.GenStructMetatable("g_player_ps", "playerswhenstarted", player_static_members))
 
@@ -682,6 +686,7 @@ player = setmtonce({}, defs_c.GenStructMetatable("g_player_ps", "playerswhenstar
 actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, "actor[]")
 
 local projectile = defs_c.creategtab(ffiC.ProjectileData, ffiC.MAXTILES, "projectile[]")
+local g_tile = setmtonce({}, defs_c.GenStructMetatable("g_tile", "MAXTILES", tile_static_members))
 
 --== Custom operations for BUILD data structures ==--
 -- Among other things, declares struct action and struct move, and their
@@ -1462,6 +1467,7 @@ G_.gameactor = our_gameactor
 G_.player = player
 G_.actor = actor
 G_.projectile = projectile
+G_.g_tile = g_tile
 
 
 ---=== Lunatic interpreter setup ===---

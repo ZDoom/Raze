@@ -77,6 +77,7 @@ end
 
 local inf = 1/0
 local NaN = 0/0
+local MAXTILES = (ffiC and ffiC.MAXTILES or 30720)
 
 -- Last keyword position, for error diagnosis.
 local g_lastkwpos = nil
@@ -286,7 +287,10 @@ local function reset_codegen()
     g_switchCode = nil
     g_switchCount = 0
     g_gamevar = new_initial_gvartab()
-    g_gamearray = {}
+    g_gamearray = {
+        tilesizx = { name="g_tile.sizx", size=MAXTILES, sysp=true },
+        tilesizy = { name="g_tile.sizy", size=MAXTILES, sysp=true },
+    }
 
     g_have_file = {}
     g_curcode = new_initial_codetab()
@@ -463,7 +467,7 @@ end
 
 -- returns: OK?
 local function check_tilenum(tilenum)
-    if (not (tilenum >= 0 and tilenum < (ffiC and ffiC.MAXTILES or 30720))) then
+    if (not (tilenum >= 0 and tilenum < MAXTILES)) then
         errprintf("invalid tile number %d", tilenum)
         return false
     end
@@ -989,7 +993,10 @@ function Cmd.gamearray(identifier, initsize)
 
     local oga = g_gamearray[identifier]
     if (oga) then
-        if (initsize ~= oga.size) then
+        if (oga.sysp) then
+            errprintf("attempt to define system gamearray `%s'", identifier)
+            return
+        elseif (initsize ~= oga.size) then
             errprintf("duplicate gamearray definition `%s' has different size", identifier)
             return
         else
@@ -2030,6 +2037,7 @@ local Cinner = {
         / handle.NYI,
 
     -- array stuff
+    -- TODO: handle system gamearrays. Right now, the generated code will be wrong.
     copy = sp1 * tok.gamearray * arraypat * sp1 * tok.gamearray * arraypat * sp1 * tok.rvar
         / "%1:copyto(%2,%3,%4,%5)",
     setarray = sp1 * tok.gamearray * arraypat * sp1 * tok.rvar

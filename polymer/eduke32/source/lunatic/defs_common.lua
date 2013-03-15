@@ -249,6 +249,7 @@ const int32_t rendmode;
 const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 const int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 const int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
+const int16_t tilesizx[MAXTILES], tilesizy[MAXTILES];
 
 const int16_t headsectbunch[2][MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
 
