@@ -26,11 +26,19 @@ module(...)
 -- For example, for 4 elements,
 --  "const $ _r1, _f2, _u3, _n4;"
 function flatten_array(nelts, rng)
-    local strtab = { "const $ " }
+    local strtab = { "$ " }
 
-    for i=1,nelts do
-        local ch = 97 + (rng and (rng:getu32() % 25) or 0)  -- 'a'..'z'
-        strtab[i+1] = string.format("_%c%x%s", ch, i, (i<nelts) and "," or ";")
+    if (rng and rng.getu32==nil) then
+        assert(type(rng)=="table")
+
+        for i=1,#rng do
+            strtab[i+1] = rng[i]..((i<#rng) and "," or ";")
+        end
+    else
+        for i=1,nelts do
+            local ch = 97 + (rng and (rng:getu32() % 25) or 0)  -- 'a'..'z'
+            strtab[i+1] = string.format("_%c%x%s", ch, i, (i<nelts) and "," or ";")
+        end
     end
 
     return table.concat(strtab)
@@ -44,6 +52,7 @@ end
 -- <typename>: If non-nil, the name under which the derived type is typedef'd
 -- <rng>: Random generator state + method :getu32(). If nil, then members are
 --  named _a1, _a2, ...
+--  It also may be a table containing member names at numeric indices 1..#rng.
 -- <mtadd>: A table containing functions __index and/or __newindex. They are
 --  called first and the bound-checking ones are tail-called then.
 function new(basetype, numelts, showname, typename, rng, mtadd)
@@ -72,6 +81,7 @@ function new(basetype, numelts, showname, typename, rng, mtadd)
         local addindexf, addnewindexf = mtadd.__index, mtadd.__newindex
 
         if (addindexf) then
+            -- Additional __index metamethod given.
             mt.__index = function(ar, idx)
                 addindexf(ar, idx)
                 return curindexf(ar, idx)
@@ -79,6 +89,7 @@ function new(basetype, numelts, showname, typename, rng, mtadd)
         end
 
         if (addnewindexf) then
+            -- Additional __newindex metamethod given.
             mt.__newindex = function(ar, idx, val)
                 addnewindexf(ar, idx, val)
                 return curnewindexf(ar, idx, val)

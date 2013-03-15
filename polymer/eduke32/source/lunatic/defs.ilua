@@ -63,43 +63,51 @@ local print = print
 
 ---=== EDuke32 game definitions ===---
 
+local INV_NAMES = {
+    "STEROIDS",
+    "SHIELD",
+    "SCUBA",
+    "HOLODUKE",
+    "JETPACK",
+    "DUMMY1",
+    "ACCESS",
+    "HEATS",
+    "DUMMY2",
+    "FIRSTAID",
+    "BOOTS",
+}
+
+local WEAPON_NAMES = {
+    "KNEE",
+    "PISTOL",
+    "SHOTGUN",
+    "CHAINGUN",
+    "RPG",
+    "HANDBOMB",
+    "SHRINKER",
+    "DEVISTATOR",
+    "TRIPBOMB",
+    "FREEZE",
+    "HANDREMOTE",
+    "GROW",
+}
+
 ---- game structs ----
-ffi.cdef[[
+ffi.cdef([[
 enum dukeinv_t {
-    GET_STEROIDS,
-    GET_SHIELD,
-    GET_SCUBA,
-    GET_HOLODUKE,
-    GET_JETPACK,
-    GET_DUMMY1,
-    GET_ACCESS,
-    GET_HEATS,
-    GET_DUMMY2,
-    GET_FIRSTAID,
-    GET_BOOTS,
+]].. "GET_"..table.concat(INV_NAMES, ",GET_") ..[[,
     GET_MAX
 };
 
 enum dukeweapon_t {
-    KNEE_WEAPON,
-    PISTOL_WEAPON,
-    SHOTGUN_WEAPON,
-    CHAINGUN_WEAPON,
-    RPG_WEAPON,
-    HANDBOMB_WEAPON,
-    SHRINKER_WEAPON,
-    DEVISTATOR_WEAPON,
-    TRIPBOMB_WEAPON,
-    FREEZE_WEAPON,
-    HANDREMOTE_WEAPON,
-    GROW_WEAPON,
+]].. table.concat(WEAPON_NAMES, "_WEAPON,").."_WEAPON," ..[[
     MAX_WEAPONS
 };
 
 enum {
     MAXPLAYERS = 16,
 };
-]]
+]])
 
 ffi.cdef[[
 struct action {
@@ -161,10 +169,9 @@ local check_sprite_idx = bcheck.sprite_idx
 local check_weapon_idx, check_inventory_idx = bcheck.weapon_idx, bcheck.inventory_idx
 local check_sound_idx = bcheck.sound_idx
 
--- TODO: randomize member names
-bcarray.new("int16_t", 64, "loogie", "int16_x_64")
-bcarray.new("int16_t", ffiC.MAX_WEAPONS, "weapon", "int16_x_MAX_WEAPONS")
-bcarray.new("int16_t", ffiC.GET_MAX, "inventory", "int16_x_GET_MAX")
+bcarray.new("int16_t", 64, "loogie", "int16_x_64")  -- TODO: randomize member names
+bcarray.new("int16_t", ffiC.MAX_WEAPONS, "weapon", "int16_x_MAX_WEAPONS", WEAPON_NAMES)
+bcarray.new("int16_t", ffiC.GET_MAX, "inventory", "int16_x_GET_MAX", INV_NAMES)
 
 -- NOTE: writing e.g. "ps.jetpack_on" in Lua when "ps.jetpack_on~=0" was meant
 -- is probably one of the most commonly committed errors, so we make it a bool
