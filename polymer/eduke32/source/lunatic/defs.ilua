@@ -144,12 +144,12 @@ __attribute__((packed)) struct {
     const int16_t owner;
     int16_t movflag,tempang,timetosleep; //6b
 
-    const int16_t lightId, lightcount, lightmaxrange;
-    int16_t cgg;
     int16_t actorstayput;
     const int16_t dispicnum;
-    int16_t shootzvel;
-    const int8_t _do_not_use[8];
+    int16_t shootzvel, cgg;
+
+    const int16_t lightId, lightcount, lightmaxrange;
+    const union { intptr_t ptr; uint64_t dummy; } _light;
 }
 ]]
 

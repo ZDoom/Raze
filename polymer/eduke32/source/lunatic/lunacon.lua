@@ -2548,14 +2548,14 @@ local function all_alt_pattern(...)
 end
 
 -- actor ORGANTIC is greeting!
-local function warn_on_lonely_else(pos)
+function on.lonely_else(pos)
     pwarnprintf(pos, "found `else' with no `if'")
 end
 
 local con_inner_command = all_alt_pattern(Cinner)
 local con_if_begs = all_alt_pattern(Cif)
 
-local lone_else = (POS() * "else" * sp1)/warn_on_lonely_else
+local lone_else = (POS() * "else" * sp1)/on.lonely_else
 
 local stmt_list = Var("stmt_list")
 -- possibly empty statement list:
