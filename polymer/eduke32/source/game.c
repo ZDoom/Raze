@@ -2026,15 +2026,6 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
 int32_t g_logoFlags = 255;
 #endif
 
-static int32_t G_GetLogoFlags(void)
-{
-#if !defined LUNATIC
-    return Gv_GetVarByLabel("LOGO_FLAGS",255, -1, -1);
-#else
-    return g_logoFlags;
-#endif
-}
-
 static void G_DisplayExtraScreens(void)
 {
     int32_t flags = G_GetLogoFlags();

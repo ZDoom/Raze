@@ -59,7 +59,8 @@ enum LogoFlags_t {
     LOGO_PLUTOPAKSPRITE    = 0x00000080,
     LOGO_SHAREWARESCREENS  = 0x00000100,
     LOGO_TENSCREEN         = 0x00000200,
-    LOGO_STOPANIMSOUNDS    = 0x00000400
+    LOGO_STOPANIMSOUNDS    = 0x00000400,
+    LOGO_NOE4CUTSCENE      = 0x00000800,
 };
 
 typedef enum basepal_ {
@@ -74,6 +75,16 @@ typedef enum basepal_ {
 } basepal_t; 
 
 void A_DeleteSprite(int32_t s);
+
+static inline int32_t G_GetLogoFlags(void)
+{
+#if !defined LUNATIC
+    return Gv_GetVarByLabel("LOGO_FLAGS",255, -1, -1);
+#else
+    extern int32_t g_logoFlags;
+    return g_logoFlags;
+#endif
+}
 
 #ifdef LUNATIC
 typedef struct {

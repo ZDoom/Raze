@@ -2558,7 +2558,7 @@ cheat_for_port_credits2:
 
             ud.multimode = 1;
 
-            if (ud.m_volume_number == 3)
+            if (ud.m_volume_number == 3 && (G_GetLogoFlags() & LOGO_NOE4CUTSCENE)==0)
             {
                 flushperms();
                 setview(0,0,xdim-1,ydim-1);

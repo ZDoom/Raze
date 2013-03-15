@@ -4,3 +4,5 @@ useractor  4  58 1 NO NO 0
 
     state killme
 enda
+
+gamevar LOGO_FLAGS 2303 0  // 255+2048, test "no ep4 cutscene" bit

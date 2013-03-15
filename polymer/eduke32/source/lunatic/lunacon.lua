@@ -272,7 +272,7 @@ local function new_initial_gvartab()
     }
 
     -- Reserved bits
-    gamevar.LOGO_FLAGS.rbits = bit.bnot(2047)
+    gamevar.LOGO_FLAGS.rbits = bit.bnot(4095)
 
     for w=0,MAX_WEAPONS-1 do
         for i=1,#wmembers do

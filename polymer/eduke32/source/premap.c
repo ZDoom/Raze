@@ -1430,7 +1430,8 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
     if (ud.m_recstat != 2 && ud.last_level >= 0 && (g_netServer || ud.multimode > 1) && (ud.coop&GAMETYPE_SCORESHEET))
         G_BonusScreen(1);
 
-    if (ln == 0 && vn == 3 && (!g_netServer && ud.multimode < 2) && ud.lockout == 0)
+    if (ln == 0 && vn == 3 && (!g_netServer && ud.multimode < 2) && ud.lockout == 0
+            && (G_GetLogoFlags() & LOGO_NOE4CUTSCENE)==0)
     {
         S_PlayMusic(&EnvMusicFilename[1][0],MAXVOLUMES*MAXLEVELS+1);
 
