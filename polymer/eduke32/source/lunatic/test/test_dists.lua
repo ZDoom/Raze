@@ -1,8 +1,10 @@
+#!/usr/bin/env luajit
 
 local ffi = require "ffi"
 local math = require "math"
 local os = require "os"
 
+local geom = require "geom"
 local xmath = require "xmath"
 
 local ldist = xmath.ldist

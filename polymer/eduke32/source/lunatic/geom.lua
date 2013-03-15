@@ -25,34 +25,27 @@ local dvec2_t = ffi.typeof("struct { double x, y; }")
 local dvec3_t = ffi.typeof("struct { double x, y, z; }")
 
 
-local vec2_
 local vec2_mt = {
-    __add = function(a, b) return vec2_(a.x+b.x, a.y+b.y) end,
-    __sub = function(a, b) return vec2_(a.x-b.x, a.y-b.y) end,
-    __unm = function(a) return vec2_(-a.x, -a.y) end,
+    __add = function(a, b) return dvec2_t(a.x+b.x, a.y+b.y) end,
+    __sub = function(a, b) return dvec2_t(a.x-b.x, a.y-b.y) end,
+    __unm = function(a) return dvec2_t(-a.x, -a.y) end,
 
     __mul = function(a,b)
         if (type(a)=="number") then
-            return vec2_(a*b.x, a*b.y)
+            return dvec2_t(a*b.x, a*b.y)
         end
 
         if (type(b)~="number") then
             error("number expected in vec2 multiplication", 2)
         end
-        return vec2_(a.x*b, a.y*b)
+        return dvec2_t(a.x*b, a.y*b)
     end,
 
     __div = function(a,b)
         if (type(b)~="number") then
             error("number expected in vec2 division", 2)
         end
-        return vec2_(a.x/b, a.y/b)
-    end,
-
-    __eq = function(a,b)
-        -- XXX: will error if <a> is not a ctype (can only happen if __eq was
-        -- called by <b>)
-        return (ffi.istype(a,b) and a.x==b.x and a.y==b.y)
+        return dvec2_t(a.x/b, a.y/b)
     end,
 
     __len = function(a) return math.sqrt(a.x*a.x + a.y*a.y) end,
@@ -66,33 +59,27 @@ local vec2_mt = {
     },
 }
 
-local vec3_
 local vec3_mt = {
-    __add = function(a, b) return vec3_(a.x+b.x, a.y+b.y, a.z+b.z) end,
-    __sub = function(a, b) return vec3_(a.x-b.x, a.y-b.y, a.z-b.z) end,
-    __unm = function(a) return vec3_(-a.x, -a.y, -a.z) end,
+    __add = function(a, b) return dvec3_t(a.x+b.x, a.y+b.y, a.z+b.z) end,
+    __sub = function(a, b) return dvec3_t(a.x-b.x, a.y-b.y, a.z-b.z) end,
+    __unm = function(a) return dvec3_t(-a.x, -a.y, -a.z) end,
 
     __mul = function(a,b)
         if (type(a)=="number") then
-            return vec3_(a*b.x, a*b.y, a*b.z)
+            return dvec3_t(a*b.x, a*b.y, a*b.z)
         end
 
         if (type(b)~="number") then
             error("number expected in vec3 multiplication", 2)
         end
-        return vec2_(a.x*b, a.y*b, a.z*b)
+        return dvec3_t(a.x*b, a.y*b, a.z*b)
     end,
 
     __div = function(a,b)
         if (type(b)~="number") then
             error("number expected in vec3 division", 2)
         end
-        return vec2_(a.x/b, a.y/b, a.z/b)
-    end,
-
-    __eq = function(a,b)
-        -- XXX: see vec2
-        return (ffi.istype(a,b) and a.x==b.x and a.y==b.y and a.z==b.z)
+        return dvec3_t(a.x/b, a.y/b, a.z/b)
     end,
 
     __len = function(a) return math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z) end,
@@ -113,8 +100,7 @@ local vec3_mt = {
 -- VEC2 user data constructor.
 --  * vec2(<table>), <table> should be indexable with "x" and "y"
 --  * vec2(x, y), assuming that x and y are numbers
-vec2_ = ffi.metatype(dvec2_t, vec2_mt)
-vec2 = vec2_
+vec2 = ffi.metatype(dvec2_t, vec2_mt)
 
 -- Returns a vec2 from anything indexable with "x" and "y"
 -- (vec2(t) works if t is such a table, but not if it's a vec2 or a cdata of
@@ -122,8 +108,7 @@ vec2 = vec2_
 function tovec2(t) return vec2(t.x, t.y) end
 
 -- Same for vec3
-vec3_ = ffi.metatype(dvec3_t, vec3_mt)
-vec3 = vec3_
+vec3 = ffi.metatype(dvec3_t, vec3_mt)
 function tovec3(t) return vec3(t.x, t.y, t.z) end
 
 
