@@ -364,6 +364,12 @@ function _togglesectinterp(sectnum, doset)
     end
 end
 
+-- Support for translated CON code: get cached sprite, actor and player structs
+-- (-fcache-sap option).
+function _getsap(aci, pli)
+    return (aci>=0) and sprite[aci], (aci>=0) and actor[aci], (pli>=0) and player[pli]
+end
+
 --- player/actor/sprite searching functions ---
 
 local xmath = require("xmath")
@@ -1571,7 +1577,7 @@ function _starttrack(level)
 
     if (ffiC.G_StartTrack(level) ~= 0) then
         error("null music for volume "..ffiC.ud.volume_number..
-              " level "..level)
+              " level "..level, 2)
     end
 end
 

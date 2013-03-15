@@ -99,7 +99,9 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true,
                  ["number-conversion"]=true, ["system-gamevar"]=true, }
 
 -- Code generation and output options.
-local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil, }
+local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
+                  ["cache-sap"]=false, }
+local function csapp() return g_cgopt["cache-sap"] end
 
 -- How many 'if' statements are following immediately each other,
 -- needed to cope with CONs dangling-else resolution
@@ -142,9 +144,10 @@ local g_curcode = nil  -- a table of string pieces or other "gencode" tables
 local g_code = nil
 
 
-local function ACS(s) return "actor[_aci]"..s end
-local function SPS(s) return "sprite[_aci]"..s end
-local function PLS(s) return "player[_pli]"..s end
+local function ACS(s) return (csapp() and "_a" or "actor[_aci]")..s end
+local function SPS(s) return (csapp() and "_spr" or "sprite[_aci]")..s end
+local function PLS(s) return (csapp() and "_ps" or "player[_pli]")..s end
+local function PLSX(s) return "player[_pli]"..s end
 
 
 local function getlinecol(pos) end -- fwd-decl
@@ -246,22 +249,22 @@ local function new_initial_gvartab()
         gs = RW "_gv.hudweap.shade",
 
         -- Some per-player gamevars
-        ZRANGE = PRW(PLS".zrange"),
-        ANGRANGE = PRW(PLS".angrange"),
-        AUTOAIMANGLE = PRW(PLS".autoaimang"),
+        ZRANGE = PRW(PLSX".zrange"),
+        ANGRANGE = PRW(PLSX".angrange"),
+        AUTOAIMANGLE = PRW(PLSX".autoaimang"),
 
-        PIPEBOMB_CONTROL = PRW(PLS".pipebombControl"),
-        GRENADE_LIFETIME = PRW(PLS".pipebombLifetime"),
-        GRENADE_LIFETIME_VAR = PRW(PLS".pipebombLifetimeVar"),
-        TRIPBOMB_CONTROL = PRW(PLS".tripbombControl"),
-        STICKYBOMB_LIFETIME = PRW(PLS".tripbombLifetime"),
-        STICKYBOMB_LIFETIME_VAR = PRW(PLS".tripbombLifetimeVar"),
+        PIPEBOMB_CONTROL = PRW(PLSX".pipebombControl"),
+        GRENADE_LIFETIME = PRW(PLSX".pipebombLifetime"),
+        GRENADE_LIFETIME_VAR = PRW(PLSX".pipebombLifetimeVar"),
+        TRIPBOMB_CONTROL = PRW(PLSX".tripbombControl"),
+        STICKYBOMB_LIFETIME = PRW(PLSX".tripbombLifetime"),
+        STICKYBOMB_LIFETIME_VAR = PRW(PLSX".tripbombLifetimeVar"),
 
         -- These are not 100% authentic (they're only updated in certain
         -- circumstances, see player.c: P_SetWeaponGamevars()). But IMO it's
         -- more useful like this.
-        WEAPON = PRO(PLS".curr_weapon"),
-        WORKSLIKE = PRO(format(PLS".weapon[%s].workslike", PLS".curr_weapon")),
+        WEAPON = PRO(PLSX".curr_weapon"),
+        WORKSLIKE = PRO(format(PLSX".weapon[%s].workslike", PLSX".curr_weapon")),
 
         VOLUME = RO "_gv.currentEpisode()",
         LEVEL = RO "_gv.currentLevel()",
@@ -271,7 +274,7 @@ local function new_initial_gvartab()
         for i=1,#wmembers do
             local member = wmembers[i]:gsub(".* ","")  -- strip e.g. "int32_t "
             local name = format("WEAPON%d_%s", w, member:upper())
-            gamevar[name] = PRW(format(PLS".weapon[%d].%s", w, member))
+            gamevar[name] = PRW(format(PLSX".weapon[%d].%s", w, member))
         end
     end
 
@@ -309,6 +312,10 @@ local function add_code_and_end(codetab, endstr)
     addcode(endstr)
 end
 
+local function get_cache_sap_code()
+    return csapp() and "local _spr,_a,_ps=_con._getsap(_aci,_pli)" or ""
+end
+
 local function warnprintf() end  -- fwd-decl
 
 local on = {}
@@ -332,6 +339,7 @@ function on.actor_end(usertype, tsamm, codetab)
 
     -- TODO: usertype (is non-nil only for 'useractor')
     addcodef("gameactor(%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
+    addcode(get_cache_sap_code())
     add_code_and_end(codetab, "end)")
 
     if (g_code.actor[tilenum] ~= nil) then
@@ -362,12 +370,14 @@ end
 
 function on.state_end(funcname, codetab)
     addcodef("%s=function(_aci, _pli, _dist)", funcname)
+    addcode(get_cache_sap_code())
     add_code_and_end(codetab, "end")
 end
 
 function on.event_end(eventidx, codetab)
     assert(type(codetab)=="table")
     addcodef("gameevent(%d, function (_aci, _pli, _dist)", eventidx)
+    addcode(get_cache_sap_code())
     addcode(CSV".RETURN=gv._RETURN()")
     addcode(codetab)
     addcodef("gv._RETURN(%s)", CSV".RETURN")
@@ -379,6 +389,7 @@ end
 function on.eventloadactor_end(tilenum, codetab)
     -- Translate eventloadactor into a chained EVENT_LOADACTOR block
     addcode("gameevent('LOADACTOR', function (_aci, _pli, _dist)")
+    addcode(get_cache_sap_code())
     addcodef("if (%s==%d) then", SPS".picnum", tilenum)
     addcode(codetab)
     addcode("end")
@@ -1402,14 +1413,26 @@ local function StructAccess(Structname, writep, index, membertab)
     -- METHOD_MEMBER
     local ismethod = (armembcode:find("%%s",1,true)~=nil)
     -- If ismethod is true, then the formatted string will now have an "%s"
+    local code
 
     if (Structname=="userdef") then
 --        assert(index==nil)
         assert(parm2==nil)
-        return format(armembcode, parm2), ismethod
+        code = format(armembcode, parm2)
     else
-        return format(armembcode, index, parm2), ismethod
+        code = format(armembcode, index, parm2)
     end
+
+    if (csapp()) then
+        if (Structname=="player") then
+            code = code:gsub("^player%[_pli%]", "_ps")
+        elseif (Structname=="sprite") then
+            code = code:gsub("^actor%[_aci%]", "_a")
+            code = code:gsub("^sprite%[_aci%]", "_spr")
+        end
+    end
+
+    return code, ismethod
 end
 
 function lookup.array_expr(writep, structname, index, membertab)
@@ -2713,6 +2736,7 @@ function on.switch_end(testvar, blocks)
         have[index] = true
 
         swcode[#swcode+1] = format("[%s]=function(_aci,_pli,_dist)", index)
+        swcode[#swcode+1] = get_cache_sap_code()
         -- insert the case/default code:
         swcode[#swcode+1] = block[#block]
         swcode[#swcode+1] = "end,"
@@ -3054,6 +3078,9 @@ local function handle_cmdline_arg(str)
                     g_cgopt["gendir"] = str:sub(10)
                     ok = true
                 end
+            elseif (str:sub(2)=="fcache-sap") then
+                g_cgopt["cache-sap"] = true
+                ok = true
             elseif (str:sub(2)=="fdebug-lineinfo") then
                 g_cgopt["debug-lineinfo"] = true
                 ok = true
