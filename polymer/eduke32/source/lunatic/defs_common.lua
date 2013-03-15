@@ -542,7 +542,9 @@ function spritetype_mt.__index.setpos(spr, pos)  -- setsprite() clone
         return -1
     end
 
-    ffiC.changespritesect(get_sprite_idx(spr), newsect)
+    if (spr.sectnum ~= newsect) then
+        ffiC.changespritesect(get_sprite_idx(spr), newsect)
+    end
     return newsect
 end
 
@@ -757,9 +759,28 @@ local function iter_spritesofsect(sect, i)
     if (i >= 0) then return i end
 end
 
-function spritesofsect(sect)
+-- sprites of sectnum iterator that allows deleting the iterated sprite
+local function iter_spritesofsect_safe(tab, i)
+    if (i < 0) then
+        i = ffiC.headspritesect[-i]
+    else
+        i = tab[1]
+    end
+
+    if (i >= 0) then
+        tab[1] = ffiC.nextspritesect[i]
+        return i
+    end
+end
+
+function spritesofsect(sect, maydelete)
     check_sector_idx(sect)
-    return iter_spritesofsect, sect, -1
+
+    if (maydelete) then
+        return iter_spritesofsect_safe, { -1 }, -sect
+    else
+        return iter_spritesofsect, sect, -1
+    end
 end
 
 local function iter_spritesofstat(stat, i)
@@ -772,12 +793,30 @@ local function iter_spritesofstat(stat, i)
     if (i >= 0) then return i end
 end
 
-function spritesofstat(stat)
+-- sprites of statnum iterator that allows deleting the iterated sprite
+local function iter_spritesofstat_safe(tab, i)
+    if (i < 0) then
+        i = ffiC.headspritestat[-i]
+    else
+        i = tab[1]
+    end
+
+    if (i >= 0) then
+        tab[1] = ffiC.nextspritestat[i]
+        return i
+    end
+end
+
+function spritesofstat(stat, maydelete)
     if (stat >= ffiC.MAXSTATUS+0ULL) then
         error("passed invalid statnum to spritesofstat iterator", 2)
     end
 
-    return iter_spritesofstat, stat, -1
+    if (maydelete) then
+        return iter_spritesofstat_safe, { -1 }, -stat
+    else
+        return iter_spritesofstat, stat, -1
+    end
 end
 
 --== TROR iterators ==--

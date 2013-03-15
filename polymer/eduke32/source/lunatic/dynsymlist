@@ -51,6 +51,7 @@ getangle;
 cansee;
 hitscan;
 neartag;
+getzrange;
 rotatesprite;
 
 dist;
