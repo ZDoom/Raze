@@ -271,11 +271,18 @@ local function new_initial_gvartab()
         LEVEL = RO "_gv.currentLevel()",
     }
 
+    -- Reserved bits
+    gamevar.LOGO_FLAGS.rbits = bit.bnot(2047)
+
     for w=0,MAX_WEAPONS-1 do
         for i=1,#wmembers do
             local member = wmembers[i]:gsub(".* ","")  -- strip e.g. "int32_t "
             local name = format("WEAPON%d_%s", w, member:upper())
             gamevar[name] = PRW(format(PLSX".weapon[%d].%s", w, member))
+
+            if (member=="flags") then
+                gamevar[name].rbits = bit.bnot(0x1ffff)
+            end
         end
     end
 
@@ -1050,10 +1057,15 @@ function Cmd.gamevar(identifier, initval, flags)
                                "flags (%d)", identifier, flagsnosys)
                 end
 
+                if (ogv.rbits and bit.band(ogv.rbits, initval)~=0) then
+                    warnprintf("set one or more reserved bits (0x%s) in overriding `%s'",
+                               bit.tohex(bit.band(ogv.rbits, initval)), identifier)
+                end
+
                 -- Emit code to set the variable at Lua parse time.
                 if (bit.band(oflags, GVFLAG.PERPLAYER) ~= 0) then
                     -- Replace player index by 0.
-                    -- TODO: init for all players.
+                    -- TODO_MP: init for all players.
                     local pvar, numrepls = ogv.name:gsub("_pli", "0")
                     assert(numrepls>=1)
                     addcodef("%s=%d", pvar, initval)
