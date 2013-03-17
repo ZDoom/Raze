@@ -809,6 +809,7 @@ local UserdefLabels = {
     ffire = UDRO".ffire",
     fta_on = UD".fta_on",
     god = UDRO".god",
+    idplayers = UDRO".idplayers",
     lockout = UDRO".lockout",
     pause_on = UDRO".pause_on",
     player_skill = UD".player_skill",

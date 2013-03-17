@@ -97,7 +97,8 @@ local g_defaultDir = nil
 -- Warning options. Key names are the same as cmdline options, e.g.
 -- -Wno-bad-identifier for disabling the "bad identifier" warning.
 local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
-                 ["number-conversion"]=true, ["system-gamevar"]=true, }
+                 ["number-conversion"]=true, ["system-gamevar"]=true,
+                 ["error-bad-getactorvar"]=true, }
 
 -- Code generation and output options.
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
@@ -1150,7 +1151,7 @@ function lookup.gamevar(identifier, aorpvar, writable)
     end
 
     if (writable and bit.band(gv.flags, GVFLAG.READONLY) ~= 0) then
-        errprintf("variable `%s' is read-only", identifier)
+        errprintf("gamevar `%s' is read-only", identifier)
         return "_READONLYGV"
     end
 
@@ -1495,7 +1496,7 @@ function lookup.array_expr(writep, structname, index, membertab)
                 -- XXX: kind of CODEDUP with GetOrSetPerxvarCmd() factory
                 local gv = g_gamevar[structname]
                 if (gv and bit.band(gv.flags, GVFLAG.PERX_MASK)~=GVFLAG.PERACTOR) then
-                    errprintf("variable `%s' is not per-actor", structname, "actor")
+                    errprintf("gamevar `%s' is not per-actor", structname, "actor")
                 end
 
                 if (membertab == nil) then
@@ -1582,7 +1583,13 @@ local function GetOrSetPerxvarCmd(Setp, Actorp)
     local function capfunc(idx, perxvarname, var)
         local gv = g_gamevar[perxvarname]
         if (gv and bit.band(gv.flags, GVFLAG.PERX_MASK)~=EXPECTED_PERX_BIT) then
-            errprintf("variable `%s' is not per-%s", perxvarname, Actorp and "actor" or "player")
+            -- [gs]set*var for wrong gamevar type. See if it's a getactorvar,
+            -- in which case we may only warn and get the global gamevar
+            -- (TODO_MP) instead.
+            local warnp = not Setp and Actorp and not g_warn["error-bad-getactorvar"]
+            local xprintf = warnp and warnprintf or errprintf
+
+            xprintf("gamevar `%s' is not per-%s", perxvarname, Actorp and "actor" or "player")
         end
 
         if (not Actorp) then
@@ -1696,16 +1703,16 @@ local handle =
         end
 
         local gv = g_gamevar[identifier]
-        if (gv and bit.band(gv.flags, GVFLAG.PERX_MASK)==GVFLAG.PERACTOR) then
-            -- Per-player are kind of global without multiplayer anyway. TODO_MP
-            errprintf("can only %s global or per-player gamevars",
-                      dosave and "save" or "read")
-            return "_BADRSGV()"
-        end
+
+        -- For per-actor or per-player gamevars, the value at the current actor or
+        -- player index gets saved / loaded.
+        local gvkind = bit.band(gv.flags, GVFLAG.PERX_MASK)
+        local index = (gvkind==GVFLAG.PERACTOR) and "_aci" or
+            (gvkind==GVFLAG.PERPLAYER) and "_pli" or nil
 
         -- NOTE: more strict than C-CON: we require the gamevar being writable
         -- even if we're saving it.
-        local code = lookup.gamevar(identifier, nil, true)
+        local code = lookup.gamevar(identifier, index, true)
 
         if (dosave) then
             return format("_con._savegamevar(%q,%s)", identifier, code)
