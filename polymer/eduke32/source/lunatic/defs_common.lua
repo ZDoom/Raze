@@ -498,6 +498,7 @@ local spritetype_mt = {
         end,
 
         _set_owner = function(s, owner)
+            -- XXX: AMC TC sets owner to -1 in the cutscene.
             check_sprite_idx(owner)
             ffi.cast(spritetype_ptr_ct, s).owner = owner
         end,

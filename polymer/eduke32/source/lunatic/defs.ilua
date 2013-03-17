@@ -524,6 +524,7 @@ const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
 int32_t g_elCallDepth;
 int32_t g_elEventRETURN;
+const char **g_argv;
 char g_modDir[];
 actor_t actor[MAXSPRITES];
 camera_t g_camera;

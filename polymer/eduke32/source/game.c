@@ -8686,12 +8686,20 @@ static int32_t loaddefinitions_game(const char *fn, int32_t preload)
     return 0;
 }
 
+#ifdef LUNATIC
+// TODO: In Windows, argv[argc] isn't NULL as demanded by C99. (See winlayer.c:
+// "carve up...").
+const char **g_argv;
+#endif
 
 static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
     int16_t i = 1, j;
     const char *c, *k;
 
+#ifdef LUNATIC
+    g_argv = argv;
+#endif
     ud.fta_on = 1;
     ud.god = 0;
     ud.m_respawn_items = 0;
@@ -9107,6 +9115,10 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     break;
                 }
+#ifdef LUNATIC
+                case 'f':
+                    break;
+#endif
                 case 'g':
                     c++;
                     if (*c)
@@ -9256,6 +9268,10 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 case 'w':
                     ud.coords = 1;
                     break;
+#ifdef LUNATIC
+                case 'W':
+                    break;
+#endif
                 case 'x':
                     c++;
                     if (*c)

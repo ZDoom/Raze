@@ -74,6 +74,7 @@ g_sizes_of_what;
 g_sizes_of;
 g_elCallDepth;
 g_elEventRETURN;
+g_argv;
 g_modDir;
 
 kopen4loadfrommod;

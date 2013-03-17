@@ -1656,7 +1656,7 @@ local function gamearray_file_common(qnum, writep)
     local f, errmsg = io.open(fn);
     if (f == nil) then
         if (not writep) then
-            error([[failed opening "%s" for reading: %s]], fn, errmsg, 3)
+            error(format([[failed opening "%s" for reading: %s]], fn, errmsg), 3)
         else
             return nil, nil, true, fn
         end

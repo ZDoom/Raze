@@ -3278,6 +3278,12 @@ if (string.dump) then
         end
     end
 else
+    local i=0
+    while (ffiC.g_argv[i] ~= nil) do
+        handle_cmdline_arg(ffi.string(ffiC.g_argv[i]))
+        i = i+1
+    end
+
     -- running from EDuke32
     function compile(filenames)
         -- TODO: pathsearchmode=1 set in G_CompileScripts
