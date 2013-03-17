@@ -96,7 +96,7 @@ local g_defaultDir = nil
 
 -- Warning options. Key names are the same as cmdline options, e.g.
 -- -Wno-bad-identifier for disabling the "bad identifier" warning.
-local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true,
+local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
                  ["number-conversion"]=true, ["system-gamevar"]=true, }
 
 -- Code generation and output options.
@@ -1698,7 +1698,7 @@ local handle =
         local gv = g_gamevar[identifier]
         if (gv and bit.band(gv.flags, GVFLAG.PERX_MASK)==GVFLAG.PERACTOR) then
             -- Per-player are kind of global without multiplayer anyway. TODO_MP
-            errprintf("can only %s global or per-player gamevars", g_lastkw,
+            errprintf("can only %s global or per-player gamevars",
                       dosave and "save" or "read")
             return "_BADRSGV()"
         end
@@ -2532,11 +2532,8 @@ local function after_inner_cmd_Cmt(subj, pos, ...)
     end
 
     local capts = {...}
-    if (type(capts[1])=="string" and capts[2]==nil) then
-        return true, attachlinenum(capts, pos)
-    end
-
-    return true
+    assert(type(capts[1])=="string" and capts[2]==nil)
+    return true, attachlinenum(capts, pos)
 end
 
 local function after_if_cmd_Cmt(subj, pos, ...)
@@ -2545,16 +2542,14 @@ local function after_if_cmd_Cmt(subj, pos, ...)
     end
 
     local capts = {...}
-    if (capts[1] ~= nil) then
-        assert(#capts <= 3)
-        for i=1,#capts do
-            assert(type(capts[i]=="string"))
-        end
---        attachlinenum(capts, pos)
-        return true, unpack(capts)
+    assert(capts[1] ~= nil)
+    assert(#capts <= 3)
+    for i=1,#capts do
+        assert(type(capts[i]=="string"))
     end
 
-    return true
+    -- TODO: make if* commands have line numbers.
+    return true, unpack(capts)
 end
 
 local function after_cmd_Cmt(subj, pos, ...)
@@ -2697,6 +2692,30 @@ local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09"
 local t_broken_identifier = BadIdent(-((tok.number + t_good_identifier) * (sp1 + Set("[]:"))) *
                                      (alphanum + Set(BAD_ID_CHARS0)) * (alphanum + Set(BAD_ID_CHARS1))^0)
 
+---
+local function do_flatten_codetab(code, intotab)
+    for i=1,math.huge do
+        local elt = code[i]
+
+        if (type(elt)=="string") then
+            intotab[#intotab+1] = elt
+        elseif (type(elt)=="table") then
+            do_flatten_codetab(elt, intotab)
+        else
+            assert(elt==nil)
+            return
+        end
+    end
+end
+
+-- Return a "string buffer" table that can be table.concat'ed
+-- to get the code string.
+local function flatten_codetab(codetab)
+    local tmpcode = {}
+    do_flatten_codetab(codetab, tmpcode)
+    return tmpcode
+end
+
 function on.if_else_end(ifconds, ifstmt, elsestmt, ...)
     assert(#{...}==0)
     assert(type(ifconds)=="table" and #ifconds>=1)
@@ -2731,13 +2750,25 @@ function on.if_else_end(ifconds, ifstmt, elsestmt, ...)
 
     local code = {
         format("if %s then", conds),
-        ifstmt,
+        assert(ifstmt),
     }
 
     code[#code+1] = deferred[1]
 
     if (elsestmt~=nil) then
-        code[#code+1] = "else"
+        local elseifp = false
+
+        if (type(elsestmt)=="table") then
+            elsestmt = flatten_codetab(elsestmt)
+
+            if (#elsestmt>=2 and elsestmt[1]:match("^if ") and elsestmt[#elsestmt]=="end") then
+                elsestmt[1] = elsestmt[1]:sub(4)
+                elsestmt[#elsestmt] = nil
+                elseifp = true
+            end
+        end
+
+        code[#code+1] = elseifp and "elseif" or "else"
         code[#code+1] = elsestmt
     end
 
@@ -2897,7 +2928,7 @@ local Grammar = Pat{
         + Keyw("whilevarn") * sp1 * tok.rvar * sp1 * tok.define / on.while_begin
           * sp1 * Var("single_stmt") * (lpeg.Cc(nil) / on.while_end),
 
-    stmt_common = Keyw("{") * sp1 * "}"  -- space separation of commands in CON is for a reason!
+    stmt_common = Keyw("{") * sp1 * "}" / "do end"  -- space separation of commands in CON is for a reason!
         + Keyw("{") * sp1 * lpeg.Ct(stmt_list) * sp1 * "}"
         + con_inner_command + Var("switch_stmt") + lpeg.Ct(Var("while_stmt")),
 
@@ -2925,30 +2956,6 @@ local function setup_newlineidxs(contents)
     newlineidxs[0] = 0
 
     return newlineidxs
-end
-
----
-local function do_flatten_codetab(code, intotab)
-    for i=1,math.huge do
-        local elt = code[i]
-
-        if (type(elt)=="string") then
-            intotab[#intotab+1] = elt
-        elseif (type(elt)=="table") then
-            do_flatten_codetab(elt, intotab)
-        else
-            assert(elt==nil)
-            return
-        end
-    end
-end
-
--- Return a "string buffer" table that can be table.concat'ed
--- to get the code string.
-local function flatten_codetab(codetab)
-    local tmpcode = {}
-    do_flatten_codetab(codetab, tmpcode)
-    return tmpcode
 end
 
 

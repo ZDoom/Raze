@@ -55,4 +55,12 @@ onevent EVENT_JUMP
     }
     else ifcanseetarget
         quote 31
+    else ifvare 1 1
+    {
+        // Test empty brace-enclosed statement under if condition.
+    }
+    else
+    {
+        quote Q
+    }
 endevent
