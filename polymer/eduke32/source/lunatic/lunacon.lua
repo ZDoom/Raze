@@ -462,21 +462,33 @@ function warnprintf(fmt, ...)  -- local
 end
 
 local function parse_number(pos, numstr)
+    -- <numstr> is a full number string, potentially prefixed with a minus sign.
     local num = tonumber((numstr:gsub("h$", "")))
+--    local onum = num
+    local hex = numstr:match("0[xX]([^h]*)h?")  -- get hex digits, if any
 
     -- num==nil for Rio Lua, which doesn't handle large hex literals.
     if (num==nil or not (num >= -0x80000000 and num <= 0xffffffff)) then
-        perrprintf(pos, "number %s out of the range of a 32-bit integer", numstr)
-        -- Be careful not to write bound checks like
-        -- "if (i<LOWBOUND or i>HIGHBOUND) then error('...') end":
-        num = NaN
-    elseif (num >= 0x80000000 and numstr:sub(1,2):lower()~="0x") then
-        if (g_warn["number-conversion"]) then
+        -- number is <INT32_MIN or >UINT32_MAX or NaN
+        if (hex and #hex>8 and hex:sub(1,#hex-8):match("^[fF]$")) then
+            -- Too many hex digits, but they're all Fs.
+            pwarnprintf(pos, "number %s truncated to 32 bits", numstr)
+            num = bit.band(num, 0xffffffff)
+        else
+            perrprintf(pos, "number %s out of the range of a 32-bit integer", numstr)
+            -- Be careful not to write bound checks like
+            -- "if (i<LOWBOUND or i>HIGHBOUND) then error('...') end":
+            num = NaN
+        end
+    elseif (num >= 0x80000000) then
+        if (not hex and g_warn["number-conversion"]) then
             pwarnprintf(pos, "number %s converted to a negative one", numstr)
         end
-        num = num-(0xffffffff+1)
+        num = bit.band(num, 0xffffffff)
     end
 
+--    printf("numstr:%s, num=%d (0x%s) '%s', resnum=%d (0x%s)",
+--           numstr, onum, bit.tohex(onum), hex, num, bit.tohex(num))
     return num
 end
 
@@ -2869,7 +2881,7 @@ local Grammar = Pat{
 
     t_number = POS() * lpeg.C(
         tok.maybe_minus * ((Pat("0x") + "0X") * Range("09", "af", "AF")^1 * Pat("h")^-1
-                         + Range("09")^1)
+                           + Range("09")^1)
                              ) / parse_number,
 
     t_identifier_all = lpeg.C(t_broken_identifier + t_good_identifier),
@@ -2935,7 +2947,7 @@ local Grammar = Pat{
         + Keyw("whilevarn") * sp1 * tok.rvar * sp1 * tok.define / on.while_begin
           * sp1 * Var("single_stmt") * (lpeg.Cc(nil) / on.while_end),
 
-    stmt_common = Keyw("{") * sp1 * "}" / "do end"  -- space separation of commands in CON is for a reason!
+    stmt_common = Keyw("{") * sp1 * "}" / ""  -- space separation of commands in CON is for a reason!
         + Keyw("{") * sp1 * lpeg.Ct(stmt_list) * sp1 * "}"
         + con_inner_command + Var("switch_stmt") + lpeg.Ct(Var("while_stmt")),
 
