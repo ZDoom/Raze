@@ -108,6 +108,9 @@ g_playerWeapon;
 g_tile;
 ProjectileData;
 SpriteProjectile;
+
+g_dynTileList;
+
 ScriptQuotes;
 
 screenpeek;

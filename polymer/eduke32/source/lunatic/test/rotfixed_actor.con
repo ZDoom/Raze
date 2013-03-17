@@ -1,8 +1,22 @@
+// Use as root file, not as additional CON module.
+
+// Test dynamic tile remapping.
+dynamicremap
+// Make MASKWALL2 (fence in E1L1 rooftop) execute the C side code of DUKECAR.
+// This must be before the original DUKECAR definition, because label
+// redefinitions are ignored in CON.
+// XXX: Does MASKWALL2's code get executed, too?
+define DUKECAR 913
+
+include GAME.CON
+// NOTE:
+// DEFS.CON 520:6: warning: label "DUKECAR" not redefined with new value 2491 (old: 913)
+
+gamevar LOGO_FLAGS 2303 0  // 255+2048, test "no ep4 cutscene" bit
+
 useractor  4  58 1 NO NO 0
     // usertype 4 is "rotation-fixed actor"
     // tile 58 is the space suit
 
     state killme
 enda
-
-gamevar LOGO_FLAGS 2303 0  // 255+2048, test "no ep4 cutscene" bit

@@ -138,6 +138,11 @@ local g_gamevar = {}
 -- [identifier] = { name=<mangled name / code>, size=<initial size> }
 local g_gamearray = {}
 
+-- * nil if dynamic tile remapping disabled
+-- * true if enabled but no remappings made
+-- * else, a table { [name]=<g_dynTileList index> }
+local g_dyntilei = nil
+
 local g_have_file = {}  -- [filename]=true
 local g_curcode = nil  -- a table of string pieces or other "gencode" tables
 
@@ -298,6 +303,8 @@ local function reset_codegen()
         tilesizx = { name="g_tile.sizx", size=MAXTILES, sysp=true },
         tilesizy = { name="g_tile.sizy", size=MAXTILES, sysp=true },
     }
+
+    g_dyntilei = nil
 
     g_have_file = {}
     g_curcode = new_initial_codetab()
@@ -576,6 +583,32 @@ local function do_define_label(identifier, num)
     else
         if (g_gamevar[identifier]) then
             warnprintf("symbol `%s' already used for game variable", identifier)
+        end
+
+        if (ffi and g_dyntilei and (num>=0 and num<MAXTILES)) then
+            if (g_dyntilei==true) then
+                -- Init name -> g_dynTileList index mapping
+                g_dyntilei = {}
+
+                for i=0,math.huge do
+                    local str = ffiC.g_dynTileList[i].str
+                    if (str==nil) then
+                        break
+                    end
+
+                    g_dyntilei[ffi.string(str)] = i
+                end
+            end
+
+            -- Potentially process one dynamic tile remapping
+            if (g_dyntilei[identifier]) then
+                local di = ffiC.g_dynTileList[g_dyntilei[identifier]]
+
+                if (ffiC._DEBUG_LUNATIC~=0 and di.staticval~=num) then
+                    printf("REMAP %s (%d) --> %d", ffi.string(di.str), di.staticval, num)
+                end
+                di.dynvalptr[0] = num
+            end
         end
 
         -- New definition of a label
@@ -1244,7 +1277,7 @@ local Couter = {
 
     --- 2. Defines and Meta-Settings
     dynamicremap = cmd()
-        / Cmd.NYI("dynamic tile remapping"),
+        / function() print("Using dynamic tile remapping"); g_dyntilei=true; end,
     setcfgname = sp1 * tok.filename
         / Cmd.nyi("`setcfgname'"),
     setdefname = sp1 * tok.filename

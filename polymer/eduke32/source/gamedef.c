@@ -4087,15 +4087,17 @@ static int32_t C_ParseCommand(int32_t loop)
 
         case CON_DYNAMICREMAP:
             g_scriptPtr--;
-            if (g_dynamicTileMapping++)
+            if (g_dynamicTileMapping)
             {
                 initprintf("%s:%d: warning: duplicate dynamicremap statement\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerWarnings++;
             }
-#ifdef DYNTILEREMAP_ENABLE
-            else initprintf("Using dynamic tile remapping\n");
-#else
             else
+#ifdef DYNTILEREMAP_ENABLE
+                initprintf("Using dynamic tile remapping\n");
+
+            g_dynamicTileMapping = 1;
+#else
             {
                 initprintf("%s:%d: warning: dynamic tile remapping is disabled in this build\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerWarnings++;

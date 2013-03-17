@@ -43,7 +43,8 @@ struct dynitem
     const int16_t staticval;
 };
 
-static struct dynitem list[]=
+// NOTE: external linkage for Lunatic
+struct dynitem g_dynTileList[] =
 {
     { "SECTOREFFECTOR", DVPTR(SECTOREFFECTOR), SECTOREFFECTOR__STATIC },
     { "ACTIVATOR", DVPTR(ACTIVATOR), ACTIVATOR__STATIC },
@@ -782,12 +783,10 @@ static struct dynitem list[]=
     { "RESERVEDSLOT10", DVPTR(RESERVEDSLOT10), RESERVEDSLOT10__STATIC },
     { "RESERVEDSLOT11", DVPTR(RESERVEDSLOT11), RESERVEDSLOT11__STATIC },
     { "RESERVEDSLOT12", DVPTR(RESERVEDSLOT12), RESERVEDSLOT12__STATIC },
-    { 0, NULL, 0 },
+    { NULL, NULL, 0 },
  };
 
 #ifdef DYNTILEREMAP_ENABLE
-
-static hashtable_t h_names = {512, NULL};
 
 int32_t SECTOREFFECTOR = SECTOREFFECTOR__STATIC;
 int32_t ACTIVATOR = ACTIVATOR__STATIC;
@@ -1528,6 +1527,9 @@ int32_t RESERVEDSLOT10 = RESERVEDSLOT10__STATIC;
 int32_t RESERVEDSLOT11 = RESERVEDSLOT11__STATIC;
 int32_t RESERVEDSLOT12 = RESERVEDSLOT12__STATIC;
 
+#if !defined LUNATIC
+static hashtable_t h_names = {512, NULL};
+
 void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue)
 {
     int32_t i;
@@ -1538,11 +1540,12 @@ void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue)
     i = hash_find(&h_names,szLabel);
     if (i>=0)
     {
+        struct dynitem *di = &g_dynTileList[i];
 #ifdef DEBUGGINGAIDS
-        if (list[i].staticval != *list[i].dynvalptr)
-            OSD_Printf("REMAP %s (%d) --> %d\n", list[i].str, list[i].staticval, *list[i].dynvalptr);
+        if (di->staticval != lValue)
+            OSD_Printf("REMAP %s (%d) --> %d\n", di->str, di->staticval, lValue);
 #endif
-        *(list[i].dynvalptr) = lValue;
+        *di->dynvalptr = lValue;
     }
 }
 
@@ -1552,8 +1555,8 @@ void inithashnames(void)
 
     hash_init(&h_names);
 
-    for (i=0; list[i].staticval; i++)
-        hash_add(&h_names, list[i].str, i, 0);
+    for (i=0; g_dynTileList[i].staticval; i++)
+        hash_add(&h_names, g_dynTileList[i].str, i, 0);
 }
 
 void freehashnames(void)
@@ -1561,18 +1564,21 @@ void freehashnames(void)
     hash_free(&h_names);
 }
 #endif
+#endif
 
+// This is run after all CON define's have been processed to set up the
+// dynamic->static tile mapping.
 void G_InitDynamicTiles(void)
 {
     int32_t i;
 
     Bmemset(DynamicTileMap, 0, sizeof(DynamicTileMap));
 
-    for (i=0; list[i].staticval; i++)
+    for (i=0; g_dynTileList[i].staticval; i++)
 #ifdef DYNTILEREMAP_ENABLE
-        DynamicTileMap[*(list[i].dynvalptr)] = list[i].staticval;
+        DynamicTileMap[*(g_dynTileList[i].dynvalptr)] = g_dynTileList[i].staticval;
 #else
-        DynamicTileMap[list[i].staticval] = list[i].staticval;
+        DynamicTileMap[g_dynTileList[i].staticval] = g_dynTileList[i].staticval;
 #endif
 
     BlimpSpawnSprites[0] = RPGSPRITE;
