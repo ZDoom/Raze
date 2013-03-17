@@ -955,22 +955,20 @@ function Cmd.definesound(sndnum, fn, ...)
 end
 
 function Cmd.music(volnum, ...)
-    if (volnum==0) then
-        warnprintf("`music' for volume 0 not yet implemented")
-        return
-    end
+    local envmusicp = (volnum==0)
 
-    if (not (volnum >= 1 and volnum <= conl.MAXVOLUMES)) then
+    if (not (volnum >= 0 and volnum <= conl.MAXVOLUMES)) then
         -- NOTE: Don't allow MAXVOLUMES+1 for now.
-        errprintf("volume number must be between 1 and MAXVOLUMES=%d", conl.MAXVOLUMES)
+        errprintf("volume number must be between 0 and MAXVOLUMES=%d", conl.MAXVOLUMES)
         return
     end
 
     local filenames = {...}
+    local MAXFNS = envmusicp and conl.MAXVOLUMES or conl.MAXLEVELS
 
-    if (#filenames > conl.MAXLEVELS) then
-        warnprintf("ignoring extraneous %d music file names", #filenames-conl.MAXLEVELS)
-        for i=conl.MAXLEVELS+1,#filenames do
+    if (#filenames > MAXFNS) then
+        warnprintf("ignoring extraneous %d music file names", #filenames-MAXFNS)
+        for i=MAXFNS+1,#filenames do
             filenames[i] = nil
         end
     end

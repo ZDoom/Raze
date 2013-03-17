@@ -2138,15 +2138,25 @@ void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
 
 void C_DefineMusic(int32_t vol, int32_t lev, const char *fn)
 {
-    Bassert((unsigned)vol < MAXVOLUMES+1);
-    Bassert((unsigned)lev < MAXLEVELS);
-
+    if (vol==-1)
     {
-        map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
+        Bassert((unsigned)lev < MAXVOLUMES);
 
-        Bfree(map->musicfn);
-        map->musicfn = dup_filename(fn);
-        check_filename_case(map->musicfn);
+        Bstrncpyz(EnvMusicFilename[lev], fn, BMAX_PATH);
+        check_filename_case(EnvMusicFilename[lev]);
+    }
+    else
+    {
+        Bassert((unsigned)vol < MAXVOLUMES+1);
+        Bassert((unsigned)lev < MAXLEVELS);
+
+        {
+            map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
+
+            Bfree(map->musicfn);
+            map->musicfn = dup_filename(fn);
+            check_filename_case(map->musicfn);
+        }
     }
 }
 

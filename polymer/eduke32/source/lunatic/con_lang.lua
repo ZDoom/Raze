@@ -821,7 +821,9 @@ local UserdefLabels = {
     screen_tilting = UD".screen_tilting",
     showallmap = UDRO".showallmap",
     showweapons = UDRO".showweapons",
+    statusbarscale = UDRO".statusbarscale",
     volume_number = { UD".volume_number", UD":set_volume_number(%%s)" },
+    weaponscale = UDRO".weaponscale",
     weaponswitch = UD".weaponswitch",
 }
 
