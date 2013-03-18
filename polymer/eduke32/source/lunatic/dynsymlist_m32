@@ -40,6 +40,8 @@ prevspritesect;
 prevspritestat;
 nextspritesect;
 nextspritestat;
+tilesizx;
+tilesizy;
 
 headsectbunch;
 nextsectbunch;

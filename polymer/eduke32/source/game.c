@@ -8687,8 +8687,6 @@ static int32_t loaddefinitions_game(const char *fn, int32_t preload)
 }
 
 #ifdef LUNATIC
-// TODO: In Windows, argv[argc] isn't NULL as demanded by C99. (See winlayer.c:
-// "carve up...").
 const char **g_argv;
 #endif
 

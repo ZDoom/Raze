@@ -78,8 +78,8 @@
 static mutex_t m_initprintf;
 static int32_t winlayer_have_ATI = 0;
 
-int32_t   _buildargc = 0;
-const char **_buildargv = NULL;
+static int32_t   _buildargc = 0;
+static const char **_buildargv = NULL;
 static char *argvbuf = NULL;
 extern int32_t app_main(int32_t argc, const char **argv);
 
@@ -413,13 +413,14 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         }
         *wp = 0;
 
-        _buildargv = (const char **)Bmalloc(sizeof(char *)*_buildargc);
+        _buildargv = (const char **)Bmalloc(sizeof(char *)*(_buildargc+1));
         wp = argvbuf;
         for (i=0; i<_buildargc; i++,wp++)
         {
             _buildargv[i] = wp;
             while (*wp) wp++;
         }
+        _buildargv[_buildargc] = NULL;
     }
 
     maybe_redirect_outputs();
