@@ -3875,7 +3875,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             i = sintable[i+512]*8 + sintable[i]*5;
             i >>= tiltcs; // JBF 20030807
 
-            rotatesprite_win(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64);
+            rotatesprite_win(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64+1024);
             walock[TILE_TILT] = 199;
         }
         else if (pixelDoubling)
