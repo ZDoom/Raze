@@ -98,7 +98,7 @@ local g_defaultDir = nil
 -- -Wno-bad-identifier for disabling the "bad identifier" warning.
 local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
                  ["number-conversion"]=true, ["system-gamevar"]=true,
-                 ["error-bad-getactorvar"]=true, }
+                 ["error-bad-getactorvar"]=false, }
 
 -- Code generation and output options.
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
@@ -160,6 +160,8 @@ local function PLSX(s) return "player[_pli]"..s end
 local function getlinecol(pos) end -- fwd-decl
 
 local function new_initial_codetab()
+    -- NOTE: Keep this one line per line to not confuse the Lua->CON line
+    -- mapping system.
     return {
         "local _con, _bit, _math = require'con', require'bit', require'math';",
         "local _xmath, _geom = require'xmath', require'geom';",
@@ -175,10 +177,9 @@ local function new_initial_codetab()
 
         -- Static ivec3s so that no allocations need to be made.
         "local _IVEC = { _geom.ivec3(), _geom.ivec3() }",
-        [[local function _IV(num, x, y, z)
-              local v=_IVEC[num]; v.x=x; v.y=y; v.z=z; return v;
-          end
-        ]],
+        "local function _IV(num, x, y, z)",
+        "  local v=_IVEC[num]; v.x=x; v.y=y; v.z=z; return v;",
+        "end",
            }
 end
 
@@ -282,7 +283,8 @@ local function new_initial_gvartab()
 
     for w=0,MAX_WEAPONS-1 do
         for i=1,#wmembers do
-            local member = wmembers[i]:gsub(".* ","")  -- strip e.g. "int32_t "
+            local member = wmembers[i]:gsub(".*_t ","")  -- strip e.g. "const int32_t "
+                                      :gsub("^_","")  -- strip potentially leading underscore
             local name = format("WEAPON%d_%s", w, member:upper())
             gamevar[name] = PRW(format(PLSX".weapon[%d].%s", w, member))
 
@@ -1106,15 +1108,17 @@ function Cmd.gamevar(identifier, initval, flags)
                                bit.tohex(bit.band(ogv.rbits, initval)), identifier)
                 end
 
+                local linestr = "--"..getlinecol(g_lastkwpos)
+
                 -- Emit code to set the variable at Lua parse time.
                 if (bit.band(oflags, GVFLAG.PERPLAYER) ~= 0) then
                     -- Replace player index by 0.
                     -- TODO_MP: init for all players.
                     local pvar, numrepls = ogv.name:gsub("_pli", "0")
                     assert(numrepls>=1)
-                    addcodef("%s=%d", pvar, initval)
+                    addcodef("%s=%d%s", pvar, initval, linestr)
                 else
-                    addcodef("%s=%d", ogv.name, initval)
+                    addcodef("%s=%d%s", ogv.name, initval, linestr)
                 end
                 return
             end

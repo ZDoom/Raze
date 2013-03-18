@@ -299,6 +299,9 @@ struct {
 }
 ]]
 
+-- KEEPINSYNC weapondata_mt below.
+local WEAPONDATA_STRUCT = "struct {"..table.concat(con_lang.wdata_members, ';').."; }"
+
 local randgen = require("randgen")
 local geom = require("geom")
 
@@ -735,6 +738,7 @@ end
 local actor_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(ACTOR_STRUCT)))
 local player_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(DUKEPLAYER_STRUCT)))
 local projectile_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(PROJECTILE_STRUCT)))
+local weapondata_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(WEAPONDATA_STRUCT)))
 local con_action_ct = ffi.typeof("con_action_t")
 local con_move_ct = ffi.typeof("con_move_t")
 local con_ai_ct = ffi.typeof("con_ai_t")
@@ -914,16 +918,25 @@ ffi.metatype("actor_t", actor_mt)
 local weapondata_mt = {
     __newindex = function(wd, member, val)
         if (string.match(member, "sound")) then
-            -- TODO: set to 0 if oob? (e.g. CrackDown)
-            check_sound_idx(val)
+            if (val < 0) then
+                val = 0  -- Set to 0 if oob (e.g. CrackDown).
+            else
+                check_sound_idx(val)
+            end
         elseif (member=="workslike") then
             check_weapon_idx(val)
-        elseif (member=="shoots" or member=="spawn") then
-            -- TODO: set to 0 if oob? (e.g. AMC TC)
-            check_tile_idx(val)
+        elseif (member=="spawn" or member=="shoots") then
+            if (val < 0) then
+                -- Set to 0 if oob (e.g. CrackDown). This is a bit problematic
+                -- for .shoots because it's used unconditionally except in one
+                -- case (see player.c).
+                val = 0
+            else
+                check_tile_idx(val)
+            end
         end
 
-        wd[member] = val
+        ffi.cast(weapondata_ptr_ct, wd)['_'..member] = val
     end,
 }
 ffi.metatype("weapondata_t", weapondata_mt)

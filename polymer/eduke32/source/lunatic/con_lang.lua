@@ -314,24 +314,24 @@ labels =
 wdata_members =
 {
     -- NOTE: they are lowercased for Lunatic
-    "int32_t workslike",
+    "const int32_t _workslike",
     "int32_t clip",
     "int32_t reload",
     "int32_t firedelay",
     "int32_t totaltime",
     "int32_t holddelay",
     "int32_t flags",
-    "int32_t shoots",
+    "const int32_t _shoots",
     "int32_t spawntime",
-    "int32_t spawn",
+    "const int32_t _spawn",
     "int32_t shotsperburst",
-    "int32_t initialsound",
-    "int32_t firesound",
-    "int32_t sound2time",
-    "int32_t sound2sound",
-    "int32_t reloadsound1",
-    "int32_t reloadsound2",
-    "int32_t selectsound",
+    "const int32_t _initialsound",
+    "const int32_t _firesound",
+    "int32_t sound2time",  -- NOTE: this is a time number, not a sound
+    "const int32_t _sound2sound",
+    "const int32_t _reloadsound1",
+    "const int32_t _reloadsound2",
+    "const int32_t _selectsound",
     "int32_t flashcolor",
 }
 
