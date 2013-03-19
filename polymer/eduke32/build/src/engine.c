@@ -5537,11 +5537,15 @@ static void drawsprite_classic(int32_t snum)
     const int32_t spritenum = tspr->owner;
     const int32_t sectnum = tspr->sectnum;
     const sectortype *const sec = (sectnum>=0) ? &sector[sectnum] : NULL;
-    int32_t tilenum = tspr->picnum;
+    int32_t tilenum;
     int32_t cstat = tspr->cstat;
 
-    if ((unsigned)tilenum >= MAXTILES || sec==NULL)
+    if ((unsigned)tspr->picnum >= MAXTILES || sec==NULL)
         return;
+
+    DO_TILE_ANIM(tspr->picnum, spritenum+32768);
+
+    tilenum = tspr->picnum;
 
     if ((cstat&48)==48)
         vtilenum = tilenum; // if the game wants voxels, it gets voxels
@@ -5559,7 +5563,6 @@ static void drawsprite_classic(int32_t snum)
     {
         if (spritenum < 0 || tilesizx[tilenum] <= 0 || tilesizy[tilenum] <= 0)
             return;
-        DO_TILE_ANIM(tilenum, spritenum+32768);
     }
 
     if (tspr->xrepeat <= 0 || tspr->yrepeat <= 0)

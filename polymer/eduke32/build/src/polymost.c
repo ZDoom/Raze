@@ -4889,16 +4889,18 @@ void polymost_drawsprite(int32_t snum)
     tspr = tspriteptr[snum];
     if (tspr->owner < 0 || tspr->picnum < 0 || tspr->picnum >= MAXTILES) return;
 
+    spritenum         = tspr->owner;
+
+    DO_TILE_ANIM(tspr->picnum, spritenum+32768);
+
     globalpicnum      = tspr->picnum;
     globalshade       = tspr->shade;
     globalpal         = tspr->pal;
     globalorientation = tspr->cstat;
-    spritenum         = tspr->owner;
 
     if ((globalorientation&48) != 48)  	// only non-voxel sprites should do this
     {
         int32_t flag;
-        DO_TILE_ANIM(globalpicnum, spritenum+32768);
         flag = usehightile && h_xsize[globalpicnum];
         xoff = (int32_t)tspr->xoffset;
         yoff = (int32_t)tspr->yoffset;

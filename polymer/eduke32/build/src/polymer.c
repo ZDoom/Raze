@@ -1350,6 +1350,8 @@ void                polymer_drawsprite(int32_t snum)
     if ((tspr->cstat & 16384) && (!depth || mirrors[depth-1].plane))
         return;
 
+    DO_TILE_ANIM(tspr->picnum, tspr->owner+32768);
+
     calc_and_apply_fog(tspr->shade, sector[tspr->sectnum].visibility,
             sector[tspr->sectnum].floorpal);
 
