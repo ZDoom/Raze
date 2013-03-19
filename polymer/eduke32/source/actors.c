@@ -8139,7 +8139,7 @@ void A_PlayAlertSound(int32_t i)
         case BOSS4STAYPUT__STATIC:
             if (sprite[i].pal != 0)
                 S_PlaySound(BOS4_RECOG);
-            S_PlaySound(BOSS4_FIRSTSEE);
+            else S_PlaySound(BOSS4_FIRSTSEE);
             break;
         case GREENSLIME__STATIC:
             A_PlaySound(SLIM_RECOG,i);
