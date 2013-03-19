@@ -401,6 +401,8 @@ void G_SavePlayerMaybeMulti(int32_t slot)
 {
     Bassert(slot >= 0);
 
+    CONFIG_WriteSetup(0);
+
     if (g_netServer || ud.multimode > 1)
     {
         Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
