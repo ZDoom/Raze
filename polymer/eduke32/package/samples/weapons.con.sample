@@ -470,7 +470,7 @@ state draw_rpg // RPG_WEAPON:
 
     setvarvar hud_x weapon_xoffset
     setvarvar hud_y looking_arc
-    shiftvarl looking_arc 1
+    shiftvarl hud_y 1
     subvarvar hud_y gun_pos
 
     setvarvar hud_temp weaponcount
@@ -662,7 +662,7 @@ state draw_chaingun // CHAINGUN_WEAPON:
         addvarvar hud_y hud_temp
 
         getactor[playerid].pal hud_temp
-        ifvarn hud_pal 1
+        ifvarn hud_temp 1
         {
             displayrand hud_temp
             andvar hud_temp 3
@@ -1323,6 +1323,10 @@ state draw_freezer // FREEZE_WEAPON:
                 andvar hud_temp 3
 
                 addvarvar hud_x hud_temp
+
+                displayrand hud_temp
+                andvar hud_temp 3
+
                 addvarvar hud_y hud_temp
             }
 
@@ -1395,15 +1399,18 @@ state draw_expander // GROW_WEAPON:
             {
                 displayrand hud_temp
                 andvar hud_temp 3
-            }
-            else
-                setvar hud_temp 0
 
-            addvarvar hud_x hud_temp
+                addvarvar hud_x hud_temp
+
+                displayrand hud_temp
+                andvar hud_temp 3
+
+                subvarvar hud_y hud_temp
+            }
+
             addvar hud_x 184
 
             addvar hud_y 240
-            subvarvar hud_y hud_temp
 
             setvarvar hud_tilenum weaponcount
             andvar hud_tilenum 3
@@ -1494,15 +1501,18 @@ state draw_shrinker // SHRINKER_WEAPON:
             {
                 displayrand hud_temp
                 andvar hud_temp 3
-            }
-            else
-                setvar hud_temp 0
 
-            addvarvar hud_x hud_temp
+                addvarvar hud_x hud_temp
+
+                displayrand hud_temp
+                andvar hud_temp 3
+
+                subvarvar hud_y hud_temp
+            }
+
             addvar hud_x 184
 
             addvar hud_y 240
-            subvarvar hud_y hud_temp
 
             setvarvar hud_tilenum weaponcount
             andvar hud_tilenum 3
