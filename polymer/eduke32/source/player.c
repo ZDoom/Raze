@@ -2372,7 +2372,8 @@ void P_DisplayWeapon(int32_t snum)
 
                         if (*kb < PWEAPON(0, CHAINGUN_WEAPON, TotalTime)-4)
                         {
-                            i = rand()&7;
+                            i = 0;
+                            if (sprite[p->i].pal != 1) i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+162-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
                                 CHAINGUN+5+((*kb-2)/5),gs,o,pal,0);
                             G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
