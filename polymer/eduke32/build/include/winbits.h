@@ -26,3 +26,5 @@ extern void win_close(void);
 extern void ShowErrorBox(const char *m);
 
 extern LPTSTR GetWindowsErrorMsg(DWORD code);
+
+extern int32_t addsearchpath_ProgramFiles(const char *p);

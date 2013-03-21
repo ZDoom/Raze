@@ -6,6 +6,7 @@
 #include "build.h"
 #include "baselayer.h"
 #include "osd.h"
+#include "cache1d.h"
 #include "winbits.h"
 
 #ifndef DEBUGGINGAIDS
@@ -274,4 +275,22 @@ LPTSTR GetWindowsErrorMsg(DWORD code)
     return lpMsgBuf;
 }
 
+int32_t addsearchpath_ProgramFiles(const char *p)
+{
+    int32_t returncode = -1, i;
+    const char *ProgramFiles[2] = { Bgetenv("ProgramFiles"), Bgetenv("ProgramFiles(x86)") };
 
+    for (i = 0; i < 2; ++i)
+    {
+        if (ProgramFiles[i])
+        {
+            char *buffer = (char*)Bmalloc((strlen(ProgramFiles[i])+1+strlen(p)+1)*sizeof(char));
+            Bsprintf(buffer,"%s/%s",ProgramFiles[i],p);
+            if (addsearchpath(buffer) == 0) // if any work, return success
+                returncode = 0;
+            Bfree(buffer);
+        }
+    }
+
+    return returncode;
+}

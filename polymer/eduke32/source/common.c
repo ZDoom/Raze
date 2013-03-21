@@ -10,6 +10,10 @@
 #include "baselayer.h"
 #include "names.h"
 
+#ifdef _WIN32
+# include "winbits.h"
+#endif
+
 #include "common.h"
 #include "common_game.h"
 
@@ -191,6 +195,24 @@ void G_MultiPskyInit(void)
 
     // default in game:
     parallaxyscale = 32768;
+}
+
+//////////
+
+void G_AddSearchPaths(void)
+{
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+    addsearchpath("/usr/share/games/jfduke3d");
+    addsearchpath("/usr/local/share/games/jfduke3d");
+    addsearchpath("/usr/share/games/eduke32");
+    addsearchpath("/usr/local/share/games/eduke32");
+#elif defined(__APPLE__)
+    addsearchpath("/Library/Application Support/JFDuke3D");
+    addsearchpath("/Library/Application Support/EDuke32");
+#elif defined (_WIN32)
+    addsearchpath_ProgramFiles("GOG.com/Duke Nukem 3D");
+    addsearchpath_ProgramFiles("Steam/SteamApps/common/Duke Nukem 3D/gameroot");
+#endif
 }
 
 //////////

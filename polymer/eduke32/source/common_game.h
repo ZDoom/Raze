@@ -49,4 +49,8 @@ extern void clearScriptNamePtr(void);
 
 extern void G_MultiPskyInit(void);
 
+//////////
+
+extern void G_AddSearchPaths(void);
+
 #endif

@@ -10244,15 +10244,7 @@ int32_t ExtInit(void)
     int32_t i;
     char cwd[BMAX_PATH];
 
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-    addsearchpath("/usr/share/games/jfduke3d");
-    addsearchpath("/usr/local/share/games/jfduke3d");
-    addsearchpath("/usr/share/games/eduke32");
-    addsearchpath("/usr/local/share/games/eduke32");
-#elif defined(__APPLE__)
-    addsearchpath("/Library/Application Support/JFDuke3D");
-    addsearchpath("/Library/Application Support/EDuke32");
-#endif
+    G_AddSearchPaths();
 
     if (getcwd(cwd,BMAX_PATH))
     {
