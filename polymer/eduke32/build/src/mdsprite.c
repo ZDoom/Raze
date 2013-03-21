@@ -1300,10 +1300,20 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m3 = (md3model_t *)Bcalloc(1, sizeof(md3model_t)); if (!m3) { Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     m3->mdnum = 3; m3->texid = 0; m3->scale = m->scale;
     m3->head.id = 0x33504449; m3->head.vers = 15;
-    // this changes the conversion code to do real MD2->MD3 conversion
-    // it breaks HRP MD2 oozfilter, change the flags to 1337 to revert
-    // to the old, working code
-    m3->head.flags = 0;
+
+// DO_MD2_MD3_CONV:
+//  1: use the conversion code to do real MD2->MD3 conversion,
+//     breaking HRP MD2 oozfilter
+//  0: use flags 1337 (reverting to the old, working code)
+#define DO_MD2_MD3_CONV 1
+
+#if DO_MD2_MD3_CONV
+# define MFLAGS_NOCONV(m) (0)
+#else
+# define MFLAGS_NOCONV(m) ((m)->head.flags == 1337)
+#endif
+    m3->head.flags = DO_MD2_MD3_CONV ? 0 : 1337;
+
     m3->head.numframes = m->numframes;
     m3->head.numtags = 0; m3->head.numsurfs = 1;
     m3->head.numskins = 0;
@@ -1378,7 +1388,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
             while (k < m->numframes)
             {
                 f = (md2frame_t *)&m->frames[k*m->framebytes];
-                if (m3->head.flags == 1337)
+                if (MFLAGS_NOCONV(m3))
                 {
                     s->xyzn[(k*s->numverts) + (i*3) + j].x = f->verts[m->tris[i].v[j]].v[0];
                     s->xyzn[(k*s->numverts) + (i*3) + j].y = f->verts[m->tris[i].v[j]].v[1];
@@ -2077,7 +2087,7 @@ static inline void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexh
 
 static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 {
-    point3d fp, fp1, fp2, m0, m1, a0;
+    point3d m0, m1, a0;
     md3xyzn_t *v0, *v1;
     int32_t i, surfi;
     float f, g, k0, k1, k2=0, k3=0, mat[16];  // inits: compiler-happy
@@ -2123,7 +2133,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
             m->nframe = m->numframes - 1;
     }
 
-    if (m->head.flags == 1337)
+    if (MFLAGS_NOCONV(m))
     {
         // md2
         m0.x = m->scale * g; m1.x = m->scale *f;
@@ -2245,12 +2255,12 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         if ((tspr->cstat&2) || sext->alpha > 0.f || pc[3] < 1.0f) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     }
     bglColor4f(pc[0],pc[1],pc[2],pc[3]);
-    //if (m->head.flags == 1337)
+    //if (MFLAGS_NOCONV(m))
     //    bglColor4f(0.0f, 0.0f, 1.0f, 1.0f);
     //------------
 
     // PLAG: Cleaner model rotation code
-    if (sext->pitch || sext->roll || m->head.flags == 1337)
+    if (sext->pitch || sext->roll || MFLAGS_NOCONV(m))
     {
         if (sext->xoff)
             a0.x = (float)(sext->xoff / (2560 * (m0.x+m1.x)));
@@ -2294,17 +2304,21 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 
         for (i=s->numverts-1; i>=0; i--)
         {
-            if (sext->pitch || sext->roll || m->head.flags == 1337)
+            point3d fp;
+
+            if (sext->pitch || sext->roll || MFLAGS_NOCONV(m))
             {
-                fp.z = ((m->head.flags == 1337) ? (v0[i].x * m->muladdframes[m->cframe*2].x) + m->muladdframes[m->cframe*2+1].x : v0[i].x) + a0.x;
-                fp.x = ((m->head.flags == 1337) ? (v0[i].y * m->muladdframes[m->cframe*2].y) + m->muladdframes[m->cframe*2+1].y : v0[i].y) + a0.y;
-                fp.y = ((m->head.flags == 1337) ? (v0[i].z * m->muladdframes[m->cframe*2].z) + m->muladdframes[m->cframe*2+1].z : v0[i].z) + a0.z;
+                point3d fp1, fp2;
+
+                fp.z = ((MFLAGS_NOCONV(m)) ? (v0[i].x * m->muladdframes[m->cframe*2].x) + m->muladdframes[m->cframe*2+1].x : v0[i].x) + a0.x;
+                fp.x = ((MFLAGS_NOCONV(m)) ? (v0[i].y * m->muladdframes[m->cframe*2].y) + m->muladdframes[m->cframe*2+1].y : v0[i].y) + a0.y;
+                fp.y = ((MFLAGS_NOCONV(m)) ? (v0[i].z * m->muladdframes[m->cframe*2].z) + m->muladdframes[m->cframe*2+1].z : v0[i].z) + a0.z;
                 fp1.x = fp.x*k2 +       fp.y*k3;
                 fp1.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
                 fp1.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
-                fp.z = ((m->head.flags == 1337) ? (v1[i].x * m->muladdframes[m->nframe*2].x) + m->muladdframes[m->nframe*2+1].x : v1[i].x) + a0.x;
-                fp.x = ((m->head.flags == 1337) ? (v1[i].y * m->muladdframes[m->nframe*2].y) + m->muladdframes[m->nframe*2+1].y : v1[i].y) + a0.y;
-                fp.y = ((m->head.flags == 1337) ? (v1[i].z * m->muladdframes[m->nframe*2].z) + m->muladdframes[m->nframe*2+1].z : v1[i].z) + a0.z;
+                fp.z = ((MFLAGS_NOCONV(m)) ? (v1[i].x * m->muladdframes[m->nframe*2].x) + m->muladdframes[m->nframe*2+1].x : v1[i].x) + a0.x;
+                fp.x = ((MFLAGS_NOCONV(m)) ? (v1[i].y * m->muladdframes[m->nframe*2].y) + m->muladdframes[m->nframe*2+1].y : v1[i].y) + a0.y;
+                fp.y = ((MFLAGS_NOCONV(m)) ? (v1[i].z * m->muladdframes[m->nframe*2].z) + m->muladdframes[m->nframe*2+1].z : v1[i].z) + a0.z;
                 fp2.x = fp.x*k2 +       fp.y*k3;
                 fp2.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
                 fp2.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
@@ -2318,6 +2332,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
                 fp.y = v0[i].z*m0.z + v1[i].z*m1.z;
                 fp.x = v0[i].y*m0.y + v1[i].y*m1.y;
             }
+
             if (r_vertexarrays && r_vbos)
             {
                 vertexhandle[i].x = fp.x;
@@ -2433,6 +2448,8 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         {
             for (i=s->numtris-1; i>=0; i--)
             {
+                point3d fp, fp1, fp2;
+
                 // Matrix multiplication - ugly but clear
                 fp.x = (vertlist[s->tris[i].i[0]].x * mat[0]) + (vertlist[s->tris[i].i[0]].y * mat[4]) + (vertlist[s->tris[i].i[0]].z * mat[8]) + mat[12];
                 fp.y = (vertlist[s->tris[i].i[0]].x * mat[1]) + (vertlist[s->tris[i].i[0]].y * mat[5]) + (vertlist[s->tris[i].i[0]].z * mat[9]) + mat[13];
@@ -2572,7 +2589,7 @@ static void md3free(md3model_t *m)
         {
             s = &m->head.surfs[surfi];
             if (s->tris) Bfree(s->tris);
-            if (m->head.flags == 1337)
+            if (MFLAGS_NOCONV(m))
             {
                 if (s->shaders) Bfree(s->shaders);
                 if (s->uv) Bfree(s->uv);
