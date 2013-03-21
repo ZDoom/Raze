@@ -3301,9 +3301,9 @@ voxmodel_t *voxload(const char *filnam)
 //Draw voxel model as perfect cubes
 int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
 {
-    point3d fp, m0, a0;
+    point3d m0, a0;
     int32_t i, j, fi, xx, yy, zz;
-    float ru, rv, phack[2], clut[6] = {1,1,1,1,1,1}; //1.02,1.02,0.94,1.06,0.98,0.98};
+    float ru, rv, phack[2]; //, clut[6] = {1.02,1.02,0.94,1.06,0.98,0.98};
     float f, g, k0, mat[16], omat[16], pc[4];
     vert_t *vptr;
 
@@ -3398,7 +3398,7 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
     bglBegin(GL_QUADS);
     for (i=0,fi=0; i<m->qcnt; i++)
     {
-        if (i == m->qfacind[fi]) { f = clut[fi++]; bglColor4f(pc[0]*f,pc[1]*f,pc[2]*f,pc[3]*f); }
+        if (i == m->qfacind[fi]) { f = 1 /*clut[fi++]*/; bglColor4f(pc[0]*f,pc[1]*f,pc[2]*f,pc[3]*f); }
         vptr = &m->quad[i].v[0];
 
         xx = vptr[0].x+vptr[2].x;
@@ -3407,6 +3407,7 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
 
         for (j=0; j<4; j++)
         {
+            point3d fp;
 #if (VOXBORDWIDTH == 0)
             bglTexCoord2f(((float)vptr[j].u)*ru+uhack[vptr[j].u!=vptr[0].u],
                           ((float)vptr[j].v)*rv+vhack[vptr[j].v!=vptr[0].v]);
