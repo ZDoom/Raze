@@ -2032,20 +2032,58 @@ static void md3_vox_calcmat_common(const spritetype *tspr, const point3d *a0, fl
     mat[14] += a0->y*mat[2] + a0->z*mat[6] + a0->x*mat[10];
 }
 
+static inline void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
+                                            int32_t texunits, const md3model_t *M)
+{
+    int32_t i, j;
+
+    if (r_vertexarrays)
+    {
+        int32_t k = 0;
+        for (i=s->numtris-1; i>=0; i--)
+        {
+            uint16_t tri = M ? M->indexes[i] : i;
+
+            for (j=0; j<3; j++)
+                indexhandle[k++] = s->tris[tri].i[j];
+        }
+    }
+    else
+    {
+        bglBegin(GL_TRIANGLES);
+        for (i=s->numtris-1; i>=0; i--)
+        {
+            uint16_t tri = M ? M->indexes[i] : i;
+
+            for (j=0; j<3; j++)
+            {
+                int32_t k = s->tris[tri].i[j];
+
+                if (texunits > GL_TEXTURE0_ARB)
+                {
+                    int32_t l = GL_TEXTURE0_ARB;
+                    while (l <= texunits)
+                        bglMultiTexCoord2fARB(l++, s->uv[k].u,s->uv[k].v);
+                }
+                else
+                    bglTexCoord2f(s->uv[k].u,s->uv[k].v);
+
+                bglVertex3fv((float *)&vertlist[k]);
+            }
+        }
+        bglEnd();
+    }
+}
+
 static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 {
     point3d fp, fp1, fp2, m0, m1, a0;
     md3xyzn_t *v0, *v1;
-    int32_t i, j, k, l, surfi;
+    int32_t i, surfi;
     float f, g, k0, k1, k2=0, k3=0, mat[16];  // inits: compiler-happy
-    md3surf_t *s;
     GLfloat pc[4];
     int32_t                 texunits = GL_TEXTURE0_ARB;
-    mdskinmap_t *sk;
-    //PLAG : sorting stuff
-    void               *vbotemp;
-    point3d            *vertexhandle = NULL;
-    uint16_t     *indexhandle;
+
     uint8_t lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
     if (r_vbos && (m->vbos == NULL))
@@ -2230,7 +2268,13 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
-        s = &m->head.surfs[surfi];
+        //PLAG : sorting stuff
+        void               *vbotemp;
+        point3d            *vertexhandle = NULL;
+        uint16_t     *indexhandle;
+
+        const md3surf_t const *s = &m->head.surfs[surfi];
+
         v0 = &s->xyzn[m->cframe*s->numverts];
         v1 = &s->xyzn[m->nframe*s->numverts];
 
@@ -2304,6 +2348,8 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 
         if (i)
         {
+            mdskinmap_t *sk;
+
             bglActiveTextureARB(++texunits);
 
             bglEnable(GL_TEXTURE_2D);
@@ -2412,61 +2458,11 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
             // dichotomic recursive sorting - about 100x less iterations than bubblesort
             quicksort(m->indexes, m->maxdepths, 0, s->numtris - 1);
 
-            if (r_vertexarrays)
-            {
-                k = 0;
-                for (i=s->numtris-1; i>=0; i--)
-                    for (j=0; j<3; j++)
-                        indexhandle[k++] = s->tris[m->indexes[i]].i[j];
-            }
-            else
-            {
-                bglBegin(GL_TRIANGLES);
-                for (i=s->numtris-1; i>=0; i--)
-                    for (j=0; j<3; j++)
-                    {
-                        k = s->tris[m->indexes[i]].i[j];
-                        if (texunits > GL_TEXTURE0_ARB)
-                        {
-                            l = GL_TEXTURE0_ARB;
-                            while (l <= texunits)
-                                bglMultiTexCoord2fARB(l++, s->uv[k].u,s->uv[k].v);
-                        }
-                        else
-                            bglTexCoord2f(s->uv[k].u,s->uv[k].v);
-                        bglVertex3fv((float *)&vertlist[k]);
-                    }
-                bglEnd();
-            }
+            md3draw_handle_triangles(s, indexhandle, texunits, m);
         }
         else
         {
-            if (r_vertexarrays)
-            {
-                k = 0;
-                for (i=s->numtris-1; i>=0; i--)
-                    for (j=0; j<3; j++)
-                        indexhandle[k++] = s->tris[i].i[j];
-            }
-            else
-            {
-                bglBegin(GL_TRIANGLES);
-                for (i=s->numtris-1; i>=0; i--)
-                    for (j=0; j<3; j++)
-                    {
-                        k = s->tris[i].i[j];
-                        if (texunits > GL_TEXTURE0_ARB)
-                        {
-                            l = GL_TEXTURE0_ARB;
-                            while (l <= texunits)
-                                bglMultiTexCoord2fARB(l++, s->uv[k].u,s->uv[k].v);
-                        }
-                        else
-                            bglTexCoord2f(s->uv[k].u,s->uv[k].v);
-                        bglVertex3fv((float *)&vertlist[k]);
-                    }
-                bglEnd();
-            }
+            md3draw_handle_triangles(s, indexhandle, texunits, NULL);
         }
 
         if (r_vertexarrays && r_vbos)
@@ -2477,6 +2473,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 
         if (r_vertexarrays)
         {
+            int32_t l;
             if (r_vbos)
                 bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->vbos[surfi]);
             l = GL_TEXTURE0_ARB;
