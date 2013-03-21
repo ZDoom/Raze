@@ -10055,12 +10055,6 @@ static int32_t check_filename_casing(void)
 }
 #endif
 
-#ifdef GEKKO
-void L2Enhance();
-void CON_EnableGecko(int channel,int safe);
-bool fatInit (uint32_t cacheSize, bool setAsDefaultDevice);
-#endif
-
 #ifdef LUNATIC
 const char *g_sizes_of_what[] = {
     "sectortype", "walltype", "spritetype", "spriteext_t",
@@ -10103,12 +10097,7 @@ int32_t app_main(int32_t argc, const char **argv)
     Bassert(sizeof(actor_t)==128);
     Bassert(sizeof(DukePlayer_t)%4 == 0);
 
-#ifdef GEKKO
-	L2Enhance();
-	CON_EnableGecko(1, 1);
-	printf("Console started\n");
-	fatInit(28, true);
-#endif
+    G_ExtPreInit();
 
 #ifdef _WIN32
     if (argc > 1)

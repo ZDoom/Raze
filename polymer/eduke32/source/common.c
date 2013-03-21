@@ -199,6 +199,23 @@ void G_MultiPskyInit(void)
 
 //////////
 
+#ifdef GEKKO
+#include "gctypes.h" // for bool
+void L2Enhance();
+void CON_EnableGecko(int channel,int safe);
+bool fatInit (uint32_t cacheSize, bool setAsDefaultDevice);
+#endif
+
+void G_ExtPreInit(void)
+{
+#ifdef GEKKO
+    L2Enhance();
+    CON_EnableGecko(1, 1);
+    Bprintf("Console started\n");
+    fatInit(28, true);
+#endif
+}
+
 void G_AddSearchPaths(void)
 {
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)

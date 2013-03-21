@@ -8820,6 +8820,8 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
 {
     wm_setapptitle("Mapster32");
 
+    G_ExtPreInit();
+
 #ifdef _WIN32
     {
         extern int32_t (*check_filename_casing_fn)(void);
@@ -10295,6 +10297,8 @@ int32_t ExtInit(void)
                       "EDuke32 Settings"
 #elif defined(__APPLE__)
                       "Library/Application Support/EDuke32"
+#elif defined(GEKKO)
+                      "apps/eduke32"
 #else
                       ".eduke32"
 #endif

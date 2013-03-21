@@ -1,7 +1,7 @@
 @echo off
 setlocal ENABLEEXTENSIONS DISABLEDELAYEDEXPANSION
 
-set targets=eduke32
+set targets=eduke32 mapster32
 set PATH=C:\devkitPro\devkitPPC\bin;C:\devkitPro\msys\bin;C:\MinGW\bin;C:\MinGW\msys\1.0\bin;%PATH%
 
 pushd "%~dp0.."
@@ -38,7 +38,7 @@ for %%G in (%targets%) do "echo.exe" -e "    <version>%rev%</version>\n    <rele
 :: However, do throw in the licenses:
 if exist "package\*.txt" copy /y "package\*.txt" "apps\eduke32\"
 
-:: xcopy /e /q /y /EXCLUDE:%wiidir%\xcopy_exclude.txt package apps\mapster32\
+xcopy /e /q /y /EXCLUDE:%wiidir%\xcopy_exclude.txt package apps\mapster32\
 
 "ls.exe" -l -R apps
 7z.exe a -mx9 -t7z eduke32-wii-%rev%.7z apps -xr!*.svn*
