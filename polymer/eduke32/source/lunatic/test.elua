@@ -343,7 +343,8 @@ gameactor(930, 1, function(i)  -- "police line" ribbon
     local spr = sprite[i]
     local r = math.random
     local d = 20
-    local v = geom.tovec3(spr) + geom.vec3(r(-d,d), r(-d,d))
+    -- NOTE: __add metamethod is called because of the RHS:
+    local v = spr + geom.vec3(r(-d,d), r(-d,d))
     spr:setpos(v)
 end)
 

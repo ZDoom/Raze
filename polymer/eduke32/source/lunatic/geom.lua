@@ -1,5 +1,6 @@
 -- Geometry module for Lunatic.
 
+local require = require
 local ffi = require("ffi")
 local math = require("math")
 
@@ -10,15 +11,13 @@ local error = error
 module(...)
 
 
--- This has no metamethods, but can be useful for calculations expecting
--- integer values, e.g. geom.ivec3(x, y, z) is a reasonable way to round
--- a vec3.  It can be also used as the RHS to the vec2/vec3 arithmetic
--- methods.
--- NOTE: We must have a typedef with that exact name, because for
--- Lunatic (i.e. not stand-alone), it is a duplicate (and ignored)
--- declaration for an already metatype'd type.
+-- The integer 3-vector can be useful for calculations expecting integer
+-- values, e.g. geom.ivec3(x, y, z) is a reasonable way to round a vec3. It can
+-- also be used as the RHS to the vec2/vec3 arithmetic methods.
+-- NOTE: We must have a typedef with that exact name, because for Lunatic
+-- (i.e. not stand-alone), the type was already declared in defs_common.lua.
 ffi.cdef "typedef struct { int32_t x, y, z; } vec3_t;"
-ivec3 = ffi.typeof("vec3_t")
+local ivec3_t = ffi.typeof("vec3_t")
 
 
 local dvec2_t = ffi.typeof("struct { double x, y; }")
@@ -54,12 +53,17 @@ local vec2_mt = {
 
     __index = {
         lensq = function(a) return a.x*a.x + a.y*a.y end,
-        -- Manhattan distance:
-        len1 = function(a) return math.abs(a.x)+math.abs(a.y) end,
+
+        mhlen = function(a) return math.abs(a.x)+math.abs(a.y) end,
     },
 }
 
+local arshift = require("bit").arshift
+
+-- The vec3 metatable is shared between the integer- and double-based 3-vector
+-- types. However, some operations are slightly different.
 local vec3_mt = {
+    -- Arithmetic operations. Note that they always return the a dvec3.
     __add = function(a, b) return dvec3_t(a.x+b.x, a.y+b.y, a.z+b.z) end,
     __sub = function(a, b) return dvec3_t(a.x-b.x, a.y-b.y, a.z-b.z) end,
     __unm = function(a) return dvec3_t(-a.x, -a.y, -a.z) end,
@@ -82,17 +86,44 @@ local vec3_mt = {
         return dvec3_t(a.x/b, a.y/b, a.z/b)
     end,
 
+    -- '^' is the "translate upwards" operator, returns same-typed vector.
+    __pow = function(v, zofs)
+        return v(v.x, v.y, v.z-zofs)
+    end,
+
+    -- The # operator returns the Euclidean length.
     __len = function(a) return math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z) end,
 
-    __tostring = function(a) return "vec3("..a.x..", "..a.y..", "..a.z..")" end,
+    -- INTERNAL: Calling a vector calls the constructor of its type.
+    __call = function(v, ...)
+        return v:_isi() and ivec3_t(...) or dvec3_t(...)
+    end,
+
+    -- INTERNAL
+    __tostring = function(a)
+        return (a:_isi() and "i" or "").."vec3("..a.x..", "..a.y..", "..a.z..")"
+    end,
 
     __index = {
         lensq = function(a) return a.x*a.x + a.y*a.y + a.z*a.z end,
-        -- Manhattan distance:
-        len1 = function(a) return math.abs(a.x)+math.abs(a.y)+math.abs(a.z) end,
 
-        toivec3 = function(v)
-            return ivec3(v.x, v.y, v.z)
+        -- Manhattan-distance length:
+        mhlen = function(a) return math.abs(a.x)+math.abs(a.y)+math.abs(a.z) end,
+
+        toivec3 = function(v) return ivec3_t(v.x, v.y, v.z) end,
+
+        -- BUILD-coordinate (z scaled by 16) <-> uniform conversions.
+        touniform = function(v)
+            return v:_isi()
+                and v(v.x, v.y, arshift(v.z, 4))
+                or v(v.x, v.y, v.z/4)
+        end,
+
+        tobuild = function(v) return v(v.x, v.y, 16*v.z) end,
+
+        -- Is <v> integer vec3? INTERNAL.
+        _isi = function(v)
+            return ffi.istype(ivec3_t, v)
         end,
     },
 }
@@ -101,20 +132,20 @@ local vec3_mt = {
 --  * vec2(<table>), <table> should be indexable with "x" and "y"
 --  * vec2(x, y), assuming that x and y are numbers
 vec2 = ffi.metatype(dvec2_t, vec2_mt)
+vec3 = ffi.metatype(dvec3_t, vec3_mt)
+
+ivec3 = ffi.metatype("vec3_t", vec3_mt)
 
 -- Returns a vec2 from anything indexable with "x" and "y"
 -- (vec2(t) works if t is such a table, but not if it's a vec2 or a cdata of
 -- different type)
-function tovec2(t) return vec2(t.x, t.y) end
-
--- Same for vec3
-vec3 = ffi.metatype(dvec3_t, vec3_mt)
-function tovec3(t) return vec3(t.x, t.y, t.z) end
+function tovec2(t) return dvec2_t(t.x, t.y) end
+function tovec3(t) return dvec3_t(t.x, t.y, t.z) end
 
 
 -- Two-element vector cross product.
 -- Anti-commutative, distributive.
-function cross2(v, w)
+local function cross2(v, w)
     return v.y*w.x - v.x*w.y
 end
 

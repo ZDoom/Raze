@@ -161,7 +161,8 @@ ffi.cdef("typedef union { \
 } palette_t", rgbarray_t)
 assert(ffi.alignof("palette_t")==1)
 
-local vec3_ct = ffi.typeof("vec3_t")
+local vec3_ct = ffi.typeof("vec3_t")  -- will be metatype'd in geom.lua:
+require("geom")
 local hitdata_ct = ffi.typeof("hitdata_t")
 
 decl[[
@@ -312,22 +313,6 @@ local lshift = bit.lshift
 local rshift = bit.rshift
 local xor = bit.bxor
 
-local ivec3_
-local ivec3_mt = {
-    -- '^' is the "translate upwards" operator
-    __pow = function(v, zofs)
-        return ivec3_(v.x, v.y, v.z-zofs)
-    end,
-
-    __index = {
-        -- Manhattan distance with z right-shifted by 4 bits
-        blen1 = function(v)
-            return math.abs(v.x) + math.abs(v.y) + math.abs(bit.arshift(v.z,4))
-        end,
-    },
-}
-ivec3_ = ffi.metatype(vec3_ct, ivec3_mt)
-
 local wallsofsec  -- fwd-decl
 
 local sectortype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SECTOR_STRUCT)))
@@ -477,7 +462,7 @@ local tspritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof("tspritetype"))
 
 local spritetype_mt = {
     __pow = function(s, zofs)
-        return ivec3_(s.x, s.y, s.z-zofs)
+        return vec3_ct(s.x, s.y, s.z-zofs)
     end,
 
     __index = {

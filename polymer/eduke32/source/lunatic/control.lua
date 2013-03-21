@@ -377,9 +377,8 @@ local abs = math.abs
 local dist, ldist = xmath.dist, xmath.ldist
 
 local function A_FP_ManhattanDist(ps, spr)
-    local distvec = (geom.tovec3(ps.pos) - spr^(28*256))
-    -- XXX
-    return geom.ivec3(distvec.x, distvec.y, distvec.z):blen1()
+    local distvec = ps.pos - spr^(28*256)
+    return distvec:touniform():mhlen()
 end
 
 -- Returns: player index, distance
