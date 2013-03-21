@@ -4279,7 +4279,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         if (!mdspritematerial.diffusemap)
             continue;
 
-        if (!(tspr->cstat&1024))
+        if (!(tspr->cstat&CSTAT_SPRITE_MDHACK))
         {
             mdspritematerial.detailmap =
                     mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
@@ -4291,13 +4291,13 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                     mdspritematerial.detailscale[0] = mdspritematerial.detailscale[1] = sk->param;
         }
 
-        if (!(tspr->cstat&1024))
+        if (!(tspr->cstat&CSTAT_SPRITE_MDHACK))
         {
             mdspritematerial.specmap =
                     mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,SPECULARPAL,surfi);
         }
 
-        if (!(tspr->cstat&1024))
+        if (!(tspr->cstat&CSTAT_SPRITE_MDHACK))
         {
             mdspritematerial.normalmap =
                     mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,NORMALPAL,surfi);
@@ -4311,7 +4311,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 }
         }
 
-        if (!(tspr->cstat&1024))
+        if (!(tspr->cstat&CSTAT_SPRITE_MDHACK))
         {
             mdspritematerial.glowmap =
                     mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);

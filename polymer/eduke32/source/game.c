@@ -6933,29 +6933,26 @@ skip:
 
                         newt->z = daz;
                         newt->pal = 4;
-                        /*
-                        xrep = newt->xrepeat;// - (klabs(daz-t->z)>>11);
-                        newt->xrepeat = xrep;
-                        yrep = newt->yrepeat;// - (klabs(daz-t->z)>>11);
-                        newt->yrepeat = yrep;
-                        */
 #ifdef USE_OPENGL
-                        if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
+                        if (getrendermode() >= REND_POLYMOST)
                         {
-                            newt->yrepeat = 0;
-                            // 512:trans reverse
-                            //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
-                            newt->cstat |= (512+1024);
-                        }
-                        else if (getrendermode() >= REND_POLYMOST)
-                        {
-                            int32_t ii;
+                            if (usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
+                            {
+                                newt->yrepeat = 0;
+                                // 512:trans reverse
+                                //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
+                                newt->cstat |= (512+CSTAT_SPRITE_MDHACK);
+                            }
+                            else
+                            {
+                                int32_t ii;
 
-                            ii = getangle(newt->x-g_player[screenpeek].ps->pos.x,
-                                          newt->y-g_player[screenpeek].ps->pos.y);
+                                ii = getangle(newt->x-g_player[screenpeek].ps->pos.x,
+                                              newt->y-g_player[screenpeek].ps->pos.y);
 
-                            newt->x += sintable[(ii+2560)&2047]>>9;
-                            newt->y += sintable[(ii+2048)&2047]>>9;
+                                newt->x += sintable[(ii+2560)&2047]>>9;
+                                newt->y += sintable[(ii+2048)&2047]>>9;
+                            }
                         }
 #endif
                         spritesortcnt++;

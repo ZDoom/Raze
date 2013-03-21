@@ -2149,9 +2149,10 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
 
     //------------
-    //bit 10 is an ugly hack in game.c\animatesprites telling MD2SPRITE
-    //to use Z-buffer hacks to hide overdraw problems with the shadows
-    if (tspr->cstat&1024)
+    // Bit 10 is an ugly hack in game.c:G_DoSpriteAnimations() telling md2sprite
+    // to use Z-buffer hacks to hide overdraw problems with the
+    // flat-tsprite-on-floor shadows.
+    if (tspr->cstat&CSTAT_SPRITE_MDHACK)
     {
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
         bglDepthRange(0.0,0.9999);
@@ -2217,7 +2218,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
             a0.y = (float)(spriteext[tspr->owner].yoff / (2560 * (m0.x+m1.x)));
         else
             a0.y = 0;
-        if ((spriteext[tspr->owner].zoff) && !(tspr->cstat&1024))
+        if ((spriteext[tspr->owner].zoff) && !(tspr->cstat&CSTAT_SPRITE_MDHACK))
             a0.z = (float)(spriteext[tspr->owner].zoff / (655360 * (m0.z+m1.z)));
         else
             a0.z = 0;
@@ -2296,7 +2297,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
-        if (r_detailmapping && !(tspr->cstat&1024))
+        if (r_detailmapping && !(tspr->cstat&CSTAT_SPRITE_MDHACK))
             i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
         else
             i = 0;
@@ -2336,7 +2337,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
             bglMatrixMode(GL_MODELVIEW);
         }
 
-        if (r_glowmapping && !(tspr->cstat&1024))
+        if (r_glowmapping && !(tspr->cstat&CSTAT_SPRITE_MDHACK))
             i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
         else
             i = 0;
@@ -2532,7 +2533,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     if (m->usesalpha) bglDisable(GL_ALPHA_TEST);
     bglDisable(GL_CULL_FACE);
     bglPopAttrib();
-    if (tspr->cstat&1024)
+    if (tspr->cstat&CSTAT_SPRITE_MDHACK)
     {
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
         bglDepthRange(0.0,0.99999);
@@ -3330,10 +3331,7 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
     //Mirrors
     if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
 
-    //------------
-    //bit 10 is an ugly hack in game.c\animatesprites telling MD2SPRITE
-    //to use Z-buffer hacks to hide overdraw problems with the shadows
-    if (tspr->cstat&1024)
+    if (tspr->cstat&CSTAT_SPRITE_MDHACK)
     {
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
         bglDepthRange(0.0,0.9999);
@@ -3408,7 +3406,7 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
     //------------
     bglDisable(GL_CULL_FACE);
     bglPopAttrib();
-    if (tspr->cstat&1024)
+    if (tspr->cstat&CSTAT_SPRITE_MDHACK)
     {
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
         bglDepthRange(0.0,0.99999);
