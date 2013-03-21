@@ -378,6 +378,10 @@ typedef struct {
 } hudweapon_t;
 
 typedef
+]].. WEAPONDATA_STRUCT ..[[
+weapondata_t;
+
+typedef
 ]].. PROJECTILE_STRUCT ..[[
 projectile_t;
 
@@ -393,10 +397,6 @@ typedef struct {
     int16_t ang, horiz;
     int16_t sect;
 } camera_t;
-
-typedef struct {
-]] .. table.concat(con_lang.wdata_members, ';')..';' .. [[
-} weapondata_t;
 
 enum
 {
@@ -738,7 +738,7 @@ end
 local actor_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(ACTOR_STRUCT)))
 local player_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(DUKEPLAYER_STRUCT)))
 local projectile_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(PROJECTILE_STRUCT)))
-local weapondata_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(WEAPONDATA_STRUCT)))
+local weapondata_ptr_ct = ffi.typeof("$ *", ffi.typeof((strip_const(WEAPONDATA_STRUCT):gsub(" _"," "))))
 local con_action_ct = ffi.typeof("con_action_t")
 local con_move_ct = ffi.typeof("con_move_t")
 local con_ai_ct = ffi.typeof("con_ai_t")
@@ -936,7 +936,7 @@ local weapondata_mt = {
             end
         end
 
-        ffi.cast(weapondata_ptr_ct, wd)['_'..member] = val
+        ffi.cast(weapondata_ptr_ct, wd)[member] = val
     end,
 }
 ffi.metatype("weapondata_t", weapondata_mt)

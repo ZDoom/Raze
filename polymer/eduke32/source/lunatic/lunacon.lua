@@ -3171,7 +3171,7 @@ local function handle_cmdline_arg(str)
                 ok = true
             end
 
-            if (not ok) then
+            if (not ffi and not ok) then
                 printf("Warning: Unrecognized option %s", str)
             end
         end
