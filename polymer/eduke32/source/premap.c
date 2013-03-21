@@ -1063,9 +1063,10 @@ static inline void prelevel(char g)
 {
     int32_t i, nexti, j, startwall, endwall;
     int32_t switchpicnum;
+    uint8_t *tagbitmap = Bcalloc(65536>>3, 1);
 
-    uint8_t tagbitmap[65536>>3];  // XXX: allocating 8k on the stack isn't that great
-    Bmemset(tagbitmap, 0, sizeof(tagbitmap));
+    if (tagbitmap==NULL)
+        G_GameExit("OUT OF MEMORY in prelevel()");
 
     Bmemset(show2dsector, 0, sizeof(show2dsector));
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
@@ -1232,7 +1233,7 @@ static inline void prelevel(char g)
                 // the lower code only for the 'on' state (*)
                 if (ii==0)
                 {
-                    j = sprite[i].lotag+32768;
+                    j = sprite[i].lotag;
                     tagbitmap[j>>3] |= 1<<(j&7);
                 }
 
@@ -1243,12 +1244,13 @@ static inline void prelevel(char g)
     // initially 'on' SE 12 light (*)
     for (j=headspritestat[STAT_EFFECTOR]; j>=0; j=nextspritestat[j])
     {
-        int32_t t = sprite[j].hitag+32768;
+        int32_t t = sprite[j].hitag;
 
         if (sprite[j].lotag == SE_12_LIGHT_SWITCH && tagbitmap[t>>3]&(1<<(t&7)))
             actor[j].t_data[0] = 1;
     }
 
+    Bfree(tagbitmap);
 
     g_mirrorCount = 0;
 
