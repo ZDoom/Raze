@@ -2084,7 +2084,11 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     GLfloat pc[4];
     int32_t                 texunits = GL_TEXTURE0_ARB;
 
-    uint8_t lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
+    const int32_t owner = tspr->owner;
+    // PK: XXX: These owner bound checks are redundant because sext is
+    // dereferenced unconditionally below anyway.
+    const spriteext_t *const sext = ((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? &spriteext[owner] : NULL;
+    const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
 
     if (r_vbos && (m->vbos == NULL))
         mdloadvbos(m);
@@ -2205,7 +2209,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
     if (!(hictinting[globalpal].f&4))
     {
-        if (!(m->flags&1) || (!(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0))
+        if (!(m->flags&1) || (((unsigned)owner < MAXSPRITES) && sector[sprite[owner].sectnum].floorpal!=0))
         {
             pc[0] *= (float)hictinting[globalpal].r / 255.0;
             pc[1] *= (float)hictinting[globalpal].g / 255.0;
@@ -2222,7 +2226,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66f; else pc[3] = 0.33f; }
     else pc[3] = 1.0f;
-    pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
+    pc[3] *= 1.0f - sext->alpha;
     if (m->usesalpha) //Sprites with alpha in texture
     {
         //      bglEnable(GL_BLEND);// bglBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -2238,7 +2242,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     }
     else
     {
-        if ((tspr->cstat&2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
+        if ((tspr->cstat&2) || sext->alpha > 0.f || pc[3] < 1.0f) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     }
     bglColor4f(pc[0],pc[1],pc[2],pc[3]);
     //if (m->head.flags == 1337)
@@ -2246,24 +2250,24 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     //------------
 
     // PLAG: Cleaner model rotation code
-    if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll || m->head.flags == 1337)
+    if (sext->pitch || sext->roll || m->head.flags == 1337)
     {
-        if (spriteext[tspr->owner].xoff)
-            a0.x = (float)(spriteext[tspr->owner].xoff / (2560 * (m0.x+m1.x)));
+        if (sext->xoff)
+            a0.x = (float)(sext->xoff / (2560 * (m0.x+m1.x)));
         else
             a0.x = 0;
-        if (spriteext[tspr->owner].yoff)
-            a0.y = (float)(spriteext[tspr->owner].yoff / (2560 * (m0.x+m1.x)));
+        if (sext->yoff)
+            a0.y = (float)(sext->yoff / (2560 * (m0.x+m1.x)));
         else
             a0.y = 0;
-        if ((spriteext[tspr->owner].zoff) && !(tspr->cstat&CSTAT_SPRITE_MDHACK))
-            a0.z = (float)(spriteext[tspr->owner].zoff / (655360 * (m0.z+m1.z)));
+        if ((sext->zoff) && !(tspr->cstat&CSTAT_SPRITE_MDHACK))
+            a0.z = (float)(sext->zoff / (655360 * (m0.z+m1.z)));
         else
             a0.z = 0;
-        k0 = (float)sintable[(spriteext[tspr->owner].pitch+512)&2047] / 16384.0;
-        k1 = (float)sintable[spriteext[tspr->owner].pitch&2047] / 16384.0;
-        k2 = (float)sintable[(spriteext[tspr->owner].roll+512)&2047] / 16384.0;
-        k3 = (float)sintable[spriteext[tspr->owner].roll&2047] / 16384.0;
+        k0 = (float)sintable[(sext->pitch+512)&2047] / 16384.0;
+        k1 = (float)sintable[sext->pitch&2047] / 16384.0;
+        k2 = (float)sintable[(sext->roll+512)&2047] / 16384.0;
+        k3 = (float)sintable[sext->roll&2047] / 16384.0;
     }
 
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
@@ -2290,7 +2294,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 
         for (i=s->numverts-1; i>=0; i--)
         {
-            if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll || m->head.flags == 1337)
+            if (sext->pitch || sext->roll || m->head.flags == 1337)
             {
                 fp.z = ((m->head.flags == 1337) ? (v0[i].x * m->muladdframes[m->cframe*2].x) + m->muladdframes[m->cframe*2+1].x : v0[i].x) + a0.x;
                 fp.x = ((m->head.flags == 1337) ? (v0[i].y * m->muladdframes[m->cframe*2].y) + m->muladdframes[m->cframe*2+1].y : v0[i].y) + a0.y;
