@@ -70,7 +70,7 @@ int32_t startwin_settitle(const char *s) { UNREFERENCED_PARAMETER(s); return 0; 
 #define MWHEELTICKS 10
 static uint32_t mwheelup, mwheeldown;
 
-extern int32_t app_main(int32_t argc, const char *argv[]);
+extern int32_t app_main(int32_t argc, const char **argv);
 
 char quitevent=0, appactive=1, novideo=0;
 
@@ -237,7 +237,7 @@ int32_t main(int32_t argc, char *argv[])
 #endif
 
     baselayer_init();
-    r = app_main(argc, argv);
+    r = app_main(argc, (const char **)argv);
 
     startwin_close();
 #ifdef HAVE_GTK2
