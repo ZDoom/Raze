@@ -327,6 +327,10 @@ local function addcodef(fmt, ...)
     addcode(format(fmt, ...))
 end
 
+local function paddcodef(pos, fmt, ...)
+    addcodef(fmt.."--"..getlinecol(pos), ...)
+end
+
 local function add_code_and_end(codetab, endstr)
     assert(type(codetab)=="table")
     addcode(codetab)
@@ -337,7 +341,8 @@ local function get_cache_sap_code()
     return csapp() and "local _spr,_a,_ps=_con._getsap(_aci,_pli)" or ""
 end
 
-local function warnprintf() end  -- fwd-decl
+-- fwd-decls
+local warnprintf, errprintf, pwarnprintf, perrprintf
 
 local on = {}
 
@@ -353,14 +358,13 @@ for i=4,7 do
 end
 
 
-function on.actor_end(usertype, tsamm, codetab)
+function on.actor_end(pos, usertype, tsamm, codetab)
     local tilenum = tsamm[1]
     local flags = 0
 
     if (usertype ~= nil) then  -- useractor
         if (not (bit.band(usertype, bit.bnot(7)) == 0)) then
-            -- XXX: position will be that of last command in actor code
-            errprintf("invalid usertype: must be bitwise OR of 1, 2 and/or 4")
+            perrprintf(pos, "invalid usertype: must be bitwise OR of 1, 2 and/or 4")
         else
             flags = MAP_ACTOR_FLAGS[usertype]
         end
@@ -380,13 +384,12 @@ function on.actor_end(usertype, tsamm, codetab)
         str = str .. movflags..","
     end
 
-    addcodef("gameactor(%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
+    paddcodef(pos, "gameactor(%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
     addcode(get_cache_sap_code())
     add_code_and_end(codetab, "end)")
 
     if (g_code.actor[tilenum] ~= nil) then
-        -- XXX: position will be that of last command in actor code
-        warnprintf("redefined actor %d", tilenum)
+        pwarnprintf(pos, "redefined actor %d", tilenum)
     end
     g_code.actor[tilenum] = codetab
 end
@@ -410,15 +413,15 @@ function on.state_begin_Cmt(_subj, _pos, statename)
     return true, ourname
 end
 
-function on.state_end(funcname, codetab)
-    addcodef("%s=function(_aci, _pli, _dist)", funcname)
+function on.state_end(pos, funcname, codetab)
+    paddcodef(pos, "%s=function(_aci, _pli, _dist)", funcname)
     addcode(get_cache_sap_code())
     add_code_and_end(codetab, "end")
 end
 
-function on.event_end(eventidx, codetab)
+function on.event_end(pos, eventidx, codetab)
     assert(type(codetab)=="table")
-    addcodef("gameevent(%d, function (_aci, _pli, _dist)", eventidx)
+    paddcodef(pos, "gameevent(%d, function (_aci, _pli, _dist)", eventidx)
     addcode(get_cache_sap_code())
     addcode(codetab)
     addcode("end)")
@@ -426,9 +429,9 @@ function on.event_end(eventidx, codetab)
     g_code.event[eventidx] = codetab
 end
 
-function on.eventloadactor_end(tilenum, codetab)
+function on.eventloadactor_end(pos, tilenum, codetab)
     -- Translate eventloadactor into a chained EVENT_LOADACTOR block
-    addcode("gameevent('LOADACTOR', function (_aci, _pli, _dist)")
+    paddcodef(pos, "gameevent('LOADACTOR', function (_aci, _pli, _dist)")
     addcode(get_cache_sap_code())
     addcodef("if (%s==%d) then", SPS".picnum", tilenum)
     addcode(codetab)
@@ -436,7 +439,8 @@ function on.eventloadactor_end(tilenum, codetab)
     addcode("end)")
 
     if (g_code.loadactor[tilenum] ~= nil) then
-        warnprintf("redefined loadactor %d", tilenum)
+        -- NOTE: C-CON redefines loadactor code if encountered multiple times.
+        pwarnprintf(pos, "chained additional loadactor %d code", tilenum)
     end
     g_code.loadactor[tilenum] = codetab
 end
@@ -456,12 +460,12 @@ local function increment_numerrors()
     end
 end
 
-local function perrprintf(pos, fmt, ...)
+function perrprintf(pos, fmt, ...)
     printf("%s %s: error: "..fmt, g_filename, linecolstr(pos), ...)
     increment_numerrors()
 end
 
-local function errprintf(fmt, ...)
+function errprintf(fmt, ...)
     if (g_lastkwpos) then
         perrprintf(g_lastkwpos, fmt, ...)
     else
@@ -470,11 +474,11 @@ local function errprintf(fmt, ...)
     end
 end
 
-local function pwarnprintf(pos, fmt, ...)
+function pwarnprintf(pos, fmt, ...)
     printf("%s %s: warning: "..fmt, g_filename, linecolstr(pos), ...)
 end
 
-function warnprintf(fmt, ...)  -- local
+function warnprintf(fmt, ...)
     if (g_lastkwpos) then
         pwarnprintf(g_lastkwpos, fmt, ...)
     else
@@ -2704,17 +2708,18 @@ end
 --== block delimiters (no syntactic recursion) ==--
 local Cblock = {
     -- actor (...)
-    actor = lpeg.Cc(nil) * common.actor_end / on.actor_end,
+    actor = POS() * lpeg.Cc(nil) * common.actor_end / on.actor_end,
     -- useractor <actortype> (...)
-    useractor = sp1 * tok.define * common.actor_end / on.actor_end,
+    useractor = POS() * sp1 * tok.define * common.actor_end / on.actor_end,
     -- eventloadactor <name/tilenum>
-    eventloadactor = sp1 * tok.define * sp1 * stmt_list_or_eps * "enda"
+    eventloadactor = POS() * sp1 * tok.define * sp1 * stmt_list_or_eps * "enda"
         / on.eventloadactor_end,
 
-    onevent = sp1 * tok.define * sp1 * stmt_list_or_eps * "endevent"
+    onevent = POS() * sp1 * tok.define * sp1 * stmt_list_or_eps * "endevent"
         / on.event_end,
 
-    state = sp1 * (lpeg.Cmt(tok.identifier, on.state_begin_Cmt)) * sp1 * stmt_list_or_eps * tok.state_ends
+    state = POS() * sp1 * (lpeg.Cmt(tok.identifier, on.state_begin_Cmt))
+                  * sp1 * stmt_list_or_eps * tok.state_ends
         / on.state_end,
 }
 
