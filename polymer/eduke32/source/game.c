@@ -9512,8 +9512,10 @@ static void G_DisplayLogo(void)
                     }
                 }
 
+#ifdef LUNATIC
+                g_elEventError = 0;
+#endif
                 VM_OnEvent(EVENT_LOGO, -1, screenpeek, -1, 0);
-
                 G_HandleAsync();
 
                 if (g_restorePalette)
@@ -9521,6 +9523,10 @@ static void G_DisplayLogo(void)
                     P_SetGamePalette(g_player[myconnectindex].ps,g_player[myconnectindex].ps->palette,0);
                     g_restorePalette = 0;
                 }
+#ifdef LUNATIC
+                if (g_elEventError)
+                    break;
+#endif
                 nextpage();
             }
         }

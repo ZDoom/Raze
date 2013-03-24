@@ -23,6 +23,9 @@ uint8_t g_elEvents[MAXEVENTS];
 // same thing for actors:
 el_actor_t g_elActors[MAXTILES];
 
+// Set to 1 on error in event.
+int32_t g_elEventError;
+
 int32_t g_elCallDepth = 0;
 int32_t g_elEventRETURN;
 
@@ -496,6 +499,7 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
 
     if (i != 0)
     {
+        g_elEventError = 1;
         g_eventIdx = eventidx;
         return L_HandleError(L, i, &El_EventErrorPrint);
     }

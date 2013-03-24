@@ -949,6 +949,7 @@ local weaponaccess_mt = {
             return ffiC.g_playerWeapon[wa._p][key]
         end
 
+        -- TODO: use bcarray?
         return ffiC.g_playerWeapon[wa._p][ffiC[key.."_WEAPON"]]
     end,
 }
@@ -1576,7 +1577,8 @@ local tmpmt = {
     end,
 
     __newindex = function(gv, key, val)
-        if (key=="g_logoFlags") then
+        if (gv_access[key] == nil) then
+            -- Read-only vars handled by LuaJIT.
             ffiC[key] = val
         else
             error("write access forbidden", 2)

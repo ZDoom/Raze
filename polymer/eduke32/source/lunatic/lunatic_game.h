@@ -22,6 +22,8 @@ typedef struct
 extern uint8_t g_elEvents[MAXEVENTS];  // shouldn't be used directly
 extern el_actor_t g_elActors[MAXTILES];
 
+extern int32_t g_elEventError;
+
 extern uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
 extern double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
 

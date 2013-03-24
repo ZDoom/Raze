@@ -1596,6 +1596,13 @@ function _startlevel(volume, level)
 end
 
 function _setaspect(viewingrange, yxaspect)
+    if (viewingrange==0) then
+        error('invalid argument #1: must be nonzero', 2)
+    end
+    if (yxaspect==0) then
+        error('invalid argument #2: must be nonzero', 2)
+    end
+
     -- XXX: surely not all values are sane
     ffiC.setaspect(viewingrange, yxaspect)
 end
