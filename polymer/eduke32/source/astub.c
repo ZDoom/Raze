@@ -11442,7 +11442,7 @@ static int32_t check_spritelist_consistency()
 
     csc_s = csc_i = -1;
 
-    if ((unsigned)Numsprites >= MAXSPRITES)
+    if (Numsprites < 0 || Numsprites > MAXSPRITES)
         return 1;
 
     for (i=0; i<MAXSPRITES; i++)
