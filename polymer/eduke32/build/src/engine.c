@@ -8151,24 +8151,26 @@ static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
                           int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 towards p2 is a ray
-    int64_t x34, y34, x31, y31, bot, topt, topu, t;
+    int64_t topt, topu, t;
 
     const int64_t vx=vx_, vy=vy_;
+    const int64_t x34=x3-x4, y34=y3-y4;
+    const int64_t bot = vx*y34 - vy*x34;
 
-    x34 = x3-x4; y34 = y3-y4;
-    bot = vx*y34 - vy*x34;
+    if (bot == 0)
+        return -1;
+
     if (bot >= 0)
     {
-        if (bot == 0) return -1;
-        x31 = x3-x1; y31 = y3-y1;
+        int64_t x31=x3-x1, y31 = y3-y1;
         topt = x31*y34 - y31*x34; if (topt < 0) return -1;
-        topu = vx*y31 - vy*x31; if ((topu < 0) || (topu >= bot)) return -1;
+        topu = vx*y31 - vy*x31; if (topu < 0 || topu >= bot) return -1;
     }
     else
     {
-        x31 = x3-x1; y31 = y3-y1;
+        int32_t x31=x3-x1, y31=y3-y1;
         topt = x31*y34 - y31*x34; if (topt > 0) return -1;
-        topu = vx*y31 - vy*x31; if ((topu > 0) || (topu <= bot)) return -1;
+        topu = vx*y31 - vy*x31; if (topu > 0 || topu <= bot) return -1;
     }
 
     t = (topt<<16)/bot;
@@ -8176,7 +8178,7 @@ static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     *inty = y1 + ((vy*t)>>16);
     *intz = z1 + ((vz*t)>>16);
 
-    t = divscale16(topu, bot);
+    t = (topu<<16)/bot;
     Bassert((unsigned)t < 65536);
 
     return t;
