@@ -12,13 +12,16 @@ local bit = require("bit")
 -- ~=0: print diagnostic information
 --   2: disable JIT compilation
 --   4: load LuaJIT's 'v' module, printing trace info
+--   8: load LuaJIT's 'dump' module, printing generated IR/machine code
 ffi.cdef "enum { _DEBUG_LUNATIC=1 }"
 
 if (bit.band(ffiC._DEBUG_LUNATIC, 2)~=0) then
     require("jit").off()
 end
 
-if (bit.band(ffiC._DEBUG_LUNATIC, 4)~=0) then
+if (bit.band(ffiC._DEBUG_LUNATIC, 8)~=0) then
+    require("dump").on("T")  -- raw text output
+elseif (bit.band(ffiC._DEBUG_LUNATIC, 4)~=0) then
     require("v").on()
 end
 

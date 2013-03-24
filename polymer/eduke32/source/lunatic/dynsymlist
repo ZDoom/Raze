@@ -144,6 +144,9 @@ luaJIT_BC_bcheck;
 luaJIT_BC_xmath;
 luaJIT_BC_defs;
 luaJIT_BC_v;
+luaJIT_BC_dump;
+luaJIT_BC_dis_x86;
+luaJIT_BC_dis_x64;
 
 rand_jkiss_u32;
 rand_jkiss_dbl;
