@@ -27,7 +27,7 @@ el_actor_t g_elActors[MAXTILES];
 int32_t g_elEventError;
 
 int32_t g_elCallDepth = 0;
-int32_t g_elEventRETURN;
+int32_t g_RETURN;
 
 // for timing events and actors
 uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
@@ -489,13 +489,15 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
     lua_State *const L = estate->L;
     int32_t i;
 
-    g_elEventRETURN = *iReturn;
+    const int32_t o_RETURN = g_RETURN;
+    g_RETURN = *iReturn;
 
     g_elCallDepth++;
     i = call_regd_function3(L, &g_elEvents[eventidx], iActor, iPlayer, lDist);
     g_elCallDepth--;
 
-    *iReturn = g_elEventRETURN;
+    *iReturn = g_RETURN;
+    g_RETURN = o_RETURN;
 
     if (i != 0)
     {

@@ -50,6 +50,7 @@ krand;
 ksqrt;
 inside;
 getangle;
+Mulscale;
 cansee;
 hitscan;
 neartag;
@@ -82,9 +83,11 @@ s_buildRev;
 g_sizes_of_what;
 g_sizes_of;
 g_elCallDepth;
-g_elEventRETURN;
+g_RETURN;
 g_argv;
 g_modDir;
+
+MapInfo;
 
 kopen4loadfrommod;
 
@@ -130,6 +133,7 @@ g_scriptVersion;
 g_currentFrameRate;
 g_currentMenu;
 g_earthquakeTime;
+CheatKeys;
 g_logoFlags;
 
 luaJIT_BC_lunacon;

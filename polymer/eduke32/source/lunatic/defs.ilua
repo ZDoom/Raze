@@ -518,6 +518,7 @@ ffi.cdef[[
 const int32_t screenpeek;
 hudweapon_t hudweap;
 int32_t g_logoFlags;
+int32_t g_RETURN;  // deprecated from Lua
 ]]
 
 -- INTERNAL VARIABLES/FUNCTIONS
@@ -528,7 +529,6 @@ const char *s_buildRev;
 const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
 int32_t g_elCallDepth;
-int32_t g_elEventRETURN;
 const char **g_argv;
 char g_modDir[];
 actor_t actor[MAXSPRITES];
@@ -1143,8 +1143,8 @@ local camera_mt = {
 gv_access.cam = setmtonce({}, camera_mt)
 gv_access._ud = ffiC.ud
 
--- Support for some CON global system gamevars
-gv_access._csv = ffi.new "struct { int32_t RETURN, LOTAG, HITAG, TEXTURE; }"
+-- Support for some CON global system gamevars. RETURN handled separately.
+gv_access._csv = ffi.new "struct { int32_t LOTAG, HITAG, TEXTURE; }"
 
 function gv_access._get_yxaspect()
     return ffiC.yxaspect
@@ -1168,14 +1168,6 @@ function gv_access._set_guniqhudid(id)
         error("invalid unique HUD ID "..id)
     end
     ffiC.guniqhudid = id
-end
-
-function gv_access._RETURN(setval)
-    if (setval ~= nil) then
-        ffiC.g_elEventRETURN = setval
-    else
-        return ffiC.g_elEventRETURN
-    end
 end
 
 -- TODO: make return 1-based index

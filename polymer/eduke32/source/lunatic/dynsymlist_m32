@@ -50,6 +50,7 @@ krand;
 ksqrt;
 inside;
 getangle;
+Mulscale;
 cansee;
 hitscan;
 neartag;

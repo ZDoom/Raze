@@ -316,7 +316,9 @@ labels =
     STR,
     PROJ,
     EVENT,
-    setmetatable(shallow_copy(SFLAG), { __metatable="noffiC" }),
+--    setmetatable(
+        shallow_copy(SFLAG),
+--        { __metatable="noffiC" }),
     STAT,
     GAMEFUNC,
 }
