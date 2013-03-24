@@ -315,7 +315,7 @@ function _inittimer(ticspersec)
 end
 
 function _gettimedate()
-    v = ffi.new("int32_t [8]")
+    local v = ffi.new("int32_t [8]")
     ffiC.G_GetTimeDate(v)
     return v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]
 end
@@ -1823,7 +1823,7 @@ local gamearray_methods = {
         gar:resize(nelts)
 
         for i=0,nelts-1 do
-            rawset(gar, i, (int==0) and nil or ints[i])
+            rawset(gar, i, (ints[i]==0) and nil or ints[i])
         end
 
         f:close()
@@ -1840,7 +1840,7 @@ local gamearray_methods = {
             error("refusing to overwrite a file not created by a previous `writearraytofile'", 2)
         end
 
-        f = io.open(fn, "w+")
+        local f, errmsg = io.open(fn, "w+")
         if (f == nil) then
             error([[failed opening "%s" for writing: %s]], fn, errmsg, 3)
         end

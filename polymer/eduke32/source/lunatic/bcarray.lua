@@ -25,7 +25,7 @@ module(...)
 -- Generate C decl for a sequence of <nelts> const struct members.
 -- For example, for 4 elements,
 --  "const $ _r1, _f2, _u3, _n4;"
-function flatten_array(nelts, rng)
+local function flatten_array(nelts, rng)
     local strtab = { "$ " }
 
     if (rng and rng.getu32==nil) then

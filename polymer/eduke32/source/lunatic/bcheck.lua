@@ -1,6 +1,8 @@
 -- Bound-checking functions for engine and game "things".
 
 local ffiC = require("ffi").C
+local error = error
+
 local con_lang = require("con_lang")
 
 local bcheck = {}
