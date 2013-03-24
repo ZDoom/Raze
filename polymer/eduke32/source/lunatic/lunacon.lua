@@ -2132,7 +2132,7 @@ local Cinner = {
     getarraysize = cmd(GARI,W)
         / "%2=%1._size",
     readarrayfromfile = cmd(GARI,D)
-        / "%1:read(%2)",
+        / "%1:read(%2,nil)",  -- false: error on no file, nil: don't.
     writearraytofile = cmd(GARI,D)
         / "%1:write(%2)",
 

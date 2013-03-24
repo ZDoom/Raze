@@ -1225,7 +1225,11 @@ function _cansee(aci, ps)
 end
 
 function _canseespr(s1, s2)
-    return cansee(sprite[s1], sprite[s1].sectnum, sprite[s2], sprite[s2].sectnum) and 1 or 0
+    local spr1, spr2 = sprite[s1], sprite[s2]
+    -- Redundant, but points the error messages to the CON code:
+    check_sector_idx(spr1.sectnum)
+    check_sector_idx(spr2.sectnum)
+    return cansee(spr1, spr1.sectnum, spr2, spr2.sectnum) and 1 or 0
 end
 
 -- TODO: replace ivec3 allocations with stores to a static ivec3, like in
@@ -1742,16 +1746,18 @@ local function gamearray_file_common(qnum, writep)
 
     if (writep) then
         f, errmsg = io.open(fn)
-    else
-        f = kopen4load(fn, 0)
-    end
-
-    if (f == nil) then
-        if (not writep) then
-            error(format([[failed opening "%s" for reading: %s]], fn, errmsg), 3)
-        else
+        if (f == nil) then
             -- file, numints, isnewgar, filename
             return nil, nil, true, fn
+        end
+    else
+        f, errmsg = kopen4load(fn, 0)
+        if (f == nil) then
+            if (f==false) then
+                error(format([[failed opening "%s" for reading: %s]], fn, errmsg), 3)
+            else
+                return
+            end
         end
     end
 
@@ -1812,6 +1818,10 @@ local gamearray_methods = {
 
     read = function(gar, qnum)
         local f, nelts, isnewgar = gamearray_file_common(qnum, false)
+
+        if (f==nil) then
+            return
+        end
 
         assert(f:seek("set"))
         local ints = f:read_le_int32(nelts)
