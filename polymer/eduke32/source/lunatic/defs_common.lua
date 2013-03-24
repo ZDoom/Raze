@@ -288,6 +288,12 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 
 void setaspect(int32_t daxrange, int32_t daaspect);
+
+int32_t kopen4load(const char *filename, char searchfirst);
+int32_t kfilelength(int32_t handle);
+void kclose(int32_t handle);
+int32_t kread(int32_t handle, void *buffer, int32_t leng);
+int32_t klseek(int32_t handle, int32_t offset, int32_t whence);
 ]]
 
 -- misc. functions

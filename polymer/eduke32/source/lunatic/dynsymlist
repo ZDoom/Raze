@@ -55,6 +55,13 @@ hitscan;
 neartag;
 getzrange;
 rotatesprite;
+setaspect;
+
+kopen4load;
+kfilelength;
+kclose;
+kread;
+klseek;
 
 dist;
 ldist;
@@ -80,9 +87,6 @@ g_argv;
 g_modDir;
 
 kopen4loadfrommod;
-kfilelength;
-kclose;
-kread;
 
 g_scriptModules;
 g_scriptModulesNum;

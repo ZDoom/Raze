@@ -595,9 +595,6 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
 
 decl[[
 int32_t kopen4loadfrommod(const char *filename, char searchfirst);
-int32_t kfilelength(int32_t handle);
-void kclose(int32_t handle);
-int32_t kread(int32_t handle, void *buffer, int32_t leng);
 
 char **g_scriptModules;
 int32_t g_scriptModulesNum;

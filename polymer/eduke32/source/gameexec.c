@@ -4251,6 +4251,7 @@ finish_qsprintf:
 
                         if (asize > 0)
                         {
+                            // NOTE: this is broken on 64-bit, e.g. for LNGA2.
                             /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
                                 aGameArrays[j].szLabel, aGameArrays[j].size, asize / GAR_ELTSZ);*/
                             aGameArrays[j].plValues = (intptr_t *)Brealloc(aGameArrays[j].plValues, asize);

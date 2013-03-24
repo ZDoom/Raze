@@ -1640,6 +1640,83 @@ function _readgamevar(name)
 end
 
 
+--- Wrapper of kopen4load file functions in a Lua-like file API
+-- TODO: move to common side?
+
+local kfile_mt = {
+    __gc = function(self)
+        self:close()
+    end,
+
+    __index = {
+        close = function(self)
+            if (self.fd > 0) then
+                ffiC.kclose(self.fd)
+                self.fd = -1
+            end
+        end,
+
+        seek = function(self, whence, offset)
+            local w = whence=="set" and 0  -- SEEK_SET
+                or whence=="end" and 2  -- SEEK_END
+                or error("invalid 'whence' for seek", 2)  -- "cur" NYI
+
+            local pos = ffiC.klseek(self.fd, offset or 0, w)
+
+            if (pos >= 0) then
+                return pos
+            else
+                return nil, "?"
+            end
+        end,
+
+        read = function(self, nbytes)
+            assert(type(nbytes)=="number")  -- other formats NYI
+            assert(nbytes > 0)
+
+            local bytes = ffi.new("char [?]", nbytes)
+            local bytesread = ffiC.kread(self.fd, bytes, nbytes)
+
+            if (bytesread ~= nbytes) then
+                return nil
+            end
+
+            return ffi.string(bytes, nbytes)
+        end,
+
+        -- Read <nints> little-endian 32-bit integers.
+        read_le_int32 = function(self, nints)
+            local ints = ffi.new("int32_t [?]", nints)
+            local bytesread = ffiC.kread(self.fd, ints, nints*4)
+
+            if (bytesread ~= nints*4) then
+                return nil
+            end
+
+            if (ffi.abi("be")) then
+                for i=0,nints-1 do
+                    ints[i] = bit.bswap(ints[i])
+                end
+            end
+
+            return ints
+        end,
+    },
+}
+
+local kfile_t = ffi.metatype("struct { int32_t fd; }", kfile_mt)
+
+local function kopen4load(fn, searchfirst)
+    local fd = ffiC.kopen4load(fn, searchfirst)
+
+    if (fd < 0) then
+        return nil, "no such file?"
+    end
+
+    return kfile_t(fd)
+end
+
+
 --- Game arrays ---
 
 local function moddir_filename(cstr_fn)
@@ -1658,17 +1735,24 @@ local GAR_FOOTER_SIZE = #GAR_FOOTER
 
 local function gamearray_file_common(qnum, writep)
     local fn = moddir_filename(bcheck.quote_idx(qnum))
+    local f, errmsg
 
-    local f, errmsg = io.open(fn);
+    if (writep) then
+        f, errmsg = io.open(fn)
+    else
+        f = kopen4load(fn, 0)
+    end
+
     if (f == nil) then
         if (not writep) then
             error(format([[failed opening "%s" for reading: %s]], fn, errmsg), 3)
         else
+            -- file, numints, isnewgar, filename
             return nil, nil, true, fn
         end
     end
 
-    local fsize, errmsg = assert(f:seek("end"))
+    local fsize = assert(f:seek("end"))
 
     local isnewgar = false
     if (fsize >= GAR_FOOTER_SIZE) then
@@ -1727,19 +1811,15 @@ local gamearray_methods = {
         local f, nelts, isnewgar = gamearray_file_common(qnum, false)
 
         assert(f:seek("set"))
-        local str, errmsg = f:read(4*nelts)
-        if (#str ~= 4*nelts) then
-            error("failed reading whole file into gamearray: %s", errmsg, 2)
+        local ints = f:read_le_int32(nelts)
+        if (ints == nil) then
+            error("failed reading whole file into gamearray", 2)
         end
 
         gar:resize(nelts)
 
         for i=0,nelts-1 do
-            local b1, b2, b3, b4 = byte(str, 4*i+1, 4*i+4)
-            -- ints on disk are litte-endian
-            local int = b1 + 256*b2 + 256^2*b3 + 256^3*b4
-
-            rawset(gar, i, (int==0) and nil or int)
+            rawset(gar, i, (int==0) and nil or ints[i])
         end
 
         f:close()

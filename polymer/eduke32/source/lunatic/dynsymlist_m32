@@ -55,6 +55,13 @@ hitscan;
 neartag;
 getzrange;
 rotatesprite;
+setaspect;
+
+kopen4load;
+kfilelength;
+kclose;
+kread;
+klseek;
 
 dist;
 ldist;
