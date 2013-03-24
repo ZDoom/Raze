@@ -913,6 +913,11 @@ ffi.metatype("actor_t", actor_mt)
 
 --- PER-PLAYER WEAPON SETTINGS
 local weapondata_mt = {
+    __index = function(wd, member)
+        -- Handle protected members that are renamed (e.g. shoots/_shoots).
+        return ffi.cast(weapondata_ptr_ct, wd)[member]
+    end,
+
     __newindex = function(wd, member, val)
         if (string.match(member, "sound")) then
             if (val < 0) then

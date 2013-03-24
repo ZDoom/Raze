@@ -2567,11 +2567,15 @@ local function after_if_cmd_Cmt(subj, pos, ...)
     local capts = {...}
     assert(capts[1] ~= nil)
     assert(#capts <= 3)
-    for i=1,#capts do
-        assert(type(capts[i]=="string"))
+
+    for i=#capts,1, -1 do
+        assert(type(capts[i])=="string" or type(capts[i])=="table")
     end
 
-    -- TODO: make if* commands have line numbers.
+    -- IF_LINE_NUMBERING
+    local firstistab = (type(capts[1])=="table")
+    attachlinenum(firstistab and capts[1] or capts, pos)
+
     return true, unpack(capts)
 end
 
@@ -2750,6 +2754,7 @@ function on.if_else_end(ifconds, ifstmt, elsestmt, ...)
     -- and it's always idempotent (executing it multiple times has the same
     -- effect as executing it once), so generate code for it only once, too.
     local deferred = { nil, nil }
+    local linenum = ""
 
     local ifcondstr = {}
     for i=1,#ifconds do
@@ -2758,6 +2763,13 @@ function on.if_else_end(ifconds, ifstmt, elsestmt, ...)
 
         ifcondstr[i] = hasmore and cond[1] or cond
         assert(type(ifcondstr[i])=="string")
+
+        -- IF_LINE_NUMBERING
+        local tlinum = assert(ifcondstr[i]:match("^.*(%-%-[0-9]+)$"))
+        ifcondstr[i] = assert(ifcondstr[i]:match("^(.*)%-%-[0-9]+$"))
+        if (linenum == "") then
+            linenum = tlinum
+        end
 
         if (hasmore) then
             for i=1,2 do
@@ -2772,7 +2784,7 @@ function on.if_else_end(ifconds, ifstmt, elsestmt, ...)
     local conds = "(" .. table.concat(ifcondstr, ")and(") .. ")"
 
     local code = {
-        format("if %s then", conds),
+        format("if %s then%s", conds, linenum),
         assert(ifstmt),
     }
 

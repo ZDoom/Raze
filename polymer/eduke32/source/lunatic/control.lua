@@ -1188,6 +1188,10 @@ function _cansee(aci, ps)
     local spr = sprite[aci]
     local s = sprite[ps.i]
 
+    -- This is kind of redundant, but points the error messages to the CON code.
+    check_sector_idx(spr.sectnum)
+    check_sector_idx(s.sectnum)
+
     if (ps.holoduke_on >= 0) then
         -- If holoduke is on, let them target holoduke first.
         local hs = sprite[ps.holoduke_on]
