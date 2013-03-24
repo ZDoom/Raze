@@ -651,20 +651,20 @@ sms._nextspritestat = creategtab(ffiC.nextspritestat, ffiC.MAXSPRITES, 'nextspri
 sms._prevspritesect = creategtab(ffiC.prevspritesect, ffiC.MAXSPRITES, 'prevspritesect[]')
 sms._prevspritestat = creategtab(ffiC.prevspritestat, ffiC.MAXSPRITES, 'prevspritestat[]')
 
-function static_members.sprite.changesect(spritenum, sectnum)
+function static_members.sprite.changesect(spritenum, sectnum, noerr)
     check_sprite_idx(spritenum)
     check_sector_idx(sectnum)
-    if (ffiC.changespritesect(spritenum, sectnum)==-1) then
+    if (ffiC.changespritesect(spritenum, sectnum)==-1 and not noerr) then
         error("cannot change sector number of sprite not in the game world", 2)
     end
 end
 
-function static_members.sprite.changestat(spritenum, statnum)
+function static_members.sprite.changestat(spritenum, statnum, noerr)
     check_sprite_idx(spritenum)
     if (statnum >= ffiC.MAXSTATUS+0ULL) then
         error("invalid status number "..statnum, 2)
     end
-    if (ffiC.changespritestat(spritenum, statnum)==-1) then
+    if (ffiC.changespritestat(spritenum, statnum)==-1 and not noerr) then
         error("cannot change status number of sprite not in the game world", 2)
     end
 end

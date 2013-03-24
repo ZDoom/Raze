@@ -2165,9 +2165,9 @@ local Cinner = {
     canseespr = cmd(R,R,W)
         / "%3=_con._canseespr(%1,%2)",
     changespritesect = cmd(R,R)
-        / "sprite.changesect(%1,%2)",
+        / "sprite.changesect(%1,%2,true)",
     changespritestat = cmd(R,R)
-        / "sprite.changestat(%1,%2)",
+        / "sprite.changestat(%1,%2,true)",
     displayrand = cmd(W)
         / "%1=_con._displayrand(32767)",
     displayrandvar = cmd(W,D)

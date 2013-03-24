@@ -454,8 +454,8 @@ for member, code in pairs(ActorLabels) do
 end
 
 -- Sprites set stat- and sectnum via sprite.change{stat,sect} functions.
-ActorLabels.sectnum[2] = "sprite.changesect(%s,%%s)"
-ActorLabels.statnum[2] = "sprite.changestat(%s,%%s)"
+ActorLabels.sectnum[2] = "sprite.changesect(%s,%%s,true)"
+ActorLabels.statnum[2] = "sprite.changestat(%s,%%s,true)"
 
 local PL = function(memb) return "player[%s]"..memb end
 -- Access to DukePlayer_t's bool members: they must be read as numbers.
