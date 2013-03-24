@@ -110,9 +110,6 @@ local unsafe = pcall(function() string.UNSAFE=true; end)
 -- direct gv array access forbidden
 checkfail('gv.sprite[0].yrepeat = 100', "access forbidden")
 
--- indexing struct array with non-numeric type
-checkfail('local i = sprite["qwe"]')  -- this will produce an error inside the sprite metatable
-
 checkfail('print(sprite[100000].ceilingpal)', "out-of-bounds sprite[] read access")
 
 checkfail('print(gv.sprite[0])', "access forbidden")
@@ -129,7 +126,7 @@ checkfail('sector[-1].ceilingpal = 4', "out-of-bounds sector[] read access")
 checkfail('sector[0].wallnum = 0', "attempt to write to constant location")  -- this comes from LJ/FFI
 
 -- gv.numsectors is read-only
-checkfail('gv.numsectors = 4', "write access forbidden")
+checkfail('gv.numsectors = 4', "attempt to write to constant location")
 
 -- cannot create new fields in 'gv'
 checkfail('gv.QWE = 4', "write access forbidden")
@@ -153,7 +150,7 @@ checkfail('wall[4].QWE = 123', "has no member named 'QWE'")
 checkfail("new_global = 345", "attempt to write to undeclared variable 'new_global'")
 
 -- can't redefine constants in 'gv'
-checkfail('gv.CEILING = 3', "write access forbidden")
+checkfail('gv.CEILING = 3', "attempt to write to constant location")
 
 -- string.dump is unavailable
 checkfail('local s=require[[string]]; local tmp=s.dump(gameevent)',
@@ -174,7 +171,7 @@ checkfail('gv.luaJIT_setmode(nil, 0, 0)', "missing declaration for symbol 'luaJI
 
 checkfail('gv.luaJIT_BC_con_lang', "attempt to call a nil value")
 checkfail('gv.yax_getbunch(0,0)', "access forbidden")
-checkfail('gv.gethitickms = nil', "write access forbidden")
+checkfail('gv.gethitickms = nil', "attempt to write to constant location")
 
 -- actor[].t_data[] is not accessible for now
 checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
@@ -191,6 +188,7 @@ checkfail("do local ud=gv.ud.camerasprite; end", "access forbidden")  -- test fo
 checkfail("sprite[0]:set_picnum(-10)", "invalid tile number")
 checkfail("gv.g_sizes_of=nil; print(gv.g_sizes_of[0])", "write access forbidden")
 checkfail("gv.cam.sect=-1", "invalid sector number")
+checkfail("local flag=gv.SFLAG_NULL", "missing declaration")
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 
@@ -339,7 +337,7 @@ gameevent("LOADACTOR", function(i)
     end
 end)
 
-gameactor(930, 1, function(i)  -- "police line" ribbon
+gameactor(930, nil, 1, function(i)  -- "police line" ribbon
     local spr = sprite[i]
     local r = math.random
     local d = 20
@@ -365,7 +363,9 @@ con.ai("AITEMP", "TROOPFLINTCH", "SHRUNKVELS", 0)
 
 local TROOPSTRENGTH = 30
 
-gameactor(1680, TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
+local AF = actor.FLAGS
+
+gameactor(1680, AF.enemy, TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
           function(i, playeri, dist)
               spriteext[i]:make_animated()
 

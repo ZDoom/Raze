@@ -341,10 +341,32 @@ local function warnprintf() end  -- fwd-decl
 
 local on = {}
 
+-- Map from CON actor usertype to SFLAGs.
+local MAP_ACTOR_FLAGS = {
+    [0] = 0,
+    [1] = conl.SFLAG.SFLAG_BADGUY,
+    [2] = conl.SFLAG.SFLAG_BADGUY + conl.SFLAG.SFLAG_BADGUYSTAYPUT,
+    [3] = conl.SFLAG.SFLAG_BADGUY + conl.SFLAG.SFLAG_BADGUYSTAYPUT,
+}
+for i=4,7 do
+    MAP_ACTOR_FLAGS[i] = MAP_ACTOR_FLAGS[i-4] + conl.SFLAG.SFLAG_ROTFIXED
+end
+
+
 function on.actor_end(usertype, tsamm, codetab)
     local tilenum = tsamm[1]
+    local flags = 0
 
-    local str = ""
+    if (usertype ~= nil) then  -- useractor
+        if (not (bit.band(usertype, bit.bnot(7)) == 0)) then
+            -- XXX: position will be that of last command in actor code
+            errprintf("invalid usertype: must be bitwise OR of 1, 2 and/or 4")
+        else
+            flags = MAP_ACTOR_FLAGS[usertype]
+        end
+    end
+
+    local str = flags..","
     for i=2,math.min(#tsamm,4) do
         if ((i==3 or i==4) and tsamm[i]=="0") then
             -- HACK, gameactor() currently doesn't support literals for actions
@@ -353,12 +375,11 @@ function on.actor_end(usertype, tsamm, codetab)
         end
         str = str .. tostring(tsamm[i])..","
     end
-    if (#tsamm==5) then
-        local flags = bit.bor(unpack(tsamm, 5))
-        str = str .. flags..","
+    if (#tsamm >= 5) then
+        local movflags = bit.bor(unpack(tsamm, 5))
+        str = str .. movflags..","
     end
 
-    -- TODO: usertype (is non-nil only for 'useractor')
     addcodef("gameactor(%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
     addcode(get_cache_sap_code())
     add_code_and_end(codetab, "end)")
@@ -2355,7 +2376,6 @@ local Cif = {
         / format("_con._angdiffabs(%s,%s)<=%%1", PLS".ang", SPS".ang"),
     ifsound = cmd(D)
         / "_con._soundplaying(_aci,%1)",
-    -- vvv TODO: this is not correct for GET_ACCESS or GET_SHIELD.
     ifpinventory = cmd(D,D)
         / format("_con._checkpinventory(%s,%%1,%%2,_aci)", PLS""),
 

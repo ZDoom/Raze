@@ -8149,10 +8149,7 @@ void A_PlayAlertSound(int32_t i)
 
 int32_t A_CheckEnemyTile(int32_t pn)
 {
-    if (g_tile[pn].flags & SPRITE_HARDCODED_BADGUY)
-        return 1;
-
-    return A_CheckSpriteTileFlags(pn, SPRITE_BADGUY);
+    return ((g_tile[pn].flags & (SPRITE_HARDCODED_BADGUY|SPRITE_BADGUY)) != 0);
 }
 
 int32_t A_CheckSwitchTile(int32_t i)

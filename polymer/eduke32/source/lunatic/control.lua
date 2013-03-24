@@ -273,11 +273,10 @@ function _shoot(i, tilenum, zvel)
     return CF.A_ShootWithZvel(i, tilenum, zvel)
 end
 
+local BADGUY_MASK = bit.bor(con_lang.SFLAG.SFLAG_HARDCODED_BADGUY, con_lang.SFLAG.SFLAG_BADGUY)
+
 function isenemytile(tilenum)
-    if (bit.band(ffiC.g_tile[tilenum].flags, 0x00040000)~=0) then
-        return true
-    end
-    return (bit.band(ffiC.g_tile[tilenum].flags, ffiC.SFLAG_BADGUY)~=0)
+    return (bit.band(ffiC.g_tile[tilenum].flags, BADGUY_MASK)~=0)
 end
 
 function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,

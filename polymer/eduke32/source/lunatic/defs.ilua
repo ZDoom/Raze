@@ -12,11 +12,13 @@ local math = math
 
 local assert = assert
 local error = error
+local getmetatable = getmetatable
 local ipairs = ipairs
 local loadstring = loadstring
 local pairs = pairs
 local rawget = rawget
 local rawset = rawset
+local select = select
 local setmetatable = setmetatable
 local setfenv = setfenv
 local tonumber = tonumber
@@ -683,23 +685,50 @@ player_static_members.INPUT_BITS = defs_c.conststruct
 
 player_static_members.INPUT_EXT_BITS = defs_c.conststruct
 {
-    INPUT_MOVE_FORWARD =  1,
-    INPUT_MOVE_BACKWARD = 2,
-    INPUT_STRAFE_LEFT =   4,
-    INPUT_STRAFE_RIGHT =  8,
-    INPUT_TURN_LEFT =    16,
-    INPUT_TURN_RIGHT =   32,
+    MOVE_FORWARD =  1,
+    MOVE_BACKWARD = 2,
+    STRAFE_LEFT =   4,
+    STRAFE_RIGHT =  8,
+    TURN_LEFT =    16,
+    TURN_RIGHT =   32,
 }
 
+-- Actor flags
+local actor_static_members = {}
+do
+    local our_SFLAG = {}
+    local ext_SFLAG = con_lang.labels[4]  -- external actor flags only
+    local USER_MASK = 0
+
+    for name, flag in pairs(ext_SFLAG) do
+        our_SFLAG[name:sub(7)] = flag  -- strip "SFLAG_"
+        USER_MASK = bit.bor(USER_MASK, flag)
+    end
+
+    -- Add a couple of convenience defines.
+    our_SFLAG.enemy = con_lang.SFLAG.SFLAG_BADGUY
+    our_SFLAG.enemystayput = con_lang.SFLAG.SFLAG_BADGUY + con_lang.SFLAG.SFLAG_BADGUYSTAYPUT
+    our_SFLAG.rotfixed = con_lang.SFLAG.SFLAG_ROTFIXED
+
+    -- XXX: CON doesn't export BADGUYSTAYPUT or ROTFIXED SFLAGs, but they are considered
+    -- external for Lunatic.
+    our_SFLAG.USER_MASK = bit.bor(USER_MASK, our_SFLAG.enemystayput, our_SFLAG.rotfixed)
+
+    actor_static_members.FLAGS = defs_c.conststruct(our_SFLAG)
+end
+
 local tile_static_members = {}
-tile_static_members.sizx = defs_c.creategtab(ffiC.tilesizx, ffiC.MAXTILES, "tilesizx[]")
-tile_static_members.sizy = defs_c.creategtab(ffiC.tilesizy, ffiC.MAXTILES, "tilesizy[]")
+do
+    tile_static_members.sizx = defs_c.creategtab(ffiC.tilesizx, ffiC.MAXTILES, "tilesizx[]")
+    tile_static_members.sizy = defs_c.creategtab(ffiC.tilesizy, ffiC.MAXTILES, "tilesizy[]")
+end
 
 -- XXX: error message will say "g_player_ps"
 player = setmtonce({}, defs_c.GenStructMetatable("g_player_ps", "playerswhenstarted", player_static_members))
 
 -- needed by "control"
-actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, "actor[]")
+actor = setmtonce({}, defs_c.GenStructMetatable("actor", "MAXSPRITES", actor_static_members))
+local BNOT_SFLAG_USER_MASK = bit.bnot(actor.FLAGS.USER_MASK)
 
 local projectile = defs_c.creategtab(ffiC.ProjectileData, ffiC.MAXTILES, "projectile[]")
 local g_tile = setmtonce({}, defs_c.GenStructMetatable("g_tile", "MAXTILES", tile_static_members))
@@ -1172,14 +1201,15 @@ end
 
 -- Declare all con_lang.labels constants in the global FFI namespace.
 for i=1,#con_lang.labels do
-    local strbuf = {"enum {"}
+    if (getmetatable(con_lang.labels[i]) ~= "noffiC") then
+        local strbuf = {"enum {"}
+        for label, val in pairs(con_lang.labels[i]) do
+            strbuf[#strbuf+1] = string.format("%s = %d,", label, val)
+        end
+        strbuf[#strbuf+1] = "};"
 
-    for label, val in pairs(con_lang.labels[i]) do
-        strbuf[#strbuf+1] = string.format("%s = %d,", label, val)
+        ffi.cdef(table.concat(strbuf))
     end
-    strbuf[#strbuf+1] = "};"
-
-    ffi.cdef(table.concat(strbuf))
 end
 
 
@@ -1201,16 +1231,20 @@ local allowed_modules = {
     con = con,
 }
 
-for modname, themodule in pairs(allowed_modules) do
-    local mt = {
-        __index = themodule,
-        __newindex = function(tab,idx,val)
-            error("modifying base module table forbidden", 2)
-        end,
-    }
+-- Protect base modules.
+do
+    local function basemodule_newindex()
+        error("modifying base module table forbidden", 2)
+    end
 
-    -- Comment out to make base modules not protected:
-    allowed_modules[modname] = setmtonce({}, mt)
+    for modname, themodule in pairs(allowed_modules) do
+        local mt = {
+            __index = themodule,
+            __newindex = basemodule_newindex,
+        }
+
+        allowed_modules[modname] = setmtonce({}, mt)
+    end
 end
 
 local function check_valid_modname(modname, errlev)
@@ -1396,34 +1430,49 @@ G_._VERSION = _VERSION
 G_._G = G_
 
 local gameactor_internal = gameactor_internal  -- included in lunatic.c
--- gameactor(tilenum [, strength [, act [, mov [, movflags]]]], actor_func)
+-- gameactor(tilenum [, flags [, strength [, act [, mov [, movflags]]]]], actor_func)
 local function our_gameactor(tilenum, ...)
     bcheck.top_level("gameactor")
 
-    local args = {...}
     if (type(tilenum) ~= "number") then
         error("invalid argument #1 to gameactor: must be a number", 2)
     end
     if (tilenum >= ffiC.MAXTILES+0ULL) then
-        error("invalid argument #1 to gameactor: must be a tile number (0 .. MAXTILES-1)", 2)
+        error("invalid argument #1 to gameactor: must be a tile number [0..gv.MAXTILES-1]", 2)
     end
-    if (#args == 0) then
+
+    local args = {...}
+    -- Number of varargs; args may have nil's in the middle!
+    local numargs = select('#', ...)
+
+    if (numargs == 0) then
         error("invalid call to gameactor: must have at least two arguments (tilenum, func)", 2)
     end
-    if (#args > 5) then
-        error("invalid call to gameactor: must have at most six arguments", 2)
+    if (numargs >= 7) then  -- sic, because tilenum isn't counted!
+        error("invalid call to gameactor: must have at most 7 arguments", 2)
     end
-    if (type(args[#args]) ~= "function") then
+    if (type(args[numargs]) ~= "function") then
         error("invalid last argument to gameactor: must be a function", 2)
     end
 
-    local strength = (#args >= 2) and args[1] or 0
+    local flags = (numargs > 1) and args[1] or 0
+    if (type(flags) ~= "number") then
+        error("invalid 'flags' argument to gameactor: must be a number", 2)
+    end
+
+    local flags_rbits = bit.band(flags, BNOT_SFLAG_USER_MASK)
+    if (flags_rbits ~= 0) then
+        error("invalid 'flags' argument to gameactor: must not set reserved bits (0x"
+              ..(bit.tohex(flags_rbits))..")", 2)
+    end
+
+    local strength = (numargs > 2) and args[2] or 0
     if (type(strength) ~= "number") then
         error("invalid 'strength' argument to gameactor: must be a number", 2)
     end
 
     -- TODO: literal number action other than 0?
-    local act = (#args >= 3) and args[2] or "NO"
+    local act = (numargs > 3) and args[3] or "NO"
     if (type(act)=="string") then
         act = AC[act]
     end
@@ -1432,7 +1481,7 @@ local function our_gameactor(tilenum, ...)
     end
 
     -- TODO: literal number move other than 0?
-    local mov = (#args >= 4) and args[3] or "NO"
+    local mov = (numargs > 4) and args[4] or "NO"
     if (type(mov)=="string") then
         mov = MV[mov]
     end
@@ -1440,12 +1489,17 @@ local function our_gameactor(tilenum, ...)
         error("invalid 'mov' argument to gameactor: must be a string or move", 2)
     end
 
-    local movflags = (#args >= 5) and args[4] or 0
+    local movflags = (numargs > 5) and args[5] or 0
     if (type(movflags) ~= "number") then
         error("invalid 'movflags' argument to gameactor: must be a number", 2)
     end
 
-    gameactor_internal(tilenum, strength, act, mov, movflags, args[#args])
+    -- All good, set the tile bits and register the actor!
+
+    local tile = ffiC.g_tile[tilenum]
+    tile.flags = bit.bor(tile.flags, flags)
+
+    gameactor_internal(tilenum, strength, act, mov, movflags, args[numargs])
 end
 
 -- Event functions, saved for event chaining
@@ -1565,9 +1619,8 @@ end
 
 -- error(..., 2) is to blame the caller and get its line numbers
 
-gv = gv_
 local tmpmt = {
-    __index = function(gv, key)
+    __index = function(_, key)
         if (gv_access[key] == nil) then
             return ffiC[key]
         end
@@ -1578,7 +1631,7 @@ local tmpmt = {
         error("access forbidden", 2)
     end,
 
-    __newindex = function(gv, key, val)
+    __newindex = function(_, key, val)
         if (gv_access[key] == nil) then
             -- Read-only vars handled by LuaJIT.
             ffiC[key] = val
@@ -1587,7 +1640,7 @@ local tmpmt = {
         end
     end,
 }
-setmtonce(gv, tmpmt)
+gv = setmtonce(gv_, tmpmt)
 
 -- This will create 'sprite', 'wall', etc. HERE, i.e. in the environment of this chunk
 defs_c.create_globals(_G)

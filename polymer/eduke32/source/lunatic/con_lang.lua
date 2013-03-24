@@ -4,6 +4,7 @@ local lpeg = require("lpeg")
 
 local pairs = pairs
 local print = print
+local setmetatable = setmetatable
 local type = type
 
 
@@ -197,26 +198,28 @@ EVENT = {
     EVENT_CHANGEMENU = 94,
 }
 
-local SFLAG = {
+-- NOTE: negated values are not exported to the ffi.C namespace or CON.
+-- See TWEAK_SFLAG below.
+SFLAG = {
     SFLAG_SHADOW           = 0x00000001,
     SFLAG_NVG              = 0x00000002,
     SFLAG_NOSHADE          = 0x00000004,
---    SFLAG_PROJECTILE       = 0x00000008,
---    SFLAG_DECAL            = 0x00000010,
+    SFLAG_PROJECTILE       = -0x00000008,
+    SFLAG_DECAL            = -0x00000010,
     SFLAG_BADGUY           = 0x00000020,
     SFLAG_NOPAL            = 0x00000040,
-    SFLAG_NOEVENTS      = 0x00000080,  -- NAME
+    SFLAG_NOEVENTS         = 0x00000080,  -- NAME
     SFLAG_NOLIGHT          = 0x00000100,
     SFLAG_USEACTIVATOR     = 0x00000200,
---    SFLAG_NULL             = 0x00000400,
+    SFLAG_NULL             = -0x00000400,
     SFLAG_NOCLIP           = 0x00000800,
---    SFLAG_NOFLOORSHADOW    = 0x00001000,
+    SFLAG_NOFLOORSHADOW    = -0x00001000,
     SFLAG_SMOOTHMOVE       = 0x00002000,
     SFLAG_NOTELEPORT       = 0x00004000,
---    SFLAG_BADGUYSTAYPUT    = 0x00008000,
---    SFLAG_CACHE            = 0x00010000,
---    SFLAG_ROTFIXED         = 0x00020000,
---    SPRITE_HARDCODED_BADGUY= 0x00040000,
+    SFLAG_BADGUYSTAYPUT    = -0x00008000,
+    SFLAG_CACHE            = -0x00010000,
+    SFLAG_ROTFIXED         = -0x00020000,
+    SFLAG_HARDCODED_BADGUY = -0x00040000,
 }
 
 STAT = {
@@ -297,6 +300,14 @@ local GAMEFUNC = {
     GAMEFUNC_DPAD_AIMING = 55,
 }
 
+local function shallow_copy(tab)
+    local t = {}
+    for k,v in pairs(tab) do
+        t[k] = v
+    end
+    return t
+end
+
 -- KEEPINSYNC with gamedef.c:C_AddDefaultDefinitions() and the respective
 -- defines. These are exported to the ffi.C namespace and as literal defines
 -- in lunacon.lua.
@@ -305,10 +316,18 @@ labels =
     STR,
     PROJ,
     EVENT,
-    SFLAG,
+    setmetatable(shallow_copy(SFLAG), { __metatable="noffiC" }),
     STAT,
     GAMEFUNC,
 }
+
+-- TWEAK_SFLAG
+for name, flag in pairs(SFLAG) do
+    if (flag < 0) then
+        SFLAG[name] = -flag
+        labels[4][name] = nil
+    end
+end
 
 -- KEEPINSYNC player.h
 wdata_members =
