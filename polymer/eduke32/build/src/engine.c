@@ -11165,8 +11165,10 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
     int16_t pendingsectnum;
     vec3_t pendingvec;
 
-    // invalid sectnums can happen, for example if the player is using noclip
-    if (sect1 < 0 || sect2 < 0)
+    // Negative sectnums can happen, for example if the player is using noclip.
+    // MAXSECTORS can happen from C-CON, e.g. canseespr with a sprite not in
+    // the game world.
+    if ((unsigned)sect1 >= MAXSECTORS || (unsigned)sect2 >= MAXSECTORS)
         return 0;
 
     Bmemset(&pendingvec, 0, sizeof(vec3_t));  // compiler-happy
