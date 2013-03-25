@@ -5545,6 +5545,32 @@ static void drawsprite_classic(int32_t snum)
 
     DO_TILE_ANIM(tspr->picnum, spritenum+32768);
 
+#ifdef USE_OPENGL
+    {
+        // hack pending proper alpha implentation
+        // TODO: a real implementation
+        float alpha = spriteext[tspr->owner].alpha;
+
+        if (alpha >= 0.33f) // if alpha is 0 (which is the default) this structure should only necessitate one comparison
+        {
+            if ((cstat&2) && alpha >= 0.5f) // this covers the multiplicative aspect used in the Polymodes
+                cstat |= 512;
+
+            cstat |= 2;
+
+            if (alpha >= 0.66f)
+            {
+                cstat |= 512;
+
+                if (alpha >= 1.0f)
+                    return;
+            }
+
+            tspr->cstat = cstat;
+        }
+    }
+#endif
+
     tilenum = tspr->picnum;
 
     if ((cstat&48)==48)
