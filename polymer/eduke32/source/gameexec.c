@@ -2603,7 +2603,7 @@ nullquote:
                 int32_t x1=Gv_GetVarX(*insptr++),  y1=Gv_GetVarX(*insptr++);
                 int32_t x2=Gv_GetVarX(*insptr++),  y2=Gv_GetVarX(*insptr++);
 
-                if (tw == CON_ROTATESPRITE)
+                if (tw == CON_ROTATESPRITE && !(orientation&ROTATESPRITE_FULL16))
                 {
                     x<<=16;
                     y<<=16;

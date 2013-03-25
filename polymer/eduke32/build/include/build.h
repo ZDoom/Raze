@@ -164,8 +164,9 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 #define BXY_MAX 524288
 
 enum {
+    ROTATESPRITE_FULL16 = 2048,
     // ROTATESPRITE_MAX-1 is the mask of all externally available orientation bits
-    ROTATESPRITE_MAX = 2048,
+    ROTATESPRITE_MAX = 4096,
 
     RS_CENTERORIGIN = (1<<30),
 };

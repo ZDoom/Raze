@@ -317,22 +317,22 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
                         int32_t x1, int32_t y1,   int32_t x2, int32_t y2, int32_t z)
 {
     int32_t ac;
-    char centre;
-    const int32_t squishtext = ((f&2) != 0);
-    int32_t shift = 16, widthx = 320;
-    int32_t ox, oy, origx = x, origy = y;
+    const int32_t squishtext = (f&2) != 0 ? 1 : 0;
+    const int32_t widthx = 320<<16;
+    int32_t origx = x, origy, j = 0;
 
     if (t == NULL)
         return -1;
 
-    if (o & ROTATESPRITE_MAX)
+    if (!(o & ROTATESPRITE_FULL16))
     {
-        widthx = 320<<16;
-        shift = 0;
+        x <<= 16;
+        y <<= 16;
     }
 
-    centre = (x == (widthx>>1));
-    if (centre)
+    origy = y;
+
+    if (x == (widthx>>1)) // center
     {
         const char *oldt = t;
         int32_t newx = 0;
@@ -343,7 +343,7 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
 
             if (*t == 32)
             {
-                newx += ((((f & 8) ? 8 : 5) - squishtext) * z)>>16;
+                newx += ((((f & 8) ? 8 : 5) - squishtext) * z);
                 continue;
             }
 
@@ -361,11 +361,11 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
             if (ac < tile || ac > (tile + 93))
                 break;
 
-            i = ((((f & 8) ? 8 : tilesizx[ac]) - squishtext) * z)>>16;
+            i = ((((f & 8) ? 8 : tilesizx[ac]) - squishtext) * z);
             newx += i;
 
             if (*t >= '0' && *t <= '9')
-                newx -= i - ((8 * z)>>16);
+                newx -= i - ((8 * z));
         }
         while (*(++t));
 
@@ -373,11 +373,8 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
 
         x = (f & 4) ?
             (xres>>1)-textsc(newx>>1) :
-            (widthx>>1)-((o & ROTATESPRITE_MAX)?newx<<15:newx>>1);
+            (widthx>>1)-(newx>>1);
     }
-
-    ox = x;
-    oy = y;
 
     do
     {
@@ -385,7 +382,7 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
 
         if (*t == 32)
         {
-            x += ((((f & 8) ? 8 : 5) - squishtext) * z)>>16;
+            j += ((((f & 8) ? 8 : 5) - squishtext) * z);
             continue;
         }
 
@@ -413,43 +410,37 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
         if (ac < tile || ac > (tile + 93))
             break;
 
-        if (o&ROTATESPRITE_MAX)
-        {
-            ox = x += (x-ox)<<16;
-            oy = y += (y-oy)<<16;
-        }
-
         if (f&4)
         {
-            rotatesprite(textsc(x<<shift), (origy<<shift)+textsc((y-origy)<<shift), textsc(z),
+            rotatesprite(textsc(x+j), (origy)+textsc((y-origy)), textsc(z),
                          0,ac,s,p,(8|16|(o&1)|(o&32)),x1,y1,x2,y2);
         }
         else
         {
             const int32_t orient = (f&1) ? (8|16|(o&1)|(o&32)) : (2|o);
-            rotatesprite(x<<shift, y<<shift, z,
+            rotatesprite(x+j, y, z,
                          0,ac,s,p,orient,x1,y1,x2,y2);
         }
 
         i = (f & 8) ?
-            ((8 - squishtext) * z)>>16 :
-            ((tilesizx[ac] - squishtext) * z)>>16;
-        x += i;
+            ((8 - squishtext) * z):
+            ((tilesizx[ac] - squishtext) * z);
+        j += i;
 
         if (*t >= '0' && *t <= '9')
-            x -= i-((8*z)>>16);
+            j -= i-((8*z));
 
         // wrapping long strings doesn't work for precise coordinates due to overflow
         // XXX: above comment obsolete?
-        if ((o&ROTATESPRITE_MAX) == 0)
+        if (!(o&ROTATESPRITE_FULL16))
         {
-            if (((f&4) ? textsc(x) : x) > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
-                x = origx, y += z>>13;
+            if (((f&4) ? textsc(x+j) : (x+j)) > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET)<<16)
+                j = 0, y += z<<3; // z == 65536 --> 8<<16
         }
     }
     while (*(++t));
 
-    return x;
+    return origx + ((o & ROTATESPRITE_FULL16) ? j : (j>>16));
 }
 
 int32_t G_GameTextLen(int32_t x,const char *t)
@@ -490,7 +481,7 @@ static int32_t minitext_yofs = 0;
 static int32_t minitext_lowercase = 0;
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb)
 {
-    int32_t ac;
+    int32_t ac, j = 0;
     char ch, cmode;
 
     cmode = (sb&ROTATESPRITE_MAX)!=0;
@@ -500,6 +491,12 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
     {
         OSD_Printf("minitext: NULL text!\n");
         return 0;
+    }
+
+    if (!(sb&ROTATESPRITE_FULL16))
+    {
+        x<<=16;
+        y<<=16;
     }
 
     do
@@ -527,19 +524,19 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
 
         if (ch == 32)
         {
-            x+=5;
+            j+=5;
             continue;
         }
         else ac = ch - '!' + MINIFONT;
 
-        if (cmode) rotatesprite_fs(sbarx(x),minitext_yofs+sbary(y),sbarsc(65536L),0,ac,s,p,sb);
-        else rotatesprite_fs(x<<16,y<<16,65536L,0,ac,s,p,sb);
-        x += (tilesizx[ac] > 0 ? tilesizx[ac] : 3) + 1;
+        if (cmode) rotatesprite_fs(sbarx(x+j),minitext_yofs+sbary(y),sbarsc(65536L),0,ac,s,p,sb);
+        else rotatesprite_fs(x+(j<<16),y,65536L,0,ac,s,p,sb);
+        j += (tilesizx[ac] > 0 ? tilesizx[ac] : 3) + 1;
 
     }
     while (*(++t));
 
-    return (x);
+    return x+(j<<((sb&ROTATESPRITE_FULL16)?16:0));
 }
 
 void G_AddUserQuote(const char *daquote)
@@ -711,7 +708,13 @@ void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
     if (orientation&4)
         a = 1024;
 
-    rotatesprite_win(x<<16, y<<16, zoom,a,tilenum,shade,p,2|orientation);
+    if (!(orientation&ROTATESPRITE_FULL16))
+    {
+        x<<=16;
+        y<<=16;
+    }
+
+    rotatesprite_win(x,y,zoom,a,tilenum,shade,p,2|orientation);
 }
 
 #if !defined LUNATIC
@@ -993,24 +996,24 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
 {
     int32_t i, j = 0, k, p, c;
     char b[12];
-    const int32_t shift = 16;
+    const int32_t shift = (cs&ROTATESPRITE_FULL16)?0:16;
 
     i = Bsprintf(b,"%d",n);
 
+    // center the number string
     for (k=i-1; k>=0; k--)
     {
         p = starttile + b[k]-'0';
-        j += ((1+tilesizx[p])*z)>>16;
+        j += ((1+tilesizx[p])*z);
     }
-    if (cs&ROTATESPRITE_MAX) j<<=16;
-    c = x-(j>>1);
+    c = (x<<shift)-(j>>1);
 
     j = 0;
     for (k=0; k<i; k++)
     {
         p = starttile + b[k]-'0';
-        rotatesprite((c+j)<<shift,y<<shift,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
-        j += (((1+tilesizx[p])*z)>>((cs&ROTATESPRITE_MAX)?0:16));
+        rotatesprite(c+j,y<<shift,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
+        j += ((1+tilesizx[p])*z);
     }
 }
 

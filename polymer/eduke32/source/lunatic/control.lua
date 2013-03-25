@@ -282,7 +282,7 @@ end
 function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
                       cx1, cy1, cx2, cy2)
     check_tile_idx(tilenum)
-    orientation = bit.band(orientation, 2047)  -- ROTATESPRITE_MAX-1
+    orientation = bit.band(orientation, 4095)  -- ROTATESPRITE_MAX-1
 
     -- XXX: This is the same as the check in gameexec.c, but ideally we'd want
     -- rotatesprite to accept all coordinates and simply draw nothing if they
@@ -291,9 +291,14 @@ function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
         error(format("invalid coordinates (%.03f, %.03f)", x, y), 2)
     end
 
+    if (bit.band(orientation, 2048) ~= 2048) then  -- ROTATESPRITE_FULL16
+        x = 65536*x
+        y = 65536*y
+    end
+
     -- TODO: check that it works correctly with all coordinates, also if one
     -- border is outside the screen etc...
-    ffiC.rotatesprite(65536*x, 65536*y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
+    ffiC.rotatesprite(x, y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
                       cx1, cy1, cx2, cy2)
 end
 
@@ -738,7 +743,7 @@ function _gametext(tilenum, x, y, qnum, shade, pal, orientation,
 
     local cstr = bcheck.quote_idx(qnum)
 
-    orientation = bit.band(orientation, 2047)  -- ROTATESPRITE_MAX-1
+    orientation = bit.band(orientation, 4095)  -- ROTATESPRITE_MAX-1
     ffiC.G_PrintGameText(0, tilenum, bit.arshift(x,1), y, cstr, shade, pal,
                          orientation, cx1, cy1, cx2, cy2, zoom)
 end
