@@ -732,6 +732,7 @@ int32_t clipmapinfo_load(void);
 #endif
 int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 void set_tilesiz(int32_t picnum, int16_t dasizx, int16_t dasizy);
+int32_t tile_exists(int32_t picnum);
 int32_t   loadpics(const char *filename, int32_t askedsize);
 void   loadtile(int16_t tilenume);
 int32_t   qloadkvx(int32_t voxindex, const char *filename);

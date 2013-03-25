@@ -281,7 +281,6 @@ int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32
             }
             else if (ch >= 32 && inputloc < dalen && ch < 127)
             {
-                ch = Btoupper(ch);
                 if (c != 997 || (ch >= '0' && ch <= '9'))
                 {
                     // JBF 20040508: so we can have numeric only if we want

@@ -10612,6 +10612,14 @@ void set_tilesiz(int32_t picnum, int16_t dasizx, int16_t dasizy)
     set_picsiz(picnum);
 }
 
+int32_t tile_exists(int32_t picnum)
+{
+    if (waloff[picnum] == 0)
+        loadtile(picnum);
+
+    return (waloff[picnum] != 0 && tilesizx[picnum] > 0 && tilesizy[picnum] > 0);
+}
+
 //
 // loadpics
 //

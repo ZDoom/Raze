@@ -487,6 +487,7 @@ int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits)
 // minitext_yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords,
 // (sb&ROTATESPRITE_MAX) only.
 static int32_t minitext_yofs = 0;
+static int32_t minitext_lowercase = 0;
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb)
 {
     int32_t ac;
@@ -519,7 +520,11 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
             p = Batoi(smallbuf);
             continue;
         }
-        ch = Btoupper(*t);
+        if (!minitext_lowercase)
+            ch = Btoupper(*t);
+        else
+            ch = *t;
+
         if (ch == 32)
         {
             x+=5;
@@ -529,7 +534,7 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
 
         if (cmode) rotatesprite_fs(sbarx(x),minitext_yofs+sbary(y),sbarsc(65536L),0,ac,s,p,sb);
         else rotatesprite_fs(x<<16,y<<16,65536L,0,ac,s,p,sb);
-        x += 4; // tilesizx[ac]+1;
+        x += (tilesizx[ac] > 0 ? tilesizx[ac] : 3) + 1;
 
     }
     while (*(++t));
@@ -10638,6 +10643,12 @@ int32_t app_main(int32_t argc, const char **argv)
     Bfree (g_clipMapFiles);
     g_clipMapFiles = NULL;
 #endif
+
+    // check if the minifont will support lowercase letters (3136-3161)
+    // there is room for them in tiles012.art between "[\]^_." and "{|}~"
+    minitext_lowercase = 1;
+    for (i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
+        minitext_lowercase &= tile_exists(i);
 
     OSD_Exec("autoexec.cfg");
 

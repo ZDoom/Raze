@@ -5252,7 +5252,7 @@ repeatcase:
 
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
             {
-                EpisodeNames[j][i] = toupper(*textptr);
+                EpisodeNames[j][i] = *textptr;
                 textptr++,i++;
                 if (i >= (signed)sizeof(EpisodeNames[j])-1)
                 {
@@ -5339,7 +5339,7 @@ repeatcase:
 
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
             {
-                SkillNames[j][i] = toupper(*textptr);
+                SkillNames[j][i] = *textptr;
                 textptr++,i++;
                 if (i >= (signed)sizeof(SkillNames[j])-1)
                 {
@@ -5503,7 +5503,7 @@ repeatcase:
 
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
             {
-                GametypeNames[j][i] = toupper(*textptr);
+                GametypeNames[j][i] = *textptr;
                 textptr++,i++;
                 if (i >= (signed)sizeof(GametypeNames[j])-1)
                 {
@@ -5589,7 +5589,7 @@ repeatcase:
 
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
             {
-                tempbuf[i] = Btoupper(*textptr);
+                tempbuf[i] = *textptr;
                 textptr++,i++;
                 if (i >= 32)
                 {

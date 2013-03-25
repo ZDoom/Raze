@@ -860,7 +860,7 @@ void Net_SendClientInfo(void)
     int32_t i,l;
 
     for (l=0; (unsigned)l<sizeof(szPlayerName)-1; l++)
-        g_player[myconnectindex].user_name[l] = Btoupper(szPlayerName[l]);
+        g_player[myconnectindex].user_name[l] = szPlayerName[l];
 
     if (numplayers < 2) return;
 
@@ -870,7 +870,7 @@ void Net_SendClientInfo(void)
     //null terminated player name to send
     for (i=0; szPlayerName[i]; i++)
     {
-        buf[l++] = Btoupper(szPlayerName[i]);
+        buf[l++] = szPlayerName[i];
     }
     buf[l++] = 0;
 

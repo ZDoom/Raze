@@ -239,8 +239,8 @@ static void G_PrecacheSprites(void)
     tloadtile(VIEWSCREEN,1);
 
     for (i=STARTALPHANUM; i<ENDALPHANUM+1; i++) tloadtile(i,1);
-    for (i=BIGALPHANUM; i<BIGALPHANUM+82; i++) tloadtile(i,1);
-    for (i=MINIFONT; i<MINIFONT+63; i++) tloadtile(i,1);
+    for (i=BIGALPHANUM-11; i<BIGALPHANUM+82; i++) tloadtile(i,1);
+    for (i=MINIFONT; i<MINIFONT+93; i++) tloadtile(i,1);
 
     for (i=FOOTPRINTS; i<FOOTPRINTS+3; i++) tloadtile(i,1);
 
