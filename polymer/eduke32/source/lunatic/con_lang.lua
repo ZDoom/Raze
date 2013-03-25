@@ -968,6 +968,7 @@ lpeg.P(false) +
 "savemapstate" +
 "savegamevar" +
 "save" +
+"rotatespritea" +
 "rotatesprite16" +
 "rotatesprite" +
 "rotatepoint" +

@@ -412,6 +412,7 @@ const char *keyw[] =
     "drawcircle16",
     "drawcircle16b",
     "drawcircle16z",
+    "rotatespritea",
     "rotatesprite16",
     "rotatesprite",
     "setgamepalette",
@@ -3469,6 +3470,15 @@ repeatcase:
         // int32_t x, int32_t y, int32_t z, short a, short tilenum, int8_t shade, char orientation, x1, y1, x2, y2
         // myospal adds char pal
         C_GetManyVars(12);        // get the ID of the DEFs
+        break;
+
+    case CON_ROTATESPRITEA:
+        if (cs.parsingEventOfs < 0 && cs.currentStateIdx < 0)
+        {
+            C_ReportError(ERROR_EVENTONLY);
+            g_numCompilerErrors++;
+        }
+        C_GetManyVars(13);
         break;
 
     case CON_SETGAMEPALETTE:

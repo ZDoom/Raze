@@ -90,6 +90,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_SETACTORSOUNDPITCH, 20111102 },
     { CON_ECHO, 20120304 },
     { CON_SHOWVIEWUNBIASED, 20120331 },
+    { CON_ROTATESPRITEA, 20130324 },
 };
 #endif
 
@@ -576,6 +577,7 @@ const char *keyw[] =
     "setactorsoundpitch",       // 361
     "echo",                     // 362
     "showviewunbiased",         // 363
+    "rotatespritea",            // 364
     "<null>"
 };
 #endif
@@ -4608,6 +4610,16 @@ static int32_t C_ParseCommand(int32_t loop)
             // get the ID of the DEFs
 
             C_GetManyVars(12);
+            continue;
+
+        case CON_ROTATESPRITEA:
+            if (g_parsingEventPtr == NULL && g_processingState == 0)
+            {
+                C_ReportError(ERROR_EVENTONLY);
+                g_numCompilerErrors++;
+            }
+
+            C_GetManyVars(13);
             continue;
 
         case CON_SHOWVIEW:

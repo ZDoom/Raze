@@ -55,7 +55,7 @@ cansee;
 hitscan;
 neartag;
 getzrange;
-rotatesprite;
+rotatesprite_;
 setaspect;
 
 kopen4load;

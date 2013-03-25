@@ -1725,11 +1725,15 @@ local handle =
     end,
 
     rotatesprite = function(...)
-        return format("_con.rotatesprite(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", ...)
+        return format("_con.rotatesprite(%s,%s,%s,%s,%s,%s,%s,%s,0,%s,%s,%s,%s)", ...)
     end,
 
-    rotatesprite16 = function(...)
-        return format("_con.rotatesprite(%s/65536,%s/65536,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", ...)
+    rotatesprite16 = function(...)  -- TODO: non <<16 coordinates
+        return format("_con.rotatesprite(%s/65536,%s/65536,%s,%s,%s,%s,%s,%s,0,%s,%s,%s,%s)", ...)
+    end,
+
+    rotatespritea = function(...)
+        return format("_con.rotatesprite(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", ...)
     end,
 
     -- readgamevar or savegamevar
@@ -2265,6 +2269,8 @@ local Cinner = {
         / handle.rotatesprite,
     rotatesprite16 = cmd(R,R,R,R,R,R,R,R,R,R,R,R)  -- 12R
         / handle.rotatesprite16,
+    rotatespritea = cmd(R,R,R,R,R,R,R,R,R,R,R,R,R)  -- 13R
+        / handle.rotatespritea,
     sectorofwall = cmd(W,R,R)
         / handle.NYI,
     sectclearinterpolation = cmd(R)

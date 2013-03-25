@@ -2911,6 +2911,7 @@ dodefault:
                 continue;
             }
 
+        case CON_ROTATESPRITEA:
         case CON_ROTATESPRITE16:
         case CON_ROTATESPRITE:
             insptr++;
@@ -2918,11 +2919,12 @@ dodefault:
                 int32_t x=Gv_GetVarX(*insptr++),   y=Gv_GetVarX(*insptr++),           z=Gv_GetVarX(*insptr++);
                 int32_t a=Gv_GetVarX(*insptr++),   tilenum=Gv_GetVarX(*insptr++),     shade=Gv_GetVarX(*insptr++);
                 int32_t pal=Gv_GetVarX(*insptr++), orientation=Gv_GetVarX(*insptr++);
+                int32_t alpha = (tw == CON_ROTATESPRITEA) ? Gv_GetVarX(*insptr++) : 0;
                 int32_t x1=Gv_GetVarX(*insptr++),  y1=Gv_GetVarX(*insptr++);
                 int32_t x2=Gv_GetVarX(*insptr++),  y2=Gv_GetVarX(*insptr++);
 
-                if (tw == CON_ROTATESPRITE && !(orientation & 256)) {x<<=16; y<<=16;}
-                rotatesprite(x,y,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
+                if (tw != CON_ROTATESPRITE16 && !(orientation & 256)) {x<<=16; y<<=16;}
+                rotatesprite_(x,y,z,a,tilenum,shade,pal,2|orientation,alpha,x1,y1,x2,y2);
                 continue;
             }
 

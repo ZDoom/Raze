@@ -19,7 +19,7 @@ local function draw_hline_dotted(x1, x2, y, pal,stat)
             x = x + (pl.ang - 1024)/100
         end
 
-        rs(x,y, 65536, 0, tile, 0,pal,stat, 0,0,gv.xdim-1,gv.ydim-1)
+        rs(x,y, 65536, 0, tile, 0,pal,stat,0, 0,0,gv.xdim-1,gv.ydim-1)
     end
 end
 
@@ -43,7 +43,7 @@ local function rotatesprite_test()
     end
 
     -- NUKEBUTTON
-    rs(30,170, 32768, 2047*((gv.totalclock/240)%1), 142, 0,0,8+1024, 0,0,gv.xdim-1,gv.ydim-1)
+    rs(30,170, 32768, 2047*((gv.totalclock/240)%1), 142, 0,0,8+1024,0, 0,0,gv.xdim-1,gv.ydim-1)
 end
 
 gameevent(gv.EVENT_DISPLAYREST, rotatesprite_test)

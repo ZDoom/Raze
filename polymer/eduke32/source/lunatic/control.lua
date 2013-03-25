@@ -280,7 +280,7 @@ function isenemytile(tilenum)
 end
 
 function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
-                      cx1, cy1, cx2, cy2)
+                      alpha, cx1, cy1, cx2, cy2)
     check_tile_idx(tilenum)
     orientation = bit.band(orientation, 4095)  -- ROTATESPRITE_MAX-1
 
@@ -298,8 +298,8 @@ function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
 
     -- TODO: check that it works correctly with all coordinates, also if one
     -- border is outside the screen etc...
-    ffiC.rotatesprite(x, y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
-                      cx1, cy1, cx2, cy2)
+    ffiC.rotatesprite_(x, y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
+                      alpha, cx1, cy1, cx2, cy2)
 end
 
 function _myos(x, y, zoom, tilenum, shade, orientation, pal)
