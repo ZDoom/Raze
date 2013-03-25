@@ -274,6 +274,25 @@ static int32_t sbary(int32_t y)
     return (200<<16) - sbarsc(200<<16) + sbarsc(y<<16);
 }
 
+static int32_t sbarx16(int32_t x)
+{
+    if (ud.screen_size == 4) return sbarsc(x);
+    return (((320<<16) - sbarsc(320<<16)) >> 1) + sbarsc(x);
+}
+
+#if 0 // enable if ever needed
+static int32_t sbarxr16(int32_t x)
+{
+    if (ud.screen_size == 4) return (320<<16) - sbarsc(x);
+    return (((320<<16) - sbarsc(320<<16)) >> 1) + sbarsc(x);
+}
+#endif
+
+static int32_t sbary16(int32_t y)
+{
+    return (200<<16) - sbarsc(200<<16) + sbarsc(y);
+}
+
 int32_t textsc(int32_t sc)
 {
     // prevent ridiculousness to a degree
@@ -529,7 +548,7 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
         }
         else ac = ch - '!' + MINIFONT;
 
-        if (cmode) rotatesprite_fs(sbarx(x+j),minitext_yofs+sbary(y),sbarsc(65536L),0,ac,s,p,sb);
+        if (cmode) rotatesprite_fs(sbarx16(x+(j<<16)),minitext_yofs+sbary16(y),sbarsc(65536L),0,ac,s,p,sb);
         else rotatesprite_fs(x+(j<<16),y,65536L,0,ac,s,p,sb);
         j += (tilesizx[ac] > 0 ? tilesizx[ac] : 3) + 1;
 
