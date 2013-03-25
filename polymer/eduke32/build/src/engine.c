@@ -2311,7 +2311,9 @@ typedef struct
     int32_t sx, sy, z;
     int16_t a, picnum;
     int8_t dashade;
-    char dapalnum, dastat, pagesleft;
+    char dapalnum, dastat;
+    uint8_t daalpha;
+    char pagesleft;
     int32_t cx1, cy1, cx2, cy2;
     int32_t uniqid;    //JF extension
 } permfifotype;
@@ -7128,7 +7130,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 //
 //JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
 static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                           int8_t dashade, char dapalnum, int32_t dastat,
+                           int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha,
                            int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2,
                            int32_t uniqid)
 {
@@ -7152,7 +7154,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 #ifdef USE_OPENGL
     if (rendmode >= 3 && qsetmode == 200)
     {
-        polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid);
+        polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,cx1,cy1,cx2,cy2,uniqid);
         return;
     }
 #endif
@@ -7254,6 +7256,24 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     if (palookup[dapalnum] == NULL) dapalnum = 0;
     palookupoffs = FP_OFF(palookup[dapalnum]) + (getpalookup(0, dashade)<<8);
+
+    // hack pending proper alpha implentation
+    // TODO: a real implementation
+    if (daalpha > 84) // if alpha is 0 (which is the default) this structure should only necessitate one comparison
+    {
+        if ((dastat&1) && daalpha > 127) // this covers the multiplicative aspect used in the Polymodes
+            dastat |= 32;
+
+        dastat |= 1;
+
+        if (daalpha > 168)
+        {
+            dastat |= 32;
+
+            if (daalpha == 255)
+                return;
+        }
+    }
 
     i = divscale32(1L,z);
     xv = mulscale14(sinang,i);
@@ -10567,7 +10587,7 @@ void nextpage(void)
             per = &permfifo[i];
             if ((per->pagesleft > 0) && (per->pagesleft <= numpages))
                 dorotatesprite(per->sx,per->sy,per->z,per->a,per->picnum,
-                               per->dashade,per->dapalnum,per->dastat,
+                               per->dashade,per->dapalnum,per->dastat,per->daalpha,
                                per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
         }
         enddrawing();   //}}}
@@ -10581,7 +10601,7 @@ void nextpage(void)
             per = &permfifo[i];
             if (per->pagesleft >= 130)
                 dorotatesprite(per->sx,per->sy,per->z,per->a,per->picnum,
-                               per->dashade,per->dapalnum,per->dastat,
+                               per->dashade,per->dapalnum,per->dastat,per->daalpha,
                                per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
 
             if (per->pagesleft&127) per->pagesleft--;
@@ -13734,8 +13754,8 @@ void flushperms(void)
 //
 // rotatesprite
 //
-void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                  int8_t dashade, char dapalnum, int32_t dastat,
+void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                  int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha,
                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     int32_t i;
@@ -13756,7 +13776,7 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     if (((dastat&128) == 0) || (numpages < 2) || (beforedrawrooms != 0))
     {
         begindrawing(); //{{{
-        dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,guniqhudid);
+        dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,cx1,cy1,cx2,cy2,guniqhudid);
         enddrawing();   //}}}
     }
 
@@ -13772,6 +13792,7 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
         per->picnum = picnum;
         per->dashade = dashade; per->dapalnum = dapalnum;
         per->dastat = dastat;
+        per->daalpha = daalpha;
         per->pagesleft = numpages+((beforedrawrooms&1)<<7);
         per->cx1 = cx1; per->cy1 = cy1; per->cx2 = cx2; per->cy2 = cy2;
         per->uniqid = guniqhudid;   //JF extension

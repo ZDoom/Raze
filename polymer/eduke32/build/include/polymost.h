@@ -40,7 +40,7 @@ void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt
 void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                             int8_t dashade, char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid);
+                             int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid);
 void polymost_fillpolygon(int32_t npoints);
 void polymost_initosdfuncs(void);
 void polymost_drawrooms(void);

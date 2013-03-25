@@ -5371,7 +5371,7 @@ void polymost_drawsprite(int32_t snum)
 //dastat&128  1:draw all pages (permanent)
 //cx1,...     clip window (actual screen coords)
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                             int8_t dashade, char dapalnum, int32_t dastat,
+                             int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha,
                              int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
 {
     static int32_t onumframes = 0;
@@ -5537,6 +5537,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             }
 
 #ifdef USE_OPENGL
+            spriteext[tspr.owner].alpha = daalpha / 255.0f;
+
             if (!nofog) bglDisable(GL_FOG);
             if (rendmode < 4)
                 mddraw(&tspr);
@@ -5579,6 +5581,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             if (!nofog) bglEnable(GL_FOG);
 #else
             mddraw(&tspr);
+
+            spriteext[tspr.owner].alpha = 0.f;
 #endif
             viewingrange = oldviewingrange;
             gxyaspect = ogxyaspect;
@@ -5640,6 +5644,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         if (dastat&1) { if (!(dastat&32)) method = 2; else method = 3; }
     }
     method |= 4; //Use OpenGL clamping - dorotatesprite never repeats
+
+    alpha = daalpha / 255.0f;
 
     xsiz = tilesizx[globalpicnum];
     ysiz = tilesizy[globalpicnum];
@@ -5743,7 +5749,6 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         }
         while (z);
 
-        alpha = 0.f;
 #ifdef USE_OPENGL
         if (!nofog) bglDisable(GL_FOG);
         pow2xsplit = 0; drawpoly(px,py,n,method);

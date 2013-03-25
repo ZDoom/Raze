@@ -770,8 +770,8 @@ void   drawmasks(void);
 void   clearview(int32_t dacol);
 void   clearallviews(int32_t dacol);
 void   drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
-void   rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                    int8_t dashade, char dapalnum, int32_t dastat,
+void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                    int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha,
                     int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 void   drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
 int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
@@ -781,16 +781,22 @@ void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
 // don't clip at all, i.e. the whole screen real estate is available
+static inline void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                                int8_t dashade, char dapalnum, int32_t dastat,
+                                int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+{
+    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, cx1, cy1, cx2, cy2);
+}
 static inline void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                    int8_t dashade, char dapalnum, int32_t dastat)
 {
-    rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0,0,xdim-1,ydim-1);
+    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0,0,xdim-1,ydim-1);
 }
 
 static inline void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                     int8_t dashade, char dapalnum, int32_t dastat)
 {
-    rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, windowx1,windowy1,windowx2,windowy2);
+    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, windowx1,windowy1,windowx2,windowy2);
 }
 
 void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt);
