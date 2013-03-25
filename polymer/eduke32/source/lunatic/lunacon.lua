@@ -1728,8 +1728,8 @@ local handle =
         return format("_con.rotatesprite(%s,%s,%s,%s,%s,%s,%s,%s,0,%s,%s,%s,%s)", ...)
     end,
 
-    rotatesprite16 = function(...)  -- TODO: non <<16 coordinates
-        return format("_con.rotatesprite(%s/65536,%s/65536,%s,%s,%s,%s,%s,%s,0,%s,%s,%s,%s)", ...)
+    rotatesprite16 = function(...)  -- (orientation|ROTATESPRITE_FULL16)
+        return format("_con.rotatesprite(%s,%s,%s,%s,%s,%s,%s,_bit.bor(%s,2048),0,%s,%s,%s,%s)", ...)
     end,
 
     rotatespritea = function(...)
