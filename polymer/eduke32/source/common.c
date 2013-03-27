@@ -12,6 +12,7 @@
 
 #ifdef _WIN32
 # include "winbits.h"
+#include <shlwapi.h>
 #endif
 
 #include "common.h"
@@ -227,8 +228,23 @@ void G_AddSearchPaths(void)
     addsearchpath("/Library/Application Support/JFDuke3D");
     addsearchpath("/Library/Application Support/EDuke32");
 #elif defined (_WIN32)
-    addsearchpath_ProgramFiles("GOG.com/Duke Nukem 3D");
-    addsearchpath_ProgramFiles("Steam/SteamApps/common/Duke Nukem 3D/gameroot");
+    // detect Steam and GOG versions of Duke3D
+    char buf[BMAX_PATH];
+    int32_t siz = BMAX_PATH, ret;
+
+    ret = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", NULL, buf, (LPDWORD)&siz);
+
+    if (ret == ERROR_SUCCESS)
+        Bstrcat(buf, "/gameroot");
+    else
+    {
+        siz = BMAX_PATH;
+        ret = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, buf, (LPDWORD)&siz);
+    }
+
+    if (ret == ERROR_SUCCESS)
+        addsearchpath(buf);
+
 #endif
 }
 

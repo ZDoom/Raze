@@ -106,7 +106,7 @@ ifeq ($(PLATFORM),WINDOWS)
     SDL_FRAMEWORK=1
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     EXESUFFIX=.exe
-    BUILDLIBS+= -Wl,--enable-auto-import -mwindows -lmingwex -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32
+    BUILDLIBS+= -Wl,--enable-auto-import -mwindows -lmingwex -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
     #-lshfolder
     #BUILDLIBDIRS+= -L$(ENETROOT)
     #STDCPPLIB:=-lstdc++

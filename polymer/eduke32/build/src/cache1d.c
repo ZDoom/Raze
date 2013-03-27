@@ -318,27 +318,41 @@ int32_t addsearchpath(const char *p)
     struct Bstat st;
     char *s;
     searchpath_t *srch;
+    char *path = Bstrdup(p);
 
-    if (Bstat(p, &st) < 0)
+    if (path[Bstrlen(path)-1] == '\\')
+        path[Bstrlen(path)-1] = 0; // hack for stat() returning ENOENT on paths ending in \
+
+    if (Bstat(path, &st) < 0)
     {
+        Bfree(path);
         if (errno == ENOENT) return -2;
         return -1;
     }
-    if (!(st.st_mode & BS_IFDIR)) return -1;
+    if (!(st.st_mode & BS_IFDIR))
+    {
+        Bfree(path);
+        return -1;
+    }
 
     srch = (searchpath_t *)Bmalloc(sizeof(searchpath_t));
-    if (!srch) return -1;
+    if (!srch)     
+    {
+        Bfree(path);
+        return -1;
+    }
 
     srch->next    = searchpathhead;
-    srch->pathlen = Bstrlen(p)+1;
+    srch->pathlen = Bstrlen(path)+1;
     srch->path    = (char *)Bmalloc(srch->pathlen + 1);
     if (!srch->path)
     {
+        Bfree(path);
         Bfree(srch);
         return -1;
     }
 
-    Bstrcpy(srch->path, p);
+    Bstrcpy(srch->path, path);
     for (s=srch->path; *s; s++)
     {
         /* do nothing */
@@ -355,6 +369,7 @@ int32_t addsearchpath(const char *p)
 
     initprintf("Using %s for game data\n", srch->path);
 
+    Bfree(path);
     return 0;
 }
 

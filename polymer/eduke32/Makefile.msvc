@@ -58,7 +58,7 @@ CFLAGS= /MT /J /nologo $(flags_cl)  \
  	/W2 $(ENGINEOPTS) \
  	/I$(VORBISSDK)\include /DRENDERTYPEWIN=1
  	
-LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib \
+LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib shlwapi.lib \
      vorbisfile_static.lib vorbis_static.lib ogg_static.lib dsound.lib advapi32.lib
 
 LIBS=/NODEFAULTLIB:glu32.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcmt.lib \
