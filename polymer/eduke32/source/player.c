@@ -2179,6 +2179,7 @@ void P_DisplayWeapon(int32_t snum)
         }
         else
         {
+            int32_t doanim = !(sprite[p->i].pal == 1 || ud.pause_on || g_player[myconnectindex].ps->gm&MODE_MENU);
             pal = P_GetHudPal(p);
 
             switch (cw)
@@ -2344,7 +2345,7 @@ void P_DisplayWeapon(int32_t snum)
                     {
                         gun_pos -= sintable[(*kb)<<7]>>12;
 
-                        if (sprite[p->i].pal != 1)
+                        if (doanim)
                             weapon_xoffset += 1-(rand()&3);
                     }
 
@@ -2362,10 +2363,10 @@ void P_DisplayWeapon(int32_t snum)
                         if (*kb > PWEAPON(0, CHAINGUN_WEAPON, FireDelay) && *kb < PWEAPON(0, CHAINGUN_WEAPON, TotalTime))
                         {
                             i = 0;
-                            if (sprite[p->i].pal != 1) i = rand()&7;
+                            if (doanim) i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+140-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
                                 CHAINGUN+5+((*kb-4)/5),gs,o,pal,0);
-                            if (sprite[p->i].pal != 1) i = rand()&7;
+                            if (doanim) i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+184-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
                                 CHAINGUN+5+((*kb-4)/5),gs,o,pal,0);
                         }
@@ -2373,7 +2374,7 @@ void P_DisplayWeapon(int32_t snum)
                         if (*kb < PWEAPON(0, CHAINGUN_WEAPON, TotalTime)-4)
                         {
                             i = 0;
-                            if (sprite[p->i].pal != 1) i = rand()&7;
+                            if (doanim) i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+162-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
                                 CHAINGUN+5+((*kb-2)/5),gs,o,pal,0);
                             G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
@@ -2537,7 +2538,7 @@ void P_DisplayWeapon(int32_t snum)
                     {
                         static uint8_t cat_frames[] = { 0,0,1,1,2,2 };
 
-                        if (sprite[p->i].pal != 1)
+                        if (doanim)
                         {
                             weapon_xoffset += rand()&3;
                             looking_arc += rand()&3;
@@ -2566,7 +2567,7 @@ void P_DisplayWeapon(int32_t snum)
 
                     if ((*kb) < PWEAPON(snum, p->curr_weapon, TotalTime) && (*kb) > 0)
                     {
-                        if (sprite[p->i].pal != 1)
+                        if (doanim)
                         {
                             weapon_xoffset += rand()&3;
                             gun_pos += (rand()&3);
@@ -2606,7 +2607,7 @@ void P_DisplayWeapon(int32_t snum)
 
                     if (((*kb) > 0) && ((*kb) < PWEAPON(snum, p->curr_weapon, TotalTime)))
                     {
-                        if (sprite[p->i].pal != 1)
+                        if (doanim)
                         {
                             weapon_xoffset += rand()&3;
                             gun_pos += (rand()&3);
