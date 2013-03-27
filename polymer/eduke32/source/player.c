@@ -2163,8 +2163,8 @@ void P_DisplayWeapon(int32_t snum)
             if (p->jetpack_on == 0)
             {
                 i = sprite[p->i].xvel;
-                looking_arc += 32-(i>>1);
-                fistsign += i>>1;
+                looking_arc += 32-(i>>3);
+                fistsign += i>>3;
             }
 
             cw = weapon_xoffset;
