@@ -1063,7 +1063,7 @@ static inline void prelevel(char g)
 {
     int32_t i, nexti, j, startwall, endwall;
     int32_t switchpicnum;
-    uint8_t *tagbitmap = Bcalloc(65536>>3, 1);
+    uint8_t *tagbitmap = (uint8_t *)Bcalloc(65536>>3, 1);
 
     if (tagbitmap==NULL)
         G_GameExit("OUT OF MEMORY in prelevel()");

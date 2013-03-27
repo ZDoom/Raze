@@ -31,10 +31,7 @@ duke3d_h=\
 
 gamedef_h=$(SRC)/gamedef.h $(SRC)/gameexec.h $(SRC)/gamevars.h
 
-game_defs_dep=
-ifneq ($(LUNATIC),0)
-    game_defs_dep=$(SRC)/lunatic/defs.ilua
-endif
+game_defs_dep=$(SRC)/lunatic/defs.ilua
 
 $(OBJ)/game.$o: $(SRC)/game.c $(game_defs_dep) $(SRC)/jmact/scriplib.h $(duke3d_h) $(SRC)/input.h $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h $(INC)/demo.h $(EINC)/hightile.h
 $(OBJ)/actors.$o: $(SRC)/actors.c $(duke3d_h)
