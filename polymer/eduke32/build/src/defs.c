@@ -122,6 +122,13 @@ static void defsparser_include(const char *fn, const scriptfile *script, const c
     }
     else
     {
+        if (!cmdtokptr)
+        {
+            flushlogwindow = 1;
+            initprintf("Loading module \"%s\"\n",fn);
+            flushlogwindow = 0;
+        }
+
         defsparser(included);
         scriptfile_close(included);
     }
@@ -2101,19 +2108,27 @@ int32_t loaddefinitionsfile(const char *fn)
     int32_t i;
 
     script = scriptfile_fromfile(fn);
-    if (!script) return -1;
 
-    flushlogwindow = 1;
-    initprintf("Loading \"%s\"\n",fn);
-    flushlogwindow = 0;
-    defsparser(script);
+    if (script)
+    {
+        flushlogwindow = 1;
+        initprintf("Loading \"%s\"\n",fn);
+        flushlogwindow = 0;
+
+        defsparser(script);
+    }
 
     for (i=0; i < g_defModulesNum; ++i)
         defsparser_include(g_defModules[i], NULL, NULL);
 
     flushlogwindow = f;
-    scriptfile_close(script);
+
+    if (script)
+        scriptfile_close(script);
+
     scriptfile_clearsymbols();
+
+    if (!script) return -1;
 
     return 0;
 }
