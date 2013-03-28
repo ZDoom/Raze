@@ -266,7 +266,12 @@ static void PopulateForm(int32_t pgs)
             Bsprintf(buf, "%s\t%s", grpfiles[i].name, fg->name);
             j = ListBox_AddString(hwnd, buf);
             (void)ListBox_SetItemData(hwnd, j, (LPARAM)fg);
-            if (!Bstrcasecmp(fg->name, settings.selectedgrp))(void)ListBox_SetCurSel(hwnd, j);
+            if (!Bstrcasecmp(fg->name, settings.selectedgrp))
+            {
+                (void)ListBox_SetCurSel(hwnd, j);
+                settings.game = fg->game;
+                settings.crcval = fg->crcval;
+            }
         }
     }
 }

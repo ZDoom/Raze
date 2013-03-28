@@ -128,6 +128,13 @@ char * SCRIPT_GetRaw(int32_t scripthandle, char * sectionname, char * entryname)
 =
 ==============
 */
+int32_t SCRIPT_GetStringPtr
+   (
+   int32_t scripthandle,
+   char * sectionname,
+   char * entryname,
+   char ** dest
+   );
 int32_t SCRIPT_GetString
    (
    int32_t scripthandle,

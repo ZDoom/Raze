@@ -618,8 +618,8 @@ int32_t CONFIG_ReadSetup(void)
         }
 // #endif
 
-        if (g_grpNamePtr != NULL && !Bstrcmp(g_grpNamePtr,defaultgamegrp[0]))
-            SCRIPT_GetString(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr[0]);
+        if (g_grpNamePtr == NULL)
+            SCRIPT_GetStringPtr(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr);
 
         if (!NAM)
         {

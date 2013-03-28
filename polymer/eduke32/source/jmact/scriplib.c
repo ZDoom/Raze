@@ -575,24 +575,43 @@ char * SCRIPT_GetRaw(int32_t scripthandle, char * sectionname, char * entryname)
     return e->value;
 }
 
-int32_t SCRIPT_GetString(int32_t scripthandle, char * sectionname, char * entryname, char * dest)
+static char * SCRIPT_ParseString(char ** dest, char * p)
 {
-    ScriptSectionType *s;
-    ScriptEntryType *e;
-    char *p, ch;
-    int32_t c;
+    int32_t c = 0;
+    char ch;
 
-    if (!SC(scripthandle)) return 1;
-    if (!SCRIPT(scripthandle,script)) return 1;
+    if (!(*dest))
+    {
+        // find length
+        char *q = p;
 
-    s = SCRIPT_SectionExists(scripthandle, sectionname);
-    e = SCRIPT_EntryExists(s, entryname);
+        if (*q == '\"')
+        {
+            // quoted string
+            q++;
+            while ((ch = *(q++)) && ch != '\"')
+            {
+                if (ch == '\\')
+                {
+                    ch = *(q++);
 
-    //dest[0] = 0;
-    if (!e) return 1;
+                    if (!ch)
+                        break;
+                }
 
-    p = e->value;
-    c = 0;
+                c++;
+            }
+        }
+        else
+        {
+            while ((ch = *(q++)) && ch != ' ' && ch != '\t')
+                c++;
+        }
+
+        // allocate
+        *dest = (char*)Bcalloc(c+1,sizeof(char));
+        c = 0;
+    }
 
     if (*p == '\"')
     {
@@ -606,40 +625,67 @@ int32_t SCRIPT_GetString(int32_t scripthandle, char * sectionname, char * entryn
                 ch = *(p++);
                 switch (ch)
                 {
-                case 0:   return 0;
-                case 'n': dest[c++] = '\n'; break;
-                case 'r': dest[c++] = '\r'; break;
-                case 't': dest[c++] = '\t'; break;
-                default:  dest[c++] = ch; break;
+                case 0:   return p;
+                case 'n': (*dest)[c++] = '\n'; break;
+                case 'r': (*dest)[c++] = '\r'; break;
+                case 't': (*dest)[c++] = '\t'; break;
+                default:  (*dest)[c++] = ch; break;
                 }
                 break;
             case '\"':
-                dest[c] = 0;
-                return 0;
+                (*dest)[c] = 0;
+                return p;
             default:
-                dest[c++] = ch;
+                (*dest)[c++] = ch;
                 break;
             }
         }
+        if (ch == 0) return p;
     }
     else
     {
         while ((ch = *(p++)))
         {
-            if (ch == ' ' || ch == '\t') { dest[c] = 0; break; }
-            else dest[c++] = ch;
+            if (ch == ' ' || ch == '\t') { (*dest)[c] = 0; break; }
+            else (*dest)[c++] = ch;
         }
     }
 
+    return p;
+}
+
+int32_t SCRIPT_GetStringPtr(int32_t scripthandle, char * sectionname, char * entryname, char ** dest)
+{
+    ScriptSectionType *s;
+    ScriptEntryType *e;
+    char *p;
+
+    if (!SC(scripthandle)) return 1;
+    if (!SCRIPT(scripthandle,script)) return 1;
+
+    s = SCRIPT_SectionExists(scripthandle, sectionname);
+    e = SCRIPT_EntryExists(s, entryname);
+
+    //dest[0] = 0;
+    if (!e) return 1;
+
+    p = e->value;
+
+    SCRIPT_ParseString(dest, p);
+
     return 0;
+}
+
+int32_t SCRIPT_GetString(int32_t scripthandle, char * sectionname, char * entryname, char * dest)
+{
+    return SCRIPT_GetStringPtr(scripthandle, sectionname, entryname, &dest);
 }
 
 int32_t SCRIPT_GetDoubleString(int32_t scripthandle, char * sectionname, char * entryname, char * dest1, char * dest2)
 {
     ScriptSectionType *s;
     ScriptEntryType *e;
-    char *p, ch;
-    int32_t c;
+    char *p;
 
     if (!SC(scripthandle)) return 1;
     if (!SCRIPT(scripthandle,script)) return 1;
@@ -652,88 +698,16 @@ int32_t SCRIPT_GetDoubleString(int32_t scripthandle, char * sectionname, char * 
     if (!e) return 1;
 
     p = e->value;
-    c = 0;
 
-    if (*p == '\"')
-    {
-        // quoted string
-        p++;
-        while ((ch = *(p++)))
-        {
-            switch (ch)
-            {
-            case '\\':
-                ch = *(p++);
-                switch (ch)
-                {
-                case 0:   return 0;
-                case 'n': dest1[c++] = '\n'; break;
-                case 'r': dest1[c++] = '\r'; break;
-                case 't': dest1[c++] = '\t'; break;
-                default:  dest1[c++] = ch; break;
-                }
-                break;
-            case '\"':
-                dest1[c] = 0;
-                goto breakme;
-            default:
-                dest1[c++] = ch;
-                break;
-            }
-        }
-        if (ch == 0) return 0;
-    }
-    else
-    {
-        while ((ch = *(p++)))
-        {
-            if (ch == ' ' || ch == '\t') { dest1[c] = 0; break; }
-            else dest1[c++] = ch;
-        }
-    }
+    p = SCRIPT_ParseString(&dest1, p);
 
-breakme:
+    if (*(p-1) != '\"')
+        return 0;
+
     while (*p == ' ' || *p == '\t') p++;
     if (*p == 0) return 0;
 
-    c = 0;
-
-    if (*p == '\"')
-    {
-        // quoted string
-        p++;
-        while ((ch = *(p++)))
-        {
-            switch (ch)
-            {
-            case '\\':
-                ch = *(p++);
-                switch (ch)
-                {
-                case 0:   return 0;
-                case 'n': dest2[c++] = '\n'; break;
-                case 'r': dest2[c++] = '\r'; break;
-                case 't': dest2[c++] = '\t'; break;
-                default:  dest2[c++] = ch; break;
-                }
-                break;
-            case '\"':
-                dest2[c] = 0;
-                return 0;
-            default:
-                dest2[c++] = ch;
-                break;
-            }
-        }
-    }
-    else
-    {
-        while ((ch = *(p++)))
-        {
-            if (ch == ' ' || ch == '\t') { dest2[c] = 0; break; }
-            else dest2[c++] = ch;
-        }
-    }
+    SCRIPT_ParseString(&dest2, p);
 
     return 0;
 }
