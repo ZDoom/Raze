@@ -321,7 +321,7 @@ int32_t addsearchpath(const char *p)
     char *path = Bstrdup(p);
 
     if (path[Bstrlen(path)-1] == '\\')
-        path[Bstrlen(path)-1] = 0; // hack for stat() returning ENOENT on paths ending in \
+        path[Bstrlen(path)-1] = 0; // hack for stat() returning ENOENT on paths ending in a backslash
 
     if (Bstat(path, &st) < 0)
     {
