@@ -233,6 +233,19 @@ state reset_hud_weapon_coordinates
     state reset_hud_weapon_y_coordinate
 ends
 
+state determine_animation
+    getuserdef[THISACTOR].pause_on hud_temp
+    ifvarn hud_temp 0
+        setvar hud_temp 1
+
+    ifvarand player[THISACTOR].gm 1 // MODE_MENU
+        orvar hud_temp 1
+
+    getactor[playerid].pal hud_G_Draw_temp
+    ifvare hud_G_Draw_temp 1
+        orvar hud_temp 1
+ends
+
 // other EVENT_DISPLAYWEAPON code
 
 state draw_shrunk_fists // Shrunk Running Fists
@@ -243,7 +256,7 @@ state draw_shrunk_fists // Shrunk Running Fists
     ifvare player[THISACTOR].jetpack_on 0
     {
         getactor[playerid].xvel hud_temp2
-        shiftvarr hud_temp2 1
+        shiftvarr hud_temp2 3
         addvar hud_temp3 32
         subvarvar hud_temp3 hud_temp2
         addvarvar hud_fistsign hud_temp2
@@ -661,7 +674,7 @@ state draw_chaingun // CHAINGUN_WEAPON:
         shiftvarr hud_temp 12
         addvarvar hud_y hud_temp
 
-        getactor[playerid].pal hud_temp
+        state determine_animation
         ifvarn hud_temp 1
         {
             displayrand hud_temp
@@ -692,27 +705,27 @@ state draw_chaingun // CHAINGUN_WEAPON:
             state G_DrawWeaponTile
             break
         default
-            getactor[playerid].pal hud_temp3
+            state determine_animation
 
             ifvarvarg weaponcount hud_temp4
                 ifvarvarl weaponcount hud_totaltime
                 {
                     // muzzleflash 1
-                    ifvarn hud_temp3 1
+                    ifvarn hud_temp 1
                     {
-                        displayrand hud_temp
-                        andvar hud_temp 7
+                        displayrand hud_temp3
+                        andvar hud_temp3 7
                     }
                     else
-                        setvar hud_temp 0
+                        setvar hud_temp3 0
 
                     addvar hud_x 136 // -4+140
-                    addvarvar hud_x hud_temp
+                    addvarvar hud_x hud_temp3
 
                     setvarvar hud_temp2 weaponcount
                     shiftvarr hud_temp2 1
 
-                    addvarvar hud_y hud_temp
+                    addvarvar hud_y hud_temp3
                     subvarvar hud_y hud_temp2
                     addvar hud_y 208
 
@@ -725,27 +738,27 @@ state draw_chaingun // CHAINGUN_WEAPON:
                     state G_DrawWeaponTile
 
                     // cleanup
-                    subvarvar hud_x hud_temp
-                    subvarvar hud_y hud_temp
+                    subvarvar hud_x hud_temp3
+                    subvarvar hud_y hud_temp3
 
                     // muzzleflash 3
-                    ifvarn hud_temp3 1
+                    ifvarn hud_temp 1
                     {
-                        displayrand hud_temp
-                        andvar hud_temp 7
+                        displayrand hud_temp3
+                        andvar hud_temp3 7
                     }
 
                     addvar hud_x 44 // relative
-                    addvarvar hud_x hud_temp
-                    addvarvar hud_y hud_temp
+                    addvarvar hud_x hud_temp3
+                    addvarvar hud_y hud_temp3
 
                     state G_DrawWeaponTile
 
                     // cleanup
                     subvar hud_x 180 // -4+140 + 44
                     subvar hud_y 208
-                    subvarvar hud_x hud_temp
-                    subvarvar hud_y hud_temp
+                    subvarvar hud_x hud_temp3
+                    subvarvar hud_y hud_temp3
                     addvarvar hud_y hud_temp2
                 }
 
@@ -753,21 +766,21 @@ state draw_chaingun // CHAINGUN_WEAPON:
             ifvarvarl weaponcount hud_totaltime
             {
                 // muzzleflash 2
-                ifvarn hud_temp3 1
+                ifvarn hud_temp 1
                 {
-                    displayrand hud_temp
-                    andvar hud_temp 7
+                    displayrand hud_temp3
+                    andvar hud_temp3 7
                 }
                 else
-                    setvar hud_temp 0
+                    setvar hud_temp3 0
 
                 setvarvar hud_temp2 weaponcount
                 shiftvarr hud_temp2 1
 
-                addvarvar hud_x hud_temp
+                addvarvar hud_x hud_temp3
                 addvar hud_x 158 // -4+162
 
-                addvarvar hud_y hud_temp
+                addvarvar hud_y hud_temp3
                 subvarvar hud_y hud_temp2
                 addvar hud_y 208
 
@@ -780,9 +793,9 @@ state draw_chaingun // CHAINGUN_WEAPON:
                 state G_DrawWeaponTile
 
                 // cleanup
-                subvarvar hud_x hud_temp
+                subvarvar hud_x hud_temp3
                 subvar hud_x 158
-                subvarvar hud_y hud_temp
+                subvarvar hud_y hud_temp3
                 addvarvar hud_y hud_temp2
                 subvar hud_y 208
 
@@ -1316,7 +1329,7 @@ state draw_freezer // FREEZE_WEAPON:
         addvar hud_totaltime 1
         ifvarvarl weaponcount hud_totaltime
         {
-            getactor[playerid].pal hud_temp
+            state determine_animation
             ifvarn hud_temp 1
             {
                 displayrand hud_temp
@@ -1394,7 +1407,7 @@ state draw_expander // GROW_WEAPON:
     {
         ifvarvarl weaponcount hud_totaltime
         {
-            getactor[playerid].pal hud_temp
+            state determine_animation
             ifvarn hud_temp 1
             {
                 displayrand hud_temp
@@ -1496,7 +1509,7 @@ state draw_shrinker // SHRINKER_WEAPON:
     {
         ifvarvarl weaponcount hud_totaltime
         {
-            getactor[playerid].pal hud_temp
+            state determine_animation
             ifvarn hud_temp 1
             {
                 displayrand hud_temp
