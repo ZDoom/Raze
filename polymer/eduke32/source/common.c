@@ -217,6 +217,23 @@ void G_ExtPreInit(void)
 #endif
 }
 
+#ifdef _WIN32
+const char * G_GetSteamPath(void)
+{
+    static char spath[BMAX_PATH];
+    static int32_t success = -1;
+    int32_t siz = BMAX_PATH;
+
+    if (success == -1)
+        success = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", NULL, spath, (LPDWORD)&siz);
+
+    if (success == ERROR_SUCCESS)
+        return spath;
+
+    return NULL;
+}
+#endif
+
 void G_AddSearchPaths(void)
 {
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
@@ -232,19 +249,19 @@ void G_AddSearchPaths(void)
     char buf[BMAX_PATH];
     int32_t siz = BMAX_PATH, ret;
 
-    ret = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", NULL, buf, (LPDWORD)&siz);
-
-    if (ret == ERROR_SUCCESS)
-        Bstrcat(buf, "/gameroot");
-    else
+    if (G_GetSteamPath())
     {
-        siz = BMAX_PATH;
-        ret = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, buf, (LPDWORD)&siz);
+        Bsprintf(buf, "%s/gameroot/classic", G_GetSteamPath());
+        addsearchpath(buf);
+
+        Bsprintf(buf, "%s/gameroot/addons", G_GetSteamPath());
+        addsearchpath(buf);
     }
+
+    ret = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, buf, (LPDWORD)&siz);
 
     if (ret == ERROR_SUCCESS)
         addsearchpath(buf);
-
 #endif
 }
 
