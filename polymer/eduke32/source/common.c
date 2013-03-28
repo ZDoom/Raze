@@ -78,14 +78,14 @@ const char *G_DefaultDefFile(void)
     else if (NAPALM)
     {
         if (!testkopen(defaultdeffilename[GAME_NAPALM],0) && testkopen(defaultdeffilename[GAME_NAM],0))
-            return defaultdeffilename[GAME_NAM]; // NAM/Napalm Sharing
+            return defaultdeffilename[GAME_NAM]; // NAM/NAPALM Sharing
         else
             return defaultdeffilename[GAME_NAPALM];
     }
     else if (NAM)
     {
         if (!testkopen(defaultdeffilename[GAME_NAM],0) && testkopen(defaultdeffilename[GAME_NAPALM],0))
-            return defaultdeffilename[GAME_NAPALM]; // NAM/Napalm Sharing
+            return defaultdeffilename[GAME_NAPALM]; // NAM/NAPALM Sharing
         else
             return defaultdeffilename[GAME_NAM];
     }
@@ -103,7 +103,7 @@ const char *G_DefaultConFile(void)
         if (!testkopen(defaultgameconfilename[GAME_NAPALM],0))
         {
             if (testkopen(defaultgameconfilename[GAME_NAM],0))
-                return defaultgameconfilename[GAME_NAM]; // NAM/Napalm Sharing
+                return defaultgameconfilename[GAME_NAM]; // NAM/NAPALM Sharing
         }
         else
             return defaultgameconfilename[GAME_NAPALM];
@@ -113,7 +113,7 @@ const char *G_DefaultConFile(void)
         if (!testkopen(defaultgameconfilename[GAME_NAM],0))
         {
             if (testkopen(defaultgameconfilename[GAME_NAPALM],0))
-                return defaultgameconfilename[GAME_NAPALM]; // NAM/Napalm Sharing
+                return defaultgameconfilename[GAME_NAPALM]; // NAM/NAPALM Sharing
         }
         else
             return defaultgameconfilename[GAME_NAM];

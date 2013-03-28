@@ -218,14 +218,14 @@ const char *G_DefaultRtsFile(void)
     else if (NAPALM)
     {
         if (!testkopen(defaultrtsfilename[GAME_NAPALM],0) && testkopen(defaultrtsfilename[GAME_NAM],0))
-            return defaultrtsfilename[GAME_NAM]; // NAM/Napalm Sharing
+            return defaultrtsfilename[GAME_NAM]; // NAM/NAPALM Sharing
         else
             return defaultrtsfilename[GAME_NAPALM];
     }
     else if (NAM)
     {
         if (!testkopen(defaultrtsfilename[GAME_NAM],0) && testkopen(defaultrtsfilename[GAME_NAPALM],0))
-            return defaultrtsfilename[GAME_NAPALM]; // NAM/Napalm Sharing
+            return defaultrtsfilename[GAME_NAPALM]; // NAM/NAPALM Sharing
         else
             return defaultrtsfilename[GAME_NAM];
     }
@@ -8219,7 +8219,7 @@ static void G_ShowParameterHelp(void)
               "-mx [file.con]\tInclude an additional CON script module\n"
               "-m\t\tDisable monsters\n"
               "-nam\t\tRun in NAM compatibility mode\n"
-              "-napalm\t\tRun in Napalm compatibility mode\n"
+              "-napalm\t\tRun in NAPALM compatibility mode\n"
               "-rts [file.rts]\tLoad a custom Remote Ridicule sound bank\n"
               "-r\t\tRecord demo\n"
               "-s#\t\tSet skill level (1-4)\n"
