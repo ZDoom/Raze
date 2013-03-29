@@ -1014,7 +1014,7 @@ function _addphealth(ps, aci, hlthadd)
         local qmaxhlth = bit.rshift(ps.max_player_health, 2)
         if (j-hlthadd < qmaxhlth and j >= qmaxhlth) then
             -- XXX: DUKE_GOTHEALTHATLOW
-            _sound(229, aci)
+            _sound(aci, 229)
         end
 
         ps.last_extra = j

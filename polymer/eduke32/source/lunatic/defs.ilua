@@ -917,7 +917,9 @@ local actor_mt = {
         end,
 
         set_picnum = function(a, picnum)
-            check_tile_idx(picnum)
+            if (picnum >= 0) then
+                check_tile_idx(picnum)
+            end
             ffi.cast(actor_ptr_ct, a).picnum = picnum
         end,
 

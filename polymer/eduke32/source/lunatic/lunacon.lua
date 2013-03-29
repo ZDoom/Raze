@@ -1596,6 +1596,12 @@ end
 local function SetStructCmd(accessfunc, pattern)
     local function capfunc(idx, memb, var)
         local membercode, ismethod = accessfunc(true, idx, memb)
+--[[
+        local member = memb[1]:lower()
+        if (type(var)=="number" and var<0 and member:match("picnum")) then
+            warnprintf("member '.%s' is set to a negative value", member)
+        end
+--]]
         if (ismethod) then
             -- METHOD_MEMBER syntax
 

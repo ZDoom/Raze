@@ -889,7 +889,8 @@ int32_t A_IncurDamage(int32_t sn)
     spritetype *const targ = &sprite[sn];
     actor_t *const dmg = &actor[sn];
 
-    if (dmg->extra < 0 || targ->extra < 0)
+    // dmg->picnum check: safety, since it might have been set to <0 from CON.
+    if (dmg->extra < 0 || targ->extra < 0 || dmg->picnum < 0)
     {
         dmg->extra = -1;
         return -1;
@@ -1913,7 +1914,7 @@ ACTOR_STATIC void G_MoveStandables(void)
 
         if (s->picnum == FIREEXT)
         {
-            if (A_IncurDamage(i) == -1)
+            if (A_IncurDamage(i) < 0)
                 goto BOLT;
 
             for (k=0; k<16; k++)
