@@ -109,6 +109,7 @@ enum rendmode_t {
 #define YAX_CEILING 0  // don't change!
 #define YAX_FLOOR 1  // don't change!
 
+int32_t get_alwaysshowgray(void);  // editor only
 void yax_updategrays(int32_t posze);
 
 #ifdef YAX_ENABLE

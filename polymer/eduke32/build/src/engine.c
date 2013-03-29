@@ -236,6 +236,11 @@ double hitickspersec;
 int32_t engine_screenshot = 0;
 #endif
 
+int32_t get_alwaysshowgray(void)
+{
+    return showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT32_MAX);
+}
+
 void yax_updategrays(int32_t posze)
 {
     int32_t i, j, k=1;
@@ -15671,7 +15676,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     int32_t posxe=pos->x, posye=pos->y, posze=pos->z;
     uint8_t *graybitmap = (uint8_t *)tempbuf;
-    int32_t alwaysshowgray = (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT32_MAX));
+    int32_t alwaysshowgray = get_alwaysshowgray();
 
     if (qsetmode == 200) return;
 
