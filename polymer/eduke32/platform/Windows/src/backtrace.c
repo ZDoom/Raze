@@ -19,7 +19,7 @@
 
 // warnings cleaned up and ported to 64-bit by Hendricks266
 
-#define CRASH_LOG_FILE "eduke32_or_mapster32.crashlog"
+#define CRASH_LOG_FILE "eduke32_or_mapster32.crash.log"
 
 #include <windows.h>
 #include <excpt.h>
