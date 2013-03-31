@@ -710,6 +710,11 @@ do
     our_SFLAG.enemystayput = con_lang.SFLAG.SFLAG_BADGUY + con_lang.SFLAG.SFLAG_BADGUYSTAYPUT
     our_SFLAG.rotfixed = con_lang.SFLAG.SFLAG_ROTFIXED
 
+    -- Callback function chaining control flags.
+    our_SFLAG.chain_beg = bit.tobit(0x20000000)
+    our_SFLAG.chain_end = bit.tobit(0x40000000)
+    our_SFLAG.replace = bit.bor(our_SFLAG.chain_beg, our_SFLAG.chain_end)
+
     -- XXX: CON doesn't export BADGUYSTAYPUT or ROTFIXED SFLAGs, but they are considered
     -- external for Lunatic.
     our_SFLAG.USER_MASK = bit.bor(USER_MASK, our_SFLAG.enemystayput, our_SFLAG.rotfixed)
@@ -729,6 +734,7 @@ player = setmtonce({}, defs_c.GenStructMetatable("g_player_ps", "playerswhenstar
 -- needed by "control"
 actor = setmtonce({}, defs_c.GenStructMetatable("actor", "MAXSPRITES", actor_static_members))
 local BNOT_SFLAG_USER_MASK = bit.bnot(actor.FLAGS.USER_MASK)
+local BNOT_CHAIN_MASK = bit.bnot(actor.FLAGS.replace)
 
 local projectile = defs_c.creategtab(ffiC.ProjectileData, ffiC.MAXTILES, "projectile[]")
 local g_tile = setmtonce({}, defs_c.GenStructMetatable("g_tile", "MAXTILES", tile_static_members))
@@ -1423,6 +1429,22 @@ G_._VERSION = _VERSION
 
 G_._G = G_
 
+-- Chain together two functions taking 3 input args.
+local function chain_func3(func1, func2)
+    if (func1==nil or func2==nil) then
+        return assert(func1 or func2)
+    end
+
+    -- Return a function that runs <func1> first and then tail-calls <func2>.
+    return function(aci, pli, dist)
+        func1(aci, pli, dist)
+        return func2(aci, pli, dist)
+    end
+end
+
+-- Actor functions, saved for actor chaining
+local actor_funcs = {}
+
 local gameactor_internal = gameactor_internal  -- included in lunatic.c
 -- gameactor(tilenum [, flags [, strength [, act [, mov [, movflags]]]]], actor_func)
 local function our_gameactor(tilenum, ...)
@@ -1454,54 +1476,88 @@ local function our_gameactor(tilenum, ...)
         error("invalid 'flags' argument to gameactor: must be a number", 2)
     end
 
+    local AF = actor.FLAGS
+    local chainflags = bit.band(flags, AF.replace)
+    flags = bit.band(flags, BNOT_CHAIN_MASK)
+
+    -- Default chaining behavior: don't, replace the old actor instead (like CON).
+    if (chainflags == 0) then
+        chainflags = AF.replace
+    end
+
+    local replacep = (chainflags==AF.replace)
+    if (not replacep and not actor_funcs[tilenum]) then
+        error("attempt to chain code to nonexistent actor tile "..tilenum, 2)
+    end
+
     local flags_rbits = bit.band(flags, BNOT_SFLAG_USER_MASK)
     if (flags_rbits ~= 0) then
         error("invalid 'flags' argument to gameactor: must not set reserved bits (0x"
               ..(bit.tohex(flags_rbits))..")", 2)
     end
 
-    local strength = (numargs > 2) and args[2] or 0
-    if (type(strength) ~= "number") then
-        error("invalid 'strength' argument to gameactor: must be a number", 2)
+    local strength = (numargs > 2) and args[2] or (replacep and 0 or nil)
+    if (replacep or strength~=nil) then
+        if (type(strength) ~= "number") then
+            error("invalid 'strength' argument to gameactor: must be a number", 2)
+        end
     end
 
     -- TODO: literal number action other than 0?
-    local act = (numargs > 3) and args[3] or "NO"
-    if (type(act)=="string") then
-        act = AC[act]
-    end
-    if (not ffi.istype(con_action_ct, act)) then
-        error("invalid 'act' argument to gameactor: must be a string or action", 2)
+    local act = (numargs > 3) and args[3] or (replacep and "NO" or nil)
+    if (replacep or act ~= nil) then
+        if (type(act)=="string") then
+            act = AC[act]
+        end
+        if (not ffi.istype(con_action_ct, act)) then
+            error("invalid 'act' argument to gameactor: must be a string or action", 2)
+        end
     end
 
     -- TODO: literal number move other than 0?
-    local mov = (numargs > 4) and args[4] or "NO"
-    if (type(mov)=="string") then
-        mov = MV[mov]
-    end
-    if (not ffi.istype(con_move_ct, mov)) then
-        error("invalid 'mov' argument to gameactor: must be a string or move", 2)
+    local mov = (numargs > 4) and args[4] or (replacep and "NO" or nil)
+    if (replacep or mov ~= nil) then
+        if (type(mov)=="string") then
+            mov = MV[mov]
+        end
+        if (not ffi.istype(con_move_ct, mov)) then
+            error("invalid 'mov' argument to gameactor: must be a string or move", 2)
+        end
     end
 
-    local movflags = (numargs > 5) and args[5] or 0
-    if (type(movflags) ~= "number") then
-        error("invalid 'movflags' argument to gameactor: must be a number", 2)
+    local movflags = (numargs > 5) and args[5] or (replacep and 0 or nil)
+    if (replacep or movflags ~= nil) then
+        if (type(movflags) ~= "number") then
+            error("invalid 'movflags' argument to gameactor: must be a number", 2)
+        end
     end
 
     -- All good, set the tile bits and register the actor!
 
     local tile = ffiC.g_tile[tilenum]
-    tile.flags = bit.bor(tile.flags, flags)
+    local func = args[numargs]
 
-    gameactor_internal(tilenum, strength, act, mov, movflags, args[numargs])
+    -- NOTE: when chaining, this allows passing different flags which are
+    -- silently ORed. This may or may not be what the user intends, but it
+    -- allows e.g. adding a stayput bit to an already defined enemy.
+    -- Modifying existing behavior is the whole point of chaining after all.
+    tile.flags = replacep and flags or bit.bor(tile.flags, flags)
+
+    local newfunc = replacep and func
+        or (chainflags==AF.chain_beg) and chain_func3(func, actor_funcs[tilenum])
+        or (chainflags==AF.chain_end) and chain_func3(actor_funcs[tilenum], func)
+        or assert(false)
+
+    gameactor_internal(tilenum, strength, act, mov, movflags, newfunc)
+    actor_funcs[tilenum] = newfunc
 end
 
 -- Event functions, saved for event chaining
 local event_funcs = {}
 
 local gameevent_internal = gameevent_internal  -- included in lunatic.c
--- gameevent(<event idx or string>, <event function>)
-local function our_gameevent(event, func)
+-- gameevent(<event idx or string> [, flags], <event function>)
+local function our_gameevent(event, flags, func)
     if (ffiC.g_elCallDepth > 0) then
         error("Invalid use of gameevent: must be called from top level", 2)
     end
@@ -1516,25 +1572,38 @@ local function our_gameevent(event, func)
         event = eventidx
     end
     if (type(event) ~= "number") then
-        error("invalid argument #1 to gameevent: must be a number", 2)
+        error("invalid argument #1 to gameevent: must be a number or event label", 2)
     end
     if (event >= con_lang.MAXEVENTS+0ULL) then
         error("invalid argument #1 to gameevent: must be an event number (0 .. MAXEVENTS-1)", 2)
     end
 
-    if (type(func) ~= "function") then
-        error("invalid argument #2 to gameevent: must be a function", 2)
-    end
+    local AF = actor.FLAGS
 
-    local newfunc = func
-    local oldfunc = event_funcs[event]
-    -- event chaining: events defined later come first
-    if (oldfunc ~= nil) then
-        newfunc = function(aci, pli, dist)
-            func(aci, pli, dist)
-            return oldfunc(aci, pli, dist)
+    -- Event chaining: in Lunatic, chaining at the *end* is the default.
+    if (func==nil) then
+        func = flags
+        flags = AF.chain_end
+    else
+        if (type(flags) ~= "number") then
+            error("invalid 'flags' argument to gameevent: must be a number", 2)
+        end
+        if (bit.band(flags, BNOT_CHAIN_MASK) ~= 0) then
+            error("invalid 'flags' argument to gameevent: must not set reserved bits", 2)
+        end
+        if (flags == 0) then
+            flags = AF.chain_end
         end
     end
+
+    if (type(func) ~= "function") then
+        error("invalid last argument to gameevent: must be a function", 2)
+    end
+
+    local newfunc = (flags==AF.replace) and func
+        or (flags==AF.chain_beg) and chain_func3(func, event_funcs[event])
+        or (flags==AF.chain_end) and chain_func3(event_funcs[event], func)
+        or assert(false)
 
     gameevent_internal(event, newfunc)
     event_funcs[event] = newfunc

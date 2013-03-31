@@ -102,7 +102,7 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
 
 -- Code generation and output options.
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
-                  ["cache-sap"]=false, }
+                  ["cache-sap"]=false, ["no-error-nostate"]=false, }
 local function csapp() return g_cgopt["cache-sap"] end
 
 -- How many 'if' statements are following immediately each other,
@@ -1772,8 +1772,11 @@ local handle =
 
     state = function(statename)
         if (g_funcname[statename]==nil) then
-            errprintf("state `%s' not found.", statename)
-            return "_NULLSTATE()"
+            local warn = g_cgopt["no-error-nostate"]
+            local xprintf = warn and warnprintf or errprintf
+
+            xprintf("state `%s' not found.", statename)
+            return warn and "" or "_NULLSTATE()"
         end
         return format("%s(_aci,_pli,_dist)", g_funcname[statename])
     end,
@@ -3192,7 +3195,7 @@ local function handle_cmdline_arg(str)
                     g_warn[warnstr] = val
                     ok = true
                 end
-            elseif (str:sub(2,4)=="fno") then
+            elseif (str:sub(2)=="fno") then
                 -- Disable printing code.
                 if (#str >= 5 and str:sub(5)=="=onlycheck") then
                     g_cgopt["no"] = "onlycheck"
@@ -3208,6 +3211,9 @@ local function handle_cmdline_arg(str)
                 end
             elseif (str:sub(2)=="fcache-sap") then
                 g_cgopt["cache-sap"] = true
+                ok = true
+            elseif (str:sub(2)=="fno-error-nostate") then
+                g_cgopt["no-error-nostate"] = true
                 ok = true
             elseif (str:sub(2)=="fdebug-lineinfo") then
                 g_cgopt["debug-lineinfo"] = true

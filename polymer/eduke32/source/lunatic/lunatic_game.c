@@ -414,10 +414,7 @@ static int32_t SetEvent_CF(lua_State *L)
 // gameactor(actortile, strength, act, mov, movflags, lua_function)
 static int32_t SetActor_CF(lua_State *L)
 {
-    int32_t actortile, strength, movflags;
-    const con_action_t *act;
-    const con_move_t *mov;
-
+    int32_t actortile;
     el_actor_t *a;
 
     Bassert(lua_gettop(L) == 6);
@@ -425,21 +422,22 @@ static int32_t SetActor_CF(lua_State *L)
     actortile = luaL_checkint(L, 1);
     Bassert((unsigned)actortile < MAXTILES);
 
-    strength = luaL_checkint(L, 2);
-    movflags = luaL_checkint(L, 5);
-
-    act = lua_topointer(L, 3);
-    mov = lua_topointer(L, 4);
-
     a = &g_elActors[actortile];
     L_CheckAndRegisterFunction(L, a);
+
+    // Set actor properties. They can only be nil if we're chaining actor code.
+
+    if (!lua_isnil(L, 2))
+        a->strength = luaL_checkint(L, 2);
+    if (!lua_isnil(L, 5))
+        a->movflags = luaL_checkint(L, 5);
+
+    if (!lua_isnil(L, 3))
+        Bmemcpy(&a->act, lua_topointer(L, 3), sizeof(con_action_t));
+    if (!lua_isnil(L, 4))
+        Bmemcpy(&a->mov, lua_topointer(L, 4), sizeof(con_move_t));
+
     a->haveit = 1;
-
-    a->strength = strength;
-    a->movflags = movflags;
-
-    Bmemcpy(&a->act, act, sizeof(con_action_t));
-    Bmemcpy(&a->mov, mov, sizeof(con_move_t));
 
     return 0;
 }

@@ -365,7 +365,8 @@ local TROOPSTRENGTH = 30
 
 local AF = actor.FLAGS
 
-gameactor(1680, AF.enemy, TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
+-- Also test actor code chaining: strength is doubled.
+gameactor(1680, AF.chain_end+AF.enemy, 2*TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
           function(i, playeri, dist)
               spriteext[i]:make_animated()
 
