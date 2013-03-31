@@ -259,14 +259,16 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     if (g_sounds[num].m&1)
     {
-        if (g_sounds[num].num > 0) return -1;
+        if (g_sounds[num].num > 0)
+            return -1;
 
         voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
-                                  pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
+                                  pitch, sndist>>6, sndist>>6, 0, g_sounds[num].pr, num);
     }
     else
     {
-        voice = FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,sndang>>4,sndist>>6, g_sounds[num].pr, num);
+        voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz, FX_ONESHOT,
+                              pitch, sndang>>4, sndist>>6, g_sounds[num].pr, num);
     }
 
     if (voice >= FX_Ok)
@@ -324,7 +326,7 @@ void S_PlaySound(int32_t num)
     }
     else
     {
-        voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz,
+        voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz, FX_ONESHOT,
                               pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
     }
 

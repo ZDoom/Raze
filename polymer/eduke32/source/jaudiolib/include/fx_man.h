@@ -49,6 +49,12 @@ enum FX_ERRORS
     FX_MultiVocError,
 };
 
+enum FX_LOOP_HOW
+{
+    FX_ONESHOT = -1,
+    FX_LOOP = 0,
+};
+
 #define FX_MUSIC_PRIORITY	INT_MAX
 
 const char *FX_ErrorString( int32_t ErrorNumber );
@@ -93,7 +99,7 @@ int32_t FX_PlayAuto( char *ptr, uint32_t ptrlength, int32_t pitchoffset, int32_t
 int32_t FX_PlayLoopedAuto( char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend,
                       int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
                       uint32_t callbackval );
-int32_t FX_PlayAuto3D( char *ptr, uint32_t ptrlength, int32_t pitchoffset, int32_t angle, int32_t distance,
+int32_t FX_PlayAuto3D( char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
                   int32_t priority, uint32_t callbackval );
 
 int32_t FX_PlayRaw( char *ptr, uint32_t length, unsigned rate,

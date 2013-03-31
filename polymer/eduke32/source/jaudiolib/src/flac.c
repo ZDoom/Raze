@@ -355,6 +355,7 @@ int32_t MV_PlayFLAC3D
 (
  char *ptr,
  uint32_t ptrlength,
+ int32_t loophow,
  int32_t  pitchoffset,
  int32_t  angle,
  int32_t  distance,
@@ -390,7 +391,7 @@ int32_t MV_PlayFLAC3D
    right = MV_PanTable[ angle ][ volume ].right;
    mid   = max( 0, 255 - distance );
 
-   status = MV_PlayFLAC(ptr, ptrlength, pitchoffset, -1, -1, mid, left, right, priority, callbackval);
+   status = MV_PlayFLAC(ptr, ptrlength, pitchoffset, loophow, -1, mid, left, right, priority, callbackval);
 
    return status;
 }

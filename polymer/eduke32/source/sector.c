@@ -46,7 +46,7 @@ int32_t A_CallSound(int32_t sn,int32_t whatsprite)
 
     for (SPRITES_OF_SECT(sn, i))
     {
-        if (PN == MUSICANDSFX && (unsigned)SLT < 1000)
+        if (PN == MUSICANDSFX && (unsigned)SLT < 1000)  // XXX: in other places, 999
         {
             if (whatsprite == -1) whatsprite = i;
 

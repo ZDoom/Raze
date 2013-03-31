@@ -644,7 +644,7 @@ int32_t FX_PlayVOC3D
 {
     int32_t handle;
 
-    handle = MV_PlayVOC3D(ptr, ptrlength, pitchoffset, angle, distance,
+    handle = MV_PlayVOC3D(ptr, ptrlength, FX_ONESHOT, pitchoffset, angle, distance,
                           priority, callbackval);
     if (handle < MV_Ok)
     {
@@ -677,7 +677,7 @@ int32_t FX_PlayWAV3D
 {
     int32_t handle;
 
-    handle = MV_PlayWAV3D(ptr, ptrlength, pitchoffset, angle, distance,
+    handle = MV_PlayWAV3D(ptr, ptrlength, FX_ONESHOT, pitchoffset, angle, distance,
                           priority, callbackval);
     if (handle < MV_Ok)
     {
@@ -966,8 +966,9 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
    Function: FX_PlayAuto3D
 
    Play a positioned sound, autodetecting the format.
+   <loophow>: one of FX_LOOP or FX_ONESHOT.
 ---------------------------------------------------------------------*/
-int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t pitchoffset, int32_t angle,
+int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle,
                   int32_t distance, int32_t priority, uint32_t callbackval)
 {
     int32_t handle = -1;
@@ -975,21 +976,21 @@ int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t pitchoffset, int32_t a
     switch (FX_AutoDetectFormat(ptr))
     {
     case VOC:
-        handle = MV_PlayVOC3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
+        handle = MV_PlayVOC3D(ptr, length, loophow, pitchoffset, angle, distance, priority, callbackval);
         break;
     case WAV:
-        handle = MV_PlayWAV3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
+        handle = MV_PlayWAV3D(ptr, length, loophow, pitchoffset, angle, distance, priority, callbackval);
         break;
     case Vorbis:
 #ifdef HAVE_VORBIS
-        handle = MV_PlayVorbis3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
+        handle = MV_PlayVorbis3D(ptr, length, loophow, pitchoffset, angle, distance, priority, callbackval);
 #else
         MV_Printf("FX_PlayAuto3D: OggVorbis support not included in this binary.\n");
 #endif
         break;
     case FLAC:
 #ifdef HAVE_FLAC
-        handle = MV_PlayFLAC3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
+        handle = MV_PlayFLAC3D(ptr, length, loophow, pitchoffset, angle, distance, priority, callbackval);
 #else
         MV_Printf("FX_PlayAuto3D: FLAC support not included in this binary.\n");
 #endif

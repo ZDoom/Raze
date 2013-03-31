@@ -1284,6 +1284,7 @@ ACTOR_STATIC void G_MoveFX(void)
                             int32_t j;
 
                             for (SPRITES_OF(STAT_FX, j))
+                            // XXX: PN is sprite[*i*].picnum
                                 if (PN == MUSICANDSFX && j != i && sprite[j].lotag < 999 &&
                                         actor[j].t_data[0] == 1 &&
                                         dist(&sprite[j], &sprite[peekps->i]) > x)

@@ -491,6 +491,7 @@ int32_t MV_PlayWAV3D
 (
     char *ptr,
     uint32_t length,
+    int32_t loophow,
     int32_t  pitchoffset,
     int32_t  angle,
     int32_t  distance,
@@ -526,7 +527,7 @@ int32_t MV_PlayWAV3D
     right = MV_PanTable[ angle ][ volume ].right;
     mid   = max(0, 255 - distance);
 
-    status = MV_PlayWAV(ptr, length, -1, -1, pitchoffset, mid, left, right, priority, callbackval);
+    status = MV_PlayWAV(ptr, length, loophow, -1, pitchoffset, mid, left, right, priority, callbackval);
 
     return status;
 }
@@ -677,6 +678,7 @@ int32_t MV_PlayVOC3D
 (
     char *ptr,
     uint32_t ptrlength,
+    int32_t loophow,
     int32_t  pitchoffset,
     int32_t  angle,
     int32_t  distance,
@@ -712,7 +714,7 @@ int32_t MV_PlayVOC3D
     right = MV_PanTable[ angle ][ volume ].right;
     mid   = max(0, 255 - distance);
 
-    status = MV_PlayVOC(ptr, ptrlength, -1, -1, pitchoffset, mid, left, right, priority, callbackval);
+    status = MV_PlayVOC(ptr, ptrlength, loophow, -1, pitchoffset, mid, left, right, priority, callbackval);
 
     return status;
 }

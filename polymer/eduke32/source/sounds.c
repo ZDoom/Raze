@@ -267,9 +267,11 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     }
     else
     {
-        if ((MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0, 0, ud.config.MusicVolume,
-                                            ud.config.MusicVolume, ud.config.MusicVolume,
-                                            FX_MUSIC_PRIORITY, MUSIC_ID)) > FX_Ok)
+        int32_t mvol = ud.config.MusicVolume;
+        MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0,
+                                       0, mvol, mvol, mvol,
+                                       FX_MUSIC_PRIORITY, MUSIC_ID);
+        if (MusicVoice > FX_Ok)
             MusicIsWaveform = 1;
     }
     return (alt != 0);
@@ -351,7 +353,7 @@ void S_Cleanup(void)
 
             // MUSICANDSFX uses t_data[0] to control restarting the sound
             // ST_2_UNDERWATER
-            if (i != -1 && sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
+            if (i != -1 && S_IsAmbientSFX(i) && sector[sprite[i].sectnum].lotag < 3)
                 actor[i].t_data[0] = 0;
 
             g_sounds[num].SoundOwner[j].ow = -1;
@@ -509,7 +511,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
         }
     }
 
-    if ((g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
+    if ((g_sounds[num].m&16) == 0 && S_IsAmbientSFX(i) && (sector[SECT].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
         sndist = divscale14(sndist, SHT+1);
 
 sound_further_processing:
@@ -544,7 +546,6 @@ sound_further_processing:
 int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 {
     int32_t j = 0;
-    int32_t cs, ca;
     int32_t sndist, sndang, explosionp;
     int32_t voice, pitch;
 
@@ -558,11 +559,12 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             ud.config.FXDevice < 0 ||
             ((g_sounds[num].m&8) && ud.lockout) ||
             ud.config.SoundToggle == 0 ||
-/*            g_sounds[num].num >= MAXSOUNDINSTANCES ||*/
+//            g_sounds[num].num >= MAXSOUNDINSTANCES ||
             (unsigned)i >= MAXSPRITES ||
             FX_VoiceAvailable(g_sounds[num].pr) == 0 ||
             (myps->timebeforeexit > 0 && myps->timebeforeexit <= GAMETICSPERSEC*3) ||
-            (myps->gm&MODE_MENU)) return -1;
+            (myps->gm&MODE_MENU))
+        return -1;
 
     if (g_sounds[num].m&128)  // Duke-Tag sound
     {
@@ -600,10 +602,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
                 return -1;
     }
 
-    cs = CAMERA(sect);
-    ca = CAMERA(ang);
-
-    explosionp = S_CalcDistAndAng(i, num, cs, ca, &CAMERA(pos), pos, &sndist, &sndang);
+    explosionp = S_CalcDistAndAng(i, num, CAMERA(sect), CAMERA(ang), &CAMERA(pos), pos, &sndist, &sndang);
 
     pitch = S_GetPitch(num);
     peekps = g_player[screenpeek].ps;
@@ -655,21 +654,30 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         return -1;
     }
 
-    if (g_sounds[num].m&1)
     {
-        if ((g_sounds[num].m&32) && g_sounds[num].num > 0)
+        const int32_t repeatp = (g_sounds[num].m&1);
+        const int32_t ambsfxp = S_IsAmbientSFX(i);
+
+        if (repeatp && (g_sounds[num].m&32) && g_sounds[num].num > 0)
         {
             g_soundlocks[num]--;
             return -1;
         }
 
-        voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
-                                  pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,(num * MAXSOUNDINSTANCES) + j);
-    }
-    else
-    {
-        voice = FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,sndang>>4,sndist>>6, g_sounds[num].pr,
-                              (num * MAXSOUNDINSTANCES) + j);
+        if (repeatp && !ambsfxp)
+        {
+            voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
+                                      pitch, sndist>>6, sndist>>6, 0,  // XXX: why is 'right' 0?
+                                      g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
+        }
+        else
+        {
+            // Ambient MUSICANDSFX always start playing using the 3D routines!
+            voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz,
+                                  ambsfxp ? FX_LOOP : FX_ONESHOT,
+                                  pitch, sndang>>4, sndist>>6,
+                                  g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
+        }
     }
 
     if (voice <= FX_Ok)
@@ -683,6 +691,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     g_sounds[num].SoundOwner[j].voice = voice;
     g_sounds[num].SoundOwner[j].sndist = sndist>>6;
     g_sounds[num].SoundOwner[j].clock = totalclock;
+
     return voice;
 }
 
@@ -729,10 +738,14 @@ int32_t S_PlaySound(int32_t num)
         return -1;
     }
 
-    voice = (g_sounds[num].m&1) ?
-            FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
-                              pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz, (num * MAXSOUNDINSTANCES) + j) :
-            FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
+    if (g_sounds[num].m&1)
+        voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
+                                  pitch, LOUDESTVOLUME, LOUDESTVOLUME, LOUDESTVOLUME,
+                                  g_sounds[num].soundsiz, (num * MAXSOUNDINSTANCES) + j);
+    else
+        voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz, FX_ONESHOT,
+                              pitch, 0, 255-LOUDESTVOLUME,
+                              g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
 
     if (voice <= FX_Ok)
     {
@@ -864,9 +877,10 @@ void S_Update(void)
 
             S_CalcDistAndAng(i, num, cs, ca, c, (const vec3_t *)&sprite[i], &sndist, &sndang);
 
-            if (PN == MUSICANDSFX && SLT < 999)
+            if (S_IsAmbientSFX(i))
                 g_numEnvSoundsPlaying++;
 
+            // AMBIENT_SOUND
             FX_Pan3D(g_sounds[num].SoundOwner[k].voice, sndang>>4, sndist>>6);
             g_sounds[num].SoundOwner[k].sndist = sndist>>6;
         }

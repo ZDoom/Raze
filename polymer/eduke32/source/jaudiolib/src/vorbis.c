@@ -315,6 +315,7 @@ int32_t MV_PlayVorbis3D
 (
  char *ptr,
  uint32_t ptrlength,
+ int32_t loophow,
  int32_t  pitchoffset,
  int32_t  angle,
  int32_t  distance,
@@ -350,7 +351,7 @@ int32_t MV_PlayVorbis3D
    right = MV_PanTable[ angle ][ volume ].right;
    mid   = max( 0, 255 - distance );
    
-   status = MV_PlayVorbis(ptr, ptrlength, -1, -1, pitchoffset, mid, left, right, priority, callbackval);
+   status = MV_PlayVorbis(ptr, ptrlength, loophow, -1, pitchoffset, mid, left, right, priority, callbackval);
    
    return status;
 }

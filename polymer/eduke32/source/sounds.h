@@ -95,4 +95,9 @@ void S_StopMusic(void);
 void S_Update(void);
 void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset);
 
+static inline int32_t S_IsAmbientSFX(int32_t i)
+{
+    return (sprite[i].picnum==MUSICANDSFX && sprite[i].lotag < 999);
+}
+
 #endif
