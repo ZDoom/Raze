@@ -3578,11 +3578,28 @@ void                polymer_updatesprite(int32_t snum)
 
     flipu = flipv = 0;
 
+    if ((tspr->cstat & 4) && (((tspr->cstat>>4) & 3) != 2))
+        flipu = !flipu;
+
+    if (!(tspr->cstat & 4) && (((tspr->cstat>>4) & 3) == 2))
+        flipu = !flipu;
+
+    if ((tspr->cstat & 8) && (((tspr->cstat>>4) & 3) != 2))
+        flipv = !flipv;
+
     if (pr_billboardingmode && !((tspr->cstat>>4) & 3))
     {
         // do surgery on the face tspr to make it look like a wall sprite
         tspr->cstat |= 16;
         tspr->ang = (viewangle + 1024) & 2047;
+    }
+
+    if (flipu) {
+        xoff = -xoff;
+    }
+
+    if (flipv) {
+        yoff = -yoff;
     }
 
     switch ((tspr->cstat>>4) & 3)
@@ -3619,15 +3636,6 @@ void                polymer_updatesprite(int32_t snum)
         inbuffer = horizsprite;
         break;
     }
-
-    if ((tspr->cstat & 4) && (((tspr->cstat>>4) & 3) != 2))
-        flipu = !flipu;
-
-    if (!(tspr->cstat & 4) && (((tspr->cstat>>4) & 3) == 2))
-        flipu = !flipu;
-
-    if ((tspr->cstat & 8) && (((tspr->cstat>>4) & 3) != 2))
-        flipv = !flipv;
 
     bglGetFloatv(GL_MODELVIEW_MATRIX, spritemodelview);
     bglPopMatrix();
