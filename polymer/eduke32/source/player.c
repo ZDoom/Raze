@@ -2020,13 +2020,19 @@ static int32_t P_DisplayTip(int32_t gs,int32_t snum)
         -84,-108,-108,-108,-108,
         -108,-108,-108,-108,-108,
         -108,-96,-72,-64,-32,
-        -16
+        -16, /* EDuke32: */ 0, 16, 32, 48,
+        // At y coord 64, the hand is already not shown.
     };
 
     const DukePlayer_t *const ps = g_player[snum].ps;
 
-    if (ps->tipincs == 0 || ps->tipincs >= ARRAY_SIZE(tip_y))
+    if (ps->tipincs == 0)
         return 0;
+
+    // Report that the tipping hand has been drawn so that the otherwise
+    // selected weapon is not drawn.
+    if (ps->tipincs >= ARRAY_SIZE(tip_y))
+        return 1;
 
     looking_arc = klabs(ps->look_ang)/9;
     looking_arc -= (ps->hard_landing<<3);
@@ -2961,7 +2967,8 @@ static int32_t P_DoCounters(DukePlayer_t *p)
     if (p->invdisptime > 0)
         p->invdisptime--;
 
-    if (p->tipincs > 0) p->tipincs--;
+    if (p->tipincs > 0)
+        p->tipincs--;
 
     if (p->last_pissed_time > 0)
     {

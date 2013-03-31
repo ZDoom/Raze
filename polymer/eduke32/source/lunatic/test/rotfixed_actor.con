@@ -25,5 +25,6 @@ enda
 define CYCLOIDHEAD 490
 // Will have a flat-sprite-on-floor shadow and be an autoaim target.
 useractor 1 CYCLOIDHEAD 10
+    ifpdistl 1024 tip
     state killme
 enda
