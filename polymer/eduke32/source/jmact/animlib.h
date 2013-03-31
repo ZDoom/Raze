@@ -45,7 +45,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 //
 //****************************************************************************
 
-void ANIM_LoadAnim(char * buffer);
+int32_t ANIM_LoadAnim(const uint8_t *buffer, int32_t length);
 
 //****************************************************************************
 //

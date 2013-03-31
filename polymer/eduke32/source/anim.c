@@ -207,9 +207,9 @@ static void endanimvol43(int32_t fr)
     }
 }
 
-void G_PlayAnim(const char *fn,char t)
+void G_PlayAnim(const char *fn, char t)
 {
-    char *animbuf;
+    uint8_t *animbuf;
     int32_t i, length=0, numframes=0;
 #ifdef USE_OPENGL
     int32_t ogltexfiltermode=gltexfiltermode;
@@ -237,7 +237,7 @@ void G_PlayAnim(const char *fn,char t)
     if (I_CheckAllInput())
     {
         FX_StopAllSounds();
-        goto ENDOFANIMLOOP;
+        goto end_anim;
     }
 
 #ifdef USE_LIBVPX
@@ -273,14 +273,15 @@ void G_PlayAnim(const char *fn,char t)
             OSD_Printf("Failed reading IVF file: %s\n",
                        animvpx_read_ivf_header_errmsg[i]);
             kclose(handle);
-            break;
+            return;
         }
 
         animvpx_setup_glstate();
         if (animvpx_init_codec(&info, handle, &codec))
         {
+            OSD_Printf("Error initializing VPX codec.\n");
             animvpx_restore_glstate();
-            break;
+            return;
         }
 
         animidx = t-1;
@@ -356,21 +357,35 @@ void G_PlayAnim(const char *fn,char t)
 #endif
     // ANM playback --- v v v ---
 
-    handle = kopen4load((char *)fn,0);
-    if (handle == -1) return;
+    handle = kopen4load(fn, 0);
+    if (handle == -1)
+        return;
+
     length = kfilelength(handle);
+    if (length == 0)
+    {
+        OSD_Printf("Warning: skipping playback of empty ANM file \"%s\".\n", fn);
+        goto end_anim;
+    }
 
     walock[TILE_ANIM] = 219+t;
 
-    allocache((intptr_t *)&animbuf,length+1,&walock[TILE_ANIM]);
+    allocache((intptr_t *)&animbuf, length+1, &walock[TILE_ANIM]);
 
     tilesizx[TILE_ANIM] = 200;
     tilesizy[TILE_ANIM] = 320;
 
-    kread(handle,animbuf,length);
+    kread(handle, animbuf, length);
     kclose(handle);
 
-    ANIM_LoadAnim(animbuf);
+    if (ANIM_LoadAnim(animbuf, length) < 0)
+    {
+        // XXX: ANM_LoadAnim() still checks less than the bare minimum,
+        // e.g. ANM file could still be too small and not contain any frames.
+        OSD_Printf("Error: malformed ANM file \"%s\".\n", fn);
+        goto end_anim;
+    }
+
     numframes = ANIM_NumFrames();
 
     basepaltable[ANIMPAL] = ANIM_GetPalette();
@@ -390,8 +405,8 @@ void G_PlayAnim(const char *fn,char t)
     {
         if (i > 4 && totalclock > frametime + 60)
         {
-            OSD_Printf("WARNING: slowdown in %s, skipping playback\n",fn);
-            goto ENDOFANIMLOOP;
+            OSD_Printf("WARNING: slowdown in %s, skipping playback\n", fn);
+            goto end_anim_restore_gl;
         }
 
         frametime = totalclock;
@@ -406,7 +421,7 @@ void G_PlayAnim(const char *fn,char t)
             G_HandleAsync();
 
             if (I_CheckAllInput())
-                goto ENDOFANIMLOOP;
+                goto end_anim_restore_gl;
 
             if (g_restorePalette == 1)
             {
@@ -440,11 +455,12 @@ void G_PlayAnim(const char *fn,char t)
         else if (t < 4) endanimsounds(i);
     }
 
-ENDOFANIMLOOP:
+end_anim_restore_gl:
 #ifdef USE_OPENGL
     gltexfiltermode = ogltexfiltermode;
     gltexapplyprops();
 #endif
+end_anim:
     I_ClearAllInput();
     ANIM_FreeAnim();
     walock[TILE_ANIM] = 1;

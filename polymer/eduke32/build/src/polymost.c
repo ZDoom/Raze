@@ -492,6 +492,9 @@ void gltexapplyprops(void)
     int32_t i;
     pthtyp *pth;
 
+    if (rendmode == REND_CLASSIC)
+        return;
+
     if (glinfo.maxanisotropy > 1.0)
     {
         if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy)

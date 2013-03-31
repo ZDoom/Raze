@@ -89,7 +89,7 @@ typedef struct
     lp_descriptor * curlp;        // header of large page currently in memory
     uint16_t * thepage;     // buffer where current large page is loaded
     uint8_t imagebuffer[IMAGEBUFFERSIZE]; // buffer where anim frame is decoded
-    uint8_t * buffer;
+    const uint8_t * buffer;
     uint8_t pal[768];
     int32_t  currentframe;
 } anim_t;
@@ -254,10 +254,14 @@ static inline void drawframe(uint16_t framenumber)
     renderframe(framenumber, anim->thepage);
 }
 
-
-void ANIM_LoadAnim(char * buffer)
+// <length> is the file size, for consistency checking.
+int32_t ANIM_LoadAnim(const uint8_t *buffer, int32_t length)
 {
-    uint16_t i;
+    int32_t i;
+
+    length -= sizeof(lpfileheader)+128+768;
+    if (length < 0)
+        return -1;
 
     anim = (anim_t *)Brealloc(anim, sizeof(anim_t));
 
@@ -278,6 +282,10 @@ void ANIM_LoadAnim(char * buffer)
     anim->lpheader->height          = B_LITTLE16(anim->lpheader->height);
     anim->lpheader->nFrames         = B_LITTLE32(anim->lpheader->nFrames);
     anim->lpheader->framesPerSecond = B_LITTLE16(anim->lpheader->framesPerSecond);
+
+    length -= anim->lpheader->nLps * sizeof(lp_descriptor);
+    if (length < 0)
+        return -2;
 
     buffer += sizeof(lpfileheader)+128;
 
@@ -301,16 +309,15 @@ void ANIM_LoadAnim(char * buffer)
         anim->LpArray[i].nRecords   = B_LITTLE16(anim->LpArray[i].nRecords);
         anim->LpArray[i].nBytes     = B_LITTLE16(anim->LpArray[i].nBytes);
     }
+
+    return 0;
 }
 
 
 void ANIM_FreeAnim(void)
 {
-    if (anim != NULL)
-    {
-        Bfree(anim);
-        anim = NULL;
-    }
+    Bfree(anim);
+    anim = NULL;
 }
 
 
