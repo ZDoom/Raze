@@ -674,7 +674,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         {
             // Ambient MUSICANDSFX always start playing using the 3D routines!
             voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz,
-                                  ambsfxp ? FX_LOOP : FX_ONESHOT,
+                                  repeatp ? FX_LOOP : FX_ONESHOT,
                                   pitch, sndang>>4, sndist>>6,
                                   g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
         }
