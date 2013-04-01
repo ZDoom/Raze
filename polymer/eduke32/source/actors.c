@@ -5423,7 +5423,7 @@ BOLT:
 
 
 // i: SE spritenum
-static void HandleSE31(int32_t i, int32_t zref, int32_t t2val, int32_t movesignexp)
+static void HandleSE31(int32_t i, int32_t setfloorzp, int32_t zref, int32_t t2val, int32_t movesignexp)
 {
     const spritetype *s = &sprite[i];
     sectortype *sc = &sector[sprite[i].sectnum];
@@ -5431,7 +5431,8 @@ static void HandleSE31(int32_t i, int32_t zref, int32_t t2val, int32_t movesigne
 
     if (klabs(sc->floorz - zref) < SP)
     {
-        sc->floorz = zref;
+        if (setfloorzp)
+            sc->floorz = zref;
         t[2] = t2val;
         t[0] = 0;
         t[3] = s->hitag;
@@ -5449,6 +5450,7 @@ static void HandleSE31(int32_t i, int32_t zref, int32_t t2val, int32_t movesigne
             if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
                 if (g_player[sprite[j].yvel].ps->on_ground == 1)
                     g_player[sprite[j].yvel].ps->pos.z += l;
+
             if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
             {
                 actor[j].bpos.z = sprite[j].z += l;
@@ -7513,9 +7515,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 if (t[2] == 1) // Retract
                 {
                     if (SA != 1536)
-                        HandleSE31(i, s->z, 0, s->z-sc->floorz);
+                        HandleSE31(i, 1, s->z, 0, s->z-sc->floorz);
                     else
-                        HandleSE31(i, t[1], 0, t[1]-sc->floorz);
+                        HandleSE31(i, 1, t[1], 0, t[1]-sc->floorz);
 
                     Yax_SetBunchZs(sc-sector, YAX_FLOOR, sc->floorz);
 
@@ -7523,9 +7525,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 if ((s->ang&2047) == 1536)
-                    HandleSE31(i, s->z, 1, s->z-sc->floorz);
+                    HandleSE31(i, 0, s->z, 1, s->z-sc->floorz);
                 else
-                    HandleSE31(i, t[1], 1, t[1]-s->z);
+                    HandleSE31(i, 0, t[1], 1, t[1]-s->z);
 
                 Yax_SetBunchZs(sc-sector, YAX_FLOOR, sc->floorz);
             }
