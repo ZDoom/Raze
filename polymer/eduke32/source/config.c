@@ -950,7 +950,10 @@ void CONFIG_WriteSetup(uint32_t flags)
     }
 
     SCRIPT_Save(ud.config.scripthandle, setupfilename);
-    SCRIPT_Free(ud.config.scripthandle);
+
+    if ((flags & 2) == 0)
+        SCRIPT_Free(ud.config.scripthandle);
+
     OSD_Printf("Wrote %s\n",setupfilename);
     CONFIG_WriteBinds();
     Bfflush(NULL);
