@@ -728,5 +728,16 @@ static inline char *Bstrncpyz(char *dst, const char *src, bsize_t n)
 #define initprintf_nowarn(fmt, ...) NOWARN(initprintf, fmt, ## __VA_ARGS__)
 #define message_nowarn(fmt, ...) NOWARN(message, fmt, ## __VA_ARGS__)
 
+/* Static assertions, based on source found in LuaJIT's src/lj_def.h. */
+#define EDUKE32_ASSERT_NAME2(name, line) name ## line
+#define EDUKE32_ASSERT_NAME(line) EDUKE32_ASSERT_NAME2(eduke32_assert_, line)
+#ifdef __COUNTER__
+# define EDUKE32_STATIC_ASSERT(cond) \
+    extern void EDUKE32_ASSERT_NAME(__COUNTER__)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
+#else
+# define EDUKE32_STATIC_ASSERT(cond) \
+    extern void EDUKE32_ASSERT_NAME(__LINE__)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
+#endif
+
 #endif // __compat_h__
 

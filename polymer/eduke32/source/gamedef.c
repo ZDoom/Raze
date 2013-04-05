@@ -6119,9 +6119,7 @@ void C_InitProjectiles(void)
         0, 1, 32, {0,0,0,0,0,0},
     };
 
-    // this will only happen if I forget to update this function...
-    if (sizeof(projectile_t) != sizeof(DefaultProjectile))
-        G_GameExit("ERROR: C_InitProjectiles(): projectile_t mismatch!");
+    EDUKE32_STATIC_ASSERT(sizeof(projectile_t) == sizeof(DefaultProjectile));
 
     for (i=MAXTILES-1; i>=0; i--)
     {

@@ -1126,12 +1126,12 @@ static int32_t doallocsnap(int32_t allocinit)
 }
 
 
+EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == 310);
+
 // make snapshot only if spot < 0 (demo)
 int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress)
 {
     savehead_t h;
-
-    Bassert(sizeof(savehead_t) == 310);
 
     // set a few savegame system globals
     savegame_comprthres = SV_DEFAULTCOMPRTHRES;
@@ -1237,12 +1237,13 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
     return 0;
 }
 
+
+EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == 310);
+
 // if file is not an EDuke32 savegame/demo, h->headerstr will be all zeros
 int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
 {
     int32_t havedemo = (spot < 0);
-
-    Bassert(sizeof(savehead_t) == 310);
 
     if (kread(fil, h, sizeof(savehead_t)) != sizeof(savehead_t))
     {

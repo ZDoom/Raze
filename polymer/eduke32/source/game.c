@@ -10113,6 +10113,9 @@ void G_MaybeAllocPlayer(int32_t pnum)
 #endif
 }
 
+EDUKE32_STATIC_ASSERT(sizeof(actor_t)==128);
+EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
+
 int32_t app_main(int32_t argc, const char **argv)
 {
     int32_t i = 0, j;
@@ -10123,9 +10126,6 @@ int32_t app_main(int32_t argc, const char **argv)
 #else
     ENetCallbacks callbacks = { NULL, NULL, NULL };
 #endif
-
-    Bassert(sizeof(actor_t)==128);
-    Bassert(sizeof(DukePlayer_t)%4 == 0);
 
     G_ExtPreInit();
 
