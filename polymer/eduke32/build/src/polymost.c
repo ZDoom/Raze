@@ -6386,7 +6386,7 @@ void polymost_initosdfuncs(void)
         { "r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",(void *) &glredbluemode, CVAR_BOOL, 0, 1 },
         { "r_shadescale","r_shadescale: multiplier for shading",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
         { "r_shadescale_unbounded","r_shadescale_unbounded: enable/disable allowance of complete blackness",(void *) &shadescale_unbounded, CVAR_BOOL, 0, 1 },
-        { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",(void *) &vsync, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",(void *) &vsync, CVAR_INT|CVAR_FUNCPTR, -1, 1 },
         { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
         { "r_memcache","r_memcache: enable/disable texture cache memory cache",(void *) &glusememcache, CVAR_BOOL, 0, 1 },
         { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *) &glusetexcompr, CVAR_BOOL, 0, 1 },

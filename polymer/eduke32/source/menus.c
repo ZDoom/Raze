@@ -2743,9 +2743,10 @@ cheat_for_port_credits2:
                 case 3:
                 {
                     int32_t ovsync = vsync;
-                    if (x==io) vsync = !vsync;
-                    modval(0,1,(int32_t *)&vsync,1,probey==io);
-                    mgametextpal(d,yy, vsync? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    if (x==io) vsync++;
+                    if (vsync == 2) vsync = -1;
+                    modval(-1,1,(int32_t *)&vsync,1,probey==io);
+                    mgametextpal(d,yy, vsync < 0 ? "Adaptive" : vsync ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     if (vsync != ovsync)
                         setvsync(vsync);
                     break;
