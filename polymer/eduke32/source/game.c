@@ -11169,14 +11169,10 @@ static void G_DoOrderScreen(void)
 }
 
 
-void G_BonusScreen(int32_t bonusonly)
+static void G_BonusCutscenes(void)
 {
-    int32_t t, /*tinc,*/ gfx_offset;
-    int32_t i, y,xfragtotal,yfragtotal;
-    int32_t bonuscnt;
-    int32_t clockpad = 2;
-    char *lastmapname;
-    int32_t playerbest = -1;
+    int32_t bonuscnt=0;
+    int32_t t;
 
     int32_t breathe[] =
     {
@@ -11197,6 +11193,259 @@ void G_BonusScreen(int32_t bonusonly)
         350, 380, VICTORY1+8, 86, 59 // duplicate row to alleviate overflow in the for loop below "boss"
     };
 
+    if (!(numplayers < 2 && ud.eog && ud.from_bonus == 0))
+        return;
+
+    switch (ud.volume_number)
+    {
+    case 0:
+        if (ud.lockout == 0)
+        {
+            P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, 8+2+1); // JBF 20040308
+            clearallviews(0L);
+            rotatesprite_fs(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
+            nextpage();
+            fadepal(0,0,0, 63,0,-1);
+
+            I_ClearAllInput();
+            totalclock = 0;
+
+            while (1)
+            {
+                clearallviews(0L);
+                rotatesprite_fs(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
+
+                // boss
+                if (totalclock > 390 && totalclock < 780)
+                    for (t=0; t<35; t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
+                    {
+                        if (t==10 && bonuscnt == 1)
+                        {
+                            S_PlaySound(SHOTGUN_FIRE);
+                            S_PlaySound(SQUISHED);
+                            bonuscnt++;
+                        }
+                        rotatesprite_fs(bossmove[t+3]<<16,bossmove[t+4]<<16,65536L,0,bossmove[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
+                    }
+
+                // Breathe
+                if (totalclock < 450 || totalclock >= 750)
+                {
+                    if (totalclock >= 750)
+                    {
+                        rotatesprite_fs(86<<16,59<<16,65536L,0,VICTORY1+8,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
+                        if (totalclock >= 750 && bonuscnt == 2)
+                        {
+                            S_PlaySound(DUKETALKTOBOSS);
+                            bonuscnt++;
+                        }
+
+                    }
+                    for (t=0; t<20; t+=5)
+                        if (breathe[t+2] && (totalclock%120) > breathe[t] && (totalclock%120) <= breathe[t+1])
+                        {
+                            if (t==5 && bonuscnt == 0)
+                            {
+                                S_PlaySound(BOSSTALKTODUKE);
+                                bonuscnt++;
+                            }
+                            rotatesprite_fs(breathe[t+3]<<16,breathe[t+4]<<16,65536L,0,breathe[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
+                        }
+                }
+
+                G_HandleAsync();
+
+                nextpage();
+                if (I_CheckAllInput()) break;
+            }
+        }
+
+        fadepal(0,0,0, 0,63,1);
+
+        I_ClearAllInput();
+        I_ClearInputWaiting();
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
+
+        rotatesprite_fs(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+        fadepal(0,0,0, 63,0,-1);
+        G_HandleEventsWhileNoInput();
+        fadepal(0,0,0, 0,63,1);
+        S_StopMusic();
+        FX_StopAllSounds();
+        S_ClearSoundLocks();
+        break;
+
+    case 1:
+        S_StopMusic();
+        clearallviews(0L);
+        nextpage();
+
+        if (ud.lockout == 0)
+        {
+            G_PlayAnim("cineov2.anm",1);
+            I_ClearInputWaiting();
+            clearallviews(0L);
+            nextpage();
+        }
+
+        S_PlaySound(PIPEBOMB_EXPLODE);
+
+        fadepal(0,0,0, 0,63,1);
+        setview(0,0,xdim-1,ydim-1);
+        I_ClearInputWaiting();
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
+        rotatesprite_fs(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+        fadepal(0,0,0, 63,0,-1);
+        G_HandleEventsWhileNoInput();
+        fadepal(0,0,0, 0,63,1);
+
+        break;
+
+    case 3:
+        setview(0,0,xdim-1,ydim-1);
+
+        S_StopMusic();
+        clearallviews(0L);
+        nextpage();
+
+        if (ud.lockout == 0)
+        {
+            I_ClearInputWaiting();
+            G_PlayAnim("vol4e1.anm",8);
+            clearallviews(0L);
+            nextpage();
+            G_PlayAnim("vol4e2.anm",10);
+            clearallviews(0L);
+            nextpage();
+            G_PlayAnim("vol4e3.anm",11);
+            clearallviews(0L);
+            nextpage();
+        }
+
+        FX_StopAllSounds();
+        S_ClearSoundLocks();
+        S_PlaySound(ENDSEQVOL3SND4);
+        I_ClearInputWaiting();
+
+        G_FadePalette(0,0,0,0);
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
+//        G_FadePalette(0,0,0,63);
+        clearallviews(0L);
+        menutext(160,60,0,0,"Thanks to all our");
+        menutext(160,60+16,0,0,"fans for giving");
+        menutext(160,60+16+16,0,0,"us big heads.");
+        menutext(160,70+16+16+16,0,0,"Look for a Duke Nukem 3D");
+        menutext(160,70+16+16+16+16,0,0,"sequel soon.");
+        nextpage();
+
+        fadepal(0,0,0, 63,0,-3);
+        nextpage();
+        I_ClearInputWaiting();
+        G_HandleEventsWhileNoInput();
+        fadepal(0,0,0, 0,63,3);
+
+        clearallviews(0L);
+        nextpage();
+
+        G_PlayAnim("DUKETEAM.ANM",4);
+
+        I_ClearInputWaiting();
+        G_HandleEventsWhileNoInput();
+
+        clearallviews(0L);
+        nextpage();
+        G_FadePalette(0,0,0,63);
+
+        FX_StopAllSounds();
+        S_ClearSoundLocks();
+        I_ClearInputWaiting();
+
+        break;
+
+    case 2:
+        S_StopMusic();
+        clearallviews(0L);
+        nextpage();
+        if (ud.lockout == 0)
+        {
+            fadepal(0,0,0, 63,0,-1);
+            G_PlayAnim("cineov3.anm",2);
+            I_ClearInputWaiting();
+            ototalclock = totalclock+200;
+            while (totalclock < ototalclock)
+                G_HandleAsync();
+            clearallviews(0L);
+            nextpage();
+
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
+        }
+
+        G_PlayAnim("RADLOGO.ANM",3);
+
+        if (ud.lockout == 0 && !I_CheckInputWaiting())
+        {
+            if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND5)) goto ENDANM;
+            if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND6)) goto ENDANM;
+            if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND7)) goto ENDANM;
+            if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND8)) goto ENDANM;
+            if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND9)) goto ENDANM;
+        }
+
+        I_ClearInputWaiting();
+
+        totalclock = 0;
+        if (PLUTOPAK)
+        {
+            while (totalclock < 120 && !I_CheckInputWaiting())
+                G_HandleAsync();
+
+            I_ClearInputWaiting();
+        }
+        else
+        {
+            G_HandleEventsWhileNoInput();
+        }
+
+ENDANM:
+        if (!PLUTOPAK)
+        {
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
+            S_PlaySound(ENDSEQVOL3SND4);
+
+            clearallviews(0L);
+            nextpage();
+
+            G_PlayAnim("DUKETEAM.ANM",4);
+
+            I_ClearInputWaiting();
+            G_HandleEventsWhileNoInput();
+
+            clearallviews(0L);
+            nextpage();
+            G_FadePalette(0,0,0,63);
+        }
+
+        I_ClearInputWaiting();
+        FX_StopAllSounds();
+        S_ClearSoundLocks();
+
+        clearallviews(0L);
+
+        break;
+    }
+}
+
+void G_BonusScreen(int32_t bonusonly)
+{
+    int32_t gfx_offset;
+    int32_t i, y;
+    int32_t bonuscnt;
+    int32_t clockpad = 2;
+    char *lastmapname;
+    int32_t playerbest = -1;
+
     if (g_networkMode == NET_DEDICATED_SERVER)
         return;
 
@@ -11216,7 +11465,6 @@ void G_BonusScreen(int32_t bonusonly)
             lastmapname = MapInfo[(ud.m_volume_number*MAXLEVELS)+ud.last_level-1].name;
     }
 
-    bonuscnt = 0;
 
     fadepal(0,0,0, 0,63,7);
     setview(0,0,xdim-1,ydim-1);
@@ -11229,260 +11477,16 @@ void G_BonusScreen(int32_t bonusonly)
     FX_SetReverb(0L);
     CONTROL_BindsEnabled = 1; // so you can use your screenshot bind on the score screens
 
-    if (bonusonly) goto FRAGBONUS;
+    if (bonusonly)
+        goto FRAGBONUS;
 
-    if (numplayers < 2 && ud.eog && ud.from_bonus == 0)
-        switch (ud.volume_number)
-        {
-        case 0:
-            if (ud.lockout == 0)
-            {
-                P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, 8+2+1); // JBF 20040308
-                clearallviews(0L);
-                rotatesprite_fs(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
-                nextpage();
-                //g_player[myconnectindex].ps->palette = endingpal;
-                fadepal(0,0,0, 63,0,-1);
-
-                I_ClearAllInput();
-                totalclock = 0;
-//                tinc = 0;
-                while (1)
-                {
-                    clearallviews(0L);
-                    rotatesprite_fs(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
-
-                    // boss
-                    if (totalclock > 390 && totalclock < 780)
-                        for (t=0; t<35; t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
-                            {
-                                if (t==10 && bonuscnt == 1)
-                                {
-                                    S_PlaySound(SHOTGUN_FIRE);
-                                    S_PlaySound(SQUISHED);
-                                    bonuscnt++;
-                                }
-                                rotatesprite_fs(bossmove[t+3]<<16,bossmove[t+4]<<16,65536L,0,bossmove[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
-                            }
-
-                    // Breathe
-                    if (totalclock < 450 || totalclock >= 750)
-                    {
-                        if (totalclock >= 750)
-                        {
-                            rotatesprite_fs(86<<16,59<<16,65536L,0,VICTORY1+8,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
-                            if (totalclock >= 750 && bonuscnt == 2)
-                            {
-                                S_PlaySound(DUKETALKTOBOSS);
-                                bonuscnt++;
-                            }
-
-                        }
-                        for (t=0; t<20; t+=5)
-                            if (breathe[t+2] && (totalclock%120) > breathe[t] && (totalclock%120) <= breathe[t+1])
-                            {
-                                if (t==5 && bonuscnt == 0)
-                                {
-                                    S_PlaySound(BOSSTALKTODUKE);
-                                    bonuscnt++;
-                                }
-                                rotatesprite_fs(breathe[t+3]<<16,breathe[t+4]<<16,65536L,0,breathe[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
-                            }
-                    }
-
-                    G_HandleAsync();
-
-                    nextpage();
-                    if (I_CheckAllInput()) break;
-                }
-            }
-
-            fadepal(0,0,0, 0,63,1);
-
-            I_ClearAllInput();
-            I_ClearInputWaiting();
-            //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
-
-            rotatesprite_fs(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0));
-            fadepal(0,0,0, 63,0,-1);
-            G_HandleEventsWhileNoInput();
-            fadepal(0,0,0, 0,63,1);
-            S_StopMusic();
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-            break;
-
-        case 1:
-            S_StopMusic();
-            clearallviews(0L);
-            nextpage();
-
-            if (ud.lockout == 0)
-            {
-                G_PlayAnim("cineov2.anm",1);
-                I_ClearInputWaiting();
-                clearallviews(0L);
-                nextpage();
-            }
-
-            S_PlaySound(PIPEBOMB_EXPLODE);
-
-            fadepal(0,0,0, 0,63,1);
-            setview(0,0,xdim-1,ydim-1);
-            I_ClearInputWaiting();
-            //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
-            rotatesprite_fs(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0));
-            fadepal(0,0,0, 63,0,-1);
-            G_HandleEventsWhileNoInput();
-            fadepal(0,0,0, 0,63,1);
-
-            break;
-
-        case 3:
-            setview(0,0,xdim-1,ydim-1);
-
-            S_StopMusic();
-            clearallviews(0L);
-            nextpage();
-
-            if (ud.lockout == 0)
-            {
-                I_ClearInputWaiting();
-                G_PlayAnim("vol4e1.anm",8);
-                clearallviews(0L);
-                nextpage();
-                G_PlayAnim("vol4e2.anm",10);
-                clearallviews(0L);
-                nextpage();
-                G_PlayAnim("vol4e3.anm",11);
-                clearallviews(0L);
-                nextpage();
-            }
-
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-            S_PlaySound(ENDSEQVOL3SND4);
-            I_ClearInputWaiting();
-
-            //g_player[myconnectindex].ps->palette = palette;
-            G_FadePalette(0,0,0,0);
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
-//            G_FadePalette(0,0,0,63);
-            clearallviews(0L);
-            menutext(160,60,0,0,"Thanks to all our");
-            menutext(160,60+16,0,0,"fans for giving");
-            menutext(160,60+16+16,0,0,"us big heads.");
-            menutext(160,70+16+16+16,0,0,"Look for a Duke Nukem 3D");
-            menutext(160,70+16+16+16+16,0,0,"sequel soon.");
-            nextpage();
-
-            fadepal(0,0,0, 63,0,-3);
-            nextpage();
-            I_ClearInputWaiting();
-            G_HandleEventsWhileNoInput();
-            fadepal(0,0,0, 0,63,3);
-
-            clearallviews(0L);
-            nextpage();
-
-            G_PlayAnim("DUKETEAM.ANM",4);
-
-            I_ClearInputWaiting();
-            G_HandleEventsWhileNoInput();
-
-            clearallviews(0L);
-            nextpage();
-            G_FadePalette(0,0,0,63);
-
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-            I_ClearInputWaiting();
-
-            break;
-
-        case 2:
-            S_StopMusic();
-            clearallviews(0L);
-            nextpage();
-            if (ud.lockout == 0)
-            {
-                fadepal(0,0,0, 63,0,-1);
-                G_PlayAnim("cineov3.anm",2);
-                I_ClearInputWaiting();
-                ototalclock = totalclock+200;
-                while (totalclock < ototalclock)
-                    G_HandleAsync();
-                clearallviews(0L);
-                nextpage();
-
-                FX_StopAllSounds();
-                S_ClearSoundLocks();
-            }
-
-            G_PlayAnim("RADLOGO.ANM",3);
-
-            if (ud.lockout == 0 && !I_CheckInputWaiting())
-            {
-                if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND5)) goto ENDANM;
-                if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND6)) goto ENDANM;
-                if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND7)) goto ENDANM;
-                if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND8)) goto ENDANM;
-                if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND9)) goto ENDANM;
-            }
-
-            I_ClearInputWaiting();
-
-            totalclock = 0;
-			if (PLUTOPAK)
-            {
-                while (totalclock < 120 && !I_CheckInputWaiting())
-                    G_HandleAsync();
-
-                I_ClearInputWaiting();
-			}
-            else
-            {
-                G_HandleEventsWhileNoInput();
-			}
-
-ENDANM:
-			if (!PLUTOPAK)
-            {
-				FX_StopAllSounds();
-                S_ClearSoundLocks();
-				S_PlaySound(ENDSEQVOL3SND4);
-
-				clearallviews(0L);
-				nextpage();
-
-				G_PlayAnim("DUKETEAM.ANM",4);
-
-                I_ClearInputWaiting();
-                G_HandleEventsWhileNoInput();
-
-                clearallviews(0L);
-                nextpage();
-                G_FadePalette(0,0,0,63);
-			}
-
-            I_ClearInputWaiting();
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-
-            clearallviews(0L);
-
-            break;
-        }
+    G_BonusCutscenes();
 
 FRAGBONUS:
-    //g_player[myconnectindex].ps->palette = palette;
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
     G_FadePalette(0,0,0,63);   // JBF 20031228
     KB_FlushKeyboardQueue();
     totalclock = 0;
-//    tinc = 0;
     bonuscnt = 0;
 
     S_StopMusic();
@@ -11491,6 +11495,8 @@ FRAGBONUS:
 
     if (playerswhenstarted > 1 && (GametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
+        int32_t t;
+
         if (!(ud.config.MusicToggle == 0 || ud.config.MusicDevice < 0))
             S_PlaySound(BONUSMUSIC);
 
@@ -11513,7 +11519,7 @@ FRAGBONUS:
 
         for (i=0; i<playerswhenstarted; i++)
         {
-            xfragtotal = 0;
+            int32_t xfragtotal = 0;
             Bsprintf(tempbuf,"%d",i+1);
 
             minitext(30,90+t,tempbuf,0,2+8+16+128);
@@ -11543,7 +11549,7 @@ FRAGBONUS:
 
         for (y=0; y<playerswhenstarted; y++)
         {
-            yfragtotal = 0;
+            int32_t yfragtotal = 0;
             for (i=0; i<playerswhenstarted; i++)
             {
                 if (i == y)
@@ -11578,16 +11584,7 @@ FRAGBONUS:
 
     if (bonusonly || (g_netServer || ud.multimode > 1)) return;
 
-    switch (ud.volume_number)
-    {
-    case 1:
-        gfx_offset = 5;
-        break;
-    default:
-        gfx_offset = 0;
-        break;
-    }
-
+    gfx_offset = (ud.volume_number==1) ? 5 : 0;
     rotatesprite_fs(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
 
     if (lastmapname)
@@ -11604,7 +11601,6 @@ FRAGBONUS:
     fadepal(0,0,0, 63,0,-1);
     bonuscnt = 0;
     totalclock = 0;
-//    tinc = 0;
 
     playerbest = CONFIG_GetMapBestTime(MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].filename);
 
@@ -11644,7 +11640,7 @@ FRAGBONUS:
 
             rotatesprite_fs(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
 
-            if (totalclock > (1000000000L) && totalclock < (1000000320L))
+            if (totalclock > 1000000000 && totalclock < 1000000320)
             {
                 switch ((totalclock>>4)%15)
                 {
@@ -11865,8 +11861,8 @@ FRAGBONUS:
                     KB_FlushKeyboardQueue();
                     totalclock = (60*13);
                 }
-                else if (totalclock < (1000000000L))
-                    totalclock = (1000000000L);
+                else if (totalclock < 1000000000)
+                    totalclock = 1000000000;
             }
         }
         else

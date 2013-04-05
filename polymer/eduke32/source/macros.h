@@ -47,7 +47,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define TEST_SYNC_KEY(bits, sync_num) TEST(bits, BIT(sync_num))
 
-#define IFWITHIN(B,E) if ((PN)>=(B) && (PN)<=(E))
 #define AFLAMABLE(X) (X==BOX||X==TREE1||X==TREE2||X==TIRE||X==CONE)
 #define rnd(X) ((krand()>>8)>=(255-(X)))
 

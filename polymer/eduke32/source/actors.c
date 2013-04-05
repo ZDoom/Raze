@@ -1457,7 +1457,7 @@ ACTOR_STATIC void G_MoveStandables(void)
         if ((t[7]&(0xffff0000))!=ROTFIXSPR_MAGIC)
             Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
 
-        IFWITHIN(CRANE,CRANE+3)
+        if (PN >= CRANE && PN <= CRANE+3)
         {
             //t[0] = state
             //t[1] = checking sector number
@@ -1645,7 +1645,7 @@ ACTOR_STATIC void G_MoveStandables(void)
             goto BOLT;
         }
 
-        IFWITHIN(WATERFOUNTAIN,WATERFOUNTAIN+3)
+        if (PN >= WATERFOUNTAIN && PN <= WATERFOUNTAIN+3)
         {
             if (t[0] > 0)
             {
@@ -5364,7 +5364,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 goto BOLT;
             }
 
-        IFWITHIN(SCRAP6,SCRAP5+3)
+        if (PN >= SCRAP6 && PN <= SCRAP5+3)
         {
             if (s->xvel > 0)
                 s->xvel--;

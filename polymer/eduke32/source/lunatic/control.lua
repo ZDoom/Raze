@@ -1130,7 +1130,7 @@ end
 
 function _endofgame(pli, timebeforeexit)
     player[pli].timebeforeexit = timebeforeexit
-    player[pli].customexitsound = -1
+    player[pli]:set_customexitsound(-1)
     ffiC.ud.eog = 1
 end
 

@@ -1043,7 +1043,9 @@ local player_mt = {
         end,
 
         set_customexitsound = function(p, soundnum)
-            check_sound_idx(soundnum)
+            if (soundnum >= 0) then
+                check_sound_idx(soundnum)
+            end
             ffi.cast(player_ptr_ct, p).customexitsound = soundnum
         end,
 
