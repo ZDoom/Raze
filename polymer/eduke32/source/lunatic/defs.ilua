@@ -137,6 +137,8 @@ typedef struct {
 } con_ai_t;
 ]]
 
+defs_c.bitint_new_struct_type("int32_t", "SBit32")
+
 -- Struct template for actor_t. It already has 'const' fields (TODO: might need
 -- to make more 'const'), but still has array members exposed, so is unsuited
 -- for external exposure.
@@ -147,7 +149,7 @@ __attribute__((packed)) struct {
     const struct action ac;
     const int16_t _padding[1];
 
-    int32_t flags; //4b
+]]..defs_c.bitint_member("SBit32", "flags")..[[
     vec3_t bpos; //12b
     int32_t floorz,ceilingz,lastvx,lastvy; //16b
     int32_t lasttransport; //4b
@@ -1453,7 +1455,6 @@ G_.ipairs = ipairs
 G_.pairs = pairs
 G_.pcall = pcall
 G_.print = print
-G_.printf = printf
 G_.module = our_module
 G_.next = next
 G_.require = our_require

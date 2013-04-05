@@ -364,6 +364,7 @@ con.ai("AITEMP", "TROOPFLINTCH", "SHRUNKVELS", 0)
 local TROOPSTRENGTH = 30
 
 local AF = actor.FLAGS
+local CS = sprite.CSTAT
 
 -- Also test actor code chaining: strength is doubled.
 gameactor(1680, AF.chain_end+AF.enemy, 2*TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
@@ -385,6 +386,13 @@ gameactor(1680, AF.chain_end+AF.enemy, 2*TROOPSTRENGTH, "TROOPSTAND", -- LIZTROO
                   hs:reset()
                   error("greetings from LIZTROOP actor")
               end
+
+              local actr = actor[i]
+              if (actr:get_count() % 30 == 0) then
+                  spr.cstatx:flip(CS.YFLIP)
+              end
+
+              actr.flagsx:test(AF.NVG)  -- test of bitint's ":test()" for actor[].flags
 
               if (dist < 4096) then
                   -- Duke Vader / Anakin Nukewalker?
@@ -431,7 +439,6 @@ gameactor(1405, actor.FLAGS.chain_beg, function(aci, pli)
     end
 end)
 
-local CS = sprite.CSTAT
 
 gameevent("ANIMATESPRITES",
 function(aci)
@@ -441,7 +448,7 @@ function(aci)
         if (tspr2) then
             tspr2.x = tspr2.x + 512*math.cos(gv.totalclock/60)
             tspr2.y = tspr2.y + 512*math.sin(gv.totalclock/60)
-            tspr2:set_cstat_bits(CS.TRANSLUCENT_BOTH_BITS)
+            tspr2.cstatx:set(CS.TRANSLUCENT_BOTH_BITS)
         end
     end
 end)

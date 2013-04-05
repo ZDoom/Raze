@@ -56,7 +56,66 @@ local print=print
 module(...)
 
 
+local band = bit.band
+local bor = bit.bor
+local bnot = bit.bnot
+local lshift = bit.lshift
+local rshift = bit.rshift
+local xor = bit.bxor
+
+
+--== bitint type factory ==--
+
+-- Metatable for an integer type that is treated as bitfield. The integer
+-- itself must be named '_v'.
+local bitint_mt = {
+    __index = {
+        set = function(self, bits)
+            self._v = bor(self._v, bits)
+        end,
+
+        clear = function(self, bits)
+            self._v = band(self._v, bnot(bits))
+        end,
+
+        flip = function(self, bits)
+            self._v = xor(self._v, bits)
+        end,
+
+        test = function(self, bits)
+            return (band(self._v, bits) ~= 0)
+        end,
+    },
+
+    __metatable = true,
+}
+
+local bitint_to_base_type = {}
+
+function bitint_new_struct_type(basetypename, newtypename)
+    assert(bitint_to_base_type[newtypename] == nil)
+    assert(type(basetypename)=="string")
+    assert(type(newtypename)=="string")
+
+    local bitint_struct_t = ffi.typeof("struct { $ _v; }", ffi.typeof(basetypename))
+    ffi.metatype(bitint_struct_t, bitint_mt)
+    ffi.cdef("typedef $ $;", bitint_struct_t, newtypename)
+
+    bitint_to_base_type[newtypename] = basetypename
+end
+
+function bitint_member(bitint_struct_typename, membname)
+    return string.format("union { %s %s; %s %sx; };",
+                         bitint_to_base_type[bitint_struct_typename], membname,
+                         bitint_struct_typename, membname)
+end
+
+bitint_new_struct_type("uint8_t", "UBit8")
+bitint_new_struct_type("uint16_t", "UBit16")
+
+
 --== Core engine structs ==--
+
 local SECTOR_STRUCT = [[
 struct {
     const int16_t wallptr, wallnum;
@@ -77,7 +136,7 @@ struct {
 local SPRITE_STRUCT = [[
 struct {
     int32_t x, y, z;
-    uint16_t cstat;
+]]..bitint_member("UBit16", "cstat")..[[
     const int16_t picnum;
     int8_t shade;
     uint8_t pal, clipdist, filler;
@@ -99,7 +158,7 @@ local WALL_STRUCT = [[
 struct {
     int32_t x, y;
     const int16_t point2, nextwall, nextsector;
-    uint16_t cstat;
+]]..bitint_member("UBit16", "cstat")..[[
     const int16_t picnum, overpicnum;
     int8_t shade;
     uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
@@ -130,7 +189,7 @@ typedef struct {
     int16_t angoff, pitch, roll;
     // TODO: make into an ivec3_t
     int32_t xoff, yoff, zoff;
-    uint8_t flags;
+]]..bitint_member("UBit8", "flags")..[[
     uint8_t xpanning, ypanning;
     const uint8_t filler;
     float alpha;
@@ -313,13 +372,6 @@ local check_sector_idx = bcheck.sector_idx
 local check_sprite_idx = bcheck.sprite_idx
 local check_tile_idx = bcheck.tile_idx
 
-local band = bit.band
-local bor = bit.bor
-local bnot = bit.bnot
-local lshift = bit.lshift
-local rshift = bit.rshift
-local xor = bit.bxor
-
 local wallsofsec  -- fwd-decl
 
 local sectortype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SECTOR_STRUCT)))
@@ -494,15 +546,6 @@ local spritetype_mt = {
             check_sprite_idx(owner)
             ffi.cast(spritetype_ptr_ct, s).owner = owner
         end,
-
-        --- Custom setters
-        set_cstat_bits = function(s, bits)
-            s.cstat = bor(s.cstat, bits)
-        end,
-
-        clear_cstat_bits = function(s, bits)
-            s.cstat = band(s.cstat, bnot(bits))
-        end,
     },
 }
 
@@ -621,24 +664,45 @@ local static_members = { sector={}, wall={}, sprite={} }
 
 static_members.sector.STAT = conststruct
 {
+    PARALLAX = 1,
+    SLOPED = 2,
+
+    XFLIP = 16,
+    YFLIP = 32,
+    RELATIVE = 64,
     MASKED = 128,
     -- NOTE the reversed order
     TRANSLUCENT2 = 128,
     TRANSLUCENT1 = 256,
     TRANSLUCENT_BOTH_BITS = 256+128,
+    BLOCKING = 512,
+    HITSCAN = 1024,
 }
 
 static_members.wall.CSTAT = conststruct
 {
-    MASKED = 64,
+    BLOCKING = 1,
+    XFLIP = 8,
+    MASKED = 16,
+    ONEWAY = 32,
+    HITSCAN = 64,
     TRANSLUCENT1 = 128,
+    YFLIP = 256,
     TRANSLUCENT2 = 512,
     TRANSLUCENT_BOTH_BITS = 512+128,
 }
 
 static_members.sprite.CSTAT = conststruct
 {
+    BLOCKING = 1,
     TRANSLUCENT1 = 2,
+    XFLIP = 4,
+    YFLIP = 8,
+    WALLALIGN = 16,
+    FLOORALIGN = 32,
+    ONESIDED = 64,
+    CENTERED = 128,
+    HITSCAN = 256,
     TRANSLUCENT2 = 512,
     TRANSLUCENT_BOTH_BITS = 512+2,
 }
