@@ -781,13 +781,13 @@ void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
                    const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
-// don't clip at all, i.e. the whole screen real estate is available
 static inline void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                 int8_t dashade, char dapalnum, int32_t dastat,
                                 int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, cx1, cy1, cx2, cy2);
 }
+// Don't clip at all, i.e. the whole screen real estate is available:
 static inline void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                    int8_t dashade, char dapalnum, int32_t dastat)
 {

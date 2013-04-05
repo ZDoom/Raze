@@ -421,7 +421,8 @@ end
 
 function on.event_end(pos, eventidx, codetab)
     assert(type(codetab)=="table")
-    paddcodef(pos, "gameevent(%d, function (_aci, _pli, _dist)", eventidx)
+    -- 0x20000000: actor.FLAGS.chain_beg
+    paddcodef(pos, "gameevent(%d,0x20000000,function (_aci, _pli, _dist)", eventidx)
     addcode(get_cache_sap_code())
     addcode(codetab)
     addcode("end)")

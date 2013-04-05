@@ -220,7 +220,7 @@ SFLAG = {
     SFLAG_CACHE            = -0x00010000,
     SFLAG_ROTFIXED         = -0x00020000,
     SFLAG_HARDCODED_BADGUY = -0x00040000,
-    -- RESERVED for actor.FLAGS.CHAIN_BEG/CHAIN_END/REPLACE:
+    -- RESERVED for actor.FLAGS.chain_beg/chain_end/replace:
     -- 0x20000000, 0x40000000
 }
 

@@ -284,22 +284,22 @@ function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
     check_tile_idx(tilenum)
     orientation = bit.band(orientation, 4095)  -- ROTATESPRITE_MAX-1
 
-    -- XXX: This is the same as the check in gameexec.c, but ideally we'd want
-    -- rotatesprite to accept all coordinates and simply draw nothing if they
-    -- denote an area beyond the screen.
-    if (not (x >= -320 and x < 640) or not (y >= -200 and y < 400)) then
-        error(format("invalid coordinates (%.03f, %.03f)", x, y), 2)
-    end
-
     if (bit.band(orientation, 2048) ~= 2048) then  -- ROTATESPRITE_FULL16
         x = 65536*x
         y = 65536*y
     end
 
+    -- XXX: This is the same as the check in gameexec.c, but ideally we'd want
+    -- rotatesprite to accept all coordinates and simply draw nothing if they
+    -- denote an area beyond the screen.
+    if (not (x >= -320*65536 and x < 640*65536) or not (y >= -200*65536 and y < 400*65536)) then
+        error(format("invalid coordinates (%.03f, %.03f)", x, y), 2)
+    end
+
     -- TODO: check that it works correctly with all coordinates, also if one
     -- border is outside the screen etc...
     ffiC.rotatesprite_(x, y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
-                      alpha, cx1, cy1, cx2, cy2)
+                       alpha, cx1, cy1, cx2, cy2)
 end
 
 function _myos(x, y, zoom, tilenum, shade, orientation, pal)
