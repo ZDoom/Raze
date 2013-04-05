@@ -23,6 +23,7 @@ void	agecache(void);
 
 extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
 int32_t     addsearchpath(const char *p);
+int32_t     removesearchpath(const char *p);
 int32_t		findfrompath(const char *fn, char **where);
 int32_t     openfrompath(const char *fn, int32_t flags, int32_t mode);
 BFILE  *fopenfrompath(const char *fn, const char *mode);

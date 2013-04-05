@@ -353,11 +353,9 @@ int32_t addsearchpath(const char *p)
     }
 
     Bstrcpy(srch->path, path);
-    for (s=srch->path; *s; s++)
-    {
-        /* do nothing */
-    }
+    for (s=srch->path; *s; s++);
     s--;
+
     if (s<srch->path || toupperlookup[*s] != '/')
         Bstrcat(srch->path, "/");
 
@@ -368,6 +366,58 @@ int32_t addsearchpath(const char *p)
     Bcorrectfilename(srch->path,0);
 
     initprintf("Using %s for game data\n", srch->path);
+
+    Bfree(path);
+    return 0;
+}
+
+int32_t removesearchpath(const char *p)
+{
+    searchpath_t *srch;
+    char *s;
+    char *path = (char *)Bmalloc(Bstrlen(p) + 2);
+
+    Bstrcpy(path, p);
+
+    if (path[Bstrlen(path)-1] == '\\')
+        path[Bstrlen(path)-1] = 0;
+
+    for (s=path; *s; s++);
+    s--;
+
+    if (s<path || toupperlookup[*s] != '/')
+        Bstrcat(path, "/");
+
+    Bcorrectfilename(path,0);
+
+    for (srch = searchpathhead; srch; srch = srch->next)
+    {
+        if (!Bstrncmp(path, srch->path, srch->pathlen))
+        {
+//            initprintf("Removing %s from path stack\n", path);
+
+            if (srch == searchpathhead)
+                searchpathhead = srch->next;
+            else
+            {
+                searchpath_t *sp;
+
+                for (sp = searchpathhead; sp; sp = sp->next)
+                {
+                    if (sp->next == srch)
+                    {
+//                        initprintf("matched %s\n", srch->path);
+                        sp->next = srch->next;
+                        break;
+                    }
+                }
+            }
+
+            Bfree(srch->path);
+            Bfree(srch);
+            break;
+        }
+    }
 
     Bfree(path);
     return 0;

@@ -10452,6 +10452,20 @@ int32_t app_main(int32_t argc, const char **argv)
         }
     }
 
+#ifdef _WIN32
+    if (G_GetInstallPath(INSTPATH_STEAM))
+    {
+        Bsprintf(buf, "%s/gameroot", G_GetInstallPath(INSTPATH_STEAM));
+        removesearchpath(buf);
+
+        Bsprintf(buf, "%s/gameroot/addons", G_GetInstallPath(INSTPATH_STEAM));
+        removesearchpath(buf);
+    }
+
+    if (G_GetInstallPath(INSTPATH_GOG))
+        removesearchpath(G_GetInstallPath(INSTPATH_GOG));
+#endif
+
     if (g_modDir[0] != '/')
         G_LoadGroupsInDir(g_modDir);
 

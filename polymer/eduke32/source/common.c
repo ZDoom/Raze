@@ -218,17 +218,28 @@ void G_ExtPreInit(void)
 }
 
 #ifdef _WIN32
-const char * G_GetSteamPath(void)
+const char * G_GetInstallPath(int32_t insttype)
 {
-    static char spath[BMAX_PATH];
-    static int32_t success = -1;
+    static char spath[NUMINSTPATHS][BMAX_PATH];
+    static int32_t success[NUMINSTPATHS] = { -1, -1 };
     int32_t siz = BMAX_PATH;
 
-    if (success == -1)
-        success = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", NULL, spath, (LPDWORD)&siz);
+    // this still needs to be fixed for win64 builds
+    if (success[insttype] == -1)
+    {
+        switch (insttype)
+        {
+        case INSTPATH_STEAM:
+            success[insttype] = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", NULL, spath[insttype], (LPDWORD)&siz);
+            break;
+        case INSTPATH_GOG:
+            success[insttype] = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, spath[insttype], (LPDWORD)&siz);
+            break;
+        }
+    }
 
-    if (success == ERROR_SUCCESS)
-        return spath;
+    if (success[insttype] == ERROR_SUCCESS)
+        return spath[insttype];
 
     return NULL;
 }
@@ -247,21 +258,18 @@ void G_AddSearchPaths(void)
 #elif defined (_WIN32)
     // detect Steam and GOG versions of Duke3D
     char buf[BMAX_PATH];
-    int32_t siz = BMAX_PATH, ret;
 
-    if (G_GetSteamPath())
+    if (G_GetInstallPath(INSTPATH_STEAM))
     {
-        Bsprintf(buf, "%s/gameroot/classic", G_GetSteamPath());
+        Bsprintf(buf, "%s/gameroot", G_GetInstallPath(INSTPATH_STEAM));
         addsearchpath(buf);
 
-        Bsprintf(buf, "%s/gameroot/addons", G_GetSteamPath());
+        Bsprintf(buf, "%s/gameroot/addons", G_GetInstallPath(INSTPATH_STEAM));
         addsearchpath(buf);
     }
 
-    ret = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, buf, (LPDWORD)&siz);
-
-    if (ret == ERROR_SUCCESS)
-        addsearchpath(buf);
+    if (G_GetInstallPath(INSTPATH_GOG))
+        addsearchpath(G_GetInstallPath(INSTPATH_GOG));
 #endif
 }
 

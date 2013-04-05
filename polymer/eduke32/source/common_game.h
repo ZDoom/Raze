@@ -27,6 +27,12 @@ enum Games_t {
     GAMECOUNT
 };
 
+enum instpath_t {
+    INSTPATH_STEAM,
+    INSTPATH_GOG,
+    NUMINSTPATHS
+};
+
 extern const char *defaultgamegrp[GAMECOUNT];
 extern const char *defaultdeffilename[GAMECOUNT];
 extern const char *defaultconfilename;
@@ -54,5 +60,7 @@ extern void G_MultiPskyInit(void);
 extern void G_ExtPreInit(void);
 
 extern void G_AddSearchPaths(void);
+
+extern const char * G_GetInstallPath(int32_t insttype);
 
 #endif
