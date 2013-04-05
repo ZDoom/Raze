@@ -772,7 +772,8 @@ local function do_include_file(dirname, filename)
             if (fd==nil and g_defaultDir) then
                 -- strip up to and including last slash (if any):
                 filename = filename:gsub("^.*/", "")
-                fd, msg = io.open(g_defaultDir.."/"..filename)
+                dirname = g_defaultDir.."/"
+                fd, msg = io.open(dirname..filename)
             end
 
             if (fd == nil) then
@@ -795,8 +796,6 @@ local function do_include_file(dirname, filename)
         return
     end
 
-    -- XXX: File name that's displayed here may not be the actual opened one
-    -- (esp. for stand-alone version).
     printf("%s[%d] Translating file \"%s\"", (g_recurslevel==-1 and "\n---- ") or "",
            g_recurslevel+1, dirname..filename);
 
@@ -2437,7 +2436,7 @@ local Cif = {
     ifp = (sp1 * tok.define)^1
         / function (...) return format("_con._ifp(%d,_pli,_aci)", bit.bor(...)) end,
     ifsquished = cmd()
-        / "false",  -- TODO
+        / "_con._squished(_aci,_pli)",
     ifserver = cmd()
         / "false",  -- TODO_MP
     ifrespawn = cmd()

@@ -1431,6 +1431,14 @@ function _ifp(flags, pli, aci)
     return false
 end
 
+function _squished(aci, pli)
+    check_sprite_idx(aci)
+    check_player_idx(pli)
+    check_sector_idx(sprite[aci].sectnum)
+
+    return (ffiC.VM_CheckSquished2(aci, pli)~=0)
+end
+
 function _checkspace(sectnum, floorp)
     local sect = sector[sectnum]
     local picnum = floorp and sect.floorpicnum or sect.ceilingpicnum

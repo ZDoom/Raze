@@ -119,7 +119,6 @@ static void VM_KillIt(int32_t iActor, int32_t iPlayer)
 int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
 #ifdef LUNATIC
-    int32_t killit;
     const double t = gethitickms();
 
     // TODO: handling of RETURN gamevar / iReturn / this function's return value
@@ -170,7 +169,7 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
 
 static inline int32_t VM_CheckSquished(void)
 {
-    sectortype *sc = &sector[vm.g_sp->sectnum];
+    const sectortype *sc = &sector[vm.g_sp->sectnum];
 
     if ((vm.g_sp->picnum == APLAYER && ud.noclip) || sc->lotag == ST_23_SWINGING_DOOR)
         return 0;
@@ -182,7 +181,7 @@ static inline int32_t VM_CheckSquished(void)
 
         yax_getbunches(vm.g_sp->sectnum, &cb, &fb);
         if (cb >= 0 && (sc->ceilingstat&512)==0)  // if ceiling non-blocking...
-            cz -= (32<<8);  // don't squish unconditionally... yax_getneighborsect is slowish :/
+            cz -= (32<<8);  // unconditionally don't squish... yax_getneighborsect is slowish :/
         if (fb >= 0 && (sc->floorstat&512)==0)
             fz += (32<<8);
 #endif
@@ -195,7 +194,8 @@ static inline int32_t VM_CheckSquished(void)
 
     P_DoQuote(QUOTE_SQUISHED, g_player[vm.g_p].ps);
 
-    if (A_CheckEnemySprite(vm.g_sp)) vm.g_sp->xvel = 0;
+    if (A_CheckEnemySprite(vm.g_sp))
+        vm.g_sp->xvel = 0;
 
     if (vm.g_sp->pal == 1) // frozen
     {
@@ -5567,5 +5567,14 @@ void VM_FallSprite(int32_t i)
 int32_t VM_ResetPlayer2(int32_t snum)
 {
     return VM_ResetPlayer(snum, 0);
+}
+
+int32_t VM_CheckSquished2(int32_t i, int32_t snum)
+{
+    vm.g_i = i;
+    vm.g_sp = &sprite[i];
+    vm.g_p = snum;
+
+    return VM_CheckSquished();
 }
 #endif

@@ -169,6 +169,7 @@ G_InitTimer;
 G_GetTimeDate;
 G_ToggleWallInterpolation;
 G_StartTrack;
+VM_CheckSquished2;
 
 KB_ScanCodeToString;
 

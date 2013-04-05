@@ -424,6 +424,13 @@ gameevent("DISPLAYREST", function()
     end
 end)
 
+-- APLAYER
+gameactor(1405, actor.FLAGS.chain_beg, function(aci, pli)
+    if (con._squished(aci, pli)) then
+        printf("Squished LunaCON test")
+    end
+end)
+
 local CS = sprite.CSTAT
 
 gameevent("ANIMATESPRITES",
