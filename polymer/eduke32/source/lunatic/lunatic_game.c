@@ -97,7 +97,7 @@ void El_PrintTimes(void)
                 buf[n] = ' ';
             buf[maxlen] = 0;
 
-            OSD_Printf("  [%s]={ %8d, %9.3f, %9.3f },\n",
+            OSD_Printf("  [%s]={ %8d, %10.3f, %10.3f },\n",
                        buf, g_eventCalls[i], g_eventTotalMs[i],
                        1000*g_eventTotalMs[i]/g_eventCalls[i]);
         }

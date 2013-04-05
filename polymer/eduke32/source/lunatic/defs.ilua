@@ -157,7 +157,7 @@ __attribute__((packed)) struct {
     const int16_t picnum;
     int16_t ang, extra;
     const int16_t owner;
-    int16_t movflag,tempang,timetosleep; //6b
+    int16_t _movflag,tempang,timetosleep; //6b
 
     int16_t actorstayput;
     const int16_t dispicnum;

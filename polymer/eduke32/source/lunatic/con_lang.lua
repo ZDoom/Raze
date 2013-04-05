@@ -366,7 +366,7 @@ local SX = function(memb) return "spriteext[%s]"..memb end
 
 -- Generate code to access a signed member as unsigned.
 local function s2u(label)
-    return "(_bit.band("..label.."+65536,65535))"
+    return "(_band("..label.."+65536,65535))"
 end
 
 local function S2U(label)
@@ -408,7 +408,7 @@ local ActorLabels = {
     htang = AC".ang",
     htextra = AC".extra",
     htowner = { AC".owner", AC":set_owner(%%s)" },
-    htmovflag = AC".movflag",
+    htmovflag = AC"._movflag",
     httempang = AC".tempang",
     htactorstayput = AC".actorstayput",
     htdispicnum = { AC".dispicnum" },
@@ -813,7 +813,7 @@ for member, code in pairs(ProjectileLabels) do
     end
 end
 
-local UD = function(memb) return "gv._ud"..memb end
+local UD = function(memb) return "_gv._ud"..memb end
 local UDRO = function(memb) return { UD(memb) } end
 
 -- NOTE: Only members that actually encountered in existing mods are added here.

@@ -163,17 +163,25 @@ local function new_initial_codetab()
     -- NOTE: Keep this one line per line to not confuse the Lua->CON line
     -- mapping system.
     return {
-        "local _con, _bit, _math = require'con', require'bit', require'math';",
-        "local _xmath, _geom = require'xmath', require'geom';",
-        "local sector, sprite, actor, player = sector, sprite, actor, player;",
-        "local gameactor, gameevent, _gv = gameactor, gameevent, gv;",
-        "local updatesector, updatesectorz, cansee = updatesector, updatesectorz, cansee;",
-        "local print = print;",
+        -- Requires.
+        "local _con, _bit, _math = require'con', require'bit', require'math'",
+        "local _xmath, _geom = require'xmath', require'geom'",
 
-        -- switch function table, indexed by global switch sequence number:
-        "local _SW = {};",
+        -- Cache globals into locals.
+        "local sector, sprite, wall, spriteext, atsprite = sector, sprite, wall, spriteext, atsprite",
+        "local actor, player, projectile = actor, player, projectile",
+        "local gameactor, gameevent, _gv = gameactor, gameevent, gv",
+        "local updatesector, updatesectorz, cansee = updatesector, updatesectorz, cansee",
+        "local print, printf = print, printf",
+
+        -- Cache a couple of often-used functions.
+        "local _band, _bor, _bxor = _bit.band, _bit.bor, _bit.bxor",
+        "local _lsh, _rsh, _arsh = _bit.lshift, _bit.rshift, _bit.arshift",
+
+        -- Switch function table, indexed by global switch sequence number:
+        "local _SW = {}",
         -- CON "states" (subroutines), gamevars and gamearrays (see mangle_name())
-        "local _F,_V,_A={},{},{};",
+        "local _F,_V,_A={},{},{}",
 
         -- Static ivec3s so that no allocations need to be made.
         "local _IVEC = { _geom.ivec3(), _geom.ivec3() }",
@@ -400,7 +408,11 @@ local BAD_ID_CHARS1 = "_/\\*-+?"  -- allowed following identifier chars
 -- Return the Lua code by which the CON object <name> is referenced in the
 -- translated code.
 local function mangle_name(name, prefix)
-    return format("_%s[%q]", prefix, name)
+    if (name:match("^[A-Za-z_][A-Za-z_0-9]*$")) then
+        return format("_%s.%s", prefix, name)
+    else
+        return format("_%s[%q]", prefix, name)
+    end
 end
 
 function on.state_begin_Cmt(_subj, _pos, statename)
@@ -1735,7 +1747,7 @@ local handle =
     end,
 
     rotatesprite16 = function(...)  -- (orientation|ROTATESPRITE_FULL16)
-        return format("_con.rotatesprite(%s,%s,%s,%s,%s,%s,%s,_bit.bor(%s,2048),0,%s,%s,%s,%s)", ...)
+        return format("_con.rotatesprite(%s,%s,%s,%s,%s,%s,%s,_bor(%s,2048),0,%s,%s,%s,%s)", ...)
     end,
 
     rotatespritea = function(...)
@@ -1854,9 +1866,9 @@ local Cinner = {
     mulvarvar = varvaropf "*",
     divvarvar = varvaropf "_con._div",
     modvarvar = varvaropf "_con._mod",
-    andvarvar = varvaropf "_bit.band",
-    orvarvar = varvaropf "_bit.bor",
-    xorvarvar = varvaropf "_bit.bxor",
+    andvarvar = varvaropf "_band",
+    orvarvar = varvaropf "_bor",
+    xorvarvar = varvaropf "_bxor",
     randvarvar = varvarop / "%1=_con._rand(%2)",
 
     setvar = varop / "%1=%2",
@@ -1865,12 +1877,12 @@ local Cinner = {
     mulvar = varopf "*",
     divvar = varopf "_con._div",
     modvar = varopf "_con._mod",
-    andvar = varopf "_bit.band",
-    orvar = varopf "_bit.bor",
-    xorvar = varopf "_bit.bxor",
+    andvar = varopf "_band",
+    orvar = varopf "_bor",
+    xorvar = varopf "_bxor",
     randvar = varop / "%1=_con._rand(%2)",
-    shiftvarl = varopf "_bit.lshift",
-    shiftvarr = varopf "_bit.arshift",
+    shiftvarl = varopf "_lsh",
+    shiftvarr = varopf "_arsh",
 
     --- 2. Math operations
     sqrt = cmd(R,W)
@@ -1901,7 +1913,7 @@ local Cinner = {
     count = cmd(D)
         / ACS":set_count(%1)",
     cstator = cmd(D)
-        / (SPS".cstat=_bit.bor(%1,"..SPS".cstat)"),
+        / (SPS".cstat=_bor(%1,"..SPS".cstat)"),
     cstat = cmd(D)
         / SPS".cstat=%1",
     clipdist = cmd(D)
@@ -2331,11 +2343,11 @@ local Cinner = {
     getactorangle = cmd(W)
         / ("%1="..SPS".ang"),
     setactorangle = cmd(R)
-        / SPS".ang=_bit.band(%1,2047)",
+        / SPS".ang=_band(%1,2047)",
     getplayerangle = cmd(W)
         / ("%1="..PLS".ang"),
     setplayerangle = cmd(R)
-        / PLS".ang=_bit.band(%1,2047)",
+        / PLS".ang=_band(%1,2047)",
     getangletotarget = cmd(W)
         / "%1=_con._angtotarget(_aci)",
 
@@ -2378,7 +2390,7 @@ local Cif = {
     ifwasweapon = cmd(D)
         / ACS".picnum==%1",
     ifgapzl = cmd(D)  -- factor into a con.* function?
-        / format("_bit.arshift(%s-%s,8)<%%1", ACS".floorz", ACS".ceilingz"),
+        / format("_arsh(%s-%s,8)<%%1", ACS".floorz", ACS".ceilingz"),
     iffloordistl = cmd(D)
         / format("(%s-%s)<=256*%%1", ACS".floorz", SPS".z"),
     ifceilingdistl = cmd(D)
@@ -2405,11 +2417,11 @@ local Cif = {
     ifvarn = cmd(R,D)
         / "%1~=%2",
     ifvarand = cmd(R,D)
-        / "_bit.band(%1,%2)~=0",
+        / "_band(%1,%2)~=0",
     ifvaror = cmd(R,D)
-        / "_bit.bor(%1,%2)~=0",
+        / "_bor(%1,%2)~=0",
     ifvarxor = cmd(R,D)
-        / "_bit.bxor(%1,%2)~=0",
+        / "_bxor(%1,%2)~=0",
     ifvareither = cmd(R,D)
         / "%1~=0 or %2~=0",
 
@@ -2422,11 +2434,11 @@ local Cif = {
     ifvarvarn = cmd(R,R)
         / "%1~=%2",
     ifvarvarand = cmd(R,R)
-        / "_bit.band(%1,%2)~=0",
+        / "_band(%1,%2)~=0",
     ifvarvaror = cmd(R,R)
-        / "_bit.bor(%1,%2)~=0",
+        / "_bor(%1,%2)~=0",
     ifvarvarxor = cmd(R,R)
-        / "_bit.bxor(%1,%2)~=0",
+        / "_bxor(%1,%2)~=0",
     ifvarvareither = cmd(R,R)
         / "%1~=0 or %2~=0",
 
@@ -2442,12 +2454,12 @@ local Cif = {
     ifrespawn = cmd()
         / format("_con._checkrespawn(%s)", SPS""),
     ifoutside = cmd()
-        / format("_bit.band(sector[%s].ceilingstat,1)~=0", SPS".sectnum"),
+        / format("_band(sector[%s].ceilingstat,1)~=0", SPS".sectnum"),
     ifonwater = cmd()
         / format("sector[%s].lotag==1 and _math.abs(%s-sector[%s].floorz)<32*256",
                  SPS".sectnum", SPS".z", SPS".sectnum"),
     ifnotmoving = cmd()
-        / "_bit.band(actor[_aci].movflag,49152)>16384",
+        / "_band(actor[_aci]._movflag,49152)>16384",
     ifnosounds = cmd()
         / "not _con._ianysound()",
     ifmultiplayer = cmd()
