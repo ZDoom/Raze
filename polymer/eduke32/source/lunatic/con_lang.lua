@@ -659,7 +659,7 @@ local PlayerLabels = {
     palette = PL".palette",
 
     -- NOTE the special case:
-    pals = PL"._pals.col[%s]",
+    pals = PL"._pals[%s]",
     pals_time = PL"._pals.f",
 
     name = {},

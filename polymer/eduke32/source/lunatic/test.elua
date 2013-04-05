@@ -216,7 +216,7 @@ gameevent("PROCESSINPUT",
          )
 
 -- test event chaining
-gameevent("JUMP",
+gameevent("JUMP", actor.FLAGS.chain_beg,
           function(actori, playeri, dist)
               local ps = player[playeri]
               print("I'm first!")
@@ -231,7 +231,7 @@ gameevent("JUMP",
               -- Test of INTERNAL member _pals.
               -- NOTE: setting colors partially is bad! E.g. after an item is
               -- picked up, col[0] and col[1] remain and tint everything greenish.
-              ps._pals.col[2] = 20
+              ps._pals[2] = 20
               ps._pals.f = 30
           end
          )

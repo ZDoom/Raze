@@ -20,7 +20,7 @@ if (bit.band(ffiC._DEBUG_LUNATIC, 2)~=0) then
 end
 
 if (bit.band(ffiC._DEBUG_LUNATIC, 8)~=0) then
-    require("dump").on("T")  -- raw text output
+    require("dump").on("+rs")
 elseif (bit.band(ffiC._DEBUG_LUNATIC, 4)~=0) then
     require("v").on()
 end
@@ -154,10 +154,8 @@ ffi.typeof(SPRITE_STRUCT))
 
 -- Define the "palette_t" type, which for us has .{r,g,b} fields and a
 -- bound-checking array of length 3 overlaid.
--- TODO: bcarray really should allow to simply declare the struct with
--- passed member names instead of "hidden" ones... because wrapping it
--- in a union like this is doing things inside-out really.
-local rgbarray_t = require("bcarray").new("uint8_t", 3, "RGB array")
+local rgbarray_t = require("bcarray").new("uint8_t", 3, "RGB array", "palette_t",
+                                          { "r", "g", "b", "f" })
 ffi.cdef("typedef union { \
     struct { uint8_t r, g, b, f; }; \
     $ col; \
@@ -870,13 +868,12 @@ function cansee(pos1,sect1, pos2,sect2)
     return (ret~=0)
 end
 
-ffi.cdef[[
-typedef struct {
+local neartag_ret_ct = ffi.typeof[[
+const struct {
     int32_t sector, wall, sprite;
     int32_t dist;
-} neartag_ret_t;
+}
 ]]
-local neartag_ret_ct = ffi.typeof("const neartag_ret_t")
 
 local function newar() return ffi.new("int16_t [1]") end
 -- TODO: make tagsearch something more convenient

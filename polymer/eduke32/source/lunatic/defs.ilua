@@ -25,6 +25,8 @@ local tonumber = tonumber
 local tostring = tostring
 local type = type
 
+require("jit.opt").start("maxmcode=10240")  -- in KiB
+
 -- The "gv" global will provide access to C global *scalars* and safe functions.
 -- NOTE: This exposes C library functions from e.g. the global C namespace, but
 -- without their declarations, they will be sitting there like a stone.

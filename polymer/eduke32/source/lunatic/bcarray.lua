@@ -101,7 +101,11 @@ function new(basetype, numelts, showname, typename, rng, mtadd)
     local bcarray_t = ffi.typeof(cdeclstr, ffi.typeof(basetype));
 
     bcarray_t = ffi.metatype(bcarray_t, mt)
-    assert(ffi.sizeof(bcarray_t) == ffi.sizeof(basetype)*numelts)
+    if (not (rng and rng.getu32==nil)) then
+        -- When passing a member name table, it is allowed to have a different
+        -- number of named members than array elements.
+        assert(ffi.sizeof(bcarray_t) == ffi.sizeof(basetype)*numelts)
+    end
 
     if (typename ~= nil) then
         -- Register the type name in the global namespace.
