@@ -40,6 +40,10 @@ gamevar showrespawn_always 0 0
 
 gamevar move_by_one 0 0
 
+// Polymer "head" light
+gamevar headlight_enabled 0 0
+gamevar headlight_range 4000 0
+
 // see end of file for more user settings and examples
 
 ////////// END USER SETTINGS //////////
@@ -421,6 +425,24 @@ defstate fiddlewithlights
 
                 qsprintf TQUOTE "XYZ VEL (RGB color): %d %d %d" .xvel .yvel .zvel
                 quote TQUOTE
+            }
+        }
+    }
+    else
+    {
+        // not aiming at sprite
+
+        ifeitherctrl ifeithershift ifhitkey KEY_gMINUS
+        {
+            ife headlight_enabled 0
+            {
+                set headlight_enabled 1
+                quote "head light enabled"
+            }
+            else
+            {
+                set headlight_enabled 0
+                quote "head light disabled"
             }
         }
     }
@@ -1117,6 +1139,40 @@ onevent EVENT_ANALYZESPRITES
     state respawnpreview
     state tduprot
     state tduplin
+endevent
+
+defstate update_headlight
+    var li hrz
+    set li 0
+
+    ifvare headlight_enabled 0
+        break
+
+    ifvarn light[li].active 1
+        break
+
+    set light[li].x posx
+    set light[li].y posy
+    set light[li].z posz
+    set light[li].sector cursectnum
+    set hrz horiz
+    set light[li].horiz hrz
+    set light[li].angle ang
+
+    set light[li].range headlight_range
+    set light[li].radius 256
+    set light[li].faderadius 128
+
+    set light[li].r 255
+    set light[li].g 255
+    set light[li].b 255
+    set light[li].priority 0
+
+    set light[li].tilenum 0
+ends
+
+onevent EVENT_PREDRAW3DSCREEN
+    state update_headlight
 endevent
 
 onevent EVENT_KEYS3D

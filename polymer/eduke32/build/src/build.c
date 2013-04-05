@@ -471,6 +471,8 @@ void M32_ResetFakeRORTiles(void)
 
 void M32_DrawRoomsAndMasks(void)
 {
+    VM_OnEvent(EVENT_PREDRAW3DSCREEN, -1);
+
     yax_preparedrawrooms();
     drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
     yax_drawrooms(ExtAnalyzeSprites, cursectnum, 0, 0);
