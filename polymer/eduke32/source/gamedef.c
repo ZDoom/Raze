@@ -2215,8 +2215,7 @@ void C_DefineGameFuncName(int32_t idx, const char *name)
 }
 #endif
 
-// NOTE: external linkage for Lunatic
-int32_t C_SetDefName(const char *name)
+LUNATIC_EXTERN int32_t C_SetDefName(const char *name)
 {
     clearDefNamePtr();
     g_defNamePtr = dup_filename(name);
@@ -2225,8 +2224,7 @@ int32_t C_SetDefName(const char *name)
     return (g_defNamePtr==NULL);
 }
 
-// NOTE: external linkage for Lunatic
-void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
+LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
 {
     switch (what)
     {

@@ -599,8 +599,7 @@ void A_DoGutsDir(int32_t sp, int32_t gtype, int32_t n)
     }
 }
 
-// NOTE: external linkage for Lunatic
-int32_t G_ToggleWallInterpolation(int32_t w, int32_t doset)
+LUNATIC_EXTERN int32_t G_ToggleWallInterpolation(int32_t w, int32_t doset)
 {
     if (doset)
     {

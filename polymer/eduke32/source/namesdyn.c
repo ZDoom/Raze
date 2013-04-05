@@ -43,8 +43,7 @@ struct dynitem
     const int16_t staticval;
 };
 
-// NOTE: external linkage for Lunatic
-struct dynitem g_dynTileList[] =
+LUNATIC_EXTERN struct dynitem g_dynTileList[] =
 {
     { "SECTOREFFECTOR", DVPTR(SECTOREFFECTOR), SECTOREFFECTOR__STATIC },
     { "ACTIVATOR", DVPTR(ACTIVATOR), ACTIVATOR__STATIC },

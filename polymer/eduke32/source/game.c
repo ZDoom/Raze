@@ -716,9 +716,9 @@ int32_t A_CheckInventorySprite(spritetype *s)
     }
 }
 
-// MYOS* CON commands. NOTE: external linkage for Lunatic.
-void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
-                              int32_t shade, int32_t orientation, int32_t p)
+// MYOS* CON commands.
+LUNATIC_EXTERN void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
+                                      int32_t shade, int32_t orientation, int32_t p)
 {
     int32_t a = 0;
 

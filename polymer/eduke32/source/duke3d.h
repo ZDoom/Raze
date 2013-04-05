@@ -134,6 +134,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef LUNATIC
 # include "lunatic_game.h"
+# define LUNATIC_EXTERN
+#else
+# define LUNATIC_EXTERN static
 #endif
 
 static inline int32_t G_HaveEvent(int32_t iEventID)
