@@ -12,6 +12,7 @@ local math = math
 
 local assert = assert
 local error = error
+local getfenv = getfenv
 local getmetatable = getmetatable
 local ipairs = ipairs
 local loadstring = loadstring
@@ -62,7 +63,7 @@ local setmtonce = defs_c.setmtonce
 
 -- Must be after loading "defs_common" which redefines "print" to use
 -- OSD_Printf()
-local print = print
+local print, printf = print, defs_c.printf
 
 
 ---=== EDuke32 game definitions ===---
@@ -1250,22 +1251,26 @@ do
     end
 end
 
-local function check_valid_modname(modname, errlev)
-    if (type(modname) ~= "string") then
-        error("module name must be a string", errlev+1)
+
+local package_loaded = {}  -- false/true/table
+local modname_stack = {}  -- [<depth>]=string
+local module_gamevars = {}  -- [<modname>] = { <gvname1>, <gvname2>, ... }
+
+local function getcurmodname(thisfuncname)
+    if (#modname_stack == 0) then
+        error("'"..thisfuncname.."' must be called at the top level of a require'd file", 3)
+        -- ... as opposed to "at runtime".
     end
 
-    -- TODO: restrict valid names?
+    return modname_stack[#modname_stack]
 end
+
 
 local function errorf(level, fmt, ...)
     local errmsg = string.format(fmt, ...)
     error(errmsg, level+1)
 end
 
-
-local package_loaded = {}
-local modname_stack = {}
 local ERRLEV = 5
 
 local function readintostr(fn)
@@ -1299,6 +1304,15 @@ local function readintostr(fn)
     return ffi.string(str, sz)
 end
 
+
+local required_module_mt = {
+    __newindex = function()
+        -- TODO: allow gamevars to be nil?
+        error("modifying module table forbidden", 2)
+    end,
+    __metatable = true,
+}
+
 -- The "require" function accessible to Lunatic code.
 -- Base modules in allowed_modules are wrapped so that they cannot be
 -- modified, user modules are searched in the EDuke32 search
@@ -1306,22 +1320,49 @@ end
 --  * never messes with the global environment, it only returns the module.
 --  * allows passing varargs beyond the name to the module.
 local function our_require(modname, ...)
-    check_valid_modname(modname, 2)
+    -- Check module name is valid first.
+    -- TODO: restrict valid names?
+    if (type(modname) ~= "string") then
+        error("module name must be a string", 2)
+    end
 
-    -- see whether it's a base module name first
+    -- Handle the section between module() and require("end_gamevars").
+    if (modname == "end_gamevars") then
+        local thismodname = getcurmodname("require")
+
+        if (module_gamevars[thismodname] ~= nil) then
+            error("\"require 'end_gamevars'\" must be called at most once per require'd file", 2)
+        end
+
+        local gvnames = {}
+
+        for name in pairs(getfenv(2)) do
+            gvnames[#gvnames] = name
+            if (ffiC._DEBUG_LUNATIC ~= 0) then
+                printf("MODULE %s GAMEVAR %s", thismodname, name)
+            end
+        end
+
+        module_gamevars[thismodname] = gvnames
+
+        return
+    end
+
+    -- See whether it's a base module name.
     if (allowed_modules[modname] ~= nil) then
         return allowed_modules[modname]
     end
 
-    --- search user modules
+    --- Search user modules...
 
     local omod = package_loaded[modname]
     if (omod ~= nil) then
-        if (omod==true) then
+        if (omod==false) then
             error("Loop while loading modules", ERRLEV-1)
         end
 
         -- already loaded
+        assert(omod==true or type(omod)=="table")
         return omod
     end
 
@@ -1336,7 +1377,7 @@ local function our_require(modname, ...)
         errorf(ERRLEV-1, "Couldn't load \"%s\": %s", modname, errmsg)
     end
 
-    package_loaded[modname] = true
+    package_loaded[modname] = false  -- 'not yet loaded'
     table.insert(modname_stack, modname)
 
     -- Run the module code!
@@ -1348,14 +1389,9 @@ local function our_require(modname, ...)
 
     if (type(modtab) == "table") then
         -- Protect module table if there is one...
-        local mt = {
-            __index = modtab,
-            __newindex = function(tab,idx,val)
-                error("modifying module table forbidden", 2)
-            end,
-        }
-
-        setmetatable(modtab, mt)
+        setmetatable(modtab, required_module_mt)
+    else
+        package_loaded[modname] = true
     end
 
     return modtab
@@ -1370,12 +1406,18 @@ local module_mt = {
 
 -- Our 'module' replacement doesn't get the module name from the function args
 -- since a malicious user could remove other loaded modules this way.
--- Also, our 'module' has no varargs ("option functions" in Lua).
+-- Also, our 'module' takes no varargs ("option functions" in Lua).
 -- TODO: make transactional?
 local function our_module()
-    local modname = modname_stack[#modname_stack]
-    if (type(modname) ~= "string") then
+    if (#modname_stack == 0) then
         error("'module' must be called at the top level of a require'd file", 2)
+        -- ... as opposed to "at runtime".
+    end
+
+    local modname = getcurmodname("module")
+
+    if (type(package_loaded[modname])=="table") then
+        error("'module' must be called at most once per require'd file", 2)
     end
 
     local M = setmetatable({}, module_mt)
@@ -1411,6 +1453,7 @@ G_.ipairs = ipairs
 G_.pairs = pairs
 G_.pcall = pcall
 G_.print = print
+G_.printf = printf
 G_.module = our_module
 G_.next = next
 G_.require = our_require
@@ -1881,6 +1924,8 @@ setmetatable(
         __index = function (_, n)
             error("attempt to read undeclared variable '"..n.."'", 2)
         end,
+
+        __metatable = true,
         })
 
 -- Change the environment of the running Lua thread so that everything

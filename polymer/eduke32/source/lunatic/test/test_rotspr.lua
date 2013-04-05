@@ -1,4 +1,5 @@
 
+local require = require
 local con = require("con")
 local bit = require("bit")
 local math = require("math")
@@ -47,3 +48,15 @@ local function rotatesprite_test()
 end
 
 gameevent(gv.EVENT_DISPLAYREST, rotatesprite_test)
+
+
+module(...) --====================
+
+local not_a_gamevar = "nyet"
+
+test_gamevar = 123
+test_gamevar2 = 'qwe'
+
+require "end_gamevars" --==========
+
+not_a_gamevar2 = "no"
