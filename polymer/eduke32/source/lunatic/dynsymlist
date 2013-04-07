@@ -43,6 +43,8 @@ nextspritestat;
 tilesizx;
 tilesizy;
 
+show2dsector;
+
 headsectbunch;
 nextsectbunch;
 

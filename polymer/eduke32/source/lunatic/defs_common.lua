@@ -312,6 +312,8 @@ const int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 const int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 const int16_t tilesizx[MAXTILES], tilesizy[MAXTILES];
 
+uint8_t show2dsector[(MAXSECTORS+7)>>3];
+
 const int16_t headsectbunch[2][MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
 
 int16_t yax_getbunch(int16_t i, int16_t cf);
@@ -706,6 +708,12 @@ static_members.sprite.CSTAT = conststruct
     TRANSLUCENT2 = 512,
     TRANSLUCENT_BOTH_BITS = 512+2,
 }
+
+local bitar = require("bitar")
+-- XXX: bitar uses int32_t arrays, while show2dsector[] is a uint8_t
+-- array. Potential unaligned access. Also, only works on little-endian
+-- machines. This sucks.
+static_members.sector.showbitmap = bitar.new(ffiC.MAXSECTORS-1, ffi.cast("int32_t *", ffiC.show2dsector))
 
 local sms = static_members.sprite
 sms._headspritesect = creategtab(ffiC.headspritesect, ffiC.MAXSECTORS, 'headspritesect[]')

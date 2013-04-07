@@ -929,7 +929,7 @@ local actor_mt = {
         end,
 
         set_picnum = function(a, picnum)
-            if (picnum >= 0) then
+            if (not (picnum < 0)) then
                 check_tile_idx(picnum)
             end
             ffi.cast(actor_ptr_ct, a).picnum = picnum
@@ -1043,7 +1043,7 @@ local player_mt = {
         end,
 
         set_customexitsound = function(p, soundnum)
-            if (soundnum >= 0) then
+            if (not (soundnum < 0)) then
                 check_sound_idx(soundnum)
             end
             ffi.cast(player_ptr_ct, p).customexitsound = soundnum
@@ -1110,7 +1110,7 @@ ffi.metatype("DukePlayer_t", player_mt)
 
 local function GenProjectileSetFunc(Member)
     return function(self, picnum)
-        if (picnum >= 0) then
+        if (not (picnum < 0)) then
             check_tile_idx(picnum)
         end
         ffi.cast(projectile_ptr_ct, self)[Member] = picnum
@@ -1900,7 +1900,11 @@ function DBG_.testmembread()
                         membaccode = membaccode[1]
                     end
                     if (membaccode) then
-                        local codestr = "do local _bit,_math=require'bit',require'math'; local tmp="..
+                        local codestr = [[
+do
+    local _bit,_math=require'bit',require'math'
+    local _band,_gv=_bit.band,gv
+local tmp=]]..
                             membaccode:gsub("%%s","0").." end"
                         local code = assert(loadstring(codestr))
                         code()

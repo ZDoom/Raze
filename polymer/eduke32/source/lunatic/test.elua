@@ -430,6 +430,17 @@ gameevent("DISPLAYREST", function()
 --            con._gametext(2822, j, i, 12, 0, 0, 16, 0,0,gv.xdim,gv.ydim,8192)
         end
     end
+
+    -- Clear showing every sector with the pavement floor tile. (Unless we're
+    -- in such a sector or an adjoining one.)
+    -- XXX: We need a better place to do this, maybe an event in
+    -- G_DisplayRest() where show2dsector[] is tweaked?
+    local show2dsector = sector.showbitmap
+    for i=0,gv.numsectors-1 do
+        if (sector[i].floorpicnum==815) then
+            show2dsector:set0(i)
+        end
+    end
 end)
 
 -- APLAYER

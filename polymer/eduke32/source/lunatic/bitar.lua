@@ -16,7 +16,12 @@ local tostring = tostring
 module(...)
 
 
-local bitar_ct = ffi.typeof("struct { const double maxbidx, maxidx; const intptr_t arptr; }")
+local bitar_ct = ffi.typeof[[
+struct {
+    const double maxbidx;  // last permissible bit index
+    const double maxidx;   // last permissible int32_t index
+    const intptr_t arptr;  // address of the int32_t array
+}]]
 local ptr_to_int = ffi.typeof("int32_t *")
 
 local anchor = {}
@@ -110,6 +115,8 @@ local mt = {
     --- Additional operations
 
     __index = {
+        -- TODO: Rename to 'testi', 'seti', 'cleari'; add 'flipi'?
+
         -- Is bit i set?
         isset = function(s, i)
             if (not (i >= 0 and i<=s.maxbidx)) then
@@ -212,20 +219,31 @@ local mt = {
     end,
 }
 
-local bitar = ffi.metatype(bitar_ct, mt)
+ffi.metatype(bitar_ct, mt)
+
 
 -- Create new bit array.
 function new(maxbidx, initval)
     if (type(maxbidx) ~= "number" or not (maxbidx >= 0 and maxbidx <= (2^31)-2)) then
-        error("bad argument #1 to bitar.new (must be a number in [0..(2^31)-2])", 2)
+        -- NOTE: Uh-oh, we can't write '2^31' because that would be interpreted
+        -- as color by OSD_Printf.
+        error("bad argument #1 to bitar.new (must be a number in [0..(2**31)-2])", 2)
     end
 
     if (math.floor(maxbidx) ~= maxbidx) then
         error("bad argument #1 to bitar.new (must be an integral number)")
     end
 
-    if (type(initval)=="string") then
-        -- string containing hex digits (a..p) given, for INTERNAL use
+    if (ffi.istype(ptr_to_int, initval)) then
+        -- Initialization from an array on the C side. INTERNAL.
+        -- Cannot be reached by user code since there's no access to the FFI
+        -- (and thus no way to create pointers).
+
+        return bitar_from_intar(maxbidx, (maxbidx+1)/32-1, initval)
+
+    elseif (type(initval)=="string") then
+        -- String containing hex digits (a..p) given, for INTERNAL use only.
+        -- XXX: Can be reached by user code.
 
         local lstr = initval
 
@@ -249,6 +267,7 @@ function new(maxbidx, initval)
             end
         end
 
+        -- NOTE: <maxbidx> cannot be extracted from the string, use the passed one.
         return bitar_from_intar(maxbidx, maxidx, ar)
 
     else
