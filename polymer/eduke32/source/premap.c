@@ -1069,8 +1069,6 @@ static inline void prelevel(char g)
         G_GameExit("OUT OF MEMORY in prelevel()");
 
     Bmemset(show2dsector, 0, sizeof(show2dsector));
-    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
-    Bmemset(show2dwall, 0, sizeof(show2dwall));
 
     Bmemset(ror_protectedsectors, 0, MAXSECTORS);
 

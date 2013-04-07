@@ -8492,7 +8492,9 @@ int32_t initengine(void)
     parallaxtype = 2; parallaxyoffs = 0L; parallaxyscale = 65536;
     showinvisibility = 0;
 
-    for (i=1; i<1024; i++) lowrecip[i] = ((1<<24)-1)/i;
+    for (i=1; i<1024; i++)
+        lowrecip[i] = ((1<<24)-1)/i;
+
     for (i=0; i<MAXVOXELS; i++)
         for (j=0; j<MAXVOXMIPS; j++)
         {
@@ -8501,20 +8503,11 @@ int32_t initengine(void)
         }
     for (i=0; i<MAXTILES; i++)
         tiletovox[i] = -1;
-    clearbuf(&voxscale[0],sizeof(voxscale)>>2,65536L);
+    clearbuf(voxscale, sizeof(voxscale)>>2, 65536);
 
     paletteloaded = 0;
 
     searchit = 0; searchstat = -1;
-
-//    for (i=0; i<MAXPALOOKUPS; i++) palookup[i] = NULL;
-/*
-    Bmemset(waloff, 0, sizeof(waloff));
-
-    clearbuf(&show2dsector[0],(int32_t)((MAXSECTORS+3)>>5),0L);
-    clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
-    clearbuf(&show2dwall[0],(int32_t)((MAXWALLS+3)>>5),0L);
-*/
 
     totalclock = 0;
     g_visibility = 512;

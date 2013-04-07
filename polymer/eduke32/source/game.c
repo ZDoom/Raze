@@ -2208,9 +2208,6 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             k = wal->nextwall;
             if (k < 0) continue;
 
-            //if ((show2dwall[j>>3]&(1<<(j&7))) == 0) continue;
-            //if ((k > j) && ((show2dwall[k>>3]&(1<<(k&7))) > 0)) continue;
-
             if (sector[wal->nextsector].ceilingz == z1)
                 if (sector[wal->nextsector].floorz == z2)
                     if (((wal->cstat|wall[wal->nextwall].cstat)&(16+32)) == 0) continue;
@@ -2245,7 +2242,6 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     {
         if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
         for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
-            //if ((show2dsprite[j>>3]&(1<<(j&7))) > 0)
         {
             spr = &sprite[j];
 
@@ -2399,8 +2395,6 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         for (j=startwall,wal=&wall[startwall]; j<endwall; j++,wal++)
         {
             if (wal->nextwall >= 0) continue;
-
-            //if ((show2dwall[j>>3]&(1<<(j&7))) == 0) continue;
 
             if (tilesizx[wal->picnum] == 0) continue;
             if (tilesizy[wal->picnum] == 0) continue;
@@ -4132,9 +4126,6 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     // sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
     G_InitActor(i, s_pn, 1);
-
-    if (show2dsector[SECT>>3]&(1<<(SECT&7))) show2dsprite[i>>3] |= (1<<(i&7));
-    else show2dsprite[i>>3] &= ~(1<<(i&7));
 
     Bmemset(&spriteext[i], 0, sizeof(spriteext_t));
     Bmemset(&spritesmooth[i], 0, sizeof(spritesmooth_t));
@@ -7500,8 +7491,6 @@ FOUNDCHEAT:
 
                     for (i=0; i<(MAXSECTORS>>3); i++)
                         show2dsector[i] = ud.showallmap*255;
-                    for (i=0; i<(MAXWALLS>>3); i++)
-                        show2dwall[i] = ud.showallmap*255;
 
                     P_DoQuote(ud.showallmap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_OFF,
                               g_player[myconnectindex].ps);
