@@ -3570,7 +3570,7 @@ void P_FragPlayer(int32_t snum)
             if (actor[p->i].picnum != APLAYERTOP)
             {
                 p->fraggedself++;
-                if (A_CheckEnemyTile(sprite[p->wackedbyactor].picnum))
+                if ((unsigned)p->wackedbyactor < MAXTILES && A_CheckEnemyTile(sprite[p->wackedbyactor].picnum))
                     Bsprintf(tempbuf,ScriptQuotes[OBITQUOTEINDEX+(krand()%g_numObituaries)],"A monster",&g_player[snum].user_name[0]);
                 else if (actor[p->i].picnum == NUKEBUTTON)
                     Bsprintf(tempbuf,"^02%s^02 tried to leave",&g_player[snum].user_name[0]);

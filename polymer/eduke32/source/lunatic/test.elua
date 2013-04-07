@@ -190,6 +190,10 @@ checkfail("gv.g_sizes_of=nil; print(gv.g_sizes_of[0])", "write access forbidden"
 checkfail("gv.cam.sect=-1", "invalid sector number")
 checkfail("local flag=gv.SFLAG_NULL", "missing declaration")
 
+player[0].wackedbyactor = -1  -- should succeed
+checkfail("player[0].curr_weapon = -1", "Invalid weapon ID")
+player[0].curr_weapon = 1
+
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 
 gameevent(gv.EVENT_JUMP,

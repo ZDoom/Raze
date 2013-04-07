@@ -20,7 +20,11 @@ MAXEVENTS = 95  -- KEEPINSYNC with EVENT_* list
 MAXSOUNDS = 4096
 
 -- KEEPINSYNC quotes.h
-MAXQUOTES = 16384
+
+-- For Lunatic, MAXQUOTES is OBITQUOTEINDEX because starting from that index
+-- are obituary and suicide quotes which are passed as *format strings* to
+-- sprintf() in C.
+MAXQUOTES = 16384-128
 MAXQUOTELEN = 128
 
 local STR = {
@@ -516,17 +520,17 @@ local PlayerLabels = {
     oang = PL".oang",
     angvel = PL".angvel",
 
-    cursectnum = { PL".cursectnum", PL":set_cursectnum(%%s)" },
+    cursectnum = PL".cursectnum",
 
     look_ang = PL".look_ang",
     last_extra = PL".last_extra",
     subweapon = PL".subweapon",
 
-    max_ammo_amount = PL".max_ammo_amount[%s]" ,
-    ammo_amount = PL".ammo_amount[%s]" ,
+    max_ammo_amount = PL".max_ammo_amount[%s]",
+    ammo_amount = PL".ammo_amount[%s]",
     -- NOTE: no direct access for .inv_amount (but see end)
 
-    wackedbyactor = { PL".wackedbyactor", PL":set_wackedbyactor(%%s)" },
+    wackedbyactor = PL".wackedbyactor",
     pyoff = PL".pyoff",
     opyoff = PL".opyoff",
 
@@ -541,7 +545,7 @@ local PlayerLabels = {
     airleft = PL".airleft",
 
     fta = PL".fta",
-    ftq = { PL".ftq", PL":set_ftq(%%s)" },
+    ftq = PL".ftq",
     access_wallnum = { PL".access_wallnum" },
     access_spritenum = { PL".access_spritenum" },
 
@@ -559,7 +563,7 @@ local PlayerLabels = {
     random_club_frame = PL".random_club_frame",
     one_eighty_count = PL".one_eighty_count",
 
-    dummyplayersprite = { PL".dummyplayersprite", PL":set_dummyplayersprite(%%s)" },
+    dummyplayersprite = PL".dummyplayersprite",
     extra_extra8 = PL".extra_extra8",
 
     actorsqu = PL".actorsqu",
@@ -568,7 +572,7 @@ local PlayerLabels = {
 
     last_pissed_time = PL".last_pissed_time",
 
-    weaprecs = PL".weaprecs[%s]" ,
+    weaprecs = PL".weaprecs[%s]",
 
     weapon_sway = PL".weapon_sway",
     crack_time = PL".crack_time",
@@ -649,12 +653,12 @@ local PlayerLabels = {
     loogcnt = PL".loogcnt",
     scream_voice = PL".scream_voice",
 
-    last_weapon = { PL".last_weapon", PL":set_last_weapon(%%s)" },
+    last_weapon = PL".last_weapon",
     cheat_phase = PL".cheat_phase",
     weapon_pos = PL".weapon_pos",
-    wantweaponfire = { PL".wantweaponfire" },
+    wantweaponfire = PL".wantweaponfire",
 
-    curr_weapon = { PL".curr_weapon", PL":set_curr_weapon(%%s)" },
+    curr_weapon = PL".curr_weapon",
 
     palette = PL".palette",
 

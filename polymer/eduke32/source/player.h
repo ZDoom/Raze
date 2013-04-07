@@ -161,7 +161,7 @@ typedef struct {
 //  * int16_t --> int8_t
 //  * char --> int8_t
 // Need to carefully think about implications!
-// TODO: rearrange this is the opportunity arises!
+// TODO: rearrange this if the opportunity arises!
 // KEEPINSYNC lunatic/defs.ilua
 typedef struct {
     vec3_t pos, opos, vel, npos;

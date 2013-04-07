@@ -166,8 +166,9 @@ struct {
 }]]
 
 -- Converts a template struct definition to an internal, unrestricted one.
+-- NOTE: "[^ ]*" for const decorations in defs.ilua.
 function strip_const(structstr)
-    return (string.gsub(structstr, "const ", ""));
+    return (string.gsub(structstr, "const[^ ]* ", ""));
 end
 
 -- NOTE for FFI definitions: we're compiling EDuke32 with -funsigned-char, so

@@ -210,28 +210,29 @@ __attribute__((packed)) struct {
     int16_t sbs, sound_pitch;
 
     int16_t ang, oang, angvel;
-    const int16_t cursectnum;
+    const<S> int16_t cursectnum;
     int16_t look_ang, last_extra, subweapon;
     int16_x_MAX_WEAPONS max_ammo_amount;
     int16_x_MAX_WEAPONS ammo_amount;
     int16_x_GET_MAX inv_amount;
-    const int16_t wackedbyactor;
+    const<I-> int16_t wackedbyactor;
     int16_t pyoff, opyoff;
 
     int16_t horiz, horizoff, ohoriz, ohorizoff;
     const int16_t newowner;
     int16_t jumping_counter, airleft;
     int16_t fta;
-    const int16_t ftq, access_wallnum, access_spritenum;
+    const<Q> int16_t ftq;
+    const int16_t access_wallnum, access_spritenum;
     int16_t got_access, weapon_ang, visibility;
     int16_t somethingonplayer, on_crane;
     const int16_t i;
     const int16_t one_parallax_sectnum;
     int16_t random_club_frame, one_eighty_count;
-    const int16_t dummyplayersprite;
+    const<I-> int16_t dummyplayersprite;
     int16_t extra_extra8;
     int16_t actorsqu, timebeforeexit;
-    const int16_t customexitsound;
+    const<X-> int16_t customexitsound;
     int16_t last_pissed_time;
 
     int16_x_MAX_WEAPONS weaprecs;
@@ -248,7 +249,7 @@ __attribute__((packed)) struct {
     const uint8_t weapreccnt;
     uint8_t aim_mode, auto_aim, weaponswitch, movement_lock, team;
     uint8_t tipincs, hbomb_hold_delay;
-    const uint8_t frag_ps;
+    const<P> uint8_t frag_ps;
     uint8_t kickback_pic;
 
     uint8_t gm;
@@ -278,9 +279,10 @@ __attribute__((packed)) struct {
     uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
 
     int8_t numloogs, loogcnt, scream_voice;
-    const int8_t last_weapon;
+    const<W-> int8_t last_weapon;
     int8_t cheat_phase, weapon_pos;
-    const int8_t wantweaponfire, curr_weapon;
+    const<W-> int8_t wantweaponfire;
+    const<W> int8_t curr_weapon;
 
     uint8_t palette;
     palette_t _pals;
@@ -337,15 +339,44 @@ local function ma_replace_array(typestr, neltstr)
     return table.concat(strtab)
 end
 
--- Converts a template struct definition to an external one, in which arrays
--- have been substituted by randomly named scalar fields.
-local function mangle_arrays(structstr)
-    ma_count = 0
-    -- NOTE: regexp only works for non-nested arrays and for one array per line.
-    return (string.gsub(structstr, "const%s+([%w_]+)[^\n]+%[([%w_]+)%];", ma_replace_array))
+---=== Protection of scalars in (currently only) DukePlayer_t struct. ===---
+-- This is more convenient than writing dozens of set-member methods.
+local prot_scalar_chkfunc = {
+    S = check_sector_idx,
+    I = check_sprite_idx,
+
+    P = bcheck.player_idx,
+    W = check_weapon_idx,
+    X = check_sound_idx,
+    Q = bcheck.quote_idx,
+}
+
+local DukePlayer_prot_allowneg = {}  -- [<member name>] = true if setting <0 allowed
+local DukePlayer_prot_chkfunc = {}  -- [<member name>] = <checking function>
+
+local function ma_replace_scalar(what, typestr, membname)
+    DukePlayer_prot_chkfunc[membname] = assert(prot_scalar_chkfunc[what:sub(1,1)])
+    DukePlayer_prot_allowneg[membname] = (what:sub(2)=="-")
+    return ma_replace_array(typestr, 1)
 end
 
---print(mangle_arrays(ACTOR_STRUCT))
+-- Converts a template struct definition to an external one, in which arrays
+-- have been substituted by randomly named scalar fields.
+-- <also_scalars>: also handle protected scalars like "const<W-> ..." etc.
+local function mangle_arrays(structstr, also_scalars)
+    ma_count = 0
+    -- NOTE: regexp only works for non-nested arrays and for one array per line.
+    structstr = structstr:gsub("const%s+([%w_]+)[^\n]+%[([%w_]+)%];", ma_replace_array)
+
+    if (also_scalars) then
+        -- One protected scalar per line, too.
+        structstr = structstr:gsub("const<(.-)>%s+([%w_]-)%s+([%w_]-);", ma_replace_scalar)
+    end
+
+    return structstr
+end
+
+--print(mangle_arrays(DUKEPLAYER_STRUCT, true))
 
 --- default defines etc.
 local con_lang = require("con_lang")
@@ -365,7 +396,7 @@ typedef
 actor_t;
 
 typedef
-]].. mangle_arrays(DUKEPLAYER_STRUCT) ..[[
+]].. mangle_arrays(DUKEPLAYER_STRUCT, true) ..[[
 DukePlayer_t;
 
 typedef __attribute__((packed)) struct {
@@ -963,7 +994,7 @@ ffi.metatype("actor_t", actor_mt)
 local weapondata_mt = {
     __index = function(wd, member)
         -- Handle protected members that are renamed (e.g. shoots/_shoots).
-        return ffi.cast(weapondata_ptr_ct, wd)[member]
+        return ffi.cast(weapondata_ptr_ct, wd)[0][member]
     end,
 
     __newindex = function(wd, member, val)
@@ -986,7 +1017,7 @@ local weapondata_mt = {
             end
         end
 
-        ffi.cast(weapondata_ptr_ct, wd)[member] = val
+        ffi.cast(weapondata_ptr_ct, wd)[0][member] = val
     end,
 }
 ffi.metatype("weapondata_t", weapondata_mt)
@@ -1007,50 +1038,6 @@ ffi.metatype("weaponaccess_t", weaponaccess_mt)
 
 local player_mt = {
     __index = {
-        --- Getters/setters
-        set_curr_weapon = function(p, weap)
-            check_weapon_idx(weap)
-            ffi.cast(player_ptr_ct, p).curr_weapon = weap
-        end,
-
-        set_last_weapon = function(p, weap)
-            if (not (weap < 0)) then
-                check_weapon_idx(weap)
-            end
-            ffi.cast(player_ptr_ct, p).last_weapon = weap
-        end,
-
-        set_ftq = function(p, ftq)
-            bcheck.quote_idx(ftq)
-            ffi.cast(player_ptr_ct, p).ftq = ftq
-        end,
-
-        set_cursectnum = function(p, sectnum)
-            check_sector_idx(sectnum)
-            ffi.cast(player_ptr_ct, p).cursectnum = sectnum
-        end,
-
-        set_customexitsound = function(p, soundnum)
-            if (not (soundnum < 0)) then
-                check_sound_idx(soundnum)
-            end
-            ffi.cast(player_ptr_ct, p).customexitsound = soundnum
-        end,
-
-        set_dummyplayersprite = function(p, spritenum)
-            if (not (spritenum < 0)) then
-                check_sprite_idx(spritenum)
-            end
-            ffi.cast(player_ptr_ct, p).dummyplayersprite = spritenum
-        end,
-
-        set_wackedbyactor = function(p, spritenum)
-            if (not (spritenum < 0)) then
-                check_sprite_idx(spritenum)
-            end
-            ffi.cast(player_ptr_ct, p).wackedbyactor = spritenum
-        end,
-
         -- CON-like addammo/addweapon, but without the non-local control flow
         -- (returns true if weapon's ammo was at the max. instead).
         addammo = con._addammo,
@@ -1099,12 +1086,27 @@ local player_mt = {
             pals.r, pals.g, pals.b = r, g, b
         end,
     },
+
+    __newindex = function(p, key, val)
+        -- Write access to protected player members.
+
+        local allowneg = DukePlayer_prot_allowneg[key]
+        assert(type(allowneg)=="boolean")
+
+        if (allowneg==false or not (val < 0)) then
+            DukePlayer_prot_chkfunc[key](val)
+        end
+        ffi.cast(player_ptr_ct, p)[key] = val
+    end,
 }
 
 local function player_index_index(p, key)
     if (key=="_input") then
         return ffiC.g_player[p.weapon._p].sync[0]
     end
+
+    -- Read access to protected player members.
+    return ffi.cast(player_ptr_ct, p)[0][key]
 end
 
 setmtonce(player_mt.__index, { __index = player_index_index })
