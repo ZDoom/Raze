@@ -1148,6 +1148,9 @@ defstate update_headlight
     ifvare headlight_enabled 0
         break
 
+    ifvarl cursectnum 0
+        break
+
     ifvarn light[li].active 1
         break
 
