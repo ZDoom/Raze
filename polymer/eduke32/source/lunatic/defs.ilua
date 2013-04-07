@@ -215,7 +215,8 @@ __attribute__((packed)) struct {
     int16_x_MAX_WEAPONS max_ammo_amount;
     int16_x_MAX_WEAPONS ammo_amount;
     int16_x_GET_MAX inv_amount;
-    int16_t wackedbyactor, pyoff, opyoff;
+    const int16_t wackedbyactor;
+    int16_t pyoff, opyoff;
 
     int16_t horiz, horizoff, ohoriz, ohorizoff;
     const int16_t newowner;
@@ -246,7 +247,9 @@ __attribute__((packed)) struct {
     bool reloading;
     const uint8_t weapreccnt;
     uint8_t aim_mode, auto_aim, weaponswitch, movement_lock, team;
-    uint8_t tipincs, hbomb_hold_delay, frag_ps, kickback_pic;
+    uint8_t tipincs, hbomb_hold_delay;
+    const uint8_t frag_ps;
+    uint8_t kickback_pic;
 
     uint8_t gm;
     bool on_warping_sector;
@@ -267,15 +270,17 @@ __attribute__((packed)) struct {
 
     bool holster_weapon;
     uint8_t falling_counter, footprintshade;
-    uint8_t refresh_inventory, last_full_weapon;
+    uint8_t refresh_inventory;
+    const uint8_t last_full_weapon;
 
     bool toggle_key_flag;
     uint8_t knuckle_incs, knee_incs, access_incs;
     uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
 
     int8_t numloogs, loogcnt, scream_voice;
-    int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire;
-    const int8_t curr_weapon;
+    const int8_t last_weapon;
+    int8_t cheat_phase, weapon_pos;
+    const int8_t wantweaponfire, curr_weapon;
 
     uint8_t palette;
     palette_t _pals;
@@ -1003,33 +1008,16 @@ ffi.metatype("weaponaccess_t", weaponaccess_mt)
 local player_mt = {
     __index = {
         --- Getters/setters
-        get_ammo_amount = function(p, weap)
-            return p.ammo_amount[weap]
-        end,
-
-        set_ammo_amount = function(p, weap, amount)
-            p.ammo_amount[weap] = amount
-        end,
-
-        get_max_ammo_amount = function(p, weap)
-            return p.max_ammo_amount[weap]
-        end,
-
-        set_max_ammo_amount = function(p, weap, amount)
-            p.max_ammo_amount[weap] = amount
-        end,
-
         set_curr_weapon = function(p, weap)
             check_weapon_idx(weap)
             ffi.cast(player_ptr_ct, p).curr_weapon = weap
         end,
 
-        get_inv_amount = function(p, inv)
-            return p.inv_amount[inv]
-        end,
-
-        set_inv_amount = function(p, inv, amount)
-            p.inv_amount[inv] = amount
+        set_last_weapon = function(p, weap)
+            if (not (weap < 0)) then
+                check_weapon_idx(weap)
+            end
+            ffi.cast(player_ptr_ct, p).last_weapon = weap
         end,
 
         set_ftq = function(p, ftq)
@@ -1047,6 +1035,20 @@ local player_mt = {
                 check_sound_idx(soundnum)
             end
             ffi.cast(player_ptr_ct, p).customexitsound = soundnum
+        end,
+
+        set_dummyplayersprite = function(p, spritenum)
+            if (not (spritenum < 0)) then
+                check_sprite_idx(spritenum)
+            end
+            ffi.cast(player_ptr_ct, p).dummyplayersprite = spritenum
+        end,
+
+        set_wackedbyactor = function(p, spritenum)
+            if (not (spritenum < 0)) then
+                check_sprite_idx(spritenum)
+            end
+            ffi.cast(player_ptr_ct, p).wackedbyactor = spritenum
         end,
 
         -- CON-like addammo/addweapon, but without the non-local control flow

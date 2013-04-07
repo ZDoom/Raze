@@ -440,15 +440,15 @@ end
 --- Helper functions (might be exported later) ---
 
 local function have_ammo_at_max(ps, weap)
-    return (ps:get_ammo_amount(weap) >= ps:get_max_ammo_amount(weap))
+    return (ps.ammo_amount[weap] >= ps.max_ammo_amount[weap])
 end
 
 local function P_AddAmmo(ps, weap, amount)
     if (not have_ammo_at_max(ps, weap)) then
-        local curamount = ps:get_ammo_amount(weap)
-        local maxamount = ps:get_max_ammo_amount(weap)
+        local curamount = ps.ammo_amount[weap]
+        local maxamount = ps.max_ammo_amount[weap]
         -- NOTE: no clamping towards the bottom
-        ps:set_ammo_amount(weap, math.min(curamount+amount, maxamount))
+        ps.ammo_amount[weap] = math.min(curamount+amount, maxamount)
     end
 end
 
@@ -944,12 +944,12 @@ end
 
 function _checkpinventory(ps, inv, amount, i)
     if (inv==ffiC.GET_SHIELD) then
-        return ps:get_inv_amount(inv) ~= ps.max_shield_amount
+        return ps.inv_amount[inv] ~= ps.max_shield_amount
     elseif (inv==ffiC.GET_ACCESS) then
         local palbit = PALBITS[sprite[i].pal]
         return palbit and (bit.band(ps.got_access, palbit)~=0)
     else
-        return ps:get_inv_amount(inv) ~= amount
+        return ps.inv_amount[inv] ~= amount
     end
 end
 
@@ -966,7 +966,7 @@ local INV_SELECTION_ORDER = {
 -- checkavailinven CON command
 function _selectnextinv(ps)
     for _,inv in ipairs(INV_SELECTION_ORDER) do
-        if (ps:get_inv_amount(inv) > 0) then
+        if (ps.inv_amount[inv] > 0) then
             ps.inven_icon = ICONS[inv]
             return
         end
@@ -1413,7 +1413,7 @@ function _ifp(flags, pli, aci)
         return true
     elseif (band(l,2048)~=0 and ps.jetpack_on) then
         return true
-    elseif (band(l,4096)~=0 and ps:get_inv_amount(ffiC.GET_STEROIDS) > 0 and ps:get_inv_amount(ffiC.GET_STEROIDS) < 400) then
+    elseif (band(l,4096)~=0 and ps.inv_amount.STEROIDS > 0 and ps.inv_amount.STEROIDS < 400) then
         return true
     elseif (band(l,8192)~=0 and ps.on_ground) then
         return true

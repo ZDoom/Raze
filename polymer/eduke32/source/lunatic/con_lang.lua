@@ -526,7 +526,7 @@ local PlayerLabels = {
     ammo_amount = PL".ammo_amount[%s]" ,
     -- NOTE: no direct access for .inv_amount (but see end)
 
-    wackedbyactor = PL".wackedbyactor",
+    wackedbyactor = { PL".wackedbyactor", PL":set_wackedbyactor(%%s)" },
     pyoff = PL".pyoff",
     opyoff = PL".opyoff",
 
@@ -559,7 +559,7 @@ local PlayerLabels = {
     random_club_frame = PL".random_club_frame",
     one_eighty_count = PL".one_eighty_count",
 
-    dummyplayersprite = { PL".dummyplayersprite" },
+    dummyplayersprite = { PL".dummyplayersprite", PL":set_dummyplayersprite(%%s)" },
     extra_extra8 = PL".extra_extra8",
 
     actorsqu = PL".actorsqu",
@@ -602,7 +602,7 @@ local PlayerLabels = {
 
     tipincs = PL".tipincs",
     hbomb_hold_delay = PL".hbomb_hold_delay",
-    frag_ps = PL".frag_ps",
+    frag_ps = { PL".frag_ps" },
     kickback_pic = PL".kickback_pic",
 
     gm = PL".gm",
@@ -633,7 +633,7 @@ local PlayerLabels = {
     footprintshade = PL".footprintshade",
 
     refresh_inventory = PL".refresh_inventory",
-    last_full_weapon = PL".last_full_weapon",
+    last_full_weapon = { PL".last_full_weapon" },
 
     walking_snd_toggle = PL".walking_snd_toggle",
     palookup = PL".palookup",
@@ -649,10 +649,10 @@ local PlayerLabels = {
     loogcnt = PL".loogcnt",
     scream_voice = PL".scream_voice",
 
-    last_weapon = PL".last_weapon",
+    last_weapon = { PL".last_weapon", PL":set_last_weapon(%%s)" },
     cheat_phase = PL".cheat_phase",
     weapon_pos = PL".weapon_pos",
-    wantweaponfire = PL".wantweaponfire",
+    wantweaponfire = { PL".wantweaponfire" },
 
     curr_weapon = { PL".curr_weapon", PL":set_curr_weapon(%%s)" },
 

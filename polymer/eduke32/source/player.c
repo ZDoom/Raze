@@ -4680,9 +4680,8 @@ void P_ProcessInput(int32_t snum)
             {
                 if (p->on_ground == 1)
                 {
-                    if (p->dummyplayersprite == -1)
-                        p->dummyplayersprite =
-                            A_Spawn(p->i,PLAYERONWATER);
+                    if (p->dummyplayersprite < 0)
+                        p->dummyplayersprite = A_Spawn(p->i,PLAYERONWATER);
                     sprite[p->dummyplayersprite].pal = sprite[p->i].pal;
                     sprite[p->dummyplayersprite].cstat |= 32768;
 

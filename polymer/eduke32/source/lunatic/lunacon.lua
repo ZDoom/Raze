@@ -2326,7 +2326,7 @@ local Cinner = {
     showviewunbiased = cmd(R,R,R,R,R,R,R,R,R,R)  -- 10R
         / "",  -- TODO
     smaxammo = cmd(R,R)
-        / PLS":set_max_ammo_amount(%1,%2)",
+        / PLS".max_ammo_amount[%1]=%2",
     gmaxammo = cmd(R,W)
         / ("%2="..PLS".max_ammo_amount[%1]"),
     spriteflags = cmd(R)  -- also see outer
@@ -3207,7 +3207,7 @@ local function handle_cmdline_arg(str)
                     g_warn[warnstr] = val
                     ok = true
                 end
-            elseif (str:sub(2)=="fno") then
+            elseif (str:sub(2,4)=="fno") then  -- NOTE: not ":sub(2)"
                 -- Disable printing code.
                 if (#str >= 5 and str:sub(5)=="=onlycheck") then
                     g_cgopt["no"] = "onlycheck"
