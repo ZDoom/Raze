@@ -136,6 +136,8 @@ char **g_scriptModules = NULL;
 int32_t g_scriptModulesNum = 0;
 char **g_defModules = NULL;
 int32_t g_defModulesNum = 0;
+int32_t g_dependencyCRC = 0;
+int32_t g_usingAddon = 0;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
 char **g_clipMapFiles = NULL;
@@ -8771,6 +8773,21 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     G_ShowParameterHelp();
                     exit(0);
                 }
+                if (!Bstrcasecmp(c+1,"addon"))
+                {
+                    if (argc > i+1)
+                    {
+                        g_usingAddon = atoi(argv[i+1]);
+
+                        if (g_usingAddon > ADDON_NONE && g_usingAddon < NUMADDONS)
+                            g_noSetup = 1;
+                        else g_usingAddon = ADDON_NONE;
+
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"debughelp") || !Bstrcasecmp(c+1,"-debughelp"))
                 {
                     G_ShowDebugHelp();
@@ -10102,6 +10119,46 @@ void G_MaybeAllocPlayer(int32_t pnum)
 #endif
 }
 
+void G_LoadAddon(void)
+{
+    struct grpfile * grp;
+    int32_t crc;
+
+    switch (g_usingAddon)
+    {
+    case ADDON_DUKEDC:
+        crc = DUKEDC_CRC;
+        break;
+    case ADDON_NWINTER:
+        crc = DUKENW_CRC;
+        break;
+    case ADDON_CARIBBEAN:
+        crc = DUKECB_CRC;
+        break;
+    }
+
+    if (!crc) return;
+
+    grp = FindGroup(crc);
+
+    if (grp && FindGroup(DUKE15_CRC))
+    {
+        int32_t i;
+
+        clearGrpNamePtr();
+        g_grpNamePtr = dup_filename(FindGroup(DUKE15_CRC)->name);
+
+        G_AddGroup(grp->name);
+
+        for (i = 0; i<NUMGRPFILES; i++) if (crc == grpfiles[i].crcval) break;
+        if (i != NUMGRPFILES && grpfiles[i].scriptname)
+        {
+            clearScriptNamePtr();
+            g_scriptNamePtr = dup_filename(grpfiles[i].scriptname);
+        }
+    }
+}
+
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)==128);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
@@ -10392,8 +10449,6 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 #endif
 
-    FreeGroups();
-
     if (WW2GI || NAM)
     {
         Bstrcpy(GametypeNames[0],"GruntMatch (Spawn)");
@@ -10424,8 +10479,23 @@ int32_t app_main(int32_t argc, const char **argv)
 #endif
     }
 
+    if (g_usingAddon)
+        G_LoadAddon();
+
     {
         const char *grpfile = G_GrpFile();
+
+        if (g_dependencyCRC)
+        {
+            struct grpfile * grp = FindGroup(g_dependencyCRC);
+            if (grp)
+            {
+                if ((i = initgroupfile(grp->name)) == -1)
+                    initprintf("Warning: could not find main data file \"%s\"!\n",grp->name);
+                else
+                    initprintf("Using \"%s\" as main game data file.\n", grp->name);
+            }
+        }
 
         if ((i = initgroupfile(grpfile)) == -1)
             initprintf("Warning: could not find main data file \"%s\"!\n",grpfile);
@@ -10441,19 +10511,7 @@ int32_t app_main(int32_t argc, const char **argv)
         }
     }
 
-#ifdef _WIN32
-    if (G_GetInstallPath(INSTPATH_STEAM))
-    {
-        Bsprintf(buf, "%s/gameroot", G_GetInstallPath(INSTPATH_STEAM));
-        removesearchpath(buf);
-
-        Bsprintf(buf, "%s/gameroot/addons", G_GetInstallPath(INSTPATH_STEAM));
-        removesearchpath(buf);
-    }
-
-    if (G_GetInstallPath(INSTPATH_GOG))
-        removesearchpath(G_GetInstallPath(INSTPATH_GOG));
-#endif
+    FreeGroups();
 
     if (g_modDir[0] != '/')
         G_LoadGroupsInDir(g_modDir);
@@ -10498,6 +10556,8 @@ int32_t app_main(int32_t argc, const char **argv)
         }
         pathsearchmode = 0;
     }
+
+    G_CleanupSearchPaths();
 
     i = kopen4load("DUKESW.BIN",1); // JBF 20030810
     if (i!=-1)

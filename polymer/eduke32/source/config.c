@@ -618,7 +618,7 @@ int32_t CONFIG_ReadSetup(void)
         }
 // #endif
 
-        if (g_grpNamePtr == NULL)
+        if (g_grpNamePtr == NULL && g_usingAddon == 0)
             SCRIPT_GetStringPtr(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr);
 
         if (!NAM)

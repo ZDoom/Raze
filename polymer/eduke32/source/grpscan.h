@@ -24,18 +24,43 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __grpscan_h__
 
 // List of internally-known GRP files
-#define NUMGRPFILES 9
+#define NUMGRPFILES 12
+
+#define DUKE13_CRC (int32_t)0xBBC9CE44
+#define DUKEKR_CRC (int32_t)0xAA4F6A40
+#define DUKE15_CRC (int32_t)0xFD3DCFF1
+#define DUKEPP_CRC (int32_t)0xF514A6AC
+#define DUKESW_CRC (int32_t)0x983AD923
+#define DUKEMD_CRC (int32_t)0xC5F71561
+#define DUKEDC_CRC (int32_t)0xA8CF80DA
+#define DUKECB_CRC (int32_t)0x18F01C5B
+#define DUKENW_CRC (int32_t)0xF1CAE8E4
+#define NAM_CRC    (int32_t)0x75C1F07B
+#define NAPALM_CRC (int32_t)0x3DE1589A
+#define WW2GI_CRC  (int32_t)0x907B82BF
+
+enum addon_t {
+    ADDON_NONE,
+    ADDON_DUKEDC,
+    ADDON_NWINTER,
+    ADDON_CARIBBEAN,
+    NUMADDONS
+};
+
 typedef struct grpfile {
 	const char *name;
 	int32_t crcval;
 	int32_t size;
 	int32_t game;
+    int32_t dependency;
+    const char *scriptname;
 	struct grpfile *next;
 } grpfile_type;
 
 extern struct grpfile grpfiles[NUMGRPFILES];
 extern struct grpfile *foundgrps;
 
+extern struct grpfile * FindGroup(int32_t crcval);
 int32_t ScanGroups(void);
 void FreeGroups(void);
 

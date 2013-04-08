@@ -242,6 +242,7 @@ extern int32_t g_cameraClock;
 extern int32_t g_cameraDistance;
 #endif
 extern int32_t g_crosshairSum;
+extern int32_t g_dependencyCRC;
 extern int32_t g_doQuickSave;
 extern int32_t g_forceWeaponChoice;
 extern int32_t g_fakeMultiMode;
@@ -249,6 +250,7 @@ extern int32_t g_levelTextTime;
 extern int32_t g_noSetup;
 extern int32_t g_quitDeadline;
 extern int32_t g_restorePalette;
+extern int32_t g_usingAddon;
 extern int32_t hud_glowingquotes;
 extern int32_t hud_showmapname;
 extern int32_t lastvisinc;

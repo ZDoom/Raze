@@ -33,15 +33,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 struct grpfile grpfiles[NUMGRPFILES] =
 {
-    { "Duke Nukem 3D",                            (int32_t)0xBBC9CE44, 26524524, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D (South Korean Censored)",    (int32_t)0xAA4F6A40, 26385383, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D: Atomic Edition",            (int32_t)0xFD3DCFF1, 44356548, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D: Plutonium Pak",             (int32_t)0xF514A6AC, 44348015, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D Shareware",                  (int32_t)0x983AD923, 11035779, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D Mac Shareware",              (int32_t)0xC5F71561, 10444391, GAMEFLAG_DUKE, NULL },
-    { "NAM",                                      (int32_t)0x75C1F07B, 43448927, GAMEFLAG_NAM,  NULL },
-    { "NAPALM",                                   (int32_t)0x3DE1589A, 44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,  NULL },
-    { "WWII GI",                                  (int32_t)0x907B82BF, 77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,  NULL },
+    { "Duke Nukem 3D",                         DUKE13_CRC, 26524524, GAMEFLAG_DUKE,                         0, NULL,          NULL },
+    { "Duke Nukem 3D (South Korean Censored)", DUKEKR_CRC, 26385383, GAMEFLAG_DUKE,                         0, NULL,          NULL },
+    { "Duke Nukem 3D: Atomic Edition",         DUKE15_CRC, 44356548, GAMEFLAG_DUKE,                         0, NULL,          NULL },
+    { "Duke Nukem 3D: Plutonium Pak",          DUKEPP_CRC, 44348015, GAMEFLAG_DUKE,                         0, NULL,          NULL },
+    { "Duke Nukem 3D Shareware",               DUKESW_CRC, 11035779, GAMEFLAG_DUKE,                         0, NULL,          NULL },
+    { "Duke Nukem 3D Mac Demo",                DUKEMD_CRC, 10444391, GAMEFLAG_DUKE,                         0, NULL,          NULL },
+    { "Duke it out in D.C.",                   DUKEDC_CRC, 8410183 , GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL,          NULL },
+    { "Duke Caribbean: Life's a Beach",        DUKECB_CRC, 22213819, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL,          NULL },
+    { "Duke: Nuclear Winter",                  DUKENW_CRC, 16169365, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "nwinter.con", NULL },
+    { "NAM",                                   NAM_CRC,    43448927, GAMEFLAG_NAM,                          0, NULL,          NULL },
+    { "NAPALM",                                NAPALM_CRC, 44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,          0, NULL,          NULL },
+    { "WWII GI",                               WW2GI_CRC,  77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,           0, NULL,          NULL },
 };
 struct grpfile *foundgrps = NULL;
 
@@ -99,6 +102,41 @@ static void FreeGroupsCache(void)
         Bfree(grpcache);
         grpcache = fg;
     }
+}
+
+void RemoveGroup(int32_t crcval)
+{
+    struct grpfile *grp, *fg;
+
+    for (grp = foundgrps; grp; grp=grp->next)
+    {
+        if (grp->crcval == crcval)
+        {
+            if (grp == foundgrps)
+                foundgrps = grp->next;
+            else fg->next = grp->next;
+
+            Bfree((char *)grp->name);
+            Bfree(grp);
+
+            break;
+        }
+
+        fg = grp;
+    }
+}
+
+struct grpfile * FindGroup(int32_t crcval)
+{
+    struct grpfile *grp;
+
+    for (grp = foundgrps; grp; grp=grp->next)
+    {
+        if (grp->crcval == crcval)
+            return grp;
+    }
+
+    return NULL;
 }
 
 int32_t ScanGroups(void)
@@ -199,6 +237,31 @@ int32_t ScanGroups(void)
     klistfree(srch);
     FreeGroupsCache();
 
+    for (grp = foundgrps; grp; /*grp=grp->next*/)
+    {
+        int32_t i;
+
+        for (i = 0; i<NUMGRPFILES; i++) if (grp->crcval == grpfiles[i].crcval) break;
+        if (i == NUMGRPFILES) continue; // unrecognised grp file
+
+        if (grpfiles[i].dependency)
+        {
+            //initprintf("found grp with dep\n");
+            for (grp = foundgrps; grp; grp=grp->next)
+                if (grp->crcval == grpfiles[i].dependency) break;
+
+            if (grp == NULL || grp->crcval != grpfiles[i].dependency) // couldn't find dependency
+            {
+                //initprintf("removing %s\n", grp->name);
+                RemoveGroup(grpfiles[i].crcval);
+                grp = foundgrps;
+                continue;
+            }
+        }
+
+        grp=grp->next;
+    }
+
     if (usedgrpcache)
     {
         int32_t i = 0;
@@ -226,6 +289,7 @@ int32_t ScanGroups(void)
     Bfree(buf);
     return 0;
 }
+
 
 void FreeGroups(void)
 {

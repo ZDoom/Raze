@@ -129,6 +129,7 @@ const char *G_GrpFile(void)
     else
         return g_grpNamePtr;
 }
+
 const char *G_DefFile(void)
 {
     if (g_defNamePtr == NULL)
@@ -136,6 +137,7 @@ const char *G_DefFile(void)
     else
         return g_defNamePtr;
 }
+
 const char *G_ConFile(void)
 {
     if (g_scriptNamePtr == NULL)
@@ -270,6 +272,25 @@ void G_AddSearchPaths(void)
 
     if (G_GetInstallPath(INSTPATH_GOG))
         addsearchpath(G_GetInstallPath(INSTPATH_GOG));
+#endif
+}
+
+void G_CleanupSearchPaths(void)
+{
+#ifdef _WIN32
+    char buf[BMAX_PATH];
+
+    if (G_GetInstallPath(INSTPATH_STEAM))
+    {
+        Bsprintf(buf, "%s/gameroot", G_GetInstallPath(INSTPATH_STEAM));
+        removesearchpath(buf);
+
+        Bsprintf(buf, "%s/gameroot/addons", G_GetInstallPath(INSTPATH_STEAM));
+        removesearchpath(buf);
+    }
+
+    if (G_GetInstallPath(INSTPATH_GOG))
+        removesearchpath(G_GetInstallPath(INSTPATH_GOG));
 #endif
 }
 

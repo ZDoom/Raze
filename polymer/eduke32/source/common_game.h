@@ -11,6 +11,7 @@
 #define GAMEFLAG_NAM        0x00000002
 #define GAMEFLAG_NAPALM     0x00000004
 #define GAMEFLAG_WW2GI      0x00000008
+#define GAMEFLAG_ADDON      0x00000010
 
 extern int32_t g_gameType;
 
@@ -60,6 +61,7 @@ extern void G_MultiPskyInit(void);
 extern void G_ExtPreInit(void);
 
 extern void G_AddSearchPaths(void);
+extern void G_CleanupSearchPaths(void);
 
 extern const char * G_GetInstallPath(int32_t insttype);
 

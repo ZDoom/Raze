@@ -932,7 +932,12 @@ int32_t startwin_run(void)
 
         for (i = 0; i<NUMGRPFILES; i++) if (settings.crcval == grpfiles[i].crcval) break;
         if (i != NUMGRPFILES)
+        {
             g_gameNamePtr = grpfiles[i].name;
+            g_dependencyCRC = grpfiles[i].dependency;
+            if (grpfiles[i].scriptname && g_scriptNamePtr == NULL)
+                g_scriptNamePtr = dup_filename(grpfiles[i].scriptname);
+        }
     }
 
     return retval;
