@@ -467,7 +467,7 @@ end
 --- the C functions.)
 
 -- quotes
-local MAXQUOTES = con_lang.MAXQUOTES
+local REALMAXQUOTES = con_lang.REALMAXQUOTES
 local MAXQUOTELEN = con_lang.MAXQUOTELEN
 
 -- CON redefinequote command
@@ -483,7 +483,7 @@ end
 function _quote(pli, qnum)
     bcheck.quote_idx(qnum)
     check_player_idx(pli)
-    ffiC.P_DoQuote(qnum+MAXQUOTES, ffiC.g_player[pli].ps)
+    ffiC.P_DoQuote(qnum+REALMAXQUOTES, ffiC.g_player[pli].ps)
 end
 
 function _echo(qnum)
@@ -938,7 +938,7 @@ function _addinventory(ps, inv, amount, i)
         end
         -- NOTE: this is more permissive than CON, e.g. allows
         -- GET_DUMMY1 too.
-        ps:set_inv_amount(inv, amount)
+        ps.inv_amount[inv] = amount
     end
 end
 

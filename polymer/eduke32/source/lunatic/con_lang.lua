@@ -24,7 +24,8 @@ MAXSOUNDS = 4096
 -- For Lunatic, MAXQUOTES is OBITQUOTEINDEX because starting from that index
 -- are obituary and suicide quotes which are passed as *format strings* to
 -- sprintf() in C.
-MAXQUOTES = 16384-128
+REALMAXQUOTES = 16384
+MAXQUOTES = REALMAXQUOTES-128
 MAXQUOTELEN = 128
 
 local STR = {
@@ -606,7 +607,7 @@ local PlayerLabels = {
 
     tipincs = PL".tipincs",
     hbomb_hold_delay = PL".hbomb_hold_delay",
-    frag_ps = { PL".frag_ps" },
+    frag_ps = PL".frag_ps",
     kickback_pic = PL".kickback_pic",
 
     gm = PL".gm",

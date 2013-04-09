@@ -102,7 +102,7 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
 
 -- Code generation and output options.
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
-                  ["cache-sap"]=false, ["no-error-nostate"]=false, }
+                  ["cache-sap"]=false, ["error-nostate"]=true, }
 local function csapp() return g_cgopt["cache-sap"] end
 
 -- How many 'if' statements are following immediately each other,
@@ -929,7 +929,7 @@ function Cmd.definegamefuncname(idx, name)
 
     assert(type(name)=="string")
     -- XXX: in place of C-CON's "invalid character in function name" report:
-    name:gsub("[^A-Za-z0-9]", "_")
+    name = name:gsub("[^A-Za-z0-9]", "_")
 
     if (ffi) then
         ffiC.C_DefineGameFuncName(idx, name)
@@ -944,7 +944,7 @@ end
 function Cmd.definequote(qnum, quotestr)
     if (not (qnum >= 0 and qnum < conl.MAXQUOTES)) then
         errprintf("quote number is negative or exceeds limit of %d.", conl.MAXQUOTES-1)
-        return
+        return ""
     end
 
     quotestr = stripws(quotestr)
@@ -960,6 +960,7 @@ function Cmd.definequote(qnum, quotestr)
     end
 
     g_data.quote[qnum] = quotestr
+    return ""
 end
 
 function Cmd.defineprojectile(tilenum, what, val)
@@ -1784,7 +1785,7 @@ local handle =
 
     state = function(statename)
         if (g_funcname[statename]==nil) then
-            local warn = g_cgopt["no-error-nostate"]
+            local warn = not g_cgopt["error-nostate"]
             local xprintf = warn and warnprintf or errprintf
 
             xprintf("state `%s' not found.", statename)
@@ -1952,7 +1953,7 @@ local Cinner = {
     jump = cmd(R)
         / handle.NYI,  -- will never be
     cmenu = cmd(R)
-        / handle.NYI,
+        / "_gv._changeMenu(%1)",
     checkavailweapon = cmd(R)  -- THISACTOR
         / function(pli)
               return format("_con._checkavailweapon(%s)", thisactor_to_pli(pli))
@@ -2284,6 +2285,11 @@ local Cinner = {
     prevspritestat = cmd(W,R)
         / "%1=sprite._prevspritestat[%2]",
 
+    -- NOTE: Yup, it's also an inner command. Do this one concession to
+    -- cleanness for backward compatibility (e.g. Sonic3D v0.3).
+    definequote = sp1 * tok.define * newline_term_string
+        / Cmd.definequote,
+
     redefinequote = sp1 * tok.define * newline_term_string
         / function(qnum, qstr) return format("_con._definequote(%d,%q)", qnum, stripws(qstr)) end,
     rotatesprite = cmd(R,R,R,R,R,R,R,R,R,R,R,R)  -- 12R
@@ -2461,7 +2467,7 @@ local Cif = {
     ifnotmoving = cmd()
         / "_band(actor[_aci]._movflag,49152)>16384",
     ifnosounds = cmd()
-        / "not _con._ianysound()",
+        / "not _con._ianysound(_aci)",
     ifmultiplayer = cmd()
         / "false",  -- TODO_MP
     ifinwater = cmd()
@@ -3193,12 +3199,12 @@ local function handle_cmdline_arg(str)
             local ok = false
             local kind = str:sub(2,2)
 
+            -- -W(no-)*: warnings
             if (kind=="W" and #str >= 3) then
-                -- warnings
                 local val = true
                 local warnstr = str:sub(3)
 
-                if (#warnstr >= 4 and warnstr:sub(1,3)=="no-") then
+                if (warnstr:sub(1,3)=="no-") then
                     val = false
                     warnstr = warnstr:sub(4)
                 end
@@ -3207,31 +3213,39 @@ local function handle_cmdline_arg(str)
                     g_warn[warnstr] = val
                     ok = true
                 end
-            elseif (str:sub(2,4)=="fno") then  -- NOTE: not ":sub(2)"
-                -- Disable printing code.
-                if (#str >= 5 and str:sub(5)=="=onlycheck") then
-                    g_cgopt["no"] = "onlycheck"
-                    ok = true
-                else
-                    g_cgopt["no"] = true
+
+            -- -fno* special handling
+            elseif (str:sub(2)=="fno") then
+                -- Disable printing code entirely.
+                g_cgopt["no"] = true
+                ok = true
+            elseif (str:sub(2)=="fno=onlycheck") then
+                -- Disable printing code, only do syntax check of gen'd code.
+                g_cgopt["no"] = "onlycheck"
+                ok = true
+
+            -- -fgendir=<directory>: specify directory for generated code
+            elseif (str:sub(2,9)=="fgendir=" and #str >= 10) then
+                g_cgopt["gendir"] = str:sub(10)
+                ok = true
+
+            -- -f(no-)*: code generation options
+            elseif (kind=="f" and #str >= 3) then
+                local val = true
+                local cgstr = str:sub(3)
+
+                if (cgstr:sub(1,3)=="no-") then
+                    val = false
+                    cgstr = cgstr:sub(4)
+                end
+
+                if (type(g_cgopt[cgstr])=="boolean") then
+                    g_cgopt[cgstr] = val
                     ok = true
                 end
-            elseif (str:sub(2,8)=="fgendir") then
-                if (#str >= 10 and str:sub(9,9)=="=") then
-                    g_cgopt["gendir"] = str:sub(10)
-                    ok = true
-                end
-            elseif (str:sub(2)=="fcache-sap") then
-                g_cgopt["cache-sap"] = true
-                ok = true
-            elseif (str:sub(2)=="fno-error-nostate") then
-                g_cgopt["no-error-nostate"] = true
-                ok = true
-            elseif (str:sub(2)=="fdebug-lineinfo") then
-                g_cgopt["debug-lineinfo"] = true
-                ok = true
+
+            -- -I<directory>: default search directory (only ONCE, not search path)
             elseif (kind=="I" and #str >= 3) then
-                -- default directory (only ONCE, not search path)
                 g_defaultDir = str:sub(3)
                 ok = true
             end
