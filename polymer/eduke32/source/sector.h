@@ -81,8 +81,10 @@ typedef struct {
     intptr_t *vars[MAXGAMEVARS];
 #ifdef YAX_ENABLE
     int32_t numyaxbunches;
+# if !defined NEW_MAP_FORMAT
     int16_t yax_bunchnum[MAXSECTORS][2];
     int16_t yax_nextwall[MAXWALLS][2];
+# endif
 #endif
 } mapstate_t;
 

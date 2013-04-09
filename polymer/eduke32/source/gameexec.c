@@ -5352,8 +5352,10 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->nextspritestat[0],&nextspritestat[0],sizeof(nextspritestat));
 #ifdef YAX_ENABLE
         Bmemcpy(&save->numyaxbunches, &numyaxbunches, sizeof(numyaxbunches));
+# if !defined NEW_MAP_FORMAT
         Bmemcpy(save->yax_bunchnum, yax_bunchnum, sizeof(yax_bunchnum));
         Bmemcpy(save->yax_nextwall, yax_nextwall, sizeof(yax_nextwall));
+# endif
 #endif
         Bmemcpy(&save->actor[0],&actor[0],sizeof(actor_t)*MAXSPRITES);
 
@@ -5456,8 +5458,10 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&nextspritestat[0],&save->nextspritestat[0],sizeof(nextspritestat));
 #ifdef YAX_ENABLE
         Bmemcpy(&numyaxbunches, &save->numyaxbunches, sizeof(numyaxbunches));
+# if !defined NEW_MAP_FORMAT
         Bmemcpy(yax_bunchnum, save->yax_bunchnum, sizeof(yax_bunchnum));
         Bmemcpy(yax_nextwall, save->yax_nextwall, sizeof(yax_nextwall));
+# endif
 #endif
         Bmemcpy(&actor[0],&save->actor[0],sizeof(actor_t)*MAXSPRITES);
 

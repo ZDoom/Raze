@@ -123,10 +123,12 @@ struct {
     uint16_t ceilingstat, floorstat;
     const int16_t ceilingpicnum;
     int16_t ceilingheinum;
+    const int16_t ceilingbunch;
     int8_t ceilingshade;
     uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
     const int16_t floorpicnum;
     int16_t floorheinum;
+    const int16_t floorbunch;
     int8_t floorshade;
     uint8_t floorpal, floorxpanning, floorypanning;
     uint8_t visibility, filler;
@@ -158,6 +160,7 @@ local WALL_STRUCT = [[
 struct {
     int32_t x, y;
     const int16_t point2, nextwall, nextsector;
+    const int16_t upwall, dnwall;
 ]]..bitint_member("UBit16", "cstat")..[[
     const int16_t picnum, overpicnum;
     int8_t shade;

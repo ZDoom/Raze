@@ -1774,8 +1774,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         while (--i >= 0);
 #ifdef YAX_ENABLE
         // queue ROR neighbors
-        if ((sec->floorstat & 1024) &&
-            (bunchnum = yax_getbunch(sectorqueue[front], YAX_FLOOR)) >= 0) {
+        if ((bunchnum = yax_getbunch(sectorqueue[front], YAX_FLOOR)) >= 0) {
 
             for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, ns)) {
 
@@ -1788,8 +1787,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
             }
         }
 
-        if ((sec->ceilingstat & 1024) &&
-            (bunchnum = yax_getbunch(sectorqueue[front], YAX_CEILING)) >= 0) {
+        if ((bunchnum = yax_getbunch(sectorqueue[front], YAX_CEILING)) >= 0) {
 
             for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, ns)) {
 
@@ -2608,7 +2606,7 @@ static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
     // Draw masks regardless; avoid all non-masks TROR links
     if (sec->floorstat & 384) {
         draw = domasks;
-    } else if (sec->floorstat & 1024) {
+    } else if (yax_getbunch(sectnum, YAX_FLOOR) >= 0) {
         draw = FALSE;
     }
     // Parallaxed
@@ -2643,7 +2641,7 @@ static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
     // Draw masks regardless; avoid all non-masks TROR links
     if (sec->ceilingstat & 384) {
         draw = domasks;
-    } else if (sec->ceilingstat & 1024) {
+    } else if (yax_getbunch(sectnum, YAX_CEILING) >= 0) {
         draw = FALSE;
     }
     // Parallaxed
@@ -5447,7 +5445,7 @@ static inline void  polymer_culllight(int16_t lighti)
 
 #ifdef YAX_ENABLE
         // queue ROR neighbors
-        if (checkror && (sec->floorstat & 1024) &&
+        if (checkror &&
             (bunchnum = yax_getbunch(sectorqueue[front], YAX_FLOOR)) >= 0) {
 
             for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, ns)) {
@@ -5480,7 +5478,7 @@ static inline void  polymer_culllight(int16_t lighti)
 
 #ifdef YAX_ENABLE
         // queue ROR neighbors
-        if (checkror && (sec->ceilingstat & 1024) &&
+        if (checkror &&
             (bunchnum = yax_getbunch(sectorqueue[front], YAX_CEILING)) >= 0) {
 
             for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, ns)) {

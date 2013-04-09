@@ -325,7 +325,8 @@ static uint8_t yax_tsprfrombunch[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
 // drawn sectors
 uint8_t yax_gotsector[MAXSECTORS>>3];  // engine internal
 
-// game-time YAX data structures
+# if !defined NEW_MAP_FORMAT
+// Game-time YAX data structures, V7-V9 map formats.
 int16_t yax_bunchnum[MAXSECTORS][2];
 int16_t yax_nextwall[MAXWALLS][2];
 
@@ -354,6 +355,17 @@ void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
     *cb = yax_getbunch(i, YAX_CEILING);
     *fb = yax_getbunch(i, YAX_FLOOR);
 }
+# else
+#  define YAX_PTRBUNCHNUM(Ptr, Sect, Cf) (*((Cf) ? &(Ptr)[Sect].floorbunch : &(Ptr)[Sect].ceilingbunch))
+#  define YAX_BUNCHNUM(Sect, Cf) YAX_PTRBUNCHNUM(sector, Sect, Cf)
+
+#  if !defined NEW_MAP_FORMAT
+static int32_t yax_islockededge(int32_t line, int32_t cf)
+{
+    return (yax_getnextwall(line, cf) >= 0);
+}
+#  endif
+# endif
 
 // bunchnum: -1: also clear yax-nextwalls (forward and reverse)
 //           -2: don't clear reverse yax-nextwalls
@@ -362,7 +374,11 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
 {
     if (editstatus==0)
     {
+#ifdef NEW_MAP_FORMAT
+        YAX_BUNCHNUM(i, cf) = bunchnum;
+#else
         yax_bunchnum[i][cf] = bunchnum;
+#endif
         return;
     }
 
@@ -386,12 +402,16 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
             }
         }
 
+#if !defined NEW_MAP_FORMAT
         *(&sector[i].ceilingstat + cf) &= ~YAX_BIT;
+#endif
         YAX_BUNCHNUM(i, cf) = 0;
         return;
     }
 
+#if !defined NEW_MAP_FORMAT
     *(&sector[i].ceilingstat + cf) |= YAX_BIT;
+#endif
     YAX_BUNCHNUM(i, cf) = bunchnum;
 }
 
@@ -401,6 +421,7 @@ void yax_setbunches(int16_t i, int16_t cb, int16_t fb)
     yax_setbunch(i, YAX_FLOOR, fb);
 }
 
+# if !defined NEW_MAP_FORMAT
 //// nextwall getters/setters
 int16_t yax_getnextwall(int16_t wal, int16_t cf)
 {
@@ -433,6 +454,7 @@ void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
         YAX_NEXTWALL(wal, cf) = YAX_NEXTWALLDEFAULT(cf);
     }
 }
+# endif
 
 // make one step in the vertical direction, and if the wall we arrive at
 // is red, return its nextsector.
@@ -453,32 +475,42 @@ int16_t yax_vnextsec(int16_t line, int16_t cf)
 //             2: read data from game-time arrays and construct linked lists etc.
 void yax_update(int32_t resetstat)
 {
-    int32_t i, j, oeditstatus=editstatus;
-    int16_t cb, fb, tmpsect;
+    int32_t i;
+#if !defined NEW_MAP_FORMAT
+    int32_t j;
+    const int32_t oeditstatus=editstatus;
+#endif
+    int16_t cb, fb;
 
     if (resetstat != 2)
         numyaxbunches = 0;
 
     for (i=0; i<MAXSECTORS; i++)
     {
+#if !defined NEW_MAP_FORMAT
         if (resetstat != 2 || i>=numsectors)
             yax_bunchnum[i][0] = yax_bunchnum[i][1] = -1;
+#endif
         nextsectbunch[0][i] = nextsectbunch[1][i] = -1;
     }
     for (i=0; i<YAX_MAXBUNCHES; i++)
         headsectbunch[0][i] = headsectbunch[1][i] = -1;
+#if !defined NEW_MAP_FORMAT
     for (i=0; i<MAXWALLS; i++)
         if (resetstat != 2 || i>=numwalls)
             yax_nextwall[i][0] = yax_nextwall[i][1] = -1;
+#endif
 
     if (resetstat==1)
         return;
 
-    // constuct singly linked list of sectors-of-bunch
+    // Constuct singly linked list of sectors-of-bunch.
 
-    // read bunchnums directly from the sector struct in yax_[gs]etbunch{es}!
+#if !defined NEW_MAP_FORMAT
+    // Read bunchnums directly from the sector struct in yax_[gs]etbunch{es}!
     editstatus = (resetstat==0);
-    // use oeditstatus to check for in-gamedness from here on!
+    // NOTE: Use oeditstatus to check for in-gamedness from here on!
+#endif
 
     if (resetstat==0)
     {
@@ -519,18 +551,22 @@ void yax_update(int32_t resetstat)
         }
     }
 
-    // in-struct --> array transfer (resetstat==0) and list construction
+    // In-struct --> array transfer (resetstat==0 and !defined NEW_MAP_FORMAT)
+    // and list construction.
     for (i=numsectors-1; i>=0; i--)
     {
         yax_getbunches(i, &cb, &fb);
+#if !defined NEW_MAP_FORMAT
         if (resetstat==0)
         {
             yax_bunchnum[i][0] = cb;
             yax_bunchnum[i][1] = fb;
         }
+#endif
 
         if (cb >= 0)
         {
+#if !defined NEW_MAP_FORMAT
             if (resetstat==0)
                 for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
                 {
@@ -541,7 +577,7 @@ void yax_update(int32_t resetstat)
                             YAX_NEXTWALL(j,0) = 0;  // reset lotag!
                     }
                 }
-
+#endif
             if (headsectbunch[0][cb] == -1)
             {
                 headsectbunch[0][cb] = i;
@@ -552,7 +588,7 @@ void yax_update(int32_t resetstat)
             }
             else
             {
-                tmpsect = headsectbunch[0][cb];
+                int32_t tmpsect = headsectbunch[0][cb];
                 headsectbunch[0][cb] = i;
                 nextsectbunch[0][i] = tmpsect;
             }
@@ -560,6 +596,7 @@ void yax_update(int32_t resetstat)
 
         if (fb >= 0)
         {
+#if !defined NEW_MAP_FORMAT
             if (resetstat==0)
                 for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
                 {
@@ -570,19 +607,21 @@ void yax_update(int32_t resetstat)
                             YAX_NEXTWALL(j,1) = -1;  // reset extra!
                     }
                 }
-
+#endif
             if (headsectbunch[1][fb] == -1)
                 headsectbunch[1][fb] = i;
             else
             {
-                tmpsect = headsectbunch[1][fb];
+                int32_t tmpsect = headsectbunch[1][fb];
                 headsectbunch[1][fb] = i;
                 nextsectbunch[1][i] = tmpsect;
             }
         }
     }
 
+#if !defined NEW_MAP_FORMAT
     editstatus = oeditstatus;
+#endif
 }
 
 int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf)
@@ -9640,7 +9679,7 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
 {
     int32_t fil, i;
     int16_t numsprites;
-    char myflags = flags&(~3);
+    const char myflags = flags&(~3);
 
     flags &= 3;
 
@@ -9665,11 +9704,20 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
 
     prepare_loadboard(fil, dapos, daang, dacursectnum);
 
+
+    ////////// Read sectors //////////
+
     kread(fil,&numsectors,2); numsectors = B_LITTLE16(numsectors);
-    if (numsectors > MYMAXSECTORS()) { kclose(fil); return(-1); }
-    kread(fil,&sector[0],sizeof(sectortype)*numsectors);
+    if ((unsigned)numsectors >= MYMAXSECTORS()+1) { kclose(fil); return(-1); }
+
+    kread(fil, sector, sizeof(sectortypev7)*numsectors);
+
     for (i=numsectors-1; i>=0; i--)
     {
+#ifdef NEW_MAP_FORMAT
+        Bmemmove(&sector[i], &(((sectortypev7 *)sector)[i]), sizeof(sectortypevx));
+        inplace_vx_from_v7_sector(&sector[i]);
+#endif
         sector[i].wallptr       = B_LITTLE16(sector[i].wallptr);
         sector[i].wallnum       = B_LITTLE16(sector[i].wallnum);
         sector[i].ceilingz      = B_LITTLE32(sector[i].ceilingz);
@@ -9683,13 +9731,25 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
         sector[i].lotag         = B_LITTLE16(sector[i].lotag);
         sector[i].hitag         = B_LITTLE16(sector[i].hitag);
         sector[i].extra         = B_LITTLE16(sector[i].extra);
+#ifdef NEW_MAP_FORMAT
+        inplace_vx_tweak_sector(&sector[i], mapversion==9);
+#endif
     }
 
+
+    ////////// Read walls //////////
+
     kread(fil,&numwalls,2); numwalls = B_LITTLE16(numwalls);
-    if (numwalls > MYMAXWALLS()) { kclose(fil); return(-1); }
-    kread(fil,&wall[0],sizeof(walltype)*numwalls);
+    if ((unsigned)numwalls >= MYMAXWALLS()+1) { kclose(fil); return(-1); }
+
+    kread(fil, wall, sizeof(walltypev7)*numwalls);
+
     for (i=numwalls-1; i>=0; i--)
     {
+#ifdef NEW_MAP_FORMAT
+        Bmemmove(&wall[i], &(((walltypev7 *)wall)[i]), sizeof(walltypevx));
+        inplace_vx_from_v7_wall(&wall[i]);
+#endif
         wall[i].x          = B_LITTLE32(wall[i].x);
         wall[i].y          = B_LITTLE32(wall[i].y);
         wall[i].point2     = B_LITTLE16(wall[i].point2);
@@ -9701,11 +9761,19 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
         wall[i].lotag      = B_LITTLE16(wall[i].lotag);
         wall[i].hitag      = B_LITTLE16(wall[i].hitag);
         wall[i].extra      = B_LITTLE16(wall[i].extra);
+#ifdef NEW_MAP_FORMAT
+        inplace_vx_tweak_wall(&wall[i], mapversion==9);
+#endif
     }
 
+
+    ////////// Read sprites //////////
+
     kread(fil,&numsprites,2); numsprites = B_LITTLE16(numsprites);
-    if (numsprites > MYMAXSPRITES()) { kclose(fil); return(-1); }
-    kread(fil,&sprite[0],sizeof(spritetype)*numsprites);
+    if ((unsigned)numsprites >= MYMAXSPRITES()+1) { kclose(fil); return(-1); }
+
+    kread(fil, sprite, sizeof(spritetype)*numsprites);
+
     for (i=numsprites-1; i>=0; i--)
     {
         sprite[i].x       = B_LITTLE32(sprite[i].x);
@@ -9749,8 +9817,10 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
 //
 // loadboardv5/6
 //
+#if !defined NEW_MAP_FORMAT
+// V5/V6 map format loading: NYI for NEW_MAP_FORMAT
 
-#include "engine_oldmap.h"
+# include "engine_oldmap.h"
 
 // Powerslave uses v6
 // Witchaven 1 and TekWar and LameDuke use v5
@@ -9929,6 +9999,7 @@ int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daa
 
     return(0);
 }
+#endif
 
 #ifdef POLYMER
 void delete_maphack_lights()
@@ -10262,14 +10333,14 @@ int32_t loadmaphack(const char *filename)
 //
 int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum)
 {
-    int16_t fil, i, j, numsprites, ts;
-    int32_t tl;
-    sectortype *tsect = NULL;
-    walltype   *twall = NULL;
-    spritetype *tspri = NULL;
-    sectortype *sec;
-    walltype *wal;
-    spritetype *spri;
+    int16_t numsprites, ts;
+    int32_t i, j, fil, tl;
+
+#ifdef NEW_MAP_FORMAT
+    // Writing new-format (Lunatic) maps not yet implemented; V9 not available then.
+    if (numyaxbunches > 0)
+        return -1;
+#endif
 
     if ((fil = Bopen(filename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
     {
@@ -10294,8 +10365,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
         }
     }
 
-
-
+    // Count the number of sprites.
     numsprites = 0;
     for (j=0; j<MAXSPRITES; j++)
     {
@@ -10303,8 +10373,11 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
             numsprites++;
     }
 
+    // Check consistency of sprite-in-the-world predicate (.statnum != MAXSTATUS)
+    // and the engine-reported number of sprites 'Numsprites'.
     Bassert(numsprites == Numsprites);
 
+    // Determine the map version.
 #ifdef YAX_ENABLE
     if (numyaxbunches > 0)
         mapversion = 9;
@@ -10324,18 +10397,25 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 
     ts = B_LITTLE16(numsectors);    Bwrite(fil,&ts,2);
 
-    while (1)
+    while (1)  // if, really
     {
-        tsect = (sectortype *)Bmalloc(sizeof(sectortype) * numsectors);
+        sectortypev7 *const tsect = (sectortypev7 *)Bmalloc(sizeof(sectortypev7) * numsectors);
+        walltypev7 *twall;
 
         if (tsect == NULL)
             break;
 
-        Bmemcpy(&tsect[0], &sector[0], sizeof(sectortype) * numsectors);
+#ifdef NEW_MAP_FORMAT
+        for (i=0; i<numsectors; i++)
+            copy_v7_from_vx_sector(&tsect[i], &sector[i]);
+#else
+        Bmemcpy(tsect, sector, sizeof(sectortypev7)*numsectors);
+#endif
 
         for (i=0; i<numsectors; i++)
         {
-            sec = &tsect[i];
+            sectortypev7 *const sec = &tsect[i];
+
             sec->wallptr       = B_LITTLE16(sec->wallptr);
             sec->wallnum       = B_LITTLE16(sec->wallnum);
             sec->ceilingz      = B_LITTLE32(sec->ceilingz);
@@ -10349,7 +10429,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
             sec->lotag         = B_LITTLE16(sec->lotag);
             sec->hitag         = B_LITTLE16(sec->hitag);
             sec->extra         = B_LITTLE16(sec->extra);
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
             if (editstatus == 0)
             {
                 // if in-game, pack game-time bunchnum data back into structs
@@ -10362,22 +10442,28 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 #endif
         }
 
-        Bwrite(fil,&tsect[0],sizeof(sectortype) * numsectors);
+        Bwrite(fil, tsect, sizeof(sectortypev7)*numsectors);
         Bfree(tsect);
 
         ts = B_LITTLE16(numwalls);
         Bwrite(fil,&ts,2);
 
-        twall = (walltype *)Bmalloc(sizeof(walltype) * numwalls);
+        twall = (walltypev7 *)Bmalloc(sizeof(walltypev7) * numwalls);
 
         if (twall == NULL)
             break;
 
-        Bmemcpy(&twall[0], &wall[0], sizeof(walltype) * numwalls);
+#ifdef NEW_MAP_FORMAT
+        for (i=0; i<numwalls; i++)
+            copy_v7_from_vx_wall(&twall[i], &wall[i]);
+#else
+        Bmemcpy(twall, wall, sizeof(walltypev7)*numwalls);
+#endif
 
         for (i=0; i<numwalls; i++)
         {
-            wal = &twall[i];
+            walltypev7 *const wal = &twall[i];
+
             wal->x          = B_LITTLE32(wal->x);
             wal->y          = B_LITTLE32(wal->y);
             wal->point2     = B_LITTLE16(wal->point2);
@@ -10386,7 +10472,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
             wal->cstat      = B_LITTLE16(wal->cstat);
             wal->picnum     = B_LITTLE16(wal->picnum);
             wal->overpicnum = B_LITTLE16(wal->overpicnum);
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
             if (editstatus == 0)
             {
                 // if in-game, pack game-time yax-nextwall data back into structs
@@ -10402,25 +10488,24 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
             wal->extra      = B_LITTLE16(wal->extra);
         }
 
-        Bwrite(fil,&twall[0],sizeof(walltype) * numwalls);
+        Bwrite(fil, twall, sizeof(walltypev7)*numwalls);
         Bfree(twall);
 
         ts = B_LITTLE16(numsprites);    Bwrite(fil,&ts,2);
 
         if (numsprites > 0)
         {
-            tspri = (spritetype *)Bmalloc(sizeof(spritetype) * numsprites);
+            spritetype *const tspri = (spritetype *)Bmalloc(sizeof(spritetype) * numsprites);
+            spritetype *spri = tspri;
 
             if (tspri == NULL)
                 break;
-
-            spri=tspri;
 
             for (j=0; j<MAXSPRITES; j++)
             {
                 if (sprite[j].statnum != MAXSTATUS)
                 {
-                    Bmemcpy(spri,&sprite[j],sizeof(spritetype));
+                    Bmemcpy(spri, &sprite[j], sizeof(spritetype));
                     spri->x       = B_LITTLE32(spri->x);
                     spri->y       = B_LITTLE32(spri->y);
                     spri->z       = B_LITTLE32(spri->z);
@@ -10440,7 +10525,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
                 }
             }
 
-            Bwrite(fil,&tspri[0],sizeof(spritetype) * numsprites);
+            Bwrite(fil, tspri, sizeof(spritetype)*numsprites);
             Bfree(tspri);
         }
 
@@ -10449,16 +10534,6 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
     }
 
     Bclose(fil);
-
-    if (tsect != NULL)
-        Bfree(tsect);
-
-    if (twall != NULL)
-        Bfree(twall);
-
-    if (tspri != NULL)
-        Bfree(tspri);
-
     return(-1);
 }
 

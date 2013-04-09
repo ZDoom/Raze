@@ -71,7 +71,7 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
         case WALL_NEXTWALL: wall[i].nextwall=lValue; break;
         case WALL_NEXTSECTOR: wall[i].nextsector=lValue; break;
         case WALL_CSTAT:
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
             if (!m32_script_expertmode)
                 SET_PROTECT_BITS(wall[i].cstat, lValue, YAX_NEXTWALLBITS);
             else
@@ -87,7 +87,7 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
         case WALL_XPANNING: wall[i].xpanning=lValue; break;
         case WALL_YPANNING: wall[i].ypanning=lValue; break;
         case WALL_LOTAG:
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
             if (!m32_script_expertmode && numyaxbunches>0 && yax_getnextwall(i,YAX_CEILING)>=0)
                 goto yax_readonly;
 #endif
@@ -95,7 +95,7 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
             break;
         case WALL_HITAG: wall[i].hitag=lValue; break;
         case WALL_EXTRA:
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
             if (!m32_script_expertmode && numyaxbunches>0 && yax_getnextwall(i,YAX_FLOOR)>=0)
                 goto yax_readonly;
 #endif
@@ -144,7 +144,7 @@ badwall:
 readonly:
     M32_ERROR("Wall structure member `%s' is read-only.", WallLabels[lLabelID].name);
     return -1;
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
 yax_readonly:
     M32_ERROR("Wall structure member `%s' is read-only because it is used for TROR",
               WallLabels[lLabelID].name);
@@ -188,7 +188,7 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
         case SECTOR_CEILINGZ: sector[i].ceilingz=lValue; break;
         case SECTOR_FLOORZ: sector[i].floorz=lValue; break;
         case SECTOR_CEILINGSTAT:
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
             if (!m32_script_expertmode)
                 SET_PROTECT_BITS(sector[i].ceilingstat, lValue, YAX_BIT);
             else
@@ -196,7 +196,7 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
                 sector[i].ceilingstat = lValue;
             break;
         case SECTOR_FLOORSTAT:
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
             if (!m32_script_expertmode)
                 SET_PROTECT_BITS(sector[i].floorstat, lValue, YAX_BIT);
             else

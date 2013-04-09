@@ -414,7 +414,11 @@ static void yax_resetbunchnums(void)
 // attach points to, etc...
 static int32_t yax_islockedwall(int16_t line)
 {
+#ifdef NEW_MAP_FORMAT
+    return (wall[line].upwall>=0 || wall[line].dnwall>=0);
+#else
     return !!(wall[line].cstat&YAX_NEXTWALLBITS);
+#endif
 }
 
 # define DEFAULT_YAX_HEIGHT (2048<<4)
@@ -1630,7 +1634,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 
                 if (mapinfo->numyaxbunches > 0)
                     mapinfo->bunchnum[2*i + j] = nbn;
-
+# if !defined NEW_MAP_FORMAT
                 if (obn >= 0 && nbn < 0)
                 {
                     // if a bunch was discarded
@@ -1641,6 +1645,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
                     *cs &= ~YAX_BIT;
                     *xp = 0;
                 }
+#endif
             }
         }
 #endif
@@ -1763,9 +1768,10 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal)
             if (mapinfo->numyaxbunches > 0)
                 yax_setnextwall(i, j, mapinfo->ynextwall[2*(i-numwalls) + j]>=0 ?
                                 numwalls+mapinfo->ynextwall[2*(i-numwalls) + j] : -1);
+# if !defined NEW_MAP_FORMAT
             else
                 wall[i].cstat &= ~YAX_NEXTWALLBIT(j);  // CLEAR_YNEXTWALLS
-//                yax_setnextwall(i, j, -1);
+# endif
         }
 #endif
     }
@@ -8038,7 +8044,8 @@ const char *SaveBoard(const char *fn, uint32_t flags)
 //         4: passed to loadboard flags (no polymer_loadboard); implies no maphack loading
 int32_t LoadBoard(const char *filename, uint32_t flags)
 {
-    int32_t i, tagstat, loadingflags=(!pathsearchmode&&grponlymode?2:0);
+    int32_t i, tagstat;
+    const int32_t loadingflags = (!pathsearchmode && grponlymode) ? 2 : 0;
 
     if (!filename)
         filename = selectedboardfilename;
@@ -8046,6 +8053,7 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     if (filename != boardfilename)
         Bstrcpy(boardfilename, filename);
 
+    // XXX: This is pointless unless loading fails.
     for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
     for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
     for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
@@ -8055,8 +8063,10 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
 
     ExtPreLoadMap();
     i = loadboard(boardfilename, (flags&4)|loadingflags, &pos, &ang, &cursectnum);
+#if !defined NEW_MAP_FORMAT
     if (i == -2)
         i = loadoldboard(boardfilename,loadingflags, &pos, &ang, &cursectnum);
+#endif
     if (i < 0)
     {
 //        printmessage16("Invalid map format.");
@@ -10062,7 +10072,7 @@ void showsectordata(int16_t sectnum, int16_t small)
     DOPRINT(48, "Flags (hex): %x", TrackerCast(sec->ceilingstat));
     {
         int32_t xp=sec->ceilingxpanning, yp=sec->ceilingypanning;
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
         if (yax_getbunch(searchsector, YAX_CEILING) >= 0)
             xp = yp = 0;
 #endif
@@ -10083,7 +10093,7 @@ void showsectordata(int16_t sectnum, int16_t small)
     DOPRINT(48, "Flags (hex): %x", TrackerCast(sec->floorstat));
     {
         int32_t xp=sec->floorxpanning, yp=sec->floorypanning;
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
         if (yax_getbunch(searchsector, YAX_FLOOR) >= 0)
             xp = yp = 0;
 #endif

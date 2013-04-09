@@ -1293,7 +1293,7 @@ const char *ExtGetWallCaption(int16_t wallnum)
 
         taglab_handle1(lt&2, wall[wallnum].hitag, histr);
 
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
         if (yax_getnextwall(wallnum, YAX_CEILING) >= 0)  // ceiling nextwall: lotag
         {
             if (wall[wallnum].hitag == 0)
@@ -4796,6 +4796,12 @@ static int64_t lldotv2(const vec2_t *v1, const vec2_t *v2)
     return (int64_t)v1->x * v2->x + (int64_t)v1->y * v2->y;
 }
 
+#ifdef NEW_MAP_FORMAT
+# define YAX_BIT_PROTECT 0
+#else
+# define YAX_BIT_PROTECT YAX_BIT
+#endif
+
 ////////// KEY PRESS HANDLER IN 3D MODE //////////
 static void Keys3d(void)
 {
@@ -4867,7 +4873,7 @@ static void Keys3d(void)
                 const int32_t w = SELECT_WALL();
                 const int32_t swappedbot = (int32_t)(w != searchwall);
                 flags |= (swappedbot<<2);
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                 flags |= (yax_getnextwall(searchwall, YAX_CEILING)>=0) + 2*(yax_getnextwall(searchwall, YAX_FLOOR)>=0);
 #endif
                 drawtileinfo("Current", WIND1X,WIND1Y,
@@ -4914,7 +4920,7 @@ static void Keys3d(void)
 
                 {
                     int32_t xp=AIMED_CEILINGFLOOR(xpanning), yp=AIMED_CEILINGFLOOR(ypanning);
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                     int32_t notextended = 1;
                     if (yax_getbunch(searchsector, AIMING_AT_FLOOR) >= 0)
                         notextended = 0;
@@ -5077,7 +5083,11 @@ static void Keys3d(void)
     {
         if (AIMING_AT_WALL_OR_MASK)
         {
+#ifdef NEW_MAP_FORMAT
+            wall[searchwall].cstat = 0;
+#else
             wall[searchwall].cstat &= YAX_NEXTWALLBITS;
+#endif
             message_nowarn("Wall %d cstat = %d", searchwall, TrackerCast(wall[searchwall].cstat));
         }
         else if (AIMING_AT_SPRITE)
@@ -5322,7 +5332,7 @@ static void Keys3d(void)
     {
         if (ASSERT_AIMING)
         {
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
             if (AIMING_AT_WALL_OR_MASK && yax_getnextwall(searchwall, YAX_FLOOR)>=0)
                 message("Can't change extra in protected wall");
             else
@@ -6111,7 +6121,7 @@ static void Keys3d(void)
         else
         {
             showinvisibility = !showinvisibility;
-#ifndef YAX_ENABLE
+#if !defined YAX_ENABLE
             message("Show invisible sprites %s", showinvisibility?"enabled":"disabled");
 #else
             message("Show invisible objects %s", showinvisibility?"enabled":"disabled");
@@ -6181,7 +6191,7 @@ static void Keys3d(void)
 
         if (AIMING_AT_WALL_OR_MASK)
         {
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
             if (yax_getnextwall(searchwall, YAX_CEILING)>=0)
                 message("Can't change lotag in protected wall");
             else
@@ -6530,7 +6540,7 @@ static void Keys3d(void)
                 {
                     changedir = 1-2*(x1<0);
                     x1 = klabs(x1);
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                     if (yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0)
 #endif
                     while (x1--)
@@ -6637,7 +6647,7 @@ static void Keys3d(void)
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
             {
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                 if (YAXCHK(yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0))
 #endif
                 {
@@ -6808,7 +6818,7 @@ static void Keys3d(void)
 
             if (AIMING_AT_WALL_OR_MASK)
             {
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                 if (yax_getnextwall(searchwall, YAX_CEILING) >= 0)
                     templotag = 0;
                 if (yax_getnextwall(searchwall, YAX_FLOOR) >= 0)
@@ -6820,7 +6830,11 @@ static void Keys3d(void)
                 tempyrepeat = AIMED_SEL_WALL(yrepeat);
                 tempxpanning = AIMED_SEL_WALL(xpanning);
                 tempypanning = AIMED_SEL_WALL(ypanning);
+#ifdef NEW_MAP_FORMAT
+                tempcstat = AIMED_SEL_WALL(cstat);
+#else
                 tempcstat = AIMED_SEL_WALL(cstat) & ~YAX_NEXTWALLBITS;
+#endif
                 templenrepquot = getlenbyrep(wallength(searchwall), tempxrepeat);
 
                 tempsectornum = sectorofwall(searchwall);
@@ -6831,12 +6845,16 @@ static void Keys3d(void)
                 tempvis = sector[searchsector].visibility;
                 tempxrepeat = AIMED_CEILINGFLOOR(xpanning);
                 tempyrepeat = AIMED_CEILINGFLOOR(ypanning);
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                 if (yax_getbunch(searchsector, AIMING_AT_FLOOR) >= 0)
                     tempxrepeat = 0;
 #endif
-                tempcstat = AIMED_CEILINGFLOOR(stat) & ~YAX_BIT;
 
+#ifdef NEW_MAP_FORMAT
+                tempcstat = AIMED_CEILINGFLOOR(stat);
+#else
+                tempcstat = AIMED_CEILINGFLOOR(stat) & ~YAX_BIT;
+#endif
                 tempsectornum = searchsector;
             }
             else if (AIMING_AT_SPRITE)
@@ -6876,7 +6894,7 @@ static void Keys3d(void)
             message("Can't align sector %d's %s, have no reference sector",
                     searchsector, typestr[searchstat]);
         }
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
         else if (yax_getbunch(searchsector, AIMING_AT_FLOOR) >= 0)
         {
             yax_invalidop();
@@ -7120,7 +7138,7 @@ static void Keys3d(void)
 
                     if (somethingintab == SEARCH_CEILING || somethingintab == SEARCH_FLOOR)
                     {
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                         if (yax_getbunch(i, AIMING_AT_FLOOR) >= 0)
                             k |= 2;
                         else
@@ -7131,7 +7149,7 @@ static void Keys3d(void)
                             k |= 1;
                         }
 
-                        SET_PROTECT_BITS(CEILINGFLOOR(i, stat), tempcstat, YAX_BIT);
+                        SET_PROTECT_BITS(CEILINGFLOOR(i, stat), tempcstat, YAX_BIT_PROTECT);
                     }
                 }
 
@@ -7153,9 +7171,8 @@ static void Keys3d(void)
                     SECTORFLD(i,picnum, AIMING_AT_FLOOR) = temppicnum;
                     SECTORFLD(i,shade, AIMING_AT_FLOOR) = tempshade;
                     SECTORFLD(i,pal, AIMING_AT_FLOOR) = temppal;
-
                     if (j)
-                        SET_PROTECT_BITS(SECTORFLD(i,stat, AIMING_AT_FLOOR), tempcstat, YAX_BIT);
+                        SET_PROTECT_BITS(SECTORFLD(i,stat, AIMING_AT_FLOOR), tempcstat, YAX_BIT_PROTECT);
                 }
 
                 message("Pasted picnum+shade+pal%s to sector %ss with bunchnum %d",
@@ -7221,7 +7238,8 @@ paste_ceiling_or_floor:
 #endif
                         AIMED_CEILINGFLOOR(xpanning) = tempxrepeat;
                     AIMED_CEILINGFLOOR(ypanning) = tempyrepeat;
-                    SET_PROTECT_BITS(AIMED_CEILINGFLOOR(stat), tempcstat, YAX_BIT|2);
+
+                    SET_PROTECT_BITS(AIMED_CEILINGFLOOR(stat), tempcstat, YAX_BIT_PROTECT|2);
 
                     sector[searchsector].visibility = tempvis;
                     sector[searchsector].lotag = templotag;
@@ -7337,7 +7355,11 @@ paste_ceiling_or_floor:
             wall[w].ypanning = 0;
             wall[w].xrepeat = 8;
             wall[w].yrepeat = 8;
+#ifdef NEW_MAP_FORMAT
+            wall[w].cstat = 0;
+#else
             wall[w].cstat &= YAX_NEXTWALLBITS;
+#endif
             fixrepeats(searchwall);
         }
         else if (AIMING_AT_CEILING_OR_FLOOR)
@@ -7801,7 +7823,7 @@ static void Keys2d(void)
             }
             else if (linehighlight >= 0)
             {
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                 if (yax_getnextwall(linehighlight, YAX_CEILING)>=0)
                     message("Can't change lotag in protected wall");
                 else
@@ -7875,7 +7897,7 @@ static void Keys2d(void)
             }
             else if (linehighlight >= 0)
             {
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                 if (yax_getnextwall(linehighlight, YAX_FLOOR)>=0)
                     message("Can't change extra in protected wall");
                 else
@@ -12178,12 +12200,12 @@ static void EditSectorData(int16_t sectnum)
             switch (row)
             {
             case 0:
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                 i = sector[sectnum].ceilingstat&YAX_BIT;
 #endif
                 handlemed(1, "Flags (hex)", "Ceiling Flags", &sector[sectnum].ceilingstat,
                           sizeof(sector[sectnum].ceilingstat), 65535, 0);
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                 sector[sectnum].ceilingstat &= ~YAX_BIT;
                 sector[sectnum].ceilingstat |= i;
 #endif
@@ -12229,12 +12251,12 @@ static void EditSectorData(int16_t sectnum)
             switch (row)
             {
             case 0:
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                 i = sector[sectnum].ceilingstat&YAX_BIT;
 #endif
                 handlemed(1, "Flags (hex)", "Floor Flags", &sector[sectnum].floorstat,
                           sizeof(sector[sectnum].floorstat), 65535, 0);
-#ifdef YAX_ENABLE
+#ifdef YAX_ENABLE__COMPAT
                 sector[sectnum].ceilingstat &= ~YAX_BIT;
                 sector[sectnum].ceilingstat |= i;
 #endif
@@ -12317,11 +12339,15 @@ static void EditWallData(int16_t wallnum)
         switch (row)
         {
         case 0:
+#if !defined NEW_MAP_FORMAT
             i = wall[wallnum].cstat&YAX_NEXTWALLBITS;
+#endif
             handlemed(1, "Flags (hex)", "Flags", &wall[wallnum].cstat,
                       sizeof(wall[wallnum].cstat), 65535, 0);
+#if !defined NEW_MAP_FORMAT
             wall[wallnum].cstat &= ~YAX_NEXTWALLBITS;
             wall[wallnum].cstat |= i;
+#endif
             break;
         case 1:
             handlemed(0, "Shade", "Shade", &wall[wallnum].shade,
