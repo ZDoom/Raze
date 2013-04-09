@@ -4982,7 +4982,7 @@ static void Keys3d(void)
         {
             while (num < 4)
                 lines[num++][0] = 0;
-            Bsprintf(lines[num++],"^251%s",getmessage);
+            Bsprintf(lines[num++], "^251%s", getmessage);
         }
 
         begindrawing();
@@ -8070,7 +8070,9 @@ static void Keys2d(void)
                 {
                 case 0:
                     printmessage16("MAP LIMITS EXCEEDED!");
-                    x = y = z = 0;
+                    /* fall-through */
+                default:
+                    k = 0;
                     break;
                 case CORRUPT_SECTOR:
                     i = k&(MAXSECTORS-1);
@@ -8092,10 +8094,6 @@ static void Keys2d(void)
                     x = sprite[i].x;
                     y = sprite[i].y;
                     z = sprite[i].z;
-                    break;
-                default:
-                    k = 0;
-                    x = y = z = 0;
                     break;
                 }
 
@@ -11320,10 +11318,10 @@ void ExtCheckKeys(void)
 { \
     bad = max(bad, errlev); \
     if (numcorruptthings>=MAXCORRUPTTHINGS) \
-    goto too_many_errors; \
+        goto too_many_errors; \
     corruptthings[numcorruptthings++] = (what); \
     if (errlev >= printfromlev) \
-    OSD_Printf_nowarn("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
+        OSD_Printf_nowarn("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
 } while (0)
 #endif
 #ifdef YAX_ENABLE

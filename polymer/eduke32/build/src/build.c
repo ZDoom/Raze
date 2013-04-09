@@ -3604,6 +3604,8 @@ void overheadeditor(void)
 
                 if ((pointhighlight&16384)==0)
                 {
+                    // If aiming at wall, check whether it is corrupt, and print a
+                    // warning message near the mouse pointer if that is the case.
                     for (i=0; i<numcorruptthings; i++)
                         if ((corruptthings[i]&CORRUPT_MASK)==CORRUPT_WALL &&
                             (corruptthings[i]&(MAXWALLS-1))==pointhighlight)
@@ -7982,18 +7984,18 @@ static void SaveBoardAndPrintMessage(const char *fn)
     if (f)
     {
         if (saveboard_fixedsprites)
-            printmessage16("Saved board %sto %s (changed sectnums of %d sprites).",
-                           saveboard_savedtags?"and tags ":"", f, saveboard_fixedsprites);
+            message("Saved board %sto %s (changed sectnums of %d sprites).",
+                    saveboard_savedtags?"and tags ":"", f, saveboard_fixedsprites);
         else
-            printmessage16("Saved board %sto %s.", saveboard_savedtags?"and tags ":"", f);
+            message("Saved board %sto %s.", saveboard_savedtags?"and tags ":"", f);
     }
     else
     {
         if (saveboard_fixedsprites)
-            printmessage16("Saving board failed (changed sectnums of %d sprites).",
-                           saveboard_fixedsprites);
+            message("^13SAVING BOARD FAILED (changed sectnums of %d sprites).",
+                    saveboard_fixedsprites);
         else
-            printmessage16("Saving board failed.");
+            message("^13SAVING BOARD FAILED.");
     }
 }
 
