@@ -8777,7 +8777,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        g_usingAddon = atoi(argv[i+1]);
+                        g_usingAddon = Batoi(argv[i+1]);
 
                         if (g_usingAddon > ADDON_NONE && g_usingAddon < NUMADDONS)
                             g_noSetup = 1;
@@ -10122,7 +10122,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
 void G_LoadAddon(void)
 {
     struct grpfile * grp;
-    int32_t crc;
+    int32_t crc = 0;  // compiler-happy
 
     switch (g_usingAddon)
     {
