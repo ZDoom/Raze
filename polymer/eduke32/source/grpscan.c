@@ -106,7 +106,7 @@ static void FreeGroupsCache(void)
 
 void RemoveGroup(int32_t crcval)
 {
-    struct grpfile *grp, *fg;
+    struct grpfile *grp;
 
     for (grp = foundgrps; grp; grp=grp->next)
     {
@@ -114,15 +114,27 @@ void RemoveGroup(int32_t crcval)
         {
             if (grp == foundgrps)
                 foundgrps = grp->next;
-            else fg->next = grp->next;
+            else
+            {
+                struct grpfile *fg;
+
+                for (fg = foundgrps; fg; fg=fg->next)
+                {
+                    if (fg->next == grp)
+                    {
+                        fg->next = grp->next;
+                        break;
+                    }
+                }
+            }
 
             Bfree((char *)grp->name);
             Bfree(grp);
 
+            RemoveGroup(crcval);
+
             break;
         }
-
-        fg = grp;
     }
 }
 
@@ -242,7 +254,7 @@ int32_t ScanGroups(void)
         int32_t i;
 
         for (i = 0; i<NUMGRPFILES; i++) if (grp->crcval == grpfiles[i].crcval) break;
-        if (i == NUMGRPFILES) continue; // unrecognised grp file
+        if (i == NUMGRPFILES) { grp=grp->next; continue; } // unrecognised grp file
 
         if (grpfiles[i].dependency)
         {
