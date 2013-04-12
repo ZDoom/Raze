@@ -11060,9 +11060,10 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
 int32_t clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist)
 {
     walltype *wal;
-    int32_t x1, y1, x2, y2, r;
+    int32_t x1, y1, x2, y2;
 
-    r = (walldist<<1);
+    const int32_t r = walldist<<1;
+
     wal = &wall[wallnum];     x1 = wal->x+walldist-x; y1 = wal->y+walldist-y;
     wal = &wall[wal->point2]; x2 = wal->x+walldist-x; y2 = wal->y+walldist-y;
 
@@ -11089,9 +11090,7 @@ int32_t clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist)
 //
 int32_t clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t walldist)
 {
-    int32_t r;
-
-    r = (walldist<<1);
+    const int32_t r = walldist<<1;
 
     x1 += walldist-x; x2 += walldist-x;
     if ((x1 < 0) && (x2 < 0)) return(0);
@@ -11123,7 +11122,8 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
     int32_t i, x1, y1, x2, y2;
     uint32_t cnt;
 
-    if ((sectnum < 0) || (sectnum >= numsectors)) return(-1);
+    if (sectnum < 0 || sectnum >= numsectors)
+        return -1;
 
     cnt = 0;
     wal = &wall[sector[sectnum].wallptr];
@@ -11159,7 +11159,7 @@ int32_t __fastcall getangle(int32_t xvect, int32_t yvect)
 //
 int32_t ksqrt(uint32_t num)
 {
-    return(nsqrtasm(num));
+    return nsqrtasm(num);
 }
 
 //
@@ -11167,7 +11167,7 @@ int32_t ksqrt(uint32_t num)
 //
 int32_t krecip(int32_t num)
 {
-    return(krecipasm(num));
+    return krecipasm(num);
 }
 
 #ifdef LUNATIC
@@ -14515,9 +14515,8 @@ void completemirror(void)
 //
 static int32_t sectorofwall_internal(int16_t theline)
 {
-    int32_t i, gap;
+    int32_t gap = numsectors>>1, i = gap;
 
-    gap = (numsectors>>1); i = gap;
     while (gap > 1)
     {
         gap >>= 1;
@@ -14525,22 +14524,28 @@ static int32_t sectorofwall_internal(int16_t theline)
     }
     while (sector[i].wallptr > theline) i--;
     while (sector[i].wallptr+sector[i].wallnum <= theline) i++;
-    return(i);
+
+    return i;
 }
 
 int32_t sectorofwall(int16_t theline)
 {
     int32_t i;
 
-    if ((theline < 0) || (theline >= numwalls)) return(-1);
-    i = wall[theline].nextwall; if (i >= 0 && i < MAXWALLS) return(wall[i].nextsector);
+    if (theline < 0 || theline >= numwalls)
+        return -1;
+
+    i = wall[theline].nextwall;
+    if (i >= 0 && i < MAXWALLS)
+        return wall[i].nextsector;
 
     return sectorofwall_internal(theline);
 }
 
 int32_t sectorofwall_noquick(int16_t theline)
 {
-    if ((theline < 0) || (theline >= numwalls)) return(-1);
+    if (theline < 0 || theline >= numwalls)
+        return -1;
 
     return sectorofwall_internal(theline);
 }
@@ -14548,49 +14553,64 @@ int32_t sectorofwall_noquick(int16_t theline)
 
 int32_t getceilzofslopeptr(const sectortype *sec, int32_t dax, int32_t day)
 {
-    if (!(sec->ceilingstat&2)) return(sec->ceilingz);
+    if (!(sec->ceilingstat&2))
+        return sec->ceilingz;
 
     {
-        int32_t dx, dy, i, j;
         const walltype *wal = &wall[sec->wallptr];
 
         // floor(sqrt(2**31-1)) == 46340
-        dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
-        i = (nsqrtasm(uhypsq(dx,dy))<<5); if (i == 0) return(sec->ceilingz);
-        j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-        return(sec->ceilingz+(scale(sec->ceilingheinum,j>>1,i)<<1));
+        int32_t i, j, wx=wal->x, wy=wal->y;
+        int32_t dx = wall[wal->point2].x-wx, dy = wall[wal->point2].y-wy;
+
+        i = nsqrtasm(uhypsq(dx,dy))<<5;
+        if (i == 0)
+            return sec->ceilingz;
+
+        j = dmulscale3(dx, day-wy, -dy, dax-wx);
+        return sec->ceilingz + (scale(sec->ceilingheinum,j>>1,i)<<1);
     }
 }
 
 int32_t getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day)
 {
-    if (!(sec->floorstat&2)) return(sec->floorz);
+    if (!(sec->floorstat&2))
+        return sec->floorz;
 
     {
-        int32_t dx, dy, i, j;
         const walltype *wal = &wall[sec->wallptr];
 
-        dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
-        i = (nsqrtasm(uhypsq(dx,dy))<<5); if (i == 0) return(sec->floorz);
-        j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-        return(sec->floorz+(scale(sec->floorheinum,j>>1,i)<<1));
+        int32_t i, j, wx=wal->x, wy=wal->y;
+        int32_t dx = wall[wal->point2].x-wx, dy = wall[wal->point2].y-wy;
+
+        i = nsqrtasm(uhypsq(dx,dy))<<5;
+        if (i == 0)
+            return sec->floorz;
+
+        j = dmulscale3(dx, day-wy, -dy, dax-wx);
+        return sec->floorz + (scale(sec->floorheinum,j>>1,i)<<1);
     }
 }
 
 void getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
-    int32_t dx, dy, i, j;
-    walltype *wal, *wal2;
-
     *ceilz = sec->ceilingz; *florz = sec->floorz;
+
     if ((sec->ceilingstat|sec->floorstat)&2)
     {
-        wal = &wall[sec->wallptr]; wal2 = &wall[wal->point2];
-        dx = wal2->x-wal->x; dy = wal2->y-wal->y;
-        i = (nsqrtasm(uhypsq(dx,dy))<<5); if (i == 0) return;
-        j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-        if (sec->ceilingstat&2) *ceilz = (*ceilz)+(scale(sec->ceilingheinum,j>>1,i)<<1);
-        if (sec->floorstat&2) *florz = (*florz)+(scale(sec->floorheinum,j>>1,i)<<1);
+        int32_t i, j;
+        const walltype *wal = &wall[sec->wallptr], *wal2 = &wall[wal->point2];
+        const int32_t dx = wal2->x-wal->x, dy = wal2->y-wal->y;
+
+        i = nsqrtasm(uhypsq(dx,dy))<<5;
+        if (i == 0)
+            return;
+
+        j = dmulscale3(dx,day-wal->y, -dy,dax-wal->x);
+        if (sec->ceilingstat&2)
+            *ceilz += scale(sec->ceilingheinum,j>>1,i)<<1;
+        if (sec->floorstat&2)
+            *florz += scale(sec->floorheinum,j>>1,i)<<1;
     }
 }
 
@@ -14600,18 +14620,18 @@ void getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day, int32_t *c
 //
 void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 {
-    int32_t i, dax, day;
-    walltype *wal;
+    const walltype *const wal = &wall[sector[dasect].wallptr];
+    const int32_t dax = wall[wal->point2].x-wal->x;
+    const int32_t day = wall[wal->point2].y-wal->y;
 
-    wal = &wall[sector[dasect].wallptr];
-    dax = wall[wal->point2].x-wal->x;
-    day = wall[wal->point2].y-wal->y;
+    const int32_t i = (y-wal->y)*dax - (x-wal->x)*day;
+    if (i == 0)
+        return;
 
-    i = (y-wal->y)*dax - (x-wal->x)*day; if (i == 0) return;
     sector[dasect].ceilingheinum = scale((z-sector[dasect].ceilingz)<<8,
                                          nsqrtasm(uhypsq(dax,day)), i);
-
-    if (sector[dasect].ceilingheinum == 0) sector[dasect].ceilingstat &= ~2;
+    if (sector[dasect].ceilingheinum == 0)
+        sector[dasect].ceilingstat &= ~2;
     else sector[dasect].ceilingstat |= 2;
 }
 
@@ -14621,18 +14641,18 @@ void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 //
 void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 {
-    int32_t i, dax, day;
-    walltype *wal;
+    const walltype *const wal = &wall[sector[dasect].wallptr];
+    const int32_t dax = wall[wal->point2].x-wal->x;
+    const int32_t day = wall[wal->point2].y-wal->y;
 
-    wal = &wall[sector[dasect].wallptr];
-    dax = wall[wal->point2].x-wal->x;
-    day = wall[wal->point2].y-wal->y;
+    const int32_t i = (y-wal->y)*dax - (x-wal->x)*day;
+    if (i == 0)
+        return;
 
-    i = (y-wal->y)*dax - (x-wal->x)*day; if (i == 0) return;
     sector[dasect].floorheinum = scale((z-sector[dasect].floorz)<<8,
                                        nsqrtasm(uhypsq(dax,day)), i);
-
-    if (sector[dasect].floorheinum == 0) sector[dasect].floorstat &= ~2;
+    if (sector[dasect].floorheinum == 0)
+        sector[dasect].floorstat &= ~2;
     else sector[dasect].floorstat |= 2;
 }
 
@@ -14642,17 +14662,22 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 //
 int32_t loopnumofsector(int16_t sectnum, int16_t wallnum)
 {
-    int32_t i, numloops, startwall, endwall;
+    int32_t i;
 
-    numloops = 0;
-    startwall = sector[sectnum].wallptr;
-    endwall = startwall + sector[sectnum].wallnum;
+    int32_t numloops = 0;
+    const int32_t startwall = sector[sectnum].wallptr;
+    const int32_t endwall = startwall + sector[sectnum].wallnum;
+
     for (i=startwall; i<endwall; i++)
     {
-        if (i == wallnum) return(numloops);
-        if (wall[i].point2 < i) numloops++;
+        if (i == wallnum)
+            return numloops;
+
+        if (wall[i].point2 < i)
+            numloops++;
     }
-    return(-1);
+
+    return -1;
 }
 
 
@@ -14661,15 +14686,16 @@ int32_t loopnumofsector(int16_t sectnum, int16_t wallnum)
 //
 void setfirstwall(int16_t sectnum, int16_t newfirstwall)
 {
-    int32_t i, j, k, numwallsofloop;
-    int32_t startwall, endwall, danumwalls, dagoalloop;
+    int32_t i, j, numwallsofloop;
+    int32_t dagoalloop;
     walltype *tmpwall;
 
-    startwall = sector[sectnum].wallptr;
-    danumwalls = sector[sectnum].wallnum;
-    endwall = startwall+danumwalls;
+    const int32_t startwall = sector[sectnum].wallptr;
+    const int32_t danumwalls = sector[sectnum].wallnum;
+    const int32_t endwall = startwall+danumwalls;
 
-    if ((newfirstwall < startwall) || (newfirstwall >= startwall+danumwalls)) return;
+    if (newfirstwall < startwall || newfirstwall >= startwall+danumwalls)
+        return;
 
     tmpwall = (walltype *)Bmalloc(danumwalls * sizeof(walltype));
     if (!tmpwall)
@@ -14679,8 +14705,6 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
     }
 
     Bmemcpy(tmpwall, &wall[startwall], danumwalls*sizeof(walltype));
-//    for (i=0; i<danumwalls; i++)
-//        Bmemcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
 
     numwallsofloop = 0;
     i = newfirstwall;
@@ -14701,7 +14725,8 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
 
         for (i=0; i<danumwalls; i++)
         {
-            k = i+j; if (k >= danumwalls) k -= danumwalls;
+            int32_t k = i+j;
+            if (k >= danumwalls) k -= danumwalls;
             Bmemcpy(&wall[startwall+i], &tmpwall[k], sizeof(walltype));
 
             wall[startwall+i].point2 += danumwalls-startwall-j;
@@ -14719,7 +14744,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
         Bmemcpy(&tmpwall[i], &wall[i+startwall], sizeof(walltype));
     for (i=0; i<numwallsofloop; i++)
     {
-        k = i+newfirstwall-startwall;
+        int32_t k = i+newfirstwall-startwall;
         if (k >= numwallsofloop) k -= numwallsofloop;
         Bmemcpy(&wall[startwall+i], &tmpwall[k], sizeof(walltype));
 

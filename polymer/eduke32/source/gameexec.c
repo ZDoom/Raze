@@ -643,7 +643,8 @@ dead:
                 if (vm.g_sp->picnum == COMMANDER)
                 {
                     int32_t l;
-
+                    // NOTE: COMMANDER updates both actor[].floorz and
+                    // .ceilingz regardless of its zvel.
                     actor[vm.g_i].floorz = l = getflorzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
                     if (vm.g_sp->z > l-(8<<8))
                     {
@@ -652,7 +653,7 @@ dead:
                     }
 
                     actor[vm.g_i].ceilingz = l = getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
-                    if (vm.g_sp->z-l < (80<<8))
+                    if (vm.g_sp->z < l+(80<<8))
                     {
                         vm.g_sp->z = l+(80<<8);
                         vm.g_sp->zvel = 0;
@@ -661,7 +662,7 @@ dead:
                 else
                 {
                     int32_t l;
-
+                    // The DRONE updates either .floorz or .ceilingz, not both.
                     if (vm.g_sp->zvel > 0)
                     {
                         actor[vm.g_i].floorz = l = getflorzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
@@ -671,7 +672,7 @@ dead:
                     else
                     {
                         actor[vm.g_i].ceilingz = l = getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
-                        if ((vm.g_sp->z-l) < (50<<8))
+                        if (vm.g_sp->z < l+(50<<8))
                         {
                             vm.g_sp->z = l+(50<<8);
                             vm.g_sp->zvel = 0;
@@ -681,13 +682,15 @@ dead:
             }
             else if (vm.g_sp->picnum != ORGANTIC)
             {
+                // All other actors besides ORGANTIC don't update .floorz or
+                // .ceilingz here.
                 if (vm.g_sp->zvel > 0 && actor[vm.g_i].floorz < vm.g_sp->z)
                     vm.g_sp->z = actor[vm.g_i].floorz;
                 if (vm.g_sp->zvel < 0)
                 {
                     const int32_t l = getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
 
-                    if ((vm.g_sp->z-l) < (66<<8))
+                    if (vm.g_sp->z < l+(66<<8))
                     {
                         vm.g_sp->z = l+(66<<8);
                         vm.g_sp->zvel >>= 1;
@@ -696,7 +699,7 @@ dead:
             }
         }
         else if (vm.g_sp->picnum == APLAYER)
-            if ((vm.g_sp->z-actor[vm.g_i].ceilingz) < (32<<8))
+            if (vm.g_sp->z < actor[vm.g_i].ceilingz+(32<<8))
                 vm.g_sp->z = actor[vm.g_i].ceilingz+(32<<8);
 
         daxvel = vm.g_sp->xvel;
