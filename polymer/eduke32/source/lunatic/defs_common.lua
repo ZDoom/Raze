@@ -911,15 +911,6 @@ function sectorsofbunch(bunchnum, cf)
     return iter_sectorsofbunch, cf, -bunchnum-1
 end
 
-function getbunch(sectnum, cf)
-    check_sector_idx(sectnum)
-    if (not (cf == 0 or cf == 1)) then
-        error("passed invalid 'cf' to getbunch, must be 0 or 1", 2)
-    end
-
-    return ffiC.yax_getbunch(sectnum, cf)
-end
-
 
 ---=== Engine functions, wrapped for Lua convenience ===---
 

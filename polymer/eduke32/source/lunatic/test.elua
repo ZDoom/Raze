@@ -170,7 +170,6 @@ print('')
 checkfail('gv.luaJIT_setmode(nil, 0, 0)', "missing declaration for symbol 'luaJIT_setmode'")
 
 checkfail('gv.luaJIT_BC_con_lang', "attempt to call a nil value")
-checkfail('gv.yax_getbunch(0,0)', "access forbidden")
 checkfail('gv.gethitickms = nil', "attempt to write to constant location")
 
 -- actor[].t_data[] is not accessible for now
@@ -181,7 +180,7 @@ checkfail('local spr = sprite[0]; local x=spr+1', "attempt to perform arithmetic
 
 checkfail('gameactor(1680, 0)', "invalid last argument to gameactor: must be a function")
 
-checkfail("do local bt=require'bittest'; bt.QWE=1; end", "modifying module table forbidden")
+checkfail("do local bt=require'test/test_bitar'; bt.QWE=1; end", "modifying module table forbidden")
 -- the cdata returned by player[] can't be made into a pointer!
 checkfail("do local pl=player[0]; i=pl[1]; end")
 checkfail("do local ud=gv.ud.camerasprite; end", "access forbidden")  -- test for proper decl()
@@ -194,7 +193,7 @@ player[0].wackedbyactor = -1  -- should succeed
 checkfail("player[0].curr_weapon = -1", "Invalid weapon ID")
 player[0].curr_weapon = 1
 
-printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
+printf('ceilingbunch of sector 0: %d', sector[0].ceilingbunch)
 
 gameevent(gv.EVENT_JUMP,
           function(actori, playeri, dist)
@@ -470,7 +469,7 @@ end)
 
 printf("EVENT_INIT = %d", gv.EVENT_INIT)  -- tests default defines
 
-local bittest = require "bittest"
+local bittest = require "test/test_bitar"
 bittest.sieve()
 
 require("test/test_geom")
@@ -502,6 +501,26 @@ do
     -- Results (helixhorned x86):
     -- ksin: sum*1e12=0.000, 3.801us per 0-2047 cycle
     -- sinb: sum*1e12=0.052, 2.886us per 0-2047 cycle
+end
+
+do
+    -- Test getflorzofslopeptr()/sector[]:floorzat()
+    local N = 100
+    local t = gv.gethitickms()
+
+    for n=1,N do
+        for i=0,gv.numsectors-1 do
+            local sec = sector[i]
+            local w1 = sec.wallptr
+            sec:floorzat(wall[w1])
+        end
+    end
+
+    printf("%d x %d floorzat: %.03f us", N, gv.numsectors, (gv.gethitickms()-t)*1000)
+
+    -- Results for 100 x 325 floorzat (helixhorned x86):
+    -- cdecl getflorzofslope(): 572.165 us
+    -- __fastcall getflorzofslope(): 830.147 us (sic, but tested only once!)
 end
 
 print('---=== END TEST SCRIPT ===---')
