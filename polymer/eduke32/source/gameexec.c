@@ -355,7 +355,6 @@ void A_GetZLimits(int32_t iActor)
                     || (hitspr->picnum == APLAYER && A_CheckEnemySprite(s)))
             {
                 actor[iActor].flags |= SPRITE_NOFLOORSHADOW;  // No shadows on actors
-//                actor[iActor].dispicnum = -4; // No shadows on actors
                 s->xvel = -256;
                 A_SetSprite(iActor,CLIPMASK0);
             }
@@ -554,6 +553,37 @@ static void VM_FacePlayer(int32_t shr)
     VM_AddAngle(shr, goalang);
 }
 
+////////// TROR get*zofslope //////////
+// These rather belong into the engine.
+
+static int32_t yax_getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+{
+#ifdef YAX_ENABLE
+    if ((sector[sectnum].ceilingstat&512)==0)
+    {
+        int32_t nsect = yax_getneighborsect(dax, day, sectnum, YAX_CEILING);
+        if (nsect >= 0)
+            return getceilzofslope(nsect, dax, day);
+    }
+#endif
+    return getceilzofslope(sectnum, dax, day);
+}
+
+static int32_t yax_getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+{
+#ifdef YAX_ENABLE
+    if ((sector[sectnum].floorstat&512)==0)
+    {
+        int32_t nsect = yax_getneighborsect(dax, day, sectnum, YAX_FLOOR);
+        if (nsect >= 0)
+            return getflorzofslope(nsect, dax, day);
+    }
+#endif
+    return getflorzofslope(sectnum, dax, day);
+}
+
+////////////////////
+
 GAMEEXEC_STATIC void VM_Move(void)
 {
 #if !defined LUNATIC
@@ -645,14 +675,14 @@ dead:
                     int32_t l;
                     // NOTE: COMMANDER updates both actor[].floorz and
                     // .ceilingz regardless of its zvel.
-                    actor[vm.g_i].floorz = l = getflorzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                    actor[vm.g_i].floorz = l = yax_getflorzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
                     if (vm.g_sp->z > l-(8<<8))
                     {
                         vm.g_sp->z = l-(8<<8);
                         vm.g_sp->zvel = 0;
                     }
 
-                    actor[vm.g_i].ceilingz = l = getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                    actor[vm.g_i].ceilingz = l = yax_getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
                     if (vm.g_sp->z < l+(80<<8))
                     {
                         vm.g_sp->z = l+(80<<8);
@@ -665,13 +695,13 @@ dead:
                     // The DRONE updates either .floorz or .ceilingz, not both.
                     if (vm.g_sp->zvel > 0)
                     {
-                        actor[vm.g_i].floorz = l = getflorzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                        actor[vm.g_i].floorz = l = yax_getflorzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
                         if (vm.g_sp->z > l-(30<<8))
                             vm.g_sp->z = l-(30<<8);
                     }
                     else
                     {
-                        actor[vm.g_i].ceilingz = l = getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                        actor[vm.g_i].ceilingz = l = yax_getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
                         if (vm.g_sp->z < l+(50<<8))
                         {
                             vm.g_sp->z = l+(50<<8);
@@ -688,7 +718,7 @@ dead:
                     vm.g_sp->z = actor[vm.g_i].floorz;
                 if (vm.g_sp->zvel < 0)
                 {
-                    const int32_t l = getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                    const int32_t l = yax_getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
 
                     if (vm.g_sp->z < l+(66<<8))
                     {

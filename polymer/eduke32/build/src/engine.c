@@ -13488,7 +13488,7 @@ restart_grand:
                 if (dy > 0) day = dy*(xmax-x1); else day = dy*(xmin-x1);
                 if (dax >= day) continue;
 
-                if (wal->cstat&dawalclipmask) continue;
+                if (wal->cstat&dawalclipmask) continue;  // XXX?
                 sec = &sector[k];
 
 #ifdef HAVE_CLIPSHAPE_FEATURE

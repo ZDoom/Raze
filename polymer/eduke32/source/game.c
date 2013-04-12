@@ -6901,7 +6901,7 @@ PALONLY:
 #ifndef LUNATIC
 skip:
 #endif
-        // XXX: currently, for the splitscreen mod, sprites will be pal6-colored iff the first
+        // XXX: Currently, for the splitscreen mod, sprites will be pal6-colored iff the first
         // player has nightvision on.  We should pass stuff like "from which player is this view
         // supposed to be" as parameters ("drawing context") instead of relying on globals.
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
@@ -6916,10 +6916,12 @@ skip:
             {
                 if (actor[i].dispicnum < 0)
                 {
-                    // a negative actor[i].dispicnum used to mean 'no floor shadow please' but
-                    // that was a bad hack since the value could propagate to sprite[].picnum
+#ifdef DEBUGGINGAIDS
+                    // A negative actor[i].dispicnum used to mean 'no floor shadow please', but
+                    // that was a bad hack since the value could propagate to sprite[].picnum.
                     OSD_Printf(OSD_ERROR "actor[%d].dispicnum = %d\n", i, actor[i].dispicnum);
-                    actor[i].dispicnum++;
+#endif
+                    actor[i].dispicnum=0;
                     continue;
                 }
 
@@ -6938,7 +6940,6 @@ skip:
 
                     if ((s->z-daz) < (8<<8) && g_player[screenpeek].ps->pos.z < daz)
                     {
-                        //int32_t xrep, yrep;
                         spritetype *const newt = &tsprite[spritesortcnt];
 
                         Bmemcpy(newt, t, sizeof(spritetype));
