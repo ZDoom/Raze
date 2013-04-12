@@ -16,10 +16,14 @@
 
 -- forxcode example: print sprite numbers with lotag < -1 (interpreting lotag it as signed),
 -- and for each matching sprite also print its lotag and picnum:
--- ./findmaps.sh ~/.eduke32/ "sprite: .lotag < -1 :: io. write(', '.. .lotag .. ' ' .. .picnum)"
+--  $ ./findmaps.sh ~/.eduke32/ "sprite: .lotag < -1 :: io. write(', '.. .lotag .. ' ' .. .picnum)"
 
 -- The local 'd' provides defs loaded from ../../names.h, example:
--- ./findmaps.sh ~/.eduke32/ "sprite: .picnum>=d. CRACK1 and .picnum<=d. CRACK4"
+--  $ ./findmaps.sh ~/.eduke32/ "sprite: .picnum>=d. CRACK1 and .picnum<=d. CRACK4"
+
+-- Print all V9 maps along with their number of bunches and max(ceilings of a bunch)
+--  $ prog='if (map.version==9) then print(map.numbunches.." ".. math.max(unpack(map.sectsperbunch[0],0)) .." "..fn) end'
+--  $ ./findmaps.sh ~/.eduke32 "$prog" |sort -n -k 2
 
 local B = require "build"
 local string = require "string"
@@ -45,6 +49,14 @@ end
 
 local modname = string.gsub(arg[1], "%.lua$", "")
 
+function sum(tab, initidx)
+    local s = 0
+    for i=(initidx or 1),#tab do
+        s = s + tab[i]
+    end
+    return s
+end
+
 local mod
 if (modname:sub(1,2) == "-e") then
     local body = modname:sub(3)
@@ -68,25 +80,25 @@ if (modname:sub(1,2) == "-e") then
             perxcode = ""
         end
 
+        assert(what=="sector" or what=="wall" or what=="sprite")
+
         body =
             "for i=0,num"..what.."s-1 do\n"..
             "  if ("..body..") then\n"..
             (onlyfiles and "io.write(fn); return\n" or "io.write(fn..': '..i)\n") ..
-            perxcode .. "io.write('\\n')"..
-            "\n  end\n"..
+            perxcode .. "io.write('\\n')\n"..
+            "  end\n"..
             "end\n"
     end
 
-    local successfunc, errmsg = loadstring(
-        "local d=require('build').readdefs('../../names.h') or error('Need ../../names.h')\n"..  -- XXX
-        "local numsectors, numwalls, numsprites\n"
-            .."local sector, wall, sprite\n"
-            .."return function (map, fn) \n"
-            .."  numsectors, numwalls, numsprites = map.numsectors, map.numwalls, map.numsprites\n"
-            .."  sector, wall, sprite = map.sector, map.wall, map.sprite\n"
-            ..body.."\n"
-            .."end"
-    )
+    local successfunc, errmsg = loadstring([[
+        local d=require('build').readdefs('../../names.h') or error('Need ../../names.h')  -- XXX
+        local numsectors, numwalls, numsprites, sector, wall, sprite
+        return function (map, fn)
+            numsectors, numwalls, numsprites = map.numsectors, map.numwalls, map.numsprites
+            sector, wall, sprite = map.sector, map.wall, map.sprite
+        ]]..body
+    .." end")
 
     if (successfunc==nil) then
         io.stderr:write("Error loading string: "..errmsg.."\n")

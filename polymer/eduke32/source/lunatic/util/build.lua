@@ -118,6 +118,7 @@ local function get_numyaxbunches(map)
     end
 
     local numbunches = 0
+    local sectsperbunch = { [0]={}, [1]={} }
 
     for i=0,map.numsectors-1 do
         for cf=0,1 do
@@ -129,11 +130,18 @@ local function get_numyaxbunches(map)
                 if (xpan+1 > numbunches) then
                     numbunches = xpan+1
                 end
+
+                if (sectsperbunch[cf][xpan]==nil) then
+                    sectsperbunch[cf][xpan] = 1
+                else
+                    sectsperbunch[cf][xpan] = sectsperbunch[cf][xpan]+1
+                end
             end
         end
     end
 
-    return numbunches
+    map.numbunches = numbunches
+    map.sectsperbunch = sectsperbunch
 end
 
 --== sprite canonicalizer ==--
@@ -195,6 +203,10 @@ end
 --      start =
 --        { x=<num>, y=<num>, z=<num>, ang=<num>, sectnum=<num> },
 --      numbunches = <num>,
+--      sectsperbunch = {
+--          [0] = { [<bunchnum>]=<number of ceilings> },
+--          [1] = { [<bunchnum>]=<number of floors> }
+--      }
 --    }
 function loadboard(filename, do_canonicalize_sprite)
     local fh, errmsg = io.open(filename)
@@ -284,7 +296,7 @@ function loadboard(filename, do_canonicalize_sprite)
     map.wall = set_secwalspr_mt(map.wall, map.numwalls)
     map.sprite = set_secwalspr_mt(map.sprite, map.numsprites)
 
-    map.numbunches = get_numyaxbunches(map)
+    get_numyaxbunches(map)
 
     -- done
     return map
@@ -389,11 +401,7 @@ function readdefs(fn)
 
     local defs = {}
 
-    while (true) do
-        local line = fh:read()
-        if (line == nil) then
-            break
-        end
+    for line in fh:lines() do
         local defname, numstr = string.match(line, "#?%s*define%s+([%a_][%w_]+)%s+([0-9]+)")
         if (defname) then
             defs[defname] = tonumber(numstr)

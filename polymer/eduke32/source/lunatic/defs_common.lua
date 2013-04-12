@@ -287,7 +287,7 @@ enum {
     MAXTILES = 30720,
     MAXSPRITESONSCREEN = 4096,
 
-    MAXBUNCHES = 256,
+    MAXBUNCHES = 512,
     CEILING = 0,
     FLOOR = 1,
 
