@@ -2091,6 +2091,7 @@ static void G_DisplayExtraScreens(void)
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         fadepal(0,0,0, 0,63,7);
         I_ClearAllInput();
+        totalclock = 0;
         rotatesprite_fs(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7,TENSCREEN);
         while (!I_CheckAllInput() && totalclock < 2400)
