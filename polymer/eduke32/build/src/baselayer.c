@@ -453,7 +453,7 @@ void makeasmwriteable(void)
     DWORD oldprot;
     if (!VirtualProtect((LPVOID)&dep_begin, (SIZE_T)&dep_end - (SIZE_T)&dep_begin, PAGE_EXECUTE_READWRITE, &oldprot))
     {
-        initprintf("Error making code writeable");
+        initprintf("Error making code writeable\n");
         return;
     }
 # elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__

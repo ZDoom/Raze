@@ -197,7 +197,7 @@ int32_t RTS_SoundLength(int32_t lump)
     lump++;
     if (lump >= rts_numlumps)
     {
-        initprintf("RTS_SoundLength: %i >= numlumps",lump);
+        initprintf("RTS_SoundLength: %i >= numlumps\n",lump);
         RTS_Started = FALSE;
         rts_numlumps = 0;
         return 0;
@@ -218,7 +218,7 @@ const char *RTS_GetSoundName(int32_t i)
     i++;
     if (i>=rts_numlumps)
     {
-        initprintf("RTS_GetSoundName: %i >= numlumps",i);
+        initprintf("RTS_GetSoundName: %i >= numlumps\n",i);
         RTS_Started = FALSE;
         rts_numlumps = 0;
         return 0;
@@ -242,7 +242,7 @@ void RTS_ReadLump(int32_t lump, void *dest)
 
     if (lump >= rts_numlumps)
     {
-        initprintf("RTS_ReadLump: %i >= numlumps",lump);
+        initprintf("RTS_ReadLump: %i >= numlumps\n",lump);
         RTS_Started = FALSE;
         rts_numlumps = 0;
         return;
@@ -250,7 +250,7 @@ void RTS_ReadLump(int32_t lump, void *dest)
 
     if (lump < 0)
     {
-        initprintf("RTS_ReadLump: %i < 0",lump);
+        initprintf("RTS_ReadLump: %i < 0\n",lump);
         RTS_Started = FALSE;
         rts_numlumps = 0;
         return;
