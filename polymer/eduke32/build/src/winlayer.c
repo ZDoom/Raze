@@ -89,7 +89,7 @@ static HWND hWindow = 0;
 #define WINDOW_STYLE (WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX)
 static BOOL window_class_registered = FALSE;
 
-static WORD sysgamma[3][256];
+static DDGAMMARAMP sysgamma;
 extern int32_t curbrightness, gammabrightness;
 
 #ifdef USE_OPENGL
@@ -263,7 +263,7 @@ void wm_setapptitle(char *name)
     startwin_settitle(apptitle);
 }
 
-static int32_t setgammaramp(WORD gt[3][256]);
+static int32_t setgammaramp(LPDDGAMMARAMP gt);
 
 //
 // SignalHandler() -- called when we've sprung a leak
@@ -275,7 +275,7 @@ static void SignalHandler(int32_t signum)
     case SIGSEGV:
         OSD_Printf("Fatal Signal caught: SIGSEGV. Bailing out.\n");
         if (gammabrightness)
-            setgammaramp(sysgamma);
+            setgammaramp(&sysgamma);
         gammabrightness = 0;
         app_crashhandler();
         uninitsystem();
@@ -1570,8 +1570,8 @@ static HBITMAP  hDIBSection = NULL;
 static HPALETTE hPalette    = NULL;
 static VOID    *lpPixels    = NULL;
 
-static int32_t setgammaramp(WORD gt[3][256]);
-static int32_t getgammaramp(WORD gt[3][256]);
+static int32_t setgammaramp(LPDDGAMMARAMP gt);
+static int32_t getgammaramp(LPDDGAMMARAMP gt);
 
 //
 // checkvideomode() -- makes sure the video mode passed is legal
@@ -1666,7 +1666,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
     if (hWindow && gammabrightness)
     {
-        setgammaramp(sysgamma);
+        setgammaramp(&sysgamma);
         gammabrightness = 0;
     }
 
@@ -1681,7 +1681,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     if (!gammabrightness)
     {
         //        float f = 1.0 + ((float)curbrightness / 10.0);
-        if (getgammaramp(sysgamma) >= 0) gammabrightness = 1;
+        if (getgammaramp(&sysgamma) >= 0) gammabrightness = 1;
         if (gammabrightness && setgamma() < 0) gammabrightness = 0;
     }
 
@@ -2099,7 +2099,7 @@ return 0;
 //
 // setgamma
 //
-static int32_t setgammaramp(WORD gt[3][256])
+static int32_t setgammaramp(LPDDGAMMARAMP gt)
 {
     if (!fullscreen || bpp > 8)
     {
@@ -2126,7 +2126,7 @@ static int32_t setgammaramp(WORD gt[3][256])
             return -1;
         }
 
-        hr = IDirectDrawGammaControl_SetGammaRamp(gam, 0, (LPDDGAMMARAMP)gt);
+        hr = IDirectDrawGammaControl_SetGammaRamp(gam, 0, gt);
         if (hr != DD_OK)
         {
             IDirectDrawGammaControl_Release(gam);
@@ -2145,7 +2145,7 @@ static int32_t setgammaramp(WORD gt[3][256])
 int32_t setgamma(void)
 {
     int32_t i;
-    static WORD gammaTable[3][256];
+    static DDGAMMARAMP gammaTable;
     float gamma = max(0.1f,min(4.f,vid_gamma));
     float contrast = max(0.1f,min(3.f,vid_contrast));
     float bright = max(-0.8f,min(0.8f,vid_brightness));
@@ -2166,13 +2166,13 @@ int32_t setgamma(void)
         if (gamma != 1) val = pow(val, invgamma) / norm;
         val += bright * 128;
 
-        gammaTable[0][i] = gammaTable[1][i] = gammaTable[2][i] = (WORD)max(0.f,(double)min(0xffff,val*256));
+        gammaTable.red[i] = gammaTable.green[i] = gammaTable.blue[i] = (WORD)max(0.f,(double)min(0xffff,val*256));
     }
 
-    return setgammaramp(gammaTable);
+    return setgammaramp(&gammaTable);
 }
 
-static int32_t getgammaramp(WORD gt[3][256])
+static int32_t getgammaramp(LPDDGAMMARAMP gt)
 {
     if (!hWindow) return -1;
     if (!fullscreen || bpp > 8)
@@ -2197,7 +2197,7 @@ static int32_t getgammaramp(WORD gt[3][256])
             return -1;
         }
 
-        hr = IDirectDrawGammaControl_GetGammaRamp(gam, 0, (LPDDGAMMARAMP)gt);
+        hr = IDirectDrawGammaControl_GetGammaRamp(gam, 0, gt);
         if (hr != DD_OK)
         {
             IDirectDrawGammaControl_Release(gam);
@@ -3179,7 +3179,7 @@ static void DestroyAppWindow(void)
 {
     if (hWindow && gammabrightness)
     {
-        setgammaramp(sysgamma);
+        setgammaramp(&sysgamma);
         gammabrightness = 0;
     }
 
