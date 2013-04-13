@@ -1890,7 +1890,7 @@ static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
 
     const DukePlayer_t *const ps = g_player[snum].ps;
 
-    if (ps->knuckle_incs == 0 || ps->knuckle_incs>>1 >= ARRAY_SIZE(knuckle_frames) || sprite[ps->i].extra <= 0)
+    if (ps->knuckle_incs == 0 || (unsigned) (ps->knuckle_incs>>1) >= ARRAY_SIZE(knuckle_frames) || sprite[ps->i].extra <= 0)
         return 0;
 
     looking_arc = klabs(ps->look_ang)/9;
