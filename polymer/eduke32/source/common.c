@@ -12,7 +12,11 @@
 
 #ifdef _WIN32
 # include "winbits.h"
-#include <shlwapi.h>
+# include <shlwapi.h>
+# include <winnt.h>
+# ifndef KEY_WOW64_32KEY
+#  define KEY_WOW64_32KEY 0x0200
+# endif
 #endif
 
 #include "common.h"
@@ -226,18 +230,22 @@ const char * G_GetInstallPath(int32_t insttype)
     static int32_t success[NUMINSTPATHS] = { -1, -1 };
     int32_t siz = BMAX_PATH;
 
-    // this still needs to be fixed for win64 builds
     if (success[insttype] == -1)
     {
-        switch (insttype)
-        {
-        case INSTPATH_STEAM:
-            success[insttype] = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", NULL, spath[insttype], (LPDWORD)&siz);
-            break;
-        case INSTPATH_GOG:
-            success[insttype] = SHGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, spath[insttype], (LPDWORD)&siz);
-            break;
-        }
+        HKEY HKLM32;
+        LONG keygood = RegOpenKeyEx(HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ | KEY_WOW64_32KEY, &HKLM32);
+        // KEY_WOW64_32KEY gets us around Wow6432Node on 64-bit builds
+
+        if (keygood == ERROR_SUCCESS)
+            switch (insttype)
+            {
+            case INSTPATH_STEAM:
+                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", NULL, spath[insttype], (LPDWORD)&siz);
+                break;
+            case INSTPATH_GOG:
+                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, spath[insttype], (LPDWORD)&siz);
+                break;
+            }
     }
 
     if (success[insttype] == ERROR_SUCCESS)
@@ -260,18 +268,19 @@ void G_AddSearchPaths(void)
 #elif defined (_WIN32)
     // detect Steam and GOG versions of Duke3D
     char buf[BMAX_PATH];
+    const char* instpath;
 
-    if (G_GetInstallPath(INSTPATH_STEAM))
+    if ((instpath = G_GetInstallPath(INSTPATH_STEAM)))
     {
-        Bsprintf(buf, "%s/gameroot", G_GetInstallPath(INSTPATH_STEAM));
+        Bsprintf(buf, "%s/gameroot", instpath);
         addsearchpath(buf);
 
-        Bsprintf(buf, "%s/gameroot/addons", G_GetInstallPath(INSTPATH_STEAM));
+        Bsprintf(buf, "%s/gameroot/addons", instpath);
         addsearchpath(buf);
     }
 
-    if (G_GetInstallPath(INSTPATH_GOG))
-        addsearchpath(G_GetInstallPath(INSTPATH_GOG));
+    if ((instpath = G_GetInstallPath(INSTPATH_GOG)))
+        addsearchpath(instpath);
 #endif
 }
 
@@ -279,18 +288,19 @@ void G_CleanupSearchPaths(void)
 {
 #ifdef _WIN32
     char buf[BMAX_PATH];
+    const char* instpath;
 
-    if (G_GetInstallPath(INSTPATH_STEAM))
+    if ((instpath = G_GetInstallPath(INSTPATH_STEAM)))
     {
-        Bsprintf(buf, "%s/gameroot", G_GetInstallPath(INSTPATH_STEAM));
+        Bsprintf(buf, "%s/gameroot", instpath);
         removesearchpath(buf);
 
-        Bsprintf(buf, "%s/gameroot/addons", G_GetInstallPath(INSTPATH_STEAM));
+        Bsprintf(buf, "%s/gameroot/addons", instpath);
         removesearchpath(buf);
     }
 
-    if (G_GetInstallPath(INSTPATH_GOG))
-        removesearchpath(G_GetInstallPath(INSTPATH_GOG));
+    if ((instpath = G_GetInstallPath(INSTPATH_GOG)))
+        removesearchpath(instpath);
 #endif
 }
 
