@@ -8693,7 +8693,6 @@ static void clearministatbar16(void)
 {
     int32_t i, col = whitecol - 21;
 //    static const char *tempbuf = "Mapster32" " " VERSION;
-    char tempbuf[16];
 
     begindrawing();
 
