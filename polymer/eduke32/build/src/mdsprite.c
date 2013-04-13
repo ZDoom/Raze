@@ -2287,7 +2287,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         point3d            *vertexhandle = NULL;
         uint16_t     *indexhandle;
 
-        const md3surf_t const *s = &m->head.surfs[surfi];
+        const md3surf_t *const s = &m->head.surfs[surfi];
 
         v0 = &s->xyzn[m->cframe*s->numverts];
         v1 = &s->xyzn[m->nframe*s->numverts];
