@@ -1370,7 +1370,9 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 
         return r;
     }
-    else if (!Bstrcasecmp(parm->name, "hud_scale"))
+    else if (!Bstrcasecmp(parm->name, "hud_scale")
+             || !Bstrcasecmp(parm->name, "hud_statusbarmode")
+             || !Bstrcasecmp(parm->name, "r_rotatespritenowidescreen"))
     {
         G_UpdateScreenArea();
 
@@ -1464,6 +1466,7 @@ int32_t registerosdcommands(void)
         { "hud_stats", "hud_stats: enable/disable level statistics display", (void *)&ud.levelstats, CVAR_BOOL, 0, 1 },
         { "hud_textscale", "hud_textscale: sets multiplayer chat message size", (void *)&ud.textscale, CVAR_INT, 100, 400 },
         { "hud_weaponscale","hud_weaponscale: changes the weapon scale", (void *)&ud.weaponscale, CVAR_INT, 10, 100 },
+        { "hud_statusbarmode", "hud_statusbarmode: change overlay mode of status bar", (void *)&ud.statusbarmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
         { "in_joystick","in_joystick: enables input from the joystick if it is present",(void *)&ud.config.UseJoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "in_mouse","in_mouse: enables input from the mouse if it is present",(void *)&ud.config.UseMouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
@@ -1487,6 +1490,7 @@ int32_t registerosdcommands(void)
         { "r_showfps", "r_showfps: show the frame rate counter", (void *)&ud.tickrate, CVAR_BOOL, 0, 1 },
         { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
         { "r_size", "r_size: change size of viewable area", (void *)&ud.screen_size, CVAR_INT|CVAR_FUNCPTR, 0, 64 },
+        { "r_rotatespritenowidescreen", "r_rotatespritenowidescreen: pass bit 1024 to all CON rotatesprite calls", (void *)&g_rotatespriteNoWidescreen, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void *)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
 
         { "r_ambientlight", "r_ambientlight: sets the global map light level",(void *)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
