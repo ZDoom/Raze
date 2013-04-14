@@ -308,7 +308,8 @@ int32_t textsc(int32_t sc)
 static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
     int32_t scl = sbarsc(65536);
-    int32_t tx = sbarx(0), ty = sbary(200-tilesizy[BOTTOMSTATUSBAR]);
+    int32_t tx = sbarx16((320<<15) - (tilesizx[BOTTOMSTATUSBAR]<<15)); // centered
+    int32_t ty = sbary(200-tilesizy[BOTTOMSTATUSBAR]);
 
     int32_t clx1 = sbarsc(scale(x1,xdim,320)), cly1 = sbarsc(scale(y1,ydim,200));
     int32_t clx2 = sbarsc(scale(x2,xdim,320)), cly2 = sbarsc(scale(y2,ydim,200));
