@@ -1084,9 +1084,14 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
     }
 }
 
+static int32_t invensc(int32_t maximum) // used to reposition the inventory icon selector as the HUD scales
+{
+    return scale(maximum << 16, ud.statusbarscale - 36, 100 - 36);
+}
+
 static void G_DrawInventory(const DukePlayer_t *p)
 {
-    int32_t n, j = 0, xoff = 0, y;
+    int32_t n, j = 0, x = 0, y;
 
     n = (p->inv_amount[GET_JETPACK] > 0)<<3;
     if (n&8) j++;
@@ -1103,11 +1108,27 @@ static void G_DrawInventory(const DukePlayer_t *p)
     n |= (p->inv_amount[GET_BOOTS] > 0)<<6;
     if (n&64) j++;
 
-    xoff = 160-(j*11);
+    x = (160-(j*11))<<16; // nearly center
 
     j = 0;
 
-    y = 154;
+    if (ud.screen_size < 8) // mini-HUDs or no HUD
+    {
+        y = 172<<16;
+
+        if (ud.screen_size == 4 && ud.althud) // modern mini-HUD
+            y -= invensc(tilesizy[BIGALPHANUM]+10); // slide on the y-axis
+    }
+    else // full HUD
+    {
+        y = (200<<16) - (sbarsc(tilesizy[BOTTOMSTATUSBAR]<<16) + (12<<16) + (tilesizy[BOTTOMSTATUSBAR]<<(16-1)));
+
+        if (!ud.statusbarmode) // original non-overlay mode
+            y += sbarsc(tilesizy[BOTTOMSTATUSBAR]<<16)>>1; // account for the viewport y-size as the HUD scales
+    }
+
+    if (ud.screen_size == 4 && !ud.althud) // classic mini-HUD
+        x += invensc(ud.multimode > 1 ? 56 : 65); // slide on the x-axis
 
     while (j <= 9)
     {
@@ -1116,32 +1137,32 @@ static void G_DrawInventory(const DukePlayer_t *p)
             switch (n&(1<<j))
             {
             case 1:
-                rotatesprite_win(xoff<<16,y<<16,65536L,0,FIRSTAID_ICON,0,0,2+16);
+                rotatesprite_win(x,y,65536L,0,FIRSTAID_ICON,0,0,2+16);
                 break;
             case 2:
-                rotatesprite_win((xoff+1)<<16,y<<16,65536L,0,STEROIDS_ICON,0,0,2+16);
+                rotatesprite_win(x+(1<<16),y,65536L,0,STEROIDS_ICON,0,0,2+16);
                 break;
             case 4:
-                rotatesprite_win((xoff+2)<<16,y<<16,65536L,0,HOLODUKE_ICON,0,0,2+16);
+                rotatesprite_win(x+(2<<16),y,65536L,0,HOLODUKE_ICON,0,0,2+16);
                 break;
             case 8:
-                rotatesprite_win(xoff<<16,y<<16,65536L,0,JETPACK_ICON,0,0,2+16);
+                rotatesprite_win(x,y,65536L,0,JETPACK_ICON,0,0,2+16);
                 break;
             case 16:
-                rotatesprite_win(xoff<<16,y<<16,65536L,0,HEAT_ICON,0,0,2+16);
+                rotatesprite_win(x,y,65536L,0,HEAT_ICON,0,0,2+16);
                 break;
             case 32:
-                rotatesprite_win(xoff<<16,y<<16,65536L,0,AIRTANK_ICON,0,0,2+16);
+                rotatesprite_win(x,y,65536L,0,AIRTANK_ICON,0,0,2+16);
                 break;
             case 64:
-                rotatesprite_win(xoff<<16,(y-1)<<16,65536L,0,BOOT_ICON,0,0,2+16);
+                rotatesprite_win(x,y-(1<<16),65536L,0,BOOT_ICON,0,0,2+16);
                 break;
             }
 
-            xoff += 22;
+            x += 22<<16;
 
             if (p->inven_icon == j+1)
-                rotatesprite_win((xoff-2)<<16,(y+19)<<16,65536L,1024,ARROW,-32,0,2+16);
+                rotatesprite_win(x-(2<<16),y+(19<<16),65536L,1024,ARROW,-32,0,2+16);
         }
 
         j++;
