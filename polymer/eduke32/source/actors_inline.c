@@ -58,17 +58,19 @@ EXTERN_INLINE void G_RestoreInterpolations(void)  //Stick at end of drawscreen
 
 EXTERN_INLINE int32_t G_CheckForSpaceCeiling(int32_t sectnum)
 {
-    return ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 && (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1)?1:0);
+    return ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 &&
+            (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1));
 }
 
 EXTERN_INLINE int32_t G_CheckForSpaceFloor(int32_t sectnum)
 {
-    return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 && ((sector[sectnum].floorpicnum==MOONSKY1)||(sector[sectnum].floorpicnum==BIGORBIT1))?1:0);
+    return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 &&
+            (sector[sectnum].floorpicnum==MOONSKY1 || sector[sectnum].floorpicnum==BIGORBIT1));
 }
 
 EXTERN_INLINE int32_t A_CheckEnemySprite(const spritetype *s)
 {
-    return(A_CheckEnemyTile(s->picnum));
+    return A_CheckEnemyTile(s->picnum);
 }
 
 #endif

@@ -11387,15 +11387,15 @@ restart_grand:
 #ifdef YAX_ENABLE
             if (bn[0]<0 && bn[1]<0)
 #endif
-                if ((nexts < 0) || (wal->cstat&32))
-                    return(0);
+                if (nexts < 0 || wal->cstat&32)
+                    return 0;
 
             t = divscale24(t,bot);
             x = x1 + mulscale24(x21,t);
             y = y1 + mulscale24(y21,t);
             z = z1 + mulscale24(z21,t);
 
-            getzsofslope((int16_t)dasectnum, x,y, &cfz[0],&cfz[1]);
+            getzsofslope(dasectnum, x,y, &cfz[0],&cfz[1]);
 
             if (z <= cfz[0] || z >= cfz[1])
             {
@@ -11425,16 +11425,16 @@ restart_grand:
                     }
                 
 #endif
-                return(0);
+                return 0;
             }
 
 #ifdef YAX_ENABLE
-            if ((nexts < 0) || (wal->cstat&32))
+            if (nexts < 0 || (wal->cstat&32))
                 return 0;
 #endif
-            getzsofslope((int16_t)nexts,x,y,&cfz[0],&cfz[1]);
-            if ((z <= cfz[0]) || (z >= cfz[1]))
-                return(0);
+            getzsofslope(nexts, x,y, &cfz[0],&cfz[1]);
+            if (z <= cfz[0] || z >= cfz[1])
+                return 0;
 
 add_nextsector:
             if (!(sectbitmap[nexts>>3] & (1<<(nexts&7))))
@@ -11456,10 +11456,10 @@ add_nextsector:
 #endif
     }
 
-    if ((sectbitmap[sect2>>3] & (1<<(sect2&7))))
+    if (sectbitmap[sect2>>3] & (1<<(sect2&7)))
         return 1;
 
-    return(0);
+    return 0;
 }
 
 static inline void hit_set(hitdata_t *hit, int32_t sectnum, int32_t wallnum, int32_t spritenum,

@@ -29,6 +29,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SLEEPTIME           1536
 #define ZOFFSET             (1<<8)
 
+#define ACTOR_MAXFALLINGZVEL 6144
+#define ACTOR_ONWATER_ADDZ (24<<8)
+
 // KEEPINSYNC lunatic/con_lang.lua
 #define STAT_DEFAULT        0
 #define STAT_ACTOR          1

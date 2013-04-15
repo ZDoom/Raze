@@ -872,19 +872,21 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
             actor[g_i].cgg = 3;
         }
 
-        if (g_sp->z < (actor[g_i].floorz-ZOFFSET))
+        if (g_sp->z < actor[g_i].floorz-ZOFFSET)
         {
-            g_sp->z += g_sp->zvel = min(6144, g_sp->zvel+j);
+            g_sp->zvel = min(g_sp->zvel+j, ACTOR_MAXFALLINGZVEL);
+            g_sp->z += g_sp->zvel;
 #ifdef YAX_ENABLE
-            j = yax_getbunch(g_sp->sectnum, YAX_FLOOR);
-            if (j >= 0 && (sector[g_sp->sectnum].floorstat&512)==0)
+            if (yax_getbunch(g_sp->sectnum, YAX_FLOOR) >= 0 &&
+                    (sector[g_sp->sectnum].floorstat&512)==0)
                 setspritez(g_i, (vec3_t *)g_sp);
             else
 #endif
-                if (g_sp->z > (actor[g_i].floorz - ZOFFSET))
-                    g_sp->z = (actor[g_i].floorz - ZOFFSET);
+                if (g_sp->z > actor[g_i].floorz - ZOFFSET)
+                    g_sp->z = actor[g_i].floorz - ZOFFSET;
             return;
         }
+
         g_sp->z = actor[g_i].floorz - ZOFFSET;
 
         if (A_CheckEnemySprite(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
@@ -899,17 +901,20 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
                     A_PlaySound(SQUISHED,g_i);
                     A_Spawn(g_i,BLOODPOOL);
                 }
+
                 actor[g_i].picnum = SHOTSPARK1;
                 actor[g_i].extra = 1;
                 g_sp->zvel = 0;
             }
-            else if (g_sp->zvel > 2048  && sector[g_sp->sectnum].lotag != ST_1_ABOVE_WATER)
+            else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != ST_1_ABOVE_WATER)
             {
-                j = g_sp->sectnum;
-                pushmove((vec3_t *)g_sp,(int16_t *)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
-                if ((unsigned)j < MAXSECTORS)
-                    changespritesect(g_i,j);
-                A_PlaySound(THUD,g_i);
+                int16_t newsect = g_sp->sectnum;
+
+                pushmove((vec3_t *)g_sp, &newsect, 128, 4<<8, 4<<8, CLIPMASK0);
+                if ((unsigned)newsect < MAXSECTORS)
+                    changespritesect(g_i, newsect);
+
+                A_PlaySound(THUD, g_i);
             }
         }
     }
@@ -925,13 +930,18 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
     {
         switch (DYNAMICTILEMAP(g_sp->picnum))
         {
+        case OCTABRAIN__STATIC:
+        case COMMANDER__STATIC:
+        case DRONE__STATIC:
+            break;
+
         default:
-            // fix for flying/jumping monsters getting stuck in water
         {
 #if !defined LUNATIC
             int32_t moveScriptOfs = vm.g_t[1];
 #endif
 
+            // fix for flying/jumping monsters getting stuck in water
             if ((g_sp->hitag & jumptoplayer) ||
                 (G_HaveActor(g_sp->picnum) &&
 #if !defined LUNATIC
@@ -944,15 +954,13 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
 //                OSD_Printf("%d\n", script[moveScriptOfs + 1]);
                 break;
             }
-        }
 
-//        OSD_Printf("hitag: %d\n",g_sp->hitag);
-        g_sp->z += (24<<8);
-        case OCTABRAIN__STATIC:
-        case COMMANDER__STATIC:
-        case DRONE__STATIC:
+//            OSD_Printf("hitag: %d\n",g_sp->hitag);
+            g_sp->z += ACTOR_ONWATER_ADDZ;
             break;
         }
+        }
+
         return;
     }
 

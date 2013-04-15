@@ -204,6 +204,7 @@ int32_t __fastcall A_FindPlayer(const spritetype *s, int32_t *d)
     if (!g_netServer && ud.multimode < 2)
     {
         DukePlayer_t *const myps = g_player[myconnectindex].ps;
+
         *d = A_FP_ManhattanDist(myps, s);
         return myconnectindex;
     }
@@ -2954,7 +2955,8 @@ int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
 
     if (A_CheckEnemySprite(&sprite[i]))
         zoff = (42<<8);
-    else if (PN == APLAYER) zoff = (39<<8);
+    else if (PN == APLAYER)
+        zoff = (39<<8);
 
     SZ -= zoff;
     hitscan((const vec3_t *)&sprite[i],SECT,
@@ -2966,9 +2968,9 @@ int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
     *hitsp = hit.sprite;
 
     if (hit.wall >= 0 && (wall[hit.wall].cstat&16) && A_CheckEnemySprite(&sprite[i]))
-        return((1<<30));
+        return 1<<30;
 
-    return (FindDistance2D(hit.pos.x-SX,hit.pos.y-SY));
+    return FindDistance2D(hit.pos.x-SX,hit.pos.y-SY);
 }
 
 static int32_t P_FindWall(DukePlayer_t *p,int16_t *hitw)
@@ -2984,7 +2986,7 @@ static int32_t P_FindWall(DukePlayer_t *p,int16_t *hitw)
     if (hit.wall < 0)
         return INT32_MAX;
 
-    return (FindDistance2D(hit.pos.x-p->pos.x,hit.pos.y-p->pos.y));
+    return FindDistance2D(hit.pos.x-p->pos.x,hit.pos.y-p->pos.y);
 }
 
 // returns 1 if sprite i should not be considered by neartag
