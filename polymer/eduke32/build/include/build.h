@@ -99,7 +99,7 @@ enum rendmode_t {
 #define SPRITES_OF_SECT(Sectnum, Iter)  Iter=headspritesect[Sectnum]; Iter>=0; Iter=nextspritesect[Iter]
 // ... in which case this iterator may be used:
 #define SPRITES_OF_SECT_SAFE(Sectnum, Iter, Next)  Iter=headspritesect[Sectnum]; \
-    Iter>=0 && (Next=nextspritestat[Iter], 1); Iter=Next
+    Iter>=0 && (Next=nextspritesect[Iter], 1); Iter=Next
 
 #define CLEARLINES2D(Startline, Numlines, Color) \
     clearbuf((char *)(frameplace + ((Startline)*bytesperline)), (bytesperline*(Numlines))>>2, (Color))

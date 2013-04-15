@@ -1154,6 +1154,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             sa += 64 - (krand()&127);
             if (p < 0) sa += 1024;
             zvel = 1024-(krand()&2047);
+            // fall-through
         case KNEE__STATIC:
             if (atwith == KNEE)
             {
