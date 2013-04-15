@@ -360,7 +360,8 @@ static int32_t A_CheckNoSE7Water(const spritetype *s, int32_t sectnum, int32_t s
 // Returns:
 //  0 if no.
 //  1 if yes, but stayed inside [actor[].ceilingz+1, actor[].floorz].
-//  2 if yes, but passed a TROR no-SE7 water boundary.
+// <0 if yes, but passed a TROR no-SE7 water boundary. -returnvalue-1 is the
+//       other-side sector number.
 static int32_t A_CheckNeedZUpdate(int32_t spritenum, int32_t changez, int32_t *dazptr)
 {
     const spritetype *spr = &sprite[spritenum];
@@ -377,14 +378,20 @@ static int32_t A_CheckNeedZUpdate(int32_t spritenum, int32_t changez, int32_t *d
 #ifdef YAX_ENABLE
     {
         const int32_t psect=spr->sectnum, slotag=sector[psect].lotag;
+        int32_t othersect;
 
         // Non-SE7 water.
         // PROJECTILE_CHSECT
         if ((changez < 0 && slotag==ST_2_UNDERWATER) || (changez > 0 && slotag==ST_1_ABOVE_WATER))
-            if (A_CheckNoSE7Water(spr, sprite[spritenum].sectnum, slotag, NULL))
+            if (A_CheckNoSE7Water(spr, sprite[spritenum].sectnum, slotag, &othersect))
             {
+                A_Spawn(spritenum, WATERSPLASH2);
+                // NOTE: Don't tweak its z position afterwards like with
+                // SE7-induced projectile teleportation. It doesn't look good
+                // with TROR water.
+
                 actor[spritenum].flags |= SPRITE_DIDNOSE7WATER;
-                return 2;
+                return -othersect-1;
             }
     }
 #endif
@@ -496,13 +503,8 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     {
         spr->z = daz;
 #ifdef YAX_ENABLE
-        if (dozupdate==2 || (yax_getbunch(dasectnum, (change->z>0))>=0
-                             && (SECTORFLD(dasectnum,stat, (change->z>0))&yax_waltosecmask(cliptype))==0))
+        if (dozupdate < 0)
         {
-//            initprintf("spr %d, sect %d: chz=%d, cfz=[%d,%d]\n", spritenum, dasectnum, change->z,
-//                       actor[spritenum].ceilingz, actor[spritenum].floorz);
-            setspritez(spritenum, (vec3_t *)spr);
-
             // If we passed a TROR no-SE7 water boundary, signal to the outside
             // that the ceiling/floor was not hit. However, this is not enough:
             // later, code checks for (retval&49152)!=49152
@@ -511,8 +513,14 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
             // actor[].flags |= SPRITE_DIDNOSE7WATER in A_CheckNeedZUpdate()
             // previously.
             // XXX: Why is this contrived data flow necessary? (If at all.)
-            if (dozupdate==2)
-                retval = 0;
+            changespritesect(spritenum, -dozupdate-1);
+            return 0;
+        }
+
+        if (yax_getbunch(dasectnum, (change->z>0))>=0
+                && (SECTORFLD(dasectnum,stat, (change->z>0))&yax_waltosecmask(cliptype))==0)
+        {
+            setspritez(spritenum, (vec3_t *)spr);
         }
 #endif
     }
