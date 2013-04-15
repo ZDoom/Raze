@@ -1079,8 +1079,14 @@ ACTOR_STATIC void G_MovePlayers(void)
                     int32_t othersect = yax_getneighborsect(
                         s->x, s->y, psect, slotag==ST_1_ABOVE_WATER ? YAX_FLOOR : YAX_CEILING);
 
+                    int32_t othertag = (slotag==ST_1_ABOVE_WATER) ?
+                        ST_2_UNDERWATER : ST_1_ABOVE_WATER;
+
                     // If submerging, the lower sector MUST have lotag 2.
-                    if (othersect >= 0 && (slotag==ST_2_UNDERWATER || sector[othersect].lotag==ST_2_UNDERWATER))
+                    // If emerging, the upper sector MUST have lotag 1.
+                    // This way, the x/y coordinates where above/below water
+                    // changes can happen are the same.
+                    if (othersect >= 0 && sector[othersect].lotag==othertag)
                     {
                         int32_t k = 0;
 
