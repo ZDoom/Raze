@@ -765,7 +765,7 @@ static void A_MoveSector(int32_t i)
     }
 }
 
-#ifndef LUNATIC
+#if !defined LUNATIC
 # define LIGHTRAD_PICOFS (T5 ? *(script+T5) + (*(script+T5+2))*T4 : 0)
 #else
 // SACTION
@@ -1367,9 +1367,7 @@ ACTOR_STATIC void G_MoveFX(void)
                             int32_t j;
 
                             for (SPRITES_OF(STAT_FX, j))
-                            // XXX: PN is sprite[*i*].picnum
-                                if (PN == MUSICANDSFX && j != i && sprite[j].lotag < 999 &&
-                                        actor[j].t_data[0] == 1 &&
+                                if (j != i && S_IsAmbientSFX(j) && actor[j].t_data[0] == 1 &&
                                         dist(&sprite[j], &sprite[peekps->i]) > x)
                                 {
                                     S_StopEnvSound(sprite[j].lotag,j);
@@ -1522,8 +1520,6 @@ ACTOR_STATIC void G_MoveStandables(void)
     int32_t i = headspritestat[STAT_STANDABLE], j, switchpicnum;
     int32_t l=0, x;
 
-    int16_t m;
-
     while (i >= 0)
     {
         const int32_t nexti = nextspritestat[i];
@@ -1603,8 +1599,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                         {
                             if (s->owner==-2)
                             {
-                                // XXX: A_FindPlayer() often called with unused *d / x
-                                int32_t p = A_FindPlayer(s,&x);
+                                int32_t p = A_FindPlayer(s, NULL);
                                 A_PlaySound(DUKE_GRUNT,g_player[p].ps->i);
                                 if (g_player[p].ps->on_crane == i)
                                     g_player[p].ps->on_crane = -1;
@@ -1692,9 +1687,9 @@ ACTOR_STATIC void G_MoveStandables(void)
 
             if (s->owner != -1)
             {
-                int32_t p = A_FindPlayer(s,&x);
+                int32_t p = A_FindPlayer(s, NULL);
 
-                if ((j = A_IncurDamage(i)) >= 0)
+                if (A_IncurDamage(i) >= 0)
                 {
                     if (s->owner == -2)
                         if (g_player[p].ps->on_crane == i)
@@ -1861,6 +1856,9 @@ ACTOR_STATIC void G_MoveStandables(void)
                 break;
 
             case 32:
+            {
+                int16_t m;
+
                 l = s->ang;
                 s->ang = T6;
 
@@ -1873,7 +1871,7 @@ ACTOR_STATIC void G_MoveStandables(void)
 
                 setsprite(i,(vec3_t *)s);
 
-                x = A_CheckHitSprite(i,&m);
+                x = A_CheckHitSprite(i, &m);
 
                 actor[i].lastvx = x;
 
@@ -1925,6 +1923,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                     A_PlaySound(LASERTRIP_ARMING,i);
                 }
                 break;
+            }
 
             case 33:
                 T2++;
@@ -1938,8 +1937,7 @@ ACTOR_STATIC void G_MoveStandables(void)
 
                 setsprite(i,(vec3_t *)s);
 
-                // XXX: m unused
-                x = A_CheckHitSprite(i,&m);
+                x = A_CheckHitSprite(i, NULL);
 
                 s->x = T4;
                 s->y = T5;
@@ -2258,7 +2256,8 @@ CLEAR_THE_BOLT2:
             }
             s->picnum++;
 
-            // XXX: Um, was this 'l' assigned to last at the beginning of this function?
+            // NOTE: Um, this 'l' was assigned to last at the beginning of this function.
+            // SIDEBOLT1 never gets translucent as a consequence, unlike BOLT1.
             if (l&1) s->cstat ^= 2;
 
             if ((krand()&1) && sector[sect].floorpicnum == HURTRAIL)
@@ -5560,13 +5559,12 @@ static void MaybeTrainKillEnemies(int32_t i, int32_t numguts)
     {
         const int32_t nextj = nextspritesect[j];
 
-        if (sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite(&sprite[j]) &&
-            sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+        if (sprite[j].extra >= 0 && sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite(&sprite[j]))
         {
             int16_t k = sprite[j].sectnum;
 
             updatesector(sprite[j].x,sprite[j].y,&k);
-            if (sprite[j].extra >= 0 && k == sprite[i].sectnum)
+            if (k == sprite[i].sectnum)
             {
                 A_DoGutsDir(j,JIBS6,numguts);
                 A_PlaySound(SQUISHED,j);
@@ -6220,8 +6218,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
         case 3:
         {
             if (t[4] == 0) break;
-            A_FindPlayer(s,&x);
-            // XXX: x is dead here; A_FindPlayer() call necessary?
 
             //    if(t[5] > 0) { t[5]--; break; }
 
@@ -7479,7 +7475,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                                 sprite[j].cstat &= 32767;
                                 A_Spawn(j,SMALLSMOKE);
 
-                                p = A_FindPlayer(s,&x);
+                                p = A_FindPlayer(s, NULL);
                                 ps = g_player[p].ps;
 
                                 x = ldist(&sprite[ps->i], &sprite[j]);

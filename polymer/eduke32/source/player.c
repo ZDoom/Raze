@@ -521,11 +521,10 @@ static void P_PreFireHitscan(int32_t i, int32_t p, int32_t atwith,
 static void A_PreFireHitscan(const spritetype *s, vec3_t *srcvect, int32_t *zvel, int16_t *sa,
                              int32_t not_accurate_p)
 {
-    int32_t dummydist;
-    const int32_t j = A_FindPlayer(s, &dummydist);
+    const int32_t j = A_FindPlayer(s, NULL);
     const DukePlayer_t *targetps = g_player[j].ps;
 
-    int32_t d = safeldist(targetps->i, s);
+    const int32_t d = safeldist(targetps->i, s);
     *zvel = ((targetps->pos.z-srcvect->z)<<8) / d;
 
     srcvect->z -= (4<<8);
@@ -826,8 +825,9 @@ static void Proj_HandleKnee(hitdata_t *hit, int32_t i, int32_t p, int32_t atwith
 #define MinibossScale(s) (((s)*sprite[i].yrepeat)/80)
 int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 {
-    int16_t l, sa, j, k=-1;
-    int32_t vel, zvel = 0, x, oldzvel;
+    int16_t sa;
+    int32_t j, k=-1, l;
+    int32_t vel, zvel = 0;
     hitdata_t hit;
     vec3_t srcvect;
     spritetype *const s = &sprite[i];
@@ -937,6 +937,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 }
                 else if (!(proj->workslike & PROJECTILE_NOAIM))
                 {
+                    int32_t x;
                     j = g_player[A_FindPlayer(s,&x)].ps->i;
                     zvel = ((sprite[j].z-srcvect.z)<<8) / (x+1);
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
@@ -1091,7 +1092,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             {
                 if (!(proj->workslike & PROJECTILE_NOAIM))
                 {
-                    j = A_FindPlayer(s,&x);
+                    j = A_FindPlayer(s, NULL);
                     sa = getangle(g_player[j].ps->opos.x-srcvect.x,g_player[j].ps->opos.y-srcvect.y);
 
                     l = safeldist(g_player[j].ps->i, s);
@@ -1164,6 +1165,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 }
                 else
                 {
+                    int32_t x;
                     j = g_player[A_FindPlayer(s,&x)].ps->i;
                     zvel = ((sprite[j].z-srcvect.z)<<8) / (x+1);
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
@@ -1283,7 +1285,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             }
             else
             {
-                j = A_FindPlayer(s,&x);
+                j = A_FindPlayer(s, NULL);
                 //                sa = getangle(g_player[j].ps->opos.x-sx,g_player[j].ps->opos.y-sy);
                 sa += 16-(krand()&31);
                 hit.pos.x = safeldist(g_player[j].ps->i, s);
@@ -1291,7 +1293,6 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             }
 
             zvel = A_GetShootZvel(i, zvel);
-            oldzvel = zvel;  // NOTE: assigned to after last store to zvel, so redundant
 
             if (atwith == SPIT)
             {
@@ -1334,7 +1335,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             sprite[j].clipdist = 4;
 
             sa = s->ang+32-(krand()&63);
-            zvel = oldzvel+512-(krand()&1023);
+            zvel += 512-(krand()&1023);
 
             return j;
         }
@@ -1342,7 +1343,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
         case FREEZEBLAST__STATIC:
             srcvect.z += (3<<8);
         case RPG__STATIC:
-
+            // XXX: "CODEDUP"
             if (s->extra >= 0) s->shade = -96;
 
             vel = 644;
@@ -1361,7 +1362,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             }
             else
             {
-                j = A_FindPlayer(s,&x);
+                j = A_FindPlayer(s, NULL);
                 sa = getangle(g_player[j].ps->opos.x-srcvect.x,g_player[j].ps->opos.y-srcvect.y);
                 if (PN == BOSS3)
                     srcvect.z -= MinibossScale(32<<8);
@@ -1531,12 +1532,15 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             }
             return j?k:-1;
         }
+
         case BOUNCEMINE__STATIC:
         case MORTER__STATIC:
+        {
+            int32_t x;
 
             if (s->extra >= 0) s->shade = -96;
 
-            j = g_player[A_FindPlayer(s,&x)].ps->i;
+            j = g_player[A_FindPlayer(s, NULL)].ps->i;
             x = ldist(&sprite[j],s);
 
             zvel = -x>>1;
@@ -1551,6 +1555,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                            srcvect.y+(sintable[(sa+512)&2047]>>8),
                            srcvect.z+(6<<8),atwith,-64,32,32,sa,vel,zvel,i,1);
             break;
+        }
 
         case GROWSPARK__STATIC:
 
@@ -1569,7 +1574,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             }
             else
             {
-                j = A_FindPlayer(s,&x);
+                j = A_FindPlayer(s, NULL);
                 srcvect.z -= (4<<8);
                 hit.pos.x = safeldist(g_player[j].ps->i, s);
                 zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hit.pos.x;
@@ -1632,7 +1637,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             }
             else if (s->statnum != STAT_EFFECTOR)
             {
-                j = A_FindPlayer(s,&x);
+                j = A_FindPlayer(s, NULL);
                 l = safeldist(g_player[j].ps->i, s);
                 zvel = ((g_player[j].ps->opos.z-srcvect.z)*512) / l ;
             }

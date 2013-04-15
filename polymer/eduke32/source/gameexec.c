@@ -3968,7 +3968,6 @@ finish_qsprintf:
             insptr++;
             {
                 int32_t j;
-                //            Gv_SetVarX(g_iReturnVarID, A_FindPlayer(&sprite[vm.g_i],&j));
                 aGameVars[g_iReturnVarID].val.lValue = A_FindPlayer(&sprite[vm.g_i],&j);
                 Gv_SetVarX(*insptr++, j);
             }

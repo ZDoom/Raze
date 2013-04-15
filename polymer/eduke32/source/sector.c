@@ -205,7 +205,8 @@ int32_t __fastcall A_FindPlayer(const spritetype *s, int32_t *d)
     {
         DukePlayer_t *const myps = g_player[myconnectindex].ps;
 
-        *d = A_FP_ManhattanDist(myps, s);
+        if (d)
+            *d = A_FP_ManhattanDist(myps, s);
         return myconnectindex;
     }
 
@@ -225,7 +226,8 @@ int32_t __fastcall A_FindPlayer(const spritetype *s, int32_t *d)
             }
         }
 
-        *d = closest;
+        if (d)
+            *d = closest;
         return closest_player;
     }
 }
@@ -2965,7 +2967,8 @@ int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
             0,&hit,CLIPMASK1);
     SZ += zoff;
 
-    *hitsp = hit.sprite;
+    if (hitsp)
+        *hitsp = hit.sprite;
 
     if (hit.wall >= 0 && (wall[hit.wall].cstat&16) && A_CheckEnemySprite(&sprite[i]))
         return 1<<30;

@@ -1283,6 +1283,7 @@ function _movesprite(spritenum, x, y, z, cliptype)
     return ffiC.A_MoveSprite(spritenum, vel, cliptype)
 end
 
+-- NOTE: returns two args (in C version, hit sprite is a pointer input arg)
 local function A_CheckHitSprite(spr, angadd)
     local zoff = (spr:isenemy() and 42*256) or (spr.picnum==D.APLAYER and 39*256) or 0
 

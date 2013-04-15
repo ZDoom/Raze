@@ -705,7 +705,6 @@ int32_t S_PlaySound(int32_t num)
 
     if (ud.config.FXDevice < 0) return -1;
     if (ud.config.SoundToggle==0) return -1;
-    if (!(ud.config.VoiceToggle&1) && (g_sounds[num].m&4)) return -1;
 
     if ((unsigned)num > (unsigned)g_maxSoundPos || (g_sounds[num].filename == NULL && g_sounds[num].filename1 == NULL))
     {
@@ -713,6 +712,7 @@ int32_t S_PlaySound(int32_t num)
         return -1;
     }
 
+    if (!(ud.config.VoiceToggle&1) && (g_sounds[num].m&4)) return -1;
     if ((g_sounds[num].m&8) && ud.lockout) return -1;
     if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return -1;
 
