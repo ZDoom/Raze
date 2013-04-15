@@ -225,6 +225,7 @@ SFLAG = {
     SFLAG_CACHE            = -0x00010000,
     SFLAG_ROTFIXED         = -0x00020000,
     SFLAG_HARDCODED_BADGUY = -0x00040000,
+    SFLAG_DIDNOSE7WATER    = -0x00080000,
     -- RESERVED for actor.FLAGS.chain_beg/chain_end/replace:
     -- 0x20000000, 0x40000000
 }

@@ -36,6 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern int32_t g_numEnvSoundsPlaying;
 extern int32_t g_noEnemies;
 
+int32_t otherp;
+
 int32_t G_SetInterpolation(int32_t *posptr)
 {
     int32_t i=g_numInterpolations-1;
@@ -112,8 +114,7 @@ void A_RadiusDamage(int32_t i, int32_t  r, int32_t  hp1, int32_t  hp2, int32_t  
     int32_t d, q, x1, y1;
     int32_t sectcnt, sectend, dasect, startwall, endwall, nextsect;
     int32_t j,k,x;
-    int16_t sect=-1;
-    char statlist[] = {
+    static const int32_t statlist[] = {
         STAT_DEFAULT,STAT_ACTOR,STAT_STANDABLE,
         STAT_PLAYER,STAT_FALLER,STAT_ZOMBIEACTOR,STAT_MISC
     };
@@ -150,6 +151,7 @@ void A_RadiusDamage(int32_t i, int32_t  r, int32_t  hp1, int32_t  hp2, int32_t  
             for (x=startwall,wal=&wall[startwall]; x<endwall; x++,wal++)
                 if ((klabs(wal->x-s->x)+klabs(wal->y-s->y)) < r)
                 {
+                    int16_t sect = -1;
                     nextsect = wal->nextsector;
                     if (nextsect >= 0)
                     {
@@ -180,7 +182,7 @@ SKIPWALLCHECK:
 
     for (x = 0; x<7; x++)
     {
-        j = headspritestat[(uint8_t)statlist[x]];
+        j = headspritestat[statlist[x]];
         while (j >= 0)
         {
             int32_t nextj = nextspritestat[j];
@@ -286,10 +288,96 @@ BOLT:
     }
 }
 
+// Maybe do a projectile transport via an SE7.
+// <spritenum>: the projectile
+// <i>: the SE7
+// <fromunderp>: below->above change?
+static void Proj_MaybeDoTransport(int32_t spritenum, int32_t i, int32_t fromunderp, int32_t daz)
+{
+    if (totalclock > actor[spritenum].lasttransport)
+    {
+        spritetype *const spr = &sprite[spritenum];
+
+        actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
+
+        spr->x += (sprite[OW].x-SX);
+        spr->y += (sprite[OW].y-SY);
+        if (!fromunderp)  // above->below
+            spr->z = sector[sprite[OW].sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
+        else  // below->above
+            spr->z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
+
+        Bmemcpy(&actor[spritenum].bpos.x, &sprite[spritenum], sizeof(vec3_t));
+        changespritesect(spritenum, sprite[OW].sectnum);
+    }
+}
+
+// Check whether sprite <s> is on/in a non-SE7 water sector.
+// <othersectptr>: if not NULL, the sector on the other side.
+static int32_t A_CheckNoSE7Water(const spritetype *s, int32_t sectnum, int32_t slotag, int32_t *othersectptr)
+{
+    if (slotag==ST_1_ABOVE_WATER || slotag==ST_2_UNDERWATER)
+    {
+        int32_t othersect = yax_getneighborsect(
+            s->x, s->y, sectnum, slotag==ST_1_ABOVE_WATER ? YAX_FLOOR : YAX_CEILING);
+
+        int32_t othertag = (slotag==ST_1_ABOVE_WATER) ?
+            ST_2_UNDERWATER : ST_1_ABOVE_WATER;
+
+        // If submerging, the lower sector MUST have lotag 2.
+        // If emerging, the upper sector MUST have lotag 1.
+        // This way, the x/y coordinates where above/below water
+        // changes can happen are the same.
+        if (othersect >= 0 && sector[othersect].lotag==othertag)
+        {
+            if (othersectptr)
+                *othersectptr = othersect;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+// Check whether to do a z position update of sprite <spritenum>.
+// Returns:
+//  0 if no.
+//  1 if yes, but stayed inside [actor[].ceilingz+1, actor[].floorz].
+//  2 if yes, but passed a TROR no-SE7 water boundary.
+static int32_t A_CheckNeedZUpdate(int32_t spritenum, int32_t changez, int32_t *dazptr)
+{
+    const spritetype *spr = &sprite[spritenum];
+    const int32_t daz = spr->z + ((changez*TICSPERFRAME)>>3);
+
+    *dazptr = daz;
+
+    if (changez == 0)
+        return 0;
+
+    if (daz > actor[spritenum].ceilingz && daz <= actor[spritenum].floorz)
+        return 1;
+
+#ifdef YAX_ENABLE
+    {
+        const int32_t psect=spr->sectnum, slotag=sector[psect].lotag;
+
+        // Non-SE7 water.
+        if ((changez < 0 && slotag==ST_2_UNDERWATER) || (changez > 0 && slotag==ST_1_ABOVE_WATER))
+            if (A_CheckNoSE7Water(spr, sprite[spritenum].sectnum, slotag, NULL))
+            {
+                actor[spritenum].flags |= SPRITE_DIDNOSE7WATER;
+                return 2;
+            }
+    }
+#endif
+
+    return 0;
+}
+
 int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 {
     spritetype *const spr = &sprite[spritenum];
-    int32_t retval, daz;
+    int32_t retval, daz, dozupdate;
     int16_t dasectnum;
     const int32_t bg = A_CheckEnemySprite(spr);
     const int32_t oldx = spr->x, oldy = spr->y;
@@ -308,7 +396,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     }
 
     dasectnum = spr->sectnum;
-    daz = spr->z - ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
+    daz = spr->z - 2*tilesizy[spr->picnum]*spr->yrepeat;
 
     {
         const int32_t oldz=spr->z;
@@ -363,7 +451,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
             if (dasectnum < 0)
                 dasectnum = 0;
 
-            return (16384+dasectnum);
+            return 16384+dasectnum;
         }
 
         if ((retval&49152) >= 32768 && actor[spritenum].cgg==0)
@@ -383,33 +471,43 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 
     Bassert(dasectnum == spr->sectnum);
 
-    daz = spr->z + ((change->z*TICSPERFRAME)>>3);
+    dozupdate = A_CheckNeedZUpdate(spritenum, change->z, &daz);
 
-//    bg = (tilesizy[spr->picnum]*spr->yrepeat)>>1;
-    if (daz > actor[spritenum].ceilingz && daz <= actor[spritenum].floorz
-//        && (osectnum == dasectnum || cansee(oldx, oldy, spr->z - bg, osectnum, spr->x, spr->y, daz - bg, dasectnum))
-       )
+    // Update sprite's z positions and (for TROR) maybe the sector number.
+    if (dozupdate)
     {
         spr->z = daz;
 #ifdef YAX_ENABLE
-        if (change->z && yax_getbunch(dasectnum, (change->z>0))>=0)
-            if ((SECTORFLD(dasectnum,stat, (change->z>0))&yax_waltosecmask(cliptype))==0)
-            {
-//                initprintf("spr %d, sect %d: chz=%d, cfz=[%d,%d]\n", spritenum, dasectnum, change->z,
-//                           actor[spritenum].ceilingz, actor[spritenum].floorz);
-                setspritez(spritenum, (vec3_t *)spr);
-            }
+        if (dozupdate==2 || (yax_getbunch(dasectnum, (change->z>0))>=0
+                             && (SECTORFLD(dasectnum,stat, (change->z>0))&yax_waltosecmask(cliptype))==0))
+        {
+//            initprintf("spr %d, sect %d: chz=%d, cfz=[%d,%d]\n", spritenum, dasectnum, change->z,
+//                       actor[spritenum].ceilingz, actor[spritenum].floorz);
+            setspritez(spritenum, (vec3_t *)spr);
+
+            // If we passed a TROR no-SE7 water boundary, signal to the outside
+            // that the ceiling/floor was not hit. However, this is not enough:
+            // later, code checks for (retval&49152)!=49152
+            // [i.e. not "was ceiling or floor hit", but "was no sprite hit"]
+            // and calls G_WeaponHitCeilingOrFloor() then, so we need to set
+            // actor[].flags |= SPRITE_DIDNOSE7WATER in A_CheckNeedZUpdate()
+            // previously.
+            // XXX: Why is this contrived data flow necessary? (If at all.)
+            if (dozupdate==2)
+                retval = 0;
+        }
 #endif
     }
     else if (retval == 0)
         retval = 16384+dasectnum;
 
-    if (retval == (16384+dasectnum))
+    if (retval == 16384+dasectnum)
         if (spr->statnum == STAT_PROJECTILE)
         {
-            int32_t i, nexti;
+            int32_t i;
 
-            for (TRAVERSE_SPRITE_STAT(headspritestat[STAT_TRANSPORT], i, nexti))
+            // Projectile sector changes due to transport SEs.
+            for (SPRITES_OF(STAT_TRANSPORT, i))
                 if (sprite[i].sectnum == dasectnum)
                 {
                     switch (sector[dasectnum].lotag)
@@ -417,42 +515,21 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                     case ST_1_ABOVE_WATER:
                         if (daz >= actor[spritenum].floorz)
                         {
-                            if (totalclock > actor[spritenum].lasttransport)
-                            {
-                                actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
-
-                                spr->x += (sprite[OW].x-SX);
-                                spr->y += (sprite[OW].y-SY);
-                                spr->z = sector[sprite[OW].sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
-
-                                Bmemcpy(&actor[spritenum].bpos.x, &sprite[spritenum], sizeof(vec3_t));
-                                changespritesect(spritenum,sprite[OW].sectnum);
-                            }
-
+                            Proj_MaybeDoTransport(spritenum, i, 0, daz);
                             return 0;
                         }
+
                     case ST_2_UNDERWATER:
                         if (daz <= actor[spritenum].ceilingz)
                         {
-                            if (totalclock > actor[spritenum].lasttransport)
-                            {
-                                actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
-
-                                spr->x += (sprite[OW].x-SX);
-                                spr->y += (sprite[OW].y-SY);
-                                spr->z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
-
-                                Bmemcpy(&actor[spritenum].bpos.x, &sprite[spritenum], sizeof(vec3_t));
-                                changespritesect(spritenum,sprite[OW].sectnum);
-                            }
-
+                            Proj_MaybeDoTransport(spritenum, i, 1, daz);
                             return 0;
                         }
                     }
                 }
         }
 
-    return(retval);
+    return retval;
 }
 
 int32_t block_deletesprite = 0;
@@ -1044,8 +1121,6 @@ static int32_t P_Submerge(int32_t j, int32_t p, DukePlayer_t *ps, int32_t sect, 
 static int32_t P_Emerge(int32_t j, int32_t p, DukePlayer_t *ps, int32_t sect, int32_t othersect);
 static void P_FinishWaterChange(int32_t j, DukePlayer_t *ps, int32_t sectlotag, int32_t ow, int32_t newsectnum);
 
-int32_t otherp;
-
 ACTOR_STATIC void G_MovePlayers(void)
 {
     int32_t i = headspritestat[STAT_PLAYER];
@@ -1073,34 +1148,22 @@ ACTOR_STATIC void G_MovePlayers(void)
 #ifdef YAX_ENABLE
                 // TROR water submerge/emerge
                 const int32_t psect=s->sectnum, slotag=sector[psect].lotag;
+                int32_t othersect;
 
-                if (slotag==ST_1_ABOVE_WATER || slotag==ST_2_UNDERWATER)
+                if (A_CheckNoSE7Water(s, psect, slotag, &othersect))
                 {
-                    int32_t othersect = yax_getneighborsect(
-                        s->x, s->y, psect, slotag==ST_1_ABOVE_WATER ? YAX_FLOOR : YAX_CEILING);
+                    int32_t k = 0;
 
-                    int32_t othertag = (slotag==ST_1_ABOVE_WATER) ?
-                        ST_2_UNDERWATER : ST_1_ABOVE_WATER;
+                    // NOTE: Compare with G_MoveTransports().
+                    p->on_warping_sector = 1;
 
-                    // If submerging, the lower sector MUST have lotag 2.
-                    // If emerging, the upper sector MUST have lotag 1.
-                    // This way, the x/y coordinates where above/below water
-                    // changes can happen are the same.
-                    if (othersect >= 0 && sector[othersect].lotag==othertag)
-                    {
-                        int32_t k = 0;
+                    if (slotag==ST_1_ABOVE_WATER)
+                        k = P_Submerge(i, s->yvel, p, psect, othersect);
+                    else
+                        k = P_Emerge(i, s->yvel, p, psect, othersect);
 
-                        // Compare with G_MoveTransports().
-                        p->on_warping_sector = 1;
-
-                        if (slotag==ST_1_ABOVE_WATER)
-                            k = P_Submerge(i, s->yvel, p, psect, othersect);
-                        else
-                            k = P_Emerge(i, s->yvel, p, psect, othersect);
-
-                        if (k == 1)
-                            P_FinishWaterChange(i, p, slotag, -1, othersect);
-                    }
+                    if (k == 1)
+                        P_FinishWaterChange(i, p, slotag, -1, othersect);
                 }
 #endif
                 if (g_netServer || ud.multimode > 1)
@@ -2514,6 +2577,9 @@ static void A_DoProjectileEffects(int32_t i, const vec3_t *davect, int32_t do_ra
 
 static void G_WeaponHitCeilingOrFloor(int32_t i, spritetype *s, int32_t *j)
 {
+    if (actor[i].flags & SPRITE_DIDNOSE7WATER)
+        return;
+
     if (s->z < actor[i].ceilingz)
     {
         *j = 16384|s->sectnum;
@@ -2916,9 +2982,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
             if (s->sectnum < 0)
                 KILLIT(i);
 
-            if ((j&49152) != 49152)
-                if (s->picnum != FREEZEBLAST)
-                    G_WeaponHitCeilingOrFloor(i, s, &j);
+            if ((j&49152) != 49152 && s->picnum != FREEZEBLAST)
+                G_WeaponHitCeilingOrFloor(i, s, &j);
 
             if (s->picnum == FIRELASER)
             {

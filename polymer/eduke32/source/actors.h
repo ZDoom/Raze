@@ -218,6 +218,7 @@ enum sflags_t {
     // roundoff error accumulation:
     SPRITE_ROTFIXED         = 0x00020000,
     SPRITE_HARDCODED_BADGUY = 0x00040000,
+    SPRITE_DIDNOSE7WATER    = 0x00080000, // used temporarily
 };
 
 // custom projectiles
