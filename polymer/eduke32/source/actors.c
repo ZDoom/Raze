@@ -304,24 +304,29 @@ BOLT:
 // <spritenum>: the projectile
 // <i>: the SE7
 // <fromunderp>: below->above change?
-static void Proj_MaybeDoTransport(int32_t spritenum, int32_t i, int32_t fromunderp, int32_t daz)
+static int32_t Proj_MaybeDoTransport(int32_t spritenum, int32_t i, int32_t fromunderp, int32_t daz)
 {
     if (totalclock > actor[spritenum].lasttransport)
     {
         spritetype *const spr = &sprite[spritenum];
+        const spritetype *const otherse = &sprite[OW];
 
         actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
 
-        spr->x += (sprite[OW].x-SX);
-        spr->y += (sprite[OW].y-SY);
+        spr->x += (otherse->x-SX);
+        spr->y += (otherse->y-SY);
         if (!fromunderp)  // above->below
-            spr->z = sector[sprite[OW].sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
+            spr->z = sector[otherse->sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
         else  // below->above
-            spr->z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
+            spr->z = sector[otherse->sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
 
         Bmemcpy(&actor[spritenum].bpos.x, &sprite[spritenum], sizeof(vec3_t));
-        changespritesect(spritenum, sprite[OW].sectnum);
+        changespritesect(spritenum, otherse->sectnum);
+
+        return 1;
     }
+
+    return 0;
 }
 
 // Check whether sprite <s> is on/in a non-SE7 water sector.
@@ -374,6 +379,7 @@ static int32_t A_CheckNeedZUpdate(int32_t spritenum, int32_t changez, int32_t *d
         const int32_t psect=spr->sectnum, slotag=sector[psect].lotag;
 
         // Non-SE7 water.
+        // PROJECTILE_CHSECT
         if ((changez < 0 && slotag==ST_2_UNDERWATER) || (changez > 0 && slotag==ST_1_ABOVE_WATER))
             if (A_CheckNoSE7Water(spr, sprite[spritenum].sectnum, slotag, NULL))
             {
@@ -518,26 +524,22 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
         {
             int32_t i;
 
-            // Projectile sector changes due to transport SEs.
+            // Projectile sector changes due to transport SEs (SE7_PROJECTILE).
+            // PROJECTILE_CHSECT
             for (SPRITES_OF(STAT_TRANSPORT, i))
                 if (sprite[i].sectnum == dasectnum)
                 {
-                    switch (sector[dasectnum].lotag)
-                    {
-                    case ST_1_ABOVE_WATER:
-                        if (daz >= actor[spritenum].floorz)
-                        {
-                            Proj_MaybeDoTransport(spritenum, i, 0, daz);
-                            return 0;
-                        }
+                    const int32_t lotag = sector[dasectnum].lotag;
 
-                    case ST_2_UNDERWATER:
+                    if (lotag == ST_1_ABOVE_WATER)
+                        if (daz >= actor[spritenum].floorz)
+                            if (Proj_MaybeDoTransport(spritenum, i, 0, daz))
+                                return 0;
+
+                    if (lotag == ST_2_UNDERWATER)
                         if (daz <= actor[spritenum].ceilingz)
-                        {
-                            Proj_MaybeDoTransport(spritenum, i, 1, daz);
-                            return 0;
-                        }
-                    }
+                            if (Proj_MaybeDoTransport(spritenum, i, 1, daz))
+                                return 0;
                 }
         }
 
@@ -1531,7 +1533,7 @@ ACTOR_STATIC void G_MoveStandables(void)
         if (sect < 0)
             KILLIT(i);
 
-        // 'fixed' sprites in rotating sectors already have bpos* updated
+        // Rotation-fixed sprites in rotating sectors already have bpos* updated.
         if ((t[7]&(0xffff0000))!=ROTFIXSPR_MAGIC)
             Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
 
@@ -2591,7 +2593,10 @@ static void A_DoProjectileEffects(int32_t i, const vec3_t *davect, int32_t do_ra
 static void G_WeaponHitCeilingOrFloor(int32_t i, spritetype *s, int32_t *j)
 {
     if (actor[i].flags & SPRITE_DIDNOSE7WATER)
+    {
+        actor[i].flags &= ~SPRITE_DIDNOSE7WATER;
         return;
+    }
 
     if (s->z < actor[i].ceilingz)
     {
@@ -3379,8 +3384,8 @@ ACTOR_STATIC void G_MoveTransports(void)
                     else if (!(sectlotag == ST_1_ABOVE_WATER && ps->on_ground == 1)) break;
 
                     if (onfloorz == 0 && klabs(SZ-ps->pos.z) < 6144)
-                        if ((ps->jetpack_on == 0) || (ps->jetpack_on && TEST_SYNC_KEY(g_player[p].sync->bits, SK_JUMP)) ||
-                                (ps->jetpack_on && TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH)))
+                        if (!ps->jetpack_on || TEST_SYNC_KEY(g_player[p].sync->bits, SK_JUMP) ||
+                                TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH))
                         {
                             ps->bobposx = ps->opos.x = ps->pos.x += sprite[OW].x-SX;
                             ps->bobposy = ps->opos.y = ps->pos.y += sprite[OW].y-SY;
@@ -3423,6 +3428,7 @@ ACTOR_STATIC void G_MoveTransports(void)
             ////////// Non-player teleportation //////////
 
             case STAT_PROJECTILE:
+                // SE7_PROJECTILE, PROJECTILE_CHSECT.
                 // comment out to make RPGs pass through water: (r1450 breaks this)
 //                if (sectlotag != 0) goto JBOLT;
             case STAT_ACTOR:
@@ -3481,15 +3487,18 @@ ACTOR_STATIC void G_MoveTransports(void)
                                 sprite[j].cstat &= 32768;
                                 break;
                             }
+                            // fall-through
                         default:
                             if (sprite[j].statnum == STAT_MISC && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER))
                                 break;
+                            // fall-through
                         case WATERBUBBLE__STATIC:
 //                            if( rnd(192) && sprite[j].picnum == WATERBUBBLE)
 //                                break;
 
                             if (sectlotag > 0)
                             {
+                                // Water SE7 teleportation.
                                 const int32_t osect = sprite[OW].sectnum;
 
                                 Bassert(sectlotag==ST_1_ABOVE_WATER || sectlotag==ST_2_UNDERWATER);
@@ -3516,10 +3525,12 @@ ACTOR_STATIC void G_MoveTransports(void)
                             }
                             else if (Bassert(sectlotag==0), 1)
                             {
+                                // Non-water SE7 teleportation.
+
                                 if (onfloorz)
                                 {
                                     if (sprite[j].statnum == STAT_PROJECTILE ||
-                                            (G_CheckPlayerInSector(sect) == -1 && G_CheckPlayerInSector(sprite[OW].sectnum)  == -1))
+                                            (G_CheckPlayerInSector(sect) == -1 && G_CheckPlayerInSector(sprite[OW].sectnum) == -1))
                                     {
                                         sprite[j].x += (sprite[OW].x-SX);
                                         sprite[j].y += (sprite[OW].y-SY);

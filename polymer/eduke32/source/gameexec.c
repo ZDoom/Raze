@@ -410,9 +410,10 @@ void A_Fall(int32_t iActor)
     else
         fbunch = yax_getbunch(s->sectnum, YAX_FLOOR);
 #endif
-    if (s->z < actor[iActor].floorz-(ZOFFSET)
+
+    if (s->z < actor[iActor].floorz-ZOFFSET
 #ifdef YAX_ENABLE
-            || (fbunch >= 0)
+            || fbunch >= 0
 #endif
        )
     {
@@ -420,14 +421,15 @@ void A_Fall(int32_t iActor)
             s->zvel = 3144;
         s->z += s->zvel = min(6144, s->zvel+c);
     }
+
 #ifdef YAX_ENABLE
     if (fbunch >= 0)
         setspritez(iActor, (vec3_t *)s);
-    if (fbunch < 0)
+    else
 #endif
-        if (s->z >= actor[iActor].floorz-(ZOFFSET))
+        if (s->z >= actor[iActor].floorz-ZOFFSET)
         {
-            s->z = actor[iActor].floorz - ZOFFSET;
+            s->z = actor[iActor].floorz-ZOFFSET;
             s->zvel = 0;
         }
 }
