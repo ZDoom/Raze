@@ -858,77 +858,81 @@ static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
 
 static void VM_Fall(int32_t g_i, spritetype *g_sp)
 {
+    int32_t grav = g_spriteGravity;
+
     g_sp->xoffset = g_sp->yoffset = 0;
 
+    if (G_CheckForSpaceCeiling(g_sp->sectnum) || sector[g_sp->sectnum].lotag == ST_2_UNDERWATER)
+        grav = g_spriteGravity/6;
+    else if (G_CheckForSpaceFloor(g_sp->sectnum))
+        grav = 0;
+
+    if (!actor[g_i].cgg-- || (sector[g_sp->sectnum].floorstat&2))
     {
-        int32_t j = g_spriteGravity;
+        A_GetZLimits(g_i);
+        actor[g_i].cgg = 3;
+    }
 
-        if (G_CheckForSpaceCeiling(g_sp->sectnum) || sector[g_sp->sectnum].lotag == ST_2_UNDERWATER)
-            j = g_spriteGravity/6;
-        else if (G_CheckForSpaceFloor(g_sp->sectnum))
-            j = 0;
-
-        if (!actor[g_i].cgg-- || (sector[g_sp->sectnum].floorstat&2))
-        {
-            A_GetZLimits(g_i);
-            actor[g_i].cgg = 3;
-        }
-
-        if (g_sp->z < actor[g_i].floorz-ZOFFSET)
-        {
-            g_sp->zvel = min(g_sp->zvel+j, ACTOR_MAXFALLINGZVEL);
-            g_sp->z += g_sp->zvel;
+    if (g_sp->z < actor[g_i].floorz-ZOFFSET)
+    {
+        // Free fall.
+        g_sp->zvel = min(g_sp->zvel+grav, ACTOR_MAXFALLINGZVEL);
+        g_sp->z += g_sp->zvel;
 #ifdef YAX_ENABLE
-            if (yax_getbunch(g_sp->sectnum, YAX_FLOOR) >= 0 &&
-                    (sector[g_sp->sectnum].floorstat&512)==0)
-                setspritez(g_i, (vec3_t *)g_sp);
-            else
+        if (yax_getbunch(g_sp->sectnum, YAX_FLOOR) >= 0 &&
+                (sector[g_sp->sectnum].floorstat&512)==0)
+            setspritez(g_i, (vec3_t *)g_sp);
+        else
 #endif
-                if (g_sp->z > actor[g_i].floorz - ZOFFSET)
-                    g_sp->z = actor[g_i].floorz - ZOFFSET;
-            return;
-        }
+            if (g_sp->z > actor[g_i].floorz - ZOFFSET)
+                g_sp->z = actor[g_i].floorz - ZOFFSET;
+        return;
+    }
 
-        g_sp->z = actor[g_i].floorz - ZOFFSET;
+    // SET_SPRITE_Z
+    g_sp->z = actor[g_i].floorz - ZOFFSET;
 
-        if (A_CheckEnemySprite(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
+    if (A_CheckEnemySprite(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
+    {
+        if (g_sp->zvel > 3084 && g_sp->extra <= 1)
         {
-            if (g_sp->zvel > 3084 && g_sp->extra <= 1)
+            // I'm guessing this DRONE check is from a beta version of the game
+            // where they crashed into the ground when killed
+            if (!(g_sp->picnum == APLAYER && g_sp->extra > 0) && g_sp->pal != 1 && g_sp->picnum != DRONE)
             {
-                // I'm guessing this DRONE check is from a beta version of the game
-                // where they crashed into the ground when killed
-                if (!(g_sp->picnum == APLAYER && g_sp->extra > 0) && g_sp->pal != 1 && g_sp->picnum != DRONE)
-                {
-                    A_DoGuts(g_i,JIBS6,15);
-                    A_PlaySound(SQUISHED,g_i);
-                    A_Spawn(g_i,BLOODPOOL);
-                }
-
-                actor[g_i].picnum = SHOTSPARK1;
-                actor[g_i].extra = 1;
-                g_sp->zvel = 0;
+                A_DoGuts(g_i,JIBS6,15);
+                A_PlaySound(SQUISHED,g_i);
+                A_Spawn(g_i,BLOODPOOL);
             }
-            else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != ST_1_ABOVE_WATER)
-            {
-                int16_t newsect = g_sp->sectnum;
 
-                pushmove((vec3_t *)g_sp, &newsect, 128, 4<<8, 4<<8, CLIPMASK0);
-                if ((unsigned)newsect < MAXSECTORS)
-                    changespritesect(g_i, newsect);
+            actor[g_i].picnum = SHOTSPARK1;
+            actor[g_i].extra = 1;
+            g_sp->zvel = 0;
+        }
+        else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != ST_1_ABOVE_WATER)
+        {
+            int16_t newsect = g_sp->sectnum;
 
-                A_PlaySound(THUD, g_i);
-            }
+            pushmove((vec3_t *)g_sp, &newsect, 128, 4<<8, 4<<8, CLIPMASK0);
+            if ((unsigned)newsect < MAXSECTORS)
+                changespritesect(g_i, newsect);
+
+            A_PlaySound(THUD, g_i);
         }
     }
 
-    if (g_sp->z > (actor[g_i].floorz - ZOFFSET))
+#if 0
+    if (g_sp->z > actor[g_i].floorz - ZOFFSET)
     {
+        // Unreachable because of SET_SPRITE_Z.
         A_GetZLimits(g_i);
         if (actor[g_i].floorz != sector[g_sp->sectnum].floorz)
             g_sp->z = (actor[g_i].floorz - ZOFFSET);
         return;
     }
-    else if (sector[g_sp->sectnum].lotag == ST_1_ABOVE_WATER)
+#endif
+
+    if (sector[g_sp->sectnum].lotag == ST_1_ABOVE_WATER)
     {
         switch (DYNAMICTILEMAP(g_sp->picnum))
         {
@@ -942,7 +946,6 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
 #if !defined LUNATIC
             int32_t moveScriptOfs = vm.g_t[1];
 #endif
-
             // fix for flying/jumping monsters getting stuck in water
             if ((g_sp->hitag & jumptoplayer) ||
                 (G_HaveActor(g_sp->picnum) &&
