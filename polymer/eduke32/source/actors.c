@@ -1961,31 +1961,37 @@ ACTOR_STATIC void G_MoveStandables(void)
         {
             if (s->hitag > 0)
             {
+                int32_t k;
+
                 t[0] = s->cstat;
                 t[1] = s->ang;
 
-                switch (DYNAMICTILEMAP(A_IncurDamage(i)))
-                {
-                case FIREEXT__STATIC:
-                case RPG__STATIC:
-                case RADIUSEXPLOSION__STATIC:
-                case SEENINE__STATIC:
-                case OOZFILTER__STATIC:
-                    for (SPRITES_OF(STAT_STANDABLE, j))
+                k = A_IncurDamage(i);
+
+                if (k >= 0)
+                    switch (DYNAMICTILEMAP(k))
                     {
-                        if (s->hitag == sprite[j].hitag && (sprite[j].picnum == OOZFILTER || sprite[j].picnum == SEENINE))
-                            if (sprite[j].shade != -32)
-                                sprite[j].shade = -32;
+                    case FIREEXT__STATIC:
+                    case RPG__STATIC:
+                    case RADIUSEXPLOSION__STATIC:
+                    case SEENINE__STATIC:
+                    case OOZFILTER__STATIC:
+                        for (SPRITES_OF(STAT_STANDABLE, j))
+                        {
+                            if (s->hitag == sprite[j].hitag && (sprite[j].picnum == OOZFILTER || sprite[j].picnum == SEENINE))
+                                if (sprite[j].shade != -32)
+                                    sprite[j].shade = -32;
+                        }
+
+                        goto DETONATE;
+
+                    default:
+                        s->cstat = t[0];
+                        s->ang = t[1];
+                        s->extra = 0;
+
+                        goto BOLT;
                     }
-
-                    goto DETONATE;
-                default:
-                    s->cstat = t[0];
-                    s->ang = t[1];
-                    s->extra = 0;
-
-                    goto BOLT;
-                }
             }
             goto BOLT;
         }
@@ -2446,7 +2452,7 @@ CLEAR_THE_BOLT:
         case CANWITHSOMETHING3__STATIC:
         case CANWITHSOMETHING4__STATIC:
             A_Fall(i);
-            if ((j = A_IncurDamage(i)) >= 0)
+            if (A_IncurDamage(i) >= 0)
             {
                 A_PlaySound(VENT_BUST,i);
 
@@ -6376,7 +6382,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 sc->ceilingshade = 0;
             }
 
-            if ((j = A_IncurDamage(i)) >= 0)
+            if (A_IncurDamage(i) >= 0)
             {
                 if (++t[3] == 5)
                 {
