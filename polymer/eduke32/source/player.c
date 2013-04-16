@@ -2012,6 +2012,10 @@ void P_DisplayScuba(int32_t snum)
         int32_t p = P_GetHudPal(g_player[snum].ps);
 
         g_snum = snum;
+#ifdef USE_OPENGL
+        if (getrendermode() >= REND_POLYMOST)
+            G_DrawTileScaled(44, (200-tilesizy[SCUBAMASK]), SCUBAMASK, 0, 2+16+DRAWEAP_CENTER, p);
+#endif
         G_DrawTileScaled(43, (200-tilesizy[SCUBAMASK]), SCUBAMASK, 0, 2+16+DRAWEAP_CENTER, p);
         G_DrawTileScaled(320-43, (200-tilesizy[SCUBAMASK]), SCUBAMASK, 0, 2+4+16+DRAWEAP_CENTER, p);
     }
