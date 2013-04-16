@@ -8,6 +8,9 @@
 
 #define ENGINE
 
+#if (PNG_LIBPNG_VER > 10599)
+# include <string.h>
+#endif
 #include "compat.h"
 #include "build.h"
 #include "pragmas.h"
@@ -16311,7 +16314,11 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
         png_set_filter(png_ptr, PNG_FILTER_TYPE_BASE, PNG_FILTER_VALUE_NONE);
 
     if (!HICOLOR)
+	#if (PNG_LIBPNG_VER > 10599)
+        palette = (png_colorp)png_malloc(png_ptr, 256*sizeof(png_color));
+	#else
         palette = (png_colorp)png_malloc(png_ptr, 256*png_sizeof(png_color));
+	#endif
 
     if (palette)
     {
@@ -16328,7 +16335,11 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
 //    png_set_gAMA(png_ptr, info_ptr, vid_gamma);  // 1.0/vid_gamma ?
 //    png_set_sRGB(png_ptr, info_ptr, PNG_sRGB_INTENT_SATURATION);  // hm...
 
+    #if (PNG_LIBPNG_VER > 10599)
+    text = (png_textp)png_malloc(png_ptr, 2*sizeof(png_text));
+    #else
     text = (png_textp)png_malloc(png_ptr, 2*png_sizeof(png_text));
+    #endif
     text[0].compression = PNG_TEXT_COMPRESSION_NONE;
     text[0].key = "Title";
     text[0].text = (png_charp)(editstatus ? "Mapster32 screenshot" : "EDuke32 screenshot");
