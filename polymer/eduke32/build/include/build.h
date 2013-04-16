@@ -1078,8 +1078,8 @@ static inline void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32
     getzsofslopeptr(&sector[sectnum], dax, day, ceilz, florz);
 }
 
-// Is <wal> a red wall in a safe fashion, i.e.
-// .nextsector >= 0 iff .nextwall >= 0 ?
+// Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
+// ".nextsector >= 0 iff .nextwall >= 0" holds.
 static inline int32_t redwallp(const walltype *wal)
 {
     return (wal->nextwall >= 0 && wal->nextsector >= 0);

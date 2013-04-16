@@ -524,7 +524,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
         }
 #endif
     }
-    else if (retval == 0)
+    else if (change->z != 0 && retval == 0)
         retval = 16384+dasectnum;
 
     if (retval == 16384+dasectnum)
