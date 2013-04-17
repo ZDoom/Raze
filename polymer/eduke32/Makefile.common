@@ -270,7 +270,7 @@ endif
 # compiler flags etc.
 BASECFLAGS=
 BASECONLYFLAGS=-Wimplicit -Wdeclaration-after-statement
-BASECXXFLAGS= -fno-exceptions -fno-rtti -fpermissive -Wno-write-strings -Wno-narrowing
+BASECXXFLAGS= -fno-exceptions -fno-rtti -fpermissive -Wno-write-strings
 BASEASFLAGS=-s #-g
 BASELDFLAGS=
 
@@ -278,6 +278,13 @@ BASELDFLAGS=
 ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 1)))
         BASECFLAGS+= -Wno-attributes
+    endif
+endif
+
+# XXX: I (Helixhorned) only know that there's no -Wnarrowing on my OS X 10.6 using GCC 4.2.
+ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
+    ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 3)))
+        BASECXXFLAGS+= -Wno-narrowing
     endif
 endif
 
