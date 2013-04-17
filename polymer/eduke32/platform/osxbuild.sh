@@ -16,6 +16,7 @@ buildrelease=1
 pack=1
 iamhelix=0
 dummy=0
+doclean=0
 package=package
 lastrevision=
 
@@ -83,6 +84,17 @@ for i in $*; do
             buildrelease=0
             pack=0
             dummy=1
+        ;;
+        clean)
+            buildppc=0
+            build86=0
+            build64=0
+            buildmain=0
+            buildtools=0
+            builddebug=0
+            buildrelease=0
+            pack=0
+            doclean=1
         ;;
         # For the convenience of universal distributors:
         dist)
@@ -229,6 +241,12 @@ if [ $buildppc == 1 ]; then
     commonargs="$commonargs DARWIN9=1"
 fi
 
+if [ $doclean == 1 ]; then
+    cd build
+    rm -f *{.x86,.x64,.ppc}
+    cd ..
+fi
+
 # Building the buildtools:
 if [ $buildtools$installtools != 00 ] && [ -d "build" ]; then
     cd build
@@ -312,11 +330,13 @@ if [ $buildtools$installtools != 00 ] && [ -d "build" ]; then
     cd ..
 fi
 
-# The build process itself:
-if [ $buildmain == 1 ]; then
+if [ $doclean == 1 ] || [ $buildmain == 1 ]; then
     rm -f {eduke32,mapster32}{.debug,}{.x86,.x64,.ppc,}
     rm -rf {$package/,}{EDuke32,Mapster32}{.debug,}.app
+fi
 
+# The build process itself:
+if [ $buildmain == 1 ]; then
     if [ $iamhelix == 1 ]; then
         makecmd="make -j 2"
     else
