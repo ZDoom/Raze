@@ -8729,6 +8729,17 @@ static int32_t loaddefinitions_game(const char *fn, int32_t preload)
 const char **g_argv;
 #endif
 
+#ifdef __APPLE__
+// Early checking for "-usecwd" switch.
+static void G_CheckUseCWD(int32_t argc, const char **argv)
+{
+    int32_t i;
+    for (i=0; i<argc; i++)
+        if (!Bstrcasecmp(argv[i], "-usecwd"))
+            usecwd = 1;
+}
+#endif
+
 static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
     int16_t i = 1, j;
@@ -10239,7 +10250,23 @@ int32_t app_main(int32_t argc, const char **argv)
     strcat(g_rootDir,"/");
 #endif
     OSD_SetParameters(0,0, 0,12, 2,12);
+#ifdef __APPLE__
+    G_CheckUseCWD(argc, argv);
+
+    if (!usecwd)
+    {
+        char *homedir = Bgethomedir();
+        if (homedir)
+            Bsnprintf(cwd, sizeof(cwd), "%s/Library/Logs/eduke32.log", homedir);
+        else
+            Bstrcpy(cwd, "eduke32.log");
+        OSD_SetLogFile(cwd);
+        Bfree(homedir);
+    }
+    else
+#endif
     OSD_SetLogFile("eduke32.log");
+
     OSD_SetFunctions(
         GAME_drawosdchar,
         GAME_drawosdstr,
