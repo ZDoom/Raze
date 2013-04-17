@@ -15,7 +15,9 @@ builddebug=0
 buildrelease=1
 pack=1
 iamhelix=0
+dummy=0
 package=package
+lastrevision=
 
 # Enforce OS:
 if [ `uname -s` != Darwin ]; then
@@ -69,6 +71,18 @@ for i in $*; do
             builddebug=1
             buildrelease=0
             pack=1
+        ;;
+        dummyhelix)
+            iamhelix=1
+            buildppc=0
+            build86=0
+            build64=0
+            buildmain=0
+            buildtools=0
+            builddebug=0
+            buildrelease=0
+            pack=0
+            dummy=1
         ;;
         # For the convenience of universal distributors:
         dist)
@@ -134,6 +148,10 @@ for i in $*; do
 
         --pack=*)
             pack=${i#*=}
+        ;;
+
+        --lastrev=*)
+            lastrevision=${i#*=}
         ;;
 
         *)
@@ -350,24 +368,27 @@ fi
 
 # Begin assembling archive contents:
 echo Creating fat binaries.
-success=0
-for i in {eduke32,mapster32}{.debug,}; do
-    binaries=
-    for j in ${i}.{x86,x64,ppc}; do
-        if [ -f "$j" ]; then
-            binaries="$binaries $j"
-            success=1
+
+success=$dummy
+if [ $dummy == 0 ]; then
+    for i in {eduke32,mapster32}{.debug,}; do
+        binaries=
+        for j in ${i}.{x86,x64,ppc}; do
+            if [ -f "$j" ]; then
+                binaries="$binaries $j"
+                success=1
+            fi
+        done
+
+        if [ -n "$binaries" ]; then
+            lipo -create $binaries -output $i
+            app=${i//eduke32/EDuke32}
+            app=${app//mapster32/Mapster32}.app
+            cp -f $i "$app/Contents/MacOS/${i%.debug}"
+            mv -f "$app" "$package/"
         fi
     done
-
-    if [ -n "$binaries" ]; then
-        lipo -create $binaries -output $i
-        app=${i//eduke32/EDuke32}
-        app=${app//mapster32/Mapster32}.app
-        cp -f $i "$app/Contents/MacOS/${i%.debug}"
-        mv -f "$app" "$package/"
-    fi
-done
+fi
 
 # Almost done...
 if [ $success == 1 ]; then
@@ -386,15 +407,19 @@ if [ $success == 1 ]; then
     echo "LibPNG from Fink (http://www.finkproject.org/) statically linked into it." >> README.OSX
 
     # Generate Changelog:
-    lastrevision=$(ls -A1 eduke32-osx* | tail -n1 | cut -d- -f3 | cut -d. -f1)
-
     if [ -z $lastrevision ]; then
-        let lastrevision=rev-1
-    elif [ $lastrevision -lt $rev ]; then
-        let lastrevision+=1
-    else
-        let lastrevision=rev-1
+        lastrevision=$(ls -A1 eduke32-osx* | tail -n1 | cut -d- -f3 | cut -d. -f1)
+
+        if [ -z $lastrevision ]; then
+            let lastrevision=rev-1
+        elif [ $lastrevision -lt $rev ]; then
+            let lastrevision+=1
+        else
+            let lastrevision=rev-1
+        fi
     fi
+
+    echo "Using r$lastrevision as last revision for change log"
 
     if [ "$vc" == "svn" ]; then
         svn log -r $rev:$lastrevision > Changelog.txt
