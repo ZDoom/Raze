@@ -434,13 +434,7 @@ ivfrate$(EXESUFFIX): $(OBJ)/ivfrate.$o
 # Create object files directly with luajit
 $(OBJ)/luaJIT_BC_%.$o: $(SRC)/lunatic/%.lua
 	$(COMPILE_STATUS)
-ifeq ($(PLATFORM),DARWIN)
-    # LuaJIT on OS X doesn't support writing Mach-O objects as of beta-10,
-    # so we pipe the C source into GCC.
-	if $(LUAJIT) -bg -t c $< - | $(CC) -xc -c - -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
-else
 	if $(LUAJIT) -bg $< $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
-endif
 
 # Same thing for defs.ilua which I'm too reluctant to rename now:
 $(OBJ)/luaJIT_BC_%.$o: $(SRC)/lunatic/%.ilua
