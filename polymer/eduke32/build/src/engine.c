@@ -9209,6 +9209,8 @@ killsprite:
             const int32_t w = (getrendermode()==REND_POLYMER) ?
                 maskwall[maskwallcnt] : thewall[maskwall[maskwallcnt]];
 
+            const int32_t otherside_spr_first = (getrendermode() == REND_CLASSIC);
+
             dot.x = (float)wall[w].x;
             dot.y = (float)wall[w].y;
             dot2.x = (float)wall[wall[w].point2].x;
@@ -9216,11 +9218,14 @@ killsprite:
 
             maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
 
-            p1eq = equation(pos.x, pos.y, dot.x, dot.y);
-            p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
+            if (!otherside_spr_first)
+            {
+                p1eq = equation(pos.x, pos.y, dot.x, dot.y);
+                p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
 
-            middle.x = (dot.x + dot2.x) / 2;
-            middle.y = (dot.y + dot2.y) / 2;
+                middle.x = (dot.x + dot2.x) / 2;
+                middle.y = (dot.y + dot2.y) / 2;
+            }
 
             i = spritesortcnt;
             while (i--)
@@ -9233,9 +9238,9 @@ killsprite:
                     spr.y = (float)tspriteptr[i]->y;
 
                     if (!sameside(&maskeq, &spr, &pos) &&
-                            sameside(&p1eq, &middle, &spr) &&
-                            sameside(&p2eq, &middle, &spr)
-                        )
+                        (otherside_spr_first ||
+                         (sameside(&p1eq, &middle, &spr) &&
+                          sameside(&p2eq, &middle, &spr))))
                     {
                         drawsprite(i);
                         tspriteptr[i] = NULL;
