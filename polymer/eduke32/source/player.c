@@ -4770,7 +4770,9 @@ void P_ProcessInput(int32_t snum)
                             P_QuickKill(p);
                         else if (p->falling_counter > 9)
                         {
+                            // Falling damage.
                             s->extra -= p->falling_counter-(krand()&3);
+
                             if (s->extra <= 0)
                             {
                                 A_PlaySound(SQUISHED,p->i);

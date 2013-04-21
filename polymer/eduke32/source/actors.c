@@ -2977,16 +2977,11 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
             A_GetZLimits(i);
 
-            switch (DYNAMICTILEMAP(s->picnum))
+            if (s->picnum == RPG && actor[i].picnum != BOSS2 && s->xrepeat >= 10 &&
+                    sector[s->sectnum].lotag != ST_2_UNDERWATER)
             {
-            case RPG__STATIC:
-                if (DYNAMICTILEMAP(s->picnum) == RPG__STATIC && actor[i].picnum != BOSS2 &&
-                    s->xrepeat >= 10 && sector[s->sectnum].lotag != ST_2_UNDERWATER)
-                {
-                    j = A_Spawn(i,SMALLSMOKE);
-                    sprite[j].z += (1<<8);
-                }
-                break;
+                j = A_Spawn(i,SMALLSMOKE);
+                sprite[j].z += (1<<8);
             }
 
             {
@@ -3069,7 +3064,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 {
                     j &= (MAXWALLS-1);
 
-                    if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+                    if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT &&
+                            (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
                     {
                         Proj_BounceOffWall(s, j);
                         s->owner = i;
@@ -3143,7 +3139,6 @@ ACTOR_STATIC void G_MoveWeapons(void)
                                 sprite[k].cstat |= 8;
                                 sprite[k].z += (48<<8);
                             }
-
                         }
 
                         if (s->xrepeat >= 10)
@@ -3174,7 +3169,6 @@ ACTOR_STATIC void G_MoveWeapons(void)
                                 sprite[k].cstat |= 8;
                                 sprite[k].z += (72<<8);
                             }
-
                         }
                     }
                 }
