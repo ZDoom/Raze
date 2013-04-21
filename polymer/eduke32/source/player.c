@@ -1743,6 +1743,8 @@ static inline int32_t weapsc(int32_t sc)
     return scale(sc, ud.weaponscale, 100);
 }
 
+static int32_t g_dts_yadd;
+
 static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
 {
     int32_t ang = 0;
@@ -1796,7 +1798,7 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
         y += (224-weapsc(224));
 #endif
     rotatesprite(weapsc(x<<16) + ((xoff-weapsc(xoff))<<16),
-                 weapsc(y<<16) + ((200-weapsc(200))<<16) + yofs,
+                 weapsc((y<<16) + g_dts_yadd) + ((200-weapsc(200))<<16) + yofs,
                  weapsc(65536L),ang,tilenum,shade,p,(2|orientation),
                  wx[0],wy[0], wx[1],wy[1]);
 }
@@ -1829,36 +1831,33 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
 
     switch (ud.drawweapon)
     {
-    default:
-        return;
     case 1:
+#ifdef USE_OPENGL
+        if (getrendermode()>=REND_POLYMOST)
+            if (tilenum >= CHAINGUN+1 && tilenum <= CHAINGUN+4)
+                if (!usemodels || md_tilehasmodel(tilenum,p) < 0)
+                {
+                    // HACK: Draw the upper part of the chaingun two screen
+                    // pixels (not texels; multiplied by weapon scale) lower
+                    // first, preventing ugly horizontal seam.
+                    g_dts_yadd = (65536*2*200)/ydim;
+                    G_DrawTileScaled(x,y,tilenum,shadef[slot],orientation,p);
+                    g_dts_yadd = 0;
+                }
+#endif
         G_DrawTileScaled(x,y,tilenum,shadef[slot],orientation,p);
         return;
+
     case 2:
     {
         const DukePlayer_t *const ps = g_player[screenpeek].ps;
         const int32_t sc = scale(65536,ud.statusbarscale,100);
 
-        switch (hudweap.cur)
-        {
-        case PISTOL_WEAPON:
-        case CHAINGUN_WEAPON:
-        case RPG_WEAPON:
-        case FREEZE_WEAPON:
-        case SHRINKER_WEAPON:
-        case GROW_WEAPON:
-        case DEVISTATOR_WEAPON:
-        case TRIPBOMB_WEAPON:
-        case HANDREMOTE_WEAPON:
-        case HANDBOMB_WEAPON:
-        case SHOTGUN_WEAPON:
+        if ((unsigned)hudweap.cur < MAX_WEAPONS && hudweap.cur != KNEE_WEAPON)
             rotatesprite_win(160<<16,(180+(ps->weapon_pos*ps->weapon_pos))<<16,
                              sc,0,hudweap.cur==GROW_WEAPON?GROWSPRITEICON:WeaponPickupSprites[hudweap.cur],
                              0,0,2);
-            return;
-        default:
-            return;
-        }
+        return;
     }
     }
 }
@@ -2365,9 +2364,6 @@ void P_DisplayWeapon(int32_t snum)
                             weapon_xoffset += 1-(rand()&3);
                     }
 
-                    G_DrawWeaponTile(weapon_xoffset+168-(p->look_ang>>1),looking_arc+260-gun_pos,
-                        CHAINGUN,gs,o,pal,0);
-
                     switch (*kb)
                     {
                     case 0:
@@ -2401,6 +2397,9 @@ void P_DisplayWeapon(int32_t snum)
 
                         break;
                     }
+
+                    G_DrawWeaponTile(weapon_xoffset+168-(p->look_ang>>1),looking_arc+260-gun_pos,
+                        CHAINGUN,gs,o,pal,0);
                 }
                 break;
 

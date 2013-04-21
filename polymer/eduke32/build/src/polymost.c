@@ -1053,6 +1053,8 @@ static void fixtransparency(int32_t dapicnum, coltype *dapic, int32_t daxsiz, in
     coltype *wpptr;
     int32_t j, x, y, r, g, b, dox, doy, naxsiz2;
 
+    UNREFERENCED_PARAMETER(dapicnum);
+
     dox = daxsiz2-1; doy = daysiz2-1;
     if (dameth&4) { dox = min(dox,daxsiz); doy = min(doy,daysiz); }
     else { daxsiz = daxsiz2; daysiz = daysiz2; } //Make repeating textures duplicate top/left parts
@@ -1066,23 +1068,6 @@ static void fixtransparency(int32_t dapicnum, coltype *dapic, int32_t daxsiz, in
         wpptr = &dapic[y*daxsiz2+dox];
         for (x=dox; x>=0; x--,wpptr--)
         {
-            // HACK for on-screen lower part of chaingun sprite to prevent a subtexel
-            // transparent horizontal line between the bottom and top parts with linear
-            // filtering.
-            if (dapicnum==2536 && tilesizx[2536]==211 && tilesizy[2536]==55)  // CHAINGUN
-            {
-                if (doy>=3 && y==2 && x>=78 && x<=157)
-                {
-                    const coltype *onedown = &dapic[(y+1)*daxsiz2+x];
-                    if (wpptr->a==0 && onedown->a!=0)
-                        Bmemcpy(wpptr, onedown, sizeof(coltype));
-                    // Remove the comment to see what texels are affected:
-                    //wpptr->r=255; wpptr->g = wpptr->b = 0; wpptr->a = 255;
-                    continue;
-                }
-            }
-            // END HACK
-
             if (wpptr->a) continue;
 
             r = g = b = j = 0;
