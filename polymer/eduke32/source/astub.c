@@ -6258,14 +6258,20 @@ static void Keys3d(void)
     {
         if (ASSERT_AIMING)
         {
-            int32_t aiming_at_sprite = AIMING_AT_SPRITE, osearchwall=searchwall;
-            int16_t *picnumptr = AIMING_AT_WALL_OR_MASK ? &AIMED_SELOVR_PICNUM : &AIMED_CF_SEL(picnum);
+            int16_t *const picnumptr = AIMING_AT_WALL_OR_MASK ? &AIMED_SELOVR_PICNUM : &AIMED_CF_SEL(picnum);
+            const int32_t aiming_at_sprite = AIMING_AT_SPRITE;
+            const int32_t opicnum = *picnumptr, osearchwall = searchwall;
 
             static const char *Typestr_tmp[5] = { "Wall", "Sector ceiling", "Sector floor", "Sprite", "Masked wall" };
 
             Bsprintf(tempbuf, "%s picnum: ", Typestr_tmp[searchstat]);
             getnumberptr256(tempbuf, picnumptr, sizeof(int16_t), MAXTILES-1, 0+2, NULL);
-            if (*picnumptr != AIMED_CF_SEL(picnum))
+
+            Bassert((unsigned)*picnumptr < MAXTILES);
+            if (!tile_exists(*picnumptr))
+                *picnumptr = opicnum;
+
+            if (*picnumptr != opicnum)
                 asksave = 1;
 
             // need to use the old value because aiming might have changed in getnumberptr256
