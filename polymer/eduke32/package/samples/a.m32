@@ -37,6 +37,8 @@ gamevar use_notebook_keys 0 0
 // Whether RESPAWN sprites show the respawned sprite picnum unconditionally instead of
 // only when aimed at (and locked onto) the RESPAWN sprite in 3D mode.
 gamevar showrespawn_always 0 0
+// When set to 1, previewed sprites are 66% translucent instead of 33%:
+gamevar showrespawn_fulltrans 0 0
 
 gamevar move_by_one 0 0
 
@@ -1130,6 +1132,11 @@ defstate respawnpreview
                 set pic sprite[ow].hitag
                 ifge pic 0 ifl pic MAXTILES
                     set tsprite[k].picnum pic
+
+                and tsprite[k].cstat 0xfffffdff  // clear bit 512 (reverse translucency)
+                or tsprite[k].cstat 2  // set bit 2 (33% translucency)
+                ifvarn showrespawn_fulltrans 0
+                    or tsprite[k].cstat 512
             }
         }
     }
