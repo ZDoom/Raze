@@ -2960,12 +2960,11 @@ int32_t wallfront(int32_t l1, int32_t l2)
 //
 static inline int32_t spritewallfront(const spritetype *s, int32_t w)
 {
-    walltype *wal;
-    int32_t x1, y1;
+    const walltype *const wal = &wall[w];
+    const walltype *wal2 = &wall[wal->point2];
+    const int32_t x1 = wal->x, y1 = wal->y;
 
-    wal = &wall[w]; x1 = wal->x; y1 = wal->y;
-    wal = &wall[wal->point2];
-    return (dmulscale32(wal->x-x1,s->y-y1,-(s->x-x1),wal->y-y1) >= 0);
+    return (dmulscale32(wal2->x-x1, s->y-y1, -(s->x-x1), wal2->y-y1) >= 0);
 }
 
 //
@@ -9059,7 +9058,7 @@ static inline int32_t         sameside(_equation *eq, _point2d *p1, _point2d *p2
 //
 void drawmasks(void)
 {
-    int32_t i, j, k, l, modelp=0;
+    int32_t i, modelp=0;
 
     for (i=spritesortcnt-1; i>=0; i--)
         tspriteptr[i] = &tsprite[i];
@@ -9099,7 +9098,8 @@ killsprite:
     }
 
     {
-        int32_t gap, ys;
+        int32_t j, l, gap, ys;
+
         gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
         for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
             for (i=0; i<spritesortcnt-gap; i++)
@@ -9117,6 +9117,8 @@ killsprite:
         ys = spritesy[0]; i = 0;
         for (j=1; j<=spritesortcnt; j++)
         {
+            int32_t k;
+
             if (spritesy[j] == ys)
                 continue;
 
@@ -9198,31 +9200,22 @@ killsprite:
         pos.x = (float)globalposx;
         pos.y = (float)globalposy;
 
-        while (maskwallcnt)
+        while (maskwallcnt--)
         {
             _point2d dot, dot2, middle;
             // PLAG: sorting stuff
             _equation maskeq, p1eq, p2eq;
 
-            maskwallcnt--;
-#if defined(USE_OPENGL) && defined(POLYMER)
-            if (rendmode == 4)
-            {
-                dot.x = (float)wall[maskwall[maskwallcnt]].x;
-                dot.y = (float)wall[maskwall[maskwallcnt]].y;
-                dot2.x = (float)wall[wall[maskwall[maskwallcnt]].point2].x;
-                dot2.y = (float)wall[wall[maskwall[maskwallcnt]].point2].y;
-            }
-            else
-#endif
-            {
-                dot.x = (float)wall[thewall[maskwall[maskwallcnt]]].x;
-                dot.y = (float)wall[thewall[maskwall[maskwallcnt]]].y;
-                dot2.x = (float)wall[wall[thewall[maskwall[maskwallcnt]]].point2].x;
-                dot2.y = (float)wall[wall[thewall[maskwall[maskwallcnt]]].point2].y;
-            }
+            const int32_t w = (getrendermode()==REND_POLYMER) ?
+                maskwall[maskwallcnt] : thewall[maskwall[maskwallcnt]];
+
+            dot.x = (float)wall[w].x;
+            dot.y = (float)wall[w].y;
+            dot2.x = (float)wall[wall[w].point2].x;
+            dot2.y = (float)wall[wall[w].point2].y;
 
             maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
+
             p1eq = equation(pos.x, pos.y, dot.x, dot.y);
             p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
 
@@ -9230,9 +9223,8 @@ killsprite:
             middle.y = (dot.y + dot2.y) / 2;
 
             i = spritesortcnt;
-            while (i)
+            while (i--)
             {
-                i--;
                 if (tspriteptr[i] != NULL)
                 {
                     _point2d spr;
@@ -9240,19 +9232,22 @@ killsprite:
                     spr.x = (float)tspriteptr[i]->x;
                     spr.y = (float)tspriteptr[i]->y;
 
-                    if (!sameside(&maskeq, &spr, &pos) && sameside(&p1eq, &middle, &spr) && sameside(&p2eq, &middle, &spr))
+                    if (!sameside(&maskeq, &spr, &pos) &&
+                            sameside(&p1eq, &middle, &spr) &&
+                            sameside(&p2eq, &middle, &spr)
+                        )
                     {
                         drawsprite(i);
                         tspriteptr[i] = NULL;
                     }
                 }
             }
+
             drawmaskwall(maskwallcnt);
         }
 
-        while (spritesortcnt)
+        while (spritesortcnt--)
         {
-            spritesortcnt--;
             if (tspriteptr[spritesortcnt] != NULL)
                 drawsprite(spritesortcnt);
         }
