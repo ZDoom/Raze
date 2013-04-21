@@ -2317,8 +2317,6 @@ static int32_t globalx, globaly, globalz;
 
 int16_t sectorborder[256], sectorbordercnt;
 int32_t ydim16, qsetmode = 0;
-vec3_t startpos;
-int16_t startang, startsectnum;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 #ifndef OBSOLETE_RENDMODES
 static int32_t lastx[MAXYDIM];
@@ -9595,13 +9593,13 @@ static void prepare_loadboard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_
     kread(fil,&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
     kread(fil,&dapos->y,4); dapos->y = B_LITTLE32(dapos->y);
     kread(fil,&dapos->z,4); dapos->z = B_LITTLE32(dapos->z);
-    kread(fil,daang,2);  *daang  = B_LITTLE16(*daang);
+    kread(fil,daang,2);  *daang  = B_LITTLE16(*daang) & 2047;
     kread(fil,dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
 }
 
-static void finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
+static int32_t finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
 {
-    int32_t i, realnumsprites=numsprites;
+    int32_t i, realnumsprites=numsprites, numremoved;
 
 #if !defined USE_OPENGL || !defined POLYMER
     UNREFERENCED_PARAMETER(myflags);
@@ -9644,6 +9642,7 @@ static void finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t
             }
     }
 
+    numremoved = (numsprites-realnumsprites);
     numsprites = realnumsprites;
     Bassert(numsprites == Numsprites);
 
@@ -9670,6 +9669,8 @@ static void finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t
     }
 
     guniqhudid = 0;
+
+    return numremoved;
 }
 
 
@@ -9855,13 +9856,7 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
         yax_updategrays(dapos->z);
 #endif
 
-    finish_loadboard(dapos, dacursectnum, numsprites, myflags);
-
-    startpos = *dapos;
-    startang = *daang;
-    startsectnum = *dacursectnum;
-
-    return(0);
+    return finish_loadboard(dapos, dacursectnum, numsprites, myflags);
 }
 
 
@@ -10046,9 +10041,7 @@ int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daa
     kclose(fil);
     // Done reading file.
 
-    finish_loadboard(dapos, dacursectnum, numsprites, 0);
-
-    return(0);
+    return finish_loadboard(dapos, dacursectnum, numsprites, 0);
 }
 #endif
 

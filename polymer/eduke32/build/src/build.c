@@ -47,6 +47,11 @@ uint8_t buildkeys[NUMBUILDKEYS] =
     0x9c,0x1c,0xd,0xc,0xf,0x29
 };
 
+// Start position
+vec3_t startpos;
+int16_t startang, startsectnum;
+
+// Current position
 vec3_t pos;
 int32_t horiz = 100;
 int16_t ang, cursectnum;
@@ -162,35 +167,6 @@ typedef struct
 
 int32_t g_doScreenShot;
 
-static int32_t backup_highlighted_map(mapinfofull_t *mapinfo);
-static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal);
-static void SaveBoardAndPrintMessage(const char *fn);
-
-/*
-static char scantoasc[128] =
-{
-    0,0,'1','2','3','4','5','6','7','8','9','0','-','=',0,0,
-    'q','w','e','r','t','y','u','i','o','p','[',']',0,0,'a','s',
-    'd','f','g','h','j','k','l',';',39,'`',0,92,'z','x','c','v',
-    'b','n','m',',','.','/',0,'*',0,32,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,'7','8','9','-','4','5','6','+','1',
-    '2','3','0','.',0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-};
-static char scantoascwithshift[128] =
-{
-    0,0,'!','@','#','$','%','^','&','*','(',')','_','+',0,0,
-    'Q','W','E','R','T','Y','U','I','O','P','{','}',0,0,'A','S',
-    'D','F','G','H','J','K','L',':',34,'~',0,'|','Z','X','C','V',
-    'B','N','M','<','>','?',0,'*',0,32,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,'7','8','9','-','4','5','6','+','1',
-    '2','3','0','.',0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-};
-*/
-
 #define eitherALT   (keystatus[0x38]|keystatus[0xb8])
 #define eitherCTRL  (keystatus[0x1d]|keystatus[0x9d])
 #define eitherSHIFT (keystatus[0x2a]|keystatus[0x36])
@@ -211,6 +187,10 @@ char lastpm16buf[156];
 
 //static int32_t checksectorpointer_warn = 0;
 static int32_t saveboard_savedtags, saveboard_fixedsprites;
+
+static int32_t backup_highlighted_map(mapinfofull_t *mapinfo);
+static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal);
+static void SaveBoardAndPrintMessage(const char *fn);
 
 static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls);
 static void locktogrid(int32_t *dax, int32_t *day);
@@ -239,6 +219,7 @@ static int32_t insert_sprite_common(int32_t sucksect, int32_t dax, int32_t day);
 static void correct_ornamented_sprite(int32_t i, int32_t hitw);
 
 static int32_t getfilenames(const char *path, const char *kind);
+
 
 void clearkeys(void)
 {
@@ -8055,11 +8036,6 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     if (filename != boardfilename)
         Bstrcpy(boardfilename, filename);
 
-    // XXX: This is pointless unless loading fails.
-    for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
-    for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
-    for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
-
     editorzrange[0] = INT32_MIN;
     editorzrange[1] = INT32_MAX;
 
@@ -8087,13 +8063,20 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     tagstat = taglab_load(boardfilename, loadingflags);
     ExtLoadMap(boardfilename);
 
-    if (mapversion < 7)
-        message("Map %s loaded successfully and autoconverted to V7!",boardfilename);
-    else
     {
-        i = CheckMapCorruption(4, 0);
-        message("Loaded map %s%s %s", boardfilename, tagstat==0?" w/tags":"",
-                i==0?"successfully": (i<4 ? "(moderate corruption)" : "(HEAVY corruption)"));
+        char msgtail[64];
+        const int32_t ci = CheckMapCorruption(4, 0);
+
+        if (ci >= 4)
+            Bstrcpy(msgtail, "^12(HEAVY corruption)");
+        else if (i > 0)
+            Bsprintf(msgtail, "^14(removed %d sprites)", i);
+        else if (ci >= 1 && ci < 4)
+            Bstrcpy(msgtail, "^14(moderate corruption)");
+        else
+            Bstrcpy(msgtail, "successfully");
+
+        message("Loaded V%d map %s%s %s", mapversion, boardfilename, tagstat==0?" w/tags":"", msgtail);
     }
 
     startpos = pos;      //this is same
