@@ -11467,20 +11467,25 @@ static int32_t check_spritelist_consistency()
 
     for (i=0; i<MAXSPRITES; i++)
     {
+        const int32_t sectnum=sprite[i].sectnum, statnum=sprite[i].statnum;
+
         csc_i = i;
 
-        if ((sprite[i].statnum==MAXSTATUS) != (sprite[i].sectnum==MAXSECTORS))
+        if ((statnum==MAXSTATUS) != (sectnum==MAXSECTORS))
             return 2;  // violation of .statnum==MAXSTATUS iff .sectnum==MAXSECTORS
 
-        if ((unsigned)sprite[i].statnum > MAXSTATUS || (unsigned)sprite[i].sectnum > MAXSECTORS)
+        if ((unsigned)statnum > MAXSTATUS || (sectnum!=MAXSECTORS && (unsigned)sectnum > (unsigned)numsectors))
             return 3;  // oob sectnum or statnum
 
-        if (sprite[i].statnum != MAXSTATUS)
+        if (statnum != MAXSTATUS)
             ournumsprites++;
     }
 
     if (ournumsprites != Numsprites)
+    {
+        initprintf("ournumsprites=%d, Numsprites=%d\n", ournumsprites, Numsprites);
         return 4;  // counting sprites by statnum!=MAXSTATUS inconsistent with Numsprites
+    }
 
     // SECTOR LIST
 
@@ -11917,8 +11922,8 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
         {
             int32_t onumct = numcorruptthings;
 
-            CORRUPTCHK_PRINT(3, CORRUPT_SPRITE|i, "SPRITE %d at [%d, %d] is out of the maximal grid range [%d, %d]",
-                             TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), i, -BXY_MAX, BXY_MAX);
+            CORRUPTCHK_PRINT(3, CORRUPT_SPRITE|i, "SPRITE %d at [%d, %d] is outside the maximal grid range [%d, %d]",
+                             i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), -BXY_MAX, BXY_MAX);
 
             if (onumct < MAXCORRUPTTHINGS)
             {

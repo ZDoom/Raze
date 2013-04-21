@@ -9601,7 +9601,7 @@ static void prepare_loadboard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_
 
 static void finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
 {
-    int32_t i;
+    int32_t i, realnumsprites=numsprites;
 
 #if !defined USE_OPENGL || !defined POLYMER
     UNREFERENCED_PARAMETER(myflags);
@@ -9609,11 +9609,43 @@ static void finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t
 
     for (i=0; i<numsprites; i++)
     {
+        int32_t removeit = 0;
+
         if ((sprite[i].cstat & 48) == 48)
             sprite[i].cstat &= ~48;
 
+        if (sprite[i].statnum == MAXSTATUS)
+        {
+            // Sprite was removed in loadboard() -> check_sprite(). Insert it
+            // for now, because we must maintain the sprite numbering.
+            sprite[i].statnum = sprite[i].sectnum = 0;
+            removeit = 1;
+        }
+
         insertsprite(sprite[i].sectnum, sprite[i].statnum);
+
+        if (removeit)
+        {
+            // Flag .statnum==MAXSTATUS, temporarily creating an inconsistency
+            // with sprite list.
+            sprite[i].statnum = MAXSTATUS;
+            realnumsprites--;
+        }
     }
+
+    if (numsprites != realnumsprites)
+    {
+        for (i=0; i<numsprites; i++)
+            if (sprite[i].statnum == MAXSTATUS)
+            {
+                // Now remove it for real!
+                sprite[i].statnum = 0;
+                deletesprite(i);
+            }
+    }
+
+    numsprites = realnumsprites;
+    Bassert(numsprites == Numsprites);
 
     //Must be after loading sectors, etc!
     updatesector(dapos->x, dapos->y, dacursectnum);
@@ -9645,31 +9677,47 @@ static void finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t
 #define MYMAXWALLS()   (MAXSECTORS==MAXSECTORSV7 || mapversion <= 7 ? MAXWALLSV7 : MAXWALLSV8)
 #define MYMAXSPRITES() (MAXSECTORS==MAXSECTORSV7 || mapversion <= 7 ? MAXSPRITESV7 : MAXSPRITESV8)
 
+// Sprite checking
+
+static void remove_sprite(int32_t i)
+{
+    Bmemset(&sprite[i], 0, sizeof(spritetype));
+    sprite[i].statnum = MAXSTATUS;
+    sprite[i].sectnum = MAXSECTORS;
+}
+
+// This is only to be run after reading the sprite array!
 static void check_sprite(int32_t i)
 {
-    if ((unsigned)sprite[i].sectnum >= MYMAXSECTORS())
+    if ((unsigned)sprite[i].statnum >= MAXSTATUS)
     {
-        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d). Map is corrupt!\n",
+        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d) REMOVED.\n",
+                   i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].statnum));
+        remove_sprite(i);
+    }
+    else if ((unsigned)sprite[i].picnum >= MAXTILES)
+    {
+        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d) REMOVED.\n",
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].sectnum));
+        remove_sprite(i);
+    }
+    else if ((unsigned)sprite[i].sectnum >= (unsigned)numsectors)
+    {
+        const int32_t osectnum = sprite[i].sectnum;
 
+        sprite[i].sectnum = -1;
         updatesector(sprite[i].x, sprite[i].y, &sprite[i].sectnum);
 
         if (sprite[i].sectnum < 0)
-            sprite[i].sectnum = 0;
-    }
+            remove_sprite(i);
 
-    if ((unsigned)sprite[i].statnum >= MAXSTATUS)
-    {
-        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d). Map is corrupt!\n",
-                   i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].statnum));
-        sprite[i].statnum = 0;
-    }
+        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d) ",
+                   i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), osectnum);
 
-    if ((unsigned)sprite[i].picnum >= MAXTILES)
-    {
-        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d). Map is corrupt!\n",
-                   i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].sectnum));
-        sprite[i].picnum = 0;
+        if (sprite[i].statnum != MAXSTATUS)
+            initprintf_nowarn("changed to sector %d.\n", TrackerCast(sprite[i].sectnum));
+        else
+            initprintf_nowarn("REMOVED.\n");
     }
 }
 
@@ -9777,6 +9825,9 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
 
     kread(fil, sprite, sizeof(spritetype)*numsprites);
 
+    kclose(fil);
+    // Done reading file.
+
     for (i=numsprites-1; i>=0; i--)
     {
         sprite[i].x       = B_LITTLE32(sprite[i].x);
@@ -9797,9 +9848,6 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
 
         check_sprite(i);
     }
-
-    kclose(fil);
-    // Done reading file.
 
 #ifdef YAX_ENABLE
     yax_update(mapversion<9);

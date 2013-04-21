@@ -8547,7 +8547,7 @@ static int32_t deletesector(int16_t sucksect)
 
 int32_t fixspritesectors(void)
 {
-    int32_t i, j, dax, day, cz, fz;
+    int32_t i;
     int32_t numfixedsprites = 0, printfirsttime = 0;
 
     for (i=numsectors-1; i>=0; i--)
@@ -8566,11 +8566,12 @@ int32_t fixspritesectors(void)
     for (i=0; i<MAXSPRITES; i++)
         if (sprite[i].statnum < MAXSTATUS)
         {
-            dax = sprite[i].x;
-            day = sprite[i].y;
+            const int32_t dax=sprite[i].x, day=sprite[i].y;
 
             if (inside(dax,day,sprite[i].sectnum) != 1)
             {
+                int32_t j, cz, fz;
+
                 spriteoncfz(i, &cz, &fz);
 
                 for (j=0; j<numsectors; j++)
@@ -8589,7 +8590,8 @@ int32_t fixspritesectors(void)
                                 initprintf("--------------------\n");
                                 printfirsttime = 1;
                             }
-                            initprintf_nowarn("Changed sectnum of sprite %d from %d to %d\n", i, TrackerCast(sprite[i].sectnum), j);
+                            initprintf_nowarn("Changed sectnum of sprite #%d from %d to %d\n",
+                                              i, TrackerCast(sprite[i].sectnum), j);
                             changespritesect(i, j);
                         }
                         break;
