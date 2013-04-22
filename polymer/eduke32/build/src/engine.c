@@ -9200,16 +9200,20 @@ killsprite:
         pos.x = (float)globalposx;
         pos.y = (float)globalposy;
 
-        while (maskwallcnt--)
+        // CAUTION: maskwallcnt and spritesortcnt may be zero!
+        // Writing e.g. "while (maskwallcnt--)" is wrong!
+        while (maskwallcnt)
         {
             _point2d dot, dot2, middle;
             // PLAG: sorting stuff
             _equation maskeq, p1eq, p2eq;
 
             const int32_t w = (getrendermode()==REND_POLYMER) ?
-                maskwall[maskwallcnt] : thewall[maskwall[maskwallcnt]];
+                maskwall[maskwallcnt-1] : thewall[maskwall[maskwallcnt-1]];
 
             const int32_t otherside_spr_first = (getrendermode() == REND_CLASSIC);
+
+            maskwallcnt--;
 
             dot.x = (float)wall[w].x;
             dot.y = (float)wall[w].y;
@@ -9228,8 +9232,9 @@ killsprite:
             }
 
             i = spritesortcnt;
-            while (i--)
+            while (i)
             {
+                i--;
                 if (tspriteptr[i] != NULL)
                 {
                     _point2d spr;
@@ -9251,8 +9256,9 @@ killsprite:
             drawmaskwall(maskwallcnt);
         }
 
-        while (spritesortcnt--)
+        while (spritesortcnt)
         {
+            spritesortcnt--;
             if (tspriteptr[spritesortcnt] != NULL)
                 drawsprite(spritesortcnt);
         }
