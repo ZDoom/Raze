@@ -5313,21 +5313,6 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 
     VM_Move();
 
-    /*        if (ud.angleinterpolation)
-            {
-                temp = (vm.g_sp->ang & 2047) - sprpos[vm.g_i].ang;
-                sprpos[vm.g_i].oldang = sprpos[vm.g_i].ang;
-                if (temp)
-                {
-                    temp2 = temp/klabs(temp);
-                    if (klabs(temp) > 1024) temp2 = -(temp2);
-                    sprpos[vm.g_i].angdir = temp2;
-                    sprpos[vm.g_i].angdif = min(ud.angleinterpolation,klabs(temp));
-                    sprpos[vm.g_i].ang += sprpos[vm.g_i].angdif * sprpos[vm.g_i].angdir;
-                    sprpos[vm.g_i].ang &= 2047;
-                }
-            }
-      */
     if (vm.g_sp->statnum == STAT_STANDABLE)
         switch (DYNAMICTILEMAP(vm.g_sp->picnum))
         {

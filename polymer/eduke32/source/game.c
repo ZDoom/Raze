@@ -6844,16 +6844,6 @@ PALONLY:
 
         if (G_HaveActor(s->picnum))
         {
-            /*
-            if (ud.angleinterpolation)
-            {
-                if (sprpos[i].ang != sprpos[i].oldang)
-                    t->ang = (sprpos[i].oldang + (mulscale16((int32_t)(sprpos[i].angdif),smoothratio) * sprpos[i].angdir)) & 2047;
-                else
-                    t->ang = sprpos[i].ang;
-            }
-            */
-
 #ifndef LUNATIC
             if ((unsigned)t_data4 + 2 >= (unsigned)g_scriptSize)
                 goto skip;
