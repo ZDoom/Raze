@@ -40,6 +40,9 @@ gamevar showrespawn_always 0 0
 // When set to 1, previewed sprites are 66% translucent instead of 33%:
 gamevar showrespawn_fulltrans 0 0
 
+// Set to basepal index to override
+gamevar override_basepal -1 0
+
 gamevar move_by_one 0 0
 
 // Polymer "head" light
@@ -1187,6 +1190,9 @@ endevent
 
 onevent EVENT_KEYS3D
     var l m
+
+    ifvarge override_basepal 0
+        setgamepalette override_basepal
 
     // door sound tester
     ifeitherctrl ifeithershift ifaimingwall
