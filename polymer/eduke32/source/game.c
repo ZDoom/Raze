@@ -10146,7 +10146,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
 #endif
 }
 
-void G_LoadAddon(void)
+static void G_LoadAddon(void)
 {
     struct grpfile * grp;
     int32_t crc = 0;  // compiler-happy
@@ -10170,7 +10170,6 @@ void G_LoadAddon(void)
 
     if (grp && FindGroup(DUKE15_CRC))
     {
-        int32_t i;
         struct grpfile *grp;
 
         clearGrpNamePtr();

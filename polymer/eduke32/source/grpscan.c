@@ -71,93 +71,93 @@ static void LoadList(const char * filename)
     scriptfile_addsymbolvalue("DUKECB_CRC", DUKECB_CRC);
     scriptfile_addsymbolvalue("DUKENW_CRC", DUKENW_CRC);
 
-    enum
-    {
-        T_GRPINFO,
-        T_GAMENAME,
-        T_CRC,
-        T_SIZE,
-        T_DEPCRC,
-        T_SCRIPTNAME,
-        T_DEFNAME,
-        T_FLAGS,
-    };
-
-    static const tokenlist profiletokens[] =
-    {
-        { "grpinfo",            T_GRPINFO },
-    };
-
     while (!scriptfile_eof(script))
     {
+        enum
+        {
+            T_GRPINFO,
+            T_GAMENAME,
+            T_CRC,
+            T_SIZE,
+            T_DEPCRC,
+            T_SCRIPTNAME,
+            T_DEFNAME,
+            T_FLAGS,
+        };
+
+        static const tokenlist profiletokens[] =
+        {
+            { "grpinfo",            T_GRPINFO },
+        };
+
         int32_t token = getatoken(script,profiletokens,sizeof(profiletokens)/sizeof(tokenlist));
         switch (token)
         {
         case T_GRPINFO:
+        {
+            int32_t gsize = 0, gcrcval = 0, gflags = GAMEFLAG_DUKE, gdepcrc = DUKE15_CRC;
+            char *gname = NULL, *gscript = NULL, *gdef = NULL;
+
+            static const tokenlist grpinfotokens[] =
             {
-                int32_t gsize = 0, gcrcval = 0, gflags = GAMEFLAG_DUKE, gdepcrc = DUKE15_CRC;
-                char *gname = NULL, *gscript = NULL, *gdef = NULL;
+                { "name",           T_GAMENAME },
+                { "scriptname",     T_SCRIPTNAME },
+                { "defname",        T_DEFNAME },
+                { "crc",            T_CRC },
+                { "dependency",     T_DEPCRC },
+                { "size",           T_SIZE },
+                { "flags",          T_FLAGS },
 
-                static const tokenlist grpinfotokens[] =
+            };
+
+            if (scriptfile_getbraces(script,&grpend)) break;
+
+            while (script->textptr < grpend)
+            {
+                int32_t token = getatoken(script,grpinfotokens,sizeof(grpinfotokens)/sizeof(tokenlist));
+
+                switch (token)
                 {
-                    { "name",           T_GAMENAME },
-                    { "scriptname",     T_SCRIPTNAME },
-                    { "defname",        T_DEFNAME },
-                    { "crc",            T_CRC },
-                    { "dependency",     T_DEPCRC },
-                    { "size",           T_SIZE },
-                    { "flags",          T_FLAGS },
+                case T_GAMENAME:
+                    scriptfile_getstring(script,&gname); break;
+                case T_SCRIPTNAME:
+                    scriptfile_getstring(script,&gscript); break;
+                case T_DEFNAME:
+                    scriptfile_getstring(script,&gdef); break;
 
-                };
-
-                if (scriptfile_getbraces(script,&grpend)) break;
-
-                while (script->textptr < grpend)
-                {
-                    int32_t token = getatoken(script,grpinfotokens,sizeof(grpinfotokens)/sizeof(tokenlist));
-
-                    switch (token)
-                    {
-                    case T_GAMENAME:
-                        scriptfile_getstring(script,&gname); break;
-                    case T_SCRIPTNAME:
-                        scriptfile_getstring(script,&gscript); break;
-                    case T_DEFNAME:
-                        scriptfile_getstring(script,&gdef); break;
-
-                    case T_FLAGS:
-                        scriptfile_getsymbol(script,&gflags); break;
-                    case T_DEPCRC:
-                        scriptfile_getsymbol(script,&gdepcrc); break;
-                    case T_CRC:
-                        scriptfile_getsymbol(script,&gcrcval); break;
-                    case T_SIZE:
-                        scriptfile_getnumber(script,&gsize); break;
-                    default:
-                        break;
-                    }
-
-                    fg = (struct grpfile *)Bcalloc(1, sizeof(struct grpfile));
-                    fg->next = listgrps;
-                    listgrps = fg;
-
-                    if (gname)
-                        fg->name = Bstrdup(gname);
-
-                    fg->size = gsize;
-                    fg->crcval = gcrcval;
-                    fg->dependency = gdepcrc;
-                    fg->game = gflags;
-
-                    if (gscript)
-                        fg->scriptname = dup_filename(gscript);
-
-                    if (gdef)
-                        fg->defname = dup_filename(gdef);
+                case T_FLAGS:
+                    scriptfile_getsymbol(script,&gflags); break;
+                case T_DEPCRC:
+                    scriptfile_getsymbol(script,&gdepcrc); break;
+                case T_CRC:
+                    scriptfile_getsymbol(script,&gcrcval); break;
+                case T_SIZE:
+                    scriptfile_getnumber(script,&gsize); break;
+                default:
+                    break;
                 }
-            }
 
+                fg = (struct grpfile *)Bcalloc(1, sizeof(struct grpfile));
+                fg->next = listgrps;
+                listgrps = fg;
+
+                if (gname)
+                    fg->name = Bstrdup(gname);
+
+                fg->size = gsize;
+                fg->crcval = gcrcval;
+                fg->dependency = gdepcrc;
+                fg->game = gflags;
+
+                if (gscript)
+                    fg->scriptname = dup_filename(gscript);
+
+                if (gdef)
+                    fg->defname = dup_filename(gdef);
+            }
             break;
+        }
+
         default:
             break;
         }
