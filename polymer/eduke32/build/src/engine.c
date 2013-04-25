@@ -7885,37 +7885,83 @@ static void alloc_palookup(int32_t pal)
 #endif
 }
 
+static int32_t loadpalette_err(const char *msg)
+{
+    engineerrstr = msg;
+    initprintf("ERROR: %s\n", engineerrstr);
+    return -1;
+}
+
 //
 // loadpalette (internal)
 //
 static int32_t loadpalette(void)
 {
-    int32_t fil;
+    int32_t fil, lamedukep=0;
 
     if (paletteloaded != 0) return 0;
     if ((fil = kopen4load("palette.dat",0)) == -1)
-    {
-        engineerrstr = "Failed to load \"palette.dat\"!";
-        initprintf("ERROR: %s\n", engineerrstr);
-        return -1;
-    }
+        return loadpalette_err("Failed to load \"palette.dat\"!");
 
     kread(fil,palette,768);
     kread(fil,&numshades,2); numshades = B_LITTLE16(numshades);
 
+    if (numshades <= 0)
+        return loadpalette_err("Invalid number of shades in \"palette.dat\"!");
+
     alloc_palookup(0);
 
-    transluc = (char *)Bmalloc(65536);
+    transluc = (char *)Bcalloc(256, 256);
     if (palookup[0] == NULL || transluc == NULL)
-        exit(1);
+        return loadpalette_err("Out of memory in loadpalette()!");
 
     globalpalwritten = palookup[0]; globalpal = 0;
     setpalookupaddress(globalpalwritten);
 
     fixtransluscence(FP_OFF(transluc));
 
-    kread(fil,palookup[globalpal],numshades<<8);  // read base shade table (palookup 0)
-    kread(fil,transluc,65536);  // read translucency (blending) table
+    // Auto-detect LameDuke. Its PALETTE.DAT doesn't have a 'numshades' 16-bit
+    // int after the base palette, but starts directly with the shade tables.
+    // Thus, the first two bytes will be 00 01, which is 256 if read as
+    // little-endian int16_t.
+    if (numshades ==  256)
+    {
+        if (klseek(fil, -2, BSEEK_CUR) < 0)
+            return loadpalette_err("klseek() failed in loadpalette()!");
+
+        numshades = 32;
+        lamedukep = 1;
+    }
+
+    // Read base shade table (palookup 0).
+    kread(fil, palookup[globalpal], numshades<<8);
+
+    // Read translucency (blending) table.
+    if (lamedukep)
+    {
+        int32_t i, j;
+
+        for (i=0; i<256; i++)
+        {
+            // LameDuke's table doesn't have the last row or column.
+            if (i == 255)
+                continue;
+
+            // Read the entries above and on the diagonal, if the table is
+            // thought as being row-major.
+            if (kread(fil, &transluc[256*i + i], 256-i-1) < 0)
+                return loadpalette_err("Failed reading LameDuke translucency table!");
+
+            // Duplicate the entries below the diagonal.
+            for (j=0; j<i; j++)
+                transluc[256*i + j] = transluc[256*j + i];
+        }
+    }
+    else
+    {
+        if (kread(fil, transluc, 65536) < 0)
+            return loadpalette_err("Failed reading translucency table!");
+    }
 
     kclose(fil);
 
@@ -7928,11 +7974,12 @@ static int32_t loadpalette(void)
     }
 #endif
 
-    if (crc32once((uint8_t *)transluc, 65536)==0x94a1fac6)  // Duke3D 1.5 GRP
+    // If Duke3D 1.5 GRP or LameDuke, ...
+    if (crc32once((uint8_t *)transluc, 65536)==0x94a1fac6 || lamedukep)
     {
         int32_t i;
-        // fix up translucency table so that transluc(255,x)
-        // and transluc(x,255) is black instead of purple
+        // ... fix up translucency table so that transluc(255,x)
+        // and transluc(x,255) is black instead of purple.
         for (i=0; i<256; i++)
         {
             transluc[(255<<8) + i] = transluc[i];
