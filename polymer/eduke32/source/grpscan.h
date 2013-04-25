@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __grpscan_h__
 #define __grpscan_h__
 
+#define MAXLISTNAMELEN 32
+
 // List of internally-known GRP files
 #define NUMGRPFILES 12
 
@@ -48,17 +50,19 @@ enum addon_t {
 };
 
 typedef struct grpfile {
-	const char *name;
+	char *name;
 	int32_t crcval;
 	int32_t size;
 	int32_t game;
     int32_t dependency;
-    const char *scriptname;
+    char *scriptname;
+    char *defname;
 	struct grpfile *next;
 } grpfile_type;
 
-extern struct grpfile grpfiles[NUMGRPFILES];
+// extern struct grpfile grpfiles[NUMGRPFILES];
 extern struct grpfile *foundgrps;
+extern struct grpfile *listgrps;
 
 extern struct grpfile * FindGroup(int32_t crcval);
 int32_t ScanGroups(void);

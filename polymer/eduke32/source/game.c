@@ -9666,6 +9666,7 @@ void G_Shutdown(void)
     KB_Shutdown();
     uninitengine();
     G_Cleanup();
+    FreeGroups();
     Bfflush(NULL);
 }
 
@@ -10170,17 +10171,26 @@ void G_LoadAddon(void)
     if (grp && FindGroup(DUKE15_CRC))
     {
         int32_t i;
+        struct grpfile *grp;
 
         clearGrpNamePtr();
         g_grpNamePtr = dup_filename(FindGroup(DUKE15_CRC)->name);
 
         G_AddGroup(grp->name);
 
-        for (i = 0; i<NUMGRPFILES; i++) if (crc == grpfiles[i].crcval) break;
-        if (i != NUMGRPFILES && grpfiles[i].scriptname)
+        for (grp = listgrps; grp; grp=grp->next)
+            if (crc == grp->crcval) break;
+
+        if (grp != NULL && grp->scriptname)
         {
             clearScriptNamePtr();
-            g_scriptNamePtr = dup_filename(grpfiles[i].scriptname);
+            g_scriptNamePtr = dup_filename(grp->scriptname);
+        }
+
+        if (grp != NULL && grp->defname)
+        {
+            clearDefNamePtr();
+            g_defNamePtr = dup_filename(grp->defname);
         }
     }
 }
@@ -10453,17 +10463,22 @@ int32_t app_main(int32_t argc, const char **argv)
         // if it is found, set up the environment accordingly for the game it represents.
         // if it is not found, choose the first GRP from the list
         struct grpfile *fg, *first = NULL;
-        int32_t i;
+
         for (fg = foundgrps; fg; fg=fg->next)
         {
-            for (i = 0; i<NUMGRPFILES; i++) if (fg->crcval == grpfiles[i].crcval) break;
-            if (i == NUMGRPFILES) continue; // unrecognised grp file
-            fg->game = grpfiles[i].game;
+            struct grpfile *grp;
+            for (grp = listgrps; grp; grp=grp->next)
+                if (fg->crcval == grp->crcval) break;
+
+            if (grp == NULL)
+                continue;
+
+            fg->game = grp->game;
             if (!first) first = fg;
             if (!Bstrcasecmp(fg->name, G_DefaultGrpFile()))
             {
-                g_gameType = grpfiles[i].game;
-                g_gameNamePtr = grpfiles[i].name;
+                g_gameType = grp->game;
+                g_gameNamePtr = grp->name;
                 break;
             }
         }
@@ -10475,7 +10490,7 @@ int32_t app_main(int32_t argc, const char **argv)
                 g_grpNamePtr = dup_filename(first->name);
             }
             g_gameType = first->game;
-            g_gameNamePtr = grpfiles[0].name;
+            g_gameNamePtr = listgrps->name;
         }
         else if (!fg) g_gameNamePtr = "Unknown GRP";
     }
@@ -10552,8 +10567,6 @@ int32_t app_main(int32_t argc, const char **argv)
                 G_DoAutoload(grpfile);
         }
     }
-
-    FreeGroups();
 
     if (g_modDir[0] != '/')
         G_LoadGroupsInDir(g_modDir);

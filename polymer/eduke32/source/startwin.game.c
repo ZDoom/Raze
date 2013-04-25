@@ -261,9 +261,14 @@ static void PopulateForm(int32_t pgs)
 
         for (fg = foundgrps; fg; fg=fg->next)
         {
-            for (i = 0; i<NUMGRPFILES; i++) if (fg->crcval == grpfiles[i].crcval) break;
-            if (i == NUMGRPFILES) continue;	// unrecognised grp file
-            Bsprintf(buf, "%s\t%s", grpfiles[i].name, fg->name);
+            struct grpfile *grp;
+            for (grp = listgrps; grp; grp=grp->next)
+                if (fg->crcval == grp->crcval) break;
+
+            if (grp == NULL)
+                continue;
+
+            Bsprintf(buf, "%s\t%s", grp->name, fg->name);
             j = ListBox_AddString(hwnd, buf);
             (void)ListBox_SetItemData(hwnd, j, (LPARAM)fg);
             if (!Bstrcasecmp(fg->name, settings.selectedgrp))
@@ -772,8 +777,6 @@ int32_t startwin_run(void)
     EnableConfig(0);
     if (done)
     {
-        int32_t i;
-
         ud.config.ScreenMode = (settings.flags&1);
 #ifdef POLYMER
         if (settings.flags & 2) glrendmode = 4;
@@ -797,13 +800,22 @@ int32_t startwin_run(void)
             Bstrcpy(g_modDir,settings.gamedir);
         else Bsprintf(g_modDir,"/");
 
-        for (i = 0; i<NUMGRPFILES; i++) if (settings.crcval == grpfiles[i].crcval) break;
-        if (i != NUMGRPFILES)
         {
-            g_gameNamePtr = grpfiles[i].name;
-            g_dependencyCRC = grpfiles[i].dependency;
-            if (grpfiles[i].scriptname && g_scriptNamePtr == NULL)
-                g_scriptNamePtr = dup_filename(grpfiles[i].scriptname);
+            struct grpfile *grp;
+            for (grp = listgrps; grp; grp=grp->next)
+                if (settings.crcval == grp->crcval) break;
+
+            if (grp)
+            {
+                g_gameNamePtr = grp->name;
+                g_dependencyCRC = grp->dependency;
+
+                if (grp->scriptname && g_scriptNamePtr == NULL)
+                    g_scriptNamePtr = dup_filename(grp->scriptname);
+
+                if (grp->defname && g_defNamePtr == NULL)
+                    g_defNamePtr = dup_filename(grp->defname);
+            }
         }
     }
 

@@ -441,7 +441,6 @@ static void PopulateForm(unsigned char pgs)
     if ((pgs == ALL) || (pgs == POPULATE_GAME))
     {
         struct grpfile *fg;
-        int32_t i;
         GtkListStore *list;
         GtkTreeIter iter;
         GtkTreeView *gamelist;
@@ -452,9 +451,12 @@ static void PopulateForm(unsigned char pgs)
 
         for (fg = foundgrps; fg; fg=fg->next)
         {
-            for (i = 0; i<NUMGRPFILES; i++)
-                if (fg->crcval == grpfiles[i].crcval) break;
-            if (i == NUMGRPFILES) continue;	// unrecognised grp file
+            struct grpfile *grp;
+            for (grp = listgrps; grp; grp=grp->next)
+                if (fg->crcval == grp->crcval) break;
+
+            if (grp == NULL)
+                continue;
 
             gtk_list_store_append(list, &iter);
             gtk_list_store_set(list, &iter, 0, grpfiles[i].name, 1, fg->name, 2, (gpointer)fg, -1);
@@ -909,8 +911,6 @@ int32_t startwin_run(void)
     SetPage(TAB_MESSAGES);
     if (retval) // launch the game with these parameters
     {
-        int32_t i;
-
         ud.config.ScreenWidth = settings.xdim3d;
         ud.config.ScreenHeight = settings.ydim3d;
         ud.config.ScreenBPP = settings.bpp3d;
@@ -930,13 +930,22 @@ int32_t startwin_run(void)
         if (settings.autoload) ud.config.NoAutoLoad = FALSE;
         else ud.config.NoAutoLoad = TRUE;
 
-        for (i = 0; i<NUMGRPFILES; i++) if (settings.crcval == grpfiles[i].crcval) break;
-        if (i != NUMGRPFILES)
         {
-            g_gameNamePtr = grpfiles[i].name;
-            g_dependencyCRC = grpfiles[i].dependency;
-            if (grpfiles[i].scriptname && g_scriptNamePtr == NULL)
-                g_scriptNamePtr = dup_filename(grpfiles[i].scriptname);
+            struct grpfile *grp;
+            for (grp = listgrps; grp; grp=grp->next)
+                if (settings.crcval == grp->crcval) break;
+
+            if (grp)
+            {
+                g_gameNamePtr = grp->name;
+                g_dependencyCRC = grp->dependency;
+
+                if (grp->scriptname && g_scriptNamePtr == NULL)
+                    g_scriptNamePtr = dup_filename(grp->scriptname);
+
+                if (grp->defname && g_defNamePtr == NULL)
+                    g_defNamePtr = dup_filename(grp->defname);
+            }
         }
     }
 
