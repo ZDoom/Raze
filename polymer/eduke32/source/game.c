@@ -10170,8 +10170,6 @@ static void G_LoadAddon(void)
 
     if (grp && FindGroup(DUKE15_CRC))
     {
-        struct grpfile *grp;
-
         clearGrpNamePtr();
         g_grpNamePtr = dup_filename(FindGroup(DUKE15_CRC)->name);
 
