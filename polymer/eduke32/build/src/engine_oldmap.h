@@ -204,6 +204,9 @@ static void convertv6sectv7(struct sectortypev6 *from, sectortype *to)
     to->lotag = from->lotag;
     to->hitag = from->hitag;
     to->extra = from->extra;
+#ifdef NEW_MAP_FORMAT
+    to->ceilingbunch = to->floorbunch = -1;
+#endif
 }
 
 static void convertv6wallv7(struct walltypev6 *from, walltype *to)
@@ -225,6 +228,9 @@ static void convertv6wallv7(struct walltypev6 *from, walltype *to)
     to->lotag = from->lotag;
     to->hitag = from->hitag;
     to->extra = from->extra;
+#ifdef NEW_MAP_FORMAT
+    to->upwall = to->dnwall = -1;
+#endif
 }
 
 static void convertv6sprv7(struct spritetypev6 *from, spritetype *to)

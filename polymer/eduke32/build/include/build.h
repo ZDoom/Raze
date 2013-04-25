@@ -1263,10 +1263,8 @@ int32_t loaddefinitionsfile(const char *fn);
 
 // if loadboard() fails with -2 return, try loadoldboard(). if it fails with
 // -2, board is dodgy
-extern int32_t mapversion;
-#if !defined NEW_MAP_FORMAT
 int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
-#endif
+
 
 // Hash functions
 

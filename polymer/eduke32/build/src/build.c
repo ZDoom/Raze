@@ -8041,10 +8041,9 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
 
     ExtPreLoadMap();
     i = loadboard(boardfilename, (flags&4)|loadingflags, &pos, &ang, &cursectnum);
-#if !defined NEW_MAP_FORMAT
     if (i == -2)
         i = loadoldboard(boardfilename,loadingflags, &pos, &ang, &cursectnum);
-#endif
+
     if (i < 0)
     {
 //        printmessage16("Invalid map format.");

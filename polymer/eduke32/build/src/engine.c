@@ -9930,10 +9930,7 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
 //
 // loadboardv5/6
 //
-#if !defined NEW_MAP_FORMAT
-// V5/V6 map format loading: NYI for NEW_MAP_FORMAT
-
-# include "engine_oldmap.h"
+#include "engine_oldmap.h"
 
 // Powerslave uses v6
 // Witchaven 1 and TekWar and LameDuke use v5
@@ -10110,7 +10107,7 @@ int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daa
 
     return finish_loadboard(dapos, dacursectnum, numsprites, 0);
 }
-#endif
+
 
 #ifdef POLYMER
 void delete_maphack_lights()
