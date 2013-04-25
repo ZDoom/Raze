@@ -9862,6 +9862,20 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
         yax_updategrays(dapos->z);
 #endif
 
+    {
+        char *p, fn[BMAX_PATH];
+
+        Bstrcpy(fn, filename);
+
+        p = Bstrrchr(fn, '.');
+
+        if (!p)
+        {
+            Bstrcat(fn, ".cfg");
+            OSD_Exec(fn);
+        }
+    }
+
     return finish_loadboard(dapos, dacursectnum, numsprites, myflags);
 }
 
