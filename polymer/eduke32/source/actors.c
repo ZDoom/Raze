@@ -3654,7 +3654,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     {
                         if (sprite[j].lotag == s->lotag && sprite[j].picnum == s->picnum)
                         {
-                            if ((sprite[j].hitag!=0) ^ !(sprite[j].cstat&32))
+                            if ((sprite[j].hitag!=0) ^ ((sprite[j].cstat&32)!=0))
                             {
                                 k = 0;
                                 break;
