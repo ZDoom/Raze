@@ -9917,10 +9917,16 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
         p = Bstrrchr(fn, '.');
 
         if (!p)
-        {
             Bstrcat(fn, ".cfg");
-            OSD_Exec(fn);
+        else
+        {
+            p[1]='c';
+            p[2]='f';
+            p[3]='g';
+            p[4]=0;
         }
+
+        OSD_Exec(fn);
     }
 
     return finish_loadboard(dapos, dacursectnum, numsprites, myflags);
