@@ -434,9 +434,11 @@ static void Proj_MaybeAddSpread(int32_t not_accurate_p, int32_t *zvel, int16_t *
 {
     if (not_accurate_p)
     {
-        // NOTE: if {z,ang}Range is 0, there is a huge spread
-        *zvel += (zRange/2)-(krand()&(zRange-1));
-        *sa += (angRange/2)-(krand()&(angRange-1));
+        // Ranges <= 1 mean no spread at all. A range of 1 calls krand() though.
+        if (zRange > 0)
+            *zvel += zRange/2 - krand()%zRange;
+        if (angRange > 0)
+            *sa += angRange/2 - krand()%angRange;
     }
 }
 
@@ -693,7 +695,7 @@ static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i
                     {
                         l = A_Spawn(k, decaltile);
 
-                        if (!A_CheckSpriteFlags(l , SPRITE_DECAL))
+                        if (!A_CheckSpriteFlags(l, SPRITE_DECAL))
                             actor[l].flags |= SPRITE_DECAL;
 
                         sprite[l].xvel = -1;
@@ -971,7 +973,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                             {
                                 k = A_Spawn(i,proj->decal);
 
-                                if (!A_CheckSpriteFlags(k , SPRITE_DECAL))
+                                if (!A_CheckSpriteFlags(k, SPRITE_DECAL))
                                     actor[k].flags |= SPRITE_DECAL;
 
                                 sprite[k].xvel = -1;

@@ -3294,6 +3294,8 @@ static void P_FinishWaterChange(int32_t j, DukePlayer_t *ps, int32_t sectlotag, 
         }
 }
 
+// Check prevention of teleportation *when alive*. For example, commanders and
+// octabrains would be transported by SE7 (both water and normal) only if dead.
 static int32_t A_CheckNonTeleporting(int32_t s)
 {
     int32_t pic = sprite[s].picnum;
