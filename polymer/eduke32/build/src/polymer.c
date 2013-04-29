@@ -1342,7 +1342,8 @@ void                polymer_drawsprite(int32_t snum)
 
     tspr = tspriteptr[snum];
 
-    if (tspr->owner < 0 || tspr->picnum < 0) return;
+    if (bad_tspr(tspr))
+        return;
 
     if ((tspr->cstat & 8192) && (depth && !mirrors[depth-1].plane))
         return;

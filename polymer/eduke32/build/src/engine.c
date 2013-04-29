@@ -5586,7 +5586,16 @@ static void drawsprite_classic(int32_t snum)
     int32_t tilenum;
     int32_t cstat = tspr->cstat;
 
-    if ((unsigned)tspr->picnum >= MAXTILES || sec==NULL)
+    if (sec == NULL)
+        return;
+
+    if (bad_tspr(tspr))
+        return;
+
+    // This happens when using steroids.
+    // XXX: Should we instead run the code but handle stuff indexed by
+    // tspr->owner specially?
+    if ((unsigned)tspr->owner >= MAXSPRITES)
         return;
 
     DO_TILE_ANIM(tspr->picnum, spritenum+32768);

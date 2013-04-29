@@ -93,6 +93,11 @@ void set_globalang(int16_t ang);
         if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum, Fakevar); \
     } while (0)
 
+static inline int32_t bad_tspr(const spritetype *tspr)
+{
+    return ((unsigned)tspr->owner >= MAXSPRITES || (unsigned)tspr->picnum >= MAXTILES);
+}
+
 void dorotspr_handle_bit2(int32_t *sx, int32_t *sy, int32_t *z, int32_t dastat,
                           int32_t cx1_plus_cx2, int32_t cy1_plus_cy2,
                           int32_t *ret_ouryxaspect, int32_t *ret_ourxyaspect);

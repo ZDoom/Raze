@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // mask definitions
 
-#define BIT(shift)     (1<<(shift))
+#define BIT(shift)     (1u<<(shift))
 
 #define TEST_SYNC_KEY(bits, sync_num) TEST(bits, BIT(sync_num))
 

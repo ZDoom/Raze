@@ -4875,7 +4875,8 @@ void polymost_drawsprite(int32_t snum)
     int32_t tsizx, tsizy;
 
     tspr = tspriteptr[snum];
-    if (tspr->owner < 0 || tspr->picnum < 0 || tspr->picnum >= MAXTILES) return;
+    if (bad_tspr(tspr))
+        return;
 
     spritenum         = tspr->owner;
 
