@@ -345,12 +345,13 @@ else
     endif
 
     ifneq (0,$(CLANG))
-#        CLANG_MAJOR := $(shell clang -dM -E -x c /dev/null | grep __clang_major__ | awk '{ print $$3 }')
         # KEEPINSYNC with build/Makefile:
-        BASECFLAGS+= -Xclang -fcatch-undefined-behavior
-#        ifeq ($(CLANG_MAJOR),3)
-#            debug+= -faddress-sanitizer
-#        endif
+        # Older Clang (2.9?)
+#        BASECFLAGS+= -Xclang -fcatch-undefined-behavior
+        # Clang 3.2
+#        debug+= -fsanitize=address
+        # Clang 3.3 or SVN
+        debug+= -fsanitize=address -fsanitize=undefined
     endif
     ifeq ($(SUBPLATFORM),LINUX)
         BASELIBS+=-rdynamic
