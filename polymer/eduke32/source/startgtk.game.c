@@ -459,7 +459,7 @@ static void PopulateForm(unsigned char pgs)
                 continue;
 
             gtk_list_store_append(list, &iter);
-            gtk_list_store_set(list, &iter, 0, grpfiles[i].name, 1, fg->name, 2, (gpointer)fg, -1);
+            gtk_list_store_set(list, &iter, 0, grp->name, 1, fg->name, 2, (gpointer)fg, -1);
             if (!Bstrcasecmp(fg->name, settings.selectedgrp))
             {
                 GtkTreeSelection *sel = gtk_tree_view_get_selection(gamelist);
