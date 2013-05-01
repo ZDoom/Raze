@@ -57,18 +57,18 @@ BUILDCOMMONFLAGS=$(ARCH)
 BUILDLIBS=
 BUILDLIBDIRS=
 
-ifeq ($(SUBPLATFORM),LINUX)
-    STDCPPLIB:=
-else
-    # Overridden for OSes that don't have the cutdown stdc++ that is supc++
-    STDCPPLIB:=-lsupc++
-endif
+# NOTE: If your setup doesn't have libstdc++, you can try using libsupc++.
+# Search for STDCPPLIB below and change it to -lsupc++.
 
 ifeq ($(SUBPLATFORM),LINUX)
     RENDERTYPE=SDL
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     GTKCOMPAT32=0
     SDL_FRAMEWORK=0
+
+    # On Linux, we don't need to specify libstdc++ manually, the linker will
+    # presumably take care for us.
+    STDCPPLIB:=
 
     ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
         ifeq (1,$(BUILD32_ON_64))
@@ -109,7 +109,7 @@ ifeq ($(PLATFORM),WINDOWS)
     BUILDLIBS+= -Wl,--enable-auto-import -mwindows -lmingwex -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
     #-lshfolder
     #BUILDLIBDIRS+= -L$(ENETROOT)
-    #STDCPPLIB:=-lstdc++
+    STDCPPLIB:=-lstdc++
     ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
         ifneq (1,$(BUILD32_ON_64))
             override NOASM=1
