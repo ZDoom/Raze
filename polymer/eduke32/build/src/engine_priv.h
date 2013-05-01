@@ -95,7 +95,9 @@ void set_globalang(int16_t ang);
 
 static inline int32_t bad_tspr(const spritetype *tspr)
 {
-    return ((unsigned)tspr->owner >= MAXSPRITES || (unsigned)tspr->picnum >= MAXTILES);
+    // NOTE: tspr->owner >= MAXSPRITES (could be model) has to be handled by
+    // caller.
+    return (tspr->owner < 0 || (unsigned)tspr->picnum >= MAXTILES);
 }
 
 void dorotspr_handle_bit2(int32_t *sx, int32_t *sy, int32_t *z, int32_t dastat,

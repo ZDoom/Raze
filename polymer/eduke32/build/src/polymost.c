@@ -4818,7 +4818,7 @@ int32_t lastcullcheck = 0;
 char cullmodel[MAXSPRITES];
 int32_t cullcheckcnt = 0;
 
-static int32_t __fastcall polymost_checkcoordinates(int32_t x, int32_t y, spritetype *tspr)
+static int32_t polymost_checkcoordinates(int32_t x, int32_t y, const spritetype *tspr)
 {
     int16_t datempsectnum = tspr->sectnum;
     int32_t oldx = x, i, j = (tilesizy[tspr->picnum]*tspr->yrepeat);
@@ -4869,12 +4869,11 @@ void polymost_drawsprite(int32_t snum)
     float f, c, s, fx, fy, sx0, sy0, sx1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1, ft[4];
     float x0, y0, x1, y1, sc0, sf0, sc1, sf1, px2[6], py2[6], xv, yv, t0, t1;
     int32_t i, j, spritenum, xoff=0, yoff=0, method, npoints;
-    spritetype *tspr;
     int32_t posx,posy;
     int32_t oldsizx, oldsizy;
     int32_t tsizx, tsizy;
 
-    tspr = tspriteptr[snum];
+    spritetype *const tspr = tspriteptr[snum];
     if (bad_tspr(tspr))
         return;
 
@@ -4900,17 +4899,16 @@ void polymost_drawsprite(int32_t snum)
     method = 1+4;
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
 
-    alpha = spriteext[tspr->owner].alpha;
+    alpha = spriteext[spritenum].alpha;
 
 #ifdef USE_OPENGL
     calc_and_apply_fog(globalshade, sector[tspr->sectnum].visibility, sector[tspr->sectnum].floorpal);
 
-    while (rendmode >= 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD))
+    while (rendmode >= 3 && !(spriteext[spritenum].flags&SPREXT_NOTMD))
     {
         if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
         {
-//            md2model *modelptr = (md2model *)models[tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid];
-            if (tspr->owner < 0 || tspr->owner >= MAXSPRITES || tspr->statnum == TSPR_MIRROR)
+            if (spritenum >= MAXSPRITES || tspr->statnum == TSPR_MIRROR)
             {
                 if (mddraw(tspr)) return;
                 break;	// else, render as flat sprite
@@ -4919,7 +4917,10 @@ void polymost_drawsprite(int32_t snum)
 # ifdef MODEL_OCCLUSION_CHECKING
             if (r_modelocclusionchecking)
             {
-                if (totalclock >= lastcullcheck + CULL_DELAY && cullcheckcnt < MAXCULLCHECKS && (/*modelptr->usesalpha ||*/ tspr->yrepeat*tilesizy[sprite[tspr->owner].picnum] > 1536 || tspr->xrepeat*tilesizx[sprite[tspr->owner].picnum] > 1536))
+                const int32_t spic = sprite[spritenum].picnum;
+
+                if (totalclock >= lastcullcheck + CULL_DELAY && cullcheckcnt < MAXCULLCHECKS &&
+                        (/*modelptr->usesalpha ||*/ tspr->yrepeat*tilesizy[spic] > 1536 || tspr->xrepeat*tilesizx[spic] > 1536))
                 {
                     do // this is so gay
                     {
@@ -4928,37 +4929,37 @@ void polymost_drawsprite(int32_t snum)
                         // don't bother with shadows because processing its owner will take care of it
                         if (tspr->statnum == TSPR_TEMP)
                             break;
-                        cullmodel[tspr->owner] = 1;
+                        cullmodel[spritenum] = 1;
                         cullcheckcnt++;
 
                         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
                                    tspr->x, tspr->y, tspr->z,tspr->sectnum))
-                            { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[spritenum] = 0; break; }
 
                         if (polymost_checkcoordinates(-CULL_OFFSET, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[spritenum] = 0; break; }
                         if (polymost_checkcoordinates(-CULL_OFFSET, -CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[spritenum] = 0; break; }
 
                         if (polymost_checkcoordinates(CULL_OFFSET, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[spritenum] = 0; break; }
                         if (polymost_checkcoordinates(CULL_OFFSET, CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[spritenum] = 0; break; }
 
                         if (polymost_checkcoordinates(-CULL_OFFSET, CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[spritenum] = 0; break; }
 
                         if (polymost_checkcoordinates(0, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[spritenum] = 0; break; }
 
                         break;
                     }
                     while (1);
                 }
             }
-            else cullmodel[tspr->owner] = 0;
+            else cullmodel[spritenum] = 0;
 
-            if (cullmodel[tspr->owner])
+            if (cullmodel[spritenum])
                 break;
 # endif
             if (mddraw(tspr))
@@ -4992,12 +4993,12 @@ void polymost_drawsprite(int32_t snum)
 
     posx=tspr->x;
     posy=tspr->y;
-    if (spriteext[tspr->owner].flags&SPREXT_AWAY1)
+    if (spriteext[spritenum].flags&SPREXT_AWAY1)
     {
         posx+=(sintable[(tspr->ang+512)&2047]>>13);
         posy+=(sintable[(tspr->ang)&2047]>>13);
     }
-    else if (spriteext[tspr->owner].flags&SPREXT_AWAY2)
+    else if (spriteext[spritenum].flags&SPREXT_AWAY2)
     {
         posx-=(sintable[(tspr->ang+512)&2047]>>13);
         posy-=(sintable[(tspr->ang)&2047]>>13);

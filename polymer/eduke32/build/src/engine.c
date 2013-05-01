@@ -5593,19 +5593,13 @@ static void drawsprite_classic(int32_t snum)
     if (bad_tspr(tspr))
         return;
 
-    // This happens when using steroids.
-    // XXX: Should we instead run the code but handle stuff indexed by
-    // tspr->owner specially?
-    if ((unsigned)tspr->owner >= MAXSPRITES)
-        return;
-
     DO_TILE_ANIM(tspr->picnum, spritenum+32768);
 
 #ifdef USE_OPENGL
     {
         // hack pending proper alpha implentation
         // TODO: a real implementation
-        float alpha = spriteext[tspr->owner].alpha;
+        float alpha = spriteext[spritenum].alpha;
 
         if (alpha >= 0.33f) // if alpha is 0 (which is the default) this structure should only necessitate one comparison
         {
@@ -5633,7 +5627,7 @@ static void drawsprite_classic(int32_t snum)
         vtilenum = tilenum; // if the game wants voxels, it gets voxels
     else if (usevoxels && tiletovox[tilenum] != -1
 #ifdef USE_OPENGL
-             && (!(spriteext[tspr->owner].flags&SPREXT_NOTMD))
+             && (!(spriteext[spritenum].flags&SPREXT_NOTMD))
 #endif
             )
     {
@@ -6553,7 +6547,7 @@ draw_as_face_sprite:
 
         i = (int32_t)tspr->ang+1536;
 #ifdef USE_OPENGL
-        i += spriteext[tspr->owner].angoff;
+        i += spriteext[spritenum].angoff;
 #endif
         drawvox(tspr->x,tspr->y,tspr->z,i,daxrepeat,(int32_t)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
     }

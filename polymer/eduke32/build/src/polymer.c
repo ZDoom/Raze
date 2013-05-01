@@ -1334,13 +1334,12 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
 
 void                polymer_drawsprite(int32_t snum)
 {
-    spritetype      *tspr;
     int32_t         i, j, cs;
     _prsprite       *s;
 
-    if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
+    spritetype      *const tspr = tspriteptr[snum];
 
-    tspr = tspriteptr[snum];
+    if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
     if (bad_tspr(tspr))
         return;
@@ -1387,10 +1386,11 @@ void                polymer_drawsprite(int32_t snum)
 
     polymer_updatesprite(snum);
 
-    if (prsprites[tspr->owner] == NULL)
-        return;
-
+    Bassert(tspr->owner < MAXSPRITES);
     s = prsprites[tspr->owner];
+
+    if (s == NULL)
+        return;
 
     switch ((tspr->cstat>>4) & 3)
     {
