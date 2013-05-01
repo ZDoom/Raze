@@ -3480,10 +3480,10 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 
         if (wall[g_mirrorWall[i]].overpicnum == MIRROR)
         {
-            int32_t tposx,tposy;
+            int32_t tposx, tposy;
             int16_t tang;
 
-            preparemirror(x,y,z,a,horiz,g_mirrorWall[i],g_mirrorSector[i],&tposx,&tposy,&tang);
+            preparemirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
 
             j = g_visibility;
             g_visibility = (j>>1) + (j>>2);

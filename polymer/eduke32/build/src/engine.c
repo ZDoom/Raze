@@ -14580,21 +14580,23 @@ void squarerotatetile(int16_t tilenume)
 //
 // preparemirror
 //
-void preparemirror(int32_t dax, int32_t day, int32_t daz, int16_t daang, int32_t dahoriz, int16_t dawall, int16_t dasector, int32_t *tposx, int32_t *tposy, int16_t *tang)
+void preparemirror(int32_t dax, int32_t day, int16_t daang, int16_t dawall,
+                   int32_t *tposx, int32_t *tposy, int16_t *tang)
 {
-    int32_t i, j, x, y, dx, dy;
+    int32_t i;
 
-    UNREFERENCED_PARAMETER(daz);
-    UNREFERENCED_PARAMETER(dahoriz);
-    UNREFERENCED_PARAMETER(dasector);
+    const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
+    const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
 
-    x = wall[dawall].x; dx = wall[wall[dawall].point2].x-x;
-    y = wall[dawall].y; dy = wall[wall[dawall].point2].y-y;
-    j = dx*dx + dy*dy; if (j == 0) return;
-    i = (((dax-x)*dx + (day-y)*dy)<<1);
+    const int32_t j = dx*dx + dy*dy;
+    if (j == 0)
+        return;
+
+    i = ((dax-x)*dx + (day-y)*dy)<<1;
+
     *tposx = (x<<1) + scale(dx,i,j) - dax;
     *tposy = (y<<1) + scale(dy,i,j) - day;
-    *tang = (((getangle(dx,dy)<<1)-daang)&2047);
+    *tang = ((getangle(dx,dy)<<1)-daang)&2047;
 
     inpreparemirror = 1;
 }
@@ -14605,29 +14607,46 @@ void preparemirror(int32_t dax, int32_t day, int32_t daz, int16_t daang, int32_t
 //
 void completemirror(void)
 {
-    int32_t i, dy;
-    intptr_t p;
-
 #ifdef USE_OPENGL
     if (rendmode) return;
 #endif
 
     //Can't reverse with uninitialized data
     if (inpreparemirror) { inpreparemirror = 0; return; }
-    if (mirrorsx1 > 0) mirrorsx1--;
-    if (mirrorsx2 < windowx2-windowx1-1) mirrorsx2++;
-    if (mirrorsx2 < mirrorsx1) return;
+
+    if (mirrorsx1 > 0)
+        mirrorsx1--;
+    if (mirrorsx2 < windowx2-windowx1-1)
+        mirrorsx2++;
+
+    if (mirrorsx1 > mirrorsx2)
+        return;
 
     begindrawing();
-    p = frameplace + ylookup[windowy1+mirrorsy1] + windowx1+mirrorsx1;
-    i = windowx2-windowx1-mirrorsx2-mirrorsx1; mirrorsx2 -= mirrorsx1;
-    for (dy=mirrorsy2-mirrorsy1-1; dy>=0; dy--)
     {
-        copybufbyte((void *)(p+1),tempbuf,mirrorsx2+1);
-        tempbuf[mirrorsx2] = tempbuf[mirrorsx2-1]; // FIXME: with GEKKO, array subscripts are below array bounds
-        copybufreverse(&tempbuf[mirrorsx2],(void *)(p+i),mirrorsx2+1);
-        p += ylookup[1];
-        faketimerhandler();
+        // Address of the mirror's top left corner:
+        intptr_t p = frameplace + ylookup[windowy1+mirrorsy1] + windowx1+mirrorsx1;
+
+        const int32_t mirrofs = windowx2-windowx1-mirrorsx2-mirrorsx1;
+        // Width in pixels (screen x's are inclusive on both sides):
+        const int32_t width = mirrorsx2-mirrorsx1+1;
+        // Height in pixels (screen y's are half-open because they come from umost/dmost):
+        const int32_t height = mirrorsy2-mirrorsy1;
+        int32_t y;
+
+        for (y=0; y<height; y++)
+        {
+#if 0
+            if ((p-frameplace)+1 + width-1 >= bytesperline*ydim)
+                printf("oob read: mirrorsx1=%d, mirrorsx2=%d\n", mirrorsx1, mirrorsx2);
+#endif
+            copybufbyte((void *)(p+1), tempbuf, width);
+            tempbuf[width-1] = tempbuf[width-2]; // FIXME: with GEKKO, array subscripts are below array bounds
+            copybufreverse(&tempbuf[width-1], (void *)(p+mirrofs), width);
+
+            p += ylookup[1];
+            faketimerhandler();
+        }
     }
     enddrawing();
 }

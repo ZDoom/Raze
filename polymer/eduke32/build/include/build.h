@@ -971,8 +971,8 @@ void   plotpixel(int32_t x, int32_t y, char col);
 char   getpixel(int32_t x, int32_t y);
 void   setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   setviewback(void);
-void   preparemirror(int32_t dax, int32_t day, int32_t daz, int16_t daang, int32_t dahoriz,
-                     int16_t dawall, int16_t dasector, int32_t *tposx, int32_t *tposy, int16_t *tang);
+void   preparemirror(int32_t dax, int32_t day, int16_t daang, int16_t dawall,
+                     int32_t *tposx, int32_t *tposy, int16_t *tang);
 void   completemirror(void);
 
 int32_t   drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
