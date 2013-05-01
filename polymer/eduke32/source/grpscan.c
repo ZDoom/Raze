@@ -439,11 +439,13 @@ int32_t ScanGroups(void)
 
         if (igrp->dependency)
         {
-            //initprintf("found grp with dep\n");
-            for (grp = foundgrps; grp; grp=grp->next)
-                if (grp->crcval == igrp->dependency) break;
+            struct grpfile *depgrp;
 
-            if (grp == NULL || grp->crcval != igrp->dependency) // couldn't find dependency
+            //initprintf("found grp with dep\n");
+            for (depgrp = foundgrps; depgrp; depgrp=depgrp->next)
+                if (depgrp->crcval == igrp->dependency) break;
+
+            if (depgrp == NULL || depgrp->crcval != igrp->dependency) // couldn't find dependency
             {
                 //initprintf("removing %s\n", grp->name);
                 RemoveGroup(igrp->crcval);
