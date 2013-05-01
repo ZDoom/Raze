@@ -1180,23 +1180,24 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 // must have writable frame buffer, i.e. done begindrawing()
 static void draw_rainbow_background(void)
 {
-    int32_t i, j;
-    const int32_t dimenprod = bytesperline*ydimen;
-    char *const p = (char *)frameplace;
+    int32_t y, i;
+    const int32_t N = 240;  // don't use fullbright colors
+    const int32_t numfull=bytesperline/N, numrest=bytesperline%N;
 
-    j = 0;
-    for (i=0; i<dimenprod; i++)
+    const char *const src = palookup[0] + 256*18;
+    char *dst = (char *)frameplace;
+
+    for (y=0; y<ydim; y++)
     {
-        p[i] = (char)j;
-        j++;
-        if (j >= xdimen)
-        {
-            while (j < bytesperline)
-                i++, j++;
-            j = 0;
-        }
+        for (i=0; i<numfull; i++)
+            Bmemcpy(&dst[N*i], src, N);
+        if (numrest > 0)
+            Bmemcpy(&dst[N*i], src, numrest);
+
+        dst += bytesperline;
     }
 }
+
 //
 // setslope
 //
