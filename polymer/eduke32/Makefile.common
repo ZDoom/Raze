@@ -163,9 +163,15 @@ DISABLEINLINING?=0
 FORCEWARNINGS?=0
 EFENCE?=0
 DMALLOC?=0
-OPTLEVEL?=2
 PROFILER?=0
 MUDFLAP?=0
+
+# Select the default optimization level for release and debug builds.
+ifeq ($RELEASE,0)
+    OPTLEVEL?=0
+else
+    OPTLEVEL?=2
+endif
 
 ifeq ($(RELEASE),0)
     override STRIP=
@@ -311,9 +317,10 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
     endif
 endif
 
+debug+= -O$(OPTLEVEL)
+
 ifneq (0,$(RELEASE))
     # Debugging disabled
-    debug+= -O$(OPTLEVEL)
     ifeq (0,$(CLANG))
         debug+= -funswitch-loops
         ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \< 4)))
@@ -336,8 +343,6 @@ ifneq (0,$(RELEASE))
     endif
 else
     # Debugging enabled
-    debug+= -O0
-
     ifeq (0,$(DEBUGANYWAY))
         debug+= -DDEBUGGINGAIDS
     else

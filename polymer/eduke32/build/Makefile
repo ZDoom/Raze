@@ -290,7 +290,7 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 # Comment out the following rule to debug a-c.o
 $(OBJ)/a-c.$o: $(SRC)/a-c.c
 	$(COMPILE_STATUS)
-	if $(COMPILER) $(subst -O0,-O2,$(subst -fsanitize=address -fsanitize=undefined,,$(OURCFLAGS))) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(subst -O$(OPTLEVEL),-O2,$(subst -fsanitize=address -fsanitize=undefined,,$(OURCFLAGS))) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 # KEEPINSYNC the Clang -f option(s) with Makefile.common
 
 $(OBJ)/%.$o: $(SRC)/%.c
