@@ -219,7 +219,7 @@ const char *OSD_StripColors(char *out, const char *in)
 {
     const char *ptr = out;
 
-    do
+    while (*in)
     {
         if (*in == '^' && isdigit(*(in+1)))
         {
@@ -240,10 +240,9 @@ const char *OSD_StripColors(char *out, const char *in)
         }
         *(out++) = *(in++);
     }
-    while (*in);
 
     *out = '\0';
-    return (ptr);
+    return ptr;
 }
 
 int32_t OSD_Exec(const char *szScript)
