@@ -9,8 +9,8 @@
 #define MAXNODESPERLINE (MAXYSAVES/MAXYDIM)  // 307
 #define MAXCLIPDIST 1024
 
-// uncomment to clear the screen before each top-level draw
-// (classic only)
+// Uncomment to clear the screen before each top-level draw (classic only).
+// FIXME: doesn't work with mirrors.
 //#define ENGINE_CLEAR_SCREEN
 
 #ifdef YAX_ENABLE

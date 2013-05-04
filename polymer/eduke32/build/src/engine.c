@@ -8912,9 +8912,11 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         mirrorsx1 = xdimen-1; mirrorsx2 = 0;
         for (i=numscans-1; i>=0; i--)
         {
-            if (wall[thewall[i]].nextsector < 0) continue;
-            if (xb1[i] < mirrorsx1) mirrorsx1 = xb1[i];
-            if (xb2[i] > mirrorsx2) mirrorsx2 = xb2[i];
+            if (wall[thewall[i]].nextsector >= 0)
+            {
+                if (xb1[i] < mirrorsx1) mirrorsx1 = xb1[i];
+                if (xb2[i] > mirrorsx2) mirrorsx2 = xb2[i];
+            }
         }
 
         for (i=0; i<mirrorsx1; i++)
@@ -14603,41 +14605,51 @@ void preparemirror(int32_t dax, int32_t day, int16_t daang, int16_t dawall,
 void completemirror(void)
 {
 #ifdef USE_OPENGL
-    if (rendmode) return;
+    if (rendmode)
+        return;
 #endif
 
-    //Can't reverse with uninitialized data
+    // Can't reverse when the world has not yet been drawn from the other side.
     if (inpreparemirror) { inpreparemirror = 0; return; }
 
-    if (mirrorsx1 > 0)
-        mirrorsx1--;
-    if (mirrorsx2 < windowx2-windowx1-1)
-        mirrorsx2++;
+    // The mirroring code maps the rightmost pixel to the right neighbor of the
+    // leftmost one (see copybufreverse() call below). Thus, the leftmost would
+    // be mapped to the right neighbor of the rightmost one, which would be out
+    // of bounds.
+    if (mirrorsx1 == 0)
+        mirrorsx1 = 1;
 
+    // Require that the mirror is at least one pixel wide before padding.
     if (mirrorsx1 > mirrorsx2)
         return;
 
+    // Variables mirrorsx{1,2} refer to the source scene here, the one drawn
+    // from the inside of the mirror.
+
     begindrawing();
     {
-        // Address of the mirror's top left corner:
-        intptr_t p = frameplace + ylookup[windowy1+mirrorsy1] + windowx1+mirrorsx1;
-
-        const int32_t mirrofs = windowx2-windowx1-mirrorsx2-mirrorsx1;
         // Width in pixels (screen x's are inclusive on both sides):
         const int32_t width = mirrorsx2-mirrorsx1+1;
         // Height in pixels (screen y's are half-open because they come from umost/dmost):
         const int32_t height = mirrorsy2-mirrorsy1;
+
+        // Address of the mirror wall's top left corner in the source scene:
+        intptr_t p = frameplace + ylookup[windowy1+mirrorsy1] + windowx1+mirrorsx1;
+
+        // Offset (wrt p) of a mirror line's left corner in the destination:
+        // p+destof == frameplace + ylookup[...] + windowx2-mirrorsx2
+        const int32_t destofs = windowx2-mirrorsx2-windowx1-mirrorsx1;
+
         int32_t y;
 
         for (y=0; y<height; y++)
         {
 #if 0
-            if ((p-frameplace)+1 + width-1 >= bytesperline*ydim)
+            if ((p-frameplace) + width-1 >= bytesperline*ydim)
                 printf("oob read: mirrorsx1=%d, mirrorsx2=%d\n", mirrorsx1, mirrorsx2);
 #endif
-            copybufbyte((void *)(p+1), tempbuf, width);
-            tempbuf[width-1] = tempbuf[width-2]; // FIXME: with GEKKO, array subscripts are below array bounds
-            copybufreverse(&tempbuf[width-1], (void *)(p+mirrofs), width);
+            copybufbyte((void *)p, tempbuf, width);
+            copybufreverse(&tempbuf[width-1], (void *)(p+destofs+1), width);
 
             p += ylookup[1];
             faketimerhandler();

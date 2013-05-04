@@ -64,6 +64,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # include "lunatic_game.h"
 #endif
 
+// Uncomment to prevent anything except mirrors from drawing. It is sensible to
+// also uncomment ENGINE_CLEAR_SCREEN in build/include/engine_priv.h.
+//#define DEBUG_MIRRORS_ONLY
+
 #if KRANDDEBUG
 # define GAME_INLINE
 # define GAME_STATIC
@@ -3881,7 +3885,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             // for G_PrintCoords
             dr_viewingrange = viewingrange;
             dr_yxaspect = yxaspect;
-
+#ifdef DEBUG_MIRRORS_ONLY
+            gotpic[MIRROR>>3] |= (1<<(MIRROR&7));
+#else
             yax_preparedrawrooms();
             drawrooms(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(ang),CAMERA(horiz),CAMERA(sect));
             yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothratio);
@@ -3892,6 +3898,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
             drawing_ror = 0;
             drawmasks();
+#endif
         }
 
         if (g_screenCapture)
