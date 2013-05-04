@@ -2909,12 +2909,12 @@ void getinput(int32_t snum)
     loc.bits |=   g_myAimMode<<SK_AIMMODE;
     loc.bits |=   BUTTON(gamefunc_Holo_Duke)<<SK_HOLODUKE;
     loc.bits |=   BUTTON(gamefunc_Jetpack)<<SK_JETPACK;
-    loc.bits |= (((int32_t)g_gameQuit)<<SK_GAMEQUIT);
+    loc.bits |= (g_gameQuit<<SK_GAMEQUIT);
     loc.bits |= (BUTTON(gamefunc_Inventory_Right) || (BUTTON(gamefunc_Dpad_Select) && (svel < 0 || angvel > 0))) <<SK_INV_RIGHT;
     loc.bits |=   BUTTON(gamefunc_TurnAround)<<SK_TURNAROUND;
     loc.bits |=   BUTTON(gamefunc_Open)<<SK_OPEN;
     loc.bits |=   BUTTON(gamefunc_Inventory)<<SK_INVENTORY;
-    loc.bits |=   KB_KeyPressed(sc_Escape)<<SK_ESCAPE;
+    loc.bits |=   ((uint32_t)KB_KeyPressed(sc_Escape))<<SK_ESCAPE;
 
     if (BUTTON(gamefunc_Dpad_Select))
         vel = svel = angvel = 0;
