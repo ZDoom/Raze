@@ -167,7 +167,7 @@ PROFILER?=0
 MUDFLAP?=0
 
 # Select the default optimization level for release and debug builds.
-ifeq ($RELEASE,0)
+ifeq ($(RELEASE),0)
     OPTLEVEL?=0
 else
     OPTLEVEL?=2
