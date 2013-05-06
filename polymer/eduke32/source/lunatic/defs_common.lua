@@ -119,20 +119,26 @@ bitint_new_struct_type("uint16_t", "UBit16")
 local SECTOR_STRUCT = [[
 struct {
     const int16_t wallptr, wallnum;
-    int32_t ceilingz, floorz;
-    uint16_t ceilingstat, floorstat;
+
     const int16_t ceilingpicnum;
     int16_t ceilingheinum;
     const int16_t ceilingbunch;
+    uint16_t ceilingstat;
+    int32_t ceilingz;
     int8_t ceilingshade;
     uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
+
     const int16_t floorpicnum;
     int16_t floorheinum;
     const int16_t floorbunch;
+    uint16_t floorstat;
+    int32_t floorz;
     int8_t floorshade;
     uint8_t floorpal, floorxpanning, floorypanning;
+
     uint8_t visibility, filler;
-    int16_t lotag, hitag, extra;
+    int16_t lotag, hitag;  // NOTE: signed for Lunatic
+    int16_t extra;
 }]]
 
 local SPRITE_STRUCT = [[

@@ -374,30 +374,54 @@ typedef struct
 typedef struct
 {
     Tracker(Sector, int16_t) wallptr, wallnum;
-    Tracker(Sector, int32_t) ceilingz, floorz;
-    Tracker(Sector, uint16_t) ceilingstat, floorstat;
+
     Tracker(Sector, int16_t) ceilingpicnum, ceilingheinum, ceilingbunch;
+    Tracker(Sector, uint16_t) ceilingstat;
+    Tracker(Sector, int32_t) ceilingz;
     Tracker(Sector, int8_t) ceilingshade;
     Tracker(Sector, uint8_t) ceilingpal, /*CM_FLOORZ:*/ ceilingxpanning, ceilingypanning;
+
     Tracker(Sector, int16_t) floorpicnum, floorheinum, floorbunch;
+    Tracker(Sector, uint16_t) floorstat;
+    Tracker(Sector, int32_t) floorz;
     Tracker(Sector, int8_t) floorshade;
     Tracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
+
     Tracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, filler;
     Tracker(Sector, uint16_t) lotag, hitag;
     Tracker(Sector, int16_t) extra;
 } sectortypevx;
 
-# define SECTORVX_SZ2 offsetof(sectortypevx, floorbunch)-offsetof(sectortypevx, ceilingshade)
-# define SECTORVX_SZ3 sizeof(sectortypevx)-offsetof(sectortypevx, floorshade)
+# define SECTORVX_SZ1 offsetof(sectortypevx, ceilingpicnum)
+# define SECTORVX_SZ4 sizeof(sectortypevx)-offsetof(sectortypevx, visibility)
 
 static inline void copy_v7_from_vx_sector(sectortypev7 *v7sec, const sectortypevx *vxsec)
 {
-    /* [wallptr..ceilingheinum] */
-    Bmemcpy(v7sec, vxsec, offsetof(sectortypevx, ceilingbunch));
-    /* [ceilingshade..floorheinum] */
-    Bmemcpy(&v7sec->ceilingshade, &vxsec->ceilingshade, SECTORVX_SZ2);
-    /* [floorshade..extra] */
-    Bmemcpy(&v7sec->floorshade, &vxsec->floorshade, SECTORVX_SZ3);
+    /* [wallptr..wallnum] */
+    Bmemcpy(v7sec, vxsec, SECTORVX_SZ1);
+
+    /* ceiling* */
+    v7sec->ceilingpicnum = vxsec->ceilingpicnum;
+    v7sec->ceilingheinum = vxsec->ceilingheinum;
+    v7sec->ceilingstat = vxsec->ceilingstat;
+    v7sec->ceilingz = vxsec->ceilingz;
+    v7sec->ceilingshade = vxsec->ceilingshade;
+    v7sec->ceilingpal = vxsec->ceilingpal;
+    v7sec->ceilingxpanning = vxsec->ceilingxpanning;
+    v7sec->ceilingypanning = vxsec->ceilingypanning;
+
+    /* floor* */
+    v7sec->floorpicnum = vxsec->floorpicnum;
+    v7sec->floorheinum = vxsec->floorheinum;
+    v7sec->floorstat = vxsec->floorstat;
+    v7sec->floorz = vxsec->floorz;
+    v7sec->floorshade = vxsec->floorshade;
+    v7sec->floorpal = vxsec->floorpal;
+    v7sec->floorxpanning = vxsec->floorxpanning;
+    v7sec->floorypanning = vxsec->floorypanning;
+
+    /* [visibility..extra] */
+    Bmemcpy(&v7sec->visibility, &vxsec->visibility, SECTORVX_SZ4);
 
     /* Clear YAX_BIT of ceiling and floor. (New-map format build saves TROR
      * maps as map-text.) */
@@ -408,11 +432,35 @@ static inline void copy_v7_from_vx_sector(sectortypev7 *v7sec, const sectortypev
 static inline void inplace_vx_from_v7_sector(sectortypevx *vxsec)
 {
     const sectortypev7 *v7sec = (sectortypev7 *)vxsec;
+    sectortypev7 bakv7sec;
 
-    /* [floorshade..extra] */
-    Bmemmove(&vxsec->floorshade, &v7sec->floorshade, SECTORVX_SZ3);
-    /* [ceilingshade..floorheinum] */
-    Bmemmove(&vxsec->ceilingshade, &v7sec->ceilingshade, SECTORVX_SZ2);
+    // Can't do this in-place since the members were rearranged.
+    Bmemcpy(&bakv7sec, v7sec, sizeof(sectortypev7));
+
+    /* [wallptr..wallnum] is already at the right place */
+
+    /* ceiling* */
+    vxsec->ceilingpicnum = bakv7sec.ceilingpicnum;
+    vxsec->ceilingheinum = bakv7sec.ceilingheinum;
+    vxsec->ceilingstat = bakv7sec.ceilingstat;
+    vxsec->ceilingz = bakv7sec.ceilingz;
+    vxsec->ceilingshade = bakv7sec.ceilingshade;
+    vxsec->ceilingpal = bakv7sec.ceilingpal;
+    vxsec->ceilingxpanning = bakv7sec.ceilingxpanning;
+    vxsec->ceilingypanning = bakv7sec.ceilingypanning;
+
+    /* floor* */
+    vxsec->floorpicnum = bakv7sec.floorpicnum;
+    vxsec->floorheinum = bakv7sec.floorheinum;
+    vxsec->floorstat = bakv7sec.floorstat;
+    vxsec->floorz = bakv7sec.floorz;
+    vxsec->floorshade = bakv7sec.floorshade;
+    vxsec->floorpal = bakv7sec.floorpal;
+    vxsec->floorxpanning = bakv7sec.floorxpanning;
+    vxsec->floorypanning = bakv7sec.floorypanning;
+
+    /* [visibility..extra] */
+    Bmemmove(&vxsec->visibility, &bakv7sec.visibility, SECTORVX_SZ4);
 }
 
 static inline void inplace_vx_tweak_sector(sectortypevx *vxsec, int32_t yaxp)
@@ -440,8 +488,8 @@ static inline void inplace_vx_tweak_sector(sectortypevx *vxsec, int32_t yaxp)
     vxsec->floorstat &= ~YAX_BIT__COMPAT;
 }
 
-# undef SECTORVX_SZ2
-# undef SECTORVX_SZ3
+# undef SECTORVX_SZ1
+# undef SECTORVX_SZ4
 
 // 36 bytes
 typedef struct
