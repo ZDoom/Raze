@@ -2,6 +2,8 @@
 engine_main_arrays_are_static;
 engine_v8;
 
+saveboard_maptext;
+
 sector;
 wall;
 sprite;
@@ -78,6 +80,7 @@ gethitickms;
 OSD_Printf;
 
 luaJIT_BC_defs_common;
+luaJIT_BC_engine_maptext;
 
 
 

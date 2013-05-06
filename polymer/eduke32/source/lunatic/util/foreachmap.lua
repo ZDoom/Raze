@@ -14,7 +14,7 @@
 --  message is printed to stderr.
 -- Finally, if there is a .finish field in the module, it is run with no args.
 
--- forxcode example: print sprite numbers with lotag < -1 (interpreting lotag it as signed),
+-- forxcode example: print sprite numbers with lotag < -1 (lotag is signed for us),
 -- and for each matching sprite also print its lotag and picnum:
 --  $ ./findmaps.sh ~/.eduke32/ "sprite: .lotag < -1 :: io. write(', '.. .lotag .. ' ' .. .picnum)"
 

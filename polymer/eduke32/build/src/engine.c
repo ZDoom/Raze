@@ -46,6 +46,11 @@
 
 #include "engine_priv.h"
 
+#ifdef LUNATIC
+# include "lunatic.h"
+L_State g_engState;
+#endif
+
 #define CACHEAGETIME 16
 //#define CLASSIC_NONPOW2_YSIZE_WALLS
 #define CLASSIC_NONPOW2_YSIZE_SPRITES
@@ -8610,6 +8615,18 @@ int32_t initengine(void)
     if (!mdinited) mdinit();
 #endif
 
+#ifdef LUNATIC
+    if (L_CreateState(&g_engState, "eng", NULL))
+        return loadpalette_err("Failed creating engine Lua state!");
+
+    {
+        char *luastr = "_LUNATIC_AUX=true; decl=require('ffi').cdef; require'defs_common'";
+
+        if (L_RunString(&g_engState, luastr, 0, -1, "eng"))
+            return loadpalette_err("Failed setting up engine Lua state");
+    }
+#endif
+
     return 0;
 }
 
@@ -10447,6 +10464,10 @@ int32_t loadmaphack(const char *filename)
 }
 
 
+#ifdef NEW_MAP_FORMAT
+int32_t (*saveboard_maptext)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
+#endif
+
 //
 // saveboard
 //
@@ -10455,18 +10476,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
     int16_t numsprites, ts;
     int32_t i, j, fil, tl;
 
-#ifdef NEW_MAP_FORMAT
-    // Writing new-format (Lunatic) maps not yet implemented; V9 not available then.
-    if (numyaxbunches > 0)
-        return -1;
-#endif
-
-    if ((fil = Bopen(filename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
-    {
-        initprintf("Couldn't open \"%s\" for writing: %s\n", filename, strerror(errno));
-        return(-1);
-    }
-
+    // First, some checking.
     for (j=0; j<MAXSPRITES; j++)
     {
         if ((unsigned)sprite[j].statnum > MAXSTATUS)
@@ -10495,6 +10505,19 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
     // Check consistency of sprite-in-the-world predicate (.statnum != MAXSTATUS)
     // and the engine-reported number of sprites 'Numsprites'.
     Bassert(numsprites == Numsprites);
+
+#ifdef NEW_MAP_FORMAT
+    if (numyaxbunches > 0)
+        return saveboard_maptext(filename, dapos, daang, dacursectnum);
+#endif
+
+    fil = Bopen(filename, BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY, BS_IREAD|BS_IWRITE);
+
+    if (fil == -1)
+    {
+        initprintf("Couldn't open \"%s\" for writing: %s\n", filename, strerror(errno));
+        return -1;
+    }
 
     // Determine the map version.
 #ifdef YAX_ENABLE
@@ -10649,11 +10672,11 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
         }
 
         Bclose(fil);
-        return(0);
+        return 0;
     }
 
     Bclose(fil);
-    return(-1);
+    return -1;
 }
 
 

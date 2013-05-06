@@ -4,6 +4,9 @@
 -- environment.
 -- See the included license file "BUILDLIC.TXT" for license info.
 
+-- Will be 'true' if running from engine Lua state:
+local _LUNATIC_AUX = _LUNATIC_AUX
+
 local ffi = require("ffi")
 local ffiC = ffi.C
 local bit = require("bit")
@@ -19,10 +22,12 @@ if (bit.band(ffiC._DEBUG_LUNATIC, 2)~=0) then
     require("jit").off()
 end
 
-if (bit.band(ffiC._DEBUG_LUNATIC, 8)~=0) then
-    require("dump").on("+rs")
-elseif (bit.band(ffiC._DEBUG_LUNATIC, 4)~=0) then
-    require("v").on()
+if (not _LUNATIC_AUX) then
+    if (bit.band(ffiC._DEBUG_LUNATIC, 8)~=0) then
+        require("dump").on("+rs")
+    elseif (bit.band(ffiC._DEBUG_LUNATIC, 4)~=0) then
+        require("v").on()
+    end
 end
 
 local math = require("math")
@@ -37,7 +42,7 @@ local setmetatable = setmetatable
 local tostring = tostring
 local type = type
 
-local decl = decl
+local decl = assert(decl)
 local getfenv = getfenv
 
 decl "void OSD_Printf(const char *fmt, ...);"
@@ -180,6 +185,10 @@ function strip_const(structstr)
     return (string.gsub(structstr, "const[^ ]* ", ""));
 end
 
+local function maybe_strip_const(str)
+    return _LUNATIC_AUX and strip_const(str) or str
+end
+
 -- NOTE for FFI definitions: we're compiling EDuke32 with -funsigned-char, so
 -- we need to take care to declare chars as unsigned whenever it matters, for
 -- example if it represents a palette index.  (I think it's harmless for stuff
@@ -218,22 +227,29 @@ typedef struct {
     int16_t sprite, wall, sect;
 } hitdata_t;
 ]],
-ffi.typeof(SECTOR_STRUCT), ffi.typeof(WALL_STRUCT),
-ffi.typeof(SPRITE_STRUCT))
+ffi.typeof(maybe_strip_const(SECTOR_STRUCT)),
+ffi.typeof(maybe_strip_const(WALL_STRUCT)),
+ffi.typeof(maybe_strip_const(SPRITE_STRUCT)))
 
--- Define the "palette_t" type, which for us has .{r,g,b} fields and a
--- bound-checking array of length 3 overlaid.
-local rgbarray_t = require("bcarray").new("uint8_t", 3, "RGB array", "palette_t",
-                                          { "r", "g", "b", "f" })
-ffi.cdef("typedef union { \
-    struct { uint8_t r, g, b, f; }; \
-    $ col; \
-} palette_t", rgbarray_t)
-assert(ffi.alignof("palette_t")==1)
+if (not _LUNATIC_AUX) then
+    -- Define the "palette_t" type, which for us has .{r,g,b} fields and a
+    -- bound-checking array of length 3 overlaid.
+    local rgbarray_t = require("bcarray").new("uint8_t", 3, "RGB array", "palette_t",
+                                              { "r", "g", "b", "f" })
+    ffi.cdef("typedef union { \
+        struct { uint8_t r, g, b, f; }; \
+        $ col; \
+    } palette_t", rgbarray_t)
+
+    assert(ffi.alignof("palette_t")==1)
+end
 
 local vec3_ct = ffi.typeof("vec3_t")  -- will be metatype'd in geom.lua:
-require("geom")
-local hitdata_ct = ffi.typeof("hitdata_t")
+
+if (not _LUNATIC_AUX) then
+    require("geom")
+    local hitdata_ct = ffi.typeof("hitdata_t")
+end
 
 decl[[
 const int32_t engine_main_arrays_are_static;
@@ -310,6 +326,12 @@ int32_t randomseed;  // DEPRECATED
 const int32_t xdim, ydim;
 const int32_t windowx1, windowy1, windowx2, windowy2;
 ]]
+
+if (_LUNATIC_AUX) then
+    require "engine_maptext"
+    return
+end
+
 
 decl[[
 int32_t yxaspect;
