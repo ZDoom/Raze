@@ -825,7 +825,7 @@ local UDRO = function(memb) return { UD(memb) } end
 -- NOTE: Only members that actually encountered in existing mods are added here.
 local UserdefLabels = {
     althud = UD".althud",
-    auto_run = UDRO".auto_run",
+    auto_run = UD".auto_run",
     camerasprite = UDRO".camerasprite",
     cashman = UDRO".cashman",
     clipping = UD".noclip",  -- NAME

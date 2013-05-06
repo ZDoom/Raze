@@ -1751,7 +1751,7 @@ local function moddir_filename(cstr_fn)
     end
 end
 
-local GAR_FOOTER = "##EDuke32GameArray##"
+local GAR_FOOTER = "\001\002EDuke32GameArray\003\004"
 local GAR_FOOTER_SIZE = #GAR_FOOTER
 
 local function gamearray_file_common(qnum, writep)
