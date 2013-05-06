@@ -248,8 +248,9 @@ local vec3_ct = ffi.typeof("vec3_t")  -- will be metatype'd in geom.lua:
 
 if (not _LUNATIC_AUX) then
     require("geom")
-    local hitdata_ct = ffi.typeof("hitdata_t")
 end
+
+local hitdata_ct = ffi.typeof("hitdata_t")
 
 decl[[
 const int32_t engine_main_arrays_are_static;
@@ -325,9 +326,54 @@ const int32_t totalclock;
 int32_t randomseed;  // DEPRECATED
 const int32_t xdim, ydim;
 const int32_t windowx1, windowy1, windowx2, windowy2;
+
+int32_t kopen4load(const char *filename, char searchfirst);
+int32_t kfilelength(int32_t handle);
+void kclose(int32_t handle);
+int32_t kread(int32_t handle, void *buffer, int32_t leng);
+int32_t klseek(int32_t handle, int32_t offset, int32_t whence);
 ]]
 
+function readintostr(fn, kopen4load_func)
+    -- XXX: this is pretty much the same as the code in L_RunOnce()
+
+    if (kopen4load_func == nil) then
+        kopen4load_func = ffiC.kopen4load
+    end
+
+    -- TODO: for game, g_loadFromGroupOnly?
+    local fd = kopen4load_func(fn, 0)
+    if (fd < 0) then
+        return nil
+    end
+
+    local sz = ffiC.kfilelength(fd)
+    if (sz == 0) then
+        ffiC.kclose(fd)
+        return ""
+    end
+
+    if (sz < 0) then
+        ffi.kclose(fd)
+        error("INTERNAL ERROR: kfilelength() returned negative length")
+    end
+
+    local str = ffi.new("char [?]", sz)
+    local readlen = ffiC.kread(fd, str, sz)
+
+    ffiC.kclose(fd); fd=-1
+
+    if (readlen ~= sz) then
+        error("INTERNAL ERROR: couldn't read \""..fn.."\" wholly")
+    end
+
+    return ffi.string(str, sz)
+end
+
 if (_LUNATIC_AUX) then
+    -- XXX: The global doesn't show up in 'engine_maptext'.
+    -- I guess I still haven't fully grokked globals in Lua.
+    string.readintostr = readintostr
     require "engine_maptext"
     return
 end
@@ -382,12 +428,6 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 
 void setaspect(int32_t daxrange, int32_t daaspect);
-
-int32_t kopen4load(const char *filename, char searchfirst);
-int32_t kfilelength(int32_t handle);
-void kclose(int32_t handle);
-int32_t kread(int32_t handle, void *buffer, int32_t leng);
-int32_t klseek(int32_t handle, int32_t offset, int32_t whence);
 ]]
 
 -- misc. functions

@@ -1284,37 +1284,8 @@ local function errorf(level, fmt, ...)
     error(errmsg, level+1)
 end
 
-local ERRLEV = 5
-
-local function readintostr(fn)
-    -- XXX: this is pretty much the same as the code in L_RunOnce()
-
-    local fd = ffiC.kopen4loadfrommod(fn, 0)  -- TODO: g_loadFromGroupOnly
-    if (fd < 0) then
-        return nil
-    end
-
-    local sz = ffiC.kfilelength(fd)
-    if (sz == 0) then
-        ffiC.kclose(fd)
-        return ""
-    end
-
-    if (sz < 0) then
-        ffi.kclose(fd)
-        error("INTERNAL ERROR: kfilelength() returned negative length", ERRLEV)
-    end
-
-    local str = ffi.new("char [?]", sz)
-    local readlen = ffiC.kread(fd, str, sz)
-
-    ffiC.kclose(fd); fd=-1
-
-    if (readlen ~= sz) then
-        errorf(ERRLEV, "INTERNAL ERROR: couldn't read \"%s\" wholly", fn)
-    end
-
-    return ffi.string(str, sz)
+local function readintostr_mod(fn)
+    return defs_c.readintostr(fn, ffiC.kopen4loadfrommod)
 end
 
 
@@ -1333,6 +1304,8 @@ local required_module_mt = {
 --  * never messes with the global environment, it only returns the module.
 --  * allows passing varargs beyond the name to the module.
 local function our_require(modname, ...)
+    local ERRLEV = 5
+
     -- Check module name is valid first.
     -- TODO: restrict valid names?
     if (type(modname) ~= "string") then
@@ -1380,7 +1353,7 @@ local function our_require(modname, ...)
     end
 
     local modfn = modname .. ".lua"
-    local str = readintostr(modfn)
+    local str = readintostr_mod(modfn)
     if (str == nil) then
         errorf(ERRLEV-1, "Couldn't open file \"%s\"", modfn)
     end
@@ -1683,7 +1656,7 @@ local concode
 
 --- Compile CONs
 do
-    read_into_string = readintostr  -- for lunacon
+    read_into_string = readintostr_mod  -- for lunacon
     local lunacon = require("lunacon")
 
     local confn = { ffi.string(ffiC.G_ConFile()) }
