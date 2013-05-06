@@ -4507,7 +4507,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     if (pr_artmapping) {
         if (!prartmaps[tilenum]) {
             char *tilebuffer = (char *)waloff[tilenum];
-            char tempbuffer[tilesizx[tilenum] * tilesizy[tilenum]];
+            char *tempbuffer = (char *)Bmalloc(tilesizx[tilenum] * tilesizy[tilenum]);
             int i, j, k;
 
             i = k = 0;
@@ -4537,6 +4537,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
             bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             bglBindTexture(GL_TEXTURE_2D, 0);
+            Bfree(tempbuffer);
         }
 
         if (!prbasepalmaps[curbasepal]) {
