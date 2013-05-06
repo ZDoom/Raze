@@ -285,18 +285,7 @@ int32_t G_LoadPlayer(int32_t spot)
     // TODO: this stuff needs to be factored out, too...
     if (currentboardfilename[0])
     {
-        char *p;
-
-        p = Bstrrchr(currentboardfilename,'.');
-        if (!p) Bstrcat(currentboardfilename,".mhk");
-        else
-        {
-            p[1]='m';
-            p[2]='h';
-            p[3]='k';
-            p[4]=0;
-        }
-
+        append_ext_UNSAFE(currentboardfilename, ".mhk");
         loadmaphack(currentboardfilename);
     }
 

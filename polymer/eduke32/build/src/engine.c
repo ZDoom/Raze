@@ -9932,21 +9932,10 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
 #endif
 
     {
-        char *p, fn[BMAX_PATH];
+        char fn[BMAX_PATH];
 
         Bstrcpy(fn, filename);
-
-        p = Bstrrchr(fn, '.');
-
-        if (!p)
-            Bstrcat(fn, ".cfg");
-        else
-        {
-            p[1]='c';
-            p[2]='f';
-            p[3]='g';
-            p[4]=0;
-        }
+        append_ext_UNSAFE(fn, ".cfg");
 
         OSD_Exec(fn);
     }

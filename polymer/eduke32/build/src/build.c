@@ -822,22 +822,13 @@ CANCEL:
 static int32_t mhk=0;
 static void loadmhk(int32_t domessage)
 {
-    char *p; char levname[BMAX_PATH];
+    char levname[BMAX_PATH];
 
     if (!mhk)
         return;
 
     Bstrcpy(levname, boardfilename);
-    p = Bstrrchr(levname,'.');
-    if (!p)
-        Bstrcat(levname,".mhk");
-    else
-    {
-        p[1]='m';
-        p[2]='h';
-        p[3]='k';
-        p[4]=0;
-    }
+    append_ext_UNSAFE(levname, ".mhk");
 
     if (!loadmaphack(levname))
     {

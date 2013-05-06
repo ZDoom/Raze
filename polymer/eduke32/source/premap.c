@@ -1759,16 +1759,7 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
     if (filename != NULL)
         Bstrcpy(outbuf, filename);
 
-    p = Bstrrchr(outbuf,'.');
-    if (!p)
-        Bstrcat(outbuf,".mhk");
-    else
-    {
-        p[1]='m';
-        p[2]='h';
-        p[3]='k';
-        p[4]=0;
-    }
+    append_ext_UNSAFE(outbuf, ".mhk");
 
     if (!loadmaphack(outbuf))
         initprintf("Loaded map hack file \"%s\"\n",outbuf);
