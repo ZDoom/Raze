@@ -4,9 +4,14 @@
 local ffi = require("ffi")
 local ffiC = ffi.C
 
+local pairs = pairs
+local pcall = pcall
 local print = print
+local setfenv = setfenv
 local tonumber = tonumber
 local type = type
+
+local readintostr = assert(string.readintostr)
 
 local io = require("io")
 local string = require("string")
@@ -14,6 +19,7 @@ local string = require("string")
 
 ffi.cdef[[
 int32_t (*saveboard_maptext)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
+int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 ]]
 
 
@@ -46,6 +52,9 @@ local sector_members = {
 -- a newline should appear in the output.
 local sector_ord = { mand="1 23 45 67 ", opt="Bb Ff Hh Pp Xx Yy v _ oie" }
 
+-- KEEPINSYNC with sector_members.
+local sector_default = ffi.new("const sectortype", { ceilingbunch=-1, floorbunch=-1, extra=-1 })
+
 
 local wall_members = {
     -- mandatory
@@ -61,10 +70,12 @@ local wall_members = {
     f = "cstat",
     m = "overpicnum",
     p = "pal",
+    w = { "upwall", -1 }, W = { "dnwall", -1 },
     o = "lotag", i = "hitag", e = { "extra", -1 }
 }
 
-local wall_ord = { mand="1 23 4 5 6 78 90 ", opt="f m p oie" }
+local wall_ord = { mand="1 23 4 5 6 78 90 ", opt="f m p wW oie" }
+local wall_default = ffi.new("const walltype", { extra = -1, upwall=-1, dnwall=-1 })
 
 
 local sprite_members = {
@@ -89,6 +100,7 @@ local sprite_members = {
 }
 
 local sprite_ord = { mand="123 4 5 6 7 8 90 ", opt="p c _ xy s w XYZ oie" }
+local sprite_default = ffi.new("const spritetype", { clipdist=32, owner=-1, extra=-1 })
 
 
 --== SAVING ==--
@@ -127,15 +139,14 @@ local function write_struct(f, struct, members, ord)
             end
         end)
 
-    f:write(str.."},\n")
+    local neednl = (#str>0 and str:sub(-1)~="\n")
+    f:write(str..(neednl and "\n" or "").."},\n")
 end
 
--- In map-text, instead of saving wall[].point2, we store whether a particular
--- wall is the last one in its loop instead.
-local function save_tweak_point2()
+-- common
+local function check_bad_point2()
     local lastloopstart = 0
 
-    -- Check first.
     for i=0,ffiC.numwalls-1 do
         local p2 = ffiC.wall[i].point2
 
@@ -148,6 +159,15 @@ local function save_tweak_point2()
         if (p2 ~= i+1) then
             lastloopstart = i+1
         end
+    end
+end
+
+-- In map-text, instead of saving wall[].point2, we store whether a particular
+-- wall is the last one in its loop instead.
+local function save_tweak_point2()
+    -- Check first.
+    if (check_bad_point2()) then
+        return true
     end
 
     -- Do it for real.
@@ -165,7 +185,8 @@ local function save_tweak_point2()
     end
 end
 
-local function save_restore_point2()
+-- common
+local function restore_point2()
     local lastloopstart = 0
 
     for i=0,ffiC.numwalls-1 do
@@ -193,7 +214,7 @@ local function saveboard_maptext(filename, pos, ang, cursectnum)
 
     if (f == nil) then
         print(string.format("Couldn't open \"%s\" for writing: %s\n", filename, msg))
-        save_restore_point2()
+        restore_point2()
         return -1
     end
 
@@ -215,14 +236,14 @@ local function saveboard_maptext(filename, pos, ang, cursectnum)
     for i=0,ffiC.numsectors-1 do
         write_struct(f, ffiC.sector[i], sector_members, sector_ord)
     end
-    f:write("}\n\n")
+    f:write("},\n\n")
 
     -- Walls.
     f:write("wall={\n")
     for i=0,ffiC.numwalls-1 do
         write_struct(f, ffiC.wall[i], wall_members, wall_ord)
     end
-    f:write("}\n\n")
+    f:write("},\n\n")
 
     -- Sprites.
     f:write("sprite={\n")
@@ -231,16 +252,240 @@ local function saveboard_maptext(filename, pos, ang, cursectnum)
             write_struct(f, ffiC.sprite[i], sprite_members, sprite_ord)
         end
     end
-    f:write("}\n\n")
+    f:write("},\n\n")
 
     f:write("}\n");
 
     -- Done.
     f:close()
-    save_restore_point2()
+    restore_point2()
     return 0
+end
+
+
+--== LOADING ==--
+
+local function isnum(v)
+    return (type(v)=="number")
+end
+
+local function istab(v)
+    return (type(v)=="table")
+end
+
+-- Checks whether <tab> is a table all values of <tab> are of type <extype>.
+local function allxtab(tab, extype)
+    if (not istab(tab)) then
+        return false
+    end
+
+    for _,val in pairs(tab) do
+        if (type(val) ~= extype) then
+            return false
+        end
+    end
+
+    return true
+end
+
+-- Is table of all numbers?
+local function allnumtab(tab) return allxtab(tab, "number") end
+-- Is table of all tables?
+local function alltabtab(tab) return allxtab(tab, "table") end
+
+-- Is table of tables of all numbers? Additionally, each must contain exactly
+-- as many mandatory positional entries as given by the <members> table.
+local function tabofnumtabs(tab, members)
+    for i=1,#tab do
+        if (not allnumtab(tab[i])) then
+            return false
+        end
+
+        local nummand = #members  -- number of mandatory entries
+        if (#tab[i] ~= nummand) then
+            return false
+        end
+    end
+
+    return true
+end
+
+
+-- Read data from Lua table <stab> into C struct <cs>, using the struct
+-- description <members>.
+-- Returns true on error.
+local function read_struct(cs, stab, members, defaults)
+    -- Clear struct to default values.
+    ffi.copy(cs, defaults, ffi.sizeof(defaults))
+
+    -- Read mandatory positional members.
+    for i=1,#members do
+        cs[members[i]] = stab[i]
+    end
+
+    -- Read optional key/value members.
+    for k,val in pairs(stab) do
+        if (members[k]==nil) then
+            -- No such member abbreviation for the given struct.
+            return true
+        end
+
+        local memb = istab(members[k]) and members[k][1] or members[k]
+        cs[memb] = val
+    end
+end
+
+
+local RETERR = -4
+
+local function loadboard_maptext(fil, posptr, angptr, cursectnumptr)
+    -- Read the whole map-text as string.
+    local str = readintostr(fil)
+
+    if (str == nil) then
+        return RETERR
+    end
+
+    -- Strip all one-line comments (currently, only the header).
+    str = str:gsub("%-%-.-\n", "")
+
+    --- Preliminary (pseudo-syntactical) validation ---
+
+    -- Whitelist approach: map-text may only contain certain characters. This
+    -- excludes various potentially 'bad' operations (such as calling a
+    -- function) in one blow. Also, this assures (by exclusion) that the Lua
+    -- code contains no long comments, strings, or function calls.
+    if (not str:find("^[ A-Za-z_0-9{},%-\n=]+$")) then
+        return RETERR-1
+    end
+
+    -- The map-text code must return a single table.
+    if (not str:find("^return %b{}\n$")) then
+        return RETERR-2
+    end
+
+    local func, errmsg = loadstring(str, "maptext")
+    if (func == nil) then
+        print("Error preloading map-text Lua code: "..errmsg)
+        return RETERR-3
+    end
+
+    -- Completely empty the function's environment as an additional safety
+    -- measure, then run the chunk protected! (XXX: currently a bit pointless
+    -- because of the asserts below.)
+    local ok, map = pcall(setfenv(func, {}))
+    if (not ok) then
+        print("Error executing map-text Lua code: "..map)
+        return RETERR-4
+    end
+
+    assert(istab(map))
+    -- OK, now 'map' contains the map data.
+
+    --- Structural validation ---
+
+    -- Check types.
+    if (not isnum(map.version) or not allnumtab(map.pos) or #map.pos~=3 or
+        not isnum(map.sectnum) or not isnum(map.ang))
+    then
+        return RETERR-5
+    end
+
+    local msector, mwall, msprite = map.sector, map.wall, map.sprite
+
+    if (not alltabtab(msector) or not alltabtab(mwall) or not alltabtab(msprite)) then
+        return RETERR-6
+    end
+
+    if (not tabofnumtabs(msector, sector_members) or
+        not tabofnumtabs(mwall, wall_members) or
+        not tabofnumtabs(msprite, sprite_members))
+    then
+        return RETERR-7
+    end
+
+    local numsectors, numwalls, numsprites = #msector, #mwall, #msprite
+    local sector, wall, sprite = ffiC.sector, ffiC.wall, ffiC.sprite
+
+    if (numsectors+0ULL > ffiC.MAXSECTORS or numwalls+0ULL > ffiC.MAXWALLS or
+        numsprites > ffiC.MAXSPRITES)
+    then
+        return RETERR-8
+    end
+
+    --- From here on, start filling out C structures. ---
+
+    ffiC.numsectors = numsectors
+    ffiC.numwalls = numwalls
+
+    -- Header.
+    posptr.x = map.pos[1]
+    posptr.y = map.pos[2]
+    posptr.z = map.pos[3]
+
+    angptr[0] = map.ang
+    cursectnumptr[0] = map.sectnum
+
+    -- Sectors.
+    for i=0,numsectors-1 do
+        if (read_struct(sector[i], msector[i+1], sector_members, sector_default)) then
+            return RETERR-9
+        end
+    end
+
+    -- Walls.
+    for i=0,numwalls-1 do
+        if (read_struct(wall[i], mwall[i+1], wall_members, wall_default)) then
+            return RETERR-10
+        end
+    end
+
+    -- Sprites.
+    for i=0,numsprites-1 do
+        if (read_struct(sprite[i], msprite[i+1], sprite_members, sprite_default)) then
+            return RETERR-11
+        end
+    end
+
+    -- XXX: need to consistency-check much more here! Basically, all of
+    -- astub.c's CheckMapCorruption() for corruption level >=4?
+    -- See NOTNICE below.
+
+    --- Tweakery: mostly setting dependent members. ---
+
+    -- sector[]: .wallptr calculated from .wallnum.
+    local numw = 0
+    for i=0,numsectors-1 do
+        assert(numw >= 0 and numw < numwalls)  -- NOTNICE, cheap check instead of real one.
+        sector[i].wallptr = numw
+        numw = numw + sector[i].wallnum
+    end
+
+    -- wall[]: .nextsector calculated by using engine's sectorofwall_noquick()
+    for i=0,numwalls-1 do
+        local nw = wall[i].nextwall
+
+        if (nw >= 0) then
+            assert(nw >= 0 and nw < numwalls)  -- NOTNICE
+            wall[i].nextsector = ffiC.sectorofwall_noquick(nw)
+        else
+            wall[i].nextsector = -1
+        end
+    end
+
+    -- .point2 in {0, 1} --> wall index
+    restore_point2()
+
+    -- Check .point2 at least.
+    if (check_bad_point2()) then
+        return RETERR-12
+    end
+
+    -- All OK, return the number of sprites for further engine loading code.
+    return numsprites
 end
 
 
 -- Register our Lua functions as callbacks from C.
 ffiC.saveboard_maptext = saveboard_maptext
+ffiC.loadboard_maptext = loadboard_maptext

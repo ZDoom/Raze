@@ -319,33 +319,30 @@ enum {
 };
 ]]
 
+ffi.cdef(maybe_strip_const("const int16_t numsectors, numwalls;"))
+
 ffi.cdef[[
-const int16_t numsectors, numwalls;
 const int32_t numyaxbunches;  // XXX
 const int32_t totalclock;
 int32_t randomseed;  // DEPRECATED
 const int32_t xdim, ydim;
 const int32_t windowx1, windowy1, windowx2, windowy2;
+]]
 
+decl[[
 int32_t kopen4load(const char *filename, char searchfirst);
 int32_t kfilelength(int32_t handle);
 void kclose(int32_t handle);
 int32_t kread(int32_t handle, void *buffer, int32_t leng);
 int32_t klseek(int32_t handle, int32_t offset, int32_t whence);
+
+int32_t sectorofwall_noquick(int16_t theline);
 ]]
 
-function readintostr(fn, kopen4load_func)
+-- Reads the whole file given by the k* file descriptor into a Lua string.
+-- Always closes the file descriptor.
+function readintostr(fd, kopen4load_func)
     -- XXX: this is pretty much the same as the code in L_RunOnce()
-
-    if (kopen4load_func == nil) then
-        kopen4load_func = ffiC.kopen4load
-    end
-
-    -- TODO: for game, g_loadFromGroupOnly?
-    local fd = kopen4load_func(fn, 0)
-    if (fd < 0) then
-        return nil
-    end
 
     local sz = ffiC.kfilelength(fd)
     if (sz == 0) then

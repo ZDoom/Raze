@@ -237,6 +237,7 @@ local function new_initial_gvartab()
         numsectors = RO "_gv.numsectors",
         NUMSECTORS = RO "_gv.numsectors",
         NUMWALLS = RO "_gv.numwalls",
+        -- TODO: Numsprites
 
         randomseed = RW "_gv.randomseed",
         totalclock = RO "_gv.totalclock",

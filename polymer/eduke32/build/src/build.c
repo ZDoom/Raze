@@ -7652,15 +7652,16 @@ CANCEL:
                     }
                     else
                     {
-                        int32_t bakstat=-1;
+                        int32_t bakstat=-1, ret;
                         mapinfofull_t bakmap;
 
                         if (highlightsectorcnt > 0)
                             bakstat = backup_highlighted_map(&bakmap);
-// __old_mapcopy_2__
-                        if (LoadBoard(NULL, 4))
+
+                        ret = LoadBoard(NULL, 4);
+                        if (ret)
                         {
-                            message("Invalid map format, nothing loaded.");
+                            message("Invalid map format, nothing loaded (code %d).", ret);
                             if (bakstat==0)
                                 mapinfofull_free(&bakmap);
                         }

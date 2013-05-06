@@ -9657,6 +9657,11 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
 //////////////////// LOADING AND SAVING ROUTINES ////////////////////
 
+static inline int32_t have_maptext(void)
+{
+    return (mapversion >= 10);
+}
+
 static void prepare_loadboard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     initspritelists();
@@ -9665,11 +9670,14 @@ static void prepare_loadboard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
     Bmemset(show2dwall, 0, sizeof(show2dwall));
 
-    kread(fil,&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
-    kread(fil,&dapos->y,4); dapos->y = B_LITTLE32(dapos->y);
-    kread(fil,&dapos->z,4); dapos->z = B_LITTLE32(dapos->z);
-    kread(fil,daang,2);  *daang  = B_LITTLE16(*daang) & 2047;
-    kread(fil,dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
+    if (!have_maptext())
+    {
+        kread(fil,&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
+        kread(fil,&dapos->y,4); dapos->y = B_LITTLE32(dapos->y);
+        kread(fil,&dapos->z,4); dapos->z = B_LITTLE32(dapos->z);
+        kread(fil,daang,2);  *daang  = B_LITTLE16(*daang) & 2047;
+        kread(fil,dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
+    }
 }
 
 static int32_t finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
@@ -9797,11 +9805,17 @@ static void check_sprite(int32_t i)
     }
 }
 
+#ifdef NEW_MAP_FORMAT
+// Returns the number of sprites, or <0 on error.
+int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
+#endif
 
 // flags: 1, 2: former parameter "fromwhere"
 //           4: don't call polymer_loadboard
 // returns: -1: file not found
 //          -2: invalid version
+//          -3: invalid number of sectors, walls or sprites
+//       <= -4: map-text error
 int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     int32_t fil, i;
@@ -9813,29 +9827,68 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
     i = Bstrlen(filename)-1;
     if (filename[i] == 255) { filename[i] = 0; flags = 1; } // JBF 20040119: "compatibility"
     if ((fil = kopen4load(filename,flags)) == -1)
-        { mapversion = 7; return(-1); }
+        { mapversion = 7; return -1; }
 
-    kread(fil,&mapversion,4); mapversion = B_LITTLE32(mapversion);
+    if (kread(fil, &mapversion, 4) != 4)
+        return -2;
 
     {
-        int32_t ok = (mapversion==7);
+        int32_t ok = 0;
+
+#ifdef NEW_MAP_FORMAT
+        // Check for map-text first.
+        if (!Bmemcmp(&mapversion, "--ED", 4))
+        {
+            mapversion = 10;
+            ok = 1;
+        }
+        else
+#endif
+        {
+            // Not map-text. We expect a little-endian version int now.
+            mapversion = B_LITTLE32(mapversion);
 #ifdef YAX_ENABLE
-        ok |= (mapversion==9);
+            ok |= (mapversion==9);
 #endif
 #if MAXSECTORS==MAXSECTORSV8
-        // v8 engine
-        ok |= (mapversion==8);
+            // v8 engine
+            ok |= (mapversion==8);
 #endif
-        if (!ok) { kclose(fil); return(-2); }
+            ok |= (mapversion==7);
+        }
+
+        if (!ok)
+        {
+            kclose(fil);
+            return -2;
+        }
     }
 
     prepare_loadboard(fil, dapos, daang, dacursectnum);
 
+#ifdef NEW_MAP_FORMAT
+    if (have_maptext())
+    {
+        int32_t ret = klseek(fil, 0, SEEK_SET);
+
+        if (ret == 0)
+            ret = loadboard_maptext(fil, dapos, daang, dacursectnum);
+
+        if (ret < 0)
+        {
+            kclose(fil);
+            return ret;
+        }
+
+        numsprites = ret;
+        goto skip_reading_mapbin;
+    }
+#endif
 
     ////////// Read sectors //////////
 
     kread(fil,&numsectors,2); numsectors = B_LITTLE16(numsectors);
-    if ((unsigned)numsectors >= MYMAXSECTORS()+1) { kclose(fil); return(-1); }
+    if ((unsigned)numsectors >= MYMAXSECTORS()+1) { kclose(fil); return -3; }
 
     kread(fil, sector, sizeof(sectortypev7)*numsectors);
 
@@ -9867,7 +9920,7 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
     ////////// Read walls //////////
 
     kread(fil,&numwalls,2); numwalls = B_LITTLE16(numwalls);
-    if ((unsigned)numwalls >= MYMAXWALLS()+1) { kclose(fil); return(-1); }
+    if ((unsigned)numwalls >= MYMAXWALLS()+1) { kclose(fil); return -3; }
 
     kread(fil, wall, sizeof(walltypev7)*numwalls);
 
@@ -9897,30 +9950,36 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
     ////////// Read sprites //////////
 
     kread(fil,&numsprites,2); numsprites = B_LITTLE16(numsprites);
-    if ((unsigned)numsprites >= MYMAXSPRITES()+1) { kclose(fil); return(-1); }
+    if ((unsigned)numsprites >= MYMAXSPRITES()+1) { kclose(fil); return -3; }
 
     kread(fil, sprite, sizeof(spritetype)*numsprites);
 
+#ifdef NEW_MAP_FORMAT
+skip_reading_mapbin:
+#endif
     kclose(fil);
     // Done reading file.
 
     for (i=numsprites-1; i>=0; i--)
     {
-        sprite[i].x       = B_LITTLE32(sprite[i].x);
-        sprite[i].y       = B_LITTLE32(sprite[i].y);
-        sprite[i].z       = B_LITTLE32(sprite[i].z);
-        sprite[i].cstat   = B_LITTLE16(sprite[i].cstat);
-        sprite[i].picnum  = B_LITTLE16(sprite[i].picnum);
-        sprite[i].sectnum = B_LITTLE16(sprite[i].sectnum);
-        sprite[i].statnum = B_LITTLE16(sprite[i].statnum);
-        sprite[i].ang     = B_LITTLE16(sprite[i].ang);
-        sprite[i].owner   = B_LITTLE16(sprite[i].owner);
-        sprite[i].xvel    = B_LITTLE16(sprite[i].xvel);
-        sprite[i].yvel    = B_LITTLE16(sprite[i].yvel);
-        sprite[i].zvel    = B_LITTLE16(sprite[i].zvel);
-        sprite[i].lotag   = B_LITTLE16(sprite[i].lotag);
-        sprite[i].hitag   = B_LITTLE16(sprite[i].hitag);
-        sprite[i].extra   = B_LITTLE16(sprite[i].extra);
+        if (!have_maptext())
+        {
+            sprite[i].x       = B_LITTLE32(sprite[i].x);
+            sprite[i].y       = B_LITTLE32(sprite[i].y);
+            sprite[i].z       = B_LITTLE32(sprite[i].z);
+            sprite[i].cstat   = B_LITTLE16(sprite[i].cstat);
+            sprite[i].picnum  = B_LITTLE16(sprite[i].picnum);
+            sprite[i].sectnum = B_LITTLE16(sprite[i].sectnum);
+            sprite[i].statnum = B_LITTLE16(sprite[i].statnum);
+            sprite[i].ang     = B_LITTLE16(sprite[i].ang);
+            sprite[i].owner   = B_LITTLE16(sprite[i].owner);
+            sprite[i].xvel    = B_LITTLE16(sprite[i].xvel);
+            sprite[i].yvel    = B_LITTLE16(sprite[i].yvel);
+            sprite[i].zvel    = B_LITTLE16(sprite[i].zvel);
+            sprite[i].lotag   = B_LITTLE16(sprite[i].lotag);
+            sprite[i].hitag   = B_LITTLE16(sprite[i].hitag);
+            sprite[i].extra   = B_LITTLE16(sprite[i].extra);
+        }
 
         check_sprite(i);
     }

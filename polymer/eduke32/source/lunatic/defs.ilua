@@ -1285,7 +1285,13 @@ local function errorf(level, fmt, ...)
 end
 
 local function readintostr_mod(fn)
-    return defs_c.readintostr(fn, ffiC.kopen4loadfrommod)
+    -- TODO: g_loadFromGroupOnly?
+    local fd = ffiC.kopen4loadfrommod(fn, 0)
+    if (fd < 0) then
+        return nil
+    end
+
+    return defs_c.readintostr(fd)
 end
 
 
