@@ -2411,7 +2411,6 @@ int32_t totalclocklock;
 
 char apptitle[256] = "Build Engine";
 
-static uint8_t **basepaltableptr;
 static uint8_t basepalreset=1;
 uint8_t basepalcount;
 uint8_t curbasepal;

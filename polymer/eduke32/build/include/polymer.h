@@ -54,6 +54,7 @@ extern int32_t      pr_overridespecular;
 extern float        pr_specularpower;
 extern float        pr_specularfactor;
 extern int32_t      pr_highpalookups;
+extern int32_t      pr_artmapping;
 extern int32_t      pr_overridehud;
 extern float        pr_hudxadd;
 extern float        pr_hudyadd;
@@ -75,6 +76,7 @@ typedef enum {
                     PR_BIT_ANIM_INTERPOLATION,
                     PR_BIT_LIGHTING_PASS,
                     PR_BIT_NORMAL_MAP,
+                    PR_BIT_ART_MAP,
                     PR_BIT_DIFFUSE_MAP,
                     PR_BIT_DIFFUSE_DETAIL_MAP,
                     PR_BIT_DIFFUSE_MODULATION,
@@ -102,6 +104,10 @@ typedef struct      s_prmaterial {
     GLuint          normalmap;
     GLfloat         normalbias[2];
     GLfloat*        tbn;
+    // PR_BIT_ART_MAP
+    GLuint          artmap;
+    GLuint          basepalmap;
+    GLuint          lookupmap;
     // PR_BIT_DIFFUSE_MAP
     GLuint          diffusemap;
     GLfloat         diffusescale[2];
@@ -137,6 +143,10 @@ typedef struct      s_prrograminfo {
     GLint           uniform_eyePosition;
     GLint           uniform_normalMap;
     GLint           uniform_normalBias;
+    // PR_BIT_ART_MAP
+    GLuint          uniform_artMap;
+    GLuint          uniform_basePalMap;
+    GLuint          uniform_lookupMap;
     // PR_BIT_DIFFUSE_MAP
     GLint           uniform_diffuseMap;
     GLint           uniform_diffuseScale;

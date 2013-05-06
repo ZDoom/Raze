@@ -33,6 +33,7 @@ int32_t         pr_overridespecular = 0;
 float           pr_specularpower = 15.0f;
 float           pr_specularfactor = 1.0f;
 int32_t         pr_highpalookups = 1;
+int32_t         pr_artmapping = 0;
 int32_t         pr_overridehud = 0;
 float           pr_hudxadd = 0.0f;
 float           pr_hudyadd = 0.0f;
@@ -57,6 +58,13 @@ _prwall         *prwalls[MAXWALLS];
 _prsprite       *prsprites[MAXSPRITES];
 _prmaterial     mdspritematerial;
 _prhighpalookup prhighpalookups[MAXBASEPALS][MAXPALOOKUPS];
+
+// One U8 texture per tile
+GLuint          prartmaps[MAXTILES];
+// 256 U8U8U8 values per basepal
+GLuint          prbasepalmaps[MAXBASEPALS];
+// numshades full indirections (32*256) per lookup
+GLuint          prlookups[MAXPALOOKUPS];
 
 static const GLfloat  vertsprite[4 * 5] =
 {
@@ -254,6 +262,28 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  normalTexel = texture2D(normalMap, commonTexCoord.st);\n"
         "\n"
         "  isNormalMapped = 1;\n"
+        "\n",
+    },
+    {
+        1 << PR_BIT_ART_MAP,
+        // vert_def
+        "uniform vec2 diffuseScale;\n"
+        "\n",
+        // vert_prog
+        "  gl_TexCoord[0] = vec4(diffuseScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "\n",
+        // frag_def
+        "uniform sampler2D artMap;\n"
+        "uniform sampler2D basePalMap;\n"
+        "uniform sampler2D lookupMap;\n"
+        "\n",
+        // frag_prog
+        "  float colorIndex = texture2D(artMap, commonTexCoord.st).r;\n"
+        "  colorIndex = texture2D(lookupMap, vec2(colorIndex, 8.0 / 32.0)).r;\n"
+        "\n"
+        "  diffuseTexel = texture2D(basePalMap, vec2(colorIndex, 0.5)) * 2.0;\n"
+        "  if (colorIndex == 1.0)\n"
+        "    diffuseTexel.a = 0.0;\n"
         "\n",
     },
     {
@@ -4432,6 +4462,10 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->normalmap = 0;
     material->normalbias[0] = material->normalbias[1] = 0.0f;
     material->tbn = NULL;
+    // PR_BIT_ART_MAP
+    material->artmap = 0;
+    material->basepalmap = 0;
+    material->lookupmap = 0;
     // PR_BIT_DIFFUSE_MAP
     material->diffusemap = 0;
     material->diffusescale[0] = material->diffusescale[1] = 1.0f;
@@ -4468,7 +4502,86 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     // PR_BIT_DIFFUSE_MAP
     if (!waloff[tilenum])
         loadtile(tilenum);
-    
+
+    // Lazily fill in all the textures we need, move this to precaching later
+    if (pr_artmapping) {
+        if (!prartmaps[tilenum]) {
+            char *tilebuffer = (char *)waloff[tilenum];
+            char tempbuffer[tilesizx[tilenum] * tilesizy[tilenum]];
+            int i, j, k;
+
+            i = k = 0;
+            while (i < tilesizy[tilenum]) {
+                j = 0;
+                while (j < tilesizx[tilenum]) {
+                    tempbuffer[k] = tilebuffer[(j * tilesizy[tilenum]) + i];
+                    k++;
+                    j++;
+                }
+                i++;
+            }
+
+            bglGenTextures(1, &prartmaps[tilenum]);
+            bglBindTexture(GL_TEXTURE_2D, prartmaps[tilenum]);
+            bglTexImage2D(GL_TEXTURE_2D,
+                          0,
+                          GL_R8,
+                          tilesizx[tilenum],
+                          tilesizy[tilenum],
+                          0,
+                          GL_RED,
+                          GL_UNSIGNED_BYTE,
+                          tempbuffer);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            bglBindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        if (!prbasepalmaps[curbasepal]) {
+            bglGenTextures(1, &prbasepalmaps[curbasepal]);
+            bglBindTexture(GL_TEXTURE_2D, prbasepalmaps[curbasepal]);
+            bglTexImage2D(GL_TEXTURE_2D,
+                          0,
+                          GL_RGB,
+                          256,
+                          1,
+                          0,
+                          GL_RGB,
+                          GL_UNSIGNED_BYTE,
+                          basepaltableptr[curbasepal]);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            bglBindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        if (!prlookups[pal]) {
+            bglGenTextures(1, &prlookups[pal]);
+            bglBindTexture(GL_TEXTURE_2D, prlookups[pal]);
+            bglTexImage2D(GL_TEXTURE_2D,
+                          0,
+                          GL_R8,
+                          256,
+                          numshades,
+                          0,
+                          GL_RED,
+                          GL_UNSIGNED_BYTE,
+                          palookup[pal]);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            bglBindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        material->artmap = prartmaps[tilenum];
+        material->basepalmap = prbasepalmaps[curbasepal];
+        material->lookupmap = prlookups[pal];
+    }
+
     // PR_BIT_HIGHPALOOKUP_MAP
     if (pr_highpalookups && prhighpalookups[curbasepal][pal].map &&
         hicfindsubst(tilenum, 0, 0) &&
@@ -4584,12 +4697,18 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     if (pr_normalmapping && material.normalmap)
         programbits |= prprogrambits[PR_BIT_NORMAL_MAP].bit;
 
+    // PR_BIT_ART_MAP
+    if (pr_artmapping && material.artmap &&
+        material.basepalmap && material.lookupmap) {
+        programbits |= prprogrambits[PR_BIT_ART_MAP].bit;
+        programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP2].bit;
+    } else
     // PR_BIT_DIFFUSE_MAP
     if (material.diffusemap) {
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP2].bit;
     }
-    
+
     // PR_BIT_HIGHPALOOKUP_MAP
     if (material.highpalookupmap)
         programbits |= prprogrambits[PR_BIT_HIGHPALOOKUP_MAP].bit;
@@ -4599,7 +4718,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit;
 
     // PR_BIT_DIFFUSE_MODULATION
-    programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
+    if (!pr_artmapping)
+        programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
 
     // PR_BIT_SPECULAR_MAP
     if (pr_specularmapping && material.specmap)
@@ -4614,7 +4734,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_MIRROR_MAP].bit;
 
     // PR_BIT_FOG
-    if (!curlight && !material.mirrormap)
+    if (!pr_artmapping && !curlight && !material.mirrormap)
         programbits |= prprogrambits[PR_BIT_FOG].bit;
 
     // PR_BIT_GLOW_MAP
@@ -4733,6 +4853,33 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         }
 
         texunit++;
+    }
+
+    // PR_BIT_ART_MAP
+    if (programbits & prprogrambits[PR_BIT_ART_MAP].bit)
+    {
+        bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+        bglBindTexture(GL_TEXTURE_2D, material.artmap);
+
+        bglUniform1iARB(prprograms[programbits].uniform_artMap, texunit);
+
+        texunit++;
+
+        bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+        bglBindTexture(GL_TEXTURE_2D, material.basepalmap);
+
+        bglUniform1iARB(prprograms[programbits].uniform_basePalMap, texunit);
+
+        texunit++;
+
+        bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+        bglBindTexture(GL_TEXTURE_2D, material.lookupmap);
+
+        bglUniform1iARB(prprograms[programbits].uniform_lookupMap, texunit);
+
+        texunit++;
+
+        bglUniform2fvARB(prprograms[programbits].uniform_diffuseScale, 1, material.diffusescale);
     }
 
     // PR_BIT_DIFFUSE_MAP
@@ -5084,6 +5231,15 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_eyePosition = bglGetUniformLocationARB(program, "eyePosition");
         prprograms[programbits].uniform_normalMap = bglGetUniformLocationARB(program, "normalMap");
         prprograms[programbits].uniform_normalBias = bglGetUniformLocationARB(program, "normalBias");
+    }
+
+    // PR_BIT_ART_MAP
+    if (programbits & prprogrambits[PR_BIT_ART_MAP].bit)
+    {
+        prprograms[programbits].uniform_artMap = bglGetUniformLocationARB(program, "artMap");
+        prprograms[programbits].uniform_basePalMap = bglGetUniformLocationARB(program, "basePalMap");
+        prprograms[programbits].uniform_lookupMap = bglGetUniformLocationARB(program, "lookupMap");
+        prprograms[programbits].uniform_diffuseScale = bglGetUniformLocationARB(program, "diffuseScale");
     }
 
     // PR_BIT_DIFFUSE_MAP
