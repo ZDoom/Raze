@@ -33,7 +33,7 @@ int32_t         pr_overridespecular = 0;
 float           pr_specularpower = 15.0f;
 float           pr_specularfactor = 1.0f;
 int32_t         pr_highpalookups = 1;
-int32_t         pr_artmapping = 0;
+int32_t         pr_artmapping = 1;
 int32_t         pr_overridehud = 0;
 float           pr_hudxadd = 0.0f;
 float           pr_hudyadd = 0.0f;
@@ -267,21 +267,33 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
         1 << PR_BIT_ART_MAP,
         // vert_def
-        "uniform vec2 diffuseScale;\n"
+        "uniform vec2 planarPos;\n"
+        "varying vec2 horizDistance;\n"
         "\n",
         // vert_prog
-        "  gl_TexCoord[0] = vec4(diffuseScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "  gl_TexCoord[0] = gl_MultiTexCoord0;\n"
+        "  horizDistance = planarPos - curVertex.xz;\n"
         "\n",
         // frag_def
         "uniform sampler2D artMap;\n"
         "uniform sampler2D basePalMap;\n"
         "uniform sampler2D lookupMap;\n"
+        "uniform float shadeOffset;\n"
+        "uniform float visibility;\n"
+        "varying vec2 horizDistance;\n"
         "\n",
         // frag_prog
-        "  float colorIndex = texture2D(artMap, commonTexCoord.st).r;\n"
-        "  colorIndex = texture2D(lookupMap, vec2(colorIndex, 8.0 / 32.0)).r;\n"
+        "  float shadeLookup = length(horizDistance) / 1024.0 * visibility;\n"
+        "  shadeLookup = clamp(shadeLookup + shadeOffset, 0.0, 32.0);\n"
         "\n"
-        "  diffuseTexel = texture2D(basePalMap, vec2(colorIndex, 0.5)) * 2.0;\n"
+        "  float colorIndex = texture2D(artMap, commonTexCoord.st).r;\n"
+        "  float colorIndexNear = texture2D(lookupMap, vec2(colorIndex, floor(shadeLookup) / 32.0)).r;\n"
+        "  float colorIndexFar = texture2D(lookupMap, vec2(colorIndex, min(floor(shadeLookup + 1.0), 32.0) / 32.0)).r;\n"
+        "\n"
+        "  vec3 texelNear = texture2D(basePalMap, vec2(colorIndexNear, 0.5)).rgb;\n"
+        "  vec3 texelFar = texture2D(basePalMap, vec2(colorIndexFar, 0.5)).rgb;\n"
+        "  diffuseTexel.rgb = mix(texelNear, texelFar, fract(shadeLookup)) * 4.0;\n"
+        "  diffuseTexel.a = 1.0;\n"
         "  if (colorIndex == 1.0)\n"
         "    diffuseTexel.a = 0.0;\n"
         "\n",
@@ -1318,7 +1330,7 @@ void                polymer_inb4rotatesprite(int16_t tilenum, char pal, int8_t s
 {
     _prmaterial     rotatespritematerial;
 
-    polymer_getbuildmaterial(&rotatespritematerial, tilenum, pal, shade, 4);
+    polymer_getbuildmaterial(&rotatespritematerial, tilenum, pal, shade, 0, 1337);
 
     rotatespritematerialbits = polymer_bindmaterial(rotatespritematerial, NULL, 0);
 }
@@ -2195,6 +2207,41 @@ static void         polymer_freeboard(void)
         i++;
     }
 
+    i = 0;
+    while (i < MAXTILES)
+    {
+        if (prartmaps[i])
+        {
+            bglDeleteTextures(1, &prartmaps[i]);
+            prartmaps[i] = 0;
+        }
+
+        i++;
+    }
+
+    i = 0;
+    while (i < MAXBASEPALS)
+    {
+        if (prbasepalmaps[i])
+        {
+            bglDeleteTextures(1, &prbasepalmaps[i]);
+            prbasepalmaps[i] = 0;
+        }
+
+        i++;
+    }
+
+    i = 0;
+    while (i < MAXPALOOKUPS)
+    {
+        if (prlookups[i])
+        {
+            bglDeleteTextures(1, &prlookups[i]);
+            prlookups[i] = 0;
+        }
+
+        i++;
+    }
 }
 
 // SECTORS
@@ -2448,11 +2495,12 @@ attributes:
             (sec->ceilingshade == s->ceilingshade) &&
             (sec->floorpal == s->floorpal) &&
             (sec->ceilingpal == s->ceilingpal) &&
+            (sec->visibility == s->visibility) &&
             (floorpicnum == s->floorpicnum) &&
             (ceilingpicnum == s->ceilingpicnum))
         goto finish;
 
-    polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade, 0);
+    polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade, sec->visibility, 0);
 
     if (sec->floorstat & 256) {
         if (sec->floorstat & 128) {
@@ -2462,7 +2510,7 @@ attributes:
         }
     }
 
-    polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade, 0);
+    polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade, sec->visibility, 0);
 
     if (sec->ceilingstat & 256) {
         if (sec->ceilingstat & 128) {
@@ -2480,6 +2528,7 @@ attributes:
     s->ceilingshade = sec->ceilingshade;
     s->floorpal = sec->floorpal;
     s->ceilingpal = sec->ceilingpal;
+    s->visibility = sec->visibility;
     s->floorpicnum = floorpicnum;
     s->ceilingpicnum = ceilingpicnum;
 
@@ -2904,7 +2953,7 @@ static void         polymer_updatewall(int16_t wallnum)
         else
             curpicnum = walloverpicnum;
 
-        polymer_getbuildmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade, 0);
+        polymer_getbuildmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade, sec->visibility, 0);
 
         if (wal->cstat & 4)
             yref = sec->floorz;
@@ -2974,7 +3023,7 @@ static void         polymer_updatewall(int16_t wallnum)
             curxpanning = wall[refwall].xpanning;
             curypanning = wall[refwall].ypanning;
 
-            polymer_getbuildmaterial(&w->wall.material, curpicnum, curpal, curshade, 0);
+            polymer_getbuildmaterial(&w->wall.material, curpicnum, curpal, curshade, sec->visibility, 0);
 
             if (!(wall[refwall].cstat&4))
                 yref = nsec->floorz;
@@ -3041,12 +3090,12 @@ static void         polymer_updatewall(int16_t wallnum)
             else
                 curpicnum = wallpicnum;
 
-            polymer_getbuildmaterial(&w->over.material, curpicnum, wal->pal, wal->shade, 0);
+            polymer_getbuildmaterial(&w->over.material, curpicnum, wal->pal, wal->shade, sec->visibility, 0);
 
             if ((wal->cstat & 16) || (wal->cstat & 32))
             {
                 // mask
-                polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade, 0);
+                polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade, sec->visibility, 0);
 
                 if (wal->cstat & 128)
                 {
@@ -3540,7 +3589,8 @@ void                polymer_updatesprite(int32_t snum)
         s->crc = crc;
     }
 
-    polymer_getbuildmaterial(&s->plane.material, curpicnum, tspr->pal, tspr->shade, 4);
+    polymer_getbuildmaterial(&s->plane.material, curpicnum, tspr->pal, tspr->shade,
+                             sector[tspr->sectnum].visibility, 4);
 
     if (tspr->cstat & 2)
     {
@@ -4492,19 +4542,30 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->mdspritespace = GL_FALSE;
 }
 
-static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int32_t cmeth)
+static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int8_t vis, int32_t cmeth)
 {
     pthtyp*         pth;
     int32_t         usinghighpal = 0;
- 
+
     polymer_getscratchmaterial(material);
- 
-    // PR_BIT_DIFFUSE_MAP
+
     if (!waloff[tilenum])
         loadtile(tilenum);
 
+    // PR_BIT_DIFFUSE_MAP
+    pth = gltexcache(tilenum, pal, cmeth == 1337 ? 4 : cmeth);
+
+    if (pth)
+        material->diffusemap = pth->glpic;
+
+    if (pth->hicr)
+    {
+        material->diffusescale[0] = pth->hicr->xscale;
+        material->diffusescale[1] = pth->hicr->yscale;
+    }
+
     // Lazily fill in all the textures we need, move this to precaching later
-    if (pr_artmapping) {
+    if (pr_artmapping && (!pth || !pth->hicr) && cmeth != 1337) {
         if (!prartmaps[tilenum]) {
             char *tilebuffer = (char *)waloff[tilenum];
             char *tempbuffer = (char *)Bmalloc(tilesizx[tilenum] * tilesizy[tilenum]);
@@ -4581,6 +4642,15 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->artmap = prartmaps[tilenum];
         material->basepalmap = prbasepalmaps[curbasepal];
         material->lookupmap = prlookups[pal];
+
+        if (!material->basepalmap || !material->lookupmap) {
+            material->artmap = 0;
+        }
+
+        material->shadeoffset = shade;
+        material->visibility = ((uint8_t)(vis+16) / 16.0f);
+
+        return;
     }
 
     // PR_BIT_HIGHPALOOKUP_MAP
@@ -4592,28 +4662,23 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         pal = 0;
         usinghighpal = 1;
     }
- 
-    if ((pth = gltexcache(tilenum, pal, cmeth)))
+
+    if (pth)
     {
-        material->diffusemap = pth->glpic;
- 
         if (pth->hicr)
         {
-            material->diffusescale[0] = pth->hicr->xscale;
-            material->diffusescale[1] = pth->hicr->yscale;
- 
             // PR_BIT_SPECULAR_MATERIAL
             if (pth->hicr->specpower != 1.0f)
                 material->specmaterial[0] = pth->hicr->specpower;
             material->specmaterial[1] = pth->hicr->specfactor;
         }
- 
+
         // PR_BIT_DIFFUSE_MODULATION
         material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
             (GLubyte)(getshadefactor(shade) * 0xFF);
- 
+
         if (pth->flags & 2)
         {
             if (pth->palnum != pal)
@@ -4642,12 +4707,12 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
                 material->diffusemodulation[2] = (GLubyte)f;
             }
         }
- 
+
         // PR_BIT_GLOW_MAP
         if (r_fullbrights && pth->flags & 16)
             material->glowmap = pth->ofb->glpic;
     }
- 
+
     // PR_BIT_DIFFUSE_DETAIL_MAP
     if (hicfindsubst(tilenum, DETAILPAL, 0) && (pth = gltexcache(tilenum, DETAILPAL, 0)) && 
         pth->hicr && (pth->hicr->palnum == DETAILPAL))
@@ -4656,12 +4721,12 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->detailscale[0] = pth->hicr->xscale;
         material->detailscale[1] = pth->hicr->yscale;
     }
- 
-     // PR_BIT_GLOW_MAP
+
+    // PR_BIT_GLOW_MAP
     if (hicfindsubst(tilenum, GLOWPAL, 0) && (pth = gltexcache(tilenum, GLOWPAL, 0)) && 
         pth->hicr && (pth->hicr->palnum == GLOWPAL))
         material->glowmap = pth->glpic;
- 
+
     // PR_BIT_SPECULAR_MAP
     if (hicfindsubst(tilenum, SPECULARPAL, 0) && (pth = gltexcache(tilenum, SPECULARPAL, 0)) && 
         pth->hicr && (pth->hicr->palnum == SPECULARPAL))
@@ -4700,7 +4765,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
 
     // PR_BIT_ART_MAP
     if (pr_artmapping && material.artmap &&
-        material.basepalmap && material.lookupmap) {
+        (overridematerial & prprogrambits[PR_BIT_ART_MAP].bit)) {
         programbits |= prprogrambits[PR_BIT_ART_MAP].bit;
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP2].bit;
     } else
@@ -4719,8 +4784,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit;
 
     // PR_BIT_DIFFUSE_MODULATION
-    if (!pr_artmapping)
-        programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
+    programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
 
     // PR_BIT_SPECULAR_MAP
     if (pr_specularmapping && material.specmap)
@@ -4735,7 +4799,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_MIRROR_MAP].bit;
 
     // PR_BIT_FOG
-    if (!pr_artmapping && !curlight && !material.mirrormap)
+    if (!material.artmap && !curlight && !material.mirrormap)
         programbits |= prprogrambits[PR_BIT_FOG].bit;
 
     // PR_BIT_GLOW_MAP
@@ -4859,6 +4923,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     // PR_BIT_ART_MAP
     if (programbits & prprogrambits[PR_BIT_ART_MAP].bit)
     {
+        float pos[2];
+
         bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
         bglBindTexture(GL_TEXTURE_2D, material.artmap);
 
@@ -4880,7 +4946,12 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
 
         texunit++;
 
-        bglUniform2fvARB(prprograms[programbits].uniform_diffuseScale, 1, material.diffusescale);
+        pos[0] = (float)globalposy;
+        pos[1] = -(float)globalposx;
+
+        bglUniform1fARB(prprograms[programbits].uniform_shadeOffset, material.shadeoffset);
+        bglUniform1fARB(prprograms[programbits].uniform_visibility, (globalvisibility - 2048.0) / 2048.0 + material.visibility);
+        bglUniform2fvARB(prprograms[programbits].uniform_planarPos, 1, pos);
     }
 
     // PR_BIT_DIFFUSE_MAP
@@ -5240,7 +5311,9 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_artMap = bglGetUniformLocationARB(program, "artMap");
         prprograms[programbits].uniform_basePalMap = bglGetUniformLocationARB(program, "basePalMap");
         prprograms[programbits].uniform_lookupMap = bglGetUniformLocationARB(program, "lookupMap");
-        prprograms[programbits].uniform_diffuseScale = bglGetUniformLocationARB(program, "diffuseScale");
+        prprograms[programbits].uniform_shadeOffset = bglGetUniformLocationARB(program, "shadeOffset");
+        prprograms[programbits].uniform_visibility = bglGetUniformLocationARB(program, "visibility");
+        prprograms[programbits].uniform_planarPos = bglGetUniformLocationARB(program, "planarPos");
     }
 
     // PR_BIT_DIFFUSE_MAP

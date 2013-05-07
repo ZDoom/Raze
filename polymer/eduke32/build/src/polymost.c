@@ -6414,7 +6414,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void *) &pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
         { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void *) &pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
         { "r_pr_highpalookups", "r_pr_highpalookups: enable/disable highpalookups", (void *) &pr_highpalookups, CVAR_BOOL, 0, 1 },
-        { "r_pr_artmapping", "r_pr_artmapping: enable/disable highpalookups", (void *) &pr_artmapping, CVAR_BOOL, 0, 1 },
+        { "r_pr_artmapping", "r_pr_artmapping: enable/disable art mapping - you need to restart the renderer or you'll destroy everything", (void *) &pr_artmapping, CVAR_BOOL, 0, 1 },
         { "r_pr_overridehud", "r_pr_overridehud: overrides hud model parameters with values from the pr_hud* cvars; use it to fine-tune DEF tokens", (void *) &pr_overridehud, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
         { "r_pr_hudxadd", "r_pr_hudxadd: overriden HUD xadd; see r_pr_overridehud", (void *) &pr_hudxadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },
         { "r_pr_hudyadd", "r_pr_hudyadd: overriden HUD yadd; see r_pr_overridehud", (void *) &pr_hudyadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },

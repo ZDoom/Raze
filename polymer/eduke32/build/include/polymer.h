@@ -108,6 +108,8 @@ typedef struct      s_prmaterial {
     GLuint          artmap;
     GLuint          basepalmap;
     GLuint          lookupmap;
+    GLint           shadeoffset;
+    GLfloat         visibility;
     // PR_BIT_DIFFUSE_MAP
     GLuint          diffusemap;
     GLfloat         diffusescale[2];
@@ -147,6 +149,9 @@ typedef struct      s_prrograminfo {
     GLuint          uniform_artMap;
     GLuint          uniform_basePalMap;
     GLuint          uniform_lookupMap;
+    GLuint          uniform_shadeOffset;
+    GLuint          uniform_visibility;
+    GLuint          uniform_planarPos;
     // PR_BIT_DIFFUSE_MAP
     GLint           uniform_diffuseMap;
     GLint           uniform_diffuseScale;
@@ -245,6 +250,7 @@ typedef struct      s_prsector {
     int16_t         floorpicnum, floorheinum;
     int8_t          floorshade;
     char            floorpal, floorxpanning, floorypanning;
+    uint8_t         visibility;
 
     struct          {
         int32_t     empty       : 1;
@@ -369,7 +375,7 @@ static void         polymer_drawmdsprite(spritetype *tspr);
 static void         polymer_loadmodelvbos(md3model_t* m);
 // MATERIALS
 static void         polymer_getscratchmaterial(_prmaterial* material);
-static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int32_t cmeth);
+static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int8_t vis, int32_t cmeth);
 static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, int lightcount);
 static void         polymer_unbindmaterial(int32_t programbits);
 static void         polymer_compileprogram(int32_t programbits);
