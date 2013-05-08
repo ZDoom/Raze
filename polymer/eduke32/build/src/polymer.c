@@ -276,19 +276,19 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // frag_def
         "uniform sampler2D artMap;\n"
         "uniform sampler2D basePalMap;\n"
-        "uniform sampler2D lookupMap;\n"
+        "uniform sampler2DRect lookupMap;\n"
         "uniform float shadeOffset;\n"
         "uniform float visibility;\n"
         "varying vec3 horizDistance;\n"
         "\n",
         // frag_prog
         "  float shadeLookup = length(horizDistance) / 1.024 * visibility;\n"
-        "  shadeLookup = clamp(shadeLookup + shadeOffset, 0.0, 32.0);\n"
+        "  shadeLookup = shadeLookup + shadeOffset;\n"
         "\n"
-        "  float colorIndex = texture2D(artMap, commonTexCoord.st).r;\n"
-        "  float colorIndexNear = texture2D(lookupMap, vec2(colorIndex, floor(shadeLookup) / 32.0)).r;\n"
-        "  float colorIndexFar = texture2D(lookupMap, vec2(colorIndex, min(floor(shadeLookup + 1.0), 32.0) / 32.0)).r;\n"
-        "  float colorIndexFullbright = texture2D(lookupMap, vec2(colorIndex, 0.0)).r;\n"
+        "  float colorIndex = texture2D(artMap, commonTexCoord.st).r * 256.0;\n"
+        "  float colorIndexNear = texture2DRect(lookupMap, vec2(colorIndex, floor(shadeLookup))).r;\n"
+        "  float colorIndexFar = texture2DRect(lookupMap, vec2(colorIndex, floor(shadeLookup + 1.0))).r;\n"
+        "  float colorIndexFullbright = texture2DRect(lookupMap, vec2(colorIndex, 0.0)).r;\n"
         "\n"
         "  vec3 texelNear = texture2D(basePalMap, vec2(colorIndexNear, 0.5)).rgb;\n"
         "  vec3 texelFar = texture2D(basePalMap, vec2(colorIndexFar, 0.5)).rgb;\n"
@@ -297,7 +297,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  if (isLightingPass == 0) {\n"
         "    result.rgb = mix(texelNear, texelFar, fract(shadeLookup)) * 4.0;\n"
         "    result.a = 1.0;\n"
-        "    if (colorIndex == 1.0)\n"
+        "    if (colorIndex == 256.0)\n"
         "      result.a = 0.0;\n"
         "  }\n"
         "\n",
@@ -4626,8 +4626,8 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
 
         if (!prlookups[pal]) {
             bglGenTextures(1, &prlookups[pal]);
-            bglBindTexture(GL_TEXTURE_2D, prlookups[pal]);
-            bglTexImage2D(GL_TEXTURE_2D,
+            bglBindTexture(GL_TEXTURE_RECTANGLE, prlookups[pal]);
+            bglTexImage2D(GL_TEXTURE_RECTANGLE,
                           0,
                           GL_R8,
                           256,
@@ -4636,11 +4636,11 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
                           GL_RED,
                           GL_UNSIGNED_BYTE,
                           palookup[pal]);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglBindTexture(GL_TEXTURE_2D, 0);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            bglBindTexture(GL_TEXTURE_RECTANGLE, 0);
         }
 
         material->artmap = prartmaps[tilenum];
@@ -4941,7 +4941,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         texunit++;
 
         bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
-        bglBindTexture(GL_TEXTURE_2D, material.lookupmap);
+        bglBindTexture(GL_TEXTURE_RECTANGLE, material.lookupmap);
 
         bglUniform1iARB(prprograms[programbits].uniform_lookupMap, texunit);
 
