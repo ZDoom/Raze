@@ -2210,12 +2210,18 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                     pth = pth->ofb;
             }
 
-        bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
+        // If we aren't rendmode 3, we're in Polymer, which means this code is
+        // used for rotatesprite only. Polymer handles all the material stuff,
+        // just submit the geometry and don't mess with textures.
+        if (rendmode == 3)
+        {
+            bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
-        if (srepeat)
-            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-        if (trepeat)
-            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+            if (srepeat)
+                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+            if (trepeat)
+                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+        }
 
         // texture scale by parkar request
         if (pth && pth->hicr && ((pth->hicr->xscale != 1.0f) || (pth->hicr->yscale != 1.0f)) && !drawingskybox)
@@ -2573,10 +2579,13 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             texunits--;
         }
 
-        if (srepeat)
-            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-        if (trepeat)
-            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+        if (rendmode == 3)
+        {
+            if (srepeat)
+                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            if (trepeat)
+                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+        }
 
         if (fullbrightdrawingpass == 1) // tile has fullbright colors ?
         {

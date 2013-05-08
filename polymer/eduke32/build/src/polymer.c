@@ -1334,7 +1334,7 @@ void                polymer_inb4rotatesprite(int16_t tilenum, char pal, int8_t s
 {
     _prmaterial     rotatespritematerial;
 
-    polymer_getbuildmaterial(&rotatespritematerial, tilenum, pal, shade, 0, 1337);
+    polymer_getbuildmaterial(&rotatespritematerial, tilenum, pal, shade, 0, 4);
 
     rotatespritematerialbits = polymer_bindmaterial(rotatespritematerial, NULL, 0);
 }
@@ -4557,7 +4557,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         loadtile(tilenum);
 
     // PR_BIT_DIFFUSE_MAP
-    pth = gltexcache(tilenum, pal, cmeth == 1337 ? 4 : cmeth);
+    pth = gltexcache(tilenum, pal, cmeth);
 
     if (pth)
         material->diffusemap = pth->glpic;
@@ -4569,7 +4569,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // Lazily fill in all the textures we need, move this to precaching later
-    if (pr_artmapping && (!pth || !pth->hicr) && cmeth != 1337) {
+    if (pr_artmapping && (!pth || !pth->hicr)) {
         if (!prartmaps[tilenum]) {
             char *tilebuffer = (char *)waloff[tilenum];
             char *tempbuffer = (char *)Bmalloc(tilesizx[tilenum] * tilesizy[tilenum]);
