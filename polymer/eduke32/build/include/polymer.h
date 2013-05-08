@@ -151,7 +151,6 @@ typedef struct      s_prrograminfo {
     GLuint          uniform_lookupMap;
     GLuint          uniform_shadeOffset;
     GLuint          uniform_visibility;
-    GLuint          uniform_planarPos;
     // PR_BIT_DIFFUSE_MAP
     GLint           uniform_diffuseMap;
     GLint           uniform_diffuseScale;

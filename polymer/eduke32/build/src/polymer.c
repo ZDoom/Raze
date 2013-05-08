@@ -267,12 +267,11 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
         1 << PR_BIT_ART_MAP,
         // vert_def
-        "uniform vec2 planarPos;\n"
-        "varying vec2 horizDistance;\n"
+        "varying vec3 horizDistance;\n"
         "\n",
         // vert_prog
         "  gl_TexCoord[0] = gl_MultiTexCoord0;\n"
-        "  horizDistance = planarPos - curVertex.xz;\n"
+        "  horizDistance = vec3(gl_ModelViewMatrix * curVertex);\n"
         "\n",
         // frag_def
         "uniform sampler2D artMap;\n"
@@ -280,10 +279,10 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform sampler2D lookupMap;\n"
         "uniform float shadeOffset;\n"
         "uniform float visibility;\n"
-        "varying vec2 horizDistance;\n"
+        "varying vec3 horizDistance;\n"
         "\n",
         // frag_prog
-        "  float shadeLookup = length(horizDistance) / 1024.0 * visibility;\n"
+        "  float shadeLookup = length(horizDistance) / 1.024 * visibility;\n"
         "  shadeLookup = clamp(shadeLookup + shadeOffset, 0.0, 32.0);\n"
         "\n"
         "  float colorIndex = texture2D(artMap, commonTexCoord.st).r;\n"
@@ -4927,8 +4926,6 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     // PR_BIT_ART_MAP
     if (programbits & prprogrambits[PR_BIT_ART_MAP].bit)
     {
-        float pos[2];
-
         bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
         bglBindTexture(GL_TEXTURE_2D, material.artmap);
 
@@ -4950,12 +4947,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
 
         texunit++;
 
-        pos[0] = (float)globalposy;
-        pos[1] = -(float)globalposx;
-
         bglUniform1fARB(prprograms[programbits].uniform_shadeOffset, material.shadeoffset);
         bglUniform1fARB(prprograms[programbits].uniform_visibility, (globalvisibility - 2048.0) / 2048.0 + material.visibility);
-        bglUniform2fvARB(prprograms[programbits].uniform_planarPos, 1, pos);
     }
 
     // PR_BIT_DIFFUSE_MAP
@@ -5317,7 +5310,6 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_lookupMap = bglGetUniformLocationARB(program, "lookupMap");
         prprograms[programbits].uniform_shadeOffset = bglGetUniformLocationARB(program, "shadeOffset");
         prprograms[programbits].uniform_visibility = bglGetUniformLocationARB(program, "visibility");
-        prprograms[programbits].uniform_planarPos = bglGetUniformLocationARB(program, "planarPos");
     }
 
     // PR_BIT_DIFFUSE_MAP
