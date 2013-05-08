@@ -289,13 +289,18 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  float colorIndex = texture2D(artMap, commonTexCoord.st).r;\n"
         "  float colorIndexNear = texture2D(lookupMap, vec2(colorIndex, floor(shadeLookup) / 32.0)).r;\n"
         "  float colorIndexFar = texture2D(lookupMap, vec2(colorIndex, min(floor(shadeLookup + 1.0), 32.0) / 32.0)).r;\n"
+        "  float colorIndexFullbright = texture2D(lookupMap, vec2(colorIndex, 0.0)).r;\n"
         "\n"
         "  vec3 texelNear = texture2D(basePalMap, vec2(colorIndexNear, 0.5)).rgb;\n"
         "  vec3 texelFar = texture2D(basePalMap, vec2(colorIndexFar, 0.5)).rgb;\n"
-        "  diffuseTexel.rgb = mix(texelNear, texelFar, fract(shadeLookup)) * 4.0;\n"
-        "  diffuseTexel.a = 1.0;\n"
-        "  if (colorIndex == 1.0)\n"
-        "    diffuseTexel.a = 0.0;\n"
+        "  diffuseTexel.rgb = texture2D(basePalMap, vec2(colorIndexFullbright, 0.5)).rgb * 4.0;\n"
+        "\n"
+        "  if (isLightingPass == 0) {\n"
+        "    result.rgb = mix(texelNear, texelFar, fract(shadeLookup)) * 4.0;\n"
+        "    result.a = 1.0;\n"
+        "    if (colorIndex == 1.0)\n"
+        "      result.a = 0.0;\n"
+        "  }\n"
         "\n",
     },
     {
@@ -4767,7 +4772,6 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     if (pr_artmapping && material.artmap &&
         (overridematerial & prprogrambits[PR_BIT_ART_MAP].bit)) {
         programbits |= prprogrambits[PR_BIT_ART_MAP].bit;
-        programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP2].bit;
     } else
     // PR_BIT_DIFFUSE_MAP
     if (material.diffusemap) {
