@@ -11623,7 +11623,12 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
         numw = sector[i].wallnum;
 
         if (w0 < 0 || w0 > numwalls)
-            CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d].WALLPTR=%d out of range (numwalls=%d)", i, w0, numw);
+        {
+            if (w0 < 0 || w0 >= MAXWALLS)
+                CORRUPTCHK_PRINT(5, CORRUPT_SECTOR|i, "SECTOR[%d].WALLPTR=%d INVALID!!!", i, w0);
+            else
+                CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d].WALLPTR=%d out of range (numwalls=%d)", i, w0, numw);
+        }
 
         if (w0 != ewall)
             CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d].WALLPTR=%d inconsistent, expected %d", i, w0, ewall);
@@ -11695,12 +11700,24 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                 ns = wall[j].nextsector;
 
                 if (nw >= numwalls)
-                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d out of range: numwalls=%d",
-                                     j, nw, numwalls);
+                {
+                    if (nw >= MAXWALLS)
+                        CORRUPTCHK_PRINT(5, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d INVALID!!!",
+                                         j, nw);
+                    else
+                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d out of range: numwalls=%d",
+                                         j, nw, numwalls);
+                }
 
                 if (ns >= numsectors)
-                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d",
-                                     j, ns, numsectors);
+                {
+                    if (ns >= MAXSECTORS)
+                        CORRUPTCHK_PRINT(5, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d INVALID!!!",
+                                         j, ns);
+                    else
+                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d",
+                                         j, ns, numsectors);
+                }
 
                 if (nw>=w0 && nw<=endwall)
                     CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL is its own sector's wall", j);

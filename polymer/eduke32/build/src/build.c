@@ -8058,7 +8058,9 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
         char msgtail[64];
         const int32_t ci = CheckMapCorruption(4, 0);
 
-        if (ci >= 4)
+        if (ci == 5)
+            Bstrcpy(msgtail, "^12(EXTREME corruption)");
+        else if (ci == 4)
             Bstrcpy(msgtail, "^12(HEAVY corruption)");
         else if (i > 0)
             Bsprintf(msgtail, "^14(removed %d sprites)", i);
