@@ -9153,11 +9153,15 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
                             if (!Bstrcmp(parm->parms[i], "??"))
                             {
                                 corrupt_tryfix_alt = 2;
+                                if (parm->numparms==2)
+                                    whicherrs = 0xffffffffffffffffull;
                                 break;
                             }
                             else if (!Bstrcmp(parm->parms[i], "?"))
                             {
                                 corrupt_tryfix_alt = 1;
+                                if (parm->numparms==2)
+                                    whicherrs = 0xffffffffffffffffull;
                                 break;
                             }
                         }
