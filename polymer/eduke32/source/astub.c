@@ -9148,10 +9148,18 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
                     char *endptr;
                     for (i=1; i<parm->numparms; i++)
                     {
-                        if (i==parm->numparms-1 && !Bstrcmp(parm->parms[i], "?"))
+                        if (i==parm->numparms-1)
                         {
-                            corrupt_tryfix_alt = 1;
-                            break;
+                            if (!Bstrcmp(parm->parms[i], "??"))
+                            {
+                                corrupt_tryfix_alt = 2;
+                                break;
+                            }
+                            else if (!Bstrcmp(parm->parms[i], "?"))
+                            {
+                                corrupt_tryfix_alt = 1;
+                                break;
+                            }
                         }
 
                         n = (int32_t)Bstrtol(parm->parms[i], &endptr, 10);
@@ -11426,11 +11434,13 @@ static void suggest_nextsector_correction(int32_t nw, int32_t j)
             }
         }
     }
+
+    OSD_Printf(" ?? suggest making wall %d white\n", j);
 }
 
 static void do_nextsector_correction(int32_t nw, int32_t j)
 {
-    if (!corrupt_tryfix_alt)
+    if (corrupt_tryfix_alt==0)
     {
         if (nw>=0 && nw<numwalls)
             if (wall[nw].nextwall==j && walls_are_consistent(nw, j))
@@ -11441,7 +11451,7 @@ static void do_nextsector_correction(int32_t nw, int32_t j)
                            j, newns);
             }
     }
-    else
+    else if (corrupt_tryfix_alt==1)
     {
         if (wall[j].nextsector>=0 && wall[j].nextsector<numsectors)
         {
@@ -11455,6 +11465,11 @@ static void do_nextsector_correction(int32_t nw, int32_t j)
                     break;
                 }
         }
+    }
+    else if (corrupt_tryfix_alt==2)
+    {
+        wall[j].nextwall = wall[j].nextsector = -1;
+        OSD_Printf(CCHK_CORRECTED "auto-correction: made wall %d white\n", j);
     }
 }
 
@@ -11649,13 +11664,12 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
         // inconsistent cstat&2 and heinum checker
         {
-            int32_t cs, hn;
             const char *cflabel[2] = {"ceiling", "floor"};
 
             for (j=0; j<2; j++)
             {
-                cs = !!(SECTORFLD(i,stat, j)&2);
-                hn = (SECTORFLD(i,heinum, j)!=0);
+                const int32_t cs = !!(SECTORFLD(i,stat, j)&2);
+                const int32_t hn = !!SECTORFLD(i,heinum, j);
 
                 if (cs != hn && heinumcheckstat <= 1)
                 {
