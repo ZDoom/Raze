@@ -1977,31 +1977,33 @@ ACTOR_STATIC void G_MoveStandables(void)
                 t[1] = s->ang;
 
                 k = A_IncurDamage(i);
+                if (k < 0)
+                    goto crack_default;
 
-                if (k >= 0)
-                    switch (DYNAMICTILEMAP(k))
+                switch (DYNAMICTILEMAP(k))
+                {
+                case FIREEXT__STATIC:
+                case RPG__STATIC:
+                case RADIUSEXPLOSION__STATIC:
+                case SEENINE__STATIC:
+                case OOZFILTER__STATIC:
+                    for (SPRITES_OF(STAT_STANDABLE, j))
                     {
-                    case FIREEXT__STATIC:
-                    case RPG__STATIC:
-                    case RADIUSEXPLOSION__STATIC:
-                    case SEENINE__STATIC:
-                    case OOZFILTER__STATIC:
-                        for (SPRITES_OF(STAT_STANDABLE, j))
-                        {
-                            if (s->hitag == sprite[j].hitag && (sprite[j].picnum == OOZFILTER || sprite[j].picnum == SEENINE))
-                                if (sprite[j].shade != -32)
-                                    sprite[j].shade = -32;
-                        }
-
-                        goto DETONATE;
-
-                    default:
-                        s->cstat = t[0];
-                        s->ang = t[1];
-                        s->extra = 0;
-
-                        goto BOLT;
+                        if (s->hitag == sprite[j].hitag && (sprite[j].picnum == OOZFILTER || sprite[j].picnum == SEENINE))
+                            if (sprite[j].shade != -32)
+                                sprite[j].shade = -32;
                     }
+
+                    goto DETONATE;
+
+                crack_default:
+                default:
+                    s->cstat = t[0];
+                    s->ang = t[1];
+                    s->extra = 0;
+
+                    goto BOLT;
+                }
             }
             goto BOLT;
         }

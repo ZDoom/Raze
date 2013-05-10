@@ -224,8 +224,8 @@ enum sflags_t {
     SPRITE_DIDNOSE7WATER    = 0x00080000, // used temporarily
 };
 
-// custom projectiles
-// KEEPINSYNC lunatic/con_lang.lua
+// Custom projectiles "workslike" flags.
+// XXX: Currently not predefined from CON.
 enum pflags_t {
     PROJECTILE_HITSCAN             = 0x00000001,
     PROJECTILE_RPG                 = 0x00000002,
