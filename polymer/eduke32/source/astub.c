@@ -11573,6 +11573,9 @@ static int32_t check_spritelist_consistency()
     return 0;
 }
 
+#define TRYFIX_NONE() (tryfixing == 0ull)
+#define TRYFIX_CNUM(onumct) (onumct < MAXCORRUPTTHINGS && (tryfixing & (1ull<<onumct)))
+
 int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 {
     int32_t i, j, w0, numw, endwall, ns, nw;
@@ -11627,7 +11630,7 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
             if (w0 < 0 || w0 >= MAXWALLS)
                 CORRUPTCHK_PRINT(5, CORRUPT_SECTOR|i, "SECTOR[%d].WALLPTR=%d INVALID!!!", i, w0);
             else
-                CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d].WALLPTR=%d out of range (numwalls=%d)", i, w0, numw);
+                CORRUPTCHK_PRINT(5, CORRUPT_SECTOR|i, "SECTOR[%d].WALLPTR=%d out of range (numwalls=%d)", i, w0, numw);
         }
 
         if (w0 != ewall)
@@ -11642,7 +11645,7 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
         endwall = w0 + numw;
         if (endwall > numwalls)
-            CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d", i, endwall, numwalls);
+            CORRUPTCHK_PRINT(5, CORRUPT_SECTOR|i, "SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d", i, endwall, numwalls);
 
         // inconsistent cstat&2 and heinum checker
         {
@@ -11697,26 +11700,49 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                 }
 
                 nw = wall[j].nextwall;
-                ns = wall[j].nextsector;
 
                 if (nw >= numwalls)
                 {
-                    if (nw >= MAXWALLS)
-                        CORRUPTCHK_PRINT(5, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d INVALID!!!",
-                                         j, nw);
-                    else
-                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d out of range: numwalls=%d",
-                                         j, nw, numwalls);
+                    int32_t onumct = numcorruptthings;
+
+                    if (TRYFIX_NONE())
+                    {
+                        if (nw >= MAXWALLS)
+                            CORRUPTCHK_PRINT(5, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d INVALID!!!",
+                                             j, nw);
+                        else
+                            CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d out of range: numwalls=%d",
+                                             j, nw, numwalls);
+                        OSD_Printf("    will make wall %d white on tryfix\n", j);
+                    }
+                    else if (TRYFIX_CNUM(onumct))  // CODEDUP MAKE_WALL_WHITE
+                    {
+                        wall[j].nextwall = wall[j].nextsector = -1;
+                        OSD_Printf(CCHK_CORRECTED "auto-correction: made wall %d white\n", j);
+                    }
                 }
+
+                ns = wall[j].nextsector;
 
                 if (ns >= numsectors)
                 {
-                    if (ns >= MAXSECTORS)
-                        CORRUPTCHK_PRINT(5, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d INVALID!!!",
-                                         j, ns);
-                    else
-                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d",
-                                         j, ns, numsectors);
+                    int32_t onumct = numcorruptthings;
+
+                    if (TRYFIX_NONE())
+                    {
+                        if (ns >= MAXSECTORS)
+                            CORRUPTCHK_PRINT(5, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d INVALID!!!",
+                                             j, ns);
+                        else
+                            CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d",
+                                             j, ns, numsectors);
+                        OSD_Printf("    will make wall %d white on tryfix\n", j);
+                    }
+                    else if (TRYFIX_CNUM(onumct))  // CODEDUP MAKE_WALL_WHITE
+                    {
+                        wall[j].nextwall = wall[j].nextsector = -1;
+                        OSD_Printf(CCHK_CORRECTED "auto-correction: made wall %d white\n", j);
+                    }
                 }
 
                 if (nw>=w0 && nw<=endwall)

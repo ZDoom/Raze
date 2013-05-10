@@ -15665,7 +15665,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
 static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t posze, int32_t zoome, int32_t grayp)
 {
     const walltype *wal = &wall[i];
-    int32_t sect=0, j, x1, y1, x2, y2, dz = 0, dz2 = 0;
+    int32_t j, x1, y1, x2, y2, dz = 0, dz2 = 0;
     int32_t fz=0,fzn=0;
 //    intptr_t tempint;
     char col;
@@ -15701,7 +15701,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         col = 33;
         if ((wal->cstat&1) != 0)
             col = 5;
-        if (wal->nextwall >= 0 && ((wal->cstat^wall[j].cstat)&1))
+        if ((unsigned)wal->nextwall < MAXWALLS && ((wal->cstat^wall[j].cstat)&1))
             col = 2;
         if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
             if (totalclock & 16)
@@ -15734,7 +15734,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     {
         // draw vertical line to neighboring wall
         int32_t fz2;
-        sect = sectorofwall(i);
+        int32_t sect = sectorofwall(i);
 
         fz = getflorzofslope(sect, wal->x,wal->y);
         fz2 = getflorzofslope(sect, wall[wal->point2].x,wall[wal->point2].y);
