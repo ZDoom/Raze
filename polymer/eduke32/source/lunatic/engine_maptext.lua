@@ -27,7 +27,6 @@ int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t
 
 local sector_members = {
     -- Mandatory positional members first, [pos]=<name>.
-    "wallnum",
     "ceilingz", "floorz",
     "ceilingpicnum", "floorpicnum",
     "ceilingshade", "floorshade";
@@ -49,8 +48,8 @@ local sector_members = {
 }
 
 -- Defines the order in which the members are written out. A space denotes that
--- a newline should appear in the output.
-local sector_ord = { mand="1 23 45 67 ", opt="Bb Ff Hh Pp Xx Yy v _ oie" }
+-- a newline should appear in the output. KEEPINSYNC with sector_members.
+local sector_ord = { mand="12 34 56 ", opt="Bb Ff Hh Pp Xx Yy v _ oie" }
 
 -- KEEPINSYNC with sector_members.
 local sector_default = ffi.new("const sectortype", { ceilingbunch=-1, floorbunch=-1, extra=-1 })
@@ -58,7 +57,7 @@ local sector_default = ffi.new("const sectortype", { ceilingbunch=-1, floorbunch
 
 local wall_members = {
     -- mandatory
-    "point2",  -- special: 0 or 1 in map-text
+    "point2",  -- special: 0, 1 or 2 in map-text
     "x", "y",
     "nextwall",
     "picnum",
@@ -162,8 +161,17 @@ local function check_bad_point2()
     end
 end
 
+local function lastwallofsect(s)
+    return ffiC.sector[s].wallptr + ffiC.sector[s].wallnum - 1
+end
+
 -- In map-text, instead of saving wall[].point2, we store whether a particular
--- wall is the last one in its loop instead.
+-- wall is the last one in its loop instead: the on-disk wall[i].point2 is
+--  * 2 if wall i is last of its sector (no need to save sector's .wallnum),
+--  * 1 if wall i is last of its loop,
+--  * 0 otherwise.
+-- This function prepares saving to map-text by tweaking the wall[].point2
+-- members in-place.
 local function save_tweak_point2()
     -- Check first.
     if (check_bad_point2()) then
@@ -171,7 +179,8 @@ local function save_tweak_point2()
     end
 
     -- Do it for real.
-    lastloopstart = 0
+    local lastloopstart = 0
+    local cursect, curlastwall = 0, lastwallofsect(0)
 
     for i=0,ffiC.numwalls-1 do
         local wal = ffiC.wall[i]
@@ -179,15 +188,28 @@ local function save_tweak_point2()
         if (wal.point2 == i+1) then
             wal.point2 = 0
         else
-            wal.point2 = 1  -- last point in loop
+            -- Wall i is last point in loop.
+
+            if (i==curlastwall) then
+                -- ... and also last wall of sector.
+                cursect = cursect+1
+                curlastwall = lastwallofsect(cursect)
+
+                wal.point2 = 2
+            else
+                wal.point2 = 1
+            end
+
             lastloopstart = i+1
         end
     end
 end
 
--- common
-local function restore_point2()
+-- Common: restore tweaked point2 members to actual wall indices.
+-- If <alsosectorp> is true, also set sector's .wallptr and .wallnum members.
+local function restore_point2(alsosectorp)
     local lastloopstart = 0
+    local cursect, curfirstwall = 0, 0
 
     for i=0,ffiC.numwalls-1 do
         local wal = ffiC.wall[i]
@@ -196,6 +218,21 @@ local function restore_point2()
         if (not islast) then
             wal.point2 = i+1
         else
+            -- Wall i is last point in loop.
+
+            if (alsosectorp and wal.point2 == 2) then
+                -- ... and also last wall of sector.
+
+                if (cursect==ffiC.MAXSECTORS) then
+                    return true  -- Too many sectors.
+                end
+
+                ffiC.sector[cursect].wallptr = curfirstwall
+                ffiC.sector[cursect].wallnum = i-curfirstwall+1
+                cursect = cursect+1
+                curfirstwall = i+1
+            end
+
             wal.point2 = lastloopstart
             lastloopstart = i+1
         end
@@ -214,7 +251,7 @@ local function saveboard_maptext(filename, pos, ang, cursectnum)
 
     if (f == nil) then
         print(string.format("Couldn't open \"%s\" for writing: %s\n", filename, msg))
-        restore_point2()
+        restore_point2(false)
         return -1
     end
 
@@ -258,7 +295,7 @@ local function saveboard_maptext(filename, pos, ang, cursectnum)
 
     -- Done.
     f:close()
-    restore_point2()
+    restore_point2(false)
     return 0
 end
 
@@ -408,7 +445,7 @@ local function loadboard_maptext(fil, posptr, angptr, cursectnumptr)
     local sector, wall, sprite = ffiC.sector, ffiC.wall, ffiC.sprite
 
     if (numsectors+0ULL > ffiC.MAXSECTORS or numwalls+0ULL > ffiC.MAXWALLS or
-        numsprites > ffiC.MAXSPRITES)
+        numsprites+0ULL > ffiC.MAXSPRITES)
     then
         return RETERR-8
     end
@@ -461,6 +498,16 @@ local function loadboard_maptext(fil, posptr, angptr, cursectnumptr)
         numw = numw + sector[i].wallnum
     end
 
+    -- .point2 in {0, 1} --> wall index, sector[].wallptr/.wallnum
+    if (restore_point2(true)) then
+        return RETERR-12
+    end
+
+    -- Check .point2 at least.
+    if (check_bad_point2()) then
+        return RETERR-13
+    end
+
     -- wall[]: .nextsector calculated by using engine's sectorofwall_noquick()
     for i=0,numwalls-1 do
         local nw = wall[i].nextwall
@@ -471,14 +518,6 @@ local function loadboard_maptext(fil, posptr, angptr, cursectnumptr)
         else
             wall[i].nextsector = -1
         end
-    end
-
-    -- .point2 in {0, 1} --> wall index
-    restore_point2()
-
-    -- Check .point2 at least.
-    if (check_bad_point2()) then
-        return RETERR-12
     end
 
     -- All OK, return the number of sprites for further engine loading code.
