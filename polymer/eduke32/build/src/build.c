@@ -220,6 +220,12 @@ static void correct_ornamented_sprite(int32_t i, int32_t hitw);
 
 static int32_t getfilenames(const char *path, const char *kind);
 
+// Get basename of BUILD file name (forward slashes as directory separators).
+static const char *getbasefn(const char *fn)
+{
+    const char *slash = Bstrrchr(fn, '/');
+    return slash ? slash+1 : fn;
+}
 
 void clearkeys(void)
 {
@@ -7682,9 +7688,16 @@ CANCEL:
 
                     bad = 0;
 
+                    // Back up full name.
                     Bstrcpy(selectedboardfilename, boardfilename);
-                    if (Bstrrchr(boardfilename, '/'))
-                        Bstrcpy(boardfilename, Bstrrchr(boardfilename, '/')+1);
+
+                    // Get base name.
+                    {
+                        const char *basefn = getbasefn(boardfilename);
+
+                        if (basefn != boardfilename)
+                            Bmemmove(boardfilename, basefn, Bstrlen(basefn)+1);
+                    }
 
                     i = 0;
                     while (boardfilename[i] != 0 && i < 64)
@@ -7739,6 +7752,7 @@ CANCEL:
 
                         Bstrcpy(&boardfilename[i], ".map");
 
+                        // Update full name with new basename.
                         slash = Bstrrchr(selectedboardfilename,'/');
                         Bstrcpy(slash ? slash+1 : selectedboardfilename, boardfilename);
 
@@ -7970,25 +7984,15 @@ static void SaveBoardAndPrintMessage(const char *fn)
 // get the file name of the file that would be written if SaveBoard(fn, 0) was called
 const char *GetSaveBoardFilename(const char *fn)
 {
-    const char *f;
-
     if (!fn)
         fn = boardfilename;
 
     if (pathsearchmode)
-        f = fn;
-    else
-    {
-        // virtual filesystem mode can't save to directories so drop the file into
-        // the current directory
-        f = Bstrrchr(fn, '/');
-        if (!f)
-            f = fn;
-        else
-            f++;
-    }
+        return fn;
 
-    return f;
+    // virtual filesystem mode can't save to directories so drop the file into
+    // the current directory
+    return getbasefn(fn);
 }
 
 // flags:  1:no ExtSaveMap (backup.map) and no taglabels saving
@@ -9201,12 +9205,7 @@ static char g_oldpath[BMAX_PATH];
 static void menuselect_try_findlast(void)
 {
     // PK 20080103: start with last selected map
-    const char *boardbasename = Bstrrchr(boardfilename, '/');
-
-    if (!boardbasename)
-        boardbasename=boardfilename;
-    else
-        boardbasename++;
+    const char *boardbasename = getbasefn(boardfilename);
 
     for (; findfileshigh; findfileshigh=findfileshigh->next)
         if (!Bstrcmp(findfileshigh->name, boardbasename))
