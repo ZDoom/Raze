@@ -7186,7 +7186,11 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                            int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2,
                            int32_t uniqid)
 {
-    int32_t cosang, sinang, v, nextv, dax1, dax2, oy, bx, by;
+    // NOTE: if these are made unsigned (for safety), angled tiles may draw
+    // incorrectly, showing vertical seams at intervals.
+    int32_t bx, by;
+
+    int32_t cosang, sinang, v, nextv, dax1, dax2, oy;
     int32_t i, x, y, x1, y1, x2, y2, gx1, gy1;
     intptr_t p, bufplc, palookupoffs;
     int32_t xsiz, ysiz, xoff, yoff, npoints, yplc, yinc, lx, rx;
@@ -7291,12 +7295,18 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             if (dax2 > dax1)
             {
                 yplc = y1 + mulscale16((dax1<<16)+65535-x1,yinc);
-                qinterpolatedown16short((intptr_t)(&uplc[dax1]),dax2-dax1,yplc,yinc);
+                // Assertion fails with DNF mod: in mapster32,
+                // set dt_t 3864  (bike HUD, 700x220)
+                // set dt_a 100
+                // set dt_z 1280000  <- CRASH!
+                Bassert((unsigned)dax1 < MAXXDIM && (unsigned)dax2 < MAXXDIM+1);
+                qinterpolatedown16short((intptr_t)&uplc[dax1], dax2-dax1, yplc, yinc);
             }
             else
             {
                 yplc = y2 + mulscale16((dax2<<16)+65535-x2,yinc);
-                qinterpolatedown16short((intptr_t)(&dplc[dax2]),dax1-dax2,yplc,yinc);
+                Bassert((unsigned)dax2 < MAXXDIM && (unsigned)dax1 < MAXXDIM+1);
+                qinterpolatedown16short((intptr_t)&dplc[dax2], dax1-dax2, yplc, yinc);
             }
         }
         nextv = v;
@@ -7397,6 +7407,11 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                     by += (uint32_t)yv*(y1-oy); oy = y1;
 
+                    // Assertion fails with DNF mod: in mapster32,
+                    // set dt_t 3864  (bike HUD, 700x220)
+                    // set dt_z 16777216
+                    // <Increase yxaspect by pressing [9]>  <-- CRASH!
+                    // (It also fails when wrecking the bike in-game by driving into a wall.)
                     Bassert(bx >= 0);
 
                     bufplce[xx] = (bx>>16)*ysiz+bufplc;
