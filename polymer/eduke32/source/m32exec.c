@@ -2923,7 +2923,16 @@ dodefault:
                 int32_t x1=Gv_GetVarX(*insptr++),  y1=Gv_GetVarX(*insptr++);
                 int32_t x2=Gv_GetVarX(*insptr++),  y2=Gv_GetVarX(*insptr++);
 
-                if (tw != CON_ROTATESPRITE16 && !(orientation & 256)) {x<<=16; y<<=16;}
+                if (tw != CON_ROTATESPRITE16 && !(orientation&ROTATESPRITE_FULL16))
+                {
+                    x<<=16;
+                    y<<=16;
+                }
+
+                // NOTE: Unlike CON, no error on large x/y.
+
+                orientation &= (ROTATESPRITE_MAX-1);
+
                 rotatesprite_(x,y,z,a,tilenum,shade,pal,2|orientation,alpha,x1,y1,x2,y2);
                 continue;
             }
