@@ -1553,7 +1553,21 @@ ends
 
 gamevar scrshot 0 1
 
+////////// DRAW TILE (ROTATESPRITE) TESTING //////////
+gamevar dt_t -1 0  // tilenum
+gamevar dt_x 160 0 // x
+gamevar dt_y 100 0 // y
+gamevar dt_z 65536 0  // zoom
+gamevar dt_a 0 0  // angle
+gamevar dt_s 0 0  // shade
+gamevar dt_p 0 0  // pal
+gamevar dt_o 0 0  // orientation
+gamevar dt_A 0 0  // alpha
+
 onevent EVENT_DRAW3DSCREEN
+    ifge dt_t 0
+        rotatespritea dt_x dt_y dt_z dt_a dt_t dt_s dt_p dt_o dt_A 0 0 xdim ydim
+
     ifn move_by_one 0
     {
         qsprintf TQUOTE "x,y,z = %d, %d, %d" posx posy posz
