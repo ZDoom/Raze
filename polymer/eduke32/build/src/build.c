@@ -552,14 +552,11 @@ int32_t app_main(int32_t argc, const char **argv)
         if (!boardfilename[0])
             Bstrncpyz(boardfilename, argv[i], BMAX_PATH);
     }
+
     if (boardfilename[0] == 0)
-    {
         Bstrcpy(boardfilename,"newboard.map");
-    }
     else if (Bstrchr(boardfilename,'.') == 0)
-    {
         Bstrcat(boardfilename, ".map");
-    }
     //Bcanonicalisefilename(boardfilename,0);
 
     if ((i = ExtInit()) < 0) return -1;
@@ -7530,8 +7527,6 @@ nextmap:
                         message("No more map files.");
                     else if (i == -2)
                         message("No .MAP files found.");
-                    else if (i == -3)
-                        message("Load map first!");
                 }
                 else
                 {
@@ -7692,7 +7687,7 @@ CANCEL:
                         Bstrcpy(boardfilename, Bstrrchr(boardfilename, '/')+1);
 
                     i = 0;
-                    while ((boardfilename[i] != 0) && (i < 64))
+                    while (boardfilename[i] != 0 && i < 64)
                         i++;
                     if (boardfilename[i-4] == '.')
                         i -= 4;
@@ -9191,40 +9186,49 @@ static int32_t getfilenames(const char *path, const char *kind)
     return(0);
 }
 
-// vvv PK ------------------------------------
-// copied off menuselect
-
-static const char *g_oldpath=NULL;
-static int32_t menuselect_auto(int32_t direction) // 20080104: jump to next (direction!=0) or prev (direction==0) file
+static void tweak_sboardfilename(void)
 {
-    const char *boardbasename;
-
-    if (!g_oldpath)
-        return -3;  // not inited
-    else
-        Bmemcpy(selectedboardfilename, g_oldpath, BMAX_PATH);
-
     if (pathsearchmode)
         Bcanonicalisefilename(selectedboardfilename, 1);  // clips off the last token and compresses relative path
     else
         Bcorrectfilename(selectedboardfilename, 1);
+}
 
-    getfilenames(selectedboardfilename, "*.map");
-    if (fnlist.numfiles==0)
-        return -2;
+////////// FILE SELECTION MENU //////////
 
-    boardbasename = Bstrrchr(boardfilename,'/'); // PK
+static char g_oldpath[BMAX_PATH];
+
+static void menuselect_try_findlast(void)
+{
+    // PK 20080103: start with last selected map
+    const char *boardbasename = Bstrrchr(boardfilename, '/');
+
     if (!boardbasename)
         boardbasename=boardfilename;
     else
         boardbasename++;
 
     for (; findfileshigh; findfileshigh=findfileshigh->next)
-        if (!Bstrcmp(findfileshigh->name,boardbasename))
+        if (!Bstrcmp(findfileshigh->name, boardbasename))
             break;
 
     if (!findfileshigh)
         findfileshigh = fnlist.findfiles;
+}
+
+// vvv PK ------------------------------------
+// copied off menuselect
+
+static int32_t menuselect_auto(int32_t direction) // 20080104: jump to next (direction!=0) or prev (direction==0) file
+{
+    Bstrcpy(selectedboardfilename, g_oldpath);
+    tweak_sboardfilename();
+
+    getfilenames(selectedboardfilename, "*.map");
+    if (fnlist.numfiles==0)
+        return -2;
+
+    menuselect_try_findlast();
 
     if (direction)
     {
@@ -9243,7 +9247,7 @@ static int32_t menuselect_auto(int32_t direction) // 20080104: jump to next (dir
 
     Bstrcat(selectedboardfilename, findfileshigh->name);
 
-    return(0);
+    return 0;
 }
 // ^^^ PK ------------------------------------
 
@@ -9251,34 +9255,15 @@ static int32_t menuselect(void)
 {
     int32_t listsize;
     int32_t i;
-    char ch, buffer[96], /*PK*/ *boardbasename;
-    static char oldpath[BMAX_PATH];
-    CACHE1D_FIND_REC *dir;
-    int32_t bakpathsearchmode = pathsearchmode;
+    char ch, buffer[96];
+    const int32_t bakpathsearchmode = pathsearchmode;
 
-    g_oldpath=oldpath; //PK: need it in menuselect_auto
-
-    Bstrcpy(selectedboardfilename, oldpath);
-    if (pathsearchmode)
-        Bcanonicalisefilename(selectedboardfilename, 1);		// clips off the last token and compresses relative path
-    else
-        Bcorrectfilename(selectedboardfilename, 1);
+    Bstrcpy(selectedboardfilename, g_oldpath);
+    tweak_sboardfilename();
 
     getfilenames(selectedboardfilename, "*.map");
 
-    // PK 20080103: start with last selected map
-    boardbasename = Bstrrchr(boardfilename,'/');
-    if (!boardbasename)
-        boardbasename=boardfilename;
-    else
-        boardbasename++;
-
-    for (; findfileshigh; findfileshigh=findfileshigh->next)
-        if (!Bstrcmp(findfileshigh->name,boardbasename))
-            break;
-
-    if (!findfileshigh)
-        findfileshigh = fnlist.findfiles;
+    menuselect_try_findlast();
 
     _printmessage16("Select map file with arrow keys and enter.");
 
@@ -9294,20 +9279,21 @@ static int32_t menuselect(void)
         if (pathsearchmode)
             Bstrcpy(buffer,"Local filesystem mode.  Ctrl-F: game filesystem");
         else
-            Bsprintf(buffer,"Game filesystem %smode.  Ctrl-F: local filesystem, Ctrl-G: %s",
-                     grponlymode?"GRP-only ":"", grponlymode?"all files":"GRP contents only");
+            Bsnprintf(buffer, sizeof(buffer),
+                      "Game filesystem %smode.  Ctrl-F: local filesystem, Ctrl-G: %s",
+                      grponlymode?"GRP-only ":"", grponlymode?"all files":"GRP contents only");
 
         printext16(halfxdim16-(8*Bstrlen(buffer)/2), 4, editorcolors[12],editorcolors[0],buffer,0);
 
-        Bsnprintf(buffer,sizeof(buffer)-1,"(%d dirs, %d files) %s",
+        Bsnprintf(buffer, sizeof(buffer), "(%d dirs, %d files) %s",
                   fnlist.numdirs, fnlist.numfiles, selectedboardfilename);
-        buffer[sizeof(buffer)-1] = 0;
 
         printext16(8,ydim16-8-1,editorcolors[8],editorcolors[0],buffer,0);
 
         if (finddirshigh)
         {
-            dir = finddirshigh;
+            const CACHE1D_FIND_REC *dir = finddirshigh;
+
             for (i=(listsize/2)-1; i>=0; i--)
             {
                 if (!dir->prev) break;
@@ -9334,13 +9320,14 @@ static int32_t menuselect(void)
 
         if (findfileshigh)
         {
-            dir = findfileshigh;
+            const CACHE1D_FIND_REC *dir = findfileshigh;
+
             for (i=(listsize/2)-1; i>=0; i--)
             {
                 if (!dir->prev) break;
                 else dir=dir->prev;
             }
-            for (i=0; ((i<listsize) && dir); i++, dir=dir->next)
+            for (i=0; (i<listsize && dir); i++, dir=dir->next)
             {
                 if (dir == findfileshigh)
                 {
@@ -9457,7 +9444,7 @@ static int32_t menuselect(void)
             else Bstrcpy(selectedboardfilename, "/");
 
             getfilenames(selectedboardfilename, "*.map");
-            Bstrcpy(oldpath,selectedboardfilename);
+            Bstrcpy(g_oldpath, selectedboardfilename);
         }
         else if (ch==7)  // Ctrl-G
         {
@@ -9465,7 +9452,7 @@ static int32_t menuselect(void)
             {
                 grponlymode = 1-grponlymode;
                 getfilenames(selectedboardfilename, "*.map");
-                Bstrcpy(oldpath,selectedboardfilename);
+                Bstrcpy(g_oldpath, selectedboardfilename);
             }
         }
         else if (ch == 9)
@@ -9499,7 +9486,7 @@ static int32_t menuselect(void)
                     findfileshigh = findfileshigh->next;
             }
         }
-        else if ((ch == 13) && (currentlist == 0))
+        else if (ch == 13 && currentlist == 0)
         {
             if (finddirshigh->type == CACHE1D_FIND_DRIVE)
                 Bstrcpy(selectedboardfilename, finddirshigh->name);
@@ -9507,13 +9494,9 @@ static int32_t menuselect(void)
                 Bstrcat(selectedboardfilename, finddirshigh->name);
 
             Bstrcat(selectedboardfilename, "/");
+            tweak_sboardfilename();
 
-            if (pathsearchmode)
-                Bcanonicalisefilename(selectedboardfilename, 1);
-            else
-                Bcorrectfilename(selectedboardfilename, 1);
-
-            Bstrcpy(oldpath,selectedboardfilename);
+            Bstrcpy(g_oldpath, selectedboardfilename);
             //printf("Changing directories to: %s\n", selectedboardfilename);
 
             getfilenames(selectedboardfilename, "*.map");
@@ -9527,25 +9510,27 @@ static int32_t menuselect(void)
 
         if (ch == 13 && !findfileshigh) ch = 0;
     }
-    while ((ch != 13) && (ch != 27));
+    while (ch != 13 && ch != 27);
 
     if (ch == 13)
     {
         Bstrcat(selectedboardfilename, findfileshigh->name);
         //printf("Selected file: %s\n", selectedboardfilename);
 
-        return(0);
+        return 0;
     }
 
     pathsearchmode = bakpathsearchmode;
 
-    return(-1);
+    return -1;
 }
 
 static inline int32_t imod(int32_t a, int32_t b)
 {
-    if (a >= 0) return(a%b);
-    return(((a+1)%b)+b-1);
+    if (a >= 0)
+        return a%b;
+
+    return ((a+1)%b)+b-1;
 }
 
 int32_t fillsector(int16_t sectnum, int32_t fillcolor)
