@@ -7407,14 +7407,14 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                     by += (uint32_t)yv*(y1-oy); oy = y1;
 
-                    // Assertion fails with DNF mod: in mapster32,
+                    // Assertion would fail with DNF mod without (uint32_t) below: in mapster32,
                     // set dt_t 3864  (bike HUD, 700x220)
                     // set dt_z 16777216
                     // <Increase yxaspect by pressing [9]>  <-- CRASH!
                     // (It also fails when wrecking the bike in-game by driving into a wall.)
-                    Bassert(bx >= 0);
+//                    Bassert(bx >= 0);
 
-                    bufplce[xx] = (bx>>16)*ysiz+bufplc;
+                    bufplce[xx] = ((uint32_t)bx>>16)*ysiz+bufplc;
                     vplce[xx] = by;
                     y1ve[xx] = y1;
                     y2ve[xx] = y2-1;
