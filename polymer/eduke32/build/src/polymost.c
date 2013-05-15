@@ -490,7 +490,7 @@ void polymost_glinit()
 extern char nofog;  // in windows/SDL layers
 
 // only for r_usenewshading!=2 (not preferred)
-static void fogcalc_old(int32_t tile, int32_t shade, int32_t vis)
+static void fogcalc_old(int32_t shade, int32_t vis)
 {
     float f;
 
@@ -533,7 +533,7 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
 
     if (r_usenewshading!=2)
     {
-        fogcalc_old(tile, shade, vis);
+        fogcalc_old(shade, vis);
         return;
     }
     else
@@ -4785,7 +4785,6 @@ void polymost_fillpolygon(int32_t npoints)
     pth = texcache_fetch(globalpicnum,globalpal,getpalookup(globvis>>2, globalshade),0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
-/*
     f = getshadefactor(globalshade);
     switch ((globalorientation>>7)&3)
     {
@@ -4798,7 +4797,6 @@ void polymost_fillpolygon(int32_t npoints)
         a = 0.33f; bglEnable(GL_BLEND); break;
     }
     bglColor4f(f,f,f,a);
-*/
 
     tessectrap((float *)rx1,(float *)ry1,xb1,npoints);
 }
