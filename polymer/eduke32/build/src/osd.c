@@ -2100,6 +2100,27 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         default:
             break;
         }
+
+#ifdef USE_OPENGL
+        if (!OSD_ParsingScript())
+        {
+            switch (cvars[i].c.type&(CVAR_RESTARTVID|CVAR_INVALIDATE|CVAR_INVALIDATE8))
+            {
+            case CVAR_RESTARTVID:
+                osdcmd_restartvid(NULL);
+                break;
+            case CVAR_INVALIDATE:
+                gltexinvalidateall();
+            case CVAR_INVALIDATE8:
+                gltexinvalidate8();
+#ifdef POLYMER
+                if (getrendermode() == REND_POLYMER)
+                    polymer_texinvalidate();
+#endif
+                break;
+            }
+        }
+#endif
     }
 
     if (!OSD_ParsingScript())

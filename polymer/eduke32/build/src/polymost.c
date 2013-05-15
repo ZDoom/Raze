@@ -6074,7 +6074,7 @@ void polymost_initosdfuncs(void)
 
 #ifdef POLYMER
         // polymer cvars
-        { "r_pr_lighting", "r_pr_lighting: enable/disable dynamic lights", (void *) &pr_lighting, CVAR_BOOL, 0, 1 },
+        { "r_pr_lighting", "r_pr_lighting: enable/disable dynamic lights - restarts renderer", (void *) &pr_lighting, CVAR_BOOL | CVAR_RESTARTVID, 0, 1 },
         { "r_pr_normalmapping", "r_pr_normalmapping: enable/disable virtual displacement mapping", (void *) &pr_normalmapping, CVAR_BOOL, 0, 1 },
         { "r_pr_specularmapping", "r_pr_specularmapping: enable/disable specular mapping", (void *) &pr_specularmapping, CVAR_BOOL, 0, 1 },
         { "r_pr_shadows", "r_pr_shadows: enable/disable dynamic shadows", (void *) &pr_shadows, CVAR_BOOL, 0, 1 },
@@ -6088,7 +6088,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_billboardingmode", "r_pr_billboardingmode: face sprite display method. 0: classic mode; 1: polymost mode", (void *) &pr_billboardingmode, CVAR_INT, 0, 1 },
         { "r_pr_verbosity", "r_pr_verbosity: verbosity level of the polymer renderer", (void *) &pr_verbosity, CVAR_INT, 0, 3 },
         { "r_pr_wireframe", "r_pr_wireframe: toggles wireframe mode", (void *) &pr_wireframe, CVAR_INT | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_vbos", "r_pr_vbos: contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void *) &pr_vbos, CVAR_INT, 0, 2 },
+        { "r_pr_vbos", "r_pr_vbos: contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void *) &pr_vbos, CVAR_INT | CVAR_RESTARTVID, 0, 2 },
         { "r_pr_gpusmoothing", "r_pr_gpusmoothing: toggles model animation interpolation", (void *) &pr_gpusmoothing, CVAR_INT, 0, 1 },
         { "r_pr_overrideparallax", "r_pr_overrideparallax: overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", (void *) &pr_overrideparallax, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
         { "r_pr_parallaxscale", "r_pr_parallaxscale: overriden parallax mapping offset scale", (void *) &pr_parallaxscale, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },
@@ -6097,7 +6097,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void *) &pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
         { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void *) &pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
         { "r_pr_highpalookups", "r_pr_highpalookups: enable/disable highpalookups", (void *) &pr_highpalookups, CVAR_BOOL, 0, 1 },
-        { "r_pr_artmapping", "r_pr_artmapping: enable/disable art mapping - you need to restart the renderer or you'll destroy everything", (void *) &pr_artmapping, CVAR_BOOL, 0, 1 },
+        { "r_pr_artmapping", "r_pr_artmapping: enable/disable art mapping", (void *) &pr_artmapping, CVAR_BOOL | CVAR_INVALIDATE8, 0, 1 },
         { "r_pr_overridehud", "r_pr_overridehud: overrides hud model parameters with values from the pr_hud* cvars; use it to fine-tune DEF tokens", (void *) &pr_overridehud, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
         { "r_pr_hudxadd", "r_pr_hudxadd: overriden HUD xadd; see r_pr_overridehud", (void *) &pr_hudxadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },
         { "r_pr_hudyadd", "r_pr_hudyadd: overriden HUD yadd; see r_pr_overridehud", (void *) &pr_hudyadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },

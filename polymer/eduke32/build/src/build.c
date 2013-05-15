@@ -233,7 +233,7 @@ void clearkeys(void)
 }
 
 #ifdef USE_OPENGL
-static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
+int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
 

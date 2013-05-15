@@ -388,7 +388,7 @@ static int32_t osdcmd_restartsound(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
+int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     resetvideomode();

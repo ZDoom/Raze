@@ -31,16 +31,19 @@ const char *OSD_StripColors(char *out, const char *in);
 
 enum cvartype_t
 {
-    CVAR_FLOAT   = 0x00000001,
-    CVAR_INT     = 0x00000002,
-    CVAR_UINT    = 0x00000004,
-    CVAR_BOOL    = 0x00000008,
-    CVAR_STRING  = 0x00000010,
-    CVAR_DOUBLE  = 0x00000020,
-    CVAR_LOCKED  = 0x00000040,
-    CVAR_MULTI   = 0x00000080,
-    CVAR_NOSAVE  = 0x00000100,
-    CVAR_FUNCPTR = 0x00000200,
+    CVAR_FLOAT       = 0x00000001,
+    CVAR_INT         = 0x00000002,
+    CVAR_UINT        = 0x00000004,
+    CVAR_BOOL        = 0x00000008,
+    CVAR_STRING      = 0x00000010,
+    CVAR_DOUBLE      = 0x00000020,
+    CVAR_LOCKED      = 0x00000040,
+    CVAR_MULTI       = 0x00000080,
+    CVAR_NOSAVE      = 0x00000100,
+    CVAR_FUNCPTR     = 0x00000200,
+    CVAR_RESTARTVID  = 0x00000400,
+    CVAR_INVALIDATE  = 0x00000800,
+    CVAR_INVALIDATE8 = 0x00001000,
 };
 
 typedef struct
@@ -193,6 +196,8 @@ void OSD_WriteCvars(FILE *fp);
 extern char osdhistorybuf[OSD_HISTORYDEPTH][OSD_EDITLENGTH+1];  // history strings
 extern int32_t  osdhistorysize;       // number of entries in history
 extern int32_t  osdhistorytotal;      // number of total history entries
+
+extern int32_t osdcmd_restartvid(const osdfuncparm_t *parm);
 
 #ifdef EXTERNC
 }
