@@ -105,10 +105,6 @@ local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
                   ["cache-sap"]=false, ["error-nostate"]=true, }
 local function csapp() return g_cgopt["cache-sap"] end
 
--- How many 'if' statements are following immediately each other,
--- needed to cope with CONs dangling-else resolution
-local g_iflevel = 0
-local g_ifelselevel = 0
 -- Stack with *true* on top if the innermost block is a "whilevar*n".
 local g_isWhile = {}
 -- Sequence number of 'while' statements, used to implement CON "break" inside
@@ -3124,8 +3120,6 @@ local function get_code_string(codetab, lineinfop)
 end
 
 function on.parse_begin()
-    g_iflevel = 0
-    g_ifelselevel = 0
     g_isWhile = {}
     g_have_file[g_filename] = true
 
