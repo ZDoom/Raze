@@ -213,10 +213,10 @@ void texcache_syncmemcache(void)
 {
     size_t len;
 
-    if (!texcache_memptr || texcache_filehandle == -1 || filelength(texcache_filehandle) <= texcache_memsize)
+    if (!texcache_memptr || texcache_filehandle == -1 || Bfilelength(texcache_filehandle) <= texcache_memsize)
         return;
 
-    len = filelength(texcache_filehandle);
+    len = Bfilelength(texcache_filehandle);
 
     texcache_memptr = (uint8_t *)Brealloc(texcache_memptr, len);
 
@@ -754,7 +754,7 @@ void texcache_setupmemcache(void)
     if (!glusememcache || texcache_noalloc || !texcache_enabled())
         return;
 
-    texcache_memsize = filelength(texcache_filehandle);
+    texcache_memsize = Bfilelength(texcache_filehandle);
 
     if (texcache_memsize <= 0)
         return;
