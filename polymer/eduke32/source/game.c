@@ -177,7 +177,7 @@ static void G_DrawCameraText(int16_t i);
 GAME_STATIC GAME_INLINE int32_t G_MoveLoop(void);
 static void G_DoOrderScreen(void);
 
-#define quotepulseshade (sintable[(totalclock<<5)&2047]>>11)
+#define quotepulseshade (sintable[((uint32_t)totalclock<<5)&2047]>>11)
 
 int32_t althud_numbertile = 2930;
 int32_t althud_numberpal = 0;

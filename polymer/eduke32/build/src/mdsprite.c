@@ -2834,7 +2834,7 @@ static voxmodel_t *vox2poly()
     memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
     gmaxx = gmaxy = garea = 0;
 
-    if (pow2m1[32] != -1) { for (i=0; i<32; i++) pow2m1[i] = (1<<i)-1; pow2m1[32] = -1; }
+    if (pow2m1[32] != -1) { for (i=0; i<32; i++) pow2m1[i] = (1u<<i)-1; pow2m1[32] = -1; }
     for (i=0; i<7; i++) gvox->qfacind[i] = -1;
 
     i = ((max(ysiz,zsiz)+1)<<2);
