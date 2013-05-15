@@ -34,8 +34,13 @@ void polymost_drawrooms(void);
 void polymost_glinit(void);
 void polymost_glreset(void);
 
+enum {
+    INVALIDATE_ALL,
+    INVALIDATE_ART
+};
+
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
-void gltexinvalidateall(int32_t artonly);
+void gltexinvalidatetype(int32_t type);
 int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
 
 extern float curpolygonoffset;

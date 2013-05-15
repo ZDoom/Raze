@@ -2110,9 +2110,9 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
                 osdcmd_restartvid(NULL);
                 break;
             case CVAR_INVALIDATEALL:
-                gltexinvalidateall(0);
+                gltexinvalidatetype(INVALIDATE_ALL);
             case CVAR_INVALIDATEART:
-                gltexinvalidateall(1);
+                gltexinvalidatetype(INVALIDATE_ART);
 #ifdef POLYMER
                 if (getrendermode() == REND_POLYMER)
                     polymer_texinvalidate();

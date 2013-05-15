@@ -14309,9 +14309,9 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
         const int32_t doinvalidate = (paldidchange || (palsumdidchange && nohwgamma));
 
         if (!(flags&2) && doinvalidate)
-            gltexinvalidateall(0);
+            gltexinvalidatetype(INVALIDATE_ALL);
         if (!(flags&8) && doinvalidate)
-            gltexinvalidateall(1);
+            gltexinvalidatetype(INVALIDATE_ART);
 #ifdef POLYMER
         if ((rendmode == 4) && doinvalidate)
             polymer_texinvalidate();

@@ -275,7 +275,7 @@ void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 //Make all textures "dirty" so they reload, but not re-allocate
 //This should be much faster than polymost_glreset()
 //Use this for palette effects ... but not ones that change every frame!
-void gltexinvalidateall(int32_t artonly)
+void gltexinvalidatetype(int32_t type)
 {
     int32_t j;
     pthtyp *pth;
@@ -284,7 +284,7 @@ void gltexinvalidateall(int32_t artonly)
     {
         for (pth=texcache_head[j]; pth; pth=pth->next)
         {
-            if (!artonly || (artonly && pth->hicr == NULL))
+            if (type == INVALIDATE_ALL || (type == INVALIDATE_ART && pth->hicr == NULL))
             {
                 pth->flags |= 128;
                 if (pth->flags & 16)
@@ -293,7 +293,7 @@ void gltexinvalidateall(int32_t artonly)
         }
     }
 
-    if (!artonly)
+    if (type == INVALIDATE_ALL)
         clearskins();
 #ifdef DEBUGGINGAIDS
     OSD_Printf("gltexinvalidateall()\n");
