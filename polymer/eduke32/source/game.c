@@ -3197,7 +3197,7 @@ void G_DrawBackground(void)
     }
     else
     {
-        const int32_t MENUTILE = (getrendermode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
+        const int32_t MENUTILE = MENUSCREEN;//(getrendermode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
         const int32_t fstilep = tilesizx[MENUTILE]==320 && tilesizy[MENUTILE]==200;
         int32_t bgtile = (fstilep ? MENUTILE : BIGHOLE);
 

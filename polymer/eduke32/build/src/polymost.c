@@ -527,7 +527,8 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
     Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));
 
     if (getrendermode() == REND_POLYMOST && r_usetileshades && shade > 0 &&
-        (!usehightile || !hicfindsubst(tile, pal, 0)))
+        (!usehightile || !hicfindsubst(tile, pal, 0)) &&
+        (!usemodels || md_tilehasmodel(tile, pal) < 0))
         shade >>= 1;
 
     if (r_usenewshading!=2)
