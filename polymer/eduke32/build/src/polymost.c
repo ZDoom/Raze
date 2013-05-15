@@ -175,9 +175,6 @@ int32_t r_vbocount = 64;
 // model animation smoothing cvar
 int32_t r_animsmoothing = 1;
 
-// line of sight checks before mddraw()
-int32_t r_modelocclusionchecking = 0;
-
 // fullbright cvar
 int32_t r_fullbrights = 1;
 
@@ -3727,56 +3724,6 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     drawpoly(dpx,dpy,n,method);
 }
 
-#ifdef MODEL_OCCLUSION_CHECKING
-int32_t lastcullcheck = 0;
-char cullmodel[MAXSPRITES];
-int32_t cullcheckcnt = 0;
-
-static int32_t polymost_checkcoordinates(int32_t x, int32_t y, const spritetype *tspr)
-{
-    int16_t datempsectnum = tspr->sectnum;
-    int32_t oldx = x, i, j = (tilesizy[tspr->picnum]*tspr->yrepeat);
-
-RECHECK:
-    updatesectorz(tspr->x+x,tspr->y+y,tspr->z,&datempsectnum);
-
-    if (datempsectnum == -1)
-    {
-        if (x == y || x != oldx)
-            return 0;
-        swaplong(&x,&y);
-        updatesector(tspr->x+x,tspr->y+y,&datempsectnum);
-    }
-
-    i = 4;
-    do
-    {
-        cullcheckcnt += 2;
-        if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                   tspr->x+x, tspr->y+y, tspr->z-(j*i)-512, datempsectnum))
-            return 1;
-        if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                   tspr->x+x, tspr->y+y, tspr->z-(j*(i-1))-512, datempsectnum))
-            return 1;
-        i -= 2;
-    }
-    while (i);
-
-    cullcheckcnt++;
-    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-               tspr->x+x, tspr->y+y, tspr->z-512, datempsectnum))
-        return 1;
-
-    if (x != y && x == oldx)
-    {
-        swaplong(&x,&y);
-        goto RECHECK;
-    }
-
-    return 0;
-}
-#endif
-
 void polymost_drawsprite(int32_t snum)
 {
     double px[6], py[6];
@@ -3829,54 +3776,6 @@ void polymost_drawsprite(int32_t snum)
                 break;	// else, render as flat sprite
             }
 
-# ifdef MODEL_OCCLUSION_CHECKING
-            if (r_modelocclusionchecking)
-            {
-                const int32_t spic = sprite[spritenum].picnum;
-
-                if (totalclock >= lastcullcheck + CULL_DELAY && cullcheckcnt < MAXCULLCHECKS &&
-                        (/*modelptr->usesalpha ||*/ tspr->yrepeat*tilesizy[spic] > 1536 || tspr->xrepeat*tilesizx[spic] > 1536))
-                {
-                    do // this is so gay
-                    {
-                        uint32_t t = getticks()+4;
-
-                        // don't bother with shadows because processing its owner will take care of it
-                        if (tspr->statnum == TSPR_TEMP)
-                            break;
-                        cullmodel[spritenum] = 1;
-                        cullcheckcnt++;
-
-                        if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                                   tspr->x, tspr->y, tspr->z,tspr->sectnum))
-                            { cullmodel[spritenum] = 0; break; }
-
-                        if (polymost_checkcoordinates(-CULL_OFFSET, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[spritenum] = 0; break; }
-                        if (polymost_checkcoordinates(-CULL_OFFSET, -CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[spritenum] = 0; break; }
-
-                        if (polymost_checkcoordinates(CULL_OFFSET, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[spritenum] = 0; break; }
-                        if (polymost_checkcoordinates(CULL_OFFSET, CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[spritenum] = 0; break; }
-
-                        if (polymost_checkcoordinates(-CULL_OFFSET, CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[spritenum] = 0; break; }
-
-                        if (polymost_checkcoordinates(0, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                            { cullmodel[spritenum] = 0; break; }
-
-                        break;
-                    }
-                    while (1);
-                }
-            }
-            else cullmodel[spritenum] = 0;
-
-            if (cullmodel[spritenum])
-                break;
-# endif
             if (mddraw(tspr))
                 return;
 
@@ -5270,7 +5169,6 @@ void polymost_initosdfuncs(void)
     {
 #ifdef USE_OPENGL
         { "r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",(void *) &r_animsmoothing, CVAR_BOOL, 0, 1 },
-        { "r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",(void *) &r_modelocclusionchecking, CVAR_INT, 0, 2 },
         { "r_detailmapping","r_detailmapping: enable/disable detail mapping",(void *) &r_detailmapping, CVAR_BOOL, 0, 1 },
         { "r_downsize","r_downsize: controls downsizing factor (quality) for hires textures",(void *) &r_downsize, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
         { "r_fullbrights","r_fullbrights: enable/disable fullbright textures",(void *) &r_fullbrights, CVAR_BOOL, 0, 1 },

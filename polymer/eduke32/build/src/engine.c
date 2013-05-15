@@ -9258,9 +9258,6 @@ killsprite:
 
 #ifdef USE_OPENGL
         curpolygonoffset = 0;
-# ifdef MODEL_OCCLUSION_CHECKING
-        cullcheckcnt = 0;
-# endif
 #endif
         pos.x = (float)globalposx;
         pos.y = (float)globalposy;
@@ -9327,13 +9324,6 @@ killsprite:
             if (tspriteptr[spritesortcnt] != NULL)
                 drawsprite(spritesortcnt);
         }
-
-#ifdef MODEL_OCCLUSION_CHECKING
-        if (totalclock < lastcullcheck - CULL_DELAY)
-            lastcullcheck = totalclock;
-        if (totalclock >= lastcullcheck + CULL_DELAY)
-            lastcullcheck = (totalclock + CULL_DELAY);
-#endif
     }
 
 #ifdef POLYMER

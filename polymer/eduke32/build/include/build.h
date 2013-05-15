@@ -1239,7 +1239,6 @@ extern int32_t r_vbocount;
 extern int32_t r_animsmoothing;
 extern int32_t r_parallaxskyclamping;
 extern int32_t r_parallaxskypanning;
-extern int32_t r_modelocclusionchecking;
 extern int32_t r_fullbrights;
 extern int32_t r_downsize;
 extern int32_t r_downsizevar;

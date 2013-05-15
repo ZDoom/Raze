@@ -5,18 +5,6 @@
 
 #include "hightile.h"
 
-#define MODEL_OCCLUSION_CHECKING
-
-#ifdef MODEL_OCCLUSION_CHECKING
-# define CULL_OFFSET 384
-# define CULL_DELAY 2
-# define MAXCULLCHECKS 1024
-
-extern int32_t lastcullcheck;
-extern char cullmodel[MAXSPRITES];
-extern int32_t cullcheckcnt;
-#endif
-
 typedef struct { char r, g, b, a; } coltype;
 
 extern int32_t rendmode;
