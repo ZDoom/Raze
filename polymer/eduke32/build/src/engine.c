@@ -2324,13 +2324,8 @@ static int32_t globalx, globaly, globalz;
 int16_t sectorborder[256], sectorbordercnt;
 int32_t ydim16, qsetmode = 0;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
-#ifndef OBSOLETE_RENDMODES
 static int32_t lastx[MAXYDIM];
 static char *transluc;
-#else
-int32_t lastx[MAXYDIM];
-char *transluc;
-#endif
 
 static char paletteloaded = 0;
 

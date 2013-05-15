@@ -126,13 +126,6 @@ double gdo, gdx, gdy;
 
 static int32_t preview_mouseaim=0;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
 
-#ifdef OBSOLETE_RENDMODES
-# if (USEZBUFFER != 0)
-static int32_t  zbufysiz = 0, zbufbpl = 0, *zbufoff = 0;
-static intptr_t zbufmem = 0;
-# endif
-#endif
-
 #ifdef USE_OPENGL
 static int32_t srepeat = 0, trepeat = 0;
 
@@ -2081,14 +2074,6 @@ static float alpha = 0.f;
 
 void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 {
-#ifdef OBSOLETE_RENDMODES
-    double rdp;
-    double ngdx2, ngux2, ngvx2;
-    int32_t x, y, z, mini, maxi, tsizxm1 = 0, tsizym1 = 0, ltsizy = 0;
-    int32_t xi, d0, u0, v0, d1, u1, v1, xmodnice = 0, ymulnice = 0;
-    char dacol = 0, *palptr = NULL, *vidp, *vide;
-    char *walptr;
-#endif
     double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
     double ngvx = 0.0, ngvy = 0.0, ngvo = 0.0, dp, up, vp, du0 = 0.0, du1 = 0.0, dui, duj;
     double f, r, ox, oy, oz, ox2, oy2, oz2, dd[16], uu[16], vv[16], px[16], py[16], uoffs;
@@ -2133,9 +2118,6 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             tsizx = tsizy = 1; method = 1; //Hack to update Z-buffer for invalid mirror textures
         }
     }
-#ifdef OBSOLETE_RENDMODES
-    walptr = (char *)waloff[globalpicnum];
-#endif
 
     j = 0; dorot = ((gchang != 1.0) || (gctang != 1.0));
     if (dorot)
@@ -2156,9 +2138,6 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             oy = ox2*gstang + oy2*gctang;
             oz = oz2;
 
-#ifdef OBSOLETE_RENDMODES
-            if ((oz < SCISDIST) && (rendmode < 3)) return; //annoying hack to avoid bugs in software rendering
-#endif
             r = ghalfx / oz;
 
             dd[j] = (dpx[i]*gdx + dpy[i]*gdy + gdo)*r;
@@ -2602,310 +2581,6 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     }
 #endif
 
-#ifdef OBSOLETE_RENDMODES
-    if (rendmode == 2)
-    {
-#if (USEZBUFFER != 0)
-        if ((!zbufmem) || (zbufbpl != bytesperline) || (zbufysiz != ydim))
-        {
-            zbufbpl = bytesperline;
-            zbufysiz = ydim;
-            zbufmem = (intptr_t)Brealloc((void *)zbufmem,zbufbpl*zbufysiz*4);
-        }
-        zbufoff = (int32_t *)(zbufmem-(frameplace<<2));
-#endif
-        if ((!transluc)) method = (method&~3)+1; //In case translucent table doesn't exist
-
-        if (!dorot)
-        {
-            ngdx = gdx; ngdy = gdy; ngdo = gdo+(ngdx+ngdy)*.5;
-            ngux = gux; nguy = guy; nguo = guo+(ngux+nguy)*.5;
-            ngvx = gvx; ngvy = gvy; ngvo = gvo+(ngvx+ngvy)*.5;
-        }
-        else
-        {
-            //General equations:
-            //dd[i] = (px[i]*gdx + py[i]*gdy + gdo)
-            //uu[i] = (px[i]*gux + py[i]*guy + guo)/dd[i]
-            //vv[i] = (px[i]*gvx + py[i]*gvy + gvo)/dd[i]
-            //
-            //px[0]*gdx + py[0]*gdy + 1*gdo = dd[0]
-            //px[1]*gdx + py[1]*gdy + 1*gdo = dd[1]
-            //px[2]*gdx + py[2]*gdy + 1*gdo = dd[2]
-            //
-            //px[0]*gux + py[0]*guy + 1*guo = uu[0]*dd[0] (uu[i] premultiplied by dd[i] above)
-            //px[1]*gux + py[1]*guy + 1*guo = uu[1]*dd[1]
-            //px[2]*gux + py[2]*guy + 1*guo = uu[2]*dd[2]
-            //
-            //px[0]*gvx + py[0]*gvy + 1*gvo = vv[0]*dd[0] (vv[i] premultiplied by dd[i] above)
-            //px[1]*gvx + py[1]*gvy + 1*gvo = vv[1]*dd[1]
-            //px[2]*gvx + py[2]*gvy + 1*gvo = vv[2]*dd[2]
-            ox = py[1]-py[2]; oy = py[2]-py[0]; oz = py[0]-py[1];
-            r = 1.0 / (ox*px[0] + oy*px[1] + oz*px[2]);
-            ngdx = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
-            ngux = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
-            ngvx = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
-            ox = px[2]-px[1]; oy = px[0]-px[2]; oz = px[1]-px[0];
-            ngdy = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
-            nguy = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
-            ngvy = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
-            ox = px[0]-.5; oy = py[0]-.5; //.5 centers texture nicely
-            ngdo = dd[0] - ox*ngdx - oy*ngdy;
-            nguo = uu[0] - ox*ngux - oy*nguy;
-            ngvo = vv[0] - ox*ngvx - oy*ngvy;
-        }
-        palptr = &palookup[globalpal][min(max((int32_t)(globalshade * shadescale),0),numshades-1)<<8]; //<-need to make shade not static!
-
-        tsizxm1 = tsizx-1; xmodnice = (!(tsizxm1&tsizx));
-        tsizym1 = tsizy-1; ymulnice = (!(tsizym1&tsizy));
-        if ((method&4) && (!xmodnice)) //Sprites don't need a mod on texture coordinates
-            { xmodnice = 1; for (tsizxm1=1; tsizxm1<tsizx; tsizxm1=(tsizxm1<<1)+1); }
-        if (!ymulnice) { for (tsizym1=1; tsizym1+1<tsizy; tsizym1=(tsizym1<<1)+1); }
-        ltsizy = (picsiz[globalpicnum]>>4);
-    }
-    else
-    {
-        dacol = palookup[0][(int32_t)(*(char *)(waloff[globalpicnum]))+(min(max((int32_t)(globalshade * shadescale),0),numshades-1)<<8)];
-    }
-
-    if (grhalfxdown10x < 0) //Hack for mirrors
-    {
-        for (i=((n-1)>>1); i>=0; i--)
-        {
-            r = px[i]; px[i] = ((double)xdimen)-px[n-1-i]; px[n-1-i] = ((double)xdimen)-r;
-            r = py[i]; py[i] = py[n-1-i]; py[n-1-i] = r;
-        }
-        ngdo += ((double)xdimen)*ngdx; ngdx = -ngdx;
-        nguo += ((double)xdimen)*ngux; ngux = -ngux;
-        ngvo += ((double)xdimen)*ngvx; ngvx = -ngvx;
-    }
-
-    ngdx2 = ngdx*(1<<LINTERPSIZ);
-    ngux2 = ngux*(1<<LINTERPSIZ);
-    ngvx2 = ngvx*(1<<LINTERPSIZ);
-
-    mini = (py[0] >= py[1]); maxi = 1-mini;
-    for (z=2; z<n; z++)
-    {
-        if (py[z] < py[mini]) mini = z;
-        if (py[z] > py[maxi]) maxi = z;
-    }
-
-    i = maxi; dtol(py[i],&yy); if (yy > ydimen) yy = ydimen;
-    do
-    {
-        j = i+1; if (j == n) j = 0;
-        dtol(py[j],&y); if (y < 0) y = 0;
-        if (y < yy)
-        {
-            f = (px[j]-px[i])/(py[j]-py[i]); dtol(f*16384.0,&xi);
-            dtol((((double)yy-.5-py[j])*f + px[j])*16384.0+8192.0,&x);
-            for (; yy>y; yy--,x-=xi) lastx[yy-1] = (x>>14);
-        }
-        i = j;
-    }
-    while (i != mini);
-    do
-    {
-        j = i+1; if (j == n) j = 0;
-        dtol(py[j],&yy); if (yy > ydimen) yy = ydimen;
-        if (y < yy)
-        {
-            f = (px[j]-px[i])/(py[j]-py[i]); dtol(f*16384.0,&xi);
-            dtol((((double)y+.5-py[j])*f + px[j])*16384.0+8192.0,&x);
-            for (; y<yy; y++,x+=xi)
-            {
-                ix0 = lastx[y]; if (ix0 < 0) ix0 = 0;
-                ix1 = (x>>14); if (ix1 > xdimen) ix1 = xdimen;
-                if (ix0 < ix1)
-                {
-                    if (rendmode == 1)
-                        memset((void *)(ylookup[y]+ix0+frameoffset),dacol,ix1-ix0);
-                    else
-                    {
-                        vidp = (char *)(ylookup[y]+frameoffset+ix0);
-                        dp = ngdx*(double)ix0 + ngdy*(double)y + ngdo;
-                        up = ngux*(double)ix0 + nguy*(double)y + nguo;
-                        vp = ngvx*(double)ix0 + ngvy*(double)y + ngvo;
-                        rdp = 65536.0/dp; dp += ngdx2;
-                        dtol(rdp,&d0);
-                        dtol(up*rdp,&u0); up += ngux2;
-                        dtol(vp*rdp,&v0); vp += ngvx2;
-                        rdp = 65536.0/dp;
-
-                        switch (method&3)
-                        {
-                        case 0:
-                            if (xmodnice&ymulnice) //both u&v texture sizes are powers of 2 :)
-                            {
-                                for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
-                                {
-                                    dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
-                                    dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
-                                    dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-                                    rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
-                                    while (vidp < vide)
-                                    {
-#if (DEPTHDEBUG == 0)
-#if (USEZBUFFER != 0)
-                                        zbufoff[(intptr_t)vidp] = d0+16384; //+ hack so wall&floor sprites don't disappear
-#endif
-                                        vidp[0] = palptr[walptr[(((u0>>16)&tsizxm1)<<ltsizy) + ((v0>>16)&tsizym1)]]; //+((d0>>13)&0x3f00)];
-#else
-                                        vidp[0] = ((d0>>16)&255);
-#endif
-                                        d0 += d1; u0 += u1; v0 += v1; vidp++;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
-                                {
-                                    dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
-                                    dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
-                                    dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-                                    rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
-                                    while (vidp < vide)
-                                    {
-#if (DEPTHDEBUG == 0)
-#if (USEZBUFFER != 0)
-                                        zbufoff[(intptr_t)vidp] = d0;
-#endif
-                                        vidp[0] = palptr[walptr[imod(u0>>16,tsizx)*tsizy + ((v0>>16)&tsizym1)]]; //+((d0>>13)&0x3f00)];
-#else
-                                        vidp[0] = ((d0>>16)&255);
-#endif
-                                        d0 += d1; u0 += u1; v0 += v1; vidp++;
-                                    }
-                                }
-                            }
-                            break;
-                        case 1:
-                            if (xmodnice) //both u&v texture sizes are powers of 2 :)
-                            {
-                                for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
-                                {
-                                    dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
-                                    dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
-                                    dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-                                    rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
-                                    while (vidp < vide)
-                                    {
-                                        dacol = walptr[(((u0>>16)&tsizxm1)*tsizy) + ((v0>>16)&tsizym1)];
-#if (DEPTHDEBUG == 0)
-#if (USEZBUFFER != 0)
-                                        if ((dacol != 255) && (d0 <= zbufoff[(intptr_t)vidp]))
-                                        {
-                                            zbufoff[(intptr_t)vidp] = d0;
-                                            vidp[0] = palptr[((int32_t)dacol)]; //+((d0>>13)&0x3f00)];
-                                        }
-#else
-                                        if (dacol != 255) vidp[0] = palptr[((int32_t)dacol)]; //+((d0>>13)&0x3f00)];
-#endif
-#else
-                                        if ((dacol != 255) && (vidp[0] > (d0>>16))) vidp[0] = ((d0>>16)&255);
-#endif
-                                        d0 += d1; u0 += u1; v0 += v1; vidp++;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
-                                {
-                                    dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
-                                    dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
-                                    dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-                                    rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
-                                    while (vidp < vide)
-                                    {
-                                        dacol = walptr[imod(u0>>16,tsizx)*tsizy + ((v0>>16)&tsizym1)];
-#if (DEPTHDEBUG == 0)
-#if (USEZBUFFER != 0)
-                                        if ((dacol != 255) && (d0 <= zbufoff[(intptr_t)vidp]))
-                                        {
-                                            zbufoff[(intptr_t)vidp] = d0;
-                                            vidp[0] = palptr[((int32_t)dacol)]; //+((d0>>13)&0x3f00)];
-                                        }
-#else
-                                        if (dacol != 255) vidp[0] = palptr[((int32_t)dacol)]; //+((d0>>13)&0x3f00)];
-#endif
-#else
-                                        if ((dacol != 255) && (vidp[0] > (d0>>16))) vidp[0] = ((d0>>16)&255);
-#endif
-                                        d0 += d1; u0 += u1; v0 += v1; vidp++;
-                                    }
-                                }
-                            }
-                            break;
-                        case 2: //Transluscence #1
-                            for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
-                            {
-                                dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
-                                dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
-                                dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-                                rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
-                                while (vidp < vide)
-                                {
-                                    dacol = walptr[imod(u0>>16,tsizx)*tsizy + ((v0>>16)&tsizym1)];
-                                    //dacol = walptr[(((u0>>16)&tsizxm1)<<ltsizy) + ((v0>>16)&tsizym1)];
-#if (DEPTHDEBUG == 0)
-#if (USEZBUFFER != 0)
-                                    if ((dacol != 255) && (d0 <= zbufoff[(intptr_t)vidp]))
-                                    {
-                                        zbufoff[(intptr_t)vidp] = d0;
-                                        vidp[0] = transluc[(((int32_t)vidp[0])<<8)+((int32_t)palptr[((int32_t)dacol)])]; //+((d0>>13)&0x3f00)])];
-                                    }
-#else
-                                    if (dacol != 255)
-                                        vidp[0] = transluc[(((int32_t)vidp[0])<<8)+((int32_t)palptr[((int32_t)dacol)])]; //+((d0>>13)&0x3f00)])];
-#endif
-#else
-                                    if ((dacol != 255) && (vidp[0] > (d0>>16))) vidp[0] = ((d0>>16)&255);
-#endif
-                                    d0 += d1; u0 += u1; v0 += v1; vidp++;
-                                }
-                            }
-                            break;
-                        case 3: //Transluscence #2
-                            for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
-                            {
-                                dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
-                                dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
-                                dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-                                rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
-                                while (vidp < vide)
-                                {
-                                    dacol = walptr[imod(u0>>16,tsizx)*tsizy + ((v0>>16)&tsizym1)];
-                                    //dacol = walptr[(((u0>>16)&tsizxm1)<<ltsizy) + ((v0>>16)&tsizym1)];
-#if (DEPTHDEBUG == 0)
-#if (USEZBUFFER != 0)
-                                    if ((dacol != 255) && (d0 <= zbufoff[(intptr_t)vidp]))
-                                    {
-                                        zbufoff[(intptr_t)vidp] = d0;
-                                        vidp[0] = transluc[((int32_t)vidp[0])+(((int32_t)palptr[((int32_t)dacol)/*+((d0>>13)&0x3f00)*/])<<8)];
-                                    }
-#else
-                                    if (dacol != 255)
-                                        vidp[0] = transluc[((int32_t)vidp[0])+(((int32_t)palptr[((int32_t)dacol)/*+((d0>>13)&0x3f00)*/])<<8)];
-#endif
-#else
-                                    if ((dacol != 255) && (vidp[0] > (d0>>16))) vidp[0] = ((d0>>16)&255);
-#endif
-                                    d0 += d1; u0 += u1; v0 += v1; vidp++;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        i = j;
-    }
-    while (i != maxi);
-
     if (rendmode == 1)
     {
         if (method&3) //Only draw border around sprites/maskwalls
@@ -2918,7 +2593,6 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         //ox /= (double)n; oy /= (double)n;
         //for(i=0,j=n-1;i<n;j=i,i++) drawline2d(px[i]+(ox-px[i])*.125,py[i]+(oy-py[i])*.125,px[j]+(ox-px[j])*.125,py[j]+(oy-py[j])*.125,31);
     }
-#endif
 }
 
 
