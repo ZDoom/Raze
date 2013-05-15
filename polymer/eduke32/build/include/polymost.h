@@ -57,11 +57,13 @@ extern int32_t shadescale_unbounded;
 extern float alphahackarray[MAXTILES];
 
 extern int32_t r_usenewshading;
+extern int32_t r_usetileshades;
 
 static inline float getshadefactor(int32_t shade)
 {
     int32_t shadebound = (shadescale_unbounded || shade>=numshades) ? numshades : numshades-1;
     float clamped_shade = min(max(shade*shadescale, 0), shadebound);
+    if (rendmode == REND_POLYMOST && r_usetileshades) return 1.f;
     return ((float)(numshades-clamped_shade))/(float)numshades;
 }
 
@@ -71,6 +73,7 @@ typedef struct pthtyp_t
     uint32_t glpic;
     int16_t picnum;
     char palnum;
+    char shade;
     char effects;
     char flags;      // 1 = clamped (dameth&4), 2 = hightile, 4 = skybox face, 8 = hasalpha, 16 = hasfullbright, 128 = invalidated
     char skyface;
@@ -81,7 +84,7 @@ typedef struct pthtyp_t
     struct pthtyp_t *ofb; // only fullbright
 } pthtyp;
 
-extern int32_t gloadtile_art(int32_t,int32_t,int32_t,pthtyp *,int32_t);
+extern int32_t gloadtile_art(int32_t,int32_t,int32_t,int32_t,pthtyp *,int32_t);
 extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,char);
 
 extern int32_t globalnoeffect;
