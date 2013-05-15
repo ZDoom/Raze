@@ -90,7 +90,6 @@
     <ClInclude Include="build\include\kplib.h" />
     <ClInclude Include="build\include\lzwnew.h" />
     <ClInclude Include="build\include\malloc.c.h" />
-    <ClInclude Include="build\include\md4.h" />
     <ClInclude Include="build\include\mdsprite.h" />
     <ClInclude Include="build\include\mmulti.h" />
     <ClInclude Include="build\include\mutex.h" />
@@ -206,7 +205,6 @@
     <ClCompile Include="build\src\hightile.c" />
     <ClCompile Include="build\src\kplib.c" />
     <ClCompile Include="build\src\lzwnew.c" />
-    <ClCompile Include="build\src\md4.c" />
     <ClCompile Include="build\src\mdsprite.c" />
     <ClCompile Include="build\src\mutex.c" />
     <ClCompile Include="build\src\osd.c" />
