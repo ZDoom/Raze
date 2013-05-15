@@ -77,7 +77,6 @@ ENGINEOBJS= \
 	$(OBJ)\kplib.$o \
 	$(OBJ)\quicklz.$o \
 	$(OBJ)\lzwnew.$o \
-	$(OBJ)\md4.$o \
 	$(OBJ)\osd.$o \
 	$(OBJ)\pragmas.$o \
 	$(OBJ)\scriptfile.$o \
