@@ -39,7 +39,8 @@ extern int32_t globalposx, globalposy, globalposz, globalhoriz;
 extern int16_t globalang, globalcursectnum;
 extern int32_t globalpal, cosglobalang, singlobalang;
 extern int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
-extern int32_t globalvisibility;
+extern int32_t globalhisibility, globalpisibility, globalcisibility;
+extern int32_t globvis, globalvisibility;
 extern int32_t xyaspect;
 extern int32_t globalshade;
 extern int16_t globalpicnum;
@@ -73,8 +74,8 @@ extern int16_t numscans, numbunches;
 #define FOGSCALE 0.0000768
 
 extern palette_t palookupfog[MAXPALOOKUPS];
-void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal);
-void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float factor);
+void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal);
+void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t pal, float factor);
 #endif
 
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
@@ -92,6 +93,19 @@ static inline int32_t bad_tspr(const spritetype *tspr)
     // NOTE: tspr->owner >= MAXSPRITES (could be model) has to be handled by
     // caller.
     return (tspr->owner < 0 || (unsigned)tspr->picnum >= MAXTILES);
+}
+
+//
+// getpalookup (internal)
+//
+static inline int32_t getpalookup(int32_t davis, int32_t dashade)
+{
+    return(min(max(dashade+(davis>>8),0),numshades-1));
+}
+
+static inline int32_t getpalookupsh(int32_t davis)
+{
+    return getpalookup(davis, globalshade)<<8;
 }
 
 void dorotspr_handle_bit2(int32_t *sx, int32_t *sy, int32_t *z, int32_t dastat,

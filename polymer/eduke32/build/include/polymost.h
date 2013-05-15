@@ -59,11 +59,14 @@ extern float alphahackarray[MAXTILES];
 extern int32_t r_usenewshading;
 extern int32_t r_usetileshades;
 
+extern int16_t globalpicnum;
+extern int32_t globalpal;
+
 static inline float getshadefactor(int32_t shade)
 {
     int32_t shadebound = (shadescale_unbounded || shade>=numshades) ? numshades : numshades-1;
     float clamped_shade = min(max(shade*shadescale, 0), shadebound);
-    if (rendmode == REND_POLYMOST && r_usetileshades) return 1.f;
+    if (rendmode == REND_POLYMOST && r_usetileshades && (!usehightile || !hicfindsubst(globalpicnum, globalpal, 0))) return 1.f;
     return ((float)(numshades-clamped_shade))/(float)numshades;
 }
 

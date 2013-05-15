@@ -202,41 +202,43 @@ void texcache_freeptrs(void)
         }
 }
 
-void texcache_clearmem(void)
+void texcache_clearmemcache(void)
 {
     Bfree(texcache_memptr);
     texcache_memptr = NULL;
     texcache_memsize = -1;
 }
 
-void texcache_sync(void)
+void texcache_syncmemcache(void)
 {
-    if (texcache_memptr && texcache_filehandle != -1 && filelength(texcache_filehandle) > texcache_memsize)
+    size_t len;
+
+    if (!texcache_memptr || texcache_filehandle == -1 || filelength(texcache_filehandle) <= texcache_memsize)
+        return;
+
+    len = filelength(texcache_filehandle);
+
+    texcache_memptr = (uint8_t *)Brealloc(texcache_memptr, len);
+
+    if (!texcache_memptr)
     {
-        size_t len = filelength(texcache_filehandle);
-
-        texcache_memptr = (uint8_t *)Brealloc(texcache_memptr, len);
-
-        if (!texcache_memptr)
+        texcache_clearmemcache();
+        initprintf("Failed syncing memcache to texcache, disabling memcache.\n");
+        texcache_noalloc = 1;
+    }
+    else
+    {
+        initprintf("Syncing memcache to texcache\n");
+        Blseek(texcache_filehandle, texcache_memsize, BSEEK_SET);
+        if (Bread(texcache_filehandle, texcache_memptr + texcache_memsize, len - texcache_memsize) != (bssize_t)(len-texcache_memsize))
         {
-            texcache_clearmem();
-            initprintf("Failed syncing memcache to texcache, disabling memcache.\n");
+            initprintf("polymost_cachesync: Failed reading texcache into memcache!\n");
+            texcache_clearmemcache();
             texcache_noalloc = 1;
         }
         else
         {
-            initprintf("Syncing memcache to texcache\n");
-            Blseek(texcache_filehandle, texcache_memsize, BSEEK_SET);
-            if (Bread(texcache_filehandle, texcache_memptr + texcache_memsize, len - texcache_memsize) != (bssize_t)(len-texcache_memsize))
-            {
-                initprintf("polymost_cachesync: Failed reading texcache into memcache!\n");
-                texcache_clearmem();
-                texcache_noalloc = 1;
-            }
-            else
-            {
-                texcache_memsize = len;
-            }
+            texcache_memsize = len;
         }
     }
 }
@@ -244,7 +246,7 @@ void texcache_sync(void)
 void texcache_init(void)
 {
     texcache_closefiles();
-    texcache_clearmem();
+    texcache_clearmemcache();
     texcache_freeptrs();
 
     texcache_currentindex = texcache_firstindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
@@ -416,9 +418,7 @@ typedef struct { int32_t len, method; char effect, name[BMAX_PATH]; } texcacheid
 
 static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t len, const int32_t dameth, const char effect)
 {
-    int32_t fp;
-    char *cp;
-    texcacheid_t id = { len, dameth, effect };
+    texcacheid_t id = { len, dameth, effect, "" };
 
     Bstrcpy(id.name, fn);
 
@@ -494,7 +494,7 @@ failure:
     return 0;
 }
 
-#undef READTEXHEADER_FAILURE(x)
+#undef READTEXHEADER_FAILURE
 #define WRITEX_FAIL_ON_ERROR() if (bglGetError() != GL_NO_ERROR) goto failure
 
 void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
@@ -618,7 +618,7 @@ success:
     TEXCACHE_FREEBUFS();
 }
 
-#undef WRITEX_FAIL_ON_ERROR()
+#undef WRITEX_FAIL_ON_ERROR
 
 static void texcache_setuptexture(int32_t *doalloc, GLuint *glpic)
 {
@@ -764,7 +764,7 @@ void texcache_setupmemcache(void)
     if (!texcache_memptr)
     {
         initprintf("Failed allocating %d bytes for memcache, disabling memcache.\n", texcache_memsize);
-        texcache_clearmem();
+        texcache_clearmemcache();
         texcache_noalloc = 1;
         return;
     }
@@ -772,7 +772,7 @@ void texcache_setupmemcache(void)
     if (Bread(texcache_filehandle, texcache_memptr, texcache_memsize) != texcache_memsize)
     {
         initprintf("Failed reading texcache into memcache!\n");
-        texcache_clearmem();
+        texcache_clearmemcache();
         texcache_noalloc = 1;
     }
 }

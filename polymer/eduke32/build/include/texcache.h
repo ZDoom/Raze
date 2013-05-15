@@ -28,9 +28,9 @@ extern texcacheindex *texcache_firstindex;
 extern texcacheindex *texcache_currentindex;
 
 extern void texcache_freeptrs(void);
-extern void texcache_sync(void);
+extern void texcache_syncmemcache(void);
 extern void texcache_init(void);
-extern void texcache_clearmem(void);
+extern void texcache_clearmemcache(void);
 extern int32_t texcache_loadoffsets(void);
 extern int32_t texcache_readdata(void *dest, int32_t len);
 extern pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth);
@@ -38,7 +38,6 @@ extern int32_t texcache_loadskin(const texcacheheader *head, int32_t *doalloc, G
 extern int32_t texcache_loadtile(const texcacheheader *head, int32_t *doalloc, pthtyp *pth);
 extern void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head);
 extern int32_t texcache_readtexheader(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head, int32_t modelp);
-extern void texcache_closefiles(void);
 extern void texcache_openfiles(void);
 extern void texcache_setupmemcache(void);
 extern void texcache_checkgarbage(void);

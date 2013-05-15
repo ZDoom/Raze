@@ -2296,9 +2296,9 @@ int16_t globalang, globalcursectnum;
 int32_t globalpal, cosglobalang, singlobalang;
 int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 static char *globalpalwritten;
-static int32_t globaluclip, globaldclip, globvis;
-int32_t globalvisibility;
-static int32_t globalhisibility, globalpisibility, globalcisibility;
+static int32_t globaluclip, globaldclip;
+int32_t globvis, globalvisibility;
+int32_t globalhisibility, globalpisibility, globalcisibility;
 //char globparaceilclip, globparaflorclip;
 
 int32_t xyaspect;
@@ -2427,20 +2427,6 @@ char palfadedelta = 0;
 // Internal Engine Functions
 //
 //int32_t cacheresets = 0,cacheinvalidates = 0;
-
-
-//
-// getpalookup (internal)
-//
-static inline int32_t getpalookup(int32_t davis, int32_t dashade)
-{
-    return(min(max(dashade+(davis>>8),0),numshades-1));
-}
-
-static inline int32_t getpalookupsh(int32_t davis)
-{
-    return getpalookup(davis, globalshade)<<8;
-}
 
 static void setpalettefade_calc(uint8_t offset);
 

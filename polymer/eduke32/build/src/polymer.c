@@ -1368,7 +1368,7 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
         w->mask.material.diffusemodulation[2] = ((GLubyte *)(&maskwall[damaskwallcnt]))[1];
         w->mask.material.diffusemodulation[3] = 0xFF;
     } else {
-        calc_and_apply_fog(wal->shade, sec->visibility, sec->floorpal);
+        calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, sec->floorpal);
     }
 
     polymer_drawplane(&w->mask);
@@ -1399,7 +1399,7 @@ void                polymer_drawsprite(int32_t snum)
 
     DO_TILE_ANIM(tspr->picnum, tspr->owner+32768);
 
-    calc_and_apply_fog(tspr->shade, sector[tspr->sectnum].visibility,
+    calc_and_apply_fog(tspr->picnum, tspr->shade, sector[tspr->sectnum].visibility,
             sector[tspr->sectnum].floorpal);
 
     if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 &&
@@ -2708,7 +2708,7 @@ static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
             s->floor.material.diffusemodulation[2] = ((GLubyte *)(&sectnum))[1];
             s->floor.material.diffusemodulation[3] = 0xFF;
         } else {
-            calc_and_apply_fog(sec->floorshade, sec->visibility, sec->floorpal);
+            calc_and_apply_fog(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal);
         }
 
         polymer_drawplane(&s->floor);
@@ -2743,7 +2743,7 @@ static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
             s->ceil.material.diffusemodulation[2] = ((GLubyte *)(&sectnum))[1];
             s->ceil.material.diffusemodulation[3] = 0xFF;
         } else {
-            calc_and_apply_fog(sec->ceilingshade, sec->visibility, sec->ceilingpal);
+            calc_and_apply_fog(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal);
         }
 
         polymer_drawplane(&s->ceil);
@@ -3257,7 +3257,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
         (sector[wal->nextsector].ceilingstat & 1))
         parallaxedceiling = 1;
 
-    calc_and_apply_fog(wal->shade, sec->visibility, sec->floorpal);
+    calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, sec->floorpal);
 
     if ((w->underover & 1) && (!parallaxedfloor || (searchit == 2)))
     {
