@@ -279,27 +279,41 @@ function isenemytile(tilenum)
     return (bit.band(ffiC.g_tile[tilenum].flags, BADGUY_MASK)~=0)
 end
 
-function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
-                      alpha, cx1, cy1, cx2, cy2)
+-- The 'rotatesprite' wrapper used by the CON commands.
+function _rotspr(x, y, zoom, ang, tilenum, shade, pal, orientation,
+                 alpha, cx1, cy1, cx2, cy2)
     check_tile_idx(tilenum)
     orientation = bit.band(orientation, 4095)  -- ROTATESPRITE_MAX-1
 
-    if (bit.band(orientation, 2048) ~= 2048) then  -- ROTATESPRITE_FULL16
+    if (bit.band(orientation, 2048) == 0) then  -- ROTATESPRITE_FULL16
         x = 65536*x
         y = 65536*y
     end
 
     -- XXX: This is the same as the check in gameexec.c, but ideally we'd want
-    -- rotatesprite to accept all coordinates and simply draw nothing if they
-    -- denote an area beyond the screen.
+    -- rotatesprite to accept all coordinates and simply draw nothing if the
+    -- tile's bounding rectange is beyond the screen.
+    -- XXX: Currently, classic rotatesprite() is not correct with some large
+    -- zoom values.
     if (not (x >= -320*65536 and x < 640*65536) or not (y >= -200*65536 and y < 400*65536)) then
         error(format("invalid coordinates (%.03f, %.03f)", x, y), 2)
     end
 
-    -- TODO: check that it works correctly with all coordinates, also if one
-    -- border is outside the screen etc...
     ffiC.rotatesprite_(x, y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
                        alpha, cx1, cy1, cx2, cy2)
+end
+
+-- The external legacy tile drawing function for Lunatic.
+function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
+                      alpha, cx1, cy1, cx2, cy2)
+    -- Disallow <<16 coordinates from Lunatic. They only unnecessarily increase
+    -- complexity; you already have more precision in the FP number fraction.
+    if (bit.band(orientation, 2048) ~= 0) then
+        error('left-shift-by-16 coordinates forbidden', 2)
+    end
+
+    return _rotspr(x, y, zoom, ang, tilenum, shade, pal, orientation,
+                   alpha, cx1, cy1, cx2, cy2)
 end
 
 function _myos(x, y, zoom, tilenum, shade, orientation, pal)
