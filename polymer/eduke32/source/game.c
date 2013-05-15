@@ -3216,9 +3216,9 @@ void G_DrawBackground(void)
         {
             for (y=y1; y<y2; y+=tilesizy[bgtile])
                 for (x=0; x<xdim; x+=tilesizx[bgtile])
-                    rotatesprite_fs(x<<16,y<<16,65536L,0,bgtile,bpp==8?16:8,0,8+16+64);
+                    rotatesprite_fs(x<<16,y<<16,65536L,0,bgtile,16,0,8+16+64);
         }
-        else rotatesprite_fs(320<<15,200<<15,65536L,0,bgtile,bpp==8?16:8,0,2+8+64+(ud.bgstretch?1024:0));
+        else rotatesprite_fs(320<<15,200<<15,65536L,0,bgtile,16,0,2+8+64+(ud.bgstretch?1024:0));
         return;
     }
 
