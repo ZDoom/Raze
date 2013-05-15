@@ -5,6 +5,7 @@ duke3d_h=\
     $(EINC)/baselayer.h \
     $(EINC)/polymer.h \
     $(EINC)/polymost.h \
+    $(EINC)/texcache.h \
     $(EINC)/cache1d.h \
     $(SRC)/jmact/file_lib.h \
     $(SRC)/jmact/keyboard.h \

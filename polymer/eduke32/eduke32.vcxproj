@@ -80,6 +80,7 @@
     <ClInclude Include="build\include\common.h" />
     <ClInclude Include="build\include\crc32.h" />
     <ClInclude Include="build\include\dxdidf.h" />
+    <ClInclude Include="build\include\dxtfilter.h" />
     <ClInclude Include="build\include\dynamicgtk.h" />
     <ClInclude Include="build\include\editor.h" />
     <ClInclude Include="build\include\enet_mmulti.h" />
@@ -106,6 +107,7 @@
     <ClInclude Include="build\include\scriptfile.h" />
     <ClInclude Include="build\include\sdlayer.h" />
     <ClInclude Include="build\include\startwin.editor.h" />
+    <ClInclude Include="build\include\texcache.h" />
     <ClInclude Include="build\include\tracker.hpp" />
     <ClInclude Include="build\include\tracker_operator.hpp" />
     <ClInclude Include="build\include\tracker_operators.hpp" />
@@ -196,6 +198,7 @@
     <ClCompile Include="build\src\config.c" />
     <ClCompile Include="build\src\crc32.c" />
     <ClCompile Include="build\src\defs.c" />
+    <ClCompile Include="build\src\dxtfilter.c" />
     <ClCompile Include="build\src\dynamicgtk.c" />
     <ClCompile Include="build\src\engine.c" />
     <ClCompile Include="build\src\glbuild.c" />
@@ -217,6 +220,7 @@
     <ClCompile Include="build\src\smalltextfont.c" />
     <ClCompile Include="build\src\startgtk.editor.c" />
     <ClCompile Include="build\src\startwin.editor.c" />
+    <ClCompile Include="build\src\texcache.c" />
     <ClCompile Include="build\src\textfont.c" />
     <ClCompile Include="build\src\winbits.c" />
     <ClCompile Include="build\src\winlayer.c" />

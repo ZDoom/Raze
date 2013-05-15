@@ -2104,15 +2104,15 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
 #ifdef USE_OPENGL
         if (!OSD_ParsingScript())
         {
-            switch (cvars[i].c.type&(CVAR_RESTARTVID|CVAR_INVALIDATE|CVAR_INVALIDATE8))
+            switch (cvars[i].c.type&(CVAR_RESTARTVID|CVAR_INVALIDATEALL|CVAR_INVALIDATEART))
             {
             case CVAR_RESTARTVID:
                 osdcmd_restartvid(NULL);
                 break;
-            case CVAR_INVALIDATE:
-                gltexinvalidateall();
-            case CVAR_INVALIDATE8:
-                gltexinvalidate8();
+            case CVAR_INVALIDATEALL:
+                gltexinvalidateall(0);
+            case CVAR_INVALIDATEART:
+                gltexinvalidateall(1);
 #ifdef POLYMER
                 if (getrendermode() == REND_POLYMER)
                     polymer_texinvalidate();

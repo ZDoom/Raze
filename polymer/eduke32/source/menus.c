@@ -2763,7 +2763,7 @@ cheat_for_port_credits2:
                     sliderbar(1,d+8,yy+7, &r_downsize,-1,enabled && x==io,MENUHIGHLIGHT(io),!enabled,0,2);
                     if (r_downsize != i)
                     {
-                        invalidatecache();
+                        texcache_invalidate();
                         resetvideomode();
                         if (setgamemode(fullscreen,xdim,ydim,bpp))
                             OSD_Printf("restartvid: Reset failed...\n");

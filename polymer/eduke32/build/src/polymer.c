@@ -8,6 +8,7 @@
 #include "polymer.h"
 #include "engine_priv.h"
 #include "crc32.h"
+#include "texcache.h"
 
 // CVARS
 int32_t         pr_lighting = 1;
@@ -1018,7 +1019,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
         skyhoriz += 360.0f;
 
     drawingskybox = 1;
-    pth = gltexcache(cursky,0,0);
+    pth = texcache_fetch(cursky,0,0);
     drawingskybox = 0;
 
     // if it's not a skybox, make the sky parallax
@@ -1546,7 +1547,7 @@ int16_t             polymer_addlight(_prlight* light)
                 loadtile(picnum);
 
             pth = NULL;
-            pth = gltexcache(picnum, 0, 0);
+            pth = texcache_fetch(picnum, 0, 0);
 
             if (pth)
                 light->lightmap = pth->glpic;
@@ -3826,7 +3827,7 @@ static void         polymer_drawsky(int16_t tilenum, char palnum, int8_t shade)
     bglScalef(1000.0f, 1000.0f, 1000.0f);
 
     drawingskybox = 1;
-    pth = gltexcache(tilenum,0,0);
+    pth = texcache_fetch(tilenum,0,0);
     drawingskybox = 0;
 
     if (pth && (pth->flags & 4))
@@ -3867,7 +3868,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
         DO_TILE_ANIM(picnum, 0);
         if (!waloff[picnum])
             loadtile(picnum);
-        pth = gltexcache(picnum, palnum, 0);
+        pth = texcache_fetch(picnum, palnum, 0);
         glpics[i] = pth ? pth->glpic : 0;
 
         glcolors[i][0] = glcolors[i][1] = glcolors[i][2] = getshadefactor(shade);
@@ -3957,7 +3958,7 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
     while (i < 6)
     {
         drawingskybox = i + 1;
-        pth = gltexcache(tilenum, palnum, 4);
+        pth = texcache_fetch(tilenum, palnum, 4);
 
         color[0] = color[1] = color[2] = getshadefactor(shade);
 
@@ -4557,7 +4558,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         loadtile(tilenum);
 
     // PR_BIT_DIFFUSE_MAP
-    pth = gltexcache(tilenum, pal, cmeth);
+    pth = texcache_fetch(tilenum, pal, cmeth);
 
     if (pth)
         material->diffusemap = pth->glpic;
@@ -4718,7 +4719,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
-    if (hicfindsubst(tilenum, DETAILPAL, 0) && (pth = gltexcache(tilenum, DETAILPAL, 0)) && 
+    if (hicfindsubst(tilenum, DETAILPAL, 0) && (pth = texcache_fetch(tilenum, DETAILPAL, 0)) && 
         pth->hicr && (pth->hicr->palnum == DETAILPAL))
     {
         material->detailmap = pth->glpic;
@@ -4727,17 +4728,17 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // PR_BIT_GLOW_MAP
-    if (hicfindsubst(tilenum, GLOWPAL, 0) && (pth = gltexcache(tilenum, GLOWPAL, 0)) && 
+    if (hicfindsubst(tilenum, GLOWPAL, 0) && (pth = texcache_fetch(tilenum, GLOWPAL, 0)) && 
         pth->hicr && (pth->hicr->palnum == GLOWPAL))
         material->glowmap = pth->glpic;
 
     // PR_BIT_SPECULAR_MAP
-    if (hicfindsubst(tilenum, SPECULARPAL, 0) && (pth = gltexcache(tilenum, SPECULARPAL, 0)) && 
+    if (hicfindsubst(tilenum, SPECULARPAL, 0) && (pth = texcache_fetch(tilenum, SPECULARPAL, 0)) && 
         pth->hicr && (pth->hicr->palnum == SPECULARPAL))
         material->specmap = pth->glpic;
 
     // PR_BIT_NORMAL_MAP
-    if (hicfindsubst(tilenum, NORMALPAL, 0) && (pth = gltexcache(tilenum, NORMALPAL, 0)) && 
+    if (hicfindsubst(tilenum, NORMALPAL, 0) && (pth = texcache_fetch(tilenum, NORMALPAL, 0)) && 
         pth->hicr && (pth->hicr->palnum == NORMALPAL))
     {
         material->normalmap = pth->glpic;
@@ -5436,7 +5437,7 @@ static void         polymer_updatelights(void)
                     loadtile(picnum);
 
                 pth = NULL;
-                pth = gltexcache(picnum, 0, 0);
+                pth = texcache_fetch(picnum, 0, 0);
 
                 if (pth)
                     light->lightmap = pth->glpic;

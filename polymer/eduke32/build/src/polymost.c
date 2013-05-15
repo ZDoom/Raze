@@ -70,12 +70,8 @@ Low priority:
 
 #include "compat.h"
 #include "build.h"
-
-#ifdef USE_OPENGL
-# include "glbuild.h"
-# include "mdsprite.h"
-#endif
-
+#include "glbuild.h"
+#include "mdsprite.h"
 #include "pragmas.h"
 #include "baselayer.h"
 #include "osd.h"
@@ -83,9 +79,9 @@ Low priority:
 #include "hightile.h"
 #include "polymost.h"
 #include "polymer.h"
-#include "scriptfile.h"
 #include "cache1d.h"
 #include "kplib.h"
+#include "texcache.h"
 
 #ifndef _WIN32
 extern int32_t filelength(int h); // kplib.c
@@ -192,14 +188,13 @@ int32_t r_downsizevar = -1;
 float fogresult, fogresult2, fogcol[4], fogtable[4*MAXPALOOKUPS];
 #endif
 
-static char ptempbuf[MAXWALLSB<<1];
+char ptempbuf[MAXWALLSB<<1];
 
 // polymost ART sky control
 int32_t r_parallaxskyclamping = 1;
 int32_t r_parallaxskypanning = 0;
 
 #define MIN_CACHETIME_PRINT 10
-
 
 static inline int32_t imod(int32_t a, int32_t b)
 {
@@ -247,169 +242,18 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
 }
 
 #ifdef USE_OPENGL
-#include "md4.h"
-#include "quicklz.h"
-
-//--------------------------------------------------------------------------------------------------
-//TEXTURE MANAGEMENT: treats same texture with different .PAL as a separate texture. This makes the
-//   max number of virtual textures very large (MAXTILES*256). Instead of allocating a handle for
-//   every virtual texture, I use a cache where indexing is managed through a hash table.
-//
-
-
-static int32_t cachefilehandle = -1; // texture cache file handle
-static FILE *cacheindexptr = NULL;
-static uint8_t *memcachedata = NULL;
-static int32_t memcachesize = -1;
-int32_t cachepos = 0;
-// Set to 1 when we failed (re)allocating space for the memcache or failing to
-// read into it (which would presumably generate followup errors spamming the
-// log otherwise):
-static int32_t dont_alloc_memcache = 0;
-
-static hashtable_t h_texcache    = { 1024, NULL };
-
-char TEXCACHEFILE[BMAX_PATH] = "textures";
-
 int32_t mdtims, omdtims;
 float alphahackarray[MAXTILES];
-
-static texcacheindex *firstcacheindex = NULL;
-static texcacheindex *curcacheindex = NULL;
-static texcacheindex *cacheptrs[MAXTILES<<1];
-static int32_t numcacheentries = 0;
-
-
-#define GLTEXCACHEADSIZ 8192
-static pthtyp *gltexcachead[GLTEXCACHEADSIZ];
-
 int32_t drawingskybox = 0;
+int32_t hicprecaching = 0;
 
-static int32_t gloadtile_art(int32_t,int32_t,int32_t,pthtyp *,int32_t);
-static int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,char);
-static int32_t hicprecaching = 0;
-pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
-{
-    int32_t i, j;
-    hicreplctyp *si;
-    pthtyp *pth, *pth2;
-
-    j = (dapicnum&(GLTEXCACHEADSIZ-1));
-
-    si = usehightile ? hicfindsubst(dapicnum,dapalnum,drawingskybox) : NULL;
-
-    if (!si)
-    {
-        if (drawingskybox || dapalnum >= (MAXPALOOKUPS - RESERVEDPALS)) return NULL;
-        goto tryart;
-    }
-
-    /* if palette > 0 && replacement found
-     *    no effects are applied to the texture
-     * else if palette > 0 && no replacement found
-     *    effects are applied to the palette 0 texture if it exists
-     */
-
-    // load a replacement
-    for (pth=gltexcachead[j]; pth; pth=pth->next)
-    {
-        if (pth->picnum == dapicnum && pth->palnum == si->palnum &&
-                (si->palnum>0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
-                (pth->flags & (1+2+4)) == (((dameth&4)>>2)+2+((drawingskybox>0)<<2)) &&
-                (drawingskybox>0 ? (pth->skyface == drawingskybox) : 1)
-           )
-        {
-            if (pth->flags & 128)
-            {
-                pth->flags &= ~128;
-                if (gloadtile_hi(dapicnum,dapalnum,drawingskybox,si,dameth,pth,0,
-                                 (si->palnum>0) ? 0 : hictinting[dapalnum].f))    // reload tile
-                {
-                    if (drawingskybox) return NULL;
-                    goto tryart;   // failed, so try for ART
-                }
-            }
-
-            return(pth);
-        }
-    }
-
-
-    pth = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
-    if (!pth) return NULL;
-
-    // possibly fetch an already loaded multitexture :_)
-    if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS))
-        for (i = (GLTEXCACHEADSIZ - 1); i >= 0; i--)
-            for (pth2=gltexcachead[i]; pth2; pth2=pth2->next)
-            {
-                if ((pth2->hicr) && (pth2->hicr->filename) && (Bstrcasecmp(pth2->hicr->filename, si->filename) == 0))
-                {
-                    Bmemcpy(pth, pth2, sizeof(pthtyp));
-                    pth->picnum = dapicnum;
-                    pth->flags = ((dameth&4)>>2) + 2 + ((drawingskybox>0)<<2);
-                    if (pth2->flags & 8) pth->flags |= 8; //hasalpha
-                    pth->hicr = si;
-                    pth->next = gltexcachead[j];
-
-                    gltexcachead[j] = pth;
-                    return(pth);
-                }
-            }
-
-    if (gloadtile_hi(dapicnum,dapalnum,drawingskybox,si,dameth,pth,1, (si->palnum>0) ? 0 : hictinting[dapalnum].f))
-    {
-        Bfree(pth);
-        if (drawingskybox) return NULL;
-        goto tryart;   // failed, so try for ART
-    }
-
-    pth->palnum = si->palnum;
-    pth->next = gltexcachead[j];
-    gltexcachead[j] = pth;
-
-    return(pth);
-
-tryart:
-    if (hicprecaching) return NULL;
-
-    // load from art
-    for (pth=gltexcachead[j]; pth; pth=pth->next)
-        if (pth->picnum == dapicnum && pth->palnum == dapalnum &&
-                (pth->flags & (1+2)) == ((dameth&4)>>2)
-           )
-        {
-            if (pth->flags & 128)
-            {
-                pth->flags &= ~128;
-                if (gloadtile_art(dapicnum,dapalnum,dameth,pth,0))
-                    return NULL; //reload tile (for animations)
-            }
-
-            return(pth);
-        }
-
-    pth = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
-    if (!pth) return NULL;
-
-    if (gloadtile_art(dapicnum,dapalnum,dameth,pth,1))
-    {
-        Bfree(pth);
-        return NULL;
-    }
-
-    pth->next = gltexcachead[j];
-    gltexcachead[j] = pth;
-
-    return(pth);
-}
 
 static inline int32_t gltexmayhavealpha(int32_t dapicnum, int32_t dapalnum)
 {
     const int32_t j = (dapicnum&(GLTEXCACHEADSIZ-1));
     pthtyp *pth;
 
-    for (pth=gltexcachead[j]; pth; pth=pth->next)
+    for (pth=texcache_head[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum)
             return ((pth->flags&8) != 0);
 
@@ -421,7 +265,7 @@ void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
     const int32_t j = (dapicnum&(GLTEXCACHEADSIZ-1));
     pthtyp *pth;
 
-    for (pth=gltexcachead[j]; pth; pth=pth->next)
+    for (pth=texcache_head[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && (pth->flags & 1) == ((dameth&4)>>2))
         {
             pth->flags |= 128;
@@ -433,41 +277,28 @@ void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 //Make all textures "dirty" so they reload, but not re-allocate
 //This should be much faster than polymost_glreset()
 //Use this for palette effects ... but not ones that change every frame!
-void gltexinvalidateall()
+void gltexinvalidateall(int32_t artonly)
 {
     int32_t j;
     pthtyp *pth;
 
     for (j=GLTEXCACHEADSIZ-1; j>=0; j--)
-        for (pth=gltexcachead[j]; pth; pth=pth->next)
+    {
+        for (pth=texcache_head[j]; pth; pth=pth->next)
         {
-            pth->flags |= 128;
-            if (pth->flags & 16)
-                pth->ofb->flags |= 128;
-        }
-    clearskins();
-#ifdef DEBUGGINGAIDS
-    OSD_Printf("gltexinvalidateall()\n");
-#endif
-}
-
-void gltexinvalidate8()
-{
-    int32_t j;
-    pthtyp *pth;
-
-    for (j=GLTEXCACHEADSIZ-1; j>=0; j--)
-        for (pth=gltexcachead[j]; pth; pth=pth->next)
-        {
-            if (pth->hicr == NULL)
+            if (!artonly || artonly && pth->hicr == NULL)
             {
                 pth->flags |= 128;
                 if (pth->flags & 16)
                     pth->ofb->flags |= 128;
             }
         }
+    }
+
+    if (!artonly)
+        clearskins();
 #ifdef DEBUGGINGAIDS
-    OSD_Printf("gltexinvalidate8()\n");
+    OSD_Printf("gltexinvalidateall()\n");
 #endif
 }
 
@@ -498,7 +329,7 @@ void gltexapplyprops(void)
 
     for (i=GLTEXCACHEADSIZ-1; i>=0; i--)
     {
-        for (pth=gltexcachead[i]; pth; pth=pth->next)
+        for (pth=texcache_head[i]; pth; pth=pth->next)
         {
             bind_2d_texture(pth->glpic);
 
@@ -533,88 +364,12 @@ void gltexapplyprops(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-static int32_t LoadCacheOffsets(void);
+
 float glox1, gloy1, glox2, gloy2;
 
 //Use this for both initialization and uninitialization of OpenGL.
 static int32_t gltexcacnum = -1;
 extern void freevbos(void);
-
-
-static void Cachefile_CloseBoth(void)
-{
-    if (cachefilehandle != -1)
-    {
-        Bclose(cachefilehandle);
-        cachefilehandle = -1;
-    }
-
-    if (cacheindexptr)
-    {
-        Bfclose(cacheindexptr);
-        cacheindexptr = NULL;
-    }
-}
-
-static void Cachefile_Free(void)
-{
-    int32_t i;
-
-    for (i = numcacheentries-1; i >= 0; i--)
-        if (cacheptrs[i])
-        {
-            int32_t ii;
-            for (ii = numcacheentries-1; ii >= 0; ii--)
-                if (i != ii && cacheptrs[ii] == cacheptrs[i])
-                {
-                    /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
-                    cacheptrs[ii] = NULL;
-                }
-
-            Bfree(cacheptrs[i]);
-            cacheptrs[i] = NULL;
-        }
-}
-
-static void clear_memcache(void)
-{
-    Bfree(memcachedata);
-    memcachedata = NULL;
-    memcachesize = -1;
-}
-
-static void polymost_cachesync(void)
-{
-    if (memcachedata && cachefilehandle != -1 && filelength(cachefilehandle) > memcachesize)
-    {
-        size_t len = filelength(cachefilehandle);
-
-        memcachedata = (uint8_t *)Brealloc(memcachedata, len);
-
-        if (!memcachedata)
-        {
-            clear_memcache();
-            initprintf("Failed syncing memcache to texcache, disabling memcache.\n");
-            dont_alloc_memcache = 1;
-        }
-        else
-        {
-            initprintf("Syncing memcache to texcache\n");
-            Blseek(cachefilehandle, memcachesize, BSEEK_SET);
-            if (Bread(cachefilehandle, memcachedata + memcachesize, len - memcachesize) != (bssize_t)(len-memcachesize))
-            {
-                initprintf("polymost_cachesync: Failed reading texcache into memcache!\n");
-                clear_memcache();
-                dont_alloc_memcache = 1;
-            }
-            else
-            {
-                memcachesize = len;
-            }
-        }
-    }
-}
-
 
 void polymost_glreset()
 {
@@ -642,7 +397,7 @@ void polymost_glreset()
     {
         for (i=GLTEXCACHEADSIZ-1; i>=0; i--)
         {
-            for (pth=gltexcachead[i]; pth;)
+            for (pth=texcache_head[i]; pth;)
             {
                 next = pth->next;
                 if (pth->flags & 16) // fullbright textures
@@ -656,7 +411,7 @@ void polymost_glreset()
                 pth = next;
             }
 
-            gltexcachead[i] = NULL;
+            texcache_head[i] = NULL;
         }
         clearskins();
     }
@@ -667,31 +422,17 @@ void polymost_glreset()
 
     freevbos();
 
-    memset(gltexcachead,0,sizeof(gltexcachead));
+    memset(texcache_head,0,sizeof(texcache_head));
     glox1 = -1;
 
-    Cachefile_Free();
+    texcache_freeptrs();
 
-    polymost_cachesync();
+    texcache_sync();
 #ifdef DEBUGGINGAIDS
     OSD_Printf("polymost_glreset()\n");
 #endif
 }
 
-static void clear_cache_internal(void)
-{
-    Cachefile_CloseBoth();
-    clear_memcache();
-    Cachefile_Free();
-
-    curcacheindex = firstcacheindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
-    numcacheentries = 0;
-
-//    Bmemset(&firstcacheindex, 0, sizeof(texcacheindex));
-//    Bmemset(&cacheptrs[0], 0, sizeof(cacheptrs));
-
-    hash_init(&h_texcache);
-}
 
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
@@ -741,31 +482,31 @@ void polymost_glinit()
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    clear_cache_internal();
+    texcache_init();
 
-    LoadCacheOffsets();
+    texcache_loadoffsets();
 
     Bstrcpy(ptempbuf,TEXCACHEFILE);
     Bstrcat(ptempbuf,".cache");
-    cacheindexptr = Bfopen(ptempbuf, "at+");
-    if (!cacheindexptr)
+    texcache_indexptr = Bfopen(ptempbuf, "at+");
+    if (!texcache_indexptr)
     {
         glusetexcache = 0;
         initprintf("Unable to open cache index \"%s\": %s\n", ptempbuf, strerror(errno));
         return;
     }
 
-    fseek(cacheindexptr, 0, BSEEK_END);
-    if (!ftell(cacheindexptr))
+    fseek(texcache_indexptr, 0, BSEEK_END);
+    if (!ftell(texcache_indexptr))
     {
-        rewind(cacheindexptr);
-        Bfprintf(cacheindexptr,"// automatically generated by EDuke32, DO NOT MODIFY!\n");
+        rewind(texcache_indexptr);
+        Bfprintf(texcache_indexptr,"// automatically generated by EDuke32, DO NOT MODIFY!\n");
     }
-    else rewind(cacheindexptr);
+    else rewind(texcache_indexptr);
 
-    cachefilehandle = Bopen(TEXCACHEFILE, BO_BINARY|BO_CREAT|BO_APPEND|BO_RDWR, BS_IREAD|BS_IWRITE);
+    texcache_filehandle = Bopen(TEXCACHEFILE, BO_BINARY|BO_CREAT|BO_APPEND|BO_RDWR, BS_IREAD|BS_IWRITE);
 
-    if (cachefilehandle < 0)
+    if (texcache_filehandle < 0)
     {
         initprintf("Unable to open cache file \"%s\": %s\n", TEXCACHEFILE, strerror(errno));
         glusetexcache = 0;
@@ -774,27 +515,27 @@ void polymost_glinit()
 
     initprintf("Opened \"%s\" as cache file\n", TEXCACHEFILE);
 
-    if (glusememcache && !dont_alloc_memcache)
+    if (glusememcache && !texcache_noalloc)
     {
-        memcachesize = filelength(cachefilehandle);
+        texcache_memsize = filelength(texcache_filehandle);
 
-        if (memcachesize > 0)
+        if (texcache_memsize > 0)
         {
-            memcachedata = (uint8_t *)Brealloc(memcachedata, memcachesize);
+            texcache_memptr = (uint8_t *)Brealloc(texcache_memptr, texcache_memsize);
 
-            if (!memcachedata)
+            if (!texcache_memptr)
             {
-                initprintf("Failed allocating %d bytes for memcache, disabling memcache.\n", memcachesize);
-                clear_memcache();
-                dont_alloc_memcache = 1;
+                initprintf("Failed allocating %d bytes for memcache, disabling memcache.\n", texcache_memsize);
+                texcache_clearmem();
+                texcache_noalloc = 1;
             }
             else
             {
-                if (Bread(cachefilehandle, memcachedata, memcachesize) != memcachesize)
+                if (Bread(texcache_filehandle, texcache_memptr, texcache_memsize) != texcache_memsize)
                 {
                     initprintf("Failed reading texcache into memcache!\n");
-                    clear_memcache();
-                    dont_alloc_memcache = 1;
+                    texcache_clearmem();
+                    texcache_noalloc = 1;
                 }
             }
         }
@@ -802,14 +543,14 @@ void polymost_glinit()
 
     i = 0;
 
-    curcacheindex = firstcacheindex;
-    while (curcacheindex->next)
+    texcache_currentindex = texcache_firstindex;
+    while (texcache_currentindex->next)
     {
-        i += curcacheindex->len;
-        curcacheindex = curcacheindex->next;
+        i += texcache_currentindex->len;
+        texcache_currentindex = texcache_currentindex->next;
     }
 
-    i = Blseek(cachefilehandle, 0, BSEEK_END)-i;
+    i = Blseek(texcache_filehandle, 0, BSEEK_END)-i;
     if (i)
         initprintf("Cache contains %d bytes of garbage data\n",i);
 //    Blseek(cachefilehandle, 0, BSEEK_SET);
@@ -910,44 +651,6 @@ void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float fa
 }
 ////////////////////
 
-void invalidatecache(void)
-{
-#ifdef DEBUGGINGAIDS
-    OSD_Printf("invalidatecache()\n");
-#endif
-    r_downsizevar = r_downsize; // update the cvar representation when the menu changes r_downsize
-
-    polymost_glreset();
-
-    clear_cache_internal();
-
-//    LoadCacheOffsets();
-
-    Bstrcpy(ptempbuf,TEXCACHEFILE);
-    unlink(ptempbuf);
-    Bstrcat(ptempbuf,".cache");
-    unlink(ptempbuf);
-    cacheindexptr = Bfopen(ptempbuf, "at+");
-    if (!cacheindexptr)
-    {
-        glusetexcache = 0;
-        initprintf("Unable to open cache index \"%s\": %s\n", ptempbuf, strerror(errno));
-        return;
-    }
-
-    Bfprintf(cacheindexptr,"// automatically generated by EDuke32, DO NOT MODIFY!\n");
-
-    cachefilehandle = Bopen(TEXCACHEFILE,BO_BINARY|BO_CREAT|BO_TRUNC|BO_APPEND|BO_RDWR,BS_IREAD|BS_IWRITE);
-
-    if (cachefilehandle < 0)
-    {
-        initprintf("Unable to open cache file \"%s\": %s\n", TEXCACHEFILE, strerror(errno));
-        glusetexcache = 0;
-        return;
-    }
-    else
-        initprintf("Deleted and reopened \"%s\" as cache file\n", TEXCACHEFILE);
-}
 
 static float get_projhack_ratio(void)
 {
@@ -1222,7 +925,7 @@ static void texture_setup(int32_t dameth)
     }
 }
 
-static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth, int32_t doalloc)
+int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
     coltype *pic;
     int32_t xsiz, ysiz;
@@ -1352,443 +1055,7 @@ static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthty
     return 0;
 }
 
-// JONOF'S COMPRESSED TEXTURE CACHE STUFF ---------------------------------------------------
-
-static int32_t LoadCacheOffsets(void)
-{
-    int32_t foffset, fsize, i;
-    char *fname;
-
-    scriptfile *script;
-
-    Bstrcpy(ptempbuf,TEXCACHEFILE);
-    Bstrcat(ptempbuf,".cache");
-    script = scriptfile_fromfile(ptempbuf);
-
-    if (!script) return -1;
-
-    while (!scriptfile_eof(script))
-    {
-        if (scriptfile_getstring(script, &fname)) break;	// hashed filename
-        if (scriptfile_getnumber(script, &foffset)) break;	// offset in cache
-        if (scriptfile_getnumber(script, &fsize)) break;	// size
-
-        i = hash_find(&h_texcache,fname);
-        if (i > -1)
-        {
-            // update an existing entry
-            texcacheindex *t = cacheptrs[i];
-            t->offset = foffset;
-            t->len = fsize;
-            /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, fname,foffset);*/
-        }
-        else
-        {
-            Bstrncpyz(curcacheindex->name, fname, BMAX_PATH);
-            curcacheindex->offset = foffset;
-            curcacheindex->len = fsize;
-            curcacheindex->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
-            hash_add(&h_texcache, fname, numcacheentries, 1);
-            cacheptrs[numcacheentries++] = curcacheindex;
-            curcacheindex = curcacheindex->next;
-        }
-    }
-
-    scriptfile_close(script);
-    return 0;
-}
-
-static void phex(char v, char *s)
-{
-    int32_t x;
-    x = v>>4;
-    s[0] = x<10 ? (x+'0') : (x-10+'a');
-    x = v&15;
-    s[1] = x<10 ? (x+'0') : (x-10+'a');
-}
-
-// Read from on-disk texcache or its in-memory cache.
-static int32_t read_from_cache(void *dest, int32_t len)
-{
-    const int32_t ocachepos = cachepos;
-
-    cachepos += len;
-
-    if (memcachedata && memcachesize >= ocachepos+len)
-    {
-//        initprintf("using memcache!\n");
-        Bmemcpy(dest, memcachedata+ocachepos, len);
-    }
-    else
-    {
-        Blseek(cachefilehandle, ocachepos, BSEEK_SET);
-
-        if (Bread(cachefilehandle, dest, len) < len)
-            return 1;
-    }
-
-    return 0;
-}
-
-int32_t polymost_trytexcache(const char *fn, int32_t len, int32_t dameth, char effect,
-                             texcacheheader *head, int32_t modelp)
-{
-    int32_t fp, err=0;
-    char cachefn[BMAX_PATH], *cp;
-    uint8_t mdsum[16];
-
-    // in the former mdloadskin_trytexcache, glinfo.texcompr used to be in the first check
-    if (!glusetexcompr || !glusetexcache || !cacheindexptr || cachefilehandle < 0) return -1;
-    if (!glinfo.texcompr || !bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
-    {
-        // lacking the necessary extensions to do this
-        OSD_Printf("Warning: the GL driver lacks necessary functions to use caching\n");
-        glusetexcache = 0;
-        return -1;
-    }
-
-    md4once((const uint8_t *)fn, strlen(fn), mdsum);
-//    for (cp = cachefn, fp = 0; (*cp = TEXCACHEFILE[fp]); cp++,fp++);
-//    *(cp++) = '/';
-    cp = cachefn;
-    for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
-    Bsprintf(cp, "-%x-%x%x", len, dameth, effect);
-
-    {
-        int32_t i = hash_find(&h_texcache,cachefn);
-
-        if (i < 0 || !cacheptrs[i])
-            return -1;  // didn't find it
-
-        cachepos = cacheptrs[i]->offset;
-//        initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);
-    }
-
-//    initprintf("Loading cached tex: %s\n", cachefn);
-
-    if (read_from_cache(head, sizeof(texcacheheader)))
-    {
-        err = 0;
-        goto failure;
-    }
-
-    // checks...
-    if (Bmemcmp(head->magic, TEXCACHEMAGIC, 4)) { err=1; goto failure; }
-
-    // native (little-endian) -> internal
-    head->xdim = B_LITTLE32(head->xdim);
-    head->ydim = B_LITTLE32(head->ydim);
-    head->flags = B_LITTLE32(head->flags);
-    head->quality = B_LITTLE32(head->quality);
-
-    if (modelp)
-        if (head->quality != r_downsize)
-        {
-            err=2;
-            goto failure;
-        }
-
-    if ((head->flags & 4) && glusetexcache != 2) { err=3; goto failure; }
-    if (!(head->flags & 4) && glusetexcache == 2) { err=4; goto failure; }
-
-    if (!modelp)  // handle nocompress
-        if (!(head->flags & 8) && head->quality != r_downsize)
-            return -1;
-
-    if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) { err=5; goto failure; }
-    if (!glinfo.texnpot && (head->flags & 1)) { err=6; goto failure; }
-
-    return cachefilehandle;
-
-failure:
-    {
-        static const char *error_msgs[] = {
-            "failed reading texture cache header",  // 0
-            "header magic string doesn't match",  // 1
-            "r_downsize doesn't match",  // 2  (skins only)
-            "compression doesn't match: cache contains compressed tex",  // 3
-            "compression doesn't match: cache contains uncompressed tex",  // 4
-            "texture in cache exceeds maximum supported size",  // 5
-            "texture in cache has non-power-of-two size, unsupported",  // 6
-        };
-
-        initprintf("%s cache miss: %s\n", modelp?"Skin":"Texture", error_msgs[err]);
-    }
-
-    return -1;
-}
-
-void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
-{
-    char cachefn[BMAX_PATH];
-    uint8_t mdsum[16];
-    char *pic = NULL, *packbuf = NULL;
-    void *midbuf = NULL;
-    uint32_t alloclen=0, level;
-    uint32_t padx=0, pady=0;
-    GLint gi;
-    int32_t offset = 0;
-
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) return;
-    if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
-    {
-        // lacking the necessary extensions to do this
-        OSD_Printf("Warning: the GL driver lacks necessary functions to use caching\n");
-        glusetexcache = 0;
-        return;
-    }
-    if (!cacheindexptr || cachefilehandle < 0)
-    {
-        OSD_Printf("Warning: no active cache!\n");
-        return;
-    }
-
-    gi = GL_FALSE;
-    bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &gi);
-    if (gi != GL_TRUE)
-    {
-        OSD_Printf("Error: glGetTexLevelParameteriv returned GL_FALSE!\n");
-        return;
-    }
-
-    md4once((const uint8_t *)fn, strlen(fn), mdsum);
-
-    {
-        int32_t fp;
-        char *cp = cachefn;
-        for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
-        Bsprintf(cp, "-%x-%x%x", len, dameth, effect);
-    }
-
-    Blseek(cachefilehandle, 0, BSEEK_END);
-
-    offset = Blseek(cachefilehandle, 0, BSEEK_CUR);
-//    OSD_Printf("Caching %s, offset 0x%x\n", cachefn, offset);
-
-    Bmemcpy(head->magic, TEXCACHEMAGIC, 4);   // sizes are set by caller
-
-    if (glusetexcache == 2) head->flags |= 4;
-
-    // native -> external (little-endian)
-    head->xdim = B_LITTLE32(head->xdim);
-    head->ydim = B_LITTLE32(head->ydim);
-    head->flags = B_LITTLE32(head->flags);
-    head->quality = B_LITTLE32(head->quality);
-
-    if (Bwrite(cachefilehandle, head, sizeof(texcacheheader)) != sizeof(texcacheheader)) goto failure;
-
-    while (bglGetError() != GL_NO_ERROR)
-    {
-        /* no-op*/
-    }
-
-    for (level = 0; level==0 || (padx > 1 || pady > 1); level++)
-    {
-        uint32_t miplen;
-        texcachepicture pict;
-
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_ARB, &gi);
-        if (bglGetError() != GL_NO_ERROR) goto failure;
-        if (gi != GL_TRUE) goto failure;   // an uncompressed mipmap
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &gi);
-        if (bglGetError() != GL_NO_ERROR) goto failure;
-#ifdef __APPLE__
-        if (pr_ati_textureformat_one && gi == 1) gi = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-#endif
-        // native -> external (little endian)
-        pict.format = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, &gi);
-        if (bglGetError() != GL_NO_ERROR) goto failure;
-        padx = gi; pict.xdim = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_HEIGHT, &gi);
-        if (bglGetError() != GL_NO_ERROR) goto failure;
-        pady = gi; pict.ydim = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_BORDER, &gi);
-        if (bglGetError() != GL_NO_ERROR) goto failure;
-        pict.border = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_DEPTH, &gi);
-        if (bglGetError() != GL_NO_ERROR) goto failure;
-        pict.depth = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &gi);
-        if (bglGetError() != GL_NO_ERROR) goto failure;
-        miplen = gi; pict.size = B_LITTLE32(gi);
-
-        if (alloclen < miplen)
-        {
-            pic = (char *)Brealloc(pic, miplen);
-            if (!pic) goto failure;
-
-            alloclen = miplen;
-            packbuf = (char *)Brealloc(packbuf, alloclen+400);
-            if (!packbuf) goto failure;
-
-            midbuf = Brealloc(midbuf, miplen);
-            if (!midbuf) goto failure;
-        }
-
-        bglGetCompressedTexImageARB(GL_TEXTURE_2D, level, pic);
-        if (bglGetError() != GL_NO_ERROR) goto failure;
-
-        if (Bwrite(cachefilehandle, &pict, sizeof(texcachepicture)) != sizeof(texcachepicture)) goto failure;
-        if (dxtfilter(cachefilehandle, &pict, pic, midbuf, packbuf, miplen)) goto failure;
-    }
-
-    {
-        int32_t i = hash_find(&h_texcache,cachefn);
-        if (i > -1)
-        {
-            // update an existing entry
-            texcacheindex *t = cacheptrs[i];
-            t->offset = offset;
-            t->len = Blseek(cachefilehandle, 0, BSEEK_CUR) - t->offset;
-            /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
-
-            if (cacheindexptr)
-            {
-                fseek(cacheindexptr, 0, BSEEK_END);
-                Bfprintf(cacheindexptr, "%s %d %d\n", t->name, t->offset, t->len);
-            }
-            else OSD_Printf("wtf?\n");
-        }
-        else
-        {
-            Bstrcpy(curcacheindex->name, cachefn);
-            curcacheindex->offset = offset;
-            curcacheindex->len = Blseek(cachefilehandle, 0, BSEEK_CUR) - curcacheindex->offset;
-            curcacheindex->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
-
-            if (cacheindexptr)
-            {
-                fseek(cacheindexptr, 0, BSEEK_END);
-                Bfprintf(cacheindexptr, "%s %d %d\n", curcacheindex->name, curcacheindex->offset, curcacheindex->len);
-            }
-            else OSD_Printf("wtf?\n");
-
-            hash_add(&h_texcache, cachefn, numcacheentries, 0);
-            cacheptrs[numcacheentries++] = curcacheindex;
-            curcacheindex = curcacheindex->next;
-        }
-    }
-
-    goto success;
-
-failure:
-    initprintf("ERROR: cache failure!\n");
-    curcacheindex->offset = 0;
-    Bmemset(curcacheindex->name,0,sizeof(curcacheindex->name));
-
-success:
-    Bfree(midbuf);
-    Bfree(pic);
-    Bfree(packbuf);
-}
-
-static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t *doalloc, pthtyp *pth,int32_t dapalnum)
-{
-    int32_t level;
-    texcachepicture pict;
-    char *pic = NULL, *packbuf = NULL;
-    void *midbuf = NULL;
-    int32_t alloclen=0;
-
-    int32_t err=0;
-    GLenum glerr=GL_NO_ERROR;
-
-    UNREFERENCED_PARAMETER(dapalnum);
-
-    if (*doalloc&1)
-    {
-        bglGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
-        *doalloc |= 2;   // prevents bglGenTextures being called again if we fail in here
-    }
-    bglBindTexture(GL_TEXTURE_2D,pth->glpic);
-
-    pth->sizx = head->xdim;
-    pth->sizy = head->ydim;
-
-    while (bglGetError() != GL_NO_ERROR)
-    {
-        /* no-op*/
-    }
-
-    // load the mipmaps
-    for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
-    {
-        if (read_from_cache(&pict, sizeof(texcachepicture)))
-        {
-            err=1;
-            goto failure;
-        }
-
-        // external (little endian) -> native
-        pict.size = B_LITTLE32(pict.size);
-        pict.format = B_LITTLE32(pict.format);
-        pict.xdim = B_LITTLE32(pict.xdim);
-        pict.ydim = B_LITTLE32(pict.ydim);
-        pict.border = B_LITTLE32(pict.border);
-        pict.depth = B_LITTLE32(pict.depth);
-
-        if (alloclen < pict.size)
-        {
-            pic = (char *)Brealloc(pic, pict.size);
-            if (!pic) goto failure;
-
-            alloclen = pict.size;
-            packbuf = (char *)Brealloc(packbuf, alloclen+16);
-            if (!packbuf) goto failure;
-
-            midbuf = Brealloc(midbuf, pict.size);
-            if (!midbuf) goto failure;
-        }
-
-        if (dedxtfilter(fil, &pict, pic, midbuf, packbuf, (head->flags&4)==4))
-        {
-            err=2; goto failure;
-        }
-
-        bglCompressedTexImage2DARB(GL_TEXTURE_2D,level,pict.format,pict.xdim,pict.ydim,pict.border,
-                                   pict.size,pic);
-        if ((glerr=bglGetError()) != GL_NO_ERROR) { err=3; goto failure; }
-
-        {
-            GLint format;
-            bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);
-            if ((glerr = bglGetError()) != GL_NO_ERROR) { err=4; goto failure; }
-            if (pict.format != format)
-            {
-                OSD_Printf("gloadtile_cached: invalid texture cache file format %d %d\n", pict.format, format);
-                err = -1; goto failure;
-            }
-        }
-
-    }
-
-    Bfree(midbuf);
-    Bfree(pic);
-    Bfree(packbuf);
-    return 0;
-
-failure:
-    {
-        static const char *errmsgs[5] = {
-            "out of memory!",
-            "read too few bytes from cache file",
-            "dedxtfilter failed",
-            "bglCompressedTexImage2DARB failed",
-            "bglGetTexLevelParameteriv failed",
-        };
-
-        if (err >= 0)
-            initprintf("gloadtile_cached: %s  (glerr=%x)\n", errmsgs[err], glerr);
-    }
-
-    Bfree(midbuf);
-    Bfree(pic);
-    Bfree(packbuf);
-    return -1;
-}
-// --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
-static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
+int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
                             int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
 {
     coltype *pic = NULL, *rpptr;
@@ -1797,7 +1064,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
     char *picfil = NULL, *fn, hasalpha = 255;
     int32_t picfillen, texfmt = GL_RGBA, intexfmt = GL_RGBA, filh;
 
-    int32_t cachefil = -1;
+    int32_t gotcache;
     texcacheheader cachead;
 
     static coltype *lastpic = NULL;
@@ -1833,8 +1100,8 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
 
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
-    cachefil = polymost_trytexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead, 0);
-    if (cachefil >= 0 && !gloadtile_cached(cachefil, &cachead, &doalloc, pth, dapalnum))
+    gotcache = texcache_readtexheader(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead, 0);
+    if (gotcache && !texcache_loadtile(&cachead, &doalloc, pth))
     {
         tsizx = cachead.xdim;
         tsizy = cachead.ydim;
@@ -1844,7 +1111,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
     {
         int32_t r, g, b;
 
-        cachefil = -1;	// the compressed version will be saved to disk
+        gotcache = 0;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
 
@@ -2021,7 +1288,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
     pth->hicr = hicr;
 
     if (glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & 1))
-        if (cachefil < 0)
+        if (!gotcache)
         {
             // save off the compressed version
             if (hicr->flags & 16) cachead.quality = 0;
@@ -2036,7 +1303,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
             }
             cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0) | (hicr->flags&16 ? 8 : 0); // handle nocompress
 ///            OSD_Printf("Caching \"%s\"\n", fn);
-            writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
+            texcache_writetex(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
 
             if (willprint)
             {
@@ -2168,7 +1435,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         float hackscx, hackscy;
 
         if (skyclamphack) method |= 4;
-        pth = gltexcache(globalpicnum,globalpal,method&(~3));
+        pth = texcache_fetch(globalpicnum,globalpal,method&(~3));
 
         if (!pth)
         {
@@ -2215,7 +1482,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         detailpth = NULL;
         if (r_detailmapping && usehightile && !drawingskybox &&
                 hicfindsubst(globalpicnum, DETAILPAL, 0))
-            detailpth = gltexcache(globalpicnum, DETAILPAL, method&(~3));
+            detailpth = texcache_fetch(globalpicnum, DETAILPAL, method&(~3));
 
         if (detailpth && detailpth->hicr && (detailpth->hicr->palnum == DETAILPAL))
         {
@@ -2261,7 +1528,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         glowpth = NULL;
         if (r_glowmapping && usehightile && !drawingskybox &&
                 hicfindsubst(globalpicnum, GLOWPAL, 0))
-            glowpth = gltexcache(globalpicnum, GLOWPAL, method&(~3));
+            glowpth = texcache_fetch(globalpicnum, GLOWPAL, method&(~3));
 
         if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
         {
@@ -5650,7 +4917,7 @@ void polymost_fillpolygon(int32_t npoints)
     if (gloy1 != -1) setpolymost2dview(); //disables blending, texturing, and depth testing
     bglEnable(GL_ALPHA_TEST);
     bglEnable(GL_TEXTURE_2D);
-    pth = gltexcache(globalpicnum,globalpal,0);
+    pth = texcache_fetch(globalpicnum,globalpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
     f = getshadefactor(globalshade);
@@ -5711,7 +4978,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
     {
         int32_t ousehightile = usehightile;
         usehightile = usehitile && usehightile;
-        pth = gltexcache(wallnum,0,4);
+        pth = texcache_fetch(wallnum,0,4);
         if (usehightile)
             loadedhitile[wallnum>>3] |= (1<<(wallnum&7));
         usehightile = ousehightile;
@@ -5993,7 +5260,7 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
         {
             if (r_downsize != r_downsizevar && r_downsizevar != -1)
             {
-                invalidatecache();
+                texcache_invalidate();
                 resetvideomode();
                 if (setgamemode(fullscreen,xdim,ydim,bpp))
                     OSD_Printf("restartvid: Reset failed...\n");
@@ -6097,7 +5364,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void *) &pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
         { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void *) &pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
         { "r_pr_highpalookups", "r_pr_highpalookups: enable/disable highpalookups", (void *) &pr_highpalookups, CVAR_BOOL, 0, 1 },
-        { "r_pr_artmapping", "r_pr_artmapping: enable/disable art mapping", (void *) &pr_artmapping, CVAR_BOOL | CVAR_INVALIDATE8, 0, 1 },
+        { "r_pr_artmapping", "r_pr_artmapping: enable/disable art mapping", (void *) &pr_artmapping, CVAR_BOOL | CVAR_INVALIDATEART, 0, 1 },
         { "r_pr_overridehud", "r_pr_overridehud: overrides hud model parameters with values from the pr_hud* cvars; use it to fine-tune DEF tokens", (void *) &pr_overridehud, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
         { "r_pr_hudxadd", "r_pr_hudxadd: overriden HUD xadd; see r_pr_overridehud", (void *) &pr_hudxadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },
         { "r_pr_hudyadd", "r_pr_hudyadd: overriden HUD yadd; see r_pr_overridehud", (void *) &pr_hudyadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },
@@ -6147,7 +5414,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     hicprecaching = 1;
 
 
-    gltexcache(dapicnum, dapalnum, (datype & 1) << 2);
+    texcache_fetch(dapicnum, dapalnum, (datype & 1) << 2);
     hicprecaching = 0;
 
     if (datype == 0 || !usemodels) return;
@@ -6162,245 +5429,10 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
             j = ((md3model_t *)models[mid])->head.numsurfs;
 
         for (i=0; i<=j; i++)
-        {
             mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
-        }
     }
 #endif
 }
-
-#ifdef USE_OPENGL
-static uint16_t hicosub(uint16_t c)
-{
-    int32_t r, g, b;
-    g = ((c>> 5)&63);
-    r = ((c>>11)-(g>>1))&31;
-    b = ((c>> 0)-(g>>1))&31;
-    return((r<<11)+(g<<5)+b);
-}
-
-static uint16_t hicoadd(uint16_t c)
-{
-    int32_t r, g, b;
-    g = ((c>> 5)&63);
-    r = ((c>>11)+(g>>1))&31;
-    b = ((c>> 0)+(g>>1))&31;
-    return((r<<11)+(g<<5)+b);
-}
-
-static void dxt_handle_io(int32_t fil, int32_t len, void *midbuf, char *packbuf)
-{
-    void *writebuf;
-    int32_t j, cleng;
-
-    if (glusetexcache == 2)
-    {
-        cleng = qlz_compress(midbuf, packbuf, len, state_compress);
-
-        if (cleng == 0 || cleng > len-1)
-        {
-            cleng = len;
-            writebuf = midbuf;
-        }
-        else writebuf = packbuf;
-    }
-    else
-    {
-        cleng = len;
-        writebuf = midbuf;
-    }
-
-    // native -> external (little endian)
-    j = B_LITTLE32(cleng);
-    Bwrite(fil, &j, sizeof(j));
-    Bwrite(fil, writebuf, cleng);
-}
-
-static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
-                               void *midbuf, char *packbuf, int32_t ispacked)
-{
-    void *inbuf;
-    int32_t cleng;
-
-    if (read_from_cache(&cleng, sizeof(int32_t)))
-        return -1;
-
-    // external (little endian) -> native
-    cleng = B_LITTLE32(cleng);
-
-    inbuf = (ispacked && cleng < j) ? packbuf : midbuf;
-
-    if (memcachedata && memcachesize >= cachepos + cleng)
-    {
-        if (ispacked && cleng < j)
-        {
-            if (qlz_decompress((const char *)memcachedata + cachepos, midbuf, state_decompress) == 0)
-            {
-                cachepos += cleng;
-                return -1;
-            }
-        }
-        else Bmemcpy(inbuf, memcachedata + cachepos, cleng);
-
-        cachepos += cleng;
-    }
-    else
-    {
-        Blseek(fil, cachepos, BSEEK_SET);
-        cachepos += cleng;
-
-        if (Bread(fil, inbuf, cleng) < cleng)
-            return -1;
-
-        if (ispacked && cleng < j)
-            if (qlz_decompress(packbuf, midbuf, state_decompress) == 0)
-                return -1;
-    }
-
-    return 0;
-}
-
-/*
-Description of Ken's filter to improve LZW compression of DXT1 format by ~15%: (as tested with the HRP)
-
- To increase LZW patterns, I store each field of the DXT block structure separately.
- Here are the 3 DXT fields:
- 1.  __int64 alpha_4x4; //DXT3 only (16 byte structure size when included)
- 2.  short rgb0, rgb1;
- 3.  int32_t index_4x4;
-
- Each field is then stored with its own specialized algorithm.
- 1. I haven't done much testing with this field - I just copy it raw without any transform for now.
-
- 2. For rgb0 and rgb1, I use a "green" filter like this:
- g = g;
- r = r-g;
- b = b-g;
- For grayscale, this makes the stream: x,0,0,x,0,0,x,0,0,... instead of x,x,x,x,x,x,x,x,...
- Q:what was the significance of choosing green? A:largest/most dominant component
- Believe it or not, this gave 1% better compression :P
- I tried subtracting each componenet with the previous pixel, but strangely it hurt compression.
- Oh, the joy of trial & error. :)
-
- 3. For index_4x4, I transform the ordering of 2-bit indices in the DXT blocks from this:
- 0123 0123 0123  ---- ---- ----
- 4567 4567 4567  ---- ---- ----
- 89ab 89ab 89ab  ---- ---- ----
- cdef cdef cdef  ---- ---- ----
- To this: (I swap x & y axes)
- 048c 048c 048c  |||| |||| ||||
- 159d 159d 159d  |||| |||| ||||
- 26ae 26ae 26ae  |||| |||| ||||
- 37bf 37bf 37bf  |||| |||| ||||
- The trick is: going from the bottom of the 4th line to the top of the 5th line
- is the exact same jump (geometrically) as from 5th to 6th, etc.. This is not true in the top case.
- These silly tricks will increase patterns and therefore make LZW compress better.
- I think this improved compression by a few % :)
- */
-
-// NOTE: <pict> members are in external (little) endianness.
-int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, void *midbuf, char *packbuf, uint32_t miplen)
-{
-    uint32_t j, k, offs, stride;
-    char *cptr;
-
-    if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
-            (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
-    else if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)) ||
-             (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
-    else { offs = 0; stride = 8; }
-
-    if (stride == 16) //If DXT3...
-    {
-        //alpha_4x4
-        cptr = (char *)midbuf;
-        for (k=0; k<8; k++) *cptr++ = pic[k];
-        for (j=stride; (unsigned)j<miplen; j+=stride)
-            for (k=0; k<8; k++) *cptr++ = pic[j+k];
-
-        dxt_handle_io(fil, (miplen/stride)<<3, midbuf, packbuf);
-    }
-
-    //rgb0,rgb1
-    cptr = (char *)midbuf;
-    for (k=0; k<=2; k+=2)
-        for (j=0; (unsigned)j<miplen; j+=stride)
-            { *(int16_t *)cptr = hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
-
-    dxt_handle_io(fil, (miplen/stride)<<2, midbuf, packbuf);
-
-    //index_4x4
-    cptr = (char *)midbuf;
-    for (j=0; (unsigned)j<miplen; j+=stride)
-    {
-        const char *c2 = &pic[j+offs+4];
-        cptr[0] = ((c2[0]>>0)&3) + (((c2[1]>>0)&3)<<2) + (((c2[2]>>0)&3)<<4) + (((c2[3]>>0)&3)<<6);
-        cptr[1] = ((c2[0]>>2)&3) + (((c2[1]>>2)&3)<<2) + (((c2[2]>>2)&3)<<4) + (((c2[3]>>2)&3)<<6);
-        cptr[2] = ((c2[0]>>4)&3) + (((c2[1]>>4)&3)<<2) + (((c2[2]>>4)&3)<<4) + (((c2[3]>>4)&3)<<6);
-        cptr[3] = ((c2[0]>>6)&3) + (((c2[1]>>6)&3)<<2) + (((c2[2]>>6)&3)<<4) + (((c2[3]>>6)&3)<<6);
-        cptr += 4;
-    }
-
-    dxt_handle_io(fil, (miplen/stride)<<2, midbuf, packbuf);
-
-    return 0;
-}
-
-// NOTE: <pict> members are in native endianness.
-int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked)
-{
-    int32_t j, k, offs, stride;
-    char *cptr;
-
-    if ((pict->format == GL_COMPRESSED_RGB_S3TC_DXT1_EXT) ||
-            (pict->format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)) { offs = 0; stride = 8; }
-    else if ((pict->format == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT) ||
-             (pict->format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)) { offs = 8; stride = 16; }
-    else { offs = 0; stride = 8; }
-
-    if (stride == 16) //If DXT3...
-    {
-        //alpha_4x4
-        if (dedxt_handle_io(fil, (pict->size/stride)*8, midbuf, packbuf, ispacked))
-            return -1;
-
-        cptr = (char *)midbuf;
-        for (k=0; k<8; k++) pic[k] = *cptr++;
-        for (j=stride; j<pict->size; j+=stride)
-            for (k=0; k<8; k++) pic[j+k] = (*cptr++);
-    }
-
-    //rgb0,rgb1
-    if (dedxt_handle_io(fil, (pict->size/stride)*4, midbuf, packbuf, ispacked))
-        return -1;
-
-    cptr = (char *)midbuf;
-    for (k=0; k<=2; k+=2)
-    {
-        for (j=0; j<pict->size; j+=stride)
-        {
-            *(int16_t *)(&pic[offs+j+k]) = hicoadd(*(int16_t *)cptr);
-            cptr += 2;
-        }
-    }
-
-    //index_4x4:
-    if (dedxt_handle_io(fil, (pict->size/stride)*4, midbuf, packbuf, ispacked))
-        return -1;
-
-    cptr = (char *)midbuf;
-    for (j=0; j<pict->size; j+=stride)
-    {
-        pic[j+offs+4] = ((cptr[0]>>0)&3) + (((cptr[1]>>0)&3)<<2) + (((cptr[2]>>0)&3)<<4) + (((cptr[3]>>0)&3)<<6);
-        pic[j+offs+5] = ((cptr[0]>>2)&3) + (((cptr[1]>>2)&3)<<2) + (((cptr[2]>>2)&3)<<4) + (((cptr[3]>>2)&3)<<6);
-        pic[j+offs+6] = ((cptr[0]>>4)&3) + (((cptr[1]>>4)&3)<<2) + (((cptr[2]>>4)&3)<<4) + (((cptr[3]>>4)&3)<<6);
-        pic[j+offs+7] = ((cptr[0]>>6)&3) + (((cptr[1]>>6)&3)<<2) + (((cptr[2]>>6)&3)<<4) + (((cptr[3]>>6)&3)<<6);
-        cptr += 4;
-    }
-
-    return 0;
-}
-#endif
 
 #else /* if !defined USE_OPENGL */
 

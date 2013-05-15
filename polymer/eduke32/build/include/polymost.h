@@ -17,8 +17,6 @@ extern char cullmodel[MAXSPRITES];
 extern int32_t cullcheckcnt;
 #endif
 
-extern char TEXCACHEFILE[BMAX_PATH];
-
 typedef struct { char r, g, b, a; } coltype;
 
 extern int32_t rendmode;
@@ -49,32 +47,10 @@ void polymost_glinit(void);
 void polymost_glreset(void);
 
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
-void gltexinvalidateall(void);
-void gltexinvalidate8(void);
+void gltexinvalidateall(int32_t artonly);
 int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
 
 extern float curpolygonoffset;
-
-extern int32_t cachepos;
-
-struct cacheitem_t
-{
-    char name[BMAX_PATH];
-    int32_t offset;
-    int32_t len;
-    struct cacheitem_t *next;
-};
-
-typedef struct cacheitem_t texcacheindex;
-
-#define TEXCACHEMAGIC "QLZ1"
-
-int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, void *midbuf, char *packbuf, uint32_t miplen);
-int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked);
-
-void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head);
-int32_t polymost_trytexcache(const char *fn, int32_t len, int32_t dameth, char effect,
-                             texcacheheader *head, int32_t modelp);
 
 extern float shadescale;
 extern int32_t shadescale_unbounded;
@@ -105,12 +81,17 @@ typedef struct pthtyp_t
     struct pthtyp_t *ofb; // only fullbright
 } pthtyp;
 
-pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
+extern int32_t gloadtile_art(int32_t,int32_t,int32_t,pthtyp *,int32_t);
+extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,char);
 
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;
-
+extern int32_t hicprecaching;
 extern double gyxscale, gxyaspect, ghalfx, grhalfxdown10;
+
+extern char ptempbuf[MAXWALLSB<<1];
+
+#include "texcache.h"
 
 #endif
 

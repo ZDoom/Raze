@@ -10,10 +10,10 @@
 #include "engine_priv.h"
 #include "hightile.h"
 #include "polymost.h"
+#include "texcache.h"
 #include "mdsprite.h"
 #include "cache1d.h"
 #include "kplib.h"
-#include "md4.h"
 
 #include <math.h>
 
@@ -668,78 +668,6 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
     return 0;
 }
 
-// JONOF'S COMPRESSED TEXTURE CACHE STUFF ---------------------------------------------------
-static int32_t mdloadskin_cached(int32_t fil, const texcacheheader *head, int32_t *doalloc, GLuint *glpic, int32_t *xsiz, int32_t *ysiz, int32_t pal)
-{
-    int32_t level, r;
-    texcachepicture pict;
-    void *pic = NULL, *packbuf = NULL;
-    void *midbuf = NULL;
-    int32_t alloclen=0;
-
-    UNREFERENCED_PARAMETER(pal);
-
-    if (*doalloc&1)
-    {
-        bglGenTextures(1,glpic);  //# of textures (make OpenGL allocate structure)
-        *doalloc |= 2;	// prevents bglGenTextures being called again if we fail in here
-    }
-    bglBindTexture(GL_TEXTURE_2D,*glpic);
-
-    while (bglGetError() != GL_NO_ERROR)
-    {
-        /* no-op*/
-    }
-
-    // load the mipmaps
-    for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
-    {
-        Blseek(fil, cachepos, BSEEK_SET);
-        r = Bread(fil, &pict, sizeof(texcachepicture));
-        cachepos += sizeof(texcachepicture);
-        if (r < (int32_t)sizeof(texcachepicture)) goto failure;
-
-        pict.size = B_LITTLE32(pict.size);
-        pict.format = B_LITTLE32(pict.format);
-        pict.xdim = B_LITTLE32(pict.xdim);
-        pict.ydim = B_LITTLE32(pict.ydim);
-        pict.border = B_LITTLE32(pict.border);
-        pict.depth = B_LITTLE32(pict.depth);
-
-        if (level == 0) { *xsiz = pict.xdim; *ysiz = pict.ydim; }
-
-        if (alloclen < pict.size)
-        {
-            void *picc = Brealloc(pic, pict.size);
-            if (!picc) goto failure; else pic = picc;
-            alloclen = pict.size;
-
-            picc = Brealloc(packbuf, alloclen+16);
-            if (!picc) goto failure; else packbuf = picc;
-
-            picc = Brealloc(midbuf, pict.size);
-            if (!picc) goto failure; else midbuf = picc;
-        }
-
-        if (dedxtfilter(fil, &pict, (char *)pic, (char *)midbuf, (char *)packbuf, (head->flags&4)==4)) goto failure;
-
-        bglCompressedTexImage2DARB(GL_TEXTURE_2D,level,pict.format,pict.xdim,pict.ydim,pict.border,
-                                   pict.size,pic);
-        if (bglGetError() != GL_NO_ERROR) goto failure;
-    }
-
-    if (midbuf) Bfree(midbuf);
-    if (pic) Bfree(pic);
-    if (packbuf) Bfree(packbuf);
-    return 0;
-failure:
-    if (midbuf) Bfree(midbuf);
-    if (pic) Bfree(pic);
-    if (packbuf) Bfree(packbuf);
-    return -1;
-}
-// --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
-
 static inline int32_t hicfxmask(int32_t pal)
 {
     return (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK);
@@ -753,7 +681,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
     int32_t doalloc = 1, filh;
-    int32_t cachefil = -1, picfillen;
+    int32_t gotcache, picfillen;
     texcacheheader cachead;
 
     int32_t startticks, willprint=0;
@@ -848,26 +776,23 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     startticks = getticks();
 
-    cachefil = polymost_trytexcache(fn, picfillen, pal<<8, hicfxmask(pal), &cachead, 1);
+    gotcache = texcache_readtexheader(fn, picfillen, pal<<8, hicfxmask(pal), &cachead, 1);
 
-    if (cachefil >= 0 && !mdloadskin_cached(cachefil, &cachead, &doalloc, texidx, &xsiz, &ysiz, pal))
+    if (gotcache && !texcache_loadskin(&cachead, &doalloc, texidx, &xsiz, &ysiz))
     {
         osizx = cachead.xdim;
         osizy = cachead.ydim;
         hasalpha = (cachead.flags & 2) ? 1 : 0;
         if (pal < (MAXPALOOKUPS - RESERVEDPALS))
             m->usesalpha = hasalpha;
-//        kclose(cachefil);
         //kclose(filh);	// FIXME: uncomment when cache1d.c is fixed
-        // cachefil >= 0, so it won't be rewritten
     }
     else
     {
         int32_t ret;
         intptr_t fptr=0;
 
-//        if (cachefil >= 0) kclose(cachefil);
-        cachefil = -1;	// the compressed version will be saved to disk
+        gotcache = 0;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0)
             return -1;
@@ -952,7 +877,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
     if (glinfo.texcompr && glusetexcompr && glusetexcache)
-        if (cachefil < 0)
+        if (!gotcache)
         {
             // save off the compressed version
             cachead.quality = r_downsize;
@@ -967,7 +892,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             }
             cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
 ///            OSD_Printf("Caching \"%s\"\n",fn);
-            writexcache(fn, picfillen, pal<<8, hicfxmask(pal), &cachead);
+            texcache_writetex(fn, picfillen, pal<<8, hicfxmask(pal), &cachead);
 
             if (willprint)
             {

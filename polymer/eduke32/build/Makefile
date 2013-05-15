@@ -64,6 +64,8 @@ ENGINEOBJS+= \
 	$(OBJ)/defs.$o \
 	$(OBJ)/engine.$o \
 	$(OBJ)/polymost.$o \
+	$(OBJ)/texcache.$o \
+	$(OBJ)/dxtfilter.$o \
 	$(OBJ)/hightile.$o \
 	$(OBJ)/textfont.$o \
 	$(OBJ)/smalltextfont.$o \

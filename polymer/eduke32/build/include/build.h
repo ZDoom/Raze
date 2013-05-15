@@ -1229,7 +1229,7 @@ extern int32_t glmultisample, glnvmultisamplehint;
 extern int32_t glwidescreen, glprojectionhacks;
 extern int32_t gltexmaxsize;
 void gltexapplyprops (void);
-void invalidatecache(void);
+void texcache_invalidate(void);
 
 extern int32_t r_detailmapping;
 extern int32_t r_glowmapping;
