@@ -3546,7 +3546,8 @@ static inline void  polymer_scansprites(int16_t sectnum, spritetype* localtsprit
 
 void                polymer_updatesprite(int32_t snum)
 {
-    int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff, i, j;
+    int32_t         curpicnum, xsize, ysize, i, j;
+    int32_t         tilexoff, tileyoff, xoff, yoff, centeryoff=0;
     spritetype      *tspr = tspriteptr[snum];
     float           xratio, yratio, ang, f;
     float           spos[3];
@@ -3556,6 +3557,7 @@ void                polymer_updatesprite(int32_t snum)
 
     const uint32_t cs = tspr->cstat;
     const uint32_t alignmask = (cs & SPR_ALIGN_MASK);
+    const uint8_t flooraligned = (alignmask==SPR_FLOOR);
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updating sprite %i...\n", snum);
 
@@ -3648,8 +3650,13 @@ void                polymer_updatesprite(int32_t snum)
     xoff = (int32_t)(tilexoff * xratio);
     yoff = (int32_t)(tileyoff * yratio);
 
-    if ((tspr->cstat & 128) && (((tspr->cstat>>4) & 3) != 2))
-        yoff -= ysize / 2;
+    if ((tspr->cstat & 128) && !flooraligned)
+    {
+        if (alignmask == 0)
+            yoff -= ysize / 2;
+        else
+            centeryoff = ysize / 2;
+    }
 
     spos[0] = (float)tspr->y;
     spos[1] = -(float)(tspr->z) / 16.0f;
@@ -3664,7 +3671,6 @@ void                polymer_updatesprite(int32_t snum)
     {
         const uint8_t xflip = !!(cs & SPR_XFLIP);
         const uint8_t yflip = !!(cs & SPR_YFLIP);
-        const uint8_t flooraligned = (alignmask==SPR_FLOOR);
 
         // Initially set flipu and flipv.
         flipu = (xflip ^ flooraligned);
@@ -3700,7 +3706,7 @@ void                polymer_updatesprite(int32_t snum)
 
         bglTranslatef(spos[0], spos[1], spos[2]);
         bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-        bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
+        bglTranslatef((float)(-xoff), (float)(yoff-centeryoff), 0.0f);
         bglScalef((float)(xsize), (float)(ysize), 1.0f);
         break;
     case SPR_FLOOR:
