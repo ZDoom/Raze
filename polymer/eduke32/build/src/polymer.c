@@ -3546,7 +3546,7 @@ static inline void  polymer_scansprites(int16_t sectnum, spritetype* localtsprit
 
 void                polymer_updatesprite(int32_t snum)
 {
-    int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff, i, j, cs;
+    int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff, i, j;
     spritetype      *tspr = tspriteptr[snum];
     float           xratio, yratio, ang, f;
     float           spos[3];
@@ -3554,11 +3554,12 @@ void                polymer_updatesprite(int32_t snum)
     uint8_t         flipu, flipv;
     _prsprite       *s;
 
+    const uint32_t cs = tspr->cstat;
+    const uint32_t alignmask = (cs & SPR_ALIGN_MASK);
+
     if (pr_verbosity >= 3) OSD_Printf("PR : Updating sprite %i...\n", snum);
 
     if (tspr->owner < 0 || tspr->picnum < 0) return;
-
-    cs = tspr->cstat;
 
     if (prsprites[tspr->owner] == NULL)
     {
@@ -3661,28 +3662,26 @@ void                polymer_updatesprite(int32_t snum)
     inbuffer = vertsprite;
 
     {
-        // Initially set flipu and flipv.
-        const uint8_t xflip = !!(tspr->cstat & SPR_XFLIP);
-        const uint8_t yflip = !!(tspr->cstat & SPR_YFLIP);
-        const uint8_t flooraligned = ((tspr->cstat & SPR_ALIGN_MASK)==SPR_FLOOR);
+        const uint8_t xflip = !!(cs & SPR_XFLIP);
+        const uint8_t yflip = !!(cs & SPR_YFLIP);
+        const uint8_t flooraligned = (alignmask==SPR_FLOOR);
 
+        // Initially set flipu and flipv.
         flipu = (xflip ^ flooraligned);
         flipv = (yflip && !flooraligned);
-    }
 
-    if (pr_billboardingmode && (tspr->cstat & SPR_ALIGN_MASK)==0)
-    {
-        // do surgery on the face tspr to make it look like a wall sprite
-        tspr->cstat |= 16;
-        tspr->ang = (viewangle + 1024) & 2047;
-    }
+        if (pr_billboardingmode && alignmask==0)
+        {
+            // do surgery on the face tspr to make it look like a wall sprite
+            tspr->cstat |= 16;
+            tspr->ang = (viewangle + 1024) & 2047;
+        }
 
-    if (flipu) {
-        xoff = -xoff;
-    }
+        if (flipu)
+            xoff = -xoff;
 
-    if (flipv) {
-        yoff = -yoff;
+        if (yflip && alignmask!=0)
+            yoff = -yoff;
     }
 
     switch (tspr->cstat & SPR_ALIGN_MASK)
@@ -3743,7 +3742,7 @@ void                polymer_updatesprite(int32_t snum)
 
     polymer_computeplane(&s->plane);
 
-    if ((cs & SPR_ALIGN_MASK) && (pr_vbos > 0))
+    if (alignmask && (pr_vbos > 0))
     {
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->plane.vbo);
         bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, s->plane.buffer);
@@ -3755,7 +3754,7 @@ void                polymer_updatesprite(int32_t snum)
         s->plane.vbo = 0;
     }
 
-    if (tspr->cstat & SPR_ALIGN_MASK)
+    if (alignmask)
     {
         int32_t curpriority = 0;
 

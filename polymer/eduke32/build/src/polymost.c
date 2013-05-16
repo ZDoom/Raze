@@ -3835,7 +3835,8 @@ void polymost_drawsprite(int32_t snum)
     case 0: //Face sprite
         //Project 3D to 2D
         if (globalorientation&4) xoff = -xoff;
-        if (globalorientation&8) yoff = -yoff;
+        // NOTE: yoff not negated not for y flipping, unlike wall and floor
+        // aligned sprites.
 
         sx0 = (float)(tspr->x-globalposx);
         sy0 = (float)(tspr->y-globalposy);
