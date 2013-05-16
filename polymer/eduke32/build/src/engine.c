@@ -58,6 +58,7 @@ L_State g_engState;
 #define HIGH_PRECISION_SPRITE
 #define MULTI_COLUMN_VLINE
 //#define DEBUG_TILESIZY_512
+//#define DEBUG_TILEOFFSETS
 
 #if !defined DEBUG_MAIN_ARRAYS
 const int32_t engine_main_arrays_are_static = 0;  // for Lunatic
@@ -11124,6 +11125,24 @@ void loadtile(int16_t tilenume)
         char *p = (char *)waloff[tilenume];
         for (i=0; i<tilesizx[tilenume]*tilesizy[tilenume]; i++)
             p[i] = i;
+    }
+#endif
+#ifdef DEBUG_TILEOFFSETS
+    // Add some dark blue marker lines to STEAM and CEILINGSTEAM.
+    // See test_tileoffsets.map.
+    if (tilenume==1250 || tilenume==1255)
+    {
+        char *p = (char *)waloff[tilenume];
+        p[0] = p[1] = p[2] = p[3] = 254;
+    }
+
+    // Add some offset to the cocktail glass neon sign. It's more asymmetric
+    // than the steam, and thus more suited to debugging the spatial
+    // orientation of drawn sprites.
+    if (tilenume==1008)
+    {
+        picanm[tilenume].xofs = 8;
+        picanm[tilenume].yofs = 12;
     }
 #endif
 }
