@@ -3709,10 +3709,6 @@ void                polymer_updatesprite(int32_t snum)
 
         bglTranslatef(spos[0], spos[1], spos[2]);
         bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-        if (tspr->cstat & SPR_YFLIP) {
-            bglRotatef(-180.0, 0.0f, 0.0f, 1.0f);
-            flipu = !flipu;
-        }
         bglTranslatef((float)(-xoff), 1.0f, (float)(yoff));
         bglScalef((float)(xsize), 1.0f, (float)(ysize));
 
