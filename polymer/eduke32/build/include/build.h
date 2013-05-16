@@ -330,6 +330,16 @@ typedef struct
     Tracker(Wall, int16_t) extra;
 } walltypev7;
 
+
+enum {
+    SPR_XFLIP = 4,
+    SPR_YFLIP = 8,
+
+    SPR_WALL = 16,
+    SPR_FLOOR = 32,
+    SPR_ALIGN_MASK = 32+16,
+};
+
 //cstat:
 //   bit 0: 1 = Blocking sprite (use with clipmove, getzrange)       "B"
 //   bit 1: 1 = transluscence, 0 = normal                            "T"

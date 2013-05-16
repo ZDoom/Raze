@@ -3660,18 +3660,17 @@ void                polymer_updatesprite(int32_t snum)
 
     inbuffer = vertsprite;
 
-    flipu = flipv = 0;
+    {
+        // Initially set flipu and flipv.
+        const uint8_t xflip = !!(tspr->cstat & SPR_XFLIP);
+        const uint8_t yflip = !!(tspr->cstat & SPR_YFLIP);
+        const uint8_t flooraligned = ((tspr->cstat & SPR_ALIGN_MASK)==SPR_FLOOR);
 
-    if ((tspr->cstat & 4) && (((tspr->cstat>>4) & 3) != 2))
-        flipu = !flipu;
+        flipu = (xflip ^ flooraligned);
+        flipv = (yflip && !flooraligned);
+    }
 
-    if (!(tspr->cstat & 4) && (((tspr->cstat>>4) & 3) == 2))
-        flipu = !flipu;
-
-    if ((tspr->cstat & 8) && (((tspr->cstat>>4) & 3) != 2))
-        flipv = !flipv;
-
-    if (pr_billboardingmode && !((tspr->cstat>>4) & 3))
+    if (pr_billboardingmode && (tspr->cstat & SPR_ALIGN_MASK)==0)
     {
         // do surgery on the face tspr to make it look like a wall sprite
         tspr->cstat |= 16;
@@ -3686,7 +3685,7 @@ void                polymer_updatesprite(int32_t snum)
         yoff = -yoff;
     }
 
-    switch ((tspr->cstat>>4) & 3)
+    switch (tspr->cstat & SPR_ALIGN_MASK)
     {
     case 0:
         ang = (float)((viewangle) & 2047) / (2048.0f / 360.0f);
@@ -3697,7 +3696,7 @@ void                polymer_updatesprite(int32_t snum)
         bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
         bglScalef((float)(xsize), (float)(ysize), 1.0f);
         break;
-    case 1:
+    case SPR_WALL:
         ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
 
         bglTranslatef(spos[0], spos[1], spos[2]);
@@ -3705,12 +3704,12 @@ void                polymer_updatesprite(int32_t snum)
         bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
         bglScalef((float)(xsize), (float)(ysize), 1.0f);
         break;
-    case 2:
+    case SPR_FLOOR:
         ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
 
         bglTranslatef(spos[0], spos[1], spos[2]);
         bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-        if (tspr->cstat & 8) {
+        if (tspr->cstat & SPR_YFLIP) {
             bglRotatef(-180.0, 0.0f, 0.0f, 1.0f);
             flipu = !flipu;
         }
@@ -3748,7 +3747,7 @@ void                polymer_updatesprite(int32_t snum)
 
     polymer_computeplane(&s->plane);
 
-    if ((cs & 48) && (pr_vbos > 0))
+    if ((cs & SPR_ALIGN_MASK) && (pr_vbos > 0))
     {
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->plane.vbo);
         bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, s->plane.buffer);
@@ -3760,7 +3759,7 @@ void                polymer_updatesprite(int32_t snum)
         s->plane.vbo = 0;
     }
 
-    if (tspr->cstat & 48)
+    if (tspr->cstat & SPR_ALIGN_MASK)
     {
         int32_t curpriority = 0;
 
