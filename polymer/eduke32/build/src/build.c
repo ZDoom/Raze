@@ -1257,10 +1257,8 @@ void editinput(void)
 
                     handle_sprite_in_clipboard(i);
 
-                    getzsofslope(hit.sect, hit.pos.x, hit.pos.y, &cz, &fz);
-
                     spriteoncfz(i, &cz, &fz);
-                    sprite[i].z = clamp(hit.pos.z, cz, fz);
+                    sprite[i].z = clamp2(hit.pos.z, cz, fz);
 
                     if (AIMING_AT_WALL || AIMING_AT_MASKWALL)
                     {

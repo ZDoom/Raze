@@ -452,12 +452,21 @@ static inline void dtol(double d, int32_t *a)
 #endif
 
 #if __GNUC__ >= 4
-static inline __attribute__((warn_unused_result)) int32_t clamp(int32_t in, int32_t min, int32_t max)
+# define CLAMP_DECL static inline __attribute__((warn_unused_result))
 #else
-static inline int32_t clamp(int32_t in, int32_t min, int32_t max)
+# define CLAMP_DECL static inline
 #endif
+
+// Clamp <in> to [<min>..<max>]. The case in <= min is handled first.
+CLAMP_DECL int32_t clamp(int32_t in, int32_t min, int32_t max)
 {
     return in <= min ? min : (in >= max ? max : in);
+}
+
+// Clamp <in> to [<min>..<max>]. The case in >= max is handled first.
+CLAMP_DECL int32_t clamp2(int32_t in, int32_t min, int32_t max)
+{
+    return in >= max ? max : (in <= min ? min : in);
 }
 
 #define BMAX_PATH 256
