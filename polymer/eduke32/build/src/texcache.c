@@ -11,37 +11,12 @@
 #define REALLOC_OR_FAIL(ptr, size, type) { ptr = (type *)Brealloc(ptr, size); if (!ptr) goto failure; }
 #define TEXCACHE_FREEBUFS() { Bfree(pic), Bfree(packbuf), Bfree(midbuf); }
 
-int32_t texcache_filehandle = -1; // texture cache file handle
-FILE *texcache_indexptr = NULL;
-uint8_t *texcache_memptr = NULL;
-int32_t texcache_memsize = -1;
-int32_t texcache_offset = 0;
-// Set to 1 when we failed (re)allocating space for the memcache or failing to
-// read into it (which would presumably generate followup errors spamming the
-// log otherwise):
-int32_t texcache_noalloc = 0;
-
-static hashtable_t h_texcache    = { 1024, NULL };
+globaltexcache texcache;
 
 char TEXCACHEFILE[BMAX_PATH] = "textures";
 
-pthtyp *texcache_head[GLTEXCACHEADSIZ];
-texcacheindex *texcache_firstindex = NULL;
-texcacheindex *texcache_currentindex = NULL;
-static texcacheindex *texcache_ptrs[MAXTILES<<1];
-static int32_t texcache_numentries = 0;
-
-enum texcacherr_t
-{
-    TEXCACHERR_NOERROR,
-    TEXCACHERR_OUTOFMEMORY,
-    TEXCACHERR_BUFFERUNDERRUN,
-    TEXCACHERR_DEDXT,
-    TEXCACHERR_COMPTEX,
-    TEXCACHERR_GETTEXLEVEL
-};
-
-static const char *texcache_loaderrs[5] = {
+static const char *texcache_errorstr[TEXCACHEERRORS] = {
+    "no error",
     "out of memory!",
     "read too few bytes from cache file",
     "dedxtfilter failed",
@@ -74,7 +49,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
      */
 
     // load a replacement
-    for (pth=texcache_head[j]; pth; pth=pth->next)
+    for (pth=texcache.list[j]; pth; pth=pth->next)
     {
         if (pth->picnum == dapicnum && pth->palnum == si->palnum &&
                 (si->palnum>0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
@@ -104,7 +79,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     // possibly fetch an already loaded multitexture :_)
     if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS))
         for (i = (GLTEXCACHEADSIZ - 1); i >= 0; i--)
-            for (pth2=texcache_head[i]; pth2; pth2=pth2->next)
+            for (pth2=texcache.list[i]; pth2; pth2=pth2->next)
             {
                 if ((pth2->hicr) && (pth2->hicr->filename) && (Bstrcasecmp(pth2->hicr->filename, si->filename) == 0))
                 {
@@ -113,9 +88,9 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
                     pth->flags = ((dameth&4)>>2) + 2 + ((drawingskybox>0)<<2);
                     if (pth2->flags & 8) pth->flags |= 8; //hasalpha
                     pth->hicr = si;
-                    pth->next = texcache_head[j];
+                    pth->next = texcache.list[j];
 
-                    texcache_head[j] = pth;
+                    texcache.list[j] = pth;
                     return(pth);
                 }
             }
@@ -128,8 +103,8 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     }
 
     pth->palnum = si->palnum;
-    pth->next = texcache_head[j];
-    texcache_head[j] = pth;
+    pth->next = texcache.list[j];
+    texcache.list[j] = pth;
 
     return(pth);
 
@@ -137,7 +112,7 @@ tryart:
     if (hicprecaching) return NULL;
 
     // load from art
-    for (pth=texcache_head[j]; pth; pth=pth->next)
+    for (pth=texcache.list[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && pth->shade == dashade && 
                 (pth->flags & (1+2)) == ((dameth&4)>>2)
            )
@@ -161,24 +136,24 @@ tryart:
         return NULL;
     }
 
-    pth->next = texcache_head[j];
-    texcache_head[j] = pth;
+    pth->next = texcache.list[j];
+    texcache.list[j] = pth;
 
     return(pth);
 }
 
 static void texcache_closefiles(void)
 {
-    if (texcache_filehandle != -1)
+    if (texcache.filehandle != -1)
     {
-        Bclose(texcache_filehandle);
-        texcache_filehandle = -1;
+        Bclose(texcache.filehandle);
+        texcache.filehandle = -1;
     }
 
-    if (texcache_indexptr)
+    if (texcache.index)
     {
-        Bfclose(texcache_indexptr);
-        texcache_indexptr = NULL;
+        Bfclose(texcache.index);
+        texcache.index = NULL;
     }
 }
 
@@ -186,79 +161,83 @@ void texcache_freeptrs(void)
 {
     int32_t i;
 
-    for (i = texcache_numentries-1; i >= 0; i--)
-        if (texcache_ptrs[i])
+    for (i = texcache.numentries-1; i >= 0; i--)
+        if (texcache.ptrs[i])
         {
             int32_t ii;
-            for (ii = texcache_numentries-1; ii >= 0; ii--)
-                if (i != ii && texcache_ptrs[ii] == texcache_ptrs[i])
+            for (ii = texcache.numentries-1; ii >= 0; ii--)
+                if (i != ii && texcache.ptrs[ii] == texcache.ptrs[i])
                 {
                     /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
-                    texcache_ptrs[ii] = NULL;
+                    texcache.ptrs[ii] = NULL;
                 }
 
-                Bfree(texcache_ptrs[i]);
-                texcache_ptrs[i] = NULL;
+                Bfree(texcache.ptrs[i]);
+                texcache.ptrs[i] = NULL;
         }
 }
 
 void texcache_clearmemcache(void)
 {
-    Bfree(texcache_memptr);
-    texcache_memptr = NULL;
-    texcache_memsize = -1;
+    Bfree(texcache.memcache.ptr);
+    texcache.memcache.ptr = NULL;
+    texcache.memcache.size = -1;
 }
 
 void texcache_syncmemcache(void)
 {
     size_t len;
 
-    if (!texcache_memptr || texcache_filehandle == -1 || Bfilelength(texcache_filehandle) <= texcache_memsize)
+    if (!texcache.memcache.ptr || texcache.filehandle == -1 || Bfilelength(texcache.filehandle) <= texcache.memcache.size)
         return;
 
-    len = Bfilelength(texcache_filehandle);
+    len = Bfilelength(texcache.filehandle);
 
-    texcache_memptr = (uint8_t *)Brealloc(texcache_memptr, len);
+    texcache.memcache.ptr = (uint8_t *)Brealloc(texcache.memcache.ptr, len);
 
-    if (!texcache_memptr)
+    if (!texcache.memcache.ptr)
     {
         texcache_clearmemcache();
         initprintf("Failed syncing memcache to texcache, disabling memcache.\n");
-        texcache_noalloc = 1;
+        texcache.memcache.noalloc = 1;
     }
     else
     {
         initprintf("Syncing memcache to texcache\n");
-        Blseek(texcache_filehandle, texcache_memsize, BSEEK_SET);
-        if (Bread(texcache_filehandle, texcache_memptr + texcache_memsize, len - texcache_memsize) != (bssize_t)(len-texcache_memsize))
+        Blseek(texcache.filehandle, texcache.memcache.size, BSEEK_SET);
+        if (Bread(texcache.filehandle, texcache.memcache.ptr + texcache.memcache.size, len - texcache.memcache.size) != (bssize_t)(len-texcache.memcache.size))
         {
             initprintf("polymost_cachesync: Failed reading texcache into memcache!\n");
             texcache_clearmemcache();
-            texcache_noalloc = 1;
+            texcache.memcache.noalloc = 1;
         }
         else
         {
-            texcache_memsize = len;
+            texcache.memcache.size = len;
         }
     }
 }
 
 void texcache_init(void)
 {
+    if (!texcache.index)
+        texcache.filehandle = -1;
+
     texcache_closefiles();
     texcache_clearmemcache();
     texcache_freeptrs();
 
-    texcache_currentindex = texcache_firstindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
-    texcache_numentries = 0;
+    texcache.currentindex = texcache.firstindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
+    texcache.numentries = 0;
 
     //    Bmemset(&firstcacheindex, 0, sizeof(texcacheindex));
     //    Bmemset(&cacheptrs[0], 0, sizeof(cacheptrs));
 
-    hash_init(&h_texcache);
+    texcache.hashes.size = TEXCACHEHASHSIZE;
+    hash_init(&texcache.hashes);
 }
 
-void texcache_removefiles(void)
+static void texcache_deletefiles(void)
 {
     Bstrcpy(ptempbuf, TEXCACHEFILE);
     unlink(ptempbuf);
@@ -278,7 +257,7 @@ static int32_t texcache_enabled(void)
         return 0;
     }
 
-    if (!texcache_indexptr || texcache_filehandle < 0)
+    if (!texcache.index || texcache.filehandle < 0)
     {
         OSD_Printf("Warning: no active cache!\n");
         return 0;
@@ -291,10 +270,10 @@ void texcache_openfiles(void)
 {
     Bstrcpy(ptempbuf,TEXCACHEFILE);
     Bstrcat(ptempbuf,".cache");
-    texcache_indexptr = Bfopen(ptempbuf, "at+");
-    texcache_filehandle = Bopen(TEXCACHEFILE, BO_BINARY|BO_CREAT|BO_APPEND|BO_RDWR, BS_IREAD|BS_IWRITE);
+    texcache.index = Bfopen(ptempbuf, "at+");
+    texcache.filehandle = Bopen(TEXCACHEFILE, BO_BINARY|BO_CREAT|BO_APPEND|BO_RDWR, BS_IREAD|BS_IWRITE);
 
-    if (!texcache_indexptr || texcache_filehandle < 0)
+    if (!texcache.index || texcache.filehandle < 0)
     {
         initprintf("Unable to open cache file \"%s\" or \"%s\": %s\n", TEXCACHEFILE, ptempbuf, strerror(errno));
         texcache_closefiles();
@@ -302,13 +281,13 @@ void texcache_openfiles(void)
         return;
     }
 
-    Bfseek(texcache_indexptr, 0, BSEEK_END);
-    if (!Bftell(texcache_indexptr))
+    Bfseek(texcache.index, 0, BSEEK_END);
+    if (!Bftell(texcache.index))
     {
-        Brewind(texcache_indexptr);
-        Bfprintf(texcache_indexptr,"// automatically generated by EDuke32, DO NOT MODIFY!\n");
+        Brewind(texcache.index);
+        Bfprintf(texcache.index,"// automatically generated by EDuke32, DO NOT MODIFY!\n");
     }
-    else Brewind(texcache_indexptr);
+    else Brewind(texcache.index);
 
     initprintf("Opened \"%s\" as cache file\n", TEXCACHEFILE);
 }
@@ -321,14 +300,14 @@ void texcache_checkgarbage(void)
     if (!texcache_enabled())
         return;
 
-    texcache_currentindex = texcache_firstindex;
-    while (texcache_currentindex->next)
+    texcache.currentindex = texcache.firstindex;
+    while (texcache.currentindex->next)
     {
-        i += texcache_currentindex->len;
-        texcache_currentindex = texcache_currentindex->next;
+        i += texcache.currentindex->len;
+        texcache.currentindex = texcache.currentindex->next;
     }
 
-    i = Blseek(texcache_filehandle, 0, BSEEK_END)-i;
+    i = Blseek(texcache.filehandle, 0, BSEEK_END)-i;
 
     if (i)
         initprintf("Cache contains %d bytes of garbage data\n",i);
@@ -344,7 +323,7 @@ void texcache_invalidate(void)
     polymost_glreset();
 
     texcache_init();
-    texcache_removefiles();
+    texcache_deletefiles();
     texcache_openfiles();
 }
 
@@ -367,24 +346,24 @@ int32_t texcache_loadoffsets(void)
         if (scriptfile_getnumber(script, &foffset)) break;	// offset in cache
         if (scriptfile_getnumber(script, &fsize)) break;	// size
 
-        i = hash_find(&h_texcache,fname);
+        i = hash_find(&texcache.hashes,fname);
         if (i > -1)
         {
             // update an existing entry
-            texcacheindex *t = texcache_ptrs[i];
+            texcacheindex *t = texcache.ptrs[i];
             t->offset = foffset;
             t->len = fsize;
             /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, fname,foffset);*/
         }
         else
         {
-            Bstrncpyz(texcache_currentindex->name, fname, BMAX_PATH);
-            texcache_currentindex->offset = foffset;
-            texcache_currentindex->len = fsize;
-            texcache_currentindex->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
-            hash_add(&h_texcache, fname, texcache_numentries, 1);
-            texcache_ptrs[texcache_numentries++] = texcache_currentindex;
-            texcache_currentindex = texcache_currentindex->next;
+            Bstrncpyz(texcache.currentindex->name, fname, BMAX_PATH);
+            texcache.currentindex->offset = foffset;
+            texcache.currentindex->len = fsize;
+            texcache.currentindex->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
+            hash_add(&texcache.hashes, fname, texcache.numentries, 1);
+            texcache.ptrs[texcache.numentries++] = texcache.currentindex;
+            texcache.currentindex = texcache.currentindex->next;
         }
     }
 
@@ -395,30 +374,32 @@ int32_t texcache_loadoffsets(void)
 // Read from on-disk texcache or its in-memory cache.
 int32_t texcache_readdata(void *dest, int32_t len)
 {
-    const int32_t ocachepos = texcache_offset;
+    const int32_t ocachepos = texcache.filepos;
 
-    texcache_offset += len;
+    texcache.filepos += len;
 
-    if (texcache_memptr && texcache_memsize >= ocachepos+len)
+    if (texcache.memcache.ptr && texcache.memcache.size >= ocachepos+len)
     {
         //        initprintf("using memcache!\n");
-        Bmemcpy(dest, texcache_memptr+ocachepos, len);
+        Bmemcpy(dest, texcache.memcache.ptr+ocachepos, len);
+        return 0;
     }
-    else
-    {
-        Blseek(texcache_filehandle, ocachepos, BSEEK_SET);
 
-        if (Bread(texcache_filehandle, dest, len) < len)
-            return 1;
-    }
+    if (Blseek(texcache.filehandle, ocachepos, BSEEK_SET) != ocachepos)
+        return 1;
+
+    if (Bread(texcache.filehandle, dest, len) < len)
+        return 1;
 
     return 0;
 }
-typedef struct { int32_t len, method; char effect, name[BMAX_PATH]; } texcacheid_t;
 
 static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t len, const int32_t dameth, const char effect)
 {
-    texcacheid_t id = { len, dameth, effect, "" };
+    struct texcacheid_t {
+        int32_t len, method;
+        char effect, name[BMAX_PATH];
+    } id = { len, dameth, effect, "" };
 
     Bstrcpy(id.name, fn);
 
@@ -428,7 +409,7 @@ static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t
     Bsprintf(cachefn, "%x%x%x",
         crc32once((uint8_t *)fn, Bstrlen(fn)),
         crc32once((uint8_t *)id.name, Bstrlen(id.name)),
-        crc32once((uint8_t *)&id, sizeof(texcacheid_t)));
+        crc32once((uint8_t *)&id, sizeof(struct texcacheid_t)));
     
     return cachefn;
 }
@@ -444,12 +425,12 @@ int32_t texcache_readtexheader(const char *fn, int32_t len, int32_t dameth, char
 
     if (!texcache_enabled()) return 0;
 
-    i = hash_find(&h_texcache, texcache_calcid(cachefn, fn, len, dameth, effect));
+    i = hash_find(&texcache.hashes, texcache_calcid(cachefn, fn, len, dameth, effect));
 
-    if (i < 0 || !texcache_ptrs[i])
+    if (i < 0 || !texcache.ptrs[i])
         return 0;  // didn't find it
 
-    texcache_offset = texcache_ptrs[i]->offset;
+    texcache.filepos = texcache.ptrs[i]->offset;
     //        initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);
 
 
@@ -517,9 +498,9 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
         return;
     }
 
-    Blseek(texcache_filehandle, 0, BSEEK_END);
+    Blseek(texcache.filehandle, 0, BSEEK_END);
 
-    offset = Blseek(texcache_filehandle, 0, BSEEK_CUR);
+    offset = Blseek(texcache.filehandle, 0, BSEEK_CUR);
     //    OSD_Printf("Caching %s, offset 0x%x\n", cachefn, offset);
 
     Bmemcpy(head->magic, TEXCACHEMAGIC, 4);   // sizes are set by caller
@@ -532,7 +513,7 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
     head->flags = B_LITTLE32(head->flags);
     head->quality = B_LITTLE32(head->quality);
 
-    if (Bwrite(texcache_filehandle, head, sizeof(texcacheheader)) != sizeof(texcacheheader)) goto failure;
+    if (Bwrite(texcache.filehandle, head, sizeof(texcacheheader)) != sizeof(texcacheheader)) goto failure;
 
     CLEAR_GL_ERRORS();
 
@@ -571,38 +552,38 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
 
         bglGetCompressedTexImageARB(GL_TEXTURE_2D, level, pic); WRITEX_FAIL_ON_ERROR();
 
-        if (Bwrite(texcache_filehandle, &pict, sizeof(texcachepicture)) != sizeof(texcachepicture)) goto failure;
-        if (dxtfilter(texcache_filehandle, &pict, pic, midbuf, packbuf, miplen)) goto failure;
+        if (Bwrite(texcache.filehandle, &pict, sizeof(texcachepicture)) != sizeof(texcachepicture)) goto failure;
+        if (dxtfilter(texcache.filehandle, &pict, pic, midbuf, packbuf, miplen)) goto failure;
     }
 
     {
         texcacheindex *t;
-        int32_t i = hash_find(&h_texcache, texcache_calcid(cachefn, fn, len, dameth, effect));
+        int32_t i = hash_find(&texcache.hashes, texcache_calcid(cachefn, fn, len, dameth, effect));
         if (i > -1)
         {
             // update an existing entry
-            t = texcache_ptrs[i];
+            t = texcache.ptrs[i];
             t->offset = offset;
-            t->len = Blseek(texcache_filehandle, 0, BSEEK_CUR) - t->offset;
+            t->len = Blseek(texcache.filehandle, 0, BSEEK_CUR) - t->offset;
             /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
         }
         else
         {
-            t = texcache_currentindex;
+            t = texcache.currentindex;
             Bstrcpy(t->name, cachefn);
             t->offset = offset;
-            t->len = Blseek(texcache_filehandle, 0, BSEEK_CUR) - t->offset;
+            t->len = Blseek(texcache.filehandle, 0, BSEEK_CUR) - t->offset;
             t->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
 
-            hash_add(&h_texcache, cachefn, texcache_numentries, 0);
-            texcache_ptrs[texcache_numentries++] = t;
-            texcache_currentindex = t->next;
+            hash_add(&texcache.hashes, cachefn, texcache.numentries, 0);
+            texcache.ptrs[texcache.numentries++] = t;
+            texcache.currentindex = t->next;
         }
 
-        if (texcache_indexptr)
+        if (texcache.index)
         {
-            fseek(texcache_indexptr, 0, BSEEK_END);
-            Bfprintf(texcache_indexptr, "%s %d %d\n", t->name, t->offset, t->len);
+            fseek(texcache.index, 0, BSEEK_END);
+            Bfprintf(texcache.index, "%s %d %d\n", t->name, t->offset, t->len);
         }
         else OSD_Printf("wtf?\n");
     }
@@ -611,8 +592,8 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
 
 failure:
     initprintf("ERROR: cache failure!\n");
-    texcache_currentindex->offset = 0;
-    Bmemset(texcache_currentindex->name,0,sizeof(texcache_currentindex->name));
+    texcache.currentindex->offset = 0;
+    Bmemset(texcache.currentindex->name,0,sizeof(texcache.currentindex->name));
 
 success:
     TEXCACHE_FREEBUFS();
@@ -670,7 +651,7 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
             REALLOC_OR_FAIL(midbuf, pict.size, void);
         }
 
-        if (dedxtfilter(texcache_filehandle, &pict, pic, midbuf, packbuf, (head->flags&4)==4))
+        if (dedxtfilter(texcache.filehandle, &pict, pic, midbuf, packbuf, (head->flags&4)==4))
         {
             TEXCACHE_FREEBUFS();
             return TEXCACHERR_DEDXT;
@@ -718,7 +699,7 @@ int32_t texcache_loadskin(const texcacheheader *head, int32_t *doalloc, GLuint *
     if ((err = texcache_loadmips(head, &glerr, xsiz, ysiz)))
     {
         if (err > 0)
-            initprintf("texcache_loadskin: %s  (glerr=%x)\n", texcache_loaderrs[err-1], glerr);
+            initprintf("texcache_loadskin: %s  (glerr=%x)\n", texcache_errorstr[err], glerr);
 
         return -1;
     }
@@ -741,7 +722,7 @@ int32_t texcache_loadtile(const texcacheheader *head, int32_t *doalloc, pthtyp *
     if ((err = texcache_loadmips(head, &glerr, NULL, NULL)))
     {
         if (err > 0)
-            initprintf("texcache_loadtile: %s  (glerr=%x)\n", texcache_loaderrs[err-1], glerr);
+            initprintf("texcache_loadtile: %s  (glerr=%x)\n", texcache_errorstr[err], glerr);
 
         return -1;
     }
@@ -751,29 +732,29 @@ int32_t texcache_loadtile(const texcacheheader *head, int32_t *doalloc, pthtyp *
 
 void texcache_setupmemcache(void)
 {
-    if (!glusememcache || texcache_noalloc || !texcache_enabled())
+    if (!glusememcache || texcache.memcache.noalloc || !texcache_enabled())
         return;
 
-    texcache_memsize = Bfilelength(texcache_filehandle);
+    texcache.memcache.size = Bfilelength(texcache.filehandle);
 
-    if (texcache_memsize <= 0)
+    if (texcache.memcache.size <= 0)
         return;
 
-    texcache_memptr = (uint8_t *)Brealloc(texcache_memptr, texcache_memsize);
+    texcache.memcache.ptr = (uint8_t *)Brealloc(texcache.memcache.ptr, texcache.memcache.size);
 
-    if (!texcache_memptr)
+    if (!texcache.memcache.ptr)
     {
-        initprintf("Failed allocating %d bytes for memcache, disabling memcache.\n", texcache_memsize);
+        initprintf("Failed allocating %d bytes for memcache, disabling memcache.\n", texcache.memcache.size);
         texcache_clearmemcache();
-        texcache_noalloc = 1;
+        texcache.memcache.noalloc = 1;
         return;
     }
 
-    if (Bread(texcache_filehandle, texcache_memptr, texcache_memsize) != texcache_memsize)
+    if (Bread(texcache.filehandle, texcache.memcache.ptr, texcache.memcache.size) != texcache.memcache.size)
     {
         initprintf("Failed reading texcache into memcache!\n");
         texcache_clearmemcache();
-        texcache_noalloc = 1;
+        texcache.memcache.noalloc = 1;
     }
 }
 

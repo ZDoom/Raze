@@ -251,7 +251,7 @@ static inline int32_t gltexmayhavealpha(int32_t dapicnum, int32_t dapalnum)
     const int32_t j = (dapicnum&(GLTEXCACHEADSIZ-1));
     pthtyp *pth;
 
-    for (pth=texcache_head[j]; pth; pth=pth->next)
+    for (pth=texcache.list[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum)
             return ((pth->flags&8) != 0);
 
@@ -263,7 +263,7 @@ void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
     const int32_t j = (dapicnum&(GLTEXCACHEADSIZ-1));
     pthtyp *pth;
 
-    for (pth=texcache_head[j]; pth; pth=pth->next)
+    for (pth=texcache.list[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && (pth->flags & 1) == ((dameth&4)>>2))
         {
             pth->flags |= 128;
@@ -282,7 +282,7 @@ void gltexinvalidatetype(int32_t type)
 
     for (j=GLTEXCACHEADSIZ-1; j>=0; j--)
     {
-        for (pth=texcache_head[j]; pth; pth=pth->next)
+        for (pth=texcache.list[j]; pth; pth=pth->next)
         {
             if (type == INVALIDATE_ALL || (type == INVALIDATE_ART && pth->hicr == NULL))
             {
@@ -327,7 +327,7 @@ void gltexapplyprops(void)
 
     for (i=GLTEXCACHEADSIZ-1; i>=0; i--)
     {
-        for (pth=texcache_head[i]; pth; pth=pth->next)
+        for (pth=texcache.list[i]; pth; pth=pth->next)
         {
             bind_2d_texture(pth->glpic);
 
@@ -395,7 +395,7 @@ void polymost_glreset()
     {
         for (i=GLTEXCACHEADSIZ-1; i>=0; i--)
         {
-            for (pth=texcache_head[i]; pth;)
+            for (pth=texcache.list[i]; pth;)
             {
                 next = pth->next;
                 if (pth->flags & 16) // fullbright textures
@@ -409,7 +409,7 @@ void polymost_glreset()
                 pth = next;
             }
 
-            texcache_head[i] = NULL;
+            texcache.list[i] = NULL;
         }
         clearskins();
     }
@@ -420,7 +420,7 @@ void polymost_glreset()
 
     freevbos();
 
-    memset(texcache_head,0,sizeof(texcache_head));
+    memset(texcache.list,0,sizeof(texcache.list));
     glox1 = -1;
 
     texcache_freeptrs();

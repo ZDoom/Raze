@@ -5,6 +5,18 @@
 
 #define TEXCACHEMAGIC "QLZ1"
 #define GLTEXCACHEADSIZ 8192
+#define TEXCACHEHASHSIZE 1024
+
+enum texcacherr_t
+{
+    TEXCACHERR_NOERROR,
+    TEXCACHERR_OUTOFMEMORY,
+    TEXCACHERR_BUFFERUNDERRUN,
+    TEXCACHERR_DEDXT,
+    TEXCACHERR_COMPTEX,
+    TEXCACHERR_GETTEXLEVEL,
+    TEXCACHEERRORS
+};
 
 struct texcacheitem_t
 {
@@ -16,16 +28,25 @@ struct texcacheitem_t
 
 typedef struct texcacheitem_t texcacheindex;
 
+typedef struct {
+    int32_t filehandle, filepos, numentries;
+    FILE *index;
+    pthtyp *list[GLTEXCACHEADSIZ];
+    texcacheindex *firstindex, *currentindex, *ptrs[MAXTILES<<1];
+    hashtable_t hashes;
+    struct {
+        uint8_t *ptr;
+        size_t size;
+        // Set to 1 when we failed (re)allocating space for the memcache or failing to
+        // read into it (which would presumably generate followup errors spamming the
+        // log otherwise):
+        int32_t noalloc;
+    } memcache;
+} globaltexcache;
+
+extern globaltexcache texcache;
+
 extern char TEXCACHEFILE[BMAX_PATH];
-extern pthtyp *texcache_head[GLTEXCACHEADSIZ];
-extern FILE *texcache_indexptr;
-extern int32_t texcache_noalloc;
-extern int32_t texcache_memsize;
-extern uint8_t *texcache_memptr;
-extern int32_t texcache_filehandle;
-extern int32_t texcache_offset;
-extern texcacheindex *texcache_firstindex;
-extern texcacheindex *texcache_currentindex;
 
 extern void texcache_freeptrs(void);
 extern void texcache_syncmemcache(void);
