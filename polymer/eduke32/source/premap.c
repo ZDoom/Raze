@@ -514,7 +514,7 @@ void G_CacheMapData(void)
                             if (k == MAXPALOOKUPS-RESERVEDPALS-1)
                                 break;
 #ifdef POLYMER
-                            if (rendmode!=4 || !polymer_havehighpalookup(0, k))
+                            if (getrendermode() != REND_POLYMER || !polymer_havehighpalookup(0, k))
 #endif
                                 polymost_precache(i,k,type);
                         }
@@ -524,7 +524,7 @@ void G_CacheMapData(void)
                         if (r_glowmapping && !KB_KeyPressed(sc_Space))
                             polymost_precache(i,GLOWPAL,type);
 #ifdef POLYMER
-                        if (rendmode==4)
+                        if (getrendermode() == REND_POLYMER)
                         {
                             if (pr_specularmapping && !KB_KeyPressed(sc_Space))
                                 polymost_precache(i,SPECULARPAL,type);

@@ -35,9 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "common.h"
 #include "common_game.h"
 
-#define RDR_POLYMOST 3 // sould be defined elsewhere
-#define RDR_POLYMER 4 // sould be defined elsewhere
-
 enum
 {
     NONE,
@@ -156,7 +153,7 @@ static void on_polymercheck_toggled(GtkToggleButton *togglebutton, gpointer user
     UNREFERENCED_PARAMETER(user_data);
     if (gtk_toggle_button_get_active(togglebutton))
     {
-        glrendmode = RDR_POLYMER;
+        glrendmode = REND_POLYMER;
         settings.polymer = TRUE;
         if (settings.bpp3d == 8)
         {
@@ -166,7 +163,7 @@ static void on_polymercheck_toggled(GtkToggleButton *togglebutton, gpointer user
     }
     else
     {
-        glrendmode = RDR_POLYMOST;
+        glrendmode = REND_POLYMOST;
         settings.polymer = FALSE;
     }
 }

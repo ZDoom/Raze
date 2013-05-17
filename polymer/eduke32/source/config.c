@@ -653,8 +653,8 @@ int32_t CONFIG_ReadSetup(void)
 
 #ifdef POLYMER
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &dummy);
-        if (dummy > 0 && ud.config.ScreenBPP >= 16) glrendmode = 4;
-        else glrendmode = 3;
+        if (dummy > 0 && ud.config.ScreenBPP >= 16) glrendmode = REND_POLYMER;
+        else glrendmode = REND_POLYMOST;
 #endif
 
         /*
@@ -793,7 +793,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad",ud.config.NoAutoLoad,FALSE,FALSE);
 
 #ifdef POLYMER
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Polymer",glrendmode == 4,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Polymer",glrendmode == REND_POLYMER,FALSE,FALSE);
 #endif
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP",ud.config.ScreenBPP,FALSE,FALSE);  // JBF 20040523

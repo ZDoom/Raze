@@ -343,7 +343,7 @@ int32_t G_SavePlayer(int32_t spot)
     }
 
 #ifdef POLYMER
-    if (rendmode == 4)
+    if (getrendermode() == REND_POLYMER)
         polymer_resetlights();
 #endif
 

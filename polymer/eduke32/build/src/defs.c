@@ -708,7 +708,7 @@ static int32_t defsparser(scriptfile *script)
             }
             md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0,0.0,0);
 # ifdef POLYMER
-            if (glrendmode==4)
+            if (glrendmode == REND_POLYMER)
                 md3postload_polymer((md3model_t *)models[lastmodelid]);
 # endif
 #endif
@@ -1345,7 +1345,7 @@ static int32_t defsparser(scriptfile *script)
             }
 # endif
 
-            if (glrendmode==4)
+            if (glrendmode == REND_POLYMER)
                 md3postload_polymer((md3model_t *)models[lastmodelid]);
 #endif
 

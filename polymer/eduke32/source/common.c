@@ -537,7 +537,7 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows)
     UNREFERENCED_PARAMETER(numcols);
 
 # ifdef USE_OPENGL
-    if (rendmode>=3 && qsetmode==200)
+    if (getrendermode() >= REND_POLYMOST && qsetmode==200)
     {
         setpolymost2dview();
         bglColor4f(0,0,0,0.67f);

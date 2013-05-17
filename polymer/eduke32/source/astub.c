@@ -608,7 +608,7 @@ int32_t map_undoredo(int32_t dir)
     Bassert(Numsprites == mapstate->num[2]);
 
 #ifdef POLYMER
-    if (qsetmode == 200 && rendmode == 4)
+    if (qsetmode == 200 && getrendermode() == REND_POLYMER)
         polymer_loadboard();
 #endif
 #ifdef YAX_ENABLE
@@ -4071,7 +4071,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 #ifdef USE_OPENGL
     setpolymost2dview();
 
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         bglEnable(GL_TEXTURE_2D);
 
@@ -4146,7 +4146,7 @@ restart:
                     enddrawing();
                     showframe(1);
 #ifdef USE_OPENGL
-                    if (rendmode >= 3 && lazyselector)
+                    if (getrendermode() >= REND_POLYMOST && lazyselector)
                         bglDrawBuffer(GL_BACK);
 #endif
                     return 1;
@@ -4178,7 +4178,7 @@ restart:
     showframe(1);
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3 && lazyselector)
+    if (getrendermode() >= REND_POLYMOST && lazyselector)
         bglDrawBuffer(GL_BACK);
 #endif
 

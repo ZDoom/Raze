@@ -982,7 +982,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     float           pos[3];
     pthtyp*         pth;
 
-    if (!rendmode) return;
+    if (getrendermode() == REND_CLASSIC) return;
 
     begindrawing();
 

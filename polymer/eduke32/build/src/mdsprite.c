@@ -3353,7 +3353,7 @@ mdmodel_t *mdload(const char *filnam)
         md3postload_common(vm3);
 
 #ifdef POLYMER
-        if (glrendmode!=4)
+        if (glrendmode != REND_POLYMER)
             if (!md3postload_polymer_check(vm3))
             {
                 mdfree(vm);

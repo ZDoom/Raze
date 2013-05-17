@@ -803,7 +803,7 @@ void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
             }
 #ifdef POLYMER
             // will be called only in editor
-            if (rendmode==4)
+            if (getrendermode() == REND_POLYMER)
             {
                 if (!restore)
                 {
@@ -4506,7 +4506,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
 
     // WGR2 SVN: select new episode after playing wgmicky1 with Polymer
     //  (maybe switched to classic earlier).
-    //  --> rendmode==0, glrendmode==4, we end up with globalpicnum==266,
+    //  --> rendmode==0, glgetrendermode() == REND_POLYMER, we end up with globalpicnum==266,
     //      picsiz...==9 and dapskybits==3
     // FIXME ?
     if (k < 0)
@@ -5532,13 +5532,13 @@ static void drawsprite_opengl(int32_t snum)
 {
     //============================================================================= //POLYMOST BEGINS
 #ifdef USE_OPENGL
-    if (rendmode == 3)
+    if (getrendermode() == REND_POLYMOST)
     {
         polymost_drawsprite(snum);
         bglDisable(GL_POLYGON_OFFSET_FILL);
     }
 # ifdef POLYMER
-    else if (rendmode == 4)
+    else if (getrendermode() == REND_POLYMER)
     {
         bglEnable(GL_ALPHA_TEST);
         bglEnable(GL_BLEND);
@@ -6559,9 +6559,9 @@ static void drawmaskwall(int16_t damaskwallcnt)
 
     //============================================================================= //POLYMOST BEGINS
 #ifdef USE_OPENGL
-    if (rendmode == 3) { polymost_drawmaskwall(damaskwallcnt); return; }
+    if (getrendermode() == REND_POLYMOST) { polymost_drawmaskwall(damaskwallcnt); return; }
 # ifdef POLYMER
-    if (rendmode == 4)
+    if (getrendermode() == REND_POLYMER)
     {
         bglEnable(GL_ALPHA_TEST);
         bglEnable(GL_BLEND);
@@ -6670,7 +6670,7 @@ static void fillpolygon(int32_t npoints)
             xb1[z] = 0;
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3 && qsetmode == 200) { polymost_fillpolygon(npoints); return; }
+    if (getrendermode() >= REND_POLYMOST && qsetmode == 200) { polymost_fillpolygon(npoints); return; }
 #endif
 
     miny = INT32_MAX; maxy = INT32_MIN;
@@ -7190,7 +7190,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     //============================================================================= //POLYMOST BEGINS
 #ifdef USE_OPENGL
-    if (rendmode >= 3 && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
     {
         polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,cx1,cy1,cx2,cy2,uniqid);
         return;
@@ -8819,7 +8819,7 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
 #ifdef USE_OPENGL
 # ifdef POLYMER
-    if (rendmode == 4)
+    if (getrendermode() == REND_POLYMER)
     {
 #  ifdef YAX_ENABLE
         // BEGIN_TWEAK ceiling/floor fake 'TROR' pics, see END_TWEAK in build.c
@@ -8842,7 +8842,8 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     //============================================================================= //POLYMOST BEGINS
     polymost_drawrooms();
-    if (rendmode)
+
+    if (getrendermode() != REND_CLASSIC)
         return 0;
     //============================================================================= //POLYMOST ENDS
 #endif
@@ -9328,7 +9329,7 @@ killsprite:
     }
 
 #ifdef POLYMER
-    if (rendmode == 4)
+    if (getrendermode() == REND_POLYMER)
         polymer_drawmasks();
 #endif
 
@@ -9729,7 +9730,7 @@ static int32_t finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int1
         Bmemset(spritesmooth, 0, sizeof(spritesmooth_t)*(MAXSPRITES+MAXUNIQHUDID));
 
 # ifdef POLYMER
-        if (rendmode == 4)
+        if (getrendermode() == REND_POLYMER)
         {
             if ((myflags&4)==0)
                 polymer_loadboard();
@@ -10465,7 +10466,7 @@ int32_t loadmaphack(const char *filename)
             light.publicflags.emitshadow = 1;
             light.publicflags.negative = 0;
 
-            if (rendmode == 4)
+            if (getrendermode() == REND_POLYMER)
             {
                 if (maphacklightcnt == PR_MAXLIGHTS)
                 {
@@ -10755,7 +10756,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
 #ifdef USE_OPENGL
     if (dabpp > 8) rendmode = glrendmode;    // GL renderer
-    else if (dabpp == 8 && j > 8) rendmode = 0; // going from GL to software activates softpolymost
+    else if (dabpp == 8 && j > 8) rendmode = REND_CLASSIC;
 #endif
 
     xdim = daxdim; ydim = daydim;
@@ -10789,16 +10790,16 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         polymost_glreset();
         polymost_glinit();
     }
 # ifdef POLYMER
-    if (rendmode == 4)
+    if (getrendermode() == REND_POLYMER)
     {
         if (!polymer_init())
-            rendmode = 3;
+            rendmode = REND_POLYMOST;
     }
 #endif
 #endif
@@ -14317,7 +14318,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
     }
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         // Only reset the textures if the corresponding preserve flags are clear and
         // either (a) the new palette is different to the last, or (b) the brightness
@@ -14332,7 +14333,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
         if (!(flags&8) && doinvalidate)
             gltexinvalidatetype(INVALIDATE_ART);
 #ifdef POLYMER
-        if ((rendmode == 4) && doinvalidate)
+        if ((getrendermode() == REND_POLYMER) && doinvalidate)
             polymer_texinvalidate();
 #endif
     }
@@ -14423,7 +14424,7 @@ void clearview(int32_t dacol)
     if (qsetmode != 200) return;
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         palette_t p = getpal(dacol);
 
@@ -14461,7 +14462,7 @@ void clearallviews(int32_t dacol)
     //dacol += (dacol<<8); dacol += (dacol<<16);
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         palette_t p = getpal(dacol);
 
@@ -14490,7 +14491,7 @@ void clearallviews(int32_t dacol)
 void plotpixel(int32_t x, int32_t y, char col)
 {
 #ifdef USE_OPENGL
-    if (rendmode >= 3 && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
     {
         palette_t p = getpal(col);
 
@@ -14511,7 +14512,7 @@ void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, char c
     int32_t i;
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3 && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
     {
         palette_t p = getpal(col);
 
@@ -14548,7 +14549,7 @@ char getpixel(int32_t x, int32_t y)
     char r;
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3 && qsetmode == 200) return 0;
+    if (getrendermode() >= REND_POLYMOST && qsetmode == 200) return 0;
 #endif
 
     begindrawing(); //{{{
@@ -14577,7 +14578,7 @@ void setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
         bakrendmode = rendmode;
         baktile = tilenume;
     }
-    rendmode = 0;//2;
+    rendmode = REND_CLASSIC;//2;
 #endif
     copybufbyte(&startumost[windowx1],&bakumost[windowx1],(windowx2-windowx1+1)*sizeof(bakumost[0]));
     copybufbyte(&startdmost[windowx1],&bakdmost[windowx1],(windowx2-windowx1+1)*sizeof(bakdmost[0]));
@@ -14680,7 +14681,7 @@ void preparemirror(int32_t dax, int32_t day, int16_t daang, int16_t dawall,
 void completemirror(void)
 {
 #ifdef USE_OPENGL
-    if (rendmode)
+    if (getrendermode() != REND_CLASSIC)
         return;
 #endif
 
@@ -15018,7 +15019,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
     col = palookup[0][col];
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         palette_t p = getpal(col);
 
@@ -16327,7 +16328,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 #ifdef USE_OPENGL
     if (!polymost_printext256(xpos,ypos,col,backcol,name,fontsize)) return;
 # if 0
-    if (rendmode >= 3 && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
     {
         int32_t xx, yy;
         int32_t lc=-1;
@@ -16474,7 +16475,7 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     int32_t i;
     BFILE *fp;
 # ifdef USE_OPENGL
-#  define HICOLOR (rendmode>=3 && qsetmode==200)
+#  define HICOLOR (getrendermode() >= REND_POLYMOST && qsetmode==200)
 # else
 #  define HICOLOR 0
 # endif
@@ -16638,7 +16639,7 @@ static int32_t screencapture_tga(const char *filename, char inverseit)
     }
 
 # ifdef USE_OPENGL
-    if (rendmode >= 3 && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
     {
         head[1] = 0;    // no colourmap
         head[2] = 2;    // uncompressed truecolour
@@ -16663,7 +16664,7 @@ static int32_t screencapture_tga(const char *filename, char inverseit)
 
     // palette first
 # ifdef USE_OPENGL
-    if (rendmode < 3 || (rendmode >= 3 && qsetmode != 200))
+    if (getrendermode() < REND_POLYMOST || (getrendermode() >= REND_POLYMOST && qsetmode != 200))
 # endif
     {
         //getpalette(0,256,palette);
@@ -16676,7 +16677,7 @@ static int32_t screencapture_tga(const char *filename, char inverseit)
     }
 
 # ifdef USE_OPENGL
-    if (rendmode >= 3 && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
     {
         char c;
         // 24bit
@@ -16768,7 +16769,7 @@ int32_t setrendermode(int32_t renderer)
         if (!polymer_init())
             renderer = 3;
     }
-    else if (rendmode==4)  // going from Polymer to another renderer
+    else if (getrendermode() == REND_POLYMER)  // going from Polymer to another renderer
     {
         delete_maphack_lights();
         G_Polymer_UnInit();
@@ -16781,7 +16782,7 @@ int32_t setrendermode(int32_t renderer)
     basepalreset = 1;
 
     rendmode = renderer;
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
         glrendmode = rendmode;
 #endif
 
@@ -16821,7 +16822,7 @@ void invalidatetile(int16_t tilenume, int32_t pal, int32_t how)
     int32_t numpal, firstpal, np;
     int32_t hp;
 
-    if (rendmode < 3) return;
+    if (getrendermode() < REND_POLYMOST) return;
 
     if (pal < 0)
     {
@@ -16857,7 +16858,7 @@ void invalidatetile(int16_t tilenume, int32_t pal, int32_t how)
 void setpolymost2dview(void)
 {
 #ifdef USE_OPENGL
-    if (rendmode < 3) return;
+    if (getrendermode() < REND_POLYMOST) return;
 
     bglViewport(0,0,xres,yres);
     bglMatrixMode(GL_PROJECTION);

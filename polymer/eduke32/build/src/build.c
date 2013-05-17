@@ -446,7 +446,7 @@ void M32_ResetFakeRORTiles(void)
 #ifdef POLYMER
 # ifdef YAX_ENABLE
         // END_TWEAK ceiling/floor fake 'TROR' pics, see BEGIN_TWEAK in engine.c
-        if (rendmode==4 && showinvisibility)
+        if (getrendermode() == REND_POLYMER && showinvisibility)
         {
             int32_t i;
 
@@ -473,7 +473,7 @@ void M32_DrawRoomsAndMasks(void)
     M32_ResetFakeRORTiles();
 
 #ifdef POLYMER
-    if (rendmode == 4 && searchit == 2)
+    if (getrendermode() == REND_POLYMER && searchit == 2)
     {
         polymer_editorpick();
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);

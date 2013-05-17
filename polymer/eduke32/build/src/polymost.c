@@ -151,7 +151,7 @@ int32_t glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 int32_t glwidescreen = 0;
 int32_t glprojectionhacks = 1;
 static GLuint polymosttext = 0;
-int32_t glrendmode = 3;
+int32_t glrendmode = REND_POLYMOST;
 
 // This variable, and 'shadeforfullbrightpass' control the drawing of
 // fullbright tiles.  Also see 'fullbrightloadingpass'.
@@ -314,7 +314,7 @@ void gltexapplyprops(void)
     int32_t i;
     pthtyp *pth;
 
-    if (rendmode == REND_CLASSIC)
+    if (getrendermode() == REND_CLASSIC)
         return;
 
     if (glinfo.maxanisotropy > 1.0)
@@ -1323,7 +1323,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         loadtile(globalpicnum);
         if (!waloff[globalpicnum])
         {
-            if (rendmode < 3) return;
+            if (getrendermode() < REND_POLYMOST) return;
             tsizx = tsizy = 1; method = 1; //Hack to update Z-buffer for invalid mirror textures
         }
     }
@@ -1372,7 +1372,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     n = j;
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         float hackscx, hackscy;
 
@@ -1401,7 +1401,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         // If we aren't rendmode 3, we're in Polymer, which means this code is
         // used for rotatesprite only. Polymer handles all the material stuff,
         // just submit the geometry and don't mess with textures.
-        if (rendmode == 3)
+        if (getrendermode() == REND_POLYMOST)
         {
             bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
@@ -1722,7 +1722,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             texunits--;
         }
 
-        if (rendmode == 3)
+        if (getrendermode() == REND_POLYMOST)
         {
             if (srepeat)
                 bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
@@ -1745,6 +1745,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     }
 #endif
 
+/*
     if (rendmode == 1)
     {
         if (method&3) //Only draw border around sprites/maskwalls
@@ -1757,6 +1758,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         //ox /= (double)n; oy /= (double)n;
         //for(i=0,j=n-1;i<n;j=i,i++) drawline2d(px[i]+(ox-px[i])*.125,py[i]+(oy-py[i])*.125,px[j]+(ox-px[j])*.125,py[j]+(oy-py[j])*.125,31);
     }
+*/
 }
 
 
@@ -2391,7 +2393,7 @@ static void polymost_drawalls(int32_t bunch)
         {
             //Parallaxing sky... hacked for Ken's mountain texture; paper-sky only :/
 #ifdef USE_OPENGL
-            if (rendmode >= 3)
+            if (getrendermode() >= REND_POLYMOST)
             {
                 calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005);
 
@@ -2625,7 +2627,7 @@ static void polymost_drawalls(int32_t bunch)
 #endif
             }
 #ifdef USE_OPENGL
-            if (rendmode >= 3)
+            if (getrendermode() >= REND_POLYMOST)
             {
                 skyclamphack = 0;
                 if (!nofog)
@@ -2670,7 +2672,7 @@ static void polymost_drawalls(int32_t bunch)
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
 #ifdef USE_OPENGL
-            if (rendmode >= 3)
+            if (getrendermode() >= REND_POLYMOST)
             {
                 calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005);
 
@@ -2907,7 +2909,7 @@ static void polymost_drawalls(int32_t bunch)
 #endif
             }
 #ifdef USE_OPENGL
-            if (rendmode >= 3)
+            if (getrendermode() >= REND_POLYMOST)
             {
                 skyclamphack = 0;
                 if (!nofog)
@@ -3190,13 +3192,13 @@ void polymost_drawrooms()
     int32_t i, j, n, n2, closest;
     double ox, oy, oz, ox2, oy2, oz2, r, px[6], py[6], pz[6], px2[6], py2[6], pz2[6], sx[6], sy[6];
 
-    if (!rendmode) return;
+    if (getrendermode() == REND_CLASSIC) return;
 
     begindrawing();
     frameoffset = frameplace + windowy1*bytesperline + windowx1;
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         resizeglcheck();
 #ifdef YAX_ENABLE
@@ -3502,7 +3504,7 @@ void polymost_drawrooms()
         bunchlast[closest] = bunchlast[numbunches];
     }
 #ifdef USE_OPENGL
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 
@@ -3721,7 +3723,7 @@ void polymost_drawsprite(int32_t snum)
 #ifdef USE_OPENGL
     calc_and_apply_fog(tspr->picnum, globalshade, sector[tspr->sectnum].visibility, sector[tspr->sectnum].floorpal);
 
-    while (rendmode >= 3 && !(spriteext[spritenum].flags&SPREXT_NOTMD))
+    while (getrendermode() >= REND_POLYMOST && !(spriteext[spritenum].flags&SPREXT_NOTMD))
     {
         if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
         {
@@ -4153,7 +4155,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 #endif
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3 && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
+    if (getrendermode() >= REND_POLYMOST && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
     {
         const int32_t tilenum = Ptile2tile(picnum,dapalnum);
 
@@ -4232,7 +4234,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             if (dastat&4) { x1 = -x1; y1 = -y1; }
 
             // In Polymost, we don't care if the model is very big
-            if (rendmode < 4)
+            if (getrendermode() < REND_POLYMER)
             {
                 tspr.xrepeat = tspr.yrepeat = 32;
 
@@ -4269,7 +4271,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
             }
 
-            if (rendmode < 4)
+            if (getrendermode() < REND_POLYMER)
             {
                 bglMatrixMode(GL_PROJECTION);
                 memset(m,0,sizeof(m));
@@ -4303,7 +4305,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             spriteext[tspr.owner].alpha = daalpha / 255.0f;
 
             if (!nofog) bglDisable(GL_FOG);
-            if (rendmode < 4)
+            if (getrendermode() < REND_POLYMER)
                 mddraw(&tspr);
 # ifdef POLYMER
             else
@@ -4376,7 +4378,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     ogstang = gstang; gstang = 0.0;
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
         bglViewport(0,0,xdim,ydim); glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
         bglMatrixMode(GL_PROJECTION);
@@ -4392,7 +4394,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         bglEnable(GL_TEXTURE_2D);
         
 # ifdef POLYMER
-        if (rendmode >= 4) {
+        if (getrendermode() == REND_POLYMER) {
             polymer_inb4rotatesprite(picnum, dapalnum, dashade);
             r_detailmapping = 0;
             r_glowmapping = 0;
@@ -4523,10 +4525,10 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     }
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3)
+    if (getrendermode() >= REND_POLYMOST)
     {
 # ifdef POLYMER
-        if (rendmode >= 4) {
+        if (getrendermode() == REND_POLYMER) {
             r_detailmapping = olddetailmapping;
             r_glowmapping = oldglowmapping;
             polymer_postrotatesprite();
@@ -4765,7 +4767,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
     int32_t i;
     pthtyp *pth;
 
-    if ((rendmode < 3) || (qsetmode != 200)) return(-1);
+    if ((getrendermode() < REND_POLYMOST) || (qsetmode != 200)) return(-1);
 
     if (!glinfo.texnpot)
     {
@@ -4923,7 +4925,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     bricolor(&p, col);
     bricolor(&b, arbackcol);
 
-    if ((rendmode < 3) || (qsetmode != 200)) return(-1);
+    if ((getrendermode() < REND_POLYMOST) || (qsetmode != 200)) return(-1);
 
     if (!polymosttext)
     {
@@ -5226,7 +5228,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     //    while sprites are clamped
     int32_t mid;
 
-    if (rendmode < 3) return;
+    if (getrendermode() < REND_POLYMOST) return;
 
     if ((palookup[dapalnum] == NULL) && (dapalnum < (MAXPALOOKUPS - RESERVEDPALS))) return;//dapalnum = 0;
 

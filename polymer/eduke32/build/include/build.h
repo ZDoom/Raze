@@ -1359,7 +1359,7 @@ extern void initialize_engine_globals(void);
 static inline void push_nofog(void)
 {
 #ifdef USE_OPENGL
-    if (rendmode >= REND_POLYMOST)
+    if (getrendermode() >= REND_POLYMOST)
     {
         bglPushAttrib(GL_ENABLE_BIT);
         bglDisable(GL_FOG);
@@ -1370,7 +1370,7 @@ static inline void push_nofog(void)
 static inline void pop_nofog(void)
 {
 #ifdef USE_OPENGL
-    if (rendmode >= REND_POLYMOST)
+    if (getrendermode() >= REND_POLYMOST)
         bglPopAttrib();
 #endif
 }
