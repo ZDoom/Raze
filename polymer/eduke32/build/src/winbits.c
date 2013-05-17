@@ -215,7 +215,7 @@ void win_init(void)
 
     cvar_t cvars_win[] =
     {
-        { "r_togglecomposition","r_togglecomposition: enable/disable toggle of desktop composition when initializing screen modes",(void *) &togglecomp, CVAR_BOOL, 0, 1 },
+        { "r_togglecomposition","enable/disable toggle of desktop composition when initializing screen modes",(void *) &togglecomp, CVAR_BOOL, 0, 1 },
     };
 
     for (i=0; i<sizeof(cvars_win)/sizeof(cvars_win[0]); i++)

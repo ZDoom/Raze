@@ -729,15 +729,15 @@ void OSD_Init(void)
     uint32_t i;
     cvar_t cvars_osd[] =
     {
-        { "osdeditpal","osdeditpal: sets the palette of the OSD input text",(void *) &osdeditpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",(void *) &osdpromptpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "osdtextpal","osdtextpal: sets the palette of the OSD text",(void *) &osdtextpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "osdeditshade","osdeditshade: sets the shade of the OSD input text",(void *) &osdeditshade, CVAR_INT, 0, 7 },
-        { "osdtextshade","osdtextshade: sets the shade of the OSD text",(void *) &osdtextshade, CVAR_INT, 0, 7 },
-        { "osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",(void *) &osdpromptshade, CVAR_INT, INT8_MIN, INT8_MAX },
-        { "osdrows","osdrows: sets the number of visible lines of the OSD",(void *) &osdrows, CVAR_INT|CVAR_FUNCPTR, 0, MAXPALOOKUPS-1 },
-        { "osdtextmode","osdtextmode: set OSD text mode (0:graphical, 1:fast)",(void *) &osdtextmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "logcutoff","logcutoff: sets the maximal line count of the log file",(void *) &logcutoff, CVAR_INT, 0, 262144 },
+        { "osdeditpal","sets the palette of the OSD input text",(void *) &osdeditpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdpromptpal","sets the palette of the OSD prompt",(void *) &osdpromptpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdtextpal","sets the palette of the OSD text",(void *) &osdtextpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdeditshade","sets the shade of the OSD input text",(void *) &osdeditshade, CVAR_INT, 0, 7 },
+        { "osdtextshade","sets the shade of the OSD text",(void *) &osdtextshade, CVAR_INT, 0, 7 },
+        { "osdpromptshade","sets the shade of the OSD prompt",(void *) &osdpromptshade, CVAR_INT, INT8_MIN, INT8_MAX },
+        { "osdrows","sets the number of visible lines of the OSD",(void *) &osdrows, CVAR_INT|CVAR_FUNCPTR, 0, MAXPALOOKUPS-1 },
+        { "osdtextmode","set OSD text mode (0:graphical, 1:fast)",(void *) &osdtextmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "logcutoff","sets the maximal line count of the log file",(void *) &logcutoff, CVAR_INT, 0, 262144 },
     };
 
     mutex_init(&m_osdprintf);
@@ -2022,7 +2022,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             float val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].c.name,*(float *)cvars[i].c.vptr,(char *)cvars[i].c.desc);
+                OSD_Printf("\"%s\" is \"%f\"\n%s: %s\n",cvars[i].c.name,*(float *)cvars[i].c.vptr,cvars[i].c.name,(char *)cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
@@ -2043,7 +2043,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             double val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].c.name,*(double *)cvars[i].c.vptr,(char *)cvars[i].c.desc);
+                OSD_Printf("\"%s\" is \"%f\"\n%s: %s\n",cvars[i].c.name,*(double *)cvars[i].c.vptr,cvars[i].c.name,(char *)cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
@@ -2066,7 +2066,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             int32_t val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].c.name,*(int32_t *)cvars[i].c.vptr,(char *)cvars[i].c.desc);
+                OSD_Printf("\"%s\" is \"%d\"\n%s: %s\n",cvars[i].c.name,*(int32_t *)cvars[i].c.vptr,cvars[i].c.name,(char *)cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
@@ -2087,7 +2087,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         {
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].c.name,(char *)cvars[i].c.vptr,(char *)cvars[i].c.desc);
+                OSD_Printf("\"%s\" is \"%s\"\n%s: %s\n",cvars[i].c.name,(char *)cvars[i].c.vptr,cvars[i].c.name, (char *)cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
