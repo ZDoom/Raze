@@ -441,10 +441,14 @@ ifneq ($(LUNATIC),0)
     endif
     BASECOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC
 
-    # Determine size of defs.ilua bytecode
-    # XXX: Runs way too many times because it's a "recursively expanded" variable.
-    DEFS_BC_SIZE = $(shell $(LUAJIT) -bg -t h $(SRC)/lunatic/defs.ilua -)
-    BASECOMMONFLAGS+= -DLUNATIC_DEFS_BC_SIZE=$(word 3, $(DEFS_BC_SIZE))
+    # Determine size of defs.ilua bytecode once.
+    ifndef DEFS_BC_SIZE
+        DEFS_BC_SIZE := $(shell $(LUAJIT) -bg -t h source/lunatic/defs.ilua -)
+        DEFS_BC_SIZE := $(word 3, $(DEFS_BC_SIZE))
+        # Pass the bytecode size to the sub-makes, too.
+        export DEFS_BC_SIZE
+    endif
+    BASECOMMONFLAGS+= -DLUNATIC_DEFS_BC_SIZE=$(DEFS_BC_SIZE)
 
     ifeq ($(PLATFORM),WINDOWS)
         BASELIBS+= -lluajit

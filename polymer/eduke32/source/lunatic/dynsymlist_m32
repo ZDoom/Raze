@@ -3,6 +3,7 @@ engine_main_arrays_are_static;
 engine_v8;
 
 saveboard_maptext;
+loadboard_maptext;
 
 sector;
 wall;

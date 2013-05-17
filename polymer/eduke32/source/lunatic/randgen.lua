@@ -20,7 +20,6 @@ typedef struct {
 } rng_jkiss_t;
 
 typedef union { unsigned char u[16]; double d[2]; } uchar_double_u_t;
-typedef union { unsigned char u[16]; uint32_t i[4]; } uchar_uint_u_t;
 ]]
 
 -- PRNG functions
@@ -28,8 +27,14 @@ decl[[
 uint32_t rand_jkiss_u32(rng_jkiss_t *s);
 double rand_jkiss_dbl(rng_jkiss_t *s);
 
-void md4once(const unsigned char *block, unsigned int len, unsigned char digest [16]);
+uint32_t crc32once(uint8_t *blk, uint32_t len);
 ]]
+
+local function get_rand_u32(tin)
+    tin.d[0] = ffiC.gethitickms() % 1
+    tin.d[1] = ffiC.gethitickms() % 1
+    return ffiC.crc32once(tin.u, 16)
+end
 
 local mt = {
     __tostring = function(s)
@@ -41,23 +46,18 @@ local mt = {
         getdbl = ffiC.rand_jkiss_dbl,
 
         -- Initialize the JKISS PRNG using the MD4 of the lower bits of the
-        -- profiling timer
+        -- profiling timer.
         init_time_md4 = function(s)
             local tin = ffi.new("uchar_double_u_t")
-            local tout = ffi.new("uchar_uint_u_t")
+            local tout = ffi.new("uint32_t [4]")
 
             repeat
-                tin.d[0] = ffiC.gethitickms() % 1
-                tin.d[1] = ffiC.gethitickms() % 1
-
-                ffiC.md4once(tin.u, 16, tout.u)
-
-                s.y = tout.u[1]
+                s.y = get_rand_u32()
             until (s.y ~= 0)  -- y must not be zero!
 
-            s.x = tout.u[0]
-            s.z = tout.u[2]
-            s.c = tout.u[3] % 698769068 + 1  -- Should be less than 698769069
+            s.x = get_rand_u32()
+            s.z = get_rand_u32()
+            s.c = get_rand_u32() % 698769068 + 1  -- Should be less than 698769069
         end,
     },
 }

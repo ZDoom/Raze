@@ -67,7 +67,7 @@ local t4 = os.clock()
 -- x86_64 (embedded): approx. 200 ms (vs. the 100 ms of direct
 -- ffiC.rand_jkiss_dbl()):
 -- x86: 170 ms
-print(1000*(t2-t1))
-print(1000*(t3-t2))  -- x86_64: 500 ms, x86: 700 ms
-print(1000*(t4-t3))  -- x86_64, x86: about 35 ms  <- thanks to allocation sinking (else, about 500 ms?)
-print(v)
+print("getdbl:    ".. 1000*(t2-t1))
+print("genpoints: ".. 1000*(t3-t2))  -- x86_64: 500 ms, x86: 700 ms
+print("intersect: ".. 1000*(t4-t3))  -- x86_64, x86: about 35 ms  <- thanks to allocation sinking (else, about 500 ms?)
+print("result:    ".. tostring(v))
