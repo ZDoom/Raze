@@ -4506,7 +4506,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
 
     // WGR2 SVN: select new episode after playing wgmicky1 with Polymer
     //  (maybe switched to classic earlier).
-    //  --> rendmode==0, glgetrendermode() == REND_POLYMER, we end up with globalpicnum==266,
+    //  --> rendmode==0, glrendermode == REND_POLYMER, we end up with globalpicnum==266,
     //      picsiz...==9 and dapskybits==3
     // FIXME ?
     if (k < 0)

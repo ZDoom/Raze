@@ -188,7 +188,8 @@ void texcache_syncmemcache(void)
 {
     size_t len;
 
-    if (!texcache.memcache.ptr || texcache.filehandle == -1 || Bfilelength(texcache.filehandle) <= texcache.memcache.size)
+    if (!texcache.memcache.ptr || texcache.filehandle == -1 ||
+            (bsize_t)Bfilelength(texcache.filehandle) <= texcache.memcache.size)
         return;
 
     len = Bfilelength(texcache.filehandle);
@@ -378,7 +379,7 @@ int32_t texcache_readdata(void *dest, int32_t len)
 
     texcache.filepos += len;
 
-    if (texcache.memcache.ptr && texcache.memcache.size >= ocachepos+len)
+    if (texcache.memcache.ptr && texcache.memcache.size >= (bsize_t)ocachepos+len)
     {
         //        initprintf("using memcache!\n");
         Bmemcpy(dest, texcache.memcache.ptr+ocachepos, len);
@@ -744,13 +745,13 @@ void texcache_setupmemcache(void)
 
     if (!texcache.memcache.ptr)
     {
-        initprintf("Failed allocating %d bytes for memcache, disabling memcache.\n", texcache.memcache.size);
+        initprintf("Failed allocating %d bytes for memcache, disabling memcache.\n", (int)texcache.memcache.size);
         texcache_clearmemcache();
         texcache.memcache.noalloc = 1;
         return;
     }
 
-    if (Bread(texcache.filehandle, texcache.memcache.ptr, texcache.memcache.size) != texcache.memcache.size)
+    if (Bread(texcache.filehandle, texcache.memcache.ptr, texcache.memcache.size) != (bssize_t)texcache.memcache.size)
     {
         initprintf("Failed reading texcache into memcache!\n");
         texcache_clearmemcache();
