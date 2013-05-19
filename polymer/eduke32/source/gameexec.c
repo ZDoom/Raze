@@ -3393,14 +3393,12 @@ nullquote:
             continue;
 
         case CON_SAVEMAPSTATE:
-            if (MapInfo[ud.volume_number *MAXLEVELS+ud.level_number].savedstate == NULL)
-                MapInfo[ud.volume_number *MAXLEVELS+ud.level_number].savedstate = (mapstate_t *)Bcalloc(1,sizeof(mapstate_t));
-            G_SaveMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+            G_SaveMapState();
             insptr++;
             continue;
 
         case CON_LOADMAPSTATE:
-            G_RestoreMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+            G_RestoreMapState();
             insptr++;
             continue;
 
@@ -5352,8 +5350,15 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
         changespritestat(vm.g_i, STAT_ZOMBIEACTOR);
 }
 
-void G_SaveMapState(mapstate_t *save)
+void G_SaveMapState(void)
 {
+    map_t *mapinfo = &MapInfo[ud.volume_number*MAXLEVELS+ud.level_number];
+    mapstate_t *save;
+
+    if (mapinfo->savedstate == NULL)
+        mapinfo->savedstate = Bcalloc(1,sizeof(mapstate_t));
+    save = mapinfo->savedstate;
+
     if (save != NULL)
     {
         int32_t i;
@@ -5444,10 +5449,10 @@ void G_SaveMapState(mapstate_t *save)
     }
 }
 
-extern void Gv_RefreshPointers(void);
-
-void G_RestoreMapState(mapstate_t *save)
+void G_RestoreMapState(void)
 {
+    mapstate_t *save = MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate;
+
     if (save != NULL)
     {
         int32_t i, x;

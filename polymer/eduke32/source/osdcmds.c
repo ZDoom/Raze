@@ -1140,16 +1140,14 @@ static int32_t osdcmd_screenshot(const osdfuncparm_t *parm)
 static int32_t osdcmd_savestate(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
-    if (MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate == NULL)
-        MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate = Bcalloc(1,sizeof(mapstate_t));
-    G_SaveMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+    G_SaveMapState();
     return OSDCMD_OK;
 }
 
 static int32_t osdcmd_restorestate(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
-    G_RestoreMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+    G_RestoreMapState();
     return OSDCMD_OK;
 }
 #endif

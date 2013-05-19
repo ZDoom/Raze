@@ -88,8 +88,8 @@ typedef struct {
 #endif
 } mapstate_t;
 
-extern void G_SaveMapState(mapstate_t *save);
-extern void G_RestoreMapState(mapstate_t *save);
+extern void G_SaveMapState();
+extern void G_RestoreMapState();
 
 typedef struct {
     int32_t partime, designertime;
