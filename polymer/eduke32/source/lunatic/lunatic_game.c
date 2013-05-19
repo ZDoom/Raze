@@ -30,6 +30,7 @@ int32_t g_elCallDepth = 0;
 int32_t g_RETURN;
 
 // for timing events and actors
+static int32_t g_timingInited = 0;
 uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
 double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
 
@@ -379,8 +380,12 @@ int32_t El_CreateState(L_State *estate, const char *name)
 {
     int32_t i;
 
-    for (i=0; i<MAXTILES; i++)
-        g_actorMinMs[i] = 1e308;
+    if (!g_timingInited)
+    {
+        g_timingInited = 1;
+        for (i=0; i<MAXTILES; i++)
+            g_actorMinMs[i] = 1e308;
+    }
 
     L_ErrorFunc = El_OnError;
     L_OutOfMemFunc = El_OnOutOfMem;
@@ -391,6 +396,10 @@ int32_t El_CreateState(L_State *estate, const char *name)
 void El_DestroyState(L_State *estate)
 {
     L_DestroyState(estate);
+
+    // XXX: It would be cleaner to also clear stuff like g_elEvents[], but
+    // currently, when the game Lua state is recreated, the array should have
+    // the same values as before, so we're skipping that for now.
 }
 
 

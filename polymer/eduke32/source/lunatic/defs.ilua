@@ -575,6 +575,7 @@ const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
 int32_t g_elCallDepth;
 const char **g_argv;
+const char **g_elModules;
 char g_modDir[];
 actor_t actor[MAXSPRITES];
 camera_t g_camera;
@@ -1318,8 +1319,8 @@ local function our_require(modname, ...)
 
     -- Check module name is valid first.
     -- TODO: restrict valid names?
-    if (type(modname) ~= "string") then
-        error("module name must be a string", 2)
+    if (type(modname) ~= "string" or #modname==0) then
+        error("module name must be a nonempty string", 2)
     end
 
     -- Handle the section between module() and require("end_gamevars").
@@ -1663,9 +1664,10 @@ G_.g_tile = g_tile
 ---=== Lunatic interpreter setup ===---
 
 local concode
+local g_firstRun = (ffiC.g_elCONSize == 0)
 
 --- Get Lua code for CON (+ mutator) code.
-if (ffiC.g_elCONSize == 0) then
+if (g_firstRun) then
     -- Compiling CON for the first time.
     read_into_string = readintostr_mod  -- for lunacon
     local lunacon = require("lunacon")
@@ -1823,11 +1825,21 @@ setmetatable(
 -- environment earlier.
 setfenv(0, _G)
 
--- Finally, run the CON code translated into Lua.
+-- Run the CON code translated into Lua.
 if (concode) then
     local confunc, conerrmsg = loadstring(concode, "CON")
     if (confunc == nil) then
         error("Failure loading translated CON code: "..conerrmsg, 0)
     end
     confunc()
+end
+
+-- When starting a map, load Lua modules given on the command line.
+if (not g_firstRun) then
+    local i=0
+    while (ffiC.g_elModules[i] ~= nil) do
+        local modname = ffi.string(ffiC.g_elModules[i])
+        our_require((modname:gsub("%.lua$","")))
+        i = i+1
+    end
 end

@@ -522,4 +522,4 @@ spritesofsect(0)
 
 -- This will complain about wrong usage of 'error'. In particular,
 -- the nil must not propagate to C!
-error(nil)
+checkfail('error(nil)', "error using 'error': error message must be a string")

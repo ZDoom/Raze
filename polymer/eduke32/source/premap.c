@@ -39,8 +39,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef LUNATIC
 # include "lunatic_game.h"
-
-int32_t g_testLua = 0;
 #endif
 
 halfdimen_t g_halfScreen;
@@ -1121,20 +1119,6 @@ static inline void prelevel(char g)
 
 #ifdef LUNATIC
     El_CreateGameState();
-
-    if (g_testLua)
-    {
-        if (L_IsInitialized(&g_ElState))
-        {
-            i = L_RunOnce(&g_ElState, "test.elua");
-            if (i)
-                OSD_Printf(OSD_ERROR "Error running the test ELua script (code %d)\n", i);
-            else
-                initprintf("ELua test script run ok!\n");
-        }
-        else
-            initprintf("ELua test script: not inited!\n");
-    }
 #endif
 
     i = headspritestat[STAT_DEFAULT];
@@ -2064,8 +2048,8 @@ int32_t G_EnterLevel(int32_t g)
 
 void G_FreeMapState(int32_t mapnum)
 {
-    int32_t j;
 #if !defined LUNATIC
+    int32_t j;
     for (j=0; j<g_gameVarCount; j++)
     {
         if (aGameVars[j].dwFlags & GAMEVAR_NORESET) continue;

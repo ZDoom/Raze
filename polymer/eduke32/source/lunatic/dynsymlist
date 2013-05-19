@@ -96,6 +96,7 @@ g_sizes_of;
 g_elCallDepth;
 g_RETURN;
 g_argv;
+g_elModules;
 g_modDir;
 
 MapInfo;

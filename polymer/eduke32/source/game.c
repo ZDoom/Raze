@@ -8725,6 +8725,7 @@ static int32_t loaddefinitions_game(const char *fn, int32_t preload)
 
 #ifdef LUNATIC
 const char **g_argv;
+const char **g_elModules;
 #endif
 
 #ifdef __APPLE__
@@ -8745,6 +8746,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
 #ifdef LUNATIC
     g_argv = argv;
+    g_elModules = Bcalloc(argc+1, sizeof(char *));
+    Bassert(g_elModules);
 #endif
     ud.fta_on = 1;
     ud.god = 0;
@@ -8780,6 +8783,9 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
     if (argc > 1)
     {
+#ifdef LUNATIC
+        int32_t numlmods = 0;
+#endif
         initprintf("Application parameters: ");
         while (i < argc)
             initprintf("%s ",argv[i++]);
@@ -9071,15 +9077,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 if (!Bstrcasecmp(c+1,"rotatesprite-no-widescreen"))
                 {
                     g_rotatespriteNoWidescreen = 1;
-                    i++;
-                    continue;
-                }
-                if (!Bstrcasecmp(c+1,"testlua"))
-                {
-#ifdef LUNATIC
-                    extern int32_t g_testLua;
-                    g_testLua = 1;
-#endif
                     i++;
                     continue;
                 }
@@ -9403,6 +9400,13 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         initprintf("Using RTS file \"%s\".\n", ud.rtsname);
                         continue;
                     }
+#ifdef LUNATIC
+                    if (!Bstrcmp(k,".lua"))  // NOTE: case sensitive!
+                    {
+                        g_elModules[numlmods++] = argv[i++];
+                        continue;
+                    }
+#endif
                 }
             }
 
