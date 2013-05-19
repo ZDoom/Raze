@@ -1661,17 +1661,17 @@ G_.projectile = projectile
 G_.g_tile = g_tile
 
 
----=== Lunatic interpreter setup ===---
+---=== Lunatic translator setup ===---
 
-local concode
+read_into_string = readintostr_mod  -- for lunacon
+local lunacon = require("lunacon")
+
+local concode, lineinfo
 local g_firstRun = (ffiC.g_elCONSize == 0)
 
 --- Get Lua code for CON (+ mutator) code.
 if (g_firstRun) then
     -- Compiling CON for the first time.
-    read_into_string = readintostr_mod  -- for lunacon
-    local lunacon = require("lunacon")
-
     local confn = { ffi.string(ffiC.G_ConFile()) }
 
     local nummods = ffiC.g_scriptModulesNum
@@ -1683,7 +1683,6 @@ if (g_firstRun) then
         end
     end
 
-    local lineinfo
     concode, lineinfo = lunacon.compile(confn)
 
     if (concode == nil) then
@@ -1697,6 +1696,12 @@ if (g_firstRun) then
 else
     -- CON was already compiled.
     concode = ffi.string(ffiC.g_elCON, ffiC.g_elCONSize)
+    lineinfo = lunacon.get_lineinfo(concode)
+end
+
+if (ffiC._DEBUG_LUNATIC ~= 0) then
+    -- XXX: lineinfo of 2nd up time has one line less.
+    printf("CON line info has %d Lua lines", #lineinfo.llines)
 end
 
 do

@@ -397,6 +397,8 @@ void El_DestroyState(L_State *estate)
 {
     L_DestroyState(estate);
 
+    g_tweakTracebackMsg = 0;
+
     // XXX: It would be cleaner to also clear stuff like g_elEvents[], but
     // currently, when the game Lua state is recreated, the array should have
     // the same values as before, so we're skipping that for now.

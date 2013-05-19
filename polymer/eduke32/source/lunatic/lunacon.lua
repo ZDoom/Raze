@@ -3076,37 +3076,62 @@ local lineinfo_mt = {
     __metatable = true,
 }
 
+-- Handle a line of translated CON->Lua code. Return its CON line number.
+local function lineinfo_handle_line(i, code, curline, curfile, lfiles)
+    local lnumstr = code:match("%-%-([0-9]+)$")
+    local begfn = lnumstr and nil or code:match("^%-%- BEGIN (.+)$")
+    local endfn = lnumstr and nil or code:match("^%-%- END (.+)$")
+
+    if (lnumstr) then
+        curline[#curline] = assert(tonumber(lnumstr))
+    elseif (begfn) then
+        curfile[#curfile+1] = begfn
+        curline[#curline+1] = 1
+        -- Begin an included file.
+        lfiles[#lfiles+1] = { line=i, name=begfn }
+    elseif (endfn) then
+        assert(endfn==curfile[#curfile])  -- assert proper nesting
+        curfile[#curfile] = nil
+        curline[#curline] = nil
+        -- End an included file, so reset the name to the includer's one.
+        lfiles[#lfiles+1] = { line=i, name=curfile[#curfile] }
+    end
+
+    return assert(curline[#curline])
+end
+
 -- Construct Lua->CON line mapping info.  This walks the generated code and
 -- looks for our inserted comment strings, so it's kind of hackish.
-local function get_lineinfo(flatcode)
+function get_lineinfo(flatcode)
     local curline, curfile = { 0 }, { "<none>" }  -- stacks
     -- llines: [<Lua code line number>] = <CON code line number>
     -- lfiles: [<sequence number>] = { line=<Lua line number>, name=<filename> }
     local llines, lfiles = {}, {}
 
-    for i=1,#flatcode do
-        local code = flatcode[i]
-
-        local lnumstr = code:match("%-%-([0-9]+)$")
-        local begfn = lnumstr and nil or code:match("^%-%- BEGIN (.+)$")
-        local endfn = lnumstr and nil or code:match("^%-%- END (.+)$")
-
-        if (lnumstr) then
-            curline[#curline] = assert(tonumber(lnumstr))
-        elseif (begfn) then
-            curfile[#curfile+1] = begfn
-            curline[#curline+1] = 1
-            -- Begin an included file.
-            lfiles[#lfiles+1] = { line=i, name=begfn }
-        elseif (endfn) then
-            assert(endfn==curfile[#curfile])  -- assert proper nesting
-            curfile[#curfile] = nil
-            curline[#curline] = nil
-            -- End an included file, so reset the name to the includer's one.
-            lfiles[#lfiles+1] = { line=i, name=curfile[#curfile] }
+    if (type(flatcode)=="table") then
+        for i=1,#flatcode do
+            llines[i] = lineinfo_handle_line(i, flatcode[i], curline, curfile, lfiles)
         end
+    else
+        -- Already concat'ed code given.
+        assert(type(flatcode)=="string")
+        local olinestart = 1
 
-        llines[i] = assert(curline[#curline])
+        for i=1,math.huge do
+            local curnli = flatcode:find("\n", olinestart, true)
+            local line
+
+            if (curnli ~= nil) then
+                line = flatcode:sub(olinestart, curnli-1)
+                olinestart = curnli+1
+            else
+                -- Last line
+                line = flatcode:sub(olinestart, -1)
+                break
+            end
+
+            llines[i] = lineinfo_handle_line(i, line, curline, curfile, lfiles)
+        end
     end
 
     return setmetatable({ llines=llines, lfiles=lfiles }, lineinfo_mt)
