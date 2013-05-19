@@ -1136,7 +1136,7 @@ static int32_t osdcmd_screenshot(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-/*
+#ifdef DEBUGGINGAIDS
 static int32_t osdcmd_savestate(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
@@ -1149,11 +1149,10 @@ static int32_t osdcmd_savestate(const osdfuncparm_t *parm)
 static int32_t osdcmd_restorestate(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
-    if (MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate)
-        G_RestoreMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+    G_RestoreMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
     return OSDCMD_OK;
 }
-*/
+#endif
 
 #ifdef DEBUGGINGAIDS
 static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
@@ -1608,8 +1607,10 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("unbindall","unbindall: unbinds all keys", osdcmd_unbindall);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
-//    OSD_RegisterFunction("savestate","",osdcmd_savestate);
-//    OSD_RegisterFunction("restorestate","",osdcmd_restorestate);
+#ifdef DEBUGGINGAIDS
+    OSD_RegisterFunction("savestate","",osdcmd_savestate);
+    OSD_RegisterFunction("restorestate","",osdcmd_restorestate);
+#endif
     //baselayer_onvideomodechange = onvideomodechange;
 
     return 0;

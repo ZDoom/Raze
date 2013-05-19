@@ -9625,7 +9625,8 @@ static void G_Cleanup(void)
         if (MapInfo[i].filename != NULL) Bfree(MapInfo[i].filename);
         if (MapInfo[i].musicfn != NULL) Bfree(MapInfo[i].musicfn);
         if (MapInfo[i].alt_musicfn != NULL) Bfree(MapInfo[i].alt_musicfn);
-        if (MapInfo[i].savedstate != NULL) G_FreeMapState(i);
+
+        G_FreeMapState(i);
     }
 
     for (i=MAXQUOTES-1; i>=0; i--)

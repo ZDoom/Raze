@@ -2048,23 +2048,24 @@ int32_t G_EnterLevel(int32_t g)
 
 void G_FreeMapState(int32_t mapnum)
 {
+    map_t *mapinfo = &MapInfo[mapnum];
 #if !defined LUNATIC
     int32_t j;
+#endif
+    if (mapinfo->savedstate == NULL)
+        return;
+
+#if !defined LUNATIC
     for (j=0; j<g_gameVarCount; j++)
     {
         if (aGameVars[j].dwFlags & GAMEVAR_NORESET) continue;
-        if (aGameVars[j].dwFlags & GAMEVAR_PERPLAYER)
+        if (aGameVars[j].dwFlags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
         {
-            if (MapInfo[mapnum].savedstate->vars[j])
-                Bfree(MapInfo[mapnum].savedstate->vars[j]);
-        }
-        else if (aGameVars[j].dwFlags & GAMEVAR_PERACTOR)
-        {
-            if (MapInfo[mapnum].savedstate->vars[j])
-                Bfree(MapInfo[mapnum].savedstate->vars[j]);
+            if (mapinfo->savedstate->vars[j])
+                Bfree(mapinfo->savedstate->vars[j]);
         }
     }
 #endif
-    Bfree(MapInfo[mapnum].savedstate);
-    MapInfo[mapnum].savedstate = NULL;
+    Bfree(mapinfo->savedstate);
+    mapinfo->savedstate = NULL;
 }

@@ -146,10 +146,7 @@ int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs);
 void A_GetZLimits(int32_t iActor);
 int32_t G_GetAngleDelta(int32_t a,int32_t na);
 void G_RestoreMapState(mapstate_t *save);
-void G_RestoreMapState(mapstate_t *save);
 void G_SaveMapState(mapstate_t *save);
-void G_SaveMapState(mapstate_t *save);
-//void Gv_RefreshPointers(void);
 int32_t VM_OnEvent(int32_t iEventID,int32_t iActor,int32_t iPlayer,int32_t lDist, int32_t iReturn);
 void VM_ScriptInfo(void);
 

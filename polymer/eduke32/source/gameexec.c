@@ -3400,8 +3400,7 @@ nullquote:
             continue;
 
         case CON_LOADMAPSTATE:
-            if (MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate)
-                G_RestoreMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+            G_RestoreMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
             insptr++;
             continue;
 
@@ -3414,8 +3413,8 @@ nullquote:
                     CON_ERRPRINTF("Invalid map number: %d\n", j);
                     continue;
                 }
-                if (MapInfo[j].savedstate)
-                    G_FreeMapState(j);
+
+                G_FreeMapState(j);
             }
             continue;
 

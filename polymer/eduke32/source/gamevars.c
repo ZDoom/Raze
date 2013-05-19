@@ -34,9 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int32_t OSD_errors;
 
-void Gv_RefreshPointers(void);
-extern void G_FreeMapState(int32_t mapnum);
-
 static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
 {
     // call this function as many times as needed.
@@ -192,7 +189,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
                 }
             }
         }
-        else if (MapInfo[i].savedstate)
+        else
         {
             G_FreeMapState(i);
         }

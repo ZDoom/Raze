@@ -105,7 +105,6 @@ int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t lDefault,int32_t iActor
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 void __fastcall A_ResetVars(register int32_t iActor);
-void G_FreeMapState(int32_t mapnum);
 void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
