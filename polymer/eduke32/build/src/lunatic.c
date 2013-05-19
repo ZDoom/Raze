@@ -120,7 +120,7 @@ int L_CreateState(L_State *estate, const char *name, void (*StateSetupFunc)(lua_
 
 void L_DestroyState(L_State *estate)
 {
-    if (!estate->L)
+    if (!L_IsInitialized(estate))
         return;
 
     Bfree(estate->name);

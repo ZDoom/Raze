@@ -566,6 +566,10 @@ int32_t g_RETURN;  // deprecated from Lua
 decl("map_t MapInfo[$*$];", con_lang.MAXVOLUMES+1, con_lang.MAXLEVELS)
 
 decl[[
+int32_t g_elCONSize;
+char *g_elCON;
+void El_SetCON(const char *conluacode);
+
 const char *s_buildRev;
 const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
@@ -1660,8 +1664,9 @@ G_.g_tile = g_tile
 
 local concode
 
---- Compile CONs
-do
+--- Get Lua code for CON (+ mutator) code.
+if (ffiC.g_elCONSize == 0) then
+    -- Compiling CON for the first time.
     read_into_string = readintostr_mod  -- for lunacon
     local lunacon = require("lunacon")
 
@@ -1684,6 +1689,15 @@ do
     end
     assert(lineinfo)
 
+    -- Back up the translated code on the C side.
+    assert(type(concode)=="string")
+    ffiC.El_SetCON(concode)
+else
+    -- CON was already compiled.
+    concode = ffi.string(ffiC.g_elCON, ffiC.g_elCONSize)
+end
+
+do
     -- Translate one Lua line number to a CON file name + line number
     local function transline(lnum)
         return string.format("%s:%d", lineinfo:getfline(tonumber(lnum)))

@@ -9836,6 +9836,50 @@ static void A_InitEnemyFlags(void)
 extern int32_t startwin_run(void);
 static void G_SetupGameButtons(void);
 
+#ifdef LUNATIC
+// Will be used to store CON code translated to Lua.
+int32_t g_elCONSize;
+char *g_elCON;  // NOT 0-terminated!
+
+LUNATIC_EXTERN void El_SetCON(const char *conluacode)
+{
+    int32_t slen = Bstrlen(conluacode);
+
+    g_elCON = Bmalloc(slen);
+    if (g_elCON == NULL)
+        G_GameExit("OUT OF MEMORY in El_SetCON!");
+
+    g_elCONSize = slen;
+    Bmemcpy(g_elCON, conluacode, slen);
+}
+
+void El_CreateGameState(void)
+{
+    int32_t i;
+
+    El_DestroyState(&g_ElState);
+
+    if ((i = El_CreateState(&g_ElState, "game")))
+    {
+        initprintf("Lunatic: Error initializing global ELua state (code %d)\n", i);
+    }
+    else
+    {
+        extern const char luaJIT_BC_defs[];
+
+        if ((i = L_RunString(&g_ElState, (char *)luaJIT_BC_defs, 0,
+                             LUNATIC_DEFS_BC_SIZE, "defs.ilua")))
+        {
+            initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
+            El_DestroyState(&g_ElState);
+        }
+    }
+
+    if (i)
+        G_GameExit("Failure setting up Lunatic!");
+}
+#endif
+
 static void G_Startup(void)
 {
     int32_t i;
@@ -9858,24 +9902,7 @@ static void G_Startup(void)
     setbasepaltable(basepaltable, BASEPALCOUNT);
 
 #ifdef LUNATIC
-    if ((i = El_CreateState(&g_ElState, "test")))
-    {
-        initprintf("Lunatic: Error initializing global ELua state (code %d)\n", i);
-    }
-    else
-    {
-        extern const char luaJIT_BC_defs[];
-
-        if ((i = L_RunString(&g_ElState, (char *)luaJIT_BC_defs, 0,
-                             LUNATIC_DEFS_BC_SIZE, "defs.ilua")))
-        {
-            initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
-            El_DestroyState(&g_ElState);
-        }
-    }
-
-    if (i)
-        G_GameExit("Failure setting up Lunatic!");
+    El_CreateGameState();
     C_InitQuotes();
 #endif
 

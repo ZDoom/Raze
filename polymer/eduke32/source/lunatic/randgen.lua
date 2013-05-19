@@ -52,12 +52,12 @@ local mt = {
             local tout = ffi.new("uint32_t [4]")
 
             repeat
-                s.y = get_rand_u32()
+                s.y = get_rand_u32(tin)
             until (s.y ~= 0)  -- y must not be zero!
 
-            s.x = get_rand_u32()
-            s.z = get_rand_u32()
-            s.c = get_rand_u32() % 698769068 + 1  -- Should be less than 698769069
+            s.x = get_rand_u32(tin)
+            s.z = get_rand_u32(tin)
+            s.c = get_rand_u32(tin) % 698769068 + 1  -- Should be less than 698769069
         end,
     },
 }

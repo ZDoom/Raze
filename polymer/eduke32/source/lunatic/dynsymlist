@@ -86,6 +86,10 @@ luaJIT_BC_engine_maptext;
 
 
 
+g_elCONSize;
+g_elCON;
+El_SetCON;
+
 s_buildRev;
 g_sizes_of_what;
 g_sizes_of;

@@ -1120,6 +1120,8 @@ static inline void prelevel(char g)
     }
 
 #ifdef LUNATIC
+    El_CreateGameState();
+
     if (g_testLua)
     {
         if (L_IsInitialized(&g_ElState))
