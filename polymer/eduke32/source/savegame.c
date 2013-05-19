@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
-//#include "gamedef.h"
 #include "premap.h"
 #include "menus.h"  // menutext
 #include "prlights.h"
@@ -214,7 +213,7 @@ corrupt:
 
 static void sv_postudload();
 
-// TODO: need to see: keyboard input 'blocked' after load fail ? (at least ESC?)
+// XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(int32_t spot)
 {
     char fn[16];
@@ -282,7 +281,6 @@ int32_t G_LoadPlayer(int32_t spot)
     else if (MapInfo[h.volnum*MAXLEVELS + h.levnum].filename)
         Bstrcpy(currentboardfilename, MapInfo[h.volnum*MAXLEVELS + h.levnum].filename);
 
-    // TODO: this stuff needs to be factored out, too...
     if (currentboardfilename[0])
     {
         append_ext_UNSAFE(currentboardfilename, ".mhk");
@@ -1025,7 +1023,9 @@ static const dataspec_t svgm_anmisc[] =
     { DS_END, 0, 0, 0 }
 };
 
+#if !defined LUNATIC
 static dataspec_t *svgm_vars=NULL;
+#endif
 static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem);
 static int32_t doloadplayer2(int32_t fil, uint8_t **memptr);
 static void postloadplayer(int32_t savegamep);
@@ -1038,12 +1038,12 @@ static uint8_t *svdiff;
 
 #include "gamedef.h"
 
-#define SV_SKIPMASK (/*GAMEVAR_SYSTEM|*/GAMEVAR_READONLY|GAMEVAR_INTPTR|    \
-                     GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR /*|GAMEVAR_NORESET*/ |GAMEVAR_SPECIAL)
+#if !defined LUNATIC
+# define SV_SKIPMASK (/*GAMEVAR_SYSTEM|*/GAMEVAR_READONLY|GAMEVAR_INTPTR|    \
+                      GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR /*|GAMEVAR_NORESET*/ |GAMEVAR_SPECIAL)
 // setup gamevar data spec for snapshotting and diffing... gamevars must be loaded when called
 static void sv_makevarspec()
 {
-#if !defined LUNATIC
     static char *magic = "blK:vars";
     int32_t i, j, numsavedvars=0, per;
 
@@ -1084,8 +1084,8 @@ static void sv_makevarspec()
     }
 
     svgm_vars[j].flags = DS_END;
-#endif
 }
+#endif
 
 void sv_freemem()
 {
@@ -1095,8 +1095,6 @@ void sv_freemem()
         Bfree(svinitsnap), svinitsnap=NULL;
     if (svdiff)
         Bfree(svdiff), svdiff=NULL;
-//    if (svgm_vars)
-//        Bfree(svgm_vars), svgm_vars=NULL;
 }
 
 static int32_t doallocsnap(int32_t allocinit)
@@ -1129,8 +1127,12 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
     savegame_diffcompress = diffcompress;
 
     // calculate total snapshot size
+#if !defined LUNATIC
     sv_makevarspec();
     svsnapsiz = calcsz(svgm_vars);
+#else
+    svsnapsiz = 0;
+#endif
     svsnapsiz += calcsz(svgm_udnetw) + calcsz(svgm_secwsp) + calcsz(svgm_script) + calcsz(svgm_anmisc);
 
 
@@ -1369,7 +1371,9 @@ uint32_t sv_writediff(FILE *fil)
     cmpspecdata(svgm_secwsp, &p, &d);
     cmpspecdata(svgm_script, &p, &d);
     cmpspecdata(svgm_anmisc, &p, &d);
+#if !defined LUNATIC
     cmpspecdata(svgm_vars, &p, &d);
+#endif
 
     if (p != svsnapshot+svsnapsiz)
         OSD_Printf("sv_writediff: dump+siz=%p, p=%p!\n", svsnapshot+svsnapsiz, p);
@@ -1414,7 +1418,9 @@ int32_t sv_readdiff(int32_t fil)
     if (applydiff(svgm_secwsp, &p, &d)) return -4;
     if (applydiff(svgm_script, &p, &d)) return -5;
     if (applydiff(svgm_anmisc, &p, &d)) return -6;
+#if !defined LUNATIC
     if (applydiff(svgm_vars, &p, &d)) return -7;
+#endif
 
     if (p!=svsnapshot+svsnapsiz)
         i|=1;
@@ -1522,11 +1528,6 @@ static void sv_preactordatasave()
 static void sv_postactordata()
 {
     int32_t i;
-
-#if 0  // POLYMER
-    if (getrendermode() == REND_POLYMER)
-        polymer_resetlights();
-#endif
 
     for (i=0; i<MAXSPRITES; i++)
     {
@@ -1664,9 +1665,11 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
     mem=writespecdata(svgm_anmisc, fil, mem);  // animates, quotes & misc.
     PRINTSIZE("animisc");
 
+#if !defined LUNATIC
     Gv_WriteSave(fil, 1);  // gamevars
     mem=writespecdata(svgm_vars, 0, mem);
     PRINTSIZE("vars");
+#endif
 
     return mem;
 }
@@ -1690,6 +1693,7 @@ static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
     if (readspecdata(svgm_anmisc, fil, &mem)) return -6;
     PRINTSIZE("animisc");
 
+#if !defined LUNATIC
     if (Gv_ReadSave(fil, 1)) return -7;
 
     if (mem)
@@ -1704,6 +1708,7 @@ static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
         }
     }
     PRINTSIZE("vars");
+#endif
 
     if (memptr)
         *memptr = mem;
@@ -1722,7 +1727,9 @@ int32_t sv_updatestate(int32_t frominit)
     if (readspecdata(svgm_script, -1, &p)) return -5;
     if (readspecdata(svgm_anmisc, -1, &p)) return -6;
 
+#if !defined LUNATIC
     if (readspecdata(svgm_vars, -1, &p)) return -8;
+#endif
 
     if (p != pbeg+svsnapsiz)
     {

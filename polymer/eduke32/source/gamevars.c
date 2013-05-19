@@ -91,11 +91,9 @@ static void Gv_Clear(void)
         aGameArrays[i].szLabel=NULL;
     }
 }
-#endif
 
 int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
 {
-#if !defined LUNATIC
     int32_t i, j;
     char savedstate[MAXVOLUMES*MAXLEVELS];
     char tbuf[12];
@@ -230,13 +228,11 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
 # endif
     return(0);
 corrupt:
-#endif
     return(1);
 }
 
 void Gv_WriteSave(FILE *fil, int32_t newbehav)
 {
-#if !defined LUNATIC
     int32_t i, j;
     char savedstate[MAXVOLUMES*MAXLEVELS];
 
@@ -320,10 +316,8 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
     }
     else
         fwrite("EOF: EDuke32", 12, 1, fil);
-#endif
 }
 
-#if !defined LUNATIC
 void Gv_DumpValues(void)
 {
     int32_t i;
@@ -988,7 +982,7 @@ static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 
     return &(aGameVars[i].val.lValue);
 }
-#endif
+#endif  // !defined LUNATIC
 
 static void G_InitProjectileData(void)
 {

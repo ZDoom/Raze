@@ -50,8 +50,8 @@ enum GamevarFlags_t {
 
 #if !defined LUNATIC
 
-#define MAXGAMEARRAYS (MAXGAMEVARS>>2) // must be lower than MAXGAMEVARS
-#define MAXARRAYLABEL MAXVARLABEL
+# define MAXGAMEARRAYS (MAXGAMEVARS>>2) // must be lower than MAXGAMEVARS
+# define MAXARRAYLABEL MAXVARLABEL
 
 enum GamearrayFlags_t {
 
@@ -89,7 +89,7 @@ typedef struct {
 } gamearray_t;
 #pragma pack(pop)
 
-#define GAR_ELTSZ (sizeof(aGameArrays[0].plValues[0]))
+# define GAR_ELTSZ (sizeof(aGameArrays[0].plValues[0]))
 
 extern gamevar_t aGameVars[MAXGAMEVARS];
 extern gamearray_t aGameArrays[MAXGAMEARRAYS];
@@ -110,11 +110,11 @@ void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
 void Gv_ResetVars(void);
+int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
+void Gv_WriteSave(FILE *fil,int32_t newbehav);
 #endif
 void Gv_ResetSystemDefaults(void);
-int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
 void Gv_Init(void);
-void Gv_WriteSave(FILE *fil,int32_t newbehav);
 
 #if !defined LUNATIC
 #define GV_VAROP(func, operator) static inline void __fastcall func(register int32_t id, register int32_t lValue) \

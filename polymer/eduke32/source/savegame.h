@@ -23,7 +23,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __savegame_h__
 #define __savegame_h__
 
-#define SV_MAJOR_VER 1
+#ifdef LUNATIC
+# define SV_MAJOR_VER 2
+#else
+# define SV_MAJOR_VER 1
+#endif
 #define SV_MINOR_VER 3
 
 #pragma pack(push,1)
