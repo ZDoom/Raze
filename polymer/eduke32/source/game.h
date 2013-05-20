@@ -299,6 +299,7 @@ void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz);
 #ifdef LUNATIC
 void El_CreateGameState(void);
 #endif
+void G_PostCreateGameState(void);
 
 void A_SpawnCeilingGlass(int32_t i,int32_t sectnum,int32_t n);
 void A_SpawnGlass(int32_t i,int32_t n);

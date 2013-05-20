@@ -9885,6 +9885,13 @@ void El_CreateGameState(void)
 }
 #endif
 
+// Throw in everything here that needs to be called after a Lua game state
+// recreation (or on initial startup in a non-Lunatic build.)
+void G_PostCreateGameState(void)
+{
+    A_InitEnemyFlags();
+}
+
 static void G_Startup(void)
 {
     int32_t i;
@@ -9912,7 +9919,7 @@ static void G_Startup(void)
 #endif
 
     G_InitDynamicTiles();
-    A_InitEnemyFlags();
+    G_PostCreateGameState();
 
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
 

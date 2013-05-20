@@ -1119,6 +1119,7 @@ static inline void prelevel(char g)
 
 #ifdef LUNATIC
     El_CreateGameState();
+    G_PostCreateGameState();
 #endif
 
     i = headspritestat[STAT_DEFAULT];
