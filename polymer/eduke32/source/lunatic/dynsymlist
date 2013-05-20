@@ -195,4 +195,7 @@ S_ChangeSoundPitch;
 minitext_;
 G_DrawTXDigiNumZ;
 G_PrintGameText;
+
+G_SaveMapState;
+G_RestoreMapState;
 };

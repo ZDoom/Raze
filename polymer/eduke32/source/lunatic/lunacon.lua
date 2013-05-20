@@ -2165,11 +2165,11 @@ local Cinner = {
 
     -- Persistence
     clearmapstate = cmd(R)
-        / handle.dynNYI,
+        / handle.NYI,
     loadmapstate = cmd()
-        / handle.dynNYI,
+        / "_con._loadmapstate()",
     savemapstate = cmd()
-        / handle.dynNYI,
+        / "_con._savemapstate()",
     savegamevar = cmd(I)
         / function(id) return handle.RSgamevar(id, true) end,
     readgamevar = cmd(I)

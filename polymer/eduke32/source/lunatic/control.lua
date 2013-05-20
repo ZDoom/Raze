@@ -1646,6 +1646,16 @@ function _setgamepalette(pli, basepal)
     ffiC.P_SetGamePalette(player[pli], basepal, 2+16)
 end
 
+-- Map state persistence.
+-- TODO: saving/restoration of per-player or per-actor gamevars.
+function _savemapstate()
+    ffiC.G_SaveMapState()
+end
+
+function _loadmapstate()
+    ffiC.G_RestoreMapState()
+end
+
 -- Gamevar persistence in the configuration file
 
 function _savegamevar(name, val)

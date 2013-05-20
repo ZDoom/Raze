@@ -1,0 +1,33 @@
+
+// Map state test.
+// To warp to a particular map, press the steroids key.
+// Volume: player angle / 512, displayed on screen.
+// Level: current weapon.
+
+define Q 400
+definequote Q ====== TEMP =======
+
+definequote 401 VOLUME %d
+
+state calcvolume
+    getplayer[THISACTOR].ang gs
+    andvar gs 2047
+    divvar gs 512
+ends
+
+onevent EVENT_DISPLAYREST
+    state calcvolume
+    qsprintf Q /*<-*/ 401 /**/ gs
+    gametext STARTALPHANUM 20 20  Q  0 0 0  0 0 xdim ydim
+endevent
+
+onevent EVENT_USESTEROIDS
+    savemapstate
+
+    state calcvolume
+    startlevel gs currentweapon
+endevent
+
+onevent EVENT_ENTERLEVEL
+    loadmapstate
+endevent
