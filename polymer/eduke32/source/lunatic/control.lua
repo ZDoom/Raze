@@ -1768,7 +1768,7 @@ local function kopen4load(fn, searchfirst)
 end
 
 
--- Common serialization function for gamearray and peractorvar.
+-- Common serialization function for gamearray and actorvar.
 local function serialize_array(ar, strtab)
     for i,v in pairs(ar) do
         if (type(i)=="number") then
@@ -1936,7 +1936,7 @@ local gamearray_methods = {
     end,
 
     _serialize = function(gar)
-        local strtab = { OUR_NAME..".peractorvar(", tostring(gar._size), ",{" }
+        local strtab = { OUR_NAME..".actorvar(", tostring(gar._size), ",{" }
         return serialize_array(gar, strtab)
     end,
 }
@@ -1969,7 +1969,7 @@ local gamearray_mt = {
     __metatable = "serializeable",
 }
 
--- Common constructor helper for gamearray and peractorvar.
+-- Common constructor helper for gamearray and actorvar.
 local function set_values_from_table(ar, values)
     if (values ~= nil) then
         for i,v in pairs(values) do
@@ -2003,7 +2003,7 @@ end
 
 
 -- Per-actor variable.
-local peractorvar_methods = {
+local actorvar_methods = {
     --- Serialization ---
 
     _get_require = function(acv)
@@ -2011,19 +2011,19 @@ local peractorvar_methods = {
     end,
 
     _serialize = function(acv)
-        local strtab = { OUR_NAME..".peractorvar(", tostring(acv._defval), ",{" }
+        local strtab = { OUR_NAME..".actorvar(", tostring(acv._defval), ",{" }
         return serialize_array(acv, strtab)
     end,
 }
 
 -- XXX: How about types other than numbers?
-local peractorvar_mt = {
+local actorvar_mt = {
     __index = function(acv, idx)
         if (type(idx)=="number") then
             check_sprite_idx(idx)
             return acv._defval
         else
-            return peractorvar_methods[idx]
+            return actorvar_methods[idx]
         end
     end,
 
@@ -2048,7 +2048,7 @@ local peractorvar_mt = {
 
 -- <initval>: default value for per-actor variable.
 -- <values>: optional, a table of <spritenum>=value
-function peractorvar(initval, values)
-    local acv = setmetatable({ _defval=initval }, peractorvar_mt)
+function actorvar(initval, values)
+    local acv = setmetatable({ _defval=initval }, actorvar_mt)
     return set_values_from_table(acv, values)
 end

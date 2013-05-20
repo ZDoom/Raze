@@ -1175,7 +1175,7 @@ function Cmd.gamevar(identifier, initval, flags)
     -- TODO: Write gamevar system on the Lunatic side and hook it up.
     -- TODO: per-player gamevars
     if (bit.band(flags, GVFLAG.PERX_MASK)==GVFLAG.PERACTOR) then
-        addcodef("%s=_con.peractorvar(%d)", gv.name, initval)
+        addcodef("%s=_con.actorvar(%d)", gv.name, initval)
     else
         addcodef("%s=%d", gv.name, initval)
     end
