@@ -11,6 +11,8 @@ local CF = CF
 local bit = require("bit")
 local io = require("io")
 local math = require("math")
+local table = require("table")
+
 local geom = require("geom")
 local bcheck = require("bcheck")
 local con_lang = require("con_lang")
@@ -21,6 +23,7 @@ local setmetatable = setmetatable
 local assert = assert
 local error = error
 local ipairs = ipairs
+local pairs = pairs
 local print = print
 local rawget = rawget
 local rawset = rawset
@@ -37,6 +40,9 @@ local inside = dc.inside
 
 local sector, wall, sprite = dc.sector, dc.wall, dc.sprite
 local spritesofsect, spritesofstat = dc.spritesofsect, dc.spritesofstat
+
+local OUR_NAME = "_con"
+local OUR_REQUIRE_STRING = "local "..OUR_NAME.."=require'con'"
 
 
 module(...)
@@ -1762,6 +1768,19 @@ local function kopen4load(fn, searchfirst)
 end
 
 
+-- Common serialization function for gamearray and peractorvar.
+local function serialize_array(ar, strtab)
+    for i,v in pairs(ar) do
+        if (type(i)=="number") then
+            assert(type(v)=="number")  -- XXX: not enforced by public API
+            strtab[#strtab+1] = "["..i.."]="..tostring(v)..","
+        end
+    end
+    strtab[#strtab+1] = "})"
+
+    return table.concat(strtab)
+end
+
 --- Game arrays ---
 
 local function moddir_filename(cstr_fn)
@@ -1907,7 +1926,19 @@ local gamearray_methods = {
         f:write(GAR_FOOTER)
 
         f:close()
-    end
+    end,
+
+
+    --- Serialization ---
+
+    _get_require = function(gar)
+        return OUR_REQUIRE_STRING
+    end,
+
+    _serialize = function(gar)
+        local strtab = { OUR_NAME..".peractorvar(", tostring(gar._size), ",{" }
+        return serialize_array(gar, strtab)
+    end,
 }
 
 local gamearray_mt = {
@@ -1935,15 +1966,29 @@ local gamearray_mt = {
         end
     end,
 
-    __metatable = true,
+    __metatable = "serializeable",
 }
 
-function _gamearray(size)
-    return setmetatable({ _size=size }, gamearray_mt)
+-- Common constructor helper for gamearray and peractorvar.
+local function set_values_from_table(ar, values)
+    if (values ~= nil) then
+        for i,v in pairs(values) do
+            ar[i] = v
+        end
+    end
+    return ar
+end
+
+-- NOTE: Gamearrays are internal because users are encouraged to use tables
+-- from Lua code.
+-- <values>: optional, a table of <index>=value
+function _gamearray(size, values)
+    local gar = setmetatable({ _size=size }, gamearray_mt)
+    return set_values_from_table(gar, values)
 end
 
 
---- Exported functions ---
+--- More functions of the official API ---
 
 -- Non-local control flow. These ones call the original error(), not our
 -- redefinition in defs.ilua.
@@ -1957,12 +2002,29 @@ function killit()
 end
 
 
--- Per-actor variable
--- TODO: serialization
+-- Per-actor variable.
+local peractorvar_methods = {
+    --- Serialization ---
+
+    _get_require = function(acv)
+        return OUR_REQUIRE_STRING
+    end,
+
+    _serialize = function(acv)
+        local strtab = { OUR_NAME..".peractorvar(", tostring(acv._defval), ",{" }
+        return serialize_array(acv, strtab)
+    end,
+}
+
+-- XXX: How about types other than numbers?
 local peractorvar_mt = {
     __index = function(acv, idx)
-        check_sprite_idx(idx)
-        return acv._defval
+        if (type(idx)=="number") then
+            check_sprite_idx(idx)
+            return acv._defval
+        else
+            return peractorvar_methods[idx]
+        end
     end,
 
     __newindex = function(acv, idx, val)
@@ -1981,9 +2043,12 @@ local peractorvar_mt = {
         end
     end,
 
-    __metatable = true,
+    __metatable = "serializeable",
 }
 
-function peractorvar(initval)
-    return setmetatable({ _defval=initval }, peractorvar_mt)
+-- <initval>: default value for per-actor variable.
+-- <values>: optional, a table of <spritenum>=value
+function peractorvar(initval, values)
+    local acv = setmetatable({ _defval=initval }, peractorvar_mt)
+    return set_values_from_table(acv, values)
 end

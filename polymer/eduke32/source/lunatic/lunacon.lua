@@ -3139,6 +3139,9 @@ end
 
 -- <lineinfop>: Get line info?
 local function get_code_string(codetab, lineinfop)
+    -- Finalize translated code: return table containing gamevar and gamearray
+    -- tables. CON_GAMEVARS.
+    codetab[#codetab+1] = "return { V=_V, A=_A }"
     local flatcode = flatten_codetab(codetab)
     local lineinfo = lineinfop and get_lineinfo(flatcode)
     return table.concat(flatcode, "\n"), lineinfo

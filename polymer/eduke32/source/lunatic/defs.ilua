@@ -570,6 +570,8 @@ int32_t g_elCONSize;
 char *g_elCON;
 void El_SetCON(const char *conluacode);
 
+const char *(*El_SerializeGamevars)(int32_t *slenptr);
+
 const char *s_buildRev;
 const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
@@ -1273,7 +1275,9 @@ do
 end
 
 
-local package_loaded = {}  -- false/true/table
+---=== Module stuff ===---
+
+local package_loaded = {}  -- [<modname>] = false/true/table
 local modname_stack = {}  -- [<depth>]=string
 local module_gamevars = {}  -- [<modname>] = { <gvname1>, <gvname2>, ... }
 
@@ -1722,6 +1726,64 @@ do
     set_tweak_traceback_internal(tweak_traceback_msg)
 end
 
+-- XXX: May still be require'd from user code, we don't want that (at least not
+-- under this name).
+local CON_MODULE_NAME = "_CON\0"
+
+-- Set up Lunatic gamevar serialization.
+do
+    local savegame = require("savegame")
+
+    -- Callback for: const char *(int32_t *slenptr);
+    ffiC.El_SerializeGamevars = function(slenptr)
+        local sb = savegame.savebuffer()
+
+        sb:addraw("local M")
+
+        -- XXX: System gamevars?
+        for modname, modvars in pairs(module_gamevars) do
+            sb:addrawf("M=require%q", modname)
+            for i=1,#modvars do
+                local varname = modvars[i]
+                -- Serialize gamevar named 'varname' from module named 'modname'.
+                -- XXX: May error. This will terminate EDuke32 since this callback
+                -- is run unprotected.
+                if (sb:add("M."..varname, package_loaded[modname][varname])) then
+                    -- We couldn't serialize that gamevar.
+                    slenptr[0] = -1
+                    -- Signal which gamevar that was.
+                    return (modname==CON_MODULE_NAME and "<CON>" or modname).."."..varname
+                end
+            end
+        end
+
+        -- Get the whole code as a string.
+        local savecode = sb:getcode()
+
+        if (ffiC._DEBUG_LUNATIC ~= 0) then
+            -- Dump the code if Lunatic debugging is enabled and there is a
+            -- LUNATIC_SAVECODE_FN variable in the environment.
+            local os = require("os")
+            local fn = os.getenv("LUNATIC_SAVECODE_FN")
+
+            if (fn ~= nil) then
+                local io = require("io")
+                local f = io.open(fn, "w")
+
+                if (f ~= nil) then
+                    f:write(savecode)
+                    f:close()
+                    printf("Wrote Lunatic gamevar restoration code to \"%s\".", fn)
+                end
+            end
+        end
+
+        -- Set the size of the code and return the code to C.
+        slenptr[0] = #savecode
+        return savecode
+    end
+end
+
 -- change the environment of this chunk to the table G_
 -- NOTE: all references to global variables from this point on
 -- (also in functions created after this point) refer to G_ !
@@ -1839,7 +1901,9 @@ if (concode) then
     if (confunc == nil) then
         error("Failure loading translated CON code: "..conerrmsg, 0)
     end
-    confunc()
+
+    package_loaded[CON_MODULE_NAME] = confunc()
+    module_gamevars[CON_MODULE_NAME] = { "A", "V" }  -- See CON_GAMEVARS is lunacon.lua.
 end
 
 -- When starting a map, load Lua modules given on the command line.

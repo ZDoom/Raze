@@ -25,6 +25,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "menus.h"  // menutext
 #include "prlights.h"
 #include "savegame.h"
+#ifdef LUNATIC
+# include "lunatic_game.h"
+static int32_t g_savedOK;
+const char *g_failedVarname;
+#endif
 
 extern char *bitptr;
 
@@ -354,7 +359,12 @@ int32_t G_SavePlayer(int32_t spot)
 
     if (!g_netServer && ud.multimode < 2)
     {
-        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Game Saved");
+#ifdef LUNATIC
+        if (!g_savedOK)
+            Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "^10Failed Saving Game");
+        else
+#endif
+            Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Game Saved");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
     }
 
@@ -1205,6 +1215,15 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
     {
         // savegame
         dosaveplayer2(fil, NULL);
+#ifdef LUNATIC
+        if (!g_savedOK)
+        {
+            OSD_Printf("sv_saveandmakesnapshot: failed serializing Lunatic gamevar %s.\n",
+                       g_failedVarname);
+            g_failedVarname = NULL;
+            return 1;
+        }
+#endif
     }
     else
     {
@@ -1312,6 +1331,11 @@ int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h)
     }
 
     savegame_comprthres = h->comprthres;
+
+#ifdef LUNATIC
+    El_CreateGameState();
+    G_PostCreateGameState();
+#endif
 
     if (spot >= 0)
     {
@@ -1650,6 +1674,10 @@ static void sv_restload()
 # define PRINTSIZE(name) do { } while (0)
 #endif
 
+#ifdef LUNATIC
+LUNATIC_CB const char *(*El_SerializeGamevars)(int32_t *slenptr);
+#endif
+
 static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
 {
 #ifdef DEBUGGINGAIDS
@@ -1669,6 +1697,27 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
     Gv_WriteSave(fil, 1);  // gamevars
     mem=writespecdata(svgm_vars, 0, mem);
     PRINTSIZE("vars");
+#else
+    {
+        int32_t slen, slen_ext;
+        const char *svcode = El_SerializeGamevars(&slen);
+
+        if (slen < 0)
+        {
+            // Serialization failed.
+            g_savedOK = 0;
+            g_failedVarname = svcode;
+            return mem;
+        }
+
+        // TODO: compress text.
+        fwrite("\0\1LunaGVAR\3\4", 12, 1, fil);
+        slen_ext = B_LITTLE32(slen);
+        fwrite(&slen_ext, sizeof(slen_ext), 1, fil);
+        fwrite(svcode, slen, 1, fil);
+
+        g_savedOK = 1;
+    }
 #endif
 
     return mem;
@@ -1708,6 +1757,57 @@ static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
         }
     }
     PRINTSIZE("vars");
+#else
+    {
+        // Read Lua code to restore gamevar values from the savegame and run it.
+
+        char header[12];
+        int32_t slen;
+
+        if (kread(fil, header, 12) != 12)
+        {
+            OSD_Printf("doloadplayer2: failed reading Lunatic gamevar header.\n");
+            return -100;
+        }
+
+        if (Bmemcmp(header, "\0\1LunaGVAR\3\4", 12))
+        {
+            OSD_Printf("doloadplayer2: Lunatic gamevar header doesn't match.\n");
+            return -101;
+        }
+
+        if (kread(fil, &slen, sizeof(slen)) != sizeof(slen))
+        {
+            OSD_Printf("doloadplayer2: failed reading Lunatic gamevar string size.\n");
+            return -102;
+        }
+
+        slen = B_LITTLE32(slen);
+        if (slen < 0)
+        {
+            OSD_Printf("doloadplayer2: invalid Lunatic gamevar string size %d.\n", slen);
+            return -103;
+        }
+
+        if (slen > 0)
+        {
+            char *svcode = Bmalloc(slen);
+            if (svcode == NULL)
+                G_GameExit("OUT OF MEMORY in doloadplayer2().");
+
+            if (kread(fil, svcode, slen) != slen)
+            {
+                OSD_Printf("doloadplayer2: failed reading Lunatic gamevar restoration code.\n");
+                return -104;
+            }
+
+            if (L_RunString(&g_ElState, svcode, 0, slen, "luaload"))
+            {
+                OSD_Printf("doloadplayer2: failed restoring Lunatic gamevars.\n");
+                return -105;
+            }
+        }
+    }
 #endif
 
     if (memptr)

@@ -217,6 +217,8 @@ local mt = {
     __gc = function(s)
         anchor[tostring(s.arptr)] = nil
     end,
+
+    __metatable = true,
 }
 
 ffi.metatype(bitar_ct, mt)

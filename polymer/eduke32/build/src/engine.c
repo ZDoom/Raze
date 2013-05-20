@@ -9795,7 +9795,7 @@ static void check_sprite(int32_t i)
 
 #ifdef NEW_MAP_FORMAT
 // Returns the number of sprites, or <0 on error.
-int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
+LUNATIC_CB int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 #endif
 
 // flags: 1, 2: former parameter "fromwhere"
@@ -10501,7 +10501,7 @@ int32_t loadmaphack(const char *filename)
 
 
 #ifdef NEW_MAP_FORMAT
-int32_t (*saveboard_maptext)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
+LUNATIC_CB int32_t (*saveboard_maptext)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 #endif
 
 //
