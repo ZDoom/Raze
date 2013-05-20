@@ -1838,9 +1838,9 @@ void getvalidmodes(void)
     cdsenummodes();
 #endif
 
-    // windowed modes cant be bigger than the current desktop resolution
-    maxx = desktopxdim-1;
-    maxy = desktopydim-1;
+    // Windowed modes can be as big as the current desktop resolution, but not bigger.
+    maxx = desktopxdim+1;
+    maxy = desktopydim+1;
 
     // add windowed modes next
     for (j=0; j < 2; j++)
