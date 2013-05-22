@@ -4561,12 +4561,14 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     pth = texcache_fetch(tilenum, pal, 0, cmeth);
 
     if (pth)
+    {
         material->diffusemap = pth->glpic;
 
-    if (pth->hicr)
-    {
-        material->diffusescale[0] = pth->hicr->xscale;
-        material->diffusescale[1] = pth->hicr->yscale;
+        if (pth->hicr)
+        {
+            material->diffusescale[0] = pth->hicr->xscale;
+            material->diffusescale[1] = pth->hicr->yscale;
+        }
     }
 
     // Lazily fill in all the textures we need, move this to precaching later
