@@ -196,6 +196,7 @@ static int32_t defsparser(scriptfile *script)
 {
     int32_t tokn;
     char *cmdtokptr;
+    static uint32_t iter = 0;
 
     static const tokenlist basetokens[] =
     {
@@ -259,6 +260,14 @@ static int32_t defsparser(scriptfile *script)
 
     while (1)
     {
+        if (++iter >= 50)
+        {
+            flushlogwindow = 1;
+            initprintf(".");
+            flushlogwindow = 0;
+            iter = 0;
+        }
+
         if (quitevent) return 0;
         tokn = getatoken(script,basetokens,sizeof(basetokens)/sizeof(tokenlist));
         cmdtokptr = script->ltextptr;
@@ -2097,6 +2106,7 @@ static int32_t defsparser(scriptfile *script)
             initprintf("Unknown token.\n"); break;
         }
     }
+
     return 0;
 }
 
@@ -2129,6 +2139,8 @@ int32_t loaddefinitionsfile(const char *fn)
     scriptfile_clearsymbols();
 
     if (!script) return -1;
+
+    initprintf("\n");
 
     return 0;
 }
