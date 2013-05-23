@@ -1289,6 +1289,10 @@ skip_check:
             vm.g_t[4] = *insptr++;
             continue;
 
+        case CON_IFPLAYERSL:
+            VM_CONDITIONAL(numplayers < *(++insptr));
+            continue;
+
         case CON_IFPDISTL:
             VM_CONDITIONAL(vm.g_x < *(++insptr));
             if (vm.g_x > MAXSLEEPDIST && actor[vm.g_i].timetosleep == 0)
@@ -1617,6 +1621,7 @@ skip_check:
             continue;
 
         case CON_ENDOFGAME:
+        case CON_ENDOFLEVEL:
             insptr++;
             g_player[vm.g_p].ps->timebeforeexit = *insptr++;
             g_player[vm.g_p].ps->customexitsound = -1;

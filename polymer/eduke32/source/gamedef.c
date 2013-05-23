@@ -91,6 +91,10 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_ECHO, 20120304 },
     { CON_SHOWVIEWUNBIASED, 20120331 },
     { CON_ROTATESPRITEA, 20130324 },
+    { CON_SHADETO, 20130522 },
+    { CON_ENDOFLEVEL, 20130522 },
+    { CON_IFPLAYERSL, 20130522 },
+    { CON_ACTIVATE, 20130522 },
 };
 #endif
 
@@ -578,6 +582,10 @@ const char *keyw[] =
     "echo",                     // 362
     "showviewunbiased",         // 363
     "rotatespritea",            // 364
+    "shadeto",                  // 365
+    "endoflevel",               // 366
+    "ifplayersl",               // 367
+    "activate",                 // 368
     "<null>"
 };
 #endif
@@ -2081,16 +2089,29 @@ void G_DoGameStartup(const int32_t *params)
     g_maxPlayerHealth = g_player[0].ps->max_player_health = g_player[0].ps->max_shield_amount = params[j++];
     g_startArmorAmount = params[j++];
     g_actorRespawnTime = params[j++];
-    g_itemRespawnTime = params[j++];
-    g_playerFriction = params[j++];
-    if (g_scriptVersion == 14) g_spriteGravity = params[j++];
-    g_rpgBlastRadius = params[j++];
-    g_pipebombBlastRadius = params[j++];
-    g_shrinkerBlastRadius = params[j++];
-    g_tripbombBlastRadius = params[j++];
-    g_morterBlastRadius = params[j++];
-    g_bouncemineBlastRadius = params[j++];
-    g_seenineBlastRadius = params[j++];
+
+    if (g_scriptVersion >= 11)
+        g_itemRespawnTime = params[j++];
+    else
+        g_itemRespawnTime = g_actorRespawnTime;
+
+    if (g_scriptVersion >= 11)
+        g_playerFriction = params[j++];
+
+    if (g_scriptVersion == 14)
+        g_spriteGravity = params[j++];
+
+    if (g_scriptVersion >= 11)
+    {
+        g_rpgBlastRadius = params[j++];
+        g_pipebombBlastRadius = params[j++];
+        g_shrinkerBlastRadius = params[j++];
+        g_tripbombBlastRadius = params[j++];
+        g_morterBlastRadius = params[j++];
+        g_bouncemineBlastRadius = params[j++];
+        g_seenineBlastRadius = params[j++];
+    }
+
     g_player[0].ps->max_ammo_amount[PISTOL_WEAPON] = params[j++];
     g_player[0].ps->max_ammo_amount[SHOTGUN_WEAPON] = params[j++];
     g_player[0].ps->max_ammo_amount[CHAINGUN_WEAPON] = params[j++];
@@ -2099,17 +2120,25 @@ void G_DoGameStartup(const int32_t *params)
     g_player[0].ps->max_ammo_amount[SHRINKER_WEAPON] = params[j++];
     g_player[0].ps->max_ammo_amount[DEVISTATOR_WEAPON] = params[j++];
     g_player[0].ps->max_ammo_amount[TRIPBOMB_WEAPON] = params[j++];
-    g_player[0].ps->max_ammo_amount[FREEZE_WEAPON] = params[j++];
-    if (g_scriptVersion == 14) g_player[0].ps->max_ammo_amount[GROW_WEAPON] = params[j++];
-    g_damageCameras = params[j++];
-    g_numFreezeBounces = params[j++];
-    g_freezerSelfDamage = params[j++];
-    if (g_scriptVersion == 14)
-    {
-        g_spriteDeleteQueueSize = params[j++];
-        g_spriteDeleteQueueSize = clamp(g_spriteDeleteQueueSize, 0, 1024);
 
-        g_tripbombLaserMode = params[j++];
+    if (g_scriptVersion >= 13)
+    {
+        g_player[0].ps->max_ammo_amount[FREEZE_WEAPON] = params[j++];
+
+        if (g_scriptVersion == 14)
+            g_player[0].ps->max_ammo_amount[GROW_WEAPON] = params[j++];
+
+        g_damageCameras = params[j++];
+        g_numFreezeBounces = params[j++];
+        g_freezerSelfDamage = params[j++];
+
+        if (g_scriptVersion == 14)
+        {
+            g_spriteDeleteQueueSize = params[j++];
+            g_spriteDeleteQueueSize = clamp(g_spriteDeleteQueueSize, 0, 1024);
+
+            g_tripbombLaserMode = params[j++];
+        }
     }
 }
 
@@ -2759,8 +2788,7 @@ static int32_t C_ParseCommand(int32_t loop)
             while (j>-1)
             {
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                *g_scriptPtr = 0;
-                g_scriptPtr++;
+                *g_scriptPtr++ = 0;
                 j--;
             }
             continue;
@@ -3257,6 +3285,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_CSTAT:
         case CON_COUNT:
         case CON_ENDOFGAME:
+        case CON_ENDOFLEVEL:
         case CON_SPRITEPAL:
         case CON_CACTOR:
         case CON_MONEY:
@@ -4361,6 +4390,12 @@ static int32_t C_ParseCommand(int32_t loop)
             }
             continue;
 
+        case CON_ACTIVATE:
+            *g_scriptPtr = CON_OPERATEACTIVATORS;
+            C_GetNextValue(LABEL_DEFINE);
+            *g_scriptPtr++ = g_iThisActorID;
+            continue;
+
         case CON_DRAGPOINT:
         case CON_GETKEYNAME:
             C_GetManyVars(3);
@@ -5061,6 +5096,7 @@ repeatcase:
         case CON_IFMOVE:
         case CON_IFP:
         case CON_IFPINVENTORY:
+        case CON_IFPLAYERSL:
             {
                 intptr_t offset;
                 intptr_t lastScriptPtr = (g_scriptPtr-&script[0]-1);
@@ -5588,12 +5624,17 @@ repeatcase:
             textptr += 5;
             while (*textptr == ' '  || *textptr == '\t') textptr++;
 
-            MapInfo[j *MAXLEVELS+k].designertime =
-                (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
-                (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
+            // cheap hack, 0.99 doesn't have the 3D Realms time
+            if (*(textptr+2) == ':')
+            {
+                MapInfo[j *MAXLEVELS+k].designertime =
+                    (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
+                    (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
-            textptr += 5;
-            while (*textptr == ' '  || *textptr == '\t') textptr++;
+                textptr += 5;
+                while (*textptr == ' '  || *textptr == '\t') textptr++;
+            }
+            else g_scriptVersion = 9;
 
             i = 0;
 
@@ -5890,6 +5931,12 @@ repeatcase:
             if (C_SetScriptSize(j)) return 1;
             continue;
 
+        case CON_SHADETO:
+            g_scriptPtr--;
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr--;
+            continue;
+
         case CON_FALL:
         case CON_TIP:
             //        case 21:
@@ -5930,19 +5977,18 @@ repeatcase:
                     g_scriptPtr--;
                     params[j] = *g_scriptPtr;
 
-                    if (j != 25) continue;
+                    if (j != 12 && j != 21 && j != 25) continue;
 
                     if (C_GetKeyword() != -1)
                     {
-                        //                initprintf("Duke Nukem 3D v1.3D style CON files detected.\n");
+                        if (j == 12)
+                            g_scriptVersion = 10;
+                        else if (j == 21)
+                            g_scriptVersion = 11;
                         break;
                     }
                     else
-                    {
                         g_scriptVersion = 14;
-                        //                initprintf("Duke Nukem 3D v1.4+ style CON files detected.\n");
-                    }
-
                 }
 
                 /*
@@ -6130,6 +6176,23 @@ void C_InitProjectiles(void)
 extern int32_t g_numObituaries;
 extern int32_t g_numSelfObituaries;
 
+static char * C_ScriptVersionString(int32_t version)
+{
+    switch (version)
+    {
+    case 9:
+        return "0.99";
+    case 10:
+        return "1.0";
+    case 11:
+        return "1.1";
+    case 13:
+        return "1.3D";
+    default:
+        return "1.4+";
+    }
+}
+
 void C_Compile(const char *filenam)
 {
     char *mptr;
@@ -6315,8 +6378,8 @@ void C_Compile(const char *filenam)
 
         C_SetScriptSize(g_scriptPtr-script+8);
 
-        initprintf("Script compiled in %dms, %ld*%db, version %s\n", getticks() - startcompiletime,
-                   (unsigned long)(g_scriptPtr-script), (int32_t)sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
+        initprintf("Script compiled in %dms, %ld*%db, language version %s\n", getticks() - startcompiletime,
+                   (unsigned long)(g_scriptPtr-script), (int32_t)sizeof(intptr_t), C_ScriptVersionString(g_scriptVersion));
 
         initprintf("%d/%d labels, %d/%d variables, %d/%d arrays\n", g_numLabels,
                    (int32_t)min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),

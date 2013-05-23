@@ -2980,7 +2980,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
             A_GetZLimits(i);
 
             if (s->picnum == RPG && actor[i].picnum != BOSS2 && s->xrepeat >= 10 &&
-                    sector[s->sectnum].lotag != ST_2_UNDERWATER)
+                    sector[s->sectnum].lotag != ST_2_UNDERWATER && g_scriptVersion >= 13)
             {
                 j = A_Spawn(i,SMALLSMOKE);
                 sprite[j].z += (1<<8);

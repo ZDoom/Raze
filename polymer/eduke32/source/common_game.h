@@ -12,6 +12,8 @@
 #define GAMEFLAG_NAPALM     0x00000004
 #define GAMEFLAG_WW2GI      0x00000008
 #define GAMEFLAG_ADDON      0x00000010
+#define GAMEFLAG_SHAREWARE  0x00000020
+#define GAMEFLAG_DUKEBETA   0x00000060 // includes 0x20 since it's a shareware beta
 
 extern int32_t g_gameType;
 
@@ -19,6 +21,8 @@ extern int32_t g_gameType;
 #define NAM                 (g_gameType & GAMEFLAG_NAM)
 #define NAPALM              (g_gameType & GAMEFLAG_NAPALM)
 #define WW2GI               (g_gameType & GAMEFLAG_WW2GI)
+#define SHAREWARE           (g_gameType & GAMEFLAG_SHAREWARE)
+#define DUKEBETA            (g_gameType & GAMEFLAG_DUKEBETA)
 
 enum Games_t {
     GAME_DUKE = 0,

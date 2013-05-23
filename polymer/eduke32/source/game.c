@@ -2088,7 +2088,7 @@ static void G_DisplayExtraScreens(void)
     S_StopMusic();
     FX_StopAllSounds();
 
-    if (!VOLUMEALL || flags & LOGO_SHAREWARESCREENS)
+    if (!DUKEBETA && (!VOLUMEALL || flags & LOGO_SHAREWARESCREENS))
     {
         setview(0,0,xdim-1,ydim-1);
         flushperms();
@@ -5216,7 +5216,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 case LIZTROOPSTAYPUT__STATIC:
                 case LIZTROOPJUSTSIT__STATIC:
                 case LIZTROOP__STATIC:
-                    if (g_scriptVersion == 13)
+                    if (g_scriptVersion != 14)
                 default:
                         sp->extra <<= 1;
                     break;
@@ -10657,11 +10657,17 @@ int32_t app_main(int32_t argc, const char **argv)
 
     G_CleanupSearchPaths();
 
-    i = kopen4load("DUKESW.BIN",1); // JBF 20030810
-    if (i!=-1)
-    {
+    if (SHAREWARE)
         g_Shareware = 1;
-        kclose(i);
+    else
+    {
+        i = kopen4load("DUKESW.BIN",1); // JBF 20030810
+
+        if (i != -1)
+        {
+            g_Shareware = 1;
+            kclose(i);
+        }
     }
 
     // gotta set the proper title after we compile the CONs if this is the full version
@@ -11763,7 +11769,7 @@ FRAGBONUS:
         {
             for (ii=MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
             clockpad = max(clockpad,ij);
-            if (!NAM)
+            if (!NAM && MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime)
             {
                 for (ii=MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
                 clockpad = max(clockpad,ij);
@@ -11903,7 +11909,7 @@ FRAGBONUS:
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                         yy+=10;
 
-                        if (!NAM)
+                        if (!NAM && MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime)
                         {
                             Bsprintf(tempbuf,"%0*d:%02d",clockpad,
                                      (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/(REALGAMETICSPERSEC*60)),

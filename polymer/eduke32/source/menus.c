@@ -926,7 +926,7 @@ void M_DisplayMenus(void)
         mgametext(160,41-8,"You are playing the shareware",0,2+8+16);
         mgametext(160,50-8,"version of Duke Nukem 3D.  While",0,2+8+16);
         mgametext(160,59-8,"this version is really cool, you",0,2+8+16);
-        mgametext(160,68-8,"are missing over 75%% of the total",0,2+8+16);
+        mgametext(160,68-8,"are missing over 75% of the total",0,2+8+16);
         mgametext(160,77-8,"game, along with other great extras",0,2+8+16);
         mgametext(160,86-8,"and games, which you'll get when",0,2+8+16);
         mgametext(160,95-8,"you order the complete version and",0,2+8+16);
@@ -2019,7 +2019,7 @@ void M_DisplayMenus(void)
             M_DrawTopBar("About EDuke32");
 
 cheat_for_port_credits:
-            if (g_scriptVersion == 13) l = (-2);
+            if (g_scriptVersion != 14) l = (-2);
             mgametext(160,38-l,"Programming and Project Management",0,2+8+16);
             p = "Richard \"TerminX\" Gobeille";
             minitext(161-(Bstrlen(p)<<1), 39+10-l, p, 4, 10+16+128);
@@ -2060,7 +2060,7 @@ cheat_for_port_credits:
             M_DrawTopBar("About EDuke32");
 
 cheat_for_port_credits2:
-            if (g_scriptVersion == 13) l = (-2);
+            if (g_scriptVersion != 14) l = (-2);
             mgametext(160,38-l,"License and Other Contributors",0,2+8+16);
             {
                 const char *header[] =

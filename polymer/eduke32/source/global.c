@@ -57,6 +57,13 @@ int32_t g_timerTicsPerSecond = TICRATE;
 
 int32_t g_actorRespawnTime = 768;
 int32_t g_itemRespawnTime = 768;
+int32_t g_rpgBlastRadius = 1780;
+int32_t g_pipebombBlastRadius = 2500;
+int32_t g_shrinkerBlastRadius = 650;
+int32_t g_tripbombBlastRadius = 3880;
+int32_t g_morterBlastRadius = 2500;
+int32_t g_bouncemineBlastRadius = 2500;
+int32_t g_seenineBlastRadius = 2048;
 
 int32_t g_scriptSize = 1048576;
 
@@ -79,7 +86,7 @@ int16_t BlimpSpawnSprites[15] =
     FREEZEAMMO__STATIC
 };
 
-int32_t g_playerFriction = 0xcc00;
+int32_t g_playerFriction = 0xCFD0;
 
 int32_t g_numFreezeBounces = 3;
 

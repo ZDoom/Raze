@@ -937,6 +937,10 @@ enum ScriptKeywords_t
     CON_ECHO,               // 362
     CON_SHOWVIEWUNBIASED,   // 363
     CON_ROTATESPRITEA,      // 364
+    CON_SHADETO,            // 365
+    CON_ENDOFLEVEL,         // 366
+    CON_IFPLAYERSL,         // 367
+    CON_ACTIVATE,           // 368
     CON_END
 };
 #endif

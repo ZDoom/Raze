@@ -33,21 +33,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // custom GRP support for the startup window, file format reflects the structure below
 #define GAMELISTFILE "games.list"
-//    name                                     crc         size      flags                         dependency  scriptname     defname
+//    name                                     crc          size      flags                         dependency  scriptname     defname
 struct grpfile internalgrpfiles[NUMGRPFILES] =
 {
-    { "Duke Nukem 3D",                         DUKE13_CRC, 26524524, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D (South Korean Censored)", DUKEKR_CRC, 26385383, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D: Atomic Edition",         DUKE15_CRC, 44356548, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D: Plutonium Pak",          DUKEPP_CRC, 44348015, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D Shareware",               DUKESW_CRC, 11035779, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D Mac Demo",                DUKEMD_CRC, 10444391, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
-    { "Duke it out in D.C.",                   DUKEDC_CRC, 8410183 , GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL,          NULL,        NULL },
-    { "Duke Caribbean: Life's a Beach",        DUKECB_CRC, 22213819, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL,          NULL,        NULL },
-    { "Duke: Nuclear Winter",                  DUKENW_CRC, 16169365, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "nwinter.con", NULL,        NULL },
-    { "NAM",                                   NAM_CRC,    43448927, GAMEFLAG_NAM,                          0, "nam.con",     "nam.def",   NULL },
-    { "NAPALM",                                NAPALM_CRC, 44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,          0, "napalm.con",  "nam.def",   NULL },
-    { "WWII GI",                               WW2GI_CRC,  77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,           0, "ww2gi.con",   "ww2gi.def", NULL },
+    { "Duke Nukem 3D",                         DUKE13_CRC,  26524524, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
+    { "Duke Nukem 3D (South Korean Censored)", DUKEKR_CRC,  26385383, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
+    { "Duke Nukem 3D: Atomic Edition",         DUKE15_CRC,  44356548, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
+    { "Duke Nukem 3D: Plutonium Pak",          DUKEPP_CRC,  44348015, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
+    { "Duke Nukem 3D Shareware 0.99",          DUKE099_CRC, 9690241,  GAMEFLAG_DUKE|GAMEFLAG_DUKEBETA,       0, NULL,          NULL,        NULL },
+    { "Duke Nukem 3D Shareware 1.0",           DUKE10_CRC,  10429258, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL,          NULL,        NULL },
+    { "Duke Nukem 3D Shareware 1.1",           DUKE11_CRC,  10442980, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL,          NULL,        NULL },
+    { "Duke Nukem 3D Shareware 1.3D",          DUKESW_CRC,  11035779, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL,          NULL,        NULL },
+    { "Duke Nukem 3D Mac Demo",                DUKEMD_CRC,  10444391, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL,          NULL,        NULL },
+    { "Duke it out in D.C.",                   DUKEDC_CRC,  8410183 , GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL,          NULL,        NULL },
+    { "Duke Caribbean: Life's a Beach",        DUKECB_CRC,  22213819, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL,          NULL,        NULL },
+    { "Duke: Nuclear Winter",                  DUKENW_CRC,  16169365, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "nwinter.con", NULL,        NULL },
+    { "NAM",                                   NAM_CRC,     43448927, GAMEFLAG_NAM,                          0, "nam.con",     "nam.def",   NULL },
+    { "NAPALM",                                NAPALM_CRC,  44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,          0, "napalm.con",  "nam.def",   NULL },
+    { "WWII GI",                               WW2GI_CRC,   77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,           0, "ww2gi.con",   "ww2gi.def", NULL },
 };
 struct grpfile *foundgrps = NULL;
 struct grpfile *listgrps = NULL;
@@ -453,6 +456,9 @@ int32_t ScanGroups(void)
                 continue;
             }
         }
+
+        if (igrp->game && !grp->game)
+            grp->game = igrp->game;
 
         grp=grp->next;
     }
