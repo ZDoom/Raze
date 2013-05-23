@@ -5356,7 +5356,7 @@ void G_SaveMapState(void)
     mapstate_t *save;
 
     if (mapinfo->savedstate == NULL)
-        mapinfo->savedstate = Bcalloc(1,sizeof(mapstate_t));
+        mapinfo->savedstate = (mapstate_t *)Bcalloc(1,sizeof(mapstate_t));
     save = mapinfo->savedstate;
 
     if (save != NULL)
