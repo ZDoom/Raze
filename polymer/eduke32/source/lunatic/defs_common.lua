@@ -408,9 +408,13 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
 void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall,
              int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch,
              int32_t (*blacklist_sprite_func)(int32_t));
+void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags);
 void getzrange(const vec3_t *pos, int16_t sectnum,
                int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit,
                int32_t walldist, uint32_t cliptype);
+int32_t clipmovex(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
+                  int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype,
+                  uint8_t noslidep);
 
 int32_t ldist(const spritetype *s1, const spritetype *s2);
 int32_t dist(const spritetype *s1, const spritetype *s2);
@@ -440,6 +444,7 @@ int32_t Mulscale(int32_t a, int32_t b, int32_t sh);
 
 local bcheck = require("bcheck")
 local check_sector_idx = bcheck.sector_idx
+local check_wall_idx = bcheck.wall_idx
 local check_sprite_idx = bcheck.sprite_idx
 local check_tile_idx = bcheck.tile_idx
 
@@ -544,7 +549,7 @@ local walltype_mt = {
             -- NOTE: Allow setting a wall to white too, but no checking of the
             -- consistency invariant ".nextwall>=0 iff .nextsector>=0".
             if (not (nextwall < 0)) then
-                bcheck.wall_idx(nextwall)
+                check_wall_idx(nextwall)
             end
             ffi.cast(walltype_ptr_ct, w).nextwall = nextwall
         end,
@@ -792,6 +797,13 @@ sms._nextspritesect = creategtab(ffiC.nextspritesect, ffiC.MAXSPRITES, 'nextspri
 sms._nextspritestat = creategtab(ffiC.nextspritestat, ffiC.MAXSPRITES, 'nextspritestat[]')
 sms._prevspritesect = creategtab(ffiC.prevspritesect, ffiC.MAXSPRITES, 'prevspritesect[]')
 sms._prevspritestat = creategtab(ffiC.prevspritestat, ffiC.MAXSPRITES, 'prevspritestat[]')
+
+function static_members.wall.dragto(wallnum, pos)
+    check_wall_idx(wallnum)
+
+    -- TODO: some kind of validation of the position?
+    ffiC.dragpoint(wallnum, pos.x, pos.y, 0)
+end
 
 function static_members.sprite.changesect(spritenum, sectnum, noerr)
     check_sprite_idx(spritenum)

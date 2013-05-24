@@ -59,8 +59,10 @@ getangle;
 Mulscale;
 cansee;
 hitscan;
+dragpoint;
 neartag;
 getzrange;
+clipmovex;
 rotatesprite_;
 setaspect;
 

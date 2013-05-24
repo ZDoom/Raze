@@ -39,6 +39,7 @@ local cansee, hitscan, neartag = dc.cansee, dc.hitscan, dc.neartag
 local inside = dc.inside
 
 local sector, wall, sprite = dc.sector, dc.wall, dc.sprite
+local wallsofsect = dc.wallsofsect
 local spritesofsect, spritesofstat = dc.spritesofsect, dc.spritesofstat
 
 local OUR_NAME = "_con"
@@ -1284,6 +1285,16 @@ function _getzrange(x, y, z, sectnum, walldist, clipmask)
            hit.f.z, hit.f.num + (hit.f.spritep and 49152 or 16384)
 end
 
+-- CON "clipmove" and "clipmovenoslide" commands
+function _clipmovex(x, y, z, sectnum, xv, yv, wd, cd, fd, clipmask, noslidep)
+    check_sector_idx(sectnum)
+    local ipos = geom.ivec3(x, y, z)
+    local sect = ffi.new("int16_t [1]")
+    local ret = ffiC.clipmovex(ipos, sect, xv, yv, wd, cd, fd, clipmask, noslidep)
+    -- Return: clipmovex() return value; updated x, y, sectnum
+    return ret, ipos.x, ipos.y, sect[0]
+end
+
 function _sleepcheck(aci, dist)
     local acs = actor[aci]
     if (dist > MAXSLEEPDIST and acs.timetosleep == 0) then
@@ -1960,7 +1971,7 @@ local gamearray_methods = {
     end,
 
     _serialize = function(gar)
-        local strtab = { OUR_NAME..".actorvar(", tostring(gar._size), ",{" }
+        local strtab = { OUR_NAME.."._gamearray(", tostring(gar._size), ",{" }
         gar:_cleanup()
         return serialize_array(gar, strtab, gar._size)
     end,

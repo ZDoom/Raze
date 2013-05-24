@@ -1743,6 +1743,18 @@ local handle =
                       unpack(vals))
     end,
 
+    clipmove = function(noslidep, ...)
+        local v = {...}
+        assert(#v == 11)  -- 3W 1R 1W 6R
+        local vals = {
+            v[1], v[2], v[3], v[5],  -- outargs
+            v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11],  -- inargs
+            noslidep
+        }
+        return format("%s,%s,%s,%s=_con._clipmovex("..n_s_fmt(11)..")",
+                     unpack(vals))
+    end,
+
     palfrom = function(...)
         local v = {...}
         return format(PLS":_palfrom(%d,%d,%d,%d)",
@@ -2228,17 +2240,17 @@ local Cinner = {
     ldist = cmd(W,R,R)
         / "%1=_xmath.ldist(sprite[%2],sprite[%3])",
     dragpoint = cmd(R,R,R)
-        / handle.NYI,
+        / "wall.dragto(%1,_IV(1,%2,%3,0))",
     rotatepoint = cmd(R,R,R,R,R,W,W)
         / "%6,%7=_con._rotatepoint(%1,%2,%3,%4,%5)",
 
     -- collision detection etc.
     hitscan = cmd(R,R,R,R,R,R,R,W,W,W,W,W,W,R)  -- 7R 6W 1R
         / handle.hitscan,
-    clipmove = cmd(W,W,W,R,W,R,R,R,R,R,R)
-        / handle.NYI,
-    clipmovenoslide = cmd(W,W,W,R,W,R,R,R,R,R,R)
-        / handle.NYI,
+    clipmove = cmd(W,W,W,R,W,R,R,R,R,R,R)  -- 3W 1R 1W 6R
+        / function(...) return handle.clipmove(0, ...) end,
+    clipmovenoslide = cmd(W,W,W,R,W,R,R,R,R,R,R)  -- 3W 1R 1W 6R
+        / function(...) return handle.clipmove(1, ...) end,
     lineintersect = cmd(R,R,R,R,R,R,R,R,R,R,W,W,W,W)  -- 10R 4W
         / handle.NYI,
     rayintersect = cmd(R,R,R,R,R,R,R,R,R,R,W,W,W,W)  -- 10R 4W
