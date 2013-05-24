@@ -134,6 +134,7 @@ local function sb_get_initial_strbuf()
     return {
         "local nan, inf = 0/0, 1/0",
         "local t, f = true, false",
+        "local pairs = assert(pairs)",
         -- Clear table function:
         "local function ct(t)",
         "  for k in pairs(t) do t[k]=nil end",

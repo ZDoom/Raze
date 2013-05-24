@@ -1765,6 +1765,13 @@ static void G_PrintFPS(void)
 // yxaspect and viewingrange just before the 'main' drawrooms call
 static int32_t dr_yxaspect, dr_viewingrange;
 
+#ifdef DEBUGGINGAIDS
+static struct {
+    uint32_t lastgtic;
+    uint32_t lastnumins, numins;
+} g_spriteStat;
+#endif
+
 static void G_PrintCoords(int32_t snum)
 {
     const int32_t x = 250;
@@ -1802,7 +1809,19 @@ static void G_PrintCoords(int32_t snum)
     printext256(x,y+54,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"GAMETIC= %d",g_moveThingsCount);
     printext256(x,y+63,31,-1,tempbuf,0);
-
+#ifdef DEBUGGINGAIDS
+    Bsprintf(tempbuf,"NUMSPRITES= %d", Numsprites);
+    printext256(x,y+72,31,-1,tempbuf,0);
+    if (g_moveThingsCount > g_spriteStat.lastgtic + REALGAMETICSPERSEC)
+    {
+        g_spriteStat.lastgtic = g_moveThingsCount;
+        g_spriteStat.lastnumins = g_spriteStat.numins;
+        g_spriteStat.numins = 0;
+    }
+    Bsprintf(tempbuf,"INSERTIONS/s= %u", g_spriteStat.lastnumins);
+    printext256(x,y+81,31,-1,tempbuf,0);
+    y += 2*9;
+#endif
     y += 7;
     Bsprintf(tempbuf,"VR=%.03f  YX=%.03f",(double)dr_viewingrange/65536.0,(double)dr_yxaspect/65536.0);
     printext256(x,y+72,31,-1,tempbuf,0);
@@ -4138,6 +4157,10 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
                           s_pn,s_ow < 0 ? -1 : TrackerCast(sprite[s_ow].picnum),s_ow,s_x,s_y,s_z,whatsect);
         G_GameExit("Too many sprites spawned.");
     }
+
+#ifdef DEBUGGINGAIDS
+    g_spriteStat.numins++;
+#endif
 
     s = &sprite[i];
 

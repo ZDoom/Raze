@@ -1057,13 +1057,14 @@ static void sv_makevarspec()
     static char *magic = "blK:vars";
     int32_t i, j, numsavedvars=0, per;
 
-    if (svgm_vars)
-        Bfree(svgm_vars);
-
     for (i=0; i<g_gameVarCount; i++)
         numsavedvars += (aGameVars[i].dwFlags&SV_SKIPMASK) ? 0 : 1;
 
+    Bfree(svgm_vars);
     svgm_vars = (dataspec_t *)Bmalloc((numsavedvars+g_gameArrayCount+2)*sizeof(dataspec_t));
+
+    if (svgm_vars == NULL)
+        G_GameExit("OUT OF MEMORY in sv_makevarspec()\n");
 
     svgm_vars[0].flags = DS_STRING;
     svgm_vars[0].ptr = magic;
