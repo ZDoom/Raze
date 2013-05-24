@@ -147,7 +147,7 @@ ifneq (0,$(LUNATIC))
     EDITOROBJS+= $(OBJ)/lunatic_m32.$o $(LUNATIC_COMMON_OBJS)
     GAMEOBJS+= $(OBJ)/lunatic_game.$o $(LUNATIC_COMMON_OBJS)
 
-    GAMEOBJS+= $(OBJ)/../lpeg.$o  # TEMP
+    GAMEOBJS+= $(OBJ)/../lpeg.a  # TEMP
     GAMEOBJS+= $(OBJ)/luaJIT_BC_con_lang.$o \
                $(OBJ)/luaJIT_BC_lunacon.$o \
                $(OBJ)/luaJIT_BC_geom.$o \

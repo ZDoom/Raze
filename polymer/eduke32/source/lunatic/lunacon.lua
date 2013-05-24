@@ -867,6 +867,7 @@ local function reset_gamedata()
     g_data.music = {}
 end
 
+-- TODO: PRE13 has no <dtstr> (3D Realms time).
 function Cmd.definelevelname(vol, lev, fn, ptstr, dtstr, levname)
     if (not (vol >= 0 and vol < conl.MAXVOLUMES)) then
         errprintf("volume number exceeds maximum volume count.")
@@ -1013,6 +1014,7 @@ end
 function Cmd.gamestartup(...)
     local args = {...}
 
+    -- TODO: PRE13: detection of other g_scriptVersion.
     if (#args ~= 26 and #args ~= 30) then
         errprintf("must pass either 26 (1.3D) or 30 (1.5) values")
         return
@@ -1934,6 +1936,8 @@ local Cinner = {
         / SPS".cstat=%1",
     clipdist = cmd(D)
         / SPS".clipdist=%1",
+    shadeto = cmd(D) /  -- PRE13
+        "",
     sizeto = cmd(D,D)
         / "_con._sizeto(_aci,%1,%2)",  -- TODO: see control.lua:_sizeto
     sizeat = cmd(D,D)
@@ -2052,6 +2056,8 @@ local Cinner = {
     debug = cmd(D)
         / handle.debug,
     endofgame = cmd(D)
+        / "_con._endofgame(_pli,%1)",
+    endoflevel = cmd(D)  -- PRE13
         / "_con._endofgame(_pli,%1)",
     lotsofglass = cmd(D)
         / "_con._A_SpawnGlass(_aci,%1)",
@@ -2269,6 +2275,8 @@ local Cinner = {
 
     activatebysector = cmd(R,R)
         / "_con._activatebysector(%1,%2)",
+    activate = cmd(D)  -- PRE13, THISACTOR already translated to cur. player
+        / "_con._operateactivators(%d,_pli)",
     operateactivators = cmd(R,R)  -- THISACTOR
         / function(tag, pli)
               return format("_con._operateactivators(%s,%s)", tag, thisactor_to_pli(pli))
@@ -2418,6 +2426,8 @@ local Cif = {
         / format("(%s-%s)<=256*%%1", SPS".z", ACS".ceilingz"),
     ifphealthl = cmd(D)
         / format("sprite[%s].extra<%%1", PLS".i"),
+    ifplayersl = cmd(D)  -- PRE13
+        / "1<%1",  -- TODO_MP
     ifspritepal = cmd(D)
         / SPS".pal==%1",
     ifgotweaponce = cmd(D)
