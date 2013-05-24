@@ -12512,7 +12512,7 @@ int32_t lastwall(int16_t point)
 
 ////////// CLIPMOVE //////////
 
-int32_t clipmoveboxtracenum = 3;
+static int32_t clipmoveboxtracenum = 3;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
 static int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
@@ -12658,6 +12658,23 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
         initprintf("!!clipnum\n");
         clipmove_warned = 1;
     }
+}
+
+int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
+                  int32_t xvect, int32_t yvect,
+                  int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype,
+                  uint8_t noslidep)
+{
+    int32_t ret;
+    const int32_t oboxtracenum = clipmoveboxtracenum;
+
+    if (noslidep)
+        clipmoveboxtracenum = 1;
+    ret = clipmove(pos, sectnum, xvect, yvect,
+                   walldist, ceildist, flordist, cliptype);
+    clipmoveboxtracenum = oboxtracenum;
+
+    return ret;
 }
 
 //
