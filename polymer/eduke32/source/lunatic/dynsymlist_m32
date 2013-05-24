@@ -81,6 +81,8 @@ getticks;
 gethitickms;
 OSD_Printf;
 
+crc32once;
+
 luaJIT_BC_defs_common;
 luaJIT_BC_engine_maptext;
 

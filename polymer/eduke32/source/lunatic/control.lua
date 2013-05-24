@@ -1768,14 +1768,26 @@ local function kopen4load(fn, searchfirst)
 end
 
 
--- Common serialization function for gamearray and actorvar.
-local function serialize_array(ar, strtab)
-    for i,v in pairs(ar) do
-        if (type(i)=="number") then
-            assert(type(v)=="number")  -- XXX: not enforced by public API
-            strtab[#strtab+1] = "["..i.."]="..tostring(v)..","
-        end
+local function serialize_value(strtab, i, v)
+    -- Save only user values (i.e. not 'meta-fields' like '_size').
+    if (type(i)=="number" and v~=nil) then
+        strtab[#strtab+1] = "["..i.."]="..tostring(v)..","
     end
+end
+
+-- Common serialization function for gamearray and actorvar.
+local function serialize_array(ar, strtab, maxnum)
+--    if (ffiC._DEBUG_LUNATIC ~= 0) then
+        -- Iterate in numeric order. XXX: also for non-debug?
+        for i=0,maxnum-1 do
+            serialize_value(strtab, i, rawget(ar, i))
+        end
+--    else
+--        for i,v in pairs(ar) do
+--            serialize_value(strtab, i, v)
+--        end
+--    end
+
     strtab[#strtab+1] = "})"
 
     return table.concat(strtab)
@@ -1929,6 +1941,18 @@ local gamearray_methods = {
     end,
 
 
+    --- Internal routines ---
+
+    --  * All values equal to the default one (0) are cleared.
+    _cleanup = function(gar)
+        for i=0,gar._size-1 do
+            if (rawget(gar, i)==0) then
+                rawset(gar, i, nil)
+            end
+        end
+    end,
+
+
     --- Serialization ---
 
     _get_require = function(gar)
@@ -1937,7 +1961,8 @@ local gamearray_methods = {
 
     _serialize = function(gar)
         local strtab = { OUR_NAME..".actorvar(", tostring(gar._size), ",{" }
-        return serialize_array(gar, strtab)
+        gar:_cleanup()
+        return serialize_array(gar, strtab, gar._size)
     end,
 }
 
@@ -1954,16 +1979,6 @@ local gamearray_mt = {
     __newindex = function(gar, idx, val)
         check_gamearray_idx(gar, idx)
         rawset(gar, idx, val)
-    end,
-
-    -- Calling a gamearray causes its cleanup:
-    --  * All values equal to the default one (0) are cleared.
-    __call = function(gar)
-        for i=0,gar._size-1 do
-            if (rawget(gar, i)==0) then
-                rawset(gar, i, nil)
-            end
-        end
     end,
 
     __metatable = "serializeable",
@@ -2004,6 +2019,19 @@ end
 
 -- Per-actor variable.
 local actorvar_methods = {
+    --- Internal routines ---
+
+    --  * All values for sprite not in the game world are cleared.
+    --  * All values equal to the default one are cleared.
+    _cleanup = function(acv)
+        for i=0,ffiC.MAXSPRITES-1 do
+            if (ffiC.sprite[i].statnum == ffiC.MAXSTATUS or rawget(acv, i)==acv._defval) then
+                rawset(acv, i, nil)
+            end
+        end
+    end,
+
+
     --- Serialization ---
 
     _get_require = function(acv)
@@ -2012,7 +2040,10 @@ local actorvar_methods = {
 
     _serialize = function(acv)
         local strtab = { OUR_NAME..".actorvar(", tostring(acv._defval), ",{" }
-        return serialize_array(acv, strtab)
+        -- TODO: Must clean up sometime if not saving, too. (That is, what is
+        -- A_ResetVars() in the C-CON build.)
+        acv:_cleanup()
+        return serialize_array(acv, strtab, ffiC.MAXSPRITES)
     end,
 }
 
@@ -2030,17 +2061,6 @@ local actorvar_mt = {
     __newindex = function(acv, idx, val)
         check_sprite_idx(idx)
         rawset(acv, idx, val)
-    end,
-
-    -- Calling a per-actor variable causes its cleanup:
-    --  * All values for sprite not in the game world are cleared.
-    --  * All values equal to the default one are cleared.
-    __call = function(acv)
-        for i=0,ffiC.MAXSPRITES-1 do
-            if (ffiC.sprite[i].statnum == ffiC.MAXSTATUS or rawget(acv, i)==acv._defval) then
-                rawset(acv, i, nil)
-            end
-        end
     end,
 
     __metatable = "serializeable",

@@ -81,6 +81,8 @@ getticks;
 gethitickms;
 OSD_Printf;
 
+crc32once;
+
 luaJIT_BC_defs_common;
 luaJIT_BC_engine_maptext;
 
@@ -169,7 +171,6 @@ luaJIT_BC_savegame;
 
 rand_jkiss_u32;
 rand_jkiss_dbl;
-md4once;
 
 A_IncurDamage;
 G_CheckActivatorMotion;
