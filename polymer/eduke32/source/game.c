@@ -9905,6 +9905,10 @@ void El_CreateGameState(void)
 
     if (i)
         G_GameExit("Failure setting up Lunatic!");
+
+# if !defined DEBUGGINGAIDS
+    El_ClearErrors();
+# endif
 }
 #endif
 

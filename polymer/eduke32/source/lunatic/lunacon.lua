@@ -109,7 +109,7 @@ local g_defaultDir = nil
 -- -Wno-bad-identifier for disabling the "bad identifier" warning.
 local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
                  ["number-conversion"]=true, ["system-gamevar"]=true,
-                 ["error-bad-getactorvar"]=false, }
+                 ["error-bad-getactorvar"]=false, ["chained-loadactor"]=true, }
 
 -- Code generation and output options.
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
@@ -459,7 +459,7 @@ function on.eventloadactor_end(pos, tilenum, codetab)
     addcode("end")
     addcode("end)")
 
-    if (g_code.loadactor[tilenum] ~= nil) then
+    if (g_code.loadactor[tilenum] ~= nil and g_warn["chained-loadactor"]) then
         -- NOTE: C-CON redefines loadactor code if encountered multiple times.
         pwarnprintf(pos, "chained additional loadactor %d code", tilenum)
     end

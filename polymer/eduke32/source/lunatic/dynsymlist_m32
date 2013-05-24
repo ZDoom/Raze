@@ -15,6 +15,7 @@ numsectors;
 numwalls;
 numyaxbunches;
 spritesortcnt;
+guniqhudid;
 
 rendmode;
 totalclock;
