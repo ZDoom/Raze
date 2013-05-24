@@ -4396,19 +4396,29 @@ finish_qsprintf:
                 if ((sidx+numelts) > ssiz) numelts = ssiz-sidx;
                 if ((didx+numelts) > dsiz) numelts = dsiz-didx;
 
+                // Switch depending on the source array type.
                 switch (aGameArrays[si].dwFlags & GAMEARRAY_TYPE_MASK)
                 {
                 case 0:
+                    // CON array to CON array.
+                    Bmemcpy(aGameArrays[di].plValues+didx, aGameArrays[si].plValues+sidx, numelts*GAR_ELTSZ);
+                    break;
                 case GAMEARRAY_OFINT:
-                    Bmemcpy((int32_t *)aGameArrays[di].plValues + didx, (int32_t *)aGameArrays[si].plValues + sidx, numelts * sizeof(int32_t));
+                    // From int32-sized array. Note that the CON array element
+                    // type is intptr_t, so it is different-sized on 64-bit
+                    // archs, but same-sized on 32-bit ones.
+                    for (; numelts>0; numelts--)
+                        (aGameArrays[di].plValues)[didx++] = ((int32_t *)aGameArrays[si].plValues)[sidx++];
                     break;
                 case GAMEARRAY_OFSHORT:
+                    // From int16_t array. Always different-sized.
                     for (; numelts>0; numelts--)
-                        ((int32_t *)aGameArrays[di].plValues)[didx++] = ((int16_t *)aGameArrays[si].plValues)[sidx++];
+                        (aGameArrays[di].plValues)[didx++] = ((int16_t *)aGameArrays[si].plValues)[sidx++];
                     break;
                 case GAMEARRAY_OFCHAR:
+                    // From char array. Always different-sized.
                     for (; numelts>0; numelts--)
-                        ((int32_t *)aGameArrays[di].plValues)[didx++] = ((uint8_t *)aGameArrays[si].plValues)[sidx++];
+                        (aGameArrays[di].plValues)[didx++] = ((uint8_t *)aGameArrays[si].plValues)[sidx++];
                     break;
                 }
                 continue;
