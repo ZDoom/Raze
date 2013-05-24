@@ -13,6 +13,7 @@ local table = require("table")
 local arg = arg
 
 local assert = assert
+--local error = error
 local ipairs = ipairs
 local loadstring = loadstring
 local pairs = pairs
@@ -43,6 +44,7 @@ else
 end
 
 
+
 module("lunacon")
 
 
@@ -66,6 +68,15 @@ local function match_until(matchsp, untilsp)  -- (!untilsp matchsp)* in PEG
     return (matchsp - Pat(untilsp))^0
 end
 
+--[[
+local function format(fmt, ...)
+    local ok, res = pcall(string.format, fmt, ...)
+    if (not ok) then
+        error(string.format("FAILED format(%q, ...) | message: %s", fmt, res))
+    end
+    return res
+end
+--]]
 local format = string.format
 
 local function printf(fmt, ...)
@@ -1179,7 +1190,8 @@ function Cmd.gamevar(identifier, initval, flags)
     g_gamevar[identifier] = gv
 
     -- TODO: Write gamevar system on the Lunatic side and hook it up.
-    -- TODO: per-player gamevars
+    -- TODO: per-player gamevars. Currently, no error on using per-player var
+    -- in no-player context!
     if (bit.band(flags, GVFLAG.PERX_MASK)==GVFLAG.PERACTOR) then
         addcodef("%s=_con.actorvar(%d)", gv.name, initval)
     else
@@ -1737,7 +1749,7 @@ local handle =
 
     qsprintf = function(qdst, qsrc, ...)
         local codes = {...}
-        return format("_con._qsprintf(%d,%d%s%s)", qdst, qsrc,
+        return format("_con._qsprintf(%s,%s%s%s)", qdst, qsrc,
                       #codes>0 and "," or "", table.concat(codes, ','))
     end,
 
