@@ -1376,7 +1376,7 @@ local function our_require(modname, ...)
         errorf(ERRLEV-1, "Couldn't open file \"%s\"", modfn)
     end
 
-    local modfunc, errmsg = loadstring(str)
+    local modfunc, errmsg = loadstring(str, modfn)
     if (modfunc == nil) then
         errorf(ERRLEV-1, "Couldn't load \"%s\": %s", modname, errmsg)
     end

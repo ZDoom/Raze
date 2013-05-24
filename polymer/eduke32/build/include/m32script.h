@@ -122,7 +122,6 @@ enum GamevarFlags_t {
     GAMEVAR_CHARPTR    = 0x00010000, // plValues is a pointer to a char
     GAMEVAR_PTR_MASK = GAMEVAR_INTPTR|GAMEVAR_FLOATPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR,
 
-//    GAMEVAR_NORESET    = 0x00020000, // var values are not reset when restoring map state
     GAMEVAR_SPECIAL    = 0x00040000, // flag for structure member shortcut vars
 };
 
@@ -142,7 +141,6 @@ enum GamearrayFlags_t {
     GAMEARRAY_VARSIZE = 0x00000020,
 
     GAMEARRAY_RESET    = 0x00000008,
-///    GAMEARRAY_NORESET  = 0x00000001,
 };
 
 typedef struct {

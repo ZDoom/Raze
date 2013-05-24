@@ -1113,6 +1113,12 @@ function Cmd.gamevar(identifier, initval, flags)
         return
     end
 
+    local GVFLAG_NYI = GVFLAG.NODEFAULT + GVFLAG.NORESET
+    if (bit.band(flags, GVFLAG_NYI) ~= 0) then
+        warnprintf("gamevar \"%s\" flag(s) %d: not yet implemented",
+                   identifier, bit.band(flags, GVFLAG_NYI))
+    end
+
     if (flags==GVFLAG.PERPLAYER+GVFLAG.PERACTOR) then
         errprintf("invalid gamevar flags: must be either PERPLAYER or PERACTOR, not both")
         return
@@ -3227,14 +3233,23 @@ local function handle_cmdline_arg(str)
                 local val = true
                 local warnstr = str:sub(3)
 
-                if (warnstr:sub(1,3)=="no-") then
-                    val = false
-                    warnstr = warnstr:sub(4)
-                end
-
-                if (type(g_warn[warnstr])=="boolean") then
-                    g_warn[warnstr] = val
+                if (warnstr == "all") then
+                    -- Enable all warnings.
+                    for wopt in pairs(g_warn) do
+                        g_warn[wopt] = true
+                    end
                     ok = true
+                else
+                    -- Enable or disable a particular warning.
+                    if (warnstr:sub(1,3)=="no-") then
+                        val = false
+                        warnstr = warnstr:sub(4)
+                    end
+
+                    if (type(g_warn[warnstr])=="boolean") then
+                        g_warn[warnstr] = val
+                        ok = true
+                    end
                 end
 
             -- -fno* special handling

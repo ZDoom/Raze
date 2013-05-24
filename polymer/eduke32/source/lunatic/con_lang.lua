@@ -725,8 +725,8 @@ local SectorLabels = {
     hitag = SEC".hitag",
     extra = SEC".extra",
 
-    ceilingbunch = {},
-    floorbunch = {},
+    ceilingbunch = { SEC".ceilingbunch" },
+    floorbunch = { SEC".floorbunch" },
 
     ulotag = S2U(SEC".lotag"),
     uhitag = S2U(SEC".hitag"),
