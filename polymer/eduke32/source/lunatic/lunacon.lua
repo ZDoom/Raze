@@ -764,7 +764,7 @@ end
 
 local function parse(contents) end -- fwd-decl
 
-local function do_include_file(dirname, filename)
+local function do_include_file(dirname, filename, isroot)
     assert(type(filename)=="string")
 
     if (g_have_file[filename] ~= nil) then
@@ -783,7 +783,7 @@ local function do_include_file(dirname, filename)
         local io = require("io")
 
         local fd, msg = io.open(dirname..filename)
-        if (fd == nil) then
+        if (fd == nil and not isroot) then
             -- strip up to and including first slash:
             filename = filename:gsub("^.-/", "")
             fd, msg = io.open(dirname..filename)
@@ -795,12 +795,12 @@ local function do_include_file(dirname, filename)
                 dirname = g_defaultDir.."/"
                 fd, msg = io.open(dirname..filename)
             end
+        end
 
-            if (fd == nil) then
-                printf("[%d] Fatal error: couldn't open %s", g_recurslevel, msg)
-                g_numerrors = inf
-                return
-            end
+        if (fd == nil) then
+            printf("[%d] Fatal error: couldn't open %s", g_recurslevel, msg)
+            g_numerrors = inf
+            return
         end
 
         contents = fd:read("*all")
@@ -841,7 +841,7 @@ function Cmd.nyi(msg)
 end
 
 function Cmd.include(filename)
-    do_include_file(g_directory, filename)
+    do_include_file(g_directory, filename, false)
 end
 
 --- Per-module game data
@@ -3364,9 +3364,9 @@ if (string.dump) then
 
         -- NOTE: xpcall isn't useful here since the traceback won't give us
         -- anything inner to the lpeg.match call
-        local ok, msg = pcall(do_include_file, g_directory, filename)
+        local ok, msg = pcall(do_include_file, g_directory, filename, true)
         -- ^v Swap commenting (comment top, uncomment bottom line) to get backtraces
---        local ok, msg = true, do_include_file(g_directory, filename)
+--        local ok, msg = true, do_include_file(g_directory, filename, true)
 
         if (not ok) then
             print_on_failure(msg)
@@ -3434,7 +3434,7 @@ else
         reset_all()
 
         for _, fname in ipairs(filenames) do
-            local ok, msg = pcall(do_include_file, "", fname)
+            local ok, msg = pcall(do_include_file, "", fname, true)
             if (not ok or g_numerrors > 0) then
                 if (not ok) then
                     -- Unexpected error in the Lua code (i.e. a bug here).
