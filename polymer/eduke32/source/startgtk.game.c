@@ -895,7 +895,7 @@ int32_t startwin_run(void)
     if (ud.config.NoAutoLoad) settings.autoload = FALSE;
     else settings.autoload = TRUE;
 #ifdef POLYMER
-    if (glrendmode == RDR_POLYMER)
+    if (glrendmode == REND_POLYMER)
     {
         if (settings.bpp3d == 8) settings.bpp3d = 32;
         settings.polymer = TRUE;
