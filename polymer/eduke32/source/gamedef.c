@@ -5625,7 +5625,7 @@ repeatcase:
             while (*textptr == ' '  || *textptr == '\t') textptr++;
 
             // cheap hack, 0.99 doesn't have the 3D Realms time
-            if (*(textptr+2) == ':' && g_scriptVersion == 10)
+            if (*(textptr+2) == ':')
             {
                 MapInfo[j *MAXLEVELS+k].designertime =
                     (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
@@ -5634,7 +5634,7 @@ repeatcase:
                 textptr += 5;
                 while (*textptr == ' '  || *textptr == '\t') textptr++;
             }
-            else g_scriptVersion = 9;
+            else if (g_scriptVersion == 10) g_scriptVersion = 9;
 
             i = 0;
 
