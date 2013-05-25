@@ -4391,9 +4391,9 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case CON_ACTIVATE:
-            *g_scriptPtr = CON_OPERATEACTIVATORS;
+            *(g_scriptPtr-1) = CON_OPERATEACTIVATORS;
             C_GetNextValue(LABEL_DEFINE);
-            *g_scriptPtr++ = g_iThisActorID;
+            *g_scriptPtr++ = 0;
             continue;
 
         case CON_DRAGPOINT:
@@ -5625,7 +5625,7 @@ repeatcase:
             while (*textptr == ' '  || *textptr == '\t') textptr++;
 
             // cheap hack, 0.99 doesn't have the 3D Realms time
-            if (*(textptr+2) == ':')
+            if (*(textptr+2) == ':' && g_scriptVersion == 10)
             {
                 MapInfo[j *MAXLEVELS+k].designertime =
                     (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
