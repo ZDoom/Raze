@@ -284,6 +284,14 @@ local function new_initial_gvartab()
         STICKYBOMB_LIFETIME = PRW(PLSX".tripbombLifetime"),
         STICKYBOMB_LIFETIME_VAR = PRW(PLSX".tripbombLifetimeVar"),
 
+        -- Some *writable* system gamevars relating to multiplayer.
+        -- TODO_MP.
+        RESPAWN_MONSTERS = RO "0",
+        RESPAWN_ITEMS = RO "0",
+        RESPAWN_INVENTORY = RO "0",
+        MONSTERS_OFF = RO "0",
+        MARKER = RO "0",
+
         -- These are not 100% authentic (they're only updated in certain
         -- circumstances, see player.c: P_SetWeaponGamevars()). But IMO it's
         -- more useful like this.
@@ -1051,8 +1059,8 @@ end
 function Cmd.music(volnum, ...)
     local envmusicp = (volnum==0)
 
-    if (not (volnum >= 0 and volnum <= conl.MAXVOLUMES)) then
-        -- NOTE: Don't allow MAXVOLUMES+1 for now.
+    if (not (volnum >= 0 and volnum <= conl.MAXVOLUMES+1)) then
+        -- NOTE: Also allow MAXVOLUMES+1.
         errprintf("volume number must be between 0 and MAXVOLUMES=%d", conl.MAXVOLUMES)
         return
     end
@@ -1198,6 +1206,13 @@ function Cmd.gamevar(identifier, initval, flags)
         addcodef("%s=_con.actorvar(%d)", gv.name, initval)
     else
         addcodef("%s=%d", gv.name, initval)
+    end
+end
+
+function Cmd.dynamicremap()
+    if (g_dyntilei==nil) then
+        print("Using dynamic tile remapping");
+        g_dyntilei=true;
     end
 end
 
@@ -1347,7 +1362,7 @@ local Couter = {
 
     --- 2. Defines and Meta-Settings
     dynamicremap = cmd()
-        / function() print("Using dynamic tile remapping"); g_dyntilei=true; end,
+        / Cmd.dynamicremap,
     setcfgname = sp1 * tok.filename
         / Cmd.nyi("`setcfgname'"),
     setdefname = sp1 * tok.filename

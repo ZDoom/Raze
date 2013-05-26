@@ -272,7 +272,7 @@ __attribute__((packed)) struct {
     bool holster_weapon;
     uint8_t falling_counter, footprintshade;
     uint8_t refresh_inventory;
-    const uint8_t last_full_weapon;
+    const<W> uint8_t last_full_weapon;
 
     bool toggle_key_flag;
     uint8_t knuckle_incs, knee_incs, access_incs;
