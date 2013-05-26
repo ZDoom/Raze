@@ -2064,16 +2064,15 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         m0.x = m->scale * g; m1.x = m->scale *f;
         m0.y = m->scale * g; m1.y = m->scale *f;
         m0.z = m->scale * g; m1.z = m->scale *f;
-        a0.x = a0.y = 0; a0.z = ((globalorientation&8)?-m->zadd:m->zadd)*m->scale;
     }
     else
     {
         m0.x = (1.0/64.0) * m->scale * g; m1.x = (1.0/64.0) * m->scale *f;
         m0.y = (1.0/64.0) * m->scale * g; m1.y = (1.0/64.0) * m->scale *f;
         m0.z = (1.0/64.0) * m->scale * g; m1.z = (1.0/64.0) * m->scale *f;
-        a0.x = a0.y = 0; a0.z = ((globalorientation&8)?-m->zadd:m->zadd)*m->scale;
     }
 
+    a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
     k0 = (float)tspr->z;
