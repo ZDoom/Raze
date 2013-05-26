@@ -1769,6 +1769,7 @@ static int32_t dr_yxaspect, dr_viewingrange;
 static struct {
     uint32_t lastgtic;
     uint32_t lastnumins, numins;
+    int32_t numonscreen;
 } g_spriteStat;
 #endif
 
@@ -1820,7 +1821,9 @@ static void G_PrintCoords(int32_t snum)
     }
     Bsprintf(tempbuf,"INSERTIONS/s= %u", g_spriteStat.lastnumins);
     printext256(x,y+81,31,-1,tempbuf,0);
-    y += 2*9;
+    Bsprintf(tempbuf,"ONSCREEN= %d", g_spriteStat.numonscreen);
+    printext256(x,y+90,31,-1,tempbuf,0);
+    y += 3*9;
 #endif
     y += 7;
     Bsprintf(tempbuf,"VR=%.03f  YX=%.03f",(double)dr_viewingrange/65536.0,(double)dr_yxaspect/65536.0);
@@ -6336,7 +6339,11 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
     int32_t j, k, p, sect;
     intptr_t l;
 
-    if (!spritesortcnt) return;
+#ifdef DEBUGGINGAIDS
+    g_spriteStat.numonscreen = spritesortcnt;
+#endif
+    if (spritesortcnt == 0)
+        return;
 
     ror_sprite = -1;
 
