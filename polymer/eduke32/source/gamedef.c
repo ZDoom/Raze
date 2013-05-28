@@ -3980,14 +3980,14 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_SETTSPR:
             {
                 int32_t lLabelID;
-
+#if 0
                 if (g_currentEvent != EVENT_ANIMATESPRITES)
                 {
                     C_ReportError(-1);
                     initprintf("%s:%d: warning: found `%s' outside of EVENT_ANIMATESPRITES\n",g_szScriptFileName,g_lineNumber,tempbuf);
                     g_numCompilerWarnings++;
                 }
-
+#endif
                 // syntax getwall[<var>].x <VAR>
                 // gets the value of wall[<var>].xxx into <VAR>
 
