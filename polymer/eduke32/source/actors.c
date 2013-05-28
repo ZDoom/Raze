@@ -596,6 +596,12 @@ void A_DeleteSprite(int32_t s)
         A_DeleteLight(s);
 #endif
 
+    if (sprite[s].picnum == MUSICANDSFX && actor[s].t_data[8]==1)
+    {
+        // AMBIENT_SFX_PLAYING
+        S_StopEnvSound(sprite[s].lotag, s);
+    }
+
     // NetAlloc
     if (Net_IsRelevantSprite(s))
     {
@@ -1328,6 +1334,7 @@ ACTOR_STATIC void G_MoveFX(void)
 
             if (T2 != ud.config.SoundToggle)
             {
+                // If sound playback was toggled, restart.
                 T2 = ud.config.SoundToggle;
                 T1 = 0;
             }
@@ -1371,6 +1378,8 @@ ACTOR_STATIC void G_MoveFX(void)
 
                     if (x < ht && T1 == 0 && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
                     {
+                        // Start playing an ambience sound.
+
                         char om = g_sounds[s->lotag].m;
                         if (g_numEnvSoundsPlaying == ud.config.NumVoices)
                         {
@@ -1392,10 +1401,14 @@ ACTOR_STATIC void G_MoveFX(void)
                         A_PlaySound(s->lotag,i);
                         g_sounds[s->lotag].m = om;
                         T1 = 1;
+                        T9 = 1;  // AMBIENT_SFX_PLAYING
                     }
                     else if (x >= ht && T1 == 1)
                     {
+                        // Stop playing ambience sound because we're out of its range.
+
                         // T1 = 0;
+                        T9 = 0;
                         S_StopEnvSound(s->lotag,i);
                     }
                 }
