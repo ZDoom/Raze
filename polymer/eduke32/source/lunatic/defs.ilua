@@ -5,6 +5,9 @@ local require = require
 local ffi = require("ffi")
 local ffiC = ffi.C
 
+-- Lua C API functions.
+local CF = CF
+
 local bit = bit
 local string = string
 local table = table
@@ -576,6 +579,7 @@ const char *s_buildRev;
 const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
 int32_t g_elCallDepth;
+int32_t block_deletesprite;
 const char **g_argv;
 const char **g_elModules;
 char g_modDir[];
@@ -773,6 +777,26 @@ do
     our_SFLAG.USER_MASK = bit.bor(USER_MASK, our_SFLAG.enemystayput, our_SFLAG.rotfixed)
 
     actor_static_members.FLAGS = defs_c.conststruct(our_SFLAG)
+end
+
+-- Delete sprite with index <i>.
+-- TODO: make this (also?) sprite.delete() even though it's game-side?
+function actor_static_members.delete(i)
+    check_sprite_idx(i)
+
+    if (ffiC.sprite[i].statnum == ffiC.MAXSTATUS) then
+        error("Attempt to delete a sprite already not in the game world", 2)
+    end
+
+    if (ffiC.block_deletesprite ~= 0) then
+        error("Attempt to delete sprite in EVENT_EGS", 2)
+    end
+
+    if (ffiC.g_player_ps[0].i == i) then
+        error("Attempt to delete player 0's APLAYER sprite", 2)
+    end
+
+    CF.A_DeleteSprite(i)
 end
 
 local tile_static_members = {}

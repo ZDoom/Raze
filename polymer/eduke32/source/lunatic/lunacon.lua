@@ -176,7 +176,7 @@ local function new_initial_codetab()
 
         -- Cache globals into locals.
         "local sector, sprite, wall, spriteext, atsprite = sector, sprite, wall, spriteext, atsprite",
-        "local actor, player, projectile = actor, player, projectile",
+        "local actor, player, projectile, g_tile = actor, player, projectile, g_tile",
         "local gameactor, gameevent, _gv = gameactor, gameevent, gv",
         "local updatesector, updatesectorz, cansee = updatesector, updatesectorz, cansee",
         "local print, printf = print, printf",

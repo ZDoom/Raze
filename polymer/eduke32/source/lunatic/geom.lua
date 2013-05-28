@@ -63,7 +63,7 @@ local arshift = require("bit").arshift
 -- The vec3 metatable is shared between the integer- and double-based 3-vector
 -- types. However, some operations are slightly different.
 local vec3_mt = {
-    -- Arithmetic operations. Note that they always return the a dvec3.
+    -- Arithmetic operations. Note that they always return a dvec3.
     __add = function(a, b) return dvec3_t(a.x+b.x, a.y+b.y, a.z+b.z) end,
     __sub = function(a, b) return dvec3_t(a.x-b.x, a.y-b.y, a.z-b.z) end,
     __unm = function(a) return dvec3_t(-a.x, -a.y, -a.z) end,
@@ -92,6 +92,7 @@ local vec3_mt = {
     end,
 
     -- The # operator returns the Euclidean length.
+    -- TODO: REMOVE.
     __len = function(a) return math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z) end,
 
     -- INTERNAL: Calling a vector calls the constructor of its type.
@@ -105,9 +106,17 @@ local vec3_mt = {
     end,
 
     __index = {
+        -- Euclidean 3D length.
+        len = function(a) return math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z) end,
+        -- Euclidean 3D squared length.
         lensq = function(a) return a.x*a.x + a.y*a.y + a.z*a.z end,
 
-        -- Manhattan-distance length:
+        -- Euclidean 2D length.
+        len2 = function(a) return math.sqrt(a.x*a.x + a.y*a.y) end,
+        -- Euclidean 2D squared length.
+        len2sq = function(a) return a.x*a.x + a.y*a.y end,
+
+        -- Manhattan-distance 3D length:
         mhlen = function(a) return math.abs(a.x)+math.abs(a.y)+math.abs(a.z) end,
 
         toivec3 = function(v) return ivec3_t(v.x, v.y, v.z) end,

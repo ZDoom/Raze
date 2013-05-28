@@ -1573,6 +1573,8 @@ function _sound(aci, sndidx)
     CF.A_PlaySound(sndidx, aci)
 end
 
+-- NOTE: This command is really badly named in CON. It issues a sound that
+-- emanates from the current player instead of being 'system-global'.
 function _globalsound(pli, sndidx)
     -- TODO: conditional on coop, fake multimode
     if (pli==ffiC.screenpeek) then

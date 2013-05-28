@@ -271,6 +271,7 @@ extern int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s
                               int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss);
 extern void A_AddToDeleteQueue(int32_t i);
 extern int32_t A_PlaySound(uint32_t num, int32_t i);
+extern void A_DeleteSprite(int32_t s);
 
 #define LARG(index) lua_tointeger(L, index)
 
@@ -315,6 +316,7 @@ DEFINE_RET_CFUNC(A_InsertSprite, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LA
                  LARG(7), LARG(8), LARG(9), LARG(10), LARG(11), LARG(12), LARG(13))
 DEFINE_VOID_CFUNC(A_AddToDeleteQueue, ONE_ARG)
 DEFINE_RET_CFUNC(A_PlaySound, TWO_ARGS)
+DEFINE_VOID_CFUNC(A_DeleteSprite, ONE_ARG)
 
 #define CFUNC_REG(Name) { #Name, Name##_CF }
 
@@ -333,6 +335,7 @@ struct { const char *name; lua_CFunction func; } cfuncs[] =
     CFUNC_REG(A_Spawn),
     CFUNC_REG(A_AddToDeleteQueue),
     CFUNC_REG(A_PlaySound),
+    CFUNC_REG(A_DeleteSprite),
 };
 
 // Creates a global table "CF" containing the functions from cfuncs[].
