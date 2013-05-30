@@ -192,11 +192,18 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
     Bfree(ftd);
 }
 
+#undef USE_DEF_PROGRESS
+#if defined _WIN32 || defined HAVE_GTK2
+# define USE_DEF_PROGRESS
+#endif
+
 static int32_t defsparser(scriptfile *script)
 {
     int32_t tokn;
     char *cmdtokptr;
+#ifdef USE_DEF_PROGRESS
     static uint32_t iter = 0;
+#endif
 
     static const tokenlist basetokens[] =
     {
@@ -260,6 +267,7 @@ static int32_t defsparser(scriptfile *script)
 
     while (1)
     {
+#ifdef USE_DEF_PROGRESS
         if (++iter >= 50)
         {
             flushlogwindow = 1;
@@ -267,7 +275,7 @@ static int32_t defsparser(scriptfile *script)
             flushlogwindow = 0;
             iter = 0;
         }
-
+#endif
         if (quitevent) return 0;
         tokn = getatoken(script,basetokens,sizeof(basetokens)/sizeof(tokenlist));
         cmdtokptr = script->ltextptr;
