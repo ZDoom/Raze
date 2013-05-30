@@ -5692,7 +5692,7 @@ static void Keys3d(void)
         if (eitherALT)  //ALT-F (relative alignmment flip)
         {
             if (!AIMING_AT_SPRITE && ASSERT_AIMING)
-                SetFirstWall(searchsector, searchwall);
+                SetFirstWall(searchsector, searchwall, eitherSHIFT);
         }
         else
         {
@@ -7373,16 +7373,18 @@ paste_ceiling_or_floor:
         else if (AIMING_AT_CEILING_OR_FLOOR)
         {
 #ifdef YAX_ENABLE
-            j = yax_getbunch(searchsector, AIMING_AT_FLOOR);
-            if (j < 0)
+            int16_t bunchnum = yax_getbunch(searchsector, AIMING_AT_FLOOR);
+# if !defined NEW_MAP_FORMAY
+            if (bunchnum < 0)
+# endif
 #endif
                 AIMED_CEILINGFLOOR(xpanning) = 0;
             AIMED_CEILINGFLOOR(ypanning) = 0;
             AIMED_CEILINGFLOOR(stat) &= ~2;
             AIMED_CEILINGFLOOR(heinum) = 0;
 #ifdef YAX_ENABLE
-            if (j >= 0)
-                for (SECTORS_OF_BUNCH(j,!AIMING_AT_FLOOR, i))
+            if (bunchnum >= 0)
+                for (SECTORS_OF_BUNCH(bunchnum,!AIMING_AT_FLOOR, i))
                 {
                     SECTORFLD(i,stat, !AIMING_AT_FLOOR) &= ~2;
                     SECTORFLD(i,heinum, !AIMING_AT_FLOOR) = 0;

@@ -2588,45 +2588,72 @@ static void sort_walls_geometrically(int16_t *wallist, int32_t nwalls)
 }
 #endif
 
-void SetFirstWall(int32_t sectnum, int32_t wallnum)
+void SetFirstWall(int32_t sectnum, int32_t wallnum, int32_t alsoynw)
 {
 #ifdef YAX_ENABLE
-    int32_t i, j, k, startwall, endwall;
-    int16_t cf, bunchnum, tempsect, tempwall;
+    int32_t i, j, k=0;
+#endif
+    const sectortype *sec = &sector[sectnum];
 
-    for (i=0; i<numwalls; i++)
-        wall[i].cstat &= ~(1<<14);
-
-    for (cf=0; cf<2; cf++)
+    if (sec->wallptr == wallnum)
     {
-        tempsect = sectnum;
-        tempwall = wallnum;
-
-        while ((bunchnum = yax_getbunch(tempsect, cf)) >= 0 &&
-                   (tempsect=yax_is121(bunchnum, cf)) >= 0)
-        {
-            tempwall = yax_getnextwall(tempwall, cf);
-            if (tempwall < 0)
-                break;  // corrupt!
-            wall[tempwall].cstat |= (1<<14);
-        }
+        message("Wall %d already first wall of sector %d", wallnum, sectnum);
+        return;
     }
 
-    k = 0;
-    for (i=0; i<numsectors; i++)
-        for (WALLS_OF_SECTOR(i, j))
+#ifdef YAX_ENABLE
+    if (alsoynw)
+    {
+        // Also consider upper/lower TROR neighbor walls.
+        int32_t startwall, endwall;
+        int16_t cf;
+
+        for (i=0; i<numwalls; i++)
+            wall[i].cstat &= ~(1<<14);
+
+        for (cf=0; cf<2; cf++)
         {
-            if (wall[j].cstat & (1<<14))
+            int16_t bunchnum;
+            int32_t tempsect=sectnum, tempwall=wallnum;
+
+            while ((bunchnum = yax_getbunch(tempsect, cf)) >= 0 &&
+                   (tempsect=yax_is121(bunchnum, cf)) >= 0)
             {
-                setfirstwall(i, j);
-                k++;
-                break;
+                tempwall = yax_getnextwall(tempwall, cf);
+                if (tempwall < 0)
+                    break;  // corrupt!
+                wall[tempwall].cstat |= (1<<14);
             }
         }
 
+        for (i=0; i<numsectors; i++)
+            for (WALLS_OF_SECTOR(i, j))
+            {
+                if (wall[j].cstat & (1<<14))
+                {
+                    setfirstwall(i, j);
+                    k++;
+                    break;
+                }
+            }
+    }
+    else
+    {
+        // Only consider aimed at wall <wallnum>.
+        int16_t cb = yax_getbunch(sectnum, YAX_CEILING);
+        int16_t fb = yax_getbunch(sectnum, YAX_FLOOR);
+
+        if ((cb>=0 && (sec->ceilingstat&2)) || (fb >= 0 && (sec->floorstat&2)))
+        {
+            message("Extended ceilings/floors must not be sloped to set first wall");
+            return;
+        }
+    }
+
     if (k > 0)
         message("Set first walls (sector[].wallptr) for %d sectors", k+1);
-    else
+
+    if (k == 0)
 #endif
         message("This wall now sector %d's first wall (sector[].wallptr)", sectnum);
 
@@ -3851,7 +3878,7 @@ void overheadeditor(void)
             {
                 linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
                 if (linehighlight >= 0)
-                    SetFirstWall(sectorofwall(linehighlight), linehighlight);
+                    SetFirstWall(sectorofwall(linehighlight), linehighlight, 1);
             }
         }
 

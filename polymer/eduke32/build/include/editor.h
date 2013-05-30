@@ -151,7 +151,7 @@ extern void fixxrepeat(int16_t wallnum, uint32_t lenrepquot);
 extern void AlignWallPoint2(int32_t w0);
 extern int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs);
 
-extern void SetFirstWall(int32_t sectnum, int32_t wallnum);
+extern void SetFirstWall(int32_t sectnum, int32_t wallnum, int32_t alsoynw);
 extern int32_t fixspritesectors(void);
 extern void clearkeys(void);
 
