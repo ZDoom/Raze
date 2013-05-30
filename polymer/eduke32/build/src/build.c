@@ -237,7 +237,7 @@ int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
 
-    if (qsetmode != 200) return OSDCMD_OK;
+    if (!in3dmode()) return OSDCMD_OK;
 
     resetvideomode();
     if (setgamemode(fullscreen,xdim,ydim,bpp))
@@ -279,7 +279,7 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
 
-    if (qsetmode != 200)
+    if (!in3dmode())
     {
         qsetmodeany(newx,newy);
         xdim2d = xdim;
@@ -9030,10 +9030,10 @@ const char *getstring_simple(const char *querystr, const char *defaultstr, int32
 
     while (1)
     {
-        if (qsetmode==200)
+        if (in3dmode())
             getnumber_clearline();
 
-        if (qsetmode==200)
+        if (in3dmode())
             printext256(0, 0, whitecol, 0, buf, 0);
         else
             _printmessage16("%s", buf);

@@ -608,7 +608,7 @@ int32_t map_undoredo(int32_t dir)
     Bassert(Numsprites == mapstate->num[2]);
 
 #ifdef POLYMER
-    if (qsetmode == 200 && getrendermode() == REND_POLYMER)
+    if (in3dmode() && getrendermode() == REND_POLYMER)
         polymer_loadboard();
 #endif
 #ifdef YAX_ENABLE
@@ -1246,13 +1246,13 @@ const char *ExtGetSectorCaption(int16_t sectnum)
 
     Bmemset(tempbuf, 0, sizeof(tempbuf));
 
-    if (qsetmode != 200 && ((onnames!=1 && onnames!=4 && onnames!=7) || onnames==8))
+    if (!in3dmode() && ((onnames!=1 && onnames!=4 && onnames!=7) || onnames==8))
         return tempbuf;
 
-    if (qsetmode == 200 || (sector[sectnum].lotag|sector[sectnum].hitag))
+    if (in3dmode() || (sector[sectnum].lotag|sector[sectnum].hitag))
     {
         Bstrcpy(lo, ExtGetSectorType(sector[sectnum].lotag));
-        if (qsetmode != 200)
+        if (!in3dmode())
             Bsprintf_nowarn(tempbuf,"%hu,%hu %s", TrackerCast(sector[sectnum].hitag), TrackerCast(sector[sectnum].lotag), lo);
         else
             Bsprintf_nowarn(tempbuf,"%hu %s", TrackerCast(sector[sectnum].lotag), lo);
@@ -1506,7 +1506,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     int32_t totalrespawn=0;
 
     UNREFERENCED_PARAMETER(sectnum);
-    if (qsetmode==200)
+    if (in3dmode())
         return;
 
     for (i=0; i<numsectors; i++)
@@ -1631,7 +1631,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
 
     UNREFERENCED_PARAMETER(wallnum);
 
-    if (qsetmode==200)
+    if (in3dmode())
         return;
 
     clearmidstatbar16();
@@ -1777,10 +1777,10 @@ void ExtShowWallData(int16_t wallnum)       //F6
 // formerly Show2dText and Show3dText
 static void ShowFileText(const char *name)
 {
-    int32_t fp,t, in3dmode=(qsetmode==200);
+    int32_t fp,t;
     uint8_t x=0,y=4,xmax=0,xx=0,col=0;
 
-    if (!in3dmode)
+    if (!in3dmode())
     {
         clearmidstatbar16();
         drawgradient();
@@ -1789,7 +1789,7 @@ static void ShowFileText(const char *name)
     if ((fp=kopen4load(name,0)) == -1)
     {
         Bsprintf(tempbuf, "ERROR: file \"%s\" not found.", name);
-        if (in3dmode)
+        if (in3dmode())
             printext256(1*4,4*8,whitecol,-1,tempbuf,0);
         else
             printext16(1*4,ydim-STATUS2DSIZ+4*8,editorcolors[11],-1,tempbuf,0);
@@ -1813,7 +1813,7 @@ static void ShowFileText(const char *name)
         }
         tempbuf[x]=0;
 
-        if (in3dmode)
+        if (in3dmode())
             printext256(xx*4,(y*6)+2,whitecol,-1,tempbuf,1);
         else
             printext16(xx*4,ydim-STATUS2DSIZ+(y*6)+2,editorcolors[11],-1,tempbuf,1);
@@ -2611,7 +2611,7 @@ static void M32_MoveFX(void)
 void ExtShowSpriteData(int16_t spritenum)   //F6
 {
     UNREFERENCED_PARAMETER(spritenum);
-    if (qsetmode != 200)
+    if (!in3dmode())
         ShowFileText("sehelp.hlp");
 }
 
@@ -2816,7 +2816,7 @@ static void SE40Code(int32_t x,int32_t y,int32_t z,int32_t a,int32_t h)
 
 void ExtEditSectorData(int16_t sectnum)    //F7
 {
-    if (qsetmode == 200)
+    if (in3dmode())
         return;
 
     if (eitherALT)  //ALT
@@ -2836,7 +2836,7 @@ void ExtEditSectorData(int16_t sectnum)    //F7
 
 void ExtEditWallData(int16_t wallnum)       //F8
 {
-    if (qsetmode==200)
+    if (in3dmode())
         return;
 
     if (eitherALT)  //ALT
@@ -2861,7 +2861,7 @@ static void GenericSpriteSearch(void);
 
 void ExtEditSpriteData(int16_t spritenum)   //F8
 {
-    if (qsetmode==200)
+    if (in3dmode())
         return;
 
     if (eitherALT)  //ALT
@@ -2991,7 +2991,7 @@ static int32_t AskIfSure(const char *text)
 {
     int32_t retval=1;
 
-    if (qsetmode == 200)
+    if (in3dmode())
     {
         begindrawing(); //{{{
         printext256(0,0,whitecol,0,text?text:"Are you sure you want to proceed?",0);
@@ -4161,7 +4161,7 @@ restart:
 
     tilescreen_drawrest(iSelected, showmsg);
 
-    if (getrendermode() >= REND_POLYMOST && qsetmode==200 && lazyselector)
+    if (getrendermode() >= REND_POLYMOST && in3dmode() && lazyselector)
     {
         if (runi==0)
         {
@@ -9409,7 +9409,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
         insptr = script + oscrofs;
         Bmemcpy(&vm, &vm_default, sizeof(vmstate_t));
 
-        if (qsetmode==200 && AIMING_AT_SPRITE)
+        if (in3dmode() && AIMING_AT_SPRITE)
         {
             vm.g_i = searchwall;
             vm.g_sp = &sprite[vm.g_i];
@@ -10543,7 +10543,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 {
     int32_t i = 0, ii;
 
-    if (qsetmode == 200)    //In 3D mode
+    if (in3dmode())
     {
         if (shadepreview)
         {
@@ -11058,7 +11058,7 @@ static void Keys2d3d(void)
 #endif
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(A)) // 'A
     {
-        if (qsetmode == 200)
+        if (in3dmode())
             autosave = autosave?0:getnumber256("Autosave interval, in seconds: ",180,3600,0);
         else
             autosave = autosave?0:getnumber16("Autosave interval, in seconds: ",180,3600,0);
@@ -11084,7 +11084,7 @@ static void Keys2d3d(void)
 
     if (eitherCTRL)  //CTRL
     {
-        if (qsetmode != 200)
+        if (!in3dmode())
             if (PRESSED_KEYSC(P)) // Ctrl-P: Map playtesting
                 test_map(eitherALT);
 
@@ -11146,7 +11146,7 @@ static void Keys2d3d(void)
 
     if (getmessageleng > 0)
     {
-        if (qsetmode != 200)
+        if (!in3dmode())
             printmessage16("%s", getmessage);
         if (totalclock > getmessagetimeoff)
             getmessageleng = 0;
@@ -11175,7 +11175,7 @@ void ExtCheckKeys(void)
         soundinit = 1;
     }
 
-    if (qsetmode == 200 && shadepreview)
+    if (in3dmode() && shadepreview)
     {
         int32_t i = 0, ii;
         int32_t w, isec, start_wall, end_wall;
@@ -11233,7 +11233,7 @@ void ExtCheckKeys(void)
 
     Keys2d3d();
 
-    if (qsetmode == 200)    //In 3D mode
+    if (in3dmode())
     {
         Keys3d();
         editinput();

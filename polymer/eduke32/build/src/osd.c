@@ -323,6 +323,7 @@ static inline void swapptr(void *a, void *b)
 void OSD_SetTextMode(int32_t mode)
 {
     osdtextmode = (mode != 0);
+
     if (osdtextmode)
     {
         if (drawosdchar != _internal_drawosdchar)
@@ -342,7 +343,8 @@ void OSD_SetTextMode(int32_t mode)
         swapptr(&_getcolumnwidth,&getcolumnwidth);
         swapptr(&_getrowheight,&getrowheight);
     }
-    if (qsetmode == 200)
+
+    if (in3dmode())
         OSD_ResizeDisplay(xdim, ydim);
 }
 

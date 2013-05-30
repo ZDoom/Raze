@@ -4767,7 +4767,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
     int32_t i;
     pthtyp *pth;
 
-    if ((getrendermode() < REND_POLYMOST) || (qsetmode != 200)) return(-1);
+    if (getrendermode() < REND_POLYMOST || !in3dmode()) return(-1);
 
     if (!glinfo.texnpot)
     {
@@ -4925,7 +4925,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     bricolor(&p, col);
     bricolor(&b, arbackcol);
 
-    if ((getrendermode() < REND_POLYMOST) || (qsetmode != 200)) return(-1);
+    if (getrendermode() < REND_POLYMOST || !in3dmode()) return(-1);
 
     if (!polymosttext)
     {

@@ -100,6 +100,11 @@ extern int32_t joyaxespresent;
 
 extern int32_t qsetmode;
 
+static inline int32_t in3dmode(void)
+{
+    return (qsetmode==200);
+}
+
 int32_t initsystem(void);
 void uninitsystem(void);
 

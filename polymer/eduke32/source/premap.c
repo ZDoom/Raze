@@ -580,7 +580,7 @@ void G_SetupCamTile(int32_t i,int32_t wn)
 
 void G_UpdateScreenArea(void)
 {
-    if (qsetmode != 200)
+    if (!in3dmode())
         return;
 
     ud.screen_size = clamp(ud.screen_size, 0, 64);

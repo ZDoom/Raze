@@ -255,7 +255,6 @@ extern int32_t hud_glowingquotes;
 extern int32_t hud_showmapname;
 extern int32_t lastvisinc;
 extern int32_t rts_numlumps;
-extern int32_t qsetmode;
 extern int32_t quotebot;
 extern int32_t quotebotgoal;
 extern int32_t r_maxfps;

@@ -116,7 +116,7 @@ void M32_PostScriptExec(void)
     if (vm.miscflags&VMFLAG_MISC_UPDATEHLSECT)
     {
         update_highlightsector();
-        if (qsetmode != 200)
+        if (!in3dmode())
             ovh_whiteoutgrab(1);
         vm.miscflags &= ~VMFLAG_MISC_UPDATEHLSECT;
     }
@@ -2377,7 +2377,7 @@ badindex:
 //OSD_Printf("max:%d, sign:%d\n", max, sign);
                     if (tw==CON_GETNUMBERFROMUSER)
                     {
-                        Gv_SetVarX(var, (qsetmode==200) ?
+                        Gv_SetVarX(var, in3dmode() ?
                                    getnumber256(quotetext, Gv_GetVarX(var), max, sign) :
                                    getnumber16(quotetext, Gv_GetVarX(var), max, sign));
                     }
@@ -2424,17 +2424,17 @@ badindex:
                     }
                     else if (tw==CON_PRINTMESSAGE16)
                     {
-                        if (qsetmode != 200)
+                        if (!in3dmode())
                             printmessage16("%s", quotetext);
                     }
                     else if (tw==CON_PRINTMESSAGE256)
                     {
-                        if (qsetmode == 200)
+                        if (in3dmode())
                             printmessage256(x, y, quotetext);
                     }
                     else if (tw==CON_PRINTEXT256)
                     {
-                        if (qsetmode == 200)
+                        if (in3dmode())
                         {
                             if (col>=256)
                                 col=0;
@@ -2449,13 +2449,13 @@ badindex:
                     }
                     else if (tw==CON_PRINTEXT16)
                     {
-                        if (qsetmode != 200)
+                        if (!in3dmode())
                             printext16(x, y, editorcolors[col&255], backcol<0 ? -1 : editorcolors[backcol&255],
                                        quotetext, fontsize);
                     }
                     else if (tw==CON_DRAWLABEL)
                     {
-                        if (qsetmode != 200)
+                        if (!in3dmode())
                         {
                             drawsmallabel(quotetext,
                                           editorcolors[backcol&255],  // col
@@ -2976,15 +2976,15 @@ dodefault:
         continue;
 
         case CON_IFIN3DMODE:
-            VM_DoConditional(qsetmode==200);
+            VM_DoConditional(in3dmode());
             continue;
 
         // ifaimingsprite and -wall also work in 2d mode, but you must "and" with 16383 yourself
         case CON_IFAIMINGSPRITE:
-            VM_DoConditional(AIMING_AT_SPRITE || (qsetmode!=200 && pointhighlight>=16384));
+            VM_DoConditional(AIMING_AT_SPRITE || (!in3dmode() && pointhighlight>=16384));
             continue;
         case CON_IFAIMINGWALL:
-            VM_DoConditional(AIMING_AT_WALL_OR_MASK || (qsetmode!=200 && linehighlight>=0));
+            VM_DoConditional(AIMING_AT_WALL_OR_MASK || (!in3dmode() && linehighlight>=0));
             continue;
         case CON_IFAIMINGSECTOR:
             VM_DoConditional(AIMING_AT_CEILING_OR_FLOOR);

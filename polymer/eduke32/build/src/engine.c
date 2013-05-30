@@ -6670,7 +6670,7 @@ static void fillpolygon(int32_t npoints)
             xb1[z] = 0;
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && qsetmode == 200) { polymost_fillpolygon(npoints); return; }
+    if (getrendermode() >= REND_POLYMOST && in3dmode()) { polymost_fillpolygon(npoints); return; }
 #endif
 
     miny = INT32_MAX; maxy = INT32_MIN;
@@ -7190,7 +7190,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     //============================================================================= //POLYMOST BEGINS
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && in3dmode())
     {
         polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,cx1,cy1,cx2,cy2,uniqid);
         return;
@@ -10733,7 +10733,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     daxdim = max(320, daxdim);
     daydim = max(200, daydim);
 
-    if ((qsetmode == 200) && (videomodereset == 0) &&
+    if (in3dmode() && videomodereset == 0 &&
             (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
         return(0);
 
@@ -14438,7 +14438,7 @@ void clearview(int32_t dacol)
     intptr_t p;
     int32_t  y, dx;
 
-    if (qsetmode != 200) return;
+    if (!in3dmode()) return;
 
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
@@ -14475,7 +14475,7 @@ void clearview(int32_t dacol)
 //
 void clearallviews(int32_t dacol)
 {
-    if (qsetmode != 200) return;
+    if (!in3dmode()) return;
     //dacol += (dacol<<8); dacol += (dacol<<16);
 
 #ifdef USE_OPENGL
@@ -14508,7 +14508,7 @@ void clearallviews(int32_t dacol)
 void plotpixel(int32_t x, int32_t y, char col)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && in3dmode())
     {
         palette_t p = getpal(col);
 
@@ -14529,7 +14529,7 @@ void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, char c
     int32_t i;
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && in3dmode())
     {
         palette_t p = getpal(col);
 
@@ -14566,7 +14566,7 @@ char getpixel(int32_t x, int32_t y)
     char r;
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && qsetmode == 200) return 0;
+    if (getrendermode() >= REND_POLYMOST && in3dmode()) return 0;
 #endif
 
     begindrawing(); //{{{
@@ -16052,7 +16052,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     uint8_t *graybitmap = (uint8_t *)tempbuf;
     int32_t alwaysshowgray = get_alwaysshowgray();
 
-    if (qsetmode == 200) return;
+    if (in3dmode()) return;
 
     setup_sideview_sincos();
 
@@ -16345,7 +16345,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 #ifdef USE_OPENGL
     if (!polymost_printext256(xpos,ypos,col,backcol,name,fontsize)) return;
 # if 0
-    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && in3dmode())
     {
         int32_t xx, yy;
         int32_t lc=-1;
@@ -16492,7 +16492,7 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     int32_t i;
     BFILE *fp;
 # ifdef USE_OPENGL
-#  define HICOLOR (getrendermode() >= REND_POLYMOST && qsetmode==200)
+#  define HICOLOR (getrendermode() >= REND_POLYMOST && in3dmode())
 # else
 #  define HICOLOR 0
 # endif
@@ -16656,7 +16656,7 @@ static int32_t screencapture_tga(const char *filename, char inverseit)
     }
 
 # ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && in3dmode())
     {
         head[1] = 0;    // no colourmap
         head[2] = 2;    // uncompressed truecolour
@@ -16681,7 +16681,7 @@ static int32_t screencapture_tga(const char *filename, char inverseit)
 
     // palette first
 # ifdef USE_OPENGL
-    if (getrendermode() < REND_POLYMOST || (getrendermode() >= REND_POLYMOST && qsetmode != 200))
+    if (getrendermode() < REND_POLYMOST || (getrendermode() >= REND_POLYMOST && !in3dmode()))
 # endif
     {
         //getpalette(0,256,palette);
@@ -16694,7 +16694,7 @@ static int32_t screencapture_tga(const char *filename, char inverseit)
     }
 
 # ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && qsetmode == 200)
+    if (getrendermode() >= REND_POLYMOST && in3dmode())
     {
         char c;
         // 24bit

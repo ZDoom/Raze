@@ -2150,7 +2150,7 @@ static void G_DisplayExtraScreens(void)
     }
 }
 
-extern int32_t qsetmode;
+
 extern int32_t g_doQuickSave;
 
 void G_GameExit(const char *msg)
@@ -2181,7 +2181,7 @@ void G_GameExit(const char *msg)
 
     if (*msg != 0) initprintf("%s\n",msg);
 
-    if (qsetmode == 200)
+    if (in3dmode())
         G_Shutdown();
 
     if (*msg != 0)
