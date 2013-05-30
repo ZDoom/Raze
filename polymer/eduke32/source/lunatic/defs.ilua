@@ -670,6 +670,7 @@ void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
                        const char *levelname);
 void C_DefineProjectile(int32_t j, int32_t what, int32_t val);
 void C_DefineGameFuncName(int32_t idx, const char *name);
+void C_DefineGameType(int32_t idx, int32_t flags, const char *name);
 int32_t C_SetDefName(const char *name);
 
 int32_t SCRIPT_GetNumber(int32_t scripthandle, const char *sectionname, const char *entryname, int32_t *number);
@@ -792,6 +793,7 @@ function actor_static_members.delete(i)
         error("Attempt to delete sprite in EVENT_EGS", 2)
     end
 
+    -- TODO_MP
     if (ffiC.g_player_ps[0].i == i) then
         error("Attempt to delete player 0's APLAYER sprite", 2)
     end
@@ -1173,11 +1175,14 @@ local user_defs_mt = {
         end,
 
         set_volume_number = function(ud, volume_number)
-            -- XXX: should volume_number==MAXVOLUMES be allowed too?
-            if (volume_number >= con_lang.MAXVOLUMES+0ULL) then
-                error("invalid volume number "..volume_number, 2)
-            end
+            -- NOTE: volume_number==MAXVOLUMES disallowed.
+            bcheck.volume_idx(volume_number)
             ud.volume_number = volume_number
+        end,
+
+        set_level_number = function(ud, level_number)
+            bcheck.level_idx(level_number)
+            ud.level_number = level_number
         end,
     },
 }

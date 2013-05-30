@@ -1588,7 +1588,9 @@ local function S_StopSound(sndidx)
 end
 
 function _soundplaying(aci, sndidx)
-    check_sprite_idx(aci)
+    if (aci ~= -1) then
+        check_sprite_idx(aci)
+    end
     check_sound_idx(sndidx)
     return (ffiC.S_CheckSoundPlaying(aci, sndidx) ~= 0)
 end
@@ -1662,7 +1664,8 @@ function _setaspect(viewingrange, yxaspect)
 end
 
 function _setgamepalette(pli, basepal)
-    ffiC.P_SetGamePalette(player[pli], basepal, 2+16)
+    check_player_idx(pli)
+    ffiC.P_SetGamePalette(ffiC.g_player_ps[pli], basepal, 2+16)
 end
 
 -- Map state persistence.

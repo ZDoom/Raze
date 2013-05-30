@@ -580,7 +580,7 @@ local function reset_labels()
         CLIPMASK1 = (256*65536)+64,  -- hittable
         -- TODO_MP
         COOP = 0,
-        MULTIMODE = 0,
+        MULTIMODE = 1,
         numplayers = 1,
         myconnectindex = 0,
     }
@@ -950,6 +950,17 @@ function Cmd.definegamefuncname(idx, name)
 
     if (ffi) then
         ffiC.C_DefineGameFuncName(idx, name)
+    end
+end
+
+function Cmd.definegametype(idx, flags, name)
+    if (not (idx >= 0 and idx < conl.MAXGAMETYPES)) then
+        errprintf("gametype number exceeds maximum gametype count.")
+        return
+    end
+
+    if (ffi) then
+        ffiC.C_DefineGameType(idx, flags, name)
     end
 end
 
@@ -1382,7 +1393,7 @@ local Couter = {
     definegamefuncname = sp1 * tok.define * newline_term_string  -- XXX: TS?
         / Cmd.definegamefuncname,
     definegametype = n_defines(2) * newline_term_string
-        / Cmd.NYI("`definegametype'"),  -- TODO_MP
+        / Cmd.definegametype,
     definelevelname = n_defines(2) * sp1 * tok.filename * sp1 * tok.time * sp1 * tok.time *
         newline_term_string
         / Cmd.definelevelname,

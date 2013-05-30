@@ -13,6 +13,7 @@ module(...)
 
 MAXVOLUMES = 7
 MAXLEVELS = 64
+MAXGAMETYPES = 16
 
 MAXSKILLS = 7
 
@@ -840,7 +841,7 @@ local UserdefLabels = {
     fta_on = UD".fta_on",
     god = UDRO".god",
     idplayers = UDRO".idplayers",
-    level_number = UDRO".level_number",
+    level_number = { UD".level_number", UD":set_level_number(%%s)" },
     lockout = UDRO".lockout",
     pause_on = UDRO".pause_on",
     player_skill = UD".player_skill",

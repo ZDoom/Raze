@@ -99,13 +99,14 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
 #endif
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
-static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
 
 int32_t g_totalLines,g_lineNumber;
-static int32_t g_checkingIfElse, g_processingState, g_lastKeyword = -1;
 char g_szBuf[1024];
 
 #if !defined LUNATIC
+static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
+static int32_t g_checkingIfElse, g_processingState, g_lastKeyword = -1;
+
 // The pointer to the start of the case table in a switch statement.
 // First entry is 'default' code.
 static intptr_t *g_caseScriptPtr=NULL;
@@ -163,16 +164,18 @@ int32_t g_iPlayerVarID=-1;
 int32_t g_iActorVarID=-1;
 
 intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
-static intptr_t *g_parsingEventPtr=NULL;
 
 #if !defined LUNATIC
+static intptr_t *g_parsingEventPtr=NULL;
+
 gamevar_t aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
 int32_t g_gameVarCount=0;
 int32_t g_gameArrayCount=0;
-#endif
 
 static char *textptr;
+#endif
+
 int32_t g_numCompilerErrors,g_numCompilerWarnings;
 
 extern int32_t g_maxSoundPos;
@@ -2235,12 +2238,21 @@ void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
 
 void C_DefineGameFuncName(int32_t idx, const char *name)
 {
-    assert(idx < NUMGAMEFUNCTIONS);
+    assert((unsigned)idx < NUMGAMEFUNCTIONS);
 
     Bstrncpyz(gamefunctions[idx], name, MAXGAMEFUNCLEN);
     Bstrncpyz(keydefaults[3*idx], name, MAXGAMEFUNCLEN);
 
     hash_add(&h_gamefuncs, gamefunctions[idx], idx, 0);
+}
+
+void C_DefineGameType(int32_t idx, int32_t flags, const char *name)
+{
+    Bassert((unsigned)idx < MAXGAMETYPES);
+
+    GametypeFlags[idx] = flags;
+    Bstrncpyz(GametypeNames[idx], name, sizeof(GametypeNames[idx]));
+    g_numGametypes = idx+1;
 }
 #endif
 
