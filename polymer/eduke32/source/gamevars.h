@@ -111,7 +111,11 @@ void Gv_RefreshPointers(void);
 void Gv_ResetVars(void);
 int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
 void Gv_WriteSave(FILE *fil,int32_t newbehav);
+#else
+int32_t g_noResetVars;
+LUNATIC_CB void (*A_ResetVars)(int32_t iActor);
 #endif
+
 void Gv_ResetSystemDefaults(void);
 void Gv_Init(void);
 

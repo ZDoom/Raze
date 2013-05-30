@@ -593,6 +593,9 @@ tiledata_t g_tile[MAXTILES];
 projectile_t ProjectileData[MAXTILES];
 projectile_t SpriteProjectile[MAXSPRITES];
 
+int32_t g_noResetVars;
+void (*A_ResetVars)(int32_t iActor);
+
 // Used from lunacon.lua for dynamic tile remapping:
 struct
 {

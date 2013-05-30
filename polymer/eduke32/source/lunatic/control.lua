@@ -178,28 +178,37 @@ local function check_isnumber(...)
     end
 end
 
+
 -- Table of all per-actor gamevars active in the system.
 -- [<actorvar reference>] = true
 local g_actorvar = setmetatable({}, { __mode="k" })
 
--- Reset per-actor gamevars for the sprite that would be inserted by an
+local function A_ResetVars(i)
+    for acv in pairs(g_actorvar) do
+        acv:_clear(i)
+    end
+end
+
+ffiC.A_ResetVars = A_ResetVars
+
+-- Reset per-actor gamevars for the sprite that would be inserted by the next
 -- insertsprite() call.
--- KEEPINSYNC with insertsprite() logic in engine.c!
 -- TODO_MP (Net_InsertSprite() is not handled)
 --
 -- NOTE: usually, a particular actor's code doesn't use ALL per-actor gamevars,
 -- so there should be a way to clear only a subset of them (maybe those that
 -- were defined in "its" module?).
-local function A_ResetVars()
+local function A_ResetVarsNextIns()
+    -- KEEPINSYNC with insertsprite() logic in engine.c!
     local i = ffiC.headspritestat[ffiC.MAXSTATUS]
     if (i < 0) then
         return
     end
 
-    for acv in pairs(g_actorvar) do
-        acv:_clear(i)
-    end
+    ffiC.g_noResetVars = 1
+    return A_ResetVars(i)
 end
+
 
 -- Lunatic's "insertsprite" is a wrapper around the game "A_InsertSprite", not
 -- the engine "insertsprite".
@@ -245,7 +254,7 @@ function insertsprite(tab_or_tilenum, ...)
         error("invalid 'statnum' argument to insertsprite: must be a status number (0 .. MAXSTATUS-1)", 2)
     end
 
-    A_ResetVars()
+    A_ResetVarsNextIns()
 
     return CF.A_InsertSprite(sectnum, pos.x, pos.y, pos.z, tilenum,
                              shade, xrepeat, yrepeat, ang, xvel, zvel,
@@ -267,7 +276,7 @@ function spawn(parentspritenum, tilenum, addtodelqueue)
         return -1
     end
 
-    A_ResetVars()
+    A_ResetVarsNextIns()
 
     local i = CF.A_Spawn(parentspritenum, tilenum)
     if (addtodelqueue) then

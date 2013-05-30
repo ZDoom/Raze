@@ -4187,9 +4187,15 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     Bmemset(&spriteext[i], 0, sizeof(spriteext_t));
     Bmemset(&spritesmooth[i], 0, sizeof(spritesmooth_t));
-#if !defined LUNATIC
-    A_ResetVars(i);
+
+#if defined LUNATIC
+    if (!g_noResetVars)
 #endif
+        A_ResetVars(i);
+#if defined LUNATIC
+    g_noResetVars = 0;
+#endif
+
     if (G_HaveEvent(EVENT_EGS))
     {
         int32_t pl=A_FindPlayer(s, &p);

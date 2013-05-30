@@ -139,6 +139,9 @@ g_tile;
 ProjectileData;
 SpriteProjectile;
 
+g_noResetVars;
+A_ResetVars;
+
 g_dynTileList;
 
 ScriptQuotes;
