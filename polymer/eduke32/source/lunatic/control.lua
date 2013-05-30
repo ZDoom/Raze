@@ -178,6 +178,29 @@ local function check_isnumber(...)
     end
 end
 
+-- Table of all per-actor gamevars active in the system.
+-- [<actorvar reference>] = true
+local g_actorvar = setmetatable({}, { __mode="k" })
+
+-- Reset per-actor gamevars for the sprite that would be inserted by an
+-- insertsprite() call.
+-- KEEPINSYNC with insertsprite() logic in engine.c!
+-- TODO_MP (Net_InsertSprite() is not handled)
+--
+-- NOTE: usually, a particular actor's code doesn't use ALL per-actor gamevars,
+-- so there should be a way to clear only a subset of them (maybe those that
+-- were defined in "its" module?).
+local function A_ResetVars()
+    local i = ffiC.headspritestat[ffiC.MAXSTATUS]
+    if (i < 0) then
+        return
+    end
+
+    for acv in pairs(g_actorvar) do
+        acv:_clear(i)
+    end
+end
+
 -- Lunatic's "insertsprite" is a wrapper around the game "A_InsertSprite", not
 -- the engine "insertsprite".
 --
@@ -222,6 +245,8 @@ function insertsprite(tab_or_tilenum, ...)
         error("invalid 'statnum' argument to insertsprite: must be a status number (0 .. MAXSTATUS-1)", 2)
     end
 
+    A_ResetVars()
+
     return CF.A_InsertSprite(sectnum, pos.x, pos.y, pos.z, tilenum,
                              shade, xrepeat, yrepeat, ang, xvel, zvel,
                              owner, statnum)
@@ -241,6 +266,8 @@ function spawn(parentspritenum, tilenum, addtodelqueue)
     if (addtodelqueue and ffiC.g_spriteDeleteQueueSize == 0) then
         return -1
     end
+
+    A_ResetVars()
 
     local i = CF.A_Spawn(parentspritenum, tilenum)
     if (addtodelqueue) then
@@ -2042,9 +2069,13 @@ local actorvar_methods = {
     _cleanup = function(acv)
         for i=0,ffiC.MAXSPRITES-1 do
             if (ffiC.sprite[i].statnum == ffiC.MAXSTATUS or rawget(acv, i)==acv._defval) then
-                rawset(acv, i, nil)
+                acv:_clear(i)
             end
         end
+    end,
+
+    _clear = function(acv, i)
+        rawset(acv, i, nil)
     end,
 
 
@@ -2086,5 +2117,6 @@ local actorvar_mt = {
 -- <values>: optional, a table of <spritenum>=value
 function actorvar(initval, values)
     local acv = setmetatable({ _defval=initval }, actorvar_mt)
+    g_actorvar[acv] = true
     return set_values_from_table(acv, values)
 end
