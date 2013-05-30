@@ -769,9 +769,11 @@ do
     our_SFLAG.rotfixed = con_lang.SFLAG.SFLAG_ROTFIXED
 
     -- Callback function chaining control flags.
-    our_SFLAG.chain_beg = bit.tobit(0x20000000)
-    our_SFLAG.chain_end = bit.tobit(0x40000000)
-    our_SFLAG.replace = bit.bor(our_SFLAG.chain_beg, our_SFLAG.chain_end)
+    our_SFLAG.replace_hard = 0x08000000  -- Replace actor code and flags
+    our_SFLAG.replace_soft = 0x10000000  -- Replace actor code, bitwise OR flags
+    our_SFLAG.chain_beg = 0x20000000
+    our_SFLAG.chain_end = 0x40000000
+    our_SFLAG._CHAIN_MASK = 0x78000000
 
     -- XXX: CON doesn't export BADGUYSTAYPUT or ROTFIXED SFLAGs, but they are considered
     -- external for Lunatic.
@@ -812,8 +814,11 @@ player = setmtonce({}, defs_c.GenStructMetatable("g_player_ps", "playerswhenstar
 
 -- needed by "control"
 actor = setmtonce({}, defs_c.GenStructMetatable("actor", "MAXSPRITES", actor_static_members))
-local BNOT_SFLAG_USER_MASK = bit.bnot(actor.FLAGS.USER_MASK)
-local BNOT_CHAIN_MASK = bit.bnot(actor.FLAGS.replace)
+-- Some bitwise NOTs of various actor flag masks.
+local BNOT = {
+    USER_MASK = bit.bnot(actor.FLAGS.USER_MASK),
+    CHAIN_MASK = bit.bnot(actor.FLAGS._CHAIN_MASK),
+}
 
 local projectile = defs_c.creategtab(ffiC.ProjectileData, ffiC.MAXTILES, "projectile[]")
 local g_tile = setmtonce({}, defs_c.GenStructMetatable("g_tile", "MAXTILES", tile_static_members))
@@ -1520,6 +1525,9 @@ local function chain_func3(func1, func2)
     end
 end
 
+-- Running for the very first time?
+local g_firstRun = (ffiC.g_elCONSize == 0)
+
 -- Actor functions, saved for actor chaining
 local actor_funcs = {}
 
@@ -1555,20 +1563,23 @@ local function our_gameactor(tilenum, ...)
     end
 
     local AF = actor.FLAGS
-    local chainflags = bit.band(flags, AF.replace)
-    flags = bit.band(flags, BNOT_CHAIN_MASK)
+    local chainflags = bit.band(flags, AF._CHAIN_MASK)
+    flags = bit.band(flags, BNOT.CHAIN_MASK)
 
-    -- Default chaining behavior: don't, replace the old actor instead (like CON).
+    -- Default chaining behavior: don't, replace the old actor instead, but
+    -- unlike CON, also replace its flags. (CON ORs them instead.)
     if (chainflags == 0) then
-        chainflags = AF.replace
+        chainflags = AF.replace_hard
+    elseif (bit.band(chainflags, chainflags-1) ~= 0) then
+        error("invalid chaining control flags to gameactor", 2)
     end
 
-    local replacep = (chainflags==AF.replace)
+    local replacep = (chainflags==AF.replace_soft or chainflags==AF.replace_hard)
     if (not replacep and not actor_funcs[tilenum]) then
         error("attempt to chain code to nonexistent actor tile "..tilenum, 2)
     end
 
-    local flags_rbits = bit.band(flags, BNOT_SFLAG_USER_MASK)
+    local flags_rbits = bit.band(flags, BNOT.USER_MASK)
     if (flags_rbits ~= 0) then
         error("invalid 'flags' argument to gameactor: must not set reserved bits (0x"
               ..(bit.tohex(flags_rbits))..")", 2)
@@ -1610,17 +1621,20 @@ local function our_gameactor(tilenum, ...)
         end
     end
 
-    -- All good, set the tile bits and register the actor!
+    -- All good, set the tile bits in initial run and register the actor!
+    -- XXX: Need to see if some other state living on the C side is clobbered
+    -- by Lua state recreation.
+    if (g_firstRun) then
+        -- NOTE: when chaining, this allows passing different flags which are
+        -- silently ORed. This may or may not be what the user intends, but it
+        -- allows e.g. adding a stayput bit to an already defined enemy.
+        -- Modifying existing behavior is the whole point of chaining after all.
+        -- When soft-replacing, bitwise OR too, emulating CON behavior.
+        local tile = ffiC.g_tile[tilenum]
+        tile.flags = (chainflags==AF.replace_hard) and flags or bit.bor(tile.flags, flags)
+    end
 
-    local tile = ffiC.g_tile[tilenum]
     local func = args[numargs]
-
-    -- NOTE: when chaining, this allows passing different flags which are
-    -- silently ORed. This may or may not be what the user intends, but it
-    -- allows e.g. adding a stayput bit to an already defined enemy.
-    -- Modifying existing behavior is the whole point of chaining after all.
-    tile.flags = replacep and flags or bit.bor(tile.flags, flags)
-
     local newfunc = replacep and func
         or (chainflags==AF.chain_beg) and chain_func3(func, actor_funcs[tilenum])
         or (chainflags==AF.chain_end) and chain_func3(actor_funcs[tilenum], func)
@@ -1666,7 +1680,7 @@ local function our_gameevent(event, flags, func)
         if (type(flags) ~= "number") then
             error("invalid 'flags' argument to gameevent: must be a number", 2)
         end
-        if (bit.band(flags, BNOT_CHAIN_MASK) ~= 0) then
+        if (bit.band(flags, BNOT.CHAIN_MASK) ~= 0) then
             error("invalid 'flags' argument to gameevent: must not set reserved bits", 2)
         end
         if (flags == 0) then
@@ -1678,7 +1692,7 @@ local function our_gameevent(event, flags, func)
         error("invalid last argument to gameevent: must be a function", 2)
     end
 
-    local newfunc = (flags==AF.replace) and func
+    local newfunc = replacep and func
         or (flags==AF.chain_beg) and chain_func3(func, event_funcs[event])
         or (flags==AF.chain_end) and chain_func3(event_funcs[event], func)
         or assert(false)
@@ -1703,7 +1717,6 @@ read_into_string = readintostr_mod  -- for lunacon
 local lunacon = require("lunacon")
 
 local concode, lineinfo
-local g_firstRun = (ffiC.g_elCONSize == 0)
 
 --- Get Lua code for CON (+ mutator) code.
 if (g_firstRun) then
