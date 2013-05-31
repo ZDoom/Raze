@@ -2082,8 +2082,8 @@ cheat_for_port_credits2:
                     "Dan Gaskill",       // "DeeperThought" - testing
                     "David Koenig",      // "Bargle" - Merged a couple of things from duke3d_w32
                     "Ed Coolidge",       // Mapster32 improvements
+                    "Evan Ramos",        // "Hendricks266" - misc stuff
                     "Ferry Landzaat",    // ? (listed on the wiki page)
-                    "Hendricks266",      // misc stuff
                     "Hunter_rus",        // tons of stuff
                     "James Bentler",     // Mapster32 improvements
                     "Jasper Foreman",    // netcode contributions
