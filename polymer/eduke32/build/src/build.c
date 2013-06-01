@@ -629,8 +629,11 @@ int32_t app_main(int32_t argc, const char **argv)
     Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
     initcrc();
 
-    if (!loaddefinitionsfile(G_DefFile()))
-        initprintf("Definitions file loaded.\n");
+    {
+        const char *defsfile = G_DefFile();
+        if (!loaddefinitionsfile(defsfile))
+            initprintf("Definitions file \"%s\" loaded.\n",defsfile);
+    }
 
     for (i=0; i < g_defModulesNum; ++i)
         Bfree (g_defModules[i]);
