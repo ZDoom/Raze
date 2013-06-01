@@ -1413,13 +1413,12 @@ void Gv_Init(void)
         return;
     inited = 1;
 
-    //  initprintf("Initializing game variables\n");
-    //AddLog("Gv_Init");
-#ifdef LUNATIC
-    Gv_AddSystemVars();  // set up weapon defaults, g_playerWeapon[][]
-#else
+#if !defined LUNATIC
     Gv_Clear();
+#endif
+    // Set up weapon defaults, g_playerWeapon[][].
     Gv_AddSystemVars();
+#if !defined LUNATIC
     Gv_InitWeaponPointers();
 #endif
     Gv_ResetSystemDefaults();

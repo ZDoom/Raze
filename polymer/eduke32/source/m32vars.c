@@ -694,9 +694,6 @@ void Gv_Init(void)
 {
     // only call ONCE
 
-    //  initprintf("Initializing game variables\n");
-    //AddLog("Gv_Init");
-
     Gv_Clear();
     Gv_AddSystemVars();
 }
