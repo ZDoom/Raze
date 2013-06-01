@@ -1,0 +1,16 @@
+
+actor 1890 1
+    // The following "else { if" must not be translated to an "elseif".
+    ifcount 1 nullop else
+    {
+        ifvare 0 0
+            spawn 1
+        else
+            spawn 2
+
+        ifvare 1 1
+            spawn 3
+        else ifvare 1 2
+            spawn 4
+    }
+enda

@@ -3086,7 +3086,7 @@ local Grammar = Pat{
           * sp1 * Var("single_stmt") * (lpeg.Cc(nil) / on.while_end),
 
     stmt_common = Keyw("{") * sp1 * "}" / ""  -- space separation of commands in CON is for a reason!
-        + Keyw("{") * sp1 * lpeg.Ct(stmt_list) * sp1 * "}"
+        + lpeg.Ct(Keyw("{")/"do" * sp1 * stmt_list * sp1 * (Keyw("}")/"end"))
         + con_inner_command + Var("switch_stmt") + lpeg.Ct(Var("while_stmt")),
 
     single_stmt = Stmt( lone_else^-1 * (Var("stmt_common") + Var("if_stmt")) ),
