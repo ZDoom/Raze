@@ -711,7 +711,7 @@ end
 
 local player_static_members = {}
 
-player_static_members.INPUT_BITS = defs_c.conststruct
+player_static_members._INPUT_BITS = defs_c.conststruct
 {
     JUMP =                      1,
     CROUCH =                    2,
@@ -744,7 +744,7 @@ player_static_members.INPUT_BITS = defs_c.conststruct
     ESC =              2147483648,
 }
 
-player_static_members.INPUT_EXT_BITS = defs_c.conststruct
+player_static_members._INPUT_EXT_BITS = defs_c.conststruct
 {
     MOVE_FORWARD =  1,
     MOVE_BACKWARD = 2,
@@ -905,8 +905,8 @@ local actor_mt = {
         end,
 
         -- count
-        set_count = function(a)
-            ffi.cast(actor_ptr_ct, a).t_data[0] = 0
+        set_count = function(a, count)
+            ffi.cast(actor_ptr_ct, a).t_data[0] = count
         end,
 
         get_count = function(a)
@@ -1183,8 +1183,10 @@ local user_defs_mt = {
         end,
 
         set_volume_number = function(ud, volume_number)
-            -- NOTE: volume_number==MAXVOLUMES disallowed.
-            bcheck.volume_idx(volume_number)
+            -- NOTE: allow volume_number==MAXVOLUMES.
+            if (not (volume_number==con_lang.MAXVOLUMES)) then
+                bcheck.volume_idx(volume_number)
+            end
             ud.volume_number = volume_number
         end,
 

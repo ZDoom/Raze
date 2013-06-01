@@ -192,7 +192,7 @@ gameevent("PROCESSINPUT",
           -- Input test.
           -- NOTE: I don't think that exposing g_player[].sync (aka "input") is a good idea...
           function(actori, playeri, dist)
-              local IB = player.INPUT_BITS
+              local IB = player._INPUT_BITS
               local input = player[playeri]._input
               if (bit.band(input.bits, IB.JUMP) ~= 0) then
                   print("JUMPED")

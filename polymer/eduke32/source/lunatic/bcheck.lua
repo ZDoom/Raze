@@ -64,13 +64,13 @@ end
 
 function bcheck.volume_idx(volume)
     if (volume >= con_lang.MAXVOLUMES+0ULL) then
-        error("invalid volume number "..volume)
+        error("invalid volume number "..volume, 3)
     end
 end
 
 function bcheck.level_idx(level)
     if (level >= con_lang.MAXLEVELS+0ULL) then
-        error("invalid level number "..level)
+        error("invalid level number "..level, 3)
     end
 end
 
