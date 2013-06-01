@@ -116,6 +116,7 @@ GAMEOBJS=$(OBJ)\game.$o \
  	$(JMACTOBJ) \
 	$(AUDIOLIBOBJ) \
 	$(OBJ)\sounds.$o \
+	$(OBJ)\soundsdyn.$o \
 !ifdef DEBUG
 	$(OBJ)\mdump.$o
 !endif

@@ -18,6 +18,7 @@ duke3d_h=\
     $(INC)/function.h \
     $(INC)/config.h \
     $(INC)/sounds.h \
+    $(INC)/soundsdyn.h \
     $(INC)/rts.h \
     $(INC)/_rts.h \
     $(INC)/soundefs.h \
@@ -53,6 +54,7 @@ $(OBJ)/premap.$o: $(SRC)/premap.c $(duke3d_h) $(EINC)/osd.h
 $(OBJ)/savegame.$o: $(SRC)/savegame.c $(duke3d_h) $(SRC)/savegame.h
 $(OBJ)/sector.$o: $(SRC)/sector.c $(duke3d_h) $(SRC)/input.h
 $(OBJ)/sounds.$o: $(SRC)/sounds.c $(duke3d_h)
+$(OBJ)/soundsdyn.$o: $(SRC)/soundsdyn.c $(duke3d_h)
 $(OBJ)/rts.$o: $(SRC)/rts.c $(duke3d_h)
 $(OBJ)/config.$o: $(SRC)/config.c $(duke3d_h) $(SRC)/jmact/scriplib.h $(INC)/_functio.h
 $(OBJ)/winbits.$o: $(SRC)/winbits.c

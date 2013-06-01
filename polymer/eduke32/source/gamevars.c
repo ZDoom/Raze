@@ -1079,84 +1079,84 @@ static weapondata_t weapondefaults[MAX_WEAPONS] = {
         KNEE_WEAPON, 0, 0, 7, 14, 0,
         WEAPON_NOVISIBLE | WEAPON_RANDOMRESTART | WEAPON_AUTOMATIC,
         KNEE__STATIC, 0, 0, 0, 0, 0, 0,
-        0, EJECT_CLIP, INSERT_CLIP, 0, 0
+        0, EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, 0, 0
     },
 
     {
         PISTOL_WEAPON, /*NAM?20:*/12, /*NAM?50:*/27, 2, 5, 0,
         /*(NAM?WEAPON_HOLSTER_CLEARS_CLIP:0) |*/ WEAPON_RELOAD_TIMING,
-        SHOTSPARK1__STATIC, 2, SHELL__STATIC, 0, 0, PISTOL_FIRE, 0, 0,
-        EJECT_CLIP, INSERT_CLIP, INSERT_CLIP, 255+(95<<8)
+        SHOTSPARK1__STATIC, 2, SHELL__STATIC, 0, 0, PISTOL_FIRE__STATIC, 0, 0,
+        EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, INSERT_CLIP__STATIC, 255+(95<<8)
     },
 
     {
         SHOTGUN_WEAPON, 0, 13, 4, 30, 0,
         WEAPON_CHECKATRELOAD,
-        SHOTGUN__STATIC, 24, SHOTGUNSHELL__STATIC, 7, 0, SHOTGUN_FIRE, 15, SHOTGUN_COCK,
-        EJECT_CLIP, INSERT_CLIP, SHOTGUN_COCK, 255+(95<<8)
+        SHOTGUN__STATIC, 24, SHOTGUNSHELL__STATIC, 7, 0, SHOTGUN_FIRE__STATIC, 15, SHOTGUN_COCK__STATIC,
+        EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, SHOTGUN_COCK__STATIC, 255+(95<<8)
     },
 
     {
         CHAINGUN_WEAPON, 0, 0, 3, 12, 3,
         WEAPON_AUTOMATIC | WEAPON_FIREEVERYTHIRD | WEAPON_AMMOPERSHOT | WEAPON_SPAWNTYPE3 | WEAPON_RESET,
-        CHAINGUN__STATIC, 1, SHELL__STATIC, 0, 0, CHAINGUN_FIRE, 0, 0,
-        EJECT_CLIP, INSERT_CLIP, SELECT_WEAPON, 255+(95<<8)
+        CHAINGUN__STATIC, 1, SHELL__STATIC, 0, 0, CHAINGUN_FIRE__STATIC, 0, 0,
+        EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, SELECT_WEAPON__STATIC, 255+(95<<8)
     },
 
     {
         RPG_WEAPON, 0, 0, 4, 20, 0,
         0,
         RPG__STATIC, 0, 0, 0, 0, 0, 0, 0,
-        EJECT_CLIP, INSERT_CLIP, SELECT_WEAPON, 255+(95<<8)
+        EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, SELECT_WEAPON__STATIC, 255+(95<<8)
     },
 
     {
         HANDBOMB_WEAPON, 0, 30, 6, 19, 12,
         WEAPON_THROWIT,
         HEAVYHBOMB__STATIC, 0, 0, 0, 0, 0, 0,
-        0, EJECT_CLIP, INSERT_CLIP, 0, 0
+        0, EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, 0, 0
     },
 
     {
         SHRINKER_WEAPON, 0, 0, 10, /*NAM?30:*/12, 0,
         WEAPON_GLOWS,
-        SHRINKER__STATIC, 0, 0, 0, SHRINKER_FIRE, 0, 0, 0,
-        EJECT_CLIP, INSERT_CLIP, SELECT_WEAPON, 128+(255<<8)+(128<<16)
+        SHRINKER__STATIC, 0, 0, 0, SHRINKER_FIRE__STATIC, 0, 0, 0,
+        EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, SELECT_WEAPON__STATIC, 128+(255<<8)+(128<<16)
     },
 
     {
         DEVISTATOR_WEAPON, 0, 0, 3, 6, 5,
         WEAPON_FIREEVERYOTHER | WEAPON_AMMOPERSHOT,
-        RPG__STATIC, 0, 0, 2, CAT_FIRE, 0, 0, 0,
-        EJECT_CLIP, INSERT_CLIP, SELECT_WEAPON, 255+(95<<8)
+        RPG__STATIC, 0, 0, 2, CAT_FIRE__STATIC, 0, 0, 0,
+        EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, SELECT_WEAPON__STATIC, 255+(95<<8)
     },
 
     {
         TRIPBOMB_WEAPON, 0, 16, 3, 16, 7,
         WEAPON_NOVISIBLE | WEAPON_STANDSTILL | WEAPON_CHECKATRELOAD,
         HANDHOLDINGLASER__STATIC, 0, 0, 0, 0, 0, 0,
-        0, EJECT_CLIP, INSERT_CLIP, 0, 0
+        0, EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, 0, 0
     },
 
     {
         FREEZE_WEAPON, 0, 0, 3, 5, 0,
         WEAPON_RESET,
-        FREEZEBLAST__STATIC, 0, 0, 0, CAT_FIRE, CAT_FIRE, 0, 0,
-        EJECT_CLIP, INSERT_CLIP, SELECT_WEAPON, 128+(128<<8)+(255<<16)
+        FREEZEBLAST__STATIC, 0, 0, 0, CAT_FIRE__STATIC, CAT_FIRE__STATIC, 0, 0,
+        EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, SELECT_WEAPON__STATIC, 128+(128<<8)+(255<<16)
     },
 
     {
         HANDREMOTE_WEAPON, 0, 10, 2, 10, 0,
         WEAPON_BOMB_TRIGGER | WEAPON_NOVISIBLE,
         0, 0, 0, 0, 0, 0, 0,
-        0, EJECT_CLIP, INSERT_CLIP, 0, 0
+        0, EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, 0, 0
     },
 
     {
         GROW_WEAPON, 0, 0, 3, /*NAM?30:*/5, 0,
         WEAPON_GLOWS,
-        GROWSPARK__STATIC, /*NAM?2:*/0, /*NAM?SHELL:*/0, 0, 0, /*NAM?0:*/EXPANDERSHOOT, 0, 0,
-        EJECT_CLIP, INSERT_CLIP, SELECT_WEAPON, 255+(95<<8)
+        GROWSPARK__STATIC, /*NAM?2:*/0, /*NAM?SHELL:*/0, 0, 0, /*NAM?0:*/EXPANDERSHOOT__STATIC, 0, 0,
+        EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, SELECT_WEAPON__STATIC, 255+(95<<8)
     },
 };
 
@@ -1179,6 +1179,23 @@ static int32_t G_StaticToDynamicTile(int32_t tile)
     case SHOTSPARK1__STATIC: return SHOTSPARK1;
     case SHRINKER__STATIC: return SHRINKER;
     default: return tile;
+    }
+}
+static int32_t G_StaticToDynamicSound(int32_t sound)
+{
+    switch (sound)
+    {
+    case CAT_FIRE__STATIC: return CAT_FIRE;
+    case CHAINGUN_FIRE__STATIC: return CHAINGUN_FIRE;
+    case EJECT_CLIP__STATIC: return EJECT_CLIP;
+    case EXPANDERSHOOT__STATIC: return EXPANDERSHOOT;
+    case INSERT_CLIP__STATIC: return INSERT_CLIP;
+    case PISTOL_FIRE__STATIC: return PISTOL_FIRE;
+    case SELECT_WEAPON__STATIC: return SELECT_WEAPON;
+    case SHOTGUN_FIRE__STATIC: return SHOTGUN_FIRE;
+    case SHOTGUN_COCK__STATIC: return SHOTGUN_COCK;
+    case SHRINKER_FIRE__STATIC: return SHRINKER_FIRE;
+    default: return sound;
     }
 }
 
@@ -1224,6 +1241,13 @@ static void Gv_AddSystemVars(void)
     {
         weapondefaults[i].Shoots = G_StaticToDynamicTile(weapondefaults[i].Shoots);
         weapondefaults[i].Spawn = G_StaticToDynamicTile(weapondefaults[i].Spawn);
+
+        weapondefaults[i].InitialSound = G_StaticToDynamicSound(weapondefaults[i].InitialSound);
+        weapondefaults[i].FireSound = G_StaticToDynamicSound(weapondefaults[i].FireSound);
+        weapondefaults[i].ReloadSound1 = G_StaticToDynamicSound(weapondefaults[i].ReloadSound1);
+        weapondefaults[i].Sound2Sound = G_StaticToDynamicSound(weapondefaults[i].Sound2Sound);
+        weapondefaults[i].ReloadSound2 = G_StaticToDynamicSound(weapondefaults[i].ReloadSound2);
+        weapondefaults[i].SelectSound = G_StaticToDynamicSound(weapondefaults[i].SelectSound);
 
         ADDWEAPONVAR(i, WorksLike);
         ADDWEAPONVAR(i, Clip);

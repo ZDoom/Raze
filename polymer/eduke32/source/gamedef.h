@@ -943,6 +943,7 @@ enum ScriptKeywords_t
     CON_ACTIVATE,           // 368
     CON_QSTRDIM,            // 369
     CON_SCREENTEXT,         // 370
+    CON_DYNAMICSOUNDREMAP,  // 371
     CON_END
 };
 #endif

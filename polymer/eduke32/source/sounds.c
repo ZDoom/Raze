@@ -163,31 +163,56 @@ void S_MusicVolume(int32_t volume)
     MUSIC_SetVolume(volume);
 }
 
+static int32_t S_StaticToDynamicMenuSound(int32_t sound)
+{
+    switch (sound)
+    {
+    case LASERTRIP_EXPLODE__STATIC: return LASERTRIP_EXPLODE;
+    case DUKE_GRUNT__STATIC: return DUKE_GRUNT;
+    case DUKE_LAND_HURT__STATIC: return DUKE_LAND_HURT;
+    case CHAINGUN_FIRE__STATIC: return CHAINGUN_FIRE;
+    case SQUISHED__STATIC: return SQUISHED;
+    case KICK_HIT__STATIC: return KICK_HIT;
+    case PISTOL_RICOCHET__STATIC: return PISTOL_RICOCHET;
+    case PISTOL_BODYHIT__STATIC: return PISTOL_BODYHIT;
+    case PISTOL_FIRE__STATIC: return PISTOL_FIRE;
+    case SHOTGUN_FIRE__STATIC: return SHOTGUN_FIRE;
+    case BOS1_WALK__STATIC: return BOS1_WALK;
+    case RPG_EXPLODE__STATIC: return RPG_EXPLODE;
+    case PIPEBOMB_BOUNCE__STATIC: return PIPEBOMB_BOUNCE;
+    case PIPEBOMB_EXPLODE__STATIC: return PIPEBOMB_EXPLODE;
+    case NITEVISION_ONOFF__STATIC: return NITEVISION_ONOFF;
+    case RPG_SHOOT__STATIC: return RPG_SHOOT;
+    case SELECT_WEAPON__STATIC: return SELECT_WEAPON;
+    default: return sound;
+    }
+}
+
 void S_MenuSound(void)
 {
     static int32_t SoundNum=0;
     static const uint8_t menusnds[] =
     {
-        LASERTRIP_EXPLODE,
-        DUKE_GRUNT,
-        DUKE_LAND_HURT,
-        CHAINGUN_FIRE,
-        SQUISHED,
-        KICK_HIT,
-        PISTOL_RICOCHET,
-        PISTOL_BODYHIT,
-        PISTOL_FIRE,
-        SHOTGUN_FIRE,
-        BOS1_WALK,
-        RPG_EXPLODE,
-        PIPEBOMB_BOUNCE,
-        PIPEBOMB_EXPLODE,
-        NITEVISION_ONOFF,
-        RPG_SHOOT,
-        SELECT_WEAPON
+        LASERTRIP_EXPLODE__STATIC,
+        DUKE_GRUNT__STATIC,
+        DUKE_LAND_HURT__STATIC,
+        CHAINGUN_FIRE__STATIC,
+        SQUISHED__STATIC,
+        KICK_HIT__STATIC,
+        PISTOL_RICOCHET__STATIC,
+        PISTOL_BODYHIT__STATIC,
+        PISTOL_FIRE__STATIC,
+        SHOTGUN_FIRE__STATIC,
+        BOS1_WALK__STATIC,
+        RPG_EXPLODE__STATIC,
+        PIPEBOMB_BOUNCE__STATIC,
+        PIPEBOMB_EXPLODE__STATIC,
+        NITEVISION_ONOFF__STATIC,
+        RPG_SHOOT__STATIC,
+        SELECT_WEAPON__STATIC,
     };
 
-    S_PlaySound(menusnds[SoundNum++ % (sizeof(menusnds)/sizeof(menusnds[0]))]);
+    S_PlaySound(S_StaticToDynamicMenuSound(menusnds[SoundNum++ % (sizeof(menusnds)/sizeof(menusnds[0]))]));
 }
 
 int32_t S_PlayMusic(const char *fn, const int32_t sel)
@@ -523,11 +548,11 @@ sound_further_processing:
             !cansee(cam->x,cam->y,cam->z-(24<<8),camsect, SX,SY,SZ-(24<<8),SECT))
         sndist += sndist>>5;
 
-    switch (num)
+    switch (DYNAMICSOUNDMAP(num))
     {
-    case PIPEBOMB_EXPLODE:
-    case LASERTRIP_EXPLODE:
-    case RPG_EXPLODE:
+    case PIPEBOMB_EXPLODE__STATIC:
+    case LASERTRIP_EXPLODE__STATIC:
+    case RPG_EXPLODE__STATIC:
         explosion = 1;
         if (sndist > 6144)
             sndist = 6144;

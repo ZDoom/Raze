@@ -948,6 +948,7 @@ static const dataspec_t svgm_secwsp[] =
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postspriteext, 0, 1 },
 #endif
     { 0, &DynamicTileMap[0], sizeof(DynamicTileMap[0]), MAXTILES },  // NOCHK?
+    { 0, &DynamicSoundMap[0], sizeof(DynamicSoundMap[0]), MAXSOUNDS },  // NOCHK?
     { DS_NOCHK, &g_numCyclers, sizeof(g_numCyclers), 1 },
     { DS_CNT(g_numCyclers), &cyclers[0][0], sizeof(cyclers[0]), (intptr_t)&g_numCyclers },
     { DS_NOCHK, &g_numAnimWalls, sizeof(g_numAnimWalls), 1 },

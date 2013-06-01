@@ -20,8 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-// Maybe this should be called "hacks.c" instead of "namesdyn.c"...
-
 #include "compat.h"
 #include "build.h"
 
@@ -782,7 +780,7 @@ LUNATIC_EXTERN struct dynitem g_dynTileList[] =
     { "RESERVEDSLOT10", DVPTR(RESERVEDSLOT10), RESERVEDSLOT10__STATIC },
     { "RESERVEDSLOT11", DVPTR(RESERVEDSLOT11), RESERVEDSLOT11__STATIC },
     { "RESERVEDSLOT12", DVPTR(RESERVEDSLOT12), RESERVEDSLOT12__STATIC },
-    { NULL, NULL, 0 },
+    { NULL, NULL, -1 },
  };
 
 #ifdef DYNTILEREMAP_ENABLE
@@ -1554,7 +1552,7 @@ void inithashnames(void)
 
     hash_init(&h_names);
 
-    for (i=0; g_dynTileList[i].staticval; i++)
+    for (i=0; g_dynTileList[i].staticval >= 0; i++)
         hash_add(&h_names, g_dynTileList[i].str, i, 0);
 }
 
@@ -1573,7 +1571,7 @@ void G_InitDynamicTiles(void)
 
     Bmemset(DynamicTileMap, 0, sizeof(DynamicTileMap));
 
-    for (i=0; g_dynTileList[i].staticval; i++)
+    for (i=0; g_dynTileList[i].staticval >= 0; i++)
 #ifdef DYNTILEREMAP_ENABLE
         DynamicTileMap[*(g_dynTileList[i].dynvalptr)] = g_dynTileList[i].staticval;
 #else

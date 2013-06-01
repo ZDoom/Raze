@@ -10763,6 +10763,7 @@ static void G_Startup(void)
 #endif
 
     G_InitDynamicTiles();
+    G_InitDynamicSounds();
     G_PostCreateGameState();
 
     if (g_netServer || ud.multimode > 1) G_CheckGametype();

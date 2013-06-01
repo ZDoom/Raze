@@ -204,6 +204,9 @@
     <ClInclude Include="source\sounds.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
+    <ClInclude Include="source\soundsdyn.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
     <ClInclude Include="source\startwin.game.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
@@ -561,6 +564,9 @@
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\sounds.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\soundsdyn.c">
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\startgtk.game.c">

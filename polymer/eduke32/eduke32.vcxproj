@@ -156,6 +156,7 @@
     <ClInclude Include="source\soundefs.h" />
     <ClInclude Include="source\sounds.h" />
     <ClInclude Include="source\sounds_mapster32.h" />
+    <ClInclude Include="source\soundsdyn.h" />
     <ClInclude Include="source\startwin.game.h" />
     <ClInclude Include="source\jaudiolib\src\_multivc.h" />
     <ClInclude Include="source\jaudiolib\src\driver_directsound.h" />
@@ -262,6 +263,7 @@
     <ClCompile Include="source\sector_inline.c" />
     <ClCompile Include="source\sounds.c" />
     <ClCompile Include="source\sounds_mapster32.c" />
+    <ClCompile Include="source\soundsdyn.c" />
     <ClCompile Include="source\startgtk.game.c" />
     <ClCompile Include="source\startwin.game.c" />
     <ClCompile Include="source\winbits.c" />

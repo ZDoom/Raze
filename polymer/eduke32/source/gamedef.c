@@ -93,6 +93,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_ROTATESPRITEA, 20130324 },
     { CON_ACTIVATE, 20130522 },
     { CON_SCREENTEXT, 20130529 },
+    { CON_DYNAMICSOUNDREMAP, 20130530 },
 };
 #endif
 
@@ -111,7 +112,7 @@ static intptr_t *g_caseScriptPtr=NULL;
 static intptr_t *previous_event=NULL;
 static int32_t g_numCases = 0;
 static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
-static int32_t g_labelsOnly = 0, g_skipKeywordCheck = 0, g_dynamicTileMapping = 0;
+static int32_t g_labelsOnly = 0, g_skipKeywordCheck = 0, g_dynamicTileMapping = 0, g_dynamicSoundMapping = 0;
 static int32_t g_numBraces = 0;
 
 static int32_t C_ParseCommand(int32_t loop);
@@ -589,6 +590,7 @@ const char *keyw[] =
     "activate",                 // 368
     "qstrdim",                  // 369
     "screentext",               // 370
+    "dynamicsoundremap",        // 371
     "<null>"
 };
 #endif
@@ -1187,6 +1189,7 @@ void C_InitHashes()
     hash_init(&h_arrays);
     hash_init(&h_labels);
     inithashnames();
+    initsoundhashnames();
 
     hash_init(&h_keywords);
     hash_init(&sectorH);
@@ -4146,6 +4149,26 @@ static int32_t C_ParseCommand(int32_t loop)
 #endif
             continue;
 
+        case CON_DYNAMICSOUNDREMAP:
+            g_scriptPtr--;
+            if (g_dynamicSoundMapping)
+            {
+                initprintf("%s:%d: warning: duplicate dynamicsoundremap statement\n",g_szScriptFileName,g_lineNumber);
+                g_numCompilerWarnings++;
+            }
+            else
+#ifdef DYNSOUNDREMAP_ENABLE
+                initprintf("Using dynamic sound remapping\n");
+
+            g_dynamicSoundMapping = 1;
+#else
+            {
+                initprintf("%s:%d: warning: dynamic sound remapping is disabled in this build\n",g_szScriptFileName,g_lineNumber);
+                g_numCompilerWarnings++;
+            }
+#endif
+            continue;
+
         case CON_RANDVAR:
         case CON_ZSHOOT:
         case CON_EZSHOOT:
@@ -5808,6 +5831,11 @@ repeatcase:
         case CON_DEFINESOUND:
             g_scriptPtr--;
             C_GetNextValue(LABEL_DEFINE);
+
+            // Ideally we could keep the value of i from C_GetNextValue() instead of having to hash_find() again.
+            // This depends on tempbuf remaining in place after C_GetNextValue():
+            j = hash_find(&h_labels,tempbuf);
+
             k = *(g_scriptPtr-1);
             if ((unsigned)k >= MAXSOUNDS)
             {
@@ -5875,6 +5903,9 @@ repeatcase:
 
             if (k > g_maxSoundPos)
                 g_maxSoundPos = k;
+
+            if (k >= 0 && k < MAXSOUNDS && g_dynamicSoundMapping && j >= 0 && (labeltype[j] & LABEL_DEFINE))
+                G_ProcessDynamicSoundMapping(label+(j<<6),k);
             continue;
 
         case CON_ENDEVENT:
@@ -6383,6 +6414,7 @@ void C_Compile(const char *filenam)
 
         hash_free(&h_keywords);
         freehashnames();
+        freesoundhashnames();
 
         hash_free(&sectorH);
         hash_free(&wallH);
