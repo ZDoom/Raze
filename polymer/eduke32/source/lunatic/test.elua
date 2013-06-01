@@ -43,9 +43,16 @@ print('tweaking sector pals')
 print('numsectors: ' .. gv.numsectors .. ' of ' .. gv.MAXSECTORS)
 
 ---[[
+local SF = sector.STAT
 for i = 0, gv.numsectors/2 do
-    sector[i].floorpal = 1;
+    local sec = sector[i]
+    sec.floorpal = 1;
+    sector[i].floor.shade = sec.floor.shade + 4
     sector[i].ceilingpal = 2;
+    local ceil = sec.ceiling
+    ceil.shade = sector[i].ceiling.shade + 8
+    ceil.statx:flip(SF.SMOOSH)
+    sec.floorstatx:flip(SF.XYSWAP)
 end
 
 local vol, lev = gv.currentEpisode()+1, gv.currentLevel()+1

@@ -110,6 +110,7 @@ function bitint_new_struct_type(basetypename, newtypename)
 end
 
 function bitint_member(bitint_struct_typename, membname)
+    -- XXX: rename to '~bits' instead of '~x'?
     return string.format("union { %s %s; %s %sx; };",
                          bitint_to_base_type[bitint_struct_typename], membname,
                          bitint_struct_typename, membname)
@@ -121,26 +122,29 @@ bitint_new_struct_type("uint16_t", "UBit16")
 
 --== Core engine structs ==--
 
+local CF_MEMBERS = [[
+    const int16_t ~picnum;
+    int16_t ~heinum;
+    const int16_t ~bunch;
+]]..bitint_member("UBit16", "~stat")..[[
+    int32_t ~z;
+    int8_t ~shade;
+    uint8_t ~pal, ~xpanning, ~ypanning;
+]]
+
+ffi.cdef("typedef struct { "..CF_MEMBERS:gsub("~","").." } ceiling_or_floor_t;")
+
 local SECTOR_STRUCT = [[
 struct {
     const int16_t wallptr, wallnum;
-
-    const int16_t ceilingpicnum;
-    int16_t ceilingheinum;
-    const int16_t ceilingbunch;
-    uint16_t ceilingstat;
-    int32_t ceilingz;
-    int8_t ceilingshade;
-    uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
-
-    const int16_t floorpicnum;
-    int16_t floorheinum;
-    const int16_t floorbunch;
-    uint16_t floorstat;
-    int32_t floorz;
-    int8_t floorshade;
-    uint8_t floorpal, floorxpanning, floorypanning;
-
+]]..
+string.format([[
+    union {
+      struct { ceiling_or_floor_t ceiling, floor; };
+      struct { %s %s };
+    };
+]], CF_MEMBERS:gsub("~","ceiling"), CF_MEMBERS:gsub("~","floor"))
+..[[
     uint8_t visibility, filler;
     int16_t lotag, hitag;  // NOTE: signed for Lunatic
     int16_t extra;
@@ -738,11 +742,13 @@ end
 -- sprite.CSTAT.TRANSLUCENT1
 local static_members = { sector={}, wall={}, sprite={} }
 
+-- XXX: go over these constant names and see if they can be named better.
 static_members.sector.STAT = conststruct
 {
     PARALLAX = 1,
     SLOPED = 2,
-
+    XYSWAP = 4,
+    SMOOSH = 8,
     XFLIP = 16,
     YFLIP = 32,
     RELATIVE = 64,
@@ -758,6 +764,8 @@ static_members.sector.STAT = conststruct
 static_members.wall.CSTAT = conststruct
 {
     BLOCKING = 1,
+    BOTTOMSWAP = 2,
+    BOTTOMALIGN = 4,
     XFLIP = 8,
     MASKED = 16,
     ONEWAY = 32,
