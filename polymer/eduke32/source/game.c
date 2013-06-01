@@ -335,6 +335,810 @@ void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set)
     setbrightness(ud.brightness>>2, palid, set);
 }
 
+// get the string length until the next '\n'
+int32_t G_GetStringLineLength(const char *text, const char *end, const int32_t iter)
+{
+    int32_t length = 0;
+
+    while (*text != '\n' && text != end)
+    {
+        ++length;
+
+        text += iter;
+    }
+
+    return length;
+}
+
+int32_t G_GetStringNumLines(const char *text, const char *end, const int32_t iter)
+{
+    int32_t count = 1;
+
+    while (text != end)
+    {
+        if (*text == '\n')
+            ++count;
+        text += iter;
+    }
+
+    return count;
+}
+// Note: Neither of these care about TEXT_LINEWRAP. This is intended.
+
+// This function requires you to Bfree() the returned char*.
+char* G_GetSubString(const char *text, const char *end, const int32_t iter, const int32_t length)
+{
+    char *line = (char*)Bmalloc((length+1) * sizeof(char));
+    int32_t counter = 0;
+
+    while (counter < length && text != end)
+    {
+        line[counter] = *text;
+
+        text += iter;
+        ++counter;
+    }
+
+    line[++counter] = '\0';
+
+    return line;
+}
+
+// assign the character's tilenum
+int32_t G_GetStringTile(int32_t font, char *t, int32_t f)
+{
+    if (f & TEXT_DIGITALNUMBER)
+        return *t - '0' + font; // copied from digitalnumber
+    else if (f & (TEXT_BIGALPHANUM|TEXT_GRAYFONT))
+    {
+        int32_t offset = (f & TEXT_GRAYFONT) ? 26 : 0;
+
+        if (*t >= '0' && *t <= '9')
+            return *t - '0' + font + ((f & TEXT_GRAYFONT) ? 26 : -10);
+        else if (*t >= 'a' && *t <= 'z')
+            return *t - 'a' + font + ((f & TEXT_GRAYFONT) ? -26 : 26);
+        else if (*t >= 'A' && *t <= 'Z')
+            return *t - 'A' + font;
+        else switch (*t)
+        {
+            case '_':
+            case '-':
+                return font - (11 + offset);
+                break;
+            case '.':
+                return font + (BIGPERIOD - (BIGALPHANUM + offset));
+                break;
+            case ',':
+                return font + (BIGCOMMA - (BIGALPHANUM + offset));
+                break;
+            case '!':
+                return font + (BIGX_ - (BIGALPHANUM + offset));
+                break;
+            case '?':
+                return font + (BIGQ - (BIGALPHANUM + offset));
+                break;
+            case ';':
+                return font + (BIGSEMI - (BIGALPHANUM + offset));
+                break;
+            case ':':
+                return font + (BIGCOLIN - (BIGALPHANUM + offset));
+                break;
+            case '\\':
+            case '/':
+                return font + (68 - offset); // 3008-2940
+                break;
+            case '%':
+                return font + (69 - offset); // 3009-2940
+                break;
+            case '`':
+            case '\"': // could be better hacked in
+            case '\'':
+                return font + (BIGAPPOS - (BIGALPHANUM + offset));
+                break;
+            default: // unknown character
+                *t = ' '; // whitespace-ize
+                return font;
+                break;
+        }
+    }
+    else
+        return *t - '!' + font; // uses ASCII order
+}
+
+// qstrdim
+vec2_t G_ScreenTextSize(const int32_t font,
+                        int32_t x, int32_t y, const int32_t z, const int32_t blockangle,
+                        const char *str, const int32_t o,
+                        int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween,
+                        const int32_t f,
+                        int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+{
+    vec2_t size = { 0, 0, }; // eventually the return value
+    vec2_t pos = { 0, 0, }; // holds the coordinate position as we draw each character tile of the string
+    vec2_t extent = { 0, 0, }; // holds the x-width of each character and the greatest y-height of each line
+    vec2_t offset = { 0, 0, }; // temporary; holds the last movement made in both directions
+
+    int32_t tile;
+    char t;
+
+    // set the start and end points depending on direction
+    int32_t iter = (f & TEXT_BACKWARDS) ? -1 : 1; // iteration direction
+
+    const char *end;
+    const char *text;
+
+    UNREFERENCED_PARAMETER(x1);
+    UNREFERENCED_PARAMETER(y1);
+    UNREFERENCED_PARAMETER(x2);
+    UNREFERENCED_PARAMETER(y2);
+
+    if (str == NULL)
+        return size;
+
+    end = (f & TEXT_BACKWARDS) ? str-1 : Bstrchr(str,'\0');
+    text = (f & TEXT_BACKWARDS) ? Bstrchr(str,'\0')-1 : str;
+
+    // optimization: justification in both directions
+    if ((f & TEXT_XJUSTIFY) && (f & TEXT_YJUSTIFY))
+    {
+        size.x = xbetween;
+        size.y = ybetween;
+        return size;
+    }
+
+    // for best results, we promote 320x200 coordinates to full precision before any math
+    if (!(o & ROTATESPRITE_FULL16))
+    {
+        x <<= 16;
+        y <<= 16;
+        xspace <<= 16;
+        yline <<= 16;
+        xbetween <<= 16;
+        ybetween <<= 16;
+    }
+    // coordinate values should be shifted left by 16
+
+    // handle zooming where applicable
+    xspace = scale(xspace, z, 65536);
+    yline = scale(yline, z, 65536);
+    xbetween = scale(xbetween, z, 65536);
+    ybetween = scale(ybetween, z, 65536);
+    // size/width/height/spacing/offset values should be multiplied or scaled by $z, zoom (since 100% is 65536, the same as 1<<16)
+
+    // loop through the string
+    while ((t = *text) && text != end)
+    {
+        // handle escape sequences
+        if (t == '^' && Bisdigit(*(text+iter)) && !(f & TEXT_LITERALESCAPE))
+        {
+            text += iter + iter;
+            if (Bisdigit(*text))
+                text += iter;
+            continue;
+        }
+
+        // handle case bits
+        if (f & TEXT_UPPERCASE)
+        {
+            if (f & TEXT_INVERTCASE) // optimization...?
+            { // v^ important that these two ifs remain separate due to the else below
+                if (Bisupper(t))
+                    t = Btolower(t);
+            }
+            else if (Bislower(t))
+                t = Btoupper(t);
+        }
+        else if (f & TEXT_INVERTCASE)
+        {
+            if (Bisupper(t))
+                t = Btolower(t);
+            else if (Bislower(t))
+                t = Btoupper(t);
+        }
+
+        // translate the character to a tilenum
+        tile = G_GetStringTile(font, &t, f);
+
+        // reset this here because we haven't printed anything yet this loop
+        extent.x = 0;
+
+        // reset this here because the act of printing something on this line means that we include the margin above in the total size
+        offset.y = 0;
+
+        // handle each character itself in the context of screen drawing
+        switch (t)
+        {
+            case '\t':
+            case ' ':
+                // width
+                extent.x = xspace;
+
+                if (f & (TEXT_INTERNALSPACE|TEXT_TILESPACE))
+                {
+                    char space = '.'; // this is subject to change as an implementation detail
+                    if (f & TEXT_TILESPACE)
+                        space = '\x7F'; // tile after '~'
+                    tile = G_GetStringTile(font, &space, f);
+
+                    extent.x += (tilesizx[tile] * z);
+                }
+
+                // prepare the height // near-CODEDUP the other two near-CODEDUPs for this section
+                {
+                    int32_t tempyextent = yline;
+
+                    if (f & (TEXT_INTERNALLINE|TEXT_TILELINE))
+                    {
+                        char line = 'A'; // this is subject to change as an implementation detail
+                        if (f & TEXT_TILELINE)
+                            line = '\x7F'; // tile after '~'
+                        tile = G_GetStringTile(font, &line, f);
+
+                        tempyextent += tilesizy[tile] * z;
+                    }
+
+                    SetIfGreater(&extent.y, tempyextent);
+                }
+
+                if (t == '\t')
+                    extent.x <<= 2; // *= 4
+
+                break;
+
+            case '\n': // near-CODEDUP "if (wrap)"
+                // save the position
+                pos.x -= offset.x;
+                SetIfGreater(&size.x, pos.x);
+
+                // reset the position
+                pos.x = 0;
+
+                // prepare the height
+                {
+                    int32_t tempyextent = yline;
+
+                    if (f & (TEXT_INTERNALLINE|TEXT_TILELINE))
+                    {
+                        char line = 'A'; // this is subject to change as an implementation detail
+                        if (f & TEXT_TILELINE)
+                            line = '\x7F'; // tile after '~'
+                        tile = G_GetStringTile(font, &line, f);
+
+                        tempyextent += tilesizy[tile] * z;
+                    }
+
+                    SetIfGreater(&extent.y, tempyextent);
+                }
+
+                // move down the line height
+                if (!(f & TEXT_YOFFSETZERO))
+                    pos.y += extent.y;
+
+                // reset the current height
+                extent.y = 0;
+
+                // line spacing
+                offset.y = (f & TEXT_YJUSTIFY) ? 0 : ybetween; // ternary to prevent overflow
+                pos.y += offset.y;
+
+                break;
+
+            default:
+                // width
+                extent.x = tilesizx[tile] * z;
+
+                // obnoxious hardcoded functionality from gametext
+                if ((f & TEXT_GAMETEXTNUMHACK) && t >= '0' && t <= '9')
+                {
+                    char numeral = '0'; // this is subject to change as an implementation detail
+                    extent.x = (tilesizx[G_GetStringTile(font, &numeral, f)]-1) * z;
+                }
+
+                // height
+                SetIfGreater(&extent.y, (tilesizy[tile] * z));
+
+                break;
+        }
+
+        // incrementing the coordinate counters
+        offset.x = 0;
+
+        // advance the x coordinate
+        if (!(f & TEXT_XOFFSETZERO))
+            offset.x += extent.x;
+
+        // account for text spacing
+        if (!((f & TEXT_GAMETEXTNUMHACK) && t >= '0' && t <= '9') // this "if" line ONLY == replicating hardcoded stuff
+            && !(f & TEXT_XJUSTIFY)) // to prevent overflow
+            offset.x += xbetween;
+
+        // line wrapping
+        if ((f & TEXT_LINEWRAP) && !(f & TEXT_XRIGHT) && !(f & TEXT_XCENTER) && blockangle % 512 == 0)
+        {
+            int32_t wrap = 0;
+            const int32_t ang = blockangle % 2048;
+
+            // this is the only place in qstrdim where angle actually affects direction, but only in the wrapping measurement
+            switch (ang)
+            {
+                case 0:
+                    wrap = (x + (pos.x + offset.x) > (320<<16)); // ((x2 - USERQUOTE_RIGHTOFFSET)<<16)
+                    break;
+                case 512:
+                    wrap = (y + (pos.x + offset.x) > (200<<16)); // ((y2 - USERQUOTE_RIGHTOFFSET)<<16)
+                    break;
+                case 1024:
+                    wrap = (x - (pos.x + offset.x) < 0); // ((x1 + USERQUOTE_RIGHTOFFSET)<<16)
+                    break;
+                case 1536:
+                    wrap = (y - (pos.x + offset.x) < 0); // ((y1 + USERQUOTE_RIGHTOFFSET)<<16)
+                    break;
+            }
+            if (wrap) // near-CODEDUP "case '\n':"
+            {
+                // save the position
+                SetIfGreater(&size.x, pos.x);
+
+                // reset the position
+                pos.x = 0;
+
+                // prepare the height
+                {
+                    int32_t tempyextent = yline;
+
+                    if (f & (TEXT_INTERNALLINE|TEXT_TILELINE))
+                    {
+                        char line = 'A'; // this is subject to change as an implementation detail
+                        if (f & TEXT_TILELINE)
+                            line = '\x7F'; // tile after '~'
+                        tile = G_GetStringTile(font, &line, f);
+
+                        tempyextent += tilesizy[tile] * z;
+                    }
+
+                    SetIfGreater(&extent.y, tempyextent);
+                }
+
+                // move down the line height
+                if (!(f & TEXT_YOFFSETZERO))
+                    pos.y += extent.y;
+
+                // reset the current height
+                extent.y = 0;
+
+                // line spacing
+                offset.y = (f & TEXT_YJUSTIFY) ? 0 : ybetween; // ternary to prevent overflow
+                pos.y += offset.y;
+            }
+            else
+                pos.x += offset.x;
+        }
+        else
+            pos.x += offset.x;
+
+        // save some trouble with calculation
+        if (!(f & TEXT_XOFFSETZERO))
+            offset.x -= extent.x;
+
+        // iterate to the next character in the string
+        text += iter;
+    }
+
+    // calculate final size
+    pos.x -= offset.x;
+    if (f & TEXT_XOFFSETZERO)
+        pos.x += extent.x;
+    pos.y -= offset.y;
+    pos.y += extent.y;
+
+    SetIfGreater(&size.x, pos.x);
+    SetIfGreater(&size.y, pos.y);
+
+    // justification where only one of the two directions is set, so we have to iterate
+    if (f & TEXT_XJUSTIFY)
+        size.x = xbetween;
+    if (f & TEXT_YJUSTIFY)
+        size.y = ybetween;
+
+    // return values in the same manner we receive them
+    if (!(o & ROTATESPRITE_FULL16))
+    {
+        size.x >>= 16;
+        size.y >>= 16;
+    }
+
+    return size;
+}
+
+void G_AddCoordsFromRotation(vec2_t *coords, const vec2_t *unitDirection, const int32_t magnitude)
+{
+    coords->x += scale(magnitude, unitDirection->x, 16384);
+    coords->y += scale(magnitude, unitDirection->y, 16384);
+}
+
+// screentext
+vec2_t G_ScreenText(const int32_t font,
+                    int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle,
+                    const char *str, const int32_t shade, int32_t pal, int32_t o, const int32_t alpha,
+                    int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f,
+                    const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2)
+{
+    vec2_t size = { 0, 0, }; // eventually the return value
+    vec2_t origin = { 0, 0, }; // where to start, depending on the alignment
+    vec2_t pos = { 0, 0, }; // holds the coordinate position as we draw each character tile of the string
+    vec2_t extent = { 0, 0, }; // holds the x-width of each character and the greatest y-height of each line
+    const vec2_t Xdirection = { sintable[(blockangle+512)&2047], sintable[blockangle&2047], };
+    const vec2_t Ydirection = { sintable[(blockangle+1024)&2047], sintable[(blockangle+512)&2047], };
+
+    int32_t tile;
+    char t;
+
+    // set the start and end points depending on direction
+    int32_t iter = (f & TEXT_BACKWARDS) ? -1 : 1; // iteration direction
+
+    const char *end;
+    const char *text;
+
+    if (str == NULL)
+        return size;
+
+    end = (f & TEXT_BACKWARDS) ? str-1 : Bstrchr(str,'\0');
+    text = (f & TEXT_BACKWARDS) ? Bstrchr(str,'\0')-1 : str;
+
+    // for best results, we promote 320x200 coordinates to full precision before any math
+    if (!(o & ROTATESPRITE_FULL16))
+    {
+        x <<= 16;
+        y <<= 16;
+        xspace <<= 16;
+        yline <<= 16;
+        xbetween <<= 16;
+        ybetween <<= 16;
+    }
+    // coordinate values should be shifted left by 16
+
+    // eliminate conflicts, necessary here to get the correct size value
+    // especially given justification's special handling in G_ScreenTextSize()
+    if ((f & TEXT_XRIGHT) || (f & TEXT_XCENTER) || (f & TEXT_XJUSTIFY) || (f & TEXT_YJUSTIFY) || blockangle % 512 != 0)
+        o &= ~TEXT_LINEWRAP;
+
+    // size is the return value, and we need it for alignment
+    size = G_ScreenTextSize(font, x, y, z, blockangle, str, o | ROTATESPRITE_FULL16, xspace, yline, (f & TEXT_XJUSTIFY) ? 0 : xbetween, (f & TEXT_YJUSTIFY) ? 0 : ybetween, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY), x1, y1, x2, y2);
+
+    // handle zooming where applicable
+    xspace = scale(xspace, z, 65536);
+    yline = scale(yline, z, 65536);
+    xbetween = scale(xbetween, z, 65536);
+    ybetween = scale(ybetween, z, 65536);
+    // size/width/height/spacing/offset values should be multiplied or scaled by $z, zoom (since 100% is 65536, the same as 1<<16)
+
+    // alignment
+    // near-CODEDUP "case '\n':"
+    {
+        int32_t lines = G_GetStringNumLines(text, end, iter);
+
+        if ((f & TEXT_XJUSTIFY) || (f & TEXT_XRIGHT) || (f & TEXT_XCENTER))
+        {
+            const int32_t length = G_GetStringLineLength(text, end, iter);
+
+            int32_t linewidth = size.x;
+
+            if (lines != 1)
+            {
+                char *line = G_GetSubString(text, end, iter, length);
+
+                linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace, yline, 0, 0, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
+
+                Bfree(line);
+            }
+
+            if (f & TEXT_XJUSTIFY)
+            {
+                size.x = xbetween;
+
+                xbetween = (length == 1) ? 0 : ((xbetween - linewidth) / (length - 1));
+
+                linewidth = size.x;
+            }
+
+            if (f & TEXT_XRIGHT)
+                origin.x = -linewidth;
+            else if (f & TEXT_XCENTER)
+                origin.x = -(linewidth / 2);
+        }
+
+        if (f & TEXT_YJUSTIFY)
+        {
+            const int32_t tempswap = ybetween;
+            ybetween = (lines == 1) ? 0 : ((ybetween - size.y) / (lines - 1));
+            size.y = tempswap;
+        }
+
+        if (f & TEXT_YBOTTOM)
+            origin.y = -size.y;
+        else if (f & TEXT_YCENTER)
+            origin.y = -(size.y / 2);
+    }
+
+    // loop through the string
+    while ((t = *text) && text != end)
+    {
+        int32_t orientation = o;
+        int32_t angle = blockangle + charangle;
+
+        // handle escape sequences
+        if (t == '^' && Bisdigit(*(text+iter)) && !(f & TEXT_LITERALESCAPE))
+        {
+            char smallbuf[4];
+
+            text += iter;
+            smallbuf[0] = *text;
+
+            text += iter;
+            if (Bisdigit(*text))
+            {
+                smallbuf[1] = *text;
+                smallbuf[2] = '\0';
+                text += iter;
+            }
+            else
+                smallbuf[1] = '\0';
+
+            if (!(f & TEXT_IGNOREESCAPE))
+                pal = Batoi(smallbuf);
+
+            continue;
+        }
+
+        // handle case bits
+        if (f & TEXT_UPPERCASE)
+        {
+            if (f & TEXT_INVERTCASE) // optimization...?
+            { // v^ important that these two ifs remain separate due to the else below
+                if (Bisupper(t))
+                    t = Btolower(t);
+            }
+            else if (Bislower(t))
+                t = Btoupper(t);
+        }
+        else if (f & TEXT_INVERTCASE)
+        {
+            if (Bisupper(t))
+                t = Btolower(t);
+            else if (Bislower(t))
+                t = Btoupper(t);
+        }
+
+        // translate the character to a tilenum
+        tile = G_GetStringTile(font, &t, f);
+
+        switch (t)
+        {
+            case '\t':
+            case ' ':
+            case '\n':
+            case '\x7F':
+                break;
+
+            default:
+            {
+                vec2_t location = { x, y, };
+
+                G_AddCoordsFromRotation(&location, &Xdirection, origin.x);
+                G_AddCoordsFromRotation(&location, &Ydirection, origin.y);
+
+                G_AddCoordsFromRotation(&location, &Xdirection, pos.x);
+                G_AddCoordsFromRotation(&location, &Ydirection, pos.y);
+
+                rotatesprite_(location.x, location.y, z, angle, tile, shade, pal, 2|orientation, alpha, x1, y1, x2, y2);
+
+                break;
+            }
+        }
+
+        // reset this here because we haven't printed anything yet this loop
+        extent.x = 0;
+
+        // handle each character itself in the context of screen drawing
+        switch (t)
+        {
+            case '\t':
+            case ' ':
+                // width
+                extent.x = xspace;
+
+                if (f & (TEXT_INTERNALSPACE|TEXT_TILESPACE))
+                {
+                    char space = '.'; // this is subject to change as an implementation detail
+                    if (f & TEXT_TILESPACE)
+                        space = '\x7F'; // tile after '~'
+                    tile = G_GetStringTile(font, &space, f);
+
+                    extent.x += (tilesizx[tile] * z);
+                }
+
+                // prepare the height // near-CODEDUP the other two near-CODEDUPs for this section
+                {
+                    int32_t tempyextent = yline;
+
+                    if (f & (TEXT_INTERNALLINE|TEXT_TILELINE))
+                    {
+                        char line = 'A'; // this is subject to change as an implementation detail
+                        if (f & TEXT_TILELINE)
+                            line = '\x7F'; // tile after '~'
+                        tile = G_GetStringTile(font, &line, f);
+
+                        tempyextent += tilesizy[tile] * z;
+                    }
+
+                    SetIfGreater(&extent.y, tempyextent);
+                }
+
+                if (t == '\t')
+                    extent.x <<= 2; // *= 4
+
+                break;
+
+            case '\n': // near-CODEDUP "if (wrap)"
+                // reset the position
+                pos.x = 0;
+
+                // prepare the height
+                {
+                    int32_t tempyextent = yline;
+
+                    if (f & (TEXT_INTERNALLINE|TEXT_TILELINE))
+                    {
+                        char line = 'A'; // this is subject to change as an implementation detail
+                        if (f & TEXT_TILELINE)
+                            line = '\x7F'; // tile after '~'
+                        tile = G_GetStringTile(font, &line, f);
+
+                        tempyextent += tilesizy[tile] * z;
+                    }
+
+                    SetIfGreater(&extent.y, tempyextent);
+                }
+
+                // move down the line height
+                if (!(f & TEXT_YOFFSETZERO))
+                    pos.y += extent.y;
+
+                // reset the current height
+                extent.y = 0;
+
+                // line spacing
+                pos.y += ybetween;
+
+                // near-CODEDUP "alignments"
+                if ((f & TEXT_XJUSTIFY) || (f & TEXT_XRIGHT) || (f & TEXT_XCENTER))
+                {
+                    const int32_t length = G_GetStringLineLength(text, end, iter);
+
+                    char *line = G_GetSubString(text, end, iter, length);
+
+                    int32_t linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace, yline, 0, 0, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
+
+                    Bfree(line);
+
+                    if (f & TEXT_XJUSTIFY)
+                    {
+                        xbetween = (length == 1) ? 0 : ((xbetween - linewidth) / (length - 1));
+
+                        linewidth = size.x;
+                    }
+
+                    if (f & TEXT_XRIGHT)
+                        origin.x = -linewidth;
+                    else if (f & TEXT_XCENTER)
+                        origin.x = -(linewidth / 2);
+                }
+
+                break;
+
+            default:
+                // width
+                extent.x = tilesizx[tile] * z;
+
+                // obnoxious hardcoded functionality from gametext
+                if ((f & TEXT_GAMETEXTNUMHACK) && t >= '0' && t <= '9')
+                {
+                    char numeral = '0'; // this is subject to change as an implementation detail
+                    extent.x = (tilesizx[G_GetStringTile(font, &numeral, f)]-1) * z;
+                }
+
+                // height
+                SetIfGreater(&extent.y, (tilesizy[tile] * z));
+
+                break;
+        }
+
+        // incrementing the coordinate counters
+        {
+            int32_t xoffset = 0;
+
+            // advance the x coordinate
+            if (!(f & TEXT_XOFFSETZERO))
+                xoffset += extent.x;
+
+            // account for text spacing
+            if (!((f & TEXT_GAMETEXTNUMHACK) && t >= '0' && t <= '9')) // this "if" line ONLY == replicating hardcoded stuff
+                xoffset += xbetween;
+
+            // line wrapping
+            if (f & TEXT_LINEWRAP)
+            {
+                int32_t wrap = 0;
+                const int32_t ang = blockangle % 2048;
+
+                // it's safe to make some assumptions and not go through G_AddCoordsFromRotation() since we limit to four directions
+                switch (ang)
+                {
+                    case 0:
+                        wrap = (x + (pos.x + xoffset) > (320<<16)); // ((x2 - USERQUOTE_RIGHTOFFSET)<<16)
+                        break;
+                    case 512:
+                        wrap = (y + (pos.x + xoffset) > (200<<16)); // ((y2 - USERQUOTE_RIGHTOFFSET)<<16)
+                        break;
+                    case 1024:
+                        wrap = (x - (pos.x + xoffset) < 0); // ((x1 + USERQUOTE_RIGHTOFFSET)<<16)
+                        break;
+                    case 1536:
+                        wrap = (y - (pos.x + xoffset) < 0); // ((y1 + USERQUOTE_RIGHTOFFSET)<<16)
+                        break;
+                }
+                if (wrap) // near-CODEDUP "case '\n':"
+                {
+                    // reset the position
+                    pos.x = 0;
+
+                    // prepare the height
+                    {
+                        int32_t tempyextent = yline;
+
+                        if (f & (TEXT_INTERNALLINE|TEXT_TILELINE))
+                        {
+                            char line = 'A'; // this is subject to change as an implementation detail
+                            if (f & TEXT_TILELINE)
+                                line = '\x7F'; // tile after '~'
+                            tile = G_GetStringTile(font, &line, f);
+
+                            tempyextent += tilesizy[tile] * z;
+                        }
+
+                        SetIfGreater(&extent.y, tempyextent);
+                    }
+
+                    // move down the line height
+                    if (!(f & TEXT_YOFFSETZERO))
+                        pos.y += extent.y;
+
+                    // reset the current height
+                    extent.y = 0;
+
+                    // line spacing
+                    pos.y += ybetween;
+                }
+                else
+                    pos.x += xoffset;
+            }
+            else
+                pos.x += xoffset;
+        }
+
+        // iterate to the next character in the string
+        text += iter;
+    }
+
+    // return values in the same manner we receive them
+    if (!(o & ROTATESPRITE_FULL16))
+    {
+        size.x >>= 16;
+        size.y >>= 16;
+    }
+
+    return size;
+}
 
 // flags
 //  4: small font, wrap strings?

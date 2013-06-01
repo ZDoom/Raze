@@ -594,6 +594,9 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # define Bstrtoul strtoul
 # define Bstrtod strtod
 # define Bstrstr strstr
+# define Bislower islower
+# define Bisupper isupper
+# define Bisdigit isdigit
 # define Btoupper toupper
 # define Btolower tolower
 # define Bmemcpy memcpy

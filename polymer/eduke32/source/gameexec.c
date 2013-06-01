@@ -1809,6 +1809,41 @@ skip_check:
                 continue;
             }
 
+        case CON_QSTRDIM:
+            insptr++;
+            {
+                vec2_t dim = { 0, 0, };
+
+                int32_t w=*insptr++;
+                int32_t h=*insptr++;
+
+                int32_t tilenum = Gv_GetVarX(*insptr++);
+                int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), z = Gv_GetVarX(*insptr++);
+                int32_t blockangle=Gv_GetVarX(*insptr++);
+                int32_t q=Gv_GetVarX(*insptr++);
+                int32_t orientation=Gv_GetVarX(*insptr++);
+                int32_t xspace=Gv_GetVarX(*insptr++), yline=Gv_GetVarX(*insptr++);
+                int32_t xbetween=Gv_GetVarX(*insptr++), ybetween=Gv_GetVarX(*insptr++);
+                int32_t f=Gv_GetVarX(*insptr++);
+                int32_t x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++);
+                int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++);
+
+                orientation &= (ROTATESPRITE_MAX-1);
+
+                if (tilenum < 0 || tilenum+255 >= MAXTILES)
+                    CON_ERRPRINTF("invalid base tilenum %d\n", tilenum);
+                else if ((unsigned)q >= MAXQUOTES)
+                    CON_ERRPRINTF("invalid quote ID %d\n", q);
+                else if ((ScriptQuotes[q] == NULL))
+                    CON_ERRPRINTF("null quote %d\n", q);
+                else
+                    dim = G_ScreenTextSize(tilenum,x,y,z,blockangle,ScriptQuotes[q],orientation,xspace,yline,xbetween,ybetween,f,x1,y1,x2,y2);
+
+                Gv_SetVarX(w,dim.x);
+                Gv_SetVarX(h,dim.y);
+                continue;
+            }
+
         case CON_HEADSPRITESTAT:
             insptr++;
             {
@@ -2757,6 +2792,46 @@ nullquote:
                     continue;
                 }
                 minitextshade(x,y,ScriptQuotes[q],shade,pal, 2+8+16);
+                continue;
+            }
+
+        case CON_SCREENTEXT:
+            insptr++;
+            {
+                int32_t tilenum = Gv_GetVarX(*insptr++);
+                int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), z = Gv_GetVarX(*insptr++);
+                int32_t blockangle=Gv_GetVarX(*insptr++), charangle=Gv_GetVarX(*insptr++);
+                int32_t q=Gv_GetVarX(*insptr++);
+                int32_t shade=Gv_GetVarX(*insptr++), pal=Gv_GetVarX(*insptr++);
+                int32_t orientation=Gv_GetVarX(*insptr++);
+                int32_t alpha=Gv_GetVarX(*insptr++);
+                int32_t xspace=Gv_GetVarX(*insptr++), yline=Gv_GetVarX(*insptr++);
+                int32_t xbetween=Gv_GetVarX(*insptr++), ybetween=Gv_GetVarX(*insptr++);
+                int32_t f=Gv_GetVarX(*insptr++);
+                int32_t x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++);
+                int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++);
+
+                if (tilenum < 0 || tilenum+255 >= MAXTILES)
+                {
+                    CON_ERRPRINTF("invalid base tilenum %d\n", tilenum);
+                    continue;
+                }
+
+                if ((unsigned)q >= MAXQUOTES)
+                {
+                    CON_ERRPRINTF("invalid quote ID %d\n", q);
+                    continue;
+                }
+
+                if ((ScriptQuotes[q] == NULL))
+                {
+                    CON_ERRPRINTF("null quote %d\n", q);
+                    continue;
+                }
+
+                orientation &= (ROTATESPRITE_MAX-1);
+
+                G_ScreenText(tilenum,x,y,z,blockangle,charangle,ScriptQuotes[q],shade,pal,orientation,alpha,xspace,yline,xbetween,ybetween,f,x1,y1,x2,y2);
                 continue;
             }
 

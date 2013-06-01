@@ -941,6 +941,8 @@ enum ScriptKeywords_t
     CON_ENDOFLEVEL,         // 366
     CON_IFPLAYERSL,         // 367
     CON_ACTIVATE,           // 368
+    CON_QSTRDIM,            // 369
+    CON_SCREENTEXT,         // 370
     CON_END
 };
 #endif

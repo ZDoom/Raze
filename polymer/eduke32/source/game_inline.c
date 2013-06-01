@@ -35,4 +35,12 @@ EXTERN_INLINE void G_SetStatusBarScale(int32_t sc)
     G_UpdateScreenArea();
 }
 
+// the point of this is to prevent re-running a function or calculation passed to potentialValue
+// without making a new variable under each individual circumstance
+EXTERN_INLINE void SetIfGreater(int32_t *variable, int32_t potentialValue)
+{
+    if (potentialValue > *variable)
+        *variable = potentialValue;
+}
+
 #endif

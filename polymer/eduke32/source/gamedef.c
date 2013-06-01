@@ -91,10 +91,8 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_ECHO, 20120304 },
     { CON_SHOWVIEWUNBIASED, 20120331 },
     { CON_ROTATESPRITEA, 20130324 },
-    { CON_SHADETO, 20130522 },
-    { CON_ENDOFLEVEL, 20130522 },
-    { CON_IFPLAYERSL, 20130522 },
     { CON_ACTIVATE, 20130522 },
+    { CON_SCREENTEXT, 20130529 },
 };
 #endif
 
@@ -589,6 +587,8 @@ const char *keyw[] =
     "endoflevel",               // 366
     "ifplayersl",               // 367
     "activate",                 // 368
+    "qstrdim",                  // 369
+    "screentext",               // 370
     "<null>"
 };
 #endif
@@ -4754,6 +4754,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_GAMETEXTZ:
         case CON_DIGITALNUMBER:
         case CON_DIGITALNUMBERZ:
+        case CON_SCREENTEXT:
             if (g_parsingEventPtr == NULL && g_processingState == 0)
             {
                 C_ReportError(ERROR_EVENTONLY);
@@ -4762,6 +4763,8 @@ static int32_t C_ParseCommand(int32_t loop)
 
             switch (tw)
             {
+            case CON_SCREENTEXT:
+                C_GetManyVars(8);
             case CON_GAMETEXTZ:
             case CON_DIGITALNUMBERZ:
                 C_GetManyVars(1);
@@ -5051,6 +5054,11 @@ repeatcase:
         case CON_QSTRLEN:
             C_GetNextVarType(GAMEVAR_READONLY);
             C_GetNextVar();
+            continue;
+        case CON_QSTRDIM:
+            C_GetNextVarType(GAMEVAR_READONLY);
+            C_GetNextVarType(GAMEVAR_READONLY);
+            C_GetManyVars(16);
             continue;
         case CON_HEADSPRITESTAT:
         case CON_PREVSPRITESTAT:

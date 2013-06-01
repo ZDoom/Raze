@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
 
+EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue);
+
 #ifndef DISABLE_INLINING
 #include "game_inline.c"
 #endif
