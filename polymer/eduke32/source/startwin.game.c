@@ -254,7 +254,7 @@ static void PopulateForm(int32_t pgs)
     if (pgs & POPULATE_GAME)
     {
         struct grpfile *fg;
-        int32_t i, j;
+        int32_t j;
         char buf[1024];
 
         hwnd = GetDlgItem(pages[TAB_CONFIG], IDCDATA);
