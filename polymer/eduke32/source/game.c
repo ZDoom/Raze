@@ -1140,6 +1140,41 @@ vec2_t G_ScreenText(const int32_t font,
     return size;
 }
 
+vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy,
+                          const int32_t font,
+                          int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle,
+                          const char *str, const int32_t shade, int32_t pal, int32_t o, const int32_t alpha,
+                          int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f,
+                          const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2)
+{
+    vec2_t size = { 0, 0, }; // eventually the return value
+
+    if (!(o & ROTATESPRITE_FULL16))
+    {
+        sx <<= 16;
+        sy <<= 16;
+        x <<= 16;
+        y <<= 16;
+        xspace <<= 16;
+        yline <<= 16;
+        xbetween <<= 16;
+        ybetween <<= 16;
+    }
+
+    G_ScreenText(font, x + scale(sx,z,65536), y + scale(sy,z,65536), z, blockangle, charangle, str, 127, 4, o|ROTATESPRITE_FULL16, alpha, xspace, yline, xbetween, ybetween, f, x1, y1, x2, y2);
+
+    size = G_ScreenText(font, x, y, z, blockangle, charangle, str, shade, pal, o|ROTATESPRITE_FULL16, alpha, xspace, yline, xbetween, ybetween, f, x1, y1, x2, y2);
+
+    // return values in the same manner we receive them
+    if (!(o & ROTATESPRITE_FULL16))
+    {
+        size.x >>= 16;
+        size.y >>= 16;
+    }
+
+    return size;
+}
+
 // flags
 //  4: small font, wrap strings?
 int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x,  int32_t y,  const char *t,
@@ -1176,7 +1211,7 @@ int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x,  int32_t y,  cons
     }
 
     // order is important, this bit comes after the rest
-    if (hack & 2) // squishtext
+    if ((hack & 2) && !NAM) // squishtext
         --xbetween;
 
     if (x == (160<<16))
@@ -1253,6 +1288,15 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
         x >>= 16;
 
     return x;
+}
+void creditsminitext(int32_t x,int32_t y,const char *t,int32_t p,int32_t sb)
+{
+    int32_t f = TEXT_XCENTER;
+
+    if (!minitext_lowercase)
+        f |= TEXT_UPPERCASE;
+
+    G_ScreenTextShadow(1, 1, MINIFONT, x, y, 65536, 0, 0, t, 0, p, sb, 0, 4, 8, 1, 0, f, 0, 0, xdim-1, ydim-1);
 }
 
 void G_AddUserQuote(const char *daquote)

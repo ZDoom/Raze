@@ -1912,37 +1912,30 @@ cheat_for_port_credits:
             if (g_scriptVersion != 14) l = (-2);
             mgametext(160,38-l,"Programming and Project Management",0,2+8+16);
             p = "Richard \"TerminX\" Gobeille";
-            minitextshade(161-(Bstrlen(p)<<1), 39+10-l, p, 127, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 38+10-l, p, 8, 10+16+128);
+            creditsminitext(160, 38+10-l, p, 8, 10+16+128);
 
             mgametext(160,58-l,"Polymer Rendering System",0,2+8+16);
             p = "Pierre-Loup \"Plagman\" Griffais";
-            minitextshade(161-(Bstrlen(p)<<1), 59+10-l, p, 127, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 58+10-l, p, 8, 10+16+128);
+            creditsminitext(160, 58+10-l, p, 8, 10+16+128);
 
             mgametext(160,78-l,"Additional Engine and Game Programming",0,2+8+16);
             p = "Philipp \"Helixhorned\" Kutin";
-            minitextshade(161-(Bstrlen(p)<<1), 79+10-l, p, 127, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 78+10-l, p, 8, 10+16+128);
+            creditsminitext(160, 78+10-l, p, 8, 10+16+128);
 
             mgametext(160,98-l,"\"JFDuke3D\" and \"JFBuild\" code",0,2+8+16);
             p = "Jonathon \"JonoF\" Fowler";
-            minitextshade(161-(Bstrlen(p)<<1), 99+10-l, p, 127, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 98+10-l, p, 8, 10+16+128);
+            creditsminitext(160, 98+10-l, p, 8, 10+16+128);
 
             mgametext(160,118-l,"Legacy \"NAM\", \"WWII GI\", and \"EDuke\" Code",0,2+8+16);
             p = "Matt \"Matteus\" Saettler";
-            minitextshade(161-(Bstrlen(p)<<1), 119+10-l, p, 127, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 118+10-l, p, 8, 10+16+128);
+            creditsminitext(160, 118+10-l, p, 8, 10+16+128);
 
             mgametext(160,138-l,"Core BUILD Engine functionality",0,2+8+16);
             p = "Ken \"Awesoken\" Silverman";
-            minitextshade(161-(Bstrlen(p)<<1), 139+10-l, p, 127, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 138+10-l, p, 8, 10+16+128);
+            creditsminitext(160, 138+10-l, p, 8, 10+16+128);
 
             p = "Visit www.eduke32.com for news and updates";
-            minitextshade(161-(Bstrlen(p)<<1), 139+10+10+10+10+4-l, p, 127, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 138+10+10+10+10+4-l, p, 8, 10+16+128);
+            creditsminitext(160, 138+10+10+10+10+4-l, p, 8, 10+16+128);
             break;
 
         case MENU_CREDITS5:
@@ -2007,29 +2000,19 @@ cheat_for_port_credits2:
 
                 i = 0;
                 for (m=0; m<header_numlines; m++)
-                {
-                    minitextshade(161-(Bstrlen(header[m])<<1), 18+10+10+8+4+(m*7)-l, header[m], 127, 4, 10+16+128);
-                    minitext(160-(Bstrlen(header[m])<<1), 17+10+10+8+4+(m*7)-l, header[m], 8, 10+16+128);
-                }
+                    creditsminitext(160, 17+10+10+8+4+(m*7)-l, header[m], 8, 10+16+128);
                 i += m;
 #define CCOLUMNS 3
 #define CCOLXBUF 20
                 for (m=0; m<body_numlines; m++)
-                {
-                    minitextshade(CCOLXBUF+((320-CCOLXBUF*2)/(CCOLUMNS*2))+1+((320-CCOLXBUF*2)/CCOLUMNS)*(m/(body_numlines/CCOLUMNS))-(Bstrlen(body[m])<<1), 18+10+10+8+4+((m%(body_numlines/CCOLUMNS))*7)+(i*7)-l, body[m], 127, 4, 10+16+128);
-                    minitext(CCOLXBUF+((320-CCOLXBUF*2)/(CCOLUMNS*2))  +((320-CCOLXBUF*2)/CCOLUMNS)*(m/(body_numlines/CCOLUMNS))-(Bstrlen(body[m])<<1), 17+10+10+8+4+((m%(body_numlines/CCOLUMNS))*7)+(i*7)-l, body[m], 8, 10+16+128);
-                }
+                    creditsminitext(CCOLXBUF+((320-CCOLXBUF*2)/(CCOLUMNS*2))  +((320-CCOLXBUF*2)/CCOLUMNS)*(m/(body_numlines/CCOLUMNS)), 17+10+10+8+4+((m%(body_numlines/CCOLUMNS))*7)+(i*7)-l, body[m], 8, 10+16+128);
                 i += m/CCOLUMNS;
                 for (m=0; m<footer_numlines; m++)
-                {
-                    minitextshade(161-(Bstrlen(footer[m])<<1), 18+10+10+8+4+(m*7)+(i*7)-l, footer[m], 127, 4, 10+16+128);
-                    minitext(160-(Bstrlen(footer[m])<<1), 17+10+10+8+4+(m*7)+(i*7)-l, footer[m], 8, 10+16+128);
-                }
+                    creditsminitext(160, 17+10+10+8+4+(m*7)+(i*7)-l, footer[m], 8, 10+16+128);
             }
 
             p = "Visit www.eduke32.com for news and updates";
-            minitextshade(161-(Bstrlen(p)<<1), 139+10+10+10+10+4-l, p, 127, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 138+10+10+10+10+4-l, p, 8, 10+16+128);
+            creditsminitext(160, 138+10+10+10+10+4-l, p, 8, 10+16+128);
 
             break;
         }

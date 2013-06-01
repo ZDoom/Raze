@@ -311,6 +311,7 @@ int32_t G_PrintGameText(int32_t hack,int32_t tile,int32_t x,int32_t y,const char
 int32_t GetTime(void);
 int32_t kopen4loadfrommod(const char *filename,char searchfirst);
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb);
+void creditsminitext(int32_t x,int32_t y,const char *t,int32_t p,int32_t sb);
 int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits);
 int32_t startwin_run(void);
 
@@ -369,6 +370,7 @@ extern int32_t G_GetStringTile(int32_t font, char *t, int32_t f);
 extern vec2_t G_ScreenTextSize(const int32_t font, int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const char *str, const int32_t o, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f, const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2);
 extern void G_AddCoordsFromRotation(vec2_t *coords, const vec2_t *unitDirection, const int32_t magnitude);
 extern vec2_t G_ScreenText(const int32_t font, int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle, const char *str, const int32_t shade, int32_t pal, int32_t o, const int32_t alpha, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
+extern vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy, const int32_t font, int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle, const char *str, const int32_t shade, int32_t pal, int32_t o, const int32_t alpha, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
 int32_t app_main(int32_t argc,const char **argv);
 void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);
