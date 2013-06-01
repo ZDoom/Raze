@@ -1845,6 +1845,11 @@ local function serialize_array(ar, strtab, maxnum)
     return table.concat(strtab)
 end
 
+local function our_get_require()
+    return OUR_REQUIRE_STRING
+end
+
+
 --- Game arrays ---
 
 local function moddir_filename(cstr_fn)
@@ -2006,10 +2011,7 @@ local gamearray_methods = {
 
 
     --- Serialization ---
-
-    _get_require = function(gar)
-        return OUR_REQUIRE_STRING
-    end,
+    _get_require = our_get_require,
 
     _serialize = function(gar)
         local strtab = { OUR_NAME.."._gamearray(", tostring(gar._size), ",{" }
@@ -2069,7 +2071,7 @@ function killit()
 end
 
 
--- Per-actor variable.
+--== Per-actor variable ==--
 local actorvar_methods = {
     --- Internal routines ---
 
@@ -2089,10 +2091,7 @@ local actorvar_methods = {
 
 
     --- Serialization ---
-
-    _get_require = function(acv)
-        return OUR_REQUIRE_STRING
-    end,
+    _get_require = our_get_require,
 
     _serialize = function(acv)
         local strtab = { OUR_NAME..".actorvar(", tostring(acv._defval), ",{" }
@@ -2128,4 +2127,42 @@ function actorvar(initval, values)
     local acv = setmetatable({ _defval=initval }, actorvar_mt)
     g_actorvar[acv] = true
     return set_values_from_table(acv, values)
+end
+
+
+--== Per-player variable (kind of CODEDUP) ==--
+local playervar_methods = {
+    --- Serialization ---
+    _get_require = our_get_require,
+
+    _serialize = function(plv)
+        local strtab = { OUR_NAME..".playervar(", tostring(plv._defval), ",{" }
+        return serialize_array(plv, strtab, ffiC.MAXSPRITES)
+    end,
+}
+
+-- XXX: How about types other than numbers?
+local playervar_mt = {
+    __index = function(plv, idx)
+        if (type(idx)=="number") then
+            check_player_idx(idx)
+            return plv._defval
+        else
+            return playervar_methods[idx]
+        end
+    end,
+
+    __newindex = function(plv, idx, val)
+        check_player_idx(idx)
+        rawset(plv, idx, val)
+    end,
+
+    __metatable = "serializeable",
+}
+
+-- <initval>: default value for per-player variable.
+-- <values>: optional, a table of <playeridx>=value
+function playervar(initval, values)
+    local plv = setmetatable({ _defval=initval }, playervar_mt)
+    return set_values_from_table(plv, values)
 end

@@ -113,7 +113,9 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
 
 -- Code generation and output options.
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
-                  ["cache-sap"]=false, ["error-nostate"]=true, }
+                  ["cache-sap"]=false, ["error-nostate"]=true,
+                  ["playervar"]=true, }
+
 local function csapp() return g_cgopt["cache-sap"] end
 
 -- Stack with *true* on top if the innermost block is a "whilevar*n".
@@ -130,6 +132,8 @@ local GVFLAG = {
 
     NODEFAULT = 0x00000400,  -- don't reset on actor spawn
     NORESET   = 0x00020000,  -- don't reset when restoring map state
+
+    CON_PERPLAYER = 0x40000000,  -- LunaCON internal
 }
 
 -- NOTE: This differs from enum GamevarFlags_t's GAMEVAR_USER_MASK
@@ -1214,10 +1218,11 @@ function Cmd.gamevar(identifier, initval, flags)
     g_gamevar[identifier] = gv
 
     -- TODO: Write gamevar system on the Lunatic side and hook it up.
-    -- TODO: per-player gamevars. Currently, no error on using per-player var
-    -- in no-player context!
     if (bit.band(flags, GVFLAG.PERX_MASK)==GVFLAG.PERACTOR) then
         addcodef("%s=_con.actorvar(%d)", gv.name, initval)
+    elseif (bit.band(flags, GVFLAG.PERX_MASK)==GVFLAG.PERPLAYER and g_cgopt["playervar"]) then
+        gv.flags = bit.bor(gv.flags, GVFLAG.CON_PERPLAYER)
+        addcodef("%s=_con.playervar(%d)", gv.name, initval)
     else
         addcodef("%s=%d", gv.name, initval)
     end
@@ -1239,6 +1244,10 @@ function lookup.gamearray(identifier)
     return ga.name
 end
 
+local function thisactor_to_pli(var)
+    return (var=="_aci") and "_pli" or var
+end
+
 -- <aorpvar>: code for actor or player index
 function lookup.gamevar(identifier, aorpvar, writable)
     local gv = g_gamevar[identifier]
@@ -1255,6 +1264,8 @@ function lookup.gamevar(identifier, aorpvar, writable)
 
     if (bit.band(gv.flags, GVFLAG.PERACTOR)~=0) then
         return format("%s[%s]", gv.name, aorpvar)
+    elseif (bit.band(gv.flags, GVFLAG.CON_PERPLAYER)~=0 and g_cgopt["playervar"]) then
+        return format("%s[%s]", gv.name, thisactor_to_pli(aorpvar))
     else
         return gv.name
     end
@@ -1509,10 +1520,6 @@ local getperxvarcmd =  -- get<actor/player>var[<idx>].<varname> <<var>>
 
 local setperxvarcmd = -- set<actor/player>var[<idx>].<<varname>> <var>
     arraypat * singlememberpat * sp1 * tok.rvar
-
-local function thisactor_to_pli(var)
-    return (var=="_aci") and "_pli" or var
-end
 
 -- Function generating code for a struct read/write access.
 local function StructAccess(Structname, writep, index, membertab)
