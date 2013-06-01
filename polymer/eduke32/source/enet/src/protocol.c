@@ -1613,7 +1613,7 @@ enet_protocol_send_outgoing_commands (ENetHost * host, ENetEvent * event, int ch
            enet_uint32 packetLoss = currentPeer -> packetsLost * ENET_PEER_PACKET_LOSS_SCALE / currentPeer -> packetsSent;
 
 #ifdef ENET_DEBUG
-#ifdef WIN32
+#ifdef _WIN32
            printf (
 #else
            fprintf (stderr, 
@@ -1663,7 +1663,7 @@ enet_protocol_send_outgoing_commands (ENetHost * host, ENetEvent * event, int ch
                 host -> headerFlags |= ENET_PROTOCOL_HEADER_FLAG_COMPRESSED;
                 shouldCompress = compressedSize;
 #ifdef ENET_DEBUG_COMPRESS
-#ifdef WIN32
+#ifdef _WIN32
            printf (
 #else
            fprintf (stderr,

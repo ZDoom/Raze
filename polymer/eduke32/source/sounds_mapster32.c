@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "macros.h"
 #include "mathutil.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "winlayer.h"
 #endif
 

@@ -130,7 +130,7 @@ nedmalloc.dll.
  */
 #ifndef NEDMALLOCEXTSPEC
  #ifdef NEDMALLOC_DLL_EXPORTS
-  #ifdef WIN32
+  #ifdef _WIN32
    #define NEDMALLOCEXTSPEC extern __declspec(dllexport)
   #elif defined(__GNUC__)
    #define NEDMALLOCEXTSPEC extern __attribute__ ((visibility("default")))
@@ -238,7 +238,7 @@ Always turns on ENABLE_TOLERANT_NEDMALLOC.
  #ifndef ENABLE_TOLERANT_NEDMALLOC
   #define ENABLE_TOLERANT_NEDMALLOC 1
  #endif
- #ifndef WIN32	/* We have a dedicated patcher for Windows */
+ #ifndef _WIN32	/* We have a dedicated patcher for Windows */
   #define nedmalloc               malloc
   #define nedmalloc2              malloc2
   #define nedcalloc               calloc

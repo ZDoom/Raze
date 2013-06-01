@@ -6269,7 +6269,7 @@ void C_Compile(const char *filenam)
 
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
-# ifdef WIN32
+# ifdef _WIN32
             Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n\n"
                      "You can find \"%s\" in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.\n\n"
                      "If you don't already own a copy of Duke or haven't seen your disc in years, don't worry -- you can download the full, registered "

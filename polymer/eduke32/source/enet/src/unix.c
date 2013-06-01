@@ -2,7 +2,7 @@
  @file  unix.c
  @brief ENet Unix system specific functions
 */
-#ifndef WIN32
+#ifndef _WIN32
 
 #ifndef UNREFERENCED_PARAMETER
     #define UNREFERENCED_PARAMETER(x) x=x
