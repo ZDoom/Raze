@@ -947,6 +947,7 @@ lpeg.P(false) +
 "shoot" +
 "shiftvarr" +
 "shiftvarl" +
+"shadeto" +
 "setwall" +
 "setvarvar" +
 "setvar" +
@@ -976,6 +977,7 @@ lpeg.P(false) +
 "sectgethitag" +
 "sectclearinterpolation" +
 "scriptsize" +
+"screentext" +
 "savenn" +
 "savemapstate" +
 "savegamevar" +
@@ -1001,6 +1003,7 @@ lpeg.P(false) +
 "qsubstr" +
 "qstrncat" +
 "qstrlen" +
+"qstrdim" +
 "qstrcpy" +
 "qstrcat" +
 "qsprintf" +
@@ -1078,6 +1081,7 @@ lpeg.P(false) +
 "ifserver" +
 "ifrnd" +
 "ifrespawn" +
+"ifplayersl" +
 "ifpinventory" +
 "ifphealthl" +
 "ifpdistl" +
@@ -1184,11 +1188,13 @@ lpeg.P(false) +
 "enhanced" +
 "endswitch" +
 "ends" +
+"endoflevel" +
 "endofgame" +
 "endevent" +
 "enda" +
 "else" +
 "echo" +
+"dynamicsoundremap" +
 "dynamicremap" +
 "dragpoint" +
 "divvarvar" +
@@ -1254,5 +1260,6 @@ lpeg.P(false) +
 "actor" +
 "activatecheat" +
 "activatebysector" +
+"activate" +
 "action" +
 lpeg.P(false)

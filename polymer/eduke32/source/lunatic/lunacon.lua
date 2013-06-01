@@ -1388,6 +1388,8 @@ local Couter = {
     --- 2. Defines and Meta-Settings
     dynamicremap = cmd()
         / Cmd.dynamicremap,
+    dynamicsoundremap = cmd()
+        / Cmd.NYI("`dynamicsoundremap'"),
     setcfgname = sp1 * tok.filename
         / Cmd.nyi("`setcfgname'"),
     setdefname = sp1 * tok.filename
@@ -2299,6 +2301,14 @@ local Cinner = {
         / handle.getzrange,
 
     -- screen text and numbers display
+    qstrdim = cmd(W,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R)  -- 2W 16R
+        / function(...)
+              return format("%s,%s=_con._qstrdim("..n_s_fmt(16)..")", ...)
+          end,
+    screentext = cmd(R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R)  -- 20 R
+        / function(...)
+              return format("_con._screentext("..n_s_fmt(20)..")", ...)
+          end,
     gametext = cmd(R,R,R,R,R,R,R,R,R,R,R)  -- 11 R
         / function(...)
               return format("_con._gametext("..n_s_fmt(11)..",65536)", ...)

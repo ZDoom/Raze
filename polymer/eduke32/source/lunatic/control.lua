@@ -792,15 +792,19 @@ function _digitalnumber(tilenum, x, y, num, shade, pal,
                           orientation, cx1, cy1, cx2, cy2, zoom)
 end
 
-function _gametext(tilenum, x, y, qnum, shade, pal, orientation,
-                   cx1, cy1, cx2, cy2, zoom)
+local function text_check_common(tilenum, orientation)
     if (tilenum >= ffiC.MAXTILES-255+0ULL) then
-        error("invalid base tile number "..tilenum, 2)
+        error("invalid base tile number "..tilenum, 3)
     end
 
+    return bit.band(orientation, 4095)  -- ROTATESPRITE_MAX-1
+end
+
+function _gametext(tilenum, x, y, qnum, shade, pal, orientation,
+                   cx1, cy1, cx2, cy2, zoom)
+    orientation = text_check_common(tilenum, orientation)
     local cstr = bcheck.quote_idx(qnum)
 
-    orientation = bit.band(orientation, 4095)  -- ROTATESPRITE_MAX-1
     ffiC.G_PrintGameText(0, tilenum, bit.arshift(x,1), y, cstr, shade, pal,
                          orientation, cx1, cy1, cx2, cy2, zoom)
 end
@@ -809,6 +813,26 @@ end
 -- have some undefined behavior somewhere.  Reproducible with DukePlus 2.35 on
 -- x86 when clicking wildly through its menu.
 jit.off(_gametext)
+
+function _screentext(tilenum, x, y, z, blockangle, charangle, q, shade, pal, orientation,
+                     alpha, xspace, yline, xbetween, ybetween, f, x1, y1, x2, y2)
+    orientation = text_check_common(tilenum, orientation)
+    local cstr = bcheck.quote_idx(q)
+
+    ffiC.G_ScreenText(tilenum, x, y, z, blockangle, charangle, cstr, shade, pal, orientation,
+                      alpha, xspace, yline, xbetween, ybetween, f, x1, y1, x2, y2)
+end
+
+function _qstrdim(tilenum, x, y, z, blockangle, q, orientation,
+                  xspace, yline, xbetween, ybetween, f, x1, y1, x2, y2)
+    orientation = text_check_common(tilenum, orientation)
+    local cstr = bcheck.quote_idx(q)
+
+    local dim = ffiC.G_ScreenTextSize(tilenum, x, y, z, blockangle, cstr, orientation,
+                                      xspace, yline, xbetween, ybetween, f, x1, y1, x2, y2);
+    return dim.x, dim.y
+end
+
 
 local D = {
     -- TODO: dynamic tile remapping
