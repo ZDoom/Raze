@@ -1142,14 +1142,14 @@ vec2_t G_ScreenText(const int32_t font,
 
 // flags
 //  4: small font, wrap strings?
-int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const char *t,
-                        int32_t s,  int32_t p,    int32_t o,
-                        int32_t x1, int32_t y1,   int32_t x2, int32_t y2, int32_t z)
+int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x,  int32_t y,  const char *t,
+                        int32_t s,    int32_t p,    int32_t o,
+                        int32_t x1,   int32_t y1,   int32_t x2, int32_t y2, int32_t z)
 {
-    int32_t ac;
-    const int32_t squishtext = (f&2) != 0 ? 1 : 0;
-    const int32_t widthx = 320<<16;
-    int32_t origx = x, origy, j = 0;
+    vec2_t dim;
+    int32_t f = TEXT_GAMETEXTNUMHACK;
+    int32_t xbetween = 0;
+    int32_t orient = 8|16|(o&1)|(o&32);
 
     if (t == NULL)
         return -1;
@@ -1160,149 +1160,55 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
         y <<= 16;
     }
 
-    origy = y;
-
-    if (x == (widthx>>1)) // center
+    if (hack & 4)
     {
-        const char *oldt = t;
-        int32_t newx = 0;
+        x = textsc(x);
+        z = textsc(z);
+        f |= TEXT_LINEWRAP;
+    }
+    else if (!(hack & 1))
+        orient = 2|o;
 
-        do
-        {
-            int32_t i;
-
-            if (*t == 32)
-            {
-                newx += ((((f & 8) ? 8 : 5) - squishtext) * z);
-                continue;
-            }
-
-            if (*t == '^' && isdigit(*(t+1)))
-            {
-                t++;
-                if (isdigit(*(t+1)))
-                    t++;
-//                t += 1 + isdigit(*(t+2));   // This code is wrong, see C99 6.5 #2
-                continue;
-            }
-
-            ac = *t - '!' + tile;
-
-            if (ac < tile || ac > (tile + 93))
-                break;
-
-            i = ((((f & 8) ? 8 : tilesizx[ac]) - squishtext) * z);
-            newx += i;
-
-            if (*t >= '0' && *t <= '9')
-                newx -= i - ((8 * z));
-        }
-        while (*(++t));
-
-        t = oldt;
-
-        x = (f & 4) ?
-            (xres>>1)-textsc(newx>>1) :
-            (widthx>>1)-(newx>>1);
+    if (hack & 8)
+    {
+        f |= TEXT_XOFFSETZERO;
+        xbetween = 8;
     }
 
-    do
-    {
-        int32_t i;
+    // order is important, this bit comes after the rest
+    if (hack & 2) // squishtext
+        --xbetween;
 
-        if (*t == 32)
-        {
-            j += ((((f & 8) ? 8 : 5) - squishtext) * z);
-            continue;
-        }
+    if (x == (160<<16))
+        f |= TEXT_XCENTER;
 
-        if (*t == '^' && isdigit(*(t+1)))
-        {
-            char smallbuf[4];
+    dim = G_ScreenText(tile, x, y, z, 0, 0, t, s, p, orient|ROTATESPRITE_FULL16, 0, (5<<16), (8<<16), (xbetween<<16), 0, f, x1, y1, x2, y2);
 
-            if (!isdigit(*(++t+1)))
-            {
-                smallbuf[0] = *(t);
-                smallbuf[1] = '\0';
-                p = Batoi(smallbuf);
-                continue;
-            }
+    x += dim.x;
 
-            smallbuf[0] = *(t++);
-            smallbuf[1] = *(t);
-            smallbuf[2] = '\0';
-            p = Batoi(smallbuf);
-            continue;
-        }
+    if (!(o & ROTATESPRITE_FULL16))
+        x >>= 16;
 
-        ac = *t - '!' + tile;
-
-        if (ac < tile || ac > (tile + 93))
-            break;
-
-        if (f&4)
-        {
-            rotatesprite(textsc(x+j), (origy)+textsc((y-origy)), textsc(z),
-                         0,ac,s,p,(8|16|(o&1)|(o&32)),x1,y1,x2,y2);
-        }
-        else
-        {
-            const int32_t orient = (f&1) ? (8|16|(o&1)|(o&32)) : (2|o);
-            rotatesprite(x+j, y, z,
-                         0,ac,s,p,orient,x1,y1,x2,y2);
-        }
-
-        i = (f & 8) ?
-            ((8 - squishtext) * z):
-            ((tilesizx[ac] - squishtext) * z);
-        j += i;
-
-        if (*t >= '0' && *t <= '9')
-            j -= i-((8*z));
-
-        // wrapping long strings doesn't work for precise coordinates due to overflow
-        // XXX: above comment obsolete?
-        if (!(o&ROTATESPRITE_FULL16))
-        {
-            if (((f&4) ? textsc(x+j) : (x+j)) > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET)<<16)
-                j = 0, y += z<<3; // z == 65536 --> 8<<16
-        }
-    }
-    while (*(++t));
-
-    return origx + ((o & ROTATESPRITE_FULL16) ? j : (j>>16));
+    return x;
 }
 
 int32_t G_GameTextLen(int32_t x,const char *t)
 {
-    int32_t ac;
+    vec2_t dim;
 
     if (t == NULL)
         return -1;
 
-    do
-    {
-        if (*t == 32)
-        {
-            x+=5;
-            continue;
-        }
+    dim = G_ScreenTextSize(STARTALPHANUM, x, 0, textsc(65536L), 0, t, 2, 5, 8, 0, 0, TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
 
-        ac = *t - '!' + STARTALPHANUM;
+    x += dim.x;
 
-        if (ac < STARTALPHANUM || ac > (STARTALPHANUM + 93))
-            break;
-
-        x += (*t >= '0' && *t <= '9') ? 8 : tilesizx[ac];
-    }
-    while (*(++t));
-
-    return (textsc(x));
+    return x;
 }
 
 int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits)
 {
-    return(G_PrintGameText(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
+    return G_PrintGameText(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536);
 }
 
 // minitext_yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords,
@@ -1311,11 +1217,9 @@ static int32_t minitext_yofs = 0;
 static int32_t minitext_lowercase = 0;
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb)
 {
-    int32_t ac, j = 0;
-    char ch, cmode;
-
-    cmode = (sb&ROTATESPRITE_MAX)!=0;
-    sb &= (ROTATESPRITE_MAX-1)|RS_CENTERORIGIN;
+    vec2_t dim;
+    int32_t z = 65536L;
+    int32_t f = 0;
 
     if (t == NULL)
     {
@@ -1323,50 +1227,32 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
         return 0;
     }
 
-    if (!(sb&ROTATESPRITE_FULL16))
+    if (!(sb & ROTATESPRITE_FULL16))
     {
         x<<=16;
         y<<=16;
     }
 
-    do
+    if (!minitext_lowercase)
+        f |= TEXT_UPPERCASE;
+
+    if (sb & ROTATESPRITE_MAX)
     {
-        if (*t == '^' && isdigit(*(t+1)))
-        {
-            char smallbuf[4];
-            if (!isdigit(*(++t+1)))
-            {
-                smallbuf[0] = *(t);
-                smallbuf[1] = '\0';
-                p = Batoi(smallbuf);
-                continue;
-            }
-            smallbuf[0] = *(t++);
-            smallbuf[1] = *(t);
-            smallbuf[2] = '\0';
-            p = Batoi(smallbuf);
-            continue;
-        }
-        if (!minitext_lowercase)
-            ch = Btoupper(*t);
-        else
-            ch = *t;
-
-        if (ch == 32)
-        {
-            j+=5;
-            continue;
-        }
-        else ac = ch - '!' + MINIFONT;
-
-        if (cmode) rotatesprite_fs(sbarx16(x+(j<<16)),minitext_yofs+sbary16(y),sbarsc(65536L),0,ac,s,p,sb);
-        else rotatesprite_fs(x+(j<<16),y,65536L,0,ac,s,p,sb);
-        j += (tilesizx[ac] > 0 ? tilesizx[ac] : 3) + 1;
-
+        x = sbarx16(x);
+        y = minitext_yofs+sbary16(y);
+        z = sbarsc(z);
     }
-    while (*(++t));
 
-    return x+(j<<((sb&ROTATESPRITE_FULL16)?16:0));
+    sb &= (ROTATESPRITE_MAX-1)|RS_CENTERORIGIN;
+
+    dim = G_ScreenText(MINIFONT, x, y, z, 0, 0, t, s, p, sb|ROTATESPRITE_FULL16, 0, (4<<16), (8<<16), (1<<16), 0, f, 0, 0, xdim-1, ydim-1);
+
+    x += dim.x;
+
+    if (!(sb & ROTATESPRITE_FULL16))
+        x >>= 16;
+
+    return x;
 }
 
 void G_AddUserQuote(const char *daquote)
@@ -1795,25 +1681,13 @@ static void G_DrawWeapAmounts(const DukePlayer_t *p,int32_t x,int32_t y,int32_t 
 // yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords.
 static void G_DrawDigiNum_(int32_t x, int32_t yofs, int32_t y, int32_t n, char s, int32_t cs)
 {
-    int32_t i, j = 0, k, p, c;
-    char b[12];
-
-    i = Bsprintf(b,"%d",n);
-
-    for (k=i-1; k>=0; k--)
+    if (!(cs & ROTATESPRITE_FULL16))
     {
-        p = DIGITALNUM + b[k]-'0';
-        j += tilesizx[p]+1;
+        x <<= 16;
+        y <<= 16;
     }
-    c = x-(j>>1);
 
-    j = 0;
-    for (k=0; k<i; k++)
-    {
-        p = DIGITALNUM + b[k]-'0';
-        rotatesprite_fs(sbarx(c+j), yofs+sbary(y), sbarsc(65536), 0, p, s, 0, cs);
-        j += tilesizx[p]+1;
-    }
+    G_DrawTXDigiNumZ(DIGITALNUM, sbarx16(x), yofs + sbary16(y), n, s, 0, cs|ROTATESPRITE_FULL16, 0, 0, xdim-1, ydim-1, sbarsc(65536L));
 }
 
 static inline void G_DrawDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs)
@@ -1824,27 +1698,16 @@ static inline void G_DrawDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_
 void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,
                       int32_t cs,int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t z)
 {
-    int32_t i, j = 0, k, p, c;
     char b[12];
-    const int32_t shift = (cs&ROTATESPRITE_FULL16)?0:16;
+    Bsprintf(b,"%d",n);
 
-    i = Bsprintf(b,"%d",n);
-
-    // center the number string
-    for (k=i-1; k>=0; k--)
+    if (!(cs & ROTATESPRITE_FULL16))
     {
-        p = starttile + b[k]-'0';
-        j += ((1+tilesizx[p])*z);
+        x <<= 16;
+        y <<= 16;
     }
-    c = (x<<shift)-(j>>1);
 
-    j = 0;
-    for (k=0; k<i; k++)
-    {
-        p = starttile + b[k]-'0';
-        rotatesprite(c+j,y<<shift,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
-        j += ((1+tilesizx[p])*z);
-    }
+    G_ScreenText(starttile, x, y, z, 0, 0, b, s, pal, cs|2|ROTATESPRITE_FULL16, 0, (4<<16), (8<<16), (1<<16), 0, TEXT_XCENTER|TEXT_DIGITALNUMBER, x1, y1, x2, y2);
 }
 
 static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs)

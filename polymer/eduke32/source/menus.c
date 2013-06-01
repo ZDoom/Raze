@@ -349,125 +349,15 @@ static int32_t Menu_EnterText(int32_t x,int32_t y,char *t,int32_t dalen,int32_t 
 
 int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits)
 {
-    int16_t i, ac, centre;
-//    int32_t ht = usehightile;
+    vec2_t dim;
+    int32_t f = TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE;
 
-    y -= 12;
+    if (x == 160)
+        f |= TEXT_XCENTER;
 
-    i = centre = 0;
+    dim = G_ScreenText(BIGALPHANUM, x, y-12, 65536L, 0, 0, t, s, p, bits, 0, 5, 16, 0, 0, f, 0, 0, xdim-1, ydim-1);
 
-    if (x == (320>>1))
-    {
-        while (*(t+i))
-        {
-            if (*(t+i) == ' ')
-            {
-                centre += 5;
-                i++;
-                continue;
-            }
-            ac = 0;
-            if (*(t+i) >= '0' && *(t+i) <= '9')
-                ac = *(t+i) - '0' + BIGALPHANUM-10;
-            else if (*(t+i) >= 'a' && *(t+i) <= 'z')
-                ac = toupper(*(t+i)) - 'A' + BIGALPHANUM;
-            else if (*(t+i) >= 'A' && *(t+i) <= 'Z')
-                ac = *(t+i) - 'A' + BIGALPHANUM;
-            else switch (*(t+i))
-                {
-                case '-':
-                    ac = BIGALPHANUM-11;
-                    break;
-                case '.':
-                    ac = BIGPERIOD;
-                    break;
-                case '\'':
-                    ac = BIGAPPOS;
-                    break;
-                case ',':
-                    ac = BIGCOMMA;
-                    break;
-                case '!':
-                    ac = BIGX_;
-                    break;
-                case '?':
-                    ac = BIGQ;
-                    break;
-                case ';':
-                    ac = BIGSEMI;
-                    break;
-                case ':':
-                    ac = BIGSEMI;
-                    break;
-                default:
-                    centre += 5;
-                    i++;
-                    continue;
-                }
-
-            centre += tilesizx[ac]-1;
-            i++;
-        }
-    }
-
-    if (centre)
-        x = (320-centre-10)>>1;
-
-//    usehightile = (ht && r_downsize < 3);
-    while (*t)
-    {
-        if (*t == ' ')
-        {
-            x+=5;
-            t++;
-            continue;
-        }
-        ac = 0;
-        if (*t >= '0' && *t <= '9')
-            ac = *t - '0' + BIGALPHANUM-10;
-        else if (*t >= 'a' && *t <= 'z')
-            ac = toupper(*t) - 'A' + BIGALPHANUM;
-        else if (*t >= 'A' && *t <= 'Z')
-            ac = *t - 'A' + BIGALPHANUM;
-        else switch (*t)
-            {
-            case '-':
-                ac = BIGALPHANUM-11;
-                break;
-            case '.':
-                ac = BIGPERIOD;
-                break;
-            case ',':
-                ac = BIGCOMMA;
-                break;
-            case '!':
-                ac = BIGX_;
-                break;
-            case '\'':
-                ac = BIGAPPOS;
-                break;
-            case '?':
-                ac = BIGQ;
-                break;
-            case ';':
-                ac = BIGSEMI;
-                break;
-            case ':':
-                ac = BIGCOLIN;
-                break;
-            default:
-                x += 5;
-                t++;
-                continue;
-            }
-
-        rotatesprite_fs(x<<16,y<<16,65536L,0,ac,s,p,bits);
-
-        x += tilesizx[ac];
-        t++;
-    }
-//    usehightile = ht;
-    return (x);
+    return dim.x;
 }
 
 
