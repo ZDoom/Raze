@@ -1484,7 +1484,7 @@ static void G_DrawInvNum(int32_t x, int32_t yofs, int32_t y, char num1, char ha,
         {
             for (i=0; i<=2; i++)
                 rotatesprite_fs(sbarx(x+(-4+4*i)+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[i]-'0',
-                                ha, 4, POLYMOSTTRANS|sbits);
+                                127, 4, POLYMOSTTRANS|sbits);
         }
 
         for (i=0; i<=2; i++)
@@ -1496,8 +1496,8 @@ static void G_DrawInvNum(int32_t x, int32_t yofs, int32_t y, char num1, char ha,
     {
         if (shd && ud.screen_size == 4 && getrendermode() >= REND_POLYMOST && althud_shadows)
         {
-            rotatesprite_fs(sbarx(x+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits);
-            rotatesprite_fs(sbarx(x+4+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits);
+            rotatesprite_fs(sbarx(x+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[0]-'0',127,4,POLYMOSTTRANS|sbits);
+            rotatesprite_fs(sbarx(x+4+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[1]-'0',127,4,POLYMOSTTRANS|sbits);
         }
 
         rotatesprite_fs(sbarx(x),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits);
@@ -1737,7 +1737,7 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
         {
             p = althud_numbertile + b[k]-'0';
             if (shd && getrendermode() >= REND_POLYMOST && althud_shadows)
-                rotatesprite_fs(sbarxr(c+j-1),sbary(y+1),sbscale,0,p,s,4,cs|POLYMOSTTRANS2);
+                rotatesprite_fs(sbarxr(c+j-1),sbary(y+1),sbscale,0,p,127,4,cs|POLYMOSTTRANS2);
             rotatesprite_fs(sbarxr(c+j),sbary(y),sbscale,0,p,s,althud_numberpal,cs);
             j -= tilesizx[p]+1;
         }
@@ -1749,7 +1749,7 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
     {
         p = althud_numbertile + b[k]-'0';
         if (shd && getrendermode() >= REND_POLYMOST && althud_shadows)
-            rotatesprite_fs(sbarx(c+j+1),sbary(y+1),sbscale,0,p,s,4,cs|POLYMOSTTRANS2);
+            rotatesprite_fs(sbarx(c+j+1),sbary(y+1),sbscale,0,p,127,4,cs|POLYMOSTTRANS2);
         rotatesprite_fs(sbarx(c+j),sbary(y),sbscale,0,p,s,althud_numberpal,cs);
         j += tilesizx[p]+1;
     }
@@ -1982,7 +1982,7 @@ static void G_DrawStatusBar(int32_t snum)
 //            rotatesprite_fs(sbarx(5+1),sbary(200-25+1),sb15h,0,SIXPAK,0,4,10+16+1+32);
 //            rotatesprite_fs(sbarx(5),sbary(200-25),sb15h,0,SIXPAK,0,0,10+16);
             if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                rotatesprite_fs(sbarx(2+1),sbary(200-21+1),sb15h,0,COLA,0,4,10+16+256+POLYMOSTTRANS2);
+                rotatesprite_fs(sbarx(2+1),sbary(200-21+1),sb15h,0,COLA,127,4,10+16+256+POLYMOSTTRANS2);
             rotatesprite_fs(sbarx(2),sbary(200-21),sb15h,0,COLA,0,0,10+16+256);
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
@@ -1996,7 +1996,7 @@ static void G_DrawStatusBar(int32_t snum)
             }
 
             if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                rotatesprite_fs(sbarx(62+1),sbary(200-25+1),sb15h,0,SHIELD,0,4,10+16+POLYMOSTTRANS2+256);
+                rotatesprite_fs(sbarx(62+1),sbary(200-25+1),sb15h,0,SHIELD,127,4,10+16+POLYMOSTTRANS2+256);
             rotatesprite_fs(sbarx(62),sbary(200-25),sb15h,0,SHIELD,0,0,10+16+256);
 
             {
@@ -2008,9 +2008,9 @@ static void G_DrawStatusBar(int32_t snum)
 
             if (getrendermode() >= REND_POLYMOST && althud_shadows)
             {
-                if (p->got_access&1) rotatesprite_fs(sbarxr(39-1),sbary(200-43+1),sb15,0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
-                if (p->got_access&4) rotatesprite_fs(sbarxr(34-1),sbary(200-41+1),sb15,0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
-                if (p->got_access&2) rotatesprite_fs(sbarxr(29-1),sbary(200-39+1),sb15,0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
+                if (p->got_access&1) rotatesprite_fs(sbarxr(39-1),sbary(200-43+1),sb15,0,ACCESSCARD,127,4,10+16+POLYMOSTTRANS2+512);
+                if (p->got_access&4) rotatesprite_fs(sbarxr(34-1),sbary(200-41+1),sb15,0,ACCESSCARD,127,4,10+16+POLYMOSTTRANS2+512);
+                if (p->got_access&2) rotatesprite_fs(sbarxr(29-1),sbary(200-39+1),sb15,0,ACCESSCARD,127,4,10+16+POLYMOSTTRANS2+512);
             }
 
             if (p->got_access&1) rotatesprite_fs(sbarxr(39),sbary(200-43),sb15,0,ACCESSCARD,0,0,10+16+512);
@@ -2020,7 +2020,7 @@ static void G_DrawStatusBar(int32_t snum)
             i = (p->curr_weapon == PISTOL_WEAPON) ? 16384 : 32768;
 
             if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                rotatesprite_fs(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,10+POLYMOSTTRANS2+512);
+                rotatesprite_fs(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],127,4,10+POLYMOSTTRANS2+512);
             rotatesprite_fs(sbarxr(57),sbary(200-15),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512);
 
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
@@ -2041,12 +2041,12 @@ static void G_DrawStatusBar(int32_t snum)
                 if (i >= 0)
                 {
                     if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                        rotatesprite_fs(sbarx(231-o+1),sbary(200-21-2+1),sb16,0,i,0,4, orient+POLYMOSTTRANS2);
+                        rotatesprite_fs(sbarx(231-o+1),sbary(200-21-2+1),sb16,0,i,127,4, orient+POLYMOSTTRANS2);
                     rotatesprite_fs(sbarx(231-o),sbary(200-21-2),sb16,0,i,0,0,orient);
                 }
 
                 if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                    minitext(292-30-o+1,190-3+1,"%",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                    minitextshade(292-30-o+1,190-3+1,"%",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                 minitext(292-30-o,190-3,"%",6, orient+ROTATESPRITE_MAX);
 
                 i = G_GetInvAmount(p);
@@ -2057,20 +2057,20 @@ static void G_DrawStatusBar(int32_t snum)
                 if (j > 0)
                 {
                     if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                        minitext(288-30-o+1,180-3+1,"On",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                        minitextshade(288-30-o+1,180-3+1,"On",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                     minitext(288-30-o,180-3,"On",0, orient+ROTATESPRITE_MAX);
                 }
                 else if ((uint32_t)j != 0x80000000)
                 {
                     if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                        minitext(284-30-o+1,180-3+1,"Off",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                        minitextshade(284-30-o+1,180-3+1,"Off",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                     minitext(284-30-o,180-3,"Off",2, orient+ROTATESPRITE_MAX);
                 }
 
                 if (p->inven_icon >= ICON_SCUBA)
                 {
                     if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                        minitext(284-35-o+1,180-3+1,"Auto",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                        minitextshade(284-35-o+1,180-3+1,"Auto",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                     minitext(284-35-o,180-3,"Auto",2, orient+ROTATESPRITE_MAX);
                 }
             }
