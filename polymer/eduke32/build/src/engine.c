@@ -52,8 +52,11 @@ L_State g_engState;
 #endif
 
 #define CACHEAGETIME 16
-//#define CLASSIC_NONPOW2_YSIZE_WALLS
 #define CLASSIC_NONPOW2_YSIZE_SPRITES
+
+#ifdef LUNATIC
+# define CLASSIC_NONPOW2_YSIZE_WALLS
+#endif
 
 #define HIGH_PRECISION_SPRITE
 #define MULTI_COLUMN_VLINE
@@ -75,6 +78,20 @@ const int32_t engine_v8 = 0;
 #ifdef DEBUGGINGAIDS
 float debug1, debug2;
 #endif
+
+int32_t mapversion=7; // JBF 20040211: default mapversion to 7
+
+static int32_t get_mapversion(void);
+
+// Handle nonpow2-ysize walls walls the old way?
+static inline int32_t oldnonpow2(void)
+{
+#if !defined CLASSIC_NONPOW2_YSIZE_WALLS
+    return 1;
+#else
+    return (mapversion < 10);
+#endif
+}
 
 static void drawpixel_safe(void *s, char a)
 {
@@ -167,7 +184,6 @@ palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
 static int32_t artversion;
-int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 static void *pic = NULL;
 static char tilefilenum[MAXTILES];
 static int32_t tilefileoffs[MAXTILES];
@@ -413,8 +429,10 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
 
 #if !defined NEW_MAP_FORMAT
         *(&sector[i].ceilingstat + cf) &= ~YAX_BIT;
-#endif
         YAX_BUNCHNUM(i, cf) = 0;
+#else
+        YAX_BUNCHNUM(i, cf) = -1;
+#endif
         return;
     }
 
@@ -630,6 +648,8 @@ void yax_update(int32_t resetstat)
 
 #if !defined NEW_MAP_FORMAT
     editstatus = oeditstatus;
+#else
+    mapversion = (numyaxbunches>0) ? 10 : get_mapversion();
 #endif
 }
 
@@ -4461,13 +4481,13 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     tsizy = tilesizy[globalpicnum];
 
     globalshiftval = logtilesizy;
-#if !defined CLASSIC_NONPOW2_YSIZE_WALLS
+
     // before proper non-power-of-two tilesizy drawing
-    if (pow2long[logtilesizy] != tsizy)
+    if (oldnonpow2() && pow2long[logtilesizy] != tsizy)
         globalshiftval++;
-#else
+#ifdef CLASSIC_NONPOW2_YSIZE_WALLS
     // non power-of-two y size textures!
-    if (pow2long[logtilesizy] != tsizy || tsizy >= 512)
+    if ((!oldnonpow2() && pow2long[logtilesizy] != tsizy) || tsizy >= 512)
     {
         globaltilesizy = tsizy;
         globalyscale = 65536 / tsizy;
@@ -4642,13 +4662,13 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
         globvis = mulscale4(globvis, (uint8_t)(secvisibility+16));
 
     globalshiftval = logtilesizy;
-#if !defined CLASSIC_NONPOW2_YSIZE_WALLS
+
     // before proper non-power-of-two tilesizy drawing
-    if (pow2long[logtilesizy] != tsizy)
+    if (oldnonpow2() && pow2long[logtilesizy] != tsizy)
         globalshiftval++;
-#else
+#ifdef CLASSIC_NONPOW2_YSIZE_WALLS
     // non power-of-two y size textures!
-    if (pow2long[logtilesizy] != tsizy || tsizy >= 512)
+    if ((!oldnonpow2() && pow2long[logtilesizy] != tsizy) || tsizy >= 512)
     {
         globaltilesizy = tsizy;
         globalyscale = divscale13(wal->yrepeat, tsizy);
@@ -10504,6 +10524,20 @@ int32_t loadmaphack(const char *filename)
 LUNATIC_CB int32_t (*saveboard_maptext)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 #endif
 
+// Get map version of binary map format (< map-int VX).
+static int32_t get_mapversion(void)
+{
+#ifdef YAX_ENABLE
+    if (numyaxbunches > 0)
+        return 9;
+    else
+#endif
+    if (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || Numsprites > MAXSPRITESV7)
+        return 8;
+
+    return 7;
+}
+
 //
 // saveboard
 //
@@ -10556,15 +10590,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
     }
 
     // Determine the map version.
-#ifdef YAX_ENABLE
-    if (numyaxbunches > 0)
-        mapversion = 9;
-    else
-#endif
-    if (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || numsprites > MAXSPRITESV7)
-        mapversion = 8;
-    else
-        mapversion = 7;
+    mapversion = get_mapversion();
     tl = B_LITTLE32(mapversion);    Bwrite(fil,&tl,4);
 
     tl = B_LITTLE32(dapos->x);      Bwrite(fil,&tl,4);
