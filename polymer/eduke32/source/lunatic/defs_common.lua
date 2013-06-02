@@ -16,7 +16,7 @@ local bit = require("bit")
 --   2: disable JIT compilation
 --   4: load LuaJIT's 'v' module, printing trace info
 --   8: load LuaJIT's 'dump' module, printing generated IR/machine code
-ffi.cdef "enum { _DEBUG_LUNATIC=1 }"
+ffi.cdef "enum { _DEBUG_LUNATIC=2 }"
 
 if (bit.band(ffiC._DEBUG_LUNATIC, 2)~=0) then
     require("jit").off()

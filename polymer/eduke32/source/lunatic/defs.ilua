@@ -596,13 +596,13 @@ projectile_t SpriteProjectile[MAXSPRITES];
 int32_t g_noResetVars;
 void (*A_ResetVars)(int32_t iActor);
 
-// Used from lunacon.lua for dynamic tile remapping:
+// Used from lunacon.lua for dynamic {tile,sound} remapping:
 struct
 {
     const char *str;
     int32_t *dynvalptr;
     const int16_t staticval;
-} g_dynTileList[];
+} g_dynTileList[], g_dynSoundList[];
 
 char *ScriptQuotes[];
 

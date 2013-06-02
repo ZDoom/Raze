@@ -151,9 +151,11 @@ local g_gamevar = {}
 local g_gamearray = {}
 
 -- * nil if dynamic tile remapping disabled
--- * true if enabled but no remappings made
--- * else, a table { [name]=<g_dynTileList index> }
+-- * {} if enabled but no remappings made
+-- * else, a nonempty table { [name]=<g_dynTileList index> }
 local g_dyntilei = nil
+-- Analogously for sounds.
+local g_dynsoundi = nil
 
 local g_have_file = {}  -- [filename]=true
 local g_curcode = nil  -- a table of string pieces or other "gencode" tables
@@ -336,6 +338,7 @@ local function reset_codegen()
     }
 
     g_dyntilei = nil
+    g_dynsoundi = nil
 
     g_have_file = {}
     g_curcode = new_initial_codetab()
@@ -626,6 +629,40 @@ function lookup.defined_label(pos, maybe_minus_str, identifier)
     return (maybe_minus_str=="" and 1 or -1) * num
 end
 
+assert(not BAD_ID_CHARS1:find(":"))
+function lookup.raw_defined_label(pos, maybe_minus_str, identifier)
+    return pos..":"..maybe_minus_str..":"..identifier
+end
+
+local dynmap = {}
+-- When necessary, initialize dynamic {tile,sound} mapping list.
+function dynmap.maybe_init(dyni, dynList)
+    if (dyni[1]==nil) then
+        dyni[1] = true
+        -- Init name -> g_dyn*List index mapping
+        for i=0,math.huge do
+            local str = dynList[i].str
+            if (str==nil) then
+                break
+            end
+
+            dyni[ffi.string(str)] = i
+        end
+    end
+end
+
+-- Potentially process one dynamic {tile,sound} remapping.
+function dynmap.maybe_process(dyni, dynList, identifier, num)
+    if (dyni[identifier]) then
+        local di = dynList[dyni[identifier]]
+
+        if (ffiC._DEBUG_LUNATIC~=0 and di.staticval~=num) then
+            printf("REMAP %s (%d) --> %d", ffi.string(di.str), di.staticval, num)
+        end
+        di.dynvalptr[0] = num
+    end
+end
+
 local function check_sysvar_def_attempt(identifier)
     if (identifier=="actorvar") then
         errprintf("cannot define reserved symbol `actorvar'")
@@ -660,29 +697,8 @@ local function do_define_label(identifier, num)
         end
 
         if (ffi and g_dyntilei and (num>=0 and num<MAXTILES)) then
-            if (g_dyntilei==true) then
-                -- Init name -> g_dynTileList index mapping
-                g_dyntilei = {}
-
-                for i=0,math.huge do
-                    local str = ffiC.g_dynTileList[i].str
-                    if (str==nil) then
-                        break
-                    end
-
-                    g_dyntilei[ffi.string(str)] = i
-                end
-            end
-
-            -- Potentially process one dynamic tile remapping
-            if (g_dyntilei[identifier]) then
-                local di = ffiC.g_dynTileList[g_dyntilei[identifier]]
-
-                if (ffiC._DEBUG_LUNATIC~=0 and di.staticval~=num) then
-                    printf("REMAP %s (%d) --> %d", ffi.string(di.str), di.staticval, num)
-                end
-                di.dynvalptr[0] = num
-            end
+            dynmap.maybe_init(g_dyntilei, ffiC.g_dynTileList)
+            dynmap.maybe_process(g_dyntilei, ffiC.g_dynTileList, identifier, num)
         end
 
         -- New definition of a label
@@ -1032,6 +1048,7 @@ function Cmd.setdefname(filename)
     assert(type(filename)=="string")
     if (ffi) then
         if (ffiC.C_SetDefName(filename) ~= 0) then
+            -- XXX: not a cached local
             error("OUT OF MEMORY", 0)
         end
     end
@@ -1058,7 +1075,22 @@ function Cmd.gamestartup(...)
     g_data.startup = args  -- TODO: sanity-check them
 end
 
-function Cmd.definesound(sndnum, fn, ...)
+function Cmd.definesound(sndlabel, fn, ...)
+    local sndnum
+
+    if (type(sndlabel)=="string") then
+        local pos, minus, label = sndlabel:match("(.-):(.-):(.+)")
+        sndnum = lookup.defined_label(tonumber(pos), minus, label)
+
+        if (ffi and g_dynsoundi and (sndnum>=0 and sndnum<conl.MAXSOUNDS)) then
+            dynmap.maybe_init(g_dynsoundi, ffiC.g_dynSoundList)
+            dynmap.maybe_process(g_dynsoundi, ffiC.g_dynSoundList, label, sndnum)
+        end
+    else
+        assert(type(sndlabel)=="number")
+        sndnum = sndlabel
+    end
+
     if (not (sndnum >= 0 and sndnum < conl.MAXSOUNDS)) then
         errprintf("sound number is negative or exceeds sound limit of %d", conl.MAXSOUNDS-1)
         return
@@ -1231,7 +1263,14 @@ end
 function Cmd.dynamicremap()
     if (g_dyntilei==nil) then
         print("Using dynamic tile remapping");
-        g_dyntilei=true;
+        g_dyntilei = {};
+    end
+end
+
+function Cmd.dynamicsoundremap()
+    if (g_dynsoundi==nil) then
+        print("Using dynamic sound remapping");
+        g_dynsoundi = {};
     end
 end
 
@@ -1310,6 +1349,7 @@ local tok =
     -- This one matches keywords, too:
     identifier_all = Var("t_identifier_all"),
     define = Var("t_define"),
+    rawdefine = Var("t_rawdefine"),
     move = Var("t_move"),
     ai = Var("t_ai"),
     action = Var("t_action"),
@@ -1389,7 +1429,7 @@ local Couter = {
     dynamicremap = cmd()
         / Cmd.dynamicremap,
     dynamicsoundremap = cmd()
-        / Cmd.NYI("`dynamicsoundremap'"),
+        / Cmd.dynamicsoundremap,
     setcfgname = sp1 * tok.filename
         / Cmd.nyi("`setcfgname'"),
     setdefname = sp1 * tok.filename
@@ -1422,7 +1462,7 @@ local Couter = {
         / Cmd.definequote,
     defineprojectile = cmd(D,D,D)
         / Cmd.defineprojectile,
-    definesound = sp1 * tok.define * sp1 * maybe_quoted_filename * n_defines(5)
+    definesound = sp1 * tok.rawdefine * sp1 * maybe_quoted_filename * n_defines(5)
         / Cmd.definesound,
 
     -- NOTE: gamevar.ogg and the like is OK, too
@@ -3054,6 +3094,9 @@ local Grammar = Pat{
     -- This would also handle LNGA2's "00000000h", though would give problems with
     -- e.g. "800h" (hex 0x800 or decimal 800?).
     t_define = (POS() * lpeg.C(tok.maybe_minus) * tok.identifier / lookup.defined_label) + tok.number,
+    -- A defined label token, but returning the label if one was passed
+    -- (specially shoehorned into a string):
+    t_rawdefine = (POS() * lpeg.C(tok.maybe_minus) * tok.identifier / lookup.raw_defined_label) + tok.number,
 
     -- Defines and constants can take the place of vars that are only read.
     -- XXX: now, when tok.rvar fails, the tok.define failure message is printed.

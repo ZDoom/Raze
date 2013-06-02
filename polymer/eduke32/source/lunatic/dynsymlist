@@ -143,6 +143,7 @@ g_noResetVars;
 A_ResetVars;
 
 g_dynTileList;
+g_dynSoundList;
 
 ScriptQuotes;
 
