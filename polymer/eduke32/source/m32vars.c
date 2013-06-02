@@ -518,8 +518,6 @@ static void Gv_AddSystemVars(void)
     // only call ONCE
     int32_t hlcnt_id, hlscnt_id;
 
-    //AddLog("Gv_AddSystemVars");
-
     // special vars for struct access
     // MUST be at top and in this order!!!
     Gv_NewVar("sprite", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);

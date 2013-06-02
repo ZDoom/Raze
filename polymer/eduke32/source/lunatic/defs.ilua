@@ -589,6 +589,7 @@ user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
 DukePlayer_t *g_player_ps[MAXPLAYERS];
 weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
+weapondata_t g_weaponOverridden[MAX_WEAPONS];
 tiledata_t g_tile[MAXTILES];
 projectile_t ProjectileData[MAXTILES];
 projectile_t SpriteProjectile[MAXSPRITES];
@@ -705,7 +706,7 @@ string.dump = nil
 
 -- sanity-check struct type sizes
 local good = true
-for i=0,8 do
+for i=0,9 do
     local what = ffi.string(ffiC.g_sizes_of_what[i])
     local fsz = ffi.sizeof(what)
     local csz = ffiC.g_sizes_of[i]
@@ -1058,12 +1059,16 @@ local weapondata_mt = {
     end,
 
     __newindex = function(wd, member, val)
+        -- Set to 'true' if we set a tile or sound member.
+        local didit = false
+
         if (string.match(member, "sound")) then
             if (val < 0) then
                 val = 0  -- Set to 0 if oob (e.g. CrackDown).
             else
                 check_sound_idx(val)
             end
+            didit = true
         elseif (member=="workslike") then
             check_weapon_idx(val)
         elseif (member=="spawn" or member=="shoots") then
@@ -1075,9 +1080,22 @@ local weapondata_mt = {
             else
                 check_tile_idx(val)
             end
+            didit = true
         end
 
         ffi.cast(weapondata_ptr_ct, wd)[0][member] = val
+
+        if (didit and ffiC.g_elCallDepth==0) then
+            -- Signal that we overrode this member at CON translation time.
+
+            -- Get weapon index as pointer difference first. PLAYER_0.
+            local wi = ffi.cast(weapondata_ptr_ct, wd)-ffi.cast(weapondata_ptr_ct, ffiC.g_playerWeapon[0][0])
+            assert(not (wi >= ffiC.MAX_WEAPONS+0ULL))
+
+            -- Set g_weaponOverridden[wi][member], but without invoking
+            -- weapondata_t's __newindex metamethod (i.e. us)!
+            ffi.cast(weapondata_ptr_ct, ffiC.g_weaponOverridden[wi])[member] = 1
+        end
     end,
 }
 ffi.metatype("weapondata_t", weapondata_mt)

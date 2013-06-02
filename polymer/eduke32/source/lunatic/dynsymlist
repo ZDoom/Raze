@@ -124,6 +124,7 @@ C_DefineSkillName;
 C_DefineLevelName;
 C_DefineProjectile;
 C_DefineGameFuncName;
+C_DefineGameType;
 C_SetDefName;
 
 SCRIPT_GetNumber;
@@ -135,6 +136,7 @@ ud;
 g_player;
 g_player_ps;
 g_playerWeapon;
+g_weaponOverridden;
 g_tile;
 ProjectileData;
 SpriteProjectile;

@@ -1067,6 +1067,12 @@ void Gv_ResetSystemDefaults(void)
     //AddLog("EOF:ResetWeaponDefaults");
 }
 
+// Will set members that were overridden at CON translation time to 1.
+// For example, if
+//   gamevar WEAPON1_SHOOTS 2200 GAMEVAR_PERPLAYER
+// was specified at file scope, g_weaponOverridden[1].Shoots will be 1.
+weapondata_t g_weaponOverridden[MAX_WEAPONS];
+
 static weapondata_t weapondefaults[MAX_WEAPONS] = {
     /*
         WorksLike, Clip, Reload, FireDelay, TotalTime, HoldDelay,
@@ -1199,6 +1205,9 @@ static int32_t G_StaticToDynamicSound(int32_t sound)
     }
 }
 
+// Initialize WEAPONx_* gamevars. Since for Lunatic, they reside on the C side,
+// they're set directly. In C-CON, a new CON variable is defined together with
+// its initial value.
 #ifdef LUNATIC
 # define ADDWEAPONVAR(Weapidx, Membname) do { \
     int32_t j; \
@@ -1212,6 +1221,54 @@ static int32_t G_StaticToDynamicSound(int32_t sound)
     Gv_NewVar(aszBuf, weapondefaults[Weapidx].Membname, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM); \
 } while (0)
 #endif
+
+// After CON translation, get not-overridden members from weapondefaults[] back
+// into the live arrays! (That is, g_playerWeapon[][] for Lunatic, WEAPONx_*
+// gamevars on the CON side in C-CON.)
+#ifdef LUNATIC
+# define POSTADDWEAPONVAR(Weapidx, Membname) ADDWEAPONVAR(Weapidx, Membname)
+#else
+// NYI
+# define POSTADDWEAPONVAR(Weapidx, Membname) do {} while (0)
+#endif
+
+// Finish a default weapon member after CON translation. If it was not
+// overridden from CON itself (see example at g_weaponOverridden[]), we set
+// both the weapondefaults[] entry (probably dead by now) and the live value.
+#define FINISH_WEAPON_DEFAULT_X(What, i, Membname) do {  \
+    if (!g_weaponOverridden[i].Membname) \
+    { \
+        weapondefaults[i].Membname = G_StaticToDynamic##What(weapondefaults[i].Membname); \
+        POSTADDWEAPONVAR(i, Membname); \
+    } \
+} while (0)
+
+#define FINISH_WEAPON_DEFAULT_TILE(i, Membname) FINISH_WEAPON_DEFAULT_X(Tile, i, Membname)
+#define FINISH_WEAPON_DEFAULT_SOUND(i, Membname) FINISH_WEAPON_DEFAULT_X(Sound, i, Membname)
+
+// Process the dynamic {tile,sound} mappings after CON has been translated.
+// We cannot do this before, because the dynamic maps are not yet set up then.
+void Gv_FinalizeWeaponDefaults(void)
+{
+    int32_t i;
+
+    for (i=0; i<MAX_WEAPONS; i++)
+    {
+        FINISH_WEAPON_DEFAULT_TILE(i, Shoots);
+        FINISH_WEAPON_DEFAULT_TILE(i, Spawn);
+
+        FINISH_WEAPON_DEFAULT_SOUND(i, InitialSound);
+        FINISH_WEAPON_DEFAULT_SOUND(i, FireSound);
+        FINISH_WEAPON_DEFAULT_SOUND(i, ReloadSound1);
+        FINISH_WEAPON_DEFAULT_SOUND(i, Sound2Sound);
+        FINISH_WEAPON_DEFAULT_SOUND(i, ReloadSound2);
+        FINISH_WEAPON_DEFAULT_SOUND(i, SelectSound);
+    }
+}
+#undef FINISH_WEAPON_DEFAULT_SOUND
+#undef FINISH_WEAPON_DEFAULT_TILE
+#undef FINISH_WEAPON_DEFAULT_X
+#undef POSTADDWEAPONVAR
 
 static void Gv_AddSystemVars(void)
 {
@@ -1235,20 +1292,8 @@ static void Gv_AddSystemVars(void)
         weapondefaults[GROW_WEAPON].FireSound = 0;
     }
 
-    //AddLog("Gv_AddSystemVars");
-
     for (i=0; i<MAX_WEAPONS; i++)
     {
-        weapondefaults[i].Shoots = G_StaticToDynamicTile(weapondefaults[i].Shoots);
-        weapondefaults[i].Spawn = G_StaticToDynamicTile(weapondefaults[i].Spawn);
-
-        weapondefaults[i].InitialSound = G_StaticToDynamicSound(weapondefaults[i].InitialSound);
-        weapondefaults[i].FireSound = G_StaticToDynamicSound(weapondefaults[i].FireSound);
-        weapondefaults[i].ReloadSound1 = G_StaticToDynamicSound(weapondefaults[i].ReloadSound1);
-        weapondefaults[i].Sound2Sound = G_StaticToDynamicSound(weapondefaults[i].Sound2Sound);
-        weapondefaults[i].ReloadSound2 = G_StaticToDynamicSound(weapondefaults[i].ReloadSound2);
-        weapondefaults[i].SelectSound = G_StaticToDynamicSound(weapondefaults[i].SelectSound);
-
         ADDWEAPONVAR(i, WorksLike);
         ADDWEAPONVAR(i, Clip);
         ADDWEAPONVAR(i, Reload);
@@ -1402,6 +1447,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewArray("tilesizy", (void *)tilesizy, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 #endif
 }
+
+#undef ADDWEAPONVAR
 
 void Gv_Init(void)
 {

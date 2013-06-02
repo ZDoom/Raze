@@ -1222,7 +1222,7 @@ function Cmd.gamevar(identifier, initval, flags)
 
                 -- Emit code to set the variable at Lua parse time.
                 if (bit.band(oflags, GVFLAG.PERPLAYER) ~= 0) then
-                    -- Replace player index by 0.
+                    -- Replace player index by 0. PLAYER_0.
                     -- TODO_MP: init for all players.
                     local pvar, numrepls = ogv.name:gsub("_pli", "0")
                     assert(numrepls>=1)

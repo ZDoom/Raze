@@ -118,6 +118,7 @@ LUNATIC_CB void (*A_ResetVars)(int32_t iActor);
 
 void Gv_ResetSystemDefaults(void);
 void Gv_Init(void);
+void Gv_FinalizeWeaponDefaults(void);
 
 #if !defined LUNATIC
 #define GV_VAROP(func, operator) static inline void __fastcall func(register int32_t id, register int32_t lValue) \

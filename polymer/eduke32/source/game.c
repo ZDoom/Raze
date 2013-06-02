@@ -10671,6 +10671,9 @@ static void G_Startup(void)
 
     G_InitDynamicTiles();
     G_InitDynamicSounds();
+
+    // These depend on having the dynamic tile and/or sound mappings set up:
+    Gv_FinalizeWeaponDefaults();
     G_PostCreateGameState();
 
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
@@ -10920,11 +10923,11 @@ static int32_t check_filename_casing(void)
 const char *g_sizes_of_what[] = {
     "sectortype", "walltype", "spritetype", "spriteext_t",
     "actor_t", "DukePlayer_t", "playerdata_t",
-    "user_defs", "tiledata_t" };
+    "user_defs", "tiledata_t", "weapondata_t" };
 int32_t g_sizes_of[] = {
     sizeof(sectortype), sizeof(walltype), sizeof(spritetype), sizeof(spriteext_t),
     sizeof(actor_t), sizeof(DukePlayer_t), sizeof(playerdata_t),
-    sizeof(user_defs), sizeof(tiledata_t) };
+    sizeof(user_defs), sizeof(tiledata_t), sizeof(weapondata_t) };
 
 DukePlayer_t *g_player_ps[MAXPLAYERS];
 #endif
