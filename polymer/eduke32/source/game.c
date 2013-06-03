@@ -467,11 +467,6 @@ vec2_t G_ScreenTextSize(const int32_t font,
     const char *end;
     const char *text;
 
-    UNREFERENCED_PARAMETER(x1);
-    UNREFERENCED_PARAMETER(y1);
-    UNREFERENCED_PARAMETER(x2);
-    UNREFERENCED_PARAMETER(y2);
-
     if (str == NULL)
         return size;
 
@@ -662,16 +657,16 @@ vec2_t G_ScreenTextSize(const int32_t font,
             switch (ang)
             {
                 case 0:
-                    wrap = (x + (pos.x + offset.x) > (320<<16)); // ((x2 - USERQUOTE_RIGHTOFFSET)<<16)
+                    wrap = (x + (pos.x + offset.x) > ((o & 2) ? (320<<16) : ((x2 - USERQUOTE_RIGHTOFFSET)<<16)));
                     break;
                 case 512:
-                    wrap = (y + (pos.x + offset.x) > (200<<16)); // ((y2 - USERQUOTE_RIGHTOFFSET)<<16)
+                    wrap = (y + (pos.x + offset.x) > ((o & 2) ? (200<<16) : ((y2 - USERQUOTE_RIGHTOFFSET)<<16)));
                     break;
                 case 1024:
-                    wrap = (x - (pos.x + offset.x) < 0); // ((x1 + USERQUOTE_RIGHTOFFSET)<<16)
+                    wrap = (x - (pos.x + offset.x) < ((o & 2) ? 0 : ((x1 + USERQUOTE_RIGHTOFFSET)<<16)));
                     break;
                 case 1536:
-                    wrap = (y - (pos.x + offset.x) < 0); // ((y1 + USERQUOTE_RIGHTOFFSET)<<16)
+                    wrap = (y - (pos.x + offset.x) < ((o & 2) ? 0 : ((y1 + USERQUOTE_RIGHTOFFSET)<<16)));
                     break;
             }
             if (wrap) // near-CODEDUP "case '\n':"
@@ -930,7 +925,7 @@ vec2_t G_ScreenText(const int32_t font,
                 G_AddCoordsFromRotation(&location, &Xdirection, pos.x);
                 G_AddCoordsFromRotation(&location, &Ydirection, pos.y);
 
-                rotatesprite_(location.x, location.y, z, angle, tile, shade, pal, 2|orientation, alpha, x1, y1, x2, y2);
+                rotatesprite_(location.x, location.y, z, angle, tile, shade, pal, orientation, alpha, x1, y1, x2, y2);
 
                 break;
             }
@@ -1075,16 +1070,16 @@ vec2_t G_ScreenText(const int32_t font,
                 switch (ang)
                 {
                     case 0:
-                        wrap = (x + (pos.x + xoffset) > (320<<16)); // ((x2 - USERQUOTE_RIGHTOFFSET)<<16)
+                        wrap = (x + (pos.x + xoffset) > ((orientation & 2) ? (320<<16) : ((x2 - USERQUOTE_RIGHTOFFSET)<<16)));
                         break;
                     case 512:
-                        wrap = (y + (pos.x + xoffset) > (200<<16)); // ((y2 - USERQUOTE_RIGHTOFFSET)<<16)
+                        wrap = (y + (pos.x + xoffset) > ((orientation & 2) ? (200<<16) : ((y2 - USERQUOTE_RIGHTOFFSET)<<16)));
                         break;
                     case 1024:
-                        wrap = (x - (pos.x + xoffset) < 0); // ((x1 + USERQUOTE_RIGHTOFFSET)<<16)
+                        wrap = (x - (pos.x + xoffset) < ((orientation & 2) ? 0 : ((x1 + USERQUOTE_RIGHTOFFSET)<<16)));
                         break;
                     case 1536:
-                        wrap = (y - (pos.x + xoffset) < 0); // ((y1 + USERQUOTE_RIGHTOFFSET)<<16)
+                        wrap = (y - (pos.x + xoffset) < ((orientation & 2) ? 0 : ((y1 + USERQUOTE_RIGHTOFFSET)<<16)));
                         break;
                 }
                 if (wrap) // near-CODEDUP "case '\n':"
@@ -1184,7 +1179,7 @@ int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x,  int32_t y,  cons
     vec2_t dim;
     int32_t f = TEXT_GAMETEXTNUMHACK;
     int32_t xbetween = 0;
-    int32_t orient = 8|16|(o&1)|(o&32);
+    const int32_t orient = (hack & 4) || (hack & 1) ? (8|16|(o&1)|(o&32)) : (2|o);
 
     if (t == NULL)
         return -1;
@@ -1201,8 +1196,6 @@ int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x,  int32_t y,  cons
         z = textsc(z);
         f |= TEXT_LINEWRAP;
     }
-    else if (!(hack & 1))
-        orient = 2|o;
 
     if (hack & 8)
     {

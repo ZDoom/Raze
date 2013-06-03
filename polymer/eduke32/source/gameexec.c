@@ -1837,7 +1837,7 @@ skip_check:
                 else if ((ScriptQuotes[q] == NULL))
                     CON_ERRPRINTF("null quote %d\n", q);
                 else
-                    dim = G_ScreenTextSize(tilenum,x,y,z,blockangle,ScriptQuotes[q],orientation,xspace,yline,xbetween,ybetween,f,x1,y1,x2,y2);
+                    dim = G_ScreenTextSize(tilenum,x,y,z,blockangle,ScriptQuotes[q],2|orientation,xspace,yline,xbetween,ybetween,f,x1,y1,x2,y2);
 
                 Gv_SetVarX(w,dim.x);
                 Gv_SetVarX(h,dim.y);
