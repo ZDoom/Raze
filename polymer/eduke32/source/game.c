@@ -445,6 +445,8 @@ int32_t G_GetStringTile(int32_t font, char *t, int32_t f)
         return *t - '!' + font; // uses ASCII order
 }
 
+#define NUMHACKACTIVE ((f & TEXT_GAMETEXTNUMHACK) && t >= '0' && t <= '9')
+
 // qstrdim
 vec2_t G_ScreenTextSize(const int32_t font,
                         int32_t x, int32_t y, const int32_t z, const int32_t blockangle,
@@ -582,7 +584,8 @@ vec2_t G_ScreenTextSize(const int32_t font,
 
             case '\n': // near-CODEDUP "if (wrap)"
                 // save the position
-                pos.x -= offset.x;
+                if (!(f & TEXT_XOFFSETZERO)) // we want the entire offset to count as the character width
+                    pos.x -= offset.x;
                 SetIfGreater(&size.x, pos.x);
 
                 // reset the position
@@ -623,7 +626,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                 extent.x = tilesizx[tile] * z;
 
                 // obnoxious hardcoded functionality from gametext
-                if ((f & TEXT_GAMETEXTNUMHACK) && t >= '0' && t <= '9')
+                if (NUMHACKACTIVE)
                 {
                     char numeral = '0'; // this is subject to change as an implementation detail
                     extent.x = (tilesizx[G_GetStringTile(font, &numeral, f)]-1) * z;
@@ -639,11 +642,12 @@ vec2_t G_ScreenTextSize(const int32_t font,
         offset.x = 0;
 
         // advance the x coordinate
-        if (!(f & TEXT_XOFFSETZERO))
+        if (!(f & TEXT_XOFFSETZERO) || NUMHACKACTIVE)
             offset.x += extent.x;
 
         // account for text spacing
-        if (!((f & TEXT_GAMETEXTNUMHACK) && t >= '0' && t <= '9') // this "if" line ONLY == replicating hardcoded stuff
+        if (!NUMHACKACTIVE // this "if" line ONLY == replicating hardcoded stuff
+            && t != '\n'
             && !(f & TEXT_XJUSTIFY)) // to prevent overflow
             offset.x += xbetween;
 
@@ -711,8 +715,8 @@ vec2_t G_ScreenTextSize(const int32_t font,
         else
             pos.x += offset.x;
 
-        // save some trouble with calculation
-        if (!(f & TEXT_XOFFSETZERO))
+        // save some trouble with calculation in case the line breaks
+        if (!(f & TEXT_XOFFSETZERO) || NUMHACKACTIVE)
             offset.x -= extent.x;
 
         // iterate to the next character in the string
@@ -720,11 +724,16 @@ vec2_t G_ScreenTextSize(const int32_t font,
     }
 
     // calculate final size
-    pos.x -= offset.x;
-    if (f & TEXT_XOFFSETZERO)
-        pos.x += extent.x;
-    pos.y -= offset.y;
-    pos.y += extent.y;
+    if (!(f & TEXT_XOFFSETZERO))
+        pos.x -= offset.x;
+
+    if (!(f & TEXT_YOFFSETZERO))
+    {
+        pos.y -= offset.y;
+        pos.y += extent.y;
+    }
+    else
+        pos.y += ybetween;
 
     SetIfGreater(&size.x, pos.x);
     SetIfGreater(&size.y, pos.y);
@@ -1036,7 +1045,7 @@ vec2_t G_ScreenText(const int32_t font,
                 extent.x = tilesizx[tile] * z;
 
                 // obnoxious hardcoded functionality from gametext
-                if ((f & TEXT_GAMETEXTNUMHACK) && t >= '0' && t <= '9')
+                if (NUMHACKACTIVE)
                 {
                     char numeral = '0'; // this is subject to change as an implementation detail
                     extent.x = (tilesizx[G_GetStringTile(font, &numeral, f)]-1) * z;
@@ -1053,11 +1062,12 @@ vec2_t G_ScreenText(const int32_t font,
             int32_t xoffset = 0;
 
             // advance the x coordinate
-            if (!(f & TEXT_XOFFSETZERO))
+            if (!(f & TEXT_XOFFSETZERO) || NUMHACKACTIVE)
                 xoffset += extent.x;
 
             // account for text spacing
-            if (!((f & TEXT_GAMETEXTNUMHACK) && t >= '0' && t <= '9')) // this "if" line ONLY == replicating hardcoded stuff
+            if (!NUMHACKACTIVE // this "if" line ONLY == replicating hardcoded stuff
+                && t != '\n')
                 xoffset += xbetween;
 
             // line wrapping
