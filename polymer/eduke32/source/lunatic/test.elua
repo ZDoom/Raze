@@ -52,7 +52,7 @@ for i = 0, gv.numsectors/2 do
     local ceil = sec.ceiling
     ceil.shade = sector[i].ceiling.shade + 8
     ceil.statx:flip(SF.SMOOSH)
-    sec.floorstatx:flip(SF.XYSWAP)
+    sec.floorstatx:flip(SF.SWAPXY)
 end
 
 local vol, lev = gv.currentEpisode()+1, gv.currentLevel()+1
@@ -455,7 +455,7 @@ function(aci)
         if (tspr2) then
             tspr2.x = tspr2.x + 512*math.cos(gv.totalclock/60)
             tspr2.y = tspr2.y + 512*math.sin(gv.totalclock/60)
-            tspr2.cstatx:set(CS.TRANSLUCENT_BOTH_BITS)
+            tspr2.cstatx:set(CS.TRANS_BITMASK)
         end
     end
 end)

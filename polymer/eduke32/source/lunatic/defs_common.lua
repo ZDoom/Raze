@@ -739,56 +739,62 @@ function conststruct(tab)
 end
 
 -- Static, non-instance members. Used to hold constants, for example
--- sprite.CSTAT.TRANSLUCENT1
+-- sprite.CSTAT.TRANS1
 local static_members = { sector={}, wall={}, sprite={} }
 
--- XXX: go over these constant names and see if they can be named better.
 static_members.sector.STAT = conststruct
 {
     PARALLAX = 1,
-    SLOPED = 2,
-    XYSWAP = 4,
+    SLOPE = 2,
+    SWAPXY = 4,
     SMOOSH = 8,
-    XFLIP = 16,
-    YFLIP = 32,
+    FLIPX = 16,
+    FLIPY = 32,
     RELATIVE = 64,
-    MASKED = 128,
+    MASK = 128,
     -- NOTE the reversed order
-    TRANSLUCENT2 = 128,
-    TRANSLUCENT1 = 256,
-    TRANSLUCENT_BOTH_BITS = 256+128,
-    BLOCKING = 512,
+    TRANS2 = 128,
+    TRANS1 = 256,
+    BLOCK = 512,
     HITSCAN = 1024,
+
+    FLIP_BITMASK = 16+32,
+    ORIENT_BITMASK = 4+16+32,
+    TRANS_BITMASK = 128+256,
 }
 
 static_members.wall.CSTAT = conststruct
 {
-    BLOCKING = 1,
+    BLOCK = 1,
     BOTTOMSWAP = 2,
-    BOTTOMALIGN = 4,
-    XFLIP = 8,
-    MASKED = 16,
+    ALIGNBOTTOM = 4,
+    FLIPX = 8,
+    MASK = 16,
     ONEWAY = 32,
     HITSCAN = 64,
-    TRANSLUCENT1 = 128,
-    YFLIP = 256,
-    TRANSLUCENT2 = 512,
-    TRANSLUCENT_BOTH_BITS = 512+128,
+    TRANS1 = 128,
+    FLIPY = 256,
+    TRANS2 = 512,
+
+    FLIP_BITMASK = 8+256,
+    TRANS_BITMASK = 128+512,
 }
 
 static_members.sprite.CSTAT = conststruct
 {
-    BLOCKING = 1,
-    TRANSLUCENT1 = 2,
+    BLOCK = 1,
+    TRANS1 = 2,
     XFLIP = 4,
     YFLIP = 8,
-    WALLALIGN = 16,
-    FLOORALIGN = 32,
-    ONESIDED = 64,
-    CENTERED = 128,
+    ALIGNWALL = 16,
+    ALIGNFLOOR = 32,
+    ONESIDE = 64,
+    CENTER = 128,
     HITSCAN = 256,
-    TRANSLUCENT2 = 512,
-    TRANSLUCENT_BOTH_BITS = 512+2,
+    TRANS2 = 512,
+
+    ALIGN_BITMASK = 16+32,
+    TRANS_BITMASK = 2+512,
 }
 
 local bitar = require("bitar")
