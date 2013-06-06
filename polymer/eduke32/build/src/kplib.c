@@ -2659,7 +2659,7 @@ static int32_t kzcheckhash(const char *filnam, char **zipnam, int32_t *fileoffs,
             (*zipnam) = &kzhashbuf[*(int32_t *)&kzhashbuf[i+8]];
             (*fileoffs) = *(int32_t *)&kzhashbuf[i+12];
             (*fileleng) = *(int32_t *)&kzhashbuf[i+16];
-            (*iscomp) = *(int32_t *)&kzhashbuf[i+20];
+            (*iscomp) = kzhashbuf[i+20];
             return(1);
         }
     return(0);
@@ -2738,7 +2738,7 @@ int32_t kzaddstack(const char *filnam)
             *(int32_t *)&kzhashbuf[kzhashpos+8] = zipnamoffs;
             *(int32_t *)&kzhashbuf[kzhashpos+12] = LSWAPIB(*(int32_t *)&tempbuf[42]); //fileoffs
             *(int32_t *)&kzhashbuf[kzhashpos+16] = 0; //fileleng not used for ZIPs (reserve space for simplicity)
-            *(int32_t *)&kzhashbuf[kzhashpos+20] = 1; //iscomp
+            kzhashbuf[kzhashpos+20] = 1; //iscomp
             strcpy(&kzhashbuf[kzhashpos+21],&tempbuf[46]);
             kzhashead[hashind] = kzhashpos; kzlastfnam = kzhashpos; kzhashpos += j;
 
@@ -2768,7 +2768,7 @@ int32_t kzaddstack(const char *filnam)
             *(int32_t *)&kzhashbuf[kzhashpos+8] = zipnamoffs;
             *(int32_t *)&kzhashbuf[kzhashpos+12] = k; //fileoffs
             *(int32_t *)&kzhashbuf[kzhashpos+16] = leng; //fileleng
-            *(int32_t *)&kzhashbuf[kzhashpos+20] = 0; //iscomp
+            kzhashbuf[kzhashpos+20] = 0; //iscomp
             strcpy(&kzhashbuf[kzhashpos+21],tempbuf);
             kzhashead[hashind] = kzhashpos; kzlastfnam = kzhashpos; kzhashpos += j;
         }
