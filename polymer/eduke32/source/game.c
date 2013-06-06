@@ -379,7 +379,7 @@ char* G_GetSubString(const char *text, const char *end, const int32_t iter, cons
         ++counter;
     }
 
-    line[++counter] = '\0';
+    line[counter] = '\0';
 
     return line;
 }
