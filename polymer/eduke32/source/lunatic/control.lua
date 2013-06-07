@@ -835,6 +835,16 @@ function _qstrdim(tilenum, x, y, z, blockangle, q, orientation,
     return dim.x, dim.y
 end
 
+function _showview(x, y, z, a, horiz, sect, x1, y1, x2, y2, unbiasedp)
+    check_sector_idx(sect)
+
+    if (x1 < 0 or y1 < 0 or x2 >= 320 or y2 >= 200 or x2 < x1 or y2 < y1) then
+        local str = format("(%d,%d)--(%d,%d)", x1, y1, x2, y2)
+        error("invalid coordinates "..str, 2)
+    end
+
+    ffiC.G_ShowView(x, y, z, a, horiz, sect, x1, y1, x2, y2, unbiasedp);
+end
 
 local D = {
     -- TODO: dynamic tile remapping

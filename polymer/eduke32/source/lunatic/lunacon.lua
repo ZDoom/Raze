@@ -2469,9 +2469,9 @@ local Cinner = {
     setaspect = cmd(R,R)
         / "_con._setaspect(%1,%2)",
     showview = cmd(R,R,R,R,R,R,R,R,R,R)  -- 10R
-        / "",  -- TODO
+        / function(...) return format("_con._showview("..n_s_fmt(10)..",0)", ...) end,
     showviewunbiased = cmd(R,R,R,R,R,R,R,R,R,R)  -- 10R
-        / "",  -- TODO
+        / function(...) return format("_con._showview("..n_s_fmt(10)..",1)", ...) end,
     smaxammo = cmd(R,R)
         / PLS".max_ammo_amount[%1]=%2",
     gmaxammo = cmd(R,W)

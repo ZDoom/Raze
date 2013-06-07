@@ -1062,6 +1062,85 @@ int32_t G_StartTrack(int32_t level)
     return 1;
 }
 
+LUNATIC_EXTERN void G_ShowView(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t sect,
+                               int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp)
+{
+    int32_t smoothratio = calc_smoothratio(totalclock, ototalclock);
+#ifdef USE_OPENGL
+    int32_t oprojhacks;
+#endif
+
+    if (g_screenCapture)
+        return;
+
+    if (offscreenrendering)
+    {
+        clearview(0);
+        return;
+    }
+
+    if (x1 > x2) swaplong(&x1,&x2);
+    if (y1 > y2) swaplong(&y1,&y2);
+
+    if (!unbiasedp)
+    {
+        // The showview command has a rounding bias towards zero,
+        // e.g. floor((319*1680)/320) == 1674
+        x1 = scale(x1,xdim,320);
+        y1 = scale(y1,ydim,200);
+        x2 = scale(x2,xdim,320);
+        y2 = scale(y2,ydim,200);
+    }
+    else
+    {
+        // This will map the maximum 320-based coordinate to the
+        // maximum real screen coordinate:
+        // floor((319*1679)/319) == 1679
+        x1 = scale(x1,xdim-1,319);
+        y1 = scale(y1,ydim-1,199);
+        x2 = scale(x2,xdim-1,319);
+        y2 = scale(y2,ydim-1,199);
+    }
+
+    horiz = clamp(horiz, HORIZ_MIN, HORIZ_MAX);
+
+#ifdef USE_OPENGL
+    oprojhacks = glprojectionhacks;
+    glprojectionhacks = 0;
+#endif
+    {
+        int32_t o = newaspect_enable;
+        newaspect_enable = r_usenewaspect;
+        setaspect_new_use_dimen = 1;
+
+        setview(x1,y1,x2,y2);
+
+        setaspect_new_use_dimen = 0;
+        newaspect_enable = o;
+    }
+
+    G_DoInterpolations(smoothratio);
+
+    G_HandleMirror(x, y, z, a, horiz, smoothratio);
+#ifdef POLYMER
+    if (getrendermode() == REND_POLYMER)
+        polymer_setanimatesprites(G_DoSpriteAnimations, x,y,a,smoothratio);
+#endif
+    yax_preparedrawrooms();
+    drawrooms(x,y,z,a,horiz,sect);
+    yax_drawrooms(G_DoSpriteAnimations, sect, 0, smoothratio);
+
+    display_mirror = 2;
+    G_DoSpriteAnimations(x,y,a,smoothratio);
+    display_mirror = 0;
+    drawmasks();
+    G_RestoreInterpolations();
+    G_UpdateScreenArea();
+#ifdef USE_OPENGL
+    glprojectionhacks = oprojhacks;
+#endif
+}
+
 #if !defined LUNATIC
 GAMEEXEC_STATIC void VM_Execute(int32_t loop)
 {
@@ -2592,90 +2671,21 @@ nullquote:
                 int32_t y1=Gv_GetVarX(*insptr++);
                 int32_t x2=Gv_GetVarX(*insptr++);
                 int32_t y2=Gv_GetVarX(*insptr++);
-                int32_t smoothratio = calc_smoothratio(totalclock, ototalclock);
-#ifdef USE_OPENGL
-                int32_t oprojhacks;
-#endif
 
-                if (g_screenCapture) continue;
-
-                if (offscreenrendering)
-                {
-                    clearview(0);
-                    continue;
-                }
-
-                if (x1 > x2) swaplong(&x1,&x2);
-                if (y1 > y2) swaplong(&y1,&y2);
-
-                if (tw == CON_SHOWVIEW)
-                {
-                    // The showview command has a rounding bias towards zero,
-                    // e.g. floor((319*1680)/320) == 1674
-                    x1 = scale(x1,xdim,320);
-                    y1 = scale(y1,ydim,200);
-                    x2 = scale(x2,xdim,320);
-                    y2 = scale(y2,ydim,200);
-                }
-                else
-                {
-                    // This will map the maximum 320-based coordinate to the
-                    // maximum real screen coordinate:
-                    // floor((319*1679)/319) == 1679
-                    x1 = scale(x1,xdim-1,319);
-                    y1 = scale(y1,ydim-1,199);
-                    x2 = scale(x2,xdim-1,319);
-                    y2 = scale(y2,ydim-1,199);
-                }
-
-                if ((x1 < 0 || y1 < 0 || x2 >= xdim || y2 >= ydim))
+                if (x1 < 0 || y1 < 0 || x2 >= 320 || y2 >= 200)
                 {
                     CON_ERRPRINTF("incorrect coordinates\n");
                     continue;
                 }
+
                 if ((unsigned)sect >= (unsigned)numsectors)
                 {
                     CON_ERRPRINTF("Invalid sector %d\n", sect);
                     continue;
                 }
 
-                horiz = clamp(horiz, HORIZ_MIN, HORIZ_MAX);
+                G_ShowView(x, y, z, a, horiz, sect, x1, y1, x2, y2, (tw != CON_SHOWVIEW));
 
-#ifdef USE_OPENGL
-                oprojhacks = glprojectionhacks;
-                glprojectionhacks = 0;
-#endif
-                {
-                    int32_t o = newaspect_enable;
-                    newaspect_enable = r_usenewaspect;
-                    setaspect_new_use_dimen = 1;
-
-                    setview(x1,y1,x2,y2);
-
-                    setaspect_new_use_dimen = 0;
-                    newaspect_enable = o;
-                }
-
-                G_DoInterpolations(smoothratio);
-
-                G_HandleMirror(x, y, z, a, horiz, smoothratio);
-#ifdef POLYMER
-                if (getrendermode() == REND_POLYMER)
-                    polymer_setanimatesprites(G_DoSpriteAnimations, x,y,a,smoothratio);
-#endif
-                yax_preparedrawrooms();
-                drawrooms(x,y,z,a,horiz,sect);
-                yax_drawrooms(G_DoSpriteAnimations, sect, 0, smoothratio);
-
-                display_mirror = 2;
-                G_DoSpriteAnimations(x,y,a,smoothratio);
-                display_mirror = 0;
-                drawmasks();
-                G_RestoreInterpolations();
-                G_UpdateScreenArea();
-#ifdef USE_OPENGL
-                glprojectionhacks = oprojhacks;
-#endif
                 continue;
             }
 
