@@ -443,7 +443,7 @@ local function A_FP_ManhattanDist(ps, spr)
 end
 
 -- Returns: player index, distance
--- TODO: MP case
+-- TODO_MP
 function _findplayer(pli, spritenum)
     return 0, A_FP_ManhattanDist(player[pli], sprite[spritenum])
 end
@@ -981,7 +981,7 @@ function _pstomp(ps, i)
 end
 
 function _pkick(ps, spr)
-    -- TODO: multiplayer branch
+    -- TODO_MP
     if (spr.picnum~=D.APLAYER and ps.quick_kick==0) then
         ps.quick_kick = 14
     end
@@ -1514,7 +1514,7 @@ function _ifp(flags, pli, aci)
     elseif (band(l,32768)~=0 and sprite[ps.i].extra <= 0) then
         return true
     elseif (band(l,65536)~=0) then
-        -- TODO: multiplayer branch
+        -- TODO_MP
         if (_angdiffabs(ps.ang, ffiC.getangle(sprite[aci].x-ps.pos.x, sprite[aci].y-ps.pos.y)) < 128) then
             return true
         end
@@ -2119,8 +2119,8 @@ local actorvar_methods = {
 
     _serialize = function(acv)
         local strtab = { OUR_NAME..".actorvar(", tostring(acv._defval), ",{" }
-        -- TODO: Must clean up sometime if not saving, too. (That is, what is
-        -- A_ResetVars() in the C-CON build.)
+        -- NOTE: We also clean up when spawning a sprite, too. (See
+        -- A_ResetVars() and related functions above.)
         acv:_cleanup()
         return serialize_array(acv, strtab, ffiC.MAXSPRITES)
     end,

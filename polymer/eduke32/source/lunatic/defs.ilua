@@ -1352,6 +1352,7 @@ end
 local package_loaded = {}  -- [<modname>] = false/true/table
 local modname_stack = {}  -- [<depth>]=string
 local module_gamevars = {}  -- [<modname>] = { <gvname1>, <gvname2>, ... }
+local module_gvlocali = {}  -- [<modname>] = { <localidx_beg>, <localidx_end> }
 
 local function getcurmodname(thisfuncname)
     if (#modname_stack == 0) then
@@ -1378,6 +1379,24 @@ local function readintostr_mod(fn)
     return defs_c.readintostr(fd)
 end
 
+
+local debug = require("debug")
+
+-- Get the number of active locals in the function that calls the function
+-- calling this one.
+local function getnumlocals(l)
+    -- 200 is the max. number of locals at one level
+    for i=1,200 do
+        -- level:
+        -- 0 is getlocal() itself.
+        -- 1 is this function.
+        -- 2 is the function calling getnumlocals()
+        -- 3 is the function calling that one.
+        if (debug.getlocal(3, i) == nil) then
+            return i-1
+        end
+    end
+end
 
 local required_module_mt = {
     __newindex = function()
@@ -1420,6 +1439,13 @@ local function our_require(modname, ...)
         end
 
         module_gamevars[thismodname] = gvnames
+        local gvmodi = module_gvlocali[thismodname]
+        gvmodi[2] = getnumlocals()
+
+        if (ffiC._DEBUG_LUNATIC ~= 0) then
+            printf("Module '%s' has %d locals, index %d to %d", thismodname,
+                   gvmodi[2]-gvmodi[1]+1, gvmodi[1], gvmodi[2])
+        end
 
         return
     end
@@ -1500,6 +1526,8 @@ local function our_module()
     package_loaded[modname] = M
     -- change the environment of the function which called us:
     setfenv(2, M)
+
+    module_gvlocali[modname] = { getnumlocals()+1 }
 end
 
 -- overridden 'error' that always passes a string to the base 'error'
