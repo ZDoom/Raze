@@ -448,8 +448,10 @@ function _findplayer(pli, spritenum)
     return 0, A_FP_ManhattanDist(player[pli], sprite[spritenum])
 end
 
+local STAT = actor.STAT
+
 local FN_STATNUMS = {
-    [false] = { con_lang.STAT.STAT_ACTOR },
+    [false] = { STAT.ACTOR },
     [true] = {},
 }
 
@@ -1303,7 +1305,7 @@ function _cansee(aci, ps)
         actor[aci].lastvy = s.y
     end
 
-    if (can and (spr.statnum==ffiC.STAT_ACTOR or spr.statnum==ffiC.STAT_STANDABLE)) then
+    if (can and (spr.statnum==STAT.ACTOR or spr.statnum==STAT.STANDABLE)) then
         actor[aci].timetosleep = SLEEPTIME
     end
 
@@ -1546,7 +1548,7 @@ function _flash(spr, ps)
 end
 
 function _G_OperateRespawns(tag)
-    for i in spritesofstat(ffiC.STAT_FX) do
+    for i in spritesofstat(STAT.FX) do
         local spr = sprite[i]
 
         if (spr.lotag==tag and spr.picnum==D.RESPAWN) then
@@ -1564,7 +1566,7 @@ function _G_OperateRespawns(tag)
 end
 
 function _G_OperateMasterSwitches(tag)
-    for i in spritesofstat(ffiC.STAT_STANDABLE) do
+    for i in spritesofstat(STAT.STANDABLE) do
         local spr = sprite[i]
         if (spr.picnum==D.MASTERSWITCH and spr.lotag==tag and spr.yvel==0) then
             spr:_set_yvel(1)

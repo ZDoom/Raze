@@ -54,7 +54,7 @@ function(aci, pli)
         local nearestdst = Inf
         local nearesti = -1
 
-        for i in spritesofstat(gv.STAT_FX) do
+        for i in spritesofstat(actor.STAT.FX) do
             local dst = (sprite[i]-ps.pos):len2()
             if (nearesti == -1 or (dst < nearestdst and dst < sprite[i].hitag)) then
                 printf("MSFX %d dist %d", i, dst)

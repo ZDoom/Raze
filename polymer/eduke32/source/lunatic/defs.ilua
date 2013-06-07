@@ -799,6 +799,18 @@ do
     our_SFLAG.USER_MASK = bit.bor(USER_MASK, our_SFLAG.enemystayput, our_SFLAG.rotfixed)
 
     actor_static_members.FLAGS = defs_c.conststruct(our_SFLAG)
+
+    -- Sprite status numbers. Kept in 'actor', because it's more of a game-side
+    -- concept (event though status lists are implemented in the engine), and
+    -- to prevent confusion with sprite.CSTAT.
+    local our_STAT = {}
+
+    for name, statnum in pairs(con_lang.STAT) do
+        -- Strip 'STAT_'.
+        our_STAT[name:sub(6)] = statnum
+    end
+
+    actor_static_members.STAT = defs_c.conststruct(our_STAT)
 end
 
 -- Delete sprite with index <i>.

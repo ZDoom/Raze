@@ -321,7 +321,7 @@ gameevent(gv.EVENT_ENTERLEVEL,
 
               -- Make the DUKECAR in E1L1 into a zombie actor (temporarily)
               if (sprite[24].picnum==2491) then
-                  sprite.changestat(24, gv.STAT_ZOMBIEACTOR)
+                  sprite.changestat(24, actor.STAT.ZOMBIEACTOR)
               end
 
               checkfail("gameevent('GAME', function() print('qwe') end)",

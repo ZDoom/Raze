@@ -318,17 +318,15 @@ local function shallow_copy(tab)
 end
 
 -- KEEPINSYNC with gamedef.c:C_AddDefaultDefinitions() and the respective
--- defines. These are exported to the ffi.C namespace and as literal defines
--- in lunacon.lua.
+-- defines. These are exported to the ffi.C namespace (except STAT) and as
+-- literal defines in lunacon.lua.
 labels =
 {
     STR,
     PROJ,
     EVENT,
---    setmetatable(
-        shallow_copy(SFLAG),
---        { __metatable="noffiC" }),
-    STAT,
+    shallow_copy(SFLAG),
+    setmetatable(STAT, { __metatable="noffiC" }),
     GAMEFUNC,
 }
 
