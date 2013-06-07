@@ -830,18 +830,18 @@ local function do_include_file(dirname, filename, isroot)
         local io = require("io")
 
         local fd, msg = io.open(dirname..filename)
-        if (fd == nil and not isroot) then
+        while (fd == nil and not isroot and filename:find("/")) do
             -- strip up to and including first slash:
             filename = filename:gsub("^.-/", "")
             fd, msg = io.open(dirname..filename)
+        end
 
-            -- As a last resort, try the "default directory"
-            if (fd==nil and g_defaultDir) then
-                -- strip up to and including last slash (if any):
-                filename = filename:gsub("^.*/", "")
-                dirname = g_defaultDir.."/"
-                fd, msg = io.open(dirname..filename)
-            end
+        -- As a last resort, try the "default directory"
+        if (fd==nil and g_defaultDir) then
+            -- strip up to and including last slash (if any):
+            filename = filename:gsub("^.*/", "")
+            dirname = g_defaultDir.."/"
+            fd, msg = io.open(dirname..filename)
         end
 
         if (fd == nil) then
@@ -2280,7 +2280,9 @@ local Cinner = {
     getkeyname = cmd(R,R,R)
         / "_con._getkeyname(%1,%2,%3)",
     getpname = cmd(R,R)  -- THISACTOR
-        / handle.NYI,
+        / function(qnum, pli)
+              return format("_con._getpname(%s,%s)", qnum, thisactor_to_pli(pli))
+          end,
 
     -- array stuff
     -- TODO: handle system gamearrays. Right now, the generated code will be wrong.

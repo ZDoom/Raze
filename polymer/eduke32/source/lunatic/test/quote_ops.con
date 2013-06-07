@@ -88,6 +88,13 @@ onevent EVENT_ENTERLEVEL
     userquote 400
 endevent
 
+// Test of 'getpname' command.
+onevent EVENT_JUMP
+    getpname 400 THISACTOR
+    userquote 400
+endevent
+
+
 // Following code by Hendricks266, from
 // http://forums.duke4.net/topic/1382-duke-64-mod-thread/page__view__findpost__p__150497
 gamevar temp 0 0

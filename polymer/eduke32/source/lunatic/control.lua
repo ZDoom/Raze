@@ -308,7 +308,7 @@ local int16_st = ffi.typeof "struct { int16_t s; }"
 
 function _shoot(i, tilenum, zvel)
     check_sprite_idx(i)
-    check_sector_idx(sprite[i].sectnum)  -- accessed in A_ShootWithZvel
+    check_sector_idx(ffiC.sprite[i].sectnum)  -- accessed in A_ShootWithZvel
     check_tile_idx(tilenum)
 
     zvel = zvel and int16_st(zvel).s or 0x80000000  -- SHOOT_HARDCODED_ZVEL
@@ -768,6 +768,13 @@ function _qgetsysstr(qdst, what, pli)
     end
 end
 
+function _getpname(qnum, pli)
+    bcheck.quote_idx(qnum, true)
+    check_player_idx(pli)
+    local uname = ffiC.g_player[pli].user_name
+    ffiC.C_DefineQuote(qnum, (uname[0] ~= 0) and uname or tostring(pli))
+end
+
 
 -- switch statement support
 function _switch(swtab, testval, aci,pli,dist)
@@ -969,7 +976,8 @@ end
 
 -- NOTE: function args of the C function have overloaded meaning
 function _A_Spawn(j, pn)
-    local bound_check = sector[sprite[j].sectnum]  -- two in one whack
+    check_sprite_idx(j)
+    check_sector_idx(ffiC.sprite[j].sectnum)
     check_tile_idx(pn)
     return CF.A_Spawn(j, pn)
 end
@@ -1143,7 +1151,7 @@ function _A_RadiusDamage(i, r, hp1, hp2, hp3, hp4)
 end
 
 function _testkey(pli, synckey)
-    local bound_check = player[pli]
+    check_player_idx(pli)
     if (synckey >= 32ULL) then
         error("Invalid argument #2 to _testkey: must be in [0..31]", 2)
     end
