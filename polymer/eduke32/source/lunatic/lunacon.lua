@@ -13,7 +13,7 @@ local table = require("table")
 local arg = arg
 
 local assert = assert
---local error = error
+local error = error
 local ipairs = ipairs
 local loadstring = loadstring
 local pairs = pairs
@@ -1048,7 +1048,6 @@ function Cmd.setdefname(filename)
     assert(type(filename)=="string")
     if (ffi) then
         if (ffiC.C_SetDefName(filename) ~= 0) then
-            -- XXX: not a cached local
             error("OUT OF MEMORY", 0)
         end
     end
@@ -1513,22 +1512,23 @@ local Couter = {
 
 --== Run time CON commands ==--
 --- 1. Gamevar Operators
-local varop = cmd(W,D)
-local varvarop = cmd(W,R)
+local Op = {}
+Op.var = cmd(W,D)
+Op.varvar = cmd(W,R)
 
-local function varopf(op)
+function Op.varf(op)
     if (#op <= 2) then
-        return varop / ("%1=%1"..op.."%2")
+        return Op.var / ("%1=%1"..op.."%2")
     else
-        return varop / ("%1="..op.."(%1,%2)")
+        return Op.var / ("%1="..op.."(%1,%2)")
     end
 end
 
-local function varvaropf(op)
+function Op.varvarf(op)
     if (#op <= 2) then
-        return varvarop / ("%1=%1"..op.."%2")
+        return Op.varvar / ("%1=%1"..op.."%2")
     else
-        return varvarop / ("%1="..op.."(%1,%2)")
+        return Op.varvar / ("%1="..op.."(%1,%2)")
     end
 end
 
@@ -1538,30 +1538,34 @@ end
 -- (if there ever were any) but making our life harder else.
 local arraypat = sp0 * "[" * sp0 * tok.rvar * sp0 * "]"
 
+-- Table of various patterns that are (parts of) more complex inner commands.
+local patt = {}
+
 -- Have to bite the bullet here and list actor/player members with second
 -- parameters, even though it's ugly to make it part of the syntax.  Also,
 -- stuff like
 --   actor[xxx].loogiex parm2 x
 -- will be wrongly accepted at the parsing stage (loogiex is player's member)
 -- because we don't discriminate between actor and player here.
-local parm2memberpat = lpeg.C(Pat("htg_t") + "loogiex" + "loogiey" + "ammo_amount" +
-                              "weaprecs" + "gotweapon" + "pals" + "max_ammo_amount") * sp1 * tok.rvar
--- The member name must match keywords, too (_all), because e.g. cstat is a member
--- of sprite[].
-local bothmemberpat = sp0 * "." * sp0 * lpeg.Ct(parm2memberpat + tok.identifier_all)
-local singlememberpat = sp0 * "." * sp0 * tok.identifier_all
+patt.parm2member = lpeg.C(Pat("htg_t") + "loogiex" + "loogiey" + "ammo_amount" +
+                          "weaprecs" + "gotweapon" + "pals" + "max_ammo_amount") * sp1 * tok.rvar
 
-local getstructcmd =  -- get<structname>[<idx>].<member> (<parm2>)? <<var>>
-    arraypat * bothmemberpat * sp1 * tok.wvar
+-- The member name must match keywords, too (_all), because e.g. cstat is a
+-- member of sprite[].
+patt.bothmember = sp0 * "." * sp0 * lpeg.Ct(patt.parm2member + tok.identifier_all)
+patt.singlemember = sp0 * "." * sp0 * tok.identifier_all
 
-local setstructcmd =  -- set<structname>[<idx>].<<member>> (<parm2>)? <var>
-    arraypat * bothmemberpat * sp1 * tok.rvar
+patt.cmdgetstruct =  -- get<structname>[<idx>].<member> (<parm2>)? <<var>>
+    arraypat * patt.bothmember * sp1 * tok.wvar
 
-local getperxvarcmd =  -- get<actor/player>var[<idx>].<varname> <<var>>
-    arraypat * singlememberpat * sp1 * tok.wvar
+patt.cmdsetstruct =  -- set<structname>[<idx>].<<member>> (<parm2>)? <var>
+    arraypat * patt.bothmember * sp1 * tok.rvar
 
-local setperxvarcmd = -- set<actor/player>var[<idx>].<<varname>> <var>
-    arraypat * singlememberpat * sp1 * tok.rvar
+patt.cmdgetperxvar =  -- get<actor/player>var[<idx>].<varname> <<var>>
+    arraypat * patt.singlemember * sp1 * tok.wvar
+
+patt.cmdsetperxvar = -- set<actor/player>var[<idx>].<<varname>> <var>
+    arraypat * patt.singlemember * sp1 * tok.rvar
 
 -- Function generating code for a struct read/write access.
 local function StructAccess(Structname, writep, index, membertab)
@@ -1695,7 +1699,7 @@ local Access =
 }
 
 local function GetStructCmd(accessfunc, pattern)
-    return (pattern or getstructcmd) /
+    return (pattern or patt.cmdgetstruct) /
       function(idx, memb, var)
         return format("%s=%s", var, accessfunc(false, idx, memb))
       end
@@ -1725,13 +1729,13 @@ local function SetStructCmd(accessfunc, pattern)
         end
     end
 
-    return (pattern or setstructcmd) / capfunc
+    return (pattern or patt.cmdsetstruct) / capfunc
 end
 
 -- <Setp>: whether the perxvar is set
 local function GetOrSetPerxvarCmd(Setp, Actorp)
     local EXPECTED_PERX_BIT = Actorp and GVFLAG.PERACTOR or GVFLAG.PERPLAYER
-    local pattern = (Setp and setperxvarcmd or getperxvarcmd)
+    local pattern = (Setp and patt.cmdsetperxvar or patt.cmdgetperxvar)
 
     local function capfunc(idx, perxvarname, var)
         local gv = g_gamevar[perxvarname]
@@ -1910,7 +1914,7 @@ local handle =
     soundonce = "_con._soundonce(_aci,%1)",
 }
 
-local userdef_common_pat = (arraypat + sp1)/{} * lpeg.Cc(0) * lpeg.Ct(singlememberpat) * sp1
+local userdef_common_pat = (arraypat + sp1)/{} * lpeg.Cc(0) * lpeg.Ct(patt.singlemember) * sp1
 
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
 -- that have no arguments and that are prefixes of other commands MUST be
@@ -1966,31 +1970,31 @@ local Cinner = {
     setplayervar = GetOrSetPerxvarCmd(true, false),  -- THISACTOR
     setactorvar = GetOrSetPerxvarCmd(true, true),
 
-    setvarvar = varvarop / "%1=%2",
-    addvarvar = varvaropf "+",
+    setvarvar = Op.varvar / "%1=%2",
+    addvarvar = Op.varvarf "+",
     -- NOTE the space after the minus sign so that e.g. "subvar x -1" won't get
     -- translated to "x=x--1" (-- being the Lua line comment start).
-    subvarvar = varvaropf "- ",
-    mulvarvar = varvaropf "*",
-    divvarvar = varvaropf "_con._div",
-    modvarvar = varvaropf "_con._mod",
-    andvarvar = varvaropf "_band",
-    orvarvar = varvaropf "_bor",
-    xorvarvar = varvaropf "_bxor",
-    randvarvar = varvarop / "%1=_con._rand(%2)",
+    subvarvar = Op.varvarf "- ",
+    mulvarvar = Op.varvarf "*",
+    divvarvar = Op.varvarf "_con._div",
+    modvarvar = Op.varvarf "_con._mod",
+    andvarvar = Op.varvarf "_band",
+    orvarvar = Op.varvarf "_bor",
+    xorvarvar = Op.varvarf "_bxor",
+    randvarvar = Op.varvar / "%1=_con._rand(%2)",
 
-    setvar = varop / "%1=%2",
-    addvar = varopf "+",
-    subvar = varopf "- ",
-    mulvar = varopf "*",
-    divvar = varopf "_con._div",
-    modvar = varopf "_con._mod",
-    andvar = varopf "_band",
-    orvar = varopf "_bor",
-    xorvar = varopf "_bxor",
-    randvar = varop / "%1=_con._rand(%2)",
-    shiftvarl = varopf "_lsh",
-    shiftvarr = varopf "_arsh",
+    setvar = Op.var / "%1=%2",
+    addvar = Op.varf "+",
+    subvar = Op.varf "- ",
+    mulvar = Op.varf "*",
+    divvar = Op.varf "_con._div",
+    modvar = Op.varf "_con._mod",
+    andvar = Op.varf "_band",
+    orvar = Op.varf "_bor",
+    xorvar = Op.varf "_bxor",
+    randvar = Op.var / "%1=_con._rand(%2)",
+    shiftvarl = Op.varf "_lsh",
+    shiftvarr = Op.varf "_arsh",
 
     --- 2. Math operations
     sqrt = cmd(R,W)
@@ -3121,9 +3125,9 @@ local Grammar = Pat{
         POS()*tok.number / function(...) return check_composite_literal(LABEL.ACTION, ...) end,
 
     -- New-style inline arrays and structures.
-    t_botharrayexp = tok.identifier * arraypat * bothmemberpat^-1
+    t_botharrayexp = tok.identifier * arraypat * patt.bothmember^-1
         / function(...) return lookup.array_expr(false, ...) end,
-    t_singlearrayexp = tok.identifier * arraypat * singlememberpat^-1,
+    t_singlearrayexp = tok.identifier * arraypat * patt.singlemember^-1,
 
     -- SWITCH
     switch_stmt = Keyw("switch") * sp1 * tok.rvar * (lpeg.Cc(nil)/on.switch_begin) *
