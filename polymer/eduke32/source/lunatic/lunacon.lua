@@ -431,10 +431,26 @@ end
 local BAD_ID_CHARS0 = "_/\\*?"  -- allowed 1st identifier chars
 local BAD_ID_CHARS1 = "_/\\*-+?"  -- allowed following identifier chars
 
+local function truetab(tab)
+    local ttab = {}
+    for i=1,#tab do
+        ttab[tab[i]] = true
+    end
+    return ttab
+end
+
+-- Lua 5.2 keywords. Not 5.1 because we use "goto" for codegen.
+local LUA_KEYW = truetab {
+    "and", "break", "do", "else", "elseif", "end",
+    "false", "for", "function", "goto", "if", "in",
+    "local", "nil", "not", "or", "repeat", "return",
+    "then", "true", "until", "while"
+}
+
 -- Return the Lua code by which the CON object <name> is referenced in the
 -- translated code.
 local function mangle_name(name, prefix)
-    if (name:match("^[A-Za-z_][A-Za-z_0-9]*$")) then
+    if (name:match("^[A-Za-z_][A-Za-z_0-9]*$") and not LUA_KEYW[name]) then
         return format("_%s.%s", prefix, name)
     else
         return format("_%s[%q]", prefix, name)
