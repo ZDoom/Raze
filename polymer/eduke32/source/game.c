@@ -7654,7 +7654,9 @@ PALONLY:
                     break;
                 }
 
-#ifndef LUNATIC
+            l = klabs(l);
+
+#if !defined LUNATIC
             t->picnum += k + script[t_data4] + l*t_data3;
 #else
             t->picnum += k + startframe + l*t_data3;
