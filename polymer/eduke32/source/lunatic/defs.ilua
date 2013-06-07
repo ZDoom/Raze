@@ -1413,7 +1413,7 @@ local function our_require(modname, ...)
         local gvnames = {}
 
         for name in pairs(getfenv(2)) do
-            gvnames[#gvnames] = name
+            gvnames[#gvnames+1] = name
             if (ffiC._DEBUG_LUNATIC ~= 0) then
                 printf("MODULE %s GAMEVAR %s", thismodname, name)
             end

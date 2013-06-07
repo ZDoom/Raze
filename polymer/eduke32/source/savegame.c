@@ -848,6 +848,15 @@ static void sv_calcbitptrsize();
 static void sv_prescriptsave_once();
 static void sv_prescriptload_once();
 static void sv_postscript_once();
+#else
+// Recreate Lua state.
+// XXX: It may matter a great deal when this is run from if the Lua code refers
+// to C-side data at file scope. Such usage is strongly discouraged though.
+static void sv_create_lua_state(void)
+{
+    El_CreateGameState();
+    G_PostCreateGameState();
+}
 #endif
 static void sv_preactordatasave();
 static void sv_postactordata();
@@ -867,7 +876,9 @@ static void sv_restload();
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
       +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS)
 
+#if !defined LUNATIC
 static uint32_t savegame_bitptrsize;
+#endif
 static uint8_t savegame_quotedef[MAXQUOTES>>3];
 static char(*savegame_quotes)[MAXQUOTELEN];
 static char(*savegame_quoteredefs)[MAXQUOTELEN];
@@ -983,7 +994,9 @@ static const dataspec_t svgm_script[] =
     { DS_SAVEFN, (void *)&sv_preactordatasave, 0, 1 },
     { 0, &actor[0], sizeof(actor_t), MAXSPRITES },
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
-
+#if defined LUNATIC
+    { DS_LOADFN|DS_NOCHK, (void *)&sv_create_lua_state, 0, 1 },
+#endif
     { DS_END, 0, 0, 0 }
 };
 
@@ -1333,11 +1346,6 @@ int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h)
     }
 
     savegame_comprthres = h->comprthres;
-
-#ifdef LUNATIC
-    El_CreateGameState();
-    G_PostCreateGameState();
-#endif
 
     if (spot >= 0)
     {

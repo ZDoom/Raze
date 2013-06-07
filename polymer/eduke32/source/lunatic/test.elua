@@ -39,24 +39,31 @@ ourvar = { ourvar2; 1, 2, 3, "qwe"; [true]=0, [false]=1 }
 ourvar[#ourvar+1] = ourvar;
 --]]
 
-print('tweaking sector pals')
-print('numsectors: ' .. gv.numsectors .. ' of ' .. gv.MAXSECTORS)
-
----[[
-local SF = sector.STAT
-for i = 0, gv.numsectors/2 do
-    local sec = sector[i]
-    sec.floorpal = 1;
-    sector[i].floor.shade = sec.floor.shade + 4
-    sector[i].ceilingpal = 2;
-    local ceil = sec.ceiling
-    ceil.shade = sector[i].ceiling.shade + 8
-    ceil.statx:flip(SF.SMOOSH)
-    sec.floorstatx:flip(SF.SWAPXY)
-end
-
 local vol, lev = gv.currentEpisode()+1, gv.currentLevel()+1
 printf('volume=%d, level=%d', vol, lev)
+
+---[[
+if (vol ~= 4) then
+    -- Tweak some sector pals.
+    -- NOTE: you're not really supposed to modify game state from Lua file
+    -- scope! This is for testing only! E.g. it will fail if a savegame is
+    -- loaded from the menu when no other level is loaded.
+
+    print('tweaking sector pals')
+    print('numsectors: ' .. gv.numsectors .. ' of ' .. gv.MAXSECTORS)
+
+    local SF = sector.STAT
+    for i = 0, gv.numsectors/2 do
+        local sec = sector[i]
+        sec.floorpal = 1;
+        sector[i].floor.shade = sec.floor.shade + 4
+        sector[i].ceilingpal = 2;
+        local ceil = sec.ceiling
+        ceil.shade = sector[i].ceiling.shade + 8
+        ceil.statx:flip(SF.SMOOSH)
+        sec.floorstatx:flip(SF.SWAPXY)
+    end
+end
 
 if (vol==1 and lev==1) then  -- E1L1
     print('tweaking some sprites 2')
@@ -215,7 +222,7 @@ gameevent("PROCESSINPUT",
 gameevent("JUMP", actor.FLAGS.chain_beg,
           function(actori, playeri, dist)
               local ps = player[playeri]
-              print("I'm first!")
+              print("\n--- I'm first!")
 --              DBG_.oom()
               ps.weapon.PISTOL.shoots = 2605 -- RPG
               ps.weapon[gv.PISTOL_WEAPON].firesound = 351 -- thunder

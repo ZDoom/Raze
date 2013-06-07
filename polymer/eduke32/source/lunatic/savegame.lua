@@ -4,6 +4,7 @@
 local string = require("string")
 local table = require("table")
 
+local assert = assert
 local getmetatable = getmetatable
 local pairs = pairs
 local setmetatable = setmetatable
@@ -15,6 +16,9 @@ module(...)
 
 
 ---=== Serialization, based on the idea from PiL ===---
+
+assert(tostring(0/0)=="nan")
+assert(tostring(1/0)=="inf")
 
 -- Serialize a 'primitive' Lua value.
 local function basicSerialize(o)
