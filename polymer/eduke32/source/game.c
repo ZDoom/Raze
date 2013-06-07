@@ -6941,9 +6941,10 @@ static int32_t G_MaybeTakeOnFloorPal(spritetype *datspr, int32_t sect)
     return 0;
 }
 
-static int32_t getofs_viewtype5(const spritetype *s, spritetype *t, int32_t a)
+static int32_t getofs_viewtype5(const spritetype *s, spritetype *t, int32_t a, uint8_t invertp)
 {
-    int32_t k = (((s->ang+3072+128-a)&2047)>>8)&7;
+    int32_t angdif = invertp ? a-s->ang : s->ang-a;
+    int32_t k = (((angdif+3072+128)&2047)>>8)&7;
 
     if (k>4)
     {
@@ -6955,9 +6956,10 @@ static int32_t getofs_viewtype5(const spritetype *s, spritetype *t, int32_t a)
     return k;
 }
 
-static int32_t getofs_viewtype7(const spritetype *s, spritetype *t, int32_t a)
+static int32_t getofs_viewtype7(const spritetype *s, spritetype *t, int32_t a, uint8_t invertp)
 {
-    int32_t k = ((s->ang+3072+128-a)&2047)/170;
+    int32_t angdif = invertp ? a-s->ang : s->ang-a;
+    int32_t k = ((angdif+3072+128)&2047)/170;
 
     if (k>6)
     {
@@ -7133,7 +7135,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     break;
                 }
 #endif
-                k = getofs_viewtype5(t, t, oura);
+                k = getofs_viewtype5(t, t, oura, 0);
                 t->picnum = s->picnum+k;
                 break;
             case BLOODSPLAT1__STATIC:
@@ -7353,7 +7355,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 break;
             }
 #endif
-            k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury));
+            k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury), 0);
             t->picnum = RPG+k;
             break;
 
@@ -7365,7 +7367,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 break;
             }
 #endif
-            k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury));
+            k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury), 0);
 
             // RECON_T4
             if (klabs(t_data3) > 64)
@@ -7482,7 +7484,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 }
                 else
 #endif
-                    k = getofs_viewtype5(s, t, oura);
+                    k = getofs_viewtype5(s, t, oura, 0);
 
                 if (sector[s->sectnum].lotag == ST_2_UNDERWATER) k += 1795-1405;
                 else if ((actor[i].floorz-s->z) > (64<<8)) k += 60;
@@ -7536,7 +7538,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                         }
                         else
 #endif
-                            k = getofs_viewtype5(s, t, oura);
+                            k = getofs_viewtype5(s, t, oura, 0);
 
                         if (sector[t->sectnum].lotag == ST_2_UNDERWATER) k += 1795-1405;
                         else if ((actor[i].floorz-s->z) > (64<<8)) k += 60;
@@ -7636,10 +7638,12 @@ PALONLY:
                     break;
 
                 case 5:
-                    k = getofs_viewtype5(s, t, getangle(s->x-ourx, s->y-oury));
+                case -5:
+                    k = getofs_viewtype5(s, t, getangle(s->x-ourx, s->y-oury), l<0);
                     break;
                 case 7:
-                    k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury));
+                case -7:
+                    k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury), l<0);
                     break;
                 case 8:
                     k = (((s->ang+3072+128-oura)&2047)>>8)&7;
@@ -7803,7 +7807,7 @@ skip:
             }
             else
 #endif
-                k = getofs_viewtype5(t, t, oura);
+                k = getofs_viewtype5(t, t, oura, 0);
 
             t->picnum = s->picnum+k+((T1<4)*5);
             t->shade = sprite[s->owner].shade;
@@ -7858,7 +7862,7 @@ skip:
                 break;
             }
 #endif
-            k = getofs_viewtype5(t, t, oura);
+            k = getofs_viewtype5(t, t, oura, 0);
             t->picnum = s->picnum+k;
             break;
         }
