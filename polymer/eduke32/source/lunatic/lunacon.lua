@@ -572,13 +572,22 @@ local function parse_number(pos, numstr)
     return num
 end
 
--- returns: OK?
-local function check_tilenum(tilenum)
+-- Bound checking functions that generate a compilation error on failure.
+local check = {}
+
+function check.tile_idx(tilenum)
     if (not (tilenum >= 0 and tilenum < MAXTILES)) then
         errprintf("invalid tile number %d", tilenum)
         return false
     end
+    return true
+end
 
+function check.sound_idx(sidx)
+    if (not (sidx >= 0 and sidx < conl.MAXSOUNDS)) then
+        errprintf("invalid sound number %d", sidx)
+        return false
+    end
     return true
 end
 
@@ -1030,18 +1039,35 @@ function Cmd.definequote(qnum, quotestr)
     return ""
 end
 
+local PROJ = {}
+for key, val in pairs(conl.PROJ) do
+    -- Strip "PROJ_"
+    PROJ[key:sub(6)] = val
+end
+
 function Cmd.defineprojectile(tilenum, what, val)
-    local ok = check_tilenum(tilenum)
+    local ok = check.tile_idx(tilenum)
+
+    if (what==PROJ.WORKSLIKE) then
+        local rbits = bit.bnot(2^21-1)
+        if (bit.band(val, rbits) ~= 0) then
+            warnprintf("set one or more reserved bits (0x%s) for PROJ_WORKSLIKE",
+                       bit.tohex(bit.band(rbits, val)))
+        end
+    elseif (what==PROJ.SOUND or what==PROJ.ISOUND or what==PROJ.BSOUND) then
+        ok = ok and (val==-1 or check.sound_idx(val))
+    elseif (what==PROJ.SPAWNS or what==PROJ.DECAL or what==PROJ.TRAIL) then
+        ok = ok and (val==-1 or check.tile_idx(val))
+    end
 
     if (ffi and ok) then
-        -- TODO: potentially bound-check some members?
         ffiC.C_DefineProjectile(tilenum, what, val)
     end
 end
 
 -- flags: if string, look up in ffiC and OR, else set number directly.
 function Cmd.xspriteflags(tilenum, flags)
-    local ok = check_tilenum(tilenum)
+    local ok = check.tile_idx(tilenum)
 
     if (ffi and ok) then
         if (type(flags)=="number") then

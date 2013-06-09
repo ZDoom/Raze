@@ -302,10 +302,12 @@ struct {
     int32_t workslike, cstat;
     int32_t hitradius, range, flashcolor;
     const int16_t spawns;
-    int16_t sound, isound, vel;
+    const int16_t sound, isound;
+    int16_t vel;
     const int16_t decal, trail;
     int16_t tnum, drop;
-    int16_t offset, bounces, bsound;
+    int16_t offset, bounces;
+    const int16_t bsound;
     int16_t toffset;
     int16_t extra, extra_rand;
     int8_t sxrepeat, syrepeat, txrepeat, tyrepeat;
@@ -707,7 +709,7 @@ string.dump = nil
 
 -- sanity-check struct type sizes
 local good = true
-for i=0,9 do
+for i=0,10 do
     local what = ffi.string(ffiC.g_sizes_of_what[i])
     local fsz = ffi.sizeof(what)
     local csz = ffiC.g_sizes_of[i]
@@ -1203,20 +1205,24 @@ end
 setmtonce(player_mt.__index, { __index = player_index_index })
 ffi.metatype("DukePlayer_t", player_mt)
 
-local function GenProjectileSetFunc(Member)
-    return function(self, picnum)
-        if (not (picnum < 0)) then
-            check_tile_idx(picnum)
+local function GenProjectileSetFunc(Member, checkfunc)
+    return function(self, idx)
+        if (not (idx == -1)) then
+            checkfunc(idx)
         end
-        ffi.cast(projectile_ptr_ct, self)[Member] = picnum
+        ffi.cast(projectile_ptr_ct, self)[Member] = idx
     end
 end
 
 local projectile_mt = {
     __index = {
-        set_spawns = GenProjectileSetFunc "spawns",
-        set_decal = GenProjectileSetFunc "decal",
-        set_trail = GenProjectileSetFunc "trail",
+        set_spawns = GenProjectileSetFunc("spawns", check_tile_idx),
+        set_decal = GenProjectileSetFunc("decal", check_tile_idx),
+        set_trail = GenProjectileSetFunc("trail", check_tile_idx),
+
+        set_sound = GenProjectileSetFunc("sound", check_sound_idx),
+        set_isound = GenProjectileSetFunc("isound", check_sound_idx),
+        set_bsound = GenProjectileSetFunc("bsound", check_sound_idx),
     },
 }
 ffi.metatype("projectile_t", projectile_mt)
