@@ -1,0 +1,725 @@
+Lunatic User Manual
+===================
+Helixhorned <contact: Duke4.net forums>
+:max-width: 56em
+:numbered:
+:icons:
+
+
+
+Introduction
+------------
+
+
+Language
+--------
+:Lua51: http://www.lua.org/about.html
+:Lua51Ref: http://www.lua.org/manual/5.1/
+:PiL: http://www.lua.org/docs.html
+
+:LuaJIT: http://luajit.org
+:LuaJIText: http://luajit.org/extensions.html
+
+The base language for writing Lunatic user code is {Lua51}[Lua 5.1].  It is
+extensively documented in a {Lua51Ref}[Reference Manual], as well as described
+more broadly and accessibly in the {PiL}[Programming in Lua] books.
+// TODO: describe Lua a bit
+// TODO: give hints which PiL to read / how
+
+Because Lunatic is implemented using {LuaJIT}[LuaJIT], a just-in-time compiler
+for the Lua language, some {LuaJIText}[extensions] to the core language are
+automatically available. They may be used if no compatibility with Rio Lua 5.1
+is desired.
+
+NOTE: The length operator (`#`) for table arguments should be taken to be
+defined by the http://www.lua.org/manual/5.2/manual.html#3.4.6[stricter wording
+of Lua 5.2].
+
+
+Environment and Usage
+---------------------
+
+Lunatic aims to provide a _safe_ scripting environment for EDuke32. Thus, not
+all of Lua's functionality is available in Lunatic, and some is slightly
+altered to play well with being embedded into a game, or to prevent commonly
+occurring mistakes.
+
+.Differences from default Lua environment
+- Creating new global variables in the global environment is forbidden.
+- In module context, referencing a non-existent variable (i.e. one that has
+  value *nil*) is an error.
+
+EDuke32 can load multiple Lunatic _modules_ when starting up. This is always
+done after translating CON code to Lua and loading it. Such modules must be
+named `*.lua` (case-sensitive) and should be passed directly, without any
+option letters, at the command line. Directory separators must be forward
+slashes.
+
+.Invocation example
+====================
+`eduke32 -nologo MYTC.CON -mx addition.con test.lua weapons/nuke.lua -v1 -l1`
+====================
+
+
+Global Environment
+------------------
+
+When a Lua module is loaded, its global environment contains both selected
+functions from core Lua, as well as Lunatic's own pre-defined variables.
+These allow access and manipulation of EDuke32 engine and game data.
+
+[icon="icons/din_w_explosive.png"]
+CAUTION: If an attempt is made to create a new variable in the global
+environment or to assign any value to an existing variable, the behavior is
+undefined.
+
+Lua functions
+~~~~~~~~~~~~~
+
+The following base Lua functions are available in Lunatic's global environment:
+
+`assert`, *`error`*, `ipairs`, `pairs`, `pcall`, *`print`*, *`module`*, `next`,
+*`require`*, `select`, `tostring`, `tonumber`, `type`, `unpack`, `xpcall`.
+
+The bold ones add functionality or behave slightly differently, described below.
+Additionally, `printf` is provided for convenience.
+
+*`error(message [, level])`*::
+In Lunatic, errors also print to the on-screen display (OSD) and are written to
+the log (unless a maximum error count is exceeded). These also have a
+_backtrace_ added. Additionally, errors not caught by a `pcall` result a
+permanent message to appear on the screen, containing the source file name and
+line number.
+
+*`print(...)`*::
+The messages are printed to the OSD and the log. Color codes available in
+EDuke32 (e.g. `^10` for dark red) are interpreted.
+
+*`printf(fmt, ...)`*::
+Calls `print` with the result of `string.format(fmt, ...)`.
+
+Writing and using modules
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In Lunatic, like in Lua, a _module_ is a conceptually a sort of package that
+unites related bits of functionality. Language-wise, it is simply a Lua
+table holding its contents, as described and motivated at length in
+_Programming in Lua_.
+
+The ``creation'' and ``usage'' sides of the modularity concept are reflected in
+two functions known from Lua 5.1, `module` and `require`. The former is a
+convenient way of separating the _import_, potential _gamevar_, and main body
+sections when writing a package. It is not required to use `module`, but it is
+the only way to declare _game variables_, that is, variables that EDuke32
+stores within savegames, recreating their values when they are loaded.
+
+The other side of the coin, `require`, is also used like in Lua: ``including''
+a named module is requested by passing its name to `require`. This searches for
+a matching module, loading and running it if the request happens for the first
+time.
+
+==== The function `require(modname, ...)`
+
+Attempts to find a Lua or Lunatic module named `modname`, which should not
+contain directory separators. The name can refer to a _built-in_ module, of
+which the following ones are allowed:
+
+* The http://bitop.luajit.org/[`bit`] module for bitwise operations
+* `math`, `string` and `table`, base modules from Lua
+* Lua's `os` module, containing a single function, `clock`. Like the
+  <<timing_funcs,timing functions>>, it should only be used to profile bits of
+  code.
+* Modules provided by Lunatic, which will be described in <<ext_api,their own
+  section>>.
+
+If `modname` does not designate a built-in module, Lunatic first replaces every
+dot contained in it with a directory separator. Then, it looks for a file with
+that base name suffixed with `.lua` in the EDuke32 search path (virtual file
+system, GRP, ZIP). Using directory separators directly is not allowed.
+
+The loaded module is ``protected'' so that write accesses to its table yield
+errors. Unlike Lua, our `module` does not return *true* when a module is
+++require++d that has not yet finished loading (that is, the inclusion chain
+contains a loop). Instead, an error is raised.
+
+Issuing `require` for `'end_gamevars'` has a special meaning that is described
+below.
+
+
+==== The `module()` function
+
+Initiates a _module_ environment by creating a new empty table and setting it
+as the global environment of the chunk.  Unlike Lua 5.1, our `module` takes
+neither a name argument nor ``option'' varargs. A Lunatic file may have at most
+one call to `module`, which (if there is one) *must* be called at file scope.
+
+===== Game variables
+
+Lunatic has a special mechanism to mark variables that represent some
+``persistent'' state and whose values should be stored in savegames. If such
+variables are desired, they must initialized between the `module` call in a Lua
+file and a closing `require("end_gamevars")`. These variables may also be *`local`*.
+
+[icon="icons/din_w_collapse.png"]
+CAUTION: A game variable must contain a non-nil value at any time. Otherwise,
+the behavior is undefined.
+
+// TODO: when are they restored, example
+
+// TODO: the rest
+
+
+The ``gv'' variable
+~~~~~~~~~~~~~~~~~~~
+
+Some constants, global C variables, and miscellaneous functions and structures
+are accessible via the global `gv` variable.
+
+Constants
+^^^^^^^^^
+`gv.MAXSECTORS`, `gv.MAXWALLS`, `gv.MAXSPRITES`::
+The hard engine limits on the number of sectors, walls, and sprites. These
+constants *must* be used instead of any literal numeric values because they
+can change depending on how EDuke32 was configured and built.
+
+//////////
+`gv.MAXSTATUS`, `gv.MAXTILES`, `gv.MAXSPRITESONSCREEN`::
+TODO
+
+`gv.MAXBUNCHES`, `gv.CEILING`, `gv.FLOOR`::
+TODO
+//////////
+
+`gv.CLIPMASK0`::
+A clipping (collision detection) mask specifying to consider only _blocking_
+walls and sprites.
+
+`gv.CLIPMASK1`::
+A clipping (collision detection) mask specifying to consider only _hitscan
+sensitive_ walls and sprites.
+
+// Game-side
+`gv.*` inventory indices::
+`GET_STEROIDS`, `GET_SHIELD`, `GET_SCUBA`, `GET_HOLODUKE`, `GET_JETPACK`,
+`GET_DUMMY1`, `GET_ACCESS`, `GET_HEATS`, `GET_DUMMY2`, `GET_FIRSTAID`, `GET_BOOTS`.
+`GET_MAX`.
+
+`gv.*` weapon indices::
+`KNEE_WEAPON`, `PISTOL_WEAPON`, `SHOTGUN_WEAPON`, `CHAINGUN_WEAPON`, `RPG_WEAPON`, 
+`HANDBOMB_WEAPON`, `SHRINKER_WEAPON`, `DEVISTATOR_WEAPON`, `TRIPBOMB_WEAPON`, 
+`FREEZE_WEAPON`, `HANDREMOTE_WEAPON`, `GROW_WEAPON`. `MAX_WEAPONS`.
+
+// TODO: the others, like EVENT_*.
+//////////
+[[gv_STAT]]
+`gv.*` sprite status numbers::
+`STAT_DEFAULT`, `STAT_ACTOR`, `STAT_ZOMBIEACTOR`, `STAT_EFFECTOR`,
+`STAT_PROJECTILE`, `STAT_MISC`, `STAT_STANDABLE`, `STAT_LOCATOR`,
+`STAT_ACTIVATOR`, `STAT_TRANSPORT`, `STAT_PLAYER`, `STAT_FX`, `STAT_FALLER`,
+`STAT_DUMMYPLAYER`, `STAT_LIGHT`.
+//////////
+
+//////////
+`gv.MAXPLAYERS`::
+TODO
+//////////
+
+Variables
+^^^^^^^^^
+
+`gv.totalclock` (read-only)::
+The current value of the engine timer that increments at a rate of 120 per
+second under default settings. (Thus, one game tic corresponds to four
+`totalclock` increments.) When staying within one ``mode'' such as in-menu or
+in-game, it is guaranteed to not decrease. However, going from one mode to
+another may produce discontinuities.
+
+`gv.screenpeek` (read-only)::
+The player index of the player from whose position the scene is being displayed.
+
+`gv.hudweap`::
+A structure containing information about the currently displayed HUD weapon.
+Contains the following members, which are set from C before entering
+`EVENT_DISPLAYWEAPONS`: `cur`, `count`, `gunposx`, `gunposy`, `lookhalfang`,
+`lookhoriz`, `shade`.
+// TODO: describe
+
+// TODO: g_logoFlags, g_RETURN?
+
+// TODO: structures such as .cam
+
+Functions
+^^^^^^^^^
+[[timing_funcs]]
+`gv.getticks()`, `gv.gethiticksms()`::
+Each of these functions return a number that increases at a rate of 1 per
+millisecond. Their only intended application is to profile bits of code; they
+should not be used to control the game world. The two functions differ in their
+precision: `getticks()` always returns integral values, while the result of
+`gethiticksms()` also has an unspecified precision in the fractional part. (It
+can be expected to give a time precision of at least one microsecond.)
+
+`gv.doQuake(gametics [, snd])`::
+Requests from the game to perform the ``quake'' effect that shakes the screen
+etc. for the next `gametics` game tics. If a sound index `snd` is passed, also
+start playing that sound.
+// TODO: Play sound how? ("globalsound")
+
+//////////
+`gv.currentEpisode()`::
+TODO
+`gv.currentLevel()`::
+TODO
+`gv.currentRenderMode()`::
+TODO
+//////////
+
+Lunatic structures
+~~~~~~~~~~~~~~~~~~
+
+The primary means of effecting game state in Lunatic is via _composite
+variables_ defined in the global environment. These provide direct, but
+restricted, access to C _structure arrays_ of the EDuke32 engine or game.
+
+[icon="icons/din_w_toxic.png"]
+CAUTION: If an attempt is made to access any composite variable outside of
+event or actor code, the behavior is undefined.
+
+Composite variables can be used in various ways. All of them allow indexing
+with an integer value from `0` to some maximum (sometimes the size of the array
+minus one, but occasionally less). For example, the code snippet
+----------
+local sec = sector[0]
+----------
+gets a _reference_ to the first sector of the loaded map into the local `sec`.
+This reference can then be used to both read and write its members.
+
+Various structures also provide _methods_ in Lunatic to modify their state,
+usable with Lua's `v:func(args...)` syntax. Building on the previous example,
+----------
+local cz = sec:ceilingzat(wall[sec.wallptr])
+----------
+would get into `cz` the ceiling z position at the first sector's first
+wall-point.
+
+Finally, some composite variables offer _static data_, which can contain
+functions or tables of constants. These are accessed using the dot notation on
+the composite variable, *not* its constituents. For instance, the following can
+be used to change the sector number of the sprite with index `i` manually:
+----------
+sprite.changesect(i, sectnum)
+----------
+
+
+Type of structure members
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In the following, some structure members will be annotated with their _integer
+type_, for example _`i16`_ or _`u8`_. The letter _`i`_ denotes a _signed_
+integer whereas a _`u`_ designates an _unsigned_ one. The number following that
+letter indicates the _bit width_ of that integer.
+
+.Representable values
+* A member of signed integer type and bit width _B_ can contain any whole
+number from --2^_B_--1^ to 2^_B_--1^--1. +
+
+* A member of unsigned integer type and bit width _B_ can contain any whole
+number from 0 to 2^_B_^--1.
+
+.Assignment
+* If an assignment to a member having signed integer type is made, the
+  ``right-hand side'' value must be a number in the closed interval
+  [--2^31^ .. 2^31^--1].
+
+* If an assignment to a member having unsigned integer type and bit width _B_
+  is made, the ``right-hand side'' value must be in the closed interval
+  [--2^31^ .. 2^31^-1] if _B_ is less than 32, or in [0 .. 2^32^-1] otherwise.
+
+* If the appropriate requirements hold, an assignment from a Lua number to a
+  member having integer type begins by discarding the fractional part
+  (``truncation'').  Otherwise, the behavior is undefined. +
+
+* If the truncated value is outside the range of representable values for the
+  corresponding integer type of bit width _B_, the final value is obtained by
+  successively adding or subtracting 2^B^, until the value falls inside that
+  range.
+
+.Examples
+1. Assignments to _`u8`_ member `visibility`
+* `sec.visibility=3.94159` results the member to contain the integer `3`
+* `sec.visibility=1/0` is undefined (attempt to assign an infinity)
+* `sec.visibility=-1` results the member to contain the integer `255`
+
+2. Assignments to _`i16`_ member `lotag`
+* `sec.lotag=32768` results the member to contain `-32768`
+* `sec.lotag=2^32` is undefined
+
+Bit fields
+^^^^^^^^^^
+
+Some structures contain members that represent a collection of _flags_, for
+example `sprite[].cstat` or `actor[].flags`. These flags can be toggled by
+setting or clearing their respective _bits_ (integer numbers that are powers of
+two).
+
+For convenience, Lunatic provides alternative names for some of these members,
+together with methods to examine or modify any number of bits of such a member
+in one expression.  Whenever there is such an alternative name available, it is
+declared as having type _`bitfield`_ in the listings of the structure members.
+
+===== methods of the _`bitfield`_ type
+
+`bf:set(bits)`::
+_Sets_ (toggles to an ``on'' state in a boolean sense) those bits of `bf`
+that are set in `bits`.
+
+`bf:clear(bits)`::
+_Clears_ (toggles to an ``off'' state in a boolean sense) those bits of `bf`
+that are set in `bits`.
+
+`bf:flip(bits)`::
+_Flips_ those bits of `bf` that are set in `bits`, that is, reverse their
+boolean state.
+
+`bf:test(bits)`::
+Returns a boolean that indicates whether `bf` has *any* of the bits set in
+`bits` set.
+
+.Examples
+==========
+After the lines setting sprite `i` to 33% translucent and blocking,
+----------
+local CS = sprite.CSTAT
+local spr = sprite[i]
+spr.cstat = CS.TRANS1 + CS.BLOCK
+----------
+one could proceed as follows for the sake of example:
+
+* `spr.cstatbits:set(CS.TRANS2)`, make the sprite 66% translucent now
+* `spr.cstatbits:flip(CS.BLOCK + CS.HITSCAN)`, make it hitscan-sensitive but not blocking
+* `spr.cstatbits:test(CS.FLIP_BITMASK)`, check whether it is flipped (no)
+==========
+
+Engine-side
+^^^^^^^^^^^
+
+The composite variables described in this subsection provide access to
+engine-side structures. The first three, `sector`, `wall`, and `sprite`,
+are part of a BUILD map saved to disk. The other ones only exist when
+running the game.
+
+===== `sector`
+Accessible from `0` to `gv.numsectors-1`. Each element has the following
+members:
+
+`wallptr`, `wallnum` (read-only)::
+The index of the sector's first wall and the number of walls in the sector,
+respectively.
+
+_`u8`_ `visibility`::
+Determines the amount of distance fading. In the range [`0` .. `239`], the
+``darkening'' increases with rising values. The range [`240` .. `255`] should
+be thought of as [`-16` .. `-1`].
+// TODO: better wording?
+
+_`i16`_ `lotag`, `hitag`, `extra`::
+General-purpose ``tags'' provided for game programming. They may be used by
+various EDuke32 sector effects, so it's not recommended to use them in
+scripting code.
+
+In addition to the members described above, each sector has two sets of members
+for its ceiling and floor. A sector reference can be indexed with the strings
+`ceiling` or `floor` to get references to the respective ``parts'', or one can
+access the consituent members by prefixing `ceiling` or `floor` to the base
+member names given below.
+
+.Different ways of accessing the same member
+==========
+After the code lines
+----------
+local sec = sector[0]
+local ceil = sec.ceiling
+----------
+the following expressions all denote the same location, both if read or written
+to: `sec.ceilingheinum`, `ceil.heinum`, `sector[0].ceiling.heinum`,
+`sector[0].ceilingheinum`.
+==========
+
+In the following, `cf` will stand for a ceiling or floor reference, while `sec`
+will label a sector reference.
+
+`cf.picnum` (read-only)::
+The tile number of the ceiling or floor.
+
+[[cf_stat]] _`u16`_ `cf.stat`, _`bitfield`_ `cf.statbits`::
+A bit field holding various flags about how the ceiling or floor shoud be
+displayed, how collision detection should be handled, etc.
+The <<sector_STAT,`sector.STAT`>>
+object should be used to obtain the values for applicable flags.
+
+_`i16`_ `cf.heinum`::
+If `cf.stat` has bit `sector.STAT.SLOPE` set, the tangent of the slope angle
+multiplied by 4096.  Positive values make the ceiling or floor slope towards
+the floor, negative ones slope upward.
+
+_`i32`_ `cf.z`::
+The BUILD z coordinate (scaled by 16 compared to the x and y directions) of the
+pivoting line of the ceiling or floor.
+
+`cf.bunch` (read-only)::
+The ``bunch'' number of the ceiling or floor used for True Room over Room. One
+bunch comprises _N_ ceilings and _M_ floors (_N_ &ge; 1, _M_ &ge; 1) such that
+each set covers the same planar, connected area.
+
+_`i8`_ `cf.shade`::
+The shade of the ceiling or floor. Larger values mean a more darker appearance.
+
+_`u8`_ `cf.pal`::
+The ``palette swap'' index of the ceiling or floor.
+
+_`u8`_ `cf.xpanning`, `cf.ypanning`::
+The panning values of the ceiling or floor. One full cycle is covered by values
+from `0` to `255`.
+
+===== `sector` methods
+
+`sec:set_ceilingpicnum(tilenum)`, `sec:set_floorpicnum(tilenum)`::
+Set the tile number of the ceiling or floor.
+
+`sec:ceilingzat(pos)`, `sec:floorzat(pos)`::
+Return the z coordinate of sector `sec`'s ceiling or floor at position `pos`,
+which can be anything indexable with the strings `x` and `y`.
+
+//////////
+`zrangeat(pos, walldist, cliptype)`::
+TODO
+//////////
+
+===== `sector` static data
+
+[[sector_STAT]] `sector.STAT`::
+Provides a mapping of symbolic names to values applicable to <<cf_stat,`cf.stat`>>.
+These name single bits:
+`PARALLAX`, `SLOPE`, `SWAPXY`, `SMOOSH`, `FLIPX`, `FLIPY`, `RELATIVE`, `MASK`,
+`TRANS1`, `TRANS2`, `BLOCK`, `HITSCAN`, while the following denote _bit masks_:
+`FLIP_BITMASK`, `ORIENT_BITMASK`, `TRANS_BITMASK`.
+
+'''
+===== `wall`
+Accessible from `0` to `gv.numwalls-1`. Each element has the following
+members:
+
+`x`, `y`::
+The 2D coordinates or this wall point. Should not be set directly.
+
+`point2` (read-only)::
+The index of the second wall point.
+
+`nextwall`, `nextsector` (read-only)::
+If the wall is ``white'', these members equal `-1`. For ``red'' walls, they
+contain the wall and sector indices (respectively) of the wall on the other side.
+
+`upwall`, `dnwall` (read-only)::
+For walls constrained by TROR extension, the upper and lower neighbor walls,
+respectively. Any of them may be `-1`, meaning that the wall is not attached to
+a neighbor in this direction.
+
+[[wall_cstat]] _`u16`_ `cstat`, _`bitfield`_ `cstatbits`::
+A bit field holding various flags about how the wall shoud be
+displayed, how collision detection should be handled, etc.
+The <<wall_CSTAT,`wall.CSTAT`>>
+object should be used to obtain the values for applicable flags.
+
+[[wall_picnum]]`picnum` (read-only)::
+The tile number of the non-masked portion of the wall. If
+`wall.CSTAT.BOTTOMSWAP` is set on this wall's `.cstat`, it is only displayed in
+the upper portion. (The lower portion takes it from this wall's `.nextwall`
+then; this will be labeled _use-other-bottom_ in the following.)
+
+`overpicnum` (read-only)::
+The tile number of the masked portion of the wall, i.e. that which is drawn if
+this wall's `.cstat` has bit `wall.CSTAT.MASK` or `wall.CSTAT.ONEWAY` set.
+
+_`i8`_ `shade` (<<wall_picnum,_use-other-bottom_>>)::
+The shade of the wall for both non-masked and masked portions. Larger values mean a more darker appearance.
+
+_`u8`_ `pal` (<<wall_picnum,_use-other-bottom_>>)::
+The ``palette swap'' index of the wall.
+
+_`u8`_ `xrepeat`, `yrepeat`::
+Values that are proportional to the number of times that the wall's texture
+repeats in each direction per given wall length/height. A value of `8` renders
+64 texels across a length of 1024 x/y map units or a height of 16384 z units.
+
+_`u8`_ `xpanning`, `ypanning` (<<wall_picnum,_use-other-bottom_>>)::
+The panning values of both masked and non-masked portions of the wall. One full
+cycle is covered by values from `0` to `255`.
+
+_`i16`_ `lotag`, `hitag`, `extra`::
+General-purpose ``tags'' provided for game programming. They may be used by
+various EDuke32 effects internally, so it is advised to do some research before
+claiming them for oneself.
+
+===== `wall` methods
+
+`wal:set_picnum(tilenum)`, `wal:set_overpicnum(tilenum)`::
+Set the tile number of the wall or its masked portion.
+
+===== `wall` static functions
+
+`wall.dragto(i, pos)`::
+Set the position of the point of the wall with index `i` to `pos`, which can be
+anything indexable with `x` and `y`. This function is the preferred way of
+changing wall coordinates, since it takes care to reposition dependent wall
+points, too.
+
+===== `wall` static data
+
+[[wall_CSTAT]] `wall.CSTAT`::
+Provides a mapping of symbolic names to values applicable to <<wall_cstat,`wall[i].cstat`>>.
+These name single bits:
+`BLOCK`, `BOTTOMSWAP`, `ALIGNBOTTOM`, `FLIPX`, `MASK`, `ONEWAY`, `HITSCAN`,
+`TRANS1`, `FLIPY`, `TRANS2`,
+while the following denote _bit masks_:
+`FLIP_BITMASK`, `TRANS_BITMASK`.
+
+'''
+===== `sprite`
+
+The `sprite` composite is accessible with indices from `0` to
+`gv.MAXSPRITES-1`, but accesses to sprites that do not exist in the game world
+have no meaning. Each element has the following members:
+
+`x`, `y`, `z`::
+The BUILD coordinates of the sprite. It is not advisable to set these directly.
+
+//////////
+_`i16`_ `ang`::
+TODO (make set_ang() out of that which always ANDs with 2047?)
+//////////
+
+[[sprite_cstat]] _`u16`_ `cstat`, _`bitfield`_ `cstatbits`::
+A bit field holding various flags about how the sprite shoud be
+displayed, how collision detection should be handled, etc.
+The <<sprite_CSTAT,`sprite.CSTAT`>>
+object should be used to obtain the values for applicable flags.
+
+`picnum` (read-only)::
+The tile number of the sprite, also used to determine which _actor_ code is run
+if this sprite has a `statnum` of `actor.STAT.ACTOR`.
+
+_`i8`_ `shade`::
+The shade of the sprite. This may not be the shade that this sprite is
+ultimately drawn with, though.
+
+_`u8`_ `pal`::
+The ``palette swap'' index of the sprite. This may not be the palette swap that
+this sprite is ultimately drawn with, though.
+
+_`u8`_ `clipdist`::
+If this sprite is _view-aligned_, controls the distance at which another moving
+object is considered to be in collision with this *stationary* sprite. (It does
+not control the inverse case.) More precisely, it designates half the
+side-length of the bounding square divided by 4. Thus, a value of `255` keeps
+moving objects away from this one at a Manhattan distance of at least 1020
+BUILD x/y units.
+
+_`u8`_ `xrepeat`, `yrepeat`::
+The size of the sprite in each dimension. For wall- and floor- aligned sprites,
+a value of `64` means a width of 16 x/y BUILD units or a height of 256 z BUILD
+units per texel.
+
+`sectnum` (read-only)::
+The index of the sector that this sprite is currently contained in.
+
+`statnum` (read-only)::
+The current _status number_ of this sprite. Applicable values are contained in
+`actor.STAT`.
+
+// <<gv_STAT,the `gv` object>>.
+
+`owner` (read-only)::
+The index of the sprite from which this sprite was spawned. If this sprite is
+not a ``child'' of another one, then `owner` is the index of this sprite itself.
+//Occasionally, game effects may use this member for their particular purposes,
+//so research is recommended before claiming it for oneself.
+
+_`i16`_ `xvel`, `zvel`::
+For _actors_ and other moving sprite types, the horizontal and vertical
+components of the current velocity.
+//It is not advisable to set these directly
+//unless one knows how they are processed.
+
+//`yvel` (read-only)::
+//A general-purpose member of which the game has exclusive control.
+
+_`i16`_ `lotag`, `hitag`, `extra`::
+General-purpose ``tags'' provided for game programming. They may be used by
+hard-coded actors internally, so it is advised to do some research before
+claiming them for oneself.
+
+===== `sprite` methods
+
+`spr:set_picnum(tilenum)`::
+Set the tile number of the sprite.
+
+===== `sprite` overridden operators
+
+`spr^zofs`::
+Returns an `xmath.vec3` object that is the position of this sprite, diminished
+by `zofs` in the z direction. Because in BUILD, z coordinates increase toward
+the floor, the `^` can be thought of as ``raise the sprite by `zofs` units''.
+
+===== `sprite` static data
+
+[[sprite_CSTAT]] `sprite.CSTAT`::
+Provides a mapping of symbolic names to values applicable to <<sprite_cstat,`sprite[i].cstat`>>.
+These name single bits:
+`BLOCK`, `TRANS1`, `XFLIP`, `YFLIP`, `ALIGNWALL`, `ALIGNFLOOR`, `ONESIDE`,
+`CENTER`, `HITSCAN`, `TRANS2`,
+while the following denote _bit masks_: `ALIGN_BITMASK`, `TRANS_BITMASK`.
+
+===== `spriteext`
+
+===== `atsprite`
+
+
+Game-side
+^^^^^^^^^
+`actor`::
+
+`player`::
+
+`projectile`::
+
+`g_tile`::
+TODO
+
+Lunatic functions
+~~~~~~~~~~~~~~~~~
+Engine-side
+^^^^^^^^^^^
+cansee
+hitscan
+inside
+neartag
+sectorsofbunch
+spritesofsect
+spritesofstat
+updatesector
+updatesectorbreadth
+updatesectorz
+wallsofsect
+
+Game-side
+^^^^^^^^^
+`gameactor`::
+
+`gameevent`::
+TODO
+
+
+[[ext_api]]
+Extended API (Lunatic modules)
+------------------------------
+
