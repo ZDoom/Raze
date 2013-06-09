@@ -20,20 +20,33 @@ defineprojectile MORTER2 PROJ_OFFSET 128
 defineprojectile MORTER2 PROJ_CLIPDIST 24
 defineprojectile MORTER2 PROJ_TRAIL -1  // overridden in test.elua
 defineprojectile MORTER2 PROJ_TNUM 6
+defineprojectile MORTER2 PROJ_USERDATA 32  // test setting initial value
 
 onevent EVENT_GAME
     setvarvar WEAPON1_FIRESOUND snd
 //    setvarvar WEAPON1_SHOOTS shoots
 endevent
 
+definequote 400 Failed setting projectile userdata
+
 useractor notenemy 909  // tree trunk
     ifcount 120
     {
+        // userdata: bitwise-OR in 64
+        getprojectile[MORTER2].userdata tmp
+        orvar tmp 64
+        setprojectile[MORTER2].userdata tmp
+
         ezshoot -4096 MORTER2
         getthisprojectile[RETURN].vel tmp
         randvar tmp2 500
         subvarvar tmp tmp2
         setthisprojectile[RETURN].vel tmp
         resetcount
+
+        // userdata: must be 32+64 now
+        getthisprojectile[RETURN].userdata tmp
+        ifvarn tmp 96
+            quote 400
     }
 enda

@@ -1040,6 +1040,7 @@ const memberlabel_t ProjectileLabels[]=
     { "bsound", PROJ_BSOUND, 0, 0 },
     { "range", PROJ_RANGE, 0, 0 },
     { "flashcolor", PROJ_FLASH_COLOR, 0, 0 },
+    { "userdata", PROJ_USERDATA, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
@@ -2328,6 +2329,8 @@ LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
         g_tile[j].defproj.bsound = ProjectileData[j].bsound = val; break;
     case PROJ_RANGE:
         g_tile[j].defproj.range = ProjectileData[j].range = val; break;
+    case PROJ_USERDATA:
+        g_tile[j].defproj.userdata = ProjectileData[j].userdata = val; break;
     default: break;
     }
 
@@ -6179,6 +6182,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("PROJ_TRAIL",PROJ_TRAIL,LABEL_DEFINE);
     C_AddDefinition("PROJ_TXREPEAT",PROJ_TXREPEAT,LABEL_DEFINE);
     C_AddDefinition("PROJ_TYREPEAT",PROJ_TYREPEAT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_USERDATA",PROJ_USERDATA,LABEL_DEFINE);
     C_AddDefinition("PROJ_VEL_MULT",PROJ_MOVECNT,LABEL_DEFINE);
     C_AddDefinition("PROJ_VEL",PROJ_VEL,LABEL_DEFINE);
     C_AddDefinition("PROJ_WORKSLIKE",PROJ_WORKSLIKE,LABEL_DEFINE);

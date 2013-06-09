@@ -103,7 +103,8 @@ typedef struct {
     int8_t shade, xrepeat, yrepeat, pal; // 4b
     int8_t movecnt; // 1b
     uint8_t clipdist; // 1b
-    int8_t filler[6]; // 6b
+    int8_t filler[2]; // 2b
+    int32_t userdata; // 4b
 } projectile_t;
 
 #pragma pack(push,1)

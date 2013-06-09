@@ -68,6 +68,7 @@ PROJ = {
     PROJ_BSOUND = 26,
     PROJ_RANGE = 27,
     PROJ_FLASH_COLOR = 28,
+    PROJ_USERDATA = 29,
 }
 
 -- PROJ_* define -> projectile_t member name
@@ -798,6 +799,7 @@ local ProjectileLabels = {
     pal = PROJ".pal",
     velmult = PROJ".movecnt",  -- NAME
     clipdist = PROJ".clipdist",
+    userdata = PROJ".userdata",
 }
 
 -- XXX: kind of CODEDUP form above

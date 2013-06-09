@@ -566,6 +566,7 @@ enum ProjectileLabel_t
     PROJ_BSOUND,
     PROJ_RANGE,
     PROJ_FLASH_COLOR,
+    PROJ_USERDATA,
     PROJ_END
 };
 #if !defined LUNATIC

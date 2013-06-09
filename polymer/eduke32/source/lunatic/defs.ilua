@@ -314,7 +314,8 @@ struct {
     int8_t shade, xrepeat, yrepeat, pal;
     int8_t movecnt;
     uint8_t clipdist;
-    int8_t filler[6];
+    int8_t filler[2];
+    int32_t userdata;
 }
 ]]
 

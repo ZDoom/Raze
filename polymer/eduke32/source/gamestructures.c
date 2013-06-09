@@ -1205,6 +1205,15 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
         Gv_SetVarX(lVar2, SpriteProjectile[proj].flashcolor);
         return;
 
+    case PROJ_USERDATA:
+        if (iSet)
+        {
+            SpriteProjectile[proj].userdata=lValue;
+            return;
+        }
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].userdata);
+        return;
+
     default:
         return;
     }
@@ -3462,6 +3471,15 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             return;
         }
         Gv_SetVarX(lVar2, ProjectileData[lVar1].range);
+        return;
+
+    case PROJ_USERDATA:
+        if (iSet)
+        {
+            ProjectileData[lVar1].userdata=lValue;
+            return;
+        }
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].userdata);
         return;
 
     default:
