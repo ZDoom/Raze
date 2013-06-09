@@ -1477,6 +1477,13 @@ local function our_require(modname, ...)
 
     --- Search user modules...
 
+    if (modname:find("[/\\]")) then
+        error("Module name must not contain directory separators", ERRLEV-1)
+    end
+    -- Instead, dots are translated to directory separators. For EDuke32's
+    -- virtual file system, this is always a forward slash.
+    modname = modname:gsub("%.", "/")
+
     local omod = package_loaded[modname]
     if (omod ~= nil) then
         if (omod==false) then
@@ -2038,8 +2045,16 @@ end
 if (not g_firstRun) then
     local i=0
     while (ffiC.g_elModules[i] ~= nil) do
-        local modname = ffi.string(ffiC.g_elModules[i])
-        our_require((modname:gsub("%.lua$","")))
+        -- Get the module name and strip the trailing extension.
+        local modname = ffi.string(ffiC.g_elModules[i]):gsub("%.lua$","")
+
+        if (modname:find("%.")) then
+            -- Because they will be replaced by dirseps in our_require().
+            error("Dots are not permitted in module names", 0)
+        end
+        -- Allow forward slashes in module names from the cmdline.
+        our_require((modname:gsub("%.lua$",""):gsub("/",".")))
+
         i = i+1
     end
 end

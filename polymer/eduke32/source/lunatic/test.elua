@@ -180,7 +180,7 @@ checkfail('local spr = sprite[0]; local x=spr+1', "attempt to perform arithmetic
 
 checkfail('gameactor(1680, 0)', "invalid last argument to gameactor: must be a function")
 
-checkfail("do local bt=require'test/test_bitar'; bt.QWE=1; end", "modifying module table forbidden")
+checkfail("do local bt=require'test.test_bitar'; bt.QWE=1; end", "modifying module table forbidden")
 -- the cdata returned by player[] can't be made into a pointer!
 checkfail("do local pl=player[0]; i=pl[1]; end")
 checkfail("do local ud=gv.ud.camerasprite; end", "access forbidden")  -- test for proper decl()
@@ -470,11 +470,11 @@ end)
 
 printf("EVENT_INIT = %d", gv.EVENT_INIT)  -- tests default defines
 
-local bittest = require "test/test_bitar"
+local bittest = require "test.test_bitar"
 bittest.sieve()
 
-require("test/test_geom")
-require("test/test_rotspr")
+require("test.test_geom")
+require("test.test_rotspr")
 
 do
     -- Test ksin vs. sinb
