@@ -110,8 +110,7 @@ function bitint_new_struct_type(basetypename, newtypename)
 end
 
 function bitint_member(bitint_struct_typename, membname)
-    -- XXX: rename to '~bits' instead of '~x'?
-    return string.format("union { %s %s; %s %sx; };",
+    return string.format("union { %s %s; %s %sbits; };",
                          bitint_to_base_type[bitint_struct_typename], membname,
                          bitint_struct_typename, membname)
 end

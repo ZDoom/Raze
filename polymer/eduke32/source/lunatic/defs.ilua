@@ -147,7 +147,7 @@ defs_c.bitint_new_struct_type("int32_t", "SBit32")
 -- for external exposure.
 local ACTOR_STRUCT = [[
 __attribute__((packed)) struct {
-    const int32_t t_data[10];  // 56b sometimes used to hold offsets to con code
+    const int32_t t_data[10];
     const struct move mv;
     const struct action ac;
     const int16_t _padding[1];
