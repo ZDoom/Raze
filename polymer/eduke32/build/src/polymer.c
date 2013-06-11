@@ -1484,8 +1484,12 @@ void                polymer_drawsprite(int32_t snum)
         }
     }
 
-    if ((tspr->cstat & 64) && ((tspr->cstat>>4) & 3))
+    if ((tspr->cstat & 64) && (tspr->cstat & SPR_ALIGN_MASK))
+    {
+        if ((tspr->cstat & SPR_ALIGN_MASK)==SPR_FLOOR && (tspr->cstat & SPR_YFLIP))
+            SWITCH_CULL_DIRECTION;
         bglEnable(GL_CULL_FACE);
+    }
 
     if ((!depth || mirrors[depth-1].plane) && !pr_ati_nodepthoffset)
         bglEnable(GL_POLYGON_OFFSET_FILL);
@@ -1495,8 +1499,12 @@ void                polymer_drawsprite(int32_t snum)
     if ((!depth || mirrors[depth-1].plane) && !pr_ati_nodepthoffset)
         bglDisable(GL_POLYGON_OFFSET_FILL);
 
-    if ((tspr->cstat & 64) && ((tspr->cstat>>4) & 3))
+    if ((tspr->cstat & 64) && (tspr->cstat & SPR_ALIGN_MASK))
+    {
+        if ((tspr->cstat & SPR_ALIGN_MASK)==SPR_FLOOR && (tspr->cstat & SPR_YFLIP))
+            SWITCH_CULL_DIRECTION;
         bglDisable(GL_CULL_FACE);
+    }
 }
 
 void                polymer_setanimatesprites(animatespritesptr animatesprites, int32_t x, int32_t y, int32_t a, int32_t smoothratio)
