@@ -579,6 +579,10 @@ local walltype_mt = {
         ishittable = function(w)
             return (band(w.cstat, 64)~=0)
         end,
+
+        -- Indexing a wall with 'z' gets 0, so that you can e.g. use a wall as
+        -- RHS to vec3_t addition.
+        z = 0,
     }
 }
 ffi.metatype("walltype", walltype_mt)

@@ -247,6 +247,8 @@ gameevent
     end
 }
 
+local geom = require "geom"
+
 gameevent
 {
     gv.EVENT_ENTERLEVEL,
@@ -337,10 +339,16 @@ gameevent
 
         checkfail("gameevent('GAME', function() print('qwe') end)",
                   "must be called from top level")
+
+        -- Test vec3 + wall. Pseudo wall member 'z' will be accessed.
+        local mpos = geom.vec3()
+        for i=0,gv.numwalls-1 do
+            mpos = mpos + wall[i]
+        end
+        mpos = mpos/gv.numwalls
+        printf("Map center point: (%d,%d)", mpos.x, mpos.y)
     end
 }
-
-local geom = require "geom"
 
 gameevent{"LOADACTOR", function(i)
     local spr = sprite[i]

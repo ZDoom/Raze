@@ -4,6 +4,9 @@ local require = require
 local ffi = require("ffi")
 local math = require("math")
 
+local abs = math.abs
+local sqrt = math.sqrt
+
 local type = type
 local error = error
 
@@ -22,7 +25,6 @@ local ivec3_t = ffi.typeof("vec3_t")
 
 local dvec2_t = ffi.typeof("struct { double x, y; }")
 local dvec3_t = ffi.typeof("struct { double x, y, z; }")
-
 
 local vec2_mt = {
     __add = function(a, b) return dvec2_t(a.x+b.x, a.y+b.y) end,
@@ -47,14 +49,12 @@ local vec2_mt = {
         return dvec2_t(a.x/b, a.y/b)
     end,
 
-    __len = function(a) return math.sqrt(a.x*a.x + a.y*a.y) end,
-
     __tostring = function(a) return "vec2("..a.x..", "..a.y..")" end,
 
     __index = {
         lensq = function(a) return a.x*a.x + a.y*a.y end,
 
-        mhlen = function(a) return math.abs(a.x)+math.abs(a.y) end,
+        mhlen = function(a) return abs(a.x)+abs(a.y) end,
     },
 }
 
@@ -91,44 +91,40 @@ local vec3_mt = {
         return v(v.x, v.y, v.z-zofs)
     end,
 
-    -- The # operator returns the Euclidean length.
-    -- TODO: REMOVE.
-    __len = function(a) return math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z) end,
-
-    -- INTERNAL: Calling a vector calls the constructor of its type.
-    __call = function(v, ...)
-        return v:_isi() and ivec3_t(...) or dvec3_t(...)
-    end,
-
-    -- INTERNAL
+    -- XXX: Rewrite using _serialize internal API instead.
     __tostring = function(a)
         return (a:_isi() and "i" or "").."vec3("..a.x..", "..a.y..", "..a.z..")"
     end,
 
     __index = {
         -- Euclidean 3D length.
-        len = function(a) return math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z) end,
+        len = function(a) return sqrt(a.x*a.x + a.y*a.y + a.z*a.z) end,
         -- Euclidean 3D squared length.
         lensq = function(a) return a.x*a.x + a.y*a.y + a.z*a.z end,
 
         -- Euclidean 2D length.
-        len2 = function(a) return math.sqrt(a.x*a.x + a.y*a.y) end,
+        len2 = function(a) return sqrt(a.x*a.x + a.y*a.y) end,
         -- Euclidean 2D squared length.
         len2sq = function(a) return a.x*a.x + a.y*a.y end,
 
         -- Manhattan-distance 3D length:
-        mhlen = function(a) return math.abs(a.x)+math.abs(a.y)+math.abs(a.z) end,
+        mhlen = function(a) return abs(a.x)+abs(a.y)+abs(a.z) end,
 
         toivec3 = function(v) return ivec3_t(v.x, v.y, v.z) end,
+
+        -- Get the type constructor for this vector.
+        _getctor = function(v)
+            return v:_isi() and ivec3_t or dvec3_t
+        end,
 
         -- BUILD-coordinate (z scaled by 16) <-> uniform conversions.
         touniform = function(v)
             return v:_isi()
-                and v(v.x, v.y, arshift(v.z, 4))
-                or v(v.x, v.y, v.z/4)
+                and v:_getctor(v.x, v.y, arshift(v.z, 4))
+                or v:_getctor(v.x, v.y, v.z/4)
         end,
 
-        tobuild = function(v) return v(v.x, v.y, 16*v.z) end,
+        tobuild = function(v) return v:_getctor(v.x, v.y, 16*v.z) end,
 
         -- Is <v> integer vec3? INTERNAL.
         _isi = function(v)
