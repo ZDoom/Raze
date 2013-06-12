@@ -381,7 +381,7 @@ local ActorLabels = {
     htowner = { AC".owner", AC":set_owner(%%s)" },
     htmovflag = AC"._movflag",
     httempang = AC".tempang",
-    htactorstayput = AC".actorstayput",
+    htactorstayput = AC".stayputsect",  -- NAME
     htdispicnum = { AC".dispicnum" },
     -- NOTE: no access for .shootzvel
     httimetosleep = AC".timetosleep",
@@ -396,13 +396,13 @@ local ActorLabels = {
     htg_t = { AC":get_t_data(%s)", AC":_set_t_data(%s,%%s)" },
     htflags = AC".flags",
 
-    -- model flags
+    -- (mostly) model-related flags
     angoff = SX".angoff",
     pitch = SX".pitch",
     roll = SX".roll",
-    mdxoff = SX".xoff",
-    mdyoff = SX".yoff",
-    mdzoff = SX".zoff",
+    mdxoff = SX".mdoff.x",  -- NAME
+    mdyoff = SX".mdoff.y",
+    mdzoff = SX".mdoff.z",
     mdflags = SX".flags",
     xpanning = SX".xpanning",
     ypanning = SX".ypanning",

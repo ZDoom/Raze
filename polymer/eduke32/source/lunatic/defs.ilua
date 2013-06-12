@@ -162,7 +162,7 @@ __attribute__((packed)) struct {
     const int16_t owner;
     int16_t _movflag,tempang,timetosleep; //6b
 
-    int16_t actorstayput;
+    int16_t stayputsect;
     const int16_t dispicnum;
     int16_t shootzvel, cgg;
 

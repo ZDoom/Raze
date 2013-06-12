@@ -206,11 +206,14 @@ typedef $ spritetype;
 typedef struct { spritetype; } tspritetype;
 
 typedef struct {
+    int32_t x, y, z;
+} vec3_t;
+
+typedef struct {
     const uint32_t mdanimtims;
     const int16_t mdanimcur;
     int16_t angoff, pitch, roll;
-    // TODO: make into an ivec3_t
-    int32_t xoff, yoff, zoff;
+    vec3_t mdoff;
 ]]..bitint_member("UBit8", "flags")..[[
     uint8_t xpanning, ypanning;
     const uint8_t filler;
@@ -220,10 +223,6 @@ typedef struct {
         struct { const int32_t _dummy0, _dummy1; };
     };
 } spriteext_t;
-
-typedef struct {
-    int32_t x, y, z;
-} vec3_t;
 
 typedef struct {
     vec3_t pos;

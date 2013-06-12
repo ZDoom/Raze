@@ -2188,7 +2188,7 @@ local Cinner = {
 
     -- cont'd
     addkills = cmd(D)
-        / (PLS".actors_killed="..PLS".actors_killed+%1;"..ACS".actorstayput=-1"),
+        / (PLS".actors_killed="..PLS".actors_killed+%1;"..ACS".stayputsect=-1"),
     addphealth = cmd(D)
         / format("_con._addphealth(%s,_aci,%%1)", PLS""),
     debug = cmd(D)
@@ -2670,7 +2670,7 @@ local Cif = {
     ifawayfromwall = cmd()
         / format("_con._awayfromwall(%s,108)", SPS""),
     ifactornotstayput = cmd()
-        / ACS".actorstayput==-1",
+        / ACS".stayputsect==-1",
 }
 
 
