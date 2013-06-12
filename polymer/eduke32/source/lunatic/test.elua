@@ -178,7 +178,7 @@ checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
 -- no pointer arithmetic!
 checkfail('local spr = sprite[0]; local x=spr+1', "attempt to perform arithmetic on")
 
-checkfail('gameactor(1680, 0)', "invalid last argument to gameactor: must be a function")
+checkfail('gameactor{1680, 0}', "must provide a function with last numeric arg or .func")
 
 checkfail("do local bt=require'test.test_bitar'; bt.QWE=1; end", "modifying module table forbidden")
 -- the cdata returned by player[] can't be made into a pointer!
@@ -195,165 +195,183 @@ player[0].curr_weapon = 1
 
 printf('ceilingbunch of sector 0: %d', sector[0].ceilingbunch)
 
-gameevent(gv.EVENT_JUMP,
+gameevent{gv.EVENT_JUMP,
           function(actori, playeri, dist)
               printf("jump i=%d p=%d d=%d", actori, playeri, dist)
               error("greetings from EVENT_JUMP")
           end
-         )
+         }
 
-gameevent("PROCESSINPUT",
-          -- Input test.
-          -- NOTE: I don't think that exposing g_player[].sync (aka "input") is a good idea...
-          function(actori, playeri, dist)
-              local IB = player._INPUT_BITS
-              local input = player[playeri]._input
-              if (bit.band(input.bits, IB.JUMP) ~= 0) then
-                  print("JUMPED")
-                  -- ... because for example this doesn't work
-                  -- (P_HandleSharedKeys, where the JETPACK bit is tested, runs
-                  -- before P_ProcessInput):
-                  input.bits = bit.bor(input.bits, IB.JETPACK)
-              end
-          end
-         )
+gameevent
+{
+    "PROCESSINPUT",
+
+    -- Input test.
+    -- NOTE: I don't think that exposing g_player[].sync (aka "input") is a good idea...
+    func = function(actori, playeri, dist)
+        local IB = player._INPUT_BITS
+        local input = player[playeri]._input
+        if (bit.band(input.bits, IB.JUMP) ~= 0) then
+            print("JUMPED")
+            -- ... because for example this doesn't work
+            -- (P_HandleSharedKeys, where the JETPACK bit is tested, runs
+            -- before P_ProcessInput):
+            input.bits = bit.bor(input.bits, IB.JETPACK)
+        end
+    end
+}
 
 -- test event chaining
-gameevent("JUMP", actor.FLAGS.chain_beg,
-          function(actori, playeri, dist)
-              local ps = player[playeri]
-              print("\n--- I'm first!")
---              DBG_.oom()
-              ps.weapon.PISTOL.shoots = 2605 -- RPG
-              ps.weapon[gv.PISTOL_WEAPON].firesound = 351 -- thunder
+gameevent
+{
+    "JUMP",
 
-              -- XXX: provide either named constants or methods?
-              ps.pipebombControl = 2
-              ps.tripbombControl = 2
+    flags = actor.FLAGS.chain_beg,
 
-              -- Test of INTERNAL member _pals.
-              -- NOTE: setting colors partially is bad! E.g. after an item is
-              -- picked up, col[0] and col[1] remain and tint everything greenish.
-              ps._pals[2] = 20
-              ps._pals.f = 30
-          end
-         )
+    function(actori, playeri, dist)
+        local ps = player[playeri]
+        print("\n--- I'm first!")
+--        DBG_.oom()
+        ps.weapon.PISTOL.shoots = 2605 -- RPG
+        ps.weapon[gv.PISTOL_WEAPON].firesound = 351 -- thunder
 
-gameevent(gv.EVENT_ENTERLEVEL,
-          function()
-              if (gv._DEBUG_LUNATIC) then
-                  DBG_.testmembread()
-              end
+        -- XXX: provide either named constants or methods?
+        ps.pipebombControl = 2
+        ps.tripbombControl = 2
 
-              -- NOTE: times are for helixhorned (Core2Duo 3GHz)
-              local i
-              local N = 1e6
-              local t = gv.gethitickms()
+        -- Test of INTERNAL member _pals.
+        -- NOTE: setting colors partially is bad! E.g. after an item is
+        -- picked up, col[0] and col[1] remain and tint everything greenish.
+        ps._pals[2] = 20
+        ps._pals.f = 30
+    end
+}
 
-              for i=3,N do
-                  gv.gethitickms()
-              end
+gameevent
+{
+    gv.EVENT_ENTERLEVEL,
 
-              t = gv.gethitickms()-t
+    function()
+        if (gv._DEBUG_LUNATIC) then
+            DBG_.testmembread()
+        end
 
-              -- x86_64: 35ns/call, x86: 280 ns/call
-              -- Windows 32-bit: about 1 us/call?
-              printf("%d gethitickms() calls took %.03f ms (%.03f us/call)",
-                     N, t, (t*1000)/N)
+        -- NOTE: times are for helixhorned (Core2Duo 3GHz)
+        local i
+        local N = 1e6
+        local t = gv.gethitickms()
 
-              local sum=0
-              t = gv.gethitickms()
-              for i=1,N do sum = sum+gv.ksqrt(i) end
-              t = gv.gethitickms()-t
-              -- x86_64: 14ns/call
-              printf("%d ksqrt() calls took %.03f ms (%.03f us/call) [sum=%f]",
-                     N, t, (t*1000)/N, sum)
+        for i=3,N do
+            gv.gethitickms()
+        end
 
-              sum=0
-              t = gv.gethitickms()
-              for i=1,N do sum = sum+math.sqrt(i) end
-              t = gv.gethitickms()-t
-              -- x86_64: 7ns/call
-              printf("%d math.sqrt() calls took %.03f ms (%.03f us/call) [sum=%f]",
-                     N, t, (t*1000)/N, sum)
+        t = gv.gethitickms()-t
 
-              printf("sqrt(0xffffffff) = %f(ksqrt) %f(math.sqrt)",
-                     gv.ksqrt(0xffffffff), math.sqrt(0xffffffff))
+        -- x86_64: 35ns/call, x86: 280 ns/call
+        -- Windows 32-bit: about 1 us/call?
+        printf("%d gethitickms() calls took %.03f ms (%.03f us/call)",
+               N, t, (t*1000)/N)
 
-              local pl = player[0]
-              -- MAX < current is "allowed"
-              pl.max_ammo_amount[gv.RPG_WEAPON] = 17
-              pl:give_weapon(gv.RPG_WEAPON)
-              pl.ammo_amount[gv.RPG_WEAPON] = 54
+        local sum=0
+        t = gv.gethitickms()
+        for i=1,N do sum = sum+gv.ksqrt(i) end
+        t = gv.gethitickms()-t
+        -- x86_64: 14ns/call
+        printf("%d ksqrt() calls took %.03f ms (%.03f us/call) [sum=%f]",
+               N, t, (t*1000)/N, sum)
 
-              pl:give_weapon(gv.SHRINKER_WEAPON)
-              -- This looks much prettier:
-              pl.ammo_amount.SHRINKER = 2
+        sum=0
+        t = gv.gethitickms()
+        for i=1,N do sum = sum+math.sqrt(i) end
+        t = gv.gethitickms()-t
+        -- x86_64: 7ns/call
+        printf("%d math.sqrt() calls took %.03f ms (%.03f us/call) [sum=%f]",
+               N, t, (t*1000)/N, sum)
 
-              -- MORTER2 from test/weaponvars.con
-              player[0].weapon.SHOTGUN.shoots = 1653
-              local proj = projectile[1653]
-              proj.drop = 0
-              proj:set_trail(2329)  -- SMALLSMOKE
+        printf("sqrt(0xffffffff) = %f(ksqrt) %f(math.sqrt)",
+               gv.ksqrt(0xffffffff), math.sqrt(0xffffffff))
 
-              t = gv.gethitickms()
-              local N=1
-              for n=1,N do
-                  for i=0,gv.MAXSPRITES-1 do
-                      sprite[i].filler = 1
-                  end
-                  for i=gv.MAXSPRITES-1,0,-1 do
-                      sprite[i].shade = 1
-                  end
-                  for i=0,gv.MAXSPRITES-1 do
-                      sprite[i].xoffset = 0
-                  end
-                  for i=gv.MAXSPRITES-1,0,-1 do
-                      sprite[i].yoffset = 1
-                  end
-              end
-              t = gv.gethitickms()-t
-              printf("%d x four 0..MAXSPRITES-1 iterations took %.03f us per outer iteration", N, (1000*t)/N)
-              -- Results on x86:
-              -- N=1: 480-1000 us (too large variance)
-              -- N=10: 190-210 us * 10 = 1.9-2.1 ms
-              -- N=100: about 160 us * 100 = about 16 ms
+        local pl = player[0]
+        -- MAX < current is "allowed"
+        pl.max_ammo_amount[gv.RPG_WEAPON] = 17
+        pl:give_weapon(gv.RPG_WEAPON)
+        pl.ammo_amount[gv.RPG_WEAPON] = 54
 
-              -- Make the DUKECAR in E1L1 into a zombie actor (temporarily)
-              if (sprite[24].picnum==2491) then
-                  sprite.changestat(24, actor.STAT.ZOMBIEACTOR)
-              end
+        pl:give_weapon(gv.SHRINKER_WEAPON)
+        -- This looks much prettier:
+        pl.ammo_amount.SHRINKER = 2
 
-              checkfail("gameevent('GAME', function() print('qwe') end)",
-                        "must be called from top level")
-          end
-         )
+        -- MORTER2 from test/weaponvars.con
+        player[0].weapon.SHOTGUN.shoots = 1653
+        local proj = projectile[1653]
+        proj.drop = 0
+        proj:set_trail(2329)  -- SMALLSMOKE
+
+        t = gv.gethitickms()
+        local N=1
+        for n=1,N do
+            for i=0,gv.MAXSPRITES-1 do
+                sprite[i].filler = 1
+            end
+            for i=gv.MAXSPRITES-1,0,-1 do
+                sprite[i].shade = 1
+            end
+            for i=0,gv.MAXSPRITES-1 do
+                sprite[i].xoffset = 0
+            end
+            for i=gv.MAXSPRITES-1,0,-1 do
+                sprite[i].yoffset = 1
+            end
+        end
+        t = gv.gethitickms()-t
+        printf("%d x four 0..MAXSPRITES-1 iterations took %.03f us per outer iteration", N, (1000*t)/N)
+        -- Results on x86:
+        -- N=1: 480-1000 us (too large variance)
+        -- N=10: 190-210 us * 10 = 1.9-2.1 ms
+        -- N=100: about 160 us * 100 = about 16 ms
+
+        -- Make the DUKECAR in E1L1 into a zombie actor (temporarily)
+        if (sprite[24].picnum==2491) then
+            sprite.changestat(24, actor.STAT.ZOMBIEACTOR)
+        end
+
+        checkfail("gameevent('GAME', function() print('qwe') end)",
+                  "must be called from top level")
+    end
+}
 
 local geom = require "geom"
 
-gameevent("LOADACTOR", function(i)
+gameevent{"LOADACTOR", function(i)
     local spr = sprite[i]
     if (i==614 and spr.picnum==930) then
         -- "police line" ribbon in E1L1
         -- clear the hitag so that it doesn't spawn as FALLER from premap
         spr.hitag = 0
     end
-end)
+end}
 
-gameactor(930, nil, 1, function(i)  -- "police line" ribbon
-    local spr = sprite[i]
-    local r = math.random
-    local d = 20
-    -- NOTE: __add metamethod is called because of the RHS:
-    local v = spr + geom.vec3(r(-d,d), r(-d,d))
-    spr:setpos(v)
-end)
+gameactor
+{
+    -- "police line" ribbon
+    930, nil, 1,
+
+    func = function(i)
+        local spr = sprite[i]
+        local r = math.random
+        local d = 20
+        -- NOTE: __add metamethod is called because of the RHS:
+        local v = spr + geom.vec3(r(-d,d), r(-d,d))
+        spr:setpos(v)
+    end
+}
 
 local stat = require("stat")
 local hs = stat.new()
 
 local con = require("con")
 local AC, MV = con.AC, con.MV
+
 con.action("TROOPSTAND",0,1,5,1,1)
 con.action("TROOPFLINTCH", 50, 1, 1, 1, 6)
 con.move("SHRUNKVELS", 32)
@@ -366,107 +384,129 @@ con.ai("AITEMP", "TROOPFLINTCH", "SHRUNKVELS", 0)
 
 local TROOPSTRENGTH = 30
 
+local D = require("CON.DEFS")
 local AF = actor.FLAGS
 local CS = sprite.CSTAT
 
 -- Also test actor code chaining: strength is doubled.
-gameactor(1680, AF.chain_end+AF.enemy, 2*TROOPSTRENGTH, "TROOPSTAND", -- LIZTROOP
-          function(i, playeri, dist)
-              spriteext[i]:make_animated()
+gameactor
+{
+    D.LIZTROOP, AF.chain_end+AF.enemy, 2*TROOPSTRENGTH,
 
-              sprite[i].pal = math.random(32)
---              sprite[i].ang = bit.band(sprite[i].ang-20, 2047)
+    action = "TROOPSTAND",
 
-              local spr = sprite[i]
+    func = function(i, playeri, dist)
+        spriteext[i]:make_animated()
 
-              local t = gv.gethitickms()
-              local hit = hitscan(spr, spr.sectnum, 10, 10, 0, gv.CLIPMASK0)
+        sprite[i].pal = math.random(32)
+        --              sprite[i].ang = bit.band(sprite[i].ang-20, 2047)
 
-              hs:add(1000*(gv.gethitickms()-t))
+        local spr = sprite[i]
 
-              if (hs.n == 300) then
-                  printf("hitscan: %s", hs:getstatstr())
-                  hs:reset()
-                  error("greetings from LIZTROOP actor")
-              end
+        local t = gv.gethitickms()
+        local hit = hitscan(spr, spr.sectnum, 10, 10, 0, gv.CLIPMASK0)
 
-              local actr = actor[i]
-              if (actr:get_count() % 30 == 0) then
-                  spr.cstatbits:flip(CS.YFLIP)
-              end
+        hs:add(1000*(gv.gethitickms()-t))
 
-              -- Test of bitint's ":test()" for actor[].flags.
-              actr.flagsbits:test(AF.NVG)
+        if (hs.n == 300) then
+            printf("hitscan: %s", hs:getstatstr())
+            hs:reset()
+            error("greetings from LIZTROOP actor")
+        end
 
-              if (dist < 4096) then
-                  -- Duke Vader / Anakin Nukewalker?
-                  actor[i]:set_action("TROOPFLINTCH")
-                  actor[i]:set_move("SHRUNKVELS")
+        local actr = actor[i]
+        if (actr:get_count() % 30 == 0) then
+            spr.cstatbits:flip(CS.YFLIP)
+        end
 
-                  if (dist < 1024) then
-                      con.killit()
-                  end
-              end
-          end
-         )
+        -- Test of bitint's ":test()" for actor[].flags.
+        actr.flagsbits:test(AF.NVG)
 
-gameevent("DISPLAYROOMS",
-          function()
-              local cam = gv.cam
-              cam.pos.z = cam.pos.z + 64*16*math.sin(gv.totalclock/30)
+        if (dist < 4096) then
+            -- Duke Vader / Anakin Nukewalker?
+            actor[i]:set_action("TROOPFLINTCH")
+            actor[i]:set_move("SHRUNKVELS")
 
-              local ps = player[0]
-              if (ps.cursectnum >= 0) then
-                  local hit = sector[ps.cursectnum]:zrangeat(cam.pos)
-                  if (gv.totalclock%200==0) then
-                      printf("hit %s %d at z=%d, %s %d at z=%d",
-                             hit.c.spritep and "sprite" or "sector", hit.c.num, hit.c.z,
-                             hit.f.spritep and "sprite" or "sector", hit.f.num, hit.f.z)
-                  end
-              end
-          end
-         )
-
-gameevent("DISPLAYREST", function()
-    for i=0,10 do
-        for j=1,100 do
-            -- XXX: This is slower in the Polymodes than with classic!
---            con._gametext(2822, j, i, 12, 0, 0, 16, 0,0,gv.xdim,gv.ydim,8192)
+            if (dist < 1024) then
+                con.killit()
+            end
         end
     end
+}
 
-    -- Clear showing every sector with the pavement floor tile. (Unless we're
-    -- in such a sector or an adjoining one.)
-    -- XXX: We need a better place to do this, maybe an event in
-    -- G_DisplayRest() where show2dsector[] is tweaked?
-    local show2dsector = sector.showbitmap
-    for i=0,gv.numsectors-1 do
-        if (sector[i].floorpicnum==815) then
-            show2dsector:set0(i)
+gameevent
+{
+    "DISPLAYROOMS",
+
+    function()
+        local cam = gv.cam
+        cam.pos.z = cam.pos.z + 64*16*math.sin(gv.totalclock/30)
+
+        local ps = player[0]
+        if (ps.cursectnum >= 0) then
+            local hit = sector[ps.cursectnum]:zrangeat(cam.pos)
+            if (gv.totalclock%200==0) then
+                printf("hit %s %d at z=%d, %s %d at z=%d",
+                       hit.c.spritep and "sprite" or "sector", hit.c.num, hit.c.z,
+                       hit.f.spritep and "sprite" or "sector", hit.f.num, hit.f.z)
+            end
         end
     end
-end)
+}
 
--- APLAYER
-gameactor(1405, actor.FLAGS.chain_beg, function(aci, pli)
-    if (con._squished(aci, pli)) then
-        printf("Squished LunaCON test")
-    end
-end)
+gameevent
+{
+    "DISPLAYREST",
 
+    function()
+        for i=0,10 do
+            for j=1,100 do
+                -- XXX: This is slower in the Polymodes than with classic!
+--                con._gametext(2822, j, i, 12, 0, 0, 16, 0,0,gv.xdim,gv.ydim,8192)
+            end
+        end
 
-gameevent("ANIMATESPRITES",
-function(aci)
-    local tspr = atsprite[aci]
-    if (tspr:getspr().picnum==1680) then
-        local tspr2 = tspr:dup()
-        if (tspr2) then
-            tspr2.x = tspr2.x + 512*math.cos(gv.totalclock/60)
-            tspr2.y = tspr2.y + 512*math.sin(gv.totalclock/60)
-            tspr2.cstatbits:set(CS.TRANS_BITMASK)
+        -- Clear showing every sector with the pavement floor tile. (Unless we're
+        -- in such a sector or an adjoining one.)
+        -- XXX: We need a better place to do this, maybe an event in
+        -- G_DisplayRest() where show2dsector[] is tweaked?
+        local show2dsector = sector.showbitmap
+        for i=0,gv.numsectors-1 do
+            if (sector[i].floorpicnum==815) then
+                show2dsector:set0(i)
+            end
         end
     end
-end)
+}
+
+gameactor
+{
+    D.APLAYER, actor.FLAGS.chain_beg,
+
+    function(aci, pli)
+        if (con._squished(aci, pli)) then
+            printf("Squished LunaCON test")
+        end
+    end
+}
+
+
+gameevent
+{
+    "ANIMATESPRITES",
+
+    function(aci)
+        local tspr = atsprite[aci]
+        if (tspr:getspr().picnum==1680) then
+            local tspr2 = tspr:dup()
+            if (tspr2) then
+                tspr2.x = tspr2.x + 512*math.cos(gv.totalclock/60)
+                tspr2.y = tspr2.y + 512*math.sin(gv.totalclock/60)
+                tspr2.cstatbits:set(CS.TRANS_BITMASK)
+            end
+        end
+    end
+}
 
 printf("EVENT_INIT = %d", gv.EVENT_INIT)  -- tests default defines
 

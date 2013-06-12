@@ -36,7 +36,7 @@ require "end_gamevars"
 local tag = tag
 
 
-gameevent("JUMP", actor.FLAGS.chain_beg,
+gameevent{"JUMP", actor.FLAGS.chain_beg,
 function(aci, pli)
     local ps = player[pli]
 
@@ -74,4 +74,4 @@ function(aci, pli)
     end
 
     insp = not insp
-end)
+end}

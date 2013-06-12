@@ -47,7 +47,7 @@ local function rotatesprite_test()
     rs(30,170, 32768, 2047*((gv.totalclock/240)%1), 142, 0,0,8+1024,0, 0,0,gv.xdim-1,gv.ydim-1)
 end
 
-gameevent(gv.EVENT_DISPLAYREST, rotatesprite_test)
+gameevent{gv.EVENT_DISPLAYREST, rotatesprite_test}
 
 
 module(...) --====================

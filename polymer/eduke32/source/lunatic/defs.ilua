@@ -795,9 +795,11 @@ do
     -- Callback function chaining control flags.
     our_SFLAG.replace_hard = 0x08000000  -- Replace actor code and flags
     our_SFLAG.replace_soft = 0x10000000  -- Replace actor code, bitwise OR flags
+    our_SFLAG.replace = 0x08000000  -- Should only be used for gameevent
     our_SFLAG.chain_beg = 0x20000000
     our_SFLAG.chain_end = 0x40000000
-    our_SFLAG._CHAIN_MASK = 0x78000000
+    our_SFLAG._CHAIN_MASK_ACTOR = 0x78000000
+    our_SFLAG._CHAIN_MASK_EVENT = 0x68000000
 
     -- XXX: CON doesn't export BADGUYSTAYPUT or ROTFIXED SFLAGs, but they are considered
     -- external for Lunatic.
@@ -853,7 +855,8 @@ actor = setmtonce({}, defs_c.GenStructMetatable("actor", "MAXSPRITES", actor_sta
 -- Some bitwise NOTs of various actor flag masks.
 local BNOT = {
     USER_MASK = bit.bnot(actor.FLAGS.USER_MASK),
-    CHAIN_MASK = bit.bnot(actor.FLAGS._CHAIN_MASK),
+    CHAIN_MASK_ACTOR = bit.bnot(actor.FLAGS._CHAIN_MASK_ACTOR),
+    CHAIN_MASK_EVENT = bit.bnot(actor.FLAGS._CHAIN_MASK_EVENT),
 }
 
 local projectile = defs_c.creategtab(ffiC.ProjectileData, ffiC.MAXTILES, "projectile[]")
@@ -1617,6 +1620,15 @@ local function chain_func3(func1, func2)
     end
 end
 
+-- Determines the last numeric index of a table using *ipairs*.
+local function ourmaxn(tab)
+    local maxi = 0
+    for i in ipairs(tab) do
+        maxi = math.max(i, maxi)
+    end
+    return maxi
+end
+
 -- Running for the very first time?
 local g_firstRun = (ffiC.g_elCONSize == 0)
 
@@ -1624,10 +1636,17 @@ local g_firstRun = (ffiC.g_elCONSize == 0)
 local actor_funcs = {}
 
 local gameactor_internal = gameactor_internal  -- included in lunatic.c
--- gameactor(tilenum [, flags [, strength [, act [, mov [, movflags]]]]], actor_func)
-local function our_gameactor(tilenum, ...)
+-- gameactor{tilenum [, flags [, strength [, action [, move [, movflags]]]]], func}
+-- Every arg may be positional OR key=val (with the name indicated above as key),
+-- but not both.
+local function our_gameactor(args)
     bcheck.top_level("gameactor")
 
+    if (type(args)~="table") then
+        error("invalid gameactor call: must be passed a table")
+    end
+
+    local tilenum = args[1]
     if (type(tilenum) ~= "number") then
         error("invalid argument #1 to gameactor: must be a number", 2)
     end
@@ -1635,28 +1654,24 @@ local function our_gameactor(tilenum, ...)
         error("invalid argument #1 to gameactor: must be a tile number [0..gv.MAXTILES-1]", 2)
     end
 
-    local args = {...}
-    -- Number of varargs; args may have nil's in the middle!
-    local numargs = select('#', ...)
-
-    if (numargs == 0) then
-        error("invalid call to gameactor: must have at least two arguments (tilenum, func)", 2)
+    local lastargi = ourmaxn(args)
+    local func = args[lastargi]
+    if (type(func) ~= "function") then
+        func = args.func
+        lastargi = 1/0
     end
-    if (numargs >= 7) then  -- sic, because tilenum isn't counted!
-        error("invalid call to gameactor: must have at most 7 arguments", 2)
-    end
-    if (type(args[numargs]) ~= "function") then
-        error("invalid last argument to gameactor: must be a function", 2)
+    if (type(func) ~= "function") then
+        error("invalid gameactor call: must provide a function with last numeric arg or .func", 2)
     end
 
-    local flags = (numargs > 1) and args[1] or 0
+    local flags = (lastargi > 2 and args[2]) or args.flags or 0
     if (type(flags) ~= "number") then
-        error("invalid 'flags' argument to gameactor: must be a number", 2)
+        error("invalid 'flags' argument (#2) to gameactor: must be a number", 2)
     end
 
     local AF = actor.FLAGS
-    local chainflags = bit.band(flags, AF._CHAIN_MASK)
-    flags = bit.band(flags, BNOT.CHAIN_MASK)
+    local chainflags = bit.band(flags, AF._CHAIN_MASK_ACTOR)
+    flags = bit.band(flags, BNOT.CHAIN_MASK_ACTOR)
 
     -- Default chaining behavior: don't, replace the old actor instead, but
     -- unlike CON, also replace its flags. (CON ORs them instead.)
@@ -1673,43 +1688,43 @@ local function our_gameactor(tilenum, ...)
 
     local flags_rbits = bit.band(flags, BNOT.USER_MASK)
     if (flags_rbits ~= 0) then
-        error("invalid 'flags' argument to gameactor: must not set reserved bits (0x"
+        error("invalid 'flags' argument (#2) to gameactor: must not set reserved bits (0x"
               ..(bit.tohex(flags_rbits))..")", 2)
     end
 
-    local strength = (numargs > 2) and args[2] or (replacep and 0 or nil)
+    local strength = ((lastargi > 3 and args[3]) or args.strength) or (replacep and 0 or nil)
     if (replacep or strength~=nil) then
         if (type(strength) ~= "number") then
-            error("invalid 'strength' argument to gameactor: must be a number", 2)
+            error("invalid 'strength' argument (#3) to gameactor: must be a number", 2)
         end
     end
 
     -- TODO: literal number action other than 0?
-    local act = (numargs > 3) and args[3] or (replacep and "NO" or nil)
+    local act = ((lastargi > 4 and args[4]) or args.action) or (replacep and "NO" or nil)
     if (replacep or act ~= nil) then
         if (type(act)=="string") then
             act = AC[act]
         end
         if (not ffi.istype(con_action_ct, act)) then
-            error("invalid 'act' argument to gameactor: must be a string or action", 2)
+            error("invalid 'action' argument (#4) to gameactor: must be a string or action", 2)
         end
     end
 
     -- TODO: literal number move other than 0?
-    local mov = (numargs > 4) and args[4] or (replacep and "NO" or nil)
+    local mov = ((lastargi > 5 and args[5]) or args.move) or (replacep and "NO" or nil)
     if (replacep or mov ~= nil) then
         if (type(mov)=="string") then
             mov = MV[mov]
         end
         if (not ffi.istype(con_move_ct, mov)) then
-            error("invalid 'mov' argument to gameactor: must be a string or move", 2)
+            error("invalid 'move' argument (#5) to gameactor: must be a string or move", 2)
         end
     end
 
-    local movflags = (numargs > 5) and args[5] or (replacep and 0 or nil)
+    local movflags = ((lastargi > 6 and args[6]) or args.movflags) or (replacep and 0 or nil)
     if (replacep or movflags ~= nil) then
         if (type(movflags) ~= "number") then
-            error("invalid 'movflags' argument to gameactor: must be a number", 2)
+            error("invalid 'movflags' argument (#6) to gameactor: must be a number", 2)
         end
     end
 
@@ -1726,7 +1741,6 @@ local function our_gameactor(tilenum, ...)
         tile.flags = (chainflags==AF.replace_hard) and flags or bit.bor(tile.flags, flags)
     end
 
-    local func = args[numargs]
     local newfunc = replacep and func
         or (chainflags==AF.chain_beg) and chain_func3(func, actor_funcs[tilenum])
         or (chainflags==AF.chain_end) and chain_func3(actor_funcs[tilenum], func)
@@ -1740,9 +1754,15 @@ end
 local event_funcs = {}
 
 local gameevent_internal = gameevent_internal  -- included in lunatic.c
--- gameevent(<event idx or string> [, flags], <event function>)
-local function our_gameevent(event, flags, func)
+-- gameevent{<event idx or string> [, flags], <event function>}
+local function our_gameevent(args)
     bcheck.top_level("gameevent")
+
+    if (type(args)~="table") then
+        error("invalid gameevent call: must be passed a table")
+    end
+
+    local event = args[1]
 
     if (type(event) == "string") then
         if (event:sub(1,6) ~= "EVENT_") then
@@ -1763,27 +1783,28 @@ local function our_gameevent(event, flags, func)
 
     local AF = actor.FLAGS
 
-    -- Event chaining: in Lunatic, chaining at the *end* is the default.
-    if (func==nil) then
-        func = flags
-        flags = AF.chain_end
-    else
-        if (type(flags) ~= "number") then
-            error("invalid 'flags' argument to gameevent: must be a number", 2)
-        end
-        if (bit.band(flags, BNOT.CHAIN_MASK) ~= 0) then
-            error("invalid 'flags' argument to gameevent: must not set reserved bits", 2)
-        end
-        if (flags == 0) then
-            flags = AF.chain_end
-        end
-    end
-
+    -- Kind of CODEDUP from our_gameactor.
+    local lastargi = ourmaxn(args)
+    local func = args[lastargi]
     if (type(func) ~= "function") then
-        error("invalid last argument to gameevent: must be a function", 2)
+        func = args.func
+        lastargi = 1/0
+    end
+    if (type(func) ~= "function") then
+        error("invalid gameevent call: must provide a function with last numeric arg or .func", 2)
     end
 
-    local newfunc = replacep and func
+    -- Event chaining: in Lunatic, chaining at the *end* is the default.
+    local flags = (lastargi > 2 and args[2]) or args.flags or AF.chain_end
+    if (type(flags) ~= "number") then
+        error("invalid 'flags' argument (#2) to gameevent: must be a number", 2)
+    end
+
+    if (bit.band(flags, BNOT.CHAIN_MASK_EVENT) ~= 0) then
+        error("invalid 'flags' argument to gameevent: must not set reserved bits", 2)
+    end
+
+    local newfunc = (flags==AF.replace) and func
         or (flags==AF.chain_beg) and chain_func3(func, event_funcs[event])
         or (flags==AF.chain_end) and chain_func3(event_funcs[event], func)
         or assert(false)

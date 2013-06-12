@@ -418,9 +418,9 @@ function on.actor_end(pos, usertype, tsamm, codetab)
         str = str .. movflags..","
     end
 
-    paddcodef(pos, "gameactor(%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
+    paddcodef(pos, "gameactor{%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
     addcode(get_cache_sap_code())
-    add_code_and_end(codetab, "end)")
+    add_code_and_end(codetab, "end}")
 
     if (g_code.actor[tilenum] ~= nil) then
         pwarnprintf(pos, "redefined actor %d", tilenum)
@@ -476,22 +476,22 @@ end
 function on.event_end(pos, eventidx, codetab)
     assert(type(codetab)=="table")
     -- 0x20000000: actor.FLAGS.chain_beg
-    paddcodef(pos, "gameevent(%d,0x20000000,function (_aci, _pli, _dist)", eventidx)
+    paddcodef(pos, "gameevent{%d,0x20000000,function (_aci, _pli, _dist)", eventidx)
     addcode(get_cache_sap_code())
     addcode(codetab)
-    addcode("end)")
+    addcode("end}")
 
     g_code.event[eventidx] = codetab
 end
 
 function on.eventloadactor_end(pos, tilenum, codetab)
     -- Translate eventloadactor into a chained EVENT_LOADACTOR block
-    paddcodef(pos, "gameevent('LOADACTOR', function (_aci, _pli, _dist)")
+    paddcodef(pos, "gameevent{'LOADACTOR', function (_aci, _pli, _dist)")
     addcode(get_cache_sap_code())
     addcodef("if (%s==%d) then", SPS".picnum", tilenum)
     addcode(codetab)
     addcode("end")
-    addcode("end)")
+    addcode("end}")
 
     if (g_code.loadactor[tilenum] ~= nil and g_warn["chained-loadactor"]) then
         -- NOTE: C-CON redefines loadactor code if encountered multiple times.
