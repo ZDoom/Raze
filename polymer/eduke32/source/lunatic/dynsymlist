@@ -108,6 +108,7 @@ g_elModules;
 g_modDir;
 
 MapInfo;
+EpisodeNames;
 
 kopen4loadfrommod;
 

@@ -570,6 +570,7 @@ int32_t g_RETURN;  // deprecated from Lua
 
 -- INTERNAL VARIABLES/FUNCTIONS
 decl("map_t MapInfo[$*$];", con_lang.MAXVOLUMES+1, con_lang.MAXLEVELS)
+decl("char EpisodeNames[$][33];", con_lang.MAXVOLUMES)
 
 decl[[
 int32_t g_elCONSize;
@@ -1741,9 +1742,8 @@ local event_funcs = {}
 local gameevent_internal = gameevent_internal  -- included in lunatic.c
 -- gameevent(<event idx or string> [, flags], <event function>)
 local function our_gameevent(event, flags, func)
-    if (ffiC.g_elCallDepth > 0) then
-        error("Invalid use of gameevent: must be called from top level", 2)
-    end
+    bcheck.top_level("gameevent")
+
     if (type(event) == "string") then
         if (event:sub(1,6) ~= "EVENT_") then
             event = "EVENT_"..event
