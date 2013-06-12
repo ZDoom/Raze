@@ -2043,6 +2043,9 @@ if (concode) then
     -- Set up CON.DEFS module, providing access to labels defined in CON from Lua.
     local mt = { __index = conlabels, __newindex = basemodule_newindex }
     allowed_modules["CON.DEFS"] = setmtonce({}, mt)
+
+    -- Propagate potentially remapped defines to the control module.
+    con._setuplabels(conlabels)
 end
 
 -- When starting a map, load Lua modules given on the command line.

@@ -853,43 +853,52 @@ function _showview(x, y, z, a, horiz, sect, x1, y1, x2, y2, unbiasedp)
     ffiC.G_ShowView(x, y, z, a, horiz, sect, x1, y1, x2, y2, unbiasedp);
 end
 
-local D = {
-    -- TODO: dynamic tile remapping
-    ACTIVATOR = 2,
-    MASTERSWITCH = 8,
-    RESPAWN = 9,
-    APLAYER = 1405,
 
-    FIRSTAID = 53,
-    STEROIDS = 55,
-    AIRTANK = 56,
-    JETPACK = 57,
-    HEATSENSOR = 59,
-    BOOTS = 61,
-    HOLODUKE = 1348,
+---=== DEFINED LABELS ===---
 
-    STATUE = 753,
-    NAKED1 = 603,
-    PODFEM1 = 1294,
-    FEM1 = 1312,
-    FEM2 = 1317,
-    FEM3 = 1321,
-    FEM5 = 1323,
-    FEM4 = 1325,
-    FEM6 = 1334,
-    FEM8 = 1336,
-    FEM7 = 1395,
-    FEM9 = 3450,
-    FEM10 = 4864,
+-- Will contain [<label>]=number mappings after CON translation.
+local D = { true }
 
-    ATOMICHEALTH = 100,
-    GLASSPIECES = 1031,
-    TRANSPORTERSTAR = 1630,
-    COMMANDER = 1920,
-    JIBS2 = 2250,
-    SCRAP1 = 2400,
-    BLIMP = 3400,
+-- Check if <picnum> equals to the number defined by <label> from CON.
+-- If there is no such label, return nil.
+local function ispic(picnum, label)
+    return D[label] and (picnum==D[label])
+end
+
+-- Which tiles should use .yvel instead of .hitag for the respawned tile?
+-- Will be [<number>] = true after CON translation.
+local RESPAWN_USE_YVEL = {
+    "STATUE", "NAKED1", "PODFEM1", "FEM1", "FEM2",
+    "FEM3", "FEM5", "FEM4", "FEM6", "FEM8",
+    "FEM7", "FEM9", "FEM10",
 }
+
+-- Is an inventory tile?
+-- Will be [<number>] = true after CON translation.
+local INVENTILE = {
+    "FIRSTAID", "STEROIDS", "AIRTANK", "JETPACK", "HEATSENSOR",
+    "BOOTS", "HOLODUKE",
+}
+
+local function totruetab(tab)
+    local numelts = #tab
+    for i=1,numelts do
+        local label = tab[i]
+        if (D[label]) then
+            tab[label] = true
+        end
+        tab[i] = nil
+    end
+end
+
+-- This will be run after CON has been translated.
+function _setuplabels(conlabels)
+    assert(D[1])  -- Allow running this function exactly once.
+    D = conlabels
+    totruetab(RESPAWN_USE_YVEL)
+    totruetab(INVENTILE)
+end
+
 
 function _A_DoGuts(i, gutstile, n)
     check_tile_idx(gutstile)
@@ -899,7 +908,7 @@ function _A_DoGuts(i, gutstile, n)
     local ysz = xsz
     local z = math.min(spr.z, sector[spr.sectnum]:floorzat(spr)) - 8*256
 
-    if (spr.picnum == D.COMMANDER) then
+    if (ispic(spr.picnum, "COMMANDER")) then
         z = z - (24*256)
     end
 
@@ -908,7 +917,7 @@ function _A_DoGuts(i, gutstile, n)
         local j = insertsprite{ gutstile, pos, spr.sectnum, i, 5, shade=-32, xrepeat=xsz, yrepeat=ysz,
                                 ang=krandand(2047), xvel=48+krandand(31), zvel=-512-krandand(2047) }
         local newspr = sprite[j]
-        if (newspr.picnum==D.JIBS2) then
+        if (ispic(newspr.picnum, "JIBS2")) then
             -- This looks silly, but EVENT_EGS code could have changed the size
             -- between the insertion and here.
             newspr.xrepeat = newspr.xrepeat/4
@@ -925,7 +934,7 @@ function _debris(i, dtile, n)
     end
 
     for j=n-1,0, -1 do
-        local isblimpscrap = (spr.picnum==D.BLIMP and dtile==D.SCRAP1)
+        local isblimpscrap = (ispic(spr.picnum, "BLIMP") and ispic(dtile, "SCRAP1"))
         local picofs = isblimpscrap and 0 or krandand(3)
         local pos = spr + geom.vec3(krandand(255)-128, krandand(255)-128, -(8*256)-krandand(8191))
         local jj = insertsprite{ dtile+picofs, pos, spr.sectnum, i, 5,
@@ -938,13 +947,15 @@ function _debris(i, dtile, n)
 end
 
 function _A_SpawnGlass(i, n)
-    local spr = sprite[i]
+    if (D.GLASSPIECES) then
+        local spr = sprite[i]
 
-    for j=n,1, -1 do
-        local k = insertsprite{ D.GLASSPIECES+n%3, spr^(256*krandand(16)), spr.sectnum, i, 5,
-                                shade=krandand(15), xrepeat=36, yrepeat=36, ang=krandand(2047),
-                                xvel=32+krandand(63), zvel=-512-krandand(2047) }
-        sprite[k].pal = spr.pal
+        for j=n,1, -1 do
+            local k = insertsprite{ D.GLASSPIECES+n%3, spr^(256*krandand(16)), spr.sectnum, i, 5,
+                                    shade=krandand(15), xrepeat=36, yrepeat=36, ang=krandand(2047),
+                                    xvel=32+krandand(63), zvel=-512-krandand(2047) }
+            sprite[k].pal = spr.pal
+        end
     end
 end
 
@@ -1002,7 +1013,7 @@ end
 
 function _pkick(ps, spr)
     -- TODO_MP
-    if (spr.picnum~=D.APLAYER and ps.quick_kick==0) then
+    if (not ispic(spr.picnum, "APLAYER") and ps.quick_kick==0) then
         ps.quick_kick = 14
     end
 end
@@ -1090,7 +1101,7 @@ function _addphealth(ps, aci, hlthadd)
         return
     end
 
-    local notatomic = (sprite[aci].picnum ~= D.ATOMICHEALTH)
+    local notatomic = not ispic(sprite[aci].picnum, "ATOMICHEALTH")
     local j = sprite[ps.i].extra
 
     if (notatomic and j > ps.max_player_health and hlthadd > 0) then
@@ -1187,7 +1198,7 @@ function _operate(spritenum)
                 if (lotag==23 or sect.floorz==sect.ceilingz) then
                     if (bit.band(lotag, 32768+16384) == 0) then
                         for j in spritesofsect(tag.sector) do
-                            if (sprite[j].picnum==D.ACTIVATOR) then
+                            if (ispic(sprite[j].picnum, "ACTIVATOR")) then
                                 return
                             end
                         end
@@ -1216,7 +1227,7 @@ end
 function _activatebysector(sectnum, spritenum)
     local didit = false
     for i in spriteofsect(sectnum) do
-        if (sprite[i].picnum==D.ACTIVATOR) then
+        if (ispic(sprite[i].picnum, "ACTIVATOR")) then
             CF.G_OperateActivators(sprite[i].lotag, -1)
         end
     end
@@ -1396,7 +1407,7 @@ end
 
 -- NOTE: returns two args (in C version, hit sprite is a pointer input arg)
 local function A_CheckHitSprite(spr, angadd)
-    local zoff = (spr:isenemy() and 42*256) or (spr.picnum==D.APLAYER and 39*256) or 0
+    local zoff = (spr:isenemy() and 42*256) or (ispic(spr.picnum, "APLAYER") and 39*256) or 0
 
     local c, s = cossinb(spr.ang+angadd)
     local hit = hitscan(spr^zoff, spr.sectnum, c, s, 0, ffiC.CLIPMASK1)
@@ -1444,7 +1455,7 @@ end
 
 function _getlastpal(spritenum)
     local spr = sprite[spritenum]
-    if (spr.picnum == D.APLAYER) then
+    if (ispic(spr.picnum, "APLAYER")) then
         spr.pal = player[spr.yvel].palookup
     else
         if (spr.pal == 1 and spr.extra == 0) then  -- hack for frozen
@@ -1556,7 +1567,7 @@ function _checkspace(sectnum, floorp)
     local picnum = floorp and sect.floorpicnum or sect.ceilingpicnum
     local stat = floorp and sect.floorstat or sect.ceilingstat
     return bit.band(stat,1)~=0 and sect.ceilingpal == 0 and
-        (picnum==D.MOONSKY1 or picnum==D.BIGORBIT1)
+        (ispic(picnum, "MOONSKY1") or ispic(picnum, "BIGORBIT1"))
 end
 
 function _flash(spr, ps)
@@ -1569,13 +1580,15 @@ function _G_OperateRespawns(tag)
     for i in spritesofstat(STAT.FX) do
         local spr = sprite[i]
 
-        if (spr.lotag==tag and spr.picnum==D.RESPAWN) then
+        if (spr.lotag==tag and ispic(spr.picnum, "RESPAWN")) then
             if (ffiC.ud.monsters_off~=0 and isenemytile(spr.hitag)) then
                 return
             end
 
-            local j = spawn(i, D.TRANSPORTERSTAR)
-            sprite[j].z = sprite[j].z - (32*256)
+            if (D.TRANSPORTERSTAR) then
+                local j = spawn(i, D.TRANSPORTERSTAR)
+                sprite[j].z = sprite[j].z - (32*256)
+            end
 
             -- Just a way to killit (see G_MoveFX(): RESPAWN__STATIC)
             spr.extra = 66-12
@@ -1586,28 +1599,11 @@ end
 function _G_OperateMasterSwitches(tag)
     for i in spritesofstat(STAT.STANDABLE) do
         local spr = sprite[i]
-        if (spr.picnum==D.MASTERSWITCH and spr.lotag==tag and spr.yvel==0) then
+        if (ispic(spr.picnum, "MASTERSWITCH") and spr.lotag==tag and spr.yvel==0) then
             spr:_set_yvel(1)
         end
     end
 end
-
-local RESPAWN_USE_YVEL =
-{
-    [D.STATUE] = true,
-    [D.NAKED1] = true,
-    [D.PODFEM1] = true,
-    [D.FEM1] = true,
-    [D.FEM2] = true,
-    [D.FEM3] = true,
-    [D.FEM5] = true,
-    [D.FEM4] = true,
-    [D.FEM6] = true,
-    [D.FEM8] = true,
-    [D.FEM7] = true,
-    [D.FEM9] = true,
-    [D.FEM10] = true,
-}
 
 function _respawnhitag(spr)
     if (RESPAWN_USE_YVEL[spr.picnum]) then
@@ -1618,16 +1614,6 @@ function _respawnhitag(spr)
         _G_OperateRespawns(spr.hitag)
     end
 end
-
-local INVENTILE = {
-    [D.FIRSTAID] = true,
-    [D.STEROIDS] = true,
-    [D.AIRTANK] = true,
-    [D.JETPACK] = true,
-    [D.HEATSENSOR] = true,
-    [D.BOOTS] = true,
-    [D.HOLODUKE] = true,
-}
 
 function _checkrespawn(spr)
     if (spr:isenemy()) then
