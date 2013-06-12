@@ -602,6 +602,7 @@ local LABEL_FUNCNAME = { [2]="move", [3]="ai", [5]="action" }
 
 local g_labeldef = {}  -- Lua numbers for numbers, strings for composites
 local g_labeltype = {}
+local g_labelspecial = {}  -- [<label>] = true
 
 local function reset_labels()
     g_badids = {}
@@ -622,6 +623,7 @@ local function reset_labels()
 
     for varname,_ in pairs(g_labeldef) do
         g_labeltype[varname] = LABEL.NUMBER
+        g_labelspecial[varname] = true
     end
 
     -- Initialize default defines.
@@ -3319,6 +3321,17 @@ local function get_code_string(codetab, lineinfop)
     -- Finalize translated code: return table containing gamevar and gamearray
     -- tables. CON_GAMEVARS.
     codetab[#codetab+1] = "return { V=_V, A=_A }"
+
+    -- Return defined labels in a table...
+    codetab[#codetab+1] = ",{"
+    for label, val in pairs(g_labeldef) do
+        -- ... skipping 'NO' and those that are gamevars in C-CON.
+        if (g_labeltype[label]==LABEL.NUMBER and not g_labelspecial[label]) then
+            codetab[#codetab+1] = format("[%q]=%d,", label, val)
+        end
+    end
+    codetab[#codetab+1] = "}"
+
     local flatcode = flatten_codetab(codetab)
     local lineinfo = lineinfop and get_lineinfo(flatcode)
     return table.concat(flatcode, "\n"), lineinfo

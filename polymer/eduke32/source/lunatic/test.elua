@@ -538,3 +538,8 @@ spritesofsect(0)
 -- This will complain about wrong usage of 'error'. In particular,
 -- the nil must not propagate to C!
 checkfail('error(nil)', "error using 'error': error message must be a string")
+
+local D = require("CON.DEFS")
+checkfail('require("CON.DEFS").APLAYER=123', "modifying base module table forbidden")
+-- Test with lunatic/test/rotfixed_actor.con.
+print("DUKECAR="..tostring(D.DUKECAR))

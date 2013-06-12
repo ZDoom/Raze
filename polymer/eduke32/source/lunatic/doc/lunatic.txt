@@ -120,9 +120,8 @@ time.
 
 ==== The function `require(modname, ...)`
 
-Attempts to find a Lua or Lunatic module named `modname`, which should not
-contain directory separators. The name can refer to a _built-in_ module, of
-which the following ones are allowed:
+Attempts to find a Lua or Lunatic module named `modname`. The name can refer to
+a _built-in_ module, of which the following ones are allowed:
 
 * The http://bitop.luajit.org/[`bit`] module for bitwise operations
 * `math`, `string` and `table`, base modules from Lua
@@ -621,7 +620,10 @@ If this sprite is _view-aligned_, controls the distance at which another moving
 object is considered to be in collision with this *stationary* sprite. (It does
 not control the inverse case.) More precisely, it designates half the
 side-length of the bounding square divided by 4. Thus, a value of `255` keeps
-moving objects away from this one at a Manhattan distance of at least 1020
+moving objects away from this one at a max-norm distance
+footnote:[The max-norm distance between points _p_~1~=(x~1~, y~1~) and
+_p_~2~=(x~2~, y~2~) is defined as max(abs(x~2~ -- x~1~), abs(y~2~ -- y~1~)).]
+of at least 1020
 BUILD x/y units.
 
 _`u8`_ `xrepeat`, `yrepeat`::

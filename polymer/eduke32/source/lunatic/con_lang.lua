@@ -71,41 +71,6 @@ PROJ = {
     PROJ_USERDATA = 29,
 }
 
--- PROJ_* define -> projectile_t member name
---[[
-PROJ_MEMBNAME = {
-    [PROJ.PROJ_WORKSLIKE] = "workslike",
-    [PROJ.PROJ_SPAWNS] = "spawns",
-    [PROJ.PROJ_SXREPEAT] = "sxrepeat",
-    [PROJ.PROJ_SYREPEAT] = "syrepeat",
-    [PROJ.PROJ_SOUND] = "sound",
-    [PROJ.PROJ_ISOUND] = "isound",
-    [PROJ.PROJ_VEL] = "vel",
-    [PROJ.PROJ_EXTRA] = "extra",
-    [PROJ.PROJ_DECAL] = "decal",
-    [PROJ.PROJ_TRAIL] = "trail",
-    [PROJ.PROJ_TXREPEAT] = "txrepeat",
-    [PROJ.PROJ_TYREPEAT] = "tyrepeat",
-    [PROJ.PROJ_TOFFSET] = "toffset",
-    [PROJ.PROJ_TNUM] = "tnum",
-    [PROJ.PROJ_DROP] = "drop",
-    [PROJ.PROJ_CSTAT] = "cstat",
-    [PROJ.PROJ_CLIPDIST] = "clipdist",
-    [PROJ.PROJ_SHADE] = "shade",
-    [PROJ.PROJ_XREPEAT] = "xrepeat",
-    [PROJ.PROJ_YREPEAT] = "yrepeat",
-    [PROJ.PROJ_PAL] = "pal",
-    [PROJ.PROJ_EXTRA_RAND] = "extra_rand",
-    [PROJ.PROJ_HITRADIUS] = "hitradius",
-    [PROJ.PROJ_VEL_MULT] = "movecnt",  -- NAME
-    [PROJ.PROJ_OFFSET] = "offset",
-    [PROJ.PROJ_BOUNCES] = "bounces",
-    [PROJ.PROJ_BSOUND] = "bsound",
-    [PROJ.PROJ_RANGE] = "range",
-    [PROJ.PROJ_FLASH_COLOR] = "flashcolor",  -- NAME
-}
---]]
-
 -- TODO: EVENT_INIT currently can't run since we init Lunatic state only afterwards
 EVENT = {
     EVENT_INIT = 0,
@@ -802,7 +767,7 @@ local ProjectileLabels = {
     userdata = PROJ".userdata",
 }
 
--- XXX: kind of CODEDUP form above
+-- XXX: kind of CODEDUP form spr2tspr
 local function proj2thisproj(code)
     if (code and code:find(PROJ"", 1, true)==1) then
         return THISPROJ(code:sub(#PROJ"" + 1))
