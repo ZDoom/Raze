@@ -1386,8 +1386,9 @@ failure:
 #define LZWSIZE 16384           //Watch out for shorts!
 #define LZWSIZEPAD (LZWSIZE+(LZWSIZE>>4))
 
-// lzwrawbuf LZWSIZE+1: see (*) below
-static char lzwtmpbuf[LZWSIZEPAD], lzwrawbuf[LZWSIZE+1], lzwcompbuf[LZWSIZEPAD];
+// lzwrawbuf LZWSIZE+1 (formerly): see (*) below
+// XXX: lzwrawbuf size increased again :-/
+static char lzwtmpbuf[LZWSIZEPAD], lzwrawbuf[LZWSIZEPAD], lzwcompbuf[LZWSIZEPAD];
 static int16_t lzwbuf2[LZWSIZEPAD], lzwbuf3[LZWSIZEPAD];
 
 static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwoutbuf);
