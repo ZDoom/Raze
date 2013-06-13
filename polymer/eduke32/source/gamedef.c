@@ -6039,6 +6039,8 @@ repeatcase:
                             g_scriptVersion = 10;
                         else if (j == 21)
                             g_scriptVersion = 11;
+                        else if (j == 25)
+                            g_scriptVersion = 13;
                         break;
                     }
                     else
