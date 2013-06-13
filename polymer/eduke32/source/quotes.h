@@ -28,7 +28,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define OBITQUOTEINDEX              (MAXQUOTES-128)
 #define SUICIDEQUOTEINDEX           (MAXQUOTES-32)
 
-#define QUOTE_SHOW_MAP_OFF          1
+#define NOBETAQUOTE(x)              (DUKEBETA ? -1 : x)
+
+#define QUOTE_SHOW_MAP_OFF          NOBETAQUOTE(1)
 #define QUOTE_ACTIVATED             2
 #define QUOTE_MEDKIT                3
 #define QUOTE_LOCKED                4
@@ -38,11 +40,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define QUOTE_UNLOCKED              8
 #define QUOTE_FOUND_SECRET          9
 #define QUOTE_SQUISHED              10
-#define QUOTE_USED_STEROIDS         12
+#define QUOTE_USED_STEROIDS         NOBETAQUOTE(12)
 #define QUOTE_DEACTIVATED           15
 #define QUOTE_CHEAT_GODMODE_ON      17
 #define QUOTE_CHEAT_GODMODE_OFF     18
-#define QUOTE_CROSSHAIR_OFF         21
+#define QUOTE_CROSSHAIR_OFF         NOBETAQUOTE(21)
 #define QUOTE_CHEATS_DISABLED       22
 #define QUOTE_MESSAGES_ON           23
 #define QUOTE_MESSAGES_OFF          24
@@ -63,33 +65,33 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define QUOTE_WEAPON_RAISED         74
 #define QUOTE_BOOTS_ON              75
 #define QUOTE_SCUBA_ON              76
-#define QUOTE_CHEAT_ALLEN           79
+#define QUOTE_CHEAT_ALLEN           NOBETAQUOTE(79)
 #define QUOTE_MIGHTY_FOOT           80
-#define QUOTE_WEAPON_MODE_OFF       82
+#define QUOTE_WEAPON_MODE_OFF       NOBETAQUOTE(82)
 #define QUOTE_MAP_FOLLOW_OFF        83
 #define QUOTE_RUN_MODE_OFF          85
 #define QUOTE_JETPACK               88
 #define QUOTE_SCUBA                 89
 #define QUOTE_STEROIDS              90
 #define QUOTE_HOLODUKE              91
-#define QUOTE_CHEAT_TODD            99
-#define QUOTE_CHEAT_UNLOCK          100
+#define QUOTE_CHEAT_TODD            NOBETAQUOTE(99)
+#define QUOTE_CHEAT_UNLOCK          NOBETAQUOTE(100)
 #define QUOTE_NVG                   101
 #define QUOTE_WEREGONNAFRYYOURASS   102
 #define QUOTE_SCREEN_SAVED          103
-#define QUOTE_CHEAT_BETA            105
+#define QUOTE_CHEAT_BETA            NOBETAQUOTE(105)
 #define QUOTE_NVG_OFF               107
-#define QUOTE_VIEW_MODE_OFF         109
-#define QUOTE_SHOW_MAP_ON           111
-#define QUOTE_CHEAT_NOCLIP          113
+#define QUOTE_VIEW_MODE_OFF         NOBETAQUOTE(109)
+#define QUOTE_SHOW_MAP_ON           NOBETAQUOTE(111)
+#define QUOTE_CHEAT_NOCLIP          NOBETAQUOTE(113)
 #define QUOTE_SAVE_BAD_VERSION      114
 #define QUOTE_RESERVED              115
 #define QUOTE_RESERVED2             116
 #define QUOTE_RESERVED3             117
-#define QUOTE_SAVE_DEAD             118
-#define QUOTE_CHEAT_ALL_WEAPONS     119
-#define QUOTE_CHEAT_ALL_INV         120
-#define QUOTE_CHEAT_ALL_KEYS        121
+#define QUOTE_SAVE_DEAD             NOBETAQUOTE(118)
+#define QUOTE_CHEAT_ALL_WEAPONS     NOBETAQUOTE(119)
+#define QUOTE_CHEAT_ALL_INV         NOBETAQUOTE(120)
+#define QUOTE_CHEAT_ALL_KEYS        NOBETAQUOTE(121)
 #define QUOTE_RESERVED4             122
 #define QUOTE_SAVE_BAD_PLAYERS      124
 

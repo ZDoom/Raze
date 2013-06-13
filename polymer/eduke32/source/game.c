@@ -2681,6 +2681,9 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
 {
     int32_t cq = 0;
 
+    if (ud.fta_on == 0 || q < 0)
+        return;
+
     if (q & MAXQUOTES)
     {
         cq = 1;
@@ -2692,9 +2695,6 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
         OSD_Printf(OSD_ERROR "%s %d null quote %d\n",__FILE__,__LINE__,q);
         return;
     }
-
-    if (ud.fta_on == 0)
-        return;
 
     if (p->fta > 0 && q != QUOTE_RESERVED && q != QUOTE_RESERVED2)
         if (p->ftq == QUOTE_RESERVED || p->ftq == QUOTE_RESERVED2) return;
@@ -10744,18 +10744,18 @@ static void G_Startup(void)
     {
         initprintf("*** You have run Duke Nukem 3D %d times. ***\n\n",ud.executions);
 
-        if (ud.executions >= 50)
+        if (ud.executions >= 50 && !DUKEBETA)
         {
-            initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!!!\n");
+            initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!\n");
 
 #ifdef _WIN32
             Bsprintf(tempbuf, "You have run Duke Nukem 3D shareware %d times.  It is now time to upgrade to the complete version!\n\n"
-                     "Purchase Duke Nukem 3D for $5.99 now?\n", ud.executions);
+                     "Upgrade Duke Nukem 3D now?\n", ud.executions);
 
             if (wm_ynbox("Upgrade to the full version of Duke Nukem 3D","%s",tempbuf))
             {
                 SHELLEXECUTEINFOA sinfo;
-                char *p = "http://www.gog.com/en/gamecard/duke_nukem_3d_atomic_edition/?pp=6c1e671f9af5b46d9c1a52067bdf0e53685674f7";
+                char *p = "http://store.steampowered.com/app/225140";
 
                 Bmemset(&sinfo, 0, sizeof(sinfo));
                 sinfo.cbSize = sizeof(sinfo);
@@ -10767,6 +10767,8 @@ static void G_Startup(void)
 
                 if (!ShellExecuteExA(&sinfo))
                     G_GameExit("Error launching default system browser!");
+
+                quitevent = 1;
             }
 #endif
         }
@@ -12629,7 +12631,7 @@ FRAGBONUS:
                 {
                     gametext(10,yy+9,"Par Time:",0,2+8+16);
                     yy+=10;
-                    if (!NAM)
+                    if (!NAM && !DUKEBETA)
                     {
                         gametext(10,yy+9,"3D Realms' Time:",0,2+8+16);
                         yy+=10;
