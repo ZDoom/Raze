@@ -28,3 +28,9 @@ useractor 1 CYCLOIDHEAD 10
     ifpdistl 1024 tip
     state killme
 enda
+
+onevent EVENT_JUMP
+    mail 2
+    money 5
+    paper 3
+endevent

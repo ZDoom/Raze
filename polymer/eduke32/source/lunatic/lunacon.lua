@@ -68,8 +68,9 @@ local function match_until(matchsp, untilsp)  -- (!untilsp matchsp)* in PEG
     return (matchsp - Pat(untilsp))^0
 end
 
+local format = string.format
 --[[
-local function format(fmt, ...)
+format = function(fmt, ...)
     local ok, res = pcall(string.format, fmt, ...)
     if (not ok) then
         error(string.format("FAILED format(%q, ...) | message: %s", fmt, res))
@@ -77,7 +78,6 @@ local function format(fmt, ...)
     return res
 end
 --]]
-local format = string.format
 
 local function printf(fmt, ...)
     print(format(fmt, ...))
@@ -826,7 +826,7 @@ local function do_include_file(dirname, filename, isroot)
     assert(type(filename)=="string")
 
     if (g_have_file[filename] ~= nil) then
-        printf("[%d] Fatal error: infinite loop including \"%s\"", filename)
+        printf("[%d] Fatal error: infinite loop including \"%s\"", g_recurslevel, filename)
         g_numerrors = inf
         return
     end
@@ -2200,11 +2200,11 @@ local Cinner = {
     lotsofglass = cmd(D)
         / "_con._A_SpawnGlass(_aci,%1)",
     mail = cmd(D)
-        / "_con._spawnmany(_aci,4410,%1)",  -- TODO: dyntile
+        / "_con._spawnmany(_aci,'MAIL',%1)",
     money = cmd(D)
-        / "_con._spawnmany(_aci,1233,%1)",  -- TODO: dyntile
+        / "_con._spawnmany(_aci,'MONEY',%1)",
     paper = cmd(D)
-        / "_con._spawnmany(_aci,4460,%1)",  -- TODO: dyntile
+        / "_con._spawnmany(_aci,'PAPER',%1)",
     sleeptime = cmd(D)
         / ACS".timetosleep=%1",
 

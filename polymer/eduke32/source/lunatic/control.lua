@@ -166,6 +166,9 @@ local check_sprite_idx = bcheck.sprite_idx
 local check_player_idx = bcheck.player_idx
 local check_sound_idx = bcheck.sound_idx
 
+-- Will contain [<label>]=number mappings after CON translation.
+local D = { true }
+
 
 local function krandand(mask)
     return bit.band(ffiC.krand(), mask)
@@ -293,14 +296,17 @@ end
 
 -- A_SpawnMultiple clone
 -- ow: parent sprite number
-function _spawnmany(ow, tilenum, n)
-    local spr = sprite[ow]
+function _spawnmany(ow, label, n)
+    local tilenum = D[label]
+    if (tilenum ~= nil) then
+        local spr = sprite[ow]
 
-    for i=n,1, -1 do
-        local j = insertsprite{ tilenum, spr^(ffiC.krand()%(47*256)), spr.sectnum, ow, 5,
-                                shade=-32, xrepeat=8, yrepeat=8, ang=krandand(2047) }
-        _spawnexisting(j)
-        sprite[j].cstat = krandand(8+4)
+        for i=n,1, -1 do
+            local j = insertsprite{ tilenum, spr^(ffiC.krand()%(47*256)), spr.sectnum, ow, 5,
+                                    shade=-32, xrepeat=8, yrepeat=8, ang=krandand(2047) }
+            _spawnexisting(j)
+            sprite[j].cstat = krandand(8+4)
+        end
     end
 end
 
@@ -857,9 +863,6 @@ end
 
 
 ---=== DEFINED LABELS ===---
-
--- Will contain [<label>]=number mappings after CON translation.
-local D = { true }
 
 -- Check if <picnum> equals to the number defined by <label> from CON.
 -- If there is no such label, return nil.
