@@ -221,6 +221,8 @@ gameevent
     end
 }
 
+local D = require("CON.DEFS")
+
 -- test event chaining
 gameevent
 {
@@ -232,8 +234,13 @@ gameevent
         local ps = player[playeri]
         print("\n--- I'm first!")
 --        DBG_.oom()
-        ps.weapon.PISTOL.shoots = 2605 -- RPG
-        ps.weapon[gv.PISTOL_WEAPON].firesound = 351 -- thunder
+        local pistol = ps.weapon.PISTOL
+        if (pistol.shoots ~= D.RPG) then
+            pistol.shoots = D.RPG
+        else
+            pistol.shoots = D.SHOTSPARK1
+        end
+        ps.weapon[gv.PISTOL_WEAPON].firesound = D.LIGHTNING_SLAP
 
         -- XXX: provide either named constants or methods?
         ps.pipebombControl = 2
@@ -307,7 +314,7 @@ gameevent
         player[0].weapon.SHOTGUN.shoots = 1653
         local proj = projectile[1653]
         proj.drop = 0
-        proj:set_trail(2329)  -- SMALLSMOKE
+        proj:set_trail(D.SMALLSMOKE)
 
         t = gv.gethitickms()
         local N=1
@@ -333,6 +340,7 @@ gameevent
         -- N=100: about 160 us * 100 = about 16 ms
 
         -- Make the DUKECAR in E1L1 into a zombie actor (temporarily)
+        -- NOTE: Use static value (not the one from 'D').
         if (sprite[24].picnum==2491) then
             sprite.changestat(24, actor.STAT.ZOMBIEACTOR)
         end
@@ -392,7 +400,6 @@ con.ai("AITEMP", "TROOPFLINTCH", "SHRUNKVELS", 0)
 
 local TROOPSTRENGTH = 30
 
-local D = require("CON.DEFS")
 local AF = actor.FLAGS
 local CS = sprite.CSTAT
 
@@ -505,7 +512,7 @@ gameevent
 
     function(aci)
         local tspr = atsprite[aci]
-        if (tspr:getspr().picnum==1680) then
+        if (tspr:getspr().picnum==D.LIZTROOP) then
             local tspr2 = tspr:dup()
             if (tspr2) then
                 tspr2.x = tspr2.x + 512*math.cos(gv.totalclock/60)

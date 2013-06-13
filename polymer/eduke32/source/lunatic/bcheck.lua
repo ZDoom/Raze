@@ -1,6 +1,7 @@
 -- Bound-checking functions for engine and game "things".
 
 local ffiC = require("ffi").C
+local type = type
 local error = error
 
 local con_lang = require("con_lang")
@@ -97,5 +98,10 @@ function bcheck.top_level(funcname)
     end
 end
 
+function bcheck.number(val)
+    if (type(val)~="number") then
+        error("invalid argument: must be a number", 3)
+    end
+end
 
 return bcheck

@@ -178,6 +178,7 @@ local check_sector_idx, check_tile_idx = bcheck.sector_idx, bcheck.tile_idx
 local check_sprite_idx = bcheck.sprite_idx
 local check_weapon_idx, check_inventory_idx = bcheck.weapon_idx, bcheck.inventory_idx
 local check_sound_idx = bcheck.sound_idx
+local check_number = bcheck.number
 
 bcarray.new("int16_t", 64, "loogie", "int16_x_64")  -- TODO: randomize member names
 bcarray.new("int16_t", ffiC.MAX_WEAPONS, "weapon", "int16_x_MAX_WEAPONS", WEAPON_NAMES)
@@ -1082,6 +1083,8 @@ local weapondata_mt = {
         -- Set to 'true' if we set a tile or sound member.
         local didit = false
 
+        check_number(val)
+
         if (string.match(member, "sound")) then
             if (val < 0) then
                 val = 0  -- Set to 0 if oob (e.g. CrackDown).
@@ -1896,7 +1899,8 @@ do
 
         -- XXX: System gamevars?
         for modname, modvars in pairs(module_gamevars) do
-            sb:addrawf("M=require%q", modname)
+            -- NOTE: when emitting 'require' code, reverse '.' -> '/' substitution.
+            sb:addrawf("M=require%q", modname:gsub("/","."))
             for i=1,#modvars do
                 local varname = modvars[i]
                 -- Serialize gamevar named 'varname' from module named 'modname'.
