@@ -1416,15 +1416,19 @@ C1D_STATIC void (*c1d_writefunc)(intptr_t, const void *, int32_t) = dfwrite_func
 
 ////////// COMPRESSED READ //////////
 
-static uint32_t decompress_part(int16_t *lengptr, intptr_t f, uint32_t *kgoalptr)
+static uint32_t decompress_part(intptr_t f, uint32_t *kgoalptr)
 {
-    int32_t leng;
-    if (c1d_readfunc(f, lengptr, 2) != 2)
+    int16_t leng;
+
+    // Read compressed length first.
+    if (c1d_readfunc(f, &leng, 2) != 2)
         return 1;
-    leng = B_LITTLE16(*lengptr);
+    leng = B_LITTLE16(leng);
+
     if (c1d_readfunc(f,lzwcompbuf, leng) != leng)
         return 1;
-    *kgoalptr = lzwuncompress(lzwcompbuf, *lengptr, lzwrawbuf);
+
+    *kgoalptr = lzwuncompress(lzwcompbuf, leng, lzwrawbuf);
     return 0;
 }
 
@@ -1432,7 +1436,6 @@ static uint32_t decompress_part(int16_t *lengptr, intptr_t f, uint32_t *kgoalptr
 C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f)
 {
     uint32_t i, j, k, kgoal;
-    int16_t leng;
     char *ptr;
 
     if (dasizeof > LZWSIZE)
@@ -1443,7 +1446,7 @@ C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t c
 
     ptr = (char *)buffer;
 
-    k = decompress_part(&leng, f, &kgoal);
+    k = decompress_part(f, &kgoal);
     if (k) return -1;
 
     Bmemcpy(ptr, lzwrawbuf, (int32_t)dasizeof);
@@ -1453,7 +1456,7 @@ C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t c
     {
         if (k >= kgoal)
         {
-            k = decompress_part(&leng, f, &kgoal);
+            k = decompress_part(f, &kgoal);
             if (k) return -1;
         }
 
@@ -1477,11 +1480,12 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
 
 static uint32_t compress_part(uint32_t k, intptr_t f)
 {
-    int16_t leng, swleng;
-    leng = (int16_t)lzwcompress(lzwrawbuf,k,lzwcompbuf);
-    swleng = B_LITTLE16(leng);
+    const int16_t leng = (int16_t)lzwcompress(lzwrawbuf, k, lzwcompbuf);
+    const int16_t swleng = B_LITTLE16(leng);
+
     c1d_writefunc(f, &swleng, 2);
     c1d_writefunc(f, lzwcompbuf, leng);
+
     return 0;
 }
 
@@ -1607,23 +1611,25 @@ static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwou
 
     shortptr = (int16_t *)lzwoutbuf;
     shortptr[0] = B_LITTLE16((int16_t)uncompleng);
+
     if (((bitcnt+7)>>3) < uncompleng)
     {
         shortptr[1] = B_LITTLE16((int16_t)addrcnt);
-        return((bitcnt+7)>>3);
+        return (bitcnt+7)>>3;
     }
 
+    // Failed compressing, mark this in the stream.
     shortptr[1] = 0;
     for (i=0; i<uncompleng; i++)
         lzwoutbuf[i+4] = lzwinbuf[i];
 
-    return(uncompleng+4);
+    return uncompleng+4;
 }
 
 static int32_t lzwuncompress(const char *lzwinbuf, int32_t compleng, char *lzwoutbuf)
 {
     int32_t currstr, numbits, oneupnumbits;
-    int32_t i, dat, leng, bitcnt, outbytecnt;
+    int32_t i, bitcnt, outbytecnt;
 
     const int16_t *const shortptr = (const int16_t *)lzwinbuf;
     const int32_t strtot = B_LITTLE16(shortptr[1]);
@@ -1631,6 +1637,12 @@ static int32_t lzwuncompress(const char *lzwinbuf, int32_t compleng, char *lzwou
 
     if (strtot == 0)
     {
+        if (lzwoutbuf==lzwrawbuf && lzwinbuf==lzwcompbuf)
+        {
+            Bassert((compleng-4)+3+0u < sizeof(lzwrawbuf));
+            Bassert((compleng-4)+3+0u < sizeof(lzwcompbuf)-4);
+        }
+
         Bmemcpy(lzwoutbuf, lzwinbuf+4, (compleng-4)+3);
         return uncompleng;
     }
@@ -1647,7 +1659,9 @@ static int32_t lzwuncompress(const char *lzwinbuf, int32_t compleng, char *lzwou
     {
         const int32_t *const intptr = (const int32_t *)&lzwinbuf[bitcnt>>3];
 
-        dat = ((B_LITTLE32(intptr[0])>>(bitcnt&7)) & (oneupnumbits-1));
+        int32_t dat = ((B_LITTLE32(intptr[0])>>(bitcnt&7)) & (oneupnumbits-1));
+        int32_t leng;
+
         bitcnt += numbits;
         if ((dat&((oneupnumbits>>1)-1)) > ((currstr-1)&((oneupnumbits>>1)-1)))
             { dat &= ((oneupnumbits>>1)-1); bitcnt--; }
