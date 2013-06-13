@@ -6721,13 +6721,15 @@ static void fillpolygon(int32_t npoints)
     for (z=npoints-1; z>=0; z--)
     {
         const int32_t zz=xb1[z];
-        const int32_t y1=ry1[z], y2=ry1[zz];
 
         // NOTE: clamp for crash prevention... :-/
         // r1874 says: "Fix more overheadmap crashes, this time with 'Last
         // Pissed Time'"
-        const int32_t day1 = clamp(y1>>12, 0, ydim-1);
-        const int32_t day2 = clamp(y2>>12, 0, ydim-1);
+        const int32_t y1 = clamp(ry1[z], 0, (ydim<<12)-1);
+        const int32_t y2 = clamp(ry1[zz], 0, (ydim<<12)-1);
+
+        const int32_t day1 = y1>>12;
+        const int32_t day2 = y2>>12;
 
         if (day1 != day2)
         {
@@ -6797,7 +6799,8 @@ static void fillpolygon(int32_t npoints)
             if (x1 > x2)
                 continue;
 
-            Bassert((unsigned)x1 < xdim+0u || (unsigned)x2 < xdim+0u);
+            if ((unsigned)x1 >= xdim+0u || (unsigned)x2 >= xdim+0u)
+                continue;
 
             if (globalpolytype < 1)
             {
