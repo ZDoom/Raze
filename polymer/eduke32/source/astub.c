@@ -10512,13 +10512,8 @@ void app_crashhandler(void)
 {
     if (levelname[0])
     {
-        char *f = Bstrstr(levelname,".map");
-
-        if (f)
-            Bstrcpy(f,"_crash.map");
-        else Bstrcat(f,"_crash.map");
-
-        SaveBoard(f, 1);
+        append_ext_UNSAFE(levelname, "_crash.map");
+        SaveBoard(levelname, 1);
     }
 }
 

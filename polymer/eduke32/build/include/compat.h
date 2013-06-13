@@ -696,7 +696,7 @@ static inline char *Bstrncpyz(char *dst, const char *src, bsize_t n)
 }
 
 // Append extension when <outbuf> contains no dot.
-// <ext> should be like ".mhk", i.e. it MUST start with a dot.
+// <ext> can be like ".mhk" or like "_crash.map", no need to start with a dot.
 // The ugly name is deliberate: we should be checking the sizes of all buffers!
 static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
 {
@@ -705,7 +705,7 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
     if (!p)
         Bstrcat(outbuf, ext);
     else
-        Bstrcpy(p+1, ext+1);
+        Bstrcpy(p, ext);
 }
 
 #ifdef EXTERNC
