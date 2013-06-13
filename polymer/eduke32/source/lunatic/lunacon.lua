@@ -772,6 +772,14 @@ function lookup.composite(labeltype, pos, identifier)
     return val
 end
 
+local function check_reserved_bits(flags, allowedbits, suffix)
+    local rbits = bit.bnot(allowedbits)
+    if (bit.band(flags, rbits) ~= 0) then
+        warnprintf("set one or more reserved bits (0x%s) "..suffix,
+                   bit.tohex(bit.band(flags, rbits)))
+    end
+end
+
 local function do_define_composite(labeltype, identifier, ...)
     local oldtype = g_labeltype[identifier]
     local oldval = g_labeldef[identifier]
@@ -802,10 +810,12 @@ local function do_define_composite(labeltype, identifier, ...)
 
         -- OR together the flags
         for i=#args,LABEL.AI+1, -1 do
-            -- TODO: check?
             args[LABEL.AI] = bit.bor(args[LABEL.AI], args[i])
             args[i] = nil
         end
+
+        -- Check whether movflags use reserved bits.
+        check_reserved_bits(args[LABEL.AI], 4096+2047, "for ai's movflags")
     end
 
     -- Make a string out of that.
@@ -1051,11 +1061,7 @@ function Cmd.defineprojectile(tilenum, what, val)
     local ok = check.tile_idx(tilenum)
 
     if (what==PROJ.WORKSLIKE) then
-        local rbits = bit.bnot(2^21-1)
-        if (bit.band(val, rbits) ~= 0) then
-            warnprintf("set one or more reserved bits (0x%s) for PROJ_WORKSLIKE",
-                       bit.tohex(bit.band(rbits, val)))
-        end
+        check_reserved_bits(val, 2^21-1, "for PROJ_WORKSLIKE")
     elseif (what==PROJ.SOUND or what==PROJ.ISOUND or what==PROJ.BSOUND) then
         ok = ok and (val==-1 or check.sound_idx(val))
     elseif (what==PROJ.SPAWNS or what==PROJ.DECAL or what==PROJ.TRAIL) then
@@ -1139,7 +1145,9 @@ function Cmd.definesound(sndlabel, fn, ...)
         return
     end
 
-    local params = {...}  -- TODO: sanity-check them
+    local params = {...}  -- TODO: sanity-check them some more
+    check_reserved_bits(params[4], 31+128, "for sound flags")
+
     if (ffi) then
         local cparams = ffi.new("int32_t [5]", params)
         assert(type(fn)=="string")
@@ -1822,21 +1830,20 @@ local handle =
     end,
 
     dynNYI = function()
-        -- XXX: what if file name contains a double quote? (Similarly commands below.)
-        return format([[print("%s:%d: `%s' not yet implemented")]],
+        return format([[print(%q..":%d: `%s' not yet implemented")]],
                       g_filename, getlinecol(g_lastkwpos), g_lastkw)
     end,
 
     addlog = function()
-        return format("print('%s:%d: addlog')", g_filename, getlinecol(g_lastkwpos))
+        return format("print(%q..':%d: addlog')", g_filename, getlinecol(g_lastkwpos))
     end,
 
     addlogvar = function(val)
-        return format("printf('%s:%d: addlogvar %%s', %s)", g_filename, getlinecol(g_lastkwpos), val)
+        return format("printf(%q..':%d: addlogvar %%s', %s)", g_filename, getlinecol(g_lastkwpos), val)
     end,
 
     debug = function(val)
-        return format("print('%s:%d: debug %d')", g_filename, getlinecol(g_lastkwpos), val)
+        return format("print(%q..':%d: debug %d')", g_filename, getlinecol(g_lastkwpos), val)
     end,
 
     getzrange = function(...)
@@ -2299,7 +2306,7 @@ local Cinner = {
         / "%1=_con._qstrlen(%2)",
     qstrncat = cmd(R,R)
         / handle.NYI,
-    qsubstr = cmd(R,R)
+    qsubstr = cmd(R,R,R,R)
         / handle.NYI,
     quote = cmd(D)
         / "_con._quote(_pli,%1)",
