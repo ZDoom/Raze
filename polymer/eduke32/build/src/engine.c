@@ -6679,10 +6679,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
 //
 static void fillpolygon(int32_t npoints)
 {
-    int32_t z, zz, x1, y1, x2, y2, miny, maxy, y, xinc, cnt;
-    int32_t ox, oy, bx, by, day1, day2;
-    int16_t *ptr, *ptr2;
-    intptr_t p;
+    int32_t i, z, y, miny, maxy;
 
     // fix for bad next-point (xb1) values...
     for (z=0; z<npoints; z++)
@@ -6690,47 +6687,71 @@ static void fillpolygon(int32_t npoints)
             xb1[z] = 0;
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && in3dmode()) { polymost_fillpolygon(npoints); return; }
+    if (getrendermode() >= REND_POLYMOST && in3dmode())
+    {
+        polymost_fillpolygon(npoints);
+        return;
+    }
 #endif
 
+    // 1. Calculate y bounds.
     miny = INT32_MAX; maxy = INT32_MIN;
     for (z=npoints-1; z>=0; z--)
-        { y = ry1[z]; miny = min(miny,y); maxy = max(maxy,y); }
-    miny = (miny>>12); maxy = (maxy>>12);
-    if (miny < 0) miny = 0;
-    if (maxy >= ydim) maxy = ydim-1;
-    ptr = smost;    //They're pointers! - watch how you optimize this thing
-    for (y=miny; y<=maxy; y++)
     {
-        dotp1[y] = ptr; dotp2[y] = ptr+(MAXNODESPERLINE>>1);
-        ptr += MAXNODESPERLINE;
+        y = ry1[z];
+        miny = min(miny,y);
+        maxy = max(maxy,y);
+    }
+
+    miny >>= 12;
+    maxy >>= 12;
+
+    if (miny < 0)
+        miny = 0;
+    if (maxy >= ydim)
+        maxy = ydim-1;
+
+    for (i=0, y=miny; y<=maxy; y++, i++)
+    {
+        //They're pointers! - watch how you optimize this thing
+        dotp1[y] = &smost[i*MAXNODESPERLINE];
+        dotp2[y] = &smost[i*MAXNODESPERLINE + (MAXNODESPERLINE>>1)];
     }
 
     for (z=npoints-1; z>=0; z--)
     {
-        zz = xb1[z];
-        y1 = ry1[z]; day1 = clamp(y1>>12, 0, ydim-1);   // clamp: crash prevention...
-        y2 = ry1[zz]; day2 = clamp(y2>>12, 0, ydim-1);
+        const int32_t zz=xb1[z];
+        const int32_t y1=ry1[z], y2=ry1[zz];
+
+        // NOTE: clamp for crash prevention... :-/
+        // r1874 says: "Fix more overheadmap crashes, this time with 'Last
+        // Pissed Time'"
+        const int32_t day1 = clamp(y1>>12, 0, ydim-1);
+        const int32_t day2 = clamp(y2>>12, 0, ydim-1);
+
         if (day1 != day2)
         {
-            x1 = rx1[z]; x2 = rx1[zz];
-            xinc = divscale12(x2-x1,y2-y1);
+            int32_t x1=rx1[z], x2=rx1[zz];
+            const int32_t xinc = divscale12(x2-x1, y2-y1);
+
             if (day2 > day1)
             {
-                x1 += mulscale12((day1<<12)+4095-y1,xinc);
+                x1 += mulscale12((day1<<12)+4095-y1, xinc);
                 for (y=day1; y<day2; y++)
                 {
-                    if (!dotp2[y]) { x1 += xinc; continue; }
-                    *dotp2[y]++ = (x1>>12); x1 += xinc;
+                    if (dotp2[y])
+                        *(dotp2[y]++) = x1>>12;
+                    x1 += xinc;
                 }
             }
             else
             {
-                x2 += mulscale12((day2<<12)+4095-y2,xinc);
+                x2 += mulscale12((day2<<12)+4095-y2, xinc);
                 for (y=day2; y<day1; y++)
                 {
-                    if (!dotp1[y]) { x2 += xinc; continue; }
-                    *dotp1[y]++ = (x2>>12); x2 += xinc;
+                    if (dotp1[y])
+                        *(dotp1[y]++) = x2>>12;
+                    x2 += xinc;
                 }
             }
         }
@@ -6739,58 +6760,76 @@ static void fillpolygon(int32_t npoints)
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);
 
-    oy = miny+1-(ydim>>1);
-    globalposx += oy*(int64_t)globalx1;
-    globalposy += oy*(int64_t)globaly2;
+    {
+        const int32_t oy = miny+1-(ydim>>1);
+        globalposx += oy*(int64_t)globalx1;
+        globalposy += oy*(int64_t)globaly2;
+    }
 
     setuphlineasm4(asm1,asm2);
 
-    ptr = smost;
-    for (y=miny; y<=maxy; y++)
+    for (i=0, y=miny; y<=maxy; y++, i++)
     {
-        cnt = dotp1[y]-ptr; ptr2 = ptr+(MAXNODESPERLINE>>1);
+        int16_t *const xptr = &smost[i*MAXNODESPERLINE];
+        int16_t *const xptr2 = &smost[i*MAXNODESPERLINE + (MAXNODESPERLINE>>1)];
+
+        const int32_t cnt = dotp1[y]-xptr;
+
         for (z=cnt-1; z>=0; z--)
         {
-            day1 = 0; day2 = 0;
+            int32_t x1, x2;
+            int32_t zz, i1=0, i2=0;  // point indices (like loop z)
+
             for (zz=z; zz>0; zz--)
             {
-                if (ptr[zz] < ptr[day1]) day1 = zz;
-                if (ptr2[zz] < ptr2[day2]) day2 = zz;
+                if (xptr[zz] < xptr[i1])
+                    i1 = zz;
+                if (xptr2[zz] < xptr2[i2])
+                    i2 = zz;
             }
-            x1 = ptr[day1]; ptr[day1] = ptr[z];
-            x2 = ptr2[day2]-1; ptr2[day2] = ptr2[z];
-            if (x1 > x2) continue;
+
+            x1 = xptr[i1];
+            xptr[i1] = xptr[z];
+
+            x2 = xptr2[i2]-1;
+            xptr2[i2] = xptr2[z];
+
+            if (x1 > x2)
+                continue;
+
+            Bassert((unsigned)x1 < xdim+0u || (unsigned)x2 < xdim+0u);
 
             if (globalpolytype < 1)
             {
                 //maphline
-                ox = x2+1-(xdim>>1);
-                bx = ox*asm1 + globalposx;
-                by = ox*asm2 - globalposy;
+                const int32_t ox = x2+1-(xdim>>1);
+                const int32_t bx = ox*asm1 + globalposx;
+                const int32_t by = ox*asm2 - globalposy;
 
-                p = ylookup[y]+x2+frameplace;
+                const intptr_t p = ylookup[y]+x2+frameplace;
+
                 hlineasm4(x2-x1,-1L,globalshade<<8,by,bx,p);
             }
             else
             {
                 //maphline
-                ox = x1+1-(xdim>>1);
-                bx = ox*asm1 + globalposx;
-                by = ox*asm2 - globalposy;
+                const int32_t ox = x1+1-(xdim>>1);
+                const int32_t bx = ox*asm1 + globalposx;
+                const int32_t by = ox*asm2 - globalposy;
 
-                p = ylookup[y]+x1+frameplace;
+                const intptr_t p = ylookup[y]+x1+frameplace;
+
                 if (globalpolytype == 1)
                     mhline(globalbufplc,bx,(x2-x1)<<16,0L,by,p);
                 else
-                {
                     thline(globalbufplc,bx,(x2-x1)<<16,0L,by,p);
-                }
             }
         }
+
         globalposx += (int64_t)globalx1;
         globalposy += (int64_t)globaly2;
-        ptr += MAXNODESPERLINE;
     }
+
     faketimerhandler();
 }
 
