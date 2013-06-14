@@ -22,7 +22,7 @@ extern int32_t g_gameType;
 #define NAPALM              (g_gameType & GAMEFLAG_NAPALM)
 #define WW2GI               (g_gameType & GAMEFLAG_WW2GI)
 #define SHAREWARE           (g_gameType & GAMEFLAG_SHAREWARE)
-#define DUKEBETA            ((g_gameType & GAMEFLAG_DUKEBETA) != GAMEFLAG_SHAREWARE)
+#define DUKEBETA            ((g_gameType & GAMEFLAG_DUKEBETA) == GAMEFLAG_DUKEBETA)
 
 enum Games_t {
     GAME_DUKE = 0,
