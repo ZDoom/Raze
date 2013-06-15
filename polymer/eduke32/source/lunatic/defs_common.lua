@@ -765,6 +765,13 @@ static_members.sector.STAT = conststruct
     TRANS_BITMASK = 128+256,
 }
 
+static_members.sector.NEARTAG_FLAGS = conststruct
+{
+    LOTAG = 1,
+    HITAG = 2,
+    NOSPRITES = 4,
+}
+
 static_members.wall.CSTAT = conststruct
 {
     BLOCK = 1,
@@ -1036,7 +1043,7 @@ const struct {
 ]]
 
 local function newar() return ffi.new("int16_t [1]") end
--- TODO: make tagsearch something more convenient
+-- NOTE: <tagsearch> flags are in sector.NEARTAG_FLAGS
 function neartag(pos, sectnum, ang, range, tagsearch)
     check_sector_idx(sectnum)
     local a, b, c, d = newar(), newar(), newar(), ffi.new("int32_t [1]")

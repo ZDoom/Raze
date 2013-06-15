@@ -93,7 +93,9 @@ line number.
 
 *`print(...)`*::
 The messages are printed to the OSD and the log. Color codes available in
-EDuke32 (e.g. `^10` for dark red) are interpreted.
+EDuke32 (e.g. `^10` for dark red) are interpreted. Overriding `tostring` has no
+effect on Lunatic's `print` as it uses the initial, built-in `tostring`
+function instead of looking it up in the global environment.
 
 *`printf(fmt, ...)`*::
 Calls `print` with the result of `string.format(fmt, ...)`.
@@ -243,9 +245,13 @@ Contains the following members, which are set from C before entering
 `lookhoriz`, `shade`.
 // TODO: describe
 
-// TODO: g_logoFlags, g_RETURN?
+`gv.cam`::
+A structure that, prior to entering `EVENT_DISPLAYROOMS`, is populated with the
+position and orientation of the ``camera'' from which the scene would be drawn.
+Contains the following members: `pos`, `dist`, `clock`, `ang`, `horiz`, `sect`.
+// TODO: describe
 
-// TODO: structures such as .cam
+// TODO: g_logoFlags, g_RETURN?
 
 Functions
 ^^^^^^^^^
@@ -634,11 +640,9 @@ units per texel.
 `sectnum` (read-only)::
 The index of the sector that this sprite is currently contained in.
 
-`statnum` (read-only)::
+[[sprite_statnum]] `statnum` (read-only)::
 The current _status number_ of this sprite. Applicable values are contained in
-`actor.STAT`.
-
-// <<gv_STAT,the `gv` object>>.
+<<actor_STAT,`actor.STAT`>>.
 
 `owner` (read-only)::
 The index of the sprite from which this sprite was spawned. If this sprite is
@@ -665,6 +669,16 @@ claiming them for oneself.
 `spr:set_picnum(tilenum)`::
 Set the tile number of the sprite.
 
+===== `sprite` static functions
+
+`sprite.changesect(i, sectnum)`::
+Allows to manually change the sector number of the sprite with index `i` to
+`sectnum`.
+
+`sprite.changestat(i, statnum)`::
+Allows to manually change the status number of the sprite with index `i` to
+`statnum`.
+
 ===== `sprite` overridden operators
 
 `spr^zofs`::
@@ -688,14 +702,41 @@ while the following denote _bit masks_: `ALIGN_BITMASK`, `TRANS_BITMASK`.
 
 Game-side
 ^^^^^^^^^
-`actor`::
 
-`player`::
+===== `actor`
 
-`projectile`::
+===== `actor` methods
 
-`g_tile`::
-TODO
+===== `actor` static data
+
+[[actor_STAT]]
+`actor.STAT`::
+Provides a mapping of symbolic names to values applicable as sprite
+<<sprite_statnum,status numbers>>. +
+`DEFAULT`, `ACTOR`, `ZOMBIEACTOR`, `EFFECTOR`, `PROJECTILE`, `MISC`,
+`STANDABLE`, `LOCATOR`, `ACTIVATOR`, `TRANSPORT`, `PLAYER`, `FX`, `FALLER`,
+`DUMMYPLAYER`, `LIGHT`.
+
+[[actor_FLAGS]] `actor.FLAGS`::
+Contains symbolic names of values applicable to <<gameactor,`gameactor`>>'s
+`flags` input argument, most of which are described there. +
+`SHADOW`, `NVG`, `NOSHADE`, `NOPAL`, `NOEVENTS`, `NOLIGHT`,
+`USEACTIVATOR`, `NOCLIP`, `SMOOTHMOVE`, `NOTELEPORT`.
+
+//`BADGUY`,
+
+===== `player`
+
+===== `projectile`
+
+===== `g_tile`
+
+===== `g_tile` static data
+
+`g_tile.sizx`, `g_tile.sizy`::
+Arrays indexable with tile numbers [`0` .. `gv.MAXTILES-1`] that hold the
+horizontal and vertical texel sizes of each tile.
+
 
 Lunatic functions
 ~~~~~~~~~~~~~~~~~
@@ -713,12 +754,112 @@ updatesectorbreadth
 updatesectorz
 wallsofsect
 
-Game-side
-^^^^^^^^^
-`gameactor`::
+Customizing the game
+^^^^^^^^^^^^^^^^^^^^
 
-`gameevent`::
+In Lunatic, there are two main ways of customizing the game's behavior. Both
+involve the user providing functions that are _called back_ at certain points
+in the execution of EDuke32. Game _actors_ are simply sprites that run a
+particular piece of code based on their tile number each game tic, unless they
+are in a ``dormant'' state. Game _events_ are invoked at predetermined points
+in the program flow.
+
+To register custom actor and event code with the game (and define additional
+actor information), Lunatic provides two functions in the global environment,
+`gameactor` and `gameevent`. As their sole argument, they take a table
+containing the appropriate data.
+
+[[gameactor]]
+===== The function `gameactor{tilenum [, ...], func}`
+
+Registers custom code for the actor given by tile number `tilenum`. For each
+non-sleeping actor, the function `func` is called every game tic with three
+input arguments: `func(aci, pli, dist)`.
+
+* `aci`: the sprite number of the actor invoking `func`
+* `pli`: the index of the player that is nearest to this actor
+* `dist`: the 3D Manhattan distance between actor `aci` and player `pli`
+
+Additionally, `gameactor` accepts optional input arguments. They can be
+specifyed positionally by following `tilenum`, or be given as values to string
+keys of the argument table. Each such input argument may be provided in at most
+one of these two forms. Furthermore, `func` may be provided as value to the
+key `'func'` as well.
+
+`[2] flags`::
+
+A number that controls both certain aspects of the `gameactor` call as well as
+the run-time behavior of the actor itself. A couple of the latter type are
+listed in <<actor_FLAGS,`actor.FLAGS`>>, abbreviated `AF` in the following.
++
+These values describe the ``type'' of the actor: `AF.enemy`, `AF.enemystayput`
+and `AF.rotfixed`. Except for `enemystayput`, they name single bits
+(`enemystayput` implies `enemy`).
++
+In Lunatic, game actors can be _chained_, that is, a callback function can be
+either appended to the end of an already registered one, or prefixed at its
+front. In this case, a previous `gameactor` call must have taken place for that
+actor (this may have happened from a CON `useractor` block, which gets
+translated to `gameactor`). Moreover, this mechanism allows to add run-time
+flags to the actor in question.
++
+Several flags in `AF` are provided to control how a `gameactor` invocation
+handles chaining.
++
+* `AF.replace_hard`: Completely replace the actor's callback function and
+  run-time flags. This is the default.
+* `AF.replace_soft`: Replace the callback function, but bitwise-OR the existing
+  run-time flags with the provided ones. This is the way CON's `useractor`
+  behaves.
+* `AF.chain_beg`: Prepend the provided `func` to the exising callback function,
+  bitwise-OR in flags.
+* `AF.chain_end`: Append the provided `func` to the exising callback function,
+  bitwise-OR in flags.
+
+`[3] strength`::
+The initial strength or health of the actor. Default: `0`.
+
+`[4] action`::
+
+`[5] move`::
+
+`[6] movflags`::
 TODO
+
+===== The function `gameevent{evtlabel [, flags], func}`
+
+:wiki: http://wiki.eduke32.com
+:wiki_eventlist: http://wiki.eduke32.com/wiki/EDuke32_event_list
+
+Registers custom code to be run at specific points in the program.  The first
+argument `evtlabel` should be a string naming the event. A complete
+{wiki_eventlist}[list of events] can be found at the {wiki}[EDuke32 wiki]. The
+label may be stripped of the leading ```EVENT_`'', so that e.g. `EVENT_JUMP`
+and simply `JUMP` denote the same event.
+
+The arguments `flags` and `func` can alternatively be passed as values to the
+same-named keys of the input argument table to `gameevent`. Like with
+`gameactor`, each may be provided in at most one of the two forms.
+
+The callback `func` is invoked with the same arguments and meaning as for
+<<gameactor,`gameactor`>>, but certain events are run in contexts where no
+meaningful `aci` and/or `pli` value can be assigned. In this case, `func`
+receives `-1` for the respective input arguments.
+
+Like with actors, game events may be chained or replaced. However, it is not
+necessary for an event to be already defined when chaining is requested. In
+that case, it is simply registered initially.
+
+The `flags` controlling chaining behavior are provided in `actor.FLAGS` as well
+(abbreviated `AF`):
+
+* `AF.replace`: Replace any previously defined event code with the given one.
+* `AF.chain_beg`: Prepend the provided `func` to the exising callback
+  function. This is the behavior of CON's `onevent`.
+* `AF.chain_end`: Append the provided `func` to the exising callback
+  function. This is the default.
+
+// TODO: RETURN handling...
 
 
 [[ext_api]]

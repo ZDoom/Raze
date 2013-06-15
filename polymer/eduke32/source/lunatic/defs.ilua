@@ -445,7 +445,7 @@ typedef struct {
     vec3_t pos;
     int32_t dist, clock;
     int16_t ang, horiz;
-    int16_t sect;
+    int16_t sect;  // NOTE: protected in camera_mt's __newindex
 } camera_t;
 
 enum
@@ -819,10 +819,12 @@ do
     end
 
     actor_static_members.STAT = defs_c.conststruct(our_STAT)
+
+    -- TODO: actor_static_members.movflags? They can be obtained with
+    -- require('CON.DEFS') now...
 end
 
 -- Delete sprite with index <i>.
--- TODO: make this (also?) sprite.delete() even though it's game-side?
 function actor_static_members.delete(i)
     check_sprite_idx(i)
 
@@ -867,12 +869,13 @@ local g_tile = setmtonce({}, defs_c.GenStructMetatable("g_tile", "MAXTILES", til
 -- Among other things, declares struct action and struct move, and their
 -- ID-wrapped types con_action_t and con_move_t
 local con = require("control")
+local isenemytile = con.isenemytile
 local MV, AC, AI = con.MV, con.AC, con.AI
 
 -- Add game-side metamethods to "spritetype" and register it with "metatype"
 local spr_mt_index_add = {
     isenemy = function(s)
-        return con.isenemytile(s.picnum)
+        return isenemytile(s.picnum)
     end,
 }
 defs_c.finish_spritetype(spr_mt_index_add)
@@ -975,10 +978,14 @@ local actor_mt = {
             end
 
             a.t_data[0] = 0
-            local i = get_actor_idx(a)
-            ffiC.sprite[i].hitag = movflags or 0
+            local spr = ffiC.sprite[get_actor_idx(a)]
+            spr.hitag = movflags or 0
 
-            -- TODO: random angle moveflag
+            if (not spr:isenemy() or spr.extra > 0) then
+                if (bit.band(spr.hitag, 8)) then  -- random_angle
+                    spr.ang = bit.band(ffiC.krand(), 2047)
+                end
+            end
         end,
 
         has_move = function(a, mov)
@@ -1304,7 +1311,7 @@ function gv_access._set_guniqhudid(id)
     ffiC.guniqhudid = id
 end
 
--- TODO: make return 1-based index
+-- TODO: make return 1-based index?
 function gv_access.currentEpisode()
     return ffiC.ud.volume_number
 end
@@ -1515,7 +1522,7 @@ local function our_require(modname, ...)
     table.insert(modname_stack, modname)
 
     -- Run the module code!
-    modfunc(modname, ...)  -- TODO: call protected and report errors here later
+    modfunc(modname, ...)  -- TODO: call protected and report errors here later?
 
     table.remove(modname_stack)
 

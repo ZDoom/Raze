@@ -242,7 +242,9 @@ gameevent
         end
         ps.weapon[gv.PISTOL_WEAPON].firesound = D.LIGHTNING_SLAP
 
-        -- XXX: provide either named constants or methods?
+        -- Set pipebomb and tripbomb to timed mode.
+        -- XXX: Provide either named constants or methods?
+        -- XXX: These are probably reset to default on new game.
         ps.pipebombControl = 2
         ps.tripbombControl = 2
 
