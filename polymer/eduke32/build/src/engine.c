@@ -4480,6 +4480,9 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     logtilesizy = (picsiz[globalpicnum]>>4);
     tsizy = tilesizy[globalpicnum];
 
+    if (tsizy==0)
+        return;
+
     globalshiftval = logtilesizy;
 
     // before proper non-power-of-two tilesizy drawing
