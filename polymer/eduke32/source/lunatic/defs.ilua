@@ -982,7 +982,7 @@ local actor_mt = {
             spr.hitag = movflags or 0
 
             if (not spr:isenemy() or spr.extra > 0) then
-                if (bit.band(spr.hitag, 8)) then  -- random_angle
+                if (bit.band(spr.hitag, 8) ~= 0) then  -- random_angle
                     spr.ang = bit.band(ffiC.krand(), 2047)
                 end
             end

@@ -144,7 +144,8 @@ errors. Unlike Lua, our `module` does not return *true* when a module is
 contains a loop). Instead, an error is raised.
 
 Issuing `require` for `'end_gamevars'` has a special meaning that is described
-below.
+below. A `require` for `'CON.DEFS'` returns a table mapping labels ++define++d from
+CON to their values, except for `NO`.
 
 
 ==== The `module()` function
@@ -338,7 +339,7 @@ number from 0 to 2^_B_^--1.
 
 * If an assignment to a member having unsigned integer type and bit width _B_
   is made, the ``right-hand side'' value must be in the closed interval
-  [--2^31^ .. 2^31^-1] if _B_ is less than 32, or in [0 .. 2^32^-1] otherwise.
+  [--2^31^ .. 2^31^--1] if _B_ is less than 32, or in [0 .. 2^32^--1] otherwise.
 
 * If the appropriate requirements hold, an assignment from a Lua number to a
   member having integer type begins by discarding the fractional part
@@ -740,19 +741,29 @@ horizontal and vertical texel sizes of each tile.
 
 Lunatic functions
 ~~~~~~~~~~~~~~~~~
+
 Engine-side
 ^^^^^^^^^^^
+
+===== Iterators
+
++*for* w *in* wallsofsect(sectnum)+::
+Iterates over the indices of all walls of the sector with index `sectnum`.
+
++*for* s *in* spritesofstat(statnum)+::
+Iterates over the indices of all sprites with status number `statnum`.
+
++*for* s *in* spritesofsect(sectnum)+::
+Iterates over the indices of all sprites contained in the sector with index `sectnum`.
+
 cansee
 hitscan
 inside
 neartag
 sectorsofbunch
-spritesofsect
-spritesofstat
 updatesector
 updatesectorbreadth
 updatesectorz
-wallsofsect
 
 Customizing the game
 ^^^^^^^^^^^^^^^^^^^^
@@ -778,7 +789,11 @@ input arguments: `func(aci, pli, dist)`.
 
 * `aci`: the sprite number of the actor invoking `func`
 * `pli`: the index of the player that is nearest to this actor
-* `dist`: the 3D Manhattan distance between actor `aci` and player `pli`
+* `dist`: the 3D Manhattan distance
+  footnote:[The Manhattan distance between points _p_~1~=(x~1~, y~1~, z~1~) and
+  _p_~2~=(x~2~, y~2~, z~2~) is defined as abs(x~2~ -- x~1~) + abs(y~2~ -- y~1~)
+  + abs(z~2~ -- z~1~).]
+  between actor `aci` and player `pli`
 
 Additionally, `gameactor` accepts optional input arguments. They can be
 specifyed positionally by following `tilenum`, or be given as values to string
@@ -846,12 +861,11 @@ The callback `func` is invoked with the same arguments and meaning as for
 meaningful `aci` and/or `pli` value can be assigned. In this case, `func`
 receives `-1` for the respective input arguments.
 
-Like with actors, game events may be chained or replaced. However, it is not
-necessary for an event to be already defined when chaining is requested. In
-that case, it is simply registered initially.
-
-The `flags` controlling chaining behavior are provided in `actor.FLAGS` as well
-(abbreviated `AF`):
+Like with actors, game events may be chained or replaced by passing an
+appropriate `flags` value. However, it is not necessary for an event to be
+already defined when chaining is requested. In that case, it is simply
+registered initially.  Permissible values for these flags are provided in
+`actor.FLAGS` as well (abbreviated `AF` here):
 
 * `AF.replace`: Replace any previously defined event code with the given one.
 * `AF.chain_beg`: Prepend the provided `func` to the exising callback
@@ -866,3 +880,17 @@ The `flags` controlling chaining behavior are provided in `actor.FLAGS` as well
 Extended API (Lunatic modules)
 ------------------------------
 
+The `xmath` module
+~~~~~~~~~~~~~~~~~~
+
+Lunatic, being a Lua-based scripting system, provides the user with a single
+numeric data type that variables can contain on the Lua side --
+double-precision floating point.footnote:[In LuaJIT, variables additionaly can
+take on ``boxed'' 64-bit integer numeric types, but these should not be used
+for numeric calculations.]  However, since BUILD, and in turn, EDuke32, almost
+exclusively use integer types to represent quantities such as angles or carry
+out e.g. trigonometrical calculations, there is a need for convenient
+interoperability between the two ``worlds''.
+
+Another purpose of the `xmath` module is to provide _vector_ types that allow
+writing concise and clear code involving geometrical calculations.

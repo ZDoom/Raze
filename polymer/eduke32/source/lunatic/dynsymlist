@@ -29,8 +29,6 @@ windowy2;
 yxaspect;
 viewingrange;
 
-yax_getbunch;
-
 sectorofwall_noquick;
 getceilzofslopeptr;
 getflorzofslopeptr;
