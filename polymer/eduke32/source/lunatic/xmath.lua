@@ -104,7 +104,7 @@ end
 -- XXX: passing mixed vec2/vec3 is problematic. Get rid of geom.vec2?
 -- <ang>: BUILD angle (0-2047 based)
 function rotate(pos, pivot, ang)
-    local p = geom.tovec3(pos)-pivot
+    local p = geom.vec3(pos)-pivot
     local c, s = cosb(ang), sinb(ang)
     local x, y = p.x, p.y
     p.x = pivot.x + (c*x - s*y)

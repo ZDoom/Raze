@@ -133,19 +133,35 @@ local vec3_mt = {
     },
 }
 
+ffi.metatype(dvec2_t, vec2_mt)
+ffi.metatype(dvec3_t, vec3_mt)
+
 -- VEC2 user data constructor.
---  * vec2(<table>), <table> should be indexable with "x" and "y"
---  * vec2(x, y), assuming that x and y are numbers
-vec2 = ffi.metatype(dvec2_t, vec2_mt)
-vec3 = ffi.metatype(dvec3_t, vec3_mt)
+--  * vec2([x [, y]]), assuming that x and y are numbers. Vacant positions are
+--    assumed to be 0.
+--  * vec2(<compound>), <compound> can be anything indexable with "x" and "y"
+function vec2(...)
+    local x, y = ...
+    if (type(x)=="number" or x==nil) then
+        return dvec2_t(...)
+    else
+        return dvec2_t(x.x, x.y)
+    end
+end
 
-ivec3 = ffi.metatype("vec3_t", vec3_mt)
+-- VEC3 user data constructor.
+--  Analogous to VEC2.
+function vec3(...)
+    local x, y, z = ...
+    if (type(x)=="number" or x==nil) then
+        return dvec3_t(...)
+    else
+        return dvec3_t(x.x, x.y, x.z)
+    end
+end
 
--- Returns a vec2 from anything indexable with "x" and "y"
--- (vec2(t) works if t is such a table, but not if it's a vec2 or a cdata of
--- different type)
-function tovec2(t) return dvec2_t(t.x, t.y) end
-function tovec3(t) return dvec3_t(t.x, t.y, t.z) end
+-- TODO: make a constructor like VEC3?
+ivec3 = ffi.metatype(ivec3_t, vec3_mt)
 
 
 -- Two-element vector cross product.
@@ -168,11 +184,11 @@ function intersect(a,v, b,w, retpoint_p)
     local vxw = cross2(v,w)
 
     if (vxw ~= 0) then
-        local btoa = tovec2(a)-tovec2(b)
+        local btoa = vec2(a) - vec2(b)
         local cv, cw = cross2(w, btoa)/vxw, cross2(v, btoa)/vxw
 
         if (retpoint_p) then
-            return tovec2(a)+cv*tovec2(v)
+            return vec2(a) + cv*vec2(v)
         else
             return cv, cw
         end

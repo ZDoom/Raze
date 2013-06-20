@@ -33,7 +33,7 @@ function randwalk(N, spritenum, minlen, maxlen, randofs, funci, logfn)
     local times = {}
     local successp = {}
 
-    local pos = geom.tovec3(sprite[spritenum])
+    local pos = geom.vec3(sprite[spritenum])
     local sectnum = sprite[spritenum].sectnum
 
     for i=1,N do

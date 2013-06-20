@@ -381,6 +381,9 @@ gameactor
         -- NOTE: __add metamethod is called because of the RHS:
         local v = spr + geom.vec3(r(-d,d), r(-d,d))
         spr:setpos(v)
+
+        -- Test vec3 constructor with cdata.
+        local tempvec = geom.vec3(player[0].pos)
     end
 }
 
