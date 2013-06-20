@@ -1136,7 +1136,7 @@ static int32_t osdcmd_screenshot(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-#ifdef DEBUGGINGAIDS
+#if 0
 static int32_t osdcmd_savestate(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
@@ -1605,7 +1605,7 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("unbindall","unbindall: unbinds all keys", osdcmd_unbindall);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
-#ifdef DEBUGGINGAIDS
+#if 0
     OSD_RegisterFunction("savestate","",osdcmd_savestate);
     OSD_RegisterFunction("restorestate","",osdcmd_restorestate);
 #endif
