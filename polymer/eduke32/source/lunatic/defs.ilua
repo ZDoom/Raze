@@ -9,6 +9,7 @@ local ffiC = ffi.C
 local CF = CF
 
 local bit = bit
+local coroutine = coroutine
 local string = string
 local table = table
 local math = math
@@ -578,6 +579,8 @@ int32_t g_elCONSize;
 char *g_elCON;
 void El_SetCON(const char *conluacode);
 
+char *g_elSavecode;
+void El_FreeSaveCode(void);
 const char *(*El_SerializeGamevars)(int32_t *slenptr);
 
 const char *s_buildRev;
@@ -1385,6 +1388,7 @@ local package_loaded = {}  -- [<modname>] = false/true/table
 local modname_stack = {}  -- [<depth>]=string
 local module_gamevars = {}  -- [<modname>] = { <gvname1>, <gvname2>, ... }
 local module_gvlocali = {}  -- [<modname>] = { <localidx_beg>, <localidx_end> }
+local module_thread = {}  -- [<modname>] = <module_thread>
 
 local function getcurmodname(thisfuncname)
     if (#modname_stack == 0) then
@@ -1421,7 +1425,7 @@ local function getnumlocals(l)
     for i=1,200 do
         -- level:
         -- 0 is getlocal() itself.
-        -- 1 is this function.
+        -- 1 is this function (getnumlocals).
         -- 2 is the function calling getnumlocals()
         -- 3 is the function calling that one.
         if (debug.getlocal(3, i) == nil) then
@@ -1437,6 +1441,27 @@ local required_module_mt = {
     end,
     __metatable = true,
 }
+
+-- Will contain a function to restore gamevars when running from savegame
+-- restoration. See SAVEFUNC_ARGS for its arguments.
+local g_restorefunc = nil
+
+-- Local gamevar restoration function run from
+-- our_require('end_gamevars') <- [user module].
+local function restore_local(li, lval)
+    -- level:
+    -- 0 is getlocal() itself.
+    -- 1 is this function (restore_local).
+    -- 2 is the function calling restore_local(), the savecode.
+    -- 3 is the function calling the savecode, our_require.
+    -- 4 is the function calling our_require, the module function.
+    if (ffiC._DEBUG_LUNATIC ~= 0) then
+        printf("Restoring index #%d (%s) with value %s",
+               li, debug.getlocal(4, li), tostring(lval))
+    end
+
+    assert(debug.setlocal(4, li, lval))
+end
 
 -- The "require" function accessible to Lunatic code.
 -- Base modules in allowed_modules are wrapped so that they cannot be
@@ -1475,11 +1500,24 @@ local function our_require(modname, ...)
         gvmodi[2] = getnumlocals()
 
         if (ffiC._DEBUG_LUNATIC ~= 0) then
-            printf("Module '%s' has %d locals, index %d to %d", thismodname,
-                   gvmodi[2]-gvmodi[1]+1, gvmodi[1], gvmodi[2])
+            local numlocals = gvmodi[2]-gvmodi[1]+1
+            if (numlocals > 0) then
+                printf("Module '%s' has %d locals, index %d to %d",
+                       thismodname, numlocals, gvmodi[1], gvmodi[2])
+            end
         end
 
-        return
+        -- Potentially restore gamevars.
+        if (g_restorefunc) then
+            local modtab = package_loaded[thismodname]
+            assert(type(modtab)=="table")
+            -- SAVEFUNC_ARGS.
+            g_restorefunc(thismodname, modtab, restore_local)
+        end
+
+        -- Return whether we're NOT running from a savegame restore in the
+        -- second outarg. (Lunatic-private!)
+        return nil, (g_restorefunc==nil)
     end
 
     -- See whether it's a base module name.
@@ -1513,6 +1551,10 @@ local function our_require(modname, ...)
         errorf(ERRLEV-1, "Couldn't open file \"%s\"", modfn)
     end
 
+    -- Implant code that yields the module thread just before it would return
+    -- otherwise.
+    str = str.."\nrequire('coroutine').yield()"
+
     local modfunc, errmsg = loadstring(str, modfn)
     if (modfunc == nil) then
         errorf(ERRLEV-1, "Couldn't load \"%s\": %s", modname, errmsg)
@@ -1521,18 +1563,48 @@ local function our_require(modname, ...)
     package_loaded[modname] = false  -- 'not yet loaded'
     table.insert(modname_stack, modname)
 
-    -- Run the module code!
-    modfunc(modname, ...)  -- TODO: call protected and report errors here later?
+    -- Run the module code in a separate Lua thread!
+    local modthread = coroutine.create(modfunc)
+    local ok, retval = coroutine.resume(modthread, modname, ...)
+
+    if (not ok) then
+        errorf(ERRLEV-1, "Failed running \"%s\": %s", modname, retval)
+    end
 
     table.remove(modname_stack)
 
     local modtab = package_loaded[modname]
 
+    if (type(modtab) ~= "table") then
+        -- The module didn't call our 'module'. Check if it returned a table.
+        -- In that case, the coroutine has finished its main function and has
+        -- not reached our implanted 'yield'.
+        if (coroutine.status(modthread)=="dead" and type(retval)=="table") then
+            modtab = retval
+            package_loaded[modname] = modtab
+        else
+            package_loaded[modname] = true
+        end
+    end
+
     if (type(modtab) == "table") then
-        -- Protect module table if there is one...
+        -- Protect module table in any case (i.e. either if the module used our
+        -- 'module' or if it returned a table).
         setmetatable(modtab, required_module_mt)
-    else
-        package_loaded[modname] = true
+    end
+
+    local gvmodi = module_gvlocali[modname]
+
+    if (gvmodi and gvmodi[2]>=gvmodi[1]) then
+        if (coroutine.status(modthread)=="suspended") then
+            -- Save off the suspended thread so that we may get its locals later on.
+            -- It is never resumed, but only ever used for debug.getlocal().
+            module_thread[modname] = modthread
+
+            if (ffiC._DEBUG_LUNATIC ~= 0) then
+                printf("Keeping coroutine for module \"%s\"", modname)
+            end
+        end
     end
 
     return modtab
@@ -1557,7 +1629,7 @@ local function our_module()
 
     local modname = getcurmodname("module")
 
-    if (type(package_loaded[modname])=="table") then
+    if (package_loaded[modname]) then
         error("'module' must be called at most once per require'd file", 2)
     end
 
@@ -1902,12 +1974,16 @@ do
     ffiC.El_SerializeGamevars = function(slenptr)
         local sb = savegame.savebuffer()
 
-        sb:addraw("local M")
+        -- Module name, module table, restore_local. See SAVEFUNC_ARGS.
+        sb:addraw("local N,M,F=...")
+        -- A local to temporarily hold module locals.
+        sb:addraw("local L")
 
-        -- XXX: System gamevars?
+        -- XXX: System gamevars? Most of them ought to be saved with C data.
         for modname, modvars in pairs(module_gamevars) do
-            -- NOTE: when emitting 'require' code, reverse '.' -> '/' substitution.
-            sb:addrawf("M=require%q", modname:gsub("/","."))
+            sb:addrawf("if (N==%q) then", modname)
+
+            -- Handle global gamevars first.
             for i=1,#modvars do
                 local varname = modvars[i]
                 -- Serialize gamevar named 'varname' from module named 'modname'.
@@ -1920,6 +1996,29 @@ do
                     return (modname==CON_MODULE_NAME and "<CON>" or modname).."."..varname
                 end
             end
+
+            local modthread = module_thread[modname]
+
+            if (modthread) then
+                -- Handle local gamevars.
+                local gvmodi = module_gvlocali[modname]
+
+                for li=gvmodi[1],gvmodi[2] do
+                    -- Serialize local with index <li>. Get its value first.
+                    local lname, lval = debug.getlocal(modthread, 1, li)
+
+                    if (sb:add("L", lval)) then
+                        -- We couldn't serialize that gamevar.
+                        slenptr[0] = -1
+                        return "local "..modname.."."..lname
+                    end
+
+                    -- Call restore_local.
+                    sb:addrawf("F(%d,L)", li)
+                end
+            end
+
+            sb:addraw("end")
         end
 
         -- Get the whole code as a string.
@@ -2060,6 +2159,19 @@ setmetatable(
 -- environment earlier.
 setfenv(0, _G)
 
+do
+    -- If we're running from a savegame restoration, create the restoration
+    -- function. Must be here, after the above setfenv(), because it must be
+    -- created in this protected ('user') context!
+    local cstr = ffiC.g_elSavecode
+    if (cstr~=nil) then
+        local restorecode = ffi.string(cstr)
+        ffiC.El_FreeSaveCode()
+
+        g_restorefunc = assert(loadstring(restorecode))
+    end
+end
+
 -- Run the CON code translated into Lua.
 if (concode) then
     local confunc, conerrmsg = loadstring(concode, "CON")
@@ -2067,10 +2179,11 @@ if (concode) then
         error("Failure loading translated CON code: "..conerrmsg, 0)
     end
 
-    local conmodule, conlabels = confunc()
-
-    package_loaded[CON_MODULE_NAME] = conmodule
-    module_gamevars[CON_MODULE_NAME] = { "A", "V" }  -- See CON_GAMEVARS is lunacon.lua.
+    -- Emulate our 'require' for the CON module when running it, for
+    -- our_module() which is called from the generated Lua code.
+    table.insert(modname_stack, CON_MODULE_NAME)
+    local conlabels = confunc()
+    table.remove(modname_stack)
 
     -- Set up CON.DEFS module, providing access to labels defined in CON from Lua.
     local mt = { __index = conlabels, __newindex = basemodule_newindex }

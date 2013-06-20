@@ -93,6 +93,8 @@ g_elCONSize;
 g_elCON;
 El_SetCON;
 
+g_elSavecode;
+El_FreeSaveCode;
 El_SerializeGamevars;
 
 s_buildRev;

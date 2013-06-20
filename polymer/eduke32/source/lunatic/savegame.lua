@@ -62,7 +62,6 @@ local savebuffer_mt = {
                     if (isSerializeable(value)) then
                         -- We have a serializeable object from Lunatic
                         -- (e.g. actorvar).
-                        -- TODO: clean up (e.g. clear default values for actorvar).
 
                         -- First, get the code necessary to create this object,
                         -- usually 'require'ing a module into a local variable.
@@ -78,9 +77,8 @@ local savebuffer_mt = {
                         -- We have a Lua table.
                         havetab = true
 
-                        -- Clear the table instead of creating a new one.
-                        -- This way, local references to it don't become stale.
-                        self:addrawf("ct(%s)", refcode)
+                        -- Create a new table for this gamevar.
+                        self:addrawf("%s={}", refcode)
 
                         for k,v in pairs(value) do
                             local keystr = basicSerialize(k)
@@ -138,11 +136,6 @@ local function sb_get_initial_strbuf()
     return {
         "local nan, inf = 0/0, 1/0",
         "local t, f = true, false",
-        "local pairs = assert(pairs)",
-        -- Clear table function:
-        "local function ct(t)",
-        "  for k in pairs(t) do t[k]=nil end",
-        "end",
     }
 end
 

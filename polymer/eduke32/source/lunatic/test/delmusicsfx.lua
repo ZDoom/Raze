@@ -1,6 +1,8 @@
 
 local require = require
-local con = require "con"
+
+local string = require("string")
+local con = require("con")
 
 local gv = gv
 local sprite = sprite
@@ -35,6 +37,7 @@ require "end_gamevars"
 -- refer to locals defined prior to the gamevar section in it.
 local tag = tag
 
+local Q = 1200
 
 gameevent{"JUMP", actor.FLAGS.chain_beg,
 function(aci, pli)
@@ -75,3 +78,15 @@ function(aci, pli)
 
     insp = not insp
 end}
+
+-- Display the number of times we jumped on the screen.
+gameevent
+{
+    "DISPLAYREST",
+
+    function()
+        con._definequote(Q, string.format("jumped %d times", ournumjumps))
+        -- NOTE: uses INTERNAL interface, don't copy!
+        con._minitext(160, 10, Q, 0,0)
+    end
+}

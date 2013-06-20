@@ -1700,17 +1700,11 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
     PRINTSIZE("ud");
     mem=writespecdata(svgm_secwsp, fil, mem);  // sector, wall, sprite
     PRINTSIZE("sws");
-    mem=writespecdata(svgm_script, fil, mem);  // script
-    PRINTSIZE("script");
-    mem=writespecdata(svgm_anmisc, fil, mem);  // animates, quotes & misc.
-    PRINTSIZE("animisc");
-
-#if !defined LUNATIC
-    Gv_WriteSave(fil, 1);  // gamevars
-    mem=writespecdata(svgm_vars, 0, mem);
-    PRINTSIZE("vars");
-#else
+#ifdef LUNATIC
     {
+        // Serialize Lunatic gamevars. When loading, the restoration code must
+        // be present before Lua state creation in svgm_script, so save it
+        // right before, too.
         int32_t slen, slen_ext;
         const char *svcode = El_SerializeGamevars(&slen);
 
@@ -1722,21 +1716,91 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
             return mem;
         }
 
-        // TODO: compress text.
         fwrite("\0\1LunaGVAR\3\4", 12, 1, fil);
         slen_ext = B_LITTLE32(slen);
         fwrite(&slen_ext, sizeof(slen_ext), 1, fil);
-        fwrite(svcode, slen, 1, fil);
+        dfwrite(svcode, 1, slen, fil);  // cnt and sz swapped
 
         g_savedOK = 1;
     }
+#endif
+    mem=writespecdata(svgm_script, fil, mem);  // script
+    PRINTSIZE("script");
+    mem=writespecdata(svgm_anmisc, fil, mem);  // animates, quotes & misc.
+    PRINTSIZE("animisc");
+
+#if !defined LUNATIC
+    Gv_WriteSave(fil, 1);  // gamevars
+    mem=writespecdata(svgm_vars, 0, mem);
+    PRINTSIZE("vars");
 #endif
 
     return mem;
 }
 
-#define LOADRD(ptr, sz, cnt) (kdfread(ptr,sz,cnt,fil)!=(cnt))
-#define LOADRDU(ptr, sz, cnt) (kread(fil,ptr,(sz)*(cnt))!=(sz)*(cnt))
+#ifdef LUNATIC
+char *g_elSavecode = NULL;
+
+static int32_t El_ReadSaveCode(int32_t fil)
+{
+    // Read Lua code to restore gamevar values from the savegame.
+    // It will be run from Lua with its state creation later on.
+
+    char header[12];
+    int32_t slen;
+
+    if (kread(fil, header, 12) != 12)
+    {
+        OSD_Printf("doloadplayer2: failed reading Lunatic gamevar header.\n");
+        return -100;
+    }
+
+    if (Bmemcmp(header, "\0\1LunaGVAR\3\4", 12))
+    {
+        OSD_Printf("doloadplayer2: Lunatic gamevar header doesn't match.\n");
+        return -101;
+    }
+
+    if (kread(fil, &slen, sizeof(slen)) != sizeof(slen))
+    {
+        OSD_Printf("doloadplayer2: failed reading Lunatic gamevar string size.\n");
+        return -102;
+    }
+
+    slen = B_LITTLE32(slen);
+    if (slen < 0)
+    {
+        OSD_Printf("doloadplayer2: invalid Lunatic gamevar string size %d.\n", slen);
+        return -103;
+    }
+
+    if (slen > 0)
+    {
+        char *svcode = Bmalloc(slen+1);
+        if (svcode == NULL)
+            G_GameExit("OUT OF MEMORY in doloadplayer2().");
+
+        if (kdfread(svcode, 1, slen, fil) != slen)  // cnt and sz swapped
+        {
+            OSD_Printf("doloadplayer2: failed reading Lunatic gamevar restoration code.\n");
+            Bfree(svcode);
+            return -104;
+        }
+
+        svcode[slen] = 0;
+        g_elSavecode = svcode;
+    }
+
+    return 0;
+}
+
+void El_FreeSaveCode(void)
+{
+    // Free Lunatic gamevar savegame restoration Lua code.
+    Bfree(g_elSavecode);
+    g_elSavecode = NULL;
+}
+#endif
 
 static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
 {
@@ -1749,6 +1813,13 @@ static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
     PRINTSIZE("ud");
     if (readspecdata(svgm_secwsp, fil, &mem)) return -4;
     PRINTSIZE("sws");
+#ifdef LUNATIC
+    {
+        int32_t ret = El_ReadSaveCode(fil);
+        if (ret < 0)
+            return ret;
+    }
+#endif
     if (readspecdata(svgm_script, fil, &mem)) return -5;
     PRINTSIZE("script");
     if (readspecdata(svgm_anmisc, fil, &mem)) return -6;
@@ -1769,57 +1840,6 @@ static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
         }
     }
     PRINTSIZE("vars");
-#else
-    {
-        // Read Lua code to restore gamevar values from the savegame and run it.
-
-        char header[12];
-        int32_t slen;
-
-        if (kread(fil, header, 12) != 12)
-        {
-            OSD_Printf("doloadplayer2: failed reading Lunatic gamevar header.\n");
-            return -100;
-        }
-
-        if (Bmemcmp(header, "\0\1LunaGVAR\3\4", 12))
-        {
-            OSD_Printf("doloadplayer2: Lunatic gamevar header doesn't match.\n");
-            return -101;
-        }
-
-        if (kread(fil, &slen, sizeof(slen)) != sizeof(slen))
-        {
-            OSD_Printf("doloadplayer2: failed reading Lunatic gamevar string size.\n");
-            return -102;
-        }
-
-        slen = B_LITTLE32(slen);
-        if (slen < 0)
-        {
-            OSD_Printf("doloadplayer2: invalid Lunatic gamevar string size %d.\n", slen);
-            return -103;
-        }
-
-        if (slen > 0)
-        {
-            char *svcode = Bmalloc(slen);
-            if (svcode == NULL)
-                G_GameExit("OUT OF MEMORY in doloadplayer2().");
-
-            if (kread(fil, svcode, slen) != slen)
-            {
-                OSD_Printf("doloadplayer2: failed reading Lunatic gamevar restoration code.\n");
-                return -104;
-            }
-
-            if (L_RunString(&g_ElState, svcode, 0, slen, "luaload"))
-            {
-                OSD_Printf("doloadplayer2: failed restoring Lunatic gamevars.\n");
-                return -105;
-            }
-        }
-    }
 #endif
 
     if (memptr)

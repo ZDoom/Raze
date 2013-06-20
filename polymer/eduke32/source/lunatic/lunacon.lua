@@ -177,6 +177,7 @@ local function new_initial_codetab()
     -- mapping system.
     return {
         -- Requires.
+        "local require=require",
         "local _con, _bit, _math = require'con', require'bit', require'math'",
         "local _xmath, _geom = require'xmath', require'geom'",
 
@@ -191,10 +192,17 @@ local function new_initial_codetab()
         "local _band, _bor, _bxor = _bit.band, _bit.bor, _bit.bxor",
         "local _lsh, _rsh, _arsh = _bit.lshift, _bit.rshift, _bit.arshift",
 
-        -- Switch function table, indexed by global switch sequence number:
-        "local _SW = {}",
-        -- CON "states" (subroutines), gamevars and gamearrays (see mangle_name())
-        "local _F,_V,_A={},{},{}",
+        -- * CON "states" (subroutines) and
+        -- * Switch function table, indexed by global switch sequence number:
+        "local _F,_SW = {},{}",
+
+        -- CON gamevars and gamearrays (see mangle_name()), set up for
+        -- restoration from savegames.
+        "module(...)",
+        "_V,_A={},{}",
+        "-- NOTE to the reader: This require's result is Lunatic-private API! DO NOT USE!",
+        "local _dummy,_S=require'end_gamevars'",
+        "local _V,_A=_V,_A",
 
         -- Static ivec3s so that no allocations need to be made.
         "local _IVEC = { _geom.ivec3(), _geom.ivec3() }",
@@ -1220,7 +1228,9 @@ function Cmd.gamearray(identifier, initsize)
     local ga = { name=mangle_name(identifier, "A"), size=initsize }
     g_gamearray[identifier] = ga
 
+    addcode("if _S then")
     addcodef("%s=_con._gamearray(%d)", ga.name, initsize)
+    addcode("end")
 end
 
 function Cmd.gamevar(identifier, initval, flags)
@@ -1272,6 +1282,7 @@ function Cmd.gamevar(identifier, initval, flags)
                 local linestr = "--"..getlinecol(g_lastkwpos)
 
                 -- Emit code to set the variable at Lua parse time.
+                -- XXX: How does this interact with savegame restoration?
                 if (bit.band(oflags, GVFLAG.PERPLAYER) ~= 0) then
                     -- Replace player index by 0. PLAYER_0.
                     -- TODO_MP: init for all players.
@@ -1300,7 +1311,8 @@ function Cmd.gamevar(identifier, initval, flags)
     local gv = { name=mangle_name(identifier, "V"), flags=flags }
     g_gamevar[identifier] = gv
 
-    -- TODO: Write gamevar system on the Lunatic side and hook it up.
+    addcode("if _S then")
+
     if (bit.band(flags, GVFLAG.PERX_MASK)==GVFLAG.PERACTOR) then
         addcodef("%s=_con.actorvar(%d)", gv.name, initval)
     elseif (bit.band(flags, GVFLAG.PERX_MASK)==GVFLAG.PERPLAYER and g_cgopt["playervar"]) then
@@ -1309,6 +1321,8 @@ function Cmd.gamevar(identifier, initval, flags)
     else
         addcodef("%s=%d", gv.name, initval)
     end
+
+    addcode("end")
 end
 
 function Cmd.dynamicremap()
@@ -3325,12 +3339,8 @@ end
 
 -- <lineinfop>: Get line info?
 local function get_code_string(codetab, lineinfop)
-    -- Finalize translated code: return table containing gamevar and gamearray
-    -- tables. CON_GAMEVARS.
-    codetab[#codetab+1] = "return { V=_V, A=_A }"
-
     -- Return defined labels in a table...
-    codetab[#codetab+1] = ",{"
+    codetab[#codetab+1] = "return {"
     for label, val in pairs(g_labeldef) do
         -- ... skipping 'NO' and those that are gamevars in C-CON.
         if (g_labeltype[label]==LABEL.NUMBER and not g_labelspecial[label]) then
