@@ -230,6 +230,8 @@ typedef struct {
     palette_t pals;
 
 #ifdef LUNATIC
+    int8_t palsfadespeed, palsfadenext, palsfadeprio, padding2_;
+
     // The player index. Always valid since we have no loose DukePlayer_t's
     // anywhere (like with spritetype_t): g_player[i].ps->wa.idx == i.
     struct { int32_t idx; } wa;

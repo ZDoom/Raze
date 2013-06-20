@@ -4385,7 +4385,32 @@ void P_ProcessInput(int32_t snum)
     }
 
     if (p->pals.f > 0)
+    {
+#ifndef LUNATIC
         p->pals.f--;
+#else
+        if (p->palsfadespeed > 0)
+        {
+            // <palsfadespeed> is the tint fade speed is in
+            // decrements/P_ProcessInput() calls.
+            p->pals.f = max(p->pals.f - p->palsfadespeed, 0);
+        }
+        else
+        {
+            // <palsfadespeed> is a negated count of how many times we
+            // (P_ProcessInput()) should be called before decrementing the tint
+            // fading by one. <palsfadenext> is the live counter.
+            if (p->palsfadenext < 0)
+                p->palsfadenext++;
+
+            if (p->palsfadenext == 0)
+            {
+                p->palsfadenext = p->palsfadespeed;
+                p->pals.f--;
+            }
+        }
+#endif
+    }
 
     if (p->fta > 0 && --p->fta == 0)
     {

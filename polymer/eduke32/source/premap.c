@@ -673,6 +673,14 @@ void P_RandomSpawnPoint(int32_t snum)
     sprite[p->i].cstat = 1+256;
 }
 
+static inline void P_ResetTintFade(DukePlayer_t *ps)
+{
+    ps->pals.f = 0;
+#ifdef LUNATIC
+    ps->palsfadeprio = 0;
+#endif
+}
+
 void P_ResetPlayer(int32_t snum)
 {
     vec3_t tmpvect;
@@ -708,7 +716,6 @@ void P_ResetPlayer(int32_t snum)
     pl->wackedbyactor = -1;
     pl->inv_amount[GET_SHIELD] = g_startArmorAmount;
     pl->dead_flag = 0;
-    pl->pals.f = 0;
     pl->footprintcount = 0;
     pl->weapreccnt = 0;
     pl->fta = 0;
@@ -717,6 +724,8 @@ void P_ResetPlayer(int32_t snum)
     pl->rotscrnang = 0;
     pl->runspeed = g_playerFriction;
     pl->falling_counter = 0;
+
+    P_ResetTintFade(pl);
 
     actor[pl->i].extra = -1;
     actor[pl->i].owner = pl->i;
@@ -897,7 +906,6 @@ static void resetprestat(int32_t snum,int32_t g)
 
     p->hbomb_on          = 0;
     p->cheat_phase       = 0;
-    p->pals.f         = 0;
     p->toggle_key_flag   = 0;
     p->secret_rooms      = 0;
     p->max_secret_rooms  = 0;
@@ -905,6 +913,8 @@ static void resetprestat(int32_t snum,int32_t g)
     p->max_actors_killed = 0;
     p->lastrandomspot = 0;
     p->weapon_pos = 6;
+
+    P_ResetTintFade(p);
 
     if ((PWEAPON(snum, p->curr_weapon, WorksLike) == PISTOL_WEAPON) &&
             (PWEAPON(snum, p->curr_weapon, Reload) > PWEAPON(snum, p->curr_weapon, TotalTime)))

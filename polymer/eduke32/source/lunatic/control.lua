@@ -165,6 +165,7 @@ local check_tile_idx = bcheck.tile_idx
 local check_sprite_idx = bcheck.sprite_idx
 local check_player_idx = bcheck.player_idx
 local check_sound_idx = bcheck.sound_idx
+local check_type = bcheck.type
 
 -- Will contain [<label>]=number mappings after CON translation.
 local D = { true }
@@ -793,7 +794,15 @@ function _switch(swtab, testval, aci,pli,dist)
 end
 
 
--- text rendering
+--== Text rendering ==--
+
+-- For external use. NOTE: <pal> comes before <shade>.
+function minitext(x, y, str, pal, shade)
+    check_type(str, "string")
+    ffiC.minitext_(x, y, str, shade or 0, pal or 0, 2+8+16)
+end
+
+-- For CON only.
 function _minitext(x, y, qnum, shade, pal)
     local cstr = bcheck.quote_idx(qnum)
     ffiC.minitext_(x, y, cstr, shade, pal, 2+8+16)

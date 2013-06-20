@@ -291,6 +291,7 @@ __attribute__((packed)) struct {
 
     uint8_t palette;
     palette_t _pals;
+    int8_t _palsfadespeed, _palsfadenext, _palsfadeprio, _padding2;
 
     // NOTE: In C, the struct type has no name. We only have it here to define
     // a metatype later.
@@ -1147,6 +1148,18 @@ local weaponaccess_mt = {
 }
 ffi.metatype("weaponaccess_t", weaponaccess_mt)
 
+
+local function clamp(num, min, max)
+    return num < min and min
+        or num > max and max
+        or num
+end
+
+local function clamp0to1(num)
+    check_number(num, 4)
+    return clamp(num, 0, 1)
+end
+
 local player_mt = {
     __index = {
         -- CON-like addammo/addweapon, but without the non-local control flow
@@ -1188,9 +1201,64 @@ local player_mt = {
             p.look_ang = n
         end,
 
-        --- Not fully specified, off-limits to users.  Might disappear, change
-        --- signature, etc...
-        -- TODO: need to think about external API: 0-255 based? 0-1 based?
+        -- External, improved 'palfrom'.
+        -- <speed>: possibly fractional speed of tint fading, in pals.f decrements per gametic.
+        --          XXX: exposes internals.
+        -- <prio>: a value from -128 to 127, higher ones trump lower or equal ones
+        fadecol = function(p, fadefrac, r, g, b, speed, prio)
+            -- Validate inargs: clamp f,r,g,b to [0 .. 1] first and multiply by
+            -- 63 for the internal handling.
+            fadefrac = clamp0to1(fadefrac)*63
+            -- NOTE: a fadefrac of now <1 is allowed, e.g. for clearing the tint.
+            r = clamp0to1(r)*63
+            g = clamp0to1(g)*63
+            b = clamp0to1(b)*63
+
+            if (speed ~= nil) then
+                check_number(speed)
+                -- Clamp to sensible values; the speed is stored in an int8_t
+                -- (see below).
+                speed = clamp(speed, 1/128, 127)
+            else
+                speed = 1
+            end
+
+            if (prio ~= nil) then
+                check_number(prio)
+
+                if (not (prio >= -128 and prio < 127)) then
+                    error("invalid argument #6 (priority): must be in [-128 .. 127]", 2)
+                end
+            else
+                prio = 0
+            end
+
+            -- Check if a currently active tint has higher priority.
+            if (p._pals.f > 0 and p._palsfadeprio > prio) then
+                return
+            end
+
+            -- The passed tint can be applied now.
+            p:_palfrom(fadefrac, r, g, b)
+            p._palsfadeprio = prio
+
+            -- Calculate .palsfade{speed,next}
+            if (speed >= 1) then
+                -- Will round to the nearest integer ("banker's
+                -- rounding"). NOTE: This is not correct for all numbers, see
+                -- http://blog.frama-c.com/index.php?post/2013/05/02/nearbyintf1
+                p._palsfadespeed = speed + 0.5
+                p._palsfadenext = 0
+            else
+                -- NOTE: Values that round to 0 have are equivalent behavior to
+                -- passing a <speed> of 1.
+                local negspeedrecip = -((1/speed) + 0.5)  -- [-128.5 .. 1/127+0.5]
+                p._palsfadespeed = negspeedrecip
+                p._palsfadenext = negspeedrecip
+            end
+        end,
+
+        -- INTERNAL and CON-only.
         _palfrom = function(p, f, r,g,b)
             local pals = p._pals
             pals.f = f

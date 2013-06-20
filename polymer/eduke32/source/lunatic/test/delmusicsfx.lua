@@ -37,8 +37,6 @@ require "end_gamevars"
 -- refer to locals defined prior to the gamevar section in it.
 local tag = tag
 
-local Q = 1200
-
 gameevent{"JUMP", actor.FLAGS.chain_beg,
 function(aci, pli)
     local ps = player[pli]
@@ -85,8 +83,6 @@ gameevent
     "DISPLAYREST",
 
     function()
-        con._definequote(Q, string.format("jumped %d times", ournumjumps))
-        -- NOTE: uses INTERNAL interface, don't copy!
-        con._minitext(160, 10, Q, 0,0)
+        con.minitext(160, 10, string.format("jumped %d times", ournumjumps))
     end
 }

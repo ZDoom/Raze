@@ -528,6 +528,70 @@ gameevent
     end
 }
 
+local function testbit(num, b)
+    return bit.band(num,b)~=0 and 1 or 0
+end
+
+local FADE_SPEED = {
+    [gv.KNEE_WEAPON] = 1/2.5,
+
+    1/128,
+    1/5,
+    1/3,
+    1/2,
+    1,  -- pipebomb: ~1 sec
+    2,
+    3,
+    5,
+    127,  -- freezer; such a fast fade is not visible, but it clears any
+          -- existing one (if of higher priority)
+    [gv.GROW_WEAPON] = 9.9,  -- test banker's rouding -- should be like 10
+}
+
+-- Test player[]:fadecol(), a better palfrom.
+gameevent
+{
+    "CHANGEWEAPON",
+
+    function (aci, pli)
+        local ps = player[pli]
+        local neww, curw = gv.g_RETURN, ps.curr_weapon
+
+        local r, g, b = testbit(neww, 1), testbit(neww, 2), testbit(neww, 4)
+        local speed = FADE_SPEED[neww] or 1
+        player[pli]:fadecol(0.5, r, g, b, speed, neww)
+    end
+}
+
+-- Time the above p:fadecol() test for verification of the <speed> argument.
+local last_f, last_t = 0, 0
+local last_secs = nil
+gameevent
+{
+    "DISPLAYREST",
+
+    function(aci, pli)
+        local ps = player[pli]
+        -- WARNING: This function uses INTERNAL interfaces.
+        local curf = ps._pals.f
+        if (curf > last_f) then
+            -- Starting a tint
+            last_secs = nil
+            last_f = curf
+            last_t = gv.getticks()
+        elseif (last_t > 0 and curf==0) then
+            -- Fade has ended
+            last_secs = (gv.getticks()-last_t)/1000
+            last_f, last_t = 0, 0
+        end
+
+        if (last_secs ~= nil) then
+            con.minitext(10, 10, string.format("Last fade time: %.03f s (%.03f gametics)",
+                                               last_secs, last_secs*30))
+        end
+    end,
+}
+
 printf("EVENT_INIT = %d", gv.EVENT_INIT)  -- tests default defines
 
 local bittest = require "test.test_bitar"

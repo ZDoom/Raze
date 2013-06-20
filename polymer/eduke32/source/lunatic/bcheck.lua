@@ -98,9 +98,15 @@ function bcheck.top_level(funcname)
     end
 end
 
-function bcheck.number(val)
-    if (type(val)~="number") then
-        error("invalid argument: must be a number", 3)
+function bcheck.number(val, errlev)
+    if (type(val)~="number" or val~=val) then
+        error("invalid argument: must be a non-NaN number", errlev or 3)
+    end
+end
+
+function bcheck.type(val, typestr)
+    if (type(val)~=typestr) then
+        error("invalid argument: must be a "..typestr, 3)
     end
 end
 
