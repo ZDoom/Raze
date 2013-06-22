@@ -29,7 +29,8 @@ more broadly and accessibly in the {PiL}[Programming in Lua] books.
 Because Lunatic is implemented using {LuaJIT}[LuaJIT], a just-in-time compiler
 for the Lua language, some {LuaJIText}[extensions] to the core language are
 automatically available. They may be used if no compatibility with Rio Lua 5.1
-is desired.
+is desired.footnote:[Not all extensions from LuaJIT are available, since some
+like the FFI are targeted at C programmers rather than scripting coders.]
 
 NOTE: The length operator (`#`) for table arguments should be taken to be
 defined by the http://www.lua.org/manual/5.2/manual.html#3.4.6[stricter wording
@@ -139,13 +140,21 @@ that base name suffixed with `.lua` in the EDuke32 search path (virtual file
 system, GRP, ZIP). Using directory separators directly is not allowed.
 
 The loaded module is protected so that write accesses to its table yield
-errors. Unlike Lua, our `module` does not return *true* when a module is
-++require++d that has not yet finished loading (that is, the inclusion chain
+errors. Unlike in Lua, our `require` does not return *true* when a module is
+requested that has not yet finished loading (that is, the inclusion chain
 contains a loop). Instead, an error is raised.
 
-Issuing `require` for ```end_gamevars`'' has a special meaning that is described
-below. A `require` for ```CON.DEFS`'' returns a table mapping labels ++define++d from
-CON to their values, except for `NO`.
+Lunatic's `require` allows passing additional arguments to the module to load.
+On the module side, they can be obtained by examining the vararg expression
+``++\...++'' at file scope. Given a definition of `args` as `{...}`, its
+first element `args[1]` would contain `modname` and the following entries the
+values passed in addition to `require`. This feature is useful for
+parametrizing a module: for example, it could provide a way alter the starting
+tile number of an actor it defines.
+
+Issuing `require` for ```end_gamevars`'' has a special meaning that is
+described below. A `require` for ```CON.DEFS`'' returns a table mapping labels
+++define++d from CON to their values, except for `NO`.
 
 
 ==== The `module()` function
@@ -160,13 +169,21 @@ one call to `module`, which (if there is one) *must* be called at file scope.
 Lunatic has a special mechanism to mark variables that represent persistent
 state and whose values should be stored in savegames. If such variables are
 desired, they must be initialized between the `module` call in a Lua file and a
-closing `require("end_gamevars")`. These variables may also be *`local`*.
+closing `require("end_gamevars")`.footnote:[The reason that the initialization
+has to happen between the `module` and the `require('end_gamevars')` is that on
+savegame loading, gamevars are restored from the latter.] These variables may
+also be *`local`*.
 
-[icon="icons/din_w_collapse.png"]
-CAUTION: A game variable must contain a non-nil value at any time. Otherwise,
-the behavior is undefined.
+Game variables may take on only values of types that Lunatic knows how to
+serialize into savegames. These are the following:
 
-// TODO: when are they restored, example
+* booleans, numbers, and strings
+* tables, but with restrictions on their contents and topology described below (TODO)
+* custom Lunatic types that are labeled _serializeable_ in their documentation
+
+// [icon="icons/din_w_collapse.png"]
+
+// TODO: example?
 
 // TODO: the rest
 
@@ -332,6 +349,7 @@ number from --2^_B_--1^ to 2^_B_--1^--1. +
 * A member of unsigned integer type and bit width _B_ can contain any whole
 number from 0 to 2^_B_^--1.
 
+[[int_assignment]]
 .Assignment
 * If an assignment to a member having signed integer type is made, the
   ``right-hand side'' value must be a number in the closed interval
@@ -457,7 +475,7 @@ will label a sector reference.
 `cf.picnum` (read-only)::
 The tile number of the ceiling or floor.
 
-[[cf_stat]] _`u16`_ `cf.stat`, _`bitfield`_ `cf.statbits`::
+[[cf_stat]] _`u16`_ `cf.stat`, {nbsp} _`bitfield`_ `cf.statbits`::
 A bit field holding various flags about how the ceiling or floor shoud be
 displayed, how collision detection should be handled, etc.
 The <<sector_STAT,`sector.STAT`>>
@@ -468,7 +486,7 @@ If `cf.stat` has bit `sector.STAT.SLOPE` set, the tangent of the slope angle
 multiplied by 4096.  Positive values make the ceiling or floor slope towards
 the floor, negative ones slope upward.
 
-_`i32`_ `cf.z`::
+[[cf_z]] _`i32`_ `cf.z`::
 The BUILD z coordinate (scaled by 16 compared to the x and y directions) of the
 pivoting line of the ceiling or floor.
 
@@ -511,12 +529,17 @@ These name single bits:
 `FLIP_BITMASK`, `ORIENT_BITMASK`, `TRANS_BITMASK`.
 
 '''
+[[wall]]
 ===== `wall`
 Accessible from `0` to `gv.numwalls-1`. Each element has the following
 members:
 
 `x`, `y`::
 The 2D coordinates or this wall point. Should not be set directly.
+
+`z` (read-only)::
+Always yields `0`. The primary purpose of this field is to make wall references
+permissible as arguments to <<vector_types,`xmath` vector>> operations.
 
 `point2` (read-only)::
 The index of the second wall point.
@@ -530,7 +553,7 @@ For walls constrained by TROR extension, the upper and lower neighbor walls,
 respectively. Any of them may be `-1`, meaning that the wall is not attached to
 a neighbor in this direction.
 
-[[wall_cstat]] _`u16`_ `cstat`, _`bitfield`_ `cstatbits`::
+[[wall_cstat]] _`u16`_ `cstat`, {nbsp} _`bitfield`_ `cstatbits`::
 A bit field holding various flags about how the wall shoud be
 displayed, how collision detection should be handled, etc.
 The <<wall_CSTAT,`wall.CSTAT`>>
@@ -604,7 +627,7 @@ _`i16`_ `ang`::
 TODO (make set_ang() out of that which always ANDs with 2047?)
 //////////
 
-[[sprite_cstat]] _`u16`_ `cstat`, _`bitfield`_ `cstatbits`::
+[[sprite_cstat]] _`u16`_ `cstat`, {nbsp} _`bitfield`_ `cstatbits`::
 A bit field holding various flags about how the sprite shoud be
 displayed, how collision detection should be handled, etc.
 The <<sprite_CSTAT,`sprite.CSTAT`>>
@@ -682,10 +705,11 @@ Allows to manually change the status number of the sprite with index `i` to
 
 ===== `sprite` overridden operators
 
-`spr^zofs`::
-Returns an `xmath.vec3` object that is the position of this sprite, diminished
-by `zofs` in the z direction. Because in BUILD, z coordinates increase toward
-the floor, the `^` can be thought of as ``raise the sprite by `zofs` units''.
+[[sprite_power]] `spr^zofs`::
+Returns an <<vector_types,`xmath.ivec3`>> object that contains the position of
+this sprite, diminished by `zofs` in the z direction. Because in BUILD, z
+coordinates increase toward the floor, the `^` can be thought of as ``raise the
+sprite by `zofs` units''.
 
 ===== `sprite` static data
 
@@ -823,10 +847,14 @@ input arguments: `func(aci, pli, dist)`.
 * `aci`: the sprite number of the actor invoking `func`
 * `pli`: the index of the player that is nearest to this actor
 * `dist`: the 3D Manhattan distance
-  footnote:[The Manhattan distance between points _p_~1~=(x~1~, y~1~, z~1~) and
-  _p_~2~=(x~2~, y~2~, z~2~) is defined as abs(x~2~ -- x~1~) + abs(y~2~ -- y~1~)
-  + abs(z~2~ -- z~1~).]
+  footnoteref:[mhdist_def,The Manhattan distance between points
+  _p_~1~=(x~1~&#44; y~1~&#44; z~1~) and _p_~2~=(x~2~&#44; y~2~&#44; z~2~) is
+  defined as abs(x~2~ -- x~1~) + abs(y~2~ -- y~1~) + abs(z~2~ -- z~1~).]
   between actor `aci` and player `pli`
+
+// NOTE: &#44; is the comma; the footnote would be truncated at it otherwise.
+// For a related issue, see
+// http://www.methods.co.nz/asciidoc/faq.html#_why_am_i_having_trouble_getting_nested_macros_to_work
 
 Additionally, `gameactor` accepts optional input arguments. They can be
 specifyed positionally by following `tilenum`, or be given as values to string
@@ -835,10 +863,9 @@ one of these two forms. Furthermore, `func` may be provided as value to the
 key `'func'` as well.
 
 `[2] flags`::
-
 A number that controls both certain aspects of the `gameactor` call as well as
-the run-time behavior of the actor itself. A couple of the latter type are
-listed in <<actor_FLAGS,`actor.FLAGS`>>, abbreviated `AF` in the following.
+the run-time behavior of the actor itself. A couple of bits for the latter type
+are listed in <<actor_FLAGS,`actor.FLAGS`>>, abbreviated `AF` in the following.
 +
 These values describe the ``type'' of the actor: `AF.enemy`, `AF.enemystayput`
 and `AF.rotfixed`. Except for `enemystayput`, they name single bits
@@ -926,4 +953,119 @@ out e.g. trigonometrical calculations, there is a need for convenient
 interoperability between the two ``worlds''.
 
 Another purpose of the `xmath` module is to provide _vector_ types that allow
-writing concise and clear code involving geometrical calculations.
+writing concise and clear code involving geometrical calculations. There are
+two types, both containing three components (`x`, `y` and `z`), but differing
+in their numeric type. For the most part, `vec3` should be used, whose
+components are Lua numbers, i.e. floating point. The other type, `ivec3`, is
+part of some game structures, and consequently uses 32-bit integers for its
+components. With minor differences, the `vec3` and `ivec3` types share the same
+operations and methods.
+
+[[vector_types]]
+The types `xmath.vec3` and `xmath.ivec3`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The constructors of the vector types can be called in several ways. In the
+following, they are only described for `vec3`. The conventions for `ivec3` are
+completely analogous, but since their creation involves a number type
+conversion, the rules about <<int_assignment,assignment to integer types>>
+apply.
+
+`v = xmath.vec3([x [, y [, z]]])`::
+Create a 3-element vector `v` by passing the `x`, `y` and `z` components
+separately. Trailing components can be omitted, in which case they are
+initialized to 0.
+
+`v = xmath.vec3(t)`::
+Create a 3-element vector `v` by passing `t`, which can be any variable
+indexable with the strings `x`, `y` and `z` (and yielding numbers for these
+lookups). For example, `t` can be another (`i`)`vec3`, a `sprite` or even
+<<wall,`wall`>> reference, as each of them can be indexed with these three
+keys.
+
+Since the vector types are compound objects, they are always passed around by
+reference. For example, consider executing
+----------
+v = xmath.vec3(0, 1)
+w = v
+w.y = 2
+----------
+After this code, the expression `v.x` yields `2` instead of `v`'s initial value
+`1`.
+
+===== Operations for `vec3` and `ivec3`
+
+In the following, `v` denotes a `vec3` or `ivec3` object reference while `t`
+denotes any object indexable with `x`, `y` and `z`. Note that for binary
+operations, Lua looks for overridden operators in the left operand first and
+the right one next.  So, where `t` appears on the left hand side of an
+arithmetic expression, it is assumed that `t`'s type does not overload the
+corresponding operation or provides the same semantics. Arithmetic operations
+always return a (reference to a) new `vec3` object, even if any or both of the
+operands have `ivec3` type.
+
+`v + t`, {nbsp} `t + v`::
+Returns a new `vec3` object whose components are the sum of the respective
+components of `v` and `t`.
+
+`v - t`, {nbsp} `t - v`::
+Returns a new `vec3` object whose components are the difference of the
+respective components of `v` and `t` (in the first case) or `t` and `v` (in the
+second case).
+
+`-v`::
+Returns a new `vec3` object with the components of `v` negated.
+
+`a*v`, {nbsp} `v*a`::
+For a scalar number `a`, returns a new `vec3` object whose components are the
+product of those of `v`, and `a`.
+
+`v/a`::
+For a scalar number `a`, returns a new `vec3` object whose components are those
+of `v` divided by `a`.
+
+`v^zofs`::
+Returns an object of the same type as `v` and with the same components, except
+that `v.z` is diminished by `zofs`. Also see the <<sprite_power,power
+operation>> for `sprite` objects.
+
+`tostring(v)`::
+Returns a string representation of `v` for display purposes: ```vec3`'' or
+```ivec3`'', followed by the components of `v` in parentheses.
+
+===== Methods for `vec3` and `ivec3`
+
+`v:len()`::
+Returns the Euclidean length of `v` in three dimensions.
+
+`v:lensq()`::
+Returns the squared Euclidean length of `v` in three dimensions.
+
+`v:len2()`::
+Returns the Euclidean length of `v`, taking only the `x` and `y` components
+into account.
+
+`v:len2sq()`::
+Returns the squared Euclidean length of `v`, taking only the `x` and `y`
+components into account.
+
+`v:mhlen()`::
+Returns the length of `v` calculated using the Manhattan distance
+footnoteref:[mhdist_def] in three dimensions between the origin and the
+endpoint.
+
+`v:toivec3()`::
+Returns a new `ivec3` object with the same components as `v`, but converted
+<<int_assignment,to integers>>.
+
+`v:touniform()`::
+Returns a new vector of the same type as `v` which has the same `x` and `y`
+components as `v`, but the `z` element divided by 16 (if `v` is a `vec3`) or
+arithmetically right-shifted by 4 (if `v` is an
+`ivec3`).footnote:[Right-shifting by 4 can be seen as a division by 16, but
+with rounding towards negative infinity.] Also see the description of the
+ceiling/floor <<cf_z,`z` member>>.
+
+`v:tobuild()`::
+Returns a new vector of the same type as `v` which has the same `x` and `y`
+components as `v`, but the `z` element multiplied with 16.

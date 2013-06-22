@@ -34,3 +34,11 @@ onevent EVENT_JUMP
     money 5
     paper 3
 endevent
+
+// Speed up sector effects a little 8-)
+gamevar ra_temp 0 0
+eventloadactor GPSPEED
+    getactor[THISACTOR].lotag ra_temp
+    mulvar ra_temp 4
+    setactor[THISACTOR].lotag ra_temp
+enda
