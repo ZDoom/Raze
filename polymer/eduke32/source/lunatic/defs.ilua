@@ -1599,7 +1599,9 @@ local function our_require(modname, ...)
         error("Module name must not contain directory separators", ERRLEV-1)
     end
     -- Instead, dots are translated to directory separators. For EDuke32's
-    -- virtual file system, this is always a forward slash.
+    -- virtual file system, this is always a forward slash. Keep the original
+    -- module name for passing to the module function.
+    local omodname = modname
     modname = modname:gsub("%.", "/")
 
     local omod = package_loaded[modname]
@@ -1633,7 +1635,7 @@ local function our_require(modname, ...)
 
     -- Run the module code in a separate Lua thread!
     local modthread = coroutine.create(modfunc)
-    local ok, retval = coroutine.resume(modthread, modname, ...)
+    local ok, retval = coroutine.resume(modthread, omodname, ...)
 
     if (not ok) then
         errorf(ERRLEV-1, "Failed running \"%s\": %s", modname, retval)

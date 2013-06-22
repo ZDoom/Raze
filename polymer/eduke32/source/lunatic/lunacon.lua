@@ -426,7 +426,7 @@ function on.actor_end(pos, usertype, tsamm, codetab)
         str = str .. movflags..","
     end
 
-    paddcodef(pos, "gameactor{%d,%sfunction(_aci, _pli, _dist)", tilenum, str)
+    paddcodef(pos, "gameactor{%d,%sfunction(_aci,_pli,_dist)", tilenum, str)
     addcode(get_cache_sap_code())
     add_code_and_end(codetab, "end}")
 
@@ -476,7 +476,7 @@ function on.state_begin_Cmt(_subj, _pos, statename)
 end
 
 function on.state_end(pos, funcname, codetab)
-    paddcodef(pos, "%s=function(_aci, _pli, _dist)", funcname)
+    paddcodef(pos, "%s=function(_aci,_pli,_dist)", funcname)
     addcode(get_cache_sap_code())
     add_code_and_end(codetab, "end")
 end
@@ -484,7 +484,7 @@ end
 function on.event_end(pos, eventidx, codetab)
     assert(type(codetab)=="table")
     -- 0x20000000: actor.FLAGS.chain_beg
-    paddcodef(pos, "gameevent{%d,0x20000000,function (_aci, _pli, _dist)", eventidx)
+    paddcodef(pos, "gameevent{%d,0x20000000,function (_aci,_pli,_dist)", eventidx)
     addcode(get_cache_sap_code())
     addcode(codetab)
     addcode("end}")
@@ -494,7 +494,7 @@ end
 
 function on.eventloadactor_end(pos, tilenum, codetab)
     -- Translate eventloadactor into a chained EVENT_LOADACTOR block
-    paddcodef(pos, "gameevent{'LOADACTOR', function (_aci, _pli, _dist)")
+    paddcodef(pos, "gameevent{'LOADACTOR', function (_aci,_pli,_dist)")
     addcode(get_cache_sap_code())
     addcodef("if (%s==%d) then", SPS".picnum", tilenum)
     addcode(codetab)
@@ -2127,7 +2127,7 @@ local Cinner = {
     lockplayer = cmd(R)
         / PLS".transporter_hold=%1",
     quake = cmd(R)
-        / "_gv.doQuake(%1,81)",  -- EARTHQUAKE
+        / "_gv.doQuake(%1,81)",  -- TODO: dynsound (EARTHQUAKE)
     jump = cmd(R)
         / handle.NYI,  -- will never be
     cmenu = cmd(R)

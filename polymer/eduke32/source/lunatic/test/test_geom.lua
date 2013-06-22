@@ -12,12 +12,17 @@ local V,W = {}, {}
 
 local randvec
 
+local args = { ... }
+local ourname = args[1]
+
 if (os.exit) then
     local math = require("math")
 
     randvec = function()
         return geom.vec2(math.random(), math.random())
     end
+
+    print("Running stand-alone. ourname: "..tostring(ourname))
 else
     local randgen = require("randgen")
     local s = randgen.new(true)
@@ -27,6 +32,9 @@ else
     randvec = function()
         return geom.vec2(s:getdbl(), s:getdbl())
     end
+
+    -- Test optional arguments from our_require().
+    printf("Running %s stand-alone with opt arg %s", ourname, tostring(args[2]))
 end
 
 local t1 = os.clock()

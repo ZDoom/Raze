@@ -88,7 +88,7 @@ local vec3_mt = {
 
     -- '^' is the "translate upwards" operator, returns same-typed vector.
     __pow = function(v, zofs)
-        return v(v.x, v.y, v.z-zofs)
+        return v:_ctor(v.x, v.y, v.z-zofs)
     end,
 
     -- XXX: Rewrite using _serialize internal API instead.
@@ -112,20 +112,21 @@ local vec3_mt = {
 
         toivec3 = function(v) return ivec3_t(v.x, v.y, v.z) end,
 
-        -- Get the type constructor for this vector.
-        _getctor = function(v)
-            return v:_isi() and ivec3_t or dvec3_t
-        end,
-
         -- BUILD-coordinate (z scaled by 16) <-> uniform conversions.
         touniform = function(v)
             return v:_isi()
-                and v:_getctor(v.x, v.y, arshift(v.z, 4))
-                or v:_getctor(v.x, v.y, v.z/4)
+                and v:_ctor(v.x, v.y, arshift(v.z, 4))
+                or v:_ctor(v.x, v.y, v.z/16)
         end,
 
-        tobuild = function(v) return v:_getctor(v.x, v.y, 16*v.z) end,
+        tobuild = function(v) return v:_ctor(v.x, v.y, 16*v.z) end,
 
+        -- PRIVATE methods --
+
+        -- Get the type constructor for this vector.
+        _ctor = function(v, ...)
+            return v:_isi() and ivec3_t(...) or dvec3_t(...)
+        end,
         -- Is <v> integer vec3? INTERNAL.
         _isi = function(v)
             return ffi.istype(ivec3_t, v)
@@ -135,6 +136,7 @@ local vec3_mt = {
 
 ffi.metatype(dvec2_t, vec2_mt)
 ffi.metatype(dvec3_t, vec3_mt)
+ffi.metatype(ivec3_t, vec3_mt)
 
 -- VEC2 user data constructor.
 --  * vec2([x [, y]]), assuming that x and y are numbers. Vacant positions are
@@ -160,8 +162,15 @@ function vec3(...)
     end
 end
 
--- TODO: make a constructor like VEC3?
-ivec3 = ffi.metatype(ivec3_t, vec3_mt)
+-- IVEC3 user data constructor.
+function ivec3(...)
+    local x, y, z = ...
+    if (type(x)=="number" or x==nil) then
+        return ivec3_t(...)
+    else
+        return ivec3_t(x.x, x.y, x.z)
+    end
+end
 
 
 -- Two-element vector cross product.

@@ -83,6 +83,6 @@ gameevent
     "DISPLAYREST",
 
     function()
-        con.minitext(160, 10, string.format("jumped %d times", ournumjumps))
+        con.minitext(240, 10, string.format("jumped %d times", ournumjumps))
     end
 }

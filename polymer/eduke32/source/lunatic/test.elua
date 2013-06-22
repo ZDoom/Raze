@@ -356,7 +356,9 @@ gameevent
             mpos = mpos + wall[i]
         end
         mpos = mpos/gv.numwalls
-        printf("Map center point: (%d,%d)", mpos.x, mpos.y)
+        local impos = geom.ivec3(mpos)^20  -- test ivec3 with dvec3 arg, test '^' op
+        assert(impos.z == -20)
+        printf("Map center point: (%d,%f)", mpos.x, impos.y)
     end
 }
 
@@ -597,7 +599,7 @@ printf("EVENT_INIT = %d", gv.EVENT_INIT)  -- tests default defines
 local bittest = require "test.test_bitar"
 bittest.sieve()
 
-require("test.test_geom")
+require("test.test_geom", 123123)
 require("test.test_rotspr")
 
 do
