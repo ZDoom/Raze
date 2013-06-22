@@ -11383,20 +11383,26 @@ int32_t clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t 
 //
 // inside
 //
+// See http://fabiensanglard.net/duke3d/build_engine_internals.php,
+// "Inside details" for the idea behind the algorithm.
 int32_t inside(int32_t x, int32_t y, int16_t sectnum)
 {
     if (sectnum >= 0 && sectnum < numsectors)
     {
-        uint32_t cnt = 0;
+        uint32_t cnt1 = 0, cnt2 = 0;
         walltype *wal = &wall[sector[sectnum].wallptr];
         int32_t i = sector[sectnum].wallnum;
 
         do
         {
-            // Get the y components of the [tested point]-->[wall point{1,2}]
-            // vectors.
-            const int32_t y1 = wal->y - y;
-            const int32_t y2 = wall[wal->point2].y - y;
+            // Get the x and y components of the [tested point]-->[wall
+            // point{1,2}] vectors.
+            int32_t x1 = wal->x-x, x2 = wall[wal->point2].x-x;
+            int32_t y1 = wal->y-y, y2 = wall[wal->point2].y-y;
+
+            // First, test if the point is EXACTLY_ON_WALL_POINT.
+            if ((x1|y1) == 0 || (x2|y2)==0)
+                return 1;
 
             // If their signs differ[*], ...
             //
@@ -11406,21 +11412,37 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
             // where y_m := min(y1, y2) and y_M := max(y1, y2).
             if ((y1^y2) < 0)
             {
-                // ... get the x components.
-                const int32_t x1 = wal->x - x;
-                const int32_t x2 = wall[wal->point2].x - x;
+                if ((x1^x2) >= 0)
+                    cnt1 ^= x1;
+                else
+                    cnt1 ^= (x1*y2-x2*y1)^y2;
+            }
+
+            y1--;
+            y2--;
+
+            // Now, do the same comparisons, but with the interval half-open on
+            // the other side! That is, take the branch iff
+            //   y1 != y2 AND y_m < wal->y <= y_M,
+            // For a rectangular sector, without EXACTLY_ON_WALL_POINT, this
+            // would still leave the lower left and upper right points
+            // "outside" the sector.
+            if ((y1^y2) < 0)
+            {
+                x1--;
+                x2--;
 
                 if ((x1^x2) >= 0)
-                    cnt ^= x1;
+                    cnt2 ^= x1;
                 else
-                    cnt ^= (x1*y2-x2*y1)^y2;
+                    cnt2 ^= (x1*y2-x2*y1)^y2;
             }
 
             wal++; i--;
         }
         while (i);
 
-        return cnt>>31;
+        return (cnt1|cnt2)>>31;
     }
 
     return -1;

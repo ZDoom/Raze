@@ -506,7 +506,7 @@ local sectortype_mt = {
                           { florhit>=49152, bit.band(florhit,16383), florz })
         end,
 
-        -- inside() port
+        -- inside() port, OUTOFSYNC with engine.c
         contains = function(s, pos)
             local x, y = pos.x, pos.y
             local cnt = 0
