@@ -11385,28 +11385,45 @@ int32_t clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t 
 //
 int32_t inside(int32_t x, int32_t y, int16_t sectnum)
 {
-    walltype *wal;
-    int32_t i, x1, y1, x2, y2;
-    uint32_t cnt;
-
-    if (sectnum < 0 || sectnum >= numsectors)
-        return -1;
-
-    cnt = 0;
-    wal = &wall[sector[sectnum].wallptr];
-    i = sector[sectnum].wallnum;
-    do
+    if (sectnum >= 0 && sectnum < numsectors)
     {
-        y1 = wal->y-y; y2 = wall[wal->point2].y-y;
-        if ((y1^y2) < 0)
+        uint32_t cnt = 0;
+        walltype *wal = &wall[sector[sectnum].wallptr];
+        int32_t i = sector[sectnum].wallnum;
+
+        do
         {
-            x1 = wal->x-x; x2 = wall[wal->point2].x-x;
-            if ((x1^x2) >= 0) cnt ^= x1; else cnt ^= (x1*y2-x2*y1)^y2;
+            // Get the y components of the [tested point]-->[wall point{1,2}]
+            // vectors.
+            const int32_t y1 = wal->y - y;
+            const int32_t y2 = wall[wal->point2].y - y;
+
+            // If their signs differ[*], ...
+            //
+            // [*] where '-' corresponds to <0 and '+' corresponds to >=0.
+            // Equivalently, the branch is taken iff
+            //   y1 != y2 AND y_m <= wal->y < y_M,
+            // where y_m := min(y1, y2) and y_M := max(y1, y2).
+            if ((y1^y2) < 0)
+            {
+                // ... get the x components.
+                const int32_t x1 = wal->x - x;
+                const int32_t x2 = wall[wal->point2].x - x;
+
+                if ((x1^x2) >= 0)
+                    cnt ^= x1;
+                else
+                    cnt ^= (x1*y2-x2*y1)^y2;
+            }
+
+            wal++; i--;
         }
-        wal++; i--;
+        while (i);
+
+        return cnt>>31;
     }
-    while (i);
-    return(cnt>>31);
+
+    return -1;
 }
 
 int32_t __fastcall getangle(int32_t xvect, int32_t yvect)

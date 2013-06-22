@@ -1782,9 +1782,12 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal)
     // insert sprites
     for (i=0; i<mapinfo->numsprites; i++)
     {
-        int32_t sect = onumsectors+mapinfo->sprite[i].sectnum;
-        j = insertsprite(sect, mapinfo->sprite[i].statnum);
-        Bmemcpy(&sprite[j], &mapinfo->sprite[i], sizeof(spritetype));
+        const spritetype *srcspr = &mapinfo->sprite[i];
+        int32_t sect = onumsectors + srcspr->sectnum;
+
+        j = insertsprite(sect, srcspr->statnum);
+        Bassert(j >= 0);
+        Bmemcpy(&sprite[j], srcspr, sizeof(spritetype));
         sprite[j].sectnum = sect;
     }
 
@@ -8579,15 +8582,10 @@ int32_t fixspritesectors(void)
 
                 for (j=0; j<numsectors; j++)
                 {
-                    if (inside(dax,day, j) != 1)
-                        continue;
-
-                    if (cz <= sprite[i].z && sprite[i].z <= fz)
+                    if (cz <= sprite[i].z && sprite[i].z <= fz && inside(dax,day, j) == 1)
                     {
-                        if (fixmaponsave_sprites || (sprite[i].sectnum < 0 || sprite[i].sectnum >= numsectors))
+                        if (fixmaponsave_sprites || (unsigned)sprite[i].sectnum >= numsectors+0u)
                         {
-                            numfixedsprites++;
-
                             if (printfirsttime == 0)
                             {
                                 initprintf("--------------------\n");
@@ -8595,7 +8593,9 @@ int32_t fixspritesectors(void)
                             }
                             initprintf_nowarn("Changed sectnum of sprite #%d from %d to %d\n",
                                               i, TrackerCast(sprite[i].sectnum), j);
+
                             changespritesect(i, j);
+                            numfixedsprites++;
                         }
                         break;
                     }
