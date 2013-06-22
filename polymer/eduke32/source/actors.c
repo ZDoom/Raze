@@ -5633,7 +5633,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         switch (st)
         {
-        case 0:
+        case SE_0_ROTATING_SECTOR:
         {
             int32_t zchange = 0;
 
@@ -5802,7 +5802,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
         }
         break;
 
-        case 1: //Nothing for now used as the pivot
+        case SE_1_PIVOT: //Nothing for now used as the pivot
             if (s->owner == -1) //Init
             {
                 s->owner = i;
@@ -6181,7 +6181,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
 
-        case 2://Quakes
+        case SE_2_EARTHQUAKE://Quakes
             if (t[4] > 0 && t[0] == 0)
             {
                 if (t[4] < sh)
@@ -6251,7 +6251,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             //Flashing sector lights after reactor EXPLOSION2
 
-        case 3:
+        case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
         {
             if (t[4] == 0) break;
 
@@ -6292,7 +6292,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
         }
 
-        case 4:
+        case SE_4_RANDOM_LIGHTS:
 
             if ((g_globalRandom/(sh+1)&31) < 4)
             {
@@ -6347,7 +6347,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
             //BOSS
-        case 5:
+        case SE_5:
         {
             const int32_t p = A_FindPlayer(s,&x);
             DukePlayer_t *const ps = g_player[p].ps;
@@ -7029,7 +7029,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                     for (SPRITES_OF(STAT_EFFECTOR, j))
                     {
-                        if (sprite[j].lotag == 0 && sprite[j].hitag==sh)
+                        if (sprite[j].lotag == SE_0_ROTATING_SECTOR && sprite[j].hitag==sh)
                         {
                             sectortype *const sec = &sector[sprite[j].sectnum];
 
@@ -7285,7 +7285,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
         }
 
-        case 35:
+        case SE_35:
             if (sc->ceilingz > s->z)
                 for (j = 0; j < 8; j++)
                 {
@@ -7678,7 +7678,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
-        case 130:
+        case SE_130:
             if (t[0] > 80)
             {
                 KILLIT(i);
@@ -7698,7 +7698,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
-        case 131:
+        case SE_131:
             if (t[0] > 40)
             {
                 KILLIT(i);
