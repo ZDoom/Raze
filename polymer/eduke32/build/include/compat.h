@@ -127,6 +127,8 @@
 #include <direct.h>
 # define inline __inline
 # define longlong(x) x##i64
+
+#if _MSC_VER < 1800
 static inline float nearbyintf(float x) 
 { 
     uint32_t w1, w2;
@@ -141,6 +143,7 @@ static inline float nearbyintf(float x)
         fldcw w1
     }
 }
+#endif
 #else
 # define longlong(x) x##ll
 #endif
