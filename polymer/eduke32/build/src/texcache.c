@@ -1,3 +1,5 @@
+#ifdef USE_OPENGL
+
 #include "build.h"
 #include "quicklz.h"
 #include "hightile.h"
@@ -759,3 +761,4 @@ void texcache_setupmemcache(void)
     }
 }
 
+#endif
