@@ -2699,7 +2699,7 @@ CHECKINV1:
         if ((int32_t)j != -1 && p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 /*&& p->kickback_pic == 0*/ &&
                 p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
         {
-            //            if(  ( p->weapon_pos == 0 || ( p->holster_weapon && p->weapon_pos == -9 ) ))
+            //            if(  ( p->weapon_pos == 0 || ( p->holster_weapon && p->weapon_pos == WEAPON_POS_LOWER ) ))
             {
                 if (j == 10 || j == 11)
                 {
@@ -2811,7 +2811,7 @@ CHECKINV1:
                     if (p->holster_weapon)
                     {
                         sb_snum |= BIT(SK_HOLSTER);
-                        p->weapon_pos = -9;
+                        p->weapon_pos = WEAPON_POS_LOWER;
                     }
                     else if ((int32_t)j >= 0 && (p->gotweapon & (1<<j)) && (uint32_t)p->curr_weapon != j)
                         switch (j)
@@ -2837,7 +2837,7 @@ CHECKINV1:
                             {
                                 p->curr_weapon = j;
                                 p->last_weapon = -1;
-                                p->weapon_pos = 10;
+                                p->weapon_pos = WEAPON_POS_RAISE;
                             }
                             break;
                         case HANDBOMB_WEAPON:

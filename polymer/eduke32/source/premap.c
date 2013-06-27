@@ -842,7 +842,7 @@ void P_ResetStatus(int32_t snum)
         p->kickback_pic  = PWEAPON(snum, p->curr_weapon, TotalTime);
     else p->kickback_pic = 0;
 
-    p->weapon_pos        = 6;
+    p->weapon_pos        = WEAPON_POS_START;
     p->walking_snd_toggle= 0;
     p->weapon_ang        = 0;
 
@@ -868,7 +868,7 @@ void P_ResetWeapons(int32_t snum)
     for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
         p->ammo_amount[weapon] = 0;
 
-    p->weapon_pos = 6;
+    p->weapon_pos = WEAPON_POS_START;
     p->curr_weapon = PISTOL_WEAPON;
     p->kickback_pic = PWEAPON(snum, p->curr_weapon, TotalTime);
     p->gotweapon = ((1<<PISTOL_WEAPON) | (1<<KNEE_WEAPON) | (1<<HANDREMOTE_WEAPON));
@@ -911,8 +911,8 @@ static void resetprestat(int32_t snum,int32_t g)
     p->max_secret_rooms  = 0;
     p->actors_killed     = 0;
     p->max_actors_killed = 0;
-    p->lastrandomspot = 0;
-    p->weapon_pos = 6;
+    p->lastrandomspot    = 0;
+    p->weapon_pos = WEAPON_POS_START;
 
     P_ResetTintFade(p);
 

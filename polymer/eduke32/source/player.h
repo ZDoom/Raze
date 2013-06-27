@@ -39,6 +39,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define PIPEBOMB_REMOTE         0x00000001
 #define PIPEBOMB_TIMER          0x00000002
 
+#define WEAPON_POS_LOWER            -9
+#define WEAPON_POS_RAISE            10
+#define WEAPON_POS_START             6
+
 enum dukeinv_t {
     GET_STEROIDS,  // 0
     GET_SHIELD,

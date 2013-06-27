@@ -2996,7 +2996,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
         case GAMETICSPERSEC*218:
             {
                 p->holster_weapon = 0;
-                p->weapon_pos = 10;
+                p->weapon_pos = WEAPON_POS_RAISE;
             }
             break;
         }
@@ -3109,7 +3109,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
         if (p->access_incs > 20)
         {
             p->access_incs = 0;
-            p->weapon_pos = 10;
+            p->weapon_pos = WEAPON_POS_RAISE;
             p->kickback_pic = 0;
         }
     }
@@ -3240,11 +3240,11 @@ void P_ChangeWeapon(DukePlayer_t *p,int32_t weapon)
 
     if (p->weapon_pos == 0)
         p->weapon_pos = -1;
-    else p->weapon_pos = -9;
+    else p->weapon_pos = WEAPON_POS_LOWER;
 
     if (p->holster_weapon)
     {
-        p->weapon_pos = 10;
+        p->weapon_pos = WEAPON_POS_RAISE;
         p->holster_weapon = 0;
         p->last_weapon = -1;
     }
@@ -3621,11 +3621,11 @@ static void P_ProcessWeapon(int32_t snum)
     case -9:
         if (p->last_weapon >= 0)
         {
-            p->weapon_pos = 10;
+            p->weapon_pos = WEAPON_POS_RAISE;
             p->last_weapon = -1;
         }
         else if (p->holster_weapon == 0)
-            p->weapon_pos = 10;
+            p->weapon_pos = WEAPON_POS_RAISE;
         break;
     case 0:
         break;
@@ -3656,10 +3656,10 @@ static void P_ProcessWeapon(int32_t snum)
                     p->weapon_pos = -1;
                     P_DoQuote(QUOTE_WEAPON_LOWERED,p);
                 }
-                else if (p->holster_weapon == 1 && p->weapon_pos == -9)
+                else if (p->holster_weapon == 1 && p->weapon_pos == WEAPON_POS_LOWER)
                 {
                     p->holster_weapon = 0;
-                    p->weapon_pos = 10;
+                    p->weapon_pos = WEAPON_POS_RAISE;
                     P_DoQuote(QUOTE_WEAPON_RAISED,p);
                 }
             }
@@ -3736,10 +3736,10 @@ static void P_ProcessWeapon(int32_t snum)
 
         if (p->holster_weapon == 1)
         {
-            if (p->last_pissed_time <= (GAMETICSPERSEC*218) && p->weapon_pos == -9)
+            if (p->last_pissed_time <= (GAMETICSPERSEC*218) && p->weapon_pos == WEAPON_POS_LOWER)
             {
                 p->holster_weapon = 0;
-                p->weapon_pos = 10;
+                p->weapon_pos = WEAPON_POS_RAISE;
                 P_DoQuote(QUOTE_WEAPON_RAISED,p);
             }
         }
@@ -3940,7 +3940,7 @@ static void P_ProcessWeapon(int32_t snum)
             else if ((*kb) > PWEAPON(snum, p->curr_weapon, TotalTime))
             {
                 (*kb) = 0;
-                p->weapon_pos = 10;
+                p->weapon_pos = WEAPON_POS_RAISE;
                 if (PIPEBOMB_CONTROL(snum) == PIPEBOMB_REMOTE)
                 {
                     p->curr_weapon = HANDREMOTE_WEAPON;
@@ -3991,7 +3991,7 @@ static void P_ProcessWeapon(int32_t snum)
                     {
                         (*kb) = 0;
                         P_CheckWeapon(p);
-                        p->weapon_pos = -9;
+                        p->weapon_pos = WEAPON_POS_LOWER;
                     }
                 }
                 else if (*kb >= PWEAPON(snum, p->curr_weapon, Reload))
