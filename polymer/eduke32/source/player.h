@@ -341,6 +341,14 @@ static inline int32_t A_Shoot(int32_t i, int32_t atwith)
     return A_ShootWithZvel(i, atwith, SHOOT_HARDCODED_ZVEL);
 }
 
+static inline void P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
+{
+    p->pals.f = f;
+    p->pals.r = r;
+    p->pals.g = g;
+    p->pals.b = b;
+}
+
 int32_t     A_GetHitscanRange(int32_t i);
 void        getinput(int32_t snum);
 void        P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount);
@@ -357,7 +365,6 @@ void        P_ProcessInput(int32_t snum);
 void        P_QuickKill(DukePlayer_t *p);
 void        P_SelectNextInvItem(DukePlayer_t *p);
 void        P_UpdateScreenPal(DukePlayer_t *p);
-void        P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, uint8_t b);
 void        P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p);
 #endif
 

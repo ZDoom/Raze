@@ -37,14 +37,6 @@ extern int32_t g_levelTextTime, ticrandomseed;
 int32_t g_numObituaries = 0;
 int32_t g_numSelfObituaries = 0;
 
-void P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
-{
-    p->pals.f = f;
-    p->pals.r = r;
-    p->pals.g = g;
-    p->pals.b = b;
-}
-
 void P_UpdateScreenPal(DukePlayer_t *p)
 {
     int32_t intowater = 0;
