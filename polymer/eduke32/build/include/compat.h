@@ -125,10 +125,12 @@
 
 #if defined(_MSC_VER)
 #include <direct.h>
-# define inline __inline
+
 # define longlong(x) x##i64
 
 #if _MSC_VER < 1800
+# define inline __inline
+
 static inline float nearbyintf(float x) 
 { 
     uint32_t w1, w2;
