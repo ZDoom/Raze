@@ -2479,6 +2479,9 @@ void P_DisplayWeapon(int32_t snum)
                             else if ((*kb) < 20)
                                 gun_pos -= 9*((*kb)-14);  //D
 
+                            if (*kb >= ARRAY_SIZE(throw_frames))
+                                break;
+
                             G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+250-gun_pos,HANDTHROW+throw_frames[(*kb)],gs,o,pal,0);
                         }
                     }
@@ -2493,12 +2496,12 @@ void P_DisplayWeapon(int32_t snum)
                 {
                     static uint8_t remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
 
+                    if (*kb >= ARRAY_SIZE(remote_frames))
+                        break;
+
                     weapon_xoffset = -48;
                     guniqhudid = cw;
-                    //                    if ((*kb))
                     G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE+remote_frames[(*kb)],gs,o,pal,0);
-                    //                    else
-                    //                        G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE,gs,o,pal,0);
                     guniqhudid = 0;
                 }
                 break;
@@ -2509,6 +2512,9 @@ void P_DisplayWeapon(int32_t snum)
                     if ((*kb) < (PWEAPON(0, DEVISTATOR_WEAPON, TotalTime)+1) && (*kb) > 0)
                     {
                         static uint8_t cycloidy[] = {0,4,12,24,12,4,0};
+
+                        if (*kb >= ARRAY_SIZE(cycloidy))
+                            break;
 
                         i = ksgn((*kb)>>2);
 
@@ -2546,6 +2552,9 @@ void P_DisplayWeapon(int32_t snum)
                     if ((*kb) < (PWEAPON(snum, p->curr_weapon, TotalTime)+1) && (*kb) > 0)
                     {
                         static uint8_t cat_frames[] = { 0,0,1,1,2,2 };
+
+                        if (*kb%6 >= ARRAY_SIZE(cat_frames))
+                            break;
 
                         if (doanim)
                         {
@@ -2666,7 +2675,7 @@ int32_t g_myAimMode = 0, g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
 int32_t g_emuJumpTics = 0;
 
-void getinput(int32_t snum)
+void P_GetInput(int32_t snum)
 {
     int32_t j, daang;
     static ControlInfo info[2];

@@ -11806,7 +11806,7 @@ MAIN_LOOP_RESTART:
             if (g_networkMode != NET_DEDICATED_SERVER)
             {
                 CONTROL_ProcessBinds();
-                getinput(myconnectindex);
+                P_GetInput(myconnectindex);
             }
 
             avg.fvel += loc.fvel;
