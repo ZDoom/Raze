@@ -326,7 +326,6 @@ struct {
 local WEAPONDATA_STRUCT = "struct {"..table.concat(con_lang.wdata_members, ';').."; }"
 
 local randgen = require("randgen")
-local geom = require("geom")
 
 local ma_rand = randgen.new(true)  -- initialize to "random" (time-based) seed
 local ma_count = nil
@@ -1427,7 +1426,6 @@ local allowed_modules = {
     },
 
     randgen = randgen,
-    geom = geom,
     stat = require("stat"),
     bitar = require("bitar"),
     xmath = require("xmath"),

@@ -13,7 +13,6 @@ local io = require("io")
 local math = require("math")
 local table = require("table")
 
-local geom = require("geom")
 local bcheck = require("bcheck")
 local con_lang = require("con_lang")
 
@@ -447,6 +446,8 @@ end
 local xmath = require("xmath")
 local abs = math.abs
 local dist, ldist = xmath.dist, xmath.ldist
+local vec3, ivec3 = xmath.vec3, xmath.ivec3
+local rotate = xmath.rotate
 
 local function A_FP_ManhattanDist(ps, spr)
     local distvec = ps.pos - spr^(28*256)
@@ -473,15 +474,15 @@ end
 
 local FN_DISTFUNC = {
     d2 = function(s1, s2, d)
-        return (xmath.ldist(s1, s2) < d)
+        return (ldist(s1, s2) < d)
     end,
 
     d3 = function(s1, s2, d)
-        return (xmath.dist(s1, s2) < d)
+        return (dist(s1, s2) < d)
     end,
 
     z = function(s1, s2, d, zd)
-        return (xmath.ldist(s1, s2) < d and abs(s1.z-s2.z) < zd)
+        return (ldist(s1, s2) < d and abs(s1.z-s2.z) < zd)
     end,
 }
 
@@ -790,10 +791,10 @@ end
 
 
 -- switch statement support
-function _switch(swtab, testval, aci,pli,dist)
+function _switch(swtab, testval, aci,pli,dst)
     local func = swtab[testval] or swtab.default
     if (func) then
-        func(aci, pli, dist)
+        func(aci, pli, dst)
     end
 end
 
@@ -931,7 +932,7 @@ function _A_DoGuts(i, gutstile, n)
     end
 
     for i=n,1, -1 do
-        local pos = geom.vec3(spr.x+krandand(255)-128, spr.y+krandand(255)-128, z-krandand(8191))
+        local pos = vec3(spr.x+krandand(255)-128, spr.y+krandand(255)-128, z-krandand(8191))
         local j = insertsprite{ gutstile, pos, spr.sectnum, i, 5, shade=-32, xrepeat=xsz, yrepeat=ysz,
                                 ang=krandand(2047), xvel=48+krandand(31), zvel=-512-krandand(2047) }
         local newspr = sprite[j]
@@ -954,7 +955,7 @@ function _debris(i, dtile, n)
     for j=n-1,0, -1 do
         local isblimpscrap = (ispic(spr.picnum, "BLIMP") and ispic(dtile, "SCRAP1"))
         local picofs = isblimpscrap and 0 or krandand(3)
-        local pos = spr + geom.vec3(krandand(255)-128, krandand(255)-128, -(8*256)-krandand(8191))
+        local pos = spr + vec3(krandand(255)-128, krandand(255)-128, -(8*256)-krandand(8191))
         local jj = insertsprite{ dtile+picofs, pos, spr.sectnum, i, 5,
                                  shade=spr.shade, xrepeat=32+krandand(15), yrepeat=32+krandand(15),
                                  ang=krandand(2047), xvel=32+krandand(127), zvel=-krandand(2047) }
@@ -1270,7 +1271,7 @@ end
 
 -- d is a distance
 function _awayfromwall(spr, d)
-    local vec2 = geom.vec2
+    local vec2 = xmath.vec2
     local vecs = { vec2(d,d), vec2(-d,-d), vec2(d,-d), vec2(-d,d) }
     for i=1,4 do
         if (not inside(vecs[i]+spr, spr.sectnum)) then
@@ -1372,14 +1373,14 @@ end
 
 -- CON "hitscan" command
 function _hitscan(x, y, z, sectnum, vx, vy, vz, cliptype)
-    local srcv = geom.ivec3(x, y, z)
+    local srcv = ivec3(x, y, z)
     local hit = hitscan(srcv, sectnum, vx, vy, vz, cliptype)
     return hit.sect, hit.wall, hit.sprite, hit.pos.x, hit.pos.y, hit.pos.z
 end
 
 -- CON "neartag" command
 function _neartag(x, y, z, sectnum, ang, range, tagsearch)
-    local pos = geom.ivec3(x, y, z)
+    local pos = ivec3(x, y, z)
     local near = neartag(pos, sectnum, ang, range, tagsearch)
     return near.sector, near.wall, near.sprite, near.dist
 end
@@ -1387,7 +1388,7 @@ end
 -- CON "getzrange" command
 function _getzrange(x, y, z, sectnum, walldist, clipmask)
     check_sector_idx(sectnum)
-    local ipos = geom.ivec3(x, y, z)
+    local ipos = ivec3(x, y, z)
     local hit = sector[sectnum]:zrangeat(ipos, walldist, clipmask)
     -- return: ceilz, ceilhit, florz, florhit
     return hit.c.z, hit.c.num + (hit.c.spritep and 49152 or 16384),
@@ -1397,16 +1398,16 @@ end
 -- CON "clipmove" and "clipmovenoslide" commands
 function _clipmovex(x, y, z, sectnum, xv, yv, wd, cd, fd, clipmask, noslidep)
     check_sector_idx(sectnum)
-    local ipos = geom.ivec3(x, y, z)
+    local ipos = ivec3(x, y, z)
     local sect = ffi.new("int16_t [1]")
     local ret = ffiC.clipmovex(ipos, sect, xv, yv, wd, cd, fd, clipmask, noslidep)
     -- Return: clipmovex() return value; updated x, y, sectnum
     return ret, ipos.x, ipos.y, sect[0]
 end
 
-function _sleepcheck(aci, dist)
+function _sleepcheck(aci, dst)
     local acs = actor[aci]
-    if (dist > MAXSLEEPDIST and acs.timetosleep == 0) then
+    if (dst > MAXSLEEPDIST and acs.timetosleep == 0) then
         acs.timetosleep = SLEEPTIME
     end
 end
@@ -1419,7 +1420,7 @@ end
 
 function _movesprite(spritenum, x, y, z, cliptype)
     check_sprite_idx(spritenum)
-    local vel = geom.ivec3(x, y, z)
+    local vel = ivec3(x, y, z)
     return ffiC.A_MoveSprite(spritenum, vel, cliptype)
 end
 
@@ -1438,8 +1439,8 @@ local function A_CheckHitSprite(spr, angadd)
     return hit.sprite, math.sqrt(dx*dx+dy*dy)  -- TODO: use "ldist" approximation for authenticity
 end
 
-function _canshoottarget(dist, aci)
-    if (dist > 1024) then
+function _canshoottarget(dst, aci)
+    if (dst > 1024) then
         local spr = sprite[aci]
 
         local hitspr, hitdist = A_CheckHitSprite(spr, 0)
@@ -1513,9 +1514,9 @@ function _hypot(a, b)
 end
 
 function _rotatepoint(pivotx, pivoty, posx, posy, ang)
-    local pos = geom.ivec3(posx, posy)
-    local pivot = geom.ivec3(pivotx, pivoty)
-    pos = xmath.rotate(pos, pivot, ang):toivec3()
+    local pos = ivec3(posx, posy)
+    local pivot = ivec3(pivotx, pivoty)
+    pos = rotate(pos, pivot, ang):toivec3()
     return pos.x, pos.y
 end
 

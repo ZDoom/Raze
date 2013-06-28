@@ -4,7 +4,7 @@
 local ffi = require "ffi"
 local ffiC = ffi.C
 
-local geom = require "geom"
+local xmath = require "xmath"
 local stat = require "stat"
 
 
@@ -33,7 +33,7 @@ function randwalk(N, spritenum, minlen, maxlen, randofs, funci, logfn)
     local times = {}
     local successp = {}
 
-    local pos = geom.vec3(sprite[spritenum])
+    local pos = xmath.vec3(sprite[spritenum])
     local sectnum = sprite[spritenum].sectnum
 
     for i=1,N do
@@ -51,7 +51,7 @@ function randwalk(N, spritenum, minlen, maxlen, randofs, funci, logfn)
         local len = math.random(minlen, maxlen)
         local ax, ay, az = len*math.cos(ang), len*math.sin(ang), 0
 --]]
-        local newpos = pos + geom.ivec3(ax,ay,az)
+        local newpos = pos + xmath.ivec3(ax,ay,az)
 
         local t = ffiC.gethitickms()
         local newsect = updatesectorfunc(newpos, sectnum)

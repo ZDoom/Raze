@@ -179,7 +179,7 @@ local function new_initial_codetab()
         -- Requires.
         "local require=require",
         "local _con, _bit, _math = require'con', require'bit', require'math'",
-        "local _xmath, _geom = require'xmath', require'geom'",
+        "local _xmath = require'xmath'",
 
         -- Cache globals into locals.
         "local sector, sprite, wall, spriteext, atsprite = sector, sprite, wall, spriteext, atsprite",
@@ -205,7 +205,7 @@ local function new_initial_codetab()
         "local _V,_A=_V,_A",
 
         -- Static ivec3s so that no allocations need to be made.
-        "local _IVEC = { _geom.ivec3(), _geom.ivec3() }",
+        "local _IVEC = { _xmath.ivec3(), _xmath.ivec3() }",
         "local function _IV(num, x, y, z)",
         "  local v=_IVEC[num]; v.x=x; v.y=y; v.z=z; return v;",
         "end",
@@ -561,7 +561,7 @@ local function parse_number(pos, numstr)
         if (hex and #hex>8 and hex:sub(1,#hex-8):match("^[fF]$")) then
             -- Too many hex digits, but they're all Fs.
             pwarnprintf(pos, "number %s truncated to 32 bits", numstr)
-            num = bit.band(num, 0xffffffff)
+            num = bit.tobit(num)
         else
             perrprintf(pos, "number %s out of the range of a 32-bit integer", numstr)
             -- Be careful not to write bound checks like
@@ -572,7 +572,7 @@ local function parse_number(pos, numstr)
         if (not hex and g_warn["number-conversion"]) then
             pwarnprintf(pos, "number %s converted to a negative one", numstr)
         end
-        num = bit.band(num, 0xffffffff)
+        num = bit.tobit(num)
     end
 
 --    printf("numstr:%s, num=%d (0x%s) '%s', resnum=%d (0x%s)",
@@ -1807,8 +1807,9 @@ local function GetOrSetPerxvarCmd(Setp, Actorp)
         local gv = g_gamevar[perxvarname]
         if (gv and bit.band(gv.flags, GVFLAG.PERX_MASK)~=EXPECTED_PERX_BIT) then
             -- [gs]set*var for wrong gamevar type. See if it's a getactorvar,
-            -- in which case we may only warn and get the global gamevar
-            -- (TODO_MP) instead.
+            -- in which case we may only warn and access that instead. Note
+            -- that accesses of player gamevars with actor indices are usually
+            -- meaningless.
             local warnp = not Setp and Actorp and not g_warn["error-bad-getactorvar"]
             local xprintf = warnp and warnprintf or errprintf
 

@@ -246,10 +246,10 @@ if (not _LUNATIC_AUX) then
     assert(ffi.alignof("palette_t")==1)
 end
 
-local vec3_ct = ffi.typeof("vec3_t")  -- will be metatype'd in geom.lua:
+local vec3_ct = ffi.typeof("vec3_t")  -- will be metatype'd in xmath.lua:
 
 if (not _LUNATIC_AUX) then
-    require("geom")
+    require("xmath")
 end
 
 local hitdata_ct = ffi.typeof("hitdata_t")

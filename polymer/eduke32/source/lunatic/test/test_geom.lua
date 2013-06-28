@@ -2,7 +2,7 @@
 
 local os = require("os")
 
-local geom = require("geom")
+local xmath = require("xmath")
 
 
 local N = os.exit and (arg[1] and tostring(arg[1])) or 1e6
@@ -19,7 +19,7 @@ if (os.exit) then
     local math = require("math")
 
     randvec = function()
-        return geom.vec2(math.random(), math.random())
+        return xmath.vec2(math.random(), math.random())
     end
 
     print("Running stand-alone. ourname: "..tostring(ourname))
@@ -30,7 +30,7 @@ else
     -- NOTE: factoring out the inner s:getdbl() into a separate function
     -- reduces performance seriously (about an order of magnitude!)
     randvec = function()
-        return geom.vec2(s:getdbl(), s:getdbl())
+        return xmath.vec2(s:getdbl(), s:getdbl())
     end
 
     -- Test optional arguments from our_require().
@@ -62,9 +62,9 @@ end
 
 local t3 = os.clock()
 
-local v = geom.vec2(0, 0)
+local v = xmath.vec2(0, 0)
 for i=1,N do
-    local intersp = geom.intersect(A[i],V[i], B[i],W[i], true)
+    local intersp = xmath.intersect(A[i],V[i], B[i],W[i], true)
     if (intersp ~= nil) then
         v = v + intersp
     end

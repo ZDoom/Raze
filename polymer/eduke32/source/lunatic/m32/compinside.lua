@@ -6,7 +6,7 @@ local sector = sector
 local inside = inside
 
 local math = require("math")
-local geom = require("geom")
+local xmath = require("xmath")
 local stat = require("stat")
 
 local function resetseed()
@@ -39,7 +39,7 @@ local function getpoints(n, min, max)
     for i=1,n do
         local x = math.random(min.x, max.x)
         local y= math.random(min.y, max.y)
-        posns[i] = geom.vec2(x, y)
+        posns[i] = xmath.vec2(x, y)
         sects[i] = math.random(0, ffiC.numsectors-1)
     end
 

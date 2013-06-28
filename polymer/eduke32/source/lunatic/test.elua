@@ -256,7 +256,7 @@ gameevent
     end
 }
 
-local geom = require "geom"
+local xmath = require "xmath"
 
 gameevent
 {
@@ -351,12 +351,12 @@ gameevent
                   "must be called from top level")
 
         -- Test vec3 + wall. Pseudo wall member 'z' will be accessed.
-        local mpos = geom.vec3()
+        local mpos = xmath.vec3()
         for i=0,gv.numwalls-1 do
             mpos = mpos + wall[i]
         end
         mpos = mpos/gv.numwalls
-        local impos = geom.ivec3(mpos)^20  -- test ivec3 with dvec3 arg, test '^' op
+        local impos = xmath.ivec3(mpos)^20  -- test ivec3 with dvec3 arg, test '^' op
         assert(impos.z == -20)
         printf("Map center point: (%d,%f)", mpos.x, impos.y)
     end
@@ -381,11 +381,11 @@ gameactor
         local r = math.random
         local d = 20
         -- NOTE: __add metamethod is called because of the RHS:
-        local v = spr + geom.vec3(r(-d,d), r(-d,d))
+        local v = spr + xmath.vec3(r(-d,d), r(-d,d))
         spr:setpos(v)
 
         -- Test vec3 constructor with cdata.
-        local tempvec = geom.vec3(player[0].pos)
+        local tempvec = xmath.vec3(player[0].pos)
     end
 }
 

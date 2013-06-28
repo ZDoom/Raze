@@ -4,7 +4,6 @@ local ffi = require "ffi"
 local math = require "math"
 local os = require "os"
 
-local geom = require "geom"
 local xmath = require "xmath"
 
 local ldist = xmath.ldist
@@ -64,8 +63,8 @@ t = os.clock()
 
 -- from control.lua (the CON version of rotatepoint)
 local function _rotatepoint(pivotx, pivoty, posx, posy, ang)
-    local pos = geom.ivec3(posx, posy)
-    local pivot = geom.ivec3(pivotx, pivoty)
+    local pos = xmath.ivec3(posx, posy)
+    local pivot = xmath.ivec3(pivotx, pivoty)
     pos = xmath.rotate(pos, pivot, ang):toivec3()
     return pos.x, pos.y
 end

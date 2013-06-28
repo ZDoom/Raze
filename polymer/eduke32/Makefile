@@ -151,7 +151,6 @@ ifneq (0,$(LUNATIC))
     GAMEOBJS+= $(OBJ)/../lpeg.a  # TEMP
     GAMEOBJS+= $(OBJ)/luaJIT_BC_con_lang.$o \
                $(OBJ)/luaJIT_BC_lunacon.$o \
-               $(OBJ)/luaJIT_BC_geom.$o \
                $(OBJ)/luaJIT_BC_randgen.$o \
                $(OBJ)/luaJIT_BC_stat.$o \
                $(OBJ)/luaJIT_BC_bitar.$o \
