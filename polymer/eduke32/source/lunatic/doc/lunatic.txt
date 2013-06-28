@@ -522,7 +522,7 @@ from `0` to `255`.
 `sec:set_ceilingpicnum(tilenum)`, `sec:set_floorpicnum(tilenum)`::
 Set the tile number of the ceiling or floor.
 
-`sec:ceilingzat(pos)`, `sec:floorzat(pos)`::
+[[sec_cfz_at]] `sec:ceilingzat(pos)`, `sec:floorzat(pos)`::
 Return the z coordinate of sector `sec`'s ceiling or floor at position `pos`,
 which can be anything indexable with the strings `x` and `y`.
 
@@ -540,6 +540,9 @@ These name single bits:
 `TRANS1`, `TRANS2`, `BLOCK`, `HITSCAN`, while the following denote _bit masks_:
 `FLIP_BITMASK`, `ORIENT_BITMASK`, `TRANS_BITMASK`.
 
+[[sector_UPDATE_FLAGS]] `sector.UPDATE_FLAGS`::
+Contains a flag `BREADTH` permissible to <<updatesector,`updatesector`>>.
+
 '''
 [[wall]]
 ===== `wall`
@@ -556,7 +559,7 @@ permissible as arguments to <<vector_types,`xmath` vector>> operations.
 `point2` (read-only)::
 The index of the second wall point.
 
-`nextwall`, `nextsector` (read-only)::
+[[nextwall]] `nextwall`, `nextsector` (read-only)::
 If the wall is ``white'', these members equal `-1`. For ``red'' walls, they
 contain the wall and sector indices (respectively) of the wall on the other side.
 
@@ -811,10 +814,8 @@ horizontal and vertical texel sizes of each tile.
 Lunatic functions
 ~~~~~~~~~~~~~~~~~
 
-Engine-side
-^^^^^^^^^^^
-
-===== Iterators
+Engine-side iterators
+^^^^^^^^^^^^^^^^^^^^^
 
 +*for* w *in* wallsofsect(sectnum)+::
 Iterates over the indices of all walls of the sector with index `sectnum`.
@@ -825,14 +826,63 @@ Iterates over the indices of all sprites with status number `statnum`.
 +*for* s *in* spritesofsect(sectnum)+::
 Iterates over the indices of all sprites contained in the sector with index `sectnum`.
 
+Sector containment functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`inside(pos, sectnum)`::
+Returns a boolean of whether the position `pos` (which can be anything
+indexable with `x` and `y`) is considered inside the sector with number
+`sectnum`, which must be valid. The `z` component is not taken into account.
+
+A number of engine functions take a position `pos` and a starting sector number
+`sectnum` and try to find a sector that contains `pos`, assuming it started out
+in `sectnum`.footnote:[Note that this is different from CON's `updatesector`,
+which takes the starting sector to be the one of the _current sprite_.]
+
+If a valid sector numeric is passed for `sectnum`, these functions first check
+whether that sector contains `pos` (i.e. the position stays in the same sector)
+and then attempt to search neighboring sectors. If the passed `sectnum` is
+`-1`, all sectors are searched in an unspecified order. On success, these
+functions return the sector number of the ``updated'' sector, otherwise `-1`.
+
+[[updatesector]] `updatesector(pos, sectnum [, flags])`::
+
+Searches for a sector containing `pos`, which can be anything indexable with
+`x` and `y`. Thus, the `z` component is not taken into account. If `sectnum` is
+a valid sector number, first all its neighboring walls
+(<<nextwall,`wall[].nextwall`>>, ``red wall links'') are searched, falling back
+to a linear search on failure.
++
+However, this strategy can be problematic if the position passes multiple thin
+sectors that overlap another, potentially unrelated sector (for example, in a
+TROR or sector-over-sector construction). If such a sector is passed without an
+`updatesector` call ever made when it contains the position, the next call may
+not find the real sector (as it is now two nextwall links away from the initial
+one), and wrongly suggest the overlapping one instead.
++
+For this reason, the optional argument `flags` accepts
+<<sector_UPDATE_FLAGS,`sector.UPDATE_FLAGS.BREADTH`>>, instructing
+`updatesector` to look for matching sectors in a _breadth-first_ search
+starting from `sectnum`, and following all nextwall links. With this strategy,
+there is *no* fallback to a linear search if no matching sector is found.
+
+`updatesectorz(pos, sectnum)`::
+
+Searches for a sector containing `pos`, which can be any value indexable with
+`x`, `y` and `z`. Thus, it additionally takes the `z` component into account by
+checking against the bounds that would be returned using a sector's
+<<sec_cfz_at,ceilingzat/floorzat>> methods.
++
+The `updatesectorz` function first checks the initial sector for containment of
+`pos`, then it tries any TROR neighbors of `sectnum`. Finally, it proceeds like
+`updatesector` as far as the searching order is concerned.
+
+//////////
 cansee
 hitscan
-inside
 neartag
 sectorsofbunch
-updatesector
-updatesectorbreadth
-updatesectorz
+//////////
 
 Customizing the game
 ^^^^^^^^^^^^^^^^^^^^

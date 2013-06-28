@@ -772,6 +772,11 @@ static_members.sector.NEARTAG_FLAGS = conststruct
     NOSPRITES = 4,
 }
 
+static_members.sector.UPDATE_FLAGS = conststruct
+{
+    BREADTH = 1,
+}
+
 static_members.wall.CSTAT = conststruct
 {
     BLOCK = 1,
@@ -1056,23 +1061,35 @@ function inside(pos, sectnum)
     return (ffiC.inside(pos.x, pos.y, sectnum)==1)
 end
 
--- TODO: should these rather be one function, and the specific kind of updating
--- controlled by an argument?
 local us_retsect = ffi.new("int16_t [1]")
+local USF = sector.UPDATE_FLAGS
 
-function updatesector(pos, sectnum)
+function updatesector(pos, sectnum, flags)
+    if (sectnum ~= -1) then
+        check_sector_idx(sectnum)
+    end
+
     us_retsect[0] = sectnum
-    ffiC.updatesector(pos.x, pos.y, us_retsect)
+
+    if (flags==nil or flags==0) then
+        ffiC.updatesector(pos.x, pos.y, us_retsect)
+    elseif (flags==USF.BREADTH) then
+        ffiC.updatesectorbreadth(pos.x, pos.y, us_retsect)
+    else
+        error("invalid argument #3 (flags)", 2)
+    end
+
     return us_retsect[0]
 end
 
-function updatesectorbreadth(pos, sectnum)
-    us_retsect[0] = sectnum
-    ffiC.updatesectorbreadth(pos.x, pos.y, us_retsect)
-    return us_retsect[0]
-end
+function updatesectorz(pos, sectnum, flags)
+    if (sectnum ~= -1) then
+        check_sector_idx(sectnum)
+    end
+    if (flags ~= nil) then
+        error("invalid argument #3 (flags)", 2)
+    end
 
-function updatesectorz(pos, sectnum)
     us_retsect[0] = sectnum
     ffiC.updatesectorz(pos.x, pos.y, pos.z, us_retsect)
     return us_retsect[0]

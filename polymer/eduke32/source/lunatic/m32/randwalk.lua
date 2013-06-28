@@ -11,6 +11,12 @@ local stat = require "stat"
 -- set to nil to disable saving positions
 g_posns = {}
 
+local USF_BREADTH = sector.UPDATE_FLAGS.BREADTH
+
+local function updatesectorbreadth(pos, sectnum)
+    return updatesector(pos, sectnum, USF_BREADTH)
+end
+
 -- [STATS, TIMES] = RANDWALK(N, SPRITENUM, MINLEN, MAXLEN [, RANDOFS [, FUNCI [, LOGFN]]])
 function randwalk(N, spritenum, minlen, maxlen, randofs, funci, logfn)
     -- Set the random seed to an arbitrary but fixed value so that the "random" walk
