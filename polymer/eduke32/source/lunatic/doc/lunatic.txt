@@ -177,9 +177,13 @@ also be *`local`*.
 Game variables may take on only values of types that Lunatic knows how to
 serialize into savegames. These are the following:
 
-* booleans, numbers, and strings
-* tables, but with restrictions on their contents and topology described below (TODO)
-* custom Lunatic types that are labeled _serializeable_ in their documentation
+* Booleans, numbers, and strings, collectively called the _basic types_
+* Custom Lunatic types that are labeled _serializeable_ in their documentation
+* Tables, but with the following restrictions on their contents:
+** A table key may only be of basic type.
+** A table value may be (a reference to) any serializeable object, but tables
+    or Lunatic objects that are so referenced *must* have originated in the
+    same module. Beyond that, there are no restrictions on the table topology.
 
 // [icon="icons/din_w_collapse.png"]
 

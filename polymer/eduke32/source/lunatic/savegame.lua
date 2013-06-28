@@ -4,6 +4,8 @@
 local string = require("string")
 local table = require("table")
 
+local format = string.format
+
 local assert = assert
 local getmetatable = getmetatable
 local pairs = pairs
@@ -31,7 +33,7 @@ local function basicSerialize(o)
         return o and "t" or "f"
     elseif (type(o) == "string") then
         -- TODO: return refname if it's shorter
-        return string.format("%q", o)
+        return format("%q", o)
     end
 end
 
@@ -45,13 +47,52 @@ end
 -- user Lunatic environment.
 local savebuffer_mt = {
     __index = {
+        -- Called on starting processing one module.
+        startmod = function(self, modname)
+            self:addrawf("if (N==%q) then", modname)
+            -- Will contain all tables and cdata refs of this module, indexed
+            -- by number.
+            self:addraw("local T={}")
+            self:resetRefs()
+        end,
+
+        -- Called on finishing processing one module.
+        endmod = function(self)
+            self:addraw("end")
+        end,
+
+        --== vvv INTERNAL vvv ===---
+        resetRefs = function(self)
+            self.numrefs = 0
+            self.val2ref = {}
+            self.havereq = {}
+        end,
+
+        -- Get the code necessary to create this object, usually 'require'ing a
+        -- module into a local variable.
+        getRequire = function(self, value)
+            local reqcode = value:_get_require()
+            if (self.havereq[reqcode] == nil) then
+                self.havereq[reqcode] = true
+                self.strbuf[#self.strbuf+1] = reqcode
+            end
+        end,
+
+        emitT = function(self, refcode, valcode, obj)
+            self:addrawf("%s=%s", refcode, valcode)
+            self.val2ref[obj] = refcode
+        end,
+
+        emitAssign = function(self, lhscode, refcode)
+            self:addrawf("%s=%s", lhscode, refcode)
+        end,
+        --== ^^^ INTERNAL ^^^ ===---
+
         -- Add an entry of Lua object <value> that can be referenced by
-        -- <refcode> (which should be Lua code that can appear on both sides of
-        -- an assignment).
+        -- <lhscode> on the left hand side of an assignment.
         -- Returns 'true' if <value> cannot be serialized.
-        add = function(self, refcode, value)
+        add = function(self, lhscode, value)
             local valcode = basicSerialize(value)
-            local havetab = false
 
             if (valcode == nil) then
                 -- <value> is a not a 'basic' Lua object, but one passed by
@@ -59,26 +100,22 @@ local savebuffer_mt = {
                 if (not self.val2ref[value]) then
                     -- Object is being serialized for the first time.
 
+                    -- Create a slot in 'T' for this object by which we can
+                    -- refer to it in the following.
+                    self.numrefs = self.numrefs+1
+                    local refcode = format("T[%d]", self.numrefs)
+
                     if (isSerializeable(value)) then
                         -- We have a serializeable object from Lunatic
                         -- (e.g. actorvar).
-
-                        -- First, get the code necessary to create this object,
-                        -- usually 'require'ing a module into a local variable.
-                        local reqcode = value:_get_require()
-                        if (self.havereq[reqcode] == nil) then
-                            self.havereq[reqcode] = true
-                            self.strbuf[#self.strbuf+1] = reqcode
-                        end
-
-                        valcode = value:_serialize()
+                        self:getRequire(value)
+                        self:emitT(refcode, value:_serialize(), value)
+                        valcode = refcode
 
                     elseif (type(value)=="table") then
-                        -- We have a Lua table.
-                        havetab = true
-
                         -- Create a new table for this gamevar.
-                        self:addrawf("%s={}", refcode)
+                        -- TODO: emit table initializations where possible.
+                        self:emitT(refcode, "{}", value)
 
                         for k,v in pairs(value) do
                             local keystr = basicSerialize(k)
@@ -86,32 +123,29 @@ local savebuffer_mt = {
                                 return true
                             end
 
-                            if (type(v)=="table" and not isSerializeable(v)) then
-                                -- nested tables: NYI
-                                return true
-                            end
-
                             -- Generate the name under which the table element
                             -- is referenced.
-                            local refcode2 = string.format("%s[%s]", refcode, keystr)
+                            local refcode2 = format("%s[%s]", refcode, keystr)
 
                             -- Recurse!
-                            self:add(refcode2, v)
+                            if (self:add(refcode2, v)) then
+                                return true
+                            end
                         end
+
+                        valcode = refcode
                     else
                         -- We have anything else: can't serialize.
                         return true
                     end
-
-                    self.val2ref[value] = refcode
                 else
+                    -- Object was previously serialized, get Lua expression it
+                    -- can be referenced with.
                     valcode = self.val2ref[value]
                 end
             end
 
-            if (not havetab) then
-                self:addraw(refcode.."="..valcode)
-            end
+            self:emitAssign(lhscode, valcode)
         end,
 
         -- Add a single string to the buffer.
@@ -121,7 +155,7 @@ local savebuffer_mt = {
 
         -- Add a single formatted string to the buffer.
         addrawf = function(self, fmt, ...)
-            self:addraw(string.format(fmt, ...))
+            self:addraw(format(fmt, ...))
         end,
 
         -- Get the Lua code recreating the values as a string.
@@ -141,9 +175,14 @@ end
 
 -- Create a new savebuffer object.
 function savebuffer()
+    -- .numrefs: how many table or cdata objects we have serialized
     -- .val2ref: [<Lua object>] = <Lua code string>
     -- .havereq = [<string>] = true
     -- .strbuf: array of Lua code pieces
-    local sb = { val2ref={}, havereq={}, strbuf=sb_get_initial_strbuf() }
+    local sb = {
+        numrefs=0, val2ref={}, havereq={},
+        strbuf=sb_get_initial_strbuf()
+    }
+
     return setmetatable(sb, savebuffer_mt)
 end

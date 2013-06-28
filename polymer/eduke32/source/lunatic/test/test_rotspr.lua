@@ -4,6 +4,8 @@ local con = require("con")
 local bit = require("bit")
 local math = require("math")
 
+local printf = printf
+local tostring = tostring
 local rs = con.rotatesprite
 
 local gameevent = gameevent
@@ -19,9 +21,20 @@ local a_local_gamevar = "yes, this one too"
 
 test_gamevar2 = 'qwe'
 
+a_table = { ELT1='ELT1!', ELT2=4444, ATAB={ q=333, [4]="!four!", w=444, ["true"]=false } }
+local ref_to_a_table = a_table
+ref_to_tabtab = ref_to_a_table.ATAB
+local l_ref_to_tabtab = ref_to_tabtab
+
+ref_to_a_table.selfref = a_table
+a_table[false] = { 1,2,3,con.actorvar(512) }
+
 require "end_gamevars" --==========
 
 not_a_gamevar = "no"
+
+printf("a_table.ATAB[4]=%s", tostring(a_table.ATAB[4]))
+a_table.ATAB[4] = "!FOUR!"
 
 
 local DOT1x5 = 3135

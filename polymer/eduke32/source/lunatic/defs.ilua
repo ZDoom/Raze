@@ -2051,7 +2051,7 @@ do
 
         -- XXX: System gamevars? Most of them ought to be saved with C data.
         for modname, modvars in pairs(module_gamevars) do
-            sb:addrawf("if (N==%q) then", modname)
+            sb:startmod(modname)
 
             -- Handle global gamevars first.
             for i=1,#modvars do
@@ -2088,7 +2088,7 @@ do
                 end
             end
 
-            sb:addraw("end")
+            sb:endmod()
         end
 
         -- Get the whole code as a string.
