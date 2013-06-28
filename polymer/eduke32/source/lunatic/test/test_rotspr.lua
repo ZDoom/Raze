@@ -6,6 +6,24 @@ local math = require("math")
 
 local rs = con.rotatesprite
 
+local gameevent = gameevent
+
+local gv = gv
+local player = player
+
+
+module(...) --====================
+
+test_gamevar = 123
+local a_local_gamevar = "yes, this one too"
+
+test_gamevar2 = 'qwe'
+
+require "end_gamevars" --==========
+
+not_a_gamevar = "no"
+
+
 local DOT1x5 = 3135
 local BAR1x5 = 3163
 
@@ -48,15 +66,3 @@ local function rotatesprite_test()
 end
 
 gameevent{gv.EVENT_DISPLAYREST, rotatesprite_test}
-
-
-module(...) --====================
-
-local not_a_gamevar = "nyet"
-
-test_gamevar = 123
-test_gamevar2 = 'qwe'
-
-require "end_gamevars" --==========
-
-not_a_gamevar2 = "no"

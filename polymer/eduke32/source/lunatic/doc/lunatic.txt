@@ -368,6 +368,14 @@ number from 0 to 2^_B_^--1.
   successively adding or subtracting 2^B^, until the value falls inside that
   range.
 
+//////////
+NOTE to self: this is stricter than C99 (which has first truncation, then range
+check). Also, it may be tempting to assign 0x80000000 to an int32_t to mean
+INT32_MIN, but this is wrong because it's out of range.
+Also see:
+http://lua-users.org/lists/lua-l/2011-09/msg00534.html
+//////////
+
 .Examples
 1. Assignments to _`u8`_ member `visibility`
 * `sec.visibility=3.94159` results the member to contain the integer `3`
@@ -402,7 +410,7 @@ _Clears_ (toggles to an ``off'' state in a boolean sense) those bits of `bf`
 that are set in `bits`.
 
 `bf:flip(bits)`::
-_Flips_ those bits of `bf` that are set in `bits`, that is, reverse their
+_Flips_ those bits of `bf` that are set in `bits`, that is, reverses their
 boolean state.
 
 `bf:test(bits)`::
@@ -791,7 +799,7 @@ is undefined.
 
 ===== `g_tile` static data
 
-`g_tile.sizx`, `g_tile.sizy`::
+`g_tile.sizx`, {nbsp} `g_tile.sizy`::
 Arrays indexable with tile numbers [`0` .. `gv.MAXTILES-1`] that hold the
 horizontal and vertical texel sizes of each tile.
 
@@ -943,6 +951,9 @@ Extended API (Lunatic modules)
 The `xmath` module
 ~~~~~~~~~~~~~~~~~~
 
+Mathematical functions
+^^^^^^^^^^^^^^^^^^^^^^
+
 Lunatic, being a Lua-based scripting system, provides the user with a single
 numeric data type that variables can contain on the Lua side --
 double-precision floating point.footnote:[In LuaJIT, variables additionaly can
@@ -952,6 +963,51 @@ exclusively use integer types to represent quantities such as angles or carry
 out e.g. trigonometrical calculations, there is a need for convenient
 interoperability between the two ``worlds''.
 
+Two pairs of functions calculate the trigonometric sine and cosine, both
+accepting a BUILD angle as input argument, but differing in the scaling of
+their result. Using these functions is recommended over Lua's `math.sin` or
+`math.cos` in cases where the argument is a BUILD angle in the first place, for
+example because it is read from an engine or game structure. The computation is
+both faster (because it is essentially only a bitwise-AND operation followed by
+a table lookup) and the results have the symmetry expected from the
+mathematical counterparts.
+
+`xmath.sinb(bang)`, {nbsp} `xmath.cosb(bang)`::
+Returns the sine/cosine of the given BUILD angle `bang`, which can be any
+whole number in [--2^31^ .. 2^31^--1]. In BUILD, one full cycle is covered by
+values from 0 to 2047; in other words, an angle of 2048 corresponds to 360
+degrees.
++
+The `sinb` and `cosb` functions return values in the range [--1 .. 1], just
+like their mathematical counterparts.
++
+The following guarantees are made for `sinb` whereever its argument expression
+is permissible:
++
+* `sinb(-a) == -sinb(a)` (point symmetry around the origin)
+* `sinb(a + i*2048) == sinb(a)`, where `i` is any whole number (periodicity)
+* `sinb(1024 - a) == sinb(a)` (mirror symmetry around `a`=512)
+* `sinb(a - 1024) == -sinb(a)` (point symmetry around `a`=1024)
+* The value for `cosb(a)` is derived as `sinb(a + 512)`.
+
+`xmath.ksin(bang)`, {nbsp} `xmath.kcos(bang)`::
+Returns the sine/cosine of the given BUILD angle `bang`, multiplied with 16384
+and rounded towards zero. The same guarantees as for the `sinb`/`cosb` pair
+apply.
+
+`xmath.dist(pos1, pos2)`::
+Returns an approximation of the 3D Euclidean distance between points `pos1` and
+`pos2`, both of which can be any object indexable with `x`, `y` and `z`.
+<<cf_z,BUILD z units>> are assumed.
+
+`xmath.ldist(pos1, pos2)`::
+Returns an approximation of the 2D Euclidean distance between points `pos1` and
+`pos2`, both of which can be any object indexable with `x` and `y`.
+
+[[vector_types]]
+The types `xmath.vec3` and `xmath.ivec3`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Another purpose of the `xmath` module is to provide _vector_ types that allow
 writing concise and clear code involving geometrical calculations. There are
 two types, both containing three components (`x`, `y` and `z`), but differing
@@ -960,10 +1016,6 @@ components are Lua numbers, i.e. floating point. The other type, `ivec3`, is
 part of some game structures, and consequently uses 32-bit integers for its
 components. With minor differences, the `vec3` and `ivec3` types share the same
 operations and methods.
-
-[[vector_types]]
-The types `xmath.vec3` and `xmath.ivec3`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The constructors of the vector types can be called in several ways. In the
 following, they are only described for `vec3`. The conventions for `ivec3` are
@@ -1017,8 +1069,8 @@ second case).
 Returns a new `vec3` object with the components of `v` negated.
 
 `a*v`, {nbsp} `v*a`::
-For a scalar number `a`, returns a new `vec3` object whose components are the
-product of those of `v`, and `a`.
+For a scalar number `a`, returns a new `vec3` object whose components are those
+of `v` mutiplied with `a`.
 
 `v/a`::
 For a scalar number `a`, returns a new `vec3` object whose components are those
@@ -1062,9 +1114,9 @@ Returns a new `ivec3` object with the same components as `v`, but converted
 Returns a new vector of the same type as `v` which has the same `x` and `y`
 components as `v`, but the `z` element divided by 16 (if `v` is a `vec3`) or
 arithmetically right-shifted by 4 (if `v` is an
-`ivec3`).footnote:[Right-shifting by 4 can be seen as a division by 16, but
-with rounding towards negative infinity.] Also see the description of the
-ceiling/floor <<cf_z,`z` member>>.
+`ivec3`).footnote:[Right-shifting by 4 can be seen as a division by 16 with
+subsequent rounding to an integer towards negative infinity.] Also see the
+description of the ceiling/floor <<cf_z,`z` member>>.
 
 `v:tobuild()`::
 Returns a new vector of the same type as `v` which has the same `x` and `y`

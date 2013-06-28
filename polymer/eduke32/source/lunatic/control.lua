@@ -313,12 +313,16 @@ end
 
 local int16_st = ffi.typeof "struct { int16_t s; }"
 
+-- Get INT32_MIN for the following constant; passing 0x80000000 would be
+-- out of the range for an int32_t and thus undefined behavior!
+local SHOOT_HARDCODED_ZVEL = bit.tobit(0x80000000)
+
 function _shoot(i, tilenum, zvel)
     check_sprite_idx(i)
     check_sector_idx(ffiC.sprite[i].sectnum)  -- accessed in A_ShootWithZvel
     check_tile_idx(tilenum)
 
-    zvel = zvel and int16_st(zvel).s or 0x80000000  -- SHOOT_HARDCODED_ZVEL
+    zvel = zvel and int16_st(zvel).s or SHOOT_HARDCODED_ZVEL
 
     return CF.A_ShootWithZvel(i, tilenum, zvel)
 end
@@ -976,7 +980,7 @@ end
 function _A_Shoot(i, atwith)
     check_sprite_idx(i)
     check_tile_idx(atwith)
-    return CF.A_ShootWithZvel(i, atwith, 0x80000000)  -- SHOOT_HARDCODED_ZVEL
+    return CF.A_ShootWithZvel(i, atwith, SHOOT_HARDCODED_ZVEL)
 end
 
 function _A_IncurDamage(sn)

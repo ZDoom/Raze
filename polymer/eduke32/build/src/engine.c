@@ -11408,7 +11408,7 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
             //
             // [*] where '-' corresponds to <0 and '+' corresponds to >=0.
             // Equivalently, the branch is taken iff
-            //   y1 != y2 AND y_m <= wal->y < y_M,
+            //   y1 != y2 AND y_m <= y < y_M,
             // where y_m := min(y1, y2) and y_M := max(y1, y2).
             if ((y1^y2) < 0)
             {
@@ -11423,7 +11423,7 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
 
             // Now, do the same comparisons, but with the interval half-open on
             // the other side! That is, take the branch iff
-            //   y1 != y2 AND y_m < wal->y <= y_M,
+            //   y1 != y2 AND y_m < y <= y_M,
             // For a rectangular sector, without EXACTLY_ON_WALL_POINT, this
             // would still leave the lower left and upper right points
             // "outside" the sector.
