@@ -2592,6 +2592,7 @@ nullquote:
         case CON_STOPSOUNDVAR:
         case CON_SOUNDONCEVAR:
         case CON_GLOBALSOUNDVAR:
+        case CON_SCREENSOUND:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
@@ -2617,6 +2618,9 @@ nullquote:
                     continue;
                 case CON_SOUNDVAR:
                     A_PlaySound((int16_t)j,vm.g_i);
+                    continue;
+                case CON_SCREENSOUND:
+                    A_PlaySound(j, -1);
                     continue;
                 }
             }

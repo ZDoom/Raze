@@ -94,6 +94,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_ACTIVATE, 20130522 },
     { CON_SCREENTEXT, 20130529 },
     { CON_DYNAMICSOUNDREMAP, 20130530 },
+    { CON_SCREENSOUND, 20130628 },
 };
 #endif
 
@@ -591,6 +592,7 @@ const char *keyw[] =
     "qstrdim",                  // 369
     "screentext",               // 370
     "dynamicsoundremap",        // 371
+    "screensound",              // 372
     "<null>"
 };
 #endif
@@ -4101,6 +4103,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_SOUNDVAR:
         case CON_GLOBALSOUNDVAR:
         case CON_STOPSOUNDVAR:
+        case CON_SCREENSOUND:
         case CON_SOUNDONCEVAR:
         case CON_ANGOFFVAR:
         case CON_CHECKAVAILWEAPON:

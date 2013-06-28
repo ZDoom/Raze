@@ -2171,6 +2171,8 @@ local Cinner = {
         / "_con._stopactorsound(%1,%2)",
     stopallsounds = cmd()
         / "_con._stopallsounds()",
+    screensound = cmd(R)
+        / "_con._screensound(%1)",
     mikesnd = cmd()
         / format("_con._soundonce(_aci,%s)", SPS".yvel"),
     setactorsoundpitch = cmd(R,R,R)

@@ -1667,6 +1667,12 @@ function _globalsound(pli, sndidx)
     end
 end
 
+-- This one unconditionally plays a session-wide sound.
+function _screensound(sndidx)
+    check_sound_idx(sndidx)
+    CF.A_PlaySound(sndidx, -1)
+end
+
 -- This is a macro for EDuke32 (game.h)
 local function S_StopSound(sndidx)
     ffiC.S_StopEnvSound(sndidx, -1)
