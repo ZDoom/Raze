@@ -85,7 +85,7 @@ The following base Lua functions are available in Lunatic's global environment:
 The bold ones add functionality or behave slightly differently, described below.
 Additionally, `printf` is provided for convenience.
 
-*`error(message [, level])`*::
+[[error]] *`error(message [, level])`*::
 In Lunatic, errors also print to the on-screen display (OSD) and are written to
 the log (unless a maximum error count is exceeded). These also have a
 _backtrace_ added. Additionally, errors not caught by a `pcall` result a
