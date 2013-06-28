@@ -2987,7 +2987,7 @@ static void m32_showmouse(void)
     pop_nofog();
 }
 
-static int32_t AskIfSure(const char *text)
+int32_t AskIfSure(const char *text)
 {
     int32_t retval=1;
 
@@ -3027,7 +3027,7 @@ static int32_t AskIfSure(const char *text)
     if (PRESSED_KEYSC(ESC))
         retval = 1;
 
-    return(retval);
+    return retval;
 }
 
 static int32_t IsValidTile(int32_t idTile)
@@ -10513,7 +10513,7 @@ void app_crashhandler(void)
     if (levelname[0])
     {
         append_ext_UNSAFE(levelname, "_crash.map");
-        SaveBoard(levelname, 1);
+        SaveBoard(levelname, M32_SB_NOEXT);
     }
 }
 
@@ -11099,11 +11099,12 @@ static void Keys2d3d(void)
                     Bsprintf(tempbuf, "Save to %s?", levelname);
                     if (!AskIfSure(tempbuf))
                     {
-                        SaveBoard(levelname, 0);
-
-                        message("Board saved to %s", levelname);
-                        asksave = 0;
-                        lastsave=totalclock;
+                        if (SaveBoard(levelname, M32_SB_ASKOV) != NULL)
+                        {
+                            message("Board saved to %s", levelname);
+                            asksave = 0;
+                            lastsave=totalclock;
+                        }
                     }
                 }
                 else
@@ -11284,13 +11285,13 @@ void ExtCheckKeys(void)
         {
             if (CheckMapCorruption(5, 0)>=4)
             {
-                SaveBoard("autosave_corrupt.map", 1);
-                message("Board autosaved to AUTOSAVE_CORRUPT.MAP");
+                if (SaveBoard("autosave_corrupt.map", M32_SB_NOEXT) != NULL)
+                    message("Board autosaved to AUTOSAVE_CORRUPT.MAP");
             }
             else
             {
-                SaveBoard("autosave.map", 0);
-                message("Board autosaved to AUTOSAVE.MAP");
+                if (SaveBoard("autosave.map", 0) != NULL)
+                    message("Board autosaved to AUTOSAVE.MAP");
             }
 
             asksave++;

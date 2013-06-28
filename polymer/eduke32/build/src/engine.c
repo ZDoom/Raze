@@ -80,6 +80,7 @@ float debug1, debug2;
 #endif
 
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
+int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
 
 static int32_t get_mapversion(void);
 
@@ -10037,6 +10038,8 @@ skip_reading_mapbin:
         check_sprite(i);
     }
 
+    // Back up the map version of the *loaded* map. Must be before yax_update().
+    g_loadedMapVersion = mapversion;
 #ifdef YAX_ENABLE
     yax_update(mapversion<9);
     if (editstatus)

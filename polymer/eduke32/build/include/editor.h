@@ -220,6 +220,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
 #define getnumber16(namestart, num, maxnumber, sign) _getnumber16(namestart, num, maxnumber, sign, NULL)
 void printmessage256(int32_t x, int32_t y, const char *name);
 void message(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
+extern int32_t AskIfSure(const char *text);
 
 const char* getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen, int32_t completion);
 
@@ -316,6 +317,13 @@ extern int32_t scripthistend;
 
 #define AIMING_AT_WALL_OR_MASK (AIMING_AT_WALL || AIMING_AT_MASKWALL)
 #define AIMING_AT_CEILING_OR_FLOOR (AIMING_AT_CEILING || AIMING_AT_FLOOR)
+
+// SaveBoard flags.
+enum SaveBoardFlags
+{
+    M32_SB_NOEXT = 1,  // no ExtSaveMap (backup.map) and no taglabels saving
+    M32_SB_ASKOV = 2,  // for NEW_MAP_FORMAT build, ask whether write map if going from V7/8 to VX
+};
 
 #ifdef EXTERNC
 }

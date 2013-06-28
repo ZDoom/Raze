@@ -100,6 +100,7 @@ int32_t zoom = 768, gettilezoom = 1;
 int32_t lastpm16time = 0;
 
 extern int32_t mapversion;
+extern int32_t g_loadedMapVersion;
 
 int16_t highlight[MAXWALLS+MAXSPRITES];
 int16_t highlightsector[MAXSECTORS], highlightsectorcnt = -1;
@@ -187,6 +188,7 @@ char lastpm16buf[156];
 
 //static int32_t checksectorpointer_warn = 0;
 static int32_t saveboard_savedtags, saveboard_fixedsprites;
+static int32_t saveboard_canceled;
 
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo);
 static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal);
@@ -431,6 +433,7 @@ static void reset_default_mapstate(void)
 #ifdef YAX_ENABLE
     yax_resetbunchnums();
 #endif
+    g_loadedMapVersion = -1;
 }
 
 static void m32_keypresscallback(int32_t code, int32_t downp)
@@ -804,7 +807,7 @@ CANCEL:
             {
                 keystatus[0x15] = keystatus[0x1c] = 0;
 
-                SaveBoard(NULL, 0);
+                SaveBoard(NULL, M32_SB_ASKOV);
 
                 break;
             }
@@ -7693,7 +7696,7 @@ CANCEL:
                         ret = LoadBoard(NULL, 4);
                         if (ret)
                         {
-                            message("Invalid map format, nothing loaded (code %d).", ret);
+                            message("^13Invalid map format, nothing loaded (code %d).", ret);
                             if (bakstat==0)
                                 mapinfofull_free(&bakmap);
                         }
@@ -7838,7 +7841,7 @@ CANCEL:
                         int32_t corrupt = CheckMapCorruption(4, 0);
 
                         if (ask_if_sure(corrupt<4?"Save changes?":"Map corrupt. Save changes?", 2+(corrupt>=4)))
-                            SaveBoard(NULL, 0);
+                            SaveBoard(NULL, M32_SB_ASKOV);
 
                         while (keystatus[1] || keystatus[0x2e])
                         {
@@ -7992,7 +7995,7 @@ static void SaveBoardAndPrintMessage(const char *fn)
     _printmessage16("Saving board...");
     showframe(1);
 
-    f = SaveBoard(fn, 0);
+    f = SaveBoard(fn, M32_SB_ASKOV);
 
     if (f)
     {
@@ -8004,11 +8007,14 @@ static void SaveBoardAndPrintMessage(const char *fn)
     }
     else
     {
-        if (saveboard_fixedsprites)
-            message("^13SAVING BOARD FAILED (changed sectnums of %d sprites).",
-                    saveboard_fixedsprites);
-        else
-            message("^13SAVING BOARD FAILED.");
+        if (!saveboard_canceled)
+        {
+            if (saveboard_fixedsprites)
+                message("^13SAVING BOARD FAILED (changed sectnums of %d sprites).",
+                        saveboard_fixedsprites);
+            else
+                message("^13SAVING BOARD FAILED.");
+        }
     }
 }
 
@@ -8026,17 +8032,36 @@ const char *GetSaveBoardFilename(const char *fn)
     return getbasefn(fn);
 }
 
-// flags:  1:no ExtSaveMap (backup.map) and no taglabels saving
+// flags: see enum SaveBoardFlags.
+// returns: NULL on failure, file name on success.
 const char *SaveBoard(const char *fn, uint32_t flags)
 {
     int32_t ret;
     const char *f = GetSaveBoardFilename(fn);
 
-    saveboard_savedtags = 0;
+    saveboard_canceled = 0;
+#ifdef NEW_MAP_FORMAT
+    if ((flags&M32_SB_ASKOV) && mapversion>=10 &&
+            g_loadedMapVersion != -1 && g_loadedMapVersion < mapversion)
+    {
+        char question[128];
+        Bsnprintf(question, sizeof(question), "Are you sure to overwrite a version "
+                  "V%d map with a V%d map-text one?", g_loadedMapVersion, mapversion);
 
+        if (AskIfSure(question))
+        {
+            message("Cancelled saving board");
+            saveboard_canceled = 1;
+            return NULL;
+        }
+    }
+#endif
+
+    saveboard_savedtags = 0;
     saveboard_fixedsprites = ExtPreSaveMap();
+
     ret = saveboard(f, &startpos, startang, startsectnum);
-    if ((flags&1)==0)
+    if ((flags&M32_SB_NOEXT)==0)
     {
         ExtSaveMap(f);
         saveboard_savedtags = !taglab_save(f);
@@ -8047,6 +8072,9 @@ const char *SaveBoard(const char *fn, uint32_t flags)
 
 // flags:  1: for running on Mapster32 init
 //         4: passed to loadboard flags (no polymer_loadboard); implies no maphack loading
+// returns:
+//     0 on success,
+//    <0 on failure.
 int32_t LoadBoard(const char *filename, uint32_t flags)
 {
     int32_t i, tagstat;
@@ -8054,9 +8082,6 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
 
     if (!filename)
         filename = selectedboardfilename;
-
-    if (filename != boardfilename)
-        Bstrcpy(boardfilename, filename);
 
     editorzrange[0] = INT32_MIN;
     editorzrange[1] = INT32_MAX;
@@ -8071,6 +8096,10 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
 //        printmessage16("Invalid map format.");
         return i;
     }
+
+    // Success, so copy the file name.
+    if (filename != boardfilename)
+        Bstrcpy(boardfilename, filename);
 
     mkonwinvalid();
 
@@ -8099,7 +8128,8 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
         else
             Bstrcpy(msgtail, "successfully");
 
-        message("Loaded V%d map %s%s %s", mapversion, boardfilename, tagstat==0?" w/tags":"", msgtail);
+        message("Loaded V%d map %s%s %s", g_loadedMapVersion,
+                boardfilename, tagstat==0?" w/tags":"", msgtail);
     }
 
     startpos = pos;      //this is same
