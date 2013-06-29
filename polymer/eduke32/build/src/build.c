@@ -8087,9 +8087,9 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     editorzrange[1] = INT32_MAX;
 
     ExtPreLoadMap();
-    i = loadboard(boardfilename, (flags&4)|loadingflags, &pos, &ang, &cursectnum);
+    i = loadboard(filename, (flags&4)|loadingflags, &pos, &ang, &cursectnum);
     if (i == -2)
-        i = loadoldboard(boardfilename,loadingflags, &pos, &ang, &cursectnum);
+        i = loadoldboard(filename,loadingflags, &pos, &ang, &cursectnum);
 
     if (i < 0)
     {

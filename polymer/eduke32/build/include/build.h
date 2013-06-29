@@ -997,7 +997,7 @@ int32_t    preinitengine(void);	// a partial setup of the engine used for launch
 int32_t    initengine(void);
 void   uninitengine(void);
 void   initspritelists(void);
-int32_t   loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
+int32_t   loadboard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadmaphack(const char *filename);
 void delete_maphack_lights();
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -1325,7 +1325,7 @@ int32_t loaddefinitionsfile(const char *fn);
 
 // if loadboard() fails with -2 return, try loadoldboard(). if it fails with
 // -2, board is dodgy
-int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
+int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 
 
 // Hash functions

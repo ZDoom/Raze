@@ -9870,7 +9870,7 @@ LUNATIC_CB int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daa
 //          -2: invalid version
 //          -3: invalid number of sectors, walls or sprites
 //       <= -4: map-text error
-int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
+int32_t loadboard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     int32_t fil, i;
     int16_t numsprites;
@@ -9878,8 +9878,6 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
 
     flags &= 3;
 
-    i = Bstrlen(filename)-1;
-    if (filename[i] == 255) { filename[i] = 0; flags = 1; } // JBF 20040119: "compatibility"
     if ((fil = kopen4load(filename,flags)) == -1)
         { mapversion = 7; return -1; }
 
@@ -10066,7 +10064,7 @@ skip_reading_mapbin:
 
 // Powerslave uses v6
 // Witchaven 1 and TekWar and LameDuke use v5
-int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
+int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     int32_t fil, i;
     int16_t numsprites;
@@ -10078,8 +10076,6 @@ int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daa
     struct walltypev6   v6wall;
     struct spritetypev6 v6spr;
 
-    i = Bstrlen(filename)-1;
-    if (filename[i] == 255) { filename[i] = 0; fromwhere = 1; } // JBF 20040119: "compatibility"
     if ((fil = kopen4load(filename,fromwhere)) == -1)
         { mapversion = 5L; return(-1); }
 
