@@ -435,11 +435,12 @@ static void Proj_MaybeAddSpread(int32_t not_accurate_p, int32_t *zvel, int16_t *
 }
 
 
-static int32_t use_actor_shootzvel = 0;
+static int32_t g_overrideShootZvel = 0;  // a boolean
+static int32_t g_shootZvel;  // the actual zvel if the above is !=0
 
-static int32_t A_GetShootZvel(int32_t i, int32_t defaultzvel)
+static int32_t A_GetShootZvel(int32_t defaultzvel)
 {
-    return use_actor_shootzvel ? actor[i].shootzvel : defaultzvel;
+    return g_overrideShootZvel ? g_shootZvel : defaultzvel;
 }
 
 // Prepare hitscan weapon fired from player p.
@@ -479,7 +480,7 @@ static void P_PreFireHitscan(int32_t i, int32_t p, int32_t atwith,
         {
             hitdata_t hit;
 
-            *zvel = A_GetShootZvel(i, (100-ps->horiz-ps->horizoff)<<5);
+            *zvel = A_GetShootZvel((100-ps->horiz-ps->horizoff)<<5);
 
             hitscan(srcvect, sprite[i].sectnum, sintable[(*sa+512)&2047], sintable[*sa&2047],
                     *zvel<<6,&hit,CLIPMASK1);
@@ -543,7 +544,7 @@ static int32_t Proj_DoHitscan(int32_t i, int32_t cstatmask,
 
     s->cstat &= ~cstatmask;
 
-    zvel = A_GetShootZvel(i, zvel);
+    zvel = A_GetShootZvel(zvel);
 
     hitscan(srcvect, s->sectnum,
             sintable[(sa+512)&2047],
@@ -832,12 +833,12 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 
     if (override_zvel != SHOOT_HARDCODED_ZVEL)
     {
-        use_actor_shootzvel = 1;
-        actor[i].shootzvel = override_zvel;
+        g_overrideShootZvel = 1;
+        g_shootZvel = override_zvel;
     }
     else
     {
-        use_actor_shootzvel = 0;
+        g_overrideShootZvel = 0;
     }
 
     if (s->picnum == APLAYER)
@@ -1103,7 +1104,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 
             if (numplayers > 1 && g_netClient) return -1;
 
-            zvel = A_GetShootZvel(i, zvel);
+            zvel = A_GetShootZvel(zvel);
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(348+sa+512)&2047]/proj->offset),
                                srcvect.y+(sintable[(sa+348)&2047]/proj->offset),
@@ -1287,7 +1288,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 zvel = ((g_player[j].ps->opos.z - srcvect.z + (3<<8))*vel) / hit.pos.x;
             }
 
-            zvel = A_GetShootZvel(i, zvel);
+            zvel = A_GetShootZvel(zvel);
 
             if (atwith == SPIT)
             {
@@ -1380,7 +1381,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 
             if (numplayers > 1 && g_netClient) return -1;
 
-            zvel = A_GetShootZvel(i, zvel);
+            zvel = A_GetShootZvel(zvel);
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(348+sa+512)&2047]/448),
                                srcvect.y+(sintable[(sa+348)&2047]/448),
@@ -1544,7 +1545,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 zvel = -2048;
             vel = x>>4;
 
-            zvel = A_GetShootZvel(i, zvel);
+            zvel = A_GetShootZvel(zvel);
             A_InsertSprite(sect,
                            srcvect.x+(sintable[(512+sa+512)&2047]>>8),
                            srcvect.y+(sintable[(sa+512)&2047]>>8),
@@ -1638,7 +1639,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             }
             else zvel = 0;
 
-            zvel = A_GetShootZvel(i, zvel);
+            zvel = A_GetShootZvel(zvel);
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(512+sa+512)&2047]>>12),
                                srcvect.y+(sintable[(sa+512)&2047]>>12),

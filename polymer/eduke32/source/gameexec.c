@@ -2540,8 +2540,8 @@ nullquote:
             insptr++;
             {
                 int32_t j;
-                // NOTE: (int16_t) cast because actor[].shootzvel is int16_t
-                // and we want exclude that SHOOT_HARDCODED_ZVEL is passed.
+                // NOTE: (int16_t) cast because we want to exclude that
+                // SHOOT_HARDCODED_ZVEL is passed.
                 const int32_t zvel = (tw == CON_ESHOOT) ?
                     SHOOT_HARDCODED_ZVEL : (int16_t)Gv_GetVarX(*insptr++);
 
