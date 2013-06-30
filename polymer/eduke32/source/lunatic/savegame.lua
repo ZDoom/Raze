@@ -13,6 +13,8 @@ local setmetatable = setmetatable
 local tostring = tostring
 local type = type
 
+local cansave_cdata = require("lprivate").cansave_cdata
+
 
 module(...)
 
@@ -39,7 +41,7 @@ end
 
 
 local function isSerializeable(obj)
-    return (getmetatable(obj)=="serializeable")
+    return (getmetatable(obj)=="serializeable" or cansave_cdata(obj))
 end
 
 -- 'Save buffer' class.  Objects of this class keep track of a string buffer

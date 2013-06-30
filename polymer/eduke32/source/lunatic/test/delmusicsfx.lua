@@ -3,6 +3,7 @@ local require = require
 
 local string = require("string")
 local con = require("con")
+local xmath = require("xmath")
 
 local gv = gv
 local sprite = sprite
@@ -30,6 +31,9 @@ tag.hi, tag.lo = 0, 0
 
 -- Preliminary dummy of a local gamevar.
 local ournumjumps = 0
+
+local lastv = xmath.vec3()
+ilastv = xmath.ivec3()
 
 require "end_gamevars"
 
@@ -67,6 +71,8 @@ function(aci, pli)
         if (nearesti >= 0) then
             local spr = sprite[nearesti]
             tag.lo, tag.hi = spr.lotag, spr.hitag
+            lastv.x, lastv.y, lastv.z = spr.x, spr.y, spr.z+0.5
+            ilastv.x, ilastv.y, ilastv.z = spr.x, spr.y, spr.z
             actor.delete(nearesti)
         end
 

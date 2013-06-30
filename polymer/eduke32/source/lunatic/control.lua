@@ -41,8 +41,13 @@ local sector, wall, sprite = dc.sector, dc.wall, dc.sprite
 local wallsofsect = dc.wallsofsect
 local spritesofsect, spritesofstat = dc.spritesofsect, dc.spritesofstat
 
-local OUR_NAME = "_con"
-local OUR_REQUIRE_STRING = "local "..OUR_NAME.."=require'con'"
+local OUR_REQUIRE_STRING = [[
+ local _con=require'con'
+ local _ga,_av,_pv=_con._gamearray,_con.actorvar,_con.playervar
+]]
+local function our_get_require()
+    return OUR_REQUIRE_STRING
+end
 
 
 module(...)
@@ -1900,10 +1905,6 @@ local function serialize_array(ar, strtab, maxnum)
     return table.concat(strtab)
 end
 
-local function our_get_require()
-    return OUR_REQUIRE_STRING
-end
-
 
 --- Game arrays ---
 
@@ -2069,7 +2070,7 @@ local gamearray_methods = {
     _get_require = our_get_require,
 
     _serialize = function(gar)
-        local strtab = { OUR_NAME.."._gamearray(", tostring(gar._size), ",{" }
+        local strtab = { "_ga(", tostring(gar._size), ",{" }
         gar:_cleanup()
         return serialize_array(gar, strtab, gar._size)
     end,
@@ -2149,7 +2150,7 @@ local actorvar_methods = {
     _get_require = our_get_require,
 
     _serialize = function(acv)
-        local strtab = { OUR_NAME..".actorvar(", tostring(acv._defval), ",{" }
+        local strtab = { "_av(", tostring(acv._defval), ",{" }
         -- NOTE: We also clean up when spawning a sprite, too. (See
         -- A_ResetVars() and related functions above.)
         acv:_cleanup()
@@ -2191,7 +2192,7 @@ local playervar_methods = {
     _get_require = our_get_require,
 
     _serialize = function(plv)
-        local strtab = { OUR_NAME..".playervar(", tostring(plv._defval), ",{" }
+        local strtab = { "_pv(", tostring(plv._defval), ",{" }
         return serialize_array(plv, strtab, ffiC.MAXSPRITES)
     end,
 }

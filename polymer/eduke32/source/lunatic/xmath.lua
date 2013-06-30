@@ -12,6 +12,14 @@ local assert = assert
 local error = error
 local type = type
 
+local OUR_REQUIRE_STRING = [[
+ local _xm=require'xmath'
+ local _v,_iv=_xm.vec3,_xm.ivec3
+]]
+local function our_get_require()
+    return OUR_REQUIRE_STRING
+end
+
 
 module(...)
 
@@ -182,7 +190,7 @@ local vec3_mt = {
         return v:_ctor(v.x, v.y, v.z-zofs)
     end,
 
-    -- XXX: Rewrite using _serialize internal API instead.
+    -- Convenience for human-readable display.
     __tostring = function(a)
         return (a:_isi() and "i" or "").."vec3("..a.x..", "..a.y..", "..a.z..")"
     end,
@@ -223,6 +231,13 @@ local vec3_mt = {
         -- Is <v> integer vec3? INTERNAL.
         _isi = function(v)
             return ffi.istype(ivec3_t, v)
+        end,
+
+        --- Serialization ---
+        _get_require = our_get_require,
+
+        _serialize = function(v)
+            return (v:_isi() and "_iv" or "_v").."("..v.x..","..v.y..","..v.z..")"
         end,
     },
 }

@@ -30,6 +30,10 @@ local tonumber = tonumber
 local tostring = tostring
 local type = type
 
+-- Create a new module for passing stuff to other modules.
+local lprivate = {}
+require("package").loaded.lprivate = lprivate
+
 require("jit.opt").start("maxmcode=10240")  -- in KiB
 
 -- The "gv" global will provide access to C global *scalars* and safe functions.
@@ -1432,6 +1436,27 @@ local allowed_modules = {
 
     con = con,
 }
+
+do
+    local ctype_cansave = {}
+
+    -- Register as "serializeable" the type of cdata object <v>.
+    local function reg_serializable_cv(v)
+        assert(type(v)=="cdata")
+        assert(type(v._serialize)=="function")
+        -- NOTE: tonumber() on a ctype cdata object gets its LuaJIT-internal
+        -- ID, the one that would be shown with tostring(), e.g.
+        -- ctype<struct 95>
+        ctype_cansave[tonumber(ffi.typeof(v))] = true
+    end
+
+    function lprivate.cansave_cdata(v)
+        return type(v)=="cdata" and ctype_cansave[tonumber(ffi.typeof(v))]
+    end
+
+    reg_serializable_cv(allowed_modules.xmath.vec3())
+    reg_serializable_cv(allowed_modules.xmath.ivec3())
+end
 
 -- Protect base modules.
 local function basemodule_newindex()

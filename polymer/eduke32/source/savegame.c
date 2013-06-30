@@ -1235,7 +1235,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
 #ifdef LUNATIC
         if (!g_savedOK)
         {
-            OSD_Printf("sv_saveandmakesnapshot: failed serializing Lunatic gamevar %s.\n",
+            OSD_Printf("sv_saveandmakesnapshot: failed serializing Lunatic gamevar \"%s\".\n",
                        g_failedVarname);
             g_failedVarname = NULL;
             return 1;

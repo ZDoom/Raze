@@ -363,7 +363,7 @@ function readintostr(fd, kopen4load_func)
     ffiC.kclose(fd); fd=-1
 
     if (readlen ~= sz) then
-        error("INTERNAL ERROR: couldn't read \""..fn.."\" wholly")
+        error("INTERNAL ERROR: couldn't read file wholly")
     end
 
     return ffi.string(str, sz)

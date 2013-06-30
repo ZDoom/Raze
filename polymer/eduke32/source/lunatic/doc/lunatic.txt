@@ -1059,8 +1059,8 @@ Returns an approximation of the 2D Euclidean distance between points `pos1` and
 `pos2`, both of which can be any object indexable with `x` and `y`.
 
 [[vector_types]]
-The types `xmath.vec3` and `xmath.ivec3`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The types `xmath.vec3` and `xmath.ivec3` [_serializeable_]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Another purpose of the `xmath` module is to provide _vector_ types that allow
 writing concise and clear code involving geometrical calculations. There are
