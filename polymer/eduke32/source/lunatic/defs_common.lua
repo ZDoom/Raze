@@ -218,9 +218,11 @@ typedef struct {
     uint8_t xpanning, ypanning;
     const uint8_t filler;
     float alpha;
-    union {
-        const intptr_t _tspr;
-        struct { const int32_t _dummy0, _dummy1; };
+    // NOTE: const aggregate fixed with LuaJIT git fe9934feea0a8d580de1
+    // ("FFI: Fix handling of qualified transparent structs/unions.")
+    const union {
+        intptr_t _tspr;
+        struct { int32_t _dummy0, _dummy1; };
     };
 } spriteext_t;
 

@@ -466,9 +466,8 @@ gameactor
 {
     1275,  -- newspaper, E4L6 sprite #513
 
-    -- XXX: I want to write "{0, 4, delay=20}"
-    action = con.action{0, 4, 1, 1, 20},
-    move = con.move{},  -- so that the ID is nonzero and it will move
+    action = con.action{0, 4, delay=20},  -- Same as {0, 4, 1, 1, 20}
+    move = 1,  -- so that the ID is nonzero and it will move
 
     func = function(aci)
         local a = actor[aci]

@@ -67,7 +67,10 @@ local literal_act = { [0]=con_action_ct(0), [1]=con_action_ct(1) }
 local literal_mov = { [0]=con_move_ct(0), [1]=con_move_ct(1) }
 
 local literal_am = { action=literal_act, move=literal_mov }
-local am_ctype = { action=con_action_ct, move=con_move_ct }
+-- Const-qualified 'full' action and move (with ID):
+local am_ctype_full_const = { action=con_action_ct, move=con_move_ct }
+-- Non-const-qualified 'bare' action and move (without ID):
+local am_ctype_bare = { action=ffi.typeof("struct action"), move=ffi.typeof("struct move") }
 
 local function def_action_or_move(what, tab)
     if (lastid[what] <= -(2^31)) then
@@ -76,18 +79,44 @@ local function def_action_or_move(what, tab)
 
     bcheck.top_level(what, 4)
 
-    if (type(tab) ~= "table") then
+    -- NOTE: tab[0]~=nil check for "Special default values" below.
+    if (type(tab) ~= "table" or tab[0]~=nil) then
         error("invalid argument to con."..what..": must be a table", 3)
+    end
+
+    -- Pass args table to ffi.new, which can take either: a table with numeric
+    -- indices, or a table with key-value pairs, *but not in combination*.
+    -- See http://luajit.org/ext_ffi_semantics.html#init_table
+    local am = am_ctype_bare[what](tab)
+
+    -- Now, set all string keys as they have been ignored if tab[1] was
+    -- non-nil.
+    for key, val in pairs(tab) do
+        if (type(key)=="string") then
+            am[key] = val
+        end
+    end
+
+    if (what=="action") then
+        -- Special default values
+        if (tab[2]==nil and tab.numframes==nil) then
+            am.numframes = 1
+        end
+
+        if (tab[3]==nil and tab.viewtype==nil) then
+            am.viewtype = 1
+        end
+
+        if (tab[4]==nil and tab.incval==nil) then
+            am.incval = 1
+        end
     end
 
     -- Named actions or moves have negative ids so that non-negative ones
     -- can be used as (different) placeholders for all-zero ones.
     lastid[what] = lastid[what]-1
 
-    -- Pass args table to ffi.new, which can take either: a table with numeric
-    -- indices, or a table with key-value pairs, *but not in combination*.
-    -- See http://luajit.org/ext_ffi_semantics.html#init_table
-    return am_ctype[what](lastid[what], tab)
+    return am_ctype_full_const[what](lastid[what], am)
 end
 
 ---=== ACTION/MOVE/AI FUNCTIONS ===---
@@ -104,7 +133,7 @@ end
 local function get_action_or_move(what, val, argi)
     if (val == nil) then
         return literal_am[what][0]
-    elseif (ffi.istype(am_ctype[what], val)) then
+    elseif (ffi.istype(am_ctype_full_const[what], val)) then
         return val
     elseif (type(val)=="number") then
         if (val==0 or val==1) then
@@ -1266,6 +1295,7 @@ local function cossinb(bang)
     return xmath.cosb(bang), xmath.sinb(bang)
 end
 
+-- TODO: xmath.vec3 'mhlen2' method?
 local function manhatdist(v1, v2)
     return abs(v1.x-v2.x) + abs(v1.y-v2.y)
 end
