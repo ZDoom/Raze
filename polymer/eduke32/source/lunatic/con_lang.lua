@@ -393,7 +393,7 @@ local ActorLabels = {
     htbposy = AC".bpos.y",
     htbposz = AC".bpos.z",
     -- Read access differs from write ({ get, set }):
-    htg_t = { AC":get_t_data(%s)", AC":_set_t_data(%s,%%s)" },
+    htg_t = { AC":_get_t_data(%s)", AC":_set_t_data(%s,%%s)" },
     htflags = AC".flags",
 
     -- (mostly) model-related flags

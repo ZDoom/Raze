@@ -1063,7 +1063,7 @@ local actor_mt = {
 
         -- Getters/setters.
         -- TODO: make a bcarray instead.
-        get_t_data = function(a, idx)
+        _get_t_data = function(a, idx)
             if (idx >= 10ULL) then
                 error("invalid t_data index "..idx, 2)
             end

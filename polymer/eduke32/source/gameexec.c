@@ -248,18 +248,18 @@ int32_t A_Dodge(spritetype *s)
     return 0;
 }
 
-int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs)
+int32_t A_GetFurthestAngle(int32_t iActor, int32_t angs)
 {
     spritetype *s = &sprite[iActor];
 
-    if (s->picnum != APLAYER && (actor[iActor].t_data[0]&63) > 2)
-        return(s->ang + 1024);
+    if (s->picnum != APLAYER && (AC_COUNT(actor[iActor].t_data)&63) > 2)
+        return s->ang + 1024;
 
     {
         int32_t furthest_angle=0;
-        int32_t d;
-        int32_t greatestd = -(1<<30);
-        int32_t angincs = 2048/angs,j;
+        int32_t d, j;
+        int32_t greatestd = INT32_MIN;
+        int32_t angincs=2048/angs;
         hitdata_t hit;
 
         for (j=s->ang; j<(2048+s->ang); j+=angincs)
@@ -278,13 +278,14 @@ int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs)
                 furthest_angle = j;
             }
         }
-        return (furthest_angle&2047);
+
+        return furthest_angle&2047;
     }
 }
 
-int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_t *day)
+int32_t A_FurthestVisiblePoint(int32_t iActor, spritetype *ts, int32_t *dax, int32_t *day)
 {
-    if ((actor[iActor].t_data[0]&63))
+    if (AC_COUNT(actor[iActor].t_data)&63)
         return -1;
 
     {
@@ -454,19 +455,19 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na)
 
 GAMEEXEC_STATIC void VM_AlterAng(int32_t movflags)
 {
-    const int32_t ticselapsed = (vm.g_t[0])&31;
+    const int32_t ticselapsed = (AC_COUNT(vm.g_t))&31;
 
 #if !defined LUNATIC
     const intptr_t *moveptr;
-    if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize-1)
+    if ((unsigned)AC_MOVE_ID(vm.g_t) >= (unsigned)g_scriptSize-1)
 
     {
-        vm.g_t[1] = 0;
+        AC_MOVE_ID(vm.g_t) = 0;
         OSD_Printf_nowarn(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, TrackerCast(vm.g_sp->picnum));
         return;
     }
 
-    moveptr = script + vm.g_t[1];  // RESEARCH: what's with move 0 and >>> 1 <<<?
+    moveptr = script + AC_MOVE_ID(vm.g_t);
 
     vm.g_sp->xvel += (*moveptr - vm.g_sp->xvel)/5;
     if (vm.g_sp->zvel < 648)
@@ -591,16 +592,16 @@ GAMEEXEC_STATIC void VM_Move(void)
 #if !defined LUNATIC
     const intptr_t *moveptr;
 #endif
-    // NOTE: source/gameexec.c:596:5: warning: comparison is always false due
-    // to limited range of data type [-Wtype-limits]
-    const int32_t movflags = (vm.g_sp->hitag==-1) ? 0 : vm.g_sp->hitag;
+    // NOTE: commented out condition is dead since r3159 (making hi/lotag unsigned).
+    // XXX: Does it break anything? Where are movflags with all bits set created?
+    const int32_t movflags = /*(vm.g_sp->hitag==-1) ? 0 :*/ vm.g_sp->hitag;
     const int32_t deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
     int32_t badguyp, angdif;
 
-    vm.g_t[0]++;
+    AC_COUNT(vm.g_t)++;
 
     // If the move ID is zero, or the movflags are 0
-    if (vm.g_t[1] == 0 || movflags == 0)
+    if (AC_MOVE_ID(vm.g_t) == 0 || movflags == 0)
     {
         if (deadflag || (actor[vm.g_i].bpos.x != vm.g_sp->x) || (actor[vm.g_i].bpos.y != vm.g_sp->y))
         {
@@ -618,15 +619,15 @@ GAMEEXEC_STATIC void VM_Move(void)
         VM_FacePlayer(2);
 
     if (movflags&spin)
-        vm.g_sp->ang += sintable[((vm.g_t[0]<<3)&2047)]>>6;
+        vm.g_sp->ang += sintable[((AC_COUNT(vm.g_t)<<3)&2047)]>>6;
 
     if (movflags&face_player_slow)
         VM_FacePlayer(4);
 
     if ((movflags&jumptoplayer) == jumptoplayer)
     {
-        if (vm.g_t[0] < 16)
-            vm.g_sp->zvel -= (sintable[(512+(vm.g_t[0]<<4))&2047]>>5);
+        if (AC_COUNT(vm.g_t) < 16)
+            vm.g_sp->zvel -= (sintable[(512+(AC_COUNT(vm.g_t)<<4))&2047]>>5);
     }
 
     if (movflags&face_player_smart)
@@ -641,14 +642,14 @@ GAMEEXEC_STATIC void VM_Move(void)
 
 dead:
 #if !defined LUNATIC
-    if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize-1)
+    if ((unsigned)AC_MOVE_ID(vm.g_t) >= (unsigned)g_scriptSize-1)
     {
-        vm.g_t[1] = 0;
+        AC_MOVE_ID(vm.g_t) = 0;
         OSD_Printf_nowarn(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, TrackerCast(vm.g_sp->picnum));
         return;
     }
 
-    moveptr = script + vm.g_t[1];  // RESEARCH: what's with move 0 and >>> 1 <<<?
+    moveptr = script + AC_MOVE_ID(vm.g_t);
 
     if (movflags&geth) vm.g_sp->xvel += ((*moveptr)-vm.g_sp->xvel)>>1;
     if (movflags&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
@@ -763,11 +764,13 @@ dead:
             }
             else if (vm.g_sp->picnum != DRONE && vm.g_sp->picnum != SHARK && vm.g_sp->picnum != COMMANDER)
             {
-                if (ps->actorsqu == vm.g_i) return;
+                if (ps->actorsqu == vm.g_i)
+                    return;
 
                 if (!A_CheckSpriteFlags(vm.g_i, SPRITE_SMOOTHMOVE))
                 {
-                    if (vm.g_t[0]&1) return;
+                    if (AC_COUNT(vm.g_t)&1)
+                        return;
                     daxvel <<= 1;
                 }
             }
@@ -775,7 +778,8 @@ dead:
 
         {
             vec3_t tmpvect = { (daxvel*(sintable[(angdif+512)&2047]))>>14,
-                               (daxvel*(sintable[angdif&2047]))>>14, vm.g_sp->zvel
+                               (daxvel*(sintable[angdif&2047]))>>14,
+                               vm.g_sp->zvel
                              };
 
             actor[vm.g_i].movflag = A_MoveSprite(
@@ -948,7 +952,7 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
         default:
         {
 #if !defined LUNATIC
-            int32_t moveScriptOfs = vm.g_t[1];
+            int32_t moveScriptOfs = AC_MOVE_ID(vm.g_t);
 #endif
             // fix for flying/jumping monsters getting stuck in water
             if ((g_sp->hitag & jumptoplayer) ||
@@ -1349,18 +1353,18 @@ skip_check:
         case CON_AI:
             insptr++;
             //Following changed to use pointersizes
-            vm.g_t[5] = *insptr++; // Ai
+            AC_AI_ID(vm.g_t) = *insptr++; // Ai
 
-            vm.g_t[4] = *(script + vm.g_t[5]);  // Action
+            AC_ACTION_ID(vm.g_t) = *(script + AC_AI_ID(vm.g_t));  // Action
 
-            // NOTE: "if (g_t[5])" added in r1155. It used to be a pointer though.
-            if (vm.g_t[5])
-            {
-                vm.g_t[1] = *(script + vm.g_t[5] + 1);  // move
-            }
-            vm.g_sp->hitag = *(script + vm.g_t[5] + 2);  // move flags
+            // NOTE: "if" check added in r1155. It used to be a pointer though.
+            if (AC_AI_ID(vm.g_t))
+                AC_MOVE_ID(vm.g_t) = *(script + AC_AI_ID(vm.g_t) + 1);  // move
 
-            vm.g_t[0] = vm.g_t[2] = vm.g_t[3] = 0; // count, actioncount... vm.g_t[3] = ??
+            vm.g_sp->hitag = *(script + AC_AI_ID(vm.g_t) + 2);  // move flags
+
+            AC_COUNT(vm.g_t) = AC_ACTION_COUNT(vm.g_t) = AC_CURFRAME(vm.g_t) = 0;
+
             if (!A_CheckEnemySprite(vm.g_sp) || vm.g_sp->extra > 0) // hack
                 if (vm.g_sp->hitag&random_angle)
                     vm.g_sp->ang = krand()&2047;
@@ -1368,8 +1372,8 @@ skip_check:
 
         case CON_ACTION:
             insptr++;
-            vm.g_t[2] = vm.g_t[3] = 0;
-            vm.g_t[4] = *insptr++;
+            AC_ACTION_COUNT(vm.g_t) = AC_CURFRAME(vm.g_t) = 0;
+            AC_ACTION_ID(vm.g_t) = *insptr++;
             continue;
 
         case CON_IFPLAYERSL:
@@ -1783,8 +1787,8 @@ skip_check:
 
         case CON_MOVE:
             insptr++;
-            vm.g_t[0]=0;
-            vm.g_t[1] = *insptr++;
+            AC_COUNT(vm.g_t) = 0;
+            AC_MOVE_ID(vm.g_t) = *insptr++;
             vm.g_sp->hitag = *insptr++;
             if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
                 continue;
@@ -2205,32 +2209,37 @@ nullquote:
                     CON_ERRPRINTF("Invalid statnum: %d\n", j);
                     continue;
                 }
-                if (sprite[i].statnum == j) continue;
+                if (sprite[i].statnum == j)
+                    continue;
 
                 /* initialize actor data when changing to an actor statnum because there's usually
                 garbage left over from being handled as a hard coded object */
 
                 if (sprite[i].statnum > STAT_ZOMBIEACTOR && (j == STAT_ACTOR || j == STAT_ZOMBIEACTOR))
                 {
-                    actor[i].lastvx = 0;
-                    actor[i].lastvy = 0;
-                    actor[i].timetosleep = 0;
-                    actor[i].cgg = 0;
-                    actor[i].movflag = 0;
-                    actor[i].tempang = 0;
-                    actor[i].dispicnum = 0;
+                    actor_t *a = &actor[i];
+
+                    a->lastvx = 0;
+                    a->lastvy = 0;
+                    a->timetosleep = 0;
+                    a->cgg = 0;
+                    a->movflag = 0;
+                    a->tempang = 0;
+                    a->dispicnum = 0;
                     T1=T2=T3=T4=T5=T6=T7=T8=T9=0;
-                    actor[i].flags = 0;
+                    a->flags = 0;
                     sprite[i].hitag = 0;
-// TODO: Lunatic
-                    if (g_tile[sprite[i].picnum].execPtr)
+
+                    if (G_HaveActor(sprite[i].picnum))
                     {
+                        const intptr_t *actorptr = g_tile[sprite[i].picnum].execPtr;
                         // offsets
-                        T5 = *(g_tile[sprite[i].picnum].execPtr+1);  // action
-                        T2 = *(g_tile[sprite[i].picnum].execPtr+2);  // move
-                        sprite[i].hitag = *(g_tile[sprite[i].picnum].execPtr+3);  // ai bits
+                        AC_ACTION_ID(a->t_data) = actorptr[1];
+                        AC_MOVE_ID(a->t_data) = actorptr[2];
+                        sprite[i].hitag = actorptr[3];  // ai bits (movflags)
                     }
                 }
+
                 changespritestat(i,j);
                 continue;
             }
@@ -3179,22 +3188,22 @@ nullquote:
 
         case CON_IFAI:
             insptr++;
-            VM_CONDITIONAL(vm.g_t[5] == *insptr);
+            VM_CONDITIONAL(AC_AI_ID(vm.g_t) == *insptr);
             continue;
 
         case CON_IFACTION:
             insptr++;
-            VM_CONDITIONAL(vm.g_t[4] == *insptr);
+            VM_CONDITIONAL(AC_ACTION_ID(vm.g_t) == *insptr);
             continue;
 
         case CON_IFACTIONCOUNT:
             insptr++;
-            VM_CONDITIONAL(vm.g_t[2] >= *insptr);
+            VM_CONDITIONAL(AC_ACTION_COUNT(vm.g_t) >= *insptr);
             continue;
 
         case CON_RESETACTIONCOUNT:
             insptr++;
-            vm.g_t[2] = 0;
+            AC_ACTION_COUNT(vm.g_t) = 0;
             continue;
 
         case CON_DEBRIS:
@@ -3226,7 +3235,7 @@ nullquote:
 
         case CON_COUNT:
             insptr++;
-            vm.g_t[0] = (int16_t) *insptr++;
+            AC_COUNT(vm.g_t) = (int16_t) *insptr++;
             continue;
 
         case CON_CSTATOR:
@@ -3287,7 +3296,7 @@ nullquote:
 
         case CON_IFMOVE:
             insptr++;
-            VM_CONDITIONAL(vm.g_t[1] == *insptr);
+            VM_CONDITIONAL(AC_MOVE_ID(vm.g_t) == *insptr);
             continue;
 
         case CON_RESETPLAYER:
@@ -3307,7 +3316,7 @@ nullquote:
 
         case CON_IFCOUNT:
             insptr++;
-            VM_CONDITIONAL(vm.g_t[0] >= *insptr);
+            VM_CONDITIONAL(AC_COUNT(vm.g_t) >= *insptr);
             continue;
 
         case CON_IFACTOR:
@@ -3317,7 +3326,7 @@ nullquote:
 
         case CON_RESETCOUNT:
             insptr++;
-            vm.g_t[0] = 0;
+            AC_COUNT(vm.g_t) = 0;
             continue;
 
         case CON_ADDINVENTORY:
@@ -5323,6 +5332,8 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 {
 #ifdef LUNATIC
     int32_t killit=0;
+#else
+    intptr_t actionofs, *actionptr;
 #endif
     vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
                          &sprite[iActor], 0
@@ -5354,17 +5365,18 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
      * which might be corrected if the code is converted to use offsets */
     /* Helixhorned: let's do away with intptr_t's... */
 #if !defined LUNATIC
-    // NOTE: for Lunatic, need split into numeric literal / action label
-    // (maybe >=0/<0, respectively?)
-    if (vm.g_t[4]!=0 && (unsigned)vm.g_t[4] + 4 < (unsigned)g_scriptSize)
+    actionofs = AC_ACTION_ID(vm.g_t);
+    actionptr = (actionofs!=0 && actionofs+4u < (unsigned)g_scriptSize) ?
+        &script[actionofs] : NULL;
+
+    if (actionptr != NULL)
 #endif
     {
 #if !defined LUNATIC
-        const int32_t action_frames = *(script + vm.g_t[4] + 1);
-        const int32_t action_incval = *(script + vm.g_t[4] + 3);
-        const int32_t action_delay = *(script + vm.g_t[4] + 4);
+        const int32_t action_frames = actionptr[1];
+        const int32_t action_incval = actionptr[3];
+        const int32_t action_delay = actionptr[4];
 #else
-        // SACTION
         const int32_t action_frames = actor[vm.g_i].ac.numframes;
         const int32_t action_incval = actor[vm.g_i].ac.incval;
         const int32_t action_delay = actor[vm.g_i].ac.delay;
@@ -5373,14 +5385,14 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 
         if (vm.g_sp->lotag > action_delay)
         {
-            vm.g_t[2]++;
+            AC_ACTION_COUNT(vm.g_t)++;
             vm.g_sp->lotag = 0;
 
-            vm.g_t[3] += action_incval;
+            AC_CURFRAME(vm.g_t) += action_incval;
         }
 
-        if (klabs(vm.g_t[3]) >= klabs(action_frames * action_incval))
-            vm.g_t[3] = 0;
+        if (klabs(AC_CURFRAME(vm.g_t)) >= klabs(action_frames * action_incval))
+            AC_CURFRAME(vm.g_t) = 0;
     }
 
 #ifdef LUNATIC

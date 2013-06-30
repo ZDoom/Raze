@@ -4387,7 +4387,7 @@ void P_ProcessInput(int32_t snum)
 
     if (p->pals.f > 0)
     {
-#ifndef LUNATIC
+#if !defined LUNATIC
         p->pals.f--;
 #else
         if (p->palsfadespeed > 0)
@@ -5138,6 +5138,7 @@ HORIZONLY:
 
         if (!ud.noclip && sector[p->cursectnum].lotag == ST_31_TWO_WAY_TRAIN)
         {
+            // XXX: POTENTIAL_OOB
             if (sprite[sector[p->cursectnum].hitag].xvel && actor[sector[p->cursectnum].hitag].t_data[0] == 0)
             {
                 P_QuickKill(p);

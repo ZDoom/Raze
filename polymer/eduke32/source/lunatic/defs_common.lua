@@ -842,6 +842,7 @@ function static_members.sprite.changesect(spritenum, sectnum, noerr)
 end
 
 function static_members.sprite.changestat(spritenum, statnum, noerr)
+    -- TODO: see gameexec.c's CON_CHANGESPRITESTAT.
     check_sprite_idx(spritenum)
     if (statnum >= ffiC.MAXSTATUS+0ULL) then
         error("invalid status number "..statnum, 2)

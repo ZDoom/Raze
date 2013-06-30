@@ -74,6 +74,18 @@ enum uactortypes_t {
     enemystayput
 };
 
+// These macros are there to give names to the t_data[]/T*/vm.g_t[] indices
+// when used with actors. Greppability of source code is certainly a virtue.
+#define AC_COUNT(t) (t[0])  /* the actor's count */
+/* The ID of the actor's current move. In C-CON, the bytecode offset to the
+ * move composite: */
+#define AC_MOVE_ID(t) (t[1])
+#define AC_ACTION_COUNT(t) (t[2])  /* the actor's action count */
+#define AC_CURFRAME(t) (t[3])  /* the actor's current frame offset */
+/* The ID of the actor's current action. In C-CON, the bytecode offset to the
+ * action composite: */
+#define AC_ACTION_ID(t) (t[4])
+#define AC_AI_ID(t) (t[5])  /* the ID of the actor's current ai */
 
 #ifdef LUNATIC
 struct action {
@@ -147,14 +159,14 @@ typedef struct {
 #endif
 #if UINTPTR_MAX == 0xffffffff
     /* 32-bit */
-# ifndef LUNATIC
+# if !defined LUNATIC
     int8_t filler[20];
 # else
     int8_t filler[4];
 # endif
 #else
     /* 64-bit */
-# ifndef LUNATIC
+# if !defined LUNATIC
     int8_t filler[16];
 # else
     /* no padding */

@@ -1272,7 +1272,7 @@ end
 
 -- "otherspr" is either player or holoduke sprite
 local function A_FurthestVisiblePoint(aci, otherspr)
-    if (bit.band(actor[aci]:get_t_data(0), 63) ~= 0) then
+    if (bit.band(actor[aci]:get_count(), 63) ~= 0) then
         return
     end
 

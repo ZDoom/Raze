@@ -4804,8 +4804,8 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
     if (g_tile[tilenum].execPtr)
     {
         SH = *(g_tile[tilenum].execPtr);
-        T5 = *(g_tile[tilenum].execPtr+1);
-        T2 = *(g_tile[tilenum].execPtr+2);
+        AC_ACTION_ID(actor[i].t_data) = *(g_tile[tilenum].execPtr+1);
+        AC_MOVE_ID(actor[i].t_data) = *(g_tile[tilenum].execPtr+2);
 
         if (set_movflag_uncond || SHT == 0)
             SHT = *(g_tile[tilenum].execPtr+3);
@@ -4819,8 +4819,8 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
         const el_actor_t *a = &g_elActors[tilenum];
 
         SH = a->strength;
-        T5 = a->act.id;
-        T2 = a->mov.id;
+        AC_ACTION_ID(actor[i].t_data) = a->act.id;
+        AC_MOVE_ID(actor[i].t_data) = a->mov.id;
         Bmemcpy(&actor[i].ac, &a->act.ac, sizeof(struct action));
         Bmemcpy(&actor[i].mv, &a->mov.mv, sizeof(struct move));
 
@@ -5025,7 +5025,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             CS |= 256;
 
         if (!G_InitActor(i, s, 0))
-            T2 = T5 = 0;
+            T2 = T5 = 0;  // AC_MOVE_ID, AC_ACTION_ID
     }
 
     sp = &sprite[i];
@@ -7194,7 +7194,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
     {
         int32_t switchpic;
         int32_t curframe;
-#ifndef LUNATIC
+#if !defined LUNATIC
         int32_t scrofs_action;
 #else
         int32_t startframe, viewtype;
@@ -7241,15 +7241,16 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         sect = s->sectnum;
 
         Bassert(i >= 0);
-        curframe = T4;
-#ifndef LUNATIC
-        scrofs_action = T5;  // SACTION
+        curframe = AC_CURFRAME(actor[i].t_data);
+#if !defined LUNATIC
+        scrofs_action = AC_ACTION_ID(actor[i].t_data);
 #else
         startframe = actor[i].ac.startframe;
         viewtype = actor[i].ac.viewtype;
 #endif
         switchpic = s->picnum;
-        //some special cases because dynamictostatic system can't handle addition to constants
+        // Some special cases because dynamictostatic system can't handle
+        // addition to constants.
         if ((s->picnum >= SCRAP6) && (s->picnum<=SCRAP6+7))
             switchpic = SCRAP5;
         else if ((s->picnum==MONEY+1) || (s->picnum==MAIL+1) || (s->picnum==PAPER+1))
@@ -7508,7 +7509,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             {
                 // Display APLAYER sprites with action PSTAND when viewed through
                 // a camera.  Not implemented for Lunatic.
-#ifndef LUNATIC
+#if !defined LUNATIC
                 const intptr_t *aplayer_scr = g_tile[APLAYER].execPtr;
                 // [0]=strength, [1]=actionofs, [2]=moveofs
 
@@ -7603,7 +7604,7 @@ PALONLY:
 
         if (G_HaveActor(s->picnum))
         {
-#ifndef LUNATIC
+#if !defined LUNATIC
             if ((unsigned)scrofs_action + 2 >= (unsigned)g_scriptSize)
                 goto skip;
 
@@ -7675,7 +7676,7 @@ PALONLY:
         /* completemirror() already reverses the drawn frame, so the above isn't necessary.
          * Even Polymost's and Polymer's mirror seems to function correctly this way. */
 
-#ifndef LUNATIC
+#if !defined LUNATIC
 skip:
 #endif
         // XXX: Currently, for the splitscreen mod, sprites will be pal6-colored iff the first

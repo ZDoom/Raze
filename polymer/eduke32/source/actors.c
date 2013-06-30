@@ -782,16 +782,17 @@ static void A_MoveSector(int32_t i)
 }
 
 #if !defined LUNATIC
-# define LIGHTRAD_PICOFS (T5 ? *(script+T5) + (*(script+T5+2))*T4 : 0)
+// NOTE: T5 is AC_ACTION_ID
+# define LIGHTRAD_PICOFS (T5 ? *(script+T5) + (*(script+T5+2))*AC_CURFRAME(actor[i].t_data) : 0)
 #else
-// SACTION
 // startframe + viewtype*[cyclic counter]
-# define LIGHTRAD_PICOFS (actor[i].ac.startframe + actor[i].ac.viewtype*T4)
+# define LIGHTRAD_PICOFS (actor[i].ac.startframe + actor[i].ac.viewtype*AC_CURFRAME(actor[i].t_data))
 #endif
 
 // this is the same crap as in game.c's tspr manipulation.  puke.
-#define LIGHTRAD (s->yrepeat * tilesizy[s->picnum+LIGHTRAD_PICOFS])
-#define LIGHTRAD2 (((s->yrepeat) + (rand()%(s->yrepeat>>2))) * tilesizy[s->picnum+LIGHTRAD_PICOFS])
+// XXX: may access tilesizy out-of-bounds by bad user code.
+#define LIGHTRAD (s->yrepeat * tilesizy[s->picnum + LIGHTRAD_PICOFS])
+#define LIGHTRAD2 (((s->yrepeat) + (rand()%(s->yrepeat>>2))) * tilesizy[s->picnum + LIGHTRAD_PICOFS])
 
 void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
 {
