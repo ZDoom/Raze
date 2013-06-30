@@ -877,7 +877,6 @@ local g_tile = setmtonce({}, defs_c.GenStructMetatable("g_tile", "MAXTILES", til
 -- ID-wrapped types con_action_t and con_move_t
 local con = require("control")
 local isenemytile = con.isenemytile
-local MV, AC, AI = con.MV, con.AC, con.AI
 
 -- Add game-side metamethods to "spritetype" and register it with "metatype"
 local spr_mt_index_add = {
@@ -887,14 +886,13 @@ local spr_mt_index_add = {
 }
 defs_c.finish_spritetype(spr_mt_index_add)
 
--- All-zero action and move
-local nullac, nullmv = ffi.new("const struct action"), ffi.new("const struct move")
-
+-- Check a literal numeric action or move value.
 local function check_literal_am(am, typename)
     if (type(am) ~= "number") then
         error("bad argument: expected number or "..typename, 3)
     end
 
+    -- Negative values are generated as con.action/con.move IDs.
     if (not (am >= 0 and am <= 32767)) then
         error("bad argument: expected number in [0 .. 32767]", 3)
     end
@@ -905,9 +903,16 @@ local actor_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(ACTOR_STRUCT)))
 local player_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(DUKEPLAYER_STRUCT)))
 local projectile_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(PROJECTILE_STRUCT)))
 local weapondata_ptr_ct = ffi.typeof("$ *", ffi.typeof((strip_const(WEAPONDATA_STRUCT):gsub(" _"," "))))
-local con_action_ct = ffi.typeof("con_action_t")
-local con_move_ct = ffi.typeof("con_move_t")
-local con_ai_ct = ffi.typeof("con_ai_t")
+
+local con_action_ct = ffi.typeof("const con_action_t")
+local con_move_ct = ffi.typeof("const con_move_t")
+local con_ai_ct = ffi.typeof("const con_ai_t")
+
+-- All-zero bare action and move.
+local nullac, nullmv = ffi.new("const struct action"), ffi.new("const struct move")
+-- All-zero action and move with IDs. Mostly for CON support.
+local literal_act = { [0]=con_action_ct(0), [1]=con_action_ct(1) }
+local literal_mov = { [0]=con_move_ct(0), [1]=con_move_ct(1) }
 
 local function get_actor_idx(a)
     local i = ffi.cast(actor_ptr_ct, a)-ffi.cast(actor_ptr_ct, ffiC.actor)
@@ -920,11 +925,7 @@ local actor_mt = {
         -- action
         set_action = function(a, act)
             a = ffi.cast(actor_ptr_ct, a)
-            if (type(act)=="string") then
-                act = AC[act];
-            end
-            -- TODO: disallow passing the FFI types altogether, in favor of
-            -- strings (also move, ai)?
+
             if (ffi.istype(con_action_ct, act)) then
                 a.t_data[4] = act.id
                 a.ac = act.ac
@@ -940,9 +941,7 @@ local actor_mt = {
 
         has_action = function(a, act)
             a = ffi.cast(actor_ptr_ct, a)
-            if (type(act)=="string") then
-                act = AC[act];
-            end
+
             if (ffi.istype(con_action_ct, act)) then
                 return (a.t_data[4]==act.id)
             else
@@ -972,9 +971,7 @@ local actor_mt = {
         -- move
         set_move = function(a, mov, movflags)
             a = ffi.cast(actor_ptr_ct, a)
-            if (type(mov)=="string") then
-                mov = MV[mov];
-            end
+
             if (ffi.istype(con_move_ct, mov)) then
                 a.t_data[1] = mov.id
                 a.mv = mov.mv
@@ -997,9 +994,7 @@ local actor_mt = {
 
         has_move = function(a, mov)
             a = ffi.cast(actor_ptr_ct, a)
-            if (type(mov)=="string") then
-                mov = MV[mov];
-            end
+
             if (ffi.istype(con_move_ct, mov)) then
                 return (a.t_data[1]==mov.id)
             else
@@ -1013,15 +1008,12 @@ local actor_mt = {
             local oa = a
             a = ffi.cast(actor_ptr_ct, a)
 
-            if (type(ai)=="string") then
-                ai = AI[ai];
-            end
             -- TODO: literal number AIs?
             if (not ffi.istype(con_ai_ct, ai)) then
                 error("bad argument: expected ai", 2)
             end
 
-            -- NOTE: compare with gameexec.c
+            -- NOTE: compare with gameexec.c, "CON_AI:"
             a.t_data[5] = ai.id
 
             oa:set_action(ai.act)
@@ -1033,9 +1025,6 @@ local actor_mt = {
         has_ai = function(a, ai)
             a = ffi.cast(actor_ptr_ct, a)
 
-            if (type(ai)=="string") then
-                ai = AI[ai];
-            end
             if (ffi.istype(con_ai_ct, ai)) then
                 return (a.t_data[5]==ai.id)
             else
@@ -1048,14 +1037,14 @@ local actor_mt = {
         -- TODO: make a bcarray instead.
         get_t_data = function(a, idx)
             if (idx >= 10ULL) then
-                error("Invalid t_data index "..idx, 2)
+                error("invalid t_data index "..idx, 2)
             end
             return ffi.cast(actor_ptr_ct, a).t_data[idx]
         end,
 
         _set_t_data = function(a, idx, val)
             if (idx >= 10ULL) then
-                error("Invalid t_data index "..idx, 2)
+                error("invalid t_data index "..idx, 2)
             end
             ffi.cast(actor_ptr_ct, a).t_data[idx] = val
         end,
@@ -1661,7 +1650,8 @@ local function our_require(modname, ...)
     local ok, retval = coroutine.resume(modthread, omodname, ...)
 
     if (not ok) then
-        errorf(ERRLEV-1, "Failed running \"%s\": %s", modname, retval)
+        errorf(ERRLEV-1, "Failed running \"%s\": %s\n%s", modname,
+               retval, debug.traceback(modthread))
     end
 
     table.remove(modname_stack)
@@ -1795,11 +1785,15 @@ local function chain_func3(func1, func2)
     end
 end
 
--- Determines the last numeric index of a table using *ipairs*.
+-- Determines the last numeric index of a table using *pairs*, so that in
+-- arg-lists with "holes" (e.g. {1, 2, nil, function() end}) are handled
+-- properly.
 local function ourmaxn(tab)
     local maxi = 0
-    for i in ipairs(tab) do
-        maxi = math.max(i, maxi)
+    for i in pairs(tab) do
+        if (type(i)=="number") then
+            maxi = math.max(i, maxi)
+        end
     end
     return maxi
 end
@@ -1836,7 +1830,7 @@ local function our_gameactor(args)
         lastargi = 1/0
     end
     if (type(func) ~= "function") then
-        error("invalid gameactor call: must provide a function with last numeric arg or .func", 2)
+        error("invalid gameactor call: must provide a function with last numeric arg or .func".." "..type(func), 2)
     end
 
     local flags = (lastargi > 2 and args[2]) or args.flags or 0
@@ -1874,25 +1868,21 @@ local function our_gameactor(args)
         end
     end
 
-    -- TODO: literal number action other than 0?
-    local act = ((lastargi > 4 and args[4]) or args.action) or (replacep and "NO" or nil)
+    local act = ((lastargi > 4 and args[4]) or args.action) or (replacep and literal_act[0] or nil)
     if (replacep or act ~= nil) then
-        if (type(act)=="string") then
-            act = AC[act]
-        end
-        if (not ffi.istype(con_action_ct, act)) then
-            error("invalid 'action' argument (#4) to gameactor: must be a string or action", 2)
+        if (type(act)=="number" and (act==0 or act==1)) then
+            act = literal_act[act]
+        elseif (not ffi.istype(con_action_ct, act)) then
+            error("invalid 'action' argument (#4) to gameactor: must be an action", 2)
         end
     end
 
-    -- TODO: literal number move other than 0?
-    local mov = ((lastargi > 5 and args[5]) or args.move) or (replacep and "NO" or nil)
+    local mov = ((lastargi > 5 and args[5]) or args.move) or (replacep and literal_mov[0] or nil)
     if (replacep or mov ~= nil) then
-        if (type(mov)=="string") then
-            mov = MV[mov]
-        end
-        if (not ffi.istype(con_move_ct, mov)) then
-            error("invalid 'move' argument (#5) to gameactor: must be a string or move", 2)
+        if (type(mov)=="number" and (mov==0 or mov==1)) then
+            mov = literal_mov[mov]
+        elseif (not ffi.istype(con_move_ct, mov)) then
+            error("invalid 'move' argument (#5) to gameactor: must be a move", 2)
         end
     end
 

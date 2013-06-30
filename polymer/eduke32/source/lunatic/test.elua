@@ -395,15 +395,12 @@ local hs = stat.new()
 local con = require("con")
 local AC, MV = con.AC, con.MV
 
-con.action("TROOPSTAND",0,1,5,1,1)
-con.action("TROOPFLINTCH", 50, 1, 1, 1, 6)
-con.move("SHRUNKVELS", 32)
-con.ai("AITEMP", AC.TROOPFLINTCH, MV.SHRUNKVELS, 0)  -- TODO: test
--- This should work as well. In fact, it's exactly the same, but I prefer the
--- above version for clarity.  NOTE: we'll need to think whether it's OK to
--- redefine composites (moves/actions/ais) during gameplay (probably not).
--- Or will we allow only one definition per label ever?
-con.ai("AITEMP", "TROOPFLINTCH", "SHRUNKVELS", 0)
+local AC, MV = {}, {}
+
+AC.TROOPSTAND = con.action{0,1,5,1,1}
+AC.TROOPFLINTCH = con.action{50, 1, 1, 1, 6}
+MV.SHRUNKVELS = con.move{hvel=32}
+con.ai(AC.TROOPFLINTCH, MV.SHRUNKVELS, 0)  -- unused; TODO: test
 
 local TROOPSTRENGTH = 30
 
@@ -415,7 +412,7 @@ gameactor
 {
     D.LIZTROOP, AF.chain_end+AF.enemy, 2*TROOPSTRENGTH,
 
-    action = "TROOPSTAND",
+    action = AC.TROOPSTAND,
 
     func = function(i, playeri, dist)
         spriteext[i]:make_animated()
@@ -446,8 +443,8 @@ gameactor
 
         if (dist < 4096) then
             -- Duke Vader / Anakin Nukewalker?
-            actor[i]:set_action("TROOPFLINTCH")
-            actor[i]:set_move("SHRUNKVELS")
+            actor[i]:set_action(AC.TROOPFLINTCH)
+            actor[i]:set_move(MV.SHRUNKVELS)
 
             if (dist < 1024) then
                 con.killit()

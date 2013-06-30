@@ -77,11 +77,14 @@ enum uactortypes_t {
 
 #ifdef LUNATIC
 struct action {
+    // These members MUST be in this exact order because FFI cdata of this type
+    // can be initialized by passing a table with numeric indices (con.action).
     int16_t startframe, numframes;
     int16_t viewtype, incval, delay;
 };
 
 struct move {
+    // These members MUST be in this exact order.
     int16_t hvel, vvel;
 };
 

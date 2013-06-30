@@ -203,6 +203,7 @@ local function new_initial_codetab()
         "-- NOTE to the reader: This require's result is Lunatic-private API! DO NOT USE!",
         "local _dummy,_S=require'end_gamevars'",
         "local _V,_A=_V,_A",
+        "local _C,_M,_I={},{},{}",  -- actions, moves, ais
 
         -- Static ivec3s so that no allocations need to be made.
         "local _IVEC = { _xmath.ivec3(), _xmath.ivec3() }",
@@ -414,11 +415,6 @@ function on.actor_end(pos, usertype, tsamm, codetab)
 
     local str = flags..","
     for i=2,math.min(#tsamm,4) do
-        if ((i==3 or i==4) and tsamm[i]=="0") then
-            -- HACK, gameactor() currently doesn't support literals for actions
-            -- and moves.
-            tsamm[i] = "'NO'"
-        end
         str = str .. tostring(tsamm[i])..","
     end
     if (#tsamm >= 5) then
@@ -605,8 +601,9 @@ end
 local LABEL = { MOVE=2, AI=3, ACTION=5, [2]="move", [3]="ai", [5]="action",
                 NUMBER=1, [1]="number" }
 
--- Function names in the 'con' module
+-- Function names in the 'con' module:
 local LABEL_FUNCNAME = { [2]="move", [3]="ai", [5]="action" }
+local LABEL_PREFIX = { [2]="M", [3]="I", [5]="C" }  -- _C, _M, _I in the gen'd code
 
 local g_labeldef = {}  -- Lua numbers for numbers, strings for composites
 local g_labeltype = {}
@@ -705,7 +702,8 @@ local function check_sysvar_def_attempt(identifier)
     end
 end
 
-local function do_define_label(identifier, num)
+local Define = {}
+function Define.label(identifier, num)
     if (check_sysvar_def_attempt(identifier)) then
         return
     end
@@ -774,9 +772,6 @@ function lookup.composite(labeltype, pos, identifier)
         end
     end
 
-    -- Generate a quoted identifier name.
-    val = format("%q", identifier)
-
     return val
 end
 
@@ -788,7 +783,7 @@ local function check_reserved_bits(flags, allowedbits, suffix)
     end
 end
 
-local function do_define_composite(labeltype, identifier, ...)
+function Define.composite(labeltype, identifier, ...)
     local oldtype = g_labeltype[identifier]
     local oldval = g_labeldef[identifier]
 
@@ -831,9 +826,11 @@ local function do_define_composite(labeltype, identifier, ...)
         args[i] = format("%d", args[i])
     end
 
-    addcodef("_con.%s(%q,%s)", LABEL_FUNCNAME[labeltype], identifier, table.concat(args, ","))
+    local refcode = mangle_name(identifier, LABEL_PREFIX[labeltype])
+    addcodef(isai and "%s=_con.%s(%s)" or "%s=_con.%s{%s}",  -- ai has parens
+             refcode, LABEL_FUNCNAME[labeltype], table.concat(args, ","))
 
-    g_labeldef[identifier] = ""
+    g_labeldef[identifier] = refcode
     g_labeltype[identifier] = labeltype
 end
 
@@ -1488,7 +1485,7 @@ local Couter = {
     includedefault = cmd()
         / Cmd.NYI("`includedefault'"),
     define = cmd(I,D)
-        / do_define_label,
+        / Define.label,
 
     --- 2. Defines and Meta-Settings
     dynamicremap = cmd()
@@ -1558,17 +1555,17 @@ local Couter = {
 
     --- 5. Top level commands that are also run-time commands
     move = sp1 * tok.identifier * (sp1 * tok.define)^-2  -- hvel, vvel
-        / function(...) do_define_composite(LABEL.MOVE, ...) end,
+        / function(...) Define.composite(LABEL.MOVE, ...) end,
 
     -- startframe, numframes, viewtype, incval, delay:
     action = sp1 * tok.identifier * (sp1 * tok.define)^-5
-        / function(...) do_define_composite(LABEL.ACTION, ...) end,
+        / function(...) Define.composite(LABEL.ACTION, ...) end,
 
     -- action, move, flags...:
     ai = sp1 * tok.identifier * (sp1 * tok.action *
                                  (sp1 * tok.move * (sp1 * tok.define)^0)^-1
                                 )^-1
-        / function(...) do_define_composite(LABEL.AI, ...) end,
+        / function(...) Define.composite(LABEL.AI, ...) end,
 
     --- 6. Deprecated TLCs
     betaname = newline_term_string,
@@ -3220,6 +3217,7 @@ local Grammar = Pat{
           * sp1 * Var("single_stmt") * (lpeg.Cc(nil) / on.while_end),
 
     stmt_common = Keyw("{") * sp1 * "}" / ""  -- space separation of commands in CON is for a reason!
+        -- XXX: this do...end can lead to exceeding Lua nesting limits, see nightstrike's tan.con
         + lpeg.Ct(Keyw("{")/"do" * sp1 * stmt_list * sp1 * (Keyw("}")/"end"))
         + con_inner_command + Var("switch_stmt") + lpeg.Ct(Var("while_stmt")),
 
@@ -3564,7 +3562,8 @@ if (string.dump) then
 
 --            msgfile:write(format("-- GENERATED CODE for \"%s\":\n", filename))
             if (func == nil) then
-                msgfile:write(format("-- INVALID Lua CODE: %s\n", errmsg))
+                msgfile:write(format("-- %s%s: INVALID Lua CODE: %s\n",
+                                     g_directory, filename, errmsg))
             end
 
             if (lineinfo) then

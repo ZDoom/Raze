@@ -26,6 +26,7 @@ local pairs = pairs
 local print = print
 local rawget = rawget
 local rawset = rawset
+local select = select
 local tostring = tostring
 local type = type
 local unpack = unpack
@@ -53,99 +54,73 @@ end
 module(...)
 
 
+---=== ACTION/MOVE/AI HELPERS ===---
+
 local lastid = { action=0, move=0, ai=0 }
-local def = {
-    action = { NO=ffi.new("con_action_t") },
-    move = { NO=ffi.new("con_move_t") },
-    ai = { NO=ffi.new("con_ai_t") },
-}
 
-local function forbidden() error("newindex forbidden", 2) end
+local con_action_ct = ffi.typeof("const con_action_t")
+local con_move_ct = ffi.typeof("const con_move_t")
+local con_ai_ct = ffi.typeof("const con_ai_t")
 
-AC = setmetatable({}, { __index=def.action, __newindex=forbidden })
-MV = setmetatable({}, { __index=def.move, __newindex=forbidden })
-AI = setmetatable({}, { __index=def.ai, __newindex=forbidden })
+-- All-zero action and move with IDs. Mostly for CON support.
+local literal_act = { [0]=con_action_ct(0), [1]=con_action_ct(1) }
+local literal_mov = { [0]=con_move_ct(0), [1]=con_move_ct(1) }
 
-local function check_name(name, what, errlev)
-    if (type(name)~="string" or #name > 63) then
-        error("bad argument #1 to "..what..": must be a string of length <= 63", errlev+1)
-    end
-end
+local literal_am = { action=literal_act, move=literal_mov }
+local am_ctype = { action=con_action_ct, move=con_move_ct }
 
-local function action_or_move(what, numargs, tab, name, ...)
+local function def_action_or_move(what, tab)
     if (lastid[what] <= -(2^31)) then
         error("Too many "..what.."s defined", 3);
     end
-    check_name(name, what, 3)
 
-    local args = {...}
-    if (#args > numargs) then
-        error("Too many arguments passed to "..what, 3)
-    end
+    bcheck.top_level(what, 4)
 
-    for i=1,#args do
-        local n = args[i]
-        if (type(n)~="number" or not (n >= -32768 and n <= 32767)) then
-            error("bad argument #".. i+1 .." to "..what..
-                  ": must be numbers in [-32768..32767]", 3)
-        end
+    if (type(tab) ~= "table") then
+        error("invalid argument to con."..what..": must be a table", 3)
     end
-    -- missing fields are initialized to 0 by ffi.new
 
     -- Named actions or moves have negative ids so that non-negative ones
     -- can be used as (different) placeholders for all-zero ones.
     lastid[what] = lastid[what]-1
 
-    -- ffi.new takes either for initialization: varargs, a table with numeric
-    -- indices, or a table with key-value pairs
+    -- Pass args table to ffi.new, which can take either: a table with numeric
+    -- indices, or a table with key-value pairs.
     -- See http://luajit.org/ext_ffi_semantics.html#init_table
-    tab[name] = ffi.new("const con_"..what.."_t", lastid[what], args)
+    return am_ctype[what](lastid[what], tab)
 end
 
----=== ACTION / MOVE / AI ===---
+---=== ACTION/MOVE/AI FUNCTIONS ===---
 
-function action(name, ...)
-    bcheck.top_level("action")
-    action_or_move("action", 5, def.action, name, ...)
+function action(tab)
+    return def_action_or_move("action", tab)
 end
 
-function move(name, ...)
-    bcheck.top_level("move")
-    action_or_move("move", 2, def.move, name, ...)
+function move(tab)
+    return def_action_or_move("move", tab)
 end
 
 -- Get action or move for an 'ai' definition.
 local function get_action_or_move(what, val, argi)
     if (val == nil) then
-        return {}  -- ffi.new will init the struct to all zeros
-    elseif (type(val)=="string") then
-        local am = def[what][val]
-        if (am==nil) then
-            error("no "..what.." '"..val.."' defined", 3)
-        end
-        return am
-    elseif (ffi.istype("con_"..what.."_t", val)) then
+        return literal_am[what][0]
+    elseif (ffi.istype(am_ctype[what], val)) then
         return val
     elseif (type(val)=="number") then
         if (val==0 or val==1) then
-            -- Create an action or move with an ID of 0 or 1 but all other
-            -- fields cleared.
-            return ffi.new("con_"..what.."_t", val)
+            return literal_am[what][val]
         end
     end
 
-    error("bad argument #"..argi.." to ai: must be string or (literal) "..what, 3)
+    error("bad argument #"..argi.." to ai: must be nil/nothing, 0, 1, or "..what, 3)
 end
 
-function ai(name, action, move, flags)
+function ai(action, move, flags)
     bcheck.top_level("ai")
 
     if (lastid.ai <= -(2^31)) then
         error("Too many AIs defined", 2);
     end
-    check_name(name, "ai", 2)
-
-    lastid.ai = lastid.ai-1
 
     local act = get_action_or_move("action", action, 2)
     local mov = get_action_or_move("move", move, 3)
@@ -158,7 +133,8 @@ function ai(name, action, move, flags)
         flags = 0
     end
 
-    def.ai[name] = ffi.new("const con_ai_t", lastid.ai, act, mov, flags)
+    lastid.ai = lastid.ai-1
+    return con_ai_ct(lastid.ai, act, mov, flags)
 end
 
 

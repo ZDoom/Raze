@@ -94,7 +94,7 @@ end
 
 function bcheck.top_level(funcname)
     if (ffiC.g_elCallDepth > 0) then
-        error("Invalid use of "..funcname..": must be called from top level", 3)
+        error("Invalid use of "..funcname..": must be called from top level", errlev or 3)
     end
 end
 
@@ -104,9 +104,9 @@ function bcheck.number(val, errlev)
     end
 end
 
-function bcheck.type(val, typestr)
+function bcheck.type(val, typestr, errlev)
     if (type(val)~=typestr) then
-        error("invalid argument: must be a "..typestr, 3)
+        error("invalid argument: must be a "..typestr, errlev or 3)
     end
 end
 
