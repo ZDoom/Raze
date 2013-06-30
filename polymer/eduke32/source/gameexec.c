@@ -452,7 +452,7 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na)
     return (na-a);
 }
 
-GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
+GAMEEXEC_STATIC void VM_AlterAng(int32_t movflags)
 {
     const int32_t ticselapsed = (vm.g_t[0])&31;
 
@@ -480,7 +480,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
     if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
         return;
 
-    if (a&seekplayer)
+    if (movflags&seekplayer)
     {
         int32_t aang = vm.g_sp->ang, angdif, goalang;
         int32_t j = g_player[vm.g_p].ps->holoduke_on;
@@ -521,13 +521,13 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
 
     if (ticselapsed < 1)
     {
-        if (a&furthestdir)
+        if (movflags&furthestdir)
         {
             vm.g_sp->ang = A_GetFurthestAngle(vm.g_i, 2);
             vm.g_sp->owner = g_player[vm.g_p].ps->i;
         }
 
-        if (a&fleeenemy)
+        if (movflags&fleeenemy)
             vm.g_sp->ang = A_GetFurthestAngle(vm.g_i, 2);
     }
 }
@@ -591,15 +591,16 @@ GAMEEXEC_STATIC void VM_Move(void)
 #if !defined LUNATIC
     const intptr_t *moveptr;
 #endif
-    int32_t a = vm.g_sp->hitag, angdif;
+    // NOTE: source/gameexec.c:596:5: warning: comparison is always false due
+    // to limited range of data type [-Wtype-limits]
+    const int32_t movflags = (vm.g_sp->hitag==-1) ? 0 : vm.g_sp->hitag;
     const int32_t deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
-
-    if (a == -1) a = 0;
+    int32_t badguyp, angdif;
 
     vm.g_t[0]++;
 
     // If the move ID is zero, or the movflags are 0
-    if (vm.g_t[1] == 0 || a == 0)
+    if (vm.g_t[1] == 0 || movflags == 0)
     {
         if (deadflag || (actor[vm.g_i].bpos.x != vm.g_sp->x) || (actor[vm.g_i].bpos.y != vm.g_sp->y))
         {
@@ -610,24 +611,25 @@ GAMEEXEC_STATIC void VM_Move(void)
         return;
     }
 
-    if (deadflag) goto dead;
+    if (deadflag)
+        goto dead;
 
-    if (a&face_player)
+    if (movflags&face_player)
         VM_FacePlayer(2);
 
-    if (a&spin)
+    if (movflags&spin)
         vm.g_sp->ang += sintable[((vm.g_t[0]<<3)&2047)]>>6;
 
-    if (a&face_player_slow)
+    if (movflags&face_player_slow)
         VM_FacePlayer(4);
 
-    if ((a&jumptoplayer) == jumptoplayer)
+    if ((movflags&jumptoplayer) == jumptoplayer)
     {
         if (vm.g_t[0] < 16)
             vm.g_sp->zvel -= (sintable[(512+(vm.g_t[0]<<4))&2047]>>5);
     }
 
-    if (a&face_player_smart)
+    if (movflags&face_player_smart)
     {
         DukePlayer_t *const ps = g_player[vm.g_p].ps;
         int32_t newx = ps->pos.x + (ps->vel.x/768);
@@ -648,28 +650,29 @@ dead:
 
     moveptr = script + vm.g_t[1];  // RESEARCH: what's with move 0 and >>> 1 <<<?
 
-    if (a&geth) vm.g_sp->xvel += ((*moveptr)-vm.g_sp->xvel)>>1;
-    if (a&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
+    if (movflags&geth) vm.g_sp->xvel += ((*moveptr)-vm.g_sp->xvel)>>1;
+    if (movflags&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
 #else
-    if (a&geth) vm.g_sp->xvel += (actor[vm.g_i].mv.hvel - vm.g_sp->xvel)>>1;
-    if (a&getv) vm.g_sp->zvel += (actor[vm.g_i].mv.vvel - vm.g_sp->zvel)>>1;
+    if (movflags&geth) vm.g_sp->xvel += (actor[vm.g_i].mv.hvel - vm.g_sp->xvel)>>1;
+    if (movflags&getv) vm.g_sp->zvel += (actor[vm.g_i].mv.vvel - vm.g_sp->zvel)>>1;
 #endif
 
-    if (a&dodgebullet && !deadflag)
+    if (movflags&dodgebullet && !deadflag)
         A_Dodge(vm.g_sp);
 
     if (vm.g_sp->picnum != APLAYER)
-        VM_AlterAng(a);
+        VM_AlterAng(movflags);
 
-    if (vm.g_sp->xvel > -6 && vm.g_sp->xvel < 6) vm.g_sp->xvel = 0;
+    if (vm.g_sp->xvel > -6 && vm.g_sp->xvel < 6)
+        vm.g_sp->xvel = 0;
 
-    a = A_CheckEnemySprite(vm.g_sp);
+    badguyp = A_CheckEnemySprite(vm.g_sp);
 
     if (vm.g_sp->xvel || vm.g_sp->zvel)
     {
         int32_t daxvel;
 
-        if (a && vm.g_sp->picnum != ROTATEGUN)
+        if (badguyp && vm.g_sp->picnum != ROTATEGUN)
         {
             if ((vm.g_sp->picnum == DRONE || vm.g_sp->picnum == COMMANDER) && vm.g_sp->extra > 0)
             {
@@ -738,7 +741,7 @@ dead:
         daxvel = vm.g_sp->xvel;
         angdif = vm.g_sp->ang;
 
-        if (a && vm.g_sp->picnum != ROTATEGUN)
+        if (badguyp && vm.g_sp->picnum != ROTATEGUN)
         {
             DukePlayer_t *const ps = g_player[vm.g_p].ps;
 
@@ -780,7 +783,7 @@ dead:
         }
     }
 
-    if (!a)
+    if (!badguyp)
         return;
 
     if (sector[vm.g_sp->sectnum].ceilingstat&1)

@@ -7193,9 +7193,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
     for (j=spritesortcnt-1; j>=0; j--) //Between drawrooms() and drawmasks()
     {
         int32_t switchpic;
-        int32_t t_data3;
+        int32_t curframe;
 #ifndef LUNATIC
-        int32_t t_data4;
+        int32_t scrofs_action;
 #else
         int32_t startframe, viewtype;
 #endif
@@ -7241,9 +7241,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         sect = s->sectnum;
 
         Bassert(i >= 0);
-        t_data3 = T4;
+        curframe = T4;
 #ifndef LUNATIC
-        t_data4 = T5;  // SACTION
+        scrofs_action = T5;  // SACTION
 #else
         startframe = actor[i].ac.startframe;
         viewtype = actor[i].ac.viewtype;
@@ -7370,7 +7370,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury), 0);
 
             // RECON_T4
-            if (klabs(t_data3) > 64)
+            if (klabs(curframe) > 64)
                 k += 7;  // tilted recon car
 
             t->picnum = RECON+k;
@@ -7512,9 +7512,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 const intptr_t *aplayer_scr = g_tile[APLAYER].execPtr;
                 // [0]=strength, [1]=actionofs, [2]=moveofs
 
-                t_data4 = aplayer_scr[1];
+                scrofs_action = aplayer_scr[1];
 #endif
-                t_data3 = 0;
+                curframe = 0;
             }
 
             if (ud.camerasprite == -1 && g_player[p].ps->newowner == -1)
@@ -7604,10 +7604,10 @@ PALONLY:
         if (G_HaveActor(s->picnum))
         {
 #ifndef LUNATIC
-            if ((unsigned)t_data4 + 2 >= (unsigned)g_scriptSize)
+            if ((unsigned)scrofs_action + 2 >= (unsigned)g_scriptSize)
                 goto skip;
 
-            l = script[t_data4 + 2];
+            l = script[scrofs_action + 2];
 #else
             l = viewtype;
 #endif
@@ -7657,9 +7657,9 @@ PALONLY:
             l = klabs(l);
 
 #if !defined LUNATIC
-            t->picnum += k + script[t_data4] + l*t_data3;
+            t->picnum += k + script[scrofs_action] + l*curframe;
 #else
-            t->picnum += k + startframe + l*t_data3;
+            t->picnum += k + startframe + l*curframe;
 #endif
             // XXX: t->picnum can be out-of-bounds by bad user code.
 
