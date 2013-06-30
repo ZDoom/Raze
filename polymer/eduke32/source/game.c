@@ -4807,7 +4807,7 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
         AC_ACTION_ID(actor[i].t_data) = *(g_tile[tilenum].execPtr+1);
         AC_MOVE_ID(actor[i].t_data) = *(g_tile[tilenum].execPtr+2);
 
-        if (set_movflag_uncond || SHT == 0)
+        if (set_movflag_uncond || SHT == 0)  // AC_MOVFLAGS
             SHT = *(g_tile[tilenum].execPtr+3);
 
         return 1;
@@ -4817,6 +4817,7 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
     {
         // ^^^ C-CON takes precedence for now.
         const el_actor_t *a = &g_elActors[tilenum];
+        uint16_t *movflagsptr = &AC_MOVFLAGS(&sprite[i], &actor[i]);
 
         SH = a->strength;
         AC_ACTION_ID(actor[i].t_data) = a->act.id;
@@ -4824,8 +4825,8 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
         Bmemcpy(&actor[i].ac, &a->act.ac, sizeof(struct action));
         Bmemcpy(&actor[i].mv, &a->mov.mv, sizeof(struct move));
 
-        if (set_movflag_uncond || SHT == 0)
-            SHT = a->movflags;
+        if (set_movflag_uncond || *movflagsptr == 0)
+            *movflagsptr = a->movflags;
 
         return 1;
     }
@@ -5999,6 +6000,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 }
             }
 
+            // If spawned from parent sprite (as opposed to 'from premap'),
+            // ignore skill.
             if (j >= 0) sp->lotag = 0;
 
             if ((sp->lotag > ud.player_skill) || ud.monsters_off == 1)

@@ -155,7 +155,7 @@ __attribute__((packed)) struct {
     const int32_t t_data[10];
     const struct move mv;
     const struct action ac;
-    const int16_t _padding[1];
+    const uint16_t actiontics;
 
 ]]..defs_c.bitint_member("SBit32", "flags")..[[
     vec3_t bpos; //12b
@@ -169,10 +169,15 @@ __attribute__((packed)) struct {
 
     int16_t stayputsect;
     const int16_t dispicnum;
-    int16_t shootzvel, cgg;
+    // Movement flags, sprite[i].hitag in C-CON.
+    // XXX: more research where it was used in EDuke32's C code? (also .lotag <-> actiontics)
+    // XXX: what if CON code knew of the above implementation detail?
+]]..defs_c.bitint_member("UBit16", "movflags")..[[
+    int16_t cgg;
 
     const int16_t lightId, lightcount, lightmaxrange;
     const union { intptr_t ptr; uint64_t dummy; } _light;
+// XXX: 32-bit has filler
 }
 ]]
 
@@ -1001,11 +1006,11 @@ local actor_mt = {
             end
 
             a.t_data[0] = 0
+            a.movflags = movflags or 0
             local spr = ffiC.sprite[get_actor_idx(a)]
-            spr.hitag = movflags or 0
 
             if (not spr:isenemy() or spr.extra > 0) then
-                if (bit.band(spr.hitag, 8) ~= 0) then  -- random_angle
+                if (bit.band(a.movflags, 8) ~= 0) then  -- random_angle
                     spr.ang = bit.band(ffiC.krand(), 2047)
                 end
             end

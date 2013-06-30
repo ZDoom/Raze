@@ -76,16 +76,16 @@ enum uactortypes_t {
 
 // These macros are there to give names to the t_data[]/T*/vm.g_t[] indices
 // when used with actors. Greppability of source code is certainly a virtue.
-#define AC_COUNT(t) (t[0])  /* the actor's count */
+#define AC_COUNT(t) ((t)[0])  /* the actor's count */
 /* The ID of the actor's current move. In C-CON, the bytecode offset to the
  * move composite: */
-#define AC_MOVE_ID(t) (t[1])
-#define AC_ACTION_COUNT(t) (t[2])  /* the actor's action count */
-#define AC_CURFRAME(t) (t[3])  /* the actor's current frame offset */
+#define AC_MOVE_ID(t) ((t)[1])
+#define AC_ACTION_COUNT(t) ((t)[2])  /* the actor's action count */
+#define AC_CURFRAME(t) ((t)[3])  /* the actor's current frame offset */
 /* The ID of the actor's current action. In C-CON, the bytecode offset to the
  * action composite: */
-#define AC_ACTION_ID(t) (t[4])
-#define AC_AI_ID(t) (t[5])  /* the ID of the actor's current ai */
+#define AC_ACTION_ID(t) ((t)[4])
+#define AC_AI_ID(t) ((t)[5])  /* the ID of the actor's current ai */
 
 #ifdef LUNATIC
 struct action {
@@ -122,6 +122,18 @@ typedef struct {
     int32_t userdata; // 4b
 } projectile_t;
 
+// Select an actor's actiontics and movflags locations depending on
+// whether we compile the Lunatic build.
+// <spr>: sprite pointer
+// <a>: actor_t pointer
+#ifdef LUNATIC
+# define AC_ACTIONTICS(spr, a) ((a)->actiontics)
+# define AC_MOVFLAGS(spr, a) ((a)->movflags)
+#else
+# define AC_ACTIONTICS(spr, a) ((spr)->lotag)
+# define AC_MOVFLAGS(spr, a) ((spr)->hitag)
+#endif
+
 #pragma pack(push,1)
 // (+ 40 16 16 4 8 6 8 6 4 20)
 typedef struct {
@@ -131,7 +143,8 @@ typedef struct {
     // total: 16b
     struct move mv;
     struct action ac;
-    const int16_t padding_;
+    // Gets incremented by TICSPERFRAME on each A_Execute() call:
+    uint16_t actiontics;
 #endif
 
     int32_t flags; //4b
@@ -142,10 +155,17 @@ typedef struct {
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; //6b
 
+    int16_t actorstayput, dispicnum;
+#if !defined LUNATIC
     // NOTE: shootzvel is not used any more.
-    int16_t actorstayput, dispicnum, shootzvel_, cgg; // 8b
-    int16_t lightId, lightcount, lightmaxrange; //6b
+    int16_t shootzvel_;
+#else
+    // Movement flags, sprite[i].hitag in C-CON:
+    uint16_t movflags;
+#endif
+    int16_t cgg;
 
+    int16_t lightId, lightcount, lightmaxrange; //6b
 #ifdef POLYMER
     _prlight *lightptr; //4b/8b
 #else
@@ -180,7 +200,7 @@ typedef struct {
 #ifdef LUNATIC
     struct move mv;
     struct action ac;
-    const int16_t padding_;
+    uint16_t actiontics;
 #endif
 
     int32_t flags; //4b
@@ -191,7 +211,13 @@ typedef struct {
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; // 6b
 
-    int16_t actorstayput, dispicnum, shootzvel_, cgg; // 8b
+    int16_t actorstayput, dispicnum;
+#if !defined LUNATIC
+    int16_t shootzvel_;
+#else
+    uint16_t movflags;
+#endif
+    int16_t cgg;
 
     spritetype sprite;
     int16_t netIndex;

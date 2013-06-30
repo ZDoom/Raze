@@ -594,7 +594,8 @@ GAMEEXEC_STATIC void VM_Move(void)
 #endif
     // NOTE: commented out condition is dead since r3159 (making hi/lotag unsigned).
     // XXX: Does it break anything? Where are movflags with all bits set created?
-    const int32_t movflags = /*(vm.g_sp->hitag==-1) ? 0 :*/ vm.g_sp->hitag;
+    const uint16_t *movflagsptr = &AC_MOVFLAGS(vm.g_sp, &actor[vm.g_i]);
+    const int32_t movflags = /*(*movflagsptr==-1) ? 0 :*/ *movflagsptr;
     const int32_t deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
     int32_t badguyp, angdif;
 
@@ -2236,7 +2237,7 @@ nullquote:
                         // offsets
                         AC_ACTION_ID(a->t_data) = actorptr[1];
                         AC_MOVE_ID(a->t_data) = actorptr[2];
-                        sprite[i].hitag = actorptr[3];  // ai bits (movflags)
+                        AC_MOVFLAGS(&sprite[i], &actor[i]) = actorptr[3];  // ai bits (movflags)
                     }
                 }
 
@@ -5381,12 +5382,13 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
         const int32_t action_incval = actor[vm.g_i].ac.incval;
         const int32_t action_delay = actor[vm.g_i].ac.delay;
 #endif
-        vm.g_sp->lotag += TICSPERFRAME;
+        uint16_t *actionticsptr = &AC_ACTIONTICS(vm.g_sp, &actor[vm.g_i]);
+        *actionticsptr += TICSPERFRAME;
 
-        if (vm.g_sp->lotag > action_delay)
+        if (*actionticsptr > action_delay)
         {
             AC_ACTION_COUNT(vm.g_t)++;
-            vm.g_sp->lotag = 0;
+            *actionticsptr = 0;
 
             AC_CURFRAME(vm.g_t) += action_incval;
         }

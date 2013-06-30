@@ -456,7 +456,7 @@ gameactor
 
         if (actr:has_action(CAC.ATROOPWALKING)) then
             if (actr:get_count() % 50 == 0) then
-                spr.hitag = bit.bxor(spr.hitag, actor.MOVFLAGS.spin)
+                actr.movflagsbits:flip(actor.MOVFLAGS.spin)
             end
         end
     end
@@ -468,13 +468,14 @@ gameactor
 
     -- XXX: I want to write "{0, 4, delay=20}"
     action = con.action{0, 4, 1, 1, 20},
-    move = con.move{},  -- so that the ID is nonzero
+    move = con.move{},  -- so that the ID is nonzero and it will move
 
     func = function(aci)
+        local a = actor[aci]
         local delay = math.sin(0.1 * 2*math.pi*gv.totalclock/120)
-        actor[aci]:set_action_delay(20 + 10*delay)
-        actor[aci]:set_hvel(50*delay)
-        sprite[aci].hitag = actor.MOVFLAGS.geth
+        a:set_action_delay(20 + 10*delay)
+        a:set_hvel(50*delay)
+        a.movflags = actor.MOVFLAGS.geth
     end,
 }
 
