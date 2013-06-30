@@ -982,6 +982,11 @@ local actor_mt = {
             return ffi.cast(actor_ptr_ct, a).t_data[2]
         end,
 
+        -- Override action delay. The action ID is kept.
+        set_action_delay = function(a, delay)
+            ffi.cast(actor_ptr_ct, a).ac.delay = delay
+        end,
+
         -- move
         set_move = function(a, mov, movflags)
             a = ffi.cast(actor_ptr_ct, a)
@@ -1015,6 +1020,15 @@ local actor_mt = {
                 check_literal_am(mov, "move")
                 return (a.t_data[1]==mov)
             end
+        end,
+
+        -- Override velocity, keeping move ID.
+        set_hvel = function(a, hvel)
+            ffi.cast(actor_ptr_ct, a).mv.hvel = hvel
+        end,
+
+        set_vvel = function(a, vvel)
+            ffi.cast(actor_ptr_ct, a).mv.vvel = vvel
         end,
 
         -- ai

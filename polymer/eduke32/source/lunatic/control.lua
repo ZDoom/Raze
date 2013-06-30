@@ -85,7 +85,7 @@ local function def_action_or_move(what, tab)
     lastid[what] = lastid[what]-1
 
     -- Pass args table to ffi.new, which can take either: a table with numeric
-    -- indices, or a table with key-value pairs.
+    -- indices, or a table with key-value pairs, *but not in combination*.
     -- See http://luajit.org/ext_ffi_semantics.html#init_table
     return am_ctype[what](lastid[what], tab)
 end

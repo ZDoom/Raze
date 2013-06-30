@@ -598,6 +598,7 @@ GAMEEXEC_STATIC void VM_Move(void)
 
     vm.g_t[0]++;
 
+    // If the move ID is zero, or the movflags are 0
     if (vm.g_t[1] == 0 || a == 0)
     {
         if (deadflag || (actor[vm.g_i].bpos.x != vm.g_sp->x) || (actor[vm.g_i].bpos.y != vm.g_sp->y))

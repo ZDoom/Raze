@@ -7661,6 +7661,7 @@ PALONLY:
 #else
             t->picnum += k + startframe + l*t_data3;
 #endif
+            // XXX: t->picnum can be out-of-bounds by bad user code.
 
             if (l > 0)
                 while (tilesizx[t->picnum] == 0 && t->picnum > 0)

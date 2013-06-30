@@ -395,9 +395,12 @@ local hs = stat.new()
 local con = require("con")
 local AC, MV = con.AC, con.MV
 
+local CAC, CMV, CAI = require("CON.ACTION"), require("CON.MOVE"), require("CON.AI")
+assert(CAC); assert(CMV); assert(CAI)
+
 local AC, MV = {}, {}
 
-AC.TROOPSTAND = con.action{0,1,5,1,1}
+AC.TROOPSTAND = assert(CAC.ATROOPSTAND) -- or con.action{0,1,5,1,1}
 AC.TROOPFLINTCH = con.action{50, 1, 1, 1, 6}
 MV.SHRUNKVELS = con.move{hvel=32}
 con.ai(AC.TROOPFLINTCH, MV.SHRUNKVELS, 0)  -- unused; TODO: test
@@ -450,7 +453,29 @@ gameactor
                 con.killit()
             end
         end
+
+        if (actr:has_action(CAC.ATROOPWALKING)) then
+            if (actr:get_count() % 50 == 0) then
+                spr.hitag = bit.bxor(spr.hitag, actor.MOVFLAGS.spin)
+            end
+        end
     end
+}
+
+gameactor
+{
+    1275,  -- newspaper, E4L6 sprite #513
+
+    -- XXX: I want to write "{0, 4, delay=20}"
+    action = con.action{0, 4, 1, 1, 20},
+    move = con.move{},  -- so that the ID is nonzero
+
+    func = function(aci)
+        local delay = math.sin(0.1 * 2*math.pi*gv.totalclock/120)
+        actor[aci]:set_action_delay(20 + 10*delay)
+        actor[aci]:set_hvel(50*delay)
+        sprite[aci].hitag = actor.MOVFLAGS.geth
+    end,
 }
 
 gameevent
