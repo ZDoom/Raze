@@ -3348,7 +3348,7 @@ local function get_code_string(codetab, lineinfop)
             codetab[#codetab+1] = format("[%q]=%d,", label, val)
         end
     end
-    codetab[#codetab+1] = "}"
+    codetab[#codetab+1] = "},_C,_M,_I"  -- CONCODE_RETURN
 
     local flatcode = flatten_codetab(codetab)
     local lineinfo = lineinfop and get_lineinfo(flatcode)

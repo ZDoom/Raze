@@ -827,8 +827,22 @@ do
 
     actor_static_members.STAT = defs_c.conststruct(our_STAT)
 
-    -- TODO: actor_static_members.movflags? They can be obtained with
-    -- require('CON.DEFS') now...
+    actor_static_members.MOVFLAGS = defs_c.conststruct
+    {
+        -- NOTE: no underscores, like in DEFS.CON.
+        faceplayer = 1,
+        geth = 2,
+        getv = 4,
+        randomangle = 8,
+        faceplayerslow = 16,
+        spin = 32,
+        faceplayersmart = 64,
+        fleeenemy = 128,
+        jumptoplayer = 257,
+        seekplayer = 512,
+        furthestdir = 1024,
+        dodgebullet = 4096,
+    }
 end
 
 -- Delete sprite with index <i>.
@@ -1448,14 +1462,14 @@ do
 end
 
 -- Protect base modules.
-local function basemodule_newindex()
+local function basemod_newidx()
     error("modifying base module table forbidden", 2)
 end
 
 for modname, themodule in pairs(allowed_modules) do
     local mt = {
         __index = themodule,
-        __newindex = basemodule_newindex,
+        __newindex = basemod_newidx,
     }
 
     allowed_modules[modname] = setmtonce({}, mt)
@@ -2265,12 +2279,19 @@ if (concode) then
     -- Emulate our 'require' for the CON module when running it, for
     -- our_module() which is called from the generated Lua code.
     table.insert(modname_stack, CON_MODULE_NAME)
-    local conlabels = confunc()
+    local conlabels, conaction, conmove, conai = confunc()
     table.remove(modname_stack)
 
-    -- Set up CON.DEFS module, providing access to labels defined in CON from Lua.
-    local mt = { __index = conlabels, __newindex = basemodule_newindex }
-    allowed_modules["CON.DEFS"] = setmtonce({}, mt)
+    local function protect_con_table(tab)
+        return setmtonce({}, { __index=tab, __newindex=basemod_newidx })
+    end
+
+    -- Set up CON.* modules, providing access to diffenrent kinds of labels
+    -- defined in CON from Lua. See CONCODE_RETURN in lunacon.lua.
+    allowed_modules["CON.DEFS"] = protect_con_table(conlabels)
+    allowed_modules["CON.ACTION"] = protect_con_table(conaction)
+    allowed_modules["CON.MOVE"] = protect_con_table(conmove)
+    allowed_modules["CON.AI"] = protect_con_table(conai)
 
     -- Propagate potentially remapped defines to the control module.
     con._setuplabels(conlabels)
