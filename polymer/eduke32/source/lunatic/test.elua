@@ -588,7 +588,7 @@ gameevent
 
         local r, g, b = testbit(neww, 1), testbit(neww, 2), testbit(neww, 4)
         local speed = FADE_SPEED[neww] or 1
-        player[pli]:fadecol(0.5, r, g, b, speed, neww)
+        player[pli]:fadecol(0.5, r, g, b, speed, neww-5)
     end
 }
 

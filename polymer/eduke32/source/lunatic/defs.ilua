@@ -1291,8 +1291,12 @@ local player_mt = {
         -- INTERNAL and CON-only.
         _palfrom = function(p, f, r,g,b)
             local pals = p._pals
-            pals.f = f
-            pals.r, pals.g, pals.b = r, g, b
+            -- Assume that CON's palfrom starts with prio 0 and speed 0.
+            if (pals.f == 0 or p._palsfadeprio <= 0) then
+                pals.f = f
+                pals.r, pals.g, pals.b = r, g, b
+                p._palsfadespeed, p._palsfadenext = 0, 0
+            end
         end,
     },
 

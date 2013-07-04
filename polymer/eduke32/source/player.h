@@ -347,10 +347,19 @@ static inline int32_t A_Shoot(int32_t i, int32_t atwith)
 
 static inline void P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
 {
-    p->pals.f = f;
-    p->pals.r = r;
-    p->pals.g = g;
-    p->pals.b = b;
+#ifdef LUNATIC
+    // Compare with defs.ilua: player[]:_palfrom().
+    if (p->pals.f == 0 || p->palsfadeprio <= 0)
+#endif
+    {
+        p->pals.f = f;
+        p->pals.r = r;
+        p->pals.g = g;
+        p->pals.b = b;
+#ifdef LUNATIC
+        p->palsfadespeed = p->palsfadenext = 0;
+#endif
+    }
 }
 
 int32_t     A_GetHitscanRange(int32_t i);
