@@ -131,7 +131,7 @@ a _built-in_ module, of which the following ones are allowed:
 * Lua's `os` module, containing a single function, `clock`. Like the
   <<timing_funcs,timing functions>>, it should only be used to profile bits of
   code.
-* Modules provided by Lunatic, which will be described in <<ext_api,their own
+* Modules provided by Lunatic, which are described in <<ext_api,their own
   section>>.
 
 If `modname` does not designate a built-in module, Lunatic first replaces every
@@ -146,15 +146,28 @@ contains a loop). Instead, an error is raised.
 
 Lunatic's `require` allows passing additional arguments to the module to load.
 On the module side, they can be obtained by examining the vararg expression
-``++\...++'' at file scope. Given a definition of `args` as `{...}`, its
-first element `args[1]` would contain `modname` and the following entries the
-values passed in addition to `require`. This feature is useful for
-parametrizing a module: for example, it could provide a way alter the starting
-tile number of an actor it defines.
+``++\...++'' at file scope. Given a definition of `args` as `{...}`, its first
+element `args[1]` would contain `modname` and the following entries the values
+passed in addition to `require`. This feature is useful for parametrizing a
+module: for example, the module could provide a way alter the starting tile
+number of an actor it defines.
 
-Issuing `require` for ```end_gamevars`'' has a special meaning that is
-described below. A `require` for ```CON.DEFS`'' returns a table mapping labels
-++define++d from CON to their values, except for `NO`.
+Issuing `require` for some special names listed below has a predefined meaning
+that cannot be overridden by the user.
+
+* `CON.DEFS`: returns a table mapping labels ++define++d from CON to their
+values, except for `NO`.
+
+* `CON.ACTION`: returns a table mapping labels of ++action++s defined from CON
+  to immutable <<con_action,`con.action`>> objects.
+
+* `CON.MOVE`: returns a table mapping labels of ++move++s defined from CON
+  to immutable <<con_move,`con.move`>> objects.
+
+* `CON.AI`: returns a table mapping labels of ++ai++s defined from CON
+  to immutable <<con_ai,`con.ai`>> objects.
+
+* `end_gamevars`: used to mark the end of a gamevar block, described below.
 
 
 ==== The `module()` function
@@ -183,9 +196,13 @@ serialize into savegames. These are the following:
 ** A table key may only be of basic type.
 ** A table value may be (a reference to) any serializeable object, but tables
     or Lunatic objects that are so referenced *must* have originated in the
-    same module. Beyond that, there are no restrictions on the table topology.
+    gamevar section of the same module. Beyond that, there are no restrictions
+    on the table topology.
 
-// [icon="icons/din_w_collapse.png"]
+[icon="icons/din_w_collapse.png"]
+CAUTION: If a gamevar contains a value that is not serializeable at any point
+in the execution, the behavior is undefined. Note that in particular, gamevars
+are not allowed to take on the value *nil*.
 
 // TODO: example?
 
@@ -224,13 +241,14 @@ sensitive_ walls and sprites.
 // Game-side
 `gv.*` inventory indices::
 `GET_STEROIDS`, `GET_SHIELD`, `GET_SCUBA`, `GET_HOLODUKE`, `GET_JETPACK`,
-`GET_DUMMY1`, `GET_ACCESS`, `GET_HEATS`, `GET_DUMMY2`, `GET_FIRSTAID`, `GET_BOOTS`.
-`GET_MAX`.
+`GET_DUMMY1`, `GET_ACCESS`, `GET_HEATS`, `GET_DUMMY2`, `GET_FIRSTAID`,
+`GET_BOOTS`.  `GET_MAX`.
 
 `gv.*` weapon indices::
-`KNEE_WEAPON`, `PISTOL_WEAPON`, `SHOTGUN_WEAPON`, `CHAINGUN_WEAPON`, `RPG_WEAPON`, 
-`HANDBOMB_WEAPON`, `SHRINKER_WEAPON`, `DEVISTATOR_WEAPON`, `TRIPBOMB_WEAPON`, 
-`FREEZE_WEAPON`, `HANDREMOTE_WEAPON`, `GROW_WEAPON`. `MAX_WEAPONS`.
+`KNEE_WEAPON`, `PISTOL_WEAPON`, `SHOTGUN_WEAPON`, `CHAINGUN_WEAPON`,
+`RPG_WEAPON`, `HANDBOMB_WEAPON`, `SHRINKER_WEAPON`, `DEVISTATOR_WEAPON`,
+`TRIPBOMB_WEAPON`, `FREEZE_WEAPON`, `HANDREMOTE_WEAPON`,
+`GROW_WEAPON`. `MAX_WEAPONS`.
 
 // TODO: the others, like EVENT_*.
 //////////
@@ -250,7 +268,13 @@ TODO
 Variables
 ^^^^^^^^^
 
-`gv.totalclock` (read-only)::
+`gv.numsectors` (read-only)::
+The total number of sectors in the currently loaded map.
+
+`gv.numwalls` (read-only)::
+The total number of walls in the currently loaded map.
+
+[[totalclock]] `gv.totalclock` (read-only)::
 The current value of the engine timer that increments at a rate of 120 per
 second under default settings. (Thus, one game tic corresponds to four
 `totalclock` increments.) When staying within one ``mode'' such as in-menu or
@@ -277,6 +301,11 @@ Contains the following members: `pos`, `dist`, `clock`, `ang`, `horiz`, `sect`.
 
 Functions
 ^^^^^^^^^
+
+[[krand]] `gv.krand()`::
+Returns one value from the global engine-side pseudo-random number generator
+in the range [0{nbsp}..{nbsp}65535].
+
 [[timing_funcs]]
 `gv.getticks()`, `gv.gethiticksms()`::
 Each of these functions return a number that increases at a rate of 1 per
@@ -301,6 +330,7 @@ TODO
 TODO
 //////////
 
+[[Lunatic_structures]]
 Lunatic structures
 ~~~~~~~~~~~~~~~~~~
 
@@ -432,7 +462,8 @@ spr.cstat = CS.TRANS1 + CS.BLOCK
 one could proceed as follows for the sake of example:
 
 * `spr.cstatbits:set(CS.TRANS2)`, make the sprite 66% translucent now
-* `spr.cstatbits:flip(CS.BLOCK + CS.HITSCAN)`, make it hitscan-sensitive but not blocking
+* `spr.cstatbits:flip(CS.BLOCK + CS.HITSCAN)`, make it hitscan-sensitive but
+  not blocking
 * `spr.cstatbits:test(CS.FLIP_BITMASK)`, check whether it is flipped (no)
 ==========
 
@@ -534,8 +565,8 @@ TODO
 ===== `sector` static data
 
 [[sector_STAT]] `sector.STAT`::
-Provides a mapping of symbolic names to values applicable to <<cf_stat,`cf.stat`>>.
-These name single bits:
+Provides a mapping of symbolic names to values applicable to
+<<cf_stat,`cf.stat`>>.  These name single bits:
 `PARALLAX`, `SLOPE`, `SWAPXY`, `SMOOSH`, `FLIPX`, `FLIPY`, `RELATIVE`, `MASK`,
 `TRANS1`, `TRANS2`, `BLOCK`, `HITSCAN`, while the following denote _bit masks_:
 `FLIP_BITMASK`, `ORIENT_BITMASK`, `TRANS_BITMASK`.
@@ -585,7 +616,8 @@ The tile number of the masked portion of the wall, i.e. that which is drawn if
 this wall's `.cstat` has bit `wall.CSTAT.MASK` or `wall.CSTAT.ONEWAY` set.
 
 _`i8`_ `shade` (<<wall_picnum,_use-other-bottom_>>)::
-The shade of the wall for both non-masked and masked portions. Larger values mean a more darker appearance.
+The shade of the wall for both non-masked and masked portions. Larger values
+mean a more darker appearance.
 
 _`u8`_ `pal` (<<wall_picnum,_use-other-bottom_>>)::
 The ``palette swap'' index of the wall.
@@ -620,14 +652,15 @@ points, too.
 ===== `wall` static data
 
 [[wall_CSTAT]] `wall.CSTAT`::
-Provides a mapping of symbolic names to values applicable to <<wall_cstat,`wall[i].cstat`>>.
-These name single bits:
+Provides a mapping of symbolic names to values applicable to
+<<wall_cstat,`wall[i].cstat`>>.  These name single bits:
 `BLOCK`, `BOTTOMSWAP`, `ALIGNBOTTOM`, `FLIPX`, `MASK`, `ONEWAY`, `HITSCAN`,
 `TRANS1`, `FLIPY`, `TRANS2`,
 while the following denote _bit masks_:
 `FLIP_BITMASK`, `TRANS_BITMASK`.
 
 '''
+[[sprite]]
 ===== `sprite`
 
 The `sprite` composite is accessible with indices from `0` to
@@ -729,8 +762,8 @@ sprite by `zofs` units''.
 ===== `sprite` static data
 
 [[sprite_CSTAT]] `sprite.CSTAT`::
-Provides a mapping of symbolic names to values applicable to <<sprite_cstat,`sprite[i].cstat`>>.
-These name single bits:
+Provides a mapping of symbolic names to values applicable to
+<<sprite_cstat,`sprite[i].cstat`>>.  These name single bits:
 `BLOCK`, `TRANS1`, `XFLIP`, `YFLIP`, `ALIGNWALL`, `ALIGNFLOOR`, `ONESIDE`,
 `CENTER`, `HITSCAN`, `TRANS2`,
 while the following denote _bit masks_: `ALIGN_BITMASK`, `TRANS_BITMASK`.
@@ -745,7 +778,87 @@ Game-side
 
 ===== `actor`
 
+The `actor` composite holds various run-time data about a sprite.  Like
+<<sprite,`sprite`>>, it is accessible with indices from `0` to
+`gv.MAXSPRITES-1`, but accesses to actors that do not exist in the game world
+have no meaning.
+
 ===== `actor` methods
+
+`a:set_action(act)`::
+Sets the action of actor `a` to `act`, which may be either an object returned
+by <<con_action,`con.action`>> or a number 0 or 1. Resets the actor's _action
+count_ and current frame offset to 0.
+
+`a:has_action(act)`::
+Returns a boolean of whether the current action of actor `a` is `act`, which
+can be any value permissible to `a:set_action()`. For composite action objects,
+equality is established using its hidden ID, not the public members. Refer to
+<<actions_moves_ais,Actions&#44; moves and AIs>> for further details.
+
+`a:set_action_delay()`::
+Overrides the <<action_delay,`delay`>> of the current action of actor `a`
+without changing the action's ID.
+
+`a:set_count(count)`::
+Sets the actor's _execution count_ to `count`. The execution count of an actor
+increments after each time its <<gameactor,callback function>> has run once.
+
+`a:get_count()`::
+Returns the actor's execution count.
+
+`a:reset_acount()`::
+Resets the _action count_ of the actor to 0. The action count is incremented on
+each frame advance of the actor's current action. Also see the
+<<action_delay,`delay`>> argument to `con.action`.
+
+`a:get_acount()`::
+Returns the actor's action count.
+
+`a:set_move(mov [, movflags])`::
+Sets the move of actor `a` to `mov`, which may be either an object returned by
+<<con_move,`con.move`>> or a number 0 or 1. See the <<gameactor_move,`move`>>
+argument to `gameactor` for further details. If <<actor_MOVFLAGS,`movflags`>>
+is omitted, it defaults to 0.
++
+The `set_move` method resets the actor's execution count. Also, if `moveflags`
+has bit <<actor_MOVFLAGS,`actor.MOVFLAGS.randomangle`>> set and the actor is
+not an enemy or a live enemy, its `sprite[].ang` value is set to a ``random''
+value using <<krand,`gv.krand`>>.
+
+`a:has_move(mov)`::
+Returns a boolean of whether the current move of actor `a` is `mov`, which can
+be any value permissible to `a:set_move()`. Like with `a:has_action()`,
+equality is established using the move ID in case a composite one is passed.
+
+`a:set_hvel(hvel)`::
+Overrides the <<con_move,horizontal velocity>> of the actor's current move to
+`hvel` without changing its ID.
+
+`a:set_vvel(vvel)`::
+Overrides the <<con_move,vertical velocity>> of the actor's current move to
+`vvel` without changing its ID.
+
+`a:set_ai(ai)`::
+Sets the AI of actor `a` to `ai`, which must be an object returned by
+<<con_ai,`con.ai`>>. In addition to setting the current AI ID of the actor,
+`a:set_ai(ai)` is equivalent to the sequence
++
+----------
+a:set_action(ai.act)
+a:set_move(ai.mov, ai.movflags)
+----------
+
+`a:has_ai(ai)`::
+Returns a boolean of whether the current AI of actor `a` is `ai`.
+
+// TODO: set_picnum, set_owner?
+
+===== `actor` static functions
+
+`actor.fall(i)`::
+Causes the actor with index `i` to fall in a ``hard-coded'', not further
+specified fashion.
 
 ===== `actor` static data
 
@@ -764,6 +877,13 @@ Contains symbolic names of values applicable to <<gameactor,`gameactor`>>'s
 `USEACTIVATOR`, `NOCLIP`, `SMOOTHMOVE`, `NOTELEPORT`.
 
 //`BADGUY`,
+
+[[actor_MOVFLAGS]] `actor.MOVFLAGS`::
+Contains symbolic names of values applicable <<gameactor,`gameactor`>>'s
+`movflags` input argument, `actor[]:set_move()`, and the like. +
+`faceplayer`, `geth`, `getv`, `randomangle`, `faceplayerslow`, `spin`,
+`faceplayersmart`, `fleeenemy`, `jumptoplayer`, `seekplayer`, `furthestdir`,
+`dodgebullet`.
 
 ===== `player`
 
@@ -824,7 +944,8 @@ Iterates over the indices of all walls of the sector with index `sectnum`.
 Iterates over the indices of all sprites with status number `statnum`.
 
 +*for* s *in* spritesofsect(sectnum)+::
-Iterates over the indices of all sprites contained in the sector with index `sectnum`.
+Iterates over the indices of all sprites contained in the sector with index
+`sectnum`.
 
 Sector containment functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -952,16 +1073,27 @@ handles chaining.
   bitwise-OR in flags.
 * `AF.chain_end`: Append the provided `func` to the exising callback function,
   bitwise-OR in flags.
-
++
+The following members all default to 0 if omitted.
++
 `[3] strength`::
-The initial strength or health of the actor. Default: `0`.
+The initial strength or health of the actor.
 
 `[4] action`::
+The initial action of the actor. May be either an object returned by
+<<con_action,`con.action`>>, or the numbers 0 or 1. Both represent actions with
+that ID, but all public members set to 0.
 
-`[5] move`::
+[[gameactor_move]] `[5] move`::
+The initial move of the actor. May be either an object returned by
+<<con_move,`con.move`>>, or the numbers 0 or 1. Both represent moves with that
+ID, but all public members set to 0. A move of 0 disables the usual actor
+movement, even if its `hvel` or `vvel` get subsequently overridden (and the
+corresponding `movflags` set).
 
 `[6] movflags`::
-TODO
+The actor's initial movement flags. Applicable bits are available in the
+<<actor_MOVFLAGS,`actor.MOVFLAGS`>> object.
 
 ===== The function `gameevent{evtlabel [, flags], func}`
 
@@ -1175,3 +1307,129 @@ description of the ceiling/floor <<cf_z,`z` member>>.
 `v:tobuild()`::
 Returns a new vector of the same type as `v` which has the same `x` and `y`
 components as `v`, but the `z` element multiplied with 16.
+
+
+The `con` module -- game control
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `con` module on one hand provides functionality to control certain aspects
+of the game, such as defining game-side animations for actors. On the other
+hand, it hosts varioius functions that are familiar from CON, although
+sometimes under a different name.
+
+[[actions_moves_ais]]
+Actions, moves and AIs -- customizing actor behavior
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In CON, three aspects of an actor can changed using a mechanism that is
+syntactically similar for each. _Actions_ carry information about a particular
+animation for an actor, such as how many frames it contains. _Moves_ define the
+potential motion characteristics of an actor. Finally, _AIs_ are aggregates of
+an action and a move, plus _movement flags_ that toggle certain movement
+aspects.
+
+At file scope, one first defines each of these composites using directives such
+as `action`, and inside code blocks to be executed at game time, one instructs
+the game to use a particular composite by passing the chosen label to the
+same-named command (i.e. `action` for our example).
+
+Lunatic provides a similar mechanism, but the main difference from CON is that
+the definition functions merely return the composite structures, without
+registering them under any particular name. Thus, it is up to the user to
+organize them, for example by storing those for each class in a separate table
+indexed by chosen names. Similar to CON, the creation functions may only be
+called when the game is not yet running.
+
+Actor behavior composites contain an additional ``hidden'' ID. Each invocation
+of a creation function such as `con.action` returns a composite with a unique
+ID per composite type. This ID is used to compare for equality in actor methods
+such as `actor[]:has_action()`. All returned composites are immutable.
+
+[[con_action]]
+===== The function `con.action{ ... }`
+
+:wiki_action: http://wiki.eduke32.com/wiki/Action
+:Lua51_TableConstructors: http://www.lua.org/manual/5.1/manual.html#2.5.7
+
+Returns a new _action_ composite created with the given values. The
+`con.action` function expects a single table as input argument, each of whose
+keys denote an action member. Each member may be provided by an index in the
+table or its name, but not both. Members may be omitted, in which case they
+default to either 0 or 1.
+
+Refer to the {Lua51_TableConstructors}[Table Constructors] subsection of the
+Lua 5.1 Reference Manual for the syntax and semantics of table initialization.
+
+`[1] startframe`::
+The offset of the starting frame of the animation, relative to the
+`sprite[].picnum` of an actor (i.e. the tile number, selecting which actor code
+is run).
+
+`[2] numframes` (default: 1)::
+The total number of frames in the animation.
+
+`[3] viewtype` (default: 1)::
+The number of consecutive tiles used to construct one frame of the animation,
+as viewed from different angles. Valid values are 1, 3, 5, 7 and 8. In
+addition, -5 and -7 are allowed, which behave like the corresponding positive
+++viewtype++s, but effectively mirror the actor on the vertical axis. This can
+be useful if tile data is available that has the opposite orientation of what
+EDuke32 uses.  See the {wiki_action}[Action entry] in the EDuke32 wiki for how
+the views are constructed for different `viewtype` values.
+
+`[4] incval` (default: 1)::
+The value to add the actor's _current frame_ on each frame advance. May be -1,
+0, or 1.
+// In the wild, sometimes other values, too.
+
+[[action_delay]] `[5] delay`::
+Roughly, the number of <<totalclock,`gv.totalclock`>> time units (120 per
+second) after which a frame is advanced, at a granularity of one game tic (30
+per second, corresponding to a `delay` difference of 4).footnote:[The reason
+for the granularity is due to the implementation: each execution of an actor's
+code increments its hidden ``action tics'' counter by four (= 120/30).]
+
+// TODO: the above can be more precise. State in terms of floor(delay/4).
+
+.Equivalent `action` definitions
+==========
+Each of the following calls return an action with the same public members:
+----------
+con.action{0, 4, delay=20}
+con.action{0, 4, 1, 1, 20}
+con.action{startframe=0, numframes=4, viewtype=1, incval=1, delay=20}
+----------
+==========
+
+[[con_move]]
+===== The function `con.move{ ... }`
+
+Returns a new _move_ composite created with the given values, expecting a
+single table as input argument. The same conventions as with `con.action` apply
+for the following members:
+
+`[1] hvel`::
+The (most often) doubled horizontal velocity of the actor, in BUILD x/y units
+per game tic. An actor's `sprite[].xvel` will approach this value in an
+``exponential'' fashion, halving the difference between the current velocity
+and this goal velocity each movement update from the actor execution loop. For
+most objects, `sprite[].xvel` is then further halved to yield the ultimate
+velocity. Only effective when the actor's `movflags` has
+<<actor_MOVFLAGS,`actor.MOVFLAGS.geth`>> is set.
+
+`[2] vvel`::
+The (most often) doubled horizontal velocity of the actor, in BUILD x/y (*not*
+z) units per game tic. An actor's `sprite[].zvel` will approach 16 times this
+value in an ``exponential'' fashion. For most objects, `sprite[].zvel` is then
+further halved to yield the ultimate velocity.  Only effective when the actor's
+`movflags` has <<actor_MOVFLAGS,`actor.MOVFLAGS.getv`>> is set.
+
+[[con_ai]]
+===== The function `con.ai([action [, move [, movflags]]])`
+
+The `con.ai` function differs from `con.action` and `con.move` in that it is of
+``second order'', i.e. it accepts two composites as input arguments, returning
+an _AI_ object containing these. Also, it is called with three positional,
+optional arguments. Like for <<gameactor,`gameactor`>>, the numbers 0 and 1 are
+permissible for `action` and `move`. Applicable bits for `movflags` are
+available in the <<actor_MOVFLAGS,`actor.MOVFLAGS`>> object.

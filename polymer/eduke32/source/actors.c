@@ -365,7 +365,7 @@ static int32_t A_CheckNoSE7Water(const spritetype *s, int32_t sectnum, int32_t s
 static int32_t A_CheckNeedZUpdate(int32_t spritenum, int32_t changez, int32_t *dazptr)
 {
     const spritetype *spr = &sprite[spritenum];
-    const int32_t daz = spr->z + ((changez*TICSPERFRAME)>>3);
+    const int32_t daz = spr->z + (changez>>1);
 
     *dazptr = daz;
 
@@ -410,9 +410,9 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 
     if (spr->statnum == STAT_MISC || (bg && spr->xrepeat < 4))
     {
-        spr->x += (change->x*TICSPERFRAME)>>2;
-        spr->y += (change->y*TICSPERFRAME)>>2;
-        spr->z += (change->z*TICSPERFRAME)>>2;
+        spr->x += change->x;
+        spr->y += change->y;
+        spr->z += change->z;
 
         if (bg)
             setsprite(spritenum, (vec3_t *)spr);
@@ -448,7 +448,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 
         spr->z = daz;
         retval = clipmove((vec3_t *)spr, &dasectnum,
-                          (change->x*TICSPERFRAME)<<11, (change->y*TICSPERFRAME)<<11,
+                          change->x<<13, change->y<<13,
                           clipdist, 4<<8, 4<<8, cliptype);
         spr->z = oldz;
     }
