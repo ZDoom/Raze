@@ -576,6 +576,8 @@ typedef struct {
 } map_t;
 ]])
 
+bcarray.new("weapondata_t", ffiC.MAX_WEAPONS, "weapon", "weapondata_x_MAX_WEAPONS", WEAPON_NAMES)
+
 -- EXTERNALLY EXPOSED GAME VARIABLES
 ffi.cdef[[
 const int32_t screenpeek;
@@ -610,7 +612,7 @@ camera_t g_camera;
 user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
 DukePlayer_t *g_player_ps[MAXPLAYERS];
-weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
+weapondata_x_MAX_WEAPONS g_playerWeapon[MAXPLAYERS];
 weapondata_t g_weaponOverridden[MAX_WEAPONS];
 tiledata_t g_tile[MAXTILES];
 projectile_t ProjectileData[MAXTILES];
@@ -1113,7 +1115,6 @@ local actor_mt = {
         end,
 
         -- Getters/setters.
-        -- TODO: make a bcarray instead.
         _get_t_data = function(a, idx)
             if (idx >= 10ULL) then
                 error("invalid t_data index "..idx, 2)
@@ -1224,7 +1225,8 @@ local weapondata_mt = {
             -- Signal that we overrode this member at CON translation time.
 
             -- Get weapon index as pointer difference first. PLAYER_0.
-            local wi = ffi.cast(weapondata_ptr_ct, wd)-ffi.cast(weapondata_ptr_ct, ffiC.g_playerWeapon[0][0])
+            local wi = ffi.cast(weapondata_ptr_ct, wd)
+                     - ffi.cast(weapondata_ptr_ct, ffiC.g_playerWeapon)
             assert(not (wi >= ffiC.MAX_WEAPONS+0ULL))
 
             -- Set g_weaponOverridden[wi][member], but without invoking
@@ -1236,15 +1238,15 @@ local weapondata_mt = {
 ffi.metatype("weapondata_t", weapondata_mt)
 
 local weaponaccess_mt = {
-    -- Make syntax like "player[0].weapon.KNEE.shoots" possible
+    -- Syntax like "player[0].weapon.KNEE.shoots" possible because
+    -- g_playerWeapon[] is declared as an array of corresponding bcarray types
+    -- for us.
     __index = function(wa, key)
-        if (type(key)=="number") then
-            check_weapon_idx(key)
-            return ffiC.g_playerWeapon[wa._p][key]
+        if (type(key)~="number" and type(key)~="string") then
+            error("must access weapon either by number or by name")
         end
 
-        -- TODO: use bcarray?
-        return ffiC.g_playerWeapon[wa._p][ffiC[key.."_WEAPON"]]
+        return ffiC.g_playerWeapon[wa._p][key]
     end,
 }
 ffi.metatype("weaponaccess_t", weaponaccess_mt)
