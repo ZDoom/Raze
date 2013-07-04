@@ -850,6 +850,11 @@ do
     }
 end
 
+function actor_static_members.fall(i)
+    check_sprite_idx(i)
+    CF.VM_FallSprite(i)
+end
+
 -- Delete sprite with index <i>.
 function actor_static_members.delete(i)
     check_sprite_idx(i)
@@ -1052,7 +1057,8 @@ local actor_mt = {
             oa:set_action(ai.act)
             oa:set_move(ai.mov, ai.movflags)
 
-            a.t_data[0] = 0
+            -- Already reset with set_move():
+--            a.t_data[0] = 0
         end,
 
         has_ai = function(a, ai)
@@ -1215,8 +1221,7 @@ local player_mt = {
             end
         end,
 
-        -- XXX: is the correct spelling "whack"?
-        wack = function(p, no_return_to_center)
+        whack = function(p, no_return_to_center)
             p.horiz = p.horiz + 64
             if (not no_return_to_center) then
                 p.return_to_center = 9

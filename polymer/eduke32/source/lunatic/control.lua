@@ -174,6 +174,7 @@ local check_tile_idx = bcheck.tile_idx
 local check_sprite_idx = bcheck.sprite_idx
 local check_player_idx = bcheck.player_idx
 local check_sound_idx = bcheck.sound_idx
+local check_number = bcheck.number
 local check_type = bcheck.type
 
 -- Will contain [<label>]=number mappings after CON translation.
@@ -184,7 +185,7 @@ local function krandand(mask)
     return bit.band(ffiC.krand(), mask)
 end
 
-local function check_isnumber(...)
+local function check_allnumbers(...)
     local vals = {...}
     for i=1,#vals do
         assert(type(vals[i])=="number")
@@ -261,7 +262,7 @@ function insertsprite(tab_or_tilenum, ...)
 
     check_tile_idx(tilenum)
     check_sector_idx(sectnum)
-    check_isnumber(shade, xrepeat, yrepeat, ang, xvel, zvel, owner)
+    check_allnumbers(shade, xrepeat, yrepeat, ang, xvel, zvel, owner)
 
     if (statnum >= ffiC.MAXSTATUS+0ULL) then
         error("invalid 'statnum' argument to insertsprite: must be a status number (0 .. MAXSTATUS-1)", 2)
@@ -997,11 +998,6 @@ end
 function _A_IncurDamage(sn)
     check_sprite_idx(sn)
     return ffiC.A_IncurDamage(sn)
-end
-
-function _VM_FallSprite(i)
-    check_sprite_idx(i)
-    CF.VM_FallSprite(i)
 end
 
 function _sizeto(i, xr, yr)
@@ -1895,16 +1891,9 @@ end
 
 -- Common serialization function for gamearray and actorvar.
 local function serialize_array(ar, strtab, maxnum)
---    if (ffiC._DEBUG_LUNATIC ~= 0) then
-        -- Iterate in numeric order. XXX: also for non-debug?
-        for i=0,maxnum-1 do
-            serialize_value(strtab, i, rawget(ar, i))
-        end
---    else
---        for i,v in pairs(ar) do
---            serialize_value(strtab, i, v)
---        end
---    end
+    for i=0,maxnum-1 do
+        serialize_value(strtab, i, rawget(ar, i))
+    end
 
     strtab[#strtab+1] = "})"
 
@@ -2076,8 +2065,8 @@ local gamearray_methods = {
     _get_require = our_get_require,
 
     _serialize = function(gar)
-        local strtab = { "_ga(", tostring(gar._size), ",{" }
         gar:_cleanup()
+        local strtab = { "_ga(", tostring(gar._size), ",{" }
         return serialize_array(gar, strtab, gar._size)
     end,
 }
@@ -2137,7 +2126,7 @@ end
 local actorvar_methods = {
     --- Internal routines ---
 
-    --  * All values for sprite not in the game world are cleared.
+    --  * All values for sprites not in the game world are cleared.
     --  * All values equal to the default one are cleared.
     _cleanup = function(acv)
         for i=0,ffiC.MAXSPRITES-1 do
@@ -2156,10 +2145,10 @@ local actorvar_methods = {
     _get_require = our_get_require,
 
     _serialize = function(acv)
-        local strtab = { "_av(", tostring(acv._defval), ",{" }
         -- NOTE: We also clean up when spawning a sprite, too. (See
         -- A_ResetVars() and related functions above.)
         acv:_cleanup()
+        local strtab = { "_av(", tostring(acv._defval), ",{" }
         return serialize_array(acv, strtab, ffiC.MAXSPRITES)
     end,
 }
@@ -2177,6 +2166,7 @@ local actorvar_mt = {
 
     __newindex = function(acv, idx, val)
         check_sprite_idx(idx)
+        check_number(val)
         rawset(acv, idx, val)
     end,
 
@@ -2216,6 +2206,7 @@ local playervar_mt = {
 
     __newindex = function(plv, idx, val)
         check_player_idx(idx)
+        check_number(val)
         rawset(plv, idx, val)
     end,
 

@@ -473,8 +473,13 @@ gameactor
         local a = actor[aci]
         local delay = math.sin(0.1 * 2*math.pi*gv.totalclock/120)
         a:set_action_delay(20 + 10*delay)
-        a:set_hvel(50*delay)
-        a.movflags = actor.MOVFLAGS.geth
+        if (sprite[aci].pal ~= 0) then
+            a:set_hvel(1024/30)
+            a:set_vvel(-1024/30)
+        else
+            a:set_hvel(50*delay)
+        end
+        a.movflags = actor.MOVFLAGS.geth + actor.MOVFLAGS.getv
     end,
 }
 

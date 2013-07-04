@@ -783,6 +783,8 @@ local function check_reserved_bits(flags, allowedbits, suffix)
     end
 end
 
+Define.ALLOWED_VIEWTYPE = truetab { 0, 1, 3,4, 5, 7, 8, -5, -7 }
+
 function Define.composite(labeltype, identifier, ...)
     local oldtype = g_labeltype[identifier]
     local oldval = g_labeldef[identifier]
@@ -819,6 +821,20 @@ function Define.composite(labeltype, identifier, ...)
 
         -- Check whether movflags use reserved bits.
         check_reserved_bits(args[LABEL.AI], 4096+2047, "for ai's movflags")
+    end
+
+    if (labeltype == LABEL.ACTION) then
+        -- Sanity-check action members.
+        -- TODO: con.action(), too.
+        if (not (args[2] >= 0)) then
+            errprintf("action \"%s\" has negative number of frames", identifier)
+        end
+        if (Define.ALLOWED_VIEWTYPE[args[3]] == nil) then
+            errprintf("action \"%s\" has disallowed viewtype %d", identifier, args[3])
+        end
+        if (not (args[4] >= -1 and args[4] <= 1)) then
+            warnprintf("action \"%s\" has incval different from -1, 0 or 1", identifier)
+        end
     end
 
     -- Make a string out of that.
@@ -2247,7 +2263,7 @@ local Cinner = {
         / "_con._shoot(_aci,%2,%1)",
 
     fall = cmd()
-        / "_con._VM_FallSprite(_aci)",
+        / "actor.fall(_aci)",
     flash = cmd()
         / format("_con._flash(%s,%s)", SPS"", PLS""),
     getlastpal = cmd()
@@ -2275,7 +2291,7 @@ local Cinner = {
     tossweapon = cmd()
         / "",  -- TODO_MP
     wackplayer = cmd()
-        / PLS":wack()",
+        / PLS":whack()",
 
     -- player/sprite searching
     findplayer = cmd(W)

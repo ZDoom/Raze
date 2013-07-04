@@ -656,7 +656,7 @@ dead:
     if (movflags&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
 #else
     if (movflags&geth) vm.g_sp->xvel += (actor[vm.g_i].mv.hvel - vm.g_sp->xvel)>>1;
-    if (movflags&getv) vm.g_sp->zvel += (actor[vm.g_i].mv.vvel - vm.g_sp->zvel)>>1;
+    if (movflags&getv) vm.g_sp->zvel += (16*actor[vm.g_i].mv.vvel - vm.g_sp->zvel)>>1;
 #endif
 
     if (movflags&dodgebullet && !deadflag)
