@@ -100,7 +100,6 @@ int32_t zoom = 768, gettilezoom = 1;
 int32_t lastpm16time = 0;
 
 extern int32_t mapversion;
-extern int32_t g_loadedMapVersion;
 
 int16_t highlight[MAXWALLS+MAXSPRITES];
 int16_t highlightsector[MAXSECTORS], highlightsectorcnt = -1;

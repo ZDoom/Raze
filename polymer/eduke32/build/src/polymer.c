@@ -2820,23 +2820,29 @@ static int32_t      polymer_initwall(int16_t wallnum)
 
 static float calc_ypancoef(char curypanning, int16_t curpicnum, int32_t dopancor)
 {
-    float ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
-
-    if (ypancoef < tilesizy[curpicnum])
-        ypancoef *= 2;
-
-    if (dopancor)
+#ifdef NEW_MAP_FORMAT
+    if (g_loadedMapVersion >= 10)
+        return curypanning / 256.0f;
+#endif
     {
-        int32_t yoffs;
+        float ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
 
-        ftol((ypancoef - tilesizy[curpicnum]) * (255.0f / ypancoef), &yoffs);
-        if (curypanning > 256 - yoffs)
-            curypanning -= yoffs;
+        if (ypancoef < tilesizy[curpicnum])
+            ypancoef *= 2;
+
+        if (dopancor)
+        {
+            int32_t yoffs;
+
+            ftol((ypancoef - tilesizy[curpicnum]) * (255.0f / ypancoef), &yoffs);
+            if (curypanning > 256 - yoffs)
+                curypanning -= yoffs;
+        }
+
+        ypancoef *= (float)curypanning / (256.0f * (float)tilesizy[curpicnum]);
+
+        return ypancoef;
     }
-
-    ypancoef *= (float)curypanning / (256.0f * (float)tilesizy[curpicnum]);
-
-    return ypancoef;
 }
 
 static void         polymer_updatewall(int16_t wallnum)

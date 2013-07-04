@@ -611,6 +611,7 @@ typedef struct {
 
 EXTERN int32_t guniqhudid;
 EXTERN int32_t spritesortcnt;
+extern int32_t g_loadedMapVersion;
 
 #if !defined DEBUG_MAIN_ARRAYS
 EXTERN spriteext_t *spriteext;

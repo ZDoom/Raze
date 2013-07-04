@@ -2249,31 +2249,27 @@ static void calc_ypanning(int32_t refposz, double ryp0, double ryp1,
 {
     int32_t i;
     double t0, t1, t, fy;
-    int32_t yoffs;  // for panning "correction"
 
     t0 = ((float)(refposz-globalposz))*ryp0 + ghoriz;
     t1 = ((float)(refposz-globalposz))*ryp1 + ghoriz;
     t = ((gdx*x0 + gdo) * (float)yrepeat) / ((x1-x0) * ryp0 * 2048.f);
     i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 
+#ifdef NEW_MAP_FORMAT
+    if (g_loadedMapVersion >= 10)
+        i = tilesizy[globalpicnum];
+    else
+#endif
     if (dopancor)
     {
+        // Carry out panning "correction" to make it look like classic in some
+        // cases, but failing in the general case.
+        int32_t yoffs;
+
         ftol((i-tilesizy[globalpicnum])*(255.f/i), &yoffs);
 
-        if (ypan>256-yoffs)
-        {
-            ypan-=yoffs;
-        }
-    }
-    else
-    {
-        // (1)
-        // not hacked yet
-
-        // (2)
-        // Still need a hack, depending on the wall(height,ypanning,yrepeat,tilesizy)
-        // it should do "ypan-=yoffs" or "ypan+=yoffs" or [nothing].
-        // Example: the film projector in the E1L1.map needs "ypan-=yoffs"
+        if (ypan > 256-yoffs)
+            ypan -= yoffs;
     }
 
     fy = (float)ypan * ((float)i) / 256.0;

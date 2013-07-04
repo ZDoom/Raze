@@ -84,13 +84,13 @@ int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
 
 static int32_t get_mapversion(void);
 
-// Handle nonpow2-ysize walls walls the old way?
+// Handle nonpow2-ysize walls the old way?
 static inline int32_t oldnonpow2(void)
 {
 #if !defined CLASSIC_NONPOW2_YSIZE_WALLS
     return 1;
 #else
-    return (mapversion < 10);
+    return (g_loadedMapVersion < 10);
 #endif
 }
 
