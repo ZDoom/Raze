@@ -65,14 +65,14 @@ t = os.clock()
 local function _rotatepoint(pivotx, pivoty, posx, posy, ang)
     local pos = xmath.ivec3(posx, posy)
     local pivot = xmath.ivec3(pivotx, pivoty)
-    pos = xmath.rotate(pos, pivot, ang):toivec3()
+    pos = xmath.rotate(pos, ang, pivot):toivec3()
     return pos.x, pos.y
 end
 
 sum = 0
 for i=1,numpoints do
     for j=1,numpoints do
---        local p = xmath.rotate(pts[i], pts[j], j)
+--        local p = xmath.rotate(pts[i], j, pts[j])
 --        sum = sum+p.x
         sum = sum + _rotatepoint(pts[j].x, pts[j].y, pts[i].x, pts[i].y, j)
     end

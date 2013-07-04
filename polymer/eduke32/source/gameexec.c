@@ -5711,7 +5711,7 @@ void G_RestoreMapState(void)
         Net_ResetPrediction();
 
         G_ClearFIFO();
-        G_ResetTimers();
+        G_ResetTimers(0);
     }
 }
 

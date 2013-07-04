@@ -1512,7 +1512,7 @@ end
 function _rotatepoint(pivotx, pivoty, posx, posy, ang)
     local pos = ivec3(posx, posy)
     local pivot = ivec3(pivotx, pivoty)
-    pos = rotate(pos, pivot, ang):toivec3()
+    pos = rotate(pos, ang, pivot):toivec3()
     return pos.x, pos.y
 end
 

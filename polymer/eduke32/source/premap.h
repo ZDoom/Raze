@@ -42,7 +42,7 @@ void G_CacheMapData(void);
 void G_FadeLoad(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t ticwait);
 void G_FreeMapState(int32_t mapnum);
 void G_NewGame(int32_t vn,int32_t ln,int32_t sk);
-void G_ResetTimers(void);
+void G_ResetTimers(uint8_t keepgtics);
 void G_SetCrosshairColor(int32_t r,int32_t g,int32_t b);
 void G_UpdateScreenArea(void);
 void G_SetViewportShrink(int32_t dir);

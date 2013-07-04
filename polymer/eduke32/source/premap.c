@@ -1676,7 +1676,7 @@ static inline void clearfrags(void)
     }
 }
 
-void G_ResetTimers(void)
+void G_ResetTimers(uint8_t keepgtics)
 {
     vel = svel = angvel = horiz = 0;
 
@@ -1686,7 +1686,8 @@ void G_ResetTimers(void)
     lockclock = 0;
     ready2send = 1;
     g_levelTextTime = 85;
-    g_moveThingsCount = 0;
+    if (!keepgtics)
+        g_moveThingsCount = 0;
 }
 
 void G_ClearFIFO(void)
@@ -2042,7 +2043,7 @@ int32_t G_EnterLevel(int32_t g)
 
     clearfrags();
 
-    G_ResetTimers();  // Here we go
+    G_ResetTimers(0);  // Here we go
 
     //Bsprintf(g_szBuf,"G_EnterLevel L=%d V=%d",ud.level_number, ud.volume_number);
     //AddLog(g_szBuf);

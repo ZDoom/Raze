@@ -159,6 +159,8 @@ local vec2_mt = {
     },
 }
 
+local l_rotate  -- fwd-decl (XXX: could be the other way around)
+
 -- The vec3 metatable is shared between the integer- and double-based 3-vector
 -- types. However, some operations are slightly different.
 local vec3_mt = {
@@ -220,7 +222,7 @@ local vec3_mt = {
 
         tobuild = function(v) return v:_ctor(v.x, v.y, 16*v.z) end,
 
-        -- TODO: v:rotate()?
+        rotate = function(v, ang, pivot) return l_rotate(v, ang, pivot) end,
 
         -- PRIVATE methods --
 
@@ -283,10 +285,12 @@ end
 
 ---=== MISCELLANEOUS MATH ===---
 
+local zerovec = vec3()
 -- Point rotation. Note the different order of arguments from engine function.
 -- XXX: passing mixed vec2/vec3 is problematic. Get rid of vec2?
 -- <ang>: BUILD angle (0-2047 based)
-function rotate(pos, pivot, ang)
+function rotate(pos, ang, pivot)
+    pivot = pivot or zerovec
     local p = vec3(pos)-pivot
     local c, s = cosb(ang), sinb(ang)
     local x, y = p.x, p.y
@@ -294,6 +298,8 @@ function rotate(pos, pivot, ang)
     p.y = pivot.y + (c*y + s*x)
     return p
 end
+
+l_rotate = rotate
 
 
 -- Two-element vector cross product.

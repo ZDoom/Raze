@@ -917,6 +917,11 @@ static const dataspec_t svgm_udnetw[] =
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
     { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },
+#ifdef LUNATIC
+    // Save game tic count for Lunatic because it is exposed to userland. See
+    // test/helixspawner.lua for an example.
+    { 0, &g_moveThingsCount, sizeof(g_moveThingsCount), 1 },
+#endif
 //    { 0, &lockclock_dummy, sizeof(lockclock), 1 },
     { DS_END, 0, 0, 0 }
 };
@@ -1999,7 +2004,11 @@ static void postloadplayer(int32_t savegamep)
 
     //8
     // if (savegamep)  ?
-    G_ResetTimers();
+#ifdef LUNATIC
+    G_ResetTimers(1);
+#else
+    G_ResetTimers(0);
+#endif
 
 #ifdef POLYMER
     //9

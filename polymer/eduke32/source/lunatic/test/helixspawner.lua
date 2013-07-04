@@ -120,7 +120,7 @@ gameactor
             -- SPAWNSPERTIC*GTICSPERSEC stars.
             local ii = ((gv.gametic*SPAWNSPERTIC)%(GTICSPERSEC*SPAWNSPERTIC)) + i
             local v = (radius/16)*angvec(ii*TWOPI/(GTICSPERSEC*SPAWNSPERTIC))
-            local circvec = xmath.rotate(xmath.vec3(0, v.x, 16*v.y), xmath.vec3(), spr.ang)  -- XXX
+            local circvec = xmath.vec3(0, v.x, 16*v.y):rotate(spr.ang)
             local pos = spr^(zofs + radius) + 256*bangvec(spr.ang) + circvec
 
             con.insertsprite{D.TRANSPORTERSTAR+4, pos, spr.sectnum, statnum=actor.STAT.ACTOR,

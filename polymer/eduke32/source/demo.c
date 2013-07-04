@@ -123,8 +123,6 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
     ud.noclip = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
 
-    //        G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
-    //        G_ResetTimers();
     totalclock = ototalclock = lockclock = 0;
 
     return 1;
