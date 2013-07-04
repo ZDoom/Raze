@@ -46,9 +46,9 @@ altered to play well with being embedded into a game, or to prevent commonly
 occurring mistakes.
 
 .Differences from default Lua environment
-- Creating new global variables in the global environment is forbidden.
-- In module context, referencing a non-existent variable (i.e. one that has
-  value *nil*) is an error.
+- Creating new variables in the global environment is forbidden.
+- Referencing a non-existent variable (i.e. one that has value *nil*) is an
+  error.
 
 EDuke32 can load multiple Lunatic _modules_ when starting up. This is always
 done after translating CON code to Lua and loading it. Such modules must be
@@ -239,6 +239,10 @@ A clipping (collision detection) mask specifying to consider only _hitscan
 sensitive_ walls and sprites.
 
 // Game-side
+[[gv_GTICSPERSEC]] `gv.GTICSPERSEC`::
+The number of times in a second each actor excecutes its code and updates its
+position (``game tics'').
+
 `gv.*` inventory indices::
 `GET_STEROIDS`, `GET_SHIELD`, `GET_SCUBA`, `GET_HOLODUKE`, `GET_JETPACK`,
 `GET_DUMMY1`, `GET_ACCESS`, `GET_HEATS`, `GET_DUMMY2`, `GET_FIRSTAID`,
@@ -252,13 +256,16 @@ sensitive_ walls and sprites.
 
 // TODO: the others, like EVENT_*.
 //////////
-[[gv_STAT]]
-`gv.*` sprite status numbers::
+[[gv_STAT]] `gv.*` sprite status numbers::
 `STAT_DEFAULT`, `STAT_ACTOR`, `STAT_ZOMBIEACTOR`, `STAT_EFFECTOR`,
 `STAT_PROJECTILE`, `STAT_MISC`, `STAT_STANDABLE`, `STAT_LOCATOR`,
 `STAT_ACTIVATOR`, `STAT_TRANSPORT`, `STAT_PLAYER`, `STAT_FX`, `STAT_FALLER`,
 `STAT_DUMMYPLAYER`, `STAT_LIGHT`.
 //////////
+
+[[gv_REND]] `gv.REND`::
+A mapping of names to values representing rendering modes: `CLASSIC`,
+`POLYMOST`, `POLYMER`.
 
 //////////
 `gv.MAXPLAYERS`::
@@ -281,8 +288,17 @@ second under default settings. (Thus, one game tic corresponds to four
 in-game, it is guaranteed to not decrease. However, going from one mode to
 another may produce discontinuities.
 
+`gv.gametic` (read-only)::
+The number of <<gv_GTICSPERSEC,game tics>> that have elapsed since starting the
+current level. This value is guaranteed to not decrease during a game, and is
+restored from savegames.
+
 `gv.screenpeek` (read-only)::
 The player index of the player from whose position the scene is being displayed.
+
+`gv.rendmode` (read-only)::
+The current rendering mode as a value that can be compared against those in
+<<gv_REND,`gv.REND`>>.
 
 `gv.hudweap`::
 A structure containing information about the currently displayed HUD weapon.
@@ -304,7 +320,7 @@ Functions
 
 [[krand]] `gv.krand()`::
 Returns one value from the global engine-side pseudo-random number generator
-in the range [0{nbsp}..{nbsp}65535].
+in the integer range [0{nbsp}..{nbsp}65535].
 
 [[timing_funcs]]
 `gv.getticks()`, `gv.gethiticksms()`::
@@ -325,8 +341,6 @@ start playing that sound.
 `gv.currentEpisode()`::
 TODO
 `gv.currentLevel()`::
-TODO
-`gv.currentRenderMode()`::
 TODO
 //////////
 
@@ -451,6 +465,10 @@ boolean state.
 Returns a boolean that indicates whether `bf` has *any* of the bits set in
 `bits` set.
 
+`bf:mask(bits)`::
+Returns a number containing the bits of `bf` bitwise ANDed with those in
+`bits`.
+
 .Examples
 ==========
 After the lines setting sprite `i` to 33% translucent and blocking,
@@ -525,7 +543,7 @@ The <<sector_STAT,`sector.STAT`>>
 object should be used to obtain the values for applicable flags.
 
 _`i16`_ `cf.heinum`::
-If `cf.stat` has bit `sector.STAT.SLOPE` set, the tangent of the slope angle
+If `cf.stat` has bit `sector.STAT.SLOPE` set, the tangent of the slope angle,
 multiplied by 4096.  Positive values make the ceiling or floor slope towards
 the floor, negative ones slope upward.
 
@@ -724,9 +742,8 @@ not a ``child'' of another one, then `owner` is the index of this sprite itself.
 
 _`i16`_ `xvel`, `zvel`::
 For _actors_ and other moving sprite types, the horizontal and vertical
-components of the current velocity.
-//It is not advisable to set these directly
-//unless one knows how they are processed.
+components of the current velocity. See the description of
+<<con_move,`con.move`>> for more details.
 
 //`yvel` (read-only)::
 //A general-purpose member of which the game has exclusive control.
@@ -739,7 +756,12 @@ claiming them for oneself.
 ===== `sprite` methods
 
 `spr:set_picnum(tilenum)`::
-Set the tile number of the sprite.
+Sets the tile number of sprite `spr` to `tilenum`.
+
+`spr:getheightofs()`::
+Returns the height and z offset of sprite `spr` in BUILD z units. Adding these
+values to `spr.z` yields the z coordinate at the ``bottom'' of the
+sprite. However, the per-tile z offset is not taken into account.
 
 ===== `sprite` static functions
 
@@ -784,6 +806,9 @@ The `actor` composite holds various run-time data about a sprite.  Like
 have no meaning.
 
 ===== `actor` methods
+
+The following methods query or set properties related to
+<<actions_moves_ais,actor behavior>>.
 
 `a:set_action(act)`::
 Sets the action of actor `a` to `act`, which may be either an object returned
@@ -851,6 +876,26 @@ a:set_move(ai.mov, ai.movflags)
 
 `a:has_ai(ai)`::
 Returns a boolean of whether the current AI of actor `a` is `ai`.
+
+Various methods query whether the last movement step of the actor made it
+collide with another object, or allow getting this object's index then.
+
+`a:checkhit()`::
+Returns a boolean of whether the actor hit any object in the world, including
+ceilings and floors.
+// TODO: This needs verification:
+// Staying motionless on the ground is considered as ``hitting'' it, too.
+
+`a:checkbump()`::
+Returns a boolean of whether the actor bumped into another actor or a wall.
+
+`a:hitwall()`::
+If the actor hit a wall with the last movement, returns that wall's
+index. Otherwise, returns *nil*.
+
+`a:hitsprite()`::
+If the actor hit a sprite with the last movement, returns that sprite's
+index. Otherwise, returns *nil*.
 
 // TODO: set_picnum, set_owner?
 
@@ -920,6 +965,11 @@ CAUTION: If Lunatic code that uses `fadecol` is loaded together with CON code
 that writes to the player's `pals` members directly at any point, the behavior
 is undefined.
 
+===== `player` iterators
+
++*for* i *in* player.all()+::
+Iterates over the indices of all active players.
+
 ===== `projectile`
 
 ===== `g_tile`
@@ -940,12 +990,15 @@ Engine-side iterators
 +*for* w *in* wallsofsect(sectnum)+::
 Iterates over the indices of all walls of the sector with index `sectnum`.
 
-+*for* s *in* spritesofstat(statnum)+::
-Iterates over the indices of all sprites with status number `statnum`.
++*for* s *in* spritesofstat(statnum [, maydelete])+::
+Iterates over the indices of all sprites with status number `statnum`. If
+`maydelete` is omitted or false, there must be no deletion of any sprite while
+the loop is active. If `maydelete` is true, deleting sprites inside the loop is
+allowed. Inserting sprites is always allowed.
 
-+*for* s *in* spritesofsect(sectnum)+::
++*for* s *in* spritesofsect(sectnum [, maydelete])+::
 Iterates over the indices of all sprites contained in the sector with index
-`sectnum`.
+`sectnum` with the same meaning for `maydelete` as with `spritesofstat`.
 
 Sector containment functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1088,7 +1141,7 @@ that ID, but all public members set to 0.
 The initial move of the actor. May be either an object returned by
 <<con_move,`con.move`>>, or the numbers 0 or 1. Both represent moves with that
 ID, but all public members set to 0. A move of 0 disables the usual actor
-movement, even if its `hvel` or `vvel` get subsequently overridden (and the
+movement, even if its `hvel` or `vvel` subsequently get overridden (and the
 corresponding `movflags` set).
 
 `[6] movflags`::
@@ -1140,6 +1193,8 @@ The `xmath` module
 Mathematical functions
 ^^^^^^^^^^^^^^^^^^^^^^
 
+:BitOpUndefined: http://bitop.luajit.org/semantics.html#undefined
+
 Lunatic, being a Lua-based scripting system, provides the user with a single
 numeric data type that variables can contain on the Lua side --
 double-precision floating point.footnote:[In LuaJIT, variables additionaly can
@@ -1159,9 +1214,11 @@ a table lookup) and the results have the symmetry expected from the
 mathematical counterparts.
 
 `xmath.sinb(bang)`, {nbsp} `xmath.cosb(bang)`::
-Returns the sine/cosine of the given BUILD angle `bang`, which can be any
-whole number in [--2^31^ .. 2^31^--1]. In BUILD, one full cycle is covered by
-values from 0 to 2047; in other words, an angle of 2048 corresponds to 360
+Returns the sine/cosine of the given BUILD angle `bang`, which can be any whole
+number in [--2^31^{nbsp}..{nbsp}2^31^--1].footnote:[Passing fractional values
+is possible, but discouraged. See the relevant {BitOpUndefined}[subsection] of
+the BitOp documentation for more details.] In BUILD, one full cycle is covered
+by values from 0 to 2047; in other words, an angle of 2048 corresponds to 360
 degrees.
 +
 The `sinb` and `cosb` functions return values in the range [--1 .. 1], just
@@ -1189,6 +1246,15 @@ Returns an approximation of the 3D Euclidean distance between points `pos1` and
 `xmath.ldist(pos1, pos2)`::
 Returns an approximation of the 2D Euclidean distance between points `pos1` and
 `pos2`, both of which can be any object indexable with `x` and `y`.
+
+[[xmath_rotate]] `xmath.rotate(point, bang [, pivot])`::
+Returns as an <<vector_types,`xmath.vec3`>> the position of `point` rotated
+around the line parallel to the z axis going through `pivot` by `bang` BUILD
+angle units in the mathematically negative (clockwise) direction. The arguments
+`point` and `pivot` can be anything indexable with `x`, `y` and `z`. The z
+component of the result is the difference between that of `point` and
+`pivot`. If `pivot` is omitted, it defaults to the origin vector containing
+zeros for all components.
 
 [[vector_types]]
 The types `xmath.vec3` and `xmath.ivec3` [_serializeable_]
@@ -1307,6 +1373,9 @@ description of the ceiling/floor <<cf_z,`z` member>>.
 `v:tobuild()`::
 Returns a new vector of the same type as `v` which has the same `x` and `y`
 components as `v`, but the `z` element multiplied with 16.
+
+`v:rotate(bang [, pivot])`::
+Equivalent to +<<xmath_rotate,xmath.rotate>>(v, bang [, pivot])+.
 
 
 The `con` module -- game control
