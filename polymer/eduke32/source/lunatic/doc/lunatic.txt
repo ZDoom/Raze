@@ -323,12 +323,12 @@ Returns one value from the global engine-side pseudo-random number generator
 in the integer range [0{nbsp}..{nbsp}65535].
 
 [[timing_funcs]]
-`gv.getticks()`, `gv.gethiticksms()`::
+`gv.getticks()`, `gv.gethitickms()`::
 Each of these functions return a number that increases at a rate of 1 per
 millisecond. Their only intended application is to profile bits of code; they
 should not be used to control the game world. The two functions differ in their
 precision: `getticks()` always returns integral values, while the result of
-`gethiticksms()` also has an unspecified precision in the fractional part. (It
+`gethitickms()` also has an unspecified precision in the fractional part. (It
 can be expected to give a time precision of at least one microsecond.)
 
 `gv.doQuake(gametics [, snd])`::

@@ -181,8 +181,8 @@ __attribute__((packed)) struct {
     int16_t cgg;
 
     const int16_t lightId, lightcount, lightmaxrange;
+    // NOTE: on 32-bit, C's lightptr+filler <=> this dummy:
     const union { intptr_t ptr; uint64_t dummy; } _light;
-// XXX: 32-bit has filler
 }
 ]]
 

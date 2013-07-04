@@ -53,7 +53,7 @@ typedef struct {
 // See: Good Practice in (Pseudo) Random Number Generation for
 //      Bioinformatics Applications, by David Jones
 ATTRIBUTE_OPTIMIZE("O2")
-uint32_t rand_jkiss_u32(rng_jkiss_t *s)
+LUNATIC_EXTERN uint32_t rand_jkiss_u32(rng_jkiss_t *s)
 {
     uint64_t t;
     s->x = 314527869 * s->x + 1234567;
@@ -63,7 +63,7 @@ uint32_t rand_jkiss_u32(rng_jkiss_t *s)
 }
 
 ATTRIBUTE_OPTIMIZE("O2")
-double rand_jkiss_dbl(rng_jkiss_t *s)
+LUNATIC_EXTERN double rand_jkiss_dbl(rng_jkiss_t *s)
 {
     double x;
     unsigned int a, b;

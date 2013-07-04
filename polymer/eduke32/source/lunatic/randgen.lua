@@ -45,8 +45,8 @@ local mt = {
         getu32 = ffiC.rand_jkiss_u32,
         getdbl = ffiC.rand_jkiss_dbl,
 
-        -- Initialize the JKISS PRNG using the MD4 of the lower bits of the
-        -- profiling timer.
+        -- Initialize the JKISS PRNG using the CRC32 of the result of several
+        -- profiling timer calls interpreted as byte sequence.
         init_time_md4 = function(s)
             local tin = ffi.new("uchar_double_u_t")
             local tout = ffi.new("uint32_t [4]")
