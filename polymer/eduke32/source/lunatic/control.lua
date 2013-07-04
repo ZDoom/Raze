@@ -537,7 +537,7 @@ end
 local function P_AddWeaponAmmoCommon(ps, weap, amount)
     P_AddAmmo(ps, weap, amount)
 
-    if (ps.curr_weapon==ffiC.KNEE_WEAPON and ps:have_weapon(weap)) then
+    if (ps.curr_weapon==ffiC.KNEE_WEAPON and ps:has_weapon(weap)) then
         CF.P_AddWeaponMaybeSwitchI(ps.weapon._p, weap);
     end
 end
@@ -1167,11 +1167,9 @@ function _addammo(ps, weap, amount)
 end
 
 function _addweapon(ps, weap, amount)
-    if (weap >= ffiC.MAX_WEAPONS+0ULL) then
-        error("Invalid weapon ID "..weap, 2)
-    end
+    bcheck.weapon_idx(weap)
 
-    if (not ps:have_weapon(weap)) then
+    if (not ps:has_weapon(weap)) then
         CF.P_AddWeaponMaybeSwitchI(ps.weapon._p, weap);
     elseif (have_ammo_at_max(ps, weap)) then
         return true
@@ -1186,32 +1184,23 @@ function _A_RadiusDamage(i, r, hp1, hp2, hp3, hp4)
     CF.A_RadiusDamage(i, r, hp1, hp2, hp3, hp4)
 end
 
-function _testkey(pli, synckey)
-    check_player_idx(pli)
-    if (synckey >= 32ULL) then
-        error("Invalid argument #2 to _testkey: must be in [0..31]", 2)
-    end
-    local bits = ffiC.g_player[pli].sync.bits
-    return (bit.band(bits, bit.lshift(1,synckey)) ~= 0)
-end
+local NEAROP = {
+    [9] = true,
+    [15] = true,
+    [16] = true,
+    [17] = true,
+    [18] = true,
+    [19] = true,
+    [20] = true,
+    [21] = true,
+    [22] = true,
+    [23] = true,
+    [25] = true,
+    [26] = true,
+    [29] = true,
+}
 
 function _operate(spritenum)
-    local NEAROP = {
-        [9] = true,
-        [15] = true,
-        [16] = true,
-        [17] = true,
-        [18] = true,
-        [19] = true,
-        [20] = true,
-        [21] = true,
-        [22] = true,
-        [23] = true,
-        [25] = true,
-        [26] = true,
-        [29] = true,
-    }
-
     local spr = sprite[spritenum]
 
     if (sector[spr.sectnum].lotag == 0) then
@@ -1527,10 +1516,7 @@ function _rotatepoint(pivotx, pivoty, posx, posy, ang)
     return pos.x, pos.y
 end
 
-local SK = {
-    CROUCH = 1,
-    RUN = 5,
-}
+local holdskey = player.holdskey
 
 function _ifp(flags, pli, aci)
     local l = flags
@@ -1538,7 +1524,7 @@ function _ifp(flags, pli, aci)
     local vel = sprite[ps.i].xvel
     local band = bit.band
 
-    if (band(l,8)~=0 and ps.on_ground and _testkey(pli, SK.CROUCH)) then
+    if (band(l,8)~=0 and ps.on_ground and holdskey(pli, "CROUCH")) then
         return true
     elseif (band(l,16)~=0 and ps.jumping_counter == 0 and not ps.on_ground and ps.vel.z > 2048) then
         return true
@@ -1546,15 +1532,15 @@ function _ifp(flags, pli, aci)
         return true
     elseif (band(l,1)~=0 and vel >= 0 and vel < 8) then
         return true
-    elseif (band(l,2)~=0 and vel >= 8 and not _testkey(pli, SK.RUN)) then
+    elseif (band(l,2)~=0 and vel >= 8 and not holdskey(pli, "RUN")) then
         return true
-    elseif (band(l,4)~=0 and vel >= 8 and _testkey(pli, SK.RUN)) then
+    elseif (band(l,4)~=0 and vel >= 8 and holdskey(pli, "RUN")) then
         return true
     elseif (band(l,64)~=0 and ps.pos.z < (sprite[aci].z-(48*256))) then
         return true
-    elseif (band(l,128)~=0 and vel <= -8 and not _testkey(pli, SK.RUN)) then
+    elseif (band(l,128)~=0 and vel <= -8 and not holdskey(pli, "RUN")) then
         return true
-    elseif (band(l,256)~=0 and vel <= -8 and _testkey(pli, SK.RUN)) then
+    elseif (band(l,256)~=0 and vel <= -8 and holdskey(pli, "RUN")) then
         return true
     elseif (band(l,512)~=0 and (ps.quick_kick > 0 or (ps.curr_weapon == ffiC.KNEE_WEAPON and ps.kickback_pic > 0))) then
         return true
@@ -2123,6 +2109,16 @@ end
 
 
 --== Per-actor variable ==--
+local perxvar_allowed_types = {
+    ["boolean"]=true, ["number"]=true,
+}
+
+local function check_perxval_type(val)
+    if (perxvar_allowed_types[type(val)] == nil) then
+        error("type forbidden as per-* variable value: "..type(val), 3)
+    end
+end
+
 local actorvar_methods = {
     --- Internal routines ---
 
@@ -2153,7 +2149,6 @@ local actorvar_methods = {
     end,
 }
 
--- XXX: How about types other than numbers?
 local actorvar_mt = {
     __index = function(acv, idx)
         if (type(idx)=="number") then
@@ -2166,7 +2161,7 @@ local actorvar_mt = {
 
     __newindex = function(acv, idx, val)
         check_sprite_idx(idx)
-        check_number(val)
+        check_perxval_type(val)
         rawset(acv, idx, val)
     end,
 
@@ -2176,6 +2171,7 @@ local actorvar_mt = {
 -- <initval>: default value for per-actor variable.
 -- <values>: optional, a table of <spritenum>=value
 function actorvar(initval, values)
+    check_perxval_type(initval)
     local acv = setmetatable({ _defval=initval }, actorvar_mt)
     g_actorvar[acv] = true
     return set_values_from_table(acv, values)
@@ -2193,7 +2189,6 @@ local playervar_methods = {
     end,
 }
 
--- XXX: How about types other than numbers?
 local playervar_mt = {
     __index = function(plv, idx)
         if (type(idx)=="number") then
@@ -2206,7 +2201,7 @@ local playervar_mt = {
 
     __newindex = function(plv, idx, val)
         check_player_idx(idx)
-        check_number(val)
+        check_perxval_type(val)
         rawset(plv, idx, val)
     end,
 
@@ -2216,6 +2211,7 @@ local playervar_mt = {
 -- <initval>: default value for per-player variable.
 -- <values>: optional, a table of <playeridx>=value
 function playervar(initval, values)
+    check_perxval_type(initval)
     local plv = setmetatable({ _defval=initval }, playervar_mt)
     return set_values_from_table(plv, values)
 end

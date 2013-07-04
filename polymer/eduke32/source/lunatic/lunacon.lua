@@ -265,7 +265,7 @@ local function new_initial_gvartab()
         totalclock = RO "_gv.totalclock",
         framerate = RO "_gv._currentFramerate()",
         current_menu = RO "_gv._currentMenu()",
-        rendmode = RO "_gv.currentRenderMode()",
+        rendmode = RO "_gv.rendmode",
 
         screenpeek = RO "_gv.screenpeek",
 
@@ -2689,7 +2689,7 @@ local Cif = {
     ifhitweapon = cmd()
         / "_con._A_IncurDamage(_aci)>=0",
     ifhitspace = cmd()
-        / "_con._testkey(_pli,29)",  -- XXX
+        / "player.holdskey(_pli,'OPEN')",
     ifdead = cmd()
         / SPS".extra<=0",
     ifclient = cmd()

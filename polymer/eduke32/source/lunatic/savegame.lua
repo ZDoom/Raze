@@ -111,7 +111,11 @@ local savebuffer_mt = {
                         -- We have a serializeable object from Lunatic
                         -- (e.g. actorvar).
                         self:getRequire(value)
-                        self:emitT(refcode, value:_serialize(), value)
+                        local restoreCode = value:_serialize()
+                        if (restoreCode == nil) then  -- XXX: check UNUSED?
+                            return true
+                        end
+                        self:emitT(refcode, restoreCode, value)
                         valcode = refcode
 
                     elseif (type(value)=="table") then

@@ -474,7 +474,7 @@ local PlayerLabels = {
 
     -- NOTE the special case; "%%s" is used to mark settable members
     -- with METHOD_MEMBER syntax, it's the value to be set.
-    gotweapon = { "("..PL":have_weapon(%s) and 1 or 0)", PL":_gt_weapon(%s,%%s)" },
+    gotweapon = { "("..PL":has_weapon(%s) and 1 or 0)", PL":_gt_weapon(%s,%%s)" },
     zoom = PL".zoom",
 
     loogiex = {},

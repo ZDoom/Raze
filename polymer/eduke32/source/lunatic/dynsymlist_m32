@@ -33,6 +33,7 @@ sectorofwall_noquick;
 getceilzofslopeptr;
 getflorzofslopeptr;
 getzsofslopeptr;
+spriteheightofsptr;
 
 changespritesect;
 changespritestat;

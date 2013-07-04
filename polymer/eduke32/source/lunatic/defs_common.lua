@@ -90,6 +90,10 @@ local bitint_mt = {
         test = function(self, bits)
             return (band(self._v, bits) ~= 0)
         end,
+
+        mask = function(self, bits)
+            return band(self._v, bits)
+        end,
     },
 
     __metatable = true,
@@ -379,13 +383,13 @@ if (_LUNATIC_AUX) then
     return
 end
 
+ffi.cdef "const int32_t rendmode;"
 
 decl[[
 int32_t yxaspect;
 int32_t viewingrange;
 int32_t spritesortcnt;
 int32_t guniqhudid;
-const int32_t rendmode;
 const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 const int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 const int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
@@ -401,6 +405,7 @@ int32_t   getceilzofslopeptr(const sectortype *sec, int32_t dax, int32_t day);
 int32_t   getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day);
 void   getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day,
                        int32_t *ceilz, int32_t *florz);
+int32_t spriteheightofsptr(const spritetype *spr, int32_t *height, int32_t alsotileyofs);
 
 int32_t changespritesect(int16_t spritenum, int16_t newsectnum);
 int32_t changespritestat(int16_t spritenum, int16_t newstatnum);
@@ -603,6 +608,8 @@ local spritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SPRITE_STRUCT
 -- NOTE: this is the *protected* tspritetype pointer.
 local tspritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof("tspritetype"))
 
+local intarg = ffi.new("int32_t[1]")
+
 local spritetype_mt = {
     __pow = function(s, zofs)
         return vec3_ct(s.x, s.y, s.z-zofs)
@@ -629,6 +636,14 @@ local spritetype_mt = {
             -- XXX: AMC TC sets owner to -1 in the cutscene.
             check_sprite_idx(owner)
             ffi.cast(spritetype_ptr_ct, s).owner = owner
+        end,
+
+        --- Custom methods ---
+
+        getheightofs = function(s)
+            -- XXX: better reimplement in Lua?
+            local zofs = ffiC.spriteheightofsptr(s, intarg, 0)
+            return intarg[0], zofs
         end,
     },
 }

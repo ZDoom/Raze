@@ -33,6 +33,7 @@ sectorofwall_noquick;
 getceilzofslopeptr;
 getflorzofslopeptr;
 getzsofslopeptr;
+spriteheightofsptr;
 
 changespritesect;
 changespritestat;
@@ -160,6 +161,7 @@ g_scriptVersion;
 g_currentFrameRate;
 g_currentMenu;
 g_earthquakeTime;
+g_moveThingsCount;
 CheatKeys;
 g_logoFlags;
 

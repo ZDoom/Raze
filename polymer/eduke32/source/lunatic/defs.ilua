@@ -119,6 +119,7 @@ enum dukeweapon_t {
 
 enum {
     MAXPLAYERS = 16,
+    GTICSPERSEC = 30,  // The real number of movement updates per second
 };
 ]])
 
@@ -145,7 +146,9 @@ typedef struct {
 } con_ai_t;
 ]]
 
+defs_c.bitint_new_struct_type("int16_t", "SBit16")
 defs_c.bitint_new_struct_type("int32_t", "SBit32")
+defs_c.bitint_new_struct_type("uint32_t", "UBit32")
 
 -- Struct template for actor_t. It already has 'const' fields (TODO: might need
 -- to make more 'const'), but still has array members exposed, so is unsuited
@@ -165,7 +168,9 @@ __attribute__((packed)) struct {
     const int16_t picnum;
     int16_t ang, extra;
     const int16_t owner;
-    int16_t _movflag,tempang,timetosleep; //6b
+    // NOTE: not to be confused with .movflags:
+]]..defs_c.bitint_member("SBit16", "_movflag")..[[
+    int16_t tempang, timetosleep;
 
     int16_t stayputsect;
     const int16_t dispicnum;
@@ -402,7 +407,7 @@ ffi.cdef([[
 typedef struct { int32_t _p; } weaponaccess_t;
 
 typedef struct {
-    uint32_t bits; // 4b
+]]..defs_c.bitint_member("UBit32", "bits")..[[
     int16_t fvel, svel; // 4b
     int8_t avel, horz; // 2b
     int8_t extbits, filler; // 2b
@@ -632,6 +637,7 @@ int32_t g_scriptVersion;
 const int32_t g_currentFrameRate;
 const int32_t g_currentMenu;
 uint16_t g_earthquakeTime;
+uint32_t g_moveThingsCount;
 char CheatKeys[2];
 
 // Must not have functions here that may call events directly or
@@ -787,6 +793,40 @@ player_static_members._INPUT_EXT_BITS = defs_c.conststruct
     TURN_LEFT =    16,
     TURN_RIGHT =   32,
 }
+
+local band = bit.band
+local lsh = bit.lshift
+
+do
+    -- player.all() iterator
+    local function iter_allplayers(_nil, pli)
+        if (pli+1 < ffiC.playerswhenstarted) then
+            return pli+1
+        end
+    end
+
+    function player_static_members.all()
+        return iter_allplayers, nil, -1
+    end
+
+    -- player.holdskey(pli, keyname)
+    local KEYS = {  -- SK_CROUCH etc. -- "sync keys"
+        CROUCH = lsh(1,1),
+        RUN = lsh(1,5),
+        OPEN = lsh(1,29),
+    }
+
+    function player_static_members.holdskey(pli, keyname)
+        bcheck.player_idx(pli)
+        if (KEYS[keyname] == nil) then
+            error("invalid key name: "..tostring(keyname), 2)
+        end
+
+        return ffiC.g_player[pli].sync.bitsbits:test(KEYS[keyname])
+    end
+end
+
+local player_holdskey = player_static_members.holdskey
 
 -- Actor flags
 local actor_static_members = {}
@@ -1100,6 +1140,36 @@ local actor_mt = {
             check_sprite_idx(owner)
             ffi.cast(actor_ptr_ct, a).owner = owner
         end,
+
+        --- Custom methods ---
+
+        -- Checkers for whether the movement update made the actor hit
+        -- something.
+
+        checkhit = function(a)
+            -- Check whether we hit *anything*, including ceiling/floor.
+            return a._movflagbits:test(49152)
+        end,
+
+        checkbump = function(a)
+            -- Check whether we bumped into a wall or sprite.
+            return (a._movflagbits:mask(49152) >= 32768)
+        end,
+
+        hitwall = function(a)
+            if (a._movflagbits:mask(49152) == 32768) then
+                return a._movflagbits:mask(32767)
+            end
+        end,
+
+        hitsprite = function(a)
+            if (a._movflagbits:mask(49152) == 49152) then
+                return a._movflagbits:mask(32767)
+            end
+        end,
+
+        -- NOTE: no 'hitsector' or 'hitceiling' / 'hitfloor' for now because
+        -- more research is needed as to what the best way of checking c/f is.
     },
 }
 
@@ -1200,16 +1270,21 @@ local player_mt = {
 
         stomp = con._pstomp,
 
-        have_weapon = function(p, weap)
-            return (bit.band(p.gotweapon, bit.lshift(1, weap)) ~= 0)
+        holdskey = function(p, keyname)
+            -- XXX: on invalid <keyname>, error will point to this next line:
+            return player_holdskey(p.weapon._p, keyname)
+        end,
+
+        has_weapon = function(p, weap)
+            return (band(p.gotweapon, lsh(1, weap)) ~= 0)
         end,
 
         give_weapon = function(p, weap)
-            p.gotweapon = bit.bor(p.gotweapon, bit.lshift(1, weap))
+            p.gotweapon = bit.bor(p.gotweapon, lsh(1, weap))
         end,
 
         take_weapon = function(p, weap)
-            p.gotweapon = bit.band(p.gotweapon, bit.bnot(bit.lshift(1, weap)))
+            p.gotweapon = band(p.gotweapon, bit.bnot(lsh(1, weap)))
         end,
 
         -- Give or take weapon, for implementation of CON's .gotweapon access.
@@ -1226,7 +1301,7 @@ local player_mt = {
             if (not no_return_to_center) then
                 p.return_to_center = 9
             end
-            local n = bit.arshift(128-bit.band(ffiC.krand(),255), 1)
+            local n = bit.arshift(128-band(ffiC.krand(),255), 1)
             p.rotscrnang = n
             p.look_ang = n
         end,
@@ -1388,6 +1463,13 @@ gv_access._ud = ffiC.ud
 -- Support for some CON global system gamevars. RETURN handled separately.
 gv_access._csv = ffi.new "struct { int32_t LOTAG, HITAG, TEXTURE; }"
 
+gv_access.REND = defs_c.conststruct
+{
+    CLASSIC = 0,
+    POLYMOST = 3,
+    POLYMER = 4,
+}
+
 function gv_access._get_yxaspect()
     return ffiC.yxaspect
 end
@@ -1423,11 +1505,6 @@ end
 
 function gv_access.currentLevel()
     return ffiC.ud.level_number
-end
-
-function gv_access.currentRenderMode()
-    -- TODO: USE_OPENGL=0 build
-    return ffiC.rendmode
 end
 
 function gv_access.doQuake(gametics, snd)
@@ -1556,11 +1633,17 @@ local function getnumlocals(l)
     end
 end
 
+local function error_on_nil_read(_, varname)
+    error("attempt to read nil variable '"..varname.."'", 2)
+end
+
 local required_module_mt = {
+    __index = error_on_nil_read,
+
     __newindex = function()
-        -- TODO: allow gamevars to be nil?
         error("modifying module table forbidden", 2)
     end,
+
     __metatable = true,
 }
 
@@ -1737,9 +1820,7 @@ end
 
 
 local module_mt = {
-    __index = function (_, n)
-        error("attempt to read undeclared variable '"..n.."'", 2)
-    end,
+    __index = error_on_nil_read,
 }
 
 -- Our 'module' replacement doesn't get the module name from the function args
@@ -1872,7 +1953,7 @@ local function our_gameactor(args)
         lastargi = 1/0
     end
     if (type(func) ~= "function") then
-        error("invalid gameactor call: must provide a function with last numeric arg or .func".." "..type(func), 2)
+        error("invalid gameactor call: must provide a function with last numeric arg or .func", 2)
     end
 
     local flags = (lastargi > 2 and args[2]) or args.flags or 0
@@ -1881,14 +1962,14 @@ local function our_gameactor(args)
     end
 
     local AF = actor.FLAGS
-    local chainflags = bit.band(flags, AF._CHAIN_MASK_ACTOR)
-    flags = bit.band(flags, BNOT.CHAIN_MASK_ACTOR)
+    local chainflags = band(flags, AF._CHAIN_MASK_ACTOR)
+    flags = band(flags, BNOT.CHAIN_MASK_ACTOR)
 
     -- Default chaining behavior: don't, replace the old actor instead, but
     -- unlike CON, also replace its flags. (CON ORs them instead.)
     if (chainflags == 0) then
         chainflags = AF.replace_hard
-    elseif (bit.band(chainflags, chainflags-1) ~= 0) then
+    elseif (band(chainflags, chainflags-1) ~= 0) then
         error("invalid chaining control flags to gameactor", 2)
     end
 
@@ -1897,7 +1978,7 @@ local function our_gameactor(args)
         error("attempt to chain code to nonexistent actor tile "..tilenum, 2)
     end
 
-    local flags_rbits = bit.band(flags, BNOT.USER_MASK)
+    local flags_rbits = band(flags, BNOT.USER_MASK)
     if (flags_rbits ~= 0) then
         error("invalid 'flags' argument (#2) to gameactor: must not set reserved bits (0x"
               ..(bit.tohex(flags_rbits))..")", 2)
@@ -2007,7 +2088,7 @@ local function our_gameevent(args)
         error("invalid 'flags' argument (#2) to gameevent: must be a number", 2)
     end
 
-    if (bit.band(flags, BNOT.CHAIN_MASK_EVENT) ~= 0) then
+    if (band(flags, BNOT.CHAIN_MASK_EVENT) ~= 0) then
         error("invalid 'flags' argument to gameevent: must not set reserved bits", 2)
     end
 
@@ -2194,14 +2275,24 @@ end
 
 -- error(..., 2) is to blame the caller and get its line numbers
 
+-- Map of 'gv' variable names to C ones.
+local varnameMap = {
+    gametic = "g_moveThingsCount",
+}
+
+gv_access.gametic = true
+
 local tmpmt = {
     __index = function(_, key)
         if (gv_access[key] == nil) then
+            -- Read access allowed.
             return ffiC[key]
-        end
-        if (type(gv_access[key])~="boolean") then
-            -- overridden...
+        elseif (type(gv_access[key])~="boolean") then
+            -- Overridden 'gv' pseudo-member...
             return gv_access[key]
+        elseif (varnameMap[key]) then
+            -- Variable known under a different name on the C side.
+            return ffiC[varnameMap[key]]
         end
         error("access forbidden", 2)
     end,
