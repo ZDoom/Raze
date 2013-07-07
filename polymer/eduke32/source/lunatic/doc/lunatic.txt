@@ -1076,6 +1076,8 @@ containing the appropriate data.
 [[gameactor]]
 ===== The function `gameactor{tilenum [, ...], func}`
 
+:Lua51_FunctionCalls: http://www.lua.org/manual/5.1/manual.html#2.5.8
+
 Registers custom code for the actor given by tile number `tilenum`. For each
 non-sleeping actor, the function `func` is called every game tic with three
 input arguments: `func(aci, pli, dist)`.
@@ -1098,6 +1100,7 @@ keys of the argument table. Each such input argument may be provided in at most
 one of these two forms. Furthermore, `func` may be provided as value to the
 key `'func'` as well.
 
+[[gameactor_flags]]
 `[2] flags`::
 A number that controls both certain aspects of the `gameactor` call as well as
 the run-time behavior of the actor itself. A couple of bits for the latter type
@@ -1113,6 +1116,11 @@ front. In this case, a previous `gameactor` call must have taken place for that
 actor (this may have happened from a CON `useractor` block, which gets
 translated to `gameactor`). Moreover, this mechanism allows to add run-time
 flags to the actor in question.
++
+Chaining two callback functions is achieved by creating a new one that calls
+the first one, followed by a {Lua51_FunctionCalls}[tail call] of the second
+one. This has certain implications if control is transferred non-locally by
+e.g. using <<nlcf,`con.longjmp`>>.
 +
 Several flags in `AF` are provided to control how a `gameactor` invocation
 handles chaining.
@@ -1383,8 +1391,8 @@ The `con` module -- game control
 
 The `con` module on one hand provides functionality to control certain aspects
 of the game, such as defining game-side animations for actors. On the other
-hand, it hosts varioius functions that are familiar from CON, although
-sometimes under a different name.
+hand, it hosts various functions that are familiar from CON, although sometimes
+under a different name.
 
 [[actions_moves_ais]]
 Actions, moves and AIs -- customizing actor behavior
@@ -1502,3 +1510,27 @@ an _AI_ object containing these. Also, it is called with three positional,
 optional arguments. Like for <<gameactor,`gameactor`>>, the numbers 0 and 1 are
 permissible for `action` and `move`. Applicable bits for `movflags` are
 available in the <<actor_MOVFLAGS,`actor.MOVFLAGS`>> object.
+
+[[nlcf]]
+Non-local control flow
+^^^^^^^^^^^^^^^^^^^^^^
+
+Two functions in the `con` module make the executed function abort early,
+jumping directly to the end of the innermost event or actor callback
+``block''. They are used to implement among others CON's `killit` and
+(confusingly named) `return` commands. If these functions are used outside of
+the mentioned callback functions, the behavior is undefined.
+
+`con.longjmp()`::
+Silently transfers control to the end of the innermost actor or event callback
+block, to the same point an `error()` call would do. Note that since callback
+<<gameactor_flags,chaining>> is achieved by creating a new function for each
+pair calling the original ones unprotected, issuing a `con.longjmp()` inside
+any ``part'' of a chain aborts the whole block -- functions in the chain that
+are called later will not be reached. In contrast, returning from one function
+transfers control to the beginning of the next in the chain if it exists.
+
+`con.killit()`::
+Silently transfers control to the end of the active actor callback block,
+notifying the game to delete the executing actor's sprite. If `con.killit` is
+called while no execution of actor code is active, the behavior is undefined.

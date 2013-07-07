@@ -4,7 +4,7 @@ Helixhorned <contact: Duke4.net forums>
 :max-width: 56em
 :numbered:
 :icons:
-
+:conf-files: lunatic.conf
 
 
 Introduction
@@ -204,3 +204,50 @@ Currently, the only exception to this rule is that a `definequote` is allowed
 inside delimited blocks, which however does not change its semantics in any
 way: it still only defines the initial contents of a quote, and does not
 magically act like `redefinequote`.
+
+Ambiguous lexical elements
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+LunaCON is fairly relaxed as to which character sequences constitute valid
+identifier names used for e.g. ++define++d labels or variables. It does so out
+of the necessity of supporting CON code found ``in the wild''. An identifier
+
+* must not be a token denoting a number,
+* must start with an _allowed first character_,
+* may contain any number of _allowed following characters_,
+
+where
+
+* allowed first characters are: letters, digits, and those in ```_*?`''
+* allowed following characters are the same as allowed first characters, plus
+  ``+++++'' and ``++-++'' .
+
+// ^ `+` and `-`
+
+Numbers can be written in either decimal or hexadecimal form, optionally
+prepended by a ``++-++'' sign. In the decimal case, the modulus of the number
+can be (lexically) any sequence of decimal digits, though there are
+restrictions on the permitted values.footnote:[Specifically, it is forbidden to
+write a number whose value falls outside the range [--2^31^-1 .. 2^32^--1\].]
+Hexadecimal number literals must be prefixed with `0x` or `0X`, and may
+optionally be suffixed with an `h`.
+
+The following constructions are not allowed, as they would create ambiguities
+with the definitions above:
+
+* A sequence of digits followed by letters to mean the the digits interpreted
+  as a number, ignoring the trailing letters, e.g. `1267AT`.
+* A hexadecimal constant denoted using only a trailing `h`, for example
+  `00000000h`.
+
+Run-time changes
+~~~~~~~~~~~~~~~~
+
+Behavior on error
+^^^^^^^^^^^^^^^^^
+
+As LunaCON is implemented by translating all given CON code to a Lunatic
+module, it is the Lunatic runtime that checks for proper use of its services at
+execution time and takes care of error handling and reporting. In Lua, an error
+link:lunatic.html/#nlcf[transfers control] to the end of the innermost
+``protected'' call of a Lua chunk.

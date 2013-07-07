@@ -428,17 +428,21 @@ local function loadboard_maptext(fil, posptr, angptr, cursectnumptr)
         return RETERR-5
     end
 
+    if (not (map.version <= 10)) then
+        return RETERR-6
+    end
+
     local msector, mwall, msprite = map.sector, map.wall, map.sprite
 
     if (not alltabtab(msector) or not alltabtab(mwall) or not alltabtab(msprite)) then
-        return RETERR-6
+        return RETERR-7
     end
 
     if (not tabofnumtabs(msector, sector_members) or
         not tabofnumtabs(mwall, wall_members) or
         not tabofnumtabs(msprite, sprite_members))
     then
-        return RETERR-7
+        return RETERR-8
     end
 
     local numsectors, numwalls, numsprites = #msector, #mwall, #msprite
@@ -447,7 +451,7 @@ local function loadboard_maptext(fil, posptr, angptr, cursectnumptr)
     if (numsectors+0ULL > ffiC.MAXSECTORS or numwalls+0ULL > ffiC.MAXWALLS or
         numsprites+0ULL > ffiC.MAXSPRITES)
     then
-        return RETERR-8
+        return RETERR-9
     end
 
     --- From here on, start filling out C structures. ---
@@ -466,21 +470,21 @@ local function loadboard_maptext(fil, posptr, angptr, cursectnumptr)
     -- Sectors.
     for i=0,numsectors-1 do
         if (read_struct(sector[i], msector[i+1], sector_members, sector_default)) then
-            return RETERR-9
+            return RETERR-10
         end
     end
 
     -- Walls.
     for i=0,numwalls-1 do
         if (read_struct(wall[i], mwall[i+1], wall_members, wall_default)) then
-            return RETERR-10
+            return RETERR-11
         end
     end
 
     -- Sprites.
     for i=0,numsprites-1 do
         if (read_struct(sprite[i], msprite[i+1], sprite_members, sprite_default)) then
-            return RETERR-11
+            return RETERR-12
         end
     end
 
@@ -500,12 +504,12 @@ local function loadboard_maptext(fil, posptr, angptr, cursectnumptr)
 
     -- .point2 in {0, 1} --> wall index, sector[].wallptr/.wallnum
     if (restore_point2(true)) then
-        return RETERR-12
+        return RETERR-13
     end
 
     -- Check .point2 at least.
     if (check_bad_point2()) then
-        return RETERR-13
+        return RETERR-14
     end
 
     -- wall[]: .nextsector calculated by using engine's sectorofwall_noquick()

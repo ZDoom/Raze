@@ -432,8 +432,10 @@ function on.actor_end(pos, usertype, tsamm, codetab)
     g_code.actor[tilenum] = codetab
 end
 
-local BAD_ID_CHARS0 = "_/\\*?"  -- allowed 1st identifier chars
-local BAD_ID_CHARS1 = "_/\\*-+?"  -- allowed following identifier chars
+-- NOTE: in C-CON, the slash and backslash can also be part of an identifier,
+-- but this is likely to support file names in other places.
+local BAD_ID_CHARS0 = "_*?"  -- allowed 1st identifier chars
+local BAD_ID_CHARS1 = "_*-+?"  -- allowed following identifier chars
 
 local function truetab(tab)
     local ttab = {}
@@ -879,7 +881,7 @@ local function do_include_file(dirname, filename, isroot)
         end
 
         -- As a last resort, try the "default directory"
-        if (fd==nil and g_defaultDir) then
+        if (fd==nil and not isroot and g_defaultDir) then
             -- strip up to and including last slash (if any):
             filename = filename:gsub("^.*/", "")
             dirname = g_defaultDir.."/"
