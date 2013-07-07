@@ -89,7 +89,6 @@ enum rendmode_t {
 #define NORMALPAL   (MAXPALOOKUPS - 4)
 
 #define TSPR_TEMP 99
-#define TSPR_MIRROR 100
 
 #define PR_LIGHT_PRIO_MAX       0
 #define PR_LIGHT_PRIO_MAX_GAME  1

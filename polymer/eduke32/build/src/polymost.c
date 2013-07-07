@@ -3723,12 +3723,6 @@ void polymost_drawsprite(int32_t snum)
     {
         if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
         {
-            if (spritenum >= MAXSPRITES || tspr->statnum == TSPR_MIRROR)
-            {
-                if (mddraw(tspr)) return;
-                break;	// else, render as flat sprite
-            }
-
             if (mddraw(tspr))
                 return;
 
