@@ -1429,7 +1429,7 @@ static const char *GetDInputError(HRESULT code)
 
 static int32_t timerlastsample=0;
 int32_t timerticspersec=0;
-static double msperhitick = 0;
+static double msperu64tick = 0;
 static void (*usertimercallback)(void) = NULL;
 
 //  This timer stuff is all Ken's idea.
@@ -1469,7 +1469,7 @@ int32_t inittimer(int32_t tickspersecond)
 
     usertimercallback = NULL;
 
-    msperhitick = 1000.0 / (double)gethitickspersec();
+    msperu64tick = 1000.0 / (double)getu64tickspersec();
 
     return 0;
 }
@@ -1484,7 +1484,7 @@ void uninittimer(void)
     win_timerfreq=0;
     timerticspersec = 0;
 
-    msperhitick = 0;
+    msperu64tick = 0;
 }
 
 //
@@ -1521,12 +1521,12 @@ uint32_t getticks(void)
 }
 
 // high-resolution timers for profiling
-uint64_t gethiticks(void)
+uint64_t getu64ticks(void)
 {
-    return win_gethiticks();
+    return win_getu64ticks();
 }
 
-uint64_t gethitickspersec(void)
+uint64_t getu64tickspersec(void)
 {
     return win_timerfreq;
 }
@@ -1535,7 +1535,7 @@ uint64_t gethitickspersec(void)
 ATTRIBUTE((flatten))
 double gethitickms(void)
 {
-    return (double)gethiticks() * msperhitick;
+    return (double)getu64ticks() * msperu64tick;
 }
 
 //

@@ -15,7 +15,7 @@ extern void win_allowtaskswitching(int32_t onf);
 extern int32_t win_checkinstance(void);
 
 extern int32_t win_inittimer(void);
-extern uint64_t win_gethiticks(void);
+extern uint64_t win_getu64ticks(void);
 
 extern void win_open(void);
 extern void win_init(void);

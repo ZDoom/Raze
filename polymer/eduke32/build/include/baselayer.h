@@ -148,8 +148,8 @@ void uninittimer(void);
 void sampletimer(void);
 uint32_t getticks(void);
 int32_t gettimerfreq(void);
-uint64_t gethiticks(void);
-uint64_t gethitickspersec(void);
+uint64_t getu64ticks(void);
+uint64_t getu64tickspersec(void);
 double gethitickms(void);  // TODO: Windows
 void (*installusertimercallback(void (*callback)(void)))(void);
 

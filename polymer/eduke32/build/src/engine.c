@@ -258,7 +258,8 @@ int32_t autogray = 0, showinnergray = 1;
 //#define YAX_DEBUG_YMOSTS
 
 #ifdef YAX_DEBUG
-double hitickspersec;
+// XXX: This could be replaced with the use of gethitickms().
+double u64tickspersec;
 #endif
 #ifdef ENGINE_SCREENSHOT_DEBUG
 int32_t engine_screenshot = 0;
@@ -1019,7 +1020,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                     j = bunches[cf][bnchcnt];  // the actual bunchnum...
                     yax_globalbunch = j;
 #ifdef YAX_DEBUG
-                    t=gethiticks();
+                    t=getu64ticks();
 #endif
                     k = bunchsec[j];
 
@@ -1043,7 +1044,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                         yaxdebug("l%d: faked (bn %2d) sec %4d,%3d dspr, ob=[%2d,%2d], sn=%4d, %.3f ms",
                                  yax_globallev-YAX_MAXDRAWS, j, k, yax_spritesortcnt[yax_globallev]-odsprcnt,
                                  ourbunch[0],ourbunch[1],sectnum,
-                                 (double)(1000*(gethiticks()-t))/hitickspersec);
+                                 (double)(1000*(getu64ticks()-t))/u64tickspersec);
                     }
 
                     if (ourbunch[cf]==j)
@@ -1103,7 +1104,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                 k = bunchsec[j];  // best start-drawing sector
                 yax_globalbunch = j;
 #ifdef YAX_DEBUG
-                t=gethiticks();
+                t=getu64ticks();
 #endif
                 yax_tweakpicnums(j, cf, 0);
                 if (k < 0)
@@ -1119,7 +1120,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                     {
                         yaxdebug("nm1 l%d: DRAWN (bn %2d) sec %4d,          %.3f ms",
                                  yax_globallev-YAX_MAXDRAWS, j, k,
-                                 (double)(1000*(gethiticks()-t))/hitickspersec);
+                                 (double)(1000*(getu64ticks()-t))/u64tickspersec);
 
                         if (!yax_nomaskdidit)
                         {
@@ -1135,7 +1136,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                 yax_copytsprites();
                 yaxdebug("nm0 l%d: DRAWN (bn %2d) sec %4d,%3d tspr, %.3f ms",
                          yax_globallev-YAX_MAXDRAWS, j, k, spritesortcnt,
-                         (double)(1000*(gethiticks()-t))/hitickspersec);
+                         (double)(1000*(getu64ticks()-t))/u64tickspersec);
 
                 SpriteAnimFunc(globalposx, globalposy, globalang, smoothr);
                 drawmasks();
@@ -1148,7 +1149,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
     }
 
 #ifdef YAX_DEBUG
-    t=gethiticks();
+    t=getu64ticks();
 #endif
     yax_globalcf = -1;
     yax_globalbunch = -1;
@@ -1162,7 +1163,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 //        spritesortcnt = 0;
     yax_copytsprites();
     yaxdebug("DRAWN base level sec %d,%3d tspr, %.3f ms", osectnum,
-             spritesortcnt, (double)(1000*(gethiticks()-t))/hitickspersec);
+             spritesortcnt, (double)(1000*(getu64ticks()-t))/u64tickspersec);
     scansector_collectsprites = 1;
 
     for (cf=0; cf<2; cf++)
@@ -8635,9 +8636,9 @@ int32_t initengine(void)
     }
 
 #ifdef YAX_DEBUG
-    hitickspersec = (double)gethitickspersec();
-    if (hitickspersec==0.0)
-        hitickspersec = 1.0;
+    u64tickspersec = (double)getu64tickspersec();
+    if (u64tickspersec==0.0)
+        u64tickspersec = 1.0;
 #endif
 
     if (loadtables())

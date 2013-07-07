@@ -153,7 +153,7 @@ int32_t win_inittimer(void)
     return 0;
 }
 
-uint64_t win_gethiticks(void)
+uint64_t win_getu64ticks(void)
 {
     uint64_t i;
     if (win_timerfreq == 0) return 0;

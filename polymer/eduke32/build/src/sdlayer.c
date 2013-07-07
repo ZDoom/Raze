@@ -795,7 +795,7 @@ void releaseallbuttons(void)
 static Uint32 timerfreq=0;
 static Uint32 timerlastsample=0;
 int32_t timerticspersec=0;
-static double msperhitick = 0;
+static double msperu64tick = 0;
 static void(*usertimercallback)(void) = NULL;
 
 
@@ -822,7 +822,7 @@ int32_t inittimer(int32_t tickspersecond)
 
     usertimercallback = NULL;
 
-    msperhitick = 1000.0 / (double)gethitickspersec();
+    msperu64tick = 1000.0 / (double)getu64tickspersec();
 
     return 0;
 }
@@ -840,7 +840,7 @@ void uninittimer(void)
     win_timerfreq=0;
 #endif
 
-    msperhitick = 0;
+    msperu64tick = 0;
 }
 
 //
@@ -872,11 +872,11 @@ uint32_t getticks(void)
 }
 
 // high-resolution timers for profiling
-uint64_t gethiticks(void)
+uint64_t getu64ticks(void)
 {
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
 # if defined _WIN32
-    return win_gethiticks();
+    return win_getu64ticks();
 # elif defined __APPLE__
     return mach_absolute_time();
 # elif _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
@@ -895,7 +895,7 @@ uint64_t gethiticks(void)
 # else
 // Blar. This pragma is unsupported on earlier GCC versions.
 // At least we'll get a warning and a reference to this line...
-#  pragma message "Using low-resolution (1ms) timer for gethiticks. Profiling will work badly."
+#  pragma message "Using low-resolution (1ms) timer for getu64ticks. Profiling will work badly."
     return SDL_GetTicks();
 # endif
 #else
@@ -903,7 +903,7 @@ uint64_t gethiticks(void)
 #endif
 }
 
-uint64_t gethitickspersec(void)
+uint64_t getu64tickspersec(void)
 {
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
 # if defined _WIN32
@@ -930,7 +930,7 @@ uint64_t gethitickspersec(void)
 ATTRIBUTE((flatten))
 double gethitickms(void)
 {
-    return (double)gethiticks() * msperhitick;
+    return (double)getu64ticks() * msperu64tick;
 }
 
 //
