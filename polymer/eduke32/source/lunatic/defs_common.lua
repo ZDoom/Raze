@@ -673,9 +673,11 @@ end
 
 ---=== Methods that are specific to sprites ===---
 
+local l_updatesector  -- fwd-decl
+
 function spritetype_mt.__index.setpos(spr, pos)  -- setsprite() clone
     spr.x, spr.y, spr.z = pos.x, pos.y, pos.z
-    local newsect = updatesector(spr, spr.sectnum)
+    local newsect = l_updatesector(spr, spr.sectnum)
 
     if (newsect >= 0 and spr.sectnum ~= newsect) then
         ffiC.changespritesect(get_sprite_idx(spr), newsect)
@@ -696,7 +698,7 @@ end
 -- e.g. for example because it's already there from "hitscan").
 function tspritetype_mt.__index.setpos(tspr, pos)
     tspr.x, tspr.y, tspr.z = pos.x, pos.y, pos.z
-    local newsect = updatesector(tspr, tspr.sectnum)
+    local newsect = l_updatesector(tspr, tspr.sectnum)
 
     if (newsect >= 0 and tspr.sectnum ~= newsect) then
         tspr:set_sectnum(newsect)
@@ -942,6 +944,7 @@ end
 --== ALL GLOBALS FROM HERE ON ARE EXPORTED UPWARDS (see create_globals() below) ==--
 
 sector = setmtonce({}, sector_mt)
+local sector = sector
 wall = setmtonce({}, wall_mt)
 sprite = setmtonce({}, sprite_mt)
 spriteext = creategtab(ffiC.spriteext, ffiC.MAXSPRITES, 'spriteext[]')
@@ -1121,6 +1124,8 @@ function updatesector(pos, sectnum, flags)
 
     return us_retsect[0]
 end
+
+l_updatesector = updatesector
 
 function updatesectorz(pos, sectnum, flags)
     if (sectnum ~= -1) then

@@ -243,6 +243,7 @@ sensitive_ walls and sprites.
 The number of times in a second each actor excecutes its code and updates its
 position (``game tics'').
 
+//////////
 `gv.*` inventory indices::
 `GET_STEROIDS`, `GET_SHIELD`, `GET_SCUBA`, `GET_HOLODUKE`, `GET_JETPACK`,
 `GET_DUMMY1`, `GET_ACCESS`, `GET_HEATS`, `GET_DUMMY2`, `GET_FIRSTAID`,
@@ -253,14 +254,6 @@ position (``game tics'').
 `RPG_WEAPON`, `HANDBOMB_WEAPON`, `SHRINKER_WEAPON`, `DEVISTATOR_WEAPON`,
 `TRIPBOMB_WEAPON`, `FREEZE_WEAPON`, `HANDREMOTE_WEAPON`,
 `GROW_WEAPON`. `MAX_WEAPONS`.
-
-// TODO: the others, like EVENT_*.
-//////////
-[[gv_STAT]] `gv.*` sprite status numbers::
-`STAT_DEFAULT`, `STAT_ACTOR`, `STAT_ZOMBIEACTOR`, `STAT_EFFECTOR`,
-`STAT_PROJECTILE`, `STAT_MISC`, `STAT_STANDABLE`, `STAT_LOCATOR`,
-`STAT_ACTIVATOR`, `STAT_TRANSPORT`, `STAT_PLAYER`, `STAT_FX`, `STAT_FALLER`,
-`STAT_DUMMYPLAYER`, `STAT_LIGHT`.
 //////////
 
 [[gv_REND]] `gv.REND`::
@@ -1008,6 +1001,8 @@ Returns a boolean of whether the position `pos` (which can be anything
 indexable with `x` and `y`) is considered inside the sector with number
 `sectnum`, which must be valid. The `z` component is not taken into account.
 
+===== Sector updating
+
 A number of engine functions take a position `pos` and a starting sector number
 `sectnum` and try to find a sector that contains `pos`, assuming it started out
 in `sectnum`.footnote:[Note that this is different from CON's `updatesector`,
@@ -1018,6 +1013,9 @@ whether that sector contains `pos` (i.e. the position stays in the same sector)
 and then attempt to search neighboring sectors. If the passed `sectnum` is
 `-1`, all sectors are searched in an unspecified order. On success, these
 functions return the sector number of the ``updated'' sector, otherwise `-1`.
+
+// XXX: With breadth-first search, there is no all-sector search when passing
+// -1. The above paragraph suggests otherwise.
 
 [[updatesector]] `updatesector(pos, sectnum [, flags])`::
 

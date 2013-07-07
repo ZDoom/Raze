@@ -79,6 +79,8 @@ function cosb(ang)
     return dsintab[ksc_common(ang+512)]
 end
 
+local cosb, sinb = cosb, sinb
+
 
 ---=== Approximations to 2D and 3D Euclidean distances ===---
 -- (also see common.c)
@@ -281,6 +283,8 @@ function ivec3(...)
         return ivec3_t(x.x, x.y, x.z)
     end
 end
+
+local vec2, vec3 = vec2, vec3
 
 
 ---=== MISCELLANEOUS MATH ===---

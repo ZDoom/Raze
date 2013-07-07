@@ -427,7 +427,7 @@ LUNATIC=0
 LUAJIT=luajit
 
 # for LJ headers:
-LUAJIT_WIN_SRC:= g:/mod/luajit-2.0/src
+LUAJIT_WIN_SRC:= f:/g/mod/luajit-2.0/src
 
 ifneq ($(LUNATIC),0)
     # FIXME: Lunatic doesn't build with inlining because of wacky include

@@ -148,7 +148,16 @@ ifneq (0,$(LUNATIC))
     EDITOROBJS+= $(OBJ)/lunatic_m32.$o $(LUNATIC_COMMON_OBJS)
     GAMEOBJS+= $(OBJ)/lunatic_game.$o $(LUNATIC_COMMON_OBJS)
 
-    GAMEOBJS+= $(OBJ)/../lpeg.a  # TEMP
+    ifneq ($(PLATFORM),WINDOWS)
+        # On non-Windows, we expect to have liblpeg.a (or a symlink to it) in source/.
+        # On Windows, it will reside in platform/Windows/lib32 or lib64.
+        LIBDIRS+= -L$(realpath (OBJ)/..)
+        ifeq ($(realpath $(OBJ)/../liblpeg.a),)
+            # XXX: This cripples "make clean" etc. too, but IMO it's better than warning.
+            $(error "liblpeg.a not found in $(realpath $(OBJ)/..)")
+        endif
+    endif
+    LIBS+= -llpeg
     GAMEOBJS+= $(OBJ)/luaJIT_BC_con_lang.$o \
                $(OBJ)/luaJIT_BC_lunacon.$o \
                $(OBJ)/luaJIT_BC_randgen.$o \
