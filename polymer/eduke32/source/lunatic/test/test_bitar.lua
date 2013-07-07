@@ -20,7 +20,7 @@ if (string.dump) then
     end
 else
     -- embedded
-    getticks = gv.gethitickms
+    getticks = gv.gethiticks
 
     module(...)
 end

@@ -443,7 +443,7 @@ void setaspect(int32_t daxrange, int32_t daaspect);
 -- misc. functions
 ffi.cdef[[
 uint32_t getticks(void);
-double gethitickms(void);
+double gethiticks(void);
 
 int32_t krand(void);
 int32_t ksqrt(uint32_t num);

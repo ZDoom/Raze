@@ -63,14 +63,14 @@ function compinside(n)
     local isi, iss = {}, {}
 
     for i=1,n do
-        local t = ffiC.gethitickms()
+        local t = ffiC.gethiticks()
         isi[i] = inside(posns[i], sects[i])
-        t = ffiC.gethitickms()-t
+        t = ffiC.gethiticks()-t
         sti:add(t)
 
-        local t = ffiC.gethitickms()
+        local t = ffiC.gethiticks()
         iss[i] = sector[sects[i]]:contains(posns[i])
-        t = ffiC.gethitickms()-t
+        t = ffiC.gethiticks()-t
         sts:add(t)
 
 --        if (isi[i]~=iss[i]) then

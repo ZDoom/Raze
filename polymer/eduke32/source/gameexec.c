@@ -119,14 +119,14 @@ static void VM_KillIt(int32_t iActor, int32_t iPlayer)
 int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
 #ifdef LUNATIC
-    const double t = gethitickms();
+    const double t = gethiticks();
 
     // TODO: handling of RETURN gamevar / iReturn / this function's return value
     if (L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
         if (El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist, &iReturn)==1)
             VM_KillIt(iActor, iPlayer);
 
-    g_eventTotalMs[iEventID] += gethitickms()-t;
+    g_eventTotalMs[iEventID] += gethiticks()-t;
     g_eventCalls[iEventID]++;
 #else
 
@@ -5399,13 +5399,13 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 
 #ifdef LUNATIC
     {
-        double t = gethitickms();
+        double t = gethiticks();
         const int32_t picnum = vm.g_sp->picnum;
 
         if (L_IsInitialized(&g_ElState) && El_HaveActor(picnum))
             killit = (El_CallActor(&g_ElState, picnum, iActor, iPlayer, lDist)==1);
 
-        t = gethitickms()-t;
+        t = gethiticks()-t;
         g_actorTotalMs[picnum] += t;
         g_actorMinMs[picnum] = min(g_actorMinMs[picnum], t);
         g_actorMaxMs[picnum] = max(g_actorMaxMs[picnum], t);

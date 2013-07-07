@@ -258,7 +258,7 @@ int32_t autogray = 0, showinnergray = 1;
 //#define YAX_DEBUG_YMOSTS
 
 #ifdef YAX_DEBUG
-// XXX: This could be replaced with the use of gethitickms().
+// XXX: This could be replaced with the use of gethiticks().
 double u64tickspersec;
 #endif
 #ifdef ENGINE_SCREENSHOT_DEBUG

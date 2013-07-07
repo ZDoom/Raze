@@ -80,7 +80,7 @@ updatesectorz;
 updatesectorbreadth;
 
 getticks;
-gethitickms;
+gethiticks;
 OSD_Printf;
 
 crc32once;

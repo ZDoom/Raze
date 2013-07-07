@@ -374,7 +374,7 @@ static struct {
     int32_t numtics, numframes;
     double totalgamems;
     double totalroomsdrawms, totalrestdrawms;
-    double starthitickms;
+    double starthiticks;
 } g_prof;
 
 int32_t Demo_IsProfiling(void)
@@ -390,14 +390,14 @@ static void Demo_StopProfiling(void)
 static void Demo_GToc(double t)
 {
     g_prof.numtics++;
-    g_prof.totalgamems += gethitickms()-t;
+    g_prof.totalgamems += gethiticks()-t;
 }
 
 static void Demo_RToc(double t1, double t2)
 {
     g_prof.numframes++;
     g_prof.totalroomsdrawms += t2-t1;
-    g_prof.totalrestdrawms += gethitickms()-t2;
+    g_prof.totalrestdrawms += gethiticks()-t2;
 }
 
 static void Demo_DisplayProfStatus(void)
@@ -427,7 +427,7 @@ static void Demo_SetupProfile(void)
 
     Bmemset(&g_prof, 0, sizeof(g_prof));
 
-    g_prof.starthitickms = gethitickms();
+    g_prof.starthiticks = gethiticks();
 }
 
 static void Demo_FinishProfile(void)
@@ -459,7 +459,7 @@ static void Demo_FinishProfile(void)
 
         {
             double totalprofms = gms+dms1+dms2;
-            double totalms = gethitickms()-g_prof.starthitickms;
+            double totalms = gethiticks()-g_prof.starthiticks;
             if (totalprofms != 0)
                 OSD_Printf("== demo %d: non-profiled time overhead: %.02f %%\n",
                            dn, 100.0*totalms/totalprofms - 100.0);
@@ -726,7 +726,7 @@ nextdemo_nomenu:
 
                 if (Demo_IsProfiling())
                 {
-                    double t = gethitickms();
+                    double t = gethiticks();
                     G_DoMoveThings();
                     Demo_GToc(t);
                 }
@@ -807,7 +807,7 @@ nextdemo_nomenu:
 
                 for (i=0; i<num; i++)
                 {
-                    double t1 = gethitickms(), t2;
+                    double t1 = gethiticks(), t2;
 
 //                    initprintf("t=%d, o=%d, t-o = %d\n", totalclock,
 //                               ototalclock, totalclock-ototalclock);
@@ -820,7 +820,7 @@ nextdemo_nomenu:
 
                     G_DrawRooms(screenpeek,j);
 
-                    t2 = gethitickms();
+                    t2 = gethiticks();
 
                     G_DisplayRest(j);
 

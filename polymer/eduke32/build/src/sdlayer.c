@@ -928,7 +928,7 @@ uint64_t getu64tickspersec(void)
 // Returns the time since an unspecified starting time in milliseconds.
 // (May be not monotonic for certain configurations.)
 ATTRIBUTE((flatten))
-double gethitickms(void)
+double gethiticks(void)
 {
     return (double)getu64ticks() * msperu64tick;
 }

@@ -59,9 +59,9 @@ function randwalk(N, spritenum, minlen, maxlen, randofs, funci, logfn)
 --]]
         local newpos = pos + xmath.ivec3(ax,ay,az)
 
-        local t = ffiC.gethitickms()
+        local t = ffiC.gethiticks()
         local newsect = updatesectorfunc(newpos, sectnum)
-        t = ffiC.gethitickms()-t
+        t = ffiC.gethiticks()-t
 
         st.all:add(t)
         times[i] = t

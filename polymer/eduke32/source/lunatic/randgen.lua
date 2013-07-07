@@ -31,8 +31,8 @@ uint32_t crc32once(uint8_t *blk, uint32_t len);
 ]]
 
 local function get_rand_u32(tin)
-    tin.d[0] = ffiC.gethitickms() % 1
-    tin.d[1] = ffiC.gethitickms() % 1
+    tin.d[0] = ffiC.gethiticks() % 1
+    tin.d[1] = ffiC.gethiticks() % 1
     return ffiC.crc32once(tin.u, 16)
 end
 
@@ -79,11 +79,11 @@ function new(x,y,z,c)
     local r=ffi.new("rng_jkiss_t")
     r.x = 123456789; r.y = 987654321; r.z = 43219876; r.c = 6543217;
 
-    t=gv.gethitickms()
+    t=gv.gethiticks()
     for i=1,4*2*1e6 do
         ffiC.rand_jkiss_dbl(r)
     end
-    print("TIME: "..gv.gethitickms()-t)  -- x86_64: approx. 100 ms
+    print("TIME: "..gv.gethiticks()-t)  -- x86_64: approx. 100 ms
 --]]
 
     return s

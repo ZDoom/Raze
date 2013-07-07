@@ -1536,7 +1536,7 @@ local allowed_modules = {
     coroutine=coroutine, bit=bit, table=table, math=math, string=string,
 
     os = {
-        clock = function() return gv_.gethitickms()*0.001 end,
+        clock = function() return gv_.gethiticks()*0.001 end,
     },
 
     randgen = randgen,

@@ -170,7 +170,7 @@ print('')
 checkfail('gv.luaJIT_setmode(nil, 0, 0)', "missing declaration for symbol 'luaJIT_setmode'")
 
 checkfail('gv.luaJIT_BC_con_lang', "attempt to call a nil value")
-checkfail('gv.gethitickms = nil', "attempt to write to constant location")
+checkfail('gv.gethiticks = nil', "attempt to write to constant location")
 
 -- actor[].t_data[] is not accessible for now
 checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
@@ -270,31 +270,31 @@ gameevent
         -- NOTE: times are for helixhorned (Core2Duo 3GHz)
         local i
         local N = 1e6
-        local t = gv.gethitickms()
+        local t = gv.gethiticks()
 
         for i=3,N do
-            gv.gethitickms()
+            gv.gethiticks()
         end
 
-        t = gv.gethitickms()-t
+        t = gv.gethiticks()-t
 
         -- x86_64: 35ns/call, x86: 280 ns/call
         -- Windows 32-bit: about 1 us/call?
-        printf("%d gethitickms() calls took %.03f ms (%.03f us/call)",
+        printf("%d gethiticks() calls took %.03f ms (%.03f us/call)",
                N, t, (t*1000)/N)
 
         local sum=0
-        t = gv.gethitickms()
+        t = gv.gethiticks()
         for i=1,N do sum = sum+gv.ksqrt(i) end
-        t = gv.gethitickms()-t
+        t = gv.gethiticks()-t
         -- x86_64: 14ns/call
         printf("%d ksqrt() calls took %.03f ms (%.03f us/call) [sum=%f]",
                N, t, (t*1000)/N, sum)
 
         sum=0
-        t = gv.gethitickms()
+        t = gv.gethiticks()
         for i=1,N do sum = sum+math.sqrt(i) end
-        t = gv.gethitickms()-t
+        t = gv.gethiticks()-t
         -- x86_64: 7ns/call
         printf("%d math.sqrt() calls took %.03f ms (%.03f us/call) [sum=%f]",
                N, t, (t*1000)/N, sum)
@@ -318,7 +318,7 @@ gameevent
         proj.drop = 0
         proj:set_trail(D.SMALLSMOKE)
 
-        t = gv.gethitickms()
+        t = gv.gethiticks()
         local N=1
         for n=1,N do
             for i=0,gv.MAXSPRITES-1 do
@@ -334,7 +334,7 @@ gameevent
                 sprite[i].yoffset = 1
             end
         end
-        t = gv.gethitickms()-t
+        t = gv.gethiticks()-t
         printf("%d x four 0..MAXSPRITES-1 iterations took %.03f us per outer iteration", N, (1000*t)/N)
         -- Results on x86:
         -- N=1: 480-1000 us (too large variance)
@@ -425,10 +425,10 @@ gameactor
 
         local spr = sprite[i]
 
-        local t = gv.gethitickms()
+        local t = gv.gethiticks()
         local hit = hitscan(spr, spr.sectnum, 10, 10, 0, gv.CLIPMASK0)
 
-        hs:add(1000*(gv.gethitickms()-t))
+        hs:add(1000*(gv.gethiticks()-t))
 
         if (hs.n == 300) then
             printf("hitscan: %s", hs:getstatstr())
@@ -635,20 +635,20 @@ do
     local sum = 0
 
     local N = 1000
-    local t = gv.gethitickms()
+    local t = gv.gethiticks()
     for i=0,N*2048-1 do
         sum = sum+xmath.ksin(i)
     end
-    t = gv.gethitickms()-t
+    t = gv.gethiticks()-t
     sum = sum*1e12
     printf("ksin: sum*1e12=%.03f, %.03fus per 0-2047 cycle", sum, t)
 
     sum = 0
-    local t = gv.gethitickms()
+    local t = gv.gethiticks()
     for i=0,N*2048-1 do
         sum = sum+xmath.sinb(i)
     end
-    t = gv.gethitickms()-t
+    t = gv.gethiticks()-t
     sum = sum*1e12
     printf("sinb: sum*1e12=%.03f, %.03fus per 0-2047 cycle", sum, t)
 
@@ -660,7 +660,7 @@ end
 do
     -- Test getflorzofslopeptr()/sector[]:floorzat()
     local N = 100
-    local t = gv.gethitickms()
+    local t = gv.gethiticks()
 
     for n=1,N do
         for i=0,gv.numsectors-1 do
@@ -670,7 +670,7 @@ do
         end
     end
 
-    printf("%d x %d floorzat: %.03f us", N, gv.numsectors, (gv.gethitickms()-t)*1000)
+    printf("%d x %d floorzat: %.03f us", N, gv.numsectors, (gv.gethiticks()-t)*1000)
 
     -- Results for 100 x 325 floorzat (helixhorned x86):
     -- cdecl getflorzofslope(): 572.165 us
