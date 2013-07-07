@@ -31,14 +31,8 @@ local starPal = con.actorvar(0)
 require("end_gamevars")
 
 
-local function bangvec(bang)
-    bang = math.floor(bang)
-    return xmath.vec3(xmath.cosb(bang), xmath.sinb(bang))
-end
-
-local function angvec(ang)
-    return xmath.vec3(math.cos(ang), math.sin(ang))
-end
+local bangvec = xmath.bangvec
+local angvec = xmath.angvec
 
 
 local D = require("CON.DEFS")

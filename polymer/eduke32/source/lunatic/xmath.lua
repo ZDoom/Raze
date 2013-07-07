@@ -285,6 +285,17 @@ end
 
 ---=== MISCELLANEOUS MATH ===---
 
+local intarg = ffi.new("int32_t [1]")
+function bangvec(bang)
+    intarg[0] = bang  -- round towards zero
+    return vec3(cosb(intarg[0]), sinb(intarg[0]))
+end
+
+function angvec(ang)
+    return vec3(cos(ang), sin(ang))
+end
+
+
 local zerovec = vec3()
 -- Point rotation. Note the different order of arguments from engine function.
 -- XXX: passing mixed vec2/vec3 is problematic. Get rid of vec2?

@@ -418,10 +418,8 @@ gameactor
     action = AC.TROOPSTAND,
 
     func = function(i, playeri, dist)
-        spriteext[i]:make_animated()
-
         sprite[i].pal = math.random(32)
-        --              sprite[i].ang = bit.band(sprite[i].ang-20, 2047)
+--        sprite[i].ang = bit.band(sprite[i].ang-20, 2047)
 
         local spr = sprite[i]
 
@@ -459,7 +457,36 @@ gameactor
                 actr.movflagsbits:flip(actor.MOVFLAGS.spin)
             end
         end
-    end
+    end,
+
+    -- NOTE: the animate callback is not yet documented and thus not official API!
+    animate = function(tspr)
+        local tspr2 = tspr:dup()
+        if (tspr2) then
+            tspr2.x = tspr2.x + 512*math.cos(gv.totalclock/60)
+            tspr2.y = tspr2.y + 512*math.sin(gv.totalclock/60)
+            tspr2.cstatbits:set(CS.TRANS_BITMASK)
+        end
+
+        -- XXX: inserted tsprites have floor shadow in classic! (r_shadow)
+        -- G_DoSpriteAnimations() is passed as callback to the engine on occasion,
+        -- in other words, created tsprites may be fed back to G_DoSpriteAnimations()!
+        -- classic: shows shadow for both "ghost" liztroop and aim "reticle"
+        -- Polymost: only for "ghost"
+        -- Polymer: none
+        local aimv = 256*xmath.bangvec(tspr.ang)
+        local hit = hitscan(tspr^(16*256), tspr.sectnum, aimv.x, aimv.y, 0, gv.CLIPMASK1)
+
+        if (hit.wall >= 0) then
+            local aimtspr = tspr:dup()
+            if (aimtspr) then
+                aimtspr.pal = 2
+                aimtspr:set_picnum(555)
+                aimtspr:setpos(hit.pos)
+                aimtspr:set_sectnum(hit.sect)
+            end
+        end
+    end,
 }
 
 gameactor
@@ -535,24 +562,6 @@ gameactor
     function(aci, pli)
         if (con._squished(aci, pli)) then
             printf("Squished LunaCON test")
-        end
-    end
-}
-
-
-gameevent
-{
-    "ANIMATESPRITES",
-
-    function(aci)
-        local tspr = atsprite[aci]
-        if (tspr:getspr().picnum==D.LIZTROOP) then
-            local tspr2 = tspr:dup()
-            if (tspr2) then
-                tspr2.x = tspr2.x + 512*math.cos(gv.totalclock/60)
-                tspr2.y = tspr2.y + 512*math.sin(gv.totalclock/60)
-                tspr2.cstatbits:set(CS.TRANS_BITMASK)
-            end
         end
     end
 }

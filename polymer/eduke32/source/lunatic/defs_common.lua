@@ -155,6 +155,7 @@ string.format([[
 
 local SPRITE_STRUCT = [[
 struct {
+    // TODO: transparent union with vec3_t pos?
     int32_t x, y, z;
 ]]..bitint_member("UBit16", "cstat")..[[
     const int16_t picnum;
@@ -597,6 +598,7 @@ ffi.metatype("walltype", walltype_mt)
 local spriteext_mt = {
     __index = {
         -- Enable EVENT_ANIMATESPRITES for this sprite.
+        -- XXX: unused?
         make_animated = function(sx)
             sx.flags = bor(sx.flags, 16)
         end,
@@ -669,22 +671,40 @@ local function get_sprite_idx(spr)
     return i
 end
 
--- Methods that are specific to sprites
+---=== Methods that are specific to sprites ===---
+
 function spritetype_mt.__index.setpos(spr, pos)  -- setsprite() clone
     spr.x, spr.y, spr.z = pos.x, pos.y, pos.z
-
     local newsect = updatesector(spr, spr.sectnum)
-    if (newsect < 0) then
-        return -1
-    end
 
-    if (spr.sectnum ~= newsect) then
+    if (newsect >= 0 and spr.sectnum ~= newsect) then
         ffiC.changespritesect(get_sprite_idx(spr), newsect)
     end
+
     return newsect
 end
 
--- Methods that are specific to tsprites
+
+---=== Methods that are specific to tsprites ===---
+
+function tspritetype_mt.__index.set_sectnum(tspr, sectnum)
+    check_sector_idx(sectnum)
+    ffi.cast(spritetype_ptr_ct, tspr).sectnum = sectnum
+end
+
+-- TODO: flags (the same as sprite.UPDATE_FLAGS + "provide own sectnum",
+-- e.g. for example because it's already there from "hitscan").
+function tspritetype_mt.__index.setpos(tspr, pos)
+    tspr.x, tspr.y, tspr.z = pos.x, pos.y, pos.z
+    local newsect = updatesector(tspr, tspr.sectnum)
+
+    if (newsect >= 0 and tspr.sectnum ~= newsect) then
+        tspr:set_sectnum(newsect)
+    end
+
+    return newsect
+end
+
 function tspritetype_mt.__index.dup(tspr)
     if (ffiC.spritesortcnt >= ffiC.MAXSPRITESONSCREEN+0ULL) then
         return nil
@@ -698,9 +718,11 @@ function tspritetype_mt.__index.dup(tspr)
 end
 
 function tspritetype_mt.__index.getspr(tspr)
-    return sprite[tspr.owner]
+    check_sprite_idx(tspr.owner)
+    return ffiC.sprite[tspr.owner]
 end
 
+---======---
 
 -- The user of this module can insert additional "spritetype" index
 -- methods and register them with "ffi.metatype".
@@ -923,7 +945,7 @@ sector = setmtonce({}, sector_mt)
 wall = setmtonce({}, wall_mt)
 sprite = setmtonce({}, sprite_mt)
 spriteext = creategtab(ffiC.spriteext, ffiC.MAXSPRITES, 'spriteext[]')
-atsprite = setmtonce({}, atsprite_mt)
+_atsprite = setmtonce({}, atsprite_mt)
 
 local function iter_wallsofsec(endwall, w)
     w = w+1
@@ -1039,7 +1061,7 @@ end
 
 -- returns a hitdata_ct
 -- TODO: make v[xyz] be passed as one aggregate, too?
--- Additionally, permit different coordinates? (ang&horiz, ...)
+-- TODO: make cliptype optional? What should be the default?
 function hitscan(pos, sectnum, vx,vy,vz, cliptype)
     check_sector_idx(sectnum)
     local vec = vec3_ct(pos.x, pos.y, pos.z)

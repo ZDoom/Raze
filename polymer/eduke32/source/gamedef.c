@@ -694,7 +694,10 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_LOADGAME",
     "EVENT_SAVEGAME",
     "EVENT_PREGAME",
-    "EVENT_CHANGEMENU"
+    "EVENT_CHANGEMENU",
+#ifdef LUNATIC
+    "EVENT_ANIMATEALLSPRITES",
+#endif
 };
 
 #if !defined LUNATIC

@@ -1928,8 +1928,31 @@ local g_firstRun = (ffiC.g_elCONSize == 0)
 
 -- Actor functions, saved for actor chaining
 local actor_funcs = {}
+-- Event functions, saved for event chaining
+local event_funcs = {}
+
+-- Per-actor sprite animation callbacks
+local animsprite_funcs = {}
 
 local gameactor_internal = gameactor_internal  -- included in lunatic.c
+local gameevent_internal = gameevent_internal  -- included in lunatic.c
+
+local function animate_all_sprites()
+    for i=0,ffiC.spritesortcnt-1 do
+        local tspr = ffiC.tsprite[i]
+
+        if (tspr.owner < ffiC.MAXSPRITES+0ULL) then
+            local spr = tspr:getspr()
+            local animfunc = animsprite_funcs[spr.picnum]
+
+            if (animfunc) then
+                animfunc(tspr)
+            end
+        end
+    end
+end
+
+
 -- gameactor{tilenum [, flags [, strength [, action [, move [, movflags]]]]], func}
 -- Every arg may be positional OR key=val (with the name indicated above as key),
 -- but not both.
@@ -2018,6 +2041,24 @@ local function our_gameactor(args)
         end
     end
 
+    -- Register a potentially passed drawn sprite animation callback function.
+    -- TODO: allow registering without main actor execution callback.
+    local animfunc = args.animate
+    if (animfunc ~= nil) then
+        if (type(animfunc) ~= "function") then
+            error("invalid 'animate' argument to gameactor: must be a function", 2)
+        end
+
+        animsprite_funcs[tilenum] = replacep and func
+            or (chainflags==AF.chain_beg) and chain_func3(animfunc, animsprite_funcs[tilenum])
+            or (chainflags==AF.chain_end) and chain_func3(animsprite_funcs[tilenum], animfunc)
+            or assert(false)
+
+        -- Register our EVENT_ANIMATEALLSPRITES only now so that it is not
+        -- called if there are no 'animate' definitions.
+        gameevent_internal(95, animate_all_sprites)  -- EVENT_ANIMATEALLSPRITES
+    end
+
     -- All good, set the tile bits in initial run and register the actor!
     -- XXX: Need to see if some other state living on the C side is clobbered
     -- by Lua state recreation.
@@ -2040,10 +2081,7 @@ local function our_gameactor(args)
     actor_funcs[tilenum] = newfunc
 end
 
--- Event functions, saved for event chaining
-local event_funcs = {}
 
-local gameevent_internal = gameevent_internal  -- included in lunatic.c
 -- gameevent{<event idx or string> [, flags], <event function>}
 local function our_gameevent(args)
     bcheck.top_level("gameevent")
@@ -2312,7 +2350,6 @@ gv = setmtonce(gv_, tmpmt)
 
 -- This will create 'sprite', 'wall', etc. HERE, i.e. in the environment of this chunk
 defs_c.create_globals(_G)
-
 
 -- REMOVE this for release
 DBG_ = {}

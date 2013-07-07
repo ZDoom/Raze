@@ -7051,6 +7051,7 @@ static void G_DoEventAnimSprites(int32_t j)
     if ((unsigned)ow < MAXSPRITES && spriteext[ow].flags & SPREXT_TSPRACCESS)
     {
         spriteext[ow].tspr = &tsprite[j];
+        // XXX: wouldn't screenpeek be more meaningful as current player?
         VM_OnEvent(EVENT_ANIMATESPRITES, ow, myconnectindex, -1, 0);
         spriteext[ow].tspr = NULL;
     }
@@ -7884,6 +7885,11 @@ skip:
         for (j = spritesortcnt-1; j>=0; j--)
             G_DoEventAnimSprites(j);
     }
+
+#ifdef LUNATIC
+    if (G_HaveEvent(EVENT_ANIMATEALLSPRITES))
+        VM_OnEvent(EVENT_ANIMATEALLSPRITES, -1, -1, -1, 0);
+#endif
 }
 
 

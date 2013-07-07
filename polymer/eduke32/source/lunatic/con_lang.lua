@@ -168,6 +168,7 @@ EVENT = {
     EVENT_SAVEGAME = 92,
     EVENT_PREGAME = 93,
     EVENT_CHANGEMENU = 94,
+--    EVENT_ANIMATEALLSPRITES = 95,  -- internal
 }
 
 -- NOTE: negated values are not exported to the ffi.C namespace or CON.
@@ -331,7 +332,7 @@ wdata_members =
 
 
 local SP = function(memb) return "sprite[%s]"..memb end
-local ATSP = function(memb) return "atsprite[%s]"..memb end
+local ATSP = function(memb) return "_atsprite[%s]"..memb end
 local AC = function(memb) return "actor[%s]"..memb end
 local SX = function(memb) return "spriteext[%s]"..memb end
 

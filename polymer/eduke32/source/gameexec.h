@@ -125,6 +125,9 @@ enum GameEvent_t {
     EVENT_SAVEGAME,
     EVENT_PREGAME,
     EVENT_CHANGEMENU,
+#ifdef LUNATIC
+    EVENT_ANIMATEALLSPRITES,  // 95
+#endif
     MAXEVENTS
 };
 
