@@ -1102,10 +1102,10 @@ function Cmd.xspriteflags(tilenum, flags)
 
     if (ffi and ok) then
         if (type(flags)=="number") then
-            ffiC.g_tile[tilenum].flags = flags
+            ffiC.g_tile[tilenum]._flags = flags
         else
             assert(type(flags)=="string")
-            ffiC.g_tile[tilenum].flags = bit.bor(ffiC.g_tile[tilenum].flags, ffiC[flags])
+            ffiC.g_tile[tilenum]._flags = bit.bor(ffiC.g_tile[tilenum].flags, ffiC[flags])
         end
     end
 end
@@ -2206,19 +2206,19 @@ local Cinner = {
         / "_con._A_DoGuts(_aci,%1,%2)",
 
     spawn = cmd(D)
-        / "_con.spawn(_aci,%1)",
+        / "_con.spawn(%1,_aci)",
     espawn = cmd(D)
-        / "_gv.g_RETURN=_con.spawn(_aci,%1)",
+        / "_gv.g_RETURN=_con.spawn(%1,_aci)",
     espawnvar = cmd(R)
-        / "_gv.g_RETURN=_con.spawn(_aci,%1)",
+        / "_gv.g_RETURN=_con.spawn(%1,_aci)",
     qspawn = cmd(D)
-        / "_con.spawn(_aci,%1,true)",
+        / "_con.spawn(%1,_aci,true)",
     qspawnvar = cmd(R)
-        / "_con.spawn(_aci,%1,true)",
+        / "_con.spawn(%1,_aci,true)",
     eqspawn = cmd(D)
-        / "_gv.g_RETURN=_con.spawn(_aci,%1,true)",
+        / "_gv.g_RETURN=_con.spawn(%1,_aci,true)",
     eqspawnvar = cmd(R)
-        / "_gv.g_RETURN=_con.spawn(_aci,%1,true)",
+        / "_gv.g_RETURN=_con.spawn(%1,_aci,true)",
 
     angoff = cmd(D)
         / "spriteext[_aci].angoff=%1",

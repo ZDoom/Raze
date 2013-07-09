@@ -5089,7 +5089,7 @@ HORIZONLY:
         if (sect >= 0)
             yax_getbunches(sect, &cb, &fb);
 
-        // this updatesectorz conflicts with Duke3d's way of teleporting through water,
+        // This updatesectorz conflicts with Duke3D's way of teleporting through water,
         // so make it a bit conditional... OTOH, this way we have an ugly z jump when
         // changing from above water to underwater
         if (sect >= 0 && !(sector[sect].lotag==ST_1_ABOVE_WATER && p->on_ground && fb>=0))

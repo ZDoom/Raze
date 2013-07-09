@@ -41,6 +41,9 @@ require "end_gamevars"
 -- refer to locals defined prior to the gamevar section in it.
 local tag = tag
 
+local D = require("CON.DEFS")
+
+
 gameevent{"JUMP", actor.FLAGS.chain_beg,
 function(aci, pli)
     local ps = player[pli]
@@ -51,7 +54,7 @@ function(aci, pli)
         -- Insert MUSICANDSFX sprite with same lo-/hitag as last deleted one.
         printf("delmusicsfx: jump count=%d, inserting", ournumjumps)
 
-        local spr = sprite[con.spawn(aci, 5)]
+        local spr = sprite[con.spawn(D.MUSICANDSFX, aci)]
         spr.lotag, spr.hitag = tag.lo, tag.hi
     else
         -- Delete nearest MUSICANDSFX sprite.
@@ -76,7 +79,7 @@ function(aci, pli)
             actor.delete(nearesti)
         end
 
-        assert(nearesti < 0 or sprite[nearesti].picnum==5)
+        assert(nearesti < 0 or sprite[nearesti].picnum==D.MUSICANDSFX)
         printf("delmusicsfx: jump count=%d, deleting sprite %d", ournumjumps, nearesti)
     end
 

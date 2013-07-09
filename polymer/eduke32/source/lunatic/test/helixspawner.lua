@@ -117,8 +117,8 @@ gameactor
             local circvec = xmath.vec3(0, v.x, 16*v.y):rotate(spr.ang)
             local pos = spr^(zofs + radius) + 256*bangvec(spr.ang) + circvec
 
-            con.insertsprite{D.TRANSPORTERSTAR+4, pos, spr.sectnum, statnum=actor.STAT.ACTOR,
-                             xrepeat=3, yrepeat=3, ang=spr.ang, owner=aci}
+            con.insertsprite{D.TRANSPORTERSTAR+4, pos, spr.sectnum, aci, actor.STAT.ACTOR,
+                             xrepeat=3, yrepeat=3, ang=spr.ang}
         end
     end
 }

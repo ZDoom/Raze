@@ -451,7 +451,7 @@ typedef
 projectile_t;
 
 typedef struct {
-    uint32_t flags;  // XXX: do we want to have this accessible at game time?
+    uint32_t _flags;  // XXX: do we want to have this accessible at game time?
     const int32_t _cacherange;
     const projectile_t _defproj;
 } tiledata_t;
@@ -2069,7 +2069,7 @@ local function our_gameactor(args)
         -- Modifying existing behavior is the whole point of chaining after all.
         -- When soft-replacing, bitwise OR too, emulating CON behavior.
         local tile = ffiC.g_tile[tilenum]
-        tile.flags = (chainflags==AF.replace_hard) and flags or bit.bor(tile.flags, flags)
+        tile._flags = (chainflags==AF.replace_hard) and flags or bit.bor(tile._flags, flags)
     end
 
     local newfunc = replacep and func

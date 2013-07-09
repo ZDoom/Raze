@@ -265,7 +265,7 @@ function insertsprite(tab_or_tilenum, ...)
     check_allnumbers(shade, xrepeat, yrepeat, ang, xvel, zvel, owner)
 
     if (statnum >= ffiC.MAXSTATUS+0ULL) then
-        error("invalid 'statnum' argument to insertsprite: must be a status number (0 .. MAXSTATUS-1)", 2)
+        error("invalid 'statnum' argument to insertsprite: must be a status number [0 .. MAXSTATUS-1]", 2)
     end
 
     A_ResetVarsNextIns()
@@ -282,9 +282,9 @@ function _addtodelqueue(spritenum)
 end
 
 -- This corresponds to the first (spawn from parent sprite) form of A_Spawn().
-function spawn(parentspritenum, tilenum, addtodelqueue)
-    check_sprite_idx(parentspritenum)
+function spawn(tilenum, parentspritenum, addtodelqueue)
     check_tile_idx(tilenum)
+    check_sprite_idx(parentspritenum)
 
     if (addtodelqueue and ffiC.g_spriteDeleteQueueSize == 0) then
         return -1
@@ -340,7 +340,7 @@ end
 local BADGUY_MASK = bit.bor(con_lang.SFLAG.SFLAG_HARDCODED_BADGUY, con_lang.SFLAG.SFLAG_BADGUY)
 
 function isenemytile(tilenum)
-    return (bit.band(ffiC.g_tile[tilenum].flags, BADGUY_MASK)~=0)
+    return (bit.band(ffiC.g_tile[tilenum]._flags, BADGUY_MASK)~=0)
 end
 
 -- The 'rotatesprite' wrapper used by the CON commands.
@@ -1598,7 +1598,7 @@ function _G_OperateRespawns(tag)
             end
 
             if (D.TRANSPORTERSTAR) then
-                local j = spawn(i, D.TRANSPORTERSTAR)
+                local j = spawn(D.TRANSPORTERSTAR, i)
                 sprite[j].z = sprite[j].z - (32*256)
             end
 
