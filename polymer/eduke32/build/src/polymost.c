@@ -524,12 +524,9 @@ static void fogcalc_old(int32_t shade, int32_t vis)
 
 static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
-    Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));
+    UNREFERENCED_PARAMETER(tile);
 
-    if (getrendermode() == REND_POLYMOST && r_usetileshades && shade > 0 &&
-        (!usehightile || !hicfindsubst(tile, pal, 0)) &&
-        (!usemodels || md_tilehasmodel(tile, pal) < 0))
-        shade >>= 1;
+    Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));
 
     if (r_usenewshading!=2)
     {
@@ -1377,7 +1374,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         float hackscx, hackscy;
 
         if (skyclamphack) method |= 4;
-        pth = texcache_fetch(globalpicnum,globalpal,getpalookup(globvis>>2, globalshade),method&(~3));
+        pth = texcache_fetch(globalpicnum, globalpal, getpalookup(0,globalshade), method&(~3));
 
         if (!pth)
         {
