@@ -7,9 +7,18 @@ Helixhorned <contact: Duke4.net forums>
 
 
 
+[red]*DRAFT DRAFT DRAFT*
+
+Lunatic is in preview stage. Modifications or TCs may be started, but must not
+be released. The interfaces (including constants, functions, methods *and
+structure members*) described in this document may be assumed to not change
+significantly until release, but *undocumented API may change without further
+notice*.
+
+[red]*DRAFT DRAFT DRAFT*
+
 Introduction
 ------------
-
 
 Language
 --------
@@ -236,7 +245,8 @@ walls and sprites.
 
 `gv.CLIPMASK1`::
 A clipping (collision detection) mask specifying to consider only _hitscan
-sensitive_ walls and sprites.
+sensitive_ walls and sprites. The set bits of `CLIPMASK1` and `CLIPMASK0` are
+disjunct.
 
 // Game-side
 [[gv_GTICSPERSEC]] `gv.GTICSPERSEC`::
@@ -752,9 +762,10 @@ claiming them for oneself.
 Sets the tile number of sprite `spr` to `tilenum`.
 
 `spr:getheightofs()`::
-Returns the height and z offset of sprite `spr` in BUILD z units. Adding these
-values to `spr.z` yields the z coordinate at the ``bottom'' of the
-sprite. However, the per-tile z offset is not taken into account.
+Returns the height and z offset of sprite `spr` in BUILD z units. Adding the
+offset to `spr.z` yields the z coordinate at the bottom of the
+sprite. Subtracting from that the height results the z coordinate at its
+top. However, the per-tile z offset is not taken into account.
 
 ===== `sprite` static functions
 
@@ -785,7 +796,11 @@ while the following denote _bit masks_: `ALIGN_BITMASK`, `TRANS_BITMASK`.
 
 ===== `spriteext`
 
-===== `atsprite`
+Accessible with the same indices and with the same restrictions as
+<<sprite,`sprite`>>.
+
+`angoff`::
+The BUILD angle that is added to that of a drawn voxel or model.
 
 
 Game-side
@@ -797,6 +812,9 @@ The `actor` composite holds various run-time data about a sprite.  Like
 <<sprite,`sprite`>>, it is accessible with indices from `0` to
 `gv.MAXSPRITES-1`, but accesses to actors that do not exist in the game world
 have no meaning.
+
+_`u16`_ `movflags`, {nbsp} _`bitfield`_ `movflagsbits`::
+The actor's current <<actor_MOVFLAGS,movement flags>>.
 
 ===== `actor` methods
 
@@ -925,6 +943,23 @@ Contains symbolic names of values applicable <<gameactor,`gameactor`>>'s
 
 ===== `player`
 
+Accessible with the index 0 and any nonnegative `pli` index passed to a
+<<gameactor,game actor>> or event callback function.
+
+<<vector_types,_`xmath.ivec3`_>> `vel`::
+The vector of the player's current velocity, accounted each time a player's
+input is processed. The x and y components are in BUILD x/y units per game tic,
+scaled by 2^14^. The z component is given in BUILD z units per game
+tic. Processing a player's input and other EDuke32 game code may change `vel`
+``behind a user's back'' in a further unspecified fashion.
+
+_`i32`_ `runspeed`::
+The factor, scaled by 2^16^, with which the player's current horizontal
+velocity is multiplied before calculating its new position. On various
+occasions, `runspeed` may additionally be diminished by at most 8192 by the
+game.
+
+
 ===== `player` methods
 
 `ps:fadecol(fadefrac, r, g, b [, speed [, prio]])`::
@@ -963,9 +998,13 @@ is undefined.
 +*for* i *in* player.all()+::
 Iterates over the indices of all active players.
 
-===== `projectile`
+// ===== `projectile`
 
 ===== `g_tile`
+
+An array of size `gv.MAXTILES`. Currently, access with numeric indices by the
+user is [red]#disallowed# for `g_tile` and its elements have [red]#no public
+members#.
 
 ===== `g_tile` static data
 
@@ -1117,8 +1156,8 @@ flags to the actor in question.
 +
 Chaining two callback functions is achieved by creating a new one that calls
 the first one, followed by a {Lua51_FunctionCalls}[tail call] of the second
-one. This has certain implications if control is transferred non-locally by
-e.g. using <<nlcf,`con.longjmp`>>.
+one. This has certain implications if control is transferred non-locally, for
+example by using <<nlcf,`con.longjmp`>>.
 +
 Several flags in `AF` are provided to control how a `gameactor` invocation
 handles chaining.
@@ -1243,6 +1282,14 @@ is permissible:
 Returns the sine/cosine of the given BUILD angle `bang`, multiplied with 16384
 and rounded towards zero. The same guarantees as for the `sinb`/`cosb` pair
 apply.
+
+`xmath.angvec(ang)`::
+Returns a <<vector_types,`vec3`>> with the components `math.cos(ang)`,
+`math.sin(ang)` and 0 for x, y and z, respectively.
+
+`xmath.bangvec(bang)`::
+Returns a <<vector_types,`vec3`>> with the components `xmath.cosb(bang)`,
+`xmath.sinb(bang)` and 0 for x, y and z, respectively.
 
 `xmath.dist(pos1, pos2)`::
 Returns an approximation of the 3D Euclidean distance between points `pos1` and
@@ -1532,3 +1579,86 @@ transfers control to the beginning of the next in the chain if it exists.
 Silently transfers control to the end of the active actor callback block,
 notifying the game to delete the executing actor's sprite. If `con.killit` is
 called while no execution of actor code is active, the behavior is undefined.
+
+Per-actor variables
+^^^^^^^^^^^^^^^^^^^
+
+// XXX: this text is too implementation-centric
+
+Since in EDuke32, sprites in general exist in the world only for a limited
+duration, it is wasteful to allocate an array of fixed size `gv.MAXSPRITES` for
+the purpose of a variable that holds a value for each actor sprite. On the Lua
+side, one could use a plain table, but for actors that are created and
+destroyed during the course of a game, this would accumulate ``garbage'' --
+values for sprites that have been deleted. Moreover, per-actor variables tend
+to be ``topical'', one such variable being potentially only used for a very
+specific actor tile. For this reason, per-actor variables are implemented in a
+``sparse'' fashion in Lunatic, but provide to the user the illusion of having a
+value for every sprite index. They also ``clean'' themselves at unspecified
+intervals.
+
+===== The type `con.actorvar(defaultval)` [_serializable_]
+
+Creates and returns a new per-actor variable with default value `defaultval`
+which can be indexed for reading or assignment in the range
+[0{nbsp}..{nbsp}`gv.MAXSPRITES-1`]. The same restrictions as with
+<<sprite,`sprite`>> etc. apply; values of sprites not in the game world may be
+cleared (reset to `defaultval`) at any point.
+
+When a sprite is created using `con.insertsprite()`, its value at the index of
+this new sprite is cleared.
+
+Per-actor variables may contain values of any permitted type, which currently
+are boolean and number. Mixing values of different types is allowed,
+i.e. per-actor variables are heterogenous containers.
+
+Sprite insertion
+^^^^^^^^^^^^^^^^
+
+In Lunatic, there are two functions that insert a sprite into the game world,
+differing in their amount of ``hard-codedness'' and in how they are used.
+
+===== The function `con.insertsprite{tilenum, pos, sectnum [, owner [, statnum]] [key=val...]}`
+
+Inserts a new sprite into the game with the properties given as input
+arguments. If the world already contains `gv.MAXSPRITES` sprites, currently the
+game is aborted and EDuke32 exits.footnote:[This is subject to change and must
+not be relied on.] Otherwise, relevant per-sprite data for the newly inserted
+sprite is cleared. No additional ``hard-wired'' C code is run.
+
+The return value is the index of the inserted sprite.
+
+The function `con.insertsprite` expects a single table ``container'' input
+argument, whose values are taken as the actual arguments. The first three,
+`tilenum`, `pos` and `sectnum`, are passed positionally. All other input
+arguments are passed as key-value pairs, but `owner` and `statnum` may be
+passed in both forms (but only one form in one call).
+
+`[1]` (`tilenum`)::
+The tile number of the sprite to insert.
+
+`[2]` (`pos`)::
+The position at which to insert the sprite (anything indexable with `x`, `y` and `z`).
+
+`[3]` (`sectnum`)::
+The index of the sector in which to insert the sprite.
+
+`[4] owner` (default: -1)::
+The index of the sprite that is in some sense the ``parent'' of the newly
+created one.
+
+`[5] statnum` (default: `actor.STAT.DEFAULT`)::
+The initial status number of the inserted sprite.
+
+The following keys are permissible for input arguments, corresponding to their
+[[sprite,`sprite`]] members:
+`shade`, `xrepeat` (default: 48), `yrepeat` (default: 48), `ang`, `xvel`, `zvel`.
+All optional arguments passed this way except for the repeats default to 0.
+
+===== The function `con.spawn(tilenum, parentspritenum)`
+
+Spawns a new sprite with tile number `tilenum` from a given ``parent'' sprite
+with index `parentspritenum`, which must be valid. May run addition
+``hard-wired'' code.
+
+Returns the index of the spawned sprite on success.

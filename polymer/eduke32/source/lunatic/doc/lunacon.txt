@@ -251,3 +251,32 @@ module, it is the Lunatic runtime that checks for proper use of its services at
 execution time and takes care of error handling and reporting. In Lua, an error
 link:lunatic.html/#nlcf[transfers control] to the end of the innermost
 ``protected'' call of a Lua chunk.
+
+This is in contrast to C-CON, which for some errors would print a message to
+the log, but otherwise would continue execution as if nothing had happened. In
+LunaCON, the code following an error is *not* executed, forcing the mod author
+to fix the bug and obtaining cleaner code.
+
+Not Yet Implemented
+~~~~~~~~~~~~~~~~~~~
+
+C-CON's `jump` and `getcurraddress` are not available and will not be implemented.
+
+The following commands are not yet implemented. Those highlighted in bold give
+errors, while the others merely warn (sometimes at execution
+time). Parenthesized commands are of questionable use.
+
+Directives
+^^^^^^^^^^
+*`includedefault`*, `setcfgname`, `setgamename`, (`precache`), `definecheat`.
+
+Run-time commands
+^^^^^^^^^^^^^^^^^
+
+*`activatecheat`*, *`qstrncat`*, *`qsubstr`*, *`clearmapstate`*, `save`,
+ `savenn`, *`lineintersect`*, *`rayintersect`*, *`sectorofwall`*, *`ssp`*.
+
+Miscellaneous
+^^^^^^^^^^^^^
+
+Gamevar flags 1024 (```NODEFAULT`'') and 131072 (```NORESET`'').
