@@ -1939,13 +1939,33 @@ local function gamearray_file_common(qnum, writep)
 end
 
 local function check_gamearray_idx(gar, idx, addstr)
-    if (idx >= gar._size+0ULL) then
+    -- If the actual table has no "_size" field, then we're dealing with a
+    -- system gamearray: currently, only g_tile.sizx/sizy.
+    local size = rawget(gar, '_size') or ffiC.MAXTILES
+
+    if (idx >= size+0ULL) then
         addstr = addstr or ""
         error("invalid "..addstr.."array index "..idx, 3)
     end
 end
 
 local intbytes_t = ffi.typeof("union { int32_t i; uint8_t b[4]; }")
+
+function _gar_copy(sar, sidx, dar, didx, numelts)
+    -- XXX: Strictest bound checking, see later if we need to relax it.
+    check_gamearray_idx(sar, sidx, "lower source ")
+    check_gamearray_idx(sar, sidx+numelts-1, "upper source ")
+    check_gamearray_idx(dar, didx, "lower destination ")
+    check_gamearray_idx(dar, didx+numelts-1, "upper destination ")
+
+    -- Source is user gamearray?
+    local sisuser = (rawget(sar, '_size') ~= nil)
+
+    for i=0,numelts-1 do
+        local val = sisuser and rawget(sar, sidx+i) or sar[sidx+i]
+        rawset(dar, didx+i, val)
+    end
+end
 
 local gamearray_methods = {
     resize = function(gar, newsize)
@@ -1966,17 +1986,6 @@ local gamearray_methods = {
         end
 
         gar._size = newsize
-    end,
-
-    copyto = function(sar, sidx, dar, didx, numelts)
-        -- XXX: Strictest bound checking, see later if we need to relax it.
-        check_gamearray_idx(sar, sidx, "lower source ")
-        check_gamearray_idx(sar, sidx+numelts-1, "upper source ")
-        check_gamearray_idx(dar, didx, "lower destination ")
-        check_gamearray_idx(dar, didx+numelts-1, "upper destination ")
-        for i=0,numelts-1 do
-            rawset(dar, didx+i, rawget(sar, sidx+i))
-        end
     end,
 
     read = function(gar, qnum)

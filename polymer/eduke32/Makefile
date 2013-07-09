@@ -151,7 +151,7 @@ ifneq (0,$(LUNATIC))
     ifneq ($(PLATFORM),WINDOWS)
         # On non-Windows, we expect to have liblpeg.a (or a symlink to it) in source/.
         # On Windows, it will reside in platform/Windows/lib32 or lib64.
-        LIBDIRS+= -L$(realpath (OBJ)/..)
+        LIBDIRS+= -L$(OBJ)/..
         ifeq ($(realpath $(OBJ)/../liblpeg.a),)
             # XXX: This cripples "make clean" etc. too, but IMO it's better than warning.
             $(error "liblpeg.a not found in $(realpath $(OBJ)/..)")

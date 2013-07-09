@@ -342,6 +342,7 @@ local function reset_codegen()
     g_switchCount = 0
     g_gamevar = new_initial_gvartab()
     g_gamearray = {
+        -- SYSTEM_GAMEARRAY
         tilesizx = { name="g_tile.sizx", size=MAXTILES, sysp=true },
         tilesizy = { name="g_tile.sizy", size=MAXTILES, sysp=true },
     }
@@ -356,6 +357,11 @@ local function reset_codegen()
 
     g_recurslevel = -1
     g_numerrors = 0
+end
+
+-- Is SYSTEM_GAMEARRAY?
+local function issysgar(str)
+    return str:match("^g_tile.siz[xy]")
 end
 
 local function addcode(x)
@@ -1947,6 +1953,16 @@ local handle =
         return format("_con._rotspr(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", ...)
     end,
 
+    -- <fmt>: format string, number of %s's must match number of varargs
+    -- <umask>: number, if 2^i is set, arg '%i' must not be a system gamearray
+    arraycmd = function(fmt, dstargi, ...)
+        local args = {...}
+        if (issysgar(args[dstargi])) then
+            errprintf("%s: system gamearray not supported", g_lastkw)
+        end
+        return format(fmt, ...)
+    end,
+
     -- readgamevar or savegamevar
     RSgamevar = function(identifier, dosave)
         -- check identifier for sanity
@@ -2352,19 +2368,24 @@ local Cinner = {
           end,
 
     -- array stuff
-    -- TODO: handle system gamearrays. Right now, the generated code will be wrong.
     copy = sp1 * tok.gamearray * arraypat * sp1 * tok.gamearray * arraypat * sp1 * tok.rvar
-        / "%1:copyto(%2,%3,%4,%5)",
+        / function(...) return handle.arraycmd("_con._gar_copy(%s,%s,%s,%s,%s)", 3, ...) end,
     setarray = sp1 * tok.gamearray * arraypat * sp1 * tok.rvar
-        / "%1[%2]=%3",
+        / function(...) return handle.arraycmd("%s[%s]=%s", 1, ...) end,
     resizearray = cmd(GARI,R)
-        / "%1:resize(%2)",
+        / function(...) return handle.arraycmd("%s:resize(%s)", 1, ...) end,
     getarraysize = cmd(GARI,W)
-        / "%2=%1._size",
+        / function(ar, dst)
+              return format("%s=%s", dst, issysgar(ar) and tostring(MAXTILES) or ar.."._size")
+          end,
     readarrayfromfile = cmd(GARI,D)
-        / "%1:read(%2,nil)",  -- false: error on no file, nil: don't.
+        / function(...)  -- false: error on no file, nil: don't.
+              return handle.arraycmd("%s:read(%s,nil)", 1, ...)
+          end,
     writearraytofile = cmd(GARI,D)
-        / "%1:write(%2)",
+        / function(...)
+              return handle.arraycmd("%s:write(%s)", 1, ...)
+          end,
 
     -- Persistence
     clearmapstate = cmd(R)
