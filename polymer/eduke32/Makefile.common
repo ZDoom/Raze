@@ -137,6 +137,7 @@ BUILD32_ON_64 ?= 0
 USE_LIBPNG ?= 1
 USE_LIBVPX ?= 1
 NETCODE ?= 1
+LUNATIC ?= 0
 
 ifeq (0,$(USE_OPENGL))
     POLYMER = 0
@@ -178,6 +179,12 @@ ifeq ($(RELEASE),0)
 endif
 ifneq ($(DEBUGANYWAY),0)
     override STRIP=
+endif
+
+ifneq ($(LUNATIC),0)
+    # FIXME: Lunatic builds with LTO don't start up properly as the required
+    # symbol names are apparently not exported.
+    override LTO=0
 endif
 
 ifndef LTO
@@ -422,10 +429,9 @@ ifeq ($(PLATFORM),DARWIN)
         -I/opt/local/include -I/sw/include -I/usr/local/include
 endif
 
-#### Lunatic development, do not touch!
-LUNATIC=0
+#### Lunatic development
+# LuaJIT standalone interpreter executable:
 LUAJIT=luajit
-
 # for LJ headers:
 LUAJIT_WIN_SRC:= f:/g/mod/luajit-2.0/src
 
