@@ -945,6 +945,7 @@ lpeg.P(false) +
 "sectclearinterpolation" +
 "scriptsize" +
 "screentext" +
+"screensound" +
 "savenn" +
 "savemapstate" +
 "savegamevar" +

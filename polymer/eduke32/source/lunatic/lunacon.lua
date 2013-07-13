@@ -1124,7 +1124,7 @@ function Cmd.xspriteflags(tilenum, flags)
             ffiC.g_tile[tilenum]._flags = flags
         else
             assert(type(flags)=="string")
-            ffiC.g_tile[tilenum]._flags = bit.bor(ffiC.g_tile[tilenum].flags, ffiC[flags])
+            ffiC.g_tile[tilenum]._flags = bit.bor(ffiC.g_tile[tilenum]._flags, ffiC[flags])
         end
     end
 end

@@ -948,6 +948,7 @@ enum ScriptKeywords_t
     CON_SCREENSOUND,        // 372
     CON_END
 };
+// KEEPINSYNC with the keyword list in lunatic/con_lang.lua
 #endif
 
 
