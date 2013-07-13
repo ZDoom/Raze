@@ -61,9 +61,12 @@ Usage
 :LPeg: http://www.inf.puc-rio.br/~roberto/lpeg/
 
 The stand-alone LunaCON script, `lunacon.lua`, needs {LuaJIT}[LuaJIT] for
-execution and {LPeg}[LPeg] as additional dependency. It expects one or more
-names of root CON files together with any number of options, in any order
-(arguments starting with a dash are always interpreted as the latter).
+execution and {LPeg}[LPeg] as additional dependency.footnote:[In order to
+translate some very large CON files, minor modifications have to be made to
+LuaJIT and LPeg. Refer to `lunatic/doc/how_to_build_lunatic.txt` in the EDuke32
+source distribution for details.] It expects one or more names of root CON
+files together with any number of options, in any order (arguments starting
+with a dash are always interpreted as the latter).
 
 .Example usage
 ----------
@@ -166,6 +169,18 @@ initializations in the translated Lua code. Otherwise, per-player gamevars are
 treated as global gamevars, which can be useful for code that attempts to
 access them in contexts with no current player, yielding errors in Lunatic.
 
+`-ftrapv` (default: off)::
+Enable _trapping_ behavior for arithmetic operations whose result overflows the
+range of a signed 32-bit integer, i.e. generate an error on overflow. By
+default, overflow results in undefined behavior. Currently, only multiplication
+is handled.
+
+`-fwrapv` (default: off)::
+Enable _wrapping_ behavior for arithmetic operations whose result overflows the
+range of a signed 32-bit integer, i.e. after each operation, only the 32 lower
+bits of the result are kept. Currently, only multiplication is handled. Only
+one of `-ftrapv` or `-fwrapv` may be enabled at the same time.
+
 
 Differences from C-CON
 ----------------------
@@ -175,6 +190,7 @@ reasonable, a couple of its ``features'' -- some of which are coincidental --
 cannot be implemented without unnaturally bending the implementation into
 shape. On the other hand, LunaCON sports some features that C-CON lacks, and
 does not exhibit some of its strange quirks or outright bugs.
+
 
 Syntactic and lexical changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -240,6 +256,15 @@ with the definitions above:
 * A hexadecimal constant denoted using only a trailing `h`, for example
   `00000000h`.
 
+Miscellaneous
+^^^^^^^^^^^^^
+
+* Read array expressions as well as `switch` statements can be arbitrarily
+  nested.
+
+// XXX: 'Read' is confusing. Need better wording.
+
+
 Run-time changes
 ~~~~~~~~~~~~~~~~
 
@@ -254,21 +279,38 @@ link:lunatic.html/#nlcf[transfers control] to the end of the innermost
 
 This is in contrast to C-CON, which for some errors would print a message to
 the log, but otherwise would continue execution as if nothing had happened. In
-LunaCON, the code following an error is *not* executed, forcing the mod author
-to fix the bug and obtaining cleaner code.
+LunaCON, the code following an error is *not* executed. This way, the author of
+the CON code is notified of the presence of the bug, and by fixing it
+eventually obtains cleaner code.
 
-Not Yet Implemented
-~~~~~~~~~~~~~~~~~~~
+Quote behavior
+^^^^^^^^^^^^^^
 
-C-CON's `jump` and `getcurraddress` are not available and will not be implemented.
+* The `redefinequote` command can be issued even if the given quote number has
+  not been previously allocated using the `definequote` directive. This makes
+  it possible to use a range of quote numbers ``on the fly'' without the need
+  to declare their future use.
+
+Miscellaneous
+^^^^^^^^^^^^^
+
+* Issuing `break` inside a part of an event chain (defined using multiple
+  `onevent` blocks for one event) does not abort the whole chain.
+
+
+Unavailable functionality
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+C-CON's `jump` and `getcurraddress` are not available and will not be
+implemented.
 
 The following commands are not yet implemented. Those highlighted in bold give
-errors, while the others merely warn (sometimes at execution
-time). Parenthesized commands are of questionable use.
+errors, while the others merely warn either at translation or execution
+time. Parenthesized commands are of questionable use.
 
 Directives
 ^^^^^^^^^^
-*`includedefault`*, `setcfgname`, `setgamename`, (`precache`), `definecheat`.
+*`includedefault`*, `definecheat`, `setcfgname`, `setgamename`, (`precache`)
 
 Run-time commands
 ^^^^^^^^^^^^^^^^^
@@ -276,7 +318,15 @@ Run-time commands
 *`activatecheat`*, *`qstrncat`*, *`qsubstr`*, *`clearmapstate`*, `save`,
  `savenn`, *`lineintersect`*, *`rayintersect`*, *`sectorofwall`*, *`ssp`*.
 
+Additionally, various multiplayer-related commands either unconditionally
+return results as if no multiplayer game is in progress, or are non-functional
+for more than the first player. Also, some MP-related variables are merely
+predefined constants.
+
 Miscellaneous
 ^^^^^^^^^^^^^
 
-Gamevar flags 1024 (```NODEFAULT`'') and 131072 (```NORESET`'').
+* gamevar flags 1024 (```NODEFAULT`'') and 131072 (```NORESET`'') are not
+  handled
+* mapstate handling in savegames is not yet implemented
+* not LunaCON-specific: `EVENT_INIT` is never reached as it runs before Lua state creation

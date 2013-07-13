@@ -60,15 +60,22 @@ occurring mistakes.
   error.
 
 EDuke32 can load multiple Lunatic _modules_ when starting up. This is always
-done after translating CON code to Lua and loading it. Such modules must be
-named `*.lua` (case-sensitive) and should be passed directly, without any
-option letters, at the command line. Directory separators must be forward
+done after translating CON code to Lua and loading it. Such modules must reside
+in files named `*.lua` (case-sensitive) and should be passed directly, without
+any option letters, at the command line. Directory separators must be forward
 slashes.
 
 .Invocation example
 ====================
 `eduke32 -nologo MYTC.CON -mx addition.con test.lua weapons/nuke.lua -v1 -l1`
 ====================
+
+If the environment variable `LUNATIC_TIMING_BASEFN` is defined, EDuke32 will
+write out arregate timing results for actors and events in a comma-separated
+value format, obtained by suffixing the base name with ```.actors.csv`'' and
+```.events.csv`''.
+
+// XXX: it's confusing that there are two kinds of 'environment' mentioned here
 
 
 Global Environment
@@ -165,7 +172,7 @@ Issuing `require` for some special names listed below has a predefined meaning
 that cannot be overridden by the user.
 
 * `CON.DEFS`: returns a table mapping labels ++define++d from CON to their
-values, except for `NO`.
+values. Values pre-defined by the system are not included.
 
 * `CON.ACTION`: returns a table mapping labels of ++action++s defined from CON
   to immutable <<con_action,`con.action`>> objects.
@@ -217,8 +224,8 @@ are not allowed to take on the value *nil*.
 
 // TODO: the rest
 
-
-The ``gv'' variable
+[[gv]]
+The `gv` variable
 ~~~~~~~~~~~~~~~~~~~
 
 Some constants, global C variables, and miscellaneous functions and structures
@@ -402,22 +409,22 @@ number from 0 to 2^_B_^--1.
 
 [[int_assignment]]
 .Assignment
-* If an assignment to a member having signed integer type is made, the
-  ``right-hand side'' value must be a number in the closed interval
-  [--2^31^ .. 2^31^--1].
+1. If an assignment to a member having signed integer type is made, the
+   ``right-hand side'' value must be a number in the closed interval
+   [--2^31^ .. 2^31^--1].
 
-* If an assignment to a member having unsigned integer type and bit width _B_
-  is made, the ``right-hand side'' value must be in the closed interval
-  [--2^31^ .. 2^31^--1] if _B_ is less than 32, or in [0 .. 2^32^--1] otherwise.
+2. If an assignment to a member having unsigned integer type and bit width _B_
+   is made, the ``right-hand side'' value must be in the closed interval
+   [--2^31^ .. 2^31^--1] if _B_ is less than 32, or in [0 .. 2^32^--1] otherwise.
 
-* If the appropriate requirements hold, an assignment from a Lua number to a
-  member having integer type begins by discarding the fractional part
-  (``truncation'').  Otherwise, the behavior is undefined. +
+3. If the appropriate requirements hold, an assignment from a Lua number to a
+   member having integer type begins by discarding the fractional part
+   (``truncation'').  Otherwise, the behavior is undefined. +
 
-* If the truncated value is outside the range of representable values for the
-  corresponding integer type of bit width _B_, the final value is obtained by
-  successively adding or subtracting 2^B^, until the value falls inside that
-  range.
+4. If the truncated value is outside the range of representable values for the
+   corresponding integer type of bit width _B_, the final value is obtained by
+   successively adding or subtracting 2^B^, until the value falls inside that
+   range.
 
 //////////
 NOTE to self: this is stricter than C99 (which has first truncation, then range
@@ -488,8 +495,8 @@ one could proceed as follows for the sake of example:
 * `spr.cstatbits:test(CS.FLIP_BITMASK)`, check whether it is flipped (no)
 ==========
 
-Engine-side
-^^^^^^^^^^^
+Engine-side composites
+^^^^^^^^^^^^^^^^^^^^^^
 
 The composite variables described in this subsection provide access to
 engine-side structures. The first three, `sector`, `wall`, and `sprite`,
@@ -512,7 +519,7 @@ be thought of as [`-16` .. `-1`].
 
 _`i16`_ `lotag`, `hitag`, `extra`::
 General-purpose ``tags'' provided for game programming. They may be used by
-various EDuke32 sector effects, so it's not recommended to use them in
+various EDuke32 sector effects, so it is not recommended to use them in
 scripting code.
 
 In addition to the members described above, each sector has two sets of members
@@ -593,7 +600,8 @@ Provides a mapping of symbolic names to values applicable to
 `FLIP_BITMASK`, `ORIENT_BITMASK`, `TRANS_BITMASK`.
 
 [[sector_UPDATE_FLAGS]] `sector.UPDATE_FLAGS`::
-Contains a flag `BREADTH` permissible to <<updatesector,`updatesector`>>.
+Contains flags permissible to <<updatesector,`updatesector`>> and other sector
+updating functions. `BREADTH`, `Z`.
 
 '''
 [[wall]]
@@ -767,15 +775,55 @@ offset to `spr.z` yields the z coordinate at the bottom of the
 sprite. Subtracting from that the height results the z coordinate at its
 top. However, the per-tile z offset is not taken into account.
 
-===== `sprite` static functions
+`spr:setpos(pos [, newsect])`::
+Unconditionally sets the position of `spr` to `pos`, which can be anything
+indexable with `x`, `y` and `z`. Thus, in effect a shorthand for
++
+----------
+spr.x, spr.y, spr.z = pos.x, pos.y, pos.z
+----------
++
+If `newsect` is passed, additionally calls `spr:changesect(newsect)`. +
+Returns `spr`.
 
-`sprite.changesect(i, sectnum)`::
-Allows to manually change the sector number of the sprite with index `i` to
-`sectnum`.
+`spr:changesect(sectnum)`::
+An alternative way to call
++<<sprite_changesect,sprite.changesect>>(_index_of_spr_, sectnum)+, where
+_`index_of_spr`_ is the sprite index corresponding to `spr`.  This method is
+provided for convenience, but may be slower than the static function
+`changesect`.
+
+`spr:updatesect([flags])`::
+An alternative way to call
++<<sprite_updatesect,sprite.updatesect>>(_index_of_spr_, flags)+, where
+_`index_of_spr`_ is the sprite index corresponding to `spr`.  This method is
+provided for convenience, but may be slower than the static function
+`updatesect`.
+
+
+===== `sprite` static functions
 
 `sprite.changestat(i, statnum)`::
 Allows to manually change the status number of the sprite with index `i` to
-`statnum`.
+`statnum`. If `i` is an invalid sprite index or the index of a sprite not in
+the game world, or `statnum` is an invalid status number, an error is thrown.
+
+[[sprite_changesect]] `sprite.changesect(i, sectnum)`::
+Allows to manually change the sector number of the sprite with index `i` to
+`sectnum`. If `i` is an invalid sprite index or the index of a sprite not in
+the game world, or `sectnum` is an invalid sector index, an error is thrown.
+
+[[sprite_updatesect]] `sprite.updatesect(i [, flags])`::
+Updates the sector number of the sprite with index `i`, in effect setting
+`sprite[i]`'s sector number to the result of
++
+----------
+updatesector(sprite[i].pos, sprite[i].sectnum, flags)
+----------
++
+If the <<updatesector,`updatesector`>> call returns `-1`, the sprite's sector
+number remains unchanged. +
+Returns the result of the `updatesector` call.
 
 ===== `sprite` overridden operators
 
@@ -799,19 +847,21 @@ while the following denote _bit masks_: `ALIGN_BITMASK`, `TRANS_BITMASK`.
 Accessible with the same indices and with the same restrictions as
 <<sprite,`sprite`>>.
 
-`angoff`::
-The BUILD angle that is added to that of a drawn voxel or model.
+//`angoff`::
+//The BUILD angle that is added to that of a drawn voxel or model.
+
+// XXX: needs better wording to express this: tspr->ang + spriteext[tspr->owner].angoff
 
 
-Game-side
-^^^^^^^^^
+Game-side composites
+^^^^^^^^^^^^^^^^^^^^
 
 ===== `actor`
 
 The `actor` composite holds various run-time data about a sprite.  Like
 <<sprite,`sprite`>>, it is accessible with indices from `0` to
 `gv.MAXSPRITES-1`, but accesses to actors that do not exist in the game world
-have no meaning.
+have no meaning. Each element has the following members:
 
 _`u16`_ `movflags`, {nbsp} _`bitfield`_ `movflagsbits`::
 The actor's current <<actor_MOVFLAGS,movement flags>>.
@@ -941,10 +991,43 @@ Contains symbolic names of values applicable <<gameactor,`gameactor`>>'s
 `faceplayersmart`, `fleeenemy`, `jumptoplayer`, `seekplayer`, `furthestdir`,
 `dodgebullet`.
 
+'''
 ===== `player`
 
 Accessible with the index 0 and any nonnegative `pli` index passed to a
 <<gameactor,game actor>> or event callback function.
+
+.Arrays with named elements
+The structures obtained by indexing `player` contain arrays whose elements may
+be referred to either by index of by a particular name. Thus, the array can be
+thought to be overlaid with a structure containing as many members as the array
+has elements, all having the element's type.
+
+Currently, there are with two kinds of names: weapon names and inventory
+names. In the following, they will be marked using a the following notation:
+
+==========
+_`i16`_ +ammo_amount[_weapon_]+
+
+means that the structure member `ammo_amount` is an array with named elements,
+themselves being of signed 16-bit integer type. The array can be indexed with
+valid weapon numbers, or weapon names. In the following (constructed) example,
+the first player's current pistol ammo count is set to that of the currently
+selected weapon:
+----------
+local ps = player[0]
+ps.ammo_amount.PISTOL = ps.ammo_amount[ps.curr_weapon]
+----------
+==========
+
+The weapon names are: `KNEE`, `PISTOL`, `SHOTGUN`, `CHAINGUN`, `RPG`,
+`HANDBOMB`, `SHRINKER`, `DEVISTATOR`, `TRIPBOMB`, `FREEZE`, `HANDREMOTE`,
+`GROW`.
+
+The inventory names are: `STEROIDS`, `SHIELD`, `SCUBA`, `HOLODUKE`, `JETPACK`,
+`DUMMY1`, `ACCESS`, `HEATS`, `DUMMY2`, `FIRSTAID`, `BOOTS`.
+
+Each `player` element has the following members:
 
 <<vector_types,_`xmath.ivec3`_>> `vel`::
 The vector of the player's current velocity, accounted each time a player's
@@ -956,8 +1039,11 @@ tic. Processing a player's input and other EDuke32 game code may change `vel`
 _`i32`_ `runspeed`::
 The factor, scaled by 2^16^, with which the player's current horizontal
 velocity is multiplied before calculating its new position. On various
-occasions, `runspeed` may additionally be diminished by at most 8192 by the
-game.
+occasions, the ultimate scaled factor is the difference of `runspeed` and at
+most 8192.
+
+_`i8`_ `curr_weapon`::
+The index of the player's currently selected weapon.
 
 
 ===== `player` methods
@@ -1076,6 +1162,10 @@ For this reason, the optional argument `flags` accepts
 `updatesector` to look for matching sectors in a _breadth-first_ search
 starting from `sectnum`, and following all nextwall links. With this strategy,
 there is *no* fallback to a linear search if no matching sector is found.
++
+Passing `sector.UPDATE_FLAGS.Z` to `flags` makes the sector updating behave as
+if `updatesectorz` was called. This is mainly useful if `updatesector` is
+called via the <<sprite_updatesect,sector updating functions>> of sprites.
 
 `updatesectorz(pos, sectnum)`::
 
@@ -1594,45 +1684,48 @@ values for sprites that have been deleted. Moreover, per-actor variables tend
 to be ``topical'', one such variable being potentially only used for a very
 specific actor tile. For this reason, per-actor variables are implemented in a
 ``sparse'' fashion in Lunatic, but provide to the user the illusion of having a
-value for every sprite index. They also ``clean'' themselves at unspecified
+value for every sprite index. They are also ``cleaned'' at unspecified
 intervals.
 
 ===== The type `con.actorvar(defaultval)` [_serializable_]
 
 Creates and returns a new per-actor variable with default value `defaultval`
 which can be indexed for reading or assignment in the range
-[0{nbsp}..{nbsp}`gv.MAXSPRITES-1`]. The same restrictions as with
-<<sprite,`sprite`>> etc. apply; values of sprites not in the game world may be
-cleared (reset to `defaultval`) at any point.
+[0{nbsp}..{nbsp}`gv.MAXSPRITES-1`], but access to it is subject to the same
+restrictions as to <<sprite,`sprite`>> and other per-sprite structures.
 
-When a sprite is created using `con.insertsprite()`, its value at the index of
-this new sprite is cleared.
+When a sprite is created using `con.insertsprite` or `con.spawn`, its value at
+the index of this new sprite is cleared (reset to `defaultval`). After a sprite
+has been deleted, the value of a per-actor variable is indeterminate -- it may
+be cleared by Lunatic at any point.
 
 Per-actor variables may contain values of any permitted type, which currently
-are boolean and number. Mixing values of different types is allowed,
-i.e. per-actor variables are heterogenous containers.
+are boolean and number. Mixing values of different types is allowed: per-actor
+variables are heterogenous containers.
 
 Sprite insertion
 ^^^^^^^^^^^^^^^^
 
-In Lunatic, there are two functions that insert a sprite into the game world,
-differing in their amount of ``hard-codedness'' and in how they are used.
+In Lunatic, there are two functions that insert a sprite into the game world.
+They mainly differ in how they are used, and to which extent they imply
+``hard-coded'' behavior.
 
 ===== The function `con.insertsprite{tilenum, pos, sectnum [, owner [, statnum]] [key=val...]}`
 
 Inserts a new sprite into the game with the properties given as input
-arguments. If the world already contains `gv.MAXSPRITES` sprites, currently the
-game is aborted and EDuke32 exits.footnote:[This is subject to change and must
-not be relied on.] Otherwise, relevant per-sprite data for the newly inserted
-sprite is cleared. No additional ``hard-wired'' C code is run.
+arguments. If the world already contains the maximum number of sprites
+(<<gv,`gv.MAXSPRITES`>>), currently the game is aborted and EDuke32
+exits.footnote:[This is subject to change and must not be relied on.]
+Otherwise, relevant per-sprite data for the newly inserted sprite is
+cleared. No additional ``hard-wired'' C code is run.
 
 The return value is the index of the inserted sprite.
 
-The function `con.insertsprite` expects a single table ``container'' input
-argument, whose values are taken as the actual arguments. The first three,
-`tilenum`, `pos` and `sectnum`, are passed positionally. All other input
-arguments are passed as key-value pairs, but `owner` and `statnum` may be
-passed in both forms (but only one form in one call).
+The function `con.insertsprite` is called with a single table whose values are
+taken as the actual arguments. The first three, `tilenum`, `pos` and `sectnum`,
+are passed positionally. All other input arguments are passed as key-value
+pairs, but `owner` and `statnum` may be provided in both forms (but only one
+form in one call).
 
 `[1]` (`tilenum`)::
 The tile number of the sprite to insert.
@@ -1643,7 +1736,7 @@ The position at which to insert the sprite (anything indexable with `x`, `y` and
 `[3]` (`sectnum`)::
 The index of the sector in which to insert the sprite.
 
-`[4] owner` (default: -1)::
+`[4] owner` (default: --1)::
 The index of the sprite that is in some sense the ``parent'' of the newly
 created one.
 
@@ -1658,7 +1751,9 @@ All optional arguments passed this way except for the repeats default to 0.
 ===== The function `con.spawn(tilenum, parentspritenum)`
 
 Spawns a new sprite with tile number `tilenum` from a given ``parent'' sprite
-with index `parentspritenum`, which must be valid. May run addition
-``hard-wired'' code.
+with index `parentspritenum`, which must be valid. The sprite is spawned at the
+same position as its parent and with its `owner` member set to
+`parentspritenum`. Additional ``hard-wired'' code dependent on `tilenum` may be
+run afterwards that modifies the sprite.
 
 Returns the index of the spawned sprite on success.
