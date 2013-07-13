@@ -904,7 +904,7 @@ function _showview(x, y, z, a, horiz, sect, x1, y1, x2, y2, unbiasedp)
         error("invalid coordinates "..str, 2)
     end
 
-    ffiC.G_ShowView(x, y, z, a, horiz, sect, x1, y1, x2, y2, unbiasedp);
+    CF.G_ShowView(x, y, z, a, horiz, sect, x1, y1, x2, y2, unbiasedp);
 end
 
 

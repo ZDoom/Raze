@@ -339,6 +339,8 @@ extern int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s
 extern void A_AddToDeleteQueue(int32_t i);
 extern int32_t A_PlaySound(uint32_t num, int32_t i);
 extern void A_DeleteSprite(int32_t s);
+extern void G_ShowView(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t sect,
+                       int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp);
 
 #define LARG(index) lua_tointeger(L, index)
 
@@ -384,6 +386,8 @@ DEFINE_RET_CFUNC(A_InsertSprite, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LA
 DEFINE_VOID_CFUNC(A_AddToDeleteQueue, ONE_ARG)
 DEFINE_RET_CFUNC(A_PlaySound, TWO_ARGS)
 DEFINE_VOID_CFUNC(A_DeleteSprite, ONE_ARG)
+DEFINE_VOID_CFUNC(G_ShowView, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LARG(6),
+                  LARG(7), LARG(8), LARG(9), LARG(10), LARG(11))
 
 #define CFUNC_REG(Name) { #Name, Name##_CF }
 
@@ -403,6 +407,7 @@ struct { const char *name; lua_CFunction func; } cfuncs[] =
     CFUNC_REG(A_AddToDeleteQueue),
     CFUNC_REG(A_PlaySound),
     CFUNC_REG(A_DeleteSprite),
+    CFUNC_REG(G_ShowView),
 };
 
 // Creates a global table "CF" containing the functions from cfuncs[].
@@ -528,9 +533,8 @@ static int32_t SetActor_CF(lua_State *L)
 static int32_t call_regd_function3(lua_State *L, void *keyaddr,
                                    int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
-    int32_t i, haveerr;
 #if !defined NDEBUG
-    int32_t top = lua_gettop(L);
+    const int32_t top = lua_gettop(L);
 #endif
     lua_pushcfunction(L, &our_traceback_CF);
 
@@ -543,14 +547,17 @@ static int32_t call_regd_function3(lua_State *L, void *keyaddr,
     lua_pushinteger(L, lDist);
 
     // -- call it! --
-    i = lua_pcall(L, 3, 0, -5);
-    haveerr = (i != 0);
-    Bassert(lua_iscfunction(L, -1-haveerr));
-    lua_remove(L, -1-haveerr);
+    {
+        const int32_t i = lua_pcall(L, 3, 0, -5);
+        const int32_t haveerr = (i != 0);
 
-    Bassert(lua_gettop(L) == top+(i!=0));
+        Bassert(lua_iscfunction(L, -1-haveerr));
+        lua_remove(L, -1-haveerr);
 
-    return i;
+        Bassert(lua_gettop(L) == top+haveerr);
+
+        return i;
+    }
 }
 
 static int32_t g_eventIdx = 0;

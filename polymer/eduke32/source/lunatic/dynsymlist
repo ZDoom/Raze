@@ -214,7 +214,6 @@ G_DrawTXDigiNumZ;
 G_PrintGameText;
 G_ScreenText;
 G_ScreenTextSize;
-G_ShowView;
 
 G_SaveMapState;
 G_RestoreMapState;
