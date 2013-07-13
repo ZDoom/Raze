@@ -4131,7 +4131,7 @@ static void G_SE40(int32_t smoothratio)
             {
                 int32_t k = headspritesect[sp->sectnum];
 
-                while (k != -1)
+                while (k != -1 && spritesortcnt < MAXSPRITESONSCREEN)
                 {
                     if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sp->z))
                     {
@@ -7066,11 +7066,13 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
     int32_t j, k, p, sect;
     intptr_t l;
 
-#ifdef DEBUGGINGAIDS
-    g_spriteStat.numonscreen = spritesortcnt;
-#endif
     if (spritesortcnt == 0)
+    {
+#ifdef DEBUGGINGAIDS
+        g_spriteStat.numonscreen = 0;
+#endif
         return;
+    }
 
     ror_sprite = -1;
 
@@ -7684,6 +7686,7 @@ PALONLY:
 #if !defined LUNATIC
 skip:
 #endif
+        // Night vision goggles tsprite tinting.
         // XXX: Currently, for the splitscreen mod, sprites will be pal6-colored iff the first
         // player has nightvision on.  We should pass stuff like "from which player is this view
         // supposed to be" as parameters ("drawing context") instead of relying on globals.
@@ -7694,6 +7697,7 @@ skip:
             t->shade = 0;
         }
 
+        // Fake floor shadow, implemented by inserting a new tsprite.
         if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
             if (t->statnum != TSPR_TEMP && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE && s->picnum != HOTMEAT)
             {
@@ -7716,7 +7720,7 @@ skip:
                     int32_t daz;
 
                     if ((sector[sect].lotag&0xff) > 2 || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC
-                            || s->picnum == DRONE || s->picnum == COMMANDER)
+                        || s->picnum == DRONE || s->picnum == COMMANDER)
                         daz = sector[sect].floorz;
                     else
                         daz = actor[i].floorz;
@@ -7893,6 +7897,9 @@ skip:
 #ifdef LUNATIC
     if (G_HaveEvent(EVENT_ANIMATEALLSPRITES))
         VM_OnEvent(EVENT_ANIMATEALLSPRITES, -1, -1, -1, 0);
+#endif
+#ifdef DEBUGGINGAIDS
+    g_spriteStat.numonscreen = spritesortcnt;
 #endif
 }
 
