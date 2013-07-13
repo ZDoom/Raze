@@ -48,15 +48,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # define GAMEEXEC_STATIC static
 #endif
 
+vmstate_t vm;
+
+#if !defined LUNATIC
 enum vmflags_t {
     VM_RETURN       = 0x00000001,
     VM_KILL         = 0x00000002,
     VM_NOEXECUTE    = 0x00000004,
 };
 
-vmstate_t vm;
-
-#if !defined LUNATIC
 int32_t g_tw;
 int32_t g_errorLineNum;
 int32_t g_currentEventExec = -1;
@@ -119,15 +119,19 @@ static void VM_KillIt(int32_t iActor, int32_t iPlayer)
 int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
 #ifdef LUNATIC
-    const double t = gethiticks();
-
-    // TODO: handling of RETURN gamevar / iReturn / this function's return value
     if (L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
-        if (El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist, &iReturn)==1)
-            VM_KillIt(iActor, iPlayer);
+    {
+        const double t = gethiticks();
+        int32_t ret = El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist, &iReturn);
 
-    g_eventTotalMs[iEventID] += gethiticks()-t;
-    g_eventCalls[iEventID]++;
+        // NOTE: the run times are those of the called event plus any events
+        // called by it, *not* "self" time.
+        g_eventTotalMs[iEventID] += gethiticks()-t;
+        g_eventCalls[iEventID]++;
+
+        if (ret == 1)
+            VM_KillIt(iActor, iPlayer);
+    }
 #else
 
     if (apScriptGameEvent[iEventID])
@@ -993,8 +997,9 @@ static int32_t VM_ResetPlayer(int32_t g_p, int32_t g_flags)
             M_ChangeMenu(15000);
         }
         else g_player[g_p].ps->gm = MODE_RESTART;
-
+#if !defined LUNATIC
         g_flags |= VM_NOEXECUTE;
+#endif
     }
     else
     {
@@ -5399,17 +5404,20 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 
 #ifdef LUNATIC
     {
-        double t = gethiticks();
         const int32_t picnum = vm.g_sp->picnum;
 
         if (L_IsInitialized(&g_ElState) && El_HaveActor(picnum))
+        {
+            double t = gethiticks();
+
             killit = (El_CallActor(&g_ElState, picnum, iActor, iPlayer, lDist)==1);
 
-        t = gethiticks()-t;
-        g_actorTotalMs[picnum] += t;
-        g_actorMinMs[picnum] = min(g_actorMinMs[picnum], t);
-        g_actorMaxMs[picnum] = max(g_actorMaxMs[picnum], t);
-        g_actorCalls[picnum]++;
+            t = gethiticks()-t;
+            g_actorTotalMs[picnum] += t;
+            g_actorMinMs[picnum] = min(g_actorMinMs[picnum], t);
+            g_actorMaxMs[picnum] = max(g_actorMaxMs[picnum], t);
+            g_actorCalls[picnum]++;
+        }
     }
 #else
     insptr = 4 + (g_tile[vm.g_sp->picnum].execPtr);
@@ -5417,11 +5425,11 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     insptr = NULL;
 #endif
 
-    if ((vm.g_flags & VM_KILL)
 #ifdef LUNATIC
-        || killit
+    if (killit)
+#else
+    if (vm.g_flags & VM_KILL)
 #endif
-        )
     {
         VM_KillIt(iActor, iPlayer);
         return;

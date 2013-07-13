@@ -1,6 +1,9 @@
 /* The Lunatic Interpreter, part of EDuke32. Game-side stuff. */
 
 #include <stdint.h>
+#include <stdlib.h>  // getenv
+#include <errno.h>
+#include <string.h>  // strerror
 
 #include <lualib.h>
 #include <lauxlib.h>
@@ -76,43 +79,107 @@ LUNATIC_EXTERN double rand_jkiss_dbl(rng_jkiss_t *s)
 
 void El_PrintTimes(void)
 {
-    int32_t i, maxlen=0;
-    char buf[32];
+    int32_t i;
     const char nn = Bstrlen("EVENT_");
 
-    for (i=0; i<MAXEVENTS; i++)
+    // Try environment variable specifying the base name (sans ".actors.csv" or
+    // ".events.csv") for a CSV file to output, for further processing in e.g.
+    // GSL shell: http://www.nongnu.org/gsl-shell/
+    const char *basefn = getenv("LUNATIC_TIMING_BASEFN");
+
+    if (basefn != NULL)
     {
-        int32_t len = Bstrlen(EventNames[i]+nn);
-        Bassert(len < (int32_t)sizeof(buf));
-        maxlen = max(len, maxlen);
-    }
+        const int32_t baselen = Bstrlen(basefn);
+        const int32_t addnlen = Bstrlen(".actors.csv");  // MUST equal that of ".events.csv"
 
-    OSD_Printf("{\n {\n");
-    OSD_Printf("  -- event times, [event]={ total calls, total time [ms], mean time/call [us] }\n");
-    for (i=0; i<MAXEVENTS; i++)
-        if (g_eventCalls[i])
+        char *fullfn = Bmalloc(baselen + addnlen + 1);
+        BFILE *outf;
+
+        if (fullfn == NULL)
+            return;
+
+        Bmemcpy(fullfn, basefn, baselen);
+
+        // EVENTS
+        Bmemcpy(fullfn+baselen, ".events.csv", addnlen+1);
+        outf = Bfopen(fullfn, "w");
+        if (outf == NULL)
         {
-            int32_t n=Bsprintf(buf, "%s", EventNames[i]+nn);
-
-            for (; n<maxlen; n++)
-                buf[n] = ' ';
-            buf[maxlen] = 0;
-
-            OSD_Printf("  [%s]={ %8d, %10.3f, %10.3f },\n",
-                       buf, g_eventCalls[i], g_eventTotalMs[i],
-                       1000*g_eventTotalMs[i]/g_eventCalls[i]);
+            OSD_Printf("Couldn't open \"%s\" for writing timing data: %s", fullfn, strerror(errno));
+            goto finish;
         }
 
-    OSD_Printf(" },\n\n {\n");
-    OSD_Printf("  -- actor times, [tile]={ total calls, total time [ms], {min,mean,max} time/call [us] }\n");
-    for (i=0; i<MAXTILES; i++)
-        if (g_actorCalls[i])
-            OSD_Printf("  [%5d]={ %8d, %9.3f, %9.3f, %9.3f, %9.3f },\n",
-                       i, g_actorCalls[i], g_actorTotalMs[i],
-                       1000*g_actorMinMs[i],
-                       1000*g_actorTotalMs[i]/g_actorCalls[i],
-                       1000*g_actorMaxMs[i]);
-    OSD_Printf(" },\n}\n");
+        Bfprintf(outf, "evtname,numcalls,total_ms,mean_us\n");  // times in usecs are per-call
+        for (i=0; i<MAXEVENTS; i++)
+            if (g_eventCalls[i])
+                Bfprintf(outf, "%s,%d,%f,%f\n", EventNames[i]+nn, g_eventCalls[i], g_eventTotalMs[i],
+                         1000*g_eventTotalMs[i]/g_eventCalls[i]);
+        Bfclose(outf);
+
+        // ACTORS
+        Bmemcpy(fullfn+baselen, ".actors.csv", addnlen+1);
+        outf = Bfopen(fullfn, "w");
+        if (outf == NULL)
+        {
+            OSD_Printf("Couldn't open \"%s\" for writing timing data: %s", fullfn, strerror(errno));
+            goto finish;
+        }
+
+        Bfprintf(outf, "tilenum,numcalls,total_ms,min_us,mean_us,max_us\n");
+        for (i=0; i<MAXTILES; i++)
+            if (g_actorCalls[i])
+                Bfprintf(outf, "%d,%d,%f,%f,%f,%f\n", i, g_actorCalls[i], g_actorTotalMs[i],
+                         1000*g_actorMinMs[i],
+                         1000*g_actorTotalMs[i]/g_actorCalls[i],
+                         1000*g_actorMaxMs[i]);
+        Bfclose(outf);
+
+        OSD_Printf("Wrote timing data to \"%s.*.csv\"\n", basefn);
+finish:
+        Bfree(fullfn);
+        return;
+    }
+    else
+    {
+        // If not writing out CSV files, print timing data to log instead.
+
+        char buf[32];
+        int32_t maxlen = 0;
+
+        for (i=0; i<MAXEVENTS; i++)
+        {
+            int32_t len = Bstrlen(EventNames[i]+nn);
+            Bassert(len < (int32_t)sizeof(buf));
+            maxlen = max(len, maxlen);
+        }
+
+        OSD_Printf("{\n {\n");
+        OSD_Printf("  -- event times, [event]={ total calls, total time [ms], mean time/call [us] }\n");
+        for (i=0; i<MAXEVENTS; i++)
+            if (g_eventCalls[i])
+            {
+                int32_t n=Bsprintf(buf, "%s", EventNames[i]+nn);
+
+                for (; n<maxlen; n++)
+                    buf[n] = ' ';
+                buf[maxlen] = 0;
+
+                OSD_Printf("  [%s]={ %8d, %10.3f, %10.3f },\n",
+                           buf, g_eventCalls[i], g_eventTotalMs[i],
+                           1000*g_eventTotalMs[i]/g_eventCalls[i]);
+            }
+
+        OSD_Printf(" },\n\n {\n");
+        OSD_Printf("  -- actor times, [tile]={ total calls, total time [ms], {min,mean,max} time/call [us] }\n");
+        for (i=0; i<MAXTILES; i++)
+            if (g_actorCalls[i])
+                OSD_Printf("  [%5d]={ %8d, %9.3f, %9.3f, %9.3f, %9.3f },\n",
+                           i, g_actorCalls[i], g_actorTotalMs[i],
+                           1000*g_actorMinMs[i],
+                           1000*g_actorTotalMs[i]/g_actorCalls[i],
+                           1000*g_actorMaxMs[i]);
+        OSD_Printf(" },\n}\n");
+    }
 }
 
 ////////// ERROR REPORTING //////////
