@@ -19,6 +19,10 @@ local con_lang = require("con_lang")
 local byte = require("string").byte
 local setmetatable = setmetatable
 
+local band, bor = bit.band, bit.bor
+local rshift = bit.rshift
+local tobit = bit.tobit
+
 local assert = assert
 local error = error
 local ipairs = ipairs
@@ -182,7 +186,7 @@ local D = { true }
 
 
 local function krandand(mask)
-    return bit.band(ffiC.krand(), mask)
+    return band(ffiC.krand(), mask)
 end
 
 local function check_allnumbers(...)
@@ -325,7 +329,7 @@ local int16_st = ffi.typeof "struct { int16_t s; }"
 
 -- Get INT32_MIN for the following constant; passing 0x80000000 would be
 -- out of the range for an int32_t and thus undefined behavior!
-local SHOOT_HARDCODED_ZVEL = bit.tobit(0x80000000)
+local SHOOT_HARDCODED_ZVEL = tobit(0x80000000)
 
 function _shoot(i, tilenum, zvel)
     check_sprite_idx(i)
@@ -337,19 +341,19 @@ function _shoot(i, tilenum, zvel)
     return CF.A_ShootWithZvel(i, tilenum, zvel)
 end
 
-local BADGUY_MASK = bit.bor(con_lang.SFLAG.SFLAG_HARDCODED_BADGUY, con_lang.SFLAG.SFLAG_BADGUY)
+local BADGUY_MASK = bor(con_lang.SFLAG.SFLAG_HARDCODED_BADGUY, con_lang.SFLAG.SFLAG_BADGUY)
 
 function isenemytile(tilenum)
-    return (bit.band(ffiC.g_tile[tilenum]._flags, BADGUY_MASK)~=0)
+    return (band(ffiC.g_tile[tilenum]._flags, BADGUY_MASK)~=0)
 end
 
 -- The 'rotatesprite' wrapper used by the CON commands.
 function _rotspr(x, y, zoom, ang, tilenum, shade, pal, orientation,
                  alpha, cx1, cy1, cx2, cy2)
     check_tile_idx(tilenum)
-    orientation = bit.band(orientation, 4095)  -- ROTATESPRITE_MAX-1
+    orientation = band(orientation, 4095)  -- ROTATESPRITE_MAX-1
 
-    if (bit.band(orientation, 2048) == 0) then  -- ROTATESPRITE_FULL16
+    if (band(orientation, 2048) == 0) then  -- ROTATESPRITE_FULL16
         x = 65536*x
         y = 65536*y
     end
@@ -363,7 +367,7 @@ function _rotspr(x, y, zoom, ang, tilenum, shade, pal, orientation,
         error(format("invalid coordinates (%.03f, %.03f)", x, y), 2)
     end
 
-    ffiC.rotatesprite_(x, y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
+    ffiC.rotatesprite_(x, y, zoom, ang, tilenum, shade, pal, bor(2,orientation),
                        alpha, cx1, cy1, cx2, cy2)
 end
 
@@ -372,7 +376,7 @@ function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
                       alpha, cx1, cy1, cx2, cy2)
     -- Disallow <<16 coordinates from Lunatic. They only unnecessarily increase
     -- complexity; you already have more precision in the FP number fraction.
-    if (bit.band(orientation, 2048) ~= 0) then
+    if (band(orientation, 2048) ~= 0) then
         error('left-shift-by-16 coordinates forbidden', 2)
     end
 
@@ -402,13 +406,11 @@ function _gettimedate()
     return v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]
 end
 
-local rshift = bit.rshift
-
 function rnd(x)
     return (rshift(ffiC.krand(), 8) >= (255-x))
 end
 
--- Legacy operators
+--- Legacy operators ---
 
 function _rand(x)
     return rshift(ffiC.krand()*(x+1), 16)
@@ -418,19 +420,40 @@ function _displayrand(x)
     return rshift(math.random(0, 32767)*(x+1), 15)
 end
 
-function _div(a,b)
-    if (b==0) then
-        error("divide by zero", 2)
-    end
-    -- NOTE: don't confuse with math.modf!
-    return (a - math.fmod(a,b))/b
-end
+do
+    -- Arithmetic operations --
+    local INT32_MIN = tobit(0x80000000)
+    local INT32_MAX = tobit(0x7fffffff)
 
-function _mod(a,b)
-    if (b==0) then
-        error("mod by zero", 2)
+    -- Trapping multiplication.
+    function _mulTR(a,b)
+        local c = a*b
+        if (not (c >= INT32_MIN and c <= INT32_MAX)) then
+            error("overflow in multiplication", 2)
+        end
+        return c
     end
-    return (math.fmod(a,b))
+
+    -- Wrapping multiplication.
+    function _mulWR(a,b)
+        -- XXX: problematic if a*b in an infinity or NaN.
+        return tobit(a*b)
+    end
+
+    function _div(a,b)
+        if (b==0) then
+            error("divide by zero", 2)
+        end
+        -- NOTE: don't confuse with math.modf!
+        return (a - math.fmod(a,b))/b
+    end
+
+    function _mod(a,b)
+        if (b==0) then
+            error("mod by zero", 2)
+        end
+        return (math.fmod(a,b))
+    end
 end
 
 -- Sect_ToggleInterpolation() clone
@@ -860,7 +883,7 @@ local function text_check_common(tilenum, orientation)
         error("invalid base tile number "..tilenum, 3)
     end
 
-    return bit.band(orientation, 4095)  -- ROTATESPRITE_MAX-1
+    return band(orientation, 4095)  -- ROTATESPRITE_MAX-1
 end
 
 function _gametext(tilenum, x, y, qnum, shade, pal, orientation,
@@ -1076,7 +1099,7 @@ function _addinventory(ps, inv, amount, i)
     if (inv == ffiC.GET_ACCESS) then
         local pal = sprite[i].pal
         if (PALBITS[pal]) then
-            ps.got_access = bit.bor(ps.got_access, PALBITS[pal])
+            ps.got_access = bor(ps.got_access, PALBITS[pal])
         end
     else
         if (ICONS[inv]) then
@@ -1097,7 +1120,7 @@ function _checkpinventory(ps, inv, amount, i)
         return ps.inv_amount[inv] ~= ps.max_shield_amount
     elseif (inv==ffiC.GET_ACCESS) then
         local palbit = PALBITS[sprite[i].pal]
-        return palbit and (bit.band(ps.got_access, palbit)~=0)
+        return palbit and (band(ps.got_access, palbit)~=0)
     else
         return ps.inv_amount[inv] ~= amount
     end
@@ -1161,7 +1184,7 @@ function _addphealth(ps, aci, hlthadd)
     j = math.max(j, 0)
 
     if (hlthadd > 0) then
-        local qmaxhlth = bit.rshift(ps.max_player_health, 2)
+        local qmaxhlth = rshift(ps.max_player_health, 2)
         if (j-hlthadd < qmaxhlth and j >= qmaxhlth) then
             -- XXX: DUKE_GOTHEALTHATLOW
             _sound(aci, 229)
@@ -1221,9 +1244,9 @@ function _operate(spritenum)
         if (tag.sector >= 0) then
             local sect = sector[tag.sector]
             local lotag = sect.lotag
-            if (NEAROP[bit.band(lotag, 0xff)]) then
+            if (NEAROP[band(lotag, 0xff)]) then
                 if (lotag==23 or sect.floorz==sect.ceilingz) then
-                    if (bit.band(lotag, 32768+16384) == 0) then
+                    if (band(lotag, 32768+16384) == 0) then
                         for j in spritesofsect(tag.sector) do
                             if (ispic(sprite[j].picnum, "ACTIVATOR")) then
                                 return
@@ -1300,7 +1323,7 @@ end
 
 -- "otherspr" is either player or holoduke sprite
 local function A_FurthestVisiblePoint(aci, otherspr)
-    if (bit.band(actor[aci]:get_count(), 63) ~= 0) then
+    if (band(actor[aci]:get_count(), 63) ~= 0) then
         return
     end
 
@@ -1496,8 +1519,8 @@ end
 
 -- G_GetAngleDelta(a1, a2)
 function _angdiff(a1, a2)
-    a1 = bit.band(a1, 2047)
-    a2 = bit.band(a2, 2047)
+    a1 = band(a1, 2047)
+    a2 = band(a2, 2047)
     -- a1 and a2 are in [0, 2047]
     if (abs(a2-a1) < 1024) then
         return abs(a2-a1)
@@ -1535,7 +1558,6 @@ function _ifp(flags, pli, aci)
     local l = flags
     local ps = player[pli]
     local vel = sprite[ps.i].xvel
-    local band = bit.band
 
     if (band(l,8)~=0 and ps.on_ground and holdskey(pli, "CROUCH")) then
         return true
@@ -1591,7 +1613,7 @@ function _checkspace(sectnum, floorp)
     local sect = sector[sectnum]
     local picnum = floorp and sect.floorpicnum or sect.ceilingpicnum
     local stat = floorp and sect.floorstat or sect.ceilingstat
-    return bit.band(stat,1)~=0 and sect.ceilingpal == 0 and
+    return band(stat,1)~=0 and sect.ceilingpal == 0 and
         (ispic(picnum, "MOONSKY1") or ispic(picnum, "BIGORBIT1"))
 end
 
@@ -1745,7 +1767,7 @@ function _startlevel(volume, level)
     ffiC.ud.display_bonus_screen = 0
 
     -- TODO_MP
-    player[0].gm = bit.bor(player[0].gm, 0x00000008)  -- MODE_EOL
+    player[0].gm = bor(player[0].gm, 0x00000008)  -- MODE_EOL
 end
 
 function _setaspect(viewingrange, yxaspect)

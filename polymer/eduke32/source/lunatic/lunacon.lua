@@ -124,9 +124,108 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
 -- Code generation and output options.
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
                   ["cache-sap"]=false, ["error-nostate"]=true,
-                  ["playervar"]=true, }
+                  ["playervar"]=true, ["trapv"]=false, ["wrapv"]=false, }
 
 local function csapp() return g_cgopt["cache-sap"] end
+
+local function handle_cmdline_arg(str)
+    if (str:sub(1,1)=="-") then
+        if (#str == 1) then
+            printf("Warning: input from stdin not supported")
+        else
+            local ok = false
+            local kind = str:sub(2,2)
+
+            -- -W(no-)*: warnings
+            if (kind=="W" and #str >= 3) then
+                local val = true
+                local warnstr = str:sub(3)
+
+                if (warnstr == "all") then
+                    -- Enable all warnings.
+                    for wopt in pairs(g_warn) do
+                        g_warn[wopt] = true
+                    end
+                    ok = true
+                else
+                    -- Enable or disable a particular warning.
+                    if (warnstr:sub(1,3)=="no-") then
+                        val = false
+                        warnstr = warnstr:sub(4)
+                    end
+
+                    if (type(g_warn[warnstr])=="boolean") then
+                        g_warn[warnstr] = val
+                        ok = true
+                    end
+                end
+
+            -- -fno* special handling
+            elseif (str:sub(2)=="fno") then
+                -- Disable printing code entirely.
+                g_cgopt["no"] = true
+                ok = true
+            elseif (str:sub(2)=="fno=onlycheck") then
+                -- Disable printing code, only do syntax check of gen'd code.
+                g_cgopt["no"] = "onlycheck"
+                ok = true
+
+            -- -fgendir=<directory>: specify directory for generated code
+            elseif (str:sub(2,9)=="fgendir=" and #str >= 10) then
+                g_cgopt["gendir"] = str:sub(10)
+                ok = true
+
+            -- -f(no-)*: code generation options
+            elseif (kind=="f" and #str >= 3) then
+                local val = true
+                local cgstr = str:sub(3)
+
+                if (cgstr:sub(1,3)=="no-") then
+                    val = false
+                    cgstr = cgstr:sub(4)
+                end
+
+                if (type(g_cgopt[cgstr])=="boolean") then
+                    g_cgopt[cgstr] = val
+                    ok = true
+                end
+
+            -- -I<directory>: default search directory (only ONCE, not search path)
+            elseif (kind=="I" and #str >= 3) then
+                g_defaultDir = str:sub(3)
+                ok = true
+            end
+
+            if (not ffi and not ok) then
+                printf("Warning: Unrecognized option %s", str)
+            end
+        end
+
+        return true
+    end
+end
+
+-- Handle command line arguments. Has to happen before pattern construction,
+-- because some of them depend on codegen options (specifically, -ftrapv,
+-- -fwrapv).
+if (string.dump) then
+    -- running stand-alone
+    local i = 1
+    while (arg[i]) do
+        if (handle_cmdline_arg(arg[i])) then
+            table.remove(arg, i)  -- remove processed cmdline arg
+        else
+            i = i+1
+        end
+    end
+else
+    -- running from EDuke32
+    local i=0
+    while (ffiC.g_argv[i] ~= nil) do
+        handle_cmdline_arg(ffi.string(ffiC.g_argv[i]))
+        i = i+1
+    end
+end
 
 -- Stack with *true* on top if the innermost block is a "whilevar*n".
 local g_isWhile = {}
@@ -199,6 +298,7 @@ local function new_initial_codetab()
         "local print, printf = print, printf",
 
         -- Cache a couple of often-used functions.
+        "local _div, _mod, _mulTR, _mulWR = _con._div, _con._mod, _con._mulTR, _con._mulWR",
         "local _band, _bor, _bxor = _bit.band, _bit.bor, _bit.bxor",
         "local _lsh, _rsh, _arsh = _bit.lshift, _bit.rshift, _bit.arshift",
 
@@ -1616,20 +1716,25 @@ local Op = {}
 Op.var = cmd(W,D)
 Op.varvar = cmd(W,R)
 
-function Op.varf(op)
-    if (#op <= 2) then
-        return Op.var / ("%1=%1"..op.."%2")
+function Op.var_common(thecmd, defaultop, trapop, wrapop)
+    local theop =
+        g_cgopt["trapv"] and trapop or
+        g_cgopt["wrapv"] and wrapop or
+        assert(defaultop)
+
+    if (#theop <= 2) then
+        return thecmd / ("%1=%1"..theop.."%2")
     else
-        return Op.var / ("%1="..op.."(%1,%2)")
+        return thecmd / ("%1="..theop.."(%1,%2)")
     end
 end
 
-function Op.varvarf(op)
-    if (#op <= 2) then
-        return Op.varvar / ("%1=%1"..op.."%2")
-    else
-        return Op.varvar / ("%1="..op.."(%1,%2)")
-    end
+function Op.varf(...)
+    return Op.var_common(Op.var, ...)
+end
+
+function Op.varvarf(...)
+    return Op.var_common(Op.varvar, ...)
 end
 
 -- Allow nesting... stuff like
@@ -2085,9 +2190,9 @@ local Cinner = {
     -- NOTE the space after the minus sign so that e.g. "subvar x -1" won't get
     -- translated to "x=x--1" (-- being the Lua line comment start).
     subvarvar = Op.varvarf "- ",
-    mulvarvar = Op.varvarf "*",
-    divvarvar = Op.varvarf "_con._div",
-    modvarvar = Op.varvarf "_con._mod",
+    mulvarvar = Op.varvarf("*", "_mulTR", "_mulWR"),
+    divvarvar = Op.varvarf "_div",
+    modvarvar = Op.varvarf "_mod",
     andvarvar = Op.varvarf "_band",
     orvarvar = Op.varvarf "_bor",
     xorvarvar = Op.varvarf "_bxor",
@@ -2096,9 +2201,9 @@ local Cinner = {
     setvar = Op.var / "%1=%2",
     addvar = Op.varf "+",
     subvar = Op.varf "- ",
-    mulvar = Op.varf "*",
-    divvar = Op.varf "_con._div",
-    modvar = Op.varf "_con._mod",
+    mulvar = Op.varf("*", "_mulTR", "_mulWR"),
+    divvar = Op.varf "_div",
+    modvar = Op.varf "_mod",
     andvar = Op.varf "_band",
     orvar = Op.varf "_bor",
     xorvar = Op.varf "_bxor",
@@ -3474,83 +3579,6 @@ function parse(contents)  -- local
     g_newlineidxs = newlineidxs
 end
 
-local function handle_cmdline_arg(str)
-    if (str:sub(1,1)=="-") then
-        if (#str == 1) then
-            printf("Warning: input from stdin not supported")
-        else
-            local ok = false
-            local kind = str:sub(2,2)
-
-            -- -W(no-)*: warnings
-            if (kind=="W" and #str >= 3) then
-                local val = true
-                local warnstr = str:sub(3)
-
-                if (warnstr == "all") then
-                    -- Enable all warnings.
-                    for wopt in pairs(g_warn) do
-                        g_warn[wopt] = true
-                    end
-                    ok = true
-                else
-                    -- Enable or disable a particular warning.
-                    if (warnstr:sub(1,3)=="no-") then
-                        val = false
-                        warnstr = warnstr:sub(4)
-                    end
-
-                    if (type(g_warn[warnstr])=="boolean") then
-                        g_warn[warnstr] = val
-                        ok = true
-                    end
-                end
-
-            -- -fno* special handling
-            elseif (str:sub(2)=="fno") then
-                -- Disable printing code entirely.
-                g_cgopt["no"] = true
-                ok = true
-            elseif (str:sub(2)=="fno=onlycheck") then
-                -- Disable printing code, only do syntax check of gen'd code.
-                g_cgopt["no"] = "onlycheck"
-                ok = true
-
-            -- -fgendir=<directory>: specify directory for generated code
-            elseif (str:sub(2,9)=="fgendir=" and #str >= 10) then
-                g_cgopt["gendir"] = str:sub(10)
-                ok = true
-
-            -- -f(no-)*: code generation options
-            elseif (kind=="f" and #str >= 3) then
-                local val = true
-                local cgstr = str:sub(3)
-
-                if (cgstr:sub(1,3)=="no-") then
-                    val = false
-                    cgstr = cgstr:sub(4)
-                end
-
-                if (type(g_cgopt[cgstr])=="boolean") then
-                    g_cgopt[cgstr] = val
-                    ok = true
-                end
-
-            -- -I<directory>: default search directory (only ONCE, not search path)
-            elseif (kind=="I" and #str >= 3) then
-                g_defaultDir = str:sub(3)
-                ok = true
-            end
-
-            if (not ffi and not ok) then
-                printf("Warning: Unrecognized option %s", str)
-            end
-        end
-
-        return true
-    end
-end
-
 local function reset_all()
     reset_labels()
     reset_gamedata()
@@ -3567,16 +3595,6 @@ end
 if (string.dump) then
     -- running stand-alone
     local io = require("io")
-
-    -- Handle command-line arguments and remove those that have been processed.
-    local i = 1
-    while (arg[i]) do
-        if (handle_cmdline_arg(arg[i])) then
-            table.remove(arg, i)
-        else
-            i = i+1
-        end
-    end
 
     local function compile(filename)
         reset_all()
@@ -3654,13 +3672,8 @@ if (string.dump) then
         end
     end
 else
-    local i=0
-    while (ffiC.g_argv[i] ~= nil) do
-        handle_cmdline_arg(ffi.string(ffiC.g_argv[i]))
-        i = i+1
-    end
-
     -- running from EDuke32
+
     function compile(filenames)
         -- TODO: pathsearchmode=1 set in G_CompileScripts
 
