@@ -83,12 +83,22 @@ local function printf(fmt, ...)
     print(format(fmt, ...))
 end
 
+--- some constants
+
+local C = {
+    -- These two are not used except for predefined labels.
+    -- NOTE: in-game, MAXSPRITES may be 4096 for a V7 build!
+    MAXSTATUS = ffiC and ffiC.MAXSTATUS or 1024,
+    MAXSPRITES = ffiC and ffiC.MAXSPRITES or 16384,
+
+    MAXTILES = ffiC and ffiC.MAXTILES or 30720,
+    MAX_WEAPONS = ffiC and ffiC.MAX_WEAPONS or 12,
+}
 
 ---=== semantic action functions ===---
 
 local inf = 1/0
 local NaN = 0/0
-local MAXTILES = (ffiC and ffiC.MAXTILES or 30720)
 
 -- Last keyword position, for error diagnosis.
 local g_lastkwpos = nil
@@ -220,7 +230,6 @@ local function CSV(var) return "_gv._csv"..var end
 -- KEEPINSYNC gamevars.c: Gv_AddSystemVars()
 local function new_initial_gvartab()
     local wmembers = conl.wdata_members
-    local MAX_WEAPONS = ffiC and ffiC.MAX_WEAPONS or 12
 
     local function GamevarCreationFunc(addflags)
         return function(varname)
@@ -320,7 +329,7 @@ local function new_initial_gvartab()
     -- Reserved bits
     gamevar.LOGO_FLAGS.rbits = bit.bnot(4095)
 
-    for w=0,MAX_WEAPONS-1 do
+    for w=0,C.MAX_WEAPONS-1 do
         for i=1,#wmembers do
             local member = wmembers[i]:gsub(".*_t ","")  -- strip e.g. "const int32_t "
                                       :gsub("^_","")  -- strip potentially leading underscore
@@ -343,8 +352,8 @@ local function reset_codegen()
     g_gamevar = new_initial_gvartab()
     g_gamearray = {
         -- SYSTEM_GAMEARRAY
-        tilesizx = { name="g_tile.sizx", size=MAXTILES, sysp=true },
-        tilesizy = { name="g_tile.sizy", size=MAXTILES, sysp=true },
+        tilesizx = { name="g_tile.sizx", size=C.MAXTILES, sysp=true },
+        tilesizy = { name="g_tile.sizy", size=C.MAXTILES, sysp=true },
     }
 
     g_dyntilei = nil
@@ -588,7 +597,7 @@ end
 local check = {}
 
 function check.tile_idx(tilenum)
-    if (not (tilenum >= 0 and tilenum < MAXTILES)) then
+    if (not (tilenum >= 0 and tilenum < C.MAXTILES)) then
         errprintf("invalid tile number %d", tilenum)
         return false
     end
@@ -632,6 +641,10 @@ local function reset_labels()
         MULTIMODE = 1,
         numplayers = 1,
         myconnectindex = 0,
+        -- Predefined constants
+        MAXSTATUS = C.MAXSTATUS,
+        MAXSPRITES = C.MAXSPRITES,
+        MAX_WEAPONS = C.MAX_WEAPONS,
     }
 
     for varname,_ in pairs(g_labeldef) do
@@ -737,7 +750,7 @@ function Define.label(identifier, num)
             warnprintf("symbol `%s' already used for game variable", identifier)
         end
 
-        if (ffi and g_dyntilei and (num>=0 and num<MAXTILES)) then
+        if (ffi and g_dyntilei and (num>=0 and num<C.MAXTILES)) then
             dynmap.maybe_init(g_dyntilei, ffiC.g_dynTileList)
             dynmap.maybe_process(g_dyntilei, ffiC.g_dynTileList, identifier, num)
         end
@@ -2376,7 +2389,7 @@ local Cinner = {
         / function(...) return handle.arraycmd("%s:resize(%s)", 1, ...) end,
     getarraysize = cmd(GARI,W)
         / function(ar, dst)
-              return format("%s=%s", dst, issysgar(ar) and tostring(MAXTILES) or ar.."._size")
+              return format("%s=%s", dst, issysgar(ar) and tostring(C.MAXTILES) or ar.."._size")
           end,
     readarrayfromfile = cmd(GARI,D)
         / function(...)  -- false: error on no file, nil: don't.

@@ -5480,8 +5480,9 @@ void G_SaveMapState(void)
 
     if (save != NULL)
     {
+#if !defined LUNATIC
         int32_t i;
-
+#endif
         Bmemcpy(&save->numwalls,&numwalls,sizeof(numwalls));
         Bmemcpy(&save->wall[0],&wall[0],sizeof(walltype)*MAXWALLS);
         Bmemcpy(&save->numsectors,&numsectors,sizeof(numsectors));

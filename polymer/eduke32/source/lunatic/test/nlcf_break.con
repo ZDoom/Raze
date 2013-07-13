@@ -16,11 +16,24 @@ state teststate_break
     echo 114
 ends
 
-onevent EVENT_INIT
+definequote 499 ===
+definequote 500 MAXSPRITES: %d
+definequote 501 MAXSTATUS: %d
+definequote 502 MAX_WEAPONS: %d
+
+// XXX: EVENT_INIT not reached with LunaCON
+onevent EVENT_ENTERLEVEL
     state teststate_break
 
     redefinequote 114 STILL LIVE OUTER
     echo 114
+
+    qsprintf 499 /*<-*/ 500 MAXSPRITES
+    echo 499
+    qsprintf 499 /*<-*/ 501 MAXSTATUS
+    echo 499
+    qsprintf 499 /*<-*/ 502 MAX_WEAPONS
+    echo 499
 endevent
 
 // Test number parsing
