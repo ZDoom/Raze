@@ -159,8 +159,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
 
         ud.multimode = 1;
 
-        G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
-        if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
+        G_NewGame_EnterLevel();
     }
 
     return OSDCMD_OK;
@@ -286,8 +285,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
 
     ud.multimode = 1;
 
-    G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
-    if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
+    G_NewGame_EnterLevel();
 
     return OSDCMD_OK;
 }

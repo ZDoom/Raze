@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __game_h__
 #define __game_h__
 
+#include "premap.h"
+
 #define USERQUOTE_LEFTOFFSET    5
 #define USERQUOTE_RIGHTOFFSET   14
 
@@ -539,5 +541,13 @@ enum cheatindex_t
 )
 
 #include "game_inline.h"
+
+static inline void G_NewGame_EnterLevel(void)
+{
+    G_NewGame(ud.m_volume_number, ud.m_level_number, ud.m_player_skill);
+
+    if (G_EnterLevel(MODE_GAME))
+        G_BackToMenu();
+}
 
 #endif

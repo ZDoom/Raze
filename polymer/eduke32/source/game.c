@@ -10914,14 +10914,19 @@ static int32_t G_EndOfLevel(void)
             }
         }
     }
+
     ud.display_bonus_screen = 1;
     ready2send = 0;
-    if (numplayers > 1) g_player[myconnectindex].ps->gm = MODE_GAME;
+
+    if (numplayers > 1)
+        g_player[myconnectindex].ps->gm = MODE_GAME;
+
     if (G_EnterLevel(g_player[myconnectindex].ps->gm))
     {
         G_BackToMenu();
         return 2;
     }
+
     Net_WaitForServer();
     return 1;
 
@@ -11713,9 +11718,7 @@ MAIN_LOOP_RESTART:
                 P_ResetInventory(i);
             }
 
-            G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
-
-            if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
+            G_NewGame_EnterLevel();
 
             Net_WaitForServer();
         }
@@ -11735,9 +11738,7 @@ MAIN_LOOP_RESTART:
     }
     else if (ud.warp_on == 1)
     {
-        G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
-
-        if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
+        G_NewGame_EnterLevel();
     }
     else G_UpdateScreenArea();
 

@@ -2439,8 +2439,7 @@ cheat_for_port_credits2:
                 nextpage();
             }
 
-            G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
-            if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
+            G_NewGame_EnterLevel();
         }
         else if (x == -1)
         {

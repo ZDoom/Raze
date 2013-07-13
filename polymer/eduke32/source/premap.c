@@ -1407,7 +1407,7 @@ static inline void prelevel(char g)
 }
 
 
-void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
+void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
 {
     DukePlayer_t *p = g_player[0].ps;
     int32_t i;
@@ -1451,17 +1451,17 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
     g_showShareware = GAMETICSPERSEC*34;
 
-    ud.level_number =   ln;
-    ud.volume_number =  vn;
-    ud.player_skill =   sk;
-    ud.secretlevel =    0;
+    ud.level_number = ln;
+    ud.volume_number = vn;
+    ud.player_skill = sk;
+    ud.secretlevel = 0;
     ud.from_bonus = 0;
     parallaxyscale = 0;
 
     ud.last_level = -1;
     g_lastSaveSlot = -1;
-    p->zoom            = 768;
-    p->gm              = 0;
+    p->zoom = 768;
+    p->gm = 0;
 
 #if !defined LUNATIC
     //AddLog("Newgame");
@@ -1500,7 +1500,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
         p->last_weapon = -1;
     }
 
-    display_mirror =        0;
+    display_mirror = 0;
 
     VM_OnEvent(EVENT_NEWGAME, g_player[myconnectindex].ps->i, myconnectindex, -1, 0);
 }
@@ -1807,7 +1807,8 @@ void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int3
     Bmemcpy(p+1, "mid", 4);
     fil = kopen4loadfrommod(levnamebuf,0);
 
-    // XXX: should pull in a "default user map" song entry, probably E1L8 (which would need to not get clobbered)
+    // XXX: should pull in a "default user map" song entry, probably E1L8
+    // (which would need to not get clobbered)
     if (fil == -1)
         Bstrcpy(levnamebuf, "dethtoll.mid");
     else kclose(fil);
@@ -1824,7 +1825,6 @@ int32_t G_EnterLevel(int32_t g)
 //    waitforeverybody();
     vote_map = vote_episode = voting = -1;
 
-    if ((g&MODE_DEMO) != MODE_DEMO) ud.recstat = ud.m_recstat;
     ud.respawn_monsters = ud.m_respawn_monsters;
     ud.respawn_items    = ud.m_respawn_items;
     ud.respawn_inventory    = ud.m_respawn_inventory;
@@ -1834,6 +1834,8 @@ int32_t G_EnterLevel(int32_t g)
     ud.ffire = ud.m_ffire;
     ud.noexits = ud.m_noexits;
 
+    if ((g&MODE_DEMO) != MODE_DEMO)
+        ud.recstat = ud.m_recstat;
     if ((g&MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;
 
@@ -2030,8 +2032,6 @@ int32_t G_EnterLevel(int32_t g)
     for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
 
     g_restorePalette = -1;
-
-//        mmulti_flushpackets();
 
     G_FadePalette(0,0,0,0);
     G_UpdateScreenArea();
