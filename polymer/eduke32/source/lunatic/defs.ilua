@@ -614,6 +614,7 @@ playerdata_t g_player[MAXPLAYERS];
 DukePlayer_t *g_player_ps[MAXPLAYERS];
 weapondata_x_MAX_WEAPONS g_playerWeapon[MAXPLAYERS];
 weapondata_t g_weaponOverridden[MAX_WEAPONS];
+int16_t WeaponPickupSprites[MAX_WEAPONS];
 tiledata_t g_tile[MAXTILES];
 projectile_t ProjectileData[MAXTILES];
 projectile_t SpriteProjectile[MAXSPRITES];

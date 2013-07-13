@@ -50,3 +50,7 @@ useractor notenemy 909  // tree trunk
             quote 400
     }
 enda
+
+onevent EVENT_JUMP
+    tossweapon
+endevent

@@ -2307,7 +2307,7 @@ local Cinner = {
     tip = cmd()
         / PLS".tipincs=26",
     tossweapon = cmd()
-        / "",  -- TODO_MP
+        / "_con._tossweapon(_pli)",
     wackplayer = cmd()
         / PLS":whack()",
 

@@ -139,6 +139,7 @@ g_player;
 g_player_ps;
 g_playerWeapon;
 g_weaponOverridden;
+WeaponPickupSprites;
 g_tile;
 ProjectileData;
 SpriteProjectile;

@@ -525,6 +525,26 @@ local function have_ammo_at_max(ps, weap)
     return (ps.ammo_amount[weap] >= ps.max_ammo_amount[weap])
 end
 
+function _tossweapon(pli)  -- P_DropWeapon replacement
+    check_player_idx(pli)
+    local ps = ffiC.g_player[pli].ps
+
+    bcheck.weapon_idx(ps.curr_weapon)
+    local cw = ffiC.g_playerWeapon[pli][ps.curr_weapon].workslike
+
+    if (cw >= ffiC.MAX_WEAPONS+0ULL) then
+        return
+    end
+
+    if (krandand(1) ~= 0) then
+        spawn(ffiC.WeaponPickupSprites[cw], ps.i)
+    elseif (cw==ffiC.RPG_WEAPON or cw==ffiC.HANDBOMB_WEAPON) then
+        if (D.EXPLOSION2 ~= nil) then
+            spawn(D.EXPLOSION2, ps.i)
+        end
+    end
+end
+
 local function P_AddAmmo(ps, weap, amount)
     if (not have_ammo_at_max(ps, weap)) then
         local curamount = ps.ammo_amount[weap]
@@ -547,6 +567,7 @@ end
 --- but which are off limits to users.  (That is, we need to think about how to
 --- expose the functionality in a better fashion than merely giving access to
 --- the C functions.)
+--- TODO: Move these to a separate module like "con_private".
 
 -- quotes
 local REALMAXQUOTES = con_lang.REALMAXQUOTES
@@ -1008,14 +1029,6 @@ function _sizeto(i, xr, yr)
     -- TODO: y stretching is conditional
     dr = (yr-spr.yrepeat)
     spr.yrepeat = spr.yrepeat + ((dr == 0) and 0 or (dr < 0 and -1 or 1))
-end
-
--- NOTE: function args of the C function have overloaded meaning
-function _A_Spawn(j, pn)
-    check_sprite_idx(j)
-    check_sector_idx(ffiC.sprite[j].sectnum)
-    check_tile_idx(pn)
-    return CF.A_Spawn(j, pn)
 end
 
 function _pstomp(ps, i)
