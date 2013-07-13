@@ -23,9 +23,9 @@
         list = [[NSMutableArray alloc] init];
         
         for (p = foundgrps; p; p=p->next) {
-            for (i=0; i<NUMGRPFILES; i++) if (p->crcval == grpfiles[i].crcval) break;
+            for (i=0; i<NUMGRPFILES; i++) if (p->crcval == internalgrpfiles[i].crcval) break;
             if (i == NUMGRPFILES) continue;
-            [list addObject:[[GrpFile alloc] initWithGrpfile:p andName:[NSString stringWithCString:grpfiles[i].name]]];
+            [list addObject:[[GrpFile alloc] initWithGrpfile:p andName:[NSString stringWithCString:internalgrpfiles[i].name]]];
         }
     }
     

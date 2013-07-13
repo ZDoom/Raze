@@ -64,6 +64,7 @@ typedef struct grpfile {
 } grpfile_type;
 
 // extern struct grpfile grpfiles[NUMGRPFILES];
+extern struct grpfile internalgrpfiles[NUMGRPFILES];
 extern struct grpfile *foundgrps;
 extern struct grpfile *listgrps;
 
