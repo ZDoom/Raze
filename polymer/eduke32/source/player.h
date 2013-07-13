@@ -378,6 +378,15 @@ void        P_ProcessInput(int32_t snum);
 void        P_QuickKill(DukePlayer_t *p);
 void        P_SelectNextInvItem(DukePlayer_t *p);
 void        P_UpdateScreenPal(DukePlayer_t *p);
+
+#if !defined LUNATIC
 void        P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p);
+#else
+static inline void P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p)
+{
+    UNREFERENCED_PARAMETER(snum);
+    UNREFERENCED_PARAMETER(p);
+}
 #endif
 
+#endif

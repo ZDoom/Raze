@@ -189,11 +189,13 @@ int32_t A_GetHitscanRange(int32_t i)
     return (FindDistance2D(hit.pos.x-SX,hit.pos.y-SY));
 }
 
-static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
+static int32_t A_FindTargetSprite(const spritetype *s, int32_t aang, int32_t atwith)
 {
     int32_t gotshrinker,gotfreezer;
     int32_t i, j, a, k, cans;
-    static int32_t aimstats[] = { 10, 13, 1, 2 };
+    static const int32_t aimstats[] = {
+        STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR
+    };
     int32_t dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
     int32_t xv, yv;
 
@@ -206,20 +208,21 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
         {
             if (A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (ProjectileData[atwith].workslike & PROJECTILE_RPG))
                 return -1;
-            else switch (DYNAMICTILEMAP(atwith))
-                {
-                case TONGUE__STATIC:
-                case FREEZEBLAST__STATIC:
-                case SHRINKSPARK__STATIC:
-                case SHRINKER__STATIC:
-                case RPG__STATIC:
-                case FIRELASER__STATIC:
-                case SPIT__STATIC:
-                case COOLEXPLOSION1__STATIC:
-                    return -1;
-                default:
-                    break;
-                }
+
+            switch (DYNAMICTILEMAP(atwith))
+            {
+            case TONGUE__STATIC:
+            case FREEZEBLAST__STATIC:
+            case SHRINKSPARK__STATIC:
+            case SHRINKER__STATIC:
+            case RPG__STATIC:
+            case FIRELASER__STATIC:
+            case SPIT__STATIC:
+            case COOLEXPLOSION1__STATIC:
+                return -1;
+            default:
+                break;
+            }
         }
     }
 
@@ -1432,7 +1435,6 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                     sprite[j].extra >>= 2;
                 }
             }
-
             else if (PWEAPON(0, g_player[p].ps->curr_weapon, WorksLike) == DEVISTATOR_WEAPON)
             {
                 sprite[j].extra >>= 2;
@@ -1906,19 +1908,16 @@ static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
     return 1;
 }
 
+#if !defined LUNATIC
+// Set C-CON's WEAPON and WORKSLIKE gamevars.
 void P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p)
 {
-#ifdef LUNATIC
-    UNREFERENCED_PARAMETER(snum);
-    UNREFERENCED_PARAMETER(p);
-#else
     Gv_SetVar(g_iWeaponVarID, p->curr_weapon, p->i, snum);
     Gv_SetVar(g_iWorksLikeVarID,
               ((unsigned)p->curr_weapon < MAX_WEAPONS) ? PWEAPON(snum, p->curr_weapon, WorksLike) : -1,
               p->i, snum);
-#endif
 }
-
+#endif
 
 static void P_FireWeapon(DukePlayer_t *p)
 {
@@ -1954,6 +1953,7 @@ static void P_FireWeapon(DukePlayer_t *p)
                         p->ammo_amount[p->curr_weapon]--;
                     else break;
                 }
+
                 A_Shoot(p->i,PWEAPON(snum, p->curr_weapon, Shoots));
             }
         }
@@ -1981,6 +1981,9 @@ static void P_DoWeaponSpawn(const DukePlayer_t *p)
 {
     int32_t j, snum = sprite[p->i].yvel;
 
+    // NOTE: For the 'Spawn' member, 0 means 'none', too (originally so,
+    // i.e. legacy). The check for <0 was added to the check because mod
+    // authors (rightly) assumed that -1 is the no-op value.
     if (PWEAPON(snum, p->curr_weapon, Spawn) <= 0)  // <=0 : AMC TC beta/RC2 has WEAPONx_SPAWN -1
         return;
 
@@ -3667,14 +3670,15 @@ static void P_ProcessWeapon(int32_t snum)
 
             if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_HOLSTER_CLEARS_CLIP)
             {
-                if (p->ammo_amount[p->curr_weapon] > PWEAPON(snum, p->curr_weapon, Clip)
-                        && (p->ammo_amount[p->curr_weapon] % PWEAPON(snum, p->curr_weapon, Clip)) != 0)
+                const int32_t cw=p->curr_weapon, clipcnt = PWEAPON(snum, cw, Clip);
+
+                if (p->ammo_amount[cw] > clipcnt && (p->ammo_amount[cw] % clipcnt) != 0)
                 {
-                    p->ammo_amount[p->curr_weapon]-=
-                        p->ammo_amount[p->curr_weapon] % PWEAPON(snum, p->curr_weapon, Clip) ;
-                    (*kb) = PWEAPON(snum, p->curr_weapon, TotalTime);
+                    p->ammo_amount[cw] -= p->ammo_amount[cw] % clipcnt;
+                    (*kb) = PWEAPON(snum, cw, TotalTime);
                     sb_snum &= ~BIT(SK_FIRE); // not firing...
                 }
+
                 return;
             }
         }
