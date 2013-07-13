@@ -8251,6 +8251,7 @@ int32_t A_CheckSwitchTile(int32_t i)
 
 void G_MoveWorld(void)
 {
+    extern double g_moveActorsTime;
     int32_t k = MAXSTATUS-1;
 
     do
@@ -8285,7 +8286,13 @@ void G_MoveWorld(void)
     G_MoveFallers();          //ST 12
     G_MoveMisc();             //ST 5
 
-    G_MoveActors();           //ST 1
+    {
+        double t = gethiticks();
+
+        G_MoveActors();           //ST 1
+
+        g_moveActorsTime = (1-0.033)*g_moveActorsTime + 0.033*(gethiticks()-t);
+    }
 
     // XXX: Has to be before effectors, in particular movers?
     // TODO: lights in moving sectors ought to be interpolated

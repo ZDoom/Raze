@@ -109,6 +109,8 @@ static const char *CommandName = NULL;
 int32_t g_forceWeaponChoice = 0;
 int32_t g_fakeMultiMode = 0;
 
+double g_moveActorsTime = 0;  // in ms, smoothed
+
 char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
 
 static char g_rootDir[BMAX_PATH];
@@ -2542,6 +2544,8 @@ static void G_PrintCoords(int32_t snum)
     y += 7;
     Bsprintf(tempbuf,"VR=%.03f  YX=%.03f",(double)dr_viewingrange/65536.0,(double)dr_yxaspect/65536.0);
     printext256(x,y+72,31,-1,tempbuf,0);
+    Bsprintf(tempbuf, "MOVEACTORS [ms]= %.3e", g_moveActorsTime);
+    printext256(x,y+81,31,-1,tempbuf,0);
 }
 
 
