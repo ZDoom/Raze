@@ -665,6 +665,10 @@ end
 
 local tspritetype_mt = deep_copy(spritetype_mt)
 
+-- Get the sprite index of a sprite reference.
+-- This is relatively slow if the code doesn't get compiled, see related
+-- discussion here:
+-- http://www.freelists.org/post/luajit/FFI-versus-Lua-C-API-in-purely-interpreted-mode
 local function get_sprite_idx(spr)
     local i = ffi.cast(spritetype_ptr_ct, spr)-ffi.cast(spritetype_ptr_ct, ffiC.sprite)
     assert(not (i >= ffiC.MAXSPRITES+0ULL))
@@ -674,36 +678,65 @@ end
 ---=== Methods that are specific to sprites ===---
 
 local l_updatesector  -- fwd-decl
+local l_changesect  -- fwd-decl
 
-function spritetype_mt.__index.setpos(spr, pos)  -- setsprite() clone
+-- The 'setpos' method is available for sprite and tsprite objects.
+-- spr:setpos(pos [, newsect]),
+-- where <newsect> is taken to mean "set the sprite's sector number to <newsect>";
+-- don't run update/search routines or anything like this.
+function spritetype_mt.__index.setpos(spr, pos, newsect)
     spr.x, spr.y, spr.z = pos.x, pos.y, pos.z
-    local newsect = l_updatesector(spr, spr.sectnum)
-
-    if (newsect >= 0 and spr.sectnum ~= newsect) then
-        ffiC.changespritesect(get_sprite_idx(spr), newsect)
+    if (newsect ~= nil) then
+        spr:changesect(newsect)
     end
+    return spr
+end
 
+-- spr:changesect(newsect)
+-- changes the sector number of <spr> in an 'unforgiving' fashion (<newsect> of
+-- -1 is error)
+function spritetype_mt.__index.changesect(spr, newsect)
+    if (newsect ~= spr.sectnum) then
+        l_changesect(get_sprite_idx(spr), newsect)
+    end
+end
+
+-- spr:updatesect(flags)
+-- updates <spr>'s sectnum; if no matching sector is found, no-op
+-- returns the updated sector number
+function spritetype_mt.__index.updatesect(spr, flags)
+    local newsect = l_updatesector(spr, spr.sectnum, flags)
+    if (newsect ~= -1) then
+        spr:changesect(newsect)
+    end
     return newsect
 end
 
 
 ---=== Methods that are specific to tsprites ===---
 
-function tspritetype_mt.__index.set_sectnum(tspr, sectnum)
-    check_sector_idx(sectnum)
-    ffi.cast(spritetype_ptr_ct, tspr).sectnum = sectnum
+-- This ought to be called 'set_sectnum', but 'changesect' is for consistency
+-- with the sprite method.
+function tspritetype_mt.__index.changesect(tspr, sectnum)
+    if (tspr.sectnum ~= sectnum) then
+        check_sector_idx(sectnum)
+        ffi.cast(spritetype_ptr_ct, tspr).sectnum = sectnum
+    end
 end
 
--- TODO: flags (the same as sprite.UPDATE_FLAGS + "provide own sectnum",
--- e.g. for example because it's already there from "hitscan").
-function tspritetype_mt.__index.setpos(tspr, pos)
+function tspritetype_mt.__index.setpos(tspr, pos, newsect)
     tspr.x, tspr.y, tspr.z = pos.x, pos.y, pos.z
-    local newsect = l_updatesector(tspr, tspr.sectnum)
-
-    if (newsect >= 0 and tspr.sectnum ~= newsect) then
+    if (newsect ~= nil) then
         tspr:set_sectnum(newsect)
     end
+    return tspr
+end
 
+function tspritetype_mt.__index.updatesect(tspr, flags)
+    local newsect = l_updatesector(tspr, tspr.sectnum, flags)
+    if (newsect ~= -1 and newsect ~= tspr.sectnum) then
+        tspr:set_sectnum(newsect)
+    end
     return newsect
 end
 
@@ -816,6 +849,7 @@ static_members.sector.NEARTAG_FLAGS = conststruct
 static_members.sector.UPDATE_FLAGS = conststruct
 {
     BREADTH = 1,
+    Z = 2,
 }
 
 static_members.wall.CSTAT = conststruct
@@ -874,6 +908,12 @@ function static_members.wall.dragto(wallnum, pos)
     ffiC.dragpoint(wallnum, pos.x, pos.y, 0)
 end
 
+-- Functions changing the sector/status number of a sprite, without asking.
+
+-- Changes sector number of sprite with index <spritenum> to <sectnum>,
+-- unconditionally and "unforgiving" (oob <sectnum> gives error).
+-- <noerr> is for CON compatibility and prevents error on *sprite not in the
+-- game world* if true.
 function static_members.sprite.changesect(spritenum, sectnum, noerr)
     check_sprite_idx(spritenum)
     check_sector_idx(sectnum)
@@ -881,6 +921,8 @@ function static_members.sprite.changesect(spritenum, sectnum, noerr)
         error("cannot change sector number of sprite not in the game world", 2)
     end
 end
+
+l_changesect = static_members.sprite.changesect
 
 function static_members.sprite.changestat(spritenum, statnum, noerr)
     -- TODO: see gameexec.c's CON_CHANGESPRITESTAT.
@@ -891,6 +933,18 @@ function static_members.sprite.changestat(spritenum, statnum, noerr)
     if (ffiC.changespritestat(spritenum, statnum)==-1 and not noerr) then
         error("cannot change status number of sprite not in the game world", 2)
     end
+end
+
+-- Update a sprite's sector number from its current position and sector number.
+function static_members.sprite.updatesect(spritenum, flags)
+    check_sprite_idx(spritenum)
+    local spr = ffiC.sprite[spritenum]
+
+    local newsect = l_updatesector(spr, spr.sectnum, flags)
+    if (newsect ~= -1 and newsect ~= spr.sectnum) then
+        l_changesect(spritenum, newsect)
+    end
+    return newsect
 end
 
 function GenStructMetatable(Structname, Boundname, StaticMembersTab)
@@ -1118,6 +1172,10 @@ function updatesector(pos, sectnum, flags)
         ffiC.updatesector(pos.x, pos.y, us_retsect)
     elseif (flags==USF.BREADTH) then
         ffiC.updatesectorbreadth(pos.x, pos.y, us_retsect)
+    elseif (flags==USF.Z) then
+        -- Same as updatesectorz, but useful if we are called from
+        -- e.g. sprite.updatesect().
+        ffiC.updatesectorz(pos.x, pos.y, pos.z, us_retsect)
     else
         error("invalid argument #3 (flags)", 2)
     end

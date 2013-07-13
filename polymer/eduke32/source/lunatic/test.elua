@@ -371,6 +371,8 @@ gameevent{"LOADACTOR", function(i)
     if (i==614 and spr.picnum==930) then
         -- "police line" ribbon in E1L1
         -- clear the hitag so that it doesn't spawn as FALLER from premap
+        -- Rather a HACK: relies on an implementation detail (A_Spawn()
+        -- "hard-wired" code).
         spr.hitag = 0
     end
 end}
@@ -386,7 +388,7 @@ gameactor
         local d = 20
         -- NOTE: __add metamethod is called because of the RHS:
         local v = spr + xmath.vec3(r(-d,d), r(-d,d))
-        spr:setpos(v)
+        spr:setpos(v):updatesect()
 
         -- Test vec3 constructor with cdata.
         local tempvec = xmath.vec3(player[0].pos)
@@ -486,8 +488,7 @@ gameactor
             if (aimtspr) then
                 aimtspr.pal = 2
                 aimtspr:set_picnum(555)
-                aimtspr:setpos(hit.pos)
-                aimtspr:set_sectnum(hit.sect)
+                aimtspr:setpos(hit.pos, hit.sect)
             end
         end
     end,
@@ -550,6 +551,7 @@ gameevent
         -- in such a sector or an adjoining one.)
         -- XXX: We need a better place to do this, maybe an event in
         -- G_DisplayRest() where show2dsector[] is tweaked?
+        -- NOT YET OFFICIAL API.
         local show2dsector = sector.showbitmap
         for i=0,gv.numsectors-1 do
             if (sector[i].floorpicnum==815) then

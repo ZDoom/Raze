@@ -301,6 +301,7 @@ local function new_initial_codetab()
         "local _div, _mod, _mulTR, _mulWR = _con._div, _con._mod, _con._mulTR, _con._mulWR",
         "local _band, _bor, _bxor = _bit.band, _bit.bor, _bit.bxor",
         "local _lsh, _rsh, _arsh = _bit.lshift, _bit.rshift, _bit.arshift",
+        "local _setsprite = _con._setsprite",
 
         -- * CON "states" (subroutines) and
         -- * Switch function table, indexed by global switch sequence number:
@@ -2689,7 +2690,7 @@ local Cinner = {
     ssp = cmd(R,R)
         / handle.NYI,
     setsprite = cmd(R,R,R,R)
-        / "sprite[%1]:setpos(_IV(1,%2,%3,%4))",
+        / "_setsprite(%1,_IV(1,%2,%3,%4))",
     updatesector = cmd(R,R,W)
         / format("%%3=updatesector(_IV(1,%%1,%%2,0),%s)", SPS".sectnum"),
     updatesectorz = cmd(R,R,R,W)

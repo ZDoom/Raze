@@ -1456,6 +1456,21 @@ function _movesprite(spritenum, x, y, z, cliptype)
     return ffiC.A_MoveSprite(spritenum, vel, cliptype)
 end
 
+-- CON's 'setsprite' function on top of the Lunatic-provided ones.
+-- (Lunatic's sprite setting functions have slightly different semantics.)
+local updatesect = sprite.updatesect
+function _setsprite(i, pos)
+    check_sprite_idx(i)
+    local spr = ffiC.sprite[i]
+
+    -- First, unconditionally set the sprite's position.
+    spr:setpos(pos)
+
+    -- Next, update the sector number, but if updatesector() returns -1, don't
+    -- change it. (This is exactly what sprite.updatesect() provides.)
+    updatesect(i)
+end
+
 -- NOTE: returns two args (in C version, hit sprite is a pointer input arg)
 local function A_CheckHitSprite(spr, angadd)
     local zoff = (spr:isenemy() and 42*256) or (ispic(spr.picnum, "APLAYER") and 39*256) or 0

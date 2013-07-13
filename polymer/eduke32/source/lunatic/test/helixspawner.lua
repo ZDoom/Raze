@@ -53,12 +53,12 @@ gameactor
     func = function(aci)
         -- NOTE: this is prettier than calling it 'a', even if 'act' is used to
         -- denote an action in other places:
+        local spr = sprite[aci]
         local act = actor[aci]
 
         if (act:has_action(0)) then
             act:set_action(1)  -- TODO: actor constructors, i.e. 'init' callbacks
 
-            local spr = sprite[aci]
             local decasec = math.floor((gv.gametic - nukeswStart[spr.owner])/(GTICSPERSEC*10))
 
             local pal = COLOR[decasec+1]
@@ -74,6 +74,19 @@ gameactor
         if (act:checkbump()) then
             con.killit()
         end
+
+        -- Test spr:changesect() vs. sprite.changesect()
+        local sectnum = spr.sectnum
+
+        for i=0,gv.numsectors-1 do
+            if (spr.pal ~= 2 and spr.pal ~= 7) then
+                sprite.changesect(aci, i)  -- noticeably faster...
+            else
+                spr:changesect(i)  -- ...than this
+            end
+        end
+
+        sprite.changesect(aci, sectnum)
     end
 }
 
