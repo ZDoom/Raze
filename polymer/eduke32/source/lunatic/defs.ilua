@@ -194,6 +194,7 @@ local check_sprite_idx = bcheck.sprite_idx
 local check_weapon_idx, check_inventory_idx = bcheck.weapon_idx, bcheck.inventory_idx
 local check_sound_idx = bcheck.sound_idx
 local check_number = bcheck.number
+local check_type = bcheck.type
 
 bcarray.new("int16_t", 64, "loogie", "int16_x_64")  -- TODO: randomize member names
 bcarray.new("int16_t", ffiC.MAX_WEAPONS, "weapon", "int16_x_MAX_WEAPONS", WEAPON_NAMES)
@@ -967,6 +968,8 @@ end
 local actor_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(ACTOR_STRUCT)))
 local player_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(DUKEPLAYER_STRUCT)))
 local projectile_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(PROJECTILE_STRUCT)))
+-- An unrestricted weapondata_t pointer, but with the member names stripped of
+-- the leading underscore, too:
 local weapondata_ptr_ct = ffi.typeof("$ *", ffi.typeof((strip_const(WEAPONDATA_STRUCT):gsub(" _"," "))))
 
 local con_action_ct = ffi.typeof("const con_action_t")
@@ -1185,6 +1188,17 @@ ffi.metatype("actor_t", actor_mt)
 
 
 --- PER-PLAYER WEAPON SETTINGS
+local wd_sound_member = {}
+for _, declstr in pairs(con_lang.wdata_members) do
+    local member = declstr:match("const int32_t _(.*sound)$")
+    if (member) then
+        wd_sound_member[member] = true
+        if (ffiC._DEBUG_LUNATIC ~= 0) then
+            printf("weapondata_t member %s denotes a sound", member)
+        end
+    end
+end
+
 local weapondata_mt = {
     __index = function(wd, member)
         -- Handle protected members that are renamed (e.g. shoots/_shoots).
@@ -1195,11 +1209,12 @@ local weapondata_mt = {
         -- Set to 'true' if we set a tile or sound member.
         local didit = false
 
+        check_type(member, "string")  -- MEMBER_IS_STRING
         check_number(val)
 
-        if (string.match(member, "sound")) then
+        if (wd_sound_member[member]) then  -- XXX: sound2time is a time, not a sound
             if (val < 0) then
-                val = 0  -- Set to 0 if oob (e.g. CrackDown).
+                val = 0  -- Set to 0 if negative (e.g. CrackDown).
             else
                 check_sound_idx(val)
             end
@@ -1218,7 +1233,13 @@ local weapondata_mt = {
             didit = true
         end
 
-        ffi.cast(weapondata_ptr_ct, wd)[0][member] = val
+        -- DEBUG:
+--        printf("assigning %s to weapon's %s", tostring(val), member)
+
+        -- NOTE: we're indexing a *pointer* with the user-supplied 'member',
+        -- which could be dangerouns if it could be a number. However, we have
+        -- assured that is is not in MEMBER_IS_STRING above.
+        ffi.cast(weapondata_ptr_ct, wd)[member] = val
 
         if (didit and ffiC.g_elCallDepth==0) then
             -- Signal that we overrode this member at CON translation time.

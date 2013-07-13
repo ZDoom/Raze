@@ -1,7 +1,5 @@
 -- test script for ELua/Lunatic Interpreter
 
---do return end
-
 -- error=nil -- must not affect "require"
 local string = require("string")
 local bit = require("bit")
@@ -31,14 +29,6 @@ local function checkfail(funcstr, expectedmsg)
     end
 end
 
---[[
----- check serialization ----
--- test nans, infs, precision, subnorms, booleans
-ourvar2 = { "asd"; 0/0, 1/0, -1/0, 0.12345678901234567, 1e-314, true }
-ourvar = { ourvar2; 1, 2, 3, "qwe"; [true]=0, [false]=1 }
-ourvar[#ourvar+1] = ourvar;
---]]
-
 gameevent
 {
     "ENTERLEVEL",
@@ -47,13 +37,8 @@ gameevent
         local vol, lev = gv.currentEpisode()+1, gv.currentLevel()+1
         printf('volume=%d, level=%d', vol, lev)
 
-        ---[[
         if (vol ~= 4) then
             -- Tweak some sector pals.
-            -- NOTE: you're not really supposed to modify game state from Lua file
-            -- scope! This is for testing only! E.g. it will fail if a savegame is
-            -- loaded from the menu when no other level is loaded.
-
             print('tweaking sector pals')
             print('numsectors: ' .. gv.numsectors .. ' of ' .. gv.MAXSECTORS)
 
@@ -109,7 +94,6 @@ gameevent
 
 local unsafe = pcall(function() string.UNSAFE=true; end)
 
---]]
 --tostring = nil  -- REMEMBER
 --DBG_.printkv('_G in test.elua', _G)
 
@@ -195,9 +179,25 @@ checkfail("gv.g_sizes_of=nil; print(gv.g_sizes_of[0])", "write access forbidden"
 checkfail("gv.cam.sect=-1", "invalid sector number")
 checkfail("local flag=gv.SFLAG_NULL", "missing declaration")
 
+-- NOTE: player[0] is forbidden at file scope, this is just for testing purposes.
 player[0].wackedbyactor = -1  -- should succeed
 checkfail("player[0].curr_weapon = -1", "Invalid weapon ID")
 player[0].curr_weapon = 1
+checkfail("local w = player[0].weapon[-1]", "out-of-bounds weapon read access")
+
+-- XXX: This gives a very strange error message: "attempt to write to constant location". Why?
+-- (note how I forgot to index weapon with a weapon index or name)
+--player[0].weapon.firesound = 1e5
+checkfail("player[0].weapon.SHOTGUN.firesound = 1e5", "invalid sound number")
+checkfail("player[0].weapon.SHOTGUN.firesound = 0/0", "must be a non-NaN number")
+-- XXX XXX XXX: FAILS!
+-- inf=1/0; inf >= 1ull <- yields FALSE on x86_64 (inf->uint64_t conversion: undefined!)
+-- Related (Mike used 0ULL here): http://www.freelists.org/post/luajit/Stack-trace-on-SIGSEGV,4
+checkfail("player[0].weapon.SHOTGUN.firesound = 1/0", "invalid sound number")
+-- NOTE: It should only be relied on that setting e.g. .firesound to -1 sets it
+-- to 0, not other negative values.
+player[0].weapon.SHOTGUN.firesound = -1/0
+assert(player[0].weapon.SHOTGUN.firesound == 0)
 
 gameevent{gv.EVENT_JUMP,
           function(actori, playeri, dist)
@@ -245,6 +245,10 @@ gameevent
             pistol.shoots = D.SHOTSPARK1
         end
         ps.weapon[gv.PISTOL_WEAPON].firesound = D.LIGHTNING_SLAP
+
+        -- This succeeds, because sound2time is a time, not a sound.
+        ps.weapon.SHOTGUN.sound2time = 5000
+        printf("set shotgun's sound2time to %d", ps.weapon.SHOTGUN.sound2time)
 
         -- Set pipebomb and tripbomb to timed mode.
         -- XXX: Provide either named constants or methods?

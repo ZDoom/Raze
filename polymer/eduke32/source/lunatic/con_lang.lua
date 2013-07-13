@@ -309,6 +309,8 @@ end
 wdata_members =
 {
     -- NOTE: they are lowercased for Lunatic
+    -- NOTE: members _*sound*, _spawn and _shoots assume *zero* to mean "none"
+    --  (-1 would be more logical).
     "const int32_t _workslike",
     "int32_t clip",
     "int32_t reload",
