@@ -39,67 +39,73 @@ ourvar = { ourvar2; 1, 2, 3, "qwe"; [true]=0, [false]=1 }
 ourvar[#ourvar+1] = ourvar;
 --]]
 
-local vol, lev = gv.currentEpisode()+1, gv.currentLevel()+1
-printf('volume=%d, level=%d', vol, lev)
+gameevent
+{
+    "ENTERLEVEL",
 
----[[
-if (vol ~= 4) then
-    -- Tweak some sector pals.
-    -- NOTE: you're not really supposed to modify game state from Lua file
-    -- scope! This is for testing only! E.g. it will fail if a savegame is
-    -- loaded from the menu when no other level is loaded.
+    function()
+        local vol, lev = gv.currentEpisode()+1, gv.currentLevel()+1
+        printf('volume=%d, level=%d', vol, lev)
 
-    print('tweaking sector pals')
-    print('numsectors: ' .. gv.numsectors .. ' of ' .. gv.MAXSECTORS)
+        ---[[
+        if (vol ~= 4) then
+            -- Tweak some sector pals.
+            -- NOTE: you're not really supposed to modify game state from Lua file
+            -- scope! This is for testing only! E.g. it will fail if a savegame is
+            -- loaded from the menu when no other level is loaded.
 
-    local SF = sector.STAT
-    for i = 0, gv.numsectors/2 do
-        local sec = sector[i]
-        sec.floorpal = 1;
-        sector[i].floor.shade = sec.floor.shade + 4
-        sector[i].ceilingpal = 2;
-        local ceil = sec.ceiling
-        ceil.shade = sector[i].ceiling.shade + 8
-        ceil.statbits:flip(SF.SMOOSH)
-        sec.floorstatbits:flip(SF.SWAPXY)
-    end
-end
+            print('tweaking sector pals')
+            print('numsectors: ' .. gv.numsectors .. ' of ' .. gv.MAXSECTORS)
 
-if (vol==1 and lev==1) then  -- E1L1
-    print('tweaking some sprites 2')
-    local i = 562
-    spriteext[i].alpha = 0.5;
-    sprite[i].cstat = bit.bor(sprite[i].cstat, 2+512);
-    spriteext[i].pitch = 128;
-    spriteext[i].roll = 256;
+            local SF = sector.STAT
+            for i = 0, gv.numsectors/2 do
+                local sec = sector[i]
+                sec.floorpal = 1;
+                sector[i].floor.shade = sec.floor.shade + 4
+                sector[i].ceilingpal = 2;
+                local ceil = sec.ceiling
+                ceil.shade = sector[i].ceiling.shade + 8
+                ceil.statbits:flip(SF.SMOOSH)
+                sec.floorstatbits:flip(SF.SWAPXY)
+            end
+        end
 
-    i = 107  -- pistol ammo at rooftop
-    spriteext[i].pitch = 128;
-    spriteext[i].roll = 256;
+        if (vol==1 and lev==1) then  -- E1L1
+            print('tweaking some sprites 2')
+            local i = 562
+            spriteext[i].alpha = 0.5;
+            sprite[i].cstat = bit.bor(sprite[i].cstat, 2+512);
+            spriteext[i].pitch = 128;
+            spriteext[i].roll = 256;
 
-    for spr in spritesofsect(307) do  -- some fence sprites in E1L1
-        printf('spr %d', spr)
-        sprite[spr].pal = 6
-    end
+            i = 107  -- pistol ammo at rooftop
+            spriteext[i].pitch = 128;
+            spriteext[i].roll = 256;
 
-    --this is a problem
-    --actor = {}
-    actor[562].flags = bit.bor(actor[562].flags, 2);   -- pal 6 with goggles on front SEENINE
-end
+            for spr in spritesofsect(307) do  -- some fence sprites in E1L1
+                printf('spr %d', spr)
+                sprite[spr].pal = 6
+            end
 
+            --this is a problem
+            --actor = {}
+            actor[562].flags = bit.bor(actor[562].flags, 2);   -- pal 6 with goggles on front SEENINE
+        end
 --[[
--- TODO: better API for all TROR things?
-if (vol==1 and lev==8) then
-    print('tweaking bunch 1');
-    -- trueror1.map
-    for i in sectorsofbunch(1, gv.CEILING) do
-        sector[i].ceilingz = sector[i].ceilingz - 3*1024;
-    end
-    for i in sectorsofbunch(1, gv.FLOOR) do
-        sector[i].floorz = sector[i].floorz - 3*1024;
-    end
-end
+        -- TODO: better API for all TROR things?
+        if (vol==1 and lev==8) then
+            print('tweaking bunch 1');
+            -- trueror1.map
+            for i in sectorsofbunch(1, gv.CEILING) do
+                sector[i].ceilingz = sector[i].ceilingz - 3*1024;
+            end
+            for i in sectorsofbunch(1, gv.FLOOR) do
+                sector[i].floorz = sector[i].floorz - 3*1024;
+            end
+        end
 --]]
+    end
+}
 
 local unsafe = pcall(function() string.UNSAFE=true; end)
 
@@ -192,8 +198,6 @@ checkfail("local flag=gv.SFLAG_NULL", "missing declaration")
 player[0].wackedbyactor = -1  -- should succeed
 checkfail("player[0].curr_weapon = -1", "Invalid weapon ID")
 player[0].curr_weapon = 1
-
-printf('ceilingbunch of sector 0: %d', sector[0].ceilingbunch)
 
 gameevent{gv.EVENT_JUMP,
           function(actori, playeri, dist)

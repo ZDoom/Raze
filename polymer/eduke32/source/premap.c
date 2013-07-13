@@ -1127,11 +1127,6 @@ static inline void prelevel(char g)
         }
     }
 
-#ifdef LUNATIC
-    El_CreateGameState();
-    G_PostCreateGameState();
-#endif
-
     i = headspritestat[STAT_DEFAULT];
     while (i >= 0)
     {
@@ -1502,6 +1497,12 @@ void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
 
     display_mirror = 0;
 
+#ifdef LUNATIC
+    // NOTE: Lunatic state creation is relatively early. No map has yet been loaded.
+    // XXX: What about the cases where G_EnterLevel() is called without a preceding G_NewGame()?
+    El_CreateGameState();
+    G_PostCreateGameState();
+#endif
     VM_OnEvent(EVENT_NEWGAME, g_player[myconnectindex].ps->i, myconnectindex, -1, 0);
 }
 
