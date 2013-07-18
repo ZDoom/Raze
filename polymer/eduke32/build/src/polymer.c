@@ -283,7 +283,12 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "varying vec3 horizDistance;\n"
         "\n",
         // frag_prog
-        "  float shadeLookup = length(horizDistance) / 1.024 * visibility;\n"
+
+        // NOTE: the denominator was 1.024, but we increase it towards a bit
+        // farther far clipoff distance to account for the fact that the
+        // distance to the fragment is the common Euclidean one, as opposed to
+        // the "ortho" distance of Build.
+        "  float shadeLookup = length(horizDistance) / 1.07 * visibility;\n"
         "  shadeLookup = shadeLookup + shadeOffset;\n"
         "\n"
         "  float colorIndex = texture2D(artMap, commonTexCoord.st).r * 256.0;\n"
@@ -4965,7 +4970,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         texunit++;
 
         bglUniform1fARB(prprograms[programbits].uniform_shadeOffset, material.shadeoffset);
-        bglUniform1fARB(prprograms[programbits].uniform_visibility, (globalvisibility - 2048.0) / 2048.0 + material.visibility);
+        bglUniform1fARB(prprograms[programbits].uniform_visibility, globalvisibility/2048.0 * material.visibility);
     }
 
     // PR_BIT_DIFFUSE_MAP
