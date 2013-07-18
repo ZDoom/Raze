@@ -4370,7 +4370,10 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     else
         smoothratio = calc_smoothratio(totalclock, ototalclock);
 
-    g_visibility = (int32_t)(p->visibility * (numplayers > 1 ? 1.f : r_ambientlightrecip));
+    {
+        int32_t vis = p->visibility;
+        g_visibility = (vis <= 0) ? 0 : vis * (numplayers > 1 ? 1.f : r_ambientlightrecip);
+    }
 
     CAMERA(sect) = p->cursectnum;
 
@@ -4708,12 +4711,30 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     G_RestoreInterpolations();
 
-    if (totalclock < lastvisinc)
     {
-        if (klabs(p->visibility-ud.const_visibility) > 8)
-            p->visibility += (ud.const_visibility-p->visibility)>>2;
+        // Totalclock count of last step of p->visibility converging towards
+        // ud.const_visibility.
+        static int32_t lastvist;
+        const int32_t visdif = ud.const_visibility-p->visibility;
+
+        // Check if totalclock was cleared (e.g. restarted game).
+        if (totalclock < lastvist)
+            lastvist = 0;
+
+        // Every 2nd totalclock increment (each 1/60th second), ...
+        while (totalclock >= lastvist+2)
+        {
+            // ... approximately three-quarter the difference between
+            // p->visibility and ud.const_visibility.
+            const int32_t visinc = visdif>>2;
+
+            if (klabs(visinc) == 0)
+                break;
+
+            p->visibility += visinc;
+            lastvist = totalclock;
+        }
     }
-    else p->visibility = ud.const_visibility;
 
     if (r_usenewaspect)
     {
