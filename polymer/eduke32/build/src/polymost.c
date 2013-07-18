@@ -519,8 +519,8 @@ static void fogcalc_old(int32_t shade, int32_t vis)
 
 // For GL_LINEAR fog:
 #define FOGDISTCONST 600
-#define FULLVIS_BEGIN 2.9e38
-#define FULLVIS_END 3.0e38
+#define FULLVIS_BEGIN 2.9e30
+#define FULLVIS_END 3.0e30
 
 static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
@@ -541,8 +541,19 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
 
         if (combvis == 0)
         {
-            fogresult = FULLVIS_BEGIN;
-            fogresult2 = FULLVIS_END;
+            if (shade > 0)
+            {
+                // beg = -D*shade, end = D*(NUMSHADES-1-shade)
+                //  => end/beg = -(NUMSHADES-1-shade)/shade
+                fogresult = -FULLVIS_BEGIN;
+                fogresult2 = FULLVIS_BEGIN * (float)(numshades-1-shade)/shade;
+            }
+            else
+            {
+                fogresult = FULLVIS_BEGIN;
+                fogresult2 = FULLVIS_END;
+            }
+
             return;
         }
 
@@ -574,6 +585,8 @@ void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t
     if (nofog)
         return;
 
+    // NOTE: for r_usenewshading==2, the fog being/ending distance results are
+    // unused.
     fogcalc(tile, shade, vis, pal);
     bglFogfv(GL_FOG_COLOR, fogcol);
 
