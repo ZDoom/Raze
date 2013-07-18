@@ -205,7 +205,7 @@ ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     endif
     M_TUNE_GENERIC := -mtune=generic
     M_STACKREALIGN := -mstackrealign
-    W_STRICT_OVERFLOW := -Wstrict-overflow=1
+    W_STRICT_OVERFLOW := -Wno-strict-overflow
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
