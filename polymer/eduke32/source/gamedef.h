@@ -60,7 +60,6 @@ extern intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
 #endif
 
 extern int32_t otherp;
-extern int32_t lastvisinc;
 extern char CheatStrings[][MAXCHEATLEN];
 extern char g_szScriptFileName[BMAX_PATH];
 extern int32_t g_totalLines,g_lineNumber;

@@ -150,8 +150,6 @@ char **g_clipMapFiles = NULL;
 int32_t g_clipMapFilesNum = 0;
 #endif
 
-extern int32_t lastvisinc;
-
 int32_t g_Shareware = 0;
 
 #define MAXUSERQUOTES 6
@@ -7810,7 +7808,6 @@ skip:
             if (t->picnum == EXPLOSION2)
             {
                 g_player[screenpeek].ps->visibility = -127;
-                lastvisinc = totalclock+32;
                 //g_restorePalette = 1;   // JBF 20040101: why?
             }
             t->shade = -127;

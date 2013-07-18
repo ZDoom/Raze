@@ -3499,7 +3499,6 @@ nullquote:
             insptr++;
             sprite[vm.g_i].shade = -127;
             g_player[vm.g_p].ps->visibility = -127;
-            lastvisinc = totalclock+32;
             continue;
 
         case CON_SAVEMAPSTATE:

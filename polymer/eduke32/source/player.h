@@ -324,8 +324,6 @@ typedef struct {
 extern input_t          inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
 extern playerdata_t     g_player[MAXPLAYERS];
-//extern char             dashow2dsector[(MAXSECTORS+7)>>3];
-//extern int16_t          searchsect[MAXSECTORS],searchparent[MAXSECTORS];
 extern int16_t          WeaponPickupSprites[MAX_WEAPONS];
 extern hudweapon_t      hudweap;
 extern int32_t          g_levelTextTime;
@@ -333,7 +331,6 @@ extern int32_t          g_myAimMode;
 extern int32_t          g_numObituaries;
 extern int32_t          g_numSelfObituaries;
 extern int32_t          g_emuJumpTics;
-extern int32_t          lastvisinc;
 extern int32_t          mouseyaxismode;
 extern int32_t          ticrandomseed;
 

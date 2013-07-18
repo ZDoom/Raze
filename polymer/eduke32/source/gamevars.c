@@ -1270,6 +1270,10 @@ void Gv_FinalizeWeaponDefaults(void)
 #undef FINISH_WEAPON_DEFAULT_X
 #undef POSTADDWEAPONVAR
 
+#if !defined LUNATIC
+static int32_t lastvisinc;
+#endif
+
 static void Gv_AddSystemVars(void)
 {
     // only call ONCE

@@ -155,7 +155,6 @@ ScriptQuotes;
 screenpeek;
 hudweap;
 playerswhenstarted;
-lastvisinc;
 g_spriteDeleteQueueSize;
 BlimpSpawnSprites;
 g_scriptVersion;

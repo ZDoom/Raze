@@ -634,7 +634,6 @@ struct
 char *ScriptQuotes[];
 
 const int32_t playerswhenstarted;
-int32_t lastvisinc;
 int16_t g_spriteDeleteQueueSize;
 int16_t BlimpSpawnSprites[15];
 int32_t g_scriptVersion;

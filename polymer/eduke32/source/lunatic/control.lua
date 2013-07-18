@@ -1634,8 +1634,7 @@ end
 
 function _flash(spr, ps)
    spr.shade = -127
-   ps.visibility = -127  -- XXX
-   ffiC.lastvisinc = ffiC.totalclock+32
+   ps.visibility = -127  -- NOTE: negative value not a problem anymore
 end
 
 function _G_OperateRespawns(tag)

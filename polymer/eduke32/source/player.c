@@ -1971,7 +1971,6 @@ static void P_FireWeapon(DukePlayer_t *p)
             s->x -= x;
             s->y -= y;
 #endif // POLYMER
-            lastvisinc = totalclock+32;
             p->visibility = 0;
         }
     }
