@@ -60,7 +60,7 @@ function new(basetype, numelts, showname, typename, rng, mtadd)
 
     local mt = {
         __index = function(ar, idx)
-            if (idx >= numelts+0ULL) then
+            if (not (idx >= 0 and idx < numelts)) then
                 error("out-of-bounds "..showname.." read access", 2)
             end
             return ffi.cast(eltptr_t, ar)[idx]
@@ -69,7 +69,7 @@ function new(basetype, numelts, showname, typename, rng, mtadd)
         -- NOTE: this function will be dead code if the prefixed __newindex
         -- errors out unconditionally or the bcarray is declared 'const'.
         __newindex = function(ar, idx, val)
-            if (idx >= numelts+0ULL) then
+            if (not (idx >= 0 and idx < numelts)) then
                 error("out-of-bounds "..showname.." write access", 2)
             end
             ffi.cast(eltptr_t, ar)[idx] = val

@@ -268,7 +268,7 @@ function insertsprite(tab_or_tilenum, ...)
     check_sector_idx(sectnum)
     check_allnumbers(shade, xrepeat, yrepeat, ang, xvel, zvel, owner)
 
-    if (statnum >= ffiC.MAXSTATUS+0ULL) then
+    if (not (statnum >= 0 and statnum < ffiC.MAXSTATUS)) then
         error("invalid 'statnum' argument to insertsprite: must be a status number [0 .. MAXSTATUS-1]", 2)
     end
 
@@ -771,11 +771,11 @@ end
 function _getkeyname(qdst, gfuncnum, which)
     local cstr_dst = bcheck.quote_idx(qdst)
 
-    if (gfuncnum >= ffiC.NUMGAMEFUNCTIONS+0ULL) then
+    if (not (gfuncnum >= 0 and gfuncnum < ffiC.NUMGAMEFUNCTIONS)) then
         error("invalid game function number "..gfuncnum, 2)
     end
 
-    if (which >= 3+0ULL) then
+    if (not (which >= 0 and which < 3)) then
         error("third argument to getkeyname must be 0, 1 or 2", 2)
     end
 
@@ -830,7 +830,7 @@ function _qgetsysstr(qdst, what, pli)
         ffi.copy(dst, "multiplayer not yet implemented")  -- TODO_MP
     elseif (what == ffiC.STR_VOLUMENAME) then
         local vol = ffiC.ud.volume_number
-        assert(vol+0ULL < con_lang.MAXVOLUMES)
+        assert(not (vol >= con_lang.MAXVOLUMES+0ULL))
         ffi.copy(dst, ffiC.EpisodeNames[vol], ffi.sizeof(ffiC.EpisodeNames[0]))
     else
         error("unknown system string ID "..what, 2)
@@ -870,7 +870,7 @@ end
 
 function _digitalnumber(tilenum, x, y, num, shade, pal,
                         orientation, cx1, cy1, cx2, cy2, zoom)
-    if (tilenum >= ffiC.MAXTILES-9+0ULL) then
+    if (not (tilenum >= 0 and tilenum >= ffiC.MAXTILES-9)) then
         error("invalid base tile number "..tilenum, 2)
     end
 
@@ -879,7 +879,7 @@ function _digitalnumber(tilenum, x, y, num, shade, pal,
 end
 
 local function text_check_common(tilenum, orientation)
-    if (tilenum >= ffiC.MAXTILES-255+0ULL) then
+    if (not (tilenum >= 0 and tilenum < ffiC.MAXTILES-255)) then
         error("invalid base tile number "..tilenum, 3)
     end
 
@@ -1992,7 +1992,7 @@ local function check_gamearray_idx(gar, idx, addstr)
     -- system gamearray: currently, only g_tile.sizx/sizy.
     local size = rawget(gar, '_size') or ffiC.MAXTILES
 
-    if (idx >= size+0ULL) then
+    if (not (idx >= 0 and idx < size)) then
         addstr = addstr or ""
         error("invalid "..addstr.."array index "..idx, 3)
     end

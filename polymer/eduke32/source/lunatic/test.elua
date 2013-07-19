@@ -190,9 +190,6 @@ checkfail("local w = player[0].weapon[-1]", "out-of-bounds weapon read access")
 --player[0].weapon.firesound = 1e5
 checkfail("player[0].weapon.SHOTGUN.firesound = 1e5", "invalid sound number")
 checkfail("player[0].weapon.SHOTGUN.firesound = 0/0", "must be a non-NaN number")
--- XXX XXX XXX: FAILS!
--- inf=1/0; inf >= 1ull <- yields FALSE on x86_64 (inf->uint64_t conversion: undefined!)
--- Related (Mike used 0ULL here): http://www.freelists.org/post/luajit/Stack-trace-on-SIGSEGV,4
 checkfail("player[0].weapon.SHOTGUN.firesound = 1/0", "invalid sound number")
 -- NOTE: It should only be relied on that setting e.g. .firesound to -1 sets it
 -- to 0, not other negative values.

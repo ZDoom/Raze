@@ -983,7 +983,7 @@ local literal_mov = { [0]=con_move_ct(0), [1]=con_move_ct(1) }
 
 local function get_actor_idx(a)
     local i = ffi.cast(actor_ptr_ct, a)-ffi.cast(actor_ptr_ct, ffiC.actor)
-    assert(not (i >= ffiC.MAXSPRITES+0ULL))
+--    assert(not (i >= ffiC.MAXSPRITES+0ULL))
     return i
 end
 
@@ -1117,14 +1117,14 @@ local actor_mt = {
 
         -- Getters/setters.
         _get_t_data = function(a, idx)
-            if (idx >= 10ULL) then
+            if (not (idx >= 0 and idx < 10)) then
                 error("invalid t_data index "..idx, 2)
             end
             return ffi.cast(actor_ptr_ct, a).t_data[idx]
         end,
 
         _set_t_data = function(a, idx, val)
-            if (idx >= 10ULL) then
+            if (not (idx >= 0 and idx < 10)) then
                 error("invalid t_data index "..idx, 2)
             end
             ffi.cast(actor_ptr_ct, a).t_data[idx] = val
@@ -1246,7 +1246,7 @@ local weapondata_mt = {
             -- Get weapon index as pointer difference first. PLAYER_0.
             local wi = ffi.cast(weapondata_ptr_ct, wd)
                      - ffi.cast(weapondata_ptr_ct, ffiC.g_playerWeapon)
-            assert(not (wi >= ffiC.MAX_WEAPONS+0ULL))
+            assert(wi >= 0 and wi < ffiC.MAX_WEAPONS)
 
             -- Set g_weaponOverridden[wi][member], but without invoking
             -- weapondata_t's __newindex metamethod (i.e. us)!
@@ -1513,7 +1513,7 @@ end
 
 function gv_access._set_guniqhudid(id)
     local MAXUNIQHUDID = 256  -- KEEPINSYNC build.h
-    if (id >= MAXUNIQHUDID+0ULL) then
+    if (not (id >= 0 and id < MAXUNIQHUDID)) then
         error("invalid unique HUD ID "..id)
     end
     ffiC.guniqhudid = id
@@ -1986,7 +1986,7 @@ local function our_gameactor(args)
     if (type(tilenum) ~= "number") then
         error("invalid argument #1 to gameactor: must be a number", 2)
     end
-    if (tilenum >= ffiC.MAXTILES+0ULL) then
+    if (not (tilenum >= 0 and tilenum < ffiC.MAXTILES)) then
         error("invalid argument #1 to gameactor: must be a tile number [0..gv.MAXTILES-1]", 2)
     end
 
@@ -2124,7 +2124,7 @@ local function our_gameevent(args)
     if (type(event) ~= "number") then
         error("invalid argument #1 to gameevent: must be a number or event label", 2)
     end
-    if (event >= con_lang.MAXEVENTS+0ULL) then
+    if (not (event >= 0 and event < con_lang.MAXEVENTS)) then
         error("invalid argument #1 to gameevent: must be an event number (0 .. MAXEVENTS-1)", 2)
     end
 

@@ -365,6 +365,7 @@ local function new_initial_gvartab()
 
         yxaspect = RO "_gv._get_yxaspect()",
         viewingrange = RO "_gv._get_viewingrange()",
+        -- TODO: gravitationalconstant, gametype_flags
 
         numsectors = RO "_gv.numsectors",
         NUMSECTORS = RO "_gv.numsectors",

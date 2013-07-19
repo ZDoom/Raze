@@ -464,7 +464,7 @@ local sectortype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SECTOR_STRUCT
 
 local function get_sector_idx(sec)
     local i = ffi.cast(sectortype_ptr_ct, sec)-ffi.cast(sectortype_ptr_ct, ffiC.sector)
-    assert(not (i >= ffiC.numsectors+0ULL))
+--    assert(i >= 0 and i < ffiC.numsectors)
     return i
 end
 
@@ -671,7 +671,7 @@ local tspritetype_mt = deep_copy(spritetype_mt)
 -- http://www.freelists.org/post/luajit/FFI-versus-Lua-C-API-in-purely-interpreted-mode
 local function get_sprite_idx(spr)
     local i = ffi.cast(spritetype_ptr_ct, spr)-ffi.cast(spritetype_ptr_ct, ffiC.sprite)
-    assert(not (i >= ffiC.MAXSPRITES+0ULL))
+--    assert(i >= 0 and i < ffiC.MAXSPRITES)
     return i
 end
 
@@ -727,7 +727,7 @@ end
 function tspritetype_mt.__index.setpos(tspr, pos, newsect)
     tspr.x, tspr.y, tspr.z = pos.x, pos.y, pos.z
     if (newsect ~= nil) then
-        tspr:set_sectnum(newsect)
+        tspr:changesect(newsect)
     end
     return tspr
 end
@@ -735,7 +735,7 @@ end
 function tspritetype_mt.__index.updatesect(tspr, flags)
     local newsect = l_updatesector(tspr, tspr.sectnum, flags)
     if (newsect ~= -1 and newsect ~= tspr.sectnum) then
-        tspr:set_sectnum(newsect)
+        tspr:changesect(newsect)
     end
     return newsect
 end
@@ -927,7 +927,7 @@ l_changesect = static_members.sprite.changesect
 function static_members.sprite.changestat(spritenum, statnum, noerr)
     -- TODO: see gameexec.c's CON_CHANGESPRITESTAT.
     check_sprite_idx(spritenum)
-    if (statnum >= ffiC.MAXSTATUS+0ULL) then
+    if (not (statnum >= 0 and statnum < ffiC.MAXSTATUS)) then
         error("invalid status number "..statnum, 2)
     end
     if (ffiC.changespritestat(spritenum, statnum)==-1 and not noerr) then
@@ -1080,7 +1080,7 @@ local function iter_spritesofstat_safe(tab, i)
 end
 
 function spritesofstat(stat, maydelete)
-    if (stat >= ffiC.MAXSTATUS+0ULL) then
+    if (not (stat >= 0 and stat < ffiC.MAXSTATUS)) then
         error("passed invalid statnum to spritesofstat iterator", 2)
     end
 
@@ -1103,7 +1103,7 @@ local function iter_sectorsofbunch(cf, i)
 end
 
 function sectorsofbunch(bunchnum, cf)
-    if (bunchnum >= ffiC.numyaxbunches+0ULL) then
+    if (not (bunchnum >= 0 and bunchnum < ffiC.numyaxbunches)) then
         error("passed invalid bunchnum to sectorsofbunch iterator", 2)
     end
     if (not (cf == 0 or cf == 1)) then

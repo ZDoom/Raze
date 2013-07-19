@@ -54,7 +54,7 @@ local band = bit.band
 
 local function ksc_common(ang)
     ang = band(ang, 2047)
-    assert(ang < 2048+0ULL)  -- might have been passed NaN
+    assert(ang >= 0 and ang < 2048)  -- might have been passed NaN
     return ang
 end
 

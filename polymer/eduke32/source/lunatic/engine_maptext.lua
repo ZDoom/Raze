@@ -240,6 +240,8 @@ local function restore_point2(alsosectorp)
 end
 
 local function saveboard_maptext(filename, pos, ang, cursectnum)
+    assert(ffiC.numsectors > 0)
+
     -- First, temporarily tweak wall[].point2.
     if (save_tweak_point2()) then
         return -1
@@ -448,8 +450,8 @@ local function loadboard_maptext(fil, posptr, angptr, cursectnumptr)
     local numsectors, numwalls, numsprites = #msector, #mwall, #msprite
     local sector, wall, sprite = ffiC.sector, ffiC.wall, ffiC.sprite
 
-    if (numsectors+0ULL > ffiC.MAXSECTORS or numwalls+0ULL > ffiC.MAXWALLS or
-        numsprites+0ULL > ffiC.MAXSPRITES)
+    if (numsectors == 0 or numsectors > ffiC.MAXSECTORS or
+        numwalls > ffiC.MAXWALLS or numsprites > ffiC.MAXSPRITES)
     then
         return RETERR-9
     end
