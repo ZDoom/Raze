@@ -1004,7 +1004,7 @@ thought to be overlaid with a structure containing as many members as the array
 has elements, all having the element's type.
 
 Currently, there are with two kinds of names: weapon names and inventory
-names. In the following, they will be marked using a the following notation:
+names. They will be marked using notation like this:
 
 ==========
 _`i16`_ +ammo_amount[_weapon_]+
@@ -1042,7 +1042,7 @@ velocity is multiplied before calculating its new position. On various
 occasions, the ultimate scaled factor is the difference of `runspeed` and at
 most 8192.
 
-_`i8`_ `curr_weapon`::
+`curr_weapon`::
 The index of the player's currently selected weapon.
 
 
@@ -1058,7 +1058,7 @@ The first argument `fadefrac` specifies the starting blending coefficient; `r`,
 components, respectively.
 +
 Both `fadefrac` and the component intensities are first clamped to the range
-[0.0 .. 1.0]. The resulting values are interpreted as a fraction, 0.0 meaning
+[0.0 .. 1.0]. The resulting values are interpreted as a proportion, 0.0 meaning
 no blending/no color and 1.0 meaning full blending/full
 color.footnote:[Currently, for implementation reasons, a value of 1.0 results
 in only _almost_ full blending or presence of the specified color component.]

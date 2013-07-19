@@ -64,9 +64,10 @@ The stand-alone LunaCON script, `lunacon.lua`, needs {LuaJIT}[LuaJIT] for
 execution and {LPeg}[LPeg] as additional dependency.footnote:[In order to
 translate some very large CON files, minor modifications have to be made to
 LuaJIT and LPeg. Refer to `lunatic/doc/how_to_build_lunatic.txt` in the EDuke32
-source distribution for details.] It expects one or more names of root CON
-files together with any number of options, in any order (arguments starting
-with a dash are always interpreted as the latter).
+source distribution for details.] The script also requires `con_lang.lua` to be
+present. It expects one or more names of root CON files together with any
+number of options, in any order (arguments starting with a dash are always
+interpreted as the latter).
 
 .Example usage
 ----------
@@ -153,10 +154,12 @@ set the output behavior of the stand-alone translator, or toggle various error
 conditions.
 
 `-fno` (stand-alone only)::
-Disable printing out the generated code and any diagnostic messages.
+Disable printing out the generated code and validating its syntax.
 
 `-fno=onlycheck` (stand-alone only)::
-Disable printing out the generated code, keeping only the diagnostics.
+Disable printing out the generated code, but validate whether it is
+syntactically legal Lua code. A failure of this check represents a bug with
+LunaCON itself.
 
 `-ferror-nostate` (default: on)::
 If enabled, an attempt to call a `state` that was not previously defined
