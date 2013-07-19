@@ -154,7 +154,7 @@ defs_c.bitint_new_struct_type("uint32_t", "UBit32")
 -- to make more 'const'), but still has array members exposed, so is unsuited
 -- for external exposure.
 local ACTOR_STRUCT = [[
-__attribute__((packed)) struct {
+struct {
     const int32_t t_data[10];
     const struct move mv;
     const struct action ac;

@@ -134,7 +134,6 @@ typedef struct {
 # define AC_MOVFLAGS(spr, a) ((spr)->hitag)
 #endif
 
-#pragma pack(push,1)
 // (+ 40 16 16 4 8 6 8 6 4 20)
 typedef struct {
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
@@ -193,6 +192,7 @@ typedef struct {
 #endif
 } actor_t;
 
+#pragma pack(push,1)
 // this struct needs to match the beginning of actor_t above
 typedef struct {
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
