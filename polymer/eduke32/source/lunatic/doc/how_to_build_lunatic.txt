@@ -12,4 +12,4 @@ Lunatic depends on the following:
 * LPeg 0.12 [http://www.inf.puc-rio.br/~roberto/lpeg], but with our patch
   "lpeg-lunatic.patch" applied. It will allow to build a statically linked
   library of LPeg, "liblpeg.a".  On Windows, liblpeg.a is pre-compiled and
-  resides in platform/Windows/lib/{32,64} [TODO on release].
+  resides in platform/Windows/lib/32 [TODO: 64].
