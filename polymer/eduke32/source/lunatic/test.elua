@@ -107,13 +107,32 @@ checkfail('print(gv.sprite[0])', "access forbidden")
 -- set metatable forbidden
 checkfail('setmetatable(sprite, {})', "attempt to read undeclared variable 'setmetatable'")
 
--- OOB write access.
--- Note that indexing ("reading") sector fails, even if the user wants to
--- assign to a sector member. Potentially confusing error message.
-checkfail('sector[-1].ceilingpal = 4', "out-of-bounds sector[] read access")
+gameevent
+{
+    "ENTERLEVEL",
 
--- wallnum member is read-only
-checkfail('sector[0].wallnum = 0', "attempt to write to constant location")  -- this comes from LJ/FFI
+    function()
+        -- OOB write access.
+        -- Note that indexing ("reading") sector fails, even if the user wants to
+        -- assign to a sector member. Potentially confusing error message.
+        checkfail('sector[-1].ceilingpal = 4', "out-of-bounds sector[] read access")
+
+        -- wallnum member is read-only
+        checkfail('sector[0].wallnum = 0', "attempt to write to constant location")  -- this comes from LJ/FFI
+
+        -- direct sector write access forbidden
+        checkfail('sector[4] = sector[6]', "cannot write directly to sector[]")
+
+        -- creating new keys forbidden... handled by LuaJIT
+        checkfail('wall[4].QWE = 123', "has no member named 'QWE'")
+
+        -- no pointer arithmetic!
+        checkfail('local spr = sprite[0]; local x=spr+1', "attempt to perform arithmetic on")
+
+        -- actor[].t_data[] is not accessible for now
+        checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
+    end
+}
 
 -- gv.numsectors is read-only
 checkfail('gv.numsectors = 4', "attempt to write to constant location")
@@ -121,17 +140,11 @@ checkfail('gv.numsectors = 4', "attempt to write to constant location")
 -- cannot create new fields in 'gv'
 checkfail('gv.QWE = 4', "write access forbidden")
 
--- direct sector write access forbidden
-checkfail('sector[4] = sector[6]', "cannot write directly to sector[]")
-
 -- that would be horrible...
 checkfail('sprite._nextspritesect[4] = -666', "cannot write directly to nextspritesect[]")
 
 -- we're indexing a plain array!
 checkfail('print(sprite._nextspritesect[4].whatfield)', "attempt to index a number value")
-
--- creating new keys forbidden... handled by LuaJIT
-checkfail('wall[4].QWE = 123', "has no member named 'QWE'")
 
 -- our 'require' has only safe stuff
 --checkfail("require('os')")
@@ -161,12 +174,6 @@ checkfail('gv.luaJIT_setmode(nil, 0, 0)', "missing declaration for symbol 'luaJI
 
 checkfail('gv.luaJIT_BC_con_lang', "attempt to call a nil value")
 checkfail('gv.gethiticks = nil', "attempt to write to constant location")
-
--- actor[].t_data[] is not accessible for now
-checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
-
--- no pointer arithmetic!
-checkfail('local spr = sprite[0]; local x=spr+1', "attempt to perform arithmetic on")
 
 checkfail('gameactor{1680, 0}', "must provide a function with last numeric arg or .func")
 

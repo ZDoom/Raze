@@ -2,6 +2,7 @@
 
 -- Usage: luajit bittest.lua <number or "x"> [-ffi] [-bchk]
 
+local require = require
 local string = require "string"
 local math = require "math"
 

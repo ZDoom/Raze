@@ -1824,7 +1824,7 @@ local function our_require(modname, ...)
 
     local gvmodi = module_gvlocali[modname]
 
-    if (gvmodi and gvmodi[2]>=gvmodi[1]) then
+    if (gvmodi and gvmodi[2] and gvmodi[2]>=gvmodi[1]) then
         if (coroutine.status(modthread)=="suspended") then
             -- Save off the suspended thread so that we may get its locals later on.
             -- It is never resumed, but only ever used for debug.getlocal().
