@@ -1704,6 +1704,11 @@ local function our_require(modname, ...)
         error("module name must be a nonempty string", 2)
     end
 
+    -- For _LUNATIC_DBG
+    if (modname:match("^_LUNATIC") and ffiC._DEBUG_LUNATIC == 0) then
+        return nil
+    end
+
     -- Handle the section between module() and require("end_gamevars").
     if (modname == "end_gamevars") then
         local thismodname = getcurmodname("require")
@@ -2371,42 +2376,45 @@ gv = setmtonce(gv_, tmpmt)
 defs_c.create_globals(_G)
 
 -- REMOVE this for release
-DBG_ = {}
-DBG_.debug = require("debug")
-DBG_.printkv = printkv
-DBG_.loadstring = loadstring
-DBG_.oom = function()
-    local s = "1"
-    for i=1,math.huge do
-        s = s..s
+if (ffiC._DEBUG_LUNATIC ~= 0) then
+    local DBG_ = {}
+    DBG_.debug = require("debug")
+    DBG_.printkv = printkv
+    DBG_.loadstring = loadstring
+    DBG_.oom = function()
+        local s = "1"
+        for i=1,math.huge do
+            s = s..s
+        end
     end
-end
 
--- Test reading from all struct members
-function DBG_.testmembread()
-    for _1, sac in pairs { con_lang.StructAccessCode, con_lang.StructAccessCode2 } do
-        for what, labels in pairs(sac) do
-            if (what~="tspr") then
-                for _3, membaccode in pairs(labels) do
-                    if (type(membaccode)=="table") then
-                        membaccode = membaccode[1]
-                    end
-                    if (membaccode) then
-                        local codestr = [[
+    -- Test reading from all struct members
+    DBG_.testmembread = function()
+        for _1, sac in pairs { con_lang.StructAccessCode, con_lang.StructAccessCode2 } do
+            for what, labels in pairs(sac) do
+                if (what~="tspr") then
+                    for _3, membaccode in pairs(labels) do
+                        if (type(membaccode)=="table") then
+                            membaccode = membaccode[1]
+                        end
+                        if (membaccode) then
+                            local codestr = [[
 do
     local _bit,_math=require'bit',require'math'
     local _band,_gv=_bit.band,gv
 local tmp=]]..
                             membaccode:gsub("%%s","0").." end"
-                        local code = assert(loadstring(codestr))
-                        code()
+                            local code = assert(loadstring(codestr))
+                            code()
+                        end
                     end
                 end
             end
         end
     end
-end
 
+    allowed_modules._LUNATIC_DBG = DBG_
+end
 
 ---=== Finishing environment setup ===---
 

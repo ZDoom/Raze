@@ -6,7 +6,7 @@ local bit = require("bit")
 local math = require("math")
 
 local pcall = pcall
-local DBG_ = DBG_
+local DBG_ = require("_LUNATIC_DBG")
 
 print('---=== ELua Test script ===---')
 
@@ -15,6 +15,10 @@ local function printf(fmt, ...)
 end
 
 local function checkfail(funcstr, expectedmsg)
+    if (DBG_ == nil) then
+        return
+    end
+
     local status, errmsg = pcall(DBG_.loadstring(funcstr))
     if (status) then
         print('^21ERROR:^O '..funcstr.." DIDN'T fail")
@@ -275,7 +279,7 @@ gameevent
     gv.EVENT_ENTERLEVEL,
 
     function()
-        if (gv._DEBUG_LUNATIC) then
+        if (DBG_ ~= nil) then
             DBG_.testmembread()
         end
 
