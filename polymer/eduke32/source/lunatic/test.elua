@@ -1,12 +1,22 @@
 -- test script for ELua/Lunatic Interpreter
 
 -- error=nil -- must not affect "require"
+local require = require
 local string = require("string")
 local bit = require("bit")
 local math = require("math")
 
 local pcall = pcall
 local DBG_ = require("_LUNATIC_DBG")
+
+local gv, sector, wall, sprite, spriteext = gv, sector, wall, sprite, spriteext
+local actor, player, projectile = actor, player, projectile
+local gameevent, gameactor = gameevent, gameactor
+
+local spritesofsect = spritesofsect
+local hitscan = hitscan
+
+local assert, error, print, tostring = assert, error, print, tostring
 
 print('---=== ELua Test script ===---')
 
@@ -98,7 +108,7 @@ gameevent
 
 local unsafe = pcall(function() string.UNSAFE=true; end)
 
---tostring = nil  -- REMEMBER
+checkfail("tostring = nil", "attempt to write into the global environment")
 --DBG_.printkv('_G in test.elua', _G)
 
 -- direct gv array access forbidden

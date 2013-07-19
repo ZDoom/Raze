@@ -2425,9 +2425,6 @@ end
 -- We need this at the end because we were previously doing just that!
 setmetatable(
     G_, {
-        __newindex = function (_1, n, _2)
-            error("attempt to write to undeclared variable '"..n.."'", 2)
-        end,
         __index = function (_, n)
             error("attempt to read undeclared variable '"..n.."'", 2)
         end,
@@ -2435,11 +2432,21 @@ setmetatable(
         __metatable = true,
         })
 
+local global_mt = {
+    __index = G_,
+
+    __newindex = function()
+        error("attempt to write into the global environment")
+    end,
+
+    __metatable = true,
+}
+
 -- Change the environment of the running Lua thread so that everything
 -- what we've set up will be available when this chunk is left.
 -- In particular, we need the globals defined after setting this chunk's
 -- environment earlier.
-setfenv(0, _G)
+setfenv(0, setmetatable({}, global_mt))
 
 do
     -- If we're running from a savegame restoration, create the restoration
