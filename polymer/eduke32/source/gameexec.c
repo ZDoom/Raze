@@ -2864,7 +2864,7 @@ nullquote:
 
                 orientation &= (ROTATESPRITE_MAX-1);
 
-                G_ScreenText(tilenum,x,y,z,blockangle,charangle,ScriptQuotes[q],shade,pal,orientation,alpha,xspace,yline,xbetween,ybetween,f,x1,y1,x2,y2);
+                G_ScreenText(tilenum,x,y,z,blockangle,charangle,ScriptQuotes[q],shade,pal,2|orientation,alpha,xspace,yline,xbetween,ybetween,f,x1,y1,x2,y2);
                 continue;
             }
 
