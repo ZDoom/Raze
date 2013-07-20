@@ -150,6 +150,11 @@ static inline float nearbyintf(float x)
 # define longlong(x) x##ll
 #endif
 
+#if defined __OPENDINGUX__
+//ugly hack
+#define nearbyintf rintf
+#endif
+
 #ifndef NULL
 # define NULL ((void *)0)
 #endif

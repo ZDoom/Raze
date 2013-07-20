@@ -70,6 +70,15 @@ ifeq ($(SUBPLATFORM),LINUX)
     # presumably take care for us.
     STDCPPLIB:=
 
+    ifeq ($(PLATFORM),GCW)
+        override USE_OPENGL=0
+        override NOASM=1
+    endif
+    ifeq ($(PLATFORM),DINGOO)
+        override USE_OPENGL=0
+        override NOASM=1
+    endif
+
     ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
         ifeq (1,$(BUILD32_ON_64))
             # On my 64bit Gentoo these are the 32bit emulation libs

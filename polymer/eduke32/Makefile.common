@@ -8,13 +8,14 @@ MAKEFILE_COMMON:=$(lastword $(MAKEFILE_LIST))
 PRETTY_OUTPUT ?= 1
 
 # Tools
-CC=gcc
-CXX=g++
-AS=nasm
-AR=ar
-RC=windres
-RANLIB=ranlib
-STRIP=strip
+CROSS=
+CC=$(CROSS)gcc
+CXX=$(CROSS)g++
+AS=$(CROSS)nasm
+AR=$(CROSS)ar
+RC=$(CROSS)windres
+RANLIB=$(CROSS)ranlib
+STRIP=$(CROSS)strip
 
 L_CC=$(CC)
 L_CXX=$(CXX)
@@ -102,9 +103,11 @@ ifndef SUBPLATFORM
     endif
     ifeq ($(PLATFORM),DINGOO)
         SUBPLATFORM=LINUX
+        CROSS=mipsel-linux-
     endif
     ifeq ($(PLATFORM),GCW)
         SUBPLATFORM=LINUX
+        CROSS=mipsel-linux-
     endif
     ifeq ($(PLATFORM),CAANOO)
         SUBPLATFORM=LINUX
@@ -143,7 +146,6 @@ ifeq (0,$(USE_OPENGL))
     POLYMER = 0
     USE_LIBVPX = 0
 endif
-
 
 # Debugging/Build options
 #  CPLUSPLUS - 1 = enable C++ building
@@ -304,6 +306,12 @@ endif
 ifeq ($(PLATFORM),WII)
     override USE_LIBVPX = 0
 endif
+ifeq ($(PLATFORM),GCW)
+    override USE_LIBVPX = 0
+endif
+ifeq ($(PLATFORM),DINGOO)
+    override USE_LIBVPX = 0
+endif
 
 BASELIBS=-lm
 BASELIBDIRS=
@@ -427,6 +435,12 @@ ifeq ($(PLATFORM),DARWIN)
         -L/opt/local/lib -L/usr/local/lib
     BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))platform/Apple/include) \
         -I/opt/local/include -I/sw/include -I/usr/local/include
+endif
+ifeq ($(PLATFORM),GCW)
+    BASECOMMONFLAGS += -D__OPENDINGUX__
+endif
+ifeq ($(PLATFORM),DINGOO)
+    BASECOMMONFLAGS += -D__OPENDINGUX__
 endif
 
 #### Lunatic development
