@@ -541,9 +541,9 @@ static int32_t defsparser(scriptfile *script)
         case T_TILEFROMTEXTURE:
         {
             char *texturetokptr = script->ltextptr, *textureend, *fn = NULL;
-            int32_t tile=-1;
-            int32_t alphacut = 255, texhitscan=0, nofullbright=0;
-            int32_t xoffset = 0, yoffset = 0;
+            int32_t tile = -1;
+            int32_t alphacut = 255, flags = 0;
+            int32_t xoffset = ~0, yoffset = ~0;
 
             static const tokenlist tilefromtexturetokens[] =
             {
@@ -574,7 +574,10 @@ static int32_t defsparser(scriptfile *script)
                 case T_YOFFSET:
                     scriptfile_getsymbol(script,&yoffset); break;
                 case T_TEXHITSCAN:
-                    texhitscan = 1;
+                    flags |= PICANM_TEXHITSCAN_BIT;
+                    break;
+                case T_NOFULLBRIGHT:
+                    flags |= PICANM_NOFULLBRIGHT_BIT;
                     break;
                 default:
                     break;
@@ -590,13 +593,14 @@ static int32_t defsparser(scriptfile *script)
 
             if (!fn)
             {
-                // filefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
-                if (texhitscan)
-                    picanm[tile].sf |= PICANM_TEXHITSCAN_BIT;
-                if (nofullbright)
-                    picanm[tile].sf |= PICANM_NOFULLBRIGHT_BIT;
+                // tilefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
+                picanm[tile].sf |= flags;
+                if (xoffset != ~0)
+                    picanm[tile].xofs = clamp(xoffset, -128, 127);
+                if (yoffset != ~0)
+                    picanm[tile].yofs = clamp(yoffset, -128, 127);
 
-                if (!texhitscan && !nofullbright)
+                if (flags == 0 && xoffset == ~0 && yoffset == ~0)
                     initprintf("\nError: missing 'file name' for tilefromtexture definition near line %s:%d",
                                script->filename, scriptfile_getlinum(script,texturetokptr));
                 break;
@@ -621,12 +625,9 @@ static int32_t defsparser(scriptfile *script)
                     break;
 
                 set_tilesiz(tile, xsiz, ysiz);
-                picanm[tile].xofs = clamp(xoffset, -128, 127);
-                picanm[tile].yofs = clamp(yoffset, -128, 127);
-                if (texhitscan)
-                    picanm[tile].sf |= PICANM_TEXHITSCAN_BIT;
-                if (nofullbright)
-                    picanm[tile].sf |= PICANM_NOFULLBRIGHT_BIT;
+                picanm[tile].xofs = (xoffset == ~0) ? 0 : clamp(xoffset, -128, 127);
+                picanm[tile].yofs = (yoffset == ~0) ? 0 : clamp(yoffset, -128, 127);
+                picanm[tile].sf |= flags;
 
                 tile_from_truecolpic(tile, picptr, alphacut);
 
