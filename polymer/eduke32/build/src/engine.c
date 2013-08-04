@@ -4485,7 +4485,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     if (tsizy==0)
         return;
 
-    dapskyoff = getpsky(&dapyscale, &dapskybits);
+    dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits);
 
     globalshiftval = logtilesizy;
 

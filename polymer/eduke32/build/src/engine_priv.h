@@ -214,16 +214,17 @@ static inline void bricolor(palette_t *wpptr, int32_t dacol)
 
 // Get properties of parallaxed sky to draw.
 // Returns: pointer to tile offset array. Sets-by-pointer the other two.
-static inline const int8_t *getpsky(int32_t *dapyscale, int32_t *dapskybits)
+static inline const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t *dapskybits)
 {
     int32_t j;
 
     // First, try a multi-sky.
     for (j=pskynummultis; j>0; j--)  // NOTE: j==0 on non-early loop end
-        if (globalpicnum == multipskytile[j])
+        if (picnum == multipskytile[j])
             break;  // Have a match.
 
-    *dapskybits = multipsky[j].lognumtiles;
+    if (dapskybits)
+        *dapskybits = multipsky[j].lognumtiles;
     if (dapyscale)
         *dapyscale = multipsky[j].horizfrac;
 

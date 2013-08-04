@@ -689,9 +689,10 @@ _prmirror       mirrors[10];
 
 GLUtesselator*  prtess;
 
-int16_t         cursky;
-char            curskypal;
-int8_t          curskyshade;
+static int16_t  cursky;
+static char     curskypal;
+static int8_t   curskyshade;
+static float    curskyangmul = 1;
 
 _pranimatespritesinfo asi;
 
@@ -979,6 +980,9 @@ void                polymer_loadboard(void)
     if (pr_verbosity >= 1 && numsectors) OSD_Printf("PR : Board loaded.\n");
 }
 
+// The parallaxed ART sky angle divisor corresponding to a horizfrac of 32768.
+#define DEFAULT_ARTSKY_ANGDIV 4.3027f
+
 void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum)
 {
     int16_t         cursectnum;
@@ -1028,10 +1032,10 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     drawingskybox = 0;
 
     // if it's not a skybox, make the sky parallax
-    // the angle factor is computed from eyeballed values
+    // DEFAULT_ARTSKY_ANGDIV is computed from eyeballed values
     // need to recompute it if we ever change the max horiz amplitude
     if (!pth || !(pth->flags & 4))
-        skyhoriz /= 4.3027f;
+        skyhoriz *= curskyangmul;
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
@@ -3820,9 +3824,30 @@ static void         polymer_getsky(void)
     {
         if (sector[i].ceilingstat & 1)
         {
+            int32_t horizfrac;
+
             cursky = sector[i].ceilingpicnum;
             curskypal = sector[i].ceilingpal;
             curskyshade = sector[i].ceilingshade;
+
+            getpsky(cursky, &horizfrac, NULL);
+
+            switch (horizfrac)
+            {
+            case 0:
+                // psky always at same level wrt screen
+                curskyangmul = 0.f;
+                break;
+            case 65536:
+                // psky horiz follows camera horiz
+                curskyangmul = 1.f;
+                break;
+            default:
+                // sky has hard-coded parallax
+                curskyangmul = 1/DEFAULT_ARTSKY_ANGDIV;
+                break;
+            }
+
             return;
         }
         i++;
@@ -3879,10 +3904,18 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
     int32_t         i, j;
     GLfloat         height = 2.45f / 2.0f;
 
+    int32_t dapskybits;
+    const int8_t *dapskyoff = getpsky(tilenum, NULL, &dapskybits);
+    const int32_t numskytilesm1 = (1<<dapskybits)-1;
+
     i = 0;
     while (i <= PSKYOFF_MAX)
     {
         int16_t picnum = tilenum + i;
+        // Prevent oob by bad user input:
+        if (picnum >= MAXTILES)
+            picnum = MAXTILES-1;
+
         DO_TILE_ANIM(picnum, 0);
         if (!waloff[picnum])
             loadtile(picnum);
@@ -3914,11 +3947,12 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
     }
 
     i = 0;
-    j = 8; //(1<<g_psky.lognumtiles);
+    j = 8;  // In Polymer, an ART sky has always 8 sides...
     while (i < j)
     {
         GLint oldswrap;
-        const int8_t tileofs = multipsky[g_pskyidx].tileofs[i];
+        // ... but in case a multi-psky specifies less than 8, repeat cyclically:
+        const int8_t tileofs = dapskyoff[i&numskytilesm1];
 
         bglColor4f(glcolors[tileofs][0], glcolors[tileofs][1], glcolors[tileofs][2], 1.0f);
         bglBindTexture(GL_TEXTURE_2D, glpics[tileofs]);
