@@ -42,8 +42,16 @@ cd $top
 # update the code repository and get the last revision number from SVN
 head=`svn update | tail -n1 | awk '{ print $NF }' | cut -d. -f1`
 echo "HEAD is revision $head."
+headlog=`svn log -r HEAD`
 
 lastrevision=`ls -A1 $output/????????-???? | tail -n1 | cut -d- -f2 | cut -d. -f1`
+
+# If the log of HEAD contains DONT_BUILD, obey.
+if [ `echo $headlog | grep -q DONT_BUILD` ]; then
+    echo "HEAD requested to not build. Bailing out..."
+    rm -r $lockfile
+    exit
+fi
 
 # if the output dir is empty, we build no matter what
 if [ ! $lastrevision ]
@@ -89,6 +97,26 @@ then
     mv -f eduke32.exe "$package/eduke32.debug.exe"
     echo mv -f mapster32.exe "$package/mapster32.debug.exe"
     mv -f mapster32.exe "$package/mapster32.debug.exe"
+
+    if [ `echo $headlog | grep -q BUILD_LUNATIC` ]; then
+        # clean the tree and build Lunatic (pre-)release next
+        echo "${make[@]}" LUNATIC=1 $clean eduke32.exe
+        "${make[@]}" LUNATIC=1 $clean eduke32.exe
+
+        # make sure all the targets were produced
+        for i in "${targets[@]}"; do
+            if [ ! -e $i ]
+            then
+                echo "Build failed! Bailing out..."
+                rm -r $lockfile
+                exit
+            fi
+        done
+
+        # move the targets to $package
+        echo mv -f eduke32.exe "$package/leduke32_PREVIEW.exe"
+        mv -f eduke32.exe "$package/leduke32_PREVIEW.exe"
+    fi
 
     # clean the tree and build release
     echo "${make[@]}" $clean all
