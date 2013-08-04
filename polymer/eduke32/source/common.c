@@ -152,56 +152,72 @@ const char *G_ConFile(void)
 
 //////////
 
-void G_MultiPskyInit(void)
+// Set up new-style multi-psky handling.
+// NOTE: When adding more multi-pskies, take a look whether the engine-side
+// MAXPSKYMULTIS needs to be increased.
+void G_MultiPskyInit(int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__DYN)
 {
     int32_t i;
 
-    // new-style multi-psky handling
-    pskymultilist[0] = MOONSKY1;
-    pskymultilist[1] = BIGORBIT1;
-    pskymultilist[2] = LA;
+    psky_t *moonsky = &multipsky[0];
+    psky_t *spacesky = &multipsky[1];
+    psky_t *citysky = &multipsky[2];
 
-    pskymultiyscale[0] = 32768;
-    pskymultiyscale[1] = 32768;
-    pskymultiyscale[2] = 16384+1024;
+    static int32_t inited;
+    if (inited)
+        return;
+    inited = 1;
 
-    for (i=0; i<3; ++i)
-    {
-        pskymultibits[i] = 3;
-        Bmemset(pskymultioff[i], 0, sizeof(pskymultioff[i]));
-    }
-
-    // KEEPINSYNC with Polymer MAX OFFSET = 4
-
-    // MOONSKY1
-    //        earth          mountain   mountain         sun
-    pskymultioff[0][6]=1;
-    pskymultioff[0][1]=2;
-    pskymultioff[0][4]=2;
-    pskymultioff[0][2]=3;
-
-    // BIGORBIT1   // orbit
-    //       earth1         2           3           moon/sun
-    pskymultioff[1][5]=1;
-    pskymultioff[1][6]=2;
-    pskymultioff[1][7]=3;
-    pskymultioff[1][2]=4;
-
-    // LA // la city
-    //       earth1         2           3           moon/sun
-    pskymultioff[2][0]=1;
-    pskymultioff[2][1]=2;
-    pskymultioff[2][2]=1;
-    pskymultioff[2][3]=3;
-    pskymultioff[2][4]=4;
-    pskymultioff[2][5]=0;
-    pskymultioff[2][6]=2;
-    pskymultioff[2][7]=3;
+    multipskytile[0] = MOONSKY1__DYN;
+    multipskytile[1] = BIGORBIT1__DYN;
+    multipskytile[2] = LA__DYN;
 
     pskynummultis = 3;
 
+    // When adding other multi-skies, take care that the tileofs[] values are
+    // <= PSKYOFF_MAX. (It can be increased up to MAXPSKYTILES, but should be
+    // set as tight as possible.)
+
+    // MOONSKY1
+    //        earth          mountain   mountain         sun
+    moonsky->lognumtiles = 3;
+    moonsky->horizfrac = 32768;
+    moonsky->tileofs[6] = 1;
+    moonsky->tileofs[1] = 2;
+    moonsky->tileofs[4] = 2;
+    moonsky->tileofs[2] = 3;
+
+    // BIGORBIT1   // orbit
+    //       earth1         2           3           moon/sun
+    spacesky->lognumtiles = 3;
+    spacesky->horizfrac = 32768;
+    spacesky->tileofs[5] = 1;
+    spacesky->tileofs[6] = 2;
+    spacesky->tileofs[7] = 3;
+    spacesky->tileofs[2] = 4;
+
+    // LA // la city
+    //       earth1         2           3           moon/sun
+    citysky->lognumtiles = 3;
+    citysky->horizfrac = 16384+1024;
+    citysky->tileofs[0] = 1;
+    citysky->tileofs[1] = 2;
+    citysky->tileofs[2] = 1;
+    citysky->tileofs[3] = 3;
+    citysky->tileofs[4] = 4;
+    citysky->tileofs[5] = 0;
+    citysky->tileofs[6] = 2;
+    citysky->tileofs[7] = 3;
+
+    for (i=0; i<pskynummultis; ++i)
+    {
+        int32_t j;
+        for (j=0; j<(1<<multipsky[i].lognumtiles); ++j)
+            Bassert(multipsky[i].tileofs[j] <= PSKYOFF_MAX);
+    }
+
     // default in game:
-    parallaxyscale = 32768;
+    g_psky.horizfrac = 32768;
 }
 
 //////////

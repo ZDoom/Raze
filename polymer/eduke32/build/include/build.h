@@ -77,8 +77,10 @@ enum rendmode_t {
 #define MAXPLAYERS 16
 #define MAXBASEPALS 8
 #define MAXPALOOKUPS 256
+// Maximum number of defined multi-pskies:
 #define MAXPSKYMULTIS 8
-#define MAXPSKYTILES 256
+// Maximum number of component tiles in a multi-psky:
+#define MAXPSKYTILES 8
 #define MAXSPRITESONSCREEN 4096
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
 
@@ -740,21 +742,39 @@ EXTERN uint8_t palette[768];
 EXTERN int16_t numshades;
 EXTERN char *palookup[MAXPALOOKUPS];
 EXTERN uint8_t **basepaltableptr;
-EXTERN char parallaxtype, showinvisibility;
-EXTERN int32_t parallaxyoffs, parallaxyscale;
+EXTERN char showinvisibility;
 EXTERN int32_t g_visibility, parallaxvisibility;
 EXTERN int32_t g_rotatespriteNoWidescreen;
 
 EXTERN int32_t windowx1, windowy1, windowx2, windowy2;
 EXTERN int16_t startumost[MAXXDIM], startdmost[MAXXDIM];
 
-// original multi-psky handling (only one per map)
-EXTERN int16_t pskyoff[MAXPSKYTILES], pskybits;
-// new multi-psky -- up to MAXPSKYMULTIS
-EXTERN int16_t pskynummultis;
-EXTERN int32_t pskymultiyscale[MAXPSKYMULTIS];
-EXTERN int16_t pskymultilist[MAXPSKYMULTIS], pskymultibits[MAXPSKYMULTIS];
-EXTERN int16_t pskymultioff[MAXPSKYMULTIS][MAXPSKYTILES];
+// The maximum tile offset ever used in any tiled parallaxed multi-sky.
+#define PSKYOFF_MAX 4
+
+typedef struct {
+    // The proportion at which looking up/down affects the apparent 'horiz' of
+    // a parallaxed sky, scaled by 65536 (so, a value of 65536 makes it align
+    // with the drawn surrounding scene):
+    int32_t horizfrac;
+
+    // The texel index offset in the y direction of a parallaxed sky:
+    // XXX: currently always 0.
+    int32_t yoffs;
+
+    int8_t lognumtiles;  // 1<<bits: number of tiles in multi-sky
+    int8_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<bits): tile offset relative to basetile
+} psky_t;
+
+// Original multi-psky handling, only one per map:
+EXTERN psky_t g_psky;
+// New multi-psky -- up to MAXPSKYMULTIS (effectively constant after initialization):
+EXTERN int32_t pskynummultis;
+EXTERN psky_t multipsky[MAXPSKYMULTIS];
+// Mapping of multi-sky index to base sky tile number:
+EXTERN int32_t multipskytile[MAXPSKYMULTIS];
+
+EXTERN char parallaxtype;
 
 // last sprite in the freelist, that is the spritenum for which
 //   .statnum==MAXSTATUS && nextspritestat[spritenum]==-1

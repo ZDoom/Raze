@@ -58,7 +58,7 @@ extern void clearScriptNamePtr(void);
 
 //////////
 
-extern void G_MultiPskyInit(void);
+extern void G_MultiPskyInit(int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__DYN);
 
 //////////
 

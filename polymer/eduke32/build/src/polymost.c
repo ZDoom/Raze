@@ -2299,9 +2299,8 @@ static void polymost_drawalls(int32_t bunch)
     double oguo, ogux, oguy;
     int32_t i, x, y, z, cz, fz, wallnum, sectnum, nextsectnum;
 
-    int16_t dapskybits;
-    static const int16_t zeropskyoff[MAXPSKYTILES] = { 0 };
-    const int16_t *dapskyoff;
+    int32_t dapskybits;
+    const int8_t *dapskyoff;
 
     alpha = 0.f;
 
@@ -2369,20 +2368,7 @@ static void polymost_drawalls(int32_t bunch)
 
         DO_TILE_ANIM(globalpicnum, sectnum);
 
-        // multi-psky stuff
-        dapskyoff = zeropskyoff;
-        dapskybits = pskybits;
-
-        for (i=0; i<pskynummultis; i++)
-        {
-            if (globalpicnum == pskymultilist[i])
-            {
-                dapskybits = pskymultibits[i];
-                dapskyoff = pskymultioff[i];
-                break;
-            }
-        }
-        //
+        dapskyoff = getpsky(NULL, &dapskybits);
 
         global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT
         global_cf_xpanning = sec->floorxpanning; global_cf_ypanning = sec->floorypanning, global_cf_heinum = sec->floorheinum;
@@ -2414,7 +2400,7 @@ static void polymost_drawalls(int32_t bunch)
                 dd[0] = (float)xdimen*.0000001; //Adjust sky depth based on screen size!
                 t = (double)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
                 vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
-                vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+parallaxyoffs)) - vv[1]*ghoriz;
+                vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+g_psky.yoffs)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
 
                 //Hack to draw black rectangle below sky when looking down...
@@ -2649,20 +2635,7 @@ static void polymost_drawalls(int32_t bunch)
 
         DO_TILE_ANIM(globalpicnum, sectnum);
 
-        // multi-psky stuff
-        dapskyoff = zeropskyoff;
-        dapskybits = pskybits;
-
-        for (i=0; i<pskynummultis; i++)
-        {
-            if (globalpicnum == pskymultilist[i])
-            {
-                dapskybits = pskymultibits[i];
-                dapskyoff = pskymultioff[i];
-                break;
-            }
-        }
-        //
+        dapskyoff = getpsky(NULL, &dapskybits);
 
         global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
         global_cf_xpanning = sec->ceilingxpanning; global_cf_ypanning = sec->ceilingypanning, global_cf_heinum = sec->ceilingheinum;
@@ -2695,7 +2668,7 @@ static void polymost_drawalls(int32_t bunch)
                 dd[0] = (float)xdimen*.0000001; //Adjust sky depth based on screen size!
                 t = (double)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
                 vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
-                vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+parallaxyoffs)) - vv[1]*ghoriz;
+                vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+g_psky.yoffs)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
 
                 //Hack to draw black rectangle below sky when looking down...

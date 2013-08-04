@@ -3874,16 +3874,15 @@ static void         polymer_initartsky(void)
 static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shade)
 {
     pthtyp*         pth;
-    GLuint          glpics[5];
-    GLfloat         glcolors[5][3];
+    GLuint          glpics[PSKYOFF_MAX+1];
+    GLfloat         glcolors[PSKYOFF_MAX+1][3];
     int32_t         i, j;
     GLfloat         height = 2.45f / 2.0f;
-    int16_t         picnum;
 
     i = 0;
-    while (i < 5)
+    while (i <= PSKYOFF_MAX)
     {
-        picnum = tilenum + i;
+        int16_t picnum = tilenum + i;
         DO_TILE_ANIM(picnum, 0);
         if (!waloff[picnum])
             loadtile(picnum);
@@ -3915,13 +3914,14 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
     }
 
     i = 0;
-    j = (1<<pskybits);
+    j = (1<<g_psky.lognumtiles);
     while (i < j)
     {
         GLint oldswrap;
+        const int8_t tileofs = g_psky.tileofs[i];
 
-        bglColor4f(glcolors[pskyoff[i]][0], glcolors[pskyoff[i]][1], glcolors[pskyoff[i]][2], 1.0f);
-        bglBindTexture(GL_TEXTURE_2D, glpics[pskyoff[i]]);
+        bglColor4f(glcolors[tileofs][0], glcolors[tileofs][1], glcolors[tileofs][2], 1.0f);
+        bglBindTexture(GL_TEXTURE_2D, glpics[tileofs]);
 
         bglGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &oldswrap);
         bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);

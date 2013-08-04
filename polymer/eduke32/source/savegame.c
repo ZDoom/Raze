@@ -139,6 +139,8 @@ void ReadSaveGameHeaders(void)
 
     savehead_t h;
 
+    EDUKE32_STATIC_ASSERT(sizeof(h.savename) == sizeof(ud.savegame[0]));
+
     Bstrcpy(fn, "dukesav0.esv");
 
     for (i=0; i<10; i++)
@@ -1026,9 +1028,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &clouds[0], sizeof(clouds), 1 },
     { 0, &cloudx[0], sizeof(cloudx), 1 },
     { 0, &cloudy[0], sizeof(cloudy), 1 },
-    { DS_NOCHK, &parallaxyscale, sizeof(parallaxyscale), 1 },
-    { 0, &pskybits, sizeof(pskybits), 1 },
-    { 0, &pskyoff[0], sizeof(pskyoff[0]), MAXPSKYTILES },
+    { 0, &g_psky, sizeof(g_psky), 1 },  // DS_NOCHK?
     { 0, &g_earthquakeTime, sizeof(g_earthquakeTime), 1 },
 
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)sv_prequote, 0, 1 },

@@ -723,7 +723,7 @@ void ExtSetupMapFilename(const char *mapname)
 void ExtLoadMap(const char *mapname)
 {
     int32_t i;
-    int32_t sky=0;
+    int32_t mskyidx=0;
 
     getmessageleng = 0;
     getmessagetimeoff = 0;
@@ -732,39 +732,20 @@ void ExtLoadMap(const char *mapname)
 
     // old-fashioned multi-psky handling
 
-    Bmemset(pskyoff, 0, sizeof(pskyoff));
+    Bmemset(g_psky.tileofs, 0, sizeof(g_psky.tileofs));
 
     for (i=0; i<numsectors; i++)
     {
-        switch (sector[i].ceilingpicnum)
-        {
-        case MOONSKY1 :
-        case BIGORBIT1 : // orbit
-        case LA : // la city
-            sky=sector[i].ceilingpicnum;
+        mskyidx = MultiPsky_TileToIdx(sector[i].ceilingpicnum);
+        if (mskyidx >= 0)
             break;
-        }
     }
 
-    switch (sky)
-    {
-    case MOONSKY1 :
-        // keep in sync with G_MultiPskyInit
-        //                           -v-
-        Bmemcpy(pskyoff, pskymultioff[0], sizeof(pskymultioff[0]));
-        break;
+    if (mskyidx >= 0)
+        Bmemcpy(g_psky.tileofs, multipsky[mskyidx].tileofs, sizeof(g_psky.tileofs));
 
-    case BIGORBIT1 : // orbit
-        Bmemcpy(pskyoff, pskymultioff[1], sizeof(pskymultioff[0]));
-        break;
-
-    case LA : // la city
-        Bmemcpy(pskyoff, pskymultioff[2], sizeof(pskymultioff[0]));
-        break;
-    }
-
-    pskybits=3;
-    parallaxtype=0;
+    g_psky.lognumtiles = 3;
+    parallaxtype = 0;
 
     //////////
 #if M32_UNDO
@@ -10489,7 +10470,7 @@ int32_t ExtInit(void)
 
     ReadHelpFile("m32help.hlp");
 
-    G_MultiPskyInit();
+    G_MultiPskyInit(MOONSKY1, BIGORBIT1, LA);
 
 #ifdef LUNATIC
     if (Em_CreateState(&g_EmState) == 0)

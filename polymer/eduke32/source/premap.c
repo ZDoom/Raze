@@ -966,50 +966,31 @@ static void resetprestat(int32_t snum,int32_t g)
 
 static inline void G_SetupBackdrop(int16_t sky)
 {
-    static int32_t multiskiesinited=0;
+    // Get the static value of the base sky tile number.
+    const int32_t ssky = DYNAMICTILEMAP(sky);
 
-    if (!multiskiesinited)
+    Bmemset(g_psky.tileofs, 0, sizeof(g_psky.tileofs));
+
+    // XXX: why the condition?
+    if (g_psky.horizfrac != 65536)
+        g_psky.horizfrac = 32768;
+
+    if (ssky == CLOUDYOCEAN__STATIC)
     {
-        multiskiesinited = 1;
-        G_MultiPskyInit();
+        g_psky.horizfrac = 65536;
+    }
+    else
+    {
+        int32_t mskyidx = MultiPsky_TileToIdx(ssky);
+        if (mskyidx >= 0)
+        {
+            Bmemcpy(g_psky.tileofs, multipsky[mskyidx].tileofs, sizeof(g_psky.tileofs));
+            if (ssky == LA__STATIC)
+                g_psky.horizfrac = 16384+1024;
+        }
     }
 
-    Bmemset(pskyoff, 0, sizeof(pskyoff));
-
-    if (parallaxyscale != 65536)
-        parallaxyscale = 32768;
-
-    switch (DYNAMICTILEMAP(sky))
-    {
-    case CLOUDYOCEAN__STATIC:
-        parallaxyscale = 65536L;
-        break;
-    case MOONSKY1__STATIC :
-        pskyoff[6]=1;
-        pskyoff[1]=2;
-        pskyoff[4]=2;
-        pskyoff[2]=3;
-        break;
-    case BIGORBIT1__STATIC: // orbit
-        pskyoff[5]=1;
-        pskyoff[6]=2;
-        pskyoff[7]=3;
-        pskyoff[2]=4;
-        break;
-    case LA__STATIC:
-        parallaxyscale = 16384+1024;
-        pskyoff[0]=1;
-        pskyoff[1]=2;
-        pskyoff[2]=1;
-        pskyoff[3]=3;
-        pskyoff[4]=4;
-        pskyoff[5]=0;
-        pskyoff[6]=2;
-        pskyoff[7]=3;
-        break;
-    }
-
-    pskybits=3;
+    g_psky.lognumtiles = 3;
 }
 
 // tweak moving sectors with these SE lotags
@@ -1451,7 +1432,7 @@ void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
     ud.player_skill = sk;
     ud.secretlevel = 0;
     ud.from_bonus = 0;
-    parallaxyscale = 0;
+    g_psky.horizfrac = 0;
 
     ud.last_level = -1;
     g_lastSaveSlot = -1;

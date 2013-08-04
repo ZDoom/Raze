@@ -49,8 +49,10 @@ typedef struct
     uint8_t numplayers, volnum, levnum, skill;
     char boardfn[256];  // BMAX_PATH
     // 282 bytes
-} savehead_t;  // 310 bytes
+} savehead_t;
 #pragma pack(pop)
+
+EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == 310);
 
 int32_t sv_updatestate(int32_t frominit);
 int32_t sv_readdiff(int32_t fil);

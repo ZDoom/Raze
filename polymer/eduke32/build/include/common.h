@@ -77,6 +77,23 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows);
 #define EDUKE32_TMRTIC t[ti++]=getticks()
 #define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
 
+// Get the multi-psky index corresponding to a base tile number of the sky (for
+// the game: the *static* value!), or -1 if it's not a multi-psky base tile.
+static inline int32_t MultiPsky_TileToIdx(int32_t tilenum)
+{
+    switch (tilenum)
+    {
+    case 80: // MOONSKY1__STATIC:
+        return 0;
+    case 84: // BIGORBIT1__STATIC:
+        return 1;
+    case 89: // LA__STATIC:
+        return 2;
+    default:
+        return -1;
+    }
+}
+
 #ifdef EXTERNC
 }
 #endif

@@ -4439,10 +4439,8 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     int32_t j, k, l, m, n, x, z, wallnum, nextsectnum, globalhorizbak;
     int16_t *topptr, *botptr;
 
-    int32_t dapyscale;
-    int16_t dapskybits;
-    static const int16_t zeropskyoff[MAXPSKYTILES] = { 0 };
-    const int16_t *dapskyoff;
+    int32_t dapyscale, dapskybits;
+    const int8_t *dapskyoff;
 
     int32_t logtilesizy, tsizy;
 
@@ -4499,32 +4497,19 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
         globaltilesizy = tsizy;
         globalyscale = 65536 / tsizy;
         globalshiftval = 0;
-        globalzd = divscale32(((tsizy>>1)+parallaxyoffs), tsizy) + ((uint32_t)globalypanning<<24);
+        globalzd = divscale32(((tsizy>>1)+g_psky.yoffs), tsizy) + ((uint32_t)globalypanning<<24);
     }
     else
 #endif
     {
         globalshiftval = 32-globalshiftval;
         globalyscale = (8<<(globalshiftval-19));
-        globalzd = (((tsizy>>1)+parallaxyoffs)<<globalshiftval) + ((uint32_t)globalypanning<<24);
+        globalzd = (((tsizy>>1)+g_psky.yoffs)<<globalshiftval) + ((uint32_t)globalypanning<<24);
     }
 
     //if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
 
-    dapskyoff = zeropskyoff;
-    dapskybits = pskybits;
-    dapyscale = parallaxyscale;
-
-    for (j=0; j<pskynummultis; j++)
-    {
-        if (globalpicnum == pskymultilist[j])
-        {
-            dapskybits = pskymultibits[j];
-            dapskyoff = pskymultioff[j];
-            dapyscale = pskymultiyscale[j];
-            break;
-        }
-    }
+    dapskyoff = getpsky(&dapyscale, &dapskybits);
 
     if (dapyscale != 65536)
         globalhoriz = mulscale16(globalhoriz-(ydimen>>1),dapyscale) + (ydimen>>1);
@@ -8646,10 +8631,7 @@ int32_t initengine(void)
 
     xyaspect = -1;
 
-    pskyoff[0] = 0; pskybits = 0;
-    pskynummultis = 0;
-
-    parallaxtype = 2; parallaxyoffs = 0L; parallaxyscale = 65536;
+    parallaxtype = 2; g_psky.horizfrac = 65536;
     showinvisibility = 0;
 
     for (i=1; i<1024; i++)
