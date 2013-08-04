@@ -948,7 +948,7 @@ function Define.composite(labeltype, identifier, ...)
 
     if (labeltype == LABEL.ACTION) then
         -- Sanity-check action members.
-        -- TODO: con.action(), too.
+        -- KEEPINSYNC with ACTOR_CHECK in control.lua for consistency.
         if (not (args[2] >= 0)) then
             errprintf("action \"%s\" has negative number of frames", identifier)
         end

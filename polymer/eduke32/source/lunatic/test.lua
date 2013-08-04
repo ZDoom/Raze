@@ -164,7 +164,7 @@ checkfail('print(sprite._nextspritesect[4].whatfield)', "attempt to index a numb
 --checkfail("require('os')")
 
 -- we must declare globals with 'gamevar'
-checkfail("new_global = 345", "attempt to write to undeclared variable 'new_global'")
+checkfail("new_global = 345", "attempt to write into the global environment")
 
 -- can't redefine constants in 'gv'
 checkfail('gv.CEILING = 3', "attempt to write to constant location")
@@ -212,6 +212,8 @@ checkfail("local w = player[0].weapon[-1]", "out-of-bounds weapon read access")
 checkfail("player[0].weapon.SHOTGUN.firesound = 1e5", "invalid sound number")
 checkfail("player[0].weapon.SHOTGUN.firesound = 0/0", "must be a non-NaN number")
 checkfail("player[0].weapon.SHOTGUN.firesound = 1/0", "invalid sound number")
+checkfail("gameactor{1680, action=require('con').action{numframes=-10}, function() end}",
+          "action has negative number of frames")
 -- NOTE: It should only be relied on that setting e.g. .firesound to -1 sets it
 -- to 0, not other negative values.
 player[0].weapon.SHOTGUN.firesound = -1/0

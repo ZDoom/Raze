@@ -46,6 +46,14 @@ local sector, wall, sprite = dc.sector, dc.wall, dc.sprite
 local wallsofsect = dc.wallsofsect
 local spritesofsect, spritesofstat = dc.spritesofsect, dc.spritesofstat
 
+local check_sector_idx = bcheck.sector_idx
+local check_tile_idx = bcheck.tile_idx
+local check_sprite_idx = bcheck.sprite_idx
+local check_player_idx = bcheck.player_idx
+local check_sound_idx = bcheck.sound_idx
+local check_number = bcheck.number
+local check_type = bcheck.type
+
 local OUR_REQUIRE_STRING = [[
  local _con=require'con'
  local _ga,_av,_pv=_con._gamearray,_con.actorvar,_con.playervar
@@ -76,6 +84,17 @@ local am_ctype_full_const = { action=con_action_ct, move=con_move_ct }
 -- Non-const-qualified 'bare' action and move (without ID):
 local am_ctype_bare = { action=ffi.typeof("struct action"), move=ffi.typeof("struct move") }
 
+-- CODEDUP lunacon.lua
+local function truetab(tab)
+    local ttab = {}
+    for i=1,#tab do
+        ttab[tab[i]] = true
+    end
+    return ttab
+end
+-- CODEDUP lunacon.lua
+local ALLOWED_VIEWTYPE = truetab { 0, 1, 3,4, 5, 7, 8, -5, -7 }
+
 local function def_action_or_move(what, tab)
     if (lastid[what] <= -(2^31)) then
         error("Too many "..what.."s defined", 3);
@@ -102,16 +121,29 @@ local function def_action_or_move(what, tab)
     end
 
     if (what=="action") then
-        -- Special default values
-        if (tab[2]==nil and tab.numframes==nil) then
+        -- Special default values or checking of actor members.
+        -- KEEPINSYNC with ACTOR_CHECK in lunacon.lua for consistency.
+        local numframes, viewtype, incval = tab[2], tab[3], tab[4]
+
+        if (numframes==nil and tab.numframes==nil) then
             am.numframes = 1
+        else
+            check_number(numframes, 4)
+            if (numframes < 0) then
+                error("action has negative number of frames", 3)
+            end
         end
 
-        if (tab[3]==nil and tab.viewtype==nil) then
+        if (viewtype==nil and tab.viewtype==nil) then
             am.viewtype = 1
+        else
+            check_number(viewtype, 4)
+            if (ALLOWED_VIEWTYPE[viewtype] == nil) then
+                error("action has disallowed viewtype "..viewtype, 3)
+            end
         end
 
-        if (tab[4]==nil and tab.incval==nil) then
+        if (incval==nil and tab.incval==nil) then
             am.incval = 1
         end
     end
@@ -172,14 +204,6 @@ end
 
 
 ---=== RUNTIME CON FUNCTIONS ===---
-
-local check_sector_idx = bcheck.sector_idx
-local check_tile_idx = bcheck.tile_idx
-local check_sprite_idx = bcheck.sprite_idx
-local check_player_idx = bcheck.player_idx
-local check_sound_idx = bcheck.sound_idx
-local check_number = bcheck.number
-local check_type = bcheck.type
 
 -- Will contain [<label>]=number mappings after CON translation.
 local D = { true }
