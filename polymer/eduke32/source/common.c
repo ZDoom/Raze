@@ -152,31 +152,47 @@ const char *G_ConFile(void)
 
 //////////
 
+#define NUMPSKYMULTIS 5
+EDUKE32_STATIC_ASSERT(NUMPSKYMULTIS <= MAXPSKYMULTIS);
+EDUKE32_STATIC_ASSERT(PSKYOFF_MAX <= MAXPSKYTILES);
+
 // Set up new-style multi-psky handling.
-// NOTE: When adding more multi-pskies, take a look whether the engine-side
-// MAXPSKYMULTIS needs to be increased.
-void G_MultiPskyInit(int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__DYN)
+// KEEPINSYNC MultiPsky_TileToIdx().
+void G_InitMultiPsky(int32_t CLOUDYOCEAN__DYN, int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__DYN)
 {
     int32_t i;
 
-    psky_t *moonsky = &multipsky[0];
-    psky_t *spacesky = &multipsky[1];
-    psky_t *citysky = &multipsky[2];
+    psky_t *defaultsky = &multipsky[0];
+    psky_t *oceansky = &multipsky[1];
+    psky_t *moonsky = &multipsky[2];
+    psky_t *spacesky = &multipsky[3];
+    psky_t *citysky = &multipsky[4];
 
     static int32_t inited;
     if (inited)
         return;
     inited = 1;
 
-    multipskytile[0] = MOONSKY1__DYN;
-    multipskytile[1] = BIGORBIT1__DYN;
-    multipskytile[2] = LA__DYN;
+    multipskytile[0] = -1;
+    multipskytile[1] = CLOUDYOCEAN__DYN;
+    multipskytile[2] = MOONSKY1__DYN;
+    multipskytile[3] = BIGORBIT1__DYN;
+    multipskytile[4] = LA__DYN;
 
-    pskynummultis = 3;
+    pskynummultis = NUMPSKYMULTIS;
 
     // When adding other multi-skies, take care that the tileofs[] values are
     // <= PSKYOFF_MAX. (It can be increased up to MAXPSKYTILES, but should be
     // set as tight as possible.)
+
+    // The default sky properties (all others are implicitly zero):
+    defaultsky->lognumtiles = 3;
+    defaultsky->horizfrac = 32768;
+
+    // CLOUDYOCEAN
+    // Aligns with the drawn scene horizon because it has one itself.
+    oceansky->lognumtiles = 3;
+    oceansky->horizfrac = 65536;
 
     // MOONSKY1
     //        earth          mountain   mountain         sun
@@ -215,9 +231,25 @@ void G_MultiPskyInit(int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__
         for (j=0; j<(1<<multipsky[i].lognumtiles); ++j)
             Bassert(multipsky[i].tileofs[j] <= PSKYOFF_MAX);
     }
+}
 
-    // default in game:
-    g_psky.horizfrac = 32768;
+void G_SetupGlobalPsky(void)
+{
+    int32_t i, mskyidx=0;
+
+    // NOTE: Loop must be running backwards for the same behavior as the game
+    // (greatest sector index with matching parallaxed sky takes precedence).
+    for (i=numsectors-1; i>=0; i--)
+    {
+        if (sector[i].ceilingstat & 1)
+        {
+            mskyidx = MultiPsky_TileToIdx(sector[i].ceilingpicnum);
+            if (mskyidx > 0)
+                break;
+        }
+    }
+
+    g_pskyidx = mskyidx;
 }
 
 //////////

@@ -766,8 +766,8 @@ typedef struct {
     int8_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<bits): tile offset relative to basetile
 } psky_t;
 
-// Original multi-psky handling, only one per map:
-EXTERN psky_t g_psky;
+// Index of map-global (legacy) multi-sky:
+EXTERN int32_t g_pskyidx;
 // New multi-psky -- up to MAXPSKYMULTIS (effectively constant after initialization):
 EXTERN int32_t pskynummultis;
 EXTERN psky_t multipsky[MAXPSKYMULTIS];

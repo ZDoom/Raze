@@ -217,25 +217,16 @@ static inline void bricolor(palette_t *wpptr, int32_t dacol)
 static inline const int8_t *getpsky(int32_t *dapyscale, int32_t *dapskybits)
 {
     int32_t j;
-    static const int8_t zeropskyoff[MAXPSKYTILES] = { 0 };
 
     // First, try a multi-sky.
-    for (j=0; j<pskynummultis; j++)
-    {
+    for (j=pskynummultis; j>0; j--)  // NOTE: j==0 on non-early loop end
         if (globalpicnum == multipskytile[j])
-        {
-            // Have a match.
-            *dapskybits = multipsky[j].lognumtiles;
-            if (dapyscale)
-                *dapyscale = multipsky[j].horizfrac;
-            return multipsky[j].tileofs;
-        }
-    }
+            break;  // Have a match.
 
-    // Fall back to map-global sky.
-    *dapskybits = g_psky.lognumtiles;
+    *dapskybits = multipsky[j].lognumtiles;
     if (dapyscale)
-        *dapyscale = g_psky.horizfrac;
-    return zeropskyoff;
+        *dapyscale = multipsky[j].horizfrac;
+
+    return multipsky[j].tileofs;
 }
 #endif	/* ENGINE_PRIV_H */

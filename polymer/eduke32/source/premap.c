@@ -964,35 +964,6 @@ static void resetprestat(int32_t snum,int32_t g)
 
 }
 
-static inline void G_SetupBackdrop(int16_t sky)
-{
-    // Get the static value of the base sky tile number.
-    const int32_t ssky = DYNAMICTILEMAP(sky);
-
-    Bmemset(g_psky.tileofs, 0, sizeof(g_psky.tileofs));
-
-    // XXX: why the condition?
-    if (g_psky.horizfrac != 65536)
-        g_psky.horizfrac = 32768;
-
-    if (ssky == CLOUDYOCEAN__STATIC)
-    {
-        g_psky.horizfrac = 65536;
-    }
-    else
-    {
-        int32_t mskyidx = MultiPsky_TileToIdx(ssky);
-        if (mskyidx >= 0)
-        {
-            Bmemcpy(g_psky.tileofs, multipsky[mskyidx].tileofs, sizeof(g_psky.tileofs));
-            if (ssky == LA__STATIC)
-                g_psky.horizfrac = 16384+1024;
-        }
-    }
-
-    g_psky.lognumtiles = 3;
-}
-
 // tweak moving sectors with these SE lotags
 #define FIXSPR_SELOTAGP(k) ((k==0) || (k==6) || (k==14))
 
@@ -1064,6 +1035,8 @@ static inline void prelevel(char g)
     resetprestat(0,g);
     g_numClouds = 0;
 
+    G_SetupGlobalPsky();
+
     for (i=0; i<numsectors; i++)
     {
         sector[i].extra = 256;
@@ -1085,7 +1058,6 @@ static inline void prelevel(char g)
                     for (j=0; j<5; j++)
                         tloadtile(sector[i].ceilingpicnum+j, 0);
             }
-            G_SetupBackdrop(sector[i].ceilingpicnum);
 
             if (sector[i].ceilingpicnum == CLOUDYSKIES && g_numClouds < 127)
                 clouds[g_numClouds++] = i;
@@ -1432,7 +1404,6 @@ void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
     ud.player_skill = sk;
     ud.secretlevel = 0;
     ud.from_bonus = 0;
-    g_psky.horizfrac = 0;
 
     ud.last_level = -1;
     g_lastSaveSlot = -1;

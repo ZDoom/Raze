@@ -10719,7 +10719,7 @@ static void G_Startup(void)
     G_InitDynamicSounds();
 
     // These depend on having the dynamic tile and/or sound mappings set up:
-    G_MultiPskyInit(MOONSKY1, BIGORBIT1, LA);
+    G_InitMultiPsky(CLOUDYOCEAN, MOONSKY1, BIGORBIT1, LA);
     Gv_FinalizeWeaponDefaults();
     G_PostCreateGameState();
 

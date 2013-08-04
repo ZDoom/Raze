@@ -722,29 +722,14 @@ void ExtSetupMapFilename(const char *mapname)
 
 void ExtLoadMap(const char *mapname)
 {
-    int32_t i;
-    int32_t mskyidx=0;
-
     getmessageleng = 0;
     getmessagetimeoff = 0;
 
     ExtSetupMapFilename(mapname);
 
-    // old-fashioned multi-psky handling
+    // Old-fashioned multi-psky handling setup.
+    G_SetupGlobalPsky();
 
-    Bmemset(g_psky.tileofs, 0, sizeof(g_psky.tileofs));
-
-    for (i=0; i<numsectors; i++)
-    {
-        mskyidx = MultiPsky_TileToIdx(sector[i].ceilingpicnum);
-        if (mskyidx >= 0)
-            break;
-    }
-
-    if (mskyidx >= 0)
-        Bmemcpy(g_psky.tileofs, multipsky[mskyidx].tileofs, sizeof(g_psky.tileofs));
-
-    g_psky.lognumtiles = 3;
     parallaxtype = 0;
 
     //////////
@@ -10470,7 +10455,7 @@ int32_t ExtInit(void)
 
     ReadHelpFile("m32help.hlp");
 
-    G_MultiPskyInit(MOONSKY1, BIGORBIT1, LA);
+    G_InitMultiPsky(CLOUDYOCEAN, MOONSKY1, BIGORBIT1, LA);
 
 #ifdef LUNATIC
     if (Em_CreateState(&g_EmState) == 0)

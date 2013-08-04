@@ -58,7 +58,28 @@ extern void clearScriptNamePtr(void);
 
 //////////
 
-extern void G_MultiPskyInit(int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__DYN);
+extern void G_InitMultiPsky(int32_t CLOUDYOCEAN__DYN, int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__DYN);
+extern void G_SetupGlobalPsky(void);
+
+// Get the multi-psky index corresponding to a base tile number of the sky (for
+// the game: the *static* value!), or 0 as the catch-all.
+// KEEPINSYNC G_InitMultiPsky().
+static inline int32_t MultiPsky_TileToIdx(int32_t tilenum)
+{
+    switch (tilenum)
+    {
+    default:
+        return 0;
+    case 78: // CLOUDYOCEAN__STATIC
+        return 1;
+    case 80: // MOONSKY1__STATIC:
+        return 2;
+    case 84: // BIGORBIT1__STATIC:
+        return 3;
+    case 89: // LA__STATIC:
+        return 4;
+    }
+}
 
 //////////
 

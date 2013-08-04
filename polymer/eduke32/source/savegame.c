@@ -1028,7 +1028,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &clouds[0], sizeof(clouds), 1 },
     { 0, &cloudx[0], sizeof(cloudx), 1 },
     { 0, &cloudy[0], sizeof(cloudy), 1 },
-    { 0, &g_psky, sizeof(g_psky), 1 },  // DS_NOCHK?
+    { 0, &g_pskyidx, sizeof(g_pskyidx), 1 },  // DS_NOCHK?
     { 0, &g_earthquakeTime, sizeof(g_earthquakeTime), 1 },
 
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)sv_prequote, 0, 1 },

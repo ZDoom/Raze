@@ -5537,8 +5537,7 @@ void G_SaveMapState(void)
         Bmemcpy(&save->clouds[0],&clouds[0],sizeof(clouds));
         Bmemcpy(&save->cloudx[0],&cloudx[0],sizeof(cloudx));
         Bmemcpy(&save->cloudy[0],&cloudy[0],sizeof(cloudy));
-        Bmemcpy(&save->pskyoff[0],g_psky.tileofs,sizeof(g_psky.tileofs));
-        Bmemcpy(&save->pskybits,&g_psky.lognumtiles,sizeof(g_psky.lognumtiles));
+        Bmemcpy(&save->pskyidx,&g_pskyidx,sizeof(g_pskyidx));
         Bmemcpy(&save->animategoal[0],&animategoal[0],sizeof(animategoal));
         Bmemcpy(&save->animatevel[0],&animatevel[0],sizeof(animatevel));
         Bmemcpy(&save->g_animateCount,&g_animateCount,sizeof(g_animateCount));
@@ -5643,8 +5642,7 @@ void G_RestoreMapState(void)
         Bmemcpy(&clouds[0],&save->clouds[0],sizeof(clouds));
         Bmemcpy(&cloudx[0],&save->cloudx[0],sizeof(cloudx));
         Bmemcpy(&cloudy[0],&save->cloudy[0],sizeof(cloudy));
-        Bmemcpy(g_psky.tileofs,&save->pskyoff[0],sizeof(g_psky.tileofs));
-        Bmemcpy(&g_psky.lognumtiles,&save->pskybits,sizeof(g_psky.lognumtiles));
+        Bmemcpy(&g_pskyidx,&save->pskyidx,sizeof(g_pskyidx));
         Bmemcpy(&animategoal[0],&save->animategoal[0],sizeof(animategoal));
         Bmemcpy(&animatevel[0],&save->animatevel[0],sizeof(animatevel));
         Bmemcpy(&g_animateCount,&save->g_animateCount,sizeof(g_animateCount));

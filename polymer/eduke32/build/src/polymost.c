@@ -2400,7 +2400,7 @@ static void polymost_drawalls(int32_t bunch)
                 dd[0] = (float)xdimen*.0000001; //Adjust sky depth based on screen size!
                 t = (double)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
                 vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
-                vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+g_psky.yoffs)) - vv[1]*ghoriz;
+                vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
 
                 //Hack to draw black rectangle below sky when looking down...
@@ -2668,7 +2668,7 @@ static void polymost_drawalls(int32_t bunch)
                 dd[0] = (float)xdimen*.0000001; //Adjust sky depth based on screen size!
                 t = (double)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
                 vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
-                vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+g_psky.yoffs)) - vv[1]*ghoriz;
+                vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
 
                 //Hack to draw black rectangle below sky when looking down...

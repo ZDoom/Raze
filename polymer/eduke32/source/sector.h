@@ -44,6 +44,7 @@ typedef struct {
     int32_t lockclock;
     int32_t msx[2048], msy[2048];
     int32_t randomseed, g_globalRandom;
+    int32_t pskyidx;
 
     int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
     int16_t animatesect[MAXANIMATES];
@@ -63,7 +64,6 @@ typedef struct {
     int16_t numwalls;
     int16_t prevspritesect[MAXSPRITES];
     int16_t prevspritestat[MAXSPRITES];
-    int16_t pskyoff[MAXPSKYTILES], pskybits;
 
     uint16_t g_earthquakeTime;
     int8_t g_numPlayerSprites;

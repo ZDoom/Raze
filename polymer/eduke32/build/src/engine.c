@@ -4485,6 +4485,8 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     if (tsizy==0)
         return;
 
+    dapskyoff = getpsky(&dapyscale, &dapskybits);
+
     globalshiftval = logtilesizy;
 
     // before proper non-power-of-two tilesizy drawing
@@ -4497,19 +4499,17 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
         globaltilesizy = tsizy;
         globalyscale = 65536 / tsizy;
         globalshiftval = 0;
-        globalzd = divscale32(((tsizy>>1)+g_psky.yoffs), tsizy) + ((uint32_t)globalypanning<<24);
+        globalzd = divscale32(((tsizy>>1)/*+g_psky.yoffs*/), tsizy) + ((uint32_t)globalypanning<<24);
     }
     else
 #endif
     {
         globalshiftval = 32-globalshiftval;
         globalyscale = (8<<(globalshiftval-19));
-        globalzd = (((tsizy>>1)+g_psky.yoffs)<<globalshiftval) + ((uint32_t)globalypanning<<24);
+        globalzd = (((tsizy>>1)/*+g_psky.yoffs*/)<<globalshiftval) + ((uint32_t)globalypanning<<24);
     }
 
     //if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
-
-    dapskyoff = getpsky(&dapyscale, &dapskybits);
 
     if (dapyscale != 65536)
         globalhoriz = mulscale16(globalhoriz-(ydimen>>1),dapyscale) + (ydimen>>1);
@@ -8631,7 +8631,6 @@ int32_t initengine(void)
 
     xyaspect = -1;
 
-    parallaxtype = 2; g_psky.horizfrac = 65536;
     showinvisibility = 0;
 
     for (i=1; i<1024; i++)

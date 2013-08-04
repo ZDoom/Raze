@@ -3914,11 +3914,11 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
     }
 
     i = 0;
-    j = (1<<g_psky.lognumtiles);
+    j = 8; //(1<<g_psky.lognumtiles);
     while (i < j)
     {
         GLint oldswrap;
-        const int8_t tileofs = g_psky.tileofs[i];
+        const int8_t tileofs = multipsky[g_pskyidx].tileofs[i];
 
         bglColor4f(glcolors[tileofs][0], glcolors[tileofs][1], glcolors[tileofs][2], 1.0f);
         bglBindTexture(GL_TEXTURE_2D, glpics[tileofs]);
