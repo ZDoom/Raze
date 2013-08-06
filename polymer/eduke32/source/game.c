@@ -4362,7 +4362,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     {
         int32_t vis = p->visibility;
-        g_visibility = (vis <= 0) ? 0 : vis * (numplayers > 1 ? 1.f : r_ambientlightrecip);
+        g_visibility = (vis <= 0) ? 0 : (int32_t)(vis * (numplayers > 1 ? 1.f : r_ambientlightrecip));
     }
 
     CAMERA(sect) = p->cursectnum;
