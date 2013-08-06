@@ -164,6 +164,20 @@ void Net_SyncPlayer(ENetEvent *event)
     Net_SendNewGame(0, event->peer);
 }
 
+void Net_SpawnPlayer(int32_t player)
+{
+    int32_t j = 0;
+    packbuf[j++] = PACKET_PLAYER_SPAWN;
+    packbuf[j++] = player;
+
+    Bmemcpy(&packbuf[j], &g_player[player].ps->pos.x, sizeof(vec3_t) * 2);
+    j += sizeof(vec3_t) * 2;
+
+    packbuf[j++] = 0;
+
+    enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
+}
+
 static void display_betascreen(void)
 {
     rotatesprite_fs(0,0,65536,0,BETASCREEN,0,0,2+8+16+64);
@@ -549,17 +563,8 @@ void Net_ParseClientPacket(ENetEvent *event)
         actor[g_player[other].ps->i].t_data[2] = actor[g_player[other].ps->i].t_data[3] = actor[g_player[other].ps->i].t_data[4] = 0;
 
         P_ResetPlayer(other);
+        Net_SpawnPlayer(other);
 
-        j = 0;
-        packbuf[j++] = PACKET_PLAYER_SPAWN;
-        packbuf[j++] = other;
-
-        Bmemcpy(&packbuf[j], &g_player[other].ps->pos.x, sizeof(vec3_t) * 2);
-        j += sizeof(vec3_t) * 2;
-
-        packbuf[j++] = 0;
-
-        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
         break;
 
     case PACKET_PLAYER_PING:
@@ -1422,7 +1427,7 @@ void Net_FillPlayerUpdate(playerupdate_t *update, int32_t player)
     update->playerquitflag = g_player[player].playerquitflag;
 }
 
-void Net_ExtractPlayerUpdate(playerupdate_t *update)
+void Net_ExtractPlayerUpdate(playerupdate_t *update, int32_t type)
 {
     const int32_t playerindex = update->playerindex;
 
@@ -1436,9 +1441,12 @@ void Net_ExtractPlayerUpdate(playerupdate_t *update)
         g_player[playerindex].ps->horizoff = update->horizoff;
     }
 
-    g_player[playerindex].ping = update->ping;
-    g_player[playerindex].ps->dead_flag = update->deadflag;
-    g_player[playerindex].playerquitflag = update->playerquitflag;
+    if (type == PACKET_MASTER_TO_SLAVE)
+    {
+        g_player[playerindex].ping = update->ping;
+        g_player[playerindex].ps->dead_flag = update->deadflag;
+        g_player[playerindex].playerquitflag = update->playerquitflag;
+    }
 
     //updatesectorz(g_player[other].ps->pos.x, g_player[other].ps->pos.y, g_player[other].ps->pos.z, &g_player[other].ps->cursectnum);
     //changespritesect(g_player[other].ps->i, g_player[other].ps->cursectnum);
@@ -1588,7 +1596,7 @@ void Net_ReceiveServerUpdate(ENetEvent *event)
         Bmemcpy(&playerupdate, updatebuf, sizeof(serverplayerupdate_t));
         updatebuf += sizeof(serverplayerupdate_t);
 
-        Net_ExtractPlayerUpdate(&playerupdate.player);
+        Net_ExtractPlayerUpdate(&playerupdate.player, PACKET_MASTER_TO_SLAVE);
 
         g_player[i].ps->gotweapon = playerupdate.gotweapon;
         sprite[g_player[i].ps->i].extra = playerupdate.extra;
@@ -1656,7 +1664,7 @@ void Net_ReceiveClientUpdate(ENetEvent *event)
     g_player[playeridx].revision = update.revision;
     inputfifo[0][playeridx] = update.nsyn;
 
-    Net_ExtractPlayerUpdate(&update.player);
+    Net_ExtractPlayerUpdate(&update.player, PACKET_SLAVE_TO_MASTER);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

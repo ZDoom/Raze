@@ -247,6 +247,7 @@ void    Net_RecieveMapVoteCancel(uint8_t *pbuf);
 //////////
 
 void    Net_ResetPrediction(void);
+void    Net_SpawnPlayer(int32_t player);
 void    Net_SyncPlayer(ENetEvent *event);
 void    Net_WaitForServer(void);
 void    faketimerhandler(void);

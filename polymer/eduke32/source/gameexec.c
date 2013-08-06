@@ -1014,20 +1014,8 @@ static int32_t VM_ResetPlayer(int32_t g_p, int32_t g_flags)
 #ifndef NETCODE_DISABLE
         if (g_netServer)
         {
-            int32_t jj = 0;
-
             P_ResetPlayer(g_p);
-
-            packbuf[jj++] = PACKET_PLAYER_SPAWN;
-            packbuf[jj++] = g_p;
-
-            Bmemcpy(&packbuf[jj], &g_player[g_p].ps->pos.x, sizeof(vec3_t) * 2);
-            jj += sizeof(vec3_t) * 2;
-
-            packbuf[jj++] = 0;
-
-            enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(
-                                    packbuf, jj, ENET_PACKET_FLAG_RELIABLE));
+            Net_SpawnPlayer(g_p);
         }
 #endif
     }
