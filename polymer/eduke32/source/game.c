@@ -11844,7 +11844,7 @@ MAIN_LOOP_RESTART:
         {
             if (g_networkMode != NET_DEDICATED_SERVER)
             {
-                CONTROL_ProcessBinds();
+//                CONTROL_ProcessBinds();
                 P_GetInput(myconnectindex);
             }
 
