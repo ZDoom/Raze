@@ -1251,6 +1251,33 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 
             return -1;
 
+        case GROWSPARK__STATIC:
+
+            if (p >= 0)
+                P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa, 1, 1);
+            else
+                A_PreFireHitscan(s, &srcvect, &zvel, &sa, 1);
+
+            if (Proj_DoHitscan(i, 256 + 1, &srcvect, zvel, sa, &hit))
+                return -1;
+
+            j = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,GROWSPARK,-16,28,28,sa,0,0,i,1);
+
+            sprite[j].pal = 2;
+            sprite[j].cstat |= 130;
+            sprite[j].xrepeat = sprite[j].yrepeat = 1;
+
+            if (hit.wall == -1 && hit.sprite == -1 && hit.sect >= 0)
+            {
+                if (zvel < 0 && (sector[hit.sect].ceilingstat&1) == 0)
+                    Sect_DamageCeiling(hit.sect);
+            }
+            else if (hit.sprite >= 0) A_DamageObject(hit.sprite,j);
+            else if (hit.wall >= 0 && wall[hit.wall].picnum != ACCESSSWITCH && wall[hit.wall].picnum != ACCESSSWITCH2)
+                A_DamageWall(j,hit.wall,&hit.pos,atwith);
+
+            break;
+
         case FIRELASER__STATIC:
         case SPIT__STATIC:
         case COOLEXPLOSION1__STATIC:
@@ -1554,75 +1581,6 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                            srcvect.z+(6<<8),atwith,-64,32,32,sa,vel,zvel,i,1);
             break;
         }
-
-        case GROWSPARK__STATIC:
-
-            if (p >= 0)
-            {
-                j = GetAutoAimAngle(i, p, atwith, 5<<8, 0+1, &srcvect, 256, &zvel, &sa);
-
-                if (j < 0)
-                {
-                    sa += 16-(krand()&31);
-                    zvel = (100-ps->horiz-ps->horizoff)<<5;
-                    zvel += 128-(krand()&255);
-                }
-
-                srcvect.z -= (2<<8);
-            }
-            else
-            {
-                j = A_FindPlayer(s, NULL);
-                srcvect.z -= (4<<8);
-                hit.pos.x = safeldist(g_player[j].ps->i, s);
-                zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hit.pos.x;
-                zvel += 128-(krand()&255);
-                sa += 32-(krand()&63);
-            }
-
-            k = 0;
-
-            //            RESHOOTGROW:
-            if (sect < 0) break;
-
-            Proj_DoHitscan(i, 256+1, &srcvect, zvel, sa, &hit);
-
-            j = A_InsertSprite(sect,hit.pos.x,hit.pos.y,hit.pos.z,GROWSPARK,-16,28,28,sa,0,0,i,1);
-
-            sprite[j].pal = 2;
-            sprite[j].cstat |= 130;
-            sprite[j].xrepeat = sprite[j].yrepeat = 1;
-
-            if (hit.wall == -1 && hit.sprite == -1 && hit.sect >= 0)
-            {
-                if (zvel < 0 && (sector[hit.sect].ceilingstat&1) == 0)
-                    Sect_DamageCeiling(hit.sect);
-            }
-            else if (hit.sprite >= 0) A_DamageObject(hit.sprite,j);
-            else if (hit.wall >= 0 && wall[hit.wall].picnum != ACCESSSWITCH && wall[hit.wall].picnum != ACCESSSWITCH2)
-            {
-                /*    if(wall[hit.wall].overpicnum == MIRROR && k == 0)
-                {
-                l = getangle(
-                wall[wall[hit.wall].point2].x-wall[hit.wall].x,
-                wall[wall[hit.wall].point2].y-wall[hit.wall].y);
-
-                sx = hit.pos.x;
-                sy = hit.pos.y;
-                srcvect.z = hit.pos.z;
-                sect = hit.sect;
-                sa = ((l<<1) - sa)&2047;
-                sx += sintable[(sa+512)&2047]>>12;
-                sy += sintable[sa&2047]>>12;
-
-                k++;
-                goto RESHOOTGROW;
-                }
-                else */
-                A_DamageWall(j,hit.wall,&hit.pos,atwith);
-            }
-
-            break;
 
         case SHRINKER__STATIC:
             if (s->extra >= 0) s->shade = -96;
