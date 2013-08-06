@@ -569,7 +569,8 @@ static int32_t _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
     symbol_t *i;
     int32_t maxwidth = 0;
 
-    UNREFERENCED_PARAMETER(parm);
+    if (parm->numparms > 1)
+        return OSDCMD_SHOWHELP;
 
     for (i=symbols; i!=NULL; i=i->next)
         if (i->func != OSD_UNALIASED)
@@ -579,10 +580,15 @@ static int32_t _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
     {
         int32_t x = 0, count = 0;
         maxwidth += 3;
-        OSD_Printf(OSDTEXT_RED "Symbol listing:\n");
+
+        if (parm->numparms > 0)
+            OSD_Printf(OSDTEXT_RED "Symbol listing for %s:\n", parm->parms[0]);
+        else
+            OSD_Printf(OSDTEXT_RED "Symbol listing:\n");
+
         for (i=symbols; i!=NULL; i=i->next)
         {
-            if (i->func == OSD_UNALIASED)
+            if (i->func == OSD_UNALIASED || (parm->numparms == 1 && Bstrncmp(parm->parms[0], i->name, Bstrlen(parm->parms[0]))))
                 continue;
 
             {
