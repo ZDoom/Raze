@@ -90,6 +90,9 @@ static void win_printversion(void)
             case 2:
                 ver = osv.wProductType == VER_NT_WORKSTATION ? "8" : "Server 2012";
                 break;
+            case 3:
+                ver = osv.wProductType == VER_NT_WORKSTATION ? "8.1" : "Server 2012 R2";
+                break;
             }
             break;
         }
