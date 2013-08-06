@@ -8,7 +8,6 @@
 
 static BOOL rawinput_started = 0;
 static uint8_t KeyboardState[256] = {0}; // VKeys
-static int8_t MWheel = 0;
 
 extern volatile uint8_t moustat, mousegrab;
 extern uint32_t mousewheel[2];
@@ -24,6 +23,7 @@ extern void SetKey(int32_t key, int32_t state);
 static inline void RI_ProcessMouse(const RAWMOUSE *rmouse)
 {
     int32_t i, mask;
+    int8_t MWheel = 0;
 
     if (!mousegrab || !appactive)
         return;
@@ -145,6 +145,7 @@ static inline void RI_ProcessKeyboard(const RAWKEYBOARD *rkbd)
 
         if (keypresscallback)
             keypresscallback(sc_Pause, 1);
+    case 0xFF:
         return;
     }
 
@@ -227,8 +228,6 @@ void RI_PollDevices(BOOL loop)
     // snapshot the whole keyboard state so we can translate key presses into ascii later
     for (i = 0; i < 256; i++)
         KeyboardState[i] = GetAsyncKeyState(i) >> 8;
-
-    MWheel = 0;
 
     while (loop && PeekMessage(&msg, 0, WM_INPUT, WM_INPUT, PM_REMOVE | PM_QS_INPUT))
         RI_ProcessMessage(&msg);
