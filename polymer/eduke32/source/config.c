@@ -188,6 +188,7 @@ void CONFIG_SetDefaults(void)
     ud.config.AmbienceToggle = 1;
     ud.config.AutoAim = 1;
     ud.config.FXDevice = 0;
+    ud.config.MasterVolume = 255;
     ud.config.FXVolume = 225;
 #if defined(_WIN32)
     ud.config.MixRate = 44100;

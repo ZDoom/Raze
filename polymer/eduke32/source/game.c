@@ -8685,7 +8685,7 @@ void G_HandleLocalKeys(void)
                     // FIXME: http://forums.duke4.net/topic/6308-eduke32-crashed-when-press-altprintscreen/
                     // HINT: keeping temp-sounding variables like "i" live for
                     //  a long time surely is recipe for disaster :/.
-                    FX_PlayAuto3D((char *)RTS_GetSound(i-1),RTS_SoundLength(i-1),0,0,0,255,-i);
+                    FX_PlayAuto3D((char *)RTS_GetSound(i-1),RTS_SoundLength(i-1),0,0,FX_VOLUME(1),255,-i);
 
                     g_RTSPlaying = 7;
 #ifndef NETCODE_DISABLE

@@ -87,7 +87,7 @@ void S_SoundStartup(void)
         g_soundlocks[i] = 199;
     }
 
-    FX_SetVolume(ud.config.FXVolume);
+    FX_SetVolume(ud.config.MasterVolume);
     FX_SetReverseStereo(ud.config.ReverseStereo);
     FX_SetCallBack(S_Callback);
     FX_SetPrintf(initprintf);
@@ -118,7 +118,7 @@ void S_MusicStartup(void)
 
     if (MUSIC_Init(ud.config.MusicDevice, 0) == MUSIC_Ok || MUSIC_Init((ud.config.MusicDevice = 0), 0) == MUSIC_Ok)
     {
-        MUSIC_SetVolume(ud.config.MusicVolume);
+        MUSIC_SetVolume(MASTER_VOLUME(ud.config.MusicVolume));
         return;
     }
 
@@ -267,7 +267,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     }
     else
     {
-        int32_t mvol = ud.config.MusicVolume;
+        int32_t mvol = MASTER_VOLUME(ud.config.MusicVolume);
         MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0,
                                        0, mvol, mvol, mvol,
                                        FX_MUSIC_PRIORITY, MUSIC_ID);
@@ -663,11 +663,11 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             g_soundlocks[num]--;
             return -1;
         }
-
+        
         if (repeatp && !ambsfxp)
         {
             voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
-                                      pitch, sndist>>6, sndist>>6, 0,  // XXX: why is 'right' 0?
+                                      pitch, FX_VOLUME(sndist>>6), FX_VOLUME(sndist>>6), 0,  // XXX: why is 'right' 0?
                                       g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
         }
         else
@@ -675,7 +675,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             // Ambient MUSICANDSFX always start playing using the 3D routines!
             voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz,
                                   repeatp ? FX_LOOP : FX_ONESHOT,
-                                  pitch, sndang>>4, sndist>>6,
+                                  pitch, sndang>>4, FX_VOLUME(sndist>>6),
                                   g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
         }
     }
@@ -740,11 +740,11 @@ int32_t S_PlaySound(int32_t num)
 
     if (g_sounds[num].m&1)
         voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
-                                  pitch, LOUDESTVOLUME, LOUDESTVOLUME, LOUDESTVOLUME,
+                                  pitch,FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME),
                                   g_sounds[num].soundsiz, (num * MAXSOUNDINSTANCES) + j);
     else
         voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz, FX_ONESHOT,
-                              pitch, 0, 255-LOUDESTVOLUME,
+                              pitch, 0, FX_VOLUME(255-LOUDESTVOLUME),
                               g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
 
     if (voice <= FX_Ok)
@@ -881,7 +881,7 @@ void S_Update(void)
                 g_numEnvSoundsPlaying++;
 
             // AMBIENT_SOUND
-            FX_Pan3D(g_sounds[num].SoundOwner[k].voice, sndang>>4, sndist>>6);
+            FX_Pan3D(g_sounds[num].SoundOwner[k].voice, sndang>>4, FX_VOLUME(sndist>>6));
             g_sounds[num].SoundOwner[k].sndist = sndist>>6;
         }
     }

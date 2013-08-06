@@ -684,8 +684,8 @@ void Net_ParsePacketCommon(uint8_t *pbuf, int32_t packbufleng, int32_t serverpac
 
         if (ud.config.SoundToggle == 0 || ud.lockout == 1 || ud.config.FXDevice < 0 || !(ud.config.VoiceToggle & 4))
             break;
-
-        FX_PlayAuto3D((char *)RTS_GetSound(pbuf[1]-1),RTS_SoundLength(pbuf[1]-1),FX_ONESHOT,0,0,0,255,-pbuf[1]);
+        
+        FX_PlayAuto3D((char *)RTS_GetSound(pbuf[1]-1),RTS_SoundLength(pbuf[1]-1),FX_ONESHOT,0,0,FX_VOLUME(1),255,-pbuf[1]);
         g_RTSPlaying = 7;
         break;
 

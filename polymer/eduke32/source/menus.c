@@ -4465,9 +4465,8 @@ cheat_for_port_credits2:
             const char *opts[] =
             {
                 "Sound",
-                "Sound volume",
-                "-",
-                "Music",
+                "Master volume",
+                "Effects volume",
                 "Music volume",
                 "-",
                 "Playback sampling rate",
@@ -4495,7 +4494,7 @@ cheat_for_port_credits2:
                 io++;
             }
 
-            onbar = (probey == 1 || probey == 3);
+            onbar = (probey >=1 && probey <= 4);
             x = probesm(margin,yy+5,0,io);
 
             if (x == -1)
@@ -4545,25 +4544,14 @@ cheat_for_port_credits2:
                                 S_ClearSoundLocks();
                             }
                         }
+
                     }
-                    mgametextpal(d,yy, ud.config.SoundToggle ? "On" : "Off", MENUHIGHLIGHT(io), 0);
-                    break;
-                case 1:
-                {
-                    enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
-                    l = ud.config.FXVolume;
-                    sliderbar(1,d+8,yy+7, &ud.config.FXVolume,15,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,255);
-                    if (l != ud.config.FXVolume)
-                        FX_SetVolume((int16_t) ud.config.FXVolume);
-                }
-                break;
-                case 2:
+
                     if (ud.config.MusicDevice >= 0)
                     {
                         i = ud.config.MusicToggle;
-                        modval(0,1,(int32_t *)&ud.config.MusicToggle,1,probey==io);
-                        if (x==io)
-                            ud.config.MusicToggle = 1-ud.config.MusicToggle;
+                        ud.config.MusicToggle = ud.config.SoundToggle;
+
                         if (i != ud.config.MusicToggle)
                         {
                             if (ud.config.MusicToggle == 0) S_PauseMusic(1);
@@ -4572,23 +4560,44 @@ cheat_for_port_credits2:
                                 if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
                                 {
                                     if (MapInfo[g_musicIndex].musicfn != NULL)
-                                        S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0],g_musicIndex);
+                                        S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0], g_musicIndex);
                                 }
-                                else S_PlayMusic(&EnvMusicFilename[0][0],MAXVOLUMES*MAXLEVELS);
+                                else S_PlayMusic(&EnvMusicFilename[0][0], MAXVOLUMES*MAXLEVELS);
 
                                 S_PauseMusic(0);
                             }
                         }
                     }
-                    mgametextpal(d,yy, ud.config.MusicToggle ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    
+                    mgametextpal(d,yy, ud.config.SoundToggle ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
+                case 1:
+                    {
+                        enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
+                        l = ud.config.MasterVolume;
+                        sliderbar(1, d+8, yy+7, &ud.config.MasterVolume, 15, probey==io, enabled ? MENUHIGHLIGHT(io) : UNSELMENUSHADE, !enabled, 0, 255);
+                        if (l != ud.config.MasterVolume)
+                        {
+                            FX_SetVolume((int16_t) ud.config.MasterVolume);
+                            S_MusicVolume((int16_t) MASTER_VOLUME(ud.config.MusicVolume));
+                        }
+                    }
+                    break;
+
+                case 2:
+                {
+                    enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
+                    sliderbar(1,d+8,yy+7, &ud.config.FXVolume,15,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,1,255);
+                }
+                break;
+
                 case 3:
                 {
                     enabled = (ud.config.MusicToggle && ud.config.MusicDevice >= 0);
                     l = ud.config.MusicVolume;
                     sliderbar(1,d+8,yy+7, &ud.config.MusicVolume,15,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,255);
                     if (l != ud.config.MusicVolume)
-                        S_MusicVolume((int16_t) ud.config.MusicVolume);
+                        S_MusicVolume((int16_t) MASTER_VOLUME(ud.config.MusicVolume));
                 }
                 break;
                 case 4:
