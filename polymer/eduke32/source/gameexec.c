@@ -1466,7 +1466,6 @@ skip_check:
             if (((unsigned)vm.g_sp->yvel >= MAXSOUNDS))
             {
                 CON_ERRPRINTF("Invalid sound %d\n", TrackerCast(vm.g_sp->yvel));
-                insptr++;
                 continue;
             }
             if (!S_CheckSoundPlaying(vm.g_i,vm.g_sp->yvel))
