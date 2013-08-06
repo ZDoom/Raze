@@ -11254,10 +11254,12 @@ int32_t app_main(int32_t argc, const char **argv)
         if (time(NULL) - ud.config.LastUpdateCheck > UPDATEINTERVAL)
         {
             initprintf("Checking for updates...\n");
+
+            ud.config.LastUpdateCheck = time(NULL);
+
             if (G_GetVersionFromWebsite(tempbuf))
             {
                 initprintf("Current version is %d",Batoi(tempbuf));
-                ud.config.LastUpdateCheck = time(NULL);
 
                 if (Batoi(tempbuf) > atoi(s_buildDate))
                 {
