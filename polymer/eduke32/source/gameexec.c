@@ -105,14 +105,14 @@ void VM_ScriptInfo(void)
 
 static void VM_KillIt(int32_t iActor, int32_t iPlayer)
 {
-    if (iActor >= 0)
-    {
-        // if player was set to squish, first stop that...
-        if (iPlayer >= 0 && g_player[iPlayer].ps->actorsqu == iActor)
-            g_player[iPlayer].ps->actorsqu = -1;
+    if ((unsigned) iActor >= MAXSPRITES)
+        return;
 
-        A_DeleteSprite(iActor);
-    }
+    // if player was set to squish, first stop that...
+    if (iPlayer >= 0 && g_player[iPlayer].ps->actorsqu == iActor)
+        g_player[iPlayer].ps->actorsqu = -1;
+
+    A_DeleteSprite(iActor);
 }
 
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT

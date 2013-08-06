@@ -4268,32 +4268,27 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 static void G_OROR_DupeSprites(void)
 {
     // dupe the sprites touching the portal to the other sector
+    // viewing from bottom
+    int32_t k;
+    spritetype *sp = &sprite[ror_sprite];
 
-    if (ror_sprite != -1)
+    if ((unsigned) ror_sprite >= MAXSPRITES || drawing_ror != 1)
+        return;
+
+    for (k = headspritesect[sp->sectnum]; k != -1; k = nextspritesect[k])
     {
-        spritetype *sp = &sprite[ror_sprite];
-
-        // viewing from bottom
-        if (drawing_ror == 1)
+        if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sp->z))
         {
-            int32_t k;
+            Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(spritetype));
 
-            for (k=headspritesect[sp->sectnum]; k != -1; k=nextspritesect[k])
-            {
-                if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sp->z))
-                {
-                    Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(spritetype));
+            tsprite[spritesortcnt].x += (sprite[sp->yvel].x - sp->x);
+            tsprite[spritesortcnt].y += (sprite[sp->yvel].y - sp->y);
+            tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + actor[sp->yvel].ceilingz;
+            tsprite[spritesortcnt].sectnum = sprite[sp->yvel].sectnum;
+            tsprite[spritesortcnt].owner = k;
 
-                    tsprite[spritesortcnt].x += (sprite[sp->yvel].x-sp->x);
-                    tsprite[spritesortcnt].y += (sprite[sp->yvel].y-sp->y);
-                    tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + actor[sp->yvel].ceilingz;
-                    tsprite[spritesortcnt].sectnum = sprite[sp->yvel].sectnum;
-                    tsprite[spritesortcnt].owner = k;
-
-                    //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
-                    spritesortcnt++;
-                }
-            }
+            //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
+            spritesortcnt++;
         }
     }
 }
@@ -4303,38 +4298,35 @@ static void G_ReadGLFrame(void)
 {
     // Save OpenGL screenshot with Duke3D palette
     // NOTE: maybe need to move this to the engine...
-    begindrawing();
+    palette_t *const frame = (palette_t *const) Bcalloc(xdim * ydim, sizeof(palette_t));
+    char *const pic = (char *) waloff[TILE_SAVESHOT];
+
+    int32_t x, y;
+    const int32_t xf = divscale16(xdim, 320);  // (xdim<<16)/320
+    const int32_t yf = divscale16(ydim, 200);  // (ydim<<16)/200
+
+    if (!frame)
     {
-        palette_t *const frame = (palette_t *const)Bcalloc(xdim*ydim, 4);
-        char *const pic = (char *)waloff[TILE_SAVESHOT];
+        Bmemset(pic, 0, 320 * 200);
+        return;
+    }
 
-        int32_t x, y;
-        const int32_t xf = divscale16(xdim, 320);  // (xdim<<16)/320
-        const int32_t yf = divscale16(ydim, 200);  // (ydim<<16)/200
+    begindrawing();
+    bglReadPixels(0, 0, xdim, ydim, GL_RGBA, GL_UNSIGNED_BYTE, frame);
+    enddrawing();
 
-        if (!frame)
+    for (y = 0; y < 200; y++)
+    {
+        const int32_t base = mulscale16(200 - y - 1, yf)*xdim;
+
+        for (x = 0; x < 320; x++)
         {
-            Bmemset(pic, 0, 320*200);
-        }
-        else
-        {
-            bglReadPixels(0,0,xdim,ydim,GL_RGBA,GL_UNSIGNED_BYTE,frame);
-
-            for (y=0; y<200; y++)
-            {
-                const int32_t base = mulscale16(200-y-1, yf)*xdim;
-
-                for (x=0; x<320; x++)
-                {
-                    const palette_t *pix = &frame[base + mulscale16(x, xf)];
-                    pic[320*y + x] = getclosestcol(pix->r>>2, pix->g>>2, pix->b>>2);
-                }
-            }
-
-            Bfree(frame);
+            const palette_t *pix = &frame[base + mulscale16(x, xf)];
+            pic[320 * y + x] = getclosestcol(pix->r >> 2, pix->g >> 2, pix->b >> 2);
         }
     }
-    enddrawing();
+
+    Bfree(frame);
 }
 #endif
 

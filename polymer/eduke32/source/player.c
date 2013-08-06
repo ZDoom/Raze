@@ -4230,9 +4230,7 @@ void P_UpdatePosWhenViewingCam(DukePlayer_t *p)
 {
     int32_t i = p->newowner;
 
-    p->pos.x = SX;
-    p->pos.y = SY;
-    p->pos.z = SZ;
+    Bmemcpy(&p->pos.x, &sprite[i].x, sizeof(vec3_t));
     p->ang =  SA;
     p->vel.x = p->vel.y = sprite[p->i].xvel = 0;
     p->look_ang = 0;
