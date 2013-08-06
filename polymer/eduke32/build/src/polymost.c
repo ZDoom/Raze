@@ -524,9 +524,12 @@ static void fogcalc_old(int32_t shade, int32_t vis)
 
 static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
-    UNREFERENCED_PARAMETER(tile);
-
     Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));
+
+    if (getrendermode() == REND_POLYMOST && r_usetileshades == 1 && shade > 0 &&
+        (!usehightile || !hicfindsubst(tile, pal, 0)) &&
+        (!usemodels || md_tilehasmodel(tile, pal) < 0))
+        shade >>= 1;
 
     if (r_usenewshading!=2)
     {
@@ -1387,7 +1390,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         float hackscx, hackscy;
 
         if (skyclamphack) method |= 4;
-        pth = texcache_fetch(globalpicnum, globalpal, getpalookup(0,globalshade), method&(~3));
+        pth = texcache_fetch(globalpicnum,globalpal,getpalookup(globvis>>2, globalshade),method&(~3));
 
         if (!pth)
         {
@@ -4712,7 +4715,7 @@ void polymost_fillpolygon(int32_t npoints)
     if (gloy1 != -1) setpolymost2dview(); //disables blending, texturing, and depth testing
     bglEnable(GL_ALPHA_TEST);
     bglEnable(GL_TEXTURE_2D);
-    pth = texcache_fetch(globalpicnum,globalpal,getpalookup(globvis>>2, globalshade),0);
+    pth = texcache_fetch(globalpicnum,globalpal,getpalookup(r_usetileshades != 1 ? 0 : globvis>>2, globalshade),0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
     f = getshadefactor(globalshade);
@@ -5127,7 +5130,7 @@ void polymost_initosdfuncs(void)
         { "r_texturemiplevel","changes the highest OpenGL mipmap level used",(void *) &gltexmiplevel, CVAR_INT, 0, 6 },
         { "r_texturemode", "changes the texture filtering settings", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
         { "r_usenewshading", "visibility code: 0: Polymost, 2: Classic", (void *) &r_usenewshading, CVAR_INT, 0, 2 },
-        { "r_usetileshades", "enable/disable Polymost tile shade textures", (void *) &r_usetileshades, CVAR_BOOL | CVAR_INVALIDATEART, 0, 1 },
+        { "r_usetileshades", "enable/disable Polymost tile shade textures", (void *) &r_usetileshades, CVAR_INT | CVAR_INVALIDATEART, 0, 2 },
         { "r_vbocount","sets the number of Vertex Buffer Objects to use when drawing models",(void *) &r_vbocount, CVAR_INT, 1, 256 },
         { "r_vbos"," enable/disable using Vertex Buffer Objects when drawing models",(void *) &r_vbos, CVAR_BOOL, 0, 1 },
         { "r_vertexarrays","enable/disable using vertex arrays when drawing models",(void *) &r_vertexarrays, CVAR_BOOL, 0, 1 },
