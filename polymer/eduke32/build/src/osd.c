@@ -97,7 +97,7 @@ static int32_t  osdtextpal=0;
 /* static int32_t  osdcursorshade=0;
 static int32_t  osdcursorpal=0; */
 
-#define MAXSYMBOLS 256
+#define MAXSYMBOLS 512
 
 static symbol_t *osdsymbptrs[MAXSYMBOLS];
 static int32_t osdnumsymbols = 0;
