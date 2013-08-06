@@ -2644,9 +2644,274 @@ static void Proj_BounceOffWall(spritetype *s, int32_t j)
     s->ang = ((k<<1) - s->ang)&2047;
 }
 
+#define PROJ_DECAYVELOCITY s->xvel >>= 1, s->zvel >>= 1
+
+ACTOR_STATIC void Proj_MoveCustom(int32_t i)
+{
+    const projectile_t *const proj = &SpriteProjectile[i];
+    spritetype *const s = &sprite[i];
+    vec3_t davect;
+    int32_t j=0;
+
+    if (proj->pal >= 0)
+        s->pal = proj->pal;
+
+    switch (proj->workslike & PROJECTILE_TYPE_MASK)
+    {
+    case PROJECTILE_HITSCAN:
+        if (!G_HaveActor(sprite[i].picnum))
+            return;
+        {
+            int32_t x, p = A_FindPlayer(s, &x);
+            A_Execute(i, p, x);
+        }
+        return;
+
+    case PROJECTILE_KNEE:
+    case PROJECTILE_BLOOD:
+        A_DeleteSprite(i);
+        return;
+
+    default:
+    case PROJECTILE_RPG:
+        Bmemcpy(&davect, s, sizeof(vec3_t));
+
+        if (proj->flashcolor)
+            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, proj->flashcolor, PR_LIGHT_PRIO_LOW_GAME);
+
+        if (proj->workslike & PROJECTILE_BOUNCESOFFWALLS && s->yvel < 1)
+        {
+            A_DoProjectileEffects(i, NULL, 1);
+            A_DeleteSprite(i);
+            return;
+        }
+
+        if (proj->workslike & PROJECTILE_COOLEXPLOSION1 && ++s->shade >= 40)
+        {
+            A_DeleteSprite(i);
+            return;
+        }
+
+        s->zvel -= proj->drop;
+
+        if (proj->workslike & PROJECTILE_SPIT && s->zvel < 6144)
+            s->zvel += g_spriteGravity-112;
+
+        A_GetZLimits(i);
+
+        if (proj->trail >= 0)
+        {
+            int32_t cnt;
+
+            for (cnt=0; cnt<=proj->tnum; cnt++)
+            {
+                j = A_Spawn(i, proj->trail);
+
+                sprite[j].z += (proj->toffset<<8);
+
+                if (proj->txrepeat >= 0)
+                    sprite[j].xrepeat=proj->txrepeat;
+
+                if (proj->tyrepeat >= 0)
+                    sprite[j].yrepeat=proj->tyrepeat;
+            }
+        }
+
+        {
+            int32_t cnt = proj->movecnt;
+            int32_t k = s->xvel;
+            int32_t ll = s->zvel;
+
+            if (sector[s->sectnum].lotag == ST_2_UNDERWATER)
+            {
+                k >>= 1;
+                ll >>= 1;
+            }
+
+            do
+            {
+                vec3_t tmpvect;
+                Bmemcpy(&davect, s, sizeof(vec3_t));
+
+                tmpvect.x = (k*(sintable[(s->ang+512)&2047]))>>14;
+                tmpvect.y = (k*(sintable[s->ang&2047]))>>14;
+                tmpvect.z = ll;
+
+                j = A_MoveSprite(i, &tmpvect, CLIPMASK1);
+            } while (!j && --cnt > 0);
+        }
+
+        if (!(proj->workslike & PROJECTILE_BOUNCESOFFWALLS) &&
+            s->yvel >= 0 && sprite[s->yvel].sectnum != MAXSECTORS)
+            if (FindDistance2D(s->x-sprite[s->yvel].x, s->y-sprite[s->yvel].y) < 256)
+                j = 49152|s->yvel;
+
+        actor[i].movflag = j;
+
+        if (s->sectnum < 0)
+        {
+            A_DeleteSprite(i);
+            return;
+        }
+
+        if (proj->workslike & PROJECTILE_TIMED && proj->range > 0)
+        {
+            if (++actor[i].t_data[8] > proj->range)
+            {
+                if (proj->workslike & PROJECTILE_EXPLODEONTIMER)
+                    A_DoProjectileEffects(i, &davect, 1);
+
+                A_DeleteSprite(i);
+                return;
+            }
+        }
+
+        if ((j&49152) != 49152 && !(proj->workslike & PROJECTILE_BOUNCESOFFWALLS))
+            G_WeaponHitCeilingOrFloor(i, s, &j);
+
+        if (proj->workslike & PROJECTILE_WATERBUBBLES && sector[s->sectnum].lotag == ST_2_UNDERWATER && rnd(140))
+            A_Spawn(i, WATERBUBBLE);
+
+        if (j != 0)
+        {
+            int32_t k;
+
+            if (proj->workslike & PROJECTILE_COOLEXPLOSION1)
+            {
+                s->xvel = 0;
+                s->zvel = 0;
+            }
+
+            switch (j&49152)
+            {
+            case 49152:
+                j &= (MAXSPRITES-1);
+
+                if (proj->workslike & PROJECTILE_BOUNCESOFFSPRITES)
+                {
+                    s->yvel--;
+
+                    k = getangle(sprite[j].x-s->x, sprite[j].y-s->y)+(sprite[j].cstat&16 ? 0 : 512);
+                    s->ang = ((k<<1) - s->ang)&2047;
+
+                    if (proj->bsound >= 0)
+                        A_PlaySound(proj->bsound, i);
+
+                    if (proj->workslike & PROJECTILE_LOSESVELOCITY)
+                        PROJ_DECAYVELOCITY;
+
+                    if (!(proj->workslike & PROJECTILE_FORCEIMPACT))
+                        return;
+                }
+
+                A_DamageObject(j, i);
+
+                if (sprite[j].picnum == APLAYER)
+                {
+                    int32_t p = sprite[j].yvel;
+
+                    A_PlaySound(PISTOL_BODYHIT, j);
+
+                    if (proj->workslike & PROJECTILE_SPIT)
+                        P_HandleBeingSpitOn(g_player[p].ps);
+                }
+
+                if (proj->workslike & PROJECTILE_RPG_IMPACT)
+                {
+                    actor[j].owner = s->owner;
+                    actor[j].picnum = s->picnum;
+                    actor[j].extra += proj->extra;
+
+                    A_DoProjectileEffects(i, &davect, 0);
+
+                    if (!(proj->workslike & PROJECTILE_FORCEIMPACT))
+                    {
+                        A_DeleteSprite(i);
+                        return;
+                    }
+                }
+
+                if (proj->workslike & PROJECTILE_FORCEIMPACT)
+                    return;
+                break;
+
+            case 32768:
+                j &= (MAXWALLS-1);
+
+                if (proj->workslike & PROJECTILE_BOUNCESOFFMIRRORS &&
+                    (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+                {
+                    Proj_BounceOffWall(s, j);
+                    s->owner = i;
+                    A_Spawn(i, TRANSPORTERSTAR);
+                    return;
+                }
+                else
+                {
+                    setsprite(i, &davect);
+                    A_DamageWall(i, j, (vec3_t *) s, s->picnum);
+
+                    if (proj->workslike & PROJECTILE_BOUNCESOFFWALLS)
+                    {
+                        if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
+                            s->yvel--;
+
+                        Proj_BounceOffWall(s, j);
+
+                        if (proj->bsound >= 0)
+                            A_PlaySound(proj->bsound, i);
+
+                        if (proj->workslike & PROJECTILE_LOSESVELOCITY)
+                            PROJ_DECAYVELOCITY;
+
+                        return;
+                    }
+                }
+                break;
+
+            case 16384:
+                setsprite(i, &davect);
+
+                if (s->zvel < 0)
+                {
+                    if (sector[s->sectnum].ceilingstat&1 && sector[s->sectnum].ceilingpal == 0)
+                    {
+                        A_DeleteSprite(i);
+                        return;
+                    }
+
+                    Sect_DamageCeiling(s->sectnum);
+                }
+
+                if (proj->workslike & PROJECTILE_BOUNCESOFFWALLS)
+                {
+                    A_DoProjectileBounce(i);
+                    A_SetSprite(i, CLIPMASK1);
+
+                    s->yvel--;
+
+                    if (proj->bsound >= 0)
+                        A_PlaySound(proj->bsound, i);
+
+                    if (proj->workslike & PROJECTILE_LOSESVELOCITY)
+                        PROJ_DECAYVELOCITY;
+
+                    return;
+                }
+                break;
+            }
+
+            A_DoProjectileEffects(i, &davect, 1);
+            A_DeleteSprite(i);
+            return;
+        }
+        return;
+    }
+}
+
 ACTOR_STATIC void G_MoveWeapons(void)
 {
-    int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, q;
+    int32_t i = headspritestat[STAT_PROJECTILE], j=0, k;
     int32_t x, ll;
 
     while (i >= 0)
@@ -2661,261 +2926,9 @@ ACTOR_STATIC void G_MoveWeapons(void)
         Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
 
         /* Custom projectiles */
-        if (A_CheckSpriteFlags(i,SPRITE_PROJECTILE))
+        if (A_CheckSpriteFlags(i, SPRITE_PROJECTILE))
         {
-            const projectile_t *const proj = &SpriteProjectile[i];
-
-            if (proj->pal >= 0)
-                s->pal = proj->pal;
-
-            if (proj->workslike & PROJECTILE_KNEE)
-                KILLIT(i);
-
-            if (proj->workslike & PROJECTILE_RPG)
-            {
-                //  if (proj->workslike & COOLEXPLOSION1)
-                //                if( g_sounds[WIERDSHOT_FLY].num == 0 )
-                //                    A_PlaySound(WIERDSHOT_FLY,i);
-
-                Bmemcpy(&davect,s,sizeof(vec3_t));
-
-                if (proj->flashcolor)
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, proj->flashcolor, PR_LIGHT_PRIO_LOW_GAME);
-
-                if (proj->workslike & PROJECTILE_BOUNCESOFFWALLS && s->yvel < 1)
-                {
-                    A_DoProjectileEffects(i, NULL, 1);
-                    KILLIT(i);
-                }
-
-                if (proj->workslike & PROJECTILE_COOLEXPLOSION1 && ++s->shade >= 40)
-                    KILLIT(i);
-
-                s->zvel -= proj->drop;
-
-                if (proj->workslike & PROJECTILE_SPIT && s->zvel < 6144)
-                    s->zvel += g_spriteGravity-112;
-
-                A_GetZLimits(i);
-
-                if (proj->trail >= 0)
-                {
-                    int32_t cnt;
-
-                    for (cnt=0; cnt<=proj->tnum; cnt++)
-                    {
-                        j = A_Spawn(i,proj->trail);
-
-                        sprite[j].z += (proj->toffset<<8);
-
-                        if (proj->txrepeat >= 0)
-                            sprite[j].xrepeat=proj->txrepeat;
-
-                        if (proj->tyrepeat >= 0)
-                            sprite[j].yrepeat=proj->tyrepeat;
-                    }
-                }
-
-                {
-                    int32_t cnt = proj->movecnt;
-
-                    k = s->xvel;
-                    ll = s->zvel;
-
-                    if (sector[s->sectnum].lotag == ST_2_UNDERWATER)
-                    {
-                        k >>= 1;
-                        ll >>= 1;
-                    }
-
-                    do
-                    {
-                        vec3_t tmpvect;
-                        Bmemcpy(&davect, s, sizeof(vec3_t));
-
-                        tmpvect.x = (k*(sintable[(s->ang+512)&2047]))>>14;
-                        tmpvect.y = (k*(sintable[s->ang&2047]))>>14;
-                        tmpvect.z = ll;
-
-                        j = A_MoveSprite(i, &tmpvect, CLIPMASK1);
-                    }
-                    while (!j && --cnt > 0);
-                }
-
-                if (!(proj->workslike & PROJECTILE_BOUNCESOFFWALLS) &&
-                    s->yvel >= 0 && sprite[s->yvel].sectnum != MAXSECTORS)
-                    if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
-                        j = 49152|s->yvel;
-
-                actor[i].movflag = j;
-
-                if (s->sectnum < 0)
-                    KILLIT(i);
-
-                if (proj->workslike & PROJECTILE_TIMED && proj->range > 0)
-                {
-                    if (++actor[i].t_data[8] > proj->range)
-                    {
-                        if (proj->workslike & PROJECTILE_EXPLODEONTIMER)
-                            A_DoProjectileEffects(i, &davect, 1);
-
-                        KILLIT(i);
-                    }
-                }
-
-                if ((j&49152) != 49152 && !(proj->workslike & PROJECTILE_BOUNCESOFFWALLS))
-                    G_WeaponHitCeilingOrFloor(i, s, &j);
-
-                if (proj->workslike & PROJECTILE_WATERBUBBLES && sector[s->sectnum].lotag == ST_2_UNDERWATER && rnd(140))
-                    A_Spawn(i,WATERBUBBLE);
-
-                if (j != 0)
-                {
-                    if (proj->workslike & PROJECTILE_COOLEXPLOSION1)
-                    {
-                        s->xvel = 0;
-                        s->zvel = 0;
-                    }
-
-                    if ((j&49152) == 49152)
-                    {
-                        j &= (MAXSPRITES-1);
-
-                        if (proj->workslike & PROJECTILE_BOUNCESOFFSPRITES)
-                        {
-                            s->yvel--;
-
-                            k = getangle(sprite[j].x-s->x,sprite[j].y-s->y)+(sprite[j].cstat&16?0:512);
-                            s->ang = ((k<<1) - s->ang)&2047;
-
-                            if (proj->bsound >= 0)
-                                A_PlaySound(proj->bsound,i);
-
-                            if (proj->workslike & PROJECTILE_LOSESVELOCITY)
-                            {
-                                s->xvel >>= 1;
-                                s->zvel >>= 1;
-                            }
-
-                            if (!(proj->workslike & PROJECTILE_FORCEIMPACT))
-                                goto BOLT;
-                        }
-
-                        A_DamageObject(j,i);
-
-                        if (sprite[j].picnum == APLAYER)
-                        {
-                            int32_t p = sprite[j].yvel;
-
-                            A_PlaySound(PISTOL_BODYHIT,j);
-
-                            if (proj->workslike & PROJECTILE_SPIT)
-                                P_HandleBeingSpitOn(g_player[p].ps);
-                        }
-
-                        if (proj->workslike & PROJECTILE_RPG_IMPACT)
-                        {
-
-                            actor[j].owner = s->owner;
-                            actor[j].picnum = s->picnum;
-                            actor[j].extra += proj->extra;
-
-                            A_DoProjectileEffects(i, &davect, 0);
-
-                            if (!(proj->workslike & PROJECTILE_FORCEIMPACT))
-                                KILLIT(i);
-                        }
-
-                        if (proj->workslike & PROJECTILE_FORCEIMPACT)
-                            goto BOLT;
-                    }
-                    else if ((j&49152) == 32768)
-                    {
-                        j &= (MAXWALLS-1);
-
-                        if (proj->workslike & PROJECTILE_BOUNCESOFFMIRRORS &&
-                            (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
-                        {
-                            Proj_BounceOffWall(s, j);
-                            s->owner = i;
-                            A_Spawn(i,TRANSPORTERSTAR);
-                            goto BOLT;
-                        }
-                        else
-                        {
-                            setsprite(i,&davect);
-                            A_DamageWall(i,j,(vec3_t *)s,s->picnum);
-
-                            if (proj->workslike & PROJECTILE_BOUNCESOFFWALLS)
-                            {
-                                if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
-                                    s->yvel--;
-
-                                Proj_BounceOffWall(s, j);
-
-                                if (proj->bsound >= 0)
-                                    A_PlaySound(proj->bsound,i);
-
-                                if (proj->workslike & PROJECTILE_LOSESVELOCITY)
-                                {
-                                    s->xvel >>= 1;
-                                    s->zvel >>= 1;
-                                }
-                                goto BOLT;
-                            }
-                        }
-                    }
-                    else if ((j&49152) == 16384)
-                    {
-                        setsprite(i, &davect);
-
-                        if (s->zvel < 0)
-                        {
-                            if (sector[s->sectnum].ceilingstat&1 && sector[s->sectnum].ceilingpal == 0)
-                                KILLIT(i);
-
-                            Sect_DamageCeiling(s->sectnum);
-                        }
-
-                        if (proj->workslike & PROJECTILE_BOUNCESOFFWALLS)
-                        {
-                            A_DoProjectileBounce(i);
-                            A_SetSprite(i, CLIPMASK1);
-
-                            s->yvel--;
-
-                            if (proj->bsound >= 0)
-                                A_PlaySound(proj->bsound,i);
-
-                            if (proj->workslike & PROJECTILE_LOSESVELOCITY)
-                            {
-                                s->xvel >>= 1;
-                                s->zvel >>= 1;
-                            }
-
-                            goto BOLT;
-                        }
-                    }
-
-                    if (proj->workslike & PROJECTILE_HITSCAN)
-                    {
-                        if (!G_HaveActor(sprite[i].picnum))
-                            goto BOLT;
-                        {
-                            int32_t p = A_FindPlayer(s,&x);
-                            A_Execute(i,p,x);
-                        }
-                        goto BOLT;
-                    }
-
-                    if (proj->workslike & PROJECTILE_RPG)
-                    {
-                        A_DoProjectileEffects(i, &davect, 1);
-                        KILLIT(i);
-                    }
-                }
-            }
-
+            Proj_MoveCustom(i);
             goto BOLT;
         }
 
@@ -2925,6 +2938,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
         case RADIUSEXPLOSION__STATIC:
         case KNEE__STATIC:
             KILLIT(i);
+/*
         case TONGUE__STATIC:
             T1 = sintable[(T2)&2047]>>9;
             T2 += 32;
@@ -2960,6 +2974,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 sprite[q].picnum = INNERJAW+1;
 
             goto BOLT;
+*/
 
         case FREEZEBLAST__STATIC:
             if (s->yvel < 1 || s->extra < 2 || (s->xvel|s->zvel) == 0)
@@ -3050,14 +3065,15 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     s->zvel = 0;
                 }
 
-                if ((j&49152) == 49152)
+                switch (j&49152)
                 {
+                case 49152:
                     j &= (MAXSPRITES-1);
 
                     if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
                         if (A_CheckEnemySprite(&sprite[j]) || sprite[j].picnum == APLAYER)
                         {
-                            j = A_Spawn(i,TRANSPORTERSTAR);
+                            j = A_Spawn(i, TRANSPORTERSTAR);
                             sprite[j].pal = 1;
                             sprite[j].xrepeat = 32;
                             sprite[j].yrepeat = 32;
@@ -3065,33 +3081,33 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             KILLIT(i);
                         }
 
-                    A_DamageObject(j,i);
+                        A_DamageObject(j, i);
 
-                    if (sprite[j].picnum == APLAYER)
-                    {
-                        int32_t p = sprite[j].yvel;
-                        A_PlaySound(PISTOL_BODYHIT,j);
+                        if (sprite[j].picnum == APLAYER)
+                        {
+                            int32_t p = sprite[j].yvel;
+                            A_PlaySound(PISTOL_BODYHIT, j);
 
-                        if (s->picnum == SPIT)
-                            P_HandleBeingSpitOn(g_player[p].ps);
-                    }
-                }
-                else if ((j&49152) == 32768)
-                {
+                            if (s->picnum == SPIT)
+                                P_HandleBeingSpitOn(g_player[p].ps);
+                        }
+                        break;
+
+                case 32768:
                     j &= (MAXWALLS-1);
 
                     if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT &&
-                            (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+                        (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
                     {
                         Proj_BounceOffWall(s, j);
                         s->owner = i;
-                        A_Spawn(i,TRANSPORTERSTAR);
+                        A_Spawn(i, TRANSPORTERSTAR);
                         goto BOLT;
                     }
                     else
                     {
-                        setsprite(i,&davect);
-                        A_DamageWall(i,j,(vec3_t *)s,s->picnum);
+                        setsprite(i, &davect);
+                        A_DamageWall(i, j, (vec3_t *) s, s->picnum);
 
                         if (s->picnum == FREEZEBLAST)
                         {
@@ -3105,10 +3121,10 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             goto BOLT;
                         }
                     }
-                }
-                else if ((j&49152) == 16384)
-                {
-                    setsprite(i,&davect);
+                    break;
+
+                case 16384:
+                    setsprite(i, &davect);
 
                     if (s->zvel < 0)
                     {
@@ -3123,70 +3139,84 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     {
                         A_DoProjectileBounce(i);
                         A_SetSprite(i, CLIPMASK1);
+
                         s->extra >>= 1;
-                        if (s->xrepeat > 8)
-                            s->xrepeat -= 2;
-                        if (s->yrepeat > 8)
-                            s->yrepeat -= 2;
                         s->yvel--;
+
+                        if (s->xrepeat > 8)
+                        {
+                            s->xrepeat -= 2;
+
+                            if (s->yrepeat > 8)
+                                s->yrepeat -= 2;
+                        }
+
                         goto BOLT;
                     }
+                    break;
+                default:
+                    break;
                 }
 
-                if (s->picnum != SPIT)
+                switch (DYNAMICTILEMAP(s->picnum))
                 {
-                    if (s->picnum == RPG)
+                case SPIT__STATIC:
+                case COOLEXPLOSION1__STATIC:
+                case FREEZEBLAST__STATIC:
+                case FIRELASER__STATIC:
+                    break;
+
+                case RPG__STATIC:
+                    k = A_Spawn(i, EXPLOSION2);
+                    A_PlaySound(RPG_EXPLODE, k);
+                    Bmemcpy(&sprite[k], &davect, sizeof(vec3_t));
+
+                    if (s->xrepeat < 10)
                     {
-                        k = A_Spawn(i,EXPLOSION2);
-                        A_PlaySound(RPG_EXPLODE,k);
-                        Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-
-                        if (s->xrepeat < 10)
-                        {
-                            sprite[k].xrepeat = 6;
-                            sprite[k].yrepeat = 6;
-                        }
-                        else if ((j&49152) == 16384)
-                        {
-                            if (s->zvel > 0)
-                                A_Spawn(i,EXPLOSION2BOT);
-                            else
-                            {
-                                sprite[k].cstat |= 8;
-                                sprite[k].z += (48<<8);
-                            }
-                        }
-
-                        if (s->xrepeat >= 10)
-                        {
-                            x = s->extra;
-                            A_RadiusDamage(i,g_rpgBlastRadius, x>>2,x>>1,x-(x>>2),x);
-                        }
+                        sprite[k].xrepeat = 6;
+                        sprite[k].yrepeat = 6;
+                    }
+                    else if ((j&49152) == 16384)
+                    {
+                        if (s->zvel > 0)
+                            A_Spawn(i, EXPLOSION2BOT);
                         else
                         {
-                            x = s->extra+(g_globalRandom&3);
-                            A_RadiusDamage(i,(g_rpgBlastRadius>>1),x>>2,x>>1,x-(x>>2),x);
+                            sprite[k].cstat |= 8;
+                            sprite[k].z += (48<<8);
                         }
                     }
-                    else if (s->picnum == SHRINKSPARK)
+
+                    if (s->xrepeat >= 10)
                     {
-                        A_Spawn(i,SHRINKEREXPLOSION);
-                        A_PlaySound(SHRINKER_HIT,i);
-                        A_RadiusDamage(i,g_shrinkerBlastRadius,0,0,0,0);
+                        x = s->extra;
+                        A_RadiusDamage(i, g_rpgBlastRadius, x>>2, x>>1, x-(x>>2), x);
                     }
-                    else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER)
+                    else
                     {
-                        k = A_Spawn(i,EXPLOSION2);
-                        sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat>>1;
-                        if ((j&49152) == 16384)
+                        x = s->extra+(g_globalRandom&3);
+                        A_RadiusDamage(i, (g_rpgBlastRadius>>1), x>>2, x>>1, x-(x>>2), x);
+                    }
+                    break;
+
+                case SHRINKSPARK__STATIC:
+                    A_Spawn(i, SHRINKEREXPLOSION);
+                    A_PlaySound(SHRINKER_HIT, i);
+                    A_RadiusDamage(i, g_shrinkerBlastRadius, 0, 0, 0, 0);
+                    break;
+
+                default:
+                    k = A_Spawn(i, EXPLOSION2);
+                    sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat>>1;
+                    if ((j&49152) == 16384)
+                    {
+                        if (s->zvel < 0)
                         {
-                            if (s->zvel < 0)
-                            {
-                                sprite[k].cstat |= 8;
-                                sprite[k].z += (72<<8);
-                            }
+                            sprite[k].cstat |= 8;
+                            sprite[k].z += (72<<8);
                         }
                     }
+                    break;
                 }
 
                 if (s->picnum != COOLEXPLOSION1)
