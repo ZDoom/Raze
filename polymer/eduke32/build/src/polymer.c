@@ -6016,12 +6016,14 @@ static void         polymer_initrendertargets(int32_t count)
             bglReadBuffer(GL_NONE);
         }
         bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, prrts[i].target, prrts[i].z, 0);
-        
-        bglBindTexture(prrts[i].target, 0);
-        bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
         if (bglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
+        {
             OSD_Printf("PR : FBO #%d initialization failed.\n", i);
+        }
+
+        bglBindTexture(prrts[i].target, 0);
+        bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
         i++;
     }
