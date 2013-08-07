@@ -215,7 +215,7 @@ int32_t Net_InsertSprite(int32_t sect, int32_t stat);
 void    Net_DeleteSprite(int32_t spritenum);
 
 void    Net_FillPlayerUpdate(playerupdate_t *update, int32_t player);
-void    Net_ExtractPlayerUpdate(playerupdate_t *update);
+void    Net_ExtractPlayerUpdate(playerupdate_t *update, int32_t type);
 
 void    Net_SendServerUpdates(void);
 void    Net_ReceiveServerUpdate(ENetEvent *event);
