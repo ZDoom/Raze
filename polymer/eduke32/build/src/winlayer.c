@@ -2771,6 +2771,8 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         if (!Bstrcmp(glinfo.vendor,"Microsoft Corporation")) err = 1;
         else if (!Bstrcmp(glinfo.vendor,"SiS")) err = 1;
         else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
+        else if (!Bstrcmp(glinfo.vendor, "Intel"))
+            pr_ati_fboworkaround = 1;
         else
         {
             if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
@@ -2778,7 +2780,6 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 winlayer_have_ATI = 1;
 #ifdef POLYMER
                 pr_ati_fboworkaround = 1;
-                initprintf("Enabling ATI FBO color attachment workaround.\n");
 #endif
                 if (Bstrstr(glinfo.renderer,"Radeon X1"))
                 {
@@ -2798,6 +2799,9 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 pr_ati_fboworkaround = 0;
 #endif
         }
+
+        if (pr_ati_fboworkaround)
+            initprintf("Enabling Intel/ATI FBO color attachment workaround.\n");
 
         if (!forcegl && err)
         {
