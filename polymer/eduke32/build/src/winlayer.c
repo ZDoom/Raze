@@ -158,7 +158,7 @@ char appactive=1;
 char realfs=0;
 char regrabmouse=0;
 uint32_t mousewheel[2] = { 0,0 };
-
+char defaultlayoutname[KL_NAMELENGTH];
 
 //-------------------------------------------------------------------------------------------------
 //  DINPUT (JOYSTICK)
@@ -721,13 +721,27 @@ int32_t handleevents(void)
 }
 
 
+void switchlayout(char * layout)
+{
+    char layoutname[KL_NAMELENGTH];
+
+    GetKeyboardLayoutName(layoutname);
+
+    if (!Bstrcmp(layoutname, layout))
+        return;
+
+    initprintf("Switching keyboard layout from %s to %s\n", layoutname, layout);
+    LoadKeyboardLayout(layout, KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
+}
+
+
 //
 // initinput() -- init input system
 //
 int32_t initinput(void)
 {
     int32_t i;
-    char layoutname[KL_NAMELENGTH];
+    static int32_t readlayout=0;
 
     moustat=0;
     memset(keystatus, 0, sizeof(keystatus));
@@ -745,13 +759,14 @@ int32_t initinput(void)
 
     // 00000409 is "American English"
 
-    GetKeyboardLayoutName(layoutname);
-    if (Bstrcmp(layoutname, "00000409"))
+    if (!readlayout)
     {
-        initprintf("Switching kb layout from %s ",layoutname);
-        LoadKeyboardLayout("00000409", KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
-        GetKeyboardLayoutName(layoutname);
-        initprintf("to %s\n",layoutname);
+        GetKeyboardLayoutName(defaultlayoutname);
+
+        if (Bstrcmp(defaultlayoutname, "00000409"))
+            switchlayout("00000409");
+
+        readlayout = 1;
     }
 
     GetKeyNames();
@@ -766,6 +781,8 @@ int32_t initinput(void)
 //
 void uninitinput(void)
 {
+    switchlayout(defaultlayoutname);
+
     uninitmouse();
     UninitDirectInput();
 }
