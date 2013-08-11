@@ -1,6 +1,6 @@
 /* The Lunatic Interpreter, part of EDuke32. Editor stuff. */
 
-#include <lualib.h>
+#include <luajit-2.0/lualib.h>
 
 #include "lunatic_m32.h"
 

@@ -3,7 +3,7 @@
 #ifndef ENGINE_LUNATIC_H_
 #define ENGINE_LUNATIC_H_
 
-#include <lua.h>
+#include <luajit-2.0/lua.h>
 
 
 typedef struct

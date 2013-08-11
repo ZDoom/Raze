@@ -2,7 +2,8 @@
 ## common definitions for Makefile, build/Makefile, source/enet/Makefile and
 ## source/jaudiolib/Makefile
 
-MAKEFILE_COMMON:=$(lastword $(MAKEFILE_LIST))
+# NOTE: make's 'dir' function keeps a trailing shash, the 'abspath' does not!
+MAKEFILE_COMMON_DIR:=$(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
 # Use colored output
 PRETTY_OUTPUT ?= 1
@@ -426,14 +427,14 @@ endif
 
 # Set up target-specific headers and libs that work across all Makefiles
 ifeq ($(PLATFORM),WINDOWS)
-    BASELIBDIRS+= -L$(abspath $(dir $(MAKEFILE_COMMON))platform/Windows/lib$(WINLIB))
-    BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))platform/Windows/include)
+    BASELIBDIRS+= -L$(abspath $(MAKEFILE_COMMON_DIR)/platform/Windows/lib$(WINLIB))
+    BASECOMMONFLAGS+= -I$(abspath $(MAKEFILE_COMMON_DIR)/platform/Windows/include)
 endif
 ifeq ($(PLATFORM),DARWIN)
     # include port and brew
-    BASELIBDIRS+= -L$(abspath $(dir $(MAKEFILE_COMMON))platform/Apple/lib) \
+    BASELIBDIRS+= -L$(abspath $(MAKEFILE_COMMON_DIR)/platform/Apple/lib) \
         -L/opt/local/lib -L/usr/local/lib
-    BASECOMMONFLAGS+= -I$(abspath $(dir $(MAKEFILE_COMMON))platform/Apple/include) \
+    BASECOMMONFLAGS+= -I$(abspath $(MAKEFILE_COMMON_DIR)/platform/Apple/include) \
         -I/opt/local/include -I/sw/include -I/usr/local/include
 endif
 ifeq ($(PLATFORM),GCW)
@@ -445,25 +446,18 @@ endif
 
 #### Lunatic development
 # LuaJIT standalone interpreter executable:
-LUAJIT=luajit
-# for LJ headers:
-LUAJIT_WIN_SRC:= f:/g/mod/luajit-2.0/src
+LUAJIT:=luajit
 
 ifneq ($(LUNATIC),0)
     # FIXME: Lunatic doesn't build with inlining because of wacky include
     # chains!
     override DISABLEINLINING=1
 
-    ifeq ($(PLATFORM),WINDOWS)
-        BASECOMMONFLAGS+= -I$(LUAJIT_WIN_SRC)
-    else
-        BASECOMMONFLAGS+= -I/usr/local/include/luajit-2.0
-    endif
-    BASECOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC
+    BASECOMMONFLAGS+= -I$(MAKEFILE_COMMON_DIR)/source/lunatic -DLUNATIC
 
     # Determine size of defs.ilua bytecode once.
     ifndef DEFS_BC_SIZE
-        DEFS_BC_SIZE := $(shell $(LUAJIT) -bg -t h source/lunatic/defs.ilua -)
+        DEFS_BC_SIZE := $(shell $(LUAJIT) -bg -t h $(MAKEFILE_COMMON_DIR)/source/lunatic/defs.ilua -)
         DEFS_BC_SIZE := $(word 3, $(DEFS_BC_SIZE))
         # Pass the bytecode size to the sub-makes, too.
         export DEFS_BC_SIZE

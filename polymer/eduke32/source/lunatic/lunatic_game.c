@@ -5,8 +5,8 @@
 #include <errno.h>
 #include <string.h>  // strerror
 
-#include <lualib.h>
-#include <lauxlib.h>
+#include <luajit-2.0/lualib.h>
+#include <luajit-2.0/lauxlib.h>
 
 #include "build.h"  // printext256
 

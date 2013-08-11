@@ -443,12 +443,15 @@ ivfrate$(EXESUFFIX): $(OBJ)/ivfrate.$o
 #### Lunatic
 
 # Create object files directly with luajit
-$(OBJ)/luaJIT_BC_%.$o: $(SRC)/lunatic/%.lua
+$(OBJ)/luaJIT_BC_%.$o: $(MAKEFILE_COMMON_DIR)/source/lunatic/%.lua
 	$(COMPILE_STATUS)
 	if $(LUAJIT) -bg $< $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 # Same thing for defs.ilua which I'm too reluctant to rename now:
-$(OBJ)/luaJIT_BC_%.$o: $(SRC)/lunatic/%.ilua
+# NOTE: The target path must match EXACTLY with that of the DEFS_BC_SIZE
+# determination in Makefile.common, because it is embedded into the bytecode as
+# debugging information.
+$(OBJ)/luaJIT_BC_%.$o: $(MAKEFILE_COMMON_DIR)/source/lunatic/%.ilua
 	if $(LUAJIT) -bg $< $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/lunatic/%.c
