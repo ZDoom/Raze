@@ -216,12 +216,7 @@ static inline void bricolor(palette_t *wpptr, int32_t dacol)
 // Returns: pointer to tile offset array. Sets-by-pointer the other two.
 static inline const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t *dapskybits)
 {
-    int32_t j;
-
-    // First, try a multi-sky.
-    for (j=pskynummultis; j>0; j--)  // NOTE: j==0 on non-early loop end
-        if (picnum == multipskytile[j])
-            break;  // Have a match.
+    int32_t j = getpskyidx(picnum);
 
     if (dapskybits)
         *dapskybits = multipsky[j].lognumtiles;

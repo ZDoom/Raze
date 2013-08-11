@@ -157,7 +157,6 @@ EDUKE32_STATIC_ASSERT(NUMPSKYMULTIS <= MAXPSKYMULTIS);
 EDUKE32_STATIC_ASSERT(PSKYOFF_MAX <= MAXPSKYTILES);
 
 // Set up new-style multi-psky handling.
-// KEEPINSYNC MultiPsky_TileToIdx().
 void G_InitMultiPsky(int32_t CLOUDYOCEAN__DYN, int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__DYN)
 {
     int32_t i;
@@ -243,7 +242,7 @@ void G_SetupGlobalPsky(void)
     {
         if (sector[i].ceilingstat & 1)
         {
-            mskyidx = MultiPsky_TileToIdx(sector[i].ceilingpicnum);
+            mskyidx = getpskyidx(sector[i].ceilingpicnum);
             if (mskyidx > 0)
                 break;
         }
