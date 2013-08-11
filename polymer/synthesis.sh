@@ -42,12 +42,12 @@ cd $top
 # update the code repository and get the last revision number from SVN
 head=`svn update | tail -n1 | awk '{ print $NF }' | cut -d. -f1`
 echo "HEAD is revision $head."
-headlog=`svn log -r HEAD`
+headlog=`svn log -r $head`
 
 lastrevision=`ls -A1 $output/????????-???? | tail -n1 | cut -d- -f2 | cut -d. -f1`
 
 # If the log of HEAD contains DONT_BUILD, obey.
-if [ `echo $headlog | grep -q DONT_BUILD` ]; then
+if [ -n "`echo $headlog | grep DONT_BUILD`" ]; then
     echo "HEAD requested to not build. Bailing out..."
     rm -f $lockfile
     exit
@@ -98,10 +98,10 @@ then
     echo mv -f mapster32.exe "$package/mapster32.debug.exe"
     mv -f mapster32.exe "$package/mapster32.debug.exe"
 
-    if [ `echo $headlog | grep -q BUILD_LUNATIC` ]; then
+    if [ -n "`echo $headlog | grep BUILD_LUNATIC`" ]; then
         # clean the tree and build Lunatic (pre-)release next
-        echo "${make[@]}" LUNATIC=1 $clean eduke32.exe
-        "${make[@]}" LUNATIC=1 $clean eduke32.exe
+        echo "${make[@]}" LUNATIC=1 $clean all
+        "${make[@]}" LUNATIC=1 $clean all
 
         # make sure all the targets were produced
         for i in "${targets[@]}"; do
