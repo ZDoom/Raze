@@ -110,13 +110,23 @@ else
     mod = require(modname)
 end
 
+-- The return value from the module's .init().
+local initret
+
 if (mod.init) then
-    if (mod.init(arg) ~= nil) then
+    initret = mod.init(arg)
+    if (type(initret)=="number" and initret < 0) then
+        -- A negative return value from .init() is taken as a request to exit,
+        -- e.g. because an error occurred.
         os.exit(1)
     end
 end
 
-for i=2,#arg do
+-- A positive return value from .init() is taken to start counting map names
+-- from that 'arg' index.
+local startargi = (type(initret)=="number" and initret > 0 and initret) or 2
+
+for i=startargi,#arg do
     local fn = arg[i]
     local map, errmsg = B.loadboard(fn)
 

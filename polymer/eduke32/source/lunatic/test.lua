@@ -280,8 +280,8 @@ gameevent
         -- NOTE: setting colors partially is bad! E.g. after an item is
         -- picked up, col[0] and col[1] remain and tint everything greenish.
         if (DBG_ ~= nil) then
-            -- XXX (unrelated to these lines): issuing tinting makes it flicker
-            -- sometimes in the GL modes.
+            -- XXX (unrelated to these lines): issuing tinting sometimes makes
+            -- it flicker in the GL modes.
             ps._pals[2] = 20
             ps._pals.f = 30
         end

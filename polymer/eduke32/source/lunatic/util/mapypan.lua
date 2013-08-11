@@ -34,7 +34,7 @@ function init(arg)
 
     if (artargend==nil or artargend==0) then
         printf("Usage: luajit ./foreachmap.lua <tilesXXX.ART> [, ...] -- <filename1.map> ...\n")
-        return 1
+        return -1
     end
 
     local artfns = {}
@@ -56,7 +56,7 @@ function init(arg)
     local tile_, errmsg = B.loadarts(artfns)
     if (tile_ == nil) then
         printf("%s", errmsg)
-        return 2
+        return -2
     end
 
     tile = tile_  -- set 'tile' file-scope var
