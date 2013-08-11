@@ -1,0 +1,6 @@
+This directory currently resides below eduke32/ because luajit (the stand-alone
+LuaJIT interpreter) requires "jit.bcsave" for creating bytecode dumps. However,
+there seems to be no way invoke luajit so as to add a directory to its search
+path AND create bytecode in one run from a Makefile. Because the build is done
+from eduke32/, in this setup, "jit.bcsave" is found since the current working
+directory is part of the Lua load path by default.
