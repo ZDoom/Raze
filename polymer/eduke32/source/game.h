@@ -131,6 +131,7 @@ extern camera_t g_camera;
 # define CAMERACLOCK g_cameraClock
 #endif
 
+// KEEPINSYNC lunatic/defs.ilua
 typedef struct {
 #if !defined LUNATIC
     vec3_t camerapos;
