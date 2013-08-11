@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# The extension for executables.
+exe=.exe
+
 # some paths
 top=/var/www/synthesis/eduke32
 lockfile=$top/synthesis_building
@@ -9,7 +12,7 @@ make=( make PLATFORM=WINDOWS CC='wine gcc' CXX='wine g++' AS='wine nasm' RC='win
 clean=veryclean
 
 # the following file paths are relative to $source
-targets=( eduke32.exe mapster32.exe )
+targets=( eduke32$exe mapster32$exe )
 package=package
 not_src_packaged=( psd $package/ebacktrace1.dll $package/ebacktrace1-64.dll )
 
@@ -93,10 +96,10 @@ then
     done
 
     # move the targets to $package
-    echo mv -f eduke32.exe "$package/eduke32.debug.exe"
-    mv -f eduke32.exe "$package/eduke32.debug.exe"
-    echo mv -f mapster32.exe "$package/mapster32.debug.exe"
-    mv -f mapster32.exe "$package/mapster32.debug.exe"
+    echo mv -f eduke32$exe "$package/eduke32.debug$exe"
+    mv -f eduke32$exe "$package/eduke32.debug$exe"
+    echo mv -f mapster32$exe "$package/mapster32.debug$exe"
+    mv -f mapster32$exe "$package/mapster32.debug$exe"
 
     if [ -n "`echo $headlog | grep BUILD_LUNATIC`" ]; then
         # clean the tree and build Lunatic (pre-)release next
@@ -114,8 +117,8 @@ then
         done
 
         # move the targets to $package
-        echo mv -f eduke32.exe "$package/leduke32_PREVIEW.exe"
-        mv -f eduke32.exe "$package/leduke32_PREVIEW.exe"
+        echo mv -f eduke32$exe "$package/leduke32_PREVIEW$exe"
+        mv -f eduke32$exe "$package/leduke32_PREVIEW$exe"
     fi
 
     # clean the tree and build release
@@ -133,10 +136,10 @@ then
     done
 
     # move the targets to $package
-    echo mv -f eduke32.exe "$package/eduke32.exe"
-    mv -f eduke32.exe "$package/eduke32.exe"
-    echo mv -f mapster32.exe "$package/mapster32.exe"
-    mv -f mapster32.exe "$package/mapster32.exe"
+    echo mv -f eduke32$exe "$package/eduke32$exe"
+    mv -f eduke32$exe "$package/eduke32$exe"
+    echo mv -f mapster32$exe "$package/mapster32$exe"
+    mv -f mapster32$exe "$package/mapster32$exe"
 
     # get the date in the YYYYMMDD format (ex: 20091001)
     date=`date +%Y%m%d`
