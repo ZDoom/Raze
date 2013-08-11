@@ -31,8 +31,8 @@ fi
 
 if [ -f $lockfile ]
 then
-	echo "Build already in progress!"
-	exit
+    echo "Build already in progress!"
+    exit
 else
     touch $lockfile
 fi
@@ -49,7 +49,7 @@ lastrevision=`ls -A1 $output/????????-???? | tail -n1 | cut -d- -f2 | cut -d. -f
 # If the log of HEAD contains DONT_BUILD, obey.
 if [ `echo $headlog | grep -q DONT_BUILD` ]; then
     echo "HEAD requested to not build. Bailing out..."
-    rm -r $lockfile
+    rm -f $lockfile
     exit
 fi
 
@@ -87,7 +87,7 @@ then
         if [ ! -e $i ]
         then
             echo "Build failed! Bailing out..."
-        	rm -r $lockfile
+            rm -f $lockfile
             exit
         fi
     done
@@ -108,7 +108,7 @@ then
             if [ ! -e $i ]
             then
                 echo "Build failed! Bailing out..."
-                rm -r $lockfile
+                rm -f $lockfile
                 exit
             fi
         done
@@ -127,7 +127,7 @@ then
         if [ ! -e $i ]
         then
             echo "Build failed! Bailing out..."
-        	rm -r $lockfile
+            rm -f $lockfile
             exit
         fi
     done
@@ -192,8 +192,8 @@ then
    # link eduke32_latest.zip to the new archive
     ln -sf $output/$date-$head/${basename}_${platform}_$date-$head.zip $output/eduke32_latest.zip
 
-    rm -r $lockfile
+    rm -f $lockfile
 else
     echo "Nothing to do."
-    rm -r $lockfile
+    rm -f $lockfile
 fi
