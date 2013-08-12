@@ -4270,10 +4270,12 @@ static void G_OROR_DupeSprites(void)
     // dupe the sprites touching the portal to the other sector
     // viewing from bottom
     int32_t k;
-    spritetype *sp = &sprite[ror_sprite];
+    spritetype *sp;
 
     if ((unsigned) ror_sprite >= MAXSPRITES || drawing_ror != 1)
         return;
+
+    sp = &sprite[ror_sprite];
 
     for (k = headspritesect[sp->sectnum]; k != -1; k = nextspritesect[k])
     {
