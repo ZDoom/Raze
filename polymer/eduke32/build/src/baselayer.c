@@ -206,9 +206,6 @@ struct glinfo_t glinfo =
 
 int32_t flushlogwindow = 1;
 
-static void onvideomodechange(int32_t newmode) { UNREFERENCED_PARAMETER(newmode); }
-void (*baselayer_onvideomodechange)(int32_t) = onvideomodechange;
-
 #ifdef USE_OPENGL
 static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
 {

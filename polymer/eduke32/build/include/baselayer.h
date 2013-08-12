@@ -35,8 +35,6 @@ extern int32_t xres, yres, bpp, fullscreen, bytesperline;
 extern intptr_t frameplace;
 extern char offscreenrendering;
 
-extern void (*baselayer_onvideomodechange)(int32_t);
-
 void calc_ylookup(int32_t bpl, int32_t lastyidx);
 
 #ifdef USE_OPENGL

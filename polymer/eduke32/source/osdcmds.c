@@ -1608,7 +1608,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("savestate","",osdcmd_savestate);
     OSD_RegisterFunction("restorestate","",osdcmd_restorestate);
 #endif
-    //baselayer_onvideomodechange = onvideomodechange;
 
     return 0;
 }

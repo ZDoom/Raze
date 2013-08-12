@@ -1709,7 +1709,6 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     modechange=1;
     videomodereset = 0;
     OSD_ResizeDisplay(xres,yres);
-    //baselayer_onvideomodechange(c>8);
 
     return 0;
 }

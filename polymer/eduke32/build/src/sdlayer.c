@@ -1622,7 +1622,6 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     setpalettefade(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
     //if (c==8) setpalette(0,256,0);
-    //baselayer_onvideomodechange(c>8);
 
     if (regrab) grabmouse(1);
 
