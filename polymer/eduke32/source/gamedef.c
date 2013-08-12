@@ -5828,7 +5828,7 @@ repeatcase:
                 if (i >= (signed)sizeof(CheatStrings[k])-1)
                 {
                     initprintf("%s:%d: warning: truncating cheat string to %d characters.\n",
-                        g_szScriptFileName,g_lineNumber,MAXCHEATLEN); //,sizeof(CheatStrings[k])-1);
+                        g_szScriptFileName,g_lineNumber,(signed)sizeof(CheatStrings[k])-1);
                     g_numCompilerWarnings++;
                     C_NextLine();
                     break;

@@ -7973,7 +7973,8 @@ static void end_cheat(void)
     KB_FlushKeyboardQueue();
 }
 
-static int8_t cheatbuf[MAXCHEATLEN], cheatbuflen;
+static int32_t cheatbuflen;
+static int8_t cheatbuf[MAXCHEATLEN];
 
 GAME_STATIC void G_DoCheats(void)
 {
@@ -8016,14 +8017,11 @@ GAME_STATIC void G_DoCheats(void)
             }
 
             cheatbuf[cheatbuflen++] = (int8_t)ch;
+            // This assertion is not obvious, but it should hold because of the
+            // cheat string matching logic below.
+            Bassert(cheatbuflen < (signed)sizeof(cheatbuf));
             cheatbuf[cheatbuflen] = 0;
 //            KB_ClearKeysDown();
-
-            if (cheatbuflen > MAXCHEATLEN)
-            {
-                g_player[myconnectindex].ps->cheat_phase = 0;
-                return;
-            }
 
             for (k=0; k < NUMCHEATCODES; k++)
             {
