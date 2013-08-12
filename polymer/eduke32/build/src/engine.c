@@ -222,7 +222,7 @@ static char kensmessage[128];
 const char *engineerrstr = "No error";
 
 int32_t showfirstwall=0;
-int32_t showheightindicators=2;
+int32_t showheightindicators=1;
 int32_t circlewall=-1;
 
 //char cachedebug = 0;
@@ -15897,48 +15897,41 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 
     drawline16mid(x1,y1, x2,y2, editorcolors[col]);
 
+    // Draw height indicators at center of walls if requested and if not in
+    // side-view mode.
+    // XXX: This does not take sloping into account.
     if (showheightindicators && !m32_sideview)
     {
-        int32_t dax,day, k=getangle(x1-x2, y1-y2); //+angofs;
+        int32_t dax,day, k=getangle(x1-x2, y1-y2);
 
-        screencoords(&dax,&day, ((wal->x+wall[wal->point2].x)>>1)-posxe,((wal->y+wall[wal->point2].y)>>1)-posye, zoome);
-        if (m32_sideview)
-            day += (dz2+dz)>>1;
+        screencoords(&dax,&day,
+                     ((wal->x+wall[wal->point2].x)>>1)-posxe,
+                     ((wal->y+wall[wal->point2].y)>>1)-posye, zoome);
 
         if (wal->nextsector >= 0)
         {
-            int32_t ii = sector[sectorofwall(i)].floorz;
-            int32_t jj = sector[wal->nextsector].floorz;
+            int32_t z1 = sector[sectorofwall(i)].floorz;
+            int32_t z2 = sector[wal->nextsector].floorz;
 
-            if (jj == ii && showheightindicators > 1)
+            if (z1 != z2 || showheightindicators == 2)
             {
-                int32_t dax3 = mulscale11(sintable[(k+1024)&2047],zoome) / 2560;
-                int32_t day3 = mulscale11(sintable[(k+512)&2047],zoome) / 2560;
-                int32_t dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
-                int32_t day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
+                // Red walls. Show them on equal-height walls ONLY with setting 2.
+                int32_t bb = (z2 < z1);
+                int32_t dx = mulscale11(sintable[(k+1024 + 1024*bb)&2047],zoome) / 2560;
+                int32_t dy = mulscale11(sintable[(k+512 + 1024*bb)&2047],zoome) / 2560;
 
-                day2 = scalescreeny(day2);
-                day3 = scalescreeny(day3);
-
-                drawline16mid(dax+dax3,day+day3, dax+dax2,day+day2, editorcolors[col]);
-            }
-            else
-            {
-                int32_t bb = (jj < ii);
-                int32_t dax2 = mulscale11(sintable[(k+1024 + 1024*bb)&2047],zoome) / 2560;
-                int32_t day2 = mulscale11(sintable[(k+512 + 1024*bb)&2047],zoome) / 2560;
-
-                day2 = scalescreeny(day2);
-                drawline16mid(dax,day, dax+dax2,day+day2, editorcolors[col]);
+                dy = scalescreeny(dy);
+                drawline16mid(dax,day, dax+dx,day+dy, editorcolors[col]);
             }
         }
-        else if (showheightindicators > 1)
+        else if (showheightindicators == 2)
         {
-            int32_t dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
-            int32_t day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
+            // Show them on white walls ONLY with setting 2.
+            int32_t dx = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
+            int32_t dy = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
 
-            day2 = scalescreeny(day2);
-            drawline16mid(dax,day, dax+dax2,day+day2, editorcolors[col]);
+            dy = scalescreeny(dy);
+            drawline16mid(dax,day, dax+dx,day+dy, editorcolors[col]);
         }
     }
 
