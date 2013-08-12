@@ -1612,18 +1612,24 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 
                 if (mapinfo->numyaxbunches > 0)
                     mapinfo->bunchnum[2*i + j] = nbn;
-# if !defined NEW_MAP_FORMAT
+
                 if (obn >= 0 && nbn < 0)
                 {
-                    // if a bunch was discarded
+                    // A bunch was discarded.
                     sectortype *const sec = &mapinfo->sector[i];
+# if !defined NEW_MAP_FORMAT
                     uint16_t *const cs = j==YAX_CEILING ? &sec->ceilingstat : &sec->floorstat;
                     uint8_t *const xp = j==YAX_CEILING ? &sec->ceilingxpanning : &sec->floorxpanning;
 
                     *cs &= ~YAX_BIT;
                     *xp = 0;
+# else
+                    if (j == YAX_CEILING)
+                        sec->ceilingbunch = -1;
+                    else
+                        sec->floorbunch = -1;
+# endif
                 }
-#endif
             }
         }
 #endif
@@ -1744,12 +1750,20 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal)
         for (j=0; j<2; j++)
         {
             if (mapinfo->numyaxbunches > 0)
+            {
                 yax_setnextwall(i, j, mapinfo->ynextwall[2*(i-numwalls) + j]>=0 ?
                                 numwalls+mapinfo->ynextwall[2*(i-numwalls) + j] : -1);
-# if !defined NEW_MAP_FORMAT
+            }
             else
+            {
+# if !defined NEW_MAP_FORMAT
+                // XXX: When copying a TROR portion into a non-TROR map (e.g. a
+                // new one), tags denoting ynextwalls are left in place.
                 wall[i].cstat &= ~YAX_NEXTWALLBIT(j);  // CLEAR_YNEXTWALLS
+# else
+                yax_setnextwall(i, j, -1);
 # endif
+            }
         }
 #endif
     }
@@ -8044,6 +8058,8 @@ const char *SaveBoard(const char *fn, uint32_t flags)
             g_loadedMapVersion != -1 && g_loadedMapVersion < mapversion)
     {
         char question[128];
+        // XXX: This message is potentially confusing if the user is "Saving
+        // As" to a new file name.
         Bsnprintf(question, sizeof(question), "Are you sure to overwrite a version "
                   "V%d map with a V%d map-text one?", g_loadedMapVersion, mapversion);
 
