@@ -1294,6 +1294,13 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 static int32_t pow2xsplit = 0, skyclamphack = 0;
 static float alpha = 0.f;
 
+static pthtyp *our_texcache_fetch(int32_t dameth)
+{
+    // r_usetileshades 1 is TX's method.
+    int32_t vis = (r_usetileshades == 1) ? globvis>>2 : 0;
+    return texcache_fetch(globalpicnum, globalpal, getpalookup(vis,globalshade), dameth);
+}
+
 void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 {
     double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
@@ -1390,7 +1397,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         float hackscx, hackscy;
 
         if (skyclamphack) method |= 4;
-        pth = texcache_fetch(globalpicnum,globalpal,getpalookup(globvis>>2, globalshade),method&(~3));
+        pth = our_texcache_fetch(method&(~3));
 
         if (!pth)
         {
@@ -4715,7 +4722,7 @@ void polymost_fillpolygon(int32_t npoints)
     if (gloy1 != -1) setpolymost2dview(); //disables blending, texturing, and depth testing
     bglEnable(GL_ALPHA_TEST);
     bglEnable(GL_TEXTURE_2D);
-    pth = texcache_fetch(globalpicnum,globalpal,getpalookup(r_usetileshades != 1 ? 0 : globvis>>2, globalshade),0);
+    pth = our_texcache_fetch(0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
     f = getshadefactor(globalshade);
