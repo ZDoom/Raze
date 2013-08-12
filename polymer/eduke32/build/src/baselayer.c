@@ -207,19 +207,49 @@ struct glinfo_t glinfo =
 int32_t flushlogwindow = 1;
 
 #ifdef USE_OPENGL
+// Used to register the game's / editor's osdcmd_vidmode() functions here.
+int32_t (*baselayer_osdcmd_vidmode_func)(const osdfuncparm_t *parm);
+
 static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
 {
     int32_t m;
     char *p;
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
     m = Bstrtol(parm->parms[0], &p, 10);
 
-    if (m < REND_CLASSIC || m > REND_POLYMER) return OSDCMD_SHOWHELP;
+    if (m != REND_CLASSIC && m != REND_POLYMOST && m != REND_POLYMER)
+        return OSDCMD_SHOWHELP;
+
+    if ((m==REND_CLASSIC) != (bpp==8) && baselayer_osdcmd_vidmode_func)
+    {
+        // Mismatch between video mode and requested renderer, do auto switch.
+        osdfuncparm_t parm;
+        char arg[4];
+
+        const char *ptrptr[1];
+        ptrptr[0] = arg;
+
+        Bmemset(&parm, 0, sizeof(parm));
+
+        if (m==REND_CLASSIC)
+            Bmemcpy(&arg, "8", 2);
+        else
+            Bmemcpy(&arg, "32", 3);
+
+        // CAUTION: we assume that the osdcmd_vidmode function doesn't use any
+        // other member!
+        parm.numparms = 1;
+        parm.parms = ptrptr;
+
+        baselayer_osdcmd_vidmode_func(&parm);
+    }
 
     setrendermode(m);
 
-    switch(getrendermode())
+    switch (getrendermode())
     {
     case REND_CLASSIC:
         p = "classic software";

@@ -1604,11 +1604,9 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("unbindall","unbindall: unbinds all keys", osdcmd_unbindall);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
-#if 0
-    OSD_RegisterFunction("savestate","",osdcmd_savestate);
-    OSD_RegisterFunction("restorestate","",osdcmd_restorestate);
+#ifdef USE_OPENGL
+    baselayer_osdcmd_vidmode_func = osdcmd_vidmode;
 #endif
-
     return 0;
 }
 

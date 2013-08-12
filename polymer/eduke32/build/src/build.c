@@ -512,9 +512,11 @@ int32_t app_main(int32_t argc, const char **argv)
 #ifdef USE_OPENGL
     OSD_RegisterFunction("restartvid","restartvid: reinitialize the video mode",osdcmd_restartvid);
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: immediately change the video mode",osdcmd_vidmode);
+    baselayer_osdcmd_vidmode_func = osdcmd_vidmode;
 #else
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim>: immediately change the video mode",osdcmd_vidmode);
 #endif
+
     wm_setapptitle("Mapster32");
 
     editstatus = 1;
