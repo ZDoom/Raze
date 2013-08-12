@@ -1098,16 +1098,16 @@ void Net_SaveMapState(netmapstate_t *save)
         i = headspritestat[g_netStatnums[statIndex]];
         for (; i >= 0; i = nextspritestat[i])
         {
+            if (save->numActors >= NETMAXACTORS)
+            {
+                break;
+            }
+
             if (Net_IsRelevantSprite(i) && sprite[i].statnum != STAT_NETALLOC)
             {
                 netactor_t *tempActor = &save->actor[save->numActors];
                 Net_CopyToNet(i, tempActor);
                 save->numActors++;
-            }
-
-            if (save->numActors >= NETMAXACTORS)
-            {
-                break;
             }
         }
     }
