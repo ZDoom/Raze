@@ -5610,7 +5610,7 @@ static void         polymer_invalidateplanelights(_prplane* plane)
 
     while (i--)
     {
-        if (plane && (plane->lights[i] != -1) && (prlights[plane->lights[i]].flags.active))
+        if ((plane->lights[i] != -1) && (prlights[plane->lights[i]].flags.active))
             prlights[plane->lights[i]].flags.invalidate = 1;
     }
 }
