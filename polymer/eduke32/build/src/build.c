@@ -1641,7 +1641,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
             mapinfo->wall[tmpnumwalls+j].point2 += (tmpnumwalls-m);
 
 #ifdef YAX_ENABLE
-            if (mapinfo->numyaxbunches > 0)
+            if (mapinfo->numyaxbunches > 0 || numyaxbunches > 0)
             {
                 int32_t cf;
 
