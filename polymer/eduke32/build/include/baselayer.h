@@ -38,7 +38,7 @@ extern char offscreenrendering;
 void calc_ylookup(int32_t bpl, int32_t lastyidx);
 
 #ifdef USE_OPENGL
-int32_t (*baselayer_osdcmd_vidmode_func)(const osdfuncparm_t *parm);
+extern int32_t (*baselayer_osdcmd_vidmode_func)(const osdfuncparm_t *parm);
 
 void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f);
 extern int32_t osdcmd_glinfo(const osdfuncparm_t *parm);
