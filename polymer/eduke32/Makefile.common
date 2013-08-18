@@ -120,6 +120,9 @@ endif
 # Binary suffix override:
 EXESUFFIX_OVERRIDE ?=
 
+# Are we running from synthesis?
+SYNTHESIS ?= 0
+
 # Mac OS X Frameworks location
 # Like above, use absolute paths.
 APPLE_FRAMEWORKS ?=/Library/Frameworks
@@ -446,6 +449,11 @@ endif
 #### Lunatic development
 # LuaJIT standalone interpreter executable:
 LUAJIT:=luajit
+# Options to "luajit -b" for synthesis. Since it runs on Linux, we need to tell
+# the native LuaJIT to emit PE object files.
+ifneq ($(SYNTHESIS),0)
+    LUAJIT_BCOPTS := -o windows -a x86
+endif
 
 ifneq ($(LUNATIC),0)
     # FIXME: Lunatic doesn't build with inlining because of wacky include
