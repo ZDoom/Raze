@@ -335,6 +335,11 @@ endif
 
 debug+= -O$(OPTLEVEL)
 
+# See http://clang.llvm.org/docs/UsersManual.html#controlling-code-generation
+# for a list of possible UBSan options.
+# Clang 3.2 does only supports -fsanitize=address for the AddressSanitizer
+CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overflow,object-size
+
 ifneq (0,$(RELEASE))
     # Debugging disabled
     ifeq (0,$(CLANG))
@@ -366,13 +371,7 @@ else
     endif
 
     ifneq (0,$(CLANG))
-        # KEEPINSYNC with build/Makefile:
-        # Older Clang (2.9?)
-#        BASECFLAGS+= -Xclang -fcatch-undefined-behavior
-        # Clang 3.2
-#        debug+= -fsanitize=address
-        # Clang 3.3 or SVN
-        debug+= -fsanitize=address -fsanitize=undefined
+        debug+= $(CLANG_DEBUG_FLAGS)
     endif
     ifeq ($(SUBPLATFORM),LINUX)
         BASELIBS+=-rdynamic
