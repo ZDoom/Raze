@@ -34,7 +34,7 @@ else
     end
 
     -- Test optional arguments from our_require().
-    printf("Running %s stand-alone with opt arg %s", ourname, tostring(args[2]))
+    printf("Running %s embedded with opt arg %s", ourname, tostring(args[2]))
 end
 
 local t1 = os.clock()

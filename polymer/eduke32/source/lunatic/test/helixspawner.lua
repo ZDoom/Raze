@@ -18,7 +18,7 @@ local gameactor = gameactor
 
 module(...)
 
--- Dual-typed per-actor array: <false> if a broken nuke switch is not enabled,
+-- Dual-typed per-actor array: false if a broken nuke switch is not enabled,
 -- start game tic of when it was enabled otherwise.
 -- NOTE: for objects that are not supposed to be deleted such as this one, it
 -- would also be OK to use a plain table.
@@ -51,9 +51,9 @@ gameactor
     movflags = actor.MOVFLAGS.geth,
 
     func = function(aci)
+        local spr = sprite[aci]
         -- NOTE: this is prettier than calling it 'a', even if 'act' is used to
         -- denote an action in other places:
-        local spr = sprite[aci]
         local act = actor[aci]
 
         if (act:has_action(0)) then

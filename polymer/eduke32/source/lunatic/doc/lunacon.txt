@@ -126,7 +126,7 @@ one.
 When enabled, produces an error whenever a global or per-player gamevar is
 attempted to be read using ++getactorvar++. Otherwise, a warning is emitted. In
 this case, the generated code is either a read of the (global) gamevar, or an
-access of the _per-player_ gamevar with an actor index, which is probably not
+access of the per-player gamevar with an actor index, which is probably not
 what the coder intended.
 
 `-Wnot-redefined` (default: on)::

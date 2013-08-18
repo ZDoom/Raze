@@ -10,6 +10,7 @@ local decl = decl  -- comes from above (defs.ilua)
 
 local print = print  -- for commented out debug block in new() below
 
+
 module(...)
 
 
@@ -75,15 +76,15 @@ function new(x,y,z,c)
         s = jkiss(x,y,z,c)
     end
 --[[
-    print("TEST")
     local r=ffi.new("rng_jkiss_t")
     r.x = 123456789; r.y = 987654321; r.z = 43219876; r.c = 6543217;
 
-    t=gv.gethiticks()
-    for i=1,4*2*1e6 do
+    local N = 1e7
+    local t=ffiC.gethiticks()
+    for i=1,N do
         ffiC.rand_jkiss_dbl(r)
     end
-    print("TIME: "..gv.gethiticks()-t)  -- x86_64: approx. 100 ms
+    print("RANDGEN TIME: "..ffiC.gethiticks()-t)  -- x86_64: approx. 100 ms
 --]]
 
     return s
