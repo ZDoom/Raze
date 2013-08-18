@@ -101,7 +101,9 @@ then
     echo mv -f mapster32$exe "$package/mapster32.debug$exe"
     mv -f mapster32$exe "$package/mapster32.debug$exe"
 
-    if [ -n "`echo $headlog | grep BUILD_LUNATIC`" ]; then
+    BUILD_LUNATIC="`echo $headlog | grep BUILD_LUNATIC`"
+
+    if [ -n "$BUILD_LUNATIC" ]; then
         # clean the tree and build Lunatic (pre-)release next
         echo "${make[@]}" LUNATIC=1 $clean all
         "${make[@]}" LUNATIC=1 $clean all
@@ -146,11 +148,28 @@ then
     
     # create the output directory
     mkdir $output/$date-$head
-    
+
     # package the binary snapshot
     cd $package
+
+    # Package some Lunatic test and demo files.
+    if [ -n "$BUILD_LUNATIC" ]; then
+        mkdir -p lunatic/test
+        cp $top/$source/source/lunatic/test.lua lunatic
+        cp $top/$source/source/lunatic/test/test_{bitar,geom,rotspr}.lua lunatic/test
+        cp $top/$source/source/lunatic/test/{delmusicsfx,helixspawner}.lua lunatic/test
+    fi
+
     echo zip -r -y -9 $output/$date-$head/${basename}_${platform}_$date-$head.zip * -x "*.svn*"
     zip -r -y -9 $output/$date-$head/${basename}_${platform}_$date-$head.zip * -x "*.svn*"
+
+    # Remove the packaged Lunatic test/demo files.
+    if [ -n "$BUILD_LUNATIC" ]; then
+        rm lunatic/test/*.lua lunatic/test.lua
+        rmdir lunatic/test
+        rmdir lunatic
+    fi
+
     cd $top/$source
 
     # hack to restore [e]obj/keep.me
