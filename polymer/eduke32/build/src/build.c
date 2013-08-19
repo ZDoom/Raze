@@ -206,7 +206,7 @@ static int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
 static int16_t whitelinescan(int16_t sucksect, int16_t dalinehighlight);
 static void printcoords16(int32_t posxe, int32_t posye, int16_t ange);
 static void overheadeditor(void);
-static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
+static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line, int8_t ignore_pointhighlight);
 static int32_t movewalls(int32_t start, int32_t offs);
 static int32_t loadnames(const char *namesfile, int8_t root);
 static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny,
@@ -3130,6 +3130,7 @@ void overheadeditor(void)
     int32_t prefixarg = 0, tsign;
     int32_t resetsynctics = 0, lasttick=getticks(), waitdelay=totalclock, lastdraw=getticks();
     int32_t olen[2]={0,0}, dragwall[2] = {-1, -1};
+    int16_t linehighlight2;
 
     ovh.suckwall = -1;
     ovh.split = 0;
@@ -3241,7 +3242,8 @@ void overheadeditor(void)
         mainloop_move();
 
         getpoint(searchx,searchy,&mousxplc,&mousyplc);
-        linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
+        linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight, 0);
+        linehighlight2 = getlinehighlight(mousxplc, mousyplc, linehighlight, 1);
 
         if (newnumwalls >= numwalls)
         {
@@ -3873,7 +3875,7 @@ void overheadeditor(void)
         if (keystatus[0x30])  // B (clip Blocking xor) (2D)
         {
             pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
-            linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
+            linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight, 0);
 
             if ((pointhighlight&0xc000) == 16384)
             {
@@ -3900,7 +3902,7 @@ void overheadeditor(void)
             keystatus[0x21] = 0;
             if (eitherALT)  //ALT-F (relative alignmment flip)
             {
-                linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
+                linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight, 0);
                 if (linehighlight >= 0)
                     SetFirstWall(sectorofwall(linehighlight), linehighlight, 1);
             }
@@ -4053,7 +4055,7 @@ rotate_hlsect_out:
             if (eitherCTRL)  //Ctrl-H
             {
                 pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
-                linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
+                linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight, 0);
 
                 if ((pointhighlight&0xc000) == 16384)
                 {
@@ -7460,10 +7462,10 @@ end_batch_insert_points:
                 duplicate_selected_sectors();
             else if (highlightcnt > 0)
                 duplicate_selected_sprites();
-            else if (linehighlight >= 0)
+            else if (linehighlight2 >= 0)
             {
                 int32_t onewnumwalls = newnumwalls;
-                int32_t wallis2sided = (wall[linehighlight].nextwall>=0);
+                int32_t wallis2sided = (wall[linehighlight2].nextwall>=0);
 
                 int32_t err = backup_drawn_walls(0);
 
@@ -7478,8 +7480,8 @@ end_batch_insert_points:
                 else
                 {
                     getclosestpointonwall(m32_sideview?searchx:mousxplc, m32_sideview?searchy:mousyplc,
-                                          linehighlight, &dax,&day, 1);
-                    i = linehighlight;
+                                          linehighlight2, &dax,&day, 1);
+                    i = linehighlight2;
                     if (m32_sideview)
                     {
                         int32_t y_p, d, dx, dy, frac;
@@ -7507,7 +7509,7 @@ point_not_inserted:
                     }
                     else
                     {
-                        int32_t insdpoints = M32_InsertPoint(linehighlight, dax, day, onewnumwalls, NULL);
+                        int32_t insdpoints = M32_InsertPoint(linehighlight2, dax, day, onewnumwalls, NULL);
 
                         if (insdpoints == 0)
                         {
@@ -8178,7 +8180,7 @@ void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
     inpclamp(y, -editorgridextent, editorgridextent);
 }
 
-static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
+static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line, int8_t ignore_pointhighlight)
 {
     int32_t i, j, dst, dist, closest, x1, y1, x2, y2, nx, ny;
     int32_t daxplc, dayplc;
@@ -8189,7 +8191,7 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
     if (mouseb & 1)
         return line;
 
-    if ((pointhighlight&0xc000) == 16384)
+    if (!ignore_pointhighlight && (pointhighlight&0xc000) == 16384)
         return -1;
 
     dist = 1024;
