@@ -880,13 +880,19 @@ function lookup.composite(labeltype, pos, identifier)
     end
 
     local val = g_labeldef[identifier]
+    local typ = g_labeltype[identifier]
 
     if (val == nil) then
         perrprintf(pos, "label \"%s\" is not defined", identifier)
         return "_NOTDEF"
-    elseif (g_labeltype[identifier] ~= labeltype) then
-        if (identifier=="randomangle" and labeltype==LABEL.MOVE) then
+    elseif (typ ~= labeltype) then
+        if (identifier=="randomangle" and labeltype==LABEL.MOVE and typ==LABEL.NUMBER) then
+            -- Be forgiving with a 1.3/1.5 GAME.CON type error.
             pwarnprintf(pos, "label \"randomangle\" is not a `move' value, assuming 0")
+            return "0"
+        elseif (identifier=="BLIMPRESPAWNTIME" and labeltype==LABEL.ACTION and typ==LABEL.NUMBER) then
+            -- Be forgiving with a 1.3 GAME.CON type error.
+            pwarnprintf(pos, "label \"BLIMPRESPAWNTIME\" is not an `action' value, assuming 0")
             return "0"
         else
             perrprintf(pos, "label \"%s\" is not a%s `%s' value", identifier,
