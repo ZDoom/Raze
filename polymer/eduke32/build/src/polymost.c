@@ -1297,7 +1297,7 @@ static float alpha = 0.f;
 static pthtyp *our_texcache_fetch(int32_t dameth)
 {
     // r_usetileshades 1 is TX's method.
-    int32_t vis = (r_usetileshades == 1) ? globvis>>2 : 0;
+    int32_t vis = (r_usetileshades == 1) ? globvis>>3 : 0;
     return texcache_fetch(globalpicnum, globalpal, getpalookup(vis,globalshade), dameth);
 }
 
