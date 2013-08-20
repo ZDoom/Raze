@@ -9,17 +9,10 @@
 #include "cache1d.h"
 #include "winbits.h"
 
-#ifndef DEBUGGINGAIDS
-# define DISABLE_EXCEPTIONS
-# include "nedmalloc.h"
-#endif
-
 #if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
 # define EBACKTRACEDLL "ebacktrace1-64.dll"
-# define NEDMALLOCDLL "nedmalloc-64.dll"
 #else
 # define EBACKTRACEDLL "ebacktrace1.dll"
-# define NEDMALLOCDLL "nedmalloc.dll"
 #endif
 
 int32_t backgroundidle = 1;
@@ -33,8 +26,6 @@ static char taskswitching = 1;
 static HANDLE instanceflag = NULL;
 
 static OSVERSIONINFOEX osv;
-
-static HMODULE nedhandle = NULL;
 
 static int32_t togglecomp = 1;
 
@@ -188,19 +179,7 @@ static void ToggleDesktopComposition(BOOL compEnable)
 //
 void win_open(void)
 {
-#ifndef DEBUGGINGAIDS
-    if ((nedhandle = LoadLibrary(NEDMALLOCDLL)))
-    {
-#ifdef __cplusplus
-        nedalloc::nedpool_t *(WINAPI *nedcreatepool)(size_t, int);
-        if ((nedcreatepool = (nedalloc::nedpool_t *(WINAPI *)(size_t, int))GetProcAddress(nedhandle, "nedcreatepool")))
-#else
-        nedpool *(WINAPI *nedcreatepool)(size_t, int);
-        if ((nedcreatepool = (void *)GetProcAddress(nedhandle, "nedcreatepool")))
-#endif
-            nedcreatepool(SYSTEM_POOL_SIZE, -1);
-    }
-#else
+#ifdef DEBUGGINGAIDS
     LoadLibraryA(EBACKTRACEDLL);
 /*
         wm_msgbox("boo","didn't load backtrace DLL (code %d)\n", (int)GetLastError());
@@ -230,9 +209,6 @@ void win_init(void)
     }
 
     win_printversion();
-
-    if (nedhandle)
-        initprintf("Initialized nedmalloc\n");
 }
 
 void win_setvideomode(int32_t c)

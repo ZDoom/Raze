@@ -102,9 +102,6 @@
     <ClInclude Include="build\include\lzwnew.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\malloc.c.h">
-      <Filter>build\headers</Filter>
-    </ClInclude>
     <ClInclude Include="build\include\mdsprite.h">
       <Filter>build\headers</Filter>
     </ClInclude>
@@ -377,9 +374,6 @@
     </ClInclude>
     <ClInclude Include="source\animvpx.h">
       <Filter>eduke32\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="build\include\nedmalloc.h">
-      <Filter>build\headers</Filter>
     </ClInclude>
     <ClInclude Include="source\actors_inline.h">
       <Filter>eduke32\headers</Filter>

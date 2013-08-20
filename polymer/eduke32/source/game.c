@@ -11051,11 +11051,7 @@ int32_t app_main(int32_t argc, const char **argv)
     int32_t i = 0, j;
     char cwd[BMAX_PATH];
 //    extern char datetimestring[];
-#ifdef NEDMALLOC
-    ENetCallbacks callbacks = { Bmalloc, Bfree, NULL };
-#else
     ENetCallbacks callbacks = { NULL, NULL, NULL };
-#endif
 
     G_ExtPreInit();
 
