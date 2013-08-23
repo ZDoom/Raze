@@ -123,9 +123,11 @@ local function def_action_or_move(what, tab)
     if (what=="action") then
         -- Special default values or checking of actor members.
         -- KEEPINSYNC with ACTOR_CHECK in lunacon.lua for consistency.
-        local numframes, viewtype, incval = tab[2], tab[3], tab[4]
+        local numframes = tab[2] or tab.numframes
+        local viewtype = tab[3] or tab.viewtype
+        local incval = tab[4] or tab.incval
 
-        if (numframes==nil and tab.numframes==nil) then
+        if (numframes==nil) then
             am.numframes = 1
         else
             check_number(numframes, 4)
@@ -134,7 +136,7 @@ local function def_action_or_move(what, tab)
             end
         end
 
-        if (viewtype==nil and tab.viewtype==nil) then
+        if (viewtype==nil) then
             am.viewtype = 1
         else
             check_number(viewtype, 4)
@@ -143,7 +145,7 @@ local function def_action_or_move(what, tab)
             end
         end
 
-        if (incval==nil and tab.incval==nil) then
+        if (incval==nil) then
             am.incval = 1
         end
     end

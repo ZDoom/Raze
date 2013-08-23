@@ -163,7 +163,7 @@ checkfail('print(sprite._nextspritesect[4].whatfield)', "attempt to index a numb
 -- our 'require' has only safe stuff
 --checkfail("require('os')")
 
--- we must declare globals with 'gamevar'
+-- gamevars are created using a special different mechanism
 checkfail("new_global = 345", "attempt to write into the global environment")
 
 -- can't redefine constants in 'gv'

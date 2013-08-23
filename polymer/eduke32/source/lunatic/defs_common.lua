@@ -801,17 +801,14 @@ end
 
 -- Construct const struct from table
 function conststruct(tab)
-    local strtab = { "const struct { int32_t " }
-    local vals = {}
+    local strtab = { "struct {" }
 
     for member, val in pairs(tab) do
-        strtab[#strtab+1] = member..","
-        vals[#vals+1] = val
+        strtab[#strtab+1] = "static const int "..member.."="..val..";"
     end
-    strtab[#strtab] = strtab[#strtab]:gsub(',',';')
     strtab[#strtab+1] = "}"
 
-    return ffi.new(table.concat(strtab), vals)
+    return ffi.new(table.concat(strtab))
 end
 
 -- Static, non-instance members. Used to hold constants, for example
