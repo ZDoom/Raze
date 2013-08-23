@@ -246,6 +246,7 @@ gameevent
 }
 
 local D = require("CON.DEFS")
+local WEAPON = gv.WEAPON
 
 -- test event chaining
 gameevent
@@ -264,7 +265,7 @@ gameevent
         else
             pistol.shoots = D.SHOTSPARK1
         end
-        ps.weapon[gv.PISTOL_WEAPON].firesound = D.LIGHTNING_SLAP
+        ps.weapon[WEAPON.PISTOL].firesound = D.LIGHTNING_SLAP
 
         -- This succeeds, because sound2time is a time, not a sound.
         ps.weapon.SHOTGUN.sound2time = 5000
@@ -336,11 +337,11 @@ gameevent
 
         local pl = player[0]
         -- MAX < current is "allowed"
-        pl.max_ammo_amount[gv.RPG_WEAPON] = 17
-        pl:give_weapon(gv.RPG_WEAPON)
-        pl.ammo_amount[gv.RPG_WEAPON] = 54
+        pl.max_ammo_amount[WEAPON.RPG] = 17
+        pl:give_weapon(WEAPON.RPG)
+        pl.ammo_amount[WEAPON.RPG] = 54
 
-        pl:give_weapon(gv.SHRINKER_WEAPON)
+        pl:give_weapon(WEAPON.SHRINKER)
         -- This looks much prettier:
         pl.ammo_amount.SHRINKER = 2
 
@@ -605,7 +606,7 @@ local function testbit(num, b)
 end
 
 local FADE_SPEED = {
-    [gv.KNEE_WEAPON] = 1/2.5,
+    [WEAPON.KNEE] = 1/2.5,
 
     1/128,
     1/5,
@@ -617,7 +618,7 @@ local FADE_SPEED = {
     5,
     127,  -- freezer; such a fast fade is not visible, but it clears any
           -- existing one (if of higher priority)
-    [gv.GROW_WEAPON] = 9.9,  -- test banker's rouding -- should be like 10
+    [WEAPON.GROW] = 9.9,  -- test banker's rouding -- should be like 10
 }
 
 -- Test player[]:fadecol(), a better palfrom.

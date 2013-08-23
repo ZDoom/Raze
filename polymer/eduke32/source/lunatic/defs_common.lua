@@ -803,8 +803,16 @@ end
 function conststruct(tab)
     local strtab = { "struct {" }
 
-    for member, val in pairs(tab) do
-        strtab[#strtab+1] = "static const int "..member.."="..val..";"
+    if (tab[1] ~= nil) then
+        -- e.g. { "KNEE", "PISTOL", ... } provided
+        for i=1,#tab do
+            strtab[#strtab+1] = "static const int "..tab[i].."="..(i-1)..";"
+        end
+    else
+        -- e.g. { KNEE=0, PISTOL=1, ... } provided
+        for member, val in pairs(tab) do
+            strtab[#strtab+1] = "static const int "..member.."="..val..";"
+        end
     end
     strtab[#strtab+1] = "}"
 

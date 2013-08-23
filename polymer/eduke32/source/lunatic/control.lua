@@ -54,6 +54,9 @@ local check_sound_idx = bcheck.sound_idx
 local check_number = bcheck.number
 local check_type = bcheck.type
 
+local lprivate = require("lprivate")
+local GET, WEAPON = lprivate.GET, lprivate.WEAPON
+
 local OUR_REQUIRE_STRING = [[
  local _con=require'con'
  local _ga,_av,_pv=_con._gamearray,_con.actorvar,_con.playervar
@@ -587,7 +590,7 @@ function _tossweapon(pli)  -- P_DropWeapon replacement
 
     if (krandand(1) ~= 0) then
         spawn(ffiC.WeaponPickupSprites[cw], ps.i)
-    elseif (cw==ffiC.RPG_WEAPON or cw==ffiC.HANDBOMB_WEAPON) then
+    elseif (cw==WEAPON.RPG or cw==WEAPON.HANDBOMB) then
         if (D.EXPLOSION2 ~= nil) then
             spawn(D.EXPLOSION2, ps.i)
         end
@@ -606,7 +609,7 @@ end
 local function P_AddWeaponAmmoCommon(ps, weap, amount)
     P_AddAmmo(ps, weap, amount)
 
-    if (ps.curr_weapon==ffiC.KNEE_WEAPON and ps:has_weapon(weap)) then
+    if (ps.curr_weapon==WEAPON.KNEE and ps:has_weapon(weap)) then
         CF.P_AddWeaponMaybeSwitchI(ps.weapon._p, weap);
     end
 end
@@ -1112,17 +1115,17 @@ end
 
 local PALBITS = { [0]=1, [21]=2, [23]=4 }
 local ICONS = {
-    [ffiC.GET_FIRSTAID] = 1,  -- ICON_FIRSTAID
-    [ffiC.GET_STEROIDS] = 2,
-    [ffiC.GET_HOLODUKE] = 3,
-    [ffiC.GET_JETPACK] = 4,
-    [ffiC.GET_HEATS] = 5,
-    [ffiC.GET_SCUBA] = 6,
-    [ffiC.GET_BOOTS] = 7,
+    [GET.FIRSTAID] = 1,  -- ICON_FIRSTAID
+    [GET.STEROIDS] = 2,
+    [GET.HOLODUKE] = 3,
+    [GET.JETPACK] = 4,
+    [GET.HEATS] = 5,
+    [GET.SCUBA] = 6,
+    [GET.BOOTS] = 7,
 }
 
 function _addinventory(ps, inv, amount, i)
-    if (inv == ffiC.GET_ACCESS) then
+    if (inv == GET.ACCESS) then
         local pal = sprite[i].pal
         if (PALBITS[pal]) then
             ps.got_access = bor(ps.got_access, PALBITS[pal])
@@ -1132,7 +1135,7 @@ function _addinventory(ps, inv, amount, i)
             ps.inven_icon = ICONS[inv]
         end
 
-        if (inv == ffiC.GET_SHIELD) then
+        if (inv == GET.SHIELD) then
             amount = math.min(ps.max_shield_amount, amount)
         end
         -- NOTE: this is more permissive than CON, e.g. allows
@@ -1142,9 +1145,9 @@ function _addinventory(ps, inv, amount, i)
 end
 
 function _checkpinventory(ps, inv, amount, i)
-    if (inv==ffiC.GET_SHIELD) then
+    if (inv==GET.SHIELD) then
         return ps.inv_amount[inv] ~= ps.max_shield_amount
-    elseif (inv==ffiC.GET_ACCESS) then
+    elseif (inv==GET.ACCESS) then
         local palbit = PALBITS[sprite[i].pal]
         return palbit and (band(ps.got_access, palbit)~=0)
     else
@@ -1153,13 +1156,13 @@ function _checkpinventory(ps, inv, amount, i)
 end
 
 local INV_SELECTION_ORDER = {
-    ffiC.GET_FIRSTAID,
-    ffiC.GET_STEROIDS,
-    ffiC.GET_JETPACK,
-    ffiC.GET_HOLODUKE,
-    ffiC.GET_HEATS,
-    ffiC.GET_SCUBA,
-    ffiC.GET_BOOTS,
+    GET.FIRSTAID,
+    GET.STEROIDS,
+    GET.JETPACK,
+    GET.HOLODUKE,
+    GET.HEATS,
+    GET.SCUBA,
+    GET.BOOTS,
 }
 
 -- checkavailinven CON command
@@ -1618,7 +1621,7 @@ function _ifp(flags, pli, aci)
         return true
     elseif (band(l,256)~=0 and vel <= -8 and holdskey(pli, "RUN")) then
         return true
-    elseif (band(l,512)~=0 and (ps.quick_kick > 0 or (ps.curr_weapon == ffiC.KNEE_WEAPON and ps.kickback_pic > 0))) then
+    elseif (band(l,512)~=0 and (ps.quick_kick > 0 or (ps.curr_weapon == 0 and ps.kickback_pic > 0))) then
         return true
     elseif (band(l,1024)~=0 and sprite[ps.i].xrepeat < 32) then
         return true

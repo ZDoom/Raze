@@ -106,18 +106,14 @@ local WEAPON_NAMES = {
 }
 
 ---- game structs ----
+
+lprivate.GET = defs_c.conststruct(INV_NAMES)
+lprivate.WEAPON = defs_c.conststruct(WEAPON_NAMES)
+
 ffi.cdef([[
-enum dukeinv_t {
-]].. "GET_"..table.concat(INV_NAMES, ",GET_") ..[[,
-    GET_MAX
-};
-
-enum dukeweapon_t {
-]].. table.concat(WEAPON_NAMES, "_WEAPON,").."_WEAPON," ..[[
-    MAX_WEAPONS
-};
-
 enum {
+    GET_MAX = 11,
+    MAX_WEAPONS = 12,
     MAXPLAYERS = 16,
     GTICSPERSEC = 30,  // The real number of movement updates per second
 };
@@ -585,7 +581,7 @@ ffi.cdef[[
 const int32_t screenpeek;
 hudweapon_t hudweap;
 int32_t g_logoFlags;
-int32_t g_RETURN;  // deprecated from Lua
+int32_t g_RETURN;
 ]]
 
 -- INTERNAL VARIABLES/FUNCTIONS
@@ -1492,6 +1488,9 @@ gv_access.REND = defs_c.conststruct
     POLYMER = 4,
 }
 
+gv_access.WEAPON = lprivate.WEAPON
+gv_access.GET = lprivate.GET
+
 function gv_access._get_yxaspect()
     return ffiC.yxaspect
 end
@@ -2364,7 +2363,7 @@ local tmpmt = {
 
     __newindex = function(_, key, val)
         if (gv_access[key] == nil) then
-            -- Read-only vars handled by LuaJIT.
+            -- Variables declared 'const' are handled by LuaJIT.
             ffiC[key] = val
         else
             error("write access forbidden", 2)
