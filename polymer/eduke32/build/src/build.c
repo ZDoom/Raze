@@ -2917,6 +2917,21 @@ static int32_t vec2eq(const vec2_t *v1, const vec2_t *v2)
     return (v1->x==v2->x && v1->y==v2->y);
 }
 
+#ifdef YAX_ENABLE
+// After auto-creating inner sector <ns> in existing sector <os>, we need to
+// see if some sprites contained in <os> need to change their sector.
+static void CorrectSpriteSectnums(int32_t os, int32_t ns)
+{
+    int32_t i, ni;
+
+    for (SPRITES_OF_SECT_SAFE(os, i, ni))
+    {
+        if (inside(sprite[i].x, sprite[i].y, ns)==1)
+            changespritesect(i, ns);
+    }
+}
+#endif
+
 // precondition: [numwalls, newnumwalls-1] form a new loop (may be of wrong orientation)
 // ret_ofirstwallofs: if != NULL, *ret_ofirstwallofs will contain the offset of the old
 //                    first wall from the new first wall of the sector k, and the automatic
@@ -3006,6 +3021,8 @@ static int32_t AddLoopToSector(int32_t k, int32_t *ret_ofirstwallofs)
         numwalls = newnumwalls;
         newnumwalls = -1;
         numsectors++;
+
+        CorrectSpriteSectnums(k, numsectors-1);
     }
 #endif
     if (ret_ofirstwallofs)
