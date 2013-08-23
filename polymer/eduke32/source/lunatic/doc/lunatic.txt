@@ -85,7 +85,7 @@ When a Lua module is loaded, its global environment contains both selected
 functions from core Lua, as well as Lunatic's own pre-defined variables.
 These allow access and manipulation of EDuke32 engine and game data.
 
-[icon="icons/din_w_explosive.png"]
+[icon="din_w_explosive.png"]
 CAUTION: If an attempt is made to create a new variable in the global
 environment or to assign any value to an existing variable, the behavior is
 undefined.
@@ -217,7 +217,7 @@ serialize into savegames. These are the following:
     gamevar section of the same module. Beyond that, there are no restrictions
     on the table topology.
 
-[icon="icons/din_w_collapse.png"]
+[icon="din_w_collapse.png"]
 CAUTION: If a gamevar contains a value that is not serializeable at any point
 in the execution, the behavior is undefined. Note that in particular, gamevars
 are not allowed to take on the value *nil*.
@@ -373,7 +373,7 @@ The primary means of effecting game state in Lunatic is via _composite
 variables_ defined in the global environment. These provide direct, but
 restricted, access to C _structure arrays_ of the EDuke32 engine or game.
 
-[icon="icons/din_w_toxic.png"]
+[icon="din_w_toxic.png"]
 CAUTION: If an attempt is made to access any composite variable outside of
 event or actor code, the behavior is undefined.
 
@@ -1081,7 +1081,7 @@ is greater or equal than the `prio` of the ongoing one, the latter is canceled
 and the arriving fading is initiated in its place. (There is no support for
 tint fades that overlap in time.)
 +
-[icon="icons/din_w_crushing.png"]
+[icon="din_w_crushing.png"]
 CAUTION: If Lunatic code that uses `fadecol` is loaded together with CON code
 that writes to the player's `pals` members directly at any point, the behavior
 is undefined.
