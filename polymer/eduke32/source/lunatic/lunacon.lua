@@ -347,7 +347,7 @@ local function new_initial_gvartab()
         -- NOTE: THISACTOR can mean different things in some contexts.
         THISACTOR = RO "_aci",
 
-        RETURN = RW "_gv.g_RETURN",
+        RETURN = RW "_gv.RETURN",
         HITAG = RW(CSV".HITAG"),
         LOTAG = RW(CSV".LOTAG"),
         TEXTURE = RW(CSV".TEXTURE"),
@@ -2277,7 +2277,7 @@ local Cinner = {
     operatemasterswitches = cmd(R)
         / "_con._G_OperateMasterSwitches(%1)",
     checkactivatormotion = cmd(R)
-        / "_gv.g_RETURN=_con._checkactivatormotion(%1)",
+        / "_gv.RETURN=_con._checkactivatormotion(%1)",
     time = cmd(R)  -- no-op
         / "",
     inittimer = cmd(R)
@@ -2350,17 +2350,17 @@ local Cinner = {
     spawn = cmd(D)
         / "_con.spawn(%1,_aci)",
     espawn = cmd(D)
-        / "_gv.g_RETURN=_con.spawn(%1,_aci)",
+        / "_gv.RETURN=_con.spawn(%1,_aci)",
     espawnvar = cmd(R)
-        / "_gv.g_RETURN=_con.spawn(%1,_aci)",
+        / "_gv.RETURN=_con.spawn(%1,_aci)",
     qspawn = cmd(D)
         / "_con.spawn(%1,_aci,true)",
     qspawnvar = cmd(R)
         / "_con.spawn(%1,_aci,true)",
     eqspawn = cmd(D)
-        / "_gv.g_RETURN=_con.spawn(%1,_aci,true)",
+        / "_gv.RETURN=_con.spawn(%1,_aci,true)",
     eqspawnvar = cmd(R)
-        / "_gv.g_RETURN=_con.spawn(%1,_aci,true)",
+        / "_gv.RETURN=_con.spawn(%1,_aci,true)",
 
     angoff = cmd(D)
         / "spriteext[_aci].angoff=%1",
@@ -2390,13 +2390,13 @@ local Cinner = {
         / ACS".timetosleep=%1",
 
     eshoot = cmd(D)
-        / "_gv.g_RETURN=_con._shoot(_aci,%1)",
+        / "_gv.RETURN=_con._shoot(_aci,%1)",
     eshootvar = cmd(R)
-        / "_gv.g_RETURN=_con._shoot(_aci,%1)",
+        / "_gv.RETURN=_con._shoot(_aci,%1)",
     ezshoot = cmd(R,D)
-        / "_gv.g_RETURN=_con._shoot(_aci,%2,%1)",
+        / "_gv.RETURN=_con._shoot(_aci,%2,%1)",
     ezshootvar = cmd(R,R)
-        / "_gv.g_RETURN=_con._shoot(_aci,%2,%1)",
+        / "_gv.RETURN=_con._shoot(_aci,%2,%1)",
     shoot = cmd(D)
         / "_con._shoot(_aci,%1)",
     shootvar = cmd(R)
@@ -2439,9 +2439,9 @@ local Cinner = {
 
     -- player/sprite searching
     findplayer = cmd(W)
-        / "_gv.g_RETURN,%1=_con._findplayer(_pli,_aci)",  -- player index, distance
+        / "_gv.RETURN,%1=_con._findplayer(_pli,_aci)",  -- player index, distance
     findotherplayer = cmd(W)
-        / "_gv.g_RETURN,%1=0,0x7fffffff",  -- TODO_MP
+        / "_gv.RETURN,%1=0,0x7fffffff",  -- TODO_MP
     findnearspritezvar = cmd(D,R,R,W)
         / "%4=_con._findnear(_aci,true,'z',%1,%2,%3)",
     findnearspritez = cmd(D,D,D,W)

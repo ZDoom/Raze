@@ -628,7 +628,7 @@ gameevent
 
     function (aci, pli)
         local ps = player[pli]
-        local neww, curw = gv.g_RETURN, ps.curr_weapon
+        local neww, curw = gv.RETURN, ps.curr_weapon
 
         local r, g, b = testbit(neww, 1), testbit(neww, 2), testbit(neww, 4)
         local speed = FADE_SPEED[neww] or 1

@@ -581,7 +581,6 @@ ffi.cdef[[
 const int32_t screenpeek;
 hudweapon_t hudweap;
 int32_t g_logoFlags;
-int32_t g_RETURN;
 ]]
 
 -- INTERNAL VARIABLES/FUNCTIONS
@@ -589,6 +588,7 @@ decl("map_t MapInfo[$*$];", con_lang.MAXVOLUMES+1, con_lang.MAXLEVELS)
 decl("char EpisodeNames[$][33];", con_lang.MAXVOLUMES)
 
 decl[[
+int32_t g_RETURN;
 int32_t g_elCONSize;
 char *g_elCON;
 void El_SetCON(const char *conluacode);
@@ -2342,9 +2342,11 @@ end
 -- Map of 'gv' variable names to C ones.
 local varnameMap = {
     gametic = "g_moveThingsCount",
+    RETURN = "g_RETURN",
 }
 
 gv_access.gametic = true
+gv_access.RETURN = true
 
 local tmpmt = {
     __index = function(_, key)
@@ -2365,6 +2367,8 @@ local tmpmt = {
         if (gv_access[key] == nil) then
             -- Variables declared 'const' are handled by LuaJIT.
             ffiC[key] = val
+        elseif (varnameMap[key]) then
+            ffiC[varnameMap[key]] = val
         else
             error("write access forbidden", 2)
         end
