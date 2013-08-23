@@ -4,7 +4,7 @@ Helixhorned <contact: Duke4.net forums>
 :max-width: 56em
 :numbered:
 :icons:
-
+:toc:
 
 
 [red]*DRAFT DRAFT DRAFT*
@@ -255,27 +255,30 @@ A clipping (collision detection) mask specifying to consider only _hitscan
 sensitive_ walls and sprites. The set bits of `CLIPMASK1` and `CLIPMASK0` are
 disjunct.
 
+[[gv_REND]] `gv.REND`::
+A mapping of names to values representing rendering modes: `CLASSIC`,
+`POLYMOST`, `POLYMER`.
+
 // Game-side
 [[gv_GTICSPERSEC]] `gv.GTICSPERSEC`::
 The number of times in a second each actor excecutes its code and updates its
 position (``game tics'').
 
-//////////
-`gv.*` inventory indices::
-`GET_STEROIDS`, `GET_SHIELD`, `GET_SCUBA`, `GET_HOLODUKE`, `GET_JETPACK`,
-`GET_DUMMY1`, `GET_ACCESS`, `GET_HEATS`, `GET_DUMMY2`, `GET_FIRSTAID`,
-`GET_BOOTS`.  `GET_MAX`.
+[[gv_GET]] `gv.GET`::
+A mapping of names to inventory indices: `STEROIDS`, `SHIELD`, `SCUBA`,
+`HOLODUKE`, `JETPACK`, `DUMMY1`, `ACCESS`, `HEATS`, `DUMMY2`, `FIRSTAID`,
+`BOOTS`.
 
-`gv.*` weapon indices::
-`KNEE_WEAPON`, `PISTOL_WEAPON`, `SHOTGUN_WEAPON`, `CHAINGUN_WEAPON`,
-`RPG_WEAPON`, `HANDBOMB_WEAPON`, `SHRINKER_WEAPON`, `DEVISTATOR_WEAPON`,
-`TRIPBOMB_WEAPON`, `FREEZE_WEAPON`, `HANDREMOTE_WEAPON`,
-`GROW_WEAPON`. `MAX_WEAPONS`.
-//////////
+`gv.GET_MAX`::
+The maximum permissible inventory index plus one.
 
-[[gv_REND]] `gv.REND`::
-A mapping of names to values representing rendering modes: `CLASSIC`,
-`POLYMOST`, `POLYMER`.
+[[gv_WEAPON]] `gv.WEAPON`::
+A mapping of names to weapon indices: `KNEE`, `PISTOL`, `SHOTGUN`, `CHAINGUN`,
+`RPG`, `HANDBOMB`, `SHRINKER`, `DEVISTATOR`, `TRIPBOMB`, `FREEZE`,
+`HANDREMOTE`, `GROW`. Note that ```DEVISTATOR`'' is misspelled.
+
+`gv.MAX_WEAPONS`::
+The maximum permissible weapon index plus one.
 
 //////////
 `gv.MAXPLAYERS`::
@@ -323,7 +326,13 @@ position and orientation of the ``camera'' from which the scene would be drawn.
 Contains the following members: `pos`, `dist`, `clock`, `ang`, `horiz`, `sect`.
 // TODO: describe
 
-// TODO: g_logoFlags, g_RETURN?
+// TODO: g_logoFlags?
+
+[[gv_RETURN]] `gv.RETURN`::
+A special variable that is used by the game to pass specific values to game
+events, or to examine values passed back from events and act upon them
+accordingly. Refer to <<Appendix_A,Appendix A>> for a list of how the various
+events interpret this variable.
 
 Functions
 ^^^^^^^^^
@@ -609,7 +618,7 @@ updating functions. `BREADTH`, `Z`.
 Accessible from `0` to `gv.numwalls-1`. Each element has the following
 members:
 
-`x`, `y`::
+_`i32`_ `x`, `y`::
 The 2D coordinates or this wall point. Should not be set directly.
 
 `z` (read-only)::
@@ -696,7 +705,7 @@ The `sprite` composite is accessible with indices from `0` to
 `gv.MAXSPRITES-1`, but accesses to sprites that do not exist in the game world
 have no meaning. Each element has the following members:
 
-`x`, `y`, `z`::
+_`i32`_ `x`, `y`, `z`::
 The BUILD coordinates of the sprite. It is not advisable to set these directly.
 
 //////////
@@ -1020,12 +1029,8 @@ ps.ammo_amount.PISTOL = ps.ammo_amount[ps.curr_weapon]
 ----------
 ==========
 
-The weapon names are: `KNEE`, `PISTOL`, `SHOTGUN`, `CHAINGUN`, `RPG`,
-`HANDBOMB`, `SHRINKER`, `DEVISTATOR`, `TRIPBOMB`, `FREEZE`, `HANDREMOTE`,
-`GROW`.
-
-The inventory names are: `STEROIDS`, `SHIELD`, `SCUBA`, `HOLODUKE`, `JETPACK`,
-`DUMMY1`, `ACCESS`, `HEATS`, `DUMMY2`, `FIRSTAID`, `BOOTS`.
+The inventory names are the same as the keys of <<gv_GET,`gv.GET`>>, those for
+the weapons coincide with the keys of <<gv_WEAPON,`gv.WEAPON`>>.
 
 Each `player` element has the following members:
 
@@ -1653,17 +1658,39 @@ Non-local control flow
 Two functions in the `con` module make the executed function abort early,
 jumping directly to the end of the innermost event or actor callback
 ``block''. They are used to implement among others CON's `killit` and
-(confusingly named) `return` commands. If these functions are used outside of
-the mentioned callback functions, the behavior is undefined.
+(confusingly named) `return` commands. If these functions are used when none of
+the mentioned callback functions are active, the behavior is undefined.
 
 `con.longjmp()`::
 Silently transfers control to the end of the innermost actor or event callback
 block, to the same point an `error()` call would do. Note that since callback
 <<gameactor_flags,chaining>> is achieved by creating a new function for each
-pair calling the original ones unprotected, issuing a `con.longjmp()` inside
-any ``part'' of a chain aborts the whole block -- functions in the chain that
-are called later will not be reached. In contrast, returning from one function
+function pair, calling both unprotected, issuing a `con.longjmp()` inside any
+``part'' of a chain aborts the whole block -- functions in the chain that are
+called later will not be reached. In contrast, returning from one function
 transfers control to the beginning of the next in the chain if it exists.
++
+.`con.longjmp` with chained events
+==========
+The following two chained `EVENT_JUMP` definitions,
+----------
+gameevent{"JUMP", function(_, pli)
+    print("jump:first")
+    if (player[pli].curr_weapon==gv.WEAPON.PISTOL) then
+        return
+    end
+    print("aborting")
+    con.longjmp()
+end}
+
+gameevent{"JUMP", function()  -- second function in EVENT_JUMP chain
+    print("jump:second")
+end}
+----------
+would print ```jump:first`'' and ```jump:second`'' when holding a
+pistol. Otherwise, ```jump:first`'' and ```aborting`'' would be printed and the
+second chained callback function would not be reached.
+==========
 
 `con.killit()`::
 Silently transfers control to the end of the active actor callback block,
@@ -1743,17 +1770,103 @@ created one.
 `[5] statnum` (default: `actor.STAT.DEFAULT`)::
 The initial status number of the inserted sprite.
 
-The following keys are permissible for input arguments, corresponding to their
-[[sprite,`sprite`]] members:
-`shade`, `xrepeat` (default: 48), `yrepeat` (default: 48), `ang`, `xvel`, `zvel`.
-All optional arguments passed this way except for the repeats default to 0.
+The following additional keys are permissible as input arguments, corresponding
+to the same-named <<sprite,`sprite`>> members:
+`shade`, `xrepeat` (default: 48), `yrepeat` (default: 48), `ang`, `xvel`,
+`zvel`.  All optional arguments passed this way except for `xrepeat` and
+`yrepeat` default to 0.
 
 ===== The function `con.spawn(tilenum, parentspritenum)`
 
 Spawns a new sprite with tile number `tilenum` from a given ``parent'' sprite
 with index `parentspritenum`, which must be valid. The sprite is spawned at the
-same position as its parent and with its `owner` member set to
+same position as its parent and its `owner` member is set to
 `parentspritenum`. Additional ``hard-wired'' code dependent on `tilenum` may be
-run afterwards that modifies the sprite.
+run afterwards, possibly modifying the sprite.
 
 Returns the index of the spawned sprite on success.
+
+
+/////////////////
+APPENDICES FOLLOW
+/////////////////
+
+:numbered!:
+
+[appendix]
+[[Appendix_A]]
+Game event `RETURN` usage
+-------------------------
+
+The following list notes how the special <<gv_RETURN,`gv.RETURN`>> variable
+(known simply as `RETURN` from CON) is treated for the various events. The game
+may either pass some value to a particular event as additional information, or
+it can examine `RETURN` after the event has finished, invoking some behavior
+conditional on its value. If an event is not listed here, its usage of `RETURN`
+is unspecified.
+
+[float]
+Receives zero, checks for non-zero
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These events get passed a value of 0 for `RETURN`, and after finishing, check
+it for being non-zero, in which case some hard-coded behavior is suppressed:
+
+`AIMDOWN`, `AIMUP`, `CROUCH`, `DISPLAYSBAR`, `DISPLAYWEAPON`, `DOFIRE`,
+`DRAWWEAPON`, `FIRE`, `HOLODUKEOFF`, `HOLODUKEON`, `HOLSTER`, `INCURDAMAGE`,
+`INVENTORY`, `JUMP`, `LOOKDOWN`, `LOOKLEFT`, `LOOKRIGHT`, `LOOKUP`,
+`QUICKKICK`, `RETURNTOCENTER`, `SOARDOWN`, `SOARUP`, `SWIMDOWN`, `SWIMUP`,
+`TURNAROUND`, `USEJETPACK`, `USEMEDKIT`, `USENIGHTVISION`, `USESTEROIDS`.
+
+`KILLIT` (deprecated from Lua)::
+    If non-zero, the pending sprite deletion is aborted.
+
+`DISPLAYROOMS`::
+    Don't draw scene if `RETURN` is 1. Values other than 0 and 1 are
+    reserved.
+
+`PRESSEDFIRE`, `USE`::
+    If non-zero, the ``fire'' or ``use'' shared key bits are cleared
+    (respectively).
+
+[float]
+Game considers post-event `RETURN` an index
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For some events, the game examines `RETURN` after they have finished, and
+potentially uses its value as some kind of index.
+
+`CHANGEMENU` (deprecated from Lua)::
+    Receives and examines `RETURN` as a menu index to change to.
+
+`DISPLAYCROSSHAIR`::
+    Receives 0. If the post-event `RETURN` equals 1, no crosshair is drawn. If
+    it is greater than one, `RETURN` is the tile index of the crosshair to be
+    displayed. The value 0 makes it draw using the `CROSSHAIR` tile.
+
+`GETLOADTILE`::
+    Receives and examines `RETURN` as a background tile for the loading screen.
+    A negative value suppresses drawing it and running the subsequent
+    `EVENT_DISPLAYLOADINGSCREEN` entirely.
+
+`GETMENUTILE`::
+    Receives and examines `RETURN` as a background tile for the menu.
+
+`SOUND`::
+    Receives and examines `RETURN` as an index of a sound to start playing.
+
+[float]
+Cheat events
+~~~~~~~~~~~~
+The cheat events receive a hard-coded, item-dependent target amount in
+`RETURN`. It can be overridden to a different value to make the respective
+cheat give a different ``full'' amount. A negative value is ignored.
+
+`CHEATGETSTEROIDS`, `CHEATGETHEAT`, `CHEATGETBOOT`, `CHEATGETSHIELD`,
+`CHEATGETSCUBA`, `CHEATGETHOLODUKE`, `CHEATGETJETPACK`, `CHEATGETFIRSTAID`.
+
+[float]
+TODO
+~~~~
+`CHANGEWEAPON`, `CHECKFLOORDAMAGE`, `CHECKTOUCHDAMAGE`, `NEXTWEAPON`,
+`PREVIOUSWEAPON`, `SELECTWEAPON`, `WEAPKEY*`.

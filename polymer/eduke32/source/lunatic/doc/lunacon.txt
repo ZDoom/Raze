@@ -4,6 +4,7 @@ Helixhorned <contact: Duke4.net forums>
 :max-width: 56em
 :numbered:
 :icons:
+:toc:
 :conf-files: lunatic.conf
 
 
@@ -291,8 +292,8 @@ Quote behavior
 
 * The `redefinequote` command can be issued even if the given quote number has
   not been previously allocated using the `definequote` directive. This makes
-  it possible to use a range of quote numbers ``on the fly'' without the need
-  to declare their future use.
+  it possible to use a range of quote numbers on the fly without the need to
+  declare their future use.
 
 Miscellaneous
 ^^^^^^^^^^^^^
