@@ -55,6 +55,18 @@
     <Filter Include="eduke32\headers\editor">
       <UniqueIdentifier>{3477e5cd-29a4-42b2-8c3f-ca4618242526}</UniqueIdentifier>
     </Filter>
+    <Filter Include="eduke32\source\lunatic">
+      <UniqueIdentifier>{a2f8f371-b34a-435c-9f36-efd473c9a6b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="eduke32\source\lunatic\headers">
+      <UniqueIdentifier>{a5111ba8-0086-4ec9-baac-a8e5f58faca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="eduke32\source\lunatic\source">
+      <UniqueIdentifier>{3fea8854-df48-42c5-9bd9-8adbb29fac76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="eduke32\source\lunatic\lua">
+      <UniqueIdentifier>{f1025787-c43f-43de-8b46-143ea0462fc1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\include\a.h">
@@ -399,6 +411,12 @@
     <ClInclude Include="build\include\dxtfilter.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="source\lunatic\lunatic_game.h">
+      <Filter>eduke32\source\lunatic\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\lunatic\lunatic_m32.h">
+      <Filter>eduke32\source\lunatic\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -710,6 +728,12 @@
     <ClCompile Include="build\src\dxtfilter.c">
       <Filter>build\source</Filter>
     </ClCompile>
+    <ClCompile Include="source\lunatic\lunatic_game.c">
+      <Filter>eduke32\source\lunatic\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\lunatic\lunatic_m32.c">
+      <Filter>eduke32\source\lunatic\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile.msvc">
@@ -717,6 +741,78 @@
     </None>
     <None Include="build\Makefile.msvc">
       <Filter>build</Filter>
+    </None>
+    <None Include="source\lunatic\dynsymlist">
+      <Filter>eduke32\source\lunatic</Filter>
+    </None>
+    <None Include="source\lunatic\dynsymlist_m32">
+      <Filter>eduke32\source\lunatic</Filter>
+    </None>
+    <None Include="source\lunatic\listglobals.sh">
+      <Filter>eduke32\source\lunatic</Filter>
+    </None>
+    <None Include="source\lunatic\bcarray.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\bcheck.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\bitar.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\con_lang.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\control.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\defs.ilua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\defs_common.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\defs_m32.ilua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\dis_x64.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\dis_x86.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\dump.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\engine_maptext.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\lunacon.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\profdemo.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\randgen.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\savegame.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\strict.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\stat.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\test.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\v.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
+    </None>
+    <None Include="source\lunatic\xmath.lua">
+      <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
   </ItemGroup>
 </Project>

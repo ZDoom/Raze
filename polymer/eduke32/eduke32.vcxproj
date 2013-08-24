@@ -125,6 +125,8 @@
     <ClInclude Include="source\gamevars.h" />
     <ClInclude Include="source\global.h" />
     <ClInclude Include="source\input.h" />
+    <ClInclude Include="source\lunatic\lunatic_game.h" />
+    <ClInclude Include="source\lunatic\lunatic_m32.h" />
     <ClInclude Include="source\m32def.h" />
     <ClInclude Include="source\menus.h" />
     <ClInclude Include="source\net.h" />
@@ -239,6 +241,8 @@
     <ClCompile Include="source\global.c" />
     <ClCompile Include="source\grpscan.c" />
     <ClCompile Include="source\input.c" />
+    <ClCompile Include="source\lunatic\lunatic_game.c" />
+    <ClCompile Include="source\lunatic\lunatic_m32.c" />
     <ClCompile Include="source\m32def.c" />
     <ClCompile Include="source\m32exec.c" />
     <ClCompile Include="source\m32structures.c" />
@@ -295,6 +299,30 @@
   <ItemGroup>
     <None Include="build\Makefile.msvc" />
     <None Include="Makefile.msvc" />
+    <None Include="source\lunatic\bcarray.lua" />
+    <None Include="source\lunatic\bcheck.lua" />
+    <None Include="source\lunatic\bitar.lua" />
+    <None Include="source\lunatic\control.lua" />
+    <None Include="source\lunatic\con_lang.lua" />
+    <None Include="source\lunatic\defs.ilua" />
+    <None Include="source\lunatic\defs_common.lua" />
+    <None Include="source\lunatic\defs_m32.ilua" />
+    <None Include="source\lunatic\dis_x64.lua" />
+    <None Include="source\lunatic\dis_x86.lua" />
+    <None Include="source\lunatic\dump.lua" />
+    <None Include="source\lunatic\dynsymlist" />
+    <None Include="source\lunatic\dynsymlist_m32" />
+    <None Include="source\lunatic\engine_maptext.lua" />
+    <None Include="source\lunatic\listglobals.sh" />
+    <None Include="source\lunatic\lunacon.lua" />
+    <None Include="source\lunatic\profdemo.lua" />
+    <None Include="source\lunatic\randgen.lua" />
+    <None Include="source\lunatic\savegame.lua" />
+    <None Include="source\lunatic\stat.lua" />
+    <None Include="source\lunatic\strict.lua" />
+    <None Include="source\lunatic\test.lua" />
+    <None Include="source\lunatic\v.lua" />
+    <None Include="source\lunatic\xmath.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
