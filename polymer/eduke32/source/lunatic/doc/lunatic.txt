@@ -455,6 +455,7 @@ http://lua-users.org/lists/lua-l/2011-09/msg00534.html
 * `sec.lotag=32768` results the member to contain `-32768`
 * `sec.lotag=2^32` is undefined
 
+[[bit_fields]]
 Bit fields
 ^^^^^^^^^^
 
@@ -1717,6 +1718,7 @@ specific actor tile. For this reason, per-actor variables are implemented in a
 value for every sprite index. They are also ``cleaned'' at unspecified
 intervals.
 
+[[con_actorvar]]
 ===== The type `con.actorvar(defaultval)` [_serializable_]
 
 Creates and returns a new per-actor variable with default value `defaultval`

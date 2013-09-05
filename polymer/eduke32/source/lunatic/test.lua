@@ -740,3 +740,54 @@ local D = require("CON.DEFS")
 checkfail('require("CON.DEFS").APLAYER=123', "modifying base module table forbidden")
 -- Test with lunatic/test/rotfixed_actor.con.
 print("DUKECAR="..tostring(D.DUKECAR))
+
+do
+    print('---------- getangle test')
+
+    local function CreateGetAngFunc(roundfunc)
+        return function(x, y)
+            local ang = (1024/math.pi)*math.atan2(y, x)  -- note the swapped args
+            return bit.band(roundfunc(ang), 2047)
+        end
+    end
+
+    local ourgetang = CreateGetAngFunc(math.ceil)
+    local ourgetangf = CreateGetAngFunc(math.floor)
+
+    local function printang(x, y)
+        printf('%4d,%4d: %13d, %16d, %16d', x, y,
+               gv.getangle(x, y), ourgetang(x, y), ourgetangf(x, y))
+    end
+
+    print "   x,   y: getangle(x, y) | math.atan2/ceil | math.atan2/floor"
+    printang(10, 100)
+    printang(10, -100)
+    printang(-10, -100)
+    printang(-10, 100)
+
+    printang(0, 0)
+
+    printang(1, 0)
+    printang(0, 1)
+    printang(-1, 0)
+    printang(0, -1)
+
+    local N=1e5
+    local r = 0
+
+    local t = gv.gethiticks()
+    for i=1,N do
+        r = r + gv.getangle(10, i)
+    end
+    local t1 = gv.gethiticks()-t
+
+    r = 0
+    t = gv.gethiticks()
+    for i=1,N do
+        r = r + ourgetang(10, i)
+    end
+    local t2 = gv.gethiticks()-t
+
+    printf('Time for %d runs: getangle: %.03f ms, math.atan2: %.03f ms', N, t1, t2)
+    print('----------')
+end

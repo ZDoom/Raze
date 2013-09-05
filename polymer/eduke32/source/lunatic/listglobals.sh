@@ -20,6 +20,10 @@ fi
 LUAC=luac
 
 for f in "$@"; do
+    if [ ! -f "$f" ]; then
+        echo "$f: No such file"
+        exit 2
+    fi
     echo "[$f]"
     # Strip LuaJIT specific syntax first. Run luac and extract interesting lines.
     sed -r -e "s/[0-9]+U?LL/0/g" "$f" | $LUAC -p -l - | grep "${GS}ETTABUP.*; _ENV " |
