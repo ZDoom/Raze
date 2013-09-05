@@ -897,6 +897,18 @@ local bitar = require("bitar")
 -- machines. This sucks.
 static_members.sector.showbitmap = bitar.new(ffiC.MAXSECTORS-1, ffi.cast("int32_t *", ffiC.show2dsector))
 
+local function iter_allsprites(_, curi)
+    for i=curi+1,ffiC.MAXSPRITES-1 do
+        if (ffiC.sprite[i].statnum ~= ffiC.MAXSTATUS) then
+            return i
+        end
+    end
+end
+
+function static_members.sprite.all()
+    return iter_allsprites, nil, -1
+end
+
 local sms = static_members.sprite
 sms._headspritesect = creategtab(ffiC.headspritesect, ffiC.MAXSECTORS, 'headspritesect[]')
 -- NOTE: don't allow freelist access

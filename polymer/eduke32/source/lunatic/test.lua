@@ -226,6 +226,7 @@ gameevent{gv.EVENT_JUMP,
           end
          }
 
+--[[
 gameevent
 {
     "PROCESSINPUT",
@@ -244,6 +245,7 @@ gameevent
         end
     end
 }
+--]]
 
 local D = require("CON.DEFS")
 local WEAPON = gv.WEAPON

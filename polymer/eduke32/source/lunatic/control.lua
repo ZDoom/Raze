@@ -903,7 +903,7 @@ end
 
 function _digitalnumber(tilenum, x, y, num, shade, pal,
                         orientation, cx1, cy1, cx2, cy2, zoom)
-    if (not (tilenum >= 0 and tilenum >= ffiC.MAXTILES-9)) then
+    if (not (tilenum >= 0 and tilenum < ffiC.MAXTILES-9)) then
         error("invalid base tile number "..tilenum, 2)
     end
 

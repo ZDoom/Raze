@@ -812,6 +812,10 @@ _`index_of_spr`_ is the sprite index corresponding to `spr`.  This method is
 provided for convenience, but may be slower than the static function
 `updatesect`.
 
+===== `sprite` iterators
+
++*for* i *in* sprite.all()+::
+Iterates over all sprites currently in the game world.
 
 ===== `sprite` static functions
 

@@ -749,6 +749,7 @@ end
 
 local player_static_members = {}
 
+--[[
 player_static_members._INPUT_BITS = defs_c.conststruct
 {
     JUMP =                      1,
@@ -791,6 +792,7 @@ player_static_members._INPUT_EXT_BITS = defs_c.conststruct
     TURN_LEFT =    16,
     TURN_RIGHT =   32,
 }
+--]]
 
 local band = bit.band
 local lsh = bit.lshift
@@ -2424,17 +2426,17 @@ end
 
 --printkv('_G AFTER DECLS', _G)
 
+local index_error_mt = {
+    __index = function(_, key)
+        error("attempt to read undeclared variable '"..key.."'", 2)
+    end,
+
+    __metatable = true,
+}
 
 -- PiL 14.2 continued
 -- We need this at the end because we were previously doing just that!
-setmetatable(
-    G_, {
-        __index = function (_, n)
-            error("attempt to read undeclared variable '"..n.."'", 2)
-        end,
-
-        __metatable = true,
-        })
+setmetatable(G_, index_error_mt)
 
 local global_mt = {
     __index = G_,
@@ -2479,6 +2481,9 @@ if (concode) then
     table.remove(modname_stack)
 
     local function protect_con_table(tab)
+        -- NOTE: Some of our code specifically excepts the name tables to be
+        -- indexable with nonexistent keys. See e.g. control.c: _A_SpawnGlass()
+--        tab = setmetatable(tab, index_error_mt)
         return setmtonce({}, { __index=tab, __newindex=basemod_newidx })
     end
 
