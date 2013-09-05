@@ -18,7 +18,6 @@ local tonumber = tonumber
 module(...)
 
 ffi.cdef[[
-#pragma pack(push,1)
 typedef struct
 {
     int16_t wallptr, wallnum;
@@ -58,7 +57,10 @@ typedef struct
     int16_t ang, owner, xvel, yvel, zvel;
     int16_t lotag, hitag, extra;
 } spritetype;
-#pragma pack(pop)
+]]
+
+ffi.cdef[[
+size_t fread(void *ptr, size_t size, size_t nmemb, void *stream);
 ]]
 
 local C = ffi.C
@@ -74,22 +76,17 @@ MAX =
 }
 
 local function doread(fh, basectype, numelts)
-    local cd = ffi.new(basectype.."[?]", numelts)
-    local size = ffi.sizeof(cd)
-
     if (numelts==0) then
         return nil
     end
 
-    assert(size % numelts == 0)
-    local datstr = fh:read(size)
+    local cd = ffi.new(basectype.."[?]", numelts)
+    local size = ffi.sizeof(basectype)*numelts
 
-    if (datstr == nil or #datstr < size) then
+    if (C.fread(cd, ffi.sizeof(basectype), numelts, fh) ~= numelts) then
         fh:close()
         return nil
     end
-
-    ffi.copy(cd, datstr, size)
 
     return cd
 end
@@ -97,7 +94,7 @@ end
 local function set_secwalspr_mt(structar, maxidx)
     local mt = {
         __index = function(tab, idx)
-            if (idx < 0 or idx >= maxidx) then
+            if (not (idx >= 0 and idx < maxidx)) then
                 error("Invalid structure array read access", 2)
             end
             return structar[idx]
@@ -281,9 +278,11 @@ function loadboard(filename, do_canonicalize_sprite)
         return nil, "Invalid number of sprites"
     end
 
-    map.sprite = doread(fh, "spritetype", map.numsprites)
-    if (map.numsprites~=0 and map.sprite == nil) then
-        return nil, "Couldn't read sprites"
+    if (map.numsprites ~= 0) then
+        map.sprite = doread(fh, "spritetype", map.numsprites)
+        if (map.sprite == nil) then
+            return nil, "Couldn't read sprites"
+        end
     end
     fh:close()
 
@@ -306,14 +305,14 @@ end
 local function set_sizarray_mt(sizar)
     local mt = {
         __index = function(tab, idx)
-            if (idx < 0 or idx >= MAX.TILES) then
+            if (not (idx >= 0 and idx < MAX.TILES)) then
                 error("Invalid tile size array read access", 2)
             end
             return sizar[idx]
         end,
 
         __newindex = function(tab, idx, newval)
-            if (idx < 0 or idx >= MAX.TILES) then
+            if (not (idx >= 0 and idx < MAX.TILES)) then
                 error("Invalid tile size array write access", 2)
             end
             sizar[idx] = newval
