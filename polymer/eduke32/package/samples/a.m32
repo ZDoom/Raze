@@ -1520,6 +1520,26 @@ defstate listusedtags
     }
 ends
 
+defstate moveselsects
+    var p1 dx dy
+
+    for i selsectors
+    {
+        set p1 sector[i].wallptr
+        set dx wall[p1].x, set dy wall[p1].y
+        for j wallsofsector i
+        {
+            sub wall[j].x dx
+            sub wall[j].y dy
+        }
+        for j spritesofsector i
+        {
+            sub .x dx
+            sub .y dy
+        }
+    }
+ends
+
 // This must be *compiled* with script_expertmode
 /*
 defstate setstartpos
