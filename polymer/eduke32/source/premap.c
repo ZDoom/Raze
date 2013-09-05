@@ -1019,6 +1019,11 @@ static void G_SetupRotfixedSprites(void)
     }
 }
 
+static inline int32_t G_CheckExitSprite(int32_t i)
+{
+    return (sprite[i].lotag == UINT16_MAX && (sprite[i].cstat&16));
+}
+
 static inline void prelevel(char g)
 {
     int32_t i, nexti, j, startwall, endwall;
@@ -1080,16 +1085,15 @@ static inline void prelevel(char g)
         }
     }
 
-    i = headspritestat[STAT_DEFAULT];
-    while (i >= 0)
+    // NOTE: must be safe loop because callbacks could delete sprites.
+    for (SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nexti))
     {
-        nexti = nextspritestat[i];
 #if !defined LUNATIC
         A_ResetVars(i);
         A_LoadActor(i);
 #endif
         VM_OnEvent(EVENT_LOADACTOR, i, -1, -1, 0);
-        if (sprite[i].lotag == UINT16_MAX && (sprite[i].cstat&16))
+        if (G_CheckExitSprite(i))
         {
             g_player[0].ps->exitx = SX;
             g_player[0].ps->exity = SY;
@@ -1097,11 +1101,12 @@ static inline void prelevel(char g)
         else switch (DYNAMICTILEMAP(PN))
             {
             case GPSPEED__STATIC:
+                // DELETE_AFTER_LOADACTOR. Must not change statnum.
                 sector[SECT].extra = SLT;
-                A_DeleteSprite(i);
                 break;
 
             case CYCLER__STATIC:
+                // DELETE_AFTER_LOADACTOR. Must not change statnum.
                 if (g_numCyclers >= MAXCYCLERS)
                 {
                     Bsprintf(tempbuf,"\nToo many cycling sectors (%d max).",MAXCYCLERS);
@@ -1114,7 +1119,6 @@ static inline void prelevel(char g)
                 cyclers[g_numCyclers][4] = SHT;
                 cyclers[g_numCyclers][5] = (SA == 1536);
                 g_numCyclers++;
-                A_DeleteSprite(i);
                 break;
 
             case SECTOREFFECTOR__STATIC:
@@ -1128,8 +1132,19 @@ static inline void prelevel(char g)
                 sprite[i].cstat &= ~(1|256);
                 break;
             }
-        i = nexti;
     }
+
+    // Delete some effector / effector modifier sprites AFTER the loop running
+    // the LOADACTOR events. DELETE_AFTER_LOADACTOR.
+    for (SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nexti))
+        if (!G_CheckExitSprite(i))
+            switch (DYNAMICTILEMAP(PN))
+            {
+            case GPSPEED__STATIC:
+            case CYCLER__STATIC:
+                A_DeleteSprite(i);
+                break;
+            }
 
     for (i=0; i < MAXSPRITES; i++)
     {
