@@ -2,7 +2,7 @@
 -- This file contains LuaJIT definitions of stuff that's common to the game and
 -- editor.  The 'decl' function is expected to be defined in the global
 -- environment.
--- See the included license file "BUILDLIC.TXT" for license info.
+-- See the file "BUILDLIC.TXT" distributed with EDuke32 for license info.
 
 -- Will be 'true' if running from engine Lua state:
 local _LUNATIC_AUX = _LUNATIC_AUX

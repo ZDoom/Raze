@@ -2374,7 +2374,9 @@ typedef struct { int32_t x1, y1, x2, y2; } linetype;
 static linetype clipit[MAXCLIPNUM];
 static int32_t clipsectnum, origclipsectnum, clipspritenum;
 static int16_t clipsectorlist[MAXCLIPNUM], origclipsectorlist[MAXCLIPNUM];
+#ifdef HAVE_CLIPSHAPE_FEATURE
 static int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
+#endif
 static int16_t clipobjectval[MAXCLIPNUM];
 
 typedef struct
@@ -11992,10 +11994,13 @@ static int32_t try_facespr_intersect(const spritetype *spr, const vec3_t *refpos
 
     return 0;
 }
+
 //
 // hitscan
 //
+#ifdef HAVE_CLIPSHAPE_FEATURE
 static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t *clipsectcnt, const vec3_t *vect);
+#endif
 
 int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                 hitdata_t *hit, uint32_t cliptype)

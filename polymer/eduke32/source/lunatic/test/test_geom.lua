@@ -5,7 +5,8 @@ local os = require("os")
 local xmath = require("xmath")
 
 
-local N = os.exit and (arg[1] and tostring(arg[1])) or 1e6
+-- XXX: perf regression? (See below PERF_REGRESSION)
+local N = os.exit and (arg[1] and tostring(arg[1])) or 1e5  --1e6
 
 local A,B = {}, {}
 local V,W = {}, {}
@@ -79,3 +80,5 @@ print("getdbl:    ".. 1000*(t2-t1))
 print("genpoints: ".. 1000*(t3-t2))  -- x86_64: 500 ms, x86: 700 ms
 print("intersect: ".. 1000*(t4-t3))  -- x86_64, x86: about 35 ms  <- thanks to allocation sinking (else, about 500 ms?)
 print("result:    ".. tostring(v))
+
+-- PERF_REGRESSION: with N==1e6 getdbl, genpoints now about 1000ms from EDuke32!
