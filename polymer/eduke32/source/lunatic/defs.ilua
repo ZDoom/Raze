@@ -602,7 +602,6 @@ const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
 int32_t g_elCallDepth;
 int32_t block_deletesprite;
-const char **g_argv;
 const char **g_elModules;
 char g_modDir[];
 actor_t actor[MAXSPRITES];

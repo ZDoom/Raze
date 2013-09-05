@@ -353,28 +353,30 @@ gameevent
         proj.drop = 0
         proj:set_trail(D.SMALLSMOKE)
 
-        t = gv.gethiticks()
-        local N=1
-        for n=1,N do
-            for i=0,gv.MAXSPRITES-1 do
-                sprite[i].filler = 1
+        if (gv._LUNATIC_STRICT == 0) then
+            t = gv.gethiticks()
+            local N=1
+            for n=1,N do
+                for i=0,gv.MAXSPRITES-1 do
+                    sprite[i].filler = 1
+                end
+                for i=gv.MAXSPRITES-1,0,-1 do
+                    sprite[i].shade = 1
+                end
+                for i=0,gv.MAXSPRITES-1 do
+                    sprite[i].xoffset = 0
+                end
+                for i=gv.MAXSPRITES-1,0,-1 do
+                    sprite[i].yoffset = 1
+                end
             end
-            for i=gv.MAXSPRITES-1,0,-1 do
-                sprite[i].shade = 1
-            end
-            for i=0,gv.MAXSPRITES-1 do
-                sprite[i].xoffset = 0
-            end
-            for i=gv.MAXSPRITES-1,0,-1 do
-                sprite[i].yoffset = 1
-            end
+            t = gv.gethiticks()-t
+            printf("%d x four 0..MAXSPRITES-1 iterations took %.03f us per outer iteration", N, (1000*t)/N)
+            -- Results on x86:
+            -- N=1: 480-1000 us (too large variance)
+            -- N=10: 190-210 us * 10 = 1.9-2.1 ms
+            -- N=100: about 160 us * 100 = about 16 ms
         end
-        t = gv.gethiticks()-t
-        printf("%d x four 0..MAXSPRITES-1 iterations took %.03f us per outer iteration", N, (1000*t)/N)
-        -- Results on x86:
-        -- N=1: 480-1000 us (too large variance)
-        -- N=10: 190-210 us * 10 = 1.9-2.1 ms
-        -- N=100: about 160 us * 100 = about 16 ms
 
         -- Make the DUKECAR in E1L1 into a zombie actor (temporarily)
         -- NOTE: Use static value (not the one from 'D').

@@ -11,21 +11,56 @@ local ffi = require("ffi")
 local ffiC = ffi.C
 local bit = require("bit")
 
--- Lunatic debugging (mostly bitfield):
--- ~=0: print diagnostic information
---   2: disable JIT compilation
---   4: load LuaJIT's 'v' module, printing trace info
---   8: load LuaJIT's 'dump' module, printing generated IR/machine code
-ffi.cdef "enum { _DEBUG_LUNATIC=0 }"
+local bor = bit.bor
 
-if (bit.band(ffiC._DEBUG_LUNATIC, 2)~=0) then
+ffi.cdef "const char **g_argv;"
+
+-- Lunatic debugging options (-Lopts=<opt1>,<opt2>,... from the command line):
+--     diag: print diagnostic information
+--    nojit: disable JIT compilation
+--   traces: load LuaJIT's 'v' module, printing trace info
+--           (env var: LUAJIT_VERBOSEFILE)
+--     dump: load LuaJIT's 'dump' module, printing generated IR/machine code
+--           (env var: LUAJIT_DUMPFILE)
+--   strict: catch various conditions that may indicate an logical error
+local debug_flags = {}
+local IS_DEBUG_FLAG = {
+    diag=true, nojit=true, traces=true, dump=true,
+    strict=true,
+}
+
+-- Handle command-line argument. (Look for -Lopts=...)
+local function handle_cmdline_arg(str)
+    local opts = str:match("^-Lopts=(.*)")
+
+    if (opts ~= nil) then
+        for opt in opts:gmatch("[^,]+") do
+            if (IS_DEBUG_FLAG[opt]) then
+                debug_flags[opt] = true
+            end
+        end
+    end
+end
+
+local i=0
+while (ffiC.g_argv[i] ~= nil) do
+    handle_cmdline_arg(ffi.string(ffiC.g_argv[i]))
+    i = i+1
+end
+
+-- Print diagnostic information?
+ffi.cdef("enum { _DEBUG_LUNATIC="..(debug_flags.diag and 1 or 0).." }")
+-- Be strict?
+ffi.cdef("enum { _LUNATIC_STRICT="..(debug_flags.strict and 1 or 0).." }")
+
+if (debug_flags.nojit) then
     require("jit").off()
 end
 
 if (not _LUNATIC_AUX) then
-    if (bit.band(ffiC._DEBUG_LUNATIC, 8)~=0) then
+    if (debug_flags.dump) then
         require("dump").on("+rs")
-    elseif (bit.band(ffiC._DEBUG_LUNATIC, 4)~=0) then
+    elseif (debug_flags.traces) then
         require("v").on()
     end
 end
@@ -964,11 +999,35 @@ function static_members.sprite.updatesect(spritenum, flags)
     return newsect
 end
 
+local strictp = debug_flags.strict
+
 function GenStructMetatable(Structname, Boundname, StaticMembersTab)
     StaticMembersTab = StaticMembersTab or static_members[Structname]
 
-    return {
-        __index = function(tab, key)
+    -- If we're running with the 'strict' option, disallow accesses to void
+    -- sprites.
+    local index_func = (strictp and Structname=="sprite") and
+
+        -- Mostly CODEDUP of lower function, ...
+        function(tab, key)
+            if (type(key)=="number") then
+                if (key >= 0 and key < ffiC[Boundname]) then
+                    -- ... except this.
+                    -- (Inlining into the other function did slow things down.)
+                    if (ffiC.sprite[key].statnum == ffiC.MAXSTATUS) then
+                        error("attempt to access void sprite with index "..key, 2)
+                    end
+                    return ffiC[Structname][key]
+                end
+                error("out-of-bounds "..Structname.."[] read access with index "..key, 2)
+            elseif (type(key)=="string") then
+                return StaticMembersTab[key]
+            end
+        end
+
+        or
+
+        function(tab, key)
             if (type(key)=="number") then
                 if (key >= 0 and key < ffiC[Boundname]) then
                     return ffiC[Structname][key]
@@ -977,8 +1036,10 @@ function GenStructMetatable(Structname, Boundname, StaticMembersTab)
             elseif (type(key)=="string") then
                 return StaticMembersTab[key]
             end
-        end,
+        end
 
+    return {
+        __index = index_func,
         __newindex = function() error("cannot write directly to "..Structname.."[]", 2) end,
     }
 end

@@ -8473,12 +8473,19 @@ static void G_ShowParameterHelp(void)
 extern char forcegl;
 #endif
 
+#ifdef LUNATIC
+const char **g_argv;
+#endif
+
 static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
     int32_t i = 1, j, maxlen=0, *lengths;
     const char *c, *k;
 
     mapster32_fullpath = argv[0];
+#ifdef LUNATIC
+    g_argv = argv;
+#endif
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
     // pre-form the default 10 clipmaps

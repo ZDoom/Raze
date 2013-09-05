@@ -9065,6 +9065,11 @@ static void G_ShowDebugHelp(void)
               "-q#\t\tFake multiplayer with # (2-8) players\n"
               "-z#/-condebug\tEnable line-by-line CON compile debugging at level #\n"
               "-conversion YYYYMMDD\tSelects CON script version for compatibility with older mods\n"
+#ifdef LUNATIC
+              "-Lopts=<opt1>,<opt2>,...\n"
+              "  Pass options to Lunatic, valid ones are:\n"
+              "  diag, nojit, traces, dump, strict\n"
+#endif
               ;
 #if defined RENDERTYPEWIN
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
@@ -9983,9 +9988,13 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         G_AddPath(c);
                     break;
                 case 'l':
-                    ud.warp_on = 1;
-                    c++;
-                    ud.m_level_number = ud.level_number = ((unsigned)(Batoi(c)-1))%MAXLEVELS;
+                    // NOTE: Overlaid with -Lopts=... options for Lunatic, hence the check.
+                    if (Bisdigit(c[1]))
+                    {
+                        ud.warp_on = 1;
+                        c++;
+                        ud.m_level_number = ud.level_number = ((unsigned)(Batoi(c)-1))%MAXLEVELS;
+                    }
                     break;
                 case 'm':
                     if (*(c+1) != 'a' && *(c+1) != 'A')
