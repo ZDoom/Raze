@@ -57,6 +57,10 @@ local check_type = bcheck.type
 local lprivate = require("lprivate")
 local GET, WEAPON = lprivate.GET, lprivate.WEAPON
 
+ffi.cdef[[
+size_t fwrite(const void * restrict ptr, size_t size, size_t nmemb, void * restrict stream);
+]]
+
 local OUR_REQUIRE_STRING = [[
  local _con=require'con'
  local _ga,_av,_pv=_con._gamearray,_con.actorvar,_con.playervar
@@ -1245,7 +1249,7 @@ end
 
 function _A_RadiusDamage(i, r, hp1, hp2, hp3, hp4)
     check_sprite_idx(i)
-    check_isnumber(r, hp1, hp2, hp3, hp4)
+    check_allnumbers(r, hp1, hp2, hp3, hp4)
     CF.A_RadiusDamage(i, r, hp1, hp2, hp3, hp4)
 end
 
@@ -2027,8 +2031,6 @@ local function check_gamearray_idx(gar, idx, addstr)
     end
 end
 
-local intbytes_t = ffi.typeof("union { int32_t i; uint8_t b[4]; }")
-
 function _gar_copy(sar, sidx, dar, didx, numelts)
     -- XXX: Strictest bound checking, see later if we need to relax it.
     check_gamearray_idx(sar, sidx, "lower source ")
@@ -2105,20 +2107,23 @@ local gamearray_methods = {
         end
 
         local nelts = gar._size
-        local cstr = ffi.new("uint8_t [?]", 4*nelts)
+        local ar = ffi.new("int32_t [?]", nelts)
         local isbe = ffi.abi("be")  -- is big-endian?
 
         for i=0,nelts-1 do
-            local diskval = intbytes_t(isbe and bit.bswap(gar[i]) or gar[i])
-            for bi=0,3 do
-                cstr[4*i+bi] = diskval.b[bi]
-            end
+            ar[i] = isbe and bit.bswap(gar[i]) or gar[i]
         end
 
-        f:write(ffi.string(cstr, 4*nelts))
-        f:write(GAR_FOOTER)
+        local ok = (ffiC.fwrite(ar, 4, nelts, f) == nelts)
+        if (ok) then
+            f:write(GAR_FOOTER)
+        end
 
         f:close()
+
+        if (not ok) then
+            error([[failed writing all data to "%s"]], fn, 3)
+        end
     end,
 
 
