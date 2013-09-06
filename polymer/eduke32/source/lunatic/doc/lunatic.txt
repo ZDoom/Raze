@@ -33,7 +33,6 @@ The base language for writing Lunatic user code is {Lua51}[Lua 5.1].  It is
 extensively documented in a {Lua51Ref}[Reference Manual], as well as described
 more broadly and accessibly in the {PiL}[Programming in Lua] books.
 // TODO: describe Lua a bit
-// TODO: give hints which PiL to read / how
 
 Because Lunatic is implemented using {LuaJIT}[LuaJIT], a just-in-time compiler
 for the Lua language, some {LuaJIText}[extensions] to the core language are
@@ -64,6 +63,15 @@ done after translating CON code to Lua and loading it. Such modules must reside
 in files named `*.lua` (case-sensitive) and should be passed directly, without
 any option letters, at the command line. Directory separators must be forward
 slashes.
+
+The command-line option `-Lopts=strict` enables errors on certain conditions
+that may indicate problems in user Lua or CON code. Currently, strict mode
+checks for
+
+* Accesses to <<sprite,sprites>> not in the game world
+* Indexing the tables returned by <<require,`require("DEFS")`>> and the like
+  with nonexistent keys. This may indicate a missing file from a bundle
+  belonging together.
 
 .Invocation example
 ====================
@@ -339,7 +347,12 @@ events interpret this variable.
 Functions
 ^^^^^^^^^
 
-[[krand]] `gv.krand()`::
+`gv.getangle(x, y)`::
+Returns an approximation of the angle between the line segments (0,0)->(1,0)
+and (0,0)->(`x`,`y`) in BUILD angle units in the range [0 .. 2047].
+
+[[krand]]
+`gv.krand()`::
 Returns one value from the global engine-side pseudo-random number generator
 in the integer range [0{nbsp}..{nbsp}65535].
 
@@ -597,10 +610,27 @@ Set the tile number of the ceiling or floor.
 Return the z coordinate of sector `sec`'s ceiling or floor at position `pos`,
 which can be anything indexable with the strings `x` and `y`.
 
-//////////
-`zrangeat(pos, walldist, cliptype)`::
-TODO
-//////////
+`sec:zrangeat(pos, walldist, clipmask)` -> `hit`::
+
+Given a starting point `pos` assumed to be contained in the sector, calculate
+the z coordinates of the objects that would be first hit by a quadratic,
+floor-aligned sprite pointing parallel to the grid and having side length
+`2*walldist`, when travelling in a straight line up- and downwards.
++
+The argument `clipmask` is a number specifying which objects should be checked
+for collision: its least significant 16 bits are bitwise-ANDed with
+`wall[].cstat` values, while the high 16 bits are ANDed with
+`sprite[].cstat`. Whenever the so masked values are non-zero, the objects are
+considered for collision.
++
+The method returns an immutable structure `hit`, containing the sub-structures
+`c` and `f` (for movement upwards and downwards, respectively) with the
+following members:
++
+* `spritep`: a boolean signifying whether a sprite was hit
+* `num`: if `spritep` is true, the index of the hit sprite, otherwise the index
+  of the hit ceiling/floor's sector
+* `z`: the z coordinate of where the sprite would end up on collision
 
 ===== `sector` static data
 
@@ -723,7 +753,7 @@ The <<sprite_CSTAT,`sprite.CSTAT`>>
 object should be used to obtain the values for applicable flags.
 
 `picnum` (read-only)::
-The tile number of the sprite, also used to determine which _actor_ code is run
+The tile number of the sprite, also used to determine which actor code is run
 if this sprite has a `statnum` of `actor.STAT.ACTOR`.
 
 _`i8`_ `shade`::
@@ -764,7 +794,7 @@ not a ``child'' of another one, then `owner` is the index of this sprite itself.
 //so research is recommended before claiming it for oneself.
 
 _`i16`_ `xvel`, `zvel`::
-For _actors_ and other moving sprite types, the horizontal and vertical
+For actors and other moving sprite kinds, the horizontal and vertical
 components of the current velocity. See the description of
 <<con_move,`con.move`>> for more details.
 
@@ -781,10 +811,10 @@ claiming them for oneself.
 `spr:set_picnum(tilenum)`::
 Sets the tile number of sprite `spr` to `tilenum`.
 
-`spr:getheightofs()`::
-Returns the height and z offset of sprite `spr` in BUILD z units. Adding the
-offset to `spr.z` yields the z coordinate at the bottom of the
-sprite. Subtracting from that the height results the z coordinate at its
+`spr:getheightofs()` -> `height`, `offset`::
+Returns the `height` and z `offset` of sprite `spr` in BUILD z units. Adding the
+`offset` to `spr.z` yields the z coordinate at the bottom of the
+sprite. Subtracting from that the `height` results the z coordinate at its
 top. However, the per-tile z offset is not taken into account.
 
 `spr:setpos(pos [, newsect])`::
