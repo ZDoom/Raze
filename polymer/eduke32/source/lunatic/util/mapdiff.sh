@@ -5,11 +5,13 @@ CMD="/usr/bin/env luajit ./map2text.lua"
 
 opt=""
 
-if [ `uname -s` != "Linux" ]; then
-    # I think 'tempfile' isn't in POSIX. Feel free to use 'mktemp' or something
-    # but absolutely test it before.
-    echo "This helper script is for Linux only."
-    return 1
+# Name of the 'tempfile' or 'mktemp' command (or full path).
+tempfile_cmd=tempfile
+
+tempfile_path=`which "$tempfile_cmd"`
+if [ -z "$tempfile_path" ]; then
+    echo "Error: tempfile_cmd ($tempfile_cmd) must be the name of existing 'tempfile' or 'mktemp' executable."
+    exit 1
 fi
 
 if [ "$1" = "-c" -o "$1" = "-C" ]; then
@@ -22,8 +24,18 @@ if [ -z "$1" -o -z "$2" ]; then
     exit 1
 fi
 
-tf1=`tempfile`
-tf2=`tempfile`
+tf1=`"$tempfile_cmd"`
+if [ -z "$tf1" ]; then
+    echo Failed creating temp file
+    exit 2
+fi
+
+tf2=`"$tempfile_cmd"`
+if [ -z "$tf2" ]; then
+    rm "$tf1"
+    echo Failed creating temp file
+    exit 2
+fi
 
 $CMD $opt "$1" > "$tf1"
 $CMD $opt "$2" > "$tf2"

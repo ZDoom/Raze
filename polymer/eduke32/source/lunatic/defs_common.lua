@@ -23,6 +23,7 @@ ffi.cdef "const char **g_argv;"
 --     dump: load LuaJIT's 'dump' module, printing generated IR/machine code
 --           (env var: LUAJIT_DUMPFILE)
 --   strict: catch various conditions that may indicate an logical error
+-- TODO for strict: actor[], spriteext[], per-actor gamevars
 local debug_flags = {}
 local IS_DEBUG_FLAG = {
     diag=true, nojit=true, traces=true, dump=true,

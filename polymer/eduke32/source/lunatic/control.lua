@@ -1990,7 +1990,7 @@ local function gamearray_file_common(qnum, writep)
     local f, errmsg
 
     if (writep) then
-        f, errmsg = io.open(fn)
+        f, errmsg = io.open(fn, "rb")
         if (f == nil) then
             -- file, numints, isnewgar, filename
             return nil, nil, true, fn
@@ -2101,7 +2101,7 @@ local gamearray_methods = {
             error("refusing to overwrite a file not created by a previous `writearraytofile'", 2)
         end
 
-        local f, errmsg = io.open(fn, "w+")
+        local f, errmsg = io.open(fn, "wb+")
         if (f == nil) then
             error([[failed opening "%s" for writing: %s]], fn, errmsg, 3)
         end
