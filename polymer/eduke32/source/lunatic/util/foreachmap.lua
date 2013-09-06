@@ -20,6 +20,8 @@
 
 -- The local 'd' provides defs loaded from ../../names.h, example:
 --  $ ./findmaps.sh ~/.eduke32/ "sprite: .picnum>=d. CRACK1 and .picnum<=d. CRACK4"
+-- (The space between "d." and "CRACK" is because ".xxx" is translated to
+-- "sprite[<current>].xxx".)
 
 -- Print all V9 maps along with their number of bunches and max(ceilings of a bunch)
 --  $ prog='if (map.version==9) then print(map.numbunches.." ".. math.max(unpack(map.sectsperbunch[0],0)) .." "..fn) end'

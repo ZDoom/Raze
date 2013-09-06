@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ok=yes
 if [ -z "$1" ]; then
@@ -13,4 +13,10 @@ if [ -z "$ok" ]; then
     exit 1
 fi
 
-find -L "$1" -iname '*.map' -print0 | xargs -0 ./foreachmap.lua "-e$2"
+LOPT=-L
+idx=$(expr match `uname -s` '[mM][iI][nN][gG][wW]')
+if [ "$idx" != 0 ]; then
+    LOPT=
+fi
+
+find $LOPT "$1" -iname '*.map' -print0 | xargs -0 ./foreachmap.lua "-e$2"

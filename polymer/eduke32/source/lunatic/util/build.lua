@@ -76,12 +76,8 @@ MAX =
 }
 
 local function doread(fh, basectype, numelts)
-    if (numelts==0) then
-        return nil
-    end
-
+    assert(numelts > 0)
     local cd = ffi.new(basectype.."[?]", numelts)
-    local size = ffi.sizeof(basectype)*numelts
 
     if (C.fread(cd, ffi.sizeof(basectype), numelts, fh) ~= numelts) then
         fh:close()
@@ -206,7 +202,7 @@ end
 --      }
 --    }
 function loadboard(filename, do_canonicalize_sprite)
-    local fh, errmsg = io.open(filename)
+    local fh, errmsg = io.open(filename, "rb")
 
     if (fh==nil) then
         return nil, errmsg
@@ -340,7 +336,7 @@ function loadarts(filenames)
 
     for fni=1,#filenames do
         local fn = filenames[fni]
-        local fh, errmsg = io.open(fn)
+        local fh, errmsg = io.open(fn, "rb")
 
         if (fh==nil) then
             return nil, errmsg
