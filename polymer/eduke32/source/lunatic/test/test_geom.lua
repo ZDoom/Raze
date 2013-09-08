@@ -6,6 +6,7 @@ local xmath = require("xmath")
 
 
 -- XXX: perf regression? (See below PERF_REGRESSION)
+-- No, happens only with Clang build. (Why?)
 local N = os.exit and (arg[1] and tostring(arg[1])) or 1e5  --1e6
 
 local A,B = {}, {}

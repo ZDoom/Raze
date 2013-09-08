@@ -199,9 +199,49 @@ values. Values pre-defined by the system are not included.
 ==== The `module()` function
 
 Initiates a _module_ environment by creating a new empty table and setting it
-as the global environment of the chunk.  Unlike Lua 5.1, our `module` takes
-neither a name argument nor ``option'' varargs. A Lunatic file may have at most
-one call to `module`, which (if there is one) *must* be called at file scope.
+as the global environment of the chunk. Subsequently creating global variables
+will place them into this ``hidden'' table. Assuming no subsequent *`return`*
+is placed at file scope, this table will be the one obtained by a `require` for
+the module at the client side.
+
+.Example file using using `module`
+----------
+-- Import section: cache everything the module needs into locals
+local print = print
+local gameactor = gameactor
+local MYDEFS = require("MyEnemyDefs", 1200)  -- see next example
+
+-- After this, the global environment will be swept clean!
+module(...)
+
+-- Our enemy at last
+gameactor{ MYDEFS.tilenum, strength=MYDEFS.strength,
+    function(aci)
+        print("My tilenum is "..sprite[aci].picnum.." and I "
+              ..(MYDEFS.canfly and "can" or "can't").." fly")
+    end
+}
+----------
+
+Unlike Lua 5.1, our `module` takes neither a name argument nor ``option''
+varargs. A Lunatic file may have at most one call to `module`, which (if there
+is one) *must* be called at file scope.
+
+If the Lua file doesn't need to register any game variables, it is also
+possible to return its table directly instead of using `module`. However, due
+to the way modules are loaded, a trailing *`return`* statement must be wrapped
+in a *`do`*...*`end`* block, like this:
+
+.Example module `MyEnemyDefs.lua` explicitly returning table
+----------
+local args = { ... }
+do return {
+   tilenum = args[1] or 1000,
+   strength = 100,
+   canfly = true,
+}
+end
+----------
 
 ===== Game variables
 
