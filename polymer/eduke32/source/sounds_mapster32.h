@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __sounds_mapster32_h__
 
 #include "build.h"
+#include "sounds_common.h"
 
 #pragma pack(push,1)
 

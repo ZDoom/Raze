@@ -2534,7 +2534,7 @@ static void M32_MoveFX(void)
             if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 &&
                     AmbienceToggle && sector[s->sectnum].floorz != sector[s->sectnum].ceilingz)
             {
-                if ((g_sounds[s->lotag].m&2))
+                if ((g_sounds[s->lotag].m & SF_MSFX))
                 {
                     x = dist((spritetype *)&pos,s);
                     if (x < ht && (T1&1) == 0 && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
@@ -2554,7 +2554,7 @@ static void M32_MoveFX(void)
                             }
                             if (j == -1) continue;
                         }
-                        g_sounds[s->lotag].m |= 1;
+                        g_sounds[s->lotag].m |= SF_LOOP;
                         A_PlaySound(s->lotag,i);
                         g_sounds[s->lotag].m = om;
                         T1 |= 1;

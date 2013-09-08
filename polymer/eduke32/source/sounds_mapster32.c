@@ -164,23 +164,23 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     if (num >= MAXSOUNDS ||
             !SM32_havesound ||
-//        ((g_sounds[num].m&8) && ud.lockout) ||
+//        ((g_sounds[num].m & SF_ADULT) && ud.lockout) ||
             SoundToggle == 0 ||
             g_sounds[num].num > 3 ||
             FX_VoiceAvailable(g_sounds[num].pr) == 0)
         return -1;
 
-    if (g_sounds[num].m&128)
+    if (g_sounds[num].m & SF_DTAG)
     {
         S_PlaySound(num);
         return 0;
     }
 
-    if (g_sounds[num].m&4)
+    if (g_sounds[num].m & SF_TALK)
     {
         for (j=0; j<MAXSOUNDS; j++)
 //            for (k=0; k<g_sounds[j].num; k++)
-            if ((g_sounds[j].num > 0) && (g_sounds[j].m&4))
+            if ((g_sounds[j].num > 0) && (g_sounds[j].m & SF_TALK))
                 return -1;
     }
 
@@ -192,7 +192,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     sndist = FindDistance3D((cx-pos->x),(cy-pos->y),(cz-pos->z)>>4);
 
-    if (i >= 0 && (g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
+    if (i >= 0 && (g_sounds[num].m & SF_GLOBAL) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
         sndist = divscale14(sndist,(SHT+1));
 
     pitchs = g_sounds[num].ps;
@@ -224,7 +224,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             break;
         default:
     */
-    if (cursectnum > -1 && sector[cursectnum].lotag == 2 && (g_sounds[num].m&4) == 0)
+    if (cursectnum > -1 && sector[cursectnum].lotag == 2 && (g_sounds[num].m & SF_TALK) == 0)
         pitch = -768;
     if (sndist > 31444 && PN != MUSICANDSFX)
         return -1;
@@ -252,12 +252,12 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         else g_sounds[num].lock++;
     }
 
-    if (g_sounds[num].m&16) sndist = 0;
+    if (g_sounds[num].m & SF_GLOBAL) sndist = 0;
 
     if (sndist < ((255-LOUDESTVOLUME)<<6))
         sndist = ((255-LOUDESTVOLUME)<<6);
 
-    if (g_sounds[num].m&1)
+    if (g_sounds[num].m & SF_LOOP)
     {
         if (g_sounds[num].num > 0)
             return -1;
@@ -293,7 +293,7 @@ void S_PlaySound(int32_t num)
         OSD_Printf("WARNING: invalid sound #%d\n",num);
         return;
     }
-//    if ((g_sounds[num].m&8) && ud.lockout) return;
+//    if ((g_sounds[num].m & SF_ADULT) && ud.lockout) return;
     if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return;
 
     pitchs = g_sounds[num].ps;
@@ -319,7 +319,7 @@ void S_PlaySound(int32_t num)
         else g_sounds[num].lock++;
     }
 
-    if (g_sounds[num].m&1)
+    if (g_sounds[num].m & SF_LOOP)
     {
         voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
                                   pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz,num);
@@ -404,7 +404,7 @@ void S_Update(void)
             sndang = 2048 + ca - getangle(cx-sx,cy-sy);
             sndang &= 2047;
             sndist = FindDistance3D((cx-sx),(cy-sy),(cz-sz)>>4);
-            if (i >= 0 && (g_sounds[j].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
+            if (i >= 0 && (g_sounds[j].m & SF_GLOBAL) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
                 sndist = divscale14(sndist,(SHT+1));
 
             sndist += g_sounds[j].vo;
@@ -433,7 +433,7 @@ void S_Update(void)
 //            }
 
             if (g_sounds[j].ptr == 0 && S_LoadSound(j) == 0) continue;
-            if (g_sounds[j].m&16) sndist = 0;
+            if (g_sounds[j].m & SF_GLOBAL) sndist = 0;
 
             if (sndist < ((255-LOUDESTVOLUME)<<6))
                 sndist = ((255-LOUDESTVOLUME)<<6);
@@ -450,7 +450,7 @@ void S_Callback(uint32_t num)
 
     if (k > 0)
     {
-        if ((g_sounds[num].m&16) == 0)
+        if ((g_sounds[num].m & SF_GLOBAL) == 0)
             for (j=0; j<k; j++)
             {
                 i = g_sounds[num].SoundOwner[j].ow;

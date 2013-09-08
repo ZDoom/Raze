@@ -18,6 +18,7 @@ duke3d_h=\
     $(INC)/function.h \
     $(INC)/config.h \
     $(INC)/sounds.h \
+    $(INC)/sounds_common.h \
     $(INC)/soundsdyn.h \
     $(INC)/rts.h \
     $(INC)/_rts.h \
@@ -86,6 +87,7 @@ $(OBJ)/astub.$o: $(SRC)/astub.c \
     $(m32_script_hs)
 $(OBJ)/sounds_mapster32.$o: $(SRC)/sounds_mapster32.c \
     $(SRC)/sounds_mapster32.h \
+    $(SRC)/sounds_common.h \
     $(EINC)/compat.h \
     $(EINC)/baselayer.h \
     $(EINC)/cache1d.h \
@@ -96,8 +98,8 @@ $(OBJ)/sounds_mapster32.$o: $(SRC)/sounds_mapster32.c \
     $(JAUDIOLIBDIR)/include/fx_man.h \
     $(SRC)/jmact/mathutil.h
 
-$(OBJ)/m32def.$o: $(SRC)/m32def.c $(m32_script_hs) $(EINC)/cache1d.h $(SRC)/sounds_mapster32.h $(SRC)/keys.h
-$(OBJ)/m32exec.$o: $(SRC)/m32exec.c $(m32_script_hs) $(SRC)/sounds_mapster32.h $(EINC)/osd.h $(SRC)/keys.h $(JAUDIOLIBDIR)/include/fx_man.h
+$(OBJ)/m32def.$o: $(SRC)/m32def.c $(m32_script_hs) $(EINC)/cache1d.h $(SRC)/sounds_mapster32.h $(SRC)/sounds_common.h $(SRC)/keys.h
+$(OBJ)/m32exec.$o: $(SRC)/m32exec.c $(m32_script_hs) $(SRC)/sounds_mapster32.h $(SRC)/sounds_common.h $(EINC)/osd.h $(SRC)/keys.h $(JAUDIOLIBDIR)/include/fx_man.h
 $(OBJ)/m32structures.$o: $(SRC)/m32structures.c $(m32_script_hs) $(EINC)/compat.h $(EINC)/prlights.h
 $(OBJ)/m32vars.$o: $(SRC)/m32vars.c $(SRC)/m32structures.c $(m32_script_hs) $(EINC)/osd.h $(SRC)/keys.h $(EINC)/polymer.h 
 

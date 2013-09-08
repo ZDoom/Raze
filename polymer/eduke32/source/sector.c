@@ -52,7 +52,7 @@ int32_t A_CallSound(int32_t sn,int32_t whatsprite)
 
             if (T1 == 0)
             {
-                if ((g_sounds[SLT].m&16) == 0)
+                if ((g_sounds[SLT].m & SF_GLOBAL) == 0)
                 {
                     if (SLT)
                     {
@@ -69,7 +69,7 @@ int32_t A_CallSound(int32_t sn,int32_t whatsprite)
             else if (SHT < MAXSOUNDS)
             {
                 if (SHT) A_PlaySound(SHT,whatsprite);
-                if ((g_sounds[SLT].m&1) || (SHT && SHT != SLT))
+                if ((g_sounds[SLT].m & SF_LOOP) || (SHT && SHT != SLT))
                     S_StopEnvSound(SLT,T6);
                 T6 = whatsprite;
                 T1 = 0;
@@ -1572,7 +1572,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite)
         }
         else if (hitag != 0)
         {
-            if (switchissprite == 1 && (g_sounds[hitag].m&4) == 0)
+            if (switchissprite == 1 && (g_sounds[hitag].m & SF_TALK) == 0)
                 S_PlaySound3D(hitag,w,&davector);
             else A_PlaySound(hitag,g_player[snum].ps->i);
         }

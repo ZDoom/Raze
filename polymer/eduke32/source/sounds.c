@@ -511,7 +511,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
         }
     }
 
-    if ((g_sounds[num].m&16) == 0 && S_IsAmbientSFX(i) && (sector[SECT].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
+    if ((g_sounds[num].m & SF_GLOBAL) == 0 && S_IsAmbientSFX(i) && (sector[SECT].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
         sndist = divscale14(sndist, SHT+1);
 
 sound_further_processing:
@@ -534,7 +534,7 @@ sound_further_processing:
         break;
     }
 
-    if ((g_sounds[num].m&16) || sndist < ((255-LOUDESTVOLUME)<<6))
+    if ((g_sounds[num].m & SF_GLOBAL) || sndist < ((255-LOUDESTVOLUME)<<6))
         sndist = ((255-LOUDESTVOLUME)<<6);
 
     *sndistptr = sndist;
@@ -557,7 +557,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     if ((unsigned)num > (unsigned)g_maxSoundPos ||
             ud.config.FXDevice < 0 ||
-            ((g_sounds[num].m&8) && ud.lockout) ||
+            ((g_sounds[num].m & SF_ADULT) && ud.lockout) ||
             ud.config.SoundToggle == 0 ||
 //            g_sounds[num].num >= MAXSOUNDINSTANCES ||
             (unsigned)i >= MAXSPRITES ||
@@ -566,7 +566,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             (myps->gm&MODE_MENU))
         return -1;
 
-    if (g_sounds[num].m&128)  // Duke-Tag sound
+    if (g_sounds[num].m & SF_DTAG)  // Duke-Tag sound
     {
         if ((voice = S_PlaySound(num)) <= FX_Ok)
             return -1;
@@ -586,7 +586,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     }
 
     // Duke talk
-    if (g_sounds[num].m&4)
+    if (g_sounds[num].m & SF_TALK)
     {
         if ((g_netServer || ud.multimode > 1) && PN == APLAYER && sprite[i].yvel != screenpeek) // other player sound
         {
@@ -598,7 +598,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
         // don't play if any Duke talk sounds are already playing
         for (j=g_maxSoundPos; j>=0; j--)
-            if ((g_sounds[j].m&4) && g_sounds[j].num > 0)
+            if ((g_sounds[j].m & SF_TALK) && g_sounds[j].num > 0)
                 return -1;
     }
 
@@ -624,10 +624,11 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     }
     else
     {
-        if (sndist > 32767 && PN != MUSICANDSFX && (g_sounds[num].m & 3) == 0)
+        if (sndist > 32767 && PN != MUSICANDSFX && (g_sounds[num].m & (SF_LOOP|SF_MSFX)) == 0)
             return -1;
 
-        if (peekps->cursectnum > -1 && sector[peekps->cursectnum].lotag == ST_2_UNDERWATER && (g_sounds[num].m&4) == 0)
+        if (peekps->cursectnum > -1 && sector[peekps->cursectnum].lotag == ST_2_UNDERWATER
+                && (g_sounds[num].m & SF_TALK) == 0)
             pitch = -768;
     }
 
@@ -655,10 +656,10 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     }
 
     {
-        const int32_t repeatp = (g_sounds[num].m&1);
+        const int32_t repeatp = (g_sounds[num].m & SF_LOOP);
         const int32_t ambsfxp = S_IsAmbientSFX(i);
 
-        if (repeatp && (g_sounds[num].m&32) && g_sounds[num].num > 0)
+        if (repeatp && (g_sounds[num].m & SF_ONEINST_INTERNAL) && g_sounds[num].num > 0)
         {
             g_soundlocks[num]--;
             return -1;
@@ -712,8 +713,8 @@ int32_t S_PlaySound(int32_t num)
         return -1;
     }
 
-    if (!(ud.config.VoiceToggle&1) && (g_sounds[num].m&4)) return -1;
-    if ((g_sounds[num].m&8) && ud.lockout) return -1;
+    if (!(ud.config.VoiceToggle&1) && (g_sounds[num].m & SF_TALK)) return -1;
+    if ((g_sounds[num].m & SF_ADULT) && ud.lockout) return -1;
     if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return -1;
 
     pitch = S_GetPitch(num);
@@ -738,7 +739,7 @@ int32_t S_PlaySound(int32_t num)
         return -1;
     }
 
-    if (g_sounds[num].m&1)
+    if (g_sounds[num].m & SF_LOOP)
         voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
                                   pitch,FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME),
                                   g_sounds[num].soundsiz, (num * MAXSOUNDINSTANCES) + j);

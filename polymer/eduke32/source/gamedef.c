@@ -5902,9 +5902,9 @@ repeatcase:
             g_sounds[k].pr = *(g_scriptPtr-1);
 
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].m = *(g_scriptPtr-1) & ~32;
+            g_sounds[k].m = *(g_scriptPtr-1) & ~SF_ONEINST_INTERNAL;
             if (*(g_scriptPtr-1) & 1)
-                g_sounds[k].m |= 32;
+                g_sounds[k].m |= SF_ONEINST_INTERNAL;
 
             C_GetNextValue(LABEL_DEFINE);
             g_sounds[k].vo = *(g_scriptPtr-1);

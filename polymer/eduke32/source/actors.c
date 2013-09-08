@@ -1366,7 +1366,7 @@ ACTOR_STATIC void G_MoveFX(void)
             else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 &&  // ST_9_SLIDING_ST_DOOR
                          ud.config.AmbienceToggle && sector[SECT].floorz != sector[SECT].ceilingz)
             {
-                if (g_sounds[s->lotag].m&2)
+                if (g_sounds[s->lotag].m & SF_MSFX)
                 {
                     int32_t x = dist(&sprite[peekps->i],s);
 
@@ -1398,7 +1398,7 @@ ACTOR_STATIC void G_MoveFX(void)
                                 goto BOLT;
                         }
 
-                        g_sounds[s->lotag].m |= 1;
+                        g_sounds[s->lotag].m |= SF_LOOP;
                         A_PlaySound(s->lotag,i);
                         g_sounds[s->lotag].m = om;
                         T1 = 1;
@@ -1414,7 +1414,7 @@ ACTOR_STATIC void G_MoveFX(void)
                     }
                 }
 
-                if (g_sounds[s->lotag].m&16)
+                if (g_sounds[s->lotag].m & SF_GLOBAL)
                 {
                     // Randomly playing global sounds (flyby of planes, screams, ...)
 
