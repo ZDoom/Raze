@@ -85,12 +85,12 @@ extern int32_t G_GetVersionFromWebsite(char *buffer);
 # define UPDATEINTERVAL 604800 // 1w
 # include "winbits.h"
 #else
-static int32_t usecwd = 0;
 # ifndef GEKKO
 #  include <sys/ioctl.h>
 # endif
 #endif /* _WIN32 */
 
+static int32_t usecwd = 0;
 int32_t g_quitDeadline = 0;
 
 #ifdef LUNATIC
@@ -9027,9 +9027,7 @@ static void G_ShowParameterHelp(void)
               "-setup/nosetup\tEnables/disables startup window\n"
 #endif
               "-t#\t\tSet respawn mode: 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
-#if !defined(_WIN32)
               "-usecwd\t\tRead game data and configuration file from working directory\n"
-#endif
               "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
               "-v#\t\tWarp to volume #, see -l\n"
               "-ww2gi\t\tRun in WWII GI compatibility mode\n"
@@ -9519,16 +9517,18 @@ const char **g_argv;
 const char **g_elModules;
 #endif
 
-#ifdef __APPLE__
 // Early checking for "-usecwd" switch.
-static void G_CheckUseCWD(int32_t argc, const char **argv)
+static int32_t G_CheckCmdSwitch(int32_t argc, const char **argv, const char *str)
 {
     int32_t i;
     for (i=0; i<argc; i++)
-        if (!Bstrcasecmp(argv[i], "-usecwd"))
-            usecwd = 1;
+    {
+        if (str && !Bstrcasecmp(argv[i], str))
+            return 1;
+    }
+
+    return 0;
 }
-#endif
 
 static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
@@ -9871,14 +9871,12 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
-#if !defined(_WIN32)
                 if (!Bstrcasecmp(c+1,"usecwd"))
                 {
                     usecwd = 1;
                     i++;
                     continue;
                 }
-#endif
                 if (!Bstrcasecmp(c+1,"cachesize"))
                 {
                     if (argc > i+1)
@@ -11060,36 +11058,25 @@ int32_t app_main(int32_t argc, const char **argv)
 {
     int32_t i = 0, j;
     char cwd[BMAX_PATH];
-//    extern char datetimestring[];
-    ENetCallbacks callbacks = { NULL, NULL, NULL };
 
     G_ExtPreInit();
 
-#ifdef _WIN32
-    if (argc > 1)
-    {
-        for (; i<argc; i++)
-        {
-            if (Bstrcasecmp("-noinstancechecking", argv[i]) == 0)
-                break;
-        }
-    }
+#ifndef NETCODE_DISABLE
+    if (enet_initialize() != 0)
+        initprintf("An error occurred while initializing ENet.\n");
+    else atexit(enet_deinitialize);
+#endif
 
-    if (i == argc && win_checkinstance())
+    usecwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
+
+#ifdef _WIN32
+    if (!G_CheckCmdSwitch(argc, argv, "-noinstancechecking") && win_checkinstance())
     {
         if (!wm_ynbox("EDuke32","Another Build game is currently running. "
                       "Do you wish to continue starting this copy?"))
             return 3;
     }
-#endif
 
-#ifndef NETCODE_DISABLE
-    if (enet_initialize_with_callbacks(ENET_VERSION, &callbacks) != 0)
-        initprintf("An error occurred while initializing ENet.\n");
-    else atexit(enet_deinitialize);
-#endif
-
-#ifdef _WIN32
     backgroundidle = 0;
 
     {
@@ -11104,10 +11091,10 @@ int32_t app_main(int32_t argc, const char **argv)
     getcwd(g_rootDir,BMAX_PATH);
     strcat(g_rootDir,"/");
 #endif
-    OSD_SetParameters(0,0, 0,12, 2,12);
-#ifdef __APPLE__
-    G_CheckUseCWD(argc, argv);
 
+    OSD_SetParameters(0,0, 0,12, 2,12);
+
+#ifdef __APPLE__
     if (!usecwd)
     {
         char *homedir = Bgethomedir();
@@ -11145,7 +11132,8 @@ int32_t app_main(int32_t argc, const char **argv)
         );
     initprintf("Compiled %s\n", __DATE__" "__TIME__);
 
-    G_AddSearchPaths();
+    if (!usecwd)
+        G_AddSearchPaths();
 
     g_numSkills = 4;
     ud.multimode = 1;
@@ -11468,7 +11456,8 @@ int32_t app_main(int32_t argc, const char **argv)
         pathsearchmode = 0;
     }
 
-    G_CleanupSearchPaths();
+    if (!usecwd)
+        G_CleanupSearchPaths();
 
     if (SHAREWARE)
         g_Shareware = 1;
