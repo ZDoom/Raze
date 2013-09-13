@@ -1767,6 +1767,26 @@ static int md3postload_polymer_check(md3model_t *m)
 
     return 1;
 }
+
+// Precalculated cos/sin arrays.
+static double g_mdcos[256], g_mdsin[256];
+
+static void init_mdtrig_arrays(void)
+{
+    int32_t i;
+
+    static int inited;
+    if (inited)
+        return;
+    inited = 1;
+
+    for (i=0; i<256; i++)
+    {
+        double ang = i * (2 * PI) / 255.0;
+        g_mdcos[i] = cos(ang);
+        g_mdsin[i] = sin(ang);
+    }
+}
 #endif
 
 int      md3postload_polymer(md3model_t *m)
@@ -1775,10 +1795,12 @@ int      md3postload_polymer(md3model_t *m)
     int         framei, surfi, verti, trii, i;
     md3surf_t   *s;
     int         *numtris;
-    float       lat, lng, vec1[5], vec2[5], mat[9], r;
+    float       vec1[5], vec2[5], mat[9], r;
 
     if (m->head.surfs[0].geometry)
         return -1;  // already postprocessed
+
+    init_mdtrig_arrays();
 
     // let's also repack the geometry to more usable formats
 
@@ -1802,18 +1824,18 @@ int      md3postload_polymer(md3model_t *m)
         verti = 0;
         while (verti < (m->head.numframes * s->numverts))
         {
+            // normal extraction from packed spherical coordinates
+            // FIXME: swapping lat and lng because of npherno's compiler
+            uint8_t lat = s->xyzn[verti].nlng;
+            uint8_t lng = s->xyzn[verti].nlat;
+
             s->geometry[(verti * 15) + 0] = s->xyzn[verti].x;
             s->geometry[(verti * 15) + 1] = s->xyzn[verti].y;
             s->geometry[(verti * 15) + 2] = s->xyzn[verti].z;
 
-            // normal extraction from packed spherical coordinates
-            // FIXME: swapping lat and lng because of npherno's compiler
-            lat = s->xyzn[verti].nlng * (2 * PI) / 255.0f;
-            lng = s->xyzn[verti].nlat * (2 * PI) / 255.0f;
-
-            s->geometry[(verti * 15) + 3] = cos(lat) * sin(lng);
-            s->geometry[(verti * 15) + 4] = sin(lat) * sin(lng);
-            s->geometry[(verti * 15) + 5] = cos(lng);
+            s->geometry[(verti * 15) + 3] = g_mdcos[lat] * g_mdsin[lng];
+            s->geometry[(verti * 15) + 4] = g_mdsin[lat] * g_mdsin[lng];
+            s->geometry[(verti * 15) + 5] = g_mdcos[lng];
 
             verti++;
         }
