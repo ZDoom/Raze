@@ -1196,14 +1196,13 @@ end
 ---=== Engine functions, wrapped for Lua convenience ===---
 
 -- returns a hitdata_ct
--- TODO: make v[xyz] be passed as one aggregate, too?
 -- TODO: make cliptype optional? What should be the default?
-function hitscan(pos, sectnum, vx,vy,vz, cliptype)
+function hitscan(pos, sectnum, ray, cliptype)
     check_sector_idx(sectnum)
     local vec = vec3_ct(pos.x, pos.y, pos.z)
     local hitdata = hitdata_ct()
 
-    ffiC.hitscan(vec, sectnum, vx,vy,vz, hitdata, cliptype)
+    ffiC.hitscan(vec, sectnum, ray.x, ray.y, ray.z, hitdata, cliptype)
     return hitdata
 end
 

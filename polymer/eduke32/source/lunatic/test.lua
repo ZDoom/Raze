@@ -469,6 +469,35 @@ local TROOPSTRENGTH = 30
 local AF = actor.FLAGS
 local CS = sprite.CSTAT
 
+-- Crosshair sprite.
+-- NOTE: This ought to be a gamevar -- if a savegame is restored, a new one
+-- will be spawned.
+local chair
+
+gameactor{ D.APLAYER, AF.chain_end,
+    function(aci, pli)
+        if (chair == nil) then
+            chair = con.spawn(555, aci)
+            printf("Spawned our crosshair: sprite %d", chair)
+            local spr = sprite[chair]
+            -- Set to STAT_MISC because otherwise interpolation goes crazy (old
+            -- value never updated; dunno why...)
+            sprite.changestat(chair, actor.STAT.MISC)
+            spr.xrepeat, spr.yrepeat = 96, 96
+            spr.cstatbits:set(CS.CENTER)
+        end
+
+        local ps = player[pli]
+        local ray = xmath.kangvec(ps.ang, -(ps.horiz-100)*2048)
+
+        local hit = hitscan(ps.pos, ps.cursectnum, ray, 0)
+        if (hit.sect >= 0) then
+            sprite[chair]:setpos(hit.pos)
+            sprite.changesect(chair, hit.sect)
+        end
+    end
+}
+
 -- Also test actor code chaining: strength is doubled.
 gameactor
 {
@@ -483,7 +512,7 @@ gameactor
         local spr = sprite[i]
 
         local t = gv.gethiticks()
-        local hit = hitscan(spr, spr.sectnum, 10, 10, 0, gv.CLIPMASK0)
+        local hit = hitscan(spr, spr.sectnum, {x=10, y=10, z=0}, gv.CLIPMASK0)
 
         hs:add(1000*(gv.gethiticks()-t))
 
@@ -534,7 +563,7 @@ gameactor
         -- Polymost: only for "ghost"
         -- Polymer: none
         local aimv = 256*xmath.bangvec(tspr.ang)
-        local hit = hitscan(tspr^(16*256), tspr.sectnum, aimv.x, aimv.y, 0, gv.CLIPMASK1)
+        local hit = hitscan(tspr^(16*256), tspr.sectnum, aimv, gv.CLIPMASK1)
 
         if (hit.wall >= 0) then
             local aimtspr = tspr:dup()

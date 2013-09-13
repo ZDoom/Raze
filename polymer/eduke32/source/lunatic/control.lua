@@ -512,6 +512,7 @@ end
 
 local xmath = require("xmath")
 local abs = math.abs
+local bangvec, kangvec = xmath.bangvec, xmath.kangvec
 local dist, ldist = xmath.dist, xmath.ldist
 local vec3, ivec3 = xmath.vec3, xmath.ivec3
 local rotate = xmath.rotate
@@ -1345,10 +1346,6 @@ function _awayfromwall(spr, d)
     return true
 end
 
-local function cossinb(bang)
-    return xmath.cosb(bang), xmath.sinb(bang)
-end
-
 -- TODO: xmath.vec3 'mhlen2' method?
 local function manhatdist(v1, v2)
     return abs(v1.x-v2.x) + abs(v1.y-v2.y)
@@ -1364,9 +1361,8 @@ local function A_FurthestVisiblePoint(aci, otherspr)
 
     local j = 0
     repeat
-        local c, s = cossinb(otherspr.ang + j)
-        local hit = hitscan(otherspr^(16*256), otherspr.sectnum,
-                            c, s, 16384-krandand(32767), ffiC.CLIPMASK1)
+        local ray = kangvec(otherspr.ang + j, 16384-krandand(32767))
+        local hit = hitscan(otherspr^(16*256), otherspr.sectnum, ray, ffiC.CLIPMASK1)
         local dother = manhatdist(hit.pos, otherspr)
         local dactor = manhatdist(hit.pos, sprite[aci])
 
@@ -1439,7 +1435,8 @@ end
 -- CON "hitscan" command
 function _hitscan(x, y, z, sectnum, vx, vy, vz, cliptype)
     local srcv = ivec3(x, y, z)
-    local hit = hitscan(srcv, sectnum, vx, vy, vz, cliptype)
+    local ray = ivec3(vx, vy, vz)
+    local hit = hitscan(srcv, sectnum, ray, cliptype)
     return hit.sect, hit.wall, hit.sprite, hit.pos.x, hit.pos.y, hit.pos.z
 end
 
@@ -1508,15 +1505,12 @@ end
 local function A_CheckHitSprite(spr, angadd)
     local zoff = (spr:isenemy() and 42*256) or (ispic(spr.picnum, "APLAYER") and 39*256) or 0
 
-    local c, s = cossinb(spr.ang+angadd)
-    local hit = hitscan(spr^zoff, spr.sectnum, c, s, 0, ffiC.CLIPMASK1)
+    local hit = hitscan(spr^zoff, spr.sectnum, kangvec(spr.ang+angadd), ffiC.CLIPMASK1)
     if (hit.wall >= 0 and wall[hit.wall]:ismasked() and spr:isenemy()) then
         return -1, nil
     end
 
-    local dx = hit.pos.x-spr.x
-    local dy = hit.pos.y-spr.y
-    return hit.sprite, math.sqrt(dx*dx+dy*dy)  -- TODO: use "ldist" approximation for authenticity
+    return hit.sprite, ldist(hit.pos, spr)
 end
 
 function _canshoottarget(dst, aci)

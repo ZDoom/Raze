@@ -292,11 +292,16 @@ local vec2, vec3 = vec2, vec3
 local intarg = ffi.new("int32_t [1]")
 function bangvec(bang)
     intarg[0] = bang  -- round towards zero
-    return vec3(cosb(intarg[0]), sinb(intarg[0]))
+    return dvec3_t(cosb(intarg[0]), sinb(intarg[0]))
+end
+
+function kangvec(bang, z)
+    intarg[0] = bang  -- round towards zero
+    return ivec3_t(kcos(intarg[0]), ksin(intarg[0]), z or 0)
 end
 
 function angvec(ang)
-    return vec3(cos(ang), sin(ang))
+    return dvec3_t(cos(ang), sin(ang))
 end
 
 
