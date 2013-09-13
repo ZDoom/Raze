@@ -250,6 +250,26 @@ gameevent
 local D = require("CON.DEFS")
 local WEAPON = gv.WEAPON
 
+-- Bad hack to test out pitch/roll: EVENT_GAME is discouraged from Lunatic.
+local PITCH_PICNUM = { [D.SEENINE]=true, }
+gameevent{ "GAME",
+    function(aci)
+        local spr = sprite[aci]
+        if (PITCH_PICNUM[spr.picnum]) then
+            local height = spr:getheightofs()
+
+            local sexy = spriteext[aci]
+            sexy.pitch = gv.totalclock
+            sexy.mdoff.x = -height/16  -- test xoff + pitch
+            sexy.mdoff.z = -height  -- test zoff + pitch
+
+            -- Test roll + yoff
+            sexy.roll = gv.totalclock
+            sexy.mdoff.y = -height/16
+        end
+    end
+}
+
 -- test event chaining
 gameevent
 {

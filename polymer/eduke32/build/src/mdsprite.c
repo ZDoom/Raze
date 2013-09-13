@@ -2024,6 +2024,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     // dereferenced unconditionally below anyway.
     const spriteext_t *const sext = ((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? &spriteext[owner] : NULL;
     const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
+    const int32_t sizyrep = tilesizy[tspr->picnum]*tspr->yrepeat;
 
     if (r_vbos && (m->vbos == NULL))
         mdloadvbos(m);
@@ -2076,13 +2077,14 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
     k0 = (float)tspr->z;
-    if ((globalorientation&128) && !((globalorientation&48)==32)) k0 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<1);
+    if ((globalorientation&128) && !((globalorientation&48)==32))
+        k0 += (float)(sizyrep<<1);
 
     // Parkar: Changed to use the same method as centeroriented sprites
     if (globalorientation&8) //y-flipping
     {
         m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
-        k0 -= (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<2);
+        k0 -= (float)(sizyrep<<2);
     }
     if (globalorientation&4) { m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y; } //x-flipping
 
@@ -2102,9 +2104,11 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
         m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y;
         f = a0.x; a0.x = a0.z; a0.z = f;
-        k1 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)>>3);
+        k1 += (float)(sizyrep>>3);
     }
 
+    // Note: These SCREEN_FACTORS will be neutralized in axes offset
+    // calculations below again, but are needed for the base offsets.
     f = (65536.0*512.0)/((float)xdimen*viewingrange);
     g = 32.0/((float)xdimen*gxyaspect);
     m0.y *= f; m1.y *= f; a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
@@ -2187,15 +2191,15 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     if (sext->pitch || sext->roll || MFLAGS_NOCONV(m))
     {
         if (sext->xoff)
-            a0.x = (float)(sext->xoff / (2560 * (m0.x+m1.x)));
+            a0.x = (float)(sext->xoff / (2560 * (m0.x+m1.x) * ((float)xdimen*viewingrange)/(65536.0*1280.0)));
         else
             a0.x = 0;
-        if (sext->yoff)
-            a0.y = (float)(sext->yoff / (2560 * (m0.x+m1.x)));
+        if (sext->yoff)  // Compare with SCREEN_FACTORS above
+            a0.y = (float)(sext->yoff / (2560 * (m0.x+m1.x) * ((float)xdimen*viewingrange)/(65536.0*1280.0)));
         else
             a0.y = 0;
-        if ((sext->zoff) && !(tspr->cstat&CSTAT_SPRITE_MDHACK))
-            a0.z = (float)(sext->zoff / (655360 * (m0.z+m1.z)));
+        if ((sext->zoff) && !(tspr->cstat&CSTAT_SPRITE_MDHACK))  // Compare with SCREEN_FACTORS above
+            a0.z = (float)(sext->zoff / (655360 * (m0.z+m1.z) * (gxyaspect*xdimen/1280.0)));
         else
             a0.z = 0;
         k0 = (float)sintable[(sext->pitch+512)&2047] / 16384.0;
