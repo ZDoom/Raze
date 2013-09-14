@@ -3193,8 +3193,10 @@ void polymost_drawrooms()
 #ifdef YAX_ENABLE
         if (numyaxbunches==0)
 #endif
-            if (editstatus)
-                bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        if (editstatus)
+            bglClear(GL_COLOR_BUFFER_BIT);
+
+        bglClear(GL_DEPTH_BUFFER_BIT);
 
         bglDisable(GL_BLEND);
         bglEnable(GL_TEXTURE_2D);
