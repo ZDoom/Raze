@@ -71,6 +71,7 @@ enum scripttoken_t
     T_MAKEPALOOKUP, T_REMAPPAL, T_REMAPSELF,
     T_RED,T_GREEN,T_BLUE,
     T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_SPECPOWER,T_SPECFACTOR,T_NOCOMPRESS,T_NODOWNSIZE,
+    T_ORIGSIZEX,T_ORIGSIZEY,
     T_UNDEFMODEL,T_UNDEFMODELRANGE,T_UNDEFMODELOF,T_UNDEFTEXTURE,T_UNDEFTEXTURERANGE,
     T_ALPHAHACK,T_ALPHAHACKRANGE,
     T_SPRITECOL,T_2DCOL,
@@ -1751,7 +1752,7 @@ static int32_t defsparser(scriptfile *script)
                 case T_PAL:
                 {
                     char *paltokptr = script->ltextptr, *palend;
-                    int32_t pal=-1;
+                    int32_t pal=-1, xsiz = 0, ysiz = 0;
                     char *fn = NULL;
                     double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 #ifdef USE_OPENGL
@@ -1768,6 +1769,7 @@ static int32_t defsparser(scriptfile *script)
                         { "specfactor",      T_SPECFACTOR }, { "specularfactor", T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
                         { "nocompress",      T_NOCOMPRESS },
                         { "nodownsize",      T_NODOWNSIZE },
+                        { "orig_sizex",      T_ORIGSIZEX }, { "orig_sizey", T_ORIGSIZEY }
                     };
 
                     if (scriptfile_getsymbol(script,&pal)) break;
@@ -1794,6 +1796,12 @@ static int32_t defsparser(scriptfile *script)
                         case T_NODOWNSIZE:
                             flags |= 16; break;
 #endif
+                        case T_ORIGSIZEX:
+                            scriptfile_getnumber(script, &xsiz);
+                            break;
+                        case T_ORIGSIZEY:
+                            scriptfile_getnumber(script, &ysiz);
+                            break;
                         default:
                             break;
                         }
@@ -1816,6 +1824,12 @@ static int32_t defsparser(scriptfile *script)
                     if (check_file_exist(fn))
                         break;
 
+                    if (xsiz > 0 && ysiz > 0)
+                    {
+                        set_tilesiz(tile, xsiz, ysiz);
+                        Bmemset(&picanm[tile], 0, sizeof(picanm_t));
+                        faketilesiz[tile] = -1;
+                    }
 #ifdef USE_OPENGL
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
