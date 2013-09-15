@@ -1905,8 +1905,6 @@ int32_t G_EnterLevel(int32_t g)
     {
         i = Bstrlen(MapInfo[mii].filename);
         Bmemcpy(levname, MapInfo[mii].filename, i);
-        levname[i] = 255;  // leads to flags=1 for kopen4load
-        levname[i+1] = 0;
 
         if (loadboard(levname,1, &g_player[0].ps->pos, &g_player[0].ps->ang,
                       &g_player[0].ps->cursectnum) < 0)
