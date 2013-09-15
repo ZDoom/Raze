@@ -1887,7 +1887,7 @@ int32_t G_EnterLevel(int32_t g)
 
             G_SetupFilenameBasedMusic(levname, boardfilename, ud.m_level_number);
         }
-        else if (loadboard(MapInfo[mii].filename,0, &g_player[0].ps->pos, &g_player[0].ps->ang,
+        else if (loadboard(MapInfo[mii].filename, 0, &g_player[0].ps->pos, &g_player[0].ps->ang,
                            &g_player[0].ps->cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",
@@ -1903,10 +1903,7 @@ int32_t G_EnterLevel(int32_t g)
     }
     else
     {
-        i = Bstrlen(MapInfo[mii].filename);
-        Bmemcpy(levname, MapInfo[mii].filename, i);
-
-        if (loadboard(levname,1, &g_player[0].ps->pos, &g_player[0].ps->ang,
+        if (loadboard(MapInfo[mii].filename, 1, &g_player[0].ps->pos, &g_player[0].ps->ang,
                       &g_player[0].ps->cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",
@@ -1917,7 +1914,7 @@ int32_t G_EnterLevel(int32_t g)
         }
         else
         {
-            G_LoadMapHack(levname, NULL);
+            G_LoadMapHack(levname, MapInfo[mii].filename);
         }
     }
 
