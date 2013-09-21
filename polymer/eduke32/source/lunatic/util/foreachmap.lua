@@ -27,6 +27,9 @@
 --  $ prog='if (map.version==9) then print(map.numbunches.." ".. math.max(unpack(map.sectsperbunch[0],0)) .." "..fn) end'
 --  $ ./findmaps.sh ~/.eduke32 "$prog" |sort -n -k 2
 
+-- Print all MUSICANDSFX sprites that play sounds with bit 1 set.
+-- ./findmaps.sh /g/Games/Eduke32c/grp 'sprite: .picnum==5 and eq(.lotag, {170, 186, 187, 279, 382, 347}) :: io. write(" ".. tostring(.lotag))'
+
 local B = require "build"
 local string = require "string"
 local io = require "io"
@@ -94,6 +97,11 @@ if (modname:sub(1,2) == "-e") then
     end
 
     local successfunc, errmsg = loadstring([[
+        local function eq(x, tab)
+            for i=1,#tab do
+                if (x==tab[i]) then return true end
+            end
+        end
         local d=require('build').readdefs('../../names.h') or error('Need ../../names.h')  -- XXX
         local numsectors, numwalls, numsprites, sector, wall, sprite
         return function (map, fn)

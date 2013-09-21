@@ -2169,9 +2169,9 @@ void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
         snd->ps = args[0];
         snd->pe = args[1];
         snd->pr = args[2];
-        snd->m = args[3] & ~32;
-        if (args[3] & 1)
-            snd->m |= 32;
+        snd->m = args[3] & ~SF_ONEINST_INTERNAL;
+        if (args[3] & SF_LOOP)
+            snd->m |= SF_ONEINST_INTERNAL;
         snd->vo = args[4];
 
         if (sndidx > g_maxSoundPos)

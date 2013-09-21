@@ -20,8 +20,10 @@ module(...)
 
 
 local ENEMY_NAME = {
+--[[
     [D.BOSS1] = "BOSS1",
     [D.BOSS1STAYPUT] = "BOSS1STAYPUT",
+--]]
     [D.BOSS2] = "BOSS2",
     [D.BOSS3] = "BOSS3",
     [D.BOSS4] = "BOSS4",
