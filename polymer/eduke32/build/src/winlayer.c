@@ -1807,9 +1807,12 @@ static HRESULT WINAPI getvalidmodes_enum(DDSURFACEDESC *ddsd, VOID *udata)
     return(DDENUMRET_OK);
 }
 
-static int32_t sortmodes(const struct validmode_t *a, const struct validmode_t *b)
+static int sortmodes(const void *a_, const void *b_)
 {
     int32_t x;
+
+    const struct validmode_t *a = (const struct validmode_t *)a_;
+    const struct validmode_t *b = (const struct validmode_t *)b_;
 
     if ((x = a->fs   - b->fs)   != 0) return x;
     if ((x = a->bpp  - b->bpp)  != 0) return x;
@@ -1867,7 +1870,7 @@ void getvalidmodes(void)
             ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],0,-1)
         }
 
-    qsort((void *)validmode, validmodecnt, sizeof(struct validmode_t), (int32_t( *)(const void *,const void *))sortmodes);
+    qsort((void *)validmode, validmodecnt, sizeof(struct validmode_t), &sortmodes);
 
     modeschecked=1;
 }

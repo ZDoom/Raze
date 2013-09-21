@@ -785,9 +785,9 @@ static void yax_scanbunches(int32_t bbeg, int32_t numhere, const uint8_t *lastgo
     scansector_retfast = 0;
 }
 
-static int yax_cmpbunches(const int16_t *b1, const int16_t *b2)
+static int yax_cmpbunches(const void *b1, const void *b2)
 {
-    return (bunchdist[*b2] - bunchdist[*b1]);
+    return (bunchdist[*(int16_t *)b2] - bunchdist[*(int16_t *)b1]);
 }
 
 
@@ -1009,8 +1009,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 
                 yax_scanbunches(bbeg, numhere, (uint8_t *)gotsector);
 
-                qsort(&bunches[cf][bbeg], numhere, sizeof(int16_t),
-                      (int(*)(const void *, const void *))&yax_cmpbunches);
+                qsort(&bunches[cf][bbeg], numhere, sizeof(int16_t), &yax_cmpbunches);
 
                 if (numhere > 1 && lev != YAX_MAXDRAWS-1)
                     Bmemset(lgotsector, 0, (numsectors+7)>>3);
@@ -8459,7 +8458,7 @@ static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
 #define _POSIX_REALTIME_SIGNALS
 #endif
 #include <signal.h>
-static void sighandler(int32_t sig, const siginfo_t *info, void *ctx)
+static void sighandler(int sig, siginfo_t *info, void *ctx)
 {
     const char *s;
     UNREFERENCED_PARAMETER(ctx);
@@ -8611,7 +8610,7 @@ int32_t initengine(void)
 #if !defined _WIN32 && defined DEBUGGINGAIDS && !defined GEKKO
     struct sigaction sigact, oldact;
     memset(&sigact, 0, sizeof(sigact));
-    sigact.sa_sigaction = (void (*)(int, siginfo_t*, void*))sighandler;
+    sigact.sa_sigaction = &sighandler;
     sigact.sa_flags = SA_SIGINFO;
     sigaction(SIGFPE, &sigact, &oldact);
 #endif
@@ -15628,10 +15627,10 @@ static void sideview_getdist(int16_t sw, int16_t sect)
     m32_sidedist[sw] = p->x*m32_viewplane.x + p->y*m32_viewplane.y + (p->z>>4)*m32_viewplane.z;
 }
 
-static int sideview_cmppoints(const int16_t *sw1, const int16_t *sw2)
+static int sideview_cmppoints(const void *sw1, const void *sw2)
 {
-    int32_t dist1 = m32_sidedist[*sw1];
-    int32_t dist2 = m32_sidedist[*sw2];
+    int32_t dist1 = m32_sidedist[*(int16_t *)sw1];
+    int32_t dist2 = m32_sidedist[*(int16_t *)sw2];
 
     if (dist2>dist1)
         return 1;
@@ -16240,7 +16239,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     if (m32_sideview)
     {
-        qsort(m32_wallsprite, m32_swcnt, sizeof(int16_t), (int( *)(const void *, const void *))&sideview_cmppoints);
+        qsort(m32_wallsprite, m32_swcnt, sizeof(int16_t), &sideview_cmppoints);
 
         for (i=0; i<m32_swcnt; i++)  // shouldn't it go the other way around?
         {

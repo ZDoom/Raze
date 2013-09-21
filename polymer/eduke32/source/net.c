@@ -1076,9 +1076,9 @@ void Net_ReceiveMapUpdate(ENetEvent *event)
 ////////////////////////////////////////////////////////////////////////////////
 // Map State
 
-static int Net_CompareActors(const netactor_t *actor1, const netactor_t *actor2)
+static int Net_CompareActors(const void *actor1, const void *actor2)
 {
-    return actor1->netIndex - actor2->netIndex;
+    return ((netactor_t *)actor1)->netIndex - ((netactor_t *)actor2)->netIndex;
 }
 
 void Net_SaveMapState(netmapstate_t *save)
@@ -1112,7 +1112,7 @@ void Net_SaveMapState(netmapstate_t *save)
         }
     }
 
-    qsort(save->actor, save->numActors, sizeof(netactor_t), (int( *)(const void *, const void *)) &Net_CompareActors);
+    qsort(save->actor, save->numActors, sizeof(netactor_t), &Net_CompareActors);
 }
 
 void Net_FillMapDiff(uint32_t fromRevision, uint32_t toRevision)

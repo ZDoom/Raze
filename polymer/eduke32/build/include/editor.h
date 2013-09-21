@@ -214,9 +214,9 @@ void fade_editor_screen(int32_t keepcol);
 extern int32_t getnumber_internal1(char ch, int32_t *danumptr, int32_t maxnumber, char sign);
 extern int32_t getnumber_autocomplete(const char *namestart, char ch, int32_t *danum, int32_t flags);
 
-int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
+int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, const char *(func)(int32_t));
 #define getnumber256(namestart, num, maxnumber, sign) _getnumber256(namestart, num, maxnumber, sign, NULL)
-int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
+int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, const char *(func)(int32_t));
 #define getnumber16(namestart, num, maxnumber, sign) _getnumber16(namestart, num, maxnumber, sign, NULL)
 void printmessage256(int32_t x, int32_t y, const char *name);
 void message(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));

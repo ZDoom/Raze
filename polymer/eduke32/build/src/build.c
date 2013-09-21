@@ -2595,10 +2595,10 @@ static int32_t sectors_components(int16_t hlsectcnt, const int16_t *hlsector, in
     return 2;
 }
 
-static int cmpgeomwal1(const int16_t *w1, const int16_t *w2)
+static int cmpgeomwal1(const void *w1, const void *w2)
 {
-    const walltype *wal1 = &wall[*w1];
-    const walltype *wal2 = &wall[*w2];
+    const walltype *wal1 = &wall[*(int16_t *)w1];
+    const walltype *wal2 = &wall[*(int16_t *)w2];
 
     if (wal1->x == wal2->x)
         return wal1->y - wal2->y;
@@ -2608,7 +2608,7 @@ static int cmpgeomwal1(const int16_t *w1, const int16_t *w2)
 
 static void sort_walls_geometrically(int16_t *wallist, int32_t nwalls)
 {
-    qsort(wallist, nwalls, sizeof(int16_t), (int(*)(const void *, const void *))&cmpgeomwal1);
+    qsort(wallist, nwalls, sizeof(int16_t), &cmpgeomwal1);
 }
 #endif
 
@@ -8946,7 +8946,7 @@ int32_t getnumber_autocomplete(const char *namestart, char ch, int32_t *danum, i
 //  2: autocomplete names
 //  4: autocomplete taglabels
 //  8: return -1 if cancelled
-int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
+int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, const char *(func)(int32_t))
 {
     char buffer[80], ournamestart[80-17], ch;
     int32_t n, danum, oldnum;
@@ -8978,7 +8978,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
 
         if (func != NULL)
         {
-            Bsnprintf(buffer, sizeof(buffer), "%s", (char *)func(danum));
+            Bsnprintf(buffer, sizeof(buffer), "%s", func(danum));
             // printext16(200L-24, ydim-STATUS2DSIZ+20L, editorcolors[9], editorcolors[0], buffer, 0);
             printext16(n<<3, ydim-STATUS2DSIZ+128, editorcolors[11], -1, buffer,0);
         }
@@ -9017,7 +9017,7 @@ static void getnumber_clearline(void)
 }
 
 // sign: |16: don't draw scene
-int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
+int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, const char *(func)(int32_t))
 {
     char buffer[80], ournamestart[80-13], ch;
     int32_t danum, oldnum;
@@ -9062,7 +9062,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
         printmessage256(0, 0, buffer);
         if (func != NULL)
         {
-            Bsnprintf(buffer, sizeof(buffer), "%s", (char *)func(danum));
+            Bsnprintf(buffer, sizeof(buffer), "%s", func(danum));
             printmessage256(0, 9, buffer);
         }
 

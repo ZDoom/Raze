@@ -224,15 +224,15 @@ static inline void __fastcall VM_DoConditional(register int32_t condition)
     }
 }
 
-static int32_t X_DoSortDefault(const int32_t *lv, const int32_t *rv)
+static int X_DoSortDefault(const void *lv, const void *rv)
 {
-    return (*rv - *lv);
+    return *(int32_t *)rv - *(int32_t *)lv;
 }
 
-static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
+static int X_DoSort(const void *lv, const void *rv)
 {
-    m32_sortvar1 = *lv;
-    m32_sortvar2 = *rv;
+    m32_sortvar1 = *(int32_t *)lv;
+    m32_sortvar2 = *(int32_t *)rv;
     insptr = x_sortingstateptr;
     VM_Execute(0);
     return g_iReturnVar;
@@ -1213,13 +1213,13 @@ skip_check:
 
                 if (state < 0)
                 {
-                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t(*)(const void *,const void *))X_DoSortDefault);
+                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), X_DoSortDefault);
                 }
                 else
                 {
                     x_sortingstateptr = script + statesinfo[state].ofs;
                     vm.g_st = 1+MAXEVENTS+state;
-                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t(*)(const void *,const void *))X_DoSort);
+                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), X_DoSort);
                     vm.g_st = o_g_st;
                     insptr = end;
                 }
