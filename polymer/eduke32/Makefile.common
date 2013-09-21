@@ -146,6 +146,9 @@ USE_LIBVPX ?= 1
 NETCODE ?= 1
 LUNATIC ?= 0
 
+# EXPERIMENTAL, unfinished x86_64 assembly routines. DO NOT ENABLE.
+USE_ASM64 ?= 0
+
 ifeq (0,$(USE_OPENGL))
     POLYMER = 0
     USE_LIBVPX = 0

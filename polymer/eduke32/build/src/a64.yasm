@@ -1,0 +1,220 @@
+;;; x86_64 assembly for basic texture mapping functions, based on a.nasm.
+;;; For use with System V AMD64 calling convention (rdi rsi rdx rcx r8 r9)
+;;; See the included license file "BUILDLIC.TXT" for license info.
+
+SECTION .text
+
+%ifdef UNDERSCORES
+%define asm1 _asm1
+%define asm2 _asm2
+
+%define a64_bpl _a64_bpl
+%define a64_transmode _a64_transmode
+%define a64_glogy _a64_glogy
+%define a64_gtrans _a64_gtrans
+%define a64_paloffs _a64_paloffs
+
+%define tvlineasm1 _tvlineasm1
+%define tvlineasm2 _tvlineasm2
+%endif
+
+;;; Imports
+EXTERN asm1  ; intptr_t
+EXTERN asm2  ; intptr_t
+
+EXTERN a64_bpl  ; int32_t
+EXTERN a64_transmode  ; int32_t
+EXTERN a64_glogy  ; int32_t
+EXTERN a64_gtrans  ; char *
+EXTERN a64_paloffs  ; intptr_t
+
+;;; Exports
+GLOBAL tvlineasm1  ; Masked & transluscent 1-pixel wide vline
+GLOBAL tvlineasm2  ; Masked & transluscent 2-pixel wide vline
+
+
+;;; ========== MACROS ==========
+
+; Construct name referring to low doubleword of GPR, only for r8-r15.
+%define REGd(reg) reg %+ d
+; Construct name of whole GPR from word-sized register, only for ax-bp.
+%define rREG(regw) r %+ regw
+; Construct name of low doubleword of GPR from word-sized register, only for ax-bp.
+%define eREG(regw) e %+ regw
+
+;;; Multi-line macros for code shared between functions
+
+;; Prologue getters
+%macro PGET_rBpl 0
+	push rBpl
+	mov REGd(rBpl), dword [rel a64_bpl]
+%endmacro
+
+%macro PGET_rATransluc 0
+	push rATransluc
+	mov rATransluc, [rel a64_gtrans]
+%endmacro
+
+; Get right shift count 'glogy' into cl
+%macro GET_cl 0
+	mov cl, byte [rel a64_glogy]
+%endmacro
+
+; Look up texel
+; <dest_reg_lobyte> := bufplc[vplc>>glogy]
+; High bytes are cleared to zero.
+%macro gettexel 3  ; <dest_reg_word> <bufplc_reg> <vlpc_reg>
+	mov eREG(%1), %3
+    shr eREG(%1), cl
+	movzx eREG(%1), byte [%2 + rREG(%1)]
+%endmacro
+
+; Do palette/shade and translucency lookup
+%macro dotranspal 4  ; <tmp_reg> <tmp_reg_lobyte> <texel_reg> <dst_ofs>
+	; Get palette index of the pixel in the frame buffer.
+	; NOTE: e.g. "mov ah, byte [reg]" is not encodeable.
+	movzx %1, byte [rDst + %4]
+	shl %1, 8
+
+	mov %2, byte [rAPalookup + %3]  ; palette/shade
+	mov %2, byte [rATransluc + %1]	; translucency
+%endmacro
+
+
+;;; ========== TVLINEASM1 ==========
+;;; TODO: transmode, nonpow2
+
+;;; Registers used in the loop
+%define rBpl r10
+%define rATransluc r12
+%define rVplc r11d
+
+;;; Registers of input args also used in the loop
+%define rVinc edi
+%define rAPalookup rsi
+%define rCnt edx
+%define rABufplc r8
+%define rDst r9
+
+;;; int32_t tvlineasm1(vinc, *paloffs, cnt, vplc, *bufplc, *p)
+;;; eax                edi   rsi       edx  ecx   r8       r9
+	ALIGN 16
+tvlineasm1:
+	inc rCnt
+	;; First, back up callee-saved registers and set up those used in the loop.
+	PGET_rBpl
+	mov rVplc, ecx
+	GET_cl
+	PGET_rATransluc
+	push rbx
+	jmp short tv1_loop
+
+ ALIGN 16
+tv1_loop:
+	gettexel bx, rABufplc, rVplc
+	cmp bl, 255
+	je short tv1_skiptrans
+
+	dotranspal rax, al, rbx, 0
+	mov byte [rDst], al
+tv1_skiptrans:
+	add rVplc, rVinc
+	add rDst, rBpl
+	dec rCnt
+	jnz short tv1_loop
+
+	mov eax, rVplc  ; return vplc
+	pop rbx
+	pop rATransluc
+	pop rBpl
+	ret
+
+;;; Undefine input arg macros
+%undef rVinc
+%undef rAPalookup
+%undef rCnt
+%undef rABufplc
+%undef rDst
+
+;;; Udefine rVplc register macro, but keep rBpl and rATransluc (r10 and r12).
+;;; Take care not to clash with them in the following.
+%undef rVplc
+
+
+;;; ========== TVLINEASM2 ==========
+
+;;; Registers used in the loop
+%define rVinc2 r11d
+%define rABufplc2 r13
+%define rDstEnd r14
+%define rAPalookup r15  ; TODO: second paloffs!
+
+;;; Registers of input args also used in the loop
+%define rVplc2 edi
+%define rVinc1 esi
+%define rABufplc1 rdx
+; bufplc2: rcx -> r13
+%define rVplc1 r8d
+%define rDst r9
+
+;;; Pass: asm1=vinc2, asm2=pend
+;;; Return: asm1=vplc1, asm2=vplc2
+;;; void tvlineasm2(vplc2, vinc1, *bufplc1, *bufplc2, vplc1, *p)
+;;;                 edi    esi    rdx       rcx       r8d    r9
+
+	ALIGN 16
+tvlineasm2:
+	;; First, back up callee-saved registers and set up those used in the loop.
+	mov rVinc2, dword [rel asm1]
+	PGET_rBpl
+	push rABufplc2
+	mov rABufplc2, rcx
+	GET_cl
+	PGET_rATransluc
+
+	push rDstEnd
+	mov rDstEnd, [rel asm2]
+	dec rDstEnd
+	add rDstEnd, rBpl  ; one more: compare with a-c.c's tvlineasm2()
+
+	push rbx
+	push rbp
+	push rAPalookup
+	mov rAPalookup, [rel a64_paloffs]
+	jmp short tv2_loop
+
+ ALIGN 16
+tv2_loop:
+	gettexel bx, rABufplc1, rVplc1
+	gettexel bp, rABufplc2, rVplc2
+
+	mov eax, ebp
+	shl eax, 8
+	or eax, ebx
+
+	cmp eax, 0xffff
+	jz tv2_skiptrans
+
+	dotranspal rax, al, rbx, 0
+	dotranspal rbx, bl, rbp, 1
+	and rax, 0xff
+	shl rbx, 8
+	or rax, rbx
+
+	mov word [rDst], ax
+
+tv2_skiptrans:
+	add rVplc1, rVinc1
+	add rVplc2, rVinc2
+	add rDst, rBpl
+	cmp rDst, rDstEnd
+	jnz tv2_loop
+
+	pop r15
+	pop rbp
+	pop rbx
+	pop rDstEnd
+	pop rATransluc
+	pop rABufplc2
+	pop rBpl
+	ret

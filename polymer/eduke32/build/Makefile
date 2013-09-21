@@ -52,6 +52,9 @@ ifeq (0,$(NOASM))
   ENGINEOBJS+= $(OBJ)/a.$o
 else
   ENGINEOBJS+= $(OBJ)/a-c.$o
+  ifneq (0,$(USE_ASM64))
+    ENGINEOBJS+= $(OBJ)/a64.$o
+  endif
 endif
 
 
@@ -287,6 +290,11 @@ include Makefile.deps
 $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
 	if $(AS) $(OURASFLAGS) $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
+# TODO: Makefile vars...
+$(OBJ)/%.$o: $(SRC)/%.yasm
+	$(COMPILE_STATUS)
+	if yasm -f elf64 $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 # Comment out the following rule to debug a-c.o
 $(OBJ)/a-c.$o: $(SRC)/a-c.c

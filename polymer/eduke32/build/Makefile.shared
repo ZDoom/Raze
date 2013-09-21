@@ -244,6 +244,9 @@ endif
 ifneq (0,$(NOASM))
     BUILDCOMMONFLAGS+= -DNOASM
 endif
+ifneq (0,$(USE_ASM64))
+    BUILDCOMMONFLAGS+= -DUSE_ASM64
+endif
 ifneq (0,$(LINKED_GTK))
     BUILDCOMMONFLAGS+= -DLINKED_GTK
 endif
