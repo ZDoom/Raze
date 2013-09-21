@@ -166,7 +166,7 @@ void S_MusicVolume(int32_t volume)
 void S_MenuSound(void)
 {
     static int32_t SoundNum=0;
-    uint8_t menusnds[] =
+    int32_t menusnds[] =
     {
         LASERTRIP_EXPLODE,
         DUKE_GRUNT,
