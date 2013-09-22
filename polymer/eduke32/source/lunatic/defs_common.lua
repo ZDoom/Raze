@@ -295,6 +295,7 @@ if (not _LUNATIC_AUX) then
     require("xmath")
 end
 
+-- TODO: 'isceiling' and 'isfloor' methods or similar?
 local hitdata_ct = ffi.typeof("hitdata_t")
 
 decl[[

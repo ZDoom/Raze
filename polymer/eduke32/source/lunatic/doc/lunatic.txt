@@ -1217,15 +1217,16 @@ in `sectnum`.footnote:[Note that this is different from CON's `updatesector`,
 which takes the starting sector to be the one of the _current sprite_.]
 
 If a valid sector numeric is passed for `sectnum`, these functions first check
-whether that sector contains `pos` (i.e. the position stays in the same sector)
-and then attempt to search neighboring sectors. If the passed `sectnum` is
-`-1`, all sectors are searched in an unspecified order. On success, these
-functions return the sector number of the ``updated'' sector, otherwise `-1`.
+whether that sector already contains `pos` (i.e. the position stays in the same
+sector) and then attempt to search neighboring sectors. Unless breadth-first
+search is requested (see below), if the passed `sectnum` is `-1`, all sectors
+are searched in an unspecified order.
 
-// XXX: With breadth-first search, there is no all-sector search when passing
-// -1. The above paragraph suggests otherwise.
+On success, these functions return the sector number of the ``updated'' sector,
+otherwise `-1`.
 
-[[updatesector]] `updatesector(pos, sectnum [, flags])`::
+[[updatesector]]
+`updatesector(pos, sectnum [, flags])`::
 
 Searches for a sector containing `pos`, which can be anything indexable with
 `x` and `y`. Thus, the `z` component is not taken into account. If `sectnum` is
@@ -1255,11 +1256,48 @@ called via the <<sprite_updatesect,sector updating functions>> of sprites.
 Searches for a sector containing `pos`, which can be any value indexable with
 `x`, `y` and `z`. Thus, it additionally takes the `z` component into account by
 checking against the bounds that would be returned using a sector's
-<<sec_cfz_at,ceilingzat/floorzat>> methods.
+<<sec_cfz_at,`ceilingzat`/`floorzat`>> methods.
 +
 The `updatesectorz` function first checks the initial sector for containment of
 `pos`, then it tries any TROR neighbors of `sectnum`. Finally, it proceeds like
 `updatesector` as far as the searching order is concerned.
+
+===== Collision detection and related functions
+
+[[hitscan]]
+`hitscan(pos, sectnum, ray, clipmask)`::
+
+Starting from the position `pos` (which is assumed to be contained in
+`sectnum`), the `hitscan` function determines the object that would be first
+hit by a ray emanating from `pos` into the direction given by `ray`. Both `pos`
+and `ray` may be any object indexable with `x`, `y` and `z`, but the components
+are <<int_assignment,converted>> to signed 32-bit integers prior to being
+passed to the actual engine function. Note that `ray` is interpreted in BUILD
+scaling: the z component has 16 times the precision for a given game-world
+length compared to x or y.
++
+The `clipmask` argument determines what objects are considered being hittable
+by the ray and is expected to be an integral number. It is interpreted as two
+separate bit masks: the low 16 bits for walls and the high 16 bits for
+sprites. Each time there is a potential collision, the respective mask is ANDed
+with the `cstat` member of the object, and if the result is non-zero, the ray
+is considered having hit the object.
++
+The `hitscan` function returns an object with information about the hit object
+(if any) as well as the position of its intersection with the ray. It contains
+the following members:
++
+* `sector`: The sector number of the hit object, or `-1` if no object was
+  hit. Thus, testing it for being greater or equal to zero is a quick way of
+  finding out whether any object (ceiling/floor, wall, or sprite) was hit at
+  all.footnote:[It is recommended to carry out this check for the sake of
+  cautiousness: while proper `hitscan` invocations should always hit something,
+  the function may come up empty in certain corner cases (such as a starting
+  position outside of the designated sector).]
+* `wall`: If a wall was hit, its index. Otherwise, `-1`.
+* `sprite`: If a sprite was hit, its index. Otherwise, `-1`.
+* `pos`: The position that is the intersection of the emanated ray with the hit
+   object, indexable with `x`, `y` and `z`. Undefined if no object was hit.
 
 //////////
 cansee
@@ -1463,6 +1501,11 @@ Returns a <<vector_types,`vec3`>> with the components `math.cos(ang)`,
 `xmath.bangvec(bang)`::
 Returns a <<vector_types,`vec3`>> with the components `xmath.cosb(bang)`,
 `xmath.sinb(bang)` and 0 for x, y and z, respectively.
+
+`xmath.kangvec(bang [, z])`::
+Returns an <<vector_types,`ivec3`>> with the components `xmath.kcos(bang)`,
+`xmath.ksin(bang)` for x and y, respectively. The z component can be passed in
+the optional argument `z`, which defaults to 0 if omitted.
 
 `xmath.dist(pos1, pos2)`::
 Returns an approximation of the 3D Euclidean distance between points `pos1` and
