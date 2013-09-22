@@ -491,9 +491,9 @@ gameactor{ D.APLAYER, AF.chain_end,
         local ray = xmath.kangvec(ps.ang, -(ps.horiz-100)*2048)
 
         local hit = hitscan(ps.pos, ps.cursectnum, ray, 0)
-        if (hit.sect >= 0) then
+        if (hit.sector >= 0) then
             sprite[chair]:setpos(hit.pos)
-            sprite.changesect(chair, hit.sect)
+            sprite.changesect(chair, hit.sector)
         end
     end
 }
@@ -570,7 +570,7 @@ gameactor
             if (aimtspr) then
                 aimtspr.pal = 2
                 aimtspr:set_picnum(555)
-                aimtspr:setpos(hit.pos, hit.sect)
+                aimtspr:setpos(hit.pos, hit.sector)
             end
         end
     end,

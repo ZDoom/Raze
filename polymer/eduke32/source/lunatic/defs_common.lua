@@ -269,7 +269,7 @@ typedef struct {
 
 typedef struct {
     vec3_t pos;
-    int16_t sprite, wall, sect;
+    int16_t sprite, wall, sector;
 } hitdata_t;
 ]],
 ffi.typeof(maybe_strip_const(SECTOR_STRUCT)),

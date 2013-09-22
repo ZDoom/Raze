@@ -1366,8 +1366,8 @@ local function A_FurthestVisiblePoint(aci, otherspr)
         local dother = manhatdist(hit.pos, otherspr)
         local dactor = manhatdist(hit.pos, sprite[aci])
 
-        if (dother < dactor and hit.sect >= 0) then
-            if (cansee(hit.pos, hit.sect, otherspr^(16*256), otherspr.sectnum)) then
+        if (dother < dactor and hit.sector >= 0) then
+            if (cansee(hit.pos, hit.sector, otherspr^(16*256), otherspr.sectnum)) then
                 return hit
             end
         end
@@ -1437,7 +1437,7 @@ function _hitscan(x, y, z, sectnum, vx, vy, vz, cliptype)
     local srcv = ivec3(x, y, z)
     local ray = ivec3(vx, vy, vz)
     local hit = hitscan(srcv, sectnum, ray, cliptype)
-    return hit.sect, hit.wall, hit.sprite, hit.pos.x, hit.pos.y, hit.pos.z
+    return hit.sector, hit.wall, hit.sprite, hit.pos.x, hit.pos.y, hit.pos.z
 end
 
 -- CON "neartag" command
