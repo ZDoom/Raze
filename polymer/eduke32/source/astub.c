@@ -67,6 +67,11 @@ static const char *
 
 #include <signal.h>
 
+// Workaround for namespace pollution in <sys/stat.h> introduced in MinGW 4.8.
+#ifdef stat
+# undef stat
+#endif
+
 static int32_t floor_over_floor;
 static int32_t g_fillCurSector = 0;
 
