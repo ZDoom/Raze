@@ -22,20 +22,9 @@
  * libSDL output driver for MultiVoc
  */
 
-
-#if defined(SDL_FRAMEWORK)
-# include <SDL/SDL.h>
-# if defined(_WIN32) || defined(GEKKO)
-#  include <SDL/SDL_mixer.h>
-# else
-#  include <SDL_mixer/SDL_mixer.h>
-# endif
-# include <SDL/SDL_thread.h>
-#else
-# include "SDL.h"
-# include "SDL_mixer.h"
-# include "SDL_thread.h"
-#endif
+#include <string.h>
+#define _NEED_SDLMIXER
+#include "sdl_inc.h"
 #include "driver_sdl.h"
 #include "multivoc.h"
 

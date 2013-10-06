@@ -9,35 +9,9 @@ EDITORLIB=libbuild.a
 # SDK locations - adjust to match your setup
 # Overrides must use absolute paths since this Makefile is included at different directory levels
 #
-SDLCONFIG ?= sdl-config
-SDLNAME ?= SDL
-SDL_FRAMEWORK ?= 1
-
 DXROOT=$(abspath $(dir $(MAKEFILE_COMMON))../sdk/dx)
 #DXROOT=/c/sdks/directx/dx8
 SDLROOT=$(abspath $(dir $(MAKEFILE_COMMON))../sdk/SDL)
-
-ifneq ($(PLATFORM),WINDOWS)
-    SDLVERSION:=$(strip $(shell $(SDLCONFIG) --version))
-    ifneq ($(SDLVERSION),)
-        SDLROOT:=$(strip $(shell $(SDLCONFIG) --prefix))
-    endif
-
-    # Uncomment the following line to enable SDL 2.X detection
-    #TRYSDL2=1
-    ifeq ($(TRYSDL2),1)
-        SDL2CONFIG ?= sdl2-config
-        SDL2NAME ?= SDL2
-
-        SDL2VERSION:=$(strip $(shell $(SDL2CONFIG) --version))
-        ifneq ($(SDL2VERSION),)
-            SDLVERSION:=$(SDL2VERSION)
-            SDLCONFIG:=$(SDL2CONFIG)
-            SDLNAME:=$(SDL2NAME)
-            SDLROOT:=$(strip $(shell $(SDLCONFIG) --prefix))
-        endif
-    endif
-endif
 
 DXROOT_OVERRIDE ?=
 SDLROOT_OVERRIDE ?=
@@ -47,6 +21,26 @@ endif
 ifneq ($(SDLROOT_OVERRIDE),)
     SDLROOT=$(SDLROOT_OVERRIDE)
 endif
+
+SDL_TARGET ?= 1
+
+ifeq ($(SDL_TARGET),2)
+    SDLCONFIG ?= sdl2-config
+    SDLNAME ?= SDL2
+endif
+ifeq ($(SDL_TARGET),1)
+    SDLCONFIG ?= sdl-config
+    SDLNAME ?= SDL
+endif
+
+ifneq ($(PLATFORM),WINDOWS)
+    SDLVERSION:=$(strip $(shell $(SDLCONFIG) --version))
+    ifneq ($(SDLVERSION),)
+        SDLROOT:=$(strip $(shell $(SDLCONFIG) --prefix))
+    endif
+endif
+
+SDL_FRAMEWORK ?= 1
 
 
 ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
@@ -185,7 +179,11 @@ ifneq (0,$(CLANG))
     endif
 endif
 
+SDL_STATIC?=1
+
 ifeq ($(RENDERTYPE),SDL)
+    BUILDCOMMONFLAGS += -DSDL_TARGET=$(SDL_TARGET)
+
     ifeq ($(SDL_FRAMEWORK),1)
         BUILDCOMMONFLAGS += -DSDL_FRAMEWORK
     endif
@@ -207,7 +205,12 @@ ifeq ($(RENDERTYPE),SDL)
         endif
     else
         BUILDCOMMONFLAGS += -D_GNU_SOURCE=1
-        BUILDLIBS+= -lmingw32 -lSDLmain -lSDL
+        ifneq ($(SDL_STATIC),0)
+            ifneq ($(SDL_TARGET),1) # Since SDL2 is under the zlib license, link statically if possible.
+                BUILDLIBS+= -static
+            endif
+        endif
+        BUILDLIBS+= -l$(SDLNAME)main -l$(SDLNAME) -lmingw32 -limm32 -lole32 -loleaut32 -lwinmm -lversion
     endif
 
     ifeq (1,$(WITHOUT_GTK))

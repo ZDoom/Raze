@@ -484,7 +484,11 @@ int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
         else initprintf("%s: fopen: %s\n", __func__, strerror(errno));
     }
     else
-        music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem((char *) song, g_musicSize));
+        music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem((char *) song, g_musicSize)
+#if (SDL_MAJOR_VERSION > 1)
+            , SDL_FALSE
+#endif
+            );
 
     if (music_musicchunk != NULL)
         if (Mix_PlayMusic(music_musicchunk, (loopflag == MUSIC_LoopSong)?-1:0) == -1)

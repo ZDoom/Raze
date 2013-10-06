@@ -2,9 +2,15 @@
 #define __SDL_INC_H
 
 #if defined(SDL_FRAMEWORK)
+# if (SDL_TARGET == 2)
+#  include <SDL2/SDL.h>
+#  include <SDL2/SDL_thread.h>
+# else
 #  include <SDL/SDL.h>
+#  include <SDL/SDL_thread.h>
+# endif
 #else
-#  include "SDL.h"
+# include "SDL.h"
 #endif
 
 /* =================================================================
@@ -29,9 +35,17 @@ Minimum required SDL versions:
 #if defined(_NEED_SDLMIXER)
 # if defined(SDL_FRAMEWORK)
 #  if defined(_WIN32) || defined(GEKKO)
-#   include <SDL/SDL_mixer.h>
+#   if (SDL_TARGET == 2)
+#    include <SDL2/SDL_mixer.h>
+#   else
+#    include <SDL/SDL_mixer.h>
+#   endif
 #  else
-#   include <SDL_mixer/SDL_mixer.h>
+#   if (SDL_TARGET == 2)
+#    include <SDL2_mixer/SDL_mixer.h>
+#   else
+#    include <SDL_mixer/SDL_mixer.h>
+#   endif
 #  endif
 # else
 #  include "SDL_mixer.h"

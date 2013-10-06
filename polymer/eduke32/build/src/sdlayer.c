@@ -2,7 +2,7 @@
 // for the Build Engine
 // by Jonathon Fowler (jf@jonof.id.au)
 //
-// Use SDL 1.2 or 1.3 from http://www.libsdl.org
+// Use SDL 1.2 or 2.0 from http://www.libsdl.org
 
 #define __STDC_FORMAT_MACROS
 #define __STDC_LIMIT_MACROS
@@ -81,6 +81,7 @@ static SDL_Surface *sdl_surface2;
 static SDL_Palette *sdl_palptr;
 static SDL_Window *sdl_window;
 static SDL_Renderer *sdl_renderer;
+static SDL_GLContext sdl_context;
 #endif
 int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline;
 intptr_t frameplace=0;
@@ -560,7 +561,14 @@ int32_t initinput(void)
     {
         i = SDL_NumJoysticks();
         initprintf("%d joystick(s) found\n",i);
-        for (j=0; j<i; j++) initprintf("  %d. %s\n", j+1, SDL_JoystickName(j));
+        for (j=0; j<i; j++)
+            initprintf("  %d. %s\n", j+1,
+#if SDL_MAJOR_VERSION==1
+                SDL_JoystickName(j)
+#else
+                SDL_JoystickNameForIndex(j)
+#endif
+                );
         joydev = SDL_JoystickOpen(0);
         if (joydev)
         {
@@ -736,12 +744,17 @@ void grabmouse(char a)
         if (a != mousegrab)
         {
 #if !defined __ANDROID__ && (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
+#if SDL_MAJOR_VERSION==1
             SDL_GrabMode g;
 
             g = SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF);
             mousegrab = (g == SDL_GRAB_ON);
 
             SDL_ShowCursor(mousegrab ? SDL_DISABLE : SDL_ENABLE);
+#else
+            if (!SDL_SetRelativeMouseMode(a ? SDL_TRUE : SDL_FALSE))
+                mousegrab = a;
+#endif
 #else
             mousegrab = a;
 #endif
@@ -1041,11 +1054,7 @@ void getvalidmodes(void)
         pf.BitsPerPixel = cdepths[j];
         pf.BytesPerPixel = cdepths[j] >> 3;
 
-        modes = SDL_ListModes(&pf, SURFACE_FLAGS
-// #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
-                              | SDL_FULLSCREEN // not implemented/working in SDL 1.3 SDL_compat.c
-//#endif
-                             );
+        modes = SDL_ListModes(&pf, SURFACE_FLAGS | SDL_FULLSCREEN);
 
         if (modes == (SDL_Rect **)0)
         {
@@ -1179,10 +1188,10 @@ static void destroy_window_and_renderer()
         sdl_window = NULL;
 }
 
-static int32_t create_window_and_renderer(int32_t x, int32_t y, int32_t fs, uint32_t flags)
+static int32_t create_window_and_renderer(int32_t x, int32_t y, int32_t c, int32_t fs, uint32_t flags)
 {
     sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,
-                                  x,y, ((fs&1)?SDL_WINDOW_FULLSCREEN:0));
+                                  x,y, ((fs&1)?SDL_WINDOW_FULLSCREEN:0) | (c > 8 ? SDL_WINDOW_OPENGL : 0));
     if (!sdl_window)
     {
         initprintf("Unable to set video mode: SDL_CreateWindow failed: %s\n",
@@ -1198,6 +1207,9 @@ static int32_t create_window_and_renderer(int32_t x, int32_t y, int32_t fs, uint
         SDL_DestroyWindow(sdl_window); sdl_window=NULL;
         return -1;
     }
+
+    if (c > 8)
+        sdl_context = SDL_GL_CreateContext(sdl_window);
 
     return 0;
 }
@@ -1338,7 +1350,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 # else
             destroy_window_and_renderer();
 
-            if (create_window_and_renderer(x,y,fs, SDL_RENDERER_ACCELERATED) == -1)
+            if (create_window_and_renderer(x,y,c,fs, SDL_RENDERER_ACCELERATED) == -1)
                 return -1;
 #endif
         }
@@ -1361,7 +1373,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         destroy_window_and_renderer();
 
         // init
-        if (create_window_and_renderer(x,y,fs, SDL_RENDERER_SOFTWARE |
+        if (create_window_and_renderer(x,y,c,fs, SDL_RENDERER_SOFTWARE |
                                        SDL_RENDERER_TARGETTEXTURE) == -1)
             return -1;
 
@@ -1764,7 +1776,13 @@ int32_t setpalette(int32_t start, int32_t num)
     Bmemcpy(sdlayer_pal, curpalettefaded, 256*4);
 
     for (i=start, n=num; n>0; i++, n--)
-        curpalettefaded[i].f = sdlayer_pal[i].unused = 0;
+        curpalettefaded[i].f =
+#if SDL_MAJOR_VERSION==1
+        sdlayer_pal[i].unused
+#else
+        sdlayer_pal[i].a
+#endif
+         = 0;
 
     needpalupdate = 1;
 
@@ -1877,12 +1895,11 @@ static SDL_Surface *loadappicon(void)
 
 int32_t handleevents_peekkeys(void)
 {
-#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION == 2)
     SDL_PumpEvents();
+#if SDL_MAJOR_VERSION==1
     return SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, SDL_EVENTMASK(SDL_KEYDOWN));
 #else
-    // SDL 1.3 up has not been tested to compile.
-    return 0;
+    return SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, SDL_KEYDOWN, SDL_KEYDOWN);
 #endif
 }
 
@@ -1901,7 +1918,7 @@ int32_t handleevents(void)
     {
         switch (ev.type)
         {
-#if (SDL_MAJOR_VERSION > 1 || SDL_MINOR_VERSION > 2)
+#if (SDL_MAJOR_VERSION > 1 || (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION > 2))
         case SDL_TEXTINPUT:
             j = 0;
             do
@@ -1930,9 +1947,17 @@ int32_t handleevents(void)
                 ev.key.keysym.scancode == SDL_SCANCODE_TAB) &&
                 ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
             {
-                if (OSD_HandleChar(ev.key.keysym.unicode & 0x7f))
+                char keyvalue;
+                switch (ev.key.keysym.scancode)
                 {
-                    keyasciififo[keyasciififoend] = ev.key.keysym.unicode & 0x7f;
+                    case SDL_SCANCODE_RETURN: keyvalue = '\n'; break;
+                    case SDL_SCANCODE_BACKSPACE: keyvalue = '\b'; break;
+                    case SDL_SCANCODE_TAB: keyvalue = '\t'; break;
+                    default: keyvalue = 0; break;
+                }
+                if (OSD_HandleChar(keyvalue))
+                {
+                    keyasciififo[keyasciififoend] = keyvalue;
                     keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
                 }
             }
@@ -1964,6 +1989,23 @@ int32_t handleevents(void)
                 SetKey(code, 0);
                 if (keypresscallback)
                     keypresscallback(code, 0);
+            }
+            break;
+        case SDL_MOUSEWHEEL:
+           // initprintf("wheel y %d\n",ev.wheel.y);
+            if (ev.wheel.y > 0)
+            {
+                mwheelup = totalclock;
+                mouseb |= 16;
+                if (mousepresscallback)
+                    mousepresscallback(5, 1);
+            }
+            if (ev.wheel.y < 0)
+            {
+                mwheeldown = totalclock;
+                mouseb |= 32;
+                if (mousepresscallback)
+                    mousepresscallback(6, 1);
             }
             break;
         case SDL_WINDOWEVENT:
@@ -1999,25 +2041,6 @@ int32_t handleevents(void)
                 break;
             }
             break;
-            /*
-                    case SDL_MOUSEWHEEL:
-                        initprintf("wheel y %d\n",ev.wheel.y);
-                        if (ev.wheel.y > 0)
-                        {
-                            mwheelup = totalclock;
-                            mouseb |= 16;
-                            if (mousepresscallback)
-                                mousepresscallback(5, 1);
-                        }
-                        if (ev.wheel.y < 0)
-                        {
-                            mwheeldown = totalclock;
-                            mouseb |= 32;
-                            if (mousepresscallback)
-                                mousepresscallback(6, 1);
-                        }
-                        break;
-                        */
 // #warning Using SDL 1.3 or 2.X
 #else  // SDL 1.3+ ^^^ | vvv SDL 1.2
 // #warning Using SDL 1.2
@@ -2444,7 +2467,7 @@ static int32_t buildkeytranslationtable(void)
 
     return 0;
 }
-#else // if SDL 1.3
+#else // if SDL 1.3+
 static int32_t buildkeytranslationtable(void)
 {
     memset(keytranslation,0,sizeof(keytranslation));

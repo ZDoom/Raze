@@ -277,7 +277,11 @@ endif
 ifeq ($(RENDERTYPE),SDL)
     ifeq ($(PLATFORM),WINDOWS)
         OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
-        LIBS+= platform/Windows/lib$(WINLIB)/SDL_mixer.lib
+        ifeq ($(SDL_TARGET),1)
+            LIBS+= platform/Windows/lib$(WINLIB)/SDL_mixer.lib
+        else
+            LIBS+= -l$(SDLNAME)_mixer
+        endif
         LIBDIRS+= -L$(SDLROOT)/lib
     else
         ifneq ($(PLATFORM),DARWIN)
