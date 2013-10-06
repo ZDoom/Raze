@@ -53,7 +53,7 @@ int writeicon(FILE *fp, struct icon *ico)
 int main(int argc, char **argv)
 {
     struct icon icon;
-    int32_t bpl;
+    int32_t bpl = 0;
     int i;
     unsigned char *maskp, bm, *pp;
 

@@ -3,6 +3,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #define INITGUID
+#define DIRECTINPUT_VERSION 0x0700
 #include <windows.h>
 #include <dinput.h>
 #include <stdio.h>
