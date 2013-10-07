@@ -169,6 +169,8 @@ int32_t wm_msgbox(char *name, char *fmt, ...)
     return osx_msgbox(name, buf);
 #elif defined HAVE_GTK2
     if (gtkbuild_msgbox(name, buf) >= 0) return 1;
+#elif SDL_MAJOR_VERSION==2
+    return SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, name, buf, NULL);
 #endif
     puts(buf);
     puts("   (press Return or Enter to continue)");

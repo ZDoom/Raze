@@ -9036,7 +9036,7 @@ static void G_ShowParameterHelp(void)
 //              "\n-?/--help\tDisplay this help message and exit\n"
               "\nSee eduke32 -debughelp for debug parameters"
               ;
-#if defined RENDERTYPEWIN
+#if defined STARTUP_SETUP_WINDOW
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
     wm_msgbox(tempbuf,"%s",s);
 #else
@@ -9069,7 +9069,7 @@ static void G_ShowDebugHelp(void)
               "  diag, nojit, traces, dump, strict\n"
 #endif
               ;
-#if defined RENDERTYPEWIN
+#if defined STARTUP_SETUP_WINDOW
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
     wm_msgbox(tempbuf,"%s",s);
 #else

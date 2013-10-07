@@ -494,11 +494,6 @@ void M32_DrawRoomsAndMasks(void)
     }
 }
 
-#undef STARTUP_SETUP_WINDOW
-#if defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
-# define STARTUP_SETUP_WINDOW
-#endif
-
 int32_t app_main(int32_t argc, const char **argv)
 {
 #ifdef STARTUP_SETUP_WINDOW
