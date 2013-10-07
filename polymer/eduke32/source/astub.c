@@ -4033,10 +4033,11 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     char szT[128];
 #ifdef USE_OPENGL
     int32_t lazyselector = g_lazy_tileselector && usehightile;
+    int32_t usehitile;
 #else
     int32_t lazyselector = g_lazy_tileselector;
 #endif
-    int32_t runi=0, usehitile;
+    int32_t runi=0;
     static uint8_t loadedhitile[(MAXTILES+7)>>3];
 
 #ifdef USE_OPENGL
@@ -4063,7 +4064,9 @@ restart:
 
             if (iTile < 0 || iTile >= localartlookupnum)
                 continue;
+#ifdef USE_OPENGL
             usehitile = (runi || !lazyselector);
+#endif
 
             idTile = localartlookup[ iTile ];
             if (loadedhitile[idTile>>3]&(1<<(idTile&7)))
@@ -4071,7 +4074,9 @@ restart:
                 if (runi==1)
                     continue;
 
+#ifdef USE_OPENGL
                 usehitile = 1;
+#endif
             }
 
             // Get pointer to tile's raw pixel data
@@ -4082,8 +4087,10 @@ restart:
                 x = XTile * TileDim;
                 y = YTile * TileDim+offset;
 
+#ifdef USE_OPENGL
                 if (polymost_drawtilescreen(x, y, idTile, TileDim, s_TileZoom,
                                             usehitile, loadedhitile))
+#endif
                     classic_drawtilescreen(x, y, idTile, TileDim, pRawPixels);
 
                 if (localartfreq[iTile] != 0 && y >= 0 && y <= ydim-20)
