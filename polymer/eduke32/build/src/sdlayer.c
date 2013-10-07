@@ -1981,6 +1981,7 @@ int32_t handleevents(void)
 
             if (ev.key.type == SDL_KEYDOWN &&
                 (ev.key.keysym.scancode == SDL_SCANCODE_RETURN ||
+                ev.key.keysym.scancode == SDL_SCANCODE_KP_ENTER ||
                 ev.key.keysym.scancode == SDL_SCANCODE_BACKSPACE ||
                 ev.key.keysym.scancode == SDL_SCANCODE_TAB) &&
                 ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
@@ -1988,7 +1989,7 @@ int32_t handleevents(void)
                 char keyvalue;
                 switch (ev.key.keysym.scancode)
                 {
-                    case SDL_SCANCODE_RETURN: keyvalue = '\n'; break;
+                    case SDL_SCANCODE_RETURN: case SDL_SCANCODE_KP_ENTER: keyvalue = '\r'; break;
                     case SDL_SCANCODE_BACKSPACE: keyvalue = '\b'; break;
                     case SDL_SCANCODE_TAB: keyvalue = '\t'; break;
                     default: keyvalue = 0; break;
