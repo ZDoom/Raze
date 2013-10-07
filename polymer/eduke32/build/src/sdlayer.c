@@ -1256,6 +1256,10 @@ static int32_t create_window_and_renderer(int32_t x, int32_t y, int32_t c, int32
             destroy_window_and_renderer();
             return -1;
         }
+
+#ifdef _WIN32
+        loadglextensions();
+#endif
     }
 
     sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, x, y);
@@ -1409,6 +1413,9 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 initprintf("Unable to set video mode!\n");
                 return -1;
             }
+#ifdef _WIN32
+            loadglextensions();
+#endif
 # else
             destroy_window_and_renderer();
 
@@ -1431,6 +1438,9 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             initprintf("Unable to set video mode!\n");
             return -1;
         }
+#ifdef _WIN32
+        loadglextensions();
+#endif
         sdl_buffersurface = SDL_CreateRGBSurface(SURFACE_FLAGS, x, y, c, 0, 0, 0, 0);
         if (!sdl_buffersurface)
         {

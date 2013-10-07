@@ -294,11 +294,17 @@ bwglGetPixelFormatProcPtr bwglGetPixelFormat;
 bwglSetPixelFormatProcPtr bwglSetPixelFormat;
 bwglSwapIntervalEXTProcPtr bwglSwapIntervalEXT;
 bwglCreateContextAttribsARBProcPtr bwglCreateContextAttribsARB;
-
-static HMODULE hGLDLL, hGLUDLL;
 #else
 #include <dlfcn.h>
+#endif
 
+#if !defined RENDERTYPESDL && defined _WIN32
+static HMODULE hGLDLL;
+#endif
+
+#if defined _WIN32
+static HMODULE hGLUDLL;
+#else
 static void *gluhandle = NULL;
 #endif
 
@@ -332,7 +338,7 @@ int32_t loadgldriver(const char *driver)
 {
     int32_t err=0;
 
-#ifdef _WIN32
+#if !defined RENDERTYPESDL && defined _WIN32
     if (hGLDLL) return 0;
 #endif
 
@@ -348,10 +354,18 @@ int32_t loadgldriver(const char *driver)
     }
 
 #if defined RENDERTYPESDL
-    if (SDL_GL_LoadLibrary(driver)) goto fail;
+    if (SDL_GL_LoadLibrary(driver))
+    {
+        initprintf("Failed loading \"%s\": %s\n", driver, SDL_GetError());
+        return -1;
+    }
 #elif defined _WIN32
     hGLDLL = LoadLibrary(driver);
-    if (!hGLDLL) goto fail;
+    if (!hGLDLL)
+    {
+        initprintf("Failed loading \"%s\"\n", driver);
+        return -1;
+    }
 #endif
     gldriver = Bstrdup(driver);
 
@@ -485,16 +499,12 @@ int32_t loadgldriver(const char *driver)
 
     if (err) unloadgldriver();
     return err;
-
-fail:
-    initprintf("Failed loading \"%s\"\n",driver);
-    return -1;
 }
 
 int32_t loadglextensions(void)
 {
     int32_t err = 0;
-#ifdef _WIN32
+#if !defined RENDERTYPESDL && defined _WIN32
     if (!hGLDLL) return 0;
 #endif
 
@@ -648,14 +658,14 @@ int32_t unloadgldriver(void)
 {
     unloadglulibrary();
 
-#ifdef _WIN32
+#if !defined RENDERTYPESDL && defined _WIN32
     if (!hGLDLL) return 0;
 #endif
 
     Bfree(gldriver);
     gldriver = NULL;
 
-#ifdef _WIN32
+#if !defined RENDERTYPESDL && defined _WIN32
     FreeLibrary(hGLDLL);
     hGLDLL = NULL;
 #endif
@@ -938,7 +948,7 @@ int32_t loadglulibrary(const char *driver)
 {
     int32_t err=0;
 
-#ifdef _WIN32
+#if defined _WIN32
     if (hGLUDLL) return 0;
 #endif
 
@@ -990,14 +1000,14 @@ fail:
 
 int32_t unloadglulibrary(void)
 {
-#ifdef _WIN32
+#if defined _WIN32
     if (!hGLUDLL) return 0;
 #endif
 
     Bfree(glulibrary);
     glulibrary = NULL;
 
-#ifdef _WIN32
+#if defined _WIN32
     FreeLibrary(hGLUDLL);
     hGLUDLL = NULL;
 #else
