@@ -114,7 +114,7 @@ ifeq ($(PLATFORM),BSD)
     OURCOMMONFLAGS+= -I/usr/X11R6/include
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    OURCOMMONFLAGS+= -DUNDERSCORES # -I$(ENETROOT)/include
+    OURCOMMONFLAGS+= -DUNDERSCORES -I$(DXROOT) -I$(DXROOT)/include # -I$(ENETROOT)/include
     OURASFLAGS+= -DUNDERSCORES -f win32
     ENGINEOBJS+= $(OBJ)/winbits.$o
     EDITOROBJS+= $(OBJ)/startwin.editor.$o
@@ -146,8 +146,7 @@ ifeq ($(RENDERTYPE),SDL)
         endif
 
         ifeq (1,$(SDL_FRAMEWORK))
-            OURCOMMONFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
-                    -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
+            OURCOMMONFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers
         else
             OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
         endif
@@ -162,8 +161,14 @@ ifeq ($(RENDERTYPE),SDL)
         EDITOROBJS+= $(OBJ)/startgtk.editor.$o
     endif
 endif
+ifeq ($(MIXERTYPE),SDL)
+    ifeq ($(PLATFORM),DARWIN)
+        ifeq (1,$(SDL_FRAMEWORK))
+            OURCOMMONFLAGS += -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
+        endif
+    endif
+endif
 ifeq ($(RENDERTYPE),WIN)
-    OURCOMMONFLAGS+= -I$(DXROOT) -I$(DXROOT)/include
     ENGINEOBJS+= $(OBJ)/winlayer.$o $(OBJ)/rawinput.$o
 endif
 

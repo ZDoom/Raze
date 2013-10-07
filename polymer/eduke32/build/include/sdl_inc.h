@@ -10,8 +10,10 @@
 #if defined(SDL_FRAMEWORK)
 # if (SDL_TARGET == 2)
 #  include <SDL2/SDL.h>
+#  include <SDL2/SDL_syswm.h>
 # else
 #  include <SDL/SDL.h>
+#  include <SDL/SDL_syswm.h>
 # endif
 #else
 # include "SDL.h"

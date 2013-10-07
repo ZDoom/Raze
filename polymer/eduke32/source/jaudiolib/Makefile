@@ -53,7 +53,7 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
-    ifeq ($(RENDERTYPE),WIN)
+    ifeq ($(MIXERTYPE),WIN)
         OURCOMMONFLAGS+= -DHAVE_DS -I$(DXROOT) -I$(DXROOT)/include
         OBJECTS+= $(OBJ)/driver_directsound.o
     endif
@@ -63,7 +63,7 @@ ifeq ($(PLATFORM),WINDOWS)
     OBJ=obj_win
 endif
 
-ifeq ($(RENDERTYPE),SDL)
+ifeq ($(MIXERTYPE),SDL)
     OURCOMMONFLAGS+= -DHAVE_SDL
     ifeq ($(PLATFORM),WINDOWS)
         OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL

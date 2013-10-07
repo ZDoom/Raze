@@ -13,16 +13,21 @@ lib%.a: %.def
 
 
 
-all : libdsound.a libdxguid.a
+all : libdsound.a libdxguid.a libdxguid_sdl.a
 	@ls -l $^
 
 full : libd3d8.a libd3dx8d.a libd3dxof.a libddraw.a libdinput.a libdinput8.a libdplayx.a \
-libdpnaddr.a libdpnet.a libdpnlobby.a libdpvoice.a libdsound.a libdsetup.a libdxguid.a
+libdpnaddr.a libdpnet.a libdpnlobby.a libdpvoice.a libdsetup.a \
+libdsound.a libdxguid.a libdxguid_sdl.a
 	@ls -l $^
 	@echo move the created libraries to the lib dir.
 	@echo happy coding !!
 
 
+
+libdxguid_sdl.a : dxguid_sdl.o
+	ar -r libdxguid_sdl.a dxguid_sdl.o
+	ranlib libdxguid_sdl.a
 
 libdxguid.a : dxguid.o
 	ar -r libdxguid.a dxguid.o

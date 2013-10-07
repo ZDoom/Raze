@@ -10,6 +10,7 @@
 #include "baselayer.h"
 
 #ifdef _WIN32
+HWND win_gethwnd(void);
 HINSTANCE win_gethinstance(void);
 #endif
 

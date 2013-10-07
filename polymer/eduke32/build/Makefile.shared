@@ -56,6 +56,7 @@ BUILDLIBDIRS=
 
 ifeq ($(SUBPLATFORM),LINUX)
     RENDERTYPE=SDL
+    MIXERTYPE=SDL
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     GTKCOMPAT32=0
     SDL_FRAMEWORK=0
@@ -88,6 +89,7 @@ ifeq ($(SUBPLATFORM),LINUX)
 endif
 ifeq ($(PLATFORM),DARWIN)
     RENDERTYPE    = SDL
+    MIXERTYPE     = SDL
     STDCPPLIB:=-lstdc++
     BUILDCOMMONFLAGS    += -DHAVE_INTTYPES
     GTKCOMPAT32    = 0
@@ -105,6 +107,13 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 ifeq ($(PLATFORM),WINDOWS)
     RENDERTYPE?=WIN
+    MIXERTYPE?=WIN
+    ifneq ($(RENDERTYPE),SDL)
+        ifeq ($(MIXERTYPE),SDL)
+            MIXERTYPE:=WIN
+        endif
+    endif
+
     WITHOUT_GTK?=1
     SDL_FRAMEWORK=1
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
@@ -121,6 +130,7 @@ ifeq ($(PLATFORM),WINDOWS)
 endif
 ifeq ($(PLATFORM),BSD)
     RENDERTYPE=SDL
+    MIXERTYPE=SDL
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     ifneq ($(findstring i386,$(SYSARCH)),i386)
         override NOASM=1
@@ -129,10 +139,12 @@ ifeq ($(PLATFORM),BSD)
 endif
 ifeq ($(PLATFORM),BEOS)
     RENDERTYPE=SDL
+    MIXERTYPE=SDL
     STDCPPLIB:=-lstdc++
 endif
 ifeq ($(PLATFORM),SKYOS)
     RENDERTYPE=SDL
+    MIXERTYPE=SDL
     EXESUFFIX=.app
     override NOASM=1
     BUILDCOMMONFLAGS+= -DUNDERSCORES -I/boot/programs/sdk/include/sdl
@@ -141,6 +153,7 @@ ifeq ($(PLATFORM),SKYOS)
 endif
 ifeq ($(PLATFORM),WII)
     RENDERTYPE=SDL
+    MIXERTYPE=SDL
     EXESUFFIX=.elf
     override USE_OPENGL=0
     override NOASM=1
@@ -155,6 +168,7 @@ ifeq ($(PLATFORM),WII)
 endif
 ifeq ($(PLATFORM),QNX)
     RENDERTYPE=SDL
+    MIXERTYPE=SDL
     override USE_OPENGL=0
     override NOASM=1
     STDCPPLIB:=-lstdc++
@@ -162,6 +176,7 @@ ifeq ($(PLATFORM),QNX)
 endif
 ifeq ($(PLATFORM),SUNOS)
     RENDERTYPE=SDL
+    MIXERTYPE=SDL
     override USE_OPENGL=0
     override NOASM=1
     STDCPPLIB:=-lstdc++
@@ -169,6 +184,7 @@ ifeq ($(PLATFORM),SUNOS)
 endif
 ifeq ($(PLATFORM),SYLLABLE)
     RENDERTYPE=SDL
+    MIXERTYPE=SDL
     override USE_OPENGL=0
     override NOASM=1
 endif
@@ -232,14 +248,20 @@ ifeq ($(RENDERTYPE),SDL)
             HAVE_GTK2=0
         endif
     endif
-else
-    ifeq ($(RENDERTYPE),WIN)
-        BUILDLIBS+= -ldxguid
+endif
+ifeq ($(RENDERTYPE),WIN)
+    BUILDLIBS+= -ldxguid
+endif
+
+ifeq ($(PLATFORM),WINDOWS)
+    ifeq ($(MIXERTYPE),WIN)
+        ifeq ($(RENDERTYPE),SDL)
+            BUILDLIBS+= -ldxguid_sdl
+        endif
     endif
 endif
 
-
-BUILDCOMMONFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 $(W_STRICT_OVERFLOW)
+BUILDCOMMONFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 -DMIXERTYPE$(MIXERTYPE)=1 $(W_STRICT_OVERFLOW)
 
 ifneq (0,$(USE_OPENGL))
     BUILDCOMMONFLAGS+= -DUSE_OPENGL

@@ -117,6 +117,35 @@ uint16_t *joydead, *joysatur;
 
 #ifdef _WIN32
 //
+// win_gethwnd() -- gets the window handle
+//
+HWND win_gethwnd(void)
+{
+    struct SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+
+#if SDL_MAJOR_VERSION==1
+    if (SDL_GetWMInfo(&wmInfo) != 1)
+#else
+    if (SDL_GetWindowWMInfo(sdl_window, &wmInfo) != SDL_TRUE)
+#endif
+    {
+        initprintf("win_gethwnd: SDL_GetWindowWMInfo() failed: %s\n", SDL_GetError());
+        return 0;
+    }
+
+#if SDL_MAJOR_VERSION==1
+    return wmInfo.window;
+#else
+    if (wmInfo.subsystem == SDL_SYSWM_WINDOWS)
+        return wmInfo.info.win.window;
+#endif
+
+    initprintf("win_gethwnd: Unknown WM subsystem?!\n");
+
+    return 0;
+}
+//
 // win_gethinstance() -- gets the application instance
 //
 HINSTANCE win_gethinstance(void)

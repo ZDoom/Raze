@@ -32,11 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "menus.h"
 #include "demo.h"
 
-#ifdef RENDERTYPEWIN
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-
 #ifdef LUNATIC
 # include "lunatic_game.h"
 #endif

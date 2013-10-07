@@ -1,5 +1,7 @@
+
+#define DIRECTINPUT_VERSION 0x0700
 #include <dinput.h>
-/* This is a replacement for Microsofts dxguid.lib. */
+/* This is a replacement for Microsoft's dxguid.lib. */
 
 #undef DEFINE_GUID
 #define DEFINE_GUID(n,a,b,c,d,e,f,g,h,i,j,k) const GUID n = {a,b,c,{d,e,f,g,h,i,j,k}}

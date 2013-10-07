@@ -79,7 +79,7 @@ int32_t S_SoundStartup(void)
 
     fxdevicetype = ASS_AutoDetect;
 
-#ifdef RENDERTYPEWIN
+#ifdef MIXERTYPEWIN
     initdata = (void *) win_gethwnd(); // used for DirectSound
 #endif
 

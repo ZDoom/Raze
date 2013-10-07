@@ -267,14 +267,24 @@ ifeq ($(PLATFORM),WINDOWS)
     EDITOROBJS+= $(OBJ)/buildres.$o
     JAUDIOLIB=libjfaudiolib_win32.a
     ENETLIB=libenet_win32.a
-    ifeq ($(RENDERTYPE),WIN)
-        OURCOMMONFLAGS += -I$(DXROOT) -I$(DXROOT)/include
+    OURCOMMONFLAGS += -I$(DXROOT) -I$(DXROOT)/include
+    ifeq ($(MIXERTYPE),WIN)
         LIBS+= -ldsound
         GAMEOBJS+= $(OBJ)/music.$o $(OBJ)/midi.$o $(OBJ)/mpu401.$o
     endif
 endif
 # -lGLU to build with gluBuild2DMipmaps
 ifeq ($(RENDERTYPE),SDL)
+    ifeq (1,$(HAVE_GTK2))
+        OURCOMMONFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
+        GAMEOBJS+= $(OBJ)/game_banner.$o $(OBJ)/startgtk.game.$o
+        EDITOROBJS+= $(OBJ)/editor_banner.$o
+    endif
+
+    GAMEOBJS+= $(OBJ)/game_icon.$o
+    EDITOROBJS+= $(OBJ)/build_icon.$o
+endif
+ifeq ($(MIXERTYPE),SDL)
     ifeq ($(PLATFORM),WINDOWS)
         OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
         ifeq ($(SDL_TARGET),1)
@@ -289,14 +299,7 @@ ifeq ($(RENDERTYPE),SDL)
         endif
     endif
 
-    ifeq (1,$(HAVE_GTK2))
-        OURCOMMONFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
-        GAMEOBJS+= $(OBJ)/game_banner.$o $(OBJ)/startgtk.game.$o
-        EDITOROBJS+= $(OBJ)/editor_banner.$o
-    endif
-
-    GAMEOBJS+= $(OBJ)/game_icon.$o $(OBJ)/sdlmusic.$o
-    EDITOROBJS+= $(OBJ)/build_icon.$o
+    GAMEOBJS+= $(OBJ)/sdlmusic.$o
 endif
 
 
