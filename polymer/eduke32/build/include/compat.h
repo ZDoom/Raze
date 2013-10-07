@@ -37,6 +37,8 @@
 // abstractions to the size of a pointer on a given platform
 // (ie, they're guaranteed to be the same size as a pointer)
 
+#undef __USE_MINGW_ANSI_STDIO // Workaround for MinGW-w64.
+
 #define __STDC_FORMAT_MACROS
 #define __STDC_LIMIT_MACROS
 #ifdef HAVE_INTTYPES

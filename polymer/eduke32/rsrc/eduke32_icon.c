@@ -1,4 +1,6 @@
-#include "sdlayer.h"
+
+#include "compat.h"
+#include "sdlappicon.h"
 
 static uint8_t sdlappicon_pixels[] = {
 #if defined _WIN32 && SDL_MAJOR_VERSION==1

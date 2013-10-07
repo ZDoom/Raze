@@ -1,16 +1,25 @@
 #ifndef __SDL_INC_H
 #define __SDL_INC_H
 
+// Workaround for i686-MinGW-w64.
+#if defined __MINGW64_VERSION_MAJOR && !defined __MINGW64__
+# define __MINGW64_VERSION_MAJOR_BACKUP __MINGW64_VERSION_MAJOR
+# undef __MINGW64_VERSION_MAJOR
+#endif
+
 #if defined(SDL_FRAMEWORK)
 # if (SDL_TARGET == 2)
 #  include <SDL2/SDL.h>
-#  include <SDL2/SDL_thread.h>
 # else
 #  include <SDL/SDL.h>
-#  include <SDL/SDL_thread.h>
 # endif
 #else
 # include "SDL.h"
+#endif
+
+#if defined __MINGW64_VERSION_MAJOR_BACKUP && !defined __MINGW64__
+# define __MINGW64_VERSION_MAJOR __MINGW64_VERSION_MAJOR_BACKUP
+# undef __MINGW64_VERSION_MAJOR_BACKUP
 #endif
 
 /* =================================================================

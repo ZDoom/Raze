@@ -13,10 +13,7 @@
 HINSTANCE win_gethinstance(void);
 #endif
 
-struct sdlappicon {
-	int32_t width,height;
-	uint8_t *pixels;
-};
+#include "sdlappicon.h"
 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
 int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout);
