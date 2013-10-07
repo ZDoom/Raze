@@ -434,6 +434,7 @@ endif
 ifeq ($(PLATFORM),WINDOWS)
     BASELIBDIRS+= -L$(abspath $(MAKEFILE_COMMON_DIR)/platform/Windows/lib$(WINLIB))
     BASECOMMONFLAGS+= -I$(abspath $(MAKEFILE_COMMON_DIR)/platform/Windows/include)
+    BASELDFLAGS+= -static-libgcc
 endif
 ifeq ($(PLATFORM),DARWIN)
     # include port and brew

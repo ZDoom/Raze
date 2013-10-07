@@ -419,7 +419,7 @@ backtrace_unregister(void)
 }
 
 BOOL WINAPI
-DllMain(HANDLE hinstDLL ATTRIBUTE((unused)), DWORD dwReason, LPVOID lpvReserved ATTRIBUTE((unused)))
+DllMain(HINSTANCE hinstDLL ATTRIBUTE((unused)), DWORD dwReason, LPVOID lpvReserved ATTRIBUTE((unused)))
 {
 	switch (dwReason) {
 	case DLL_PROCESS_ATTACH:
@@ -440,12 +440,23 @@ char *libintl_dgettext (const char *domain_name ATTRIBUTE((unused)), const char 
     return buf;
 }
 
+int __printf__ ( const char * format, ... );
 int libintl_fprintf ( FILE * stream, const char * format, ... );
 int libintl_sprintf ( char * str, const char * format, ... );
 int libintl_snprintf ( char *buffer, int buf_size, const char *format, ... );
 int libintl_vprintf ( const char * format, va_list arg );
 int libintl_vfprintf ( FILE * stream, const char * format, va_list arg );
 int libintl_vsprintf ( char * str, const char * format, va_list arg );
+
+int __printf__ ( const char * format, ... )
+{
+    int value;
+    va_list arg;
+    va_start(arg, format);
+    value = vprintf ( format, arg );
+    va_end(arg);
+    return value;
+}
 
 int libintl_fprintf ( FILE * stream, const char * format, ... )
 {
@@ -485,4 +496,31 @@ int libintl_vfprintf ( FILE * stream, const char * format, va_list arg )
 int libintl_vsprintf ( char * str, const char * format, va_list arg )
 {
     return vsprintf ( str, format, arg );
+}
+
+/* cut dependence on zlib... libbfd needs this */
+
+int compress (unsigned char *dest ATTRIBUTE((unused)), unsigned long destLen ATTRIBUTE((unused)), const unsigned char source ATTRIBUTE((unused)), unsigned long sourceLen ATTRIBUTE((unused)))
+{
+    return 0;
+}
+unsigned long compressBound (unsigned long sourceLen)
+{
+    return sourceLen + (sourceLen >> 12) + (sourceLen >> 14) + (sourceLen >> 25) + 13;
+}
+int inflateEnd(void *strm ATTRIBUTE((unused)))
+{
+    return 0;
+}
+int inflateInit_(void *strm ATTRIBUTE((unused)), const char *version ATTRIBUTE((unused)), int stream_size ATTRIBUTE((unused)))
+{
+    return 0;
+}
+int inflateReset(void *strm ATTRIBUTE((unused)))
+{
+    return 0;
+}
+int inflate(void *strm ATTRIBUTE((unused)), int flush ATTRIBUTE((unused)))
+{
+    return 0;
 }
