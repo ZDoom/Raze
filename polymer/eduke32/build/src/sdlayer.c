@@ -78,7 +78,7 @@ char quitevent=0, appactive=1, novideo=0;
 static SDL_Surface *sdl_surface;
 static SDL_Surface *sdl_buffersurface=NULL;
 #if SDL_MAJOR_VERSION==2
-static SDL_Surface *sdl_surface2;
+static SDL_Texture *sdl_texture;
 static SDL_Palette *sdl_palptr;
 static SDL_Window *sdl_window;
 static SDL_Renderer *sdl_renderer;
@@ -1173,10 +1173,18 @@ static SDL_Color sdlayer_pal[256];
 #if SDL_MAJOR_VERSION==2
 static void destroy_window_and_renderer()
 {
-//        if (sdl_surface)  // will be freed with SDL_DestroyWindow
-//            SDL_FreeSurface(sdl_surface);
+        if (sdl_buffersurface)
+            SDL_FreeSurface(sdl_buffersurface);
+        sdl_buffersurface = NULL;
+        if (sdl_surface)
+            SDL_FreeSurface(sdl_surface);
         sdl_surface = NULL;
-        sdl_surface2 = NULL;
+        if (sdl_texture)
+            SDL_DestroyTexture(sdl_texture);
+        sdl_texture = NULL;
+        if (sdl_context)
+            SDL_GL_DeleteContext(sdl_context);
+        sdl_context = NULL;
         if (sdl_renderer)
             SDL_DestroyRenderer(sdl_renderer);
         sdl_renderer = NULL;
@@ -1201,12 +1209,30 @@ static int32_t create_window_and_renderer(int32_t x, int32_t y, int32_t c, int32
     {
         initprintf("Unable to set video mode: SDL_CreateRenderer failed: %s\n",
                    SDL_GetError());
-        SDL_DestroyWindow(sdl_window); sdl_window=NULL;
+        destroy_window_and_renderer();
         return -1;
     }
 
     if (c > 8)
+    {
         sdl_context = SDL_GL_CreateContext(sdl_window);
+        if (!sdl_context)
+        {
+            initprintf("Unable to set video mode: SDL_GL_CreateContext failed: %s\n",
+                       SDL_GetError());
+            destroy_window_and_renderer();
+            return -1;
+        }
+    }
+
+    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, x, y);
+    if (!sdl_texture)
+    {
+        initprintf("Unable to set video mode: SDL_CreateTexture failed: %s\n",
+                   SDL_GetError());
+        destroy_window_and_renderer();
+        return -1;
+    }
 
     return 0;
 }
@@ -1388,30 +1414,25 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                                        SDL_RENDERER_TARGETTEXTURE) == -1)
             return -1;
 
-        sdl_surface2 = SDL_GetWindowSurface(sdl_window);
 
-        if (!sdl_surface2)
-        {
-            initprintf("Unable to set video mode: SDL_GetWindowSurface failed: %s\n",
-                       SDL_GetError());
-            SDL_DestroyRenderer(sdl_renderer); sdl_renderer=NULL;
-            SDL_DestroyWindow(sdl_window); sdl_window=NULL;
-            return -1;
-        }
-# if 1
-        sdl_surface = sdl_surface2;
-# else
-        sdl_surface = SDL_ConvertSurfaceFormat(sdl_surface2, SDL_PIXELFORMAT_INDEX8, 0);
-
+        sdl_surface = SDL_CreateRGBSurface(0, x, y, 32, 0, 0, 0, 0);
         if (!sdl_surface)
         {
-            initprintf("Unable to set video mode: SDL_ConvertSurfaceFormat failed: %s\n",
+            initprintf("Unable to set video mode: SDL_CreateRGBSurface failed: %s\n",
                        SDL_GetError());
-            SDL_DestroyRenderer(sdl_renderer); sdl_renderer=NULL;
-            SDL_DestroyWindow(sdl_window); sdl_window=NULL;
+            destroy_window_and_renderer();
             return -1;
         }
-# endif
+
+        sdl_buffersurface = SDL_CreateRGBSurface(0, x, y, c, 0, 0, 0, 0);
+        if (!sdl_buffersurface)
+        {
+            initprintf("Unable to set video mode: SDL_CreateRGBSurface failed: %s\n",
+                       SDL_GetError());
+            destroy_window_and_renderer();
+            return -1;
+        }
+
         if (!sdl_palptr)
             sdl_palptr = SDL_AllocPalette(256);
 
@@ -1738,6 +1759,7 @@ void showframe(int32_t w)
 # if SDL_MAJOR_VERSION==1
         SDL_GL_SwapBuffers();
 # else
+        SDL_GL_SwapWindow(sdl_window);
         SDL_RenderPresent(sdl_renderer);
 # endif
         return;
@@ -1766,11 +1788,15 @@ void showframe(int32_t w)
         needpalupdate = 0;
     }
 
-#if SDL_MAJOR_VERSION==1
     SDL_BlitSurface(sdl_buffersurface, NULL, sdl_surface, NULL);
+
+#if SDL_MAJOR_VERSION==1
     SDL_Flip(sdl_surface);
 #else
-//    SDL_UpdateWindowSurface(sdl_window);
+    SDL_UpdateTexture(sdl_texture, NULL, sdl_surface->pixels, sdl_surface->pitch);
+
+    SDL_RenderClear(sdl_renderer);
+    SDL_RenderCopy(sdl_renderer, sdl_texture, NULL, NULL);
     SDL_RenderPresent(sdl_renderer);
 #endif
 }
