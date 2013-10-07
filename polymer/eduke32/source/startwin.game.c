@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sounds.h"
 
 #include "build.h"
-#include "winlayer.h"
+#include "renderlayer.h"
 #include "compat.h"
 
 #include "grpscan.h"

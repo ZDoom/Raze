@@ -509,6 +509,8 @@ void initprintf(const char *f, ...)
         startwin_puts(dabuf);
 #ifndef _WIN32
         startwin_idle(NULL);
+#else
+        handleevents();
 #endif
         Bmemset(dabuf, 0, sizeof(dabuf));
     }

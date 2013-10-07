@@ -90,8 +90,10 @@ static void win_printversion(void)
         break;
     }
 
-    initprintf("Windows %s %s (build %lu.%lu.%lu)\n", ver, osv.szCSDVersion,
-               osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
+    initprintf("Windows %s", ver);
+    if (osv.szCSDVersion && osv.szCSDVersion[0])
+        initprintf(" %s", osv.szCSDVersion);
+    initprintf(" (build %lu.%lu.%lu)\n", osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
 }
 
 //
@@ -253,6 +255,11 @@ LPTSTR GetWindowsErrorMsg(DWORD code)
 
     return lpMsgBuf;
 }
+
+
+//
+// Miscellaneous
+//
 
 int32_t addsearchpath_ProgramFiles(const char *p)
 {
