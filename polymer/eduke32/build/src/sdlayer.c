@@ -76,6 +76,7 @@ char quitevent=0, appactive=1, novideo=0;
 
 // video
 static SDL_Surface *sdl_surface;
+static SDL_Surface *sdl_buffersurface=NULL;
 #if SDL_MAJOR_VERSION==2
 static SDL_Surface *sdl_surface2;
 static SDL_Palette *sdl_palptr;
@@ -1049,7 +1050,8 @@ void getvalidmodes(void)
         pf.BitsPerPixel = cdepths[j];
         pf.BytesPerPixel = cdepths[j] >> 3;
 
-        modes = SDL_ListModes(&pf, SURFACE_FLAGS | SDL_FULLSCREEN);
+        // We convert paletted contents to non-paletted
+        modes = SDL_ListModes((cdepths[j] == 8) ? NULL : &pf, SURFACE_FLAGS | SDL_FULLSCREEN);
 
         if (modes == (SDL_Rect **)0)
         {
@@ -1255,6 +1257,12 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         SDL_SetGammaRamp(sysgamma[0], sysgamma[1], sysgamma[2]);
         gammabrightness = 0;	// redetect on next mode switch
     }
+
+    if (sdl_buffersurface)
+    {
+        SDL_FreeSurface(sdl_buffersurface);
+        sdl_buffersurface = NULL;
+    }
 #endif
 
 #ifdef USE_OPENGL
@@ -1357,10 +1365,18 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         initprintf("Setting video mode %dx%d (%d-bpp %s)\n",
                    x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
 #if SDL_MAJOR_VERSION==1
-        sdl_surface = SDL_SetVideoMode(x, y, c, SURFACE_FLAGS | ((fs&1)?SDL_FULLSCREEN:0));
+        // We convert paletted contents to non-paletted
+        sdl_surface = SDL_SetVideoMode(x, y, 0, SURFACE_FLAGS | ((fs&1)?SDL_FULLSCREEN:0));
         if (!sdl_surface)
         {
             initprintf("Unable to set video mode!\n");
+            return -1;
+        }
+        sdl_buffersurface = SDL_CreateRGBSurface(SURFACE_FLAGS, x, y, c, 0, 0, 0, 0);
+        if (!sdl_buffersurface)
+        {
+            initprintf("Unable to set video mode: SDL_CreateRGBSurface failed: %s\n",
+                       SDL_GetError());
             return -1;
         }
 #else
@@ -1399,7 +1415,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         if (!sdl_palptr)
             sdl_palptr = SDL_AllocPalette(256);
 
-        if (SDL_SetSurfacePalette(sdl_surface, sdl_palptr) < 0)
+        if (SDL_SetSurfacePalette(sdl_buffersurface, sdl_palptr) < 0)
             initprintf("SDL_SetSurfacePalette failed: %s\n", SDL_GetError());
 #endif
     }
@@ -1669,12 +1685,12 @@ void begindrawing(void)
 
     if (offscreenrendering) return;
 
-    if (SDL_MUSTLOCK(sdl_surface)) SDL_LockSurface(sdl_surface);
-    frameplace = (intptr_t)sdl_surface->pixels;
+    if (SDL_MUSTLOCK(sdl_buffersurface)) SDL_LockSurface(sdl_buffersurface);
+    frameplace = (intptr_t)sdl_buffersurface->pixels;
 
-    if (sdl_surface->pitch != bytesperline || modechange)
+    if (sdl_buffersurface->pitch != bytesperline || modechange)
     {
-        bytesperline = sdl_surface->pitch;
+        bytesperline = sdl_buffersurface->pitch;
 
         calc_ylookup(bytesperline, ydim);
 
@@ -1702,7 +1718,7 @@ void enddrawing(void)
 
     if (offscreenrendering) return;
 
-    if (SDL_MUSTLOCK(sdl_surface)) SDL_UnlockSurface(sdl_surface);
+    if (SDL_MUSTLOCK(sdl_buffersurface)) SDL_UnlockSurface(sdl_buffersurface);
 }
 
 //
@@ -1740,9 +1756,9 @@ void showframe(int32_t w)
     if (needpalupdate)
     {
 #if SDL_MAJOR_VERSION==1
-        SDL_SetColors(sdl_surface, sdlayer_pal, 0, 256);
+        SDL_SetColors(sdl_buffersurface, sdlayer_pal, 0, 256);
         // same as:
-        //SDL_SetPalette(sdl_surface, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
+        //SDL_SetPalette(sdl_buffersurface, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
 #else
         if (SDL_SetPaletteColors(sdl_palptr, sdlayer_pal, 0, 256) < 0)
             initprintf("SDL_SetPaletteColors failed: %s\n", SDL_GetError());
@@ -1751,6 +1767,7 @@ void showframe(int32_t w)
     }
 
 #if SDL_MAJOR_VERSION==1
+    SDL_BlitSurface(sdl_buffersurface, NULL, sdl_surface, NULL);
     SDL_Flip(sdl_surface);
 #else
 //    SDL_UpdateWindowSurface(sdl_window);
