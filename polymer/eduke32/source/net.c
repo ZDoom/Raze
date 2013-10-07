@@ -591,8 +591,7 @@ void Net_ParseServerPacket(ENetEvent *event)
 {
     uint8_t *pbuf = event->packet->data;
     int32_t packbufleng = event->packet->dataLength;
-    int32_t i, j, l;
-    input_t *nsyn;
+   // input_t *nsyn;
 
     --packbufleng;  //    int32_t other = pbuf[--packbufleng];
 
@@ -672,8 +671,6 @@ void Net_ParseServerPacket(ENetEvent *event)
 
 void Net_ParsePacketCommon(uint8_t *pbuf, int32_t packbufleng, int32_t serverpacketp)
 {
-    int32_t i, j;
-
     switch (pbuf[0])
     {
     case PACKET_MESSAGE:
@@ -733,6 +730,8 @@ void Net_SendVersion(ENetPeer *client)
 
 void Net_RecieveVersion(uint8_t *pbuf, int32_t packbufleng)
 {
+    UNREFERENCED_PARAMETER(packbufleng); // remove when this variable is used
+
     if (*(uint16_t *)&pbuf[1] != BYTEVERSION || pbuf[3] != (uint8_t)atoi(s_buildDate))
     {
         initprintf("Server protocol is version %d.%d, expecting %d.%d\n",
@@ -771,6 +770,8 @@ void Net_RecieveChallenge(uint8_t *pbuf, int32_t packbufleng, ENetEvent *event)
 {
     uint32_t crc = *(uint32_t *)&pbuf[1];
 
+    UNREFERENCED_PARAMETER(packbufleng); // remove when this variable is used
+
     if (crc == crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword)))
     {
         Net_SyncPlayer(event);
@@ -800,6 +801,8 @@ void Net_SendNewPlayer(int32_t newplayerindex)
 void Net_RecieveNewPlayer(uint8_t *pbuf, int32_t packbufleng)
 {
     int32_t i;
+
+    UNREFERENCED_PARAMETER(packbufleng); // remove when this variable is used
 
     numplayers = pbuf[1];
     playerswhenstarted = pbuf[2];
@@ -852,6 +855,8 @@ void Net_SendPlayerIndex(int32_t index, ENetPeer *peer)
 
 void Net_RecievePlayerIndex(uint8_t *pbuf, int32_t packbufleng)
 {
+    UNREFERENCED_PARAMETER(packbufleng); // remove when this variable is used
+
     myconnectindex = pbuf[1];
     g_player[myconnectindex].playerquitflag = 1;
     Net_SendClientInfo();
@@ -1010,10 +1015,10 @@ netmapstate_t *Net_GetRevision(uint8_t revision, uint8_t cancreate)
 void Net_SendMapUpdate(void)
 {
     int32_t pi;
-    uint32_t numdiff = 0;
+   // uint32_t numdiff = 0;
     uint32_t diffsize = 0;
     uint32_t packetsize = 0;
-    uint32_t prevMapDiff = g_netMapRevision;
+   // uint32_t prevMapDiff = g_netMapRevision;
 
     if (!g_netServer || numplayers < 2)
     {
@@ -1117,8 +1122,8 @@ void Net_SaveMapState(netmapstate_t *save)
 
 void Net_FillMapDiff(uint32_t fromRevision, uint32_t toRevision)
 {
-    int32_t fromIndex = 0;
-    int32_t toIndex = 0;
+    uint32_t fromIndex = 0;
+    uint32_t toIndex = 0;
     netmapstate_t *fromState;
     netmapstate_t *toState;
     int32_t *deleteBuf;
@@ -1194,7 +1199,8 @@ void Net_FillMapDiff(uint32_t fromRevision, uint32_t toRevision)
 
 void Net_RestoreMapState()
 {
-    int32_t i, j;
+    int32_t i;
+    uint32_t j;
     int32_t *deleteBuf;
     netactor_t *actorBuf;
 
@@ -1574,7 +1580,7 @@ void Net_ReceiveServerUpdate(ENetEvent *event)
 {
     int32_t i;
     char *updatebuf;
-    int8_t numupdates;
+   // int8_t numupdates;
     serverupdate_t serverupdate;
     serverplayerupdate_t playerupdate;
 
@@ -1995,7 +2001,6 @@ void Net_ExtractNewGame(newgame_t *newgame, int32_t menuonly)
 
 void Net_SendMapVoteInitiate(void)
 {
-    int32_t i;
     newgame_t newgame;
 
     if (!g_netClient)
@@ -2140,8 +2145,6 @@ void Net_CheckForEnoughVotes()
 // If failed is true, that means the vote lost. Otherwise it was cancelled by the client who initiated it.
 void Net_SendMapVoteCancel(int32_t failed)
 {
-    int32_t i;
-
     // Only the server or the client that initiated the vote can cancel the vote
     if (g_netClient && voting != myconnectindex)
     {
@@ -2171,7 +2174,7 @@ void Net_SendMapVoteCancel(int32_t failed)
 
 void Net_RecieveMapVoteCancel(uint8_t *pbuf)
 {
-    int32_t i, numvotes;
+   // int32_t numvotes;
 
     // Ignore if we're not voting
     if (voting == -1)
