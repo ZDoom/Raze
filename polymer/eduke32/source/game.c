@@ -9023,7 +9023,7 @@ static void G_ShowParameterHelp(void)
               "-r\t\tRecord demo\n"
               "-s#\t\tSet skill level (1-4)\n"
               "-server\t\tStart a multiplayer game for other players to join\n"
-#if defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
+#ifdef STARTUP_SETUP_WINDOW
               "-setup/nosetup\tEnables/disables startup window\n"
 #endif
               "-t#\t\tSet respawn mode: 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
@@ -9036,7 +9036,7 @@ static void G_ShowParameterHelp(void)
 //              "\n-?/--help\tDisplay this help message and exit\n"
               "\nSee eduke32 -debughelp for debug parameters"
               ;
-#if defined STARTUP_SETUP_WINDOW
+#ifdef WM_MSGBOX_WINDOW
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
     wm_msgbox(tempbuf,"%s",s);
 #else
@@ -9069,7 +9069,7 @@ static void G_ShowDebugHelp(void)
               "  diag, nojit, traces, dump, strict\n"
 #endif
               ;
-#if defined STARTUP_SETUP_WINDOW
+#ifdef WM_MSGBOX_WINDOW
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
     wm_msgbox(tempbuf,"%s",s);
 #else
@@ -11339,7 +11339,7 @@ int32_t app_main(int32_t argc, const char **argv)
         else if (!fg) g_gameNamePtr = "Unknown GRP";
     }
 
-#if (defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2)))
+#ifdef STARTUP_SETUP_WINDOW
     if (i < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_JF || ud.config.ForceSetup)) || g_commandSetup)
     {
         if (quitevent || !startwin_run())

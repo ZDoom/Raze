@@ -544,7 +544,7 @@ int32_t app_main(int32_t argc, const char **argv)
                     "\t-setup\tDisplays the configuration dialogue box before entering the editor.\n"
 #endif
                     ;
-#ifdef STARTUP_SETUP_WINDOW
+#ifdef WM_MSGBOX_WINDOW
                 wm_msgbox("Mapster32","%s",s);
 #else
                 puts(s);
