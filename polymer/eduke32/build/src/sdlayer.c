@@ -51,12 +51,6 @@ int32_t startwin_idle(void *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_settitle(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
 #endif
 
-#if SDL_MAJOR_VERSION==2
-# define SDL_GRAB_OFF SDL_FALSE
-# define SDL_GRAB_ON SDL_TRUE
-# define SDL_WM_GrabInput(yn) SDL_SetWindowGrab(sdl_window, yn)
-#endif
-
 /// These can be useful for debugging sometimes...
 //#define SDL_WM_GrabInput(x) SDL_WM_GrabInput(SDL_GRAB_OFF)
 //#define SDL_ShowCursor(x) SDL_ShowCursor(SDL_ENABLE)
@@ -75,14 +69,12 @@ extern int32_t app_main(int32_t argc, const char **argv);
 char quitevent=0, appactive=1, novideo=0;
 
 // video
-static SDL_Surface *sdl_surface;
+static SDL_Surface *sdl_surface/*=NULL*/;
 static SDL_Surface *sdl_buffersurface=NULL;
 #if SDL_MAJOR_VERSION==2
-static SDL_Texture *sdl_texture;
-static SDL_Palette *sdl_palptr;
-static SDL_Window *sdl_window;
-static SDL_Renderer *sdl_renderer;
-static SDL_GLContext sdl_context;
+static SDL_Palette *sdl_palptr=NULL;
+static SDL_Window *sdl_window=NULL;
+static SDL_GLContext sdl_context=NULL;
 #endif
 int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline;
 intptr_t frameplace=0;
@@ -298,13 +290,14 @@ static void attach_debugger_here(void) {}
 # include <execinfo.h>
 #endif
 
+static inline char grabmouse_low(char a);
+
 static void sighandler(int signum)
 {
     UNREFERENCED_PARAMETER(signum);
 //    if (signum==SIGSEGV)
     {
-        SDL_WM_GrabInput(SDL_GRAB_OFF);
-        SDL_ShowCursor(SDL_ENABLE);
+        grabmouse_low(0);
 #if PRINTSTACKONSEGV
         {
             void *addr[32];
@@ -764,30 +757,35 @@ void uninitmouse(void)
 
 
 //
+// grabmouse_low() -- show/hide mouse cursor, lower level (doesn't check state).
+//                    furthermore return 0 if successful.
+//
+
+static inline char grabmouse_low(char a)
+{
+#if SDL_MAJOR_VERSION==1
+    SDL_ShowCursor(a ? SDL_DISABLE : SDL_ENABLE);
+    return (SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF) != (a ? SDL_GRAB_ON : SDL_GRAB_OFF));
+#else
+    /* FIXME: Maybe it's better to make sure that grabmouse_low
+       is called only when a window is ready?                */
+    if (sdl_window)
+        SDL_SetWindowGrab(sdl_window, a ? SDL_TRUE : SDL_FALSE);
+    return SDL_SetRelativeMouseMode(a ? SDL_TRUE : SDL_FALSE);
+#endif
+}
+
+//
 // grabmouse() -- show/hide mouse cursor
 //
 void grabmouse(char a)
 {
     if (appactive && moustat)
     {
-        if (a != mousegrab)
-        {
 #if !defined __ANDROID__ && (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
-#if SDL_MAJOR_VERSION==1
-            SDL_GrabMode g;
-
-            g = SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF);
-            mousegrab = (g == SDL_GRAB_ON);
-
-            SDL_ShowCursor(mousegrab ? SDL_DISABLE : SDL_ENABLE);
-#else
-            if (!SDL_SetRelativeMouseMode(a ? SDL_TRUE : SDL_FALSE))
-                mousegrab = a;
-#endif
-#else
+        if ((a != mousegrab) && !grabmouse_low(a))
             mousegrab = a;
 #endif
-        }
     }
     else
     {
@@ -1031,7 +1029,9 @@ static int sortmodes(const void *a_, const void *b_)
 static char modeschecked=0;
 void getvalidmodes(void)
 {
-    int32_t i, j, maxx=0, maxy=0;
+    int32_t i, maxx=0, maxy=0;
+#if SDL_MAJOR_VERSION==1
+    int32_t j;
     static int32_t cdepths[] =
     {
         8,
@@ -1040,13 +1040,14 @@ void getvalidmodes(void)
 #endif
         0
     };
-#if SDL_MAJOR_VERSION==1
     SDL_Rect **modes;
     SDL_PixelFormat pf;
 
     pf.palette = NULL;
     pf.BitsPerPixel = 8;
     pf.BytesPerPixel = 1;
+#else
+    SDL_DisplayMode dispmode;
 #endif
 
     if (modeschecked || novideo) return;
@@ -1073,8 +1074,8 @@ void getvalidmodes(void)
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
-#if SDL_MAJOR_VERSION==1
     // do fullscreen modes first
+#if SDL_MAJOR_VERSION==1
     for (j=0; cdepths[j]; j++)
     {
 # ifdef USE_OPENGL
@@ -1113,7 +1114,25 @@ void getvalidmodes(void)
             }
         }
     }
-#endif  // SDL_MAJOR_VERSION==1
+#else // here SDL_MAJOR_VERSION==2
+    for (i=0; i<SDL_GetNumDisplayModes(0); i++)
+    {
+        SDL_GetDisplayMode(0, i, &dispmode);
+        if ((dispmode.w > MAXXDIM) || (dispmode.h > MAXYDIM)) continue;
+
+        // HACK: 8-bit == Software, 32-bit == OpenGL
+        ADDMODE(dispmode.w, dispmode.h, 8, 1);
+#ifdef USE_OPENGL
+        if (!nogl)
+            ADDMODE(dispmode.w, dispmode.h, 32, 1);
+#endif
+        if ((dispmode.w > maxx) && (dispmode.h > maxy))
+        {
+            maxx = dispmode.w;
+            maxy = dispmode.h;
+        }
+    }
+#endif
     if (maxx == 0 && maxy == 0)
     {
         initprintf("No fullscreen modes available!\n");
@@ -1121,6 +1140,7 @@ void getvalidmodes(void)
     }
 
     // add windowed modes next
+#if SDL_MAJOR_VERSION==1
     for (j=0; cdepths[j]; j++)
     {
 #ifdef USE_OPENGL
@@ -1130,7 +1150,19 @@ void getvalidmodes(void)
         for (i=0; defaultres[i][0]; i++)
             CHECK(defaultres[i][0],defaultres[i][1])
                 ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],0);
+    }
+#else // here SDL_MAJOR_VERSION==2
+    for (i=0; defaultres[i][0]; i++)
+        CHECK(defaultres[i][0],defaultres[i][1])
+        {
+            // HACK: 8-bit == Software, 32-bit == OpenGL
+            ADDMODE(defaultres[i][0],defaultres[i][1],8,0);
+#ifdef USE_OPENGL
+            if (!nogl)
+                ADDMODE(defaultres[i][0],defaultres[i][1],32,0);
+#endif
         }
+#endif
 
 #undef CHECK
 #undef ADDMODE
@@ -1203,77 +1235,27 @@ int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t fo
 static int32_t needpalupdate;
 static SDL_Color sdlayer_pal[256];
 
-#if SDL_MAJOR_VERSION==2
-static void destroy_window_and_renderer()
+static void destroy_window_resources()
 {
         if (sdl_buffersurface)
             SDL_FreeSurface(sdl_buffersurface);
         sdl_buffersurface = NULL;
+        /* We should NOT destroy the window surface. This is done automatically
+           when SDL_DestroyWindow or SDL_SetVideoMode is called.             */
+/*
         if (sdl_surface)
             SDL_FreeSurface(sdl_surface);
         sdl_surface = NULL;
-        if (sdl_texture)
-            SDL_DestroyTexture(sdl_texture);
-        sdl_texture = NULL;
+*/
+#if SDL_MAJOR_VERSION==2
         if (sdl_context)
             SDL_GL_DeleteContext(sdl_context);
         sdl_context = NULL;
-        if (sdl_renderer)
-            SDL_DestroyRenderer(sdl_renderer);
-        sdl_renderer = NULL;
         if (sdl_window)
             SDL_DestroyWindow(sdl_window);
         sdl_window = NULL;
-}
-
-static int32_t create_window_and_renderer(int32_t x, int32_t y, int32_t c, int32_t fs, uint32_t flags)
-{
-    sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,
-                                  x,y, ((fs&1)?SDL_WINDOW_FULLSCREEN:0) | (c > 8 ? SDL_WINDOW_OPENGL : 0));
-    if (!sdl_window)
-    {
-        initprintf("Unable to set video mode: SDL_CreateWindow failed: %s\n",
-                   SDL_GetError());
-        return -1;
-    }
-
-    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
-    if (!sdl_renderer)
-    {
-        initprintf("Unable to set video mode: SDL_CreateRenderer failed: %s\n",
-                   SDL_GetError());
-        destroy_window_and_renderer();
-        return -1;
-    }
-
-    if (c > 8)
-    {
-        sdl_context = SDL_GL_CreateContext(sdl_window);
-        if (!sdl_context)
-        {
-            initprintf("Unable to set video mode: SDL_GL_CreateContext failed: %s\n",
-                       SDL_GetError());
-            destroy_window_and_renderer();
-            return -1;
-        }
-
-#ifdef _WIN32
-        loadglextensions();
 #endif
-    }
-
-    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, x, y);
-    if (!sdl_texture)
-    {
-        initprintf("Unable to set video mode: SDL_CreateTexture failed: %s\n",
-                   SDL_GetError());
-        destroy_window_and_renderer();
-        return -1;
-    }
-
-    return 0;
 }
-#endif
 
 //
 // setvideomode() -- set SDL video mode
@@ -1321,12 +1303,10 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         gammabrightness = 0;	// redetect on next mode switch
     }
 
-    if (sdl_buffersurface)
-    {
-        SDL_FreeSurface(sdl_buffersurface);
-        sdl_buffersurface = NULL;
-    }
 #endif
+
+    // deinit
+    destroy_window_resources();
 
 #ifdef USE_OPENGL
     if (c > 8)
@@ -1413,14 +1393,29 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 initprintf("Unable to set video mode!\n");
                 return -1;
             }
+# else
+            sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,
+                                          x,y, ((fs&1)?SDL_WINDOW_FULLSCREEN:0) | SDL_WINDOW_OPENGL);
+            if (!sdl_window)
+            {
+                initprintf("Unable to set video mode: SDL_CreateWindow failed: %s\n",
+                           SDL_GetError());
+                return -1;
+            }
+
+            sdl_context = SDL_GL_CreateContext(sdl_window);
+            if (!sdl_context)
+            {
+                initprintf("Unable to set video mode: SDL_GL_CreateContext failed: %s\n",
+                           SDL_GetError());
+                destroy_window_resources();
+                return -1;
+            }
+            SDL_GL_SetSwapInterval(vsync);
+#endif
+
 #ifdef _WIN32
             loadglextensions();
-#endif
-# else
-            destroy_window_and_renderer();
-
-            if (create_window_and_renderer(x,y,c,fs, SDL_RENDERER_ACCELERATED) == -1)
-                return -1;
 #endif
         }
         while (multisamplecheck--);
@@ -1438,9 +1433,6 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             initprintf("Unable to set video mode!\n");
             return -1;
         }
-#ifdef _WIN32
-        loadglextensions();
-#endif
         sdl_buffersurface = SDL_CreateRGBSurface(SURFACE_FLAGS, x, y, c, 0, 0, 0, 0);
         if (!sdl_buffersurface)
         {
@@ -1449,21 +1441,23 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             return -1;
         }
 #else
-        // deinit
-        destroy_window_and_renderer();
 
         // init
-        if (create_window_and_renderer(x,y,c,fs, SDL_RENDERER_SOFTWARE |
-                                       SDL_RENDERER_TARGETTEXTURE) == -1)
+        sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,
+                                      x,y, ((fs&1)?SDL_WINDOW_FULLSCREEN:0));
+        if (!sdl_window)
+        {
+            initprintf("Unable to set video mode: SDL_CreateWindow failed: %s\n",
+                       SDL_GetError());
             return -1;
+        }
 
-
-        sdl_surface = SDL_CreateRGBSurface(0, x, y, 32, 0, 0, 0, 0);
+        sdl_surface = SDL_GetWindowSurface(sdl_window);
         if (!sdl_surface)
         {
-            initprintf("Unable to set video mode: SDL_CreateRGBSurface failed: %s\n",
+            initprintf("Unable to set video mode: SDL_GetWindowSurface failed: %s\n",
                        SDL_GetError());
-            destroy_window_and_renderer();
+            destroy_window_resources();
             return -1;
         }
 
@@ -1472,7 +1466,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         {
             initprintf("Unable to set video mode: SDL_CreateRGBSurface failed: %s\n",
                        SDL_GetError());
-            destroy_window_and_renderer();
+            destroy_window_resources();
             return -1;
         }
 
@@ -1803,7 +1797,6 @@ void showframe(int32_t w)
         SDL_GL_SwapBuffers();
 # else
         SDL_GL_SwapWindow(sdl_window);
-        SDL_RenderPresent(sdl_renderer);
 # endif
         return;
     }
@@ -1836,11 +1829,13 @@ void showframe(int32_t w)
 #if SDL_MAJOR_VERSION==1
     SDL_Flip(sdl_surface);
 #else
-    SDL_UpdateTexture(sdl_texture, NULL, sdl_surface->pixels, sdl_surface->pitch);
-
-    SDL_RenderClear(sdl_renderer);
-    SDL_RenderCopy(sdl_renderer, sdl_texture, NULL, NULL);
-    SDL_RenderPresent(sdl_renderer);
+    if (SDL_UpdateWindowSurface(sdl_window))
+    {
+        // If a fullscreen X11 window is minimized then this may be required.
+        // FIXME: What to do if this fails...
+        sdl_surface = SDL_GetWindowSurface(sdl_window);
+        SDL_UpdateWindowSurface(sdl_window);
+    }
 #endif
 }
 
@@ -2097,10 +2092,7 @@ int32_t handleevents(void)
                 appactive = 1;
 # if !defined DEBUGGINGAIDS || defined _WIN32
                 if (mousegrab && moustat)
-                {
-                    SDL_WM_GrabInput(SDL_GRAB_ON);
-                    SDL_ShowCursor(SDL_DISABLE);
-                }
+                    grabmouse_low(1);
 # endif
 # ifdef _WIN32
                 if (backgroundidle)
@@ -2111,10 +2103,7 @@ int32_t handleevents(void)
                 appactive = 0;
 # if !defined DEBUGGINGAIDS || defined _WIN32
                 if (mousegrab && moustat)
-                {
-                    SDL_WM_GrabInput(SDL_GRAB_OFF);
-                    SDL_ShowCursor(SDL_ENABLE);
-                }
+                    grabmouse_low(0);
 # endif
 # ifdef _WIN32
                 if (backgroundidle)
@@ -2179,15 +2168,9 @@ int32_t handleevents(void)
                 if (mousegrab && moustat)
                 {
                     if (appactive)
-                    {
-                        SDL_WM_GrabInput(SDL_GRAB_ON);
-                        SDL_ShowCursor(SDL_DISABLE);
-                    }
+                        grabmouse_low(1);
                     else
-                    {
-                        SDL_WM_GrabInput(SDL_GRAB_OFF);
-                        SDL_ShowCursor(SDL_ENABLE);
-                    }
+                        grabmouse_low(0);
                 }
 # endif
 # ifdef _WIN32
