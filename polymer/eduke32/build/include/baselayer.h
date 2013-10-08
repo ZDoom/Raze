@@ -102,6 +102,7 @@ extern int32_t qsetmode;
 
 int32_t initsystem(void);
 void uninitsystem(void);
+void system_getcvars(void);
 
 extern int32_t flushlogwindow;
 void initprintf(const char *, ...) ATTRIBUTE((format(printf,1,2)));

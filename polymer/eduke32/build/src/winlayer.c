@@ -144,7 +144,7 @@ int32_t bpp=0;
 int32_t bytesperline=0;
 int32_t lockcount=0;
 int32_t glcolourdepth=32;
-int32_t vsync=0;
+static int32_t vsync_render=0;
 uint32_t maxrefreshfreq=60;
 intptr_t frameplace=0;
 char modechange=1;
@@ -614,6 +614,14 @@ void uninitsystem(void)
 #endif
 }
 
+
+//
+// system_getcvars() -- propagate any cvars that are read post-initialization
+//
+void system_getcvars(void)
+{
+    setvsync(vsync);
+}
 
 //
 // initprintf() -- prints a string to the intitialization window
@@ -1703,7 +1711,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     }
 
 #ifdef USE_OPENGL
-    if (hGLWindow && glinfo.vsync) bwglSwapIntervalEXT(vsync);
+    if (hGLWindow && glinfo.vsync) bwglSwapIntervalEXT(vsync_render);
 #endif
     if (inp) AcquireInputDevices(1);
     modechange=1;
@@ -1735,10 +1743,10 @@ void setvsync(int32_t sync)
 {
     if (!glinfo.vsync)
     {
-        vsync = 0;
+        vsync_render = 0;
         return;
     }
-    vsync = sync;
+    vsync_render = sync;
     bwglSwapIntervalEXT(sync);
 }
 

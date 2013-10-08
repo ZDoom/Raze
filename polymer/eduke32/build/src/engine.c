@@ -10036,6 +10036,8 @@ skip_reading_mapbin:
         append_ext_UNSAFE(fn, ".cfg");
 
         OSD_Exec(fn);
+
+        system_getcvars();
     }
 
     return finish_loadboard(dapos, dacursectnum, numsprites, myflags);

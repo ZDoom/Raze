@@ -686,6 +686,8 @@ int32_t app_main(int32_t argc, const char **argv)
         // executed once per init, but after setgamemode so that OSD has the right width
         OSD_Exec("m32_autoexec.cfg");
 
+        system_getcvars();
+
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
 
@@ -709,6 +711,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
         // executed once per init, but after setgamemode so that OSD has the right width
         OSD_Exec("m32_autoexec.cfg");
+
+        system_getcvars();
 
         setbrightness(GAMMA_CALC,0,0);
     }

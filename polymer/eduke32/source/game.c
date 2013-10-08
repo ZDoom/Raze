@@ -11643,6 +11643,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
     OSD_Exec("autoexec.cfg");
 
+    system_getcvars();
+
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
         if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)

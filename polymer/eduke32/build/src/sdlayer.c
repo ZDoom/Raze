@@ -89,7 +89,7 @@ extern int32_t curbrightness, gammabrightness;
 // OpenGL stuff
 char nogl=0;
 #endif
-int32_t vsync=0;
+static int32_t vsync_render=0;
 
 // last gamma, contrast, brightness
 static float lastvidgcb[3];
@@ -273,11 +273,16 @@ int32_t main(int32_t argc, char *argv[])
 #ifdef USE_OPENGL
 void setvsync(int32_t sync)
 {
-    if (vsync == sync) return;
-    vsync = sync;
+    if (vsync_render == sync) return;
+    vsync_render = sync;
+# if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
     resetvideomode();
     if (setgamemode(fullscreen,xdim,ydim,bpp))
         OSD_Printf("restartvid: Reset failed...\n");
+# else
+    if (sdl_context)
+        SDL_GL_SetSwapInterval(vsync_render);
+# endif
 }
 #endif
 
@@ -469,6 +474,15 @@ void uninitsystem(void)
 #ifdef USE_OPENGL
     unloadgldriver();
 #endif
+}
+
+
+//
+// system_getcvars() -- propagate any cvars that are read post-initialization
+//
+void system_getcvars(void)
+{
+    setvsync(vsync);
 }
 
 
@@ -1337,7 +1351,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
             { SDL_GL_STENCIL_SIZE, 1 },
 # if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
-            { SDL_GL_SWAP_CONTROL, vsync },
+            { SDL_GL_SWAP_CONTROL, vsync_render },
 # endif
         };
 
@@ -1368,7 +1382,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                so we have to create a new surface in a different format first
                to force the surface we WANT to be recreated instead of reused. */
 # if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
-            if (vsync != ovsync)
+            if (vsync_render != ovsync)
             {
                 if (sdl_surface)
                 {
@@ -1376,7 +1390,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                     sdl_surface = SDL_SetVideoMode(1, 1, 8, SDL_NOFRAME | SURFACE_FLAGS | ((fs&1)?SDL_FULLSCREEN:0));
                     SDL_FreeSurface(sdl_surface);
                 }
-                ovsync = vsync;
+                ovsync = vsync_render;
             }
 # endif
 
@@ -1411,7 +1425,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 destroy_window_resources();
                 return -1;
             }
-            SDL_GL_SetSwapInterval(vsync);
+            SDL_GL_SetSwapInterval(vsync_render);
 #endif
 
 #ifdef _WIN32

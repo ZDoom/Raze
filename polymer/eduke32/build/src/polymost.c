@@ -91,6 +91,7 @@ extern char textfont[2048], smalltextfont[2048];
 
 int32_t rendmode=0;
 int32_t usemodels=1, usehightile=1;
+int32_t vsync=0;
 
 #include <math.h> //<-important!
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
