@@ -798,8 +798,8 @@ void grabmouse(char a)
     {
 #if !defined __ANDROID__ && (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
         if ((a != mousegrab) && !grabmouse_low(a))
-            mousegrab = a;
 #endif
+            mousegrab = a;
     }
     else
     {
