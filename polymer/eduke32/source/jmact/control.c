@@ -789,8 +789,8 @@ static void CONTROL_GetFunctionInput(void)
 void CONTROL_GetInput(ControlInfo *info)
 {
     CONTROL_PollDevices(info);
+
     CONTROL_GetFunctionInput();
-    CONTROL_ProcessBinds();
 }
 
 int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ticspersecond)
