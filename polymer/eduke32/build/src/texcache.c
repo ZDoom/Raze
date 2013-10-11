@@ -399,9 +399,13 @@ int32_t texcache_readdata(void *dest, int32_t len)
 
 static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t len, const int32_t dameth, const char effect)
 {
+    // Assert that BMAX_PATH is a multiple of 4 so that struct texcacheid_t
+    // gets no padding inserted by the compiler.
+    EDUKE32_STATIC_ASSERT((BMAX_PATH & 3) == 0);
+
     struct texcacheid_t {
         int32_t len, method;
-        char effect, name[BMAX_PATH];
+        char effect, name[BMAX_PATH+3];  // +3: pad to a multiple of 4
     } id = { len, dameth, effect, "" };
 
     Bstrcpy(id.name, fn);
@@ -409,7 +413,7 @@ static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t
     while (Bstrlen(id.name) < BMAX_PATH - Bstrlen(fn))
         Bstrcat(id.name, fn);
 
-    Bsprintf(cachefn, "%x%x%x",
+    Bsprintf(cachefn, "%08x%08x%08x",
         crc32once((uint8_t *)fn, Bstrlen(fn)),
         crc32once((uint8_t *)id.name, Bstrlen(id.name)),
         crc32once((uint8_t *)&id, sizeof(struct texcacheid_t)));
