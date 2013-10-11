@@ -88,6 +88,7 @@ crc32once;
 luaJIT_BC_defs_common;
 luaJIT_BC_engine_maptext;
 
+g_argv;
 
 
 g_elCONSize;
@@ -104,7 +105,6 @@ g_sizes_of;
 g_elCallDepth;
 block_deletesprite;
 g_RETURN;
-g_argv;
 g_elModules;
 g_modDir;
 
