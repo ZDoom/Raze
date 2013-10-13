@@ -1204,11 +1204,11 @@ static inline int32_t mulshr32(int32_t a, int32_t b)
 
 static int32_t cosqr16[8] =    //cosqr16[i] = ((cos(PI*i/16)*sqrt(2))<<24);
 {23726566,23270667,21920489,19727919,16777216,13181774,9079764,4628823};
-static int64_t crmul[4096], cbmul[4096];
+static int32_t crmul[4096], cbmul[4096];
 
 static void initkpeg()
 {
-    int32_t i, x, y;
+    int32_t i, j, x, y;
 
     x = 0;  //Back & forth diagonal pattern (aligning bytes for best compression)
     for (i=0; i<16; i+=2)
@@ -1241,10 +1241,11 @@ static void initkpeg()
 
     for (i=0; i<2048; i++)
     {
-        crmul[(i<<1)+0] = (i-1024)*(int64_t)1470104; //1.402*1048576
-        crmul[(i<<1)+1] = (i-1024)*(int64_t)-748830; //-0.71414*1048576
-        cbmul[(i<<1)+0] = (i-1024)*(int64_t)-360857; //-0.34414*1048576
-        cbmul[(i<<1)+1] = (i-1024)*(int64_t)1858077; //1.772*1048576
+        j = i-1024;
+        crmul[(i<<1)+0] = j*1470104; //1.402*1048576
+        crmul[(i<<1)+1] = j*-748830; //-0.71414*1048576
+        cbmul[(i<<1)+0] = j*-360857; //-0.34414*1048576
+        cbmul[(i<<1)+1] = j*1858077; //1.772*1048576
     }
 
     Bmemset((void *)&dct[10][0],0,64*2*sizeof(dct[0][0]));
