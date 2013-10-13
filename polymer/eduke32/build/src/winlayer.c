@@ -144,7 +144,9 @@ int32_t bpp=0;
 int32_t bytesperline=0;
 int32_t lockcount=0;
 int32_t glcolourdepth=32;
+#ifdef USE_OPENGL
 static int32_t vsync_render=0;
+#endif
 uint32_t maxrefreshfreq=60;
 intptr_t frameplace=0;
 char modechange=1;
@@ -620,7 +622,9 @@ void uninitsystem(void)
 //
 void system_getcvars(void)
 {
+#ifdef USE_OPENGL
     setvsync(vsync);
+#endif
 }
 
 //

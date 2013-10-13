@@ -41,19 +41,6 @@ enum rendmode_t {
 # define MAXXDIM 7680
 # define MAXYDIM 3200
 
-#ifdef LUNATIC
-# define NEW_MAP_FORMAT
-// A marker for LuaJIT C function callbacks, but not merely:
-# define LUNATIC_CB ATTRIBUTE((used))
-// Used for variables and functions referenced from Lua:
-# define LUNATIC_EXTERN ATTRIBUTE((used))
-#else
-# ifdef NEW_MAP_FORMAT
-#  error "New map format can only be used with Lunatic"
-# endif
-# define LUNATIC_EXTERN static
-#endif
-
 // additional space beyond wall, in walltypes:
 # define M32_FIXME_WALLS 512
 # define M32_FIXME_SECTORS 2
@@ -67,6 +54,19 @@ enum rendmode_t {
 
 # define M32_FIXME_WALLS 0
 # define M32_FIXME_SECTORS 0
+#endif
+
+#ifdef LUNATIC
+# define NEW_MAP_FORMAT
+// A marker for LuaJIT C function callbacks, but not merely:
+# define LUNATIC_CB ATTRIBUTE((used))
+// Used for variables and functions referenced from Lua:
+# define LUNATIC_EXTERN ATTRIBUTE((used))
+#else
+# ifdef NEW_MAP_FORMAT
+#  error "New map format can only be used with Lunatic"
+# endif
+# define LUNATIC_EXTERN static
 #endif
 
 #define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))

@@ -443,6 +443,10 @@ ifeq ($(PLATFORM),DARWIN)
     BASECOMMONFLAGS+= -I$(abspath $(MAKEFILE_COMMON_DIR)/platform/Apple/include) \
         -I/opt/local/include -I/sw/include -I/usr/local/include
 endif
+ifeq ($(PLATFORM),WII)
+    BASELIBDIRS+= -L$(abspath $(MAKEFILE_COMMON_DIR)/platform/Wii/lib)
+    BASECOMMONFLAGS+= -I$(abspath $(MAKEFILE_COMMON_DIR)/platform/Wii/include)
+endif
 ifeq ($(PLATFORM),GCW)
     BASECOMMONFLAGS += -D__OPENDINGUX__
 endif

@@ -9,7 +9,7 @@
 #elif !defined GEKKO
 # include <pthread.h>
 #else
-# include <SDL.h>
+# include "sdl_inc.h"
 #endif
 
 #ifdef EXTERNC

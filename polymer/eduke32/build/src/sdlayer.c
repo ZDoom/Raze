@@ -88,8 +88,8 @@ extern int32_t curbrightness, gammabrightness;
 #ifdef USE_OPENGL
 // OpenGL stuff
 char nogl=0;
-#endif
 static int32_t vsync_render=0;
+#endif
 
 // last gamma, contrast, brightness
 static float lastvidgcb[3];
@@ -275,6 +275,7 @@ void setvsync(int32_t sync)
 {
     if (vsync_render == sync) return;
     vsync_render = sync;
+
 # if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
     resetvideomode();
     if (setgamemode(fullscreen,xdim,ydim,bpp))
@@ -482,7 +483,9 @@ void uninitsystem(void)
 //
 void system_getcvars(void)
 {
+#ifdef USE_OPENGL
     setvsync(vsync);
+#endif
 }
 
 

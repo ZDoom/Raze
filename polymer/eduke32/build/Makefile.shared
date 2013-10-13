@@ -23,25 +23,7 @@ ifneq ($(SDLROOT_OVERRIDE),)
 endif
 
 SDL_TARGET ?= 2
-
-ifeq ($(SDL_TARGET),2)
-    SDLCONFIG ?= sdl2-config
-    SDLNAME ?= SDL2
-endif
-ifeq ($(SDL_TARGET),1)
-    SDLCONFIG ?= sdl-config
-    SDLNAME ?= SDL
-endif
-
-ifneq ($(PLATFORM),WINDOWS)
-    SDLVERSION:=$(strip $(shell $(SDLCONFIG) --version))
-    ifneq ($(SDLVERSION),)
-        SDLROOT:=$(strip $(shell $(SDLCONFIG) --prefix))
-    endif
-endif
-
 SDL_FRAMEWORK ?= 1
-
 
 ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     L_SSP := -lssp
@@ -116,6 +98,7 @@ ifeq ($(PLATFORM),WINDOWS)
     endif
 
     WITHOUT_GTK?=1
+    SDLCONFIG=
     SDL_FRAMEWORK=1
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     EXESUFFIX=.exe
@@ -162,9 +145,11 @@ ifeq ($(PLATFORM),WII)
     # -msdata=eabi
     BUILDCOMMONFLAGS+= -g -mtune=750 -meabi -mhard-float \
         -DGEKKO -DHAVE_INTTYPES -D__POWERPC__ \
-        -I$(LIBOGC_INC) -I$(LIBOGC_INC)/SDL -I$(PORTLIBS)/include
+        -I$(LIBOGC_INC) -I$(PORTLIBS)/include
     SDLCONFIG=
-    BUILDLIBS+= -lSDL_mixer -lsmpeg -lSDL -laesnd -lvorbisidec -lfreetype -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
+    SDL_TARGET=1
+    SDL_FRAMEWORK=1
+    BUILDLIBS+= -lSDL_mixer -lSDL -laesnd_tueidj -lpng -lvorbisidec -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
     BUILDLIBDIRS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib
 endif
 ifeq ($(PLATFORM),QNX)
@@ -193,6 +178,22 @@ endif
 ifneq (0,$(CLANG))
     ifneq (,$(STDCPPLIB))
         STDCPPLIB:=-Xlinker $(STDCPPLIB)
+    endif
+endif
+
+ifeq ($(SDL_TARGET),2)
+    SDLCONFIG ?= sdl2-config
+    SDLNAME ?= SDL2
+endif
+ifeq ($(SDL_TARGET),1)
+    SDLCONFIG ?= sdl-config
+    SDLNAME ?= SDL
+endif
+
+ifneq ($(SDLCONFIG),)
+    SDLVERSION:=$(strip $(shell $(SDLCONFIG) --version))
+    ifneq ($(SDLVERSION),)
+        SDLROOT:=$(strip $(shell $(SDLCONFIG) --prefix))
     endif
 endif
 

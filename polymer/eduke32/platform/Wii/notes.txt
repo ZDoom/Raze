@@ -1,0 +1,1 @@
+For details about the modified builds of SDL Wii and libaesnd, see: http://wiki.eduke32.com/wiki/EDuke32_Wii

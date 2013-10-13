@@ -63,7 +63,9 @@ static int32_t readconfig(BFILE *fp, const char *key, char *value, uint32_t len)
 }
 
 extern int16_t brightness;
+#ifdef USE_OPENGL
 extern int32_t vsync;
+#endif
 extern char game_executable[BMAX_PATH];
 extern int32_t fullscreen;
 extern char default_buildkeys[NUMBUILDKEYS];
@@ -141,7 +143,9 @@ int32_t loadsetup(const char *fn)
 //    if (readconfig(fp, "music", val, VL) > 0) { if (atoi_safe(val) != 0) option[2] = 1; else option[2] = 0; }
 //    if (readconfig(fp, "mouse", val, VL) > 0) { if (atoi_safe(val) != 0) option[3] = 1; else option[3] = 0; }
     if (readconfig(fp, "bpp", val, VL) > 0) bppgame = atoi_safe(val);
+#ifdef USE_OPENGL
     if (readconfig(fp, "vsync", val, VL) > 0) vsync = !!atoi_safe(val);
+#endif
     if (readconfig(fp, "editorgridextent", val, VL) > 0)
     {
         int32_t tmp = atoi_safe(val);
@@ -368,8 +372,10 @@ int32_t writesetup(const char *fn)
              "; 3D-mode colour depth\n"
              "bpp = %d\n"
              "\n"
+#ifdef USE_OPENGL
              "vsync = %d\n"
              "\n"
+#endif
 #ifdef POLYMER
              "; Rendering mode\n"
              "rendmode = %d\n"
@@ -576,7 +582,10 @@ int32_t writesetup(const char *fn)
              "; remap = 2B-9C,52-4C\n"
              "remap = ",
 
-             forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame, vsync,
+             forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,
+#ifdef USE_OPENGL
+             vsync,
+#endif
 #ifdef POLYMER
              glrendmode,
 #endif

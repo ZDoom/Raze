@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *   short. How strangely appropriate that seems.
  */
 
+#define _NEED_SDLMIXER	1
+
 #include <stdio.h>
 #include <errno.h>
 
@@ -37,7 +39,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "cache1d.h"
 
-#define _NEED_SDLMIXER	1
 #include "sdl_inc.h"
 #include "music.h"
 
