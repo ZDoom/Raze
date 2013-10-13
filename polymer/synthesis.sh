@@ -8,7 +8,8 @@ top=/var/www/synthesis/eduke32
 lockfile=$top/synthesis_building
 source=eduke32
 output=/var/www/dukeworld.duke4.net/eduke32/synthesis
-make=( make SYNTHESIS=1 PLATFORM=WINDOWS CC='i686-w64-mingw32-gcc' CXX='i686-w64-mingw32-g++' AS='nasm' RC='i686-w64-mingw32-windres' STRIP='i686-w64-mingw32-strip' AR='i686-w64-mingw32-ar' RANLIB='i686-w64-mingw32-ranlib' PRETTY_OUTPUT=0 NEDMALLOC=0 )
+make=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='i686-w64-mingw32-' AS='nasm' PRETTY_OUTPUT=0 )
+make64=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='x86_64-w64-mingw32-' AS='nasm' PRETTY_OUTPUT=0 )
 clean=veryclean
 
 # the following file paths are relative to $source
@@ -72,6 +73,18 @@ else
     fi
 fi
 
+function verifytargets ()
+{
+    for i in "${targets[@]}"; do
+        if [ ! -e $i ]
+        then
+            echo "Build failed! Bailing out..."
+            rm -f $lockfile
+            exit
+        fi
+    done
+}
+
 if [ $dobuild ]
 then
     echo "Launching a build..."
@@ -81,19 +94,15 @@ then
     # throw the svn revision into a header.  this is ugly.
     echo "s_buildRev = \"r$head\";" > source/rev.h
 
-    # clean the tree and build debug first
+
+    # 32-bit debug
+
+    # clean the tree and build
     echo "${make[@]}" RELEASE=0 $clean all
     "${make[@]}" RELEASE=0 $clean all
 
     # make sure all the targets were produced
-    for i in "${targets[@]}"; do
-        if [ ! -e $i ]
-        then
-            echo "Build failed! Bailing out..."
-            rm -f $lockfile
-            exit
-        fi
-    done
+    verifytargets
 
     # move the targets to $package
     echo mv -f eduke32$exe "$package/eduke32.debug$exe"
@@ -101,47 +110,73 @@ then
     echo mv -f mapster32$exe "$package/mapster32.debug$exe"
     mv -f mapster32$exe "$package/mapster32.debug$exe"
 
+
+    # 64-bit debug
+
+    # clean the tree and build
+    echo "${make64[@]}" RELEASE=0 $clean all
+    "${make64[@]}" RELEASE=0 $clean all
+
+    # make sure all the targets were produced
+    verifytargets
+
+    # move the targets to $package
+    echo mv -f eduke32$exe "$package/eduke64.debug$exe"
+    mv -f eduke32$exe "$package/eduke64.debug$exe"
+    echo mv -f mapster32$exe "$package/mapster64.debug$exe"
+    mv -f mapster32$exe "$package/mapster64.debug$exe"
+
+
+    # 32-bit Lunatic (pre-)release
+
     BUILD_LUNATIC="`echo $headlog | grep BUILD_LUNATIC`"
 
     if [ -n "$BUILD_LUNATIC" ]; then
-        # clean the tree and build Lunatic (pre-)release next
+        # clean the tree and build
         echo "${make[@]}" LUNATIC=1 $clean all
         "${make[@]}" LUNATIC=1 $clean all
 
         # make sure all the targets were produced
-        for i in "${targets[@]}"; do
-            if [ ! -e $i ]
-            then
-                echo "Build failed! Bailing out..."
-                rm -f $lockfile
-                exit
-            fi
-        done
+        verifytargets
 
         # move the targets to $package
         echo mv -f eduke32$exe "$package/leduke32_PREVIEW$exe"
         mv -f eduke32$exe "$package/leduke32_PREVIEW$exe"
     fi
 
-    # clean the tree and build release
+
+    # 32-bit release
+
+    # clean the tree and build
     echo "${make[@]}" $clean all
     "${make[@]}" $clean all
 
     # make sure all the targets were produced
-    for i in "${targets[@]}"; do
-        if [ ! -e $i ]
-        then
-            echo "Build failed! Bailing out..."
-            rm -f $lockfile
-            exit
-        fi
-    done
+    verifytargets
 
     # move the targets to $package
     echo mv -f eduke32$exe "$package/eduke32$exe"
     mv -f eduke32$exe "$package/eduke32$exe"
     echo mv -f mapster32$exe "$package/mapster32$exe"
     mv -f mapster32$exe "$package/mapster32$exe"
+
+
+    # 64-bit release
+
+    # clean the tree and build
+    echo "${make64[@]}" $clean all
+    "${make64[@]}" $clean all
+
+    # make sure all the targets were produced
+    verifytargets
+
+    # move the targets to $package
+    echo mv -f eduke32$exe "$package/eduke64$exe"
+    mv -f eduke32$exe "$package/eduke64$exe"
+    echo mv -f mapster32$exe "$package/mapster64$exe"
+    mv -f mapster32$exe "$package/mapster64$exe"
+
+
 
     # get the date in the YYYYMMDD format (ex: 20091001)
     date=`date +%Y%m%d`
