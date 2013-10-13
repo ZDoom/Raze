@@ -22,7 +22,7 @@ ifneq ($(SDLROOT_OVERRIDE),)
     SDLROOT=$(SDLROOT_OVERRIDE)
 endif
 
-SDL_TARGET ?= 1
+SDL_TARGET ?= 2
 
 ifeq ($(SDL_TARGET),2)
     SDLCONFIG ?= sdl2-config
@@ -106,7 +106,8 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    RENDERTYPE?=WIN
+    # Windows types can be SDL or WIN
+    RENDERTYPE?=SDL
     MIXERTYPE?=WIN
     ifneq ($(RENDERTYPE),SDL)
         ifeq ($(MIXERTYPE),SDL)
