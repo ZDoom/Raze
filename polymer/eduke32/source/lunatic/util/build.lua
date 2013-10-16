@@ -10,6 +10,7 @@ local table = require "table"
 
 local error = error
 local assert = assert
+local pairs = pairs
 local print = print
 local setmetatable = setmetatable
 local tostring = tostring
@@ -17,9 +18,8 @@ local tonumber = tonumber
 
 module(...)
 
-ffi.cdef[[
-typedef struct
-{
+local STRUCTDEF = {
+    sector = [[
     int16_t wallptr, wallnum;
     int32_t ceilingz, floorz;
     uint16_t ceilingstat, floorstat;
@@ -31,10 +31,9 @@ typedef struct
     uint8_t floorpal, floorxpanning, floorypanning;
     uint8_t visibility, filler;
     int16_t lotag, hitag, extra;
-} sectortype;
+]],
 
-typedef struct
-{
+    wall = [[
     int32_t x, y;
     int16_t point2, nextwall, nextsector;
     uint16_t cstat;
@@ -42,10 +41,9 @@ typedef struct
     int8_t shade;
     uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
     int16_t lotag, hitag, extra;
-} walltype;
+]],
 
-typedef struct
-{
+    sprite = [[
     int32_t x, y, z;
     uint16_t cstat;
     int16_t picnum;
@@ -56,8 +54,25 @@ typedef struct
     int16_t sectnum, statnum;
     int16_t ang, owner, xvel, yvel, zvel;
     int16_t lotag, hitag, extra;
+]],
+}
+
+ffi.cdef([[
+typedef struct
+{
+]]..STRUCTDEF.sector..[[
+} sectortype;
+
+typedef struct
+{
+]]..STRUCTDEF.wall..[[
+} walltype;
+
+typedef struct
+{
+]]..STRUCTDEF.sprite..[[
 } spritetype;
-]]
+]])
 
 ffi.cdef[[
 size_t fread(void *ptr, size_t size, size_t nmemb, void *stream);
@@ -65,6 +80,24 @@ size_t fread(void *ptr, size_t size, size_t nmemb, void *stream);
 
 local C = ffi.C
 
+-- [<sector/wall/sprite>].<membername> = true
+local is_member_tab = {
+    sector = {},
+    wall = {},
+    sprite = {},
+}
+
+do
+    for what, sdef in pairs(STRUCTDEF) do
+        for membname in string.gmatch(sdef, "([a-z0-9_]+)[,;]") do
+            is_member_tab[what][membname] = true
+        end
+    end
+end
+
+function ismember(what, membname)
+    return (is_member_tab[what][membname] ~= nil)
+end
 
 MAX =
 {

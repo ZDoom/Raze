@@ -16,19 +16,19 @@
 
 -- forxcode example: print sprite numbers with lotag < -1 (lotag is signed for us),
 -- and for each matching sprite also print its lotag and picnum:
---  $ ./findmaps.sh ~/.eduke32/ "sprite: .lotag < -1 :: io. write(', '.. .lotag .. ' ' .. .picnum)"
+--  $ ./findmaps.sh ~/.eduke32/ "sprite: .lotag < -1 :: io.write(', '.. .lotag .. ' ' .. .picnum)"
 
 -- The local 'd' provides defs loaded from ../../names.h, example:
---  $ ./findmaps.sh ~/.eduke32/ "sprite: .picnum>=d. CRACK1 and .picnum<=d. CRACK4"
--- (The space between "d." and "CRACK" is because ".xxx" is translated to
--- "sprite[<current>].xxx".)
+--  $ ./findmaps.sh ~/.eduke32/ "sprite: .picnum>=d.CRACK1 and .picnum<=d.CRACK4"
+-- (Now: no space between "d." and "CRACK" is necessary ".xxx" is translated to
+-- "sprite[<current>].xxx" only if it's the name of a sprite member.)
 
 -- Print all V9 maps along with their number of bunches and max(ceilings of a bunch)
 --  $ prog='if (map.version==9) then print(map.numbunches.." ".. math.max(unpack(map.sectsperbunch[0],0)) .." "..fn) end'
 --  $ ./findmaps.sh ~/.eduke32 "$prog" |sort -n -k 2
 
 -- Print all MUSICANDSFX sprites that play sounds with bit 1 set.
--- ./findmaps.sh /g/Games/Eduke32c/grp 'sprite: .picnum==5 and eq(.lotag, {170, 186, 187, 279, 382, 347}) :: io. write(" ".. tostring(.lotag))'
+-- ./findmaps.sh /g/Games/Eduke32c/grp 'sprite: .picnum==5 and eq(.lotag, {170, 186, 187, 279, 382, 347}) :: io.write(" ".. tostring(.lotag))'
 
 local B = require "build"
 local string = require "string"
@@ -62,6 +62,18 @@ function sum(tab, initidx)
     return s
 end
 
+local g_what
+-- Maybe replace e.g. .nextwall --> wall[i].nextwall.
+-- <what>: one of "sector", "wall" or "sprite"
+-- <maybememb>: a potential member name prefixed by "."
+local function maybe_complete_member(maybememb)
+    if (B.ismember(g_what, maybememb:sub(2))) then
+        return g_what.."[i]"..maybememb
+    else
+        return maybememb
+    end
+end
+
 local mod
 if (modname:sub(1,2) == "-e") then
     local body = modname:sub(3)
@@ -69,9 +81,10 @@ if (modname:sub(1,2) == "-e") then
     -- sector/wall/sprite finder shortcut
     local b, e, what = body:find("^([a-z]+)::?")
     if (what) then
+        g_what = what
         local onlyfiles = (body:sub(e-1,e)=="::")  -- "::" means "only list files" (like grep -l)
         body = body:sub(e+1)  -- clip off "bla::"
-        body = body:gsub("%.[a-z]+", what.."[i]%0")  -- e.g. .lotag --> sprite[i].lotag
+        body = body:gsub("%.[a-z][a-z0-9]*", maybe_complete_member)  -- e.g. .lotag --> sprite[i].lotag
 
         local perxcode
         -- look for additional "print" code to be executed for each match

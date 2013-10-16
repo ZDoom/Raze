@@ -132,7 +132,7 @@ Writing and using modules
 In Lunatic, like in Lua, a _module_ is a conceptually a sort of package that
 unites related bits of functionality. Language-wise, it is simply a Lua
 table holding its contents, as described and motivated at length in
-_Programming in Lua_.
+_Programming in Lua_ (second edition).
 
 The ``creation'' and ``usage'' sides of the modularity concept are reflected in
 two functions known from Lua 5.1, `module` and `require`. The former is a
