@@ -1,8 +1,14 @@
 /* The Lunatic Interpreter, part of EDuke32. Common, engine-side stuff. */
 
-#include <luajit-2.0/lua.h>
-#include <luajit-2.0/lualib.h>
-#include <luajit-2.0/lauxlib.h>
+#ifdef USE_LUAJIT_2_1
+# include <luajit-2.1/lua.h>
+# include <luajit-2.1/lualib.h>
+# include <luajit-2.1/lauxlib.h>
+#else
+# include <luajit-2.0/lua.h>
+# include <luajit-2.0/lualib.h>
+# include <luajit-2.0/lauxlib.h>
+#endif
 
 #include "cache1d.h"
 #include "osd.h"

@@ -12,6 +12,7 @@ local ffiC = ffi.C
 local bit = require("bit")
 
 local bor = bit.bor
+local pcall = pcall
 
 ffi.cdef "const char **g_argv;"
 
@@ -22,12 +23,14 @@ ffi.cdef "const char **g_argv;"
 --           (env var: LUAJIT_VERBOSEFILE)
 --     dump: load LuaJIT's 'dump' module, printing generated IR/machine code
 --           (env var: LUAJIT_DUMPFILE)
+--  profile: load LuaJIT's 'jit.p' module for profiling (LuaJIT 2.1 only)
+--           (env var: LUAJIT_PROFILEFILE)
 --   strict: catch various conditions that may indicate an logical error
 -- TODO for strict: actor[], spriteext[], per-actor gamevars
 local debug_flags = {}
 local IS_DEBUG_FLAG = {
     diag=true, nojit=true, traces=true, dump=true,
-    strict=true,
+    strict=true, profile=true,
 }
 
 -- Handle command-line argument. (Look for -Lopts=...)
@@ -63,6 +66,12 @@ if (not _LUNATIC_AUX) then
         require("dump").on("+rs")
     elseif (debug_flags.traces) then
         require("v").on()
+    end
+
+    if (debug_flags.profile) then
+        if (pcall(function() require("jit.p").start() end) == false) then
+            print("Warning: failed enabing profiler. Running LuaJIT 2.0 build?")
+        end
     end
 end
 

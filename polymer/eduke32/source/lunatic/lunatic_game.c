@@ -5,8 +5,13 @@
 #include <errno.h>
 #include <string.h>  // strerror
 
-#include <luajit-2.0/lualib.h>
-#include <luajit-2.0/lauxlib.h>
+#ifdef USE_LUAJIT_2_1
+# include <luajit-2.1/lualib.h>
+# include <luajit-2.1/lauxlib.h>
+#else
+# include <luajit-2.0/lualib.h>
+# include <luajit-2.0/lauxlib.h>
+#endif
 
 #include "build.h"  // printext256
 

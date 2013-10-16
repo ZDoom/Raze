@@ -144,7 +144,9 @@ BUILD32_ON_64 ?= 0
 USE_LIBPNG ?= 1
 USE_LIBVPX ?= 1
 NETCODE ?= 1
+
 LUNATIC ?= 0
+USE_LUAJIT_2_1 ?= 0
 
 # EXPERIMENTAL, unfinished x86_64 assembly routines. DO NOT ENABLE.
 USE_ASM64 ?= 0
@@ -469,6 +471,9 @@ ifneq ($(LUNATIC),0)
     override DISABLEINLINING=1
 
     BASECOMMONFLAGS+= -I$(MAKEFILE_COMMON_DIR)/source/lunatic -DLUNATIC
+    ifneq ($(USE_LUAJIT_2_1),0)
+        BASECOMMONFLAGS+= -DUSE_LUAJIT_2_1
+    endif
 
     # Determine size of defs.ilua bytecode once.
     ifndef DEFS_BC_SIZE
