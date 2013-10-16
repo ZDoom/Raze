@@ -126,6 +126,26 @@ local function doread(fh, basectype, numelts, dontclose)
     return cd
 end
 
+-- Read base palette (i.e. first 768 bytes as R,G,B triplets) from a PALETTE.DAT.
+-- Returns:
+--  on success: <uint8_t [768]> cdata (palette values scaled by 4)
+--  on failure: nil, <errmsg>
+function read_basepal(filename)
+    local fh, errmsg = io.open(filename, "rb")
+    if (fh == nil) then
+        return nil, errmsg
+    end
+
+    local palette, errmsg = doread(fh, "uint8_t", 768, true)
+    fh:close()
+
+    for i=0,768-1 do
+        palette[i] = 4*palette[i]
+    end
+
+    return palette, errmsg
+end
+
 local function set_secwalspr_mt(structar, maxidx)
     local mt = {
         __index = function(tab, idx)
@@ -366,12 +386,11 @@ local artfile_mt = {
         end,
 
         dims = function(self, ltile)
+            self:_check_ltile(ltile)
             return self.sizx[ltile], self.sizy[ltile]
         end,
 
         getpic = function(self, ltile)
-            self:_check_ltile(ltile)
-
             local sx, sy = self:dims(ltile)
             if (sx == 0 or sy == 0) then
                 -- Tile nonexistent/empty in this ART file
