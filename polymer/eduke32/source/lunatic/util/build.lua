@@ -74,14 +74,20 @@ MAX =
 
     TILES = 30720,
 }
+local MAX = MAX
 
-local function doread(fh, basectype, numelts)
+
+-- <dontclose>: if true, don't close file on error
+local function doread(fh, basectype, numelts, dontclose)
     assert(numelts > 0)
-    local cd = ffi.new(basectype.."[?]", numelts)
+    local typ = ffi.typeof("$ [?]", ffi.typeof(basectype))
+    local cd = ffi.new(typ, numelts)
 
     if (C.fread(cd, ffi.sizeof(basectype), numelts, fh) ~= numelts) then
-        fh:close()
-        return nil
+        if (not dontclose) then
+            fh:close()
+        end
+        return nil, "Failed reading"
     end
 
     return cd
@@ -295,6 +301,165 @@ function loadboard(filename, do_canonicalize_sprite)
 
     -- done
     return map
+end
+
+
+local picanm_t = ffi.typeof[[
+struct {
+    uint8_t num;  // animate number
+    int8_t xofs, yofs;
+    uint8_t sf;  // anim. speed and flags
+}
+]]
+
+local artfile_mt = {
+    __index = {
+        -- Global -> local tile index (-1 if gtile is not in this ART file)
+        toltile = function(self, gtile)
+            if (self.tbeg <= gtile and gtile <= self.tend) then
+                return gtile - self.tbeg
+            end
+            return -1
+        end,
+
+        _check_ltile = function(self, ltile)
+            if (not (ltile >= 0 and ltile < self.numtiles)) then
+                error("Invalid local tile number "..ltile, 3)
+            end
+        end,
+
+        _getofs = function(self, ltile)
+            return self.tiledataofs + self.offs[ltile]
+        end,
+
+        dims = function(self, ltile)
+            return self.sizx[ltile], self.sizy[ltile]
+        end,
+
+        getpic = function(self, ltile)
+            self:_check_ltile(ltile)
+
+            local sx, sy = self:dims(ltile)
+            if (sx == 0 or sy == 0) then
+                -- Tile nonexistent/empty in this ART file
+                return nil, "Empty tile"
+            end
+
+            assert(self.fh:seek("set", self:_getofs(ltile)))
+            return doread(self.fh, "uint8_t", sx*sy, self.grpfh ~= false)  -- GRPFH_FALSE
+        end,
+    },
+
+    __metatable = true,
+}
+
+-- af, errmsg = artfile(filename [, grpfh, grpofs])
+--
+-- <filename>: File name of the file to get data from, expect if <grpfh>
+--  passed. Always closed on error. Kept open on success.
+-- <grpfh>: io.open() file handle to grouping file containing ART
+--  uncompressed. Never closed, even on error.
+-- <grpofs>: offset of the ART file in file given by <grpfh>
+--
+-- Returns:
+--  * on error: nil, <errmsg>
+--  * on success:
+function artfile(filename, grpfh, grpofs)
+    local ogrpofs
+    local fh
+
+    if (grpfh) then
+        ogrpofs = grpfh:seek()
+        assert(grpfh:seek("set", grpofs))
+        fh = grpfh
+    else
+        local errmsg
+        fh, errmsg = io.open(filename, "rb")
+        if (fh == nil) then
+            return nil, errmsg
+        end
+    end
+
+    -- Close file on error?
+    local dontclose = (grpfh ~= nil)
+
+    -- Maybe close file handle and return error message <msg>
+    local function err(msg, ...)
+        if (not dontclose) then
+            fh:close()
+        end
+        return nil, string.format(msg, ...)
+    end
+
+    local hdr = doread(fh, "int32_t", 4, dontclose)
+    -- artversion, numtiles, localtilestart, localtileend
+    if (hdr == nil) then
+        return err("Couldn't read header")
+    end
+
+    local af = {
+        filename = filename,
+        fh = fh,
+        grpfh = grpfh or false,  -- GRPFH_FALSE
+
+        tbeg = hdr[2],
+        tend = hdr[3],
+        numtiles = hdr[3]-hdr[2]+1,
+
+        -- Members inserted later:
+        -- sizx, sizy: picanm: arrays of length af.numtiles
+        -- tiledataofs: byte offset in `fh' to beginning of tile data
+        -- offs: local byte offsets of each tile, relative of af.tiledataofs
+        --
+        -- Thus,
+        --  af.tiledataofs + af.offs[localtilenum]
+        -- is the byte offset of global tile
+        --  af.tbeg + localtilenum
+        -- in `fh'.
+    }
+
+    if (af.numtiles <= 0) then
+        return err("Invalid tile start/end or empty ART file")
+    end
+
+    local lasttile = af.tbeg + af.numtiles
+    if (lasttile >= MAX.TILES) then
+        return err("Last tile %d beyond MAXTILES-1 (%d)", lasttile, MAX.TILES-1)
+    end
+
+    af.sizx = doread(fh, "int16_t", af.numtiles, dontclose)
+    af.sizy = doread(fh, "int16_t", af.numtiles, dontclose)
+
+    if (af.sizx==nil or af.sizy==nil) then
+        return err("Couldn't read sizx or sizy arrays")
+    end
+
+    af.picanm = doread(fh, picanm_t, af.numtiles, dontclose)
+
+    if (af.picanm == nil) then
+        return err("Couldn't read picanm array")
+    end
+
+    af.tiledataofs = assert(fh:seek())
+    af.offs = ffi.new("uint32_t [?]", af.numtiles)
+
+    local curofs = 0
+
+    for i=0,af.numtiles-1 do
+        local sx, sy = af.sizx[i], af.sizy[i]
+
+        if (sx > 0 and sy > 0) then
+            af.offs[i] = curofs
+            curofs = curofs + sx*sy
+        elseif (sx < 0 or sy < 0) then
+            -- Let's sanity-check stuff a little
+            return err("Local tile %d has negative x or y size", i)
+        else
+            af.offs[i] = -1
+        end
+    end
+
+    return setmetatable(af, artfile_mt)
 end
 
 

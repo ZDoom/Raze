@@ -2,15 +2,17 @@ definequote 125 FIRST
 definequote 126 SECOND
 definequote 127 THIRD
 
-onevent EVENT_INIT
+onevent EVENT_ENTERLEVEL
     echo 125
 endevent
 
-onevent EVENT_INIT
+onevent EVENT_ENTERLEVEL
+    echo 126
+    break
     echo 126
 endevent
 
-onevent EVENT_INIT
+onevent EVENT_ENTERLEVEL
     echo 127
 endevent
 
@@ -23,7 +25,19 @@ eventloadactor 2491  // DUKECAR
     killit
 enda
 
-// output:
-// THIRD
-// SECOND
-// FIRST
+/*
+Outputs:
+========
+
+C-CON:
+------
+THIRD
+SECOND
+
+LunaCON:
+--------
+THIRD
+SECOND
+FIRST
+
+*/

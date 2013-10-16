@@ -299,7 +299,7 @@ Miscellaneous
 ^^^^^^^^^^^^^
 
 * Issuing `break` inside a part of an event chain (defined using multiple
-  `onevent` blocks for one event) does not abort the whole chain.
+  `onevent` blocks for one event kind) does not abort the whole chain.
 
 
 Unavailable functionality
