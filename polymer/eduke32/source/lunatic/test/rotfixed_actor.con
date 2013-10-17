@@ -12,7 +12,7 @@ include GAME.CON
 // NOTE:
 // DEFS.CON 520:6: warning: label "DUKECAR" not redefined with new value 2491 (old: 913)
 
-gamevar LOGO_FLAGS 2303 0  // 255+2048, test "no ep4 cutscene" bit
+gamevar LOGO_FLAGS 6399 0  // 255+2048+4096, test "no E4 intro", "no E1 bonus" bits
 
 useractor  4  58 1 NO NO 0
     // usertype 4 is "rotation-fixed actor"

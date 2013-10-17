@@ -12150,6 +12150,10 @@ static void G_BonusCutscenes(void)
     if (!(numplayers < 2 && ud.eog && ud.from_bonus == 0))
         return;
 
+    if ((unsigned)ud.volume_number < 4
+            && (G_GetLogoFlags() & (LOGO_NOE1BONUSSCENE << ud.volume_number)))
+        return;
+
     switch (ud.volume_number)
     {
     case 0:

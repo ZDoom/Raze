@@ -78,12 +78,10 @@ checks for
 `eduke32 -nologo MYTC.CON -mx addition.con test.lua weapons/nuke.lua -v1 -l1`
 ====================
 
-If the environment variable `LUNATIC_TIMING_BASEFN` is defined, EDuke32 will
+If the OS environment variable `LUNATIC_TIMING_BASEFN` is defined, EDuke32 will
 write out arregate timing results for actors and events in a comma-separated
 value format, obtained by suffixing the base name with ```.actors.csv`'' and
 ```.events.csv`''.
-
-// XXX: it's confusing that there are two kinds of 'environment' mentioned here
 
 
 Global Environment

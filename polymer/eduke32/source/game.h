@@ -63,6 +63,8 @@ enum LogoFlags_t {
     LOGO_TENSCREEN         = 0x00000200,
     LOGO_STOPANIMSOUNDS    = 0x00000400,
     LOGO_NOE4CUTSCENE      = 0x00000800,
+    LOGO_NOE1BONUSSCENE    = 0x00001000,  /* don't play E1 bonus scene */
+    /* 0x00002000 -- 0x00008000: don't play E2 -- E4 bonus scenes (respectively) */
 };
 
 typedef enum basepal_ {
