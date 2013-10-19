@@ -1529,6 +1529,15 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #endif
     }
 
+    if (appicon)
+    {
+#if SDL_MAJOR_VERSION==1
+        SDL_WM_SetIcon(appicon, 0);
+#else
+        SDL_SetWindowIcon(sdl_window, appicon);
+#endif
+    }
+
 #ifdef USE_OPENGL
     if (c > 8)
     {
