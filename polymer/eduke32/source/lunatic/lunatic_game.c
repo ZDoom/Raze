@@ -31,6 +31,9 @@ uint8_t g_elEvents[MAXEVENTS];
 // same thing for actors:
 el_actor_t g_elActors[MAXTILES];
 
+// Session variable. Never restored except by 'readgamevar'.
+int32_t g_elSessionVar[8];  // MAXSESSIONVARS, KEEPINSYNC con_lang.lua
+
 // Set to 1 on error in event.
 int32_t g_elEventError;
 

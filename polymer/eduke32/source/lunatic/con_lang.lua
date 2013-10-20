@@ -20,6 +20,8 @@ MAXSKILLS = 7
 MAXEVENTS = 95  -- KEEPINSYNC with EVENT_* list
 MAXSOUNDS = 4096
 
+MAXSESSIONVARS = 8  -- KEEPINSYNC lunatic_game.c
+
 -- KEEPINSYNC quotes.h
 
 -- For Lunatic, MAXQUOTES is OBITQUOTEINDEX because starting from that index

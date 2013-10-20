@@ -575,6 +575,7 @@ typedef struct {
 ]])
 
 bcarray.new("weapondata_t", ffiC.MAX_WEAPONS, "weapon", "weapondata_x_MAX_WEAPONS", WEAPON_NAMES)
+bcarray.new("int32_t", con_lang.MAXSESSIONVARS, "sessionvar", "int32_x_MAXSESSIONVARS")
 
 -- EXTERNALLY EXPOSED GAME VARIABLES
 ffi.cdef[[
@@ -604,6 +605,7 @@ int32_t g_elCallDepth;
 int32_t block_deletesprite;
 const char **g_elModules;
 char g_modDir[];
+int32_x_MAXSESSIONVARS g_elSessionVar;
 actor_t actor[MAXSPRITES];
 camera_t g_camera;
 user_defs ud;
@@ -2344,10 +2346,12 @@ end
 local varnameMap = {
     gametic = "g_moveThingsCount",
     RETURN = "g_RETURN",
+    _sessionVar = "g_elSessionVar",
 }
 
 gv_access.gametic = true
 gv_access.RETURN = true
+gv_access._sessionVar = true
 
 local tmpmt = {
     __index = function(_, key)

@@ -151,3 +151,12 @@ endevent
 onevent EVENT_ENTERLEVEL
     loadmapstate
 endevent
+
+
+onevent EVENT_USEJETPACK
+    savegamevar numwarpsD
+endevent
+
+onevent EVENT_USENIGHTVISION
+    readgamevar numwarpsD
+endevent

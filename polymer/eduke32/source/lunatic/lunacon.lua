@@ -254,6 +254,8 @@ local g_funcname = {}
 local g_switchCode = nil
 -- Global number of switch statements:
 local g_switchCount = 0
+-- Number of session gamevars:
+local g_numSessionVars = 0
 -- [identifier] = { name=<mangled name / code>, flags=<gamevar flags> }
 local g_gamevar = {}
 -- [identifier] = { name=<mangled name / code>, size=<initial size> }
@@ -451,6 +453,7 @@ local function reset_codegen()
     g_funcname = {}
     g_switchCode = nil
     g_switchCount = 0
+    g_numSessionVars = 0
     g_gamevar = new_initial_gvartab()
     g_gamearray = {
         -- SYSTEM_GAMEARRAY
@@ -1387,23 +1390,42 @@ function Cmd.gamevar(identifier, initval, flags)
         return
     end
 
-    local GVFLAG_NYI = GVFLAG.NODEFAULT + GVFLAG.NORESET
-    if (bit.band(flags, GVFLAG_NYI) ~= 0) then
-        warnprintf("gamevar \"%s\" flag(s) %d: not yet implemented",
-                   identifier, bit.band(flags, GVFLAG_NYI))
+    if (bit.band(flags, GVFLAG.NORESET) ~= 0) then
+        warnprintf("gamevar \"%s\" flag NORESET (131072): not yet implemented",
+                   identifier)
     end
 
-    if (flags==GVFLAG.PERPLAYER+GVFLAG.PERACTOR) then
+    local perPlayer = (bit.band(flags, GVFLAG.PERPLAYER) ~= 0)
+    local perActor = (bit.band(flags, GVFLAG.PERACTOR) ~= 0)
+
+    if (perPlayer and perActor) then
         errprintf("invalid gamevar flags: must be either PERPLAYER or PERACTOR, not both")
         return
     end
 
     local ogv = g_gamevar[identifier]
+    local isSessionVar = (bit.band(flags, GVFLAG.NODEFAULT) ~= 0)
+
+    if (isSessionVar and (perPlayer or perActor)) then
+        if (ogv == nil) then  -- warn only once per gamevar
+            warnprintf("per-%s for session gamevars: not yet implemented (made into %s)",
+                       perPlayer and "player" or "actor",
+                       perPlayer and "global" or "plain")
+        end
+
+        if (perActor) then
+            flags = bit.band(flags, bit.bnot(GVFLAG.NODEFAULT))
+            isSessionVar = false
+        elseif (perPlayer) then
+            flags = bit.band(flags, bit.bnot(GVFLAG.PERPLAYER))
+            perPlayer = false
+        end
+    end
 
     if (ogv ~= nil) then
         local oflags = ogv.flags
         if (oflags ~= flags) then
-            if (bit.band(oflags, GVFLAG.SYSTEM) ~= 0) then
+            if (bit.band(oflags, GVFLAG.SYSTEM) ~= 0 and not isSessionVar) then
                 -- Attempt to override a system gamevar. See if it's read-only...
                 if (bit.band(oflags, GVFLAG.READONLY) ~= 0) then
                     errprintf("attempt to override read-only system gamevar `%s'", identifier)
@@ -1450,14 +1472,28 @@ function Cmd.gamevar(identifier, initval, flags)
         warnprintf("symbol `%s' already used for a defined %s", identifier, LABEL[ltype])
     end
 
+    if (isSessionVar) then
+        if (g_numSessionVars == conl.MAXSESSIONVARS) then
+            errprintf("Declared too many session gamevars (flag 1024), can have at most %d.",
+                      conl.MAXSESSIONVARS)
+            return
+        end
+
+        -- Declare new session gamevar.
+        g_gamevar[identifier] = { name=format("_gv._sessionVar[%d]", g_numSessionVars),
+                                  flags=flags }
+        g_numSessionVars = g_numSessionVars+1
+        return
+    end
+
     local gv = { name=mangle_name(identifier, "V"), flags=flags }
     g_gamevar[identifier] = gv
 
     addcode("if _S then")
 
-    if (bit.band(flags, GVFLAG.PERX_MASK)==GVFLAG.PERACTOR) then
+    if (perActor) then
         addcodef("%s=_con.actorvar(%d)", gv.name, initval)
-    elseif (bit.band(flags, GVFLAG.PERX_MASK)==GVFLAG.PERPLAYER and g_cgopt["playervar"]) then
+    elseif (perPlayer and g_cgopt["playervar"]) then
         gv.flags = bit.bor(gv.flags, GVFLAG.CON_PERPLAYER)
         addcodef("%s=_con.playervar(%d)", gv.name, initval)
     else

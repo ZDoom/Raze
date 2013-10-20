@@ -107,6 +107,7 @@ block_deletesprite;
 g_RETURN;
 g_elModules;
 g_modDir;
+g_elSessionVar;
 
 MapInfo;
 EpisodeNames;
