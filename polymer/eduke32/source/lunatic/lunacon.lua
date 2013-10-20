@@ -1494,13 +1494,17 @@ local function thisactor_to_pli(var)
     return (var=="_aci") and "_pli" or var
 end
 
+function lookup.error_not_gamevar(identifier)
+    errprintf("symbol `%s' is not a game variable", identifier)
+    return "_INVALIDGV"
+end
+
 -- <aorpvar>: code for actor or player index
 function lookup.gamevar(identifier, aorpvar, writable)
     local gv = g_gamevar[identifier]
 
     if (gv == nil) then
-        errprintf("symbol `%s' is not a game variable", identifier)
-        return "_INVALIDGV"
+        return lookup.error_not_gamevar(identifier)
     end
 
     if (writable and bit.band(gv.flags, GVFLAG.READONLY) ~= 0) then
@@ -2099,6 +2103,9 @@ local handle =
         end
 
         local gv = g_gamevar[identifier]
+        if (gv == nil) then
+            return lookup.error_not_gamevar(identifier)
+        end
 
         -- For per-actor or per-player gamevars, the value at the current actor or
         -- player index gets saved / loaded.
