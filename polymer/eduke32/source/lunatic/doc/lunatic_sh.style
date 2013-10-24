@@ -1,0 +1,10 @@
+// Custom style file for GNU Source-highlight, derived from its default.style
+
+bgcolor "white"; // the background color for documents
+context gray; // the color for context lines (when specified with line ranges)
+
+keyword darkblue b; // for language keywords
+string "#116611" f; // for strings and chars
+specialchar pink f; // for special chars, e.g., \n, \t, \\
+comment "#444444" i, noref; // for comments
+cbracket red; // for block brackets (e.g. {, })

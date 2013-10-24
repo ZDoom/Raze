@@ -6,6 +6,7 @@ Helixhorned <contact: Duke4.net forums>
 :icons:
 :toc:
 
+:language: lua
 
 [red]*DRAFT DRAFT DRAFT*
 
@@ -202,6 +203,7 @@ will place them into this ``hidden'' table. Assuming no subsequent *`return`*
 is placed at file scope, this table will be the one obtained by a `require` for
 the module at the client side.
 
+[source]
 .Example file using using `module`
 ----------
 -- Import section: cache everything the module needs into locals
@@ -230,7 +232,8 @@ possible to return its table directly instead of using `module`. However, due
 to the way modules are loaded, a trailing *`return`* statement must be wrapped
 in a *`do`*...*`end`* block, like this:
 
-.Example module `MyEnemyDefs.lua` explicitly returning table
+.Example module `MyEnemyDefs.lua` explicitly returning a table
+[source]
 ----------
 local args = { ... }
 do return {
@@ -431,6 +434,7 @@ event or actor code, the behavior is undefined.
 Composite variables can be used in various ways. All of them allow indexing
 with an integer value from `0` to some maximum (sometimes the size of the array
 minus one, but occasionally less). For example, the code snippet
+[source]
 ----------
 local sec = sector[0]
 ----------
@@ -439,6 +443,7 @@ This reference can then be used to both read and write its members.
 
 Various structures also provide _methods_ in Lunatic to modify their state,
 usable with Lua's `v:func(args...)` syntax. Building on the previous example,
+[source]
 ----------
 local cz = sec:ceilingzat(wall[sec.wallptr])
 ----------
@@ -449,6 +454,7 @@ Finally, some composite variables offer _static data_, which can contain
 functions or tables of constants. These are accessed using the dot notation on
 the composite variable, *not* its constituents. For instance, the following can
 be used to change the sector number of the sprite with index `i` manually:
+[source]
 ----------
 sprite.changesect(i, sectnum)
 ----------
@@ -545,6 +551,7 @@ Returns a number containing the bits of `bf` bitwise ANDed with those in
 .Examples
 ==========
 After the lines setting sprite `i` to 33% translucent and blocking,
+[source]
 ----------
 local CS = sprite.CSTAT
 local spr = sprite[i]
@@ -594,6 +601,7 @@ member names given below.
 .Different ways of accessing the same member
 ==========
 After the code lines
+[source]
 ----------
 local sec = sector[0]
 local ceil = sec.ceiling
@@ -859,6 +867,7 @@ top. However, the per-tile z offset is not taken into account.
 Unconditionally sets the position of `spr` to `pos`, which can be anything
 indexable with `x`, `y` and `z`. Thus, in effect a shorthand for
 +
+[source]
 ----------
 spr.x, spr.y, spr.z = pos.x, pos.y, pos.z
 ----------
@@ -901,6 +910,7 @@ the game world, or `sectnum` is an invalid sector index, an error is thrown.
 Updates the sector number of the sprite with index `i`, in effect setting
 `sprite[i]`'s sector number to the result of
 +
+[source]
 ----------
 updatesector(sprite[i].pos, sprite[i].sectnum, flags)
 ----------
@@ -1014,6 +1024,7 @@ Sets the AI of actor `a` to `ai`, which must be an object returned by
 <<con_ai,`con.ai`>>. In addition to setting the current AI ID of the actor,
 `a:set_ai(ai)` is equivalent to the sequence
 +
+[source]
 ----------
 a:set_action(ai.act)
 a:set_move(ai.mov, ai.movflags)
@@ -1098,6 +1109,7 @@ themselves being of signed 16-bit integer type. The array can be indexed with
 valid weapon numbers, or weapon names. In the following (constructed) example,
 the first player's current pistol ammo count is set to that of the currently
 selected weapon:
+[source]
 ----------
 local ps = player[0]
 ps.ammo_amount.PISTOL = ps.ammo_amount[ps.curr_weapon]
@@ -1556,6 +1568,7 @@ keys.
 
 Since the vector types are compound objects, they are always passed around by
 reference. For example, consider executing
+[source]
 ----------
 v = xmath.vec3(0, 1)
 w = v
@@ -1730,6 +1743,7 @@ code increments its hidden ``action tics'' counter by four (= 120/30).]
 .Equivalent `action` definitions
 ==========
 Each of the following calls return an action with the same public members:
+[source]
 ----------
 con.action{0, 4, delay=20}
 con.action{0, 4, 1, 1, 20}
@@ -1792,6 +1806,7 @@ transfers control to the beginning of the next in the chain if it exists.
 .`con.longjmp` with chained events
 ==========
 The following two chained `EVENT_JUMP` definitions,
+[source]
 ----------
 gameevent{"JUMP", function(_, pli)
     print("jump:first")
