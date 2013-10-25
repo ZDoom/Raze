@@ -5662,6 +5662,19 @@ void G_RestoreMapState(void)
 
         Gv_RefreshPointers();
 #endif
+        // Update g_player[].ps->i (sprite indices of players) to be consistent
+        // with just loaded sprites.
+        // Otherwise, crashes may ensue: e.g. WGR2 SVN r391, map spiderden:
+        // - walk forward (to door leading to other level "Shadowpine Forest")
+        // - in new level, walk backward to get back to the Spider Den
+        // - walk backward to the door leading to Shadowpine Forest --> crash.
+        for (SPRITES_OF(STAT_PLAYER, i))
+        {
+            int32_t snum = sprite[i].yvel;
+            Bassert((unsigned)snum < MAXPLAYERS);
+            g_player[snum].ps->i = i;
+        }
+
         for (i=0; i<playerswhenstarted; i++)
             sprite[g_player[i].ps->i].extra = phealth[i];
 
