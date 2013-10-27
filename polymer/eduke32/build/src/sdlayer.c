@@ -2027,13 +2027,10 @@ int32_t handleevents(void)
             {
                 code = ev.text.text[j];
 
-                if (code != scantoasc[OSD_OSDKey()] && ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
+                if (code != scantoasc[OSD_OSDKey()] && !keyascfifo_isfull())
                 {
                     if (OSD_HandleChar(code))
-                    {
-                        keyasciififo[keyasciififoend] = code;
-                        keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
-                    }
+                        keyascfifo_insert(code);
                 }
             }
             while (j < SDL_TEXTINPUTEVENT_TEXT_SIZE && ev.text.text[++j]);
@@ -2048,7 +2045,7 @@ int32_t handleevents(void)
                 ev.key.keysym.scancode == SDL_SCANCODE_KP_ENTER ||
                 ev.key.keysym.scancode == SDL_SCANCODE_BACKSPACE ||
                 ev.key.keysym.scancode == SDL_SCANCODE_TAB) &&
-                ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
+                !keyascfifo_isfull())
             {
                 char keyvalue;
                 switch (ev.key.keysym.scancode)
@@ -2059,10 +2056,7 @@ int32_t handleevents(void)
                     default: keyvalue = 0; break;
                 }
                 if (OSD_HandleChar(keyvalue))
-                {
-                    keyasciififo[keyasciififoend] = keyvalue;
-                    keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
-                }
+                    keyascfifo_insert(keyvalue);
             }
 
 //            printf("got key %d, %d\n",ev.key.keysym.scancode,code);
@@ -2150,13 +2144,10 @@ int32_t handleevents(void)
 # endif
             if (code != OSD_OSDKey() && ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
                     (ev.key.keysym.unicode & 0xff80) == 0 &&
-                    ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
+                    !keyascfifo_isfull())
             {
                 if (OSD_HandleChar(ev.key.keysym.unicode & 0x7f))
-                {
-                    keyasciififo[keyasciififoend] = ev.key.keysym.unicode & 0x7f;
-                    keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
-                }
+                    keyascfifo_insert(ev.key.keysym.unicode & 0x7f);
             }
 
             // hook in the osd

@@ -127,6 +127,17 @@ const char *getjoyname(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=
 char bgetchar(void);
 #define bkbhit() (keyasciififoplc != keyasciififoend)
 
+static inline int keyascfifo_isfull(void)
+{
+    return ((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc;
+}
+
+static inline void keyascfifo_insert(char code)
+{
+    keyasciififo[keyasciififoend] = code;
+    keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
+}
+
 void bflushchars(void);
 
 int32_t initmouse(void);
