@@ -207,7 +207,7 @@ static int32_t cmp_against_others(const char *str, int32_t slen)
     return 0;
 }
 
-static void El_OnError(const char *str)
+LUNATIC_EXTERN void El_OnError(const char *str)
 {
     if (!el_tooMuchErrors)
     {

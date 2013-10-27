@@ -9,6 +9,7 @@ local jit = require("jit")
 local CF = CF
 
 local bit = require("bit")
+local debug = require("debug")
 local io = require("io")
 local math = require("math")
 local table = require("table")
@@ -1832,10 +1833,18 @@ end
 -- TODO: saving/restoration of per-player or per-actor gamevars.
 function _savemapstate()
     ffiC.G_SaveMapState()
+    local errmsg = debug.traceback(
+        "warning: savemapstate: gamevar saving not yet implemented", 2)
+    ffiC.El_OnError(errmsg)
+    print(errmsg)
 end
 
 function _loadmapstate()
     ffiC.G_RestoreMapState()
+    local errmsg = debug.traceback(
+        "warning: loadmapstate: gamevar saving not yet implemented", 2)
+    ffiC.El_OnError(errmsg)
+    print(errmsg)
 end
 
 -- Gamevar persistence in the configuration file

@@ -5557,6 +5557,8 @@ void G_SaveMapState(void)
             }
             else save->vars[i] = (intptr_t *)aGameVars[i].val.lValue;
         }
+#else
+        // TODO! (Not easy.)
 #endif
         ototalclock = totalclock;
     }
@@ -5661,6 +5663,8 @@ void G_RestoreMapState(void)
         }
 
         Gv_RefreshPointers();
+#else
+        // TODO! (Not easy.)
 #endif
         // Update g_player[].ps->i (sprite indices of players) to be consistent
         // with just loaded sprites.

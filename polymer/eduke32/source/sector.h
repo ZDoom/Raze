@@ -77,8 +77,11 @@ typedef struct {
     spriteext_t spriteext[MAXSPRITES];
     spritetype sprite[MAXSPRITES];
     walltype wall[MAXWALLS];
-
+#if !defined LUNATIC
     intptr_t *vars[MAXGAMEVARS];
+#else
+    char *savecode;
+#endif
 #ifdef YAX_ENABLE
     int32_t numyaxbunches;
 # if !defined NEW_MAP_FORMAT

@@ -593,6 +593,7 @@ int32_t g_RETURN;
 int32_t g_elCONSize;
 char *g_elCON;
 void El_SetCON(const char *conluacode);
+void El_OnError(const char *str);
 
 char *g_elSavecode;
 void El_FreeSaveCode(void);
@@ -2286,7 +2287,7 @@ do
                         return "local "..modname.."."..lname
                     end
 
-                    -- Call restore_local.
+                    -- Emit code to call restore_local.
                     sb:addrawf("F(%d,L)", li)
                 end
             end

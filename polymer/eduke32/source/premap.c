@@ -2035,6 +2035,8 @@ void G_FreeMapState(int32_t mapnum)
                 Bfree(mapinfo->savedstate->vars[j]);
         }
     }
+#else
+    Bfree(mapinfo->savedstate->savecode);
 #endif
     Bfree(mapinfo->savedstate);
     mapinfo->savedstate = NULL;
