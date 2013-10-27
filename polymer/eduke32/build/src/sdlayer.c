@@ -154,7 +154,7 @@ int32_t wm_msgbox(char *name, char *fmt, ...)
     UNREFERENCED_PARAMETER(name);
 
     va_start(va,fmt);
-    vsprintf(buf,fmt,va);
+    vsnprintf(buf,sizeof(buf),fmt,va);
     va_end(va);
 
 #if defined(__APPLE__)
@@ -162,6 +162,16 @@ int32_t wm_msgbox(char *name, char *fmt, ...)
 #elif defined HAVE_GTK2
     if (gtkbuild_msgbox(name, buf) >= 0) return 1;
 #elif SDL_MAJOR_VERSION==2
+# if !defined _WIN32
+    // Replace all tab chars with spaces because the hand-rolled SDL message
+    // box diplays the former as N/L instead of whitespace.
+    {
+        int32_t i;
+        for (i=0; i<(int32_t)sizeof(buf); i++)
+            if (buf[i] == '\t')
+                buf[i] = ' ';
+    }
+# endif
     return SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, name, buf, NULL);
 #endif
     puts(buf);
