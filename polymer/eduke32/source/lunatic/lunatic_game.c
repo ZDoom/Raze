@@ -437,6 +437,8 @@ static void El_PushCFunctions(lua_State *L)
 
 //////
 
+LUNATIC_CB int32_t (*El_RestoreGamevars)(const char *savecode);
+
 static void El_StateSetup(lua_State *L)
 {
     luaopen_lpeg(L);

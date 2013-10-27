@@ -1692,7 +1692,9 @@ static void sv_restload()
 #endif
 
 #ifdef LUNATIC
-LUNATIC_CB const char *(*El_SerializeGamevars)(int32_t *slenptr);
+// <levelnum>: if we're not serializing for a mapstate, -1
+//  otherwise, the linearized level number
+LUNATIC_CB const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
 #endif
 
 static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
@@ -1711,7 +1713,7 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
         // be present before Lua state creation in svgm_script, so save it
         // right before, too.
         int32_t slen, slen_ext;
-        const char *svcode = El_SerializeGamevars(&slen);
+        const char *svcode = El_SerializeGamevars(&slen, -1);
 
         if (slen < 0)
         {

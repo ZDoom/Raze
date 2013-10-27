@@ -1834,7 +1834,7 @@ end
 function _savemapstate()
     ffiC.G_SaveMapState()
     local errmsg = debug.traceback(
-        "warning: savemapstate: gamevar saving not yet implemented", 2)
+        "warning: savemapstate: gamevar saving not fully implemented", 2)
     ffiC.El_OnError(errmsg)
     print(errmsg)
 end
@@ -1842,7 +1842,7 @@ end
 function _loadmapstate()
     ffiC.G_RestoreMapState()
     local errmsg = debug.traceback(
-        "warning: loadmapstate: gamevar saving not yet implemented", 2)
+        "warning: loadmapstate: gamevar saving not fully implemented", 2)
     ffiC.El_OnError(errmsg)
     print(errmsg)
 end

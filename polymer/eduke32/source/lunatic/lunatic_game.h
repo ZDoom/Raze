@@ -39,6 +39,10 @@ void El_DestroyState(L_State *estate);
 int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t *iReturn);
 int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t iPlayer, int32_t lDist);
 
+void El_OnError(const char *str);
+
+int32_t (*El_RestoreGamevars)(const char *savecode);
+
 static inline int32_t El_HaveEvent(int32_t eventidx) { return g_elEvents[eventidx]!=0; }
 static inline int32_t El_HaveActor(int32_t actortile) { return g_elActors[actortile].haveit!=0; }
 

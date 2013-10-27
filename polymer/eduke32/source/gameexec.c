@@ -5465,7 +5465,8 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 
 void G_SaveMapState(void)
 {
-    map_t *mapinfo = &MapInfo[ud.volume_number*MAXLEVELS+ud.level_number];
+    int32_t levelnum = ud.volume_number*MAXLEVELS+ud.level_number;
+    map_t *mapinfo = &MapInfo[levelnum];
     mapstate_t *save;
 
     if (mapinfo->savedstate == NULL)
@@ -5558,7 +5559,23 @@ void G_SaveMapState(void)
             else save->vars[i] = (intptr_t *)aGameVars[i].val.lValue;
         }
 #else
-        // TODO! (Not easy.)
+        {
+            int32_t slen;
+            const char *svcode = El_SerializeGamevars(&slen, levelnum);
+
+            if (slen < 0)
+            {
+                El_OnError("ERROR: savemapstate: serialization failed!");
+            }
+            else
+            {
+                char *savecode = Bstrdup(svcode);
+                if (savecode == NULL)
+                    G_GameExit("OUT OF MEMORY in G_SaveMapState!");
+                Bfree(save->savecode);
+                save->savecode = savecode;
+            }
+        }
 #endif
         ototalclock = totalclock;
     }
@@ -5566,7 +5583,8 @@ void G_SaveMapState(void)
 
 void G_RestoreMapState(void)
 {
-    mapstate_t *save = MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate;
+    int32_t levelnum = ud.volume_number*MAXLEVELS+ud.level_number;
+    mapstate_t *save = MapInfo[levelnum].savedstate;
 
     if (save != NULL)
     {
@@ -5664,7 +5682,10 @@ void G_RestoreMapState(void)
 
         Gv_RefreshPointers();
 #else
-        // TODO! (Not easy.)
+        if (save->savecode)
+        {
+            El_RestoreGamevars(save->savecode);
+        }
 #endif
         // Update g_player[].ps->i (sprite indices of players) to be consistent
         // with just loaded sprites.

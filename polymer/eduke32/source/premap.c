@@ -1083,8 +1083,8 @@ static inline void prelevel(char g)
     // NOTE: must be safe loop because callbacks could delete sprites.
     for (SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nexti))
     {
-#if !defined LUNATIC
         A_ResetVars(i);
+#if !defined LUNATIC
         A_LoadActor(i);
 #endif
         VM_OnEvent(EVENT_LOADACTOR, i, -1, -1, 0);

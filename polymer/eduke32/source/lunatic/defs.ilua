@@ -597,7 +597,8 @@ void El_OnError(const char *str);
 
 char *g_elSavecode;
 void El_FreeSaveCode(void);
-const char *(*El_SerializeGamevars)(int32_t *slenptr);
+const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
+int32_t (*El_RestoreGamevars)(const char *savecode);
 
 const char *s_buildRev;
 const char *g_sizes_of_what[];
@@ -2244,8 +2245,8 @@ local CON_MODULE_NAME = "_CON\0"
 do
     local savegame = require("savegame")
 
-    -- Callback for: const char *(int32_t *slenptr);
-    ffiC.El_SerializeGamevars = function(slenptr)
+    -- Callback for: const char *(int32_t *slenptr, int32_t levelnum);
+    ffiC.El_SerializeGamevars = function(slenptr, levelnum)
         local sb = savegame.savebuffer()
 
         -- Module name, module table, restore_local. See SAVEFUNC_ARGS.
@@ -2305,6 +2306,10 @@ do
             local fn = os.getenv("LUNATIC_SAVECODE_FN")
 
             if (fn ~= nil) then
+                if (levelnum >= 0) then
+                    fn = fn .. levelnum
+                end
+
                 local io = require("io")
                 local f = io.open(fn, "w")
 
@@ -2469,6 +2474,17 @@ do
 
         g_restorefunc = assert(loadstring(restorecode))
     end
+end
+
+-- Restore CON gamevars from loadmapstate.
+-- TODO: non-user-defined gamevars.
+-- TODO: savegames.
+-- int32_t El_RestoreGamevars(const char *)
+ffiC.El_RestoreGamevars = function(savecode)
+    savecode = ffi.string(savecode)
+    local restorefunc = assert(loadstring(savecode))
+    restorefunc(CON_MODULE_NAME, package_loaded[CON_MODULE_NAME], nil)
+    return 0
 end
 
 -- Run the CON code translated into Lua.

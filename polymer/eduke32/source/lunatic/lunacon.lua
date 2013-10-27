@@ -315,7 +315,8 @@ local function new_initial_codetab()
         "_V,_A={},{}",
         "-- NOTE to the reader: This require's result is Lunatic-private API! DO NOT USE!",
         "local _dummy,_S=require'end_gamevars'",
-        "local _V,_A=_V,_A",
+-- XXX: Currently commented out because of gamevar restoration from loadmapstate.
+--        "local _V,_A=_V,_A",
         "local _C,_M,_I={},{},{}",  -- actions, moves, ais
 
         -- Static ivec3s so that no allocations need to be made.
