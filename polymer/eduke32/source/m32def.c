@@ -4023,7 +4023,7 @@ void C_PrintErrorPosition()
         buf[nchars]=0;
 
         for (i=0; i<nchars; i++)
-            if (buf[i]==0x0a || buf[i]==0x0d)
+            if (buf[i]==0x0a || buf[i]==0x0d || buf[i]=='\t')
                 buf[i]=' ';
 
         initprintf("%s\n", buf);
