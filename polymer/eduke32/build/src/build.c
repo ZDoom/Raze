@@ -131,6 +131,11 @@ char *testplay_addparam = 0;
 static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
 //extern char levelname[BMAX_PATH];  // in astub.c   XXX: clean up this mess!!!
 
+void B_SetBoardFileName(const char *fn)
+{
+    Bstrncpyz(boardfilename, fn, BMAX_PATH);
+}
+
 static fnlist_t fnlist;
 static CACHE1D_FIND_REC *finddirshigh=NULL, *findfileshigh=NULL;
 static int32_t currentlist=0;
@@ -523,7 +528,6 @@ int32_t app_main(int32_t argc, const char **argv)
     backgroundidle = 1;
 #endif
 
-    boardfilename[0] = 0;
     for (i=1; i<argc; i++)
     {
         if (argv[i][0] == '-')
@@ -553,9 +557,6 @@ int32_t app_main(int32_t argc, const char **argv)
             }
             continue;
         }
-
-        if (!boardfilename[0])
-            Bstrncpyz(boardfilename, argv[i], BMAX_PATH);
     }
 
     if (boardfilename[0] == 0)

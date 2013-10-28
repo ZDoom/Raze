@@ -177,6 +177,7 @@ extern void ExtEditWallData(int16_t wallnum);
 extern void ExtEditSpriteData(int16_t spritenum);
 extern const char *ExtGetSectorType(int32_t lotag);
 
+extern void B_SetBoardFileName(const char *fn);
 extern int32_t LoadBoard(const char *filename, uint32_t flags);
 extern const char *SaveBoard(const char *fn, uint32_t flags);
 extern const char *GetSaveBoardFilename(const char *fn);

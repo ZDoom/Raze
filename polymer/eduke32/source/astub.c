@@ -8780,7 +8780,12 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             k = Bstrrchr(c,'.');
             if (k)
             {
-                if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
+                if (!Bstrcasecmp(k,".map"))
+                {
+                    B_SetBoardFileName(argv[i++]);
+                    continue;
+                }
+                else if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
                 {
                     COPYARG(i);
                     G_AddGroup(argv[i++]);
