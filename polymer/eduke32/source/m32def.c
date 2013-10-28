@@ -3677,6 +3677,8 @@ void C_CompilationInfo(void)
         initprintf("  %d/%d quotes, %d/%d quote redefinitions\n", k,MAXQUOTES, g_numQuoteRedefinitions,MAXQUOTES);
 }
 
+EDUKE32_STATIC_ASSERT((sizeof(keyw)/sizeof(keyw[0]))-1 == CON_END);
+
 void C_Compile(const char *filenameortext, int32_t isfilename)
 {
     char *mptr = NULL;
@@ -3719,9 +3721,6 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
             return;
         }
 
-        if ((sizeof(keyw)/sizeof(keyw[0]))-1 != CON_END)
-            initprintf("INTERNAL WARNING: keyw[] and CON_END don't match!\n");
-
         g_scriptPtr = script+1;
 
         firstime = 0;
@@ -3742,8 +3741,12 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         fp = kopen4load(mptr, 0 /*g_loadFromGroupOnly*/);
         if (fp == -1) // JBF: was 0
         {
-            Bstrcat(&mptr[fs], ".m32");
-            fp = kopen4load(mptr, 0 /*g_loadFromGroupOnly*/);
+            if (fs >= 4 && Bmemcmp(&mptr[fs-4], ".m32", 4) != 0)
+            {
+                Bstrcat(&mptr[fs], ".m32");
+                fp = kopen4load(mptr, 0 /*g_loadFromGroupOnly*/);
+            }
+
             if (fp == -1)
             {
                 initprintf("M32 file `%s' not found.\n", mptr);

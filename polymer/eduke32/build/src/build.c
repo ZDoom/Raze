@@ -7770,7 +7770,7 @@ CANCEL:
                     i = 0;
                     while (boardfilename[i] != 0 && i < 64)
                         i++;
-                    if (boardfilename[i-4] == '.')
+                    if (i >= 4 && boardfilename[i-4] == '.')
                         i -= 4;
                     boardfilename[i] = 0;
 
