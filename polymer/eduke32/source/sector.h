@@ -40,7 +40,7 @@ typedef struct {
     // this needs to have a copy of everything related to the map/actor state
     // see savegame.c
     int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
-    int32_t animateptr[MAXANIMATES];
+    intptr_t animateptr[MAXANIMATES];
     int32_t lockclock;
     int32_t msx[2048], msy[2048];
     int32_t randomseed, g_globalRandom;

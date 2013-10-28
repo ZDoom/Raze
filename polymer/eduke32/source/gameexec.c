@@ -5535,6 +5535,10 @@ void G_SaveMapState(void)
         Bmemcpy(&save->animateptr[0],&animateptr[0],sizeof(animateptr));
         G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_BACK);
 
+        {
+            EDUKE32_STATIC_ASSERT(sizeof(save->animateptr) == sizeof(animateptr));
+        }
+
         Bmemcpy(&save->g_numPlayerSprites,&g_numPlayerSprites,sizeof(g_numPlayerSprites));
         Bmemcpy(&save->g_earthquakeTime,&g_earthquakeTime,sizeof(g_earthquakeTime));
         Bmemcpy(&save->lockclock,&lockclock,sizeof(lockclock));

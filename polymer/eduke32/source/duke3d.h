@@ -62,7 +62,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # define BYTEVERSION_JF      288
 #else
 // Non-Lua build
-# define BYTEVERSION_JF      285
+# define BYTEVERSION_JF      288
 #endif
 
 #define BYTEVERSION_13      27
