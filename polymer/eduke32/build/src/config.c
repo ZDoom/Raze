@@ -202,6 +202,12 @@ int32_t loadsetup(const char *fn)
         shadescale = clampd(Bstrtod(val, NULL), 0.0, 10.0);
     if (readconfig(fp, "r_usenewshading", val, VL) > 0)
         r_usenewshading = clamp(atoi_safe(val), 0, 2);
+    if (readconfig(fp, "r_usetileshades", val, VL) > 0)
+        r_usetileshades = !!atoi_safe(val);
+# ifdef POLYMER
+    if (readconfig(fp, "r_pr_artmapping", val, VL) > 0)
+        pr_artmapping = !!atoi_safe(val);
+# endif
 #endif
     if (readconfig(fp, "r_usenewaspect", val, VL) > 0)
         r_usenewaspect = !!atoi_safe(val);
@@ -404,6 +410,10 @@ int32_t writesetup(const char *fn)
              "r_texcompr = %d\n"
              "r_shadescale = %g\n"
              "r_usenewshading = %d\n"
+             "r_usetileshades = %d\n"
+# ifdef POLYMER
+             "r_pr_artmapping = %d\n"
+# endif
              "\n"
 #endif
              "; Use new aspect determination code? (classic/Polymost)\n"
@@ -593,7 +603,10 @@ int32_t writesetup(const char *fn)
 #ifdef USE_OPENGL
              usemodels, usehightile, g_lazy_tileselector,
              glusetexcache, glusememcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
-             shadescale, r_usenewshading,
+             shadescale, r_usenewshading, r_usetileshades,
+# ifdef POLYMER
+             pr_artmapping,
+# endif
 #endif
              r_usenewaspect,
 #ifndef RENDERTYPEWIN
