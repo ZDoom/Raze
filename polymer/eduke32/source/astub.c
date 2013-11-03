@@ -90,16 +90,6 @@ static int32_t spnoclip=1;
 static char *default_tiles_cfg = "tiles.cfg";
 static int32_t pathsearchmode_oninit;
 
-char **g_scriptModules = NULL;
-int32_t g_scriptModulesNum = 0;
-char **g_defModules = NULL;
-int32_t g_defModulesNum = 0;
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-char **g_clipMapFiles = NULL;
-int32_t g_clipMapFilesNum = 0;
-#endif
-
 #ifdef LUNATIC
 static L_State g_EmState;
 #endif
@@ -8449,12 +8439,12 @@ int32_t ExtPreSaveMap(void)
 static void G_ShowParameterHelp(void)
 {
     const char *s = "Usage: mapster32 [files] [options]\n\n"
-              "-g[file.grp], -grp [file.grp]\tLoad extra group file\n"
-              "-h[file.def]\t\tLoad an alternate definitions file\n"
-              "-x[game.con]\t\tLoad a custom CON script for getting sound definitions\n"
+              "-g [file.grp], -grp [file.grp]\tLoad extra group file\n"
+              "-h [file.def]\t\tLoad an alternate definitions file\n"
+              "-x [game.con]\t\tLoad a custom CON script for getting sound definitions\n"
               "-mh [file.def]\t\tInclude additional definitions module\n"
               "-mx [file.con]\t\tInclude additional CON module for getting sound definitions\n"
-              "-j[dir], -game_dir [dir]\n"
+              "-j [dir], -game_dir [dir]\n"
               "\t\t\tAdds a directory to the file path stack\n"
               "-cachesize #\t\tSets cache size, in Kb\n"
               "-check\t\t\tEnables map pointer checking when saving\n"
@@ -8622,13 +8612,37 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 i++;
                 continue;
             }
+            if (!Bstrcasecmp(c+1,"x"))
+            {
+                if (argc > i+1)
+                {
+                    G_AddCon(argv[i+1]);
+                    COPYARG(i);
+                    COPYARG(i+1);
+                    i++;
+                }
+                i++;
+                continue;
+            }
             if (!Bstrcasecmp(c+1,"mx"))
             {
                 if (argc > i+1)
                 {
-                    g_scriptModules = (char **) Brealloc (g_scriptModules, (g_scriptModulesNum+1) * sizeof(char *));
-                    g_scriptModules[g_scriptModulesNum] = Bstrdup(argv[i+1]);
-                    ++g_scriptModulesNum;
+                    G_AddConModule(argv[i+1]);
+                    COPYARG(i);
+                    COPYARG(i+1);
+                    i++;
+                }
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"h"))
+            {
+                if (argc > i+1)
+                {
+                    G_AddDef(argv[i+1]);
+                    COPYARG(i);
+                    COPYARG(i+1);
                     i++;
                 }
                 i++;
@@ -8638,9 +8652,21 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             {
                 if (argc > i+1)
                 {
-                    g_defModules = (char **) Brealloc (g_defModules, (g_defModulesNum+1) * sizeof(char *));
-                    g_defModules[g_defModulesNum] = Bstrdup(argv[i+1]);
-                    ++g_defModulesNum;
+                    G_AddDefModule(argv[i+1]);
+                    COPYARG(i);
+                    COPYARG(i+1);
+                    i++;
+                }
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"j"))
+            {
+                if (argc > i+1)
+                {
+                    G_AddPath(argv[i+1]);
+                    COPYARG(i);
+                    COPYARG(i+1);
                     i++;
                 }
                 i++;
@@ -8651,9 +8677,9 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             {
                 if (argc > i+1)
                 {
-                    g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-                    g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(argv[i+1]);
-                    ++g_clipMapFilesNum;
+                    G_AddClipMap(argv[i+1]);
+                    COPYARG(i);
+                    COPYARG(i+1);
                     i++;
                 }
                 i++;
@@ -8743,10 +8769,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 c++;
                 if (*c)
                 {
-                    clearDefNamePtr();
-                    g_defNamePtr = dup_filename(c);
+                    G_AddDef(c);
                     COPYARG(i);
-                    initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
                 }
                 break;
             case 'j':
@@ -8768,9 +8792,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 c++;
                 if (*c)
                 {
-                    clearScriptNamePtr();
-                    g_scriptNamePtr = dup_filename(c);
-                    initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
+                    G_AddCon(c);
+                    COPYARG(i);
                 }
                 break;
             }
@@ -8794,17 +8817,13 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 else if (!Bstrcasecmp(k,".def"))
                 {
                     COPYARG(i);
-                    clearDefNamePtr();
-                    g_defNamePtr = dup_filename(argv[i++]);
-                    initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
+                    G_AddDef(argv[i++]);
                     continue;
                 }
                 else if (!Bstrcasecmp(k,".con"))
                 {
                     COPYARG(i);
-                    clearScriptNamePtr();
-                    g_scriptNamePtr = dup_filename(argv[i++]);
-                    initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
+                    G_AddCon(argv[i++]);
                     continue;
                 }
             }

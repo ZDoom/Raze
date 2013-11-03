@@ -245,9 +245,6 @@ extern const char *s_buildDate;
 extern const char *g_gameNamePtr;
 extern const char *g_rtsNamePtr;
 
-extern char **g_scriptModules;
-extern int32_t g_scriptModulesNum;
-
 extern char CheatStrings[][MAXCHEATLEN];
 extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
 extern char boardfilename[BMAX_PATH];

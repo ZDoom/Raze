@@ -138,17 +138,8 @@ const char *g_gameNamePtr = NULL;
 // g_rtsNamePtr can point to an argv[] element
 const char *g_rtsNamePtr = NULL;
 
-char **g_scriptModules = NULL;
-int32_t g_scriptModulesNum = 0;
-char **g_defModules = NULL;
-int32_t g_defModulesNum = 0;
 int32_t g_dependencyCRC = 0;
 int32_t g_usingAddon = 0;
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-char **g_clipMapFiles = NULL;
-int32_t g_clipMapFilesNum = 0;
-#endif
 
 int32_t g_Shareware = 0;
 
@@ -9009,10 +9000,10 @@ static void G_ShowParameterHelp(void)
 #endif
               "-connect [host]\tConnect to a multiplayer game\n"
               "-c#\t\tUse MP mode #, 1 = Dukematch, 2 = Coop, 3 = Dukematch(no spawn)\n"
-              "-d[file.edm or demonum]\tPlay a demo\n"
-              "-g[file.grp]\tLoad additional game data\n"
-              "-h[file.def]\tLoad an alternate definitions file\n"
-              "-j[dir]\t\tAdds a directory to EDuke32's search list\n"
+              "-d [file.edm or demonum]\tPlay a demo\n"
+              "-g [file.grp]\tLoad additional game data\n"
+              "-h [file.def]\tLoad an alternate definitions file\n"
+              "-j [dir]\t\tAdds a directory to EDuke32's search list\n"
               "-l#\t\tWarp to level #, see -v\n"
               "-map [file.map]\tLoads a map\n"
               "-mh [file.def]\tInclude an additional definitions module\n"
@@ -9032,7 +9023,7 @@ static void G_ShowParameterHelp(void)
               "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
               "-v#\t\tWarp to volume #, see -l\n"
               "-ww2gi\t\tRun in WWII GI compatibility mode\n"
-              "-x[game.con]\tLoad custom CON script\n"
+              "-x [game.con]\tLoad custom CON script\n"
               "-#\t\tLoad and run a game from slot # (0-9)\n"
 //              "\n-?/--help\tDisplay this help message and exit\n"
               "\nSee eduke32 -debughelp for debug parameters"
@@ -9531,6 +9522,36 @@ static int32_t G_CheckCmdSwitch(int32_t argc, const char **argv, const char *str
     return 0;
 }
 
+static void G_AddDemo(const char* param)
+{
+    char * colon = (char *)Bstrchr(param, ':');
+    int32_t framespertic=-1, numrepeats=1;
+
+    if (colon && colon != param)
+    {
+        // -d<filename>:<num>[,<num>]
+        // profiling options
+        *(colon++) = 0;
+        Bsscanf(colon, "%u,%u", &framespertic, &numrepeats);
+    }
+
+    Demo_SetFirst(param);
+
+    if (framespertic < 0)
+    {
+        initprintf("Play demo %s.\n", g_firstDemoFile);
+    }
+    else
+    {
+        framespertic = clamp(framespertic, 0, 8)+1;
+        // TODO: repeat count and gathering statistics.
+        initprintf("Profile demo %s, %d frames/gametic, repeated 1x.\n", g_firstDemoFile,
+                   framespertic-1);
+        Demo_PlayFirst(framespertic, 1);
+        g_noLogo = 1;
+    }
+}
+
 static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
     int16_t i = 1, j;
@@ -9799,13 +9820,31 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
+                if (!Bstrcasecmp(c+1,"x"))
+                {
+                    if (argc > i+1)
+                    {
+                        G_AddCon(argv[i+1]);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"mx"))
                 {
                     if (argc > i+1)
                     {
-                        g_scriptModules = (char **) Brealloc (g_scriptModules, (g_scriptModulesNum+1) * sizeof(char *));
-                        g_scriptModules[g_scriptModulesNum] = Bstrdup(argv[i+1]);
-                        ++g_scriptModulesNum;
+                        G_AddConModule(argv[i+1]);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"h"))
+                {
+                    if (argc > i+1)
+                    {
+                        G_AddDef(argv[i+1]);
                         i++;
                     }
                     i++;
@@ -9815,9 +9854,27 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        g_defModules = (char **) Brealloc (g_defModules, (g_defModulesNum+1) * sizeof(char *));
-                        g_defModules[g_defModulesNum] = Bstrdup(argv[i+1]);
-                        ++g_defModulesNum;
+                        G_AddDefModule(argv[i+1]);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"j"))
+                {
+                    if (argc > i+1)
+                    {
+                        G_AddPath(argv[i+1]);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"d"))
+                {
+                    if (argc > i+1)
+                    {
+                        G_AddDemo(argv[i+1]);
                         i++;
                     }
                     i++;
@@ -9828,9 +9885,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-                        g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(argv[i+1]);
-                        ++g_clipMapFilesNum;
+                        G_AddClipMap(argv[i+1]);
                         i++;
                     }
                     i++;
@@ -9933,34 +9988,9 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     break;
                 case 'd':
                 {
-                    char * colon = (char *)Bstrchr(c, ':');
-                    int32_t framespertic=-1, numrepeats=1;
-
                     c++;
-
-                    if (colon && colon != c)
-                    {
-                        // -d<filename>:<num>[,<num>]
-                        // profiling options
-                        *(colon++) = 0;
-                        Bsscanf(colon, "%u,%u", &framespertic, &numrepeats);
-                    }
-
-                    Demo_SetFirst(c);
-
-                    if (framespertic < 0)
-                    {
-                        initprintf("Play demo %s.\n", g_firstDemoFile);
-                    }
-                    else
-                    {
-                        framespertic = clamp(framespertic, 0, 8)+1;
-                        // TODO: repeat count and gathering statistics.
-                        initprintf("Profile demo %s, %d frames/gametic, repeated 1x.\n", g_firstDemoFile,
-                                   framespertic-1);
-                        Demo_PlayFirst(framespertic, 1);
-                        g_noLogo = 1;
-                    }
+                    if (*c)
+                        G_AddDemo(c);
                     break;
                 }
 #ifdef LUNATIC
@@ -9975,11 +10005,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 case 'h':
                     c++;
                     if (*c)
-                    {
-                        clearDefNamePtr();
-                        g_defNamePtr = dup_filename(c);
-                        initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
-                    }
+                        G_AddDef(c);
                     break;
                 case 'j':
                     c++;
@@ -10127,11 +10153,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 case 'x':
                     c++;
                     if (*c)
-                    {
-                        clearScriptNamePtr();
-                        g_scriptNamePtr = dup_filename(c);
-                        initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
-                    }
+                        G_AddCon(c);
                     break;
                 case '0':
                 case '1':

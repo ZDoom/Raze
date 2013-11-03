@@ -359,6 +359,16 @@ void G_CleanupSearchPaths(void)
 
 struct strllist *CommandPaths, *CommandGrps;
 
+char **g_scriptModules = NULL;
+int32_t g_scriptModulesNum = 0;
+char **g_defModules = NULL;
+int32_t g_defModulesNum = 0;
+
+#ifdef HAVE_CLIPSHAPE_FEATURE
+char **g_clipMapFiles = NULL;
+int32_t g_clipMapFilesNum = 0;
+#endif
+
 void G_AddGroup(const char *buffer)
 {
     char buf[BMAX_PATH];
@@ -395,6 +405,43 @@ void G_AddPath(const char *buffer)
         return;
     }
     CommandPaths = s;
+}
+
+void G_AddDef(const char *buffer)
+{
+    clearDefNamePtr();
+    g_defNamePtr = dup_filename(buffer);
+    initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
+}
+
+void G_AddDefModule(const char *buffer)
+{
+    g_defModules = (char **) Brealloc (g_defModules, (g_defModulesNum+1) * sizeof(char *));
+    g_defModules[g_defModulesNum] = Bstrdup(buffer);
+    ++g_defModulesNum;
+}
+
+#ifdef HAVE_CLIPSHAPE_FEATURE
+void G_AddClipMap(const char *buffer)
+{
+    g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
+    g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(buffer);
+    ++g_clipMapFilesNum;
+}
+#endif
+
+void G_AddCon(const char *buffer)
+{
+    clearScriptNamePtr();
+    g_scriptNamePtr = dup_filename(buffer);
+    initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
+}
+
+void G_AddConModule(const char *buffer)
+{
+    g_scriptModules = (char **) Brealloc (g_scriptModules, (g_scriptModulesNum+1) * sizeof(char *));
+    g_scriptModules[g_scriptModulesNum] = Bstrdup(buffer);
+    ++g_scriptModulesNum;
 }
 
 //////////

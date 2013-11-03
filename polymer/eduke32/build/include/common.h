@@ -51,6 +51,11 @@ extern struct strllist *CommandPaths, *CommandGrps;
 //// FUNCTIONS
 void G_AddGroup(const char *buffer);
 void G_AddPath(const char *buffer);
+void G_AddDef(const char *buffer);
+void G_AddDefModule(const char *buffer);
+#ifdef HAVE_CLIPSHAPE_FEATURE
+void G_AddClipMap(const char *buffer);
+#endif
 
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
