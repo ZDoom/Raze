@@ -284,6 +284,7 @@ const char * G_GetInstallPath(int32_t insttype)
         // KEY_WOW64_32KEY gets us around Wow6432Node on 64-bit builds
 
         if (keygood == ERROR_SUCCESS)
+        {
             switch (insttype)
             {
             case INSTPATH_STEAM:
@@ -293,6 +294,9 @@ const char * G_GetInstallPath(int32_t insttype)
                 success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, spath[insttype], (LPDWORD)&siz);
                 break;
             }
+
+            RegCloseKey(HKLM32);
+        }
     }
 
     if (success[insttype] == ERROR_SUCCESS)
