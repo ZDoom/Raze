@@ -440,13 +440,17 @@ static void _internal_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t l
     char st[1024];
 
     UNREFERENCED_PARAMETER(shade);
-    UNREFERENCED_PARAMETER(pal);
 
     if (len>1023) len=1023;
     Bmemcpy(st,ch,len);
     st[len]=0;
 
-    printext256(4+(x<<3),4+(y<<3), white, -1, st, 0);
+    OSD_GetShadePal(ch, &shade, &pal);
+
+    {
+        int32_t colidx = white >= 0 ? palookup[(uint8_t)pal][white] : white;
+        printext256(4+(x<<3),4+(y<<3), colidx, -1, st, 0);
+    }
 }
 
 static void _internal_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress)
@@ -464,13 +468,18 @@ static void _internal_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t 
     }
 
     {
-        int32_t i, j, k;
-        // find the palette index closest to white
-        k=0;
+        int32_t i, k;
+        // Find the palette index closest to Duke3D's brightest blue
+        // "foreground" color.  (Index 79, or the last column of the 5th row,
+        // if the palette is laid out in a 16x16 pattern.)
+        k = INT32_MAX;
         for (i=0; i<256; i++)
         {
-            j = ((int32_t)curpalette[i].r)+((int32_t)curpalette[i].g)+((int32_t)curpalette[i].b);
-            if (j > k) { k = j; white = i; }
+            int32_t j =
+                klabs(curpalette[i].r - 4*47) +
+                klabs(curpalette[i].g - 4*55) +
+                klabs(curpalette[i].b - 4*63);
+            if (j < k) { k = j; white = i; }
         }
     }
 
