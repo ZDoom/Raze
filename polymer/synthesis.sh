@@ -117,8 +117,8 @@ function package_sdk ()
 
 function package_execute ()
 {
-    echo 7z a -mx9 -t7z $output/$date-$head/${*}_$date-$head.7z *
-    7z a -mx9 -t7z $output/$date-$head/${*}_$date-$head.7z *
+    echo 7zr a -mx9 -t7z $output/$date-$head/${*}_$date-$head.7z *
+    7zr a -mx9 -t7z $output/$date-$head/${*}_$date-$head.7z *
 
     cd $top/$source
 
@@ -150,14 +150,14 @@ then
     # package game
     package_start
     package_debug win32
-    mv -f eduke32$exe "$package/eduke32.debug$exe"
+    mv -f $top/$source/eduke32$exe "$package/eduke32.debug$exe"
     package_execute ${basename}_win32_debug
 
     # package sdk
     package_start
     package_debug win32
     package_sdk
-    mv -f mapster32$exe "$package/mapster32.debug$exe"
+    mv -f $top/$source/mapster32$exe "$package/mapster32.debug$exe"
     package_execute ${basename}-sdk_win32_debug
 
 
@@ -173,14 +173,14 @@ then
     # package game
     package_start
     package_debug win64
-    mv -f eduke32$exe "$package/eduke32.debug$exe"
+    mv -f $top/$source/eduke32$exe "$package/eduke32.debug$exe"
     package_execute ${basename}_win64_debug
 
     # package sdk
     package_start
     package_debug win64
     package_sdk
-    mv -f mapster32$exe "$package/mapster32.debug$exe"
+    mv -f $top/$source/mapster32$exe "$package/mapster32.debug$exe"
     package_execute ${basename}-sdk_win64_debug
 
 
@@ -199,7 +199,7 @@ then
         # package game
         package_start
         package_game_lunatic
-        mv -f eduke32$exe "$package/leduke32_PREVIEW$exe"
+        mv -f $top/$source/eduke32$exe "$package/leduke32_PREVIEW$exe"
         package_execute l${basename}-lunatic-PREVIEW_win32
     fi
 
@@ -215,13 +215,13 @@ then
 
     # package game
     package_start
-    mv -f eduke32$exe "$package/eduke32$exe"
+    mv -f $top/$source/eduke32$exe "$package/eduke32$exe"
     package_execute ${basename}_win32
 
     # package sdk
     package_start
     package_sdk
-    mv -f mapster32$exe "$package/mapster32$exe"
+    mv -f $top/$source/mapster32$exe "$package/mapster32$exe"
     package_execute ${basename}-sdk_win32
 
 
@@ -236,13 +236,13 @@ then
 
     # package game
     package_start
-    mv -f eduke32$exe "$package/eduke32$exe"
+    mv -f $top/$source/eduke32$exe "$package/eduke32$exe"
     package_execute ${basename}_win64
 
     # package sdk
     package_start
     package_sdk
-    mv -f mapster32$exe "$package/mapster32$exe"
+    mv -f $top/$source/mapster32$exe "$package/mapster32$exe"
     package_execute ${basename}-sdk_win64
 
 
