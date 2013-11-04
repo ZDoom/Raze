@@ -4894,7 +4894,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     Bmemcpy(s, &spr_temp, sizeof(spritetype));
     Bmemset(&actor[i], 0, sizeof(actor_t));
-    Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t)); // update bposx/y/z
+    Bmemcpy(&actor[i].bpos, s, sizeof(vec3_t)); // update bposx/y/z
 
     if ((unsigned)s_ow < MAXSPRITES)
     {
@@ -4985,7 +4985,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         i = pn;
 
         Bmemset(&actor[i], 0, sizeof(actor_t));
-        Bmemcpy(&actor[i].bpos.x, &sprite[i], sizeof(vec3_t));
+        Bmemcpy(&actor[i].bpos, &sprite[i], sizeof(vec3_t));
 
         actor[i].picnum = PN;
 

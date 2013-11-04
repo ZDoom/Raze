@@ -4187,7 +4187,7 @@ void P_UpdatePosWhenViewingCam(DukePlayer_t *p)
 {
     int32_t i = p->newowner;
 
-    Bmemcpy(&p->pos.x, &sprite[i].x, sizeof(vec3_t));
+    Bmemcpy(&p->pos, &sprite[i], sizeof(vec3_t));
     p->ang =  SA;
     p->vel.x = p->vel.y = sprite[p->i].xvel = 0;
     p->look_ang = 0;
@@ -4407,7 +4407,7 @@ void P_ProcessInput(int32_t snum)
             //                        p->bobcounter += 32;
         }
 
-        Bmemcpy(&p->opos.x, &p->pos.x, sizeof(vec3_t));
+        Bmemcpy(&p->opos, &p->pos, sizeof(vec3_t));
         p->oang = p->ang;
         p->opyoff = p->pyoff;
 

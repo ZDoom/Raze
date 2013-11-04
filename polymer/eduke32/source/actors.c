@@ -320,7 +320,7 @@ static int32_t Proj_MaybeDoTransport(int32_t spritenum, int32_t i, int32_t fromu
         else  // below->above
             spr->z = sector[otherse->sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
 
-        Bmemcpy(&actor[spritenum].bpos.x, &sprite[spritenum], sizeof(vec3_t));
+        Bmemcpy(&actor[spritenum].bpos, &sprite[spritenum], sizeof(vec3_t));
         changespritesect(spritenum, otherse->sectnum);
 
         return 1;
@@ -1261,7 +1261,7 @@ ACTOR_STATIC void G_MovePlayers(void)
             if (p->holoduke_on == -1)
                 KILLIT(i);
 
-            Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
+            Bmemcpy(&actor[i].bpos, s, sizeof(vec3_t));
             s->cstat = 0;
 
             if (s->xrepeat < 42)
@@ -1557,7 +1557,7 @@ ACTOR_STATIC void G_MoveStandables(void)
 
         // Rotation-fixed sprites in rotating sectors already have bpos* updated.
         if ((t[7]&(0xffff0000))!=ROTFIXSPR_MAGIC)
-            Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
+            Bmemcpy(&actor[i].bpos, s, sizeof(vec3_t));
 
         if (PN >= CRANE && PN <= CRANE+3)
         {
@@ -1727,7 +1727,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 {
                     setsprite(s->owner,(vec3_t *)s);
 
-                    Bmemcpy(&actor[s->owner].bpos.x, s, sizeof(vec3_t));
+                    Bmemcpy(&actor[s->owner].bpos, s, sizeof(vec3_t));
 
                     s->zvel = 0;
                 }
@@ -2923,7 +2923,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
         if (s->sectnum < 0)
             KILLIT(i);
 
-        Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
+        Bmemcpy(&actor[i].bpos, s, sizeof(vec3_t));
 
         /* Custom projectiles */
         if (A_CheckSpriteFlags(i, SPRITE_PROJECTILE))
@@ -3569,7 +3569,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                 sprite[j].z = sectlotag==ST_1_ABOVE_WATER ?
                                     sector[osect].ceilingz : sector[osect].floorz;
 
-                                Bmemcpy(&actor[j].bpos.x, &sprite[j], sizeof(vec3_t));
+                                Bmemcpy(&actor[j].bpos, &sprite[j], sizeof(vec3_t));
 
                                 changespritesect(j, sprite[OW].sectnum);
                             }
@@ -3587,7 +3587,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                         sprite[j].z -= SZ - sector[sprite[OW].sectnum].floorz;
                                         sprite[j].ang = sprite[OW].ang;
 
-                                        Bmemcpy(&actor[j].bpos.x, &sprite[j], sizeof(vec3_t));
+                                        Bmemcpy(&actor[j].bpos, &sprite[j], sizeof(vec3_t));
 
                                         if (sprite[i].pal == 0)
                                         {
@@ -3613,7 +3613,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                     sprite[j].y += (sprite[OW].y-SY);
                                     sprite[j].z = sprite[OW].z+4096;
 
-                                    Bmemcpy(&actor[j].bpos.x, &sprite[j], sizeof(vec3_t));
+                                    Bmemcpy(&actor[j].bpos, &sprite[j], sizeof(vec3_t));
 
                                     changespritesect(j,sprite[OW].sectnum);
                                 }
@@ -3669,7 +3669,7 @@ ACTOR_STATIC void G_MoveActors(void)
         if (s->xrepeat == 0 || sect < 0 || sect >= MAXSECTORS)
             KILLIT(i);
 
-        Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
+        Bmemcpy(&actor[i].bpos, s, sizeof(vec3_t));
 
         switchpicnum = s->picnum;
 
@@ -4991,7 +4991,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
         if (sect < 0 || s->xrepeat == 0)
             KILLIT(i);
 
-        Bmemcpy(&actor[i].bpos.x, s, sizeof(vec3_t));
+        Bmemcpy(&actor[i].bpos, s, sizeof(vec3_t));
 
         switchpicnum = s->picnum;
         if (s->picnum > NUKEBUTTON && s->picnum <= NUKEBUTTON+3)
@@ -6934,7 +6934,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         sprite[k].z = sector[sprite[j].sectnum].floorz-
                                       (sc->floorz-sprite[k].z);
 
-                        Bmemcpy(&actor[k].bpos.x, &sprite[k], sizeof(vec3_t));
+                        Bmemcpy(&actor[k].bpos, &sprite[k], sizeof(vec3_t));
 
                         changespritesect(k,sprite[j].sectnum);
                         setsprite(k,(vec3_t *)&sprite[k]);

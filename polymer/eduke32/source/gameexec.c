@@ -5509,7 +5509,7 @@ void G_SaveMapState(void)
         Bmemcpy(&save->actor[0],&actor[0],sizeof(actor_t)*MAXSPRITES);
 
         Bmemcpy(&save->g_numCyclers,&g_numCyclers,sizeof(g_numCyclers));
-        Bmemcpy(&save->cyclers[0][0],&cyclers[0][0],sizeof(cyclers));
+        Bmemcpy(&save->cyclers[0],&cyclers[0],sizeof(cyclers));
         Bmemcpy(&save->g_playerSpawnPoints[0],&g_playerSpawnPoints[0],sizeof(g_playerSpawnPoints));
         Bmemcpy(&save->g_numAnimWalls,&g_numAnimWalls,sizeof(g_numAnimWalls));
         Bmemcpy(&save->SpriteDeletionQueue[0],&SpriteDeletionQueue[0],sizeof(SpriteDeletionQueue));
@@ -5637,7 +5637,7 @@ void G_RestoreMapState(void)
         Bmemcpy(&actor[0],&save->actor[0],sizeof(actor_t)*MAXSPRITES);
 
         Bmemcpy(&g_numCyclers,&save->g_numCyclers,sizeof(g_numCyclers));
-        Bmemcpy(&cyclers[0][0],&save->cyclers[0][0],sizeof(cyclers));
+        Bmemcpy(&cyclers[0],&save->cyclers[0],sizeof(cyclers));
         Bmemcpy(&g_playerSpawnPoints[0],&save->g_playerSpawnPoints[0],sizeof(g_playerSpawnPoints));
         Bmemcpy(&g_numAnimWalls,&save->g_numAnimWalls,sizeof(g_numAnimWalls));
         Bmemcpy(&SpriteDeletionQueue[0],&save->SpriteDeletionQueue[0],sizeof(SpriteDeletionQueue));
