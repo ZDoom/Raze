@@ -164,7 +164,7 @@ void G_OpenDemoWrite(void)
                 OSD_Printf("contain a RESIZEARRAY command, you can force recording with the\n");
                 OSD_Printf("`demorec_force' cvar. Alternatively, you can disable diff recording\n");
                 OSD_Printf("with the `demorec_diffs' cvar.\n\n");
-                Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
+                Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD.");
                 P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
                 ud.recstat = ud.m_recstat = 0;
                 return;
