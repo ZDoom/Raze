@@ -61,9 +61,6 @@ void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
 void GAME_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t len, int32_t shade, int32_t pal)
 {
     int16_t ac;
-    const char *const ptr = OSD_GetTextPtr();
-    const char *const fmt = OSD_GetFmtPtr();
-    const int32_t use_format = (ch > ptr && ch < (ptr + TEXTSIZE));
 #ifdef USE_OPENGL
     const int32_t ht = usehightile;
     usehightile = (osdhightile && ht);
@@ -76,11 +73,8 @@ void GAME_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t len, int32_t 
         if (!GAME_isspace(*ch))
             if ((ac = GAME_getchartile(*ch)) >= 0)
             {
-                // use the format byte if the text falls within the bounds of the console buffer
-                const int32_t tshade = use_format ? (fmt[ch-ptr]&~0x1F)>>4 : shade;
-                const int32_t tpal = use_format ? fmt[ch-ptr]&~0xE0 : pal;
-
-                rotatesprite_fs(x<<16, (y<<3)<<16, 65536, 0, ac, tshade, tpal, 8|16);
+                OSD_GetShadePal(ch, &shade, &pal);
+                rotatesprite_fs(x<<16, (y<<3)<<16, 65536, 0, ac, shade, pal, 8|16);
             }
 
         x += OSDCHAR_WIDTH+1;

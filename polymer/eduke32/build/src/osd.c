@@ -313,6 +313,18 @@ int32_t OSD_GetTextMode(void)
     return osdtextmode;
 }
 
+void OSD_GetShadePal(const char *ch, int32_t *shadeptr, int32_t *palptr)
+{
+    // Use format buffer when 'ch' falls inside osdtext[] bounds (well,
+    // almost).
+    // TODO: when is this false?
+    if (ch > osdtext && ch < osdtext + TEXTSIZE)
+    {
+        *shadeptr = (osdfmt[ch-osdtext] & ~0x1F) >> 4;
+        *palptr = osdfmt[ch-osdtext] & ~0xE0;
+    }
+}
+
 static inline void swapptr(void *a, void *b)
 {
 	intptr_t t = *(intptr_t*)a;
