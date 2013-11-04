@@ -14,8 +14,8 @@ clean=veryclean
 
 # the following file paths are relative to $source
 targets=( eduke32$exe mapster32$exe )
-package=package
-not_src_packaged=( $package/ebacktrace1.dll $package/ebacktrace1-64.dll )
+package=$top/$source/package/package
+not_src_packaged=( package/debug/win32/ebacktrace1.dll package/debug/win64/ebacktrace1-64.dll )
 
 # group that owns the resulting packages
 group=dukeworld
@@ -25,7 +25,6 @@ dobuild=
 
 # controls resulting package filenames... will support linux later
 basename=eduke32
-platform=win32
 
 # if the output dir doesn't exist, create it
 if [ ! -e $output ]
@@ -64,7 +63,7 @@ then
     dobuild=1
 else
     echo "Last built revision is $lastrevision."
-    
+
     # if the last built revision is less than HEAD, we also build
     if [ $lastrevision -lt $head ]
     then
@@ -83,6 +82,47 @@ function verifytargets ()
             exit
         fi
     done
+
+    # create the output directory
+    mkdir -p $output/$date-$head
+}
+
+function package_start ()
+{
+    mkdir -p $package
+
+    cd $package
+
+    cp -R $top/$source/package/common/* ./
+}
+
+function package_debug ()
+{
+    cp -R $top/$source/package/debug/${*}/* ./
+}
+
+function package_game_lunatic ()
+{
+    # Package some Lunatic test and demo files.
+    mkdir -p lunatic/test
+    cp $top/$source/source/lunatic/test.lua lunatic
+    cp $top/$source/source/lunatic/test/test_{bitar,geom,rotspr}.lua lunatic/test
+    cp $top/$source/source/lunatic/test/{delmusicsfx,helixspawner}.lua lunatic/test
+}
+
+function package_sdk ()
+{
+    cp -R $top/$source/package/sdk/* ./
+}
+
+function package_execute ()
+{
+    echo 7z a -mx9 -t7z $output/$date-$head/${*}_$date-$head.7z *
+    7z a -mx9 -t7z $output/$date-$head/${*}_$date-$head.7z *
+
+    cd $top/$source
+
+    rm -rf $package
 }
 
 if [ $dobuild ]
@@ -94,6 +134,9 @@ then
     # throw the svn revision into a header.  this is ugly.
     echo "s_buildRev = \"r$head\";" > source/rev.h
 
+    # get the date in the YYYYMMDD format (ex: 20091001)
+    date=`date +%Y%m%d`
+
 
     # 32-bit debug
 
@@ -104,11 +147,18 @@ then
     # make sure all the targets were produced
     verifytargets
 
-    # move the targets to $package
-    echo mv -f eduke32$exe "$package/eduke32.debug$exe"
+    # package game
+    package_start
+    package_debug win32
     mv -f eduke32$exe "$package/eduke32.debug$exe"
-    echo mv -f mapster32$exe "$package/mapster32.debug$exe"
+    package_execute ${basename}_win32_debug
+
+    # package sdk
+    package_start
+    package_debug win32
+    package_sdk
     mv -f mapster32$exe "$package/mapster32.debug$exe"
+    package_execute ${basename}-sdk_win32_debug
 
 
     # 64-bit debug
@@ -120,11 +170,18 @@ then
     # make sure all the targets were produced
     verifytargets
 
-    # move the targets to $package
-    echo mv -f eduke32$exe "$package/eduke64.debug$exe"
-    mv -f eduke32$exe "$package/eduke64.debug$exe"
-    echo mv -f mapster32$exe "$package/mapster64.debug$exe"
-    mv -f mapster32$exe "$package/mapster64.debug$exe"
+    # package game
+    package_start
+    package_debug win64
+    mv -f eduke32$exe "$package/eduke32.debug$exe"
+    package_execute ${basename}_win64_debug
+
+    # package sdk
+    package_start
+    package_debug win64
+    package_sdk
+    mv -f mapster32$exe "$package/mapster32.debug$exe"
+    package_execute ${basename}-sdk_win64_debug
 
 
     # 32-bit Lunatic (pre-)release
@@ -139,9 +196,11 @@ then
         # make sure all the targets were produced
         verifytargets
 
-        # move the targets to $package
-        echo mv -f eduke32$exe "$package/leduke32_PREVIEW$exe"
+        # package game
+        package_start
+        package_game_lunatic
         mv -f eduke32$exe "$package/leduke32_PREVIEW$exe"
+        package_execute l${basename}-lunatic-PREVIEW_win32
     fi
 
 
@@ -154,11 +213,16 @@ then
     # make sure all the targets were produced
     verifytargets
 
-    # move the targets to $package
-    echo mv -f eduke32$exe "$package/eduke32$exe"
+    # package game
+    package_start
     mv -f eduke32$exe "$package/eduke32$exe"
-    echo mv -f mapster32$exe "$package/mapster32$exe"
+    package_execute ${basename}_win32
+
+    # package sdk
+    package_start
+    package_sdk
     mv -f mapster32$exe "$package/mapster32$exe"
+    package_execute ${basename}-sdk_win32
 
 
     # 64-bit release
@@ -170,60 +234,37 @@ then
     # make sure all the targets were produced
     verifytargets
 
-    # move the targets to $package
-    echo mv -f eduke32$exe "$package/eduke64$exe"
-    mv -f eduke32$exe "$package/eduke64$exe"
-    echo mv -f mapster32$exe "$package/mapster64$exe"
-    mv -f mapster32$exe "$package/mapster64$exe"
+    # package game
+    package_start
+    mv -f eduke32$exe "$package/eduke32$exe"
+    package_execute ${basename}_win64
+
+    # package sdk
+    package_start
+    package_sdk
+    mv -f mapster32$exe "$package/mapster32$exe"
+    package_execute ${basename}-sdk_win64
 
 
-
-    # get the date in the YYYYMMDD format (ex: 20091001)
-    date=`date +%Y%m%d`
-    
-    # create the output directory
-    mkdir $output/$date-$head
-
-    # package the binary snapshot
-    cd $package
-
-    # Package some Lunatic test and demo files.
-    if [ -n "$BUILD_LUNATIC" ]; then
-        mkdir -p lunatic/test
-        cp $top/$source/source/lunatic/test.lua lunatic
-        cp $top/$source/source/lunatic/test/test_{bitar,geom,rotspr}.lua lunatic/test
-        cp $top/$source/source/lunatic/test/{delmusicsfx,helixspawner}.lua lunatic/test
-    fi
-
-    echo 7z a -mx9 -t7z $output/$date-$head/${basename}_${platform}_$date-$head.7z *
-    7z a -mx9 -t7z $output/$date-$head/${basename}_${platform}_$date-$head.7z *
-
-    # Remove the packaged Lunatic test/demo files.
-    if [ -n "$BUILD_LUNATIC" ]; then
-        rm lunatic/test/*.lua lunatic/test.lua
-        rmdir lunatic/test
-        rmdir lunatic
-    fi
-
-    cd $top/$source
+    # clean up
 
     # hack to restore [e]obj/keep.me
     echo svn update -r $head
     svn update -r $head
-    
+
     # export the source tree into the output directory
     svn export . $output/$date-$head/${basename}_$date-$head
     echo svn export . $output/$date-$head/${basename}_$date-$head
-    
+
     # package the source
     cd $output/$date-$head
-    
+
     # first remove the unnecessary files
     for i in "${not_src_packaged[@]}"; do
         echo rm -r ${basename}_$date-$head/$i
         rm -r ${basename}_$date-$head/$i
     done
-    
+
     echo tar cJf ${basename}_src_$date-$head.tar.xz ${basename}_$date-$head
     tar cJf ${basename}_src_$date-$head.tar.xz ${basename}_$date-$head
     rm -r ${basename}_$date-$head
@@ -232,7 +273,7 @@ then
     cd $top/$source
     echo svn revert "source/rev.h"
     svn revert "source/rev.h"
-    
+
     # output the changelog since last snapshot in the output directory
     if [ $lastrevision ]
     then
@@ -240,14 +281,14 @@ then
         let lastrevision+=1
         svn log -r $head:$lastrevision > $output/$date-$head/ChangeLog.txt
     fi
-    
+
     # hack for our served directory structure... really belongs elsewhere,
     # like in whatever script executes this one
     chmod -R g+w $output/$date-$head
     chown -R :$group $output/$date-$head
 
-   # link eduke32_latest.zip to the new archive
-    ln -sf $output/$date-$head/${basename}_${platform}_$date-$head.7z $output/eduke32_latest.7z
+    # link eduke32_latest.zip to the new archive
+    ln -sf $output/$date-$head/${basename}_win32_$date-$head.7z $output/eduke32_latest.7z
 
     rm -f $lockfile
 else
