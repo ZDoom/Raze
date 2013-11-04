@@ -95,10 +95,6 @@ void OSD_SetTextMode(int32_t mode);
 
 int32_t OSD_Exec(const char *szScript);
 
-char *OSD_GetFmt(char *ptr);
-char *OSD_GetTextPtr(void);
-char *OSD_GetFmtPtr(void);
-
 // Get shade and pal index from the OSD format buffer.
 void OSD_GetShadePal(const char *ch, int32_t *shadeptr, int32_t *palptr);
 

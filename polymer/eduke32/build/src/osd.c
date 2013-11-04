@@ -278,21 +278,6 @@ int32_t OSD_OSDKey(void)
     return osdkey;
 }
 
-char *OSD_GetTextPtr(void)
-{
-    return osdtext;
-}
-
-char *OSD_GetFmtPtr(void)
-{
-    return osdfmt;
-}
-
-char *OSD_GetFmt(char *ptr)
-{
-    return (ptr - osdtext + osdfmt);
-}
-
 int32_t OSD_GetCols(void)
 {
     return osdcols;
