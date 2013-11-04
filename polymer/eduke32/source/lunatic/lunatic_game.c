@@ -194,6 +194,7 @@ finish:
 #define EL_MAXERRORS 20
 static int32_t el_numErrors=0, el_tooMuchErrors;
 static char *el_errorMsgs[EL_MAXERRORS];
+int8_t el_addNewErrors = 1;  // add new errors to display?
 
 // Compare against all other error messages.
 // Strictly seen, this is quadratic-time, but EL_MAXERRORS is small and
@@ -209,7 +210,7 @@ static int32_t cmp_against_others(const char *str, int32_t slen)
 
 LUNATIC_EXTERN void El_OnError(const char *str)
 {
-    if (!el_tooMuchErrors)
+    if (el_addNewErrors && !el_tooMuchErrors)
     {
         char *errstr = NULL;
         const char *nl = Bstrchr(str, '\n');

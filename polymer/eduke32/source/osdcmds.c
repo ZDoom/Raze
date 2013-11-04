@@ -39,6 +39,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <math.h>
 #include "enet/enet.h"
 
+#ifdef LUNATIC
+# include "lunatic_game.h"
+#endif
+
 extern int32_t voting, g_doQuickSave;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
@@ -610,6 +614,39 @@ static int32_t osdcmd_setactorvar(const osdfuncparm_t *parm)
     i = hash_find(&h_gamevars,varname);
     if (i >= 0)
         Gv_SetVar(i, varval, ID, -1);
+    return OSDCMD_OK;
+}
+#else
+static int32_t osdcmd_lua(const osdfuncparm_t *parm)
+{
+    // Should be used like
+    // lua "lua code..."
+    // (the quotes making the whole string passed as one argument)
+
+    int32_t ret;
+
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    if (!L_IsInitialized(&g_ElState))
+    {
+        OSD_Printf("Lua state is not initialized.\n");
+        return OSDCMD_OK;
+    }
+
+    // TODO: "=<expr>" as shorthand for "print(<expr>)", like in the
+    //  stand-alone Lua interpreter?
+    // TODO: reserve some table to explicitly store stuff on the top level, for
+    //  debugging convenience?
+
+    // For the 'lua' OSD command, don't make errors appear on-screen:
+    el_addNewErrors = 0;
+    ret = L_RunString(&g_ElState, (char *)parm->parms[0], 0, -1, "console");
+    el_addNewErrors = 1;
+
+    if (ret != 0)
+        OSD_Printf("Error running the Lua code (error code %d)\n", ret);
+
     return OSDCMD_OK;
 }
 #endif
@@ -1595,6 +1632,8 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
     OSD_RegisterFunction("setvarvar","setvarvar <gamevar1> <gamevar2>: sets the value of <gamevar1> to <gamevar2>", osdcmd_setvar);
     OSD_RegisterFunction("setactorvar","setactorvar <actor#> <gamevar> <value>: sets the value of <actor#>'s <gamevar> to <value>", osdcmd_setactorvar);
+#else
+    OSD_RegisterFunction("lua", "lua \"Lua code...\": runs Lunatic code", osdcmd_lua);
 #endif
     OSD_RegisterFunction("screenshot","screenshot: takes a screenshot.  See r_scrcaptureformat.", osdcmd_screenshot);
 

@@ -9552,7 +9552,7 @@ static int32_t registerosdcommands(void)
 #endif
 
 #ifdef LUNATIC
-    OSD_RegisterFunction("lua", "lua \"lua code...\": runs Lua code", osdcmd_lua);
+    OSD_RegisterFunction("lua", "lua \"Lua code...\": runs Lua code", osdcmd_lua);
 #endif
     // M32 script
     OSD_RegisterFunction("include", "include <filenames...>: compiles one or more M32 script files", osdcmd_include);
