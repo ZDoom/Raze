@@ -82,11 +82,8 @@ static int32_t logcutoff=120000;
 int32_t OSD_errors=0;
 static int32_t linecnt;
 static int32_t osdexecscript=0;
-#ifdef _WIN32
 static int32_t osdtextmode=0;
-#else
-static int32_t osdtextmode=1;
-#endif
+
 // presentation parameters
 static int32_t  osdpromptshade=0;
 static int32_t  osdpromptpal=0;
@@ -103,16 +100,18 @@ static symbol_t *osdsymbptrs[MAXSYMBOLS];
 static int32_t osdnumsymbols = 0;
 static hashtable_t h_osd      = { MAXSYMBOLS<<1, NULL };
 
-// application callbacks
+// Application callbacks: these are the currently effective ones.
 static void (*drawosdchar)(int32_t, int32_t, char, int32_t, int32_t) = _internal_drawosdchar;
 static void (*drawosdstr)(int32_t, int32_t, const char *, int32_t, int32_t, int32_t) = _internal_drawosdstr;
 static void (*drawosdcursor)(int32_t, int32_t, int32_t, int32_t) = _internal_drawosdcursor;
 static int32_t (*getcolumnwidth)(int32_t) = _internal_getcolumnwidth;
 static int32_t (*getrowheight)(int32_t) = _internal_getrowheight;
+
 static void (*clearbackground)(int32_t,int32_t) = _internal_clearbackground;
 static int32_t (*gettime)(void) = _internal_gettime;
 static void (*onshowosd)(int32_t) = _internal_onshowosd;
 
+// Application callbacks: these are the backed-up ones.
 static void (*_drawosdchar)(int32_t, int32_t, char, int32_t, int32_t) = _internal_drawosdchar;
 static void (*_drawosdstr)(int32_t, int32_t, const char *, int32_t, int32_t, int32_t) = _internal_drawosdstr;
 static void (*_drawosdcursor)(int32_t, int32_t, int32_t, int32_t) = _internal_drawosdcursor;
@@ -310,6 +309,11 @@ void OSD_GetShadePal(const char *ch, int32_t *shadeptr, int32_t *palptr)
     }
 }
 
+// XXX: well, converting function pointers to "data pointers" (void *) is
+// undefined behavior. See
+//  http://blog.frama-c.com/index.php?post/2013/08/24/Function-pointers-in-C
+// Then again, my GCC just crashed (any kept on crashing until after a reboot!)
+// when I tried to rewrite this into something different.
 static inline void swapptr(void *a, void *b)
 {
 	intptr_t t = *(intptr_t*)a;
