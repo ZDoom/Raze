@@ -195,8 +195,8 @@ then
         cp $top/$source/source/lunatic/test/{delmusicsfx,helixspawner}.lua lunatic/test
     fi
 
-    echo zip -r -y -9 $output/$date-$head/${basename}_${platform}_$date-$head.zip * -x "*.svn*"
-    zip -r -y -9 $output/$date-$head/${basename}_${platform}_$date-$head.zip * -x "*.svn*"
+    echo 7z a -mx9 -t7z $output/$date-$head/${basename}_${platform}_$date-$head.7z *
+    7z a -mx9 -t7z $output/$date-$head/${basename}_${platform}_$date-$head.7z *
 
     # Remove the packaged Lunatic test/demo files.
     if [ -n "$BUILD_LUNATIC" ]; then
@@ -224,8 +224,8 @@ then
         rm -r ${basename}_$date-$head/$i
     done
     
-    echo tar cjf ${basename}_src_$date-$head.tar.bz2 ${basename}_$date-$head
-    tar cjf ${basename}_src_$date-$head.tar.bz2 ${basename}_$date-$head
+    echo tar cJf ${basename}_src_$date-$head.tar.xz ${basename}_$date-$head
+    tar cJf ${basename}_src_$date-$head.tar.xz ${basename}_$date-$head
     rm -r ${basename}_$date-$head
 
     # clean up the revision header
@@ -247,7 +247,7 @@ then
     chown -R :$group $output/$date-$head
 
    # link eduke32_latest.zip to the new archive
-    ln -sf $output/$date-$head/${basename}_${platform}_$date-$head.zip $output/eduke32_latest.zip
+    ln -sf $output/$date-$head/${basename}_${platform}_$date-$head.7z $output/eduke32_latest.7z
 
     rm -f $lockfile
 else
