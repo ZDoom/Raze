@@ -256,10 +256,7 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
 void wm_setapptitle(char *name)
 {
     if (name)
-    {
-        Bstrncpy(apptitle, name, sizeof(apptitle)-1);
-        apptitle[ sizeof(apptitle)-1 ] = 0;
-    }
+        Bstrncpyz(apptitle, name, sizeof(apptitle));
 
     if (hWindow) SetWindowText(hWindow, apptitle);
     startwin_settitle(apptitle);

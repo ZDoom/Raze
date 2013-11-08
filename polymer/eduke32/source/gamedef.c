@@ -2461,6 +2461,7 @@ LUNATIC_EXTERN void C_SetCfgName(const char *cfgname)
 {
     char temp[BMAX_PATH];
     struct Bstat st;
+
     int32_t fullscreen = ud.config.ScreenMode;
     int32_t xdim = ud.config.ScreenWidth, ydim = ud.config.ScreenHeight, bpp = ud.config.ScreenBPP;
     int32_t usemouse = ud.config.UseMouse, usejoy = ud.config.UseJoystick;
@@ -2494,15 +2495,16 @@ LUNATIC_EXTERN void C_SetCfgName(const char *cfgname)
         return;
     }
 
-    // XXX
-    Bstrcpy(temp, cfgname);
+    // XXX: Back up 'cfgname' as it may be the global 'tempbuf'.
+    Bstrncpyz(temp, cfgname, sizeof(temp));
     CONFIG_WriteSetup(1);
-    if (g_modDir[0] != '/')
-        Bsprintf(setupfilename,"%s/",g_modDir);
-    else setupfilename[0] = 0;
-    Bstrcat(setupfilename,temp);
 
-    initprintf("Using config file \"%s\".\n",setupfilename);
+    if (g_modDir[0] != '/')
+        Bsnprintf(setupfilename, sizeof(setupfilename), "%s/%s", g_modDir, temp);
+    else
+        Bstrncpyz(setupfilename, temp, sizeof(setupfilename));
+
+    initprintf("Using config file \"%s\".\n", setupfilename);
 
     CONFIG_ReadSetup();
 

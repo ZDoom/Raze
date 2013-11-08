@@ -11142,9 +11142,8 @@ int32_t app_main(int32_t argc, const char **argv)
         GetTime,
         GAME_onshowosd
     );
-    Bstrcpy(tempbuf, APPNAME);
-    wm_setapptitle(tempbuf);
-//initprintf("sizeof(mapstate_t)=%d\n", (int32_t)sizeof(mapstate_t));
+
+    wm_setapptitle(APPNAME);
 
     initprintf(HEAD2 " %s %s\n", s_buildRev,
 #ifdef __cplusplus
