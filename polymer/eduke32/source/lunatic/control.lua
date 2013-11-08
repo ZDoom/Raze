@@ -1794,8 +1794,12 @@ function _starttrack(level)
     bcheck.level_idx(level)
 
     if (ffiC.G_StartTrack(level) ~= 0) then
-        error("null music for volume "..ffiC.ud.volume_number..
-              " level "..level, 2)
+        -- Issue a 'soft error', not breaking the control flow.
+        local errmsg = debug.traceback(
+            format("null music for volume %d level %d", ffiC.ud.volume_number, level), 2)
+        errmsg = lprivate.tweak_traceback_msg(errmsg)
+        ffiC.El_OnError(errmsg)
+        print("^10error: "..errmsg)
     end
 end
 
@@ -1835,18 +1839,10 @@ end
 -- TODO: saving/restoration of per-player or per-actor gamevars.
 function _savemapstate()
     ffiC.G_SaveMapState()
-    local errmsg = debug.traceback(
-        "warning: savemapstate: gamevar saving not fully implemented", 2)
-    ffiC.El_OnError(errmsg)
-    print(errmsg)
 end
 
 function _loadmapstate()
     ffiC.G_RestoreMapState()
-    local errmsg = debug.traceback(
-        "warning: loadmapstate: gamevar saving not fully implemented", 2)
-    ffiC.El_OnError(errmsg)
-    print(errmsg)
 end
 
 -- Gamevar persistence in the configuration file

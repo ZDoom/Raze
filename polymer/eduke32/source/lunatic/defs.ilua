@@ -2234,6 +2234,8 @@ do
         return errmsg:gsub('%[string "CON"%]:([0-9]+)', transline)
     end
 
+    lprivate.tweak_traceback_msg = tweak_traceback_msg
+
     set_tweak_traceback_internal(tweak_traceback_msg)
 end
 
