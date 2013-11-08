@@ -2261,10 +2261,13 @@ do
             -- Handle global gamevars first.
             for i=1,#modvars do
                 local varname = modvars[i]
+                local excludedVars = modname==CON_MODULE_NAME and varname=="_V" and
+                    package_loaded[CON_MODULE_NAME]._V._IS_NORESET_GAMEVAR or nil
+
                 -- Serialize gamevar named 'varname' from module named 'modname'.
                 -- XXX: May error. This will terminate EDuke32 since this callback
                 -- is run unprotected.
-                if (sb:add("M."..varname, package_loaded[modname][varname])) then
+                if (sb:add("M."..varname, package_loaded[modname][varname], excludedVars)) then
                     -- We couldn't serialize that gamevar.
                     slenptr[0] = -1
                     -- Signal which gamevar that was.

@@ -827,6 +827,10 @@ local function check_sysvar_def_attempt(identifier)
         errprintf("cannot define reserved symbol `actorvar'")
         return true
     end
+    if (identifier=="_IS_NORESET_GAMEVAR") then
+        errprintf("cannot define reserved symbol `_IS_NORESET_GAMEVAR'")
+        return true
+    end
 end
 
 local Define = {}
@@ -1391,11 +1395,6 @@ function Cmd.gamevar(identifier, initval, flags)
         return
     end
 
-    if (bit.band(flags, GVFLAG.NORESET) ~= 0) then
-        warnprintf("gamevar \"%s\" flag NORESET (131072): not yet implemented",
-                   identifier)
-    end
-
     local perPlayer = (bit.band(flags, GVFLAG.PERPLAYER) ~= 0)
     local perActor = (bit.band(flags, GVFLAG.PERACTOR) ~= 0)
 
@@ -1406,12 +1405,14 @@ function Cmd.gamevar(identifier, initval, flags)
 
     local ogv = g_gamevar[identifier]
     local isSessionVar = (bit.band(flags, GVFLAG.NODEFAULT) ~= 0)
+    local storeWithSavegames = (bit.band(flags, GVFLAG.NORESET) == 0)
 
     if (isSessionVar and (perPlayer or perActor)) then
         if (ogv == nil) then  -- warn only once per gamevar
-            warnprintf("per-%s for session gamevars: not yet implemented (made into %s)",
+            warnprintf("per-%s session gamevar `%s': NYI, made %s",
                        perPlayer and "player" or "actor",
-                       perPlayer and "global" or "plain")
+                       identifier,
+                       perPlayer and "global" or "non-session")
         end
 
         if (perActor) then
@@ -1490,7 +1491,9 @@ function Cmd.gamevar(identifier, initval, flags)
     local gv = { name=mangle_name(identifier, "V"), flags=flags }
     g_gamevar[identifier] = gv
 
-    addcode("if _S then")
+    if (storeWithSavegames) then
+        addcode("if _S then")
+    end
 
     if (perActor) then
         addcodef("%s=_con.actorvar(%d)", gv.name, initval)
@@ -1501,7 +1504,9 @@ function Cmd.gamevar(identifier, initval, flags)
         addcodef("%s=%d", gv.name, initval)
     end
 
-    addcode("end")
+    if (storeWithSavegames) then
+        addcode("end")
+    end
 end
 
 function Cmd.dynamicremap()
@@ -3549,6 +3554,15 @@ end
 
 -- <lineinfop>: Get line info?
 local function get_code_string(codetab, lineinfop)
+    -- Create meta-info gamevar: which gamevars have bit NORESET set?
+    codetab[#codetab+1] = "_V._IS_NORESET_GAMEVAR={"
+    for identifier, gv in pairs(g_gamevar) do
+        if (bit.band(gv.flags, GVFLAG.NORESET) ~= 0) then
+            codetab[#codetab+1] = format("[%q]=true,", identifier)
+        end
+    end
+    codetab[#codetab+1] = "}"
+
     -- Return defined labels in a table...
     codetab[#codetab+1] = "return {"
     for label, val in pairs(g_labeldef) do

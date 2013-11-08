@@ -66,6 +66,7 @@ local savebuffer_mt = {
         --== vvv INTERNAL vvv ===---
         resetRefs = function(self)
             self.numrefs = 0
+            self.recursionDepth = 0
             self.val2ref = {}
             self.havereq = {}
         end,
@@ -92,8 +93,10 @@ local savebuffer_mt = {
 
         -- Add an entry of Lua object <value> that can be referenced by
         -- <lhscode> on the left hand side of an assignment.
+        -- <excludedKeys>: if non-nil, should be table
+        --  [<key_string>] = true. See EXCLUDE_KEYS below.
         -- Returns 'true' if <value> cannot be serialized.
-        add = function(self, lhscode, value)
+        add = function(self, lhscode, value, excludedKeys)
             local valcode = basicSerialize(value)
 
             if (valcode == nil) then
@@ -129,13 +132,25 @@ local savebuffer_mt = {
                                 return true
                             end
 
+                            -- EXCLUDE_KEYS
+                            local isNORESET = (self.recursionDepth == 0 and
+                                                   excludedKeys and excludedKeys[k])
+
                             -- Generate the name under which the table element
                             -- is referenced.
                             local refcode2 = format("%s[%s]", refcode, keystr)
 
-                            -- Recurse!
-                            if (self:add(refcode2, v)) then
-                                return true
+                            if (isNORESET) then
+                                self:emitAssign(refcode2, format("M._V[%s]", keystr))
+                            else
+                                -- Recurse!
+                                self.recursionDepth = self.recursionDepth+1
+                                local ret = self:add(refcode2, v)
+                                self.recursionDepth = self.recursionDepth-1
+
+                                if (ret) then
+                                    return true
+                                end
                             end
                         end
 
@@ -187,6 +202,7 @@ function savebuffer()
     -- .strbuf: array of Lua code pieces
     local sb = {
         numrefs=0, val2ref={}, havereq={},
+        recursionDepth = 0,
         strbuf=sb_get_initial_strbuf()
     }
 
