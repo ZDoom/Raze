@@ -99,6 +99,7 @@ El_OnError;
 g_elSavecode;
 El_FreeSaveCode;
 El_SerializeGamevars;
+El_RestoreGamevars;
 
 s_buildRev;
 g_sizes_of_what;
@@ -130,6 +131,7 @@ C_DefineProjectile;
 C_DefineGameFuncName;
 C_DefineGameType;
 C_SetDefName;
+C_SetCfgName;
 
 SCRIPT_GetNumber;
 SCRIPT_PutNumber;
