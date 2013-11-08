@@ -1358,17 +1358,19 @@ local function A_FurthestVisiblePoint(aci, otherspr)
         return
     end
 
+    -- TODO_MP
     local angincs = (ffiC.ud.player_skill < 3) and 1024 or 2048/(1+krandand(1))
+    local spr = sprite[aci]
 
     local j = 0
     repeat
         local ray = kangvec(otherspr.ang + j, 16384-krandand(32767))
         local hit = hitscan(otherspr^(16*256), otherspr.sectnum, ray, ffiC.CLIPMASK1)
         local dother = manhatdist(hit.pos, otherspr)
-        local dactor = manhatdist(hit.pos, sprite[aci])
+        local dactor = manhatdist(hit.pos, spr)
 
         if (dother < dactor and hit.sector >= 0) then
-            if (cansee(hit.pos, hit.sector, otherspr^(16*256), otherspr.sectnum)) then
+            if (cansee(hit.pos, hit.sector, spr^(16*256), spr.sectnum)) then
                 return hit
             end
         end
