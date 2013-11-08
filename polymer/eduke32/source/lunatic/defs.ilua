@@ -716,6 +716,7 @@ void C_DefineProjectile(int32_t j, int32_t what, int32_t val);
 void C_DefineGameFuncName(int32_t idx, const char *name);
 void C_DefineGameType(int32_t idx, int32_t flags, const char *name);
 int32_t C_SetDefName(const char *name);
+void C_SetCfgName(const char *cfgname);
 
 int32_t SCRIPT_GetNumber(int32_t scripthandle, const char *sectionname, const char *entryname, int32_t *number);
 void SCRIPT_PutNumber(int32_t scripthandle, const char *sectionname, const char *entryname, int32_t number,

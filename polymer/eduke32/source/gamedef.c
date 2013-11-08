@@ -2457,6 +2457,66 @@ void C_InitQuotes(void)
     }
 }
 
+LUNATIC_EXTERN void C_SetCfgName(const char *cfgname)
+{
+    char temp[BMAX_PATH];
+    struct Bstat st;
+    int32_t fullscreen = ud.config.ScreenMode;
+    int32_t xdim = ud.config.ScreenWidth, ydim = ud.config.ScreenHeight, bpp = ud.config.ScreenBPP;
+    int32_t usemouse = ud.config.UseMouse, usejoy = ud.config.UseJoystick;
+#ifdef USE_OPENGL
+    int32_t glrm = glrendmode;
+#endif
+
+    if (Bstrcmp(setupfilename, SETUPFILENAME) != 0) // set to something else via -cfg
+        return;
+
+    if (Bstat(g_modDir, &st) < 0)
+    {
+        if (errno == ENOENT)     // path doesn't exist
+        {
+            if (Bmkdir(g_modDir, S_IRWXU) < 0)
+            {
+                OSD_Printf("Failed to create configuration file directory %s\n", g_modDir);
+                return;
+            }
+            else OSD_Printf("Created configuration file directory %s\n", g_modDir);
+        }
+        else
+        {
+            // another type of failure
+            return;
+        }
+    }
+    else if ((st.st_mode & S_IFDIR) != S_IFDIR)
+    {
+        // directory isn't a directory
+        return;
+    }
+
+    // XXX
+    Bstrcpy(temp, cfgname);
+    CONFIG_WriteSetup(1);
+    if (g_modDir[0] != '/')
+        Bsprintf(setupfilename,"%s/",g_modDir);
+    else setupfilename[0] = 0;
+    Bstrcat(setupfilename,temp);
+
+    initprintf("Using config file \"%s\".\n",setupfilename);
+
+    CONFIG_ReadSetup();
+
+    ud.config.ScreenMode = fullscreen;
+    ud.config.ScreenWidth = xdim;
+    ud.config.ScreenHeight = ydim;
+    ud.config.ScreenBPP = bpp;
+    ud.config.UseMouse = usemouse;
+    ud.config.UseJoystick = usejoy;
+#ifdef USE_OPENGL
+    glrendmode = glrm;
+#endif
+}
+
 #if !defined LUNATIC
 static int32_t C_ParseCommand(int32_t loop)
 {
@@ -5516,63 +5576,8 @@ repeatcase:
                     j++;
                 }
                 tempbuf[j] = '\0';
-                if (Bstrcmp(setupfilename,SETUPFILENAME) == 0) // not set to something else via -cfg
-                {
-                    char temp[BMAX_PATH];
-                    struct Bstat st;
-                    int32_t fullscreen = ud.config.ScreenMode;
-                    int32_t xdim = ud.config.ScreenWidth, ydim = ud.config.ScreenHeight, bpp = ud.config.ScreenBPP;
-                    int32_t usemouse = ud.config.UseMouse, usejoy = ud.config.UseJoystick;
-#ifdef USE_OPENGL
-                    int32_t glrm = glrendmode;
-#endif
 
-                    if (Bstat(g_modDir, &st) < 0)
-                    {
-                        if (errno == ENOENT)     // path doesn't exist
-                        {
-                            if (Bmkdir(g_modDir, S_IRWXU) < 0)
-                            {
-                                OSD_Printf("Failed to create configuration file directory %s\n", g_modDir);
-                                continue;
-                            }
-                            else OSD_Printf("Created configuration file directory %s\n", g_modDir);
-                        }
-                        else
-                        {
-                            // another type of failure
-                            continue;
-                        }
-                    }
-                    else if ((st.st_mode & S_IFDIR) != S_IFDIR)
-                    {
-                        // directory isn't a directory
-                        continue;
-                    }
-
-                    // XXX
-                    Bstrcpy(temp,tempbuf);
-                    CONFIG_WriteSetup(1);
-                    if (g_modDir[0] != '/')
-                        Bsprintf(setupfilename,"%s/",g_modDir);
-                    else setupfilename[0] = 0;
-                    Bstrcat(setupfilename,temp);
-
-                    initprintf("Using config file \"%s\".\n",setupfilename);
-
-                    CONFIG_ReadSetup();
-
-                    ud.config.ScreenMode = fullscreen;
-                    ud.config.ScreenWidth = xdim;
-                    ud.config.ScreenHeight = ydim;
-                    ud.config.ScreenBPP = bpp;
-                    ud.config.UseMouse = usemouse;
-                    ud.config.UseJoystick = usejoy;
-#ifdef USE_OPENGL
-                    glrendmode = glrm;
-#endif
-
-                }
+                C_SetCfgName(tempbuf);
             }
             continue;
 

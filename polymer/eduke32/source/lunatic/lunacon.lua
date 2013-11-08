@@ -1261,6 +1261,13 @@ function Cmd.setdefname(filename)
     end
 end
 
+function Cmd.setcfgname(filename)
+    assert(type(filename)=="string")
+    if (ffi) then
+        ffiC.C_SetCfgName(filename)
+    end
+end
+
 function Cmd.gamestartup(...)
     local args = {...}
 
@@ -1684,7 +1691,7 @@ local Couter = {
     dynamicsoundremap = cmd()
         / Cmd.dynamicsoundremap,
     setcfgname = sp1 * tok.filename
-        / Cmd.nyi("`setcfgname'"),
+        / Cmd.setcfgname,
     setdefname = sp1 * tok.filename
         / Cmd.setdefname,
     setgamename = newline_term_string
