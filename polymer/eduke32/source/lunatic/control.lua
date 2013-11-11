@@ -1424,11 +1424,20 @@ function _cansee(aci, ps)
     return can
 end
 
+function _isvalid(i)
+    check_sprite_idx(i)
+    return ffiC.sprite[i].statnum ~= ffiC.MAXSTATUS and 1 or 0
+end
+
 function _canseespr(s1, s2)
-    local spr1, spr2 = sprite[s1], sprite[s2]
+    check_sprite_idx(s1)
+    check_sprite_idx(s2)
+
+    local spr1, spr2 = ffiC.sprite[s1], ffiC.sprite[s2]
     -- Redundant, but points the error messages to the CON code:
     check_sector_idx(spr1.sectnum)
     check_sector_idx(spr2.sectnum)
+
     return cansee(spr1, spr1.sectnum, spr2, spr2.sectnum) and 1 or 0
 end
 

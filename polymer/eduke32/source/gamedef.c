@@ -824,6 +824,8 @@ const memberlabel_t ActorLabels[]=
     { "ulotag", ACTOR_ULOTAG, 0, 0 },
     { "uhitag", ACTOR_UHITAG, 0, 0 },
 
+    { "isvalid", ACTOR_ISVALID, 0, 0 },
+
     { "", -1, 0, 0  }     // END OF LIST
 };
 

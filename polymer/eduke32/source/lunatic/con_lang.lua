@@ -414,6 +414,8 @@ local ActorLabels = {
 
     -- Read access differs from write, write not available:
     alpha = { "_math.floor(spriteext[%s].alpha*255)", "spriteext[%s].alpha=(%%s)/255" },
+
+    isvalid = { "_con._isvalid(%s)" },
 }
 
 local function spr2tspr(code)

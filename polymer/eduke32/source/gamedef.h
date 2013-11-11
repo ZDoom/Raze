@@ -518,6 +518,7 @@ enum ActorLabel_t
     ACTOR_ALPHA,
     ACTOR_ULOTAG,
     ACTOR_UHITAG,
+    ACTOR_ISVALID,
     ACTOR_END
 };
 

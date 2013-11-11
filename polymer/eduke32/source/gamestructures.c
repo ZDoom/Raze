@@ -2930,6 +2930,10 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
         Gv_SetVarX(lVar2, (uint8_t)(spriteext[iActor].alpha * 255.0f));
         return;
 
+    case ACTOR_ISVALID:
+        Gv_SetVarX(lVar2, sprite[iActor].statnum != MAXSTATUS);
+        return;
+
     default:
         return;
     }
@@ -3553,6 +3557,7 @@ static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int
     case ACTOR_YPANNING: return spriteext[iActor].ypanning;
     case ACTOR_HTFLAGS: return actor[iActor].flags;
     case ACTOR_ALPHA: return (uint8_t)(spriteext[iActor].alpha*255.0f);
+    case ACTOR_ISVALID: return (sprite[iActor].statnum != MAXSTATUS);
     default: return -1;
     }
 
