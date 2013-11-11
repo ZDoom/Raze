@@ -5066,14 +5066,18 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
         }
         else if (!Bstrcasecmp(parm->name, "r_downsize"))
         {
-            if (r_downsize != r_downsizevar && r_downsizevar != -1)
+            if (r_downsizevar == -1)
+                r_downsizevar = r_downsize;
+
+            if (in3dmode() && r_downsize != r_downsizevar)
             {
                 texcache_invalidate();
                 resetvideomode();
                 if (setgamemode(fullscreen,xdim,ydim,bpp))
                     OSD_Printf("restartvid: Reset failed...\n");
             }
-            else r_downsizevar = r_downsize;
+
+            r_downsizevar = r_downsize;
 
             return r;
         }
