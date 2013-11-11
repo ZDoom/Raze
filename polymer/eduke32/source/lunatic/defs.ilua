@@ -63,6 +63,8 @@ function decl(str, ...)
     ffi.cdef(str, ...)
 end
 
+lprivate.decl = decl
+
 -- Load the definitions common to the game's and editor's Lua interface.
 local defs_c = require("defs_common")
 local cansee = defs_c.cansee
@@ -1568,6 +1570,7 @@ local allowed_modules = {
     stat = require("stat"),
     bitar = require("bitar"),
     xmath = require("xmath"),
+    fs = require("fs"),
 
     con = con,
 }
@@ -2179,6 +2182,9 @@ G_.player = player
 G_.actor = actor
 G_.projectile = projectile
 G_.g_tile = g_tile
+
+-- A table that can be used for temporary data when debugging from the OSD.
+G_.d = {}
 
 
 ---=== Lunatic translator setup ===---

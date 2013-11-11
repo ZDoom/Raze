@@ -72,6 +72,10 @@ kclose;
 kread;
 klseek;
 
+pathsearchmode;
+klistfree;
+klistpath;
+
 dist;
 ldist;
 
@@ -184,6 +188,7 @@ luaJIT_BC_dump;
 luaJIT_BC_dis_x86;
 luaJIT_BC_dis_x64;
 luaJIT_BC_savegame;
+luaJIT_BC_fs;
 
 rand_jkiss_u32;
 rand_jkiss_dbl;

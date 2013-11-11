@@ -97,6 +97,11 @@ CAUTION: If an attempt is made to create a new variable in the global
 environment or to assign any value to an existing variable, the behavior is
 undefined.
 
+For convenience of debugging from the command line (using the `lua` OSD
+command), the global environment contains a table `d` which is initially
+empty. It should only be used to temporarily store values of interest in a
+debugging session and should never be referenced from actual script code.
+
 Lua functions
 ~~~~~~~~~~~~~
 
@@ -1920,6 +1925,16 @@ same position as its parent and its `owner` member is set to
 run afterwards, possibly modifying the sprite.
 
 Returns the index of the spawned sprite on success.
+
+
+The `fs` module -- virtual file system facilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[red]*DRAFT*
+
+===== `files = fs.listpath(path, mask)`
+
+Lists file names matching a wildcard `mask` which can be found under `path`.
 
 
 /////////////////

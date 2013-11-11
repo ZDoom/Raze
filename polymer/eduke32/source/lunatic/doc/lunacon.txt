@@ -330,7 +330,4 @@ predefined constants.
 Miscellaneous
 ^^^^^^^^^^^^^
 
-* gamevar flags 1024 (```NODEFAULT`'') and 131072 (```NORESET`'') are not
-  handled
-* mapstate handling in savegames is not yet implemented
 * not LunaCON-specific: `EVENT_INIT` is never reached as it runs before Lua state creation

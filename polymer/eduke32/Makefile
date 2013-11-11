@@ -173,6 +173,7 @@ ifneq (0,$(LUNATIC))
                $(OBJ)/luaJIT_BC_dis_x86.$o \
                $(OBJ)/luaJIT_BC_dis_x64.$o \
                $(OBJ)/luaJIT_BC_savegame.$o \
+               $(OBJ)/luaJIT_BC_fs.$o \
     # TODO: remove debugging modules from release build
 
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
