@@ -1498,6 +1498,17 @@ function _movesprite(spritenum, x, y, z, cliptype)
     return ffiC.A_MoveSprite(spritenum, vel, cliptype)
 end
 
+-- Also known as A_SetSprite().
+function _ssp(i, cliptype)
+    check_sprite_idx(i)
+    local spr = ffiC.sprite[i]
+    local vec = spr.xvel * bangvec(spr.ang)  -- XXX: slightly different rounding?
+    local ivec = vec:toivec3()
+    ivec.z = spr.zvel
+
+    return (ffiC.A_MoveSprite(i, ivec, cliptype)==0)
+end
+
 -- CON's 'setsprite' function on top of the Lunatic-provided ones.
 -- (Lunatic's sprite setting functions have slightly different semantics.)
 local updatesect = sprite.updatesect

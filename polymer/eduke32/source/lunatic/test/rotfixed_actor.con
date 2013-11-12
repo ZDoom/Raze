@@ -42,3 +42,15 @@ eventloadactor GPSPEED
     mulvar ra_temp 4
     setactor[THISACTOR].lotag ra_temp
 enda
+
+gamevar ii 0 0
+onevent EVENT_PROCESSINPUT
+    setvar ii 0
+    whilevarvarn ii MAXSPRITES
+    {
+        ifvare sprite[ii].picnum 58  // space suit
+            ssp ii CLIPMASK0
+
+        addvar ii 1
+    }
+endevent
