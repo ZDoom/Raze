@@ -271,7 +271,7 @@ local g_dynsoundi = nil
 local g_have_file = {}  -- [filename]=true
 local g_curcode = nil  -- a table of string pieces or other "gencode" tables
 
--- will be a table, see reset_codegen()
+-- will be a table, see reset.codegen()
 local g_code = nil
 
 
@@ -450,7 +450,9 @@ local function new_initial_gvartab()
     return gamevar
 end
 
-local function reset_codegen()
+local reset = {}
+
+function reset.codegen()
     g_funcname = {}
     g_switchCode = nil
     g_switchCount = 0
@@ -733,7 +735,7 @@ local g_labeltype = {}
 local g_labelspecial = {}  -- [<label>] = true
 local g_labelloc = {}  -- [<label>] = { filename, linenum, colnum }
 
-local function reset_labels()
+function reset.labels()
     g_badids = {}
 
     -- NO is also a valid `move', `ai' or `action', but they are handled
@@ -753,6 +755,10 @@ local function reset_labels()
         MAXSPRITES = C.MAXSPRITES,
         MAX_WEAPONS = C.MAX_WEAPONS,
     }
+
+    g_labeltype = {}
+    g_labelspecial = {}
+    g_labelloc = {}
 
     for varname,_ in pairs(g_labeldef) do
         g_labeltype[varname] = LABEL.NUMBER
@@ -823,7 +829,9 @@ function dynmap.maybe_process(dyni, dynList, identifier, num)
     end
 end
 
-local function check_sysvar_def_attempt(identifier)
+-- The 'check' table is also used to hold a couple of misc checkers.
+
+function check.sysvar_def_attempt(identifier)
     if (identifier=="actorvar") then
         errprintf("cannot define reserved symbol `actorvar'")
         return true
@@ -846,7 +854,7 @@ function Define.inform_olddef_location(identifier, iserr)  -- XXX: too much loca
 end
 
 function Define.label(identifier, num)
-    if (check_sysvar_def_attempt(identifier)) then
+    if (check.sysvar_def_attempt(identifier)) then
         return
     end
 
@@ -885,7 +893,7 @@ function Define.label(identifier, num)
     end
 end
 
-local function check_composite_literal(labeltype, pos, num)
+function check.composite_literal(labeltype, pos, num)
     if (num==0 or num==1) then
         return (num==0) and "0" or "1"
     else
@@ -926,7 +934,7 @@ function lookup.composite(labeltype, pos, identifier)
     return val
 end
 
-local function check_reserved_bits(flags, allowedbits, suffix)
+function check.reserved_bits(flags, allowedbits, suffix)
     local rbits = bit.bnot(allowedbits)
     if (bit.band(flags, rbits) ~= 0) then
         warnprintf("set one or more reserved bits (0x%s) "..suffix,
@@ -973,7 +981,7 @@ function Define.composite(labeltype, identifier, ...)
         end
 
         -- Check whether movflags use reserved bits.
-        check_reserved_bits(args[LABEL.AI], 4096+2047, "for ai's movflags")
+        check.reserved_bits(args[LABEL.AI], 4096+2047, "for ai's movflags")
     end
 
     if (labeltype == LABEL.ACTION) then
@@ -1091,7 +1099,7 @@ end
 local g_data = {}
 local EPMUL = conl.MAXLEVELS
 
-local function reset_gamedata()
+function reset.gamedata()
     g_data = {}
 
     -- [EPMUL*ep + lev] = { ptime=<num>, dtime=<num>, fn=<str>, name=<str> }
@@ -1236,7 +1244,7 @@ function Cmd.defineprojectile(tilenum, what, val)
     local ok = check.tile_idx(tilenum)
 
     if (what==PROJ.WORKSLIKE) then
-        check_reserved_bits(val, 2^21-1, "for PROJ_WORKSLIKE")
+        check.reserved_bits(val, 2^21-1, "for PROJ_WORKSLIKE")
     elseif (what==PROJ.SOUND or what==PROJ.ISOUND or what==PROJ.BSOUND) then
         ok = ok and (val==-1 or check.sound_idx(val))
     elseif (what==PROJ.SPAWNS or what==PROJ.DECAL or what==PROJ.TRAIL) then
@@ -1328,7 +1336,7 @@ function Cmd.definesound(sndlabel, fn, ...)
     end
 
     local params = {...}  -- TODO: sanity-check them some more
-    check_reserved_bits(params[4], 31+128, "for sound flags")
+    check.reserved_bits(params[4], 31+128, "for sound flags")
 
     if (ffi) then
         local cparams = ffi.new("int32_t [5]", params)
@@ -1372,7 +1380,7 @@ end
 --- GAMEVARS / GAMEARRAYS
 
 function Cmd.gamearray(identifier, initsize)
-    if (check_sysvar_def_attempt(identifier)) then
+    if (check.sysvar_def_attempt(identifier)) then
         return
     end
 
@@ -1408,7 +1416,7 @@ function Cmd.gamearray(identifier, initsize)
 end
 
 function Cmd.gamevar(identifier, initval, flags)
-    if (check_sysvar_def_attempt(identifier)) then
+    if (check.sysvar_def_attempt(identifier)) then
         return
     end
 
@@ -3420,15 +3428,15 @@ local Grammar = Pat{
 
     t_move =
         POS()*tok.identifier / function(...) return lookup.composite(LABEL.MOVE, ...) end +
-        POS()*tok.number / function(...) return check_composite_literal(LABEL.MOVE, ...) end,
+        POS()*tok.number / function(...) return check.composite_literal(LABEL.MOVE, ...) end,
 
     t_ai =
         POS()*tok.identifier / function(...) return lookup.composite(LABEL.AI, ...) end +
-        POS()*tok.number / function(...) return check_composite_literal(LABEL.AI, ...) end,
+        POS()*tok.number / function(...) return check.composite_literal(LABEL.AI, ...) end,
 
     t_action =
         POS()*tok.identifier / function(...) return lookup.composite(LABEL.ACTION, ...) end +
-        POS()*tok.number / function(...) return check_composite_literal(LABEL.ACTION, ...) end,
+        POS()*tok.number / function(...) return check.composite_literal(LABEL.ACTION, ...) end,
 
     -- New-style inline arrays and structures.
     t_botharrayexp = tok.identifier * arraypat * patt.bothmember^-1
@@ -3670,10 +3678,10 @@ function parse(contents)  -- local
     g_newlineidxs = newlineidxs
 end
 
-local function reset_all()
-    reset_labels()
-    reset_gamedata()
-    reset_codegen()
+function reset.all()
+    reset.labels()
+    reset.gamedata()
+    reset.codegen()
 end
 
 local function print_on_failure(msg)
@@ -3688,7 +3696,7 @@ if (string.dump) then
     local io = require("io")
 
     local function compile(filename)
-        reset_all()
+        reset.all()
 
         -- Construct file name for the output code: (...)/xxx/qwe.con -->
         -- xxx_qwe.con, so that common root CON file names like EDUKE.CON will
@@ -3768,7 +3776,7 @@ else
     function compile(filenames)
         -- TODO: pathsearchmode=1 set in G_CompileScripts
 
-        reset_all()
+        reset.all()
 
         for _, fname in ipairs(filenames) do
             local ok, msg = pcall(do_include_file, "", fname, true)
