@@ -2882,12 +2882,12 @@ cheat_for_port_credits2:
                 }
                 break;
                 case 6:
-                    if (x==io) ud.levelstats = 1-ud.levelstats;
+                    if (x==io) ud.levelstats = !ud.levelstats;
                     modval(0,1,(int32_t *)&ud.levelstats,1,probey==io);
                     mgametextpal(d,yy, ud.levelstats ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 7:
-                    if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
+                    if (x==io) ud.runkey_mode = !ud.runkey_mode;
                     modval(0,1,(int32_t *)&ud.runkey_mode,1,probey==io);
                     mgametextpal(d,yy, ud.runkey_mode ? "No" : "Yes", MENUHIGHLIGHT(io), 0);
                     break;
