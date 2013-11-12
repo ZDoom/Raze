@@ -503,7 +503,7 @@ local function get_cache_sap_code()
 end
 
 -- fwd-decls
-local warnprintf, errprintf, pwarnprintf, perrprintf
+local warnprintf, errprintf, pwarnprintf, perrprintf, contprintf
 
 local on = {}
 
@@ -643,29 +643,29 @@ local function increment_numerrors()
 end
 
 function perrprintf(pos, fmt, ...)
-    printf("%s %s: error: "..fmt, g_filename, linecolstr(pos), ...)
+    printf("%s %s: error: "..fmt, g_filename,
+           pos and linecolstr(pos) or "???", ...)
     increment_numerrors()
 end
 
 function errprintf(fmt, ...)
-    if (g_lastkwpos) then
-        perrprintf(g_lastkwpos, fmt, ...)
-    else
-        printf("%s ???: error: "..fmt, g_filename, ...)
-        increment_numerrors()
-    end
+    perrprintf(g_lastkwpos, fmt, ...)
 end
 
 function pwarnprintf(pos, fmt, ...)
-    printf("%s %s: warning: "..fmt, g_filename, linecolstr(pos), ...)
+    printf("%s %s: warning: "..fmt, g_filename,
+           pos and linecolstr(pos) or "???", ...)
 end
 
 function warnprintf(fmt, ...)
-    if (g_lastkwpos) then
-        pwarnprintf(g_lastkwpos, fmt, ...)
-    else
-        printf("%s ???: warning: "..fmt, g_filename, ...)
-    end
+    pwarnprintf(g_lastkwpos, fmt, ...)
+end
+
+-- Print a continuation line to an error or warning.
+function contprintf(iserr, fmt, ...)
+    printf("%s %s: %s  "..fmt, g_filename,
+           g_lastkwpos and linecolstr(g_lastkwpos) or "???",
+           iserr and "     " or "       ", ...)
 end
 
 local function parse_number(pos, numstr)
@@ -731,6 +731,7 @@ local LABEL_PREFIX = { [2]="M", [3]="I", [5]="C" }  -- _C, _M, _I in the gen'd c
 local g_labeldef = {}  -- Lua numbers for numbers, strings for composites
 local g_labeltype = {}
 local g_labelspecial = {}  -- [<label>] = true
+local g_labelloc = {}  -- [<label>] = { filename, linenum, colnum }
 
 local function reset_labels()
     g_badids = {}
@@ -834,6 +835,16 @@ local function check_sysvar_def_attempt(identifier)
 end
 
 local Define = {}
+function Define.inform_olddef_location(identifier, iserr)  -- XXX: too much locals
+    local loc = g_labelloc[identifier]
+    if (loc) then
+        contprintf(iserr, "Old definition is at %s %d:%d",
+                   loc[1], loc[2], loc[3])
+    else
+        contprintf(iserr, "Old definition is built-in")
+    end
+end
+
 function Define.label(identifier, num)
     if (check_sysvar_def_attempt(identifier)) then
         return
@@ -844,14 +855,16 @@ function Define.label(identifier, num)
 
     if (oldval) then
         if (oldtype ~= LABEL.NUMBER) then
-            errprintf("refusing to overwrite `%s' label \"%s\" with a `define'd number",
+            errprintf("Refusing to overwrite `%s' label \"%s\" with a `define'd number.",
                       LABEL[oldtype], identifier)
+            Define.inform_olddef_location(identifier, true)
         else
             -- conl.labels[...]: don't warn for wrong PROJ_ redefinitions
             if (g_warn["not-redefined"]) then
                 if (oldval ~= num and conl.PROJ[identifier]==nil) then
-                    warnprintf("label \"%s\" not redefined with new value %d (old: %d)",
+                    warnprintf("Label \"%s\" not redefined with new value %d (old: %d).",
                                identifier, num, oldval)
+                    Define.inform_olddef_location(identifier, false)
                 end
             end
         end
@@ -868,6 +881,7 @@ function Define.label(identifier, num)
         -- New definition of a label
         g_labeldef[identifier] = num
         g_labeltype[identifier] = LABEL.NUMBER
+        g_labelloc[identifier] = { g_filename, getlinecol(g_lastkwpos) }
     end
 end
 
@@ -928,11 +942,13 @@ function Define.composite(labeltype, identifier, ...)
 
     if (oldval) then
         if (oldtype ~= labeltype) then
-            errprintf("refusing to overwrite `%s' label \"%s\" with a `%s' value",
+            errprintf("Refusing to overwrite `%s' label \"%s\" with a `%s' value.",
                       LABEL[oldtype], identifier, LABEL[labeltype])
+            Define.inform_olddef_location(identifier, true)
         else
-            warnprintf("duplicate `%s' definition of \"%s\" ignored",
+            warnprintf("Duplicate `%s' definition of \"%s\" ignored.",
                        LABEL[labeltype], identifier)
+            Define.inform_olddef_location(identifier, false)
         end
         return
     end
@@ -985,6 +1001,7 @@ function Define.composite(labeltype, identifier, ...)
 
     g_labeldef[identifier] = refcode
     g_labeltype[identifier] = labeltype
+    g_labelloc[identifier] = { g_filename, getlinecol(g_lastkwpos) }
 end
 
 
@@ -1468,17 +1485,18 @@ function Cmd.gamevar(identifier, initval, flags)
                 return
             end
 
-            errprintf("duplicate gamevar definition `%s' has different flags", identifier)
+            errprintf("duplicate definition of gamevar `%s' has different flags", identifier)
             return
         else
-            warnprintf("duplicate gamevar definition `%s' ignored", identifier)
+            warnprintf("duplicate definition of gamevar `%s' ignored", identifier)
             return
         end
     end
 
     local ltype = g_labeltype[identifier]
     if (ltype ~= nil) then
-        warnprintf("symbol `%s' already used for a defined %s", identifier, LABEL[ltype])
+        warnprintf("Symbol `%s' already used for a defined %s.", identifier, LABEL[ltype])
+        Define.inform_olddef_location(identifier, false)
     end
 
     if (isSessionVar) then

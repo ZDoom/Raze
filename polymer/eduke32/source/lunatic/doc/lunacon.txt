@@ -206,7 +206,7 @@ LunaCON makes a clear distinction between ``outer'' commands that have an
 effect when translating a CON file (_directives_ such as `gamevar`,
 `definesound` or `spritenvg`) and ``inner'' commands meant to be effective at
 execution time of `actor`/`useractor`, `state`, `event` and `eventloadactor`
-blocks. This, issuing directives inside of these will make LunaCON reject the
+blocks. Thus, issuing directives inside of these will make LunaCON reject the
 input file due to a syntax error, as will an attempt to use run-time commands
 such as `sizeat` at file scope.
 
