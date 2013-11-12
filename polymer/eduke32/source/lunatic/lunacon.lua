@@ -735,6 +735,11 @@ local g_labeltype = {}
 local g_labelspecial = {}  -- [<label>] = true
 local g_labelloc = {}  -- [<label>] = { filename, linenum, colnum }
 
+-- Get location table for use in continued warning/error reporting.
+local function getLocation()
+    return { g_filename, getlinecol(g_lastkwpos) }
+end
+
 function reset.labels()
     g_badids = {}
 
@@ -842,9 +847,10 @@ function check.sysvar_def_attempt(identifier)
     end
 end
 
-local Define = {}
-function Define.inform_olddef_location(identifier, iserr)  -- XXX: too much locals
-    local loc = g_labelloc[identifier]
+
+local inform = {}
+
+function inform.common(loc, iserr)
     if (loc) then
         contprintf(iserr, "Old definition is at %s %d:%d",
                    loc[1], loc[2], loc[3])
@@ -852,6 +858,17 @@ function Define.inform_olddef_location(identifier, iserr)  -- XXX: too much loca
         contprintf(iserr, "Old definition is built-in")
     end
 end
+
+function inform.olddef_location(identifier, iserr)
+    inform.common(g_labelloc[identifier], iserr)
+end
+
+function inform.oldgv_location(identifier, iserr)
+    inform.common(g_gamevar[identifier].loc, iserr)
+end
+
+
+local Define = {}
 
 function Define.label(identifier, num)
     if (check.sysvar_def_attempt(identifier)) then
@@ -865,20 +882,21 @@ function Define.label(identifier, num)
         if (oldtype ~= LABEL.NUMBER) then
             errprintf("Refusing to overwrite `%s' label \"%s\" with a `define'd number.",
                       LABEL[oldtype], identifier)
-            Define.inform_olddef_location(identifier, true)
+            inform.olddef_location(identifier, true)
         else
             -- conl.labels[...]: don't warn for wrong PROJ_ redefinitions
             if (g_warn["not-redefined"]) then
                 if (oldval ~= num and conl.PROJ[identifier]==nil) then
                     warnprintf("Label \"%s\" not redefined with new value %d (old: %d).",
                                identifier, num, oldval)
-                    Define.inform_olddef_location(identifier, false)
+                    inform.olddef_location(identifier, false)
                 end
             end
         end
     else
         if (g_gamevar[identifier]) then
             warnprintf("symbol `%s' already used for game variable", identifier)
+            inform.oldgv_location(identifier, false)
         end
 
         if (ffi and g_dyntilei and (num>=0 and num<C.MAXTILES)) then
@@ -889,7 +907,7 @@ function Define.label(identifier, num)
         -- New definition of a label
         g_labeldef[identifier] = num
         g_labeltype[identifier] = LABEL.NUMBER
-        g_labelloc[identifier] = { g_filename, getlinecol(g_lastkwpos) }
+        g_labelloc[identifier] = getLocation()
     end
 end
 
@@ -952,11 +970,11 @@ function Define.composite(labeltype, identifier, ...)
         if (oldtype ~= labeltype) then
             errprintf("Refusing to overwrite `%s' label \"%s\" with a `%s' value.",
                       LABEL[oldtype], identifier, LABEL[labeltype])
-            Define.inform_olddef_location(identifier, true)
+            inform.olddef_location(identifier, true)
         else
             warnprintf("Duplicate `%s' definition of \"%s\" ignored.",
                        LABEL[labeltype], identifier)
-            Define.inform_olddef_location(identifier, false)
+            inform.olddef_location(identifier, false)
         end
         return
     end
@@ -1009,7 +1027,7 @@ function Define.composite(labeltype, identifier, ...)
 
     g_labeldef[identifier] = refcode
     g_labeltype[identifier] = labeltype
-    g_labelloc[identifier] = { g_filename, getlinecol(g_lastkwpos) }
+    g_labelloc[identifier] = getLocation()
 end
 
 
@@ -1405,6 +1423,7 @@ function Cmd.gamearray(identifier, initsize)
 
     if (g_gamevar[identifier]) then
         warnprintf("symbol `%s' already used for game variable", identifier)
+        inform.oldgv_location(identifier, false)
     end
 
     local ga = { name=mangle_name(identifier, "A"), size=initsize }
@@ -1494,9 +1513,11 @@ function Cmd.gamevar(identifier, initval, flags)
             end
 
             errprintf("duplicate definition of gamevar `%s' has different flags", identifier)
+            inform.oldgv_location(identifier, true)
             return
         else
             warnprintf("duplicate definition of gamevar `%s' ignored", identifier)
+            inform.oldgv_location(identifier, false)
             return
         end
     end
@@ -1504,7 +1525,7 @@ function Cmd.gamevar(identifier, initval, flags)
     local ltype = g_labeltype[identifier]
     if (ltype ~= nil) then
         warnprintf("Symbol `%s' already used for a defined %s.", identifier, LABEL[ltype])
-        Define.inform_olddef_location(identifier, false)
+        inform.olddef_location(identifier, false)
     end
 
     if (isSessionVar) then
@@ -1516,12 +1537,12 @@ function Cmd.gamevar(identifier, initval, flags)
 
         -- Declare new session gamevar.
         g_gamevar[identifier] = { name=format("_gv._sessionVar[%d]", g_numSessionVars),
-                                  flags=flags }
+                                  flags=flags, loc=getLocation() }
         g_numSessionVars = g_numSessionVars+1
         return
     end
 
-    local gv = { name=mangle_name(identifier, "V"), flags=flags }
+    local gv = { name=mangle_name(identifier, "V"), flags=flags, loc=getLocation() }
     g_gamevar[identifier] = gv
 
     if (storeWithSavegames) then

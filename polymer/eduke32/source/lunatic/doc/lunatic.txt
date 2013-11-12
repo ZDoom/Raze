@@ -5,6 +5,7 @@ Helixhorned <contact: Duke4.net forums>
 :numbered:
 :icons:
 :toc:
+:toclevels: 3
 
 :language: lua
 
@@ -1932,7 +1933,8 @@ The `fs` module -- virtual file system facilities
 
 [red]*DRAFT*
 
-===== `files = fs.listpath(path, mask)`
+[float]
+==== `files = fs.listpath(path, mask)`
 
 Lists file names matching a wildcard `mask` which can be found under `path`.
 
