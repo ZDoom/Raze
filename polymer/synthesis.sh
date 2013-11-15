@@ -47,7 +47,7 @@ head=`svn update | tail -n1 | awk '{ print $NF }' | cut -d. -f1`
 echo "HEAD is revision $head."
 headlog=`svn log -r $head`
 
-lastrevision=`ls -A1 $output/????????-????/ | tail -n1 | cut -d- -f2 | cut -d. -f1`
+lastrevision=`ls -A1 $output/????????-???? | tail -n1 | cut -d- -f2 | cut -d. -f1`
 
 # If the log of HEAD contains DONT_BUILD, obey.
 if [ -n "`echo $headlog | grep DONT_BUILD`" ]; then
@@ -200,7 +200,7 @@ then
         package_start
         package_game_lunatic
         mv -f $top/$source/eduke32$exe "$package/leduke32_PREVIEW$exe"
-        package_execute l${basename}-lunatic-PREVIEW_win32
+        package_execute l${basename}_lunatic_PREVIEW_win32
     fi
 
 
