@@ -47,7 +47,7 @@ head=`svn update | tail -n1 | awk '{ print $NF }' | cut -d. -f1`
 echo "HEAD is revision $head."
 headlog=`svn log -r $head`
 
-lastrevision=`ls -A1 $output/????????-???? | tail -n1 | cut -d- -f2 | cut -d. -f1`
+lastrevision=`ls -A1 $output/????????-???? | grep ${basename}_ - | tail -n1 | cut -d- -f2 | cut -d. -f1`
 
 # If the log of HEAD contains DONT_BUILD, obey.
 if [ -n "`echo $headlog | grep DONT_BUILD`" ]; then
