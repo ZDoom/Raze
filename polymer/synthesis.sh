@@ -280,6 +280,8 @@ then
         # add one so that we only include what is new to this update
         let lastrevision+=1
         svn log -r $head:$lastrevision > $output/$date-$head/ChangeLog.txt
+
+        echo "See http://svn.eduke32.com/listing.php?repname=eduke32 for more details." >> $output/$date-$head/ChangeLog.txt
     fi
 
     # hack for our served directory structure... really belongs elsewhere,
