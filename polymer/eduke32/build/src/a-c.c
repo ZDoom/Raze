@@ -160,7 +160,9 @@ extern int32_t vince[4];
 extern intptr_t bufplce[4];
 
 #if defined __GNUC__ && __GNUC_MINOR__ >= 7
-# define USE_VECTOR_EXT
+# if defined _WIN64 || defined __amd64 || defined __x86_64 || defined __x86_64__
+#  define USE_VECTOR_EXT
+# endif
 #endif
 
 #ifdef USE_VECTOR_EXT
