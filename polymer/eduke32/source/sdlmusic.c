@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "music.h"
 
 #if !defined _WIN32 && !defined(GEKKO)
-# define FORK_EXEC_MIDI 1
+//# define FORK_EXEC_MIDI 1
 #endif
 
 #if defined FORK_EXEC_MIDI  // fork/exec based external midi player
@@ -216,15 +216,15 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
             perror("MUSIC_Init: mprotect");
             goto fallback;
         }
-        /*
-                {
-                    int i;
-                    initprintf("----Music argv:\n");
-                    for (i=0; i<numargs+1; i++)
-                        initprintf("  %s\n", external_midi_argv[i]);
-                    initprintf("----\n");
-                }
-        */
+# if 0
+        {
+            int i;
+            initprintf("----Music argv:\n");
+            for (i=0; i<numargs+1; i++)
+                initprintf("  %s\n", external_midi_argv[i]);
+            initprintf("----\n");
+        }
+# endif
 #endif
         music_initialized = 1;
         return(MUSIC_Ok);
@@ -406,8 +406,8 @@ static void playmusic()
     }
     else if (pid==0)  // child
     {
-        // exec with PATH lookup
-        if (execvp(external_midi_argv[0], external_midi_argv) < 0)
+        // exec without PATH lookup
+        if (execv(external_midi_argv[0], external_midi_argv) < 0)
         {
             perror("execv");
             _exit(1);
