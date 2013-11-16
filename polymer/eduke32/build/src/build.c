@@ -4027,6 +4027,8 @@ rotate_hlsect_out:
             startsectnum = cursectnum;
             keystatus[0x46] = 0;
             asksave = 1;
+
+            printmessage16("Set starting position");
         }
 #if 1
         if (keystatus[0x3f])  //F5
