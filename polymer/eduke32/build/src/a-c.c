@@ -15,6 +15,12 @@ int32_t krecip(int32_t num);	// from engine.c
 #define BITSOFPRECISION 3
 #define BITSOFPRECISIONPOW 8
 
+// Compile code to saturate vplc for sprites to prevent stray lines at the
+// bottom of non-y-flipped ones?
+#define USE_SATURATE_VPLC
+// Also for translucent masks?
+//#define USE_SATURATE_VPLC_TRANS
+
 extern intptr_t asm1, asm2, asm3, asm4;
 extern int32_t fpuasm, globalx3, globaly3;
 extern void *reciptable;
@@ -161,6 +167,21 @@ extern intptr_t bufplce[4];
 typedef uint32_t uint32_vec4 __attribute__ ((vector_size (16)));
 #endif
 
+#ifdef USE_SATURATE_VPLC
+# define saturate_vplc(vplc, vinc) vplc |= g_saturate & -(vplc < (uint32_t)vinc)
+// NOTE: the vector types yield -1 for logical "true":
+# define saturate_vplc_vec(vplc, vinc) vplc |= g_saturate & (vplc < vinc)
+# ifdef USE_SATURATE_VPLC_TRANS
+#  define saturate_vplc_trans(vplc, vinc) saturate_vplc(vplc, vinc)
+# else
+#  define saturate_vplc_trans(vplc, vinc)
+# endif
+#else
+# define saturate_vplc(vplc, vinc)
+# define saturate_vplc_vec(vplc, vinc)
+# define saturate_vplc_trans(vplc, vinc)
+#endif
+
 // cnt >= 1
 void vlineasm4(int32_t cnt, char *p)
 {
@@ -199,7 +220,19 @@ void vlineasm4(int32_t cnt, char *p)
         vplce[i] = vplc[i];
 }
 
-void setupmvlineasm(int32_t neglogy) { glogy = neglogy; }
+#ifdef USE_SATURATE_VPLC
+static int32_t g_saturate;  // -1 if saturating vplc is requested, 0 else
+# define set_saturate(dosaturate) g_saturate = -!!dosaturate
+#else
+# define set_saturate(dosaturate) UNREFERENCED_PARAMETER(dosaturate)
+#endif
+
+void setupmvlineasm(int32_t neglogy, int32_t dosaturate)
+{
+    glogy = neglogy;
+    set_saturate(dosaturate);
+}
+
 // cnt+1 loop iterations!
 int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
@@ -218,6 +251,7 @@ int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
         if (ch != 255) *pp = pal[ch];
         pp += ourbpl;
         vplc += vinc;
+        saturate_vplc(vplc, vinc);
     }
     while (--cnt);
 
@@ -249,10 +283,12 @@ void mvlineasm4(int32_t cnt, char *p)
             if (ch != 255) p[i] = pal[i][ch];
 #if !defined USE_VECTOR_EXT
             vplc[i] += vinc[i];
+            saturate_vplc(vplc[i], vinc[i]);
 #endif
         }
 #ifdef USE_VECTOR_EXT
         vplc += vinc;
+        saturate_vplc_vec(vplc, vinc);
 #endif
         p += ourbpl;
     }
@@ -268,9 +304,10 @@ void mvlineasm4(int32_t cnt, char *p)
 # define GLOGY glogy
 #endif
 
-void setuptvlineasm(int32_t neglogy)
+void setuptvlineasm(int32_t neglogy, int32_t dosaturate)
 {
     GLOGY = neglogy;
+    set_saturate(dosaturate);
 }
 
 #if !defined USE_ASM64
@@ -295,6 +332,7 @@ int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
             if (ch != 255) *pp = trans[(*pp)|(pal[ch]<<8)];
             pp += ourbpl;
             vplc += vinc;
+            saturate_vplc_trans(vplc, vinc);
         }
         while (--cnt);
     }
@@ -306,6 +344,7 @@ int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
             if (ch != 255) *pp = trans[((*pp)<<8)|pal[ch]];
             pp += ourbpl;
             vplc += vinc;
+            saturate_vplc_trans(vplc, vinc);
         }
         while (--cnt);
     }
@@ -347,10 +386,12 @@ void tvlineasm2(uint32_t vplc2, int32_t vinc1, intptr_t bufplc1, intptr_t bufplc
             ch = getpix(logy, buf1, vplc1);
             if (ch != 255) pp[0] = gtrans[pp[0]|(gpal[ch]<<8)];
             vplc1 += vinc1;
+            saturate_vplc_trans(vplc1, vinc1);
 
             ch = getpix(logy, buf2, vplc2);
             if (ch != 255) pp[1] = gtrans[pp[1]|(gpal2[ch]<<8)];
             vplc2 += vinc2;
+            saturate_vplc_trans(vplc2, vinc2);
 
             pp += ourbpl;
         }
@@ -363,10 +404,12 @@ void tvlineasm2(uint32_t vplc2, int32_t vinc1, intptr_t bufplc1, intptr_t bufplc
             ch = getpix(logy, buf1, vplc1);
             if (ch != 255) pp[0] = gtrans[(pp[0]<<8)|gpal[ch]];
             vplc1 += vinc1;
+            saturate_vplc_trans(vplc1, vinc1);
 
             ch = getpix(logy, buf2, vplc2);
             if (ch != 255) pp[1] = gtrans[(pp[1]<<8)|gpal2[ch]];
             vplc2 += vinc2;
+            saturate_vplc_trans(vplc2, vinc2);
 
             pp += ourbpl;
         }

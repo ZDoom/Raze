@@ -656,6 +656,8 @@ CDECLENDSET 1
 	
 	ALIGN 16
 setupmvlineasm:
+    ;; NOTE: We actually receive two args (second one: saturate vplc?), but the
+    ;; second one is currently unused here. See the others: UNUSED_DO_SATURATE.
 CDECLBEGINSET 1
 	mov byte [maskmach3a+2], al
 	mov byte [machmv13+2], al
@@ -668,6 +670,7 @@ CDECLENDSET 1
 
 	ALIGN 16
 setuptvlineasm:
+    ;; UNUSED_DO_SATURATE
 CDECLBEGINSET 1
 	mov byte [transmach3a+2], al
 CDECLENDSET 1

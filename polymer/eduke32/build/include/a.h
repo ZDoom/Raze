@@ -35,7 +35,7 @@ extern int32_t __cdecl fixtransluscence(int32_t);
 extern int32_t __cdecl prevlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl vlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl vlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl setuptvlineasm(int32_t);
+extern int32_t __cdecl setuptvlineasm(int32_t,int32_t);
 extern int32_t __cdecl tvlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl tvlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl setuptvlineasm2(int32_t,int32_t,int32_t);
@@ -44,7 +44,7 @@ extern int32_t __cdecl mvlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_
 extern int32_t __cdecl mvlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl setupvlineasm(int32_t);
 extern int32_t __cdecl vlineasm4(int32_t,char *);
-extern int32_t __cdecl setupmvlineasm(int32_t);
+extern int32_t __cdecl setupmvlineasm(int32_t,int32_t);
 extern int32_t __cdecl mvlineasm4(int32_t,char *);
 extern int32_t __cdecl setupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl spritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
@@ -93,7 +93,7 @@ extern int32_t _cdecl fixtransluscence(int32_t);
 extern int32_t _cdecl prevlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t _cdecl vlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t _cdecl vlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl setuptvlineasm(int32_t);
+extern int32_t _cdecl setuptvlineasm(int32_t,int32_t);
 extern int32_t _cdecl tvlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t _cdecl tvlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t _cdecl setuptvlineasm2(int32_t,int32_t,int32_t);
@@ -102,7 +102,7 @@ extern int32_t _cdecl mvlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t
 extern int32_t _cdecl mvlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t _cdecl setupvlineasm(int32_t);
 extern int32_t _cdecl vlineasm4(int32_t,char *);
-extern int32_t _cdecl setupmvlineasm(int32_t);
+extern int32_t _cdecl setupmvlineasm(int32_t,int32_t);
 extern int32_t _cdecl mvlineasm4(int32_t,char *);
 extern int32_t _cdecl setupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t _cdecl spritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
@@ -152,11 +152,11 @@ void setupvlineasm(int32_t neglogy);
 int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p);
 void vlineasm4(int32_t cnt, char *p);
 
-void setupmvlineasm(int32_t neglogy);
+void setupmvlineasm(int32_t neglogy, int32_t dosaturate);
 int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p);
 void mvlineasm4(int32_t cnt, char *p);
 
-void setuptvlineasm(int32_t neglogy);
+void setuptvlineasm(int32_t neglogy, int32_t dosaturate);
 int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p);
 
 void setuptvlineasm2(int32_t neglogy, intptr_t paloffs1, intptr_t paloffs2);

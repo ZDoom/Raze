@@ -2790,7 +2790,7 @@ static WSHELPER_DECL void calc_vplcinc(uint32_t *vplc, int32_t *vinc, const int3
 //
 // maskwallscan (internal)
 //
-static void maskwallscan(int32_t x1, int32_t x2)
+static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 {
     int32_t x;
     intptr_t p, fpalookup;
@@ -2818,7 +2818,7 @@ static void maskwallscan(int32_t x1, int32_t x2)
 
     fpalookup = FP_OFF(palookup[globalpal]);
 
-    setupmvlineasm(globalshiftval);
+    setupmvlineasm(globalshiftval, saturatevplc);
 
 
     x = x1;
@@ -4021,7 +4021,7 @@ static void transmaskvline2(int32_t x)
 //
 // transmaskwallscan (internal)
 //
-static void transmaskwallscan(int32_t x1, int32_t x2)
+static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 {
     int32_t x;
 
@@ -4034,7 +4034,7 @@ static void transmaskwallscan(int32_t x1, int32_t x2)
 
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
-    setuptvlineasm(globalshiftval);
+    setuptvlineasm(globalshiftval, saturatevplc);
 
     x = x1;
     while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2)) x++;
@@ -5808,9 +5808,9 @@ draw_as_face_sprite:
         drawing_sprite = 1;
 
         if ((cstat&2) == 0)
-            maskwallscan(lx,rx);
+            maskwallscan(lx,rx, (cstat&8)==0);
         else
-            transmaskwallscan(lx,rx);
+            transmaskwallscan(lx,rx, (cstat&8)==0);
 
         drawing_sprite = 0;
     }
@@ -6070,9 +6070,9 @@ draw_as_face_sprite:
         drawing_sprite = 1;
 
         if ((cstat&2) == 0)
-            maskwallscan(sx1,sx2);
+            maskwallscan(sx1,sx2, (cstat&8)==0);
         else
-            transmaskwallscan(sx1,sx2);
+            transmaskwallscan(sx1,sx2, (cstat&8)==0);
 
         drawing_sprite = 0;
     }
@@ -6653,7 +6653,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
 
     if ((globalorientation&128) == 0)
     {
-        maskwallscan(xb1[z],xb2[z]);
+        maskwallscan(xb1[z],xb2[z], 0);
     }
     else
     {
@@ -6662,7 +6662,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
             if (globalorientation&512) settransreverse(); else settransnormal();
         }
 
-        transmaskwallscan(xb1[z],xb2[z]);
+        transmaskwallscan(xb1[z],xb2[z], 0);
     }
 }
 
@@ -7417,7 +7417,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             if (dastat&64)
                 setupvlineasm(24L);
             else
-                setupmvlineasm(24L);
+                setupmvlineasm(24L, 0);
 
             by <<= 8; yv <<= 8; yv2 <<= 8;
 
