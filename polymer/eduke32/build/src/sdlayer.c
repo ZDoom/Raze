@@ -2050,13 +2050,15 @@ int32_t handleevents(void)
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.scancode];
 
-            if (ev.key.type == SDL_KEYDOWN &&
+            if (ev.key.type == SDL_KEYDOWN && !keyascfifo_isfull() &&
                 (ev.key.keysym.scancode == SDL_SCANCODE_RETURN ||
-                ev.key.keysym.scancode == SDL_SCANCODE_KP_ENTER ||
-                ev.key.keysym.scancode == SDL_SCANCODE_ESCAPE ||
-                ev.key.keysym.scancode == SDL_SCANCODE_BACKSPACE ||
-                ev.key.keysym.scancode == SDL_SCANCODE_TAB) &&
-                !keyascfifo_isfull())
+                 ev.key.keysym.scancode == SDL_SCANCODE_KP_ENTER ||
+                 ev.key.keysym.scancode == SDL_SCANCODE_ESCAPE ||
+                 ev.key.keysym.scancode == SDL_SCANCODE_BACKSPACE ||
+                 ev.key.keysym.scancode == SDL_SCANCODE_TAB ||
+                 (ev.key.keysym.mod==KMOD_LCTRL &&
+                  (ev.key.keysym.scancode == SDL_SCANCODE_F ||
+                   ev.key.keysym.scancode == SDL_SCANCODE_G))))
             {
                 char keyvalue;
                 switch (ev.key.keysym.scancode)
@@ -2065,6 +2067,8 @@ int32_t handleevents(void)
                     case SDL_SCANCODE_ESCAPE: keyvalue = 27; break;
                     case SDL_SCANCODE_BACKSPACE: keyvalue = '\b'; break;
                     case SDL_SCANCODE_TAB: keyvalue = '\t'; break;
+                    case SDL_SCANCODE_F: keyvalue = 6; break;
+                    case SDL_SCANCODE_G: keyvalue = 7; break;
                     default: keyvalue = 0; break;
                 }
                 if (OSD_HandleChar(keyvalue))
