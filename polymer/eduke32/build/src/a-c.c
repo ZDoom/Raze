@@ -153,30 +153,29 @@ extern uint32_t vplce[4];
 extern int32_t vince[4];
 extern intptr_t bufplce[4];
 
+#if defined __GNUC__ && __GNUC_MINOR__ >= 7
+# define USE_VECTOR_EXT
+#endif
+
+#ifdef USE_VECTOR_EXT
+typedef uint32_t uint32_vec4 __attribute__ ((vector_size (16)));
+#endif
+
 // cnt >= 1
 void vlineasm4(int32_t cnt, char *p)
 {
     char ch;
     int32_t i;
-#if 1
-    // this gives slightly more stuff in registers in the loop
-    // (on x86_64 at least)
+
     char *const pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
     char *const buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
+#ifdef USE_VECTOR_EXT
+    uint32_vec4 vinc = {vince[0], vince[1], vince[2], vince[3]};
+    uint32_vec4 vplc = {vplce[0], vplce[1], vplce[2], vplce[3]};
+#else
     const int32_t vinc[4] = {vince[0], vince[1], vince[2], vince[3]};
     uint32_t vplc[4] = {vplce[0], vplce[1], vplce[2], vplce[3]};
-#else
-    char *pal[4];
-    char *buf[4];
-    int32_t vinc[4];
-    uint32_t vplc[4];
-
-    Bmemcpy(pal, palookupoffse, sizeof(pal));
-    Bmemcpy(buf, bufplce, sizeof(buf));
-    Bmemcpy(vinc, vince, sizeof(vinc));
-    Bmemcpy(vplc, vplce, sizeof(vplc));
 #endif
-
     const int32_t logy = glogy, ourbpl = bpl;
 
     do
@@ -185,13 +184,19 @@ void vlineasm4(int32_t cnt, char *p)
         {
             ch = getpix(logy, buf[i], vplc[i]);
             p[i] = pal[i][ch];
+#if !defined USE_VECTOR_EXT
             vplc[i] += vinc[i];
+#endif
         }
+#ifdef USE_VECTOR_EXT
+        vplc += vinc;
+#endif
         p += ourbpl;
     }
     while (--cnt);
 
-    Bmemcpy(vplce, vplc, sizeof(vplce));
+    for (i=0; i<4; i++)
+        vplce[i] = vplc[i];
 }
 
 void setupmvlineasm(int32_t neglogy) { glogy = neglogy; }
@@ -227,9 +232,13 @@ void mvlineasm4(int32_t cnt, char *p)
 
     char *const pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
     char *const buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
+#ifdef USE_VECTOR_EXT
+    uint32_vec4 vinc = {vince[0], vince[1], vince[2], vince[3]};
+    uint32_vec4 vplc = {vplce[0], vplce[1], vplce[2], vplce[3]};
+#else
     const int32_t vinc[4] = {vince[0], vince[1], vince[2], vince[3]};
     uint32_t vplc[4] = {vplce[0], vplce[1], vplce[2], vplce[3]};
-
+#endif
     const int32_t logy = glogy, ourbpl = bpl;
 
     do
@@ -238,13 +247,19 @@ void mvlineasm4(int32_t cnt, char *p)
         {
             ch = getpix(logy, buf[i], vplc[i]);
             if (ch != 255) p[i] = pal[i][ch];
+#if !defined USE_VECTOR_EXT
             vplc[i] += vinc[i];
+#endif
         }
+#ifdef USE_VECTOR_EXT
+        vplc += vinc;
+#endif
         p += ourbpl;
     }
     while (--cnt);
 
-    Bmemcpy(vplce, vplc, sizeof(vplce));
+    for (i=0; i<4; i++)
+        vplce[i] = vplc[i];
 }
 
 #ifdef USE_ASM64
