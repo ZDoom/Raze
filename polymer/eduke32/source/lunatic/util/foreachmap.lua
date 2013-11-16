@@ -30,6 +30,9 @@
 -- Print all MUSICANDSFX sprites that play sounds with bit 1 set.
 -- ./findmaps.sh /g/Games/Eduke32c/grp 'sprite: .picnum==5 and eq(.lotag, {170, 186, 187, 279, 382, 347}) :: io.write(" ".. tostring(.lotag))'
 
+-- Print all maps that have floor-aligned blockable sprites in underwater sectors.
+-- ./findmaps.sh ~/.eduke32 'sprite:: bit.band(.cstat,49)==33 and .sectnum>=0 and .sectnum < map.numsectors and sector[.sectnum].lotag==2
+
 local B = require "build"
 local string = require "string"
 local io = require "io"
@@ -65,12 +68,13 @@ end
 local g_what
 -- Maybe replace e.g. .nextwall --> wall[i].nextwall.
 -- <what>: one of "sector", "wall" or "sprite"
+-- <maybechar>: the char before <maybememb>, or ""
 -- <maybememb>: a potential member name prefixed by "."
-local function maybe_complete_member(maybememb)
-    if (B.ismember(g_what, maybememb:sub(2))) then
-        return g_what.."[i]"..maybememb
+local function maybe_complete_member(maybechar, maybememb)
+    if (maybechar~="]" and B.ismember(g_what, maybememb:sub(2))) then
+        return maybechar..g_what.."[i]"..maybememb
     else
-        return maybememb
+        return maybechar..maybememb
     end
 end
 
@@ -84,7 +88,7 @@ if (modname:sub(1,2) == "-e") then
         g_what = what
         local onlyfiles = (body:sub(e-1,e)=="::")  -- "::" means "only list files" (like grep -l)
         body = body:sub(e+1)  -- clip off "bla::"
-        body = body:gsub("%.[a-z][a-z0-9]*", maybe_complete_member)  -- e.g. .lotag --> sprite[i].lotag
+        body = body:gsub("(.?)(%.[a-z][a-z0-9]*)", maybe_complete_member)  -- e.g. .lotag --> sprite[i].lotag
 
         local perxcode
         -- look for additional "print" code to be executed for each match
@@ -125,6 +129,7 @@ if (modname:sub(1,2) == "-e") then
 
     if (successfunc==nil) then
         io.stderr:write("Error loading string: "..errmsg.."\n")
+        io.stderr:write("Function body:\n", body)
         os.exit(1)
     end
 
