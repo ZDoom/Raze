@@ -4286,10 +4286,13 @@ void P_ProcessInput(int32_t snum)
 
         if ((sprite[j].cstat&33) == 33 || (sprite[j].cstat&17) == 17)
         {
-            psectlotag = 0;
-            p->footprintcount = 0;
-            p->spritebridge = 1;
-            p->sbs = j;
+            if ((sprite[j].xvel&1) == 0)  // EDuke32 extension
+            {
+                psectlotag = 0;
+                p->footprintcount = 0;
+                p->spritebridge = 1;
+                p->sbs = j;
+            }
         }
         else if (A_CheckEnemySprite(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(s->z-sprite[j].z) < (84<<8))
         {
