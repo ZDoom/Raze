@@ -3741,7 +3741,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         fp = kopen4load(mptr, 0 /*g_loadFromGroupOnly*/);
         if (fp == -1) // JBF: was 0
         {
-            if (fs >= 4 && Bmemcmp(&mptr[fs-4], ".m32", 4) != 0)
+            if (fs < 4 || Bmemcmp(&mptr[fs-4], ".m32", 4) != 0)
             {
                 Bstrcat(&mptr[fs], ".m32");
                 fp = kopen4load(mptr, 0 /*g_loadFromGroupOnly*/);
