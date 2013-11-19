@@ -13108,7 +13108,7 @@ static void FuncMenu(void)
 
                 if (vm.flags&VMFLAG_ERROR)
                     printmessage16("There were errors while executing the menu function");
-                else
+                else if (lastpm16time != totalclock)
                     printmessage16("Menu function executed successfully");
             }
 

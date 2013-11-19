@@ -1540,6 +1540,18 @@ defstate moveselsects
     }
 ends
 
+defstate sanitize_underwater_sprites
+    "Xvel=1 for wall/flr spr."
+    for i selsprites
+    {
+        set j .cstat
+        and j 49
+        ife j 17 set .xvel 1
+        ife j 33 set .xvel 1
+    }
+    printmessage16 "Set xvel=1 on highlighted wall/floor sprites"
+ends
+
 // This must be *compiled* with script_expertmode
 /*
 defstate setstartpos
