@@ -228,7 +228,7 @@ defstate fiddlewithlights
         case 1:
         {
             set k pr_parallaxscale
-            ftoi k PSCALESTEPS  // must convert to scaled integer, maps 0..1 to 0..PARALLAXSTEPS
+            ftoi k PSCALESTEPS  // must convert to scaled integer, maps 0..1 to 0..PSCALESTEPS
             set minval MINPARALLAXSCALE, mul minval PSCALESTEPS
             set maxval MAXPARALLAXSCALE, mul maxval PSCALESTEPS
             add k j, clamp k minval maxval

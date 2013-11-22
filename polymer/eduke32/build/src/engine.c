@@ -7236,8 +7236,6 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     int32_t ouryxaspect, ourxyaspect;
 
-    UNREFERENCED_PARAMETER(uniqid);
-
     if (g_rotatespriteNoWidescreen)
     {
         dastat |= 1024;
@@ -7251,6 +7249,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,cx1,cy1,cx2,cy2,uniqid);
         return;
     }
+#else
+    UNREFERENCED_PARAMETER(uniqid);
 #endif
     //============================================================================= //POLYMOST ENDS
 

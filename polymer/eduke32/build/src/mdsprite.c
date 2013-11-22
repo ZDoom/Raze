@@ -2349,7 +2349,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
             indexhandle = m->vindexes;
 
         //PLAG: delayed polygon-level sorted rendering
-        if (m->usesalpha && !(tspr->cstat & 1024))
+        if (m->usesalpha && !(tspr->cstat & CSTAT_SPRITE_MDHACK))
         {
             for (i=s->numtris-1; i>=0; i--)
             {

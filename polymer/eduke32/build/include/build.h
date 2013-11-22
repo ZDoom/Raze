@@ -764,8 +764,8 @@ typedef struct {
     // XXX: currently always 0.
     int32_t yoffs;
 
-    int8_t lognumtiles;  // 1<<bits: number of tiles in multi-sky
-    int8_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<bits): tile offset relative to basetile
+    int8_t lognumtiles;  // 1<<lognumtiles: number of tiles in multi-sky
+    int8_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<lognumtiles): tile offset relative to basetile
 } psky_t;
 
 // Index of map-global (legacy) multi-sky:
@@ -1393,8 +1393,6 @@ void hash_delete(hashtable_t *t, const char *s);
 #  include "polymost.h"
 # endif
 #endif
-
-extern void initialize_engine_globals(void);
 
 static inline void push_nofog(void)
 {

@@ -4169,7 +4169,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             x1 = hudmem[(dastat&4)>>2][picnum].xadd;
             y1 = hudmem[(dastat&4)>>2][picnum].yadd;
             z1 = hudmem[(dastat&4)>>2][picnum].zadd;
-            
+
 #ifdef POLYMER
             if (pr_overridehud) {
                 x1 = pr_hudxadd;
@@ -4177,7 +4177,6 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 z1 = pr_hudzadd;
             }
 #endif
-
             if (!(hudmem[(dastat&4)>>2][picnum].flags&2)) //"NOBOB" is specified in DEF
             {
                 double fx = ((double)sx)*(1.0/65536.0);
@@ -4305,21 +4304,19 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
                 spriteext[tspr.owner].roll = a;
                 spriteext[tspr.owner].zoff = z;
-                
+
                 fov = hudmem[(dastat&4)>>2][picnum].fov;
-                
-                if (fov == -1) {
+
+                if (fov == -1)
                     fov = pr_fov;
-                }
-                
-                if (pr_overridehud) {
+
+                if (pr_overridehud)
                     fov = pr_hudfov;
-                }
-                
+
                 polymer_setaspect(fov);
 
                 polymer_drawsprite(MAXSPRITESONSCREEN);
-                
+
                 polymer_setaspect(pr_fov);
 
                 spriteext[tspr.owner].zoff = 0;
