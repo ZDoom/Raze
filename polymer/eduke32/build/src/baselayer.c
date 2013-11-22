@@ -153,9 +153,12 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
     bglPushMatrix();
     bglLoadIdentity();
 
+    bglPushAttrib(GL_ENABLE_BIT);
+
     bglDisable(GL_DEPTH_TEST);
     bglDisable(GL_ALPHA_TEST);
     bglDisable(GL_TEXTURE_2D);
+    bglDisable(GL_FOG);
 
     bglEnable(GL_BLEND);
     bglColor4ub(r, g, b, f);
@@ -166,7 +169,7 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
     bglVertex2f(.0f, -2.5f);
     bglEnd();
 
-    bglDisable(GL_BLEND);
+    bglPopAttrib();
 
     bglPopMatrix();
     bglMatrixMode(GL_PROJECTION);
