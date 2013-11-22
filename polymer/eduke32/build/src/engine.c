@@ -7126,9 +7126,9 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
                           int32_t cx1_plus_cx2, int32_t cy1_plus_cy2,
                           int32_t *ret_yxaspect, int32_t *ret_xyaspect)
 {
-    if ((dastat&2) == 0)
+    if ((dastat & RS_AUTO) == 0)
     {
-        if (!(dastat & 1024) && 4*ydim <= 3*xdim)
+        if (!(dastat & RS_STRETCH) && 4*ydim <= 3*xdim)
         {
             *ret_yxaspect = (12<<16)/10;
             *ret_xyaspect = (10<<16)/12;
@@ -7155,7 +7155,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
         // screen center to s[xy], 320<<16 coords.
         const int32_t normxofs = sx-(320<<15), normyofs = sy-(200<<15);
 
-        if (!(dastat & 1024) && 4*ydim <= 3*xdim)
+        if (!(dastat & RS_STRETCH) && 4*ydim <= 3*xdim)
         {
             xdim = (4*ydim)/3;
 
@@ -7164,7 +7164,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
         }
 
         // nasty hacks go here
-        if (!(dastat&8))
+        if (!(dastat & RS_NOCLIP))
         {
             const int32_t twice_midcx = cx1_plus_cx2+2;
 
@@ -7173,11 +7173,11 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 
             int32_t xbord = 0;
 
-            if (dastat & (256|512))
+            if (dastat & RS_ALIGN_MASK)
             {
                 xbord = scale(oxdim-xdim, twice_midcx, oxdim);
 
-                if ((dastat & 512)==0)
+                if ((dastat & RS_ALIGN_R)==0)
                     xbord = -xbord;
             }
 
@@ -7193,12 +7193,12 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 
             sx = (xdim<<15)+32768 + scale(normxofs,xdim,320);
 
-            if (dastat & 512)
+            if (dastat & RS_ALIGN_R)
                 sx += (oxdim-xdim)<<16;
-            else if ((dastat & 256) == 0)
+            else if ((dastat & RS_ALIGN_L) == 0)
                 sx += (oxdim-xdim)<<15;
 
-            if (dastat&RS_CENTERORIGIN)
+            if (dastat & RS_CENTERORIGIN)
                 sx += oxdim<<15;
 
             zoomsc = scale(xdim, ouryxaspect, 320);
@@ -7238,8 +7238,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     if (g_rotatespriteNoWidescreen)
     {
-        dastat |= 1024;
-        dastat &= ~(512+256);
+        dastat |= RS_STRETCH;
+        dastat &= ~RS_ALIGN_MASK;
     }
 
     //============================================================================= //POLYMOST BEGINS
@@ -7263,7 +7263,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     xsiz = tilesizx[picnum];
     ysiz = tilesizy[picnum];
 
-    if (dastat&16)
+    if (dastat & RS_TOPLEFT)
     {
         // Bit 1<<4 set: origin is top left corner?
         xoff = 0;
@@ -7278,7 +7278,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     }
 
     // Bit 1<<2: invert y
-    if (dastat&4)
+    if (dastat & RS_YFLIP)
         yoff = ysiz-yoff;
 
     cosang = sintable[(a+512)&2047];
@@ -7288,7 +7288,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     xv = mulscale14(cosang,z);
     yv = mulscale14(sinang,z);
-    if ((dastat&2) || (dastat&8) == 0) //Don't aspect unscaled perms
+    if ((dastat&RS_AUTO) || (dastat&RS_NOCLIP) == 0) //Don't aspect unscaled perms
     {
         xv2 = mulscale16(xv,ourxyaspect);
         yv2 = mulscale16(yv,ourxyaspect);
@@ -7361,14 +7361,14 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     // TODO: a real implementation
     if (daalpha > 84) // if alpha is 0 (which is the default) this structure should only necessitate one comparison
     {
-        if ((dastat&1) && daalpha > 127) // this covers the multiplicative aspect used in the Polymodes
-            dastat |= 32;
+        if ((dastat & RS_TRANS1) && daalpha > 127) // this covers the multiplicative aspect used in the Polymodes
+            dastat |= RS_TRANS2;
 
-        dastat |= 1;
+        dastat |= RS_TRANS1;
 
         if (daalpha > 168)
         {
-            dastat |= 32;
+            dastat |= RS_TRANS2;
 
             if (daalpha == 255)
                 return;
@@ -7378,7 +7378,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     i = divscale32(1L,z);
     xv = mulscale14(sinang,i);
     yv = mulscale14(cosang,i);
-    if ((dastat&2) || (dastat&8)==0) //Don't aspect unscaled perms
+    if ((dastat&RS_AUTO) || (dastat&RS_NOCLIP)==0) //Don't aspect unscaled perms
     {
         yv2 = mulscale16(-xv,ouryxaspect);
         xv2 = mulscale16(yv,ouryxaspect);
@@ -7398,7 +7398,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     bx = dmulscale16(x,xv2,y,xv);
     by = dmulscale16(x,yv2,y,yv);
 
-    if (dastat&4)
+    if (dastat & RS_YFLIP)
     {
         yv = -yv;
         yv2 = -yv2;
@@ -7406,16 +7406,16 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     }
 
 #if defined ENGINE_USING_A_C
-    if ((dastat&1)==0 && ((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
+    if ((dastat&RS_TRANS1)==0 && ((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
 #else
-    if ((dastat&1) == 0)
+    if ((dastat&RS_TRANS1) == 0)
 #endif
     {
         int32_t y1ve[4], y2ve[4], u4, d4;
 
         if (((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
         {
-            if (dastat&64)
+            if (dastat & RS_NOMASK)
                 setupvlineasm(24L);
             else
                 setupmvlineasm(24L, 0);
@@ -7436,7 +7436,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                     bx += xv2;
 
                     y1 = uplc[x+xx]; y2 = dplc[x+xx];
-                    if ((dastat&8) == 0)
+                    if ((dastat & RS_NOCLIP) == 0)
                     {
                         if (startumost[x+xx] > y1) y1 = startumost[x+xx];
                         if (startdmost[x+xx] < y2) y2 = startdmost[x+xx];
@@ -7474,7 +7474,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 //                u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
 //                d4 = min(min(y2ve[0],y2ve[1]),min(y2ve[2],y2ve[3]));
 
-                if (dastat&64)
+                if (dastat & RS_NOMASK)
                 {
                     if ((bad != 0) || (u4 >= d4))
                     {
@@ -7532,7 +7532,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             int32_t ny1, ny2;
             int32_t qlinemode = 0;
 
-            if (dastat&64)
+            if (dastat & RS_NOMASK)
             {
                 if ((xv2&0x0000ffff) == 0)
                 {
@@ -7549,12 +7549,13 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                 setuprmhlineasm4(xv2<<16,yv2<<16,(xv2>>16)*ysiz+(yv2>>16),palookupoffs,ysiz,0L);
 
             y1 = uplc[x1];
-            if (((dastat&8) == 0) && (startumost[x1] > y1)) y1 = startumost[x1];
+            if (((dastat & RS_NOCLIP) == 0) && startumost[x1] > y1)
+                y1 = startumost[x1];
             y2 = y1;
             for (x=x1; x<x2; x++)
             {
                 ny1 = uplc[x]-1; ny2 = dplc[x];
-                if ((dastat&8) == 0)
+                if ((dastat & RS_NOCLIP) == 0)
                 {
                     if (startumost[x]-1 > ny1) ny1 = startumost[x]-1;
                     if (startdmost[x] < ny2) ny2 = startdmost[x];
@@ -7570,7 +7571,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                             //x,y1
                             bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-                            if (dastat&64)
+                            if (dastat & RS_NOMASK)
                             {
                                 if (qlinemode) qrhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,0L    ,by<<16,ylookup[y1]+x+frameplace);
                                 else rhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
@@ -7587,7 +7588,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                             //x,y1
                             bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-                            if (dastat&64)
+                            if (dastat & RS_NOMASK)
                             {
                                 if (qlinemode) qrhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,0L    ,by<<16,ylookup[y1]+x+frameplace);
                                 else rhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
@@ -7604,7 +7605,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                         //x,y2
                         bx += xv*(y2-oy); by += yv*(y2-oy); oy = y2;
-                        if (dastat&64)
+                        if (dastat & RS_NOMASK)
                         {
                             if (qlinemode) qrhlineasm4(x-lastx[y2],(bx>>16)*ysiz+(by>>16)+bufplc,0L,0L    ,by<<16,ylookup[y2]+x+frameplace);
                             else rhlineasm4(x-lastx[y2],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y2]+x+frameplace);
@@ -7622,7 +7623,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                         //x,y1
                         bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-                        if (dastat&64)
+                        if (dastat & RS_NOMASK)
                         {
                             if (qlinemode) qrhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,0L    ,by<<16,ylookup[y1]+x+frameplace);
                             else rhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
@@ -7632,7 +7633,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                     if (x == x2-1) { bx += xv2; by += yv2; break; }
                     y1 = uplc[x+1];
-                    if (((dastat&8) == 0) && (startumost[x+1] > y1)) y1 = startumost[x+1];
+                    if (((dastat & RS_NOCLIP) == 0) && startumost[x+1] > y1)
+                        y1 = startumost[x+1];
                     y2 = y1;
                 }
                 bx += xv2; by += yv2;
@@ -7644,7 +7646,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                 //x2,y1
                 bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-                if (dastat&64)
+                if (dastat & RS_NOMASK)
                 {
                     if (qlinemode) qrhlineasm4(x2-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,0L,by<<16,ylookup[y1]+x2+frameplace);
                     else rhlineasm4(x2-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x2+frameplace);
@@ -7656,15 +7658,15 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     }
     else
     {
-        if ((dastat&1) == 0)
+        if ((dastat & RS_TRANS1) == 0)
         {
 #if !defined ENGINE_USING_A_C
-            if (dastat&64)
+            if (dastat & RS_NOMASK)
                 setupspritevline(palookupoffs,(xv>>16)*ysiz,xv<<16,ysiz,yv,0L);
             else
                 msetupspritevline(palookupoffs,(xv>>16)*ysiz,xv<<16,ysiz,yv,0L);
 #else
-            if (dastat&64)
+            if (dastat & RS_NOMASK)
                 setupspritevline(palookupoffs,xv,yv,ysiz);
             else
                 msetupspritevline(palookupoffs,xv,yv,ysiz);
@@ -7677,7 +7679,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 #else
             tsetupspritevline(palookupoffs,xv,yv,ysiz);
 #endif
-            if (dastat&32) settransreverse(); else settransnormal();
+            if (dastat & RS_TRANS2) settransreverse(); else settransnormal();
         }
 
         for (x=x1; x<x2; x++)
@@ -7685,7 +7687,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             bx += xv2; by += yv2;
 
             y1 = uplc[x]; y2 = dplc[x];
-            if ((dastat&8) == 0)
+            if ((dastat & RS_NOCLIP) == 0)
             {
                 if (startumost[x] > y1) y1 = startumost[x];
                 if (startdmost[x] < y2) y2 = startdmost[x];
@@ -7706,15 +7708,15 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
             p = ylookup[y1]+x+frameplace;
 
-            if ((dastat&1) == 0)
+            if ((dastat & RS_TRANS1) == 0)
             {
 #if !defined ENGINE_USING_A_C
-                if (dastat&64)
+                if (dastat & RS_NOMASK)
                     spritevline(0L,by<<16,y2-y1+1,bx<<16,(bx>>16)*ysiz+(by>>16)+bufplc,p);
                 else
                     mspritevline(0L,by<<16,y2-y1+1,bx<<16,(bx>>16)*ysiz+(by>>16)+bufplc,p);
 #else
-                if (dastat&64)
+                if (dastat & RS_NOMASK)
                     spritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
                 else
                     mspritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
@@ -7734,7 +7736,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         }
     }
 
-    /*  if ((dastat&128) && (origbuffermode == 0))
+    /*  if ((dastat & RS_PERM) && (origbuffermode == 0))
         {
             buffermode = obuffermode;
             setactivepage(activepage);
@@ -14198,18 +14200,20 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     //  bit RS_CENTERORIGIN: see dorotspr_handle_bit2
     ////////////////////
 
-    if (((dastat&128) == 0) || (numpages < 2) || (beforedrawrooms != 0))
+    if (((dastat & RS_PERM) == 0) || (numpages < 2) || (beforedrawrooms != 0))
     {
         begindrawing(); //{{{
         dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,cx1,cy1,cx2,cy2,guniqhudid);
         enddrawing();   //}}}
     }
 
-    if ((dastat&64) && (cx1 <= 0) && (cy1 <= 0) && (cx2 >= xdim-1) && (cy2 >= ydim-1) &&
-            (sx == (160<<16)) && (sy == (100<<16)) && (z == 65536L) && (a == 0) && ((dastat&1) == 0))
+    if ((dastat & RS_NOMASK) && (cx1 <= 0) && (cy1 <= 0) && (cx2 >= xdim-1) && (cy2 >= ydim-1) &&
+            (sx == (160<<16)) && (sy == (100<<16)) && (z == 65536L) && (a == 0) && ((dastat&RS_TRANS1) == 0))
         permhead = permtail = 0;
 
-    if ((dastat&128) == 0) return;
+    if ((dastat & RS_PERM) == 0)
+        return;
+
     if (numpages >= 2)
     {
         per = &permfifo[permhead];
@@ -14223,7 +14227,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
         per->uniqid = guniqhudid;   //JF extension
 
         //Would be better to optimize out true bounding boxes
-        if (dastat&64)  //If non-masking write, checking for overlapping cases
+        if (dastat & RS_NOMASK)  //If non-masking write, checking for overlapping cases
         {
             for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
             {

@@ -209,7 +209,22 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 // max x/y val (= max editorgridextent in Mapster32)
 #define BXY_MAX 524288
 
+// rotatesprite 'orientation' (actually much more) bits
 enum {
+    RS_TRANS1 = 1,
+    RS_AUTO = 2,
+    RS_YFLIP = 4,
+    RS_NOCLIP = 8,
+    RS_TOPLEFT = 16,
+    RS_TRANS2 = 32,
+    RS_NOMASK = 64,
+    RS_PERM = 128,
+
+    RS_ALIGN_L = 256,
+    RS_ALIGN_R = 512,
+    RS_ALIGN_MASK = 768,
+    RS_STRETCH = 1024,
+
     ROTATESPRITE_FULL16 = 2048,
     // ROTATESPRITE_MAX-1 is the mask of all externally available orientation bits
     ROTATESPRITE_MAX = 4096,

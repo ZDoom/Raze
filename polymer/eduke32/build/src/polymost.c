@@ -4109,6 +4109,8 @@ void polymost_drawsprite(int32_t snum)
     tilesizy[globalpicnum]=oldsizy;
 }
 
+EDUKE32_STATIC_ASSERT((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
+
 //sx,sy       center of sprite; screen coords*65536
 //z           zoom*65536. > is zoomed in
 //a           angle (0 is default)
@@ -4183,7 +4185,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 double fx = ((double)sx)*(1.0/65536.0);
                 double fy = ((double)sy)*(1.0/65536.0);
 
-                if (dastat&16)
+                if (dastat & RS_TOPLEFT)
                 {
                     xsiz = tilesizx[picnum]; ysiz = tilesizy[picnum];
                     xoff = picanm[picnum].xofs + (xsiz>>1);
@@ -4192,13 +4194,13 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                     d = (double)z/(65536.0*16384.0);
                     cosang2 = cosang = (double)sintable[(a+512)&2047]*d;
                     sinang2 = sinang = (double)sintable[a&2047]*d;
-                    if ((dastat&2) || (!(dastat&8))) //Don't aspect unscaled perms
+                    if ((dastat&RS_AUTO) || (!(dastat&RS_NOCLIP))) //Don't aspect unscaled perms
                         { d = (double)xyaspect/65536.0; cosang2 *= d; sinang2 *= d; }
                     fx += -(double)xoff*cosang2+ (double)yoff*sinang2;
                     fy += -(double)xoff*sinang - (double)yoff*cosang;
                 }
 
-                if (!(dastat&2))
+                if (!(dastat & RS_AUTO))
                 {
                     x1 += fx/((double)(xdim<<15))-1.0; //-1: left of screen, +1: right of screen
                     y1 += fy/((double)(ydim<<15))-1.0; //-1: top of screen, +1: bottom of screen
@@ -4217,7 +4219,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             }
 #endif
 
-            if (dastat&4) { x1 = -x1; y1 = -y1; }
+            if (dastat & RS_YFLIP) { x1 = -x1; y1 = -y1; }
 
             // In Polymost, we don't care if the model is very big
             if (getrendermode() < REND_POLYMER)
@@ -4246,10 +4248,13 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             tspr.shade = dashade;
             tspr.pal = dapalnum;
             tspr.owner = uniqid+MAXSPRITES;
-            globalorientation = (dastat&1)+((dastat&32)<<4)+((dastat&4)<<1);
+            // 1 -> 1
+            // 32 -> 32*16 = 512
+            // 4 -> 8
+            globalorientation = (dastat&RS_TRANS1) + ((dastat&RS_TRANS2)<<4) + ((dastat&RS_YFLIP)<<1);
             tspr.cstat = globalorientation;
 
-            if ((dastat&10) == 2)
+            if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
                 bglViewport(windowx1,yres-(windowy2+1),windowx2-windowx1+1,windowy2-windowy1+1);
             else
             {
@@ -4261,7 +4266,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             {
                 bglMatrixMode(GL_PROJECTION);
                 memset(m,0,sizeof(m));
-                if ((dastat&10) == 2)
+                if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
                 {
                     const float ratioratio = 1.0; //(float)xdim/ydim;
                     float f = 1.0;
@@ -4410,10 +4415,12 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 #endif
 
     method = 0;
-    if (!(dastat&64))
+    if (!(dastat & RS_NOMASK))
     {
-        method = 1;
-        if (dastat&1) { if (!(dastat&32)) method = 2; else method = 3; }
+        if (dastat & RS_TRANS1)
+            method = (dastat & RS_TRANS2) ? 3 : 2;
+        else
+            method = 1;
     }
     method |= 4; //Use OpenGL clamping - dorotatesprite never repeats
 
@@ -4422,7 +4429,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     xsiz = tilesizx[globalpicnum];
     ysiz = tilesizy[globalpicnum];
 
-    if (dastat&16)
+    if (dastat & RS_TOPLEFT)
     {
         xoff = 0;
         yoff = 0;
@@ -4433,7 +4440,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         yoff = picanm[globalpicnum].yofs + (ysiz>>1);
     }
 
-    if (dastat&4)
+    if (dastat & RS_YFLIP)
         yoff = ysiz-yoff;
 
     {
@@ -4444,7 +4451,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     d = (double)z/(65536.0*16384.0);
     cosang2 = cosang = (double)sintable[(a+512)&2047]*d;
     sinang2 = sinang = (double)sintable[a&2047]*d;
-    if ((dastat&2) || (!(dastat&8))) //Don't aspect unscaled perms
+    if ((dastat&RS_AUTO) || (!(dastat&RS_NOCLIP))) //Don't aspect unscaled perms
     {
         d = (double)ourxyaspect/65536.0;
         cosang2 *= d;
@@ -4470,7 +4477,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     guy = (px[0]-px[3])*((double)xsiz-.0001)*d;
     guo = 0 - px[0]*gux - py[0]*guy;
 
-    if (!(dastat&4))
+    if (!(dastat & RS_YFLIP))
     {
         //px[0]*gvx + py[0]*gvy + gvo = 0
         //px[1]*gvx + py[1]*gvy + gvo = 0

@@ -1371,6 +1371,8 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
     }
 
     Bfree(path);
+    // XXX: may be NULL if no file was listed, and thus indistinguishable from
+    // an error condition.
     return rec;
 failure:
     Bfree(path);
