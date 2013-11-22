@@ -5498,7 +5498,8 @@ static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
     globalorientation = 0;
     globalpicnum = tilenum;
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
-    globalxpanning = 0;
+    // sprite panning
+    globalxpanning = (((256-spriteext[tspr->owner].xpanning)&255) * tilesizx[globalpicnum])>>8;
     globalypanning = 0;
 
     globvis = globalvisibility;

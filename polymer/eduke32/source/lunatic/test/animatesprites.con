@@ -13,6 +13,9 @@ gamevar florz 0 0
 gamevar florhit 0 0
 gamevar pi 0 0
 
+gamevar doxp 0 0
+gamevar xp 0 0
+
 define Q 500
 
 gamevar pdist 0 2
@@ -20,6 +23,25 @@ gamevar pdist 0 2
 onevent EVENT_GAME
     ifactor LIZTROOP
         findplayer pdist
+
+    // Test both view/wall/floor sprites for
+    // spriteext[].xpanning (Polymost only)
+    setvar doxp 0
+    ifactor 937  // --- vvv --- E2L1
+        setvar doxp 1
+    else ifactor FEMMAG1
+        setvar doxp 1
+    else ifactor PIGCOP
+        setvar doxp 1
+    else ifactor 849  // 64x24: in classic, better than nonpow2-x tile 937
+        setvar doxp 1
+
+    ifvarn doxp 0
+    {
+        getactor[THISACTOR].xpanning xp
+        addvar xp 1
+        setactor[THISACTOR].xpanning xp
+    }
 endevent
 
 onevent EVENT_ANIMATESPRITES
@@ -43,6 +65,7 @@ onevent EVENT_DISPLAYREST
     }
 
     getplayer[THISACTOR].i pi
+    // This blows up on C-CON:
     getzrange sprite[pi].x sprite[pi].y sprite[pi].z player[THISACTOR].cursectnum
      /*out:*/ ceilz ceilhit florz florhit
       /*in:*/ 128 CLIPMASK0
