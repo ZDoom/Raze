@@ -4262,14 +4262,36 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 memset(m,0,sizeof(m));
                 if ((dastat&10) == 2)
                 {
-                    float ratioratio = (float)xdim/ydim;
-                    m[0][0] = (float)ydimen*(ratioratio >= 1.6?1.2:1); m[0][2] = 1.0;
-                    m[1][1] = (float)xdimen; m[1][2] = 1.0;
+                    const float ratioratio = 1.0; //(float)xdim/ydim;
+                    float f = 1.0;
+                    int32_t fov = hudmem[(dastat&4)>>2][picnum].fov;
+#ifdef POLYMER
+                    if (pr_overridehud)
+                        fov = pr_hudfov;
+#endif
+                    if (fov != -1)
+                    {
+                        // XXX: what's the cause for this (half-guessed /
+                        // empirically determined) factor being necessary?
+                        fov = (fov*512)/400;
+                        f = 1.f / tanf((PI * fov)/2048.f);
+                    }
+
+                    m[0][0] = f*(float)ydimen*(ratioratio >= 1.6?1.2:1); m[0][2] = 1.0;
+                    m[1][1] = f*(float)xdimen; m[1][2] = 1.0;
                     m[2][2] = 1.0; m[2][3] = (float)ydimen*(ratioratio >= 1.6?1.2:1);
                     m[3][2] =-1.0;
                 }
-                else { m[0][0] = m[2][3] = 1.0f; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001f; m[3][2] = 1-m[2][2]; }
+                else
+                {
+                    m[0][0] = m[2][3] = 1.0f;
+                    m[1][1] = ((float)xdim)/((float)ydim);
+                    m[2][2] = 1.0001f;
+                    m[3][2] = 1-m[2][2];
+                }
+
                 bglLoadMatrixf(&m[0][0]);
+
                 bglMatrixMode(GL_MODELVIEW);
                 bglLoadIdentity();
             }
