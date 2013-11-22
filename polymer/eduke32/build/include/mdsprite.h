@@ -214,6 +214,13 @@ int32_t mddraw(const spritetype *tspr);
 
 typedef struct { float xadd, yadd, zadd; int16_t angadd, flags, fov; } hudtyp;
 
+enum {
+    HUDFLAG_HIDE = 1,
+    HUDFLAG_NOBOB = 2,
+    HUDFLAG_FLIPPED = 4,
+    HUDFLAG_NODEPTH = 8,
+};
+
 EXTERN hudtyp hudmem[2][MAXTILES];
 
 EXTERN int32_t mdpause;

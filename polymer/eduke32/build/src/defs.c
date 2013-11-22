@@ -1277,13 +1277,13 @@ static int32_t defsparser(scriptfile *script)
                         case T_FOV:
                             scriptfile_getsymbol(script,&fov); break;
                         case T_HIDE:
-                            flags |= 1; break;
+                            flags |= HUDFLAG_HIDE; break;
                         case T_NOBOB:
-                            flags |= 2; break;
+                            flags |= HUDFLAG_NOBOB; break;
                         case T_FLIPPED:
-                            flags |= 4; break;
+                            flags |= HUDFLAG_FLIPPED; break;
                         case T_NODEPTH:
-                            flags |= 8; break;
+                            flags |= HUDFLAG_NODEPTH; break;
                         }
                     }
 

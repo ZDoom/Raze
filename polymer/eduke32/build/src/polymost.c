@@ -4155,7 +4155,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             spritetype tspr;
             memset(&tspr,0,sizeof(spritetype));
 
-            if (hudmem[(dastat&4)>>2][picnum].flags&1) return; //"HIDE" is specified in DEF
+            if (hudmem[(dastat&4)>>2][picnum].flags & HUDFLAG_HIDE)
+                return;
 
             ogchang = gchang; gchang = 1.0;
             ogshang = gshang; gshang = 0.0; d = (double)z/(65536.0*16384.0);
@@ -4177,7 +4178,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 z1 = pr_hudzadd;
             }
 #endif
-            if (!(hudmem[(dastat&4)>>2][picnum].flags&2)) //"NOBOB" is specified in DEF
+            if (!(hudmem[(dastat&4)>>2][picnum].flags & HUDFLAG_NOBOB))
             {
                 double fx = ((double)sx)*(1.0/65536.0);
                 double fy = ((double)sy)*(1.0/65536.0);
@@ -4296,7 +4297,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 bglLoadIdentity();
             }
 
-            if (hudmem[(dastat&4)>>2][picnum].flags&8) //NODEPTH flag
+            if (hudmem[(dastat&4)>>2][picnum].flags & HUDFLAG_NODEPTH)
                 bglDisable(GL_DEPTH_TEST);
             else
             {
