@@ -4749,7 +4749,11 @@ void P_ProcessInput(int32_t snum)
                 {
                     p->falling_counter++;
                     if (p->falling_counter >= 38 && p->scream_voice <= FX_Ok)
-                        p->scream_voice = A_PlaySound(DUKE_SCREAM,p->i);
+                    {
+                        int32_t voice = A_PlaySound(DUKE_SCREAM,p->i);
+                        if (voice <= 127)  // XXX: p->scream_voice is an int8_t
+                            p->scream_voice = voice;
+                    }
                 }
 
                 if ((p->pos.z+p->vel.z) >= (fz-(i<<8)) && p->cursectnum >= 0)   // hit the ground
