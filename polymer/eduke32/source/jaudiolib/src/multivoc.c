@@ -101,7 +101,6 @@ static volatile VoiceNode VoiceList;
 static volatile VoiceNode VoicePool;
 
 static int32_t MV_MixPage      = 0;
-static int32_t MV_VoiceHandle  = MV_MINVOICEHANDLE;
 
 void (*MV_Printf)(const char *fmt, ...) = NULL;
 static void (*MV_CallBackFunc)(uint32_t) = NULL;
@@ -648,17 +647,19 @@ VoiceNode *MV_AllocVoice(int32_t priority)
     LL_Remove(voice, next, prev);
     RestoreInterrupts();
 
-    MV_VoiceHandle = MV_MINVOICEHANDLE;
-
-    // Find a free voice handle
-    do
     {
-        if (++MV_VoiceHandle < MV_MINVOICEHANDLE || MV_VoiceHandle > MV_MaxVoices)
-            MV_VoiceHandle = MV_MINVOICEHANDLE;
-    }
-    while (MV_VoicePlaying(MV_VoiceHandle));
+        int32_t vhan = MV_MINVOICEHANDLE;
 
-    voice->handle = MV_VoiceHandle;
+        // Find a free voice handle
+        do
+        {
+            if (++vhan < MV_MINVOICEHANDLE || vhan > MV_MaxVoices)
+                vhan = MV_MINVOICEHANDLE;
+        }
+        while (MV_VoicePlaying(vhan));
+
+        voice->handle = vhan;
+    }
 
     return voice;
 }
