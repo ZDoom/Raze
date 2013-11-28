@@ -153,6 +153,7 @@ finish:
 
         char buf[32];
         int32_t maxlen = 0;
+        int32_t haveev=0, haveac=0;
 
         for (i=0; i<MAXEVENTS; i++)
         {
@@ -161,12 +162,16 @@ finish:
             maxlen = max(len, maxlen);
         }
 
-        OSD_Printf("{\n {\n");
-        OSD_Printf("  -- event times, [event]={ total calls, total time [ms], mean time/call [us] }\n");
         for (i=0; i<MAXEVENTS; i++)
             if (g_eventCalls[i])
             {
                 int32_t n=Bsprintf(buf, "%s", EventNames[i]+nn);
+
+                if (!haveev)
+                {
+                    haveev = 1;
+                    OSD_Printf("\n  -- event times: [event]={ total calls, total time [ms], mean time/call [us] }\n");
+                }
 
                 for (; n<maxlen; n++)
                     buf[n] = ' ';
@@ -177,16 +182,21 @@ finish:
                            1000*g_eventTotalMs[i]/g_eventCalls[i]);
             }
 
-        OSD_Printf(" },\n\n {\n");
-        OSD_Printf("  -- actor times, [tile]={ total calls, total time [ms], {min,mean,max} time/call [us] }\n");
         for (i=0; i<MAXTILES; i++)
             if (g_actorCalls[i])
+            {
+                if (!haveac)
+                {
+                    haveac = 1;
+                    OSD_Printf("\n  -- actor times: [tile]={ total calls, total time [ms], {min,mean,max} time/call [us] }\n");
+                }
+
                 OSD_Printf("  [%5d]={ %8d, %9.3f, %9.3f, %9.3f, %9.3f },\n",
                            i, g_actorCalls[i], g_actorTotalMs[i],
                            1000*g_actorMinMs[i],
                            1000*g_actorTotalMs[i]/g_actorCalls[i],
                            1000*g_actorMaxMs[i]);
-        OSD_Printf(" },\n}\n");
+            }
     }
 }
 
