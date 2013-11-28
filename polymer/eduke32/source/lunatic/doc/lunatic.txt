@@ -1125,7 +1125,13 @@ ps.ammo_amount.PISTOL = ps.ammo_amount[ps.curr_weapon]
 The inventory names are the same as the keys of <<gv_GET,`gv.GET`>>, those for
 the weapons coincide with the keys of <<gv_WEAPON,`gv.WEAPON`>>.
 
-Each `player` element has the following members:
+.Boolean members
+
+Player members marked _`bool`_ in the listing below yield Lua true or false on
+reading and expect one of these values when assigned to.
+
+
+===== `player` members
 
 <<vector_types,_`xmath.ivec3`_>> `vel`::
 The vector of the player's current velocity, accounted each time a player's
@@ -1142,6 +1148,22 @@ most 8192.
 
 `curr_weapon`::
 The index of the player's currently selected weapon.
+
+_`i16`_ +ammo_amount[_weapon_]+::
+
+The current ammo amount for each weapon.
+
+_`i16`_ +max_ammo_amount[_weapon_]+::
+
+The maximum ammo amount for each weapon. Because `ammo_amount` amount and
+`max_ammo_amount` are writable without restriction, it is the user's
+responsibility to make sure that the former never exceeds the latter and that
+both are non-negative at all times. Otherwise, erratic behavior may ensue.
+
+_`bool`_ `jetpack_on`, {nbsp} `scuba_on`, {nbsp} `heat_on`::
+
+Whether the player currently has the jetpack, scuba gear, or night vision
+goggles activated, respectively.
 
 
 ===== `player` methods
