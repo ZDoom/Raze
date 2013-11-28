@@ -443,6 +443,10 @@ local PL = function(memb) return "player[%s]"..memb end
 -- Access to DukePlayer_t's bool members: they must be read as numbers.
 local PLBOOL = function(memb) return { "("..PL(memb).." and 1 or 0)", PL(memb) } end
 
+local empty_table = {}
+local DISABLED_PL = function() return empty_table end
+local DISABLED = DISABLED_PL
+
 local PlayerLabels = {
     posx = PL".pos.x",
     posy = PL".pos.y",
@@ -454,16 +458,16 @@ local PlayerLabels = {
     posyv = PL".vel.y",
     poszv = PL".vel.z",
     -- NOTE: no access for .npos
-    bobposx = PL".bobposx",
-    bobposy = PL".bobposy",
+    bobposx = DISABLED_PL".bobposx",
+    bobposy = DISABLED_PL".bobposy",
 
-    truefz = PL".truefz",
-    truecz = PL".truecz",
+    truefz = DISABLED_PL".truefz",
+    truecz = DISABLED_PL".truecz",
     player_par = PL".player_par",
 
-    randomflamex = PL".randomflamex",
-    exitx = PL".exitx",
-    exity = PL".exity",
+    randomflamex = DISABLED_PL".randomflamex",
+    exitx = DISABLED_PL".exitx",
+    exity = DISABLED_PL".exity",
 
     runspeed = PL".runspeed",
     max_player_health = PL".max_player_health",
@@ -472,7 +476,7 @@ local PlayerLabels = {
     autostep = PL".autostep",
     autostep_sbw = PL".autostep_sbw",
 
-    interface_toggle_flag = PL".interface_toggle_flag",
+    interface_toggle_flag = DISABLED_PL".interface_toggle_flag",
 
     -- NOTE: *bombControl etc. are accessed by gamevars in CON
 
@@ -532,12 +536,12 @@ local PlayerLabels = {
 
     i = { PL".i" },
 
-    one_parallax_sectnum = { PL".one_parallax_sectnum" },
+    one_parallax_sectnum = DISABLED{ PL".one_parallax_sectnum" },
 
     random_club_frame = PL".random_club_frame",
-    one_eighty_count = PL".one_eighty_count",
+    one_eighty_count = DISABLED_PL".one_eighty_count",
 
-    dummyplayersprite = PL".dummyplayersprite",
+    dummyplayersprite = DISABLED_PL".dummyplayersprite",
     extra_extra8 = PL".extra_extra8",
 
     actorsqu = PL".actorsqu",
@@ -568,7 +572,7 @@ local PlayerLabels = {
     quick_kick = PL".quick_kick",
     last_quick_kick = PL".last_quick_kick",
 
-    return_to_center = PL".return_to_center",
+    return_to_center = DISABLED_PL".return_to_center",
     reloading = PLBOOL".reloading",
     weapreccnt = { PL".weapreccnt" },
 
@@ -600,7 +604,7 @@ local PlayerLabels = {
 
     jetpack_on = PLBOOL".jetpack_on",
     spritebridge = PLBOOL".spritebridge",
-    lastrandomspot = PL".lastrandomspot",
+    lastrandomspot = DISABLED_PL".lastrandomspot",
 
     scuba_on = PLBOOL".scuba_on",
     footprintpal = PL".footprintpal",
@@ -618,17 +622,17 @@ local PlayerLabels = {
     hard_landing = PL".hard_landing",
     fist_incs = PL".fist_incs",
 
-    toggle_key_flag = PLBOOL".toggle_key_flag",
+    toggle_key_flag = { PL".toggle_key_flag" },
     knuckle_incs = PL".knuckle_incs",
     knee_incs = PL".knee_incs",
     access_incs = PL".access_incs",
 
-    numloogs = PL".numloogs",
-    loogcnt = PL".loogcnt",
-    scream_voice = PL".scream_voice",
+    numloogs = DISABLED_PL".numloogs",
+    loogcnt = DISABLED_PL".loogcnt",
+    scream_voice = { PL".scream_voice" },
 
     last_weapon = PL".last_weapon",
-    cheat_phase = PL".cheat_phase",
+    cheat_phase = { PL".cheat_phase" },
     weapon_pos = PL".weapon_pos",
     wantweaponfire = PL".wantweaponfire",
 

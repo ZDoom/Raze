@@ -292,13 +292,15 @@ __attribute__((packed)) struct {
     uint8_t refresh_inventory;
     const<W> uint8_t last_full_weapon;
 
-    bool toggle_key_flag;
+    const uint8_t toggle_key_flag;
     uint8_t knuckle_incs, knee_incs, access_incs;
     uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
 
-    int8_t numloogs, loogcnt, scream_voice;
+    int8_t numloogs, loogcnt;
+    const int8_t scream_voice;
     const<W-> int8_t last_weapon;
-    int8_t cheat_phase, weapon_pos;
+    const int8_t cheat_phase;
+    int8_t weapon_pos;
     const<W-> int8_t wantweaponfire;
     const<W> int8_t curr_weapon;
 
