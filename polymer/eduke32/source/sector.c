@@ -2689,13 +2689,19 @@ CHECKINV1:
             break;
         }
 
+        // NOTE: it is assumed that the above events return either -1 or a
+        // valid weapon index. Presumably, neither other negative numbers nor
+        // positive ones >= MAX_WEAPONS are allowed. However, the code below is
+        // a bit inconsistent in checking "j".
+
         if (p->reloading == 1)
             j = -1;
-        else if ((int32_t)j != -1 && p->kickback_pic == 1 && p->weapon_pos == 1)
+        else if ((uint32_t)j < MAX_WEAPONS && p->kickback_pic == 1 && p->weapon_pos == 1)
         {
             p->wantweaponfire = j;
             p->kickback_pic = 0;
         }
+
         if ((int32_t)j != -1 && p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 /*&& p->kickback_pic == 0*/ &&
                 p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
         {
@@ -2763,6 +2769,7 @@ CHECKINV1:
 
                 j = VM_OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1, j);
 
+                // XXX: any signifcance to "<= MAX_WEAPONS" instead of "<"?
                 if ((int32_t)j != -1 && j <= MAX_WEAPONS)
                 {
                     if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
@@ -2813,7 +2820,7 @@ CHECKINV1:
                         sb_snum |= BIT(SK_HOLSTER);
                         p->weapon_pos = WEAPON_POS_LOWER;
                     }
-                    else if ((int32_t)j >= 0 && (p->gotweapon & (1<<j)) && (uint32_t)p->curr_weapon != j)
+                    else if ((uint32_t)j < MAX_WEAPONS && (p->gotweapon & (1<<j)) && (uint32_t)p->curr_weapon != j)
                         switch (j)
                         {
                         case PISTOL_WEAPON:
