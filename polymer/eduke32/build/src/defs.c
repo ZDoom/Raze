@@ -156,10 +156,10 @@ static int32_t check_tile_range(const char *defcmd, int32_t *tilebeg, int32_t *t
     return 0;
 }
 
-static int32_t check_tile(const char *defcmd, int32_t *tile, const scriptfile *script,
+static int32_t check_tile(const char *defcmd, int32_t tile, const scriptfile *script,
                           const char *cmdtokptr)
 {
-    if ((unsigned)*tile >= MAXTILES)
+    if ((unsigned)tile >= MAXTILES)
     {
         initprintf("Error: %s: Invalid tile number on line %s:%d\n", defcmd,
                    script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -655,7 +655,7 @@ static int32_t defsparser(scriptfile *script)
             if (xsiz <= 0 || ysiz <= 0)  // XXX: kpzload isn't robust against that!
                 break;
 
-            if (check_tile("importtile", &tile, script, cmdtokptr))
+            if (check_tile("importtile", tile, script, cmdtokptr))
                 break;
 
             set_tilesiz(tile, xsiz, ysiz);
@@ -1401,7 +1401,7 @@ static int32_t defsparser(scriptfile *script)
                 case T_TILE:
                     scriptfile_getsymbol(script,&tilex);
 
-                    if (check_tile("voxel", &tilex, script, voxeltokptr))
+                    if (check_tile("voxel", tilex, script, voxeltokptr))
                         break;
 
                     tiletovox[tilex] = lastvoxid;
@@ -1949,7 +1949,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 r1 = r0;
 
-                if (check_tile("undefmodel", &r0, script, cmdtokptr))
+                if (check_tile("undefmodel", r0, script, cmdtokptr))
                     break;
             }
 #ifdef USE_OPENGL
@@ -1968,7 +1968,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&r0)) break;
 
-            if (check_tile("undefmodelof", &r0, script, cmdtokptr))
+            if (check_tile("undefmodelof", r0, script, cmdtokptr))
                 break;
 
             // XXX: See comment of md_undefinemodel()
@@ -2004,7 +2004,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 r1 = r0;
 
-                if (check_tile("undeftexture", &r0, script, cmdtokptr))
+                if (check_tile("undeftexture", r0, script, cmdtokptr))
                     break;
             }
 
