@@ -2231,15 +2231,30 @@ int32_t handleevents(void)
                 j = 1; break;
             case SDL_BUTTON_MIDDLE:
                 j = 2; break;
-            case 8 /*SDL_BUTTON_X1*/:  // 8 --> 3
+
+#if SDL_MAJOR_VERSION==1 || !defined _WIN32
+            // NOTE: SDL1 does have SDL_BUTTON_X1, but that's not what is
+            // generated. Neither with SDL2 on Linux. (Other OSs: not tested.)
+            case 8:  // 8 --> 3
+#else
+            // On SDL2/Windows, everything is as it should be.
+            case SDL_BUTTON_X1:
+#endif
                 j = 3; break;
+
 #if SDL_MAJOR_VERSION==1
             case SDL_BUTTON_WHEELUP:  // 4
             case SDL_BUTTON_WHEELDOWN:  // 5
                 j = ev.button.button; break;
 #endif
-            case 9 /*SDL_BUTTON_X2*/:  // 9 --> 6
+
+#if SDL_MAJOR_VERSION==1 || !defined _WIN32
+            case 9:  // 9 --> 6
+#else
+            case SDL_BUTTON_X2:
+#endif
                 j = 6; break;
+
             }
             if (j<0) break;
 
