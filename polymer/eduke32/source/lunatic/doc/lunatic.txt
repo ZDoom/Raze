@@ -1598,12 +1598,12 @@ Since the vector types are compound objects, they are always passed around by
 reference. For example, consider executing
 [source]
 ----------
-v = xmath.vec3(0, 1)
+v = xmath.vec3(0, 10)
 w = v
-w.y = 2
+w.y = 20
 ----------
-After this code, the expression `v.x` yields `2` instead of `v`'s initial value
-`1`.
+After this code, the expression `v.y` yields 20 instead of the initial value
+10.
 
 ===== Operations for `vec3` and `ivec3`
 
@@ -1953,12 +1953,57 @@ Returns the index of the spawned sprite on success.
 The `fs` module -- virtual file system facilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[red]*DRAFT*
-
 [float]
 ==== `files = fs.listpath(path, mask)`
 
-Lists file names matching a wildcard `mask` which can be found under `path`.
+Returns a sequence table `files` of file names that can be found in a directory
+constructed as concatenation of any directory in the search path with `path`,
+and matching the wildcard `mask`. Currently, neither ZIP nor GRP files
+registered as file containers with EDuke32 are searched.
+
+The `path` argument must separate directories by forward slashes (`/`). If no
+suffix is desired (i.e. the directories in the search path themselves are to be
+searched), `'/'` should be passed.
+
+The file name `mask` is applied case-insensitively for the 26 characters of the
+basic Latin alphabet. It may contain the following meta-characters which are
+interpreted in a special way:
+
+* a `*` matches any (potentially empty) sequence of characters
+* a `?` matches any single character
+
+While the match with `mask` proceeds case-insensitively, file names are
+returned named exactly like on the file system. However, names differing only
+in case appear exactly once in the output list.
+
+NOTE: For portability, it is crucial that `path` is specified with the same
+case as the actual directory on the file system.
+
+.Example
+
+Suppose the search path contains two directories `foo` and `bar` with the
+following file listing:
+----------
+foo/
+  myhouse1.MAP
+  myhouse2.map
+
+bar/
+  MYHOUSE1.map
+  MYHOUSE10.MAP
+  README.txt
+----------
+
+Then a query with
+[source]
+----------
+fs.listpath("/", "myhouse?.map")
+----------
+will return a table with
+these strings:
+
+* `myhouse1.MAP` or `MYHOUSE1.map`, but not both
+* `myhouse2.map`
 
 
 /////////////////

@@ -33,6 +33,7 @@ struct {
 	static const int FIND_FILE = 1;
 	static const int FIND_DIR = 2;
 	static const int FIND_DRIVE = 4;
+	static const int FIND_NOCURDIR = 8;
 
 	static const int OPT_NOSTACK = 0x100;
 
@@ -49,22 +50,33 @@ struct {
 -- TODO: filter by 'source' (path, zip and/or grp)
 -- TODO: directories too, so that one can list them recursively, for example
 function fs.listpath(path, mask)
-    if (path ~= nil and type(path)~="string") then
-        error("Invalid argument #1: must be nil or a string", 2)
+    if (type(path)~="string") then
+        -- TODO: maybe also allow nil
+        error("Invalid argument #1: must be a string", 2)
     end
 
     if (type(mask) ~= "string") then
         error("Invalid argument #2: must be a string", 2)
     end
 
+    -- Normalization, for portability's sake
+
+    if (path:find("\\")) then
+        error("Invalid argument #1: must not contain backslashes", 2)
+    end
+
+    if (mask:find("[\\/]")) then
+        error("Invalid argument #2: must not contain back or forward slashes", 2)
+    end
+
     local opsm = C.pathsearchmode
     C.pathsearchmode = 0
-    local rootrec = C.klistpath(path, mask, CACHE1D.FIND_FILE)
+    local rootrec = C.klistpath(path, mask, CACHE1D.FIND_FILE + CACHE1D.FIND_NOCURDIR)
     C.pathsearchmode = opsm
 
     if (rootrec == nil) then
-        -- TODO: discern?
-        error("out of memory or failed listing path")
+        -- XXX: may have failed hard or just no matching files
+        return {}
     end
 
     local files = {}
