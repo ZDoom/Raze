@@ -13,6 +13,7 @@
 # include <stdio.h>
 # include <string.h>
 # include <stddef.h>
+# include <assert.h>
 
 # define BFILE FILE
 # define C1D_STATIC
@@ -20,6 +21,7 @@
 # define B_LITTLE32(x) (x)
 # define Bmemset memset
 # define Bmemcpy memcpy
+# define Bassert assert
 # define bsize_t size_t
 #else
 // cache1d.o for EDuke32

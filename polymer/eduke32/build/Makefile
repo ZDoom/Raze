@@ -356,7 +356,7 @@ $(OBJ)/%.$o: $(RSRC)/%.c
 
 libcache1d.so: $(SRC)/cache1d.c
 	$(COMPILE_STATUS)
-	if $(COMPILER) -Wall -Wextra -DCACHE1D_COMPRESS_ONLY -shared $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) -Wall -Wextra -DCACHE1D_COMPRESS_ONLY -shared -fPIC $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@
