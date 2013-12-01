@@ -6737,6 +6737,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                         sp->extra = 0;
                     else sp->extra = 1;
 
+                    // TRAIN_SECTOR_TO_SE_INDEX
                     sector[sect].hitag = i;
 
                     j = 0;

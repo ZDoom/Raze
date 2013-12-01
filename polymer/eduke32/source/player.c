@@ -5100,12 +5100,14 @@ HORIZONLY:
     // ST_2_UNDERWATER
     if (p->cursectnum >= 0 && psectlotag < 3)
     {
+        const sectortype *sec = &sector[p->cursectnum];
 //        p->cursectnum = s->sectnum;
 
-        if (!ud.noclip && sector[p->cursectnum].lotag == ST_31_TWO_WAY_TRAIN)
+        if (!ud.noclip && sec->lotag == ST_31_TWO_WAY_TRAIN)
         {
-            // XXX: POTENTIAL_OOB
-            if (sprite[sector[p->cursectnum].hitag].xvel && actor[sector[p->cursectnum].hitag].t_data[0] == 0)
+            // TRAIN_SECTOR_TO_SE_INDEX
+            if ((unsigned)sec->hitag < MAXSPRITES && sprite[sec->hitag].xvel
+                    && actor[sec->hitag].t_data[0] == 0)
             {
                 P_QuickKill(p);
                 return;
