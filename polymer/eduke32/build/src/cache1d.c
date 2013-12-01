@@ -1198,15 +1198,18 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
         searchpath_t *search = NULL;
         BDIR *dir;
         struct Bdirent *dirent;
+
+        static const char *const CUR_DIR = "./";
         // Adjusted for the following "autoload" dir fix - NY00123
-        const char *d = "./";
+        const char *d = pathsearchmode ? _path : CUR_DIR;
         int32_t stackdepth = CACHE1D_SOURCE_CURDIR;
         char buf[BMAX_PATH];
 
-        if (pathsearchmode) d = _path;
-
         do
         {
+            if (d==CUR_DIR && (type & CACHE1D_FIND_NOCURDIR))
+                goto next;
+
             strcpy(buf, d);
             if (!pathsearchmode)
             {
@@ -1239,8 +1242,9 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
                 }
                 Bclosedir(dir);
             }
-
-            if (pathsearchmode) break;
+next:
+            if (pathsearchmode)
+                break;
 
             if (!search)
             {
@@ -1252,12 +1256,15 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
                 search = search->next;
                 stackdepth++;
             }
-            if (search) d = search->path;
+
+            if (search)
+                d = search->path;
         }
         while (search);
     }
 
 #ifdef WITHKPLIB
+    if (!(type & CACHE1D_FIND_NOCURDIR))  // TEMP, until we have sorted out fs.listpath() API
     if (!pathsearchmode)  	// next, zip files
     {
         char buf[BMAX_PATH+4];
@@ -1329,6 +1336,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
     }
 #endif
     // then, grp files
+    if (!(type & CACHE1D_FIND_NOCURDIR))  // TEMP, until we have sorted out fs.listpath() API
     if (!pathsearchmode && !*path && (type & CACHE1D_FIND_FILE))
     {
         char buf[13];
