@@ -438,6 +438,15 @@ $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
 	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
+#### Frama-C and related
+
+.PHONY: print-compiler-options
+print-compiler-options:
+	@echo "$(OURCFLAGS)"
+
+#frama-c-check:
+#	frama-c -machdep x86_64 -cpp-command "gcc -C -E $(OURCFLAGS)" -no-annot -val source/anim.c
+
 #### Utilities
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
