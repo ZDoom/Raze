@@ -2092,9 +2092,9 @@ int32_t handleevents(void)
             }
             else
             {
-# ifdef __linux
+# if 1
                 // The pause key generates a release event right after
-                // the pressing one on linux. As a result, it gets unseen
+                // the pressing one. As a result, it gets unseen
                 // by the game most of the time.
                 if (code == 0x59)  // pause
                     break;
