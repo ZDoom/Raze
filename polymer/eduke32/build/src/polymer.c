@@ -2387,6 +2387,8 @@ static int32_t      polymer_updatesector(int16_t sectnum)
         s->floorheinum = sec->floorheinum;
         s->ceilingheinum = sec->ceilingheinum;
     }
+    else if (sec->visibility != s->visibility)
+        wallinvalidate = 1;
 
     floorpicnum = sec->floorpicnum;
     DO_TILE_ANIM(floorpicnum, sectnum);
