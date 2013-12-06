@@ -1076,13 +1076,16 @@ static uint8_t *svdiff;
 static void sv_makevarspec()
 {
     static char *magic = "blK:vars";
-    int32_t i, j, numsavedvars=0, per;
+    int32_t i, j, numsavedvars=0, numsavedarrays=0, per;
 
     for (i=0; i<g_gameVarCount; i++)
         numsavedvars += (aGameVars[i].dwFlags&SV_SKIPMASK) ? 0 : 1;
 
+    for (i=0; i<g_gameArrayCount; i++)
+        numsavedarrays += !(aGameArrays[i].dwFlags & GAMEARRAY_READONLY);  // SYSTEM_GAMEARRAY
+
     Bfree(svgm_vars);
-    svgm_vars = (dataspec_t *)Bmalloc((numsavedvars+g_gameArrayCount+2)*sizeof(dataspec_t));
+    svgm_vars = (dataspec_t *)Bmalloc((numsavedvars+numsavedarrays+2)*sizeof(dataspec_t));
 
     if (svgm_vars == NULL)
         G_GameExit("OUT OF MEMORY in sv_makevarspec()\n");
@@ -1108,6 +1111,12 @@ static void sv_makevarspec()
 
     for (i=0; i<g_gameArrayCount; i++)
     {
+        // We must not update read-only SYSTEM_GAMEARRAY gamearrays: besides
+        // being questionable by itself, sizeof(...) may be e.g. 4 whereas the
+        // actual element type is int16_t (such as tilesizx[]/tilesizy[]).
+        if (aGameArrays[i].dwFlags & GAMEARRAY_READONLY)
+            continue;
+
         svgm_vars[j].flags = 0;
         svgm_vars[j].ptr = aGameArrays[i].plValues;
         svgm_vars[j].size = sizeof(aGameArrays[0].plValues[0]);
@@ -1116,6 +1125,8 @@ static void sv_makevarspec()
     }
 
     svgm_vars[j].flags = DS_END;
+    svgm_vars[j].ptr = NULL;
+    svgm_vars[j].size = svgm_vars[j].cnt = 0;
 }
 #endif
 
