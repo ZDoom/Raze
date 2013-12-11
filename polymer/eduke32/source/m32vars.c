@@ -266,6 +266,8 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
     if (id == M32_THISACTOR_VAR_ID)
         return vm.g_i;
 
+    id &= ~M32_FLAG_NEGATE;
+
     if ((id & M32_BITS_MASK) == M32_FLAG_CONSTANT)
     {
         switch (id&3)

@@ -1274,7 +1274,7 @@ static void C_GetNextVarType(int32_t type)
             {
 //                if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
 //                    initprintf("%s:%d: debug: accepted defined label `%s' instead of gamevar.\n",g_szScriptFileName,g_lineNumber,label+(id*MAXLABELLEN));
-                num = (1-!!(flags&M32_FLAG_NEGATE))*labelval[id];
+                num = (1-2*!!(flags&M32_FLAG_NEGATE))*labelval[id];
 
                 if (type==GV_SIMPLE && (num<0 || num>=65536))
                 {

@@ -2373,6 +2373,8 @@ badindex:
 
                     if (max==0)
                         max = INT32_MAX;
+                    else
+                        max = klabs(max);
 
 //OSD_Printf("max:%d, sign:%d\n", max, sign);
                     if (tw==CON_GETNUMBERFROMUSER)
