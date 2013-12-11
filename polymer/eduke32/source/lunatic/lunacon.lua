@@ -1894,8 +1894,15 @@ local function StructAccess(Structname, writep, index, membertab)
         return "_MEMBINVALID"
     end
 
+    -- Function checking a literal number for being OK for assignment to this
+    -- member. Can also be a table {min, max}. See con_lang.lua, LITERAL_CHECKING.
+    local lit_ok_func_or_table
+
     if (type(armembcode)=="table") then
         -- Read and write accesses differ.
+        if (writep) then
+            lit_ok_func_or_table = armembcode[3]
+        end
         armembcode = armembcode[writep and 2 or 1]
         if (armembcode==nil) then
             errprintf("%s access to %s[].%s is not available",
@@ -1947,7 +1954,7 @@ local function StructAccess(Structname, writep, index, membertab)
         end
     end
 
-    return code, ismethod
+    return code, ismethod, lit_ok_func_or_table
 end
 
 function lookup.array_expr(writep, structname, index, membertab)
@@ -2020,13 +2027,20 @@ end
 
 local function SetStructCmd(accessfunc, pattern)
     local function capfunc(idx, memb, var)
-        local membercode, ismethod = accessfunc(true, idx, memb)
---[[
-        local member = memb[1]:lower()
-        if (type(var)=="number" and var<0 and member:match("picnum")) then
-            warnprintf("member '.%s' is set to a negative value", member)
+        -- litok: function or table
+        local membercode, ismethod, litok = accessfunc(true, idx, memb)
+
+        -- Light static checking for literal values being OK for member
+        -- assignment. LITERAL_CHECKING.
+        if (type(var)=="number" and litok) then
+            if (type(litok)=="table" and not (var>=litok[1] and var<=litok[2]) or
+                    type(litok)=="function" and not litok(var)) then
+                local member = memb[1]:lower()
+                warnprintf("setting member '.%s' to %d will fail at game time",
+                           member, var)
+            end
         end
---]]
+
         if (ismethod) then
             -- METHOD_MEMBER syntax
 

@@ -655,10 +655,10 @@ from `0` to `255`.
 
 ===== `sector` methods
 
-`sec:set_ceilingpicnum(tilenum)`, `sec:set_floorpicnum(tilenum)`::
+`sec:set_ceilingpicnum(tilenum)`, {nbsp} `sec:set_floorpicnum(tilenum)`::
 Set the tile number of the ceiling or floor.
 
-[[sec_cfz_at]] `sec:ceilingzat(pos)`, `sec:floorzat(pos)`::
+[[sec_cfz_at]] `sec:ceilingzat(pos)`, {nbsp} `sec:floorzat(pos)`::
 Return the z coordinate of sector `sec`'s ceiling or floor at position `pos`,
 which can be anything indexable with the strings `x` and `y`.
 

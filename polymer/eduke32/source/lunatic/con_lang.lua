@@ -349,12 +349,22 @@ local function S2U(label)
     return { s2u(label), label }
 end
 
+-- Some literal checker functions (LITERAL_CHECKING).
+-- KEEPINSYNC with the actual setter code.
+local function litok_gem1(lit)
+    return (lit >= -1)
+end
+
+local function litok_ge0(lit)
+    return (lit >= 0)
+end
+
 local ActorLabels = {
     x = SP".x",
     y = SP".y",
     z = SP".z",
     cstat = SP".cstat",
-    picnum = { SP".picnum", SP":set_picnum(%%s)" },
+    picnum = { SP".picnum", SP":set_picnum(%%s)", litok_ge0 },
     shade = SP".shade",
     pal = SP".pal",
     clipdist = SP".clipdist",
@@ -364,10 +374,10 @@ local ActorLabels = {
     yrepeat = SP".yrepeat",
     xoffset = SP".xoffset",
     yoffset = SP".yoffset",
-    sectnum = { SP".sectnum", SP":changesect(%%s)" },  -- set: for tsprite
+    sectnum = { SP".sectnum", SP":changesect(%%s)", litok_ge0 },  -- set: for tsprite
     statnum = { SP".statnum" },
     ang = SP".ang",
-    owner = { SP".owner", SP":_set_owner(%%s)" },
+    owner = { SP".owner", SP":_set_owner(%%s)", litok_ge0 },
     xvel = SP".xvel",
     yvel = { SP".yvel", SP":_set_yvel(%%s)" },  -- XXX
     zvel = SP".zvel",
@@ -380,10 +390,11 @@ local ActorLabels = {
 
     -- ActorExtra labels...
     htcgg = AC".cgg",
+    -- XXX: why <0 allowed?
     htpicnum = { AC".picnum", AC":set_picnum(%%s)" },
     htang = AC".ang",
     htextra = AC".extra",
-    htowner = { AC".owner", AC":set_owner(%%s)" },
+    htowner = { AC".owner", AC":set_owner(%%s)", litok_ge0 },
     htmovflag = AC"._movflag",
     httempang = AC".tempang",
     htactorstayput = AC".stayputsect",  -- NAME
@@ -674,7 +685,7 @@ local SectorLabels = {
     floorstat = SEC".floorstat",
 
     -- CEILING
-    ceilingpicnum = { SEC".ceilingpicnum", SEC":set_ceilingpicnum(%%s)" },
+    ceilingpicnum = { SEC".ceilingpicnum", SEC":set_ceilingpicnum(%%s)", litok_ge0 },
 
     ceilingslope = SEC".ceilingheinum",  -- NAME
     ceilingshade = SEC".ceilingshade",
@@ -684,7 +695,7 @@ local SectorLabels = {
     ceilingypanning = SEC".ceilingypanning",
 
     -- FLOOR
-    floorpicnum = { SEC".floorpicnum", SEC":set_floorpicnum(%%s)" },
+    floorpicnum = { SEC".floorpicnum", SEC":set_floorpicnum(%%s)", litok_ge0 },
 
     floorslope = SEC".floorheinum",  -- NAME
     floorshade = SEC".floorshade",
@@ -718,8 +729,8 @@ local WallLabels = {
     nextwall = { WAL".nextwall", WAL":_set_nextwall(%%s)" },
     nextsector = { WAL".nextsector", WAL":_set_nextsector(%%s)" },
     cstat = WAL".cstat",
-    picnum = { WAL".picnum", WAL":set_picnum(%%s)" },
-    overpicnum = { WAL".overpicnum", WAL":set_overpicnum(%%s)" },
+    picnum = { WAL".picnum", WAL":set_picnum(%%s)", litok_ge0 },
+    overpicnum = { WAL".overpicnum", WAL":set_overpicnum(%%s)", litok_ge0 },
     shade = WAL".shade",
     pal = WAL".pal",
     xrepeat = WAL".xrepeat",
@@ -751,17 +762,17 @@ local ProjectileLabels = {
     hitradius = PROJ".hitradius",
     range = PROJ".range",
     flashcolor = PROJ".flashcolor",
-    spawns = { PROJ".spawns", PROJ":set_spawns(%%s)" },
-    sound = { PROJ".sound", PROJ":set_sound(%%s)" },
-    isound = { PROJ".isound", PROJ":set_isound(%%s)" },
+    spawns = { PROJ".spawns", PROJ":set_spawns(%%s)", litok_gem1 },
+    sound = { PROJ".sound", PROJ":set_sound(%%s)", litok_gem1 },
+    isound = { PROJ".isound", PROJ":set_isound(%%s)", litok_gem1 },
     vel = PROJ".vel",
-    decal = { PROJ".decal", PROJ":set_decal(%%s)" },
-    trail = { PROJ".trail", PROJ":set_trail(%%s)" },
+    decal = { PROJ".decal", PROJ":set_decal(%%s)", litok_gem1 },
+    trail = { PROJ".trail", PROJ":set_trail(%%s)", litok_gem1 },
     tnum = PROJ".tnum",
     drop = PROJ".drop",
     offset = PROJ".offset",
     bounces = PROJ".bounces",
-    bsound = { PROJ".bsound", PROJ":set_bsound(%%s)" },
+    bsound = { PROJ".bsound", PROJ":set_bsound(%%s)", litok_gem1 },
     toffset = PROJ".toffset",
     extra = PROJ".extra",
     extra_rand = PROJ".extra_rand",
@@ -817,7 +828,7 @@ local UserdefLabels = {
     fta_on = UD".fta_on",
     god = UDRO".god",
     idplayers = UDRO".idplayers",
-    level_number = { UD".level_number", UD":set_level_number(%%s)" },
+    level_number = { UD".level_number", UD":set_level_number(%%s)", {0, MAXLEVELS-1} },
     levelstats = UD".levelstats",
     lockout = UDRO".lockout",
     m_player_skill = UDRO".m_player_skill",
@@ -835,7 +846,7 @@ local UserdefLabels = {
     showallmap = UD".showallmap",
     showweapons = UDRO".showweapons",
     statusbarscale = UDRO".statusbarscale",
-    volume_number = { UD".volume_number", UD":set_volume_number(%%s)" },
+    volume_number = { UD".volume_number", UD":set_volume_number(%%s)", {0, MAXVOLUMES} },
     weaponscale = UDRO".weaponscale",
     weaponswitch = UD".weaponswitch",
 }
