@@ -207,6 +207,7 @@ ends
 // Also try Shift and/or Ctrl modifiers for different increments
 defstate fiddlewithlights
     var minval maxval
+    var val
 
     // if aiming at sector or wall
     ifaimingsprite nullop
@@ -335,20 +336,30 @@ defstate fiddlewithlights
 
         ife .lotag 50
         {
-            // horiz
+            // KP8/KP5: horiz
             ifeithershift set j 1 else set j 10
-            ifhitkey KEY_gUP add .extra j
-            else ifhitkey KEY_gKP5 sub .extra j
-            clamp .extra -500 500
 
-            // angle
+            ifhitkey KEY_gUP nullop
+            else ifhitkey KEY_gKP5 mul j -1
+            else set j 0
+
+            ifvarn j 0
+            {
+                // change it
+                set val .extra
+                add val j
+                clamp val -32768 32767
+                set .extra val
+            }
+
+            // KP4/KP6: angle
             set j 128
             ifeitherctrl set j 4
             ifeithershift { ifeitherctrl set j 1 else set j 32 }
             ifhitkey KEY_gLEFT sub .ang j
             else ifhitkey KEY_gRIGHT add .ang j
 
-            // radius
+            // KP+/KP-: radius
             ifeitherctrl
             {
                 ifholdkey KEY_gMINUS add .shade 9
