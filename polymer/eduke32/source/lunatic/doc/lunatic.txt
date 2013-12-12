@@ -295,11 +295,14 @@ The hard engine limits on the number of sectors, walls, and sprites. These
 constants *must* be used instead of any literal numeric values because they
 can change depending on how EDuke32 was configured and built.
 
+`gv.CEILING`, `gv.FLOOR`, `gv.BOTH_CF`::
+Constants permissible to the <<sectorsofbunch_1,`sectorsofbunch`>> iterator.
+
 //////////
 `gv.MAXSTATUS`, `gv.MAXTILES`, `gv.MAXSPRITESONSCREEN`::
 TODO
 
-`gv.MAXBUNCHES`, `gv.CEILING`, `gv.FLOOR`::
+`gv.MAXBUNCHES`::
 TODO
 //////////
 
@@ -1238,6 +1241,18 @@ allowed. Inserting sprites is always allowed.
 +*for* s *in* spritesofsect(sectnum [, maydelete])+::
 Iterates over the indices of all sprites contained in the sector with index
 `sectnum` with the same meaning for `maydelete` as with `spritesofstat`.
+
+[[sectorsofbunch_1]] +*for* s *in* sectorsofbunch(bunchnum, cf)+::
+
+Iterates over the indices of the sectors whose ceiling's or floor's bunch
+equals `bunchnum`, selected by passing `gv.CEILING` or `gv.FLOOR`
+(respectively) to `cf`.
+
+[[sectorsofbunch_2]] +*for* s, what *in* sectorsofbunch(bunchnum, gv.BOTH_CF)+::
+Iterates over the indices of the sectors whose ceiling's and floor's bunch
+equals `bunchnum`.  On each iteration, `what` is one of the strings `'ceiling'`
+or `'floor'`, denoting whether it's the ceiling or floor of sector `s` that has
+the given bunch number.
 
 Sector containment functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

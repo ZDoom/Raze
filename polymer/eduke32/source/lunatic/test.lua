@@ -90,16 +90,12 @@ gameevent
             --actor = {}
             actor[562].flags = bit.bor(actor[562].flags, 2);   -- pal 6 with goggles on front SEENINE
         end
---[[
-        -- TODO: better API for all TROR things?
+---[[
         if (vol==1 and lev==8) then
             print('tweaking bunch 1');
             -- trueror1.map
-            for i in sectorsofbunch(1, gv.CEILING) do
-                sector[i].ceilingz = sector[i].ceilingz - 3*1024;
-            end
-            for i in sectorsofbunch(1, gv.FLOOR) do
-                sector[i].floorz = sector[i].floorz - 3*1024;
+            for i, what in sectorsofbunch(1, gv.BOTH_CF) do
+                sector[i][what].z = sector[i][what].z - 3*1024;
             end
         end
 --]]

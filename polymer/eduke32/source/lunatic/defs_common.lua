@@ -366,8 +366,9 @@ enum {
     MAXSPRITESONSCREEN = 4096,
 
     MAXBUNCHES = 512,
-    CEILING = 0,
-    FLOOR = 1,
+    CEILING = 0,  // must be 0
+    FLOOR = 1,  // must be 1
+    BOTH_CF = 2,
 
     CLIPMASK0 = (1<<16)+1,  // blocking
     CLIPMASK1 = (256<<16)+64,  // hittable
@@ -1191,15 +1192,40 @@ local function iter_sectorsofbunch(cf, i)
     if (i >= 0) then return i end
 end
 
+local function iter_sectorsofbunch_both(cftab, i)
+    local cf = cftab[1]
+
+    if (i < 0) then
+        i = ffiC.headsectbunch[cf][-i-1];
+    else
+        i = ffiC.nextsectbunch[cf][i];
+    end
+
+    if (i < 0 and cf==0) then
+        cftab[1] = 1
+        i = ffiC.headsectbunch[1][cftab[2]]
+        assert(i >= 0, "TROR bunch lists corrupt")
+    end
+
+    if (i >= 0) then
+        return i, cftab[1]==0 and "ceiling" or "floor"
+    end
+end
+
 function sectorsofbunch(bunchnum, cf)
     if (not (bunchnum >= 0 and bunchnum < ffiC.numyaxbunches)) then
         error("passed invalid bunchnum to sectorsofbunch iterator", 2)
     end
-    if (not (cf == 0 or cf == 1)) then
-        error("passed invalid 'cf' to sectorsofbunch iterator, must be 0 or 1", 2)
-    end
 
-    return iter_sectorsofbunch, cf, -bunchnum-1
+    if (cf == ffiC.BOTH_CF) then
+        return iter_sectorsofbunch_both, { 0, bunchnum }, -bunchnum-1
+    else
+        if (not (cf == 0 or cf == 1)) then
+            error("passed invalid 'cf' to sectorsofbunch iterator, must be 0 or 1", 2)
+        end
+
+        return iter_sectorsofbunch, cf, -bunchnum-1
+    end
 end
 
 
