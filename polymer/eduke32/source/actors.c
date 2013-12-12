@@ -117,7 +117,9 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
         STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC
     };
 
-    int16_t *const tempshort = (int16_t *)tempbuf;
+    // XXX: accesses to 'sectorlist' potentially unaligned
+    int16_t *const sectorlist = (int16_t *)tempbuf;
+    const int32_t maxsects = sizeof(tempbuf)/sizeof(int16_t);
 
     if (s->picnum == RPG && s->xrepeat < 11)
         goto SKIPWALLCHECK;
@@ -127,12 +129,12 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
         int32_t sectcnt = 0;
         int32_t sectend = 1;
 
-        tempshort[0] = s->sectnum;
+        sectorlist[0] = s->sectnum;
 
         do
         {
             const walltype *wal;
-            const int32_t dasect = tempshort[sectcnt++];
+            const int32_t dasect = sectorlist[sectcnt++];
             const int32_t startwall = sector[dasect].wallptr;
             const int32_t endwall = startwall+sector[dasect].wallnum;
             int32_t w;
@@ -163,11 +165,15 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
                     {
                         int32_t dasect2;
                         for (dasect2=sectend-1; dasect2>=0; dasect2--)
-                            if (tempshort[dasect2] == nextsect)
+                            if (sectorlist[dasect2] == nextsect)
                                 break;
 
                         if (dasect2 < 0)
-                            tempshort[sectend++] = nextsect;
+                        {
+                            if (sectend == maxsects)
+                                goto SKIPWALLCHECK;  // prevent oob access of 'sectorlist'
+                            sectorlist[sectend++] = nextsect;
+                        }
                     }
 
                     x1 = (((wal->x+wall[wal->point2].x)>>1)+s->x)>>1;
@@ -189,7 +195,7 @@ SKIPWALLCHECK:
 
     q = -(16<<8) + (krand()&((32<<8)-1));
 
-    for (stati=0; stati<7; stati++)  // TODO: ARRAY_SIZE
+    for (stati=0; stati < ARRAY_SSIZE(statlist); stati++)
     {
         int32_t j = headspritestat[statlist[stati]];
 

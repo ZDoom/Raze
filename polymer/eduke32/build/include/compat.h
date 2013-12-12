@@ -777,5 +777,8 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
     extern void EDUKE32_ASSERT_NAME(__LINE__)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
 #endif
 
+#define ARRAY_SIZE(Ar) (sizeof(Ar)/sizeof((Ar)[0]))
+#define ARRAY_SSIZE(Ar) (bssize_t)ARRAY_SIZE(Ar)
+
 #endif // __compat_h__
 

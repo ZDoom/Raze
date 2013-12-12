@@ -1844,10 +1844,12 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
         if (wal->picnum == TECHLIGHT4)
             wal->picnum = TECHLIGHTBUST4;
 
-        if (!wal->lotag) return;
+        if (wal->lotag == 0)
+            return;
 
         sn = wal->nextsector;
-        if (sn < 0) return;
+        if (sn < 0)
+            return;
         darkestwall = 0;
 
         wal = &wall[sector[sn].wallptr];
@@ -1856,17 +1858,15 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
                 darkestwall=wal->shade;
 
         j = krand()&1;
-        i= headspritestat[STAT_EFFECTOR];
-        while (i >= 0)
-        {
+
+        for (SPRITES_OF(STAT_EFFECTOR, i))
             if (SHT == wall[dawallnum].lotag && SLT == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
             {
                 T3 = j;
                 T4 = darkestwall;
                 T5 = 1;
             }
-            i = nextspritestat[i];
-        }
+
         break;
     }
 }
@@ -1906,37 +1906,28 @@ int32_t Sect_DamageCeiling(int32_t sn)
             sector[sn].ceilingpicnum = TECHLIGHTBUST4;
 
 
-        if (!sector[sn].hitag)
+        if (sector[sn].hitag == 0)
         {
-            i = headspritesect[sn];
-            while (i >= 0)
+            for (SPRITES_OF_SECT(sn, i))
             {
                 if (PN == SECTOREFFECTOR && SLT == SE_12_LIGHT_SWITCH)
                 {
-                    j = headspritestat[STAT_EFFECTOR];
-                    while (j >= 0)
-                    {
+                    for (SPRITES_OF(STAT_EFFECTOR, j))
                         if (sprite[j].hitag == SHT)
                             actor[j].t_data[3] = 1;
-                        j = nextspritestat[j];
-                    }
                     break;
                 }
-                i = nextspritesect[i];
             }
         }
 
-        i = headspritestat[STAT_EFFECTOR];
         j = krand()&1;
-        while (i >= 0)
-        {
-            if (SHT == (sector[sn].hitag) && SLT == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
+
+        for (SPRITES_OF(STAT_EFFECTOR, i))
+            if (SHT == sector[sn].hitag && SLT == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
             {
                 T3 = j;
                 T5 = 1;
             }
-            i = nextspritestat[i];
-        }
 
         return 1;
     }
@@ -2413,28 +2404,21 @@ void A_DamageObject(int32_t i,int32_t sn)
 
 void G_AlignWarpElevators(void)
 {
-    int32_t j, i = headspritestat[STAT_EFFECTOR];
+    int32_t i, j;
 
-    while (i >= 0)
+    for (SPRITES_OF(STAT_EFFECTOR, i))
     {
         if (SLT == SE_17_WARP_ELEVATOR && SS > 16)
         {
-            j = headspritestat[STAT_EFFECTOR];
-            while (j >= 0)
+            for (SPRITES_OF(STAT_EFFECTOR, j))
             {
-                if ((sprite[j].lotag) == SE_17_WARP_ELEVATOR && i != j &&
-                        (SHT) == (sprite[j].hitag))
+                if (i != j && sprite[j].lotag == SE_17_WARP_ELEVATOR && SHT == sprite[j].hitag)
                 {
-                    sector[sprite[j].sectnum].floorz =
-                        sector[SECT].floorz;
-                    sector[sprite[j].sectnum].ceilingz =
-                        sector[SECT].ceilingz;
+                    sector[sprite[j].sectnum].floorz = sector[SECT].floorz;
+                    sector[sprite[j].sectnum].ceilingz = sector[SECT].ceilingz;
                 }
-
-                j = nextspritestat[j];
             }
         }
-        i = nextspritestat[i];
     }
 }
 

@@ -1816,8 +1816,6 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     }
 }
 
-#define ARRAY_SIZE(Ar) (sizeof(Ar)/sizeof((Ar)[0]))
-
 static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
 {
     static const int8_t knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
