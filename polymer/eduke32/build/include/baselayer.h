@@ -149,6 +149,7 @@ void readmousebstatus(int32_t *b);
 void readjoybstatus(int32_t *b);
 void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur);
 void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur);
+extern int32_t inputchecked;
 
 int32_t inittimer(int32_t);
 void uninittimer(void);

@@ -159,8 +159,8 @@ char quitevent=0;
 char appactive=1;
 char realfs=0;
 char regrabmouse=0;
-uint32_t mousewheel[2] = { 0,0 };
 char defaultlayoutname[KL_NAMELENGTH];
+int32_t inputchecked = 0;
 
 //-------------------------------------------------------------------------------------------------
 //  DINPUT (JOYSTICK)
@@ -722,6 +722,8 @@ int32_t handleevents(void)
         WndProcCallback(msg.hwnd, msg.message, msg.wParam, msg.lParam);
     }
 
+    inputchecked = 0;
+
     if (!appactive || quitevent) rv = -1;
 
     sampletimer();
@@ -809,6 +811,9 @@ void idle_waitevent_timeout(uint32_t timeout)
         if (PeekMessage(&msg, 0, WM_INPUT, WM_INPUT, PM_QS_INPUT))
         {
             RI_PollDevices(TRUE);
+
+            inputchecked = 0;
+
             return;
         }
 
@@ -926,11 +931,10 @@ void releaseallbuttons(void)
         if (mouseb & 2) mousepresscallback(2, 0);
         if (mouseb & 4) mousepresscallback(3, 0);
         if (mouseb & 8) mousepresscallback(4, 0);
-        if (mousewheel[0]>0) mousepresscallback(5,0);
-        if (mousewheel[1]>0) mousepresscallback(6,0);
+        if (mouseb & 16) mousepresscallback(5, 0);
+        if (mouseb & 32) mousepresscallback(6, 0);
         if (mouseb & 64) mousepresscallback(7, 0);
     }
-    mousewheel[0]=mousewheel[1]=0;
     mouseb = 0;
 
     if (joypresscallback)

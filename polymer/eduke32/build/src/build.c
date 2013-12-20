@@ -741,6 +741,8 @@ CANCEL:
 
         M32_DrawRoomsAndMasks();
 
+        inputchecked = 1;
+
 #ifdef M32_SHOWDEBUG
         if (searchstat>=0 && (searchwall<0 || searchsector<0))
         {
@@ -3722,6 +3724,8 @@ void overheadeditor(void)
             OSD_Draw();
         }
 
+        inputchecked = 1;
+
         VM_OnEvent(EVENT_PREKEYS2D, -1);
         ExtCheckKeys(); // TX 20050101, it makes more sense to have this here so keys can be overwritten with new functions in bstub.c
 
@@ -5695,14 +5699,22 @@ end_point_dragging:
         {
             if ((DOWN_BK(MOVEUP) || (bstatus&16)) && m32_sideelev < 512)
             {
-                m32_sideelev += synctics<<(1+!!(bstatus&16));
+                if (DOWN_BK(MOVEUP))
+                    m32_sideelev += synctics<<1;
+                if (bstatus&16)
+                    m32_sideelev += 4<<1;
+
                 if (m32_sideelev > 512)
                     m32_sideelev = 512;
                 _printmessage16("Sideview elevation: %d", m32_sideelev);
             }
             if ((DOWN_BK(MOVEDOWN) || (bstatus&32)) && m32_sideelev > 0)
             {
-                m32_sideelev -= synctics<<(1+!!(bstatus&32));
+                if (DOWN_BK(MOVEDOWN))
+                    m32_sideelev -= synctics<<1;
+                if (bstatus&32)
+                    m32_sideelev -= 4<<1;
+
                 if (m32_sideelev < 0)
                     m32_sideelev = 0;
                 _printmessage16("Sideview elevation: %d", m32_sideelev);
@@ -5714,13 +5726,21 @@ end_point_dragging:
 
             if ((DOWN_BK(MOVEUP) || (bstatus&16)) && zoom < 65536)
             {
-                zoom += synctics*(zoom>>4);
+                if (DOWN_BK(MOVEUP))
+                    zoom += synctics*(zoom>>4);
+                if (bstatus&16)
+                    zoom += 4*(zoom>>4);
+
                 if (zoom < 24) zoom += 2;
                 didzoom = 1;
             }
             if ((DOWN_BK(MOVEDOWN) || (bstatus&32)) && zoom > 8)
             {
-                zoom -= synctics*(zoom>>4);
+                if (DOWN_BK(MOVEDOWN))
+                    zoom -= synctics*(zoom>>4);
+                if (bstatus&32)
+                    zoom -= 4*(zoom>>4);
+
                 didzoom = 1;
             }
 
@@ -9050,6 +9070,8 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
         mouseb = 0;
         searchx = osearchx;
         searchy = osearchy;
+
+        inputchecked = 1;
 
         if ((flags&8)==0)
             ExtCheckKeys();

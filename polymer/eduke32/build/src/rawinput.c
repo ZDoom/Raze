@@ -10,12 +10,10 @@ static BOOL rawinput_started = 0;
 static uint8_t KeyboardState[256] = {0}; // VKeys
 
 extern volatile uint8_t moustat, mousegrab;
-extern uint32_t mousewheel[2];
 extern void SetKey(int32_t key, int32_t state);
 
 //#define MASK_DOWN (1<<(i<<1))
 //#define MASK_UP (MASK_DOWN<<1)
-#define MouseWheelFakePressTime 50
 #ifndef GET_RAWINPUT_CODE_WPARAM
 #define GET_RAWINPUT_CODE_WPARAM(wParam)    ((wParam) & 0xff)
 #endif
@@ -73,15 +71,11 @@ static inline void RI_ProcessMouse(const RAWMOUSE *rmouse)
 
     if (MWheel > 0)   	// wheel up
     {
-        if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
-        mousewheel[0] = getticks();
         mouseb |= 16;
         if (mousepresscallback) mousepresscallback(5, 1);
     }
     else if (MWheel < 0)  	// wheel down
     {
-        if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
-        mousewheel[1] = getticks();
         mouseb |= 32;
         if (mousepresscallback) mousepresscallback(6, 1);
     }
@@ -225,6 +219,18 @@ void RI_PollDevices(BOOL loop)
         rawinput_started = 1;
     }
 
+    if (inputchecked)
+    {
+        if (mousepresscallback)
+        {
+            if (mouseb & 16)
+                mousepresscallback(5, 0);
+            if (mouseb & 32)
+                mousepresscallback(6, 0);
+        }
+        mouseb &= ~(16|32);
+    }
+
     // snapshot the whole keyboard state so we can translate key presses into ascii later
     for (i = 0; i < 256; i++)
         KeyboardState[i] = GetAsyncKeyState(i) >> 8;
@@ -239,18 +245,6 @@ void RI_PollDevices(BOOL loop)
 
         ClientToScreen((HWND)win_gethwnd(), &pt);
         SetCursorPos(pt.x, pt.y);
-
-        // do this here because we only want the wheel to signal once, but hold the state for a moment
-        if (mousewheel[0] > 0 && getticks() - mousewheel[0] > MouseWheelFakePressTime)
-        {
-            if (mousepresscallback) mousepresscallback(5,0);
-            mousewheel[0] = 0; mouseb &= ~16;
-        }
-        if (mousewheel[1] > 0 && getticks() - mousewheel[1] > MouseWheelFakePressTime)
-        {
-            if (mousepresscallback) mousepresscallback(6,0);
-            mousewheel[1] = 0; mouseb &= ~32;
-        }
     }
 }
 

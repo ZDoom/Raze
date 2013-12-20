@@ -61,8 +61,7 @@ int32_t startwin_settitle(const char *s) { UNREFERENCED_PARAMETER(s); return 0; 
 #define ANY_WINDOWED_SIZE
 
 // fix for mousewheel
-#define MWHEELTICKS 10
-static uint32_t mwheelup, mwheeldown;
+int32_t inputchecked = 0;
 
 extern int32_t app_main(int32_t argc, const char **argv);
 
@@ -2026,6 +2025,21 @@ int32_t handleevents(void)
     int32_t code, rv=0, j;
     SDL_Event ev;
 
+    if (inputchecked)
+    {
+        if (moustat)
+        {
+            if (mousepresscallback)
+            {
+                if (mouseb & 16)
+                    mousepresscallback(5, 0);
+                if (mouseb & 32)
+                    mousepresscallback(6, 0);
+            }
+            mouseb &= ~(16|32);
+        }
+    }
+
     while (SDL_PollEvent(&ev))
     {
         switch (ev.type)
@@ -2108,14 +2122,12 @@ int32_t handleevents(void)
            // initprintf("wheel y %d\n",ev.wheel.y);
             if (ev.wheel.y > 0)
             {
-                mwheelup = totalclock;
                 mouseb |= 16;
                 if (mousepresscallback)
                     mousepresscallback(5, 1);
             }
             if (ev.wheel.y < 0)
             {
-                mwheeldown = totalclock;
                 mouseb |= 32;
                 if (mousepresscallback)
                     mousepresscallback(6, 1);
@@ -2260,16 +2272,6 @@ int32_t handleevents(void)
 
             if (ev.button.state == SDL_PRESSED)
             {
-#if SDL_MAJOR_VERSION==1
-                if (ev.button.button == SDL_BUTTON_WHEELUP)
-                {
-                    mwheelup = totalclock;
-                }
-                if (ev.button.button == SDL_BUTTON_WHEELDOWN)
-                {
-                    mwheeldown = totalclock;
-                }
-#endif
                 mouseb |= (1<<j);
             }
             else
@@ -2385,21 +2387,9 @@ int32_t handleevents(void)
 
 //        if (mousex|mousey) printf("%d,%d\n",mousex,mousey); ///
 
-    sampletimer();
+    inputchecked = 0;
 
-    if (moustat)
-    {
-        if ((mwheelup) && (mwheelup <= (unsigned)(totalclock - MWHEELTICKS)))
-        {
-            mouseb &= ~16;
-            mwheelup = 0;
-        }
-        if ((mwheeldown) && (mwheeldown <= (unsigned)(totalclock - MWHEELTICKS)))
-        {
-            mouseb &= ~32;
-            mwheeldown = 0;
-        }
-    }
+    sampletimer();
 
 #ifndef _WIN32
     startwin_idle(NULL);

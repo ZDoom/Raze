@@ -4285,6 +4285,8 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
         searchx = osearchx;
         searchy = osearchy;
 
+        inputchecked = 1;
+
         ExtCheckKeys();
 
         Bsprintf(buffer,"%s%d",namestart,danum);
@@ -4477,6 +4479,8 @@ ENDFOR1:
         mouseb = 0;
         searchx = osearchx;
         searchy = osearchy;
+
+        inputchecked = 1;
 
         ExtCheckKeys();
 

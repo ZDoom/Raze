@@ -791,6 +791,8 @@ void CONTROL_GetInput(ControlInfo *info)
     CONTROL_PollDevices(info);
 
     CONTROL_GetFunctionInput();
+
+    inputchecked = 1;
 }
 
 int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ticspersecond)
