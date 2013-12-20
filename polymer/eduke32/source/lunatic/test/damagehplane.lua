@@ -41,14 +41,7 @@ gameactor
         local bunchnum = spr.extra
         for sectnum, what in sectorsofbunch(bunchnum, gv.BOTH_CF) do
             local cf = sector[sectnum][what]
-
-            -- TODO: provide cf:set_picnum()
-            if (what=="ceiling") then
-                sector[sectnum]:set_ceilingpicnum(D.GLASS2 + cnt)
-            else
-                sector[sectnum]:set_floorpicnum(D.GLASS2 + cnt)
-            end
-
+            cf:set_picnum(D.GLASS2 + cnt)
             cf.statbits:clear(sector.STAT.BLOCK + sector.STAT.HITSCAN)
             if (finish) then
                 cf.statbits:clear(sector.STAT.TRANS_BITMASK)

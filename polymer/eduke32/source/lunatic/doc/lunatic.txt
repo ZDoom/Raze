@@ -656,10 +656,15 @@ _`u8`_ `cf.xpanning`, `cf.ypanning`::
 The panning values of the ceiling or floor. One full cycle is covered by values
 from `0` to `255`.
 
+===== ceiling-or-floor methods
+
+`cf:set_picnum(tilenum)`::
+Set the tile number of the ceiling-or-floor `cf`.
+
 ===== `sector` methods
 
 `sec:set_ceilingpicnum(tilenum)`, {nbsp} `sec:set_floorpicnum(tilenum)`::
-Set the tile number of the ceiling or floor.
+Set the tile number of the ceiling or the floor.
 
 [[sec_cfz_at]] `sec:ceilingzat(pos)`, {nbsp} `sec:floorzat(pos)`::
 Return the z coordinate of sector `sec`'s ceiling or floor at position `pos`,

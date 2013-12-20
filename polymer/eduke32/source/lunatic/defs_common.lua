@@ -167,6 +167,16 @@ end
 bitint_new_struct_type("uint8_t", "UBit8")
 bitint_new_struct_type("uint16_t", "UBit16")
 
+-- Converts a template struct definition to an internal, unrestricted one.
+-- NOTE: "[^ ]*" for const decorations in defs.ilua.
+function strip_const(structstr)
+    return (string.gsub(structstr, "const[^ ]* ", ""));
+end
+
+local function maybe_strip_const(str)
+    return _LUNATIC_AUX and strip_const(str) or str
+end
+
 
 --== Core engine structs ==--
 
@@ -181,6 +191,8 @@ local CF_MEMBERS = [[
 ]]
 
 ffi.cdef("typedef struct { "..CF_MEMBERS:gsub("~","").." } ceiling_or_floor_t;")
+
+local hplane_ptr_ct = ffi.typeof("struct { "..strip_const(CF_MEMBERS:gsub("~","")).." } *")
 
 local SECTOR_STRUCT = [[
 struct {
@@ -231,16 +243,6 @@ struct {
     uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
     int16_t lotag, hitag, extra;
 }]]
-
--- Converts a template struct definition to an internal, unrestricted one.
--- NOTE: "[^ ]*" for const decorations in defs.ilua.
-function strip_const(structstr)
-    return (string.gsub(structstr, "const[^ ]* ", ""));
-end
-
-local function maybe_strip_const(str)
-    return _LUNATIC_AUX and strip_const(str) or str
-end
 
 -- NOTE for FFI definitions: we're compiling EDuke32 with -funsigned-char, so
 -- we need to take care to declare chars as unsigned whenever it matters, for
@@ -586,6 +588,16 @@ local sectortype_mt = {
     }
 }
 ffi.metatype("sectortype", sectortype_mt)
+
+local hplane_mt = {
+    __index = {
+        set_picnum = function(hp, picnum)
+            check_tile_idx(picnum)
+            ffi.cast(hplane_ptr_ct, hp).picnum = picnum
+        end
+    },
+}
+ffi.metatype("ceiling_or_floor_t", hplane_mt)
 
 local walltype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(WALL_STRUCT)))
 
