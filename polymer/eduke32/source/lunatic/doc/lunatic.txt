@@ -81,7 +81,7 @@ checks for
 ====================
 
 If the OS environment variable `LUNATIC_TIMING_BASEFN` is defined, EDuke32 will
-write out arregate timing results for actors and events in a comma-separated
+write out aggregate timing results for actors and events in a comma-separated
 value format, obtained by suffixing the base name with ```.actors.csv`'' and
 ```.events.csv`''.
 
@@ -264,16 +264,16 @@ Game variables may take on only values of types that Lunatic knows how to
 serialize into savegames. These are the following:
 
 * Booleans, numbers, and strings, collectively called the _basic types_
-* Custom Lunatic types that are labeled _serializeable_ in their documentation
+* Custom Lunatic types that are labeled _serializable_ in their documentation
 * Tables, but with the following restrictions on their contents:
 ** A table key may only be of basic type.
-** A table value may be (a reference to) any serializeable object, but tables
+** A table value may be (a reference to) any serializable object, but tables
     or Lunatic objects that are so referenced *must* have originated in the
     gamevar section of the same module. Beyond that, there are no restrictions
     on the table topology.
 
 [icon="din_w_collapse.png"]
-CAUTION: If a gamevar contains a value that is not serializeable at any point
+CAUTION: If a gamevar contains a value that is not serializable at any point
 in the execution, the behavior is undefined. Note that in particular, gamevars
 are not allowed to take on the value *nil*.
 
@@ -313,7 +313,7 @@ walls and sprites.
 `gv.CLIPMASK1`::
 A clipping (collision detection) mask specifying to consider only _hitscan
 sensitive_ walls and sprites. The set bits of `CLIPMASK1` and `CLIPMASK0` are
-disjunct.
+disjoint.
 
 [[gv_REND]] `gv.REND`::
 A mapping of names to values representing rendering modes: `CLASSIC`,
@@ -321,7 +321,7 @@ A mapping of names to values representing rendering modes: `CLASSIC`,
 
 // Game-side
 [[gv_GTICSPERSEC]] `gv.GTICSPERSEC`::
-The number of times in a second each actor excecutes its code and updates its
+The number of times in a second each actor executes its code and updates its
 position (``game tics'').
 
 [[gv_GET]] `gv.GET`::
@@ -627,7 +627,7 @@ will label a sector reference.
 The tile number of the ceiling or floor.
 
 [[cf_stat]] _`u16`_ `cf.stat`, {nbsp} _`bitfield`_ `cf.statbits`::
-A bit field holding various flags about how the ceiling or floor shoud be
+A bit field holding various flags about how the ceiling or floor should be
 displayed, how collision detection should be handled, etc.
 The <<sector_STAT,`sector.STAT`>>
 object should be used to obtain the values for applicable flags.
@@ -726,7 +726,7 @@ respectively. Any of them may be `-1`, meaning that the wall is not attached to
 a neighbor in this direction.
 
 [[wall_cstat]] _`u16`_ `cstat`, {nbsp} _`bitfield`_ `cstatbits`::
-A bit field holding various flags about how the wall shoud be
+A bit field holding various flags about how the wall should be
 displayed, how collision detection should be handled, etc.
 The <<wall_CSTAT,`wall.CSTAT`>>
 object should be used to obtain the values for applicable flags.
@@ -802,7 +802,7 @@ TODO (make set_ang() out of that which always ANDs with 2047?)
 //////////
 
 [[sprite_cstat]] _`u16`_ `cstat`, {nbsp} _`bitfield`_ `cstatbits`::
-A bit field holding various flags about how the sprite shoud be
+A bit field holding various flags about how the sprite should be
 displayed, how collision detection should be handled, etc.
 The <<sprite_CSTAT,`sprite.CSTAT`>>
 object should be used to obtain the values for applicable flags.
@@ -1396,7 +1396,7 @@ input arguments: `func(aci, pli, dist)`.
 // http://www.methods.co.nz/asciidoc/faq.html#_why_am_i_having_trouble_getting_nested_macros_to_work
 
 Additionally, `gameactor` accepts optional input arguments. They can be
-specifyed positionally by following `tilenum`, or be given as values to string
+specified positionally by following `tilenum`, or be given as values to string
 keys of the argument table. Each such input argument may be provided in at most
 one of these two forms. Furthermore, `func` may be provided as value to the
 key `'func'` as well.
@@ -1431,9 +1431,9 @@ handles chaining.
 * `AF.replace_soft`: Replace the callback function, but bitwise-OR the existing
   run-time flags with the provided ones. This is the way CON's `useractor`
   behaves.
-* `AF.chain_beg`: Prepend the provided `func` to the exising callback function,
+* `AF.chain_beg`: Prepend the provided `func` to the existing callback function,
   bitwise-OR in flags.
-* `AF.chain_end`: Append the provided `func` to the exising callback function,
+* `AF.chain_end`: Append the provided `func` to the existing callback function,
   bitwise-OR in flags.
 +
 The following members all default to 0 if omitted.
@@ -1484,9 +1484,9 @@ registered initially.  Permissible values for these flags are provided in
 `actor.FLAGS` as well (abbreviated `AF` here):
 
 * `AF.replace`: Replace any previously defined event code with the given one.
-* `AF.chain_beg`: Prepend the provided `func` to the exising callback
+* `AF.chain_beg`: Prepend the provided `func` to the existing callback
   function. This is the behavior of CON's `onevent`.
-* `AF.chain_end`: Append the provided `func` to the exising callback
+* `AF.chain_end`: Append the provided `func` to the existing callback
   function. This is the default.
 
 // TODO: RETURN handling...
@@ -1506,7 +1506,7 @@ Mathematical functions
 
 Lunatic, being a Lua-based scripting system, provides the user with a single
 numeric data type that variables can contain on the Lua side --
-double-precision floating point.footnote:[In LuaJIT, variables additionaly can
+double-precision floating point.footnote:[In LuaJIT, variables additionally can
 take on ``boxed'' 64-bit integer numeric types, but these should not be used
 for numeric calculations.]  However, since BUILD, and in turn, EDuke32, almost
 exclusively use integer types to represent quantities such as angles or carry
@@ -1533,7 +1533,7 @@ degrees.
 The `sinb` and `cosb` functions return values in the range [--1 .. 1], just
 like their mathematical counterparts.
 +
-The following guarantees are made for `sinb` whereever its argument expression
+The following guarantees are made for `sinb` whenever its argument expression
 is permissible:
 +
 * `sinb(-a) == -sinb(a)` (point symmetry around the origin)
@@ -1579,7 +1579,7 @@ component of the result is the difference between that of `point` and
 zeros for all components.
 
 [[vector_types]]
-The types `xmath.vec3` and `xmath.ivec3` [_serializeable_]
+The types `xmath.vec3` and `xmath.ivec3` [_serializable_]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Another purpose of the `xmath` module is to provide _vector_ types that allow
@@ -1645,7 +1645,7 @@ Returns a new `vec3` object with the components of `v` negated.
 
 `a*v`, {nbsp} `v*a`::
 For a scalar number `a`, returns a new `vec3` object whose components are those
-of `v` mutiplied with `a`.
+of `v` multiplied with `a`.
 
 `v/a`::
 For a scalar number `a`, returns a new `vec3` object whose components are those
@@ -2051,7 +2051,7 @@ learning to code for Lunatic.
 [float]
 ==== http://www.lua.org/pil/p1.html[Preface]
 
-May be interesting to get an idea of the philisophy behind Lua.
+May be interesting to get an idea of the philosophy behind Lua.
 http://www.lua.org/pil/p1.3.html[A Few Typographical Conventions] should be
 read to be familiar with them.
 
@@ -2072,7 +2072,7 @@ is treated. Mentions `dofile`, which is not available in Lunatic
 ==== http://www.lua.org/pil/1.2.html[1.2 -- Global Variables]
 
 Section may be read, but usage of *`local`* variables is strongly recommended
-whereever possible. Also, trying to read a non-existent global or to write any
+whenever possible. Also, trying to read a non-existent global or to write any
 value to the global environment gives an error in Lunatic (except that global
 writes are allowed in in <<modules,module>> context, i.e. after `module(...)`).
 
