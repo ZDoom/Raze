@@ -650,6 +650,23 @@ gameactor
     end
 }
 
+gameactor
+{
+    -- Innocent sign, similar to test/weaponvars.con actor 909 (tree trunk)
+    1211, actor.FLAGS.replace_hard,
+
+    function(aci, pli)
+        local a = actor[aci]
+
+        if (a:get_count() >= 120) then
+            local i = con.spawn(D.TRANSPORTERSTAR, aci)
+            sprite[i].z = sprite[i].z - 1024*16
+            con.shoot(D.MORTER, aci, -4096)
+            a:set_count(0)
+        end
+    end
+}
+
 local function testbit(num, b)
     return bit.band(num,b)~=0 and 1 or 0
 end

@@ -365,7 +365,7 @@ local int16_st = ffi.typeof "struct { int16_t s; }"
 -- out of the range for an int32_t and thus undefined behavior!
 local SHOOT_HARDCODED_ZVEL = tobit(0x80000000)
 
-function _shoot(i, tilenum, zvel)
+function shoot(tilenum, i, zvel)
     check_sprite_idx(i)
     check_sector_idx(ffiC.sprite[i].sectnum)  -- accessed in A_ShootWithZvel
     check_tile_idx(tilenum)
@@ -1066,12 +1066,6 @@ function _A_SpawnGlass(i, n)
             sprite[k].pal = spr.pal
         end
     end
-end
-
-function _A_Shoot(i, atwith)
-    check_sprite_idx(i)
-    check_tile_idx(atwith)
-    return CF.A_ShootWithZvel(i, atwith, SHOOT_HARDCODED_ZVEL)
 end
 
 function _A_IncurDamage(sn)

@@ -1924,7 +1924,7 @@ exits.footnote:[This is subject to change and must not be relied on.]
 Otherwise, relevant per-sprite data for the newly inserted sprite is
 cleared. No additional ``hard-wired'' C code is run.
 
-The return value is the index of the inserted sprite.
+Returns the index of the inserted sprite.
 
 The function `con.insertsprite` is called with a single table whose values are
 taken as the actual arguments. The first three, `tilenum`, `pos` and `sectnum`,
@@ -1963,6 +1963,15 @@ same position as its parent and its `owner` member is set to
 run afterwards, possibly modifying the sprite.
 
 Returns the index of the spawned sprite on success.
+
+===== The function `con.shoot(tilenum, parentspritenum [, zvel])`
+
+Attempts to shoot a projectile with tile number `tilenum` from the sprite with
+index `parentspritenum`. The z velocity can be overridden by passing `zvel`.
+
+// TODO: document how zvel is interpreted
+
+Returns the index of the spawned sprite on success, or -1 otherwise.
 
 
 The `fs` module -- virtual file system facilities

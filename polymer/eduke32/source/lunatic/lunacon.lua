@@ -2507,21 +2507,21 @@ local Cinner = {
         / ACS".timetosleep=%1",
 
     eshoot = cmd(D)
-        / "_gv.RETURN=_con._shoot(_aci,%1)",
+        / "_gv.RETURN=_con.shoot(%1,_aci)",
     eshootvar = cmd(R)
-        / "_gv.RETURN=_con._shoot(_aci,%1)",
+        / "_gv.RETURN=_con.shoot(%1,_aci)",
     ezshoot = cmd(R,D)
-        / "_gv.RETURN=_con._shoot(_aci,%2,%1)",
+        / "_gv.RETURN=_con.shoot(%2,_aci,%1)",
     ezshootvar = cmd(R,R)
-        / "_gv.RETURN=_con._shoot(_aci,%2,%1)",
+        / "_gv.RETURN=_con.shoot(%2,_aci,%1)",
     shoot = cmd(D)
-        / "_con._shoot(_aci,%1)",
+        / "_con.shoot(%1,_aci)",
     shootvar = cmd(R)
-        / "_con._shoot(_aci,%1)",
+        / "_con.shoot(%1,_aci)",
     zshoot = cmd(R,D)
-        / "_con._shoot(_aci,%2,%1)",
+        / "_con.shoot(%2,_aci,%1)",
     zshootvar = cmd(R,R)
-        / "_con._shoot(_aci,%2,%1)",
+        / "_con.shoot(%2,_aci,%1)",
 
     fall = cmd()
         / "actor.fall(_aci)",
