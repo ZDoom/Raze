@@ -107,6 +107,12 @@ void G_ClearCameraView(DukePlayer_t *ps)
             sprite[k].yvel = 0;
 }
 
+// Manhattan distance between wall-point and sprite.
+static int32_t G_WallSpriteDist(const walltype *wal, const spritetype *spr)
+{
+    return klabs(wal->x - spr->x) + klabs(wal->y - spr->y);
+}
+
 void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3, int32_t hp4)
 {
     int32_t d, q, stati;
@@ -143,19 +149,13 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
             {
                 const int32_t w2 = wall[startwall].point2;
 
-                d = klabs(wall[startwall].x-s->x)+klabs(wall[startwall].y-s->y);
-                if (d < r)
+                if (G_WallSpriteDist(&wall[startwall], s) < r ||
+                        G_WallSpriteDist(&wall[wall[w2].point2], s) < r)
                     Sect_DamageCeiling(dasect);
-                else
-                {
-                    d = klabs(wall[wall[w2].point2].x-s->x)+klabs(wall[wall[w2].point2].y-s->y);
-                    if (d < r)
-                        Sect_DamageCeiling(dasect);
-                }
             }
 
             for (w=startwall,wal=&wall[startwall]; w<endwall; w++,wal++)
-                if ((klabs(wal->x-s->x)+klabs(wal->y-s->y)) < r)
+                if (G_WallSpriteDist(wal, s) < r)
                 {
                     int16_t sect = -1;
                     const int32_t nextsect = wal->nextsector;
@@ -2650,7 +2650,23 @@ static void Proj_BounceOffWall(spritetype *s, int32_t j)
     s->ang = ((k<<1) - s->ang)&2047;
 }
 
-#define PROJ_DECAYVELOCITY s->xvel >>= 1, s->zvel >>= 1
+#define PROJ_DECAYVELOCITY(s) s->xvel >>= 1, s->zvel >>= 1
+
+// Maybe damage a ceiling or floor as the consequence of projectile impact.
+// Returns 1 if sprite <s> should be killed.
+// NOTE: Compare with Proj_MaybeDamageCF2() in sector.c
+static int32_t Proj_MaybeDamageCF(const spritetype *s)
+{
+    if (s->zvel < 0)
+    {
+        if ((sector[s->sectnum].ceilingstat&1) && sector[s->sectnum].ceilingpal == 0)
+            return 1;
+
+        Sect_DamageCeiling(s->sectnum);
+    }
+
+    return 0;
+}
 
 ACTOR_STATIC void Proj_MoveCustom(int32_t i)
 {
@@ -2804,7 +2820,7 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
                         A_PlaySound(proj->bsound, i);
 
                     if (proj->workslike & PROJECTILE_LOSESVELOCITY)
-                        PROJ_DECAYVELOCITY;
+                        PROJ_DECAYVELOCITY(s);
 
                     if (!(proj->workslike & PROJECTILE_FORCEIMPACT))
                         return;
@@ -2868,7 +2884,7 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
                             A_PlaySound(proj->bsound, i);
 
                         if (proj->workslike & PROJECTILE_LOSESVELOCITY)
-                            PROJ_DECAYVELOCITY;
+                            PROJ_DECAYVELOCITY(s);
 
                         return;
                     }
@@ -2878,15 +2894,10 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
             case 16384:
                 setsprite(i, &davect);
 
-                if (s->zvel < 0)
+                if (Proj_MaybeDamageCF(s))
                 {
-                    if (sector[s->sectnum].ceilingstat&1 && sector[s->sectnum].ceilingpal == 0)
-                    {
-                        A_DeleteSprite(i);
-                        return;
-                    }
-
-                    Sect_DamageCeiling(s->sectnum);
+                    A_DeleteSprite(i);
+                    return;
                 }
 
                 if (proj->workslike & PROJECTILE_BOUNCESOFFWALLS)
@@ -2900,7 +2911,7 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
                         A_PlaySound(proj->bsound, i);
 
                     if (proj->workslike & PROJECTILE_LOSESVELOCITY)
-                        PROJ_DECAYVELOCITY;
+                        PROJ_DECAYVELOCITY(s);
 
                     return;
                 }
@@ -3132,14 +3143,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 case 16384:
                     setsprite(i, &davect);
 
-                    if (s->zvel < 0)
-                    {
-                        if (sector[s->sectnum].ceilingstat&1)
-                            if (sector[s->sectnum].ceilingpal == 0)
-                                KILLIT(i);
-
-                        Sect_DamageCeiling(s->sectnum);
-                    }
+                    if (Proj_MaybeDamageCF(s))
+                        KILLIT(i);
 
                     if (s->picnum == FREEZEBLAST)
                     {

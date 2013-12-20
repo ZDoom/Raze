@@ -684,7 +684,7 @@ local FADE_SPEED = {
     5,
     127,  -- freezer; such a fast fade is not visible, but it clears any
           -- existing one (if of higher priority)
-    [WEAPON.GROW] = 9.9,  -- test banker's rouding -- should be like 10
+    [WEAPON.GROW] = 9.9,  -- test banker's rounding -- should be like 10
 }
 
 -- Test player[]:fadecol(), a better palfrom.
@@ -711,7 +711,7 @@ gameevent
 
     function(aci, pli)
         local ps = player[pli]
-        -- WARNING: This function uses INTERNAL interfaces.
+        -- WARNING: _pals in INTERNAL and off-limits to users!
         local curf = ps._pals.f
         if (curf > last_f) then
             -- Starting a tint

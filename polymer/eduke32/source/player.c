@@ -599,6 +599,24 @@ static void HandleHitWall(hitdata_t *hit)
             hit->wall = hitwal->nextwall;
 }
 
+// Maybe damage a ceiling or floor as the consequence of projectile impact.
+// Returns 1 if projectile hit a parallaxed ceiling.
+// NOTE: Compare with Proj_MaybeDamageCF() in actors.c
+static int32_t Proj_MaybeDamageCF2(int32_t zvel, int32_t hitsect)
+{
+    if (zvel < 0)
+    {
+        Bassert(hitsect >= 0);
+
+        if (sector[hitsect].ceilingstat&1)
+            return 1;
+
+        Sect_DamageCeiling(hitsect);
+    }
+
+    return 0;
+}
+
 // Finish shooting hitscan weapon from player <p>. <k> is the inserted SHOTSPARK1.
 // * <spawnatimpacttile> is passed to Proj_MaybeSpawn()
 // * <decaltile> and <damagewalltile> are for wall impact
@@ -614,16 +632,11 @@ static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i
 {
     if (hit->wall == -1 && hit->sprite == -1)
     {
-        if (zvel < 0)
+        if (Proj_MaybeDamageCF2(zvel, hit->sect))
         {
-            if (sector[hit->sect].ceilingstat&1)
-            {
-                sprite[k].xrepeat = 0;
-                sprite[k].yrepeat = 0;
-                return -1;
-            }
-            else
-                Sect_DamageCeiling(hit->sect);
+            sprite[k].xrepeat = 0;
+            sprite[k].yrepeat = 0;
+            return -1;
         }
 
         Proj_MaybeSpawn(k, spawnatimpacttile, hit);
@@ -1272,8 +1285,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 
             if (hit.wall == -1 && hit.sprite == -1 && hit.sect >= 0)
             {
-                if (zvel < 0 && (sector[hit.sect].ceilingstat&1) == 0)
-                    Sect_DamageCeiling(hit.sect);
+                Proj_MaybeDamageCF2(zvel, hit.sect);
             }
             else if (hit.sprite >= 0) A_DamageObject(hit.sprite,j);
             else if (hit.wall >= 0 && wall[hit.wall].picnum != ACCESSSWITCH && wall[hit.wall].picnum != ACCESSSWITCH2)
