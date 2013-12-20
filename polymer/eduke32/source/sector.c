@@ -569,6 +569,9 @@ void G_OperateSectors(int32_t sn, int32_t ii)
                 else wallfind[1] = i;
             }
 
+        if (wallfind[1] == -1)
+            return;
+
         for (j=0; j<2; j++)
         {
             if ((wall[wallfind[j]].x == dax) && (wall[wallfind[j]].y == day))
