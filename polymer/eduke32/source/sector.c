@@ -1874,9 +1874,12 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
     }
 }
 
-int32_t Sect_DamageCeiling(int32_t sn)
+int32_t Sect_DamageCeilingOrFloor(int32_t floorp, int32_t sn)
 {
     int32_t i, j;
+
+    if (floorp)
+        return 0;
 
     switch (DYNAMICTILEMAP(sector[sn].ceilingpicnum))
     {

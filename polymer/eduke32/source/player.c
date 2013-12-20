@@ -611,7 +611,20 @@ static int32_t Proj_MaybeDamageCF2(int32_t zvel, int32_t hitsect)
         if (sector[hitsect].ceilingstat&1)
             return 1;
 
-        Sect_DamageCeiling(hitsect);
+        Sect_DamageCeilingOrFloor(0, hitsect);
+    }
+    else if (zvel > 0)
+    {
+        Bassert(hitsect >= 0);
+
+        if (sector[hitsect].floorstat&1)
+        {
+            // Keep original Duke3D behavior: pass projectiles through
+            // parallaxed ceilings, but NOT through such floors.
+            return 0;
+        }
+
+        Sect_DamageCeilingOrFloor(1, hitsect);
     }
 
     return 0;

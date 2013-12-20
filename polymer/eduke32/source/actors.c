@@ -143,15 +143,19 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
             const int32_t dasect = sectorlist[sectcnt++];
             const int32_t startwall = sector[dasect].wallptr;
             const int32_t endwall = startwall+sector[dasect].wallnum;
+
             int32_t w;
+            const int32_t w2 = wall[startwall].point2;
 
-            if (((sector[dasect].ceilingz-s->z)>>8) < r)
+            // Check if "hit" 1st or 3rd wall-point. This mainly makes sense
+            // for rectangular "ceiling light"-style sectors.
+            if (G_WallSpriteDist(&wall[startwall], s) < r ||
+                    G_WallSpriteDist(&wall[wall[w2].point2], s) < r)
             {
-                const int32_t w2 = wall[startwall].point2;
-
-                if (G_WallSpriteDist(&wall[startwall], s) < r ||
-                        G_WallSpriteDist(&wall[wall[w2].point2], s) < r)
-                    Sect_DamageCeiling(dasect);
+                if (((sector[dasect].ceilingz-s->z)>>8) < r)
+                    Sect_DamageCeilingOrFloor(0, dasect);
+                if (((s->z-sector[dasect].floorz)>>8) < r)
+                    Sect_DamageCeilingOrFloor(1, dasect);
             }
 
             for (w=startwall,wal=&wall[startwall]; w<endwall; w++,wal++)
@@ -2662,7 +2666,18 @@ static int32_t Proj_MaybeDamageCF(const spritetype *s)
         if ((sector[s->sectnum].ceilingstat&1) && sector[s->sectnum].ceilingpal == 0)
             return 1;
 
-        Sect_DamageCeiling(s->sectnum);
+        Sect_DamageCeilingOrFloor(0, s->sectnum);
+    }
+    else if (s->zvel > 0)
+    {
+        if ((sector[s->sectnum].floorstat&1) && sector[s->sectnum].floorpal == 0)
+        {
+            // Keep original Duke3D behavior: pass projectiles through
+            // parallaxed ceilings, but NOT through such floors.
+            return 0;
+        }
+
+        Sect_DamageCeilingOrFloor(1, s->sectnum);
     }
 
     return 0;

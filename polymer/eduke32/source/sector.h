@@ -128,7 +128,7 @@ int32_t ldist(const spritetype *s1, const spritetype *s2);
 int32_t dist(const spritetype *s1, const spritetype *s2);
 int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite);
 void P_CheckSectors(int32_t snum);
-int32_t Sect_DamageCeiling(int32_t sn);
+int32_t Sect_DamageCeilingOrFloor(int32_t floorp, int32_t sn);
 int32_t SetAnimation(int32_t animsect,int32_t *animptr,int32_t thegoal,int32_t thevel);
 
 #include "sector_inline.h"
