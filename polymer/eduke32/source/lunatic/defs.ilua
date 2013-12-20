@@ -2091,7 +2091,7 @@ local function our_gameactor(args)
 
         -- Register our EVENT_ANIMATEALLSPRITES only now so that it is not
         -- called if there are no 'animate' definitions.
-        gameevent_internal(95, animate_all_sprites)  -- EVENT_ANIMATEALLSPRITES
+        gameevent_internal(96, animate_all_sprites)  -- EVENT_ANIMATEALLSPRITES
     end
 
     -- All good, set the tile bits in initial run and register the actor!

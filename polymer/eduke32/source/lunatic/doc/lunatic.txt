@@ -942,7 +942,7 @@ sprite by `zofs` units''.
 Provides a mapping of symbolic names to values applicable to
 <<sprite_cstat,`sprite[i].cstat`>>.  These name single bits:
 `BLOCK`, `TRANS1`, `XFLIP`, `YFLIP`, `ALIGNWALL`, `ALIGNFLOOR`, `ONESIDE`,
-`CENTER`, `HITSCAN`, `TRANS2`,
+`CENTER`, `HITSCAN`, `TRANS2`, `INVISIBLE`,
 while the following denote _bit masks_: `ALIGN_BITMASK`, `TRANS_BITMASK`.
 
 ===== `spriteext`
@@ -2231,6 +2231,45 @@ cheat give a different ``full'' amount. A negative value is ignored.
 
 `CHEATGETSTEROIDS`, `CHEATGETHEAT`, `CHEATGETBOOT`, `CHEATGETSHIELD`,
 `CHEATGETSCUBA`, `CHEATGETHOLODUKE`, `CHEATGETJETPACK`, `CHEATGETFIRSTAID`.
+
+[float]
+`EVENT_DAMAGEHPLANE`
+~~~~~~~~~~~~~~~~~~~~
+
+Triggered when a ceiling or a floor (collectively called ``hplane'') is
+determined as being damaged. The event receives `RETURN` as a value that can be
+decoded into two parts by passing it to `sector.damagehplane_whatsect`:
+
+[source]
+----------
+local what, sectnum = sector.damagehplane_whatsect(gv.RETURN)
+----------
+Then,
+
+* `what` is one of the strings `'ceiling'` or `'floor'` and
+* `sectnum` is the sector whose hplane is considered to be damaged.
+
+When `EVENT_DAMAGEHPLANE` is left, `RETURN` is examined to determine the
+further action. It may be one of three values given by `sector.DAMAGEHPLANE`
+(abbreviated `DHP` in the following):
+
+* `DHP.SUPPRESS`: the hard-wired code that would subsequently be run is
+  suppressed entirely
+
+* `DHP.DEFAULT`: The default code for hplane damaging is run. For floors, it
+  does nothing. For ceilings, it checks whether it has a tile number in a
+  hard-coded set of values depicting a breakable light. In that case, the tile
+  number is changed to the ``broken'' version and a ``glass breaking'' effect
+  consisting of playing a sound and spawning glass sprites is started. Also,
+  certain code related to SE3 and SE12 effects is run.
+
+* `DHP.GLASSBREAK`: The light-breaking effect described above is run
+  unconditionally, but *without* changing the hplane's tile number, which is
+  assumed to have been done by the event.
+
+If value last assigned to `RETURN` is not one in the above-mentioned set when
+`EVENT_DAMAGEHPLANE` is left, the behavior is undefined.
+
 
 [float]
 TODO

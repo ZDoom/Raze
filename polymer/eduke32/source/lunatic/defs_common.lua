@@ -884,7 +884,7 @@ static_members.sector.STAT = conststruct
     TRANS2 = 128,
     TRANS1 = 256,
     BLOCK = 512,
-    HITSCAN = 1024,
+    HITSCAN = 2048,
 
     FLIP_BITMASK = 16+32,
     ORIENT_BITMASK = 4+16+32,
@@ -936,6 +936,8 @@ static_members.sprite.CSTAT = conststruct
 
     ALIGN_BITMASK = 16+32,
     TRANS_BITMASK = 2+512,
+
+    INVISIBLE = 32768,
 }
 
 local bitar = require("bitar")
@@ -943,6 +945,19 @@ local bitar = require("bitar")
 -- array. Potential unaligned access. Also, only works on little-endian
 -- machines. This sucks.
 static_members.sector.showbitmap = bitar.new(ffiC.MAXSECTORS-1, ffi.cast("int32_t *", ffiC.show2dsector))
+
+static_members.sector.DAMAGEHPLANE = conststruct
+{
+    SUPPRESS = -1,
+    DEFAULT = 0,
+    GLASSBREAK = 2^20,
+}
+
+function static_members.sector.damagehplane_whatsect(RETURN)
+    local what = (band(RETURN, 65536)~=0) and "ceiling" or "floor"
+    local sectnum = band(RETURN, ffiC.MAXSECTORS-1)
+    return what, sectnum
+end
 
 local function iter_allsprites(_, curi)
     for i=curi+1,ffiC.MAXSPRITES-1 do

@@ -272,6 +272,8 @@ end
 function insertsprite(tab_or_tilenum, ...)
     local tilenum, pos, sectnum  -- mandatory
     -- optional with defaults:
+    -- TODO: swap order of owner and statnum?
+    -- XXX: owner -1 valid???
     local owner, statnum
     local shade, xrepeat, yrepeat, ang, xvel, zvel = 0, 48, 48, 0, 0, 0
 

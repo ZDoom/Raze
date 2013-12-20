@@ -17,7 +17,7 @@ MAXGAMETYPES = 16
 
 MAXSKILLS = 7
 
-MAXEVENTS = 95  -- KEEPINSYNC with EVENT_* list
+MAXEVENTS = 96  -- KEEPINSYNC with EVENT_* list
 MAXSOUNDS = 4096
 
 MAXSESSIONVARS = 8  -- KEEPINSYNC lunatic_game.c
@@ -170,7 +170,8 @@ EVENT = {
     EVENT_SAVEGAME = 92,
     EVENT_PREGAME = 93,
     EVENT_CHANGEMENU = 94,
---    EVENT_ANIMATEALLSPRITES = 95,  -- internal
+    EVENT_DAMAGEHPLANE = 95,
+--    EVENT_ANIMATEALLSPRITES = 96,  -- internal
 }
 
 -- NOTE: negated values are not exported to the ffi.C namespace or CON.

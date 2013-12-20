@@ -1874,12 +1874,26 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
     }
 }
 
+// NOTE: return value never examined in any of the callers.
 int32_t Sect_DamageCeilingOrFloor(int32_t floorp, int32_t sn)
 {
     int32_t i, j;
 
+    const int32_t RETURN_in = floorp ? 131072+sn : 65536+sn;
+    int32_t ret = VM_OnEvent(EVENT_DAMAGEHPLANE, g_player[screenpeek].ps->i, screenpeek, -1, RETURN_in);
+
+    if (ret < 0)
+        return 0;
+
     if (floorp)
         return 0;
+
+    if (ret == (1<<20))
+    {
+        // Execute the hard-coded stuff without changing picnum (expected to
+        // have been done by the event).
+        goto GLASSBREAK_CODE;
+    }
 
     switch (DYNAMICTILEMAP(sector[sn].ceilingpicnum))
     {
@@ -1889,9 +1903,6 @@ int32_t Sect_DamageCeilingOrFloor(int32_t floorp, int32_t sn)
     case WALLLIGHT4__STATIC:
     case TECHLIGHT2__STATIC:
     case TECHLIGHT4__STATIC:
-
-        A_SpawnCeilingGlass(g_player[myconnectindex].ps->i,sn,10);
-        A_PlaySound(GLASS_BREAKING,g_player[screenpeek].ps->i);
 
         if (sector[sn].ceilingpicnum == WALLLIGHT1)
             sector[sn].ceilingpicnum = WALLLIGHTBUST1;
@@ -1911,6 +1922,9 @@ int32_t Sect_DamageCeilingOrFloor(int32_t floorp, int32_t sn)
         if (sector[sn].ceilingpicnum == TECHLIGHT4)
             sector[sn].ceilingpicnum = TECHLIGHTBUST4;
 
+    GLASSBREAK_CODE:
+        A_SpawnCeilingGlass(g_player[myconnectindex].ps->i,sn,10);
+        A_PlaySound(GLASS_BREAKING,g_player[screenpeek].ps->i);
 
         if (sector[sn].hitag == 0)
         {
