@@ -135,6 +135,13 @@ extern int32_t krd_print(const char *filename);
 
 void G_OpenDemoWrite(void)
 {
+#ifdef LUNATIC
+    // TODO: Currently, we can't diff gamevars in Lunatic...
+    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "DEMOS UNSUPPORTED IN LUNATIC BUILD");
+    P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+    ud.recstat = ud.m_recstat = 0;
+    return;
+#else
     char demofn[BMAX_PATH];
     int32_t i, demonum=1;
 
@@ -151,7 +158,7 @@ void G_OpenDemoWrite(void)
         ud.recstat = ud.m_recstat = 0;
         return;
     }
-#if !defined LUNATIC
+# if !defined LUNATIC
     if (demorec_diffs_cvar && !demorec_force_cvar)
         for (i=1; i<g_scriptSize-2; i++)
         {
@@ -170,7 +177,7 @@ void G_OpenDemoWrite(void)
                 return;
             }
         }
-#endif
+# endif
     do
     {
         if (demonum == MAXDEMOS)
@@ -219,10 +226,11 @@ error_wopen_demo:
     ud.reccnt = 0;
     ud.recstat = ud.m_recstat = 1;  //
 
-#if KRANDDEBUG
+# if KRANDDEBUG
     krd_enable(1);
-#endif
+# endif
     g_demo_cnt = 1;
+#endif
 }
 
 // demo_profile: < 0: prepare
