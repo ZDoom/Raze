@@ -1491,6 +1491,12 @@ void OSD_Draw(void)
 
     for (; lines>0; lines--, row--)
     {
+        // XXX: May happen, which would ensue an oob if not checked.
+        // Last char accessed is osdtext[topoffs + osdcols-1].
+        // Reproducible by running test.lua with -Lopts=diag
+        // and scrolling to the top.
+        if (topoffs + osdcols-1 >= sizeof(osdtext))
+            break;
         drawosdstr(0,row,osdtext+topoffs,osdcols,osdtextshade,osdtextpal);
         topoffs+=osdcols;
     }
