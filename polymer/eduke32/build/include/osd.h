@@ -16,17 +16,6 @@ typedef struct {
 	const char *raw;
 } osdfuncparm_t;
 
-typedef struct _symbol
-{
-    const char *name;
-    struct _symbol *next;
-
-    const char *help;
-    int32_t (*func)(const osdfuncparm_t *);
-} symbol_t;
-
-extern symbol_t *symbols;
-
 const char *OSD_StripColors(char *out, const char *in);
 
 enum cvartype_t
@@ -167,6 +156,7 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
 
 int32_t osdcmd_cvar_set(const osdfuncparm_t *parm);
 int32_t OSD_RegisterCvar(const cvar_t *cvar);
+void OSD_WriteAliases(FILE *fp);
 void OSD_WriteCvars(FILE *fp);
 
 // these correspond to the Duke palettes, so they shouldn't really be here

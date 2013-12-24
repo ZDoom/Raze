@@ -11,8 +11,17 @@
 #include "scancodes.h"
 #include "crc32.h"
 
+typedef struct _symbol
+{
+    const char *name;
+    struct _symbol *next;
+
+    const char *help;
+    int32_t (*func)(const osdfuncparm_t *);
+} symbol_t;
+
 static mutex_t m_osdprintf;
-symbol_t *symbols = NULL;
+static symbol_t *symbols = NULL;
 static symbol_t *addnewsymbol(const char *name);
 static symbol_t *findsymbol(const char *name, symbol_t *startingat);
 static symbol_t *findexactsymbol(const char *name);
@@ -2151,6 +2160,14 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         OSD_Printf("\n");
 
     return OSDCMD_OK;
+}
+
+void OSD_WriteAliases(FILE *fp)
+{
+    symbol_t *symb;
+    for (symb=symbols; symb!=NULL; symb=symb->next)
+        if (symb->func == (void *)OSD_ALIAS)
+            Bfprintf(fp, "alias \"%s\" \"%s\"\n", symb->name, symb->help);
 }
 
 void OSD_WriteCvars(FILE *fp)
