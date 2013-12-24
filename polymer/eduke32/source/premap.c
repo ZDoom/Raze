@@ -1779,6 +1779,11 @@ void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int3
     realloc_and_copy_musicfn(level_number, levnamebuf, 0);
 }
 
+static int G_HaveUserMap(void)
+{
+    return (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0);
+}
+
 int32_t G_EnterLevel(int32_t g)
 {
     int32_t i, mii;
@@ -1810,7 +1815,7 @@ int32_t G_EnterLevel(int32_t g)
         setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
     }	       
 
-    if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
+    if (G_HaveUserMap())
     {
         int32_t volume, level;
 
@@ -1833,7 +1838,7 @@ int32_t G_EnterLevel(int32_t g)
 
     if (MapInfo[mii].name == NULL || MapInfo[mii].filename == NULL)
     {
-        if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
+        if (G_HaveUserMap())
         {
             if (MapInfo[mii].filename == NULL)
                 MapInfo[mii].filename = (char *)Bcalloc(BMAX_PATH, sizeof(uint8_t));
@@ -1855,7 +1860,7 @@ int32_t G_EnterLevel(int32_t g)
 
     ud.screen_size = i;
 
-    if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
+    if (G_HaveUserMap())
     {
         Bstrcpy(levname, boardfilename);
         Bsprintf(apptitle,"%s - %s - " APPNAME,levname,g_gameNamePtr);
@@ -1865,46 +1870,25 @@ int32_t G_EnterLevel(int32_t g)
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
 
-    if (!VOLUMEONE)
+    /***** Load the map *****/
     {
-        if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
+        DukePlayer_t *ps = g_player[0].ps;
+
+        if (!VOLUMEONE && G_HaveUserMap())
         {
-            if (loadboard(boardfilename, 0, &g_player[0].ps->pos, &g_player[0].ps->ang,
-                          &g_player[0].ps->cursectnum) < 0)
+            if (loadboard(boardfilename, 0, &ps->pos, &ps->ang, &ps->cursectnum) < 0)
             {
                 OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",boardfilename);
-
-                //G_GameExit(tempbuf);
                 return 1;
             }
 
             G_LoadMapHack(levname, boardfilename);
-
             G_SetupFilenameBasedMusic(levname, boardfilename, ud.m_level_number);
         }
-        else if (loadboard(MapInfo[mii].filename, 0, &g_player[0].ps->pos, &g_player[0].ps->ang,
-                           &g_player[0].ps->cursectnum) < 0)
+        else if (loadboard(MapInfo[mii].filename, VOLUMEONE, &ps->pos, &ps->ang, &ps->cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",
                        MapInfo[mii].filename);
-
-            //G_GameExit(tempbuf);
-            return 1;
-        }
-        else
-        {
-            G_LoadMapHack(levname, MapInfo[mii].filename);
-        }
-    }
-    else
-    {
-        if (loadboard(MapInfo[mii].filename, 1, &g_player[0].ps->pos, &g_player[0].ps->ang,
-                      &g_player[0].ps->cursectnum) < 0)
-        {
-            OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",
-                       MapInfo[mii].filename);
-
-            //G_GameExit(tempbuf);
             return 1;
         }
         else
