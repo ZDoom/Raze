@@ -1880,7 +1880,9 @@ int32_t Sect_DamageCeilingOrFloor(int32_t floorp, int32_t sn)
     int32_t i, j;
 
     const int32_t RETURN_in = floorp ? 131072+sn : 65536+sn;
-    int32_t ret = VM_OnEvent(EVENT_DAMAGEHPLANE, g_player[screenpeek].ps->i, screenpeek, -1, RETURN_in);
+    // NOTE: pass RETURN in the dist argument, too.
+    int32_t ret = VM_OnEvent(EVENT_DAMAGEHPLANE, g_player[screenpeek].ps->i, screenpeek,
+                             RETURN_in, RETURN_in);
 
     if (ret < 0)
         return 0;

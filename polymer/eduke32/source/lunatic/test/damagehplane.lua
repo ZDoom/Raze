@@ -59,10 +59,10 @@ local DHP = sector.DAMAGEHPLANE
 
 gameevent
 {
-    gv.EVENT_DAMAGEHPLANE,
+    "DAMAGEHPLANE",
 
-    function(aci, pli, dist)
-        local what, sectnum = sector.damagehplane_whatsect(gv.RETURN)
+    function(aci, pli, RETURN)
+        local what, sectnum = sector.damagehplane_whatsect(RETURN)
         local sec = sector[sectnum]
 
         -- Part I: make various screens breakable when it's a ceiling picnum.
@@ -71,9 +71,21 @@ gameevent
             if (sec.ceilingpicnum >= 263 and sec.ceilingpicnum <= 275) then
                 sec:set_ceilingpicnum(D.W_SCREENBREAK + gv.krand()%3)
                 gv.RETURN = DHP.GLASSBREAK
-                return
+                return con.longjmp()
             end
         end
+
+        gv.RETURN = DHP.DEFAULT
+    end
+}
+
+gameevent
+{
+    "DAMAGEHPLANE",
+
+    function(aci, pli, RETURN)
+        local what, sectnum = sector.damagehplane_whatsect(RETURN)
+        local sec = sector[sectnum]
 
         -- Part II: breakable TROR hplanes
         local cf = sec[what]
@@ -90,7 +102,7 @@ gameevent
             breaker.extra = cf.bunch
 
             gv.RETURN = DHP.SUPPRESS
-            return
+            return con.longjmp()
         end
 
         gv.RETURN = DHP.DEFAULT

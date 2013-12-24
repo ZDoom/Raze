@@ -2242,19 +2242,27 @@ cheat give a different ``full'' amount. A negative value is ignored.
 ~~~~~~~~~~~~~~~~~~~~
 
 Triggered when a ceiling or a floor (collectively called ``hplane'') is
-determined as being damaged. The event receives `RETURN` as a value that can be
-decoded into two parts by passing it to `sector.damagehplane_whatsect`:
+determined as being damaged. The event receives `RETURN` in the variable
+`gv.RETURN` as well as the third, `dist` argument to the event
+<<gameactor,callback function>>.footnote:[Passing `RETURN` in the `dist`
+argument serves the possibility to create chained callbacks for
+`EVENT_DAMAGEHPLANE`. Otherwise, once `gv.RETURN` were assigned to, there would
+be no way to obtain its original value in subsequent chained callbacks.] This
+value can be decoded into two parts by passing it to
+`sector.damagehplane_whatsect`:
 
 [source]
 ----------
-local what, sectnum = sector.damagehplane_whatsect(gv.RETURN)
+function(aci, pli, RETURN)
+   local what, sectnum = sector.damagehplane_whatsect(RETURN)
+   -- (...)
 ----------
 Then,
 
 * `what` is one of the strings `'ceiling'` or `'floor'` and
 * `sectnum` is the sector whose hplane is considered to be damaged.
 
-When `EVENT_DAMAGEHPLANE` is left, `RETURN` is examined to determine the
+When `EVENT_DAMAGEHPLANE` is left, `gv.RETURN` is examined to determine the
 further action. It may be one of three values given by `sector.DAMAGEHPLANE`
 (abbreviated `DHP` in the following):
 
