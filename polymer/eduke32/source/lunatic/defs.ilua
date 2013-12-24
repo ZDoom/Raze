@@ -755,7 +755,7 @@ end
 
 --== "player" global, needed by the "control" module ==--
 
-local player_static_members = {}
+local player_static_members = defs_c.static_members_tab()
 
 --[[
 player_static_members._INPUT_BITS = defs_c.conststruct
@@ -837,7 +837,7 @@ end
 local player_holdskey = player_static_members.holdskey
 
 -- Actor flags
-local actor_static_members = {}
+local actor_static_members = defs_c.static_members_tab()
 do
     local our_SFLAG = {}
     local ext_SFLAG = con_lang.labels[4]  -- external actor flags only
@@ -923,7 +923,7 @@ function actor_static_members.delete(i)
     CF.A_DeleteSprite(i)
 end
 
-local tile_static_members = {}
+local tile_static_members = defs_c.static_members_tab()
 do
     tile_static_members.sizx = defs_c.creategtab(ffiC.tilesizx, ffiC.MAXTILES, "tilesizx[]")
     tile_static_members.sizy = defs_c.creategtab(ffiC.tilesizy, ffiC.MAXTILES, "tilesizy[]")
@@ -2430,6 +2430,7 @@ if (ffiC._DEBUG_LUNATIC ~= 0) then
                             local codestr = [[
 do
     local _bit,_math=require'bit',require'math'
+    local _con=require'con'
     local _band,_gv=_bit.band,gv
 local tmp=]]..
                             membaccode:gsub("%%s","0").." end"

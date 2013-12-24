@@ -1769,10 +1769,10 @@ The total number of frames in the animation.
 The number of consecutive tiles used to construct one frame of the animation,
 as viewed from different angles. Valid values are 1, 3, 5, 7 and 8. In
 addition, -5 and -7 are allowed, which behave like the corresponding positive
-++viewtype++s, but effectively mirror the actor on the vertical axis. This can
-be useful if tile data is available that has the opposite orientation of what
-EDuke32 uses.  See the {wiki_action}[Action entry] in the EDuke32 wiki for how
-the views are constructed for different `viewtype` values.
+++viewtype++s, but effectively mirror the actor around the vertical axis. This
+can be useful if tile data is available that has the opposite orientation of
+what EDuke32 uses.  See the {wiki_action}[Action entry] in the EDuke32 wiki for
+how the views are constructed for different `viewtype` values.
 
 `[4] incval` (default: 1)::
 The value to add the actor's _current frame_ on each frame advance. May be -1,

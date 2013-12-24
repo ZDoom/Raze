@@ -141,6 +141,9 @@ gameevent
 
         -- actor[].t_data[] is not accessible for now
         checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
+
+        -- sprite.picnum may happen as a thinko/typo kind of error (spr.picnum was meant)
+        checkfail("local pic = sprite.picnum", "invalid access to static data")
     end
 }
 

@@ -878,9 +878,25 @@ function conststruct(tab)
     return ffi.new(table.concat(strtab))
 end
 
+do
+    local smt_mt = {
+        __index = function()
+            error("invalid access to static data", 2)
+        end
+    }
+
+    function static_members_tab()
+        return setmtonce({}, smt_mt)
+    end
+end
+
 -- Static, non-instance members. Used to hold constants, for example
 -- sprite.CSTAT.TRANS1
-local static_members = { sector={}, wall={}, sprite={} }
+local static_members = {
+    sector = static_members_tab(),
+    wall = static_members_tab(),
+    sprite = static_members_tab(),
+}
 
 static_members.sector.STAT = conststruct
 {
