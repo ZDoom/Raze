@@ -1402,7 +1402,7 @@ int32_t clipmapinfo_load(void)
         fisec[fi] = ournumsectors;
         fispr[fi] = ournumsprites;
 
-        i = loadboard(g_clipMapFiles[fi], 0, &tmppos, &ang, &cs);
+        i = loadboard(g_clipMapFiles[fi], 8, &tmppos, &ang, &cs);
         if (i<0)
             continue;
         // Numsprites will now be set!
@@ -9854,7 +9854,9 @@ LUNATIC_CB int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daa
 
 // flags: 1, 2: former parameter "fromwhere"
 //           4: don't call polymer_loadboard
-// returns: -1: file not found
+//           8: don't autoexec <mapname>.cfg
+// returns: on success, number of removed sprites
+//          -1: file not found
 //          -2: invalid version
 //          -3: invalid number of sectors, walls or sprites
 //       <= -4: map-text error
@@ -10032,6 +10034,7 @@ skip_reading_mapbin:
         yax_updategrays(dapos->z);
 #endif
 
+    if ((myflags&8)==0)
     {
         char fn[BMAX_PATH];
 
