@@ -936,7 +936,7 @@ static void resetprestat(int32_t snum,int32_t g)
     ud.camerasprite         =-1;
     ud.eog                  = 0;
     tempwallptr             = 0;
-    camsprite               =-1;
+    g_curViewscreen               =-1;
     g_earthquakeTime          = 0;
 
     g_numInterpolations = 0;

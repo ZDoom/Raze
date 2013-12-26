@@ -75,7 +75,7 @@ G_EXTERN input_t loc;
 G_EXTERN input_t recsync[RECSYNCBUFSIZ];
 G_EXTERN int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
 G_EXTERN int16_t animatesect[MAXANIMATES];
-G_EXTERN int16_t camsprite;
+G_EXTERN int16_t g_curViewscreen;
 G_EXTERN int16_t cyclers[MAXCYCLERS][6],g_numCyclers;
 G_EXTERN int16_t g_globalRandom;
 G_EXTERN int16_t g_mirrorWall[64],g_mirrorSector[64],g_mirrorCount;

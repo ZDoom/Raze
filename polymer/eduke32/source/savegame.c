@@ -1017,7 +1017,7 @@ static const dataspec_t svgm_anmisc[] =
     { DS_SAVEFN, (void *)&sv_preanimateptrsave, 0, 1 },
     { 0, &animateptr[0], sizeof(animateptr[0]), MAXANIMATES },
     { DS_SAVEFN|DS_LOADFN , (void *)&sv_postanimateptr, 0, 1 },
-    { 0, &camsprite, sizeof(camsprite), 1 },
+    { 0, &g_curViewscreen, sizeof(g_curViewscreen), 1 },
     { 0, &msx[0], sizeof(msx[0]), sizeof(msx)/sizeof(msx[0]) },
     { 0, &msy[0], sizeof(msy[0]), sizeof(msy)/sizeof(msy[0]) },
     { 0, &g_spriteDeleteQueuePos, sizeof(g_spriteDeleteQueuePos), 1 },

@@ -345,25 +345,28 @@ int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t
 
 void G_AnimateCamSprite(void)
 {
-    int32_t i = camsprite;
+    int32_t i = g_curViewscreen;
 
 #ifdef DEBUG_VALGRIND_NO_SMC
     return;
 #endif
-    if (camsprite < 0)
+    if (g_curViewscreen < 0)
         return;
 
     if (T1 >= 4)
     {
+        const DukePlayer_t *ps = g_player[screenpeek].ps;
         T1 = 0;
 
-        if (g_player[screenpeek].ps->newowner >= 0)
-            OW = g_player[screenpeek].ps->newowner;
-        else if (OW >= 0 && dist(&sprite[g_player[screenpeek].ps->i],&sprite[i]) < 8192)
+        if (ps->newowner >= 0)
+            OW = ps->newowner;
+        else if (OW >= 0 && dist(&sprite[ps->i], &sprite[i]) < 8192)
         {
             if (waloff[TILE_VIEWSCR] == 0)
                 allocatepermanenttile(TILE_VIEWSCR,tilesizx[PN],tilesizy[PN]);
-            else walock[TILE_VIEWSCR] = 255;
+            else
+                walock[TILE_VIEWSCR] = 255;
+
             G_SetupCamTile(OW, TILE_VIEWSCR);
 #ifdef POLYMER
             // HACK: force texture update on viewscreen sprite in Polymer!

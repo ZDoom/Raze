@@ -606,11 +606,14 @@ gameevent
 {
     "DISPLAYROOMS",
 
-    function()
+    function(aci, pli)
+        local ps = player[pli]
         local cam = gv.cam
-        cam.pos.z = cam.pos.z + 64*16*math.sin(gv.totalclock/30)
 
-        local ps = player[0]
+        if (ps.newowner < 0) then
+            cam.pos.z = cam.pos.z + 64*16*math.sin(gv.totalclock/30)
+        end
+
         if (ps.cursectnum >= 0) then
             local hit = sector[ps.cursectnum]:zrangeat(cam.pos)
             if (gv.totalclock%200==0) then

@@ -7339,14 +7339,14 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             continue;
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
-            if (camsprite >= 0 && actor[OW].t_data[0] == 1)
+            if (g_curViewscreen >= 0 && actor[OW].t_data[0] == 1)
             {
                 t->picnum = STATIC;
                 t->cstat |= (rand()&12);
                 t->xrepeat += 8;
                 t->yrepeat += 8;
             }
-            else if (camsprite >= 0 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200)
+            else if (g_curViewscreen >= 0 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200)
             {
                 t->picnum = TILE_VIEWSCR;
             }

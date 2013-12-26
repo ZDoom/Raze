@@ -2244,11 +2244,11 @@ DETONATE:
             if (x < 2048)
             {
                 if (SP == 1)
-                    camsprite = i;
+                    g_curViewscreen = i;
             }
-            else if (camsprite != -1 && T1 == 1)
+            else if (g_curViewscreen != -1 && T1 == 1)
             {
-                camsprite = -1;
+                g_curViewscreen = -1;
                 T1 = 0;
                 //loadtile(s->picnum);
                 //invalidatetile(s->picnum,-1,255);
