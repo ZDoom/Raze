@@ -432,43 +432,41 @@ void G_AnimateWalls(void)
 
         }
 
-        if (wall[i].cstat&16)
-            if (wall[i].overpicnum >= W_FORCEFIELD && wall[i].overpicnum <= W_FORCEFIELD+2)
+        if ((wall[i].cstat&16) && G_GetForcefieldPicnum(i)==W_FORCEFIELD)
+        {
+            t = animwall[p].tag;
+
+            if (wall[i].cstat&254)
             {
-                t = animwall[p].tag;
+                wall[i].xpanning -= t>>10; // sintable[(t+512)&2047]>>12;
+                wall[i].ypanning -= t>>10; // sintable[t&2047]>>12;
 
-                if (wall[i].cstat&254)
+                if (wall[i].extra == 1)
                 {
-                    wall[i].xpanning -= t>>10; // sintable[(t+512)&2047]>>12;
-                    wall[i].ypanning -= t>>10; // sintable[t&2047]>>12;
-
-                    if (wall[i].extra == 1)
-                    {
-                        wall[i].extra = 0;
-                        animwall[p].tag = 0;
-                    }
-                    else
-                        animwall[p].tag+=128;
-
-                    if (animwall[p].tag < (128<<4))
-                    {
-                        if (animwall[p].tag&128)
-                            wall[i].overpicnum = W_FORCEFIELD;
-                        else wall[i].overpicnum = W_FORCEFIELD+1;
-                    }
-                    else
-                    {
-                        if ((krand()&255) < 32)
-                            animwall[p].tag = 128<<(krand()&3);
-                        else wall[i].overpicnum = W_FORCEFIELD+1;
-                    }
+                    wall[i].extra = 0;
+                    animwall[p].tag = 0;
                 }
+                else
+                    animwall[p].tag+=128;
 
+                if (animwall[p].tag < (128<<4))
+                {
+                    if (animwall[p].tag&128)
+                        wall[i].overpicnum = W_FORCEFIELD;
+                    else wall[i].overpicnum = W_FORCEFIELD+1;
+                }
+                else
+                {
+                    if ((krand()&255) < 32)
+                        animwall[p].tag = 128<<(krand()&3);
+                    else wall[i].overpicnum = W_FORCEFIELD+1;
+                }
             }
+        }
     }
 }
 
-int32_t G_ActivateWarpElevators(int32_t s,int32_t d) //Parm = sectoreffectornum
+int32_t G_ActivateWarpElevators(int32_t s, int32_t d) //Parm = sectoreffectornum
 {
     int32_t i = headspritestat[STAT_EFFECTOR], sn = sprite[s].sectnum;
 
@@ -1108,20 +1106,20 @@ void G_OperateForceFields(int32_t s, int32_t low)
         i = animwall[p].wallnum;
 
         if (low == wall[i].lotag || low == -1)
-            if (((wall[i].overpicnum >= W_FORCEFIELD) && (wall[i].overpicnum <= W_FORCEFIELD+2))
+            if (G_GetForcefieldPicnum(i) == W_FORCEFIELD
                     || (wall[i].overpicnum == BIGFORCE))
             {
                 animwall[p].tag = 0;
 
                 if (wall[i].cstat)
                 {
-                    wall[i].cstat   = 0;
+                    wall[i].cstat = 0;
 
                     if (s >= 0 && sprite[s].picnum == SECTOREFFECTOR && sprite[s].lotag == SE_30_TWO_WAY_TRAIN)
                         wall[i].lotag = 0;
                 }
                 else
-                    wall[i].cstat = 85;
+                    wall[i].cstat = FORCEFIELD_CSTAT;
             }
     }
 }
@@ -1663,23 +1661,30 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
                 int32_t switchpicnum = wal->overpicnum;
                 if (switchpicnum > W_FORCEFIELD && switchpicnum <= W_FORCEFIELD+2)
                     switchpicnum = W_FORCEFIELD;
+
                 switch (DYNAMICTILEMAP(switchpicnum))
                 {
                 case W_FORCEFIELD__STATIC:
-                    //case W_FORCEFIELD+1:
-                    //case W_FORCEFIELD+2:
                     wal->extra = 1; // tell the forces to animate
+                    /* fall-through */
                 case BIGFORCE__STATIC:
-                    updatesector(pos->x,pos->y,&sn);
-                    if (sn < 0) return;
+                    updatesector(pos->x, pos->y, &sn);
+                    if (sn < 0)
+                        return;
 
-                    if (atwith == -1)
-                        i = A_InsertSprite(sn,pos->x,pos->y,pos->z,FORCERIPPLE,-127,8,8,0,0,0,spr,5);
-                    else
                     {
-                        if (atwith == CHAINGUN)
-                            i = A_InsertSprite(sn,pos->x,pos->y,pos->z,FORCERIPPLE,-127,16+sprite[spr].xrepeat,16+sprite[spr].yrepeat,0,0,0,spr,5);
-                        else i = A_InsertSprite(sn,pos->x,pos->y,pos->z,FORCERIPPLE,-127,32,32,0,0,0,spr,5);
+                        int32_t xr=32, yr=32;
+
+                        if (atwith == -1)
+                            xr = yr = 8;
+                        else if (atwith == CHAINGUN)
+                        {
+                            xr = 16+sprite[spr].xrepeat;
+                            yr = 16+sprite[spr].yrepeat;
+                        }
+
+                        i = A_InsertSprite(sn, pos->x,pos->y,pos->z, FORCERIPPLE,
+                                           -127, xr,yr, 0,0,0,spr,5);
                     }
 
                     CS |= 18+128;
@@ -1687,7 +1692,6 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
                                   wal->y-wall[wal->point2].y)-512;
 
                     A_PlaySound(SOMETHINGHITFORCE,i);
-
                     return;
 
                 case FANSPRITE__STATIC:
@@ -1718,9 +1722,11 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
                     T3 = dawallnum;
                     A_PlaySound(GLASS_BREAKING,i);
                     return;
+
                 case STAINGLASS1__STATIC:
                     updatesector(pos->x,pos->y,&sn);
-                    if (sn < 0) return;
+                    if (sn < 0)
+                        return;
                     A_SpawnRandomGlass(spr,dawallnum,80);
                     wal->cstat = 0;
                     if (wal->nextwall >= 0)

@@ -3322,6 +3322,17 @@ void P_CheckWeaponI(int32_t snum)
 }
 #endif
 
+static void DoWallTouchDamage(const DukePlayer_t *p, int32_t obj)
+{
+    vec3_t davect;
+
+    davect.x = p->pos.x + (sintable[(p->ang+512)&2047]>>9);
+    davect.y = p->pos.y + (sintable[p->ang&2047]>>9);
+    davect.z = p->pos.z;
+
+    A_DamageWall(p->i, obj, &davect, -1);
+}
+
 static void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
 {
     if ((obj = VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, sprite[p->i].yvel, -1, obj)) == -1)
@@ -3329,7 +3340,7 @@ static void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
 
     if ((obj&49152) == 49152)
     {
-        obj &= (MAXSPRITES-1);
+        obj &= MAXSPRITES-1;
 
         if (sprite[obj].picnum == CACTUS)
         {
@@ -3339,27 +3350,28 @@ static void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
 
                 p->hurt_delay = 16;
                 P_PalFrom(p, 32, 32,0,0);
-                A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
+                A_PlaySound(DUKE_LONGTERM_PAIN, p->i);
             }
         }
         return;
     }
 
-    if ((obj&49152) != 32768) return;
+    if ((obj&49152) != 32768)
+        return;
+
     obj &= (MAXWALLS-1);
 
-    if (p->hurt_delay > 0) p->hurt_delay--;
-    else if (wall[obj].cstat&85)
+    if (p->hurt_delay > 0)
     {
-        int32_t switchpicnum = wall[obj].overpicnum;
-        if (switchpicnum>W_FORCEFIELD && switchpicnum<=W_FORCEFIELD+2)
-            switchpicnum=W_FORCEFIELD;
+        p->hurt_delay--;
+    }
+    else if (wall[obj].cstat & FORCEFIELD_CSTAT)
+    {
+        int32_t switchpicnum = G_GetForcefieldPicnum(obj);
 
         switch (DYNAMICTILEMAP(switchpicnum))
         {
         case W_FORCEFIELD__STATIC:
-            //        case W_FORCEFIELD+1:
-            //        case W_FORCEFIELD+2:
             sprite[p->i].extra -= 5;
 
             p->hurt_delay = 16;
@@ -3369,29 +3381,13 @@ static void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
             p->vel.y = -(sintable[(p->ang)&2047]<<8);
             A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
 
-            {
-                vec3_t davect;
-
-                davect.x = p->pos.x+(sintable[(p->ang+512)&2047]>>9);
-                davect.y = p->pos.y+(sintable[p->ang&2047]>>9);
-                davect.z = p->pos.z;
-                A_DamageWall(p->i,obj,&davect,-1);
-            }
-
+            DoWallTouchDamage(p, obj);
             break;
 
         case BIGFORCE__STATIC:
             p->hurt_delay = GAMETICSPERSEC;
-            {
-                vec3_t davect;
-
-                davect.x = p->pos.x+(sintable[(p->ang+512)&2047]>>9);
-                davect.y = p->pos.y+(sintable[p->ang&2047]>>9);
-                davect.z = p->pos.z;
-                A_DamageWall(p->i,obj,&davect,-1);
-            }
+            DoWallTouchDamage(p, obj);
             break;
-
         }
     }
 }

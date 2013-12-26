@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gamevars.h"
 #include "actors.h"  // actor_t
 #include "player.h"  // playerspawn_t
-
+#include "namesdyn.h"  // for G_GetForcefieldPicnum()
 
 #define MAXCYCLERS      1024
 #define MAXANIMATES     256
@@ -130,6 +130,17 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite);
 void P_CheckSectors(int32_t snum);
 int32_t Sect_DamageCeilingOrFloor(int32_t floorp, int32_t sn);
 int32_t SetAnimation(int32_t animsect,int32_t *animptr,int32_t thegoal,int32_t thevel);
+
+#define FORCEFIELD_CSTAT (64+16+4+1)
+
+// Returns W_FORCEFIELD if wall has a forcefield overpicnum, its overpicnum else.
+static inline int32_t G_GetForcefieldPicnum(int32_t wallnum)
+{
+    int32_t picnum = wall[wallnum].overpicnum;
+    if (picnum > W_FORCEFIELD && picnum <= W_FORCEFIELD+2)
+        picnum = W_FORCEFIELD;
+    return picnum;
+}
 
 #include "sector_inline.h"
 

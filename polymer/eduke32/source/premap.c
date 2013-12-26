@@ -1239,11 +1239,7 @@ static inline void prelevel(char g)
         animwall[g_numAnimWalls].tag = 0;
         animwall[g_numAnimWalls].wallnum = 0;
 
-        switchpicnum = wal->overpicnum;
-        if (wal->overpicnum > W_FORCEFIELD && wal->overpicnum <= W_FORCEFIELD+2)
-        {
-            switchpicnum = W_FORCEFIELD;
-        }
+        switchpicnum = G_GetForcefieldPicnum(i);
 
         if (switchpicnum >= 0)
         {
@@ -1262,7 +1258,7 @@ static inline void prelevel(char g)
                         tloadtile(W_FORCEFIELD+j, 0);
                 if (wal->shade > 31)
                     wal->cstat = 0;
-                else wal->cstat |= 85+256;
+                else wal->cstat |= FORCEFIELD_CSTAT|256;
 
 
                 if (wal->lotag && wal->nextwall >= 0)
