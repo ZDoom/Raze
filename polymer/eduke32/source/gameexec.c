@@ -821,15 +821,12 @@ static void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
                 new_wchoice = i;
         }
 
-        if (new_wchoice < curr_wchoice)
-            P_AddWeapon(ps, weap);
-        else
-            P_AddWeaponNoSwitch(ps, weap);
+        P_AddWeapon(ps, weap, (new_wchoice < curr_wchoice));
     }
-    else if (ps->weaponswitch & 1)
-        P_AddWeapon(ps, weap);
     else
-        P_AddWeaponNoSwitch(ps, weap);
+    {
+        P_AddWeapon(ps, weap, (ps->weaponswitch & 1));
+    }
 }
 
 #if defined LUNATIC

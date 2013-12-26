@@ -363,8 +363,7 @@ static inline void P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, u
 int32_t     A_GetHitscanRange(int32_t i);
 void        P_GetInput(int32_t snum);
 void        P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount);
-void        P_AddWeapon(DukePlayer_t *p,int32_t weapon);
-void        P_AddWeaponNoSwitch(DukePlayer_t *p,int32_t weapon);
+void        P_AddWeapon(DukePlayer_t *p,int32_t weapon, int32_t doswitch);
 void        P_CheckWeapon(DukePlayer_t *p);
 void        P_DisplayScuba(int32_t snum);
 void        P_DisplayWeapon(int32_t snum);

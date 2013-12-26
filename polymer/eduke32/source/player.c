@@ -3183,7 +3183,7 @@ void P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount)
         p->ammo_amount[weapon] = p->max_ammo_amount[weapon];
 }
 
-void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
+static void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
 {
     int32_t snum = sprite[p->i].yvel;
 
@@ -3238,10 +3238,11 @@ void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
     P_SetWeaponGamevars(snum, p);
 }
 
-void P_AddWeapon(DukePlayer_t *p, int32_t weapon)
+void P_AddWeapon(DukePlayer_t *p, int32_t weapon, int32_t doswitch)
 {
     P_AddWeaponNoSwitch(p, weapon);
-    P_ChangeWeapon(p, weapon);
+    if (doswitch)
+        P_ChangeWeapon(p, weapon);
 }
 
 void P_SelectNextInvItem(DukePlayer_t *p)
@@ -3280,7 +3281,7 @@ void P_CheckWeapon(DukePlayer_t *p)
 
         if ((p->gotweapon & (1<<weapon)) && p->ammo_amount[weapon] > 0)
         {
-            P_AddWeapon(p,weapon);
+            P_AddWeapon(p, weapon, 1);
             return;
         }
     }
@@ -3964,7 +3965,7 @@ static void P_ProcessWeapon(int32_t snum)
             {
                 (*kb) = 0;
                 if ((p->ammo_amount[HANDBOMB_WEAPON] > 0) && PIPEBOMB_CONTROL(snum) == PIPEBOMB_REMOTE)
-                    P_AddWeapon(p,HANDBOMB_WEAPON);
+                    P_AddWeapon(p, HANDBOMB_WEAPON, 1);
                 else P_CheckWeapon(p);
             }
         }
@@ -5253,7 +5254,7 @@ HORIZONLY:
                 p->subweapon |= (1<<GROW_WEAPON);
             else if (p->last_full_weapon == SHRINKER_WEAPON)
                 p->subweapon &= ~(1<<GROW_WEAPON);
-            P_AddWeapon(p, p->last_full_weapon);
+            P_AddWeapon(p, p->last_full_weapon, 1);
             return;
         }
     }

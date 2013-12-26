@@ -2843,7 +2843,7 @@ CHECKINV1:
                                 p->show_empty_weapon = 32;
                             }
                         case KNEE_WEAPON:
-                            P_AddWeapon(p, j);
+                            P_AddWeapon(p, j, 1);
                             break;
                         case HANDREMOTE_WEAPON:
                             if (k >= 0) // Found in list of [1]'s
@@ -2856,7 +2856,7 @@ CHECKINV1:
                         case HANDBOMB_WEAPON:
                         case TRIPBOMB_WEAPON:
                             if (p->ammo_amount[j] > 0 && (p->gotweapon & (1<<j)))
-                                P_AddWeapon(p, j);
+                                P_AddWeapon(p, j, 1);
                             break;
                         }
                 }
