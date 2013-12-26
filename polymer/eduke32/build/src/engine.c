@@ -188,7 +188,11 @@ palette_t palookupfog[MAXPALOOKUPS];
 
 static int32_t artversion;
 static void *pic = NULL;
-static char tilefilenum[MAXTILES];
+
+// The tile file number (tilesXXX <- this) of each tile:
+static uint8_t tilefilenum[MAXTILES];
+EDUKE32_STATIC_ASSERT(MAXTILEFILES <= 256);
+
 static int32_t tilefileoffs[MAXTILES];
 static int32_t lastageclock;
 
@@ -224,8 +228,6 @@ const char *engineerrstr = "No error";
 int32_t showfirstwall=0;
 int32_t showheightindicators=1;
 int32_t circlewall=-1;
-
-//char cachedebug = 0;
 
 qlz_state_compress *state_compress = NULL;
 qlz_state_decompress *state_decompress = NULL;
@@ -10980,6 +10982,13 @@ int32_t tile_exists(int32_t picnum)
     return (waloff[picnum] != 0 && tilesizx[picnum] > 0 && tilesizy[picnum] > 0);
 }
 
+static void artfilename_setnumber(int32_t tilefilei)
+{
+    artfilename[7] = '0' + tilefilei%10;
+    artfilename[6] = '0' + (tilefilei/10)%10;
+    artfilename[5] = '0' + (tilefilei/100)%10;
+}
+
 //
 // loadpics
 //
@@ -10999,9 +11008,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
     {
         int32_t fil;
 
-        artfilename[7] = (tilefilei%10)+48;
-        artfilename[6] = ((tilefilei/10)%10)+48;
-        artfilename[5] = ((tilefilei/100)%10)+48;
+        artfilename_setnumber(tilefilei);
 
         if ((fil = kopen4load(artfilename,0)) != -1)
         {
@@ -11124,25 +11131,9 @@ void loadtile(int16_t tilenume)
         waloff[tilenume] = (intptr_t)(artptrs[i]) + tilefileoffs[tilenume];
         faketimerhandler();
         // OSD_Printf("loaded tile %d from zip\n", tilenume);
-
         return;
     }
 #endif
-
-    if (i != artfilnum)
-    {
-        if (artfil != -1) kclose(artfil);
-        artfilnum = i;
-        artfilplc = 0L;
-
-        artfilename[7] = (i%10)+48;
-        artfilename[6] = ((i/10)%10)+48;
-        artfilename[5] = ((i/100)%10)+48;
-        artfil = kopen4load(artfilename,0);
-        faketimerhandler();
-    }
-
-//    if (cachedebug) OSD_Printf("Tile:%d\n",tilenume);
 
     // dummy tiles for highres replacements and tilefromtexture definitions
     if (faketilesiz[tilenume])
@@ -11166,15 +11157,32 @@ void loadtile(int16_t tilenume)
         return;
     }
 
+    // Allocate storage if necessary.
     if (waloff[tilenume] == 0)
     {
         walock[tilenume] = 199;
         allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
     }
 
+    // Potentially switch open ART file.
+    if (i != artfilnum)
+    {
+        if (artfil != -1)
+            kclose(artfil);
+
+        artfilnum = i;
+        artfilplc = 0L;
+
+        artfilename_setnumber(i);
+        artfil = kopen4load(artfilename, 0);
+
+        faketimerhandler();
+    }
+
+    // Seek to the right position.
     if (artfilplc != tilefileoffs[tilenume])
     {
-        klseek(artfil,tilefileoffs[tilenume]-artfilplc,BSEEK_CUR);
+        klseek(artfil, tilefileoffs[tilenume], BSEEK_SET);
         faketimerhandler();
     }
 
@@ -11218,18 +11226,18 @@ intptr_t allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
     int32_t dasiz;
 
-    if ((xsiz <= 0) || (ysiz <= 0) || ((unsigned)tilenume >= (unsigned)MAXTILES))
-        return(0);
+    if (xsiz <= 0 || ysiz <= 0 || (unsigned)tilenume >= MAXTILES)
+        return 0;
 
     dasiz = xsiz*ysiz;
 
     walock[tilenume] = 255;
-    allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
+    allocache(&waloff[tilenume], dasiz, &walock[tilenume]);
 
     set_tilesiz(tilenume, xsiz, ysiz);
     Bmemset(&picanm[tilenume], 0, sizeof(picanm_t));
 
-    return(waloff[tilenume]);
+    return waloff[tilenume];
 }
 
 #if 0
