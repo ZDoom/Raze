@@ -1946,7 +1946,7 @@ In Lunatic, there are two functions that insert a sprite into the game world.
 They mainly differ in how they are used, and to which extent they imply
 ``hard-coded'' behavior.
 
-===== The function `con.insertsprite{tilenum, pos, sectnum [, owner [, statnum]] [key=val...]}`
+===== The function `con.insertsprite{tilenum, pos, sectnum [, statnum [, owner]] [key=val...]}`
 
 Inserts a new sprite into the game with the properties given as input
 arguments. If the world already contains the maximum number of sprites
@@ -1957,11 +1957,26 @@ cleared. No additional ``hard-wired'' C code is run.
 
 Returns the index of the inserted sprite.
 
-The function `con.insertsprite` is called with a single table whose values are
-taken as the actual arguments. The first three, `tilenum`, `pos` and `sectnum`,
-are passed positionally. All other input arguments are passed as key-value
-pairs, but `owner` and `statnum` may be provided in both forms (but only one
-form in one call).
+The function `con.insertsprite` can be used in one of two forms:
+
+* In the `table-call` form specified above, a single table is passed whose
+values are taken as the actual arguments. The first three, `tilenum`, `pos` and
+`sectnum`, are passed positionally. All other input arguments are passed as
+key-value pairs, but `owner` and `statnum` may be provided either positionally
+or as key/value pair.
+
+* Passing only the three to five positional arguments is also directly
+  possible. For example, all of the following calls are equivalent:
++
+[source]
+----------
+local i = con.insertsprite(tile, pos, sect, stat, ow)  -- direct-call
+local i = con.insertsprite{tile, pos, sect, stat, ow}  -- table-call
+local i = con.insertsprite{tile, pos, sect, statnum=stat, owner=ow}  -- table-call with 2 k/v args
+local i = con.insertsprite{tile, pos, sect, stat, owner=ow}  -- table-call with one k/v arg
+----------
+
+The five main arguments are as follows:
 
 `[1]` (`tilenum`)::
 The tile number of the sprite to insert.
@@ -1972,18 +1987,18 @@ The position at which to insert the sprite (anything indexable with `x`, `y` and
 `[3]` (`sectnum`)::
 The index of the sector in which to insert the sprite.
 
-`[4] owner` (default: --1)::
-The index of the sprite that is in some sense the ``parent'' of the newly
-created one.
-
-`[5] statnum` (default: `actor.STAT.DEFAULT`)::
+`[4] statnum` (default: `actor.STAT.DEFAULT`)::
 The initial status number of the inserted sprite.
 
-The following additional keys are permissible as input arguments, corresponding
-to the same-named <<sprite,`sprite`>> members:
-`shade`, `xrepeat` (default: 48), `yrepeat` (default: 48), `ang`, `xvel`,
-`zvel`.  All optional arguments passed this way except for `xrepeat` and
-`yrepeat` default to 0.
+`[5] owner` (default: see below)::
+The index of the sprite that is in some sense the ``parent'' of the newly
+created one. If omitted, it is set to the index of the newly spawned sprite.
+
+These keys are permissible as optional input arguments in the table-call form,
+corresponding to the same-named <<sprite,`sprite`>> members:
+
+* `shade`, `ang`, `xvel`, `zvel` (default: 0)
+* `xrepeat` and `yrepeat` (default: 48)
 
 ===== The function `con.spawn(tilenum, parentspritenum)`
 

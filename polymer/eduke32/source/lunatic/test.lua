@@ -92,10 +92,16 @@ gameevent
         end
 ---[[
         if (vol==1 and lev==8) then
-            print('tweaking bunch 1');
-            -- trueror1.map
-            for i, what in sectorsofbunch(1, gv.BOTH_CF) do
-                sector[i][what].z = sector[i][what].z - 3*1024;
+            local havebunch = false
+            for i=0,gv.numsectors-1 do
+                havebunch = havebunch or (sector[i].ceilingbunch >= 0)
+            end
+            if (havebunch) then
+                print('tweaking bunch 1');
+                -- trueror1.map
+                for i, what in sectorsofbunch(1, gv.BOTH_CF) do
+                    sector[i][what].z = sector[i][what].z - 3*1024;
+                end
             end
         end
 --]]

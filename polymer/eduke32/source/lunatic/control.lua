@@ -266,22 +266,20 @@ end
 -- the engine "insertsprite".
 --
 -- Forms:
---  1. table-call: insertsprite{tilenum, pos, sectnum [, owner [, statnum]] [, key=val...]}
+--  1. table-call: insertsprite{tilenum, pos, sectnum [, statnum [, owner]] [, key=val...]}
 --     valid keys are: owner, statnum, shade, xrepeat, yrepeat, xvel, zvel
---  2. position-call: insertsprite(tilenum, pos, sectnum [, owner [, statnum]])
+--  2. position-call: insertsprite(tilenum, pos, sectnum [, statnum [, owner]])
 function insertsprite(tab_or_tilenum, ...)
     local tilenum, pos, sectnum  -- mandatory
     -- optional with defaults:
-    -- TODO: swap order of owner and statnum?
-    -- XXX: owner -1 valid???
     local owner, statnum
     local shade, xrepeat, yrepeat, ang, xvel, zvel = 0, 48, 48, 0, 0, 0
 
     if (type(tab_or_tilenum)=="table") then
         local tab = tab_or_tilenum
         tilenum, pos, sectnum = unpack(tab, 1, 3)
-        owner = tab[4] or tab.owner or -1
-        statnum = tab[5] or tab.statnum or 0
+        statnum = tab[4] or tab.statnum or 0
+        owner = tab[5] or tab.owner or -1
         shade = tab.shade or shade
         xrepeat = tab.xrepeat or xrepeat
         yrepeat = tab.yrepeat or yrepeat
@@ -292,8 +290,8 @@ function insertsprite(tab_or_tilenum, ...)
         tilenum = tab_or_tilenum
         local args = {...}
         pos, sectnum = unpack(args, 1, 2)
-        owner = args[3] or -1
-        statnum = args[4] or 0
+        statnum = args[3] or 0
+        owner = args[4] or -1
     end
 
     if (type(sectnum)~="number" or type(tilenum) ~= "number") then
@@ -303,6 +301,9 @@ function insertsprite(tab_or_tilenum, ...)
     check_tile_idx(tilenum)
     check_sector_idx(sectnum)
     check_allnumbers(shade, xrepeat, yrepeat, ang, xvel, zvel, owner)
+    if (owner ~= -1) then
+        check_sprite_idx(owner)
+    end
 
     if (not (statnum >= 0 and statnum < ffiC.MAXSTATUS)) then
         error("invalid 'statnum' argument to insertsprite: must be a status number [0 .. MAXSTATUS-1]", 2)
@@ -310,9 +311,13 @@ function insertsprite(tab_or_tilenum, ...)
 
     A_ResetVarsNextIns()
 
-    return CF.A_InsertSprite(sectnum, pos.x, pos.y, pos.z, tilenum,
-                             shade, xrepeat, yrepeat, ang, xvel, zvel,
-                             owner, statnum)
+    local i = CF.A_InsertSprite(sectnum, pos.x, pos.y, pos.z, tilenum,
+                                shade, xrepeat, yrepeat, ang, xvel, zvel,
+                                owner, statnum)
+    if (owner == -1) then
+        ffiC.sprite[i]:_set_owner(i)
+    end
+    return i
 end
 
 -- INTERNAL USE ONLY.
@@ -353,7 +358,7 @@ function _spawnmany(ow, label, n)
         local spr = sprite[ow]
 
         for i=n,1, -1 do
-            local j = insertsprite{ tilenum, spr^(ffiC.krand()%(47*256)), spr.sectnum, ow, 5,
+            local j = insertsprite{ tilenum, spr^(ffiC.krand()%(47*256)), spr.sectnum, 5, ow,
                                     shade=-32, xrepeat=8, yrepeat=8, ang=krandand(2047) }
             _spawnexisting(j)
             sprite[j].cstat = krandand(8+4)
@@ -1025,7 +1030,7 @@ function _A_DoGuts(i, gutstile, n)
 
     for i=n,1, -1 do
         local pos = vec3(spr.x+krandand(255)-128, spr.y+krandand(255)-128, z-krandand(8191))
-        local j = insertsprite{ gutstile, pos, spr.sectnum, i, 5, shade=-32, xrepeat=xsz, yrepeat=ysz,
+        local j = insertsprite{ gutstile, pos, spr.sectnum, 5, i, shade=-32, xrepeat=xsz, yrepeat=ysz,
                                 ang=krandand(2047), xvel=48+krandand(31), zvel=-512-krandand(2047) }
         local newspr = sprite[j]
         if (ispic(newspr.picnum, "JIBS2")) then
@@ -1048,7 +1053,7 @@ function _debris(i, dtile, n)
         local isblimpscrap = (ispic(spr.picnum, "BLIMP") and ispic(dtile, "SCRAP1"))
         local picofs = isblimpscrap and 0 or krandand(3)
         local pos = spr + vec3(krandand(255)-128, krandand(255)-128, -(8*256)-krandand(8191))
-        local jj = insertsprite{ dtile+picofs, pos, spr.sectnum, i, 5,
+        local jj = insertsprite{ dtile+picofs, pos, spr.sectnum, 5, i,
                                  shade=spr.shade, xrepeat=32+krandand(15), yrepeat=32+krandand(15),
                                  ang=krandand(2047), xvel=32+krandand(127), zvel=-krandand(2047) }
         -- NOTE: BlimpSpawnSprites[14] (its array size is 15) will never be chosen
@@ -1062,7 +1067,7 @@ function _A_SpawnGlass(i, n)
         local spr = sprite[i]
 
         for j=n,1, -1 do
-            local k = insertsprite{ D.GLASSPIECES+n%3, spr^(256*krandand(16)), spr.sectnum, i, 5,
+            local k = insertsprite{ D.GLASSPIECES+n%3, spr^(256*krandand(16)), spr.sectnum, 5, i,
                                     shade=krandand(15), xrepeat=36, yrepeat=36, ang=krandand(2047),
                                     xvel=32+krandand(63), zvel=-512-krandand(2047) }
             sprite[k].pal = spr.pal

@@ -94,7 +94,7 @@ gameevent
 
         if (cf.bunch >= 0 and (cf.picnum==198 or cf.picnum==D.GLASS2) and
                 cf.statbits:test(sector.STAT.HITSCAN)) then
-            local bi = con.insertsprite(TROR_GLASSBREAKER, wall[sec.wallptr], sectnum, aci, actor.STAT.ACTOR)
+            local bi = con.insertsprite(TROR_GLASSBREAKER, wall[sec.wallptr], sectnum, actor.STAT.ACTOR)
             local breaker = sprite[bi]
 
             breaker.cstat = sprite.CSTAT.INVISIBLE
