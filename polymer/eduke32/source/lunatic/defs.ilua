@@ -221,7 +221,8 @@ __attribute__((packed)) struct {
     int16_t angrange, autoaimang;
 
     uint16_t max_actors_killed, actors_killed;
-    uint16_t gotweapon, zoom;
+]]..defs_c.bitint_member("UBit16", "gotweapon")..[[
+    uint16_t zoom;
 
     int16_x_64 loogiex;
     int16_x_64 loogiey;
@@ -1304,15 +1305,15 @@ local player_mt = {
         end,
 
         has_weapon = function(p, weap)
-            return (band(p.gotweapon, lsh(1, weap)) ~= 0)
+            return p.gotweaponbits:test(lsh(1,weap))
         end,
 
         give_weapon = function(p, weap)
-            p.gotweapon = bit.bor(p.gotweapon, lsh(1, weap))
+            p.gotweaponbits:set(lsh(1,weap))
         end,
 
         take_weapon = function(p, weap)
-            p.gotweapon = band(p.gotweapon, bit.bnot(lsh(1, weap)))
+            p.gotweaponbits:clear(lsh(1,weap))
         end,
 
         -- Give or take weapon, for implementation of CON's .gotweapon access.

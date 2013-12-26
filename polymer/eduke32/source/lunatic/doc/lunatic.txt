@@ -401,13 +401,11 @@ Functions
 Returns an approximation of the angle between the line segments (0,0)->(1,0)
 and (0,0)->(`x`,`y`) in BUILD angle units in the range [0 .. 2047].
 
-[[krand]]
-`gv.krand()`::
+[[krand]] `gv.krand()`::
 Returns one value from the global engine-side pseudo-random number generator
 in the integer range [0{nbsp}..{nbsp}65535].
 
-[[timing_funcs]]
-`gv.getticks()`, `gv.gethiticks()`::
+[[timing_funcs]] `gv.getticks()`, `gv.gethiticks()`::
 Each of these functions return a number that increases at a rate of 1 per
 millisecond. Their only intended application is to profile bits of code; they
 should not be used to control the game world. The two functions differ in their
@@ -834,6 +832,7 @@ footnote:[The max-norm distance between points _p_~1~=(x~1~, y~1~) and
 _p_~2~=(x~2~, y~2~) is defined as max(abs(x~2~ -- x~1~), abs(y~2~ -- y~1~)).]
 of at least 1020
 BUILD x/y units.
+// ^ XXX: clipshapes? Also, clipdist is effective for moving sprites (A_MoveSprite()).
 
 _`u8`_ `xrepeat`, `yrepeat`::
 The size of the sprite in each dimension. For wall- and floor- aligned sprites,
@@ -964,6 +963,7 @@ Accessible with the same indices and with the same restrictions as
 Game-side composites
 ^^^^^^^^^^^^^^^^^^^^
 
+[[actor]]
 ===== `actor`
 
 The `actor` composite holds various run-time data about a sprite.  Like
@@ -974,6 +974,7 @@ have no meaning. Each element has the following members:
 _`u16`_ `movflags`, {nbsp} _`bitfield`_ `movflagsbits`::
 The actor's current <<actor_MOVFLAGS,movement flags>>.
 
+[[actor_methods]]
 ===== `actor` methods
 
 The following methods query or set properties related to
@@ -1069,12 +1070,14 @@ index. Otherwise, returns *nil*.
 
 // TODO: set_picnum, set_owner?
 
+[[actor_static_functions]]
 ===== `actor` static functions
 
 `actor.fall(i)`::
 Causes the actor with index `i` to fall in a ``hard-coded'', not further
 specified fashion.
 
+[[actor_static_data]]
 ===== `actor` static data
 
 [[actor_STAT]]
@@ -1101,6 +1104,7 @@ Contains symbolic names of values applicable <<gameactor,`gameactor`>>'s
 `dodgebullet`.
 
 '''
+[[player]]
 ===== `player`
 
 Accessible with the index 0 and any nonnegative `pli` index passed to a
@@ -1139,6 +1143,7 @@ Player members marked _`bool`_ in the listing below yield Lua true or false on
 reading and expect one of these values when assigned to.
 
 
+[[player_members]]
 ===== `player` members
 
 <<vector_types,_`xmath.ivec3`_>> `vel`::
@@ -1157,6 +1162,13 @@ most 8192.
 `curr_weapon`::
 The index of the player's currently selected weapon.
 
+_`u16`_ `gotweapon`, {nbsp} _`bitfield`_ `gotweaponbits`::
+
+Indicates whether each weapon is in the possession of the player. If bit 2^`w`^
+is set for a <<gv_WEAPON,weapon index>> `w`, the player has got this
+weapon. The player methods `has_weapon`, `give_weapon` and `take_weapon` can be
+used to query or modify this member.
+
 _`i16`_ +ammo_amount[_weapon_]+::
 
 The current ammo amount for each weapon.
@@ -1174,7 +1186,20 @@ Whether the player currently has the jetpack, scuba gear, or night vision
 goggles activated, respectively.
 
 
+[[player_methods]]
 ===== `player` methods
+
+`ps:has_weapon(widx)`::
+Returns a boolean of whether player `ps` has got the weapon with index `widx`.
+
+`ps:give_weapon(widx)`::
+Adds the weapon given by index `widx` to player `ps`'s possession without
+changing the currently held one.
+
+`ps:take_weapon(widx)`::
+Removes the weapon given by index `widx` from player `ps`'s possession. If an
+attempt is made to remove the currently selected weapon, the behavior is
+undefined.
 
 `ps:fadecol(fadefrac, r, g, b [, speed [, prio]])`::
 
@@ -1207,6 +1232,7 @@ CAUTION: If Lunatic code that uses `fadecol` is loaded together with CON code
 that writes to the player's `pals` members directly at any point, the behavior
 is undefined.
 
+[[player_iterators]]
 ===== `player` iterators
 
 +*for* i *in* player.all()+::
@@ -1775,7 +1801,7 @@ what EDuke32 uses.  See the {wiki_action}[Action entry] in the EDuke32 wiki for
 how the views are constructed for different `viewtype` values.
 
 `[4] incval` (default: 1)::
-The value to add the actor's _current frame_ on each frame advance. May be -1,
+The value to add the actor's _current frame_ on each frame advance. May be --1,
 0, or 1.
 // In the wild, sometimes other values, too.
 
@@ -1976,7 +2002,7 @@ index `parentspritenum`. The z velocity can be overridden by passing `zvel`.
 
 // TODO: document how zvel is interpreted
 
-Returns the index of the spawned sprite on success, or -1 otherwise.
+Returns the index of the spawned sprite on success, or --1 otherwise.
 
 
 The `fs` module -- virtual file system facilities
