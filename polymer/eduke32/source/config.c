@@ -690,12 +690,13 @@ int32_t CONFIG_ReadSetup(void)
 
         // weapon choices are defaulted in G_CheckCommandLine, which may override them
         if (!g_forceWeaponChoice)
-            for (i=0; i<10; i++)
+            for (i=0; i<=FREEZE_WEAPON; i++)
             {
                 Bsprintf(buf,"WeaponChoice%d",i);
                 dummy = -1;
                 SCRIPT_GetNumber(ud.config.scripthandle, "Misc", buf, &dummy);
-                if (dummy >= 0 && dummy<10) g_player[0].wchoice[i] = dummy;
+                if (dummy >= 0 && dummy <= FREEZE_WEAPON)
+                    g_player[0].wchoice[i] = dummy;
             }
 
 #ifdef _WIN32

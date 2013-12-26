@@ -1102,7 +1102,7 @@ const memberlabel_t UserdefsLabels[]=
     { "screen_size", USERDEFS_SCREEN_SIZE, 0, 0 },
     { "lockout", USERDEFS_LOCKOUT, 0, 0 },
     { "crosshair", USERDEFS_CROSSHAIR, 0, 0 },
-    { "wchoice[MAXPLAYERS][MAX_WEAPONS]", USERDEFS_WCHOICE, 0, 0 },
+//    { "wchoice[MAXPLAYERS][MAX_WEAPONS]", USERDEFS_WCHOICE, 0, 0 },
     { "playerai", USERDEFS_PLAYERAI, 0, 0 },
     { "respawn_monsters", USERDEFS_RESPAWN_MONSTERS, 0, 0 },
     { "respawn_items", USERDEFS_RESPAWN_ITEMS, 0, 0 },

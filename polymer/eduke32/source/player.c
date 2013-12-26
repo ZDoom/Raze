@@ -3202,10 +3202,10 @@ void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
         A_PlaySound(PWEAPON(snum, weapon, SelectSound),p->i);
 }
 
-void P_ChangeWeapon(DukePlayer_t *p,int32_t weapon)
+void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
 {
     int32_t i = 0, snum = sprite[p->i].yvel;
-    int8_t curr_weapon = p->curr_weapon;
+    const int8_t curr_weapon = p->curr_weapon;
 
     if (p->reloading) return;
 
@@ -3214,7 +3214,8 @@ void P_ChangeWeapon(DukePlayer_t *p,int32_t weapon)
 
     if (i == -1)
         return;
-    else if (i != -2)
+
+    if (i != -2)
         p->curr_weapon = weapon;
 
     p->last_weapon = curr_weapon;
@@ -3237,7 +3238,7 @@ void P_ChangeWeapon(DukePlayer_t *p,int32_t weapon)
     P_SetWeaponGamevars(snum, p);
 }
 
-void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
+void P_AddWeapon(DukePlayer_t *p, int32_t weapon)
 {
     P_AddWeaponNoSwitch(p, weapon);
     P_ChangeWeapon(p, weapon);
@@ -3266,14 +3267,17 @@ void P_CheckWeapon(DukePlayer_t *p)
 {
     int32_t i, snum, weapon;
 
-    if (p->reloading) return;
+    if (p->reloading)
+        return;
 
     if (p->wantweaponfire >= 0)
     {
         weapon = p->wantweaponfire;
         p->wantweaponfire = -1;
 
-        if (weapon == p->curr_weapon) return;
+        if (weapon == p->curr_weapon)
+            return;
+
         if ((p->gotweapon & (1<<weapon)) && p->ammo_amount[weapon] > 0)
         {
             P_AddWeapon(p,weapon);
@@ -3288,19 +3292,22 @@ void P_CheckWeapon(DukePlayer_t *p)
 
     snum = sprite[p->i].yvel;
 
-    for (i=0; i<10; i++)
+    for (i=0; i<=FREEZE_WEAPON; i++)
     {
         weapon = g_player[snum].wchoice[i];
-        if (VOLUMEONE && weapon > 6) continue;
+        if (VOLUMEONE && weapon > SHRINKER_WEAPON)
+            continue;
 
-        if (weapon == 0) weapon = 9;
+        if (weapon == KNEE_WEAPON)
+            weapon = FREEZE_WEAPON;
         else weapon--;
 
-        if (weapon == 0 || ((p->gotweapon & (1<<weapon)) && p->ammo_amount[weapon] > 0))
+        if (weapon == KNEE_WEAPON || ((p->gotweapon & (1<<weapon)) && p->ammo_amount[weapon] > 0))
             break;
     }
 
-    if (i == 10) weapon = 0;
+    if (i == HANDREMOTE_WEAPON)
+        weapon = KNEE_WEAPON;
 
     // Found the weapon
 
@@ -3956,8 +3963,7 @@ static void P_ProcessWeapon(int32_t snum)
             if ((*kb) >= PWEAPON(snum, p->curr_weapon, TotalTime))
             {
                 (*kb) = 0;
-                if ((p->ammo_amount[HANDBOMB_WEAPON] > 0) &&
-                        PIPEBOMB_CONTROL(snum) == PIPEBOMB_REMOTE)
+                if ((p->ammo_amount[HANDBOMB_WEAPON] > 0) && PIPEBOMB_CONTROL(snum) == PIPEBOMB_REMOTE)
                     P_AddWeapon(p,HANDBOMB_WEAPON);
                 else P_CheckWeapon(p);
             }

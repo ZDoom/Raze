@@ -446,15 +446,6 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
         Gv_SetVarX(lVar2, ud.crosshair);
         return;
 
-        //  case USERDEFS_WCHOICE:
-        //      if(iSet)
-        //      {
-        //          ud.wchoice = lValue;
-        //          return;
-        //      }
-        //      Gv_SetVarX(lVar2, ud.wchoice);
-        //      return;
-
     case USERDEFS_PLAYERAI:
         if (iSet)
         {

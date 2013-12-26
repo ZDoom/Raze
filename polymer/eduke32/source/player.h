@@ -251,6 +251,7 @@ typedef struct {
     int32_t netsynctime;
     int16_t ping, filler;
     int32_t pcolor, pteam;
+    // NOTE: wchoice[HANDREMOTE_WEAPON .. MAX_WEAPONS-1] unused
     uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
     char vote, gotvote, pingcnt, playerquitflag, ready;

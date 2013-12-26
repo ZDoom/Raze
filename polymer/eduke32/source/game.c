@@ -10886,6 +10886,15 @@ static void G_Startup(void)
     Bfflush(NULL);
 }
 
+static void P_SetupMiscInputSettings(void)
+{
+    DukePlayer_t *ps = g_player[myconnectindex].ps;
+
+    ps->aim_mode = ud.mouseaiming;
+    ps->auto_aim = ud.config.AutoAim;
+    ps->weaponswitch = ud.weaponswitch;
+}
+
 void G_UpdatePlayerFromMenu(void)
 {
     if (ud.recstat != 0)
@@ -10901,10 +10910,7 @@ void G_UpdatePlayerFromMenu(void)
     {
         /*int32_t j = g_player[myconnectindex].ps->team;*/
 
-        // CODEDUP_UD_TO_GPLAYER
-        g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
-        g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
-        g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
+        P_SetupMiscInputSettings();
         g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
 
         g_player[myconnectindex].pteam = ud.team;
@@ -11786,10 +11792,7 @@ MAIN_LOOP_RESTART:
 
 //    ud.auto_run = ud.config.RunMode;
     ud.showweapons = ud.config.ShowOpponentWeapons;
-    // CODEDUP_UD_TO_GPLAYER
-    g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
-    g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
-    g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
+    P_SetupMiscInputSettings();
     g_player[myconnectindex].pteam = ud.team;
 
     if (GametypeFlags[ud.coop] & GAMETYPE_TDM)

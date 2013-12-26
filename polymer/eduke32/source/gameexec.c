@@ -805,13 +805,14 @@ static void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
     if ((ps->weaponswitch & 1) && (ps->weaponswitch & 4))
     {
         int32_t snum = sprite[ps->i].yvel;
-        int32_t i, w, new_wchoice = -1, curr_wchoice = -1;
+        int32_t i, new_wchoice = -1, curr_wchoice = -1;
 
-        for (i=0; i<10 && (new_wchoice < 0 || curr_wchoice < 0); i++)
+        for (i=0; i<=FREEZE_WEAPON && (new_wchoice < 0 || curr_wchoice < 0); i++)
         {
-            w = g_player[snum].wchoice[i];
+            int32_t w = g_player[snum].wchoice[i];
 
-            if (w == 0) w = 9;
+            if (w == KNEE_WEAPON)
+                w = FREEZE_WEAPON;
             else w--;
 
             if (w == ps->curr_weapon)
