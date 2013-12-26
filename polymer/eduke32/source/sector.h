@@ -137,7 +137,7 @@ int32_t SetAnimation(int32_t animsect,int32_t *animptr,int32_t thegoal,int32_t t
 static inline int32_t G_GetForcefieldPicnum(int32_t wallnum)
 {
     int32_t picnum = wall[wallnum].overpicnum;
-    if (picnum > W_FORCEFIELD && picnum <= W_FORCEFIELD+2)
+    if (picnum == W_FORCEFIELD+1)
         picnum = W_FORCEFIELD;
     return picnum;
 }
