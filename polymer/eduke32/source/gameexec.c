@@ -5217,7 +5217,8 @@ finish_qsprintf:
             case PODFEM1__STATIC:
             case NAKED1__STATIC:
             case STATUE__STATIC:
-                if (vm.g_sp->yvel) G_OperateRespawns(vm.g_sp->yvel);
+                if (vm.g_sp->yvel)
+                    G_OperateRespawns(vm.g_sp->yvel);
                 break;
             default:
 //                if (vm.g_sp->hitag >= 0)

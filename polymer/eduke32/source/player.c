@@ -938,10 +938,11 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
 
         if (p >= 0)
         {
-            j = GetAutoAimAngle(i, p, atwith, 8 << 8, 0 + 2, srcvect, vel, &zvel, &sa);
+            // NOTE: j is a SPRITE_INDEX
+            j = GetAutoAimAngle(i, p, atwith, 8<<8, 0+2, srcvect, vel, &zvel, &sa);
 
             if (j < 0)
-                zvel = (100 - ps->horiz - ps->horizoff)*(proj->vel / 8);
+                zvel = (100-ps->horiz-ps->horizoff)*(proj->vel/8);
 
             if (proj->sound >= 0)
                 A_PlaySound(proj->sound, i);
@@ -950,8 +951,9 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
         {
             if (!(proj->workslike & PROJECTILE_NOAIM))
             {
+                // NOTE: j is a player index
                 j = A_FindPlayer(s, NULL);
-                sa = getangle(g_player[j].ps->opos.x - srcvect->x, g_player[j].ps->opos.y - srcvect->y);
+                sa = getangle(g_player[j].ps->opos.x-srcvect->x, g_player[j].ps->opos.y-srcvect->y);
 
                 l = safeldist(g_player[j].ps->i, s);
                 zvel = ((g_player[j].ps->opos.z - srcvect->z)*vel) / l;
@@ -961,11 +963,10 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
             }
         }
 
-        if (p >= 0 && j >= 0)
-            l = j;
-        else l = -1;
-
         if (numplayers > 1 && g_netClient) return -1;
+
+        // l may be a SPRITE_INDEX, see above
+        l = (p >= 0 && j >= 0) ? j : -1;
 
         zvel = A_GetShootZvel(zvel);
         j = A_InsertSprite(sect,
@@ -980,7 +981,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
             sprite[j].extra += (krand()&proj->extra_rand);
 
         if (!(proj->workslike & PROJECTILE_BOUNCESOFFWALLS))
-            sprite[j].yvel = l;
+            sprite[j].yvel = l;  // NOT_BOUNCESOFFWALLS_YVEL
         else
         {
             if (proj->bounces >= 1) sprite[j].yvel = proj->bounces;
@@ -1410,6 +1411,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 
             if (p >= 0)
             {
+                // NOTE: j is a SPRITE_INDEX
                 j = GetAutoAimAngle(i, p, atwith, 8<<8, 0+2, &srcvect, vel, &zvel, &sa);
 
                 if (j < 0)
@@ -1420,8 +1422,9 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             }
             else
             {
+                // NOTE: j is a player index
                 j = A_FindPlayer(s, NULL);
-                sa = getangle(g_player[j].ps->opos.x-srcvect.x,g_player[j].ps->opos.y-srcvect.y);
+                sa = getangle(g_player[j].ps->opos.x-srcvect.x, g_player[j].ps->opos.y-srcvect.y);
                 if (PN == BOSS3)
                     srcvect.z -= MinibossScale(32<<8);
                 else if (PN == BOSS2)
@@ -1431,17 +1434,17 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 }
 
                 l = safeldist(g_player[j].ps->i, s);
-                zvel = ((g_player[j].ps->opos.z-srcvect.z)*vel) / l;
+                zvel = ((g_player[j].ps->opos.z - srcvect.z)*vel) / l;
 
                 if (A_CheckEnemySprite(s) && (s->hitag&face_player_smart))
                     sa = s->ang+(krand()&31)-16;
             }
 
-            if (p >= 0 && j >= 0)
-                l = j;
-            else l = -1;
+            if (numplayers > 1 && g_netClient)
+                return -1;
 
-            if (numplayers > 1 && g_netClient) return -1;
+            // l may be a SPRITE_INDEX, see above
+            l = (p >= 0 && j >= 0) ? j : -1;
 
             zvel = A_GetShootZvel(zvel);
             j = A_InsertSprite(sect,
@@ -1451,7 +1454,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 
             sprite[j].extra += (krand()&7);
             if (atwith != FREEZEBLAST)
-                sprite[j].yvel = l;
+                sprite[j].yvel = l;  // RPG_YVEL
             else
             {
                 sprite[j].yvel = g_numFreezeBounces;

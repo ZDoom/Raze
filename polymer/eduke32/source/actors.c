@@ -2780,7 +2780,7 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
             } while (!j && --cnt > 0);
         }
 
-        if (!(proj->workslike & PROJECTILE_BOUNCESOFFWALLS) &&
+        if (!(proj->workslike & PROJECTILE_BOUNCESOFFWALLS) &&  // NOT_BOUNCESOFFWALLS_YVEL
             (unsigned)s->yvel < MAXSPRITES && sprite[s->yvel].sectnum != MAXSECTORS)
             if (FindDistance2D(s->x-sprite[s->yvel].x, s->y-sprite[s->yvel].y) < 256)
                 j = 49152|s->yvel;
@@ -3059,7 +3059,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
             }
 
 
-            if (s->picnum == RPG && (unsigned)s->yvel < MAXSPRITES)
+            if (s->picnum == RPG && (unsigned)s->yvel < MAXSPRITES)  // RPG_YVEL
                 if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                     j = 49152|s->yvel;
 
@@ -5551,9 +5551,9 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
             }
             else
             {
-                if (s->picnum == SCRAP1 && s->yvel > 0)
+                if (s->picnum == SCRAP1 && s->yvel > 0 && s->yvel < MAXUSERTILES)
                 {
-                    int32_t j = A_Spawn(i,s->yvel);
+                    int32_t j = A_Spawn(i, s->yvel);
 
                     setsprite(j,(vec3_t *)s);
                     A_GetZLimits(j);

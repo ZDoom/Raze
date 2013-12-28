@@ -7587,14 +7587,16 @@ PALONLY:
                 t->xrepeat = t->yrepeat = 0;
                 continue;
             }
-            if (t->pal == 6) t->shade = -120;
+            if (t->pal == 6)
+                t->shade = -120;
+            /* fall-through */
         case SCRAP1__STATIC:
         case SCRAP2__STATIC:
         case SCRAP3__STATIC:
         case SCRAP4__STATIC:
         case SCRAP5__STATIC:
             if (actor[i].picnum == BLIMP && t->picnum == SCRAP1 && s->yvel >= 0)
-                t->picnum = s->yvel;
+                t->picnum = s->yvel < MAXUSERTILES ? s->yvel : 0;
             else t->picnum += T1;
             t->shade -= 6;
 
