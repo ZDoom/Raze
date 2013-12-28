@@ -671,6 +671,11 @@ local tspritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof("tspritetype"))
 
 local intarg = ffi.new("int32_t[1]")
 
+-- XXX: We ought to be using the dynamic value, but users remapping that tile
+-- are likely somewhat confused anyway. Also, it would be more proper if this
+-- lived on game-side Lunatic.
+local APLAYER = 1405
+
 local spritetype_mt = {
     __pow = function(s, zofs)
         return vec3_ct(s.x, s.y, s.z-zofs)
@@ -679,15 +684,18 @@ local spritetype_mt = {
     __index = {
         --- Setters
         set_picnum = function(s, tilenum)
+            if (s.picnum == APLAYER or tilenum == APLAYER) then
+                error("setting picnum to or on an APLAYER sprite forbidden")
+            end
             check_tile_idx(tilenum)
             ffi.cast(spritetype_ptr_ct, s).picnum = tilenum
         end,
 
-        _set_yvel = function(s, yvel)
-            -- XXX: no protection against malicious use (might set picnum to
-            -- another one temporarily)
-            -- XXX: this belongs into game-side Lunatic
-            if (s.picnum==1405) then  -- APLAYER
+        set_yvel = function(s, yvel)
+            -- XXX: A malicious user might still find some backdoor way to
+            --  inject a bad yvel value, but this together with the above
+            --  set_picnum() check should at least prevent naive attempts.
+            if (s.picnum == APLAYER) then
                 error("setting yvel on an APLAYER sprite forbidden", 2)
             end
             ffi.cast(spritetype_ptr_ct, s).yvel = yvel

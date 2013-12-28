@@ -1058,7 +1058,7 @@ function _debris(i, dtile, n)
                                  shade=spr.shade, xrepeat=32+krandand(15), yrepeat=32+krandand(15),
                                  ang=krandand(2047), xvel=32+krandand(127), zvel=-krandand(2047) }
         -- NOTE: BlimpSpawnSprites[14] (its array size is 15) will never be chosen
-        sprite[jj]:_set_yvel(isblimpscrap and ffiC.BlimpSpawnSprites[math.mod(jj, 14)] or -1)
+        sprite[jj]:set_yvel(isblimpscrap and ffiC.BlimpSpawnSprites[math.mod(jj, 14)] or -1)
         sprite[jj].pal = spr.pal
     end
 end
@@ -1715,7 +1715,7 @@ function _G_OperateMasterSwitches(tag)
     for i in spritesofstat(STAT.STANDABLE) do
         local spr = sprite[i]
         if (ispic(spr.picnum, "MASTERSWITCH") and spr.lotag==tag and spr.yvel==0) then
-            spr:_set_yvel(1)
+            spr:set_yvel(1)
         end
     end
 end

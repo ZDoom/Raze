@@ -859,8 +859,9 @@ For actors and other moving sprite kinds, the horizontal and vertical
 components of the current velocity. See the description of
 <<con_move,`con.move`>> for more details.
 
-//`yvel` (read-only)::
-//A general-purpose member of which the game has exclusive control.
+_`i16`_ `yvel` (read-only)::
+A member used for different purposes by Duke3D. Setting it is only allowed
+through the `set_yvel` method.
 
 _`i16`_ `lotag`, `hitag`, `extra`::
 General-purpose ``tags'' provided for game programming. They may be used by
@@ -870,7 +871,13 @@ claiming them for oneself.
 ===== `sprite` methods
 
 `spr:set_picnum(tilenum)`::
-Sets the tile number of sprite `spr` to `tilenum`.
+Sets the tile number of sprite `spr` to `tilenum`. It is disallowed to issue
+`set_picnum` on an `APLAYER` sprite or change the tile number of a sprite to
+`APLAYER`.
+
+`spr:set_yvel(yvel)`::
+Sets the `yvel` member of sprite `spr` to `yvel`. It is disallowed to issue
+`set_yvel` on an `APLAYER` sprite. Further restrictions are reserved.
 
 `spr:getheightofs()` -> `height`, `offset`::
 Returns the `height` and z `offset` of sprite `spr` in BUILD z units. Adding the
