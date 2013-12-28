@@ -18,6 +18,8 @@ local hitscan = hitscan
 
 local assert, error, print, tostring = assert, error, print, tostring
 
+local D = require("CON.DEFS")
+
 print('---=== ELua Test script ===---')
 
 local function printf(fmt, ...)
@@ -105,6 +107,24 @@ gameevent
             end
         end
 --]]
+    end
+}
+
+gameevent
+{
+    "JUMP",
+
+    function()
+        print("tweaking forcefield with lotag 34 (E2L1)")
+
+        for w=0,gv.numwalls-1 do
+            local wal = wall[w]
+            if (wal.overpicnum == D.W_FORCEFIELD or wal.overpicnum == D.W_FORCEFIELD+1) then
+                if (wal.lotag==34) then
+                    wal.cstat = wal.cstatbits:test(85) and 0 or 85
+                end
+            end
+        end
     end
 }
 
@@ -252,7 +272,6 @@ gameevent
 }
 --]]
 
-local D = require("CON.DEFS")
 local WEAPON = gv.WEAPON
 
 -- Bad hack to test out pitch/roll: EVENT_GAME is discouraged from Lunatic.

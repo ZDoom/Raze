@@ -566,10 +566,12 @@ spr.cstat = CS.TRANS1 + CS.BLOCK
 ----------
 one could proceed as follows for the sake of example:
 
-* `spr.cstatbits:set(CS.TRANS2)`, make the sprite 66% translucent now
-* `spr.cstatbits:flip(CS.BLOCK + CS.HITSCAN)`, make it hitscan-sensitive but
-  not blocking
-* `spr.cstatbits:test(CS.FLIP_BITMASK)`, check whether it is flipped (no)
+[source]
+----------
+spr.cstatbits:set(CS.TRANS2)  -- make the sprite 66% translucent now
+spr.cstatbits:flip(CS.BLOCK + CS.HITSCAN)  -- make it hitscan-sensitive and non-blocking
+local isflipped = spr.cstatbits:test(CS.FLIP_BITMASK)  -- is it x- or y-flipped? (no)
+----------
 ==========
 
 Engine-side composites
