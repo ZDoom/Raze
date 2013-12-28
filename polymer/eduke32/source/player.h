@@ -369,7 +369,7 @@ void        P_AddWeapon(DukePlayer_t *p,int32_t weapon, int32_t doswitch);
 void        P_CheckWeapon(DukePlayer_t *p);
 void        P_DisplayScuba(int32_t snum);
 void        P_DisplayWeapon(int32_t snum);
-void        P_DropWeapon(DukePlayer_t *p);
+void        P_DropWeapon(int32_t snum);
 int32_t     P_FindOtherPlayer(int32_t p, int32_t *d);
 void        P_FragPlayer(int32_t snum);
 void        P_UpdatePosWhenViewingCam(DukePlayer_t *p);

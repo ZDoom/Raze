@@ -1902,9 +1902,10 @@ void P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p)
 }
 #endif
 
-static void P_FireWeapon(DukePlayer_t *p)
+static void P_FireWeapon(int32_t snum)
 {
-    int32_t i, snum = P_Get(p->i);  // TODO: PASS_SNUM?
+    int32_t i;
+    DukePlayer_t *const p = g_player[snum].ps;
 
     if (VM_OnEvent(EVENT_DOFIRE, p->i, snum, -1, 0) == 0)
     {
@@ -1959,9 +1960,10 @@ static void P_FireWeapon(DukePlayer_t *p)
     }
 }
 
-static void P_DoWeaponSpawn(const DukePlayer_t *p)
+static void P_DoWeaponSpawn(int32_t snum)
 {
-    int32_t j, snum = P_Get(p->i);  // TODO: PASS_SNUM?
+    int32_t j;
+    const DukePlayer_t *const p = g_player[snum].ps;
 
     // NOTE: For the 'Spawn' member, 0 means 'none', too (originally so,
     // i.e. legacy). The check for <0 was added to the check because mod
@@ -2953,14 +2955,12 @@ void P_GetInput(int32_t snum)
     loc.horz = horiz;
 }
 
-static int32_t P_DoCounters(DukePlayer_t *p)
+static int32_t P_DoCounters(int32_t snum)
 {
-    int32_t snum = P_Get(p->i);
+    DukePlayer_t *const p = g_player[snum].ps;
 
 //        j = g_player[snum].sync->avel;
 //        p->weapon_ang = -(j/5);
-
-    if (snum < 0) return 1;
 
     if (p->invdisptime > 0)
         p->invdisptime--;
@@ -3160,9 +3160,9 @@ int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATI
         TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC
                                            };
 // this is used for player deaths
-void P_DropWeapon(DukePlayer_t *p)
+void P_DropWeapon(int32_t snum)
 {
-    int32_t snum = P_Get(p->i);  // TODO: PASS_SNUM?
+    const DukePlayer_t *const p = g_player[snum].ps;
     int32_t cw = PWEAPON(snum, p->curr_weapon, WorksLike);
 
     if ((unsigned)cw >= MAX_WEAPONS)
@@ -3206,7 +3206,7 @@ static void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
         A_PlaySound(PWEAPON(snum, weapon, SelectSound),p->i);
 }
 
-void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
+static void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
 {
     int32_t i = 0, snum = P_Get(p->i);  // PASS_SNUM?
     const int8_t curr_weapon = p->curr_weapon;
@@ -4004,7 +4004,7 @@ static void P_ProcessWeapon(int32_t snum)
                     A_PlaySound(PWEAPON(snum, p->curr_weapon, Sound2Sound),p->i);
 
             if (*kb == PWEAPON(snum, p->curr_weapon, SpawnTime))
-                P_DoWeaponSpawn(p);
+                P_DoWeaponSpawn(snum);
 
             if ((*kb) >= PWEAPON(snum, p->curr_weapon, TotalTime))
             {
@@ -4074,21 +4074,21 @@ static void P_ProcessWeapon(int32_t snum)
                         {
                             if (((*(kb))%3) == 0)
                             {
-                                P_FireWeapon(p);
-                                P_DoWeaponSpawn(p);
+                                P_FireWeapon(snum);
+                                P_DoWeaponSpawn(snum);
                             }
                         }
                         else if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_FIREEVERYOTHER)
                         {
-                            P_FireWeapon(p);
-                            P_DoWeaponSpawn(p);
+                            P_FireWeapon(snum);
+                            P_DoWeaponSpawn(snum);
                         }
                         else
                         {
                             if (*kb == PWEAPON(snum, p->curr_weapon, FireDelay))
                             {
-                                P_FireWeapon(p);
-                                //                                P_DoWeaponSpawn(p);
+                                P_FireWeapon(snum);
+//                                P_DoWeaponSpawn(snum);
                             }
                         }
                         if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RESET &&
@@ -4103,21 +4103,21 @@ static void P_ProcessWeapon(int32_t snum)
                     {
                         if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_FIREEVERYOTHER)
                         {
-                            P_FireWeapon(p);
-                            P_DoWeaponSpawn(p);
+                            P_FireWeapon(snum);
+                            P_DoWeaponSpawn(snum);
                         }
                         else
                         {
                             if (*kb == PWEAPON(snum, p->curr_weapon, FireDelay))
                             {
-                                P_FireWeapon(p);
-                                //                                P_DoWeaponSpawn(p);
+                                P_FireWeapon(snum);
+//                                P_DoWeaponSpawn(snum);
                             }
                         }
                     }
                 }
                 else if (*kb == PWEAPON(snum, p->curr_weapon, FireDelay))
-                    P_FireWeapon(p);
+                    P_FireWeapon(snum);
             }
         }
     }
@@ -4472,7 +4472,7 @@ void P_ProcessInput(int32_t snum)
     if (p->newowner >= 0)
     {
         P_UpdatePosWhenViewingCam(p);
-        P_DoCounters(p);
+        P_DoCounters(snum);
 
         if (PWEAPON(0, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
             P_ProcessWeapon(snum);
@@ -5316,7 +5316,8 @@ HORIZONLY:
             p->ang += G_GetAngleDelta(p->ang,getangle(sprite[p->actorsqu].x-p->pos.x,sprite[p->actorsqu].y-p->pos.y))>>2;
     }
 
-    if (P_DoCounters(p)) return;
+    if (P_DoCounters(snum))
+        return;
 
     P_ProcessWeapon(snum);
 }

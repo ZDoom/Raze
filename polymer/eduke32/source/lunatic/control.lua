@@ -591,6 +591,7 @@ local function have_ammo_at_max(ps, weap)
 end
 
 function _tossweapon(pli)  -- P_DropWeapon replacement
+    -- NOTE: We're passing player index, C-CON passes APLAYER sprite.
     check_player_idx(pli)
     local ps = ffiC.g_player[pli].ps
 

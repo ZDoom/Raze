@@ -1440,7 +1440,8 @@ skip_check:
 
         case CON_TOSSWEAPON:
             insptr++;
-            P_DropWeapon(g_player[P_GetP(vm.g_sp)].ps);
+            // NOTE: assumes that current actor is APLAYER
+            P_DropWeapon(P_GetP(vm.g_sp));
             continue;
 
         case CON_NULLOP:
