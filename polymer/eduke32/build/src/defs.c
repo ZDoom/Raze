@@ -94,7 +94,7 @@ enum scripttoken_t
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
-int32_t nextvoxid = 0;
+static int32_t nextvoxid = 0;
 
 #ifdef USE_OPENGL
 extern float alphahackarray[MAXTILES];
@@ -146,7 +146,7 @@ static int32_t check_tile_range(const char *defcmd, int32_t *tilebeg, int32_t *t
         swaplong(tilebeg, tileend);
     }
 
-    if ((unsigned)*tilebeg >= MAXTILES || (unsigned)*tileend >= MAXTILES)
+    if ((unsigned)*tilebeg >= MAXUSERTILES || (unsigned)*tileend >= MAXUSERTILES)
     {
         initprintf("Error: %s: Invalid tile range on line %s:%d\n", defcmd,
                    script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -159,7 +159,7 @@ static int32_t check_tile_range(const char *defcmd, int32_t *tilebeg, int32_t *t
 static int32_t check_tile(const char *defcmd, int32_t tile, const scriptfile *script,
                           const char *cmdtokptr)
 {
-    if ((unsigned)tile >= MAXTILES)
+    if ((unsigned)tile >= MAXUSERTILES)
     {
         initprintf("Error: %s: Invalid tile number on line %s:%d\n", defcmd,
                    script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -469,7 +469,7 @@ static int32_t defsparser(scriptfile *script)
             int32_t tile, tmp;
 
             if (scriptfile_getsymbol(script,&tile)) break;
-            if (tile >= MAXTILES)break;
+            if ((unsigned)tile >= MAXUSERTILES) break;
             if (scriptfile_getsymbol(script,&h_xsize[tile])) break;  // XXX
             if (scriptfile_getsymbol(script,&h_ysize[tile])) break;
             if (scriptfile_getsymbol(script,&tmp)) break;
@@ -585,7 +585,7 @@ static int32_t defsparser(scriptfile *script)
                 }
             }
 
-            if ((unsigned)tile >= MAXTILES)
+            if ((unsigned)tile >= MAXUSERTILES)
             {
                 initprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,texturetokptr));
@@ -1807,7 +1807,7 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if ((unsigned)tile >= MAXTILES) break;	// message is printed later
+                    if ((unsigned)tile >= MAXUSERTILES) break;	// message is printed later
                     if ((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
                     {
                         initprintf("Error: missing or invalid 'palette number' for texture definition near "
@@ -1886,7 +1886,7 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if ((unsigned)tile >= MAXTILES) break;	// message is printed later
+                    if ((unsigned)tile >= MAXUSERTILES) break;	// message is printed later
                     if (!fn)
                     {
                         initprintf("Error: missing 'file name' for texture definition near line %s:%d\n",
@@ -1923,7 +1923,7 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
             }
-            if ((unsigned)tile >= MAXTILES)
+            if ((unsigned)tile >= MAXUSERTILES)
             {
                 initprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,texturetokptr));
@@ -2050,7 +2050,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&e)) break;
 
             b = max(b, 0);
-            e = min(e, MAXTILES-1);
+            e = min(e, MAXUSERTILES-1);
 
             for (i=b; i<=e; i++)
                 picanm[i].sf |= (tokn==T_TEXHITSCANRANGE) ?

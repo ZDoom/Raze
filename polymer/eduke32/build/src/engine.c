@@ -11027,7 +11027,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
             kread(fil,&localtilestart,4); localtilestart = B_LITTLE32(localtilestart);
             kread(fil,&localtileend,4);   localtileend   = B_LITTLE32(localtileend);
 
-            if ((uint32_t)localtilestart >= MAXTILES || (uint32_t)localtileend >= MAXTILES)
+            if ((uint32_t)localtilestart >= MAXUSERTILES || (uint32_t)localtileend >= MAXUSERTILES)
             {
                 initprintf("loadpics: Invalid localtilestart or localtileend in %s\n", artfilename);
                 kclose(fil);

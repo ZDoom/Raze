@@ -102,6 +102,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define TILE_TILT           (MAXTILES-2)
 #define TILE_ANIM           (MAXTILES-4)
 #define TILE_VIEWSCR        (MAXTILES-5)
+EDUKE32_STATIC_ASSERT(5 <= MAXTILES-MAXUSERTILES);
 
 // sprites with these statnums should be considered for fixing (bitmap)
 #define ROTFIXSPR_STATNUMP(k) ((k)==STAT_DEFAULT || (k)==STAT_STANDABLE || (k)==STAT_FX || \
