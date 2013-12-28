@@ -25,6 +25,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "premap.h"
 
+// Compile game-side legacy Room over Room code?
+#define LEGACY_ROR 1
+
 #define USERQUOTE_LEFTOFFSET    5
 #define USERQUOTE_RIGHTOFFSET   14
 
@@ -254,7 +257,9 @@ extern const char *G_DefaultRtsFile(void);
 
 extern char g_modDir[BMAX_PATH];
 extern char inputloc;
+#ifdef LEGACY_ROR
 extern char ror_protectedsectors[MAXSECTORS];
+#endif
 
 extern float r_ambientlight;
 
@@ -263,7 +268,7 @@ extern int32_t althud_numberpal;
 extern int32_t althud_numbertile;
 extern int32_t althud_shadows;
 extern int32_t cacnum;
-//extern int32_t drawing_ror;
+
 extern int32_t g_Shareware;
 #if !defined LUNATIC
 extern int32_t g_cameraClock;

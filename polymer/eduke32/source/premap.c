@@ -1028,9 +1028,9 @@ static inline void prelevel(char g)
         G_GameExit("OUT OF MEMORY in prelevel()");
 
     Bmemset(show2dsector, 0, sizeof(show2dsector));
-
+#ifdef LEGACY_ROR
     Bmemset(ror_protectedsectors, 0, MAXSECTORS);
-
+#endif
     resetprestat(0,g);
     g_numClouds = 0;
 

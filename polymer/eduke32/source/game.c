@@ -4026,22 +4026,55 @@ void G_DrawBackground(void)
     pus = pub = NUMPAGES;
 }
 
-static int32_t ror_sprite = -1;
-
-extern float r_ambientlight;
-
+#ifdef LEGACY_ROR
 char ror_protectedsectors[MAXSECTORS];
 static int32_t drawing_ror = 0;
+static int32_t ror_sprite = -1;
+
+static void G_OROR_DupeSprites(const spritetype *sp)
+{
+    // dupe the sprites touching the portal to the other sector
+    int32_t k;
+    const spritetype *refsp;
+
+    if ((unsigned)sp->yvel >= (unsigned)playerswhenstarted)
+        return;
+
+    refsp = &sprite[sp->yvel];
+
+    for (SPRITES_OF_SECT(sp->sectnum, k))
+    {
+        if (spritesortcnt >= MAXSPRITESONSCREEN)
+            break;
+
+        if (sprite[k].picnum != SECTOREFFECTOR && sprite[k].z >= sp->z)
+        {
+            Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(spritetype));
+
+            tsprite[spritesortcnt].x += (refsp->x - sp->x);
+            tsprite[spritesortcnt].y += (refsp->y - sp->y);
+            tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + actor[sp->yvel].ceilingz;
+            tsprite[spritesortcnt].sectnum = refsp->sectnum;
+            tsprite[spritesortcnt].owner = k;
+
+//            OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
+            spritesortcnt++;
+        }
+    }
+}
 
 static void G_SE40(int32_t smoothratio)
 {
-    if (ror_sprite != -1)
+    if ((unsigned)ror_sprite < MAXSPRITES)
     {
         int32_t x, y, z;
         int16_t sect;
         int32_t level = 0;
-        spritetype *sp = &sprite[ror_sprite];
-        int32_t sprite2 = sp->yvel;
+        const spritetype *const sp = &sprite[ror_sprite];
+        const int32_t sprite2 = sp->yvel;
+
+        if ((unsigned)sprite2 >= MAXSPRITES)
+            return;
 
         if (klabs(sector[sp->sectnum].floorz - sp->z) < klabs(sector[sprite[sprite2].sectnum].floorz - sprite[sprite2].z))
             level = 1;
@@ -4056,6 +4089,7 @@ static void G_SE40(int32_t smoothratio)
         if (sect != -1)
         {
             int32_t renderz, picnum;
+            // XXX: PK: too large stack allocation for my taste
             int16_t backupstat[MAXSECTORS];
             int32_t backupz[MAXSECTORS];
             int32_t i;
@@ -4111,35 +4145,12 @@ static void G_SE40(int32_t smoothratio)
             if (getrendermode() == REND_POLYMER)
                 polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), CAMERA(ang), smoothratio);
 #endif
-
             drawrooms(sprite[sprite2].x + x, sprite[sprite2].y + y,
                       z + renderz, CAMERA(ang), CAMERA(horiz), sect);
             drawing_ror = 1 + level;
 
-            // dupe the sprites touching the portal to the other sector
-
             if (drawing_ror == 2) // viewing from top
-            {
-                int32_t k = headspritesect[sp->sectnum];
-
-                while (k != -1 && spritesortcnt < MAXSPRITESONSCREEN)
-                {
-                    if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sp->z))
-                    {
-                        Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)&sprite[k],sizeof(spritetype));
-
-                        tsprite[spritesortcnt].x += (sprite[sp->yvel].x-sp->x);
-                        tsprite[spritesortcnt].y += (sprite[sp->yvel].y-sp->y);
-                        tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + actor[sp->yvel].ceilingz;
-                        tsprite[spritesortcnt].sectnum = sprite[sp->yvel].sectnum;
-                        tsprite[spritesortcnt].owner = k;
-
-                        //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
-                        spritesortcnt++;
-                    }
-                    k = nextspritesect[k];
-                }
-            }
+                G_OROR_DupeSprites(sp);
 
             G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothratio);
             drawmasks();
@@ -4166,6 +4177,7 @@ static void G_SE40(int32_t smoothratio)
         }
     }
 }
+#endif
 
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio)
 {
@@ -4258,36 +4270,6 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
     }
 }
 
-static void G_OROR_DupeSprites(void)
-{
-    // dupe the sprites touching the portal to the other sector
-    // viewing from bottom
-    int32_t k;
-    spritetype *sp;
-
-    if ((unsigned) ror_sprite >= MAXSPRITES || drawing_ror != 1)
-        return;
-
-    sp = &sprite[ror_sprite];
-
-    for (k = headspritesect[sp->sectnum]; k != -1; k = nextspritesect[k])
-    {
-        if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sp->z))
-        {
-            Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(spritetype));
-
-            tsprite[spritesortcnt].x += (sprite[sp->yvel].x - sp->x);
-            tsprite[spritesortcnt].y += (sprite[sp->yvel].y - sp->y);
-            tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + actor[sp->yvel].ceilingz;
-            tsprite[spritesortcnt].sectnum = sprite[sp->yvel].sectnum;
-            tsprite[spritesortcnt].owner = k;
-
-            //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
-            spritesortcnt++;
-        }
-    }
-}
-
 #ifdef USE_OPENGL
 static void G_ReadGLFrame(void)
 {
@@ -4375,9 +4357,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         CAMERA(ang) = actor[ud.camerasprite].tempang +
             mulscale16(((s->ang+1024-actor[ud.camerasprite].tempang)&2047)-1024, smoothratio);
-
+#ifdef LEGACY_ROR
         G_SE40(smoothratio);
-
+#endif
 #ifdef POLYMER
         if (getrendermode() == REND_POLYMER)
             polymer_setanimatesprites(G_DoSpriteAnimations, s->x, s->y, CAMERA(ang), smoothratio);
@@ -4603,9 +4585,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                            "other values are reserved.\n");
 
             G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(ang), CAMERA(horiz), smoothratio);
-
+#ifdef LEGACY_ROR
             G_SE40(smoothratio);
-
+#endif
 #ifdef POLYMER
             if (getrendermode() == REND_POLYMER)
                 polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothratio);
@@ -4619,12 +4601,14 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             yax_preparedrawrooms();
             drawrooms(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(ang),CAMERA(horiz),CAMERA(sect));
             yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothratio);
-
-            G_OROR_DupeSprites();
-
+#ifdef LEGACY_ROR
+            if ((unsigned)ror_sprite < MAXSPRITES && drawing_ror == 1)  // viewing from bottom
+                G_OROR_DupeSprites(&sprite[ror_sprite]);
+#endif
             G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothratio);
-
+#ifdef LEGACY_ROR
             drawing_ror = 0;
+#endif
             drawmasks();
 #endif
         }
@@ -6293,6 +6277,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             switch (sp->lotag)
             {
+#ifdef LEGACY_ROR
             case 40:
             case 41:
                 sp->cstat = 32;
@@ -6311,6 +6296,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case 46:
                 ror_protectedsectors[sp->sectnum] = 1;
                 /* XXX: fall-through intended? */
+#endif
             case SE_49_POINT_LIGHT:
             case SE_50_SPOT_LIGHT:
             {
@@ -7081,9 +7067,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 #endif
         return;
     }
-
+#ifdef LEGACY_ROR
     ror_sprite = -1;
-
+#endif
     for (j=spritesortcnt-1; j>=0; j--)
     {
         spritetype *const t = &tsprite[j];
@@ -7096,8 +7082,10 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             if (s->lotag == 40 || s->lotag == 41)
             {
                 t->cstat = 32768;
-
-                if (ror_sprite == -1) ror_sprite = i;
+#ifdef LEGACY_ROR
+                if (ror_sprite == -1)
+                    ror_sprite = i;
+#endif
             }
 
             if (t->lotag == SE_27_DEMO_CAM && ud.recstat == 1)

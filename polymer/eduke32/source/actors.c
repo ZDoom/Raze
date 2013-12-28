@@ -2781,7 +2781,7 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
         }
 
         if (!(proj->workslike & PROJECTILE_BOUNCESOFFWALLS) &&
-            s->yvel >= 0 && sprite[s->yvel].sectnum != MAXSECTORS)
+            (unsigned)s->yvel < MAXSPRITES && sprite[s->yvel].sectnum != MAXSECTORS)
             if (FindDistance2D(s->x-sprite[s->yvel].x, s->y-sprite[s->yvel].y) < 256)
                 j = 49152|s->yvel;
 
@@ -3059,7 +3059,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
             }
 
 
-            if (s->picnum == RPG && s->yvel >= 0)
+            if (s->picnum == RPG && (unsigned)s->yvel < MAXSPRITES)
                 if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                     j = 49152|s->yvel;
 
