@@ -294,7 +294,7 @@ SKIPWALLCHECK:
                     {
                         if (sj->picnum == APLAYER)
                         {
-                            DukePlayer_t *ps = g_player[sj->yvel].ps;
+                            DukePlayer_t *ps = g_player[P_GetP(sj)].ps;
 
                             if (ps->newowner >= 0)
                                 G_ClearCameraView(ps);
@@ -1015,25 +1015,27 @@ int32_t A_IncurDamage(int32_t sn)
 
     if (targ->picnum == APLAYER)
     {
-        int32_t p = targ->yvel;
+        int32_t p = P_GetP(targ);
 
         if (ud.god && dmg->picnum != SHRINKSPARK) return -1;
 
         if (dmg->owner >= 0 && ud.ffire == 0 && sprite[dmg->owner].picnum == APLAYER &&
             (GametypeFlags[ud.coop] & GAMETYPE_PLAYERSFRIENDLY ||
-            (GametypeFlags[ud.coop] & GAMETYPE_TDM && g_player[p].ps->team == g_player[sprite[dmg->owner].yvel].ps->team)))
+             (GametypeFlags[ud.coop] & GAMETYPE_TDM && g_player[p].ps->team == g_player[P_Get(dmg->owner)].ps->team)))
             return -1;
 
         targ->extra -= dmg->extra;
 
         if (dmg->owner >= 0 && targ->extra <= 0 && dmg->picnum != FREEZEBLAST)
         {
+            const int32_t ow = dmg->owner;
+
             targ->extra = 0;
 
-            g_player[p].ps->wackedbyactor = dmg->owner;
+            g_player[p].ps->wackedbyactor = ow;
 
-            if (sprite[dmg->owner].picnum == APLAYER && p != sprite[dmg->owner].yvel)
-                g_player[p].ps->frag_ps = sprite[dmg->owner].yvel;
+            if (sprite[ow].picnum == APLAYER && p != P_Get(ow))
+                g_player[p].ps->frag_ps = P_Get(ow);
 
             dmg->owner = g_player[p].ps->i;
         }
@@ -1120,7 +1122,7 @@ void A_MoveDummyPlayers(void)
 
     while (i >= 0)
     {
-        const int32_t p = sprite[OW].yvel;
+        const int32_t p = P_Get(OW);
         DukePlayer_t *const ps = g_player[p].ps;
 
         const int32_t nexti = nextspritestat[i];
@@ -1172,7 +1174,7 @@ ACTOR_STATIC void G_MovePlayers(void)
         const int32_t nexti = nextspritestat[i];
 
         spritetype *const s = &sprite[i];
-        DukePlayer_t *const p = g_player[s->yvel].ps;
+        DukePlayer_t *const p = g_player[P_GetP(s)].ps;
 
         if (s->owner >= 0)
         {
@@ -1200,24 +1202,24 @@ ACTOR_STATIC void G_MovePlayers(void)
                     p->on_warping_sector = 1;
 
                     if (slotag==ST_1_ABOVE_WATER)
-                        k = P_Submerge(i, s->yvel, p, psect, othersect);
+                        k = P_Submerge(i, P_GetP(s), p, psect, othersect);
                     else
-                        k = P_Emerge(i, s->yvel, p, psect, othersect);
+                        k = P_Emerge(i, P_GetP(s), p, psect, othersect);
 
                     if (k == 1)
                         P_FinishWaterChange(i, p, slotag, -1, othersect);
                 }
 #endif
                 if (g_netServer || ud.multimode > 1)
-                    otherp = P_FindOtherPlayer(s->yvel,&otherx);
+                    otherp = P_FindOtherPlayer(P_GetP(s), &otherx);
                 else
                 {
-                    otherp = s->yvel;
+                    otherp = P_GetP(s);
                     otherx = 0;
                 }
 
                 if (G_HaveActor(sprite[i].picnum))
-                    A_Execute(i,s->yvel,otherx);
+                    A_Execute(i, P_GetP(s), otherx);
 
                 if (g_netServer || ud.multimode > 1)
                     if (sprite[g_player[otherp].ps->i].extra > 0)
@@ -2845,7 +2847,7 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
 
                 if (sprite[j].picnum == APLAYER)
                 {
-                    int32_t p = sprite[j].yvel;
+                    int32_t p = P_Get(j);
 
                     A_PlaySound(PISTOL_BODYHIT, j);
 
@@ -3117,7 +3119,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
                         if (sprite[j].picnum == APLAYER)
                         {
-                            int32_t p = sprite[j].yvel;
+                            int32_t p = P_Get(j);
                             A_PlaySound(PISTOL_BODYHIT, j);
 
                             if (s->picnum == SPIT)
@@ -3410,7 +3412,7 @@ ACTOR_STATIC void G_MoveTransports(void)
             case STAT_PLAYER:
                 if (sprite[j].owner != -1)
                 {
-                    const int32_t p = sprite[j].yvel;
+                    const int32_t p = P_Get(j);
                     DukePlayer_t *const ps = g_player[p].ps;
 
                     ps->on_warping_sector = 1;
@@ -4645,7 +4647,7 @@ ACTOR_STATIC void G_MoveActors(void)
             }
 
             if (sprite[s->owner].picnum == APLAYER)
-                l = sprite[s->owner].yvel;
+                l = P_Get(s->owner);
             else l = -1;
 
             if (s->xvel > 0)
@@ -5069,9 +5071,9 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     else if (t[0] == 16)
                     {
                         s->picnum = NUKEBUTTON+2;
-                        g_player[sprite[s->owner].yvel].ps->fist_incs = 1;
+                        g_player[P_Get(s->owner)].ps->fist_incs = 1;
                     }
-                    if (g_player[sprite[s->owner].yvel].ps->fist_incs == GAMETICSPERSEC)
+                    if (g_player[P_Get(s->owner)].ps->fist_incs == GAMETICSPERSEC)
                         s->picnum = NUKEBUTTON+3;
                 }
                 goto BOLT;
@@ -5596,8 +5598,8 @@ static void HandleSE31(int32_t i, int32_t setfloorzp, int32_t zref, int32_t t2va
         for (SPRITES_OF_SECT(s->sectnum, j))
         {
             if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                if (g_player[sprite[j].yvel].ps->on_ground == 1)
-                    g_player[sprite[j].yvel].ps->pos.z += l;
+                if (g_player[P_Get(j)].ps->on_ground == 1)
+                    g_player[P_Get(j)].ps->pos.z += l;
 
             if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
             {
@@ -6877,7 +6879,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             {
                 if (sprite[j].statnum == STAT_PLAYER && sprite[j].owner >= 0)
                 {
-                    const int32_t p = sprite[j].yvel;
+                    const int32_t p = P_Get(j);
                     DukePlayer_t *const ps = g_player[p].ps;
 
                     if (numplayers < 2 && !g_netServer)
@@ -6931,7 +6933,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if (sprite[k].statnum == STAT_PLAYER && sprite[k].owner >= 0)
                     {
-                        const int32_t p = sprite[k].yvel;
+                        const int32_t p = P_Get(k);
                         DukePlayer_t *const ps = g_player[p].ps;
 
                         ps->pos.x += sprite[j].x-s->x;
@@ -6993,8 +6995,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         for (SPRITES_OF_SECT(s->sectnum, j))
                         {
                             if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                                if (g_player[sprite[j].yvel].ps->on_ground == 1)
-                                    g_player[sprite[j].yvel].ps->pos.z += sc->extra;
+                                if (g_player[P_Get(j)].ps->on_ground == 1)
+                                    g_player[P_Get(j)].ps->pos.z += sc->extra;
 
                             if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
                             {
@@ -7028,8 +7030,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         for (SPRITES_OF_SECT(s->sectnum, j))
                         {
                             if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                                if (g_player[sprite[j].yvel].ps->on_ground == 1)
-                                    g_player[sprite[j].yvel].ps->pos.z -= sc->extra;
+                                if (g_player[P_Get(j)].ps->on_ground == 1)
+                                    g_player[P_Get(j)].ps->pos.z -= sc->extra;
 
                             if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
                             {

@@ -503,7 +503,7 @@ void G_CacheMapData(void)
                         k = 0;
                         for (k=0; k<MAXPALOOKUPS-RESERVEDPALS && !KB_KeyPressed(sc_Space); k++)
                         {
-                            // this is the CROSSHAIR_COLOR, see comment in game.c
+                            // this is the CROSSHAIR_PAL, see comment in game.c
                             if (k == MAXPALOOKUPS-RESERVEDPALS-1)
                                 break;
 #ifdef POLYMER
@@ -772,7 +772,6 @@ void P_ResetStatus(int32_t snum)
     p->loogcnt          = 0;
     p->angvel           = 0;
     p->weapon_sway      = 0;
-    //    p->select_dir       = 0;
     p->extra_extra8     = 0;
     p->show_empty_weapon= 0;
     p->dummyplayersprite=-1;

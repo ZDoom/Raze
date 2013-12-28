@@ -63,7 +63,7 @@ static void P_IncurDamage(DukePlayer_t *p)
 {
     int32_t damage;
 
-    if (VM_OnEvent(EVENT_INCURDAMAGE, p->i, sprite[p->i].yvel, -1, 0) != 0)
+    if (VM_OnEvent(EVENT_INCURDAMAGE, p->i, P_Get(p->i), -1, 0) != 0)
         return;
 
     sprite[p->i].extra -= p->extra_extra8>>8;
@@ -199,12 +199,14 @@ static int32_t A_FindTargetSprite(const spritetype *s, int32_t aang, int32_t atw
     int32_t dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
     int32_t xv, yv;
 
+    const int32_t snum = s->picnum == APLAYER ? P_GetP(s) : -1;
+
     if (s->picnum == APLAYER)
     {
-        if (!g_player[s->yvel].ps->auto_aim)
+        if (!g_player[snum].ps->auto_aim)
             return -1;
 
-        if (g_player[s->yvel].ps->auto_aim == 2)
+        if (g_player[snum].ps->auto_aim == 2)
         {
             if (A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (ProjectileData[atwith].workslike & PROJECTILE_RPG))
                 return -1;
@@ -230,8 +232,8 @@ static int32_t A_FindTargetSprite(const spritetype *s, int32_t aang, int32_t atw
 
     j = -1;
 
-    gotshrinker = (s->picnum == APLAYER && PWEAPON(0, g_player[s->yvel].ps->curr_weapon, WorksLike) == SHRINKER_WEAPON);
-    gotfreezer = (s->picnum == APLAYER && PWEAPON(0, g_player[s->yvel].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
+    gotshrinker = (s->picnum == APLAYER && PWEAPON(0, g_player[snum].ps->curr_weapon, WorksLike) == SHRINKER_WEAPON);
+    gotfreezer = (s->picnum == APLAYER && PWEAPON(0, g_player[snum].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
 
     smax = INT32_MAX;
 
@@ -253,12 +255,10 @@ static int32_t A_FindTargetSprite(const spritetype *s, int32_t aang, int32_t atw
                 {
                     if (A_CheckEnemySprite(&sprite[i]) || PN == APLAYER || PN == SHARK)
                     {
-                        if (PN == APLAYER &&
+                        if (PN == APLAYER && s->picnum == APLAYER && s != &sprite[i] &&
                                 //                        ud.ffire == 0 &&
                                 (GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) || (GTFLAGS(GAMETYPE_TDM) &&
-                                        g_player[sprite[i].yvel].ps->team == g_player[s->yvel].ps->team)) &&
-                                s->picnum == APLAYER &&
-                                s != &sprite[i])
+                                        g_player[P_Get(i)].ps->team == g_player[snum].ps->team)))
                             continue;
 
                         if (gotshrinker && sprite[i].xrepeat < 30)
@@ -284,7 +284,10 @@ static int32_t A_FindTargetSprite(const spritetype *s, int32_t aang, int32_t atw
                         if (sdist > 512 && sdist < smax)
                         {
                             if (s->picnum == APLAYER)
-                                a = (klabs(scale(SZ-s->z,10,sdist)-(g_player[s->yvel].ps->horiz+g_player[s->yvel].ps->horizoff-100)) < 100);
+                            {
+                                const DukePlayer_t *const ps = g_player[P_GetP(s)].ps;
+                                a = (klabs(scale(SZ-s->z,10,sdist)-(ps->horiz+ps->horizoff-100)) < 100);
+                            }
                             else a = 1;
 
                             if (PN == ORGANTIC || PN == ROTATEGUN)
@@ -660,7 +663,7 @@ static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i
 
         if (sprite[hit->sprite].picnum == APLAYER &&
             (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
-                               g_player[sprite[hit->sprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
+                               g_player[P_Get(hit->sprite)].ps->team != g_player[P_Get(i)].ps->team)))
         {
             int32_t l = A_Spawn(k, JIBS6);
             sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -857,7 +860,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
     hitdata_t hit;
     spritetype *const s = &sprite[i];
     const int16_t sect = s->sectnum;
-    const int32_t p = (s->picnum == APLAYER) ? s->yvel : -1;
+    const int32_t p = (s->picnum == APLAYER) ? P_GetP(s) : -1;
     DukePlayer_t *const ps = p >= 0 ? g_player[p].ps : NULL;
 
 #ifdef POLYMER
@@ -1103,7 +1106,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
     int16_t sa;
     vec3_t srcvect;
     spritetype *const s = &sprite[i];
-    const int32_t p = (s->picnum == APLAYER) ? s->yvel : -1;
+    const int32_t p = (s->picnum == APLAYER) ? P_GetP(s) : -1;
     DukePlayer_t *const ps = p >= 0 ? g_player[p].ps : NULL;
 
     Bassert(atwith >= 0);
@@ -1901,7 +1904,7 @@ void P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p)
 
 static void P_FireWeapon(DukePlayer_t *p)
 {
-    int32_t i, snum = sprite[p->i].yvel;
+    int32_t i, snum = P_Get(p->i);  // TODO: PASS_SNUM?
 
     if (VM_OnEvent(EVENT_DOFIRE, p->i, snum, -1, 0) == 0)
     {
@@ -1958,7 +1961,7 @@ static void P_FireWeapon(DukePlayer_t *p)
 
 static void P_DoWeaponSpawn(const DukePlayer_t *p)
 {
-    int32_t j, snum = sprite[p->i].yvel;
+    int32_t j, snum = P_Get(p->i);  // TODO: PASS_SNUM?
 
     // NOTE: For the 'Spawn' member, 0 means 'none', too (originally so,
     // i.e. legacy). The check for <0 was added to the check because mod
@@ -2952,7 +2955,7 @@ void P_GetInput(int32_t snum)
 
 static int32_t P_DoCounters(DukePlayer_t *p)
 {
-    int32_t snum = sprite[p->i].yvel;
+    int32_t snum = P_Get(p->i);
 
 //        j = g_player[snum].sync->avel;
 //        p->weapon_ang = -(j/5);
@@ -3159,10 +3162,11 @@ int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATI
 // this is used for player deaths
 void P_DropWeapon(DukePlayer_t *p)
 {
-    int32_t snum = sprite[p->i].yvel,
-            cw = PWEAPON(snum, p->curr_weapon, WorksLike);
+    int32_t snum = P_Get(p->i);  // TODO: PASS_SNUM?
+    int32_t cw = PWEAPON(snum, p->curr_weapon, WorksLike);
 
-    if ((unsigned)cw >= MAX_WEAPONS) return;
+    if ((unsigned)cw >= MAX_WEAPONS)
+        return;
       
     if (krand()&1)
         A_Spawn(p->i, WeaponPickupSprites[cw]);
@@ -3185,7 +3189,7 @@ void P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount)
 
 static void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
 {
-    int32_t snum = sprite[p->i].yvel;
+    int32_t snum = P_Get(p->i);  // PASS_SNUM?
 
     if ((p->gotweapon & (1<<weapon)) == 0)
     {
@@ -3204,10 +3208,11 @@ static void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
 
 void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
 {
-    int32_t i = 0, snum = sprite[p->i].yvel;
+    int32_t i = 0, snum = P_Get(p->i);  // PASS_SNUM?
     const int8_t curr_weapon = p->curr_weapon;
 
-    if (p->reloading) return;
+    if (p->reloading)
+        return;
 
     if (p->curr_weapon != weapon && G_HaveEvent(EVENT_CHANGEWEAPON))
         i = VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, weapon);
@@ -3291,7 +3296,7 @@ void P_CheckWeapon(DukePlayer_t *p)
     if ((p->gotweapon & (1<<weapon)) && (p->ammo_amount[weapon] > 0 || !(p->weaponswitch & 2)))
         return;
 
-    snum = sprite[p->i].yvel;
+    snum = P_Get(p->i);
 
     for (i=0; i<=FREEZE_WEAPON; i++)
     {
@@ -3335,7 +3340,7 @@ static void DoWallTouchDamage(const DukePlayer_t *p, int32_t obj)
 
 static void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
 {
-    if ((obj = VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, sprite[p->i].yvel, -1, obj)) == -1)
+    if ((obj = VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, P_Get(p->i), -1, obj)) == -1)
         return;
 
     if ((obj&49152) == 49152)
@@ -3396,7 +3401,7 @@ static int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t tex)
 {
     spritetype *s = &sprite[p->i];
 
-    if ((unsigned)(tex = VM_OnEvent(EVENT_CHECKFLOORDAMAGE, p->i, sprite[p->i].yvel, -1, tex)) >= MAXTILES)
+    if ((unsigned)(tex = VM_OnEvent(EVENT_CHECKFLOORDAMAGE, p->i, P_Get(p->i), -1, tex)) >= MAXTILES)
         return 0;
 
     switch (DYNAMICTILEMAP(tex))
@@ -3461,7 +3466,7 @@ static int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t tex)
 }
 
 
-int32_t P_FindOtherPlayer(int32_t p,int32_t *d)
+int32_t P_FindOtherPlayer(int32_t p, int32_t *d)
 {
     int32_t j, closest_player = p;
     int32_t x, closest = INT32_MAX;
@@ -5292,9 +5297,12 @@ HORIZONLY:
                     A_DeleteSprite(p->actorsqu);
                     break;
                 case APLAYER__STATIC:
-                    P_QuickKill(g_player[sprite[p->actorsqu].yvel].ps);
-                    g_player[sprite[p->actorsqu].yvel].ps->frag_ps = snum;
+                {
+                    int32_t snum = P_Get(p->actorsqu);
+                    P_QuickKill(g_player[snum].ps);
+                    g_player[snum].ps->frag_ps = snum;
                     break;
+                }
                 default:
                     if (A_CheckEnemySprite(&sprite[p->actorsqu]))
                         p->actors_killed++;

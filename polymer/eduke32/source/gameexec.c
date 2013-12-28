@@ -804,7 +804,7 @@ static void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
 {
     if ((ps->weaponswitch & 1) && (ps->weaponswitch & 4))
     {
-        int32_t snum = sprite[ps->i].yvel;
+        const int32_t snum = P_Get(ps->i);
         int32_t i, new_wchoice = -1, curr_wchoice = -1;
 
         for (i=0; i<=FREEZE_WEAPON && (new_wchoice < 0 || curr_wchoice < 0); i++)
@@ -1428,7 +1428,7 @@ skip_check:
         case CON_GETLASTPAL:
             insptr++;
             if (vm.g_sp->picnum == APLAYER)
-                vm.g_sp->pal = g_player[vm.g_sp->yvel].ps->palookup;
+                vm.g_sp->pal = g_player[P_GetP(vm.g_sp)].ps->palookup;
             else
             {
                 if (vm.g_sp->pal == 1 && vm.g_sp->extra == 0) // hack for frozen
@@ -1440,7 +1440,7 @@ skip_check:
 
         case CON_TOSSWEAPON:
             insptr++;
-            P_DropWeapon(g_player[vm.g_sp->yvel].ps);
+            P_DropWeapon(g_player[P_GetP(vm.g_sp)].ps);
             continue;
 
         case CON_NULLOP:
@@ -5318,7 +5318,7 @@ void A_LoadActor(int32_t iActor)
 #endif
 
 // NORECURSE
-void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
+void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
 #ifdef LUNATIC
     int32_t killit=0;
@@ -5697,7 +5697,7 @@ void G_RestoreMapState(void)
         // - walk backward to the door leading to Shadowpine Forest --> crash.
         for (SPRITES_OF(STAT_PLAYER, i))
         {
-            int32_t snum = sprite[i].yvel;
+            int32_t snum = P_Get(i);
             Bassert((unsigned)snum < MAXPLAYERS);
             g_player[snum].ps->i = i;
         }

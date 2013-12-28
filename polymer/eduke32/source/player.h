@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __player_h__
 #define __player_h__
 
+extern int32_t playerswhenstarted;
+
 #define MOVEFIFOSIZ                 2
 
 #define NAM_GRENADE_LIFETIME        120
@@ -368,7 +370,7 @@ void        P_CheckWeapon(DukePlayer_t *p);
 void        P_DisplayScuba(int32_t snum);
 void        P_DisplayWeapon(int32_t snum);
 void        P_DropWeapon(DukePlayer_t *p);
-int32_t     P_FindOtherPlayer(int32_t p,int32_t *d);
+int32_t     P_FindOtherPlayer(int32_t p, int32_t *d);
 void        P_FragPlayer(int32_t snum);
 void        P_UpdatePosWhenViewingCam(DukePlayer_t *p);
 void        P_ProcessInput(int32_t snum);
@@ -385,5 +387,31 @@ static inline void P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p)
     UNREFERENCED_PARAMETER(p);
 }
 #endif
+
+// Get the player index given an APLAYER sprite pointer.
+static inline int32_t P_GetP(const spritetype *spr)
+{
+#if 0  // unprotected player index retrieval
+    return spr->yvel;
+#elif defined NETCODE_DISABLE
+    UNREFERENCED_PARAMETER(spr);  // for NDEBUG build
+    // NOTE: In the no-netcode build, there's no point to pass player indices
+    // at all since there is ever only one player. However, merely returning 0
+    // would mean making this build less strict than the normal one.
+    Bassert(spr->yvel == 0);
+    return 0;
+#else
+    int32_t pidx = spr->yvel;
+    if ((unsigned)pidx >= (unsigned)playerswhenstarted)
+        pidx = 0;
+    return pidx;
+#endif
+}
+
+// Get the player index given an APLAYER sprite index.
+static inline int32_t P_Get(int32_t spritenum)
+{
+    return P_GetP(&sprite[spritenum]);
+}
 
 #endif

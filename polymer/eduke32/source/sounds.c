@@ -474,7 +474,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
     int32_t sndang, sndist;
     int32_t explosion = 0;
 
-    if (PN == APLAYER && sprite[i].yvel == screenpeek)
+    if (PN == APLAYER && P_Get(i) == screenpeek)
     {
         sndang = sndist = 0;
         goto sound_further_processing;
@@ -489,7 +489,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
         // HACK for splitscreen mod: take the min of sound distances
         // to 1st and 2nd player.
 
-        if (PN == APLAYER && sprite[i].yvel==1)
+        if (PN == APLAYER && P_Get(i) == 1)
         {
             sndist = sndang = 0;
             goto sound_further_processing;
@@ -588,7 +588,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     // Duke talk
     if (g_sounds[num].m & SF_TALK)
     {
-        if ((g_netServer || ud.multimode > 1) && PN == APLAYER && sprite[i].yvel != screenpeek) // other player sound
+        if ((g_netServer || ud.multimode > 1) && PN == APLAYER && P_Get(i) != screenpeek) // other player sound
         {
             if (!(ud.config.VoiceToggle&4))
                 return -1;

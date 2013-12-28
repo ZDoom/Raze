@@ -3633,8 +3633,8 @@ void G_DisplayRest(int32_t smoothratio)
     }
 
     if (I_EscapeTrigger() && ud.overhead_on == 0
-            && ud.show_help == 0
-            && g_player[myconnectindex].ps->newowner == -1)
+        && ud.show_help == 0
+        && g_player[myconnectindex].ps->newowner == -1)
     {
         if ((g_player[myconnectindex].ps->gm&MODE_MENU) == MODE_MENU && g_currentMenu < 51)
         {
@@ -3763,7 +3763,7 @@ void G_DisplayRest(int32_t smoothratio)
                  (myps->player_par/(REALGAMETICSPERSEC*60)),
                  (myps->player_par/REALGAMETICSPERSEC)%60,
                  ((myps->player_par%REALGAMETICSPERSEC)*33)/10
-                );
+            );
         G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),
                         tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
@@ -3853,7 +3853,7 @@ static void G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsect
     vec3_t n = { (sintable[(ang+1536)&2047]>>4),
                  (sintable[(ang+1024)&2047]>>4),
                  (horiz-100)*128
-               };
+    };
 
     sp->cstat &= (int16_t)~0x101;
 
@@ -3941,15 +3941,15 @@ void G_DrawBackground(void)
 #if !defined LUNATIC
         if (Gv_GetVarByLabel("MENU_TILE", !fstilep, -1, -1))
 #else
-        if (!fstilep)
+            if (!fstilep)
 #endif
-        {
-            if ((unsigned)bgtile < MAXTILES)
-                for (y=y1; y<y2; y+=tilesizy[bgtile])
-                    for (x=0; x<xdim; x+=tilesizx[bgtile])
-                        rotatesprite_fs(x<<16,y<<16,65536L,0,bgtile,16,0,8+16+64);
-        }
-        else rotatesprite_fs(320<<15,200<<15,65536L,0,bgtile,16,0,2+8+64+(ud.bgstretch?1024:0));
+            {
+                if ((unsigned)bgtile < MAXTILES)
+                    for (y=y1; y<y2; y+=tilesizy[bgtile])
+                        for (x=0; x<xdim; x+=tilesizx[bgtile])
+                            rotatesprite_fs(x<<16,y<<16,65536L,0,bgtile,16,0,8+16+64);
+            }
+            else rotatesprite_fs(320<<15,200<<15,65536L,0,bgtile,16,0,2+8+64+(ud.bgstretch?1024:0));
         return;
     }
 
@@ -5548,7 +5548,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     break;
                 }
 
-                sp->cstat = 32+((g_player[sprite[j].yvel].ps->footprintcount&1)<<2);
+                sp->cstat = 32+((g_player[P_Get(j)].ps->footprintcount&1)<<2);
                 sp->ang = sprite[j].ang;
             }
 
@@ -5596,7 +5596,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->xrepeat = sprite[j].xrepeat;
                 sp->yrepeat = sprite[j].yrepeat;
                 sp->shade = sprite[j].shade;
-                sp->pal = g_player[sprite[j].yvel].ps->palookup;
+                sp->pal = g_player[P_Get(j)].ps->palookup;
             }
         case DUKECAR__STATIC:
         case HELECOPT__STATIC:
@@ -5658,16 +5658,17 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case SHOTGUNSHELL__STATIC:
             if (j >= 0)
             {
-                int32_t snum,a;
+                int32_t a;
 
                 if (sprite[j].picnum == APLAYER)
                 {
-                    snum = sprite[j].yvel;
-                    a = g_player[snum].ps->ang-(krand()&63)+8;  //Fine tune
+                    int32_t snum = P_Get(j);
+                    const DukePlayer_t *const ps = g_player[snum].ps;
+
+                    a = ps->ang-(krand()&63)+8;  //Fine tune
 
                     T1 = krand()&1;
-                    sp->z = (3<<8)+g_player[snum].ps->pyoff+g_player[snum].ps->pos.z-
-                            ((g_player[snum].ps->horizoff+g_player[snum].ps->horiz-100)<<4);
+                    sp->z = (3<<8) + ps->pyoff + ps->pos.z - ((ps->horizoff + ps->horiz-100)<<4);
                     if (sp->picnum == SHOTGUNSHELL)
                         sp->z += (3<<8);
                     sp->zvel = -(krand()&255);
@@ -7235,21 +7236,26 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         if (t->statnum == TSPR_TEMP)
             continue;
 
-        if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && g_player[s->yvel].ps->newowner == -1 && s->owner >= 0)
         {
-            t->x -= mulscale16(65536-smoothratio,g_player[s->yvel].ps->pos.x-g_player[s->yvel].ps->opos.x);
-            t->y -= mulscale16(65536-smoothratio,g_player[s->yvel].ps->pos.y-g_player[s->yvel].ps->opos.y);
-            // dirty hack
-            if (g_player[s->yvel].ps->dead_flag) t->z = g_player[s->yvel].ps->opos.z;
-            t->z += mulscale16(smoothratio,g_player[s->yvel].ps->pos.z-g_player[s->yvel].ps->opos.z) -
-                    (g_player[s->yvel].ps->dead_flag ? 0 : PHEIGHT) + PHEIGHT;
-        }
-        else if ((s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER ||
-                 s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR)
-        {
-            t->x -= mulscale16(65536-smoothratio,s->x-actor[i].bpos.x);
-            t->y -= mulscale16(65536-smoothratio,s->y-actor[i].bpos.y);
-            t->z -= mulscale16(65536-smoothratio,s->z-actor[i].bpos.z);
+            int32_t snum = P_GetP(s);
+            const DukePlayer_t *const ps = g_player[snum].ps;
+
+            if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps->newowner == -1 && s->owner >= 0)
+            {
+                t->x -= mulscale16(65536-smoothratio,ps->pos.x-ps->opos.x);
+                t->y -= mulscale16(65536-smoothratio,ps->pos.y-ps->opos.y);
+                // dirty hack
+                if (ps->dead_flag) t->z = ps->opos.z;
+                t->z += mulscale16(smoothratio,ps->pos.z-ps->opos.z) -
+                    (ps->dead_flag ? 0 : PHEIGHT) + PHEIGHT;
+            }
+            else if ((s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER ||
+                     s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR)
+            {
+                t->x -= mulscale16(65536-smoothratio,s->x-actor[i].bpos.x);
+                t->y -= mulscale16(65536-smoothratio,s->y-actor[i].bpos.y);
+                t->z -= mulscale16(65536-smoothratio,s->z-actor[i].bpos.z);
+            }
         }
 
         sect = s->sectnum;
@@ -7320,7 +7326,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         case BURNING2__STATIC:
             if (sprite[s->owner].statnum == STAT_PLAYER)
             {
-                if (display_mirror == 0 && sprite[s->owner].yvel == screenpeek && g_player[sprite[s->owner].yvel].ps->over_shoulder_on == 0)
+                const int32_t snum = P_Get(s->owner);
+
+                if (display_mirror == 0 && snum == screenpeek && g_player[snum].ps->over_shoulder_on == 0)
                     t->xrepeat = 0;
                 else
                 {
@@ -7393,7 +7401,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             break;
 
         case APLAYER__STATIC:
-            p = s->yvel;
+            p = P_GetP(s);
 
             if (t->pal == 1) t->z -= (18<<8);
 
@@ -7851,7 +7859,7 @@ skip:
             {
                 if (sprite[s->owner].picnum == APLAYER)
                     if (ud.camerasprite == -1)
-                        if (screenpeek == sprite[s->owner].yvel && display_mirror == 0)
+                        if (screenpeek == P_Get(s->owner) && display_mirror == 0)
                         {
                             t->owner = -1;
                             break;
@@ -12009,18 +12017,22 @@ int32_t G_DoMoveThings(void)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
         if ((hit.sprite >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) &&
-                sprite[hit.sprite].picnum == APLAYER && sprite[hit.sprite].yvel != screenpeek &&
-                g_player[sprite[hit.sprite].yvel].ps->dead_flag == 0)
+                sprite[hit.sprite].picnum == APLAYER)
         {
-            if (p->fta == 0 || p->ftq == QUOTE_RESERVED3)
+            const int32_t snum = P_Get(hit.sprite);
+
+            if (snum != screenpeek && g_player[snum].ps->dead_flag == 0)
             {
-                if (ldist(&sprite[p->i],&sprite[hit.sprite]) < 9216)
+                if (p->fta == 0 || p->ftq == QUOTE_RESERVED3)
                 {
-                    Bsprintf(ScriptQuotes[QUOTE_RESERVED3],"%s",&g_player[sprite[hit.sprite].yvel].user_name[0]);
-                    p->fta = 12, p->ftq = QUOTE_RESERVED3;
+                    if (ldist(&sprite[p->i], &sprite[hit.sprite]) < 9216)
+                    {
+                        Bsprintf(ScriptQuotes[QUOTE_RESERVED3], "%s", &g_player[snum].user_name[0]);
+                        p->fta = 12, p->ftq = QUOTE_RESERVED3;
+                    }
                 }
+                else if (p->fta > 2) p->fta -= 3;
             }
-            else if (p->fta > 2) p->fta -= 3;
         }
     }
 

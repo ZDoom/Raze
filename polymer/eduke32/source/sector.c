@@ -631,7 +631,6 @@ void G_OperateSectors(int32_t sn, int32_t ii)
     case ST_15_WARP_ELEVATOR://Warping elevators
 
         if (sprite[ii].picnum != APLAYER) return;
-        //            if(ps[sprite[ii].yvel].select_dir == 1) return;
 
         i = headspritesect[sn];
         while (i >= 0)
@@ -2371,7 +2370,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                 j = sprite[sn].owner;
 
                 if (j >= 0 && sprite[j].picnum == APLAYER && PN != ROTATEGUN && PN != DRONE)
-                    if (g_player[sprite[j].yvel].ps->curr_weapon == SHOTGUN_WEAPON)
+                    if (g_player[P_Get(j)].ps->curr_weapon == SHOTGUN_WEAPON)
                     {
                         A_Shoot(i,BLOODSPLAT3);
                         A_Shoot(i,BLOODSPLAT1);
@@ -2415,7 +2414,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
             if (sprite[i].statnum == STAT_PLAYER)
             {
-                DukePlayer_t *ps = g_player[sprite[i].yvel].ps;
+                DukePlayer_t *ps = g_player[P_Get(i)].ps;
 
                 if (ps->newowner >= 0)
                     G_ClearCameraView(ps);

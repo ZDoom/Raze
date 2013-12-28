@@ -1573,7 +1573,9 @@ end
 function _getlastpal(spritenum)
     local spr = sprite[spritenum]
     if (ispic(spr.picnum, "APLAYER")) then
-        spr.pal = player[spr.yvel].palookup
+        local pidx = spr.yvel
+        check_player_idx(pidx)
+        spr.pal = player[pidx].palookup
     else
         if (spr.pal == 1 and spr.extra == 0) then  -- hack for frozen
             spr.extra = spr.extra+1

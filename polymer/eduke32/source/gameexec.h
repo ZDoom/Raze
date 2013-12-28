@@ -143,7 +143,7 @@ extern int32_t g_currentEventExec;
 void A_LoadActor(int32_t iActor);
 #endif
 
-void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist);
+void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist);
 void A_Fall(int32_t iActor);
 int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_t *day);
 int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs);
