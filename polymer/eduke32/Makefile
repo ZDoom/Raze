@@ -144,9 +144,25 @@ MISCEDITORDEPS=
 
 ## Lunatic devel
 ifneq (0,$(LUNATIC))
-    LUNATIC_COMMON_OBJS = $(OBJ)/luaJIT_BC_defs_common.$o $(OBJ)/luaJIT_BC_engine_maptext.$o $(OBJ)/luaJIT_BC_engine.$o
+    LUNATIC_COMMON_OBJS = \
+        $(OBJ)/luaJIT_BC_defs_common.$o \
+        $(OBJ)/luaJIT_BC_engine_maptext.$o \
+        $(OBJ)/luaJIT_BC_engine.$o \
+        $(OBJ)/luaJIT_BC_bcarray.$o \
+        $(OBJ)/luaJIT_BC_bcheck.$o \
+        $(OBJ)/luaJIT_BC_bitar.$o \
+        $(OBJ)/luaJIT_BC_xmath.$o \
+        $(OBJ)/luaJIT_BC_v.$o \
+        $(OBJ)/luaJIT_BC_dump.$o \
+        $(OBJ)/luaJIT_BC_dis_x86.$o \
+        $(OBJ)/luaJIT_BC_dis_x64.$o \
+
+    # TODO: remove debugging modules from release build
+
     EDITOROBJS+= $(OBJ)/lunatic_m32.$o $(LUNATIC_COMMON_OBJS)
     GAMEOBJS+= $(OBJ)/lunatic_game.$o $(LUNATIC_COMMON_OBJS)
+
+    EDITOROBJS+= $(OBJ)/luaJIT_BC_defs_m32.$o
 
     ifneq ($(PLATFORM),WINDOWS)
         # On non-Windows, we expect to have liblpeg.a (or a symlink to it) in source/.
@@ -162,19 +178,10 @@ ifneq (0,$(LUNATIC))
                $(OBJ)/luaJIT_BC_lunacon.$o \
                $(OBJ)/luaJIT_BC_randgen.$o \
                $(OBJ)/luaJIT_BC_stat.$o \
-               $(OBJ)/luaJIT_BC_bitar.$o \
                $(OBJ)/luaJIT_BC_control.$o \
-               $(OBJ)/luaJIT_BC_bcarray.$o \
-               $(OBJ)/luaJIT_BC_bcheck.$o \
-               $(OBJ)/luaJIT_BC_xmath.$o \
                $(OBJ)/luaJIT_BC_defs.$o \
-               $(OBJ)/luaJIT_BC_v.$o \
-               $(OBJ)/luaJIT_BC_dump.$o \
-               $(OBJ)/luaJIT_BC_dis_x86.$o \
-               $(OBJ)/luaJIT_BC_dis_x64.$o \
                $(OBJ)/luaJIT_BC_savegame.$o \
                $(OBJ)/luaJIT_BC_fs.$o \
-    # TODO: remove debugging modules from release build
 
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
     # executable no matter what the debugging level

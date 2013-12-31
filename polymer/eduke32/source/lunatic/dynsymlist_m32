@@ -93,6 +93,14 @@ crc32once;
 luaJIT_BC_defs_common;
 luaJIT_BC_engine_maptext;
 luaJIT_BC_engine;
+luaJIT_BC_bcarray;
+luaJIT_BC_bcheck;
+luaJIT_BC_bitar;
+luaJIT_BC_xmath;
+luaJIT_BC_v;
+luaJIT_BC_dump;
+luaJIT_BC_dis_x86;
+luaJIT_BC_dis_x64;
 
 g_argv;
 

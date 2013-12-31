@@ -10510,8 +10510,9 @@ int32_t ExtInit(void)
         i = L_RunOnce(&g_EmState, "defs_m32.ilua");
         if (i != 0)
         {
-            initprintf("Lunatic: Error preparing global Lua state (code %d)\n", i);
             Em_DestroyState(&g_EmState);
+            initprintf("Lunatic: Error preparing global Lua state (code %d)\n", i);
+            return -1;
         }
     }
 #endif
