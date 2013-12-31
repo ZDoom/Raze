@@ -14285,6 +14285,36 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     }
 }
 
+static int32_t palookup_isdefault(int32_t palnum)  // KEEPINSYNC engine.lua
+{
+    return (palookup[palnum] == NULL || (palnum!=0 && palookup[palnum] == palookup[0]));
+}
+
+static void maybe_alloc_palookup(int32_t palnum)
+{
+    if (palookup_isdefault(palnum))
+    {
+        alloc_palookup(palnum);
+        if (palookup[palnum] == NULL)
+            exit(1);
+    }
+}
+
+#ifdef LUNATIC
+int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
+{
+    if (numshades != 32)
+        return -1;
+
+    if (shtab != NULL)
+    {
+        maybe_alloc_palookup(palnum);
+        Bmemcpy(palookup[palnum], shtab, 256*numshades);
+    }
+
+    return 0;
+}
+#endif
 
 //
 // makepalookup
@@ -14319,12 +14349,7 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
         remapbuf = idmap;
     }
 
-    if (palookup[palnum] == NULL || (palnum!=0 && palookup[palnum] == palookup[0]))
-    {
-        alloc_palookup(palnum);
-        if (palookup[palnum] == NULL)
-            exit(1);
-    }
+    maybe_alloc_palookup(palnum);
 
     if (dastat == 0) return;
     if ((r|g|b|63) != 63) return;

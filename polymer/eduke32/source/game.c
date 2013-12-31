@@ -10745,6 +10745,8 @@ static void G_Startup(void)
     Gv_FinalizeWeaponDefaults();
     G_PostCreateGameState();
 #ifdef LUNATIC
+    // NOTE: This is only effective for CON-defined EVENT_INIT. See EVENT_INIT
+    // not in defs.ilua.
     VM_OnEvent(EVENT_INIT, -1, -1, -1, 0);
 #endif
     if (g_netServer || ud.multimode > 1) G_CheckGametype();

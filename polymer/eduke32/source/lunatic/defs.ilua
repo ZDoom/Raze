@@ -65,6 +65,15 @@ end
 
 lprivate.decl = decl
 
+ffi.cdef[[
+enum {
+    LUNATIC_CLIENT_MAPSTER32 = 0,
+    LUNATIC_CLIENT_EDUKE32 = 1,
+
+    LUNATIC_CLIENT = LUNATIC_CLIENT_EDUKE32
+}
+]]
+
 -- Load the definitions common to the game's and editor's Lua interface.
 local defs_c = require("defs_common")
 local cansee = defs_c.cansee
@@ -608,6 +617,7 @@ int32_t (*El_RestoreGamevars)(const char *savecode);
 const char *s_buildRev;
 const char *g_sizes_of_what[];
 int32_t g_sizes_of[];
+int32_t g_elFirstTime;
 int32_t g_elCallDepth;
 int32_t block_deletesprite;
 const char **g_elModules;
@@ -1570,6 +1580,7 @@ local allowed_modules = {
     },
 
     randgen = randgen,
+    engine = require("engine"),
     stat = require("stat"),
     bitar = require("bitar"),
     xmath = require("xmath"),
@@ -2186,6 +2197,8 @@ G_.actor = actor
 G_.projectile = projectile
 G_.g_tile = g_tile
 
+G_.LUNATIC_FIRST_TIME = (ffiC.g_elFirstTime ~= 0)
+
 -- A table that can be used for temporary data when debugging from the OSD.
 G_.d = {}
 
@@ -2552,4 +2565,6 @@ if (not g_firstRun) then
 
         i = i+1
     end
+
+    ffiC.g_elFirstTime = 0
 end

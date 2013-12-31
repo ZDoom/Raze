@@ -66,6 +66,11 @@ clipmovex;
 rotatesprite_;
 setaspect;
 
+getclosestcol;
+palookup;
+palette;
+setpalookup;
+
 kopen4load;
 kfilelength;
 kclose;
@@ -87,6 +92,7 @@ crc32once;
 
 luaJIT_BC_defs_common;
 luaJIT_BC_engine_maptext;
+luaJIT_BC_engine;
 
 g_argv;
 

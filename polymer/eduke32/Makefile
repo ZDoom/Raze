@@ -144,7 +144,7 @@ MISCEDITORDEPS=
 
 ## Lunatic devel
 ifneq (0,$(LUNATIC))
-    LUNATIC_COMMON_OBJS = $(OBJ)/luaJIT_BC_defs_common.$o $(OBJ)/luaJIT_BC_engine_maptext.$o
+    LUNATIC_COMMON_OBJS = $(OBJ)/luaJIT_BC_defs_common.$o $(OBJ)/luaJIT_BC_engine_maptext.$o $(OBJ)/luaJIT_BC_engine.$o
     EDITOROBJS+= $(OBJ)/lunatic_m32.$o $(LUNATIC_COMMON_OBJS)
     GAMEOBJS+= $(OBJ)/lunatic_game.$o $(LUNATIC_COMMON_OBJS)
 

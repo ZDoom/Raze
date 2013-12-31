@@ -37,6 +37,9 @@ int32_t g_elSessionVar[8];  // MAXSESSIONVARS, KEEPINSYNC con_lang.lua
 // Set to 1 on error in event.
 int32_t g_elEventError;
 
+// Will be set to 0 after the first time that user Lua modules are run.
+int32_t g_elFirstTime = 1;
+
 int32_t g_elCallDepth = 0;
 int32_t g_RETURN;
 
