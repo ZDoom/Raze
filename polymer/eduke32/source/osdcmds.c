@@ -1232,9 +1232,9 @@ static int32_t osdcmd_password(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+#if !defined NETCODE_DISABLE
 static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
 {
-#ifndef NETCODE_DISABLE
     ENetPeer *currentPeer;
     char ipaddr[32];
 
@@ -1260,13 +1260,12 @@ static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
         initprintf("%x %s %s\n", currentPeer->address.host, ipaddr,
                    g_player[(intptr_t)currentPeer->data].user_name);
     }
-#endif
+
     return OSDCMD_OK;
 }
 
 static int32_t osdcmd_kick(const osdfuncparm_t *parm)
 {
-#ifndef NETCODE_DISABLE
     ENetPeer *currentPeer;
     uint32_t hexaddr;
 
@@ -1299,13 +1298,12 @@ static int32_t osdcmd_kick(const osdfuncparm_t *parm)
 
     initprintf("Player %s not found!\n", parm->parms[0]);
     osdcmd_listplayers(NULL);
-#endif
+
     return OSDCMD_OK;
 }
 
 static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
 {
-#ifndef NETCODE_DISABLE
     ENetPeer *currentPeer;
     uint32_t hexaddr;
 
@@ -1344,9 +1342,10 @@ static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
 
     initprintf("Player %s not found!\n", parm->parms[0]);
     osdcmd_listplayers(NULL);
-#endif
+
     return OSDCMD_OK;
 }
+#endif
 
 static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 {
@@ -1610,11 +1609,12 @@ int32_t registerosdcommands(void)
 #ifdef DEBUGGINGAIDS
     OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
 #endif
+#if !defined NETCODE_DISABLE
     OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
     OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
 
     OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
-
+#endif
     OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
