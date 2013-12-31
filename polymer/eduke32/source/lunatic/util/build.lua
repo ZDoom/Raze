@@ -127,10 +127,11 @@ local function doread(fh, basectype, numelts, dontclose)
 end
 
 -- Read base palette (i.e. first 768 bytes as R,G,B triplets) from a PALETTE.DAT.
+-- <noquad>: if true, don't multiply components by 4
 -- Returns:
 --  on success: <uint8_t [768]> cdata (palette values scaled by 4)
 --  on failure: nil, <errmsg>
-function read_basepal(filename)
+function read_basepal(filename, noquad)
     local fh, errmsg = io.open(filename, "rb")
     if (fh == nil) then
         return nil, errmsg
@@ -139,8 +140,10 @@ function read_basepal(filename)
     local palette, errmsg = doread(fh, "uint8_t", 768, true)
     fh:close()
 
+    local f = noquad and 1 or 4
+
     for i=0,768-1 do
-        palette[i] = 4*palette[i]
+        palette[i] = f*palette[i]
     end
 
     return palette, errmsg
