@@ -73,7 +73,6 @@ PROJ = {
     PROJ_USERDATA = 29,
 }
 
--- TODO: EVENT_INIT currently can't run since we init Lunatic state only afterwards
 EVENT = {
     EVENT_INIT = 0,
     EVENT_ENTERLEVEL = 1,

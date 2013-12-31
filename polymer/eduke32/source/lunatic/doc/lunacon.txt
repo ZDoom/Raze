@@ -326,8 +326,3 @@ Additionally, various multiplayer-related commands either unconditionally
 return results as if no multiplayer game is in progress, or are non-functional
 for more than the first player. Also, some MP-related variables are merely
 predefined constants.
-
-Miscellaneous
-^^^^^^^^^^^^^
-
-* not LunaCON-specific: `EVENT_INIT` is never reached as it runs before Lua state creation

@@ -10744,7 +10744,9 @@ static void G_Startup(void)
     G_InitMultiPsky(CLOUDYOCEAN, MOONSKY1, BIGORBIT1, LA);
     Gv_FinalizeWeaponDefaults();
     G_PostCreateGameState();
-
+#ifdef LUNATIC
+    VM_OnEvent(EVENT_INIT, -1, -1, -1, 0);
+#endif
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
 
     if (g_noSound) ud.config.SoundToggle = 0;
