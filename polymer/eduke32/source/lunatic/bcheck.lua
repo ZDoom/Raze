@@ -4,8 +4,6 @@ local ffiC = require("ffi").C
 local type = type
 local error = error
 
-local con_lang = require("con_lang")
-
 local bcheck = {}
 
 --== ENGINE ==--
@@ -38,7 +36,27 @@ function bcheck.tile_idx(tilenum)
 end
 
 
+--== HELPERS ==--
+
+function bcheck.number(val, errlev)
+    if (type(val)~="number" or val~=val) then
+        error("invalid argument: must be a non-NaN number", errlev or 3)
+    end
+end
+
+function bcheck.type(val, typestr, errlev)
+    if (type(val)~=typestr) then
+        error("invalid argument: must be a "..typestr, errlev or 3)
+    end
+end
+
+
 --== GAME ==--
+if (ffiC.LUNATIC_CLIENT == ffiC.LUNATIC_CLIENT_MAPSTER32) then
+    return bcheck
+end
+
+local con_lang = require("con_lang")
 
 function bcheck.player_idx(snum)
     if (not (snum >= 0 and snum < ffiC.playerswhenstarted)) then
@@ -96,18 +114,6 @@ end
 function bcheck.top_level(funcname)
     if (ffiC.g_elCallDepth > 0) then
         error("Invalid use of "..funcname..": must be called from top level", errlev or 3)
-    end
-end
-
-function bcheck.number(val, errlev)
-    if (type(val)~="number" or val~=val) then
-        error("invalid argument: must be a non-NaN number", errlev or 3)
-    end
-end
-
-function bcheck.type(val, typestr, errlev)
-    if (type(val)~=typestr) then
-        error("invalid argument: must be a "..typestr, errlev or 3)
     end
 end
 

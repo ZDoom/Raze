@@ -290,13 +290,8 @@ ffi.typeof(maybe_strip_const(SPRITE_STRUCT)))
 if (not _LUNATIC_AUX) then
     -- Define the "palette_t" type, which for us has .{r,g,b} fields and a
     -- bound-checking array of length 3 overlaid.
-    local rgbarray_t = require("bcarray").new("uint8_t", 3, "RGB array", "palette_t",
-                                              { "r", "g", "b", "f" })
-    ffi.cdef("typedef union { \
-        struct { uint8_t r, g, b, f; }; \
-        $ col; \
-    } palette_t", rgbarray_t)
-
+    require("bcarray").new("uint8_t", 3, "RGB array", "palette_t",
+                           { "r", "g", "b", "f" })
     assert(ffi.alignof("palette_t")==1)
 end
 
