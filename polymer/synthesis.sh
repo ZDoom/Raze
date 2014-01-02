@@ -107,7 +107,7 @@ function package_game_lunatic ()
     mkdir -p ./lunatic/test
     cp $top/$source/source/lunatic/test.lua ./lunatic/
     cp $top/$source/source/lunatic/test/test_{bitar,geom,rotspr}.lua ./lunatic/test/
-    cp $top/$source/source/lunatic/test/{delmusicsfx,helixspawner}.lua ./lunatic/test/
+    cp $top/$source/source/lunatic/test/{damagehplane,delmusicsfx,helixspawner,shadexfog}.lua ./lunatic/test/
 }
 
 function package_sdk ()
