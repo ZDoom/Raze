@@ -479,10 +479,16 @@ ifneq ($(LUNATIC),0)
     ifndef DEFS_BC_SIZE
         DEFS_BC_SIZE := $(shell $(LUAJIT) -bg -t h $(MAKEFILE_COMMON_DIR)/source/lunatic/defs.ilua -)
         DEFS_BC_SIZE := $(word 3, $(DEFS_BC_SIZE))
-        # Pass the bytecode size to the sub-makes, too.
+        # Pass it to the sub-makes, too.
         export DEFS_BC_SIZE
     endif
-    BASECOMMONFLAGS+= -DLUNATIC_DEFS_BC_SIZE=$(DEFS_BC_SIZE)
+    # Determine size of defs_m32.ilua bytecode once.
+    ifndef DEFS_M32_BC_SIZE
+        DEFS_M32_BC_SIZE := $(shell $(LUAJIT) -bg -t h $(MAKEFILE_COMMON_DIR)/source/lunatic/defs_m32.ilua -)
+        DEFS_M32_BC_SIZE := $(word 3, $(DEFS_M32_BC_SIZE))
+        export DEFS_M32_BC_SIZE
+    endif
+    BASECOMMONFLAGS+= -DLUNATIC_DEFS_BC_SIZE=$(DEFS_BC_SIZE) -DLUNATIC_DEFS_M32_BC_SIZE=$(DEFS_M32_BC_SIZE)
 
     ifeq ($(PLATFORM),WINDOWS)
         BASELIBS+= -lluajit

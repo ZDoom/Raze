@@ -10507,7 +10507,10 @@ int32_t ExtInit(void)
 #ifdef LUNATIC
     if (Em_CreateState(&g_EmState) == 0)
     {
-        i = L_RunOnce(&g_EmState, "defs_m32.ilua");
+        extern const char luaJIT_BC_defs_m32[];
+
+        i = L_RunString(&g_EmState, (char *)luaJIT_BC_defs_m32, 0,
+                        LUNATIC_DEFS_M32_BC_SIZE, "defs_m32.ilua");
         if (i != 0)
         {
             Em_DestroyState(&g_EmState);
