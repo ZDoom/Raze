@@ -2029,6 +2029,90 @@ index `parentspritenum`. The z velocity can be overridden by passing `zvel`.
 Returns the index of the spawned sprite on success, or --1 otherwise.
 
 
+The `engine` module
+~~~~~~~~~~~~~~~~~~~
+
+Shade table interfaces
+^^^^^^^^^^^^^^^^^^^^^^
+
+The 8-bit (``classic'') Build renderer operates in indexed-color mode: the
+pixels of the frame buffer do not contain red/green/blue values themselves, but
+only indexes into a color table with 256 entries, the _base palette_.
+**********
+latexmath:[$\mathrm{ColorComponent} := \mathbb{N}_{64}$] {nbsp}
+[gray]#// Build's base palettes have 6 bits of precision per color component# +
+latexmath:[$\mathrm{ColorIndex} := \mathbb{N}_{256}$] +
+latexmath:[$\mathrm{basepal}: \: \mathrm{ColorIndex} \rightarrow \mathrm{ColorComponent}^3$] +
+**********
+
+To implement shading and visibility attenuation, Build maintains tables mapping
+pairs of a color index and a shade level (Duke3D's table uses 32 such
+gradients) to a color index representing the darkness-faded color. Each such
+table is called shade or _palookup_ table.
+**********
+latexmath:[$\mathrm{ShadeLevel} := \mathbb{N}_{\mathrm{Numshades}}$] +
+latexmath:[$\mathrm{palookup}: \: \mathrm{ShadeLevel} \times
+  \mathrm{ColorIndex} \rightarrow \mathrm{ColorIndex}$]
+**********
+
+When a pixel is about to be drawn, a palookup table chosen depending on the
+object's `pal` is consulted to determine its ultimate color index (in the
+absence of blending with the translucency table or see-through texels). Given a
+texel's color index as latexmath:[$i_{\mathrm{in}}$], the resulting pixel's one
+latexmath:[$i_{\mathrm{out}}$] is computed as
+
+==========
+latexmath:[$s_1 = C \cdot \mathrm{shade} + D \cdot \mathrm{visdist}$] +
+latexmath:[$s_2 = \mathrm{clamp}(s_1, \: 0, \: \mathrm{Numshades}-1)$] +
+latexmath:[$\mathrm{shade_index} = \mathrm{round}(s_2)$] +
+latexmath:[$i_{\mathrm{out}} = \mathrm{palookup}(\mathrm{shade_index}, i_{\mathrm{in}})$] {nbsp}
+[gray]#// This is only a table lookup, palookup[shade_index][latexmath:[$i_{\mathrm{in}}$]]# +
+==========
+
+Here, latexmath:[$C$] and latexmath:[$D$] are positive constants and
+latexmath:[$\mathrm{visdist}$] is the product of a. the distance of an object's
+sampled pixel to the view plane with b. the object's
+``visibility''.footnote:[Visibility would be more appropriately called
+``anti-visibility'' or ``co-visibility'': greater values make objects appear
+more faded for the same distance. Also, the visibility that is meant here has
+the origin at 0, unlike `sector[].visibility`.] Thus, shade and visibility are
+inherently confounded in the 8-bit mode.
+
+===== Examples of effects using shade tables
+
+While palookup tables are primarily used for shading and visibility
+attenuation, they can be set up in other ways to yield different effects with
+respect to how pixels of objects farther away are drawn. For example:
+
+* Distance fading with fog. For a fog color latexmath:[$\mathbf{c} = (c_r, c_g,
+  c_b)$], the table is set up so that for a source color index latexmath:[$i$]
+  and a shade level sh, palookup[sh][latexmath:[$i$]] contains a color index
+  whose color is close to that of latexmath:[$i$] blended with
+  latexmath:[$\mathbf{c}$], +
+  +
+  {nbsp} latexmath:[$\frac{\mathrm{sh} + 0.5}{\mathrm{Numshades}} \cdot
+  \mathrm{basepal}(i) +
+  \frac{\mathrm{Numshades}-\mathrm{sh}+0.5}{\mathrm{Numshades}} \cdot
+  \mathbf{c}$]. +
+  +
+  Note that distance fading to black can be seen as a special case of this
+  fogging effect. However, Duke3D's base shade table (i.e. the table for pal
+  0) is *not* constructed in this way.
+
+* Color index remapping. Given a mapping latexmath:[$m: \: \mathrm{ColorIndex}
+  \rightarrow \mathrm{ColorIndex}$], the table is set up so that for each shade
+  level sh, the 256 color indices are selected or reordered in the same way:
+  for all color indices latexmath:[$i$],
+  palookup[sh][latexmath:[$i$]]{nbsp}={nbsp}original_palookup[sh][latexmath:[$m(i)$]]. +
+  For example, pal 21 remaps the fifth and sixth blocks of consecutive
+  16-tuples of color indices (a ramp of blue colors) to the fourth and 14^th^
+  such blocks (red colors, the first one part of a 32-color ramp).
+
+* ``Fullbright'' colors -- those that aren't affected by distance -- with index
+  latexmath:[$i$] are achieved by setting palookup[sh][latexmath:[$i$]] to
+  palookup[0][latexmath:[$i$]] for each shade sh.
+
+
 The `fs` module -- virtual file system facilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

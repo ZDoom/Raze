@@ -8,7 +8,7 @@ FILES=lunatic.html lunacon.html
 #  -->
 # filter="source-highlight {source-highlight-args} -f xhtml -s {language} (...)"
 %.html: %.txt Makefile lunatic_sh.style
-	asciidoc -v -a source-highlight-args="--style-file=$(shell pwd)/lunatic_sh.style" $<
+	asciidoc -v -a latexmath -a source-highlight-args="--style-file=$(shell pwd)/lunatic_sh.style" $<
 
 all: $(FILES)
 
