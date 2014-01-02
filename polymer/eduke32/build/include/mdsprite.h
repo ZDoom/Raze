@@ -214,13 +214,6 @@ int32_t mddraw(const spritetype *tspr);
 
 typedef struct { float xadd, yadd, zadd; int16_t angadd, flags, fov; } hudtyp;
 
-enum {
-    HUDFLAG_HIDE = 1,
-    HUDFLAG_NOBOB = 2,
-    HUDFLAG_FLIPPED = 4,
-    HUDFLAG_NODEPTH = 8,
-};
-
 EXTERN hudtyp hudmem[2][MAXTILES];
 
 EXTERN int32_t mdpause;
@@ -235,4 +228,12 @@ int      md3postload_polymer(md3model_t* m);
 //int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap);
 
 #endif // defined USE_OPENGL
+
+enum {
+    HUDFLAG_HIDE = 1,
+    HUDFLAG_NOBOB = 2,
+    HUDFLAG_FLIPPED = 4,
+    HUDFLAG_NODEPTH = 8,
+};
+
 #endif // !_mdsprite_h_
