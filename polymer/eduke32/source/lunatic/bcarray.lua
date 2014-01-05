@@ -19,7 +19,7 @@ local pairs = pairs
 local type = type
 
 
-module(...)
+local bcarray = {}
 
 
 -- Generate C decl for a sequence of <nelts> const struct members.
@@ -54,8 +54,9 @@ end
 --  named _a1, _a2, ...
 --  It also may be a table containing member names at numeric indices 1..#rng.
 -- <mtadd>: A table containing functions __index and/or __newindex. They are
---  called first and the bound-checking ones are tail-called then.
-function new(basetype, numelts, showname, typename, rng, mtadd)
+--  called first and the bound-checking ones are tail-called then. If the
+--  custom __index one returns something, it is returned by the composite one.
+function bcarray.new(basetype, numelts, showname, typename, rng, mtadd)
     local eltptr_t = ffi.typeof("$ *", ffi.typeof(basetype))
 
     local mt = {
@@ -83,7 +84,10 @@ function new(basetype, numelts, showname, typename, rng, mtadd)
         if (addindexf) then
             -- Additional __index metamethod given.
             mt.__index = function(ar, idx)
-                addindexf(ar, idx)
+                local sth = addindexf(ar, idx)
+                if (sth ~= nil) then
+                    return sth
+                end
                 return curindexf(ar, idx)
             end
         end
@@ -115,3 +119,6 @@ function new(basetype, numelts, showname, typename, rng, mtadd)
 
     return bcarray_t
 end
+
+
+return bcarray

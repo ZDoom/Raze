@@ -23,12 +23,59 @@ int32_t setpalookup(int32_t palnum, const uint8_t *shtab);
 
 ----------
 
+
 -- The API table
 local engine = {}
 
+
+local shtab_t  -- forward-decl
+
+local function cast_u8ptr(pal256)
+    return ffi.cast("uint8_t *", pal256)
+end
+
+local shtab_methods = {
+    -- Remap consecutive blocks of 16 color indices and return this new shade
+    -- table.
+    --
+    -- <idxs16>: table with idxs16[1] .. idxs16[16] >= 1 and <= 16
+    --  (i.e. 1-based indices of such 16-tuples)
+    --
+    -- For example, the table
+    --  { [0]=0,1, 2,3, 5,4, 6,7, 8,13, 10,11, 12,9, 14,15 }
+    -- TODO (...)
+    remap16 = function(sht, idxs16)
+        if (type(idxs16) ~= "table" or idxs16[0]==nil or #idxs16 ~= 15) then
+            error("invalid argument #2: must be a [0]-table with 16 elements", 2)
+        end
+
+        for i=0,15 do
+            if (not (idxs16[i] >= 0 and idxs16[i] <= 15)) then
+                error("invalid reordering table: elements must be in [0 .. 15]", 2)
+            end
+        end
+
+        local newsht = shtab_t()
+        for sh=0,31 do
+            for i=0,15 do
+                ffi.copy(cast_u8ptr(newsht[sh]) + 16*i,
+                         cast_u8ptr(sht[sh]) + 16*idxs16[i], 16)
+            end
+        end
+        return newsht
+    end,
+}
+
+local function shtab_mt__index(sht, idx)
+    local method = shtab_methods[idx]
+    if (method) then
+        return method
+    end
+end
+
 local pal256_t = bcarray.new("uint8_t", 256, "shade table 256-tuple")
 -- The shade table type, effectively a bound-checked uint8_t [32][256]:
-local shtab_t = bcarray.new(pal256_t, 32, "shade table")
+shtab_t = bcarray.new(pal256_t, 32, "shade table", nil, nil, { __index = shtab_mt__index })
 local SIZEOF_SHTAB = ffi.sizeof(shtab_t)
 
 local RESERVEDPALS = 8  -- KEEPINSYNC build.h: assure that ours is >= theirs

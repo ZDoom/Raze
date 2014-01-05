@@ -11,6 +11,7 @@ local error = error
 
 local math = require("math")
 local min, max = math.min, math.max
+local floor = math.floor
 
 local sector, wall, sprite = sector, wall, sprite
 
@@ -155,10 +156,86 @@ local function create_base_shtab(basesht)
     return sht
 end
 
+local function create_base_shtab_2(basesht)
+    local basesht = basesht or engine.getshadetab(0)
+
+    local perm16 = { [0]=0,1, 2,3, 5,4, 6,7, 8,13, 10,11, 12,9, 14,15 }
+    local sht = engine.shadetab():remap16(perm16)
+
+    local iperm16 = {}
+    for i=0,15 do
+        iperm16[perm16[i]] = i
+    end
+
+    local iperm = {}
+    for i=0,255 do
+        iperm[i] = 16*(iperm16[floor(i/16)]) + i%16
+    end
+
+    local baseidx = {}
+    for i=0,255-16 do
+        baseidx[i] = i < 192 and 32*floor(i/32) or 16*floor(i/16)
+    end
+
+    for sh=0,31 do
+        for i=0,255-16 do
+            local bi = baseidx[i]
+            local cidx = bi + floor(((31-sh)*(i - bi))/31)
+            sht[sh][i] = iperm[cidx]
+        end
+
+        for i=255-16+1,255 do
+            -- fullbrights
+            sht[sh][i] = basesht[0][i]
+        end
+    end
+
+    return sht:remap16(iperm16)
+end
+
+if (gv.LUNATIC_CLIENT == gv.LUNATIC_CLIENT_MAPSTER32) then
+    -- NOTE: It shouldn't be assumed that these will stay loadable in the future:
+    local ffi = require("ffi")
+    local io = require("io")
+
+    ffi.cdef[[size_t fwrite(const void * restrict ptr, size_t size, size_t nmemb, void * restrict stream);]]
+
+    function shadexfog.save(filename, palnum_or_sht)
+        local sht = type(palnum_or_sht)~="number" and palnum_or_sht
+            or engine.getshadetab(palnum_or_sht)
+        if (sht == nil) then
+            error("No such shade table")
+        end
+
+        local f, errmsg = io.open(filename, "w+")
+        if (f == nil) then
+            error(errmsg, 2)
+        end
+
+        -- XXX: ought to be in engine.lua
+        local basepal = ffi.new("uint8_t [256][3]")
+        for i=0,255 do
+            local r, g, b = engine.getrgb(i)
+            basepal[i][0], basepal[i][1], basepal[i][2] = r, g, b
+        end
+
+        local n1 = ffi.C.fwrite(basepal, 3, 256, f)
+        f:write("\032\000")
+        local n3 = ffi.C.fwrite(sht, 256, 32, f)
+
+        f:close()
+        if (n1 ~= 256 or n3 ~= 32) then
+            error("didn't fully write out palette file")
+        end
+        printf("Wrote base palette + shade table (but NOT transluc table) to '%s'", filename)
+    end
+end
+
 -- Create our (failed) version of the base shade table at set it to palookup
 -- number <palnum>.
-function shadexfog.create0(palnum)
-    local sht0 = create_base_shtab()
+-- <secver>: use second attempt?
+function shadexfog.create0(palnum, secver)
+    local sht0 = secver and create_base_shtab_2() or create_base_shtab()
     engine.setshadetab(palnum, sht0)
 end
 
