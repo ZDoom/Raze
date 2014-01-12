@@ -1954,8 +1954,13 @@ static void G_DrawStatusBar(int32_t snum)
     int32_t i, j, o, u;
     int32_t permbit = 0;
 
+#ifdef SPLITSCREEN_MOD_HACKS
     const int32_t ss = g_fakeMultiMode ? 4 : ud.screen_size;
     const int32_t althud = g_fakeMultiMode ? 0 : ud.althud;
+#else
+    const int32_t ss = ud.screen_size;
+    const int32_t althud = ud.althud;
+#endif
 
     const int32_t SBY = (200-tilesizy[BOTTOMSTATUSBAR]);
 
@@ -2116,7 +2121,10 @@ static void G_DrawStatusBar(int32_t snum)
         else
         {
             // ORIGINAL MINI STATUS BAR
-            int32_t orient = 2+8+16+256, yofs=0, yofssh=0;
+            int32_t orient = 2+8+16+256, yofssh=0;
+
+#ifdef SPLITSCREEN_MOD_HACKS
+            int32_t yofs=0;
 
             if (g_fakeMultiMode)
             {
@@ -2132,6 +2140,7 @@ static void G_DrawStatusBar(int32_t snum)
                     yofssh = yofs<<16;
                 }
             }
+#endif
 
             rotatesprite_fs(sbarx(5), yofssh+sbary(200-28), sb16, 0, HEALTHBOX, 0, 21, orient);
             if (p->inven_icon)
@@ -2550,7 +2559,10 @@ static int32_t calc_ybase(int32_t begy)
 {
     int32_t k = begy;
 
-    if (GTFLAGS(GAMETYPE_FRAGBAR) && (ud.screen_size > 0 && !g_fakeMultiMode)
+    if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0
+#ifdef SPLITSCREEN_MOD_HACKS
+            && !g_fakeMultiMode
+#endif
             && (g_netServer || ud.multimode > 1))
     {
         int32_t i, j = 0;
@@ -2629,10 +2641,14 @@ void G_PrintGameQuotes(int32_t snum)
     {
         if (reserved_quote)
         {
+#ifdef SPLITSCREEN_MOD_HACKS
             if (!g_fakeMultiMode)
+#endif
                 k = 140;//quotebot-8-4;
+#ifdef SPLITSCREEN_MOD_HACKS
             else
                 k = 50;
+#endif
         }
         else
         {
@@ -2647,6 +2663,7 @@ void G_PrintGameQuotes(int32_t snum)
     {
         int32_t pal = 0;
 
+#ifdef SPLITSCREEN_MOD_HACKS
         if (g_fakeMultiMode)
         {
             pal = g_player[snum].pcolor;
@@ -2663,6 +2680,7 @@ void G_PrintGameQuotes(int32_t snum)
                     k += 101;
             }
         }
+#endif
 
         gametextpalbits(160, k, ScriptQuotes[ps->ftq],
                         hud_glowingquotes ? quotepulseshade : 0,
@@ -3419,7 +3437,9 @@ void G_DisplayRest(int32_t smoothratio)
     palaccum_t tint = PALACCUM_INITIALIZER;
 
     DukePlayer_t *const pp = g_player[screenpeek].ps;
+#ifdef SPLITSCREEN_MOD_HACKS
     DukePlayer_t *const pp2 = g_fakeMultiMode==2 ? g_player[1].ps : NULL;
+#endif
     int32_t cposx, cposy, cang;
 
 #ifdef USE_OPENGL
@@ -3446,14 +3466,18 @@ void G_DisplayRest(int32_t smoothratio)
 #endif  // USE_OPENGL
 
     palaccum_add(&tint, &pp->pals, pp->pals.f);
+#ifdef SPLITSCREEN_MOD_HACKS
     if (pp2)
         palaccum_add(&tint, &pp2->pals, pp2->pals.f);
+#endif
     {
         static const palette_t loogiepal = { 0, 63, 0, 0 };
 
         palaccum_add(&tint, &loogiepal, pp->loogcnt>>1);
+#ifdef SPLITSCREEN_MOD_HACKS
         if (pp2)
             palaccum_add(&tint, &loogiepal, pp2->loogcnt>>1);
+#endif
     }
 
     if (g_restorePalette)
@@ -3464,16 +3488,20 @@ void G_DisplayRest(int32_t smoothratio)
         if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
         {
             int32_t pal = pp->palette;
+#ifdef SPLITSCREEN_MOD_HACKS
             const int32_t opal = pal;
 
             if (pp2)  // splitscreen HACK: BASEPAL trumps all, then it's arbitrary.
                 pal = min(pal, pp2->palette);
+#endif
 
             // g_restorePalette < 0: reset tinting, too (e.g. when loading new game)
             P_SetGamePalette(pp, pal, 2 + (g_restorePalette>0)*16);
 
+#ifdef SPLITSCREEN_MOD_HACKS
             if (pp2)  // keep first player's pal as its member!
                 pp->palette = opal;
+#endif
 
             g_restorePalette = 0;
         }
@@ -3538,13 +3566,17 @@ void G_DisplayRest(int32_t smoothratio)
             else
             {
                 P_DisplayWeapon(screenpeek);
+#ifdef SPLITSCREEN_MOD_HACKS
                 if (pp2)  // HACK
                     P_DisplayWeapon(1);
+#endif
 
                 if (pp->over_shoulder_on == 0)
                     P_DisplayScuba(screenpeek);
+#ifdef SPLITSCREEN_MOD_HACKS
                 if (pp2 && pp2->over_shoulder_on == 0)  // HACK
                     P_DisplayScuba(1);
+#endif
             }
             G_MoveClouds();
         }
@@ -3606,12 +3638,14 @@ void G_DisplayRest(int32_t smoothratio)
     if (VM_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek, -1, 0) == 0)
         G_DrawStatusBar(screenpeek);
 
+#ifdef SPLITSCREEN_MOD_HACKS
     // HACK
     if (g_fakeMultiMode==2)
     {
         G_DrawStatusBar(1);
         G_PrintGameQuotes(1);
     }
+#endif
 
     G_PrintGameQuotes(screenpeek);
 
@@ -4257,7 +4291,9 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
             g_visibility = j;
         }
 
+#ifdef SPLITSCREEN_MOD_HACKS
         if (!g_fakeMultiMode)
+#endif
         {
             // HACK for splitscreen mod: this is so that mirrors will be drawn
             // from showview commands. Ugly, because we'll attempt do draw mirrors
@@ -4377,7 +4413,11 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         const int32_t vr = divscale22(1,sprite[p->i].yrepeat+28);
         const int32_t software_screen_tilting =
-            (getrendermode() == REND_CLASSIC && ((ud.screen_tilting && p->rotscrnang && !g_fakeMultiMode)));
+            (getrendermode() == REND_CLASSIC && ((ud.screen_tilting && p->rotscrnang
+#ifdef SPLITSCREEN_MOD_HACKS
+            && !g_fakeMultiMode
+#endif
+            )));
         int32_t pixelDoubling = 0;
 
         if (!r_usenewaspect)
@@ -4462,7 +4502,11 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             tmpvr = i>>1;
             tmpyx = (65536*ydim*8)/(xdim*5);
         }
-        else if (getrendermode() >= REND_POLYMOST && (ud.screen_tilting && !g_fakeMultiMode))
+        else if (getrendermode() >= REND_POLYMOST && (ud.screen_tilting
+#ifdef SPLITSCREEN_MOD_HACKS
+        && !g_fakeMultiMode
+#endif
+        ))
         {
 #ifdef USE_OPENGL
             setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024, smoothratio));
@@ -11992,7 +12036,11 @@ int32_t G_DoMoveThings(void)
         }
 
     // Name display when aiming at opponents
-    if (ud.idplayers && (g_netServer || ud.multimode > 1) && !g_fakeMultiMode)
+    if (ud.idplayers && (g_netServer || ud.multimode > 1)
+#ifdef SPLITSCREEN_MOD_HACKS
+        && !g_fakeMultiMode
+#endif
+        )
     {
         hitdata_t hit;
         DukePlayer_t *const p = g_player[screenpeek].ps;

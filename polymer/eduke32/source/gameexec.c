@@ -1590,7 +1590,9 @@ skip_check:
                 continue;
             }
             if (vm.g_p == screenpeek || (GametypeFlags[ud.coop]&GAMETYPE_COOPSOUND)
+#ifdef SPLITSCREEN_MOD_HACKS
                 || (g_fakeMultiMode==2)
+#endif
                 )
                 A_PlaySound(*insptr,g_player[screenpeek].ps->i);
             insptr++;

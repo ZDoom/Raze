@@ -1712,9 +1712,11 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
 
     fistpal = P_GetHudPal(ps);
 
+#ifdef SPLITSCREEN_MOD_HACKS
     // XXX: this is outdated, doesn't handle above/below split.
     if (g_fakeMultiMode==2)
         wx[(g_snum==0)] = (wx[0]+wx[1])/2+1;
+#endif
 
     rotatesprite(
         (-fisti+222+(g_player[snum].sync->avel>>4))<<16,
@@ -1758,6 +1760,7 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     if (orientation&4)
         ang = 1024;
 
+#ifdef SPLITSCREEN_MOD_HACKS
     if (g_fakeMultiMode==2)
     {
         const int32_t sidebyside = (ud.screen_size!=0);
@@ -1777,6 +1780,7 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
             wy[(g_snum==0)] = (wy[0]+wy[1])/2 + 2;
         }
     }
+#endif
 
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(tilenum,p) >= 0)

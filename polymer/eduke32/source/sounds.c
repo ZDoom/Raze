@@ -484,6 +484,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
 
     sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z)>>4);
 
+#ifdef SPLITSCREEN_MOD_HACKS
     if (g_fakeMultiMode==2)
     {
         // HACK for splitscreen mod: take the min of sound distances
@@ -510,6 +511,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
             }
         }
     }
+#endif
 
     if ((g_sounds[num].m & SF_GLOBAL) == 0 && S_IsAmbientSFX(i) && (sector[SECT].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
         sndist = divscale14(sndist, SHT+1);
@@ -607,12 +609,14 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     pitch = S_GetPitch(num);
     peekps = g_player[screenpeek].ps;
 
+#ifdef SPLITSCREEN_MOD_HACKS
     if (g_fakeMultiMode==2)
     {
         // splitscreen HACK
         if (g_player[1].ps->i == i)
             peekps = g_player[1].ps;
     }
+#endif
 
     if (peekps->sound_pitch)
         pitch += peekps->sound_pitch;

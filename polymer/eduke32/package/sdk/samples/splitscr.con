@@ -5,11 +5,10 @@ Beta 1
 By Bloodclaw
 
 Modified from original for use with EDuke32 SVN.
-Usage: eduke32 splitscr.con -q2
+Requires an EDuke32 binary built with SPLITSCREEN_MOD_HACKS preprocessor flag.
+Usage: eduke32 -mx splitscr.con -q2
 --------------------------------------------------------------------------------
 */
-
-include GAME.CON
 
 // Key name definitions
 definegamefuncname 11 P2_Move_Forward

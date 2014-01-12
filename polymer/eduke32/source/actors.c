@@ -1356,12 +1356,14 @@ ACTOR_STATIC void G_MoveFX(void)
             {
                 int32_t x = ldist(&sprite[peekps->i],s);
 
+#ifdef SPLITSCREEN_MOD_HACKS
                 if (g_fakeMultiMode==2)
                 {
                     // HACK for splitscreen mod
                     int32_t otherdist = ldist(&sprite[g_player[1].ps->i],s);
                     x = min(x, otherdist);
                 }
+#endif
 
                 if (x < ht && T1 == 0)
                 {
@@ -1382,12 +1384,14 @@ ACTOR_STATIC void G_MoveFX(void)
                 {
                     int32_t x = dist(&sprite[peekps->i],s);
 
+#ifdef SPLITSCREEN_MOD_HACKS
                     if (g_fakeMultiMode==2)
                     {
                         // HACK for splitscreen mod
                         int32_t otherdist = dist(&sprite[g_player[1].ps->i],s);
                         x = min(x, otherdist);
                     }
+#endif
 
                     if (x < ht && T1 == 0 && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
                     {
