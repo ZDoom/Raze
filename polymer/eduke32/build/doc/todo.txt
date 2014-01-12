@@ -1,0 +1,90 @@
+KEY:
+$ - Should be done soon!
+> - Something to do eventually...
+? - Is this really necessary?
+B - Bug!
+
+
+ENGINE -
+
+  Drawing bugs:
+    Make all VESA buffer-modes work with multiple drawrooms per nextpage
+    Fix off-by-1 line on top of face sprites
+    Fix selector initialization bug in ves2.h
+    Make sure visiblity works on really high slopes
+    Fix precision and crashing for wallmost on high slopes - xcross?
+    Screen capture at correct page
+    Wall/Floor sprite sorting bugs
+
+  Drawing ideas:
+    Make auto-buffer mode turn off with setviewtotile?
+    Make lo-detail mode go directly to screen without extra blit somehow?
+    Replace getpalookup with buffer Use palookup option for completemirror or use setviewtotile for mirrors
+    Allow non 90ø viewing ranges
+
+  Movement issues:
+    Pushmove for face sprites?
+    Make clipmove/getzrange move through parallaxing skies
+
+  Memory issues:
+    Allocate sectors and walls dynamically at loadboard
+
+  Speed issues:
+    Optimize rotatesprite for weapons, and status bar
+    Try fread/fwrite vs. read/write with buffer
+    Make hlineasm4 work backwards
+    Pre-cache solution - auto cache sprites somehow
+    Mergeing optimization (redo in QB)
+
+  Misc. issues:
+    Do joining in network games
+    Network - send null packets if no packets sent recently
+    Split engine into separate modules - drawing, movement, utility
+
+
+EDITART -
+  Seems to corrupt tiles in the artfile after doing a palette grab
+  Animation settings don't span art files
+$ Tile moving across different art files
+$ Make script-making function - F12 every tile and update capfil.txt
+$ Offer patch file option after resorting in editart when quitting
+> Warn if tile being deleted is used in maps - offer to change.
+> Allow comments to be associated with a tile.
+> When saving .ART, save to temp, rename, and delete, (int 21h-5ah,56h,41h)
+? Screen still goes blank in 'V' mode sometimes with multiple tile files.
+B Why doesn't F12 do anything sometimes?
+
+
+BUILD -
+  Goto sector/wall/sprite function
+  New walls being added in BUILD should NEVER be masked or blocking
+  2D map mode: section off areas to edit overlapping
+! Undo
+! Sector copy / paste auto-inserting for pasting inside sectors.
+> The localtile variables get messed up with 'V' mode inserting/deleteing
+> Make overlapping sectors not connect in weird ways
+> Type tags in hex
+> Print out global visibility in Build status bar
+> Information screen (bitmap report, tag report)
+> Fix warping in fine sector rotating
+> Enter attributes with a menu
+
+
+GAME -
+> Programming example such as deleting sectors, and other BUILD functions
+> Fix bugs with fake network player windows.
+> Fix message typing (for multiplayer games) when screen is weird sizes
+
+
+DOCUMENTATION -
+> Make PROTOTYPES for functions in GAME.C in BUILD.H.
+> Document all variables in BUILD.H
+
+
+LOW PRIORITY -
+> Use multiple palettes other than palette.dat (command line?)
+> Fancy shading for torches, flashlights, explosions, etc.
+> Real lighting
+? Multiple stories - (Not just: the fate of the universe depends on you)
+? Add POLYTEX/CAVE stuff - true looking up/down
+? Coded sprites for guns and menus
