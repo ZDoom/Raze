@@ -74,6 +74,8 @@ static SDL_Surface *sdl_buffersurface=NULL;
 static SDL_Palette *sdl_palptr=NULL;
 static SDL_Window *sdl_window=NULL;
 static SDL_GLContext sdl_context=NULL;
+static SDL_Texture *sdl_texture=NULL;
+static SDL_Renderer *sdl_renderer=NULL;
 #endif
 int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline;
 intptr_t frameplace=0;
@@ -1277,6 +1279,12 @@ static void destroy_window_resources()
         if (sdl_context)
             SDL_GL_DeleteContext(sdl_context);
         sdl_context = NULL;
+        if (sdl_texture)
+            SDL_DestroyTexture(sdl_texture);
+        sdl_texture = NULL;
+        if (sdl_renderer)
+            SDL_DestroyRenderer(sdl_renderer);
+        sdl_renderer = NULL;
         if (sdl_window)
             SDL_DestroyWindow(sdl_window);
         sdl_window = NULL;
@@ -1478,13 +1486,49 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             return -1;
         }
 
-        sdl_surface = SDL_GetWindowSurface(sdl_window);
+        sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
+        if (!sdl_renderer)
+        {
+            initprintf("Falling back to SDL_GetWindowSurface: SDL_CreateRenderer failed: %s\n",
+                       SDL_GetError());
+        }
+        else
+        {
+            sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888,
+                                            SDL_TEXTUREACCESS_STREAMING, x, y);
+            if (!sdl_texture)
+            {
+                initprintf("Falling back to SDL_GetWindowSurface: SDL_CreateTexture failed: %s\n",
+                           SDL_GetError());
+                SDL_DestroyRenderer(sdl_renderer);
+                sdl_renderer = NULL;
+            }
+        }
+
+        if (sdl_renderer && sdl_texture)
+        {
+            sdl_surface = SDL_CreateRGBSurface(0, x, y, 32, 0, 0, 0, 0);
+            if (!sdl_surface)
+            {
+                initprintf("Falling back to SDL_GetWindowSurface: SDL_CreateRGBSurface failed: %s\n",
+                           SDL_GetError());
+                SDL_DestroyTexture(sdl_texture);
+                sdl_texture = NULL;
+                SDL_DestroyRenderer(sdl_renderer);
+                sdl_renderer = NULL;
+            }
+        }
+
         if (!sdl_surface)
         {
-            initprintf("Unable to set video mode: SDL_GetWindowSurface failed: %s\n",
-                       SDL_GetError());
-            destroy_window_resources();
-            return -1;
+            sdl_surface = SDL_GetWindowSurface(sdl_window);
+            if (!sdl_surface)
+            {
+                initprintf("Unable to set video mode: SDL_GetWindowSurface failed: %s\n",
+                           SDL_GetError());
+                destroy_window_resources();
+                return -1;
+            }
         }
 
         sdl_buffersurface = SDL_CreateRGBSurface(0, x, y, c, 0, 0, 0, 0);
@@ -1864,7 +1908,15 @@ void showframe(int32_t w)
 #if SDL_MAJOR_VERSION==1
     SDL_Flip(sdl_surface);
 #else
-    if (SDL_UpdateWindowSurface(sdl_window))
+    if (sdl_renderer && sdl_texture)
+    {
+        SDL_UpdateTexture(sdl_texture, NULL, sdl_surface->pixels, sdl_surface->pitch);
+
+        SDL_RenderClear(sdl_renderer);
+        SDL_RenderCopy(sdl_renderer, sdl_texture, NULL, NULL);
+        SDL_RenderPresent(sdl_renderer);
+    }
+    else if (SDL_UpdateWindowSurface(sdl_window))
     {
         // If a fullscreen X11 window is minimized then this may be required.
         // FIXME: What to do if this fails...
