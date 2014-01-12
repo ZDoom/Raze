@@ -1832,6 +1832,7 @@ ACTOR_STATIC void G_MoveStandables(void)
 
         if (s->picnum == TRIPBOMB)
         {
+            // TIMER_CONTROL
             if (actor[i].t_data[6] == 1)
             {
 
@@ -4680,6 +4681,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
 DETONATEB:
             // Pipebomb control set to timer? (see player.c)
+            // TIMER_CONTROL
             if (s->picnum == HEAVYHBOMB && t[6] == 1)
             {
                 /*                if(s->extra >= 1)

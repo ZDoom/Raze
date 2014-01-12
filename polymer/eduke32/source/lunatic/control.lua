@@ -1882,9 +1882,9 @@ function _savegamevar(name, val)
                           val, 0, 0);
 end
 
-function _readgamevar(name)
+function _readgamevar(name, ov)
     if (ffiC.ud.config.scripthandle < 0) then
-        return
+        return ov
     end
 
     assert(type(name)=="string")

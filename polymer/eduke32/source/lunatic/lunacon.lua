@@ -2230,7 +2230,7 @@ local handle =
         if (dosave) then
             return format("_con._savegamevar(%q,%s)", identifier, code)
         else
-            return format("%s=_con._readgamevar(%q)", code, identifier)
+            return format("%s=_con._readgamevar(%q,%s)", code, identifier, code)
         end
     end,
 

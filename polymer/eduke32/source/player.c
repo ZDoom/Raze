@@ -1574,6 +1574,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                     actor[k].t_data[7]=lLifetime
                                        + mulscale(krand(),lLifetimeVar, 14)
                                        - lLifetimeVar;
+                    // TIMER_CONTROL
                     actor[k].t_data[6]=1;
                 }
                 else
@@ -3915,6 +3916,7 @@ static void P_ProcessWeapon(int32_t snum)
                         actor[j].t_data[7]= ltime
                                             + mulscale(krand(),lv, 14)
                                             - lv;
+                        // TIMER_CONTROL
                         actor[j].t_data[6]=1;
                     }
                     else actor[j].t_data[6]=2;

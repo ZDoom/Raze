@@ -38,8 +38,8 @@ local shtab_methods = {
     -- Remap consecutive blocks of 16 color indices and return this new shade
     -- table.
     --
-    -- <idxs16>: table with idxs16[1] .. idxs16[16] >= 1 and <= 16
-    --  (i.e. 1-based indices of such 16-tuples)
+    -- <idxs16>: table with idxs16[0] .. idxs16[15] >= 0 and <= 15
+    --  (i.e. 0-based indices of such 16-tuples)
     --
     -- For example, the table
     --  { [0]=0,1, 2,3, 5,4, 6,7, 8,13, 10,11, 12,9, 14,15 }
