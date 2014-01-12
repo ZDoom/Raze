@@ -12482,10 +12482,75 @@ ENDANM:
     }
 }
 
+static void G_DisplayMPResultsScreen(void)
+{
+    int32_t i, y, t = 0;
+
+    rotatesprite_fs(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64+(ud.bgstretch?1024:0));
+    rotatesprite_fs(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10);
+    if (PLUTOPAK)   // JBF 20030804
+        rotatesprite_fs((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8);
+    gametext(160,58+2,"Multiplayer Totals",0,2+8+16);
+    gametext(160,58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
+
+    gametext(160,165,"Press any key or button to continue",quotepulseshade,2+8+16);
+
+    minitext(23,80,"   Name                                         Kills",8,2+8+16+128);
+    for (i=0; i<playerswhenstarted; i++)
+    {
+        Bsprintf(tempbuf,"%-4d",i+1);
+        minitext(92+(i*23),80,tempbuf,3,2+8+16+128);
+    }
+
+    for (i=0; i<playerswhenstarted; i++)
+    {
+        int32_t xfragtotal = 0;
+        Bsprintf(tempbuf,"%d",i+1);
+
+        minitext(30,90+t,tempbuf,0,2+8+16+128);
+        minitext(38,90+t,g_player[i].user_name,g_player[i].ps->palookup,2+8+16+128);
+
+        for (y=0; y<playerswhenstarted; y++)
+        {
+            if (i == y)
+            {
+                Bsprintf(tempbuf,"%-4d",g_player[y].ps->fraggedself);
+                minitext(92+(y*23),90+t,tempbuf,2,2+8+16+128);
+                xfragtotal -= g_player[y].ps->fraggedself;
+            }
+            else
+            {
+                Bsprintf(tempbuf,"%-4d",g_player[i].frags[y]);
+                minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
+                xfragtotal += g_player[i].frags[y];
+            }
+        }
+
+        Bsprintf(tempbuf,"%-4d",xfragtotal);
+        minitext(101+(8*23),90+t,tempbuf,2,2+8+16+128);
+
+        t += 7;
+    }
+
+    for (y=0; y<playerswhenstarted; y++)
+    {
+        int32_t yfragtotal = 0;
+        for (i=0; i<playerswhenstarted; i++)
+        {
+            if (i == y)
+                yfragtotal += g_player[i].ps->fraggedself;
+            yfragtotal += g_player[i].frags[y];
+        }
+        Bsprintf(tempbuf,"%-4d",yfragtotal);
+        minitext(92+(y*23),96+(8*7),tempbuf,2,2+8+16+128);
+    }
+
+    minitext(45,96+(8*7),"Deaths",8,2+8+16+128);
+}
+
 void G_BonusScreen(int32_t bonusonly)
 {
     int32_t gfx_offset;
-    int32_t i, y;
     int32_t bonuscnt;
     int32_t clockpad = 2;
     char *lastmapname;
@@ -12522,12 +12587,9 @@ void G_BonusScreen(int32_t bonusonly)
     FX_SetReverb(0L);
     CONTROL_BindsEnabled = 1; // so you can use your screenshot bind on the score screens
 
-    if (bonusonly)
-        goto FRAGBONUS;
+    if (!bonusonly)
+        G_BonusCutscenes();
 
-    G_BonusCutscenes();
-
-FRAGBONUS:
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
     G_FadePalette(0,0,0,63);   // JBF 20031228
     KB_FlushKeyboardQueue();
@@ -12540,89 +12602,33 @@ FRAGBONUS:
 
     if (playerswhenstarted > 1 && (GametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
-        int32_t t;
+        clearallviews(0);
+        G_DisplayMPResultsScreen();
 
         if (!(ud.config.MusicToggle == 0 || ud.config.MusicDevice < 0))
             S_PlaySound(BONUSMUSIC);
 
-        rotatesprite_fs(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64+(ud.bgstretch?1024:0));
-        rotatesprite_fs(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10);
-        if (PLUTOPAK)   // JBF 20030804
-            rotatesprite_fs((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8);
-        gametext(160,58+2,"Multiplayer Totals",0,2+8+16);
-        gametext(160,58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
-
-        gametext(160,165,"Press any key or button to continue",quotepulseshade,2+8+16);
-
-        t = 0;
-        minitext(23,80,"   Name                                         Kills",8,2+8+16+128);
-        for (i=0; i<playerswhenstarted; i++)
-        {
-            Bsprintf(tempbuf,"%-4d",i+1);
-            minitext(92+(i*23),80,tempbuf,3,2+8+16+128);
-        }
-
-        for (i=0; i<playerswhenstarted; i++)
-        {
-            int32_t xfragtotal = 0;
-            Bsprintf(tempbuf,"%d",i+1);
-
-            minitext(30,90+t,tempbuf,0,2+8+16+128);
-            minitext(38,90+t,g_player[i].user_name,g_player[i].ps->palookup,2+8+16+128);
-
-            for (y=0; y<playerswhenstarted; y++)
-            {
-                if (i == y)
-                {
-                    Bsprintf(tempbuf,"%-4d",g_player[y].ps->fraggedself);
-                    minitext(92+(y*23),90+t,tempbuf,2,2+8+16+128);
-                    xfragtotal -= g_player[y].ps->fraggedself;
-                }
-                else
-                {
-                    Bsprintf(tempbuf,"%-4d",g_player[i].frags[y]);
-                    minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
-                    xfragtotal += g_player[i].frags[y];
-                }
-            }
-
-            Bsprintf(tempbuf,"%-4d",xfragtotal);
-            minitext(101+(8*23),90+t,tempbuf,2,2+8+16+128);
-
-            t += 7;
-        }
-
-        for (y=0; y<playerswhenstarted; y++)
-        {
-            int32_t yfragtotal = 0;
-            for (i=0; i<playerswhenstarted; i++)
-            {
-                if (i == y)
-                    yfragtotal += g_player[i].ps->fraggedself;
-                yfragtotal += g_player[i].frags[y];
-            }
-            Bsprintf(tempbuf,"%-4d",yfragtotal);
-            minitext(92+(y*23),96+(8*7),tempbuf,2,2+8+16+128);
-        }
-
-        minitext(45,96+(8*7),"Deaths",8,2+8+16+128);
         nextpage();
-
-        fadepal(0,0,0, 63,0,-7);
-
         I_ClearAllInput();
+        fadepal(0,0,0, 63,0,-7);
+        totalclock = 0;
 
+        while (totalclock < TICRATE*10)
         {
-            int32_t tc = totalclock;
-            while (I_CheckAllInput()==0)
+            G_HandleAsync();
+
+            MUSIC_Update();
+
+            clearallviews(0);
+            G_DisplayMPResultsScreen();
+            nextpage();
+
+            if (I_CheckAllInput())
             {
-                // continue after 10 seconds...
-                if (totalclock > tc + (120*10)) break;
-                G_HandleAsync();
+                I_ClearAllInput();
+                break;
             }
         }
-
-        if (bonusonly || (g_netServer || ud.multimode > 1)) return;
 
         fadepal(0,0,0, 0,63,7);
     }
