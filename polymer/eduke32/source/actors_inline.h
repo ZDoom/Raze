@@ -24,8 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __actors_inline_h__
 
 #if KRANDDEBUG
-# define ACTOR_INLINE
-# define ACTOR_INLINE_HEADER extern
+# define ACTOR_INLINE __fastcall
+# define ACTOR_INLINE_HEADER extern __fastcall
 #else
 # define ACTOR_INLINE EXTERN_INLINE
 # define ACTOR_INLINE_HEADER EXTERN_INLINE_HEADER

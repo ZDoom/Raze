@@ -160,7 +160,7 @@ endif
 #  CPLUSPLUS - 1 = enable C++ building
 #  RELEASE - 1 = no debugging
 #  DEBUGANYWAY - 1 = include debug symbols even when generating release code
-#  DISABLEINLINING - 1 = compile inline functions as extern instead of static inline
+#  DISABLEINLINING - 1 = compile inline functions as extern __fastcall instead of static inline
 #  FORCEWARNINGS - 1 = do not disable any compiler warnings within the source
 #  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging

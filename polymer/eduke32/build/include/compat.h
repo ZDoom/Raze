@@ -169,8 +169,8 @@ static inline float nearbyintf(float x)
 # define EXTERN_INLINE static inline
 # define EXTERN_INLINE_HEADER static inline
 #else
-# define EXTERN_INLINE
-# define EXTERN_INLINE_HEADER extern
+# define EXTERN_INLINE __fastcall
+# define EXTERN_INLINE_HEADER extern __fastcall
 #endif
 
 #if !defined DEBUG_MAIN_ARRAYS
