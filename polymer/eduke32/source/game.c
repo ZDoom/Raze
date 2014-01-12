@@ -7046,7 +7046,7 @@ static void G_DoEventAnimSprites(int32_t j)
 {
     const int32_t ow = tsprite[j].owner;
 
-    if ((unsigned)ow < MAXSPRITES && spriteext[ow].flags & SPREXT_TSPRACCESS)
+    if (((unsigned)ow < MAXSPRITES && spriteext[ow].flags & SPREXT_TSPRACCESS) || tsprite[j].statnum == TSPR_TEMP)
     {
         spriteext[ow].tspr = &tsprite[j];
         // XXX: wouldn't screenpeek be more meaningful as current player?
