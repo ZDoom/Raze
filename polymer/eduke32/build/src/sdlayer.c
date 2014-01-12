@@ -123,7 +123,7 @@ HWND win_gethwnd(void)
     if (SDL_GetWindowWMInfo(sdl_window, &wmInfo) != SDL_TRUE)
 #endif
     {
-        initprintf("win_gethwnd: SDL_GetWindowWMInfo() failed: %s\n", SDL_GetError());
+       // initprintf("win_gethwnd: SDL_GetWindowWMInfo() failed: %s\n", SDL_GetError());
         return 0;
     }
 
@@ -162,6 +162,9 @@ int32_t wm_msgbox(char *name, char *fmt, ...)
     return osx_msgbox(name, buf);
 #elif defined HAVE_GTK2
     if (gtkbuild_msgbox(name, buf) >= 0) return 1;
+#elif defined _WIN32
+    MessageBox(win_gethwnd(),buf,name,MB_OK|MB_TASKMODAL);
+    return 0;
 #elif SDL_MAJOR_VERSION==2
 # if !defined _WIN32
     // Replace all tab chars with spaces because the hand-rolled SDL message
@@ -187,7 +190,7 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
     char buf[2048];
     char c;
     va_list va;
-#if (!defined(__APPLE__) && defined(HAVE_GTK2))
+#if (!defined(__APPLE__) && defined(HAVE_GTK2)) || defined _WIN32
     int32_t r;
 #endif
 
@@ -201,6 +204,10 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
     return osx_ynbox(name, buf);
 #elif defined HAVE_GTK2
     if ((r = gtkbuild_ynbox(name, buf)) >= 0) return r;
+#elif defined _WIN32
+    r = MessageBox(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL);
+    if (r==IDYES) return 1;
+    return 0;
 #endif
     puts(buf);
     puts("   (type 'Y' or 'N', and press Return or Enter to continue)");
