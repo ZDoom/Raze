@@ -1,0 +1,278 @@
+/*
+    To begin, type in the console:
+
+    include startpos
+
+    If none of keystrokes work, try:
+
+    enableevent all
+
+    Keystrokes:
+    Ctrl-(LShift-)W - Jump to the next (previous) DM spawn point.
+    Ctrl-(LShift-)E - Jump to the next (previous) coop spawn point.
+    Ctrl-1 - Jump to the primary spawn point, keeping the DM/coop "current" indices intact.
+    Ctrl-LShift-1 - Jump to the primary spawn point, resetting the DM/coop "current" indices to zero.
+    Ctrl-Q - Refresh the collected spawn point data. For example, if you move one of the APLAYER sprites.
+    Ctrl-D - Dump the current map's spawn point information to mapster32.log.
+
+    Tip: With pk_quickmapcycling enabled, Ctrl-(LShift-)X loads the next (previous) map in a directory.
+*/
+
+include names.h
+
+definequote 0
+
+gamearray DM_x 1
+gamearray DM_y 1
+gamearray DM_z 1
+gamearray DM_ang 1
+gamearray DM_sectnum 1
+
+gamearray coop_x 1
+gamearray coop_y 1
+gamearray coop_z 1
+gamearray coop_ang 1
+gamearray coop_sectnum 1
+
+gamevar DM 0 0
+gamevar coop 0 0
+
+gamevar DM_size 0 0
+gamevar coop_size 0 0
+
+gamevar i 0 0
+gamevar j 0 0
+gamevar k 0 0
+
+gamevar startpos_fresh 0 0
+
+defstate startpos_indexcheck
+    ifg DM DM_size
+        set DM 0
+    ifg coop coop_size
+        set coop 0
+
+    ifl DM 0
+        set DM DM_size
+    ifl coop 0
+        set coop DM_size
+ends
+
+
+defstate startpos_gatherdata
+    setvar DM_size 0
+    setvar coop_size 0
+
+    for i allsprites, ife .picnum APLAYER
+    {
+        ife .lotag 0
+            addvar DM_size 1
+        else ife .lotag 1
+            addvar coop_size 1
+
+        ifvarand .cstat 1
+            xorvar .cstat 1 // necessary to prevent floor HOM if the sprite happens to be blocking
+    }
+
+    ifg DM_size 0
+    {
+        resizearray DM_x DM_size
+        resizearray DM_y DM_size
+        resizearray DM_z DM_size
+        resizearray DM_ang DM_size
+        resizearray DM_sectnum DM_size
+    }
+
+    ifg coop_size 0
+    {
+        resizearray coop_x coop_size
+        resizearray coop_y coop_size
+        resizearray coop_z coop_size
+        resizearray coop_ang coop_size
+        resizearray coop_sectnum coop_size
+    }
+
+    set j 0
+    set k 0
+
+    for i allsprites, ife .picnum APLAYER
+    {
+        ife .lotag 0
+        {
+            set DM_x[j] .x
+            set DM_y[j] .y
+            set DM_z[j] .z
+            set DM_ang[j] .ang
+            set DM_sectnum[j] .sectnum
+
+            addvar j 1
+        }
+        else ife .lotag 1
+        {
+            set coop_x[k] .x
+            set coop_y[k] .y
+            set coop_z[k] .z
+            set coop_ang[k] .ang
+            set coop_sectnum[k] .sectnum
+
+            addvar k 1
+        }
+    }
+
+    set startpos_fresh 1
+
+    state startpos_indexcheck
+ends
+
+onevent EVENT_LOADMAP
+    state startpos_gatherdata
+endevent
+
+
+defstate startpos_primary
+    set posx startposx
+    set posy startposy
+    set posz startposz
+    set ang startang
+ends
+
+
+defstate startpos_prekeys
+    ifeitherctrl
+    {
+        ifhitkey KEY_Q
+        {
+            state startpos_gatherdata
+
+            quote "Spawn position data re-gathered."
+        }
+
+        ifhitkey KEY_1
+        {
+            state startpos_primary
+            updatecursectnum
+
+            ifholdkey KEY_LSHIFT
+            {
+                set DM 0
+                set coop 0
+            }
+
+            quote "Jumping to primary spawn position."
+        }
+
+        ifhitkey KEY_W
+        {
+            ife startpos_fresh 0
+                state startpos_gatherdata
+
+            ifholdkey KEY_LSHIFT
+                subvar DM 1
+            else
+                addvar DM 1
+
+            state startpos_indexcheck
+
+            ife DM 0
+                state startpos_primary
+            else
+            {
+                set j DM
+                subvar j 1
+
+                set posx DM_x[j]
+                set posy DM_y[j]
+                set posz DM_z[j]
+                set ang DM_ang[j]
+            }
+            updatecursectnum
+
+            set j DM
+            addvar j 1
+            set k DM_size
+            addvar k 1
+            qsprintf 0 "Jumping to DM spawn position %d of %d." j k
+            quote 0
+        }
+
+        ifhitkey KEY_E
+        {
+            ife startpos_fresh 0
+                state startpos_gatherdata
+
+            ifholdkey KEY_LSHIFT
+                subvar coop 1
+            else
+                addvar coop 1
+
+            state startpos_indexcheck
+
+            ife coop 0
+                state startpos_primary
+            else
+            {
+                set j coop
+                subvar j 1
+
+                set posx coop_x[j]
+                set posy coop_y[j]
+                set posz coop_z[j]
+                set ang coop_ang[j]
+            }
+            updatecursectnum
+
+            set j coop
+            addvar j 1
+            set k coop_size
+            addvar k 1
+            qsprintf 0 "Jumping to coop spawn position %d of %d." j k
+            quote 0
+        }
+
+        ifhitkey KEY_D
+        {
+            ife startpos_fresh 0
+                state startpos_gatherdata
+
+            ife startpos_fresh 1
+            {
+                quote "Dumping spawn point information..."
+                print "Format: Type,x,y,z,ang,sectnum"
+
+                qsprintf 0 "Primary,%d,%d,%d,%d,%d" startposx startposy startposz startang startsectnum
+                print 0
+
+                for i range DM_size
+                {
+                    qsprintf 0 "DM,%d,%d,%d,%d,%d" DM_x[i] DM_y[i] DM_z[i] DM_ang[i] DM_sectnum[i]
+                    print 0
+                }
+
+                for i range coop_size
+                {
+                    qsprintf 0 "Coop,%d,%d,%d,%d,%d" coop_x[i] coop_y[i] coop_z[i] coop_ang[i] coop_sectnum[i]
+                    print 0
+                }
+
+                set j DM_size
+                addvar j 1
+                set k coop_size
+                addvar k 1
+                qsprintf 0 "Total: %d DM position(s), %d coop position(s)" j k
+                print 0
+
+                set startpos_fresh 2
+
+                quote "Spawn position data dump complete."
+            }
+        }
+    }
+ends
+
+onevent EVENT_PREKEYS2D
+    state startpos_prekeys
+endevent
+
+onevent EVENT_PREKEYS3D
+    state startpos_prekeys
+endevent
