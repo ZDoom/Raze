@@ -10752,6 +10752,7 @@ void El_CreateGameState(void)
 // recreation (or on initial startup in a non-Lunatic build.)
 void G_PostCreateGameState(void)
 {
+    Net_SendClientInfo();
     A_InitEnemyFlags();
 }
 
