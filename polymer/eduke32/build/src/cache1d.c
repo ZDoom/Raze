@@ -84,21 +84,21 @@ static intptr_t kzipopen(const char *filnam)
 //           without first calling initcache.
 
 // Uncomment for easier allocache-allocated bound checking (e.g. with Valgrind)
+// KEEPINSYNC game.c
 //#define DEBUG_ALLOCACHE_AS_MALLOC
 
 #define MAXCACHEOBJECTS 9216
 
-#ifndef DEBUG_ALLOCACHE_AS_MALLOC
+#if !defined DEBUG_ALLOCACHE_AS_MALLOC
 static int32_t cachesize = 0;
-//static int32_t cachecount = 0;
 static char zerochar = 0;
 static intptr_t cachestart = 0;
 static int32_t agecount = 0;
 static int32_t lockrecip[200];
-#endif
 
 int32_t cacnum = 0;
 cactype cac[MAXCACHEOBJECTS];
+#endif
 
 static char toupperlookup[256] =
 {
@@ -128,7 +128,8 @@ void initcache(intptr_t dacachestart, int32_t dacachesize)
 #ifndef DEBUG_ALLOCACHE_AS_MALLOC
     int32_t i;
 
-    for (i=1; i<200; i++) lockrecip[i] = (1<<28)/(200-i);
+    for (i=1; i<200; i++)
+        lockrecip[i] = (1<<28)/(200-i);
 
     // The following code was relocated here from engine.c, since this
     // function is only ever called once (from there), and it seems to
@@ -165,9 +166,17 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
         reportandexit("OUT OF MEMORY in allocache as malloc wrapper!");
 }
 #else
+static void inc_and_check_cacnum(void)
+{
+    cacnum++;
+
+    if (cacnum > MAXCACHEOBJECTS)
+        reportandexit("Too many objects in cache! (cacnum > MAXCACHEOBJECTS)");
+}
+
 void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 {
-    int32_t i, /*j,*/ z, zz, bestz=0, daval, bestval, besto=0, o1, o2, sucklen, suckz;
+    int32_t i, z, bestz=0, bestval, besto=0, o1, sucklen, suckz;
 
 //printf("  ==> asking for %d bytes, ", newbytes);
     // Make all requests a multiple of 16 bytes
@@ -190,17 +199,34 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
     bestval = 0x7fffffff; o1 = cachesize;
     for (z=cacnum-1; z>=0; z--)
     {
+        int32_t zz, o2, daval;
+
         o1 -= cac[z].leng;
-        o2 = o1+newbytes; if (o2 > cachesize) continue;
+        o2 = o1+newbytes;
+
+        if (o2 > cachesize)
+            continue;
 
         daval = 0;
         for (i=o1,zz=z; i<o2; i+=cac[zz++].leng)
         {
-            if (*cac[zz].lock == 0) continue;
-            if (*cac[zz].lock >= 200) { daval = 0x7fffffff; break; }
-            daval += mulscale32(cac[zz].leng+65536,lockrecip[*cac[zz].lock]);
-            if (daval >= bestval) break;
+            if (*cac[zz].lock == 0)
+                continue;
+
+            if (*cac[zz].lock >= 200)
+            {
+                daval = 0x7fffffff;
+                break;
+            }
+
+            // Potential for eviction increases with
+            //  - smaller item size
+            //  - smaller lock byte value (but in [1 .. 199])
+            daval += mulscale32(cac[zz].leng+65536, lockrecip[*cac[zz].lock]);
+            if (daval >= bestval)
+                break;
         }
+
         if (daval < bestval)
         {
             bestval = daval; besto = o1; bestz = z;
@@ -215,33 +241,43 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 
     //Suck things out
     for (sucklen=-newbytes,suckz=bestz; sucklen<0; sucklen+=cac[suckz++].leng)
-        if (*cac[suckz].lock) *cac[suckz].hand = 0;
+        if (*cac[suckz].lock)
+            *cac[suckz].hand = 0;
 
     //Remove all blocks except 1
-    suckz -= (bestz+1); cacnum -= suckz;
-//    copybufbyte(&cac[bestz+suckz],&cac[bestz],(cacnum-bestz)*sizeof(cactype));
+    suckz -= bestz+1;
+    cacnum -= suckz;
+
     Bmemmove(&cac[bestz], &cac[bestz+suckz], (cacnum-bestz)*sizeof(cactype));
-    cac[bestz].hand = newhandle; *newhandle = cachestart+(intptr_t)besto;
+    cac[bestz].hand = newhandle;
+    *newhandle = cachestart + besto;
     cac[bestz].leng = newbytes;
     cac[bestz].lock = newlockptr;
-//    cachecount++;
 
     //Add new empty block if necessary
-    if (sucklen <= 0) return;
+    if (sucklen <= 0)
+        return;
 
     bestz++;
     if (bestz == cacnum)
     {
-        cacnum++; if (cacnum > MAXCACHEOBJECTS) reportandexit("Too many objects in cache! (cacnum > MAXCACHEOBJECTS)");
+        inc_and_check_cacnum();
+
         cac[bestz].leng = sucklen;
         cac[bestz].lock = &zerochar;
         return;
     }
 
-    if (*cac[bestz].lock == 0) { cac[bestz].leng += sucklen; return; }
+    if (*cac[bestz].lock == 0)
+    {
+        cac[bestz].leng += sucklen;
+        return;
+    }
 
-    cacnum++; if (cacnum > MAXCACHEOBJECTS) reportandexit("Too many objects in cache! (cacnum > MAXCACHEOBJECTS)");
-    for (z=cacnum-1; z>bestz; z--) cac[z] = cac[z-1];
+    inc_and_check_cacnum();
+
+    for (z=cacnum-1; z>bestz; z--)
+        cac[z] = cac[z-1];
     cac[bestz].leng = sucklen;
     cac[bestz].lock = &zerochar;
 }
@@ -252,16 +288,21 @@ void agecache(void)
 #ifndef DEBUG_ALLOCACHE_AS_MALLOC
     int32_t cnt = (cacnum>>4);
 
-    if (agecount >= cacnum) agecount = cacnum-1;
-    if (agecount < 0 || !cnt) return;
+    if (agecount >= cacnum)
+        agecount = cacnum-1;
+
+    if (agecount < 0 || !cnt)
+        return;
 
     for (; cnt>=0; cnt--)
     {
+        // If we have pointer to lock char and it's in [2 .. 199], decrease.
         if (cac[agecount].lock && (((*cac[agecount].lock)-2)&255) < 198)
             (*cac[agecount].lock)--;
 
         agecount--;
-        if (agecount < 0) agecount = cacnum-1;
+        if (agecount < 0)
+            agecount = cacnum-1;
     }
 #endif
 }

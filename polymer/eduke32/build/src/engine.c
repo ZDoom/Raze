@@ -11054,11 +11054,12 @@ int32_t loadpics(const char *filename, int32_t askedsize)
 
             for (i=localtilestart; i<=localtileend; i++)
             {
+                EDUKE32_STATIC_ASSERT(sizeof(picanm_t) == 4);
+                EDUKE32_STATIC_ASSERT(PICANM_ANIMTYPE_MASK == 192);
+
                 tilesizx[i] = B_LITTLE16(tilesizx[i]);
                 tilesizy[i] = B_LITTLE16(tilesizy[i]);
 
-                Bassert(sizeof(picanm_t)==4);
-                Bassert(PICANM_ANIMTYPE_MASK == 192);
                 // Old on-disk format: anim type is in the 2 highest bits of the lowest byte.
                 picanm[i].sf &= ~192;
                 picanm[i].sf |= picanm[i].num&192;

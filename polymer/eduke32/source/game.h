@@ -241,8 +241,6 @@ typedef struct {
 } user_defs;
 
 
-extern cactype cac[];
-
 // this is checked against http://eduke32.com/VERSION
 extern const char *s_buildDate;
 extern const char *g_gameNamePtr;

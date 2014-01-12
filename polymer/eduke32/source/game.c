@@ -1371,8 +1371,14 @@ void G_GameQuit(void)
         G_GameExit("Timed out.");
 }
 
+// Uncomment for easier allocache-allocated bound checking (e.g. with Valgrind)
+// KEEPINSYNC cache1d.c
+//#define DEBUG_ALLOCACHE_AS_MALLOC
+
+#if !defined DEBUG_ALLOCACHE_AS_MALLOC
 extern int32_t cacnum;
 extern cactype cac[];
+#endif
 
 static void G_ShowCacheLocks(void)
 {
@@ -1382,6 +1388,7 @@ static void G_ShowCacheLocks(void)
         return;
 
     k = 0;
+#if !defined DEBUG_ALLOCACHE_AS_MALLOC
     for (i=cacnum-1; i>=0; i--)
         if ((*cac[i].lock) >= 200)
         {
@@ -1392,7 +1399,7 @@ static void G_ShowCacheLocks(void)
             printext256(0L,k,31,-1,tempbuf,1);
             k += 6;
         }
-
+#endif
     if (k < ydim-12)
         k += 6;
 
