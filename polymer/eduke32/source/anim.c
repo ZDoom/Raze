@@ -207,7 +207,7 @@ static void endanimvol43(int32_t fr)
     }
 }
 
-void G_PlayAnim(const char *fn, char t)
+int32_t G_PlayAnim(const char *fn, char t)
 {
     uint8_t *animbuf;
     int32_t i, length=0, numframes=0;
@@ -216,6 +216,7 @@ void G_PlayAnim(const char *fn, char t)
 #endif
     int32_t handle=-1;
     int32_t frametime = 0;
+    int32_t running = 1;
 
     // t parameter:
     //
@@ -237,6 +238,7 @@ void G_PlayAnim(const char *fn, char t)
     if (I_CheckAllInput())
     {
         FX_StopAllSounds();
+        running = 0;
         goto end_anim;
     }
 
@@ -249,7 +251,6 @@ void G_PlayAnim(const char *fn, char t)
         animvpx_codec_ctx codec;
         uint8_t *pic;
         uint32_t msecsperframe, nextframetime;
-        int32_t running = 1;
         int32_t animidx, framenum=0, soundidx=0, numtotalsounds=0;  // custom anim sounds
 
         Bstrncpyz(vpxfn, fn, BMAX_PATH);
@@ -273,7 +274,7 @@ void G_PlayAnim(const char *fn, char t)
             OSD_Printf("Failed reading IVF file: %s\n",
                        animvpx_read_ivf_header_errmsg[i]);
             kclose(handle);
-            return;
+            return 0;
         }
 
         animvpx_setup_glstate();
@@ -281,7 +282,7 @@ void G_PlayAnim(const char *fn, char t)
         {
             OSD_Printf("Error initializing VPX codec.\n");
             animvpx_restore_glstate();
-            return;
+            return 0;
         }
 
         animidx = t-1;
@@ -352,14 +353,14 @@ void G_PlayAnim(const char *fn, char t)
         animvpx_uninit_codec(&codec);
 
         I_ClearAllInput();
-        return;  // done with playing VP8!
+        return !running;  // done with playing VP8!
     }
 #endif
     // ANM playback --- v v v ---
 
     handle = kopen4load(fn, 0);
     if (handle == -1)
-        return;
+        return 0;
 
     length = kfilelength(handle);
     if (length == 0)
@@ -421,7 +422,10 @@ void G_PlayAnim(const char *fn, char t)
             G_HandleAsync();
 
             if (I_CheckAllInput())
+            {
+                running = 0;
                 goto end_anim_restore_gl;
+            }
 
             if (g_restorePalette == 1)
             {
@@ -464,4 +468,6 @@ end_anim:
     I_ClearAllInput();
     ANIM_FreeAnim();
     walock[TILE_ANIM] = 1;
+
+    return !running;
 }

@@ -12300,17 +12300,24 @@ static void G_BonusCutscenes(void)
         if (ud.lockout == 0)
         {
             I_ClearInputWaiting();
-            G_PlayAnim("vol4e1.anm",8);
+            t = G_PlayAnim("vol4e1.anm",8);
             clearallviews(0L);
             nextpage();
-            G_PlayAnim("vol4e2.anm",10);
+            if (t)
+                goto end_vol4e;
+
+            t = G_PlayAnim("vol4e2.anm",10);
             clearallviews(0L);
             nextpage();
+            if (t)
+                goto end_vol4e;
+
             G_PlayAnim("vol4e3.anm",11);
             clearallviews(0L);
             nextpage();
         }
 
+end_vol4e:
         FX_StopAllSounds();
         S_ClearSoundLocks();
         S_PlaySound(ENDSEQVOL3SND4);

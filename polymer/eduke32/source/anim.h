@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern uint16_t anim_hi_numsounds[NUM_HARDCODED_ANIMS], *anim_hi_sounds[NUM_HARDCODED_ANIMS];
 # endif
 
-void G_PlayAnim(const char *fn,char t);
+int32_t G_PlayAnim(const char *fn,char t);
 /*
 void endanimvol43(int32_t fr);
 void endanimvol42(int32_t fr);
