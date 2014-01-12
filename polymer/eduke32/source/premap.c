@@ -548,7 +548,7 @@ void G_CacheMapData(void)
         }
     }
 
-    clearbufbyte(gotpic,sizeof(gotpic),0L);
+    Bmemset(gotpic, 0, sizeof(gotpic));
 
     endtime = getticks();
     OSD_Printf("Cache time: %dms\n", endtime-starttime);

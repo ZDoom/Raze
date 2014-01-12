@@ -282,6 +282,7 @@ int32_t G_LoadPlayer(int32_t spot)
     ud.m_player_skill = h.skill;
 
     Bstrcpy(boardfilename, h.boardfn);
+    E_MapArt_Setup(h.boardfn);  // XXX: Better after the following filename tweaking?
 
     if (boardfilename[0])
         Bstrcpy(currentboardfilename, boardfilename);

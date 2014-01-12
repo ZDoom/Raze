@@ -1060,6 +1060,8 @@ int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, in
 void set_tilesiz(int32_t picnum, int16_t dasizx, int16_t dasizy);
 int32_t tile_exists(int32_t picnum);
 int32_t   loadpics(const char *filename, int32_t askedsize);
+void E_MapArt_Clear(void);
+void E_MapArt_Setup(const char *filename);
 void   loadtile(int16_t tilenume);
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 intptr_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);

@@ -5031,6 +5031,7 @@ VOLUME_ALL_40x:
             g_player[myconnectindex].ps->gm = MODE_DEMO;
             if (ud.recstat == 1)
                 G_CloseDemoWrite();
+            E_MapArt_Clear();
             M_ChangeMenu(MENU_MAIN);
         }
 

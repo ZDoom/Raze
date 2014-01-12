@@ -433,7 +433,7 @@ static void reset_default_mapstate(void)
 
     initspritelists();
     taglab_init();
-
+    E_MapArt_Clear();
 #ifdef YAX_ENABLE
     yax_resetbunchnums();
 #endif

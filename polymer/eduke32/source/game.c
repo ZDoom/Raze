@@ -11005,6 +11005,10 @@ static int32_t G_EndOfLevel(void)
             ud.screen_size = i;
             G_BonusScreen(0);
         }
+
+        // Clear potentially loaded per-map ART only after the bonus screens.
+        E_MapArt_Clear();
+
         if (ud.eog)
         {
             ud.eog = 0;
