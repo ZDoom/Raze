@@ -12691,7 +12691,7 @@ void G_BonusScreen(int32_t bonusonly)
 
             rotatesprite_fs(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
 
-            if (totalclock > 1000000000 && totalclock < 1000000320)
+            if (totalclock >= 1000000000 && totalclock < 1000000320)
             {
                 switch ((totalclock>>4)%15)
                 {
