@@ -9738,20 +9738,21 @@ static void E_RecalcPicSiz(void)
 }
 
 #define RESTORE_MAPART_ARRAY(origar, bakar) do { \
-    Bmemcpy(origar, bakar, sizeof(origar)); \
+    EDUKE32_STATIC_ASSERT(sizeof(origar[0]) == sizeof(bakar[0])); \
+    Bmemcpy(origar, bakar, MAXUSERTILES*sizeof(origar[0])); \
     DO_FREE_AND_NULL(bakar); \
 } while (0)
 
 // Allocate per-map ART backup array and back up the original!
 #define ALLOC_MAPART_ARRAY(origar, bakar) do { \
-    bakar = Bmalloc(sizeof(origar)); \
+    bakar = Bmalloc(MAXUSERTILES*sizeof(origar[0])); \
     if (bakar == NULL) \
     { \
         initprintf("OUT OF MEMORY allocating per-map ART backup arrays!\n"); \
         uninitengine(); \
         exit(12); \
     } \
-    Bmemcpy(bakar, origar, sizeof(origar)); \
+    Bmemcpy(bakar, origar, MAXUSERTILES*sizeof(origar[0])); \
 } while (0)
 
 void E_MapArt_Clear(void)
