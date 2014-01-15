@@ -419,12 +419,11 @@ etc. for the next `gametics` game tics. If a sound index `snd` is passed, also
 start playing that sound.
 // TODO: Play sound how? ("globalsound")
 
-//////////
 `gv.currentEpisode()`::
-TODO
+Returns the one-based number of the episode currently being played.
+
 `gv.currentLevel()`::
-TODO
-//////////
+Returns the one-based number of the level currently being played.
 
 [[Lunatic_structures]]
 Lunatic structures

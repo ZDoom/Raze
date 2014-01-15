@@ -649,7 +649,7 @@ local PlayerLabels = {
 
     curr_weapon = PL".curr_weapon",
 
-    palette = PL".palette",
+    palette = { PL".palette" },
 
     -- NOTE the special case:
     pals = PL"._pals[%s]",

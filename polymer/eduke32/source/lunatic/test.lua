@@ -50,7 +50,7 @@ gameevent
     "ENTERLEVEL",
 
     function()
-        local vol, lev = gv.currentEpisode()+1, gv.currentLevel()+1
+        local vol, lev = gv.currentEpisode(), gv.currentLevel()
         printf('volume=%d, level=%d', vol, lev)
 
         if (vol ~= 4) then

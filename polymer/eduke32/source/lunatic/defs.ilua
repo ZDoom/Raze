@@ -314,7 +314,7 @@ __attribute__((packed)) struct {
     const<W-> int8_t wantweaponfire;
     const<W> int8_t curr_weapon;
 
-    uint8_t palette;
+    const uint8_t palette;
     palette_t _pals;
     int8_t _palsfadespeed, _palsfadenext, _palsfadeprio, _padding2;
 
@@ -1542,11 +1542,11 @@ end
 
 -- TODO: make return 1-based index?
 function gv_access.currentEpisode()
-    return ffiC.ud.volume_number
+    return ffiC.ud.volume_number + 1
 end
 
 function gv_access.currentLevel()
-    return ffiC.ud.level_number
+    return ffiC.ud.level_number + 1
 end
 
 function gv_access.doQuake(gametics, snd)

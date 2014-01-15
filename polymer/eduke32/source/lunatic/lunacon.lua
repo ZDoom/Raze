@@ -427,8 +427,8 @@ local function new_initial_gvartab()
         WEAPON = PRO(PLSX".curr_weapon"),
         WORKSLIKE = PRO(format(PLSX".weapon[%s].workslike", PLSX".curr_weapon")),
 
-        VOLUME = RO "_gv.currentEpisode()",
-        LEVEL = RO "_gv.currentLevel()",
+        VOLUME = RO "_gv._ud.volume_number",
+        LEVEL = RO "_gv._ud.level_number",
     }
 
     -- Reserved bits
