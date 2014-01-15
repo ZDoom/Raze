@@ -39,8 +39,12 @@ int main(int argc, char **argv)
         return 255;
     }
 
+    if (argc == 2 && argv[1][0]=='-')
+        goto usage;
+
     if (argc != 2 && argc != 4 && argc != 5)
     {
+usage:
         fprintf(stderr, "Usage: %s <file.ivf> [<fpsnumerator> <fpsdenominator> [-force]]\n"
                 " Without -force, <fpsnumerator> must be < 1000.\n"
                 " If <fpsnumerator> is >= 1000, the actual frame rate\n"
@@ -54,7 +58,7 @@ int main(int argc, char **argv)
     fd = open(argv[1], dowrite ? O_RDWR : O_RDONLY);
     if (fd < 0)
     {
-        fprintf(stderr, "Could't open \"%s\" for: %s\n",
+        fprintf(stderr, "Could't open \"%s\" for %s: %s\n", argv[1],
                 dowrite ? "reading/writing":"reading", strerror(errno));
         return 2;
     }
