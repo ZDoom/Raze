@@ -88,8 +88,6 @@ gameevent
                 sprite[spr].pal = 6
             end
 
-            --this is a problem
-            --actor = {}
             actor[562].flags = bit.bor(actor[562].flags, 2);   -- pal 6 with goggles on front SEENINE
         end
 ---[[
@@ -173,6 +171,8 @@ gameevent
 
         checkfail("require('engine').setshadetab(200, nil)",
                   "setshadetab() may be run only while LUNATIC_FIRST_TIME is true")
+
+        checkfail("sprite[0]:set_picnum(-10)", "invalid tile number")
     end
 }
 
@@ -193,6 +193,9 @@ checkfail('print(sprite._nextspritesect[4].whatfield)', "attempt to index a numb
 
 -- gamevars are created using a special different mechanism
 checkfail("new_global = 345", "attempt to write into the global environment")
+-- Can't reassign to existing vars either
+assert(actor ~= nil)
+checkfail("actor = 345", "attempt to write into the global environment")
 
 -- can't redefine constants in 'gv'
 checkfail('gv.CEILING = 3', "attempt to write to constant location")
@@ -223,7 +226,6 @@ checkfail("do local bt=require'test.test_bitar'; bt.QWE=1; end", "modifying modu
 -- the cdata returned by player[] can't be made into a pointer!
 checkfail("do local pl=player[0]; i=pl[1]; end")
 checkfail("do local ud=gv.ud.camerasprite; end", "access forbidden")  -- test for proper decl()
-checkfail("sprite[0]:set_picnum(-10)", "invalid tile number")
 checkfail("gv.g_sizes_of=nil; print(gv.g_sizes_of[0])", "write access forbidden")
 checkfail("gv.cam.sect=-1", "invalid sector number")
 checkfail("local flag=gv.SFLAG_NULL", "missing declaration")

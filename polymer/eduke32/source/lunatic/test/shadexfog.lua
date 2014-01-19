@@ -160,7 +160,7 @@ local function create_base_shtab_2(basesht)
     local basesht = basesht or engine.getshadetab(0)
 
     local perm16 = { [0]=0,1, 2,3, 5,4, 6,7, 8,13, 10,11, 12,9, 14,15 }
-    local sht = engine.shadetab():remap16(perm16)
+    basesht = basesht:remap16(perm16)
 
     local iperm16 = {}
     for i=0,15 do
@@ -176,6 +176,8 @@ local function create_base_shtab_2(basesht)
     for i=0,255-16 do
         baseidx[i] = i < 192 and 32*floor(i/32) or 16*floor(i/16)
     end
+
+    local sht = engine.shadetab()
 
     for sh=0,31 do
         for i=0,255-16 do

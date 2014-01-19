@@ -1540,7 +1540,6 @@ function gv_access._set_guniqhudid(id)
     ffiC.guniqhudid = id
 end
 
--- TODO: make return 1-based index?
 function gv_access.currentEpisode()
     return ffiC.ud.volume_number + 1
 end

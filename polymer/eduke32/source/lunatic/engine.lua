@@ -83,7 +83,7 @@ engine.RESERVEDPALS = RESERVEDPALS
 
 local function check_palidx(i)
     if (type(i) ~= "number" or not (i >= 0 and i <= 255-RESERVEDPALS)) then
-        error("invalid argument #1: palette index must be in the range [0 .. "..255-RESERVEDPALS.."]", 3)
+        error("invalid argument #1: palette swap index must be in the range [0 .. "..255-RESERVEDPALS.."]", 3)
     end
 end
 

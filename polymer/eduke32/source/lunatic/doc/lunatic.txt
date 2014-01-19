@@ -345,6 +345,17 @@ The maximum permissible weapon index plus one.
 TODO
 //////////
 
+`gv.LUNATIC_CLIENT`::
+
+A constant indicating which program Lua is embedded into. It can be compared
+for (in)equality with:
++
+* `gv.LUNATIC_CLIENT_EDUKE32`
+* `gv.LUNATIC_CLIENT_MAPSTER32`
++
+(Mapster32 supports a subset of Lunatic that is not documented and subject to
+change at any time.)
+
 Variables
 ^^^^^^^^^
 
@@ -2110,6 +2121,64 @@ respect to how pixels of objects farther away are drawn. For example:
 * ``Fullbright'' colors -- those that aren't affected by distance -- with index
   latexmath:[$i$] are achieved by setting palookup[sh][latexmath:[$i$]] to
   palookup[0][latexmath:[$i$]] for each shade sh.
+
+===== Shade table functions
+
+`sht = engine.shadetab()`::
+
+Creates and returns a new shade table object `sht` with all entries initialized
+to zero. This object can be indexed once with a shade index from 0 to 31,
+yielding a reference to an array of 256 8-bit unsigned integers. Thus, shade
+table objects can be used just as indicated in the notation above: `sht[sh][i]`
+is the resulting color index for shade `sh` and input color index `i`.
+
+`sht = engine.getshadetab(palnum)`::
+
+Returns a new shade table object `sht` containing the values for the palookup
+table of pal `palnum`, provided it is not an alias for the default one (see
+below). Modifying the returned `sht` does not alter the actual engine-side
+shade table. An unspecified number of pal indices are reserved from the end of
+the hard limit 255; attempting to retrieve a shade table for a reserved pal
+raises as error.
++
+At engine initialization, the shade tables for all non-zero pal numbers are
+aliased to the default pal 0 one. Subsequently, custom palookup tables are
+either loaded from LOOKUP.DAT, created by appropriate DEF directives (`fogpal`
+or `makepalookup`), or assigned using `engine.setshadetab`. If the table for
+pal `palnum` is aliased to the default one when `getshadetab` is called, *nil*
+is returned.
+
+`engine.setshadetab(palnum, sht)`::
+
+Copies the shade table `sht` to the engine-side palookup table for pal
+`palnum`. An error is issued if an attempt is made to copy to a reserved
+`palnum`.
++
+When running in EDuke32, there are additional restrictions:
++
+* A `palnum` for which a shade table has already been registered (that is, one
+  which is *not* aliased to the default one) cannot be re-assigned to.
++
+* `setshadetab` may only be called at first initialization time, that is, when
+  the value of `LUNATIC_FIRST_TIME` is *true*. (`LUNATIC_FIRST_TIME` is a
+  variable in the global environment that indicates whether the Lua game state
+  is created for the very first time and the game is not yet running.)
+
+//////////
+===== Shade table methods
+
+`newsht = sht:remap16(tab)`::
+
+Rearranges consecutive runs of 16 values of every shade 256-tuple of `sht` by
+the 0-based selection given by the 0-based sequence `tab`.
++
+.Example
+[source]
+----------
+local perm16 = { [0]=0,1, 2,3, 5,4, 6,7, 8,13, 10,11, 12,9, 14,15 }
+local newsht = engine.getshadetab(0):remap16(perm16)
+----------
+//////////
 
 
 The `fs` module -- virtual file system facilities
