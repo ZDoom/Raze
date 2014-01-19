@@ -9194,12 +9194,32 @@ static inline int32_t         sameside(_equation *eq, _point2d *p1, _point2d *p2
     return (0);
 }
 
+#ifdef DEBUG_MASK_DRAWING
+int32_t g_maskDrawMode = 0;
+#endif
 
 //
 // drawmasks
 //
 void drawmasks(void)
 {
+#ifdef DEBUG_MASK_DRAWING
+        static struct {
+            int16_t di;  // &32768: &32767 is tspriteptr[], else thewall[] index
+            int16_t i;   // sprite[] or wall[] index
+        } debugmask[MAXWALLSB + MAXSPRITESONSCREEN + 1];
+
+        int32_t dmasknum = 0;
+
+# define debugmask_add(dispidx, idx) do { \
+        if (g_maskDrawMode && getrendermode()==REND_CLASSIC) { \
+            debugmask[dmasknum].di = dispidx; \
+            debugmask[dmasknum++].i = idx; \
+        } \
+    } while (0)
+#else
+# define debugmask_add(dispidx, idx) do {} while (0)
+#endif
     int32_t i, modelp=0;
 
     for (i=spritesortcnt-1; i>=0; i--)
@@ -9350,7 +9370,11 @@ killsprite:
             const int32_t w = (getrendermode()==REND_POLYMER) ?
                 maskwall[maskwallcnt-1] : thewall[maskwall[maskwallcnt-1]];
 
-            const int32_t otherside_spr_first = (getrendermode() == REND_CLASSIC);
+            const int32_t otherside_spr_first = (getrendermode() == REND_CLASSIC)
+#ifdef DEBUG_MASK_DRAWING
+                && (g_maskDrawMode <= 1)
+#endif
+                ;
 
             maskwallcnt--;
 
@@ -9386,12 +9410,14 @@ killsprite:
                          (sameside(&p1eq, &middle, &spr) &&
                           sameside(&p2eq, &middle, &spr))))
                     {
+                        debugmask_add(i | 32768, tspriteptr[i]->owner);
                         drawsprite(i);
                         tspriteptr[i] = NULL;
                     }
                 }
             }
 
+            debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
             drawmaskwall(maskwallcnt);
         }
 
@@ -9399,13 +9425,46 @@ killsprite:
         {
             spritesortcnt--;
             if (tspriteptr[spritesortcnt] != NULL)
+            {
+                debugmask_add(spritesortcnt | 32768, tspriteptr[spritesortcnt]->owner);
                 drawsprite(spritesortcnt);
+            }
         }
     }
 
 #ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
         polymer_drawmasks();
+#endif
+#ifdef DEBUG_MASK_DRAWING
+    if (g_maskDrawMode && getrendermode() == REND_CLASSIC)
+    {
+        for (i=0; i<dmasknum; i++)
+        {
+            EDUKE32_STATIC_ASSERT(MAXWALLS <= 32768 && MAXSPRITES <= 32768);
+            int32_t spritep = !!(debugmask[i].di & 32768);
+            int32_t di = debugmask[i].di & 32767;
+//            int32_t ii = debugmask[i].i;
+
+            char numstr[12];
+            Bsprintf(numstr, "%d", i+1);
+
+            if (spritep)
+            {
+                int32_t sx = spritesx[di]>>8, sy = ydim/2 + 8;
+                // XXX: printext256 really ought to do bound checking on the
+                // x/y coords!
+                sx = clamp(sx, 0, xdim-8*Bstrlen(numstr)-1);
+                printext256(sx, sy, 241, 0, numstr, 0);
+            }
+            else
+            {
+                int32_t sx = xb1[di] + (xb2[di]-xb1[di])/2, sy = ydim/2;
+                sx = clamp(sx, 0, xdim-8*Bstrlen(numstr)-1);
+                printext256(sx, sy, 31, 0, numstr, 0);
+            }
+        }
+    }
 #endif
 
     indrawroomsandmasks = 0;

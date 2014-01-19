@@ -12,6 +12,11 @@
 extern "C" {
 #endif
 
+#ifdef DEBUGGINGAIDS
+# define DEBUG_MASK_DRAWING
+extern int32_t g_maskDrawMode;
+#endif
+
 extern char quitevent, appactive;
 
 extern int32_t vsync;
