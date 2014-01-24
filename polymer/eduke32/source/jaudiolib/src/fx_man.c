@@ -874,8 +874,11 @@ int32_t FX_StartDemandFeedPlayback
 }
 
 
-static wavedata FX_AutoDetectFormat(const char *ptr)
+static wavedata FX_AutoDetectFormat(const char *ptr, uint32_t length)
 {
+    if (length < 12)
+        return Unknown;
+
     switch (LITTLE32(*(int32_t *)ptr))
     {
     case 'C'+('r'<<8)+('e'<<16)+('a'<<24): // Crea
@@ -925,7 +928,7 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
 {
     int32_t handle = -1;
 
-    switch (FX_AutoDetectFormat(ptr))
+    switch (FX_AutoDetectFormat(ptr, length))
     {
     case VOC:
         handle = MV_PlayVOC(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
@@ -973,7 +976,7 @@ int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitch
 {
     int32_t handle = -1;
 
-    switch (FX_AutoDetectFormat(ptr))
+    switch (FX_AutoDetectFormat(ptr, length))
     {
     case VOC:
         handle = MV_PlayVOC3D(ptr, length, loophow, pitchoffset, angle, distance, priority, callbackval);
