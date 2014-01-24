@@ -124,7 +124,8 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
 -- Code generation and output options.
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
                   ["cache-sap"]=false, ["error-nostate"]=true,
-                  ["playervar"]=true, ["trapv"]=false, ["wrapv"]=false, }
+                  ["playervar"]=true, ["trapv"]=false, ["wrapv"]=false,
+                  ["bad-getactorvar-use-pli"]=false, }
 
 local function csapp() return g_cgopt["cache-sap"] end
 
@@ -690,10 +691,10 @@ local function parse_number(pos, numstr)
             num = NaN
         end
     elseif (num >= 0x80000000) then
-        if (not hex and g_warn["number-conversion"]) then
-            pwarnprintf(pos, "number %s converted to a negative one", numstr)
-        end
         num = bit.tobit(num)
+        if (not hex and g_warn["number-conversion"]) then
+            pwarnprintf(pos, "number %s converted to %d", numstr, num)
+        end
     end
 
 --    printf("numstr:%s, num=%d (0x%s) '%s', resnum=%d (0x%s)",
@@ -2075,6 +2076,14 @@ local function GetOrSetPerxvarCmd(Setp, Actorp)
             local xprintf = warnp and warnprintf or errprintf
 
             xprintf("gamevar `%s' is not per-%s", perxvarname, Actorp and "actor" or "player")
+
+            if (warnp and bit.band(gv.flags, GVFLAG.PERX_MASK)==GVFLAG.PERPLAYER
+                    and g_cgopt["bad-getactorvar-use-pli"]) then
+                -- For getactorvar[] accesses to per-player gamevars, if
+                -- -fbad-getactorvar-use-pli is provided, use current player
+                -- index, for compatibility with CON.
+                idx = "_pli"
+            end
         end
 
         if (not Actorp) then

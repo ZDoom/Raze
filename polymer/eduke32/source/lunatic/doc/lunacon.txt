@@ -127,8 +127,9 @@ one.
 When enabled, produces an error whenever a global or per-player gamevar is
 attempted to be read using ++getactorvar++. Otherwise, a warning is emitted. In
 this case, the generated code is either a read of the (global) gamevar, or an
-access of the per-player gamevar with an actor index, which is probably not
-what the coder intended.
+access of the per-player gamevar with the given index or the current player
+index (depending on `-fbad-getactorvar-use-pli`), which is probably not what
+the coder intended.
 
 `-Wnot-redefined` (default: on)::
 Warns whenever a `define` directive was ignored because it attempted to
@@ -166,6 +167,12 @@ LunaCON itself.
 If enabled, an attempt to call a `state` that was not previously defined
 results in an error. Otherwise, a warning is issued and no code is generated
 for the `state` invocation.
+
+`-fbad-getactorvar-use-pli` (default: off)::
+If enabled and `-Werror-bad-getactorvar` is off, a `getactorvar` of a
+per-player variable will result the gamevar being indexed with the current
+player instead of the provided index. This is the (probably unintended)
+behavior of C-CON.
 
 `-fplayervar` (default: on)::
 If enabled, per-player `gamevar` definitions really generate `con.playervar`
