@@ -9177,7 +9177,7 @@ static inline void    drawmaskleaf(_maskleaf* wall)
 }
 #endif
 
-static inline int32_t         sameside(_equation *eq, _point2d *p1, _point2d *p2)
+static inline int32_t         sameside(const _equation *eq, const _point2d *p1, const _point2d *p2)
 {
     float   sign1, sign2;
 
@@ -9193,6 +9193,14 @@ static inline int32_t         sameside(_equation *eq, _point2d *p1, _point2d *p2
     //OSD_Printf("OPPOSITE SIDE !\n");
     return (0);
 }
+
+// x1, y1: in/out
+// rest x/y: out
+static void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
+                               int32_t *y1, int32_t *y2);
+static void get_floorspr_points(const spritetype *spr, int32_t px, int32_t py,
+                                int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
+                                int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
 
 #ifdef DEBUG_MASK_DRAWING
 int32_t g_maskDrawMode = 0;
@@ -9220,7 +9228,7 @@ void drawmasks(void)
 #else
 # define debugmask_add(dispidx, idx) do {} while (0)
 #endif
-    int32_t i, modelp=0;
+    int32_t i;
 
     for (i=spritesortcnt-1; i>=0; i--)
         tspriteptr[i] = &tsprite[i];
@@ -9230,7 +9238,7 @@ void drawmasks(void)
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
         const int32_t yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
 #ifdef USE_OPENGL
-        modelp = (usemodels && tile2model[tspriteptr[i]->picnum].modelid >= 0);
+        const int32_t modelp = (usemodels && tile2model[tspriteptr[i]->picnum].modelid >= 0);
 #endif
         if (yp > (4<<8))
         {
@@ -9279,8 +9287,6 @@ killsprite:
         ys = spritesy[0]; i = 0;
         for (j=1; j<=spritesortcnt; j++)
         {
-            int32_t k;
-
             if (spritesy[j] == ys)
                 continue;
 
@@ -9288,6 +9294,8 @@ killsprite:
 
             if (j > i+1)
             {
+                int32_t k;
+
                 for (k=i; k<j; k++)
                 {
                     const spritetype *const s = tspriteptr[k];
@@ -9370,12 +9378,6 @@ killsprite:
             const int32_t w = (getrendermode()==REND_POLYMER) ?
                 maskwall[maskwallcnt-1] : thewall[maskwall[maskwallcnt-1]];
 
-            const int32_t otherside_spr_first = (getrendermode() == REND_CLASSIC)
-#ifdef DEBUG_MASK_DRAWING
-                && (g_maskDrawMode <= 1)
-#endif
-                ;
-
             maskwallcnt--;
 
             dot.x = (float)wall[w].x;
@@ -9385,14 +9387,11 @@ killsprite:
 
             maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
 
-            if (!otherside_spr_first)
-            {
-                p1eq = equation(pos.x, pos.y, dot.x, dot.y);
-                p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
+            p1eq = equation(pos.x, pos.y, dot.x, dot.y);
+            p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
 
-                middle.x = (dot.x + dot2.x) / 2;
-                middle.y = (dot.y + dot2.y) / 2;
-            }
+            middle.x = (dot.x + dot2.x) / 2;
+            middle.y = (dot.y + dot2.y) / 2;
 
             i = spritesortcnt;
             while (i)
@@ -9401,18 +9400,77 @@ killsprite:
                 if (tspriteptr[i] != NULL)
                 {
                     _point2d spr;
+                    const spritetype *tspr = tspriteptr[i];
 
-                    spr.x = (float)tspriteptr[i]->x;
-                    spr.y = (float)tspriteptr[i]->y;
+                    spr.x = (float)tspr->x;
+                    spr.y = (float)tspr->y;
 
-                    if (!sameside(&maskeq, &spr, &pos) &&
-                        (otherside_spr_first ||
-                         (sameside(&p1eq, &middle, &spr) &&
-                          sameside(&p2eq, &middle, &spr))))
+                    if (!sameside(&maskeq, &spr, &pos))
                     {
-                        debugmask_add(i | 32768, tspriteptr[i]->owner);
-                        drawsprite(i);
-                        tspriteptr[i] = NULL;
+                        // Sprite and camera are on different sides of the
+                        // masked wall.
+
+                        // Check if the sprite is inside the 'cone' given by
+                        // the rays from the camera to the two wall-points.
+                        const int32_t inleft = sameside(&p1eq, &middle, &spr);
+                        const int32_t inright = sameside(&p2eq, &middle, &spr);
+
+                        int32_t ok = (inleft && inright);
+
+                        if (!ok)
+                        {
+                            // If not, check if any of the border points are...
+                            int32_t xx[4] = { tspr->x };
+                            int32_t yy[4] = { tspr->y };
+                            int32_t numpts, jj;
+
+                            const _equation pineq = inleft ? p1eq : p2eq;
+
+                            if ((tspr->cstat & 48) == 32)
+                            {
+                                numpts = 4;
+                                get_floorspr_points(tspr, 0, 0,
+                                                    &xx[0], &xx[1], &xx[2], &xx[3],
+                                                    &yy[0], &yy[1], &yy[2], &yy[3]);
+                            }
+                            else
+                            {
+                                const int32_t oang = tspr->ang;
+                                numpts = 2;
+
+                                // Consider face sprites as wall sprites with camera ang.
+                                // XXX: factor 4/5 needed?
+                                if ((tspr->cstat & 48) != 16)
+                                    tspriteptr[i]->ang = globalang;
+
+                                get_wallspr_points(tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
+
+                                if ((tspr->cstat & 48) == 0)
+                                    tspriteptr[i]->ang = oang;
+                            }
+
+                            for (jj=0; jj<numpts; jj++)
+                            {
+                                spr.x = xx[jj];
+                                spr.y = yy[jj];
+
+                                if (!sameside(&maskeq, &spr, &pos))  // behind the maskwall,
+                                    if ((sameside(&p1eq, &middle, &spr) &&  // inside the 'cone',
+                                         sameside(&p2eq, &middle, &spr))
+                                            || !sameside(&pineq, &middle, &spr))  // or on the other outside.
+                                    {
+                                        ok = 1;
+                                        break;
+                                    }
+                            }
+                        }
+
+                        if (ok)
+                        {
+                            debugmask_add(i | 32768, tspr->owner);
+                            drawsprite(i);
+                            tspriteptr[i] = NULL;
+                        }
                     }
                 }
             }
@@ -9470,10 +9528,6 @@ killsprite:
     indrawroomsandmasks = 0;
     enddrawing();   //}}}
 }
-
-static void get_floorspr_points(const spritetype *spr, int32_t px, int32_t py,
-                               int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
-                               int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
 
 //
 // drawmapview
@@ -9664,7 +9718,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             x1 = spr->x;
             y1 = spr->y;
             get_floorspr_points(spr, 0, 0, &x1, &x2, &x3, &x4,
-                               &y1, &y2, &y3, &y4);
+                                &y1, &y2, &y3, &y4);
             xspan = tilesizx[spr->picnum];
 
             xb1[0] = 1; xb1[1] = 2; xb1[2] = 3; xb1[3] = 0;
@@ -12143,7 +12197,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
 // x1, y1: in/out
 // rest x/y: out
 static void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
-                              int32_t *y1, int32_t *y2)
+                               int32_t *y1, int32_t *y2)
 {
     //These lines get the 2 points of the rotated sprite
     //Given: (x1, y1) starts out as the center point
@@ -12172,8 +12226,8 @@ static void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
 // x1, y1: in/out
 // rest x/y: out
 static void get_floorspr_points(const spritetype *spr, int32_t px, int32_t py,
-                               int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
-                               int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
+                                int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
+                                int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
 {
     const int32_t tilenum = spr->picnum;
     // &2047 in sinang:
@@ -12555,7 +12609,7 @@ restart_grand:
                     continue;
 
                 get_floorspr_points(spr, intx, inty, &x1, &x2, &x3, &x4,
-                                   &y1, &y2, &y3, &y4);
+                                    &y1, &y2, &y3, &y4);
 
                 if (get_floorspr_clipyou(x1, x2, x3, x4, y1, y2, y3, y4))
                 {
@@ -13363,7 +13417,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                     rxi[0] = x1;
                     rxi[1] = y1;
                     get_floorspr_points(spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
-                                       &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
+                                        &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
 
                     dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist);
                     day = mulscale14(sintable[(spr->ang-256)&2047],walldist);
@@ -14234,7 +14288,7 @@ restart_grand:
                         if ((pos->z > daz) == ((cstat&8)==0)) continue;
 
                     get_floorspr_points(spr, pos->x, pos->y, &x1, &x2, &x3, &x4,
-                                       &y1, &y2, &y3, &y4);
+                                        &y1, &y2, &y3, &y4);
 
                     dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist+4);
                     day = mulscale14(sintable[(spr->ang-256)&2047],walldist+4);

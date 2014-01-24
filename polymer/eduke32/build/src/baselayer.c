@@ -425,7 +425,7 @@ int32_t baselayer_init(void)
         { "debug2","debug counter",(void *) &debug2, CVAR_FLOAT, -100000, 100000 },
 #endif
 #ifdef DEBUG_MASK_DRAWING
-        { "debug_maskdrawmode", "Show mask draw orders: 0:none, 1:EDuke32, 2:Duke3D", (void *)&g_maskDrawMode, CVAR_INT, 0, 2 },
+        { "debug_maskdrawmode", "Show mask draw orders", (void *)&g_maskDrawMode, CVAR_BOOL, 0, 1 },
 #endif
     };
 
