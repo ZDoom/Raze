@@ -5213,7 +5213,8 @@ static void Keys3d(void)
     if (AIMING_AT_WALL_OR_MASK && ((tsign=PRESSED_KEYSC(PERIOD)) || PRESSED_KEYSC(COMMA)))
     {
         uint32_t flags = (!eitherSHIFT) | (tsign?0:16) |
-            (eitherALT<<2) | ((!!keystatus[KEYSC_QUOTE])<<3);
+            (eitherALT<<2) | ((!!keystatus[KEYSC_QUOTE])<<3) |
+            32*(searchwall != searchbottomwall);
 
         int32_t naligned=AutoAlignWalls(searchwall, flags, 0);
         // Do it a second time because the first one is wrong. FIXME!!!
@@ -5224,7 +5225,7 @@ static void Keys3d(void)
                 !eitherSHIFT ? " iteratively" : "",
                 eitherALT ? ", aligning xrepeats" : "",
                 keystatus[KEYSC_QUOTE] ? ", aligning TROR-nextwalls" : "",
-                (wall[searchwall].cstat&4) ? "" : ". WARNING: top-aligned");
+                (wall[searchbottomwall].cstat&4) ? "" : ". WARNING: top-aligned");
     }
 
     tsign = 0;

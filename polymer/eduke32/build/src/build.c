@@ -10472,22 +10472,27 @@ static int32_t GetWallBaseZ(int32_t wallnum)
 
 ////////// AUTOMATIC WALL ALIGNMENT //////////
 
-static void AlignWalls(int32_t w0, int32_t z0, int32_t w1, int32_t z1, int32_t doxpanning)
+static void AlignWalls_(int32_t tilenum, int32_t z0, int32_t z1, int32_t doxpanning,
+                        int32_t w0_pan, int32_t w0_rep, int32_t w1_pan, int32_t w1_rep)
 {
     int32_t n;
-    int32_t tilenum = wall[w0].picnum;
 
     if (tilesizx[tilenum]==0 || tilesizy[tilenum]==0)
         return;
 
     //do the x alignment
     if (doxpanning)
-        wall[w1].xpanning = (uint8_t)((wall[w0].xpanning + (wall[w0].xrepeat<<3))%tilesizx[tilenum]);
+        wall[w1_pan].xpanning = (uint8_t)((wall[w0_pan].xpanning + (wall[w0_rep].xrepeat<<3))%tilesizx[tilenum]);
 
     for (n=picsiz[tilenum]>>4; (1<<n)<tilesizy[tilenum]; n++);
 
-    wall[w1].yrepeat = wall[w0].yrepeat;
-    wall[w1].ypanning = (uint8_t)(wall[w0].ypanning + (((z1-z0)*wall[w0].yrepeat)>>(n+3)));
+    wall[w1_rep].yrepeat = wall[w0_rep].yrepeat;
+    wall[w1_pan].ypanning = (uint8_t)(wall[w0_pan].ypanning + (((z1-z0)*wall[w0_rep].yrepeat)>>(n+3)));
+}
+
+static void AlignWalls(int32_t w0, int32_t z0, int32_t w1, int32_t z1, int32_t doxpanning)
+{
+    AlignWalls_(wall[w0].picnum, z0, z1, doxpanning, w0, w0, w1, w1);
 }
 
 void AlignWallPoint2(int32_t w0)
@@ -10498,21 +10503,31 @@ void AlignWallPoint2(int32_t w0)
 
 #define ALIGN_WALLS_CSTAT_MASK (4+8+256)
 
+static int32_t AlignGetWall(int32_t botswap, int32_t w)
+{
+    return botswap && (wall[w].cstat&2) && wall[w].nextwall >= 0 ? wall[w].nextwall : w;
+}
+
 // flags:
 //  1: more than once
 //  2: (unused)
 //  4: carry pixel width from first wall over to the rest
 //  8: align TROR nextwalls
 // 16: iterate lastwall()s (point2 in reverse)
+// 32: use special logic for 'bottom-swapped' walls
 int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 {
     static int32_t numaligned, wall0, cstat0;
     static uint32_t lenrepquot;
+
     const int32_t totheleft = flags&16;
+    const int32_t botswap = flags&32;
 
     int32_t z0 = GetWallBaseZ(w0);
     int32_t w1 = totheleft ? lastwall(w0) : wall[w0].point2;
-    const int32_t tilenum = wall[w0].picnum;
+
+    int32_t w0b = AlignGetWall(botswap, w0);
+    const int32_t tilenum = wall[w0b].picnum;
 
     if (nrecurs == 0)
     {
@@ -10522,12 +10537,14 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
         numaligned = 0;
         lenrepquot = getlenbyrep(wallength(w0), wall[w0].xrepeat);
         wall0 = w0;
-        cstat0 = wall[w0].cstat & ALIGN_WALLS_CSTAT_MASK;  // top/bottom orientation; x/y-flip
+        cstat0 = wall[w0b].cstat & ALIGN_WALLS_CSTAT_MASK;  // top/bottom orientation; x/y-flip
     }
 
     //loop through walls at this vertex in point2 order
     while (1)
     {
+        int32_t w1b = AlignGetWall(botswap, w1);
+
         //break if this wall would connect us in a loop
         if (visited[w1>>3]&(1<<(w1&7)))
             break;
@@ -10548,8 +10565,6 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
                     wall[ynw].xrepeat = wall[w0].xrepeat;
                     wall[ynw].xpanning = wall[w0].xpanning;
                     AlignWalls(w0,z0, ynw,GetWallBaseZ(ynw), 0);  // initial vertical alignment
-
-//                    AutoAlignWalls(ynw, flags&~8, nrecurs+1);  // recurse once
                 }
             }
         }
@@ -10559,7 +10574,7 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
         if (wall[w1].nextwall == w0)
             break;
 
-        if (wall[w1].picnum == tilenum)
+        if (wall[w1b].picnum == tilenum)
         {
             int32_t visible = 1;
             const int32_t nextsec = wall[w1].nextsector;
@@ -10586,9 +10601,9 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 
                 if ((flags&4) && w1!=wall0)
                     fixxrepeat(w1, lenrepquot);
-                AlignWalls(w0,z0, w1,z1, 1);
-                wall[w1].cstat &= ~ALIGN_WALLS_CSTAT_MASK;
-                wall[w1].cstat |= cstat0;
+                AlignWalls_(tilenum,z0, z1, 1, w0b, w0, w1b, w1);
+                wall[w1b].cstat &= ~ALIGN_WALLS_CSTAT_MASK;
+                wall[w1b].cstat |= cstat0;
                 numaligned++;
 
                 if ((flags&1)==0)
@@ -10598,6 +10613,7 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
                 if (wall[w1].nextwall < 0)
                 {
                     w0 = w1;
+                    w0b = AlignGetWall(botswap, w0);
                     z0 = GetWallBaseZ(w0);
                     w1 = totheleft ? lastwall(w0) : wall[w0].point2;
 
