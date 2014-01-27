@@ -11210,13 +11210,16 @@ int32_t app_main(int32_t argc, const char **argv)
 
     wm_setapptitle(APPNAME);
 
-    initprintf(HEAD2 " %s %s\n", s_buildRev,
-#ifdef __cplusplus
-        "C++ build"
+    initprintf(HEAD2 " %s"
+#ifdef BITNESS64
+        " (64-bit)"
 #else
-        ""
+        " (32-bit)"
 #endif
-        );
+#ifdef __cplusplus
+        " C++ build"
+#endif
+        "\n", s_buildRev);
     initprintf("Compiled %s\n", __DATE__" "__TIME__);
 
     if (!usecwd)

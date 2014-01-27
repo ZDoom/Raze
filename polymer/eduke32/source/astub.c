@@ -8885,7 +8885,16 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
 
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersion("Mapster32" " " VERSION,0,2);
-    initprintf("Mapster32 %s %s\n", VERSION, s_buildRev);
+    initprintf("Mapster32 %s %s"
+#ifdef BITNESS64
+        " (64-bit)"
+#else
+        " (32-bit)"
+#endif
+#ifdef __cplusplus
+        " C++ build"
+#endif
+        "\n", VERSION, s_buildRev);
     initprintf("Compiled %s\n", __DATE__" "__TIME__);
     //    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
