@@ -9917,6 +9917,12 @@ void E_MapArt_Clear(void)
     RESTORE_MAPART_ARRAY(picanm, g_bakPicAnm);
 
     E_RecalcPicSiz();
+
+    gltexinvalidatetype(INVALIDATE_ART);
+#ifdef POLYMER
+    if (getrendermode() == REND_POLYMER)
+        polymer_texinvalidate();
+#endif
 }
 
 void E_MapArt_Setup(const char *filename)
@@ -9969,6 +9975,12 @@ void E_MapArt_Setup(const char *filename)
     }
 
     E_RecalcPicSiz();
+
+    gltexinvalidatetype(INVALIDATE_ART);
+#ifdef POLYMER
+    if (getrendermode() == REND_POLYMER)
+        polymer_texinvalidate();
+#endif
 }
 
 //////////////////// LOADING AND SAVING ROUTINES ////////////////////
