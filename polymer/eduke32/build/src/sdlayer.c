@@ -1277,12 +1277,11 @@ static void destroy_window_resources()
         sdl_buffersurface = NULL;
         /* We should NOT destroy the window surface. This is done automatically
            when SDL_DestroyWindow or SDL_SetVideoMode is called.             */
-/*
-        if (sdl_surface)
+
+#if SDL_MAJOR_VERSION==2
+        if (sdl_renderer && sdl_texture && sdl_surface)
             SDL_FreeSurface(sdl_surface);
         sdl_surface = NULL;
-*/
-#if SDL_MAJOR_VERSION==2
         if (sdl_context)
             SDL_GL_DeleteContext(sdl_context);
         sdl_context = NULL;
