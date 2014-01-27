@@ -944,7 +944,7 @@ void releaseallbuttons(void)
     }
     joyb = joyblast = 0;
 
-    for (i=0; i<256; i++)
+    for (i=0; i<KEYSTATUSSIZ; i++)
     {
         //if (!keystatus[i]) continue;
         //if (OSD_HandleKey(i, 0) != 0) {

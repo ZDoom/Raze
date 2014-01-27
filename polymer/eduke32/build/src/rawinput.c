@@ -145,7 +145,7 @@ static inline void RI_ProcessKeyboard(const RAWKEYBOARD *rkbd)
 
     KeyboardState[VKey] = 1 - (rkbd->Flags & RI_KEY_BREAK);
 
-    if (OSD_HandleScanCode(key, KeyboardState[VKey] != 0))
+    if (OSD_HandleScanCode(key, KeyboardState[VKey] > 0))
     {
         SetKey(key, KeyboardState[VKey] != 0);
 

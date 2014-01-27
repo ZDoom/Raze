@@ -82,14 +82,16 @@ extern void setvsync(int32_t sync);
 extern char inputdevices;
 
 // keys
+#define KEYSTATUSSIZ 256
 #define KEYFIFOSIZ 64
-extern char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
+extern char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 extern char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
-extern char scantoasc[128], remap[256], key_names[256][24];
+extern char scantoasc[128], remap[KEYSTATUSSIZ], key_names[256][24];
 extern int32_t remapinit;
 
 extern int32_t defaultres[][2];
 
+extern int32_t GetKey(int32_t key);
 extern void SetKey(int32_t key, int32_t state);
 
 // mouse

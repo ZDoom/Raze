@@ -2151,12 +2151,22 @@ int32_t handleevents(void)
 //            printf("got key %d, %d\n",ev.key.keysym.scancode,code);
 
             // hook in the osd
-            if (OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN)) == 0)
+            if ((j = OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN))) <= 0)
+            {
+                if (j == -1) // osdkey
+                    for (j = 0; j < KEYSTATUSSIZ; ++j)
+                        if (GetKey(j))
+                        {
+                            SetKey(j, 0);
+                            if (keypresscallback)
+                                keypresscallback(j, 0);
+                        }
                 break;
+            }
 
             if (ev.key.type == SDL_KEYDOWN)
             {
-                if (!keystatus[code])
+                if (!GetKey(code))
                 {
                     SetKey(code, 1);
                     if (keypresscallback)
@@ -2240,12 +2250,22 @@ int32_t handleevents(void)
             // hook in the osd
 //            if (ev.type==SDL_KEYDOWN)
 //                printf("got key SDLK %d (%s), trans 0x%x\n", ev.key.keysym.sym, SDL_GetKeyName(ev.key.keysym.sym), code);
-            if (OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN)) == 0)
+            if ((j = OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN))) <= 0)
+            {
+                if (j == -1) // osdkey
+                    for (j = 0; j < KEYSTATUSSIZ; ++j)
+                        if (GetKey(j))
+                        {
+                            SetKey(j, 0);
+                            if (keypresscallback)
+                                keypresscallback(j, 0);
+                        }
                 break;
+            }
 
             if (ev.key.type == SDL_KEYDOWN)
             {
-                if (!keystatus[code])
+                if (!GetKey(code))
                 {
                     SetKey(code, 1);
                     if (keypresscallback)

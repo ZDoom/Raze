@@ -1217,7 +1217,7 @@ int32_t OSD_HandleChar(char ch)
 int32_t OSD_HandleScanCode(int32_t sc, int32_t press)
 {
     if ((osdflags & OSD_INITIALIZED) == 0)
-        return sc;
+        return 1;
 
     if (sc == osdkey)
     {
@@ -1232,10 +1232,10 @@ int32_t OSD_HandleScanCode(int32_t sc, int32_t press)
             OSD_CaptureInput(osdscroll == 1);
             osdscrtime = getticks();
         }
-        return 0;
+        return -1;
     }
     else if ((osdflags & OSD_CAPTURE) == 0)
-        return sc;
+        return 2;
 
     if (!press)
     {

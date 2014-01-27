@@ -70,8 +70,6 @@ extern char game_executable[BMAX_PATH];
 extern int32_t fullscreen;
 extern char default_buildkeys[NUMBUILDKEYS];
 static char *const keys = default_buildkeys;
-extern char remap[256];
-extern int32_t remapinit;
 static int32_t default_grid=3;
 extern int32_t AmbienceToggle, MixRate;
 extern int32_t ParentalLock;
