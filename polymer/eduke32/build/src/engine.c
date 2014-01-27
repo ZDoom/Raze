@@ -9857,6 +9857,20 @@ static void E_RecalcPicSiz(void)
 } while (0)
 
 // Allocate per-map ART backup array and back up the original!
+#ifdef __cplusplus
+template <typename origar_t, typename bakar_t>
+static inline void ALLOC_MAPART_ARRAY(origar_t &origar, bakar_t &bakar)
+{
+    bakar = (bakar_t) Bmalloc(MAXUSERTILES*sizeof(origar[0]));
+    if (bakar == NULL)
+    {
+        initprintf("OUT OF MEMORY allocating per-map ART backup arrays!\n");
+        uninitengine();
+        exit(12);
+    }
+    Bmemcpy(bakar, origar, MAXUSERTILES*sizeof(origar[0]));
+}
+#else
 #define ALLOC_MAPART_ARRAY(origar, bakar) do { \
     bakar = Bmalloc(MAXUSERTILES*sizeof(origar[0])); \
     if (bakar == NULL) \
@@ -9867,6 +9881,7 @@ static void E_RecalcPicSiz(void)
     } \
     Bmemcpy(bakar, origar, MAXUSERTILES*sizeof(origar[0])); \
 } while (0)
+#endif
 
 void E_MapArt_Clear(void)
 {
