@@ -885,7 +885,15 @@ static wavedata FX_AutoDetectFormat(const char *ptr, uint32_t length)
         return VOC;
         break;
     case 'R'+('I'<<8)+('F'<<16)+('F'<<24): // RIFF
-        return WAV;
+        switch (LITTLE32(*(int32_t *)(ptr + 8)))
+        {
+        case 'C'+('D'<<8)+('X'<<16)+('A'<<24): // CDXA
+            return XA;
+            break;
+        default:
+            return WAV;
+            break;
+        }
         break;
     case 'O'+('g'<<8)+('g'<<16)+('S'<<24): // OggS
         return Vorbis;
@@ -950,6 +958,9 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
         MV_Printf("FX_PlayLoopedAuto: FLAC support not included in this binary.\n");
 #endif
         break;
+    case XA:
+        handle = MV_PlayXA(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+        break;
     default:
         MV_Printf("FX_PlayLoopedAuto: Unknown or unsupported format.\n");
         break;
@@ -997,6 +1008,9 @@ int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitch
 #else
         MV_Printf("FX_PlayAuto3D: FLAC support not included in this binary.\n");
 #endif
+        break;
+    case XA:
+        handle = MV_PlayXA3D(ptr, length, loophow, pitchoffset, angle, distance, priority, callbackval);
         break;
     default:
         MV_Printf("FX_PlayAuto3D: Unknown or unsupported format.\n");

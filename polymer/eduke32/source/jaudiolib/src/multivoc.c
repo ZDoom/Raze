@@ -183,6 +183,9 @@ const char *MV_ErrorString(int32_t ErrorNumber)
     case MV_InvalidFLACFile :
         return "Invalid FLAC file passed in to Multivoc.";
 
+    case MV_InvalidXAFile :
+        return "Invalid XA file passed in to Multivoc.";
+
     case MV_InvalidMixMode :
         return "Invalid mix mode request in Multivoc.";
 
@@ -310,6 +313,8 @@ static void MV_StopVoice(VoiceNode *voice)
     if (voice->wavetype == FLAC)
         MV_ReleaseFLACVoice(voice);
 #endif
+    if (voice->wavetype == XA)
+        MV_ReleaseXAVoice(voice);
 
     voice->handle = 0;
 }

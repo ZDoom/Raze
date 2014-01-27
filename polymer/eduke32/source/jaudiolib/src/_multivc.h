@@ -229,6 +229,7 @@ void MV_SetVoicePitch  ( VoiceNode *voice, uint32_t rate, int32_t pitchoffset );
 
 void MV_ReleaseVorbisVoice( VoiceNode * voice );
 void MV_ReleaseFLACVoice( VoiceNode * voice );
+void MV_ReleaseXAVoice( VoiceNode * voice );
 
 // implemented in mix.c
 void ClearBuffer_DW( void *ptr, unsigned data, int32_t length );

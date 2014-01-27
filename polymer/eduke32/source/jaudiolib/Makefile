@@ -46,6 +46,7 @@ OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/formats.o \
 	$(OBJ)/vorbis.o \
 	$(OBJ)/flac.o \
+	$(OBJ)/xa.o \
 	$(OBJ)/driver_nosound.o
 
 ifeq ($(PLATFORM),DARWIN)
