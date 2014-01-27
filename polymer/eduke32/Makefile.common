@@ -294,7 +294,7 @@ endif
 # compiler flags etc.
 BASECFLAGS=
 BASECONLYFLAGS=-Wimplicit -Wdeclaration-after-statement
-BASECXXFLAGS= -fno-exceptions -fno-rtti -fpermissive -Wno-write-strings
+BASECXXFLAGS= -fno-exceptions -fno-rtti -Wno-write-strings
 BASEASFLAGS=-s #-g
 BASELDFLAGS=
 
