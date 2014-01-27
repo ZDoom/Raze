@@ -1500,14 +1500,24 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         }
         else
         {
-            sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888,
-                                            SDL_TEXTUREACCESS_STREAMING, x, y);
-            if (!sdl_texture)
+            SDL_RendererInfo sdl_rendererinfo;
+            SDL_GetRendererInfo(sdl_renderer, &sdl_rendererinfo);
+            if (sdl_rendererinfo.flags & SDL_RENDERER_SOFTWARE) // this would be useless
             {
-                initprintf("Falling back to SDL_GetWindowSurface: SDL_CreateTexture failed: %s\n",
-                           SDL_GetError());
                 SDL_DestroyRenderer(sdl_renderer);
                 sdl_renderer = NULL;
+            }
+            else
+            {
+                sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888,
+                                                SDL_TEXTUREACCESS_STREAMING, x, y);
+                if (!sdl_texture)
+                {
+                    initprintf("Falling back to SDL_GetWindowSurface: SDL_CreateTexture failed: %s\n",
+                               SDL_GetError());
+                    SDL_DestroyRenderer(sdl_renderer);
+                    sdl_renderer = NULL;
+                }
             }
         }
 
