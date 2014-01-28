@@ -446,7 +446,9 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
 
 #if !defined NEW_MAP_FORMAT
         *(&sector[i].ceilingstat + cf) &= ~YAX_BIT;
-        YAX_BUNCHNUM(i, cf) = 0;
+        // NOTE: Don't reset xpanning-as-index, since we can be called from
+        // e.g. Mapster32's "Inner loop made into new sector" functionality.
+//        YAX_BUNCHNUM(i, cf) = 0;
 #else
         YAX_BUNCHNUM(i, cf) = -1;
 #endif

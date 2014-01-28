@@ -9830,10 +9830,7 @@ static int16_t whitelinescan(int16_t sucksect, int16_t dalinehighlight)
         wall[i].point2 = i+1;
     wall[tnewnumwalls-1].point2 = numwalls;
 
-    if (clockdir(numwalls) == CLOCKDIR_CCW)
-        return(-1);
-    else
-        return(tnewnumwalls);
+    return (clockdir(numwalls) == CLOCKDIR_CCW) ? -1 : tnewnumwalls;
 }
 
 int32_t loadnames(const char *namesfile, int8_t root)

@@ -2203,7 +2203,6 @@ local handle =
     end,
 
     -- <fmt>: format string, number of %s's must match number of varargs
-    -- <umask>: number, if 2^i is set, arg '%i' must not be a system gamearray
     arraycmd = function(fmt, dstargi, ...)
         local args = {...}
         if (issysgar(args[dstargi])) then
