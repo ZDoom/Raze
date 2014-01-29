@@ -1696,17 +1696,15 @@ function _G_OperateRespawns(tag)
         local spr = sprite[i]
 
         if (spr.lotag==tag and ispic(spr.picnum, "RESPAWN")) then
-            if (ffiC.ud.monsters_off~=0 and isenemytile(spr.hitag)) then
-                return
-            end
+            if (ffiC.ud.monsters_off==0 or not isenemytile(spr.hitag)) then
+                if (D.TRANSPORTERSTAR) then
+                    local j = spawn(D.TRANSPORTERSTAR, i)
+                    sprite[j].z = sprite[j].z - (32*256)
+                end
 
-            if (D.TRANSPORTERSTAR) then
-                local j = spawn(D.TRANSPORTERSTAR, i)
-                sprite[j].z = sprite[j].z - (32*256)
+                -- Just a way to killit (see G_MoveFX(): RESPAWN__STATIC)
+                spr.extra = 66-12
             end
-
-            -- Just a way to killit (see G_MoveFX(): RESPAWN__STATIC)
-            spr.extra = 66-12
         end
     end
 end

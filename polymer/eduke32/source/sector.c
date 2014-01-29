@@ -971,21 +971,23 @@ REDODOOR:
 
 void G_OperateRespawns(int32_t low)
 {
-    int32_t j, nexti, i = headspritestat[STAT_FX];
+    int32_t i, nexti;
 
-    while (i >= 0)
+    for (SPRITES_OF_STAT_SAFE(STAT_FX, i, nexti))
     {
-        nexti = nextspritestat[i];
-        if ((SLT == low) && (PN == RESPAWN))
+        spritetype *respr = &sprite[i];
+
+        if (respr->lotag == low && respr->picnum == RESPAWN)
         {
-            if (A_CheckEnemyTile(SHT) && ud.monsters_off) break;
+            if (!ud.monsters_off || !A_CheckEnemyTile(respr->hitag))
+            {
+                int32_t j = A_Spawn(i, TRANSPORTERSTAR);
+                sprite[j].z -= (32<<8);
 
-            j = A_Spawn(i,TRANSPORTERSTAR);
-            sprite[j].z -= (32<<8);
-
-            sprite[i].extra = 66-12;   // Just a way to killit
+                // Just a way to killit (see G_MoveFX(): RESPAWN__STATIC)
+                respr->extra = 66-12;
+            }
         }
-        i = nexti;
     }
 }
 
