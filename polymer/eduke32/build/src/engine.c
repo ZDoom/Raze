@@ -9254,7 +9254,9 @@ void drawmasks(void)
         else if ((tspriteptr[i]->cstat&48) == 0)
         {
 killsprite:
+#ifdef USE_OPENGL
             if (!modelp)
+#endif
             {
                 spritesortcnt--;  //Delete face sprite if on wrong side!
                 if (i != spritesortcnt)
@@ -9919,11 +9921,12 @@ void E_MapArt_Clear(void)
     RESTORE_MAPART_ARRAY(picanm, g_bakPicAnm);
 
     E_RecalcPicSiz();
-
+#ifdef USE_OPENGL
     gltexinvalidatetype(INVALIDATE_ART);
-#ifdef POLYMER
+# ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
         polymer_texinvalidate();
+# endif
 #endif
 }
 
@@ -9977,11 +9980,12 @@ void E_MapArt_Setup(const char *filename)
     }
 
     E_RecalcPicSiz();
-
+#ifdef USE_OPENGL
     gltexinvalidatetype(INVALIDATE_ART);
-#ifdef POLYMER
+# ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
         polymer_texinvalidate();
+# endif
 #endif
 }
 
