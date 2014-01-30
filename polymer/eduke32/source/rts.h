@@ -30,54 +30,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __rts_public__
 
 extern char rts_lumplockbyte[11];
-extern int32_t rts_numlumps;
 
-/*
-====================
-=
-= RTS_Init
-=
-= Files with a .rts extension are idlink files with multiple lumps
-=
-====================
-*/
+/* Files with a .rts extension are idlink files with multiple lumps */
+void RTS_Init(const char *filename);
 
-void RTS_Init (const char *filename);
-/*
-====================
-=
-= RTS_NumSounds
-=
-====================
-*/
+int32_t RTS_IsInitialized(void);
 
-int32_t RTS_NumSounds (void);
-/*
-====================
-=
-= RTS_SoundLength
-=
-= Returns the buffer size needed to load the given lump
-=
-====================
-*/
+/* Returns the buffer size needed to load the given lump */
+int32_t RTS_SoundLength(int32_t lump);
 
-int32_t RTS_SoundLength (int32_t lump);
-/*
-====================
-=
-= RTS_GetSoundName
-=
-====================
-*/
+void *RTS_GetSound(int32_t lump);
 
-const char * RTS_GetSoundName (int32_t i);
-/*
-====================
-=
-= RTS_GetSound
-=
-====================
-*/
-void *RTS_GetSound (int32_t lump);
 #endif

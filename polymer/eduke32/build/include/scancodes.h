@@ -111,7 +111,9 @@
 #define  sc_kpad_Slash   0xb5 //0x67
 #define  sc_kpad_Enter   0x9c //0x68
 #define  sc_PrintScreen  0xb7 //0x69
-#define  sc_LastScanCode 0x6e
+#define  sc_LeftWin      0xdb
+#define  sc_RightWin     0xdc
+//#define  sc_LastScanCode 0x6e
 
 // Ascii scan codes
 

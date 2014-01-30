@@ -8655,20 +8655,18 @@ void G_HandleLocalKeys(void)
 #endif
     }
 
-    if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED)
+    if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED || WIN_IS_PRESSED)
     {
         i = 0;
-        j = sc_F1;
 
-        do
-        {
+        // NOTE: sc_F1 .. sc_F10 are contiguous. sc_F11 is not sc_F10+1.
+        for (j=sc_F1; j<=sc_F10; j++)
             if (KB_UnBoundKeyPressed(j))
             {
                 KB_ClearKeyDown(j);
                 i = j - sc_F1 + 1;
+                break;
             }
-        }
-        while (++j < sc_F11);
 
         if (i)
         {
@@ -8718,17 +8716,17 @@ void G_HandleLocalKeys(void)
                 pub = NUMPAGES;
 
                 return;
-
             }
 
-            if (ud.lockout == 0)
-                if (ud.config.SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && g_RTSPlaying == 0 && (ud.config.VoiceToggle & 1))
+            // Not SHIFT -- that is, either some ALT or WIN.
+            if (!ud.lockout && ud.config.SoundToggle &&
+                    RTS_IsInitialized() && g_RTSPlaying == 0 && (ud.config.VoiceToggle & 1))
+            {
+                char *sndptr = (char *)RTS_GetSound(i-1);
+
+                if (sndptr != NULL)
                 {
-#if 0
-                    // FIXME: http://forums.duke4.net/topic/6308-eduke32-crashed-when-press-altprintscreen/
-                    // HINT: keeping temp-sounding variables like "i" live for
-                    //  a long time surely is recipe for disaster :/.
-                    FX_PlayAuto3D((char *)RTS_GetSound(i-1),RTS_SoundLength(i-1),0,0,FX_VOLUME(1),255,-i);
+                    FX_PlayAuto3D(sndptr, RTS_SoundLength(i-1), FX_ONESHOT, 0, 0, FX_VOLUME(1), 255, -i);
 
                     g_RTSPlaying = 7;
 #ifndef NETCODE_DISABLE
@@ -8746,13 +8744,14 @@ void G_HandleLocalKeys(void)
 #endif
                     pus = NUMPAGES;
                     pub = NUMPAGES;
-#endif
+
                     return;
                 }
+            }
         }
     }
 
-    if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED)
+    if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED && !WIN_IS_PRESSED)
     {
 
         if ((g_netServer || ud.multimode > 1) && BUTTON(gamefunc_SendMessage))
@@ -11671,8 +11670,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
     RTS_Init(ud.rtsname);
 
-    if (rts_numlumps)
-        initprintf("Using RTS file \"%s\".\n",ud.rtsname);
+    if (RTS_IsInitialized())
+        initprintf("Using RTS file \"%s\".\n", ud.rtsname);
 
     if (ud.last_level)
         Bstrcpy(ud.rtsname, defaultrtsfilename[0]);
@@ -12039,7 +12038,8 @@ int32_t G_DoMoveThings(void)
     // Moved lower so it is restored correctly by demo diffs:
     //if (g_earthquakeTime > 0) g_earthquakeTime--;
 
-    if (g_RTSPlaying > 0) g_RTSPlaying--;
+    if (g_RTSPlaying > 0)
+        g_RTSPlaying--;
 
     for (i=0; i<MAXUSERQUOTES; i++)
         if (user_quote_time[i])

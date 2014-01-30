@@ -28,23 +28,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //===============
 
 typedef struct
-   {
-   char name[8];
-   int32_t handle,position,size;
-   } lumpinfo_t;
+{
+    char name[8];
+    int32_t handle, position, size;
+} lumpinfo_t;
 
 typedef struct
-   {
-   char identification[4];              // should be IWAD
-   int32_t numlumps;
-   int32_t infotableofs;
-   } wadinfo_t;
+{
+    char identification[4];  // should be "IWAD"
+    int32_t numlumps;
+    int32_t infotableofs;
+} wadinfo_t;
 
 typedef struct
-   {
-   int32_t filepos;
-   int32_t size;
-   char name[8];
-   } filelump_t;
+{
+    int32_t filepos;
+    int32_t size;
+    char name[8];
+} filelump_t;
 
 #endif
