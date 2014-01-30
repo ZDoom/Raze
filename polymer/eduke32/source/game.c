@@ -8456,6 +8456,28 @@ void G_InitTimer(int32_t ticspersec)
     }
 }
 
+
+static int32_t g_RTSPlaying;
+
+// Returns: started playing?
+int32_t G_StartRTS(int32_t i, int localp)
+{
+    if (!ud.lockout && ud.config.FXDevice >= 0 && ud.config.SoundToggle &&
+        RTS_IsInitialized() && g_RTSPlaying == 0 && (ud.config.VoiceToggle & (localp ? 1 : 4)))
+    {
+        char *sndptr = (char *)RTS_GetSound(i-1);
+
+        if (sndptr != NULL)
+        {
+            FX_PlayAuto3D(sndptr, RTS_SoundLength(i-1), FX_ONESHOT, 0, 0, FX_VOLUME(1), 255, -i);
+            g_RTSPlaying = 7;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 void G_HandleLocalKeys(void)
 {
     int32_t i,ch;
@@ -8719,41 +8741,31 @@ void G_HandleLocalKeys(void)
             }
 
             // Not SHIFT -- that is, either some ALT or WIN.
-            if (!ud.lockout && ud.config.SoundToggle &&
-                    RTS_IsInitialized() && g_RTSPlaying == 0 && (ud.config.VoiceToggle & 1))
+            if (G_StartRTS(i, 1))
             {
-                char *sndptr = (char *)RTS_GetSound(i-1);
-
-                if (sndptr != NULL)
-                {
-                    FX_PlayAuto3D(sndptr, RTS_SoundLength(i-1), FX_ONESHOT, 0, 0, FX_VOLUME(1), 255, -i);
-
-                    g_RTSPlaying = 7;
 #ifndef NETCODE_DISABLE
-                    if ((g_netServer || ud.multimode > 1))
-                    {
-                        tempbuf[0] = PACKET_RTS;
-                        tempbuf[1] = i;
-                        tempbuf[2] = myconnectindex;
+                if ((g_netServer || ud.multimode > 1))
+                {
+                    tempbuf[0] = PACKET_RTS;
+                    tempbuf[1] = i;
+                    tempbuf[2] = myconnectindex;
 
-                        if (g_netClient)
-                            enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, 3, 0));
-                        else if (g_netServer)
-                            enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, 3, 0));
-                    }
-#endif
-                    pus = NUMPAGES;
-                    pub = NUMPAGES;
-
-                    return;
+                    if (g_netClient)
+                        enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, 3, 0));
+                    else if (g_netServer)
+                        enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, 3, 0));
                 }
+#endif
+                pus = NUMPAGES;
+                pub = NUMPAGES;
+
+                return;
             }
         }
     }
 
     if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED && !WIN_IS_PRESSED)
     {
-
         if ((g_netServer || ud.multimode > 1) && BUTTON(gamefunc_SendMessage))
         {
             KB_FlushKeyboardQueue();

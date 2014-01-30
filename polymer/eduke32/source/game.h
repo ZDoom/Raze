@@ -413,6 +413,8 @@ extern char forcegl;
 #define Net_EnterText(x, y, t, dalen, c) _EnterText(1,x,y,t,dalen,c)
 #define S_StopSound(num) S_StopEnvSound(num, -1)
 
+extern int32_t G_StartRTS(int32_t i, int localp);
+
 extern void G_MaybeAllocPlayer(int32_t pnum);
 
 static inline void G_HandleAsync(void)

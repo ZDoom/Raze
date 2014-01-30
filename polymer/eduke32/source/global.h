@@ -59,7 +59,6 @@ G_EXTERN animwalltype animwall[MAXANIMWALLS];
 G_EXTERN char *ScriptQuotes[MAXQUOTES],*ScriptQuoteRedefinitions[MAXQUOTES];
 G_EXTERN char *label;
 G_EXTERN char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
-G_EXTERN char g_RTSPlaying;
 G_EXTERN int32_t g_musicIndex;
 G_EXTERN char g_loadFromGroupOnly;
 G_EXTERN char g_numSkills;
