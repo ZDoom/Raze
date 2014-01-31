@@ -2907,11 +2907,18 @@ static int32_t our_neartag_blacklist(int32_t i)
     return sprite[i].picnum >= SECTOREFFECTOR__STATIC && sprite[i].picnum <= GPSPEED__STATIC;
 }
 
+static void G_ClearCameras(DukePlayer_t *p)
+{
+    G_ClearCameraView(p);
+
+    if (I_EscapeTrigger())
+        I_EscapeTriggerClear();
+}
+
 void P_CheckSectors(int32_t snum)
 {
     int32_t i = -1;
     DukePlayer_t *const p = g_player[snum].ps;
-    int16_t hitscanwall = -1;  // CAUTION with goto's!!!
 
     if (p->cursectnum > -1)
         switch (sector[p->cursectnum].lotag)
@@ -2975,8 +2982,8 @@ void P_CheckSectors(int32_t snum)
     {
         if (klabs(g_player[snum].sync->svel) > 768 || klabs(g_player[snum].sync->fvel) > 768)
         {
-            i = -1;
-            goto CLEARCAMERAS;
+            G_ClearCameras(p);
+            return;
         }
     }
 
@@ -2984,13 +2991,12 @@ void P_CheckSectors(int32_t snum)
         p->toggle_key_flag = 0;
     else if (!p->toggle_key_flag)
     {
+        int16_t hitscanwall;
+
         if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_ESCAPE))
         {
             if (p->newowner >= 0)
-            {
-                i = -1;
-                goto CLEARCAMERAS;
-            }
+                G_ClearCameras(p);
             return;
         }
 
@@ -3152,7 +3158,6 @@ void P_CheckSectors(int32_t snum)
 
             case VIEWSCREEN__STATIC:
             case VIEWSCREEN2__STATIC:
-            {
                 // Try to find a camera sprite for the viewscreen.
                 for (SPRITES_OF(STAT_ACTOR, i))
                 {
@@ -3179,18 +3184,9 @@ void P_CheckSectors(int32_t snum)
                         return;
                     }
                 }
-            }
 
-CLEARCAMERAS:
-            if (i < 0)
-                G_ClearCameraView(p);
-            else if (p->newowner >= 0)
-                p->newowner = -1;
-
-            if (I_EscapeTrigger())
-                I_EscapeTriggerClear();
-
-            return;
+                G_ClearCameras(p);
+                return;
             }  // switch
         }
 
@@ -3199,8 +3195,8 @@ CLEARCAMERAS:
 
         if (p->newowner >= 0)
         {
-            i = -1;
-            goto CLEARCAMERAS;
+            G_ClearCameras(p);
+            return;
         }
 
         if (neartagwall == -1 && neartagsector == -1 && neartagsprite == -1)
@@ -3222,8 +3218,8 @@ CLEARCAMERAS:
             }
             else if (p->newowner >= 0)
             {
-                i = -1;
-                goto CLEARCAMERAS;
+                G_ClearCameras(p);
+                return;
             }
         }
 
