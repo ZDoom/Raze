@@ -305,6 +305,7 @@ local function new_initial_codetab()
         "local _band, _bor, _bxor = _bit.band, _bit.bor, _bit.bxor",
         "local _lsh, _rsh, _arsh = _bit.lshift, _bit.rshift, _bit.arshift",
         "local _setsprite,_ssp = _con._setsprite,_con._ssp",
+        "local _gud=_con._gud",
 
         -- * CON "states" (subroutines) and
         -- * Switch function table, indexed by global switch sequence number:

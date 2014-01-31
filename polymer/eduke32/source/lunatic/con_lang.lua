@@ -807,7 +807,7 @@ for member, code in pairs(ProjectileLabels) do
     end
 end
 
-local UD = function(memb) return "_gv._ud"..memb end
+local UD = function(memb) return "_gud(_pli)"..memb end
 local UDRO = function(memb) return { UD(memb) } end
 
 -- NOTE: Only members that actually encountered in existing mods are added here.

@@ -603,6 +603,7 @@ decl("map_t MapInfo[$*$];", con_lang.MAXVOLUMES+1, con_lang.MAXLEVELS)
 decl("char EpisodeNames[$][33];", con_lang.MAXVOLUMES)
 
 decl[[
+const int32_t myconnectindex;
 int32_t g_RETURN;
 int32_t g_elCONSize;
 char *g_elCON;

@@ -1,0 +1,17 @@
+// XXX: should be allowed to override existing modes? (Probably yes.)
+// XXX: but currently, this ensues badness? (g_numGametypes becomes inconsistent?)
+definegametype 0 46051 Cooperative
+
+gamevar temp 0 0
+
+// Original version by Fox, from
+// http://forums.duke4.net/topic/775-eduke32-20-and-polymer/page__view__findpost__p__183890
+onevent EVENT_DISPLAYREST
+//    getuserdef[THISACTOR].statusbarscale temp
+    // NOTE: index (THISACTOR) is never used.
+    // NOTE: incorrect if screenpeek != myconnectindex, e.g. by pressing [K]:
+    getuserdef .statusbarscale temp
+    redefinequote 0 %ld
+    qsprintf 0 0 temp
+    gametext STARTALPHANUM 10 10 0 0 0 0 0 0 xdim ydim
+endevent

@@ -117,6 +117,7 @@ g_sizes_of;
 g_elFirstTime;
 g_elCallDepth;
 block_deletesprite;
+myconnectindex;
 g_RETURN;
 g_elModules;
 g_modDir;
