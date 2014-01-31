@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static int32_t g_haltSoundHack = 0;
 
 // this function activates a sector's MUSICANDSFX sprite
-int32_t A_CallSound(int32_t sn,int32_t whatsprite)
+int32_t A_CallSound(int32_t sn, int32_t whatsprite)
 {
     int32_t i;
 
@@ -48,7 +48,8 @@ int32_t A_CallSound(int32_t sn,int32_t whatsprite)
     {
         if (PN == MUSICANDSFX && (unsigned)SLT < 1000)  // XXX: in other places, 999
         {
-            if (whatsprite == -1) whatsprite = i;
+            if (whatsprite == -1)
+                whatsprite = i;
 
             if (T1 == 0)
             {
@@ -322,7 +323,7 @@ int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t
     int32_t i = 0, j = g_animateCount;
 
     if (g_animateCount >= MAXANIMATES)
-        return(-1);
+        return -1;
 
     for (; i<g_animateCount; i++)
         if (animptr == animateptr[i])
@@ -336,11 +337,12 @@ int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t
     animategoal[j] = thegoal;
     animatevel[j] = (thegoal >= *animptr) ? thevel : -thevel;
 
-    if (j == g_animateCount) g_animateCount++;
+    if (j == g_animateCount)
+        g_animateCount++;
 
     G_SetInterpolation(animptr);
 
-    return(j);
+    return j;
 }
 
 void G_AnimateCamSprite(void)
@@ -624,13 +626,13 @@ void G_OperateSectors(int32_t sn, int32_t ii)
                 }
             }
         }
-
     }
     return;
 
     case ST_15_WARP_ELEVATOR://Warping elevators
 
-        if (sprite[ii].picnum != APLAYER) return;
+        if (sprite[ii].picnum != APLAYER)
+            return;
 
         i = headspritesect[sn];
         while (i >= 0)
@@ -749,7 +751,6 @@ void G_OperateSectors(int32_t sn, int32_t ii)
         return;
 
     case ST_20_CEILING_DOOR:
-
 REDODOOR:
 
         if (sptr->lotag&0x8000)
@@ -991,7 +992,7 @@ void G_OperateRespawns(int32_t low)
     }
 }
 
-void G_OperateActivators(int32_t low,int32_t snum)
+void G_OperateActivators(int32_t low, int32_t snum)
 {
     int32_t i, j, k;
     int16_t *p;
@@ -1418,8 +1419,8 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite)
 
     if (lotag == 65535)
     {
-
         g_player[myconnectindex].ps->gm = MODE_EOL;
+
         if (ud.from_bonus)
         {
             ud.level_number = ud.from_bonus;
@@ -1433,8 +1434,8 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite)
                 ud.level_number = 0;
             ud.m_level_number = ud.level_number;
         }
-        return 1;
 
+        return 1;
     }
 
     switchpicnum = picnum;
@@ -1587,7 +1588,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite)
     return 0;
 }
 
-void G_ActivateBySector(int32_t sect,int32_t j)
+void G_ActivateBySector(int32_t sect, int32_t j)
 {
     int32_t i = headspritesect[sect];
     int32_t didit = 0;
@@ -1598,7 +1599,6 @@ void G_ActivateBySector(int32_t sect,int32_t j)
         {
             G_OperateActivators(SLT,-1);
             didit = 1;
-            //            return;
         }
         i = nextspritesect[i];
     }
@@ -1607,7 +1607,7 @@ void G_ActivateBySector(int32_t sect,int32_t j)
         G_OperateSectors(sect,j);
 }
 
-static void BreakWall(int32_t newpn,int32_t spr,int32_t dawallnum)
+static void BreakWall(int32_t newpn, int32_t spr, int32_t dawallnum)
 {
     wall[dawallnum].picnum = newpn;
     A_PlaySound(VENT_BUST,spr);
@@ -1615,13 +1615,15 @@ static void BreakWall(int32_t newpn,int32_t spr,int32_t dawallnum)
     A_SpawnWallGlass(spr,dawallnum,10);
 }
 
-void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith)
+void A_DamageWall(int32_t spr, int32_t dawallnum, const vec3_t *pos, int32_t atwith)
 {
     int16_t sn = -1;
     int32_t j, i, darkestwall;
     walltype *wal = &wall[dawallnum];
 
-    if (wal->overpicnum == MIRROR && wal->pal != 4 && A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (SpriteProjectile[spr].workslike & PROJECTILE_RPG))
+    if (wal->overpicnum == MIRROR && wal->pal != 4 &&
+            A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) &&
+            (SpriteProjectile[spr].workslike & PROJECTILE_RPG))
     {
         if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
         {
@@ -1709,7 +1711,8 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
 
                 case GLASS__STATIC:
                     updatesector(pos->x,pos->y,&sn);
-                    if (sn < 0) return;
+                    if (sn < 0)
+                        return;
                     wal->overpicnum=GLASS2;
                     A_SpawnWallGlass(spr,dawallnum,10);
                     wal->cstat = 0;
@@ -1772,7 +1775,6 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
     case SCREENBREAK18__STATIC:
     case SCREENBREAK19__STATIC:
     case BORNTOBEWILDSCREEN__STATIC:
-
         A_SpawnWallGlass(spr,dawallnum,30);
         wal->picnum=W_SCREENBREAK+(krand()%3);
         A_PlaySound(GLASS_HEAVYBREAK,spr);
@@ -1785,6 +1787,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
     case W_TECHWALL9__STATIC:
         BreakWall(wal->picnum+1,spr,dawallnum);
         return;
+
     case W_MILKSHELF__STATIC:
         BreakWall(W_MILKSHELFBROKE,spr,dawallnum);
         return;
@@ -1979,20 +1982,12 @@ void A_DamageObject(int32_t i,int32_t sn)
         return;
     }
 
-//    int32_t switchpicnum = PN;
-
     i &= (MAXSPRITES-1);
 
     if (A_CheckSpriteFlags(sn,SPRITE_PROJECTILE))
         if (SpriteProjectile[sn].workslike & PROJECTILE_RPG)
             rpg = 1;
-/*
-    switchpicnum = PN;
-    if (PN > WATERFOUNTAIN && PN < WATERFOUNTAIN+3)
-    {
-        switchpicnum = WATERFOUNTAIN;
-    }
-*/
+
     switch (DYNAMICTILEMAP(PN))
     {
     case OCEANSPRITE1__STATIC:
@@ -2095,7 +2090,6 @@ void A_DamageObject(int32_t i,int32_t sn)
         A_DeleteSprite(i);
         break;
 
-
     case FANSPRITE__STATIC:
         PN = FANSPRITEBROKE;
         CS &= (65535-257);
@@ -2104,16 +2098,18 @@ void A_DamageObject(int32_t i,int32_t sn)
 
         A_PlaySound(GLASS_HEAVYBREAK,i);
         s = &sprite[i];
-        for (j=16; j>0; j--) RANDOMSCRAP;
+        for (j=16; j>0; j--)
+            RANDOMSCRAP;
 
         break;
+
     case WATERFOUNTAIN__STATIC:
         //    case WATERFOUNTAIN+1:
         //    case WATERFOUNTAIN+2:
-        //    case __STATIC:
         PN = WATERFOUNTAINBROKE;
         A_Spawn(i,TOILETWATER);
         break;
+
     case SATELITE__STATIC:
     case FUELPOD__STATIC:
     case SOLARPANNEL__STATIC:
@@ -2127,6 +2123,7 @@ void A_DamageObject(int32_t i,int32_t sn)
             A_DeleteSprite(i);
         }
         break;
+
     case BOTTLE1__STATIC:
     case BOTTLE2__STATIC:
     case BOTTLE3__STATIC:
@@ -2170,11 +2167,13 @@ void A_DamageObject(int32_t i,int32_t sn)
         A_SpawnWallGlass(i,-1,8);
         A_DeleteSprite(i);
         break;
+
     case FETUS__STATIC:
         PN = FETUSBROKE;
         A_PlaySound(GLASS_BREAKING,i);
         A_SpawnWallGlass(i,-1,10);
         break;
+
     case FETUSBROKE__STATIC:
         for (j=48; j>0; j--)
         {
@@ -2183,11 +2182,13 @@ void A_DamageObject(int32_t i,int32_t sn)
         }
         A_PlaySound(GLASS_HEAVYBREAK,i);
         A_PlaySound(SQUISHED,i);
+        /* fall-through */
     case BOTTLE7__STATIC:
         A_PlaySound(GLASS_BREAKING,i);
         A_SpawnWallGlass(i,-1,10);
         A_DeleteSprite(i);
         break;
+
     case HYDROPLANT__STATIC:
         PN = BROKEHYDROPLANT;
         A_PlaySound(GLASS_BREAKING,i);
@@ -2247,17 +2248,20 @@ void A_DamageObject(int32_t i,int32_t sn)
         CS &= (65535-256-1);
         A_PlaySound(VENT_BUST,i);
         break;
+
     case PANNEL1__STATIC:
     case PANNEL2__STATIC:
         PN = BPANNEL1;
         CS &= (65535-256-1);
         A_PlaySound(VENT_BUST,i);
         break;
+
     case PANNEL3__STATIC:
         PN = BPANNEL3;
         CS &= (65535-256-1);
         A_PlaySound(VENT_BUST,i);
         break;
+
     case PIPE1__STATIC:
     case PIPE2__STATIC:
     case PIPE3__STATIC:
@@ -2296,6 +2300,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     case JURYGUY__STATIC:
         A_PlaySound(SLT,i);
         A_Spawn(i,SHT);
+        /* fall-through */
     case SPACEMARINE__STATIC:
         sprite[i].extra -= sprite[sn].extra;
         if (sprite[i].extra > 0) break;
@@ -2324,11 +2329,13 @@ void A_DamageObject(int32_t i,int32_t sn)
         S_PlaySound(SQUISHED);
         A_DeleteSprite(i);
         break;
+
     case CHAIR1__STATIC:
     case CHAIR2__STATIC:
         PN = BROKENCHAIR;
         CS = 0;
         break;
+
     case CHAIR3__STATIC:
     case MOVIECAMERA__STATIC:
     case SCALE__STATIC:
@@ -2341,11 +2348,14 @@ void A_DamageObject(int32_t i,int32_t sn)
     case TRIPODCAMERA__STATIC:
         A_PlaySound(GLASS_HEAVYBREAK,i);
         s = &sprite[i];
-        for (j=16; j>0; j--) RANDOMSCRAP;
+        for (j=16; j>0; j--)
+            RANDOMSCRAP;
         A_DeleteSprite(i);
         break;
+
     case PLAYERONWATER__STATIC:
         i = OW;
+        /* fall-through */
     default:
         if ((sprite[i].cstat&16) && SHT == 0 && SLT == 0 && sprite[i].statnum == STAT_DEFAULT)
             break;
@@ -2354,7 +2364,8 @@ void A_DamageObject(int32_t i,int32_t sn)
         {
             if (A_CheckEnemySprite(&sprite[i]) == 1)
             {
-                if (sprite[sn].picnum == RPG) sprite[sn].extra <<= 1;
+                if (sprite[sn].picnum == RPG)
+                    sprite[sn].extra <<= 1;
 
                 if ((PN != DRONE) && (PN != ROTATEGUN) && (PN != COMMANDER) && (PN < GREENSLIME || PN > GREENSLIME+7))
                     if (sprite[sn].picnum != FREEZEBLAST)
@@ -2399,6 +2410,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                     changespritestat(i, STAT_ACTOR);
                     actor[i].timetosleep = SLEEPTIME;
                 }
+
                 if ((sprite[i].xrepeat < 24 || PN == SHARK) && sprite[sn].picnum == SHRINKSPARK)
                     return;
             }
@@ -2428,8 +2440,8 @@ void A_DamageObject(int32_t i,int32_t sn)
                     if (ud.player_skill >= 3)
                         sprite[sn].extra += (sprite[sn].extra>>1);
             }
-
         }
+
         break;
     }
 }
@@ -2999,7 +3011,7 @@ int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
     return FindDistance2D(hit.pos.x-SX,hit.pos.y-SY);
 }
 
-static int32_t P_FindWall(DukePlayer_t *p,int16_t *hitw)
+static int32_t P_FindWall(DukePlayer_t *p, int16_t *hitw)
 {
     hitdata_t hit;
 
@@ -3030,12 +3042,12 @@ void P_CheckSectors(int32_t snum)
     if (p->cursectnum > -1)
         switch (sector[p->cursectnum].lotag)
         {
-
         case 32767:
             sector[p->cursectnum].lotag = 0;
             P_DoQuote(QUOTE_FOUND_SECRET,p);
             p->secret_rooms++;
             return;
+
         case UINT16_MAX:
             for (TRAVERSE_CONNECT(i))
                 g_player[i].ps->gm = MODE_EOL;
@@ -3054,11 +3066,13 @@ void P_CheckSectors(int32_t snum)
                 ud.m_level_number = ud.level_number;
             }
             return;
+
         case UINT16_MAX-1:
             sector[p->cursectnum].lotag = 0;
             p->timebeforeexit = GAMETICSPERSEC*8;
             p->customexitsound = sector[p->cursectnum].hitag;
             return;
+
         default:
             if (sector[p->cursectnum].lotag >= 10000 && sector[p->cursectnum].lotag < 16383)
             {
@@ -3067,12 +3081,12 @@ void P_CheckSectors(int32_t snum)
                 sector[p->cursectnum].lotag = 0;
             }
             break;
-
         }
 
     //After this point the the player effects the map with space
 
-    if (p->gm &MODE_TYPE || sprite[p->i].extra <= 0) return;
+    if (p->gm &MODE_TYPE || sprite[p->i].extra <= 0)
+        return;
 
     if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN))
     {
@@ -3096,7 +3110,6 @@ void P_CheckSectors(int32_t snum)
         p->toggle_key_flag = 0;
     else if (!p->toggle_key_flag)
     {
-
         if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_ESCAPE))
         {
             if (p->newowner >= 0)
@@ -3189,7 +3202,8 @@ void P_CheckSectors(int32_t snum)
 
         if (neartagsprite >= 0)
         {
-            if (P_ActivateSwitch(snum,neartagsprite,1)) return;
+            if (P_ActivateSwitch(snum, neartagsprite, 1))
+                return;
 
             switch (DYNAMICTILEMAP(sprite[neartagsprite].picnum))
             {
@@ -3291,7 +3305,6 @@ void P_CheckSectors(int32_t snum)
             }
 
 CLEARCAMERAS:
-
             if (i < 0)
                 G_ClearCameraView(p);
             else if (p->newowner >= 0)
@@ -3301,7 +3314,7 @@ CLEARCAMERAS:
                 I_EscapeTriggerClear();
 
             return;
-            }
+            }  // switch
         }
 
         if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN) == 0) return;
