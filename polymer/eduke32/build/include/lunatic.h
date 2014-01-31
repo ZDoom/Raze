@@ -3,10 +3,18 @@
 #ifndef ENGINE_LUNATIC_H_
 #define ENGINE_LUNATIC_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef USE_LUAJIT_2_1
 # include <luajit-2.1/lua.h>
 #else
 # include <luajit-2.0/lua.h>
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 
@@ -25,9 +33,9 @@ void L_CheckAndRegisterFunction(lua_State *L, void *regkeyaddr);
 int L_HandleError(lua_State *L, int errcode, void (*ErrorPrintFunc)(const char *));
 
 // Callback on Lua error. <str> must be used immediately or strdup'd.
-void (*L_ErrorFunc)(const char *str);
+extern void (*L_ErrorFunc)(const char *str);
 // Out-of-memory handler, supposed to terminate the host program.
-void (*L_OutOfMemFunc)(void);
+extern void (*L_OutOfMemFunc)(void);
 
 int L_CreateState(L_State *estate, const char *name, void (*StateSetupFunc)(lua_State *));
 void L_DestroyState(L_State *estate);

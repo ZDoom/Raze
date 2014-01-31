@@ -470,6 +470,12 @@ ifneq ($(LUNATIC),0)
     # chains!
     override DISABLEINLINING=1
 
+    ifneq ($(CPLUSPLUS),0)
+        # FIXME: Lunatic C++ doesn't build because otherwise it doesn't find
+        # INT32_MIN and the like.
+        BASECFLAGS+= -D__STDC_LIMIT_MACROS
+    endif
+
     BASECOMMONFLAGS+= -I$(MAKEFILE_COMMON_DIR)/source/lunatic -DLUNATIC
     ifneq ($(USE_LUAJIT_2_1),0)
         BASECOMMONFLAGS+= -DUSE_LUAJIT_2_1

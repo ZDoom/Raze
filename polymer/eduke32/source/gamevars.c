@@ -29,7 +29,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define _gamevars_c_
 
-#if !defined LUNATIC
+#ifdef LUNATIC
+int32_t g_noResetVars;
+LUNATIC_CB void (*A_ResetVars)(int32_t iActor);
+#else
 # include "gamestructures.c"
 
 extern int32_t OSD_errors;

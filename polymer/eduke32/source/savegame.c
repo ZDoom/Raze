@@ -1796,7 +1796,7 @@ static int32_t El_ReadSaveCode(int32_t fil)
 
     if (slen > 0)
     {
-        char *svcode = Bmalloc(slen+1);
+        char *svcode = (char *)Bmalloc(slen+1);
         if (svcode == NULL)
             G_GameExit("OUT OF MEMORY in doloadplayer2().");
 

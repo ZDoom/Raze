@@ -5,12 +5,20 @@
 #include <errno.h>
 #include <string.h>  // strerror
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef USE_LUAJIT_2_1
 # include <luajit-2.1/lualib.h>
 # include <luajit-2.1/lauxlib.h>
 #else
 # include <luajit-2.0/lualib.h>
 # include <luajit-2.0/lauxlib.h>
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #include "build.h"  // printext256
@@ -56,8 +64,17 @@ static uint8_t g_tweakTracebackMsg = 0;
 static int32_t SetEvent_CF(lua_State *L);
 static int32_t SetActor_CF(lua_State *L);
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // in lpeg.o
 extern int luaopen_lpeg(lua_State *L);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 typedef struct {
@@ -103,7 +120,7 @@ void El_PrintTimes(void)
         const int32_t baselen = Bstrlen(basefn);
         const int32_t addnlen = Bstrlen(".actors.csv");  // MUST equal that of ".events.csv"
 
-        char *fullfn = Bmalloc(baselen + addnlen + 1);
+        char *fullfn = (char *)Bmalloc(baselen + addnlen + 1);
         BFILE *outf;
 
         if (fullfn == NULL)
@@ -252,7 +269,7 @@ LUNATIC_EXTERN void El_OnError(const char *str)
         // Otherwise, allocate storage for the potentially clipped error string...
         if (nl)
         {
-            errstr = Bmalloc(nl-str+1);
+            errstr = (char *)Bmalloc(nl-str+1);
             if (errstr)
             {
                 Bmemcpy(errstr, str, nl-str);
@@ -413,7 +430,7 @@ DEFINE_VOID_CFUNC(G_ShowView, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LARG(
 
 #define CFUNC_REG(Name) { #Name, Name##_CF }
 
-struct { const char *name; lua_CFunction func; } cfuncs[] =
+static struct { const char *name; lua_CFunction func; } cfuncs[] =
 {
     CFUNC_REG(P_AddWeaponMaybeSwitchI),
     CFUNC_REG(P_CheckWeaponI),

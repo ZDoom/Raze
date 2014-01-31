@@ -42,7 +42,7 @@ int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t
 extern int8_t el_addNewErrors;  // add new errors to display?
 void El_OnError(const char *str);
 
-int32_t (*El_RestoreGamevars)(const char *savecode);
+extern int32_t (*El_RestoreGamevars)(const char *savecode);
 
 static inline int32_t El_HaveEvent(int32_t eventidx) { return g_elEvents[eventidx]!=0; }
 static inline int32_t El_HaveActor(int32_t actortile) { return g_elActors[actortile].haveit!=0; }

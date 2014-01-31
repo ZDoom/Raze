@@ -93,7 +93,7 @@ void G_Util_PtrToIdx(void *ptr, int32_t count, const void *base, int32_t mode);
 void G_Util_PtrToIdx2(void *ptr, int32_t count, size_t stride, const void *base, int32_t mode);
 
 #ifdef LUNATIC
-const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
+extern const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
 #endif
 
 #endif

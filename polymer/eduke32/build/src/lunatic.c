@@ -1,5 +1,9 @@
 /* The Lunatic Interpreter, part of EDuke32. Common, engine-side stuff. */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef USE_LUAJIT_2_1
 # include <luajit-2.1/lua.h>
 # include <luajit-2.1/lualib.h>
@@ -8,6 +12,10 @@
 # include <luajit-2.0/lua.h>
 # include <luajit-2.0/lualib.h>
 # include <luajit-2.0/lauxlib.h>
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #include "cache1d.h"
@@ -66,7 +74,7 @@ static int32_t read_whole_file(const char *fn, char **retbufptr)
     if (flen == 0)
         return 5;
 
-    buf = Bmalloc(flen+1);
+    buf = (char *)Bmalloc(flen+1);
     if (!buf)
     {
         kclose(fid);

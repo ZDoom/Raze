@@ -9620,7 +9620,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
 #ifdef LUNATIC
     g_argv = argv;
-    g_elModules = Bcalloc(argc+1, sizeof(char *));
+    g_elModules = (const char **)Bcalloc(argc+1, sizeof(char *));
     Bassert(g_elModules);
 #endif
     ud.fta_on = 1;
@@ -10727,7 +10727,7 @@ LUNATIC_EXTERN void El_SetCON(const char *conluacode)
 {
     int32_t slen = Bstrlen(conluacode);
 
-    g_elCON = Bmalloc(slen);
+    g_elCON = (char *)Bmalloc(slen);
     if (g_elCON == NULL)
         G_GameExit("OUT OF MEMORY in El_SetCON!");
 
