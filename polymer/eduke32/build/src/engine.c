@@ -11915,7 +11915,7 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, in
     int32_t nextz = (direction==1) ? INT32_MAX : INT32_MIN;
     int32_t sectortouse = -1;
 
-    walltype *wal = &wall[sector[sectnum].wallptr];
+    const walltype *wal = &wall[sector[sectnum].wallptr];
     int32_t i = sector[sectnum].wallnum;
 
     do
@@ -11924,20 +11924,17 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, in
 
         if (ns >= 0)
         {
-            const int32_t testz = (topbottom==1) ?
+            const int32_t testz = (topbottom == 1) ?
                 sector[ns].floorz : sector[ns].ceilingz;
 
-            int32_t ok;
+            const int32_t update = (direction == 1) ?
+                (testz > thez && testz < nextz) :
+                (testz < thez && testz > nextz);
 
-            if (direction == 1)
-                ok = (testz > thez && testz < nextz);
-            else
-                ok = (testz < thez && testz > nextz);
-
-            if (ok)
+            if (update)
             {
                 nextz = testz;
-                sectortouse = wal->nextsector;
+                sectortouse = ns;
             }
         }
 
@@ -11946,7 +11943,7 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, in
     }
     while (i != 0);
 
-    return(sectortouse);
+    return sectortouse;
 }
 
 

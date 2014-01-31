@@ -46,19 +46,22 @@ int32_t A_CallSound(int32_t sn, int32_t whatsprite)
 
     for (SPRITES_OF_SECT(sn, i))
     {
-        if (PN == MUSICANDSFX && (unsigned)SLT < 1000)  // XXX: in other places, 999
+        const int32_t snd = sprite[i].lotag;
+        EDUKE32_STATIC_ASSERT(MAXSOUNDS >= 1000);
+
+        if (PN == MUSICANDSFX && (unsigned)snd < 1000)  // XXX: in other places, 999
         {
             if (whatsprite == -1)
                 whatsprite = i;
 
             if (T1 == 0)
             {
-                if ((g_sounds[SLT].m & SF_GLOBAL) == 0)
+                if ((g_sounds[snd].m & SF_GLOBAL) == 0)
                 {
-                    if (SLT)
+                    if (snd)
                     {
-                        A_PlaySound(SLT,whatsprite);
-                        if (SHT && SLT != SHT && SHT < MAXSOUNDS)
+                        A_PlaySound(snd, whatsprite);
+                        if (SHT && snd != SHT && SHT < MAXSOUNDS)
                             S_StopEnvSound(SHT,T6);
                         T6 = whatsprite;
                     }
@@ -69,15 +72,18 @@ int32_t A_CallSound(int32_t sn, int32_t whatsprite)
             }
             else if (SHT < MAXSOUNDS)
             {
-                if (SHT) A_PlaySound(SHT,whatsprite);
-                if ((g_sounds[SLT].m & SF_LOOP) || (SHT && SHT != SLT))
-                    S_StopEnvSound(SLT,T6);
+                if (SHT)
+                    A_PlaySound(SHT, whatsprite);
+                if ((g_sounds[snd].m & SF_LOOP) || (SHT && SHT != snd))
+                    S_StopEnvSound(snd, T6);
                 T6 = whatsprite;
                 T1 = 0;
             }
-            return SLT;
+
+            return snd;
         }
     }
+
     return -1;
 }
 
@@ -271,13 +277,9 @@ void G_DoSectorAnimations(void)
         }
 
         if (v > 0)
-        {
-            a = min(a+v,animategoal[i]);
-        }
+            a = min(a+v, animategoal[i]);
         else
-        {
-            a = max(a+v,animategoal[i]);
-        }
+            a = max(a+v, animategoal[i]);
 
         if (animateptr[i] == &sector[animatesect[i]].floorz)
         {
@@ -470,59 +472,58 @@ void G_AnimateWalls(void)
 
 int32_t G_ActivateWarpElevators(int32_t s, int32_t d) //Parm = sectoreffectornum
 {
-    int32_t i = headspritestat[STAT_EFFECTOR], sn = sprite[s].sectnum;
+    int32_t i;
+    const int32_t sn = sprite[s].sectnum;
 
-    while (i >= 0)
-    {
+    for (SPRITES_OF(STAT_EFFECTOR, i))
         if (SLT == SE_17_WARP_ELEVATOR && SHT == sprite[s].hitag)
-            if ((klabs(sector[sn].floorz-actor[s].t_data[2]) > SP) ||
-                (sector[SECT].hitag == (sector[sn].hitag-d)))
+        {
+            if (klabs(sector[sn].floorz - actor[s].t_data[2]) > SP ||
+                    sector[SECT].hitag == sector[sn].hitag - d)
                 break;
-        i = nextspritestat[i];
-    }
+        }
 
     if (i == -1)
         return 1; // No find
-    else
-        A_PlaySound(d ? ELEVATOR_ON : ELEVATOR_OFF, s);
 
-    i = headspritestat[STAT_EFFECTOR];
-    do
-    {
+    A_PlaySound(d ? ELEVATOR_ON : ELEVATOR_OFF, s);
+
+    for (SPRITES_OF(STAT_EFFECTOR, i))
         if (SLT == SE_17_WARP_ELEVATOR && SHT == sprite[s].hitag)
             T1 = T2 = d; //Make all check warp
-        i = nextspritestat[i];
-    }
-    while (i >= 0);
 
     return 0;
 }
 
 void G_OperateSectors(int32_t sn, int32_t ii)
 {
-    int32_t j=0, l, q, startwall, endwall;
+    int32_t j=0, l;
     int32_t i;
-    sectortype *sptr = &sector[sn];
+    sectortype *const sptr = &sector[sn];
 
     switch (sptr->lotag&(0xffff-49152))
     {
-
     case ST_30_ROTATE_RISE_BRIDGE:
         j = sector[sn].hitag;
-        if (actor[j].tempang == 0 || actor[j].tempang == 256)
-            A_CallSound(sn,ii);
-        if (sprite[j].extra == 1)
-            sprite[j].extra = 3;
-        else sprite[j].extra = 1;
+
+        if (E_SpriteIsValid(j))
+        {
+            if (actor[j].tempang == 0 || actor[j].tempang == 256)
+                A_CallSound(sn,ii);
+            sprite[j].extra = (sprite[j].extra == 1) ? 3 : 1;
+        }
         break;
 
     case ST_31_TWO_WAY_TRAIN:
-
         j = sector[sn].hitag;
-        if (actor[j].t_data[4] == 0)
-            actor[j].t_data[4] = 1;
 
-        A_CallSound(sn,ii);
+        if (E_SpriteIsValid(j))
+        {
+            if (actor[j].t_data[4] == 0)
+                actor[j].t_data[4] = 1;
+
+            A_CallSound(sn,ii);
+        }
         break;
 
     case ST_26_SPLITTING_ST_DOOR: //The split doors
@@ -542,16 +543,16 @@ void G_OperateSectors(int32_t sn, int32_t ii)
 
     case ST_9_SLIDING_ST_DOOR:
     {
-        int32_t dax,day,dax2,day2,sp;
+        int32_t dax, day;
         int32_t wallfind[2];
 
-        startwall = sptr->wallptr;
-        endwall = startwall+sptr->wallnum-1;
+        const int32_t startwall = sptr->wallptr;
+        const int32_t endwall = startwall+sptr->wallnum-1;
 
-        sp = sptr->extra>>4;
+        const int32_t sp = sptr->extra>>4;
 
         //first find center point by averaging all points
-        dax = 0L, day = 0L;
+        dax = 0, day = 0;
         for (i=startwall; i<=endwall; i++)
         {
             dax += wall[i].x;
@@ -565,7 +566,7 @@ void G_OperateSectors(int32_t sn, int32_t ii)
         wallfind[0] = -1;
         wallfind[1] = -1;
         for (i=startwall; i<=endwall; i++)
-            if ((wall[i].x == dax) || (wall[i].y == day))
+            if (wall[i].x == dax || wall[i].y == day)
             {
                 if (wallfind[0] == -1)
                     wallfind[0] = i;
@@ -577,51 +578,51 @@ void G_OperateSectors(int32_t sn, int32_t ii)
 
         for (j=0; j<2; j++)
         {
-            if ((wall[wallfind[j]].x == dax) && (wall[wallfind[j]].y == day))
+            const int32_t wf = wallfind[j];
+            int32_t dax2, day2;
+
+            i = wf-1;
+            if (i < startwall) i = endwall;
+            dax2 = ((wall[i].x+wall[wall[wf].point2].x)>>1) - wall[wf].x;
+            day2 = ((wall[i].y+wall[wall[wf].point2].y)>>1) - wall[wf].y;
+
+            if (wall[wf].x == dax && wall[wf].y == day)
             {
                 //find what direction door should open by averaging the
                 //  2 neighboring points of wallfind[0] & wallfind[1].
-                i = wallfind[j]-1;
-                if (i < startwall) i = endwall;
-                dax2 = ((wall[i].x+wall[wall[wallfind[j]].point2].x)>>1)-wall[wallfind[j]].x;
-                day2 = ((wall[i].y+wall[wall[wallfind[j]].point2].y)>>1)-wall[wallfind[j]].y;
                 if (dax2 != 0)
                 {
-                    dax2 = wall[wall[wall[wallfind[j]].point2].point2].x;
-                    dax2 -= wall[wall[wallfind[j]].point2].x;
-                    SetAnimation(sn,&wall[wallfind[j]].x,wall[wallfind[j]].x+dax2,sp);
+                    dax2 = wall[wall[wall[wf].point2].point2].x;
+                    dax2 -= wall[wall[wf].point2].x;
+                    SetAnimation(sn,&wall[wf].x,wall[wf].x+dax2,sp);
                     SetAnimation(sn,&wall[i].x,wall[i].x+dax2,sp);
-                    SetAnimation(sn,&wall[wall[wallfind[j]].point2].x,wall[wall[wallfind[j]].point2].x+dax2,sp);
+                    SetAnimation(sn,&wall[wall[wf].point2].x,wall[wall[wf].point2].x+dax2,sp);
                     A_CallSound(sn,ii);
                 }
                 else if (day2 != 0)
                 {
-                    day2 = wall[wall[wall[wallfind[j]].point2].point2].y;
-                    day2 -= wall[wall[wallfind[j]].point2].y;
-                    SetAnimation(sn,&wall[wallfind[j]].y,wall[wallfind[j]].y+day2,sp);
+                    day2 = wall[wall[wall[wf].point2].point2].y;
+                    day2 -= wall[wall[wf].point2].y;
+                    SetAnimation(sn,&wall[wf].y,wall[wf].y+day2,sp);
                     SetAnimation(sn,&wall[i].y,wall[i].y+day2,sp);
-                    SetAnimation(sn,&wall[wall[wallfind[j]].point2].y,wall[wall[wallfind[j]].point2].y+day2,sp);
+                    SetAnimation(sn,&wall[wall[wf].point2].y,wall[wall[wf].point2].y+day2,sp);
                     A_CallSound(sn,ii);
                 }
             }
             else
             {
-                i = wallfind[j]-1;
-                if (i < startwall) i = endwall;
-                dax2 = ((wall[i].x+wall[wall[wallfind[j]].point2].x)>>1)-wall[wallfind[j]].x;
-                day2 = ((wall[i].y+wall[wall[wallfind[j]].point2].y)>>1)-wall[wallfind[j]].y;
                 if (dax2 != 0)
                 {
-                    SetAnimation(sn,&wall[wallfind[j]].x,dax,sp);
+                    SetAnimation(sn,&wall[wf].x,dax,sp);
                     SetAnimation(sn,&wall[i].x,dax+dax2,sp);
-                    SetAnimation(sn,&wall[wall[wallfind[j]].point2].x,dax+dax2,sp);
+                    SetAnimation(sn,&wall[wall[wf].point2].x,dax+dax2,sp);
                     A_CallSound(sn,ii);
                 }
                 else if (day2 != 0)
                 {
-                    SetAnimation(sn,&wall[wallfind[j]].y,day,sp);
+                    SetAnimation(sn,&wall[wf].y,day,sp);
                     SetAnimation(sn,&wall[i].y,day+day2,sp);
-                    SetAnimation(sn,&wall[wall[wallfind[j]].point2].y,day+day2,sp);
+                    SetAnimation(sn,&wall[wall[wf].point2].y,day+day2,sp);
                     A_CallSound(sn,ii);
                 }
             }
@@ -634,12 +635,12 @@ void G_OperateSectors(int32_t sn, int32_t ii)
         if (sprite[ii].picnum != APLAYER)
             return;
 
-        i = headspritesect[sn];
-        while (i >= 0)
-        {
-            if (PN==SECTOREFFECTOR && SLT == SE_17_WARP_ELEVATOR) break;
-            i = nextspritesect[i];
-        }
+        for (SPRITES_OF_SECT(sn, i))
+            if (PN==SECTOREFFECTOR && SLT == SE_17_WARP_ELEVATOR)
+                break;
+
+        if (i < 0)
+            return;
 
         if (sprite[ii].sectnum == sn)
         {
@@ -647,7 +648,6 @@ void G_OperateSectors(int32_t sn, int32_t ii)
                 G_ActivateWarpElevators(i,1);
             else if (G_ActivateWarpElevators(i,1))
                 G_ActivateWarpElevators(i,-1);
-            return;
         }
         else
         {
@@ -691,6 +691,8 @@ void G_OperateSectors(int32_t sn, int32_t ii)
 
         if (i==-1)
         {
+            int32_t q;
+
             i = nextsectorneighborz(sn,sptr->floorz,1,-1);
             if (i==-1) i = nextsectorneighborz(sn,sptr->floorz,1,1);
             if (i==-1) return;
@@ -705,19 +707,14 @@ void G_OperateSectors(int32_t sn, int32_t ii)
 
     case ST_29_TEETH_DOOR:
 
-        i = headspritestat[STAT_EFFECTOR]; //Effectors
-        while (i >= 0)
-        {
-            if ((SLT == SE_22_TEETH_DOOR) &&
-                    (SHT == sptr->hitag))
+        for (SPRITES_OF(STAT_EFFECTOR, i))
+            if (SLT == SE_22_TEETH_DOOR && SHT == sptr->hitag)
             {
                 sector[SECT].extra = -sector[SECT].extra;
 
                 T1 = sn;
                 T2 = 1;
             }
-            i = nextspritestat[i];
-        }
 
         A_CallSound(sn, ii);
 
@@ -755,16 +752,13 @@ REDODOOR:
 
         if (sptr->lotag&0x8000)
         {
-            i = headspritesect[sn];
-            while (i >= 0)
-            {
+            for (SPRITES_OF_SECT(sn, i))
                 if (sprite[i].statnum == STAT_EFFECTOR && SLT==SE_9_DOWN_OPEN_DOOR_LIGHTS)
                 {
                     j = SZ;
                     break;
                 }
-                i = nextspritesect[i];
-            }
+
             if (i==-1)
                 j = sptr->floorz;
         }
@@ -794,7 +788,6 @@ REDODOOR:
             if (animategoal[sn] == sptr->ceilingz)
                 animategoal[i] = sector[nextsectorneighborz(sn,sptr->ceilingz,1,1)].floorz;
             else animategoal[i] = sptr->ceilingz;
-            j = animategoal[i];
         }
         else
         {
@@ -811,18 +804,16 @@ REDODOOR:
 
     case ST_22_SPLITTING_DOOR:
 
-        // REDODOOR22:
-
-        if ((sptr->lotag&0x8000))
+        if (sptr->lotag&0x8000)
         {
-            q = (sptr->ceilingz+sptr->floorz)>>1;
-            j = SetAnimation(sn,&sptr->floorz,q,sptr->extra);
-            j = SetAnimation(sn,&sptr->ceilingz,q,sptr->extra);
+            int32_t q = (sptr->ceilingz+sptr->floorz)>>1;
+            j = SetAnimation(sn, &sptr->floorz, q, sptr->extra);
+            j = SetAnimation(sn, &sptr->ceilingz, q, sptr->extra);
         }
         else
         {
-            int32_t fneigh=nextsectorneighborz(sn,sptr->floorz,1,1);
-            int32_t cneigh=nextsectorneighborz(sn,sptr->ceilingz,-1,-1);
+            int32_t fneigh = nextsectorneighborz(sn, sptr->floorz, 1, 1);
+            int32_t cneigh = nextsectorneighborz(sn, sptr->ceilingz, -1, -1);
 
             if (fneigh>=0 && cneigh>=0)
             {
@@ -846,121 +837,102 @@ REDODOOR:
     case ST_23_SWINGING_DOOR: //Swingdoor
 
         j = -1;
-        q = 0;
 
-        i = headspritestat[STAT_EFFECTOR];
-        while (i >= 0)
-        {
+        for (SPRITES_OF(STAT_EFFECTOR, i))
             if (SLT == SE_11_SWINGING_DOOR && SECT == sn && !T5)
             {
                 j = i;
                 break;
             }
-            i = nextspritestat[i];
-        }
-        if (i<0)
+
+        if (i < 0)
         {
             OSD_Printf("WARNING: SE23 i<0!\n");
             return;
         }    // JBF
+
         l = sector[SECT].lotag&0x8000;
 
         if (j >= 0)
         {
-            i = headspritestat[STAT_EFFECTOR];
-            while (i >= 0)
-            {
+            int32_t playedsnd = 0;
+
+            for (SPRITES_OF(STAT_EFFECTOR, i))
                 if (l == (sector[SECT].lotag&0x8000) && SLT == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT && !T5)
                 {
                     if (sector[SECT].lotag&0x8000) sector[SECT].lotag &= 0x7fff;
                     else sector[SECT].lotag |= 0x8000;
+
                     T5 = 1;
                     T4 = -T4;
-                    if (q == 0)
+
+                    if (!playedsnd)
                     {
                         A_CallSound(sn,i);
-                        q = 1;
+                        playedsnd = 1;
                     }
                 }
-                i = nextspritestat[i];
-            }
         }
         return;
 
     case ST_25_SLIDING_DOOR: //Subway type sliding doors
 
-        j = headspritestat[STAT_EFFECTOR];
-        while (j >= 0)//Find the sprite
-        {
-            if ((sprite[j].lotag) == SE_15_SLIDING_DOOR && sprite[j].sectnum == sn)
+        for (SPRITES_OF(STAT_EFFECTOR, j))
+            if (sprite[j].lotag == SE_15_SLIDING_DOOR && sprite[j].sectnum == sn)
                 break; //Found the sectoreffector.
-            j = nextspritestat[j];
-        }
 
         if (j < 0)
             return;
 
-        i = headspritestat[STAT_EFFECTOR];
-        while (i >= 0)
-        {
+        for (SPRITES_OF(STAT_EFFECTOR, i))
             if (SHT==sprite[j].hitag)
             {
                 if (SLT == SE_15_SLIDING_DOOR)
                 {
                     sector[SECT].lotag ^= 0x8000; // Toggle the open or close
                     SA += 1024;
-                    if (T5) A_CallSound(SECT,i);
+
+                    if (T5)
+                        A_CallSound(SECT,i);
                     A_CallSound(SECT,i);
-                    if (sector[SECT].lotag&0x8000) T5 = 1;
-                    else T5 = 2;
+
+                    T5 = (sector[SECT].lotag&0x8000) ? 1 : 2;
                 }
             }
-            i = nextspritestat[i];
-        }
+
         return;
 
     case ST_27_STRETCH_BRIDGE:  //Extended bridge
 
-        j = headspritestat[STAT_EFFECTOR];
-        while (j >= 0)
-        {
+        for (SPRITES_OF(STAT_EFFECTOR, j))
             if ((sprite[j].lotag&0xff)==SE_20_STRETCH_BRIDGE && sprite[j].sectnum == sn)  //Bridge
             {
-
                 sector[sn].lotag ^= 0x8000;
-                if (sector[sn].lotag&0x8000) //OPENING
-                    actor[j].t_data[0] = 1;
-                else actor[j].t_data[0] = 2;
+                // Highest bit now set means we're opening.
+
+                actor[j].t_data[0] = (sector[sn].lotag&0x8000) ? 1 : 2;
                 A_CallSound(sn,ii);
                 break;
             }
-            j = nextspritestat[j];
-        }
-        return;
 
+        return;
 
     case ST_28_DROP_FLOOR:
         //activate the rest of them
 
-        j = headspritesect[sn];
-        while (j >= 0)
-        {
+        for (SPRITES_OF_SECT(sn, j))
             if (sprite[j].statnum==STAT_EFFECTOR && (sprite[j].lotag&0xff)==SE_21_DROP_FLOOR)
-                break; //Found it
-            j = nextspritesect[j];
-        }
+                break;
 
         if (j >= 0)  // PK: The matching SE21 might have gone, see SE_21_KILLIT in actors.c
         {
             j = sprite[j].hitag;
 
-            l = headspritestat[STAT_EFFECTOR];
-            while (l >= 0)
+            for (SPRITES_OF(STAT_EFFECTOR, l))
             {
                 if ((sprite[l].lotag&0xff)==SE_21_DROP_FLOOR && !actor[l].t_data[0] &&
-                    (sprite[l].hitag) == j)
+                        sprite[l].hitag == j)
                     actor[l].t_data[0] = 1;
-                l = nextspritestat[l];
             }
 
             A_CallSound(sn,ii);
@@ -994,13 +966,12 @@ void G_OperateRespawns(int32_t low)
 
 void G_OperateActivators(int32_t low, int32_t snum)
 {
-    int32_t i, j, k;
-    int16_t *p;
+    int32_t i, nexti, j, k;
     walltype *wal;
 
     for (i=g_numCyclers-1; i>=0; i--)
     {
-        p = &cyclers[i][0];
+        int16_t *const p = &cyclers[i][0];
 
         if (p[4] == low)
         {
@@ -1013,56 +984,40 @@ void G_OperateActivators(int32_t low, int32_t snum)
         }
     }
 
-    i = headspritestat[STAT_ACTIVATOR];
     k = -1;
 
-    while (i >= 0)
+    for (SPRITES_OF_STAT_SAFE(STAT_ACTIVATOR, i, nexti))
     {
         if (sprite[i].lotag == low)
         {
             if (sprite[i].picnum == ACTIVATORLOCKED)
             {
-                if (sector[SECT].lotag&16384)
-                    sector[SECT].lotag &= ~16384;
-                else
-                    sector[SECT].lotag |= 16384;
+                sector[SECT].lotag ^= 16384;
 
                 if (snum >= 0 && snum < ud.multimode)
-                {
-                    if (sector[SECT].lotag&16384)
-                        P_DoQuote(QUOTE_LOCKED,g_player[snum].ps);
-                    else P_DoQuote(QUOTE_UNLOCKED,g_player[snum].ps);
-                }
+                    P_DoQuote((sector[SECT].lotag&16384) ? QUOTE_LOCKED : QUOTE_UNLOCKED,
+                              g_player[snum].ps);
             }
             else
             {
                 switch (SHT)
                 {
-                case 0:
-                    break;
                 case 1:
                     if (sector[SECT].floorz != sector[SECT].ceilingz)
-                    {
-                        i = nextspritestat[i];
                         continue;
-                    }
                     break;
                 case 2:
                     if (sector[SECT].floorz == sector[SECT].ceilingz)
-                    {
-                        i = nextspritestat[i];
                         continue;
-                    }
                     break;
                 }
 
                 // ST_2_UNDERWATER
                 if (sector[sprite[i].sectnum].lotag < 3)
                 {
-                    j = headspritesect[sprite[i].sectnum];
-                    while (j >= 0)
-                    {
-                        if (sprite[j].statnum == STAT_EFFECTOR) switch (sprite[j].lotag)
+                    for (SPRITES_OF_SECT(sprite[i].sectnum, j))
+                        if (sprite[j].statnum == STAT_EFFECTOR)
+                            switch (sprite[j].lotag)
                             {
                             case SE_36_PROJ_SHOOTER:
                             case SE_31_FLOOR_RISE_FALL:
@@ -1072,8 +1027,6 @@ void G_OperateActivators(int32_t low, int32_t snum)
                                 A_CallSound(SECT,j);
                                 break;
                             }
-                        j = nextspritesect[j];
-                    }
                 }
 
                 if (k == -1 && (sector[SECT].lotag&0xff) == ST_22_SPLITTING_DOOR)
@@ -1082,7 +1035,6 @@ void G_OperateActivators(int32_t low, int32_t snum)
                 G_OperateSectors(SECT,i);
             }
         }
-        i = nextspritestat[i];
     }
 
     G_OperateRespawns(low);
@@ -1090,22 +1042,20 @@ void G_OperateActivators(int32_t low, int32_t snum)
 
 void G_OperateMasterSwitches(int32_t low)
 {
-    int32_t i = headspritestat[STAT_STANDABLE];
-    while (i >= 0)
-    {
+    int32_t i;
+
+    for (SPRITES_OF(STAT_STANDABLE, i))
         if (PN == MASTERSWITCH && SLT == low && SP == 0)
             SP = 1;
-        i = nextspritestat[i];
-    }
 }
 
 void G_OperateForceFields(int32_t s, int32_t low)
 {
-    int32_t i, p=g_numAnimWalls;
+    int32_t p=g_numAnimWalls;
 
     for (; p>=0; p--)
     {
-        i = animwall[p].wallnum;
+        const int32_t i = animwall[p].wallnum;
 
         if (low == wall[i].lotag || low == -1)
             if (G_GetForcefieldPicnum(i) == W_FORCEFIELD
@@ -1590,18 +1540,15 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite)
 
 void G_ActivateBySector(int32_t sect, int32_t j)
 {
-    int32_t i = headspritesect[sect];
+    int32_t i;
     int32_t didit = 0;
 
-    while (i >= 0)
-    {
+    for (SPRITES_OF_SECT(sect, i))
         if (PN == ACTIVATOR)
         {
             G_OperateActivators(SLT,-1);
             didit = 1;
         }
-        i = nextspritesect[i];
-    }
 
     if (didit == 0)
         G_OperateSectors(sect,j);
@@ -1659,11 +1606,9 @@ void A_DamageWall(int32_t spr, int32_t dawallnum, const vec3_t *pos, int32_t atw
 
     if (((wal->cstat&16) || wal->overpicnum == BIGFORCE) && wal->nextsector >= 0)
         if (sector[wal->nextsector].floorz > pos->z)
-            if (sector[wal->nextsector].floorz-sector[wal->nextsector].ceilingz)
+            if (sector[wal->nextsector].floorz != sector[wal->nextsector].ceilingz)
             {
-                int32_t switchpicnum = wal->overpicnum;
-                if (switchpicnum > W_FORCEFIELD && switchpicnum <= W_FORCEFIELD+2)
-                    switchpicnum = W_FORCEFIELD;
+                int32_t switchpicnum = G_GetForcefieldPicnum(dawallnum);
 
                 switch (DYNAMICTILEMAP(switchpicnum))
                 {
@@ -1836,10 +1781,7 @@ void A_DamageWall(int32_t spr, int32_t dawallnum, const vec3_t *pos, int32_t atw
     case WALLLIGHT4__STATIC:
     case TECHLIGHT2__STATIC:
     case TECHLIGHT4__STATIC:
-
-        if (rnd(128))
-            A_PlaySound(GLASS_HEAVYBREAK,spr);
-        else A_PlaySound(GLASS_BREAKING,spr);
+        A_PlaySound(rnd(128) ? GLASS_HEAVYBREAK : GLASS_BREAKING, spr);
         A_SpawnWallGlass(spr,dawallnum,30);
 
         if (wal->picnum == WALLLIGHT1)
@@ -2470,7 +2412,7 @@ void P_HandleSharedKeys(int32_t snum)
 {
     int32_t i, k = 0, dainv;
     uint32_t sb_snum = g_player[snum].sync->bits, j;
-    DukePlayer_t *p = g_player[snum].ps;
+    DukePlayer_t *const p = g_player[snum].ps;
 
     if (p->cheat_phase == 1) return;
 
@@ -3035,9 +2977,9 @@ static int32_t our_neartag_blacklist(int32_t i)
 
 void P_CheckSectors(int32_t snum)
 {
-    int32_t i = -1,oldz;
-    DukePlayer_t *p = g_player[snum].ps;
-    int16_t j,hitscanwall;
+    int32_t i = -1;
+    DukePlayer_t *const p = g_player[snum].ps;
+    int16_t hitscanwall = -1;  // CAUTION with goto's!!!
 
     if (p->cursectnum > -1)
         switch (sector[p->cursectnum].lotag)
@@ -3134,12 +3076,8 @@ void P_CheckSectors(int32_t snum)
             }
 
         if (hitscanwall >= 0 && (wall[hitscanwall].cstat&16))
-            switch (wall[hitscanwall].overpicnum)
-            {
-            default:
-                if (wall[hitscanwall].lotag)
-                    return;
-            }
+            if (wall[hitscanwall].lotag)
+                return;
 
         if (p->newowner >= 0)
             neartag(p->opos.x,p->opos.y,p->opos.z,sprite[p->i].sectnum,p->oang,&neartagsector,
@@ -3196,8 +3134,9 @@ void P_CheckSectors(int32_t snum)
         if (neartagsprite == -1 && neartagwall == -1)
             if (p->cursectnum >= 0 && sector[p->cursectnum].lotag == 2)
             {
-                oldz = A_CheckHitSprite(p->i,&neartagsprite);
-                if (oldz > 1280) neartagsprite = -1;
+                int32_t oldz = A_CheckHitSprite(p->i,&neartagsprite);
+                if (oldz > 1280)
+                    neartagsprite = -1;
             }
 
         if (neartagsprite >= 0)
@@ -3233,7 +3172,11 @@ void P_CheckSectors(int32_t snum)
                 return;
 
             case NUKEBUTTON__STATIC:
-                P_FindWall(p,&j);
+            {
+                int16_t j;
+
+                P_FindWall(p, &j);
+
                 if (j >= 0 && wall[j].overpicnum == 0)
                     if (actor[neartagsprite].t_data[0] == 0)
                     {
@@ -3252,6 +3195,7 @@ void P_CheckSectors(int32_t snum)
                         }
                     }
                 return;
+            }
 
             case WATERFOUNTAIN__STATIC:
                 if (actor[neartagsprite].t_data[0] != 1)
@@ -3288,11 +3232,12 @@ void P_CheckSectors(int32_t snum)
                         sprite[neartagsprite].owner = i;
                         sprite[neartagsprite].yvel = 1;
 
-
-                        j = p->cursectnum;
-                        p->cursectnum = SECT;
-                        P_UpdateScreenPal(p);
-                        p->cursectnum = j;
+                        {
+                            int32_t j = p->cursectnum;
+                            p->cursectnum = SECT;
+                            P_UpdateScreenPal(p);
+                            p->cursectnum = j;
+                        }
 
                         // parallaxtype = 2;
                         p->newowner = i;
@@ -3317,8 +3262,10 @@ CLEARCAMERAS:
             }  // switch
         }
 
-        if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN) == 0) return;
-        else if (p->newowner >= 0)
+        if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN) == 0)
+            return;
+
+        if (p->newowner >= 0)
         {
             i = -1;
             goto CLEARCAMERAS;
@@ -3348,27 +3295,27 @@ CLEARCAMERAS:
             }
         }
 
-        if (neartagsector >= 0 && (sector[neartagsector].lotag&16384) == 0 && isanearoperator(sector[neartagsector].lotag))
+        if (neartagsector >= 0 && (sector[neartagsector].lotag&16384) == 0 &&
+                isanearoperator(sector[neartagsector].lotag))
         {
-            i = headspritesect[neartagsector];
-            while (i >= 0)
+            for (SPRITES_OF_SECT(neartagsector, i))
             {
                 if (PN == ACTIVATOR || PN == MASTERSWITCH)
                     return;
-                i = nextspritesect[i];
             }
+
             G_OperateSectors(neartagsector,p->i);
         }
         else if ((sector[sprite[p->i].sectnum].lotag&16384) == 0)
         {
             if (isanunderoperator(sector[sprite[p->i].sectnum].lotag))
             {
-                i = headspritesect[sprite[p->i].sectnum];
-                while (i >= 0)
+                for (SPRITES_OF_SECT(sprite[p->i].sectnum, i))
                 {
-                    if (PN == ACTIVATOR || PN == MASTERSWITCH) return;
-                    i = nextspritesect[i];
+                    if (PN == ACTIVATOR || PN == MASTERSWITCH)
+                        return;
                 }
+
                 G_OperateSectors(sprite[p->i].sectnum,p->i);
             }
             else P_ActivateSwitch(snum,neartagwall,0);

@@ -1203,6 +1203,11 @@ static inline int32_t redwallp(const walltype *wal)
     return (wal->nextwall >= 0 && wal->nextsector >= 0);
 }
 
+static inline int32_t E_SpriteIsValid(const int32_t i)
+{
+    return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
+}
+
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t   sectorofwall(int16_t theline);
