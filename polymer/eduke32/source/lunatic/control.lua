@@ -1281,8 +1281,10 @@ function _operate(spritenum)
         if (tag.sector >= 0) then
             local sect = sector[tag.sector]
             local lotag = sect.lotag
-            if (NEAROP[band(lotag, 0xff)]) then
-                if (lotag==23 or sect.floorz==sect.ceilingz) then
+            local lotag_lo = band(lotag, 0xff)
+
+            if (NEAROP[lotag_lo]) then
+                if (lotag_lo == 23 or sect.floorz == sect.ceilingz) then
                     if (band(lotag, 32768+16384) == 0) then
                         for j in spritesofsect(tag.sector) do
                             if (ispic(sprite[j].picnum, "ACTIVATOR")) then

@@ -39,9 +39,6 @@ typedef int32_t ofstype;
 extern char *ScriptQuotes[MAXQUOTES+1], *ScriptQuoteRedefinitions[MAXQUOTES+1];
 extern int32_t g_numQuoteRedefinitions;
 
-//extern int16_t neartagsector, neartagwall, neartagsprite;
-//extern int32_t neartaghitdist;
-
 extern int32_t VM_Execute(int32_t once);
 extern void VM_OnEvent(register int32_t iEventID, register int32_t iActor);
 

@@ -3064,6 +3064,9 @@ nullquote:
                 int32_t neartagsectorvar=*insptr++, neartagwallvar=*insptr++, neartagspritevar=*insptr++, neartaghitdistvar=*insptr++;
                 int32_t neartagrange=Gv_GetVarX(*insptr++), tagsearch=Gv_GetVarX(*insptr++);
 
+                int16_t neartagsector, neartagwall, neartagsprite;
+                int32_t neartaghitdist;
+
                 if ((unsigned)sectnum >= (unsigned)numsectors)
                 {
                     CON_ERRPRINTF("Invalid sector %d\n", sectnum);
@@ -3548,24 +3551,25 @@ nullquote:
             insptr++;
             if (sector[vm.g_sp->sectnum].lotag == 0)
             {
+                int16_t neartagsector, neartagwall, neartagsprite;
+                int32_t neartaghitdist;
+
                 neartag(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(32<<8),vm.g_sp->sectnum,vm.g_sp->ang,
                         &neartagsector,&neartagwall,&neartagsprite,&neartaghitdist, 768, 4+1, NULL);
 
                 if (neartagsector >= 0 && isanearoperator(sector[neartagsector].lotag))
                     if ((sector[neartagsector].lotag&0xff) == ST_23_SWINGING_DOOR || sector[neartagsector].floorz == sector[neartagsector].ceilingz)
-                        if ((sector[neartagsector].lotag&16384) == 0)
-                            if ((sector[neartagsector].lotag&32768) == 0)
-                            {
-                                int32_t j = headspritesect[neartagsector];
-                                while (j >= 0)
-                                {
-                                    if (sprite[j].picnum == ACTIVATOR)
-                                        break;
-                                    j = nextspritesect[j];
-                                }
-                                if (j == -1)
-                                    G_OperateSectors(neartagsector,vm.g_i);
-                            }
+                        if ((sector[neartagsector].lotag&(16384|32768)) == 0)
+                        {
+                            int32_t j;
+
+                            for (SPRITES_OF_SECT(neartagsector, j))
+                                if (sprite[j].picnum == ACTIVATOR)
+                                    break;
+
+                            if (j == -1)
+                                G_OperateSectors(neartagsector,vm.g_i);
+                        }
             }
             continue;
 

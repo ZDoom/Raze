@@ -82,7 +82,6 @@ G_EXTERN int16_t g_numAnimWalls;
 G_EXTERN int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
 G_EXTERN int16_t myang,omyang,mycursectnum,myjumpingcounter;
 G_EXTERN int16_t myhoriz,omyhoriz,myhorizoff,omyhorizoff;
-G_EXTERN int16_t neartagsector,neartagwall,neartagsprite;  // XXX: these ought to be globals?
 G_EXTERN int32_t *animateptr[MAXANIMATES];
 G_EXTERN int32_t animategoal[MAXANIMATES],animatevel[MAXANIMATES],g_animateCount;
 G_EXTERN int32_t cloudtotalclock;

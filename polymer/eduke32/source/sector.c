@@ -2993,6 +2993,9 @@ void P_CheckSectors(int32_t snum)
     {
         int16_t hitscanwall;
 
+        int16_t neartagsector, neartagwall, neartagsprite;
+        int32_t neartaghitdist;
+
         if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_ESCAPE))
         {
             if (p->newowner >= 0)
