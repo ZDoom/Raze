@@ -1852,6 +1852,8 @@ end
 -- is kinda breaking the classic "no array nesting" rules
 -- (if there ever were any) but making our life harder else.
 local arraypat = sp0 * "[" * sp0 * tok.rvar * sp0 * "]"
+-- For {get,set}userdef:
+local arraypat_maybe_empty = sp0 * "[" * sp0 * (tok.rvar * sp0)^-1 * "]"
 
 -- Table of various patterns that are (parts of) more complex inner commands.
 local patt = {}
@@ -2263,7 +2265,8 @@ local handle =
     soundonce = "_con._soundonce(_aci,%1)",
 }
 
-local userdef_common_pat = (arraypat + sp1)/{} * lpeg.Cc(0) * lpeg.Ct(patt.singlemember) * sp1
+local userdef_common_pat = (arraypat_maybe_empty + sp1)/{}
+    * lpeg.Cc(0) * lpeg.Ct(patt.singlemember) * sp1
 
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
 -- that have no arguments and that are prefixes of other commands MUST be
