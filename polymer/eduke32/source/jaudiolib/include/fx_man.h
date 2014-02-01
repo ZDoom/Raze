@@ -79,6 +79,7 @@ int32_t FX_SetPan( int32_t handle, int32_t vol, int32_t left, int32_t right );
 int32_t FX_SetPitch( int32_t handle, int32_t pitchoffset );
 int32_t FX_SetFrequency( int32_t handle, int32_t frequency );
 
+#if 0
 int32_t FX_PlayVOC( char *ptr, uint32_t ptrlength, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
        int32_t priority, uint32_t callbackval );
 int32_t FX_PlayLoopedVOC( char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend,
@@ -93,6 +94,13 @@ int32_t FX_PlayVOC3D( char *ptr, uint32_t ptrlength, int32_t pitchoffset, int32_
        int32_t priority, uint32_t callbackval );
 int32_t FX_PlayWAV3D( char *ptr, uint32_t ptrlength, int32_t pitchoffset, int32_t angle, int32_t distance,
        int32_t priority, uint32_t callbackval );
+int32_t FX_PlayRaw( char *ptr, uint32_t length, unsigned rate,
+       int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
+       uint32_t callbackval );
+int32_t FX_PlayLoopedRaw( char *ptr, uint32_t length, char *loopstart,
+       char *loopend, unsigned rate, int32_t pitchoffset, int32_t vol, int32_t left,
+       int32_t right, int32_t priority, uint32_t callbackval );
+#endif
 
 int32_t FX_PlayAuto( char *ptr, uint32_t ptrlength, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
                 int32_t priority, uint32_t callbackval );
@@ -102,12 +110,6 @@ int32_t FX_PlayLoopedAuto( char *ptr, uint32_t ptrlength, int32_t loopstart, int
 int32_t FX_PlayAuto3D( char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
                   int32_t priority, uint32_t callbackval );
 
-int32_t FX_PlayRaw( char *ptr, uint32_t length, unsigned rate,
-       int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
-       uint32_t callbackval );
-int32_t FX_PlayLoopedRaw( char *ptr, uint32_t length, char *loopstart,
-       char *loopend, unsigned rate, int32_t pitchoffset, int32_t vol, int32_t left,
-       int32_t right, int32_t priority, uint32_t callbackval );
 int32_t FX_Pan3D( int32_t handle, int32_t angle, int32_t distance );
 int32_t FX_SoundActive( int32_t handle );
 int32_t FX_SoundsPlaying( void );

@@ -506,7 +506,7 @@ int32_t FX_SetFrequency
     return status;
 }
 
-
+#if 0
 /*---------------------------------------------------------------------
    Function: FX_PlayVOC
 
@@ -747,7 +747,7 @@ int32_t FX_PlayLoopedRaw
 
     return handle;
 }
-
+#endif
 
 /*---------------------------------------------------------------------
    Function: FX_Pan3D
@@ -922,7 +922,7 @@ static wavedata FX_AutoDetectFormat(const char *ptr, uint32_t length)
 int32_t FX_PlayAuto(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol,
                 int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
-    return FX_PlayLoopedAuto(ptr, length, -1, -1, pitchoffset, vol, left, right, priority, callbackval);;
+    return FX_PlayLoopedAuto(ptr, length, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
 }
 
 /*---------------------------------------------------------------------

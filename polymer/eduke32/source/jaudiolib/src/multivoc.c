@@ -47,7 +47,7 @@ static void MV_ServiceVoc( void );
 
 static VoiceNode *MV_GetVoice( int32_t handle );
 
-static int16_t     *MV_GetVolumeTable( int32_t vol );
+static const int16_t     *MV_GetVolumeTable( int32_t vol );
 
 static void       MV_CalcVolume( int32_t MaxLevel );
 static void       MV_CalcPanTable( void );
@@ -88,9 +88,7 @@ static int32_t MV_SwapLeftRight = FALSE;
 static int32_t MV_RequestedMixRate;
 int32_t MV_MixRate;
 
-static int32_t MV_BuffShift;
-
-static int32_t MV_TotalMemory;
+//static int32_t MV_BuffShift;
 
 static int32_t   MV_BufferEmpty[ MV_NUMBEROFBUFFERS ];
 char *MV_MixBuffer[ MV_NUMBEROFBUFFERS + 1 ];
@@ -804,16 +802,9 @@ int32_t MV_SetFrequency
    volume.
 ---------------------------------------------------------------------*/
 
-static int16_t *MV_GetVolumeTable(int32_t vol)
+static const int16_t *MV_GetVolumeTable(int32_t vol)
 {
-    int32_t volume;
-    int16_t *table;
-
-    volume = MIX_VOLUME(vol);
-
-    table = (int16_t *) &MV_VolumeTable[ volume ];
-
-    return table;
+    return MV_VolumeTable[MIX_VOLUME(vol)];
 }
 
 
@@ -1304,7 +1295,7 @@ static int32_t MV_SetMixMode
         MV_Bits = 16;
     }
 
-    MV_BuffShift  = 7 + MV_Channels;
+//    MV_BuffShift  = 7 + MV_Channels;
     MV_SampleSize = sizeof(MONO8) * MV_Channels;
 
     if (MV_Bits == 8)
@@ -1314,7 +1305,7 @@ static int32_t MV_SetMixMode
     else
     {
         MV_Silence     = SILENCE_16BIT;
-        MV_BuffShift  += 1;
+//        MV_BuffShift  += 1;
         MV_SampleSize *= 2;
     }
 
@@ -1483,21 +1474,17 @@ static void MV_CalcVolume(int32_t MaxVolume)
 
 static void MV_CalcPanTable(void)
 {
-    int32_t   level;
-    int32_t   angle;
-    int32_t   distance;
-    int32_t   HalfAngle;
-    int32_t   ramp;
-
-    HalfAngle = (MV_NUMPANPOSITIONS / 2);
+    int32_t angle, distance;
+    const int32_t HalfAngle = MV_NUMPANPOSITIONS / 2;
+    const int32_t QuarterAngle = HalfAngle / 2;
 
     for (distance = 0; distance <= MV_MAXVOLUME; distance++)
     {
-        level = (255 * (MV_MAXVOLUME - distance)) / MV_MAXVOLUME;
-        for (angle = 0; angle <= HalfAngle / 2; angle++)
+        const int32_t level = (255 * (MV_MAXVOLUME - distance)) / MV_MAXVOLUME;
+
+        for (angle = 0; angle <= QuarterAngle; angle++)
         {
-            ramp = level - ((level * angle) /
-                            (MV_NUMPANPOSITIONS / 4));
+            const int32_t ramp = level - (level * angle) / QuarterAngle;
 
             MV_PanTable[ angle ][ distance ].left = ramp;
             MV_PanTable[ HalfAngle - angle ][ distance ].left = ramp;
@@ -1601,6 +1588,7 @@ int32_t MV_Init
     int32_t  status;
     int32_t  buffer;
     int32_t  index;
+    int32_t totalmem;
 
     if (MV_Installed)
     {
@@ -1625,9 +1613,9 @@ int32_t MV_Init
     //     by 0x84597CA: S_SoundStartup (sounds.c:62)
     //     by 0x80D7869: app_main (game.c:10378)
     //     by 0x870C9C0: main (sdlayer.c:222)
-    MV_TotalMemory = Voices * sizeof(VoiceNode) + sizeof(HARSH_CLIP_TABLE_8) + MV_TOTALBUFFERSIZE + 2;
+    totalmem = Voices * sizeof(VoiceNode) + sizeof(HARSH_CLIP_TABLE_8) + MV_TOTALBUFFERSIZE + 2;
 
-    ptr = (char *) calloc(1, MV_TotalMemory);
+    ptr = (char *) calloc(1, totalmem);
     if (!ptr)
     {
         MV_SetErrorCode(MV_NoMem);
@@ -1669,7 +1657,6 @@ int32_t MV_Init
         free(MV_Voices);
         MV_Voices      = NULL;
         MV_HarshClipTable = NULL;
-        MV_TotalMemory = 0;
 
         MV_SetErrorCode(status);
         return MV_Error;
@@ -1743,7 +1730,6 @@ int32_t MV_Shutdown(void)
     // Free any voices we allocated
     free(MV_Voices);
     MV_Voices      = NULL;
-    MV_TotalMemory = 0;
 
     LL_Reset((VoiceNode*) &VoiceList, next, prev);
     LL_Reset((VoiceNode*) &VoicePool, next, prev);
