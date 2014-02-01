@@ -125,7 +125,8 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
                   ["cache-sap"]=false, ["error-nostate"]=true,
                   ["playervar"]=true, ["trapv"]=false, ["wrapv"]=false,
-                  ["bad-getactorvar-use-pli"]=false, }
+                  ["bad-getactorvar-use-pli"]=false,
+                  ["error-nonlocal-userdef"]=true, }
 
 local function csapp() return g_cgopt["cache-sap"] end
 
@@ -305,7 +306,8 @@ local function new_initial_codetab()
         "local _band, _bor, _bxor = _bit.band, _bit.bor, _bit.bxor",
         "local _lsh, _rsh, _arsh = _bit.lshift, _bit.rshift, _bit.arshift",
         "local _setsprite,_ssp = _con._setsprite,_con._ssp",
-        "local _gud=_con._gud",
+        g_cgopt["error-nonlocal-userdef"]
+            and "local _gud=_con._get_userdef_check" or "local _gud=_con._get_userdef",
 
         -- * CON "states" (subroutines) and
         -- * Switch function table, indexed by global switch sequence number:

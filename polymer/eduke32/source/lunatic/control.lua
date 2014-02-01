@@ -516,11 +516,15 @@ function _getsap(aci, pli)
     return (aci>=0) and sprite[aci], (aci>=0) and actor[aci], (pli>=0) and player[pli]
 end
 
-function _gud(pli)
+function _get_userdef_check(pli)
     if (pli ~= ffiC.myconnectindex) then
         error(format("userdefs access with non-local current player %d (we: %d)",
                      pli, ffiC.myconnectindex), 2)
     end
+    return ffiC.ud
+end
+
+function _get_userdef(pli)
     return ffiC.ud
 end
 

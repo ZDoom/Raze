@@ -168,6 +168,11 @@ If enabled, an attempt to call a `state` that was not previously defined
 results in an error. Otherwise, a warning is issued and no code is generated
 for the `state` invocation.
 
+`-ferror-nonlocal-userdef` (default: on)::
+If enabled, an attept to issue `getuserdef` or `setuserdef` when the current
+player doesn't equal the local player generates an error. Otherwise, the
+userdef structure is accessible without restriction.
+
 `-fbad-getactorvar-use-pli` (default: off)::
 If enabled and `-Werror-bad-getactorvar` is off, a `getactorvar` of a
 per-player variable will result the gamevar being indexed with the current
