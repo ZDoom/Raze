@@ -4578,8 +4578,8 @@ cheat_for_port_credits2:
                         sliderbar(1, d+8, yy+7, &ud.config.MasterVolume, 15, probey==io, enabled ? MENUHIGHLIGHT(io) : UNSELMENUSHADE, !enabled, 0, 255);
                         if (l != ud.config.MasterVolume)
                         {
-                            FX_SetVolume((int16_t) ud.config.MasterVolume);
-                            S_MusicVolume((int16_t) MASTER_VOLUME(ud.config.MusicVolume));
+                            FX_SetVolume(ud.config.MasterVolume);
+                            S_MusicVolume(MASTER_VOLUME(ud.config.MusicVolume));
                         }
                     }
                     break;
@@ -4597,7 +4597,7 @@ cheat_for_port_credits2:
                     l = ud.config.MusicVolume;
                     sliderbar(1,d+8,yy+7, &ud.config.MusicVolume,15,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,255);
                     if (l != ud.config.MusicVolume)
-                        S_MusicVolume((int16_t) MASTER_VOLUME(ud.config.MusicVolume));
+                        S_MusicVolume(MASTER_VOLUME(ud.config.MusicVolume));
                 }
                 break;
                 case 4:
