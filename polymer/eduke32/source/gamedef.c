@@ -4625,7 +4625,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextValue(LABEL_DEFINE);
                 g_scriptPtr--;
                 if (*g_scriptPtr)
-                    g_tile[j].flags |= SPRITE_CACHE;                
+                    g_tile[j].flags |= SPRITE_CACHE;
 
                 break;
             }

@@ -1292,6 +1292,18 @@ function Cmd.xspriteflags(tilenum, flags)
     end
 end
 
+function Cmd.precache(tilenum0, tilenum1, flagnum)
+    local ok = check.tile_idx(tilenum0) and check.tile_idx(tilenum1)
+
+    if (ffi and ok) then
+        ffiC.g_tile[tilenum0]._cacherange = tilenum1;
+        if (flagnum) then
+            ffiC.g_tile[tilenum0]._flags = bit.bor(
+                ffiC.g_tile[tilenum0]._flags, conl.SFLAG.SFLAG_CACHE)
+        end
+    end
+end
+
 function Cmd.cheatkeys(sc1, sc2)
     if (ffi) then
         ffiC.CheatKeys[0] = sc1
@@ -1749,7 +1761,7 @@ local Couter = {
         / Cmd.nyi("`setgamename'"),
 
     precache = cmd(D,D,D)
-        , -- / Cmd.nyi("`precache'"),
+        / Cmd.precache,
     scriptsize = cmd(D)
         / "",  -- no-op
     cheatkeys = cmd(D,D)

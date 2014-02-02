@@ -171,7 +171,7 @@ for the `state` invocation.
 `-ferror-nonlocal-userdef` (default: on)::
 If enabled, an attept to issue `getuserdef` or `setuserdef` when the current
 player doesn't equal the local player generates an error. Otherwise, the
-userdef structure is accessible without restriction.
+userdef structure can be accessed irrespective of the current player.
 
 `-fbad-getactorvar-use-pli` (default: off)::
 If enabled and `-Werror-bad-getactorvar` is off, a `getactorvar` of a
@@ -322,11 +322,11 @@ implemented.
 
 The following commands are not yet implemented. Those highlighted in bold give
 errors, while the others merely warn either at translation or execution
-time. Parenthesized commands are of questionable use.
+time.
 
 Directives
 ^^^^^^^^^^
-*`includedefault`*, `definecheat`, `setcfgname`, `setgamename`, (`precache`)
+*`includedefault`*, `definecheat`, `setcfgname`, `setgamename`
 
 Run-time commands
 ^^^^^^^^^^^^^^^^^

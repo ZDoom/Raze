@@ -463,7 +463,7 @@ projectile_t;
 
 typedef struct {
     uint32_t _flags;  // XXX: do we want to have this accessible at game time?
-    const int32_t _cacherange;
+    int32_t _cacherange;
     const projectile_t _defproj;
 } tiledata_t;
 

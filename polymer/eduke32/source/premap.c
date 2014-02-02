@@ -82,9 +82,8 @@ static void G_CacheSpriteNum(int32_t i)
 
     maxc = 1;
 
-    if (g_tile[PN].cacherange >= PN)
-        for (j = PN; j <= g_tile[PN].cacherange; j++)
-            tloadtile(j,1);
+    for (j = PN; j <= g_tile[PN].cacherange; j++)
+        tloadtile(j,1);
 
     switch (DYNAMICTILEMAP(PN))
     {
@@ -467,13 +466,9 @@ void G_CacheMapData(void)
             tloadtile(LA+2, 0);
         }
 
-        j = headspritesect[i];
-        while (j >= 0)
-        {
+        for (SPRITES_OF_SECT(i, j))
             if (sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat&32768) == 0)
                 G_CacheSpriteNum(j);
-            j = nextspritesect[j];
-        }
     }
 
     tc = totalclock;
