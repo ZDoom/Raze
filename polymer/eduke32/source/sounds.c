@@ -36,11 +36,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "winlayer.h"
 #endif
 
-int32_t g_numEnvSoundsPlaying,g_maxSoundPos = 0;
+int32_t g_numEnvSoundsPlaying, g_maxSoundPos = 0;
 
 static int32_t MusicIsWaveform = 0;
 static char *MusicPtr = 0;
-static int32_t MusicLen = 0;
 static int32_t MusicVoice = -1;
 static int32_t MusicPaused = 0;
 
@@ -195,7 +194,7 @@ void S_MenuSound(void)
 int32_t S_PlayMusic(const char *fn, const int32_t sel)
 {
     char *ofn = (char *)fn, *testfn, *extension;
-    int32_t fp;
+    int32_t fp, MusicLen;
     const char *alt = 0;
 
     if (ud.config.MusicToggle == 0) return 0;
@@ -250,11 +249,23 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
 
     S_StopMusic();
 
-    MusicPtr = (char *) Bmalloc((MusicLen = kfilelength(fp)));
+    MusicLen = kfilelength(fp);
 
-    if ((g_musicSize = kread(fp, (char *)MusicPtr, MusicLen)) != MusicLen)
+    if (MusicLen < 4)
     {
-        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from \"%s\", expected %d\n",g_musicSize, fn, MusicLen);
+        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: empty music file \"%s\"\n", fn);
+        kclose(fp);
+        return 0;
+    }
+
+    Bfree(MusicPtr);  // in case the following allocation was never freed
+    MusicPtr = (char *)Bmalloc(MusicLen);
+    g_musicSize = kread(fp, (char *)MusicPtr, MusicLen);
+
+    if (g_musicSize != MusicLen)
+    {
+        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from \"%s\", expected %d\n",
+                   g_musicSize, fn, MusicLen);
         kclose(fp);
         g_musicSize = 0;
         return 0;
@@ -276,6 +287,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
         if (MusicVoice > FX_Ok)
             MusicIsWaveform = 1;
     }
+
     return (alt != 0);
 }
 
@@ -292,12 +304,9 @@ void S_StopMusic(void)
 
     MUSIC_StopSong();
 
-    if (MusicPtr)
-    {
-        Bfree(MusicPtr);
-        MusicPtr = NULL;
-        g_musicSize = MusicLen = 0;
-    }
+    Bfree(MusicPtr);
+    MusicPtr = NULL;
+    g_musicSize = 0;
 }
 
 void S_Cleanup(void)
@@ -670,7 +679,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             g_soundlocks[num]--;
             return -1;
         }
-        
+
         if (repeatp && !ambsfxp)
         {
             voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
