@@ -2751,7 +2751,7 @@ static WSHELPER_DECL void calc_bufplc(intptr_t *bufplc, int32_t lw, int32_t tsiz
 //    if (i >= tsizx)
     {
         if (tsizx < 0)
-            i = (uint32_t)i % tsizx;
+            i = (uint32_t)i % -tsizx;
         else
             i &= tsizx;
     }
@@ -2760,6 +2760,8 @@ static WSHELPER_DECL void calc_bufplc(intptr_t *bufplc, int32_t lw, int32_t tsiz
         i *= -tsizy;
     else
         i <<= tsizy;
+
+//    Bassert(i >= 0 && i < tilesizx[globalpicnum]*tilesizy[globalpicnum]);
 
     // Address is at the first row of tile storage (which is column-major).
     *bufplc = waloff[globalpicnum] + i;
