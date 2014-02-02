@@ -1209,7 +1209,7 @@ int32_t P_ActivateSwitch(int32_t snum, int32_t w, int32_t switchissprite)
                 QUOTE_NEED_BLUE_KEY, QUOTE_NEED_RED_KEY, QUOTE_NEED_YELLOW_KEY
             };
 
-            for (pp=0; pp<2; pp++)
+            for (pp=0; pp<3; pp++)
                 if (switchpal == key_switchpal[pp])
                 {
                     if (g_player[snum].ps->got_access & (1<<pp))
