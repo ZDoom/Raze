@@ -3618,7 +3618,7 @@ static void P_ProcessWeapon(int32_t snum)
 
     switch (p->weapon_pos)
     {
-    case -9:
+    case WEAPON_POS_LOWER:
         if (p->last_weapon >= 0)
         {
             p->weapon_pos = WEAPON_POS_RAISE;
