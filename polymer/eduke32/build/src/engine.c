@@ -2745,12 +2745,13 @@ static WSHELPER_DECL void tweak_tsizes(int32_t *tsizx, int32_t *tsizy)
 
 static WSHELPER_DECL void calc_bufplc(intptr_t *bufplc, int32_t lw, int32_t tsizx, int32_t tsizy)
 {
+    // CAUTION: lw can be negative!
     int32_t i = lw + globalxpanning;
 
-    if (i >= tsizx)
+//    if (i >= tsizx)
     {
         if (tsizx < 0)
-            i %= tsizx;
+            i = (uint32_t)i % tsizx;
         else
             i &= tsizx;
     }

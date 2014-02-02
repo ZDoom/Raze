@@ -8,6 +8,15 @@
 
 #include "a.h"
 
+// For this, it's also sensible to uncomment DEBUG_ALLOCACHE_AS_MALLOC:
+//#define DEBUG_WITH_VALGRIND
+
+#ifdef DEBUG_WITH_VALGRIND
+// For debugging with Valgrind + GDB, see
+// http://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver
+# include <valgrind/memcheck.h>
+#endif
+
 #ifdef ENGINE_USING_A_C
 
 int32_t krecip(int32_t num);	// from engine.c
@@ -122,9 +131,19 @@ static inline uint32_t ourmulscale32(uint32_t a, uint32_t b)
 static inline int32_t getpix(int32_t logy, const char *buf, uint32_t vplc)
 {
     if (logy != 0)
+    {
+#ifdef DEBUG_WITH_VALGRIND
+        VALGRIND_CHECK_MEM_IS_DEFINED(&buf[vplc>>logy], 1);
+#endif
         return buf[vplc>>logy];
+    }
     else
+    {
+#ifdef DEBUG_WITH_VALGRIND
+        VALGRIND_CHECK_MEM_IS_DEFINED(&buf[ourmulscale32(vplc,globaltilesizy)], 1);
+#endif
         return buf[ourmulscale32(vplc,globaltilesizy)];
+    }
 }
 
 void setupvlineasm(int32_t neglogy) { glogy = neglogy; }
