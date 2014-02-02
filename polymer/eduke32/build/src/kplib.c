@@ -161,8 +161,8 @@ static kzfilestate kzfs;
 //   pow2mask     128*
 //   dcflagor      64
 
-int32_t palcol[256] ASMNAME("palcol"), paleng, bakcol, numhufblocks, zlibcompflags;
-int8_t coltype, filtype, bitdepth;
+static int32_t palcol[256] ASMNAME("palcol"), paleng, bakcol, numhufblocks, zlibcompflags;
+static int8_t coltype, filtype, bitdepth;
 
 //============================ KPNGILIB begins ===============================
 

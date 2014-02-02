@@ -2546,13 +2546,17 @@ static voxmodel_t *gvox;
 uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
 {
     uint32_t rtexid;
-    coltype *pic, *pic2;
-    char *cptr;
     int32_t i;
 
-    pic = (coltype *)picbuf; //Correct for GL's RGB order; also apply gamma here..
-    pic2 = (coltype *)Bmalloc(xsiz*ysiz*sizeof(int32_t)); if (!pic2) return((unsigned)-1);
-    cptr = (char *)&britable[gammabrightness ? 0 : curbrightness][0];
+    const char *const cptr = &britable[gammabrightness ? 0 : curbrightness][0];
+
+    // Correct for GL's RGB order; also apply gamma here:
+    const coltype *const pic = (const coltype *)picbuf;
+    coltype *pic2 = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
+
+    if (!pic2)
+        return (unsigned)-1;
+
     if (!is8bit)
     {
         for (i=xsiz*ysiz-1; i>=0; i--)
@@ -2565,12 +2569,16 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
     }
     else
     {
-        if (palookup[dapal] == NULL) dapal = 0;
+        if (palookup[dapal] == NULL)
+            dapal = 0;
+
         for (i=xsiz*ysiz-1; i>=0; i--)
         {
-            pic2[i].b = cptr[palette[(int32_t)palookup[dapal][pic[i].a]*3+2]*4];
-            pic2[i].g = cptr[palette[(int32_t)palookup[dapal][pic[i].a]*3+1]*4];
-            pic2[i].r = cptr[palette[(int32_t)palookup[dapal][pic[i].a]*3+0]*4];
+            const int32_t ii = palookup[dapal][pic[i].a] * 3;
+
+            pic2[i].b = cptr[palette[ii+2]*4];
+            pic2[i].g = cptr[palette[ii+1]*4];
+            pic2[i].r = cptr[palette[ii+0]*4];
             pic2[i].a = 255;
         }
     }
@@ -2580,8 +2588,10 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     bglTexImage2D(GL_TEXTURE_2D,0,4,xsiz,ysiz,0,GL_RGBA,GL_UNSIGNED_BYTE,(char *)pic2);
+
     Bfree(pic2);
-    return(rtexid);
+
+    return rtexid;
 }
 
 static int32_t getvox(int32_t x, int32_t y, int32_t z)
