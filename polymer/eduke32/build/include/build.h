@@ -761,7 +761,6 @@ EXTERN int16_t sintable[2048];
 EXTERN uint8_t palette[768];
 EXTERN int16_t numshades;
 EXTERN char *palookup[MAXPALOOKUPS];
-EXTERN char *blendtable[MAXBLENDTABS];
 EXTERN uint8_t **basepaltableptr;
 EXTERN char showinvisibility;
 EXTERN int32_t g_visibility, parallaxvisibility;

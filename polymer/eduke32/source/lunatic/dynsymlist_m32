@@ -66,9 +66,11 @@ clipmovex;
 rotatesprite_;
 setaspect;
 
-getclosestcol;
+getclosestcol_lim;
 palookup;
 palette;
+getblendtab;
+setblendtab;
 setpalookup;
 
 kopen4load;

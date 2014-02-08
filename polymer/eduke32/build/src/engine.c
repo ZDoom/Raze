@@ -2470,6 +2470,7 @@ char palfadedelta = 0;
 // Internal Engine Functions
 //
 
+static char *blendtable[MAXBLENDTABS];
 #define getblendtab(blend) (blendtable[blend])
 
 static void setpalettefade_calc(uint8_t offset);
@@ -14694,7 +14695,7 @@ void setblendtab(int32_t blend, const char *tab)
 {
     if (blendtable[blend] == NULL)
     {
-        blendtable[blend] = Bmalloc(256*256);
+        blendtable[blend] = (char *)Bmalloc(256*256);
         if (blendtable[blend] == NULL)
             exit(1);
     }
