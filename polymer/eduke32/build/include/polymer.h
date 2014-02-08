@@ -340,6 +340,17 @@ static inline void polymer_invalidatesprite(int32_t i)
         prsprites[i]->crc = 0xDEADBEEF;
 }
 
+static inline void polymer_invalidateartmap(int32_t tilenum)
+{
+    extern GLuint prartmaps[MAXTILES];
+
+    if (prartmaps[tilenum])
+    {
+        bglDeleteTextures(1, &prartmaps[tilenum]);
+        prartmaps[tilenum] = 0;
+    }
+}
+
 # ifdef POLYMER_C
 
 // CORE

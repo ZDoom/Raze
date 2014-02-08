@@ -2231,12 +2231,7 @@ static void         polymer_freeboard(void)
     i = 0;
     while (i < MAXTILES)
     {
-        if (prartmaps[i])
-        {
-            bglDeleteTextures(1, &prartmaps[i]);
-            prartmaps[i] = 0;
-        }
-
+        polymer_invalidateartmap(i);
         i++;
     }
 

@@ -17381,6 +17381,9 @@ void invalidatetile(int16_t tilenume, int32_t pal, int32_t how)
                 for (np = firstpal; np < firstpal+numpals; np++)
                     gltexinvalidate(tilenume, np, hp);
         }
+
+        if (getrendermode() == REND_POLYMER)
+            polymer_invalidateartmap(tilenume);
     }
 #endif
 }
