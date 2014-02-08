@@ -485,7 +485,7 @@ const memberlabel_t SpriteLabels[]=
     { "shade", SPRITE_SHADE, 0, 0, 0 },
     { "pal", SPRITE_PAL, 0, 0, 0 },
     { "clipdist", SPRITE_CLIPDIST, 0, 0, 0 },
-    { "detail", SPRITE_DETAIL, 1, 0, 0 }, // aka filler, not used
+    { "blend", SPRITE_BLEND, 0, 0, 0 },
     { "xrepeat", SPRITE_XREPEAT, 0, 0, 0 },
     { "yrepeat", SPRITE_YREPEAT, 0, 0, 0 },
     { "xoffset", SPRITE_XOFFSET, 0, 0, 0 },
@@ -500,8 +500,6 @@ const memberlabel_t SpriteLabels[]=
     { "lotag", SPRITE_LOTAG, 0, 0, 0 },
     { "hitag", SPRITE_HITAG, 0, 0, 0 },
     { "extra", SPRITE_EXTRA, 0, 0, 0 },
-// aliases
-    { "filler", SPRITE_DETAIL, 1, 0, 0 },
     { "", -1, 0, 0, 0 }     // END OF LIST
 };
 
@@ -591,7 +589,6 @@ static void C_InitHashes()
     hash_init(&h_sector);
     for (i=0; SectorLabels[i].lId >=0; i++)
         hash_add(&h_sector,SectorLabels[i].name,i, 0);
-//    hash_add(&h_sector,"filler", SECTOR_ALIGNTO, 0);
 
     hash_init(&h_wall);
     for (i=0; WallLabels[i].lId >=0; i++)
@@ -600,7 +597,6 @@ static void C_InitHashes()
     hash_init(&h_sprite);
     for (i=0; SpriteLabels[i].lId >=0; i++)
         hash_add(&h_sprite,SpriteLabels[i].name,i, 0);
-//    hash_add(&h_sprite,"filler", SPRITE_DETAIL, 0);
 
     hash_init(&h_light);
     for (i=0; LightLabels[i].lId >=0; i++)

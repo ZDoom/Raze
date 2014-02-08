@@ -316,7 +316,7 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lL
         case SPRITE_SHADE: sprite[i].shade=lValue; break;
         case SPRITE_PAL: sprite[i].pal=lValue; break;
         case SPRITE_CLIPDIST: sprite[i].clipdist=lValue; break;
-        case SPRITE_DETAIL: sprite[i].blend=lValue; break;
+        case SPRITE_BLEND: sprite[i].blend=lValue; break;
         case SPRITE_XREPEAT: sprite[i].xrepeat=lValue; break;
         case SPRITE_YREPEAT: sprite[i].yrepeat=lValue; break;
         case SPRITE_XOFFSET: sprite[i].xoffset=lValue; break;
@@ -351,7 +351,7 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lL
         case SPRITE_SHADE: lValue=sprite[i].shade; break;
         case SPRITE_PAL: lValue=sprite[i].pal; break;
         case SPRITE_CLIPDIST: lValue=sprite[i].clipdist; break;
-        case SPRITE_DETAIL: lValue=sprite[i].blend; break;
+        case SPRITE_BLEND: lValue=sprite[i].blend; break;
         case SPRITE_XREPEAT: lValue=sprite[i].xrepeat; break;
         case SPRITE_YREPEAT: lValue=sprite[i].yrepeat; break;
         case SPRITE_XOFFSET: lValue=sprite[i].xoffset; break;
@@ -464,7 +464,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
         case SPRITE_SHADE: datspr->shade=lValue; break;
         case SPRITE_PAL: datspr->pal=lValue; break;
         case SPRITE_CLIPDIST: datspr->clipdist=lValue; break;
-        case SPRITE_DETAIL: datspr->blend=lValue; break;
+        case SPRITE_BLEND: datspr->blend=lValue; break;
         case SPRITE_XREPEAT: datspr->xrepeat=lValue; break;
         case SPRITE_YREPEAT: datspr->yrepeat=lValue; break;
         case SPRITE_XOFFSET: datspr->xoffset=lValue; break;
@@ -520,7 +520,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
         case SPRITE_SHADE: lValue=datspr->shade; break;
         case SPRITE_PAL: lValue=datspr->pal; break;
         case SPRITE_CLIPDIST: lValue=datspr->clipdist; break;
-        case SPRITE_DETAIL: lValue=datspr->blend; break;
+        case SPRITE_BLEND: lValue=datspr->blend; break;
         case SPRITE_XREPEAT: lValue=datspr->xrepeat; break;
         case SPRITE_YREPEAT: lValue=datspr->yrepeat; break;
         case SPRITE_XOFFSET: lValue=datspr->xoffset; break;
