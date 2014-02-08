@@ -2504,8 +2504,12 @@ static void SoundDisplay(void)
 
 int32_t AmbienceToggle = 1;
 int32_t ParentalLock = 0;
-#undef T1
-#define T1 (s->filler)
+
+static uint8_t g_ambiencePlaying[MAXSPRITES>>3];
+
+#define testbit(bitarray, i) (bitarray[(i)>>3] & (1<<((i)&7)))
+#define setbit(bitarray, i) bitarray[(i)>>3] |= (1<<((i)&7))
+#define clearbit(bitarray, i) bitarray[(i)>>3] &= ~(1<<((i)&7))
 
 // adapted from actors.c
 static void M32_MoveFX(void)
@@ -2520,9 +2524,9 @@ static void M32_MoveFX(void)
 
         if (s->picnum != MUSICANDSFX)
         {
-            if (T1&1)
+            if (testbit(g_ambiencePlaying, i))
             {
-                T1 &= (~1);
+                clearbit(g_ambiencePlaying, i);
                 S_StopEnvSound(s->lotag, i);
             }
         }
@@ -2536,7 +2540,7 @@ static void M32_MoveFX(void)
                 if ((g_sounds[s->lotag].m & SF_MSFX))
                 {
                     x = dist((spritetype *)&pos,s);
-                    if (x < ht && (T1&1) == 0 && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
+                    if (x < ht && !testbit(g_ambiencePlaying, i) && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
                     {
                         char om = g_sounds[s->lotag].m;
                         if (g_numEnvSoundsPlaying == NumVoices)
@@ -2544,7 +2548,7 @@ static void M32_MoveFX(void)
                             for (j = headspritestat[0]; j >= 0; j = nextspritestat[j])
                             {
                                 if (s->picnum == MUSICANDSFX && j != i && sprite[j].lotag < 999 &&
-                                        (sprite[j].filler&1) == 1 && dist(&sprite[j],(spritetype *)&pos) > x)
+                                        testbit(g_ambiencePlaying, j) && dist(&sprite[j],(spritetype *)&pos) > x)
                                 {
                                     S_StopEnvSound(sprite[j].lotag,j);
                                     break;
@@ -2556,11 +2560,11 @@ static void M32_MoveFX(void)
                         g_sounds[s->lotag].m |= SF_LOOP;
                         A_PlaySound(s->lotag,i);
                         g_sounds[s->lotag].m = om;
-                        T1 |= 1;
+                        setbit(g_ambiencePlaying, i);
                     }
-                    if (x >= ht && (T1&1) == 1)
+                    if (x >= ht && testbit(g_ambiencePlaying, i))
                     {
-                        T1 &= (~1);
+                        clearbit(g_ambiencePlaying, i);
                         S_StopEnvSound(s->lotag,i);
                     }
                 }
@@ -2568,7 +2572,6 @@ static void M32_MoveFX(void)
         }
     }
 }
-#undef T1
 
 
 ///__ShowHelpText__
@@ -5139,7 +5142,7 @@ static void Keys3d(void)
             message("Sprite %d deleted",searchwall);
             if (AmbienceToggle)
             {
-                sprite[searchwall].filler &= (~1);
+                clearbit(g_ambiencePlaying, searchwall);
                 S_StopEnvSound(sprite[searchwall].lotag, searchwall);
             }
             asksave = 1;
@@ -6196,9 +6199,9 @@ static void Keys3d(void)
                 sprite[searchwall].lotag =
                     _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, &MusicAndSFXTagText);
 
-                if ((sprite[searchwall].filler&1) && sprite[searchwall].lotag != oldtag)
+                if (testbit(g_ambiencePlaying, searchwall) && sprite[searchwall].lotag != oldtag)
                 {
-                    sprite[searchwall].filler &= ~1;
+                    clearbit(g_ambiencePlaying, searchwall);
                     S_StopEnvSound(oldtag, searchwall);
                 }
             }
