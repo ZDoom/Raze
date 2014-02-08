@@ -2065,6 +2065,20 @@ for color index `i`. The color components are in the range [0 .. 63].
 If `i` is 255, `r`, `g` and `b` are all returned as 0, even if the actual base
 palette may contain different values for that index.
 
+`i = engine.nearcolor(r, g, b [, lastokcol])`::
+
+Given the red, green and blue components `r`, `g` and `b` of a query color,
+returns the color index `i` whose color in the default base palette is closest
+to the query color. ``Closeness'' is established using an Euclidean distance
+with a weighting on the color components.
++
+The optional argument `lastokcol` can be used to restrict the range of color
+indices to search: the returned color index is guaranteed to be in the range
+[0{nbsp}..{nbsp}`lastokcol`]. It defaults 255, so that all colors are
+searched.footnote:[For example, it may be desirable to omit ``fullbright''
+colors from being returned. The shade table loaded from Duke3D's PALETTE.DAT
+makes color indices 240--254 fullbright, so passing 239 to `lastokcol` achieves
+the mentioned filtering.]
 
 Shade table interfaces
 ^^^^^^^^^^^^^^^^^^^^^^

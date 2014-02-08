@@ -14,7 +14,7 @@ local ismapster32 = (C.LUNATIC_CLIENT == C.LUNATIC_CLIENT_MAPSTER32)
 ----------
 
 decl[[
-int32_t getclosestcol(int32_t r, int32_t g, int32_t b);
+int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol);
 char *palookup[256];  // MAXPALOOKUPS
 uint8_t palette[768];
 
@@ -211,12 +211,18 @@ function engine.getrgb(colidx)
     return rgbptr[0], rgbptr[1], rgbptr[2]
 end
 
--- TODO: flag whether fullbrights are OK
-function engine.nearcolor(r, g, b)
+function engine.nearcolor(r, g, b, lastokcol)
     check_colcomp(r)
     check_colcomp(g)
     check_colcomp(b)
-    return C.getclosestcol(r, g, b)
+
+    if (lastokcol == nil) then
+        lastokcol = 255
+    elseif (type(lastokcol)~="number" or not (lastokcol >= 0 and lastokcol <= 255)) then
+        error("invalid argument #4 <lastokcol>: must be in the range [0 .. 255]", 2)
+    end
+
+    return C.getclosestcol_lim(r, g, b, lastokcol)
 end
 
 

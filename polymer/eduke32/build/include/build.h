@@ -1244,7 +1244,12 @@ static inline int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsoti
 
 int32_t   screencapture(const char *filename, char inverseit, const char *versionstr) ATTRIBUTE((nonnull(1)));
 
-int32_t   getclosestcol(int32_t r, int32_t g, int32_t b);
+static inline int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
+{
+    extern int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol);
+
+    return getclosestcol_lim(r, g, b, 255);
+}
 
 // PLAG: line utility functions
 typedef struct  s_equation {

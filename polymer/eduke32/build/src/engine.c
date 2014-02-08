@@ -8104,34 +8104,39 @@ static int32_t loadpalette(void)
 }
 
 
-//
-// getclosestcol
-//
-int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
+// Finds a color index in [0 .. lastokcol] closest to (r, g, b).
+// <lastokcol> must be in [0 .. 255].
+int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
 {
-    int32_t i, j, k, dist, mindist, retcol;
-    const char *pal1;
+    int32_t i, k, retcol = -1;
 
-    j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
+    const int32_t j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
         + (g>>3)*FASTPALGRIDSIZ + (b>>3)
         + FASTPALGRIDSIZ*FASTPALGRIDSIZ
         + FASTPALGRIDSIZ+1;
-    mindist = min(rdist[coldist[r&7]+64+8],gdist[coldist[g&7]+64+8]);
+
+    int32_t mindist = min(rdist[coldist[r&7]+64+8],gdist[coldist[g&7]+64+8]);
     mindist = min(mindist,bdist[coldist[b&7]+64+8]);
     mindist++;
 
+    Bassert(lastokcol >= 0 && lastokcol <= 255);
+
     r = 64-r; g = 64-g; b = 64-b;
 
-    retcol = -1;
     for (k=26; k>=0; k--)
     {
-        i = colscan[k]+j; if ((colhere[i>>3]&pow2char[i&7]) == 0) continue;
+        i = colscan[k]+j;
+        if ((colhere[i>>3]&pow2char[i&7]) == 0)
+            continue;
+
         i = colhead[i];
+
         do
         {
-            pal1 = (char *)&palette[i*3];
-            dist = gdist[pal1[1]+g];
-            if (dist < mindist)
+            const char *pal1 = (char *)&palette[i*3];
+            int32_t dist = gdist[pal1[1]+g];
+
+            if (dist < mindist && i <= lastokcol)
             {
                 dist += rdist[pal1[0]+r];
                 if (dist < mindist)
@@ -8140,22 +8145,29 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
                     if (dist < mindist) { mindist = dist; retcol = i; }
                 }
             }
+
             i = colnext[i];
         }
         while (i >= 0);
     }
-    if (retcol >= 0) return(retcol);
+
+    if (retcol >= 0)
+        return retcol;
 
     mindist = INT32_MAX;
-    pal1 = (char *)&palette[768-3];
-    for (i=255; i>=0; i--,pal1-=3)
+
+    for (i=lastokcol; i>=0; i--)
     {
-        dist = gdist[pal1[1]+g]; if (dist >= mindist) continue;
+        const char *pal1 = (char *)&palette[i*3];
+
+        int32_t dist = gdist[pal1[1]+g]; if (dist >= mindist) continue;
         dist += rdist[pal1[0]+r]; if (dist >= mindist) continue;
         dist += bdist[pal1[2]+b]; if (dist >= mindist) continue;
+
         mindist = dist; retcol = i;
     }
-    return(retcol);
+
+    return retcol;
 }
 
 

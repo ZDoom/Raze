@@ -303,7 +303,7 @@ function shadexfog.create_additive_trans(blendidx)
             local r,g,b = engine.getrgb(i)
             local R,G,B = engine.getrgb(j)
 
-            tab[i][j] = engine.nearcolor(min(r+R, 63), min(g+G, 63), min(b+B, 63))
+            tab[i][j] = engine.nearcolor(min(r+R, 63), min(g+G, 63), min(b+B, 63), 255-16)
         end
     end
 
