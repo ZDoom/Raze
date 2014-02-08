@@ -17363,36 +17363,26 @@ void setrollangle(int32_t rolla)
 //
 void invalidatetile(int16_t tilenume, int32_t pal, int32_t how)
 {
-#ifdef USE_OPENGL
-    int32_t numpal, firstpal, np;
-    int32_t hp;
-
-    if (getrendermode() < REND_POLYMOST) return;
-
-    if (pal < 0)
-    {
-        numpal = MAXPALOOKUPS;
-        firstpal = 0;
-    }
-    else
-    {
-        numpal = 1;
-        firstpal = pal % MAXPALOOKUPS;
-    }
-
-    for (hp = 0; hp < 8; hp+=4)
-    {
-        if (!(how & pow2long[hp])) continue;
-
-        for (np = firstpal; np < firstpal+numpal; np++)
-        {
-            gltexinvalidate(tilenume, np, hp);
-        }
-    }
-#endif
+#if !defined USE_OPENGL
     UNREFERENCED_PARAMETER(tilenume);
     UNREFERENCED_PARAMETER(pal);
     UNREFERENCED_PARAMETER(how);
+#else
+    if (getrendermode() >= REND_POLYMOST)
+    {
+        int32_t hp, np;
+
+        const int32_t firstpal = (pal < 0) ? 0 : pal;
+        const int32_t numpals = (pal < 0) ? MAXPALOOKUPS : 1;
+
+        for (hp = 0; hp <= 4; hp+=4)
+        {
+            if (how & pow2long[hp])
+                for (np = firstpal; np < firstpal+numpals; np++)
+                    gltexinvalidate(tilenume, np, hp);
+        }
+    }
+#endif
 }
 
 

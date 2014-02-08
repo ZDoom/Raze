@@ -373,9 +373,9 @@ void G_AnimateCamSprite(void)
 
             G_SetupCamTile(OW, TILE_VIEWSCR);
 #ifdef POLYMER
-            // HACK: force texture update on viewscreen sprite in Polymer!
+            // Force texture update on viewscreen sprite in Polymer!
             if (getrendermode() == REND_POLYMER)
-                sprite[i].filler ^= (1<<1);
+                polymer_invalidatesprite(i);
 #endif
         }
     }

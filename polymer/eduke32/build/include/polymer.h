@@ -332,6 +332,14 @@ void                polymer_texinvalidate(void);
 void                polymer_definehighpalookup(char basepalnum, char palnum, char *fn);
 int32_t             polymer_havehighpalookup(int32_t basepalnum, int32_t palnum);
 
+static inline void polymer_invalidatesprite(int32_t i)
+{
+    extern _prsprite *prsprites[MAXSPRITES];
+
+    if (prsprites[i])
+        prsprites[i]->crc = 0xDEADBEEF;
+}
+
 # ifdef POLYMER_C
 
 // CORE

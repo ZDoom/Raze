@@ -1622,8 +1622,7 @@ void                polymer_texinvalidate(void)
     i = 0;
 
     while (i < MAXSPRITES) {
-        if (prsprites[i])
-            prsprites[i]->crc = 0xDEADBEEF;
+        polymer_invalidatesprite(i);
         i++;
     }
 
