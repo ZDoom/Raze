@@ -405,7 +405,7 @@ gameevent
             local N=1
             for n=1,N do
                 for i=0,gv.MAXSPRITES-1 do
-                    sprite[i].filler = 1
+                    sprite[i].blend = 1
                 end
                 for i=gv.MAXSPRITES-1,0,-1 do
                     sprite[i].shade = 1

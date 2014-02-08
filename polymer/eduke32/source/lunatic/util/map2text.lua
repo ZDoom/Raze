@@ -76,7 +76,7 @@ local sprite_members = {
     "x", "y", "z",
     "cstat", "picnum",
     "shade",
-    "pal", "clipdist", "filler",
+    "pal", "clipdist", "blend",
     "xrepeat", "yrepeat",
     "xoffset", "yoffset",
     "sectnum", "statnum",

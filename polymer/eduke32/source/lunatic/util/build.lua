@@ -48,7 +48,7 @@ local STRUCTDEF = {
     uint16_t cstat;
     int16_t picnum;
     int8_t shade;
-    uint8_t pal, clipdist, filler;
+    uint8_t pal, clipdist, blend;
     uint8_t xrepeat, yrepeat;
     int8_t xoffset, yoffset;
     int16_t sectnum, statnum;

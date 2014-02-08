@@ -90,7 +90,7 @@ local sprite_members = {
     -- optional
     p = "pal",
     c = { "clipdist", 32 },
-    _ = "filler",
+    b = "blend",
     x = "xoffset", y = "yoffset",
     s = "statnum",
     w = { "owner", -1 },
@@ -98,7 +98,7 @@ local sprite_members = {
     o = "lotag", i = "hitag", e = { "extra", -1 }
 }
 
-local sprite_ord = { mand="123 4 5 6 7 8 90 ", opt="p c _ xy s w XYZ oie" }
+local sprite_ord = { mand="123 4 5 6 7 8 90 ", opt="p c b xy s w XYZ oie" }
 local sprite_default = ffi.new("const spritetype", { clipdist=32, owner=-1, extra=-1 })
 
 
