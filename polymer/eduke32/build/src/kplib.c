@@ -149,6 +149,13 @@ typedef struct
 } kzfilestate;
 static kzfilestate kzfs;
 
+// GCC 4.6 LTO build fix
+#ifdef USING_LTO
+# define B_KPLIB_STATIC
+#else
+# define B_KPLIB_STATIC static
+#endif
+
 //Initialized tables (can't be in union)
 //jpg:                png:
 //   crmul      16384    abstab10    4096
@@ -161,7 +168,8 @@ static kzfilestate kzfs;
 //   pow2mask     128*
 //   dcflagor      64
 
-static int32_t palcol[256] ASMNAME("palcol"), paleng, bakcol, numhufblocks, zlibcompflags;
+B_KPLIB_STATIC int32_t ATTRIBUTE((used)) palcol[256] ASMNAME("palcol");
+static int32_t paleng, bakcol, numhufblocks, zlibcompflags;
 static int8_t coltype, filtype, bitdepth;
 
 //============================ KPNGILIB begins ===============================
@@ -173,13 +181,6 @@ static int8_t coltype, filtype, bitdepth;
 //Currently, there is no support for:
 //   * 16-bit color depth
 //   * Some useless ancillary chunks, like: gAMA(gamma) & pHYs(aspect ratio)
-
-// GCC 4.6 LTO build fix
-#ifdef USING_LTO
-# define B_KPLIB_STATIC
-#else
-# define B_KPLIB_STATIC static
-#endif
 
 //.PNG specific variables:
 static int32_t bakr = 0x80, bakg = 0x80, bakb = 0x80; //this used to be public...
