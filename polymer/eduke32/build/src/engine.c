@@ -2333,6 +2333,7 @@ static int32_t *horizlookup=0, *horizlookup2=0;
 int32_t globalposx, globalposy, globalposz, globalhoriz;
 int16_t globalang, globalcursectnum;
 int32_t globalpal, cosglobalang, singlobalang;
+static int32_t globalblend;
 int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 static char *globalpalwritten;
 static int32_t globaluclip, globaldclip;
@@ -2364,7 +2365,6 @@ int16_t sectorborder[256], sectorbordercnt;
 int32_t ydim16, qsetmode = 0;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 static int32_t lastx[MAXYDIM];
-static char *transluc;
 
 static char paletteloaded = 0;
 
@@ -2469,7 +2469,8 @@ char palfadedelta = 0;
 //
 // Internal Engine Functions
 //
-//int32_t cacheresets = 0,cacheinvalidates = 0;
+
+#define getblendtab(blend) (blendtable[blend])
 
 static void setpalettefade_calc(uint8_t offset);
 
@@ -2488,7 +2489,7 @@ void fade_screen_black(int32_t moreopaquep)
         begindrawing();
         {
             char *const p = (char *)frameplace;
-            const char *const trans = transluc;
+            const char *const trans = getblendtab(0);
             const int32_t shiftamnt = ((!!moreopaquep)*8);
             const int32_t dimprod = xdim*ydim;
 
@@ -4123,7 +4124,7 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
 
     const char *const buf = (char *)bufplc;
     const char *const pal = (char *)asm3;
-    const char *const trans = transluc;
+    const char *const trans = getblendtab(globalblend);
 
     const uint32_t xdiv = globalxspan > 1 ? (uint32_t)ourdivscale32(1, globalxspan) : UINT32_MAX;
     const uint32_t ydiv = globalyspan > 1 ? (uint32_t)ourdivscale32(1, globalyspan) : UINT32_MAX;
@@ -4249,7 +4250,7 @@ static void tslopevlin(uint8_t *p, int32_t i, const intptr_t *slopalptr, int32_t
 {
     const char *const buf = ggbuf;
     const char *const pal = ggpal;
-    const char *const trans = transluc;
+    const char *const trans = getblendtab(0);
     const int32_t bzinc = (asm1>>3), pinc = ggpinc;
 
     const int32_t transmode = (globalorientation&128);
@@ -5589,6 +5590,18 @@ static void drawsprite_opengl(int32_t snum)
     //============================================================================= //POLYMOST ENDS
 }
 
+static void setup_blend(int32_t blend)
+{
+    if (blendtable[blend] == NULL)
+        blend = 0;
+
+    if (globalblend != blend)
+    {
+        globalblend = blend;
+        fixtransluscence(FP_OFF(getblendtab(blend)));
+    }
+}
+
 static void drawsprite_classic(int32_t snum)
 {
     int32_t xoff, yoff, xspan, yspan;
@@ -5667,6 +5680,8 @@ static void drawsprite_classic(int32_t snum)
     globalpal = tspr->pal;
     if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes null-pointer crash
     globalshade = tspr->shade;
+
+    setup_blend(tspr->filler);
 
     if (cstat&2)
     {
@@ -7981,6 +7996,7 @@ static int32_t loadpalette_err(const char *msg)
 static int32_t loadpalette(void)
 {
     int32_t fil, lamedukep=0;
+    char *transluc;
 
     if (paletteloaded != 0) return 0;
     if ((fil = kopen4load("palette.dat",0)) == -1)
@@ -8001,6 +8017,7 @@ static int32_t loadpalette(void)
     globalpalwritten = palookup[0]; globalpal = 0;
     setpalookupaddress(globalpalwritten);
 
+    blendtable[0] = transluc;
     fixtransluscence(FP_OFF(transluc));
 
     // Auto-detect LameDuke. Its PALETTE.DAT doesn't have a 'numshades' 16-bit
@@ -8719,8 +8736,6 @@ void uninitengine(void)
 {
     int32_t i;
 
-    //OSD_Printf("cacheresets = %d, cacheinvalidates = %d\n", cacheresets, cacheinvalidates);
-
 #ifdef USE_OPENGL
     polymost_glreset();
     hicinit();
@@ -8737,7 +8752,6 @@ void uninitengine(void)
     for (i=0; i<MAXARTFILES_TOTAL; i++)
         DO_FREE_AND_NULL(artptrs[i]);
 
-    DO_FREE_AND_NULL(transluc);
     DO_FREE_AND_NULL(pic);
     DO_FREE_AND_NULL(lookups);
 
@@ -14659,6 +14673,23 @@ static void maybe_alloc_palookup(int32_t palnum)
 }
 
 #ifdef LUNATIC
+const char *(getblendtab)(int32_t blend)
+{
+    return blendtable[blend];
+}
+
+void setblendtab(int32_t blend, const char *tab)
+{
+    if (blendtable[blend] == NULL)
+    {
+        blendtable[blend] = Bmalloc(256*256);
+        if (blendtable[blend] == NULL)
+            exit(1);
+    }
+
+    Bmemcpy(blendtable[blend], tab, 256*256);
+}
+
 int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
 {
     if (numshades != 32)

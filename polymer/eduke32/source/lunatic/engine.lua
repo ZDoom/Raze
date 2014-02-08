@@ -18,6 +18,9 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b);
 char *palookup[256];  // MAXPALOOKUPS
 uint8_t palette[768];
 
+const char *getblendtab(int32_t blend);
+void setblendtab(int32_t blend, const char *tab);
+
 int32_t setpalookup(int32_t palnum, const uint8_t *shtab);
 ]]
 
@@ -30,8 +33,8 @@ local engine = {}
 
 local shtab_t  -- forward-decl
 
-local function cast_u8ptr(pal256)
-    return ffi.cast("uint8_t *", pal256)
+local function cast_u8ptr(sth)
+    return ffi.cast("uint8_t *", sth)
 end
 
 local shtab_methods = {
@@ -73,17 +76,28 @@ local function shtab_mt__index(sht, idx)
     end
 end
 
-local pal256_t = bcarray.new("uint8_t", 256, "shade table 256-tuple")
+local pal256_t = bcarray.new("uint8_t", 256, "color index 256-tuple")
 -- The shade table type, effectively a bound-checked uint8_t [32][256]:
 shtab_t = bcarray.new(pal256_t, 32, "shade table", nil, nil, { __index = shtab_mt__index })
 local SIZEOF_SHTAB = ffi.sizeof(shtab_t)
 
+local blendtab_t = bcarray.new(pal256_t, 256, "blending table")
+local SIZEOF_BLENDTAB = ffi.sizeof(blendtab_t)
+
 local RESERVEDPALS = 8  -- KEEPINSYNC build.h: assure that ours is >= theirs
 engine.RESERVEDPALS = RESERVEDPALS
+
+local MAXBLENDTABS = 256  -- KEEPINSYNC build.h
 
 local function check_palidx(i)
     if (type(i) ~= "number" or not (i >= 0 and i <= 255-RESERVEDPALS)) then
         error("invalid argument #1: palette swap index must be in the range [0 .. "..255-RESERVEDPALS.."]", 3)
+    end
+end
+
+local function check_blendidx(i)
+    if (type(i) ~= "number" or not (i >= 0 and i <= MAXBLENDTABS-1)) then
+        error("invalid argument #1: blending table index must be in the range [0 .. ".. MAXBLENDTABS-1 .."]", 3)
     end
 end
 
@@ -101,6 +115,10 @@ function engine.shadetab()
     return shtab_t()
 end
 
+function engine.blendtab()
+    return blendtab_t()
+end
+
 function engine.getshadetab(palidx)
     check_palidx(palidx)
     if (palookup_isdefault(palidx)) then
@@ -115,13 +133,31 @@ function engine.getshadetab(palidx)
     return sht
 end
 
-function engine.setshadetab(palidx, shtab)
-    if (not ismapster32 and C.g_elFirstTime == 0) then
-        error("setshadetab() may be run only while LUNATIC_FIRST_TIME is true", 2)
+function engine.getblendtab(blendidx)
+    check_blendidx(blendidx)
+
+    local ptr = C.getblendtab(blendidx)
+    if (ptr == nil) then
+        return nil
     end
 
+    local tab = blendtab_t()
+    ffi.copy(tab, ptr, SIZEOF_BLENDTAB)
+    return tab
+end
+
+
+local function check_first_time()
+    if (not ismapster32 and C.g_elFirstTime == 0) then
+        error("may be called only while LUNATIC_FIRST_TIME is true", 3)
+    end
+end
+
+function engine.setshadetab(palidx, shtab)
+    check_first_time()
     check_palidx(palidx)
-    if (not ffi.istype(shtab_t, shtab_t)) then
+
+    if (not ffi.istype(shtab_t, shtab)) then
         error("invalid argument #2: must be a shade table obtained by shadetab()", 2)
     end
 
@@ -129,8 +165,23 @@ function engine.setshadetab(palidx, shtab)
         error("attempt to override already defined shade table", 2)
     end
 
-    local ret = C.setpalookup(palidx, ffi.cast("uint8_t *", shtab))
+    local ret = C.setpalookup(palidx, cast_u8ptr(shtab))
     err_uncommon_shade_table(ret)
+end
+
+function engine.setblendtab(blendidx, tab)
+    check_first_time()
+    check_blendidx(blendidx)
+
+    if (not ffi.istype(blendtab_t, tab)) then
+        error("invalid argument #2: must be a blending table obtained by blendtab()", 2)
+    end
+
+    if (not ismapster32 and C.getblendtab(blendidx) ~= nil) then
+        error("attempt to override already defined blending table", 2)
+    end
+
+    C.setblendtab(blendidx, cast_u8ptr(tab))
 end
 
 
@@ -145,6 +196,15 @@ end
 function engine.getrgb(colidx)
     if (type(colidx) ~= "number" or not (colidx >= 0 and colidx <= 255)) then
         error("color index must be in the range [0 .. 255]", 2)
+    end
+
+    -- NOTE: In the game, palette[255*{0..2}] is set to 0 in
+    -- G_LoadExtraPalettes() via G_Startup(). However, that's after Lua state
+    -- initialization (i.e. when LUNATIC_FIRST_TIME would be true), and in the
+    -- editor, it's never changed from the purple color. Therefore, I think
+    -- it's more useful to always return the fully black color here.
+    if (colidx == 255) then
+        return 0, 0, 0
     end
 
     local rgbptr = C.palette + 3*colidx

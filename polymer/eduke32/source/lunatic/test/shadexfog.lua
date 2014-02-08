@@ -273,6 +273,44 @@ function shadexfog.test_create0()
     end
 end
 
+---------- Blending table tests ----------
+
+function shadexfog.create_128_trans(startblendidx)
+    for alpha=1,128 do
+        local f = alpha/256
+        local F = 1-f
+
+        local tab = engine.blendtab()
+
+        for i=0,255 do
+            for j=0,255 do
+                local r,g,b = engine.getrgb(i)
+                local R,G,B = engine.getrgb(j)
+
+                tab[i][j] = engine.nearcolor(f*r+F*R, f*g+F*G, f*b+F*B)
+            end
+        end
+
+        engine.setblendtab(startblendidx + alpha-1, tab)
+    end
+end
+
+function shadexfog.create_additive_trans(blendidx)
+    local tab = engine.blendtab()
+
+    for i=0,255 do
+        for j=0,255 do
+            local r,g,b = engine.getrgb(i)
+            local R,G,B = engine.getrgb(j)
+
+            tab[i][j] = engine.nearcolor(min(r+R, 63), min(g+G, 63), min(b+B, 63))
+        end
+    end
+
+    engine.setblendtab(blendidx, tab)
+end
+
+
 do
     return shadexfog
 end

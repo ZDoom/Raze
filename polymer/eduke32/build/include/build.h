@@ -79,6 +79,7 @@ enum rendmode_t {
 #define MAXPLAYERS 16
 #define MAXBASEPALS 8
 #define MAXPALOOKUPS 256
+#define MAXBLENDTABS 256
 // Maximum number of defined multi-pskies:
 #define MAXPSKYMULTIS 8
 // Maximum number of component tiles in a multi-psky:
@@ -760,6 +761,7 @@ EXTERN int16_t sintable[2048];
 EXTERN uint8_t palette[768];
 EXTERN int16_t numshades;
 EXTERN char *palookup[MAXPALOOKUPS];
+EXTERN char *blendtable[MAXBLENDTABS];
 EXTERN uint8_t **basepaltableptr;
 EXTERN char showinvisibility;
 EXTERN int32_t g_visibility, parallaxvisibility;
