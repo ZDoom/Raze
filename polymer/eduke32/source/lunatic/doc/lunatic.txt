@@ -2042,8 +2042,8 @@ Returns the index of the spawned sprite on success, or --1 otherwise.
 The `engine` module
 ~~~~~~~~~~~~~~~~~~~
 
-Shade table interfaces
-^^^^^^^^^^^^^^^^^^^^^^
+Base palette interfaces
+^^^^^^^^^^^^^^^^^^^^^^^
 
 The 8-bit (``classic'') Build renderer operates in indexed-color mode: the
 pixels of the frame buffer do not contain red/green/blue values themselves, but
@@ -2054,6 +2054,20 @@ latexmath:[$\mathrm{ColorComponent} := \mathbb{N}_{64}$] {nbsp}
 latexmath:[$\mathrm{ColorIndex} := \mathbb{N}_{256}$] +
 latexmath:[$\mathrm{basepal}: \: \mathrm{ColorIndex} \rightarrow \mathrm{ColorComponent}^3$] +
 **********
+
+The following functions provide a bridge between color indices and their
+corresponding color components.
+
+`r, g, b = engine.getrgb(i)`::
+Returns the red, green and blue color components of the default base palette
+for color index `i`. The color components are in the range [0 .. 63].
++
+If `i` is 255, `r`, `g` and `b` are all returned as 0, even if the actual base
+palette may contain different values for that index.
+
+
+Shade table interfaces
+^^^^^^^^^^^^^^^^^^^^^^
 
 To implement shading and visibility attenuation, Build maintains tables mapping
 pairs of a color index and a shade level (Duke3D's table uses 32 such
@@ -2148,7 +2162,7 @@ or `makepalookup`), or assigned using `engine.setshadetab`. If the table for
 pal `palnum` is aliased to the default one when `getshadetab` is called, *nil*
 is returned.
 
-`engine.setshadetab(palnum, sht)`::
+[[engine_setshadetab]] `engine.setshadetab(palnum, sht)`::
 
 Copies the shade table `sht` to the engine-side palookup table for pal
 `palnum`. An error is issued if an attempt is made to copy to a reserved
@@ -2179,6 +2193,70 @@ local perm16 = { [0]=0,1, 2,3, 5,4, 6,7, 8,13, 10,11, 12,9, 14,15 }
 local newsht = engine.getshadetab(0):remap16(perm16)
 ----------
 //////////
+
+Blending table interfaces
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+EDuke32 supports installing multiple blending tables used by the 8-bit
+renderer. A blending (or translucency) table is used whenever an object with
+the ``translucent'' bit set is drawn, and maps pairs of color indices to a
+blended color index.
+**********
+latexmath:[$\mathrm{transluc}: \: \mathrm{ColorIndex} \times
+  \mathrm{ColorIndex} \rightarrow \mathrm{ColorIndex}$]
+**********
+
+Given a background color index `bi` and a color index of an incoming foreground
+fragment `fi` (usually obtained by looking up a shade table), when `fi` is
+different from 255, the resulting color index is
+==========
+`transluc[bi][fi]`
+==========
+if the ``reverse translucency'' bit is clear, and
+==========
+`transluc[fi][bi]`
+==========
+if reverse tranlucency is set. If the fragment sampled from the foreground
+object has color index 255, it is discarded: translucent rendering is always
+``masking''.
+
+Currently, only sprites support rendering with custom blending tables, by
+setting their `.blend` member to the number of a blending table.
+
+
+===== Blending table functions
+
+`tab = engine.blendtab()`::
+
+Creates and returns a new blending table object `tab` with all entries initialized
+to zero. This object can be indexed once with a color index from 0 to 255,
+yielding a reference to an array of 256 8-bit unsigned integers. Thus, blending
+table objects can be used just as indicated in the notation above: `tab[i][j]`
+is the blended color index for input color indices `i` and `j`.
+
+`tab = engine.getblendtab(blendnum)`::
+
+Returns a new blending table object `tab` containing the values for the
+engine-side translucency table numbered `blendnum`, or *nil* if no blending
+table with that number is registered. Modifying the returned `tab` does not
+alter the actual engine-side blending table.
+//+
+//At engine initialization, the default translucency table (with number 0) is
+//loaded from PALETTE.DAT.
+
+`engine.setblendtab(blendnum, tab)`::
+
+Copies the blending table `tab` to the engine-side translucency table with
+number `blendnum`.
++
+Similar to <<engine_setshadetab,`engine.setshadetab`>>, there are certain
+restrictions when running in EDuke32:
++
+* A `blendnum` for which a table has already been registered cannot be
+  re-assigned to.
++
+* `setblendtab` may only be called at first initialization time, that is, when
+  the value of `LUNATIC_FIRST_TIME` is *true*.
 
 
 The `fs` module -- virtual file system facilities
