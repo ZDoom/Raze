@@ -143,6 +143,14 @@ for a 32-bit integer, but inside that of an unsigned 32-bit integer. In this
 case, 2^32^ is subtracted from the number, producing a negative value without
 changing the bit representation.
 
+`-Wnever-used-gamevar` (default: off)::
+After translation, issues a warning for every CON-side user gamevar definition
+that was never referenced, that is, neither read nor written in the CON code.
+
+`-Wnever-read-gamevar` (default: off)::
+After translation, issues a warning for every CON-side user gamevar definition
+that was assigned to but never read in the CON code.
+
 `-Wsystem-gamevar` (default: on)::
 Warns whenever the initial value of a system gamevar was overridden (by issuing
 `gamevar` at file scope), but the provided gamevar flags did not match those of

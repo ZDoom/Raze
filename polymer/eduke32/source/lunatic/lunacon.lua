@@ -119,7 +119,8 @@ local g_defaultDir = nil
 -- -Wno-bad-identifier for disabling the "bad identifier" warning.
 local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
                  ["number-conversion"]=true, ["system-gamevar"]=true,
-                 ["error-bad-getactorvar"]=false, ["chained-loadactor"]=true, }
+                 ["error-bad-getactorvar"]=false, ["chained-loadactor"]=true,
+                 ["never-used-gamevar"]=false, ["never-read-gamevar"]=false, }
 
 -- Code generation and output options.
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
@@ -341,7 +342,8 @@ local function new_initial_gvartab()
 
     local function GamevarCreationFunc(addflags)
         return function(varname)
-            return { name=varname, flags=GVFLAG.SYSTEM+addflags }
+            -- 'used' is a bitmask: 1 is 'was read', 2 is 'was written to'
+            return { name=varname, flags=GVFLAG.SYSTEM+addflags, used=3 }
         end
     end
 
@@ -1553,12 +1555,12 @@ function Cmd.gamevar(identifier, initval, flags)
 
         -- Declare new session gamevar.
         g_gamevar[identifier] = { name=format("_gv._sessionVar[%d]", g_numSessionVars),
-                                  flags=flags, loc=getLocation() }
+                                  flags=flags, loc=getLocation(), used=0 }
         g_numSessionVars = g_numSessionVars+1
         return
     end
 
-    local gv = { name=mangle_name(identifier, "V"), flags=flags, loc=getLocation() }
+    local gv = { name=mangle_name(identifier, "V"), flags=flags, loc=getLocation(), used=0 }
     g_gamevar[identifier] = gv
 
     if (storeWithSavegames) then
@@ -1623,6 +1625,8 @@ function lookup.gamevar(identifier, aorpvar, writable)
         errprintf("gamevar `%s' is read-only", identifier)
         return "_READONLYGV"
     end
+
+    gv.used = bit.bor(gv.used, writable and 2 or 1)
 
     if (bit.band(gv.flags, GVFLAG.PERACTOR)~=0) then
         return format("%s[%s]", gv.name, aorpvar)
@@ -1998,6 +2002,10 @@ function lookup.array_expr(writep, structname, index, membertab)
                     return "_INVALIDAV"
                 end
 
+                if (gv) then
+                    gv.used = bit.bor(gv.used, writep and 2 or 1)
+                end
+
                 assert(#membertab == 1)
                 return lookup.gamevar(membertab[1], index, writep)
             end
@@ -2106,6 +2114,10 @@ local function GetOrSetPerxvarCmd(Setp, Actorp)
         if (not Actorp) then
             -- THISACTOR -> player index for {g,s}etplayervar
             idx = thisactor_to_pli(idx)
+        end
+
+        if (gv) then
+            gv.used = bit.bor(gv.used, Setp and 2 or 1)
         end
 
         if (Setp) then
@@ -2251,6 +2263,8 @@ local handle =
         -- NOTE: more strict than C-CON: we require the gamevar being writable
         -- even if we're saving it.
         local code = lookup.gamevar(identifier, index, true)
+
+        gv.used = bit.bor(gv.used, not dosave and 2 or 1)
 
         if (dosave) then
             return format("_con._savegamevar(%q,%s)", identifier, code)
@@ -3727,6 +3741,51 @@ function parse(contents)  -- local
         if (g_lastkwpos) then
             i, col = getlinecol(g_lastkwpos)
             printf("Last keyword was at line %d, col %d: %s", i, col, g_lastkw)
+        end
+    end
+
+    -- Check read/written status of all user gamevars.
+    if (idx == #contents+1 and g_recurslevel==0) then
+        local gvs = {}
+        for identifier, gv in pairs(g_gamevar) do
+            if (gv.used ~= 3) then
+                -- NOTE: read but not written to gamevar (gv.used == 1) has its
+                -- use in C-CON
+                if (gv.used == 0 and g_warn["never-used-gamevar"] or
+                        gv.used == 2 and g_warn["never-read-gamevar"]) then
+                    gv.id = identifier
+                    gvs[#gvs+1] = gv
+                end
+            end
+        end
+
+        function compare_gv(gva, gvb)
+            if (gva.loc[1] ~= gvb.loc[1]) then
+                return gva.loc[1] < gvb.loc[1]
+            end
+            return (gva.loc[2] < gvb.loc[2])
+        end
+
+        table.sort(gvs, compare_gv)
+
+        for i=1,#gvs do
+            local gv = gvs[i]
+
+            local loc = gv.loc
+            local locstr = loc and format("%s %d:%d: ", loc[1], loc[2], loc[3]) or ""
+
+            local perActor = (bit.band(gv.flags, GVFLAG.PERACTOR) ~= 0)
+            local perPlayer = (bit.band(gv.flags, GVFLAG.PERPLAYER) ~= 0)
+            local kindstr = perActor and "per-actor " or (perPlayer and "per-player " or "")
+
+            if (gv.used == 0) then
+                printf("%sWarning: never used %sgamevar `%s'", locstr,
+                       kindstr, gv.id)
+            else
+                printf("%sWarning: never %s %sgamevar `%s'", locstr,
+                       gv.used == 1 and "written to" or "read",
+                       kindstr, gv.id)
+            end
         end
     end
 
