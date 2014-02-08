@@ -392,7 +392,7 @@ typedef struct
     Tracker(Sprite, uint16_t) cstat;
     Tracker(Sprite, int16_t) picnum;
     Tracker(Sprite, int8_t) shade;
-    Tracker(Sprite, uint8_t) pal, clipdist, filler;
+    Tracker(Sprite, uint8_t) pal, clipdist, blend;
     Tracker(Sprite, uint8_t) xrepeat, yrepeat;
     Tracker(Sprite, int8_t) xoffset, yoffset;
     Tracker(Sprite, int16_t) sectnum, statnum;

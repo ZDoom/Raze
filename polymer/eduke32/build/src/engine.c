@@ -5681,7 +5681,7 @@ static void drawsprite_classic(int32_t snum)
     if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes null-pointer crash
     globalshade = tspr->shade;
 
-    setup_blend(tspr->filler);
+    setup_blend(tspr->blend);
 
     if (cstat&2)
     {

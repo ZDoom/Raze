@@ -459,8 +459,10 @@ void S_Callback(uint32_t num)
 
                 if (sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
                 {
-//                    ActorExtra[i].temp_data[0] = 0;
-                    sprite[i].filler &= (~1);
+                    extern uint8_t g_ambiencePlaying[MAXSPRITES>>3];
+
+                    g_ambiencePlaying[i>>3] &= ~(1<<(i&7));
+
                     if (j < k-1)
                     {
                         g_sounds[num].SoundOwner[j].voice = g_sounds[num].SoundOwner[k-1].voice;

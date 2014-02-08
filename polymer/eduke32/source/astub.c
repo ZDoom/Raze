@@ -2505,7 +2505,7 @@ static void SoundDisplay(void)
 int32_t AmbienceToggle = 1;
 int32_t ParentalLock = 0;
 
-static uint8_t g_ambiencePlaying[MAXSPRITES>>3];
+uint8_t g_ambiencePlaying[MAXSPRITES>>3];
 
 #define testbit(bitarray, i) (bitarray[(i)>>3] & (1<<((i)&7)))
 #define setbit(bitarray, i) bitarray[(i)>>3] |= (1<<((i)&7))

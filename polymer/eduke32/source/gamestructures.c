@@ -2488,7 +2488,7 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
         return;
 
     case ACTOR_DETAIL:
-        sprite[iActor].filler=lVar1;
+        sprite[iActor].blend=lVar1;
         return;
 
     case ACTOR_XREPEAT:
@@ -2738,7 +2738,7 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
         return;
 
     case ACTOR_DETAIL:
-        Gv_SetVarX(lVar2, sprite[iActor].filler);
+        Gv_SetVarX(lVar2, sprite[iActor].blend);
         return;
 
     case ACTOR_XREPEAT:
@@ -3038,10 +3038,10 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
     case ACTOR_DETAIL:
         if (iSet)
         {
-            spriteext[iActor].tspr->filler=lValue;
+            spriteext[iActor].tspr->blend=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->filler);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->blend);
         return;
 
     case ACTOR_XREPEAT:
@@ -3502,7 +3502,7 @@ static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int
     case ACTOR_SHADE: return sprite[iActor].shade;
     case ACTOR_PAL: return sprite[iActor].pal;
     case ACTOR_CLIPDIST: return sprite[iActor].clipdist;
-    case ACTOR_DETAIL: return sprite[iActor].filler;
+    case ACTOR_DETAIL: return sprite[iActor].blend;
     case ACTOR_XREPEAT: return sprite[iActor].xrepeat;
     case ACTOR_YREPEAT: return sprite[iActor].yrepeat;
     case ACTOR_XOFFSET: return sprite[iActor].xoffset;

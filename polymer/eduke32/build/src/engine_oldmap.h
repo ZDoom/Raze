@@ -243,7 +243,7 @@ static void convertv6sprv7(struct spritetypev6 *from, spritetype *to)
     to->shade = from->shade;
     to->pal = from->pal;
     to->clipdist = from->clipdist;
-    to->filler = 0;
+    to->blend = 0;
     to->xrepeat = from->xrepeat;
     to->yrepeat = from->yrepeat;
     to->xoffset = from->xoffset;
