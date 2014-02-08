@@ -83,10 +83,6 @@ static intptr_t kzipopen(const char *filnam)
 //           After calling uninitcache, it is still ok to call allocache
 //           without first calling initcache.
 
-// Uncomment for easier allocache-allocated bound checking (e.g. with Valgrind)
-// KEEPINSYNC game.c
-//#define DEBUG_ALLOCACHE_AS_MALLOC
-
 #define MAXCACHEOBJECTS 9216
 
 #if !defined DEBUG_ALLOCACHE_AS_MALLOC

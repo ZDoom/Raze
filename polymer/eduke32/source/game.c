@@ -1371,10 +1371,6 @@ void G_GameQuit(void)
         G_GameExit("Timed out.");
 }
 
-// Uncomment for easier allocache-allocated bound checking (e.g. with Valgrind)
-// KEEPINSYNC cache1d.c
-//#define DEBUG_ALLOCACHE_AS_MALLOC
-
 #if !defined DEBUG_ALLOCACHE_AS_MALLOC
 extern int32_t cacnum;
 extern cactype cac[];

@@ -1,7 +1,9 @@
-build: LTO=0 WITHOUT_GTK=1 RELEASE=0 LUNATIC=0 make
+build: ALLOCACHE_AS_MALLOC=1 LTO=0 WITHOUT_GTK=1 RELEASE=0 LUNATIC=0 make
 platform: Linux/x86_64
 
 ----------
+
+See the comment in MV_Init().
 
 Thread 3:
 Invalid read of size 2
@@ -134,3 +136,29 @@ Invalid read of size 1
    by 0x507589: M32_DrawRoomsAndMasks (build.c:479)
    by 0x507F69: app_main (build.c:742)
    by 0x502328: main (sdlayer.c:278)
+
+----------
+
+BLiGHT: strafing (tilts the screen).
+
+Invalid read of size 1
+   at 0x5BE3A6: vlineasm4 (a-c.c:125)
+   by 0x532C3E: wallscan (engine.c:3905)
+   by 0x5356CB: parascan (engine.c:4607)
+   by 0x536288: drawalls (engine.c:4853)
+   by 0x5449BF: drawrooms (engine.c:9052)
+   by 0x529FAA: yax_drawrooms (engine.c:1174)
+   by 0x43C627: G_DrawRooms (game.c:4650)
+   by 0x45426D: app_main (game.c:12014)
+   by 0x5BA9A5: main (sdlayer.c:278)
+ Address 0x26c8a44a is 10 bytes after a block of size 128,000 alloc'd
+   at 0x11C852DB: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+   by 0x51D524: allocache (cache1d.c:160)
+   by 0x54D0B2: loadtile (engine.c:11521)
+   by 0x4F3BF4: G_CacheMapData (premap.c:487)
+   by 0x4F930A: G_EnterLevel (premap.c:1910)
+   by 0x4BC269: G_NewGame_EnterLevel (game.h:553)
+   by 0x4C5364: M_DisplayMenus (menus.c:2442)
+   by 0x486A91: G_PlaybackDemo (demo.c:936)
+   by 0x453A46: app_main (game.c:11844)
+   by 0x5BA9A5: main (sdlayer.c:278)

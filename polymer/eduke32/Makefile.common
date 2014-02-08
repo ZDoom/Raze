@@ -178,6 +178,12 @@ DMALLOC?=0
 PROFILER?=0
 MUDFLAP?=0
 
+# Make allocache() a wrapper around malloc()? Useful for debugging
+# allocache()-allocated memory accesses with e.g. Valgrind.
+# For debugging with Valgrind + GDB, see
+# http://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver
+ALLOCACHE_AS_MALLOC?=0
+
 # Select the default optimization level for release and debug builds.
 ifeq ($(RELEASE),0)
     OPTLEVEL?=0
@@ -342,6 +348,10 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
 endif
 
 debug+= -O$(OPTLEVEL)
+
+ifneq ($(ALLOCACHE_AS_MALLOC),0)
+    debug+= -DDEBUG_ALLOCACHE_AS_MALLOC
+endif
 
 # See http://clang.llvm.org/docs/UsersManual.html#controlling-code-generation
 # for a list of possible UBSan options.
