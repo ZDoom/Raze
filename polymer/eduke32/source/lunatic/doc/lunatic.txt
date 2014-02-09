@@ -2272,6 +2272,29 @@ restrictions when running in EDuke32:
 * `setblendtab` may only be called at first initialization time, that is, when
   the value of `LUNATIC_FIRST_TIME` is *true*.
 
+Mapster32-only functions
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+===== `engine.savePaletteDat(filename [, palnum [, blendnum [, moreblends]]])` -> `ok, errmsg`
+
+Writes out a full PALETTE.DAT-formatted file named `filename` with the base
+shade table numbered `palnum` and the base translucency table numbered
+`blendnum`, both defaulting to 0.
+
+Passing `moreblends` allows to specify additional blending tables to store in
+EDuke32's extended PALETTE.DAT format. These must have previously been
+registered with `engine.setblendtab`. The `moreblends` argument must be a
+sequence table with each element being either
+
+* a blending table number in the range [1{nbsp}..{nbsp}255]
+* a table `t` containing a pair of such numbers, in which case it is taken to
+  mean the inclusive range [`t[1]`{nbsp}..{nbsp}`t[2]`]
+
+There must be no duplicate blending table numbers.
+
+The function returns a status `ok` which is *true* on success and *nil* on
+failure. In the latter case, `errmsg` is a diagnostic error message.
+
 
 The `fs` module -- virtual file system facilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

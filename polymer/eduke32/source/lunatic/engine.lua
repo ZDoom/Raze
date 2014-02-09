@@ -4,6 +4,7 @@ local C = ffi.C
 
 local bcarray = require("bcarray")
 
+local assert = assert
 local error = error
 local type = type
 
@@ -230,11 +231,61 @@ end
 
 if (ismapster32) then
     local io = require("io")
+    local math = require("math")
+    local string = require("string")
 
     ffi.cdef[[size_t fwrite(const void * restrict ptr, size_t size, size_t nmemb, void * restrict stream);]]
 
-    -- [ok, errmsg] = engine.savePaletteDat(filename [, palnum [, blendnum]])
-    function engine.savePaletteDat(filename, palnum, blendnum)
+    local function validate_more_blendtabs(moreblends)
+        if (moreblends == nil) then
+            return nil, nil
+        end
+
+        -- Additional blending tables: validate <moreblends> table.
+        if (type(moreblends) ~= "table") then
+            error("invalid argument #4: must be a table", 3)
+        end
+
+        local haveblend = { [0]=true }
+        local blendnumtab, blendptrtab = {}, {}
+
+        for i=1,#moreblends do
+            local tmp = moreblends[i]
+            local blendspec = (type(tmp) == "number") and { tmp, tmp } or tmp
+
+            if (not (type(blendspec) == "table" and #blendspec == 2)) then
+                error("invalid argument #4: must contain numbers or 2-tables", 3)
+            end
+
+            local blend1, blend2 = math.floor(blendspec[1]), math.floor(blendspec[2])
+
+            if (not (type(blend1)=="number" and blend1 >= 1 and blend1 <= 255 and
+                     type(blend2)=="number" and blend2 >= 1 and blend2 <= 255)) then
+                error("invalid argument #4: blending table numbers must be in [1 .. 255]", 3)
+            end
+
+            for bi=blend1,blend2 do
+                if (haveblend[bi]) then
+                    error("invalid argument #4: duplicate blending table number "..bi, 3)
+                end
+                haveblend[bi] = true
+
+                local ptr = C.getblendtab(bi)
+                if (ptr == nil) then
+                    error("invalid argument #4: blending table for number "..bi.." is void", 3)
+                end
+
+                blendnumtab[#blendnumtab+1] = bi
+                blendptrtab[#blendptrtab+1] = ptr
+            end
+        end
+
+        assert(#blendnumtab <= 255)
+        return blendnumtab, blendptrtab
+    end
+
+    -- [ok, errmsg] = engine.savePaletteDat(filename [, palnum [, blendnum [, moreblends]]])
+    function engine.savePaletteDat(filename, palnum, blendnum, moreblends)
         local sht = engine.getshadetab(palnum or 0)
         local tab = engine.getblendtab(blendnum or 0)
 
@@ -244,20 +295,35 @@ if (ismapster32) then
             return nil, "no blending table with number "..blendnum
         end
 
+        local blendnumtab, blendptrtab = validate_more_blendtabs(moreblends)
+
         local f, errmsg = io.open(filename, "w+")
         if (f == nil) then
             return nil, errmsg
         end
 
-        local n1 = ffi.C.fwrite(C.palette, 3, 256, f)
+        local n1 = C.fwrite(C.palette, 3, 256, f)
         f:write("\032\000")  -- int16_t numshades
-        local n3 = ffi.C.fwrite(sht, 256, 32, f)
-        local n4 = ffi.C.fwrite(tab, 256, 256, f)
+        local n3 = C.fwrite(sht, 256, 32, f)
+        local n4 = C.fwrite(tab, 256, 256, f)
+
+        if (n1 ~= 256 or n3 ~= 32 or n4 ~= 256) then
+            return nil, "failed writing classic PALETTE.DAT data"
+        end
+
+        if (blendnumtab ~= nil) then
+            f:write("MoreBlendTab")
+            f:write(string.char(#blendnumtab))
+
+            for i=1,#blendnumtab do
+                f:write(string.char(blendnumtab[i]))
+                if (C.fwrite(blendptrtab[i], 256, 256, f) ~= 256) then
+                    return nil, "failed writing additional blending table"
+                end
+            end
+        end
 
         f:close()
-        if (n1 ~= 256 or n3 ~= 32 or n4 ~= 256) then
-            return nil, "failed writing enough data"
-        end
 
         return true
     end

@@ -2471,6 +2471,7 @@ char palfadedelta = 0;
 //
 
 static char *blendtable[MAXBLENDTABS];
+void setblendtab(int32_t blend, const char *tab);
 #define getblendtab(blend) (blendtable[blend])
 
 static void setpalettefade_calc(uint8_t offset);
@@ -8042,15 +8043,13 @@ static int32_t loadpalette(void)
     {
         int32_t i, j;
 
-        for (i=0; i<256; i++)
+        for (i=0; i<255; i++)
         {
-            // LameDuke's table doesn't have the last row or column.
-            if (i == 255)
-                continue;
+            // NOTE: LameDuke's table doesn't have the last row or column (i==255).
 
             // Read the entries above and on the diagonal, if the table is
             // thought as being row-major.
-            if (kread(fil, &transluc[256*i + i], 256-i-1) < 0)
+            if (kread(fil, &transluc[256*i + i], 256-i-1) != 256-i-1)
                 return loadpalette_err("Failed reading LameDuke translucency table!");
 
             // Duplicate the entries below the diagonal.
@@ -8060,8 +8059,48 @@ static int32_t loadpalette(void)
     }
     else
     {
-        if (kread(fil, transluc, 65536) < 0)
+        int32_t i, n;
+        uint8_t magic[12];
+
+        if (kread(fil, transluc, 65536) != 65536)
             return loadpalette_err("Failed reading translucency table!");
+
+        n = kread(fil, magic, (int32_t)sizeof(magic));
+        if (n == (int32_t)sizeof(magic) && !Bmemcmp(magic, "MoreBlendTab", sizeof(magic)))
+        {
+            // Read in additional blending tables.
+            uint8_t addblendtabs, blendnum;
+            char *tab = (char *)Bmalloc(256*256);
+
+            if (tab == NULL)
+                return loadpalette_err("failed allocating temporary blending table");
+
+            if (kread(fil, &addblendtabs, 1) != 1)
+                return loadpalette_err("failed reading additional blending table count");
+
+            for (i=0; i<addblendtabs; i++)
+            {
+                static char dup_blendnum_errmsg[] = "duplicate blending table index ??? encountered";
+
+                if (kread(fil, &blendnum, 1) != 1)
+                    return loadpalette_err("failed reading additional blending table index");
+
+                if (getblendtab(blendnum) != NULL)
+                {
+                    char *cp = Bstrchr(dup_blendnum_errmsg, '?');
+                    Bsprintf(cp, "%3d", blendnum);
+                    cp[3] = ' ';
+                    return loadpalette_err(dup_blendnum_errmsg);
+                }
+
+                if (kread(fil, tab, 256*256) != 256*256)
+                    return loadpalette_err("failed reading additional blending table");
+
+                setblendtab(blendnum, tab);
+            }
+
+            Bfree(tab);
+        }
     }
 
     kclose(fil);
@@ -14685,12 +14724,6 @@ static void maybe_alloc_palookup(int32_t palnum)
     }
 }
 
-#ifdef LUNATIC
-const char *(getblendtab)(int32_t blend)
-{
-    return blendtable[blend];
-}
-
 void setblendtab(int32_t blend, const char *tab)
 {
     if (blendtable[blend] == NULL)
@@ -14701,6 +14734,12 @@ void setblendtab(int32_t blend, const char *tab)
     }
 
     Bmemcpy(blendtable[blend], tab, 256*256);
+}
+
+#ifdef LUNATIC
+const char *(getblendtab)(int32_t blend)
+{
+    return blendtable[blend];
 }
 
 int32_t setpalookup(int32_t palnum, const uint8_t *shtab)

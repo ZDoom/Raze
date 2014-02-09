@@ -197,12 +197,16 @@ end
 
 if (gv.LUNATIC_CLIENT == gv.LUNATIC_CLIENT_MAPSTER32) then
     -- Wrapper around engine.savePaletteDat() that errors on unexpected events.
-    function shadexfog.save(filename, palnum, blendnum)
-        local ok, errmsg = engine.savePaletteDat(filename, palnum, blendnum)
+    function shadexfog.save(filename, palnum, blendnum, moreblends)
+        local ok, errmsg = engine.savePaletteDat(filename, palnum, blendnum, moreblends)
         if (not ok) then
             error(errmsg)
         end
-        printf('Wrote base palette, shade and translucency tables to "%s"', filename)
+
+        printf('Wrote base palette, shade and translucency tables to "%s".', filename)
+        if (moreblends ~= nil) then
+            printf("  Also wrote additional translucency tables.")
+        end
     end
 end
 
