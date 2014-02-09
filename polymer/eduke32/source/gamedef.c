@@ -770,7 +770,7 @@ const memberlabel_t ActorLabels[]=
     { "pal", ACTOR_PAL, 0, 0 },
     { "clipdist", ACTOR_CLIPDIST, 0, 0 },
 //    { "filler", ACTOR_DETAIL, 0, 0 },
-    { "detail", ACTOR_DETAIL, 0, 0 }, // aka filler, not used
+    { "blend", ACTOR_DETAIL, 0, 0 },
     { "xrepeat", ACTOR_XREPEAT, 0, 0 },
     { "yrepeat", ACTOR_YREPEAT, 0, 0 },
     { "xoffset", ACTOR_XOFFSET, 0, 0 },
@@ -826,6 +826,8 @@ const memberlabel_t ActorLabels[]=
     { "uhitag", ACTOR_UHITAG, 0, 0 },
 
     { "isvalid", ACTOR_ISVALID, 0, 0 },
+// aliases:
+    { "detail", ACTOR_DETAIL, 0, 0 },  // deprecated name for 'blend'
 
     { "", -1, 0, 0  }     // END OF LIST
 };
@@ -843,7 +845,7 @@ const memberlabel_t TsprLabels[]=
     { "tsprpal", ACTOR_PAL, 0, 0 },
     { "tsprclipdist", ACTOR_CLIPDIST, 0, 0 },
 //    { "tsprfiller", ACTOR_DETAIL, 0, 0 },
-    { "tsprdetail", ACTOR_DETAIL, 0, 0 }, // aka filler, not used
+    { "tsprblend", ACTOR_DETAIL, 0, 0 },
     { "tsprxrepeat", ACTOR_XREPEAT, 0, 0 },
     { "tspryrepeat", ACTOR_YREPEAT, 0, 0 },
     { "tsprxoffset", ACTOR_XOFFSET, 0, 0 },
@@ -860,6 +862,8 @@ const memberlabel_t TsprLabels[]=
     { "tsprhitag", ACTOR_HITAG, 0, 0 },
     { "tsprextra", ACTOR_EXTRA, 0, 0 },
 #endif
+// aliases:
+    { "tsprdetail", ACTOR_DETAIL, 0, 0 },  // deprecated name for 'tsprblend'
 
     { "", -1, 0, 0  }     // END OF LIST
 };
@@ -6532,7 +6536,7 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: error: square brackets for index of game array not opened, expected [ found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
         break;
     case ERROR_INVALIDARRAYWRITE:
-        initprintf("%s:%d: error: arrays can only be written to using `setarray' %c\n",g_szScriptFileName,g_lineNumber,*textptr);
+        initprintf("%s:%d: error: arrays can only be written to using `setarray'.\n",g_szScriptFileName,g_lineNumber);
         break;
     case ERROR_OPENBRACKET:
         initprintf("%s:%d: error: found more `{' than `}' before `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
