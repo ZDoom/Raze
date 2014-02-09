@@ -226,5 +226,43 @@ function engine.nearcolor(r, g, b, lastokcol)
 end
 
 
+---------- Mapster32-only functions ----------
+
+if (ismapster32) then
+    local io = require("io")
+
+    ffi.cdef[[size_t fwrite(const void * restrict ptr, size_t size, size_t nmemb, void * restrict stream);]]
+
+    -- [ok, errmsg] = engine.savePaletteDat(filename [, palnum [, blendnum]])
+    function engine.savePaletteDat(filename, palnum, blendnum)
+        local sht = engine.getshadetab(palnum or 0)
+        local tab = engine.getblendtab(blendnum or 0)
+
+        if (sht == nil) then
+            return nil, "no shade table with number "..palnum
+        elseif (tab == nil) then
+            return nil, "no blending table with number "..blendnum
+        end
+
+        local f, errmsg = io.open(filename, "w+")
+        if (f == nil) then
+            return nil, errmsg
+        end
+
+        local n1 = ffi.C.fwrite(C.palette, 3, 256, f)
+        f:write("\032\000")  -- int16_t numshades
+        local n3 = ffi.C.fwrite(sht, 256, 32, f)
+        local n4 = ffi.C.fwrite(tab, 256, 256, f)
+
+        f:close()
+        if (n1 ~= 256 or n3 ~= 32 or n4 ~= 256) then
+            return nil, "failed writing enough data"
+        end
+
+        return true
+    end
+end
+
+
 -- Done!
 return engine

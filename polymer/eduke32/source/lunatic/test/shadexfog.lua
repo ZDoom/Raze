@@ -196,40 +196,13 @@ local function create_base_shtab_2(basesht)
 end
 
 if (gv.LUNATIC_CLIENT == gv.LUNATIC_CLIENT_MAPSTER32) then
-    -- NOTE: It shouldn't be assumed that these will stay loadable in the future:
-    local ffi = require("ffi")
-    local io = require("io")
-
-    ffi.cdef[[size_t fwrite(const void * restrict ptr, size_t size, size_t nmemb, void * restrict stream);]]
-
-    function shadexfog.save(filename, palnum_or_sht)
-        local sht = type(palnum_or_sht)~="number" and palnum_or_sht
-            or engine.getshadetab(palnum_or_sht)
-        if (sht == nil) then
-            error("No such shade table")
+    -- Wrapper around engine.savePaletteDat() that errors on unexpected events.
+    function shadexfog.save(filename, palnum, blendnum)
+        local ok, errmsg = engine.savePaletteDat(filename, palnum, blendnum)
+        if (not ok) then
+            error(errmsg)
         end
-
-        local f, errmsg = io.open(filename, "w+")
-        if (f == nil) then
-            error(errmsg, 2)
-        end
-
-        -- XXX: ought to be in engine.lua
-        local basepal = ffi.new("uint8_t [256][3]")
-        for i=0,255 do
-            local r, g, b = engine.getrgb(i)
-            basepal[i][0], basepal[i][1], basepal[i][2] = r, g, b
-        end
-
-        local n1 = ffi.C.fwrite(basepal, 3, 256, f)
-        f:write("\032\000")
-        local n3 = ffi.C.fwrite(sht, 256, 32, f)
-
-        f:close()
-        if (n1 ~= 256 or n3 ~= 32) then
-            error("didn't fully write out palette file")
-        end
-        printf("Wrote base palette + shade table (but NOT transluc table) to '%s'", filename)
+        printf('Wrote base palette, shade and translucency tables to "%s"', filename)
     end
 end
 
