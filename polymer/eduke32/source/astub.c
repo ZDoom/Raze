@@ -895,7 +895,7 @@ int32_t taglab_save(const char *mapname)
         if (!label)
             continue;
 
-        len = Bsprintf(buf, "%d %s"OURNEWL, i, label);
+        len = Bsprintf(buf, "%d %s" OURNEWL, i, label);
         if (Bwrite(fil, buf, len)!=len)
             break;
     }
@@ -3661,8 +3661,8 @@ static int32_t OnSaveTileGroup(void)
 #define TTAB "\t"
 #define TBITCHK(i) ((i)<MAXTILES && (tilemarked[(i)>>3]&(1<<((i)&7))))
         Bfprintf(fp, OURNEWL);
-        Bfprintf(fp, "tilegroup \"%s\""OURNEWL"{"OURNEWL, name);
-        Bfprintf(fp, TTAB "hotkey \"%c\""OURNEWL OURNEWL, hotkey);
+        Bfprintf(fp, "tilegroup \"%s\"" OURNEWL"{" OURNEWL, name);
+        Bfprintf(fp, TTAB "hotkey \"%c\"" OURNEWL OURNEWL, hotkey);
 
         if (!(s_TileGroups[tile_groups].pIds = (int32_t *)Bmalloc(n * sizeof(s_TileGroups[tile_groups].pIds[0]))))
             TMPERRMSG_RETURN("Out of memory.");
@@ -3674,9 +3674,9 @@ static int32_t OnSaveTileGroup(void)
             if (lasti>=0 && !TBITCHK(i))
             {
                 if (names[lasti][0] && names[i-1][0])
-                    Bfprintf(fp, TTAB "tilerange %s %s"OURNEWL, names[lasti], names[i-1]);
+                    Bfprintf(fp, TTAB "tilerange %s %s" OURNEWL, names[lasti], names[i-1]);
                 else
-                    Bfprintf(fp, TTAB "tilerange %d %d"OURNEWL, lasti, i-1);
+                    Bfprintf(fp, TTAB "tilerange %d %d" OURNEWL, lasti, i-1);
 
                 for (k=lasti; k<i; k++)
                 {
@@ -3702,7 +3702,7 @@ static int32_t OnSaveTileGroup(void)
                 s_TileGroups[tile_groups].pIds[j++] = k;
                 tilemarked[k>>3] &= ~(1<<(k&7));
             }
-            Bfprintf(fp, TTAB "tilerange %d %d"OURNEWL, lasti, MAXTILES-1);
+            Bfprintf(fp, TTAB "tilerange %d %d" OURNEWL, lasti, MAXTILES-1);
         }
         Bfprintf(fp, OURNEWL);
 
@@ -3717,7 +3717,7 @@ static int32_t OnSaveTileGroup(void)
         if (k)
         {
             // throw them all in a tiles{...} group else
-            Bfprintf(fp, TTAB "tiles\n" TTAB "{"OURNEWL);
+            Bfprintf(fp, TTAB "tiles\n" TTAB "{" OURNEWL);
             for (i=0; i<MAXTILES; i++)
             {
                 if (TBITCHK(i))
@@ -3741,11 +3741,11 @@ static int32_t OnSaveTileGroup(void)
             }
             if (col>0)
                 Bfprintf(fp, OURNEWL);
-            Bfprintf(fp, TTAB "}"OURNEWL);
+            Bfprintf(fp, TTAB "}" OURNEWL);
         }
 #undef TBITCHK
 #undef TTAB
-        Bfprintf(fp, "}"OURNEWL);
+        Bfprintf(fp, "}" OURNEWL);
 
         Bfclose(fp);
 
@@ -8898,7 +8898,7 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
         " C++ build"
 #endif
         "\n", VERSION, s_buildRev);
-    initprintf("Compiled %s\n", __DATE__" "__TIME__);
+    initprintf("Compiled %s\n", __DATE__ " " __TIME__);
     //    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
     G_CheckCommandLine(argc,argv);

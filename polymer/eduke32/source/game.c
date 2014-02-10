@@ -11227,7 +11227,7 @@ int32_t app_main(int32_t argc, const char **argv)
         " C++ build"
 #endif
         "\n", s_buildRev);
-    initprintf("Compiled %s\n", __DATE__" "__TIME__);
+    initprintf("Compiled %s\n", __DATE__ " " __TIME__);
 
     if (!usecwd)
         G_AddSearchPaths();

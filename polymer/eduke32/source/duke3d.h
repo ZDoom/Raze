@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define APPNAME             "EDuke32"
 #define VERSION             "2.0.0devel"
-#define HEAD2               APPNAME" "VERSION
+#define HEAD2               APPNAME " " VERSION
 
 #define VOLUMEALL           (g_Shareware == 0)
 #define PLUTOPAK            (g_scriptVersion == 14)

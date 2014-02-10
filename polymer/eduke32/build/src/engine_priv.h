@@ -173,16 +173,16 @@ skipit:
 ({ int32_t __a=(a); \
 	__asm__ __volatile__ ( \
 			       "movl %%eax, %%ebx\n\t" \
-			       "cmpb $200, "ASMSYM("walock")"(%%eax)\n\t" \
+			       "cmpb $200, " ASMSYM("walock") "(%%eax)\n\t" \
 			       "jae 0f\n\t" \
-			       "movb $199, "ASMSYM("walock")"(%%eax)\n\t" \
+			       "movb $199, " ASMSYM("walock") "(%%eax)\n\t" \
 			       "0:\n\t" \
 			       "shrl $3, %%eax\n\t" \
 			       "andl $7, %%ebx\n\t" \
-			       "movb "ASMSYM("gotpic")"(%%eax), %%dl\n\t" \
-			       "movb "ASMSYM("pow2char")"(%%ebx), %%bl\n\t" \
+			       "movb " ASMSYM("gotpic") "(%%eax), %%dl\n\t" \
+			       "movb " ASMSYM("pow2char") "(%%ebx), %%bl\n\t" \
 			       "orb %%bl, %%dl\n\t" \
-			       "movb %%dl, "ASMSYM("gotpic")"(%%eax)" \
+			       "movb %%dl, " ASMSYM("gotpic") "(%%eax)" \
 			       : "=a" (__a) : "a" (__a) \
 			       : "ebx", "edx", "memory", "cc"); \
 				       __a; })

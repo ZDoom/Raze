@@ -345,7 +345,7 @@ void Gv_DumpValues(void)
         else if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR))
             OSD_Printf(" GAMEVAR_PERACTOR");
         else
-            OSD_Printf(" %"PRIdPTR,aGameVars[i].dwFlags/* & (GAMEVAR_USER_MASK)*/);
+            OSD_Printf(" %" PRIdPTR,aGameVars[i].dwFlags/* & (GAMEVAR_USER_MASK)*/);
 
         OSD_Printf(" // ");
         if (aGameVars[i].dwFlags & (GAMEVAR_SYSTEM))
