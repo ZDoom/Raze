@@ -71,7 +71,7 @@ int16_t g_netStatnums[] =
 uint32_t g_netMapRevision = 0;
 netmapstate_t g_mapStartState;
 netmapstate_t *g_mapStateHistory[NET_REVISIONS];
-char tempnetbuf[sizeof(netmapstate_t) + 400];
+uint8_t tempnetbuf[sizeof(netmapstate_t) + 400];
 netmapdiff_t tempMapDiff;
 #pragma pack(pop)
 #define tempnetbufsize sizeof(tempnetbuf)
@@ -85,8 +85,8 @@ static void P_RemovePlayer(int32_t p)
 
     g_player[p].playerquitflag = 0;
 
-    Bsprintf(buf,"%s^00 is history!",g_player[p].user_name);
-    G_AddUserQuote(buf);
+    Bsprintf(recbuf,"%s^00 is history!",g_player[p].user_name);
+    G_AddUserQuote(recbuf);
 
     if (numplayers == 1)
         S_PlaySound(GENERIC_AMBIENCE17);
@@ -112,7 +112,7 @@ static void P_RemovePlayer(int32_t p)
             voting = -1;
         }
 
-        Bstrcpy(ScriptQuotes[QUOTE_RESERVED2],buf);
+        Bstrcpy(ScriptQuotes[QUOTE_RESERVED2],recbuf);
         g_player[myconnectindex].ps->ftq = QUOTE_RESERVED2;
         g_player[myconnectindex].ps->fta = 180;
     }
@@ -122,6 +122,13 @@ static void P_RemovePlayer(int32_t p)
 void Net_SyncPlayer(ENetEvent *event)
 {
     int32_t i, j;
+
+    if (numplayers + g_netPlayersWaiting >= MAXPLAYERS)
+    {
+        enet_peer_disconnect_later(event->peer, DISC_SERVER_FULL);
+        initprintf("Refused peer; server full.\n");
+        return;
+    }
 
     g_netPlayersWaiting++;
 
@@ -156,6 +163,7 @@ void Net_SyncPlayer(ENetEvent *event)
 
     G_MaybeAllocPlayer(i);
 
+    g_netPlayersWaiting--;
     ++numplayers;
     ++ud.multimode;
     Net_SendNewPlayer(i);
@@ -350,7 +358,7 @@ void Net_Disconnect(void)
         ENetEvent event;
 
         for (i=0; i<(signed)g_netServer->peerCount; i++)
-            enet_peer_disconnect_later(&g_netServer->peers[i], 0);
+            enet_peer_disconnect_later(&g_netServer->peers[i], DISC_SERVER_QUIT);
 
         while (enet_host_service(g_netServer, & event, 3000) > 0)
         {
@@ -381,6 +389,18 @@ void Net_ReceiveDisconnect(ENetEvent *event)
     {
     case DISC_BAD_PASSWORD:
         initprintf("Bad password.\n");
+        return;
+    case DISC_VERSION_MISMATCH:
+        initprintf("Version mismatch.\n");
+        return;
+    case DISC_INVALID:
+        initprintf("Invalid data detected.\n");
+        return;
+    case DISC_SERVER_QUIT:
+        initprintf("The server is quitting.\n");
+        return;
+    case DISC_SERVER_FULL:
+        initprintf("The server is full.\n");
         return;
     case DISC_KICKED:
         initprintf("You have been kicked from the server.\n");
@@ -442,6 +462,13 @@ void Net_HandleClientPackets(void)
     {
         const intptr_t playeridx = (intptr_t)event.peer->data;
 
+        if (playeridx < 0 || playeridx >= MAXPLAYERS)
+        {
+            enet_peer_disconnect_later(event.peer, DISC_INVALID);
+            initprintf("Invalid player id (%" PRIdPTR ") from client.\n", playeridx);
+            continue;
+        }
+
         switch (event.type)
         {
         case ENET_EVENT_TYPE_CONNECT:
@@ -452,7 +479,7 @@ void Net_HandleClientPackets(void)
 
             initprintf("A new client connected from %s:%u.\n", ipaddr, event.peer->address.port);
 
-            Net_SendVersion(event.peer);
+            Net_SendAcknowledge(event.peer);
             break;
         }
 
@@ -579,7 +606,7 @@ void Net_ParseClientPacket(ENetEvent *event)
         break;
 
     case PACKET_AUTH:
-        Net_RecieveChallenge(pbuf, packbufleng, event);
+        Net_ReceiveChallenge(pbuf, packbufleng, event);
         break;
 
     default:
@@ -624,16 +651,16 @@ void Net_ParseServerPacket(ENetEvent *event)
         Net_ReceiveNewGame(event);
         break;
 
-    case PACKET_VERSION:
-        Net_RecieveVersion(pbuf, packbufleng);
+    case PACKET_ACK:
+        Net_ReceiveAcknowledge(pbuf, packbufleng);
         break;
 
     case PACKET_NUM_PLAYERS:
-        Net_RecieveNewPlayer(event->packet->data, event->packet->dataLength);
+        Net_ReceiveNewPlayer(event->packet->data, event->packet->dataLength);
         break;
 
     case PACKET_PLAYER_INDEX:
-        Net_RecievePlayerIndex(event->packet->data, event->packet->dataLength);
+        Net_ReceivePlayerIndex(event->packet->data, event->packet->dataLength);
         break;
 
     case PACKET_PLAYER_DISCONNECTED:
@@ -660,7 +687,7 @@ void Net_ParseServerPacket(ENetEvent *event)
         if (!(g_player[myconnectindex].ps->gm & MODE_GAME)) break;
         g_player[pbuf[1]].ps->frag_ps = pbuf[2];
         actor[g_player[pbuf[1]].ps->i].picnum = pbuf[3];
-        ticrandomseed = *(int32_t *)&pbuf[4];
+        ticrandomseed = B_UNBUF32(&pbuf[4]);
         P_FragPlayer(pbuf[1]);
         break;
 
@@ -691,50 +718,37 @@ void Net_ParsePacketCommon(uint8_t *pbuf, int32_t packbufleng, int32_t serverpac
         break;
 
     case PACKET_MAP_VOTE:
-        Net_RecieveMapVote(pbuf);
+        Net_ReceiveMapVote(pbuf);
         break;
 
     case PACKET_MAP_VOTE_INITIATE: // call map vote
-        Net_RecieveMapVoteInitiate(pbuf);
+        Net_ReceiveMapVoteInitiate(pbuf);
         break;
 
     case PACKET_MAP_VOTE_CANCEL: // cancel map vote
-        Net_RecieveMapVoteCancel(pbuf);
+        Net_ReceiveMapVoteCancel(pbuf);
         break;
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Version Packets
+// Acknowledgement Packets
 
-// TODO: switch this around so the client sends their version to the server for
-// verification, instead of the other way around like it is now
-void Net_SendVersion(ENetPeer *client)
+void Net_SendAcknowledge(ENetPeer *client)
 {
     if (!g_netServer)
         return;
 
-    buf[0] = PACKET_VERSION;
-    *(uint16_t *)&buf[1] = BYTEVERSION;
-    // XXX: s_buildDate is outdated and useless; uint8 is not enough :/
-    buf[3] = (uint8_t)atoi(s_buildDate);
-    buf[4] = myconnectindex;
+    tempnetbuf[0] = PACKET_ACK;
+    tempnetbuf[1] = myconnectindex;
 
-    enet_peer_send(client, CHAN_GAMESTATE, enet_packet_create(&buf[0], 5, ENET_PACKET_FLAG_RELIABLE));
+    enet_peer_send(client, CHAN_GAMESTATE, enet_packet_create(&tempnetbuf[0], 2, ENET_PACKET_FLAG_RELIABLE));
 }
 
-void Net_RecieveVersion(uint8_t *pbuf, int32_t packbufleng)
+void Net_ReceiveAcknowledge(uint8_t *pbuf, int32_t packbufleng)
 {
+    UNREFERENCED_PARAMETER(pbuf); // remove when this variable is used
     UNREFERENCED_PARAMETER(packbufleng); // remove when this variable is used
-
-    if (*(uint16_t *)&pbuf[1] != BYTEVERSION || pbuf[3] != (uint8_t)atoi(s_buildDate))
-    {
-        initprintf("Server protocol is version %d.%d, expecting %d.%d\n",
-                   *(uint16_t *)&pbuf[1], pbuf[3], BYTEVERSION, (uint8_t)atoi(s_buildDate));
-        initprintf("Server version mismatch!  You cannot play Duke with different versions!\n");
-        g_netDisconnect = 1;
-        return;
-    }
 
     Net_SendChallenge();
 }
@@ -742,40 +756,45 @@ void Net_RecieveVersion(uint8_t *pbuf, int32_t packbufleng)
 ////////////////////////////////////////////////////////////////////////////////
 // Challenge Packets
 
-// sends a simple crc32 of the current password, verified by the server before the connection can continue
+// sends the version and a simple crc32 of the current password, all verified by the server before the connection can continue
 void Net_SendChallenge()
 {
-    int32_t l = 1;
-
     if (!g_netClientPeer)
     {
         return;
     }
 
-    buf[0] = PACKET_AUTH;
-    *(uint32_t *)&buf[1] = crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword));
-    l += sizeof(int32_t);
+    tempnetbuf[0] = PACKET_AUTH;
+    B_BUF16(&tempnetbuf[1], BYTEVERSION);
+    B_BUF16(&tempnetbuf[3], NETVERSION);
+    B_BUF32(&tempnetbuf[5], crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword)));
+    tempnetbuf[9] = myconnectindex;
 
-    buf[l++] = myconnectindex;
-
-    enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
+    enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&tempnetbuf[0], 10, ENET_PACKET_FLAG_RELIABLE));
 }
 
-void Net_RecieveChallenge(uint8_t *pbuf, int32_t packbufleng, ENetEvent *event)
+void Net_ReceiveChallenge(uint8_t *pbuf, int32_t packbufleng, ENetEvent *event)
 {
-    uint32_t crc = *(uint32_t *)&pbuf[1];
+    const uint16_t byteVersion = B_UNBUF16(&pbuf[1]);
+    const uint16_t netVersion = B_UNBUF16(&pbuf[3]);
+    const uint32_t crc = B_UNBUF32(&pbuf[5]);
 
     UNREFERENCED_PARAMETER(packbufleng); // remove when this variable is used
 
-    if (crc == crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword)))
+    if (byteVersion != BYTEVERSION || netVersion != NETVERSION)
     {
-        Net_SyncPlayer(event);
+        enet_peer_disconnect_later(event->peer, DISC_VERSION_MISMATCH);
+        initprintf("Bad client protocol: version %u.%u\n", byteVersion, netVersion);
+        return;
     }
-    else
+    if (crc != crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword)))
     {
         enet_peer_disconnect_later(event->peer, DISC_BAD_PASSWORD);
         initprintf("Bad password from client.\n");
+        return;
     }
+
+    Net_SyncPlayer(event);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -793,7 +812,7 @@ void Net_SendNewPlayer(int32_t newplayerindex)
     enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 7, ENET_PACKET_FLAG_RELIABLE));
 }
 
-void Net_RecieveNewPlayer(uint8_t *pbuf, int32_t packbufleng)
+void Net_ReceiveNewPlayer(uint8_t *pbuf, int32_t packbufleng)
 {
     int32_t i;
 
@@ -848,7 +867,7 @@ void Net_SendPlayerIndex(int32_t index, ENetPeer *peer)
     enet_peer_send(peer, CHAN_GAMESTATE, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
 }
 
-void Net_RecievePlayerIndex(uint8_t *pbuf, int32_t packbufleng)
+void Net_ReceivePlayerIndex(uint8_t *pbuf, int32_t packbufleng)
 {
     UNREFERENCED_PARAMETER(packbufleng); // remove when this variable is used
 
@@ -869,38 +888,38 @@ void Net_SendClientInfo(void)
 
     if (numplayers < 2) return;
 
-    buf[0] = PACKET_CLIENT_INFO;
+    tempnetbuf[0] = PACKET_CLIENT_INFO;
     l = 1;
 
     //null terminated player name to send
     for (i=0; szPlayerName[i]; i++)
     {
-        buf[l++] = szPlayerName[i];
+        tempnetbuf[l++] = szPlayerName[i];
     }
-    buf[l++] = 0;
+    tempnetbuf[l++] = 0;
 
-    buf[l++] = g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
-    buf[l++] = g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
-    buf[l++] = g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
-    buf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
+    tempnetbuf[l++] = g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
+    tempnetbuf[l++] = g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
+    tempnetbuf[l++] = g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
+    tempnetbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
 
-    buf[l++] = g_player[myconnectindex].pteam = ud.team;
+    tempnetbuf[l++] = g_player[myconnectindex].pteam = ud.team;
 
     for (i=0; i<10; i++)
     {
         g_player[myconnectindex].wchoice[i] = g_player[0].wchoice[i];
-        buf[l++] = (uint8_t)g_player[0].wchoice[i];
+        tempnetbuf[l++] = (uint8_t)g_player[0].wchoice[i];
     }
 
-    buf[l++] = myconnectindex;
+    tempnetbuf[l++] = myconnectindex;
 
     if (g_netClient)
     {
-        enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
+        enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&tempnetbuf[0], l, ENET_PACKET_FLAG_RELIABLE));
     }
     else if (g_netServer)
     {
-        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
+        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(&tempnetbuf[0], l, ENET_PACKET_FLAG_RELIABLE));
     }
 }
 
@@ -1036,6 +1055,11 @@ void Net_SendMapUpdate(void)
         ENetPeer *const currentPeer = &g_netServer->peers[pi];
         const intptr_t playeridx = (intptr_t) currentPeer->data;
 
+        if (playeridx < 0 || playeridx >= MAXPLAYERS)
+        {
+            continue;
+        }
+
         if (currentPeer->state != ENET_PEER_STATE_CONNECTED || !g_player[playeridx].playerquitflag)
         {
             continue;
@@ -1052,7 +1076,7 @@ void Net_SendMapUpdate(void)
         diffsize += tempMapDiff.numActors * sizeof(netactor_t);
         diffsize += tempMapDiff.numToDelete * sizeof(int32_t);
 
-        packetsize = LZ4_compress_limitedOutput((const char*)&tempMapDiff, &tempnetbuf[5], diffsize, tempnetbufsize - 5);
+        packetsize = LZ4_compress_limitedOutput((const char*)&tempMapDiff, (char*)&tempnetbuf[5], diffsize, tempnetbufsize - 5);
 
         if (packetsize == 0)
             return;
@@ -1061,10 +1085,7 @@ void Net_SendMapUpdate(void)
         tempnetbuf[0] = PACKET_MAP_STREAM;
 
         // apply uncompressed size
-        tempnetbuf[1] = (diffsize & 0x000000FF);
-        tempnetbuf[2] = (diffsize & 0x0000FF00) >> 8;
-        tempnetbuf[3] = (diffsize & 0x00FF0000) >> 16;
-        tempnetbuf[4] = (diffsize & 0xFF000000) >> 24;
+        B_BUF32(&tempnetbuf[1], diffsize);
 
         packetsize += 5;
 
@@ -1076,9 +1097,9 @@ void Net_SendMapUpdate(void)
 
 void Net_ReceiveMapUpdate(ENetEvent *event)
 {
-    char *pktBuf = (char *) event->packet->data;
-    uint32_t diffsize = (pktBuf[4] << 24) | (pktBuf[3] << 16) | (pktBuf[2] << 8) | (pktBuf[1]);
-    LZ4_decompress_safe(&pktBuf[5], (char*)&tempMapDiff, diffsize, sizeof(netmapdiff_t));
+    const uint8_t *pktBuf = (uint8_t *) event->packet->data;
+    uint32_t diffsize = B_UNBUF32(&pktBuf[1]);
+    LZ4_decompress_safe((const char*)&pktBuf[5], (char*)&tempMapDiff, diffsize, sizeof(netmapdiff_t));
 
     Net_RestoreMapState();
     //initprintf("Update packet size: %d - num actors: %d\n", event->packet->dataLength, tempMapDiff.numActors);
@@ -1510,7 +1531,7 @@ typedef struct
 void Net_SendServerUpdates(void)
 {
     int16_t i;
-    char *updatebuf;
+    uint8_t *updatebuf;
     serverupdate_t serverupdate;
     serverplayerupdate_t playerupdate;
     input_t *osyn = (input_t *)&inputfifo[1][0];
@@ -1585,7 +1606,7 @@ void Net_SendServerUpdates(void)
 void Net_ReceiveServerUpdate(ENetEvent *event)
 {
     int32_t i;
-    char *updatebuf;
+    uint8_t *updatebuf;
    // int8_t numupdates;
     serverupdate_t serverupdate;
     serverplayerupdate_t playerupdate;
@@ -1595,7 +1616,7 @@ void Net_ReceiveServerUpdate(ENetEvent *event)
         return;
     }
 
-    updatebuf = (char *) event->packet->data;
+    updatebuf = (uint8_t *) event->packet->data;
     Bmemcpy(&serverupdate, updatebuf, sizeof(serverupdate_t));
     updatebuf += sizeof(serverupdate_t);
     inputfifo[0][0] = serverupdate.nsyn;
@@ -1672,6 +1693,11 @@ void Net_ReceiveClientUpdate(ENetEvent *event)
     Bmemcpy(&update, (char *) event->packet->data, sizeof(clientupdate_t));
 
     playeridx = (int32_t)(intptr_t) event->peer->data;
+
+    if (playeridx < 0 || playeridx >= MAXPLAYERS)
+    {
+        return;
+    }
 
     g_player[playeridx].revision = update.revision;
     inputfifo[0][playeridx] = update.nsyn;
@@ -1757,9 +1783,9 @@ void Net_SendMessage(void)
                 }
                 else
                 {
-                    Bsprintf(buf,"      %d - %s",i+1,g_player[i].user_name);
-                    minitextshade((320>>1)-40-6+1,j+1,buf,26,0,2+8+16);
-                    minitext((320>>1)-40-6,j,buf,0,2+8+16);
+                    Bsprintf(recbuf,"      %d - %s",i+1,g_player[i].user_name);
+                    minitextshade((320>>1)-40-6+1,j+1,recbuf,26,0,2+8+16);
+                    minitext((320>>1)-40-6,j,recbuf,0,2+8+16);
                     j += 7;
                 }
             }
@@ -1920,8 +1946,6 @@ void Net_SendNewGame(int32_t frommenu, ENetPeer *peer)
     {
         enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(&newgame, sizeof(newgame_t), ENET_PACKET_FLAG_RELIABLE));
     }
-
-    g_netPlayersWaiting--;
 }
 
 void Net_ReceiveNewGame(ENetEvent *event)
@@ -2023,7 +2047,7 @@ void Net_SendMapVoteInitiate(void)
     enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&newgame, sizeof(newgame_t), ENET_PACKET_FLAG_RELIABLE));
 }
 
-void Net_RecieveMapVoteInitiate(uint8_t *pbuf)
+void Net_ReceiveMapVoteInitiate(uint8_t *pbuf)
 {
     int32_t i;
 
@@ -2075,7 +2099,7 @@ void Net_SendMapVote(int32_t votefor)
     Net_CheckForEnoughVotes();
 }
 
-void Net_RecieveMapVote(uint8_t *pbuf)
+void Net_ReceiveMapVote(uint8_t *pbuf)
 {
     if (voting == myconnectindex && g_player[(uint8_t)pbuf[1]].gotvote == 0)
     {
@@ -2178,7 +2202,7 @@ void Net_SendMapVoteCancel(int32_t failed)
     }
 }
 
-void Net_RecieveMapVoteCancel(uint8_t *pbuf)
+void Net_ReceiveMapVoteCancel(uint8_t *pbuf)
 {
    // int32_t numvotes;
 

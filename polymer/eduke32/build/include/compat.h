@@ -321,9 +321,37 @@ extern "C" {
 # endif
 #elif defined B_ENDIAN_C_INLINE
 static inline uint16_t B_SWAP16(uint16_t s) { return (s>>8)|(s<<8); }
-static inline uint32_t  B_SWAP32(uint32_t  l) { return ((l>>8)&0xff00)|((l&0xff00)<<8)|(l<<24)|(l>>24); }
+static inline uint32_t B_SWAP32(uint32_t l) { return ((l>>8)&0xff00)|((l&0xff00)<<8)|(l<<24)|(l>>24); }
 static inline uint64_t B_SWAP64(uint64_t l) { return (l>>56)|((l>>40)&0xff00)|((l>>24)&0xff0000)|((l>>8)&0xff000000)|((l&255)<<56)|((l&0xff00)<<40)|((l&0xff0000)<<24)|((l&0xff000000)<<8); }
 #endif
+
+static inline void B_BUF16(uint8_t *buf, uint16_t x)
+{
+    buf[0] = (x & 0x00FF);
+    buf[1] = (x & 0xFF00) >> 8;
+}
+static inline void B_BUF32(uint8_t *buf, uint32_t x)
+{
+    buf[0] = (x & 0x000000FF);
+    buf[1] = (x & 0x0000FF00) >> 8;
+    buf[2] = (x & 0x00FF0000) >> 16;
+    buf[3] = (x & 0xFF000000) >> 24;
+}
+static inline void B_BUF64(uint8_t *buf, uint64_t x)
+{
+    buf[0] = (x & 0x00000000000000FF);
+    buf[1] = (x & 0x000000000000FF00) >> 8;
+    buf[2] = (x & 0x0000000000FF0000) >> 16;
+    buf[3] = (x & 0x00000000FF000000) >> 24;
+    buf[4] = (x & 0x000000FF00000000) >> 32;
+    buf[5] = (x & 0x0000FF0000000000) >> 40;
+    buf[6] = (x & 0x00FF000000000000) >> 48;
+    buf[7] = (x & 0xFF00000000000000) >> 56;
+}
+
+static inline uint16_t B_UNBUF16(const uint8_t *buf) { return (buf[1] << 8) | (buf[0]); }
+static inline uint32_t B_UNBUF32(const uint8_t *buf) { return (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]); }
+static inline uint64_t B_UNBUF64(const uint8_t *buf) { return ((uint64_t)buf[7] << 56) | ((uint64_t)buf[6] << 48) | ((uint64_t)buf[5] << 40) | ((uint64_t)buf[4] << 32) | (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]); }
 
 #if defined(USE_MSC_PRAGMAS)
 static inline void ftol(float f, int32_t *a)

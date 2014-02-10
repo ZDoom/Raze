@@ -25,6 +25,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "enet/enet.h"
 
+// net packet specification/compatibility version
+#define NETVERSION    1
+
 extern ENetHost       *g_netClient;
 extern ENetHost       *g_netServer;
 extern ENetPeer       *g_netClientPeer;
@@ -60,7 +63,7 @@ enum DukePacket_t
     PACKET_PLAYER_DISCONNECTED,
     PACKET_PLAYER_SPAWN,
     PACKET_FRAG,
-    PACKET_VERSION,
+    PACKET_ACK,
     PACKET_AUTH,
     PACKET_PLAYER_PING,
     PACKET_PLAYER_READY,
@@ -87,6 +90,10 @@ enum DukePacket_t
 enum netdisconnect_t
 {
     DISC_BAD_PASSWORD = 1,
+    DISC_VERSION_MISMATCH,
+    DISC_INVALID,
+    DISC_SERVER_QUIT,
+    DISC_SERVER_FULL,
     DISC_KICKED,
     DISC_BANNED
 };
@@ -179,17 +186,17 @@ void    Net_ParseClientPacket(ENetEvent *event);
 void    Net_ParseServerPacket(ENetEvent *event);
 void    Net_ParsePacketCommon(uint8_t *pbuf, int32_t packbufleng, int32_t serverpacketp);
 
-void    Net_SendVersion(ENetPeer *client);
-void    Net_RecieveVersion(uint8_t *pbuf, int32_t packbufleng);
+void    Net_SendAcknowledge(ENetPeer *client);
+void    Net_ReceiveAcknowledge(uint8_t *pbuf, int32_t packbufleng);
 
 void    Net_SendChallenge();
-void    Net_RecieveChallenge(uint8_t *pbuf, int32_t packbufleng, ENetEvent *event);
+void    Net_ReceiveChallenge(uint8_t *pbuf, int32_t packbufleng, ENetEvent *event);
 
 void    Net_SendNewPlayer(int32_t newplayerindex);
-void    Net_RecieveNewPlayer(uint8_t *pbuf, int32_t packbufleng);
+void    Net_ReceiveNewPlayer(uint8_t *pbuf, int32_t packbufleng);
 
 void    Net_SendPlayerIndex(int32_t index, ENetPeer *peer);
-void    Net_RecievePlayerIndex(uint8_t *pbuf, int32_t packbufleng);
+void    Net_ReceivePlayerIndex(uint8_t *pbuf, int32_t packbufleng);
 
 void    Net_SendClientInfo(void);
 void    Net_ReceiveClientInfo(uint8_t *pbuf, int32_t packbufleng, int32_t fromserver);
@@ -235,14 +242,14 @@ void    Net_FillNewGame(newgame_t *newgame, int32_t frommenu);
 void    Net_ExtractNewGame(newgame_t *newgame, int32_t menuonly);
 
 void    Net_SendMapVoteInitiate(void);
-void    Net_RecieveMapVoteInitiate(uint8_t *pbuf);
+void    Net_ReceiveMapVoteInitiate(uint8_t *pbuf);
 
 void    Net_SendMapVote(int32_t votefor);
-void    Net_RecieveMapVote(uint8_t *pbuf);
+void    Net_ReceiveMapVote(uint8_t *pbuf);
 void    Net_CheckForEnoughVotes();
 
 void    Net_SendMapVoteCancel(int32_t failed);
-void    Net_RecieveMapVoteCancel(uint8_t *pbuf);
+void    Net_ReceiveMapVoteCancel(uint8_t *pbuf);
 
 //////////
 
@@ -268,17 +275,17 @@ void    faketimerhandler(void);
 #define Net_ParseServerPacket(...) ((void)0)
 #define Net_ParsePacketCommon(...) ((void)0)
 
-#define Net_SendVersion(...) ((void)0)
-#define Net_RecieveVersion(...) ((void)0)
+#define Net_SendAcknowledge(...) ((void)0)
+#define Net_ReceiveAcknowledge(...) ((void)0)
 
 #define Net_SendChallenge(...) ((void)0)
-#define Net_RecieveChallenge(...) ((void)0)
+#define Net_ReceiveChallenge(...) ((void)0)
 
 #define Net_SendNewPlayer(...) ((void)0)
-#define Net_RecieveNewPlayer(...) ((void)0)
+#define Net_ReceiveNewPlayer(...) ((void)0)
 
 #define Net_SendPlayerIndex(...) ((void)0)
-#define Net_RecievePlayerIndex(...) ((void)0)
+#define Net_ReceivePlayerIndex(...) ((void)0)
 
 #define Net_SendClientInfo(...) ((void)0)
 #define Net_ReceiveClientInfo(...) ((void)0)
@@ -312,14 +319,14 @@ void    faketimerhandler(void);
 #define Net_ExtractNewGame(...) ((void)0)
 
 #define Net_SendMapVoteInitiate(...) ((void)0)
-#define Net_RecieveMapVoteInitiate(...) ((void)0)
+#define Net_ReceiveMapVoteInitiate(...) ((void)0)
 
 #define Net_SendMapVote(...) ((void)0)
-#define Net_RecieveMapVote(...) ((void)0)
+#define Net_ReceiveMapVote(...) ((void)0)
 #define Net_CheckForEnoughVotes(...) ((void)0)
 
 #define Net_SendMapVoteCancel(...) ((void)0)
-#define Net_RecieveMapVoteCancel(...) ((void)0)
+#define Net_ReceiveMapVoteCancel(...) ((void)0)
 
 //////////
 
