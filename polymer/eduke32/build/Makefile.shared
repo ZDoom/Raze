@@ -143,6 +143,7 @@ ifeq ($(PLATFORM),WII)
     MIXERTYPE=SDL
     EXESUFFIX=.elf
     override USE_OPENGL=0
+    override POLYMER=0
     override NOASM=1
     override WITHOUT_GTK=1
     # -msdata=eabi

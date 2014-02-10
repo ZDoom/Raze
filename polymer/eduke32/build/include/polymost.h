@@ -3,6 +3,7 @@
 
 #ifdef USE_OPENGL
 
+#include "glbuild.h"
 #include "hightile.h"
 
 typedef struct { char r, g, b, a; } coltype;

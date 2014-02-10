@@ -7,6 +7,8 @@
 
 #if defined USE_OPENGL
 
+#if defined DYNAMIC_GL
+
 #ifdef RENDERTYPESDL
 #include "sdl_inc.h"
 #endif
@@ -724,6 +726,8 @@ int32_t unloadgldriver(void)
     bglVertex3f = (bglVertex3fProcPtr) NULL;
     bglVertex3d = (bglVertex3dProcPtr) NULL;
     bglVertex3fv = (bglVertex3fvProcPtr) NULL;
+    bglVertex3dv = (bglVertex3dvProcPtr) NULL;
+    bglRectd = (bglRectdProcPtr) NULL;
     bglColor4f = (bglColor4fProcPtr) NULL;
     bglColor4ub = (bglColor4ubProcPtr) NULL;
     bglTexCoord2d = (bglTexCoord2dProcPtr) NULL;
@@ -749,7 +753,7 @@ int32_t unloadgldriver(void)
     bglTexImage2D = (bglTexImage2DProcPtr) NULL;
     bglTexImage3D = (bglTexImage3DProcPtr) NULL;
     bglCopyTexImage2D = (bglCopyTexImage2DProcPtr) NULL;
-    bglCopyTexSubImage2D= NULL;
+    bglCopyTexSubImage2D = (bglCopyTexSubImage2DProcPtr) NULL;
     bglTexSubImage2D = (bglTexSubImage2DProcPtr) NULL;
     bglTexParameterf = (bglTexParameterfProcPtr) NULL;
     bglTexParameteri = (bglTexParameteriProcPtr) NULL;
@@ -786,7 +790,7 @@ int32_t unloadgldriver(void)
     bglGenProgramsARB = (bglGenProgramsARBProcPtr) NULL;
     bglBindProgramARB = (bglBindProgramARBProcPtr) NULL;
     bglProgramStringARB = (bglProgramStringARBProcPtr) NULL;
-    bglDeleteProgramsARB= NULL;
+    bglDeleteProgramsARB = (bglDeleteProgramsARBProcPtr) NULL;
 
     // Multitexturing
     bglActiveTextureARB = (bglActiveTextureARBProcPtr) NULL;
@@ -1130,5 +1134,17 @@ void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *src
         }
 }
 # endif  // defined DEBUGGINGAIDS
+
+
+#else
+
+int32_t loadgldriver(const char *driver) { UNREFERENCED_PARAMETER(driver); return 0; };
+int32_t loadglextensions(void) { return 0; };
+int32_t unloadgldriver(void) { return 0; };
+
+int32_t loadglulibrary(const char *driver) { UNREFERENCED_PARAMETER(driver); return 0; };
+int32_t unloadglulibrary(void) { return 0; };
+
+#endif
 
 #endif

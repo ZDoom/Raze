@@ -4,6 +4,10 @@
 
 #ifdef USE_OPENGL
 
+#if !defined GEKKO
+# define DYNAMIC_GL
+#endif
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -50,6 +54,8 @@
 #define GL_FRAMEBUFFER_COMPLETE_EXT             0x8CD5
 
 #define GL_TEXTURE_RECTANGLE                    0x84F5
+
+#if defined DYNAMIC_GL
 
 typedef void (APIENTRY * bglClearColorProcPtr)( GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha );
 extern bglClearColorProcPtr bglClearColor;
@@ -580,9 +586,275 @@ void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *src
 #  define bglGenTextures(numtexs, texnamear) texdbg_bglGenTextures(numtexs, texnamear, __FILE__)
 #  define bglDeleteTextures(numtexs, texnamear) texdbg_bglDeleteTextures(numtexs, texnamear, __FILE__)
 # endif
+
+#else
+
+#define bglClearColor glClearColor
+#define bglClear glClear
+#define bglColorMask glColorMask
+#define bglAlphaFunc glAlphaFunc
+#define bglBlendFunc glBlendFunc
+#define bglBlendEquation glBlendEquation
+#define bglCullFace glCullFace
+#define bglFrontFace glFrontFace
+#define bglPolygonOffset glPolygonOffset
+#define bglPolygonMode glPolygonMode
+#define bglEnable glEnable
+#define bglDisable glDisable
+#define bglGetDoublev glGetDoublev
+#define bglGetFloatv glGetFloatv
+#define bglGetIntegerv glGetIntegerv
+#define bglPushAttrib glPushAttrib
+#define bglPopAttrib glPopAttrib
+#define bglGetError glGetError
+#define bglGetString glGetString
+#define bglHint glHint
+#define bglDrawBuffer glDrawBuffer
+#define bglReadBuffer glReadBuffer
+#define bglScissor glScissor
+#define bglClipPlane glClipPlane
+
+// Depth
+#define bglDepthFunc glDepthFunc
+#define bglDepthMask glDepthMask
+#define bglDepthRange glDepthRange
+
+// Matrix
+#define bglMatrixMode glMatrixMode
+#define bglOrtho glOrtho
+#define bglFrustum glFrustum
+#define bglViewport glViewport
+#define bglPushMatrix glPushMatrix
+#define bglPopMatrix glPopMatrix
+#define bglLoadIdentity glLoadIdentity
+#define bglLoadMatrixf glLoadMatrixf
+#define bglLoadMatrixd glLoadMatrixd
+#define bglMultMatrixf glMultMatrixf
+#define bglMultMatrixd glMultMatrixd
+#define bglRotatef glRotatef
+#define bglScalef glScalef
+#define bglTranslatef glTranslatef
+
+// Drawing
+#define bglBegin glBegin
+#define bglEnd glEnd
+#define bglVertex2f glVertex2f
+#define bglVertex2i glVertex2i
+#define bglVertex3f glVertex3f
+#define bglVertex3d glVertex3d
+#define bglVertex3fv glVertex3fv
+#define bglVertex3dv glVertex3dv
+#define bglRectd glRectd
+#define bglColor4f glColor4f
+#define bglColor4ub glColor4ub
+#define bglTexCoord2d glTexCoord2d
+#define bglTexCoord2f glTexCoord2f
+#define bglTexCoord2i glTexCoord2i
+#define bglNormal3f glNormal3f
+
+// Lighting
+#define bglShadeModel glShadeModel
+#define bglLightfv glLightfv
+
+// Raster funcs
+#define bglReadPixels glReadPixels
+#define bglRasterPos4i glRasterPos4i
+#define bglDrawPixels glDrawPixels
+#define bglPixelStorei glPixelStorei
+
+// Texture mapping
+#define bglTexEnvf glTexEnvf
+#define bglGenTextures glGenTextures
+#define bglDeleteTextures glDeleteTextures
+#define bglBindTexture glBindTexture
+#define bglTexImage2D glTexImage2D
+#define bglTexImage3D glTexImage3D
+#define bglCopyTexImage2D glCopyTexImage2D
+#define bglCopyTexSubImage2D glCopyTexSubImage2D;
+#define bglTexSubImage2D glTexSubImage2D
+#define bglTexParameterf glTexParameterf
+#define bglTexParameteri glTexParameteri
+#define bglGetTexParameteriv glGetTexParameteriv
+#define bglGetTexLevelParameteriv glGetTexLevelParameteriv
+#define bglCompressedTexImage2DARB glCompressedTexImage2DARB
+#define bglGetCompressedTexImageARB glGetCompressedTexImageARB
+
+// Fog
+#define bglFogf glFogf
+#define bglFogi glFogi
+#define bglFogfv glFogfv
+
+// Display Lists
+#define bglNewList glNewList
+#define bglEndList glEndList
+#define bglCallList glCallList
+#define bglDeleteLists glDeleteLists
+
+// Vertex Arrays
+#define bglEnableClientState glEnableClientState
+#define bglDisableClientState glDisableClientState
+#define bglVertexPointer glVertexPointer
+#define bglNormalPointer glNormalPointer
+#define bglTexCoordPointer glTexCoordPointer
+#define bglDrawElements glDrawElements
+
+// Stencil Buffer
+#define bglClearStencil glClearStencil
+#define bglStencilOp glStencilOp
+#define bglStencilFunc glStencilFunc
+
+// GPU Programs
+#define bglGenProgramsARB glGenProgramsARB
+#define bglBindProgramARB glBindProgramARB
+#define bglProgramStringARB glProgramStringARB
+#define bglDeleteProgramsARB glDeleteProgramsARB;
+
+// Multitexturing
+#define bglActiveTextureARB glActiveTextureARB
+#define bglClientActiveTextureARB glClientActiveTextureARB
+#define bglMultiTexCoord2dARB glMultiTexCoord2dARB
+#define bglMultiTexCoord2fARB glMultiTexCoord2fARB
+
+// Frame Buffer Objects
+#define bglGenFramebuffersEXT glGenFramebuffersEXT
+#define bglBindFramebufferEXT glBindFramebufferEXT
+#define bglFramebufferTexture2DEXT glFramebufferTexture2DEXT
+#define bglCheckFramebufferStatusEXT glCheckFramebufferStatusEXT
+#define bglDeleteFramebuffersEXT glDeleteFramebuffersEXT
+
+// Vertex Buffer Objects
+#define bglGenBuffersARB glGenBuffersARB
+#define bglBindBufferARB glBindBufferARB
+#define bglDeleteBuffersARB glDeleteBuffersARB
+#define bglBufferDataARB glBufferDataARB
+#define bglBufferSubDataARB glBufferSubDataARB
+#define bglMapBufferARB glMapBufferARB
+#define bglUnmapBufferARB glUnmapBufferARB
+
+// Occlusion queries
+#define bglGenQueriesARB glGenQueriesARB
+#define bglDeleteQueriesARB glDeleteQueriesARB
+#define bglIsQueryARB glIsQueryARB
+#define bglBeginQueryARB glBeginQueryARB
+#define bglEndQueryARB glEndQueryARB
+#define bglGetQueryivARB glGetQueryivARB
+#define bglGetQueryObjectivARB glGetQueryObjectivARB
+#define bglGetQueryObjectuivARB glGetQueryObjectuivARB
+
+// Shader Objects
+#define bglDeleteObjectARB glDeleteObjectARB
+#define bglGetHandleARB glGetHandleARB
+#define bglDetachObjectARB glDetachObjectARB
+#define bglCreateShaderObjectARB glCreateShaderObjectARB
+#define bglShaderSourceARB glShaderSourceARB
+#define bglCompileShaderARB glCompileShaderARB
+#define bglCreateProgramObjectARB glCreateProgramObjectARB
+#define bglAttachObjectARB glAttachObjectARB
+#define bglLinkProgramARB glLinkProgramARB
+#define bglUseProgramObjectARB glUseProgramObjectARB
+#define bglValidateProgramARB glValidateProgramARB
+#define bglUniform1fARB glUniform1fARB
+#define bglUniform2fARB glUniform2fARB
+#define bglUniform3fARB glUniform3fARB
+#define bglUniform4fARB glUniform4fARB
+#define bglUniform1iARB glUniform1iARB
+#define bglUniform2iARB glUniform2iARB
+#define bglUniform3iARB glUniform3iARB
+#define bglUniform4iARB glUniform4iARB
+#define bglUniform1fvARB glUniform1fvARB
+#define bglUniform2fvARB glUniform2fvARB
+#define bglUniform3fvARB glUniform3fvARB
+#define bglUniform4fvARB glUniform4fvARB
+#define bglUniform1ivARB glUniform1ivARB
+#define bglUniform2ivARB glUniform2ivARB
+#define bglUniform3ivARB glUniform3ivARB
+#define bglUniform4ivARB glUniform4ivARB
+#define bglUniformMatrix2fvARB glUniformMatrix2fvARB
+#define bglUniformMatrix3fvARB glUniformMatrix3fvARB
+#define bglUniformMatrix4fvARB glUniformMatrix4fvARB
+#define bglGetObjectParameterfvARB glGetObjectParameterfvARB
+#define bglGetObjectParameterivARB glGetObjectParameterivARB
+#define bglGetInfoLogARB glGetInfoLogARB
+#define bglGetAttachedObjectsARB glGetAttachedObjectsARB
+#define bglGetUniformLocationARB glGetUniformLocationARB
+#define bglGetActiveUniformARB glGetActiveUniformARB
+#define bglGetUniformfvARB glGetUniformfvARB
+#define bglGetUniformivARB glGetUniformivARB
+#define bglGetShaderSourceARB glGetShaderSourceARB
+
+// Vertex Shaders
+#define bglVertexAttrib1dARB glVertexAttrib1dARB
+#define bglVertexAttrib1dvARB glVertexAttrib1dvARB
+#define bglVertexAttrib1fARB glVertexAttrib1fARB
+#define bglVertexAttrib1fvARB glVertexAttrib1fvARB
+#define bglVertexAttrib1sARB glVertexAttrib1sARB
+#define bglVertexAttrib1svARB glVertexAttrib1svARB
+#define bglVertexAttrib2dARB glVertexAttrib2dARB
+#define bglVertexAttrib2dvARB glVertexAttrib2dvARB
+#define bglVertexAttrib2fARB glVertexAttrib2fARB
+#define bglVertexAttrib2fvARB glVertexAttrib2fvARB
+#define bglVertexAttrib2sARB glVertexAttrib2sARB
+#define bglVertexAttrib2svARB glVertexAttrib2svARB
+#define bglVertexAttrib3dARB glVertexAttrib3dARB
+#define bglVertexAttrib3dvARB glVertexAttrib3dvARB
+#define bglVertexAttrib3fARB glVertexAttrib3fARB
+#define bglVertexAttrib3fvARB glVertexAttrib3fvARB
+#define bglVertexAttrib3sARB glVertexAttrib3sARB
+#define bglVertexAttrib3svARB glVertexAttrib3svARB
+#define bglVertexAttrib4NbvARB glVertexAttrib4NbvARB
+#define bglVertexAttrib4NivARB glVertexAttrib4NivARB
+#define bglVertexAttrib4NsvARB glVertexAttrib4NsvARB
+#define bglVertexAttrib4NubARB glVertexAttrib4NubARB
+#define bglVertexAttrib4NubvARB glVertexAttrib4NubvARB
+#define bglVertexAttrib4NuivARB glVertexAttrib4NuivARB
+#define bglVertexAttrib4NusvARB glVertexAttrib4NusvARB
+#define bglVertexAttrib4bvARB glVertexAttrib4bvARB
+#define bglVertexAttrib4dARB glVertexAttrib4dARB
+#define bglVertexAttrib4dvARB glVertexAttrib4dvARB
+#define bglVertexAttrib4fARB glVertexAttrib4fARB
+#define bglVertexAttrib4fvARB glVertexAttrib4fvARB
+#define bglVertexAttrib4ivARB glVertexAttrib4ivARB
+#define bglVertexAttrib4sARB glVertexAttrib4sARB
+#define bglVertexAttrib4svARB glVertexAttrib4svARB
+#define bglVertexAttrib4ubvARB glVertexAttrib4ubvARB
+#define bglVertexAttrib4uivARB glVertexAttrib4uivARB
+#define bglVertexAttrib4usvARB glVertexAttrib4usvARB
+#define bglVertexAttribPointerARB glVertexAttribPointerARB
+#define bglEnableVertexAttribArrayARB glEnableVertexAttribArrayARB
+#define bglDisableVertexAttribArrayARB glDisableVertexAttribArrayARB
+#define bglGetVertexAttribdvARB glGetVertexAttribdvARB
+#define bglGetVertexAttribfvARB glGetVertexAttribfvARB
+#define bglGetVertexAttribivARB glGetVertexAttribivARB
+#define bglGetVertexAttribPointervARB glGetVertexAttribPointervARB
+#define bglBindAttribLocationARB glBindAttribLocationARB
+#define bglGetActiveAttribARB glGetActiveAttribARB
+#define bglGetAttribLocationARB glGetAttribLocationARB
+
+#define bgluTessBeginContour gluTessBeginContour
+#define bgluTessBeginPolygon gluTessBeginPolygon
+#define bgluTessCallback gluTessCallback
+#define bgluTessEndContour gluTessEndContour
+#define bgluTessEndPolygon gluTessEndPolygon
+#define bgluTessNormal gluTessNormal
+#define bgluTessProperty gluTessProperty
+#define bgluTessVertex gluTessVertex
+#define bgluNewTess gluNewTess
+#define bgluDeleteTess gluDeleteTess
+
+#define bgluPerspective gluPerspective
+
+#define bgluErrorString gluErrorString
+
+#define bgluProject gluProject
+#define bgluUnProject gluUnProject
+
+#endif
+
 #endif //USE_OPENGL
 
+#ifdef _WIN32
 extern char *gldriver;
+#endif
 
 int32_t loadgldriver(const char *driver);
 int32_t loadglextensions(void);

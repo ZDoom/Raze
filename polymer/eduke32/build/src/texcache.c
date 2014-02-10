@@ -1,5 +1,6 @@
 #ifdef USE_OPENGL
 
+#include "baselayer.h"
 #include "build.h"
 #include "lz4.h"
 #include "hightile.h"

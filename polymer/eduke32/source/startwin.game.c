@@ -99,10 +99,6 @@ static inline int32_t getfilenames(char *path)
 #define POPULATE_GAME 4
 #define POPULATE_GAMEDIRS 8
 
-#ifdef USE_OPENGL
-extern char TEXCACHEFILE[];
-#endif
-
 extern int32_t g_noSetup;
 
 #ifdef INPUT_MOUSE
