@@ -1,10 +1,10 @@
 diff --git a/build/make/configure.sh b/build/make/configure.sh
-index c99a01c..0ddbc3f 100755
+index b5151da..a739468 100755
 --- a/build/make/configure.sh
 +++ b/build/make/configure.sh
-@@ -641,9 +641,14 @@ process_common_toolchain() {
-                 tgt_isa=x86_64
-                 tgt_os=darwin12
+@@ -661,9 +661,14 @@ process_common_toolchain() {
+             x86_64*mingw32*)
+                 tgt_os=win64
                  ;;
 -            *mingw32*|*cygwin*)
 +            *mingw32*|*cygwin*|*win32-gcc*)
@@ -19,10 +19,10 @@ index c99a01c..0ddbc3f 100755
              *linux*|*bsd*)
                  tgt_os=linux
 diff --git a/configure b/configure
-index b3c5fe9..85ef8cf 100755
+index 9f5a435..93f3d30 100755
 --- a/configure
 +++ b/configure
-@@ -127,6 +127,7 @@ all_platforms="${all_platforms} x86_64-darwin12-gcc"
+@@ -137,6 +137,7 @@ all_platforms="${all_platforms} x86_64-darwin13-gcc"
  all_platforms="${all_platforms} x86_64-linux-gcc"
  all_platforms="${all_platforms} x86_64-linux-icc"
  all_platforms="${all_platforms} x86_64-solaris-gcc"

@@ -312,6 +312,7 @@ ifeq ($(PLATFORM),WINDOWS)
     ifneq ($(USE_LIBPNG),0)
         BUILDLIBS+= -lpng_mini -lz_mini
     endif
+    BUILDLIBS+= -lcompat-from-mingw-w64
 else
     ifeq ($(PLATFORM),DARWIN)
         ifneq ($(USE_LIBPNG),0)

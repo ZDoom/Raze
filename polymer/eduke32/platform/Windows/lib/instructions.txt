@@ -9,7 +9,7 @@ http://git.xiph.org/?p=flac.git;a=summary
 http://zlib.net/
 http://www.libpng.org/pub/png/libpng.html
 http://www.webmproject.org/code/
-http://www.libsdl.org/download-1.2.php
+http://www.libsdl.org/download-2.0.php
 http://www.libsdl.org/projects/SDL_mixer/
 
 The build output listed as "Desired Results" is what EDuke32 needs to function.
@@ -35,14 +35,14 @@ http://wiki.eduke32.com/wiki/Working_with_the_Windows_Command_Prompt
 
 libogg:
 To build:
-[sh ./configure && make]
+[sh ./configure CFLAGS="-g -O2 -fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make]
 Desired Results:
  - headers: ogg\config_types.h ogg\ogg.h ogg\os_types.h
  - libraries: libogg.a
 
 libvorbis:
 To build:
-[sh ./configure && make]
+[sh ./configure CFLAGS="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make]
 Desired Results:
  - headers: vorbis\codec.h vorbis\vorbisfile.h
  - libraries: libvorbis.a libvorbisfile.a
@@ -50,7 +50,7 @@ libvorbis depends on the results of libogg to compile.
 
 libFLAC:
 To build:
-[make -f Makefile.lite libFLAC]
+[make -f Makefile.lite libFLAC USE_LROUND=0 USE_FSEEKO=0 CUSTOM_CFLAGS="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe"]
 Desired Results:
  - headers: FLAC\all.h FLAC\assert.h FLAC\callback.h FLAC\export.h FLAC\format.h FLAC\metadata.h FLAC\ordinals.h FLAC\stream_decoder.h FLAC\stream_encoder.h
  - libraries: libFLAC.a
@@ -58,7 +58,9 @@ libFLAC depends on the results of libogg to compile.
 
 
 zlib:
-You may want to change -O3 to -O2 in win32\Makefile.gcc for stability and possibly performance benefits.
+Modify win32\Makefile.gcc as follows:
+ - CFLAGS: change -O3 to -O2 for stability and possibly performance benefits.
+ - CFLAGS: add: -fno-stack-check -fno-stack-protector -mno-stack-arg-probe
 To build:
 [make -f win32\Makefile.gcc]
 [ar rcs libz_mini.a crc32.o deflate.o adler32.o zutil.o trees.o]
@@ -68,7 +70,10 @@ Desired Results:
 
 
 libpng:
-Edit scripts\Makefile.gcc so that ZLIBINC and ZLIBLIB point to the directory of zlib from above, or, rename your zlib directory so that, relative to the libpng directory, it is "../zlib". You will get a compile-time error if this is omitted or done incorrectly.
+Copy *.h from zlib to your compiler's include directory.
+Modify scripts\Makefile.gcc as follows:
+ - Ensure ZLIBINC and ZLIBLIB point to the directory of zlib from above, or, rename your zlib directory so that, relative to the libpng directory, it is "../zlib". You will get a compile-time error if this is omitted or done incorrectly.
+ - CFLAGS: add: -fno-stack-check -fno-stack-protector -mno-stack-arg-probe
 Copy the file "minipng.dfa" to the root of the libpng data.
 To build:
 [make -f scripts/pnglibconf.mak DFA_XTRA=./minipng.dfa CPP="gcc -E"]
@@ -84,7 +89,7 @@ Download the binary of yasm (http://yasm.tortall.net/) for your host system arch
 The build environment needs pr.exe (https://mingw-lib.googlecode.com/files/coreutils-5.97-MSYS-1.0.11-snapshot.tar.bz2).
 If the configure scripts do not recognize your 64-bit compiler, you may need to [git apply "libvpx with MinGW-w64.patch"].
 To build:
-[sh ./configure --disable-vp8-encoder --disable-multithread --disable-spatial-resampling --as=yasm && make]
+[sh ./configure --disable-vp8-encoder --disable-vp9-encoder --disable-multithread --disable-spatial-resampling --as=yasm --extra-cflags="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make]
 Desired Results:
  - headers: vpx\vp8.h vpx\vp8dx.h vpx\vpx_codec.h vpx\vpx_codec_impl_bottom.h vpx\vpx_codec_impl_top.h vpx\vpx_decoder.h vpx\vpx_decoder_compat.h vpx\vpx_image.h vpx\vpx_integer.h
  - libraries: libvpx.a libvpx_g.a
@@ -103,7 +108,7 @@ Download SDL_mixer-devel-<version>-VC.zip.
 The library used for linking can be found at these paths:
 32-bit: SDL_mixer-<version>/lib/x86/SDL_mixer.lib
 64-bit: SDL_mixer-<version>/lib/x64/SDL_mixer.lib
-Compiling SDL_mixer has not been shown to work with either MinGW. If you would like to try anyway:
+Compiling SDL_mixer 1.x has not been shown to work with either MinGW. If you would like to try anyway:
 To build:
 [sh ./configure && make]
 SDL_mixer depends on the results of SDL to compile. Note that the headers must be installed without the "SDL" prefix directory.

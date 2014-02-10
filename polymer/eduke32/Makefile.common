@@ -473,8 +473,14 @@ endif
 LUAJIT:=luajit
 # Options to "luajit -b" for synthesis. Since it runs on Linux, we need to tell
 # the native LuaJIT to emit PE object files.
-ifneq ($(SYNTHESIS),0)
-    LUAJIT_BCOPTS := -o windows -a x86
+ifeq ($(PLATFORM),WINDOWS)
+    LUAJIT_BCOPTS := -o windows
+    ifeq (32,$(WINBITS))
+        LUAJIT_BCOPTS += -a x86
+    endif
+    ifeq (64,$(WINBITS))
+        LUAJIT_BCOPTS += -a x64
+    endif
 endif
 
 ifneq ($(LUNATIC),0)
