@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "input.h"
 
 #include "enet/enet.h"
-#include "quicklz.h"
+#include "lz4.h"
 #include "crc32.h"
 
 ENetHost *g_netServer = NULL;
@@ -74,6 +74,7 @@ netmapstate_t *g_mapStateHistory[NET_REVISIONS];
 char tempnetbuf[sizeof(netmapstate_t) + 400];
 netmapdiff_t tempMapDiff;
 #pragma pack(pop)
+#define tempnetbufsize sizeof(tempnetbuf)
 
 static void P_RemovePlayer(int32_t p)
 {
@@ -1051,11 +1052,21 @@ void Net_SendMapUpdate(void)
         diffsize += tempMapDiff.numActors * sizeof(netactor_t);
         diffsize += tempMapDiff.numToDelete * sizeof(int32_t);
 
-        packetsize = qlz_compress(&tempMapDiff, &tempnetbuf[1], diffsize, state_compress);
+        packetsize = LZ4_compress_limitedOutput((const char*)&tempMapDiff, &tempnetbuf[5], diffsize, tempnetbufsize - 5);
+
+        if (packetsize == 0)
+            return;
 
         // apply header
         tempnetbuf[0] = PACKET_MAP_STREAM;
-        packetsize++;
+
+        // apply uncompressed size
+        tempnetbuf[1] = (diffsize & 0x000000FF);
+        tempnetbuf[2] = (diffsize & 0x0000FF00) >> 8;
+        tempnetbuf[3] = (diffsize & 0x00FF0000) >> 16;
+        tempnetbuf[4] = (diffsize & 0xFF000000) >> 24;
+
+        packetsize += 5;
 
         //initprintf("update packet size: %d - revision (%d->%d) - num actors: %d\n", packetsize, g_player[playeridx].revision, g_netMapRevision, tempMapDiff.numActors);
 
@@ -1066,7 +1077,8 @@ void Net_SendMapUpdate(void)
 void Net_ReceiveMapUpdate(ENetEvent *event)
 {
     char *pktBuf = (char *) event->packet->data;
-    qlz_decompress(&pktBuf[1], &tempMapDiff, state_decompress);
+    uint32_t diffsize = (pktBuf[4] << 24) | (pktBuf[3] << 16) | (pktBuf[2] << 8) | (pktBuf[1]);
+    LZ4_decompress_safe(&pktBuf[5], (char*)&tempMapDiff, diffsize, sizeof(netmapdiff_t));
 
     Net_RestoreMapState();
     //initprintf("Update packet size: %d - num actors: %d\n", event->packet->dataLength, tempMapDiff.numActors);

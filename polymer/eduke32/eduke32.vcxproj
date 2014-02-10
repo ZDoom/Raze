@@ -99,7 +99,7 @@
     <ClInclude Include="build\include\polymost.h" />
     <ClInclude Include="build\include\pragmas.h" />
     <ClInclude Include="build\include\prlights.h" />
-    <ClInclude Include="build\include\quicklz.h" />
+    <ClInclude Include="build\include\lz4.h" />
     <ClInclude Include="build\include\rawinput.h" />
     <ClInclude Include="build\include\scriptfile.h" />
     <ClInclude Include="build\include\sdlayer.h" />
@@ -212,7 +212,7 @@
     <ClCompile Include="build\src\polymer.c" />
     <ClCompile Include="build\src\polymost.c" />
     <ClCompile Include="build\src\pragmas.c" />
-    <ClCompile Include="build\src\quicklz.c" />
+    <ClCompile Include="build\src\lz4.c" />
     <ClCompile Include="build\src\rawinput.c" />
     <ClCompile Include="build\src\scriptfile.c" />
     <ClCompile Include="build\src\sdlayer.c" />

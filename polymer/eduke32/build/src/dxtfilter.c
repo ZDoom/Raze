@@ -41,7 +41,7 @@ Description of Ken's filter to improve LZW compression of DXT1 format by ~15%: (
 #include "compat.h"
 #include "build.h"
 #include "texcache.h"
-#include "quicklz.h"
+#include "lz4.h"
 
 static uint16_t dxt_hicosub(uint16_t c)
 {
@@ -68,7 +68,7 @@ static void dxt_handle_io(int32_t fil, int32_t len, void *midbuf, char *packbuf)
 
     if (glusetexcache == 2)
     {
-        cleng = qlz_compress(midbuf, packbuf, len, state_compress);
+        cleng = LZ4_compress((const char*)midbuf, packbuf, len);
 
         if (cleng == 0 || cleng > len-1)
         {
@@ -107,7 +107,7 @@ static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
     {
         if (ispacked && cleng < j)
         {
-            if (qlz_decompress((const char *)texcache.memcache.ptr + texcache.filepos, midbuf, state_decompress) == 0)
+            if (LZ4_decompress_fast((const char *)texcache.memcache.ptr + texcache.filepos, (char*)midbuf, cleng) == 0)
             {
                 texcache.filepos += cleng;
                 return -1;
@@ -126,7 +126,7 @@ static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
             return -1;
 
         if (ispacked && cleng < j)
-            if (qlz_decompress(packbuf, midbuf, state_decompress) == 0)
+            if (LZ4_decompress_fast(packbuf, (char*)midbuf, cleng) == 0)
                 return -1;
     }
 

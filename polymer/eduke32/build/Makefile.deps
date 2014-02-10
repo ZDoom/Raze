@@ -10,7 +10,7 @@ $(OBJ)/config.$o: $(SRC)/config.c $(INC)/compat.h $(INC)/osd.h $(INC)/editor.h
 $(OBJ)/crc32.$o: $(SRC)/crc32.c $(INC)/crc32.h
 $(OBJ)/defs.$o: $(SRC)/defs.c $(INC)/build.h $(INC)/baselayer.h $(INC)/scriptfile.h $(INC)/compat.h
 $(OBJ)/engine.$o: $(SRC)/engine.c $(INC)/compat.h $(INC)/build.h $(INC)/pragmas.h $(INC)/cache1d.h $(INC)/a.h $(INC)/osd.h $(INC)/baselayer.h $(SRC)/engine_priv.h $(SRC)/engine_oldmap.h $(INC)/polymost.h $(INC)/hightile.h $(INC)/mdsprite.h $(INC)/polymer.h
-$(OBJ)/polymost.$o: $(SRC)/polymost.c $(INC)/quicklz.h $(INC)/lzwnew.h $(INC)/compat.h $(INC)/build.h $(SRC)/engine_priv.h $(INC)/polymost.h $(INC)/hightile.h $(INC)/mdsprite.h $(INC)/texcache.h
+$(OBJ)/polymost.$o: $(SRC)/polymost.c $(INC)/lz4.h $(INC)/lzwnew.h $(INC)/compat.h $(INC)/build.h $(SRC)/engine_priv.h $(INC)/polymost.h $(INC)/hightile.h $(INC)/mdsprite.h $(INC)/texcache.h
 $(OBJ)/texcache.$o: $(SRC)/texcache.c $(INC)/texcache.h $(INC)/polymost.h $(INC)/dxtfilter.h
 $(OBJ)/dxtfilter.$o: $(SRC)/dxtfilter.c $(INC)/dxtfilter.h $(INC)/texcache.h
 $(OBJ)/hightile.$o: $(SRC)/hightile.c $(INC)/kplib.h $(INC)/hightile.h
@@ -19,7 +19,7 @@ $(OBJ)/textfont.$o: $(SRC)/textfont.c
 $(OBJ)/smalltextfont.$o: $(SRC)/smalltextfont.c
 $(OBJ)/glbuild.$o: $(SRC)/glbuild.c $(INC)/glbuild.h $(INC)/baselayer.h
 $(OBJ)/kplib.$o: $(SRC)/kplib.c $(INC)/compat.h
-$(OBJ)/quicklz.$o: $(SRC)/quicklz.c $(INC)/quicklz.h
+$(OBJ)/lz4.$o: $(SRC)/lz4.c $(INC)/lz4.h
 $(OBJ)/lzwnew.$o: $(SRC)/lzwnew.c
 $(OBJ)/osd.$o: $(SRC)/osd.c $(INC)/build.h $(INC)/osd.h $(INC)/compat.h $(INC)/baselayer.h
 $(OBJ)/pragmas.$o: $(SRC)/pragmas.c $(INC)/compat.h

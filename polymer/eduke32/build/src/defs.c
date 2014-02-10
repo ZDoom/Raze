@@ -12,7 +12,7 @@
 #include "scriptfile.h"
 #include "cache1d.h"
 #include "kplib.h"
-#include "quicklz.h"
+#include "lz4.h"
 #include "common.h"
 #include "mdsprite.h"  // md3model_t
 
@@ -189,7 +189,7 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
         //                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
     }
 
-    faketilesiz[tile] = qlz_compress(ftd, faketiledata[tile], xsiz*ysiz, state_compress);
+    faketilesiz[tile] = LZ4_compress(ftd, faketiledata[tile], xsiz*ysiz);
     Bfree(ftd);
 }
 

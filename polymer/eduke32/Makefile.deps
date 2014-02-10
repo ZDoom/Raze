@@ -78,7 +78,7 @@ $(OBJ)/astub.$o: $(SRC)/astub.c \
     $(EINC)/cache1d.h \
     $(EINC)/crc32.h \
     $(EINC)/scriptfile.h \
-    $(EINC)/quicklz.h \
+    $(EINC)/lz4.h \
     $(SRC)/macros.h \
     $(SRC)/osdfuncs.h \
     $(SRC)/names.h \

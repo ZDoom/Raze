@@ -73,7 +73,7 @@ ENGINEOBJS+= \
 	$(OBJ)/textfont.$o \
 	$(OBJ)/smalltextfont.$o \
 	$(OBJ)/kplib.$o \
-	$(OBJ)/quicklz.$o \
+	$(OBJ)/lz4.$o \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
 	$(OBJ)/scriptfile.$o \

@@ -47,7 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "crc32.h"
 #include "hightile.h"
 #include "control.h"
-#include "quicklz.h"
+#include "lz4.h"
 #include "net.h"
 #include "premap.h"
 #include "gameexec.h"

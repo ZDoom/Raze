@@ -47,7 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "fx_man.h"
 
 #include "macros.h"
-#include "quicklz.h"
+#include "lz4.h"
 
 #include "m32script.h"
 #include "m32def.h"
@@ -410,7 +410,7 @@ static void create_compressed_block(int32_t idx, const void *srcdata, uint32_t s
     if (!mapstate->sws[idx]) { initprintf("OUT OF MEM in undo/redo\n"); osdcmd_quit(NULL); }
 
     // compress & realloc
-    j = qlz_compress(srcdata, mapstate->sws[idx]+4, size, state_compress);
+    j = LZ4_compress((const char*)srcdata, mapstate->sws[idx]+4, size);
     mapstate->sws[idx] = (char *)Brealloc(mapstate->sws[idx], 4 + j);
     if (!mapstate->sws[idx]) { initprintf("COULD not realloc in undo/redo\n"); osdcmd_quit(NULL); }
 
@@ -582,13 +582,13 @@ int32_t map_undoredo(int32_t dir)
     if (mapstate->num[0])
     {
         // restore sector[]
-        qlz_decompress(mapstate->sws[0]+4, sector, state_decompress);
+        LZ4_decompress_fast(mapstate->sws[0]+4, (char*)sector, numsectors*sizeof(sectortype));
 
         if (mapstate->num[1])  // restore wall[]
-            qlz_decompress(mapstate->sws[1]+4, wall, state_decompress);
+            LZ4_decompress_fast(mapstate->sws[1]+4, (char*)wall, numwalls*sizeof(walltype));
 
         if (mapstate->num[2])  // restore sprite[]
-            qlz_decompress(mapstate->sws[2]+4, sprite, state_decompress);
+            LZ4_decompress_fast(mapstate->sws[2]+4, (char*)sprite, (mapstate->num[2])*sizeof(spritetype));
     }
 
     // insert sprites

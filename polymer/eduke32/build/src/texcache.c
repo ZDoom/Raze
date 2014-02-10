@@ -1,7 +1,7 @@
 #ifdef USE_OPENGL
 
 #include "build.h"
-#include "quicklz.h"
+#include "lz4.h"
 #include "hightile.h"
 #include "polymost.h"
 #include "texcache.h"

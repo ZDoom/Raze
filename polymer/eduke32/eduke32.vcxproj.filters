@@ -138,7 +138,7 @@
     <ClInclude Include="build\include\pragmas.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\quicklz.h">
+    <ClInclude Include="build\include\lz4.h">
       <Filter>build\headers</Filter>
     </ClInclude>
     <ClInclude Include="build\include\scriptfile.h">
@@ -479,7 +479,7 @@
     <ClCompile Include="build\src\pragmas.c">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\quicklz.c">
+    <ClCompile Include="build\src\lz4.c">
       <Filter>build\source</Filter>
     </ClCompile>
     <ClCompile Include="build\src\scriptfile.c">

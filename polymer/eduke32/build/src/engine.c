@@ -18,7 +18,7 @@
 #include "a.h"
 #include "osd.h"
 #include "crc32.h"
-#include "quicklz.h"
+#include "lz4.h"
 
 #include "baselayer.h"
 #include "scriptfile.h"
@@ -239,9 +239,6 @@ const char *engineerrstr = "No error";
 int32_t showfirstwall=0;
 int32_t showheightindicators=1;
 int32_t circlewall=-1;
-
-qlz_state_compress *state_compress = NULL;
-qlz_state_decompress *state_decompress = NULL;
 
 int32_t whitecol;
 
@@ -8639,8 +8636,6 @@ int32_t preinitengine(void)
             { (void **) &tsprite,          sizeof(spritetype)      *MAXSPRITESONSCREEN        },
             { (void **) &spriteext,        sizeof(spriteext_t)     *(MAXSPRITES+MAXUNIQHUDID) },
             { (void **) &spritesmooth,     sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID) },
-            { (void **) &state_compress,   sizeof(qlz_state_compress)                         },
-            { (void **) &state_decompress, sizeof(qlz_state_decompress)                       }
         };
 
         if (editstatus)
@@ -8674,8 +8669,6 @@ int32_t preinitengine(void)
     spriteext = spriteext_s;
     spritesmooth = spritesmooth_s;
 # endif
-    state_compress = (qlz_state_compress *) Bcalloc(sizeof(qlz_state_compress) + sizeof(qlz_state_decompress), 1);
-    state_decompress = (qlz_state_decompress *)((int8_t *)(state_compress) + sizeof(qlz_state_compress));
 #endif
 
     if ((e = Bgetenv("BUILD_NOP6")) != NULL)
@@ -8816,8 +8809,6 @@ void uninitengine(void)
 
 #ifdef DYNALLOC_ARRAYS
     DO_FREE_AND_NULL(blockptr);
-#else
-    DO_FREE_AND_NULL(state_compress);
 #endif
 
     uninitsystem();
@@ -11571,7 +11562,7 @@ void loadtile(int16_t tilenume)
         {
             walock[tilenume] = 255;
             allocache(&waloff[tilenume], dasiz, &walock[tilenume]);
-            qlz_decompress(faketiledata[tilenume], (char *)waloff[tilenume], state_decompress);
+            LZ4_decompress_fast(faketiledata[tilenume], (char *)waloff[tilenume], dasiz);
             Bfree(faketiledata[tilenume]);
             faketiledata[tilenume] = NULL;
         }
