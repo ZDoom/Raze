@@ -1,6 +1,6 @@
 
 #define DIRECTINPUT_VERSION 0x0700
-#include <dinput.h>
+#include "dx/dinput.h"
 /* This is a replacement for parts of dinput.lib. */
 
 DIOBJECTDATAFORMAT rgodf_c_dfDIKeyboard[] = {

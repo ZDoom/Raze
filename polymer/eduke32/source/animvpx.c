@@ -1,5 +1,7 @@
 /* ANM file replacement with VP8 video */
 
+#ifdef USE_LIBVPX
+
 #define __STDC_FORMAT_MACROS
 #define __STDC_LIMIT_MACROS
 
@@ -542,3 +544,5 @@ void animvpx_print_stats(const animvpx_codec_ctx *codec)
                    n, (double)s[0]/n, m[0], (double)s[1]/n, m[1], (double)s[2]/n, m[2]);
     }
 }
+
+#endif

@@ -33,8 +33,8 @@
 #endif
 
 #include <windows.h>
-#include <ddraw.h>
-#include <dinput.h>
+#include "dx/ddraw.h"
+#include "dx/dinput.h"
 #ifndef DIK_PAUSE
 # define DIK_PAUSE 0xC5
 #endif

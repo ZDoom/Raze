@@ -133,6 +133,7 @@
 #if _MSC_VER < 1800
 # define inline __inline
 
+# ifndef _WIN64
 static inline float nearbyintf(float x) 
 { 
     uint32_t w1, w2;
@@ -147,6 +148,16 @@ static inline float nearbyintf(float x)
         fldcw w1
     }
 }
+# else
+#include <math.h>
+static inline float nearbyintf(float x)
+{
+    if (x >= 0.0)
+        return floorf(x + 0.5);
+    else
+        return floorf(x - 0.5);
+}
+# endif
 #endif
 #else
 # define longlong(x) x##ll

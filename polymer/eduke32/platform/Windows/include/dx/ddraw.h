@@ -6,6 +6,11 @@
  *  Content:    DirectDraw include file
  *
  ***************************************************************************/
+
+#ifdef _MSC_VER
+# include <ddraw.h>
+#else
+
 // from: http://alleg.sourceforge.net/files/dx9mgw.zip
 
 #ifndef __DDRAW_INCLUDED__
@@ -5792,4 +5797,4 @@ typedef struct _DDCOLORCONTROL
 
 #endif //__DDRAW_INCLUDED__
 
-
+#endif

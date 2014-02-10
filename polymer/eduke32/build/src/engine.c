@@ -166,9 +166,6 @@ static int16_t *dotp1[MAXYDIM], *dotp2[MAXYDIM];
 static int8_t tempbuf[MAXWALLS];
 
 // referenced from asm
-#ifdef __cplusplus
-extern "C" {
-#endif
 int32_t ebpbak, espbak;
 int32_t reciptable[2048], fpuasm;
 intptr_t asm1, asm2, asm3, asm4, palookupoffse[4];
@@ -177,9 +174,6 @@ int32_t vince[4];
 intptr_t bufplce[4];
 int32_t globaltilesizy;
 int32_t globalx1, globaly2, globalx3, globaly3;
-#ifdef __cplusplus
-};
-#endif
 
 static intptr_t slopalookup[16384];    // was 2048
 #if defined(USE_OPENGL)

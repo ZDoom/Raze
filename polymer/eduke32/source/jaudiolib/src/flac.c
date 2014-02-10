@@ -24,6 +24,8 @@
 
 #ifdef HAVE_FLAC
 
+#define FLAC__NO_DLL
+
 #ifdef __APPLE__
 # include <FLAC/all.h>
 #else

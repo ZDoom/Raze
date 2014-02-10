@@ -18,12 +18,12 @@
 # define YAX_MAXDRAWS 8
 #endif
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 extern "C" {
 #endif
     extern intptr_t asm1, asm2, asm3, asm4;
     extern int32_t globalx1, globaly2;
-#ifdef __cplusplus
+#ifdef EXTERNC
 };
 #endif
 

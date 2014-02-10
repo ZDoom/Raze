@@ -18,14 +18,15 @@ flags_lib=/LTCG
 CC=cl
 LINK=link /opt:ref /nologo
 
-VORBISSDK=C:\SDKs\oggvorbis-win32sdk-1.0.1
+PLATFORM=..\..\platform\Windows
+AUDIOINC=third-party\common
 
-CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(SRC) /I"$(VORBISSDK)\include" 
+CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(SRC) /I$(PLATFORM)\include /I$(AUDIOINC)\include
 !ifdef DEBUG
 CFLAGS=$(CFLAGS) /DDEBUGGINGAIDS
 !endif
 
-CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /D "_CRT_SECURE_NO_DEPRECATE" /W2 /DHAVE_VORBIS /Iinclude/msvc /DWIN32 /DHAVE_DS
+CFLAGS=$(CFLAGS) /DRENDERTYPEWIN=1 /DMIXERTYPEWIN=1 /D "_CRT_SECURE_NO_DEPRECATE" /W2 /Iinclude/msvc /DHAVE_DS /DHAVE_VORBIS /DHAVE_FLAC
 
 OBJECTS=$(OBJ)\drivers.o \
 	$(OBJ)\fx_man.o \
@@ -35,6 +36,7 @@ OBJECTS=$(OBJ)\drivers.o \
 	$(OBJ)\pitch.o \
 	$(OBJ)\formats.o \
 	$(OBJ)\vorbis.o \
+	$(OBJ)\flac.o \
 	$(OBJ)\xa.o \
 	$(OBJ)\driver_nosound.o \
     $(OBJ)\driver_directsound.o

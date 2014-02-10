@@ -5,7 +5,7 @@
 #define INITGUID
 #define DIRECTINPUT_VERSION 0x0700
 #include <windows.h>
-#include <dinput.h>
+#include "dx/dinput.h"
 #include <stdio.h>
 #include "compat.h"
 

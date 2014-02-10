@@ -9,15 +9,16 @@ OBJ=obj.msc
 !endif
 INC=include\ #
 !ifndef CFLAGS
-CFLAGS=/DUSE_OPENGL /DPOLYMER
+CFLAGS=/DUSE_OPENGL /DPOLYMER /DUSE_LIBPNG
 !endif
 
 o=obj
 res=res
 asm=masm
 
-# When we support 64-bit targets with MSVC, if a 64-bit build is selected:
-# NOASM=1
+!if ($(WINBITS)==64)
+NOASM=1
+!endif
 
 ENGINELIB=engine.lib
 EDITORLIB=build.lib

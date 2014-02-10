@@ -32,7 +32,7 @@
 
 #include <windows.h>
 #include <mmsystem.h>
-#include <dsound.h>
+#include "dx/dsound.h"
 #include <stdlib.h>
 #include <stdio.h>
 

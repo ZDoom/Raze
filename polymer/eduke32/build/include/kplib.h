@@ -11,7 +11,7 @@ extern int32_t kprender (const char *, int32_t, intptr_t, int32_t, int32_t, int3
 	//ZIP functions:
 extern int32_t kzaddstack (const char *);
 extern void kzuninit ();
-extern int32_t kzopen (const char *);
+extern intptr_t kzopen (const char *);
 extern int32_t kzread (void *, int32_t);
 extern int32_t kzfilelength ();
 extern int32_t kzseek (int32_t, int32_t);

@@ -6,6 +6,11 @@
  *  Content:    DirectInput include file
  *
  ****************************************************************************/
+
+#ifdef _MSC_VER
+# include <dinput.h>
+#else
+
 // from: http://alleg.sourceforge.net/files/dx9mgw.zip
 
 #ifndef __DINPUT_INCLUDED__
@@ -4418,3 +4423,4 @@ typedef void (WINAPI* LPFNSHOWJOYCPL)( HWND hWnd );
 
 #endif /* DIJ_RINGZERO */
 
+#endif
