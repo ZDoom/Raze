@@ -195,12 +195,6 @@ int32_t r_parallaxskypanning = 0;
 
 #define MIN_CACHETIME_PRINT 10
 
-static inline int32_t imod(int32_t a, int32_t b)
-{
-    if (a >= 0) return(a%b);
-    return(((a+1)%b)+b-1);
-}
-
 void drawline2d(float x0, float y0, float x1, float y1, char col)
 {
     float f, dx, dy, fxres, fyres;

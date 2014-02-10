@@ -69,12 +69,12 @@ LUNATIC_EXTERN const int32_t engine_main_arrays_are_static = 0;  // for Lunatic
 # else
 LUNATIC_EXTERN const int32_t engine_main_arrays_are_static = 1;
 # endif
-#endif
 
 #if MAXSECTORS==MAXSECTORSV8
 LUNATIC_EXTERN const int32_t engine_v8 = 1;
 #else
 LUNATIC_EXTERN const int32_t engine_v8 = 0;
+#endif
 #endif
 
 #ifdef DEBUGGINGAIDS

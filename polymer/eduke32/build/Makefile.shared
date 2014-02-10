@@ -102,7 +102,10 @@ ifeq ($(PLATFORM),WINDOWS)
     SDL_FRAMEWORK=1
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     EXESUFFIX=.exe
-    BUILDLIBS+= -Wl,--enable-auto-import -mwindows -lmingwex -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
+    BUILDLIBS+= -Wl,--enable-auto-import -lmingwex -lgdi32 -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
+    ifeq (0,$(CLANG))
+        BUILDLIBS+= -mwindows
+    endif
     #-lshfolder
     #BUILDLIBDIRS+= -L$(ENETROOT)
     STDCPPLIB:=-lstdc++
@@ -228,7 +231,7 @@ ifeq ($(RENDERTYPE),SDL)
                 BUILDLIBS+= -static
             endif
         endif
-        BUILDLIBS+= -l$(SDLNAME)main -l$(SDLNAME) -lmingw32 -limm32 -lole32 -loleaut32 -lwinmm -lversion
+        BUILDLIBS+= -l$(SDLNAME)main -l$(SDLNAME) -lmingw32 -lgdi32 -limm32 -lole32 -loleaut32 -lwinmm -lversion
     endif
 
     ifeq (1,$(WITHOUT_GTK))

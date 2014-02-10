@@ -356,7 +356,9 @@ endif
 # See http://clang.llvm.org/docs/UsersManual.html#controlling-code-generation
 # for a list of possible UBSan options.
 # Clang 3.2 does only supports -fsanitize=address for the AddressSanitizer
-CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overflow,object-size
+ifneq ($(PLATFORM),WINDOWS)
+    CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overflow,object-size
+endif
 
 ifneq (0,$(RELEASE))
     # Debugging disabled

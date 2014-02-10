@@ -206,6 +206,7 @@ static uint8_t qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
 
 #if defined(_MSC_VER) && !defined(NOASM)
 
+#if defined(BIGENDIAN)
 static _inline uint32_t bswap(uint32_t a)
 {
     _asm
@@ -214,6 +215,7 @@ static _inline uint32_t bswap(uint32_t a)
         bswap eax
     }
 }
+#endif
 
 static _inline int32_t bitrev(int32_t b, int32_t c)
 {
@@ -270,11 +272,13 @@ static _inline void cpuid(int32_t a, int32_t *s)
 
 #elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
+#if defined(BIGENDIAN)
 static inline uint32_t bswap(uint32_t a)
 {
     __asm__ __volatile__("bswap %0" : "+r"(a) : : "cc");
     return a;
 }
+#endif
 
 static inline int32_t bitrev(int32_t b, int32_t c)
 {
@@ -306,10 +310,12 @@ static inline void cpuid(int32_t a, int32_t *s)
 
 #else
 
+#if defined(BIGENDIAN)
 static inline uint32_t bswap(uint32_t a)
 {
     return(((a&0xff0000)>>8) + ((a&0xff00)<<8) + (a<<24) + (a>>24));
 }
+#endif
 
 static inline int32_t bitrev(int32_t b, int32_t c)
 {
