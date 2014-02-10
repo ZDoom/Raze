@@ -204,6 +204,24 @@ then
     fi
 
 
+    # 64-bit Lunatic (pre-)release
+
+    if [ -n "$BUILD_LUNATIC" ]; then
+        # clean the tree and build
+        echo "${make64[@]}" LUNATIC=1 $clean all
+        "${make64[@]}" LUNATIC=1 $clean all
+
+        # make sure all the targets were produced
+        verifytargets
+
+        # package game
+        package_start
+        package_game_lunatic
+        mv -f $top/$source/eduke32$exe "$package/leduke32_PREVIEW$exe"
+        package_execute l${basename}_lunatic_PREVIEW_win64
+    fi
+
+
     # 32-bit release
 
     # clean the tree and build
