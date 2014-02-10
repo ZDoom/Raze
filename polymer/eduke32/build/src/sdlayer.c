@@ -2157,7 +2157,7 @@ int32_t handleevents(void)
                     keyascfifo_insert(keyvalue);
             }
 
-//            printf("got key %d, %d\n",ev.key.keysym.scancode,code);
+           // initprintf("SDL2: got key %d, %d, %u\n", ev.key.keysym.scancode, code, ev.key.type);
 
             // hook in the osd
             if ((j = OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN))) <= 0)
