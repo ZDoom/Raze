@@ -10,7 +10,10 @@ flags_link=/DEBUG
 flags_lib=
 !else
 # release options
-flags_cl=/Ox /GL /arch:SSE
+flags_cl=/Ox /GL
+!if ($(WINBITS)!=64)
+flags_cl=$(flags_cl) /arch:SSE
+!endif
 flags_link=/RELEASE /LTCG
 flags_lib=/LTCG
 !endif
@@ -23,7 +26,7 @@ CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(SRC)
 CFLAGS=$(CFLAGS) /DDEBUGGINGAIDS
 !endif
 
-CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /D "_CRT_SECURE_NO_DEPRECATE" /W2 /Iinclude/msvc /DWIN32
+CFLAGS=$(CFLAGS) /D "_CRT_SECURE_NO_DEPRECATE" /W2 /Iinclude/msvc /DWIN32
 
 OBJECTS=$(OBJ)\callbacks.o \
 	$(OBJ)\host.o \

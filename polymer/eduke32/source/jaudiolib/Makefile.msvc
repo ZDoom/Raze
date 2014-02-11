@@ -3,6 +3,10 @@ INC=include
 SRC=src
 JFAUDIOLIB=libjfaudiolib.lib
 
+!ifndef MIXERTYPE
+MIXERTYPE=WIN
+!endif
+
 !ifdef DEBUG
 # debugging options
 flags_cl=/Od /Zi
@@ -10,7 +14,10 @@ flags_link=/DEBUG
 flags_lib=
 !else
 # release options
-flags_cl=/Ox /GL /arch:SSE
+flags_cl=/Ox /GL
+!if ($(WINBITS)!=64)
+flags_cl=$(flags_cl) /arch:SSE
+!endif
 flags_link=/RELEASE /LTCG
 flags_lib=/LTCG
 !endif
@@ -26,7 +33,7 @@ CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(SRC) /I$(
 CFLAGS=$(CFLAGS) /DDEBUGGINGAIDS
 !endif
 
-CFLAGS=$(CFLAGS) /DRENDERTYPEWIN=1 /DMIXERTYPEWIN=1 /D "_CRT_SECURE_NO_DEPRECATE" /W2 /Iinclude/msvc /DHAVE_DS /DHAVE_VORBIS /DHAVE_FLAC
+CFLAGS=$(CFLAGS) /DMIXERTYPE$(MIXERTYPE)=1 /DSDL_FRAMEWORK /DSDL_TARGET=2 /D "_CRT_SECURE_NO_DEPRECATE" /W2 /Iinclude/msvc /DHAVE_VORBIS /DHAVE_FLAC
 
 OBJECTS=$(OBJ)\drivers.o \
 	$(OBJ)\fx_man.o \
@@ -38,8 +45,16 @@ OBJECTS=$(OBJ)\drivers.o \
 	$(OBJ)\vorbis.o \
 	$(OBJ)\flac.o \
 	$(OBJ)\xa.o \
-	$(OBJ)\driver_nosound.o \
-    $(OBJ)\driver_directsound.o
+	$(OBJ)\driver_nosound.o
+
+!if ("$(MIXERTYPE)"=="WIN")
+CFLAGS=$(CFLAGS) /DHAVE_DS
+OBJECTS=$(OBJECTS) $(OBJ)/driver_directsound.o
+!endif
+!if ("$(MIXERTYPE)"=="SDL")
+CFLAGS=$(CFLAGS) /DHAVE_SDL
+OBJECTS=$(OBJECTS) $(OBJ)/driver_sdl.o
+!endif
 
 {$(SRC)}.c{$(OBJ)}.o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<

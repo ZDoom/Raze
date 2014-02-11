@@ -9,6 +9,10 @@ INC=$(SRC)
 RSRC=rsrc
 o=obj
 
+!ifndef WINBITS
+WINBITS=32
+!endif
+
 WINLIB=\$(WINBITS)
 
 !if ($(WINBITS)==32)
@@ -33,13 +37,23 @@ PLATFORM=platform\Windows
 AUDIOINC=source\jaudiolib\third-party\common
 AUDIOPLATFORM=source\jaudiolib\third-party\Windows
 
+!ifndef RENDERTYPE
+RENDERTYPE=WIN
+!endif
+!ifndef MIXERTYPE
+MIXERTYPE=WIN
+!endif
+
 !ifdef DEBUG
 # debugging options
 flags_cl=/Od /Zi
 flags_link=/DEBUG
 !else
 # release options
-flags_cl=/O2 /GL /arch:SSE /MP # /I$(WDKROOT)\inc\crt /I$(WDKROOT)\inc\api
+flags_cl=/O2 /GL /MP # /I$(WDKROOT)\inc\crt /I$(WDKROOT)\inc\api
+!if ($(WINBITS)!=64)
+flags_cl=$(flags_cl) /arch:SSE
+!endif
 flags_link=/RELEASE /LTCG # /LIBPATH:$(WDKROOT)\lib\wxp\i386 /LIBPATH:$(WDKROOT)\lib\Crt\i386
 !endif
 
@@ -60,11 +74,15 @@ MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
 	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(ENETDIR)\include \
  	/W2 $(ENGINEOPTS) \
- 	/I$(PLATFORM)\include /I$(AUDIOINC)\include /DRENDERTYPEWIN=1 /DMIXERTYPEWIN=1 /DUSE_LIBVPX
+ 	/I$(PLATFORM)\include /I$(AUDIOINC)\include /DRENDERTYPE$(RENDERTYPE)=1 /DMIXERTYPE$(MIXERTYPE)=1 /DSDL_FRAMEWORK /DSDL_TARGET=2 /DUSE_LIBVPX
  	
-LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib shlwapi.lib \
+LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib shlwapi.lib oleaut32.lib ole32.lib imm32.lib version.lib \
      libFLAC.a libogg.a libvorbis.a libvorbisfile.a libvpx.a libpng_mini.a libz_mini.a libcompat-from-mingw-w64.a \
      dsound.lib advapi32.lib libcompat-to-msvc.a
+
+!if ("$(RENDERTYPE)"=="SDL")
+LIBS=libSDL2main.a libSDL2.a libSDL2_mixer.a $(LIBS)
+!endif
 
 LIBS=/NODEFAULTLIB:glu32.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcmt.lib \
     /NODEFAULTLIB:libcmtd.lib $(LIBS)
@@ -91,8 +109,6 @@ JMACTOBJ=$(OBJ)\file_lib.$o \
 	$(OBJ)\joystick.$o \
 	$(OBJ)\mathutil.$o \
 	$(OBJ)\scriplib.$o
-
-AUDIOLIBOBJ=$(OBJ)\midi.$o $(OBJ)\music.$o $(OBJ)\mpu401.$o
  
 GAMEOBJS=$(OBJ)\game.$o \
 	$(OBJ)\game_inline.$o \
@@ -125,7 +141,6 @@ GAMEOBJS=$(OBJ)\game.$o \
 	$(OBJ)\gameres.res \
 	$(OBJ)\startwin.game.$o \
  	$(JMACTOBJ) \
-	$(AUDIOLIBOBJ) \
 	$(OBJ)\sounds.$o \
 	$(OBJ)\soundsdyn.$o \
 !ifdef DEBUG
@@ -140,12 +155,26 @@ EDITOROBJS=$(OBJ)\astub.$o \
 	$(OBJ)\m32exec.$o \
 	$(OBJ)\sounds_mapster32.$o \
 	$(OBJ)\buildres.res \
-	$(AUDIOLIB_FX) \
 !ifdef DEBUG
 	$(OBJ)\mdump.$o
 !endif
 
-		
+!if ("$(RENDERTYPE)"=="SDL")
+GAMEOBJS=$(GAMEOBJS) $(OBJ)\game_icon.$o
+EDITOROBJS=$(EDITOROBJS) $(OBJ)\build_icon.$o
+!endif
+
+!if ("$(MIXERTYPE)"=="WIN")
+GAMEOBJS=$(GAMEOBJS) $(OBJ)\midi.$o $(OBJ)\music.$o $(OBJ)\mpu401.$o
+!endif
+!if ("$(MIXERTYPE)"=="SDL")
+GAMEOBJS=$(GAMEOBJS) $(OBJ)\sdlmusic.$o
+!endif
+
+GAMEOBJS=$(GAMEOBJS) $(MUSICOBJ)
+EDITOROBJS=$(EDITOROBJS) $(MUSICOBJ)
+
+
 # RULES
 .SUFFIXES: .masm
 
@@ -159,6 +188,9 @@ EDITOROBJS=$(OBJ)\astub.$o \
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 {$(SRC)\}.c{$(OBJ)\}.$o:
+	$(CC) /c $(CFLAGS) /Fo$@ $<
+
+{$(RSRC)\}.c{$(OBJ)\}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 {$(SRC)\}.cpp{$(OBJ)\}.$o:
@@ -186,18 +218,20 @@ enginelib editorlib: AlwaysBuild
 	echo OBJ=$(MAKEDIR)\$(EOBJ)\ > $(EOBJ)\overrides.mak
 	echo CFLAGS=$(ENGINEOPTS) >> $(EOBJ)\overrides.mak
 	echo WINBITS=$(WINBITS) >> $(EOBJ)\overrides.mak
+	echo RENDERTYPE=$(RENDERTYPE) >> $(EOBJ)\overrides.mak
+	echo MIXERTYPE=$(MIXERTYPE) >> $(EOBJ)\overrides.mak
 	cd $(EROOT)
 	nmake /f Makefile.msvc "OVERRIDES=$(MAKEDIR)\$(EOBJ)\overrides.mak" $@
 	cd $(MAKEDIR)
 
 jaudiolib:
 	cd $(JAUDIOLIBDIR)
-	nmake /f Makefile.msvc
+	nmake /f Makefile.msvc "MIXERTYPE=$(MIXERTYPE)" "WINBITS=$(WINBITS)"
 	cd $(MAKEDIR)
 
 enet:
 	cd $(ENETDIR)
-	nmake /f Makefile.msvc
+	nmake /f Makefile.msvc "WINBITS=$(WINBITS)"
 	cd $(MAKEDIR)
 
 AlwaysBuild: ;
