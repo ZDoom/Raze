@@ -37,7 +37,3 @@ long lround(double d)
 {
     return (long)(d > 0 ? d + 0.5 : ceil(d - 0.5));
 }
-long lroundf(float d)
-{
-    return (long)(d > 0 ? d + 0.5 : ceilf(d - 0.5));
-}

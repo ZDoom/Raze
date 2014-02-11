@@ -2,14 +2,13 @@
 o=o
 
 NAME:=libcompat-to-msvc
-OBJS:=io_math.$o
 
 
 %.$o: %.c
 	gcc -Wall -Wextra -O3 -c $< -o $@
 
-$(NAME).a: $(OBJS)
-	ar r $@ $<
+$(NAME).a: dll_math.$o io_math.$o
+	ar rc $@ $^
 	ranlib $@
 
 all : $(NAME).a
