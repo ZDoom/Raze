@@ -579,7 +579,7 @@ int32_t Bfilelength(int32_t fd)
 typedef struct
 {
 #ifdef _MSC_VER
-    int32_t dir;
+    intptr_t dir;
     struct _finddata_t fid;
 #else
     DIR *dir;
