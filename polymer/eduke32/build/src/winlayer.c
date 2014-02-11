@@ -488,21 +488,6 @@ static int32_t set_maxrefreshfreq(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t set_windowpos(const osdfuncparm_t *parm)
-{
-    if (parm->numparms == 0)
-    {
-        OSD_Printf("\"r_windowpositioning\" is \"%d\"\n",windowpos);
-        return OSDCMD_OK;
-    }
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-    windowpos = Batol(parm->parms[0])>0;
-    OSD_Printf("r_windowpositioning %d\n",windowpos);
-
-    return OSDCMD_OK;
-}
-
 //
 // initsystem() -- init systems
 //
@@ -585,7 +570,6 @@ int32_t initsystem(void)
         initprintf("DirectDraw initialization failed. Fullscreen modes will be unavailable.\n");
 
     OSD_RegisterFunction("maxrefreshfreq", "maxrefreshfreq: maximum display frequency to set for OpenGL Polymost modes (0=no maximum)", set_maxrefreshfreq);
-    OSD_RegisterFunction("r_windowpositioning", "r_windowpositioning: enable/disable window position memory", set_windowpos);
 
     // See if we're on an ATI card...
     determine_ATI();

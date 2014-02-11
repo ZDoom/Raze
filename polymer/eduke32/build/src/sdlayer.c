@@ -1434,7 +1434,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 return -1;
             }
 # else
-            sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,
+            sdl_window = SDL_CreateWindow("", windowpos ? windowx : SDL_WINDOWPOS_CENTERED ,windowpos ? windowy : SDL_WINDOWPOS_CENTERED,
                                           x,y, ((fs&1)?SDL_WINDOW_FULLSCREEN:0) | SDL_WINDOW_OPENGL);
             if (!sdl_window)
             {
@@ -2235,6 +2235,13 @@ int32_t handleevents(void)
                 if (backgroundidle)
                     SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
 # endif
+                break;
+            case SDL_WINDOWEVENT_MOVED:
+                if (windowpos)
+                {
+                    windowx = ev.window.data1;
+                    windowy = ev.window.data2;
+                }
                 break;
             }
             break;

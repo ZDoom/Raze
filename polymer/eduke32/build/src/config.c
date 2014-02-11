@@ -247,13 +247,11 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "keychat", val, VL) > 0) keys[18] = Bstrtol(val, NULL, 16);
 #endif
 
-#ifdef RENDERTYPEWIN
     if (readconfig(fp, "windowpositioning", val, VL) > 0) windowpos = atoi_safe(val);
     windowx = -1;
     if (readconfig(fp, "windowposx", val, VL) > 0) windowx = atoi_safe(val);
     windowy = -1;
     if (readconfig(fp, "windowposy", val, VL) > 0) windowy = atoi_safe(val);
-#endif
 
     if (readconfig(fp, "keyconsole", val, VL) > 0) { keys[19] = Bstrtol(val, NULL, 16); OSD_CaptureKey(keys[19]); }
 
@@ -427,12 +425,12 @@ int32_t writesetup(const char *fn)
              "; Maximum OpenGL mode refresh rate (Windows only, in Hertz)\n"
              "maxrefreshfreq = %d\n"
              "\n"
+#endif
              "; Window positioning, 0 = center, 1 = memory\n"
              "windowpositioning = %d\n"
              "windowposx = %d\n"
              "windowposy = %d\n"
              "\n"
-#endif
              "; 3D mode brightness setting\n"
              "vid_gamma = %g\n"
              "vid_brightness = %g\n"
@@ -610,8 +608,9 @@ int32_t writesetup(const char *fn)
 #ifndef RENDERTYPEWIN
              r_screenxy,
 #else
-             maxrefreshfreq, windowpos, windowx, windowy,
+             maxrefreshfreq,
 #endif
+             windowpos, windowx, windowy,
              vid_gamma_3d>=0?vid_gamma_3d:vid_gamma,
              vid_brightness_3d>=0?vid_brightness_3d:vid_brightness,
              vid_contrast_3d>=0?vid_contrast_3d:vid_contrast,

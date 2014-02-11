@@ -421,6 +421,7 @@ int32_t baselayer_init(void)
 #ifdef YAX_ENABLE
         { "r_tror_nomaskpass", "enable/disable additional pass in TROR software rendering", (void *)&r_tror_nomaskpass, CVAR_BOOL, 0, 1 },
 #endif
+        { "r_windowpositioning", "enable/disable window position memory", (void *) &windowpos, CVAR_BOOL, 0, 1 },
         { "vid_gamma","adjusts gamma component of gamma ramp",(void *) &vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
         { "vid_contrast","adjusts contrast component of gamma ramp",(void *) &vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
         { "vid_brightness","adjusts brightness component of gamma ramp",(void *) &vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
