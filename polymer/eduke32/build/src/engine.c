@@ -10970,7 +10970,11 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 
 #ifdef NEW_MAP_FORMAT
     if (numyaxbunches > 0)
-        return saveboard_maptext(filename, dapos, daang, dacursectnum);
+    {
+        initprintf("Saving of TROR maps not yet accessible in the Lunatic preview build\n");
+        return -1;
+//        return saveboard_maptext(filename, dapos, daang, dacursectnum);
+    }
 #endif
 
     fil = Bopen(filename, BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY, BS_IREAD|BS_IWRITE);
