@@ -200,6 +200,7 @@ then
         package_start
         package_game_lunatic
         mv -f $top/$source/eduke32$exe "$package/leduke32_PREVIEW$exe"
+        mv -f $top/$source/mapster32$exe "$package/lmapster32_PREVIEW$exe"
         package_execute l${basename}_lunatic_PREVIEW_win32
     fi
 
@@ -218,6 +219,7 @@ then
         package_start
         package_game_lunatic
         mv -f $top/$source/eduke32$exe "$package/leduke32_PREVIEW$exe"
+        mv -f $top/$source/mapster32$exe "$package/lmapster32_PREVIEW$exe"
         package_execute l${basename}_lunatic_PREVIEW_win64
     fi
 
