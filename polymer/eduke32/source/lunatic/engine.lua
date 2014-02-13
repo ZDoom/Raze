@@ -297,7 +297,7 @@ if (ismapster32) then
 
         local blendnumtab, blendptrtab = validate_more_blendtabs(moreblends)
 
-        local f, errmsg = io.open(filename, "w+")
+        local f, errmsg = io.open(filename, "wb+")
         if (f == nil) then
             return nil, errmsg
         end
