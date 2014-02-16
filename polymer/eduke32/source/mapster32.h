@@ -78,7 +78,7 @@ static void FuncMenu(void);
 static uint8_t WATERpalette[768], SLIMEpalette[768], TITLEpalette[768];
 static uint8_t REALMSpalette[768], BOSS1palette[768];
 
-static uint8_t *basepaltable[BASEPALCOUNT] = {
+uint8_t *basepaltable[BASEPALCOUNT] = {
     palette, WATERpalette, SLIMEpalette,
     REALMSpalette, TITLEpalette, BOSS1palette,
 };

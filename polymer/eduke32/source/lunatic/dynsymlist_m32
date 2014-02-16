@@ -109,4 +109,6 @@ g_argv;
 
 
 listsearchpath;
+
+basepaltable;
 };

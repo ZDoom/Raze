@@ -2308,6 +2308,17 @@ There must be no duplicate blending table numbers.
 The function returns a status `ok` which is *true* on success and *nil* on
 failure. In the latter case, `errmsg` is a diagnostic error message.
 
+===== `engine.saveLookupDat(filename, lookups)` -> `ok, errmsg`
+
+Writes out a LOOKUP.DAT-formatted file named `filename` with the lookup tables
+specified by `lookups` at the beginning and the five additional base palettes
+at the end.
+
+The `lookups` argument is interpreted analogously to the `moreblends` argument
+of `engine.savePaletteDat` (with the numbers being palookup numbers instead of
+blending table numbers) and the return values `ok` and `errmsg` have the same
+meaning as well.
+
 
 The `fs` module -- virtual file system facilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

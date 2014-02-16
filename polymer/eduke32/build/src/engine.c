@@ -14827,9 +14827,7 @@ int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
 //
 void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8_t b, char dastat)
 {
-    int32_t i, j, palscale;
-    const char *ptr;
-    char *ptr2;
+    int32_t i, j;
 
     static char idmap[256] = {1};
 
@@ -14864,27 +14862,26 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     {
         // "black fog"/visibility case -- only remap color indices
 
-        for (i=0; i<256; i++)
-        {
-            ptr = palookup[0] + remapbuf[i];
-            ptr2 = palookup[palnum] + i;
-
-            for (j=0; j<numshades; j++)
-                { *ptr2 = *ptr; ptr += 256; ptr2 += 256; }
-        }
+        for (j=0; j<numshades; j++)
+            for (i=0; i<256; i++)
+            {
+                const char *src = palookup[0];
+                palookup[palnum][256*j + i] = src[256*j + remapbuf[i]];
+            }
     }
     else
     {
         // colored fog case
 
-        ptr2 = palookup[palnum];
+        char *ptr2 = palookup[palnum];
 
         for (i=0; i<numshades; i++)
         {
-            palscale = divscale16(i,numshades);
+            int32_t palscale = divscale16(i,numshades);
+
             for (j=0; j<256; j++)
             {
-                ptr = (char *)&palette[remapbuf[j]*3];
+                const char *ptr = (const char *)&palette[remapbuf[j]*3];
                 *ptr2++ = getclosestcol(ptr[0] + mulscale16(r-ptr[0],palscale),
                                         ptr[1] + mulscale16(g-ptr[1],palscale),
                                         ptr[2] + mulscale16(b-ptr[2],palscale));

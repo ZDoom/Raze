@@ -108,6 +108,8 @@ g_elCON;
 El_SetCON;
 El_OnError;
 
+basepaltable;
+
 g_elSavecode;
 El_FreeSaveCode;
 El_SerializeGamevars;

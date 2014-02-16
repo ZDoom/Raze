@@ -18,6 +18,7 @@ decl[[
 int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol);
 char *palookup[256];  // MAXPALOOKUPS
 uint8_t palette[768];
+uint8_t *basepaltable[];
 
 const char *getblendtab(int32_t blend);
 void setblendtab(int32_t blend, const char *tab);
@@ -237,7 +238,7 @@ if (ismapster32) then
 
     ffi.cdef[[size_t fwrite(const void * restrict ptr, size_t size, size_t nmemb, void * restrict stream);]]
 
-    local function validate_more_blendtabs(moreblends)
+    local function validate_more_blendtabs(moreblends, kindname, gettabfunc)
         if (moreblends == nil) then
             return nil, nil
         end
@@ -262,18 +263,18 @@ if (ismapster32) then
 
             if (not (type(blend1)=="number" and blend1 >= 1 and blend1 <= 255 and
                      type(blend2)=="number" and blend2 >= 1 and blend2 <= 255)) then
-                error("invalid argument #4: blending table numbers must be in [1 .. 255]", 3)
+                error("invalid argument #4: "..kindname.." table numbers must be in [1 .. 255]", 3)
             end
 
             for bi=blend1,blend2 do
                 if (haveblend[bi]) then
-                    error("invalid argument #4: duplicate blending table number "..bi, 3)
+                    error("invalid argument #4: duplicate "..kindname.." table number "..bi, 3)
                 end
                 haveblend[bi] = true
 
-                local ptr = C.getblendtab(bi)
+                local ptr = gettabfunc(bi)
                 if (ptr == nil) then
-                    error("invalid argument #4: blending table for number "..bi.." is void", 3)
+                    error("invalid argument #4: "..kindname.." table for number "..bi.." is void", 3)
                 end
 
                 blendnumtab[#blendnumtab+1] = bi
@@ -285,7 +286,7 @@ if (ismapster32) then
         return blendnumtab, blendptrtab
     end
 
-    -- [ok, errmsg] = engine.savePaletteDat(filename [, palnum [, blendnum [, moreblends]]])
+    -- ok, errmsg = engine.savePaletteDat(filename [, palnum [, blendnum [, moreblends]]])
     function engine.savePaletteDat(filename, palnum, blendnum, moreblends)
         local sht = engine.getshadetab(palnum or 0)
         local tab = engine.getblendtab(blendnum or 0)
@@ -296,7 +297,8 @@ if (ismapster32) then
             return nil, "no blending table with number "..blendnum
         end
 
-        local blendnumtab, blendptrtab = validate_more_blendtabs(moreblends)
+        local blendnumtab, blendptrtab = validate_more_blendtabs(
+            moreblends, "blending", C.getblendtab)
 
         local f, errmsg = io.open(filename, "wb+")
         if (f == nil) then
@@ -327,6 +329,57 @@ if (ismapster32) then
         f:close()
 
         return true
+    end
+
+    -- ok, errmsg = engine.saveLookupDat(filename, lookups)
+    function engine.saveLookupDat(filename, lookups)
+        if (lookups == nil) then
+            -- set to an invalid value, validate_more_blendtabs will error
+            lookups = 0
+        end
+
+        local lookupnumtab, lookupptrtab = validate_more_blendtabs(
+            lookups, "lookup", engine.getshadetab)
+
+        local f, errmsg = io.open(filename, "wb+")
+        if (f == nil) then
+            return nil, errmsg
+        end
+
+        f:write(string.char(#lookupnumtab))
+
+        for i=1,#lookupnumtab do
+            f:write(string.char(lookupnumtab[i]))
+            if (C.fwrite(lookupptrtab[i], 1, 256, f) ~= 256) then
+                return nil, "failed writing lookup table"
+            end
+        end
+
+        -- Write five base palettes
+        for i=1,5 do
+            local bpi = (i==3 or i==4) and 4+3-i or i
+
+            if (C.fwrite(C.basepaltable[bpi], 1, 768, f) ~= 768) then
+                return nil, "failed writing base palette"
+            end
+        end
+
+        f:close()
+
+        return true
+    end
+
+    function engine.setupDebugBasePal()
+        for i=0,14 do
+            local ptr = C.basepaltable[1] + 3*(16*i)
+            local src = ptr + 3*i
+            local r, g, b = src[0], src[1], src[2]
+
+            for j=0,15 do
+                local dst = ptr + 3*j
+                dst[0], dst[1], dst[2] = r, g, b
+            end
+        end
     end
 end
 

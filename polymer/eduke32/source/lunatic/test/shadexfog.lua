@@ -23,6 +23,10 @@ local gv = gv
 
 local shadexfog = {}
 
+-- Example:
+--  lua "shadexfog.createremap(30, {[2]=0, [3]=1, [12]=0, [13]=1})"
+-- creates a pal 30 which maps the blue and orange ramps to the gray ones.
+-- (Compare with the rows of http://wiki.eduke32.com/wiki/File:Pala.png)
 function shadexfog.createremap(palnum, remaptab)
     local sht = engine.getshadetab(0)
     engine.setshadetab(palnum, sht:remap16(remaptab))
@@ -213,6 +217,19 @@ if (gv.LUNATIC_CLIENT == gv.LUNATIC_CLIENT_MAPSTER32) then
         if (moreblends ~= nil) then
             printf("  Also wrote additional translucency tables.")
         end
+    end
+
+    function shadexfog.saveLookupDat(filename, lookups)
+        if (lookups == nil) then
+            lookups = {
+                -- Duke3D 1.5 LOOKUP.DAT order
+                1,2,6,7,8, 3,4,5,9,10,
+                12,13,15,16,18, 19,11,14,17,20,
+                21,22,23,24,25
+            }
+        end
+        assert(engine.saveLookupDat(filename, lookups))
+        printf('Wrote lookup tables and 5 base palettes to "%s".', filename)
     end
 end
 

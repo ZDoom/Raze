@@ -2847,6 +2847,11 @@ static int32_t ReadPaletteTable(void)
 {
     int32_t fp;
 
+    // Make base shade table at shade 0 into the identity map.
+    // (In the shade table of Duke3D's PALETTE.DAT, palookup[0][239]==143.)
+    // This makes it possible to sensibly use Lunatic's engine.saveLookupDat().
+    palookup[0][239] = 239;
+
     if ((fp=kopen4load("lookup.dat",0)) == -1)
     {
         if ((fp=kopen4load("lookup.dat",1)) == -1)
