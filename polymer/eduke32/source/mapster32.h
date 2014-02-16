@@ -78,10 +78,13 @@ static void FuncMenu(void);
 static uint8_t WATERpalette[768], SLIMEpalette[768], TITLEpalette[768];
 static uint8_t REALMSpalette[768], BOSS1palette[768];
 
-static uint8_t *basepaltable[BASEPALCOUNT] = { palette, WATERpalette, SLIMEpalette, TITLEpalette, REALMSpalette, BOSS1palette };
+static uint8_t *basepaltable[BASEPALCOUNT] = {
+    palette, WATERpalette, SLIMEpalette,
+    REALMSpalette, TITLEpalette, BOSS1palette,
+};
 
 
-static char num_tables;
+static int32_t num_tables;
 
 static int32_t updownunits=1024;
 

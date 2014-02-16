@@ -299,7 +299,6 @@ extern palette_t DefaultCrosshairColors;
 
 extern uint32_t g_frameDelay;
 
-extern uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[768];
 extern uint8_t *basepaltable[BASEPALCOUNT];
 extern int8_t g_noFloorPal[MAXPALOOKUPS];
 

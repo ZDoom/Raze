@@ -117,9 +117,13 @@ static char g_rootDir[BMAX_PATH];
 char g_modDir[BMAX_PATH] = "/";
 
 
-uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[768];
+static uint8_t water_pal[768], slime_pal[768], title_pal[768], dre_alms[768], ending_pal[768];
 
-uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, dre_alms, title_pal, ending_pal, NULL /*anim_pal*/ };
+uint8_t *basepaltable[BASEPALCOUNT] = {
+    palette, water_pal, slime_pal,
+    dre_alms, title_pal, ending_pal,
+    NULL /*anim_pal*/
+};
 
 int8_t g_noFloorPal[MAXPALOOKUPS];  // 1 if sprite pal should not be taken over from floor pal
 
@@ -10627,46 +10631,22 @@ static inline void G_CheckGametype(void)
 
 static void G_LoadExtraPalettes(void)
 {
-    int32_t j, fp;
-    uint8_t tmpbyte;
+    int32_t fp;
 
     fp = kopen4loadfrommod("lookup.dat", 0);
-    if (fp != -1)
-        kread(fp, &tmpbyte, 1);
-    else
+    if (fp == -1)
         G_GameExit("\nERROR: File 'lookup.dat' not found.");
 
-    g_numRealPalettes = tmpbyte;
-
-    for (j=g_numRealPalettes+1; j<MAXPALOOKUPS; j++)
-        makepalookup(j, NULL ,0,0,0, 1);
-
-    for (j=g_numRealPalettes-1; j>=0; j--)
-    {
-        uint8_t look_pos;
-
-        kread(fp, &look_pos, 1);
-        kread(fp, tempbuf, 256);
-        makepalookup(look_pos, tempbuf, 0,0,0, 1);
-    }
-
-    g_numRealPalettes++;
-    makepalookup(g_numRealPalettes, NULL, 15, 15, 15, 1);
-    makepalookup(g_numRealPalettes + 1, NULL, 15, 0, 0, 1);
-    makepalookup(g_numRealPalettes + 2, NULL, 0, 15, 0, 1);
-    makepalookup(g_numRealPalettes + 3, NULL, 0, 0, 15, 1);
-
-    kread(fp,&water_pal[0],768);
-    kread(fp,&slime_pal[0],768);
-    kread(fp,&title_pal[0],768);
-    kread(fp,&dre_alms[0],768);
-    kread(fp,&ending_pal[0],768);
-
-    palette[765] = palette[766] = palette[767] = 0;
-    slime_pal[765] = slime_pal[766] = slime_pal[767] = 0;
-    water_pal[765] = water_pal[766] = water_pal[767] = 0;
-
+    g_numRealPalettes = loadlookups(fp, basepaltable);
     kclose(fp);
+
+    if (g_numRealPalettes < 0)
+        G_GameExit("\nERROR loading 'lookup.dat': failed reading enough data.");
+
+    // Make color index 255 of default/water/slime palette black.
+    Bmemset(&palette[255*3], 0, 3);
+    Bmemset(&water_pal[255*3], 0, 3);
+    Bmemset(&slime_pal[255*3], 0, 3);
 }
 
 #define SETBGFLAG(Tilenum) g_tile[Tilenum].flags |= SPRITE_HARDCODED_BADGUY

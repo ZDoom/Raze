@@ -8140,6 +8140,59 @@ static int32_t loadpalette(void)
     return 0;
 }
 
+// Load LOOKUP.DAT, which contains lookup tables and additional base palettes.
+//
+// <fp>: kopen4load file handle
+//
+// basepaltabptr[j], for 1 <= j <= 5 must point to 768 addressable
+//   bytes each: the additional base palettes (water, slime, ...) will be
+//   written there.
+//
+// Returns:
+//  - if generated fog shade tables, their first palnum P (fog pals are [P .. P+3])
+//  - on error, -1
+int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
+{
+    uint8_t numlookups;
+    char remapbuf[256];
+    int32_t j;
+
+    if (kread(fp, &numlookups, 1) != 1)
+        return -1;
+
+    for (j=numlookups+1; j<MAXPALOOKUPS; j++)
+        makepalookup(j, NULL, 0,0,0, 1);
+
+    for (j=0; j<numlookups; j++)
+    {
+        uint8_t palnum;
+
+        if (kread(fp, &palnum, 1) != 1)
+            return -1;
+        if (kread(fp, remapbuf, 256) != 256)
+            return -1;
+
+        makepalookup(palnum, remapbuf, 0,0,0, 1);
+    }
+
+    numlookups++;
+    makepalookup(numlookups, NULL, 15, 15, 15, 1);
+    makepalookup(numlookups + 1, NULL, 15, 0, 0, 1);
+    makepalookup(numlookups + 2, NULL, 0, 15, 0, 1);
+    makepalookup(numlookups + 3, NULL, 0, 0, 15, 1);
+
+    for (j=1; j<=5; j++)
+    {
+        // Account for TITLE and REALMS swap between basepal number and on-disk order.
+        // XXX: this reordering is better off as an argument to us.
+        int32_t basepalnum = (j == 3 || j == 4) ? 4+3-j : j;
+
+        if (kread(fp, basepaltabptr[basepalnum], 768) != 768)
+            return -1;
+    }
+
+    return numlookups;
+}
 
 // Finds a color index in [0 .. lastokcol] closest to (r, g, b).
 // <lastokcol> must be in [0 .. 255].

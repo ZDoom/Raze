@@ -2842,47 +2842,31 @@ static inline void SpriteName(int16_t spritenum, char *lo2)
     Bstrcpy(lo2, names[sprite[spritenum].picnum]);
 }// end SpriteName
 
-static void ReadPaletteTable(void)
+// Returns: did error?
+static int32_t ReadPaletteTable(void)
 {
-    int32_t i,j,fp;
-    char lookup_num;
-
-    for (i=1; i<MAXPALOOKUPS; i++)
-        makepalookup(i,NULL,0,0,0,1);
+    int32_t fp;
 
     if ((fp=kopen4load("lookup.dat",0)) == -1)
     {
         if ((fp=kopen4load("lookup.dat",1)) == -1)
         {
             initprintf("LOOKUP.DAT not found\n");
-            return;
+            return 1;
         }
     }
-    //    initprintf("Loading palette lookups... ");
-    kread(fp,&num_tables,1);
-    for (j=0; j<num_tables; j++)
-    {
-        kread(fp,&lookup_num,1);
-        kread(fp,tempbuf,256);
-        makepalookup(lookup_num,tempbuf,0,0,0,1);
-    }
-    for (j = 0; j < 256; j++)
-        tempbuf[j] = j;
 
-    num_tables++;
-    makepalookup(num_tables, NULL, 15, 15, 15, 1);
-    makepalookup(num_tables + 1, NULL, 15, 0, 0, 1);
-    makepalookup(num_tables + 2, NULL, 0, 15, 0, 1);
-    makepalookup(num_tables + 3, NULL, 0, 0, 15, 1);
-
-    kread(fp,WATERpalette,768);
-    kread(fp,SLIMEpalette,768);
-    kread(fp,TITLEpalette,768);
-    kread(fp,REALMSpalette,768);
-    kread(fp,BOSS1palette,768);
+    num_tables = loadlookups(fp, basepaltable);
     kclose(fp);
-    //    initprintf("success.\n");
-}// end ReadPaletteTable
+
+    if (num_tables < 0)
+    {
+        initprintf("ERROR loading PALOOKUP.DAT: failed reading enough data\n");
+        return 1;
+    }
+
+    return 0;
+}
 
 
 static void m32_showmouse(void)
@@ -10500,7 +10484,8 @@ int32_t ExtInit(void)
 
     showinvisibility = 1;
 
-    ReadPaletteTable();
+    if (ReadPaletteTable())
+        return -1;
 
     InitCustomColors();
 
