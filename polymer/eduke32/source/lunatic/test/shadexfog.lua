@@ -9,6 +9,7 @@
 
 local error = error
 
+local bit = require("bit")
 local math = require("math")
 local min, max = math.min, math.max
 local floor = math.floor
@@ -257,16 +258,33 @@ end
 
 ---------- Blending table tests ----------
 
-function shadexfog.create_128_trans(startblendidx)
-    for alpha=1,128 do
-        local f = alpha/256
+-- shadexfog.create_128_trans(startblendidx [, numtabs])
+--
+-- Creates <numtabs> blending tables of smooth alpha translucency, with
+-- fractions 1/(2*numtabs), 2/(2*numtabs) ... numtabs/(2*numtabs).
+-- <numtabs> must be a power of two in [2 .. 128].
+function shadexfog.create_128_trans(startblendidx, numtabs)
+    if (numtabs == nil) then
+        numtabs = 128
+    else
+        if (type(numtabs) ~= "number" or not (numtabs >= 2 and numtabs <= 128)) then
+            error("invalid argument #2: must be a number in [2 .. 128]", 2)
+        end
+
+        if (bit.band(numtabs, numtabs-1) ~= 0) then
+            error("invalid argument #2: must be a power of two", 2)
+        end
+    end
+
+    for alpha=1,numtabs do
+        local f = alpha/(2*numtabs)
         local F = 1-f
 
         local tab = engine.blendtab()
 
         for i=0,255 do
+            local r,g,b = engine.getrgb(i)
             for j=0,255 do
-                local r,g,b = engine.getrgb(i)
                 local R,G,B = engine.getrgb(j)
 
                 tab[i][j] = engine.nearcolor(f*r+F*R, f*g+F*G, f*b+F*B)
@@ -277,19 +295,33 @@ function shadexfog.create_128_trans(startblendidx)
     end
 end
 
-function shadexfog.create_additive_trans(blendidx)
+-- shadexfog.create_trans(blendidx, func [, fullbrightsOK])
+--
+-- <func>: must be
+--  rr, gg, bb = f(r, g, b, R, G, B)
+function shadexfog.create_trans(blendidx, func, fullbrightsOK)
     local tab = engine.blendtab()
 
     for i=0,255 do
+        local r,g,b = engine.getrgb(i)
         for j=0,255 do
-            local r,g,b = engine.getrgb(i)
             local R,G,B = engine.getrgb(j)
 
-            tab[i][j] = engine.nearcolor(min(r+R, 63), min(g+G, 63), min(b+B, 63), 255-16)
+            local rr, gg, bb = func(r, g, b, R, G, B)
+            tab[i][j] = engine.nearcolor(rr, gg, bb, fullbrightsOK and 255 or 255-16)
         end
     end
 
     engine.setblendtab(blendidx, tab)
+end
+
+function shadexfog.create_additive_trans(blendidx)
+    shadexfog.create_trans(
+        blendidx,
+        function(r,g,b,R,G,B)
+            return min(r+R, 63), min(g+G, 63), min(b+B, 63)
+        end
+    )
 end
 
 
