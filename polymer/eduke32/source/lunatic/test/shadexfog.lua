@@ -22,6 +22,11 @@ local gv = gv
 
 local shadexfog = {}
 
+function shadexfog.createremap(palnum, remaptab)
+    local sht = engine.getshadetab(0)
+    engine.setshadetab(palnum, sht:remap16(remaptab))
+end
+
 -- Create 32 palookups corrensponding to different *shade levels* of a fog
 -- palookup, called a "shade-x-fog" palookup set in the following.
 --

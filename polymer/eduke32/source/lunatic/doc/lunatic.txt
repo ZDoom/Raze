@@ -2192,21 +2192,34 @@ When running in EDuke32, there are additional restrictions:
   variable in the global environment that indicates whether the Lua game state
   is created for the very first time and the game is not yet running.)
 
-//////////
 ===== Shade table methods
 
 `newsht = sht:remap16(tab)`::
 
-Rearranges consecutive runs of 16 values of every shade 256-tuple of `sht` by
-the 0-based selection given by the 0-based sequence `tab`.
+Returns a new shade table with consecutive runs of 16 values of every 256-tuple
+of `sht` remapped as specified by `tab`. Specifically, `tab` must be a table
+whose keys in [0 .. 15] may be set to values in [0 .. 15]. For a shade index
+`sh` and a color index `i`, the returned shade table `newsht` then has
++
+==========
+`newsht[sh][i]` = `sht[sh][newi]`,
+==========
++
+where
++
+==========
+`newi` = `16*tab[math.floor(i/16)] + i%16` {nbsp} [gray]#// if `tab[math.floor(i/16)]` is non-*nil*# +
+`newi` = `i` {nbsp} [gray]#// otherwise#
+==========
 +
 .Example
 [source]
 ----------
-local perm16 = { [0]=0,1, 2,3, 5,4, 6,7, 8,13, 10,11, 12,9, 14,15 }
-local newsht = engine.getshadetab(0):remap16(perm16)
+-- Creates a shade table with the same remapping as pal 21 (blue -> red) and
+-- registers it under pal 22, overwriting its previous contents.
+local newsht = engine.getshadetab(0):remap16({[4]=13, [5]=8})
+engine.setshadetab(22, newsht)
 ----------
-//////////
 
 Blending table interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^

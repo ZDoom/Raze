@@ -49,13 +49,14 @@ local shtab_methods = {
     --  { [0]=0,1, 2,3, 5,4, 6,7, 8,13, 10,11, 12,9, 14,15 }
     -- TODO (...)
     remap16 = function(sht, idxs16)
-        if (type(idxs16) ~= "table" or idxs16[0]==nil or #idxs16 ~= 15) then
-            error("invalid argument #2: must be a [0]-table with 16 elements", 2)
+        if (type(idxs16) ~= "table") then
+            error("invalid argument #2: must be a table", 2)
         end
 
         for i=0,15 do
-            if (not (idxs16[i] >= 0 and idxs16[i] <= 15)) then
-                error("invalid reordering table: elements must be in [0 .. 15]", 2)
+            local idx = idxs16[i]
+            if (not (idx==nil or type(idx)=="number" and idx >= 0 and idx <= 15)) then
+                error("invalid reordering table: elements must be numbers in [0 .. 15], or nil", 2)
             end
         end
 
@@ -63,7 +64,7 @@ local shtab_methods = {
         for sh=0,31 do
             for i=0,15 do
                 ffi.copy(cast_u8ptr(newsht[sh]) + 16*i,
-                         cast_u8ptr(sht[sh]) + 16*idxs16[i], 16)
+                         cast_u8ptr(sht[sh]) + 16*(idxs16[i] or i), 16)
             end
         end
         return newsht
