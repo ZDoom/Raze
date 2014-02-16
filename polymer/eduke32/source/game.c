@@ -6979,11 +6979,14 @@ SPAWN_END:
     return i;
 }
 
+static int32_t g_firstFogPal;
+
 static int32_t G_MaybeTakeOnFloorPal(spritetype *datspr, int32_t sect)
 {
     int32_t dapal = sector[sect].floorpal;
 
-    if (dapal && !g_noFloorPal[dapal] && dapal < g_numRealPalettes
+    if (dapal && g_firstFogPal && !(dapal >= g_firstFogPal && dapal <= g_firstFogPal+3)
+            && !g_noFloorPal[dapal]
             && !A_CheckSpriteFlags(datspr->owner,SPRITE_NOPAL))
     {
         datspr->pal = dapal;
@@ -10637,10 +10640,10 @@ static void G_LoadExtraPalettes(void)
     if (fp == -1)
         G_GameExit("\nERROR: File 'lookup.dat' not found.");
 
-    g_numRealPalettes = loadlookups(fp, basepaltable);
+    g_firstFogPal = loadlookups(fp, basepaltable);
     kclose(fp);
 
-    if (g_numRealPalettes < 0)
+    if (g_firstFogPal < 0)
         G_GameExit("\nERROR loading 'lookup.dat': failed reading enough data.");
 
     // Make color index 255 of default/water/slime palette black.

@@ -8150,18 +8150,16 @@ static int32_t loadpalette(void)
 //
 // Returns:
 //  - if generated fog shade tables, their first palnum P (fog pals are [P .. P+3])
+//  - if didn't (no room), 0
 //  - on error, -1
 int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
 {
     uint8_t numlookups;
     char remapbuf[256];
-    int32_t j;
+    int32_t j, firstfogpal=0;
 
     if (kread(fp, &numlookups, 1) != 1)
         return -1;
-
-    for (j=numlookups+1; j<MAXPALOOKUPS; j++)
-        makepalookup(j, NULL, 0,0,0, 1);
 
     for (j=0; j<numlookups; j++)
     {
@@ -8169,17 +8167,18 @@ int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
 
         if (kread(fp, &palnum, 1) != 1)
             return -1;
+
+        if (palnum == 0)
+        {
+            initprintf("ERROR: attempt to load lookup at pal 0\n");
+            return -1;
+        }
+
         if (kread(fp, remapbuf, 256) != 256)
             return -1;
 
         makepalookup(palnum, remapbuf, 0,0,0, 1);
     }
-
-    numlookups++;
-    makepalookup(numlookups, NULL, 15, 15, 15, 1);
-    makepalookup(numlookups + 1, NULL, 15, 0, 0, 1);
-    makepalookup(numlookups + 2, NULL, 0, 15, 0, 1);
-    makepalookup(numlookups + 3, NULL, 0, 0, 15, 1);
 
     for (j=1; j<=5; j++)
     {
@@ -8191,7 +8190,25 @@ int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
             return -1;
     }
 
-    return numlookups;
+    // Find a gap of four consecutive unused pal numbers to generate fog shade tables.
+    for (j=1; j<=255-3; j++)
+        if (!palookup[j] && !palookup[j+1] && !palookup[j+2] && !palookup[j+3])
+        {
+            makepalookup(j, NULL, 15, 15, 15, 1);
+            makepalookup(j+1, NULL, 15, 0, 0, 1);
+            makepalookup(j+2, NULL, 0, 15, 0, 1);
+            makepalookup(j+3, NULL, 0, 0, 15, 1);
+
+            firstfogpal = j;
+            break;
+        }
+
+    // Alias remaining unused pal numbers to the base shade table.
+    for (j=1; j<MAXPALOOKUPS; j++)
+        if (!palookup[j])
+            makepalookup(j, NULL, 0,0,0, 1);
+
+    return firstfogpal;
 }
 
 // Finds a color index in [0 .. lastokcol] closest to (r, g, b).

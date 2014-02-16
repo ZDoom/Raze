@@ -84,7 +84,7 @@ static uint8_t *basepaltable[BASEPALCOUNT] = {
 };
 
 
-static int32_t num_tables;
+static int32_t g_firstFogPal;
 
 static int32_t updownunits=1024;
 

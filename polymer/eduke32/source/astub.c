@@ -2856,10 +2856,10 @@ static int32_t ReadPaletteTable(void)
         }
     }
 
-    num_tables = loadlookups(fp, basepaltable);
+    g_firstFogPal = loadlookups(fp, basepaltable);
     kclose(fp);
 
-    if (num_tables < 0)
+    if (g_firstFogPal < 0)
     {
         initprintf("ERROR loading PALOOKUP.DAT: failed reading enough data\n");
         return 1;
@@ -10938,13 +10938,17 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
         if (shadepreview)
         {
             int32_t wallaligned = (tspr->cstat & 16);
+            int32_t fpal;
 
             if (tspr->sectnum<0)
                 continue;
 
+            fpal = sector[tspr->sectnum].floorpal;
+
             // 1st rule
-            if (sector[tspr->sectnum].floorpal > 0 && sector[tspr->sectnum].floorpal < num_tables)
-                tspr->pal = sector[tspr->sectnum].floorpal;
+            // Compare with game.c:G_MaybeTakeOnFloorPal()
+            if (fpal > 0 && g_firstFogPal > 0 && !(fpal >= g_firstFogPal && fpal <= g_firstFogPal+3))
+                tspr->pal = fpal;
 
             // 2nd and 3rd rule minus "actor condition"
             if (!wallaligned && (tspr->cstat&2048)==0)

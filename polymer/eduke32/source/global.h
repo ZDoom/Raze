@@ -96,7 +96,6 @@ G_EXTERN int32_t g_groupFileHandle;
 G_EXTERN int32_t g_impactDamage,g_maxPlayerHealth;
 G_EXTERN int32_t g_musicSize;
 G_EXTERN int32_t g_numLabels,g_numDefaultLabels;
-G_EXTERN int32_t g_numRealPalettes;
 G_EXTERN int32_t g_scriptDebug;
 G_EXTERN int32_t g_showShareware;
 G_EXTERN int8_t g_numPlayerSprites;

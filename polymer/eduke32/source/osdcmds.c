@@ -1467,7 +1467,7 @@ int32_t registerosdcommands(void)
         { "cl_weaponsway", "enable/disable player weapon swaying", (void *)&ud.weaponsway, CVAR_BOOL, 0, 1 },
         { "cl_weaponswitch", "enable/disable auto weapon switching", (void *)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 7 },
 
-        { "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, g_numRealPalettes },
+        { "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
 
         { "crosshairscale","changes the size of the crosshair", (void *)&ud.crosshairscale, CVAR_INT, 10, 100 },
 
