@@ -27,6 +27,25 @@ local shadexfog = {}
 --  lua "shadexfog.createremap(30, {[2]=0, [3]=1, [12]=0, [13]=1})"
 -- creates a pal 30 which maps the blue and orange ramps to the gray ones.
 -- (Compare with the rows of http://wiki.eduke32.com/wiki/File:Pala.png)
+--
+-- Sexdecatuple remappings of Duke3D pals loaded from LOOKUP.DAT:
+-- Remappings that are not expressible as such and identity maps (pal 3 and 9)
+-- omitted.
+--
+--  2:  { [0]=8, [1]=13, [2]=8, [3]=13, [4]=13, [5]=8, [6]=8, [7]=13, [9]=8, [10]=8, [11]=13, [12]=8, [14]=8, }
+--  5:  { [8]=2, [13]=3, }
+--  7:  { [0]=10, [1]=9, [2]=10, [3]=9, [4]=9, [5]=10, [6]=10, [7]=9, [8]=10, [11]=9, [12]=9, [13]=9, [14]=9, }
+--  8:  { [0]=6, [1]=7, [2]=6, [3]=7, [4]=7, [5]=6, [8]=6, [9]=7, [10]=6, [11]=7, [12]=7, [13]=7, [14]=6, }
+-- 11:  { [4]=7, [5]=6, }
+-- 12:  { [4]=1, [5]=0, }
+-- 15:  { [4]=3, [5]=2, }
+-- 17:  { [2]=5, [3]=4, [4]=7, [5]=6, [6]=5, [7]=4, [12]=5, [14]=4, }
+-- 18:  { [4]=1, [5]=0, }
+-- 19:  { [2]=8, [3]=13, [4]=1, [5]=0, [6]=8, [7]=13, [12]=8, [14]=13, }
+-- 20:  { [2]=5, [3]=4, [4]=1, [5]=0, [6]=5, [7]=4, [12]=5, [14]=4, }
+-- 21:  { [4]=13, [5]=8, }
+-- 22:  { [4]=7, [5]=6, }
+-- 25:  { [6]=8, [7]=13, }
 function shadexfog.createremap(palnum, remaptab)
     local sht = engine.getshadetab(0)
     engine.setshadetab(palnum, sht:remap16(remaptab))
@@ -35,8 +54,8 @@ end
 -- Create 32 palookups corrensponding to different *shade levels* of a fog
 -- palookup, called a "shade-x-fog" palookup set in the following.
 --
--- Pals <tartpalnum> .. <startpalnum>+31 will be taken.
--- <fogr>, <fogg>, <fogb>: intensities of the fog color, [0 ..63]
+-- Pals <startpalnum> .. <startpalnum>+31 will be taken.
+-- <fogr>, <fogg>, <fogb>: intensities of the fog color, [0 .. 63]
 function shadexfog.create(startpalnum, fogr, fogg, fogb)
     local MAXPALNUM = 255-31-engine.RESERVEDPALS
     if (not (startpalnum >= 1 and startpalnum <= MAXPALNUM)) then
@@ -47,7 +66,7 @@ function shadexfog.create(startpalnum, fogr, fogg, fogb)
 
     -- Encode the shade in different pal numbers! The shade tables are
     -- constructed with a fog in their place.
-    for dummyshade=1,31 do
+    for dummyshade=0,31 do
         local sht = engine.shadetab()
 
         for f=0,31 do
@@ -68,6 +87,11 @@ function shadexfog.create(startpalnum, fogr, fogg, fogb)
 end
 
 local function trans(what, startpalnum, fogintensity)
+    if (what.pal >= startpalnum and what.pal <= startpalnum+31) then
+        -- Auto-detect earlier translation with the same <startpalnum>.
+        what.shade = what.pal - startpalnum
+    end
+
     local shade = min(max(what.shade, 0), 31)
     what.pal = startpalnum + shade
     what.shade = fogintensity
@@ -81,7 +105,8 @@ end
 -- If <vis> is passed, set all sector's visibility to that value.
 --
 -- Notes:
---  - works only a single time (TODO: autodetection if already applied)
+--  - auto-detects when the translation has been applied with the *same*
+--   <startpalnum> (if a different one is desired, must reload map).
 --  - if shades < 0 or > 31 present, loss of information
 function shadexfog.translate(startpalnum, fogintensity, vis)
     for i=0,gv.numsectors-1 do

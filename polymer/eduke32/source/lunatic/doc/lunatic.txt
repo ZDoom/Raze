@@ -834,6 +834,10 @@ _`u8`_ `pal`::
 The ``palette swap'' index of the sprite. This may not be the palette swap that
 this sprite is ultimately drawn with, though.
 
+_`u8`_ `blend`::
+The blending table index of the sprite. See
+<<blending_table_interfaces,Blending table interfaces>> for more details.
+
 _`u8`_ `clipdist`::
 If this sprite is _view-aligned_, controls the distance at which another moving
 object is considered to be in collision with this *stationary* sprite. (It does
@@ -2080,6 +2084,7 @@ colors from being returned. The shade table loaded from Duke3D's PALETTE.DAT
 makes color indices 240--254 fullbright, so passing 239 to `lastokcol` achieves
 the mentioned filtering.]
 
+[[shade_table_interfaces]]
 Shade table interfaces
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -2100,21 +2105,23 @@ texel's color index as latexmath:[$i_{\mathrm{in}}$], the resulting pixel's one
 latexmath:[$i_{\mathrm{out}}$] is computed as
 
 ==========
-latexmath:[$s_1 = C \cdot \mathrm{shade} + D \cdot \mathrm{visdist}$] +
+latexmath:[$s_1 = \mathrm{shade} + C \cdot \mathrm{visdist}$] +
 latexmath:[$s_2 = \mathrm{clamp}(s_1, \: 0, \: \mathrm{Numshades}-1)$] +
 latexmath:[$\mathrm{shade_index} = \mathrm{round}(s_2)$] +
 latexmath:[$i_{\mathrm{out}} = \mathrm{palookup}(\mathrm{shade_index}, i_{\mathrm{in}})$] {nbsp}
 [gray]#// This is only a table lookup, palookup[shade_index][latexmath:[$i_{\mathrm{in}}$]]# +
 ==========
 
-Here, latexmath:[$C$] and latexmath:[$D$] are positive constants and
+Here, latexmath:[$C$] is a positive constant and
 latexmath:[$\mathrm{visdist}$] is the product of a. the distance of an object's
 sampled pixel to the view plane with b. the object's
 ``visibility''.footnote:[Visibility would be more appropriately called
 ``anti-visibility'' or ``co-visibility'': greater values make objects appear
 more faded for the same distance. Also, the visibility that is meant here has
 the origin at 0, unlike `sector[].visibility`.] Thus, shade and visibility are
-inherently confounded in the 8-bit mode.
+inherently confounded in the 8-bit mode and the ultimate shade_index is bounded
+below by (the minimum of latexmath:[$\mathrm{Numshades}-1$] and) the shade of
+the object.
 
 ===== Examples of effects using shade tables
 
@@ -2221,6 +2228,7 @@ local newsht = engine.getshadetab(0):remap16({[4]=13, [5]=8})
 engine.setshadetab(22, newsht)
 ----------
 
+[[blending_table_interfaces]]
 Blending table interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

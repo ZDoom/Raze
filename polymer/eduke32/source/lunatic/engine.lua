@@ -369,10 +369,26 @@ if (ismapster32) then
         return true
     end
 
+    local hexmap = {
+        [0] = 0, -14,  -- 0, 1: gray ramp
+        14, 0,  -- 2, 3: skin color ramp
+        0, 14,  -- 4, 5: blue ramp (second part first)
+        14, 0,  -- 6, 7: nightvision yellow/green
+        14,  -- 8: red first part...
+        8,   -- 9: yellow (slightly more red than green)
+        14, 0,  -- 10, 11: almost gray ramp, but with a slight red hue
+        8,   -- 12: "dirty" orange
+        0,   -- 13: ...red second part
+        8,   -- 14: blue-purple-red
+    }
+
+    -- Setup base palette 1 (water) to contain one color for each consecutive
+    -- 16-tuple (which I'm calling a 'hex' for brevity), except for the last
+    -- one with the fullbrights.
     function engine.setupDebugBasePal()
         for i=0,14 do
             local ptr = C.basepaltable[1] + 3*(16*i)
-            local src = ptr + 3*i
+            local src = C.basepaltable[0] + 3*(16*i) + 3*hexmap[i]
             local r, g, b = src[0], src[1], src[2]
 
             for j=0,15 do
