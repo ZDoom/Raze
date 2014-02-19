@@ -3424,7 +3424,6 @@ static void palaccum_add(palaccum_t *pa, const palette_t *pal, int32_t f)
     pa->maxf = max(pa->maxf, f);
     pa->sumf += f;
 
-    // TODO: we need to do away with this 0-63 scale weirdness someday.
     pa->r += f*clamp(pal->r, 0, 63);
     pa->g += f*clamp(pal->g, 0, 63);
     pa->b += f*clamp(pal->b, 0, 63);

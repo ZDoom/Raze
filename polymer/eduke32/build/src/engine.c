@@ -3604,6 +3604,23 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
     return 0;
 }
 
+static void setup_blend(int32_t blend, int32_t doreverse)
+{
+    if (blendtable[blend] == NULL)
+        blend = 0;
+
+    if (globalblend != blend)
+    {
+        globalblend = blend;
+        fixtransluscence(FP_OFF(getblendtab(blend)));
+    }
+
+    if (doreverse)
+        settransreverse();
+    else
+        settransnormal();
+}
+
 //
 // ceilscan (internal)
 //
@@ -3658,11 +3675,11 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
         msethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 256:
-        settransnormal();
+        setup_blend(0, 0);
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 384:
-        settransreverse();
+        setup_blend(0, 0);
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     }
@@ -3753,11 +3770,11 @@ static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
         msethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 256:
-        settransnormal();
+        setup_blend(0, 0);
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 384:
-        settransreverse();
+        setup_blend(0, 1);
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     }
@@ -5589,18 +5606,6 @@ static void drawsprite_opengl(int32_t snum)
     //============================================================================= //POLYMOST ENDS
 }
 
-static void setup_blend(int32_t blend)
-{
-    if (blendtable[blend] == NULL)
-        blend = 0;
-
-    if (globalblend != blend)
-    {
-        globalblend = blend;
-        fixtransluscence(FP_OFF(getblendtab(blend)));
-    }
-}
-
 static void drawsprite_classic(int32_t snum)
 {
     int32_t xoff, yoff, xspan, yspan;
@@ -5680,12 +5685,8 @@ static void drawsprite_classic(int32_t snum)
     if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes null-pointer crash
     globalshade = tspr->shade;
 
-    setup_blend(tspr->blend);
-
     if (cstat&2)
-    {
-        if (cstat&512) settransreverse(); else settransnormal();
-    }
+        setup_blend(tspr->blend, cstat&512);
 
     xoff = picanm[tilenum].xofs + tspr->xoffset;
     yoff = picanm[tilenum].yofs + tspr->yoffset;
@@ -6693,9 +6694,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
     else
     {
         if (globalorientation&128)
-        {
-            if (globalorientation&512) settransreverse(); else settransnormal();
-        }
+            setup_blend(0, globalorientation&512);
 
         transmaskwallscan(xb1[z],xb2[z], 0);
     }
@@ -7713,7 +7712,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 #else
             tsetupspritevline(palookupoffs,xv,yv,ysiz);
 #endif
-            if (dastat & RS_TRANS2) settransreverse(); else settransnormal();
+            setup_blend(0, dastat & RS_TRANS2);
         }
 
         for (x=x1; x<x2; x++)
@@ -9942,7 +9941,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 msethlineshift(ox,oy);
             else
             {
-                if (spr->cstat&512) settransreverse(); else settransnormal();
+                setup_blend(spr->blend, spr->cstat&512);
                 tsethlineshift(ox,oy);
             }
 
