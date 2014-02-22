@@ -36,7 +36,7 @@ gamedef_h=$(SRC)/gamedef.h $(SRC)/gameexec.h $(SRC)/gamevars.h
 
 game_defs_dep=$(SRC)/lunatic/defs.ilua
 
-$(OBJ)/game.$o: $(SRC)/game.c $(game_defs_dep) $(SRC)/jmact/scriplib.h $(duke3d_h) $(SRC)/input.h $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h $(INC)/demo.h $(EINC)/hightile.h
+$(OBJ)/game.$o: $(SRC)/game.c $(game_defs_dep) $(SRC)/jmact/scriplib.h $(duke3d_h) $(SRC)/input.h $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h $(INC)/demo.h $(EINC)/hightile.h $(SRC)/rev.h
 $(OBJ)/actors.$o: $(SRC)/actors.c $(duke3d_h)
 $(OBJ)/anim.$o: $(SRC)/anim.c $(duke3d_h) $(SRC)/input.h $(SRC)/jmact/animlib.h $(SRC)/animvpx.h
 $(OBJ)/demo.$o: $(SRC)/demo.c $(duke3d_h) $(SRC)/input.h
@@ -44,7 +44,7 @@ $(OBJ)/gamedef.$o: $(SRC)/gamedef.c $(duke3d_h) $(gamedef_h) $(SRC)/savegame.h
 $(OBJ)/gameexec.$o: $(SRC)/gameexec.c $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/gamestructures.$o: $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/gamevars.$o: $(SRC)/gamevars.c $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h) $(SRC)/savegame.h
-$(OBJ)/global.$o: $(SRC)/*.c $(SRC)/global.c $(duke3d_h)
+$(OBJ)/global.$o: $(SRC)/*.c $(SRC)/global.c $(duke3d_h) $(SRC)/rev.h
 $(OBJ)/input.$o: $(SRC)/input.c $(duke3d_h) $(SRC)/input.h
 $(OBJ)/mdump.$o: $(SRC)/mdump.cpp $(SRC)/mdump.h
 $(OBJ)/menus.$o: $(SRC)/menus.c $(duke3d_h) $(SRC)/input.h $(SRC)/jmact/mouse.h
@@ -84,7 +84,8 @@ $(OBJ)/astub.$o: $(SRC)/astub.c \
     $(SRC)/names.h \
     $(SRC)/mapster32.h \
     $(SRC)/keys.h \
-    $(m32_script_hs)
+    $(m32_script_hs) \
+    $(SRC)/rev.h
 $(OBJ)/sounds_mapster32.$o: $(SRC)/sounds_mapster32.c \
     $(SRC)/sounds_mapster32.h \
     $(SRC)/sounds_common.h \

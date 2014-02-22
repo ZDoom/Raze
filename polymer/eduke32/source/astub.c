@@ -8883,8 +8883,14 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
 #else
         " (32-bit)"
 #endif
+#if defined (_MSC_VER) || defined(__cplusplus)
+#ifdef _MSC_VER
+        " MSVC"
+#endif
 #ifdef __cplusplus
-        " C++ build"
+        " C++"
+#endif
+        " build"
 #endif
         "\n", VERSION, s_buildRev);
     initprintf("Compiled %s\n", __DATE__ " " __TIME__);

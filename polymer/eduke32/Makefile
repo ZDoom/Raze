@@ -350,7 +350,7 @@ endif
 UTILOBJS=$(OBJ)/ivfrate.$o
 UTILS=ivfrate$(EXESUFFIX)
 
-all: start $(EDUKE32_TARGET) $(MAPSTER32_TARGET) finish
+all: start $(DO_REV) $(EDUKE32_TARGET) $(MAPSTER32_TARGET) finish
 ifneq (,$(EDUKE32_TARGET))
 	@ls -l $(EDUKE32)
 endif
@@ -552,7 +552,7 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 
 # PHONIES
 
-clean:
+clean: $(UNDO_REV)
 	-rm -f $(OBJ)/* $(EDUKE32) $(EDUKE32).memmap $(MAPSTER32) $(MAPSTER32).memmap core* && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf EDuke32.app Mapster32.app
@@ -568,3 +568,9 @@ veryclean: clean cleanutils
 
 printutils:
 	echo "$(UTILS)"
+
+rev:
+	@echo "s_buildRev = \"r$(VC_REV)$(VC_REV_CUSTOM)\";">source/rev.h
+
+rev_clean:
+	@$(VC_CLEAN) source/rev.h

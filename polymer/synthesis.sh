@@ -127,9 +127,6 @@ then
 
     cd $top/$source
 
-    # throw the svn revision into a header.  this is ugly.
-    echo "s_buildRev = \"r$head\";" > source/rev.h
-
     # get the date in the YYYYMMDD format (ex: 20091001)
     date=`date +%Y%m%d`
 
@@ -245,6 +242,9 @@ then
     # hack to restore [e]obj/keep.me
     echo svn update -r $head
     svn update -r $head
+
+    # throw the svn revision into a header.
+    echo "s_buildRev = \"r$head\";" > source/rev.h
 
     # export the source tree into the output directory
     svn export . $output/$date-$head/${basename}_$date-$head
