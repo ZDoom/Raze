@@ -94,6 +94,7 @@ function package_start ()
     cd $package
 
     cp -R $top/$source/package/common/* ./
+    cp -R $top/$source/package/sdk/* ./
 }
 
 function package_debug ()
@@ -108,11 +109,6 @@ function package_game_lunatic ()
     cp $top/$source/source/lunatic/test.lua ./lunatic/
     cp $top/$source/source/lunatic/test/test_{bitar,geom,rotspr}.lua ./lunatic/test/
     cp $top/$source/source/lunatic/test/{damagehplane,delmusicsfx,helixspawner,shadexfog}.lua ./lunatic/test/
-}
-
-function package_sdk ()
-{
-    cp -R $top/$source/package/sdk/* ./
 }
 
 function package_execute ()
@@ -147,18 +143,12 @@ then
     # make sure all the targets were produced
     verifytargets
 
-    # package game
+    # package
     package_start
     package_debug win32
     mv -f $top/$source/eduke32$exe "$package/eduke32.debug$exe"
-    package_execute ${basename}_win32_debug
-
-    # package sdk
-    package_start
-    package_debug win32
-    package_sdk
     mv -f $top/$source/mapster32$exe "$package/mapster32.debug$exe"
-    package_execute ${basename}-sdk_win32_debug
+    package_execute ${basename}_win32_debug
 
 
     # 64-bit debug
@@ -170,18 +160,12 @@ then
     # make sure all the targets were produced
     verifytargets
 
-    # package game
+    # package
     package_start
     package_debug win64
     mv -f $top/$source/eduke32$exe "$package/eduke32.debug$exe"
-    package_execute ${basename}_win64_debug
-
-    # package sdk
-    package_start
-    package_debug win64
-    package_sdk
     mv -f $top/$source/mapster32$exe "$package/mapster32.debug$exe"
-    package_execute ${basename}-sdk_win64_debug
+    package_execute ${basename}_win64_debug
 
 
     # 32-bit Lunatic (pre-)release
@@ -196,7 +180,7 @@ then
         # make sure all the targets were produced
         verifytargets
 
-        # package game
+        # package
         package_start
         package_game_lunatic
         mv -f $top/$source/eduke32$exe "$package/leduke32_PREVIEW$exe"
@@ -215,7 +199,7 @@ then
         # make sure all the targets were produced
         verifytargets
 
-        # package game
+        # package
         package_start
         package_game_lunatic
         mv -f $top/$source/eduke32$exe "$package/leduke32_PREVIEW$exe"
@@ -233,16 +217,11 @@ then
     # make sure all the targets were produced
     verifytargets
 
-    # package game
+    # package
     package_start
     mv -f $top/$source/eduke32$exe "$package/eduke32$exe"
-    package_execute ${basename}_win32
-
-    # package sdk
-    package_start
-    package_sdk
     mv -f $top/$source/mapster32$exe "$package/mapster32$exe"
-    package_execute ${basename}-sdk_win32
+    package_execute ${basename}_win32
 
 
     # 64-bit release
@@ -254,16 +233,11 @@ then
     # make sure all the targets were produced
     verifytargets
 
-    # package game
+    # package
     package_start
     mv -f $top/$source/eduke32$exe "$package/eduke32$exe"
-    package_execute ${basename}_win64
-
-    # package sdk
-    package_start
-    package_sdk
     mv -f $top/$source/mapster32$exe "$package/mapster32$exe"
-    package_execute ${basename}-sdk_win64
+    package_execute ${basename}_win64
 
 
     # clean up
