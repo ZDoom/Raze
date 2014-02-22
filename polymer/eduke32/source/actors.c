@@ -606,7 +606,7 @@ void A_DeleteSprite(int32_t s)
         A_DeleteLight(s);
 #endif
 
-    if (sprite[s].picnum == MUSICANDSFX && actor[s].t_data[8]==1)
+    if (sprite[s].picnum == MUSICANDSFX && actor[s].t_data[0]==1)
     {
         // AMBIENT_SFX_PLAYING
         S_StopEnvSound(sprite[s].lotag, s);
@@ -1417,15 +1417,14 @@ ACTOR_STATIC void G_MoveFX(void)
                         g_sounds[s->lotag].m |= SF_LOOP;
                         A_PlaySound(s->lotag,i);
                         g_sounds[s->lotag].m = om;
-                        T1 = 1;
-                        T9 = 1;  // AMBIENT_SFX_PLAYING
+                        T1 = 1;  // AMBIENT_SFX_PLAYING
                     }
                     else if (x >= ht && T1 == 1)
                     {
                         // Stop playing ambience sound because we're out of its range.
 
+                        // T1 will be reset in sounds.c: CLEAR_SOUND_T0
                         // T1 = 0;
-                        T9 = 0;
                         S_StopEnvSound(s->lotag,i);
                     }
                 }

@@ -363,8 +363,8 @@ void S_Cleanup(void)
                 g_sounds[num].num--;
 
             // MUSICANDSFX uses t_data[0] to control restarting the sound
-            // ST_2_UNDERWATER
-            if (i != -1 && S_IsAmbientSFX(i) && sector[sprite[i].sectnum].lotag < 3)
+            // CLEAR_SOUND_T0
+            if (i != -1 && S_IsAmbientSFX(i) && sector[sprite[i].sectnum].lotag < 3)  // ST_2_UNDERWATER
                 actor[i].t_data[0] = 0;
 
             g_sounds[num].SoundOwner[j].ow = -1;
