@@ -1510,7 +1510,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             else
             {
                 sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888,
-                                                SDL_TEXTUREACCESS_STREAMING, x, y);
+                                                SDL_TEXTUREACCESS_STATIC, x, y);
                 if (!sdl_texture)
                 {
                     initprintf("Falling back to SDL_GetWindowSurface: SDL_CreateTexture failed: %s\n",
