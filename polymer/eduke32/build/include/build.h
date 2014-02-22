@@ -379,7 +379,9 @@ enum {
 //   bit 8: 1 = Blocking sprite (use with hitscan / cliptype 1)      "H"
 //   bit 9: 1 = Transluscence reversing, 0 = normal                  "T"
 //   bit 10: reserved (in use by a renderer hack, see CSTAT_SPRITE_MDHACK)
-//   bit 11: 1 = determine shade based only on its own shade member (see CON's spritenoshade command)
+//   bit 11: 1 = determine shade based only on its own shade member (see CON's spritenoshade command), i.e.
+//               don't take over shade from parallaxed ceiling/nonparallaxed floor
+//               (NOTE: implemented on the game side)
 //   bit 12: reserved
 //   bit 13: 1 = does not cast shadow
 //   bit 14: 1 = invisible but casts shadow

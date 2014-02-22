@@ -7234,7 +7234,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     continue;
             }
 
-        if (A_CheckSpriteFlags(t->owner,SPRITE_NOSHADE) || (t->cstat&2048))
+        if (A_CheckSpriteFlags(t->owner, SPRITE_NOSHADE) || (t->cstat&CSTAT_SPRITE_NOSHADE))
             l = sprite[t->owner].shade;
         else
         {

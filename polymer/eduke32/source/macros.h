@@ -155,7 +155,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //       bit 8: 1 = Blocking sprite (use with hitscan)                "H"
 //       bit 9: reserved
 //       bit 10: reserved
-//       bit 11: reserved
+//       bit 11: 1 = determine shade based only on its own shade member (see CON's spritenoshade command), i.e.
+//                   don't take over shade from parallaxed ceiling/nonparallaxed floor
+//                   (NOTE: implemented on the game side)
 //       bit 12: reserved
 //       bit 13: reserved
 //       bit 14: reserved
@@ -172,6 +174,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CSTAT_SPRITE_YCENTER        BIT(7)
 #define CSTAT_SPRITE_BLOCK_HITSCAN  BIT(8)
 #define CSTAT_SPRITE_TRANS_FLIP     BIT(9)
+#define CSTAT_SPRITE_NOSHADE        BIT(11)
 
 #define CSTAT_SPRITE_INVISIBLE      BIT(15)
 

@@ -6294,8 +6294,9 @@ static void Keys3d(void)
     {
         if (AIMING_AT_SPRITE)
         {
-            sprite[searchwall].cstat ^= 2048;
-            message("Sprite %d spritenoshade bit: %s", searchwall, ONOFF(sprite[searchwall].cstat&2048));
+            sprite[searchwall].cstat ^= CSTAT_SPRITE_NOSHADE;
+            message("Sprite %d spritenoshade bit: %s", searchwall,
+                    ONOFF(sprite[searchwall].cstat&CSTAT_SPRITE_NOSHADE));
         }
     }
 
@@ -10981,7 +10982,7 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
                 tspr->pal = fpal;
 
             // 2nd and 3rd rule minus "actor condition"
-            if (!wallaligned && (tspr->cstat&2048)==0)
+            if (!wallaligned && (tspr->cstat&CSTAT_SPRITE_NOSHADE)==0)
             {
                 if (sector[tspr->sectnum].ceilingstat&1)
                     sh = sector[tspr->sectnum].ceilingshade;
