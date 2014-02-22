@@ -7,7 +7,11 @@
  In EDuke32, simply pass this module at the command line.
 --]]
 
+local assert = assert
 local error = error
+local print = print
+local printf = printf
+local type = type
 
 local bit = require("bit")
 local math = require("math")
@@ -300,69 +304,77 @@ end
 
 ---------- Blending table tests ----------
 
--- shadexfog.create_128_trans(startblendidx [, numtabs])
+-- shadexfog.create_trans(startblendidx, func [, numtables [, fullbrightsOK]])
 --
--- Creates <numtabs> blending tables of smooth alpha translucency, with
--- fractions 1/(2*numtabs), 2/(2*numtabs) ... numtabs/(2*numtabs).
--- <numtabs> must be a power of two in [2 .. 128].
-function shadexfog.create_128_trans(startblendidx, numtabs)
-    if (numtabs == nil) then
-        numtabs = 128
-    else
-        if (type(numtabs) ~= "number" or not (numtabs >= 2 and numtabs <= 128)) then
-            error("invalid argument #2: must be a number in [2 .. 128]", 2)
-        end
+-- <func>: must be
+--  rr, gg, bb = f(r, g, b, R, G, B, level, numtables)
+--  ('level' is the table index, from 1 to <numtables>)
+-- <numtables>: number of tables to create, from <startblendidx> on. Default: 1
+function shadexfog.create_trans(startblendidx, func, numtables, fullbrightsOK)
+    numtables = numtables or 1
+    local lastokcol = fullbrightsOK and 255 or 255-16
 
-        if (bit.band(numtabs, numtabs-1) ~= 0) then
-            error("invalid argument #2: must be a power of two", 2)
-        end
-    end
+    local tab = engine.blendtab()
 
-    for alpha=1,numtabs do
-        local f = alpha/(2*numtabs)
-        local F = 1-f
-
-        local tab = engine.blendtab()
-
+    for level=1,numtables do
         for i=0,255 do
             local r,g,b = engine.getrgb(i)
             for j=0,255 do
                 local R,G,B = engine.getrgb(j)
 
-                tab[i][j] = engine.nearcolor(f*r+F*R, f*g+F*G, f*b+F*B)
+                local rr, gg, bb = func(r,g,b, R,G,B, level, numtables)
+                tab[i][j] = engine.nearcolor(rr, gg, bb, lastokcol)
             end
         end
 
-        engine.setblendtab(startblendidx + alpha-1, tab)
+        engine.setblendtab(startblendidx + level-1, tab)
     end
 end
 
--- shadexfog.create_trans(blendidx, func [, fullbrightsOK])
+local function check_numtables(numtables)
+    if (numtables ~= nil) then
+        if (type(numtables) ~= "number" or not (numtables >= 1 and numtables <= 128)) then
+            error("invalid argument #2: must be a number in [1 .. 128]", 2)
+        end
+
+        if (bit.band(numtables, numtables-1) ~= 0) then
+            error("invalid argument #2: must be a power of two", 2)
+        end
+    end
+end
+
+-- shadexfog.create_alpha_trans(startblendidx [, numtables [, fullbrightsOK]])
 --
--- <func>: must be
---  rr, gg, bb = f(r, g, b, R, G, B)
-function shadexfog.create_trans(blendidx, func, fullbrightsOK)
-    local tab = engine.blendtab()
+-- Creates <numtables> blending tables of smooth alpha translucency, with
+-- fractions 1/(2*numtables), 2/(2*numtables) ... numtables/(2*numtables).
+-- <numtables> must be a power of two in [1 .. 128].
+function shadexfog.create_alpha_trans(startblendidx, numtables, fullbrightsOK)
+    check_numtables(numtables)
 
-    for i=0,255 do
-        local r,g,b = engine.getrgb(i)
-        for j=0,255 do
-            local R,G,B = engine.getrgb(j)
+    shadexfog.create_trans(
+        startblendidx,
 
-            local rr, gg, bb = func(r, g, b, R, G, B)
-            tab[i][j] = engine.nearcolor(rr, gg, bb, fullbrightsOK and 255 or 255-16)
-        end
-    end
+        function(r,g,b, R,G,B, alpha, numtabs)
+            local f = alpha/(2*numtabs)
+            local F = 1-f
+            return f*r+F*R, f*g+F*G, f*b+F*B
+        end,
 
-    engine.setblendtab(blendidx, tab)
+        numtables, fullbrightsOK
+    )
 end
 
-function shadexfog.create_additive_trans(blendidx)
+-- shadexfog.create_additive_trans(startblendidx [, numtables [, fullbrightsOK]])
+function shadexfog.create_additive_trans(startblendidx, numtables, fullbrightsOK)
     shadexfog.create_trans(
-        blendidx,
-        function(r,g,b,R,G,B)
-            return min(r+R, 63), min(g+G, 63), min(b+B, 63)
-        end
+        startblendidx,
+
+        function(r,g,b, R,G,B, level, numtabs)
+            local f = level/numtabs
+            return min(f*r+R, 63), min(f*g+G, 63), min(f*b+B, 63)
+        end,
+
+        numtables, fullbrightsOK
     )
 end
 
