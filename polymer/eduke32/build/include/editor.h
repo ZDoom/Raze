@@ -13,6 +13,9 @@
 
 #define VERSION "2.0.0devel"
 
+#define SETUPFILENAME "mapster32.cfg"
+extern char setupfilename[BMAX_PATH];
+
 // Build keys
 #define BK_MOVEFORWARD   0
 #define BK_MOVEBACKWARD  1

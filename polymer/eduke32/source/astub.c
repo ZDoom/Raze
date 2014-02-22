@@ -79,7 +79,7 @@ static char g_modDir[BMAX_PATH];
 static char levelname[BMAX_PATH];
 
 // static char *startwin_labeltext = "Starting Mapster32...";
-static char setupfilename[BMAX_PATH] = "mapster32.cfg";
+char setupfilename[BMAX_PATH] = SETUPFILENAME;
 
 int32_t fixmaponsave_sprites = 1;
 static int32_t fixmaponsave_walls = 0;
@@ -10457,7 +10457,7 @@ int32_t ExtInit(void)
 #ifdef USE_OPENGL
     glusetexcache = -1;
 
-    if (Bstrcmp(setupfilename, "mapster32.cfg"))
+    if (Bstrcmp(setupfilename, SETUPFILENAME))
         initprintf("Using config file \"%s\".\n",setupfilename);
 
     if (loadsetup(setupfilename) < 0)
@@ -10510,6 +10510,15 @@ int32_t ExtInit(void)
 
     OSD_SetParameters(0,2, 0,0, 4,0);
     registerosdcommands();
+
+    {
+        char *ptr = Bstrdup(setupfilename), *p = strtok(ptr,".");
+        if (!Bstrcmp(setupfilename, SETUPFILENAME))
+            Bsprintf(tempbuf, "m32_settings.cfg");
+        else Bsprintf(tempbuf,"%s_m32_settings.cfg",p);
+        OSD_Exec(tempbuf);
+        Bfree(ptr);
+    }
 
     // backup pathsearchmode so that a later open
     // will hopefully be the same file
