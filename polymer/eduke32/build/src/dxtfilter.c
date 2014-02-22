@@ -68,9 +68,9 @@ static void dxt_handle_io(int32_t fil, int32_t len, void *midbuf, char *packbuf)
 
     if (glusetexcache == 2)
     {
-        cleng = LZ4_compress((const char*)midbuf, packbuf, len);
+        cleng = LZ4_compress_limitedOutput((const char*)midbuf, packbuf, len, len);
 
-        if (cleng == 0 || cleng > len-1)
+        if (cleng <= 0 || cleng > len-1)
         {
             cleng = len;
             writebuf = midbuf;
@@ -90,7 +90,7 @@ static void dxt_handle_io(int32_t fil, int32_t len, void *midbuf, char *packbuf)
 }
 
 static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
-                               void *midbuf, char *packbuf, int32_t ispacked)
+                               void *midbuf, int32_t mbufsiz, char *packbuf, int32_t ispacked)
 {
     void *inbuf;
     int32_t cleng;
@@ -107,7 +107,7 @@ static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
     {
         if (ispacked && cleng < j)
         {
-            if (LZ4_decompress_fast((const char *)texcache.memcache.ptr + texcache.filepos, (char*)midbuf, cleng) == 0)
+            if (LZ4_decompress_safe((const char *)texcache.memcache.ptr + texcache.filepos, (char*)midbuf, cleng, mbufsiz) <= 0)
             {
                 texcache.filepos += cleng;
                 return -1;
@@ -126,7 +126,7 @@ static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
             return -1;
 
         if (ispacked && cleng < j)
-            if (LZ4_decompress_fast(packbuf, (char*)midbuf, cleng) == 0)
+            if (LZ4_decompress_safe(packbuf, (char*)midbuf, cleng, mbufsiz) <= 0)
                 return -1;
     }
 
@@ -196,7 +196,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     if (stride == 16) //If DXT3...
     {
         //alpha_4x4
-        if (dedxt_handle_io(fil, (pict->size/stride)*8, midbuf, packbuf, ispacked))
+        if (dedxt_handle_io(fil, (pict->size/stride)*8, midbuf, pict->size, packbuf, ispacked))
             return -1;
 
         cptr = (char *)midbuf;
@@ -206,7 +206,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     }
 
     //rgb0,rgb1
-    if (dedxt_handle_io(fil, (pict->size/stride)*4, midbuf, packbuf, ispacked))
+    if (dedxt_handle_io(fil, (pict->size/stride)*4, midbuf, pict->size, packbuf, ispacked))
         return -1;
 
     cptr = (char *)midbuf;
@@ -220,7 +220,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     }
 
     //index_4x4:
-    if (dedxt_handle_io(fil, (pict->size/stride)*4, midbuf, packbuf, ispacked))
+    if (dedxt_handle_io(fil, (pict->size/stride)*4, midbuf, pict->size, packbuf, ispacked))
         return -1;
 
     cptr = (char *)midbuf;
