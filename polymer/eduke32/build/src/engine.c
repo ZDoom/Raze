@@ -8167,9 +8167,9 @@ int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
         if (kread(fp, &palnum, 1) != 1)
             return -1;
 
-        if (palnum == 0)
+        if (palnum == 0 || palnum >= 256-RESERVEDPALS)
         {
-            initprintf("ERROR: attempt to load lookup at pal 0\n");
+            initprintf("ERROR: attempt to load lookup at reserved pal %d\n", palnum);
             return -1;
         }
 
