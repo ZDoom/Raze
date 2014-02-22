@@ -5033,13 +5033,15 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         actor[i].actorstayput = actor[i].lightId = actor[i].extra = -1;
 
-        if (PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2 && (CS&48))
+        if ((CS&48) && PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2)
             if (!(PN >= CRACK1 && PN <= CRACK4))
             {
-                if (SS == 127) goto SPAWN_END;
-                if (A_CheckSwitchTile(i) == 1 && (CS&16))
+                if (SS == 127)
+                    goto SPAWN_END;
+
+                if (A_CheckSwitchTile(i) && (CS&16))
                 {
-                    if (PN != ACCESSSWITCH && PN != ACCESSSWITCH2 && sprite[i].pal)
+                    if (sprite[i].pal && PN != ACCESSSWITCH && PN != ACCESSSWITCH2)
                     {
                         if (((!g_netServer && ud.multimode < 2)) || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_DMSWITCHES)))
                         {
@@ -5049,7 +5051,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                             goto SPAWN_END;
                         }
                     }
+
                     CS |= 257;
+
                     if (sprite[i].pal && PN != ACCESSSWITCH && PN != ACCESSSWITCH2)
                         sprite[i].pal = 0;
                     goto SPAWN_END;
@@ -5064,12 +5068,10 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 }
             }
 
-        s = PN;
-
         if (CS&1)
             CS |= 256;
 
-        if (!G_InitActor(i, s, 0))
+        if (!G_InitActor(i, sprite[i].picnum, 0))
             T2 = T5 = 0;  // AC_MOVE_ID, AC_ACTION_ID
     }
 

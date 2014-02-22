@@ -8280,7 +8280,8 @@ int32_t A_CheckSwitchTile(int32_t i)
 
     // ACCESSSWITCH and ACCESSSWITCH2 are only active in one state so deal with
     // them separately.
-    if (PN == ACCESSSWITCH || PN == ACCESSSWITCH2) return 1;
+    if (PN == ACCESSSWITCH || PN == ACCESSSWITCH2)
+        return 1;
 
     // Loop to catch both states of switches.
     for (j=1; j>=0; j--)
