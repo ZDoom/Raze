@@ -7466,12 +7466,14 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
             gs_cursprite &= (MAXSPRITES-1);
         }
 
-        if (sprite[gs_cursprite].statnum == MAXSTATUS) continue;
+        if (sprite[gs_cursprite].statnum == MAXSTATUS)
+            continue;
 
         for (i=0; i<3; i++)
-            for (j=0; i==1 ? j<6 : j<7; j++)
+            for (j=0; j<7; j++)
             {
-                if (!gs_spriteTagInterested[i][j]) continue;
+                if (!gs_spriteTagInterested[i][j])
+                    continue;
 
                 if (i==0)
                 {
@@ -7492,23 +7494,24 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
                     {
                     case 0:
                         k = sprite[gs_cursprite].cstat;
-                        k &= gs_spriteTagValue[1][0];
+                        k &= gs_spriteTagValue[1][j];
                         break;
                     case 1: k = sprite[gs_cursprite].shade; break;
                     case 2: k = sprite[gs_cursprite].pal; break;
-                    case 3:
-                        k = gs_spriteTagValue[1][3];
+                    case 3: k = sprite[gs_cursprite].blend; break;
+                    case 4:
+                        k = gs_spriteTagValue[1][j];
                         if (k != sprite[gs_cursprite].xrepeat &&
                                 k != sprite[gs_cursprite].yrepeat)
                             goto NEXTSPRITE;
                         break;
-                    case 4:
-                        k = gs_spriteTagValue[1][4];
+                    case 5:
+                        k = gs_spriteTagValue[1][j];
                         if (k != sprite[gs_cursprite].xoffset &&
                                 k != sprite[gs_cursprite].yoffset)
                             goto NEXTSPRITE;
                         break;
-                    case 5: k = sprite[gs_cursprite].picnum; break;
+                    case 6: k = sprite[gs_cursprite].picnum; break;
                     }
                 }
                 else if (i==2)
@@ -7525,7 +7528,8 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
                     }
                 }
 
-                if (k != gs_spriteTagValue[i][j]) goto NEXTSPRITE;
+                if (k != gs_spriteTagValue[i][j])
+                    goto NEXTSPRITE;
             }
 
         // found matching sprite
@@ -12579,7 +12583,7 @@ static void EditSpriteData(int16_t spritenum)
                 med_printcurline(xpos, ypos, row, 0);
                 col = 1;
                 xpos = 208;
-                rowmax = 5;
+                rowmax = 6;
                 med_dispwidth = 24;
                 med_disptext[med_dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
@@ -12596,7 +12600,7 @@ static void EditSpriteData(int16_t spritenum)
                 med_printcurline(xpos, ypos, row, 0);
                 col = 1;
                 xpos = 208;
-                rowmax = 5;
+                rowmax = 6;
                 med_dispwidth = 24;
                 med_disptext[med_dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
@@ -12674,6 +12678,10 @@ static void EditSpriteData(int16_t spritenum)
                           sizeof(sprite[spritenum].pal), M32_MAXPALOOKUPS, 0);
                 break;
             case 3:
+                handlemed(0, "Blend", "Blend", &sprite[spritenum].blend,
+                          sizeof(sprite[spritenum].blend), MAXBLENDTABS, 0);
+                break;
+            case 4:
             {
                 Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",
                     TrackerCast(sprite[spritenum].xrepeat),TrackerCast(sprite[spritenum].yrepeat));
@@ -12689,7 +12697,7 @@ static void EditSpriteData(int16_t spritenum)
                 }
             }
             break;
-            case 4:
+            case 5:
             {
                 Bsprintf_nowarn_return(i, med_disptext,"(X,Y)offset: %d, %d",
                     TrackerCast(sprite[spritenum].xoffset),TrackerCast(sprite[spritenum].yoffset));
@@ -12705,7 +12713,7 @@ static void EditSpriteData(int16_t spritenum)
                 }
             }
             break;
-            case 5:
+            case 6:
                 handlemed(0, "Tile number", "Tile number", &sprite[spritenum].picnum,
                           sizeof(sprite[spritenum].picnum), MAXTILES-1, 0+2);
                 break;
@@ -12773,7 +12781,7 @@ static void GenericSpriteSearch(void)
     char edittext[80];
     static int32_t col=0, row=0;
     int32_t i, j, k;
-    int32_t rowmax[3]= {6,5,6}, dispwidth[3] = {24,24,28};
+    int32_t rowmax[3]= {6,6,6}, dispwidth[3] = {24,24,28};
     int32_t xpos[3] = {8,200,400}, ypos = ydim-STATUS2DSIZ+48;
 
     static const char *labels[7][3] =
@@ -12781,10 +12789,10 @@ static void GenericSpriteSearch(void)
         {"X-coordinate", "Flags (hex)", "Angle (2048 degrees)"},
         {"Y-coordinate", "Shade",       "X-Velocity"},
         {"Z-coordinate", "Pal",         "Y-Velocity"},
-        {"Sectnum",      "(X/Y)repeat", "Z-Velocity"},
-        {"Statnum",      "(X/Y)offset", "Owner"},
-        {"Hitag",        "Tile number", "Clipdist"},
-        {"Lotag",        "",            "Extra"}
+        {"Sectnum",      "Blend",       "Z-Velocity"},
+        {"Statnum",      "(X/Y)repeat", "Owner"},
+        {"Hitag",        "(X/Y)offset", "Clipdist"},
+        {"Lotag",        "Tile number", "Extra"}
     };
 
     static int32_t maxval[7][3] =
@@ -12792,10 +12800,10 @@ static void GenericSpriteSearch(void)
         { BXY_MAX     , 65535         , 2048 },
         { BXY_MAX     , 128           , 65535 },
         { BZ_MAX      , M32_MAXPALOOKUPS, 65535 },
-        { MAXSECTORS-1, 128           , 65535 },
+        { MAXSECTORS-1, MAXBLENDTABS-1, 65535 },
         { MAXSTATUS-1 , 128           , MAXSPRITES-1 },
-        { BTAG_MAX    , MAXTILES-1    , 256 },
-        { BTAG_MAX    , 0             , BTAG_MAX }
+        { BTAG_MAX    , 128           , 256 },
+        { BTAG_MAX    , MAXTILES-1    , BTAG_MAX }
     };
 
     static char sign[7][3] =
@@ -12804,9 +12812,9 @@ static void GenericSpriteSearch(void)
         {1,   1,   1},
         {1,   0,   1},
         {0,   0,   1},
-        {0,   1,   0},
-        {0+4, 0+2, 0},
-        {0+4, 0,   1}
+        {0,   0,   0},
+        {0+4, 1,   0},
+        {0+4, 0+2, 1}
     };
 
     clearmidstatbar16();
@@ -12888,7 +12896,7 @@ static void GenericSpriteSearch(void)
             gs_spriteTagValue[col][row] = i;
             gs_spriteTagInterested[col][row] = 1;
 
-            if (col == 1 && row == 5)  // picnum
+            if (col == 1 && row == 6)  // picnum
             {
                 printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], TWENTYFIVE_BLANKS, 0);
                 if (names[i][0])
@@ -12899,7 +12907,7 @@ static void GenericSpriteSearch(void)
         {
             gs_spriteTagInterested[col][row] = 0;
 
-            if (col == 1 && row == 5)  // picnum
+            if (col == 1 && row == 6)  // picnum
                 printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], TWENTYFIVE_BLANKS, 0);
         }
 

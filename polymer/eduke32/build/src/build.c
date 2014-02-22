@@ -10271,9 +10271,10 @@ void showspritedata(int16_t spritenum, int16_t small)
     DOPRINT(48, "Flags (hex): %x", TrackerCast(spr->cstat));
     DOPRINT(56, "Shade: %d", TrackerCast(spr->shade));
     DOPRINT(64, "Pal: %d", TrackerCast(spr->pal));
-    DOPRINT(72, "(X,Y)repeat: %d, %d", TrackerCast(spr->xrepeat), TrackerCast(spr->yrepeat));
-    DOPRINT(80, "(X,Y)offset: %d, %d", TrackerCast(spr->xoffset), TrackerCast(spr->yoffset));
-    DOPRINT(88, "Tile number: %d", TrackerCast(spr->picnum));
+    DOPRINT(72, "Blend: %d", TrackerCast(spr->blend));
+    DOPRINT(80, "(X,Y)repeat: %d, %d", TrackerCast(spr->xrepeat), TrackerCast(spr->yrepeat));
+    DOPRINT(88, "(X,Y)offset: %d, %d", TrackerCast(spr->xoffset), TrackerCast(spr->yoffset));
+    DOPRINT(96, "Tile number: %d", TrackerCast(spr->picnum));
 
     col++;
 
