@@ -208,7 +208,7 @@ static int32_t A_FindTargetSprite(const spritetype *s, int32_t aang, int32_t atw
 
         if (g_player[snum].ps->auto_aim == 2)
         {
-            if (A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (ProjectileData[atwith].workslike & PROJECTILE_RPG))
+            if (A_CheckSpriteTileFlags(atwith,SFLAG_PROJECTILE) && (ProjectileData[atwith].workslike & PROJECTILE_RPG))
                 return -1;
 
             switch (DYNAMICTILEMAP(atwith))
@@ -720,8 +720,8 @@ static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i
                     {
                         l = A_Spawn(k, decaltile);
 
-                        if (!A_CheckSpriteFlags(l, SPRITE_DECAL))
-                            actor[l].flags |= SPRITE_DECAL;
+                        if (!A_CheckSpriteFlags(l, SFLAG_DECAL))
+                            actor[l].flags |= SFLAG_DECAL;
 
                         sprite[l].xvel = -1;
                         sprite[l].ang = getangle(hitwal->x-wall[hitwal->point2].x,
@@ -1062,8 +1062,8 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
                 {
                     k = A_Spawn(i, proj->decal);
 
-                    if (!A_CheckSpriteFlags(k, SPRITE_DECAL))
-                        actor[k].flags |= SPRITE_DECAL;
+                    if (!A_CheckSpriteFlags(k, SFLAG_DECAL))
+                        actor[k].flags |= SFLAG_DECAL;
 
                     sprite[k].xvel = -1;
                     sprite[k].ang = getangle(hitwal->x - wall[hitwal->point2].x,
@@ -1169,7 +1169,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 #endif // POLYMER
     }
 
-    if (A_CheckSpriteTileFlags(atwith, SPRITE_PROJECTILE))
+    if (A_CheckSpriteTileFlags(atwith, SFLAG_PROJECTILE))
         return A_ShootCustom(i, atwith, sa, &srcvect);
     else
     {

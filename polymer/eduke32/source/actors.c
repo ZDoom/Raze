@@ -242,7 +242,7 @@ SKIPWALLCHECK:
 
                     if (s->picnum == RPG && sj->extra > 0)
                         actor[j].picnum = RPG;
-                    else if (A_CheckSpriteFlags(i,SPRITE_PROJECTILE) && SpriteProjectile[i].workslike & PROJECTILE_RADIUS_PICNUM && sj->extra > 0)
+                    else if (A_CheckSpriteFlags(i,SFLAG_PROJECTILE) && SpriteProjectile[i].workslike & PROJECTILE_RADIUS_PICNUM && sj->extra > 0)
                         actor[j].picnum = s->picnum;
                     else
                     {
@@ -400,7 +400,7 @@ static int32_t A_CheckNeedZUpdate(int32_t spritenum, int32_t changez, int32_t *d
                 // SE7-induced projectile teleportation. It doesn't look good
                 // with TROR water.
 
-                actor[spritenum].flags |= SPRITE_DIDNOSE7WATER;
+                actor[spritenum].flags |= SFLAG_DIDNOSE7WATER;
                 return -othersect-1;
             }
     }
@@ -443,7 +443,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                 clipdist = 1024;
             else if (spr->picnum == LIZMAN)
                 clipdist = 292;
-            else if (A_CheckSpriteTileFlags(spr->picnum, SPRITE_BADGUY))
+            else if (A_CheckSpriteTileFlags(spr->picnum, SFLAG_BADGUY))
                 clipdist = spr->clipdist<<2;
             else
                 clipdist = 192;
@@ -520,7 +520,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
             // later, code checks for (retval&49152)!=49152
             // [i.e. not "was ceiling or floor hit", but "was no sprite hit"]
             // and calls G_WeaponHitCeilingOrFloor() then, so we need to set
-            // actor[].flags |= SPRITE_DIDNOSE7WATER in A_CheckNeedZUpdate()
+            // actor[].flags |= SFLAG_DIDNOSE7WATER in A_CheckNeedZUpdate()
             // previously.
             // XXX: Why is this contrived data flow necessary? (If at all.)
             changespritesect(spritenum, -dozupdate-1);
@@ -755,7 +755,7 @@ static int32_t move_rotfixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
 {
     if ((ROTFIXSPR_STATNUMP(sprite[j].statnum) ||
          ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) &&
-          A_CheckSpriteTileFlags(sprite[j].picnum, SPRITE_ROTFIXED)))
+          A_CheckSpriteTileFlags(sprite[j].picnum, SFLAG_ROTFIXED)))
         && actor[j].t_data[7]==(ROTFIXSPR_MAGIC|pivotspr))
     {
         rotatepoint(0,0, actor[j].t_data[8],actor[j].t_data[9], daang&2047, &sprite[j].x,&sprite[j].y);
@@ -947,7 +947,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                         case NUKEBARRELLEAKED__STATIC:
                         case TRIPBOMB__STATIC:
                             // XXX: j is result of cansee() call.
-                            if (sector[s->sectnum].ceilingstat&1 && A_CheckSpriteFlags(j,SPRITE_NOSHADE) == 0)
+                            if (sector[s->sectnum].ceilingstat&1 && A_CheckSpriteFlags(j,SFLAG_NOSHADE) == 0)
                                 s->shade = sector[s->sectnum].ceilingshade;
                             else s->shade = sector[s->sectnum].floorshade;
 
@@ -959,7 +959,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                             CS |= 257;
                             // fall-through
                         default:
-                            if (A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384)
+                            if (A_CheckSpriteFlags(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384)
                                 break;
                             actor[i].timetosleep = 0;
                             A_PlayAlertSound(i);
@@ -971,7 +971,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                 }
             }
 
-            if (A_CheckEnemySprite(s) && A_CheckSpriteFlags(i,SPRITE_NOSHADE) == 0)
+            if (A_CheckEnemySprite(s) && A_CheckSpriteFlags(i,SFLAG_NOSHADE) == 0)
             {
                 if (sector[s->sectnum].ceilingstat&1)
                     s->shade = sector[s->sectnum].ceilingshade;
@@ -1053,7 +1053,7 @@ int32_t A_IncurDamage(int32_t sn)
             break;
 
         default:
-            if (A_CheckSpriteTileFlags(dmg->picnum, SPRITE_PROJECTILE) && (SpriteProjectile[sn].workslike & PROJECTILE_RPG))
+            if (A_CheckSpriteTileFlags(dmg->picnum, SFLAG_PROJECTILE) && (SpriteProjectile[sn].workslike & PROJECTILE_RPG))
                 P_Nudge(p, sn, 2);
             else P_Nudge(p, sn, 1);
             break;
@@ -2633,9 +2633,9 @@ static void A_DoProjectileEffects(int32_t i, const vec3_t *davect, int32_t do_ra
 
 static void G_WeaponHitCeilingOrFloor(int32_t i, spritetype *s, int32_t *j)
 {
-    if (actor[i].flags & SPRITE_DIDNOSE7WATER)
+    if (actor[i].flags & SFLAG_DIDNOSE7WATER)
     {
-        actor[i].flags &= ~SPRITE_DIDNOSE7WATER;
+        actor[i].flags &= ~SFLAG_DIDNOSE7WATER;
         return;
     }
 
@@ -2965,7 +2965,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
         Bmemcpy(&actor[i].bpos, s, sizeof(vec3_t));
 
         /* Custom projectiles */
-        if (A_CheckSpriteFlags(i, SPRITE_PROJECTILE))
+        if (A_CheckSpriteFlags(i, SFLAG_PROJECTILE))
         {
             Proj_MoveCustom(i);
             goto BOLT;
@@ -3379,7 +3379,7 @@ static int32_t A_CheckNonTeleporting(int32_t s)
 {
     int32_t pic = sprite[s].picnum;
 
-    if (A_CheckSpriteFlags(s, SPRITE_NOTELEPORT)) return 1;
+    if (A_CheckSpriteFlags(s, SFLAG_NOTELEPORT)) return 1;
 
     return (pic == SHARK || pic == COMMANDER || pic == OCTABRAIN
                 || (pic >= GREENSLIME && pic <= GREENSLIME+7));
@@ -3546,7 +3546,7 @@ ACTOR_STATIC void G_MoveTransports(void)
 
                     if (warpspriteto)
                     {
-                        if (A_CheckSpriteFlags(j,SPRITE_DECAL))
+                        if (A_CheckSpriteFlags(j,SFLAG_DECAL))
                             goto JBOLT;
 
                         switch (DYNAMICTILEMAP(sprite[j].picnum))
@@ -6397,7 +6397,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             for (SPRITES_OF_SECT(SECT, j))
             {
-                if (sprite[j].cstat&16 && A_CheckSpriteFlags(j,SPRITE_NOSHADE) == 0)
+                if (sprite[j].cstat&16 && A_CheckSpriteFlags(j,SFLAG_NOSHADE) == 0)
                 {
                     if (sc->ceilingstat&1)
                         sprite[j].shade = sc->ceilingshade;
@@ -6673,7 +6673,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 for (SPRITES_OF_SECT(SECT, j))
                 {
-                    if (sprite[j].cstat&16 && A_CheckSpriteFlags(j,SPRITE_NOSHADE) == 0)
+                    if (sprite[j].cstat&16 && A_CheckSpriteFlags(j,SFLAG_NOSHADE) == 0)
                     {
                         if (sc->ceilingstat&1)
                             sprite[j].shade = sc->ceilingshade;
@@ -6708,7 +6708,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if (sprite[j].cstat&16)
                     {
-                        if (sc->ceilingstat&1 && A_CheckSpriteFlags(j,SPRITE_NOSHADE) == 0)
+                        if (sc->ceilingstat&1 && A_CheckSpriteFlags(j,SFLAG_NOSHADE) == 0)
                             sprite[j].shade = sc->ceilingshade;
                         else sprite[j].shade = sc->floorshade;
                     }
@@ -7821,8 +7821,8 @@ static void G_DoEffectorLights(void)  // STATNUM 14
 #ifdef POLYMER
         case SE_49_POINT_LIGHT:
         {
-            if (!A_CheckSpriteFlags(i, SPRITE_NOLIGHT) && getrendermode() == REND_POLYMER &&
-                    !(A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
+            if (!A_CheckSpriteFlags(i, SFLAG_NOLIGHT) && getrendermode() == REND_POLYMER &&
+                    !(A_CheckSpriteFlags(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
             {
                 if (actor[i].lightptr == NULL)
                 {
@@ -7887,8 +7887,8 @@ static void G_DoEffectorLights(void)  // STATNUM 14
         }
         case SE_50_SPOT_LIGHT:
         {
-            if (!A_CheckSpriteFlags(i, SPRITE_NOLIGHT) && getrendermode() == REND_POLYMER &&
-                    !(A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
+            if (!A_CheckSpriteFlags(i, SFLAG_NOLIGHT) && getrendermode() == REND_POLYMER &&
+                    !(A_CheckSpriteFlags(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
             {
                 if (actor[i].lightptr == NULL)
                 {
@@ -7991,8 +7991,8 @@ static void A_DoLight(int32_t i)
     spritetype *const s = &sprite[i];
     int32_t numsavedfires = 0;
 
-    if ((sprite[i].picnum != SECTOREFFECTOR && ((s->cstat & 32768) || s->yrepeat < 4)) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
-        (A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
+    if ((sprite[i].picnum != SECTOREFFECTOR && ((s->cstat & 32768) || s->yrepeat < 4)) || A_CheckSpriteFlags(i, SFLAG_NOLIGHT) ||
+        (A_CheckSpriteFlags(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
     {
         if (actor[i].lightptr != NULL)
             A_DeleteLight(i);
@@ -8033,7 +8033,7 @@ static void A_DoLight(int32_t i)
                     int32_t dx = sintable[(s->ang+512)&2047];
                     int32_t dy = sintable[(s->ang)&2047];
 
-                    if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT))
+                    if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SFLAG_NOLIGHT))
                     {
                         if (actor[i].lightptr != NULL)
                             A_DeleteLight(i);
@@ -8264,7 +8264,7 @@ void A_PlayAlertSound(int32_t i)
 
 int32_t A_CheckEnemyTile(int32_t pn)
 {
-    return ((g_tile[pn].flags & (SPRITE_HARDCODED_BADGUY|SPRITE_BADGUY)) != 0);
+    return ((g_tile[pn].flags & (SFLAG_HARDCODED_BADGUY|SFLAG_BADGUY)) != 0);
 }
 
 int32_t A_CheckSwitchTile(int32_t i)
@@ -8326,7 +8326,7 @@ void G_MoveWorld(void)
         {
             const int32_t j = nextspritestat[i];
 
-            if (!G_HaveEvent(EVENT_PREGAME) || A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))
+            if (!G_HaveEvent(EVENT_PREGAME) || A_CheckSpriteFlags(i, SFLAG_NOEVENTCODE))
             {
                 i = j;
                 continue;
@@ -8380,7 +8380,7 @@ void G_MoveWorld(void)
             if (getrendermode() == REND_POLYMER)
                 A_DoLight(i);
 #endif
-            if (!G_HaveEvent(EVENT_GAME) || A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))
+            if (!G_HaveEvent(EVENT_GAME) || A_CheckSpriteFlags(i, SFLAG_NOEVENTCODE))
             {
                 i = j;
                 continue;

@@ -217,10 +217,10 @@ static void G_PrecacheSprites(void)
 
     for (i=0; i<MAXTILES; i++)
     {
-        if (g_tile[i].flags & SPRITE_PROJECTILE)
+        if (g_tile[i].flags & SFLAG_PROJECTILE)
             tloadtile(i,1);
 
-        if (A_CheckSpriteTileFlags(i, SPRITE_CACHE))
+        if (A_CheckSpriteTileFlags(i, SFLAG_CACHE))
             for (j = i; j <= g_tile[i].cacherange; j++)
                 tloadtile(j,1);
     }
@@ -977,7 +977,7 @@ static void G_SetupRotfixedSprites(void)
                 // too useful with moving sectors anyway
                 if ((ROTFIXSPR_STATNUMP(sprite[j].statnum) && sprite[j].picnum!=TRIPBOMB) ||
                     ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) &&
-                     A_CheckSpriteTileFlags(sprite[j].picnum, SPRITE_ROTFIXED)))
+                     A_CheckSpriteTileFlags(sprite[j].picnum, SFLAG_ROTFIXED)))
                 {
                     int32_t pivot = i;
 

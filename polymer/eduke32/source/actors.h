@@ -241,28 +241,28 @@ typedef struct {
 
 // KEEPINSYNC lunatic/con_lang.lua
 enum sflags_t {
-    SPRITE_SHADOW           = 0x00000001,
-    SPRITE_NVG              = 0x00000002,
-    SPRITE_NOSHADE          = 0x00000004,
-    SPRITE_PROJECTILE       = 0x00000008,
-    SPRITE_DECAL            = 0x00000010,
-    SPRITE_BADGUY           = 0x00000020,
-    SPRITE_NOPAL            = 0x00000040,
-    SPRITE_NOEVENTCODE      = 0x00000080,
-    SPRITE_NOLIGHT          = 0x00000100,
-    SPRITE_USEACTIVATOR     = 0x00000200,
-    SPRITE_NULL             = 0x00000400, // null sprite in multiplayer
-    SPRITE_NOCLIP           = 0x00000800, // clipmove it with cliptype 0
-    SPRITE_NOFLOORSHADOW    = 0x00001000, // for temp. internal use, per-tile flag not checked
-    SPRITE_SMOOTHMOVE       = 0x00002000,
-    SPRITE_NOTELEPORT       = 0x00004000,
-    SPRITE_BADGUYSTAYPUT    = 0x00008000,
-    SPRITE_CACHE            = 0x00010000,
+    SFLAG_SHADOW           = 0x00000001,
+    SFLAG_NVG              = 0x00000002,
+    SFLAG_NOSHADE          = 0x00000004,
+    SFLAG_PROJECTILE       = 0x00000008,
+    SFLAG_DECAL            = 0x00000010,
+    SFLAG_BADGUY           = 0x00000020,
+    SFLAG_NOPAL            = 0x00000040,
+    SFLAG_NOEVENTCODE      = 0x00000080,
+    SFLAG_NOLIGHT          = 0x00000100,
+    SFLAG_USEACTIVATOR     = 0x00000200,
+    SFLAG_NULL             = 0x00000400, // null sprite in multiplayer
+    SFLAG_NOCLIP           = 0x00000800, // clipmove it with cliptype 0
+    SFLAG_NOFLOORSHADOW    = 0x00001000, // for temp. internal use, per-tile flag not checked
+    SFLAG_SMOOTHMOVE       = 0x00002000,
+    SFLAG_NOTELEPORT       = 0x00004000,
+    SFLAG_BADGUYSTAYPUT    = 0x00008000,
+    SFLAG_CACHE            = 0x00010000,
     // rotation-fixed wrt a pivot point to prevent position diverging due to
     // roundoff error accumulation:
-    SPRITE_ROTFIXED         = 0x00020000,
-    SPRITE_HARDCODED_BADGUY = 0x00040000,
-    SPRITE_DIDNOSE7WATER    = 0x00080000, // used temporarily
+    SFLAG_ROTFIXED         = 0x00020000,
+    SFLAG_HARDCODED_BADGUY = 0x00040000,
+    SFLAG_DIDNOSE7WATER    = 0x00080000, // used temporarily
 };
 
 // Custom projectiles "workslike" flags.

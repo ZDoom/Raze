@@ -5128,7 +5128,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 if (sp->xrepeat == 0 || sp->yrepeat == 0)
                     sp->xrepeat = sp->yrepeat = 1;
 
-                if (A_CheckSpriteTileFlags(sp->picnum, SPRITE_BADGUY))
+                if (A_CheckSpriteTileFlags(sp->picnum, SFLAG_BADGUY))
                 {
                     if (ud.monsters_off == 1)
                     {
@@ -5139,7 +5139,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                     A_Fall(i);
 
-                    if (A_CheckSpriteTileFlags(sp->picnum, SPRITE_BADGUYSTAYPUT))
+                    if (A_CheckSpriteTileFlags(sp->picnum, SFLAG_BADGUYSTAYPUT))
                         actor[i].actorstayput = sp->sectnum;
 
                     g_player[myconnectindex].ps->max_actors_killed++;
@@ -6356,7 +6356,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                 for (TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], j, nextj))
                     if (sprite[j].picnum == ACTIVATOR || sprite[j].picnum == ACTIVATORLOCKED)
-                        actor[i].flags |= SPRITE_USEACTIVATOR;
+                        actor[i].flags |= SFLAG_USEACTIVATOR;
             }
             changespritestat(i, sp->lotag==46 ? STAT_EFFECTOR : STAT_LIGHT);
             goto SPAWN_END;
@@ -6988,7 +6988,7 @@ static int32_t G_MaybeTakeOnFloorPal(spritetype *datspr, int32_t sect)
 
     if (dapal && g_firstFogPal && !(dapal >= g_firstFogPal && dapal <= g_firstFogPal+3)
             && !g_noFloorPal[dapal]
-            && !A_CheckSpriteFlags(datspr->owner,SPRITE_NOPAL))
+            && !A_CheckSpriteFlags(datspr->owner,SFLAG_NOPAL))
     {
         datspr->pal = dapal;
         return 1;
@@ -7161,7 +7161,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         const spritetype *const s = &sprite[i];
 
 /*
-        if (A_CheckSpriteFlags(i, SPRITE_NULL))
+        if (A_CheckSpriteFlags(i, SFLAG_NULL))
         {
             t->xrepeat = t->yrepeat = 0;
             continue;
@@ -7234,7 +7234,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     continue;
             }
 
-        if (A_CheckSpriteFlags(t->owner, SPRITE_NOSHADE) || (t->cstat&CSTAT_SPRITE_NOSHADE))
+        if (A_CheckSpriteFlags(t->owner, SFLAG_NOSHADE) || (t->cstat&CSTAT_SPRITE_NOSHADE))
             l = sprite[t->owner].shade;
         else
         {
@@ -7751,14 +7751,14 @@ skip:
         // player has nightvision on.  We should pass stuff like "from which player is this view
         // supposed to be" as parameters ("drawing context") instead of relying on globals.
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
-                (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
+                (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
         {
             t->pal = 6;
             t->shade = 0;
         }
 
         // Fake floor shadow, implemented by inserting a new tsprite.
-        if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
+        if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
             if (t->statnum != TSPR_TEMP && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE && s->picnum != HOTMEAT)
             {
                 if (actor[i].dispicnum < 0)
@@ -7772,7 +7772,7 @@ skip:
                     continue;
                 }
 
-                if (actor[i].flags & SPRITE_NOFLOORSHADOW)
+                if (actor[i].flags & SFLAG_NOFLOORSHADOW)
                     continue;
 
                 if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != REND_POLYMER)
@@ -10653,7 +10653,7 @@ static void G_LoadExtraPalettes(void)
     Bmemset(&slime_pal[255*3], 0, 3);
 }
 
-#define SETBGFLAG(Tilenum) g_tile[Tilenum].flags |= SPRITE_HARDCODED_BADGUY
+#define SETBGFLAG(Tilenum) g_tile[Tilenum].flags |= SFLAG_HARDCODED_BADGUY
 
 // Has to be after setting the dynamic names (e.g. SHARK).
 static void A_InitEnemyFlags(void)

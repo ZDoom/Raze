@@ -348,7 +348,7 @@ void A_GetZLimits(int32_t iActor)
 
         s->cstat = cstat;
 
-        actor[iActor].flags &= ~SPRITE_NOFLOORSHADOW;
+        actor[iActor].flags &= ~SFLAG_NOFLOORSHADOW;
 
         if ((lz&49152) == 49152 && (sprite[lz&(MAXSPRITES-1)].cstat&48) == 0)
         {
@@ -359,7 +359,7 @@ void A_GetZLimits(int32_t iActor)
             if ((A_CheckEnemySprite(hitspr) && hitspr->pal != 1 && s->statnum != STAT_PROJECTILE)
                     || (hitspr->picnum == APLAYER && A_CheckEnemySprite(s)))
             {
-                actor[iActor].flags |= SPRITE_NOFLOORSHADOW;  // No shadows on actors
+                actor[iActor].flags |= SFLAG_NOFLOORSHADOW;  // No shadows on actors
                 s->xvel = -256;
                 A_SetSprite(iActor,CLIPMASK0);
             }
@@ -772,7 +772,7 @@ dead:
                 if (ps->actorsqu == vm.g_i)
                     return;
 
-                if (!A_CheckSpriteFlags(vm.g_i, SPRITE_SMOOTHMOVE))
+                if (!A_CheckSpriteFlags(vm.g_i, SFLAG_SMOOTHMOVE))
                 {
                     if (AC_COUNT(vm.g_t)&1)
                         return;
@@ -788,7 +788,7 @@ dead:
                              };
 
             actor[vm.g_i].movflag = A_MoveSprite(
-                vm.g_i,&tmpvect, (A_CheckSpriteFlags(vm.g_i, SPRITE_NOCLIP) ? 0 : CLIPMASK0));
+                vm.g_i,&tmpvect, (A_CheckSpriteFlags(vm.g_i, SFLAG_NOCLIP) ? 0 : CLIPMASK0));
         }
     }
 
@@ -5338,7 +5338,7 @@ void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist)
                        };
 
 /*
-    if (g_netClient && A_CheckSpriteFlags(iActor, SPRITE_NULL))
+    if (g_netClient && A_CheckSpriteFlags(iActor, SFLAG_NULL))
     {
         A_DeleteSprite(iActor);
         return;
@@ -5461,7 +5461,7 @@ void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist)
     }
     else if (ud.respawn_items == 1 && (vm.g_sp->cstat&32768)) return;
 
-    if (A_CheckSpriteFlags(vm.g_i, SPRITE_USEACTIVATOR) && sector[vm.g_sp->sectnum].lotag & 16384)
+    if (A_CheckSpriteFlags(vm.g_i, SFLAG_USEACTIVATOR) && sector[vm.g_sp->sectnum].lotag & 16384)
         changespritestat(vm.g_i, STAT_ZOMBIEACTOR);
     else if (actor[vm.g_i].timetosleep > 1)
         actor[vm.g_i].timetosleep--;

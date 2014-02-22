@@ -2346,7 +2346,7 @@ LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
     default: break;
     }
 
-    g_tile[j].flags |= SPRITE_PROJECTILE;
+    g_tile[j].flags |= SFLAG_PROJECTILE;
 }
 
 int32_t C_AllocQuote(int32_t qnum)
@@ -3240,13 +3240,13 @@ static int32_t C_ParseCommand(int32_t loop)
             if (tw == CON_USERACTOR)
             {
                 if (j & 1)
-                    g_tile[*g_scriptPtr].flags |= SPRITE_BADGUY;
+                    g_tile[*g_scriptPtr].flags |= SFLAG_BADGUY;
 
                 if (j & 2)
-                    g_tile[*g_scriptPtr].flags |= (SPRITE_BADGUY|SPRITE_BADGUYSTAYPUT);
+                    g_tile[*g_scriptPtr].flags |= (SFLAG_BADGUY|SFLAG_BADGUYSTAYPUT);
 
                 if (j & 4)
-                    g_tile[*g_scriptPtr].flags |= SPRITE_ROTFIXED;
+                    g_tile[*g_scriptPtr].flags |= SFLAG_ROTFIXED;
             }
 
             for (j=0; j<4; j++)
@@ -4604,16 +4604,16 @@ static int32_t C_ParseCommand(int32_t loop)
             switch (tw)
             {
             case CON_SPRITESHADOW:
-                g_tile[*g_scriptPtr].flags |= SPRITE_SHADOW;
+                g_tile[*g_scriptPtr].flags |= SFLAG_SHADOW;
                 break;
             case CON_SPRITENVG:
-                g_tile[*g_scriptPtr].flags |= SPRITE_NVG;
+                g_tile[*g_scriptPtr].flags |= SFLAG_NVG;
                 break;
             case CON_SPRITENOSHADE:
-                g_tile[*g_scriptPtr].flags |= SPRITE_NOSHADE;
+                g_tile[*g_scriptPtr].flags |= SFLAG_NOSHADE;
                 break;
             case CON_SPRITENOPAL:
-                g_tile[*g_scriptPtr].flags |= SPRITE_NOPAL;
+                g_tile[*g_scriptPtr].flags |= SFLAG_NOPAL;
                 break;
             case CON_PRECACHE:
                 C_GetNextValue(LABEL_DEFINE);
@@ -4629,7 +4629,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextValue(LABEL_DEFINE);
                 g_scriptPtr--;
                 if (*g_scriptPtr)
-                    g_tile[j].flags |= SPRITE_CACHE;
+                    g_tile[j].flags |= SFLAG_CACHE;
 
                 break;
             }
@@ -6159,17 +6159,17 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("STAT_DUMMYPLAYER", STAT_DUMMYPLAYER, LABEL_DEFINE);
     C_AddDefinition("STAT_LIGHT", STAT_LIGHT, LABEL_DEFINE);
 
-    C_AddDefinition("SFLAG_SHADOW", SPRITE_SHADOW, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NVG", SPRITE_NVG, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOSHADE", SPRITE_NOSHADE, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_BADGUY", SPRITE_BADGUY, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOPAL", SPRITE_NOPAL, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOEVENTS", SPRITE_NOEVENTCODE, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOLIGHT", SPRITE_NOLIGHT, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_USEACTIVATOR", SPRITE_USEACTIVATOR, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOCLIP", SPRITE_NOCLIP, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_SMOOTHMOVE", SPRITE_SMOOTHMOVE, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOTELEPORT", SPRITE_NOTELEPORT, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_SHADOW", SFLAG_SHADOW, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NVG", SFLAG_NVG, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOSHADE", SFLAG_NOSHADE, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_BADGUY", SFLAG_BADGUY, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOPAL", SFLAG_NOPAL, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOEVENTS", SFLAG_NOEVENTCODE, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOLIGHT", SFLAG_NOLIGHT, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_USEACTIVATOR", SFLAG_USEACTIVATOR, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOCLIP", SFLAG_NOCLIP, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_SMOOTHMOVE", SFLAG_SMOOTHMOVE, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOTELEPORT", SFLAG_NOTELEPORT, LABEL_DEFINE);
 
     C_AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
     C_AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME,LABEL_DEFINE);

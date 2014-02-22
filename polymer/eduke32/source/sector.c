@@ -1497,7 +1497,7 @@ void A_DamageWall(int32_t spr, int32_t dawallnum, const vec3_t *pos, int32_t atw
     walltype *wal = &wall[dawallnum];
 
     if (wal->overpicnum == MIRROR && wal->pal != 4 &&
-            A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) &&
+            A_CheckSpriteTileFlags(atwith,SFLAG_PROJECTILE) &&
             (SpriteProjectile[spr].workslike & PROJECTILE_RPG))
     {
         if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
@@ -1854,7 +1854,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
     i &= (MAXSPRITES-1);
 
-    if (A_CheckSpriteFlags(sn,SPRITE_PROJECTILE))
+    if (A_CheckSpriteFlags(sn,SFLAG_PROJECTILE))
         if (SpriteProjectile[sn].workslike & PROJECTILE_RPG)
             rpg = 1;
 
@@ -2243,7 +2243,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
                 if ((PN != DRONE) && (PN != ROTATEGUN) && (PN != COMMANDER) && (PN < GREENSLIME || PN > GREENSLIME+7))
                     if (sprite[sn].picnum != FREEZEBLAST)
-                        if (!A_CheckSpriteTileFlags(PN, SPRITE_BADGUY))
+                        if (!A_CheckSpriteTileFlags(PN, SFLAG_BADGUY))
                         {
                             j = A_Spawn(sn,JIBS6);
                             if (sprite[sn].pal == 6)
