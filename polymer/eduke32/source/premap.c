@@ -953,8 +953,11 @@ static void resetprestat(int32_t snum,int32_t g)
 
 }
 
-// tweak moving sectors with these SE lotags
-#define FIXSPR_SELOTAGP(k) ((k==0) || (k==6) || (k==14))
+// Tweak sprites contained in moving sectors with these SE lotags.
+#define FIXSPR_SELOTAGP(k) \
+    ((k)==SE_0_ROTATING_SECTOR \
+     || (k)==SE_6_SUBWAY \
+     || (k)==SE_14_SUBWAY_CAR)
 
 // Set up sprites in moving sectors that are to be fixed wrt a certain pivot
 // position and should not diverge from it due to roundoff error in the future.
@@ -971,13 +974,16 @@ static void G_SetupRotfixedSprites(void)
             int32_t firstrun = 1;
 #endif
             int32_t j = headspritesect[sprite[i].sectnum];
+
             while (j>=0)
             {
+                const spritetype *const spr = &sprite[j];
+
                 // TRIPBOMB uses t_data[7] for its own purposes. Wouldn't be
                 // too useful with moving sectors anyway
-                if ((ROTFIXSPR_STATNUMP(sprite[j].statnum) && sprite[j].picnum!=TRIPBOMB) ||
-                    ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) &&
-                     A_CheckSpriteTileFlags(sprite[j].picnum, SFLAG_ROTFIXED)))
+                if ((ROTFIXSPR_STATNUMP(spr->statnum) && spr->picnum!=TRIPBOMB) ||
+                    ((spr->statnum==STAT_ACTOR || spr->statnum==STAT_ZOMBIEACTOR) &&
+                     A_CheckSpriteTileFlags(spr->picnum, SFLAG_ROTFIXED)))
                 {
                     int32_t pivot = i;
 
@@ -987,8 +993,8 @@ static void G_SetupRotfixedSprites(void)
                     {
                         // let's hope we don't step on anyone's toes here
                         actor[j].t_data[7] = ROTFIXSPR_MAGIC | pivot; // 'rs' magic + pivot SE sprite index
-                        actor[j].t_data[8] = sprite[j].x - sprite[pivot].x;
-                        actor[j].t_data[9] = sprite[j].y - sprite[pivot].y;
+                        actor[j].t_data[8] = spr->x - sprite[pivot].x;
+                        actor[j].t_data[9] = spr->y - sprite[pivot].y;
                     }
                 }
 

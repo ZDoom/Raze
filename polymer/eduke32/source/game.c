@@ -6702,8 +6702,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
 
             case SE_11_SWINGING_DOOR://Pivitor rotater
-                if (sp->ang>1024) T4 = 2;
-                else T4 = -2;
+                T4 = (sp->ang > 1024) ? 2 : -2;
+                /* fall-through */
             case SE_0_ROTATING_SECTOR:
             case SE_2_EARTHQUAKE://Earthquakemakers
             case SE_5://Boss Creature
@@ -6713,12 +6713,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case SE_16_REACTOR://That rotating blocker reactor thing
             case SE_26://ESCELATOR
             case SE_30_TWO_WAY_TRAIN://No rotational subways
-                if (sp->lotag == 0)
+                if (sp->lotag == SE_0_ROTATING_SECTOR)
                 {
                     if (sector[sect].lotag == ST_30_ROTATE_RISE_BRIDGE)
                     {
-                        if (sp->pal) sprite[i].clipdist = 1;
-                        else sprite[i].clipdist = 0;
+                        sprite[i].clipdist = (sp->pal) ? 1 : 0;
                         T4 = sector[sect].floorz;
                         sector[sect].hitag = i;
                     }
@@ -6727,7 +6726,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     {
                         if (sprite[j].statnum < MAXSTATUS)
                             if (sprite[j].picnum == SECTOREFFECTOR &&
-                                    sprite[j].lotag == 1 &&
+                                    sprite[j].lotag == SE_1_PIVOT &&
                                     sprite[j].hitag == sp->hitag)
                             {
                                 if (sp->ang == 512)
@@ -6759,12 +6758,14 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     tempwallptr++;
                     if (tempwallptr > 2047)
                     {
-                        Bsprintf_nowarn(tempbuf,"Too many moving sectors at (%d,%d).\n",TrackerCast(wall[s].x),TrackerCast(wall[s].y));
+                        Bsprintf_nowarn(tempbuf, "Too many moving sectors at (%d,%d).\n",
+                                        TrackerCast(wall[s].x),TrackerCast(wall[s].y));
                         G_GameExit(tempbuf);
                     }
                 }
 
-                if (sp->lotag == SE_30_TWO_WAY_TRAIN || sp->lotag == SE_6_SUBWAY || sp->lotag == SE_14_SUBWAY_CAR || sp->lotag == SE_5)
+                if (sp->lotag == SE_5 || sp->lotag == SE_30_TWO_WAY_TRAIN ||
+                        sp->lotag == SE_6_SUBWAY || sp->lotag == SE_14_SUBWAY_CAR)
                 {
 #ifdef YAX_ENABLE
                     int32_t outerwall=-1;
@@ -6772,9 +6773,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     startwall = sector[sect].wallptr;
                     endwall = startwall+sector[sect].wallnum;
 
-                    if (sector[sect].hitag == UINT16_MAX)
-                        sp->extra = 0;
-                    else sp->extra = 1;
+                    sp->extra = (sector[sect].hitag != UINT16_MAX);
 
                     // TRAIN_SECTOR_TO_SE_INDEX
                     sector[sect].hitag = i;
