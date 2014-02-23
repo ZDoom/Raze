@@ -3309,7 +3309,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
     if (ii <= 0) return;
 
-    if (getrendermode() != REND_CLASSIC)
+    if (getrendermode() == REND_CLASSIC)
         i = getclosestcol(CrosshairColors.r>>2, CrosshairColors.g>>2, CrosshairColors.b>>2);
     else i = getclosestcol(63, 63, 63); // use white in GL so we can tint it to the right color
 
