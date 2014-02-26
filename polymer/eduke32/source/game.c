@@ -10644,7 +10644,12 @@ static void G_LoadExtraPalettes(void)
     kclose(fp);
 
     if (g_firstFogPal < 0)
-        G_GameExit("\nERROR loading 'lookup.dat': failed reading enough data.");
+    {
+        if (g_firstFogPal == -1)
+            G_GameExit("\nERROR loading 'lookup.dat': failed reading enough data.");
+        else
+            G_GameExit("\nERROR loading 'lookup.dat'.");
+    }
 
     // Make color index 255 of default/water/slime palette black.
     Bmemset(&palette[255*3], 0, 3);

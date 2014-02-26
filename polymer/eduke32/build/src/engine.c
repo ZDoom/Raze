@@ -8150,7 +8150,8 @@ static int32_t loadpalette(void)
 // Returns:
 //  - if generated fog shade tables, their first palnum P (fog pals are [P .. P+3])
 //  - if didn't (no room), 0
-//  - on error, -1
+//  - on error, -1 (didn't read enough data)
+//  - -2: error, we already wrote an error message ourselves
 int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
 {
     uint8_t numlookups;
@@ -8167,10 +8168,10 @@ int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
         if (kread(fp, &palnum, 1) != 1)
             return -1;
 
-        if (palnum == 0 || palnum >= 256-RESERVEDPALS)
+        if (palnum >= 256-RESERVEDPALS)
         {
             initprintf("ERROR: attempt to load lookup at reserved pal %d\n", palnum);
-            return -1;
+            return -2;
         }
 
         if (kread(fp, remapbuf, 256) != 256)

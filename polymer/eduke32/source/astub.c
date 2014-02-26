@@ -2866,7 +2866,8 @@ static int32_t ReadPaletteTable(void)
 
     if (g_firstFogPal < 0)
     {
-        initprintf("ERROR loading PALOOKUP.DAT: failed reading enough data\n");
+        if (g_firstFogPal == -1)
+            initprintf("ERROR loading PALOOKUP.DAT: failed reading enough data\n");
         return 1;
     }
 
