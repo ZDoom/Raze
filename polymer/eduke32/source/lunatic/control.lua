@@ -528,6 +528,13 @@ function _get_userdef(pli)
     return ffiC.ud
 end
 
+function _err_if_negative(val)
+    if (not (val >= 0)) then
+        error("setting tag to negative value", 2)
+    end
+    return val
+end
+
 --- player/actor/sprite searching functions ---
 
 local xmath = require("xmath")

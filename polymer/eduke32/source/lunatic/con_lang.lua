@@ -754,6 +754,22 @@ StructAccessCode =
     player = PlayerLabels,
 }
 
+local function tonegtag(LabelsTab, member, funcname)
+    local memb = LabelsTab[member]
+    LabelsTab[member] = { memb, memb.."="..funcname.."(%%s)" }
+end
+
+function setup_negative_tag_check(funcname)
+    tonegtag(TspriteLabels, "tsprlotag", funcname)
+    tonegtag(TspriteLabels, "tsprhitag", funcname)
+    tonegtag(ActorLabels, "lotag", funcname)
+    tonegtag(ActorLabels, "hitag", funcname)
+    tonegtag(WallLabels, "lotag", funcname)
+    tonegtag(WallLabels, "hitag", funcname)
+    tonegtag(SectorLabels, "lotag", funcname)
+    tonegtag(SectorLabels, "hitag", funcname)
+end
+
 local PROJ = function(memb) return "projectile[%s]"..memb end
 local THISPROJ = function(memb) return "actor[%s].proj"..memb end
 

@@ -127,7 +127,8 @@ local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
                   ["cache-sap"]=false, ["error-nostate"]=true,
                   ["playervar"]=true, ["trapv"]=false, ["wrapv"]=false,
                   ["bad-getactorvar-use-pli"]=false,
-                  ["error-nonlocal-userdef"]=true, }
+                  ["error-nonlocal-userdef"]=true,
+                  ["error-negative-tag-write"]=false, }
 
 local function csapp() return g_cgopt["cache-sap"] end
 
@@ -230,6 +231,10 @@ else
     end
 end
 
+if (g_cgopt["error-negative-tag-write"]) then
+    conl.setup_negative_tag_check("_st")
+end
+
 -- Stack with *true* on top if the innermost block is a "whilevar*n".
 local g_isWhile = {}
 -- Sequence number of 'while' statements, used to implement CON "break" inside
@@ -309,6 +314,7 @@ local function new_initial_codetab()
         "local _setsprite,_ssp = _con._setsprite,_con._ssp",
         g_cgopt["error-nonlocal-userdef"]
             and "local _gud=_con._get_userdef_check" or "local _gud=_con._get_userdef",
+        "local _st=_con._err_if_negative",
 
         -- * CON "states" (subroutines) and
         -- * Switch function table, indexed by global switch sequence number:

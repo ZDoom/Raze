@@ -181,6 +181,16 @@ If enabled, an attept to issue `getuserdef` or `setuserdef` when the current
 player doesn't equal the local player generates an error. Otherwise, the
 userdef structure can be accessed irrespective of the current player.
 
+`-ferror-negative-tag-write` (default: off)::
+If enabled, an attempt to assign a negative value to the `lotag` or `hitag`
+member of the sector, wall or (t)sprite structures produces an error.
+Normally, it is legal to assign negative values to these members, but since
+they are unsigned 16-bit integers on the C side, such values will be converted
+to positive ones and may entail undesired behavior.
++
+NOTE: From CON as well as Lunatic, `hitag` and `lotag` are seen as *signed*
+16-bit integers.
+
 `-fbad-getactorvar-use-pli` (default: off)::
 If enabled and `-Werror-bad-getactorvar` is off, a `getactorvar` of a
 per-player variable will result the gamevar being indexed with the current
