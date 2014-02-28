@@ -149,7 +149,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
         int32_t localvars[M32_LOCALS_FIXEDNUM];
 #endif
 
-        // needed since any read access before initialization would cause undefined behaviour
+        // Initialize 'state'-local variables to 0.
         if (aEventNumLocals[iEventID] > 0)
             Bmemset(localvars, 0, aEventNumLocals[iEventID]*sizeof(int32_t));
 

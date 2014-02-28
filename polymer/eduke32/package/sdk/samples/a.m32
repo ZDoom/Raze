@@ -1563,6 +1563,53 @@ defstate sanitize_underwater_sprites
     printmessage16 "Set xvel=1 on highlighted wall/floor sprites"
 ends
 
+define BZ_MAX 8388608
+
+defstate uniformceil
+    var avgz n
+
+    for i selsectors
+    {
+        ifand sector[i].ceilingstat 2 xor sector[i].ceilingstat 2
+        add avgz sector[i].ceilingz
+        add n 1
+    }
+
+    ife n 0 break
+
+    div avgz n
+    and avgz 0xfffffc00  // round to one PGUP/PNDN unit (1024 z units)
+
+    ifvarge avgz -BZ_MAX ifvarle avgz BZ_MAX nullop
+    else quote "ERROR: average z value outside [-8388608 .. 8388608]"  // BZ_MAX
+
+    for i selsectors
+        set sector[i].ceilingz avgz
+ends
+
+// XXX: CODEDUP
+defstate uniformfloor
+    var avgz n
+
+    for i selsectors
+    {
+        ifand sector[i].floorstat 2 xor sector[i].floorstat 2
+        add avgz sector[i].floorz
+        add n 1
+    }
+
+    ife n 0 break
+
+    div avgz n
+    and avgz 0xfffffc00  // round to one PGUP/PNDN unit (1024 z units)
+
+    ifvarge avgz -BZ_MAX ifvarle avgz BZ_MAX nullop
+    else quote "ERROR: average z value outside [-8388608 .. 8388608]"  // BZ_MAX
+
+    for i selsectors
+        set sector[i].floorz avgz
+ends
+
 // This must be *compiled* with script_expertmode
 /*
 defstate setstartpos
