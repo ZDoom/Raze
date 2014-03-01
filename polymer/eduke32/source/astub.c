@@ -8911,6 +8911,8 @@ static int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
 
+    OSD_ShowDisplay(0);
+
     ExtUnInit();
     uninitengine();
 

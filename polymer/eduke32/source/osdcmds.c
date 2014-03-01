@@ -57,6 +57,7 @@ extern void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 static inline int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
+    OSD_ShowDisplay(0);
     G_GameQuit();
     return OSDCMD_OK;
 }
