@@ -7721,7 +7721,10 @@ CANCEL:
                         {
                             bakstat = restore_highlighted_map(&bakmap, 1);
                             if (bakstat == -1)
+                            {
                                 message("Can't copy highlighted portion of old map: limits exceeded.");
+                                reset_highlightsector();
+                            }
                         }
 
                         CheckMapCorruption(4, 0);
@@ -7765,7 +7768,10 @@ CANCEL:
                             {
                                 bakstat = restore_highlighted_map(&bakmap, 1);
                                 if (bakstat == -1)
+                                {
                                     message("Can't copy highlighted portion of old map: limits exceeded.");
+                                    reset_highlightsector();
+                                }
                             }
                         }
                     }
