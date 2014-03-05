@@ -5206,7 +5206,7 @@ static void Keys3d(void)
     if (AIMING_AT_WALL_OR_MASK && ((tsign=PRESSED_KEYSC(PERIOD)) || PRESSED_KEYSC(COMMA)))
     {
         uint32_t flags = (!eitherSHIFT) | (tsign?0:16) |
-            (eitherALT<<2) | ((!!keystatus[KEYSC_QUOTE])<<3) |
+            ((!eitherALT)<<2) | ((!!keystatus[KEYSC_QUOTE])<<3) |
             32*(searchwall != searchbottomwall);
 
         int32_t naligned=AutoAlignWalls(searchwall, flags, 0);
@@ -5216,7 +5216,7 @@ static void Keys3d(void)
         message("Aligned %d wall%s based on wall %d%s%s%s%s", naligned,
                 naligned==1 ? "" : "s", searchwall,
                 !eitherSHIFT ? " iteratively" : "",
-                eitherALT ? ", aligning xrepeats" : "",
+                !eitherALT ? ", aligning xrepeats" : "",
                 keystatus[KEYSC_QUOTE] ? ", aligning TROR-nextwalls" : "",
                 (wall[searchbottomwall].cstat&4) ? "" : ". WARNING: top-aligned");
     }
