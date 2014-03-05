@@ -1611,14 +1611,13 @@ end
 function _angdiff(a1, a2)
     a1 = band(a1, 2047)
     a2 = band(a2, 2047)
-    -- a1 and a2 are in [0, 2047]
-    if (abs(a2-a1) < 1024) then
-        return abs(a2-a1)
+
+    if (abs(a2-a1) >= 1024) then
+        if (a2 > 1024) then a2 = a2 - 2048 end
+        if (a1 > 1024) then a1 = a1 - 2048 end
     end
-    -- |a2-a1| >= 1024
-    if (a2 > 1024) then a2=a2-2048 end
-    if (a1 > 1024) then a1=a1-2048 end
-    -- a1 and a2 is in [-1023, 1024]
+
+    -- a1, a2 are in [-1023, 1024]
     return a2-a1
 end
 
