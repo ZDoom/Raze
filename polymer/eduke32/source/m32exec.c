@@ -2935,7 +2935,7 @@ dodefault:
 
                 orientation &= (ROTATESPRITE_MAX-1);
 
-                rotatesprite_(x,y,z,a,tilenum,shade,pal,2|orientation,alpha,x1,y1,x2,y2);
+                rotatesprite_(x,y,z,a,tilenum,shade,pal,2|orientation,alpha,0,x1,y1,x2,y2);
                 continue;
             }
 

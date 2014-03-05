@@ -929,7 +929,7 @@ vec2_t G_ScreenText(const int32_t font,
                 G_AddCoordsFromRotation(&location, &Xdirection, pos.x);
                 G_AddCoordsFromRotation(&location, &Ydirection, pos.y);
 
-                rotatesprite_(location.x, location.y, z, angle, tile, shade, pal, orientation, alpha, x1, y1, x2, y2);
+                rotatesprite_(location.x, location.y, z, angle, tile, shade, pal, orientation, alpha, 0, x1, y1, x2, y2);
 
                 break;
             }

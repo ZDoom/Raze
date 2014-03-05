@@ -409,7 +409,7 @@ function _rotspr(x, y, zoom, ang, tilenum, shade, pal, orientation,
     end
 
     ffiC.rotatesprite_(x, y, zoom, ang, tilenum, shade, pal, bor(2,orientation),
-                       alpha, cx1, cy1, cx2, cy2)
+                       alpha, 0, cx1, cy1, cx2, cy2)
 end
 
 -- The external legacy tile drawing function for Lunatic.

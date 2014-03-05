@@ -2396,7 +2396,7 @@ typedef struct
     int16_t a, picnum;
     int8_t dashade;
     char dapalnum, dastat;
-    uint8_t daalpha;
+    uint8_t daalpha, dablend;
     char pagesleft;
     int32_t cx1, cy1, cx2, cy2;
     int32_t uniqid;    //JF extension
@@ -7253,7 +7253,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 //
 //JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
 static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                           int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha,
+                           int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                            int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2,
                            int32_t uniqid)
 {
@@ -7712,7 +7712,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 #else
             tsetupspritevline(palookupoffs,xv,yv,ysiz);
 #endif
-            setup_blend(0, dastat & RS_TRANS2);
+            setup_blend(dablend, dastat & RS_TRANS2);
         }
 
         for (x=x1; x<x2; x++)
@@ -11330,7 +11330,7 @@ void nextpage(void)
             per = &permfifo[i];
             if ((per->pagesleft > 0) && (per->pagesleft <= numpages))
                 dorotatesprite(per->sx,per->sy,per->z,per->a,per->picnum,
-                               per->dashade,per->dapalnum,per->dastat,per->daalpha,
+                               per->dashade,per->dapalnum,per->dastat,per->daalpha,per->dablend,
                                per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
         }
         enddrawing();   //}}}
@@ -11344,7 +11344,7 @@ void nextpage(void)
             per = &permfifo[i];
             if (per->pagesleft >= 130)
                 dorotatesprite(per->sx,per->sy,per->z,per->a,per->picnum,
-                               per->dashade,per->dapalnum,per->dastat,per->daalpha,
+                               per->dashade,per->dapalnum,per->dastat,per->daalpha,per->dablend,
                                per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
 
             if (per->pagesleft&127) per->pagesleft--;
@@ -14688,11 +14688,10 @@ void flushperms(void)
 // rotatesprite
 //
 void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                  int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha,
-                  int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+                   int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     int32_t i;
-    permfifotype *per, *per2;
 
     if ((unsigned)picnum >= MAXTILES)
         return;
@@ -14709,7 +14708,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     if (((dastat & RS_PERM) == 0) || (numpages < 2) || (beforedrawrooms != 0))
     {
         begindrawing(); //{{{
-        dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,cx1,cy1,cx2,cy2,guniqhudid);
+        dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,dablend,cx1,cy1,cx2,cy2,guniqhudid);
         enddrawing();   //}}}
     }
 
@@ -14722,12 +14721,14 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 
     if (numpages >= 2)
     {
-        per = &permfifo[permhead];
+        permfifotype *per = &permfifo[permhead];
+
         per->sx = sx; per->sy = sy; per->z = z; per->a = a;
         per->picnum = picnum;
         per->dashade = dashade; per->dapalnum = dapalnum;
         per->dastat = dastat;
         per->daalpha = daalpha;
+        per->dablend = dablend;
         per->pagesleft = numpages+((beforedrawrooms&1)<<7);
         per->cx1 = cx1; per->cy1 = cy1; per->cx2 = cx2; per->cy2 = cy2;
         per->uniqid = guniqhudid;   //JF extension
@@ -14737,7 +14738,8 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
         {
             for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
             {
-                per2 = &permfifo[i];
+                permfifotype *per2 = &permfifo[i];
+
                 if ((per2->pagesleft&127) == 0) continue;
                 if (per2->sx != per->sx) continue;
                 if (per2->sy != per->sy) continue;
@@ -14749,12 +14751,15 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                 if (per2->cy1 < per->cy1) continue;
                 if (per2->cx2 > per->cx2) continue;
                 if (per2->cy2 > per->cy2) continue;
+
                 per2->pagesleft = 0;
             }
+
             if ((per->z == 65536) && (per->a == 0))
                 for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
                 {
-                    per2 = &permfifo[i];
+                    permfifotype *per2 = &permfifo[i];
+
                     if ((per2->pagesleft&127) == 0) continue;
                     if (per2->z != 65536) continue;
                     if (per2->a != 0) continue;
@@ -14766,6 +14771,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                     if ((per2->sy>>16) < (per->sy>>16)) continue;
                     if ((per2->sx>>16)+tilesizx[per2->picnum] > (per->sx>>16)+tilesizx[per->picnum]) continue;
                     if ((per2->sy>>16)+tilesizy[per2->picnum] > (per->sy>>16)+tilesizy[per->picnum]) continue;
+
                     per2->pagesleft = 0;
                 }
         }
