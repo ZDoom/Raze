@@ -2293,6 +2293,14 @@ void copybufreverse(const void *S, void *D, int32_t c);
 
 #endif
 
+static inline void swapbufreverse(void *s, void *d, int32_t c)
+{
+    uint8_t *src = (uint8_t*)s, *dst = (uint8_t*)d;
+    while (c--) {
+        swapchar(dst++, src--);
+    }
+}
+
 #ifdef EXTERNC
 }
 #endif

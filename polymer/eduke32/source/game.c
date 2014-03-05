@@ -4418,7 +4418,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         int32_t tiltcx, tiltcy, tiltcs=0;    // JBF 20030807
 
         const int32_t vr = divscale22(1,sprite[p->i].yrepeat+28);
-        const int32_t software_screen_tilting =
+        int32_t software_screen_tilting =
             (getrendermode() == REND_CLASSIC && ((ud.screen_tilting && p->rotscrnang
 #ifdef SPLITSCREEN_MOD_HACKS
             && !g_fakeMultiMode
@@ -4452,61 +4452,68 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             int32_t oviewingrange = viewingrange;  // save it from setaspect()
             const int16_t tang = (ud.screen_tilting) ? p->rotscrnang : 0;
 
-            // To render a tilted screen in high quality, we need at least
-            // 640 pixels of *Y* dimension.
-#if MAXYDIM >= 640
-            if (xres > 320 || yres > 240)
+            if (tang == 1024)
             {
-                tiltcs = 2;
-                tiltcx = 640;
-                tiltcy = 400;
+                software_screen_tilting = 2;
             }
             else
-#endif
             {
-                // JBF 20030807: Increased tilted-screen quality
-                tiltcs = 1;
-                tiltcx = 320;
-                tiltcy = 200;
-            }
-
-            {
-                // If the view is rotated (not 0 or 180 degrees modulo 360 degrees),
-                // we render onto a square tile and display a portion of that
-                // rotated on-screen later on.
-                const int32_t viewtilexsiz = (tang&1023) ? tiltcx : tiltcy;
-                const int32_t viewtileysiz = tiltcx;
-
-                walock[TILE_TILT] = 255;
-                if (waloff[TILE_TILT] == 0)
-                    allocache(&waloff[TILE_TILT], viewtilexsiz*viewtileysiz, &walock[TILE_TILT]);
-
-                setviewtotile(TILE_TILT, viewtilexsiz, viewtileysiz);
-            }
-
-            if ((tang&1023) == 512)
-            {
-                //Block off unscreen section of 90ø tilted screen
-                j = tiltcx-(60*tiltcs);
-                for (i=(60*tiltcs)-1; i>=0; i--)
+                // To render a tilted screen in high quality, we need at least
+                // 640 pixels of *Y* dimension.
+#if MAXYDIM >= 640
+                if (xres > 320 || yres > 240)
                 {
-                    startumost[i] = 1;
-                    startumost[i+j] = 1;
-                    startdmost[i] = 0;
-                    startdmost[i+j] = 0;
+                    tiltcs = 2;
+                    tiltcx = 640;
+                    tiltcy = 400;
                 }
+                else
+#endif
+                {
+                    // JBF 20030807: Increased tilted-screen quality
+                    tiltcs = 1;
+                    tiltcx = 320;
+                    tiltcy = 200;
+                }
+
+                {
+                    // If the view is rotated (not 0 or 180 degrees modulo 360 degrees),
+                    // we render onto a square tile and display a portion of that
+                    // rotated on-screen later on.
+                    const int32_t viewtilexsiz = (tang&1023) ? tiltcx : tiltcy;
+                    const int32_t viewtileysiz = tiltcx;
+
+                    walock[TILE_TILT] = 255;
+                    if (waloff[TILE_TILT] == 0)
+                        allocache(&waloff[TILE_TILT], viewtilexsiz*viewtileysiz, &walock[TILE_TILT]);
+
+                    setviewtotile(TILE_TILT, viewtilexsiz, viewtileysiz);
+                }
+
+                if ((tang&1023) == 512)
+                {
+                    //Block off unscreen section of 90ø tilted screen
+                    j = tiltcx-(60*tiltcs);
+                    for (i=(60*tiltcs)-1; i>=0; i--)
+                    {
+                        startumost[i] = 1;
+                        startumost[i+j] = 1;
+                        startdmost[i] = 0;
+                        startdmost[i+j] = 0;
+                    }
+                }
+
+                i = (tang&511);
+                if (i > 256)
+                    i = 512-i;
+                i = sintable[i+512]*8 + sintable[i]*5;
+
+//                setaspect(i>>1, yxaspect);
+                setaspect(mulscale16(oviewingrange,i>>1), yxaspect);
+
+                tmpvr = i>>1;
+                tmpyx = (65536*ydim*8)/(xdim*5);
             }
-
-            i = (tang&511);
-            if (i > 256)
-                i = 512-i;
-            i = sintable[i+512]*8 + sintable[i]*5;
-
-//            setaspect(i>>1, yxaspect);
-            setaspect(mulscale16(oviewingrange,i>>1), yxaspect);
-
-            tmpvr = i>>1;
-            tmpyx = (65536*ydim*8)/(xdim*5);
         }
         else if (getrendermode() >= REND_POLYMOST && (ud.screen_tilting
 #ifdef SPLITSCREEN_MOD_HACKS
@@ -4681,17 +4688,43 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         {
             const int16_t tang = (ud.screen_tilting) ? p->rotscrnang : 0;
 
-            setviewback();
-            picanm[TILE_TILT].xofs = picanm[TILE_TILT].yofs = 0;
+            if (software_screen_tilting == 2)  // tang == 1024
+            {
+                begindrawing();
+                {
+                    const int32_t height = windowy2-windowy1+1;
+                    const int32_t width = windowx2-windowx1+1;
 
-            i = (tang&511);
-            if (i > 256)
-                i = 512-i;
-            i = sintable[i+512]*8 + sintable[i]*5;
-            i >>= tiltcs; // JBF 20030807
+                    uint8_t *f = (uint8_t *)(frameplace + ylookup[windowy1]);
+                    int32_t x, y;
 
-            rotatesprite_win(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64+1024);
-            walock[TILE_TILT] = 199;
+                    for (y=0; y < (height>>1); y++)
+                        swapbufreverse(f + y*bytesperline + windowx2,
+                                       f + (height-1-y)*bytesperline + windowx1,
+                                       width);
+
+                    f += (height>>1)*bytesperline + windowx1;
+
+                    if (height&1)
+                        for (x=0; x<(width>>1); x++)
+                            swapchar(&f[x], &f[width-1-x]);
+                }
+                enddrawing();
+            }
+            else
+            {
+                setviewback();
+                picanm[TILE_TILT].xofs = picanm[TILE_TILT].yofs = 0;
+
+                i = (tang&511);
+                if (i > 256)
+                    i = 512-i;
+                i = sintable[i+512]*8 + sintable[i]*5;
+                i >>= tiltcs; // JBF 20030807
+
+                rotatesprite_win(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64+1024);
+                walock[TILE_TILT] = 199;
+            }
         }
         else if (pixelDoubling)
         {
