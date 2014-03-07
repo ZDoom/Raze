@@ -3060,7 +3060,7 @@ int32_t kzread(void *buffer, int32_t leng)
     if (kzfs.comptyp == 0)
     {
         if (kzfs.pos != kzfs.i) //Seek only when position changes
-            fseek(kzfs.fil,kzfs.seek0+kzfs.pos,SEEK_SET);
+            { fseek(kzfs.fil,kzfs.seek0+kzfs.pos,SEEK_SET); kzfs.i = kzfs.pos; }
         i = min(kzfs.leng-kzfs.pos,leng);
         fread(buffer,i,1,kzfs.fil);
         kzfs.i += i; //kzfs.i is a local copy of ftell(kzfs.fil);
