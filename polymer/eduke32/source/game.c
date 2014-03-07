@@ -6033,21 +6033,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
             else
             {
-                switch (DYNAMICTILEMAP(sp->picnum))
-                {
-                case LIZTROOPONTOILET__STATIC:
-                case LIZTROOPSHOOT__STATIC:
-                case LIZTROOPJETPACK__STATIC:
-                case LIZTROOPDUCKING__STATIC:
-                case LIZTROOPRUNNING__STATIC:
-                case LIZTROOPSTAYPUT__STATIC:
-                case LIZTROOPJUSTSIT__STATIC:
-                case LIZTROOP__STATIC:
-                    if (g_scriptVersion != 14)
-                default:
-                        sp->extra <<= 1;
-                    break;
-                }
+                if (!PLUTOPAK)
+                    sp->extra <<= 1;
             }
 
             if (sp->picnum == BOSS4STAYPUT || sp->picnum == BOSS1 || sp->picnum == BOSS2 ||
