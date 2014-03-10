@@ -665,7 +665,7 @@ void yax_update(int32_t resetstat)
 #if !defined NEW_MAP_FORMAT
     editstatus = oeditstatus;
 #else
-    mapversion = (numyaxbunches>0) ? 10 : get_mapversion();
+    mapversion = get_mapversion();
 #endif
 }
 
@@ -6694,8 +6694,11 @@ static void drawmaskwall(int16_t damaskwallcnt)
     else
     {
         if (globalorientation&128)
+#ifdef NEW_MAP_FORMAT
+            setup_blend(wal->blend, globalorientation&512);
+#else
             setup_blend(0, globalorientation&512);
-
+#endif
         transmaskwallscan(xb1[z],xb2[z], 0);
     }
 }
@@ -10986,13 +10989,26 @@ int32_t loadmaphack(const char *filename)
 LUNATIC_CB int32_t (*saveboard_maptext)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 #endif
 
-// Get map version of binary map format (< map-int VX).
+// Get map version of external map format (<10: old binary format, ==10: new
+// 'VX' map-text format).
 static int32_t get_mapversion(void)
 {
 #ifdef YAX_ENABLE
     if (numyaxbunches > 0)
+# ifdef NEW_MAP_FORMAT
+        return 10;
+# else
         return 9;
-    else
+# endif
+#endif
+
+#ifdef NEW_MAP_FORMAT
+    {
+        int32_t i;
+        for (i=0; i<numwalls; i++)
+            if (wall[i].blend != 0)
+                return 10;
+    }
 #endif
     if (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || Numsprites > MAXSPRITESV7)
         return 8;
@@ -11038,8 +11054,11 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
     // and the engine-reported number of sprites 'Numsprites'.
     Bassert(numsprites == Numsprites);
 
+    // Determine the map version.
+    mapversion = get_mapversion();
+
 #ifdef NEW_MAP_FORMAT
-    if (numyaxbunches > 0)
+    if (mapversion == 10)
     {
         initprintf("Saving of TROR maps not yet accessible in the Lunatic preview build\n");
         return -1;
@@ -11055,8 +11074,6 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
         return -1;
     }
 
-    // Determine the map version.
-    mapversion = get_mapversion();
     tl = B_LITTLE32(mapversion);    Bwrite(fil,&tl,4);
 
     tl = B_LITTLE32(dapos->x);      Bwrite(fil,&tl,4);

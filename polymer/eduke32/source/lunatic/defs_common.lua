@@ -25,7 +25,7 @@ ffi.cdef "const char **g_argv;"
 --           (env var: LUAJIT_DUMPFILE)
 --  profile: load LuaJIT's 'jit.p' module for profiling (LuaJIT 2.1 only)
 --           (env var: LUAJIT_PROFILEFILE)
---   strict: catch various conditions that may indicate an logical error
+--   strict: catch various conditions that may indicate a logical error
 -- TODO for strict: actor[], spriteext[], per-actor gamevars
 local debug_flags = {}
 local IS_DEBUG_FLAG = {
@@ -242,6 +242,7 @@ struct {
     int8_t shade;
     uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
     int16_t lotag, hitag, extra;
+    uint8_t blend, _filler;
 }]]
 
 -- NOTE for FFI definitions: we're compiling EDuke32 with -funsigned-char, so

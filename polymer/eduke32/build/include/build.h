@@ -529,7 +529,7 @@ static inline void inplace_vx_tweak_sector(sectortypevx *vxsec, int32_t yaxp)
 # undef SECTORVX_SZ1
 # undef SECTORVX_SZ4
 
-// 36 bytes
+// 38 bytes
 typedef struct
 {
     Tracker(Wall, int32_t) x, y;
@@ -541,9 +541,10 @@ typedef struct
     Tracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
     Tracker(Wall, uint16_t) lotag, hitag;
     Tracker(Wall, int16_t) extra;
+    Tracker(Wall, uint8_t) blend, filler_;
 } walltypevx;
 
-# define WALLVX_SZ2 sizeof(walltypevx)-offsetof(walltypevx, cstat)
+# define WALLVX_SZ2 offsetof(walltypevx, blend)-offsetof(walltypevx, cstat)
 
 static inline void copy_v7_from_vx_wall(walltypev7 *v7wal, const walltypevx *vxwal)
 {
@@ -561,6 +562,8 @@ static inline void inplace_vx_from_v7_wall(walltypevx *vxwal)
 
     /* [cstat..extra] */
     Bmemmove(&vxwal->cstat, &v7wal->cstat, WALLVX_SZ2);
+
+    vxwal->blend = vxwal->filler_ = 0;
 }
 
 static inline void inplace_vx_tweak_wall(walltypevx *vxwal, int32_t yaxp)

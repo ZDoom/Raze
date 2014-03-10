@@ -67,13 +67,13 @@ local wall_members = {
 
     -- optional
     f = "cstat",
-    m = "overpicnum",
+    m = "overpicnum", b = "blend",
     p = "pal",
     w = { "upwall", -1 }, W = { "dnwall", -1 },
     o = "lotag", i = "hitag", e = { "extra", -1 }
 }
 
-local wall_ord = { mand="1 23 4 5 6 78 90 ", opt="f m p wW oie" }
+local wall_ord = { mand="1 23 4 5 6 78 90 ", opt="f mb p wW oie" }
 local wall_default = ffi.new("const walltype", { extra = -1, upwall=-1, dnwall=-1 })
 
 
