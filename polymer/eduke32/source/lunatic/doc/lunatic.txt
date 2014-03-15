@@ -1115,7 +1115,7 @@ Provides a mapping of symbolic names to values applicable as sprite
 Contains symbolic names of values applicable to <<gameactor,`gameactor`>>'s
 `flags` input argument, most of which are described there. +
 `SHADOW`, `NVG`, `NOSHADE`, `NOPAL`, `NOEVENTS`, `NOLIGHT`,
-`USEACTIVATOR`, `NOCLIP`, `SMOOTHMOVE`, `NOTELEPORT`.
+`USEACTIVATOR`, `NOCLIP`, `SMOOTHMOVE`, `NOTELEPORT`, `NODAMAGEPUSH`.
 
 //`BADGUY`,
 

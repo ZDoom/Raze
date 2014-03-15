@@ -10691,6 +10691,7 @@ static void G_LoadExtraPalettes(void)
 }
 
 #define SETBGFLAG(Tilenum) g_tile[Tilenum].flags |= SFLAG_HARDCODED_BADGUY
+#define SETNDPFLAG(Tilenum) g_tile[Tilenum].flags |= SFLAG_NODAMAGEPUSH
 
 // Has to be after setting the dynamic names (e.g. SHARK).
 static void A_InitEnemyFlags(void)
@@ -10729,8 +10730,17 @@ static void A_InitEnemyFlags(void)
     SETBGFLAG(BOSS4);
     SETBGFLAG(RAT);
     SETBGFLAG(ROTATEGUN);
+
+    SETNDPFLAG(TANK);
+    SETNDPFLAG(BOSS1);
+    SETNDPFLAG(BOSS4);
+    SETNDPFLAG(BOSS2);
+    SETNDPFLAG(BOSS3);
+    SETNDPFLAG(RECON);
+    SETNDPFLAG(ROTATEGUN);
 }
 #undef SETBGFLAG
+#undef SETNDPFLAG
 
 extern int32_t startwin_run(void);
 static void G_SetupGameButtons(void);

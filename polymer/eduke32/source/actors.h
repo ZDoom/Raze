@@ -263,6 +263,7 @@ enum sflags_t {
     SFLAG_ROTFIXED         = 0x00020000,
     SFLAG_HARDCODED_BADGUY = 0x00040000,
     SFLAG_DIDNOSE7WATER    = 0x00080000, // used temporarily
+    SFLAG_NODAMAGEPUSH     = 0x00100000,
 };
 
 // Custom projectiles "workslike" flags.

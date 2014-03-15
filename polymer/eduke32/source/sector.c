@@ -2265,7 +2265,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                         A_Shoot(i,BLOODSPLAT4);
                     }
 
-                if (PN != TANK && PN != BOSS1 && PN != BOSS4 && PN != BOSS2 && PN != BOSS3 && PN != RECON && PN != ROTATEGUN)
+                if (!A_CheckSpriteFlags(i, SFLAG_NODAMAGEPUSH))
                 {
                     if (sprite[i].extra > 0)
                     {

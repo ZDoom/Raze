@@ -4570,6 +4570,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     continue;
                 }
 
+                // XXX: may remove bits set in A_InitEnemyFlags!
                 g_tile[j].flags = *g_scriptPtr;
 
                 continue;
@@ -6170,6 +6171,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("SFLAG_NOCLIP", SFLAG_NOCLIP, LABEL_DEFINE);
     C_AddDefinition("SFLAG_SMOOTHMOVE", SFLAG_SMOOTHMOVE, LABEL_DEFINE);
     C_AddDefinition("SFLAG_NOTELEPORT", SFLAG_NOTELEPORT, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NODAMAGEPUSH", SFLAG_NODAMAGEPUSH, LABEL_DEFINE);
 
     C_AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
     C_AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME,LABEL_DEFINE);

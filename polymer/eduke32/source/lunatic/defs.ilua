@@ -2110,6 +2110,7 @@ local function our_gameactor(args)
     -- All good, set the tile bits in initial run and register the actor!
     -- XXX: Need to see if some other state living on the C side is clobbered
     -- by Lua state recreation.
+    -- TILE_FLAGS_SET_ONLY_ON_FIRST_RUN
     if (g_firstRun) then
         -- NOTE: when chaining, this allows passing different flags which are
         -- silently ORed. This may or may not be what the user intends, but it
