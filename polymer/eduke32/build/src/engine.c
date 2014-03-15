@@ -12547,7 +12547,8 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
     const int32_t dasprclipmask = (cliptype>>16);
 
     hit->sect = -1; hit->wall = -1; hit->sprite = -1;
-    if (sectnum < 0) return(-1);
+    if (sectnum < 0)
+        return -1;
 
 #ifdef YAX_ENABLE
 restart_grand:

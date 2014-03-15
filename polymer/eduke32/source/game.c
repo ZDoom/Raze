@@ -3883,52 +3883,61 @@ void G_DisplayRest(int32_t smoothratio)
     }
 }
 
-static void G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int32_t ang, int32_t horiz)
+static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int32_t ang, int32_t horiz)
 {
     spritetype *sp = &sprite[pp->i];
     int32_t i, hx, hy;
     int32_t daang;
     int32_t bakcstat = sp->cstat;
     hitdata_t hit;
-    vec3_t n = { (sintable[(ang+1536)&2047]>>4),
-                 (sintable[(ang+1024)&2047]>>4),
-                 (horiz-100)*128
+    vec3_t n = {
+        sintable[(ang+1536)&2047]>>4,
+        sintable[(ang+1024)&2047]>>4,
+        (horiz-100)*128
     };
 
-    sp->cstat &= (int16_t)~0x101;
-
     updatesectorz(vect->x,vect->y,vect->z,vsectnum);
-    hitscan((const vec3_t *)vect,*vsectnum,n.x,n.y,n.z,&hit,CLIPMASK1);
+
+    sp->cstat &= ~0x101;
+    hitscan(vect, *vsectnum, n.x,n.y,n.z, &hit, CLIPMASK1);
+    sp->cstat = bakcstat;
 
     if (*vsectnum < 0)
-    {
-        sp->cstat = bakcstat;
-        return;
-    }
+        return -1;
 
     hx = hit.pos.x-(vect->x);
     hy = hit.pos.y-(vect->y);
+
     if (klabs(n.x)+klabs(n.y) > klabs(hx)+klabs(hy))
     {
         *vsectnum = hit.sect;
+
         if (hit.wall >= 0)
         {
             daang = getangle(wall[wall[hit.wall].point2].x-wall[hit.wall].x,
                              wall[wall[hit.wall].point2].y-wall[hit.wall].y);
 
-            i = n.x*sintable[daang]+n.y*sintable[(daang+1536)&2047];
-            if (klabs(n.x) > klabs(n.y)) hx -= mulscale28(n.x,i);
+            i = n.x*sintable[daang] + n.y*sintable[(daang+1536)&2047];
+
+            if (klabs(n.x) > klabs(n.y))
+                hx -= mulscale28(n.x,i);
             else hy -= mulscale28(n.y,i);
         }
         else if (hit.sprite < 0)
         {
-            if (klabs(n.x) > klabs(n.y)) hx -= (n.x>>5);
+            if (klabs(n.x) > klabs(n.y))
+                hx -= (n.x>>5);
             else hy -= (n.y>>5);
         }
-        if (klabs(n.x) > klabs(n.y)) i = divscale16(hx,n.x);
+
+        if (klabs(n.x) > klabs(n.y))
+            i = divscale16(hx,n.x);
         else i = divscale16(hy,n.y);
-        if (i < CAMERADIST) CAMERADIST = i;
+
+        if (i < CAMERADIST)
+            CAMERADIST = i;
     }
+
     vect->x += mulscale16(n.x,CAMERADIST);
     vect->y += mulscale16(n.y,CAMERADIST);
     vect->z += mulscale16(n.z,CAMERADIST);
@@ -3938,7 +3947,7 @@ static void G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsect
 
     updatesectorz(vect->x,vect->y,vect->z,vsectnum);
 
-    sp->cstat = bakcstat;
+    return 0;
 }
 
 //REPLACE FULLY
@@ -4558,7 +4567,11 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             if (p->over_shoulder_on)
             {
                 CAMERA(pos.z) -= 3072;
-                G_DoThirdPerson(p,&CAMERA(pos),&CAMERA(sect),CAMERA(ang),CAMERA(horiz));
+                if (G_DoThirdPerson(p, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(horiz)) < 0)
+                {
+                    CAMERA(pos.z) += 3072;
+                    G_DoThirdPerson(p, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(horiz));
+                }
             }
         }
         else
