@@ -481,8 +481,11 @@ function reset.codegen()
 
     g_have_file = {}
     g_curcode = new_initial_codetab()
-    -- [{actor, event, actor}num]=gencode_table
-    g_code = { actor={}, event={}, loadactor={} }
+    -- actor, event, loadactor: [{actor, event, actor}num] = gencode_table
+    --
+    -- aflagsloc[actornum]: location of '(user)actor' token, 'spriteflags' or
+    -- 'sprite*' command; result of getLocation(<kind>, <pos>)
+    g_code = { actor={}, event={}, loadactor={}, aflagsloc={} }
 
     g_recurslevel = -1
     g_numerrors = 0
@@ -518,6 +521,7 @@ end
 
 -- fwd-decls
 local warnprintf, errprintf, pwarnprintf, perrprintf, contprintf
+local getLocation
 
 local on = {}
 
@@ -565,6 +569,7 @@ function on.actor_end(pos, usertype, tsamm, codetab)
         pwarnprintf(pos, "redefined actor %d", tilenum)
     end
     g_code.actor[tilenum] = codetab
+    g_code.aflagsloc[tilenum] = getLocation("definition of actor", pos)
 end
 
 -- NOTE: in C-CON, the slash and backslash can also be part of an identifier,
@@ -748,8 +753,11 @@ local g_labelspecial = {}  -- [<label>] = true
 local g_labelloc = {}  -- [<label>] = { filename, linenum, colnum }
 
 -- Get location table for use in continued warning/error reporting.
-local function getLocation()
-    return { g_filename, getlinecol(g_lastkwpos) }
+--[[ local --]]
+function getLocation(kind, pos)
+    local loc = { g_filename, getlinecol(pos or g_lastkwpos) }
+    loc[4] = kind
+    return loc
 end
 
 function reset.labels()
@@ -864,8 +872,7 @@ local inform = {}
 
 function inform.common(loc, iserr)
     if (loc) then
-        contprintf(iserr, "Old definition is at %s %d:%d",
-                   loc[1], loc[2], loc[3])
+        contprintf(iserr, "Old definition is at %s %d:%d", loc[1], loc[2], loc[3])
     else
         contprintf(iserr, "Old definition is built-in")
     end
@@ -1290,6 +1297,15 @@ end
 function Cmd.xspriteflags(tilenum, flags, override)
     local ok = check.tile_idx(tilenum)
     check.reserved_bits(flags, conl.user_sflags, "for sprite flags")
+
+    local loc = g_code.aflagsloc[tilenum]
+
+    if (override and loc ~= nil) then
+        warnprintf("'spriteflags' after %s %d", loc[4], tilenum)
+        contprintf(false, "at %s %d:%d", loc[1], loc[2], loc[3])
+    end
+
+    g_code.aflagsloc[tilenum] = getLocation(format("'%s' for actor", g_lastkw), pos)
 
     if (ffi and ok) then
         local tile = ffiC.g_tile[tilenum]

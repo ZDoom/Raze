@@ -4570,7 +4570,6 @@ static int32_t C_ParseCommand(int32_t loop)
                     continue;
                 }
 
-                // XXX: may remove bits set in A_InitEnemyFlags!
                 g_tile[j].flags = *g_scriptPtr;
 
                 continue;
