@@ -1286,17 +1286,14 @@ function Cmd.defineprojectile(tilenum, what, val)
     end
 end
 
--- flags: if string, look up in ffiC and OR, else set number directly.
-function Cmd.xspriteflags(tilenum, flags)
+-- <override>: override-set flags? The default is to bitwise OR with existing.
+function Cmd.xspriteflags(tilenum, flags, override)
     local ok = check.tile_idx(tilenum)
+    check.reserved_bits(flags, conl.user_sflags, "for sprite flags")
 
     if (ffi and ok) then
-        if (type(flags)=="number") then
-            ffiC.g_tile[tilenum]._flags = flags
-        else
-            assert(type(flags)=="string")
-            ffiC.g_tile[tilenum]._flags = bit.bor(ffiC.g_tile[tilenum]._flags, ffiC[flags])
-        end
+        local tile = ffiC.g_tile[tilenum]
+        tile._flags = bit.bor(override and 0 or tile._flags, flags)
     end
 end
 
@@ -1304,10 +1301,10 @@ function Cmd.precache(tilenum0, tilenum1, flagnum)
     local ok = check.tile_idx(tilenum0) and check.tile_idx(tilenum1)
 
     if (ffi and ok) then
-        ffiC.g_tile[tilenum0]._cacherange = tilenum1;
+        local tile = ffiC.g_tile[tilenum0]
+        tile._cacherange = tilenum1;
         if (flagnum) then
-            ffiC.g_tile[tilenum0]._flags = bit.bor(
-                ffiC.g_tile[tilenum0]._flags, conl.SFLAG.SFLAG_CACHE)
+            tile._flags = bit.bor(tile._flags, conl.SFLAG.SFLAG_CACHE)
         end
     end
 end
@@ -1807,16 +1804,16 @@ local Couter = {
     gamestartup = (sp1 * tok.define)^26
         / Cmd.gamestartup,
     spritenopal = cmd(D)
-        / function(tilenum, flags) Cmd.xspriteflags(tilenum, "SFLAG_NOPAL") end,
+        / function(tilenum, flags) Cmd.xspriteflags(tilenum, conl.SFLAG.SFLAG_NOPAL) end,
     spritenoshade = cmd(D)
-        / function(tilenum, flags) Cmd.xspriteflags(tilenum, "SFLAG_NOSHADE") end,
+        / function(tilenum, flags) Cmd.xspriteflags(tilenum, conl.SFLAG.SFLAG_NOSHADE) end,
     spritenvg = cmd(D)
-        / function(tilenum, flags) Cmd.xspriteflags(tilenum, "SFLAG_NVG") end,
+        / function(tilenum, flags) Cmd.xspriteflags(tilenum, conl.SFLAG.SFLAG_NVG) end,
     spriteshadow = cmd(D)
-        / function(tilenum, flags) Cmd.xspriteflags(tilenum, "SFLAG_SHADOW") end,
+        / function(tilenum, flags) Cmd.xspriteflags(tilenum, conl.SFLAG.SFLAG_SHADOW) end,
 
     spriteflags = cmd(D,D)  -- also see inner
-        / function(tilenum, flags) Cmd.xspriteflags(tilenum, flags) end,
+        / function(tilenum, flags) Cmd.xspriteflags(tilenum, flags, true) end,
 
     --- 4. Game Variables / Arrays
     gamevar = cmd(I,D,D)

@@ -300,9 +300,12 @@ labels =
     GAMEFUNC,
 }
 
+user_sflags = 0
 -- TWEAK_SFLAG
 for name, flag in pairs(SFLAG) do
-    if (flag < 0) then
+    if (flag > 0) then
+        user_sflags = user_sflags + flag
+    else
         SFLAG[name] = -flag
         labels[4][name] = nil
     end
