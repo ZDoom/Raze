@@ -451,9 +451,15 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+#ifdef LUNATIC
+// Returns: INT32_MIN if no such CON label, its value else.
+LUNATIC_CB int32_t (*El_GetLabelValue)(const char *label);
+#endif
+
 static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
 {
-    uint16_t cstat=0,picnum=0;
+    int32_t picnum = 0;
+    uint16_t cstat=0;
     char pal=0;
     int16_t ang=0;
     int16_t set=0, idx;
@@ -484,26 +490,35 @@ static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
     case 1: // tile number
         if (isdigit(parm->parms[0][0]))
         {
-            picnum = (uint16_t)Batol(parm->parms[0]);
+            picnum = Batol(parm->parms[0]);
         }
         else
         {
-            int32_t i,j;
+            int32_t i;
+#ifdef LUNATIC
+            i = g_numLabels;
+            picnum = El_GetLabelValue(parm->parms[0]);
+            if (picnum != INT32_MIN)
+                i = !i;
+#else
+            int32_t j;
+
             for (j=0; j<2; j++)
             {
                 for (i=0; i<g_numLabels; i++)
                 {
-                    if (
-                        (j == 0 && !Bstrcmp(label+(i<<6),     parm->parms[0])) ||
-                        (j == 1 && !Bstrcasecmp(label+(i<<6), parm->parms[0]))
-                    )
+                    if ((j == 0 && !Bstrcmp(label+(i<<6),     parm->parms[0])) ||
+                        (j == 1 && !Bstrcasecmp(label+(i<<6), parm->parms[0])))
                     {
-                        picnum = (uint16_t)labelcode[i];
+                        picnum = labelcode[i];
                         break;
                     }
                 }
-                if (i<g_numLabels) break;
+
+                if (i < g_numLabels)
+                    break;
             }
+#endif
             if (i==g_numLabels)
             {
                 OSD_Printf("spawn: Invalid tile label given\n");
@@ -511,17 +526,18 @@ static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
             }
         }
 
-        if (picnum >= MAXTILES)
+        if ((uint32_t)picnum >= MAXUSERTILES)
         {
             OSD_Printf("spawn: Invalid tile number\n");
             return OSDCMD_OK;
         }
         break;
+
     default:
         return OSDCMD_SHOWHELP;
     }
 
-    idx = A_Spawn(g_player[myconnectindex].ps->i, (int16_t)picnum);
+    idx = A_Spawn(g_player[myconnectindex].ps->i, picnum);
     if (set & 1) sprite[idx].pal = (uint8_t)pal;
     if (set & 2) sprite[idx].cstat = (int16_t)cstat;
     if (set & 4) sprite[idx].ang = ang;

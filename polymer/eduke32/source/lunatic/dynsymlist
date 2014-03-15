@@ -114,6 +114,7 @@ g_elSavecode;
 El_FreeSaveCode;
 El_SerializeGamevars;
 El_RestoreGamevars;
+El_GetLabelValue;
 
 s_buildRev;
 g_sizes_of_what;

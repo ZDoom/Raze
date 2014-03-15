@@ -614,6 +614,7 @@ char *g_elSavecode;
 void El_FreeSaveCode(void);
 const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
 int32_t (*El_RestoreGamevars)(const char *savecode);
+int32_t (*El_GetLabelValue)(const char *label);
 
 const char *s_buildRev;
 const char *g_sizes_of_what[];
@@ -2517,7 +2518,7 @@ ffiC.El_RestoreGamevars = function(savecode)
 end
 
 -- Run the CON code translated into Lua.
-if (concode) then
+if (assert(concode ~= nil)) then
     local confunc, conerrmsg = loadstring(concode, "CON")
     if (confunc == nil) then
         error("Failure loading translated CON code: "..conerrmsg, 0)
@@ -2547,6 +2548,12 @@ if (concode) then
 
     -- Propagate potentially remapped defines to the control module.
     con._setuplabels(conlabels)
+
+    ffiC.El_GetLabelValue = function(label)
+        local str = ffi.string(label)
+        local val = conlabels[str] or conlabels[string.upper(str)]
+        return type(val)=="number" and val or bit.tobit(0x80000000)
+    end
 end
 
 -- When starting a map, load Lua modules given on the command line.
