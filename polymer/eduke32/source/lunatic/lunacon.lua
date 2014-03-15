@@ -549,8 +549,8 @@ function on.actor_end(pos, usertype, tsamm, codetab)
         end
     end
 
-    -- 0x10000000: actor.FLAGS.replace_soft
-    flags = bit.bor(flags, 0x10000000)
+    -- 0x08000000: actor.FLAGS.replace
+    flags = bit.bor(flags, 0x08000000)
 
     local str = flags..","
     for i=2,math.min(#tsamm,4) do

@@ -1478,17 +1478,15 @@ one. This has certain implications if control is transferred non-locally, for
 example by using <<nlcf,`con.longjmp`>>.
 +
 Several flags in `AF` are provided to control how a `gameactor` invocation
-handles chaining.
+handles chaining. In all cases, the actor tile flags are bitwise-ORed with the
+existing ones.
 +
-* `AF.replace_hard`: Completely replace the actor's callback function and
-  run-time flags. This is the default.
-* `AF.replace_soft`: Replace the callback function, but bitwise-OR the existing
-  run-time flags with the provided ones. This is the way CON's `useractor`
-  behaves.
-* `AF.chain_beg`: Prepend the provided `func` to the existing callback function,
-  bitwise-OR in flags.
-* `AF.chain_end`: Append the provided `func` to the existing callback function,
-  bitwise-OR in flags.
+* `AF.replace`: Replace the callback function. This is the way CON's
+  `useractor` behaves and is also the Lunatic default.
+* `AF.replace_soft`: deprecated alias for `AF.replace`
+* `AF.replace_hard`: [red]*deprecated*
+* `AF.chain_beg`: Prepend the provided `func` to the existing callback function.
+* `AF.chain_end`: Append the provided `func` to the existing callback function.
 +
 The following members all default to 0 if omitted.
 +

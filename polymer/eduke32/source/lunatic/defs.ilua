@@ -867,9 +867,9 @@ do
     our_SFLAG.rotfixed = con_lang.SFLAG.SFLAG_ROTFIXED
 
     -- Callback function chaining control flags.
-    our_SFLAG.replace_hard = 0x08000000  -- Replace actor code and flags
-    our_SFLAG.replace_soft = 0x10000000  -- Replace actor code, bitwise OR flags
-    our_SFLAG.replace = 0x08000000  -- Should only be used for gameevent
+    our_SFLAG.replace = 0x08000000
+    our_SFLAG.replace_soft = 0x08000000  -- compat
+    our_SFLAG.replace_hard = 0x08000000  -- compat, deprecated
     our_SFLAG.chain_beg = 0x20000000
     our_SFLAG.chain_end = 0x40000000
     our_SFLAG._CHAIN_MASK_ACTOR = 0x78000000
@@ -2038,15 +2038,14 @@ local function our_gameactor(args)
     local chainflags = band(flags, AF._CHAIN_MASK_ACTOR)
     flags = band(flags, BNOT.CHAIN_MASK_ACTOR)
 
-    -- Default chaining behavior: don't, replace the old actor instead, but
-    -- unlike CON, also replace its flags. (CON ORs them instead.)
     if (chainflags == 0) then
-        chainflags = AF.replace_hard
+        -- Default chaining behavior: don't, replace the old actor instead.
+        chainflags = AF.replace
     elseif (band(chainflags, chainflags-1) ~= 0) then
         error("invalid chaining control flags to gameactor", 2)
     end
 
-    local replacep = (chainflags==AF.replace_soft or chainflags==AF.replace_hard)
+    local replacep = (chainflags==AF.replace)
     if (not replacep and not actor_funcs[tilenum]) then
         error("attempt to chain code to nonexistent actor tile "..tilenum, 2)
     end
@@ -2107,19 +2106,8 @@ local function our_gameactor(args)
         gameevent_internal(96, animate_all_sprites)  -- EVENT_ANIMATEALLSPRITES
     end
 
-    -- All good, set the tile bits in initial run and register the actor!
-    -- XXX: Need to see if some other state living on the C side is clobbered
-    -- by Lua state recreation.
-    -- TILE_FLAGS_SET_ONLY_ON_FIRST_RUN
-    if (g_firstRun) then
-        -- NOTE: when chaining, this allows passing different flags which are
-        -- silently ORed. This may or may not be what the user intends, but it
-        -- allows e.g. adding a stayput bit to an already defined enemy.
-        -- Modifying existing behavior is the whole point of chaining after all.
-        -- When soft-replacing, bitwise OR too, emulating CON behavior.
-        local tile = ffiC.g_tile[tilenum]
-        tile._flags = (chainflags==AF.replace_hard) and flags or bit.bor(tile._flags, flags)
-    end
+    -- All good, bitwise-OR the tile bits and register the actor!
+    ffiC.g_tile[tilenum]._flags = bit.bor(ffiC.g_tile[tilenum]._flags, flags)
 
     local newfunc = replacep and func
         or (chainflags==AF.chain_beg) and chain_func3(func, actor_funcs[tilenum])

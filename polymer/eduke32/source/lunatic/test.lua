@@ -526,7 +526,6 @@ gameactor{ D.APLAYER, AF.chain_end,
 }
 
 -- Add NODAMAGEPUSH flag to NEWBEAST.
--- XXX: Doesn't work because of defs.lua: TILE_FLAGS_SET_ONLY_ON_FIRST_RUN
 gameactor { D.NEWBEAST, AF.chain_end + AF.NODAMAGEPUSH, function() end }
 
 -- Also test actor code chaining: strength is doubled.
@@ -691,7 +690,7 @@ gameactor
 gameactor
 {
     -- Innocent sign, similar to test/weaponvars.con actor 909 (tree trunk)
-    1211, actor.FLAGS.replace_hard,
+    1211, actor.FLAGS.replace,
 
     function(aci, pli)
         local a = actor[aci]
