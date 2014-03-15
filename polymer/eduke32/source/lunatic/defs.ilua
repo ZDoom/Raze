@@ -2539,10 +2539,17 @@ if (assert(concode ~= nil)) then
     -- Propagate potentially remapped defines to the control module.
     con._setuplabels(conlabels)
 
+    local function getLabelValue(str, doupper)
+        return conlabels[doupper and string.upper(str) or str]
+    end
+
     ffiC.El_GetLabelValue = function(label)
         local str = ffi.string(label)
-        local val = conlabels[str] or conlabels[string.upper(str)]
-        return type(val)=="number" and val or bit.tobit(0x80000000)
+        local ok, val = pcall(getLabelValue, str, false)
+        if (not ok or type(val)~="number") then
+            ok, val = pcall(getLabelValue, str, true)
+        end
+        return (ok and type(val)=="number") and val or bit.tobit(0x80000000)
     end
 end
 
