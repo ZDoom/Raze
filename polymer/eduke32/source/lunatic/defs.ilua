@@ -1968,6 +1968,7 @@ local function ourmaxn(tab)
             maxi = math.max(i, maxi)
         end
     end
+    assert(tab[maxi] ~= nil)
     return maxi
 end
 
@@ -2001,6 +2002,12 @@ local function animate_all_sprites()
 end
 
 
+function check_arg_number(name, argpos, val)
+    if (type(val) ~= "number") then
+        errorf(3, "invalid '%s' argument (#%d) to gameactor: must be a number", name, argpos)
+    end
+end
+
 -- gameactor{tilenum [, flags [, strength [, action [, move [, movflags]]]]], func}
 -- Every arg may be positional OR key=val (with the name indicated above as key),
 -- but not both.
@@ -2030,9 +2037,7 @@ local function our_gameactor(args)
     end
 
     local flags = (lastargi > 2 and args[2]) or args.flags or 0
-    if (type(flags) ~= "number") then
-        error("invalid 'flags' argument (#2) to gameactor: must be a number", 2)
-    end
+    check_arg_number("flags", 2, flags)
 
     local AF = actor.FLAGS
     local chainflags = band(flags, AF._CHAIN_MASK_ACTOR)
@@ -2058,9 +2063,7 @@ local function our_gameactor(args)
 
     local strength = ((lastargi > 3 and args[3]) or args.strength) or (replacep and 0 or nil)
     if (replacep or strength~=nil) then
-        if (type(strength) ~= "number") then
-            error("invalid 'strength' argument (#3) to gameactor: must be a number", 2)
-        end
+        check_arg_number("strength", 3, strength)
     end
 
     local act = ((lastargi > 4 and args[4]) or args.action) or (replacep and literal_act[0] or nil)
@@ -2083,9 +2086,7 @@ local function our_gameactor(args)
 
     local movflags = ((lastargi > 6 and args[6]) or args.movflags) or (replacep and 0 or nil)
     if (replacep or movflags ~= nil) then
-        if (type(movflags) ~= "number") then
-            error("invalid 'movflags' argument (#6) to gameactor: must be a number", 2)
-        end
+        check_arg_number("movflags", 6, movflags)
     end
 
     -- Register a potentially passed drawn sprite animation callback function.
@@ -2437,7 +2438,7 @@ do
     local _con=require'con'
     local _band,_gv=_bit.band,gv
 local tmp=]]..
-                            membaccode:gsub("%%s","0").." end"
+                            membaccode:gsub("^_gud%(_pli%)", "_con._get_userdef(0)"):gsub("%%s","0").." end"
                             local code = assert(loadstring(codestr))
                             code()
                         end
