@@ -958,7 +958,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
                 l = safeldist(g_player[j].ps->i, s);
                 zvel = ((g_player[j].ps->opos.z - srcvect->z)*vel) / l;
 
-                if (A_CheckEnemySprite(s) && (s->hitag&face_player_smart))
+                if (A_CheckEnemySprite(s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
                     sa = s->ang + (krand() & 31) - 16;
             }
         }
@@ -1436,7 +1436,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 l = safeldist(g_player[j].ps->i, s);
                 zvel = ((g_player[j].ps->opos.z - srcvect.z)*vel) / l;
 
-                if (A_CheckEnemySprite(s) && (s->hitag&face_player_smart))
+                if (A_CheckEnemySprite(s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
                     sa = s->ang+(krand()&31)-16;
             }
 

@@ -473,9 +473,9 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t movflags)
 
     moveptr = script + AC_MOVE_ID(vm.g_t);
 
-    vm.g_sp->xvel += (*moveptr - vm.g_sp->xvel)/5;
+    vm.g_sp->xvel += (moveptr[0] - vm.g_sp->xvel)/5;
     if (vm.g_sp->zvel < 648)
-        vm.g_sp->zvel += ((*(moveptr+1)<<4) - vm.g_sp->zvel)/5;
+        vm.g_sp->zvel += ((moveptr[1]<<4) - vm.g_sp->zvel)/5;
 #else
     vm.g_sp->xvel += (actor[vm.g_i].mv.hvel - vm.g_sp->xvel)/5;
     if (vm.g_sp->zvel < 648)
@@ -656,8 +656,8 @@ dead:
 
     moveptr = script + AC_MOVE_ID(vm.g_t);
 
-    if (movflags&geth) vm.g_sp->xvel += ((*moveptr)-vm.g_sp->xvel)>>1;
-    if (movflags&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
+    if (movflags&geth) vm.g_sp->xvel += ((moveptr[0])-vm.g_sp->xvel)>>1;
+    if (movflags&getv) vm.g_sp->zvel += ((moveptr[1]<<4)-vm.g_sp->zvel)>>1;
 #else
     if (movflags&geth) vm.g_sp->xvel += (actor[vm.g_i].mv.hvel - vm.g_sp->xvel)>>1;
     if (movflags&getv) vm.g_sp->zvel += (16*actor[vm.g_i].mv.vvel - vm.g_sp->zvel)>>1;
@@ -958,7 +958,7 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
             int32_t moveScriptOfs = AC_MOVE_ID(vm.g_t);
 #endif
             // fix for flying/jumping monsters getting stuck in water
-            if ((g_sp->hitag & jumptoplayer) ||
+            if ((AC_MOVFLAGS(g_sp, &actor[vm.g_i]) & jumptoplayer) ||
                 (G_HaveActor(g_sp->picnum) &&
 #if !defined LUNATIC
                  (unsigned)moveScriptOfs < (unsigned)g_scriptSize-1 && script[moveScriptOfs + 1]
