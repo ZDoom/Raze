@@ -1122,9 +1122,12 @@ Contains symbolic names of values applicable to <<gameactor,`gameactor`>>'s
 [[actor_MOVFLAGS]] `actor.MOVFLAGS`::
 Contains symbolic names of values applicable <<gameactor,`gameactor`>>'s
 `movflags` input argument, `actor[]:set_move()`, and the like. +
-`faceplayer`, `geth`, `getv`, `randomangle`, `faceplayerslow`, `spin`,
-`faceplayersmart`, `fleeenemy`, `jumptoplayer`, `seekplayer`, `furthestdir`,
-`dodgebullet`.
+* `faceplayer`, `geth`, `getv`, `randomangle`, `faceplayerslow`, `spin`,
+  `faceplayersmart`, `fleeenemy`, `seekplayer`, `furthestdir`,
+  `dodgebullet`, all naming single bits
+* `jumptoplayer_bits`: the bitwise-OR of *two* bits, one of which is `faceplayer`
+* `jumptoplayer_only`: the same as `jumptoplayer_bits`, but without the `faceplayer` bit set
+* `jumptoplayer`: [red]*deprecated*
 
 '''
 [[player]]

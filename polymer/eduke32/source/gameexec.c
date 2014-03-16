@@ -629,7 +629,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     if (movflags&face_player_slow)
         VM_FacePlayer(4);
 
-    if ((movflags&jumptoplayer) == jumptoplayer)
+    if ((movflags&jumptoplayer_bits) == jumptoplayer_bits)
     {
         if (AC_COUNT(vm.g_t) < 16)
             vm.g_sp->zvel -= (sintable[(512+(AC_COUNT(vm.g_t)<<4))&2047]>>5);
@@ -958,7 +958,7 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
             int32_t moveScriptOfs = AC_MOVE_ID(vm.g_t);
 #endif
             // fix for flying/jumping monsters getting stuck in water
-            if ((AC_MOVFLAGS(g_sp, &actor[vm.g_i]) & jumptoplayer) ||
+            if ((AC_MOVFLAGS(g_sp, &actor[vm.g_i]) & jumptoplayer_bits) == jumptoplayer_only ||
                 (G_HaveActor(g_sp->picnum) &&
 #if !defined LUNATIC
                  (unsigned)moveScriptOfs < (unsigned)g_scriptSize-1 && script[moveScriptOfs + 1]

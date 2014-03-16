@@ -61,7 +61,8 @@ enum amoveflags_t {
     spin                = 32,
     face_player_smart   = 64,
     fleeenemy           = 128,
-    jumptoplayer        = 257,
+    jumptoplayer_only   = 256,
+    jumptoplayer_bits   = 257,  // NOTE: two bits set!
     seekplayer          = 512,
     furthestdir         = 1024,
     dodgebullet         = 4096

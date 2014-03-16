@@ -904,6 +904,8 @@ do
         spin = 32,
         faceplayersmart = 64,
         fleeenemy = 128,
+        jumptoplayer_only = 256,
+        jumptoplayer_bits = 257,  -- NOTE: two bits set!
         jumptoplayer = 257,
         seekplayer = 512,
         furthestdir = 1024,
