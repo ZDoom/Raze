@@ -1,0 +1,49 @@
+
+gamevar vol 0 0
+gamevar lev 0 0
+
+// out-of-bounds volume/level numbers
+gamevar badvol_oob 99 0
+gamevar badlev_oob 999 0
+
+// volume/level numbers for which no level is defined
+gamevar badvol_nd 3 0
+gamevar badlev_nd 32 0
+
+definequote 255 <temp>
+
+onevent EVENT_ENTERLEVEL
+    // must fail, since the current player is -1 in this event
+    qgetsysstr 255 STR_PLAYERNAME
+endevent
+
+onevent EVENT_USESTEROIDS
+    getuserdef .volume_number vol
+    setuserdef .volume_number badvol_oob  // LunaCON errors here
+    qgetsysstr 255 STR_VOLUMENAME  // C-CON errors here
+    setuserdef .volume_number vol
+endevent
+
+onevent EVENT_USEJETPACK
+    getuserdef .volume_number vol
+    getuserdef .level_number lev
+
+    setuserdef .volume_number badvol_oob  // LunaCON errors here
+    setuserdef .level_number badlev_oob
+    qgetsysstr 255 STR_MAPNAME  // C-CON errors here
+
+    setuserdef .volume_number vol
+    setuserdef .level_number lev
+endevent
+
+onevent EVENT_JUMP
+    getuserdef .volume_number vol
+    getuserdef .level_number lev
+
+    setuserdef .volume_number badvol_nd
+    setuserdef .level_number badlev_nd
+    qgetsysstr 255 STR_MAPFILENAME  // LunaCON, C-CON error here
+
+    setuserdef .volume_number vol
+    setuserdef .level_number lev
+endevent

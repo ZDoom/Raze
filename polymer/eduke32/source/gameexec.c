@@ -2131,12 +2131,36 @@ skip_check:
                     switch (j)
                     {
                     case STR_MAPNAME:
-                        Bstrcpy(ScriptQuotes[i],MapInfo[ud.volume_number*MAXLEVELS + ud.level_number].name);
-                        break;
                     case STR_MAPFILENAME:
-                        Bstrcpy(ScriptQuotes[i],MapInfo[ud.volume_number*MAXLEVELS + ud.level_number].filename);
+                    {
+                        int32_t idx = ud.volume_number*MAXLEVELS + ud.level_number;
+                        const char *src;
+
+                        if ((unsigned)idx >= ARRAY_SIZE(MapInfo))
+                        {
+                            CON_ERRPRINTF("out of bounds map number (vol=%d, lev=%d)\n",
+                                          ud.volume_number, ud.level_number);
+                            break;
+                        }
+
+                        src = j==STR_MAPNAME ? MapInfo[idx].name : MapInfo[idx].filename;
+                        if (src == NULL)
+                        {
+                            CON_ERRPRINTF("attempted access to %s of non-existent map (vol=%d, lev=%d)",
+                                          j==STR_MAPNAME ? "name" : "file name",
+                                          ud.volume_number, ud.level_number);
+                            break;
+                        }
+
+                        Bstrcpy(ScriptQuotes[i], j==STR_MAPNAME ? MapInfo[idx].name : MapInfo[idx].filename);
                         break;
+                    }
                     case STR_PLAYERNAME:
+                        if ((unsigned)vm.g_p >= (unsigned)playerswhenstarted)
+                        {
+                            CON_ERRPRINTF("Invalid player ID %d\n", vm.g_p);
+                            break;
+                        }
                         Bstrcpy(ScriptQuotes[i],g_player[vm.g_p].user_name);
                         break;
                     case STR_VERSION:
@@ -2147,6 +2171,11 @@ skip_check:
                         Bstrcpy(ScriptQuotes[i],GametypeNames[ud.coop]);
                         break;
                     case STR_VOLUMENAME:
+                        if ((unsigned)ud.volume_number >= MAXVOLUMES)
+                        {
+                            CON_ERRPRINTF("invalid volume (%d)\n", ud.volume_number);
+                            break;
+                        }
                         Bstrcpy(ScriptQuotes[i],EpisodeNames[ud.volume_number]);
                         break;
                     default:
