@@ -873,18 +873,19 @@ function _qgetsysstr(qdst, what, pli)
 
     local idx = ffiC.ud.volume_number*con_lang.MAXLEVELS + ffiC.ud.level_number
     local MAXIDX = ffi.sizeof(ffiC.MapInfo) / ffi.sizeof(ffiC.MapInfo[0])
+    local mapnamep = (what == ffiC.STR_MAPNAME)
 
-    if (what == ffiC.STR_MAPNAME) then
+    if (mapnamep or what == ffiC.STR_MAPFILENAME) then
         assert(not (idx >= MAXIDX+0ULL))
-        local src = ffiC.MapInfo[idx].name
-        assert(src ~= nil)
-        quote_strcpy(dst, src)
-    elseif (what == ffiC.STR_MAPFILENAME) then
-        assert(not (idx >= MAXIDX+0ULL))
-        local src = ffiC.MapInfo[idx].filename
-        assert(src ~= nil)
+        local src = mapnamep and ffiC.MapInfo[idx].name or ffiC.MapInfo[idx].filename
+        if (src == nil) then
+            error(format("attempted access to %s of non-existent map (vol=%d, lev=%d)",
+                         mapnamep and "name" or "file name",
+                         ffiC.ud.volume_number, ffiC.ud.level_number), 2)
+        end
         quote_strcpy(dst, src)
     elseif (what == ffiC.STR_PLAYERNAME) then
+        check_player_idx(pli)
         ffi.copy(dst, ffiC.g_player[pli].user_name, ffi.sizeof(ffiC.g_player[0].user_name))
     elseif (what == ffiC.STR_VERSION) then
         ffi.copy(dst, EDUKE32_VERSION_STR)
@@ -892,7 +893,7 @@ function _qgetsysstr(qdst, what, pli)
         ffi.copy(dst, "multiplayer not yet implemented")  -- TODO_MP
     elseif (what == ffiC.STR_VOLUMENAME) then
         local vol = ffiC.ud.volume_number
-        assert(not (vol >= con_lang.MAXVOLUMES+0ULL))
+        bcheck.volume_number(vol)
         ffi.copy(dst, ffiC.EpisodeNames[vol], ffi.sizeof(ffiC.EpisodeNames[0]))
     else
         error("unknown system string ID "..what, 2)
