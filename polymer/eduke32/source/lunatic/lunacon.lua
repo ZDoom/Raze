@@ -3083,6 +3083,13 @@ function getlinecol(pos)  -- local
     local line = bsearch(g_newlineidxs, pos)
     assert(line and g_newlineidxs[line]<=pos and pos<g_newlineidxs[line+1])
     local col = pos-g_newlineidxs[line]
+    if (col == 0) then
+        -- XXX: we probably have an off-by-one error somewhere and it would
+        -- need to be fixed instead of doing these ugly workarounds.
+        line = line-1
+        col = pos-g_newlineidxs[line]
+    end
+    assert(col >= 1)
     return line+1, col-1
 end
 
