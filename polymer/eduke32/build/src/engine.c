@@ -13471,7 +13471,24 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 #endif
             if (wal->nextsector < 0 || (wal->cstat&dawalclipmask))
             {
+#ifdef YAX_ENABLE
+                int16_t cb = yax_getbunch(dasect, YAX_CEILING);
+
                 clipyou = 1;
+
+                if (cb >= 0 && (sec->ceilingstat & yax_waltosecmask(dawalclipmask)) == 0)
+                {
+                    int32_t ynw = yax_getnextwall(j, YAX_CEILING);
+
+                    if (ynw >= 0 && wall[ynw].nextsector >= 0 && (wall[ynw].cstat & dawalclipmask) == 0)
+                    {
+                        clipmove_tweak_pos(pos, gx,gy, x1,y1, x2,y2, &dax,&day);
+                        clipyou = check_floor_curb(dasect, wall[ynw].nextsector, flordist, pos->z, dax, day);
+                    }
+                }
+#else
+                clipyou = 1;
+#endif
             }
             else if (editstatus == 0)
             {
