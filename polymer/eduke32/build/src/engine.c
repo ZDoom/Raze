@@ -13286,6 +13286,31 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
     }
 }
 
+static inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy,
+                                      int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                                      int32_t *daxptr, int32_t *dayptr)
+{
+    int32_t daz;
+
+    if (rintersect(pos->x,pos->y,0, gx,gy,0, x1,y1, x2,y2, daxptr,dayptr,&daz) == -1)
+    {
+        *daxptr = pos->x;
+        *dayptr = pos->y;
+    }
+}
+
+// Returns: should clip?
+static int32_t check_floor_curb(int32_t dasect, int32_t nextsect, int32_t flordist,
+                                int32_t posz, int32_t dax, int32_t day)
+{
+    const sectortype *sec2 = &sector[nextsect];
+    int32_t daz2 = getflorzofslope(nextsect, dax,day);
+
+    return ((sec2->floorstat&1) == 0 &&  // parallaxed floor curbs don't clip
+                posz >= daz2-(flordist-1) &&  // also account for desired z distance tolerance
+                daz2 < getflorzofslope(dasect, dax,day)-(1<<8));  // curbs less tall than 256 z units don't clip
+}
+
 int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
                   int32_t xvect, int32_t yvect,
                   int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype,
@@ -13310,7 +13335,6 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                  int32_t xvect, int32_t yvect,
                  int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
 {
-    const sectortype *sec2;
     int32_t i, j, k, tempint1, tempint2;
     int32_t x1, y1, x2, y2;
     int32_t dax, day;
@@ -13419,31 +13443,27 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             {
                 if (wal->nextsector>=0)
                 {
-                    int32_t basez, daz, daz2;
+                    const sectortype *sec2 = &sector[wal->nextsector];
 
-                    if (rintersect(pos->x,pos->y,0, gx,gy,0, x1,y1, x2,y2, &dax,&day,&daz) == -1)
-                        dax = pos->x, day = pos->y;
+                    clipmove_tweak_pos(pos, gx,gy, x1,y1, x2,y2, &dax,&day);
 
-                    daz = getflorzofslope(dasect, dax,day);
-                    daz2 = getflorzofslope(wal->nextsector, dax,day);
-                    basez = getflorzofslope(sectq[clipinfo[curidx].qend], dax,day);
+                    #define CLIPMV_SPR_F_DAZ2 getflorzofslope(wal->nextsector, dax,day)
+                    #define CLIPMV_SPR_F_BASEZ getflorzofslope(sectq[clipinfo[curidx].qend], dax,day)
 
-                    sec2 = &sector[wal->nextsector];
                     if ((sec2->floorstat&1) == 0)
-//                        if (dasect==sectq[clipinfo[curidx].qend] || daz2 < daz-(1<<8))
-                        if (daz2-(flordist-1) <= pos->z && pos->z <= basez+(flordist-1))
-                            clipyou = 1;
+                        if (CLIPMV_SPR_F_DAZ2-(flordist-1) <= pos->z)
+                            if (pos->z <= CLIPMV_SPR_F_BASEZ+(flordist-1))
+                                clipyou = 1;
 
                     if (clipyou == 0)
                     {
-                        daz = getceilzofslope(dasect, dax,day);
-                        daz2 = getceilzofslope(wal->nextsector, dax,day);
-                        basez = getceilzofslope(sectq[clipinfo[curidx].qend], dax,day);
+                        #define CLIPMV_SPR_C_DAZ2 getceilzofslope(wal->nextsector, dax,day)
+                        #define CLIPMV_SPR_C_BASEZ getceilzofslope(sectq[clipinfo[curidx].qend], dax,day)
 
                         if ((sec2->ceilingstat&1) == 0)
-//                            if (dasect==sectq[clipinfo[curidx].qend] || daz2 > daz+(1<<8))
-                            if (basez-(ceildist-1) <= pos->z && pos->z <= daz2+(ceildist-1))
-                                clipyou = 1;
+                            if (CLIPMV_SPR_C_BASEZ-(ceildist-1) <= pos->z)
+                                if (pos->z <= CLIPMV_SPR_C_DAZ2+(ceildist-1))
+                                    clipyou = 1;
                     }
                 }
             }
@@ -13455,29 +13475,17 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             }
             else if (editstatus == 0)
             {
-                int32_t daz, daz2;
-
-                if (rintersect(pos->x,pos->y,0,gx,gy,0,x1,y1,x2,y2,&dax,&day,&daz) == -1)
-                    dax = pos->x, day = pos->y;
-
-                daz = getflorzofslope(dasect, dax,day);
-                daz2 = getflorzofslope(wal->nextsector, dax,day);
-
-                sec2 = &sector[wal->nextsector];
-                if (daz2 < daz-(1<<8))
-                    if ((sec2->floorstat&1) == 0)
-                        if (pos->z >= daz2-(flordist-1))
-                            clipyou = 1;
+                clipmove_tweak_pos(pos, gx,gy, x1,y1, x2,y2, &dax,&day);
+                clipyou = check_floor_curb(dasect, wal->nextsector, flordist, pos->z, dax, day);
 
                 if (clipyou == 0)
                 {
-                    daz = getceilzofslope(dasect, dax,day);
-                    daz2 = getceilzofslope(wal->nextsector, dax,day);
+                    const sectortype *sec2 = &sector[wal->nextsector];
+                    int32_t daz2 = getceilzofslope(wal->nextsector, dax,day);
 
-                    if (daz2 > daz+(1<<8))
-                        if ((sec2->ceilingstat&1) == 0)
-                            if (pos->z <= daz2+(ceildist-1))
-                                clipyou = 1;
+                    clipyou = ((sec2->ceilingstat&1) == 0 &&
+                                   pos->z <= daz2+(ceildist-1) &&
+                                   daz2 > getceilzofslope(dasect, dax,day)+(1<<8));
                 }
             }
 
