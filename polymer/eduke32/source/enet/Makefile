@@ -38,6 +38,7 @@ ifeq ($(PLATFORM),WINDOWS)
     OBJ=obj_win
 else
     OBJECTS+= $(OBJ)/unix.o
+    OURCFLAGS+= -DHAS_SOCKLEN_T
 endif
 
 # OBJECTS=$(SOURCES:%.c=$(OBJ)/%.o)

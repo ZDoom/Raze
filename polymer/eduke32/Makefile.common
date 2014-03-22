@@ -331,6 +331,7 @@ endif
 
 ifeq ($(PLATFORM),WII)
     override USE_LIBVPX = 0
+    override NETCODE = 0
 endif
 ifeq ($(PLATFORM),GCW)
     override USE_LIBVPX = 0
