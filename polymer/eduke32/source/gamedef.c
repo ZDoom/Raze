@@ -2351,6 +2351,8 @@ LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
 
 int32_t C_AllocQuote(int32_t qnum)
 {
+    Bassert((unsigned)qnum < MAXQUOTES);
+
     if (ScriptQuotes[qnum] == NULL)
     {
         ScriptQuotes[qnum] = (char *)Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
@@ -2448,6 +2450,9 @@ void C_InitQuotes(void)
             "^02%s^02 bled out",
         };
 
+        EDUKE32_STATIC_ASSERT(OBITQUOTEINDEX + ARRAY_SIZE(PlayerObituaries)-1 < MAXQUOTES);
+        EDUKE32_STATIC_ASSERT(SUICIDEQUOTEINDEX + ARRAY_SIZE(PlayerSelfObituaries)-1 < MAXQUOTES);
+
         g_numObituaries = ARRAY_SIZE(PlayerObituaries);
         for (i=g_numObituaries-1; i>=0; i--)
         {
@@ -2455,7 +2460,7 @@ void C_InitQuotes(void)
                 Bstrcpy(ScriptQuotes[i+OBITQUOTEINDEX],PlayerObituaries[i]);
         }
 
-        g_numSelfObituaries = ARRAY_SIZE(PlayerObituaries);
+        g_numSelfObituaries = ARRAY_SIZE(PlayerSelfObituaries);
         for (i=g_numSelfObituaries-1; i>=0; i--)
         {
             if (C_AllocQuote(i+SUICIDEQUOTEINDEX))
