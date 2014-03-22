@@ -60,7 +60,8 @@ BUILD_SRC = \
 	build/src/osd.c \
 	build/src/pragmas.c \
 	build/src/scriptfile.c \
-	build/src/mutex.c
+	build/src/mutex.c \
+        build/src/xxhash.c
 
 GL_SRC = \
  	build/src/mdsprite.c \

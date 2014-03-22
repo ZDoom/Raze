@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "savegame.h"
 #include "premap.h"
 #include "demo.h"
-#include "crc32.h"
+#include "xxhash.h"
 #include "common.h"
 #include "common_game.h"
 #include "input.h"
@@ -4754,9 +4754,9 @@ cheat_for_port_credits2:
 
         if (g_currentMenu >= 360 && g_currentMenu <= 369)
         {
-            static uint32_t crc = 0;
+            static uint32_t xxh = 0;
 
-            if (!crc) crc = crc32once((uint8_t *)&ud.savegame[g_currentMenu-360][0], 19);
+            if (!xxh) xxh = XXH32((uint8_t *)&ud.savegame[g_currentMenu-360][0], 19, 0xDEADBEEF);
 
             Bsprintf(tempbuf,"Players: %-2d                      ",ud.multimode);
             mgametext(160,156,tempbuf,0,2+8+16);
@@ -4769,7 +4769,7 @@ cheat_for_port_credits2:
 
             if (x == -1)
             {
-                crc = 0;
+                xxh = 0;
                 ReadSaveGameHeaders();
                 M_ChangeMenu(351);
                 goto DISPLAYNAMES;
@@ -4779,7 +4779,7 @@ cheat_for_port_credits2:
             {
                 // dirty hack... char 127 in last position indicates an auto-filled name
                 if (ud.savegame[g_currentMenu-360][0] == 0 || (ud.savegame[g_currentMenu-360][20] == 127 &&
-                    crc == crc32once((uint8_t *)&ud.savegame[g_currentMenu-360][0], 19)))
+                    xxh == XXH32((uint8_t *)&ud.savegame[g_currentMenu-360][0], 19, 0xDEADBEEF)))
                 {
                     Bstrncpy(&ud.savegame[g_currentMenu-360][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
                     ud.savegame[g_currentMenu-360][20] = 127;
@@ -4795,7 +4795,7 @@ cheat_for_port_credits2:
                     ready2send = 1;
                     totalclock = ototalclock;
                 }
-                crc = 0;
+                xxh = 0;
             }
 
             rotatesprite_fs(101<<16,97<<16,65536>>1,512,TILE_SAVESHOT,-32,0,2+4+8+64);

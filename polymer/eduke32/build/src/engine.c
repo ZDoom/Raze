@@ -18,6 +18,7 @@
 #include "a.h"
 #include "osd.h"
 #include "crc32.h"
+#include "xxhash.h"
 #include "lz4.h"
 
 #include "baselayer.h"
@@ -15019,7 +15020,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 
     {
         static uint32_t lastpalettesum=0;
-        uint32_t newpalettesum = crc32once((uint8_t *)curpalettefaded, sizeof(curpalettefaded));
+        uint32_t newpalettesum = XXH32((uint8_t *)curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
 
         palsumdidchange = (newpalettesum != lastpalettesum);
 
@@ -15116,12 +15117,10 @@ void setpalettefade(char r, char g, char b, char offset)
 
     {
         static uint32_t lastpalettesum=0;
-        uint32_t newpalettesum = crc32once((uint8_t *)curpalettefaded, sizeof(curpalettefaded));
+        uint32_t newpalettesum = XXH32((uint8_t *)curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
 
         if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
-        {
             setpalette(0,256);
-        }
 
         g_lastpalettesum = lastpalettesum = newpalettesum;
     }

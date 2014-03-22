@@ -8,7 +8,7 @@
 #include "texcache.h"
 #include "dxtfilter.h"
 #include "scriptfile.h"
-#include "crc32.h"
+#include "xxhash.h"
 
 #define CLEAR_GL_ERRORS() while(bglGetError() != GL_NO_ERROR) { }
 #define REALLOC_OR_FAIL(ptr, size, type) { ptr = (type *)Brealloc(ptr, size); if (!ptr) goto failure; }
@@ -415,9 +415,9 @@ static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t
         Bstrcat(id.name, fn);
 
     Bsprintf(cachefn, "%08x%08x%08x",
-        crc32once((uint8_t *)fn, Bstrlen(fn)),
-        crc32once((uint8_t *)id.name, Bstrlen(id.name)),
-        crc32once((uint8_t *)&id, sizeof(struct texcacheid_t)));
+        XXH32((uint8_t *)fn, Bstrlen(fn), TEXCACHEMAGIC[3]),
+        XXH32((uint8_t *)id.name, Bstrlen(id.name), TEXCACHEMAGIC[3]),
+        XXH32((uint8_t *)&id, sizeof(struct texcacheid_t), TEXCACHEMAGIC[3]));
     
     return cachefn;
 }

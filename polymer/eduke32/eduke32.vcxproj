@@ -279,6 +279,7 @@
     <ClInclude Include="build\include\winlayer.h" />
     <ClInclude Include="build\include\msvc\inttypes.h" />
     <ClInclude Include="build\include\msvc\stdint.h" />
+    <ClInclude Include="build\include\xxhash.h" />
     <ClInclude Include="build\src\engine_priv.h" />
     <ClInclude Include="source\actors.h" />
     <ClInclude Include="source\actors_inline.h" />
@@ -392,6 +393,7 @@
     <ClCompile Include="build\src\textfont.c" />
     <ClCompile Include="build\src\winbits.c" />
     <ClCompile Include="build\src\winlayer.c" />
+    <ClCompile Include="build\src\xxhash.c" />
     <ClCompile Include="source\actors.c" />
     <ClCompile Include="source\actors_inline.c" />
     <ClCompile Include="source\android\android-jni.cpp" />

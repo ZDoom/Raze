@@ -77,7 +77,8 @@ ENGINEOBJS+= \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
 	$(OBJ)/scriptfile.$o \
-	$(OBJ)/mutex.$o
+	$(OBJ)/mutex.$o \
+        $(OBJ)/xxhash.$o
 
 ifeq (1,$(USE_OPENGL))
     ENGINEOBJS+=  $(OBJ)/mdsprite.$o

@@ -95,7 +95,8 @@ ENGINEOBJS= \
 	$(OBJ)\scriptfile.$o \
 	$(OBJ)\polymer.$o \
 	$(OBJ)\mutex.$o \
-	$(OBJ)\winbits.$o
+	$(OBJ)\winbits.$o \
+        $(OBJ)\xxhash.$o
 
 EDITOROBJS=$(OBJ)\build.$o \
 	$(OBJ)\startwin.editor.$o \

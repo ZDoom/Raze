@@ -10,6 +10,7 @@
 #include "pragmas.h"
 #include "scancodes.h"
 #include "crc32.h"
+#include "xxhash.h"
 
 typedef struct _symbol
 {
@@ -391,6 +392,9 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
     uint32_t crc, length;
     int32_t i,j;
     char buf[256];
+    void *xxh;
+    uint32_t xxhash;
+    int32_t crctime, xxhtime;
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
@@ -402,6 +406,7 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
 
     length = kfilelength(i);
 
+    crctime = getticks();
     crc32init(&crc);
     do
     {
@@ -410,13 +415,30 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
     }
     while (j == 256);
     crc32finish(&crc);
+    crctime = getticks() - crctime;
+
+    klseek(i, 0, BSEEK_SET);
+
+    xxhtime = getticks();
+    xxh = XXH32_init(0x1337);
+    do
+    {
+        j = kread(i, buf, 256);
+        XXH32_update(xxh, (uint8_t *) buf, j);
+    }
+    while (j == 256);
+    xxhash = XXH32_digest(xxh);
+    xxhtime = getticks() - xxhtime;
 
     kclose(i);
 
     OSD_Printf("fileinfo: %s\n"
                "  File size: %d\n"
-               "  CRC-32:    %08X\n",
-               parm->parms[0], length, crc);
+               "  CRC-32:    %08X (%g sec)\n"
+               "  xxHash:    %08X (%g sec)\n",
+               parm->parms[0], length,
+               crc, (double)crctime/gettimerfreq(),
+               xxhash, (double)xxhtime/gettimerfreq());
 
     return OSDCMD_OK;
 }

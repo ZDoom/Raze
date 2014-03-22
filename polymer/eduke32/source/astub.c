@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "keyboard.h"
 #include "scriptfile.h"
-#include "crc32.h"
+#include "xxhash.h"
 
 #include "sounds_mapster32.h"
 #include "fx_man.h"
@@ -495,24 +495,24 @@ void create_map_snapshot(void)
     if (numsectors)
     {
         int32_t j;
-        uint32_t tempcrc = crc32once((uint8_t *)sector, numsectors*sizeof(sectortype));
+        uint32_t temphash = XXH32((uint8_t *)sector, numsectors*sizeof(sectortype), numsectors*sizeof(sectortype));
 
-        if (!try_match_with_prev(0, numsectors, tempcrc))
-            create_compressed_block(0, sector, numsectors*sizeof(sectortype), tempcrc);
+        if (!try_match_with_prev(0, numsectors, temphash))
+            create_compressed_block(0, sector, numsectors*sizeof(sectortype), temphash);
 
         if (numwalls)
         {
-            tempcrc = crc32once((uint8_t *)wall, numwalls*sizeof(walltype));
+            temphash = XXH32((uint8_t *)wall, numwalls*sizeof(walltype), numwalls*sizeof(walltype));
 
-            if (!try_match_with_prev(1, numwalls, tempcrc))
-                create_compressed_block(1, wall, numwalls*sizeof(walltype), tempcrc);
+            if (!try_match_with_prev(1, numwalls, temphash))
+                create_compressed_block(1, wall, numwalls*sizeof(walltype), temphash);
         }
 
         if (Numsprites)
         {
-            tempcrc = crc32once((uint8_t *)sprite, MAXSPRITES*sizeof(spritetype));
+            temphash = XXH32((uint8_t *)sprite, MAXSPRITES*sizeof(spritetype), MAXSPRITES*sizeof(spritetype));
 
-            if (!try_match_with_prev(2, Numsprites, tempcrc))
+            if (!try_match_with_prev(2, Numsprites, temphash))
             {
                 int32_t i = 0;
                 spritetype *const tspri = (spritetype *)Bmalloc(Numsprites*sizeof(spritetype) + 4);
@@ -527,7 +527,7 @@ void create_map_snapshot(void)
                         i++;
                     }
 
-                create_compressed_block(2, tspri, Numsprites*sizeof(spritetype), tempcrc);
+                create_compressed_block(2, tspri, Numsprites*sizeof(spritetype), temphash);
                 Bfree(tspri);
             }
         }

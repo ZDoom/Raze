@@ -286,7 +286,7 @@ typedef struct      s_prwall {
 
 typedef struct      s_prsprite {
     _prplane        plane;
-    uint32_t        crc;
+    uint32_t        hash;
 }                   _prsprite;
 
 typedef struct      s_prmirror {
@@ -337,7 +337,7 @@ static inline void polymer_invalidatesprite(int32_t i)
     extern _prsprite *prsprites[MAXSPRITES];
 
     if (prsprites[i])
-        prsprites[i]->crc = 0xDEADBEEF;
+        prsprites[i]->hash = 0xDEADBEEF;
 }
 
 static inline void polymer_invalidateartmap(int32_t tilenum)

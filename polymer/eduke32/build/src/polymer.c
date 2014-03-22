@@ -7,7 +7,7 @@
 #define POLYMER_C
 #include "polymer.h"
 #include "engine_priv.h"
-#include "crc32.h"
+#include "xxhash.h"
 #include "texcache.h"
 
 // CVARS
@@ -3610,10 +3610,10 @@ void                polymer_updatesprite(int32_t snum)
 
     if (tspr->cstat & 48 && searchit != 2)
     {
-        uint32_t crc = crc32once((uint8_t *)tspr, offsetof(spritetype, owner));
+        uint32_t xxhash = XXH32((uint8_t *)tspr, offsetof(spritetype, owner), 0xDEADBEEF);
 
-        if (crc == s->crc && tspr->picnum == curpicnum) return;
-        s->crc = crc;
+        if (xxhash == s->hash && tspr->picnum == curpicnum) return;
+        s->hash = xxhash;
     }
 
     polymer_getbuildmaterial(&s->plane.material, curpicnum, tspr->pal, tspr->shade,
@@ -3636,7 +3636,7 @@ void                polymer_updatesprite(int32_t snum)
         s->plane.material.diffusemodulation[1] = ((GLubyte *)(&tspr->owner))[0];
         s->plane.material.diffusemodulation[2] = ((GLubyte *)(&tspr->owner))[1];
         s->plane.material.diffusemodulation[3] = 0xFF;
-        s->crc = 0xdeadbeef;
+        s->hash = 0xDEADBEEF;
     }
 
     curpicnum = tspr->picnum;
