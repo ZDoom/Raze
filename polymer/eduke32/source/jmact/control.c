@@ -18,6 +18,10 @@
 #include "osd.h"
 #include "pragmas.h"
 
+#ifdef __ANDROID__
+#include "android.h"
+#endif
+
 int32_t CONTROL_JoyPresent = FALSE;
 int32_t CONTROL_JoystickEnabled = FALSE;
 int32_t CONTROL_MousePresent = FALSE;
@@ -605,6 +609,10 @@ static void CONTROL_ApplyAxis(int32_t axis, ControlInfo *info, controldevice dev
 static void CONTROL_PollDevices(ControlInfo *info)
 {
     memset(info, 0, sizeof(ControlInfo));
+
+#ifdef __ANDROID__
+    CONTROL_Android_PollDevices(info);
+#endif
 
     if (CONTROL_MouseEnabled)
     {

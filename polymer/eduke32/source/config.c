@@ -174,9 +174,16 @@ void CONFIG_SetDefaults(void)
     int32_t i;
 
     ud.config.scripthandle = -1;
+#ifdef __ANDROID__
+    ud.config.ScreenWidth = android_screen_width;
+    ud.config.ScreenHeight = android_screen_height;
+#else
     ud.config.ScreenWidth = 1024;
     ud.config.ScreenHeight = 768;
+#endif
+
     ud.config.ScreenMode = 0;
+
 #ifdef USE_OPENGL
     ud.config.ScreenBPP = 32;
 #else

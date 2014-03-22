@@ -67,6 +67,12 @@
     <Filter Include="eduke32\source\lunatic\lua">
       <UniqueIdentifier>{f1025787-c43f-43de-8b46-143ea0462fc1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="eduke32\headers\android">
+      <UniqueIdentifier>{52ce6149-4982-41a4-9adf-c7a9468421fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="eduke32\source\android">
+      <UniqueIdentifier>{d3b67b4f-6b78-43e0-88ab-f081b977499a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\include\a.h">
@@ -417,6 +423,12 @@
     <ClInclude Include="source\lunatic\lunatic_m32.h">
       <Filter>eduke32\source\lunatic\headers</Filter>
     </ClInclude>
+    <ClInclude Include="source\android\in_android.h">
+      <Filter>eduke32\headers\android</Filter>
+    </ClInclude>
+    <ClInclude Include="source\android.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -733,6 +745,12 @@
     </ClCompile>
     <ClCompile Include="source\lunatic\lunatic_m32.c">
       <Filter>eduke32\source\lunatic\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\android\android-jni.cpp">
+      <Filter>eduke32\source\android</Filter>
+    </ClCompile>
+    <ClCompile Include="source\android\in_android.c">
+      <Filter>eduke32\source\android</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -282,6 +282,8 @@
     <ClInclude Include="build\src\engine_priv.h" />
     <ClInclude Include="source\actors.h" />
     <ClInclude Include="source\actors_inline.h" />
+    <ClInclude Include="source\android.h" />
+    <ClInclude Include="source\android\in_android.h" />
     <ClInclude Include="source\anim.h" />
     <ClInclude Include="source\animvpx.h" />
     <ClInclude Include="source\common_game.h" />
@@ -392,6 +394,8 @@
     <ClCompile Include="build\src\winlayer.c" />
     <ClCompile Include="source\actors.c" />
     <ClCompile Include="source\actors_inline.c" />
+    <ClCompile Include="source\android\android-jni.cpp" />
+    <ClCompile Include="source\android\in_android.c" />
     <ClCompile Include="source\anim.c" />
     <ClCompile Include="source\animvpx.c" />
     <ClCompile Include="source\astub.c" />

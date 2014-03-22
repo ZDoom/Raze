@@ -56,7 +56,13 @@ static char **external_midi_argv;
 static pid_t external_midi_pid=-1;
 static int8_t external_midi_restart=0;
 #endif
+
+#ifdef __ANDROID__ //TODO fix
+static char *external_midi_tempfn = "/sdcard/eduke32-music.mid";
+#else
 static char *external_midi_tempfn = "/tmp/eduke32-music.mid";
+#endif
+
 static int32_t external_midi = 0;
 
 int32_t MUSIC_ErrorCode = MUSIC_Ok;
