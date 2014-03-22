@@ -288,7 +288,7 @@ static void SignalHandler(int32_t signum)
 static void divcommon(int32_t *ap, int32_t *bp)
 {
     const int32_t p[] = {2,3,5,7,11,13,17,19};
-    const int32_t N = (int32_t)(sizeof(p)/sizeof(p[0]));
+    const int32_t N = (int32_t)ARRAY_SIZE(p);
     int32_t a=*ap, b=*bp;
 
     while (1)

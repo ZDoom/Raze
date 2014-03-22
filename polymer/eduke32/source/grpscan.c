@@ -93,7 +93,7 @@ static void LoadList(const char * filename)
             { "grpinfo",            T_GRPINFO },
         };
 
-        int32_t token = getatoken(script,profiletokens,sizeof(profiletokens)/sizeof(tokenlist));
+        int32_t token = getatoken(script,profiletokens,ARRAY_SIZE(profiletokens));
         switch (token)
         {
         case T_GRPINFO:
@@ -117,7 +117,7 @@ static void LoadList(const char * filename)
 
             while (script->textptr < grpend)
             {
-                int32_t token = getatoken(script,grpinfotokens,sizeof(grpinfotokens)/sizeof(tokenlist));
+                int32_t token = getatoken(script,grpinfotokens,ARRAY_SIZE(grpinfotokens));
 
                 switch (token)
                 {

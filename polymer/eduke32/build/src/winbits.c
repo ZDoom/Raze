@@ -202,7 +202,7 @@ void win_init(void)
         { "r_togglecomposition","enable/disable toggle of desktop composition when initializing screen modes",(void *) &togglecomp, CVAR_BOOL, 0, 1 },
     };
 
-    for (i=0; i<sizeof(cvars_win)/sizeof(cvars_win[0]); i++)
+    for (i=0; i<ARRAY_SIZE(cvars_win); i++)
     {
         if (OSD_RegisterCvar(&cvars_win[i]))
             continue;

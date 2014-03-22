@@ -780,7 +780,7 @@ void OSD_Init(void)
     hash_init(&h_osd);
     hash_init(&h_cvars);
 
-    for (i=0; i<sizeof(cvars_osd)/sizeof(cvars_osd[0]); i++)
+    for (i=0; i<ARRAY_SIZE(cvars_osd); i++)
     {
         if (OSD_RegisterCvar(&cvars_osd[i]))
             continue;

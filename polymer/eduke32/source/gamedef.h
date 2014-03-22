@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define LABEL_ISSTRING  2
 
 #define MAXCHEATLEN             20
-#define NUMCHEATCODES           (int32_t)(sizeof(CheatStrings)/sizeof(CheatStrings[0]))
+#define NUMCHEATCODES           (int32_t)ARRAY_SIZE(CheatStrings)
 
 extern hashtable_t h_gamefuncs;
 

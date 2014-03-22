@@ -9307,7 +9307,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
 
     while (1)
     {
-        tokn = getatoken(script,tokens,sizeof(tokens)/sizeof(tokenlist));
+        tokn = getatoken(script,tokens,ARRAY_SIZE(tokens));
         cmdtokptr = script->ltextptr;
         switch (tokn)
         {
@@ -9366,7 +9366,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             if (scriptfile_getbraces(script,&musicend)) break;
             while (script->textptr < musicend)
             {
-                switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
+                switch (getatoken(script,sound_musictokens,ARRAY_SIZE(sound_musictokens)))
                 {
                 case T_ID:
                     scriptfile_getstring(script,&ID);
@@ -9547,7 +9547,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             if (scriptfile_getbraces(script,&musicend)) break;
             while (script->textptr < musicend)
             {
-                switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
+                switch (getatoken(script,sound_musictokens,ARRAY_SIZE(sound_musictokens)))
                 {
                 case T_ID:
                     scriptfile_getsymbol(script,&num);

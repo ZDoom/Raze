@@ -111,7 +111,7 @@ static const int32_t ZoomToThumbSize[] =
 	FUCKING_GOOD_EYESIGHT, 32, 64, 128, 192, 256, 384, 512
 };
 
-#define NUM_ZOOMS (sizeof(ZoomToThumbSize)/sizeof(ZoomToThumbSize[0]))
+#define NUM_ZOOMS ARRAY_SIZE(ZoomToThumbSize)
 #define INITIAL_ZOOM 2
 
 typedef struct

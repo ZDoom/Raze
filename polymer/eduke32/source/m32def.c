@@ -131,8 +131,8 @@ static const char *C_GetLabelType(int32_t type)
     return strdup(x);
 }
 
-#define NUMKEYWORDS (int32_t)(sizeof(keyw)/sizeof(keyw[0]))
-#define NUMALTKEYWORDS (int32_t)(sizeof(altkeyw)/sizeof(altkeyw[0]))
+#define NUMKEYWORDS (int32_t)ARRAY_SIZE(keyw)
+#define NUMALTKEYWORDS (int32_t)ARRAY_SIZE(altkeyw)
 
 const tokenmap_t altkeyw[] =
 {
@@ -3677,7 +3677,7 @@ void C_CompilationInfo(void)
         initprintf("  %d/%d quotes, %d/%d quote redefinitions\n", k,MAXQUOTES, g_numQuoteRedefinitions,MAXQUOTES);
 }
 
-EDUKE32_STATIC_ASSERT((sizeof(keyw)/sizeof(keyw[0]))-1 == CON_END);
+EDUKE32_STATIC_ASSERT(ARRAY_SIZE(keyw)-1 == CON_END);
 
 void C_Compile(const char *filenameortext, int32_t isfilename)
 {

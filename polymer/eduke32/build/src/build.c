@@ -9730,7 +9730,7 @@ int32_t fillsector(int16_t sectnum, int32_t fillcolor)
 
                 if (y1 <= sy && sy < y2)
                 {
-                    if (fillcnt == sizeof(fillist)/sizeof(fillist[0]))
+                    if (fillcnt == ARRAY_SIZE(fillist))
                         break;
 
                     x1 += scale(sy-y1, x2-x1, y2-y1);
@@ -9755,7 +9755,7 @@ int32_t fillsector(int16_t sectnum, int32_t fillcolor)
                     dax = halfxdim16 + (((dax-pos.x)*zoom)>>14);
                     if (dax >= lborder)
                     {
-                        if (fillcnt == sizeof(fillist)/sizeof(fillist[0]))
+                        if (fillcnt == ARRAY_SIZE(fillist))
                             break;
 
                         fillist[fillcnt++] = dax;

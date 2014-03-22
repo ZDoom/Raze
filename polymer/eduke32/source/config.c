@@ -156,7 +156,7 @@ void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
 
     CONTROL_ClearAllBinds();
 
-    for (i=0; i < (int32_t)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3)
+    for (i=0; i < (int32_t)ARRAY_SIZE(keydefaults); i+=3)
     {
         f = CONFIG_FunctionNameToNum(keyptr[i+0]);
         if (f == -1) continue;
@@ -342,7 +342,7 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
     if (which == gamefunc_Show_Console)
         OSD_CaptureKey(key1);
 
-    for (k = 0; (unsigned)k < (sizeof(ii) / sizeof(ii[0])); k++)
+    for (k = 0; (unsigned)k < ARRAY_SIZE(ii); k++)
     {
         if (ii[k] == 0xff || !ii[k])
             continue;

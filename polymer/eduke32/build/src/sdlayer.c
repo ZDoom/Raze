@@ -326,7 +326,7 @@ static void sighandler(int signum)
         {
             void *addr[32];
             int32_t errfd = fileno(stderr);
-            int32_t n=backtrace(addr, sizeof(addr)/sizeof(addr[0]));
+            int32_t n=backtrace(addr, ARRAY_SIZE(addr));
             backtrace_symbols_fd(addr, n, errfd);
         }
         // This is useful for attaching the debugger post-mortem. For those pesky
@@ -1391,7 +1391,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                    x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
         do
         {
-            for (i=0; i < (int32_t)(sizeof(attributes)/sizeof(attributes[0])); i++)
+            for (i=0; i < (int32_t)ARRAY_SIZE(attributes); i++)
             {
                 j = attributes[i].value;
                 if (!multisamplecheck &&

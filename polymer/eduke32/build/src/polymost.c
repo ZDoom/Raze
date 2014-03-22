@@ -5216,7 +5216,7 @@ void polymost_initosdfuncs(void)
 #endif
     };
 
-    for (i=0; i<sizeof(cvars_polymost)/sizeof(cvars_polymost[0]); i++)
+    for (i=0; i<ARRAY_SIZE(cvars_polymost); i++)
     {
         // can't do this: editstatus is set after this function
 //        if (editstatus==0 && !Bstrcmp(cvars_polymost[i].name, "r_preview_mouseaim"))

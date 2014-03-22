@@ -7833,7 +7833,7 @@ static void dosetaspect(void)
         {
             j = (x&65535); k = (x>>16); x += xinc;
 
-            if (k < 0 || k >= (int32_t)(sizeof(radarang)/sizeof(radarang[0]))-1)
+            if (k < 0 || k >= (int32_t)ARRAY_SIZE(radarang)-1)
             {
                 no_radarang2 = 1;
 #ifdef DEBUGGINGAIDS
@@ -7848,7 +7848,7 @@ static void dosetaspect(void)
             radarang2[i] = (int16_t)((radarang[k]+j)>>6);
         }
 
-        for (i=1; i<(int32_t)(sizeof(distrecip)/sizeof(distrecip[0])); i++)
+        for (i=1; i<(int32_t)ARRAY_SIZE(distrecip); i++)
             distrecip[i] = divscale20(xdimen,i);
 
         nytooclose = xdimen*2100;
@@ -8718,7 +8718,7 @@ int32_t preinitengine(void)
 //            Bprintf("FIXME: Allocating additional space beyond wall[] for editor bugs.\n");
         }
 
-        for (i=0; i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
+        for (i=0; i<(signed)ARRAY_SIZE(dynarray); i++)
             size += dynarray[i].size;
 
         if ((blockptr = Bcalloc(1, size)) == NULL)
@@ -8726,7 +8726,7 @@ int32_t preinitengine(void)
 
         size = 0;
 
-        for (i=0; i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
+        for (i=0; i<(signed)ARRAY_SIZE(dynarray); i++)
         {
             *dynarray[i].ptr = (int8_t *)blockptr + size;
             size += dynarray[i].size;

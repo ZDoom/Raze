@@ -1567,7 +1567,7 @@ int32_t registerosdcommands(void)
 
     osdcmd_cheatsinfo_stat.cheatnum = -1;
 
-    for (i=0; i<sizeof(cvars_game)/sizeof(cvars_game[0]); i++)
+    for (i=0; i<ARRAY_SIZE(cvars_game); i++)
     {
         if (OSD_RegisterCvar(&cvars_game[i]))
             continue;

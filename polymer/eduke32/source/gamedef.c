@@ -36,14 +36,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define NUMKEYWORDS (int32_t)(sizeof(keyw)/sizeof(keyw[0]))
+#define NUMKEYWORDS (int32_t)ARRAY_SIZE(keyw)
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 uint32_t g_scriptDateVersion = 99999999;  // YYYYMMDD
 #if !defined LUNATIC
 static uint32_t g_scriptLastKeyword; // = NUMKEYWORDS-1;
 
-#define NUMKEYWDATES (int32_t)(sizeof(g_keywdate)/sizeof(g_keywdate[0]))
+#define NUMKEYWDATES (int32_t)ARRAY_SIZE(g_keywdate)
 // { keyw, date } means that at the date, all keywords up to keyw inclusive are available
 static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
 {
@@ -2448,14 +2448,14 @@ void C_InitQuotes(void)
             "^02%s^02 bled out",
         };
 
-        g_numObituaries = (sizeof(PlayerObituaries)/sizeof(PlayerObituaries[0]));
+        g_numObituaries = ARRAY_SIZE(PlayerObituaries);
         for (i=g_numObituaries-1; i>=0; i--)
         {
             if (C_AllocQuote(i+OBITQUOTEINDEX))
                 Bstrcpy(ScriptQuotes[i+OBITQUOTEINDEX],PlayerObituaries[i]);
         }
 
-        g_numSelfObituaries = (sizeof(PlayerSelfObituaries)/sizeof(PlayerSelfObituaries[0]));
+        g_numSelfObituaries = ARRAY_SIZE(PlayerObituaries);
         for (i=g_numSelfObituaries-1; i>=0; i--)
         {
             if (C_AllocQuote(i+SUICIDEQUOTEINDEX))

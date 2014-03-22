@@ -2652,7 +2652,7 @@ static int32_t kzcalchash(const char *st)
         if (ch == '/') ch = '\\';
         hashind = (ch - hashind*3);
     }
-    return(hashind%(sizeof(kzhashead)/sizeof(kzhashead[0])));
+    return(hashind%ARRAY_SIZE(kzhashead));
 }
 
 static int32_t kzcheckhash(const char *filnam, char **zipnam, int32_t *fileoffs, int32_t *fileleng, char *iscomp)

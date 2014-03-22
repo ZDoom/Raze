@@ -617,7 +617,7 @@ int32_t map_undoredo(int32_t dir)
 #endif
 
 
-#define M32_NUM_SPRITE_MODES ((signed)(sizeof(SpriteMode)/sizeof(SpriteMode[0])))
+#define M32_NUM_SPRITE_MODES (signed)ARRAY_SIZE(SpriteMode)
 static const char *SpriteMode[]=
 {
     "NONE",
@@ -650,7 +650,7 @@ static const char *SPRDSPMODE[MAXNOSPRITES]=
     "Sprite display: NO EFFECTORS OR ACTORS"
 };
 
-#define MAXHELP3D ((signed)(sizeof(Help3d)/sizeof(Help3d[0])))
+#define MAXHELP3D (signed)ARRAY_SIZE(Help3d)
 static const char *Help3d[]=
 {
     "Mapster32 3D mode help",
@@ -1321,7 +1321,7 @@ const char *SectorEffectorTagText(int32_t lotag)
 
     Bmemset(tempbuf,0,sizeof(tempbuf));
 
-    if (lotag>=0 && lotag<(int32_t)(sizeof(tags)/sizeof(tags[0])))
+    if (lotag>=0 && lotag<(int32_t)ARRAY_SIZE(tags))
         Bsprintf(tempbuf, "%d: %s", lotag, tags[lotag]);
     else
         switch (lotag)
@@ -4100,7 +4100,7 @@ restart:
 
                 k = (mousex || mousey || mouseb);
                 if (!k)
-                    for (i=0; i<(signed)(sizeof(keystatus)/sizeof(keystatus[0])); i++)
+                    for (i=0; i<(signed)ARRAY_SIZE(keystatus); i++)
                         if (keystatus[i])
                         {
                             k = 1;
@@ -9682,7 +9682,7 @@ static int32_t parsegroupfiles(scriptfile *script)
 
     while (1)
     {
-        tokn = getatoken(script,grptokens,sizeof(grptokens)/sizeof(tokenlist));
+        tokn = getatoken(script,grptokens,ARRAY_SIZE(grptokens));
         cmdtokptr = script->ltextptr;
         switch (tokn)
         {
@@ -9771,7 +9771,7 @@ int32_t parsetilegroups(scriptfile *script)
 
     while (1)
     {
-        tokn = getatoken(script,tgtokens,sizeof(tgtokens)/sizeof(tokenlist));
+        tokn = getatoken(script,tgtokens,ARRAY_SIZE(tgtokens));
         cmdtokptr = script->ltextptr;
         switch (tokn)
         {
@@ -9841,7 +9841,7 @@ int32_t parsetilegroups(scriptfile *script)
                     { "colors",     T_COLORS      },
                 };
 
-                int32_t token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
+                int32_t token = getatoken(script,tgtokens2,ARRAY_SIZE(tgtokens2));
                 switch (token)
                 {
                 case T_TILE:
@@ -9938,7 +9938,7 @@ int32_t parsetilegroups(scriptfile *script)
                     { "offseta",    T_OFFSETA     },
                 };
 
-                int32_t token = getatoken(script,alphtokens2,sizeof(alphtokens2)/sizeof(tokenlist));
+                int32_t token = getatoken(script,alphtokens2,ARRAY_SIZE(alphtokens2));
                 switch (token)
                 {
                 case T_MAP:  // map <ascii num> <start tilenum>, e.g. map 46 3002
@@ -10145,7 +10145,7 @@ static int32_t parseconsounds(scriptfile *script)
 
     while (1)
     {
-        tokn = getatoken(script,cstokens,sizeof(cstokens)/sizeof(tokenlist));
+        tokn = getatoken(script,cstokens,ARRAY_SIZE(cstokens));
         cmdtokptr = script->ltextptr;
         switch (tokn)
         {
@@ -11323,7 +11323,7 @@ void ExtCheckKeys(void)
         int32_t i;
         // check keys so that e.g. bulk deletions won't produce
         // as much revisions as deleted sprites
-        for (i=sizeof(keystatus)/sizeof(keystatus[0])-1; i>=0; i--)
+        for (i=ARRAY_SIZE(keystatus)-1; i>=0; i--)
             if (keystatus[i])
                 break;
         if (i==-1)

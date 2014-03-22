@@ -434,7 +434,7 @@ int32_t baselayer_init(void)
 #endif
     };
 
-    for (i=0; i<sizeof(cvars_engine)/sizeof(cvars_engine[0]); i++)
+    for (i=0; i<ARRAY_SIZE(cvars_engine); i++)
     {
         if (OSD_RegisterCvar(&cvars_engine[i]))
             continue;

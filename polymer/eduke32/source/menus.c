@@ -594,7 +594,7 @@ void G_CheckPlayerColor(int32_t *color, int32_t prev_color)
 {
     int32_t i, disallowed[] = { 1, 2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 22 };
 
-    for (i=0; i<(signed)(sizeof(disallowed)/sizeof(disallowed[0])); i++)
+    for (i=0; i<(signed)ARRAY_SIZE(disallowed); i++)
     {
         while (*color == disallowed[i])
         {
@@ -2552,7 +2552,7 @@ cheat_for_port_credits2:
                     {
                         double ratios[] = { 0.0, 1.33, 1.66, 1.78, 1.85, 2.35 };
 
-                        int32_t j = (sizeof(ratios)/sizeof(ratios[0]));
+                        int32_t j = ARRAY_SIZE(ratios);
 
                         for (i = 0; i<j; i++)
                             if (ratios[i] == pr_customaspect)
@@ -3148,7 +3148,7 @@ cheat_for_port_credits2:
             dax = 0;
             for (day = 0; day < validmodecnt; day++)
             {
-                if (dax == sizeof(vidsets)/sizeof(vidsets[1])) break;
+                if (dax == ARRAY_SIZE(vidsets)) break;
                 for (daz = 0; daz < dax; daz++)
                     if ((validmode[day].bpp|((validmode[day].fs&1)<<16)) == (vidsets[daz]&0x1ffffl)) break;
                 if (vidsets[daz] != -1) continue;
@@ -3161,9 +3161,9 @@ cheat_for_port_credits2:
                 else
                     vidsets[dax++] = 0x20000|validmode[day].bpp|((validmode[day].fs&1)<<16);
             }
-            for (dax = 0; dax < (int32_t)(sizeof(vidsets)/sizeof(vidsets[1])) && vidsets[dax] != -1; dax++)
+            for (dax = 0; dax < (int32_t)ARRAY_SIZE(vidsets) && vidsets[dax] != -1; dax++)
                 if (vidsets[dax] == (((getrendermode() >= REND_POLYMOST)<<17)|(fullscreen<<16)|bpp)) break;
-            if (dax < (int32_t)(sizeof(vidsets)/sizeof(vidsets[1]))) newvidset = dax;
+            if (dax < (int32_t)ARRAY_SIZE(vidsets)) newvidset = dax;
             curvidset = newvidset;
 
             M_ChangeMenu(MENU_VIDEOSETUP);
@@ -3256,7 +3256,7 @@ cheat_for_port_credits2:
             while (vidsets[0] != -1)
             {
                 newvidset++;
-                if (newvidset == sizeof(vidsets)/sizeof(vidsets[0]) || vidsets[newvidset] == -1)
+                if (newvidset == ARRAY_SIZE(vidsets) || vidsets[newvidset] == -1)
                 {
                     newvidset = -1;
                     continue;
@@ -3320,7 +3320,7 @@ cheat_for_port_credits2:
                 {
                     newvidset++;
                     if (newvidset == lastvidset) break;
-                    if (newvidset == sizeof(vidsets)/sizeof(vidsets[0]) || vidsets[newvidset] == -1)
+                    if (newvidset == ARRAY_SIZE(vidsets) || vidsets[newvidset] == -1)
                     {
                         newvidset = -1;
                         continue;
@@ -4603,7 +4603,7 @@ cheat_for_port_credits2:
                 case 4:
                 {
                     int32_t rates[] = { 22050, 24000, 32000, 44100, 48000 };
-                    int32_t j = (sizeof(rates)/sizeof(rates[0]));
+                    int32_t j = ARRAY_SIZE(rates);
 
                     for (i = 0; i<j; i++)
                         if (rates[i] == ud.config.MixRate)

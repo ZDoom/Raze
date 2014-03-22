@@ -238,7 +238,7 @@ fallback:
         FILE *fp;
         int32_t i;
 
-        for (i = (sizeof(s)/sizeof(s[0]))-1; i>=0; i--)
+        for (i = ARRAY_SIZE(s)-1; i>=0; i--)
         {
             fp = Bfopen(s[i], "r");
             if (fp == NULL)
@@ -246,7 +246,7 @@ fallback:
                 if (i == 0)
                 {
                     initprintf("Error: couldn't open any of the following files:\n");
-                    for (i = (sizeof(s)/sizeof(s[0]))-1; i>=0; i--)
+                    for (i = ARRAY_SIZE(s)-1; i>=0; i--)
                         initprintf("%s\n",s[i]);
                     return(MUSIC_Error);
                 }

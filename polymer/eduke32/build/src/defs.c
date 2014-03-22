@@ -278,7 +278,7 @@ static int32_t defsparser(scriptfile *script)
         }
 #endif
         if (quitevent) return 0;
-        tokn = getatoken(script,basetokens,sizeof(basetokens)/sizeof(tokenlist));
+        tokn = getatoken(script,basetokens,ARRAY_SIZE(basetokens));
         cmdtokptr = script->ltextptr;
         switch (tokn)
         {
@@ -567,7 +567,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&textureend)) break;
             while (script->textptr < textureend)
             {
-                int32_t token = getatoken(script,tilefromtexturetokens,sizeof(tilefromtexturetokens)/sizeof(tokenlist));
+                int32_t token = getatoken(script,tilefromtexturetokens,ARRAY_SIZE(tilefromtexturetokens));
                 switch (token)
                 {
                 case T_FILE:
@@ -969,7 +969,7 @@ static int32_t defsparser(scriptfile *script)
 #endif
             while (script->textptr < modelend)
             {
-                int32_t token = getatoken(script,modeltokens,sizeof(modeltokens)/sizeof(tokenlist));
+                int32_t token = getatoken(script,modeltokens,ARRAY_SIZE(modeltokens));
                 switch (token)
                 {
                     //case T_ERROR: initprintf("Error on line %s:%d in model tokens\n", script->filename,script->linenum); break;
@@ -1008,7 +1008,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&frameend)) break;
                     while (script->textptr < frameend)
                     {
-                        switch (getatoken(script,modelframetokens,sizeof(modelframetokens)/sizeof(tokenlist)))
+                        switch (getatoken(script,modelframetokens,ARRAY_SIZE(modelframetokens)))
                         {
                         case T_PAL:
                             scriptfile_getnumber(script,&pal); break;
@@ -1085,7 +1085,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&animend)) break;
                     while (script->textptr < animend)
                     {
-                        switch (getatoken(script,modelanimtokens,sizeof(modelanimtokens)/sizeof(tokenlist)))
+                        switch (getatoken(script,modelanimtokens,ARRAY_SIZE(modelanimtokens)))
                         {
                         case T_FRAME0:
                             scriptfile_getstring(script,&startframe); break;
@@ -1159,7 +1159,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&skinend)) break;
                     while (script->textptr < skinend)
                     {
-                        switch (getatoken(script,modelskintokens,sizeof(modelskintokens)/sizeof(tokenlist)))
+                        switch (getatoken(script,modelskintokens,ARRAY_SIZE(modelskintokens)))
                         {
                         case T_PAL:
                             scriptfile_getsymbol(script,&palnum); break;
@@ -1262,7 +1262,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&frameend)) break;
                     while (script->textptr < frameend)
                     {
-                        switch (getatoken(script,modelhudtokens,sizeof(modelhudtokens)/sizeof(tokenlist)))
+                        switch (getatoken(script,modelhudtokens,ARRAY_SIZE(modelhudtokens)))
                         {
                         case T_TILE:
                             scriptfile_getsymbol(script,&ftilenume); ltilenume = ftilenume; break;
@@ -1399,7 +1399,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend)
             {
-                switch (getatoken(script,voxeltokens,sizeof(voxeltokens)/sizeof(tokenlist)))
+                switch (getatoken(script,voxeltokens,ARRAY_SIZE(voxeltokens)))
                 {
                     //case T_ERROR: initprintf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
                 case T_TILE:
@@ -1463,7 +1463,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend)
             {
-                switch (getatoken(script,skyboxtokens,sizeof(skyboxtokens)/sizeof(tokenlist)))
+                switch (getatoken(script,skyboxtokens,ARRAY_SIZE(skyboxtokens)))
                 {
                     //case T_ERROR: initprintf("Error on line %s:%d in skybox tokens\n",script->filename,linenum); break;
                 case T_TILE:
@@ -1520,7 +1520,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&highpalend)) break;
             while (script->textptr < highpalend)
             {
-                switch (getatoken(script,highpaltokens,sizeof(highpaltokens)/sizeof(tokenlist)))
+                switch (getatoken(script,highpaltokens,ARRAY_SIZE(highpaltokens)))
                 {
                 case T_BASEPAL:
                     scriptfile_getsymbol(script,&basepal);   break;
@@ -1614,7 +1614,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&tintend)) break;
             while (script->textptr < tintend)
             {
-                switch (getatoken(script,tinttokens,sizeof(tinttokens)/sizeof(tokenlist)))
+                switch (getatoken(script,tinttokens,ARRAY_SIZE(tinttokens)))
                 {
                 case T_PAL:
                     scriptfile_getsymbol(script,&pal);   break;
@@ -1661,7 +1661,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&endtextptr)) break;
             while (script->textptr < endtextptr)
             {
-                switch (getatoken(script, palookuptokens, sizeof(palookuptokens)/sizeof(tokenlist)))
+                switch (getatoken(script, palookuptokens, ARRAY_SIZE(palookuptokens)))
                 {
                 case T_PAL:
                     scriptfile_getsymbol(script, &pal);
@@ -1750,7 +1750,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&textureend)) break;
             while (script->textptr < textureend)
             {
-                token = getatoken(script,texturetokens,sizeof(texturetokens)/sizeof(tokenlist));
+                token = getatoken(script,texturetokens,ARRAY_SIZE(texturetokens));
                 switch (token)
                 {
                 case T_PAL:
@@ -1780,7 +1780,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&palend)) break;
                     while (script->textptr < palend)
                     {
-                        switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist)))
+                        switch (getatoken(script,texturetokens_pal,ARRAY_SIZE(texturetokens_pal)))
                         {
                         case T_FILE:
                             scriptfile_getstring(script,&fn); break;
@@ -1867,7 +1867,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&detailend)) break;
                     while (script->textptr < detailend)
                     {
-                        switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist)))
+                        switch (getatoken(script,texturetokens_pal,ARRAY_SIZE(texturetokens_pal)))
                         {
                         case T_FILE:
                             scriptfile_getstring(script,&fn); break;
@@ -2075,7 +2075,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&dummy)) break;
             while (script->textptr < dummy)
             {
-                switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
+                switch (getatoken(script,sound_musictokens,ARRAY_SIZE(sound_musictokens)))
                 {
                 case T_ID:
                     scriptfile_getstring(script,&dummy2);
@@ -2102,7 +2102,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&dummy)) break;
             while (script->textptr < dummy)
             {
-                switch (getatoken(script,mapinfotokens,sizeof(mapinfotokens)/sizeof(tokenlist)))
+                switch (getatoken(script,mapinfotokens,ARRAY_SIZE(mapinfotokens)))
                 {
                 case T_MAPFILE:
                     scriptfile_getstring(script,&dummy2);

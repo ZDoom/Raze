@@ -161,7 +161,7 @@ const char *KB_ScanCodeToString(kb_scancode scancode)
 {
     uint32_t s;
 
-    for (s=0; s < (sizeof(sctokeylut)/sizeof(sctokeylut[0])); s++)
+    for (s=0; s < ARRAY_SIZE(sctokeylut); s++)
         if (sctokeylut[s].sc == scancode) return sctokeylut[s].key;
 
     return "";
@@ -171,7 +171,7 @@ kb_scancode KB_StringToScanCode(const char * string)
 {
     uint32_t s;
 
-    for (s=0; s < (sizeof(sctokeylut)/sizeof(sctokeylut[0])); s++)
+    for (s=0; s < ARRAY_SIZE(sctokeylut); s++)
         if (!Bstrcasecmp(sctokeylut[s].key, string)) return sctokeylut[s].sc;
 
     return 0;

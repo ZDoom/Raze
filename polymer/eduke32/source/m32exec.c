@@ -1471,7 +1471,7 @@ badindex:
             insptr++;
             {
                 int32_t key=Gv_GetVarX(*insptr);
-                if (key<0 || key >= (int32_t)(sizeof(keystatus)/sizeof(keystatus[0])))
+                if (key<0 || key >= (int32_t)ARRAY_SIZE(keystatus))
                 {
                     M32_ERROR("Invalid key %d!", key);
                     continue;
