@@ -8516,7 +8516,7 @@ int32_t G_StartRTS(int32_t i, int localp)
 
 void G_HandleLocalKeys(void)
 {
-    int32_t i,ch;
+    int32_t i;
     int32_t j;
 
 //    CONTROL_ProcessBinds();
@@ -8754,11 +8754,9 @@ void G_HandleLocalKeys(void)
                 G_AddUserQuote(ud.ridecule[i-1]);
 
 #ifndef NETCODE_DISABLE
-                ch = 0;
-
-                tempbuf[ch] = PACKET_MESSAGE;
-                tempbuf[ch+1] = 255;
-                tempbuf[ch+2] = 0;
+                tempbuf[0] = PACKET_MESSAGE;
+                tempbuf[1] = 255;
+                tempbuf[2] = 0;
                 Bstrcat(tempbuf+2,ud.ridecule[i-1]);
 
                 i = 2+strlen(ud.ridecule[i-1]);
