@@ -4,45 +4,13 @@
 */
 #ifndef _WIN32
 
-#ifndef UNREFERENCED_PARAMETER
-    #define UNREFERENCED_PARAMETER(x) x=x
-#endif
-
-#if defined(GEKKO)
-# include <network.h>
-# define gethostbyname net_gethostbyname
-# define gethostbyaddr(...) (NULL)
-# define bind net_bind
-# define listen net_listen
-# define socket net_socket
-# define ioctl net_ioctl
-# define connect net_connect
-# define setsockopt net_setsockopt
-# define accept net_accept
-# define select net_select
-# define shutdown net_shutdown
-struct msghdr {
-    void         *msg_name;       /* optional address */
-    socklen_t     msg_namelen;    /* size of address */
-    struct iovec *msg_iov;        /* scatter/gather array */
-    size_t        msg_iovlen;     /* # elements in msg_iov */
-    void         *msg_control;    /* ancillary data, see below */
-    socklen_t     msg_controllen; /* ancillary data buffer len */
-    int           msg_flags;      /* flags on received message */
-};
-# define sendmsg(...) (-1)
-# define recvmsg(...) (-1)
-# define SOMAXCONN 5
-
-#else
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <sys/ioctl.h>
-# include <arpa/inet.h>
-# include <netdb.h>
-#endif
-
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <sys/time.h>
+#include <arpa/inet.h>
+#include <netinet/tcp.h>
+#include <netdb.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
@@ -80,11 +48,9 @@ struct msghdr {
 #include <sys/poll.h>
 #endif
 
-/*
 #ifndef HAS_SOCKLEN_T
 typedef int socklen_t;
 #endif
-*/
 
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
@@ -101,6 +67,12 @@ enet_initialize (void)
 void
 enet_deinitialize (void)
 {
+}
+
+enet_uint32
+enet_host_random_seed (void)
+{
+    return (enet_uint32) time (NULL);
 }
 
 enet_uint32
@@ -166,7 +138,12 @@ enet_address_get_host_ip (const ENetAddress * address, char * name, size_t nameL
 #else
     char * addr = inet_ntoa (* (struct in_addr *) & address -> host);
     if (addr != NULL)
-        strncpy (name, addr, nameLength);
+    {
+        size_t addrLen = strlen(addr);
+        if (addrLen >= nameLength)
+          return -1;
+        memcpy (name, addr, addrLen + 1);
+    } 
     else
 #endif
         return -1;
@@ -176,9 +153,8 @@ enet_address_get_host_ip (const ENetAddress * address, char * name, size_t nameL
 int
 enet_address_get_host (const ENetAddress * address, char * name, size_t nameLength)
 {
-    struct hostent * hostEntry = NULL;
-#ifndef GEKKO
     struct in_addr in;
+    struct hostent * hostEntry = NULL;
 #ifdef HAS_GETHOSTBYADDR_R
     struct hostent hostData;
     char buffer [2048];
@@ -196,12 +172,16 @@ enet_address_get_host (const ENetAddress * address, char * name, size_t nameLeng
 
     hostEntry = gethostbyaddr ((char *) & in, sizeof (struct in_addr), AF_INET);
 #endif
-#endif
 
     if (hostEntry == NULL)
       return enet_address_get_host_ip (address, name, nameLength);
-
-    strncpy (name, hostEntry -> h_name, nameLength);
+    else
+    {
+       size_t hostLen = strlen (hostEntry -> h_name);
+       if (hostLen >= nameLength)
+         return -1;
+       memcpy (name, hostEntry -> h_name, hostLen + 1);
+    }
 
     return 0;
 }
@@ -229,6 +209,21 @@ enet_socket_bind (ENetSocket socket, const ENetAddress * address)
     return bind (socket,
                  (struct sockaddr *) & sin,
                  sizeof (struct sockaddr_in)); 
+}
+
+int
+enet_socket_get_address (ENetSocket socket, ENetAddress * address)
+{
+    struct sockaddr_in sin;
+    socklen_t sinLength = sizeof (struct sockaddr_in);
+
+    if (getsockname (socket, (struct sockaddr *) & sin, & sinLength) == -1)
+      return -1;
+
+    address -> host = (enet_uint32) sin.sin_addr.s_addr;
+    address -> port = ENET_NET_TO_HOST_16 (sin.sin_port);
+
+    return 0;
 }
 
 int 
@@ -274,11 +269,43 @@ enet_socket_set_option (ENetSocket socket, ENetSocketOption option, int value)
             break;
 
         case ENET_SOCKOPT_RCVTIMEO:
-            result = setsockopt (socket, SOL_SOCKET, SO_RCVTIMEO, (char *) & value, sizeof (int));
+        {
+            struct timeval timeVal;
+            timeVal.tv_sec = value / 1000;
+            timeVal.tv_usec = (value % 1000) * 1000;
+            result = setsockopt (socket, SOL_SOCKET, SO_RCVTIMEO, (char *) & timeVal, sizeof (struct timeval));
             break;
+        }
 
         case ENET_SOCKOPT_SNDTIMEO:
-            result = setsockopt (socket, SOL_SOCKET, SO_SNDTIMEO, (char *) & value, sizeof (int));
+        {
+            struct timeval timeVal;
+            timeVal.tv_sec = value / 1000;
+            timeVal.tv_usec = (value % 1000) * 1000;
+            result = setsockopt (socket, SOL_SOCKET, SO_SNDTIMEO, (char *) & timeVal, sizeof (struct timeval));
+            break;
+        }
+
+        case ENET_SOCKOPT_NODELAY:
+            result = setsockopt (socket, IPPROTO_TCP, TCP_NODELAY, (char *) & value, sizeof (int));
+            break;
+
+        default:
+            break;
+    }
+    return result == -1 ? -1 : 0;
+}
+
+int
+enet_socket_get_option (ENetSocket socket, ENetSocketOption option, int * value)
+{
+    int result = -1;
+    socklen_t len;
+    switch (option)
+    {
+        case ENET_SOCKOPT_ERROR:
+            len = sizeof (int);
+            result = getsockopt (socket, SOL_SOCKET, SO_ERROR, value, & len);
             break;
 
         default:
@@ -339,7 +366,7 @@ void
 enet_socket_destroy (ENetSocket socket)
 {
     if (socket != -1)
-    close (socket);
+      close (socket);
 }
 
 int
@@ -348,10 +375,9 @@ enet_socket_send (ENetSocket socket,
                   const ENetBuffer * buffers,
                   size_t bufferCount)
 {
-    int sentLength = -1;
-#ifndef GEKKO
     struct msghdr msgHdr;
     struct sockaddr_in sin;
+    int sentLength;
 
     memset (& msgHdr, 0, sizeof (struct msghdr));
 
@@ -371,12 +397,6 @@ enet_socket_send (ENetSocket socket,
     msgHdr.msg_iovlen = bufferCount;
 
     sentLength = sendmsg (socket, & msgHdr, MSG_NOSIGNAL);
-#else
-    UNREFERENCED_PARAMETER(socket);
-    UNREFERENCED_PARAMETER(address);
-    UNREFERENCED_PARAMETER(buffers);
-    UNREFERENCED_PARAMETER(bufferCount);
-#endif
     
     if (sentLength == -1)
     {
@@ -395,10 +415,9 @@ enet_socket_receive (ENetSocket socket,
                      ENetBuffer * buffers,
                      size_t bufferCount)
 {
-    int recvLength = -1;
-#ifndef GEKKO
     struct msghdr msgHdr;
     struct sockaddr_in sin;
+    int recvLength;
 
     memset (& msgHdr, 0, sizeof (struct msghdr));
 
@@ -412,12 +431,6 @@ enet_socket_receive (ENetSocket socket,
     msgHdr.msg_iovlen = bufferCount;
 
     recvLength = recvmsg (socket, & msgHdr, MSG_NOSIGNAL);
-#else
-    UNREFERENCED_PARAMETER(socket);
-    UNREFERENCED_PARAMETER(address);
-    UNREFERENCED_PARAMETER(buffers);
-    UNREFERENCED_PARAMETER(bufferCount);
-#endif
 
     if (recvLength == -1)
     {
@@ -427,7 +440,6 @@ enet_socket_receive (ENetSocket socket,
        return -1;
     }
 
-#ifndef GEKKO
 #ifdef HAS_MSGHDR_FLAGS
     if (msgHdr.msg_flags & MSG_TRUNC)
       return -1;
@@ -438,7 +450,6 @@ enet_socket_receive (ENetSocket socket,
         address -> host = (enet_uint32) sin.sin_addr.s_addr;
         address -> port = ENET_NET_TO_HOST_16 (sin.sin_port);
     }
-#endif
 
     return recvLength;
 }
@@ -473,7 +484,16 @@ enet_socket_wait (ENetSocket socket, enet_uint32 * condition, enet_uint32 timeou
     pollCount = poll (& pollSocket, 1, timeout);
 
     if (pollCount < 0)
-      return -1;
+    {
+        if (errno == EINTR && * condition & ENET_SOCKET_WAIT_INTERRUPT)
+        {
+            * condition = ENET_SOCKET_WAIT_INTERRUPT;
+
+            return 0;
+        }
+
+        return -1;
+    }
 
     * condition = ENET_SOCKET_WAIT_NONE;
 
@@ -507,7 +527,16 @@ enet_socket_wait (ENetSocket socket, enet_uint32 * condition, enet_uint32 timeou
     selectCount = select (socket + 1, & readSet, & writeSet, NULL, & timeVal);
 
     if (selectCount < 0)
-      return -1;
+    {
+        if (errno == EINTR && * condition & ENET_SOCKET_WAIT_INTERRUPT)
+        {
+            * condition = ENET_SOCKET_WAIT_INTERRUPT;
+
+            return 0;
+        }
+      
+        return -1;
+    }
 
     * condition = ENET_SOCKET_WAIT_NONE;
 
