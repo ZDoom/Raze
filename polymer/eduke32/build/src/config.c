@@ -199,7 +199,7 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "r_shadescale", val, VL) > 0)
         shadescale = clampd(Bstrtod(val, NULL), 0.0, 10.0);
     if (readconfig(fp, "r_usenewshading", val, VL) > 0)
-        r_usenewshading = clamp(atoi_safe(val), 0, 2);
+        r_usenewshading = clamp(atoi_safe(val), 0, 3);
     if (readconfig(fp, "r_usetileshades", val, VL) > 0)
         r_usetileshades = !!atoi_safe(val);
 # ifdef POLYMER

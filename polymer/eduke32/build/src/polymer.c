@@ -5096,7 +5096,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
 #ifdef PR_LINEAR_FOG
     if (programbits & prprogrambits[PR_BIT_FOG].bit)
     {
-        bglUniform1iARB(prprograms[programbits].uniform_linearFog, r_usenewshading==2);
+        bglUniform1iARB(prprograms[programbits].uniform_linearFog, r_usenewshading >= 2);
     }
 #endif
     // PR_BIT_GLOW_MAP

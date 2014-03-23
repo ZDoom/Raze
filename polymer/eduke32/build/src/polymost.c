@@ -110,7 +110,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 float shadescale = 1.0f;
 int32_t shadescale_unbounded = 0;
 
-int32_t r_usenewshading = 2;
+int32_t r_usenewshading = 3;
 int32_t r_usetileshades = 1;
 
 static double gviewxrange, ghoriz;
@@ -484,7 +484,7 @@ void polymost_glinit()
 ////////// VISIBILITY FOG ROUTINES //////////
 extern char nofog;  // in windows/SDL layers
 
-// only for r_usenewshading!=2 (not preferred)
+// only for r_usenewshading < 2 (not preferred)
 static void fogcalc_old(int32_t shade, int32_t vis)
 {
     float f;
@@ -526,7 +526,7 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
         (!usemodels || md_tilehasmodel(tile, pal) < 0))
         shade >>= 1;
 
-    if (r_usenewshading!=2)
+    if (r_usenewshading < 2)
     {
         fogcalc_old(shade, vis);
         return;
@@ -539,7 +539,7 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
 
         if (combvis == 0)
         {
-            if (shade > 0)
+            if (r_usenewshading == 2 && shade > 0)
             {
                 // beg = -D*shade, end = D*(NUMSHADES-1-shade)
                 //  => end/beg = -(NUMSHADES-1-shade)/shade
@@ -555,7 +555,7 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
             return;
         }
 
-        fogresult = -(FOGDISTCONST * shade)/combvis;
+        fogresult = (r_usenewshading == 3) ? 0 : -(FOGDISTCONST * shade)/combvis;
         fogresult2 = (FOGDISTCONST * (numshades-1-shade))/combvis;
     }
 }
@@ -568,7 +568,7 @@ void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
     fogcalc(tile, shade, vis, pal);
     bglFogfv(GL_FOG_COLOR, fogcol);
 
-    if (r_usenewshading!=2)
+    if (r_usenewshading < 2)
     {
         bglFogf(GL_FOG_DENSITY, fogresult);
         return;
@@ -583,12 +583,12 @@ void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t
     if (nofog)
         return;
 
-    // NOTE: for r_usenewshading==2, the fog being/ending distance results are
+    // NOTE: for r_usenewshading >= 2, the fog beginning/ending distance results are
     // unused.
     fogcalc(tile, shade, vis, pal);
     bglFogfv(GL_FOG_COLOR, fogcol);
 
-    if (r_usenewshading!=2)
+    if (r_usenewshading < 2)
     {
         bglFogf(GL_FOG_DENSITY, fogresult*factor);
         return;
@@ -4949,7 +4949,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     bglDepthMask(GL_FALSE);	// disable writing to the z-buffer
 
     bglPushAttrib(GL_POLYGON_BIT|GL_ENABLE_BIT);
-    // XXX: Don't fogify the OSD text in Mapster32 with r_usenewshading=2.
+    // XXX: Don't fogify the OSD text in Mapster32 with r_usenewshading >= 2.
     bglDisable(GL_FOG);
     // We want to have readable text in wireframe mode, too:
     bglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -5164,7 +5164,7 @@ void polymost_initosdfuncs(void)
         { "r_texturemaxsize","changes the maximum OpenGL texture size limit",(void *) &gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },
         { "r_texturemiplevel","changes the highest OpenGL mipmap level used",(void *) &gltexmiplevel, CVAR_INT, 0, 6 },
         { "r_texturemode", "changes the texture filtering settings", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
-        { "r_usenewshading", "visibility code: 0: Polymost, 2: Classic", (void *) &r_usenewshading, CVAR_INT, 0, 2 },
+        { "r_usenewshading", "visibility code: 0: Polymost, 2: Classic", (void *) &r_usenewshading, CVAR_INT, 0, 3 },
         { "r_usetileshades", "enable/disable Polymost tile shade textures", (void *) &r_usetileshades, CVAR_INT | CVAR_INVALIDATEART, 0, 2 },
         { "r_vbocount","sets the number of Vertex Buffer Objects to use when drawing models",(void *) &r_vbocount, CVAR_INT, 1, 256 },
         { "r_vbos"," enable/disable using Vertex Buffer Objects when drawing models",(void *) &r_vbos, CVAR_BOOL, 0, 1 },
