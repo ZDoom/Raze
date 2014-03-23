@@ -1808,11 +1808,7 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
         shadef[slot] += (shade-shadef[slot])>>2;
 
         if (!((shade-shadef[slot])>>2))
-        {
-            shadef[slot] += (shade-shadef[slot])>>1;
-            if (!((shade-shadef[slot])>>1))
-                shadef[slot] = shade;
-        }
+            shadef[slot] = logapproach(shadef[slot], shade);
     }
     else
         shadef[slot] = shade;

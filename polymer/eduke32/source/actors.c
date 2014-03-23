@@ -1309,9 +1309,9 @@ ACTOR_STATIC void G_MovePlayers(void)
         }
 
         if (sector[s->sectnum].ceilingstat&1)
-            s->shade += (sector[s->sectnum].ceilingshade-s->shade)>>1;
+            s->shade = logapproach(s->shade, sector[s->sectnum].ceilingshade);
         else
-            s->shade += (sector[s->sectnum].floorshade-s->shade)>>1;
+            s->shade = logapproach(s->shade, sector[s->sectnum].floorshade);
 
 BOLT:
         i = nexti;

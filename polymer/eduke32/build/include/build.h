@@ -1178,6 +1178,12 @@ static inline uint32_t uhypsq(int32_t dx, int32_t dy)
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
+static inline int32_t logapproach(int32_t val, int32_t targetval)
+{
+    int32_t dif = targetval - val;
+    return (dif>>1) ? val + (dif>>1) : targetval;
+}
+
 void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y,
                    int16_t daang, int32_t *x2, int32_t *y2) ATTRIBUTE((nonnull(6,7)));
 int32_t   lastwall(int16_t point);
