@@ -1525,7 +1525,13 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         {
             float pc[4];
-            pc[0] = pc[1] = pc[2] = getshadefactor(globalshade);
+
+#ifdef POLYMER
+            if (getrendermode() == REND_POLYMER && pr_artmapping)
+                pc[0] = pc[1] = pc[2] = 1.0f;
+            else
+#endif
+                pc[0] = pc[1] = pc[2] = getshadefactor(globalshade);
 
             switch (method&3)
             {
