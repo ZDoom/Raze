@@ -2132,6 +2132,7 @@ int32_t handleevents(void)
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.scancode];
 
+            // XXX: see osd.c, OSD_HandleChar(), there are more...
             if (ev.key.type == SDL_KEYDOWN && !keyascfifo_isfull() &&
                 (ev.key.keysym.scancode == SDL_SCANCODE_RETURN ||
                  ev.key.keysym.scancode == SDL_SCANCODE_KP_ENTER ||
@@ -2140,7 +2141,9 @@ int32_t handleevents(void)
                  ev.key.keysym.scancode == SDL_SCANCODE_TAB ||
                  (ev.key.keysym.mod==KMOD_LCTRL &&
                   (ev.key.keysym.scancode == SDL_SCANCODE_F ||
-                   ev.key.keysym.scancode == SDL_SCANCODE_G))))
+                   ev.key.keysym.scancode == SDL_SCANCODE_G ||
+                   ev.key.keysym.scancode == SDL_SCANCODE_K ||
+                   ev.key.keysym.scancode == SDL_SCANCODE_U))))
             {
                 char keyvalue;
                 switch (ev.key.keysym.scancode)
@@ -2151,6 +2154,8 @@ int32_t handleevents(void)
                     case SDL_SCANCODE_TAB: keyvalue = '\t'; break;
                     case SDL_SCANCODE_F: keyvalue = 6; break;
                     case SDL_SCANCODE_G: keyvalue = 7; break;
+                    case SDL_SCANCODE_K: keyvalue = 11; break;
+                    case SDL_SCANCODE_U: keyvalue = 21; break;
                     default: keyvalue = 0; break;
                 }
                 if (OSD_HandleChar(keyvalue))
