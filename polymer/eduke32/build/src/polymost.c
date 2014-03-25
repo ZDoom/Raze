@@ -1308,7 +1308,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     int32_t texunits = GL_TEXTURE0_ARB;
 #endif
     // backup of the n for possible redrawing of fullbright
-    int32_t n_ = n, method_ = method;
+    const int32_t n_ = n, method_ = method;
 
     if (method == -1) return;
 #ifdef YAX_ENABLE

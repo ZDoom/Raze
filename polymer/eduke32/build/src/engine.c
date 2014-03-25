@@ -12062,7 +12062,7 @@ int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
 //
 // -1: ceiling or up
 //  1: floor or down
-int32_t nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, int16_t direction)
+int32_t nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction)
 {
     int32_t nextz = (direction==1) ? INT32_MAX : INT32_MIN;
     int32_t sectortouse = -1;
@@ -12080,8 +12080,8 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, in
                 sector[ns].floorz : sector[ns].ceilingz;
 
             const int32_t update = (direction == 1) ?
-                (testz > thez && testz < nextz) :
-                (testz < thez && testz > nextz);
+                (nextz > testz && testz > refz) :
+                (nextz < testz && testz < refz);
 
             if (update)
             {

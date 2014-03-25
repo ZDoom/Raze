@@ -1187,7 +1187,7 @@ static inline int32_t logapproach(int32_t val, int32_t targetval)
 void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y,
                    int16_t daang, int32_t *x2, int32_t *y2) ATTRIBUTE((nonnull(6,7)));
 int32_t   lastwall(int16_t point);
-int32_t   nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, int16_t direction);
+int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
 
 int32_t   getceilzofslopeptr(const sectortype *sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
 int32_t   getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
