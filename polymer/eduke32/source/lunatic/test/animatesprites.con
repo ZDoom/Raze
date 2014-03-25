@@ -42,6 +42,8 @@ onevent EVENT_GAME
         addvar xp 1
         setactor[THISACTOR].xpanning xp
     }
+
+    getwall[0].blend xp  // test wall[].blend
 endevent
 
 onevent EVENT_ANIMATESPRITES

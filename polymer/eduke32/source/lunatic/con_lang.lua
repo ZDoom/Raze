@@ -745,6 +745,7 @@ local WallLabels = {
     lotag = WAL".lotag",
     hitag = WAL".hitag",
     extra = WAL".extra",
+    blend = WAL".blend",
 
     ulotag = S2U(WAL".lotag"),
     uhitag = S2U(WAL".hitag"),
