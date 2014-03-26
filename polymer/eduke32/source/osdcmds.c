@@ -137,7 +137,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
                 ud.m_noexits = 0;
 
             g_player[myconnectindex].ps->gm |= MODE_MENU;
-            M_ChangeMenu(603);
+            M_ChangeMenu(MENU_NETWAITVOTES);
         }
 		*/
         return OSDCMD_OK;
@@ -273,7 +273,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
                 ud.m_noexits = 0;
 
             g_player[myconnectindex].ps->gm |= MODE_MENU;
-            M_ChangeMenu(603);
+            M_ChangeMenu(MENU_NETWAITVOTES);
         }
 		*/
         return OSDCMD_OK;

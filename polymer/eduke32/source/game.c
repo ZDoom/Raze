@@ -3676,7 +3676,7 @@ void G_DisplayRest(int32_t smoothratio)
         && ud.show_help == 0
         && g_player[myconnectindex].ps->newowner == -1)
     {
-        if ((g_player[myconnectindex].ps->gm&MODE_MENU) == MODE_MENU && g_currentMenu < 51)
+        if ((g_player[myconnectindex].ps->gm&MODE_MENU) == MODE_MENU && g_currentMenu <= MENU_MAIN_INGAME)
         {
             I_EscapeTriggerClear();
             S_PlaySound(EXITMENUSOUND);
@@ -8812,7 +8812,7 @@ void G_HandleLocalKeys(void)
         if (KB_UnBoundKeyPressed(sc_F1)/* || (ud.show_help && I_AdvanceTrigger())*/)
         {
             KB_ClearKeyDown(sc_F1);
-            M_ChangeMenu(400);
+            M_ChangeMenu(MENU_STORY);
             FX_StopAllSounds();
             S_ClearSoundLocks();
 
@@ -8859,7 +8859,7 @@ FAKE_F2:
                     P_DoQuote(QUOTE_SAVE_DEAD,g_player[myconnectindex].ps);
                     return;
                 }
-                M_ChangeMenu(350);
+                M_ChangeMenu(MENU_SAVE);
 
                 g_screenCapture = 1;
                 G_DrawRooms(myconnectindex,65536);
@@ -8884,7 +8884,7 @@ FAKE_F2:
                 KB_ClearKeyDown(sc_F3);
 
 FAKE_F3:
-                M_ChangeMenu(300);
+                M_ChangeMenu(MENU_LOAD);
                 FX_StopAllSounds();
                 S_ClearSoundLocks();
 
@@ -8936,7 +8936,7 @@ FAKE_F3:
             if (g_lastSaveSlot >= 0)
             {
                 /*                inputloc = Bstrlen(&ud.savegame[g_lastSaveSlot][0]);
-                                g_currentMenu = 360+g_lastSaveSlot;
+                                g_currentMenu = MENU_SAVETYPING+g_lastSaveSlot;
                                 probey = g_lastSaveSlot; */
 
                 G_SavePlayerMaybeMulti(g_lastSaveSlot);
@@ -9005,7 +9005,7 @@ FAKE_F3:
         if (KB_UnBoundKeyPressed(sc_F10))
         {
             KB_ClearKeyDown(sc_F10);
-            M_ChangeMenu(500);
+            M_ChangeMenu(MENU_QUIT);
             FX_StopAllSounds();
             S_ClearSoundLocks();
             g_player[myconnectindex].ps->gm |= MODE_MENU;
@@ -9071,7 +9071,7 @@ FAKE_F3:
     if (KB_UnBoundKeyPressed(sc_F11))
     {
         KB_ClearKeyDown(sc_F11);
-        M_ChangeMenu(232);
+        M_ChangeMenu(MENU_COLCORR_INGAME);
         FX_StopAllSounds();
         S_ClearSoundLocks();
         g_player[myconnectindex].ps->gm |= MODE_MENU;

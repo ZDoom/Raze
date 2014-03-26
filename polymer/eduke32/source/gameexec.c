@@ -992,7 +992,7 @@ static int32_t VM_ResetPlayer(int32_t g_p, int32_t g_flags)
         {
             g_player[g_p].ps->gm |= MODE_MENU;
             KB_ClearKeyDown(sc_Space);
-            M_ChangeMenu(15000);
+            M_ChangeMenu(MENU_RESETPLAYER);
         }
         else g_player[g_p].ps->gm = MODE_RESTART;
 #if !defined LUNATIC

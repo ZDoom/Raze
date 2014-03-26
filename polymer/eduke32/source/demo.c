@@ -935,7 +935,7 @@ nextdemo_nomenu:
             if (ud.recstat != 2)
                 M_DisplayMenus();
 
-            if ((g_netServer || ud.multimode > 1)  && g_currentMenu != 20003 && g_currentMenu != 20005 && g_currentMenu != 210)
+            if ((g_netServer || ud.multimode > 1)  && !M_IsTextInput(g_currentMenu))
             {
                 ControlInfo noshareinfo;
                 CONTROL_GetInput(&noshareinfo);

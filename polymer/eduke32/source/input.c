@@ -256,6 +256,7 @@ int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32
 {
     char ch;
     int32_t i;
+    const int32_t startx = x;
 
     while ((ch = KB_GetCh()) != 0)
     {
@@ -319,6 +320,9 @@ int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32
             y += textsc(6);
         y += 8;
     }
+
+    if (startx == 160) // gametext center
+        x = startx + ((x - startx)>>1);
 
     if (small&1)
         rotatesprite_fs(textsc(x)<<16,(y<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(8|16));
