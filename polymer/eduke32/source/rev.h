@@ -1,1 +1,1 @@
-s_buildRev = "rXXXX";
+rXXXX
