@@ -4794,7 +4794,10 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             const int32_t visinc = visdif>>2;
 
             if (klabs(visinc) == 0)
+            {
+                p->visibility = ud.const_visibility;
                 break;
+            }
 
             p->visibility += visinc;
             lastvist = totalclock;
