@@ -548,7 +548,8 @@ static int32_t defsparser(scriptfile *script)
             char *texturetokptr = script->ltextptr, *textureend, *fn = NULL;
             int32_t tile = -1;
             int32_t alphacut = 255, flags = 0;
-            int32_t xoffset = ~0, yoffset = ~0;
+            int32_t havexoffset = 0, haveyoffset = 0;
+            int32_t xoffset = 0, yoffset = 0;
 
             static const tokenlist tilefromtexturetokens[] =
             {
@@ -575,8 +576,10 @@ static int32_t defsparser(scriptfile *script)
                 case T_ALPHACUT:
                     scriptfile_getsymbol(script,&alphacut); break;
                 case T_XOFFSET:
+                    havexoffset = 1;
                     scriptfile_getsymbol(script,&xoffset); break;
                 case T_YOFFSET:
+                    haveyoffset = 1;
                     scriptfile_getsymbol(script,&yoffset); break;
                 case T_TEXHITSCAN:
                     flags |= PICANM_TEXHITSCAN_BIT;
@@ -600,12 +603,12 @@ static int32_t defsparser(scriptfile *script)
             {
                 // tilefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
                 picanm[tile].sf |= flags;
-                if (xoffset != ~0)
+                if (havexoffset)
                     picanm[tile].xofs = clamp(xoffset, -128, 127);
-                if (yoffset != ~0)
+                if (haveyoffset)
                     picanm[tile].yofs = clamp(yoffset, -128, 127);
 
-                if (flags == 0 && xoffset == ~0 && yoffset == ~0)
+                if (flags == 0 && !havexoffset && !haveyoffset)
                     initprintf("\nError: missing 'file name' for tilefromtexture definition near line %s:%d",
                                script->filename, scriptfile_getlinum(script,texturetokptr));
                 break;
@@ -630,8 +633,8 @@ static int32_t defsparser(scriptfile *script)
                     break;
 
                 set_tilesiz(tile, xsiz, ysiz);
-                picanm[tile].xofs = (xoffset == ~0) ? 0 : clamp(xoffset, -128, 127);
-                picanm[tile].yofs = (yoffset == ~0) ? 0 : clamp(yoffset, -128, 127);
+                picanm[tile].xofs = havexoffset ? clamp(xoffset, -128, 127) : 0;
+                picanm[tile].yofs = haveyoffset ? clamp(yoffset, -128, 127) : 0;
                 picanm[tile].sf |= flags;
 
                 tile_from_truecolpic(tile, picptr, alphacut);
