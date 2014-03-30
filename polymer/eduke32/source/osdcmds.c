@@ -1477,7 +1477,13 @@ int32_t registerosdcommands(void)
 
         { "cl_runmode", "enable/disable modernized run key operation", (void *)&ud.runkey_mode, CVAR_BOOL, 0, 1 },
 
-        { "cl_showcoords", "show your position in the game world", (void *)&ud.coords, CVAR_BOOL, 0, 1 },
+        { "cl_showcoords", "show your position in the game world", (void *)&ud.coords, CVAR_INT, 0,
+#ifdef USE_OPENGL
+          2
+#else
+          1
+#endif
+        },
 
         { "cl_viewbob", "enable/disable player head bobbing", (void *)&ud.viewbob, CVAR_BOOL, 0, 1 },
 

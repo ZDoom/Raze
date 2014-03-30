@@ -2494,6 +2494,11 @@ static struct {
 } g_spriteStat;
 #endif
 
+#define printcoordsline(fmt, ...) do { \
+    Bsprintf(tempbuf, fmt, ## __VA_ARGS__); \
+    printext256(20, y+=9, 31, -1, tempbuf, 0); \
+} while (0)
+
 static void G_PrintCoords(int32_t snum)
 {
     const int32_t x = 250;
@@ -2551,6 +2556,26 @@ static void G_PrintCoords(int32_t snum)
     printext256(x,y+72,31,-1,tempbuf,0);
     Bsprintf(tempbuf, "MOVEACTORS [ms]= %.3e", g_moveActorsTime);
     printext256(x,y+81,31,-1,tempbuf,0);
+
+#ifdef USE_OPENGL
+    if (ud.coords == 2)
+    {
+        y=16;
+
+        printcoordsline("rendmode = %d", getrendermode());
+        printcoordsline("r_ambientlight = %.03f", r_ambientlight);
+
+        if (rendmode >= 3)
+        {
+            if (rendmode==3)
+                printcoordsline("r_usenewshading = %d", r_usenewshading);
+            else
+                printcoordsline("r_pr_artmapping = %d", pr_artmapping);
+
+            printcoordsline("r_usetileshades = %d", r_usetileshades);
+        }
+    }
+#endif
 }
 
 
@@ -8322,7 +8347,11 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_COORDS:
-                    ud.coords = 1-ud.coords;
+#ifdef USE_OPENGL
+                    if (++ud.coords >= 3) ud.coords = 0;
+#else
+                    if (++ud.coords >= 2) ud.coords = 0;
+#endif
                     end_cheat();
                     return;
 
