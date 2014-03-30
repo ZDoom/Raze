@@ -133,6 +133,36 @@ end
 
 ---------- BASE SHADE TABLE TESTS ----------
 
+-- sht = shadexfog.create_depth_shtab([palnum])
+function shadexfog.create_depth_shtab(palnum)
+    local sht = engine.shadetab()
+
+    for s=0,31 do
+        for i=0,255 do
+            sht[s][i] = s
+        end
+    end
+
+    if (palnum) then
+        engine.setshadetab(palnum, sht)
+    end
+    return sht
+end
+
+function shadexfog.create_vismarker_shtab(palnum)
+    local sht = engine.getshadetab(0)
+
+    for i=0,255 do
+        sht[1][i] = 242
+        sht[30][i] = 245
+    end
+
+    if (palnum) then
+        engine.setshadetab(palnum, sht)
+    end
+    return sht
+end
+
 -- Basic test of whether for a color index i corresponding to a color (r,g,b),
 -- getclosestcol() returns a color index ii corresponding to the same color.
 -- (In the Duke3D palette, there are duplicates, so the requirement i==ii is

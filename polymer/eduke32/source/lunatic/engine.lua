@@ -6,6 +6,7 @@ local bcarray = require("bcarray")
 
 local assert = assert
 local error = error
+local ipairs = ipairs
 local type = type
 
 local decl = assert(decl)  -- comes from above (defs.ilua or defs_m32.lua)
@@ -394,6 +395,27 @@ if (ismapster32) then
             for j=0,15 do
                 local dst = ptr + 3*j
                 dst[0], dst[1], dst[2] = r, g, b
+            end
+        end
+    end
+
+    function engine.linearizeBasePal()
+        for _, begi in ipairs{0, 32, 96, 160} do
+            local ptr = C.basepaltable[0] + 3*begi
+            local refcol = ptr + 3*31
+
+            for i=0,30 do
+                for c=0,2 do
+                    ptr[3*i + c] = i*refcol[c]/31
+                end
+            end
+        end
+
+        for _, begi in ipairs{128, 144, 192, 208, 224} do
+            local ptr = C.basepaltable[0] + 3*begi
+
+            for i=0,3*15+2 do
+                ptr[i] = 0
             end
         end
     end
