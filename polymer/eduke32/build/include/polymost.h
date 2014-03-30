@@ -56,6 +56,12 @@ extern int32_t r_usetileshades;
 extern int16_t globalpicnum;
 extern int32_t globalpal;
 
+static inline int32_t eligible_for_tileshades(int32_t picnum, int32_t pal)
+{
+    return (!usehightile || !hicfindsubst(picnum, pal, 0)) &&
+        (!usemodels || md_tilehasmodel(picnum, pal) < 0);
+}
+
 static inline float getshadefactor(int32_t shade)
 {
     int32_t shadebound = (shadescale_unbounded || shade>=numshades) ? numshades : numshades-1;
@@ -64,8 +70,7 @@ static inline float getshadefactor(int32_t shade)
     // 8-bit tiles, i.e. non-hightiles and non-models, don't get additional
     // glColor() shading with r_usetileshades!
     if (getrendermode() == REND_POLYMOST && r_usetileshades &&
-        (!usehightile || !hicfindsubst(globalpicnum, globalpal, 0)) &&
-        (!usemodels || md_tilehasmodel(globalpicnum, globalpal) < 0))
+            eligible_for_tileshades(globalpicnum, globalpal))
         return 1.f;
 
     return ((float)(numshades-clamped_shade))/(float)numshades;

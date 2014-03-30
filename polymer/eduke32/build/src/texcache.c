@@ -27,6 +27,7 @@ static const char *texcache_errorstr[TEXCACHEERRORS] = {
     "bglGetTexLevelParameteriv failed",
 };
 
+// <dashade>: ignored if not in Polymost+r_usetileshades
 pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
 {
     int32_t i, j;
@@ -35,7 +36,8 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
 
     j = (dapicnum&(GLTEXCACHEADSIZ-1));
     
-    if (getrendermode() != REND_POLYMOST || !r_usetileshades) dashade = 0;
+    if (getrendermode() != REND_POLYMOST || !r_usetileshades)
+        dashade = 0;
 
     si = usehightile ? hicfindsubst(dapicnum,dapalnum,drawingskybox) : NULL;
 

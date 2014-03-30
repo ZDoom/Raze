@@ -1303,10 +1303,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     double f, r, ox, oy, oz, ox2, oy2, oz2, dd[16], uu[16], vv[16], px[16], py[16], uoffs;
     int32_t i, j, k, nn, ix0, ix1, tsizx, tsizy;
     int32_t xx, yy, dorot;
-#ifdef USE_OPENGL
-    pthtyp *pth, *detailpth, *glowpth;
-    int32_t texunits = GL_TEXTURE0_ARB;
-#endif
+
     // backup of the n for possible redrawing of fullbright
     const int32_t n_ = n, method_ = method;
 
@@ -1390,6 +1387,8 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     if (getrendermode() >= REND_POLYMOST)
     {
         float hackscx, hackscy;
+        pthtyp *pth, *detailpth, *glowpth;
+        int32_t texunits = GL_TEXTURE0_ARB;
 
         if (skyclamphack) method |= 4;
         pth = our_texcache_fetch(method&(~3));
@@ -1765,21 +1764,6 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         return;
     }
 #endif
-
-/*
-    if (rendmode == 1)
-    {
-        if (method&3) //Only draw border around sprites/maskwalls
-        {
-            for (i=0,j=n-1; i<n; j=i,i++) drawline2d(px[i],py[i],px[j],py[j],31); //hopefully color index 31 is white
-        }
-
-        //ox = 0; oy = 0;
-        //for(i=0;i<n;i++) { ox += px[i]; oy += py[i]; }
-        //ox /= (double)n; oy /= (double)n;
-        //for(i=0,j=n-1;i<n;j=i,i++) drawline2d(px[i]+(ox-px[i])*.125,py[i]+(oy-py[i])*.125,px[j]+(ox-px[j])*.125,py[j]+(oy-py[j])*.125,31);
-    }
-*/
 }
 
 
