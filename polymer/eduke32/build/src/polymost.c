@@ -555,7 +555,7 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
             return;
         }
 
-        fogresult = (r_usenewshading == 3) ? 0 : -(FOGDISTCONST * shade)/combvis;
+        fogresult = (r_usenewshading == 3 && shade > 0) ? 0 : -(FOGDISTCONST * shade)/combvis;
         fogresult2 = (FOGDISTCONST * (numshades-1-shade))/combvis;
     }
 }
