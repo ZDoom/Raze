@@ -4621,7 +4621,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // Lazily fill in all the textures we need, move this to precaching later
-    if (pr_artmapping && (!pth || !pth->hicr) && tilenum < (MAXTILES - 4)) {
+    if (pr_artmapping && polymer_eligible_for_artmap(tilenum, pth)) {
         if (!prartmaps[tilenum]) {
             char *tilebuffer = (char *)waloff[tilenum];
             char *tempbuffer = (char *)Bmalloc(tilesizx[tilenum] * tilesizy[tilenum]);

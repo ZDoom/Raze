@@ -351,6 +351,12 @@ static inline void polymer_invalidateartmap(int32_t tilenum)
     }
 }
 
+// Compare with eligible_for_tileshades()
+static inline int32_t polymer_eligible_for_artmap(int32_t tilenum, const pthtyp *pth)
+{
+    return ((!pth || !pth->hicr) && tilenum < (MAXTILES - 4));
+}
+
 # ifdef POLYMER_C
 
 // CORE

@@ -56,6 +56,7 @@ extern int32_t r_usetileshades;
 extern int16_t globalpicnum;
 extern int32_t globalpal;
 
+// Compare with polymer_eligible_for_artmap()
 static inline int32_t eligible_for_tileshades(int32_t picnum, int32_t pal)
 {
     return (!usehightile || !hicfindsubst(picnum, pal, 0)) &&
