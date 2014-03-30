@@ -4124,7 +4124,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     int32_t ourxyaspect;
 
 #if defined(USE_OPENGL) && defined(POLYMER)
-    int32_t olddetailmapping = r_detailmapping, oldglowmapping = r_glowmapping;
+    const int32_t olddetailmapping = r_detailmapping, oldglowmapping = r_glowmapping;
+    const int32_t oldnormalmapping = pr_normalmapping;
 #endif
 
 #ifdef USE_OPENGL
@@ -4391,6 +4392,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         
 # ifdef POLYMER
         if (getrendermode() == REND_POLYMER) {
+            pr_normalmapping = 0;
             polymer_inb4rotatesprite(picnum, dapalnum, dashade);
             r_detailmapping = 0;
             r_glowmapping = 0;
@@ -4530,6 +4532,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             r_detailmapping = olddetailmapping;
             r_glowmapping = oldglowmapping;
             polymer_postrotatesprite();
+            pr_normalmapping = oldnormalmapping;
         }
 # endif
         bglMatrixMode(GL_PROJECTION); bglPopMatrix();
