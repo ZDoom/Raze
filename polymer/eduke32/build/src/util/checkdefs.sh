@@ -46,7 +46,10 @@ fi
 
 if [ -z $docon ]; then
     # def
-    files=$(grep -E "\".*\..*\"" "$deffn" | sed 's/.*"\(.*\..*\)".*/\1/g')
+    files=$(grep -E "\"[^ ]*\..*\"" "$deffn" | sed 's/.*"\(.*\..*\)".*/\1/g')
+    files2=$(grep -E '^include ' "$deffn" | sed 's/^include \(.*\)\r/\1/g')  # XXX: \r
+
+    files="$files $files2"
 else
     # con... this is awful
     files=$(grep -E -i '(include *.*\.con)|(definesound.*(voc|wav|ogg))|(definelevelname.*\.map)' "$deffn" |
@@ -55,7 +58,7 @@ else
                 s/.*[ \t]([^ \t].+\.([mM][aA][pP])).*/\1/g;')
 fi
 
-exfiles=$(find "$thedir" -type f)
+exfiles=$(find -L "$thedir" -type f)
 
 sedcmd=""
 
