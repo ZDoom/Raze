@@ -12941,86 +12941,227 @@ static void GenericSpriteSearch(void)
     keystatus[KEYSC_ESC] = 0;
 }
 
+////////// STATUS BAR MENU "class" //////////
+
+#define MENU_MAX_ENTRIES (8*3)
+#define MENU_ENTRY_SIZE 25  // max. length of label (including terminating NUL)
+
+#define MENU_Y_SPACING 8
+#define MENU_BASE_Y (ydim-STATUS2DSIZ+32)
+
+#define MENU_FG_COLOR editorcolors[11]
+#define MENU_BG_COLOR editorcolors[0]
+#define MENU_BG_COLOR_SEL editorcolors[1]
+
+typedef struct StatusBarMenu_ {
+    const char *const menuname;
+    const int32_t custom_start_index;
+    int32_t numentries;
+
+    void (*process_func)(const struct StatusBarMenu_ *m, int32_t col, int32_t row);
+
+    intptr_t auxdata[MENU_MAX_ENTRIES];
+    char name[MENU_MAX_ENTRIES][MENU_ENTRY_SIZE];
+} StatusBarMenu;
+
+#define MENU_INITIALIZER_EMPTY(MenuName, ProcessFunc) \
+    { MenuName, 0, 0, ProcessFunc, {}, {} }
+#define MENU_INITIALIZER(MenuName, CustomStartIndex, ProcessFunc, ...) \
+    { MenuName, CustomStartIndex, CustomStartIndex, ProcessFunc, {}, ## __VA_ARGS__ }
+
+static void M_UnregisterFunction(StatusBarMenu *m, intptr_t auxdata)
+{
+    int32_t i, j;
+
+    for (i=m->custom_start_index; i<m->numentries; i++)
+        if (m->auxdata[i]==auxdata)
+        {
+            for (j=i; j<m->numentries-1; j++)
+            {
+                m->auxdata[j] = m->auxdata[j+1];
+                Bmemcpy(m->name[j], m->name[j+1], MENU_ENTRY_SIZE);
+            }
+
+            m->auxdata[j] = 0;
+            Bmemset(m->name[j], 0, MENU_ENTRY_SIZE);
+
+            m->numentries--;
+
+            break;
+        }
+}
+
+static void M_RegisterFunction(StatusBarMenu *m, const char *name, intptr_t auxdata)
+{
+    int32_t i;
+
+    for (i=8; i<m->numentries; i++)
+    {
+        if (m->auxdata[i]==auxdata)
+        {
+            // same auxdata, different name
+            Bstrncpyz(m->name[i], name, MENU_ENTRY_SIZE);
+            return;
+        }
+        else if (!Bstrncmp(m->name[i], name, MENU_ENTRY_SIZE))
+        {
+            // same name, different auxdata
+            m->auxdata[i] = auxdata;
+            return;
+        }
+    }
+
+    if (m->numentries == MENU_MAX_ENTRIES)
+        return;  // max reached
+
+    Bstrncpyz(m->name[m->numentries], name, MENU_ENTRY_SIZE);
+    m->auxdata[m->numentries] = auxdata;
+
+    m->numentries++;
+}
+
+static void M_DisplayInitial(const StatusBarMenu *m)
+{
+    int32_t x = 8, y = MENU_BASE_Y+16;
+    int32_t i;
+
+    for (i=0; i<m->numentries; i++)
+    {
+        if (i==8 || i==16)
+        {
+            x += 208;
+            y = MENU_BASE_Y+16;
+        }
+
+        printext16(x,y, MENU_FG_COLOR, MENU_BG_COLOR, m->name[i], 0);
+        y += MENU_Y_SPACING;
+    }
+
+    printext16(m->numentries>8 ? 216 : 8, MENU_BASE_Y, MENU_FG_COLOR, -1, m->menuname, 0);
+
+    clearkeys();
+}
+
+static void M_EnterMainLoop(StatusBarMenu *m)
+{
+    char disptext[80];
+    const int32_t dispwidth = MENU_ENTRY_SIZE-1;
+
+    int32_t i, col=0, row=0;
+    int32_t crowmax[3] = {-1, -1, -1};
+    int32_t xpos = 8, ypos = MENU_BASE_Y+16;
+
+    Bmemset(disptext, 0, sizeof(disptext));
+
+    Bassert((unsigned)m->numentries <= MENU_MAX_ENTRIES);
+    for (i=0; i<=(m->numentries-1)/8; i++)
+        crowmax[i] = (m->numentries >= (i+1)*8) ? 7 : (m->numentries-1)&7;
+
+    drawgradient();
+    M_DisplayInitial(m);
+
+    while (keystatus[KEYSC_ESC] == 0)
+    {
+        idle_waitevent();
+        if (handleevents())
+            quitevent = 0;
+
+        _printmessage16("Select an option, press <Esc> to exit");
+
+        if (PRESSED_KEYSC(DOWN))
+        {
+            if (row < crowmax[col])
+            {
+                printext16(xpos, ypos+row*MENU_Y_SPACING, MENU_FG_COLOR, MENU_BG_COLOR, disptext, 0);
+                row++;
+            }
+        }
+        else if (PRESSED_KEYSC(UP))
+        {
+            if (row > 0)
+            {
+                printext16(xpos, ypos+row*MENU_Y_SPACING, MENU_FG_COLOR, MENU_BG_COLOR, disptext, 0);
+                row--;
+            }
+        }
+        else if (PRESSED_KEYSC(LEFT))
+        {
+            if (col > 0)
+            {
+                printext16(xpos, ypos+row*8, MENU_FG_COLOR, 0, disptext, 0);
+                col--;
+                xpos -= 208;
+                disptext[dispwidth] = 0;
+                row = min(crowmax[col], row);
+            }
+        }
+        else if (PRESSED_KEYSC(RIGHT))
+        {
+            if (col < 2 && crowmax[col+1]>=0)
+            {
+                printext16(xpos, ypos+row*8, MENU_FG_COLOR, 0, disptext, 0);
+                col++;
+                xpos += 208;
+                disptext[dispwidth] = 0;
+                row = min(crowmax[col], row);
+            }
+        }
+
+        for (i=Bsnprintf(disptext, dispwidth, "%s", m->name[col*8 + row]); i < dispwidth; i++)
+            disptext[i] = ' ';
+
+        if (PRESSED_KEYSC(ENTER))
+        {
+            Bassert(m->process_func != NULL);
+            m->process_func(m, col, row);
+            break;
+        }
+
+        printext16(xpos, ypos+row*MENU_Y_SPACING, MENU_FG_COLOR, MENU_BG_COLOR_SEL, disptext, 0);
+        showframe(1);
+    }
+
+    printext16(xpos, ypos+row*MENU_Y_SPACING, MENU_FG_COLOR, MENU_BG_COLOR, disptext, 0);
+    showframe(1);
+
+    keystatus[KEYSC_ESC] = 0;
+}
+
 ////////// SPECIAL FUNCTIONS MENU //////////
 
-#define MENU_ENTRY_SIZE 25
+static void FuncMenu_Process(const StatusBarMenu *m, int32_t col, int32_t row);
 
-static int32_t numMenuFunctions = 8;
-static char funcMenuStrings[8*3][MENU_ENTRY_SIZE] =
+static StatusBarMenu g_specialFuncMenu = MENU_INITIALIZER(
+    "Special functions", 8, FuncMenu_Process,
+
+    {
+        "Replace invalid tiles",
+        "Delete all spr of tile #",
+        "Set map sky shade",
+        "Set map sky height",
+        "Global Z coord shift",
+        "Resize selection",
+        "Global shade divide",
+        "Global visibility divide"
+    }
+);
+
+// "External functions":
+
+static void FuncMenu(void)
 {
-    "Replace invalid tiles",
-    "Delete all spr of tile #",
-    "Set map sky shade",
-    "Set map sky height",
-    "Global Z coord shift",
-    "Resize selection",
-    "Global shade divide",
-    "Global visibility divide"
-    // dynamic menu entries start here
-};
-
-static ofstype funcMenuStatenum[8*2];
+    M_EnterMainLoop(&g_specialFuncMenu);
+}
 
 void registerMenuFunction(const char *funcname, int32_t stateidx)
 {
-    char fn[MENU_ENTRY_SIZE];
-    int32_t i;
-
-    if (funcname == NULL)  // unregister stateidx
-    {
-        int32_t j;
-
-        for (i=8; i<numMenuFunctions; i++)
-            if (funcMenuStatenum[i-8]==stateidx)
-            {
-                for (j=i; j<numMenuFunctions-1; j++)
-                {
-                    funcMenuStatenum[j-8] = funcMenuStatenum[j+1-8];
-                    Bmemcpy(funcMenuStrings[j], funcMenuStrings[j+1], MENU_ENTRY_SIZE);
-                }
-
-                funcMenuStatenum[j-8] = 0;
-                Bmemset(funcMenuStrings[j], 0, MENU_ENTRY_SIZE);
-
-                numMenuFunctions--;
-
-                break;
-            }
-
-        return;
-    }
-
-    // Register menu entry named FUNCNAME to call the M32script
-    // state with index STATEIDX.
-    Bstrncpyz(fn, funcname, sizeof(fn));
-
-    for (i=8; i<numMenuFunctions; i++)
-    {
-        if (funcMenuStatenum[i-8]==stateidx)
-        {
-            // same stateidx, different name
-            Bstrncpyz(funcMenuStrings[i], fn, MENU_ENTRY_SIZE);
-            return;
-        }
-        else if (!Bstrcmp(funcMenuStrings[i], fn))
-        {
-            // same name, different stateidx
-            funcMenuStatenum[i-8] = stateidx;
-            return;
-        }
-    }
-
-    if (numMenuFunctions == 3*8)
-        return;  // max reached
-
-    Bstrncpyz(funcMenuStrings[numMenuFunctions], fn, MENU_ENTRY_SIZE);
-    funcMenuStatenum[numMenuFunctions-8] = stateidx;
-
-    numMenuFunctions++;
+    if (funcname)
+        M_RegisterFunction(&g_specialFuncMenu, funcname, stateidx);
+    else
+        M_UnregisterFunction(&g_specialFuncMenu, stateidx);
 }
 
-#define MENU_Y_SPACING 8
-#define MENU_BASE_Y ydim-STATUS2DSIZ+32
+// The processing function...
 
 static int32_t correct_picnum(int16_t *picnumptr)
 {
@@ -13035,335 +13176,215 @@ static int32_t correct_picnum(int16_t *picnumptr)
     return 0;
 }
 
-static void FuncMenuOpts(void)
+static void FuncMenu_Process(const StatusBarMenu *m, int32_t col, int32_t row)
 {
-    int32_t x = 8;
-    int32_t y = MENU_BASE_Y+16;
-    int32_t i;
+    int32_t i, j;
 
-    for (i=0; i<numMenuFunctions; i++)
+    switch (col)
     {
-        if (i==8 || i==16)
-        {
-            x += 208;
-            y = MENU_BASE_Y+16;
-        }
 
-        printext16(x,y,editorcolors[11],editorcolors[0],funcMenuStrings[i],0);
-        y += MENU_Y_SPACING;
+    case 1:
+    case 2:
+    {
+        const int32_t stateidx = (Bassert(m->auxdata[col*8 + row] < g_stateCount),
+                                  m->auxdata[col*8 + row]);
+
+        const char *statename = statesinfo[stateidx].name;
+        int32_t snlen = Bstrlen(statename);
+        char *tmpscript = (char *)Bmalloc(1+5+1+snlen+1);
+
+        if (!tmpscript)
+            break;
+
+        tmpscript[0] = ' ';  // don't save in history
+        Bmemcpy(&tmpscript[1], "state", 5);
+        tmpscript[1+5] = ' ';
+        Bmemcpy(&tmpscript[1+5+1], statename, snlen);
+        tmpscript[1+5+1+snlen] = 0;
+
+        M32RunScript(tmpscript);
+        Bfree(tmpscript);
+
+        if (vm.flags&VMFLAG_ERROR)
+            printmessage16("There were errors while executing the menu function");
+        else if (lastpm16time != totalclock)
+            printmessage16("Menu function executed successfully");
     }
+    break;
 
-    printext16(numMenuFunctions>8 ? 216 : 8, MENU_BASE_Y,
-               editorcolors[11], -1, "Special functions", 0);
-
-    clearkeys();
-}
-
-static void FuncMenu(void)
-{
-    char disptext[80];
-    int32_t col=0, row=0, rowmax=7, dispwidth = 24, editval = 0, i = -1, j;
-    int32_t xpos = 8, ypos = MENU_BASE_Y+16;
-    int32_t crowmax[3] = {7, -1, -1};
-
-    if (numMenuFunctions > 16)
+    case 0:
     {
-        crowmax[2] = numMenuFunctions-16-1;
-        crowmax[1] = 7;
-    }
-    else if (numMenuFunctions > 8)
-        crowmax[1] = numMenuFunctions-8-1;
-
-    drawgradient();
-
-    disptext[dispwidth] = 0;
-
-    FuncMenuOpts();
-
-    while (!editval && keystatus[KEYSC_ESC] == 0)
-    {
-        idle_waitevent();
-        if (handleevents())
-            quitevent = 0;
-
-        _printmessage16("Select an option, press <Esc> to exit");
-        if (PRESSED_KEYSC(DOWN))
+        switch (row)
         {
-            if (row < rowmax)
+
+        case 0:
+        {
+            j = 0;
+
+            for (i=0; i<MAXSECTORS; i++)
             {
-                printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[0],disptext,0);
-                row++;
+                j += correct_picnum(&sector[i].ceilingpicnum);
+                j += correct_picnum(&sector[i].floorpicnum);
             }
-        }
-        if (PRESSED_KEYSC(UP))
-        {
-            if (row > 0)
+
+            for (i=0; i<MAXWALLS; i++)
             {
-                printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[0],disptext,0);
-                row--;
+                j += correct_picnum(&wall[i].picnum);
+                j += correct_picnum(&wall[i].overpicnum);
             }
+            for (i=0; i<MAXSPRITES; i++)
+                j += correct_picnum(&sprite[i].picnum);
+
+            printmessage16("Replaced %d invalid tiles",j);   
         }
+        break;
 
-        if (PRESSED_KEYSC(LEFT))
-        {
-            if (col > 0)
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
-                col--;
-                xpos -= 208;
-                rowmax = crowmax[col];
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-        }
-
-        if (PRESSED_KEYSC(RIGHT))
-        {
-            if (col < 2 && crowmax[col+1]>=0)
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
-                col++;
-                xpos += 208;
-                rowmax = crowmax[col];
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-        }
-
-        if (PRESSED_KEYSC(ENTER))
-            editval = 1;
-
-        switch (col)
-        {
         case 1:
+        {
+            Bsprintf(tempbuf,"Delete all sprites of tile #: ");
+            i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
+            if (i >= 0)
+            {
+                int32_t k = 0;
+                for (j=0; j<MAXSPRITES; j++)
+                    if (sprite[j].picnum == i)
+                        deletesprite(j), k++;
+                printmessage16("%d sprite(s) deleted",k);
+            }
+            else printmessage16("Aborted");
+        }
+        break;
+
         case 2:
         {
-            for (i=Bsnprintf(disptext,dispwidth,"%s",funcMenuStrings[col*8 + row]); i < dispwidth; i++)
-                disptext[i] = ' ';
+            j=getnumber16("Set map sky shade:    ",0,128,1);
 
-            if (editval)
+            for (i=0; i<numsectors; i++)
             {
-                char *statename = statesinfo[funcMenuStatenum[(col-1)*8 + row]].name;
-                int32_t snlen = Bstrlen(statename);
-                char *tmpscript = (char *)Bmalloc(1+5+1+snlen+1);
-
-                if (!tmpscript)
-                    break;
-
-                tmpscript[0] = ' ';  // don't save in history
-                Bmemcpy(&tmpscript[1], "state", 5);
-                tmpscript[1+5] = ' ';
-                Bmemcpy(&tmpscript[1+5+1], statename, snlen);
-                tmpscript[1+5+1+snlen] = 0;
-
-                M32RunScript(tmpscript);
-                Bfree(tmpscript);
-
-                if (vm.flags&VMFLAG_ERROR)
-                    printmessage16("There were errors while executing the menu function");
-                else if (lastpm16time != totalclock)
-                    printmessage16("Menu function executed successfully");
+                if (sector[i].ceilingstat&1)
+                    sector[i].ceilingshade = j;
             }
-
-            break;
+            printmessage16("All parallax skies adjusted");
         }
-        case 0:
-            switch (row)
-            {
-            case 0:
-            {
-                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j = 0;
-                    for (i=0; i<MAXSECTORS; i++)
-                    {
-                        j += correct_picnum(&sector[i].ceilingpicnum);
-                        j += correct_picnum(&sector[i].floorpicnum);
-                    }
-                    for (i=0; i<MAXWALLS; i++)
-                    {
-                        j += correct_picnum(&wall[i].picnum);
-                        j += correct_picnum(&wall[i].overpicnum);
-                    }
-                    for (i=0; i<MAXSPRITES; i++)
-                    {
-                        j += correct_picnum(&sprite[i].picnum);
-                    }
-                    printmessage16("Replaced %d invalid tiles",j);
-                }
-            }
-            break;
-            case 1:
-            {
-                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(tempbuf,"Delete all sprites of tile #: ");
-                    i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
-                    if (i >= 0)
-                    {
-                        int32_t k = 0;
-                        for (j=0; j<MAXSPRITES; j++)
-                            if (sprite[j].picnum == i)
-                                deletesprite(j), k++;
-                        printmessage16("%d sprite(s) deleted",k);
-                    }
-                    else printmessage16("Aborted");
-                }
-            }
-            break;
-            case 2:
-            {
-                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Set map sky shade:    ",0,128,1);
+        break;
 
-                    for (i=0; i<numsectors; i++)
-                    {
-                        if (sector[i].ceilingstat&1)
-                            sector[i].ceilingshade = j;
-                    }
-                    printmessage16("All parallax skies adjusted");
-                }
-            }
-            break;
-            case 3:
+        case 3:
+        {
+            j=getnumber16("Set map sky height:    ",0,16777216,1);
+            if (j != 0)
             {
-                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                for (i=0; i<numsectors; i++)
                 {
-                    j=getnumber16("Set map sky height:    ",0,16777216,1);
-                    if (j != 0)
-                    {
-                        for (i=0; i<numsectors; i++)
-                        {
-                            if (sector[i].ceilingstat&1)
-                                sector[i].ceilingz = j;
-                        }
-                        printmessage16("All parallax skies adjusted");
-                    }
-                    else printmessage16("Aborted");
+                    if (sector[i].ceilingstat&1)
+                        sector[i].ceilingz = j;
                 }
+                printmessage16("All parallax skies adjusted");
             }
-            break;
-            case 4:
-            {
-                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Z offset:    ",0,16777216,1);
-                    if (j!=0)
-                    {
-                        for (i=0; i<numsectors; i++)
-                        {
-                            sector[i].ceilingz += j;
-                            sector[i].floorz += j;
-                        }
-                        for (i=0; i<MAXSPRITES; i++)
-                            sprite[i].z += j;
-                        printmessage16("Map adjusted");
-                    }
-                    else printmessage16("Aborted");
-                }
-            }
-            break;
-            case 5:
-            {
-                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Percentage of original:    ",100,1000,0);
-                    if (j!=100 && j!=0)
-                    {
-                        int32_t w, currsector, start_wall, end_wall;
-                        double size = (j/100.f);
-                        for (i = 0; i < highlightsectorcnt; i++)
-                        {
-                            currsector = highlightsector[i];
-                            sector[currsector].ceilingz = (int32_t)(sector[currsector].ceilingz*size);
-                            sector[currsector].floorz = (int32_t)(sector[currsector].floorz*size);
-                            // Do all the walls in the sector
-                            start_wall = sector[currsector].wallptr;
-                            end_wall = start_wall + sector[currsector].wallnum;
-                            for (w = start_wall; w < end_wall; w++)
-                            {
-                                wall[w].x = (int32_t)(wall[w].x*size);
-                                wall[w].y = (int32_t)(wall[w].y*size);
-                                wall[w].yrepeat = min((int32_t)(wall[w].yrepeat/size),255);
-                            }
-                            w = headspritesect[highlightsector[i]];
-                            while (w >= 0)
-                            {
-                                sprite[w].x = (int32_t)(sprite[w].x*size);
-                                sprite[w].y = (int32_t)(sprite[w].y*size);
-                                sprite[w].z = (int32_t)(sprite[w].z*size);
-                                sprite[w].xrepeat = min(max((int32_t)(sprite[w].xrepeat*size),1),255);
-                                sprite[w].yrepeat = min(max((int32_t)(sprite[w].yrepeat*size),1),255);
-                                w = nextspritesect[w];
-                            }
-                        }
-                        printmessage16("Map scaled");
-                    }
-                    else printmessage16("Aborted");
-                }
-            }
-            break;
-            case 6:
-            {
-                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Shade divisor:    ",1,128,1);
-                    if (j > 1)
-                    {
-                        for (i=0; i<numsectors; i++)
-                        {
-                            sector[i].ceilingshade /= j;
-                            sector[i].floorshade /= j;
-                        }
-                        for (i=0; i<numwalls; i++)
-                            wall[i].shade /= j;
-                        for (i=0; i<MAXSPRITES; i++)
-                            sprite[i].shade /= j;
-                        printmessage16("Shades adjusted");
-                    }
-                    else printmessage16("Aborted");
-                }
-            }
-            break;
-            case 7:
-            {
-                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Visibility divisor:    ",1,128,0);
-                    if (j > 1)
-                    {
-                        for (i=0; i<numsectors; i++)
-                        {
-                            if (sector[i].visibility < 240)
-                                sector[i].visibility /= j;
-                            else sector[i].visibility = 240 + (sector[i].visibility>>4)/j;
-                        }
-                        printmessage16("Visibility adjusted");
-                    }
-                    else printmessage16("Aborted");
-                }
-            }
-            break;
-            }
-            break;
+            else printmessage16("Aborted");
         }
+        break;
 
-        printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[1],disptext,0);
+        case 4:
+        {
+            j=getnumber16("Z offset:    ",0,16777216,1);
+            if (j!=0)
+            {
+                for (i=0; i<numsectors; i++)
+                {
+                    sector[i].ceilingz += j;
+                    sector[i].floorz += j;
+                }
+                for (i=0; i<MAXSPRITES; i++)
+                    sprite[i].z += j;
+                printmessage16("Map adjusted");
+            }
+            else printmessage16("Aborted");
+        }
+        break;
 
-        showframe(1);
+        case 5:
+        {
+            j=getnumber16("Percentage of original:    ",100,1000,0);
+
+            if (j!=100 && j!=0)
+            {
+                int32_t w, currsector, start_wall, end_wall;
+                double size = (j/100.f);
+
+                for (i = 0; i < highlightsectorcnt; i++)
+                {
+                    currsector = highlightsector[i];
+                    sector[currsector].ceilingz = (int32_t)(sector[currsector].ceilingz*size);
+                    sector[currsector].floorz = (int32_t)(sector[currsector].floorz*size);
+
+                    // Do all the walls in the sector
+                    start_wall = sector[currsector].wallptr;
+                    end_wall = start_wall + sector[currsector].wallnum;
+
+                    for (w = start_wall; w < end_wall; w++)
+                    {
+                        wall[w].x = (int32_t)(wall[w].x*size);
+                        wall[w].y = (int32_t)(wall[w].y*size);
+                        wall[w].yrepeat = min((int32_t)(wall[w].yrepeat/size),255);
+                    }
+
+                    w = headspritesect[highlightsector[i]];
+                    while (w >= 0)
+                    {
+                        sprite[w].x = (int32_t)(sprite[w].x*size);
+                        sprite[w].y = (int32_t)(sprite[w].y*size);
+                        sprite[w].z = (int32_t)(sprite[w].z*size);
+                        sprite[w].xrepeat = min(max((int32_t)(sprite[w].xrepeat*size),1),255);
+                        sprite[w].yrepeat = min(max((int32_t)(sprite[w].yrepeat*size),1),255);
+                        w = nextspritesect[w];
+                    }
+                }
+                printmessage16("Map scaled");
+            }
+            else printmessage16("Aborted");
+        }
+        break;
+
+        case 6:
+        {
+            j=getnumber16("Shade divisor:    ",1,128,1);
+            if (j > 1)
+            {
+                for (i=0; i<numsectors; i++)
+                {
+                    sector[i].ceilingshade /= j;
+                    sector[i].floorshade /= j;
+                }
+                for (i=0; i<numwalls; i++)
+                    wall[i].shade /= j;
+                for (i=0; i<MAXSPRITES; i++)
+                    sprite[i].shade /= j;
+                printmessage16("Shades adjusted");
+            }
+            else printmessage16("Aborted");
+        }
+        break;
+
+        case 7:
+        {
+            j=getnumber16("Visibility divisor:    ",1,128,0);
+            if (j > 1)
+            {
+                for (i=0; i<numsectors; i++)
+                {
+                    if (sector[i].visibility < 240)
+                        sector[i].visibility /= j;
+                    else sector[i].visibility = 240 + (sector[i].visibility>>4)/j;
+                }
+                printmessage16("Visibility adjusted");
+            }
+            else printmessage16("Aborted");
+        }
+        break;
+
+        }  // switch (row)
     }
+    break;  // switch (col) / case 0
 
-    printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[0],disptext,0);
-
-    showframe(1);
-    keystatus[KEYSC_ESC] = 0;
+    }  // switch (col)
 }

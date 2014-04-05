@@ -56,7 +56,7 @@ extern instype *g_scriptPtr;
 void C_Compile(const char *filenameortext, int32_t isfilename);
 void C_CompilationInfo(void);
 
-void registerMenuFunction(const char *funcname, ofstype scriptofs);
+void registerMenuFunction(const char *funcname, int32_t stateidx);
 void M32_PostScriptExec(void);
 
 typedef struct
