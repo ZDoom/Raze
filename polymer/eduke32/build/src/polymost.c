@@ -2115,7 +2115,7 @@ void polymost_scansector(int32_t sectnum);
 // on which one is processed right now
 static int32_t global_cf_z;
 static float global_cf_xpanning, global_cf_ypanning, global_cf_heinum;
-static int32_t global_cf_shade, global_cf_pal;
+static int32_t global_cf_shade, global_cf_pal, global_cf_fogpal;
 static int32_t (*global_getzofslope_func)(int16_t, int32_t, int32_t);
 
 static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, double ny1, double ryp0, double ryp1,
@@ -2238,7 +2238,8 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
         if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
     }
 
-    calc_and_apply_fog(globalpicnum, global_cf_shade, sec->visibility, global_cf_pal);
+    calc_and_apply_fog(globalpicnum, global_cf_shade, sec->visibility,
+                       POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
 
     pow2xsplit = 0;
     alpha = 0.f;
@@ -2366,6 +2367,7 @@ static void polymost_drawalls(int32_t bunch)
 
         dapskyoff = getpsky(globalpicnum, NULL, &dapskybits);
 
+        global_cf_fogpal = sec->filler;
         global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT
         global_cf_xpanning = sec->floorxpanning; global_cf_ypanning = sec->floorypanning, global_cf_heinum = sec->floorheinum;
         global_getzofslope_func = &getflorzofslope;
@@ -2633,6 +2635,7 @@ static void polymost_drawalls(int32_t bunch)
 
         dapskyoff = getpsky(globalpicnum, NULL, &dapskybits);
 
+        global_cf_fogpal = sec->filler;
         global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
         global_cf_xpanning = sec->ceilingxpanning; global_cf_ypanning = sec->ceilingypanning, global_cf_heinum = sec->ceilingheinum;
         global_getzofslope_func = &getceilzofslope;
@@ -2966,7 +2969,7 @@ static void polymost_drawalls(int32_t bunch)
                 }
                 if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-                calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, sec->floorpal);
+                calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
                 if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
@@ -3001,7 +3004,7 @@ static void polymost_drawalls(int32_t bunch)
                 }
                 if (nwal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-                calc_and_apply_fog(nwal->picnum, nwal->shade, sec->visibility, sec->floorpal);
+                calc_and_apply_fog(nwal->picnum, nwal->shade, sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
                 if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
@@ -3032,7 +3035,7 @@ static void polymost_drawalls(int32_t bunch)
             }
             if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-            calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, sec->floorpal);
+            calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, get_floor_fogpal(sec));
 
             pow2xsplit = 1; domost(x0,-10000,x1,-10000);
         }
@@ -3586,7 +3589,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     method = 1; pow2xsplit = 1;
     if (wal->cstat&128) { if (!(wal->cstat&512)) method = 2; else method = 3; }
 
-    calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, sec->floorpal);
+    calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, get_floor_fogpal(sec));
 
     for (i=0; i<2; i++)
     {
@@ -3698,7 +3701,8 @@ void polymost_drawsprite(int32_t snum)
     alpha = spriteext[spritenum].alpha;
 
 #ifdef USE_OPENGL
-    calc_and_apply_fog(tspr->picnum, globalshade, sector[tspr->sectnum].visibility, sector[tspr->sectnum].floorpal);
+    calc_and_apply_fog(tspr->picnum, globalshade, sector[tspr->sectnum].visibility,
+                       get_floor_fogpal(&sector[tspr->sectnum]));
 
     while (getrendermode() >= REND_POLYMOST && !(spriteext[spritenum].flags&SPREXT_NOTMD))
     {
