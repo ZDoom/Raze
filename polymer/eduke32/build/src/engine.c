@@ -1337,7 +1337,7 @@ static spritetype *loadsprite;
 #define CM_CSTAT hitag
 #define CM_ANG extra
 #define CM_FLOORZ(Sec) (*(int32_t *)&sector[Sec].ceilingxpanning)  // ceilingxpanning,ceilingypanning,floorpicnum
-#define CM_CEILINGZ(Sec) (*(int32_t *)&sector[Sec].visibility)  // visibility,filler,lotag
+#define CM_CEILINGZ(Sec) (*(int32_t *)&sector[Sec].visibility)  // visibility,fogpal,lotag
 
 // backup of original normalized coordinates
 #define CM_WALL_X(Wal) (*(int32_t *)&wall[Wal].picnum)  // picnum, overpicnum

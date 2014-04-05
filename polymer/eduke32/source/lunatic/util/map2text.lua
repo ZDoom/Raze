@@ -58,7 +58,7 @@ local sector_members = {
     "floorpicnum", "floorheinum",
     "floorshade",
     "floorpal", "floorxpanning", "floorypanning",
-    "visibility", "filler",
+    "visibility", "fogpal",
     "lotag", "hitag", "extra",
 }
 

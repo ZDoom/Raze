@@ -43,7 +43,7 @@ local sector_members = {
     Y = "ceilingypanning", y = "floorypanning",
 
     v = "visibility",
-    _ = "filler",
+    _ = "fogpal",
     o = "lotag", i = "hitag", e = { "extra", -1 }
 }
 

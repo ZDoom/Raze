@@ -29,7 +29,7 @@ local STRUCTDEF = {
     int16_t floorpicnum, floorheinum;
     int8_t floorshade;
     uint8_t floorpal, floorxpanning, floorypanning;
-    uint8_t visibility, filler;
+    uint8_t visibility, fogpal;
     int16_t lotag, hitag, extra;
 ]],
 

@@ -441,12 +441,12 @@ const memberlabel_t SectorLabels[]=
     { "floorxpanning", SECTOR_FLOORXPANNING, 0, 0, 0 },
     { "floorypanning", SECTOR_FLOORYPANNING, 0, 0, 0 },
     { "visibility", SECTOR_VISIBILITY, 0, 0, 0 },
-    { "alignto", SECTOR_ALIGNTO, 0, 0, 0 }, // aka filler, not used
+    { "fogpal", SECTOR_FOGPAL, 0, 0, 0 }, // formerly filler
     { "lotag", SECTOR_LOTAG, 0, 0, 0 },
     { "hitag", SECTOR_HITAG, 0, 0, 0 },
     { "extra", SECTOR_EXTRA, 0, 0, 0 },
 // aliases
-    { "filler", SECTOR_ALIGNTO, 0, 0, 0 },
+    { "alignto", SECTOR_FOGPAL, 0, 0, 0 }, // formerly filler
     { "ceilingheinum", SECTOR_CEILINGSLOPE, 0, 0, 0},
     { "floorheinum", SECTOR_FLOORSLOPE, 0, 0, 0},
 

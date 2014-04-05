@@ -205,7 +205,7 @@ string.format([[
     };
 ]], CF_MEMBERS:gsub("~","ceiling"), CF_MEMBERS:gsub("~","floor"))
 ..[[
-    uint8_t visibility, filler;
+    uint8_t visibility, fogpal;
     int16_t lotag, hitag;  // NOTE: signed for Lunatic
     int16_t extra;
 }]]

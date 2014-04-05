@@ -2367,7 +2367,7 @@ static void polymost_drawalls(int32_t bunch)
 
         dapskyoff = getpsky(globalpicnum, NULL, &dapskybits);
 
-        global_cf_fogpal = sec->filler;
+        global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT
         global_cf_xpanning = sec->floorxpanning; global_cf_ypanning = sec->floorypanning, global_cf_heinum = sec->floorheinum;
         global_getzofslope_func = &getflorzofslope;
@@ -2635,7 +2635,7 @@ static void polymost_drawalls(int32_t bunch)
 
         dapskyoff = getpsky(globalpicnum, NULL, &dapskybits);
 
-        global_cf_fogpal = sec->filler;
+        global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
         global_cf_xpanning = sec->ceilingxpanning; global_cf_ypanning = sec->ceilingypanning, global_cf_heinum = sec->ceilingheinum;
         global_getzofslope_func = &getceilzofslope;

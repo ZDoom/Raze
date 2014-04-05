@@ -710,8 +710,8 @@ local SectorLabels = {
     floorypanning = SEC".floorypanning",
 
     visibility = SEC".visibility",
-    filler = SEC".filler",
-    alignto = SEC".filler",  -- NAME
+    fogpal = SEC".fogpal",
+    alignto = SEC".fogpal",  -- NAME
 
     lotag = SEC".lotag",
     hitag = SEC".hitag",

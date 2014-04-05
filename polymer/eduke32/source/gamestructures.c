@@ -2362,13 +2362,13 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
         Gv_SetVarX(lVar2, sector[iSector].visibility);
         return;
 
-    case SECTOR_ALIGNTO:
+    case SECTOR_FOGPAL:
         if (iSet)
         {
-            sector[iSector].filler=lValue;
+            sector[iSector].fogpal=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, sector[iSector].filler);
+        Gv_SetVarX(lVar2, sector[iSector].fogpal);
         return;
 
     case SECTOR_LOTAG:
@@ -3581,7 +3581,7 @@ static int32_t __fastcall VM_AccessSectorX(int32_t iSector, int32_t lLabelID)
     case SECTOR_FLOORXPANNING: return sector[iSector].floorxpanning;
     case SECTOR_FLOORYPANNING: return sector[iSector].floorypanning;
     case SECTOR_VISIBILITY: return sector[iSector].visibility;
-    case SECTOR_ALIGNTO: return sector[iSector].filler;
+    case SECTOR_FOGPAL: return sector[iSector].fogpal;
     case SECTOR_LOTAG: return (int16_t)sector[iSector].lotag;
     case SECTOR_HITAG: return (int16_t)sector[iSector].hitag;
     case SECTOR_ULOTAG: return sector[iSector].lotag;

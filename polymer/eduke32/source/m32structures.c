@@ -220,7 +220,7 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
         case SECTOR_FLOORXPANNING: sector[i].floorxpanning=lValue; break;
         case SECTOR_FLOORYPANNING: sector[i].floorypanning=lValue; break;
         case SECTOR_VISIBILITY: sector[i].visibility=lValue; break;
-        case SECTOR_ALIGNTO: sector[i].filler=lValue; break;
+        case SECTOR_FOGPAL: sector[i].fogpal=lValue; break;
         case SECTOR_LOTAG: sector[i].lotag=lValue; break;
         case SECTOR_HITAG: sector[i].hitag=lValue; break;
         case SECTOR_EXTRA: sector[i].extra=lValue; break;
@@ -253,7 +253,7 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
         case SECTOR_FLOORXPANNING: lValue=sector[i].floorxpanning; break;
         case SECTOR_FLOORYPANNING: lValue=sector[i].floorypanning; break;
         case SECTOR_VISIBILITY: lValue=sector[i].visibility; break;
-        case SECTOR_ALIGNTO: lValue=sector[i].filler; break;
+        case SECTOR_FOGPAL: lValue=sector[i].fogpal; break;
         case SECTOR_LOTAG: lValue=sector[i].lotag; break;
         case SECTOR_HITAG: lValue=sector[i].hitag; break;
         case SECTOR_EXTRA: lValue=sector[i].extra; break;

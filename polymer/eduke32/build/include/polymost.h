@@ -77,15 +77,15 @@ static inline float getshadefactor(int32_t shade)
     return ((float)(numshades-clamped_shade))/(float)numshades;
 }
 
-#define POLYMOST_CHOOSE_FOG_PAL(filler, pal) \
-    ((filler) ? (filler) : (pal))
+#define POLYMOST_CHOOSE_FOG_PAL(fogpal, pal) \
+    ((fogpal) ? (fogpal) : (pal))
 static inline int32_t get_floor_fogpal(const sectortype *sec)
 {
-    return POLYMOST_CHOOSE_FOG_PAL(sec->filler, sec->floorpal);
+    return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->floorpal);
 }
 static inline int32_t get_ceiling_fogpal(const sectortype *sec)
 {
-    return POLYMOST_CHOOSE_FOG_PAL(sec->filler, sec->ceilingpal);
+    return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->ceilingpal);
 }
 
 typedef struct pthtyp_t

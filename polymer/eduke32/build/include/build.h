@@ -324,7 +324,7 @@ typedef struct
     Tracker(Sector, int16_t) floorpicnum, floorheinum;
     Tracker(Sector, int8_t) floorshade;
     Tracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
-    Tracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, filler;
+    Tracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
     Tracker(Sector, uint16_t) lotag, hitag;
     Tracker(Sector, int16_t) extra;
 } sectortypev7;
@@ -425,7 +425,7 @@ typedef struct
     Tracker(Sector, int8_t) floorshade;
     Tracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
 
-    Tracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, filler;
+    Tracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
     Tracker(Sector, uint16_t) lotag, hitag;
     Tracker(Sector, int16_t) extra;
 } sectortypevx;

@@ -200,7 +200,7 @@ static void convertv6sectv7(struct sectortypev6 *from, sectortype *to)
     to->ceilingstat = from->ceilingstat;
     to->floorstat = from->floorstat;
     to->visibility = from->visibility;
-    to->filler = 0;
+    to->fogpal = 0;
     to->lotag = from->lotag;
     to->hitag = from->hitag;
     to->extra = from->extra;
