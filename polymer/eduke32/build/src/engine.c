@@ -2356,8 +2356,7 @@ static int32_t globalyscale;
 static int32_t globalxspan, globalyspan, globalispow2=1;  // true if texture has power-of-two x and y size
 static intptr_t globalbufplc;
 
-static int32_t globaly1, globalx2, globalzx;
-static int32_t globalx, globaly, globalz;
+static int32_t globaly1, globalx2;
 
 int16_t sectorborder[256], sectorbordercnt;
 int32_t ydim16, qsetmode = 0;
@@ -3243,14 +3242,45 @@ int32_t animateoffs(int16_t tilenum, int16_t fakevar)
 }
 
 
+static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
+                                    int32_t ix1, int32_t iy1, int32_t ix2, int32_t iy2)
+{
+    const int32_t y = scale(z1, xdimenscale, iy1)<<4;
+
+#if 0
+    // enable for paranoia:
+    ix1 = clamp(ix1, 0, xres-1);
+    ix2 = clamp(ix2, 0, xres-1);
+    if (ix2-ix1 < 0)
+        swaplong(&ix1, &ix2);
+#endif
+    {
+        // PK 20110423: a bit consistency checking is a good thing:
+        int32_t tmp = (ix2-ix1 >= 0) ? (ix2-ix1+1) : 1;
+        int32_t yinc = ((scale(z2, xdimenscale, iy2)<<4) - y) / tmp;
+
+        qinterpolatedown16short((intptr_t)&mostbuf[ix1], tmp, y+(globalhoriz<<16), yinc);
+    }
+
+    if (mostbuf[ix1] < 0)
+        mostbuf[ix1] = 0;
+    if (mostbuf[ix1] > ydimen)
+        mostbuf[ix1] = ydimen;
+
+    if (mostbuf[ix2] < 0)
+        mostbuf[ix2] = 0;
+    if (mostbuf[ix2] > ydimen)
+        mostbuf[ix2] = ydimen;
+}
+
 //
 // owallmost (internal)
 //
 static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
 {
-    int32_t bad, inty, xcross, y, yinc;
+    int32_t bad, inty, xcross;
     int32_t s1, s2, s3, s4, ix1, ix2, iy1, iy2, t;
-    int32_t i, tmp;
+    int32_t i;
 
     z <<= 7;
     s1 = mulscale20(globaluclip,yb1[w]); s2 = mulscale20(globaluclip,yb2[w]);
@@ -3262,16 +3292,16 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
 
     if ((bad&3) == 3)
     {
-        //clearbufbyte(&mostbuf[ix1],(ix2-ix1+1)*sizeof(mostbuf[0]),0L);
-        for (i=ix1; i<=ix2; i++) mostbuf[i] = 0;
-        return(bad);
+        for (i=ix1; i<=ix2; i++)
+            mostbuf[i] = 0;
+        return bad;
     }
 
     if ((bad&12) == 12)
     {
-        //clearbufbyte(&mostbuf[ix1],(ix2-ix1+1)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-        for (i=ix1; i<=ix2; i++) mostbuf[i] = ydimen;
-        return(bad);
+        for (i=ix1; i<=ix2; i++)
+            mostbuf[i] = ydimen;
+        return bad;
     }
 
     if (bad&3)
@@ -3283,14 +3313,14 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
         if ((bad&3) == 2)
         {
             if (xb1[w] <= xcross) { iy2 = inty; ix2 = xcross; }
-            //clearbufbyte(&mostbuf[xcross+1],(xb2[w]-xcross)*sizeof(mostbuf[0]),0L);
-            for (i=xcross+1; i<=xb2[w]; i++) mostbuf[i] = 0;
+            for (i=xcross+1; i<=xb2[w]; i++)
+                mostbuf[i] = 0;
         }
         else
         {
             if (xcross <= xb2[w]) { iy1 = inty; ix1 = xcross; }
-            //clearbufbyte(&mostbuf[xb1[w]],(xcross-xb1[w]+1)*sizeof(mostbuf[0]),0L);
-            for (i=xb1[w]; i<=xcross; i++) mostbuf[i] = 0;
+            for (i=xb1[w]; i<=xcross; i++)
+                mostbuf[i] = 0;
         }
     }
 
@@ -3303,63 +3333,62 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
         if ((bad&12) == 8)
         {
             if (xb1[w] <= xcross) { iy2 = inty; ix2 = xcross; }
-            //clearbufbyte(&mostbuf[xcross+1],(xb2[w]-xcross)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-            for (i=xcross+1; i<=xb2[w]; i++) mostbuf[i] = ydimen;
+            for (i=xcross+1; i<=xb2[w]; i++)
+                mostbuf[i] = ydimen;
         }
         else
         {
             if (xcross <= xb2[w]) { iy1 = inty; ix1 = xcross; }
-            //clearbufbyte(&mostbuf[xb1[w]],(xcross-xb1[w]+1)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-            for (i=xb1[w]; i<=xcross; i++) mostbuf[i] = ydimen;
+            for (i=xb1[w]; i<=xcross; i++)
+                mostbuf[i] = ydimen;
         }
     }
 
-    y = (scale(z,xdimenscale,iy1)<<4);
+    wallmosts_finish(mostbuf, z, z, ix1, iy1, ix2, iy2);
 
-//// enable for paranoia:
-//    ix1 = clamp(ix1, 0, xres-1);
-//    ix2 = clamp(ix2, 0, xres-1);
-//    if (ix2-ix1 < 0)
-//        swaplong(&ix1, &ix2);
-
-    // PK 20110423: a bit consistency checking is a good thing:
-    tmp = (ix2-ix1 >= 0) ? (ix2-ix1+1) : 1;
-    yinc = ((scale(z,xdimenscale,iy2)<<4)-y) / tmp;
-    qinterpolatedown16short((intptr_t)&mostbuf[ix1],tmp,y+(globalhoriz<<16),yinc);
-
-    if (mostbuf[ix1] < 0) mostbuf[ix1] = 0;
-    if (mostbuf[ix1] > ydimen) mostbuf[ix1] = ydimen;
-    if (mostbuf[ix2] < 0) mostbuf[ix2] = 0;
-    if (mostbuf[ix2] > ydimen) mostbuf[ix2] = ydimen;
-
-    return(bad);
+    return bad;
 }
 
+static inline int32_t wallmost_getz(int32_t fw, int32_t t, int32_t z,
+                                    int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                                    int32_t xv, int32_t yv, int32_t dx, int32_t dy)
+{
+    // XXX: OVERFLOW with huge sectors and sloped ceilngs/floors!
+    int32_t i = xv*(y1-globalposy) - yv*(x1-globalposx);
+    const int32_t j = yv*x2 - xv*y2;
+
+    if (klabs(j) > klabs(i>>3))
+        i = divscale28(i,j);
+
+    return dmulscale24(dx*t, mulscale20(y2,i)+((y1-wall[fw].y)<<8),
+                       -dy*t, mulscale20(x2,i)+((x1-wall[fw].x)<<8)) + ((z-globalposz)<<7);
+}
 
 //
 // wallmost (internal)
 //
 static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat)
 {
-    int32_t bad, i, j, t, y, z, inty, intz, xcross, yinc, fw;
+    int32_t bad, i, t, z, inty, intz, xcross, fw;
     int32_t x1, y1, z1, x2, y2, z2, xv, yv, dx, dy, dasqr, oz1, oz2;
     int32_t s1, s2, s3, s4, ix1, ix2, iy1, iy2;
-    int32_t tmp;
-    //char datempbuf[256];
 
     if (dastat == 0)
     {
         z = sector[sectnum].ceilingz-globalposz;
-        if ((sector[sectnum].ceilingstat&2) == 0) return(owallmost(mostbuf,w,z));
+        if ((sector[sectnum].ceilingstat&2) == 0)
+            return owallmost(mostbuf,w,z);
     }
     else
     {
         z = sector[sectnum].floorz-globalposz;
-        if ((sector[sectnum].floorstat&2) == 0) return(owallmost(mostbuf,w,z));
+        if ((sector[sectnum].floorstat&2) == 0)
+            return owallmost(mostbuf,w,z);
     }
 
     i = thewall[w];
-    if (i == sector[sectnum].wallptr) return(owallmost(mostbuf,w,z));
+    if (i == sector[sectnum].wallptr)
+        return owallmost(mostbuf,w,z);
 
     x1 = wall[i].x; x2 = wall[wall[i].point2].x-x1;
     y1 = wall[i].y; y2 = wall[wall[i].point2].y-y1;
@@ -3368,45 +3397,30 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
     dx = wall[i].x-wall[fw].x; dy = wall[i].y-wall[fw].y;
     dasqr = krecipasm(nsqrtasm(uhypsq(dx,dy)));
 
-    if (xb1[w] == 0)
-        { xv = cosglobalang+sinviewingrangeglobalang; yv = singlobalang-cosviewingrangeglobalang; }
-    else
-        { xv = x1-globalposx; yv = y1-globalposy; }
-    i = xv*(y1-globalposy)-yv*(x1-globalposx); j = yv*x2-xv*y2;
-    if (klabs(j) > klabs(i>>3)) i = divscale28(i,j);
     if (dastat == 0)
     {
-        t = mulscale15(sector[sectnum].ceilingheinum,dasqr);
-        z1 = sector[sectnum].ceilingz;
+        t = mulscale15(sector[sectnum].ceilingheinum, dasqr);
+        z = sector[sectnum].ceilingz;
     }
     else
     {
         t = mulscale15(sector[sectnum].floorheinum,dasqr);
-        z1 = sector[sectnum].floorz;
+        z = sector[sectnum].floorz;
     }
-    z1 = dmulscale24(dx*t,mulscale20(y2,i)+((y1-wall[fw].y)<<8),
-                     -dy*t,mulscale20(x2,i)+((x1-wall[fw].x)<<8))+((z1-globalposz)<<7);
+
+
+    if (xb1[w] == 0)
+        { xv = cosglobalang+sinviewingrangeglobalang; yv = singlobalang-cosviewingrangeglobalang; }
+    else
+        { xv = x1-globalposx; yv = y1-globalposy; }
+    z1 = wallmost_getz(fw, t, z, x1, y1, x2, y2, xv, yv, dx, dy);
 
 
     if (xb2[w] == xdimen-1)
         { xv = cosglobalang-sinviewingrangeglobalang; yv = singlobalang+cosviewingrangeglobalang; }
     else
         { xv = (x2+x1)-globalposx; yv = (y2+y1)-globalposy; }
-    // XXX: OVERFLOW with huge sectors and sloped ceilngs/floors!
-    i = xv*(y1-globalposy)-yv*(x1-globalposx); j = yv*x2-xv*y2;
-    if (klabs(j) > klabs(i>>3)) i = divscale28(i,j);
-    if (dastat == 0)
-    {
-        t = mulscale15(sector[sectnum].ceilingheinum,dasqr);
-        z2 = sector[sectnum].ceilingz;
-    }
-    else
-    {
-        t = mulscale15(sector[sectnum].floorheinum,dasqr);
-        z2 = sector[sectnum].floorz;
-    }
-    z2 = dmulscale24(dx*t,mulscale20(y2,i)+((y1-wall[fw].y)<<8),
-                     -dy*t,mulscale20(x2,i)+((x1-wall[fw].x)<<8))+((z2-globalposz)<<7);
+    z2 = wallmost_getz(fw, t, z, x1, y1, x2, y2, xv, yv, dx, dy);
 
 
     s1 = mulscale20(globaluclip,yb1[w]); s2 = mulscale20(globaluclip,yb2[w]);
@@ -3419,16 +3433,16 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
 
     if ((bad&3) == 3)
     {
-        //clearbufbyte(&mostbuf[ix1],(ix2-ix1+1)*sizeof(mostbuf[0]),0L);
-        for (i=ix1; i<=ix2; i++) mostbuf[i] = 0;
-        return(bad);
+        for (i=ix1; i<=ix2; i++)
+            mostbuf[i] = 0;
+        return bad;
     }
 
     if ((bad&12) == 12)
     {
-        //clearbufbyte(&mostbuf[ix1],(ix2-ix1+1)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-        for (i=ix1; i<=ix2; i++) mostbuf[i] = ydimen;
-        return(bad);
+        for (i=ix1; i<=ix2; i++)
+            mostbuf[i] = ydimen;
+        return bad;
     }
 
     if (bad&3)
@@ -3446,14 +3460,14 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
         if ((bad&3) == 2)
         {
             if (xb1[w] <= xcross) { z2 = intz; iy2 = inty; ix2 = xcross; }
-            //clearbufbyte(&mostbuf[xcross+1],(xb2[w]-xcross)*sizeof(mostbuf[0]),0L);
-            for (i=xcross+1; i<=xb2[w]; i++) mostbuf[i] = 0;
+            for (i=xcross+1; i<=xb2[w]; i++)
+                mostbuf[i] = 0;
         }
         else
         {
             if (xcross <= xb2[w]) { z1 = intz; iy1 = inty; ix1 = xcross; }
-            //clearbufbyte(&mostbuf[xb1[w]],(xcross-xb1[w]+1)*sizeof(mostbuf[0]),0L);
-            for (i=xb1[w]; i<=xcross; i++) mostbuf[i] = 0;
+            for (i=xb1[w]; i<=xcross; i++)
+                mostbuf[i] = 0;
         }
     }
 
@@ -3472,37 +3486,22 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
         if ((bad&12) == 8)
         {
             if (xb1[w] <= xcross) { z2 = intz; iy2 = inty; ix2 = xcross; }
-            //clearbufbyte(&mostbuf[xcross+1],(xb2[w]-xcross)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-            for (i=xcross+1; i<=xb2[w]; i++) mostbuf[i] = ydimen;
+            for (i=xcross+1; i<=xb2[w]; i++)
+                mostbuf[i] = ydimen;
         }
         else
         {
             if (xcross <= xb2[w]) { z1 = intz; iy1 = inty; ix1 = xcross; }
-            //clearbufbyte(&mostbuf[xb1[w]],(xcross-xb1[w]+1)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-            for (i=xb1[w]; i<=xcross; i++) mostbuf[i] = ydimen;
+            for (i=xb1[w]; i<=xcross; i++)
+                mostbuf[i] = ydimen;
         }
     }
 
-    y = (scale(z1,xdimenscale,iy1)<<4);
+    wallmosts_finish(mostbuf, z1, z2, ix1, iy1, ix2, iy2);
 
-//// enable for paranoia:
-//    ix1 = clamp(ix1, 0, xres-1);
-//    ix2 = clamp(ix2, 0, xres-1);
-//    if (ix2-ix1 < 0)
-//        swaplong(&ix1, &ix2);
-
-    // PK 20110423: a bit consistency checking is a good thing:
-    tmp = (ix2-ix1 >= 0) ? (ix2-ix1+1) : 1;
-    yinc = ((scale(z2,xdimenscale,iy2)<<4)-y) / tmp;
-    qinterpolatedown16short((intptr_t)&mostbuf[ix1],tmp,y+(globalhoriz<<16),yinc);
-
-    if (mostbuf[ix1] < 0) mostbuf[ix1] = 0;
-    if (mostbuf[ix1] > ydimen) mostbuf[ix1] = ydimen;
-    if (mostbuf[ix2] < 0) mostbuf[ix2] = 0;
-    if (mostbuf[ix2] > ydimen) mostbuf[ix2] = ydimen;
-
-    return(bad);
+    return bad;
 }
+
 
 // globalpicnum --> globalxshift, globalyshift
 static void calc_globalshifts(void)
@@ -4310,11 +4309,13 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     int32_t i, l, x, y, dx, dy, wx, wy, y1, y2, daz;
     int32_t daslope, dasqr;
     int32_t shoffs, shinc, m1, m2;
-    intptr_t *mptr1, *mptr2, *nptr1, *nptr2,j;
-    walltype *wal;
-    sectortype *sec;
+    intptr_t *mptr1, *mptr2, j;
 
-    sec = &sector[sectnum];
+    // Er, yes, they're not global anymore:
+    int32_t globalx, globaly, globalz, globalzx;
+
+    const sectortype *const sec = &sector[sectnum];
+    const walltype *wal;
 
     if (dastat == 0)
     {
@@ -4438,8 +4439,9 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
         else { y1 = max(umost[x],dplc[x]); y2 = dmost[x]-1; }
         if (y1 <= y2)
         {
-            nptr1 = &slopalookup[y1+(shoffs>>15)];
-            nptr2 = &slopalookup[y2+(shoffs>>15)];
+            intptr_t *nptr1 = &slopalookup[y1+(shoffs>>15)];
+            intptr_t *nptr2 = &slopalookup[y2+(shoffs>>15)];
+
             while (nptr1 <= mptr1)
             {
                 *mptr1-- = j + getpalookupsh(mulscale24(krecipasm(m1),globvis));
