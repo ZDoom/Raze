@@ -12943,8 +12943,10 @@ static void GenericSpriteSearch(void)
 
 ////////// SPECIAL FUNCTIONS MENU //////////
 
+#define MENU_ENTRY_SIZE 25
+
 static int32_t numMenuFunctions = 8;
-static char *funcMenuStrings[8*3] =
+static char funcMenuStrings[8*3][MENU_ENTRY_SIZE] =
 {
     "Replace invalid tiles",
     "Delete all spr of tile #",
@@ -12961,7 +12963,7 @@ static ofstype funcMenuStatenum[8*2];
 
 void registerMenuFunction(const char *funcname, int32_t stateidx)
 {
-    char fn[25];
+    char fn[MENU_ENTRY_SIZE];
     int32_t i;
 
     if (funcname == NULL)  // unregister stateidx
@@ -12971,16 +12973,14 @@ void registerMenuFunction(const char *funcname, int32_t stateidx)
         for (i=8; i<numMenuFunctions; i++)
             if (funcMenuStatenum[i-8]==stateidx)
             {
-                Bfree(funcMenuStrings[i]);
-
                 for (j=i; j<numMenuFunctions-1; j++)
                 {
-                    funcMenuStatenum[j] = funcMenuStatenum[j+1];
-                    funcMenuStrings[j] = funcMenuStrings[j+1];
+                    funcMenuStatenum[j-8] = funcMenuStatenum[j+1-8];
+                    Bmemcpy(funcMenuStrings[j], funcMenuStrings[j+1], MENU_ENTRY_SIZE);
                 }
 
-                funcMenuStatenum[j] = 0;
-                funcMenuStrings[j] = NULL;
+                funcMenuStatenum[j-8] = 0;
+                Bmemset(funcMenuStrings[j], 0, MENU_ENTRY_SIZE);
 
                 numMenuFunctions--;
 
@@ -12990,8 +12990,8 @@ void registerMenuFunction(const char *funcname, int32_t stateidx)
         return;
     }
 
-    // register menu entry named FUNCNAME to call the M32script
-    // state with index STATEIDX
+    // Register menu entry named FUNCNAME to call the M32script
+    // state with index STATEIDX.
     Bstrncpyz(fn, funcname, sizeof(fn));
 
     for (i=8; i<numMenuFunctions; i++)
@@ -12999,8 +12999,7 @@ void registerMenuFunction(const char *funcname, int32_t stateidx)
         if (funcMenuStatenum[i-8]==stateidx)
         {
             // same stateidx, different name
-            Bfree(funcMenuStrings[i]);
-            funcMenuStrings[i] = Bstrdup(fn);
+            Bstrncpyz(funcMenuStrings[i], fn, MENU_ENTRY_SIZE);
             return;
         }
         else if (!Bstrcmp(funcMenuStrings[i], fn))
@@ -13014,7 +13013,7 @@ void registerMenuFunction(const char *funcname, int32_t stateidx)
     if (numMenuFunctions == 3*8)
         return;  // max reached
 
-    funcMenuStrings[numMenuFunctions] = Bstrdup(fn);
+    Bstrncpyz(funcMenuStrings[numMenuFunctions], fn, MENU_ENTRY_SIZE);
     funcMenuStatenum[numMenuFunctions-8] = stateidx;
 
     numMenuFunctions++;
@@ -13078,7 +13077,6 @@ static void FuncMenu(void)
     drawgradient();
 
     disptext[dispwidth] = 0;
-    //    clearmidstatbar16();
 
     FuncMenuOpts();
 
@@ -13105,10 +13103,10 @@ static void FuncMenu(void)
                 row--;
             }
         }
-#if 1
+
         if (PRESSED_KEYSC(LEFT))
         {
-            if (col==1 || col==2)
+            if (col > 0)
             {
                 printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 col--;
@@ -13121,7 +13119,7 @@ static void FuncMenu(void)
 
         if (PRESSED_KEYSC(RIGHT))
         {
-            if ((col==0 || col==1) && crowmax[col+1]>=0)
+            if (col < 2 && crowmax[col+1]>=0)
             {
                 printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 col++;
@@ -13131,7 +13129,7 @@ static void FuncMenu(void)
                 if (row > rowmax) row = rowmax;
             }
         }
-#endif
+
         if (PRESSED_KEYSC(ENTER))
             editval = 1;
 
@@ -13365,7 +13363,6 @@ static void FuncMenu(void)
     }
 
     printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[0],disptext,0);
-    /*clearmidstatbar16();*/
 
     showframe(1);
     keystatus[KEYSC_ESC] = 0;
