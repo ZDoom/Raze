@@ -1610,6 +1610,35 @@ defstate uniformfloor
         set sector[i].floorz avgz
 ends
 
+defstate for_sprites_near_picnum
+    "Ch. lotag for near spr."
+
+    var ii dst
+    var picnumi picnumj maxldist lotag
+
+    getnumberfromuser picnumi "picnum i: " MAXTILES 10
+    ifvarl picnumi 0 break
+    getnumberfromuser picnumj "picnum j: " MAXTILES 10
+    ifvarl picnumj 0 break
+
+    getnumberfromuser maxldist "max ldist: " 65536 8
+    ifvarl maxldist 0 break
+
+    getnumberfromuser lotag "lotag (unsigned) to change to: " 65536 8
+    ifvarl lotag 0 break
+
+    for i allsprites ife sprite[i].picnum picnumi
+        for j allsprites ife sprite[j].picnum picnumj
+        {
+            ldist dst i j
+            ifle dst maxldist
+                set sprite[j].lotag lotag
+        }
+
+    qsprintf TQUOTE "changed lotag of sprites w/ tile %d near those w/ tile %d to %d" picnumj picnumi lotag
+    quote TQUOTE
+ends
+
 // This must be *compiled* with script_expertmode
 /*
 defstate setstartpos
