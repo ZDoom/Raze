@@ -16,6 +16,7 @@ local ismapster32 = (C.LUNATIC_CLIENT == C.LUNATIC_CLIENT_MAPSTER32)
 ----------
 
 decl[[
+const int32_t qsetmode;
 int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol);
 char *palookup[256];  // MAXPALOOKUPS
 uint8_t palette[768];
@@ -26,6 +27,16 @@ void setblendtab(int32_t blend, const char *tab);
 
 int32_t setpalookup(int32_t palnum, const uint8_t *shtab);
 ]]
+
+if (ismapster32) then
+    ffi.cdef[[
+int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, const char *(func)(int32_t));
+
+typedef const char *(*luamenufunc_t)(void);
+void LM_Register(const char *name, luamenufunc_t funcptr);
+void LM_Clear(void);
+]]
+end
 
 ----------
 
@@ -418,6 +429,52 @@ if (ismapster32) then
                 ptr[i] = 0
             end
         end
+    end
+
+    -- Interfaces to Mapster32's status bar menu
+
+    local pcall = pcall
+
+    function engine.clearMenu()
+        C.LM_Clear()
+    end
+
+    function engine.registerMenuFunc(name, func)
+        if (type(name) ~= "string") then
+            error("invalid argument #1: must be a string", 2)
+        end
+        if (type(func) ~= "function") then
+            error("invalid argument #2: must be a function", 2)
+        end
+
+        local safefunc = function()
+            local ok, errmsg = pcall(func)
+            if (not ok) then
+                return errmsg
+            end
+        end
+
+        C.LM_Register(name, safefunc)
+    end
+
+    engine.GETNUMFLAG = {
+        NEG_ALLOWED = 1,
+        AUTOCOMPL_NAMES = 2,
+        AUTOCOMPL_TAGLAB = 4,
+        RET_M1_ON_CANCEL = 8,
+
+        NEXTFREE = 16,
+    }
+
+    function engine.getnumber16(namestart, num, maxnumber, flags)
+        if (C.qsetmode == 200) then
+            error("getnumber16 must be called from 2D mode", 2)
+        end
+        if (type(namestart)~="string") then
+            error("invalid argument #1: must be a string", 2)
+        end
+
+        return C._getnumber16(namestart, num, maxnumber, flags, nil)
     end
 end
 

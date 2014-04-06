@@ -72,6 +72,9 @@ static void EditSpriteData(int16_t spritenum);
 static void EditWallData(int16_t wallnum);
 static void EditSectorData(int16_t sectnum);
 static void FuncMenu(void);
+#ifdef LUNATIC
+static void LuaFuncMenu(void);
+#endif
 
 #define BASEPALCOUNT 6
 

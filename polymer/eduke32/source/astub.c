@@ -8019,6 +8019,12 @@ static void Keys2d(void)
     {
         FuncMenu();
     }
+#ifdef LUNATIC
+    else if (keystatus[KEYSC_SEMI] && PRESSED_KEYSC(F))  // ; F
+    {
+        LuaFuncMenu();
+    }
+#endif
     else if (!eitherALT && PRESSED_KEYSC(F))
     {
         if (pointhighlight < 16384 && tcursectornum>=0 && graphicsmode)
@@ -12969,6 +12975,15 @@ typedef struct StatusBarMenu_ {
 #define MENU_INITIALIZER(MenuName, CustomStartIndex, ProcessFunc, ...) \
     { MenuName, CustomStartIndex, CustomStartIndex, ProcessFunc, {}, ## __VA_ARGS__ }
 
+#ifdef LUNATIC
+static void M_Clear(StatusBarMenu *m)
+{
+    m->numentries = 0;
+    Bmemset(m->auxdata, 0, sizeof(m->auxdata));
+    Bmemset(m->name, 0, sizeof(m->name));
+}
+#endif
+
 static void M_UnregisterFunction(StatusBarMenu *m, intptr_t auxdata)
 {
     int32_t i, j;
@@ -13050,6 +13065,12 @@ static void M_EnterMainLoop(StatusBarMenu *m)
     int32_t i, col=0, row=0;
     int32_t crowmax[3] = {-1, -1, -1};
     int32_t xpos = 8, ypos = MENU_BASE_Y+16;
+
+    if (m->numentries == 0)
+    {
+        printmessage16("%s menu has no entries", m->menuname);
+        return;
+    }
 
     Bmemset(disptext, 0, sizeof(disptext));
 
@@ -13388,3 +13409,54 @@ static void FuncMenu_Process(const StatusBarMenu *m, int32_t col, int32_t row)
 
     }  // switch (col)
 }
+
+#ifdef LUNATIC
+typedef const char *(*luamenufunc_t)(void);
+
+static int32_t g_numLuaFuncs = 0;
+static luamenufunc_t g_LuaFuncPtrs[MENU_MAX_ENTRIES];
+
+static void LuaFuncMenu_Process(const StatusBarMenu *m, int32_t col, int32_t row)
+{
+    luamenufunc_t func = g_LuaFuncPtrs[col*8 + row];
+    const char *errmsg;
+
+    Bassert(func != NULL);
+    errmsg = func();
+
+    if (errmsg == NULL)
+    {
+        printmessage16("Lua function executed successfully");
+    }
+    else
+    {
+        printmessage16("There were errors executing the Lua function, see OSD");
+        OSD_Printf("Errors executing Lua function \"%s\": %s\n", m->name[col*8 + row], errmsg);
+    }
+}
+
+static StatusBarMenu g_LuaFuncMenu = MENU_INITIALIZER_EMPTY("Lua functions", LuaFuncMenu_Process);
+
+static void LuaFuncMenu(void)
+{
+    M_EnterMainLoop(&g_LuaFuncMenu);
+}
+
+LUNATIC_EXTERN void LM_Register(const char *name, luamenufunc_t funcptr)
+{
+    if (name == NULL || g_numLuaFuncs == MENU_MAX_ENTRIES)
+        return;
+
+    g_LuaFuncPtrs[g_numLuaFuncs] = funcptr;
+    M_RegisterFunction(&g_LuaFuncMenu, name, g_numLuaFuncs);
+    g_numLuaFuncs++;
+}
+
+LUNATIC_EXTERN void LM_Clear(void)
+{
+    M_Clear(&g_LuaFuncMenu);
+
+    g_numLuaFuncs = 0;
+    Bmemset(g_LuaFuncPtrs, 0, sizeof(g_LuaFuncPtrs));
+}
+#endif

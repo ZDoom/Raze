@@ -17,6 +17,7 @@ numyaxbunches;
 spritesortcnt;
 guniqhudid;
 
+qsetmode;
 rendmode;
 totalclock;
 randomseed;

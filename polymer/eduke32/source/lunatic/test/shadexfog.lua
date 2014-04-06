@@ -12,6 +12,7 @@ local error = error
 local print = print
 local printf = printf
 local type = type
+local unpack = unpack
 
 local bit = require("bit")
 local math = require("math")
@@ -106,7 +107,7 @@ end
 -- Translate the whole map for use with a shade-x-fog palookup set.
 --  .pal becomes the <startpalnum> + former .shade
 --  .shade becomes the <fogintensity> [0 .. 31]
--- If <vis> is passed, set all sector's visibility to that value.
+-- If <vis> is passed and >= 0, set all sector's visibility to that value.
 --
 -- Notes:
 --  - auto-detects when the translation has been applied with the *same*
@@ -116,7 +117,7 @@ function shadexfog.translate(startpalnum, fogintensity, vis)
     for i=0,gv.numsectors-1 do
         trans(sector[i].ceiling, startpalnum, fogintensity)
         trans(sector[i].floor, startpalnum, fogintensity)
-        if (vis) then
+        if (vis and vis >= 0) then
             sector[i].visibility = vis
         end
     end
@@ -407,6 +408,147 @@ function shadexfog.create_additive_trans(startblendidx, numtables, fullbrightsOK
         numtables, fullbrightsOK
     )
 end
+
+
+-- Mapster32 Lua menu hooks
+local getnumber16 = engine.getnumber16
+local GNF = engine.GETNUMFLAG
+local GNF_BOOL = GNF.NEXTFREE
+
+local df = GNF.RET_M1_ON_CANCEL  -- default getnumber16() flags
+
+local MAXUSERPALOOKUP = 256-1-8  -- KEEPINSYNC engine.lua:check_palidx()
+
+-- wrapped_func = CreateMenuFunction(argdesc)
+--
+-- <argdesc>: table with [0]=<func> and then, entries { name, init, max [, noret] }
+function CreateMenuFunction(argdesc)
+    return function()
+        local func = argdesc[0]
+        assert(type(func) == "function")
+        local args = {}
+
+        for i=1,#argdesc do
+            local ad = argdesc[i]
+            assert(type(ad) == "table" and #ad == 3 or #ad == 4)
+
+            local moreflags = ad[4] or 0
+            args[i] = getnumber16(ad[1]..": ", ad[2], ad[3], bit.bor(df, moreflags))
+            if (bit.band(moreflags, GNF.NEG_ALLOWED)==0 and args[i] < 0) then
+                return
+            end
+            if (bit.band(moreflags, GNF_BOOL)~=0) then
+                args[i] = (args[i] > 0)
+            end
+        end
+
+        func(unpack(args))
+    end
+end
+
+engine.clearMenu()
+
+engine.registerMenuFunc(
+    "Create shadexfog palset",
+    CreateMenuFunction{
+        [0] = shadexfog.create,
+        { "Starting palnum", 100, MAXUSERPALOOKUP-31 },
+        { "Red fog color [0-63]", 0, 63 },
+        { "Green fog color [0-63]", 0, 63 },
+        { "Blue fog color [0-63]", 0, 63 },
+    }
+)
+
+engine.registerMenuFunc(
+    "Translate map for shxfog",
+    CreateMenuFunction{
+        [0] = shadexfog.translate,
+        { "Starting palnum", 100, MAXUSERPALOOKUP-31 },
+        { "Fog intensity [0-31]", 0, 31 },
+        { "Change all sectors' visibility to (Esc: don't)", 0, 255, GNF.NEG_ALLOWED },
+    }
+)
+
+engine.registerMenuFunc(
+    "Change pal of everything",
+    CreateMenuFunction{
+        [0] = shadexfog.challpal,
+        { "Pal to change to", 0, MAXUSERPALOOKUP },
+    }
+)
+
+engine.registerMenuFunc(
+    "Create alpha trans. tabs",
+    CreateMenuFunction{
+        [0] = shadexfog.create_alpha_trans,
+        { "Starting blendnum", 1, 255 },
+        { "Number of blending tables", 32, 255 },
+        { "Fullbright result colors OK?", 0, 1, GNF_BOOL },
+    }
+)
+
+engine.registerMenuFunc(
+    "Create addtv. trans. tabs",
+    CreateMenuFunction{
+        [0] = shadexfog.create_additive_trans,
+        { "Starting blendnum", 1, 255 },
+        { "Number of blending tables", 32, 255 },
+        { "Fullbright result colors OK?", 0, 1, GNF_BOOL },
+    }
+)
+
+engine.registerMenuFunc(
+    "Create base shade table",
+    CreateMenuFunction{
+        [0] = shadexfog.create0,
+        { "Pal number", 100, MAXUSERPALOOKUP },
+        { "Second attempt?", 1, 1, GNF_BOOL },
+    }
+)
+
+engine.registerMenuFunc(
+    "Create depth shade tab",
+    CreateMenuFunction{
+        [0] = shadexfog.create_depth_shtab,
+        { "Pal number", 100, MAXUSERPALOOKUP },
+    }
+)
+
+engine.registerMenuFunc(
+    "Create vismarker sh. tab",
+    CreateMenuFunction{
+        [0] = shadexfog.create_vismarker_shtab,
+        { "Pal number", 100, MAXUSERPALOOKUP },
+    }
+)
+
+engine.registerMenuFunc(
+    "Create c.index remapping",
+    function()
+        local palnum = getnumber16("Pal number: ", 100, MAXUSERPALOOKUP, df)
+        if (palnum < 0) then return end
+
+        local remaptab = {}
+        while (true) do
+            local srchex = getnumber16("Source hexadecatuple (0: finish): ", 0, 14, df)
+            if (srchex < 0) then return end
+            local dsthex = getnumber16("Destn. hexadecatuple (0: finish): ", 0, 14, df)
+            if (dsthex < 0) then return end
+
+            if (srchex == 0 and dsthex == 0) then
+                break
+            end
+
+            remaptab[srchex] = dsthex
+        end
+
+        shadexfog.createremap(palnum, remaptab)
+    end
+)
+
+engine.registerMenuFunc("_________DEBUG_________", function() end)
+engine.registerMenuFunc("Setup dbg. water basepal", engine.setupDebugBasePal)
+engine.registerMenuFunc("Linearize default basep.", engine.linearizeBasePal)
 
 
 do

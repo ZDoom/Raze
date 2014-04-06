@@ -17,6 +17,7 @@ numyaxbunches;
 spritesortcnt;
 guniqhudid;
 
+qsetmode;
 rendmode;
 totalclock;
 randomseed;
@@ -108,7 +109,10 @@ luaJIT_BC_dis_x64;
 g_argv;
 
 
+_getnumber16;
 listsearchpath;
+LM_Register;
+LM_Clear;
 
 basepaltable;
 };
