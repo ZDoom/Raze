@@ -16891,30 +16891,46 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     enddrawing();   //}}}
 }
 
+
+static int32_t printext_checkypos(int32_t ypos, int32_t *yminptr, int32_t *ymaxptr)
+{
+    int32_t ymin=0, ymax=7;
+
+    if (ypos < 0)
+    {
+        ymin = 0-ypos;
+        if (ymin > 7)
+            return 1;
+    }
+    else if (ypos+7 >= ydim)
+    {
+        ymax = ydim-ypos-1;
+        if (ymax < 0)
+            return 1;
+    }
+
+    *yminptr = ymin;
+    *ymaxptr = ymax;
+
+    return 0;
+}
+
 //
 // printext16
 //
 int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
 {
     int32_t stx, i, x, y, charxsiz, ocol = col, obackcol = backcol;
-    int32_t ymin=0, ymax=7;
+    int32_t ymin, ymax;
     char *fontptr, *letptr, *ptr;
     char smallbuf[4];
 
+    const int32_t xpos0 = xpos;
+
     stx = xpos;
 
-    if (ypos<0)
-    {
-        ymin = 0-ypos;
-        if (ymin>7)
-            return 0;
-    }
-    else if (ypos+7 >= ydim)
-    {
-        ymax = ydim-ypos-1;
-        if (ymax<0)
-            return 0;
-    }
+    if (printext_checkypos(ypos, &ymin, &ymax))
+        return 0;
 
     if (fontsize & 2) printext16(xpos+1, ypos+1, 0, -1, name, (fontsize & ~2) | 4);
     if (fontsize & 1) { fontptr = smalltextfont; charxsiz = 4; }
@@ -16988,6 +17004,15 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
                 }
                 continue;
             }
+        }
+
+        if (name[i] == '\n')
+        {
+            xpos = stx = xpos0;
+            ypos += 8;
+            if (printext_checkypos(ypos, &ymin, &ymax))
+                return 0;
+            continue;
         }
 
         if (stx<0)
