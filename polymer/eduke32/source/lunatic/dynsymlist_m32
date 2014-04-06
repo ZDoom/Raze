@@ -110,6 +110,7 @@ g_argv;
 
 
 _getnumber16;
+getstring_simple;
 listsearchpath;
 LM_Register;
 LM_Clear;

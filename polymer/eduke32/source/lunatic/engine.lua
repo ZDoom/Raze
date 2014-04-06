@@ -31,6 +31,7 @@ int32_t setpalookup(int32_t palnum, const uint8_t *shtab);
 if (ismapster32) then
     ffi.cdef[[
 int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, const char *(func)(int32_t));
+const char *getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen, int32_t completion);
 
 typedef const char *(*luamenufunc_t)(void);
 void LM_Register(const char *name, luamenufunc_t funcptr);
@@ -298,7 +299,7 @@ if (ismapster32) then
         return blendnumtab, blendptrtab
     end
 
-    -- ok, errmsg = engine.savePaletteDat(filename [, palnum [, blendnum [, moreblends]]])
+    -- ok, errmsg, nummoreblends = engine.savePaletteDat(filename [, palnum [, blendnum [, moreblends]]])
     function engine.savePaletteDat(filename, palnum, blendnum, moreblends)
         local sht = engine.getshadetab(palnum or 0)
         local tab = engine.getblendtab(blendnum or 0)
@@ -340,7 +341,7 @@ if (ismapster32) then
 
         f:close()
 
-        return true
+        return true, nil, (blendnumtab ~= nil) and #blendnumtab or 0
     end
 
     -- ok, errmsg = engine.saveLookupDat(filename, lookups)
@@ -474,7 +475,15 @@ if (ismapster32) then
             error("invalid argument #1: must be a string", 2)
         end
 
-        return C._getnumber16(namestart, num, maxnumber, flags, nil)
+        return C._getnumber16(namestart, num, maxnumber, flags or 8, nil)  -- RET_M1_ON_CANCEL
+    end
+
+    function engine.getstring(querystr)
+        if (type(querystr) ~= "string") then
+            error("invalid argument #2: must be a string", 2)
+        end
+        local cstr = C.getstring_simple(querystr, nil, 0, 0)
+        return cstr~=nil and ffi.string(cstr) or nil
     end
 end
 

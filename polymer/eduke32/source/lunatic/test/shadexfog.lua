@@ -268,14 +268,14 @@ end
 if (gv.LUNATIC_CLIENT == gv.LUNATIC_CLIENT_MAPSTER32) then
     -- Wrapper around engine.savePaletteDat() that errors on unexpected events.
     function shadexfog.save(filename, palnum, blendnum, moreblends)
-        local ok, errmsg = engine.savePaletteDat(filename, palnum, blendnum, moreblends)
+        local ok, errmsg, nummoreblends = engine.savePaletteDat(filename, palnum, blendnum, moreblends)
         if (not ok) then
             error(errmsg)
         end
 
         printf('Wrote base palette, shade and translucency tables to "%s".', filename)
-        if (moreblends ~= nil) then
-            printf("  Also wrote additional translucency tables.")
+        if (nummoreblends > 0) then
+            printf("  Also wrote %d additional translucency tables.", nummoreblends)
         end
     end
 
@@ -525,14 +525,14 @@ engine.registerMenuFunc(
 engine.registerMenuFunc(
     "Create c.index remapping",
     function()
-        local palnum = getnumber16("Pal number: ", 100, MAXUSERPALOOKUP, df)
+        local palnum = getnumber16("Pal number: ", 100, MAXUSERPALOOKUP)
         if (palnum < 0) then return end
 
         local remaptab = {}
         while (true) do
-            local srchex = getnumber16("Source hexadecatuple (0: finish): ", 0, 14, df)
+            local srchex = getnumber16("Source hexadecatuple (0: finish): ", 0, 14)
             if (srchex < 0) then return end
-            local dsthex = getnumber16("Destn. hexadecatuple (0: finish): ", 0, 14, df)
+            local dsthex = getnumber16("Destn. hexadecatuple (0: finish): ", 0, 14)
             if (dsthex < 0) then return end
 
             if (srchex == 0 and dsthex == 0) then
@@ -543,6 +543,53 @@ engine.registerMenuFunc(
         end
 
         shadexfog.createremap(palnum, remaptab)
+    end
+)
+
+engine.registerMenuFunc(
+    "Save pal+sh+trans DAT f.",
+    function()
+        local filename = engine.getstring("File name: ")
+        if (filename == nil) then return end
+
+        local palnum = getnumber16("Pal number of base shade table: ", 0, MAXUSERPALOOKUP)
+        if (palnum < 0) then return end
+        local blendnum = getnumber16("Blendnum of base transluc. table: ", 0, 255)
+        if (blendnum < 0) then return end
+
+        local str = engine.getstring("Additional blend numbers (e.g. '64,100-131,255'): ")
+        if (str == nil or str=="") then return end
+
+        if (not str:find("^[%d,%-]+$")) then
+            error("Additional blending numbers string must contain only digits or ',' or '-'", 2)
+        end
+
+        local moreblends = {}
+        local didnumstr = {}
+
+        for n1, n2 in str:gmatch("(%d+)%-(%d+)") do  -- parse number ranges
+            moreblends[#moreblends+1] = { tonumber(n1), tonumber(n2) }
+            didnumstr[n1] = true
+            didnumstr[n2] = true
+        end
+
+        for n in str:gmatch("%d+") do  -- parse single numbers
+            if (not didnumstr[n]) then
+                moreblends[#moreblends+1] = tonumber(n)
+            end
+        end
+
+        shadexfog.save(filename, palnum, blendnum, moreblends)
+    end
+)
+
+engine.registerMenuFunc(
+    "Save lookups DAT file",
+    function()
+        local filename = engine.getstring("File name: ")
+        if (filename ~= nil and filename ~= "") then
+            shadexfog.saveLookupDat(filename)
+        end
     end
 )
 
