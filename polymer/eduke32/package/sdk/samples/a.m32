@@ -1410,7 +1410,7 @@ ends
 
 onevent EVENT_DRAW2DSCREEN
     var tmp
-    var xx
+    var xx yy
 
     state userdrawlabel
 
@@ -1438,6 +1438,15 @@ onevent EVENT_DRAW2DSCREEN
                 drawline16 xx 100 xx 200 -tmp
                 add xx 1
             }
+        }
+
+        set yy 208
+        for tmp range 16
+        {
+            qsprintf TQUOTE "editor color %d" tmp
+            printext16 TQUOTE 100 yy tmp 0 0
+            printext16 TQUOTE 260 yy 0 tmp 0
+            add yy 8
         }
     }
 endevent
