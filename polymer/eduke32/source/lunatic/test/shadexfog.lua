@@ -11,11 +11,13 @@ local assert = assert
 local error = error
 local print = print
 local printf = printf
+local tonumber = tonumber
 local type = type
 local unpack = unpack
 
 local bit = require("bit")
 local math = require("math")
+local string = require("string")
 local min, max = math.min, math.max
 local floor = math.floor
 
@@ -181,7 +183,7 @@ function shadexfog.test_nearcolor()
 end
 
 -- Change the .pal member of all sector ceilings/floors, walls and sprites to
--- <pal>.
+-- <palnum>.
 function shadexfog.challpal(palnum)
     for i=0,gv.numsectors-1 do
         sector[i].ceilingpal = palnum
@@ -410,7 +412,8 @@ function shadexfog.create_additive_trans(startblendidx, numtables, fullbrightsOK
 end
 
 
--- Mapster32 Lua menu hooks
+--========== Mapster32 Lua menu hooks ==========--
+
 local getnumber16 = engine.getnumber16
 local GNF = engine.GETNUMFLAG
 local GNF_BOOL = GNF.NEXTFREE
@@ -422,7 +425,7 @@ local MAXUSERPALOOKUP = 256-1-8  -- KEEPINSYNC engine.lua:check_palidx()
 -- wrapped_func = CreateMenuFunction(argdesc)
 --
 -- <argdesc>: table with [0]=<func> and then, entries { name, init, max [, noret] }
-function CreateMenuFunction(argdesc)
+local function CreateMenuFunction(argdesc)
     return function()
         local func = argdesc[0]
         assert(type(func) == "function")
@@ -446,6 +449,20 @@ function CreateMenuFunction(argdesc)
     end
 end
 
+-- Replace chevrons (angle brackets!) with printext16 markup.
+local function replchev(matchstr) return "^15"..matchstr:sub(2,-2).."^O" end
+-- Replace ASCII code escapes like \XXX. We can't use these escapes in Lua [[ ... ]] strings.
+local function replascii(matchstr) return string.char(tonumber(matchstr)) end
+-- Format a whole string for the menu system:
+local function formatHelp(str)
+    return str:gsub(
+        "(%b<>)", replchev):gsub(
+        "%*(.-)%*", "^014%1^O"):gsub(
+        "%\\(%d+)", replascii)
+end
+
+----------
+
 engine.clearMenu()
 
 engine.registerMenuFunc(
@@ -456,7 +473,19 @@ engine.registerMenuFunc(
         { "Red fog color [0-63]", 0, 63 },
         { "Green fog color [0-63]", 0, 63 },
         { "Blue fog color [0-63]", 0, 63 },
-    }
+    },
+
+formatHelp
+[[
+<shadexfog.create(startpalnum, fogr, fogg, fogb)>
+<_______________________________________________>
+
+Creates 32 shade tables corresponding to different *shade levels*
+of a fog palookup, together called a *shade-x-fog* palookup set.
+
+ Pals <startpalnum> to <startpalnum>+31 will be taken.
+ <fogr>, <fogg>, <fogb>: intensities of the fog color, [0 .. 63]
+]]
 )
 
 engine.registerMenuFunc(
@@ -466,7 +495,26 @@ engine.registerMenuFunc(
         { "Starting palnum", 100, MAXUSERPALOOKUP-31 },
         { "Fog intensity [0-31]", 0, 31 },
         { "Change all sectors' visibility to (Esc: don't)", 0, 255, GNF.NEG_ALLOWED },
-    }
+    },
+
+formatHelp
+[[
+<shadexfog.translate(startpalnum, fogintensity [, vis])>
+<______________________________________________________>
+
+Translates the whole map for use with a shade-x-fog palookup set.
+
+ .pal becomes the <startpalnum> + former .shade
+ .shade becomes the <fogintensity> [0 .. 31]
+
+ If <vis> is passed and >= 0, set all sector's visibility to that
+ value.
+
+ *Notes:*
+  - auto-detects when the translation has been applied with the *same*
+    <startpalnum> (if a different one is desired, must reload map).
+  - if shades > 31 or < 0 present, there is loss of information
+]]
 )
 
 engine.registerMenuFunc(
@@ -474,7 +522,16 @@ engine.registerMenuFunc(
     CreateMenuFunction{
         [0] = shadexfog.challpal,
         { "Pal to change to", 0, MAXUSERPALOOKUP },
-    }
+    },
+
+formatHelp
+[[
+<shadexfog.challpal(palnum)>
+<__________________________>
+
+Changes the .pal member of all sector ceilings/floors, walls and
+sprites to <palnum>.
+]]
 )
 
 engine.registerMenuFunc(
@@ -484,7 +541,23 @@ engine.registerMenuFunc(
         { "Starting blendnum", 1, 255 },
         { "Number of blending tables", 32, 255 },
         { "Fullbright result colors OK?", 0, 1, GNF_BOOL },
-    }
+    },
+
+formatHelp
+[=[
+<shadexfog.create_alpha_trans(startblend [, numtables [, fullbriOK]])>
+<____________________________________________________________________>
+
+Creates <numtables> blending tables of smooth alpha translucency,
+starting with the blending number <startblend>, with fractions
+
+  1/(2\255<numtables>), 2/(2\255<numtables>) ... <numtables>/(2\255<numtables>).
+
+ <numtables> must be a power of two in [1 .. 128].
+
+ <fullbriOK>: should fullbright color indices (>= 240) be permitted as
+            the blending result of two color indices?
+]=]
 )
 
 engine.registerMenuFunc(
@@ -494,7 +567,23 @@ engine.registerMenuFunc(
         { "Starting blendnum", 1, 255 },
         { "Number of blending tables", 32, 255 },
         { "Fullbright result colors OK?", 0, 1, GNF_BOOL },
-    }
+    },
+
+formatHelp
+[=[
+<shadexfog.create_additive_trans(startbl [, numtables [, fullbriOK]])>
+<____________________________________________________________________>
+
+Creates <numtables> blending tables of smooth additive translucency,
+starting with the blending number <startbl>, with fractions
+
+  1/(2\255<numtables>), 2/(2\255<numtables>) ... <numtables>/(2\255<numtables>).
+
+ <numtables> must be a power of two in [1 .. 128].
+
+ <fullbriOK>: should fullbright color indices (>= 240) be permitted as
+            the blending result of two color indices?
+]=]
 )
 
 engine.registerMenuFunc(
@@ -503,7 +592,20 @@ engine.registerMenuFunc(
         [0] = shadexfog.create0,
         { "Pal number", 100, MAXUSERPALOOKUP },
         { "Second attempt?", 1, 1, GNF_BOOL },
-    }
+    },
+
+formatHelp
+[[
+<shadexfog.create0(palnum, secver)>
+<_________________________________>
+
+Creates our version of the base shade table at set it to palookup
+number <palnum>.
+
+ <secver>: use second attempt instead of the first? This one is more
+   similar to the base shade table shipped with Duke3D, but still
+   shows significant differences.
+]]
 )
 
 engine.registerMenuFunc(
@@ -511,7 +613,19 @@ engine.registerMenuFunc(
     CreateMenuFunction{
         [0] = shadexfog.create_depth_shtab,
         { "Pal number", 100, MAXUSERPALOOKUP },
-    }
+    },
+
+formatHelp
+[[
+<shadexfog.create_depth_shtab(palnum)>
+<____________________________________>
+
+Creates a shade table for debugging purposes at pal <palnum>.
+
+ For every color index, the shade table maps shade index <i> to
+ color index <i> (of the first ramp of gray colors, assuming Build
+ has loaded a base shade table with 32 shade levels).
+]]
 )
 
 engine.registerMenuFunc(
@@ -519,7 +633,20 @@ engine.registerMenuFunc(
     CreateMenuFunction{
         [0] = shadexfog.create_vismarker_shtab,
         { "Pal number", 100, MAXUSERPALOOKUP },
-    }
+    },
+
+formatHelp
+[[
+<shadexfog.create_vismarker_shtab(palnum)>
+<________________________________________>
+
+Creates a shade table for debugging purposes at pal <palnum>.
+
+ For every color index, the shade table maps shade index 1 to
+ a ^14bright yellow^O color and shade index 30 to a ^13purple^O color.
+ Thus, it can be useful in visualizing the limits of the
+ fog/visibility attenuation.
+]]
 )
 
 engine.registerMenuFunc(
@@ -543,7 +670,31 @@ engine.registerMenuFunc(
         end
 
         shadexfog.createremap(palnum, remaptab)
-    end
+    end,
+
+formatHelp
+[[
+<shadexfog.createremap(palnum, remaptab)>
+<_______________________________________>
+
+Creates a color index remapping expressed as mappings of sexdecatuples
+(16-tuples) of the base palette at pal <palnum>.
+
+ Duke3D's default base palette can be considered to consist of six
+ ramps of 32 colors each, three ramps of 16 colors each and a
+ remaining fullbright color set. The sexdecatuples are as follows:
+
+<  0,  1>: gray ramp
+<  2,  3>: skin color ramp
+<  5,  4>: blue ramp (note that the 16-tuples are in reverse order)
+<  6,  7>: nightvision yellow/green
+<  8, 13>: red ramp
+< 10, 11>: almost gray ramp, but with a slight red hue
+
+    <  9>: yellow (slightly more red than green)
+    < 12>: "dirty" orange
+    < 14>: blue-purple-red
+]]
 )
 
 engine.registerMenuFunc(
@@ -580,7 +731,20 @@ engine.registerMenuFunc(
         end
 
         shadexfog.save(filename, palnum, blendnum, moreblends)
-    end
+    end,
+
+formatHelp
+[[
+<shadexfog.save(filename, palnum, blendnum, moreblends)>
+<______________________________________________________>
+
+Writes out a full PALETTE.DAT-formatted file named <filename> with the
+base shade table numbered <palnum> and the base translucency table
+numbered <blendnum>.
+
+Finally, you are asked to specify additional blending tables that can
+be stored in EDuke32's extended PALETTE.DAT format.
+]]
 )
 
 engine.registerMenuFunc(
@@ -590,12 +754,66 @@ engine.registerMenuFunc(
         if (filename ~= nil and filename ~= "") then
             shadexfog.saveLookupDat(filename)
         end
-    end
+    end,
+
+formatHelp
+[[
+<shadexfog.saveLookupDat(filename)>
+<_________________________________>
+
+Saves the color index lookups (i.e. first 256 values of each shade
+table) of the pal numbers which have lookups in Duke3D's unaltered
+LOOKUP.DAT.
+
+ <filename>: the name of the LOOKUP.DAT-formatted file to create
+]]
 )
 
-engine.registerMenuFunc("_________DEBUG_________", function() end)
-engine.registerMenuFunc("Setup dbg. water basepal", engine.setupDebugBasePal)
-engine.registerMenuFunc("Linearize default basep.", engine.linearizeBasePal)
+engine.registerMenuFunc("_________DEBUG_________", function() end
+--[[
+,
+" \01\02\03\04\05\06\07\08\09\10\11\12\13\14\15\
+\16\17\18\19\20\21\22\23\24\25\26\27\28\29\30\31\
+\128\129\130\131\132\133\134\135\136\137\138\139\140\141\142\143\
+\144\145\146\147\148\149\150\151\152\153\154\155\156\157\158\159\
+\160\161\162\163\164\165\166\167\168\169\170\171\172\173\174\175\
+\176\177\178\179\180\181\182\183\184\185\186\187\188\189\190\191\
+\192\193\194\195\196\197\198\199\200\201\202\203\204\205\206\207\
+\208\209\210\211\212\213\214\215\216\217\218\219\220\221\222\223\
+\224\225\226\227\228\229\230\231\232\233\234\235\236\237\238\239\
+\240\241\242\243\244\245\246\247\248\249\250\251\252\253\254\255"
+--]]
+)
+
+engine.registerMenuFunc("Setup dbg. water basepal", engine.setupDebugBasePal,
+formatHelp
+[[
+<engine.setupDebugBasePal()>
+<__________________________>
+
+Overwrites the water base palette with one where each 16-tuple
+(except the fullbrights) consists of a single representative
+color.
+
+This can be used to get a quick glimpse about what ramps are present
+in particular tiles. With this information, custom lookups can be
+created more directedly with the <Create c.index remapping> menu
+entry.
+]]
+)
+
+engine.registerMenuFunc("Linearize default basep.", engine.linearizeBasePal,
+formatHelp
+[[
+<engine.linearizeBasePal()>
+<_________________________>
+
+Overwrites the default base palette with one where certain ramps have
+their attenuation linearized. This is mainly useful for debugging
+purposes as it excludes the effect of this nonlinearity for
+comparison of fog/visibility between classic and OpenGL modes.
+]]
+)
 
 
 do

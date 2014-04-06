@@ -34,7 +34,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
 const char *getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen, int32_t completion);
 
 typedef const char *(*luamenufunc_t)(void);
-void LM_Register(const char *name, luamenufunc_t funcptr);
+void LM_Register(const char *name, luamenufunc_t funcptr, const char *description);
 void LM_Clear(void);
 ]]
 end
@@ -440,12 +440,15 @@ if (ismapster32) then
         C.LM_Clear()
     end
 
-    function engine.registerMenuFunc(name, func)
+    function engine.registerMenuFunc(name, func, description)
         if (type(name) ~= "string") then
             error("invalid argument #1: must be a string", 2)
         end
         if (type(func) ~= "function") then
             error("invalid argument #2: must be a function", 2)
+        end
+        if (description~=nil and type(description)~="string") then
+            error("invalid argument #3: must be nil or a string", 2)
         end
 
         local safefunc = function()
@@ -455,7 +458,7 @@ if (ismapster32) then
             end
         end
 
-        C.LM_Register(name, safefunc)
+        C.LM_Register(name, safefunc, description)
     end
 
     engine.GETNUMFLAG = {

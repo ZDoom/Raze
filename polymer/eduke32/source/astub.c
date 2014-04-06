@@ -12959,6 +12959,12 @@ static void GenericSpriteSearch(void)
 #define MENU_BG_COLOR editorcolors[0]
 #define MENU_BG_COLOR_SEL editorcolors[1]
 
+#ifdef LUNATIC
+# define MENU_HAVE_DESCRIPTION 1
+#else
+# define MENU_HAVE_DESCRIPTION 0
+#endif
+
 typedef struct StatusBarMenu_ {
     const char *const menuname;
     const int32_t custom_start_index;
@@ -12967,23 +12973,44 @@ typedef struct StatusBarMenu_ {
     void (*process_func)(const struct StatusBarMenu_ *m, int32_t col, int32_t row);
 
     intptr_t auxdata[MENU_MAX_ENTRIES];
+    char *description[MENU_MAX_ENTRIES];  // strdup'd description string, NULL if non
     char name[MENU_MAX_ENTRIES][MENU_ENTRY_SIZE];
 } StatusBarMenu;
 
 #define MENU_INITIALIZER_EMPTY(MenuName, ProcessFunc) \
-    { MenuName, 0, 0, ProcessFunc, {}, {} }
+    { MenuName, 0, 0, ProcessFunc, {}, {}, {} }
 #define MENU_INITIALIZER(MenuName, CustomStartIndex, ProcessFunc, ...) \
-    { MenuName, CustomStartIndex, CustomStartIndex, ProcessFunc, {}, ## __VA_ARGS__ }
+    { MenuName, CustomStartIndex, CustomStartIndex, ProcessFunc, {}, {}, ## __VA_ARGS__ }
 
 #ifdef LUNATIC
 static void M_Clear(StatusBarMenu *m)
 {
+    int32_t i;
+
     m->numentries = 0;
     Bmemset(m->auxdata, 0, sizeof(m->auxdata));
     Bmemset(m->name, 0, sizeof(m->name));
+
+    for (i=0; i<MENU_MAX_ENTRIES; i++)
+    {
+        Bfree(m->description[i]);
+        m->description[i] = NULL;
+    }
+}
+
+static int32_t M_HaveDescription(StatusBarMenu *m)
+{
+    int32_t i;
+
+    for (i=0; i<MENU_MAX_ENTRIES; i++)
+        if (m->description[i] != NULL)
+            return 1;
+
+    return 0;
 }
 #endif
 
+// NOTE: Does not handle description strings! (Only the Lua menu uses them.)
 static void M_UnregisterFunction(StatusBarMenu *m, intptr_t auxdata)
 {
     int32_t i, j;
@@ -13006,7 +13033,7 @@ static void M_UnregisterFunction(StatusBarMenu *m, intptr_t auxdata)
         }
 }
 
-static void M_RegisterFunction(StatusBarMenu *m, const char *name, intptr_t auxdata)
+static void M_RegisterFunction(StatusBarMenu *m, const char *name, intptr_t auxdata, const char *description)
 {
     int32_t i;
 
@@ -13031,6 +13058,14 @@ static void M_RegisterFunction(StatusBarMenu *m, const char *name, intptr_t auxd
 
     Bstrncpyz(m->name[m->numentries], name, MENU_ENTRY_SIZE);
     m->auxdata[m->numentries] = auxdata;
+
+#if MENU_HAVE_DESCRIPTION
+    // NOTE: description only handled here (not above).
+    if (description)
+        m->description[m->numentries] = Bstrdup(description);
+#else
+    UNREFERENCED_PARAMETER(description);
+#endif
 
     m->numentries++;
 }
@@ -13138,6 +13173,19 @@ static void M_EnterMainLoop(StatusBarMenu *m)
             break;
         }
 
+#if MENU_HAVE_DESCRIPTION
+        if (M_HaveDescription(m))
+        {
+            const int32_t maxrows = 20;
+            int32_t r;
+
+            for (r=0; r<maxrows+1; r++)
+                printext16(16-4, 16-4 + r*8, 0, MENU_BG_COLOR,  // 71 blanks:
+                           "                                                                       ", 0);
+            if (m->description[col*8 + row] != NULL)
+                printext16(16, 16, MENU_FG_COLOR, MENU_BG_COLOR, m->description[col*8 + row], 0);
+        }
+#endif
         printext16(xpos, ypos+row*MENU_Y_SPACING, MENU_FG_COLOR, MENU_BG_COLOR_SEL, disptext, 0);
         showframe(1);
     }
@@ -13177,7 +13225,7 @@ static void FuncMenu(void)
 void registerMenuFunction(const char *funcname, int32_t stateidx)
 {
     if (funcname)
-        M_RegisterFunction(&g_specialFuncMenu, funcname, stateidx);
+        M_RegisterFunction(&g_specialFuncMenu, funcname, stateidx, NULL);
     else
         M_UnregisterFunction(&g_specialFuncMenu, stateidx);
 }
@@ -13442,13 +13490,13 @@ static void LuaFuncMenu(void)
     M_EnterMainLoop(&g_LuaFuncMenu);
 }
 
-LUNATIC_EXTERN void LM_Register(const char *name, luamenufunc_t funcptr)
+LUNATIC_EXTERN void LM_Register(const char *name, luamenufunc_t funcptr, const char *description)
 {
     if (name == NULL || g_numLuaFuncs == MENU_MAX_ENTRIES)
         return;
 
     g_LuaFuncPtrs[g_numLuaFuncs] = funcptr;
-    M_RegisterFunction(&g_LuaFuncMenu, name, g_numLuaFuncs);
+    M_RegisterFunction(&g_LuaFuncMenu, name, g_numLuaFuncs, description);
     g_numLuaFuncs++;
 }
 
