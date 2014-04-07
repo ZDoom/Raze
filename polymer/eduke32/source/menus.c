@@ -1947,29 +1947,39 @@ void M_DisplayMenus(void)
 
 cheat_for_port_credits:
             if (g_scriptVersion != 14) l = (-2);
-            mgametext(160,38-l,"Programming and Project Management",0,2+8+16);
+            mgametext(160,38-l,"Management, Design and Production",0,2+8+16);
             p = "Richard \"TerminX\" Gobeille";
             creditsminitext(160, 38+10-l, p, 8, 10+16+128);
 
-            mgametext(160,58-l,"Polymer Rendering System",0,2+8+16);
+#ifdef __ANDROID__
+            mgametext(160,58-l,"Rendering and Support Programming",0,2+8+16);
+#else
+            mgametext(160,58-l,"Polymer Rendering System by",0,2+8+16);
+#endif
             p = "Pierre-Loup \"Plagman\" Griffais";
             creditsminitext(160, 58+10-l, p, 8, 10+16+128);
 
-            mgametext(160,78-l,"Additional Engine and Game Programming",0,2+8+16);
+            mgametext(160,78-l,"Engine and Game Programming",0,2+8+16);
             p = "Philipp \"Helixhorned\" Kutin";
             creditsminitext(160, 78+10-l, p, 8, 10+16+128);
 
-            mgametext(160,98-l,"\"JFDuke3D\" and \"JFBuild\" code",0,2+8+16);
+            mgametext(160,98-l,"Based on \"JFDuke3D\" by",0,2+8+16);
             p = "Jonathon \"JonoF\" Fowler";
             creditsminitext(160, 98+10-l, p, 8, 10+16+128);
 
-            mgametext(160,118-l,"Legacy \"NAM\", \"WWII GI\", and \"EDuke\" Code",0,2+8+16);
+            mgametext(160,118-l,"Original \"EDuke\" concept",0,2+8+16);
             p = "Matt \"Matteus\" Saettler";
             creditsminitext(160, 118+10-l, p, 8, 10+16+128);
 
-            mgametext(160,138-l,"Core BUILD Engine functionality",0,2+8+16);
+            mgametext(160,138-l,"BUILD Engine by",0,2+8+16);
             p = "Ken \"Awesoken\" Silverman";
             creditsminitext(160, 138+10-l, p, 8, 10+16+128);
+
+#ifdef __ANDROID__
+            mgametext(160, 158-l, "Android version by", 0, 2+8+16);
+            p = "Emile Belanger/Beloko Games";
+            creditsminitext(160, 158+10-l, p, 8, 10+16+128);
+#endif
 
             p = "Visit www.eduke32.com for news and updates";
             creditsminitext(160, 138+10+10+10+10+4-l, p, 8, 10+16+128);
@@ -2022,6 +2032,7 @@ cheat_for_port_credits2:
                     "Robin Green",       // CON array support
                     "Ryan Gordon",       // "icculus" - icculus.org Duke3D port sound code
                     "Stephen Anthony",   // early 64-bit porting work
+                    "Thijs Leenders",    // Android icon work
                     "tueidj",            // Wii port
                     " ",
                 };
