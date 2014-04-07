@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
+#include <math.h>
+#include "compat.h"
 #include "duke3d.h"
 #include "build.h"
 #include "namesdyn.h"
@@ -27,6 +29,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "premap.h"
 
 int32_t osdhightile = 0;
+double osdscale = 1.0f;
+
+#define OSD_SCALE(x) (int32_t)(osdscale != 1.f ? nearbyintf(osdscale*(double)(x)) : x)
 
 static int32_t GAME_isspace(int32_t ch)
 {
@@ -52,9 +57,11 @@ void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
     if (GAME_isspace(ch)) return;
     if ((ac = GAME_getchartile(ch)) == -1)
         return;
-
+    
     usehightile = (osdhightile && ht);
-    rotatesprite_fs((9*x)<<16, (y<<3)<<16, 65536, 0, ac, shade, pal, 8|16);
+    rotatesprite_fs(OSD_SCALE(9*x<<16),
+        OSD_SCALE((y<<3)<<16),
+        OSD_SCALE(65536.f), 0, ac, shade, pal, 8|16);
     usehightile = ht;
 }
 
@@ -74,7 +81,8 @@ void GAME_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t len, int32_t 
             if ((ac = GAME_getchartile(*ch)) >= 0)
             {
                 OSD_GetShadePal(ch, &shade, &pal);
-                rotatesprite_fs(x<<16, (y<<3)<<16, 65536, 0, ac, shade, pal, 8|16);
+                rotatesprite_fs(OSD_SCALE(x<<16), OSD_SCALE((y<<3)<<16),
+                    OSD_SCALE(65536.f), 0, ac, shade, pal, 8|16);
             }
 
         x += OSDCHAR_WIDTH+1;
@@ -95,17 +103,19 @@ void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress
     else ac = '_'-'!'+STARTALPHANUM;
 
     if (((GetTime()-lastkeypress) & 0x40)==0)
-        rotatesprite_fs((9*x)<<16, ((y<<3)+(type?-1:2))<<16, 65536, 0, ac, 0, 8, 8|16);
+        rotatesprite_fs(OSD_SCALE(9*x<<16),
+        OSD_SCALE(((y<<3)+(type?-1:2))<<16),
+        OSD_SCALE(65536.f), 0, ac, 0, 8, 8|16);
 }
 
 int32_t GAME_getcolumnwidth(int32_t w)
 {
-    return w/9;
+     return nearbyintf((w/9)/osdscale);
 }
 
-int32_t GAME_getrowheight(int32_t w)
+int32_t GAME_getrowheight(int32_t h)
 {
-    return w>>3;
+    return OSD_SCALE(h>>3);
 }
 
 void GAME_onshowosd(int32_t shown)
@@ -117,3 +127,31 @@ void GAME_onshowosd(int32_t shown)
 //    if (numplayers == 1 && ((shown && !ud.pause_on) || (!shown && ud.pause_on)))
 //        KB_KeyDown[sc_Pause] = 1;
 }
+
+void GAME_clearbackground(int32_t numcols, int32_t numrows)
+{
+    UNREFERENCED_PARAMETER(numcols);
+
+# ifdef USE_OPENGL
+    if (getrendermode() >= REND_POLYMOST && qsetmode==200)
+    {
+        bglPushAttrib(GL_FOG_BIT);
+        bglDisable(GL_FOG);
+
+        setpolymost2dview();
+        bglColor4f(0, 0, 0, 0.67f);
+        bglEnable(GL_BLEND);
+        bglRectd(0, 0, xdim, OSD_SCALE(8*numrows+8));
+        bglColor4f(0, 0, 0, 1);
+        bglRectd(0, OSD_SCALE(8*numrows+4), xdim, OSD_SCALE(8*numrows+8));
+
+        bglPopAttrib();
+
+        return;
+    }
+# endif
+
+    CLEARLINES2D(0, min(ydim, OSD_SCALE(numrows*8+8)), editorcolors[16]);
+}
+
+#undef OSD_SCALE

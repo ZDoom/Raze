@@ -26,8 +26,10 @@ void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress
 int32_t GAME_getcolumnwidth(int32_t w);
 int32_t GAME_getrowheight(int32_t w);
 void GAME_onshowosd(int32_t shown);
+void GAME_clearbackground(int32_t numcols, int32_t numrows);
 
 extern int32_t osdhightile;
+extern double osdscale;
 
 #define OSDCHAR_WIDTH 8
 

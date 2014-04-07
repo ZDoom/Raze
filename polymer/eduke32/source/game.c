@@ -11240,7 +11240,7 @@ int32_t app_main(int32_t argc, const char **argv)
         GAME_drawosdcursor,
         GAME_getcolumnwidth,
         GAME_getrowheight,
-        COMMON_clearbackground,
+        GAME_clearbackground,
         GetTime,
         GAME_onshowosd
     );

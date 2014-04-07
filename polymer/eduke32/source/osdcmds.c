@@ -1442,6 +1442,13 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 
         return r;
     }
+    else if (!Bstrcasecmp(parm->name, "osdscale"))
+    {
+        if (xdim && ydim)
+            OSD_ResizeDisplay(xdim, ydim);
+
+        return r;
+    }
 
     return r;
 }
@@ -1538,6 +1545,7 @@ int32_t registerosdcommands(void)
         { "mus_volume", "controls volume of midi music", (void *)&ud.config.MusicVolume, CVAR_INT, 0, 255 },
 
         { "osdhightile", "enable/disable hires art replacements for console text", (void *)&osdhightile, CVAR_BOOL, 0, 1 },
+        { "osdscale", "adjust console text size", (void *)&osdscale, CVAR_DOUBLE|CVAR_FUNCPTR, 1.f, 4.f },
 
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "show the frame rate counter", (void *)&ud.tickrate, CVAR_BOOL, 0, 1 },
