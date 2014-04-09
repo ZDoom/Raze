@@ -2467,6 +2467,10 @@ char palfadedelta = 0;
 // Internal Engine Functions
 //
 
+// blendtable[1] to blendtable[numalphatabs] are considered to be
+// alpha-blending tables:
+static uint8_t numalphatabs;
+
 static char *blendtable[MAXBLENDTABS];
 void setblendtab(int32_t blend, const char *tab);
 #define getblendtab(blend) (blendtable[blend])
@@ -5609,6 +5613,29 @@ static void drawsprite_opengl(int32_t snum)
     //============================================================================= //POLYMOST ENDS
 }
 
+
+static uint8_t falpha_to_blend(float alpha, int32_t *cstatptr, int32_t transbit1, int32_t transbit2)
+{
+    int32_t blendidx, cstat = *cstatptr;
+
+    if (cstat&transbit1)
+        alpha = 1.0f - (1.0f - alpha) * ((cstat&transbit2) ? 0.33f : 0.66f);
+
+    cstat |= transbit1;
+    cstat &= ~transbit2;
+
+    blendidx = max(1, (int32_t)(alpha * (2*numalphatabs)));  // [1 .. 2*numalphatabs-1]
+    if (blendidx > numalphatabs)
+    {
+        blendidx = 2*numalphatabs - blendidx;
+        cstat |= transbit2;
+    }
+    // blendidx now in [1 .. numalphatabs]
+
+    *cstatptr = cstat;
+    return blendidx;
+}
+
 static void drawsprite_classic(int32_t snum)
 {
     int32_t xoff, yoff, xspan, yspan;
@@ -5627,6 +5654,9 @@ static void drawsprite_classic(int32_t snum)
     int32_t tilenum;
     int32_t cstat = tspr->cstat;
 
+    uint8_t blendidx = tspr->blend;
+    float alpha = spriteext[spritenum].alpha;
+
     if (sec == NULL)
         return;
 
@@ -5635,13 +5665,17 @@ static void drawsprite_classic(int32_t snum)
 
     DO_TILE_ANIM(tspr->picnum, spritenum+32768);
 
-#ifdef USE_OPENGL
+    if (alpha > 0.0f)
     {
-        // hack pending proper alpha implentation
-        // TODO: a real implementation
-        float alpha = spriteext[spritenum].alpha;
+        if (alpha >= 1.0f)
+            return;
 
-        if (alpha >= 0.33f) // if alpha is 0 (which is the default) this structure should only necessitate one comparison
+        if (numalphatabs != 0)
+        {
+            blendidx = falpha_to_blend(alpha, &cstat, 2, 512);
+            tspr->cstat = cstat;
+        }
+        else if (alpha >= 0.33f)
         {
             if ((cstat&2) && alpha >= 0.5f) // this covers the multiplicative aspect used in the Polymodes
                 cstat |= 512;
@@ -5649,17 +5683,11 @@ static void drawsprite_classic(int32_t snum)
             cstat |= 2;
 
             if (alpha >= 0.66f)
-            {
                 cstat |= 512;
-
-                if (alpha >= 1.0f)
-                    return;
-            }
 
             tspr->cstat = cstat;
         }
     }
-#endif
 
     tilenum = tspr->picnum;
 
@@ -5689,7 +5717,7 @@ static void drawsprite_classic(int32_t snum)
     globalshade = tspr->shade;
 
     if (cstat&2)
-        setup_blend(tspr->blend, cstat&512);
+        setup_blend(blendidx, cstat&512);
 
     xoff = picanm[tilenum].xofs + tspr->xoffset;
     yoff = picanm[tilenum].yofs + tspr->yoffset;
@@ -7396,21 +7424,25 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     if (palookup[dapalnum] == NULL) dapalnum = 0;
     palookupoffs = FP_OFF(palookup[dapalnum]) + (getpalookup(0, dashade)<<8);
 
-    // hack pending proper alpha implentation
-    // TODO: a real implementation
-    if (daalpha > 84) // if alpha is 0 (which is the default) this structure should only necessitate one comparison
+    // Alpha handling
+    if (daalpha > 0)
     {
-        if ((dastat & RS_TRANS1) && daalpha > 127) // this covers the multiplicative aspect used in the Polymodes
-            dastat |= RS_TRANS2;
+        if (daalpha == 255)
+            return;
 
-        dastat |= RS_TRANS1;
-
-        if (daalpha > 168)
+        if (numalphatabs != 0)
         {
-            dastat |= RS_TRANS2;
+            dablend = falpha_to_blend((float)daalpha / 255.0f, &dastat, RS_TRANS1, RS_TRANS2);
+        }
+        else if (daalpha > 84)
+        {
+            if ((dastat & RS_TRANS1) && daalpha > 127) // this covers the multiplicative aspect used in the Polymodes
+                dastat |= RS_TRANS2;
 
-            if (daalpha == 255)
-                return;
+            dastat |= RS_TRANS1;
+
+            if (daalpha > 168)
+                dastat |= RS_TRANS2;
         }
     }
 
@@ -8102,6 +8134,18 @@ static int32_t loadpalette(void)
             }
 
             Bfree(tab);
+
+            // Read log2 of count of alpha blending tables.
+            {
+                uint8_t lognumalphatabs;
+
+                if (kread(fil, &lognumalphatabs, 1) == 1)
+                {
+                    if (!(lognumalphatabs >= 1 && lognumalphatabs <= 7))
+                        return loadpalette_err("invalid lognumalphatabs value, must be in [1 .. 7]");
+                    numalphatabs = 1<<lognumalphatabs;
+                }
+            }
         }
     }
 

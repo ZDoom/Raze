@@ -178,6 +178,15 @@ onevent EVENT_DISPLAYREST
     xorvar f TEXT_UPPERCASE
     state increment_line
 
+    // Calculate periodically cycling alpha value
+    setvarvar temp totalclock
+    shiftvarl temp 2
+
+    sin alpha temp   // alpha is now in [-2^14 .. 2^14]
+    shiftvarr alpha 7  // [-2^7 .. 2^7]
+    addvar alpha 128  // [0 .. 256]
+    ifvarg alpha 255 setvar alpha 255
+
     // divider line
     rotatespritea 240 65 32768 512 WINDOWBORDER1 0 2 0 85 x1 y1 x2 y2
 

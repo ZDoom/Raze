@@ -299,8 +299,9 @@ if (ismapster32) then
         return blendnumtab, blendptrtab
     end
 
-    -- ok, errmsg, nummoreblends = engine.savePaletteDat(filename [, palnum [, blendnum [, moreblends]]])
-    function engine.savePaletteDat(filename, palnum, blendnum, moreblends)
+    -- ok, errmsg, nummoreblends = engine.savePaletteDat(
+    --  filename [, palnum [, blendnum [, moreblends [, lognumalphatabs]]]])
+    function engine.savePaletteDat(filename, palnum, blendnum, moreblends, lognumalphatabs)
         local sht = engine.getshadetab(palnum or 0)
         local tab = engine.getblendtab(blendnum or 0)
 
@@ -312,6 +313,10 @@ if (ismapster32) then
 
         local blendnumtab, blendptrtab = validate_more_blendtabs(
             moreblends, "blending", C.getblendtab)
+
+        if (not (type(lognumalphatabs)=="number" and lognumalphatabs >= 1 and lognumalphatabs <= 7)) then
+            error("invalid argument #5: must be a number in [1 .. 7]", 2)
+        end
 
         local f, errmsg = io.open(filename, "wb+")
         if (f == nil) then
@@ -336,6 +341,12 @@ if (ismapster32) then
                 if (C.fwrite(blendptrtab[i], 256, 256, f) ~= 256) then
                     return nil, "failed writing additional blending table"
                 end
+            end
+
+            if (lognumalphatabs) then
+                -- XXX: no checking whether these blending tables 1 to
+                -- 1<<lognumalphatabs have been written.
+                f:write(string.char(lognumalphatabs))
             end
         end
 

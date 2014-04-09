@@ -269,8 +269,9 @@ end
 
 if (gv.LUNATIC_CLIENT == gv.LUNATIC_CLIENT_MAPSTER32) then
     -- Wrapper around engine.savePaletteDat() that errors on unexpected events.
-    function shadexfog.save(filename, palnum, blendnum, moreblends)
-        local ok, errmsg, nummoreblends = engine.savePaletteDat(filename, palnum, blendnum, moreblends)
+    function shadexfog.save(filename, palnum, blendnum, moreblends, lognumalphatabs)
+        local ok, errmsg, nummoreblends = engine.savePaletteDat(
+            filename, palnum, blendnum, moreblends, lognumalphatabs)
         if (not ok) then
             error(errmsg)
         end
@@ -730,20 +731,31 @@ engine.registerMenuFunc(
             end
         end
 
-        shadexfog.save(filename, palnum, blendnum, moreblends)
+        local lognumalphatabs
+        if (#moreblends > 0) then
+            lognumalphatabs = getnumber16("log2 of last alpha blending table index (1-7, 0: none): ", 0, 7)
+            if (lognumalphatabs < 0) then return end
+            if (lognumalphatabs == 0) then lognumalphatabs = nil end
+        end
+
+        shadexfog.save(filename, palnum, blendnum, moreblends, lognumalphatabs)
     end,
 
 formatHelp
 [[
-<shadexfog.save(filename, palnum, blendnum, moreblends)>
-<______________________________________________________>
+<shadexfog.save(filename, palnum, blendnum, moreblends, lognumalpha)>
+<___________________________________________________________________>
 
 Writes out a full PALETTE.DAT-formatted file named <filename> with the
 base shade table numbered <palnum> and the base translucency table
 numbered <blendnum>.
 
 Finally, you are asked to specify additional blending tables that can
-be stored in EDuke32's extended PALETTE.DAT format.
+be stored in EDuke32's extended PALETTE.DAT format. If one or more
+additional blending table is specified, you are also queried for the
+log2 of the last alpha blending table index, <lognumalpha>. Since alpha
+blending tables are assumed to be set up at indices 1 to 2^<lognumalpha>,
+it is also the log2 of their total count.
 ]]
 )
 
