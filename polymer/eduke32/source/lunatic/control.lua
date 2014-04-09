@@ -968,7 +968,7 @@ function _screentext(tilenum, x, y, z, blockangle, charangle, q, shade, pal, ori
     orientation = text_check_common(tilenum, orientation)
     local cstr = bcheck.quote_idx(q)
 
-    ffiC.G_ScreenText(tilenum, x, y, z, blockangle, charangle, cstr, shade, pal, orientation,
+    ffiC.G_ScreenText(tilenum, x, y, z, blockangle, charangle, cstr, shade, pal, bor(2,orientation),
                       alpha, xspace, yline, xbetween, ybetween, f, x1, y1, x2, y2)
 end
 
