@@ -408,8 +408,14 @@ function _rotspr(x, y, zoom, ang, tilenum, shade, pal, orientation,
         error(format("invalid coordinates (%.03f, %.03f)", x, y), 2)
     end
 
+    local blendidx = 0
+    if (alpha < 0) then
+        blendidx = -alpha
+        alpha = 0
+    end
+
     ffiC.rotatesprite_(x, y, zoom, ang, tilenum, shade, pal, bor(2,orientation),
-                       alpha, 0, cx1, cy1, cx2, cy2)
+                       alpha, blendidx, cx1, cy1, cx2, cy2)
 end
 
 -- The external legacy tile drawing function for Lunatic.

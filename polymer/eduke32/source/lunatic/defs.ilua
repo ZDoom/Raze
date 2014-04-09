@@ -699,7 +699,7 @@ typedef struct {
 } vec2_t;
 vec2_t G_ScreenText(const int32_t font,
                     int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle,
-                    const char *str, const int32_t shade, int32_t pal, int32_t o, const int32_t alpha,
+                    const char *str, const int32_t shade, int32_t pal, int32_t o, int32_t alpha,
                     int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f,
                     const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2);
 vec2_t G_ScreenTextSize(const int32_t font,

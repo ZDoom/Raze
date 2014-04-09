@@ -62,6 +62,7 @@ gamevar x2 0 0
 gamevar y2 0 0
 
 gamevar temp 0 0
+gamevar doaddtvblend 0 0
 
 state resetbounds
     setvarvar x1 windowx1
@@ -178,14 +179,32 @@ onevent EVENT_DISPLAYREST
     xorvar f TEXT_UPPERCASE
     state increment_line
 
-    // Calculate periodically cycling alpha value
+    // Calculate periodically cycling alpha value. PERIODIC_ALPHA.
     setvarvar temp totalclock
     shiftvarl temp 2
 
     sin alpha temp   // alpha is now in [-2^14 .. 2^14]
     shiftvarr alpha 7  // [-2^7 .. 2^7]
     addvar alpha 128  // [0 .. 256]
-    ifvarg alpha 255 setvar alpha 255
+    ifvarg alpha 254 { setvar alpha 255 setvar doaddtvblend 1 }
+    else ifvarl alpha 2 { setvar doaddtvblend 0 }
+
+    ifvare doaddtvblend 1
+    {
+        shiftvarr alpha 2  // [0 63]
+
+        ifvarg alpha 31
+        {
+            setvar temp 63
+            subvarvar temp alpha
+            setvarvar alpha temp
+            orvar o 32  // RS_TRANS2
+        }
+        // alpha now in [0 .. 31]
+
+        addvar alpha 101  // additive translucency tables are assumed to be at [101 .. 132]
+        mulvar alpha -1
+    }
 
     // divider line
     rotatespritea 240 65 32768 512 WINDOWBORDER1 0 2 0 85 x1 y1 x2 y2
@@ -324,4 +343,7 @@ onevent EVENT_DISPLAYREST
     screentext font 10 100 z 1536 charangle 1020 shade pal o 85 xspace yline xbetween ybetween f x1 y1 x2 y2
     orvar f TEXT_LITERALESCAPE
     screentext font 20 100 z 1536 charangle 1020 shade pal o 170 xspace yline xbetween ybetween f x1 y1 x2 y2
+
+    ifvarand o 32 xorvar o 32  // clear RS_TRANS2
+    setvar alpha 0  // Clear alpha so it's only active from PERIODIC_ALPHA to here.
 endevent

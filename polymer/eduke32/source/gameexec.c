@@ -2741,6 +2741,8 @@ nullquote:
                 int32_t x1=Gv_GetVarX(*insptr++),  y1=Gv_GetVarX(*insptr++);
                 int32_t x2=Gv_GetVarX(*insptr++),  y2=Gv_GetVarX(*insptr++);
 
+                int32_t blendidx = 0;
+
                 if (tw != CON_ROTATESPRITE16 && !(orientation&ROTATESPRITE_FULL16))
                 {
                     x<<=16;
@@ -2761,7 +2763,9 @@ nullquote:
 
                 orientation &= (ROTATESPRITE_MAX-1);
 
-                rotatesprite_(x,y,z,a,tilenum,shade,pal,2|orientation,alpha,0,x1,y1,x2,y2);
+                NEG_ALPHA_TO_BLEND(alpha, blendidx, orientation);
+
+                rotatesprite_(x,y,z,a,tilenum,shade,pal,2|orientation,alpha,blendidx,x1,y1,x2,y2);
                 continue;
             }
 

@@ -758,7 +758,7 @@ void G_AddCoordsFromRotation(vec2_t *coords, const vec2_t *unitDirection, const 
 // screentext
 vec2_t G_ScreenText(const int32_t font,
                     int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle,
-                    const char *str, const int32_t shade, int32_t pal, int32_t o, const int32_t alpha,
+                    const char *str, const int32_t shade, int32_t pal, int32_t o, int32_t alpha,
                     int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f,
                     const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2)
 {
@@ -769,7 +769,7 @@ vec2_t G_ScreenText(const int32_t font,
     const vec2_t Xdirection = { sintable[(blockangle+512)&2047], sintable[blockangle&2047], };
     const vec2_t Ydirection = { sintable[(blockangle+1024)&2047], sintable[(blockangle+512)&2047], };
 
-    int32_t tile;
+    int32_t blendidx=0, tile;
     char t;
 
     // set the start and end points depending on direction
@@ -780,6 +780,8 @@ vec2_t G_ScreenText(const int32_t font,
 
     if (str == NULL)
         return size;
+
+    NEG_ALPHA_TO_BLEND(alpha, blendidx, o);
 
     end = (f & TEXT_BACKWARDS) ? str-1 : Bstrchr(str,'\0');
     text = (f & TEXT_BACKWARDS) ? Bstrchr(str,'\0')-1 : str;
@@ -929,7 +931,7 @@ vec2_t G_ScreenText(const int32_t font,
                 G_AddCoordsFromRotation(&location, &Xdirection, pos.x);
                 G_AddCoordsFromRotation(&location, &Ydirection, pos.y);
 
-                rotatesprite_(location.x, location.y, z, angle, tile, shade, pal, orientation, alpha, 0, x1, y1, x2, y2);
+                rotatesprite_(location.x, location.y, z, angle, tile, shade, pal, orientation, alpha, blendidx, x1, y1, x2, y2);
 
                 break;
             }
