@@ -314,8 +314,10 @@ if (ismapster32) then
         local blendnumtab, blendptrtab = validate_more_blendtabs(
             moreblends, "blending", C.getblendtab)
 
-        if (not (type(lognumalphatabs)=="number" and lognumalphatabs >= 1 and lognumalphatabs <= 7)) then
-            error("invalid argument #5: must be a number in [1 .. 7]", 2)
+        if (lognumalphatabs ~= nil) then
+            if (not (type(lognumalphatabs)=="number" and lognumalphatabs >= 1 and lognumalphatabs <= 7)) then
+                error("invalid argument #5: must be a number in [1 .. 7]", 2)
+            end
         end
 
         local f, errmsg = io.open(filename, "wb+")
@@ -343,7 +345,7 @@ if (ismapster32) then
                 end
             end
 
-            if (lognumalphatabs) then
+            if (lognumalphatabs ~= nil) then
                 -- XXX: no checking whether these blending tables 1 to
                 -- 1<<lognumalphatabs have been written.
                 f:write(string.char(lognumalphatabs))

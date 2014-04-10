@@ -678,8 +678,8 @@ formatHelp
 <shadexfog.createremap(palnum, remaptab)>
 <_______________________________________>
 
-Creates a color index remapping expressed as mappings of sexdecatuples
-(16-tuples) of the base palette at pal <palnum>.
+Creates a color index remapping expressed as mappings of sexdeca-
+tuples (16-tuples) of the base palette at pal <palnum>.
 
  Duke3D's default base palette can be considered to consist of six
  ramps of 32 colors each, three ramps of 16 colors each and a
@@ -754,8 +754,8 @@ Finally, you are asked to specify additional blending tables that can
 be stored in EDuke32's extended PALETTE.DAT format. If one or more
 additional blending table is specified, you are also queried for the
 log2 of the last alpha blending table index, <lognumalpha>. Since alpha
-blending tables are assumed to be set up at indices 1 to 2^<lognumalpha>,
-it is also the log2 of their total count.
+blending tables are assumed to be set up at indices 1 to
+exp(2, <lognumalpha>), it is also the log2 of their total count.
 ]]
 )
 
