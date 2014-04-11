@@ -4394,6 +4394,16 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     if (g_networkMode == NET_DEDICATED_SERVER) return;
 
+#ifdef __ANDROID__ 
+    // HACK: this is needed or else we get leftover UI texture crap where we'd get HOM on PC
+
+        if (getrendermode() == REND_POLYMOST)
+        {
+            static int32_t col = getclosestcol(4, 4, 4);
+            clearallviews(col);
+        }
+#endif
+
     if (pub > 0 || getrendermode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
         if (ud.screen_size >= 8)
