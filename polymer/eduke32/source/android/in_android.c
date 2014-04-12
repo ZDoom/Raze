@@ -21,147 +21,144 @@
 
 extern int32_t main(int32_t argc, char *argv []);
 
-#define BUTTONSET(x,value) (CONTROL_ButtonState |= ((uint64_t)value<<((uint64_t)(x))))
-#define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64_t)1<<((uint64_t)(x))))
-
 extern int SDL_SendKeyboardKey(Uint8 state, SDL_Scancode scancode);
 extern int SDL_SendKeyboardText(const char *text);
 
-static float forwardmove, sidemove; //Joystick mode
 static char sdl_text[2];
+
+static droidinput_t droidinput;
 
 int PortableKeyEvent(int state, int code,int unicode)
 {
-	LOGI("PortableKeyEvent %d %d %d",state,code,unicode);
+    LOGI("PortableKeyEvent %d %d %d",state,code,unicode);
 
     SDL_SendKeyboardKey(state ? SDL_PRESSED : SDL_RELEASED, code);
-	SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
+    SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
 
-	if (code == 42)
-		unicode = 42;
+    if (code == 42)
+        unicode = 42;
 
-	if (state)
-	{
-		//if (unicode < 128)
-		{
-			sdl_text[0] = unicode;
-			sdl_text[1] = 0;
+    if (state)
+    {
+        //if (unicode < 128)
+        {
+            sdl_text[0] = unicode;
+            sdl_text[1] = 0;
 
-			int posted = SDL_SendKeyboardText((const char*)sdl_text);
-			LOGI("posted = %d",posted);
-		}
-	}
+            int posted = SDL_SendKeyboardText((const char*)sdl_text);
+            LOGI("posted = %d",posted);
+        }
 
-	return 0;
+        if (state == 2)
+            PortableKeyEvent(0, code, unicode);
+    }
+
+    return 0;
 
 }
 
-
-
 void changeActionState(int state, int action)
 {
-	if (state)
-	{
-		//BUTTONSET(action,1);
-		droidplayer.functionSticky  |= ((uint64_t)1<<((uint64_t)(action)));
-		droidplayer.functionHeld    |= ((uint64_t)1<<((uint64_t)(action)));
+    if (state)
+    {
+        //BUTTONSET(action,1);
+        droidinput.functionSticky  |= ((uint64_t)1<<((uint64_t)(action)));
+        droidinput.functionHeld    |= ((uint64_t)1<<((uint64_t)(action)));
 
         return;
     }
 
     //BUTTONCLEAR(action);
-    droidplayer.functionHeld  &= ~((uint64_t) 1<<((uint64_t) (action)));
+    droidinput.functionHeld  &= ~((uint64_t) 1<<((uint64_t) (action)));
 }
 
 void PortableAction(int state, int action)
 {
-	LOGI("PortableAction action = %d, state = %d",action,state);
+    LOGI("PortableAction action = %d, state = %d", action, state);
 
-	//Special toggle for crouch, NOT when using jetpack or in water
-	if (!g_player[myconnectindex].ps->jetpack_on &&
-			g_player[myconnectindex].ps->on_ground &&
-			(sector[g_player[myconnectindex].ps->cursectnum].lotag != ST_2_UNDERWATER))
-	{
-
-		if (action == gamefunc_Crouch)
-		{
-			if (state)
-				droidplayer.crouchToggleState = !droidplayer.crouchToggleState;
-
-			state = droidplayer.crouchToggleState;
-		}
-	}
-
-    //Check if jumping while crouched
-    if (action == gamefunc_Jump)
+    //Action is for the menu
+    if (action >= MENU_UP)
     {
-        droidplayer.crouchToggleState = 0;
-        changeActionState(0, gamefunc_Crouch);
+        if (PortableRead(READ_MENU))
+        {
+            int sdl_code = 0;
+            switch (action)
+            {
+            case MENU_UP:
+                sdl_code = SDL_SCANCODE_UP;
+                break;
+            case MENU_DOWN:
+                sdl_code = SDL_SCANCODE_DOWN;
+                break;
+            case MENU_LEFT:
+                sdl_code = SDL_SCANCODE_LEFT;
+                break;
+            case MENU_RIGHT:
+                sdl_code = SDL_SCANCODE_RIGHT;
+                break;
+            case MENU_SELECT:
+                sdl_code = SDL_SCANCODE_RETURN;
+                break;
+            case MENU_BACK:
+                sdl_code = SDL_SCANCODE_ESCAPE;
+                break;
+            }
+
+            PortableKeyEvent(state, sdl_code, 0);
+
+            return;
+        }
     }
+    else
+    {
+        if (PortableRead(READ_MENU)) //If in the menu, dont do any game actions
+            return;
 
-	changeActionState(state,action);
-	LOGI("PortableAction state = 0x%016llX",CONTROL_ButtonState);
+        //Special toggle for crouch, NOT when using jetpack or in water
+        if (!g_player[myconnectindex].ps->jetpack_on &&
+                g_player[myconnectindex].ps->on_ground &&
+                (sector[g_player[myconnectindex].ps->cursectnum].lotag != ST_2_UNDERWATER))
+        {
+            if (toggleCrouch)
+            {
+                if (action == gamefunc_Crouch)
+                {
+                    if (state)
+                        droidinput.crouchToggleState = !droidinput.crouchToggleState;
+
+                    state = droidinput.crouchToggleState;
+                }
+            }
+        }
+
+        //Check if jumping while crouched
+        if (action == gamefunc_Jump)
+        {
+            crouchToggleState = 0;
+            changeActionState(0, gamefunc_Crouch);
+        }
+
+        changeActionState(state, action);
+
+        LOGI("PortableAction state = 0x%016llX", CONTROL_ButtonState);
+    }
 }
-
 // =================== FORWARD and SIDE MOVMENT ==============
-
-void PortableMoveFwd(float fwd)
-{
-	forwardmove = fclamp2(fwd, -1.f, 1.f);
-}
-
-void PortableMoveSide(float strafe)
-{
-	sidemove = fclamp2(strafe, -1.f, 1.f);
-}
 
 void PortableMove(float fwd, float strafe)
 {
-	PortableMoveFwd(fwd);
-	PortableMoveSide(strafe);
+    droidinput.forwardmove = fclamp2(fwd    + droidinput.forwardmove, -1.f, 1.f);
+    droidinput.sidemove    = fclamp2(strafe + droidinput.sidemove,    -1.f, 1.f);
 }
 
 //======================================================================
 
-//Look up and down
-int look_pitch_mode;
-float look_pitch_mouse,look_pitch_abs,look_pitch_joy;
-void PortableLookPitch(int mode, float pitch)
+void PortableLook(double yaw, double pitch)
 {
-	//LOGI("PortableLookPitch %d %f",mode, pitch);
-	look_pitch_mode = mode;
-	switch(mode)
-	{
-	case LOOK_MODE_MOUSE:
-		look_pitch_mouse += pitch;
-		break;
-	case LOOK_MODE_ABSOLUTE:
-		look_pitch_abs = pitch;
-		break;
-	case LOOK_MODE_JOYSTICK:
-		look_pitch_joy = pitch;
-		break;
-	}
+    //LOGI("PortableLookPitch %d %f",mode, pitch);
+    droidinput.pitch += pitch;
+    droidinput.yaw   += yaw;
 }
-
-//left right
-int look_yaw_mode;
-float look_yaw_mouse,look_yaw_joy;
-void PortableLookYaw(int mode, float yaw)
-{
-	look_yaw_mode = mode;
-	switch(mode)
-	{
-	case LOOK_MODE_MOUSE:
-		look_yaw_mouse += yaw;
-		break;
-	case LOOK_MODE_JOYSTICK:
-		look_yaw_joy = yaw;
-		break;
-	}
-}
-
-
 
 void PortableCommand(const char * cmd)
 {
@@ -170,13 +167,7 @@ void PortableCommand(const char * cmd)
 
 void PortableInit(int argc,const char ** argv)
 {
-	main(argc, argv);
-}
-
-
-void PortableFrame()
-{
-	//NOT USED for DUKE
+    main(argc, argv);
 }
 
 int32_t PortableRead(portableread_t r)
@@ -194,7 +185,7 @@ int32_t PortableRead(portableread_t r)
     case READ_RENDERER:
         return getrendermode();
     case READ_LASTWEAPON:
-        return droidplayer.lastWeapon;
+        return droidinput.lastWeapon;
     case READ_PAUSED:
         return ud.pause_on != 0;
     default:
@@ -206,54 +197,35 @@ int32_t PortableRead(portableread_t r)
 
 void CONTROL_Android_SetLastWeapon(int w)
 {
-	LOGI("setLastWeapon %d",w);
-	droidplayer.lastWeapon = w;
+    LOGI("setLastWeapon %d",w);
+    droidinput.lastWeapon = w;
 }
 
 void CONTROL_Android_ClearButton(int32_t whichbutton)
 {
-	BUTTONCLEAR(whichbutton);
-	droidplayer.functionHeld  &= ~((uint64_t)1<<((uint64_t)(whichbutton)));
+    BUTTONCLEAR(whichbutton);
+    droidinput.functionHeld  &= ~((uint64_t)1<<((uint64_t)(whichbutton)));
 }
 
 void  CONTROL_Android_PollDevices(ControlInfo *info)
 {
-	//LOGI("CONTROL_Android_PollDevices %f %f",forwardmove,sidemove);
+    //LOGI("CONTROL_Android_PollDevices %f %f",forwardmove,sidemove);
 
-	info->dz   = -forwardmove * 5000;
-	info->dx   = sidemove * 200;
+    info->dz     = -droidinput.forwardmove * 5000;
+    info->dx     = droidinput.sidemove     * 200;
+    info->dpitch = droidinput.pitch        * 100000;
+    info->dyaw   = -droidinput.yaw         * 80000;
 
-	switch(look_pitch_mode)
-	{
-	case LOOK_MODE_MOUSE:
-		info->dpitch = look_pitch_mouse * 100000;
-		look_pitch_mouse = 0;
-		break;
-	case LOOK_MODE_ABSOLUTE:
-		//cl.viewangles[0] = look_pitch_abs * 80;
-		break;
-	case LOOK_MODE_JOYSTICK:
-		info->dpitch = look_pitch_joy * 2000;
-		break;
-	}
+    droidinput.forwardmove = droidinput.sidemove = 0.f;
+    droidinput.pitch = droidinput.yaw = 0.f;
 
-	switch(look_yaw_mode)
-	{
-	case LOOK_MODE_MOUSE:
-		info->dyaw = -look_yaw_mouse * 80000;
-		look_yaw_mouse = 0;
-		break;
-	case LOOK_MODE_JOYSTICK:
-		info->dyaw = -look_yaw_joy * 4000;
-		break;
-	}
-	CONTROL_ButtonState = 0;
-	CONTROL_ButtonState |= droidplayer.functionSticky;
-	CONTROL_ButtonState |= droidplayer.functionHeld;
+    CONTROL_ButtonState = 0;
+    CONTROL_ButtonState |= droidinput.functionSticky;
+    CONTROL_ButtonState |= droidinput.functionHeld;
 
-	droidplayer.functionSticky = 0;
+    droidinput.functionSticky = 0;
 
-	//LOGI("poll state = 0x%016llX",CONTROL_ButtonState);
+    //LOGI("poll state = 0x%016llX",CONTROL_ButtonState);
 }
 
 
