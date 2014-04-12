@@ -29,7 +29,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "premap.h"
 
 int32_t osdhightile = 0;
+#ifdef __ANDROID__
+double osdscale = 2.0f;
+#else
 double osdscale = 1.0f;
+#endif
 
 #define OSD_SCALE(x) (int32_t)(osdscale != 1.f ? nearbyintf(osdscale*(double)(x)) : x)
 

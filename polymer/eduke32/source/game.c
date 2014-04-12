@@ -2688,6 +2688,8 @@ void G_PrintGameQuotes(int32_t snum)
         {
 #ifdef GEKKO
             k = 16;
+#elif defined(__ANDROID__)
+            k = 24;
 #else
             k = 0;
 #endif

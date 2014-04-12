@@ -20,6 +20,7 @@ extern "C"
 extern void SDL_SetSwapBufferCallBack(void (*pt2Func)(void));
 
 #include "in_android.h"
+#include "../function.h"
 
 #include "../GL/gl.h"
 #include "../GL/nano_gl.h"
@@ -44,7 +45,6 @@ int android_screen_height;
 #define KEY_SHOW_INVEN    0x1009
 #define KEY_QUICK_SAVE    0x100A
 #define KEY_QUICK_LOAD    0x100B
-#define KEY_SNIPER        0x100C
 
 #define KEY_QUICK_KEY1    0x1011
 #define KEY_QUICK_KEY2    0x1012
@@ -61,7 +61,6 @@ bool showSticks = true;
 bool hideTouchControls = true;
 
 bool shooting = false;
-bool sniperMode = false;
 
 static int controlsCreated = 0;
 touchcontrols::TouchControlsContainer controlsContainer;
@@ -202,55 +201,60 @@ void swapBuffers()
 }
 
 
-void gameButton(int state,int code)
+void gameButton(int state, int code)
 {
-	if (code == gamefunc_Fire)
-	{
-		shooting = state;
-		PortableAction(state, code);
-	}
-	if (code == KEY_SNIPER)
-	{
-		sniperMode = state;
-	}
-	else if  (code == KEY_SHOW_KBRD)
-	{
-		if (state)
-			toggleKeyboard();
+    switch (code)
+    {
+    case gamefunc_Fire:
+        shooting = state;
+        PortableAction(state, code);
+        break;
 
-		PortableKeyEvent(state, SDL_SCANCODE_GRAVE,0);
-	}
-	else if  (code == KEY_QUICK_CMD){
-		if (state == 1)
-			showCustomCommands();
-	}
-	else if  (code == KEY_SHOW_INVEN){
-		if (state == 1)
-		{
-			if (!tcInventory->isEnabled())
-			{
-				tcInventory->setEnabled(true);
-				tcInventory->fade(0,5);
-				//disable weapon wheel so it does not show, enabled again after inventory cleared
-				tcGameWeapons->setEnabled(false);
-			}
-			else
-			{
-				tcInventory->setEnabled(false);
-				tcGameWeapons->setEnabled(true);
-			}
-		}
-	}
-	else if (code == KEY_QUICK_SAVE){
-		LOGI("QUICK SAVE");
-		PortableKeyEvent(state, SDL_SCANCODE_F6,0);
-	}
-	else if (code == KEY_QUICK_LOAD){
-		LOGI("QUICK LOAD");
-		PortableKeyEvent(state, SDL_SCANCODE_F9,0);
-	}
-	else
-		PortableAction(state, code);
+    case KEY_SHOW_KBRD:
+        if (state)
+            toggleKeyboard();
+
+        PortableKeyEvent(state, SDL_SCANCODE_GRAVE, 0);
+        break;
+
+    case KEY_QUICK_CMD:
+        if (state == 1)
+            showCustomCommands();
+        break;
+
+    case KEY_SHOW_INVEN:
+        if (state != 1)
+            break;
+
+        if (!tcInventory->isEnabled())
+        {
+            tcInventory->setEnabled(true);
+            tcInventory->fade(0, 5);
+            //disable weapon wheel so it does not show, enabled again after inventory cleared
+            tcGameWeapons->setEnabled(false);
+        }
+        else
+        {
+            tcInventory->setEnabled(false);
+            tcGameWeapons->setEnabled(true);
+        }
+
+        break;
+
+    case KEY_QUICK_SAVE:
+        LOGI("QUICK SAVE");
+        PortableKeyEvent(state, SDL_SCANCODE_F6, 0);
+        break;
+
+    case KEY_QUICK_LOAD:
+        LOGI("QUICK LOAD");
+        PortableKeyEvent(state, SDL_SCANCODE_F9, 0);
+        break;
+
+    default:
+        PortableAction(state, code);
+        break;
+    }
 }
 
 void automapButton(int state,int code)
@@ -266,7 +270,6 @@ void inventoryButton(int state,int code)
 		tcGameWeapons->setEnabled(true);
 		tcInventory->setEnabled(false);
 	}
-
 }
 
 void menuButton(int state,int code)
@@ -275,40 +278,44 @@ void menuButton(int state,int code)
 }
 
 static int weaponWheelVisible = false;
+
 void weaponWheelSelected(int enabled)
 {
-	if (enabled)
-	{
-		for (int n=0;n<10;n++)
-		{
-			weaponWheel->setSegmentEnabled(n,(PortableGetWeapons() >> n) & 0x1);
-		}
+	if (!enabled)
+    {
+        tcGameWeapons->fade(1, 5);
+        weaponWheelVisible = false;
+        return;
+    }
 
-		tcGameWeapons->fade(0,5); //fade in
-		weaponWheelVisible = true;
-	}
-	else
-	{
-		tcGameWeapons->fade(1,5);
-		weaponWheelVisible = false;
-	}
+    for (int n=0; n<10; n++)
+    {
+        weaponWheel->setSegmentEnabled(n, (PortableRead(READ_WEAPONS) >> n) & 0x1);
+    }
+
+    tcGameWeapons->fade(0, 5); //fade in
+    weaponWheelVisible = true;
 }
+
 void weaponWheelChosen(int segment)
 {
 	LOGI("weaponWheel %d",segment);
-	if (segment != -1)
-	{
-		PortableAction(1, gamefunc_Weapon_1 + segment);
-		PortableAction(0, gamefunc_Weapon_1 + segment);
-	}
-	else //Nothing was selected
-	{
-		if (getLastWeapon() != -1)
-		{
-			PortableAction(1, gamefunc_Weapon_1 + getLastWeapon());
-			PortableAction(0, gamefunc_Weapon_1 + getLastWeapon());
-		}
-	}
+
+    if (segment == -1) //Nothing was selected
+    {
+        int32_t lw = PortableRead(READ_LASTWEAPON);
+
+        if (lw != -1)
+        {
+            PortableAction(1, gamefunc_Weapon_1 + lw);
+            PortableAction(0, gamefunc_Weapon_1 + lw);
+        }
+
+        return;
+    }
+
+    PortableAction(1, gamefunc_Weapon_1 + segment);
+    PortableAction(0, gamefunc_Weapon_1 + segment);
 }
 
 
@@ -345,14 +352,12 @@ void left_stick(float joy_x, float joy_y,float mouse_x, float mouse_y)
 	PortableMove(joy_y * 15 * forward_sens,-strafe * strafe_sens);
 }
 
-extern int crouchToggleState; //Set in anroid_in.c
-
 void right_stick(float joy_x, float joy_y,float mouse_x, float mouse_y)
 {
 	//LOGI(" mouse x = %f",mouse_x);
 	int invert = invertLook?-1:1;
 
-	float scale = ((shooting && precisionShoot) || crouchToggleState)?0.3:1;
+	float scale = (shooting && precisionShoot) ? 0.3f : 1.f;
 
 	PortableLookPitch(LOOK_MODE_MOUSE,-mouse_y  * pitch_sens * invert * scale);
 
@@ -368,24 +373,13 @@ void mouseMove(int action,float x, float y,float dx, float dy)
 
 	if (weaponWheelVisible)
 		return;
-	/*
-	if (abs(dx) < 0.001)
-	{
-		dx * 0.1;
-	}
-	 */
-	int invert = invertLook?-1:1;
-	float scale;
 
-	if (sniperMode)
-		scale = 0.2;
-	else
-		scale = ((shooting && precisionShoot) || crouchToggleState)?0.2:1;
+	int invert = invertLook? -1 : 1;
+	float scale = (shooting && precisionShoot) ? 0.2f : 1.f;
 
+	PortableLookPitch(LOOK_MODE_MOUSE, -dy * pitch_sens * invert * scale);
 
-	PortableLookPitch(LOOK_MODE_MOUSE,-dy  * pitch_sens * invert * scale);
-
-	PortableLookYaw(LOOK_MODE_MOUSE,dx*2*yaw_sens * scale);
+	PortableLookYaw(LOOK_MODE_MOUSE, dx * 2 * yaw_sens * scale);
 }
 
 void setHideSticks(bool v)
@@ -396,13 +390,10 @@ void setHideSticks(bool v)
 
 void touchSettingsButton(int state)
 {
-	//We wanna pause the game when doign settings
-	if (state && !isPaused())
-	{
-		PortableKeyEvent(1,SDL_SCANCODE_PAUSE,0);
-		PortableKeyEvent(0,SDL_SCANCODE_PAUSE,0);
-	}
-	else if (!state && isPaused())
+    int32_t paused = PortableRead(READ_PAUSED);
+
+	//We wanna pause the game when doing settings
+	if (state && !paused || !state && paused)
 	{
 		PortableKeyEvent(1,SDL_SCANCODE_PAUSE,0);
 		PortableKeyEvent(0,SDL_SCANCODE_PAUSE,0);
@@ -555,12 +546,12 @@ void initControls(int width, int height,const char * graphics_path,const char *s
 	//controlsContainer.initGL();
 }
 
-int loadedGLImages=0;
-
-int inMenuLast = 1;
-int inAutomapLast = 0;
 void frameControls()
 {
+    static int loadedGLImages = 0;
+    static int inMenuLast = 1;
+    static int inAutomapLast = 0;
+
 	//LOGI("frameControls");
 	//We need to do this here now because duke loads a new gl context
 	if (!loadedGLImages)
@@ -573,12 +564,12 @@ void frameControls()
 	}
 
 	//LOGI("frameControls");
-	if (PortableIsSoftwareMode())
+	if (PortableRead(READ_RENDERER) == REND_CLASSIC)
 		curRenderer = REND_SOFT;
 	else
 		curRenderer = REND_GL;
 
-	int inMenuNew = PortableInMenu();
+	int inMenuNew = PortableRead(READ_MENU);
 	if (inMenuLast != inMenuNew)
 	{
 		inMenuLast = inMenuNew;
@@ -597,7 +588,7 @@ void frameControls()
 		}
 	}
 
-	int inAutomapNew =  PortableInAutomap() && !inMenuLast; //Dont show if menu comes up
+	int inAutomapNew =  PortableRead(READ_AUTOMAP) && !inMenuLast; //Dont show if menu comes up
 	if (inAutomapLast != inAutomapNew)
 	{
 		inAutomapLast = inAutomapNew;
@@ -614,7 +605,6 @@ void frameControls()
 	setHideSticks(!showSticks);
 	controlsContainer.draw();
 }
-
 
 void setTouchSettings(float alpha,float strafe,float fwd,float pitch,float yaw,int other)
 {

@@ -5,11 +5,13 @@
 #include "common_game.h"
 #include "osd.h"
 #include "player.h"
+#include "game.h"
+#include "build.h"
 
 #include "jmact/keyboard.h"
 #include "jmact/control.h"
 
-#include "../src/video/android/SDL_androidkeyboard.h"
+#include "../src/video/android/SDL_androidkeyboard.h" // FIXME: include header locally if necessary
 
 #include "in_android.h"
 
@@ -17,30 +19,23 @@
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO,"DUKE", __VA_ARGS__))
 
+extern int32_t main(int32_t argc, char *argv []);
+
+#define BUTTONSET(x,value) (CONTROL_ButtonState |= ((uint64_t)value<<((uint64_t)(x))))
+#define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64_t)1<<((uint64_t)(x))))
 
 extern int SDL_SendKeyboardKey(Uint8 state, SDL_Scancode scancode);
 extern int SDL_SendKeyboardText(const char *text);
 
-char sdl_text[2];
-int PortableKeyEvent(int state, int code,int unicode){
+static float forwardmove, sidemove; //Joystick mode
+static char sdl_text[2];
 
+int PortableKeyEvent(int state, int code,int unicode)
+{
 	LOGI("PortableKeyEvent %d %d %d",state,code,unicode);
 
-	/*
-	if (state)
-		 Android_OnKeyDown(code);
-	else
-		 Android_OnKeyUp(code);
-
-	return;
-	 */
-
-	if (state)
-		SDL_SendKeyboardKey(SDL_PRESSED, code);
-	else
-		SDL_SendKeyboardKey(SDL_RELEASED, code);
-
-	SDL_EventState(SDL_TEXTINPUT,SDL_ENABLE);
+    SDL_SendKeyboardKey(state ? SDL_PRESSED : SDL_RELEASED, code);
+	SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
 
 	if (code == 42)
 		unicode = 42;
@@ -62,27 +57,20 @@ int PortableKeyEvent(int state, int code,int unicode){
 }
 
 
-int crouchToggleState=0;
-
-#define BUTTONSET(x,value) (CONTROL_ButtonState |= ((uint64_t)value<<((uint64_t)(x))))
-#define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64_t)1<<((uint64_t)(x))))
-
-uint64_t functionSticky = 0; //To let at least one tick
-uint64_t functionHeld = 0;
 
 void changeActionState(int state, int action)
 {
 	if (state)
 	{
 		//BUTTONSET(action,1);
-		functionSticky  |= ((uint64_t)1<<((uint64_t)(action)));
-		functionHeld    |= ((uint64_t)1<<((uint64_t)(action)));
-	}
-	else
-	{
-		//BUTTONCLEAR(action);
-		functionHeld  &= ~((uint64_t)1<<((uint64_t)(action)));
-	}
+		droidplayer.functionSticky  |= ((uint64_t)1<<((uint64_t)(action)));
+		droidplayer.functionHeld    |= ((uint64_t)1<<((uint64_t)(action)));
+
+        return;
+    }
+
+    //BUTTONCLEAR(action);
+    droidplayer.functionHeld  &= ~((uint64_t) 1<<((uint64_t) (action)));
 }
 
 void PortableAction(int state, int action)
@@ -92,28 +80,24 @@ void PortableAction(int state, int action)
 	//Special toggle for crouch, NOT when using jetpack or in water
 	if (!g_player[myconnectindex].ps->jetpack_on &&
 			g_player[myconnectindex].ps->on_ground &&
-			(sector[g_player[myconnectindex].ps->cursectnum].lotag != 2))// This means underwater!
+			(sector[g_player[myconnectindex].ps->cursectnum].lotag != ST_2_UNDERWATER))
 	{
 
 		if (action == gamefunc_Crouch)
 		{
 			if (state)
-			{
-				crouchToggleState =!crouchToggleState;
-			}
-			state = crouchToggleState;
+				droidplayer.crouchToggleState = !droidplayer.crouchToggleState;
+
+			state = droidplayer.crouchToggleState;
 		}
 	}
 
-	//Check if jumping while crouched
-	if (action == gamefunc_Jump)
-	{
-		if (crouchToggleState)
-		{
-			crouchToggleState = 0;
-			changeActionState(0,gamefunc_Crouch);
-		}
-	}
+    //Check if jumping while crouched
+    if (action == gamefunc_Jump)
+    {
+        droidplayer.crouchToggleState = 0;
+        changeActionState(0, gamefunc_Crouch);
+    }
 
 	changeActionState(state,action);
 	LOGI("PortableAction state = 0x%016llX",CONTROL_ButtonState);
@@ -121,26 +105,14 @@ void PortableAction(int state, int action)
 
 // =================== FORWARD and SIDE MOVMENT ==============
 
-float forwardmove, sidemove; //Joystick mode
-
 void PortableMoveFwd(float fwd)
 {
-	if (fwd > 1)
-		fwd = 1;
-	else if (fwd < -1)
-		fwd = -1;
-
-	forwardmove = fwd;
+	forwardmove = fclamp2(fwd, -1.f, 1.f);
 }
 
 void PortableMoveSide(float strafe)
 {
-	if (strafe > 1)
-		strafe = 1;
-	else if (strafe < -1)
-		strafe = -1;
-
-	sidemove = strafe;
+	sidemove = fclamp2(strafe, -1.f, 1.f);
 }
 
 void PortableMove(float fwd, float strafe)
@@ -191,72 +163,57 @@ void PortableLookYaw(int mode, float yaw)
 
 
 
-void PortableCommand(const char * cmd){}
+void PortableCommand(const char * cmd)
+{
+    OSD_Dispatch(cmd);
+}
 
-extern int32_t main(int32_t argc, char *argv[]);
-void PortableInit(int argc,const char ** argv){
-
-	main(argc,argv);
+void PortableInit(int argc,const char ** argv)
+{
+	main(argc, argv);
 }
 
 
-void PortableFrame(){
+void PortableFrame()
+{
 	//NOT USED for DUKE
 }
 
-int PortableInMenu(){
-	return  ( (g_player[myconnectindex].ps->gm & MODE_MENU) || !(g_player[myconnectindex].ps->gm & MODE_GAME))?1:0;
-}
-
-unsigned int PortableGetWeapons()
+int32_t PortableRead(portableread_t r)
 {
-	return g_player[myconnectindex].ps->gotweapon;
-}
-int PortableInAutomap()
-{
-	return 0;
-}
-
-int PortableShowKeyboard(){
-
-	return 0;
-}
-
-int PortableIsSoftwareMode()
-{
-	if (getrendermode() >= REND_POLYMOST)
-		return 0;
-	else
-		return 1;
-
-}
-
-
-static int lastWeapon = -1;
-int getLastWeapon(){
-	return lastWeapon;
-}
-
-extern user_defs ud;
-
-int isPaused()
-{
-	return ud.pause_on;
+    switch (r)
+    {
+    case READ_MENU:
+        return (g_player[myconnectindex].ps->gm & MODE_MENU) == MODE_MENU || (g_player[myconnectindex].ps->gm & MODE_GAME) != MODE_GAME;
+    case READ_WEAPONS:
+        return g_player[myconnectindex].ps->gotweapon;
+    case READ_AUTOMAP:
+        return ud.overhead_on != 0;
+    case READ_KEYBOARD:
+        return 0;
+    case READ_RENDERER:
+        return getrendermode();
+    case READ_LASTWEAPON:
+        return droidplayer.lastWeapon;
+    case READ_PAUSED:
+        return ud.pause_on != 0;
+    default:
+        return 0;
+    }
 }
 
 ///This stuff is called from the game/engine
 
-void setLastWeapon(int w)
+void CONTROL_Android_SetLastWeapon(int w)
 {
 	LOGI("setLastWeapon %d",w);
-	lastWeapon = w;
+	droidplayer.lastWeapon = w;
 }
-
 
 void CONTROL_Android_ClearButton(int32_t whichbutton)
 {
 	BUTTONCLEAR(whichbutton);
-	functionHeld  &= ~((uint64_t)1<<((uint64_t)(whichbutton)));
+	droidplayer.functionHeld  &= ~((uint64_t)1<<((uint64_t)(whichbutton)));
 }
 
 void  CONTROL_Android_PollDevices(ControlInfo *info)
@@ -280,7 +237,6 @@ void  CONTROL_Android_PollDevices(ControlInfo *info)
 		break;
 	}
 
-
 	switch(look_yaw_mode)
 	{
 	case LOOK_MODE_MOUSE:
@@ -292,10 +248,10 @@ void  CONTROL_Android_PollDevices(ControlInfo *info)
 		break;
 	}
 	CONTROL_ButtonState = 0;
-	CONTROL_ButtonState |= functionSticky;
-	CONTROL_ButtonState |= functionHeld;
+	CONTROL_ButtonState |= droidplayer.functionSticky;
+	CONTROL_ButtonState |= droidplayer.functionHeld;
 
-	functionSticky = 0;
+	droidplayer.functionSticky = 0;
 
 	//LOGI("poll state = 0x%016llX",CONTROL_ButtonState);
 }

@@ -32,7 +32,7 @@ extern int   android_screen_height;
 
 extern void  CONTROL_Android_ClearButton(int32_t whichbutton);
 extern void  CONTROL_Android_PollDevices(ControlInfo *info);
-extern void  setLastWeapon(int w);
+extern void  CONTROL_Android_SetLastWeapon(int w);
 #endif
 
 #endif

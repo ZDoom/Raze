@@ -3238,7 +3238,7 @@ static void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
     if (p->holster_weapon)
     {
 #ifdef __ANDROID__
-        setLastWeapon(p->last_weapon);
+        CONTROL_Android_SetLastWeapon(p->last_weapon);
 #endif
 
         p->weapon_pos = WEAPON_POS_RAISE;
