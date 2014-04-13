@@ -54,7 +54,6 @@ int PortableKeyEvent(int state, int code,int unicode)
     }
 
     return 0;
-
 }
 
 void changeActionState(int state, int action)
@@ -64,7 +63,6 @@ void changeActionState(int state, int action)
         //BUTTONSET(action,1);
         droidinput.functionSticky  |= ((uint64_t)1<<((uint64_t)(action)));
         droidinput.functionHeld    |= ((uint64_t)1<<((uint64_t)(action)));
-
         return;
     }
 
@@ -76,36 +74,13 @@ void PortableAction(int state, int action)
 {
     LOGI("PortableAction action = %d, state = %d", action, state);
 
-    //Action is for the menu
-    if (action >= MENU_UP)
+    if (action >= MENU_UP && action <= MENU_BACK)
     {
         if (PortableRead(READ_MENU))
         {
-            int sdl_code = 0;
-            switch (action)
-            {
-            case MENU_UP:
-                sdl_code = SDL_SCANCODE_UP;
-                break;
-            case MENU_DOWN:
-                sdl_code = SDL_SCANCODE_DOWN;
-                break;
-            case MENU_LEFT:
-                sdl_code = SDL_SCANCODE_LEFT;
-                break;
-            case MENU_RIGHT:
-                sdl_code = SDL_SCANCODE_RIGHT;
-                break;
-            case MENU_SELECT:
-                sdl_code = SDL_SCANCODE_RETURN;
-                break;
-            case MENU_BACK:
-                sdl_code = SDL_SCANCODE_ESCAPE;
-                break;
-            }
-
-            PortableKeyEvent(state, sdl_code, 0);
-
+            int sdl_code [] = { SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT,
+                SDL_SCANCODE_RIGHT, SDL_SCANCODE_RETURN, SDL_SCANCODE_ESCAPE };
+            PortableKeyEvent(state, sdl_code[action-MENU_UP], 0);
             return;
         }
     }
@@ -143,15 +118,12 @@ void PortableAction(int state, int action)
         LOGI("PortableAction state = 0x%016llX", CONTROL_ButtonState);
     }
 }
-// =================== FORWARD and SIDE MOVMENT ==============
 
 void PortableMove(float fwd, float strafe)
 {
     droidinput.forwardmove = fclamp2(fwd    + droidinput.forwardmove, -1.f, 1.f);
     droidinput.sidemove    = fclamp2(strafe + droidinput.sidemove,    -1.f, 1.f);
 }
-
-//======================================================================
 
 void PortableLook(double yaw, double pitch)
 {
@@ -165,7 +137,7 @@ void PortableCommand(const char * cmd)
     OSD_Dispatch(cmd);
 }
 
-void PortableInit(int argc,const char ** argv)
+void PortableInit(int argc, const char ** argv)
 {
     main(argc, argv);
 }
@@ -179,9 +151,9 @@ int32_t PortableRead(portableread_t r)
     case READ_WEAPONS:
         return g_player[myconnectindex].ps->gotweapon;
     case READ_AUTOMAP:
-        return ud.overhead_on != 0;
-    case READ_KEYBOARD:
-        return 0;
+        return ud.overhead_on != 0; // ud.overhead_on ranges from 0-2 
+    case READ_MAPFOLLOWMODE:
+        return ud.scrollmode;
     case READ_RENDERER:
         return getrendermode();
     case READ_LASTWEAPON:
@@ -207,14 +179,14 @@ void CONTROL_Android_ClearButton(int32_t whichbutton)
     droidinput.functionHeld  &= ~((uint64_t)1<<((uint64_t)(whichbutton)));
 }
 
-void  CONTROL_Android_PollDevices(ControlInfo *info)
+void CONTROL_Android_PollDevices(ControlInfo *info)
 {
     //LOGI("CONTROL_Android_PollDevices %f %f",forwardmove,sidemove);
 
-    info->dz     = -droidinput.forwardmove * 5000;
-    info->dx     = droidinput.sidemove     * 200;
-    info->dpitch = droidinput.pitch        * 100000;
-    info->dyaw   = -droidinput.yaw         * 80000;
+    info->dz     = -droidinput.forwardmove * ANDROIDFORWARDMOVEFACTOR;
+    info->dx     = droidinput.sidemove     * ANDROIDSIDEMOVEFACTOR;
+    info->dpitch = droidinput.pitch        * ANDROIDPITCHFACTOR;
+    info->dyaw   = -droidinput.yaw         * ANDROIDYAWFACTOR;
 
     droidinput.forwardmove = droidinput.sidemove = 0.f;
     droidinput.pitch = droidinput.yaw = 0.f;

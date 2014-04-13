@@ -26,9 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef __ANDROID__
 #include "compat.h"
 #include "control.h"
-
-extern int   android_screen_width;
-extern int   android_screen_height;
+#include "android/in_android.h"
 
 extern void  CONTROL_Android_ClearButton(int32_t whichbutton);
 extern void  CONTROL_Android_PollDevices(ControlInfo *info);

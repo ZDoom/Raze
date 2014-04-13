@@ -175,8 +175,8 @@ void CONFIG_SetDefaults(void)
 
     ud.config.scripthandle = -1;
 #ifdef __ANDROID__
-    ud.config.ScreenWidth = android_screen_width;
-    ud.config.ScreenHeight = android_screen_height;
+    ud.config.ScreenWidth = droidinfo.screen_width;
+    ud.config.ScreenHeight = droidinfo.screen_height;
 #else
     ud.config.ScreenWidth = 1024;
     ud.config.ScreenHeight = 768;
@@ -199,6 +199,8 @@ void CONFIG_SetDefaults(void)
     ud.config.FXVolume = 225;
 #if defined(_WIN32)
     ud.config.MixRate = 44100;
+#elif defined __ANDROID__
+    ud.config.MixRate = droidinfo.audio_sample_rate;
 #else
     ud.config.MixRate = 48000;
 #endif

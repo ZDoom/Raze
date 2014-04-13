@@ -38,23 +38,9 @@ extern void SDL_SetSwapBufferCallBack(void (*pt2Func)(void));
 #define REND_SOFT  0
 #define REND_GL    1
 
+droidsysinfo_t droidinfo;
+
 static int curRenderer;
-
-int android_screen_width;
-int android_screen_height;
-int android_sample_rate;
-int android_audio_buffer_size;
-
-#define KEY_QUICK_CMD    0x1005
-#define KEY_SHOW_KBRD    0x1008
-#define KEY_SHOW_INVEN    0x1009
-#define KEY_QUICK_SAVE    0x100A
-#define KEY_QUICK_LOAD    0x100B
-
-#define KEY_QUICK_KEY1    0x1011
-#define KEY_QUICK_KEY2    0x1012
-#define KEY_QUICK_KEY3    0x1013
-#define KEY_QUICK_KEY4    0x1014
 
 float gameControlsAlpha = 0.5;
 
@@ -92,7 +78,7 @@ void openGLStart()
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrthof (0, android_screen_width, android_screen_height, 0, 0, 1);
+        glOrthof (0, droidinfo.screen_width, droidinfo.screen_height, 0, 0, 1);
 
         //glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
         //glClear(GL_COLOR_BUFFER_BIT);
@@ -132,7 +118,6 @@ void openGLStart()
         glDisable(GL_CULL_FACE);
         glMatrixMode(GL_MODELVIEW);
     }
-
 }
 
 void openGLEnd()
@@ -287,21 +272,21 @@ void weaponWheelChosen(int segment)
 }
 
 
-int left_double_action;
-int right_double_action;
+int left_double_action = -1;
+int right_double_action = -1;
 
 void left_double_tap(int state)
 {
     //LOGTOUCH("L double %d",state);
-    if (left_double_action)
-        PortableAction(state,left_double_action);
+    if (left_double_action != -1)
+        PortableAction(state, left_double_action);
 }
 
 void right_double_tap(int state)
 {
     //LOGTOUCH("R double %d",state);
-    if (right_double_action)
-        PortableAction(state,right_double_action);
+    if (right_double_action != -1)
+        PortableAction(state, right_double_action);
 }
 
 
@@ -353,7 +338,7 @@ void touchSettingsButton(int state)
     //We wanna pause the game when doing settings
     if (state && !paused || !state && paused)
     {
-        PortableKeyEvent(2,SDL_SCANCODE_PAUSE,0);
+        PortableKeyEvent(2, SDL_SCANCODE_PAUSE, 0);
     }
 }
 
@@ -383,15 +368,16 @@ void initControls(int width, int height, const char * graphics_path, const char 
         tcGameLook = new touchcontrols::TouchControls("mouse",true,false);
         //controlsContainer.dukeHack = 1;
 
-        tcGameMain->signal_settingsButton.connect(  sigc::ptr_fun(&gameSettingsButton) );
+//        tcGameMain->signal_settingsButton.connect(  sigc::ptr_fun(&gameSettingsButton) );
+        tcMenuMain->signal_settingsButton.connect(  sigc::ptr_fun(&gameSettingsButton) );
 
         //Menu
-        tcMenuMain->addControl(new touchcontrols::Button("down_arrow",touchcontrols::RectF(20,13,23,16),"arrow_down",SDL_SCANCODE_DOWN,true)); //Repeating buttons
-        tcMenuMain->addControl(new touchcontrols::Button("up_arrow",touchcontrols::RectF(20,10,23,13),"arrow_up",SDL_SCANCODE_UP,true));
-        tcMenuMain->addControl(new touchcontrols::Button("left_arrow",touchcontrols::RectF(17,13,20,16),"arrow_left",SDL_SCANCODE_LEFT,true));
-        tcMenuMain->addControl(new touchcontrols::Button("right_arrow",touchcontrols::RectF(23,13,26,16),"arrow_right",SDL_SCANCODE_RIGHT,true));
-        tcMenuMain->addControl(new touchcontrols::Button("enter",touchcontrols::RectF(0,12,3,15),"enter",SDL_SCANCODE_RETURN));
-        tcMenuMain->addControl(new touchcontrols::Button("esc",touchcontrols::RectF(0,8,3,11),"esc",SDL_SCANCODE_ESCAPE));
+        tcMenuMain->addControl(new touchcontrols::Button("down_arrow",  touchcontrols::RectF(20,13,23,16),  "arrow_down",   SDL_SCANCODE_DOWN,  true)); //Repeating buttons
+        tcMenuMain->addControl(new touchcontrols::Button("up_arrow",    touchcontrols::RectF(20,10,23,13),  "arrow_up",     SDL_SCANCODE_UP,    true));
+        tcMenuMain->addControl(new touchcontrols::Button("left_arrow",  touchcontrols::RectF(17,13,20,16),  "arrow_left",   SDL_SCANCODE_LEFT,  true));
+        tcMenuMain->addControl(new touchcontrols::Button("right_arrow", touchcontrols::RectF(23,13,26,16),  "arrow_right",  SDL_SCANCODE_RIGHT, true));
+        tcMenuMain->addControl(new touchcontrols::Button("enter",       touchcontrols::RectF(0,13,3,16),    "enter",        SDL_SCANCODE_RETURN));
+        tcMenuMain->addControl(new touchcontrols::Button("esc",         touchcontrols::RectF(0,9,3,12),     "esc",          SDL_SCANCODE_ESCAPE));
 
 
         tcMenuMain->signal_button.connect(  sigc::ptr_fun(&menuButton) );
@@ -408,7 +394,7 @@ void initControls(int width, int height, const char * graphics_path, const char 
 
         tcInventory->signal_button.connect(  sigc::ptr_fun(&inventoryButton));
 
-        /*
+        /* FIXME: definitely hook this up
         //Automap
         tcAutomap->addControl(new touchcontrols::Button("down_arrow",touchcontrols::RectF(2,14,4,16),"arrow_down",PORT_ACT_MAP_DOWN));
         tcAutomap->addControl(new touchcontrols::Button("up_arrow",touchcontrols::RectF(2,10,4,12),"arrow_up",PORT_ACT_MAP_UP));
@@ -424,22 +410,21 @@ void initControls(int width, int height, const char * graphics_path, const char 
         //Game
         tcGameMain->setAlpha(gameControlsAlpha);
         controlsContainer.editButtonAlpha = gameControlsAlpha;
-        tcGameMain->addControl(new touchcontrols::Button("use",touchcontrols::RectF(23,4,26,7),"use",gamefunc_Open));
-        tcGameMain->addControl(new touchcontrols::Button("attack",touchcontrols::RectF(20,7,23,10),"fire2",gamefunc_Fire));
-        tcGameMain->addControl(new touchcontrols::Button("jump",touchcontrols::RectF(23,7,26,10),"jump",gamefunc_Jump));
-        tcGameMain->addControl(new touchcontrols::Button("crouch",touchcontrols::RectF(24,12,26,14),"crouch",gamefunc_Crouch));
-        tcGameMain->addControl(new touchcontrols::Button("kick",touchcontrols::RectF(20,4,23,7),"boot",gamefunc_Quick_Kick,false,true));
+        tcGameMain->addControl(new touchcontrols::Button("use",         touchcontrols::RectF(23,4,26,7),    "use",      gamefunc_Open));
+        tcGameMain->addControl(new touchcontrols::Button("attack",      touchcontrols::RectF(20,7,23,10),   "fire2",    gamefunc_Fire));
+        tcGameMain->addControl(new touchcontrols::Button("jump",        touchcontrols::RectF(23,7,26,10),   "jump",     gamefunc_Jump));
+        tcGameMain->addControl(new touchcontrols::Button("crouch",      touchcontrols::RectF(24,12,26,14),  "crouch",   gamefunc_Crouch));
+        tcGameMain->addControl(new touchcontrols::Button("kick",        touchcontrols::RectF(20,4,23,7),    "boot",     gamefunc_Quick_Kick,false,true));
 
-        tcGameMain->addControl(new touchcontrols::Button("quick_save",touchcontrols::RectF(24,0,26,2),"save",KEY_QUICK_SAVE));
-        tcGameMain->addControl(new touchcontrols::Button("quick_load",touchcontrols::RectF(20,0,22,2),"load",KEY_QUICK_LOAD));
-        tcGameMain->addControl(new touchcontrols::Button("map",touchcontrols::RectF(4,0,6,2),"map",gamefunc_Map,false,true));
-        tcGameMain->addControl(new touchcontrols::Button("keyboard",touchcontrols::RectF(8,0,10,2),"keyboard",KEY_SHOW_KBRD,false,true));
+        tcGameMain->addControl(new touchcontrols::Button("quick_save",  touchcontrols::RectF(24,0,26,2),    "save",     KEY_QUICK_SAVE));
+        tcGameMain->addControl(new touchcontrols::Button("quick_load",  touchcontrols::RectF(20,0,22,2),    "load",     KEY_QUICK_LOAD));
+        tcGameMain->addControl(new touchcontrols::Button("map",         touchcontrols::RectF(4,0,6,2),      "map",      gamefunc_Map,       false,true));
+        tcGameMain->addControl(new touchcontrols::Button("keyboard",    touchcontrols::RectF(8,0,10,2),     "keyboard", KEY_SHOW_KBRD,      false,true));
 
-        tcGameMain->addControl(new touchcontrols::Button("show_inventory",touchcontrols::RectF(2,0,4,2),"inv",KEY_SHOW_INVEN));
+        tcGameMain->addControl(new touchcontrols::Button("show_inventory",touchcontrols::RectF(2,0,4,2),    "inv",      KEY_SHOW_INVEN));
 
-        tcGameMain->addControl(new touchcontrols::Button("next_weapon",touchcontrols::RectF(0,3,3,5),"next_weap",gamefunc_Next_Weapon));
-        tcGameMain->addControl(new touchcontrols::Button("prev_weapon",touchcontrols::RectF(0,7,3,9),"prev_weap",gamefunc_Previous_Weapon));
-        //tcGameMain->addControl(new touchcontrols::Button("sniper",touchcontrols::RectF(0,5,3,7),"sniper",KEY_SNIPER));
+        tcGameMain->addControl(new touchcontrols::Button("next_weapon", touchcontrols::RectF(0,3,3,5),      "next_weap",gamefunc_Next_Weapon));
+        tcGameMain->addControl(new touchcontrols::Button("prev_weapon", touchcontrols::RectF(0,7,3,9),      "prev_weap",gamefunc_Previous_Weapon));
         /*
             	//quick actions binds
             	tcGameMain->addControl(new touchcontrols::Button("quick_key_1",touchcontrols::RectF(4,3,6,5),"quick_key_1",KEY_QUICK_KEY1,false,true));
@@ -484,8 +469,6 @@ void initControls(int width, int height, const char * graphics_path, const char 
         tcGameWeapons->setAlpha(0.9);
 
         controlsContainer.addControlGroup(tcMenuMain);
-
-
         controlsContainer.addControlGroup(tcGameMain);
         controlsContainer.addControlGroup(tcInventory);//Need to be above tcGameMain incase buttons over stick
         controlsContainer.addControlGroup(tcGameWeapons);
@@ -519,7 +502,6 @@ void frameControls()
 
         controlsContainer.initGL();
         loadedGLImages = 1;
-
     }
 
     //LOGI("frameControls");
@@ -564,7 +546,7 @@ void frameControls()
 
 void setTouchSettings(float alpha,float strafe,float fwd,float pitch,float yaw,int other)
 {
-    gameControlsAlpha = 0.25 + (alpha * 0.75);
+    gameControlsAlpha = MINCONTROLALPHA + (alpha * (1.0f - MINCONTROLALPHA));
 
     if (tcGameMain)
     {
@@ -574,14 +556,14 @@ void setTouchSettings(float alpha,float strafe,float fwd,float pitch,float yaw,i
         tcInventory->setAlpha(gameControlsAlpha);
     }
 
-    toggleCrouch	= other & 0x2?true:false;
-    invertLook      = other & 0x4?true:false;
-    precisionShoot  = other & 0x8?true:false;
-    showSticks      = other & 0x1000?true:false;
+    // TODO: defined names for these values
+    toggleCrouch	= other & 0x2 ? true : false;
+    invertLook      = other & 0x4 ? true : false;
+    precisionShoot  = other & 0x8 ? true : false;
+    showSticks      = other & 0x1000 ? true : false;
 
-    hideTouchControls = other & 0x80000000?true:false;
-
-
+    hideTouchControls = other & 0x80000000 ? true : false;
+    
     switch ((other>>4) & 0xF)
     {
     case 1:
@@ -591,7 +573,7 @@ void setTouchSettings(float alpha,float strafe,float fwd,float pitch,float yaw,i
         left_double_action = gamefunc_Jump;
         break;
     default:
-        left_double_action = 0;
+        left_double_action = -1;
     }
 
     switch ((other>>8) & 0xF)
@@ -603,7 +585,7 @@ void setTouchSettings(float alpha,float strafe,float fwd,float pitch,float yaw,i
         right_double_action = gamefunc_Jump;
         break;
     default:
-        right_double_action = 0;
+        right_double_action = -1;
     }
 
     strafe_sens = strafe;
@@ -632,8 +614,8 @@ Java_com_beloko_duke_engine_NativeLib_init( JNIEnv* env,
 {
     env_ = env;
 
-    android_sample_rate = audio_rate;
-    android_audio_buffer_size = audio_buffer_size;
+    droidinfo.audio_sample_rate = audio_rate;
+    droidinfo.audio_buffer_size = audio_buffer_size;
 
     curRenderer = renderer;
     //curRenderer = REND_SOFT;
@@ -649,8 +631,6 @@ Java_com_beloko_duke_engine_NativeLib_init( JNIEnv* env,
         argc++;
     }
 
-
-
     doom_path = (char *)(env)->GetStringUTFChars( doom_path_, 0);
 
     //Change working dir, save games etc
@@ -663,18 +643,12 @@ Java_com_beloko_duke_engine_NativeLib_init( JNIEnv* env,
     putenv(timidity_env);
 
     LOGI("doom_path = %s",getGamePath());
-    //argv[0] = "vavoom";
-    //argv[1] = "-basedir";
-    //argv[2] = "/sdcard/Beloko/Quake/FULL";
-    //args[3] = "-doom";
-
 
     const char * p = env->GetStringUTFChars(graphics_dir,NULL);
     graphicpath =  std::string(p);
 
-
-
-    initControls(android_screen_width,-android_screen_height,graphicpath.c_str(),(graphicpath + "/touch_controls.xml").c_str());
+    initControls(droidinfo.screen_width, -droidinfo.screen_height,
+        graphicpath.c_str(),(graphicpath + "/touch_controls.xml").c_str());
 
     /*
     if (renderer != REND_SOFT)
@@ -689,11 +663,9 @@ Java_com_beloko_duke_engine_NativeLib_init( JNIEnv* env,
 
     //Now doen in java to keep context etc
     //SDL_SwapBufferPerformsSwap(false);
-
-
+    
     PortableInit(argc, argv);
-
-
+    
     return 0;
 }
 
@@ -702,11 +674,9 @@ jint EXPORT_ME
 Java_com_beloko_duke_engine_NativeLib_frame( JNIEnv* env,
         jobject thiz )
 {
-
     LOGI("Java_com_beloko_duke_engine_NativeLib_frame");
 
     frameControls();
-
     return 0;
 }
 
@@ -715,7 +685,6 @@ __attribute__((visibility("default"))) jint JNI_OnLoad(JavaVM* vm, void* reserve
     LOGI("JNI_OnLoad");
     setTCJNIEnv(vm);
     jvm_ = vm;
-
     return JNI_VERSION_1_4;
 }
 
@@ -729,9 +698,10 @@ Java_com_beloko_duke_engine_NativeLib_keypress(JNIEnv *env, jobject obj,
     {
         if (down && (keycode == SDL_SCANCODE_ESCAPE ))
             controlsContainer.finishEditing();
+        return;
     }
-    else
-        PortableKeyEvent(down,keycode,unicode);
+
+    PortableKeyEvent(down,keycode,unicode);
 }
 
 
@@ -812,8 +782,8 @@ void EXPORT_ME
 Java_com_beloko_duke_engine_NativeLib_setScreenSize( JNIEnv* env,
         jobject thiz, jint width, jint height)
 {
-    android_screen_width = width;
-    android_screen_height = height;
+    droidinfo.screen_width = width;
+    droidinfo.screen_height = height;
 }
 
 void EXPORT_ME  Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv* env, jclass cls)
