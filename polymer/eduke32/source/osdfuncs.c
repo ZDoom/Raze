@@ -35,7 +35,8 @@ double osdscale = 2.0f;
 double osdscale = 1.0f;
 #endif
 
-#define OSD_SCALE(x) (int32_t)(osdscale != 1.f ? nearbyintf(osdscale*(double)(x)) : x)
+#define OSD_SCALE(x) (int32_t)(osdscale != 1.f ? lround(osdscale*(double)(x)) : x)
+#define OSD_SCALEDIV(x) (int32_t)lround((x)/osdscale)
 
 static int32_t GAME_isspace(int32_t ch)
 {
@@ -114,12 +115,12 @@ void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress
 
 int32_t GAME_getcolumnwidth(int32_t w)
 {
-     return nearbyintf((w/9)/osdscale);
+     return OSD_SCALEDIV(w/9);
 }
 
 int32_t GAME_getrowheight(int32_t h)
 {
-    return OSD_SCALE(h>>3);
+    return OSD_SCALEDIV(h>>3);
 }
 
 void GAME_onshowosd(int32_t shown)

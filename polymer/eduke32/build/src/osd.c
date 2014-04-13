@@ -736,7 +736,7 @@ static int32_t osdcmd_cvar_set_osd(const osdfuncparm_t *parm)
         if (!Bstrcasecmp(parm->name, "osdrows"))
         {
             if (osdrows > osdmaxrows) osdrows = osdmaxrows;
-            if (osdrowscur!=-1)osdrowscur = osdrows;
+            if (osdrowscur!=-1) osdrowscur = osdrows;
             return r;
         }
         else if (!Bstrcasecmp(parm->name, "osdtextmode"))
@@ -784,7 +784,7 @@ void OSD_Init(void)
         { "osdeditshade","sets the shade of the OSD input text",(void *) &osdeditshade, CVAR_INT, 0, 7 },
         { "osdtextshade","sets the shade of the OSD text",(void *) &osdtextshade, CVAR_INT, 0, 7 },
         { "osdpromptshade","sets the shade of the OSD prompt",(void *) &osdpromptshade, CVAR_INT, INT8_MIN, INT8_MAX },
-        { "osdrows","sets the number of visible lines of the OSD",(void *) &osdrows, CVAR_INT|CVAR_FUNCPTR, 0, MAXPALOOKUPS-1 },
+        { "osdrows","sets the number of visible lines of the OSD",(void *) &osdrows, CVAR_INT|CVAR_FUNCPTR, 1, MAXPALOOKUPS-1 },
         { "osdtextmode","set OSD text mode (0:graphical, 1:fast)",(void *) &osdtextmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "logcutoff","sets the maximal line count of the log file",(void *) &logcutoff, CVAR_INT, 0, 262144 },
     };
