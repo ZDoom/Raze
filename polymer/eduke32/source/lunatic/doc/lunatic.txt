@@ -601,10 +601,12 @@ The index of the sector's first wall and the number of walls in the sector,
 respectively.
 
 _`u8`_ `visibility`::
-Determines the amount of distance fading. In the range [`0` .. `239`], the
-``darkening'' increases with rising values. The range [`240` .. `255`] should
-be thought of as [`-16` .. `-1`].
-// TODO: better wording?
+Determines the amount of distance fading. The sector `visibility` member is
+biased: linear visibility is determined from it by adding 16 and taking the
+result mod 16. This linear visibility's interpretation is that larger values
+correspond to a steeper ``darkening'' (or fogging) attenuation with
+distance. Linear visibility 0 -- corresponding to `sector[].visibility` of 240
+-- means no attenuation with distance.
 
 _`i16`_ `lotag`, `hitag`, `extra`::
 General-purpose ``tags'' provided for game programming. They may be used by
@@ -839,15 +841,29 @@ The blending table index of the sprite. See
 <<blending_table_interfaces,Blending table interfaces>> for more details.
 
 _`u8`_ `clipdist`::
-If this sprite is _view-aligned_, controls the distance at which another moving
-object is considered to be in collision with this *stationary* sprite. (It does
-not control the inverse case.) More precisely, it designates half the
-side-length of the bounding square divided by 4. Thus, a value of `255` keeps
-moving objects away from this one at a max-norm distance
-footnote:[The max-norm distance between points _p_~1~=(x~1~, y~1~) and
-_p_~2~=(x~2~, y~2~) is defined as max(abs(x~2~ -- x~1~), abs(y~2~ -- y~1~)).]
-of at least 1020
-BUILD x/y units.
+In the engine, this member is used in the `clipmove()` function: it controls
+the distance at which another moving object is considered to be in collision
+with this *view-aligned* and *stationary* sprite.footnote:[The `clipmove()`
+function is called for the moving object. The stationary one is a candidate for
+collision out of potentially many.] It does *not* control the inverse case: the
+distance at which the moving object is considered in collision with the
+stationary one is determined by the `walldist` argument to `clipmove()`. +
+More precisely, it designates half the side-length of the bounding square
+divided by 4. Thus, a value of `255` keeps moving objects away from this one at
+a max-norm distance footnote:[The max-norm distance between points
+_p_~1~=(x~1~, y~1~) and _p_~2~=(x~2~, y~2~) is defined as max(abs(x~2~ --
+x~1~), abs(y~2~ -- y~1~)).]  of at least 1020 BUILD x/y units.
++
+In the Duke3D game code, it is also used to determine said `walldist` argument
+for certain `clipmove()` calls, i.e. to control (1/8^th^ of) the base side
+length of the moving sprite's clipping cuboid: this is the case for
++
+* user actors declared as `actor.FLAGS.enemy` or `actor.FLAGS.enemystayput` in
+  the Lua `gameactor` call (or which were provided the corresponsing flags for
+  CON's `useractor`) having an `xrepeat` less than or equal to 60, or
+* non-enemies that are either not projectiles, or projectiles that have a
+  certain projectile bit set (*TODO*; these are not yet documented.)
+
 // ^ XXX: clipshapes? Also, clipdist is effective for moving sprites (A_MoveSprite()).
 
 _`u8`_ `xrepeat`, `yrepeat`::
@@ -1211,6 +1227,43 @@ _`bool`_ `jetpack_on`, {nbsp} `scuba_on`, {nbsp} `heat_on`::
 Whether the player currently has the jetpack, scuba gear, or night vision
 goggles activated, respectively.
 
+:wiki_predef_gamevars: http://wiki.eduke32.com/wiki/Category:Pre-defined_gamevars
+
+_`weapondata_t`_ +weapon[_weapon_]+::
+
+A struct containing information about the behavior each of weapon for this
+player. In CON, these are available under the name
+{wiki_predef_gamevars}[`WEAPONx_*`] for weapon indices `x` and members `*`.
+
+[float]
+==== _`weapondata_t`_ members
+
+In Lunatic, some members of the _`weapondata_t`_ structure are checked when
+being assigned to and issue an error on attempting to set them to an invalid
+value. All these members assume *zero* to mean the neutral/no-op value (instead
+of --1, as would seem more logical), and consequently, Lunatic only allows
+values greater or equal zero to be assigned to them.
+
+// TODO: workslike + flags
+
+* `clip`
+* `reload`
+* `firedelay`
+* `totaltime`
+* `holddelay`
+* `flags`
+* `shoots` (checked)
+* `spawntime`
+* `spawn` (checked)
+* `shotsperburst`
+* `initialsound` (checked)
+* `firesound` (checked)
+* `sound2time`  [gray]#// This is a time number, not a sound number#
+* `sound2sound` (checked)
+* `reloadsound1` (checked)
+* `reloadsound2` (checked)
+* `selectsound` (checked)
+* `flashcolor`
 
 [[player_methods]]
 ===== `player` methods
