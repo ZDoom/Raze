@@ -283,16 +283,13 @@ if (gv.LUNATIC_CLIENT == gv.LUNATIC_CLIENT_MAPSTER32) then
     end
 
     function shadexfog.saveLookupDat(filename, lookups)
-        if (lookups == nil) then
-            lookups = {
-                -- Duke3D 1.5 LOOKUP.DAT order
-                1,2,6,7,8, 3,4,5,9,10,
-                12,13,15,16,18, 19,11,14,17,20,
-                21,22,23,24,25
-            }
+        local ok, errmsg, numlookups = engine.saveLookupDat(filename, lookups)
+        if (not ok) then
+            error(errmsg)
         end
-        assert(engine.saveLookupDat(filename, lookups))
-        printf('Wrote lookup tables and 5 base palettes to "%s".', filename)
+
+        printf('Wrote %d lookup tables and 5 base palettes to "%s".',
+               numlookups, filename)
     end
 end
 
@@ -698,6 +695,33 @@ tuples (16-tuples) of the base palette at pal <palnum>.
 ]]
 )
 
+local function getNumberRange(what, whating)
+    local str = engine.getstring("Additional "..what.." numbers (e.g. '64,100-131,255'): ")
+    if (str == nil) then return end
+    if (str == "") then return {} end
+
+    if (not str:find("^[%d,%-]+$")) then
+        error("Additional "..whating.." numbers string must contain only digits or ',' or '-'", 2)
+    end
+
+    local moreblends = {}
+    local didnumstr = {}
+
+    for n1, n2 in str:gmatch("(%d+)%-(%d+)") do  -- parse number ranges
+        moreblends[#moreblends+1] = { tonumber(n1), tonumber(n2) }
+        didnumstr[n1] = true
+        didnumstr[n2] = true
+    end
+
+    for n in str:gmatch("%d+") do  -- parse single numbers
+        if (not didnumstr[n]) then
+            moreblends[#moreblends+1] = tonumber(n)
+        end
+    end
+
+    return moreblends
+end
+
 engine.registerMenuFunc(
     "Save pal+sh+trans DAT f.",
     function()
@@ -709,27 +733,8 @@ engine.registerMenuFunc(
         local blendnum = getnumber16("Blendnum of base transluc. table: ", 0, 255)
         if (blendnum < 0) then return end
 
-        local str = engine.getstring("Additional blend numbers (e.g. '64,100-131,255'): ")
-        if (str == nil or str=="") then return end
-
-        if (not str:find("^[%d,%-]+$")) then
-            error("Additional blending numbers string must contain only digits or ',' or '-'", 2)
-        end
-
-        local moreblends = {}
-        local didnumstr = {}
-
-        for n1, n2 in str:gmatch("(%d+)%-(%d+)") do  -- parse number ranges
-            moreblends[#moreblends+1] = { tonumber(n1), tonumber(n2) }
-            didnumstr[n1] = true
-            didnumstr[n2] = true
-        end
-
-        for n in str:gmatch("%d+") do  -- parse single numbers
-            if (not didnumstr[n]) then
-                moreblends[#moreblends+1] = tonumber(n)
-            end
-        end
+        local moreblends = getNumberRange("blend", "blending")
+        if (moreblends == nil) then return end
 
         local lognumalphatabs
         if (#moreblends > 0) then
@@ -764,18 +769,38 @@ engine.registerMenuFunc(
     function()
         local filename = engine.getstring("File name: ")
         if (filename ~= nil and filename ~= "") then
-            shadexfog.saveLookupDat(filename)
+            local lookups = {
+                -- Duke3D 1.5 LOOKUP.DAT order
+                1,2,6,7,8, 3,4,5,9,10,
+                12,13,15,16,18, 19,11,14,17,20,
+                21,22,23,24,25
+            }
+
+            local morelookups = getNumberRange("lookup", "lookup")
+            if (morelookups == nil) then return end
+
+            if (#morelookups > 0) then
+                for i=1,#morelookups do
+                    lookups[#lookups+1] = morelookups[i]
+                end
+            end
+
+            shadexfog.saveLookupDat(filename, lookups)
         end
     end,
 
 formatHelp
 [[
-<shadexfog.saveLookupDat(filename)>
-<_________________________________>
+<shadexfog.saveLookupDat(filename, lookups)>
+<__________________________________________>
 
 Saves the color index lookups (i.e. first 256 values of each shade
 table) of the pal numbers which have lookups in Duke3D's unaltered
-LOOKUP.DAT.
+LOOKUP.DAT, plus optional ones provided by the user.
+
+The default ones are, in this order:
+1,2,6,7,8, 3,4,5,9,10, 12,13,15,16,18, 19,11,14,17,20, 21,22,23,24,25.
+(All pal numbers from 1 to 25 are present.)
 
  <filename>: the name of the LOOKUP.DAT-formatted file to create
 ]]

@@ -357,7 +357,7 @@ if (ismapster32) then
         return true, nil, (blendnumtab ~= nil) and #blendnumtab or 0
     end
 
-    -- ok, errmsg = engine.saveLookupDat(filename, lookups)
+    -- ok, errmsg, numlookups = engine.saveLookupDat(filename, lookups)
     function engine.saveLookupDat(filename, lookups)
         if (lookups == nil) then
             -- set to an invalid value, validate_more_blendtabs will error
@@ -392,7 +392,7 @@ if (ismapster32) then
 
         f:close()
 
-        return true
+        return true, nil, #lookupnumtab
     end
 
     local hexmap = {
