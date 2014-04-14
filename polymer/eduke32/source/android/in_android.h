@@ -55,8 +55,15 @@ typedef struct
     uint64_t functionSticky; //To let at least one tick
     uint64_t functionHeld;
 
+    int32_t left_double_action;
+    int32_t right_double_action;
+
     double pitch, yaw;
     float forwardmove, sidemove;
+
+    // set by configuration UI
+    float strafe_sens, forward_sens;
+    float pitch_sens, yaw_sens;
 } droidinput_t;
 
 typedef struct  
@@ -66,6 +73,7 @@ typedef struct
     uint16_t screen_width, screen_height;
 } droidsysinfo_t;
 
+extern droidinput_t droidinput;
 extern droidsysinfo_t droidinfo;
 
 int PortableKeyEvent(int state, int code, int unicode);

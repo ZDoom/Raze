@@ -863,7 +863,7 @@ void M_DisplayMenus(void)
 
         mgametext(160,104+8,"Please read the 'How To Order' item",0,2+8+16);
         mgametext(160,113+8,"on the main menu or visit",0,2+8+16);
-        mgametext(160,122+8,"http://www.eduke32.com",0,2+8+16);
+        mgametext(160,122+8,"Steam or the Google Play Store",0,2+8+16);
         mgametext(160,131+8,"to upgrade to the full registered",0,2+8+16);
         mgametext(160,139+8,"version of Duke Nukem 3D.",0,2+8+16);
         mgametext(160,148+16,"Press any key...",0,2+8+16);

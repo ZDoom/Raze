@@ -3881,11 +3881,13 @@ void G_DisplayRest(int32_t smoothratio)
     El_DisplayErrors();
 #endif
 
+#ifndef __ANDROID__
     if (VOLUMEONE)
     {
         if (ud.show_help == 0 && g_showShareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             rotatesprite_fs((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128);
     }
+#endif
 
     if (!Demo_IsProfiling())
     {
@@ -11284,6 +11286,10 @@ int32_t app_main(int32_t argc, const char **argv)
 
     g_numSkills = 4;
     ud.multimode = 1;
+
+#ifdef __ANDROID__
+    G_AddDef("duke3d-android.def");
+#endif
 
     // this needs to happen before G_CheckCommandLine because G_GameExit accesses g_player[0]
     G_MaybeAllocPlayer(0);

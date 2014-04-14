@@ -271,28 +271,19 @@ void weaponWheelChosen(int segment)
     PortableAction(2, gamefunc_Weapon_1 + segment);
 }
 
-
-int left_double_action = -1;
-int right_double_action = -1;
-
 void left_double_tap(int state)
 {
     //LOGTOUCH("L double %d",state);
-    if (left_double_action != -1)
-        PortableAction(state, left_double_action);
+    if (droidinput.left_double_action != -1)
+        PortableAction(state, droidinput.left_double_action);
 }
 
 void right_double_tap(int state)
 {
     //LOGTOUCH("R double %d",state);
-    if (right_double_action != -1)
-        PortableAction(state, right_double_action);
+    if (droidinput.right_double_action != -1)
+        PortableAction(state, droidinput.right_double_action);
 }
-
-
-//To be set by android
-float strafe_sens,forward_sens;
-float pitch_sens,yaw_sens;
 
 void mouseMove(int action, float x, float y, float dx, float dy)
 {
@@ -303,8 +294,8 @@ void mouseMove(int action, float x, float y, float dx, float dy)
 
     double scale = (shooting && precisionShoot) ? PRECISIONSHOOTFACTOR : 1.f;
 
-    PortableLook(dx * 2 * yaw_sens * scale,
-        -dy * pitch_sens * scale * invertLook ? -1 : 1);
+    PortableLook(dx * 2 * droidinput.yaw_sens * scale,
+        -dy * droidinput.pitch_sens * scale * invertLook ? -1 : 1);
 }
 
 void left_stick(float joy_x, float joy_y, float mouse_x, float mouse_y)
@@ -315,7 +306,7 @@ void left_stick(float joy_x, float joy_y, float mouse_x, float mouse_y)
     if (joy_x < 0)
         strafe *= -1;
 
-    PortableMove(joy_y * 15 * forward_sens, -strafe * strafe_sens);
+    PortableMove(joy_y * 15 * droidinput.forward_sens, -strafe * droidinput.strafe_sens);
 }
 
 void right_stick(float joy_x, float joy_y, float mouse_x, float mouse_y)
@@ -567,31 +558,31 @@ void setTouchSettings(float alpha,float strafe,float fwd,float pitch,float yaw,i
     switch ((other>>4) & 0xF)
     {
     case 1:
-        left_double_action = gamefunc_Fire;
+        droidinput.left_double_action = gamefunc_Fire;
         break;
     case 2:
-        left_double_action = gamefunc_Jump;
+        droidinput.left_double_action = gamefunc_Jump;
         break;
     default:
-        left_double_action = -1;
+        droidinput.left_double_action = -1;
     }
 
     switch ((other>>8) & 0xF)
     {
     case 1:
-        right_double_action = gamefunc_Fire;
+        droidinput.right_double_action = gamefunc_Fire;
         break;
     case 2:
-        right_double_action = gamefunc_Jump;
+        droidinput.right_double_action = gamefunc_Jump;
         break;
     default:
-        right_double_action = -1;
+        droidinput.right_double_action = -1;
     }
 
-    strafe_sens = strafe;
-    forward_sens = fwd;
-    pitch_sens = pitch;
-    yaw_sens = yaw;
+    droidinput.strafe_sens = strafe;
+    droidinput.forward_sens = fwd;
+    droidinput.pitch_sens = pitch;
+    droidinput.yaw_sens = yaw;
 }
 
 #define EXPORT_ME __attribute__ ((visibility("default")))

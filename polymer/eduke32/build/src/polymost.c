@@ -90,7 +90,12 @@ extern int32_t filelength(int h); // kplib.c
 extern char textfont[2048], smalltextfont[2048];
 
 int32_t rendmode=0;
-int32_t usemodels=1, usehightile=1;
+#ifdef __ANDROID__
+int32_t usemodels=0;
+#else
+int32_t usemodels=1;
+#endif
+int32_t usehightile=1;
 int32_t vsync=0;
 
 #include <math.h> //<-important!
@@ -5212,7 +5217,11 @@ void polymost_initosdfuncs(void)
         { "r_pr_ati_nodepthoffset", "enable this to workaround an ATI driver bug that causes sprite drawing to freeze the game on Radeon X1x00 hardware - you need to restart the renderer for it to take effect", (void *) &pr_ati_nodepthoffset, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
 #endif
 
+#ifdef __ANDROID__
+        { "r_models","enable/disable model rendering",(void *) &usemodels, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
+#else
         { "r_models","enable/disable model rendering",(void *) &usemodels, CVAR_BOOL, 0, 1 },
+#endif
         { "r_hightile","enable/disable hightile texture rendering",(void *) &usehightile, CVAR_BOOL, 0, 1 },
 
         { "r_preview_mouseaim", "toggles mouse aiming preview, use this to calibrate yxaspect in Polymost Mapster32", (void *) &preview_mouseaim, CVAR_BOOL, 0, 1 },

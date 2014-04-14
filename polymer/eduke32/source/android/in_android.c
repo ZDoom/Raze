@@ -26,7 +26,7 @@ extern int SDL_SendKeyboardText(const char *text);
 
 static char sdl_text[2];
 
-static droidinput_t droidinput;
+droidinput_t droidinput;
 
 int PortableKeyEvent(int state, int code,int unicode)
 {
@@ -139,6 +139,9 @@ void PortableCommand(const char * cmd)
 
 void PortableInit(int argc, const char ** argv)
 {
+    droidinput.left_double_action = -1;
+    droidinput.right_double_action = -1;
+
     main(argc, argv);
 }
 
@@ -183,10 +186,10 @@ void CONTROL_Android_PollDevices(ControlInfo *info)
 {
     //LOGI("CONTROL_Android_PollDevices %f %f",forwardmove,sidemove);
 
-    info->dz     = -droidinput.forwardmove * ANDROIDFORWARDMOVEFACTOR;
-    info->dx     = droidinput.sidemove     * ANDROIDSIDEMOVEFACTOR;
-    info->dpitch = droidinput.pitch        * ANDROIDPITCHFACTOR;
-    info->dyaw   = -droidinput.yaw         * ANDROIDYAWFACTOR;
+    info->dz     = (int32_t)nearbyintf(-droidinput.forwardmove * ANDROIDFORWARDMOVEFACTOR);
+    info->dx     = (int32_t)nearbyintf(droidinput.sidemove * ANDROIDSIDEMOVEFACTOR);
+    info->dpitch = (int32_t)nearbyint(droidinput.pitch * ANDROIDPITCHFACTOR);
+    info->dyaw   = (int32_t)nearbyint(-droidinput.yaw * ANDROIDYAWFACTOR);
 
     droidinput.forwardmove = droidinput.sidemove = 0.f;
     droidinput.pitch = droidinput.yaw = 0.f;
