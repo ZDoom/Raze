@@ -33,7 +33,11 @@ extern "C"
 #define ANDROIDFORWARDMOVEFACTOR    5000
 #define ANDROIDSIDEMOVEFACTOR       200
 #define ANDROIDPITCHFACTOR          100000
-#define ANDROIDYAWFACTOR            80000
+#define ANDROIDYAWFACTOR            160000
+
+#define ANDROIDPITCHFACTORJOYSTICK          2000
+#define ANDROIDYAWFACTORJOYSTICK            4000
+
 
 #define MINCONTROLALPHA             0.25f
 
@@ -59,6 +63,7 @@ typedef struct
     int32_t right_double_action;
 
     double pitch, yaw;
+    double pitch_joystick, yaw_joystick;
     float forwardmove, sidemove;
 
     // set by configuration UI
@@ -75,6 +80,7 @@ typedef struct
 
 extern droidinput_t droidinput;
 extern droidsysinfo_t droidinfo;
+extern char toggleCrouch;
 
 int PortableKeyEvent(int state, int code, int unicode);
 int PortableRead(portableread_t r);
@@ -83,6 +89,7 @@ void PortableAction(int state, int action);
 
 void PortableMove(float fwd, float strafe);
 void PortableLook(double yaw, double pitch);
+void PortableLookJoystick(double yaw, double pitch);
 void PortableCommand(const char * cmd);
 
 void PortableInit(int argc, const char ** argv);

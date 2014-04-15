@@ -70,6 +70,11 @@ void changeActionState(int state, int action)
     droidinput.functionHeld  &= ~((uint64_t) 1<<((uint64_t) (action)));
 }
 
+#ifdef GP_LIC
+#define GP_LIC_INC 4
+#include "s-setup/gp_lic_include.h"
+#endif
+
 void PortableAction(int state, int action)
 {
     LOGI("PortableAction action = %d, state = %d", action, state);
@@ -79,7 +84,7 @@ void PortableAction(int state, int action)
         if (PortableRead(READ_MENU))
         {
             int sdl_code [] = { SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT,
-                SDL_SCANCODE_RIGHT, SDL_SCANCODE_RETURN, SDL_SCANCODE_ESCAPE };
+                    SDL_SCANCODE_RIGHT, SDL_SCANCODE_RETURN, SDL_SCANCODE_ESCAPE };
             PortableKeyEvent(state, sdl_code[action-MENU_UP], 0);
             return;
         }
@@ -88,6 +93,11 @@ void PortableAction(int state, int action)
     {
         if (PortableRead(READ_MENU)) //If in the menu, dont do any game actions
             return;
+
+#ifdef GP_LIC
+#define GP_LIC_INC 5
+#include "s-setup/gp_lic_include.h"
+#endif
 
         //Special toggle for crouch, NOT when using jetpack or in water
         if (!g_player[myconnectindex].ps->jetpack_on &&
@@ -109,27 +119,43 @@ void PortableAction(int state, int action)
         //Check if jumping while crouched
         if (action == gamefunc_Jump)
         {
-            crouchToggleState = 0;
+            droidinput.crouchToggleState = 0;
             changeActionState(0, gamefunc_Crouch);
         }
 
         changeActionState(state, action);
 
-        LOGI("PortableAction state = 0x%016llX", CONTROL_ButtonState);
+        if (state == 2)
+            PortableAction(0,action);
+
+        // LOGI("PortableAction state = 0x%016llX", CONTROL_ButtonState);
     }
 }
 
+//Need these NAN check as not cumulative.
 void PortableMove(float fwd, float strafe)
 {
-    droidinput.forwardmove = fclamp2(fwd    + droidinput.forwardmove, -1.f, 1.f);
-    droidinput.sidemove    = fclamp2(strafe + droidinput.sidemove,    -1.f, 1.f);
+    if (!isnan(fwd))
+        droidinput.forwardmove = fclamp2(fwd, -1.f, 1.f);
+
+    if (!isnan(strafe))
+        droidinput.sidemove    = fclamp2(strafe,    -1.f, 1.f);
 }
 
 void PortableLook(double yaw, double pitch)
 {
-    //LOGI("PortableLookPitch %d %f",mode, pitch);
+    // LOGI("PortableLookPitch %f %f",yaw, pitch);
     droidinput.pitch += pitch;
     droidinput.yaw   += yaw;
+}
+
+void PortableLookJoystick(double yaw, double pitch)
+{
+    if (!isnan(pitch))
+        droidinput.pitch_joystick = pitch;
+
+    if (!isnan(yaw))
+        droidinput.yaw_joystick   = yaw;
 }
 
 void PortableCommand(const char * cmd)
@@ -154,7 +180,7 @@ int32_t PortableRead(portableread_t r)
     case READ_WEAPONS:
         return g_player[myconnectindex].ps->gotweapon;
     case READ_AUTOMAP:
-        return ud.overhead_on != 0; // ud.overhead_on ranges from 0-2 
+        return ud.overhead_on != 0; // ud.overhead_on ranges from 0-2
     case READ_MAPFOLLOWMODE:
         return ud.scrollmode;
     case READ_RENDERER:
@@ -185,13 +211,16 @@ void CONTROL_Android_ClearButton(int32_t whichbutton)
 void CONTROL_Android_PollDevices(ControlInfo *info)
 {
     //LOGI("CONTROL_Android_PollDevices %f %f",forwardmove,sidemove);
+    //LOGI("CONTROL_Android_PollDevices %f %f",droidinput.pitch,droidinput.yaw);
 
     info->dz     = (int32_t)nearbyintf(-droidinput.forwardmove * ANDROIDFORWARDMOVEFACTOR);
     info->dx     = (int32_t)nearbyintf(droidinput.sidemove * ANDROIDSIDEMOVEFACTOR);
-    info->dpitch = (int32_t)nearbyint(droidinput.pitch * ANDROIDPITCHFACTOR);
-    info->dyaw   = (int32_t)nearbyint(-droidinput.yaw * ANDROIDYAWFACTOR);
+    info->dpitch = (int32_t)nearbyint(droidinput.pitch * ANDROIDPITCHFACTOR +
+            droidinput.pitch_joystick * ANDROIDPITCHFACTORJOYSTICK);
+    info->dyaw   = (int32_t)nearbyint(-droidinput.yaw * ANDROIDYAWFACTOR -
+            droidinput.yaw_joystick * ANDROIDYAWFACTORJOYSTICK);
 
-    droidinput.forwardmove = droidinput.sidemove = 0.f;
+    //droidinput.forwardmove = droidinput.sidemove = 0.f;
     droidinput.pitch = droidinput.yaw = 0.f;
 
     CONTROL_ButtonState = 0;

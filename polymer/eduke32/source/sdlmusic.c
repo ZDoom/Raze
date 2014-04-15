@@ -58,7 +58,7 @@ static int8_t external_midi_restart=0;
 #endif
 
 #ifdef __ANDROID__ //TODO fix
-static char *external_midi_tempfn = "/sdcard/eduke32-music.mid";
+static char *external_midi_tempfn = "eduke32-music.mid";
 #else
 static char *external_midi_tempfn = "/tmp/eduke32-music.mid";
 #endif
@@ -128,6 +128,10 @@ const char *MUSIC_ErrorString(int32_t ErrorNumber)
 
 int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 {
+#ifdef __ANDROID__
+	music_initialized = 1;
+	return(MUSIC_Ok);
+#endif
     // Use an external MIDI player if the user has specified to do so
     char *command = getenv("EDUKE32_MUSIC_CMD");
     const SDL_version *linked = Mix_Linked_Version();
@@ -450,6 +454,7 @@ static void sigchld_handler(int signo)
 // void MUSIC_PlayMusic(char *_filename)
 int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
 {
+//	initprintf("MUSIC_PlaySong");
     MUSIC_StopSong();
 
     if (external_midi)

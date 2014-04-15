@@ -2571,9 +2571,10 @@ static void G_PrintCoords(int32_t snum)
         {
             if (rendmode==3)
                 printcoordsline("r_usenewshading = %d", r_usenewshading);
+# ifdef POLYMER
             else
                 printcoordsline("r_pr_artmapping = %d", pr_artmapping);
-
+#endif
             printcoordsline("r_usetileshades = %d", r_usetileshades);
         }
     }
@@ -2846,6 +2847,9 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
     // (end-start)/step + 1 iterations
     do
     {
+#ifdef __ANDROID__ //Needed for N7 2013 to stop corruption while fading video
+    	clearallviews(0);
+#endif
         if (KB_KeyPressed(sc_Space))
         {
             KB_ClearKeyDown(sc_Space);
@@ -4401,11 +4405,14 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 #ifdef __ANDROID__ 
     // HACK: this is needed or else we get leftover UI texture crap where we'd get HOM on PC
 
-        if (getrendermode() == REND_POLYMOST)
-        {
-            static int32_t col = getclosestcol(4, 4, 4);
-            clearallviews(col);
-        }
+    if (getrendermode() == REND_POLYMOST)
+    {
+        static int32_t col = -1;
+        if (col == -1)
+            col = getclosestcol(4, 4, 4);
+
+        clearallviews(col);
+    }
 #endif
 
     if (pub > 0 || getrendermode() >= REND_POLYMOST) // JBF 20040101: redraw background always

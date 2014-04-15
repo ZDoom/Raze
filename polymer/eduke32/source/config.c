@@ -40,6 +40,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "winlayer.h"
 #endif
 
+#ifdef __ANDROID__
+#include "android.h"
+#endif
+
 // we load this in to get default button and key assignments
 // as well as setting up function mappings
 
@@ -570,6 +574,7 @@ int32_t CONFIG_ReadSetup(void)
     ud.config.setupread = 1;
 
     pathsearchmode = 1;
+#ifndef __ANDROID__
     if (SafeFileExists(setupfilename) && ud.config.scripthandle < 0)  // JBF 20031211
         ud.config.scripthandle = SCRIPT_Load(setupfilename);
     else if (SafeFileExists(SETUPFILENAME) && ud.config.scripthandle < 0)
@@ -584,6 +589,8 @@ int32_t CONFIG_ReadSetup(void)
                    "Import configuration data from \"duke3d.cfg\"?",setupfilename);
         if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");
     }
+#endif
+
     pathsearchmode = 0;
 
     if (ud.config.scripthandle < 0) return -1;

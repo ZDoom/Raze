@@ -163,6 +163,9 @@ int32_t wm_msgbox(char *name, char *fmt, ...)
 #elif defined _WIN32
     MessageBox(win_gethwnd(),buf,name,MB_OK|MB_TASKMODAL);
     return 0;
+#elif defined __ANDROID__
+    initprintf("wm_msgbox called. Message: %s: %s",name,buf);
+    return 0;
 #elif SDL_MAJOR_VERSION==2
 # if !defined _WIN32
     // Replace all tab chars with spaces because the hand-rolled SDL message
@@ -206,6 +209,10 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
     r = MessageBox(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL);
     if (r==IDYES) return 1;
     return 0;
+#elif defined __ANDROID__
+    initprintf("wm_ynbox called, this is bad! Message: %s: %s",name,buf);
+    initprintf("Returning false..");
+    return 0;
 #endif
     puts(buf);
     puts("   (type 'Y' or 'N', and press Return or Enter to continue)");
@@ -217,6 +224,11 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
 
 void wm_setapptitle(char *name)
 {
+#ifdef __ANDROID__
+	 initprintf("wm_setapptitle called");
+	 return;
+#endif
+
     if (name)
         Bstrncpyz(apptitle, name, sizeof(apptitle));
 
@@ -504,6 +516,9 @@ void system_getcvars(void)
 #endif
 }
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 
 //
 // initprintf() -- prints a string to the intitialization window
@@ -518,6 +533,9 @@ void initprintf(const char *f, ...)
     Bvsnprintf(buf, sizeof(buf), f, va);
     va_end(va);
 
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_INFO,"DUKE", "%s",buf);
+#endif
     OSD_Printf("%s", buf);
 //    Bprintf("%s", buf);
 
@@ -2011,6 +2029,8 @@ int32_t getpalette(int32_t start, int32_t num, char *dapal)
 //
 int32_t setgamma(void)
 {
+	//return 0;
+
     int32_t i;
     uint16_t gammaTable[768];
     float gamma = max(0.1f,min(4.f,vid_gamma));
@@ -2047,8 +2067,10 @@ int32_t setgamma(void)
 
     if (i < 0)
     {
+#ifndef __ANDROID__ //Don't do this check, it is really supported, TODO
         if (i != INT32_MIN)
             initprintf("Unable to set gamma: SDL_SetWindowGammaRamp failed: %s\n", SDL_GetError());
+#endif
     }
     else
 #endif

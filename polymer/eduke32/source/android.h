@@ -28,6 +28,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "control.h"
 #include "android/in_android.h"
 
+//extern int   android_sample_rate;
+
+//extern int   android_audio_buffer_size;
+
+
 extern void  CONTROL_Android_ClearButton(int32_t whichbutton);
 extern void  CONTROL_Android_PollDevices(ControlInfo *info);
 extern void  CONTROL_Android_SetLastWeapon(int w);

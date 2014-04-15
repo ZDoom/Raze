@@ -21,8 +21,9 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := duke
 
+# -O2  -fvisibility=hidden
 
-LOCAL_CFLAGS := -fPIC -Wimplicit -Wdeclaration-after-statement -O2 -funswitch-loops -fomit-frame-pointer -DNDEBUG -DUSING_LTO -flto -fno-stack-protector   -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 -fjump-tables -Wno-unused-result  -Wno-char-subscripts -DUSE_LIBPNG   -pthread -I/usr/lib/i386-linux-gnu/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -I/usr/include/pixman-1    -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT -DRENDERTYPESDL=1 -Wno-strict-overflow -DUSE_OPENGL  -Wno-attributes
+LOCAL_CFLAGS :=  -fvisibility=hidden -fPIC -Wimplicit -Wdeclaration-after-statement -O2 -funswitch-loops -fomit-frame-pointer -DNDEBUG -DUSING_LTO -flto -fno-stack-protector   -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 -fjump-tables -Wno-unused-result  -Wno-char-subscripts -DUSE_LIBPNG   -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT -DRENDERTYPESDL=1 -Wno-strict-overflow -DUSE_OPENGL  -Wno-attributes
 
 #Needed my jaudiolib
 LOCAL_CFLAGS += -DHAVE_SDL
@@ -35,7 +36,9 @@ LOCAL_CFLAGS += -march=armv7-a -mfloat-abi=softfp
 LOCAL_LDLIBS += -Wl,--fix-cortex-a8
 
 
-LOCAL_C_INCLUDES :=  $(LOCAL_PATH)/source $(LOCAL_PATH)/source/jmact $(LOCAL_PATH)/source/jaudiolib/include $(LOCAL_PATH)/source/enet/include  $(LOCAL_PATH)/build/include $(TOP_DIR)/SDL2/include  $(TOP_DIR)/SDL2_mixer $(IDTECH_DIR)/libpng   $(IDTECH_DIR)/TinyXML $(IDTECH_DIR)/TouchControls $(IDTECH_DIR)/ 
+LOCAL_C_INCLUDES :=  $(LOCAL_PATH)/source $(LOCAL_PATH)/source/jmact $(LOCAL_PATH)/source/jaudiolib/include $(LOCAL_PATH)/source/enet/include  $(LOCAL_PATH)/build/include
+
+LOCAL_C_INCLUDES +=    $(TOP_DIR)/  $(TOP_DIR)/Libraries/ $(TOP_DIR)/Libraries/SDL2/include  $(TOP_DIR)/Libraries/SDL2_mixer/include $(TOP_DIR)/Libraries/libpng/include   $(TOP_DIR)/Libraries/TinyXML/include $(TOP_DIR)/TouchControls 
 
 ANDROID_SRC = \
 	source/android/android-jni.cpp \
@@ -134,6 +137,11 @@ LOCAL_SRC_FILES = $(ANDROID_SRC) $(ENET_SRC) $(JAUDIO_SRC) $(JMACT_SRC) $(GAME_S
 LOCAL_LDLIBS := -lGLESv1_CM -ldl -llog -lOpenSLES -lz
 LOCAL_STATIC_LIBRARIES :=  nanogl  SDL2_net libjpeg libpng
 LOCAL_SHARED_LIBRARIES := touchcontrols openal SDL2 SDL2_mixer SDL2_image
+
+ifeq ($(GP_LIC),1)
+LOCAL_STATIC_LIBRARIES +=  s-setup
+LOCAL_CFLAGS += -DGP_LIC
+endif
 
 include $(BUILD_SHARED_LIBRARY)
 

@@ -28,6 +28,11 @@
 #include "driver_sdl.h"
 #include "multivoc.h"
 
+#ifdef __ANDROID__
+#include "duke3d.h"
+#include "android.h"
+#endif
+
 enum {
    SDLErr_Warning = -2,
    SDLErr_Error   = -1,
@@ -151,6 +156,9 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *sampleb
     }
 
     chunksize = 512;
+#ifdef __ANDROID__
+    chunksize = droidinfo.audio_buffer_size;
+#endif
 
     if (*mixrate >= 16000) chunksize *= 2;
     if (*mixrate >= 32000) chunksize *= 2;
