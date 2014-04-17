@@ -357,10 +357,9 @@ void G_AnimateCamSprite(void)
     if (g_curViewscreen < 0)
         return;
 
-    if (T1 >= 4)
+    if (totalclock >= T1 + ud.camera_time)
     {
         const DukePlayer_t *ps = g_player[screenpeek].ps;
-        T1 = 0;
 
         if (ps->newowner >= 0)
             OW = ps->newowner;
@@ -378,8 +377,9 @@ void G_AnimateCamSprite(void)
                 polymer_invalidatesprite(i);
 #endif
         }
+
+        T1 = totalclock;
     }
-    else T1++;
 }
 
 void G_AnimateWalls(void)

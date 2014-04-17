@@ -1547,6 +1547,7 @@ int32_t registerosdcommands(void)
         { "osdhightile", "enable/disable hires art replacements for console text", (void *)&osdhightile, CVAR_BOOL, 0, 1 },
         { "osdscale", "adjust console text size", (void *)&osdscale, CVAR_DOUBLE|CVAR_FUNCPTR, 1.f, 4.f },
 
+        { "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "show the frame rate counter", (void *)&ud.tickrate, CVAR_BOOL, 0, 1 },
         { "r_shadows", "enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },

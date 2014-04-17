@@ -227,6 +227,15 @@ void CONFIG_SetDefaults(void)
     ud.autovote = 0;
     ud.brightness = 8;
     ud.camerasprite = -1;
+
+#ifdef __ANDROID__
+    ud.camera_time = 3;
+#elif defined GEKKO || defined __OPENDINGUX__
+    ud.camera_time = 11;
+#else
+    ud.camera_time = 0;
+#endif
+
     ud.color = 0;
     ud.crosshair = 1;
     ud.crosshairscale = 50;

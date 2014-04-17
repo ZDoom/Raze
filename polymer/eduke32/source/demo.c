@@ -956,7 +956,7 @@ nextdemo_nomenu:
         if (ud.last_camsprite != ud.camerasprite)
         {
             ud.last_camsprite = ud.camerasprite;
-            ud.camera_time = totalclock+(TICRATE*2);
+//            ud.camera_time = totalclock+(TICRATE*2);
         }
 
         if (VOLUMEONE)
