@@ -3,11 +3,9 @@
 
 int32_t mutex_init(mutex_t *mutex)
 {
-#ifdef _WIN32
+#ifdef RENDERTYPEWIN
     *mutex = CreateMutex(0, FALSE, 0);
     return (*mutex == 0);
-#elif !defined GEKKO
-    return pthread_mutex_init(mutex, NULL);
 #else
     if (mutex)
     {
@@ -21,10 +19,8 @@ int32_t mutex_init(mutex_t *mutex)
 
 int32_t mutex_lock(mutex_t *mutex)
 {
-#ifdef _WIN32
+#ifdef RENDERTYPEWIN
     return (WaitForSingleObject(*mutex, INFINITE) == WAIT_FAILED);
-#elif !defined GEKKO
-    return pthread_mutex_lock(mutex);
 #else
     return SDL_LockMutex(*mutex);
 #endif
@@ -32,10 +28,8 @@ int32_t mutex_lock(mutex_t *mutex)
 
 int32_t mutex_unlock(mutex_t *mutex)
 {
-#ifdef _WIN32
+#ifdef RENDERTYPEWIN
     return (ReleaseMutex(*mutex) == 0);
-#elif !defined GEKKO
-    return pthread_mutex_unlock(mutex);
 #else
     return SDL_UnlockMutex(*mutex);
 #endif

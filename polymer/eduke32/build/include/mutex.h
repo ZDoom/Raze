@@ -3,11 +3,9 @@
 
 /* Mutual exclusion mechanism wrappers for the different platforms */
 
-#if defined(_WIN32)
+#ifdef RENDERTYPEWIN
 # include <windows.h>
 # include <process.h>
-#elif !defined GEKKO
-# include <pthread.h>
 #else
 # include "sdl_inc.h"
 #endif
@@ -16,10 +14,8 @@
 extern "C" {
 #endif
 
-#if defined(_WIN32)
+#ifdef RENDERTYPEWIN
 typedef HANDLE mutex_t;
-#elif !defined GEKKO
-typedef pthread_mutex_t mutex_t;
 #else
 /* PK: I don't like pointer typedefs, but SDL_CreateMutex() _returns_ one,
  *     so we're out of luck with our interface. */
