@@ -7,6 +7,7 @@
 # include <windows.h>
 # include <process.h>
 #else
+# define SDL_MAIN_HANDLED
 # include "sdl_inc.h"
 #endif
 
