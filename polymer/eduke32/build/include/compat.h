@@ -779,6 +779,10 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
 }
 #endif
 
+#define DO_FREE_AND_NULL(var) do { \
+    if (var != NULL) { Bfree(var); var = NULL; } \
+} while (0)
+
 #define MAYBE_FCLOSE_AND_NULL(fileptr) do { \
     if (fileptr) { Bfclose(fileptr); fileptr=NULL; } \
 } while (0)

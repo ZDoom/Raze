@@ -8889,11 +8889,6 @@ int32_t initengine(void)
     return 0;
 }
 
-
-#define DO_FREE_AND_NULL(var) do { \
-    if (var != NULL) { Bfree(var); var = NULL; } \
-} while (0)
-
 //
 // uninitengine
 //
