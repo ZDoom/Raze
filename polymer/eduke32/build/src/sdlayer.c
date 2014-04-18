@@ -831,6 +831,9 @@ static inline char grabmouse_low(char a)
         SDL_SetWindowGrab(sdl_window, a ? SDL_TRUE : SDL_FALSE);
     return SDL_SetRelativeMouseMode(a ? SDL_TRUE : SDL_FALSE);
 #endif
+#else
+    UNREFERENCED_PARAMETER(a);
+    return 0;
 #endif
 }
 
