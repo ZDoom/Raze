@@ -314,12 +314,40 @@ int32_t G_LoadPlayer(int32_t spot)
     return 0;
 }
 
+////////// TIMER SAVING/RESTORING //////////
+
+static struct {
+    int32_t totalclock, totalclocklock;  // engine
+    int32_t ototalclock, lockclock;  // game
+} g_timers;
+
+static void G_SaveTimers(void)
+{
+    g_timers.totalclock = totalclock;
+    g_timers.totalclocklock = totalclocklock;
+    g_timers.ototalclock = ototalclock;
+    g_timers.lockclock = lockclock;
+}
+
+static void G_RestoreTimers(void)
+{
+    sampletimer();
+
+    totalclock = g_timers.totalclock;
+    totalclocklock = g_timers.totalclocklock;
+    ototalclock = g_timers.ototalclock;
+    lockclock = g_timers.lockclock;
+}
+
+//////////
 
 int32_t G_SavePlayer(int32_t spot)
 {
     char fn[16];
 //    char mpfn[16];
     FILE *fil;
+
+    G_SaveTimers();
 
     Bstrcpy(fn, "dukesav0.esv");
     fn[7] = spot + '0';
@@ -374,6 +402,7 @@ int32_t G_SavePlayer(int32_t spot)
     ready2send = 1;
     Net_WaitForServer();
 
+    G_RestoreTimers();
     ototalclock = totalclock;
 
     return 0;

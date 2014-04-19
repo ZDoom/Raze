@@ -2447,8 +2447,6 @@ static int32_t bakwindowx2[4], bakwindowy2[4];
 static int32_t bakrendmode,baktile;
 #endif
 
-int32_t totalclocklock;
-
 char apptitle[256] = "Build Engine";
 
 static uint8_t basepalreset=1;
