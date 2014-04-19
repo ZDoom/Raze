@@ -2404,6 +2404,7 @@ typedef struct
 static permfifotype permfifo[MAXPERMS];
 static int32_t permhead = 0, permtail = 0;
 
+EDUKE32_STATIC_ASSERT(MAXWALLSB < INT16_MAX);
 int16_t numscans, numbunches;
 static int16_t numhits;
 int16_t capturecount = 0;

@@ -211,6 +211,7 @@ static inline int32_t VM_CheckSquished(void)
     return 1;
 }
 
+#if !defined LUNATIC
 GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *p)
 {
     int32_t n = 128-(krand()&255);
@@ -219,6 +220,7 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *p)
     p->return_to_center = 9;
     p->look_ang = p->rotscrnang = n>>1;
 }
+#endif
 
 int32_t A_Dodge(spritetype *s)
 {

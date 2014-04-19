@@ -370,6 +370,8 @@ endif
 # Clang 3.2 does only supports -fsanitize=address for the AddressSanitizer
 ifneq ($(PLATFORM),WINDOWS)
     CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overflow,object-size
+#    CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),signed-integer-overflow
+#    CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),unsigned-integer-overflow
 endif
 
 ifneq (0,$(RELEASE))
@@ -389,6 +391,9 @@ ifneq (0,$(RELEASE))
         debug+= -fomit-frame-pointer -DNDEBUG
     else
         debug+= -DDEBUGGINGAIDS
+        ifneq (0,$(CLANG))
+            debug+= $(CLANG_DEBUG_FLAGS)
+        endif
     endif
     ifneq (0,$(LTO))
         BASELDFLAGS+= -flto
