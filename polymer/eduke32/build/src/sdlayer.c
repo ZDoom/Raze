@@ -261,6 +261,12 @@ int32_t main(int32_t argc, char *argv[])
 
     buildkeytranslationtable();
 
+#ifdef HAVE_GTK2
+    // Pre-initialize SDL video system in order to make sure XInitThreads() is called
+    // before GTK starts talking to X11.
+    SDL_Init(SDL_INIT_VIDEO);
+#endif
+
 #ifdef _WIN32
     if (!CheckWinVersion())
     {
@@ -1483,7 +1489,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             }
 # else
             sdl_window = SDL_CreateWindow("", windowpos ? windowx : SDL_WINDOWPOS_CENTERED ,windowpos ? windowy : SDL_WINDOWPOS_CENTERED,
-                                          x,y, ((fs&1)?SDL_WINDOW_FULLSCREEN:0) | SDL_WINDOW_OPENGL);
+                                          x,y, ((fs&1)?SDL_WINDOW_FULLSCREEN_DESKTOP:0) | SDL_WINDOW_OPENGL);
             if (!sdl_window)
             {
                 initprintf("Unable to set video mode: SDL_CreateWindow failed: %s\n",
@@ -1536,7 +1542,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
         // init
         sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            x, y, ((fs&1) ? SDL_WINDOW_FULLSCREEN : 0));
+            x, y, ((fs&1) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
         if (!sdl_window)
             SDL2_VIDEO_ERR("SDL_CreateWindow");
 
