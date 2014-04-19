@@ -267,7 +267,9 @@ local function create_base_shtab_2(basesht)
     return sht:remap16(iperm16)
 end
 
-if (gv.LUNATIC_CLIENT == gv.LUNATIC_CLIENT_MAPSTER32) then
+local ismapster32 = (gv.LUNATIC_CLIENT == gv.LUNATIC_CLIENT_MAPSTER32)
+
+if (ismapster32) then
     -- Wrapper around engine.savePaletteDat() that errors on unexpected events.
     function shadexfog.save(filename, palnum, blendnum, moreblends, lognumalphatabs)
         local ok, errmsg, nummoreblends = engine.savePaletteDat(
@@ -409,6 +411,9 @@ function shadexfog.create_additive_trans(startblendidx, numtables, fullbrightsOK
     )
 end
 
+if (not ismapster32) then
+    return shadexfog
+end
 
 --========== Mapster32 Lua menu hooks ==========--
 

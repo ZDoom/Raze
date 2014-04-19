@@ -416,6 +416,7 @@ local ActorLabels = {
     -- Read access differs from write ({ get, set }):
     htg_t = { AC":_get_t_data(%s)", AC":_set_t_data(%s,%%s)" },
     htflags = AC".flags",
+    movflags = AC".movflags",
 
     -- (mostly) model-related flags
     angoff = SX".angoff",

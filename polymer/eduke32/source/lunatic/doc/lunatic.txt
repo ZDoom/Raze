@@ -1232,7 +1232,7 @@ goggles activated, respectively.
 _`weapondata_t`_ +weapon[_weapon_]+::
 
 A struct containing information about the behavior each of weapon for this
-player. In CON, these are available under the name
+player. In CON, these are available as separate gamevars named
 {wiki_predef_gamevars}[`WEAPONx_*`] for weapon indices `x` and members `*`.
 
 [float]

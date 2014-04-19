@@ -827,6 +827,7 @@ const memberlabel_t ActorLabels[]=
 
     { "isvalid", ACTOR_ISVALID, 0, 0 },
 // aliases:
+    { "movflags", ACTOR_HITAG, 0, 0 },
     { "detail", ACTOR_DETAIL, 0, 0 },  // deprecated name for 'blend'
 
     { "", -1, 0, 0  }     // END OF LIST
