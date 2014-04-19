@@ -136,7 +136,6 @@ enum MenuIndex_t {
 
 };
 extern char inputloc;
-extern int16_t g_skillSoundID;
 extern int32_t g_lastSaveSlot;
 extern int32_t g_quitDeadline;
 extern int32_t probey;

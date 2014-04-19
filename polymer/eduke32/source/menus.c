@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/stat.h>
 
 extern char inputloc;
-int16_t g_skillSoundID=-1;
+int32_t g_skillSoundVoice = -1;
 int32_t probey=0; // the row number on which the menu cursor is positioned
 static int32_t lastsavehead=0,last_menu_pos=0,last_menu,sh,onbar,buttonstat;
 static int32_t last_main,last_main_ingame,last_episode,last_options,last_load = 0;
@@ -2446,23 +2446,25 @@ cheat_for_port_credits2:
         x = M_Probe(margin,ybase,19,g_numSkills);
         if (x >= 0)
         {
+            int32_t skillsound = 0;
+
             switch (x)
             {
             case 0:
-                g_skillSoundID = JIBBED_ACTOR6;
+                skillsound = JIBBED_ACTOR6;
                 break;
             case 1:
-                g_skillSoundID = BONUS_SPEECH1;
+                skillsound = BONUS_SPEECH1;
                 break;
             case 2:
-                g_skillSoundID = DUKE_GETWEAPON2;
+                skillsound = DUKE_GETWEAPON2;
                 break;
             case 3:
-                g_skillSoundID = JIBBED_ACTOR5;
+                skillsound = JIBBED_ACTOR5;
                 break;
             }
 
-            S_PlaySound(g_skillSoundID);
+            g_skillSoundVoice = S_PlaySound(skillsound);
 
             ud.m_player_skill = x+1;
             if (x == 3) ud.m_respawn_monsters = 1;

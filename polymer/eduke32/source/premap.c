@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gamedef.h"
 #include "premap.h"
 #include "sounds.h"
+#include "fx_man.h"
 #include "gameexec.h"
 #include "anim.h"
 #include "menus.h"
@@ -1368,13 +1369,13 @@ void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
 
     G_HandleAsync();
 
-    if (g_skillSoundID >= 0 && ud.config.FXDevice >= 0 && ud.config.SoundToggle)
+    if (g_skillSoundVoice >= 0 && ud.config.FXDevice >= 0 && ud.config.SoundToggle)
     {
-        while (S_CheckSoundPlaying(-1, g_skillSoundID))
+        while (FX_SoundActive(g_skillSoundVoice))
             G_HandleAsync();
     }
 
-    g_skillSoundID = -1;
+    g_skillSoundVoice = -1;
 
     ready2send = 0;
 
