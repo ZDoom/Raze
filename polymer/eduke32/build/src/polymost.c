@@ -3084,6 +3084,8 @@ void polymost_scansector(int32_t sectnum)
     int32_t z, zz, startwall, endwall, numscansbefore, scanfirst, bunchfrst, nextsectnum;
     int32_t xs, ys, x1, y1, x2, y2;
 
+    int32_t sectorbordercnt;
+
     if (sectnum < 0) return;
 
     sectorborder[0] = sectnum, sectorbordercnt = 1;

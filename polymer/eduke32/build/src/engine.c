@@ -252,7 +252,7 @@ static int16_t maphacklight[PR_MAXLIGHTS];
 int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
 
-static void scansector(int16_t sectnum);
+static void scansector(int16_t startsectnum);
 static void draw_rainbow_background(void);
 
 int16_t editstatus = 0;
@@ -2358,7 +2358,7 @@ static intptr_t globalbufplc;
 
 static int32_t globaly1, globalx2;
 
-int16_t sectorborder[256], sectorbordercnt;
+int16_t sectorborder[256];
 int32_t ydim16, qsetmode = 0;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 static int32_t lastx[MAXYDIM];
@@ -2583,30 +2583,34 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
 //
 // scansector (internal)
 //
-static void scansector(int16_t sectnum)
+static void scansector(int16_t startsectnum)
 {
-    walltype *wal, *wal2;
-    spritetype *spr;
-    int32_t xs, ys, x1, y1, x2, y2, xp1, yp1, xp2=0, yp2=0, tempint;
-    int16_t z, zz, startwall, endwall, numscansbefore, scanfirst, bunchfrst;
-    int16_t nextsectnum;
+    int32_t xp1, yp1, xp2=0, yp2=0, tempint;
+    int32_t sectorbordercnt;
 
-    if (sectnum < 0) return;
+    if (startsectnum < 0)
+        return;
 
-    sectorborder[0] = sectnum, sectorbordercnt = 1;
+    sectorborder[0] = startsectnum, sectorbordercnt = 1;
+
     do
     {
-        sectnum = sectorborder[--sectorbordercnt];
+        int32_t z, startwall, endwall, numscansbefore, scanfirst, bunchfrst;
+        const int32_t sectnum = sectorborder[--sectorbordercnt];
+        walltype *wal;
+
 #ifdef YAX_ENABLE
         if (scansector_collectsprites)
 #endif
         for (z=headspritesect[sectnum]; z>=0; z=nextspritesect[z])
         {
-            spr = &sprite[z];
+            const spritetype *const spr = &sprite[z];
+
             if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) &&
                     (spr->xrepeat > 0) && (spr->yrepeat > 0))
             {
-                xs = spr->x-globalposx; ys = spr->y-globalposy;
+                int32_t xs = spr->x-globalposx, ys = spr->y-globalposy;
+
                 if ((spr->cstat&48) || ((int64_t)xs*cosglobalang+(int64_t)ys*singlobalang > 0))
                     if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-xs, sintable[spr->ang&2047],-ys) > 0)
                         if (engine_addtsprite(z, sectnum))
@@ -2624,11 +2628,11 @@ static void scansector(int16_t sectnum)
         scanfirst = numscans;
         for (z=startwall,wal=&wall[z]; z<endwall; z++,wal++)
         {
-            nextsectnum = wal->nextsector;
+            const int32_t nextsectnum = wal->nextsector;
+            const walltype *const wal2 = &wall[wal->point2];
 
-            wal2 = &wall[wal->point2];
-            x1 = wal->x-globalposx; y1 = wal->y-globalposy;
-            x2 = wal2->x-globalposx; y2 = wal2->y-globalposy;
+            const int32_t x1 = wal->x-globalposx, y1 = wal->y-globalposy;
+            const int32_t x2 = wal2->x-globalposx, y2 = wal2->y-globalposy;
 
             if ((nextsectnum >= 0) && ((wal->cstat&32) == 0))
 #ifdef YAX_ENABLE
@@ -2721,6 +2725,7 @@ skipitaddwall:
 
         for (z=bunchfrst; z<numbunches; z++)
         {
+            int32_t zz;
             for (zz=bunchfirst[z]; p2[zz]>=0; zz=p2[zz]);
             bunchlast[z] = zz;
         }

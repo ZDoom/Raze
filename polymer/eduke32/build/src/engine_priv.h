@@ -60,7 +60,7 @@ extern char inpreparemirror;
 extern int32_t curbrightness, gammabrightness;
 extern char britable[16][256];
 extern char picsiz[MAXTILES];
-extern int16_t sectorborder[256], sectorbordercnt;
+extern int16_t sectorborder[256];
 extern int32_t qsetmode;
 extern int32_t hitallsprites;
 
