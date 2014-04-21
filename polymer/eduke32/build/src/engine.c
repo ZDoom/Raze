@@ -4416,10 +4416,16 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 
     asm1 = -(globalzd>>(16-BITSOFPRECISION));
 
-    globvis = globalvisibility;
-    if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
-    globvis = mulscale13(globvis,daz);
-    globvis = mulscale16(globvis,xdimscale);
+    {
+        int32_t vis = globalvisibility;
+        int64_t lvis;
+
+        if (sec->visibility != 0) vis = mulscale4(vis, (uint8_t)(sec->visibility+16));
+        lvis = ((uint64_t)vis*daz) >> 13;
+        lvis = (lvis * xdimscale) >> 16;
+        globvis = lvis > INT32_MAX ? INT32_MAX : lvis;
+    }
+
     j = FP_OFF(palookup[globalpal]);
 
     setupslopevlin_alsotrans((picsiz[globalpicnum]&15) + ((picsiz[globalpicnum]>>4)<<8),
