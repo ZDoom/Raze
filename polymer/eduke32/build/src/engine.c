@@ -4426,9 +4426,9 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
         int64_t lvis;
 
         if (sec->visibility != 0) vis = mulscale4(vis, (uint8_t)(sec->visibility+16));
-        lvis = ((uint64_t)vis*daz) >> 13;
+        lvis = ((uint64_t)vis*daz) >> 13;  // NOTE: lvis can be negative now!
         lvis = (lvis * xdimscale) >> 16;
-        globvis = lvis > INT32_MAX ? INT32_MAX : lvis;
+        globvis = lvis;
     }
 
     j = FP_OFF(palookup[globalpal]);
