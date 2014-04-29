@@ -57,7 +57,8 @@ onevent EVENT_ENTERLEVEL
         addvar j 1
         userquote 500
         break  // while is inner: "continue"
-    }  // 3x "==="
+        userquote 400
+    }  // 3x "===", no quote 400
 
     setvar j 0
     whilevarn j 1

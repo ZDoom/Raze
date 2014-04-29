@@ -608,6 +608,12 @@ correspond to a steeper ``darkening'' (or fogging) attenuation with
 distance. Linear visibility 0 -- corresponding to `sector[].visibility` of 240
 -- means no attenuation with distance.
 
+_`u8`_ `fogpal`::
+In the OpenGL modes that don't use per-pixel shade table lookups, setting
+`fogpal` to a non-zero value overrides the fog color of the sector to that of
+the corresponding pal number. These are either expected to have been defined
+using DEF tokens `fogpal` or `makepalookup`, or created by EDuke32 at startup.
+
 _`i16`_ `lotag`, `hitag`, `extra`::
 General-purpose ``tags'' provided for game programming. They may be used by
 various EDuke32 sector effects, so it is not recommended to use them in
