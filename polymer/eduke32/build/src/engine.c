@@ -8254,15 +8254,17 @@ int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
     for (j=1; j<=255-3; j++)
         if (!palookup[j] && !palookup[j+1] && !palookup[j+2] && !palookup[j+3])
         {
-            int32_t i;
+            int32_t i, k;
 
             makepalookup(j, NULL, 15, 15, 15, 1);
             makepalookup(j+1, NULL, 15, 0, 0, 1);
             makepalookup(j+2, NULL, 0, 15, 0, 1);
             makepalookup(j+3, NULL, 0, 0, 15, 1);
 
-            for (i=1; i<255; i++)
-                palookup[j][((numshades-1)<<8) + i] = palookup[j][((numshades-1)<<8)];
+            // Make last shade value always map to the same color index.
+            for (k=0; k<3; k++)
+                for (i=1; i<255; i++)
+                    palookup[j+k][((numshades-1)<<8) + i] = palookup[j+k][((numshades-1)<<8)];
 
             firstfogpal = j;
             break;
