@@ -116,7 +116,7 @@ float shadescale = 1.0f;
 int32_t shadescale_unbounded = 0;
 
 int32_t r_usenewshading = 3;
-int32_t r_usetileshades = 1;
+int32_t r_usetileshades = 2;
 
 static double gviewxrange, ghoriz;
 double gyxscale, gxyaspect, ghalfx, grhalfxdown10, grhalfxdown10x;
