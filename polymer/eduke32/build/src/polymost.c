@@ -2251,7 +2251,7 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
         if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
     }
 
-    calc_and_apply_fog(globalpicnum, global_cf_shade, sec->visibility,
+    calc_and_apply_fog(globalpicnum, fogpal_shade(sec, global_cf_shade), sec->visibility,
                        POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
 
     pow2xsplit = 0;
@@ -2982,7 +2982,7 @@ static void polymost_drawalls(int32_t bunch)
                 }
                 if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-                calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, get_floor_fogpal(sec));
+                calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
                 if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
@@ -3017,7 +3017,7 @@ static void polymost_drawalls(int32_t bunch)
                 }
                 if (nwal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-                calc_and_apply_fog(nwal->picnum, nwal->shade, sec->visibility, get_floor_fogpal(sec));
+                calc_and_apply_fog(nwal->picnum, fogpal_shade(sec, nwal->shade), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
                 if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
@@ -3048,7 +3048,7 @@ static void polymost_drawalls(int32_t bunch)
             }
             if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-            calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, get_floor_fogpal(sec));
+            calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
             pow2xsplit = 1; domost(x0,-10000,x1,-10000);
         }
@@ -3604,7 +3604,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     method = 1; pow2xsplit = 1;
     if (wal->cstat&128) { if (!(wal->cstat&512)) method = 2; else method = 3; }
 
-    calc_and_apply_fog(wal->picnum, wal->shade, sec->visibility, get_floor_fogpal(sec));
+    calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
     for (i=0; i<2; i++)
     {
@@ -3687,6 +3687,8 @@ void polymost_drawsprite(int32_t snum)
     int32_t tsizx, tsizy;
 
     spritetype *const tspr = tspriteptr[snum];
+    const sectortype *sec;
+
     if (bad_tspr(tspr))
         return;
 
@@ -3716,8 +3718,9 @@ void polymost_drawsprite(int32_t snum)
     alpha = spriteext[spritenum].alpha;
 
 #ifdef USE_OPENGL
-    calc_and_apply_fog(tspr->picnum, globalshade, sector[tspr->sectnum].visibility,
-                       get_floor_fogpal(&sector[tspr->sectnum]));
+    sec = &sector[tspr->sectnum];
+    calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, globalshade),
+                       sec->visibility, get_floor_fogpal(sec));
 
     while (getrendermode() >= REND_POLYMOST && !(spriteext[spritenum].flags&SPREXT_NOTMD))
     {

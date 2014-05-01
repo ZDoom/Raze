@@ -87,6 +87,12 @@ static inline int32_t get_ceiling_fogpal(const sectortype *sec)
 {
     return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->ceilingpal);
 }
+static inline int32_t fogpal_shade(const sectortype *sec, int32_t shade)
+{
+    // When fogging is due to sector[].fogpal, don't make the fog parameters
+    // depend on the shade of the object.
+    return sec->fogpal ? 0 : shade;
+}
 
 typedef struct pthtyp_t
 {
