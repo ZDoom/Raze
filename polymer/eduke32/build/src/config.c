@@ -50,7 +50,7 @@ static int32_t readconfig(BFILE *fp, const char *key, char *value, uint32_t len)
 
         if (Bstrcasecmp(k, key)) continue;
 
-        while (*v == ' ' || *k == '\t') v++;
+        while (*v == ' ' || *v == '\t') v++;
         eq = v + Bstrlen(v)-1;
 
         while ((*eq == ' ' || *eq == '\t' || *eq == '\r' || *eq == '\n') && eq>=v) *(eq--) = 0;
