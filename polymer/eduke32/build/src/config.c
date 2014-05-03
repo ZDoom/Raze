@@ -9,11 +9,6 @@
 #include "baselayer.h"
 #include "renderlayer.h"
 
-static int32_t vesares[13][2] = {{320,200},{360,200},{320,240},{360,240},{320,400},
-    {360,400},{640,350},{640,400},{640,480},{800,600},
-    {1024,768},{1280,1024},{1600,1200}
-};
-
 static double clampd(double d, double mind, double maxd)
 {
     if (d != d || d<mind)
@@ -121,29 +116,16 @@ int32_t loadsetup(const char *fn)
 
     if ((fp = Bfopen(fn, "rt")) == NULL) return -1;
 
-    if (readconfig(fp, "forcesetup", val, VL) > 0) { if (atoi_safe(val) != 0) forcesetup = 1; else forcesetup = 0; }
-    if (readconfig(fp, "fullscreen", val, VL) > 0) { if (atoi_safe(val) != 0) fullscreen = 1; else fullscreen = 0; }
-    if (readconfig(fp, "resolution", val, VL) > 0)
-    {
-        i = atoi_safe(val) & 0x0f;
-        if ((unsigned)i<13) { xdimgame = xdim2d = vesares[i][0]; ydimgame = ydim2d = vesares[i][1]; }
-    }
-    if (readconfig(fp, "2dresolution", val, VL) > 0)
-    {
-        i = atoi_safe(val) & 0x0f;
-        if ((unsigned)i<13) { xdim2d = vesares[i][0]; ydim2d = vesares[i][1]; }
-    }
+    if (readconfig(fp, "forcesetup", val, VL) > 0) forcesetup = (atoi_safe(val) != 0);
+    if (readconfig(fp, "fullscreen", val, VL) > 0) fullscreen = (atoi_safe(val) != 0);
+
     if (readconfig(fp, "xdim2d", val, VL) > 0) xdim2d = atoi_safe(val);
     if (readconfig(fp, "ydim2d", val, VL) > 0) ydim2d = atoi_safe(val);
     if (readconfig(fp, "xdim3d", val, VL) > 0) xdimgame = atoi_safe(val);
     if (readconfig(fp, "ydim3d", val, VL) > 0) ydimgame = atoi_safe(val);
-//    if (readconfig(fp, "samplerate", val, VL) > 0) option[7] = (atoi_safe(val) & 0x0f) << 4;
-//    if (readconfig(fp, "music", val, VL) > 0) { if (atoi_safe(val) != 0) option[2] = 1; else option[2] = 0; }
-//    if (readconfig(fp, "mouse", val, VL) > 0) { if (atoi_safe(val) != 0) option[3] = 1; else option[3] = 0; }
+
     if (readconfig(fp, "bpp", val, VL) > 0) bppgame = atoi_safe(val);
-#ifdef USE_OPENGL
-    if (readconfig(fp, "vsync", val, VL) > 0) vsync = !!atoi_safe(val);
-#endif
+
     if (readconfig(fp, "editorgridextent", val, VL) > 0)
     {
         int32_t tmp = atoi_safe(val);
@@ -167,63 +149,10 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "maxrefreshfreq", val, VL) > 0) maxrefreshfreq = atoi_safe(val);
 #endif
 #ifdef USE_OPENGL
-    if (readconfig(fp, "usemodels", val, VL) > 0) usemodels = !!atoi_safe(val);
-    if (readconfig(fp, "usehightile", val, VL) > 0) usehightile = !!atoi_safe(val);
     if (readconfig(fp, "lazytileselector", val, VL) > 0) g_lazy_tileselector = !!atoi_safe(val);
-
-    glusetexcache = -1;
-    if (readconfig(fp, "glusetexcache", val, VL) > 0)
-    {
-        glusetexcache = clamp(atoi_safe(val), 0, 2);
-    }
-    if (readconfig(fp, "glusememcache", val, VL) > 0)
-    {
-        glusememcache = !!atoi_safe(val);
-    }
-    if (readconfig(fp, "gltexfiltermode", val, VL) > 0)
-    {
-        gltexfiltermode = atoi_safe(val);
-    }
-    if (readconfig(fp, "glanisotropy", val, VL) > 0)
-    {
-        glanisotropy = atoi_safe(val);
-    }
-    if (readconfig(fp, "r_downsize", val, VL) > 0)
-    {
-        r_downsize = atoi_safe(val);
-        r_downsize = clamp(r_downsize, 0, 5);
-        r_downsizevar = r_downsize;
-    }
-    if (readconfig(fp, "r_texcompr", val, VL) > 0)
-        glusetexcompr = !!atoi_safe(val);
-    if (readconfig(fp, "r_shadescale", val, VL) > 0)
-        shadescale = clampd(Bstrtod(val, NULL), 0.0, 10.0);
-    if (readconfig(fp, "r_usenewshading", val, VL) > 0)
-        r_usenewshading = clamp(atoi_safe(val), 0, 3);
-    if (readconfig(fp, "r_usetileshades", val, VL) > 0)
-        r_usetileshades = !!atoi_safe(val);
-# ifdef POLYMER
-    if (readconfig(fp, "r_pr_artmapping", val, VL) > 0)
-        pr_artmapping = !!atoi_safe(val);
-# endif
-#endif
-    if (readconfig(fp, "r_usenewaspect", val, VL) > 0)
-        r_usenewaspect = !!atoi_safe(val);
-#ifndef RENDERTYPEWIN
-    if (readconfig(fp, "r_screenxy", val, VL) > 0)
-    {
-        r_screenxy = clamp(atoi_safe(val), 0, 9999);
-        if (r_screenxy/100==0 || r_screenxy%100==0)
-            r_screenxy = 403;
-    }
 #endif
     if (readconfig(fp, "gameexecutable", val, VL) > 0)
         Bstrcpy(game_executable, val);
-
-//    option[0] = 1;	// vesa all the way...
-//    option[1] = 1;	// sound all the way...
-//    option[4] = 0;	// no multiplayer
-//    option[5] = 0;
 
 #if 1
     if (readconfig(fp, "keyforward", val, VL) > 0) keys[0] = Bstrtol(val, NULL, 16);
@@ -393,6 +322,9 @@ int32_t writesetup(const char *fn)
     if (!fp) return -1;
 
     Bfprintf(fp,
+             ";; NOTE: key-value pairs ending in a trailing ';;' will NOT be read from this\n"
+             ";; file, but from m32_settings.cfg, potentially under a different name.\n"
+             "\n"
              "; Always show configuration options on startup\n"
              ";   0 - No\n"
              ";   1 - Yes\n"
@@ -413,7 +345,7 @@ int32_t writesetup(const char *fn)
              "bpp = %d\n"
              "\n"
 #ifdef USE_OPENGL
-             "vsync = %d\n"
+             "vsync = %d ;;\n"
              "\n"
 #endif
 #ifdef POLYMER
@@ -428,34 +360,34 @@ int32_t writesetup(const char *fn)
              "\n"
 #ifdef USE_OPENGL
              ";; OpenGL mode options\n"
-             "usemodels = %d\n"
-             "usehightile = %d\n"
+             "usemodels = %d ;;\n"
+             "usehightile = %d ;;\n"
              "; Enabling lazytileselector allows the tile display to interrupt\n"
              "; drawing hightiles so you can quickly browse without waiting\n"
              "; for all of them to load. Set to 0 if you experience flickering.\n"
              "lazytileselector = %d\n"
              "; glusetexcache: 0:no, 1:yes, 2:compressed\n"
              "; For best performance, keep this setting in sync with EDuke32\n"
-             "glusetexcache = %d\n"
-             "glusememcache = %d\n"
-             "gltexfiltermode = %d\n"
-             "glanisotropy = %d\n"
-             "r_downsize = %d\n"
-             "r_texcompr = %d\n"
-             "r_shadescale = %g\n"
-             "r_usenewshading = %d\n"
-             "r_usetileshades = %d\n"
+             "glusetexcache = %d ;;\n"
+             "glusememcache = %d ;;\n"
+             "gltexfiltermode = %d ;;\n"
+             "glanisotropy = %d ;;\n"
+             "r_downsize = %d ;;\n"
+             "r_texcompr = %d ;;\n"
+             "r_shadescale = %g ;;\n"
+             "r_usenewshading = %d ;;\n"
+             "r_usetileshades = %d ;;\n"
 # ifdef POLYMER
-             "r_pr_artmapping = %d\n"
+             "r_pr_artmapping = %d ;;\n"
 # endif
              "\n"
 #endif
              "; Use new aspect determination code? (classic/Polymost)\n"
-             "r_usenewaspect = %d\n"
+             "r_usenewaspect = %d ;;\n"
 #ifndef RENDERTYPEWIN
              "; Screen aspect for fullscreen, in the form WWHH (e.g. 1609 for 16:9).\n"
-             "; A value of 0 means to assume that the pixel aspect is square."
-             "r_screenxy = %d\n"
+             "; A value of 0 means to assume that the pixel aspect is square.\n"
+             "r_screenxy = %d ;;\n"
 #endif
              "\n"
 

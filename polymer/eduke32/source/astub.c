@@ -10474,31 +10474,13 @@ int32_t ExtInit(void)
 
     bpp = 32;
 
-#ifdef USE_OPENGL
-    glusetexcache = -1;
-
+//#ifdef USE_OPENGL
     if (Bstrcmp(setupfilename, SETUPFILENAME))
         initprintf("Using config file \"%s\".\n",setupfilename);
 
     if (loadsetup(setupfilename) < 0)
         initprintf("Configuration file not found, using defaults.\n"), rv = 1;
-
-    if (glusetexcache == -1)
-    {
-        int32_t i;
-#if 0
-        i=wm_ynbox("Texture Cache",
-                   "Would you like to enable the on-disk texture cache?\n\n"
-                   "You generally want to say 'yes' here, especially if using the HRP.");
-#else
-        i = 1;
-#endif
-        if (i)
-            glusetexcompr = 1, glusetexcache = 2;
-        else glusetexcache = 0;
-    }
-#endif
-
+//#endif
     Bmemcpy(buildkeys, default_buildkeys, NUMBUILDKEYS);   //Trick to make build use setup.dat keys
 
     if (initengine())
