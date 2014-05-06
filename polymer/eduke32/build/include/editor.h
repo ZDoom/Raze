@@ -289,7 +289,7 @@ extern const char *taglab_getlabel(int16_t tag);
 extern int32_t taglab_gettag(const char *label);
 
 extern int32_t taglab_linktags(int32_t spritep, int32_t num);
-extern int32_t taglab_getnextfreetag(void);
+extern int32_t taglab_getnextfreetag(int32_t *duetoptr);
 
 extern int32_t showtags;
 

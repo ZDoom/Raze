@@ -8949,7 +8949,7 @@ int32_t getnumber_autocomplete(const char *namestart, char ch, int32_t *danum, i
                 }
                 else if (*danum==0)
                 {
-                    i = taglab_getnextfreetag();
+                    i = taglab_getnextfreetag(NULL);
                     if (i >= 1)
                     {
                         *danum = i;

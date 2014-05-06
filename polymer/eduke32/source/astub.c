@@ -1083,9 +1083,15 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
     return link;
 }
 
-int32_t taglab_getnextfreetag(void)
+// <duetoptr>: if non-NULL, a value will be written denoting the object with
+// the currently greatest tag:
+//  32768 + spritenum, or
+//  wallnum, or
+//  -1 (the return value i.e. no more tags left OR there are no tagged objects)
+int32_t taglab_getnextfreetag(int32_t *duetoptr)
 {
     int32_t i, nextfreetag=1;
+    int32_t obj = -1;
 
     for (i=0; i<MAXSPRITES; i++)
     {
@@ -1098,15 +1104,23 @@ int32_t taglab_getnextfreetag(void)
         {
             // MULTISWITCH needs special care
             int32_t endtag = sprite[i].lotag+3;
+
             if (nextfreetag <= endtag)
+            {
                 nextfreetag = endtag+1;
+                obj = 32768 + i;
+            }
+
             continue;
         }
 
         tag = select_sprite_tag(i);
 
         if (tag != INT32_MIN && nextfreetag <= tag)
+        {
             nextfreetag = tag+1;
+            obj = 32768 + i;
+        }
     }
 
     for (i=0; i<numwalls; i++)
@@ -1114,10 +1128,13 @@ int32_t taglab_getnextfreetag(void)
         int32_t lt = taglab_linktags(0, i);
 
         if ((lt&1) && nextfreetag <= wall[i].lotag)
-            nextfreetag = wall[i].lotag+1;
+            nextfreetag = wall[i].lotag+1, obj = i;
         if ((lt&2) && nextfreetag <= wall[i].hitag)
-            nextfreetag = wall[i].hitag+1;        
+            nextfreetag = wall[i].hitag+1, obj = i;
     }
+
+    if (duetoptr != NULL)
+        *duetoptr = obj;
 
     if (nextfreetag < 32768)
         return nextfreetag;
@@ -1462,6 +1479,21 @@ static void PrintStatus(const char *string, int32_t num, int32_t x, int32_t y, i
     printext16(x*8, ydim-STATUS2DSIZ+y*8, editorcolors[color], -1, tempbuf, 0);
 }
 
+static void PrintNextTag(void)
+{
+    int32_t obj;
+    int32_t nexttag = taglab_getnextfreetag(&obj);
+
+    if (nexttag >= 1)
+    {
+        if (obj == -1)
+            printmessage16("Level %s next tag %d (no tagged objects)", levelname, nexttag);
+        else
+            printmessage16("Level %s next tag %d (%s %d has greatest)", levelname, nexttag,
+                           (obj&32768) ? "sprite" : "wall", obj&32767);
+    }
+}
+
 void ExtShowSectorData(int16_t sectnum)   //F5
 {
     int32_t x,x2,y;
@@ -1512,7 +1544,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     drawgradient();
     ydim += 8;
 
-    printmessage16("Level %s next tag %d", levelname, taglab_getnextfreetag());
+    PrintNextTag();
 
 #define PRSTAT(Str, Tiledef) \
     PrintStatus(Str, numsprite[Tiledef], x, y+yi, numsprite[Tiledef]?11:7); \
@@ -1602,8 +1634,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
     clearmidstatbar16();
     drawgradient();
 
-    printmessage16("Level %s next tag %d", levelname, taglab_getnextfreetag());
-
+    PrintNextTag();
 
 #define CASES_LIZTROOP \
     LIZTROOP: case LIZTROOPRUNNING : case LIZTROOPSTAYPUT: case LIZTROOPSHOOT: \
