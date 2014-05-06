@@ -981,6 +981,36 @@ int32_t taglab_gettag(const char *label)
 static uint64_t taglab_nolink_SEs = (1ull<<10)|(1ull<<27)|(1ull<<28)|(1ull<<29)|
     (1ull<<31)|(1ull<<32)|(1ull<<49)|(1ull<<50);
 
+//// Case lists of switch picnums. Pretty much CODEDUP from sector.c.
+
+// List of switches that function like dip (combination lock) switches.
+#define DIPSWITCH_LIKE_CASES \
+         DIPSWITCH: \
+    case TECHSWITCH: \
+    case ALIENSWITCH
+
+// List of access switches.
+#define ACCESS_SWITCH_CASES \
+         ACCESSSWITCH: \
+    case ACCESSSWITCH2
+
+// List of switches that don't fit the two preceding categories, and are not
+// the MULTISWITCH. 13 cases.
+#define REST_SWITCH_CASES \
+         DIPSWITCH2: \
+    case DIPSWITCH3: \
+    case FRANKENSTINESWITCH: \
+    case HANDSWITCH: \
+    case LIGHTSWITCH2: \
+    case LIGHTSWITCH: \
+    case LOCKSWITCH1: \
+    case POWERSWITCH1: \
+    case POWERSWITCH2: \
+    case PULLSWITCH: \
+    case SLOTDOOR: \
+    case SPACEDOORSWITCH: \
+    case SPACELIGHTSWITCH
+
 // Whether the individual tags have linking semantics. Based on
 //  http://infosuite.duke4.net/index.php?page=references_special_textures
 // The return value is an OR of the following:
@@ -1016,11 +1046,11 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
             break;
 
             // various lotag-linkers
+            // NOTE: switch picnums are handled together with walls below.
         case ACTIVATOR: case TOUCHPLATE: case ACTIVATORLOCKED: case MASTERSWITCH:
         case RESPAWN:  // ---
-        case ACCESSSWITCH: case ACCESSSWITCH2:
         case MULTISWITCH:  // *
-        case DIPSWITCH: case TECHSWITCH: case ALIENSWITCH: case TARGET: case DUCK:
+        case TARGET: case DUCK:
         case REACTOR:
         case CAMERA1:
             link = 1;
@@ -1041,6 +1071,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
     else  // walls
     {
 #ifdef YAX_ENABLE
+        // XXX: only for non-VX map versions.
         if (yax_getnextwall(num, YAX_CEILING) < 0)
 #endif
         switch (picnum)
@@ -1061,11 +1092,9 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
         // try a few that work both as sprites and as walls
         switch (picnum)
         {
-        case ACCESSSWITCH: case SLOTDOOR: case LIGHTSWITCH: case SPACEDOORSWITCH:
-        case SPACELIGHTSWITCH: case FRANKENSTINESWITCH: case MULTISWITCH:
-        case DIPSWITCH: case DIPSWITCH2: case TECHSWITCH: case DIPSWITCH3:
-        case ACCESSSWITCH2: case LIGHTSWITCH2: case POWERSWITCH1: case LOCKSWITCH1:
-        case POWERSWITCH2: case HANDSWITCH: case PULLSWITCH: case ALIENSWITCH:  // ---
+        case ACCESS_SWITCH_CASES:
+        case DIPSWITCH_LIKE_CASES:
+        case REST_SWITCH_CASES:
         case DOORTILE5: case DOORTILE6: case DOORTILE1: case DOORTILE2: case DOORTILE3:
         case DOORTILE4: case DOORTILE7: case DOORTILE8: case DOORTILE9: case DOORTILE10:
         case DOORTILE22: case DOORTILE18: case DOORTILE19: case DOORTILE20:
@@ -1074,6 +1103,19 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
             link = 1;
             break;
         }
+
+        // handle 'on' positions of non-access switches
+        switch (picnum - 1)
+        {
+        case DIPSWITCH_LIKE_CASES:
+        case REST_SWITCH_CASES:
+            link = 1;
+            break;
+        }
+
+        // handle all positions of the multiswitch
+        if (picnum >= MULTISWITCH && picnum <= MULTISWITCH+3)
+            link = 1;
     }
 
     g_iReturnVar = link;
