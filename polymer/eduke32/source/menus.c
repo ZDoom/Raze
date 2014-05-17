@@ -1523,14 +1523,6 @@ void M_DisplayMenus(void)
         margin = 60;
         M_DrawTopBar("Adult Mode");
 
-        x = M_Probe(60,50+16,16,2);
-        if (x == -1)
-        {
-            M_ChangeMenu(MENU_GAMESETUP);
-            probey = 0;
-            break;
-        }
-
         menutext(margin,50+16,MENUHIGHLIGHT(0),0,"Adult Mode");
         menutext(margin,50+16+16,MENUHIGHLIGHT(1),0,"Enter Password");
 
@@ -1564,6 +1556,14 @@ void M_DisplayMenus(void)
         }
         else
         {
+            x = M_Probe(60,50+16,16,2);
+            if (x == -1)
+            {
+                M_ChangeMenu(MENU_GAMESETUP);
+                probey = 0;
+                break;
+            }
+
             if (x == 0)
             {
                 if (ud.lockout == 1)
