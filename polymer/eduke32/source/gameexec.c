@@ -3291,20 +3291,16 @@ nullquote:
             {
                 g_lastSaveSlot = *insptr++;
 
-                if ((unsigned)g_lastSaveSlot >= 10)
+                if ((unsigned)g_lastSaveSlot >= MAXSAVEGAMES)
                     continue;
 
                 if (tw == CON_SAVE || ud.savegame[g_lastSaveSlot][0] == 0)
                 {
                     time_t curtime = time(NULL);
-                    Bstrcpy(tempbuf,asctime(localtime(&curtime)));
-                    clearbufbyte(ud.savegame[g_lastSaveSlot],sizeof(ud.savegame[g_lastSaveSlot]),0);
-                    Bsprintf(ud.savegame[g_lastSaveSlot],"Auto");
-                    //            for (j=0;j<13;j++)
-                    //                Bmemcpy(&ud.savegame[g_lastSaveSlot][j+4],&tempbuf[j+3],sizeof(tempbuf[j+3]));
-                    //            ud.savegame[g_lastSaveSlot][j+4] = '\0';
-                    Bmemcpy(&ud.savegame[g_lastSaveSlot][4],&tempbuf[3],sizeof(tempbuf[0])*13);
-                    ud.savegame[g_lastSaveSlot][17] = '\0';
+                    struct tm *timeptr = localtime(&curtime);
+                    Bsnprintf(ud.savegame[g_lastSaveSlot], sizeof(ud.savegame[g_lastSaveSlot]), "Auto %.4d%.2d%.2d %.2d%.2d%.2d\n",
+                    timeptr->tm_year + 1900, timeptr->tm_mon, timeptr->tm_mday,
+                    timeptr->tm_hour, timeptr->tm_min, timeptr->tm_sec);
                 }
 
                 OSD_Printf("Saving to slot %d\n",g_lastSaveSlot);

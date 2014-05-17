@@ -14,7 +14,7 @@ char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 char remap[KEYSTATUSSIZ];
 int32_t remapinit=0;
-char key_names[256][24];
+char key_names[NUMKEYS][24];
 volatile int32_t mousex=0,mousey=0,mouseb=0,mouseabsx=0,mouseabsy=0;
 volatile uint8_t moustat = 0, mousegrab = 0;
 int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;

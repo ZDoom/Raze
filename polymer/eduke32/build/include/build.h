@@ -733,7 +733,11 @@ EXTERN intptr_t ylookup[MAXYDIM+1];
 };
 #endif
 
+#ifndef GEKKO
 #define MAXVALIDMODES 256
+#else
+#define MAXVALIDMODES 16
+#endif
 EXTERN int32_t validmodecnt;
 struct validmode_t {
     int32_t xdim,ydim;

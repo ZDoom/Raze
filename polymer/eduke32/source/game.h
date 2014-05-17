@@ -31,6 +31,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define USERQUOTE_LEFTOFFSET    5
 #define USERQUOTE_RIGHTOFFSET   14
 
+#define MAXRIDECULE 10
+#define MAXRIDECULELENGTH 40
+#define MAXSAVEGAMES 10
+#define MAXSAVEGAMENAME 22
+#define MAXPWLOCKOUT 128
+#define MAXRTSNAME 128
+
 enum GametypeFlags_t {
     GAMETYPE_COOP                   = 0x00000001,
     GAMETYPE_WEAPSTAY               = 0x00000002,
@@ -233,9 +240,9 @@ typedef struct {
     char overhead_on,last_overhead,showweapons;
     char god,warp_on,cashman,eog,showallmap;
     char show_help,scrollmode,noclip;
-    char ridecule[10][40];
-    char savegame[10][22];
-    char pwlockout[128],rtsname[128];
+    char ridecule[MAXRIDECULE][MAXRIDECULELENGTH];
+    char savegame[MAXSAVEGAMES][MAXSAVEGAMENAME];
+    char pwlockout[MAXPWLOCKOUT],rtsname[MAXRTSNAME];
     char display_bonus_screen;
     char show_level_text;
 } user_defs;

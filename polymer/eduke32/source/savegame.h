@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __savegame_h__
 #define __savegame_h__
 
+#include "game.h"
+
 #ifdef LUNATIC
 # define SV_MAJOR_VER 2
 #else
@@ -45,7 +47,7 @@ typedef struct
     int32_t reccnt, snapsiz;
     // 8 bytes
 
-    char savename[22];  // should be of the same length as ud.savegame[i]
+    char savename[MAXSAVEGAMENAME];
     uint8_t numplayers, volnum, levnum, skill;
     char boardfn[256];  // BMAX_PATH
     // 282 bytes
@@ -76,7 +78,7 @@ extern void sv_postyaxload(void);
 // XXX: The 'bitptr' decl really belongs into gamedef.h, but we don't want to
 // pull all of it in savegame.c?
 extern char *bitptr;
-extern uint8_t g_oldverSavegame[10];
+extern uint8_t g_oldverSavegame[MAXSAVEGAMES];
 
 enum
 {

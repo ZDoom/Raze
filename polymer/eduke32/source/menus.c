@@ -572,7 +572,7 @@ static void M_DisplaySaveGameList(void)
     rotatesprite_fs(99<<16,50<<16,65536L,512,WINDOWBORDER1,24,0,10);
     rotatesprite_fs(103<<16,144<<16,65536L,1024+512,WINDOWBORDER1,24,0,10);
 
-    for (x=0; x<=9; x++)
+    for (x=0; x<MAXSAVEGAMES; x++)
     {
         if (ud.savegame[x][0])
         {
@@ -1173,7 +1173,7 @@ void M_DisplayMenus(void)
                 M_ChangeMenu(MENU_PLAYER);
                 probey = 7;
             }
-            else if (x >= 0 && x <= 9)
+            else if (x >= 0 && x < MAXRIDECULE)
             {
                 strcpy(buf, ud.ridecule[x]);
                 inputloc = strlen(buf);
@@ -1197,7 +1197,7 @@ void M_DisplayMenus(void)
                 probey = last_menu_pos;
             }
         }
-        for (i=0; i<10; i++)
+        for (i=0; i<MAXRIDECULE; i++)
         {
             if (g_currentMenu == MENU_MACROSTYPING && i == last_menu_pos) continue;
             mgametextpal(26,40+(i<<3),ud.ridecule[i],MENUHIGHLIGHT(i),0);

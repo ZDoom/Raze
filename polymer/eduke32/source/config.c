@@ -285,11 +285,11 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(ud.ridecule[0], "An inspiration for birth control.");
     Bstrcpy(ud.ridecule[1], "You're gonna die for that!");
     Bstrcpy(ud.ridecule[2], "It hurts to be you.");
-    Bstrcpy(ud.ridecule[3], "Lucky Son of a Bitch.");
-    Bstrcpy(ud.ridecule[4], "Hmmm....Payback time.");
+    Bstrcpy(ud.ridecule[3], "Lucky son of a bitch.");
+    Bstrcpy(ud.ridecule[4], "Hmmm... payback time.");
     Bstrcpy(ud.ridecule[5], "You bottom dwelling scum sucker.");
     Bstrcpy(ud.ridecule[6], "Damn, you're ugly.");
-    Bstrcpy(ud.ridecule[7], "Ha ha ha...Wasted!");
+    Bstrcpy(ud.ridecule[7], "Ha ha ha... wasted!");
     Bstrcpy(ud.ridecule[8], "You suck!");
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
 
@@ -608,7 +608,7 @@ int32_t CONFIG_ReadSetup(void)
     {
         char dummybuf[64];
 
-        for (dummy = 0; dummy < 10; dummy++)
+        for (dummy = 0; dummy < MAXRIDECULE; dummy++)
         {
             commmacro[13] = dummy+'0';
             SCRIPT_GetString(ud.config.scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
@@ -970,7 +970,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     {
         char commmacro[] = "CommbatMacro# ";
 
-        for (dummy = 0; dummy < 10; dummy++)
+        for (dummy = 0; dummy < MAXRIDECULE; dummy++)
         {
             commmacro[13] = dummy+'0';
             SCRIPT_PutString(ud.config.scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);

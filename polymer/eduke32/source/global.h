@@ -65,10 +65,12 @@ G_EXTERN char g_numSkills;
 G_EXTERN char myjumpingtoggle,myonground,myhardlanding,myreturntocenter;
 G_EXTERN char pus,pub;
 G_EXTERN char ready2send;
-G_EXTERN char szPlayerName[32];
+#define MAXPLAYERNAME 32
+G_EXTERN char szPlayerName[MAXPLAYERNAME];
 // XXX: menutextbuf overflow possible?
 G_EXTERN char tempbuf[MAXSECTORS<<1],packbuf[PACKBUF_SIZE],menutextbuf[128],buf[1024];
-G_EXTERN char typebuflen,typebuf[141];
+#define TYPEBUFSIZE 141
+G_EXTERN char typebuf[TYPEBUFSIZE];
 G_EXTERN input_t avg;
 G_EXTERN input_t loc;
 G_EXTERN input_t recsync[RECSYNCBUFSIZ];

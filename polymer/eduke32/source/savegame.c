@@ -33,7 +33,7 @@ const char *g_failedVarname;
 
 extern char *bitptr;
 
-uint8_t g_oldverSavegame[10];
+uint8_t g_oldverSavegame[MAXSAVEGAMES];
 
 #define BITPTR_POINTER 1
 
@@ -143,7 +143,7 @@ void ReadSaveGameHeaders(void)
 
     Bstrcpy(fn, "dukesav0.esv");
 
-    for (i=0; i<10; i++)
+    for (i=0; i<MAXSAVEGAMES; i++)
     {
         int32_t k;
 
@@ -175,6 +175,8 @@ int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh)
 {
     char fn[16];
     int32_t fil, screenshotofs, i;
+
+    Bassert(spot < MAXSAVEGAMES);
 
     Bstrcpy(fn, "dukesav0.esv");
     fn[7] = spot + '0';
@@ -227,6 +229,8 @@ int32_t G_LoadPlayer(int32_t spot)
     int32_t fil, i;
 
     savehead_t h;
+
+    Bassert(spot < MAXSAVEGAMES);
 
     Bstrcpy(fn, "dukesav0.esv");
     fn[7] = spot + '0';
@@ -346,6 +350,8 @@ int32_t G_SavePlayer(int32_t spot)
     char fn[16];
 //    char mpfn[16];
     FILE *fil;
+
+    Bassert(spot < MAXSAVEGAMES);
 
     G_SaveTimers();
 
@@ -1232,7 +1238,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
     h.skill = ud.player_skill;
     Bstrncpy(h.boardfn, currentboardfilename, sizeof(h.boardfn));
 
-    if (spot >= 0)
+    if ((unsigned)spot < MAXSAVEGAMES)
     {
         // savegame
         Bstrncpyz(h.savename, ud.savegame[spot], sizeof(h.savename));

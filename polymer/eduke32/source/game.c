@@ -151,7 +151,6 @@ int32_t g_Shareware = 0;
 int32_t quotebot, quotebotgoal;
 static int32_t user_quote_time[MAXUSERQUOTES];
 static char user_quote[MAXUSERQUOTES][178];
-// char typebuflen,typebuf[41];
 
 // This was 32 for a while, but I think lowering it to 24 will help things like the Dingoo.
 // Ideally, we would look at our memory usage on our most cramped platform and figure out
