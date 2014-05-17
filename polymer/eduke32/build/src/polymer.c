@@ -2884,7 +2884,7 @@ static void         polymer_updatewall(int16_t wallnum)
     w = prwalls[wallnum];
     s = prsectors[sectofwall];
     invalid = s->invalidid;
-    if (nwallnum >= 0 && nwallnum < numwalls)
+    if (nwallnum >= 0 && nwallnum < numwalls && wal->nextsector >= 0 && wal->nextsector < numsectors)
     {
         ns = prsectors[wal->nextsector];
         invalid += ns->invalidid;
@@ -2969,7 +2969,7 @@ static void         polymer_updatewall(int16_t wallnum)
     else
         xref = 0;
 
-    if (wal->nextsector < 0 || wal->nextsector >= numsectors)
+    if (wal->nextsector < 0 || wal->nextsector >= numsectors || !ns)
     {
         Bmemcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
         Bmemcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
