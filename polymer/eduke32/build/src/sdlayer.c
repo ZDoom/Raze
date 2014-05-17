@@ -145,6 +145,7 @@ HINSTANCE win_gethinstance(void)
 }
 #endif
 
+
 int32_t wm_msgbox(char *name, char *fmt, ...)
 {
     char buf[2048];
@@ -171,8 +172,8 @@ int32_t wm_msgbox(char *name, char *fmt, ...)
     // Replace all tab chars with spaces because the hand-rolled SDL message
     // box diplays the former as N/L instead of whitespace.
     {
-        int32_t i;
-        for (i=0; i<(int32_t)sizeof(buf); i++)
+        size_t i;
+        for (i=0; i<sizeof(buf); i++)
             if (buf[i] == '\t')
                 buf[i] = ' ';
     }
@@ -192,7 +193,7 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
     char c;
     va_list va;
 #if (!defined(__APPLE__) && defined(HAVE_GTK2)) || defined _WIN32
-    int32_t r;
+    int32_t r = -1;
 #endif
 
     UNREFERENCED_PARAMETER(name);
@@ -213,6 +214,34 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
     initprintf("wm_ynbox called, this is bad! Message: %s: %s",name,buf);
     initprintf("Returning false..");
     return 0;
+#elif SDL_MAJOR_VERSION==2
+    {
+        const SDL_MessageBoxButtonData buttons[] = {
+            {
+                SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT,
+                0,
+                "No"
+            },{
+                SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT,
+                1,
+                "Yes"
+            },
+        };
+
+        SDL_MessageBoxData data = {
+            SDL_MESSAGEBOX_INFORMATION,
+            NULL, /* no parent window */
+            name,
+            buf,
+            2,
+            buttons,
+            NULL /* Default color scheme */
+        };
+
+        SDL_ShowMessageBox(&data, &r);
+
+        return r;
+    }
 #endif
     puts(buf);
     puts("   (type 'Y' or 'N', and press Return or Enter to continue)");
