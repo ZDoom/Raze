@@ -348,7 +348,7 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 }
 
 static char * g_output = NULL;
-static LPTOP_LEVEL_EXCEPTION_FILTER g_prev = NULL;
+static PVOID g_prev = NULL;
 
 static LONG WINAPI
 exception_filter(LPEXCEPTION_POINTERS info)
@@ -403,7 +403,7 @@ backtrace_register(void)
 {
 	if (g_output == NULL) {
 		g_output = malloc(BUFFER_MAX);
-		g_prev = SetUnhandledExceptionFilter(exception_filter);
+		g_prev = AddVectoredExceptionHandler(1, exception_filter);
 	}
 }
 
@@ -412,7 +412,7 @@ backtrace_unregister(void)
 {
 	if (g_output) {
 		free(g_output);
-		SetUnhandledExceptionFilter(g_prev);
+		RemoveVectoredExceptionHandler(g_prev);
 		g_prev = NULL;
 		g_output = NULL;
 	}

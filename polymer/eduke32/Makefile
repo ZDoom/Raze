@@ -435,7 +435,7 @@ endif
 
 $(EBACKTRACEDLL): platform/Windows/src/backtrace.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) -O2 -shared -Wall -Wextra -static-libgcc -I$(EINC) -o $@ $^ -lbfd -liberty -limagehlp; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) -O2 -ggdb -shared -Wall -Wextra -static-libgcc -I$(EINC) -o $@ $^ -lbfd -liberty -limagehlp; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
