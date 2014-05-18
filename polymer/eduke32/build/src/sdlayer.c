@@ -192,9 +192,6 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
     char buf[2048];
     char c;
     va_list va;
-#if (!defined(__APPLE__) && defined(HAVE_GTK2)) || defined _WIN32
-    int32_t r = -1;
-#endif
 
     UNREFERENCED_PARAMETER(name);
 
@@ -205,17 +202,21 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
 #if defined __APPLE__
     return osx_ynbox(name, buf);
 #elif defined HAVE_GTK2
-    if ((r = gtkbuild_ynbox(name, buf)) >= 0) return r;
+    {
+        int32_t r = gtkbuild_ynbox(name, buf);
+        if (r >= 0)
+            return r;
+    }
 #elif defined _WIN32
-    r = MessageBox(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL);
-    if (r==IDYES) return 1;
-    return 0;
+    return (MessageBox(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL) == IDYES);
 #elif defined __ANDROID__
     initprintf("wm_ynbox called, this is bad! Message: %s: %s",name,buf);
     initprintf("Returning false..");
     return 0;
 #elif SDL_MAJOR_VERSION==2
     {
+        int32_t r = -1;
+
         const SDL_MessageBoxButtonData buttons[] = {
             {
                 SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT,
@@ -243,6 +244,8 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
         return r;
     }
 #endif
+
+    // NOTE: this is dead code for most #ifdef cases above.
     puts(buf);
     puts("   (type 'Y' or 'N', and press Return or Enter to continue)");
     do c = getchar(); while (c != 'Y' && c != 'y' && c != 'N' && c != 'n');
