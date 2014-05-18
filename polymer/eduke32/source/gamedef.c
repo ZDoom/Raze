@@ -1423,6 +1423,12 @@ static int32_t isaltok(const char c)
             c == '*' || c == '-' || c == '_' || c == '.');
 }
 
+static int32_t C_IsLabelChar(const char c, int32_t i)
+{
+    return (isalnum(c) || c=='_' || c=='*' || c=='?' ||
+            (i > 0 && (c=='+' || c=='-' || c=='.')));
+}
+
 static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
@@ -1446,7 +1452,8 @@ static void C_GetNextLabelName(void)
 
     C_SkipComments();
 
-    while (ispecial(*textptr) == 0 && *textptr!='['&& *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
+//    while (ispecial(*textptr) == 0 && *textptr!='['&& *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
+    while (C_IsLabelChar(*textptr, i))
         label[(g_numLabels<<6)+(i++)] = *(textptr++);
     label[(g_numLabels<<6)+i] = 0;
 
