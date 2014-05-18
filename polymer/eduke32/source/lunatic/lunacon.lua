@@ -575,7 +575,7 @@ end
 -- NOTE: in C-CON, the slash and backslash can also be part of an identifier,
 -- but this is likely to support file names in other places.
 local BAD_ID_CHARS0 = "_*?"  -- allowed 1st identifier chars
-local BAD_ID_CHARS1 = "_*-+?"  -- allowed following identifier chars
+local BAD_ID_CHARS1 = "_*-+?."  -- allowed following identifier chars
 
 local function truetab(tab)
     local ttab = {}

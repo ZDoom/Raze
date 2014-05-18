@@ -270,7 +270,7 @@ where
 
 * allowed first characters are: letters, digits, and those in ```_*?`''
 * allowed following characters are the same as allowed first characters, plus
-  ``+++++'' and ``++-++'' .
+  ``+++++'', ``++-++'' and ``++.++''.
 
 // ^ `+` and `-`
 
