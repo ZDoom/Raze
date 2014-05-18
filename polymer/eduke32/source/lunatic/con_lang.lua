@@ -856,6 +856,7 @@ local UserdefLabels = {
     lockout = UDRO".lockout",
     m_player_skill = UDRO".m_player_skill",
     m_volume_number = UDRO".m_volume_number",
+    mouseaiming = UD".mouseaiming",
     pause_on = UDRO".pause_on",
     player_skill = UD".player_skill",
     mouseflip = UDRO".mouseflip",

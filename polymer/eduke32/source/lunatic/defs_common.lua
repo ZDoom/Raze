@@ -376,6 +376,7 @@ enum {
 ffi.cdef(maybe_strip_const("const int16_t numsectors, numwalls;"))
 
 ffi.cdef[[
+const int32_t Numsprites;
 const int32_t numyaxbunches;  // XXX
 const int32_t totalclock;
 int32_t randomseed;  // DEPRECATED
