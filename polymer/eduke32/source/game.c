@@ -5633,8 +5633,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case MASKWALL13__STATIC:
         case MASKWALL14__STATIC:
         case MASKWALL15__STATIC:
-            j = sp->cstat&60;
-            sp->cstat = j|1;
+            j = sp->cstat & SPAWN_PROTECT_CSTAT_MASK;
+            sp->cstat = j|CSTAT_SPRITE_BLOCK;
             changespritestat(i, STAT_DEFAULT);
             break;
         case FOOTPRINTS__STATIC:

@@ -386,6 +386,11 @@ extern vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy, const int32_t font, int
     if (alpha < 0) { blend = -alpha; alpha = 0; orientation |= RS_TRANS1; } \
 } while (0)
 
+// Cstat protection mask for (currently) spawned MASKWALL* sprites.
+// TODO: look at more cases of cstat=(cstat&PROTECTED)|ADDED in A_Spawn()?
+// 2048+(32+16)+8+4
+#define SPAWN_PROTECT_CSTAT_MASK (CSTAT_SPRITE_NOSHADE|CSTAT_SPRITE_SLAB|CSTAT_SPRITE_XFLIP|CSTAT_SPRITE_YFLIP);
+
 int32_t app_main(int32_t argc,const char **argv);
 void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);
 //void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);
