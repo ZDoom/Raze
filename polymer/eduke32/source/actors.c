@@ -946,8 +946,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                         case NUKEBARRELDENTED__STATIC:
                         case NUKEBARRELLEAKED__STATIC:
                         case TRIPBOMB__STATIC:
-                            // XXX: j is result of cansee() call.
-                            if (sector[s->sectnum].ceilingstat&1 && A_CheckSpriteFlags(j,SFLAG_NOSHADE) == 0)
+                            if (sector[s->sectnum].ceilingstat&1 && A_CheckSpriteFlags(i,SFLAG_NOSHADE) == 0)
                                 s->shade = sector[s->sectnum].ceilingshade;
                             else s->shade = sector[s->sectnum].floorshade;
 
