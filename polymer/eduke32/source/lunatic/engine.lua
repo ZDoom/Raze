@@ -202,8 +202,8 @@ end
 
 
 local function check_colcomp(a)
-    if (type(a) ~= "number" or not (a >= 0 and a <= 63)) then
-        error("color component must be in the range [0 .. 63]", 3)
+    if (type(a) ~= "number" or not (a >= 0 and a < 64)) then
+        error("color component must be in the range [0 .. 64)", 3)
     end
 end
 

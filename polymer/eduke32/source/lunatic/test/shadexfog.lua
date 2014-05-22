@@ -340,7 +340,9 @@ end
 -- shadexfog.create_trans(startblendidx, func [, numtables [, fullbrightsOK]])
 --
 -- <func>: must be
---  rr, gg, bb = f(r, g, b, R, G, B, level, numtables)
+--  rr, gg, bb = f(r,g,b, R,G,B, level, numtables)
+--  If reverse translucency bit clear, (r,g,b) is background and (R,G,B) is
+--  foreground (incoming).
 --  ('level' is the table index, from 1 to <numtables>)
 -- <numtables>: number of tables to create, from <startblendidx> on. Default: 1
 function shadexfog.create_trans(startblendidx, func, numtables, fullbrightsOK)
@@ -405,6 +407,22 @@ function shadexfog.create_additive_trans(startblendidx, numtables, fullbrightsOK
         function(r,g,b, R,G,B, level, numtabs)
             local f = level/numtabs
             return min(f*r+R, 63), min(f*g+G, 63), min(f*b+B, 63)
+        end,
+
+        numtables, fullbrightsOK
+    )
+end
+
+-- shadexfog.create_brightpass_trans(startblendidx [, numtables [, fullbrightsOK]])
+function shadexfog.create_brightpass_trans(startblendidx, numtables, fullbrightsOK)
+    shadexfog.create_trans(
+        startblendidx,
+
+        function(r,g,b, R,G,B, alpha, numtabs)
+            local a = alpha/numtabs
+            local F = 1 - min(a, (R+G+B) / (3*63))
+            local f = 1 - F
+            return f*r+F*R, f*g+F*G, f*b+F*B
         end,
 
         numtables, fullbrightsOK
@@ -583,6 +601,30 @@ starting with the blending number <startbl>, with fractions
   1/(2\255<numtables>), 2/(2\255<numtables>) ... <numtables>/(2\255<numtables>).
 
  <numtables> must be a power of two in [1 .. 128].
+
+ <fullbriOK>: should fullbright color indices (>= 240) be permitted as
+            the blending result of two color indices?
+]=]
+)
+
+engine.registerMenuFunc(
+    "Create bri.pass tr. tabs",
+    CreateMenuFunction{
+        [0] = shadexfog.create_brightpass_trans,
+        { "Starting blendnum", 1, 255 },
+        { "Number of blending tables", 32, 255 },
+        { "Fullbright result colors OK?", 0, 1, GNF_BOOL },
+    },
+
+formatHelp
+[=[
+<shadexfog.create_brightpass_trans(startbl [, numtabs [, fullbriOK]])>
+<____________________________________________________________________>
+
+Creates <numtabs> blending tables of "brightpass" translucency,
+starting with the blending number <startbl>, with fractions
+
+  1/<numtables>, 2/<numtables> ... <numtables>/<numtables>.
 
  <fullbriOK>: should fullbright color indices (>= 240) be permitted as
             the blending result of two color indices?
