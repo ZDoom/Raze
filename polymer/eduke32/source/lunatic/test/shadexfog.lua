@@ -654,47 +654,6 @@ number <palnum>.
 )
 
 engine.registerMenuFunc(
-    "Create depth shade tab",
-    CreateMenuFunction{
-        [0] = shadexfog.create_depth_shtab,
-        { "Pal number", 100, MAXUSERPALOOKUP },
-    },
-
-formatHelp
-[[
-<shadexfog.create_depth_shtab(palnum)>
-<____________________________________>
-
-Creates a shade table for debugging purposes at pal <palnum>.
-
- For every color index, the shade table maps shade index <i> to
- color index <i> (of the first ramp of gray colors, assuming Build
- has loaded a base shade table with 32 shade levels).
-]]
-)
-
-engine.registerMenuFunc(
-    "Create vismarker sh. tab",
-    CreateMenuFunction{
-        [0] = shadexfog.create_vismarker_shtab,
-        { "Pal number", 100, MAXUSERPALOOKUP },
-    },
-
-formatHelp
-[[
-<shadexfog.create_vismarker_shtab(palnum)>
-<________________________________________>
-
-Creates a shade table for debugging purposes at pal <palnum>.
-
- For every color index, the shade table maps shade index 1 to
- a ^14bright yellow^O color and shade index 30 to a ^13purple^O color.
- Thus, it can be useful in visualizing the limits of the
- fog/visibility attenuation.
-]]
-)
-
-engine.registerMenuFunc(
     "Create c.index remapping",
     function()
         local palnum = getnumber16("Pal number: ", 100, MAXUSERPALOOKUP)
@@ -883,6 +842,47 @@ This can be used to get a quick glimpse about what ramps are present
 in particular tiles. With this information, custom lookups can be
 created more directedly with the <Create c.index remapping> menu
 entry.
+]]
+)
+
+engine.registerMenuFunc(
+    "Create depth shade tab",
+    CreateMenuFunction{
+        [0] = shadexfog.create_depth_shtab,
+        { "Pal number", 100, MAXUSERPALOOKUP },
+    },
+
+formatHelp
+[[
+<shadexfog.create_depth_shtab(palnum)>
+<____________________________________>
+
+Creates a shade table for debugging purposes at pal <palnum>.
+
+ For every color index, the shade table maps shade index <i> to
+ color index <i> (of the first ramp of gray colors, assuming Build
+ has loaded a base shade table with 32 shade levels).
+]]
+)
+
+engine.registerMenuFunc(
+    "Create vismarker sh. tab",
+    CreateMenuFunction{
+        [0] = shadexfog.create_vismarker_shtab,
+        { "Pal number", 100, MAXUSERPALOOKUP },
+    },
+
+formatHelp
+[[
+<shadexfog.create_vismarker_shtab(palnum)>
+<________________________________________>
+
+Creates a shade table for debugging purposes at pal <palnum>.
+
+ For every color index, the shade table maps shade index 1 to
+ a ^14bright yellow^O color and shade index 30 to a ^13purple^O color.
+ Thus, it can be useful in visualizing the limits of the
+ fog/visibility attenuation.
 ]]
 )
 
