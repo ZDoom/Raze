@@ -6937,7 +6937,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             {
             case SE_6_SUBWAY:
             case SE_14_SUBWAY_CAR:
-                j = A_CallSound(sect,i);
+                S_FindMusicSFX(sect, &j);
                 if (j == -1) j = SUBWAY;
                 actor[i].lastvx = j;
             case SE_30_TWO_WAY_TRAIN:

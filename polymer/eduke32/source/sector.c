@@ -33,16 +33,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static int32_t g_haltSoundHack = 0;
 
-// this function activates a sector's MUSICANDSFX sprite
-int32_t A_CallSound(int32_t sn, int32_t whatsprite)
+int32_t S_FindMusicSFX(int32_t sn, int32_t *sndptr)
 {
     int32_t i;
-
-    if (g_haltSoundHack)
-    {
-        g_haltSoundHack = 0;
-        return -1;
-    }
 
     for (SPRITES_OF_SECT(sn, i))
     {
@@ -51,37 +44,60 @@ int32_t A_CallSound(int32_t sn, int32_t whatsprite)
 
         if (PN == MUSICANDSFX && (unsigned)snd < 1000)  // XXX: in other places, 999
         {
-            if (whatsprite == -1)
-                whatsprite = i;
-
-            if (T1 == 0)
-            {
-                if ((g_sounds[snd].m & SF_GLOBAL) == 0)
-                {
-                    if (snd)
-                    {
-                        A_PlaySound(snd, whatsprite);
-                        if (SHT && snd != SHT && SHT < MAXSOUNDS)
-                            S_StopEnvSound(SHT,T6);
-                        T6 = whatsprite;
-                    }
-
-                    if ((sector[SECT].lotag&0xff) != ST_22_SPLITTING_DOOR)
-                        T1 = 1;
-                }
-            }
-            else if (SHT < MAXSOUNDS)
-            {
-                if (SHT)
-                    A_PlaySound(SHT, whatsprite);
-                if ((g_sounds[snd].m & SF_LOOP) || (SHT && SHT != snd))
-                    S_StopEnvSound(snd, T6);
-                T6 = whatsprite;
-                T1 = 0;
-            }
-
-            return snd;
+            *sndptr = snd;
+            return i;
         }
+    }
+
+    *sndptr = -1;
+    return -1;
+}
+
+// this function activates a sector's MUSICANDSFX sprite
+int32_t A_CallSound(int32_t sn, int32_t whatsprite)
+{
+    int32_t i, snd;
+
+    if (g_haltSoundHack)
+    {
+        g_haltSoundHack = 0;
+        return -1;
+    }
+
+    i = S_FindMusicSFX(sn, &snd);
+
+    if (i >= 0)
+    {
+        if (whatsprite == -1)
+            whatsprite = i;
+
+        if (T1 == 0)
+        {
+            if ((g_sounds[snd].m & SF_GLOBAL) == 0)
+            {
+                if (snd)
+                {
+                    A_PlaySound(snd, whatsprite);
+                    if (SHT && snd != SHT && SHT < MAXSOUNDS)
+                        S_StopEnvSound(SHT,T6);
+                    T6 = whatsprite;
+                }
+
+                if ((sector[SECT].lotag&0xff) != ST_22_SPLITTING_DOOR)
+                    T1 = 1;
+            }
+        }
+        else if (SHT < MAXSOUNDS)
+        {
+            if (SHT)
+                A_PlaySound(SHT, whatsprite);
+            if ((g_sounds[snd].m & SF_LOOP) || (SHT && SHT != snd))
+                S_StopEnvSound(snd, T6);
+            T6 = whatsprite;
+            T1 = 0;
+        }
+
+        return snd;
     }
 
     return -1;

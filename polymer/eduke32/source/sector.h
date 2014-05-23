@@ -103,6 +103,7 @@ typedef struct {
 //extern map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
 void G_ActivateBySector(int32_t sect,int32_t j);
+int32_t S_FindMusicSFX(int32_t sn, int32_t *sndptr);
 int32_t A_CallSound(int32_t sn,int32_t whatsprite);
 int32_t A_CheckHitSprite(int32_t i,int16_t *hitsp);
 void A_DamageObject(int32_t i,int32_t sn);
