@@ -626,6 +626,44 @@ void debugprintf(const char *f, ...)
 //
 //
 
+#ifdef _WIN32
+static void switchlayout(const char *layout)
+{
+    char layoutname[KL_NAMELENGTH];
+
+    GetKeyboardLayoutName(layoutname);
+
+    if (!Bstrcmp(layoutname, layout))
+        return;
+
+    initprintf("Switching keyboard layout from %s to %s\n", layoutname, layout);
+    LoadKeyboardLayout(layout, KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
+}
+
+static void W_SetKeyboardLayoutUS(int32_t resetp)
+{
+    static char defaultlayoutname[KL_NAMELENGTH];
+
+    if (!resetp)
+    {
+        static int done = 0;
+
+        if (!done)
+        {
+            GetKeyboardLayoutName(defaultlayoutname);
+            // 00000409 is "American English"
+            switchlayout("00000409");
+
+            done = 1;
+        }
+    }
+    else if (defaultlayoutname[0])
+    {
+        switchlayout(defaultlayoutname);
+    }
+}
+#endif
+
 // static int32_t joyblast=0;
 static SDL_Joystick *joydev = NULL;
 
@@ -635,6 +673,10 @@ static SDL_Joystick *joydev = NULL;
 int32_t initinput(void)
 {
     int32_t i,j;
+
+#ifdef _WIN32
+    W_SetKeyboardLayoutUS(0);
+#endif
 
 #ifdef __APPLE__
     // force OS X to operate in >1 button mouse mode so that LMB isn't adulterated
@@ -718,6 +760,9 @@ int32_t initinput(void)
 //
 void uninitinput(void)
 {
+#ifdef _WIN32
+    W_SetKeyboardLayoutUS(1);
+#endif
     uninitmouse();
 
     if (joydev)
