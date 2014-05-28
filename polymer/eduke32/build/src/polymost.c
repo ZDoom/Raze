@@ -754,7 +754,8 @@ static void fixtransparency(int32_t dapicnum, coltype *dapic, int32_t daxsiz, in
     }
 }
 
-void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt, int32_t texfmt, coltype *pic, int32_t tsizx, int32_t tsizy, int32_t dameth)
+void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt, int32_t texfmt,
+                   coltype *pic, int32_t tsizx, int32_t tsizy, int32_t dameth)
 {
     int32_t x2, y2, j, js=0;
     const int32_t hi = (dameth & DAMETH_HI) ? 1 : 0;
@@ -1281,7 +1282,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     if (glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOSAVE))
         if (!gotcache)
         {
-            int32_t j, x;
+            const int32_t nonpow2 = check_nonpow2(xsiz, ysiz);
 
             // save off the compressed version
             if (hicr->flags & HICR_NOCOMPRESS) cachead.quality = 0;
@@ -1289,17 +1290,10 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             cachead.xdim = tsizx>>cachead.quality;
             cachead.ydim = tsizy>>cachead.quality;
 
-            x = 0;
-            for (j=0; j<31; j++)
-            {
-                if (xsiz == pow2long[j]) { x |= 1; }
-                if (ysiz == pow2long[j]) { x |= 2; }
-            }
-
             // handle nocompress:
-            cachead.flags = (x!=3)*CACHEAD_NONPOW2 |
+            cachead.flags = nonpow2*CACHEAD_NONPOW2 |
                 (hasalpha != 255 ? CACHEAD_HASALPHA : 0) |
-                (hicr->flags & HICR_NOCOMPRESS ? 8 : 0);
+                (hicr->flags & HICR_NOCOMPRESS ? CACHEAD_NOCOMPRESS : 0);
 
 ///            OSD_Printf("Caching \"%s\"\n", fn);
             texcache_writetex(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);

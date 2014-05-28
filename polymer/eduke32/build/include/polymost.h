@@ -94,6 +94,12 @@ static inline int32_t fogpal_shade(const sectortype *sec, int32_t shade)
     return sec->fogpal ? 0 : shade;
 }
 
+static inline int check_nonpow2(int32_t xsiz, int32_t ysiz)
+{
+    return (xsiz > 1 && (xsiz&(xsiz-1)))
+        || (ysiz > 1 && (ysiz&(ysiz-1)));
+}
+
 // Flags of the <dameth> argument of various functions
 enum {
     DAMETH_CLAMPED = 4,

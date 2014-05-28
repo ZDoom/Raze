@@ -437,7 +437,8 @@ int32_t texcache_readtexheader(const char *fn, int32_t len, int32_t dameth, char
     int32_t i, err = 0;
     char cachefn[BMAX_PATH];
 
-    if (!texcache_enabled()) return 0;
+    if (!texcache_enabled())
+        return 0;
 
     i = hash_find(&texcache.hashes, texcache_calcid(cachefn, fn, len, dameth, effect));
 
@@ -445,12 +446,13 @@ int32_t texcache_readtexheader(const char *fn, int32_t len, int32_t dameth, char
         return 0;  // didn't find it
 
     texcache.filepos = texcache.ptrs[i]->offset;
-    //        initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);
+//    initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);
 
+    if (texcache_readdata(head, sizeof(texcacheheader)))
+        READTEXHEADER_FAILURE(0);
 
-    if (texcache_readdata(head, sizeof(texcacheheader))) READTEXHEADER_FAILURE(0);
-
-    if (Bmemcmp(head->magic, TEXCACHEMAGIC, 4)) READTEXHEADER_FAILURE(1);
+    if (Bmemcmp(head->magic, TEXCACHEMAGIC, 4))
+        READTEXHEADER_FAILURE(1);
 
     // native (little-endian) -> internal
     head->xdim = B_LITTLE32(head->xdim);
@@ -458,16 +460,21 @@ int32_t texcache_readtexheader(const char *fn, int32_t len, int32_t dameth, char
     head->flags = B_LITTLE32(head->flags);
     head->quality = B_LITTLE32(head->quality);
 
-    if (modelp && head->quality != r_downsize) READTEXHEADER_FAILURE(2);
-    if ((head->flags & 4) && glusetexcache != 2) READTEXHEADER_FAILURE(3);
-    if (!(head->flags & 4) && glusetexcache == 2) READTEXHEADER_FAILURE(4);
+    if (modelp && head->quality != r_downsize)
+        READTEXHEADER_FAILURE(2);
+    if ((head->flags & CACHEAD_COMPRESSED) && glusetexcache != 2)
+        READTEXHEADER_FAILURE(3);
+    if (!(head->flags & CACHEAD_COMPRESSED) && glusetexcache == 2)
+        READTEXHEADER_FAILURE(4);
 
     // handle nocompress
-    if (!modelp && !(head->flags & 8) && head->quality != r_downsize)
+    if (!modelp && !(head->flags & CACHEAD_NOCOMPRESS) && head->quality != r_downsize)
         return 0;
 
-    if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) READTEXHEADER_FAILURE(5);
-    if (!glinfo.texnpot && (head->flags & 1)) READTEXHEADER_FAILURE(6);
+    if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize)))
+        READTEXHEADER_FAILURE(5);
+    if (!glinfo.texnpot && (head->flags & CACHEAD_NONPOW2))
+        READTEXHEADER_FAILURE(6);
 
     return 1;
 
@@ -519,7 +526,8 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
 
     Bmemcpy(head->magic, TEXCACHEMAGIC, 4);   // sizes are set by caller
 
-    if (glusetexcache == 2) head->flags |= 4;
+    if (glusetexcache == 2)
+        head->flags |= CACHEAD_COMPRESSED;
 
     // native -> external (little-endian)
     head->xdim = B_LITTLE32(head->xdim);
@@ -665,7 +673,8 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
             REALLOC_OR_FAIL(midbuf, pict.size, void);
         }
 
-        if (dedxtfilter(texcache.filehandle, &pict, pic, midbuf, packbuf, (head->flags&4)==4))
+        if (dedxtfilter(texcache.filehandle, &pict, pic, midbuf, packbuf,
+                        (head->flags & CACHEAD_COMPRESSED)!=0))
         {
             TEXCACHE_FREEBUFS();
             return TEXCACHERR_DEDXT;

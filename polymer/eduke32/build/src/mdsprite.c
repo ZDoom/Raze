@@ -573,7 +573,8 @@ int32_t md_undefinemodel(int32_t modelid)
     return 0;
 }
 
-static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy, int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect)
+static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy,
+                            int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect)
 {
     int32_t picfillen, j,y,x;
     char *picfil,*cptr,al=255;
@@ -670,13 +671,13 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
 
 static inline int32_t hicfxmask(int32_t pal)
 {
-    return (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK);
+    return globalnoeffect ? 0 : (hictinting[pal].f & HICEFFECTMASK);
 }
 
 //Note: even though it says md2model, it works for both md2model&md3model
 int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 {
-    int32_t i,j, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
+    int32_t i, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
     char *skinfile, hasalpha, fn[BMAX_PATH];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
@@ -829,7 +830,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         if (glinfo.bgra)
             texfmt = GL_BGRA;
 
-        uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype *)fptr, xsiz, ysiz, 0|8192);
+        uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype *)fptr, xsiz, ysiz, DAMETH_HI);
         Bfree((void *)fptr);
     }
 
@@ -879,18 +880,14 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     if (glinfo.texcompr && glusetexcompr && glusetexcache)
         if (!gotcache)
         {
+            const int32_t nonpow2 = check_nonpow2(xsiz, ysiz);
+
             // save off the compressed version
             cachead.quality = r_downsize;
             cachead.xdim = osizx>>cachead.quality;
             cachead.ydim = osizy>>cachead.quality;
 
-            i = 0;
-            for (j=0; j<31; j++)
-            {
-                if (xsiz == pow2long[j]) { i |= 1; }
-                if (ysiz == pow2long[j]) { i |= 2; }
-            }
-            cachead.flags = (i!=3)*CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0);
+            cachead.flags = nonpow2*CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0);
 
 ///            OSD_Printf("Caching \"%s\"\n",fn);
             texcache_writetex(fn, picfillen, pal<<8, hicfxmask(pal), &cachead);
@@ -2040,7 +2037,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     int32_t i, surfi;
     float f, g, k0, k1, k2=0, k3=0, mat[16];  // inits: compiler-happy
     GLfloat pc[4];
-    int32_t                 texunits = GL_TEXTURE0_ARB;
+    int32_t texunits = GL_TEXTURE0_ARB;
 
     const int32_t owner = tspr->owner;
     // PK: XXX: These owner bound checks are redundant because sext is

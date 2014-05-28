@@ -63,6 +63,7 @@ enum
     CACHEAD_NONPOW2 = 1,
     CACHEAD_HASALPHA = 2,
     CACHEAD_COMPRESSED = 4,
+    CACHEAD_NOCOMPRESS = 8,
 };
 
 // hicreplctyp hicr->flags bits
