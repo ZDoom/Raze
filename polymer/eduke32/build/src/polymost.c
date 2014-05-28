@@ -253,7 +253,7 @@ static inline int32_t gltexmayhavealpha(int32_t dapicnum, int32_t dapalnum)
 
     for (pth=texcache.list[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum)
-            return ((pth->flags&8) != 0);
+            return ((pth->flags&PTH_HASALPHA) != 0);
 
     return 1;
 }
@@ -264,11 +264,12 @@ void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
     pthtyp *pth;
 
     for (pth=texcache.list[j]; pth; pth=pth->next)
-        if (pth->picnum == dapicnum && pth->palnum == dapalnum && (pth->flags & 1) == ((dameth&4)>>2))
+        if (pth->picnum == dapicnum && pth->palnum == dapalnum &&
+            (pth->flags & PTH_CLAMPED) == TO_PTH_CLAMPED(dameth))
         {
-            pth->flags |= 128;
-            if (pth->flags & 16)
-                pth->ofb->flags |= 128;
+            pth->flags |= PTH_INVALIDATED;
+            if (pth->flags & PTH_HASFULLBRIGHT)
+                pth->ofb->flags |= PTH_INVALIDATED;
         }
 }
 
@@ -286,9 +287,9 @@ void gltexinvalidatetype(int32_t type)
         {
             if (type == INVALIDATE_ALL || (type == INVALIDATE_ART && pth->hicr == NULL))
             {
-                pth->flags |= 128;
-                if (pth->flags & 16)
-                    pth->ofb->flags |= 128;
+                pth->flags |= PTH_INVALIDATED;
+                if (pth->flags & PTH_HASFULLBRIGHT)
+                    pth->ofb->flags |= PTH_INVALIDATED;
             }
         }
     }
@@ -331,7 +332,7 @@ void gltexapplyprops(void)
         {
             bind_2d_texture(pth->glpic);
 
-            if (r_fullbrights && pth->flags & 16)
+            if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)
                 bind_2d_texture(pth->ofb->glpic);
         }
     }
@@ -398,7 +399,7 @@ void polymost_glreset()
             for (pth=texcache.list[i]; pth;)
             {
                 next = pth->next;
-                if (pth->flags & 16) // fullbright textures
+                if (pth->flags & PTH_HASFULLBRIGHT)
                 {
                     bglDeleteTextures(1,&pth->ofb->glpic);
                     Bfree(pth->ofb);
@@ -756,10 +757,10 @@ static void fixtransparency(int32_t dapicnum, coltype *dapic, int32_t daxsiz, in
 void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt, int32_t texfmt, coltype *pic, int32_t tsizx, int32_t tsizy, int32_t dameth)
 {
     int32_t x2, y2, j, js=0;
-    const int32_t hi = (dameth&8192)?1:0;
-    const int32_t nocompress = (dameth&4096)?1:0;
+    const int32_t hi = (dameth & DAMETH_HI) ? 1 : 0;
+    const int32_t nocompress = (dameth & DAMETH_NOCOMPRESS) ? 1 : 0;
 
-    dameth &= ~(8192|4096);
+    dameth &= ~(DAMETH_HI|DAMETH_NOCOMPRESS);
 
     if (gltexmaxsize <= 0)
     {
@@ -879,7 +880,7 @@ static void texture_setup(int32_t dameth)
         bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
     }
 
-    if (!(dameth&4))
+    if (!(dameth & DAMETH_CLAMPED))
     {
         bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, !tile_is_sky(dapic) ? GL_REPEAT:
                          (glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP));
@@ -949,7 +950,7 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dam
                 int32_t dacol;
                 int32_t x2 = (x < tsizx) ? x : x-tsizx;
 
-                if ((dameth&4) && (x >= tsizx || y >= tsizy)) //Clamp texture
+                if ((dameth & DAMETH_CLAMPED) && (x >= tsizx || y >= tsizy)) //Clamp texture
                 {
                     wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0;
                     continue;
@@ -1009,7 +1010,7 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dam
     pth->palnum = dapal;
     pth->shade = dashade;
     pth->effects = 0;
-    pth->flags = ((dameth&4)>>2) | (hasalpha<<3);
+    pth->flags = TO_PTH_CLAMPED(dameth) | (hasalpha*PTH_HASALPHA);
     pth->hicr = NULL;
 
     if (hasfullbright && !fullbrightloadingpass)
@@ -1022,7 +1023,7 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dam
         if (!pth->ofb)
             return 1;
 
-        pth->flags |= (1<<4);
+        pth->flags |= PTH_HASFULLBRIGHT;
 
         if (gloadtile_art(dapic, dapal, 0, dameth, pth->ofb, 1))
             return 1;
@@ -1087,7 +1088,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     {
         tsizx = cachead.xdim;
         tsizy = cachead.ydim;
-        hasalpha = (cachead.flags & 2) ? 0 : 255;
+        hasalpha = (cachead.flags & CACHEAD_HASALPHA) ? 0 : 255;
     }
     else
     {
@@ -1181,20 +1182,22 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 tcol.r = cptr[rpptr[x].r];
                 tcol.a = rpptr[x].a; hasalpha &= rpptr[x].a;
 
-                if (effect & 1)
+                if (effect & HICTINT_GRAYSCALE)
                 {
                     // greyscale
                     tcol.b = max(tcol.b, max(tcol.g, tcol.r));
                     tcol.g = tcol.r = tcol.b;
                 }
-                if (effect & 2)
+
+                if (effect & HICTINT_INVERT)
                 {
                     // invert
                     tcol.b = 255-tcol.b;
                     tcol.g = 255-tcol.g;
                     tcol.r = 255-tcol.r;
                 }
-                if (effect & 4)
+
+                if (effect & HICTINT_COLORIZE)
                 {
                     // colorize
                     tcol.b = min((int32_t)((tcol.b)*r)/64,255);
@@ -1209,7 +1212,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             }
         }
 
-        if ((!(dameth&4)) || (facen)) //Duplicate texture pixels (wrapping tricks for non power of 2 texture sizes)
+        if ((!(dameth & DAMETH_CLAMPED)) || facen) //Duplicate texture pixels (wrapping tricks for non power of 2 texture sizes)
         {
             if (xsiz > tsizx) //Copy left to right
             {
@@ -1233,9 +1236,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         Bfree(picfil); picfil = 0;
 
         if (tsizx>>r_downsize <= tilesizx[dapic] || tsizy>>r_downsize <= tilesizy[dapic])
-            hicr->flags |= 17;
+            hicr->flags |= (HICR_NOCOMPRESS + HICR_NOSAVE);
 
-        if (glinfo.texcompr && glusetexcompr && !(hicr->flags & 1))
+        if (glinfo.texcompr && glusetexcompr && !(hicr->flags & HICR_NOSAVE))
             intexfmt = (hasalpha == 255) ? GL_COMPRESSED_RGB_ARB : GL_COMPRESSED_RGBA_ARB;
         else if (hasalpha == 255) intexfmt = GL_RGB;
 
@@ -1244,7 +1247,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
         fixtransparency(-1, pic,tsizx,tsizy,xsiz,ysiz,dameth);
-        uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,dameth|8192|(hicr->flags & 16?4096:0));
+        uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,
+                      dameth | DAMETH_HI | (hicr->flags & HICR_NOCOMPRESS ? DAMETH_NOCOMPRESS : 0));
     }
 
     // precalculate scaling parameters for replacement
@@ -1264,21 +1268,23 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     Bfree(pic); pic=NULL;
 
     if (tsizx>>r_downsize <= tilesizx[dapic] || tsizy>>r_downsize <= tilesizy[dapic])
-        hicr->flags |= (16+1);
+        hicr->flags |= (HICR_NOCOMPRESS + HICR_NOSAVE);
 
     pth->picnum = dapic;
     pth->effects = effect;
-    pth->flags = ((dameth&4)>>2) + 2 + ((facen>0)<<2); if (hasalpha != 255) pth->flags |= 8;
+    pth->flags = TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (facen>0)*PTH_SKYBOX;
+    if (hasalpha != 255)
+        pth->flags |= PTH_HASALPHA;
     pth->skyface = facen;
     pth->hicr = hicr;
 
-    if (glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & 1))
+    if (glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOSAVE))
         if (!gotcache)
         {
             int32_t j, x;
 
             // save off the compressed version
-            if (hicr->flags & 16) cachead.quality = 0;
+            if (hicr->flags & HICR_NOCOMPRESS) cachead.quality = 0;
             else cachead.quality = r_downsize;
             cachead.xdim = tsizx>>cachead.quality;
             cachead.ydim = tsizy>>cachead.quality;
@@ -1289,7 +1295,12 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 if (xsiz == pow2long[j]) { x |= 1; }
                 if (ysiz == pow2long[j]) { x |= 2; }
             }
-            cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0) | (hicr->flags&16 ? 8 : 0); // handle nocompress
+
+            // handle nocompress:
+            cachead.flags = (x!=3)*CACHEAD_NONPOW2 |
+                (hasalpha != 255 ? CACHEAD_HASALPHA : 0) |
+                (hicr->flags & HICR_NOCOMPRESS ? 8 : 0);
+
 ///            OSD_Printf("Caching \"%s\"\n", fn);
             texcache_writetex(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
 
@@ -1441,7 +1452,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             return;
         }
 
-        if (r_fullbrights && pth->flags & 16)
+        if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)
             if (indrawroomsandmasks)
             {
                 if (!fullbrightdrawingpass)
@@ -1505,7 +1516,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
             polymost_setupglowtexture(&texunits, glowpth ? glowpth->glpic : 0);
 
-        if (pth && (pth->flags & 2))
+        if (pth && (pth->flags & PTH_HIGHTILE))
         {
             hackscx = pth->scalex;
             hackscy = pth->scaley;
@@ -1589,9 +1600,9 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
             // tinting happens only to hightile textures, and only if the texture we're
             // rendering isn't for the same palette as what we asked for
-            if (!(hictinting[globalpal].f&4))
+            if (!(hictinting[globalpal].f & HICTINT_COLORIZE))
             {
-                if (pth && (pth->flags & 2))
+                if (pth && (pth->flags & PTH_HIGHTILE))
                 {
                     if (pth->palnum != globalpal)
                     {
@@ -1608,7 +1619,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                     }
                 }
                 // hack: this is for drawing the 8-bit crosshair recolored in polymost
-                else if (hictinting[globalpal].f & 8)
+                else if (hictinting[globalpal].f & HICTINT_USEONART)
                 {
                     pc[0] *= (float)hictinting[globalpal].r / 255.0;
                     pc[1] *= (float)hictinting[globalpal].g / 255.0;
@@ -4866,7 +4877,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
         else ratio = dimen/scy;
     }
 
-    if (!pth || (pth->flags & 8))
+    if (!pth || (pth->flags & PTH_HASALPHA))
     {
         bglDisable(GL_TEXTURE_2D);
         bglBegin(GL_TRIANGLE_FAN);

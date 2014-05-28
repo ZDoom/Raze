@@ -624,20 +624,20 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
             tcol.g = cptr[rpptr[x].g];
             tcol.r = cptr[rpptr[x].r];
 
-            if (effect & 1)
+            if (effect & HICTINT_GRAYSCALE)
             {
                 // greyscale
                 tcol.b = max(tcol.b, max(tcol.g, tcol.r));
                 tcol.g = tcol.r = tcol.b;
             }
-            if (effect & 2)
+            if (effect & HICTINT_INVERT)
             {
                 // invert
                 tcol.b = 255-tcol.b;
                 tcol.g = 255-tcol.g;
                 tcol.r = 255-tcol.r;
             }
-            if (effect & 4)
+            if (effect & HICTINT_COLORIZE)
             {
                 // colorize
                 tcol.b = min((int32_t)(tcol.b)*b/64,255);
@@ -782,7 +782,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     {
         osizx = cachead.xdim;
         osizy = cachead.ydim;
-        hasalpha = (cachead.flags & 2) ? 1 : 0;
+        hasalpha = (cachead.flags & CACHEAD_HASALPHA) ? 1 : 0;
         if (pal < (MAXPALOOKUPS - RESERVEDPALS))
             m->usesalpha = hasalpha;
         //kclose(filh);	// FIXME: uncomment when cache1d.c is fixed
@@ -890,7 +890,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                 if (xsiz == pow2long[j]) { i |= 1; }
                 if (ysiz == pow2long[j]) { i |= 2; }
             }
-            cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
+            cachead.flags = (i!=3)*CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0);
+
 ///            OSD_Printf("Caching \"%s\"\n",fn);
             texcache_writetex(fn, picfillen, pal<<8, hicfxmask(pal), &cachead);
 
@@ -2167,7 +2168,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     bglEnable(GL_TEXTURE_2D);
 
     pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
-    if (!(hictinting[globalpal].f&4))
+    if (!(hictinting[globalpal].f & HICTINT_COLORIZE))
     {
         if (!(m->flags&1) || (((unsigned)owner < MAXSPRITES) && sector[sprite[owner].sectnum].floorpal!=0))
         {

@@ -58,13 +58,15 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     {
         if (pth->picnum == dapicnum && pth->palnum == si->palnum &&
                 (si->palnum>0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
-                (pth->flags & (1+2+4)) == (((dameth&4)>>2)+2+((drawingskybox>0)<<2)) &&
+                (pth->flags & (PTH_CLAMPED + PTH_HIGHTILE + PTH_SKYBOX))
+                    == (TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox>0)*PTH_SKYBOX) &&
                 (drawingskybox>0 ? (pth->skyface == drawingskybox) : 1)
            )
         {
-            if (pth->flags & 128)
+            if (pth->flags & PTH_INVALIDATED)
             {
-                pth->flags &= ~128;
+                pth->flags &= ~PTH_INVALIDATED;
+
                 if (gloadtile_hi(dapicnum,dapalnum,drawingskybox,si,dameth,pth,0,
                                  (si->palnum>0) ? 0 : hictinting[dapalnum].f))    // reload tile
                 {
@@ -86,12 +88,13 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
         for (i = (GLTEXCACHEADSIZ - 1); i >= 0; i--)
             for (pth2=texcache.list[i]; pth2; pth2=pth2->next)
             {
-                if ((pth2->hicr) && (pth2->hicr->filename) && (Bstrcasecmp(pth2->hicr->filename, si->filename) == 0))
+                if (pth2->hicr && pth2->hicr->filename && Bstrcasecmp(pth2->hicr->filename, si->filename) == 0)
                 {
                     Bmemcpy(pth, pth2, sizeof(pthtyp));
                     pth->picnum = dapicnum;
-                    pth->flags = ((dameth&4)>>2) + 2 + ((drawingskybox>0)<<2);
-                    if (pth2->flags & 8) pth->flags |= 8; //hasalpha
+                    pth->flags = TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox>0)*PTH_SKYBOX;
+                    if (pth2->flags & PTH_HASALPHA)
+                        pth->flags |= PTH_HASALPHA;
                     pth->hicr = si;
                     pth->next = texcache.list[j];
 
@@ -119,12 +122,13 @@ tryart:
     // load from art
     for (pth=texcache.list[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && pth->shade == dashade && 
-                (pth->flags & (1+2)) == ((dameth&4)>>2)
+                (pth->flags & (PTH_CLAMPED+PTH_HIGHTILE)) == TO_PTH_CLAMPED(dameth)
            )
         {
-            if (pth->flags & 128)
+            if (pth->flags & PTH_INVALIDATED)
             {
-                pth->flags &= ~128;
+                pth->flags &= ~PTH_INVALIDATED;
+
                 if (gloadtile_art(dapicnum,dapalnum,dashade,dameth,pth,0))
                     return NULL; //reload tile (for animations)
             }

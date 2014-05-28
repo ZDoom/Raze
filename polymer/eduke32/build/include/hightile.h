@@ -35,6 +35,32 @@ typedef struct texcachepic_t
 } texcachepicture;
 
 hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox);
-#define HICEFFECTMASK (1|2|4|8)
+
+// texcacheheader cachead.flags bits
+enum
+{
+    CACHEAD_NONPOW2 = 1,
+    CACHEAD_HASALPHA = 2,
+    CACHEAD_COMPRESSED = 4,
+};
+
+// hicreplctyp hicr->flags bits
+enum
+{
+    HICR_NOSAVE = 1,
+
+    HICR_NOCOMPRESS = 16,
+};
+
+// hictinting[].f / gloadtile_hi() and daskinloader() <effect> arg bits
+enum
+{
+    HICTINT_GRAYSCALE = 1,
+    HICTINT_INVERT = 2,
+    HICTINT_COLORIZE = 4,
+    HICTINT_USEONART = 8,
+
+    HICEFFECTMASK = (1|2|4|8),
+};
 
 #endif

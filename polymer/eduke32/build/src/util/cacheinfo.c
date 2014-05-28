@@ -1,3 +1,5 @@
+// XXX: This program is not in sync with EDuke32 (e.g. texcacheheader type).
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>

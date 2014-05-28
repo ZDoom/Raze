@@ -94,6 +94,28 @@ static inline int32_t fogpal_shade(const sectortype *sec, int32_t shade)
     return sec->fogpal ? 0 : shade;
 }
 
+// Flags of the <dameth> argument of various functions
+enum {
+    DAMETH_CLAMPED = 4,
+
+    DAMETH_NOCOMPRESS = 4096,
+    DAMETH_HI = 8192,
+};
+
+// DAMETH_CLAMPED -> PTH_CLAMPED conversion
+#define TO_PTH_CLAMPED(dameth) ((((dameth)&4))>>2)
+
+// pthtyp pth->flags bits
+enum {
+    PTH_CLAMPED = 1,
+    PTH_HIGHTILE = 2,
+    PTH_SKYBOX = 4,
+    PTH_HASALPHA = 8,
+    PTH_HASFULLBRIGHT = 16,
+
+    PTH_INVALIDATED = 128,
+};
+
 typedef struct pthtyp_t
 {
     struct pthtyp_t *next;

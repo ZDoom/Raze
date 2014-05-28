@@ -1034,7 +1034,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     // if it's not a skybox, make the sky parallax
     // DEFAULT_ARTSKY_ANGDIV is computed from eyeballed values
     // need to recompute it if we ever change the max horiz amplitude
-    if (!pth || !(pth->flags & 4))
+    if (!pth || !(pth->flags & PTH_SKYBOX))
         skyhoriz *= curskyangmul;
 
     bglMatrixMode(GL_MODELVIEW);
@@ -3874,7 +3874,7 @@ static void         polymer_drawsky(int16_t tilenum, char palnum, int8_t shade)
     pth = texcache_fetch(tilenum,0,0,0);
     drawingskybox = 0;
 
-    if (pth && (pth->flags & 4))
+    if (pth && (pth->flags & PTH_SKYBOX))
         polymer_drawskybox(tilenum, palnum, shade);
     else
         polymer_drawartsky(tilenum, palnum, shade);
@@ -3924,7 +3924,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
 
         glcolors[i][0] = glcolors[i][1] = glcolors[i][2] = getshadefactor(shade);
 
-        if (pth && (pth->flags & 2))
+        if (pth && (pth->flags & PTH_HIGHTILE))
         {
             if (pth->palnum != palnum)
             {
@@ -4015,7 +4015,7 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
 
         color[0] = color[1] = color[2] = getshadefactor(shade);
 
-        if (pth && (pth->flags & 2))
+        if (pth && (pth->flags & PTH_HIGHTILE))
         {
             if (pth->palnum != palnum)
             {
@@ -4247,7 +4247,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     // If that palette has a highpalookup, we'll never use tinting. We might use
     // alternate skins if they exist later, though.
-    if (!usinghighpal && !(hictinting[tspr->pal].f&4))
+    if (!usinghighpal && !(hictinting[tspr->pal].f & HICTINT_COLORIZE))
     {
         if (!(m->flags&1) || (!(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0))
         {
@@ -4739,7 +4739,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
             material->diffusemodulation[2] =
             (GLubyte)(getshadefactor(shade) * 0xFF);
 
-        if (pth->flags & 2)
+        if (pth->flags & PTH_HIGHTILE)
         {
             if (pth->palnum != pal)
             {
@@ -4769,7 +4769,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         }
 
         // PR_BIT_GLOW_MAP
-        if (r_fullbrights && pth->flags & 16)
+        if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)
             material->glowmap = pth->ofb->glpic;
     }
 

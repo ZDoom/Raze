@@ -3358,7 +3358,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
 #ifdef USE_OPENGL
     // XXX: this makes us also load all hightile textures tinted with the crosshair color!
     Bmemcpy(&hictinting[CROSSHAIR_PAL], &CrosshairColors, sizeof(palette_t));
-    hictinting[CROSSHAIR_PAL].f = 9;
+    hictinting[CROSSHAIR_PAL].f = HICTINT_USEONART | HICTINT_GRAYSCALE;
 #endif
     invalidatetile(CROSSHAIR, -1, -1);
 }
