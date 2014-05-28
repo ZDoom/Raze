@@ -3026,6 +3026,8 @@ static void polymost_drawalls(int32_t bunch)
 
         if ((nextsectnum < 0) || (wal->cstat&32))   //White/1-way wall
         {
+            const int32_t maskingOneWay = (nextsectnum >= 0 && (wal->cstat&32));
+
             if (nextsectnum < 0) globalpicnum = wal->picnum; else globalpicnum = wal->overpicnum;
             globalshade = wal->shade; globalpal = (int32_t)((uint8_t)wal->pal);
             globvis = globalvisibility;
@@ -3036,8 +3038,8 @@ static void polymost_drawalls(int32_t bunch)
             if (nextsectnum >= 0) { if (!(wal->cstat&4)) i = nextsec->ceilingz; else i = sec->ceilingz; }
             else { if (!(wal->cstat&4)) i = sec->ceilingz;     else i = sec->floorz; }
 
-            // white
-            calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, !(wal->cstat&4));
+            // white / 1-way
+            calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, !maskingOneWay && !(wal->cstat&4));
 
             if (wal->cstat&8) //xflip
             {

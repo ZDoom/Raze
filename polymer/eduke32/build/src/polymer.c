@@ -2997,7 +2997,7 @@ static void         polymer_updatewall(int16_t wallnum)
         }
 
         if (wal->ypanning)
-            // white
+            // white (but not 1-way)
             ypancoef = calc_ypancoef(wal->ypanning, curpicnum, !(wal->cstat & 4));
         else
             ypancoef = 0;
@@ -3186,7 +3186,7 @@ static void         polymer_updatewall(int16_t wallnum)
                 curpicnum = walloverpicnum;
 
                 if (wal->ypanning)
-                    // mask
+                    // mask / 1-way
                     ypancoef = calc_ypancoef(wal->ypanning, curpicnum, 0);
                 else
                     ypancoef = 0;
