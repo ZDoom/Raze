@@ -708,12 +708,11 @@ static void resizeglcheck(void)
 static void fixtransparency(int32_t dapicnum, coltype *dapic, int32_t daxsiz, int32_t daysiz,
                             int32_t daxsiz2, int32_t daysiz2, int32_t dameth)
 {
-    coltype *wpptr;
-    int32_t j, x, y, r, g, b, dox, doy, naxsiz2;
+    int32_t y, naxsiz2;
+    int32_t dox = daxsiz2-1, doy = daysiz2-1;
 
     UNREFERENCED_PARAMETER(dapicnum);
 
-    dox = daxsiz2-1; doy = daysiz2-1;
     if (dameth&4) { dox = min(dox,daxsiz); doy = min(doy,daysiz); }
     else { daxsiz = daxsiz2; daysiz = daysiz2; } //Make repeating textures duplicate top/left parts
 
@@ -723,9 +722,13 @@ static void fixtransparency(int32_t dapicnum, coltype *dapic, int32_t daxsiz, in
     //Doing this makes bilinear filtering look much better for masked textures (I.E. sprites)
     for (y=doy; y>=0; y--)
     {
-        wpptr = &dapic[y*daxsiz2+dox];
+        int32_t x;
+        coltype *wpptr = &dapic[y*daxsiz2+dox];
+
         for (x=dox; x>=0; x--,wpptr--)
         {
+            int32_t r=0, g=0, b=0, j=0;
+
             if (wpptr->a) continue;
 
             r = g = b = j = 0;
@@ -752,10 +755,9 @@ static void fixtransparency(int32_t dapicnum, coltype *dapic, int32_t daxsiz, in
 
 void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt, int32_t texfmt, coltype *pic, int32_t tsizx, int32_t tsizy, int32_t dameth)
 {
-    coltype *wpptr, *rpptr;
-    int32_t x2, y2, j, js=0, x3, y3, y, x, r, g, b, a, k;
-    int32_t hi = (dameth&8192)?1:0;
-    int32_t nocompress = (dameth&4096)?1:0;
+    int32_t x2, y2, j, js=0;
+    const int32_t hi = (dameth&8192)?1:0;
+    const int32_t nocompress = (dameth&4096)?1:0;
 
     dameth &= ~(8192|4096);
 
@@ -803,14 +805,19 @@ void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt
     x2 = xsiz; y2 = ysiz;
     for (j=1; (x2 > 1) || (y2 > 1); j++)
     {
+        int32_t y;
+        int32_t x3 = max(1, x2 >> 1), y3 = max(1, y2 >> 1);  // this came from the GL_ARB_texture_non_power_of_two spec
         //x3 = ((x2+1)>>1); y3 = ((y2+1)>>1);
-        x3 = max(1, x2 >> 1); y3 = max(1, y2 >> 1);		// this came from the GL_ARB_texture_non_power_of_two spec
+
         for (y=0; y<y3; y++)
         {
-            wpptr = &pic[y*x3]; rpptr = &pic[(y<<1)*x2];
+            int32_t x;
+            coltype *wpptr = &pic[y*x3], *rpptr = &pic[(y<<1)*x2];
+
             for (x=0; x<x3; x++,wpptr++,rpptr+=2)
             {
-                r = g = b = a = k = 0;
+                int32_t r=0, g=0, b=0, a=0, k=0;
+
                 if (rpptr[0].a)                  { r += rpptr[0].r; g += rpptr[0].g; b += rpptr[0].b; a += rpptr[0].a; k++; }
                 if ((x+x+1 < x2) && (rpptr[1].a)) { r += rpptr[1].r; g += rpptr[1].g; b += rpptr[1].b; a += rpptr[1].a; k++; }
                 if (y+y+1 < y2)
@@ -916,7 +923,8 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dam
     }
 
     pic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
-    if (!pic) return 1;
+    if (!pic)
+        return 1;
 
     if (!waloff[dapic])
     {
@@ -933,17 +941,19 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dam
         for (y=0; y<ysiz; y++)
         {
             coltype *wpptr = &pic[y*xsiz];
-            int32_t x, y2;
-
-            if (y < tsizy) y2 = y; else y2 = y-tsizy;
+            int32_t x;
+            int32_t y2 = (y < tsizy) ? y : y-tsizy;
 
             for (x=0; x<xsiz; x++,wpptr++)
             {
-                int32_t dacol, x2;
+                int32_t dacol;
+                int32_t x2 = (x < tsizx) ? x : x-tsizx;
 
                 if ((dameth&4) && (x >= tsizx || y >= tsizy)) //Clamp texture
-                    { wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0; continue; }
-                if (x < tsizx) x2 = x; else x2 = x-tsizx;
+                {
+                    wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0;
+                    continue;
+                }
 
                 dacol = *(char *)(waloff[dapic]+x2*tsizy+y2);
 
@@ -1007,10 +1017,15 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dam
         // Load the ONLY texture that'll be assembled with the regular one to
         // make the final texture with fullbright pixels.
         fullbrightloadingpass = 1;
+
         pth->ofb = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
-        if (!pth->ofb) return 1;
+        if (!pth->ofb)
+            return 1;
+
         pth->flags |= (1<<4);
-        if (gloadtile_art(dapic, dapal, 0, dameth, pth->ofb, 1)) return 1;
+
+        if (gloadtile_art(dapic, dapal, 0, dameth, pth->ofb, 1))
+            return 1;
 
         fullbrightloadingpass = 0;
     }
@@ -1021,8 +1036,8 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dam
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
                             int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
 {
-    coltype *pic = NULL, *rpptr;
-    int32_t j, x, y, xsiz=0, ysiz=0, tsizx, tsizy;
+    coltype *pic = NULL;
+    int32_t xsiz=0, ysiz=0, tsizx, tsizy;
 
     char *picfil = NULL, *fn, hasalpha = 255;
     int32_t picfillen, texfmt = GL_RGBA, intexfmt = GL_RGBA, filh;
@@ -1053,17 +1068,21 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     if ((filh = kopen4load(fn, 0)) < 0)
     {
         OSD_Printf("hightile: %s (pic %d) not found\n", fn, dapic);
+
         if (facen > 0)
             hicr->skybox->ignore = 1;
         else
             hicr->ignore = 1;
+
         return -1;
     }
+
     picfillen = kfilelength(filh);
 
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
     gotcache = texcache_readtexheader(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead, 0);
+
     if (gotcache && !texcache_loadtile(&cachead, &doalloc, pth))
     {
         tsizx = cachead.xdim;
@@ -1073,6 +1092,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     else
     {
         int32_t r, g, b;
+        int32_t j, y;
 
         gotcache = 0;	// the compressed version will be saved to disk
 
@@ -1150,7 +1170,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         {
             coltype tcol;
             char *cptr = britable[gammabrightness ? 0 : curbrightness];
-            rpptr = &pic[j];
+            coltype *rpptr = &pic[j];
+
+            int32_t x;
 
             for (x=0; x<tsizx; x++)
             {
@@ -1253,11 +1275,14 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     if (glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & 1))
         if (!gotcache)
         {
+            int32_t j, x;
+
             // save off the compressed version
             if (hicr->flags & 16) cachead.quality = 0;
             else cachead.quality = r_downsize;
             cachead.xdim = tsizx>>cachead.quality;
             cachead.ydim = tsizy>>cachead.quality;
+
             x = 0;
             for (j=0; j<31; j++)
             {
