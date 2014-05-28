@@ -33,7 +33,7 @@ function init(arg)
     end
 
     if (artargend==nil or artargend==0) then
-        printf("Usage: luajit ./foreachmap.lua <tilesXXX.ART> [, ...] -- <filename1.map> ...\n")
+        printf("Usage: luajit ./foreachmap.lua %s <tilesXXX.ART> [, ...] -- <filename1.map> ...\n", arg[1])
         return -1
     end
 
@@ -107,13 +107,17 @@ function success(map, fn)
                     if (pic < 0 or pic > 30720) then  -- MAXTILES
                         badoverpicnum = true
                     else
-                        ysiz = tile.sizy[pic]
-
                         if (bit.band(wall[w].cstat, 16+32)==0) then
                             -- we don't care about non-masked/1-way walls
-                            ysiz = 0
+                            ysiz = nil
+                        else
+                            ysiz = tile.sizy[pic]
                         end
                     end
+                end
+
+                if (pic == 560) then  -- Don't care for MIRROR
+                    ysiz = nil
                 end
 
                 if (ysiz~=nil and ysiz > 0 and bit.band(ysiz, bit.bnot(ysiz-1))~=ysiz) then
@@ -131,6 +135,10 @@ function success(map, fn)
     end
 
     -- report our findings
+
+    if (#np2walls == 0) then
+        return
+    end
 
     -- sort in wall index order
     table.sort(np2walls)
