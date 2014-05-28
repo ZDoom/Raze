@@ -2172,15 +2172,10 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     {
         if (!(m->flags&1) || (((unsigned)owner < MAXSPRITES) && sector[sprite[owner].sectnum].floorpal!=0))
         {
-            pc[0] *= (float)hictinting[globalpal].r / 255.0;
-            pc[1] *= (float)hictinting[globalpal].g / 255.0;
-            pc[2] *= (float)hictinting[globalpal].b / 255.0;
-            if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
-            {
-                pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0f;
-                pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0f;
-                pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0f;
-            }
+            hictinting_apply(pc, globalpal);
+
+            if (have_basepal_tint())
+                hictinting_apply(pc, MAXPALOOKUPS-1);
         }
         else globalnoeffect=1;
     }
@@ -3278,9 +3273,8 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
     bglEnable(GL_TEXTURE_2D);
 
     pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
-    pc[0] *= (float)hictinting[globalpal].r / 255.0;
-    pc[1] *= (float)hictinting[globalpal].g / 255.0;
-    pc[2] *= (float)hictinting[globalpal].b / 255.0;
+    hictinting_apply(pc, globalpal);
+
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66f; else pc[3] = 0.33f; }
     else pc[3] = 1.0f;
     pc[3] *= 1.0f - spriteext[tspr->owner].alpha;

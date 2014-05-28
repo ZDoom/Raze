@@ -1605,26 +1605,14 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                 if (pth && (pth->flags & PTH_HIGHTILE))
                 {
                     if (pth->palnum != globalpal)
-                    {
-                        // apply tinting for replaced textures
-                        pc[0] *= (float)hictinting[globalpal].r / 255.0;
-                        pc[1] *= (float)hictinting[globalpal].g / 255.0;
-                        pc[2] *= (float)hictinting[globalpal].b / 255.0;
-                    }
-                    if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
-                    {
-                        pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
-                        pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
-                        pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
-                    }
+                        hictinting_apply(pc, globalpal);
+
+                    if (have_basepal_tint())
+                        hictinting_apply(pc, MAXPALOOKUPS-1);
                 }
                 // hack: this is for drawing the 8-bit crosshair recolored in polymost
                 else if (hictinting[globalpal].f & HICTINT_USEONART)
-                {
-                    pc[0] *= (float)hictinting[globalpal].r / 255.0;
-                    pc[1] *= (float)hictinting[globalpal].g / 255.0;
-                    pc[2] *= (float)hictinting[globalpal].b / 255.0;
-                }
+                    hictinting_apply(pc, globalpal);
             }
 
             bglColor4f(pc[0],pc[1],pc[2],pc[3]);
