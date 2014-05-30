@@ -10822,9 +10822,18 @@ void G_PostCreateGameState(void)
     A_InitEnemyFlags();
 }
 
+static void G_HandleMemErr(int32_t line, const char *file, const char *func)
+{
+    static char msg[128];
+    snprintf(msg, sizeof(msg), "Out of memory in %s:%d (%s)\n", file, line, func);
+    G_GameExit(msg);
+}
+
 static void G_Startup(void)
 {
     int32_t i;
+
+    set_memerr_handler(&G_HandleMemErr);
 
     inittimer(TICRATE);
 

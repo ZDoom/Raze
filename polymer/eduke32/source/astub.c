@@ -10403,11 +10403,19 @@ static void m32script_interrupt_handler(int signo)
     }
 }
 
+static void M32_HandleMemErr(int32_t line, const char *file, const char *func)
+{
+    initprintf("Out of memory in %s:%d (%s)\n", file, line, func);
+    osdcmd_quit(NULL);
+}
+
 int32_t ExtInit(void)
 {
     int32_t rv = 0;
     int32_t i;
     char cwd[BMAX_PATH];
+
+    set_memerr_handler(&M32_HandleMemErr);
 
     G_AddSearchPaths();
 

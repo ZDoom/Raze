@@ -775,6 +775,15 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
         Bstrcpy(p, ext);
 }
 
+#ifdef DEBUGGINGAIDS
+extern void xalloc_set_location(int32_t line, const char *file, const char *func);
+#endif
+void set_memerr_handler(void (*handlerfunc)(int32_t, const char *, const char *));
+char *xstrdup(const char *s);
+void *xmalloc(bsize_t size);
+void *xcalloc(bsize_t nmemb, bsize_t size);
+void *xrealloc(void *ptr, bsize_t size);
+
 #ifdef EXTERNC
 }
 #endif
@@ -838,6 +847,30 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
 
 #define ARRAY_SIZE(Ar) (sizeof(Ar)/sizeof((Ar)[0]))
 #define ARRAY_SSIZE(Ar) (bssize_t)ARRAY_SIZE(Ar)
+
+////////// PANICKING ALLOCATION MACROS (wrapping the functions) //////////
+#ifdef DEBUGGINGAIDS
+// Detection of __func__ or equivalent functionality, found in SDL_assert.h
+# if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 supports __func__ as a standard. */
+#  define EDUKE32_FUNCTION __func__
+# elif ((__GNUC__ >= 2) || defined(_MSC_VER))
+#  define EDUKE32_FUNCTION __FUNCTION__
+# else
+#  define EDUKE32_FUNCTION "???"
+# endif
+
+# define EDUKE32_PRE_XALLLOC xalloc_set_location(__LINE__, __FILE__, EDUKE32_FUNCTION)
+# define Xstrdup(s) (EDUKE32_PRE_XALLLOC, xstrdup(s))
+# define Xmalloc(size) (EDUKE32_PRE_XALLLOC, xmalloc(size))
+# define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLLOC, xcalloc(nmemb, size))
+# define Xrealloc(ptr, size) (EDUKE32_PRE_XALLLOC, xrealloc(ptr, size))
+#else
+# define Xstrdup xstrdup
+# define Xmalloc xmalloc
+# define Xcalloc xcalloc
+# define Xrealloc xrealloc
+#endif
+//////////
 
 #endif // __compat_h__
 

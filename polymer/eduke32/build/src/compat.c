@@ -45,6 +45,84 @@
 #include "compat.h"
 #include "baselayer.h"
 
+////////// PANICKING ALLOCATION FUNCTIONS //////////
+
+static void (*g_MemErrHandler)(int32_t line, const char *file, const char *func);
+
+#ifdef DEBUGGINGAIDS
+static const char *g_MemErrFunc = "???";
+static const char *g_MemErrFile = "???";
+static int32_t g_MemErrLine;
+
+void xalloc_set_location(int32_t line, const char *file, const char *func)
+{
+    g_MemErrLine = line;
+    g_MemErrFile = file;
+
+    if (func)
+        g_MemErrFunc = func;
+}
+#endif
+
+static void handle_potential_memerr(void *ptr)
+{
+    if (ptr == NULL)
+    {
+        if (g_MemErrHandler)
+        {
+#ifdef DEBUGGINGAIDS
+            g_MemErrHandler(g_MemErrLine, g_MemErrFile, g_MemErrFunc);
+#else
+            g_MemErrHandler(0, "???", "???");
+#endif
+        }
+
+        exit(EXIT_FAILURE);
+    }
+}
+
+void set_memerr_handler(void (*handlerfunc)(int32_t, const char *, const char *))
+{
+    g_MemErrHandler = handlerfunc;
+}
+
+char *xstrdup(const char *s)
+{
+    char *ptr = Bstrdup(s);
+    handle_potential_memerr(ptr);
+    return ptr;
+}
+
+void *xmalloc(bsize_t size)
+{
+    void *ptr = Bmalloc(size);
+    handle_potential_memerr(ptr);
+    return ptr;
+}
+
+void *xcalloc(bsize_t nmemb, bsize_t size)
+{
+    void *ptr = Bcalloc(nmemb, size);
+    handle_potential_memerr(ptr);
+    return ptr;
+}
+
+void *xrealloc(void *ptr, bsize_t size)
+{
+    void *newptr = Brealloc(ptr, size);
+
+    // According to the C Standard,
+    //  - ptr == NULL makes realloc() behave like malloc()
+    //  - size == 0 make it behave like free() if ptr != NULL
+    // Since we want to catch an out-of-mem in the first case, this leaves:
+    if (size != 0)
+        handle_potential_memerr(newptr);
+
+    return newptr;
+}
+
+//////////
+
 #ifndef __compat_h_macrodef__
 
 void Bassert(int expr)
