@@ -4175,14 +4175,6 @@ ACTOR_STATIC void G_MoveActors(void)
             int32_t p;
             DukePlayer_t *ps;
 
-            //        case GREENSLIME+1:
-            //        case GREENSLIME+2:
-            //        case GREENSLIME+3:
-            //        case GREENSLIME+4:
-            //        case GREENSLIME+5:
-            //        case GREENSLIME+6:
-            //        case GREENSLIME+7:
-
             // #ifndef VOLUMEONE
             if (!g_netServer && ud.multimode < 2)
             {
@@ -4886,22 +4878,6 @@ DETONATEB:
                                    g_impactDamage<<2,
                                    g_impactDamage<<2,
                                    g_impactDamage<<2);
-                    /*
-                                                j = headspritestat[STAT_EFFECTOR];
-                                                while(j>=0)
-                                                {
-                                                    if( sprite[j].lotag  == 3 )
-                                                        Actor[j].t_data[4]=1;
-                                                    else if(sprite[j].lotag == SE_12_LIGHT_SWITCH)
-                                                    {
-                                                        Actor[j].t_data[4] = 1;
-                                                        sprite[j].lotag = 3;
-                                                        sprite[j].owner = 0;
-                                                        Actor[j].t_data[0] = s->shade;
-                                                    }
-                                                    j = nextspritestat[j];
-                                                }
-                    */
 
                     for (SPRITES_OF(STAT_STANDABLE, j))
                     {
@@ -5937,7 +5913,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (j < 1024L)
             {
-                if (st==6)
+                if (st==SE_6_SUBWAY)
                     if (sprite[s->owner].hitag&1)
                         t[4]=sc->extra; //Slow it down
                 t[3]++;
@@ -6509,20 +6485,20 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (j >= 0)
             {
-                int16_t sn;
-
                 if ((sc->lotag&0x8000) || actor[i].t_data[4])
                     x = -t[3];
                 else
                     x = t[3];
 
-                if (st == 9) x = -x;
+                if (st == SE_9_DOWN_OPEN_DOOR_LIGHTS)
+                    x = -x;
 
                 for (SPRITES_OF(STAT_EFFECTOR, j))
                 {
                     if (sprite[j].lotag == st && sprite[j].hitag == sh)
                     {
-                        sn = sprite[j].sectnum;
+                        int32_t sn = sprite[j].sectnum;
+
                         m = sprite[j].shade;
 
                         wal = &wall[sector[sn].wallptr];

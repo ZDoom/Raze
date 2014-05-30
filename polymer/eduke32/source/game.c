@@ -7242,14 +7242,6 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         const int32_t i = t->owner;
         const spritetype *const s = &sprite[i];
 
-/*
-        if (A_CheckSpriteFlags(i, SFLAG_NULL))
-        {
-            t->xrepeat = t->yrepeat = 0;
-            continue;
-        }
-*/
-
         if (t->picnum < GREENSLIME || t->picnum > GREENSLIME+7)
             switch (DYNAMICTILEMAP(t->picnum))
             {
@@ -7302,20 +7294,13 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             case NEON5__STATIC:
             case NEON6__STATIC:
                 continue;
-                //case GREENSLIME:
-                //case GREENSLIME+1:
-                //case GREENSLIME+2:
-                //case GREENSLIME+3:
-                //case GREENSLIME+4:
-                //case GREENSLIME+5:
-                //case GREENSLIME+6:
-                //case GREENSLIME+7:
-                //    break;
             default:
-                if (((t->cstat&16)) || (A_CheckEnemySprite(t) && t->extra > 0) || t->statnum == STAT_PLAYER)
+                // NOTE: wall-aligned sprites will never take on ceiling/floor shade...
+                if ((t->cstat&16) || (A_CheckEnemySprite(t) && t->extra > 0) || t->statnum == STAT_PLAYER)
                     continue;
             }
 
+        // ... since this is not reached:
         if (A_CheckSpriteFlags(t->owner, SFLAG_NOSHADE) || (t->cstat&CSTAT_SPRITE_NOSHADE))
             l = sprite[t->owner].shade;
         else
@@ -7324,9 +7309,11 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 l = sector[t->sectnum].ceilingshade;
             else
                 l = sector[t->sectnum].floorshade;
-            if (l < -127) l = -127;
-//            if (l > 128) l =  127;
+
+            if (l < -127)
+                l = -127;
         }
+
         t->shade = l;
     }
 
