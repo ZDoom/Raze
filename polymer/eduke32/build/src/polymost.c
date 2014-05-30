@@ -1433,7 +1433,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         pthtyp *pth, *detailpth, *glowpth;
         int32_t texunits = GL_TEXTURE0_ARB;
 
-        if (skyclamphack) method |= 4;
+        if (skyclamphack) method |= DAMETH_CLAMPED;
         pth = our_texcache_fetch(method&(~3));
 
         if (!pth)
@@ -4843,7 +4843,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
     {
         int32_t ousehightile = usehightile;
         usehightile = usehitile && usehightile;
-        pth = texcache_fetch(wallnum,0,0,4);
+        pth = texcache_fetch(wallnum, 0, 0, DAMETH_CLAMPED);
         if (usehightile)
             loadedhitile[wallnum>>3] |= (1<<(wallnum&7));
         usehightile = ousehightile;
@@ -5292,7 +5292,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     hicprecaching = 1;
 
 
-    texcache_fetch(dapicnum, dapalnum, 0, (datype & 1) << 2);
+    texcache_fetch(dapicnum, dapalnum, 0, (datype & 1)*DAMETH_CLAMPED);
     hicprecaching = 0;
 
     if (datype == 0 || !usemodels) return;

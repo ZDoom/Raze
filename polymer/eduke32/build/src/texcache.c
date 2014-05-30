@@ -30,16 +30,14 @@ static const char *texcache_errorstr[TEXCACHEERRORS] = {
 // <dashade>: ignored if not in Polymost+r_usetileshades
 pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
 {
-    int32_t i, j;
-    hicreplctyp *si;
-    pthtyp *pth, *pth2;
+    int32_t i;
+    pthtyp *pth;
 
-    j = (dapicnum&(GLTEXCACHEADSIZ-1));
-    
+    const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
+    hicreplctyp *const si = usehightile ? hicfindsubst(dapicnum,dapalnum,drawingskybox) : NULL;
+
     if (getrendermode() != REND_POLYMOST || !r_usetileshades)
         dashade = 0;
-
-    si = usehightile ? hicfindsubst(dapicnum,dapalnum,drawingskybox) : NULL;
 
     if (!si)
     {
@@ -86,6 +84,9 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     // possibly fetch an already loaded multitexture :_)
     if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS))
         for (i = (GLTEXCACHEADSIZ - 1); i >= 0; i--)
+        {
+            const pthtyp *pth2;
+
             for (pth2=texcache.list[i]; pth2; pth2=pth2->next)
             {
                 if (pth2->hicr && pth2->hicr->filename && Bstrcasecmp(pth2->hicr->filename, si->filename) == 0)
@@ -96,12 +97,14 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
                     if (pth2->flags & PTH_HASALPHA)
                         pth->flags |= PTH_HASALPHA;
                     pth->hicr = si;
-                    pth->next = texcache.list[j];
 
+                    pth->next = texcache.list[j];
                     texcache.list[j] = pth;
+
                     return(pth);
                 }
             }
+        }
 
     if (gloadtile_hi(dapicnum,dapalnum,drawingskybox,si,dameth,pth,1, (si->palnum>0) ? 0 : hictinting[dapalnum].f))
     {

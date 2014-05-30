@@ -1344,7 +1344,7 @@ void                polymer_inb4rotatesprite(int16_t tilenum, char pal, int8_t s
 {
     _prmaterial     rotatespritematerial;
 
-    polymer_getbuildmaterial(&rotatespritematerial, tilenum, pal, shade, 0, 4);
+    polymer_getbuildmaterial(&rotatespritematerial, tilenum, pal, shade, 0, DAMETH_CLAMPED);
 
     rotatespritematerialbits = polymer_bindmaterial(rotatespritematerial, NULL, 0);
 }
@@ -3621,7 +3621,7 @@ void                polymer_updatesprite(int32_t snum)
     }
 
     polymer_getbuildmaterial(&s->plane.material, curpicnum, tspr->pal, tspr->shade,
-                             sector[tspr->sectnum].visibility, 4);
+                             sector[tspr->sectnum].visibility, DAMETH_CLAMPED);
 
     if (tspr->cstat & 2)
     {
@@ -4001,7 +4001,7 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
     while (i < 6)
     {
         drawingskybox = i + 1;
-        pth = texcache_fetch(tilenum, palnum, 0, 4);
+        pth = texcache_fetch(tilenum, palnum, 0, DAMETH_CLAMPED);
 
         color[0] = color[1] = color[2] = getshadefactor(shade);
 
