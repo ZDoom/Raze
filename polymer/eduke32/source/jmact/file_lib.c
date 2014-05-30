@@ -70,8 +70,8 @@ int32_t SafeOpen(const char *filename, int32_t mode, int32_t sharemode)
     if (h < MaxFiles)
     {
         if (FileNames[h]) Bfree(FileNames[h]);
-        FileNames[h] = (char*)Bmalloc(strlen(filename)+1);
-        if (FileNames[h]) strcpy(FileNames[h], filename);
+        FileNames[h] = (char*)Xmalloc(strlen(filename)+1);
+        strcpy(FileNames[h], filename);
     }
 
     return h;

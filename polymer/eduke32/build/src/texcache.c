@@ -11,7 +11,6 @@
 #include "xxhash.h"
 
 #define CLEAR_GL_ERRORS() while(bglGetError() != GL_NO_ERROR) { }
-#define REALLOC_OR_FAIL(ptr, size, type) { ptr = (type *)Brealloc(ptr, size); if (!ptr) goto failure; }
 #define TEXCACHE_FREEBUFS() { Bfree(pic), Bfree(packbuf), Bfree(midbuf); }
 
 globaltexcache texcache;
@@ -78,8 +77,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     }
 
 
-    pth = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
-    if (!pth) return NULL;
+    pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
 
     // possibly fetch an already loaded multitexture :_)
     if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS))
@@ -131,22 +129,15 @@ tryart:
             if (pth->flags & PTH_INVALIDATED)
             {
                 pth->flags &= ~PTH_INVALIDATED;
-
-                if (gloadtile_art(dapicnum,dapalnum,dashade,dameth,pth,0))
-                    return NULL; //reload tile (for animations)
+                gloadtile_art(dapicnum, dapalnum, dashade, dameth, pth, 0);
             }
 
             return(pth);
         }
 
-    pth = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
-    if (!pth) return NULL;
+    pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
 
-    if (gloadtile_art(dapicnum,dapalnum,dashade,dameth,pth,1))
-    {
-        Bfree(pth);
-        return NULL;
-    }
+    gloadtile_art(dapicnum,dapalnum,dashade,dameth,pth,1);
 
     pth->next = texcache.list[j];
     texcache.list[j] = pth;
@@ -240,7 +231,7 @@ void texcache_init(void)
     texcache_clearmemcache();
     texcache_freeptrs();
 
-    texcache.currentindex = texcache.firstindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
+    texcache.currentindex = texcache.firstindex = (texcacheindex *)Xcalloc(1, sizeof(texcacheindex));
     texcache.numentries = 0;
 
     //    Bmemset(&firstcacheindex, 0, sizeof(texcacheindex));
@@ -373,7 +364,7 @@ int32_t texcache_loadoffsets(void)
             Bstrncpyz(texcache.currentindex->name, fname, BMAX_PATH);
             texcache.currentindex->offset = foffset;
             texcache.currentindex->len = fsize;
-            texcache.currentindex->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
+            texcache.currentindex->next = (texcacheindex *)Xcalloc(1, sizeof(texcacheindex));
             hash_add(&texcache.hashes, fname, texcache.numentries, 1);
             texcache.ptrs[texcache.numentries++] = texcache.currentindex;
             texcache.currentindex = texcache.currentindex->next;
@@ -569,10 +560,10 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
 
         if (alloclen < miplen)
         {
-            REALLOC_OR_FAIL(pic, miplen, char);
+            pic = (char *)Xrealloc(pic, miplen);
             alloclen = miplen;
-            REALLOC_OR_FAIL(packbuf, alloclen+400, char);
-            REALLOC_OR_FAIL(midbuf, miplen, void);
+            packbuf = (char *)Xrealloc(packbuf, alloclen+400);
+            midbuf = (void *)Xrealloc(midbuf, miplen);
         }
 
         bglGetCompressedTexImageARB(GL_TEXTURE_2D, level, pic); WRITEX_FAIL_ON_ERROR();
@@ -598,7 +589,7 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
             Bstrcpy(t->name, cachefn);
             t->offset = offset;
             t->len = Blseek(texcache.filehandle, 0, BSEEK_CUR) - t->offset;
-            t->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
+            t->next = (texcacheindex *)Xcalloc(1, sizeof(texcacheindex));
 
             hash_add(&texcache.hashes, cachefn, texcache.numentries, 0);
             texcache.ptrs[texcache.numentries++] = t;
@@ -670,10 +661,10 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
 
         if (alloclen < pict.size)
         {
-            REALLOC_OR_FAIL(pic, pict.size, char);
+            pic = (char *)Xrealloc(pic, pict.size);
             alloclen = pict.size;
-            REALLOC_OR_FAIL(packbuf, alloclen+16, char);
-            REALLOC_OR_FAIL(midbuf, pict.size, void);
+            packbuf = (char *)Xrealloc(packbuf, alloclen+16);
+            midbuf = (void *)Xrealloc(midbuf, pict.size);
         }
 
         if (dedxtfilter(texcache.filehandle, &pict, pic, midbuf, packbuf,
@@ -707,10 +698,6 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
 
     TEXCACHE_FREEBUFS();
     return 0;
-
-failure:
-    TEXCACHE_FREEBUFS();
-    return TEXCACHERR_OUTOFMEMORY;
 }
 
 int32_t texcache_loadskin(const texcacheheader *head, int32_t *doalloc, GLuint *glpic, int32_t *xsiz, int32_t *ysiz)

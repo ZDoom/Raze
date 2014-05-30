@@ -1627,11 +1627,11 @@ int32_t registerosdcommands(void)
 //        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
 
         Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
-        t = Bstrdup(tempbuf);
+        t = Xstrdup(tempbuf);
         for (j=Bstrlen(t); j>=0; j--)
             t[j] = Btolower(t[j]);
         Bstrcat(tempbuf,": game button");
-        OSD_RegisterFunction(t,Bstrdup(tempbuf),osdcmd_button);
+        OSD_RegisterFunction(t, Xstrdup(tempbuf), osdcmd_button);
     }
 
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);

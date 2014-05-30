@@ -266,8 +266,7 @@ void Net_Connect(const char *srvaddr)
     char *addrstr = NULL;
     int32_t i;
 
-    char *oursrvaddr = Bstrdup(srvaddr);
-    if (!oursrvaddr) G_GameExit("OUT OF MEMORY");
+    char *oursrvaddr = Xstrdup(srvaddr);
 
     Net_Disconnect();
 
@@ -827,11 +826,11 @@ void Net_ReceiveNewPlayer(uint8_t *pbuf, int32_t packbufleng)
 
         if (!g_player[pbuf[4]].ps)
         {
-            g_player[pbuf[4]].ps = (DukePlayer_t *) Bcalloc(1,sizeof(DukePlayer_t));
+            g_player[pbuf[4]].ps = (DukePlayer_t *) Xcalloc(1,sizeof(DukePlayer_t));
         }
         if (!g_player[pbuf[4]].sync)
         {
-            g_player[pbuf[4]].sync = (input_t *) Bcalloc(1,sizeof(input_t));
+            g_player[pbuf[4]].sync = (input_t *) Xcalloc(1,sizeof(input_t));
         }
     }
 
@@ -1019,7 +1018,7 @@ netmapstate_t *Net_GetRevision(uint8_t revision, uint8_t cancreate)
 
     if (cancreate && g_mapStateHistory[revision] == NULL)
     {
-        g_mapStateHistory[revision] = (netmapstate_t *) Bcalloc(1, sizeof(netmapstate_t));
+        g_mapStateHistory[revision] = (netmapstate_t *) Xcalloc(1, sizeof(netmapstate_t));
         Bmemset(g_mapStateHistory[revision], 0, sizeof(netmapstate_t));
     }
 

@@ -1024,10 +1024,7 @@ static inline void prelevel(char g)
 {
     int32_t i, nexti, j, startwall, endwall;
     int32_t switchpicnum;
-    uint8_t *tagbitmap = (uint8_t *)Bcalloc(65536>>3, 1);
-
-    if (tagbitmap==NULL)
-        G_GameExit("OUT OF MEMORY in prelevel()");
+    uint8_t *tagbitmap = (uint8_t *)Xcalloc(65536>>3, 1);
 
     Bmemset(show2dsector, 0, sizeof(show2dsector));
 #ifdef LEGACY_ROR
@@ -1734,7 +1731,7 @@ static void realloc_and_copy_musicfn(int32_t level_number, const char *levnamebu
     char **musicfn = altp ? &MapInfo[level_number].alt_musicfn : &MapInfo[level_number].musicfn;
     int32_t dastrlen = Bstrlen(levnamebuf);
 
-    *musicfn = (char *)Brealloc(*musicfn, dastrlen+1);
+    *musicfn = (char *)Xrealloc(*musicfn, dastrlen+1);
     Bstrcpy(*musicfn, levnamebuf);
 }
 
@@ -1846,9 +1843,9 @@ int32_t G_EnterLevel(int32_t g)
         if (G_HaveUserMap())
         {
             if (MapInfo[mii].filename == NULL)
-                MapInfo[mii].filename = (char *)Bcalloc(BMAX_PATH, sizeof(uint8_t));
+                MapInfo[mii].filename = (char *)Xcalloc(BMAX_PATH, sizeof(uint8_t));
             if (MapInfo[mii].name == NULL)
-                MapInfo[mii].name = Bstrdup("User Map");
+                MapInfo[mii].name = Xstrdup("User Map");
         }
         else
         {

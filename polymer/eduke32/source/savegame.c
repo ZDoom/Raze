@@ -1121,10 +1121,7 @@ static void sv_makevarspec()
         numsavedarrays += !(aGameArrays[i].dwFlags & GAMEARRAY_READONLY);  // SYSTEM_GAMEARRAY
 
     Bfree(svgm_vars);
-    svgm_vars = (dataspec_t *)Bmalloc((numsavedvars+numsavedarrays+2)*sizeof(dataspec_t));
-
-    if (svgm_vars == NULL)
-        G_GameExit("OUT OF MEMORY in sv_makevarspec()\n");
+    svgm_vars = (dataspec_t *)Xmalloc((numsavedvars+numsavedarrays+2)*sizeof(dataspec_t));
 
     svgm_vars[0].flags = DS_STRING;
     svgm_vars[0].ptr = magic;
@@ -1176,21 +1173,15 @@ void sv_freemem()
         Bfree(svdiff), svdiff=NULL;
 }
 
-static int32_t doallocsnap(int32_t allocinit)
+static void SV_AllocSnap(int32_t allocinit)
 {
     sv_freemem();
 
-    svsnapshot = (uint8_t *)Bmalloc(svsnapsiz);
+    svsnapshot = (uint8_t *)Xmalloc(svsnapsiz);
     if (allocinit)
-        svinitsnap = (uint8_t *)Bmalloc(svsnapsiz);
+        svinitsnap = (uint8_t *)Xmalloc(svsnapsiz);
     svdiffsiz = svsnapsiz;  // theoretically it's less than could be needed in the worst case, but practically it's overkill
-    svdiff = (uint8_t *)Bmalloc(svdiffsiz);
-    if (svsnapshot==NULL || (allocinit && svinitsnap==NULL) || svdiff==NULL)
-    {
-        sv_freemem();
-        return 1;
-    }
-    return 0;
+    svdiff = (uint8_t *)Xmalloc(svdiffsiz);
 }
 
 
@@ -1300,11 +1291,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
         uint8_t *p;
 
         // demo
-        if (doallocsnap(0))
-        {
-            OSD_Printf("sv_saveandmakesnapshot: failed allocating memory.\n");
-            return 1;
-        }
+        SV_AllocSnap(0);
 
         p = dosaveplayer2(fil, svsnapshot);
         if (p != svsnapshot+svsnapsiz)
@@ -1419,11 +1406,7 @@ int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h)
 
         svsnapsiz = h->snapsiz;
 
-        if (doallocsnap(1))
-        {
-            OSD_Printf("sv_loadsnapshot: failed allocating memory.\n");
-            return 4;
-        }
+        SV_AllocSnap(1);
 
         p = svsnapshot;
         i = doloadplayer2(fil, &p);
@@ -1588,7 +1571,7 @@ static void sv_prescriptload_once()
 {
     if (script)
         Bfree(script);
-    script = (intptr_t *)Bmalloc(g_scriptSize * sizeof(script[0]));
+    script = (intptr_t *)Xmalloc(g_scriptSize * sizeof(script[0]));
 }
 static void sv_postscript_once()
 {
@@ -1636,7 +1619,7 @@ static void sv_postanimateptr()
 static void sv_prequote()
 {
     if (!savegame_quotes)
-        savegame_quotes = (char (*)[MAXQUOTELEN])Bcalloc(MAXQUOTES, MAXQUOTELEN);
+        savegame_quotes = (char (*)[MAXQUOTELEN])Xcalloc(MAXQUOTES, MAXQUOTELEN);
 }
 static void sv_quotesave()
 {
@@ -1664,7 +1647,7 @@ static void sv_quoteload()
 static void sv_prequoteredef()
 {
     // "+1" needed for dfwrite which doesn't handle the src==NULL && cnt==0 case
-    savegame_quoteredefs = (char (*)[MAXQUOTELEN])Bcalloc(g_numQuoteRedefinitions+1, MAXQUOTELEN);
+    savegame_quoteredefs = (char (*)[MAXQUOTELEN])Xcalloc(g_numQuoteRedefinitions+1, MAXQUOTELEN);
 }
 static void sv_quoteredefsave()
 {
@@ -1679,7 +1662,7 @@ static void sv_quoteredefload()
     for (i=0; i<g_numQuoteRedefinitions; i++)
     {
         if (!ScriptQuoteRedefinitions[i])
-            ScriptQuoteRedefinitions[i] = (char *)Bcalloc(1,MAXQUOTELEN);
+            ScriptQuoteRedefinitions[i] = (char *)Xcalloc(1,MAXQUOTELEN);
         Bmemcpy(ScriptQuoteRedefinitions[i], savegame_quoteredefs[i], MAXQUOTELEN);
     }
 }
@@ -1831,9 +1814,7 @@ static int32_t El_ReadSaveCode(int32_t fil)
 
     if (slen > 0)
     {
-        char *svcode = (char *)Bmalloc(slen+1);
-        if (svcode == NULL)
-            G_GameExit("OUT OF MEMORY in doloadplayer2().");
+        char *svcode = (char *)Xmalloc(slen+1);
 
         if (kdfread(svcode, 1, slen, fil) != slen)  // cnt and sz swapped
         {

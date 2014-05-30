@@ -203,7 +203,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     if (MapInfo[sel].alt_musicfn != NULL)
         alt = fn = MapInfo[sel].alt_musicfn;
 
-    testfn = (char *) Bmalloc(strlen(fn) + 6);
+    testfn = (char *)Xmalloc(strlen(fn) + 6);
     strcpy(testfn, fn);
     extension = strrchr(testfn, '.');
 
@@ -259,7 +259,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     }
 
     Bfree(MusicPtr);  // in case the following allocation was never freed
-    MusicPtr = (char *)Bmalloc(MusicLen);
+    MusicPtr = (char *)Xmalloc(MusicLen);
     g_musicSize = kread(fp, (char *)MusicPtr, MusicLen);
 
     if (g_musicSize != MusicLen)

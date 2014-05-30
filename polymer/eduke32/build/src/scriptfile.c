@@ -213,7 +213,7 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
     }
 
     sf->linenum = numcr;
-    sf->lineoffs = (int32_t *)Bmalloc(sf->linenum*sizeof(int32_t));
+    sf->lineoffs = (int32_t *)Xmalloc(sf->linenum*sizeof(int32_t));
 
     //Preprocess file for comments (// and /*...*/, and convert all whitespace to single spaces)
     nflen = 0; ws = 0; cs = 0; numcr = 0; inquote = 0;
@@ -272,20 +272,9 @@ scriptfile *scriptfile_fromfile(const char *fn)
     if (fp<0) return NULL;
 
     flen = kfilelength(fp);
-    tx = (char *) Bmalloc(flen + 2);
-    if (!tx)
-    {
-        kclose(fp);
-        return NULL;
-    }
+    tx = (char *)Xmalloc(flen + 2);
 
-    sf = (scriptfile *) Bmalloc(sizeof(scriptfile));
-    if (!sf)
-    {
-        kclose(fp);
-        Bfree(tx);
-        return NULL;
-    }
+    sf = (scriptfile *)Xmalloc(sizeof(scriptfile));
 
     kread(fp, tx, flen);
     tx[flen] = tx[flen+1] = 0;
@@ -293,7 +282,7 @@ scriptfile *scriptfile_fromfile(const char *fn)
     kclose(fp);
 
     scriptfile_preparse(sf,tx,flen);
-    sf->filename = Bstrdup(fn);
+    sf->filename = Xstrdup(fn);
 
     return sf;
 }
@@ -308,15 +297,9 @@ scriptfile *scriptfile_fromstring(const char *string)
 
     flen = strlen(string);
 
-    tx = (char *) Bmalloc(flen + 2);
-    if (!tx) return NULL;
+    tx = (char *)Xmalloc(flen + 2);
 
-    sf = (scriptfile *) Bmalloc(sizeof(scriptfile));
-    if (!sf)
-    {
-        Bfree(tx);
-        return NULL;
-    }
+    sf = (scriptfile *)Xmalloc(sizeof(scriptfile));
 
     Bmemcpy(tx, string, flen);
     tx[flen] = tx[flen+1] = 0;
@@ -357,7 +340,7 @@ static char *getsymbtabspace(int32_t reqd)
     if (symbtablength + reqd > symbtaballoclength)
     {
         for (i=max(symbtaballoclength,SYMBTABSTARTSIZE); symbtablength+reqd>i; i<<=1);
-        np = (char *)Brealloc(symbtab, i); if (!np) return NULL;
+        np = (char *)Xrealloc(symbtab, i);
         symbtab = np; symbtaballoclength = i;
     }
 

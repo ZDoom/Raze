@@ -140,12 +140,12 @@ static void LoadList(const char * filename)
                     break;
                 }
 
-                fg = (struct grpfile *)Bcalloc(1, sizeof(struct grpfile));
+                fg = (struct grpfile *)Xcalloc(1, sizeof(struct grpfile));
                 fg->next = listgrps;
                 listgrps = fg;
 
                 if (gname)
-                    fg->name = Bstrdup(gname);
+                    fg->name = Xstrdup(gname);
 
                 fg->size = gsize;
                 fg->crcval = gcrcval;
@@ -179,9 +179,9 @@ static void LoadGameList(void)
 
     for (i = 0; i<NUMGRPFILES; i++)
     {
-        fg = (struct grpfile *)Bcalloc(1, sizeof(struct grpfile));
+        fg = (struct grpfile *)Xcalloc(1, sizeof(struct grpfile));
 
-        fg->name = Bstrdup(internalgrpfiles[i].name);
+        fg->name = Xstrdup(internalgrpfiles[i].name);
         fg->crcval = internalgrpfiles[i].crcval;
         fg->size = internalgrpfiles[i].size;
         fg->game = internalgrpfiles[i].game;
@@ -256,7 +256,7 @@ static int32_t LoadGroupsCache(void)
         if (scriptfile_getnumber(script, &fmtime)) break;   // modification time
         if (scriptfile_getnumber(script, &fcrcval)) break;  // crc checksum
 
-        fg = (struct grpcache *)Bcalloc(1, sizeof(struct grpcache));
+        fg = (struct grpcache *)Xcalloc(1, sizeof(struct grpcache));
         fg->next = grpcache;
         grpcache = fg;
 
@@ -337,13 +337,7 @@ int32_t ScanGroups(void)
     char *fn;
     struct Bstat st;
 #define BUFFER_SIZE (1024 * 1024 * 8)
-    uint8_t *buf = (uint8_t *)Bmalloc(BUFFER_SIZE);
-
-    if (!buf)
-    {
-        initprintf("Error allocating %d byte buffer to scan GRPs!\n", BUFFER_SIZE);
-        return 0;
-    }
+    uint8_t *buf = (uint8_t *)Xmalloc(BUFFER_SIZE);
 
     initprintf("Searching for game data...\n");
 
@@ -370,14 +364,14 @@ int32_t ScanGroups(void)
             Bfree(fn);
             if (fg->size == st.st_size && fg->mtime == st.st_mtime)
             {
-                grp = (struct grpfile *)Bcalloc(1, sizeof(struct grpfile));
-                grp->name = Bstrdup(sidx->name);
+                grp = (struct grpfile *)Xcalloc(1, sizeof(struct grpfile));
+                grp->name = Xstrdup(sidx->name);
                 grp->crcval = fg->crcval;
                 grp->size = fg->size;
                 grp->next = foundgrps;
                 foundgrps = grp;
 
-                fgg = (struct grpcache *)Bcalloc(1, sizeof(struct grpcache));
+                fgg = (struct grpcache *)Xcalloc(1, sizeof(struct grpcache));
                 strcpy(fgg->name, fg->name);
                 fgg->size = fg->size;
                 fgg->mtime = fg->mtime;
@@ -408,14 +402,14 @@ int32_t ScanGroups(void)
             close(fh);
             initprintf(" Done\n");
 
-            grp = (struct grpfile *)Bcalloc(1, sizeof(struct grpfile));
-            grp->name = Bstrdup(sidx->name);
+            grp = (struct grpfile *)Xcalloc(1, sizeof(struct grpfile));
+            grp->name = Xstrdup(sidx->name);
             grp->crcval = crcval;
             grp->size = st.st_size;
             grp->next = foundgrps;
             foundgrps = grp;
 
-            fgg = (struct grpcache *)Bcalloc(1, sizeof(struct grpcache));
+            fgg = (struct grpcache *)Xcalloc(1, sizeof(struct grpcache));
             Bstrncpy(fgg->name, sidx->name, BMAX_PATH);
             fgg->size = st.st_size;
             fgg->mtime = st.st_mtime;

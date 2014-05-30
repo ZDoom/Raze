@@ -925,15 +925,8 @@ void yax_preparedrawrooms(void)
     if (getrendermode() == REND_CLASSIC && ymostallocsize < xdimen*numyaxbunches)
     {
         ymostallocsize = xdimen*numyaxbunches;
-        yumost = (int16_t *)Brealloc(yumost, ymostallocsize*sizeof(int16_t));
-        ydmost = (int16_t *)Brealloc(ydmost, ymostallocsize*sizeof(int16_t));
-
-        if (!yumost || !ydmost)
-        {
-            initprintf("OUT OF MEMORY in yax_preparedrawrooms!\n");
-            uninitengine();
-            exit(10);
-        }
+        yumost = (int16_t *)Xrealloc(yumost, ymostallocsize*sizeof(int16_t));
+        ydmost = (int16_t *)Xrealloc(ydmost, ymostallocsize*sizeof(int16_t));
     }
 }
 
@@ -1391,20 +1384,14 @@ int32_t clipmapinfo_load(void)
 
     clipmapinfo_init();
 
-    loadsector = (sectortype *)Bmalloc(MAXSECTORS * sizeof(sectortype));
-    loadwall = (walltype *)Bmalloc(MAXWALLS * sizeof(walltype));
-    loadsprite = (spritetype *)Bmalloc(MAXSPRITES * sizeof(spritetype));
-
-    if (!loadsector || !loadwall || !loadsprite)
-    {
-        clipmapinfo_init();
-        return 1;
-    }
+    loadsector = (sectortype *)Xmalloc(MAXSECTORS * sizeof(sectortype));
+    loadwall = (walltype *)Xmalloc(MAXWALLS * sizeof(walltype));
+    loadsprite = (spritetype *)Xmalloc(MAXSPRITES * sizeof(spritetype));
 
     if (g_clipMapFilesNum)
-        fisec = (int32_t *) Bcalloc(g_clipMapFilesNum, sizeof (int32_t));
+        fisec = (int32_t *)Xcalloc(g_clipMapFilesNum, sizeof (int32_t));
     if (g_clipMapFilesNum)
-        fispr = (int32_t *) Bcalloc(g_clipMapFilesNum, sizeof (int32_t));
+        fispr = (int32_t *)Xcalloc(g_clipMapFilesNum, sizeof (int32_t));
 
     quickloadboard = 1;
     for (fi = 0; fi < g_clipMapFilesNum; ++fi)
@@ -1467,8 +1454,8 @@ int32_t clipmapinfo_load(void)
     }
 
     // shrink
-    loadsector = (sectortype *)Brealloc(loadsector, ournumsectors*sizeof(sectortype));
-    loadwall = (walltype *)Brealloc(loadwall, ournumwalls*sizeof(walltype));
+    loadsector = (sectortype *)Xrealloc(loadsector, ournumsectors*sizeof(sectortype));
+    loadwall = (walltype *)Xrealloc(loadwall, ournumwalls*sizeof(walltype));
 
     Bmemcpy(sector, loadsector, ournumsectors*sizeof(sectortype));
     Bmemcpy(wall, loadwall, ournumwalls*sizeof(walltype));
@@ -1478,16 +1465,8 @@ int32_t clipmapinfo_load(void)
 
     //  vvvv    don't use headsprite[sect,stat]!   vvvv
 
-    sectoidx = (int16_t *)Bmalloc(numsectors*sizeof(sectoidx[0]));
-    if (!sectoidx || !sector || !wall)
-    {
-        clipmapinfo_init();
+    sectoidx = (int16_t *)Xmalloc(numsectors*sizeof(sectoidx[0]));
 
-        Bfree(fisec);
-        Bfree(fispr);
-
-        return 1;
-    }
     for (i=0; i<numsectors; i++)
         sectoidx[i] = CM_NONE;
 
@@ -1520,17 +1499,9 @@ int32_t clipmapinfo_load(void)
         int16_t ns, outersect;
         int32_t pn,scnt, x,y,z, maxdist;
 
-        sectq = (int16_t *)Bmalloc(numsectors*sizeof(sectq[0]));
-        tempictoidx = (int16_t *)Bmalloc(MAXTILES*sizeof(tempictoidx[0]));
-        if (!sectq || !tempictoidx)
-        {
-            clipmapinfo_init();
+        sectq = (int16_t *)Xmalloc(numsectors*sizeof(sectq[0]));
+        tempictoidx = (int16_t *)Xmalloc(MAXTILES*sizeof(tempictoidx[0]));
 
-            Bfree(fisec);
-            Bfree(fispr);
-
-            return 1;
-        }
         for (i=0; i<MAXTILES; i++)
             tempictoidx[i]=-1;
 
@@ -1760,16 +1731,7 @@ int32_t clipmapinfo_load(void)
     Bmemcpy(loadwall, wall, ournumwalls*sizeof(walltype));
 
     // loadwallinv will contain all walls with inverted orientation for x/y-flip handling
-    loadwallinv = (walltype *)Bmalloc(ournumwalls*sizeof(walltype));
-    if (!loadwallinv)
-    {
-        clipmapinfo_init();
-
-        Bfree(fisec);
-        Bfree(fispr);
-
-        return 1;
-    }
+    loadwallinv = (walltype *)Xmalloc(ournumwalls*sizeof(walltype));
 
     {
         int32_t j, loopstart, loopend, numloopwalls;
@@ -8020,12 +7982,12 @@ static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
 static void alloc_palookup(int32_t pal)
 {
 #if defined ENGINE_USING_A_C || (defined CLASSIC_NONPOW2_YSIZE_WALLS && defined CLASSIC_NONPOW2_YSIZE_SPRITES)
-    palookup[pal] = (char *)Bmalloc(numshades*256);
+    palookup[pal] = (char *)Xmalloc(numshades*256);
 #else
     // The asm functions vlineasm1, mvlineasm1 (maybe others?) access the next
     // palookup[...] shade entry for tilesizy==512 tiles.
     // See DEBUG_TILESIZY_512 and the comment in a.nasm: vlineasm1.
-    palookup[pal] = (char *)Bcalloc(numshades+1, 256);
+    palookup[pal] = (char *)Xcalloc(numshades+1, 256);
 #endif
 }
 
@@ -8056,9 +8018,7 @@ static int32_t loadpalette(void)
 
     alloc_palookup(0);
 
-    transluc = (char *)Bcalloc(256, 256);
-    if (palookup[0] == NULL || transluc == NULL)
-        return loadpalette_err("Out of memory in loadpalette()!");
+    transluc = (char *)Xcalloc(256, 256);
 
     globalpalwritten = palookup[0]; globalpal = 0;
     setpalookupaddress(globalpalwritten);
@@ -8114,10 +8074,7 @@ static int32_t loadpalette(void)
         {
             // Read in additional blending tables.
             uint8_t addblendtabs, blendnum;
-            char *tab = (char *)Bmalloc(256*256);
-
-            if (tab == NULL)
-                return loadpalette_err("failed allocating temporary blending table");
+            char *tab = (char *)Xmalloc(256*256);
 
             if (kread(fil, &addblendtabs, 1) != 1)
                 return loadpalette_err("failed reading additional blending table count");
@@ -10050,24 +10007,12 @@ static void E_RecalcPicSiz(void)
 template <typename origar_t, typename bakar_t>
 static inline void ALLOC_MAPART_ARRAY(origar_t &origar, bakar_t &bakar)
 {
-    bakar = (bakar_t) Bmalloc(MAXUSERTILES*sizeof(origar[0]));
-    if (bakar == NULL)
-    {
-        initprintf("OUT OF MEMORY allocating per-map ART backup arrays!\n");
-        uninitengine();
-        exit(12);
-    }
+    bakar = (bakar_t)Xmalloc(MAXUSERTILES*sizeof(origar[0]));
     Bmemcpy(bakar, origar, MAXUSERTILES*sizeof(origar[0]));
 }
 #else
 #define ALLOC_MAPART_ARRAY(origar, bakar) do { \
-    bakar = Bmalloc(MAXUSERTILES*sizeof(origar[0])); \
-    if (bakar == NULL) \
-    { \
-        initprintf("OUT OF MEMORY allocating per-map ART backup arrays!\n"); \
-        uninitengine(); \
-        exit(12); \
-    } \
+    bakar = Xmalloc(MAXUSERTILES*sizeof(origar[0])); \
     Bmemcpy(bakar, origar, MAXUSERTILES*sizeof(origar[0])); \
 } while (0)
 #endif
@@ -11138,11 +11083,8 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 
     while (1)  // if, really
     {
-        sectortypev7 *const tsect = (sectortypev7 *)Bmalloc(sizeof(sectortypev7) * numsectors);
+        sectortypev7 *const tsect = (sectortypev7 *)Xmalloc(sizeof(sectortypev7) * numsectors);
         walltypev7 *twall;
-
-        if (tsect == NULL)
-            break;
 
 #ifdef NEW_MAP_FORMAT
         for (i=0; i<numsectors; i++)
@@ -11187,10 +11129,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
         ts = B_LITTLE16(numwalls);
         Bwrite(fil,&ts,2);
 
-        twall = (walltypev7 *)Bmalloc(sizeof(walltypev7) * numwalls);
-
-        if (twall == NULL)
-            break;
+        twall = (walltypev7 *)Xmalloc(sizeof(walltypev7) * numwalls);
 
 #ifdef NEW_MAP_FORMAT
         for (i=0; i<numwalls; i++)
@@ -11234,11 +11173,8 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 
         if (numsprites > 0)
         {
-            spritetype *const tspri = (spritetype *)Bmalloc(sizeof(spritetype) * numsprites);
+            spritetype *const tspri = (spritetype *)Xmalloc(sizeof(spritetype) * numsprites);
             spritetype *spri = tspri;
-
-            if (tspri == NULL)
-                break;
 
             for (j=0; j<MAXSPRITES; j++)
             {
@@ -11326,14 +11262,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
         Bfree(lookups);
 
     j = ydim*4;  //Leave room for horizlookup&horizlookup2
-    lookups = (int32_t *)Bmalloc(2*j*sizeof(lookups[0]));
-
-    if (lookups == NULL)
-    {
-        initprintf("OUT OF MEMORY in setgamemode!\n");
-        uninitengine();
-        exit(1);
-    }
+    lookups = (int32_t *)Xmalloc(2*j*sizeof(lookups[0]));
 
     horizlookup = lookups;
     horizlookup2 = lookups + j;
@@ -11610,7 +11539,7 @@ static int32_t E_ReadArtFile(int32_t tilefilei)
         if (cache1d_file_fromzip(fil)) // from zip
         {
             i = kfilelength(fil);
-            artptrs[tilefilei] = (char *)Brealloc(artptrs[tilefilei], i);
+            artptrs[tilefilei] = (char *)Xrealloc(artptrs[tilefilei], i);
             klseek(fil, 0, BSEEK_SET);
             kread(fil, artptrs[tilefilei], i);
         }
@@ -11652,6 +11581,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
     else
         cachesize = askedsize;
 
+    // NOTE: this doesn't make a lot of sense on modern OSs...
     while ((pic = Bmalloc(cachesize)) == NULL)
     {
         cachesize -= 65536;
@@ -14893,11 +14823,7 @@ static void maybe_alloc_palookup(int32_t palnum)
 void setblendtab(int32_t blend, const char *tab)
 {
     if (blendtable[blend] == NULL)
-    {
-        blendtable[blend] = (char *)Bmalloc(256*256);
-        if (blendtable[blend] == NULL)
-            exit(1);
-    }
+        blendtable[blend] = (char *)Xmalloc(256*256);
 
     Bmemcpy(blendtable[blend], tab, 256*256);
 }
@@ -15687,12 +15613,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
     if (newfirstwall < startwall || newfirstwall >= startwall+danumwalls)
         return;
 
-    tmpwall = (walltype *)Bmalloc(danumwalls * sizeof(walltype));
-    if (!tmpwall)
-    {
-        initprintf("setfirstwall: OUT OF MEMORY!\n");
-        return;
-    }
+    tmpwall = (walltype *)Xmalloc(danumwalls * sizeof(walltype));
 
     Bmemcpy(tmpwall, &wall[startwall], danumwalls*sizeof(walltype));
 
@@ -17407,7 +17328,7 @@ static int32_t screencapture_tga(const char *filename, char inverseit)
     int32_t i;
     char *ptr, head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
     //char palette[4*256];
-    char *fn = Bstrdup(filename);
+    char *fn = Xstrdup(filename);
 # ifdef USE_OPENGL
     int32_t j;
     char *inversebuf;
@@ -17464,20 +17385,19 @@ static int32_t screencapture_tga(const char *filename, char inverseit)
     {
         char c;
         // 24bit
-        inversebuf = (char *)Bmalloc(xdim*ydim*3);
-        if (inversebuf)
+        inversebuf = (char *)Xmalloc(xdim*ydim*3);
+
+        bglReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,inversebuf);
+        j = xdim*ydim*3;
+        for (i=0; i<j; i+=3)
         {
-            bglReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,inversebuf);
-            j = xdim*ydim*3;
-            for (i=0; i<j; i+=3)
-            {
-                c = inversebuf[i];
-                inversebuf[i] = inversebuf[i+2];
-                inversebuf[i+2] = c;
-            }
-            Bfwrite(inversebuf, xdim*ydim, 3, fil);
-            Bfree(inversebuf);
+            c = inversebuf[i];
+            inversebuf[i] = inversebuf[i+2];
+            inversebuf[i+2] = c;
         }
+        Bfwrite(inversebuf, xdim*ydim, 3, fil);
+
+        Bfree(inversebuf);
     }
     else
 # endif
@@ -17657,7 +17577,7 @@ void setpolymost2dview(void)
 void hash_init(hashtable_t *t)
 {
     hash_free(t);
-    t->items=(hashitem_t **)Bcalloc(1, t->size * sizeof(hashitem_t));
+    t->items=(hashitem_t **)Xcalloc(1, t->size * sizeof(hashitem_t));
 }
 
 void hash_free(hashtable_t *t)
@@ -17722,8 +17642,8 @@ void hash_add(hashtable_t *t, const char *s, int32_t key, int32_t replace)
 
     if (!cur)
     {
-        cur = (hashitem_t *)Bcalloc(1,sizeof(hashitem_t));
-        cur->string = Bstrdup(s);
+        cur = (hashitem_t *)Xcalloc(1,sizeof(hashitem_t));
+        cur->string = Xstrdup(s);
         cur->key = key;
         cur->next = NULL;
         t->items[code] = cur;
@@ -17741,8 +17661,8 @@ void hash_add(hashtable_t *t, const char *s, int32_t key, int32_t replace)
     }
     while ((cur = cur->next));
 
-    cur = (hashitem_t *)Bcalloc(1,sizeof(hashitem_t));
-    cur->string = Bstrdup(s);
+    cur = (hashitem_t *)Xcalloc(1,sizeof(hashitem_t));
+    cur->string = Xstrdup(s);
     cur->key = key;
     cur->next = NULL;
     prev->next = cur;

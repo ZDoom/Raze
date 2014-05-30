@@ -120,7 +120,7 @@ void El_PrintTimes(void)
         const int32_t baselen = Bstrlen(basefn);
         const int32_t addnlen = Bstrlen(".actors.csv");  // MUST equal that of ".events.csv"
 
-        char *fullfn = (char *)Bmalloc(baselen + addnlen + 1);
+        char *fullfn = (char *)Xmalloc(baselen + addnlen + 1);
         BFILE *outf;
 
         if (fullfn == NULL)
@@ -269,21 +269,17 @@ LUNATIC_EXTERN void El_OnError(const char *str)
         // Otherwise, allocate storage for the potentially clipped error string...
         if (nl)
         {
-            errstr = (char *)Bmalloc(nl-str+1);
-            if (errstr)
-            {
-                Bmemcpy(errstr, str, nl-str);
-                errstr[nl-str] = 0;
-            }
+            errstr = (char *)Xmalloc(nl-str+1);
+            Bmemcpy(errstr, str, nl-str);
+            errstr[nl-str] = 0;
         }
         else
         {
-            errstr = Bstrdup(str);
+            errstr = Xstrdup(str);
         }
 
         // ...and save it:
-        if (errstr)
-            el_errorMsgs[el_numErrors++] = errstr;
+        el_errorMsgs[el_numErrors++] = errstr;
     }
 }
 

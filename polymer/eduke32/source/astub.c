@@ -406,13 +406,11 @@ static void create_compressed_block(int32_t idx, const void *srcdata, uint32_t s
     uint32_t j;
 
     // allocate
-    mapstate->sws[idx] = (char *)Bmalloc(4 + size + QADDNSZ);
-    if (!mapstate->sws[idx]) { initprintf("OUT OF MEM in undo/redo\n"); osdcmd_quit(NULL); }
+    mapstate->sws[idx] = (char *)Xmalloc(4 + size + QADDNSZ);
 
     // compress & realloc
     j = LZ4_compress((const char*)srcdata, mapstate->sws[idx]+4, size);
-    mapstate->sws[idx] = (char *)Brealloc(mapstate->sws[idx], 4 + j);
-    if (!mapstate->sws[idx]) { initprintf("COULD not realloc in undo/redo\n"); osdcmd_quit(NULL); }
+    mapstate->sws[idx] = (char *)Xrealloc(mapstate->sws[idx], 4 + j);
 
     // write refcount
     *(int32_t *)mapstate->sws[idx] = 1;
@@ -465,7 +463,7 @@ void create_map_snapshot(void)
 
         map_revision = 1;
 
-        mapstate = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
+        mapstate = (mapundo_t *)Xcalloc(1, sizeof(mapundo_t));
         mapstate->revision = map_revision;
         mapstate->prev = mapstate->next = NULL;
     }
@@ -476,7 +474,7 @@ void create_map_snapshot(void)
         // now, have no successors
 
         // calloc because not everything may be set in the following:
-        mapstate->next = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
+        mapstate->next = (mapundo_t *)Xcalloc(1, sizeof(mapundo_t));
         mapstate->next->prev = mapstate;
 
         mapstate = mapstate->next;
@@ -515,10 +513,8 @@ void create_map_snapshot(void)
             if (!try_match_with_prev(2, Numsprites, temphash))
             {
                 int32_t i = 0;
-                spritetype *const tspri = (spritetype *)Bmalloc(Numsprites*sizeof(spritetype) + 4);
+                spritetype *const tspri = (spritetype *)Xmalloc(Numsprites*sizeof(spritetype) + 4);
                 spritetype *spri = tspri;
-
-                if (!tspri) { initprintf("OUT OF MEM in undo/redo (2)\n"); osdcmd_quit(NULL); }
 
                 for (j=0; j<MAXSPRITES && i < Numsprites; j++)
                     if (sprite[j].statnum != MAXSTATUS)
@@ -805,7 +801,7 @@ int32_t taglab_load(const char *filename, int32_t flags)
 
     len = kfilelength(fil);
 
-    filebuf = (char *)Bmalloc(len+1);
+    filebuf = (char *)Xmalloc(len+1);
     if (!filebuf)
     {
         kclose(fil);
@@ -948,7 +944,7 @@ int32_t taglab_add(const char *label, int16_t tag)
 
     if (!diddel)
         g_taglab.numlabels++;
-    g_taglab.label[tag] = Bstrdup(buf);
+    g_taglab.label[tag] = Xstrdup(buf);
 //initprintf("added %s %d to hash\n", g_taglab.label[tag], tag);
     hash_add(&g_taglab.hashtab, g_taglab.label[tag], tag, 1);
 
@@ -1924,9 +1920,8 @@ static void ReadHelpFile(const char *name)
         return;
     }
 
-    helppage=(helppage_t **)Bmalloc(IHELP_INITPAGES * sizeof(helppage_t *));
+    helppage=(helppage_t **)Xmalloc(IHELP_INITPAGES * sizeof(helppage_t *));
     numallocpages=IHELP_INITPAGES;
-    if (!helppage) goto HELPFILE_ERROR;
 
     i=0;
     while (!Bfeof(fp) && !ferror(fp))
@@ -1944,8 +1939,8 @@ static void ReadHelpFile(const char *name)
 
         if (Bfeof(fp) || charsread<=0) break;
 
-        hp=(helppage_t *)Bcalloc(1,sizeof(helppage_t) + IHELP_INITLINES*80);
-        if (!hp) goto HELPFILE_ERROR;
+        hp=(helppage_t *)Xcalloc(1,sizeof(helppage_t) + IHELP_INITLINES*80);
+
         hp->numlines = IHELP_INITLINES;
 
         if (charsread == 79 && tempbuf[78]!='\n') skip=1;
@@ -1955,8 +1950,7 @@ static void ReadHelpFile(const char *name)
         {
             if (j >= hp->numlines)
             {
-                hp=(helppage_t *)Brealloc(hp, sizeof(helppage_t) + 2*hp->numlines*80);
-                if (!hp) goto HELPFILE_ERROR;
+                hp=(helppage_t *)Xrealloc(hp, sizeof(helppage_t) + 2*hp->numlines*80);
                 hp->numlines *= 2;
             }
 
@@ -1988,30 +1982,22 @@ static void ReadHelpFile(const char *name)
         }
         while (!newpage(tempbuf) && !Bfeof(fp) && charsread>0);
 
-        hp=(helppage_t *)Brealloc(hp, sizeof(helppage_t) + j*80);
-        if (!hp) goto HELPFILE_ERROR;
+        hp=(helppage_t *)Xrealloc(hp, sizeof(helppage_t) + j*80);
         hp->numlines=j;
 
         if (i >= numallocpages)
         {
-            helppage = (helppage_t **)Brealloc(helppage, 2*numallocpages*sizeof(helppage_t *));
+            helppage = (helppage_t **)Xrealloc(helppage, 2*numallocpages*sizeof(helppage_t *));
             numallocpages *= 2;
-            if (!helppage) goto HELPFILE_ERROR;
         }
         helppage[i] = hp;
         i++;
     }
 
-    helppage =(helppage_t **) Brealloc(helppage, i*sizeof(helppage_t *));
-    if (!helppage) goto HELPFILE_ERROR;
+    helppage =(helppage_t **)Xrealloc(helppage, i*sizeof(helppage_t *));
     numhelppages = i;
 
     Bfclose(fp);
-    return;
-
-HELPFILE_ERROR:
-    Bfclose(fp);
-    initprintf("ReadHelpFile(): ERROR allocating memory.\n");
     return;
 }
 
@@ -2311,9 +2297,8 @@ static int32_t sort_sounds(int32_t how)
 
     n = g_numsounds;
     src = source = g_sndnum;
-    dest = (int16_t *)Bmalloc(sizeof(int16_t) * n);
+    dest = (int16_t *)Xmalloc(sizeof(int16_t) * n);
     dst = dest;
-    if (!dest) return -1;
 
     switch (how)
     {
@@ -3727,8 +3712,7 @@ static int32_t OnSaveTileGroup(void)
         Bfprintf(fp, "tilegroup \"%s\"" OURNEWL"{" OURNEWL, name);
         Bfprintf(fp, TTAB "hotkey \"%c\"" OURNEWL OURNEWL, hotkey);
 
-        if (!(s_TileGroups[tile_groups].pIds = (int32_t *)Bmalloc(n * sizeof(s_TileGroups[tile_groups].pIds[0]))))
-            TMPERRMSG_RETURN("Out of memory.");
+        s_TileGroups[tile_groups].pIds = (int32_t *)Xmalloc(n * sizeof(s_TileGroups[tile_groups].pIds[0]));
 
         j = 0;
         // tileranges for consecutive runs of 3 or more tiles
@@ -3812,11 +3796,7 @@ static int32_t OnSaveTileGroup(void)
 
         Bfclose(fp);
 
-        if (!(s_TileGroups[tile_groups].szText = Bstrdup(name)))
-        {
-            Bfree(s_TileGroups[tile_groups].pIds);
-            TMPERRMSG_RETURN("Out of memory.");
-        }
+        s_TileGroups[tile_groups].szText = Xstrdup(name);
 
         s_TileGroups[tile_groups].nIds = n;
         s_TileGroups[tile_groups].key1 = Btoupper(hotkey);
@@ -4486,8 +4466,7 @@ ENDFOR1:
     sprite[startspr].xoffset = -picanm[t].xofs;
     sprite[startspr].yoffset = -picanm[t].yofs;
 
-    spritenums = (int16_t *)Bmalloc(stackallocsize * sizeof(int16_t));
-    if (!spritenums) goto ERROR_NOMEMORY;
+    spritenums = (int16_t *)Xmalloc(stackallocsize * sizeof(int16_t));
 
     cursor = insertsprite(sprite[startspr].sectnum,0);
     if (cursor < 0) goto ERROR_TOOMANYSPRITES;
@@ -4623,8 +4602,7 @@ ENDFOR1:
                 if (numletters >= stackallocsize)
                 {
                     stackallocsize *= 2;
-                    spritenums = (int16_t *)Brealloc(spritenums, stackallocsize*sizeof(int16_t));
-                    if (!spritenums) goto ERROR_NOMEMORY;
+                    spritenums = (int16_t *)Xrealloc(spritenums, stackallocsize*sizeof(int16_t));
                 }
                 spritenums[numletters++] = i;
             }
@@ -4690,9 +4668,7 @@ ERROR_TOOMANYSPRITES:
     if (cursor < 0) message("Too many sprites in map!");
     else deletesprite(cursor);
 
-ERROR_NOMEMORY:
-    if (spritenums) Bfree(spritenums);
-    else message("Out of memory!");
+    Bfree(spritenums);
 
     clearkeys();
 
@@ -8584,8 +8560,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
         char clipshape[16] = "_clipshape0.map";
 
         clipshape[10] = j;
-        g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-        g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(clipshape);
+        g_clipMapFiles = (char **) Xrealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
+        g_clipMapFiles[g_clipMapFilesNum] = Xstrdup(clipshape);
         ++g_clipMapFilesNum;
     }
 #endif
@@ -8593,14 +8569,14 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     if (argc <= 1)
         return;
 
-    lengths = (int32_t *)Bmalloc(argc*sizeof(int32_t));
+    lengths = (int32_t *)Xmalloc(argc*sizeof(int32_t));
     for (j=1; j<argc; j++)
     {
         lengths[j] = Bstrlen(argv[j]);
         maxlen += lengths[j];
     }
 
-    testplay_addparam = (char *)Bmalloc(maxlen+argc);
+    testplay_addparam = (char *)Xmalloc(maxlen+argc);
     testplay_addparam[0] = 0;
 
     j = 0;
@@ -8924,7 +8900,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     if (j > 0)
     {
         testplay_addparam[j-1] = 0;
-        testplay_addparam = (char *)Brealloc(testplay_addparam, j*sizeof(char));
+        testplay_addparam = (char *)Xrealloc(testplay_addparam, j*sizeof(char));
     }
     else
     {
@@ -9089,9 +9065,9 @@ static int32_t osdcmd_testplay_addparam(const osdfuncparm_t *parm)
     if (slen > 0)
     {
         if (!testplay_addparam)
-            testplay_addparam = (char *)Bmalloc(slen+1);
+            testplay_addparam = (char *)Xmalloc(slen+1);
         else
-            testplay_addparam = (char *)Brealloc(testplay_addparam, slen+1);
+            testplay_addparam = (char *)Xrealloc(testplay_addparam, slen+1);
 
         Bmemcpy(testplay_addparam, parm->parms[0], slen);
         testplay_addparam[slen] = 0;
@@ -9402,7 +9378,7 @@ static void SaveInHistory(const char *commandstr)
     {
         if (scripthist[scripthistend])
             Bfree(scripthist[scripthistend]);
-        scripthist[scripthistend] = Bstrdup(commandstr);
+        scripthist[scripthistend] = Xstrdup(commandstr);
         scripthistend++;
         scripthistend %= SCRIPTHISTSIZ;
     }
@@ -9495,8 +9471,8 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 
     ofs = 2*(parm->numparms>0);  // true if "do" command
     slen = Bstrlen(parm->raw+ofs);
-    tp = (char *)Bmalloc(slen+2);
-    if (!tp) goto OUTOFMEM;
+    tp = (char *)Xmalloc(slen+2);
+
     Bmemcpy(tp, parm->raw+ofs, slen);
 
     // M32script call from 'special functions' menu
@@ -9555,9 +9531,6 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 //        asksave = 1; // handled in Access(Sprite|Sector|Wall)
     }
 
-    return OSDCMD_OK;
-OUTOFMEM:
-    message("OUT OF MEMORY!\n");
     return OSDCMD_OK;
 }
 
@@ -9905,8 +9878,8 @@ int32_t parsetilegroups(scriptfile *script)
             if (scriptfile_getstring(script,&name)) break;
             if (scriptfile_getbraces(script,&end)) break;
 
-            s_TileGroups[tile_groups].pIds = (int32_t *)Bcalloc(MAX_TILE_GROUP_ENTRIES, sizeof(int32_t));
-            s_TileGroups[tile_groups].szText = Bstrdup(name);
+            s_TileGroups[tile_groups].pIds = (int32_t *)Xcalloc(MAX_TILE_GROUP_ENTRIES, sizeof(int32_t));
+            s_TileGroups[tile_groups].szText = Xstrdup(name);
 
             while (script->textptr < end)
             {
@@ -9980,7 +9953,7 @@ int32_t parsetilegroups(scriptfile *script)
                 }
             }
 
-            s_TileGroups[tile_groups].pIds = (int32_t *)Brealloc(s_TileGroups[tile_groups].pIds,
+            s_TileGroups[tile_groups].pIds = (int32_t *)Xrealloc(s_TileGroups[tile_groups].pIds,
                                                       s_TileGroups[tile_groups].nIds*sizeof(int32_t));
             tile_groups++;
             break;
@@ -10133,10 +10106,9 @@ static int32_t loadtilegroups(const char *fn)
     tile_groups = 0;
 #if 0
     // ---------- Init hardcoded tile group consisting of all named tiles
-    s_TileGroups[0].szText = Bstrdup("All named");
-    s_TileGroups[0].pIds = (int32_t *)Bmalloc(MAXTILES * sizeof(s_TileGroups[0].pIds[0]));
-    if (!s_TileGroups[0].pIds)
-        return -1;
+    s_TileGroups[0].szText = Xstrdup("All named");
+    s_TileGroups[0].pIds = (int32_t *)Xmalloc(MAXTILES * sizeof(s_TileGroups[0].pIds[0]));
+
     j = 0;
     for (i=0; i<MAXTILES; i++)
         if (names[i][0])
@@ -10260,8 +10232,7 @@ static int32_t parseconsounds(scriptfile *script)
 
             if (scriptfile_getsymbol(script, &sndnum)) break;
 
-            definedname = Bstrdup(script->ltextptr);
-            if (!definedname) return -1;
+            definedname = Xstrdup(script->ltextptr);
 
             if (sndnum < 0 || sndnum >= MAXSOUNDS)
             {
@@ -10294,7 +10265,7 @@ static int32_t parseconsounds(scriptfile *script)
                 duplicate = 1;
                 Bfree(g_sounds[sndnum].filename);
             }
-            g_sounds[sndnum].filename = (char *)Bcalloc(slen+1,sizeof(uint8_t));
+            g_sounds[sndnum].filename = (char *)Xcalloc(slen+1,sizeof(uint8_t));
             // Hopefully noone does memcpy(..., g_sounds[].filename, BMAX_PATH)
             if (!g_sounds[sndnum].filename)
             {
@@ -10595,7 +10566,7 @@ int32_t ExtInit(void)
     registerosdcommands();
 
     {
-        char *ptr = Bstrdup(setupfilename), *p = strtok(ptr,".");
+        char *ptr = Xstrdup(setupfilename), *p = strtok(ptr,".");
         if (!Bstrcmp(setupfilename, SETUPFILENAME))
             Bsprintf(tempbuf, "m32_settings.cfg");
         else Bsprintf(tempbuf,"%s_m32_settings.cfg",p);
@@ -11760,10 +11731,8 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
     if (!corruptcheck_noalreadyrefd)
     {
-        seen_nextwalls = (uint8_t *)Bcalloc((numwalls+7)>>3,1);
-        if (!seen_nextwalls) return 5;
-        lastnextwallsource = (int16_t *)Bmalloc(numwalls*sizeof(lastnextwallsource[0]));
-        if (!lastnextwallsource) { Bfree(seen_nextwalls); return 5; }
+        seen_nextwalls = (uint8_t *)Xcalloc((numwalls+7)>>3,1);
+        lastnextwallsource = (int16_t *)Xmalloc(numwalls*sizeof(lastnextwallsource[0]));
     }
 
     for (i=0; i<numsectors; i++)
@@ -13125,7 +13094,7 @@ static void M_RegisterFunction(StatusBarMenu *m, const char *name, intptr_t auxd
 #if MENU_HAVE_DESCRIPTION
     // NOTE: description only handled here (not above).
     if (description)
-        m->description[m->numentries] = Bstrdup(description);
+        m->description[m->numentries] = Xstrdup(description);
 #else
     UNREFERENCED_PARAMETER(description);
 #endif
@@ -13323,10 +13292,7 @@ static void FuncMenu_Process(const StatusBarMenu *m, int32_t col, int32_t row)
 
         const char *statename = statesinfo[stateidx].name;
         int32_t snlen = Bstrlen(statename);
-        char *tmpscript = (char *)Bmalloc(1+5+1+snlen+1);
-
-        if (!tmpscript)
-            break;
+        char *tmpscript = (char *)Xmalloc(1+5+1+snlen+1);
 
         tmpscript[0] = ' ';  // don't save in history
         Bmemcpy(&tmpscript[1], "state", 5);

@@ -895,7 +895,7 @@ static void texture_setup(int32_t dameth)
     }
 }
 
-int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth, pthtyp *pth, int32_t doalloc)
+void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
     coltype *pic;
     int32_t xsiz, ysiz;
@@ -924,9 +924,7 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dam
         }
     }
 
-    pic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
-    if (!pic)
-        return 1;
+    pic = (coltype *)Xmalloc(xsiz*ysiz*sizeof(coltype));
 
     if (!waloff[dapic])
     {
@@ -1020,19 +1018,13 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dam
         // make the final texture with fullbright pixels.
         fullbrightloadingpass = 1;
 
-        pth->ofb = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
-        if (!pth->ofb)
-            return 1;
-
+        pth->ofb = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
         pth->flags |= PTH_HASFULLBRIGHT;
 
-        if (gloadtile_art(dapic, dapal, 0, dameth, pth->ofb, 1))
-            return 1;
+        gloadtile_art(dapic, dapal, 0, dameth, pth->ofb, 1);
 
         fullbrightloadingpass = 0;
     }
-
-    return 0;
 }
 
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
@@ -1100,7 +1092,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
 
-        picfil = (char *)Bmalloc(picfillen+1); if (!picfil) { kclose(filh); return 1; }
+        picfil = (char *)Xmalloc(picfillen+1);
         if (kread(filh, picfil, picfillen) != picfillen)
             initprintf("warning: didn't fully read %s\n", fn);
         // prevent
@@ -1127,7 +1119,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             xsiz = tsizx;
             ysiz = tsizy;
         }
-        pic = (coltype *)Bcalloc(xsiz,ysiz*sizeof(coltype)); if (!pic) { Bfree(picfil); return 1; }
+        pic = (coltype *)Xcalloc(xsiz,ysiz*sizeof(coltype));
 
         startticks = getticks();
 
@@ -4631,9 +4623,9 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
     if (numpoints+16 > allocpoints) //16 for safety
     {
         allocpoints = numpoints+16;
-        rst = (raster *)Brealloc(rst,allocpoints*sizeof(raster));
-        slist = (int32_t *)Brealloc(slist,allocpoints*sizeof(int32_t));
-        npoint2 = (int32_t *)Brealloc(npoint2,allocpoints*sizeof(int32_t));
+        rst = (raster *)Xrealloc(rst,allocpoints*sizeof(raster));
+        slist = (int32_t *)Xrealloc(slist,allocpoints*sizeof(int32_t));
+        npoint2 = (int32_t *)Xrealloc(npoint2,allocpoints*sizeof(int32_t));
     }
 
     //Remove unnecessary collinear points:
@@ -4905,13 +4897,7 @@ static int32_t gen_font_glyph_tex(void)
     bglGenTextures(1,&polymosttext);
     if (!polymosttext) return -1;
 
-    tbuf = (char *)Bmalloc(256*128);
-    if (!tbuf)
-    {
-        bglDeleteTextures(1,&polymosttext);
-        polymosttext = 0;
-        return -1;
-    }
+    tbuf = (char *)Xmalloc(256*128);
     Bmemset(tbuf, 0, 256*128);
 
     cptr = (char *)textfont;

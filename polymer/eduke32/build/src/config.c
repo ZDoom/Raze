@@ -254,7 +254,7 @@ int32_t loadsetup(const char *fn)
         if (readconfig(fp, val, val, VL) <= 0)
             break;
 
-        scripthist[i] = Bstrdup(val);
+        scripthist[i] = Xstrdup(val);
     }
 
     scripthistend = i;
@@ -278,7 +278,7 @@ int32_t loadsetup(const char *fn)
 void writesettings(void) // save binds and aliases to <cfgname>_m32_settings.cfg
 {
     BFILE *fp;
-    char *ptr = Bstrdup(setupfilename);
+    char *ptr = Xstrdup(setupfilename);
     char tempbuf[128];
 
     if (!Bstrcmp(setupfilename, SETUPFILENAME))

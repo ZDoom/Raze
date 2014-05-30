@@ -68,7 +68,7 @@ int32_t CONFIG_FunctionNameToNum(const char *func)
 
     if (i < 0)
     {
-        char *str = Bstrtolower(Bstrdup(func));
+        char *str = Bstrtolower(Xstrdup(func));
         i = hash_find(&h_gamefuncs,str);
         Bfree(str);
 
@@ -749,7 +749,7 @@ void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_settings.cfg
 {
     int32_t i;
     BFILE *fp;
-    char *ptr = Bstrdup(setupfilename);
+    char *ptr = Xstrdup(setupfilename);
     char tempbuf[128];
 
     if (!Bstrcmp(setupfilename, SETUPFILENAME))

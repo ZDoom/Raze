@@ -56,8 +56,7 @@ int32_t SCRIPT_New(void)
     {
         if (!SC(i))
         {
-            SC(i) = (script_t *)Bmalloc(sizeof(script_t));
-            if (!SC(i)) return -1;
+            SC(i) = (script_t *)Xmalloc(sizeof(script_t));
             memset(SC(i), 0, sizeof(script_t));
             return i;
         }
@@ -122,7 +121,7 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
 
 #define AllocSection(s) \
 	{ \
-		(s) = (ScriptSectionType *)Bmalloc(sizeof(ScriptSectionType)); \
+		(s) = (ScriptSectionType *)Xmalloc(sizeof(ScriptSectionType)); \
 		(s)->name = NULL; \
 		(s)->entries = NULL; \
 		(s)->lastline = NULL; \
@@ -131,7 +130,7 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
 	}
 #define AllocEntry(e) \
 	{ \
-		(e) = (ScriptEntryType *)Bmalloc(sizeof(ScriptEntryType)); \
+		(e) = (ScriptEntryType *)Xmalloc(sizeof(ScriptEntryType)); \
 		(e)->name = NULL; \
 		(e)->value = NULL; \
 		(e)->nextentry = (e); \
@@ -451,7 +450,7 @@ int32_t SCRIPT_Load(char * filename)
 
     h = SafeOpenRead(filename, filetype_binary);
     l = SafeFileLength(h)+1;
-    b = (char *)Bmalloc(l);
+    b = (char *)Xmalloc(l);
     SafeRead(h,b,l-1);
     b[l-1] = '\n';	// JBF 20040111: evil nasty hack to trick my evil nasty parser
     SafeClose(h);
@@ -609,7 +608,7 @@ static char * SCRIPT_ParseString(char ** dest, char * p)
         }
 
         // allocate
-        *dest = (char*)Bcalloc(c+1,sizeof(char));
+        *dest = (char*)Xcalloc(c+1,sizeof(char));
         c = 0;
     }
 
@@ -801,7 +800,7 @@ void SCRIPT_PutString
         if (*q == '\r' || *q == '\n' || *q == '\t' || *q == '\\' || *q == '"') len+=2;
         else if (*q >= ' ') len++;
     }
-    p = raw = (char *)Bmalloc(len);
+    p = raw = (char *)Xmalloc(len);
     *(p++) = '"';
     for (q=string; *q; q++)
     {
@@ -842,7 +841,7 @@ void SCRIPT_PutDoubleString
         if (*q == '\r' || *q == '\n' || *q == '\t' || *q == '\\' || *q == '"') len+=2;
         else if (*q >= ' ') len++;
     }
-    p = raw = (char *)Bmalloc(len);
+    p = raw = (char *)Xmalloc(len);
     *(p++) = '"';
     for (q=string1; *q; q++)
     {

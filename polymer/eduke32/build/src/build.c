@@ -1466,21 +1466,9 @@ void drawsmallabel(const char *text, char col, char backcol, int32_t dax, int32_
     }
 }
 
-static void free_n_ptrs(void **ptrptr, int32_t n)
-{
-    int32_t i;
-
-    for (i=0; i<n; i++)
-    {
-        Bfree(ptrptr[i]);
-        ptrptr[i] = NULL;
-    }
-}
-
 // backup highlighted sectors with sprites as mapinfo for later restoration
 // return values:
 //  -1: highlightsectorcnt<=0
-//  -2: out of mem
 //   0: ok
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 {
@@ -1491,8 +1479,6 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
     int16_t otonbunch[YAX_MAXBUNCHES];
     int16_t numsectsofbunch[YAX_MAXBUNCHES];  // ceilings + floors
 #endif
-    int32_t np = 0;
-    void *ptrs[5];
 
     if (highlightsectorcnt <= 0)
         return -1;
@@ -1560,20 +1546,14 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
     }
 
     // allocate temp storage
-    ptrs[np++] = mapinfo->sector = (sectortype *)Bmalloc(highlightsectorcnt * sizeof(sectortype));
-    if (!mapinfo->sector) return -2;
-
-    ptrs[np++] = mapinfo->wall = (walltype *)Bmalloc(tmpnumwalls * sizeof(walltype));
-    if (!mapinfo->wall) { free_n_ptrs(ptrs, np-1); return -2; }
+    mapinfo->sector = (sectortype *)Xmalloc(highlightsectorcnt * sizeof(sectortype));
+    mapinfo->wall = (walltype *)Xmalloc(tmpnumwalls * sizeof(walltype));
 
 #ifdef YAX_ENABLE
     if (mapinfo->numyaxbunches > 0)
     {
-        ptrs[np++] = mapinfo->bunchnum = (int16_t *)Bmalloc(highlightsectorcnt*2*sizeof(int16_t));
-        if (!mapinfo->bunchnum) { free_n_ptrs(ptrs, np-1); return -2; }
-
-        ptrs[np++] = mapinfo->ynextwall = (int16_t *)Bmalloc(tmpnumwalls*2*sizeof(int16_t));
-        if (!mapinfo->ynextwall) { free_n_ptrs(ptrs, np-1); return -2; }
+        mapinfo->bunchnum = (int16_t *)Xmalloc(highlightsectorcnt*2*sizeof(int16_t));
+        mapinfo->ynextwall = (int16_t *)Xmalloc(tmpnumwalls*2*sizeof(int16_t));
     }
     else
     {
@@ -1583,8 +1563,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 
     if (tmpnumsprites>0)
     {
-        ptrs[np++] = mapinfo->sprite = (spritetype *)Bmalloc(tmpnumsprites * sizeof(spritetype));
-        if (!mapinfo->sprite) { free_n_ptrs(ptrs, np-1); return -2; }
+        mapinfo->sprite = (spritetype *)Xmalloc(tmpnumsprites * sizeof(spritetype));
     }
     else
     {
@@ -2445,9 +2424,7 @@ static int32_t backup_drawn_walls(int32_t restore)
                 return 2;
 
             Bfree(tmpwall);
-            tmpwall = (walltype *)Bmalloc((newnumwalls-numwalls) * sizeof(walltype));
-            if (!tmpwall)
-                return 1;
+            tmpwall = (walltype *)Xmalloc((newnumwalls-numwalls) * sizeof(walltype));
 
             ovh.bak_wallsdrawn = newnumwalls-numwalls;
 
@@ -2764,13 +2741,11 @@ static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const 
 {
     if (!*origframeptr)
     {
-        *origframeptr = (char *)Bmalloc(xdim*ydim);
-        if (*origframeptr)
-        {
-            begindrawing();
-            Bmemcpy(*origframeptr, (char *)frameplace, xdim*ydim);
-            enddrawing();
-        }
+        *origframeptr = (char *)Xmalloc(xdim*ydim);
+
+        begindrawing();
+        Bmemcpy(*origframeptr, (char *)frameplace, xdim*ydim);
+        enddrawing();
     }
     else
     {
@@ -5031,17 +5006,8 @@ end_yax: ;
                                     sector[refsect].wallnum += n;
                                     if (refsect != numsectors-1)
                                     {
-                                        walltype *tmpwall = (walltype *)Bmalloc(n * sizeof(walltype));
-                                        int16_t *tmponw = (int16_t *)Bmalloc(n * sizeof(int16_t));
-
-                                        if (!tmpwall || !tmponw)
-                                        {
-                                            message("out of memory!");
-                                            ExtUnInit();
-//                                            clearfilenames();
-                                            uninitengine();
-                                            exit(1);
-                                        }
+                                        walltype *tmpwall = (walltype *)Xmalloc(n * sizeof(walltype));
+                                        int16_t *tmponw = (int16_t *)Xmalloc(n * sizeof(int16_t));
 
                                         for (m=0; m<numwalls; m++)
                                         {
@@ -10696,7 +10662,7 @@ void test_map(int32_t mode)
         // and a possible extra space not in testplay_addparam,
         // the length should be Bstrlen(game_executable)+Bstrlen(param)+(slen+1)+2+1.
 
-        fullparam = (char *)Bmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
+        fullparam = (char *)Xmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
         Bsprintf(fullparam,"\"%s\"",game_executable);
 
         if (testplay_addparam)

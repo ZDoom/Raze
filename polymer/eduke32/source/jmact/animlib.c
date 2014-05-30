@@ -263,7 +263,7 @@ int32_t ANIM_LoadAnim(const uint8_t *buffer, int32_t length)
     if (length < 0)
         return -1;
 
-    anim = (anim_t *)Brealloc(anim, sizeof(anim_t));
+    anim = (anim_t *)Xrealloc(anim, sizeof(anim_t));
 
     anim->curlpnum = 0xffff;
     anim->currentframe = -1;

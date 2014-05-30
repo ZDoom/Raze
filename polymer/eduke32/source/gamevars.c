@@ -117,18 +117,18 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
     for (i=0; i<g_gameVarCount; i++)
     {
         if (kdfread(&(aGameVars[i]),sizeof(gamevar_t),1,fil) != 1) goto corrupt;
-        aGameVars[i].szLabel = (char *)Bcalloc(MAXVARLABEL,sizeof(uint8_t));
+        aGameVars[i].szLabel = (char *)Xcalloc(MAXVARLABEL,sizeof(uint8_t));
         if (kdfread(aGameVars[i].szLabel,sizeof(uint8_t) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
         hash_add(&h_gamevars, aGameVars[i].szLabel,i, 1);
 
         if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
         {
-            aGameVars[i].val.plValues = (intptr_t*)Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+            aGameVars[i].val.plValues = (intptr_t*)Xcalloc(MAXPLAYERS,sizeof(intptr_t));
             if (kdfread(aGameVars[i].val.plValues,sizeof(intptr_t) * MAXPLAYERS, 1, fil) != 1) goto corrupt;
         }
         else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
         {
-            aGameVars[i].val.plValues = (intptr_t*)Bcalloc(MAXSPRITES,sizeof(intptr_t));
+            aGameVars[i].val.plValues = (intptr_t*)Xcalloc(MAXSPRITES,sizeof(intptr_t));
             if (kdfread(&aGameVars[i].val.plValues[0],sizeof(intptr_t), MAXSPRITES, fil) != MAXSPRITES) goto corrupt;
         }
     }
@@ -150,11 +150,11 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         // read for .size and .dwFlags (the rest are pointers):
         if (kdfread(&aGameArrays[i],sizeof(gamearray_t),1,fil) != 1) goto corrupt;
 
-        aGameArrays[i].szLabel = (char *)Bcalloc(MAXARRAYLABEL,sizeof(uint8_t));
+        aGameArrays[i].szLabel = (char *)Xcalloc(MAXARRAYLABEL,sizeof(uint8_t));
         if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
         hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
 
-        aGameArrays[i].plValues = (intptr_t *)Bcalloc(aGameArrays[i].size, GAR_ELTSZ);
+        aGameArrays[i].plValues = (intptr_t *)Xcalloc(aGameArrays[i].size, GAR_ELTSZ);
         if (kdfread(aGameArrays[i].plValues, GAR_ELTSZ * aGameArrays[i].size, 1, fil) < 1) goto corrupt;
     }
 
@@ -173,7 +173,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         if (savedstate[i])
         {
             if (MapInfo[i].savedstate == NULL)
-                MapInfo[i].savedstate = (mapstate_t *)Bcalloc(1,sizeof(mapstate_t));
+                MapInfo[i].savedstate = (mapstate_t *)Xcalloc(1,sizeof(mapstate_t));
             if (kdfread(MapInfo[i].savedstate,sizeof(mapstate_t),1,fil) != sizeof(mapstate_t)) goto corrupt;
             for (j=0; j<g_gameVarCount; j++)
             {
@@ -181,13 +181,13 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
                 if (aGameVars[j].dwFlags & GAMEVAR_PERPLAYER)
                 {
 //                    if (!MapInfo[i].savedstate->vars[j])
-                    MapInfo[i].savedstate->vars[j] = (intptr_t *)Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+                    MapInfo[i].savedstate->vars[j] = (intptr_t *)Xcalloc(MAXPLAYERS,sizeof(intptr_t));
                     if (kdfread(&MapInfo[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, fil) != 1) goto corrupt;
                 }
                 else if (aGameVars[j].dwFlags & GAMEVAR_PERACTOR)
                 {
 //                    if (!MapInfo[i].savedstate->vars[j])
-                    MapInfo[i].savedstate->vars[j] = (intptr_t *)Bcalloc(MAXSPRITES,sizeof(intptr_t));
+                    MapInfo[i].savedstate->vars[j] = (intptr_t *)Xcalloc(MAXSPRITES,sizeof(intptr_t));
                     if (kdfread(&MapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, fil) != MAXSPRITES) goto corrupt;
                 }
             }
@@ -424,12 +424,12 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     i = g_gameArrayCount;
 
     if (aGameArrays[i].szLabel == NULL)
-        aGameArrays[i].szLabel=(char *)Bcalloc(MAXVARLABEL,sizeof(uint8_t));
+        aGameArrays[i].szLabel=(char *)Xcalloc(MAXVARLABEL,sizeof(uint8_t));
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
 
     if (!(dwFlags & GAMEARRAY_TYPE_MASK))
-        aGameArrays[i].plValues=(intptr_t *)Bcalloc(asize,GAR_ELTSZ);
+        aGameArrays[i].plValues=(intptr_t *)Xcalloc(asize,GAR_ELTSZ);
     else
         aGameArrays[i].plValues=(intptr_t *)arrayptr;
 
@@ -493,7 +493,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     {
         // Allocate and set its label
         if (aGameVars[i].szLabel == NULL)
-            aGameVars[i].szLabel = (char *)Bcalloc(MAXVARLABEL,sizeof(uint8_t));
+            aGameVars[i].szLabel = (char *)Xcalloc(MAXVARLABEL,sizeof(uint8_t));
         if (aGameVars[i].szLabel != pszLabel)
             Bstrcpy(aGameVars[i].szLabel,pszLabel);
 
@@ -522,14 +522,14 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
     {
         if (!aGameVars[i].val.plValues)
-            aGameVars[i].val.plValues = (intptr_t *)Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+            aGameVars[i].val.plValues = (intptr_t *)Xcalloc(MAXPLAYERS,sizeof(intptr_t));
         for (j=MAXPLAYERS-1; j>=0; j--)
             aGameVars[i].val.plValues[j]=lValue;
     }
     else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
     {
         if (!aGameVars[i].val.plValues)
-            aGameVars[i].val.plValues = (intptr_t *)Bcalloc(MAXSPRITES,sizeof(intptr_t));
+            aGameVars[i].val.plValues = (intptr_t *)Xcalloc(MAXSPRITES,sizeof(intptr_t));
         for (j=MAXSPRITES-1; j>=0; j--)
             aGameVars[i].val.plValues[j]=lValue;
     }

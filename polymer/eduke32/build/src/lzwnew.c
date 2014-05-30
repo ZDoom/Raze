@@ -18,11 +18,11 @@ int32_t lzwcompress(char *ucompbuf, int32_t ucompleng, char *compbuf)
 #endif
     char *nodev, *cptr, *eptr;
 
-    nodev = (char *)Bmalloc((ucompleng+256)*sizeof(uint8_t)); if (!nodev) return(0);
-    child = (int32_t *)Bmalloc((ucompleng+256)*sizeof(int32_t)); if (!child) { Bfree(nodev); return(0); }
-    sibly = (int32_t *)Bmalloc((ucompleng+256)*sizeof(int32_t)); if (!sibly) { Bfree(child); Bfree(nodev); return(0); }
+    nodev = (char *)Xmalloc((ucompleng+256)*sizeof(uint8_t));
+    child = (int32_t *)Xmalloc((ucompleng+256)*sizeof(int32_t));
+    sibly = (int32_t *)Xmalloc((ucompleng+256)*sizeof(int32_t));
 #if USENEW
-    sibry = (int32_t *)Bmalloc((ucompleng+256)*sizeof(int32_t)); if (!sibry) { Bfree(sibly); Bfree(child); Bfree(nodev); return(0); }
+    sibry = (int32_t *)Xmalloc((ucompleng+256)*sizeof(int32_t));
 #endif
 
     for (i=255; i>=0; i--) { nodev[i] = i; child[i] = -1; }
@@ -86,8 +86,8 @@ int32_t lzwuncompress(char *compbuf, int32_t compleng, char *ucompbuf, int32_t u
 
     totnodes = LSWAPIB(((int32_t *)compbuf)[0]); if (totnodes <= 0 || totnodes >= ucompleng+256) return 0;
 
-    prefix = (int32_t *)Bmalloc(totnodes*sizeof(int32_t)); if (!prefix) return 0;
-    suffix = (char *)Bmalloc(totnodes*sizeof(uint8_t)); if (!suffix) { Bfree(prefix); return 0; }
+    prefix = (int32_t *)Xmalloc(totnodes*sizeof(int32_t));
+    suffix = (char *)Xmalloc(totnodes*sizeof(uint8_t));
 
     numnodes = 256; bitcnt = (4<<3); nbits = 8; oneupnbits = (1<<8); hmask = ((oneupnbits>>1)-1);
     do

@@ -74,12 +74,7 @@ static int32_t read_whole_file(const char *fn, char **retbufptr)
     if (flen == 0)
         return 5;
 
-    buf = (char *)Bmalloc(flen+1);
-    if (!buf)
-    {
-        kclose(fid);
-        return -1;
-    }
+    buf = (char *)Xmalloc(flen+1);
 
     i = kread(fid, buf, flen);
     kclose(fid);
@@ -104,9 +99,7 @@ int L_CreateState(L_State *estate, const char *name, void (*StateSetupFunc)(lua_
 {
     lua_State *L;
 
-    estate->name = Bstrdup(name);
-    if (!estate->name)
-        return -1;
+    estate->name = Xstrdup(name);
 
     L = estate->L = luaL_newstate();
 

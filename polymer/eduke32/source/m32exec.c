@@ -518,13 +518,7 @@ skip_check:
                 }
 
 //                OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
-                aGameArrays[j].vals = Brealloc(aGameArrays[j].vals, sizeof(int32_t) * asize);
-                if (aGameArrays[j].vals == NULL)
-                {
-                    aGameArrays[j].size = 0;
-                    M32_ERROR("Out of memory!");
-                    return 1;
-                }
+                aGameArrays[j].vals = Xrealloc(aGameArrays[j].vals, sizeof(int32_t) * asize);
                 aGameArrays[j].size = asize;
 
                 continue;

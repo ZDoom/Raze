@@ -135,8 +135,7 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
     if (!hr)
     {
         // no replacement yet defined
-        hrn = (hicreplctyp *)Bcalloc(1,sizeof(hicreplctyp));
-        if (!hrn) return -1;
+        hrn = (hicreplctyp *)Xcalloc(1,sizeof(hicreplctyp));
         hrn->palnum = palnum;
     }
     else hrn = hr;
@@ -144,13 +143,7 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
     // store into hicreplc the details for this replacement
     if (hrn->filename) Bfree(hrn->filename);
 
-    hrn->filename = Bstrdup(filen);
-    if (!hrn->filename)
-    {
-        if (hrn->skybox) return -1;	// don't free the base structure if there's a skybox defined
-        if (hr == NULL) Bfree(hrn);	// not yet a link in the chain
-        return -1;
-    }
+    hrn->filename = Xstrdup(filen);
     hrn->ignore = 0;
     hrn->alphacut = min(alphacut,1.0);
     hrn->xscale = xscale;
@@ -205,21 +198,14 @@ int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
     if (!hr)
     {
         // no replacement yet defined
-        hrn = (hicreplctyp *)Bcalloc(1,sizeof(hicreplctyp));
-        if (!hrn) return -1;
-
+        hrn = (hicreplctyp *)Xcalloc(1,sizeof(hicreplctyp));
         hrn->palnum = palnum;
     }
     else hrn = hr;
 
     if (!hrn->skybox)
     {
-        hrn->skybox = (struct hicskybox_t *)Bcalloc(1,sizeof(struct hicskybox_t));
-        if (!hrn->skybox)
-        {
-            if (hr == NULL) Bfree(hrn);	// not yet a link in the chain
-            return -1;
-        }
+        hrn->skybox = (struct hicskybox_t *)Xcalloc(1,sizeof(struct hicskybox_t));
     }
     else
     {
@@ -233,16 +219,7 @@ int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
     // store each face's filename
     for (j=0; j<6; j++)
     {
-        hrn->skybox->face[j] = Bstrdup(faces[j]);
-        if (!hrn->skybox->face[j])
-        {
-            for (--j; j>=0; --j)	// free any previous faces
-                Bfree(hrn->skybox->face[j]);
-            Bfree(hrn->skybox);
-            hrn->skybox = NULL;
-            if (hr == NULL) Bfree(hrn);
-            return -1;
-        }
+        hrn->skybox->face[j] = Xstrdup(faces[j]);
     }
     hrn->skybox->ignore = 0;
     if (hr == NULL)

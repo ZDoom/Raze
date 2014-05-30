@@ -166,7 +166,7 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
         }
     }
 
-    cvars = (osdcvar_t *)Brealloc(cvars, (osdnumcvars + 1) * sizeof(osdcvar_t));
+    cvars = (osdcvar_t *)Xrealloc(cvars, (osdnumcvars + 1) * sizeof(osdcvar_t));
 
     hash_add(&h_cvars, cvar->name, osdnumcvars, 1);
 
@@ -572,7 +572,7 @@ static int32_t _internal_osdfunc_alias(const osdfuncparm_t *parm)
         }
     }
 
-    OSD_RegisterFunction(Bstrdup(parm->parms[0]),Bstrdup(parm->parms[1]),OSD_ALIAS);
+    OSD_RegisterFunction(Xstrdup(parm->parms[0]), Xstrdup(parm->parms[1]), OSD_ALIAS);
     if (!osdexecscript)
         OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
@@ -1608,7 +1608,7 @@ void OSD_Printf(const char *fmt, ...)
     {
         if (osdlog && (!logcutoff || linecnt < logcutoff))
         {
-            chp = Bstrdup(tmpstr);
+            chp = Xstrdup(tmpstr);
             Bfputs(OSD_StripColors(chp, tmpstr), osdlog);
             Bprintf("%s", chp);
             Bfree(chp);
@@ -1809,8 +1809,7 @@ int32_t OSD_Dispatch(const char *cmd)
     char *workbuf, *wp, *wtp, *state;
     int32_t restart = 0;
 
-    workbuf = state = Bstrdup(cmd);
-    if (!workbuf) return -1;
+    workbuf = state = Xstrdup(cmd);
 
     do
     {
@@ -1969,8 +1968,8 @@ static symbol_t *addnewsymbol(const char *name)
     symbol_t *newsymb, *s, *t;
 
     if (osdnumsymbols >= MAXSYMBOLS) return NULL;
-    newsymb = (symbol_t *)Bmalloc(sizeof(symbol_t));
-    if (!newsymb) { return NULL; }
+    newsymb = (symbol_t *)Xmalloc(sizeof(symbol_t));
+
     Bmemset(newsymb, 0, sizeof(symbol_t));
 
     // link it to the main chain
@@ -2000,7 +1999,7 @@ static symbol_t *addnewsymbol(const char *name)
         }
     }
     hash_add(&h_osd, name, osdnumsymbols, 1);
-    name = Bstrtolower(Bstrdup(name));
+    name = Bstrtolower(Xstrdup(name));
     hash_add(&h_osd, name, osdnumsymbols, 1);
     Bfree((void *)name);
     osdsymbptrs[osdnumsymbols++] = newsymb;
@@ -2028,7 +2027,7 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
 static symbol_t *findexactsymbol(const char *name)
 {
     int32_t i;
-    char *lname = Bstrdup(name);
+    char *lname = Xstrdup(name);
     if (!symbols) return NULL;
 
     i = hash_find(&h_osd,lname);

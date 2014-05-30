@@ -139,7 +139,7 @@ typedef struct pthtyp_t
     struct pthtyp_t *ofb; // only fullbright
 } pthtyp;
 
-extern int32_t gloadtile_art(int32_t,int32_t,int32_t,int32_t,pthtyp *,int32_t);
+extern void gloadtile_art(int32_t,int32_t,int32_t,int32_t,pthtyp *,int32_t);
 extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,char);
 
 extern int32_t globalnoeffect;

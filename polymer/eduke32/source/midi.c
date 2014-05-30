@@ -1243,11 +1243,7 @@ int32_t MIDI_PlaySong
     }
 
     _MIDI_TrackMemSize = _MIDI_NumTracks  * sizeof(track);
-    _MIDI_TrackPtr = (track *)Bmalloc(_MIDI_TrackMemSize);
-    if (_MIDI_TrackPtr == NULL)
-    {
-        return(MIDI_NoMemory);
-    }
+    _MIDI_TrackPtr = (track *)Xmalloc(_MIDI_TrackMemSize);
 
     CurrentTrack = _MIDI_TrackPtr;
     numtracks    = _MIDI_NumTracks;

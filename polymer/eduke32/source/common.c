@@ -373,14 +373,14 @@ void G_AddGroup(const char *buffer)
 {
     char buf[BMAX_PATH];
 
-    struct strllist *s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
+    struct strllist *s = (struct strllist *)Xcalloc(1,sizeof(struct strllist));
 
     Bstrcpy(buf, buffer);
 
     if (Bstrchr(buf,'.') == 0)
         Bstrcat(buf,".grp");
 
-    s->str = Bstrdup(buf);
+    s->str = Xstrdup(buf);
 
     if (CommandGrps)
     {
@@ -394,8 +394,8 @@ void G_AddGroup(const char *buffer)
 
 void G_AddPath(const char *buffer)
 {
-    struct strllist *s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
-    s->str = Bstrdup(buffer);
+    struct strllist *s = (struct strllist *)Xcalloc(1,sizeof(struct strllist));
+    s->str = Xstrdup(buffer);
 
     if (CommandPaths)
     {
@@ -416,16 +416,16 @@ void G_AddDef(const char *buffer)
 
 void G_AddDefModule(const char *buffer)
 {
-    g_defModules = (char **) Brealloc (g_defModules, (g_defModulesNum+1) * sizeof(char *));
-    g_defModules[g_defModulesNum] = Bstrdup(buffer);
+    g_defModules = (char **) Xrealloc (g_defModules, (g_defModulesNum+1) * sizeof(char *));
+    g_defModules[g_defModulesNum] = Xstrdup(buffer);
     ++g_defModulesNum;
 }
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
 void G_AddClipMap(const char *buffer)
 {
-    g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-    g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(buffer);
+    g_clipMapFiles = (char **) Xrealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
+    g_clipMapFiles[g_clipMapFilesNum] = Xstrdup(buffer);
     ++g_clipMapFilesNum;
 }
 #endif
@@ -439,8 +439,8 @@ void G_AddCon(const char *buffer)
 
 void G_AddConModule(const char *buffer)
 {
-    g_scriptModules = (char **) Brealloc (g_scriptModules, (g_scriptModulesNum+1) * sizeof(char *));
-    g_scriptModules[g_scriptModulesNum] = Bstrdup(buffer);
+    g_scriptModules = (char **) Xrealloc (g_scriptModules, (g_scriptModulesNum+1) * sizeof(char *));
+    g_scriptModules[g_scriptModulesNum] = Xstrdup(buffer);
     ++g_scriptModulesNum;
 }
 
@@ -575,7 +575,7 @@ void G_DoAutoload(const char *dirname)
 // returns a buffer of size BMAX_PATH
 char *dup_filename(const char *fn)
 {
-    char *buf = (char *)Bmalloc(BMAX_PATH);
+    char *buf = (char *)Xmalloc(BMAX_PATH);
 
     return Bstrncpyz(buf, fn, BMAX_PATH);
 }

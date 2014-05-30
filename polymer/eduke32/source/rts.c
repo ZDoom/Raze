@@ -69,26 +69,14 @@ static int32_t RTS_AddFile(const char *filename)
     header.infotableofs = B_LITTLE32(header.infotableofs);
 
     length = header.numlumps*sizeof(filelump_t);
-    fileinfo = fileinfoo = (filelump_t *)Bmalloc(length);
-    if (!fileinfo)
-    {
-        initprintf("RTS file could not allocate header info\n");
-        kclose(handle);
-        return -1;
-    }
+    fileinfo = fileinfoo = (filelump_t *)Xmalloc(length);
 
     klseek(handle, header.infotableofs, SEEK_SET);
     kread(handle, fileinfo, length);
 
     {
-        lumpinfo_t *lump_p = (lumpinfo_t *)Brealloc(
+        lumpinfo_t *lump_p = (lumpinfo_t *)Xrealloc(
             rts_lumpinfo, (rts_numlumps + header.numlumps)*sizeof(lumpinfo_t));
-
-        if (!lump_p)
-        {
-            kclose(handle);
-            return -1;
-        }
 
         rts_lumpinfo = lump_p;
     }
@@ -125,7 +113,7 @@ void RTS_Init(const char *filename)
     if (rts_numlumps == 0)
         return;
 
-    rts_lumpcache = (void **)Bcalloc(rts_numlumps, sizeof(rts_lumpcache[0]));
+    rts_lumpcache = (void **)Xcalloc(rts_numlumps, sizeof(rts_lumpcache[0]));
 
     RTS_Started = TRUE;
 }

@@ -214,7 +214,8 @@ static const char *C_GetLabelType(int32_t type)
         if (x[0]) Bstrcat(x, " or ");
         Bstrcat(x, LabelTypeText[i]);
     }
-    return Bstrdup(x);
+
+    return Xstrdup(x);
 }
 
 
@@ -1259,7 +1260,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
     char *scriptptrs;
     char *newbitptr;
 
-    scriptptrs = (char *)Bcalloc(1, g_scriptSize * sizeof(uint8_t));
+    scriptptrs = (char *)Xcalloc(1, g_scriptSize * sizeof(uint8_t));
 
     for (i=g_scriptSize-1; i>=0; i--)
     {
@@ -1283,17 +1284,8 @@ static int32_t C_SetScriptSize(int32_t newsize)
 
     initprintf("Resizing code buffer to %d*%d bytes\n",newsize, (int32_t)sizeof(intptr_t));
 
-    newscript = (intptr_t *)Brealloc(script, newsize * sizeof(intptr_t));
-    newbitptr = (char *)Bcalloc(1,(((newsize+7)>>3)+1) * sizeof(uint8_t));
-
-    if (newscript == NULL || newbitptr == NULL)
-    {
-        C_ReportError(-1);
-        initprintf("%s:%d: out of memory: Aborted (%ud)\n",g_szScriptFileName,g_lineNumber,(unsigned)(g_scriptPtr-script));
-        initprintf("%s", tempbuf);
-        g_numCompilerErrors++;
-        return 1;
-    }
+    newscript = (intptr_t *)Xrealloc(script, newsize * sizeof(intptr_t));
+    newbitptr = (char *)Xcalloc(1,(((newsize+7)>>3)+1) * sizeof(uint8_t));
 
     if (newsize >= osize)
     {
@@ -2053,15 +2045,7 @@ static void C_Include(const char *confile)
 
     j = kfilelength(fp);
 
-    mptr = (char *)Bmalloc(j+1);
-    if (!mptr)
-    {
-        kclose(fp);
-        g_numCompilerErrors++;
-        initprintf("%s:%d: error: could not allocate %d bytes to include `%s'.\n",
-            g_szScriptFileName,g_lineNumber,j,confile);
-        return;
-    }
+    mptr = (char *)Xmalloc(j+1);
 
     initprintf("Including: %s (%d bytes)\n",confile, j);
     kread(fp, mptr, j);
@@ -2253,7 +2237,7 @@ void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
 
         // TODO: truncate to 32 chars?
         Bfree(map->name);
-        map->name = Bstrdup(levelname);
+        map->name = Xstrdup(levelname);
 
         map->partime = REALGAMETICSPERSEC * partime;
         map->designertime = REALGAMETICSPERSEC * designertime;
@@ -2363,13 +2347,7 @@ int32_t C_AllocQuote(int32_t qnum)
 
     if (ScriptQuotes[qnum] == NULL)
     {
-        ScriptQuotes[qnum] = (char *)Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
-        if (ScriptQuotes[qnum] == NULL)
-        {
-            Bsprintf(tempbuf, "Failed allocating %d byte quote text buffer.", MAXQUOTELEN);
-            G_GameExit(tempbuf);
-        }
-
+        ScriptQuotes[qnum] = (char *)Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
         return 1;
     }
 
@@ -2997,9 +2975,9 @@ static int32_t C_ParseCommand(int32_t loop)
                         tempbuf[j+1] = '\0';
 
                         if (MapInfo[(k*MAXLEVELS)+i].musicfn == NULL)
-                            MapInfo[(k*MAXLEVELS)+i].musicfn = (char *)Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
+                            MapInfo[(k*MAXLEVELS)+i].musicfn = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
                         else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[(k*MAXLEVELS)+i].musicfn))
-                            MapInfo[(k*MAXLEVELS)+i].musicfn = (char *)Brealloc(MapInfo[(k*MAXLEVELS)+i].musicfn,(Bstrlen(tempbuf)+1));
+                            MapInfo[(k*MAXLEVELS)+i].musicfn = (char *)Xrealloc(MapInfo[(k*MAXLEVELS)+i].musicfn,(Bstrlen(tempbuf)+1));
 
                         Bstrcpy(MapInfo[(k*MAXLEVELS)+i].musicfn,tempbuf);
 
@@ -5491,7 +5469,7 @@ repeatcase:
             keydefaults[j*3][i] = '\0';
             hash_add(&h_gamefuncs,gamefunctions[j],j,0);
             {
-                char *str = Bstrtolower(Bstrdup(gamefunctions[j]));
+                char *str = Bstrtolower(Xstrdup(gamefunctions[j]));
                 hash_add(&h_gamefuncs,str,j,0);
                 Bfree(str);
             }
@@ -5563,7 +5541,7 @@ repeatcase:
                     }
                 }
                 gamename[i] = '\0';
-                g_gameNamePtr = Bstrdup(gamename);
+                g_gameNamePtr = Xstrdup(gamename);
                 Bsprintf(tempbuf,"%s - " APPNAME,g_gameNamePtr);
                 wm_setapptitle(tempbuf);
             }
@@ -5688,9 +5666,9 @@ repeatcase:
             Bcorrectfilename(tempbuf,0);
 
             if (MapInfo[j *MAXLEVELS+k].filename == NULL)
-                MapInfo[j *MAXLEVELS+k].filename = (char *)Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
+                MapInfo[j *MAXLEVELS+k].filename = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
             else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].filename))
-                MapInfo[j *MAXLEVELS+k].filename = (char *)Brealloc(MapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
+                MapInfo[j *MAXLEVELS+k].filename = (char *)Xrealloc(MapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
 
             Bstrcpy(MapInfo[j*MAXLEVELS+k].filename,tempbuf);
 
@@ -5734,9 +5712,9 @@ repeatcase:
             tempbuf[i] = '\0';
 
             if (MapInfo[j*MAXLEVELS+k].name == NULL)
-                MapInfo[j*MAXLEVELS+k].name = (char *)Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
+                MapInfo[j*MAXLEVELS+k].name = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
             else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].name))
-                MapInfo[j *MAXLEVELS+k].name = (char *)Brealloc(MapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
+                MapInfo[j *MAXLEVELS+k].name = (char *)Xrealloc(MapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
 
             /*         initprintf("level name string len: %d\n",Bstrlen(tempbuf)); */
 
@@ -5776,12 +5754,7 @@ repeatcase:
             if (tw == CON_REDEFINEQUOTE)
             {
                 if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
-                    ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = (char *)Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
-                if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
-                {
-                    Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(uint8_t) * MAXQUOTELEN);
-                    G_GameExit(tempbuf);
-                }
+                    ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = (char *)Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
             }
 
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
@@ -5883,12 +5856,7 @@ repeatcase:
             C_SkipComments();
 
             if (g_sounds[k].filename == NULL)
-                g_sounds[k].filename = (char *)Bcalloc(BMAX_PATH,sizeof(uint8_t));
-            if (!g_sounds[k].filename)
-            {
-                Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte buffer.",sizeof(uint8_t) * BMAX_PATH);
-                G_GameExit(tempbuf);
-            }
+                g_sounds[k].filename = (char *)Xcalloc(BMAX_PATH,sizeof(uint8_t));
 
             if (*textptr == '\"')
             {
@@ -6364,13 +6332,7 @@ void C_Compile(const char *filenam)
 
     startcompiletime = getticks();
 
-    mptr = (char *)Bmalloc(fs+1);
-    if (!mptr)
-    {
-        Bsprintf(tempbuf,"Failed allocating %d byte CON text buffer.", fs+1);
-        G_GameExit(tempbuf);
-    }
-
+    mptr = (char *)Xmalloc(fs+1);
     mptr[fs] = 0;
 
     textptr = (char *) mptr;
@@ -6380,8 +6342,8 @@ void C_Compile(const char *filenam)
     if (script != NULL)
         Bfree(script);
 
-    script = (intptr_t *)Bcalloc(1,g_scriptSize * sizeof(intptr_t));
-    bitptr = (char *)Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
+    script = (intptr_t *)Xcalloc(1,g_scriptSize * sizeof(intptr_t));
+    bitptr = (char *)Xcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     g_numLabels = g_numDefaultLabels = 0;

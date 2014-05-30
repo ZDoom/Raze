@@ -128,7 +128,8 @@ static const char *C_GetLabelType(int32_t type)
         if (x[0]) Bstrcat(x, " or ");
         Bstrcat(x, LabelTypeText[i]);
     }
-    return strdup(x);
+
+    return Xstrdup(x);
 }
 
 #define NUMKEYWORDS (int32_t)ARRAY_SIZE(keyw)
@@ -624,16 +625,7 @@ static int32_t C_SetScriptSize(int32_t size)
     g_scriptSize = size;
     initprintf("Resizing code buffer to %d*%d bytes\n", g_scriptSize, (int32_t)sizeof(instype));
 
-    newscript = (instype *)Brealloc(script, g_scriptSize * sizeof(instype));
-
-    if (newscript == NULL)
-    {
-        C_ReportError(-1);
-        initprintf("%s:%d: out of memory: Aborted (%ud)\n", g_szScriptFileName, g_lineNumber, (unsigned)(g_scriptPtr-script));
-        g_numCompilerErrors++;
-//        initprintf(tempbuf);
-        return 1;
-    }
+    newscript = (instype *)Xrealloc(script, g_scriptSize * sizeof(instype));
 
     if (size >= osize)
         Bmemset(&newscript[osize], 0, (size-osize) * sizeof(instype));
@@ -784,16 +776,10 @@ static int32_t C_CopyLabel(void)
 {
     if (g_numLabels >= label_allocsize)
     {
-        label = (char *)Brealloc(label, 2*label_allocsize*MAXLABELLEN*sizeof(char));
-        labelval = (int32_t *)Brealloc(labelval, 2*label_allocsize*sizeof(labelval[0]));
-        labeltype = (uint8_t *)Brealloc(labeltype, 2*label_allocsize*sizeof(labeltype[0]));
+        label = (char *)Xrealloc(label, 2*label_allocsize*MAXLABELLEN*sizeof(char));
+        labelval = (int32_t *)Xrealloc(labelval, 2*label_allocsize*sizeof(labelval[0]));
+        labeltype = (uint8_t *)Xrealloc(labeltype, 2*label_allocsize*sizeof(labeltype[0]));
 
-        if (label==NULL || labelval==NULL || labeltype==NULL)
-        {
-            label_allocsize = 0;
-            initprintf("Out of memory!");
-            return 1;
-        }
         label_allocsize *= 2;
     }
 
@@ -1022,13 +1008,7 @@ static void C_GetNextVarType(int32_t type)
                 if (i>=constants_allocsize)
                 {
                     constants_allocsize *= 2;
-                    constants = (int32_t *)Brealloc(constants, constants_allocsize * sizeof(constants[0]));
-                    if (!constants)
-                    {
-                        initprintf("C_GetNextVarType(): ERROR: out of memory!\n");
-                        g_numCompilerErrors++;
-                        return;
-                    }
+                    constants = (int32_t *)Xrealloc(constants, constants_allocsize * sizeof(constants[0]));
                 }
 
                 constants[i] = num;
@@ -1740,15 +1720,7 @@ static int32_t C_ParseCommand(void)
 
             j = kfilelength(fp);
 
-            mptr = (char *)Bmalloc(j+1);
-            if (!mptr)
-            {
-                kclose(fp);
-                g_numCompilerErrors++;
-                initprintf("%s:%d: error: could not allocate %d bytes to include `%s'.\n",
-                           g_szScriptFileName,g_lineNumber,j,tempbuf);
-                return 1;
-            }
+            mptr = (char *)Xmalloc(j+1);
 
             initprintf("  Including: %s (%d bytes)\n", tempbuf, j);
             kread(fp, mptr, j);
@@ -1823,13 +1795,7 @@ static int32_t C_ParseCommand(void)
                 if (g_stateCount >= statesinfo_allocsize)
                 {
                     statesinfo_allocsize *= 2;
-                    statesinfo = (statesinfo_t *)Brealloc(statesinfo, statesinfo_allocsize * sizeof(statesinfo[0]));
-                    if (!statesinfo)
-                    {
-                        initprintf("C_ParseCommand(): ERROR: out of memory!\n");
-                        g_numCompilerErrors++;
-                        return 1;
-                    }
+                    statesinfo = (statesinfo_t *)Xrealloc(statesinfo, statesinfo_allocsize * sizeof(statesinfo[0]));
                 }
 
                 Bstrcpy(statesinfo[j].name, tlabel);
@@ -1849,7 +1815,7 @@ static int32_t C_ParseCommand(void)
 
                 if (C_GetNextVarOrString() == 1)  // inline string
                 {
-                    cs.curStateMenuName = Bstrdup((const char *)(oscriptptr+1));
+                    cs.curStateMenuName = Xstrdup((const char *)(oscriptptr+1));
                     g_scriptPtr = oscriptptr;
                 }
                 else
@@ -3217,14 +3183,7 @@ repeatcase:
         }
 
         if (ScriptQuotes[k] == NULL)
-            ScriptQuotes[k] = (char *)Bcalloc(MAXQUOTELEN, sizeof(uint8_t));
-
-        if (!ScriptQuotes[k])
-        {
-            Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.", MAXQUOTELEN);
-            g_numCompilerErrors++;
-            return 1;
-        }
+            ScriptQuotes[k] = (char *)Xcalloc(MAXQUOTELEN, sizeof(uint8_t));
 
         if (tw == CON_DEFINEQUOTE)
             g_scriptPtr--;
@@ -3235,13 +3194,7 @@ repeatcase:
         if (tw == CON_REDEFINEQUOTE)
         {
             if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
-                ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = (char *)Bcalloc(MAXQUOTELEN, sizeof(uint8_t));
-            if (!ScriptQuoteRedefinitions[g_numQuoteRedefinitions])
-            {
-                Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.", MAXQUOTELEN);
-                g_numCompilerErrors++;
-                return 1;
-            }
+                ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = (char *)Xcalloc(MAXQUOTELEN, sizeof(uint8_t));
         }
 
         i = 0;
@@ -3693,13 +3646,13 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
     if (firstime)
     {
-        label = (char *)Bmalloc(label_allocsize * MAXLABELLEN * sizeof(char));
-        labelval = (int32_t *)Bmalloc(label_allocsize * sizeof(int32_t));
-        labeltype = (uint8_t *)Bmalloc(label_allocsize * sizeof(uint8_t));
+        label = (char *)Xmalloc(label_allocsize * MAXLABELLEN * sizeof(char));
+        labelval = (int32_t *)Xmalloc(label_allocsize * sizeof(int32_t));
+        labeltype = (uint8_t *)Xmalloc(label_allocsize * sizeof(uint8_t));
 
-        constants = (int32_t *)Bmalloc(constants_allocsize * sizeof(int32_t));
+        constants = (int32_t *)Xmalloc(constants_allocsize * sizeof(int32_t));
 
-        statesinfo = (statesinfo_t *)Bmalloc(statesinfo_allocsize * sizeof(statesinfo_t));
+        statesinfo = (statesinfo_t *)Xmalloc(statesinfo_allocsize * sizeof(statesinfo_t));
 
         for (i=0; i<MAXEVENTS; i++)
         {
@@ -3712,14 +3665,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         Gv_Init();
         C_AddDefaultDefinitions();
 
-        script = (instype *)Bcalloc(g_scriptSize, sizeof(instype));
-        //        initprintf("script: %d\n",script);
-        if (!script || !label || !labelval || !labeltype || !constants)
-        {
-            initprintf("C_Compile(): ERROR: out of memory!\n");
-            g_numCompilerErrors++;
-            return;
-        }
+        script = (instype *)Xcalloc(g_scriptSize, sizeof(instype));
 
         g_scriptPtr = script+1;
 
@@ -3729,13 +3675,8 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
     if (isfilename)
     {
         fs = Bstrlen(filenameortext);
-        mptr = (char *)Bmalloc(fs+1+4);
-        if (!mptr)
-        {
-            initprintf("C_Compile(): ERROR: out of memory!\n");
-            g_numCompilerErrors++;
-            return;
-        }
+        mptr = (char *)Xmalloc(fs+1+4);
+
         Bmemcpy(mptr, filenameortext, fs+1);
 
         fp = kopen4load(mptr, 0 /*g_loadFromGroupOnly*/);
@@ -3775,13 +3716,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
     if (isfilename)
     {
-        mptr = (char *)Bmalloc(fs+1);
-        if (!mptr)
-        {
-            initprintf("Failed allocating %d byte CON text buffer.\n", fs+1);
-            return;
-        }
-
+        mptr = (char *)Xmalloc(fs+1);
         mptr[fs] = 0;
 
         kread(fp, mptr, fs);
@@ -3824,13 +3759,13 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
             {
                 if (aGameVars[i].val.plValues)
                 {
-                    aGameVars[i].val.plValues = (int32_t *)Brealloc(aGameVars[i].val.plValues, (1+MAXEVENTS+g_stateCount)*sizeof(int32_t));
+                    aGameVars[i].val.plValues = (int32_t *)Xrealloc(aGameVars[i].val.plValues, (1+MAXEVENTS+g_stateCount)*sizeof(int32_t));
                     for (j=ostateCount; j<g_stateCount; j++)
                         aGameVars[i].val.plValues[1+MAXEVENTS+j] = aGameVars[i].lDefault;
                 }
                 else
                 {
-                    aGameVars[i].val.plValues = (int32_t *)Bmalloc((1+MAXEVENTS+g_stateCount)*sizeof(int32_t));
+                    aGameVars[i].val.plValues = (int32_t *)Xmalloc((1+MAXEVENTS+g_stateCount)*sizeof(int32_t));
                     for (j=0; j<(1+MAXEVENTS+g_stateCount); j++)
                         aGameVars[i].val.plValues[j] = aGameVars[i].lDefault;
                 }
@@ -3855,7 +3790,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         }
 ///        for (i=MAXQUOTES-1; i>=0; i--)
 ///            if (ScriptQuotes[i] == NULL)
-///                ScriptQuotes[i] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+///                ScriptQuotes[i] = Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
     }
 
     if (g_numCompilerErrors)
@@ -4020,7 +3955,7 @@ void C_PrintErrorPosition()
         return;
 
     {
-        char *buf = (char *)Bmalloc(nchars+1);
+        char *buf = (char *)Xmalloc(nchars+1);
 
         Bmemcpy(buf, b, nchars);
         buf[nchars]=0;

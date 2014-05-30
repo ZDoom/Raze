@@ -1070,8 +1070,8 @@ static void texdbg_realloc(uint32_t maxtexname)
         newsize <<= 1;
 //    initprintf("texdebug: new size %u\n", newsize);
 
-    texnameused = Brealloc(texnameused, newsize>>3);
-    texnamefromwhere = Brealloc(texnamefromwhere, newsize*sizeof(uint32_t));
+    texnameused = Xrealloc(texnameused, newsize>>3);
+    texnamefromwhere = Xrealloc(texnamefromwhere, newsize*sizeof(uint32_t));
 
     Bmemset(texnameused + (texnameallocsize>>3), 0, (newsize-texnameallocsize)>>3);
     Bmemset(texnamefromwhere + texnameallocsize, 0, (newsize-texnameallocsize)*sizeof(uint32_t));

@@ -362,7 +362,7 @@ int32_t G_GetStringNumLines(const char *text, const char *end, const int32_t ite
 // This function requires you to Bfree() the returned char*.
 char* G_GetSubString(const char *text, const char *end, const int32_t iter, const int32_t length)
 {
-    char *line = (char*)Bmalloc((length+1) * sizeof(char));
+    char *line = (char*)Xmalloc((length+1) * sizeof(char));
     int32_t counter = 0;
 
     while (counter < length && text != end)
@@ -4360,7 +4360,7 @@ static void G_ReadGLFrame(void)
 {
     // Save OpenGL screenshot with Duke3D palette
     // NOTE: maybe need to move this to the engine...
-    palette_t *const frame = (palette_t *const) Bcalloc(xdim * ydim, sizeof(palette_t));
+    palette_t *const frame = (palette_t *const)Xcalloc(xdim * ydim, sizeof(palette_t));
     char *const pic = (char *) waloff[TILE_SAVESHOT];
 
     int32_t x, y;
@@ -9223,10 +9223,7 @@ static char *S_OggifyFilename(char *outputname, char *newname, const char *orign
     if (!origname)
         return outputname;
 
-    outputname = (char *)Brealloc(outputname, Bstrlen(newname) + Bstrlen(origname) + 1);
-
-    if (!outputname)
-        return NULL;
+    outputname = (char *)Xrealloc(outputname, Bstrlen(newname) + Bstrlen(origname) + 1);
 
     Bstrcpy(outputname, *newname ? newname : origname);
 
@@ -9485,7 +9482,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             }
 
             if (!preload)
-                anim_hi_sounds[animnum] = (uint16_t *)Bcalloc(allocsz, 2*sizeof(anim_hi_sounds[0]));
+                anim_hi_sounds[animnum] = (uint16_t *)Xcalloc(allocsz, 2*sizeof(anim_hi_sounds[0]));
             while (script->textptr < animsoundsend)
             {
                 int32_t framenum, soundnum;
@@ -9509,6 +9506,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
 
                 bad=1;
 
+                // TODO: look carefully at whether this can be removed.
                 if (anim_hi_sounds[animnum]==NULL)  // Bcalloc check
                     break;
 
@@ -9543,9 +9541,8 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     void *newptr;
 
                     allocsz *= 2;
-                    newptr = Brealloc(anim_hi_sounds[animnum], allocsz*2*sizeof(anim_hi_sounds[0]));
+                    newptr = Xrealloc(anim_hi_sounds[animnum], allocsz*2*sizeof(anim_hi_sounds[0]));
 
-                    if (!newptr) break;
                     anim_hi_sounds[animnum] = (uint16_t *)newptr;
                 }
 
@@ -9708,8 +9705,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
 #ifdef LUNATIC
     g_argv = argv;
-    g_elModules = (const char **)Bcalloc(argc+1, sizeof(char *));
-    Bassert(g_elModules);
+    g_elModules = (const char **)Xcalloc(argc+1, sizeof(char *));
 #endif
     ud.fta_on = 1;
     ud.god = 0;
@@ -9737,8 +9733,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
         char clipshape[16] = "_clipshape0.map";
 
         clipshape[10] = j;
-        g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-        g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(clipshape);
+        g_clipMapFiles = (char **)Xrealloc(g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
+        g_clipMapFiles[g_clipMapFilesNum] = Xstrdup(clipshape);
         ++g_clipMapFilesNum;
     }
 #endif
@@ -10687,11 +10683,8 @@ static void G_CompileScripts(void)
         char *newlabel;
         int32_t *newlabelcode;
 
-        newlabel     = (char *)Bmalloc(g_numLabels<<6);
-        newlabelcode = (int32_t *)Bmalloc(g_numLabels*sizeof(int32_t));
-
-        if (!newlabel || !newlabelcode)
-            G_GameExit("Error: out of memory retaining labels\n");
+        newlabel     = (char *)Xmalloc(g_numLabels<<6);
+        newlabelcode = (int32_t *)Xmalloc(g_numLabels*sizeof(int32_t));
 
         Bmemcpy(newlabel, label, g_numLabels*64);
         Bmemcpy(newlabelcode, labelcode, g_numLabels*sizeof(int32_t));
@@ -10775,9 +10768,7 @@ LUNATIC_EXTERN void El_SetCON(const char *conluacode)
 {
     int32_t slen = Bstrlen(conluacode);
 
-    g_elCON = (char *)Bmalloc(slen);
-    if (g_elCON == NULL)
-        G_GameExit("OUT OF MEMORY in El_SetCON!");
+    g_elCON = (char *)Xmalloc(slen);
 
     g_elCONSize = slen;
     Bmemcpy(g_elCON, conluacode, slen);
@@ -11149,12 +11140,10 @@ DukePlayer_t *g_player_ps[MAXPLAYERS];
 void G_MaybeAllocPlayer(int32_t pnum)
 {
     if (g_player[pnum].ps == NULL)
-        g_player[pnum].ps = (DukePlayer_t *)Bcalloc(1, sizeof(DukePlayer_t));
+        g_player[pnum].ps = (DukePlayer_t *)Xcalloc(1, sizeof(DukePlayer_t));
     if (g_player[pnum].sync == NULL)
-        g_player[pnum].sync = (input_t *)Bcalloc(1, sizeof(input_t));
+        g_player[pnum].sync = (input_t *)Xcalloc(1, sizeof(input_t));
 
-    if (g_player[pnum].ps == NULL || g_player[pnum].sync == NULL)
-        G_GameExit("OUT OF MEMORY");
 #ifdef LUNATIC
     g_player_ps[pnum] = g_player[pnum].ps;
     g_player[pnum].ps->wa.idx = pnum;
@@ -11383,7 +11372,7 @@ int32_t app_main(int32_t argc, const char **argv)
     hash_init(&h_gamefuncs);
     for (i=NUMGAMEFUNCTIONS-1; i>=0; i--)
     {
-        char *str = Bstrtolower(Bstrdup(gamefunctions[i]));
+        char *str = Bstrtolower(Xstrdup(gamefunctions[i]));
         hash_add(&h_gamefuncs,gamefunctions[i],i,0);
         hash_add(&h_gamefuncs,str,i,0);
         Bfree(str);
@@ -11785,7 +11774,7 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 
     {
-        char *ptr = Bstrdup(setupfilename), *p = strtok(ptr,".");
+        char *ptr = Xstrdup(setupfilename), *p = strtok(ptr,".");
         if (!Bstrcmp(setupfilename, SETUPFILENAME))
             Bsprintf(tempbuf, "settings.cfg");
         else Bsprintf(tempbuf,"%s_settings.cfg",p);

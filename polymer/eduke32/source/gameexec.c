@@ -4430,7 +4430,7 @@ finish_qsprintf:
                             // NOTE: this is broken on 64-bit, e.g. for LNGA2.
                             /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
                                 aGameArrays[j].szLabel, aGameArrays[j].size, asize / GAR_ELTSZ);*/
-                            aGameArrays[j].plValues = (intptr_t *)Brealloc(aGameArrays[j].plValues, asize);
+                            aGameArrays[j].plValues = (intptr_t *)Xrealloc(aGameArrays[j].plValues, asize);
                             aGameArrays[j].size = asize / GAR_ELTSZ;
                             kread(fil, aGameArrays[j].plValues, asize);
                         }
@@ -4482,7 +4482,7 @@ finish_qsprintf:
                 if (asize > 0)
                 {
                     /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);*/
-                    aGameArrays[j].plValues = (intptr_t *)Brealloc(aGameArrays[j].plValues, GAR_ELTSZ * asize);
+                    aGameArrays[j].plValues = (intptr_t *)Xrealloc(aGameArrays[j].plValues, GAR_ELTSZ * asize);
                     aGameArrays[j].size = asize;
                 }
                 continue;
@@ -5507,7 +5507,7 @@ void G_SaveMapState(void)
     mapstate_t *save;
 
     if (mapinfo->savedstate == NULL)
-        mapinfo->savedstate = (mapstate_t *)Bcalloc(1,sizeof(mapstate_t));
+        mapinfo->savedstate = (mapstate_t *)Xcalloc(1,sizeof(mapstate_t));
     save = mapinfo->savedstate;
 
     if (save != NULL)
@@ -5588,13 +5588,13 @@ void G_SaveMapState(void)
             if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
             {
                 if (!save->vars[i])
-                    save->vars[i] = (intptr_t *)Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+                    save->vars[i] = (intptr_t *)Xcalloc(MAXPLAYERS,sizeof(intptr_t));
                 Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXPLAYERS);
             }
             else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
             {
                 if (!save->vars[i])
-                    save->vars[i] = (intptr_t *)Bcalloc(MAXSPRITES,sizeof(intptr_t));
+                    save->vars[i] = (intptr_t *)Xcalloc(MAXSPRITES,sizeof(intptr_t));
                 Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXSPRITES);
             }
             else save->vars[i] = (intptr_t *)aGameVars[i].val.lValue;
@@ -5610,9 +5610,7 @@ void G_SaveMapState(void)
             }
             else
             {
-                char *savecode = Bstrdup(svcode);
-                if (savecode == NULL)
-                    G_GameExit("OUT OF MEMORY in G_SaveMapState!");
+                char *savecode = Xstrdup(svcode);
                 Bfree(save->savecode);
                 save->savecode = savecode;
             }

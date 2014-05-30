@@ -157,9 +157,7 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 {
     UNREFERENCED_PARAMETER(newlockptr);
 
-    *newhandle = (intptr_t)Bmalloc(newbytes);
-    if (!*newhandle)
-        reportandexit("OUT OF MEMORY in allocache as malloc wrapper!");
+    *newhandle = (intptr_t)Xmalloc(newbytes);
 }
 #else
 static void inc_and_check_cacnum(void)
@@ -357,7 +355,7 @@ int32_t addsearchpath(const char *p)
     struct Bstat st;
     char *s;
     searchpath_t *srch;
-    char *path = Bstrdup(p);
+    char *path = Xstrdup(p);
 
     if (path[Bstrlen(path)-1] == '\\')
         path[Bstrlen(path)-1] = 0; // hack for stat() returning ENOENT on paths ending in a backslash
@@ -374,22 +372,11 @@ int32_t addsearchpath(const char *p)
         return -1;
     }
 
-    srch = (searchpath_t *)Bmalloc(sizeof(searchpath_t));
-    if (!srch)     
-    {
-        Bfree(path);
-        return -1;
-    }
+    srch = (searchpath_t *)Xmalloc(sizeof(searchpath_t));
 
     srch->next    = searchpathhead;
     srch->pathlen = Bstrlen(path)+1;
-    srch->path    = (char *)Bmalloc(srch->pathlen + 1);
-    if (!srch->path)
-    {
-        Bfree(path);
-        Bfree(srch);
-        return -1;
-    }
+    srch->path    = (char *)Xmalloc(srch->pathlen + 1);
 
     Bstrcpy(srch->path, path);
     for (s=srch->path; *s; s++);
@@ -414,7 +401,7 @@ int32_t removesearchpath(const char *p)
 {
     searchpath_t *srch;
     char *s;
-    char *path = (char *)Bmalloc(Bstrlen(p) + 2);
+    char *path = (char *)Xmalloc(Bstrlen(p) + 2);
 
     Bstrcpy(path, p);
 
@@ -476,13 +463,13 @@ int32_t findfrompath(const char *fn, char **where)
         // test unmolested filename first
         if (access(fn, F_OK) >= 0)
         {
-            *where = Bstrdup(fn);
+            *where = Xstrdup(fn);
             return 0;
         }
 #ifndef _WIN32
         else
         {
-            char *tfn = Bstrtolower(Bstrdup(fn));
+            char *tfn = Bstrtolower(Xstrdup(fn));
 
             if (access(tfn, F_OK) >= 0)
             {
@@ -504,16 +491,15 @@ int32_t findfrompath(const char *fn, char **where)
     }
 
     for (pfn = (char *)fn; toupperlookup[*pfn] == '/'; pfn++);
-    ffn = Bstrdup(pfn);
-    if (!ffn) return -1;
+    ffn = Xstrdup(pfn);
+
     Bcorrectfilename(ffn,0);	// compress relative paths
 
     allocsiz = max(maxsearchpathlen, 2);	// "./" (aka. curdir)
     allocsiz += strlen(ffn);
     allocsiz += 1;	// a nul
 
-    pfn = (char *)Bmalloc(allocsiz);
-    if (!pfn) { Bfree(ffn); return -1; }
+    pfn = (char *)Xmalloc(allocsiz);
 
     strcpy(pfn, "./");
     strcat(pfn, ffn);
@@ -526,7 +512,7 @@ int32_t findfrompath(const char *fn, char **where)
 
     for (sp = searchpathhead; sp; sp = sp->next)
     {
-        char *tfn = Bstrdup(ffn);
+        char *tfn = Xstrdup(ffn);
 
         strcpy(pfn, sp->path);
         strcat(pfn, ffn);
@@ -702,16 +688,8 @@ int32_t initgroupfile(const char *filename)
         }
         gnumfiles[numgroupfiles] = B_LITTLE32(*((int32_t *)&buf[12]));
 
-        if ((gfilelist[numgroupfiles] = (char *)Bmalloc(gnumfiles[numgroupfiles]<<4)) == 0)
-        {
-            Bprintf("Not enough memory for file grouping system\n");
-            exit(1);
-        }
-        if ((gfileoffs[numgroupfiles] = (int32_t *)Bmalloc((gnumfiles[numgroupfiles]+1)<<2)) == 0)
-        {
-            Bprintf("Not enough memory for file grouping system\n");
-            exit(1);
-        }
+        gfilelist[numgroupfiles] = (char *)Xmalloc(gnumfiles[numgroupfiles]<<4);
+        gfileoffs[numgroupfiles] = (int32_t *)Xmalloc((gnumfiles[numgroupfiles]+1)<<2);
 
         Bread(groupfil[numgroupfiles],gfilelist[numgroupfiles],gnumfiles[numgroupfiles]<<4);
 
@@ -820,7 +798,7 @@ static int32_t check_filename_mismatch(const char *filename, int32_t ofs)
         return 0;
 
     {
-        char *tfn = Bstrtolower(Bstrdup(fn));
+        char *tfn = Bstrtolower(Xstrdup(fn));
 
         if (!Bstrncmp(shinf.szDisplayName, tfn, len))
         {
@@ -1167,8 +1145,8 @@ static int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t t
         return 0;
     }
 
-    r = (CACHE1D_FIND_REC *)Bmalloc(sizeof(CACHE1D_FIND_REC)+strlen(name)+1);
-    if (!r) return -1;
+    r = (CACHE1D_FIND_REC *)Xmalloc(sizeof(CACHE1D_FIND_REC)+strlen(name)+1);
+
     r->name = (char *)r + sizeof(CACHE1D_FIND_REC); strcpy(r->name, name);
     r->type = type;
     r->source = source;
@@ -1212,8 +1190,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
     // pathsearchmode == 0: enumerates a path in the virtual filesystem
     // pathsearchmode == 1: enumerates the system filesystem path passed in
 
-    path = Bstrdup(_path);
-    if (!path) return NULL;
+    path = Xstrdup(_path);
 
     // we don't need any leading dots and slashes or trailing slashes either
     {

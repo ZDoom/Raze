@@ -257,7 +257,7 @@ int32_t md_loadmodel(const char *fn)
 
     if (nextmodelid >= nummodelsalloced)
     {
-        ml = (mdmodel_t **)Brealloc(models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void *)); if (!ml) return(-1);
+        ml = (mdmodel_t **)Xrealloc(models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void *));
         models = ml; nummodelsalloced += MODELALLOCGROUP;
     }
 
@@ -369,8 +369,8 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     ma.fpssc = fpssc;
     ma.flags = flags;
 
-    map = (mdanim_t *)Bmalloc(sizeof(mdanim_t));
-    if (!map) return(-4);
+    map = (mdanim_t *)Xmalloc(sizeof(mdanim_t));
+
     Bmemcpy(map, &ma, sizeof(ma));
 
     map->next = m->animations;
@@ -463,17 +463,16 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
         }
 
     ////// realloc & change "numframes" everywhere
-    // TODO: check if NULL
 
     if (m->muladdframes)
-        m->muladdframes = Brealloc(m->muladdframes, 2*sizeof(point3d)*usedframes);
-    m->head.frames = Brealloc(m->head.frames, sizeof(md3frame_t)*usedframes);
+        m->muladdframes = Xrealloc(m->muladdframes, 2*sizeof(point3d)*usedframes);
+    m->head.frames = Xrealloc(m->head.frames, sizeof(md3frame_t)*usedframes);
 
     for (surfi=0; surfi < m->head.numsurfs; surfi++)
     {
         m->head.surfs[surfi].numframes = usedframes;
         // CAN'T do that because xyzn is offset from a larger block when loaded from md3:
-//        m->head.surfs[surfi].xyzn = Brealloc(m->head.surfs[surfi].xyzn, s->numverts*usedframes*sizeof(md3xyzn_t));
+//        m->head.surfs[surfi].xyzn = Xrealloc(m->head.surfs[surfi].xyzn, s->numverts*usedframes*sizeof(md3xyzn_t));
     }
 
     m->head.numframes = usedframes;
@@ -505,8 +504,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
             break;
     if (!sk)
     {
-        sk = (mdskinmap_t *)Bcalloc(1,sizeof(mdskinmap_t));
-        if (!sk) return -4;
+        sk = (mdskinmap_t *)Xcalloc(1,sizeof(mdskinmap_t));
 
         if (!skl) m->skinmap = sk;
         else skl->next = sk;
@@ -519,8 +517,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     sk->param = param;
     sk->specpower = specpower;
     sk->specfactor = specfactor;
-    sk->fn = Bstrdup(skinfn);
-    if (!sk->fn) return(-4);
+    sk->fn = Xstrdup(skinfn);
 
     return 0;
 }
@@ -583,7 +580,7 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
     int32_t r, g, b;
 
     picfillen = kfilelength(filh);
-    picfil = (char *)Bmalloc(picfillen+1); if (!picfil) { return -1; }
+    picfil = (char *)Xmalloc(picfillen+1);
     kread(filh, picfil, picfillen);
 
     // tsizx/y = replacement texture's natural size
@@ -603,8 +600,8 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
         ysiz = tsizy;
     }
     *osizx = tsizx; *osizy = tsizy;
-    pic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
-    if (!pic) { Bfree(picfil); return -1; }
+    pic = (coltype *)Xmalloc(xsiz*ysiz*sizeof(coltype));
+
     memset(pic,0,xsiz*ysiz*sizeof(coltype));
 
     if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0))
@@ -1084,7 +1081,7 @@ static void mdloadvbos(md3model_t *m)
 {
     int32_t     i;
 
-    m->vbos = (GLuint *)Bmalloc(m->head.numsurfs * sizeof(GLuint));
+    m->vbos = (GLuint *)Xmalloc(m->head.numsurfs * sizeof(GLuint));
     bglGenBuffersARB(m->head.numsurfs, m->vbos);
 
     i = 0;
@@ -1110,7 +1107,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
     int32_t ournumskins, ournumglcmds;
 
-    m = (md2model_t *)Bcalloc(1,sizeof(md2model_t)); if (!m) return(0);
+    m = (md2model_t *)Xcalloc(1,sizeof(md2model_t));
     m->mdnum = 2; m->scale = .01f;
 
     kread(fil,(char *)&head,sizeof(md2head_t));
@@ -1135,10 +1132,10 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m->numglcmds = head.numglcmds;
     m->framebytes = head.framebytes;
 
-    m->frames = (char *)Bmalloc(m->numframes*m->framebytes); if (!m->frames) { Bfree(m); return(0); }
-    m->glcmds = (int32_t *)Bmalloc(ournumglcmds*sizeof(int32_t)); if (!m->glcmds) { Bfree(m->frames); Bfree(m); return(0); }
-    m->tris = (md2tri_t *)Bmalloc(head.numtris*sizeof(md2tri_t)); if (!m->tris) { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
-    m->uv = (md2uv_t *)Bmalloc(head.numuv*sizeof(md2uv_t)); if (!m->uv) { Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m->frames = (char *)Xmalloc(m->numframes*m->framebytes);
+    m->glcmds = (int32_t *)Xmalloc(ournumglcmds*sizeof(int32_t));
+    m->tris = (md2tri_t *)Xmalloc(head.numtris*sizeof(md2tri_t));
+    m->uv = (md2uv_t *)Xmalloc(head.numuv*sizeof(md2uv_t));
 
     klseek(fil,head.ofsframes,SEEK_SET);
     if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
@@ -1199,10 +1196,10 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
         if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
-    m->basepath = (char *)Bmalloc(i+1); if (!m->basepath) { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m->basepath = (char *)Xmalloc(i+1);
     Bstrcpy(m->basepath, st);
 
-    m->skinfn = (char *)Bmalloc(ournumskins*64); if (!m->skinfn) { Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m->skinfn = (char *)Xmalloc(ournumskins*64);
     if (m->numskins > 0)
     {
         klseek(fil,head.ofsskins,SEEK_SET);
@@ -1210,8 +1207,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
             { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     }
 
-    m->texid = (GLuint *)Bcalloc(ournumskins, sizeof(GLuint) * (HICEFFECTMASK+1));
-    if (!m->texid) { Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m->texid = (GLuint *)Xcalloc(ournumskins, sizeof(GLuint) * (HICEFFECTMASK+1));
 
     maxmodelverts = max(maxmodelverts, m->numverts);
     maxmodeltris = max(maxmodeltris, head.numtris);
@@ -1220,7 +1216,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
     // the MD2 is now loaded internally - let's begin the MD3 conversion process
     //OSD_Printf("Beginning md3 conversion.\n");
-    m3 = (md3model_t *)Bcalloc(1, sizeof(md3model_t)); if (!m3) { Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m3 = (md3model_t *)Xcalloc(1, sizeof(md3model_t));
     m3->mdnum = 3; m3->texid = 0; m3->scale = m->scale;
     m3->head.id = 0x33504449; m3->head.vers = 15;
 
@@ -1244,8 +1240,8 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m3->numskins = m3->head.numskins;
     m3->numframes = m3->head.numframes;
 
-    m3->head.frames = (md3frame_t *)Bcalloc(m3->head.numframes, sizeof(md3frame_t)); if (!m3->head.frames) { Bfree(m3); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
-    m3->muladdframes = (point3d *)Bcalloc(m->numframes * 2, sizeof(point3d));
+    m3->head.frames = (md3frame_t *)Xcalloc(m3->head.numframes, sizeof(md3frame_t));
+    m3->muladdframes = (point3d *)Xcalloc(m->numframes * 2, sizeof(point3d));
 
     f = (md2frame_t *)(m->frames);
 
@@ -1263,7 +1259,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
     m3->head.tags = NULL;
 
-    m3->head.surfs = (md3surf_t *)Bcalloc(1, sizeof(md3surf_t)); if (!m3->head.surfs) { Bfree(m3->head.frames); Bfree(m3); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m3->head.surfs = (md3surf_t *)Xcalloc(1, sizeof(md3surf_t));
     s = m3->head.surfs;
 
     // model converting
@@ -1280,9 +1276,9 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
     s->shaders = NULL;
 
-    s->tris = (md3tri_t *)Bcalloc(head.numtris, sizeof(md3tri_t)); if (!s->tris) { Bfree(s); Bfree(m3->head.frames); Bfree(m3); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
-    s->uv = (md3uv_t *)Bcalloc(s->numverts, sizeof(md3uv_t)); if (!s->uv) { Bfree(s->tris); Bfree(s); Bfree(m3->head.frames); Bfree(m3); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
-    s->xyzn = (md3xyzn_t *)Bcalloc(s->numverts * m->numframes, sizeof(md3xyzn_t)); if (!s->xyzn) { Bfree(s->uv); Bfree(s->tris); Bfree(s); Bfree(m3->head.frames); Bfree(m3); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    s->tris = (md3tri_t *)Xcalloc(head.numtris, sizeof(md3tri_t));
+    s->uv = (md3uv_t *)Xcalloc(s->numverts, sizeof(md3uv_t));
+    s->xyzn = (md3xyzn_t *)Xcalloc(s->numverts * m->numframes, sizeof(md3xyzn_t));
 
     //memoryusage += (s->numverts * m->numframes * sizeof(md3xyzn_t));
     //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
@@ -1336,26 +1332,23 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     {
         mdskinmap_t *sk;
 
-        sk = (mdskinmap_t *)Bcalloc(1,sizeof(mdskinmap_t));
+        sk = (mdskinmap_t *)Xcalloc(1,sizeof(mdskinmap_t));
         sk->palette = 0;
         sk->skinnum = 0;
         sk->surfnum = 0;
 
         if (m->numskins > 0)
         {
-            sk->fn = (char *)Bmalloc(strlen(m->basepath)+strlen(m->skinfn)+1);
+            sk->fn = (char *)Xmalloc(strlen(m->basepath)+strlen(m->skinfn)+1);
             Bstrcpy(sk->fn, m->basepath);
             Bstrcat(sk->fn, m->skinfn);
         }
         m3->skinmap = sk;
     }
 
-    m3->indexes = (uint16_t *)Bmalloc(sizeof(uint16_t) * s->numtris);
-    m3->vindexes = (uint16_t *)Bmalloc(sizeof(uint16_t) * s->numtris * 3);
-    m3->maxdepths = (float *)Bmalloc(sizeof(float) * s->numtris);
-
-    if (!m3->indexes || !m3->vindexes || !m3->maxdepths)
-        QuitOnFatalError("OUT OF MEMORY in md2load!");
+    m3->indexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * s->numtris);
+    m3->vindexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * s->numtris * 3);
+    m3->maxdepths = (float *)Xmalloc(sizeof(float) * s->numtris);
 
     m3->vbos = NULL;
 
@@ -1421,7 +1414,7 @@ static md3model_t *md3load(int32_t fil)
     md3model_t *m;
     md3surf_t *s;
 
-    m = (md3model_t *)Bcalloc(1,sizeof(md3model_t)); if (!m) return(0);
+    m = (md3model_t *)Xcalloc(1,sizeof(md3model_t));
     m->mdnum = 3; m->texid = 0; m->scale = .01f;
 
     m->muladdframes = NULL;
@@ -1442,19 +1435,19 @@ static md3model_t *md3load(int32_t fil)
     ofsurf = m->head.ofssurfs;
 
     klseek(fil,m->head.ofsframes,SEEK_SET); i = m->head.numframes*sizeof(md3frame_t);
-    m->head.frames = (md3frame_t *)Bmalloc(i); if (!m->head.frames) { Bfree(m); return(0); }
+    m->head.frames = (md3frame_t *)Xmalloc(i);
     kread(fil,m->head.frames,i);
 
     if (m->head.numtags == 0) m->head.tags = NULL;
     else
     {
         klseek(fil,m->head.ofstags,SEEK_SET); i = m->head.numtags*sizeof(md3tag_t);
-        m->head.tags = (md3tag_t *)Bmalloc(i); if (!m->head.tags) { Bfree(m->head.frames); Bfree(m); return(0); }
+        m->head.tags = (md3tag_t *)Xmalloc(i);
         kread(fil,m->head.tags,i);
     }
 
     klseek(fil,m->head.ofssurfs,SEEK_SET); i = m->head.numsurfs*sizeof(md3surf_t);
-    m->head.surfs = (md3surf_t *)Bmalloc(i); if (!m->head.surfs) { if (m->head.tags) Bfree(m->head.tags); Bfree(m->head.frames); Bfree(m); return(0); }
+    m->head.surfs = (md3surf_t *)Xmalloc(i);
     m->head.surfs[0].geometry = NULL;  // for deferred polymer model postprocessing (else: crashes)
 
 #if B_BIG_ENDIAN != 0
@@ -1499,12 +1492,8 @@ static md3model_t *md3load(int32_t fil)
         //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
 
 
-        s->tris = (md3tri_t *)Bmalloc(leng[0]+leng[1]+leng[2]+leng[3]);
-        if (!s->tris)
-        {
-            for (surfi--; surfi>=0; surfi--) Bfree(m->head.surfs[surfi].tris);
-            if (m->head.tags) Bfree(m->head.tags); Bfree(m->head.frames); Bfree(m); return(0);
-        }
+        s->tris = (md3tri_t *)Xmalloc(leng[0]+leng[1]+leng[2]+leng[3]);
+
         s->shaders = (md3shader_t *)(((intptr_t)s->tris)+leng[0]);
         s->uv      = (md3uv_t *)(((intptr_t)s->shaders)+leng[1]);
         s->xyzn    = (md3xyzn_t *)(((intptr_t)s->uv)+leng[2]);
@@ -1572,12 +1561,9 @@ static md3model_t *md3load(int32_t fil)
     }
 #endif
 
-    m->indexes = (uint16_t *)Bmalloc(sizeof(uint16_t) * maxtrispersurf);
-    m->vindexes = (uint16_t *)Bmalloc(sizeof(uint16_t) * maxtrispersurf * 3);
-    m->maxdepths = (float *)Bmalloc(sizeof(float) * maxtrispersurf);
-
-    if (!m->indexes || !m->vindexes || !m->maxdepths)
-        QuitOnFatalError("OUT OF MEMORY in md3load!");
+    m->indexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * maxtrispersurf);
+    m->vindexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * maxtrispersurf * 3);
+    m->maxdepths = (float *)Xmalloc(sizeof(float) * maxtrispersurf);
 
     m->vbos = NULL;
 
@@ -1812,12 +1798,9 @@ int      md3postload_polymer(md3model_t *m)
             initprintf("size %d (%d fr, %d v): md %s surf %d/%d\n", i, m->head.numframes, s->numverts,
                        m->head.nam, surfi, m->head.numsurfs);
 #endif
-        s->geometry = (float *)Bcalloc(m->head.numframes * s->numverts * sizeof(float), 15);
+        s->geometry = (float *)Xcalloc(m->head.numframes * s->numverts * sizeof(float), 15);
 
-        numtris = (int *)Bcalloc(s->numverts, sizeof(int));
-
-        if (!s->geometry || !numtris)
-            QuitOnFatalError("OUT OF MEMORY in md3postload_polymer!");
+        numtris = (int *)Xcalloc(s->numverts, sizeof(int));
 
         verti = 0;
         while (verti < (m->head.numframes * s->numverts))
@@ -2545,10 +2528,7 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
 
     // Correct for GL's RGB order; also apply gamma here:
     const coltype *const pic = (const coltype *)picbuf;
-    coltype *pic2 = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
-
-    if (!pic2)
-        return (unsigned)-1;
+    coltype *pic2 = (coltype *)Xmalloc(xsiz*ysiz*sizeof(coltype));
 
     if (!is8bit)
     {
@@ -2597,7 +2577,7 @@ static int32_t getvox(int32_t x, int32_t y, int32_t z)
 
 static void putvox(int32_t x, int32_t y, int32_t z, int32_t col)
 {
-    if (vnum >= vmax) { vmax = max(vmax<<1,4096); vcol = (voxcol_t *)Brealloc(vcol,vmax*sizeof(voxcol_t)); }
+    if (vnum >= vmax) { vmax = max(vmax<<1,4096); vcol = (voxcol_t *)Xrealloc(vcol,vmax*sizeof(voxcol_t)); }
 
     z += x*yzsiz + y*zsiz;
     vcol[vnum].p = z; z = ((z*214013)&vcolhashsizm1);
@@ -2805,7 +2785,7 @@ static voxmodel_t *vox2poly()
     int32_t i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy,*bx0, *by0;
     void (*daquad)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 
-    gvox = (voxmodel_t *)Bmalloc(sizeof(voxmodel_t)); if (!gvox) return(0);
+    gvox = (voxmodel_t *)Xmalloc(sizeof(voxmodel_t));
     memset(gvox,0,sizeof(voxmodel_t));
 
     //x is largest dimension, y is 2nd largest dimension
@@ -2813,7 +2793,7 @@ static voxmodel_t *vox2poly()
     if ((x < y) && (x < z)) x = z; else if (y < z) y = z;
     if (x < y) { z = x; x = y; y = z; }
     shcntp = x; i = x*y*sizeof(int32_t);
-    shcntmal = (int32_t *)Bmalloc(i); if (!shcntmal) { Bfree(gvox); return(0); }
+    shcntmal = (int32_t *)Xmalloc(i);
     memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
     gmaxx = gmaxy = garea = 0;
 
@@ -2821,7 +2801,7 @@ static voxmodel_t *vox2poly()
     for (i=0; i<7; i++) gvox->qfacind[i] = -1;
 
     i = ((max(ysiz,zsiz)+1)<<2);
-    bx0 = (int32_t *)Bmalloc(i<<1); if (!bx0) { Bfree(gvox); return(0); }
+    bx0 = (int32_t *)Xmalloc(i<<1);
     by0 = (int32_t *)(((intptr_t)bx0)+i);
 
     for (cnt=0; cnt<2; cnt++)
@@ -2867,8 +2847,7 @@ static voxmodel_t *vox2poly()
 
         if (!cnt)
         {
-            shp = (spoint2d *)Bmalloc(gvox->qcnt*sizeof(spoint2d));
-            if (!shp) { Bfree(bx0); Bfree(gvox); return(0); }
+            shp = (spoint2d *)Xmalloc(gvox->qcnt*sizeof(spoint2d));
 
             sc = 0;
             for (y=gmaxy; y; y--)
@@ -2889,7 +2868,7 @@ skindidntfit:
             mytexo5 = (gvox->mytexx>>5);
 
             i = (((gvox->mytexx*gvox->mytexy+31)>>5)<<2);
-            zbit = (int32_t *)Bmalloc(i); if (!zbit) { Bfree(bx0); Bfree(gvox); Bfree(shp); return(0); }
+            zbit = (int32_t *)Xmalloc(i);
             memset(zbit,0,i);
 
             v = gvox->mytexx*gvox->mytexy;
@@ -2931,11 +2910,8 @@ skindidntfit:
                 shp[z].x = x0; shp[z].y = y0; //Overwrite size with top-left location
             }
 
-            gvox->quad = (voxrect_t *)Bmalloc(gvox->qcnt*sizeof(voxrect_t));
-            if (!gvox->quad) { Bfree(zbit); Bfree(shp); Bfree(bx0); Bfree(gvox); return(0); }
-
-            gvox->mytex = (int32_t *)Bmalloc(gvox->mytexx*gvox->mytexy*sizeof(int32_t));
-            if (!gvox->mytex) { Bfree(gvox->quad); Bfree(zbit); Bfree(shp); Bfree(bx0); Bfree(gvox); return(0); }
+            gvox->quad = (voxrect_t *)Xmalloc(gvox->qcnt*sizeof(voxrect_t));
+            gvox->mytex = (int32_t *)Xmalloc(gvox->mytexx*gvox->mytexy*sizeof(int32_t));
         }
     }
     Bfree(shp); Bfree(zbit); Bfree(bx0);
@@ -2961,14 +2937,14 @@ static int32_t loadvox(const char *filnam)
     pal[255] = -1;
 
     vcolhashsizm1 = 8192-1;
-    vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)Xmalloc((vcolhashsizm1+1)*sizeof(int32_t));
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3)+1;
-    vbit = (int32_t *)Bmalloc(i); if (!vbit) { kclose(fil); return(-1); }
+    vbit = (int32_t *)Xmalloc(i);
     memset(vbit,0,i);
 
-    tbuf = (char *)Bmalloc(zsiz*sizeof(uint8_t)); if (!tbuf) { kclose(fil); return(-1); }
+    tbuf = (char *)Xmalloc(zsiz*sizeof(uint8_t));
 
     klseek(fil,12,SEEK_SET);
     for (x=0; x<xsiz; x++)
@@ -3021,7 +2997,7 @@ static int32_t loadkvx(const char *filnam)
 
     ysizp1 = ysiz+1;
     i = xsiz*ysizp1*sizeof(int16_t);
-    xyoffs = (uint16_t *)Bmalloc(i); if (!xyoffs) { kclose(fil); return(-1); }
+    xyoffs = (uint16_t *)Xmalloc(i);
     kread(fil,xyoffs,i); for (i=i/sizeof(int16_t)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
 
     klseek(fil,-768,SEEK_END);
@@ -3029,7 +3005,7 @@ static int32_t loadkvx(const char *filnam)
         { kread(fil,c,3); pal[i] = B_LITTLE32((((int32_t)c[0])<<18)+(((int32_t)c[1])<<10)+(((int32_t)c[2])<<2)+(i<<24)); }
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3)+1;
-    vbit = (int32_t *)Bmalloc(i); if (!vbit) { Bfree(xyoffs); kclose(fil); return(-1); }
+    vbit = (int32_t *)Xmalloc(i);
     memset(vbit,0,i);
 
     for (vcolhashsizm1=4096; vcolhashsizm1<(mip1leng>>1); vcolhashsizm1<<=1)
@@ -3037,13 +3013,13 @@ static int32_t loadkvx(const char *filnam)
         /* do nothing */
     }
     vcolhashsizm1--; //approx to numvoxs!
-    vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { Bfree(xyoffs); kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)Xmalloc((vcolhashsizm1+1)*sizeof(int32_t));
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     klseek(fil,28+((xsiz+1)<<2)+((ysizp1*xsiz)<<1),SEEK_SET);
 
     i = kfilelength(fil)-ktell(fil);
-    tbuf = (char *)Bmalloc(i); if (!tbuf) { Bfree(xyoffs); kclose(fil); return(-1); }
+    tbuf = (char *)Xmalloc(i);
     kread(fil,tbuf,i); kclose(fil);
 
     cptr = tbuf;
@@ -3081,15 +3057,14 @@ static int32_t loadkv6(const char *filnam)
     kread(fil,&i,4);       zpiv = (float)(B_LITTLE32(i));
     kread(fil,&numvoxs,4); numvoxs = B_LITTLE32(numvoxs);
 
-    ylen = (uint16_t *)Bmalloc(xsiz*ysiz*sizeof(int16_t));
-    if (!ylen) { kclose(fil); return(-1); }
+    ylen = (uint16_t *)Xmalloc(xsiz*ysiz*sizeof(int16_t));
 
     klseek(fil,32+(numvoxs<<3)+(xsiz<<2),SEEK_SET);
     kread(fil,ylen,xsiz*ysiz*sizeof(int16_t)); for (i=xsiz*ysiz-1; i>=0; i--) ylen[i] = B_LITTLE16(ylen[i]);
     klseek(fil,32,SEEK_SET);
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3)+1;
-    vbit = (int32_t *)Bmalloc(i); if (!vbit) { Bfree(ylen); kclose(fil); return(-1); }
+    vbit = (int32_t *)Xmalloc(i);
     memset(vbit,0,i);
 
     for (vcolhashsizm1=4096; vcolhashsizm1<numvoxs; vcolhashsizm1<<=1)
@@ -3097,7 +3072,7 @@ static int32_t loadkv6(const char *filnam)
         /* do nothing */
     }
     vcolhashsizm1--;
-    vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { Bfree(ylen); kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)Xmalloc((vcolhashsizm1+1)*sizeof(int32_t));
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     for (x=0; x<xsiz; x++)
@@ -3136,16 +3111,16 @@ static int32_t loadvxl(const char *filnam)
     zpiv = ((float)zsiz)*.5;
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int32_t *)Bmalloc(i); if (!vbit) { kclose(fil); return(-1); }
+    vbit = (int32_t *)Xmalloc(i);
     memset(vbit,-1,i);
 
     vcolhashsizm1 = 1048576-1;
-    vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)Xmalloc((vcolhashsizm1+1)*sizeof(int32_t));
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     //Allocate huge buffer and load rest of file into it...
     i = kfilelength(fil)-ktell(fil);
-    vbuf = (char *)Bmalloc(i); if (!vbuf) { kclose(fil); return(-1); }
+    vbuf = (char *)Xmalloc(i);
     kread(fil,vbuf,i);
     kclose(fil);
 
@@ -3196,8 +3171,7 @@ voxmodel_t *voxload(const char *filnam)
         vm->xpiv = xpiv; vm->ypiv = ypiv; vm->zpiv = zpiv;
         vm->is8bit = is8bit;
 
-        vm->texid = (uint32_t *)Bcalloc(MAXPALOOKUPS,sizeof(uint32_t));
-        if (!vm->texid) { voxfree(vm); vm = 0; }
+        vm->texid = (uint32_t *)Xcalloc(MAXPALOOKUPS,sizeof(uint32_t));
     }
     if (shcntmal) { Bfree(shcntmal); shcntmal = 0; }
     if (vbit) { Bfree(vbit); vbit = 0; }
@@ -3399,8 +3373,8 @@ int32_t mddraw(const spritetype *tspr)
 
     if (r_vbos && (r_vbocount > allocvbos))
     {
-        indexvbos = (GLuint *)Brealloc(indexvbos, sizeof(GLuint) * r_vbocount);
-        vertvbos = (GLuint *)Brealloc(vertvbos, sizeof(GLuint) * r_vbocount);
+        indexvbos = (GLuint *)Xrealloc(indexvbos, sizeof(GLuint) * r_vbocount);
+        vertvbos = (GLuint *)Xrealloc(vertvbos, sizeof(GLuint) * r_vbocount);
 
         bglGenBuffersARB(r_vbocount - allocvbos, &(indexvbos[allocvbos]));
         bglGenBuffersARB(r_vbocount - allocvbos, &(vertvbos[allocvbos]));
@@ -3423,8 +3397,8 @@ int32_t mddraw(const spritetype *tspr)
 
     if (maxmodelverts > allocmodelverts)
     {
-        point3d *vl = (point3d *)Brealloc(vertlist,sizeof(point3d)*maxmodelverts);
-        if (!vl) { OSD_Printf("ERROR: Not enough memory to allocate %d vertices!\n",maxmodelverts); return 0; }
+        point3d *vl = (point3d *)Xrealloc(vertlist,sizeof(point3d)*maxmodelverts);
+
         vertlist = vl;
         allocmodelverts = maxmodelverts;
     }
