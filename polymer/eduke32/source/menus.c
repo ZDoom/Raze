@@ -2472,8 +2472,10 @@ static int32_t M_MenuEntryOptionModify(MenuGroup_t* group, MenuEntry_t *entry, i
         ud.showweapons = newOption;
     else if (entry == &ME_GAMESETUP_CONSOLETEXT)
         OSD_SetTextMode(newOption);
+#ifdef _WIN32
     else if (entry == &ME_GAMESETUP_UPDATES)
         ud.config.LastUpdateCheck = 0;
+#endif
     else if (entry == &ME_PLAYER_WEAPSWITCH_PICKUP)
     {
         ud.weaponswitch &= ~(1|4);
