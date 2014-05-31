@@ -22,6 +22,23 @@
 #include "common.h"
 #include "common_game.h"
 
+const char* s_buildInfo =
+#ifdef BITNESS64
+        "(64-bit)"
+#else
+        "(32-bit)"
+#endif
+#if defined (_MSC_VER) || defined(__cplusplus)
+#ifdef _MSC_VER
+        " MSVC"
+#endif
+#ifdef __cplusplus
+        " C++"
+#endif
+        " build"
+#endif
+;
+
 int32_t g_gameType = GAMEFLAG_DUKE;
 
 // grp/con/def handling

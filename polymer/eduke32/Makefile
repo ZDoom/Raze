@@ -98,6 +98,7 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/actors.$o \
 	$(OBJ)/anim.$o \
 	$(OBJ)/common.$o \
+	$(OBJ)/rev.$o \
 	$(OBJ)/config.$o \
 	$(OBJ)/demo.$o \
 	$(OBJ)/gamedef.$o \
@@ -122,6 +123,7 @@ GAMEOBJS=$(OBJ)/game.$o \
 
 EDITOROBJS=$(OBJ)/astub.$o \
 	$(OBJ)/common.$o \
+	$(OBJ)/rev.$o \
 	$(OBJ)/m32def.$o \
 	$(OBJ)/m32exec.$o \
 	$(OBJ)/m32vars.$o \

@@ -26,9 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 user_defs ud;
 
-const char *
-    #include "rev.h"
-
 const char *s_buildDate = "20120522";
 
 // JBF: g_spriteGravity modified to default to Atomic ed. default when using 1.3d CONs

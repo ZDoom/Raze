@@ -56,8 +56,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # include "lunatic_m32.h"
 #endif
 
-static const char *
-    #include "rev.h"
+extern const char *s_buildRev;
+extern const char *s_buildTimestamp;
+extern const char *s_buildInfo;
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -8941,23 +8942,8 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
 
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersion("Mapster32" " " VERSION,0,2);
-    initprintf("Mapster32 %s %s"
-#ifdef BITNESS64
-        " (64-bit)"
-#else
-        " (32-bit)"
-#endif
-#if defined (_MSC_VER) || defined(__cplusplus)
-#ifdef _MSC_VER
-        " MSVC"
-#endif
-#ifdef __cplusplus
-        " C++"
-#endif
-        " build"
-#endif
-        "\n", VERSION, s_buildRev);
-    initprintf("Compiled %s\n", __DATE__ " " __TIME__);
+    initprintf("Mapster32 %s %s %s\n", VERSION, s_buildRev, s_buildInfo);
+    initprintf("Compiled %s\n", s_buildTimestamp);
     //    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
     G_CheckCommandLine(argc,argv);
