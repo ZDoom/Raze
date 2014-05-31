@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define LOUDESTVOLUME       150
 #define MUSIC_ID            -65536
 
-#define FX_VOLUME(x) scale(x, 255, ud.config.FXVolume)
+#define FX_VOLUME(x) (ud.config.FXVolume > 0 ? scale(x, 255, ud.config.FXVolume) : 0)
 #define MASTER_VOLUME(x) scale(ud.config.MasterVolume, x, 255)
 
 struct audioenumdev

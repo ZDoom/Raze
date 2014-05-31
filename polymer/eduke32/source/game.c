@@ -1240,15 +1240,10 @@ int32_t G_GameTextLen(int32_t x,const char *t)
     return x;
 }
 
-int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits)
-{
-    return G_PrintGameText(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536);
-}
-
 // minitext_yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords,
 // (sb&ROTATESPRITE_MAX) only.
 static int32_t minitext_yofs = 0;
-static int32_t minitext_lowercase = 0;
+int32_t minitext_lowercase = 0;
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb)
 {
     vec2_t dim;
@@ -1287,6 +1282,15 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
         x >>= 16;
 
     return x;
+}
+void shadowminitext(int32_t x,int32_t y,const char *t,int32_t p,int32_t sb)
+{
+    int32_t f = 0;
+
+    if (!minitext_lowercase)
+        f |= TEXT_UPPERCASE;
+
+    G_ScreenTextShadow(1, 1, MINIFONT, x, y, 65536, 0, 0, t, 0, p, sb, 0, 4, 8, 1, 0, f, 0, 0, xdim-1, ydim-1);
 }
 void creditsminitext(int32_t x,int32_t y,const char *t,int32_t p,int32_t sb)
 {
@@ -8847,7 +8851,6 @@ void G_HandleLocalKeys(void)
             CONTROL_ClearButton(gamefunc_SendMessage);
             g_player[myconnectindex].ps->gm |= MODE_TYPE;
             typebuf[0] = 0;
-            inputloc = 0;
         }
 
         if (KB_UnBoundKeyPressed(sc_F1)/* || (ud.show_help && I_AdvanceTrigger())*/)
@@ -8975,13 +8978,7 @@ FAKE_F3:
             g_screenCapture = 0;
 
             if (g_lastSaveSlot >= 0)
-            {
-                /*                inputloc = Bstrlen(&ud.savegame[g_lastSaveSlot][0]);
-                                g_currentMenu = MENU_SAVETYPING+g_lastSaveSlot;
-                                probey = g_lastSaveSlot; */
-
                 G_SavePlayerMaybeMulti(g_lastSaveSlot);
-            }
         }
 
         if (KB_UnBoundKeyPressed(sc_F7))
@@ -9046,7 +9043,7 @@ FAKE_F3:
         if (KB_UnBoundKeyPressed(sc_F10))
         {
             KB_ClearKeyDown(sc_F10);
-            M_ChangeMenu(MENU_QUIT);
+            M_ChangeMenu(MENU_QUIT_INGAME);
             FX_StopAllSounds();
             S_ClearSoundLocks();
             g_player[myconnectindex].ps->gm |= MODE_MENU;
@@ -11064,7 +11061,6 @@ static int32_t G_EndOfLevel(void)
                     G_DoOrderScreen();
                 g_player[myconnectindex].ps->gm = MODE_MENU;
                 M_ChangeMenu(MENU_MAIN);
-                probey = 0;
                 return 2;
             }
             else
@@ -11820,6 +11816,8 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 //    loadtmb();
 
+    M_Init();
+
     if (ud.warp_on > 1 && (!g_netServer && ud.multimode < 2))
     {
         clearview(0L);
@@ -11840,6 +11838,8 @@ int32_t app_main(int32_t argc, const char **argv)
     //    getpackets();
 
 MAIN_LOOP_RESTART:
+
+    M_ChangeMenu(MENU_MAIN);
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {

@@ -89,7 +89,6 @@ G_EXTERN int32_t animategoal[MAXANIMATES],animatevel[MAXANIMATES],g_animateCount
 G_EXTERN int32_t cloudtotalclock;
 G_EXTERN int32_t fricxv,fricyv;
 G_EXTERN int32_t g_currentFrameRate;
-G_EXTERN int32_t g_currentMenu;
 G_EXTERN int32_t g_damageCameras,g_freezerSelfDamage;
 G_EXTERN int32_t g_doQuickSave;
 G_EXTERN uint16_t g_earthquakeTime;

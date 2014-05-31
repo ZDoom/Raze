@@ -1709,7 +1709,7 @@ void Net_ReceiveClientUpdate(ENetEvent *event)
 
 void Net_SendMessage(void)
 {
-    int16_t hitstate, i, j, l;
+    int32_t hitstate, i, j, l;
 
     if (g_player[myconnectindex].ps->gm&MODE_SENDTOWHOM)
     {
@@ -1832,11 +1832,31 @@ void Net_SendMessage(void)
     }
     else
     {
-        if (ud.screen_size > 1) j = 200-45;
-        else j = 200-8;
+        hitstate = I_EnterText(typebuf, 120, 0);
+
+        if (ud.screen_size > 1) j = (200-45)<<16;
+        else j = (200-8)<<16;
         if (xdim >= 640 && ydim >= 480)
             j = scale(j,ydim,200);
-        hitstate = Net_EnterText(320>>1,j,typebuf,120,1);
+
+        i = textsc(5<<16);
+
+        {
+            const vec2_t dim = G_ScreenTextSize(STARTALPHANUM, i, 0, textsc(65536), 0, typebuf, 8|16|ROTATESPRITE_FULL16, 5<<16, 7<<16, 0, 0, TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
+
+            l = i + dim.x + scale(textsc((tilesizx[SPINNINGNUKEICON]+2)<<13), ydim, 200);
+        }
+
+        if (l >= (xdim<<16))
+            i -= (l - (xdim<<16));
+
+        {
+            const vec2_t dim = G_ScreenText(STARTALPHANUM, i, j, textsc(65536), 0, 0, typebuf, 1, 0, 8|16|ROTATESPRITE_FULL16, 0, 5<<16, 7<<16, 0, 0, TEXT_YCENTER|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
+
+            i += dim.x + scale(textsc((tilesizx[SPINNINGNUKEICON]+1)<<12), ydim, 200);
+        }
+
+        rotatesprite_fs(i, j, textsc(32768), 0, SPINNINGNUKEICON+((totalclock>>3)%7), 4-(sintable[(totalclock<<4)&2047]>>11), 0, 0);
 
         if (hitstate == 1)
         {

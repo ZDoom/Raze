@@ -935,7 +935,7 @@ nextdemo_nomenu:
             if (ud.recstat != 2)
                 M_DisplayMenus();
 
-            if ((g_netServer || ud.multimode > 1)  && !M_IsTextInput(g_currentMenu))
+            if ((g_netServer || ud.multimode > 1)  && !M_IsTextInput(m_currentMenu))
             {
                 ControlInfo noshareinfo;
                 CONTROL_GetInput(&noshareinfo);
@@ -945,7 +945,6 @@ nextdemo_nomenu:
                     CONTROL_ClearButton(gamefunc_SendMessage);
                     g_player[myconnectindex].ps->gm = MODE_TYPE;
                     typebuf[0] = 0;
-                    inputloc = 0;
                 }
             }
         }

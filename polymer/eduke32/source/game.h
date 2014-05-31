@@ -261,7 +261,6 @@ extern const char *defaultrtsfilename[GAMECOUNT];
 extern const char *G_DefaultRtsFile(void);
 
 extern char g_modDir[BMAX_PATH];
-extern char inputloc;
 #ifdef LEGACY_ROR
 extern char ror_protectedsectors[MAXSECTORS];
 #endif
@@ -320,9 +319,12 @@ int32_t G_GameTextLen(int32_t x,const char *t);
 int32_t G_PrintGameText(int32_t hack,int32_t tile,int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t o,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
 int32_t GetTime(void);
 int32_t kopen4loadfrommod(const char *filename,char searchfirst);
+extern int32_t minitext_lowercase;
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb);
+void shadowminitext(int32_t x,int32_t y,const char *t,int32_t p,int32_t sb);
 void creditsminitext(int32_t x,int32_t y,const char *t,int32_t p,int32_t sb);
 int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits);
+
 int32_t startwin_run(void);
 
 #ifdef YAX_ENABLE
@@ -421,11 +423,11 @@ extern char forcegl;
 #define gametextscaled(x,y,t,s,dabits) G_PrintGameText(1,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
 #define gametextpal(x,y,t,s,p) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)
 #define gametextpalbits(x,y,t,s,p,dabits) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,p,dabits,0, 0, xdim-1, ydim-1, 65536)
+#define mpgametext(y, t, s, dabits) G_PrintGameText(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536);
+
 #define A_CheckSpriteFlags(iActor, iType) (((g_tile[sprite[iActor].picnum].flags^actor[iActor].flags) & iType) != 0)
 // (unsigned)iPicnum check: AMC TC Rusty Nails, bayonet MG alt. fire, iPicnum == -1 (via aplWeaponShoots)
 #define A_CheckSpriteTileFlags(iPicnum, iType) (((unsigned)iPicnum < MAXTILES) && (g_tile[iPicnum].flags & iType) != 0)
-#define G_EnterText(x, y, t, dalen, c) _EnterText(0,x,y,t,dalen,c)
-#define Net_EnterText(x, y, t, dalen, c) _EnterText(1,x,y,t,dalen,c)
 #define S_StopSound(num) S_StopEnvSound(num, -1)
 
 extern int32_t G_StartRTS(int32_t i, int localp);

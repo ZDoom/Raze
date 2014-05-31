@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gamedef.h"
 #include "osd.h"
 #include "savegame.h"
+#include "menus.h"
 
 #define _gamevars_c_
 

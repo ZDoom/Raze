@@ -179,7 +179,6 @@ int32_t I_EscapeTriggerClear(void)
 }
 
 
-
 int32_t I_PanelUp(void)
 {
     return (
@@ -248,15 +247,56 @@ int32_t I_PanelDownClear(void)
 
 
 
+int32_t I_SliderLeft(void)
+{
+    return (
+            KB_KeyPressed(sc_LeftArrow) ||
+             KB_KeyPressed(sc_kpad_4) ||
+             ((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELUP_MOUSE)) ||
+             BUTTON(gamefunc_Turn_Left) ||
+             BUTTON(gamefunc_Strafe_Left) ||
+             (JOYSTICK_GetHat(0)&HAT_LEFT)
+            );
+}
+int32_t I_SliderLeftClear(void)
+{
+    KB_ClearKeyDown(sc_LeftArrow);
+    KB_ClearKeyDown(sc_kpad_4);
+    CONTROL_ClearButton(gamefunc_Turn_Left);
+    CONTROL_ClearButton(gamefunc_Strafe_Left);
+    JOYSTICK_ClearHat(0);
+    return (
+            MOUSE_ClearButton(WHEELUP_MOUSE)
+            );
+}
 
+int32_t I_SliderRight(void)
+{
+    return (
+            KB_KeyPressed(sc_RightArrow) ||
+            KB_KeyPressed(sc_kpad_6) ||
+            ((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELDOWN_MOUSE)) ||
+            BUTTON(gamefunc_Turn_Right) ||
+            BUTTON(gamefunc_Strafe_Right) ||
+            (JOYSTICK_GetHat(0)&HAT_RIGHT)
+            );
+}
+int32_t I_SliderRightClear(void)
+{
+    KB_ClearKeyDown(sc_RightArrow);
+    KB_ClearKeyDown(sc_kpad_6);
+    CONTROL_ClearButton(gamefunc_Turn_Right);
+    CONTROL_ClearButton(gamefunc_Strafe_Right);
+    JOYSTICK_ClearHat(0);
+    return (
+            MOUSE_ClearButton(WHEELDOWN_MOUSE)
+            );
+}
 
-char inputloc = 0;
-
-int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32_t c)
+int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags)
 {
     char ch;
-    int32_t i;
-    const int32_t startx = x;
+    int32_t inputloc = Bstrlen(typebuf);
 
     while ((ch = KB_GetCh()) != 0)
     {
@@ -273,16 +313,16 @@ int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32
             if (ch == asc_Enter)
             {
                 I_AdvanceTriggerClear();
-                return (1);
+                return 1;
             }
             else if (ch == asc_Escape)
             {
                 I_ReturnTriggerClear();
-                return (-1);
+                return -1;
             }
-            else if (ch >= 32 && inputloc < dalen && ch < 127)
+            else if (ch >= 32 && inputloc < maxlength && ch < 127)
             {
-                if (c != 997 || (ch >= '0' && ch <= '9'))
+                if (!(flags & INPUT_NUMERIC) || (ch >= '0' && ch <= '9'))
                 {
                     // JBF 20040508: so we can have numeric only if we want
                     *(t+inputloc) = ch;
@@ -293,39 +333,13 @@ int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32
         }
     }
 
-    if (c == 999) return(0);
-    if (c == 998)
+    // All gamefuncs (and *only* _gamefuncs_) in I_ReturnTriggerClear() should be replicated here.
+    CONTROL_ClearButton(gamefunc_Crouch);
+    if (I_ReturnTrigger())
     {
-        char b[91],ii;
-        for (ii=0; ii<inputloc; ii++)
-            b[(uint8_t)ii] = '*';
-        b[(uint8_t)inputloc] = 0;
-        if (g_player[myconnectindex].ps->gm&MODE_TYPE)
-            x = mpgametext(y,b,c,2+8+16);
-        else x = gametext(x,y,b,c,2+8+16);
-    }
-    else
-    {
-        if (g_player[myconnectindex].ps->gm&MODE_TYPE)
-            x = mpgametext(y,t,c,2+8+16);
-        else x = gametext(x,y,t,c,2+8+16);
-    }
-    c = 4-(sintable[(totalclock<<4)&2047]>>11);
-
-    i = G_GameTextLen(USERQUOTE_LEFTOFFSET,OSD_StripColors(tempbuf,t));
-    while (i > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
-    {
-        i -= (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET);
-        if (small&1)
-            y += textsc(6);
-        y += 8;
+        I_ReturnTriggerClear();
+        return -1;
     }
 
-    if (startx == 160) // gametext center
-        x = startx + ((x - startx)>>1);
-
-    if (small&1)
-        rotatesprite_fs(textsc(x)<<16,(y<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(8|16));
-    else rotatesprite_fs((x+8)<<16,(y+4)<<16,32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,2+8);
-    return (0);
+    return 0;
 }

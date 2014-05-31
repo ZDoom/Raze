@@ -54,7 +54,17 @@ extern int32_t I_PanelUpClear(void);
 extern int32_t I_PanelDown(void);
 extern int32_t I_PanelDownClear(void);
 
-extern char inputloc;
-extern int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32_t c);
+extern int32_t I_SliderLeft(void);
+extern int32_t I_SliderLeftClear(void);
+
+extern int32_t I_SliderRight(void);
+extern int32_t I_SliderRightClear(void);
+
+
+enum EnterTextFlags_t {
+    INPUT_NUMERIC        = 0x00000001,
+};
+
+extern int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags);
 
 #endif
