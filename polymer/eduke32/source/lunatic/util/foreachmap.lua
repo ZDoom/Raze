@@ -22,6 +22,8 @@
 --  $ ./findmaps.sh ~/.eduke32/ "sprite: .picnum>=d.CRACK1 and .picnum<=d.CRACK4"
 -- (Now: no space between "d." and "CRACK" is necessary ".xxx" is translated to
 -- "sprite[<current>].xxx" only if it's the name of a sprite member.)
+-- The local 'rdefs' provides the reverse mapping: from picnums to tile names
+-- (or nil).
 
 -- Print all V9 maps along with their number of bunches and max(ceilings of a bunch)
 --  $ prog='if (map.version==9) then print(map.numbunches.." ".. math.max(unpack(map.sectsperbunch[0],0)) .." "..fn) end'
@@ -119,7 +121,8 @@ if (modname:sub(1,2) == "-e") then
                 if (x==tab[i]) then return true end
             end
         end
-        local d=require('build').readdefs('../../names.h') or error('Need ../../names.h')  -- XXX
+        local d,rdefs = require('build').readdefs('../../names.h',true)
+        if (not d) then error('Need ../../names.h') end -- XXX
         local numsectors, numwalls, numsprites, sector, wall, sprite
         return function (map, fn)
             numsectors, numwalls, numsprites = map.numsectors, map.numwalls, map.numsprites

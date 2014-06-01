@@ -607,14 +607,15 @@ function loadarts(filenames)
     return tile
 end
 
-function readdefs(fn)
+-- defs [, rdefs] = readdefs(fn [, alsoreverse])
+function readdefs(fn, alsoreverse)
     local fh, errmsg = io.open(fn)
 
     if (fh==nil) then
         return nil, errmsg
     end
 
-    local defs = {}
+    local defs, rdefs = {}, nil
 
     for line in fh:lines() do
         local defname, numstr = string.match(line, "#?%s*define%s+([%a_][%w_]+)%s+([0-9]+)")
@@ -623,6 +624,13 @@ function readdefs(fn)
         end
     end
 
+    if (alsoreverse) then
+        rdefs = {}
+        for defname, num in pairs(defs) do
+            rdefs[num] = defname
+        end
+    end
+
     fh:close()
-    return defs
+    return defs, rdefs
 end
