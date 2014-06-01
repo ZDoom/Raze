@@ -2813,6 +2813,9 @@ static int32_t      polymer_initwall(int16_t wallnum)
     return (1);
 }
 
+// TODO: r_npotwallmode. Needs polymost_is_npotmode() handling among others.
+#define DAMETH_WALL 0
+
 static float calc_ypancoef(char curypanning, int16_t curpicnum, int32_t dopancor)
 {
 #ifdef NEW_MAP_FORMAT
@@ -2967,7 +2970,7 @@ static void         polymer_updatewall(int16_t wallnum)
         else
             curpicnum = walloverpicnum;
 
-        polymer_getbuildmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade, sec->visibility, 0);
+        polymer_getbuildmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
 
         if (wal->cstat & 4)
             yref = sec->floorz;
@@ -3037,7 +3040,7 @@ static void         polymer_updatewall(int16_t wallnum)
             curxpanning = wall[refwall].xpanning;
             curypanning = wall[refwall].ypanning;
 
-            polymer_getbuildmaterial(&w->wall.material, curpicnum, curpal, curshade, sec->visibility, 0);
+            polymer_getbuildmaterial(&w->wall.material, curpicnum, curpal, curshade, sec->visibility, DAMETH_WALL);
 
             if (!(wall[refwall].cstat&4))
                 yref = nsec->floorz;
@@ -3104,12 +3107,12 @@ static void         polymer_updatewall(int16_t wallnum)
             else
                 curpicnum = wallpicnum;
 
-            polymer_getbuildmaterial(&w->over.material, curpicnum, wal->pal, wal->shade, sec->visibility, 0);
+            polymer_getbuildmaterial(&w->over.material, curpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
 
             if ((wal->cstat & 16) || (wal->cstat & 32))
             {
                 // mask
-                polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade, sec->visibility, 0);
+                polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
 
                 if (wal->cstat & 128)
                 {

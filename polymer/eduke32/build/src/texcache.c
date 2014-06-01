@@ -123,7 +123,8 @@ tryart:
     // load from art
     for (pth=texcache.list[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && pth->shade == dashade && 
-                (pth->flags & (PTH_CLAMPED+PTH_HIGHTILE)) == TO_PTH_CLAMPED(dameth)
+                (pth->flags & (PTH_CLAMPED+PTH_HIGHTILE)) == TO_PTH_CLAMPED(dameth) &&
+                polymost_want_npotytex(dameth, tilesizy[dapicnum]) == !!(pth->flags&PTH_NPOTWALL)
            )
         {
             if (pth->flags & PTH_INVALIDATED)

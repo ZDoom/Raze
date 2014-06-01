@@ -877,7 +877,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     if (glinfo.texcompr && glusetexcompr && glusetexcache)
         if (!gotcache)
         {
-            const int32_t nonpow2 = check_nonpow2(xsiz, ysiz);
+            const int32_t nonpow2 = check_nonpow2(xsiz) || check_nonpow2(ysiz);
 
             // save off the compressed version
             cachead.quality = r_downsize;

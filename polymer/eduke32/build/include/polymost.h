@@ -52,6 +52,7 @@ extern float alphahackarray[MAXTILES];
 
 extern int32_t r_usenewshading;
 extern int32_t r_usetileshades;
+extern int32_t r_npotwallmode;
 
 extern int16_t globalpicnum;
 extern int32_t globalpal;
@@ -94,15 +95,33 @@ static inline int32_t fogpal_shade(const sectortype *sec, int32_t shade)
     return sec->fogpal ? 0 : shade;
 }
 
-static inline int check_nonpow2(int32_t xsiz, int32_t ysiz)
+static inline int check_nonpow2(int32_t x)
 {
-    return (xsiz > 1 && (xsiz&(xsiz-1)))
-        || (ysiz > 1 && (ysiz&(ysiz-1)));
+    return (x > 1 && (x&(x-1)));
+}
+
+// Are we using the mode that uploads non-power-of-two wall textures like they
+// render in classic?
+static inline int polymost_is_npotmode(void)
+{
+    // The glinfo.texnpot check is so we don't have to deal with that case in
+    // gloadtile_art().
+    return glinfo.texnpot &&
+        // r_npotwallmode is NYI for hightiles. We require r_hightile off
+        // because in calc_ypanning(), the repeat would be multiplied by a
+        // factor even if no modified texture were loaded.
+        !usehightile &&
+#ifdef NEW_MAP_FORMAT
+        g_loadedMapVersion < 10 &&
+#endif
+        r_npotwallmode;
 }
 
 // Flags of the <dameth> argument of various functions
 enum {
     DAMETH_CLAMPED = 4,
+
+    DAMETH_WALL = 32,  // signals a texture for a wall (for r_npotwallmode)
 
     DAMETH_NOCOMPRESS = 4096,
     DAMETH_HI = 8192,
@@ -111,6 +130,13 @@ enum {
 // DAMETH_CLAMPED -> PTH_CLAMPED conversion
 #define TO_PTH_CLAMPED(dameth) ((((dameth)&4))>>2)
 
+// Do we want a NPOT-y-as-classic texture for this <dameth> and <ysiz>?
+static inline int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
+{
+    return getrendermode() != REND_POLYMER &&  // r_npotwallmode NYI in Polymer
+        polymost_is_npotmode() && (dameth&DAMETH_WALL) && check_nonpow2(ysiz);
+}
+
 // pthtyp pth->flags bits
 enum {
     PTH_CLAMPED = 1,
@@ -118,6 +144,7 @@ enum {
     PTH_SKYBOX = 4,
     PTH_HASALPHA = 8,
     PTH_HASFULLBRIGHT = 16,
+    PTH_NPOTWALL = DAMETH_WALL,  // r_npotwallmode=1 generated texture
 
     PTH_INVALIDATED = 128,
 };

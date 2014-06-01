@@ -117,6 +117,7 @@ int32_t shadescale_unbounded = 0;
 
 int32_t r_usenewshading = 3;
 int32_t r_usetileshades = 2;
+int32_t r_npotwallmode = 0;
 
 static double gviewxrange, ghoriz;
 double gyxscale, gxyaspect, ghalfx, grhalfxdown10, grhalfxdown10x;
@@ -898,7 +899,7 @@ static void texture_setup(int32_t dameth)
 void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
     coltype *pic;
-    int32_t xsiz, ysiz;
+    int32_t xsiz, ysiz, npoty = 0;
     char hasalpha = 0, hasfullbright = 0;
 
     static int32_t fullbrightloadingpass = 0;
@@ -999,6 +1000,25 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
     bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
     fixtransparency(dapic, pic,tsizx,tsizy,xsiz,ysiz,dameth);
+
+    if (polymost_want_npotytex(dameth, ysiz) &&
+            tsizx==xsiz && tsizy==ysiz)  // XXX
+    {
+        const int32_t nextpoty = 1<<((picsiz[dapic]>>4)+1);
+        const int32_t ydif = nextpoty - ysiz;
+        coltype *paddedpic;
+
+        Bassert(ydif > 0 && ydif < ysiz);
+
+        paddedpic = Xrealloc(pic, xsiz*nextpoty*sizeof(coltype));
+
+        pic = paddedpic;
+        Bmemcpy(&pic[xsiz*ysiz], pic, xsiz*ydif*sizeof(coltype));
+        ysiz = tsizy = nextpoty;
+
+        npoty = PTH_NPOTWALL;
+    }
+
     uploadtexture(doalloc,xsiz,ysiz,hasalpha?GL_RGBA:GL_RGB,GL_RGBA,pic,tsizx,tsizy,dameth);
 
     texture_setup(dameth);
@@ -1009,7 +1029,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
     pth->palnum = dapal;
     pth->shade = dashade;
     pth->effects = 0;
-    pth->flags = TO_PTH_CLAMPED(dameth) | (hasalpha*PTH_HASALPHA);
+    pth->flags = TO_PTH_CLAMPED(dameth) | (hasalpha*PTH_HASALPHA) | npoty;
     pth->hicr = NULL;
 
     if (hasfullbright && !fullbrightloadingpass)
@@ -1274,7 +1294,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     if (glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOSAVE))
         if (!gotcache)
         {
-            const int32_t nonpow2 = check_nonpow2(xsiz, ysiz);
+            const int32_t nonpow2 = check_nonpow2(xsiz) || check_nonpow2(ysiz);
 
             // save off the compressed version
             if (hicr->flags & HICR_NOCOMPRESS) cachead.quality = 0;
@@ -2290,7 +2310,12 @@ static void calc_ypanning(int32_t refposz, double ryp0, double ryp1,
         i = tilesizy[globalpicnum];
     else
 #endif
-    if (dopancor)
+    if (polymost_is_npotmode())
+    {
+        t *= (double)tilesizy[globalpicnum] / i;
+        i = tilesizy[globalpicnum];
+    }
+    else if (dopancor)
     {
         // Carry out panning "correction" to make it look like classic in some
         // cases, but failing in the general case.
@@ -2959,6 +2984,9 @@ static void polymost_drawalls(int32_t bunch)
         //   (gvx*x0 + gvy*fy0 + gvo*1) = t
         ogux = gux; oguy = guy; oguo = guo;
 
+        Bassert(domostpolymethod == 0);
+        domostpolymethod = DAMETH_WALL;
+
         if (nextsectnum >= 0)
         {
             getzsofslope(nextsectnum,(int32_t)nx0,(int32_t)ny0,&cz,&fz);
@@ -3064,6 +3092,8 @@ static void polymost_drawalls(int32_t bunch)
 
             pow2xsplit = 1; domost(x0,-10000,x1,-10000);
         }
+
+        domostpolymethod = 0;
 
         if (nextsectnum >= 0)
             if ((!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])) && (testvisiblemost(x0,x1)))
@@ -3615,6 +3645,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
 
     method = 1; pow2xsplit = 1;
     if (wal->cstat&128) { if (!(wal->cstat&512)) method = 2; else method = 3; }
+    method |= DAMETH_WALL;
 
     calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
@@ -5181,6 +5212,10 @@ void polymost_initosdfuncs(void)
         { "r_swapinterval","sets the GL swap interval (VSync)",(void *) &vsync, CVAR_INT|CVAR_FUNCPTR, -1, 1 },
         { "r_texcache","enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
         { "r_memcache","enable/disable texture cache memory cache",(void *) &glusememcache, CVAR_BOOL, 0, 1 },
+        {
+            "r_npotwallmode", "enable/disable emulation of walls with non-power-of-two height textures (Polymost, r_hightile 0)",
+            (void *) &r_npotwallmode, CVAR_BOOL, 0, 1
+        },
         { "r_texcompr","enable/disable OpenGL texture compression",(void *) &glusetexcompr, CVAR_BOOL, 0, 1 },
         { "r_textureanisotropy", "changes the OpenGL texture anisotropy setting", (void *) &glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 16 },
         { "r_texturemaxsize","changes the maximum OpenGL texture size limit",(void *) &gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },
