@@ -1,19 +1,4 @@
-// here lies the GREAT JUSTICE RENDERER
-// TODO :
-// - CORE STUFF
-//   o there's also the texture alignment problem Hunter reported (san andreas fault)
-//   o RTT portals (water)
-//   o clip mirrors/portals to their planes
-//   o merge mirrors/portals from the same plane
-// - SPRITES
-//   o sprite panning
-// - SKIES
-//   o skyview
-// - MDSPRITES
-//   o need full translation and rotation support from CON to attach to game world or tags
-//
-// the renderer should hopefully be pretty solid after all that
-// the rest will be a bliss :)
+// Here lies the slow as shit renderer!
 
 #ifndef _polymer_h_
 # define _polymer_h_
