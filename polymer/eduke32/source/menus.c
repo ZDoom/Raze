@@ -2262,7 +2262,7 @@ static int32_t M_PreMenuCustom2ColScreen(MenuGroup_t *group, MenuEntry_t *entry)
 
             KB_ClearKeyDown(sc);
 
-            return 1;
+            return -1;
         }
     }
 
@@ -2606,7 +2606,7 @@ static int32_t M_MenuEntryOptionModify(MenuGroup_t* group, MenuEntry_t *entry, i
             else
             {
                 M_ChangeMenu(MENU_ADULTPASSWORD);
-                return 1;
+                return -1;
             }
         }
     }
@@ -2718,22 +2718,22 @@ static void M_MenuEntryStringActivate(MenuGroup_t *group/*, MenuEntry_t *entry*/
     }
 }
 
-static void M_MenuEntryStringSubmit(/*MenuGroup_t *group, MenuEntry_t *entry, char *input*/)
+static int32_t M_MenuEntryStringSubmit(MenuGroup_t *group /*, MenuEntry_t *entry, char *input*/)
 {
     switch (g_currentMenu)
     {
     case MENU_SAVE:
         // dirty hack... char 127 in last position indicates an auto-filled name
-        if (ud.savegame[MG_SAVE.currentEntry][0] == 0 || (ud.savegame[MG_SAVE.currentEntry][20] == 127 &&
-            save_xxh == XXH32((uint8_t *)&ud.savegame[MG_SAVE.currentEntry][0], 19, 0xDEADBEEF)))
+        if (ud.savegame[group->currentEntry][0] == 0 || (ud.savegame[group->currentEntry][MAXSAVEGAMENAME-2] == 127 &&
+            save_xxh == XXH32((uint8_t *)&ud.savegame[group->currentEntry][0], 19, 0xDEADBEEF)))
         {
-            Bstrncpy(&ud.savegame[MG_SAVE.currentEntry][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
-            ud.savegame[MG_SAVE.currentEntry][20] = 127;
+            Bstrncpy(&ud.savegame[group->currentEntry][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
+            ud.savegame[group->currentEntry][MAXSAVEGAMENAME-2] = 127;
         }
 
-        G_SavePlayerMaybeMulti(MG_SAVE.currentEntry);
+        G_SavePlayerMaybeMulti(group->currentEntry);
 
-        g_lastSaveSlot = MG_SAVE.currentEntry;
+        g_lastSaveSlot = group->currentEntry;
         g_player[myconnectindex].ps->gm = MODE_GAME;
 
         if ((!g_netServer && ud.multimode < 2)  && ud.recstat != 2)
@@ -2742,11 +2742,15 @@ static void M_MenuEntryStringSubmit(/*MenuGroup_t *group, MenuEntry_t *entry, ch
             totalclock = ototalclock;
         }
         save_xxh = 0;
+
+        return -1;
         break;
 
     default:
         break;
     }
+
+    return 0;
 }
 
 static void M_MenuEntryStringCancel(/*MenuGroup_t *group, MenuEntry_t *entry*/)
@@ -4468,9 +4472,8 @@ static void M_RunMenuInput(Menu_t *cm)
                     {
                         S_PlaySound(PISTOL_BODYHIT);
 
-                        M_MenuEntryStringSubmit(/*currgroup, currentry, object->editfield*/);
-
-                        Bstrncpy(object->variable, object->editfield, object->maxlength);
+                        if (!M_MenuEntryStringSubmit(currgroup /*, currentry, object->editfield*/))
+                            Bstrncpy(object->variable, object->editfield, object->maxlength);
 
                         object->editfield = NULL;
                     }
