@@ -43,6 +43,10 @@
 # define PACKAGE_VERSION 1
 #endif
 
+#if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__) || defined(_WIN64)
+# define EBACKTRACE64
+#endif
+
 #include <bfd.h>
 #include <psapi.h>
 #include <stdlib.h>
@@ -58,6 +62,9 @@
 
 #include <stdint.h>
 
+#ifndef MS_VC_EXCEPTION
+# define MS_VC_EXCEPTION 1080890248
+#endif
 
 #if defined __GNUC__ || defined __clang__
 # define ATTRIBUTE(attrlist) __attribute__(attrlist)
@@ -180,7 +187,8 @@ init_bfd_ctx(struct bfd_ctx *bc, const char * procname, struct output_buffer *ob
 
 	if (!(r1 && r2 && r3)) {
 		bfd_close(b);
-		output_print(ob,"Failed to init bfd from (%s): %d %d %d\n", procname, r1,r2,r3);
+        if (!(r1 && r2))
+            output_print(ob,"Failed to init bfd from (%s): %d %d %d\n", procname, r1, r2, r3);
 		return 1;
 	}
 
@@ -238,16 +246,17 @@ release_set(struct bfd_set *set)
 {
 	while(set) {
 		struct bfd_set * temp = set->next;
-		free(set->name);
+        if (set->name)
+            free(set->name);
 		close_bfd_ctx(set->bc);
-		free(set);
+        free(set);
 		set = temp;
 	}
 }
 
 static char procname[MAX_PATH];
 
-#if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
+#ifdef EBACKTRACE64
 # define MachineType IMAGE_FILE_MACHINE_AMD64
 # define MAYBE64(x) x ## 64
 #else
@@ -268,7 +277,7 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 
 	memset(&frame,0,sizeof(frame));
 
-#if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
+#ifdef EBACKTRACE64
 	frame.AddrPC.Offset = context->Rip;
 	frame.AddrStack.Offset = context->Rsp;
 	frame.AddrFrame.Offset = context->Rbp;
@@ -330,22 +339,33 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 				file = "[unknown file]";
 			}
 		}
-		if (func == NULL) {
-			output_print(ob,"0x%x : %s : %s \n",
-				frame.AddrPC.Offset,
-				module_name,
-				file);
-		}
-		else {
-			output_print(ob,"0x%x : %s : %s (%d) : in function (%s) \n",
-				frame.AddrPC.Offset,
-				module_name,
-				file,
-				line,
-				func);
-		}
+
+        output_print(ob,"0x%p : %s : %s", frame.AddrPC.Offset, module_name, file);
+		if (func != NULL)
+			output_print(ob, " (%d) : in function (%s)", line, func);
+        output_print(ob, "\n");
 	}
 }
+
+static LPTSTR FormatErrorMessage(DWORD dwMessageId)
+{
+    LPTSTR lpBuffer = NULL;
+
+    // from http://stackoverflow.com/a/455533
+    FormatMessage(
+        FORMAT_MESSAGE_FROM_SYSTEM
+        |FORMAT_MESSAGE_ALLOCATE_BUFFER
+        |FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        dwMessageId,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US)
+        (LPTSTR)&lpBuffer,
+        0,
+        NULL);
+
+    return lpBuffer; // must be LocalFree()'d by caller
+}
+
 
 static char * g_output = NULL;
 static PVOID g_prev = NULL;
@@ -355,19 +375,61 @@ exception_filter(LPEXCEPTION_POINTERS info)
 {
 	struct output_buffer ob;
     int logfd, written;
-	output_init(&ob, g_output, BUFFER_MAX);
+    PEXCEPTION_RECORD exception;
+    BOOL initialized = FALSE;
 
-	if (!SymInitialize(GetCurrentProcess(), 0, TRUE)) {
-		output_print(&ob,"Failed to init symbol context\n");
-	}
-	else {
-		struct bfd_set *set = calloc(1,sizeof(*set));
-		bfd_init();
-		_backtrace(&ob , set , 128 , info->ContextRecord);
-		release_set(set);
+    for (exception = info->ExceptionRecord; exception != NULL; exception = exception->ExceptionRecord)
+    {
+#if 0
+        if (exception->ExceptionFlags & EXCEPTION_NONCONTINUABLE)
+            continuable = FALSE;
+#endif
 
-		SymCleanup(GetCurrentProcess());
-	}
+        switch (exception->ExceptionCode)
+        {
+        case EXCEPTION_BREAKPOINT:
+        case EXCEPTION_SINGLE_STEP:
+        case DBG_CONTROL_C:
+        case MS_VC_EXCEPTION:
+            break;
+        default:
+            if (!initialized)
+            {
+                output_init(&ob, g_output, BUFFER_MAX);
+                initialized = TRUE;
+            }
+            output_print(&ob, "Caught exception 0x%08X at 0x%p\n", exception->ExceptionCode, exception->ExceptionAddress);
+            break;
+        }
+    }
+
+    if (!initialized)
+        return EXCEPTION_CONTINUE_SEARCH; // EXCEPTION_CONTINUE_EXECUTION
+
+    {
+        DWORD error = 0;
+        BOOL SymInitialized = SymInitialize(GetCurrentProcess(), NULL, TRUE);
+
+        if (!SymInitialized)
+        {
+            LPTSTR errorText;
+
+            error = GetLastError();
+            errorText = FormatErrorMessage(error);
+            output_print(&ob, "SymInitialize() failed with error %d: %s\n", error, errorText);
+            LocalFree(errorText);
+        }
+
+        if (SymInitialized || error == 87)
+        {
+            struct bfd_set *set = calloc(1,sizeof(*set));
+            bfd_init();
+            _backtrace(&ob , set , 128 , info->ContextRecord);
+            release_set(set);
+
+            SymCleanup(GetCurrentProcess());
+        }
+    }
 
     logfd = open(CRASH_LOG_FILE, O_APPEND | O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 
@@ -393,9 +455,9 @@ exception_filter(LPEXCEPTION_POINTERS info)
 
     //fputs(g_output, stderr);
 
-	exit(1);
+	exit(0xBAC);
 
-	return 0;
+	return EXCEPTION_CONTINUE_SEARCH;
 }
 
 static void
