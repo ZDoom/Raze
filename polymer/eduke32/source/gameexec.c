@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osdcmds.h"
 #include "osd.h"
 #include "menus.h"
+#include "input.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"
@@ -994,6 +995,7 @@ static int32_t VM_ResetPlayer(int32_t g_p, int32_t g_flags)
         {
             g_player[g_p].ps->gm |= MODE_MENU;
             KB_ClearKeyDown(sc_Space);
+            I_AdvanceTriggerClear();
             M_ChangeMenu(MENU_RESETPLAYER);
         }
         else g_player[g_p].ps->gm = MODE_RESTART;
