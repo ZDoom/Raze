@@ -331,8 +331,8 @@ typedef struct MenuFileSelect_t
 
     // state
     fnlist_t fnlist;
-    CACHE1D_FIND_REC *finddirshigh, *findfileshigh, *dir;
-    int32_t currentEntry, currentlist;
+    CACHE1D_FIND_REC *finddirshigh, *findfileshigh;
+    int32_t currentEntry, currentList;
 } MenuFileSelect_t;
 
 typedef struct Menu_t

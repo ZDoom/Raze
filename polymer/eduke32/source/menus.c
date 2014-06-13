@@ -99,6 +99,8 @@ extern int32_t g_quitDeadline;
 All MAKE_* macros are generally for the purpose of keeping state initialization
 separate from actual data. Alternatively, they can serve to factor out repetitive
 stuff and keep the important bits from getting lost to our eyes.
+
+They serve as a stand-in for C++ default value constructors, since we're using C89.
 */
 
 
@@ -1224,7 +1226,7 @@ static MenuMessage_t M_BUYDUKE = { CURSOR_BOTTOMRIGHT, MENU_EPISODE, };
 
 static MenuPassword_t M_ADULTPASSWORD = { MAXPWLOCKOUT, NULL, };
 
-#define MAKE_MENUFILESELECT(...) { __VA_ARGS__, FNLIST_INITIALIZER, NULL, NULL, NULL, 0, 0, };
+#define MAKE_MENUFILESELECT(...) { __VA_ARGS__, FNLIST_INITIALIZER, NULL, NULL, 0, 0, };
 
 static MenuFileSelect_t M_USERMAP = MAKE_MENUFILESELECT( "Select A User Map", &MF_Minifont, &MF_MinifontRed, "*.map", boardfilename );
 
@@ -2937,9 +2939,9 @@ static void M_MenuFileSelectInit(MenuFileSelect_t *object)
     fnlist_getnames(&object->fnlist, object->destination, object->pattern, 0, 0);
     object->finddirshigh = object->fnlist.finddirs;
     object->findfileshigh = object->fnlist.findfiles;
-    object->currentlist = 0;
+    object->currentList = 0;
     if (object->findfileshigh)
-        object->currentlist = 1;
+        object->currentList = 1;
 
     KB_FlushKeyboardQueue();
 }
@@ -3682,15 +3684,15 @@ static void M_RunMenu(Menu_t *cm)
             {
                 int32_t len;
 
-                object->dir = object->finddirshigh;
-                for (i=0; i<5; i++) if (!object->dir->prev) break;
-                    else object->dir=object->dir->prev;
-                for (i=5; i>-8 && object->dir; i--, object->dir=object->dir->next)
+                CACHE1D_FIND_REC *dir = object->finddirshigh;
+                for (i=0; i<5; i++) if (!dir->prev) break;
+                    else dir=dir->prev;
+                for (i=5; i>-8 && dir; i--, dir=dir->next)
                 {
                     uint8_t status = 0;
 
-                    len = Bstrlen(object->dir->name);
-                    Bstrncpy(tempbuf,object->dir->name,len);
+                    len = Bstrlen(dir->name);
+                    Bstrncpy(tempbuf,dir->name,len);
                     if (len > USERMAPENTRYLENGTH)
                     {
                         len = USERMAPENTRYLENGTH-3;
@@ -3700,7 +3702,7 @@ static void M_RunMenu(Menu_t *cm)
                     }
                     tempbuf[len] = 0;
 
-                    status |= (object->dir == object->finddirshigh && object->currentlist == 0)<<0;
+                    status |= (dir == object->finddirshigh && object->currentList == 0)<<0;
 
                     M_MenuText(40<<16, (1+12+32+8*(6-i))<<16, object->dirfont, tempbuf, status);
                 }
@@ -3712,15 +3714,15 @@ static void M_RunMenu(Menu_t *cm)
             {
                 int32_t len;
 
-                object->dir = object->findfileshigh;
-                for (i=0; i<6; i++) if (!object->dir->prev) break;
-                    else object->dir=object->dir->prev;
-                for (i=6; i>-8 && object->dir; i--, object->dir=object->dir->next)
+                CACHE1D_FIND_REC *dir = object->findfileshigh;
+                for (i=0; i<6; i++) if (!dir->prev) break;
+                    else dir=dir->prev;
+                for (i=6; i>-8 && dir; i--, dir=dir->next)
                 {
                     uint8_t status = 0;
 
-                    len = Bstrlen(object->dir->name);
-                    Bstrncpy(tempbuf,object->dir->name,len);
+                    len = Bstrlen(dir->name);
+                    Bstrncpy(tempbuf,dir->name,len);
                     if (len > USERMAPENTRYLENGTH)
                     {
                         len = USERMAPENTRYLENGTH-3;
@@ -3730,15 +3732,15 @@ static void M_RunMenu(Menu_t *cm)
                     }
                     tempbuf[len] = 0;
 
-                    status |= (object->dir == object->findfileshigh && object->currentlist == 1)<<0;
+                    status |= (dir == object->findfileshigh && object->currentList == 1)<<0;
 
                     M_MenuText(180<<16, (1+12+32+8*(6-i))<<16, object->filefont, tempbuf, status);
 
-                    // object->dir->source==CACHE1D_SOURCE_ZIP ? 8 : 2
+                    // dir->source==CACHE1D_SOURCE_ZIP ? 8 : 2
                 }
             }
 
-            rotatesprite_fs(((object->currentlist == 0 ? 45 : 185)<<16)-(21<<15),(32+4+1-2)<<16,32768,0,SPINNINGNUKEICON+(((totalclock>>3))%7),cursorShade,0,10);
+            rotatesprite_fs(((object->currentList == 0 ? 45 : 185)<<16)-(21<<15),(32+4+1-2)<<16,32768,0,SPINNINGNUKEICON+(((totalclock>>3))%7),cursorShade,0,10);
 
             M_PreMenuDraw(cm->menuID, NULL, NULL);
 
@@ -3856,7 +3858,7 @@ static void M_RunMenuInput(Menu_t *cm)
             MenuFileSelect_t *object = (MenuFileSelect_t*)cm->object;
 
             // JBF 20040208: seek to first name matching pressed character
-            CACHE1D_FIND_REC *seeker = object->currentlist ? object->fnlist.findfiles : object->fnlist.finddirs;
+            CACHE1D_FIND_REC *seeker = object->currentList ? object->fnlist.findfiles : object->fnlist.finddirs;
 
             if (I_ReturnTrigger())
             {
@@ -3878,7 +3880,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 S_PlaySound(PISTOL_BODYHIT);
 
-                if (object->currentlist == 0)
+                if (object->currentList == 0)
                 {
                     if (!object->finddirshigh) break;
                     Bstrcat(object->destination, object->finddirshigh->name);
@@ -3905,7 +3907,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     seeker = KB_KeyPressed(sc_End)?seeker->next:seeker->prev;
                 if (seeker)
                 {
-                    if (object->currentlist) object->findfileshigh = seeker;
+                    if (object->currentList) object->findfileshigh = seeker;
                     else object->finddirshigh = seeker;
                     // clear keys, don't play the kick sound a dozen times!
                     KB_ClearKeyDown(sc_End);
@@ -3916,7 +3918,7 @@ static void M_RunMenuInput(Menu_t *cm)
             else if ((KB_KeyPressed(sc_PgUp)|KB_KeyPressed(sc_PgDn)) > 0)
             {
                 int32_t i = 6;
-                seeker = object->currentlist?object->findfileshigh:object->finddirshigh;
+                seeker = object->currentList?object->findfileshigh:object->finddirshigh;
                 while (i>0)
                 {
                     if (seeker && (KB_KeyPressed(sc_PgDn)?seeker->next:seeker->prev))
@@ -3925,7 +3927,7 @@ static void M_RunMenuInput(Menu_t *cm)
                 }
                 if (seeker)
                 {
-                    if (object->currentlist) object->findfileshigh = seeker;
+                    if (object->currentList) object->findfileshigh = seeker;
                     else object->finddirshigh = seeker;
                     // clear keys, don't play the kick sound a dozen times!
                     KB_ClearKeyDown(sc_PgDn);
@@ -3943,7 +3945,7 @@ static void M_RunMenuInput(Menu_t *cm)
                 KB_ClearKeyDown(sc_kpad_6);
                 KB_ClearKeyDown(sc_Tab);
                 MOUSE_ClearButton(MIDDLE_MOUSE);
-                object->currentlist = !object->currentlist;
+                object->currentList = !object->currentList;
                 S_PlaySound(KICK_HIT);
             }
             else if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_kpad_8) || (MOUSE_GetButtons()&WHEELUP_MOUSE) || BUTTON(gamefunc_Move_Forward) || (JOYSTICK_GetHat(0)&HAT_UP))
@@ -3956,7 +3958,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 S_PlaySound(KICK_HIT);
 
-                if (object->currentlist == 0)
+                if (object->currentList == 0)
                 {
                     if (object->finddirshigh)
                         if (object->finddirshigh->prev) object->finddirshigh = object->finddirshigh->prev;
@@ -3978,7 +3980,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 S_PlaySound(KICK_HIT);
 
-                if (object->currentlist == 0)
+                if (object->currentList == 0)
                 {
                     if (object->finddirshigh)
                         if (object->finddirshigh->next) object->finddirshigh = object->finddirshigh->next;
@@ -4005,7 +4007,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     }
                     if (seeker)
                     {
-                        if (object->currentlist) object->findfileshigh = seeker;
+                        if (object->currentList) object->findfileshigh = seeker;
                         else object->finddirshigh = seeker;
                         S_PlaySound(KICK_HIT);
                     }
