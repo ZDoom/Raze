@@ -9752,7 +9752,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
                 {
                     G_ShowParameterHelp();
-                    exit(0);
+                    Bexit(0);
                 }
                 if (!Bstrcasecmp(c+1,"addon"))
                 {
@@ -9772,7 +9772,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 if (!Bstrcasecmp(c+1,"debughelp") || !Bstrcasecmp(c+1,"-debughelp"))
                 {
                     G_ShowDebugHelp();
-                    exit(0);
+                    Bexit(0);
                 }
                 if (!Bstrcasecmp(c+1,"grp") || !Bstrcasecmp(c+1,"g"))
                 {
@@ -10822,7 +10822,7 @@ static void G_Startup(void)
                   "There was a problem initializing the Build engine: %s", engineerrstr);
         G_Cleanup();
         ERRprintf("G_Startup: There was a problem initializing the Build engine: %s\n", engineerrstr);
-        exit(6);
+        Bexit(6);
     }
 
     setbasepaltable(basepaltable, BASEPALCOUNT);
@@ -11420,7 +11420,7 @@ int32_t app_main(int32_t argc, const char **argv)
         wm_msgbox("Build Engine Initialization Error",
                   "There was a problem initializing the Build engine: %s", engineerrstr);
         ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
-        exit(2);
+        Bexit(2);
     }
 
     if (Bstrcmp(setupfilename, SETUPFILENAME))
@@ -11470,7 +11470,7 @@ int32_t app_main(int32_t argc, const char **argv)
         if (quitevent || !startwin_run())
         {
             uninitengine();
-            exit(0);
+            Bexit(0);
         }
     }
 #endif
@@ -11726,7 +11726,7 @@ int32_t app_main(int32_t argc, const char **argv)
         {
             ERRprintf("There was an error initializing the CONTROL system.\n");
             uninitengine();
-            exit(5);
+            Bexit(5);
         }
 
         G_SetupGameButtons();

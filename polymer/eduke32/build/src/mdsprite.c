@@ -29,7 +29,7 @@ static void QuitOnFatalError(const char *msg)
     if (msg)
         initprintf("%s\n", msg);
     uninitengine();
-    exit(1);
+    Bexit(1);
 }
 
 

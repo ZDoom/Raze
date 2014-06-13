@@ -323,7 +323,7 @@ static void reportandexit(const char *errormessage)
     Bprintf("Cache length sum = %d\n",j);
 #endif
     initprintf("ERROR: %s\n",errormessage);
-    exit(1);
+    Bexit(1);
 }
 
 #include <errno.h>
@@ -840,7 +840,7 @@ int32_t kopen4load(const char *filename, char searchfirst)
         if (newhandle < 0)
         {
             Bprintf("TOO MANY FILES OPEN IN FILE GROUPING SYSTEM!");
-            exit(0);
+            Bexit(0);
         }
     }
 

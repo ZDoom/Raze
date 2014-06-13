@@ -77,7 +77,7 @@ static void handle_potential_memerr(void *ptr)
 #endif
         }
 
-        exit(EXIT_FAILURE);
+        Bexit(EXIT_FAILURE);
     }
 }
 

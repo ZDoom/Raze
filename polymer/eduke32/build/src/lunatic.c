@@ -142,7 +142,7 @@ static void L_OnOutOfMem(void)
     extern void uninitengine(void);
     OSD_Printf("Out of memory in Lunatic.\n");
     uninitengine();
-    exit(127);
+    Bexit(127);
 }
 
 void (*L_ErrorFunc)(const char *) = NULL;

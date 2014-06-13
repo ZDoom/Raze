@@ -864,11 +864,13 @@ void *xrealloc(void *ptr, bsize_t size);
 # define Xmalloc(size) (EDUKE32_PRE_XALLLOC, xmalloc(size))
 # define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLLOC, xcalloc(nmemb, size))
 # define Xrealloc(ptr, size) (EDUKE32_PRE_XALLLOC, xrealloc(ptr, size))
+# define Bexit(status) do { initprintf("exit(%d) at %s:%d in %s()\n", status, __FILE__, __LINE__, EDUKE32_FUNCTION); exit(status); } while (0)
 #else
 # define Xstrdup xstrdup
 # define Xmalloc xmalloc
 # define Xcalloc xcalloc
 # define Xrealloc xrealloc
+# define Bexit exit
 #endif
 //////////
 

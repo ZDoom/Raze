@@ -2530,7 +2530,7 @@ static int32_t C_ParseCommand(int32_t loop)
         {
             initprintf("Aborted.\n");
             G_Shutdown();
-            exit(0);
+            Bexit(0);
         }
 
         if (g_numCompilerErrors > 63 || (*textptr == '\0') || (*(textptr+1) == '\0') || C_SkipComments())

@@ -573,7 +573,7 @@ int32_t app_main(int32_t argc, const char **argv)
         if (quitevent || !startwin_run())
         {
             uninitengine();
-            exit(0);
+            Bexit(0);
         }
     }
 #endif
@@ -680,7 +680,7 @@ int32_t app_main(int32_t argc, const char **argv)
             ExtUnInit();
             uninitengine();
             Bprintf("%d * %d not supported in this graphics mode\n",xdim2d,ydim2d);
-            exit(0);
+            Bexit(0);
         }
 
         // executed once per init, but after setgamemode so that OSD has the right width
@@ -706,7 +706,7 @@ int32_t app_main(int32_t argc, const char **argv)
             ExtUnInit();
             uninitengine();
             Bprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
-            exit(0);
+            Bexit(0);
         }
 
         // executed once per init, but after setgamemode so that OSD has the right width
@@ -7554,7 +7554,7 @@ end_insert_points:
         if ((j&0xffff) != 0xebf)
         {
         	printf("Don't screw with my name.\n");
-        	exit(0);
+        	Bexit(0);
         }*/
         //printext16(9L,336+9L,4,-1,kensig,0);
         //printext16(8L,336+8L,12,-1,kensig,0);
@@ -7884,7 +7884,7 @@ CANCEL:
 //                        clearfilenames();
                         uninitengine();
 
-                        exit(0);
+                        Bexit(0);
                     }
 
                     // printmessage16("");
@@ -7919,7 +7919,7 @@ CANCEL:
         ExtUnInit();
 //        clearfilenames();
         uninitengine();
-        exit(1);
+        Bexit(1);
     }
 
     setbrightness(GAMMA_CALC,0,0);

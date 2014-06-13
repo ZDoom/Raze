@@ -8700,7 +8700,7 @@ void *blockptr = NULL;
 int32_t preinitengine(void)
 {
     char *e;
-    if (initsystem()) exit(9);
+    if (initsystem()) Bexit(9);
 
     makeasmwriteable();
 
@@ -9081,7 +9081,7 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     //if (smostwallcnt < 0)
     //  if (getkensmessagecrc(FP_OFF(kensmessage)) != 0x56c764d4)
-    //      { /* setvmode(0x3);*/ OSD_Printf("Nice try.\n"); exit(0); }
+    //      { /* setvmode(0x3);*/ OSD_Printf("Nice try.\n"); Bexit(0); }
 
     numhits = xdimen; numscans = 0; numbunches = 0;
     maskwallcnt = 0; smostwallcnt = 0; smostcnt = 0; spritesortcnt = 0;
@@ -11237,7 +11237,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
            "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
     //  if (getkensmessagecrc(FP_OFF(kensmessage)) != 0x56c764d4)
-    //      { OSD_Printf("Nice try.\n"); exit(0); }
+    //      { OSD_Printf("Nice try.\n"); Bexit(0); }
 
     //if (checkvideomode(&daxdim, &daydim, dabpp, davidoption)<0) return (-1);
 
@@ -11666,7 +11666,7 @@ void loadtile(int16_t tilenume)
         {
             initprintf("Failed opening ART file \"%s\"!\n", fn);
             uninitengine();
-            exit(11);
+            Bexit(11);
         }
 
         artfilnum = i;
@@ -14816,7 +14816,7 @@ static void maybe_alloc_palookup(int32_t palnum)
     {
         alloc_palookup(palnum);
         if (palookup[palnum] == NULL)
-            exit(1);
+            Bexit(1);
     }
 }
 

@@ -8598,7 +8598,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
             {
                 G_ShowParameterHelp();
-                exit(0);
+                Bexit(0);
             }
 
             if (!Bstrcasecmp(c+1, "g") || !Bstrcasecmp(c+1, "grp"))
@@ -8962,7 +8962,7 @@ static int32_t osdcmd_quit(const osdfuncparm_t *parm)
 
     Bfflush(NULL);
 
-    exit(0);
+    Bexit(0);
 }
 
 static int32_t osdcmd_editorgridextent(const osdfuncparm_t *parm)
