@@ -322,8 +322,7 @@ typedef struct MenuFileSelect_t
     const char *title;
 
     // appearance
-    MenuTextType_t *dirfont;
-    MenuTextType_t *filefont;
+    MenuTextType_t *font[2];
 
     // traits
     const char *pattern;
@@ -331,8 +330,8 @@ typedef struct MenuFileSelect_t
 
     // state
     fnlist_t fnlist;
-    CACHE1D_FIND_REC *finddirshigh, *findfileshigh;
-    int32_t currentEntry, currentList;
+    CACHE1D_FIND_REC *findhigh[2];
+    int32_t currentList, scrollPos[2];
 } MenuFileSelect_t;
 
 typedef struct Menu_t
