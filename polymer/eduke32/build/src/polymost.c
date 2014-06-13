@@ -1010,7 +1010,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
 
         Bassert(ydif > 0 && ydif < ysiz);
 
-        paddedpic = Xrealloc(pic, xsiz*nextpoty*sizeof(coltype));
+        paddedpic = (coltype*) Xrealloc(pic, xsiz*nextpoty*sizeof(coltype));
 
         pic = paddedpic;
         Bmemcpy(&pic[xsiz*ysiz], pic, xsiz*ydif*sizeof(coltype));
