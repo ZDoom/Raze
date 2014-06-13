@@ -3548,11 +3548,8 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
     // draw indicators if applicable
     if (totalextent > menu->bottomcutoff)
     {
-        if (menu->scrollPos > 0)
-            rotatesprite((320 - tilesizx[SELECTDIR])<<16, menu->ytop, 65536, 0, SELECTDIR, 0, 0, 26, 0, 0, xdim-1, scale(ydim, menu->ytop + (tilesizy[SELECTDIR]<<15), 200<<16) - 1);
-
-        if (menu->ytop + menu->totalHeight - menu->scrollPos > menu->bottomcutoff)
-            rotatesprite((320 - tilesizx[SELECTDIR])<<16, menu->bottomcutoff - (tilesizy[SELECTDIR]<<16), 65536, 0, SELECTDIR, 0, 0, 26, 0, scale(ydim, menu->bottomcutoff - (tilesizy[SELECTDIR]<<15), 200<<16), xdim-1, ydim-1);
+        rotatesprite((320 - tilesizx[SELECTDIR])<<16, menu->ytop, 65536, 0, SELECTDIR, menu->scrollPos > 0 ? 0 : 20, 0, 26, 0, 0, xdim-1, scale(ydim, menu->ytop + (tilesizy[SELECTDIR]<<15), 200<<16) - 1);
+        rotatesprite((320 - tilesizx[SELECTDIR])<<16, menu->bottomcutoff - (tilesizy[SELECTDIR]<<16), 65536, 0, SELECTDIR, menu->ytop + menu->totalHeight - menu->scrollPos > menu->bottomcutoff ? 0 : 20, 0, 26, 0, scale(ydim, menu->bottomcutoff - (tilesizy[SELECTDIR]<<15), 200<<16), xdim-1, ydim-1);
     }
 
     return menu->totalHeight;
@@ -3606,11 +3603,8 @@ static void M_RunMenu_MenuOptionList(MenuOption_t *object)
     // draw indicators if applicable
     if (y > object->options->list->bottomcutoff)
     {
-        if (object->options->scrollPos > 0)
-            rotatesprite((320 - tilesizx[SELECTDIR])<<16, object->options->list->pos.y, 65536, 0, SELECTDIR, 0, 0, 26, 0, 0, xdim-1, scale(ydim, object->options->list->pos.y + (tilesizy[SELECTDIR]<<15), 200<<16) - 1);
-
-        if (y - object->options->scrollPos > object->options->list->bottomcutoff)
-            rotatesprite((320 - tilesizx[SELECTDIR])<<16, object->options->list->bottomcutoff - (tilesizy[SELECTDIR]<<16), 65536, 0, SELECTDIR, 0, 0, 26, 0, scale(ydim, object->options->list->bottomcutoff - (tilesizy[SELECTDIR]<<15), 200<<16), xdim-1, ydim-1);
+        rotatesprite((320 - tilesizx[SELECTDIR])<<16, object->options->list->pos.y, 65536, 0, SELECTDIR, object->options->scrollPos > 0 ? 0 : 20, 0, 26, 0, 0, xdim-1, scale(ydim, object->options->list->pos.y + (tilesizy[SELECTDIR]<<15), 200<<16) - 1);
+        rotatesprite((320 - tilesizx[SELECTDIR])<<16, object->options->list->bottomcutoff - (tilesizy[SELECTDIR]<<16), 65536, 0, SELECTDIR, y - object->options->scrollPos > object->options->list->bottomcutoff ? 0 : 20, 0, 26, 0, scale(ydim, object->options->list->bottomcutoff - (tilesizy[SELECTDIR]<<15), 200<<16), xdim-1, ydim-1);
     }
 }
 
