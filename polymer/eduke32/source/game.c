@@ -10373,6 +10373,19 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     }
 }
 
+void G_UpdateAppTitle(void)
+{
+    if (g_gameNamePtr)
+    {
+        Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
+        wm_setapptitle(tempbuf);
+    }
+    else
+    {
+        wm_setapptitle(APPNAME);
+    }
+}
+
 static void G_DisplayLogo(void)
 {
     int32_t soundanm = 0;
@@ -10389,8 +10402,7 @@ static void G_DisplayLogo(void)
     flushperms();
     nextpage();
 
-    Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
-    wm_setapptitle(tempbuf);
+    G_UpdateAppTitle();
 
     S_StopMusic();
     FX_StopAllSounds(); // JBF 20031228
@@ -11034,8 +11046,7 @@ void G_BackToMenu(void)
     g_player[myconnectindex].ps->gm = MODE_MENU;
     M_ChangeMenu(MENU_MAIN);
     KB_FlushKeyboardQueue();
-    Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
-    wm_setapptitle(tempbuf);
+    G_UpdateAppTitle();
 }
 
 static int32_t G_EndOfLevel(void)
@@ -11470,7 +11481,7 @@ int32_t app_main(int32_t argc, const char **argv)
             g_gameType = first->game;
             g_gameNamePtr = listgrps->name;
         }
-        else if (!fg) g_gameNamePtr = "Unknown GRP";
+        else if (!fg) g_gameNamePtr = NULL;
     }
 
 #ifdef STARTUP_SETUP_WINDOW
@@ -11608,8 +11619,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
     // gotta set the proper title after we compile the CONs if this is the full version
 
-    Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
-    wm_setapptitle(tempbuf);
+    G_UpdateAppTitle();
 
     if (g_scriptDebug)
         initprintf("CON debugging activated (level %d).\n",g_scriptDebug);
@@ -12655,8 +12665,7 @@ void G_BonusScreen(int32_t bonusonly)
     if (g_networkMode == NET_DEDICATED_SERVER)
         return;
 
-    Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
-    wm_setapptitle(tempbuf);
+    G_UpdateAppTitle();
 
     if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])
     {

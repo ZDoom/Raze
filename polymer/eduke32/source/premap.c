@@ -1865,9 +1865,18 @@ int32_t G_EnterLevel(int32_t g)
     if (G_HaveUserMap())
     {
         Bstrcpy(levname, boardfilename);
-        Bsprintf(apptitle,"%s - %s - " APPNAME,levname,g_gameNamePtr);
+        if (g_gameNamePtr)
+            Bsprintf(apptitle,"%s - %s - " APPNAME,levname,g_gameNamePtr);
+        else
+            Bsprintf(apptitle,"%s - " APPNAME,levname);
     }
-    else Bsprintf(apptitle,"%s - %s - " APPNAME,MapInfo[mii].name,g_gameNamePtr);
+    else
+    {
+        if (g_gameNamePtr)
+            Bsprintf(apptitle,"%s - %s - " APPNAME,MapInfo[mii].name,g_gameNamePtr);
+        else
+            Bsprintf(apptitle,"%s - " APPNAME,MapInfo[mii].name);
+    }
 
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);

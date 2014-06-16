@@ -5543,8 +5543,7 @@ repeatcase:
                 }
                 gamename[i] = '\0';
                 g_gameNamePtr = Xstrdup(gamename);
-                Bsprintf(tempbuf,"%s - " APPNAME,g_gameNamePtr);
-                wm_setapptitle(tempbuf);
+                G_UpdateAppTitle();
             }
             continue;
 

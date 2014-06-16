@@ -372,6 +372,7 @@ void G_GameQuit(void);
 void G_GetCrosshairColor(void);
 void G_HandleLocalKeys(void);
 void G_HandleSpecialKeys(void);
+void G_UpdateAppTitle(void);
 void G_PrintGameQuotes(int32_t snum);
 //void G_SE40(int32_t smoothratio);
 void G_SetCrosshairColor(int32_t r,int32_t g,int32_t b);
