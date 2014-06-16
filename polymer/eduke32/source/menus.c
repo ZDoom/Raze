@@ -2725,6 +2725,8 @@ static void M_MenuEntryStringActivate(MenuGroup_t *group/*, MenuEntry_t *entry*/
 
 static int32_t M_MenuEntryStringSubmit(MenuGroup_t *group /*, MenuEntry_t *entry, char *input*/)
 {
+    int32_t returnvar = 0;
+
     switch (g_currentMenu)
     {
     case MENU_SAVE:
@@ -2734,6 +2736,7 @@ static int32_t M_MenuEntryStringSubmit(MenuGroup_t *group /*, MenuEntry_t *entry
         {
             Bstrncpy(&ud.savegame[group->currentEntry][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
             ud.savegame[group->currentEntry][MAXSAVEGAMENAME-2] = 127;
+            returnvar = -1;
         }
 
         G_SavePlayerMaybeMulti(group->currentEntry);
@@ -2747,15 +2750,13 @@ static int32_t M_MenuEntryStringSubmit(MenuGroup_t *group /*, MenuEntry_t *entry
             totalclock = ototalclock;
         }
         save_xxh = 0;
-
-        return -1;
         break;
 
     default:
         break;
     }
 
-    return 0;
+    return returnvar;
 }
 
 static void M_MenuEntryStringCancel(/*MenuGroup_t *group, MenuEntry_t *entry*/)
