@@ -92,6 +92,7 @@ static __inline int32_t _lrotl(int32_t i, int sh)
 #endif
 
 #if defined(__GNUC__)
+#undef _inline
 #define _inline inline
 #endif
 

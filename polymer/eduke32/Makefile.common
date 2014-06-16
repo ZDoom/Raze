@@ -293,10 +293,6 @@ ifndef OPTOPT
             OPTOPT=
         endif
     endif
-
-    ifneq (,$(CUSTOMOPT))
-        OPTOPT+= $(CUSTOMOPT)
-    endif
 endif
 
 ifneq (0,$(KRANDDEBUG))
@@ -398,6 +394,12 @@ ifneq (0,$(RELEASE))
     ifneq (0,$(LTO))
         BASELDFLAGS+= -flto
         debug+= -DUSING_LTO -flto
+        ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
+            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 9)))
+                BASELDFLAGS+= -ffat-lto-objects
+                debug+= -ffat-lto-objects
+            endif
+        endif
     endif
 else
     # Debugging enabled
@@ -575,3 +577,9 @@ EROOT:=build
 
 # will be potentially overridden in build/Makefile.shared
 EXESUFFIX=
+
+
+ifneq (,$(CUSTOMOPT))
+    BASECOMMONFLAGS+= $(CUSTOMOPT)
+    BASELDFLAGS+= $(CUSTOMOPT)
+endif
