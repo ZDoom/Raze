@@ -8160,6 +8160,11 @@ GAME_STATIC void G_DoCheats(void)
             return;
 
 FOUNDCHEAT:
+
+        i = VM_OnEvent(EVENT_ACTIVATECHEAT, g_player[myconnectindex].ps->i, myconnectindex, -1, k);
+        if (k != CHEAT_COMEGETSOME) // Users are not allowed to interfere with TX's debugging cheat.
+            k = i;
+
             {
                 switch (k)
                 {
@@ -8474,6 +8479,10 @@ FOUNDCHEAT:
                     g_player[myconnectindex].ps->player_par = 0;
                     g_player[myconnectindex].ps->gm |= MODE_EOL;
                     KB_FlushKeyboardQueue();
+                    return;
+
+                default:
+                    end_cheat();
                     return;
                 }
             }

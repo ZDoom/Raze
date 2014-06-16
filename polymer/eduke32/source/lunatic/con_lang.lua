@@ -170,7 +170,8 @@ EVENT = {
     EVENT_PREGAME = 93,
     EVENT_CHANGEMENU = 94,
     EVENT_DAMAGEHPLANE = 95,
---    EVENT_ANIMATEALLSPRITES = 96,  -- internal
+    EVENT_ACTIVATECHEAT = 96,
+--    EVENT_ANIMATEALLSPRITES = 97,  -- internal
 }
 
 -- NOTE: negated values are not exported to the ffi.C namespace or CON.
