@@ -12284,14 +12284,13 @@ static void G_BonusCutscenes(void)
     if (!(numplayers < 2 && ud.eog && ud.from_bonus == 0))
         return;
 
-    if ((unsigned)ud.volume_number < 4
-            && (G_GetLogoFlags() & (LOGO_NOE1BONUSSCENE << ud.volume_number)))
-        return;
-
     switch (ud.volume_number)
     {
     case 0:
-        if (ud.lockout == 0)
+        if ((G_GetLogoFlags() & LOGO_NOE1BONUSSCENE) && (G_GetLogoFlags() & LOGO_NOE1ENDSCREEN))
+            return;
+
+        if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE1BONUSSCENE))
         {
             P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, 8+2+1); // JBF 20040308
             clearallviews(0L);
@@ -12350,11 +12349,13 @@ static void G_BonusCutscenes(void)
                 nextpage();
                 if (I_CheckAllInput()) break;
             }
+
+            fadepal(0,0,0, 0,63,1);
         }
 
-        fadepal(0,0,0, 0,63,1);
+        if (G_GetLogoFlags() & LOGO_NOE1ENDSCREEN)
+            goto VOL1_END;
 
-        I_ClearAllInput();
         I_ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
 
@@ -12362,28 +12363,38 @@ static void G_BonusCutscenes(void)
         fadepal(0,0,0, 63,0,-1);
         G_HandleEventsWhileNoInput();
         fadepal(0,0,0, 0,63,1);
+
+VOL1_END:
         S_StopMusic();
         FX_StopAllSounds();
         S_ClearSoundLocks();
         break;
 
     case 1:
+        if ((G_GetLogoFlags() & LOGO_NOE2BONUSSCENE) && (G_GetLogoFlags() & LOGO_NOE2ENDSCREEN))
+            return;
+
+        setview(0,0,xdim-1,ydim-1);
+
         S_StopMusic();
         clearallviews(0L);
         nextpage();
 
-        if (ud.lockout == 0)
+        if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE2BONUSSCENE))
         {
+            fadepal(0,0,0, 63,0,-1);
             G_PlayAnim("cineov2.anm",1);
             I_ClearAllInput();
             clearallviews(0L);
             nextpage();
+
+            S_PlaySound(PIPEBOMB_EXPLODE);
+            fadepal(0,0,0, 0,63,1);
         }
 
-        S_PlaySound(PIPEBOMB_EXPLODE);
+        if (G_GetLogoFlags() & LOGO_NOE2ENDSCREEN)
+            return;
 
-        fadepal(0,0,0, 0,63,1);
-        setview(0,0,xdim-1,ydim-1);
         I_ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
         rotatesprite_fs(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0));
@@ -12394,14 +12405,19 @@ static void G_BonusCutscenes(void)
         break;
 
     case 3:
+        if ((G_GetLogoFlags() & LOGO_NOE4BONUSSCENE) && (G_GetLogoFlags() & LOGO_NODUKETEAMTEXT) && (G_GetLogoFlags() & LOGO_NODUKETEAMPIC))
+            return;
+
         setview(0,0,xdim-1,ydim-1);
 
         S_StopMusic();
         clearallviews(0L);
         nextpage();
 
-        if (ud.lockout == 0)
+        if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE4BONUSSCENE))
         {
+            fadepal(0,0,0, 63,0,-1);
+
             I_ClearAllInput();
             t = G_PlayAnim("vol4e1.anm",8);
             clearallviews(0L);
@@ -12420,11 +12436,17 @@ static void G_BonusCutscenes(void)
             nextpage();
         }
 
+        if ((G_GetLogoFlags() & LOGO_NODUKETEAMTEXT) && (G_GetLogoFlags() & LOGO_NODUKETEAMPIC))
+            goto VOL4_END;
+
 end_vol4e:
         FX_StopAllSounds();
         S_ClearSoundLocks();
         S_PlaySound(ENDSEQVOL3SND4);
         I_ClearAllInput();
+
+        if (G_GetLogoFlags() & LOGO_NODUKETEAMTEXT)
+            goto VOL4_DUKETEAM;
 
         G_FadePalette(0,0,0,0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
@@ -12443,6 +12465,10 @@ end_vol4e:
         G_HandleEventsWhileNoInput();
         fadepal(0,0,0, 0,63,3);
 
+        if (G_GetLogoFlags() & LOGO_NODUKETEAMPIC)
+            goto VOL4_END;
+
+VOL4_DUKETEAM:
         clearallviews(0L);
         nextpage();
 
@@ -12455,6 +12481,7 @@ end_vol4e:
         nextpage();
         G_FadePalette(0,0,0,63);
 
+VOL4_END:
         FX_StopAllSounds();
         S_ClearSoundLocks();
         I_ClearAllInput();
@@ -12462,10 +12489,13 @@ end_vol4e:
         break;
 
     case 2:
+        if ((G_GetLogoFlags() & LOGO_NOE3BONUSSCENE) && (G_GetLogoFlags() & LOGO_NOE3RADLOGO) && (PLUTOPAK || (G_GetLogoFlags() & LOGO_NODUKETEAMPIC)))
+            return;
+
         S_StopMusic();
         clearallviews(0L);
         nextpage();
-        if (ud.lockout == 0)
+        if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE3BONUSSCENE))
         {
             fadepal(0,0,0, 63,0,-1);
             G_PlayAnim("cineov3.anm",2);
@@ -12479,6 +12509,9 @@ end_vol4e:
             FX_StopAllSounds();
             S_ClearSoundLocks();
         }
+
+        if (G_GetLogoFlags() & LOGO_NOE3RADLOGO)
+            goto ENDANM;
 
         G_PlayAnim("RADLOGO.ANM",3);
 
@@ -12494,7 +12527,7 @@ end_vol4e:
         I_ClearAllInput();
 
         totalclock = 0;
-        if (PLUTOPAK)
+        if (PLUTOPAK || (G_GetLogoFlags() & LOGO_NODUKETEAMPIC))
         {
             while (totalclock < 120 && !I_CheckAllInput())
                 G_HandleAsync();
@@ -12507,7 +12540,7 @@ end_vol4e:
         }
 
 ENDANM:
-        if (!PLUTOPAK)
+        if (!PLUTOPAK && !(G_GetLogoFlags() & LOGO_NODUKETEAMPIC))
         {
             FX_StopAllSounds();
             S_ClearSoundLocks();
