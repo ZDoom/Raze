@@ -2771,24 +2771,24 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
 ////////// OFTEN-USED FEW-LINERS //////////
 static void G_HandleEventsWhileNoInput(void)
 {
-    I_ClearInputWaiting();
+    I_ClearAllInput();
 
-    while (!I_CheckInputWaiting())
+    while (!I_CheckAllInput())
         G_HandleAsync();
 
-    I_ClearInputWaiting();
+    I_ClearAllInput();
 }
 
 static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
 {
     S_PlaySound(soundnum);
-    I_ClearInputWaiting();
+    I_ClearAllInput();
     while (S_CheckSoundPlaying(-1, soundnum))
     {
         G_HandleAsync();
-        if (I_CheckInputWaiting())
+        if (I_CheckAllInput())
         {
-            I_ClearInputWaiting();
+            I_ClearAllInput();
             return 1;
         }
     }
@@ -10430,7 +10430,7 @@ static void G_DisplayLogo(void)
                 nextpage();
                 fadepaltile(0,0,0, 63,0,-7,DREALMS);
                 totalclock = 0;
-                while (totalclock < (120*7) && !I_CheckInputWaiting())
+                while (totalclock < (120*7) && !I_CheckAllInput())
                 {
                     clearallviews(0);
 
@@ -10447,7 +10447,7 @@ static void G_DisplayLogo(void)
                 }
                 fadepaltile(0,0,0, 0,63,7,DREALMS);
             }
-            I_ClearInputWaiting();
+            I_ClearAllInput();
         }
 
         clearallviews(0L);
@@ -10465,7 +10465,7 @@ static void G_DisplayLogo(void)
             fadepaltile(0,0,0, 63,0,-7,BETASCREEN);
             totalclock = 0;
 
-            while (totalclock < (860+120) && !I_CheckInputWaiting())
+            while (totalclock < (860+120) && !I_CheckAllInput())
             {
                 clearallviews(0);
 
@@ -10545,7 +10545,7 @@ static void G_DisplayLogo(void)
                 nextpage();
             }
         }
-        I_ClearInputWaiting();
+        I_ClearAllInput();
     }
 
     flushperms();
@@ -12355,7 +12355,7 @@ static void G_BonusCutscenes(void)
         fadepal(0,0,0, 0,63,1);
 
         I_ClearAllInput();
-        I_ClearInputWaiting();
+        I_ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
 
         rotatesprite_fs(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0));
@@ -12375,7 +12375,7 @@ static void G_BonusCutscenes(void)
         if (ud.lockout == 0)
         {
             G_PlayAnim("cineov2.anm",1);
-            I_ClearInputWaiting();
+            I_ClearAllInput();
             clearallviews(0L);
             nextpage();
         }
@@ -12384,7 +12384,7 @@ static void G_BonusCutscenes(void)
 
         fadepal(0,0,0, 0,63,1);
         setview(0,0,xdim-1,ydim-1);
-        I_ClearInputWaiting();
+        I_ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
         rotatesprite_fs(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepal(0,0,0, 63,0,-1);
@@ -12402,7 +12402,7 @@ static void G_BonusCutscenes(void)
 
         if (ud.lockout == 0)
         {
-            I_ClearInputWaiting();
+            I_ClearAllInput();
             t = G_PlayAnim("vol4e1.anm",8);
             clearallviews(0L);
             nextpage();
@@ -12424,7 +12424,7 @@ end_vol4e:
         FX_StopAllSounds();
         S_ClearSoundLocks();
         S_PlaySound(ENDSEQVOL3SND4);
-        I_ClearInputWaiting();
+        I_ClearAllInput();
 
         G_FadePalette(0,0,0,0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
@@ -12439,7 +12439,7 @@ end_vol4e:
 
         fadepal(0,0,0, 63,0,-3);
         nextpage();
-        I_ClearInputWaiting();
+        I_ClearAllInput();
         G_HandleEventsWhileNoInput();
         fadepal(0,0,0, 0,63,3);
 
@@ -12448,7 +12448,7 @@ end_vol4e:
 
         G_PlayAnim("DUKETEAM.ANM",4);
 
-        I_ClearInputWaiting();
+        I_ClearAllInput();
         G_HandleEventsWhileNoInput();
 
         clearallviews(0L);
@@ -12457,7 +12457,7 @@ end_vol4e:
 
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        I_ClearInputWaiting();
+        I_ClearAllInput();
 
         break;
 
@@ -12469,7 +12469,7 @@ end_vol4e:
         {
             fadepal(0,0,0, 63,0,-1);
             G_PlayAnim("cineov3.anm",2);
-            I_ClearInputWaiting();
+            I_ClearAllInput();
             ototalclock = totalclock+200;
             while (totalclock < ototalclock)
                 G_HandleAsync();
@@ -12482,7 +12482,7 @@ end_vol4e:
 
         G_PlayAnim("RADLOGO.ANM",3);
 
-        if (ud.lockout == 0 && !I_CheckInputWaiting())
+        if (ud.lockout == 0 && !I_CheckAllInput())
         {
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND5)) goto ENDANM;
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND6)) goto ENDANM;
@@ -12491,15 +12491,15 @@ end_vol4e:
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND9)) goto ENDANM;
         }
 
-        I_ClearInputWaiting();
+        I_ClearAllInput();
 
         totalclock = 0;
         if (PLUTOPAK)
         {
-            while (totalclock < 120 && !I_CheckInputWaiting())
+            while (totalclock < 120 && !I_CheckAllInput())
                 G_HandleAsync();
 
-            I_ClearInputWaiting();
+            I_ClearAllInput();
         }
         else
         {
@@ -12518,7 +12518,7 @@ ENDANM:
 
             G_PlayAnim("DUKETEAM.ANM",4);
 
-            I_ClearInputWaiting();
+            I_ClearAllInput();
             G_HandleEventsWhileNoInput();
 
             clearallviews(0L);
@@ -12526,7 +12526,7 @@ ENDANM:
             G_FadePalette(0,0,0,63);
         }
 
-        I_ClearInputWaiting();
+        I_ClearAllInput();
         FX_StopAllSounds();
         S_ClearSoundLocks();
 

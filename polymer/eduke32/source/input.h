@@ -26,39 +26,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern int32_t I_CheckAllInput(void);
 extern void I_ClearAllInput(void);
 
-extern int32_t I_CheckInputWaiting(void);
-extern int32_t I_ClearInputWaiting(void);
-
 // Advance = Selecting a menu option || Saying "Yes" || Going forward in Help/Credits
 // Return = Closing a sub-menu || Saying "No"
 // Escape = Opening the menu in-game (should not be any gamefuncs)
 
-// Joysticks have separate functions to avoid spamming duplicated "ifdef GEKKO" everywhere.
-extern int32_t I_JoystickAdvanceTrigger(void);
-extern int32_t I_JoystickAdvanceTriggerClear(void);
-extern int32_t I_JoystickReturnTrigger(void);
-extern int32_t I_JoystickReturnTriggerClear(void);
-extern int32_t I_JoystickEscapeTrigger(void);
-extern int32_t I_JoystickEscapeTriggerClear(void);
-
 extern int32_t I_AdvanceTrigger(void);
-extern int32_t I_AdvanceTriggerClear(void);
+extern void I_AdvanceTriggerClear(void);
 extern int32_t I_ReturnTrigger(void);
-extern int32_t I_ReturnTriggerClear(void);
+extern void I_ReturnTriggerClear(void);
 extern int32_t I_EscapeTrigger(void);
-extern int32_t I_EscapeTriggerClear(void);
+extern void I_EscapeTriggerClear(void);
+
+extern int32_t I_MenuUp(void);
+extern void I_MenuUpClear(void);
+extern int32_t I_MenuDown(void);
+extern void I_MenuDownClear(void);
+extern int32_t I_MenuLeft(void);
+extern void I_MenuLeftClear(void);
+extern int32_t I_MenuRight(void);
+extern void I_MenuRightClear(void);
 
 extern int32_t I_PanelUp(void);
-extern int32_t I_PanelUpClear(void);
-
+extern void I_PanelUpClear(void);
 extern int32_t I_PanelDown(void);
-extern int32_t I_PanelDownClear(void);
+extern void I_PanelDownClear(void);
 
 extern int32_t I_SliderLeft(void);
-extern int32_t I_SliderLeftClear(void);
-
+extern void I_SliderLeftClear(void);
 extern int32_t I_SliderRight(void);
-extern int32_t I_SliderRightClear(void);
+extern void I_SliderRightClear(void);
 
 
 enum EnterTextFlags_t {

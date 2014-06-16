@@ -3940,17 +3940,41 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 S_PlaySound(KICK_HIT);
             }
-            else if (KB_KeyPressed(sc_PgUp) || KB_KeyPressed(sc_PgDn))
+            else if (KB_KeyPressed(sc_PgUp))
             {
-                int32_t i = 6;
+                int32_t i;
 
                 CACHE1D_FIND_REC *seeker = object->findhigh[object->currentList];
-                while (i>0)
+
+                for (i = 0; i < 6; ++i)
                 {
-                    if (seeker && (KB_KeyPressed(sc_PgDn)?seeker->next:seeker->prev))
-                        seeker = KB_KeyPressed(sc_PgDn)?seeker->next:seeker->prev;
-                    i--;
+                    if (seeker && seeker->prev)
+                        seeker = seeker->prev;
                 }
+
+                if (seeker)
+                {
+                    movement = 1;
+
+                    object->findhigh[object->currentList] = seeker;
+
+                    KB_ClearKeyDown(sc_PgUp);
+
+                    S_PlaySound(KICK_HIT);
+                }
+            }
+            else if (KB_KeyPressed(sc_PgDn))
+            {
+                int32_t i;
+
+                CACHE1D_FIND_REC *seeker = object->findhigh[object->currentList];
+
+                for (i = 0; i < 6; ++i)
+                {
+                    if (seeker && seeker->next)
+                        seeker = seeker->next;
+                }
+
                 if (seeker)
                 {
                     movement = 1;
@@ -3958,21 +3982,14 @@ static void M_RunMenuInput(Menu_t *cm)
                     object->findhigh[object->currentList] = seeker;
 
                     KB_ClearKeyDown(sc_PgDn);
-                    KB_ClearKeyDown(sc_PgUp);
 
                     S_PlaySound(KICK_HIT);
                 }
             }
-            else if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) ||
-                    KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) ||
-                    KB_KeyPressed(sc_Tab) || (MOUSE_GetButtons()&MIDDLE_MOUSE))
+            else if (I_MenuLeft() || I_MenuRight())
             {
-                KB_ClearKeyDown(sc_LeftArrow);
-                KB_ClearKeyDown(sc_kpad_4);
-                KB_ClearKeyDown(sc_RightArrow);
-                KB_ClearKeyDown(sc_kpad_6);
-                KB_ClearKeyDown(sc_Tab);
-                MOUSE_ClearButton(MIDDLE_MOUSE);
+                I_MenuLeftClear();
+                I_MenuRightClear();
 
                 if ((object->currentList ? object->fnlist.numdirs : object->fnlist.numfiles) > 0)
                 {
@@ -3981,15 +3998,11 @@ static void M_RunMenuInput(Menu_t *cm)
                     S_PlaySound(KICK_HIT);
                 }
             }
-            else if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_kpad_8) || (MOUSE_GetButtons()&WHEELUP_MOUSE) || BUTTON(gamefunc_Move_Forward) || (JOYSTICK_GetHat(0)&HAT_UP))
+            else if (I_MenuUp())
             {
                 movement = 1;
 
-                KB_ClearKeyDown(sc_UpArrow);
-                KB_ClearKeyDown(sc_kpad_8);
-                MOUSE_ClearButton(WHEELUP_MOUSE);
-                CONTROL_ClearButton(gamefunc_Move_Forward);
-                JOYSTICK_ClearHat(0);
+                I_MenuUpClear();
 
                 S_PlaySound(KICK_HIT);
 
@@ -4001,16 +4014,11 @@ static void M_RunMenuInput(Menu_t *cm)
                         object->findhigh[object->currentList] = object->findhigh[object->currentList]->userb;
                 }
             }
-            else if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_kpad_2) || (MOUSE_GetButtons()&WHEELDOWN_MOUSE) || BUTTON(gamefunc_Move_Backward) || (JOYSTICK_GetHat(0)&HAT_DOWN))
+            else if (I_MenuDown())
             {
                 movement = 1;
 
-                KB_ClearKeyDown(sc_DownArrow);
-                KB_ClearKeyDown(sc_kpad_2);
-                KB_ClearKeyDown(sc_PgDn);
-                MOUSE_ClearButton(WHEELDOWN_MOUSE);
-                CONTROL_ClearButton(gamefunc_Move_Backward);
-                JOYSTICK_ClearHat(0);
+                I_MenuDownClear();
 
                 S_PlaySound(KICK_HIT);
 
@@ -4168,24 +4176,24 @@ static void M_RunMenuInput(Menu_t *cm)
                                 object->options->currentEntry = object->currentOption;
                             }
                         }
-                        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6))
+                        else if (I_MenuRight())
                         {
                             modification = object->currentOption + 1;
                             if (modification >= object->options->numOptions)
                                 modification = 0;
 
-                            KB_ClearKeyDown(sc_RightArrow);
-                            KB_ClearKeyDown(sc_kpad_6);
+                            I_MenuRightClear();
+
                             S_PlaySound(PISTOL_BODYHIT);
                         }
-                        else if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4))
+                        else if (I_MenuLeft())
                         {
                             modification = object->currentOption - 1;
                             if (modification < 0)
                                 modification = object->options->numOptions - 1;
 
-                            KB_ClearKeyDown(sc_LeftArrow);
-                            KB_ClearKeyDown(sc_kpad_4);
+                            I_MenuLeftClear();
+
                             S_PlaySound(PISTOL_BODYHIT);
                         }
 
@@ -4202,17 +4210,13 @@ static void M_RunMenuInput(Menu_t *cm)
                     }
                         break;
                     case Custom2Col:
-                        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) ||
-                                 KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) ||
-                                 KB_KeyPressed(sc_Tab) || (MOUSE_GetButtons()&MIDDLE_MOUSE))
+                        if (I_MenuLeft() || I_MenuRight())
                         {
                             currgroup->currentColumn = !currgroup->currentColumn;
-                            KB_ClearKeyDown(sc_LeftArrow);
-                            KB_ClearKeyDown(sc_RightArrow);
-                            KB_ClearKeyDown(sc_kpad_4);
-                            KB_ClearKeyDown(sc_kpad_6);
-                            KB_ClearKeyDown(sc_Tab);
-                            MOUSE_ClearButton(MIDDLE_MOUSE);
+
+                            I_MenuLeftClear();
+                            I_MenuRightClear();
+
                             S_PlaySound(KICK_HIT);
                         }
 
@@ -4434,15 +4438,11 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     M_MenuEntryFocus(currgroup/*, currentry*/);
                 }
-                else if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_kpad_8) || (MOUSE_GetButtons()&WHEELUP_MOUSE) || BUTTON(gamefunc_Move_Forward) || (JOYSTICK_GetHat(0)&HAT_UP))
+                else if (I_MenuUp())
                 {
                     movement = 1;
 
-                    KB_ClearKeyDown(sc_UpArrow);
-                    KB_ClearKeyDown(sc_kpad_8);
-                    MOUSE_ClearButton(WHEELUP_MOUSE);
-                    CONTROL_ClearButton(gamefunc_Move_Forward);
-                    JOYSTICK_ClearHat(0);
+                    I_MenuUpClear();
 
                     S_PlaySound(KICK_HIT);
 
@@ -4462,16 +4462,11 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     M_MenuEntryFocus(currgroup/*, currentry*/);
                 }
-                else if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_kpad_2) || (MOUSE_GetButtons()&WHEELDOWN_MOUSE) || BUTTON(gamefunc_Move_Backward) || (JOYSTICK_GetHat(0)&HAT_DOWN))
+                else if (I_MenuDown())
                 {
                     movement = 1;
 
-                    KB_ClearKeyDown(sc_DownArrow);
-                    KB_ClearKeyDown(sc_kpad_2);
-                    KB_ClearKeyDown(sc_PgDn);
-                    MOUSE_ClearButton(WHEELDOWN_MOUSE);
-                    CONTROL_ClearButton(gamefunc_Move_Backward);
-                    JOYSTICK_ClearHat(0);
+                    I_MenuDownClear();
 
                     S_PlaySound(KICK_HIT);
 
@@ -4582,15 +4577,11 @@ static void M_RunMenuInput(Menu_t *cm)
 
                         object->options->currentEntry = object->options->numOptions-1;
                     }
-                    else if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_kpad_8) || (MOUSE_GetButtons()&WHEELUP_MOUSE) || BUTTON(gamefunc_Move_Forward) || (JOYSTICK_GetHat(0)&HAT_UP))
+                    else if (I_MenuUp())
                     {
                         movement = 1;
 
-                        KB_ClearKeyDown(sc_UpArrow);
-                        KB_ClearKeyDown(sc_kpad_8);
-                        MOUSE_ClearButton(WHEELUP_MOUSE);
-                        CONTROL_ClearButton(gamefunc_Move_Forward);
-                        JOYSTICK_ClearHat(0);
+                        I_MenuUpClear();
 
                         S_PlaySound(KICK_HIT);
 
@@ -4599,16 +4590,11 @@ static void M_RunMenuInput(Menu_t *cm)
                         if (object->options->currentEntry < 0)
                             object->options->currentEntry = object->options->numOptions-1;
                     }
-                    else if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_kpad_2) || (MOUSE_GetButtons()&WHEELDOWN_MOUSE) || BUTTON(gamefunc_Move_Backward) || (JOYSTICK_GetHat(0)&HAT_DOWN))
+                    else if (I_MenuDown())
                     {
                         movement = 1;
 
-                        KB_ClearKeyDown(sc_DownArrow);
-                        KB_ClearKeyDown(sc_kpad_2);
-                        KB_ClearKeyDown(sc_PgDn);
-                        MOUSE_ClearButton(WHEELDOWN_MOUSE);
-                        CONTROL_ClearButton(gamefunc_Move_Backward);
-                        JOYSTICK_ClearHat(0);
+                        I_MenuDownClear();
 
                         S_PlaySound(KICK_HIT);
 

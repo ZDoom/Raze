@@ -45,27 +45,13 @@ void I_ClearAllInput(void)
     JOYSTICK_ClearAllButtons();
 }
 
-int32_t I_CheckInputWaiting(void)
-{
-    return (
-            KB_KeyWaiting() ||
-            (MOUSE_GetButtons()&LEFT_MOUSE) ||
-            I_JoystickAdvanceTrigger()
-            );
-}
-int32_t I_ClearInputWaiting(void)
-{
-    KB_FlushKeyboardQueue();
-    KB_ClearKeysDown(); // JBF
-    I_JoystickAdvanceTriggerClear();
-    return (
-            MOUSE_ClearButton(LEFT_MOUSE)
-            );
-}
 
-int32_t I_JoystickAdvanceTrigger(void)
+int32_t I_AdvanceTrigger(void)
 {
     return (
+            KB_KeyPressed(sc_kpad_Enter) ||
+            KB_KeyPressed(sc_Enter) ||
+            (MOUSE_GetButtons()&LEFT_MOUSE) ||
 #if defined(GEKKO)
             (JOYSTICK_GetButtons()&WII_A)
 #else
@@ -74,224 +60,222 @@ int32_t I_JoystickAdvanceTrigger(void)
 #endif
             );
 }
-int32_t I_JoystickAdvanceTriggerClear(void)
+
+void I_AdvanceTriggerClear(void)
 {
+    KB_FlushKeyboardQueue();
+    KB_ClearKeyDown(sc_kpad_Enter);
+    KB_ClearKeyDown(sc_Enter);
+    MOUSE_ClearButton(LEFT_MOUSE);
 #if defined(GEKKO)
-    return JOYSTICK_ClearButton(WII_A);
+    JOYSTICK_ClearButton(WII_A);
 #else
     CONTROL_ClearButton(gamefunc_Open);
     CONTROL_ClearButton(gamefunc_Fire);
-    return 0;
 #endif
 }
-int32_t I_JoystickReturnTrigger(void)
+
+int32_t I_ReturnTrigger(void)
 {
     return (
+            KB_KeyPressed(sc_Escape) ||
+            (MOUSE_GetButtons()&RIGHT_MOUSE) ||
             BUTTON(gamefunc_Crouch)
 #if defined(GEKKO)
             || (JOYSTICK_GetButtons()&(WII_B|WII_HOME))
 #endif
             );
 }
-int32_t I_JoystickReturnTriggerClear(void)
+
+void I_ReturnTriggerClear(void)
 {
+    KB_FlushKeyboardQueue();
+    KB_ClearKeyDown(sc_Escape);
+    MOUSE_ClearButton(RIGHT_MOUSE);
     CONTROL_ClearButton(gamefunc_Crouch);
-    return (
 #if defined(GEKKO)
-            JOYSTICK_ClearButton(WII_B) ||
-            JOYSTICK_ClearButton(WII_HOME)
-#else
-            0
+    JOYSTICK_ClearButton(WII_B);
+    JOYSTICK_ClearButton(WII_HOME);
 #endif
-            );
 }
-int32_t I_JoystickEscapeTrigger(void)
+
+
+int32_t I_EscapeTrigger(void)
 {
     return (
+            KB_KeyPressed(sc_Escape)
 #if defined(GEKKO)
-            (JOYSTICK_GetButtons()&WII_HOME)
-#else
-            0
-#endif
-            );
-}
-int32_t I_JoystickEscapeTriggerClear(void)
-{
-    return (
-#if defined(GEKKO)
-            JOYSTICK_ClearButton(WII_HOME)
-#else
-            0
+            || (JOYSTICK_GetButtons()&WII_HOME)
 #endif
             );
 }
 
-int32_t I_AdvanceTrigger(void)
-{
-    return (
-            KB_KeyPressed(sc_kpad_Enter) ||
-            KB_KeyPressed(sc_Enter) ||
-            (MOUSE_GetButtons()&LEFT_MOUSE) ||
-            I_JoystickAdvanceTrigger()
-            );
-}
-int32_t I_AdvanceTriggerClear(void)
-{
-    KB_FlushKeyboardQueue();
-    KB_ClearKeyDown(sc_kpad_Enter);
-    KB_ClearKeyDown(sc_Enter);
-    I_JoystickAdvanceTriggerClear();
-    return (
-            MOUSE_ClearButton(LEFT_MOUSE)
-            );
-}
-int32_t I_ReturnTrigger(void)
-{
-    return (
-            KB_KeyPressed(sc_Escape) ||
-            (MOUSE_GetButtons()&RIGHT_MOUSE) ||
-            I_JoystickReturnTrigger()
-            );
-}
-int32_t I_ReturnTriggerClear(void)
+void I_EscapeTriggerClear(void)
 {
     KB_FlushKeyboardQueue();
     KB_ClearKeyDown(sc_Escape);
-    return (
-            MOUSE_ClearButton(RIGHT_MOUSE) ||
-            I_JoystickReturnTriggerClear()
-            );
+#if defined(GEKKO)
+    JOYSTICK_ClearButton(WII_HOME);
+#endif
 }
-int32_t I_EscapeTrigger(void)
+
+
+int32_t I_MenuUp(void)
 {
     return (
-            KB_KeyPressed(sc_Escape) ||
-            I_JoystickEscapeTrigger()
+            KB_KeyPressed(sc_UpArrow) ||
+            KB_KeyPressed(sc_kpad_8) ||
+            (MOUSE_GetButtons()&WHEELUP_MOUSE) ||
+            BUTTON(gamefunc_Move_Forward) ||
+            (JOYSTICK_GetHat(0)&HAT_UP)
             );
 }
-int32_t I_EscapeTriggerClear(void)
+
+void I_MenuUpClear(void)
 {
-    KB_FlushKeyboardQueue();
-    KB_ClearKeyDown(sc_Escape);
+    KB_ClearKeyDown(sc_UpArrow);
+    KB_ClearKeyDown(sc_kpad_8);
+    MOUSE_ClearButton(WHEELUP_MOUSE);
+    CONTROL_ClearButton(gamefunc_Move_Forward);
+    JOYSTICK_ClearHat(0);
+}
+
+
+int32_t I_MenuDown(void)
+{
     return (
-            I_JoystickEscapeTriggerClear()
+            KB_KeyPressed(sc_DownArrow) ||
+            KB_KeyPressed(sc_kpad_2) ||
+            (MOUSE_GetButtons()&WHEELDOWN_MOUSE) ||
+            BUTTON(gamefunc_Move_Backward) ||
+            (JOYSTICK_GetHat(0)&HAT_DOWN)
             );
+}
+
+void I_MenuDownClear(void)
+{
+    KB_ClearKeyDown(sc_DownArrow);
+    KB_ClearKeyDown(sc_kpad_2);
+    KB_ClearKeyDown(sc_PgDn);
+    MOUSE_ClearButton(WHEELDOWN_MOUSE);
+    CONTROL_ClearButton(gamefunc_Move_Backward);
+    JOYSTICK_ClearHat(0);
+}
+
+
+int32_t I_MenuLeft(void)
+{
+    return (
+            KB_KeyPressed(sc_LeftArrow) ||
+            KB_KeyPressed(sc_kpad_4) ||
+            (SHIFTS_IS_PRESSED && KB_KeyPressed(sc_Tab)) ||
+            BUTTON(gamefunc_Turn_Left) ||
+            BUTTON(gamefunc_Strafe_Left) ||
+            (JOYSTICK_GetHat(0)&HAT_LEFT)
+            );
+}
+
+void I_MenuLeftClear(void)
+{
+    KB_ClearKeyDown(sc_LeftArrow);
+    KB_ClearKeyDown(sc_kpad_4);
+    KB_ClearKeyDown(sc_Tab);
+    CONTROL_ClearButton(gamefunc_Turn_Left);
+    CONTROL_ClearButton(gamefunc_Strafe_Left);
+    JOYSTICK_ClearHat(0);
+}
+
+
+int32_t I_MenuRight(void)
+{
+    return (
+            KB_KeyPressed(sc_RightArrow) ||
+            KB_KeyPressed(sc_kpad_6) ||
+            (!SHIFTS_IS_PRESSED && KB_KeyPressed(sc_Tab)) ||
+            BUTTON(gamefunc_Turn_Right) ||
+            BUTTON(gamefunc_Strafe_Right) ||
+            (MOUSE_GetButtons()&MIDDLE_MOUSE) ||
+            (JOYSTICK_GetHat(0)&HAT_RIGHT)
+            );
+}
+
+void I_MenuRightClear(void)
+{
+    KB_ClearKeyDown(sc_RightArrow);
+    KB_ClearKeyDown(sc_kpad_6);
+    KB_ClearKeyDown(sc_Tab);
+    CONTROL_ClearButton(gamefunc_Turn_Right);
+    CONTROL_ClearButton(gamefunc_Strafe_Right);
+    MOUSE_ClearButton(MIDDLE_MOUSE);
+    JOYSTICK_ClearHat(0);
 }
 
 
 int32_t I_PanelUp(void)
 {
     return (
-            KB_KeyPressed(sc_LeftArrow) ||
-            KB_KeyPressed(sc_kpad_4) ||
-            KB_KeyPressed(sc_UpArrow) ||
-            KB_KeyPressed(sc_kpad_8) ||
             KB_KeyPressed(sc_PgUp) ||
-            (MOUSE_GetButtons()&WHEELUP_MOUSE) ||
-            BUTTON(gamefunc_Move_Forward) ||
-            BUTTON(gamefunc_Turn_Left) ||
-            BUTTON(gamefunc_Strafe_Left) ||
-            (JOYSTICK_GetHat(0)&HAT_UP)
+            I_MenuUp() ||
+            I_MenuLeft()
             );
 }
-int32_t I_PanelUpClear(void)
+
+void I_PanelUpClear(void)
 {
-    KB_FlushKeyboardQueue();
-    KB_ClearKeyDown(sc_LeftArrow);
-    KB_ClearKeyDown(sc_kpad_4);
-    KB_ClearKeyDown(sc_UpArrow);
-    KB_ClearKeyDown(sc_kpad_8);
     KB_ClearKeyDown(sc_PgUp);
-    CONTROL_ClearButton(gamefunc_Move_Forward);
-    CONTROL_ClearButton(gamefunc_Turn_Left);
-    CONTROL_ClearButton(gamefunc_Strafe_Left);
-    JOYSTICK_ClearHat(0);
-    return (
-            MOUSE_ClearButton(WHEELUP_MOUSE)
-            );
+    I_MenuUpClear();
+    I_MenuLeftClear();
 }
+
 
 int32_t I_PanelDown(void)
 {
     return (
-            KB_KeyPressed(sc_RightArrow) ||
-            KB_KeyPressed(sc_kpad_6) ||
-            KB_KeyPressed(sc_DownArrow) ||
-            KB_KeyPressed(sc_kpad_2) ||
             KB_KeyPressed(sc_PgDn) ||
-            (MOUSE_GetButtons()&WHEELDOWN_MOUSE) ||
-            BUTTON(gamefunc_Move_Backward) ||
-            BUTTON(gamefunc_Turn_Right) ||
-            BUTTON(gamefunc_Strafe_Right) ||
-            (JOYSTICK_GetHat(0)&HAT_DOWN) ||
+            I_MenuDown() ||
+            I_MenuRight() ||
             I_AdvanceTrigger()
             );
 }
-int32_t I_PanelDownClear(void)
-{
-    KB_FlushKeyboardQueue();
-    KB_ClearKeyDown(sc_RightArrow);
-    KB_ClearKeyDown(sc_kpad_6);
-    KB_ClearKeyDown(sc_DownArrow);
-    KB_ClearKeyDown(sc_kpad_2);
-    KB_ClearKeyDown(sc_PgDn);
-    CONTROL_ClearButton(gamefunc_Move_Backward);
-    CONTROL_ClearButton(gamefunc_Turn_Right);
-    CONTROL_ClearButton(gamefunc_Strafe_Right);
-    JOYSTICK_ClearHat(0);
-    return (
-            MOUSE_ClearButton(WHEELDOWN_MOUSE) ||
-            I_AdvanceTriggerClear()
-            );
-}
 
+void I_PanelDownClear(void)
+{
+    KB_ClearKeyDown(sc_PgDn);
+    I_MenuDownClear();
+    I_MenuRightClear();
+    I_AdvanceTriggerClear();
+}
 
 
 int32_t I_SliderLeft(void)
 {
     return (
-            KB_KeyPressed(sc_LeftArrow) ||
-             KB_KeyPressed(sc_kpad_4) ||
-             ((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELUP_MOUSE)) ||
-             BUTTON(gamefunc_Turn_Left) ||
-             BUTTON(gamefunc_Strafe_Left) ||
-             (JOYSTICK_GetHat(0)&HAT_LEFT)
+            ((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELUP_MOUSE)) ||
+            I_MenuLeft()
             );
 }
-int32_t I_SliderLeftClear(void)
+
+void I_SliderLeftClear(void)
 {
-    KB_ClearKeyDown(sc_LeftArrow);
-    KB_ClearKeyDown(sc_kpad_4);
-    CONTROL_ClearButton(gamefunc_Turn_Left);
-    CONTROL_ClearButton(gamefunc_Strafe_Left);
-    JOYSTICK_ClearHat(0);
-    return (
-            MOUSE_ClearButton(WHEELUP_MOUSE)
-            );
+    I_MenuLeftClear();
+    MOUSE_ClearButton(WHEELUP_MOUSE);
 }
+
 
 int32_t I_SliderRight(void)
 {
     return (
-            KB_KeyPressed(sc_RightArrow) ||
-            KB_KeyPressed(sc_kpad_6) ||
             ((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELDOWN_MOUSE)) ||
-            BUTTON(gamefunc_Turn_Right) ||
-            BUTTON(gamefunc_Strafe_Right) ||
-            (JOYSTICK_GetHat(0)&HAT_RIGHT)
+            I_MenuRight()
             );
 }
-int32_t I_SliderRightClear(void)
+
+void I_SliderRightClear(void)
 {
-    KB_ClearKeyDown(sc_RightArrow);
-    KB_ClearKeyDown(sc_kpad_6);
-    CONTROL_ClearButton(gamefunc_Turn_Right);
-    CONTROL_ClearButton(gamefunc_Strafe_Right);
-    JOYSTICK_ClearHat(0);
-    return (
-            MOUSE_ClearButton(WHEELDOWN_MOUSE)
-            );
+    I_MenuRightClear();
+    MOUSE_ClearButton(WHEELDOWN_MOUSE);
 }
+
 
 int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags)
 {
