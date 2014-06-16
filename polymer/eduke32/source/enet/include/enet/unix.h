@@ -8,10 +8,10 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/socket.h>
 #if defined(GEKKO)
 # include <network.h>
 #else
+#include <sys/socket.h>
 #include <netinet/in.h>
 #endif
 #include <unistd.h>

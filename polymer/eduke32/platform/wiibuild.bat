@@ -20,10 +20,9 @@ if "%rev%"=="" set rev=XXXX
 for /f "delims=" %%G in ('"C:\MinGW\msys\1.0\bin\date.exe" +%%Y%%m%%d') do @set currentdate=%%G
 
 :: Build:
-set buildparameters=PLATFORM=WII %*
-
-make veryclean %buildparameters%
-make OPTLEVEL=2 LTO=0 %buildparameters%
+set commandline=make veryclean all OPTLEVEL=2 LTO=0 PLATFORM=WII %*
+echo %commandline%
+%commandline%
 
 for %%G in (%targets%) do if not exist "%%~G.elf" goto end
 
@@ -34,11 +33,10 @@ for %%G in (%targets%) do for %%H in (.elf) do if exist "%%~G%%~H" move /y "%%~G
 for %%G in (%targets%) do for %%H in (.elf.map) do if exist "%%~G%%~H" del /f /q "%%~G%%~H"
 for %%G in (%targets%) do "echo.exe" -e "    <version>r%rev%</version>\n    <release_date>%currentdate%</release_date>" | "cat.exe" "%wiidir%\%%~G_meta_1.xml" - "%wiidir%\%%~G_meta_2.xml" >"apps\%%~G\meta.xml"
 
-:: We don't want to package all the stuff, most of it is for Mapster32 and dev materials.
-:: However, do throw in the licenses:
-if exist "package\*.txt" copy /y "package\*.txt" "apps\eduke32\"
+xcopy /e /q /y /EXCLUDE:%wiidir%\xcopy_exclude.txt package\common apps\eduke32\
 
-xcopy /e /q /y /EXCLUDE:%wiidir%\xcopy_exclude.txt package apps\mapster32\
+xcopy /e /q /y /EXCLUDE:%wiidir%\xcopy_exclude.txt package\common apps\mapster32\
+xcopy /e /q /y /EXCLUDE:%wiidir%\xcopy_exclude.txt package\sdk apps\mapster32\
 
 "ls.exe" -l -R apps
 7z.exe a -mx9 -t7z eduke32-wii-r%rev%.7z apps -xr!*.svn*
