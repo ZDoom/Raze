@@ -2723,8 +2723,9 @@ static void M_MenuEntryStringActivate(MenuGroup_t *group/*, MenuEntry_t *entry*/
     }
 }
 
-static int32_t M_MenuEntryStringSubmit(MenuGroup_t *group /*, MenuEntry_t *entry, char *input*/)
+static int32_t M_MenuEntryStringSubmit(MenuGroup_t *group, MenuEntry_t *entry, char *input)
 {
+    MenuString_t *object = (MenuString_t*)entry->entry;
     int32_t returnvar = 0;
 
     switch (g_currentMenu)
@@ -2738,6 +2739,8 @@ static int32_t M_MenuEntryStringSubmit(MenuGroup_t *group /*, MenuEntry_t *entry
             ud.savegame[group->currentEntry][MAXSAVEGAMENAME-2] = 127;
             returnvar = -1;
         }
+        else
+            Bstrncpy(object->variable, object->editfield, object->maxlength);
 
         G_SavePlayerMaybeMulti(group->currentEntry);
 
@@ -4510,7 +4513,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     {
                         S_PlaySound(PISTOL_BODYHIT);
 
-                        if (!M_MenuEntryStringSubmit(currgroup /*, currentry, object->editfield*/))
+                        if (!M_MenuEntryStringSubmit(currgroup, currentry, object->editfield))
                             Bstrncpy(object->variable, object->editfield, object->maxlength);
 
                         object->editfield = NULL;
