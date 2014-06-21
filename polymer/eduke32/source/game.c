@@ -12455,10 +12455,10 @@ VOL1_END:
             nextpage();
         }
 
+end_vol4e:
         if ((G_GetLogoFlags() & LOGO_NODUKETEAMTEXT) && (G_GetLogoFlags() & LOGO_NODUKETEAMPIC))
             goto VOL4_END;
 
-end_vol4e:
         FX_StopAllSounds();
         S_ClearSoundLocks();
         S_PlaySound(ENDSEQVOL3SND4);
