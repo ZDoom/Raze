@@ -12862,9 +12862,12 @@ void G_BonusScreen(int32_t bonusonly)
                 yy+=10;
                 if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
                 {
-                    gametext(10,yy+9,"Par Time:",0,2+8+16);
-                    yy+=10;
-                    if (!NAM && !DUKEBETA)
+                    if (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime)
+                    {
+                        gametext(10,yy+9,"Par Time:",0,2+8+16);
+                        yy+=10;
+                    }
+                    if (!NAM && !DUKEBETA && MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime)
                     {
                         gametext(10,yy+9,"3D Realms' Time:",0,2+8+16);
                         yy+=10;
@@ -12906,13 +12909,15 @@ void G_BonusScreen(int32_t bonusonly)
 
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
                     {
-                        Bsprintf(tempbuf,"%0*d:%02d",clockpad,
-                                 (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(REALGAMETICSPERSEC*60)),
-                                 (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/REALGAMETICSPERSEC)%60);
-                        gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
-                        yy+=10;
-
-                        if (!NAM && MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime)
+                        if (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime)
+                        {
+                            Bsprintf(tempbuf,"%0*d:%02d",clockpad,
+                                     (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(REALGAMETICSPERSEC*60)),
+                                     (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/REALGAMETICSPERSEC)%60);
+                            gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
+                            yy+=10;
+                        }
+                        if (!NAM && !DUKEBETA && MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime)
                         {
                             Bsprintf(tempbuf,"%0*d:%02d",clockpad,
                                      (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/(REALGAMETICSPERSEC*60)),
