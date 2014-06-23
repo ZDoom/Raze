@@ -12768,7 +12768,7 @@ void G_BonusScreen(int32_t bonusonly)
 
         for (ii=g_player[myconnectindex].ps->player_par/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
-        if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
+        if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
         {
             for (ii=MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
             clockpad = max(clockpad,ij);
@@ -12860,7 +12860,7 @@ void G_BonusScreen(int32_t bonusonly)
                 gametext(10,yy+9,"Your Time:",0,2+8+16);
 
                 yy+=10;
-                if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
+                if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                 {
                     if (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime)
                     {
@@ -12907,7 +12907,7 @@ void G_BonusScreen(int32_t bonusonly)
                         gametextpalbits((320>>2)+71,yy+9,"Cheated!",0,2,2+8+16);
                     yy+=10;
 
-                    if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
+                    if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                     {
                         if (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime)
                         {
