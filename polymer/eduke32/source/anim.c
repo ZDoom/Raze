@@ -207,9 +207,11 @@ static void endanimvol43(int32_t fr)
     }
 }
 
+static uint8_t* animbuf[NUM_HARDCODED_ANIMS];
+static char animlock[NUM_HARDCODED_ANIMS];
+
 int32_t G_PlayAnim(const char *fn, char t)
 {
-    uint8_t *animbuf;
     int32_t i, length=0, numframes=0;
 #ifdef USE_OPENGL
     int32_t ogltexfiltermode=gltexfiltermode;
@@ -232,11 +234,9 @@ int32_t G_PlayAnim(const char *fn, char t)
     // 10: vol4e2
     // 11: vol4e3
 
-    if (t != 7 && t != 9 && t != 10 && t != 11)
-        I_ClearAllInput();
-
     if (I_CheckAllInput())
     {
+        I_ClearAllInput();
         FX_StopAllSounds();
         running = 0;
         goto end_anim;
@@ -370,16 +370,18 @@ int32_t G_PlayAnim(const char *fn, char t)
     }
 
     walock[TILE_ANIM] = 219+t;
+    animlock[t-1] = 1;
 
-    allocache((intptr_t *)&animbuf, length+1, &walock[TILE_ANIM]);
+    if (!animbuf[t-1])
+        allocache((intptr_t *)&animbuf[t-1], length+1, &animlock[t-1]);
 
     tilesizx[TILE_ANIM] = 200;
     tilesizy[TILE_ANIM] = 320;
 
-    kread(handle, animbuf, length);
+    kread(handle, animbuf[t-1], length);
     kclose(handle);
 
-    if (ANIM_LoadAnim(animbuf, length) < 0)
+    if (ANIM_LoadAnim(animbuf[t-1], length) < 0)
     {
         // XXX: ANM_LoadAnim() still checks less than the bare minimum,
         // e.g. ANM file could still be too small and not contain any frames.
@@ -468,6 +470,7 @@ end_anim:
     I_ClearAllInput();
     ANIM_FreeAnim();
     walock[TILE_ANIM] = 1;
+    animlock[t-1] = 0;
 
     return !running;
 }
