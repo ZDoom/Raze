@@ -9551,8 +9551,8 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 if (!bad)
                 {
                     anim_hi_numsounds[animnum] = numpairs;
-                    initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
-                               hardcoded_anim_tokens[animnum].text, numpairs);
+                    // initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
+                    //           hardcoded_anim_tokens[animnum].text, numpairs);
                 }
                 else
                 {
