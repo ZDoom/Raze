@@ -558,15 +558,19 @@ sound_further_processing:
 
 int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 {
-    int32_t j = 0;
+    int32_t j;
     int32_t sndist, sndang, explosionp;
     int32_t voice, pitch;
 
     const DukePlayer_t *const myps = g_player[myconnectindex].ps;
     const DukePlayer_t *peekps;
 
-    if (G_HaveEvent(EVENT_SOUND))
-        num = VM_OnEvent(EVENT_SOUND, i, screenpeek, -1, num);
+    j = VM_OnEvent(EVENT_SOUND, i, screenpeek, -1, num);
+
+    if (j == -1 && num != -1) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
+        return -1;
+
+    num = j;
 
     if ((unsigned)num > (unsigned)g_maxSoundPos ||
             ud.config.FXDevice < 0 ||
@@ -584,6 +588,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         if ((voice = S_PlaySound(num)) <= FX_Ok)
             return -1;
 
+        j = 0;
         while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice != voice)
             j++;
 
@@ -716,8 +721,12 @@ int32_t S_PlaySound(int32_t num)
     int32_t pitch;
     int32_t voice, j;
 
-    if (G_HaveEvent(EVENT_SOUND))
-        num = VM_OnEvent(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, -1, num);
+    j = VM_OnEvent(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, -1, num);
+
+    if (j == -1 && num != -1) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
+        return -1;
+
+    num = j;
 
     if (ud.config.FXDevice < 0) return -1;
     if (ud.config.SoundToggle==0) return -1;
