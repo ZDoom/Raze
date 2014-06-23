@@ -464,7 +464,7 @@ $(OBJ)/%.$o: $(SRC)/util/%.c
 
 ivfrate$(EXESUFFIX): $(OBJ)/ivfrate.$o
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(OURLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 
 #### Lunatic
 
