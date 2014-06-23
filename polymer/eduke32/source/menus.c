@@ -2740,7 +2740,7 @@ static int32_t M_MenuEntryStringSubmit(MenuGroup_t *group, MenuEntry_t *entry, c
             returnvar = -1;
         }
         else
-            Bstrncpy(object->variable, object->editfield, object->maxlength);
+            Bstrncpy(object->variable, input, object->maxlength);
 
         G_SavePlayerMaybeMulti(group->currentEntry);
 
