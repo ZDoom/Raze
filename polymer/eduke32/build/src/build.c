@@ -9437,6 +9437,7 @@ static int32_t menuselect(void)
         keystatus[0xc8] = 0;
         keystatus[0xd0] = 0;
         keystatus[0x1c] = 0;	//enter
+        keystatus[0x0e] = 0;    //backspace
         keystatus[0xf] = 0;		//tab
         keystatus[1] = 0;		//esc
         ch = 0;                      //Interesting fakery of ch = getch()
@@ -9574,6 +9575,14 @@ static int32_t menuselect(void)
                     findfileshigh = findfileshigh->next;
             }
         }
+        else if (keystatus[0x0e]) // backspace
+        {
+            Bstrcat(selectedboardfilename, "../");
+            tweak_sboardfilename();
+            Bstrcpy(g_oldpath, selectedboardfilename);
+            getfilenames(selectedboardfilename, "*.map");
+            keystatus[0x0e] = 0;
+        }
         else if (ch == 13 && currentlist == 0)
         {
             if (finddirshigh->type == CACHE1D_FIND_DRIVE)
@@ -9587,7 +9596,14 @@ static int32_t menuselect(void)
             Bstrcpy(g_oldpath, selectedboardfilename);
             //printf("Changing directories to: %s\n", selectedboardfilename);
 
-            getfilenames(selectedboardfilename, "*.map");
+            if (finddirshigh == fnlist.finddirs)
+            {
+                getfilenames(selectedboardfilename, "*.map");
+                currentlist = 0;
+            }
+            else getfilenames(selectedboardfilename, "*.map");;
+
+            
             ch = 0;
 
             begindrawing();
