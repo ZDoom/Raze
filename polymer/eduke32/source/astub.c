@@ -73,6 +73,9 @@ extern const char *s_buildInfo;
 # undef stat
 #endif
 
+const char* AppProperName = "Mapster32";
+const char* AppTechnicalName = "mapster32";
+
 static int32_t floor_over_floor;
 static int32_t g_fillCurSector = 0;
 

@@ -12,6 +12,10 @@
 extern "C" {
 #endif
 
+extern int32_t app_main(int32_t argc, const char **argv);
+extern const char* AppProperName;
+extern const char* AppTechnicalName;
+
 #ifdef DEBUGGINGAIDS
 # define DEBUG_MASK_DRAWING
 extern int32_t g_maskDrawMode;

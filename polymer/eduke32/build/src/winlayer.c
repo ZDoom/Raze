@@ -81,7 +81,6 @@ static int32_t winlayer_have_ATI = 0;
 static int32_t   _buildargc = 0;
 static const char **_buildargv = NULL;
 static char *argvbuf = NULL;
-extern int32_t app_main(int32_t argc, const char **argv);
 
 // Windows crud
 static HINSTANCE hInstance = 0;

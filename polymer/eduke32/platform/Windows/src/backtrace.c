@@ -17,9 +17,7 @@
 
 /* modified from original for EDuke32 */
 
-// warnings cleaned up and ported to 64-bit by Hendricks266
-
-#define CRASH_LOG_FILE "eduke32_or_mapster32.crash.log"
+// warnings cleaned up, ported to 64-bit, and heavily extended by Hendricks266
 
 #include <windows.h>
 #include <excpt.h>
@@ -62,6 +60,9 @@
 
 #include <stdint.h>
 
+#ifndef DBG_PRINTEXCEPTION_C
+# define DBG_PRINTEXCEPTION_C (0x40010006)
+#endif
 #ifndef MS_VC_EXCEPTION
 # define MS_VC_EXCEPTION 1080890248
 #endif
@@ -351,7 +352,7 @@ static LPTSTR FormatErrorMessage(DWORD dwMessageId)
 {
     LPTSTR lpBuffer = NULL;
 
-    // from http://stackoverflow.com/a/455533
+    // adapted from http://stackoverflow.com/a/455533
     FormatMessage(
         FORMAT_MESSAGE_FROM_SYSTEM
         |FORMAT_MESSAGE_ALLOCATE_BUFFER
@@ -366,6 +367,86 @@ static LPTSTR FormatErrorMessage(DWORD dwMessageId)
     return lpBuffer; // must be LocalFree()'d by caller
 }
 
+static LPTSTR FormatExceptionCodeMessage(DWORD dwMessageId)
+{
+    LPTSTR lpBuffer = NULL;
+
+    FormatMessage(
+        FORMAT_MESSAGE_FROM_HMODULE
+        |FORMAT_MESSAGE_ALLOCATE_BUFFER
+        |FORMAT_MESSAGE_IGNORE_INSERTS,
+        GetModuleHandleA("ntdll.dll"),
+        dwMessageId,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US)
+        (LPTSTR)&lpBuffer,
+        0,
+        NULL);
+
+    return lpBuffer; // must be LocalFree()'d by caller
+}
+
+
+// adapted from http://www.catch22.net/tuts/custom-messagebox
+static HHOOK hMsgBoxHook;
+
+LRESULT CALLBACK CBTProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+    if (nCode < 0)
+        return CallNextHookEx(hMsgBoxHook, nCode, wParam, lParam);
+
+    switch (nCode)
+    {
+    case HCBT_ACTIVATE:
+    {
+        // Get handle to the message box!
+        HWND hwnd = (HWND)wParam;
+
+        // Do customization!
+		SetWindowTextA(GetDlgItem(hwnd, IDYES), "Quit");
+		SetWindowTextA(GetDlgItem(hwnd, IDNO), "Continue");
+		SetWindowTextA(GetDlgItem(hwnd, IDCANCEL), "Ignore");
+        return 0;
+    }
+        break;
+    }
+
+    // Call the next hook, if there is one
+    return CallNextHookEx(hMsgBoxHook, nCode, wParam, lParam);
+}
+
+int ExceptionMessage(TCHAR *szText, TCHAR *szCaption)
+{
+    int retval;
+
+    // Install a window hook, so we can intercept the message-box
+    // creation, and customize it
+    hMsgBoxHook = SetWindowsHookEx(
+        WH_CBT,
+        CBTProc,
+        NULL,
+        GetCurrentThreadId()            // Only install for THIS thread!!!
+        );
+
+    // Display a standard message box
+    retval = MessageBoxA(NULL, szText, szCaption, MB_YESNOCANCEL|MB_ICONERROR|MB_TASKMODAL);
+
+    // remove the window hook
+    UnhookWindowsHookEx(hMsgBoxHook);
+
+    return retval;
+}
+
+static char crashlogfilename[MAX_PATH] = "crash.log";
+static char propername[MAX_PATH] = "this application";
+
+__declspec(dllexport) void SetTechnicalName(const char* input)
+{
+    snprintf(crashlogfilename, MAX_PATH, "%s.crash.log", input);
+}
+__declspec(dllexport) void SetProperName(const char* input)
+{
+    strncpy(propername, input, MAX_PATH);
+}
 
 static char * g_output = NULL;
 static PVOID g_prev = NULL;
@@ -374,9 +455,10 @@ static LONG WINAPI
 exception_filter(LPEXCEPTION_POINTERS info)
 {
     struct output_buffer ob;
-    int logfd, written;
+    int logfd, written, msgboxID;
     PEXCEPTION_RECORD exception;
     BOOL initialized = FALSE;
+    char *ExceptionPrinted;
 
     for (exception = info->ExceptionRecord; exception != NULL; exception = exception->ExceptionRecord)
     {
@@ -390,21 +472,39 @@ exception_filter(LPEXCEPTION_POINTERS info)
         case EXCEPTION_BREAKPOINT:
         case EXCEPTION_SINGLE_STEP:
         case DBG_CONTROL_C:
+        case DBG_PRINTEXCEPTION_C:
         case MS_VC_EXCEPTION:
             break;
         default:
+        {
+            LPTSTR ExceptionCodeMsg = FormatExceptionCodeMessage(exception->ExceptionCode);
+            // The message for this exception code is broken.
+            LPTSTR ExceptionText = exception->ExceptionCode == EXCEPTION_ACCESS_VIOLATION ? "Access violation." : ExceptionCodeMsg;
+
             if (!initialized)
             {
                 output_init(&ob, g_output, BUFFER_MAX);
                 initialized = TRUE;
             }
-            output_print(&ob, "Caught exception 0x%08X at 0x%p\n", exception->ExceptionCode, exception->ExceptionAddress);
+
+            output_print(&ob, "Caught exception 0x%08X at 0x%p: %s\n", exception->ExceptionCode, exception->ExceptionAddress, ExceptionText);
+
+            LocalFree(ExceptionCodeMsg);
+        }
             break;
         }
     }
 
     if (!initialized)
         return EXCEPTION_CONTINUE_SEARCH; // EXCEPTION_CONTINUE_EXECUTION
+
+    ExceptionPrinted = (char*)calloc(strlen(g_output) + 37 + 2*MAX_PATH, sizeof(char));
+    strcpy(ExceptionPrinted, g_output);
+    strcat(ExceptionPrinted, "\nPlease send ");
+    strcat(ExceptionPrinted, crashlogfilename);
+    strcat(ExceptionPrinted, " to the maintainers of ");
+    strcat(ExceptionPrinted, propername);
+    strcat(ExceptionPrinted, ".");
 
     {
         DWORD error = 0;
@@ -431,7 +531,7 @@ exception_filter(LPEXCEPTION_POINTERS info)
         }
     }
 
-    logfd = open(CRASH_LOG_FILE, O_APPEND | O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    logfd = open(crashlogfilename, O_APPEND | O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 
     if (logfd) {
         time_t curtime;
@@ -455,7 +555,21 @@ exception_filter(LPEXCEPTION_POINTERS info)
 
     //fputs(g_output, stderr);
 
-    exit(0xBAC);
+    msgboxID = ExceptionMessage(ExceptionPrinted, propername);
+
+    free(ExceptionPrinted);
+
+    switch (msgboxID)
+    {
+    case IDYES:
+        exit(0xBAC);
+        break;
+    case IDNO:
+        break;
+    case IDCANCEL:
+        return EXCEPTION_CONTINUE_EXECUTION;
+        break;
+    }
 
     return EXCEPTION_CONTINUE_SEARCH;
 }

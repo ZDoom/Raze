@@ -63,8 +63,6 @@ int32_t startwin_settitle(const char *s) { UNREFERENCED_PARAMETER(s); return 0; 
 // fix for mousewheel
 int32_t inputchecked = 0;
 
-extern int32_t app_main(int32_t argc, const char **argv);
-
 char quitevent=0, appactive=1, novideo=0;
 
 // video

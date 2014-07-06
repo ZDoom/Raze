@@ -176,6 +176,7 @@ static void ToggleDesktopComposition(BOOL compEnable)
     }
 }
 
+typedef void (*dllSetString)(const char*);
 
 //
 // win_open(), win_init(), win_setvideomode(), win_uninit(), win_close() -- shared code
@@ -183,12 +184,18 @@ static void ToggleDesktopComposition(BOOL compEnable)
 void win_open(void)
 {
 #ifdef DEBUGGINGAIDS
-    LoadLibraryA(EBACKTRACEDLL);
-/*
-        wm_msgbox("boo","didn't load backtrace DLL (code %d)\n", (int)GetLastError());
-    else
-        wm_msgbox("yay","loaded backtrace DLL\n");
-*/
+    HMODULE ebacktrace = LoadLibraryA(EBACKTRACEDLL);
+    if (ebacktrace)
+    {
+        dllSetString SetTechnicalName = (dllSetString) GetProcAddress(ebacktrace, "SetTechnicalName");
+        dllSetString SetProperName = (dllSetString) GetProcAddress(ebacktrace, "SetProperName");
+
+        if (SetTechnicalName)
+            SetTechnicalName(AppTechnicalName);
+
+        if (SetProperName)
+            SetProperName(AppProperName);
+    }
 #endif
 
     instanceflag = CreateSemaphore(NULL, 1,1, WindowClass);

@@ -90,6 +90,9 @@ extern int32_t G_GetVersionFromWebsite(char *buffer);
 # endif
 #endif /* _WIN32 */
 
+const char* AppProperName = "EDuke32";
+const char* AppTechnicalName = "eduke32";
+
 static int32_t usecwd = 0;
 int32_t g_quitDeadline = 0;
 
