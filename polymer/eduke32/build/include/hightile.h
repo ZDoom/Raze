@@ -52,9 +52,9 @@ static inline void hictinting_apply(float *color, int32_t palnum)
 
 static inline void hictinting_apply_ub(uint8_t *color, int32_t palnum)
 {
-    color[0] *= (float)hictinting[palnum].r / 255.0;
-    color[1] *= (float)hictinting[palnum].g / 255.0;
-    color[2] *= (float)hictinting[palnum].b / 255.0;
+    color[0] = (uint8_t)(color[0] * (float)hictinting[palnum].r / 255.0);
+    color[1] = (uint8_t)(color[1] * (float)hictinting[palnum].g / 255.0);
+    color[2] = (uint8_t)(color[2] * (float)hictinting[palnum].b / 255.0);
 }
 
 // texcacheheader cachead.flags bits
