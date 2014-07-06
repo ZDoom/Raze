@@ -159,6 +159,13 @@ static inline float nearbyintf(float x)
 }
 # endif
 #endif
+
+#include <math.h>
+static inline long lround(double num)
+{
+    return (long) (num > 0 ? num + 0.5 : ceil(num - 0.5));
+}
+
 #else
 # define longlong(x) x##ll
 #endif
