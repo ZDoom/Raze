@@ -131,6 +131,7 @@ GAMEOBJS=$(OBJ)\game.$o \
 	$(OBJ)\savegame.$o \
 	$(OBJ)\sector.$o \
 	$(OBJ)\sector_inline.$o \
+	$(OBJ)\rev.$o \
 	$(OBJ)\rts.$o \
 	$(OBJ)\config.$o \
 	$(OBJ)\animlib.$o\
@@ -154,6 +155,7 @@ EDITOROBJS=$(OBJ)\astub.$o \
 	$(OBJ)\m32vars.$o \
 	$(OBJ)\m32exec.$o \
 	$(OBJ)\sounds_mapster32.$o \
+	$(OBJ)\rev.$o \
 	$(OBJ)\buildres.res \
 !ifdef DEBUG
 	$(OBJ)\mdump.$o
