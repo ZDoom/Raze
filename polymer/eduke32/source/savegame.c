@@ -1619,7 +1619,10 @@ static void sv_postanimateptr()
 static void sv_prequote()
 {
     if (!savegame_quotes)
-        savegame_quotes = (char (*)[MAXQUOTELEN])Xcalloc(MAXQUOTES, MAXQUOTELEN);
+    {
+        void *ptr = Xcalloc(MAXQUOTES, MAXQUOTELEN);
+        savegame_quotes = (char(*)[MAXQUOTELEN])ptr;
+    }
 }
 static void sv_quotesave()
 {
@@ -1647,7 +1650,8 @@ static void sv_quoteload()
 static void sv_prequoteredef()
 {
     // "+1" needed for dfwrite which doesn't handle the src==NULL && cnt==0 case
-    savegame_quoteredefs = (char (*)[MAXQUOTELEN])Xcalloc(g_numQuoteRedefinitions+1, MAXQUOTELEN);
+    void *ptr = Xcalloc(g_numQuoteRedefinitions+1, MAXQUOTELEN);
+    savegame_quoteredefs = (char(*)[MAXQUOTELEN])ptr;
 }
 static void sv_quoteredefsave()
 {
