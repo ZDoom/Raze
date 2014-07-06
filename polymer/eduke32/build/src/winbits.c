@@ -1,12 +1,13 @@
 // Windows layer-independent code
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
+#include "compat.h"
 #include "build.h"
 #include "baselayer.h"
 #include "osd.h"
 #include "cache1d.h"
+
+
+
 #include "winbits.h"
 
 #if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
