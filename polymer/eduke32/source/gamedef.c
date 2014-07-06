@@ -2334,6 +2334,8 @@ LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
         g_tile[j].defproj.bsound = ProjectileData[j].bsound = val; break;
     case PROJ_RANGE:
         g_tile[j].defproj.range = ProjectileData[j].range = val; break;
+    case PROJ_FLASH_COLOR:
+        g_tile[j].defproj.flashcolor = ProjectileData[j].flashcolor = val; break;
     case PROJ_USERDATA:
         g_tile[j].defproj.userdata = ProjectileData[j].userdata = val; break;
     default: break;
@@ -6215,14 +6217,15 @@ void C_InitProjectiles(void)
         int8_t shade, xrepeat, yrepeat, pal; // 4b
         int8_t movecnt; // 1b
         uint8_t clipdist; // 1b
-        int8_t filler[6]; // 6b
+        int8_t filler[2]; // 2b
+        int32_t userdata; // 4b
     } defaultprojectile_t;
 
     defaultprojectile_t DefaultProjectile =
     {
         1, -1, 2048, 0, 0, (int16_t)SMALLSMOKE, -1, -1, 600, (int16_t)BULLETHOLE, -1, 0, 0, 448,
         (int16_t)g_numFreezeBounces, (int16_t)PIPEBOMB_BOUNCE, 1, 100, -1, -1, -1, -1, -1, -96, 18, 18,
-        0, 1, 32, {0,0,0,0,0,0},
+        0, 1, 32, {0,0}, 0,
     };
 
     EDUKE32_STATIC_ASSERT(sizeof(projectile_t) == sizeof(DefaultProjectile));

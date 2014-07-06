@@ -3468,6 +3468,15 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
         Gv_SetVarX(lVar2, ProjectileData[lVar1].range);
         return;
 
+    case PROJ_FLASH_COLOR:
+        if (iSet)
+        {
+            ProjectileData[lVar1].flashcolor=lValue;
+            return;
+        }
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].flashcolor);
+        return;
+
     case PROJ_USERDATA:
         if (iSet)
         {
