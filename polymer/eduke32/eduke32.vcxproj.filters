@@ -432,6 +432,9 @@
     <ClInclude Include="build\include\xxhash.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\sdl_inc.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">

@@ -270,6 +270,7 @@
     <ClInclude Include="build\include\rawinput.h" />
     <ClInclude Include="build\include\scriptfile.h" />
     <ClInclude Include="build\include\sdlayer.h" />
+    <ClInclude Include="build\include\sdl_inc.h" />
     <ClInclude Include="build\include\startwin.editor.h" />
     <ClInclude Include="build\include\texcache.h" />
     <ClInclude Include="build\include\tracker.hpp" />
