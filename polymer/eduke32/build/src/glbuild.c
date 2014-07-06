@@ -10,7 +10,7 @@
 #if defined DYNAMIC_GL
 
 #ifdef RENDERTYPESDL
-#include "sdl_inc.h"
+#include "sdlayer.h"
 #endif
 
 bglClearColorProcPtr bglClearColor;

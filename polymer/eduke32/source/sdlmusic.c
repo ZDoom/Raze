@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "cache1d.h"
 
-#include "sdl_inc.h"
+#include "sdlayer.h"
 #include "music.h"
 
 #if !defined _WIN32 && !defined(GEKKO)
