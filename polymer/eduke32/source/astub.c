@@ -104,9 +104,7 @@ static int16_t g_sndnum[MAXSOUNDS];  // maps current order index to g_sounds ind
 int32_t g_numsounds = 0;
 static int32_t lastupdate, mousecol, mouseadd = 1, bstatus;
 
-#if !defined(_WIN32)
 static int32_t usecwd = 0;
-#endif
 
 char *scripthist[SCRIPTHISTSIZ];
 int32_t scripthistend = 0;
@@ -8524,9 +8522,7 @@ static void G_ShowParameterHelp(void)
 #if defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
               "-setup\t\t\tDisplays the configuration dialog\n"
 #endif
-#if !defined(_WIN32)
               "-usecwd\t\t\tRead game data and configuration file from working directory\n"
-#endif
               "\n-?, -help, --help\t\tDisplay this help message and exit"
               ;
     Bsprintf(tempbuf, "Mapster32 %s %s", VERSION, s_buildRev);
@@ -8803,7 +8799,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 i++;
                 continue;
             }
-#if !defined(_WIN32)
             if (!Bstrcasecmp(c+1,"usecwd"))
             {
                 usecwd = 1;
@@ -8811,7 +8806,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 i++;
                 continue;
             }
-#endif
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
             if (!Bstrcasecmp(c+1,"forcegl"))
             {
@@ -10512,6 +10506,9 @@ int32_t ExtInit(void)
         }
         pathsearchmode = 0;
     }
+
+    if (!usecwd)
+        G_CleanupSearchPaths();
 
     bpp = 32;
 
