@@ -10645,6 +10645,7 @@ void G_Shutdown(void)
     uninitengine();
     G_Cleanup();
     FreeGroups();
+    OSD_Cleanup();
     Bfflush(NULL);
 }
 
@@ -10821,7 +10822,7 @@ void G_PostCreateGameState(void)
 static void G_HandleMemErr(int32_t line, const char *file, const char *func)
 {
     static char msg[128];
-    snprintf(msg, sizeof(msg), "Out of memory in %s:%d (%s)\n", file, line, func);
+    Bsnprintf(msg, sizeof(msg), "Out of memory in %s:%d (%s)\n", file, line, func);
     G_GameExit(msg);
 }
 

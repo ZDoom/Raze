@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include "mutex.h"
+
 typedef struct {
 	int32_t numparms;
 	const char *name;
@@ -17,6 +19,16 @@ typedef struct {
 } osdfuncparm_t;
 
 const char *OSD_StripColors(char *out, const char *in);
+
+#define OSDDEFAULTMAXLINES  128
+#define OSDEDITLENGTH       512
+#define OSDMINHISTORYDEPTH  32
+#define OSDMAXHISTORYDEPTH  256
+#define OSDBUFFERSIZE       32768
+#define OSDDEFAULTROWS      20
+#define OSDDEFAULTCOLS      60
+#define OSDLOGCUTOFF        131072
+#define OSDMAXSYMBOLS       512
 
 enum cvartype_t
 {
@@ -34,6 +46,15 @@ enum cvartype_t
     CVAR_INVALIDATEALL  = 0x00000800,
     CVAR_INVALIDATEART = 0x00001000,
 };
+
+typedef struct _symbol
+{
+    const char *name;
+    struct _symbol *next;
+
+    const char *help;
+    int32_t(*func)(const osdfuncparm_t *);
+} symbol_t;
 
 typedef struct
 {
@@ -59,9 +80,97 @@ typedef struct
     } dval;
 } osdcvar_t;
 
+// version string
+typedef struct
+{
+    char *buf;
+
+    uint8_t len;
+    uint8_t shade;
+    uint8_t pal;
+} osdstr_t;
+
+// command prompt editing
+typedef struct
+{
+    char *buf;// [OSDEDITLENGTH+1]; // editing buffer
+    char *tmp;// [OSDEDITLENGTH+1]; // editing buffer temporary workspace
+
+    int16_t len, pos; // length of characters and position of cursor in buffer
+    int16_t start, end;
+} osdedit_t;
+
+// main text buffer
+typedef struct
+{
+    // each character in the buffer also has a format byte containing shade and color
+    char *buf;
+    char *fmt;
+
+    int32_t pos;      // position next character will be written at
+    int32_t lines;    // total number of lines in buffer
+    int32_t maxlines; // max lines in buffer
+} osdtext_t;
+
+// history display
+typedef struct
+{
+    char *buf[OSDMAXHISTORYDEPTH];
+
+    int32_t maxlines;   // max entries in buffer, ranges from OSDMINHISTORYDEPTH to OSDMAXHISTORYDEPTH
+    int32_t pos;        // current buffer position
+    int32_t lines;      // entries currently in buffer
+    int32_t total;      // total number of entries
+    int32_t exec;       // number of lines from the head of the history buffer to execute
+} osdhist_t;
+
+// active display parameters
+typedef struct
+{
+    int32_t promptshade, promptpal;
+    int32_t editshade, editpal;
+    int32_t textshade, textpal;
+    int32_t mode;
+
+    int32_t rows; // # lines of the buffer that are visible
+    int32_t cols; // width of onscreen display in text columns
+    int32_t head; // topmost visible line number
+} osddraw_t;
+
+typedef struct
+{
+    BFILE *fp;
+    int32_t cutoff;
+    int32_t errors;
+    int32_t lines;
+} osdlog_t;
+
+typedef struct
+{
+    osdtext_t text;
+    osdedit_t editor;
+    osdhist_t history;
+    osddraw_t draw;
+    osdstr_t verstr;
+
+    uint32_t flags; // controls initialization, etc
+    osdcvar_t *cvars;
+    uint32_t numcvars;
+
+    symbol_t *symbptrs[OSDMAXSYMBOLS];
+    int32_t numsymbols;
+    int32_t execdepth; // keeps track of nested execution
+    mutex_t mutex;
+    int32_t keycode;
+
+    osdlog_t log;
+} osdmain_t;
+
+extern osdmain_t *osd;
+
 enum osdflags_t 
 {
-    OSD_INITIALIZED = 0x00000001,
+//    OSD_INITIALIZED = 0x00000001,
     OSD_DRAW        = 0x00000002,
     OSD_CAPTURE     = 0x00000004,
     OSD_OVERTYPE    = 0x00000008,
@@ -93,6 +202,9 @@ int32_t OSD_GetRowsCur(void);
 
 // initializes things
 void OSD_Init(void);
+
+// cleans things up. these comments are retarded.
+void OSD_Cleanup(void);
 
 // sets the file to echo output to
 void OSD_SetLogFile(const char *fn);
@@ -177,14 +289,7 @@ void OSD_WriteCvars(FILE *fp);
 #define OSDTEXT_BRIGHT    "^S0"
 
 #define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT
-#define TEXTSIZE 32768
 
-#define OSD_EDITLENGTH 511
-#define OSD_HISTORYDEPTH 32
-
-extern char osdhistorybuf[OSD_HISTORYDEPTH][OSD_EDITLENGTH+1];  // history strings
-extern int32_t  osdhistorysize;       // number of entries in history
-extern int32_t  osdhistorytotal;      // number of total history entries
 
 extern int32_t osdcmd_restartvid(const osdfuncparm_t *parm);
 

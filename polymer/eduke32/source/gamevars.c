@@ -36,8 +36,6 @@ LUNATIC_CB void (*A_ResetVars)(int32_t iActor);
 #else
 # include "gamestructures.c"
 
-extern int32_t OSD_errors;
-
 static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
 {
     // call this function as many times as needed.
@@ -368,7 +366,8 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
     int32_t i;
 
     Gv_Free();
-    OSD_errors=0;
+
+    osd->log.errors = 0;
 
     for (i=0; i<MAXGAMEVARS; i++)
     {

@@ -260,12 +260,14 @@ int32_t loadsetup(const char *fn)
     scripthistend = i;
 
     // copy script history into OSD history
-    for (i=0; i<min(scripthistend, OSD_HISTORYDEPTH); i++)
+    for (i=0; i<min(scripthistend, osd->history.maxlines); i++)
     {
-        Bstrncpyz(osdhistorybuf[i], scripthist[scripthistend-1-i], OSD_EDITLENGTH+1);
+//        Bstrncpyz(osd->history.buf[i], scripthist[scripthistend-1-i], OSDEDITLENGTH+1);
+        DO_FREE_AND_NULL(osd->history.buf[i]);
+        osd->history.buf[i] = Bstrdup(scripthist[scripthistend-1-i]);
 
-        osdhistorysize++;
-        osdhistorytotal++;
+        osd->history.lines++;
+        osd->history.total++;
     }
 
     scripthistend %= SCRIPTHISTSIZ;
