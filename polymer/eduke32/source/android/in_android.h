@@ -42,7 +42,7 @@ extern "C"
 #define MINCONTROLALPHA             0.25f
 
 typedef enum {
-    READ_MENU,
+    READ_SCREEN_MODE,
     READ_WEAPONS,
     READ_AUTOMAP,
     READ_MAPFOLLOWMODE,
@@ -50,6 +50,18 @@ typedef enum {
     READ_LASTWEAPON,
     READ_PAUSED
 } portableread_t;
+
+
+typedef enum {
+    TOUCH_SCREEN_BLANK, //Nothing on screen (not used)
+    TOUCH_SCREEN_BLANK_TAP, //One button filling screen with no graphic, tap to send Enter key
+    TOUCH_SCREEN_YES_NO, //Yes/No buttons on screen, sends Enter or Esc
+    TOUCH_SCREEN_MENU, //Normal Menu arrows and Enter Esc keys
+    TOUCH_SCREEN_GAME, //Normal game screen
+    TOUCH_SCREEN_AUTOMAP, //When auto map is up (not used yet)
+    TOUCH_SCREEN_CONSOLE //When Console is up
+} touchscreemode_t;
+
 
 typedef struct
 {

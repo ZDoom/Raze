@@ -23,6 +23,8 @@
 extern "C"
 {
 
+#define DEFAULT_FADE_FRAMES 10
+
 extern void SDL_Android_Init(JNIEnv* env, jclass cls);
 //This is a new function I put into SDL2, file SDL_androidgl.c
 extern void SDL_SetSwapBufferCallBack(void (*pt2Func)(void));
@@ -66,12 +68,13 @@ bool shooting = false;
 static int controlsCreated = 0;
 touchcontrols::TouchControlsContainer controlsContainer;
 
+touchcontrols::TouchControls *tcBlankTap=0;
+touchcontrols::TouchControls *tcYesNo=0;
 touchcontrols::TouchControls *tcMenuMain=0;
 touchcontrols::TouchControls *tcGameMain=0;
 touchcontrols::TouchControls *tcGameWeapons=0;
-touchcontrols::TouchControls *tcAutomap=0;
 touchcontrols::TouchControls *tcInventory=0;
-touchcontrols::TouchControls *tcGameLook=0; //Just used for whole screen look mode
+touchcontrols::TouchControls *tcAutomap=0;
 
 
 touchcontrols::TouchJoy *touchJoyLeft;
@@ -197,7 +200,7 @@ void gameButton(int state, int code)
         if (!tcInventory->isEnabled())
         {
             tcInventory->setEnabled(true);
-            tcInventory->fade(0, 5);
+            tcInventory->fade(touchcontrols::FADE_IN, 5);
             //disable weapon wheel so it does not show, enabled again after inventory cleared
             tcGameWeapons->setEnabled(false);
         }
@@ -251,18 +254,33 @@ void weaponWheelSelected(int enabled)
 {
     if (!enabled)
     {
-        tcGameWeapons->fade(1, 5);
+        //tcGameWeapons->fade(touchcontrols::FADE_OUT, 5);
         weaponWheelVisible = false;
-        return;
     }
-
-    for (int n=0; n<10; n++)
+    else
     {
-        weaponWheel->setSegmentEnabled(n, (PortableRead(READ_WEAPONS) >> n) & 0x1);
+        for (int n=0; n<10; n++)
+        {
+            weaponWheel->setSegmentEnabled(n, (PortableRead(READ_WEAPONS) >> n) & 0x1);
+        }
+
+        tcGameWeapons->fade(touchcontrols::FADE_IN, 5); //fade in
+        weaponWheelVisible = true;
     }
 
-    tcGameWeapons->fade(0, 5); //fade in
-    weaponWheelVisible = true;
+    if (enabled)
+    {
+        tcInventory->setEnabled(true);
+        tcInventory->fade(touchcontrols::FADE_IN, 5);
+        //disable weapon wheel so it does not show, enabled again after inventory cleared
+        // tcGameWeapons->setEnabled(false);
+    }
+    else
+    {
+        tcInventory->setEnabled(false);
+        // tcGameWeapons->setEnabled(true);
+    }
+
 }
 
 void weaponWheelChosen(int segment)
@@ -284,7 +302,7 @@ void weaponWheelChosen(int segment)
 
 void left_double_tap(int state)
 {
-    //LOGTOUCH("L double %d",state);
+    LOGI("L double %d, droidinput.left_double_action = %d",state,droidinput.left_double_action);
     if (droidinput.left_double_action != -1)
         PortableAction(state, droidinput.left_double_action);
 }
@@ -306,12 +324,12 @@ void mouseMove(int action, float x, float y, float dx, float dy)
     double scale = (shooting && precisionShoot) ? PRECISIONSHOOTFACTOR : 1.f;
 
     PortableLook(dx * droidinput.yaw_sens * scale,
-        -dy * droidinput.pitch_sens * scale * (invertLook ? -1.f : 1.f));
+            -dy * droidinput.pitch_sens * scale * (invertLook ? -1.f : 1.f));
 }
 
 void left_stick(float joy_x, float joy_y, float mouse_x, float mouse_y)
 {
-	//LOGI("left_stick joy_x = %f, joy_y = %f",joy_x,joy_y);
+    //LOGI("left_stick joy_x = %f, joy_y = %f",joy_x,joy_y);
 
     joy_x *=10;
     float strafe = joy_x*joy_x;
@@ -337,6 +355,7 @@ void setHideSticks(bool v)
 
 void touchSettingsButton(int state)
 {
+    /*
     int32_t paused = PortableRead(READ_PAUSED);
 
     //We wanna pause the game when doing settings
@@ -344,6 +363,7 @@ void touchSettingsButton(int state)
     {
         PortableKeyEvent(2, SDL_SCANCODE_PAUSE, 0);
     }
+     */
 }
 
 void initControls(int width, int height, const char * graphics_path, const char *settings_file)
@@ -363,17 +383,31 @@ void initControls(int width, int height, const char * graphics_path, const char 
         controlsContainer.openGL_end.connect( sigc::ptr_fun(&openGLEnd));
         controlsContainer.signal_settings.connect( sigc::ptr_fun(&touchSettingsButton));
 
+        tcBlankTap    = new touchcontrols::TouchControls("blank_tap", false, false);
+        tcYesNo       = new touchcontrols::TouchControls("yes_no",    false, false);
+        tcMenuMain    = new touchcontrols::TouchControls("menu",      false, true,1,false);
+        tcGameMain    = new touchcontrols::TouchControls("game",      false,true,1,true);
+        tcGameWeapons = new touchcontrols::TouchControls("weapons",   false,true,1,false);
+        tcAutomap     = new touchcontrols::TouchControls("automap",   false,true,1,false);
+        tcInventory   = new touchcontrols::TouchControls("inventory", false,true,1,false);
 
-        tcMenuMain = new touchcontrols::TouchControls("menu",true,false);
-        tcGameMain = new touchcontrols::TouchControls("game",false,true,1,true);
-        tcGameWeapons = new touchcontrols::TouchControls("weapons",false,true,1,false);
-        tcAutomap  = new touchcontrols::TouchControls("automap",false,true,1,false);
-        tcInventory = new touchcontrols::TouchControls("inventory",false,true,1,false);
-        tcGameLook = new touchcontrols::TouchControls("mouse",true,false);
-        //controlsContainer.dukeHack = 1;
+        ///////////////////////// BLANK TAP SCREEN //////////////////////
 
-        tcGameMain->signal_settingsButton.connect(  sigc::ptr_fun(&gameSettingsButton) );
-        //tcMenuMain->signal_settingsButton.connect(  sigc::ptr_fun(&gameSettingsButton) );
+        //One button on whole screen with no graphic, send a return key
+        tcBlankTap->addControl(new touchcontrols::Button("whole_screen",  touchcontrols::RectF(0,0,26,16),  "",   SDL_SCANCODE_RETURN));
+        tcBlankTap->signal_button.connect(  sigc::ptr_fun(&menuButton) ); //Just reuse the menuButton function
+
+
+
+        ///////////////////////// YES NO SCREEN /////////////////////
+
+        tcYesNo->addControl(new touchcontrols::Button("enter", touchcontrols::RectF(8,10,11,13),    "enter",        SDL_SCANCODE_RETURN));
+        tcYesNo->addControl(new touchcontrols::Button("esc",   touchcontrols::RectF(14,10,17,13),    "esc",          SDL_SCANCODE_ESCAPE));
+        tcYesNo->signal_button.connect(  sigc::ptr_fun(&menuButton) ); //Just reuse the menuButton function
+
+
+
+        ///////////////////////// MAIN MENU SCREEN /////////////////////
 
         //Menu
         tcMenuMain->addControl(new touchcontrols::Button("down_arrow",  touchcontrols::RectF(20,13,23,16),  "arrow_down",   SDL_SCANCODE_DOWN,  true)); //Repeating buttons
@@ -385,18 +419,9 @@ void initControls(int width, int height, const char * graphics_path, const char 
 
 
         tcMenuMain->signal_button.connect(  sigc::ptr_fun(&menuButton) );
-        tcMenuMain->setAlpha(0.5);
-
-
-        tcInventory->addControl(new touchcontrols::Button("jetpack", touchcontrols::RectF(4,3,7,6),"jetpack",gamefunc_Jetpack));
-        tcInventory->addControl(new touchcontrols::Button("medkit",  touchcontrols::RectF(7,3,10,6),"medkit",gamefunc_MedKit));
-        tcInventory->addControl(new touchcontrols::Button("nightv",  touchcontrols::RectF(4,6,7,9),"nightvision",gamefunc_NightVision));
-        tcInventory->addControl(new touchcontrols::Button("holoduke",touchcontrols::RectF(7,6,10,9),"holoduke",gamefunc_Holo_Duke));
-        tcInventory->addControl(new touchcontrols::Button("steroids",touchcontrols::RectF(4,9,7,12),"steroids",gamefunc_Steroids));
         tcMenuMain->setAlpha(1);
 
-
-        tcInventory->signal_button.connect(  sigc::ptr_fun(&inventoryButton));
+        ///////////////////////// AUTO MAP SCREEN ///////////////////////
 
         /* FIXME: definitely hook this up
         //Automap
@@ -409,9 +434,9 @@ void initControls(int width, int height, const char * graphics_path, const char 
 
         tcAutomap->signal_button.connect(  sigc::ptr_fun(&automapButton) );
         tcAutomap->setAlpha(0.5);
-            */
+         */
 
-        //Game
+        //////////////////////////// GAME SCREEN /////////////////////
         tcGameMain->setAlpha(gameControlsAlpha);
         controlsContainer.editButtonAlpha = gameControlsAlpha;
         tcGameMain->addControl(new touchcontrols::Button("use",         touchcontrols::RectF(23,3,26,6),    "use",      gamefunc_Open));
@@ -435,7 +460,7 @@ void initControls(int width, int height, const char * graphics_path, const char 
             	tcGameMain->addControl(new touchcontrols::Button("quick_key_2",touchcontrols::RectF(6,3,8,5),"quick_key_2",KEY_QUICK_KEY2,false,true));
             	tcGameMain->addControl(new touchcontrols::Button("quick_key_3",touchcontrols::RectF(8,3,10,5),"quick_key_3",KEY_QUICK_KEY3,false,true));
             	tcGameMain->addControl(new touchcontrols::Button("quick_key_4",touchcontrols::RectF(10,3,12,5),"quick_key_4",KEY_QUICK_KEY4,false,true));
-        */
+         */
         //Left stick
         touchJoyLeft = new touchcontrols::TouchJoy("stick",touchcontrols::RectF(0,7,8,16),"strafe_arrow");
         tcGameMain->addControl(touchJoyLeft);
@@ -449,7 +474,6 @@ void initControls(int width, int height, const char * graphics_path, const char 
         touchJoyRight->signal_double_tap.connect(sigc::ptr_fun(&right_double_tap) );
         touchJoyRight->setEnabled(false);
 
-        tcGameMain->signal_button.connect(  sigc::ptr_fun(&gameButton) );
 
 
         //Mouse look for whole screen
@@ -459,8 +483,9 @@ void initControls(int width, int height, const char * graphics_path, const char 
 
         mouse->setHideGraphics(true);
         tcGameMain->addControl(mouse);
-        //tcGameLook->addControl(mouse);
 
+        tcGameMain->signal_button.connect(  sigc::ptr_fun(&gameButton) );
+        tcGameMain->signal_settingsButton.connect(  sigc::ptr_fun(&gameSettingsButton) );
 
 
         //Weapons
@@ -468,17 +493,34 @@ void initControls(int width, int height, const char * graphics_path, const char 
         weaponWheel->signal_selected.connect(sigc::ptr_fun(&weaponWheelChosen) );
         weaponWheel->signal_enabled.connect(sigc::ptr_fun(&weaponWheelSelected));
         tcGameWeapons->addControl(weaponWheel);
-
-
         tcGameWeapons->setAlpha(0.9);
+
+        tcInventory->addControl(new touchcontrols::Button("jetpack", touchcontrols::RectF(0,3,2,5),"jetpack",gamefunc_Jetpack));
+        tcInventory->addControl(new touchcontrols::Button("medkit",  touchcontrols::RectF(0,5,2,7),"medkit",gamefunc_MedKit));
+        tcInventory->addControl(new touchcontrols::Button("nightv",  touchcontrols::RectF(0,7,2,9),"nightvision",gamefunc_NightVision));
+        tcInventory->addControl(new touchcontrols::Button("holoduke",touchcontrols::RectF(0,9,2,11),"holoduke",gamefunc_Holo_Duke));
+        tcInventory->addControl(new touchcontrols::Button("steroids",touchcontrols::RectF(0,11,2,13),"steroids",gamefunc_Steroids));
+        tcInventory->setAlpha(1);
+
+        tcInventory->signal_button.connect(  sigc::ptr_fun(&inventoryButton));
+
+        /////////////////////////////////////////////////////////////
+
 
         controlsContainer.addControlGroup(tcMenuMain);
         controlsContainer.addControlGroup(tcGameMain);
         controlsContainer.addControlGroup(tcInventory);//Need to be above tcGameMain incase buttons over stick
         controlsContainer.addControlGroup(tcGameWeapons);
         //controlsContainer.addControlGroup(tcAutomap);
-        //controlsContainer.addControlGroup(tcGameLook);
+        controlsContainer.addControlGroup(tcYesNo);
+        controlsContainer.addControlGroup(tcBlankTap);
         controlsCreated = 1;
+
+        tcGameMain->setAlpha(gameControlsAlpha);
+        controlsContainer.editButtonAlpha = gameControlsAlpha;
+        tcGameWeapons->setAlpha(gameControlsAlpha);
+        tcMenuMain->setAlpha(gameControlsAlpha);
+
 
         tcGameMain->setXMLFile((std::string)graphics_path +  "/game.xml");
         tcGameWeapons->setXMLFile((std::string)graphics_path +  "/weapons.xml");
@@ -492,19 +534,92 @@ void initControls(int width, int height, const char * graphics_path, const char 
     //controlsContainer.initGL();
 }
 
+void updateTouchScreenMode(touchscreemode_t mode)
+{
+   // LOGI("updateTouchScreenModeA %d",mode);
+
+    static  touchscreemode_t lastMode = TOUCH_SCREEN_BLANK;
+
+
+    if (mode != lastMode){
+
+        //first disable the last screen and fade out is necessary
+        switch(lastMode){
+        case TOUCH_SCREEN_BLANK:
+            //Does not exist yet
+            break;
+        case TOUCH_SCREEN_BLANK_TAP:
+            tcBlankTap->resetOutput();
+            tcBlankTap->setEnabled(false); //Dont fade out as no graphics
+            break;
+        case TOUCH_SCREEN_YES_NO:
+            tcYesNo->resetOutput();
+            tcYesNo->fade(touchcontrols::FADE_OUT,DEFAULT_FADE_FRAMES);
+            break;
+        case TOUCH_SCREEN_MENU:
+            tcMenuMain->resetOutput();
+            tcMenuMain->fade(touchcontrols::FADE_OUT,DEFAULT_FADE_FRAMES);
+            break;
+        case TOUCH_SCREEN_GAME:
+            tcGameMain->resetOutput();
+
+            tcGameMain->fade(touchcontrols::FADE_OUT,DEFAULT_FADE_FRAMES);
+            tcGameWeapons->setEnabled(false);
+            tcInventory->setEnabled(false);
+            break;
+        case TOUCH_SCREEN_AUTOMAP:
+            break;
+        case TOUCH_SCREEN_CONSOLE:
+            break;
+        }
+
+        //Enable the current new screen
+        switch(mode){
+        case TOUCH_SCREEN_BLANK:
+            //Does not exist yet
+            break;
+        case TOUCH_SCREEN_BLANK_TAP:
+            tcBlankTap->setEnabled(true);
+            break;
+        case TOUCH_SCREEN_YES_NO:
+            tcYesNo->setEnabled(true);
+            tcYesNo->fade(touchcontrols::FADE_IN,DEFAULT_FADE_FRAMES);
+            break;
+        case TOUCH_SCREEN_MENU:
+            tcMenuMain->setEnabled(true);
+            tcMenuMain->fade(touchcontrols::FADE_IN,DEFAULT_FADE_FRAMES);
+            break;
+        case TOUCH_SCREEN_GAME:
+            tcGameMain->setEnabled(true);
+            tcGameMain->fade(touchcontrols::FADE_IN,DEFAULT_FADE_FRAMES);
+            tcGameWeapons->setEnabled(true);
+            tcInventory->setEnabled(false);
+            break;
+        case TOUCH_SCREEN_AUTOMAP:
+            break;
+        case TOUCH_SCREEN_CONSOLE:
+            break;
+        }
+
+        lastMode = mode;
+    }
+
+}
+
 
 #ifdef GP_LIC
 #define GP_LIC_INC 1
 #include "s-setup/gp_lic_include.h"
 #endif
 
+extern int  clearCtrl;
 void frameControls()
 {
     static int loadedGLImages = 0;
-    static int inMenuLast = 1;
-    static int inAutomapLast = 0;
 
     //LOGI("frameControls");
+    clearCtrl ++;
+
     //We need to do this here now because duke loads a new gl context
     if (!loadedGLImages)
     {
@@ -517,6 +632,9 @@ void frameControls()
     //LOGI("frameControls");
     curRenderer = (PortableRead(READ_RENDERER) != REND_CLASSIC);
 
+    updateTouchScreenMode((touchscreemode_t)PortableRead(READ_SCREEN_MODE));
+
+    /*
     int inMenuNew = PortableRead(READ_MENU);
     if (inMenuLast != inMenuNew)
     {
@@ -525,7 +643,7 @@ void frameControls()
         {
             tcGameMain->setEnabled(true);
             tcGameWeapons->setEnabled(true);
-            tcGameWeapons->fade(1,5);
+            tcGameWeapons->fade(1,DEFAULT_FADE_FRAMES);
             tcMenuMain->setEnabled(false);
         }
         else
@@ -549,11 +667,13 @@ void frameControls()
             tcAutomap->animateOut(5);
         }
     }
+     */
 
     setHideSticks(!showSticks);
     controlsContainer.draw();
 
 #ifdef GP_LIC
+#undef GP_LIC_INC
 #define GP_LIC_INC 2
 #include "s-setup/gp_lic_include.h"
 #endif
@@ -562,6 +682,7 @@ void frameControls()
 
 void setTouchSettings(float alpha,float strafe,float fwd,float pitch,float yaw,int other)
 {
+
     gameControlsAlpha = MINCONTROLALPHA + (alpha * (1.0f - MINCONTROLALPHA));
 
     if (tcGameMain)
@@ -569,7 +690,8 @@ void setTouchSettings(float alpha,float strafe,float fwd,float pitch,float yaw,i
         tcGameMain->setAlpha(gameControlsAlpha);
         controlsContainer.editButtonAlpha = gameControlsAlpha;
         tcGameWeapons->setAlpha(gameControlsAlpha);
-        tcInventory->setAlpha(gameControlsAlpha);
+        tcMenuMain->setAlpha(gameControlsAlpha);
+        // tcInventory->setAlpha(gameControlsAlpha);
     }
 
     // TODO: defined names for these values
@@ -579,7 +701,7 @@ void setTouchSettings(float alpha,float strafe,float fwd,float pitch,float yaw,i
     showSticks      = other & 0x1000 ? true : false;
 
     hideTouchControls = other & 0x80000000 ? true : false;
-    
+
     switch ((other>>4) & 0xF)
     {
     case 1:
@@ -608,6 +730,8 @@ void setTouchSettings(float alpha,float strafe,float fwd,float pitch,float yaw,i
     droidinput.forward_sens = fwd;
     droidinput.pitch_sens = pitch;
     droidinput.yaw_sens = yaw;
+
+    LOGI("setTouchSettings alpha = %f, left_double_action = %d",alpha,droidinput.left_double_action);
 }
 
 #define EXPORT_ME __attribute__ ((visibility("default")))
@@ -631,7 +755,7 @@ Java_com_beloko_duke_engine_NativeLib_init( JNIEnv* env,
     env_ = env;
 
 #ifdef GP_LIC
-	getGlobalClasses(env_);
+    getGlobalClasses(env_);
 #endif
 
     droidinfo.audio_sample_rate = audio_rate;
@@ -668,7 +792,7 @@ Java_com_beloko_duke_engine_NativeLib_init( JNIEnv* env,
     graphicpath =  std::string(p);
 
     initControls(droidinfo.screen_width, -droidinfo.screen_height,
-        graphicpath.c_str(),(graphicpath + "/touch_controls.xml").c_str());
+            graphicpath.c_str(),(graphicpath + "/touch_controls.xml").c_str());
 
     /*
     if (renderer != REND_SOFT)
@@ -676,16 +800,16 @@ Java_com_beloko_duke_engine_NativeLib_init( JNIEnv* env,
 
     if (renderer == REND_SOFT)// In soft mode SDL calls swap buffer, disable so it does not flicker
         SDL_SwapBufferPerformsSwap(false);
-        */
+     */
 
 
     SDL_SetSwapBufferCallBack(frameControls);
 
     //Now doen in java to keep context etc
     //SDL_SwapBufferPerformsSwap(false);
-    
+
     PortableInit(argc, argv);
-    
+
     return 0;
 }
 
@@ -815,6 +939,7 @@ void EXPORT_ME  Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv* env, jclass c
 }
 
 #ifdef GP_LIC
+#undef GP_LIC_INC
 #define GP_LIC_INC 3
 #include "s-setup/gp_lic_include.h"
 #endif
