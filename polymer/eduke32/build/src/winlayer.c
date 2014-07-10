@@ -51,7 +51,9 @@
 
 #include "dxdidf.h"	// comment this out if c_dfDI* is being reported as multiply defined
 #define __STDC_FORMAT_MACROS
+#ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
+#endif
 #include <stdlib.h>
 #include <signal.h>
 #include <stdarg.h>

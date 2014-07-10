@@ -40,7 +40,9 @@
 #undef __USE_MINGW_ANSI_STDIO // Workaround for MinGW-w64.
 
 #define __STDC_FORMAT_MACROS
+#ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
+#endif
 #ifdef HAVE_INTTYPES
 #  include <stdint.h>
 #  include <inttypes.h>

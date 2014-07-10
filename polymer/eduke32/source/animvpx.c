@@ -3,7 +3,9 @@
 #ifdef USE_LIBVPX
 
 #define __STDC_FORMAT_MACROS
+#ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
+#endif
 
 
 #include <stdint.h>
