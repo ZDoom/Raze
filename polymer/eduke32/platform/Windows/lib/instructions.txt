@@ -1,129 +1,197 @@
 Instructions for Building EDuke32's Library Dependencies Targeting Win32 and Win64
+==================================================================================
 
-First, follow these instructions:
-http://wiki.eduke32.com/wiki/Building_EDuke32_on_Windows
+First, follow these instructions: http://wiki.eduke32.com/wiki/Building_EDuke32_on_Windows
 
-Download the latest sources from:
-https://www.xiph.org/downloads/
-http://git.xiph.org/?p=flac.git;a=summary
-http://zlib.net/
-http://www.libpng.org/pub/png/libpng.html
-http://www.webmproject.org/code/
-http://www.libsdl.org/download-2.0.php
-http://www.libsdl.org/projects/SDL_mixer/
+Download the latest sources from the link provided.
 
 The build output listed as "Desired Results" is what EDuke32 needs to function.
 
 The desired results for each library in some cases may need to be installed to the compiler. "x depends on the results of y to compile" means that the build output of x must be added to the compiler in this way. Copy files listed in each category to the appropriate destinations. Unless otherwise noted, do NOT copy the ".dll.a" file or else the final product may depend on external DLLs (which you may actually want).
 
 For MinGW (MinGW32):
-from the compiler root (ex. C:\MinGW\)
-headers: include\
-libraries: lib\
+from the compiler root (ex. C:/MinGW/)
+  * headers: include/
+  * libraries: lib/
 
 For MinGW-w64:
-from the compiler root (ex. C:\MinGW-w64\mingw32-dw2\)
-headers: <target>-w64-mingw32\include\
-libraries: <target>-w64-mingw32\lib\
+from the compiler root (ex. C:/MinGW-w64/mingw32-dw2/)
+  * headers: <target>-w64-mingw32/include/
+  * libraries: <target>-w64-mingw32/lib/
 
-Binaries need to be present with the finished EDuke32 executables. They are not needed during compilation.
+Binaries (if mentioned) need to be present with the finished EDuke32 executables. They are not needed during compilation.
 
-NB: Text in [] are commands to be pasted into the Windows command prompt, sans [].
+NB: Text formatted as code blocks are commands to be pasted into the Windows command prompt.
 http://wiki.eduke32.com/wiki/Working_with_the_Windows_Command_Prompt
 
+[//]: # (Plain text readers: This refers to lines beginning with exactly four spaces.)
 
 
-libogg:
-To build:
-[sh ./configure CFLAGS="-g -O2 -fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make]
-Desired Results:
- - headers: ogg\config_types.h ogg\ogg.h ogg\os_types.h
- - libraries: libogg.a
+libogg
+------
+### Download ###
+Download: libogg-<version>.tar.xz
+  * Stable: https://www.xiph.org/downloads/
+  * SVN: https://svn.xiph.org/trunk/ogg
+  * Git: git://git.xiph.org/mirrors/ogg.git
+### Build ###
+    sh ./configure CFLAGS="-g -O2 -fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make
+### Desired Results ###
+  * headers: ogg/config_types.h ogg/ogg.h ogg/os_types.h
+  * libraries: libogg.a
 
-libvorbis:
-To build:
-[sh ./configure CFLAGS="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make]
-Desired Results:
- - headers: vorbis\codec.h vorbis\vorbisfile.h
- - libraries: libvorbis.a libvorbisfile.a
+libvorbis
+---------
+### Prerequisites ###
 libvorbis depends on the results of libogg to compile.
+### Download ###
+Download: libvorbis-<version>.tar.xz
+  * Stable: https://www.xiph.org/downloads/
+  * SVN: https://svn.xiph.org/trunk/vorbis
+  * Git: git://git.xiph.org/mirrors/vorbis.git
+### Build ###
+    sh ./configure CFLAGS="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make
+### Desired Results ###
+  * headers: vorbis/codec.h vorbis/vorbisfile.h
+  * libraries: libvorbis.a libvorbisfile.a
 
-libFLAC:
-To build:
-[make -f Makefile.lite libFLAC USE_LROUND=0 USE_FSEEKO=0 CUSTOM_CFLAGS="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe"]
-Desired Results:
- - headers: FLAC\all.h FLAC\assert.h FLAC\callback.h FLAC\export.h FLAC\format.h FLAC\metadata.h FLAC\ordinals.h FLAC\stream_decoder.h FLAC\stream_encoder.h
- - libraries: libFLAC.a
+libFLAC
+-------
+### Prerequisites ###
 libFLAC depends on the results of libogg to compile.
+### Download ###
+Download: flac-<version>.tar.xz
+However, Git HEAD is highly recommended.
+  * Stable: https://www.xiph.org/downloads/
+  * Git: git://git.xiph.org/flac.git
+### Build ###
+    make -f Makefile.lite libFLAC CUSTOM_CFLAGS="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe"
+### Desired Results ###
+  * headers: FLAC/all.h FLAC/assert.h FLAC/callback.h FLAC/export.h FLAC/format.h FLAC/metadata.h FLAC/ordinals.h FLAC/stream_decoder.h FLAC/stream_encoder.h
+  * libraries: libFLAC.a
 
 
-zlib:
-Modify win32\Makefile.gcc as follows:
- - CFLAGS: change -O3 to -O2 for stability and possibly performance benefits.
- - CFLAGS: add: -fno-stack-check -fno-stack-protector -mno-stack-arg-probe
-To build:
-[make -f win32\Makefile.gcc]
-[ar rcs libz_mini.a crc32.o deflate.o adler32.o zutil.o trees.o]
-Desired Results:
- - headers: (none)
- - libraries: libz_mini.a
+zlib
+----
+### Download ###
+Download: zlib-<version>.tar.xz
+  * Stable: http://zlib.net/
+  * Git: git://github.com/madler/zlib.git
+### Modifications ###
+  * Modify win32/Makefile.gcc as follows:
+      * CFLAGS: change -O3 to -O2 for stability and possibly performance benefits.
+      * CFLAGS: add: -fno-stack-check -fno-stack-protector -mno-stack-arg-probe
+### Build ###
+    make -f win32/Makefile.gcc
+    ar rcs libz_mini.a crc32.o deflate.o adler32.o zutil.o trees.o
+### Desired Results ###
+  * headers: (none)
+  * libraries: libz_mini.a
 
-
-libpng:
+libpng
+------
+### Prerequisites ###
 Copy *.h from zlib to your compiler's include directory.
-Modify scripts\Makefile.gcc as follows:
- - Ensure ZLIBINC and ZLIBLIB point to the directory of zlib from above, or, rename your zlib directory so that, relative to the libpng directory, it is "../zlib". You will get a compile-time error if this is omitted or done incorrectly.
- - CFLAGS: add: -fno-stack-check -fno-stack-protector -mno-stack-arg-probe
-Copy the file "minipng.dfa" to the root of the libpng data.
-To build:
-[make -f scripts/pnglibconf.mak DFA_XTRA=./minipng.dfa CPP="gcc -E"]
-[make -f scripts/makefile.gcc libpng.a]
-[ren libpng.a libpng_mini.a]
-Desired Results:
- - headers: png.h pngconf.h pnglibconf.h
- - libraries: libpng_mini.a
+### Download ###
+Download libpng-<version>.tar.xz
+  * Stable: http://www.libpng.org/pub/png/libpng.html
+  * Git: git://git.code.sf.net/p/libpng/code
+### Modifications ###
+  * Modify scripts/Makefile.gcc as follows:
+      * Ensure ZLIBINC and ZLIBLIB point to the directory of zlib from above, or, rename your zlib directory so that, relative to the libpng directory, it is "../zlib". You will get a compile-time error if this is omitted or done incorrectly.
+      * CFLAGS: add: -fno-stack-check -fno-stack-protector -mno-stack-arg-probe
+  * Copy the file "minipng.dfa" to the root of the libpng data.
+### Build ###
+    make -f scripts/pnglibconf.mak DFA_XTRA=./minipng.dfa CPP="gcc -E"
+    make -f scripts/makefile.gcc libpng.a
+    ren libpng.a libpng_mini.a
+### Desired Results ###
+  * headers: png.h pngconf.h pnglibconf.h
+  * libraries: libpng_mini.a
 
 
-libvpx:
+libvpx
+------
+### Prerequisites ###
 Download the binary of yasm (http://yasm.tortall.net/) for your host system architecture. Both builds target both architectures.
 The build environment needs pr.exe (https://mingw-lib.googlecode.com/files/coreutils-5.97-MSYS-1.0.11-snapshot.tar.bz2).
-If the configure scripts do not recognize your 64-bit compiler, you may need to [git apply "libvpx with MinGW-w64.patch"].
-To build:
-[sh ./configure --disable-vp8-encoder --disable-vp9-encoder --disable-multithread --disable-spatial-resampling --as=yasm --extra-cflags="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make]
-Desired Results:
- - headers: vpx\vp8.h vpx\vp8dx.h vpx\vpx_codec.h vpx\vpx_codec_impl_bottom.h vpx\vpx_codec_impl_top.h vpx\vpx_decoder.h vpx\vpx_decoder_compat.h vpx\vpx_image.h vpx\vpx_integer.h
- - libraries: libvpx.a libvpx_g.a
+### Download ###
+  * Instructions: http://www.webmproject.org/code/
+  * Git: https://chromium.googlesource.com/webm/libvpx
+### Modifications ###
+If the configure scripts do not recognize your 64-bit compiler, you may need to run the following:
+    git apply "libvpx with MinGW-w64.patch"
+### Build ###
+    sh ./configure --disable-vp8-encoder --disable-vp9-encoder --disable-multithread --disable-spatial-resampling --as=yasm --extra-cflags="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make
+### Desired Results ###
+  * headers: vpx/vp8.h vpx/vp8dx.h vpx/vpx_codec.h vpx/vpx_codec_impl_bottom.h vpx/vpx_codec_impl_top.h vpx/vpx_decoder.h vpx/vpx_decoder_compat.h vpx/vpx_image.h vpx/vpx_integer.h
+  * libraries: libvpx.a libvpx_g.a
 
 
-SDL:
-To build:
-[sh ./configure && make]
-Desired Results:
- - headers: SDL_*.h
- - libraries: libSDL.a libSDL.dll.a libSDLmain.a
- - binaries: SDL.dll
+SDL
+---
+### Download ###
+Download SDL2-devel-<version>-mingw.tar.gz
+  * Stable: http://www.libsdl.org/download-2.0.php
+  * Mercurial: http://hg.libsdl.org/SDL
+### Build ###
+    sh ./configure && make
+### Desired Results ###
+  * headers: SDL_*.h
+  * libraries: libSDL2.a libSDL2main.a
 
-SDL_mixer:
-Download SDL_mixer-devel-<version>-VC.zip.
-The library used for linking can be found at these paths:
-32-bit: SDL_mixer-<version>/lib/x86/SDL_mixer.lib
-64-bit: SDL_mixer-<version>/lib/x64/SDL_mixer.lib
-Compiling SDL_mixer 1.x has not been shown to work with either MinGW. If you would like to try anyway:
-To build:
-[sh ./configure && make]
-SDL_mixer depends on the results of SDL to compile. Note that the headers must be installed without the "SDL" prefix directory.
+SDL_mixer
+---------
+### Prerequisites ###
+SDL_mixer depends on the results of SDL to compile.
+NEEDS VERIFICATION: Note that the headers must be installed without the "SDL2" prefix directory.
+### Download ###
+Download SDL2_mixer-devel-<version>-mingw.tar.gz.
+  * Stable: http://www.libsdl.org/projects/SDL_mixer/
+  * Mercurial: http://hg.libsdl.org/SDL_mixer/
+### Build ###
+    sh ./configure && make
+### Desired Results ###
 Note: With just this bare bones setup all the external libraries and formats will be disabled, but that's OK.
-Desired Results:
- - headers: SDL_mixer.h
- - libraries: SDL_mixer.lib
- - binaries: SDL_mixer.dll
+  * headers: SDL_mixer.h
+  * libraries: libSDL2_mixer.a
 
 
-dsound:
-dxguid:
-See Windows\src\dxlibs.
-To build:
-[make]
-Desired Results:
- - headers: ddraw.h dinput.h dsound.h (pre-positioned in Windows\include)
- - libraries: libdsound.a libdxguid.a
+dsound, dxguid, and dxguid_sdl
+------------------------------
+### Download ###
+See Windows/src/dxlibs.
+### Build ###
+    make
+### Desired Results ###
+  * headers: ddraw.h dinput.h dsound.h (pre-positioned in Windows/include/dx)
+  * libraries: libdsound.a libdxguid.a libdxguid_sdl.a
+
+
+LuaJIT
+------
+### Download ###
+Download: LuaJIT-<version>.tar.gz
+However, Git HEAD is highly recommended.
+  * Stable: http://luajit.org/download.html
+  * Git: git clone http://luajit.org/git/luajit-2.0.git
+### Modifications ###
+  * Modify src/luaconf.h as follows:
+      * #define LUAI_MAXCSTACK 64000 // (instead of the default 8000.)
+### Build ###
+    make BUILDMODE=static
+### Desired Results ###
+  * headers: lauxlib.h lua.h lua.hpp luaconf.h luajit.h lualib.h
+  * libraries: libluajit.a
+
+LPeg
+----
+### Download ###
+Download: lpeg-<version>.tar.gz
+  * Stable: http://www.inf.puc-rio.br/~roberto/lpeg
+### Modifications ###
+  * Apply "lpeg-lunatic.patch".
+### Build ###
+    make liblpeg.a
+### Desired Results ###
+  * libraries: liblpeg.a

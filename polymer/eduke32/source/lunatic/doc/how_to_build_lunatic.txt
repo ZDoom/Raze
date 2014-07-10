@@ -1,15 +1,14 @@
 
 Lunatic depends on the following:
 
-* LuaJIT 2.0.2 or later [http://luajit.org]. It is recommended to get the
-  latest git HEAD of the 2.0 branch, see http://luajit.org/download.html for
-  that. As of time of writing, LuaJIT 2.1 is in alpha, and has not been
-  successfully tested with Lunatic. LuaJIT is built with the following change
-  to src/luaconf.h:
-    #define LUAI_MAXCSTACK 64000
-  (instead of the default 8000.)
+* LuaJIT 2.0.3 or later [http://luajit.org]. It is recommended to get the
+  latest git HEAD of the 2.0 branch. As of time of writing, LuaJIT 2.1 is
+  in alpha, and has not been successfully tested with Lunatic.
 
-* LPeg 0.12 [http://www.inf.puc-rio.br/~roberto/lpeg], but with our patch
-  "lpeg-lunatic.patch" applied. It will allow to build a statically linked
-  library of LPeg, "liblpeg.a".  On Windows, liblpeg.a is pre-compiled and
-  resides in platform/Windows/lib/.
+* LPeg 0.12 [http://www.inf.puc-rio.br/~roberto/lpeg].
+
+For Windows, static libraries and headers have been provided.
+
+See platform/Windows/lib/instructions.txt for information on building.
+
+Build EDuke32 with the GNU Make invocation "make LUNATIC=1".

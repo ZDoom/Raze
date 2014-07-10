@@ -1,6 +1,6 @@
 /* pnglibconf.h - library build configuration */
 
-/* libpng version 1.6.10 - March 6, 2014 */
+/* libpng version 1.6.12 - June 12, 2014 */
 
 /* Copyright (c) 1998-2012 Glenn Randers-Pehrson */
 
@@ -185,7 +185,6 @@
 /* end of options */
 /* settings */
 #define PNG_API_RULE 0
-#define PNG_CALLOC_SUPPORTED
 #define PNG_COST_SHIFT 3
 #define PNG_DEFAULT_READ_MACROS 1
 #define PNG_GAMMA_THRESHOLD_FIXED 5000
