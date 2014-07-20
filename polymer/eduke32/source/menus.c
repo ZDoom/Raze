@@ -16,7 +16,7 @@ See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
@@ -2129,7 +2129,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
             {
                 "This program is distributed under the terms of the",
                 "GNU General Public License version 2 as published by the",
-                "Free Software Foundation. See GNU.TXT for details.",
+                "Free Software Foundation. See gpl-2.0.txt for details.",
                 " ",
                 "Thanks to the following people for their contributions:",
                 " ",
@@ -2170,7 +2170,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
             const char *footer[] =
             {
                 " ",
-                "BUILD engine technology available under BUILDLIC.",
+                "BUILD engine technology available under BUILDLIC. See buildlic.txt.",
             };
 
             const int32_t header_numlines = sizeof(header)/sizeof(char *);
