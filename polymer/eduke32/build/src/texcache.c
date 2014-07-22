@@ -496,6 +496,7 @@ failure:
 
 void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
 {
+    static GLint glGetTexLevelParameterivOK = GL_TRUE;
     char cachefn[BMAX_PATH];
     char *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
@@ -510,7 +511,11 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
     bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &gi);
     if (gi != GL_TRUE)
     {
-        OSD_Printf("Error: glGetTexLevelParameteriv returned GL_FALSE!\n");
+        if (glGetTexLevelParameterivOK == GL_TRUE)
+        {
+            OSD_Printf("Error: glGetTexLevelParameteriv returned GL_FALSE!\n");
+            glGetTexLevelParameterivOK = GL_FALSE;
+        }
         return;
     }
 
