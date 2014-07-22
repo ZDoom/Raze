@@ -41,23 +41,24 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 int main(int argc, char **argv)
 {
     FILE *fp, *ofp;
-    long i,j=0;
-    long version;
-    long numfiles;
+    int32_t i,j=0;
+    int32_t version;
+    int32_t numfiles;
     unsigned char numchars;
     char title[33];
     char description[3][71];
     struct file {
         char name[13];
-        long length;
+        int32_t length;
     } *filenames;
     char runfile[13] = "<unknown>";
     char buf[1024];
-    int mode=0, param;
+    int32_t mode=0, param;
 
     puts("unpackssi - .SSI File Unpacker\n"
          "Copyright (c) 2003 Jonathon Fowler\n"
@@ -96,7 +97,7 @@ int main(int argc, char **argv)
             return -1;
         }
 
-        printf("File is SSI Version %ld\n", version);
+        printf("File is SSI Version %i\n", version);
 
         fread(&numfiles, 4, 1, fp);
 
@@ -159,7 +160,7 @@ int main(int argc, char **argv)
                     break;
                 }
 
-                printf("Unpacking %s (%ld bytes)...", filenames[i].name, filenames[i].length);
+                printf("Unpacking %s (%i bytes)...", filenames[i].name, filenames[i].length);
 
                 for (j=filenames[i].length; j>1024; j-=1024) {
                     fread(buf, 1024, 1, fp);
@@ -173,14 +174,14 @@ int main(int argc, char **argv)
                 fclose(ofp);
                 puts("done");
             } else if (mode == 1) {
-                printf(" %-12s   %ld bytes\n", filenames[i].name, filenames[i].length);
+                printf(" %-12s   %i bytes\n", filenames[i].name, filenames[i].length);
                 j += filenames[i].length;
             }
         }
 
         if (mode == 1) {
             puts("");
-            printf(" %ld files, %ld bytes\n", numfiles, j);
+            printf(" %i files, %i bytes\n", numfiles, j);
         }
 
         fclose(fp);
