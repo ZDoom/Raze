@@ -309,7 +309,7 @@ int32_t textsc(int32_t sc)
 static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
     int32_t scl = sbarsc(65536);
-    int32_t tx = sbarx16((320<<15) - (tilesizx[BOTTOMSTATUSBAR]<<15)); // centered
+    int32_t tx = sbarx16((160<<16) - (tilesizx[BOTTOMSTATUSBAR]<<15)); // centered
     int32_t ty = sbary(200-tilesizy[BOTTOMSTATUSBAR]);
 
     int32_t clx1 = sbarsc(scale(x1,xdim,320)), cly1 = sbarsc(scale(y1,ydim,200));
@@ -2862,7 +2862,7 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
             setpalettefade(r,g,b,end);  // have to set to end fade value if we break!
             return;
         }
-        rotatesprite_fs(0,0,65536L,0,tile,0,0,2+8+16+(ud.bgstretch?1024:0));
+        rotatesprite_fs(160<<16,100<<16,65536L,0,tile,0,0,2+8+(ud.bgstretch?1024:0));
         G_FadePalette(r,g,b,start);
 
         start += step;
@@ -2889,14 +2889,14 @@ static void G_DisplayExtraScreens(void)
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         fadepal(0,0,0, 0,63,7);
         I_ClearAllInput();
-        rotatesprite_fs(0,0,65536L,0,3291,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+        rotatesprite_fs(160<<16,100<<16,65536L,0,3291,0,0,2+8+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7, 3291);
         while (!I_CheckAllInput())
             G_HandleAsync();
 
         fadepaltile(0,0,0, 0,63,7, 3291);
         I_ClearAllInput();
-        rotatesprite_fs(0,0,65536L,0,3290,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+        rotatesprite_fs(160<<16,100<<16,65536L,0,3290,0,0,2+8+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7,3290);
         while (!I_CheckAllInput())
             G_HandleAsync();
@@ -2911,7 +2911,7 @@ static void G_DisplayExtraScreens(void)
         fadepal(0,0,0, 0,63,7);
         I_ClearAllInput();
         totalclock = 0;
-        rotatesprite_fs(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+        rotatesprite_fs(160<<16,100<<16,65536L,0,TENSCREEN,0,0,2+8+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7,TENSCREEN);
         while (!I_CheckAllInput() && totalclock < 2400)
             G_HandleAsync();
@@ -3562,10 +3562,10 @@ void G_DisplayRest(int32_t smoothratio)
         switch (ud.show_help)
         {
         case 1:
-            rotatesprite_fs(0,0,65536L,0,TEXTSTORY,0,0,10+16+64);
+            rotatesprite_fs(160<<16,100<<16,65536L,0,TEXTSTORY,0,0,10+64);
             break;
         case 2:
-            rotatesprite_fs(0,0,65536L,0,F1HELP,0,0,10+16+64);
+            rotatesprite_fs(160<<16,100<<16,65536L,0,F1HELP,0,0,10+64);
             break;
         }
 
@@ -4039,7 +4039,7 @@ void G_DrawBackground(void)
                         for (x=0; x<xdim; x+=tilesizx[bgtile])
                             rotatesprite_fs(x<<16,y<<16,65536L,0,bgtile,16,0,8+16+64);
             }
-            else rotatesprite_fs(320<<15,200<<15,65536L,0,bgtile,16,0,2+8+64+(ud.bgstretch?1024:0));
+            else rotatesprite_fs(160<<16,100<<16,65536L,0,bgtile,16,0,2+8+64+(ud.bgstretch?1024:0));
         return;
     }
 
@@ -10450,7 +10450,7 @@ static void G_DisplayLogo(void)
                 P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8+2+1);    // JBF 20040308
                 fadepal(0,0,0, 0,63,7);
                 flushperms();
-                rotatesprite_fs(0,0,65536L,0,DREALMS,0,0,2+8+16+(ud.bgstretch?1024:0));
+                rotatesprite_fs(160<<16,100<<16,65536L,0,DREALMS,0,0,2+8+(ud.bgstretch?1024:0));
                 nextpage();
                 fadepaltile(0,0,0, 63,0,-7,DREALMS);
                 totalclock = 0;
@@ -10458,7 +10458,7 @@ static void G_DisplayLogo(void)
                 {
                     clearallviews(0);
 
-                    rotatesprite_fs(0,0,65536L,0,DREALMS,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+                    rotatesprite_fs(160<<16,100<<16,65536L,0,DREALMS,0,0,2+8+64+(ud.bgstretch?1024:0));
 
                     G_HandleAsync();
 
@@ -10484,7 +10484,7 @@ static void G_DisplayLogo(void)
             //g_player[myconnectindex].ps->palette = titlepal;
             P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);   // JBF 20040308
             flushperms();
-            rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16);
+            rotatesprite_fs(160<<16,100<<16,65536L,0,BETASCREEN,0,0,2+8);
             KB_FlushKeyboardQueue();
             fadepaltile(0,0,0, 63,0,-7,BETASCREEN);
             totalclock = 0;
@@ -10493,7 +10493,7 @@ static void G_DisplayLogo(void)
             {
                 clearallviews(0);
 
-                rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+                rotatesprite_fs(160<<16,100<<16,65536L,0,BETASCREEN,0,0,2+8+64+(ud.bgstretch?1024:0));
                 if (logoflags & LOGO_DUKENUKEM)
                 {
                     if (totalclock > 120 && totalclock < (120+60))
@@ -11847,7 +11847,7 @@ int32_t app_main(int32_t argc, const char **argv)
         //g_player[myconnectindex].ps->palette = palette;
         //G_FadePalette(0,0,0,0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-        rotatesprite_fs(320<<15,200<<15,65536L,0,LOADSCREEN,0,0,2+8+64+(ud.bgstretch?1024:0));
+        rotatesprite_fs(160<<16,100<<16,65536L,0,LOADSCREEN,0,0,2+8+64+(ud.bgstretch?1024:0));
         menutext(160,105,0,0,"LOADING SAVED GAME...");
         nextpage();
 
@@ -12270,7 +12270,7 @@ static void G_DoOrderScreen(void)
     {
         fadepal(0,0,0, 0,63,7);
         I_ClearAllInput();
-        rotatesprite_fs(0,0,65536L,0,ORDERING+i,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+        rotatesprite_fs(160<<16,100<<16,65536L,0,ORDERING+i,0,0,2+8+64+(ud.bgstretch?1024:0));
         fadepal(0,0,0, 63,0,-7);
         while (!I_CheckAllInput())
             G_HandleAsync();
@@ -12382,7 +12382,7 @@ static void G_BonusCutscenes(void)
         I_ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
 
-        rotatesprite_fs(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+        rotatesprite_fs(160<<16,100<<16,65536L,0,3292,0,0,2+8+64+(ud.bgstretch?1024:0));
         fadepal(0,0,0, 63,0,-1);
         G_HandleEventsWhileNoInput();
         fadepal(0,0,0, 0,63,1);
@@ -12420,7 +12420,7 @@ VOL1_END:
 
         I_ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
-        rotatesprite_fs(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+        rotatesprite_fs(160<<16,100<<16,65536L,0,3293,0,0,2+8+64+(ud.bgstretch?1024:0));
         fadepal(0,0,0, 63,0,-1);
         G_HandleEventsWhileNoInput();
         fadepal(0,0,0, 0,63,1);
@@ -12596,7 +12596,7 @@ static void G_DisplayMPResultsScreen(void)
 {
     int32_t i, y, t = 0;
 
-    rotatesprite_fs(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64+(ud.bgstretch?1024:0));
+    rotatesprite_fs(160<<16,100<<16,65536L,0,MENUSCREEN,16,0,2+8+64+(ud.bgstretch?1024:0));
     rotatesprite_fs(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10);
     if (PLUTOPAK)   // JBF 20030804
         rotatesprite_fs((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8);
@@ -12745,7 +12745,7 @@ void G_BonusScreen(int32_t bonusonly)
     if (bonusonly || (g_netServer || ud.multimode > 1)) return;
 
     gfx_offset = (ud.volume_number==1) ? 5 : 0;
-    rotatesprite_fs(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
+    rotatesprite_fs(160<<16,100<<16,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+64+128+(ud.bgstretch?1024:0));
 
     if (lastmapname)
         menutext(160,20-6,0,0,lastmapname);
@@ -12798,7 +12798,7 @@ void G_BonusScreen(int32_t bonusonly)
         {
             clearallviews(0);
 
-            rotatesprite_fs(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
+            rotatesprite_fs(160<<16,100<<16,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+64+128+(ud.bgstretch?1024:0));
 
             if (totalclock >= 1000000000 && totalclock < 1000000320)
             {

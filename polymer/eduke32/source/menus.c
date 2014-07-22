@@ -71,7 +71,7 @@ static savehead_t savehead;
 
 static void M_DrawBackground(void)
 {
-    rotatesprite_fs(160<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64);
+    rotatesprite_fs(160<<16,100<<16,65536L,0,MENUSCREEN,16,0,10+64);
 }
 
 static void M_DrawTopBar(void)
@@ -1697,7 +1697,7 @@ static void M_PreMenuDrawBackground(MenuID_t cm)
         if (!VOLUMEALL || !PLUTOPAK)
             M_DrawBackground();
         else
-            rotatesprite_fs(160<<16,200<<15,65536L,0,2504+g_currentMenu-MENU_CREDITS,0,0,10+64);
+            rotatesprite_fs(160<<16,100<<16,65536L,0,2504+g_currentMenu-MENU_CREDITS,0,0,10+64);
         break;
 
     case MENU_LOAD:
@@ -1711,15 +1711,15 @@ static void M_PreMenuDrawBackground(MenuID_t cm)
     case MENU_ORDERING2:
     case MENU_ORDERING3:
     case MENU_ORDERING4:
-        rotatesprite_fs(0,0,65536L,0,ORDERING+g_currentMenu-MENU_ORDERING,0,0,10+16+64);
+        rotatesprite_fs(160<<16,100<<16,65536L,0,ORDERING+g_currentMenu-MENU_ORDERING,0,0,10+64);
         break;
 
     case MENU_STORY:
-        rotatesprite_fs(0,0,65536L,0,TEXTSTORY,0,0,10+16+64);
+        rotatesprite_fs(160<<16,100<<16,65536L,0,TEXTSTORY,0,0,10+64);
         break;
 
     case MENU_F1HELP:
-        rotatesprite_fs(0,0,65536L,0,F1HELP,0,0,10+16+64);
+        rotatesprite_fs(160<<16,100<<16,65536L,0,F1HELP,0,0,10+64);
         break;
     }
 }
