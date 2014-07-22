@@ -350,6 +350,8 @@ int32_t loadgldriver(const char *driver)
         driver = "opengl32.dll";
 #elif defined __APPLE__
         driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
+#elif defined __OpenBSD__
+        driver = "libGL.so";
 #else
         driver = "libGL.so.1";
 #endif
@@ -962,6 +964,8 @@ int32_t loadglulibrary(const char *driver)
         driver = "glu32.dll";
 #elif defined __APPLE__
         driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL"; // FIXME: like I know anything about Apple.  Hah.
+#elif defined __OpenBSD__
+        driver = "libGLU.so";
 #else
         driver = "libGLU.so.1";
 #endif

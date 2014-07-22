@@ -17,10 +17,17 @@ int32_t dynamicgtk_init(void)
 {
     int32_t err = 0;
     const char *failsym = NULL;
+    const char *gtk_shared_object;
 
     if (handle) return 1;
 
-    handle = dlopen("libgtk-x11-2.0.so.0", RTLD_NOW|RTLD_GLOBAL);
+#if defined __OpenBSD__
+    gtk_shared_object = "libgtk-x11-2.0.so";
+#else
+    gtk_shared_object = "libgtk-x11-2.0.so.0";
+#endif
+
+    handle = dlopen(gtk_shared_object, RTLD_NOW|RTLD_GLOBAL);
     if (!handle) return -1;
 
     memset(&dynamicgtksyms, 0, sizeof(dynamicgtksyms));
