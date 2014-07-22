@@ -74,10 +74,13 @@ static void M_DrawBackground(void)
     rotatesprite_fs(160<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64);
 }
 
-
-static void M_DrawTopBar(const char *caption)
+static void M_DrawTopBar(void)
 {
     rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
+}
+
+static void M_DrawTopBarCaption(const char *caption)
+{
     menutext(160,24,0,0,caption);
 }
 
@@ -1683,6 +1686,45 @@ static void M_PreMenu(MenuID_t cm)
     }
 }
 
+
+static void M_PreMenuDrawBackground(MenuID_t cm)
+{
+    switch (cm)
+    {
+    case MENU_CREDITS:
+    case MENU_CREDITS2:
+    case MENU_CREDITS3:
+        if (!VOLUMEALL || !PLUTOPAK)
+            M_DrawBackground();
+        else
+            rotatesprite_fs(160<<16,200<<15,65536L,0,2504+g_currentMenu-MENU_CREDITS,0,0,10+64);
+        break;
+
+    case MENU_LOAD:
+    case MENU_SAVE:
+    case MENU_CREDITS4:
+    case MENU_CREDITS5:
+        M_DrawBackground();
+        break;
+
+    case MENU_ORDERING:
+    case MENU_ORDERING2:
+    case MENU_ORDERING3:
+    case MENU_ORDERING4:
+        rotatesprite_fs(0,0,65536L,0,ORDERING+g_currentMenu-MENU_ORDERING,0,0,10+16+64);
+        break;
+
+    case MENU_STORY:
+        rotatesprite_fs(0,0,65536L,0,TEXTSTORY,0,0,10+16+64);
+        break;
+
+    case MENU_F1HELP:
+        rotatesprite_fs(0,0,65536L,0,F1HELP,0,0,10+16+64);
+        break;
+    }
+}
+
+
 static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
 {
     int32_t i, j, l = 0, m;
@@ -1796,8 +1838,6 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
         break;
 
     case MENU_LOAD:
-        M_DrawBackground();
-
         for (i = 0; i <= 108; i += 12)
             rotatesprite_fs((160+64+91-64)<<16,(i+56)<<16,65536L,0,TEXTBOX,24,0,10);
 
@@ -1836,8 +1876,6 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
         break;
 
     case MENU_SAVE:
-        M_DrawBackground();
-
         for (i = 0; i <= 108; i += 12)
             rotatesprite_fs((160+64+91-64)<<16,(i+56)<<16,65536L,0,TEXTBOX,24,0,10);
 
@@ -1918,21 +1956,6 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
         mgametext(160,90,"Waiting for votes",0,2);
         break;
 
-    case MENU_ORDERING:
-    case MENU_ORDERING2:
-    case MENU_ORDERING3:
-    case MENU_ORDERING4:
-        rotatesprite_fs(0,0,65536L,0,ORDERING+g_currentMenu-MENU_ORDERING,0,0,10+16+64);
-        break;
-
-    case MENU_STORY:
-        rotatesprite_fs(0,0,65536L,0,TEXTSTORY,0,0,10+16+64);
-        break;
-
-    case MENU_F1HELP:
-        rotatesprite_fs(0,0,65536L,0,F1HELP,0,0,10+16+64);
-        break;
-
     case MENU_BUYDUKE:
         mgametext(160,41-8,"You are playing the shareware",0,2+8+16);
         mgametext(160,50-8,"version of Duke Nukem 3D.  While",0,2+8+16);
@@ -1957,11 +1980,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
     case MENU_CREDITS3:
         if (!VOLUMEALL || !PLUTOPAK)
         {
-            // pre-Atomic credits where there are not tiles devoted to them
-
-            M_DrawBackground();
-
-            switch (g_currentMenu)
+            switch (cm)
             {
             case MENU_CREDITS:
                 m = 20;
@@ -2079,12 +2098,8 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
                 break;
             }
         }
-        else
-            rotatesprite_fs(160<<16,200<<15,65536L,0,2504+g_currentMenu-MENU_CREDITS,0,0,10+64);
         break;
     case MENU_CREDITS4:   // JBF 20031220
-        M_DrawBackground();
-
         l = 7;
 
         mgametext(160,38-l,"Management, Design and Production",0,2+8+16);
@@ -2119,8 +2134,6 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
         break;
 
     case MENU_CREDITS5:
-        M_DrawBackground();
-
         l = 7;
 
         mgametext(160,38-l,"License and Other Contributors",0,2+8+16);
@@ -3682,9 +3695,12 @@ static void M_RunMenu(Menu_t *cm)
 
             M_PreMenu(cm->menuID);
 
+            M_PreMenuDrawBackground(cm->menuID);
+
             rotatesprite_fs(object->cursorpos.x, object->cursorpos.y, 65536, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
 
             M_PreMenuDraw(cm->menuID, NULL, NULL);
+
             break;
         }
 
@@ -3695,7 +3711,11 @@ static void M_RunMenu(Menu_t *cm)
             rotatesprite_fs(object->cursorpos.x, object->cursorpos.y, 65536, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
 
             M_PreMenu(cm->menuID);
+
+            M_PreMenuDrawBackground(cm->menuID);
+
             M_PreMenuDraw(cm->menuID, NULL, NULL);
+
             break;
         }
 
@@ -3705,6 +3725,8 @@ static void M_RunMenu(Menu_t *cm)
             size_t x;
 
             M_PreMenu(cm->menuID);
+
+            M_PreMenuDrawBackground(cm->menuID);
 
             mgametext(160,50+16+16+16+16-12,"Enter Password",0,2|8|16);
 
@@ -3719,6 +3741,7 @@ static void M_RunMenu(Menu_t *cm)
             rotatesprite_fs((x+8)<<16,(50+16+16+16+16+4)<<16,32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),cursorShade,0,2|8);
 
             M_PreMenuDraw(cm->menuID, NULL, NULL);
+
             break;
         }
 
@@ -3729,6 +3752,11 @@ static void M_RunMenu(Menu_t *cm)
             int32_t i, width = 160 - (40-4);
 
             M_PreMenu(cm->menuID);
+
+            M_PreMenuDrawBackground(cm->menuID);
+
+            if (object->title != NoTitle)
+                M_DrawTopBar();
 
             // black translucent background underneath file lists
             rotatesprite(0<<16, 0<<16, 65536<<5, 0, /*tile*/ 0, numshades, 0, 10+16+1+32,
@@ -3769,17 +3797,27 @@ static void M_RunMenu(Menu_t *cm)
             M_PreMenuDraw(cm->menuID, NULL, NULL);
 
             if (object->title != NoTitle)
-                M_DrawTopBar(object->title);
+                M_DrawTopBarCaption(object->title);
+
             break;
         }
 
         case Panel:
         {
             MenuPanel_t *object = (MenuPanel_t*)cm->object;
+
             M_PreMenu(cm->menuID);
-            M_PreMenuDraw(cm->menuID, NULL, NULL);
+
+            M_PreMenuDrawBackground(cm->menuID);
+
             if (object->title != NoTitle)
-                M_DrawTopBar(object->title);
+                M_DrawTopBar();
+
+            M_PreMenuDraw(cm->menuID, NULL, NULL);
+
+            if (object->title != NoTitle)
+                M_DrawTopBarCaption(object->title);
+
             break;
         }
 
@@ -3796,12 +3834,23 @@ static void M_RunMenu(Menu_t *cm)
             if (state != 2)
             {
                 M_PreMenu(cm->menuID);
+
+                M_PreMenuDrawBackground(cm->menuID);
+
+                if (menu->title != NoTitle)
+                    M_DrawTopBar();
+
                 M_PreMenuDraw(cm->menuID, currgroup, currentry);
 
                 M_RunMenu_MenuMenu(menu, currentry, state);
             }
             else
             {
+                M_PreMenuDrawBackground(cm->menuID);
+
+                if (menu->title != NoTitle)
+                    M_DrawTopBar();
+
                 if (currentry->type == Option)
                 {
                     M_PreMenuOptionListDraw(/*currgroup,*/ currentry);
@@ -3815,7 +3864,8 @@ static void M_RunMenu(Menu_t *cm)
             }
 
             if (menu->title != NoTitle)
-                M_DrawTopBar(menu->title);
+                M_DrawTopBarCaption(menu->title);
+
             break;
         }
     }
