@@ -33,13 +33,16 @@
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 # include "winbits.h"
-#elif defined __APPLE__
+#endif
+#if defined __APPLE__
 # include "osxbits.h"
 # include <mach/mach.h>
 # include <mach/mach_time.h>
-#elif defined HAVE_GTK2
+#endif
+#if defined HAVE_GTK2
 # include "gtkbits.h"
-#elif defined GEKKO
+#endif
+#if defined GEKKO
 # define HW_RVL
 # include <ogc/lwp.h>
 # include <ogc/lwp_watchdog.h>

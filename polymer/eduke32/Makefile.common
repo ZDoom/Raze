@@ -655,6 +655,7 @@ ifeq ($(PLATFORM),DARWIN)
     COMPILERFLAGS    += -DHAVE_INTTYPES
     DLLSUFFIX=.dylib # ???
     GTKCOMPAT32    = 0
+    WITHOUT_GTK   ?= 1
 
     ifeq (1,$(SDL_FRAMEWORK))
         SDL_INCLUDES=-I$(APPLE_FRAMEWORKS)/SDL.framework/Headers -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers

@@ -237,8 +237,11 @@ function dobuildem()  # build EDuke32 and Mapster32
 
 # A little factoring:
 commonargs="OSX_STARTUPWINDOW=1 WITHOUT_GTK=1"
-if [ $buildppc == 1 ]; then
+if [ $buildppc == 1 ] || [ `expr $darwinversion = 9` == 1 ]; then
     commonargs="$commonargs DARWIN9=1"
+fi
+if [ `expr $darwinversion = 10` == 1 ]; then
+    commonargs="$commonargs DARWIN10=1"
 fi
 
 if [ $doclean == 1 ]; then
@@ -249,7 +252,6 @@ fi
 
 # Building the buildtools:
 if [ $buildtools$installtools != 00 ] && [ -d "build" ]; then
-    cd build
 
     makecmd="make -k"
 
@@ -288,7 +290,7 @@ if [ $buildtools$installtools != 00 ] && [ -d "build" ]; then
                 "ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.ppc $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 $makecmd utils"
         fi
 
-        mkdir -p ../tools
+        mkdir -p tools
 
         echo buildtools: Creating fat binaries.
         utils=`make printutils && EXESUFFIX_OVERRIDE=.debug make printutils`
@@ -301,8 +303,8 @@ if [ $buildtools$installtools != 00 ] && [ -d "build" ]; then
             done
             if [ -n "$binaries" ]; then
                 lipo -create $binaries -output $i || exit 1
-#                ln -f -s ../build/$i ../tools/$i || exit 1
-                cp -f $i ../tools/$i || exit 1
+#                ln -f -s $i tools/$i || exit 1
+                cp -f $i tools/$i || exit 1
             fi
         done
     fi

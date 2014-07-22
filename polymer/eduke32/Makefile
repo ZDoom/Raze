@@ -285,8 +285,10 @@ ifeq ($(PLATFORM),DARWIN)
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lm \
             -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
             -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
-            -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
-            -Wl,-framework,QuickTime -lm
+            -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL
+    ifneq (00,$(DARWIN9)$(DARWIN10))
+        LIBS += -Wl,-framework,QuickTime -lm
+    endif
 
     ifneq (0,$(OSX_STARTUPWINDOW))
         DUKE3D_OBJS += GrpFile.game GameListSource.game startosx.game
