@@ -104,7 +104,7 @@
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=32</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc veryclean WINBITS=32</NMakeCleanCommandLine>
     <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">eduke32.exe</NMakeOutput>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">USE_OPENGL;POLYMER;POLYMOST;SUPERBUILD</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</NMakeIncludeSearchPath>
     <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
@@ -115,7 +115,7 @@
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f Makefile.msvc veryclean all WINBITS=32</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f Makefile.msvc veryclean WINBITS=32</NMakeCleanCommandLine>
     <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">eduke32.exe</NMakeOutput>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">USE_OPENGL;POLYMER;POLYMOST;SUPERBUILD</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</NMakeIncludeSearchPath>
     <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
@@ -127,7 +127,7 @@
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=64</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f Makefile.msvc veryclean WINBITS=64</NMakeCleanCommandLine>
     <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">eduke32.exe</NMakeOutput>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">USE_OPENGL;POLYMER;POLYMOST;SUPERBUILD</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</NMakeIncludeSearchPath>
     <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
@@ -138,7 +138,7 @@
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f Makefile.msvc veryclean all WINBITS=64</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f Makefile.msvc veryclean WINBITS=64</NMakeCleanCommandLine>
     <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">eduke32.exe</NMakeOutput>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">USE_OPENGL;POLYMER;POLYMOST;SUPERBUILD</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</NMakeIncludeSearchPath>
     <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
@@ -149,7 +149,7 @@
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f Makefile.msvc veryclean WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
     <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">eduke32.exe</NMakeOutput>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">USE_OPENGL;POLYMER;POLYMOST;SUPERBUILD</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</NMakeIncludeSearchPath>
     <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
@@ -160,7 +160,7 @@
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f Makefile.msvc veryclean all WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f Makefile.msvc veryclean WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
     <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">eduke32.exe</NMakeOutput>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">USE_OPENGL;POLYMER;POLYMOST;SUPERBUILD</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</NMakeIncludeSearchPath>
     <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
@@ -172,7 +172,7 @@
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f Makefile.msvc veryclean WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
     <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">eduke32.exe</NMakeOutput>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">USE_OPENGL;POLYMER;POLYMOST;SUPERBUILD</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</NMakeIncludeSearchPath>
     <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
@@ -183,7 +183,7 @@
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f Makefile.msvc veryclean all WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f Makefile.msvc veryclean WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
     <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">eduke32.exe</NMakeOutput>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">USE_OPENGL;POLYMER;POLYMOST;SUPERBUILD</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</NMakeIncludeSearchPath>
     <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>

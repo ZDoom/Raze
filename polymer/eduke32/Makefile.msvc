@@ -1,12 +1,12 @@
 # EDuke32 Makefile for Microsoft NMake
 CPLUSPLUS=1
-SRC=source
-OBJ=$(SRC)\obj_win
-EROOT=build
-EINC=$(EROOT)\include
-EOBJ=$(SRC)\eobj_win
-INC=$(SRC)
-RSRC=rsrc
+DUKE3D_SRC=source
+DUKE3D_OBJ=$(DUKE3D_SRC)\obj_win
+ENGINE_ROOT=build
+ENGINE_INC=$(ENGINE_ROOT)\include
+ENGINE_OBJ=$(DUKE3D_SRC)\eobj_win
+DUKE3D_INC=$(DUKE3D_SRC)
+DUKE3D_RSRC=rsrc
 o=obj
 
 !ifndef WINBITS
@@ -21,10 +21,10 @@ WINMACHINE=/MACHINE:X86
 WINMACHINE=/MACHINE:X64
 !endif
 
-JAUDIOLIBDIR=$(SRC)\jaudiolib
+AUDIOLIB_ROOT=$(DUKE3D_SRC)\jaudiolib
 JAUDIOLIB=libjfaudiolib.lib
 
-ENETDIR=$(SRC)\enet
+ENETDIR=$(DUKE3D_SRC)\enet
 ENETLIB=libenet.lib
 
 ENGINELIB=engine.lib
@@ -72,7 +72,7 @@ AS=ml
 LINK=link /nologo /opt:ref 
 MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
-	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(ENETDIR)\include \
+	/I$(DUKE3D_INC) /I$(ENGINE_INC)\msvc /I$(ENGINE_INC)\ /I$(DUKE3D_SRC)\jmact /I$(AUDIOLIB_ROOT)\include /I$(ENETDIR)\include \
  	/W2 $(ENGINEOPTS) \
  	/I$(PLATFORM)\include /I$(AUDIOINC)\include /DRENDERTYPE$(RENDERTYPE)=1 /DMIXERTYPE$(MIXERTYPE)=1 /DSDL_FRAMEWORK /DSDL_TARGET=2 /DUSE_LIBVPX
  	
@@ -102,75 +102,75 @@ LIBS=$(LIBS)  msvcrtd.lib
 LIBS=$(LIBS)  msvcrt.lib # msvcrt_winxp.obj
 !endif
 
-JMACTOBJ=$(OBJ)\file_lib.$o \
-	$(OBJ)\control.$o \
-	$(OBJ)\keyboard.$o \
-	$(OBJ)\mouse.$o \
-	$(OBJ)\joystick.$o \
-	$(OBJ)\mathutil.$o \
-	$(OBJ)\scriplib.$o
+JMACTOBJ=$(DUKE3D_OBJ)\file_lib.$o \
+	$(DUKE3D_OBJ)\control.$o \
+	$(DUKE3D_OBJ)\keyboard.$o \
+	$(DUKE3D_OBJ)\mouse.$o \
+	$(DUKE3D_OBJ)\joystick.$o \
+	$(DUKE3D_OBJ)\mathutil.$o \
+	$(DUKE3D_OBJ)\scriplib.$o
  
-GAMEOBJS=$(OBJ)\game.$o \
-	$(OBJ)\game_inline.$o \
-	$(OBJ)\actors.$o \
-	$(OBJ)\actors_inline.$o \
-	$(OBJ)\anim.$o \
-	$(OBJ)\animvpx.$o \
-	$(OBJ)\common.$o \
-	$(OBJ)\demo.$o \
-	$(OBJ)\gamedef.$o \
-	$(OBJ)\gameexec.$o \
-	$(OBJ)\gamevars.$o \
-	$(OBJ)\global.$o \
-	$(OBJ)\input.$o \
-	$(OBJ)\menus.$o \
-	$(OBJ)\namesdyn.$o \
-    $(OBJ)\net.$o \
-	$(OBJ)\player.$o \
-	$(OBJ)\premap.$o \
-	$(OBJ)\savegame.$o \
-	$(OBJ)\sector.$o \
-	$(OBJ)\sector_inline.$o \
-	$(OBJ)\rev.$o \
-	$(OBJ)\rts.$o \
-	$(OBJ)\config.$o \
-	$(OBJ)\animlib.$o\
-	$(OBJ)\osdfuncs.$o \
- 	$(OBJ)\osdcmds.$o \
-	$(OBJ)\grpscan.$o \
-	$(OBJ)\winbits.$o \
-	$(OBJ)\gameres.res \
-	$(OBJ)\startwin.game.$o \
+GAMEOBJS=$(DUKE3D_OBJ)\game.$o \
+	$(DUKE3D_OBJ)\game_inline.$o \
+	$(DUKE3D_OBJ)\actors.$o \
+	$(DUKE3D_OBJ)\actors_inline.$o \
+	$(DUKE3D_OBJ)\anim.$o \
+	$(DUKE3D_OBJ)\animvpx.$o \
+	$(DUKE3D_OBJ)\common.$o \
+	$(DUKE3D_OBJ)\demo.$o \
+	$(DUKE3D_OBJ)\gamedef.$o \
+	$(DUKE3D_OBJ)\gameexec.$o \
+	$(DUKE3D_OBJ)\gamevars.$o \
+	$(DUKE3D_OBJ)\global.$o \
+	$(DUKE3D_OBJ)\input.$o \
+	$(DUKE3D_OBJ)\menus.$o \
+	$(DUKE3D_OBJ)\namesdyn.$o \
+    $(DUKE3D_OBJ)\net.$o \
+	$(DUKE3D_OBJ)\player.$o \
+	$(DUKE3D_OBJ)\premap.$o \
+	$(DUKE3D_OBJ)\savegame.$o \
+	$(DUKE3D_OBJ)\sector.$o \
+	$(DUKE3D_OBJ)\sector_inline.$o \
+	$(DUKE3D_OBJ)\rev.$o \
+	$(DUKE3D_OBJ)\rts.$o \
+	$(DUKE3D_OBJ)\config.$o \
+	$(DUKE3D_OBJ)\animlib.$o\
+	$(DUKE3D_OBJ)\osdfuncs.$o \
+	$(DUKE3D_OBJ)\osdcmds.$o \
+	$(DUKE3D_OBJ)\grpscan.$o \
+	$(DUKE3D_OBJ)\winbits.$o \
+	$(DUKE3D_OBJ)\gameres.res \
+	$(DUKE3D_OBJ)\startwin.game.$o \
  	$(JMACTOBJ) \
-	$(OBJ)\sounds.$o \
-	$(OBJ)\soundsdyn.$o \
+	$(DUKE3D_OBJ)\sounds.$o \
+	$(DUKE3D_OBJ)\soundsdyn.$o \
 !ifdef DEBUG
-	$(OBJ)\mdump.$o
+	$(DUKE3D_OBJ)\mdump.$o
 !endif
 
-EDITOROBJS=$(OBJ)\astub.$o \
-	$(OBJ)\common.$o \
-	$(OBJ)\mathutil.$o \
-	$(OBJ)\m32def.$o \
-	$(OBJ)\m32vars.$o \
-	$(OBJ)\m32exec.$o \
-	$(OBJ)\sounds_mapster32.$o \
-	$(OBJ)\rev.$o \
-	$(OBJ)\buildres.res \
+EDITOROBJS=$(DUKE3D_OBJ)\astub.$o \
+	$(DUKE3D_OBJ)\common.$o \
+	$(DUKE3D_OBJ)\mathutil.$o \
+	$(DUKE3D_OBJ)\m32def.$o \
+	$(DUKE3D_OBJ)\m32vars.$o \
+	$(DUKE3D_OBJ)\m32exec.$o \
+	$(DUKE3D_OBJ)\sounds_mapster32.$o \
+	$(DUKE3D_OBJ)\rev.$o \
+	$(DUKE3D_OBJ)\buildres.res \
 !ifdef DEBUG
-	$(OBJ)\mdump.$o
+	$(DUKE3D_OBJ)\mdump.$o
 !endif
 
 !if ("$(RENDERTYPE)"=="SDL")
-GAMEOBJS=$(GAMEOBJS) $(OBJ)\game_icon.$o
-EDITOROBJS=$(EDITOROBJS) $(OBJ)\build_icon.$o
+GAMEOBJS=$(GAMEOBJS) $(DUKE3D_OBJ)\game_icon.$o
+EDITOROBJS=$(EDITOROBJS) $(DUKE3D_OBJ)\build_icon.$o
 !endif
 
 !if ("$(MIXERTYPE)"=="WIN")
-GAMEOBJS=$(GAMEOBJS) $(OBJ)\midi.$o $(OBJ)\music.$o $(OBJ)\mpu401.$o
+GAMEOBJS=$(GAMEOBJS) $(DUKE3D_OBJ)\midi.$o $(DUKE3D_OBJ)\music.$o $(DUKE3D_OBJ)\mpu401.$o
 !endif
 !if ("$(MIXERTYPE)"=="SDL")
-GAMEOBJS=$(GAMEOBJS) $(OBJ)\sdlmusic.$o
+GAMEOBJS=$(GAMEOBJS) $(DUKE3D_OBJ)\sdlmusic.$o
 !endif
 
 GAMEOBJS=$(GAMEOBJS) $(MUSICOBJ)
@@ -180,54 +180,54 @@ EDITOROBJS=$(EDITOROBJS) $(MUSICOBJ)
 # RULES
 .SUFFIXES: .masm
 
-{$(SRC)\}.masm{$(OBJ)\}.$o:
+{$(DUKE3D_SRC)\}.masm{$(DUKE3D_OBJ)\}.$o:
 	$(AS) /c $(ASFLAGS) /Fo$@ $<
 
-{$(SRC)\jmact}.c{$(OBJ)\}.$o:
+{$(DUKE3D_SRC)\jmact}.c{$(DUKE3D_OBJ)\}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(SRC)\util}.c{$(OBJ)\}.$o:
+{$(DUKE3D_SRC)\util}.c{$(DUKE3D_OBJ)\}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(SRC)\}.c{$(OBJ)\}.$o:
+{$(DUKE3D_SRC)\}.c{$(DUKE3D_OBJ)\}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(RSRC)\}.c{$(OBJ)\}.$o:
+{$(DUKE3D_RSRC)\}.c{$(DUKE3D_OBJ)\}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(SRC)\}.cpp{$(OBJ)\}.$o:
+{$(DUKE3D_SRC)\}.cpp{$(DUKE3D_OBJ)\}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(SRC)\misc}.rc{$(OBJ)\}.res:
-	$(RC) /i$(EINC)\ /i$(SRC)\ /DPOLYMER /fo$@ /r $<
+{$(DUKE3D_SRC)\misc}.rc{$(DUKE3D_OBJ)\}.res:
+	$(RC) /i$(ENGINE_INC)\ /i$(DUKE3D_SRC)\ /DPOLYMER /fo$@ /r $<
 
 
 # TARGETS
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) 
 
-eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB) $(ENETDIR)\$(ENETLIB)
+eduke32$(EXESUFFIX): $(GAMEOBJS) $(ENGINE_OBJ)\$(ENGINELIB) $(AUDIOLIB_ROOT)\$(JAUDIOLIB) $(ENETDIR)\$(ENETLIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) /LIBPATH:$(AUDIOPLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
-	$(MT) -manifest $(RSRC)$(WINLIB)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
+	$(MT) -manifest $(DUKE3D_RSRC)$(WINLIB)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
-mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB)
+mapster32$(EXESUFFIX): $(EDITOROBJS) $(ENGINE_OBJ)\$(ENGINELIB) $(ENGINE_OBJ)\$(EDITORLIB) $(AUDIOLIB_ROOT)\$(JAUDIOLIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) /LIBPATH:$(AUDIOPLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
-	$(MT) -manifest $(RSRC)$(WINLIB)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
+	$(MT) -manifest $(DUKE3D_RSRC)$(WINLIB)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 !include Makefile.deps
 
 enginelib editorlib: AlwaysBuild
-	-mkdir $(EOBJ)
-	echo OBJ=$(MAKEDIR)\$(EOBJ)\ > $(EOBJ)\overrides.mak
-	echo CFLAGS=$(ENGINEOPTS) >> $(EOBJ)\overrides.mak
-	echo WINBITS=$(WINBITS) >> $(EOBJ)\overrides.mak
-	echo RENDERTYPE=$(RENDERTYPE) >> $(EOBJ)\overrides.mak
-	echo MIXERTYPE=$(MIXERTYPE) >> $(EOBJ)\overrides.mak
-	cd $(EROOT)
-	nmake /f Makefile.msvc "OVERRIDES=$(MAKEDIR)\$(EOBJ)\overrides.mak" $@
+	-mkdir $(ENGINE_OBJ)
+	echo DUKE3D_OBJ=$(MAKEDIR)\$(ENGINE_OBJ)\ > $(ENGINE_OBJ)\overrides.mak
+	echo CFLAGS=$(ENGINEOPTS) >> $(ENGINE_OBJ)\overrides.mak
+	echo WINBITS=$(WINBITS) >> $(ENGINE_OBJ)\overrides.mak
+	echo RENDERTYPE=$(RENDERTYPE) >> $(ENGINE_OBJ)\overrides.mak
+	echo MIXERTYPE=$(MIXERTYPE) >> $(ENGINE_OBJ)\overrides.mak
+	cd $(ENGINE_ROOT)
+	nmake /f Makefile.msvc "OVERRIDES=$(MAKEDIR)\$(ENGINE_OBJ)\overrides.mak" $@
 	cd $(MAKEDIR)
 
 jaudiolib:
-	cd $(JAUDIOLIBDIR)
+	cd $(AUDIOLIB_ROOT)
 	nmake /f Makefile.msvc "MIXERTYPE=$(MIXERTYPE)" "WINBITS=$(WINBITS)"
 	cd $(MAKEDIR)
 
@@ -237,22 +237,22 @@ enet:
 	cd $(MAKEDIR)
 
 AlwaysBuild: ;
-$(EOBJ)\$(EDITORLIB): editorlib ;
-$(EOBJ)\$(ENGINELIB): enginelib ;
-$(JAUDIOLIBDIR)\$(JAUDIOLIB): jaudiolib ;
+$(ENGINE_OBJ)\$(EDITORLIB): editorlib ;
+$(ENGINE_OBJ)\$(ENGINELIB): enginelib ;
+$(AUDIOLIB_ROOT)\$(JAUDIOLIB): jaudiolib ;
 $(ENETDIR)\$(ENETLIB): enet ;
 
 # PHONIES	
 clean:
-	-del /Q $(OBJ)\* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) \
+	-del /Q $(DUKE3D_OBJ)\* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) \
             *.pdb *.map *.manifest
-	-copy /y nul $(OBJ)\keep.me
-	cd $(JAUDIOLIBDIR)
+	-copy /y nul $(DUKE3D_OBJ)\keep.me
+	cd $(AUDIOLIB_ROOT)
 	nmake /f Makefile.msvc clean
 	cd $(MAKEDIR)\$(ENETDIR)
 	nmake /f Makefile.msvc clean
 	cd $(MAKEDIR)
 	
 veryclean: clean
-	-del /Q $(EOBJ)\*
-	-copy /y nul $(EOBJ)\keep.me
+	-del /Q $(ENGINE_OBJ)\*
+	-copy /y nul $(ENGINE_OBJ)\keep.me

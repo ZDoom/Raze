@@ -429,7 +429,7 @@ int32_t initsystem(void)
     }
 
     if (SDL_Init(SDL_INIT_VIDEO //| SDL_INIT_TIMER
-#ifdef NOSDLPARACHUTE
+#if defined NOSDLPARACHUTE && SDL_MAJOR_VERSION==1
                  | SDL_INIT_NOPARACHUTE
 #endif
                 ))

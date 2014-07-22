@@ -1,10 +1,4 @@
 
-## common definitions for Makefile, build/Makefile, source/enet/Makefile and
-## source/jaudiolib/Makefile
-
-# NOTE: make's 'dir' function keeps a trailing shash, the 'abspath' does not!
-MAKEFILE_COMMON_DIR:=$(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-
 # Use colored output
 PRETTY_OUTPUT ?= 1
 
@@ -12,7 +6,7 @@ PRETTY_OUTPUT ?= 1
 CROSS=
 CC=$(CROSS)gcc
 CXX=$(CROSS)g++
-AS=$(CROSS)nasm
+AS=nasm
 AR=$(CROSS)ar
 RC=$(CROSS)windres
 RANLIB=$(CROSS)ranlib
@@ -30,6 +24,7 @@ ifneq (0,$(CLANG))
     L_CXX=clang
 endif
 
+CCFULLPATH=$(CC)
 
 ifeq ($(PLATFORM),WII)
     ifeq ($(strip $(DEVKITPPC)),)
@@ -38,28 +33,31 @@ ifeq ($(PLATFORM),WII)
 
     include $(DEVKITPPC)/wii_rules
 
+    CCFULLPATH=$(DEVKITPPC)/bin/$(CC)
+
     RANLIB=powerpc-eabi-ranlib
     STRIP=powerpc-eabi-strip
 endif
 
 # GCC version, for conditional selection of flags.
 ifndef GCC_MAJOR
-    GCC_MAJOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f1)
+    GCC_MAJOR    := $(shell $(CCFULLPATH) -dumpversion 2>&1 | cut -d'.' -f1)
 endif
 ifeq ($(GCC_MAJOR),)
     GCC_MAJOR    := 4
 endif
 ifndef GCC_MINOR
-    GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
+    GCC_MINOR    := $(shell $(CCFULLPATH) -dumpversion 2>&1 | cut -d'.' -f2)
 endif
 ifeq ($(GCC_MINOR),)
-    GCC_MINOR    := 7
+    GCC_MINOR    := 8
 endif
 
 # Detect machine architecture
 ifndef SYSARCH
     SYSARCH:=$(strip $(shell uname -m))
 endif
+SYSBITS=32
 
 # Detect the platform if it wasn't explicitly given to us from
 # the outside world. This allows cross-compilation by overriding
@@ -174,6 +172,7 @@ endif
 #  DISABLEINLINING - 1 = compile inline functions as extern __fastcall instead of static inline
 #  FORCEWARNINGS - 1 = do not disable any compiler warnings within the source
 #  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
+#  MEMMAP - 1 = produce .memmap file when linking
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
 #  OPTLEVEL	- 0..3 = GCC optimization strategy
 #  LTO - 1 = enable link-time optimization, for GCC 4.5 and up
@@ -182,6 +181,7 @@ CPLUSPLUS?=0
 RELEASE?=1
 DEBUGANYWAY?=0
 KRANDDEBUG?=0
+MEMMAP?=0
 DISABLEINLINING?=0
 FORCEWARNINGS?=0
 EFENCE?=0
@@ -224,6 +224,38 @@ ifndef LTO
     endif
 endif
 
+
+
+COMMONFLAGS=-O$(OPTLEVEL)
+COMPILERFLAGS=
+
+ifneq (,$(ARCH))
+COMMONFLAGS+= $(ARCH)
+endif
+
+COMMONFLAGS+= $(OPTOPT)
+
+ifneq ($(RELEASE)$(DEBUGANYWAY),10)
+    # debug build or DEBUGANYWAY=1 --> -g flag
+    ifneq (0,$(CLANG))
+        COMMONFLAGS += -g
+    else
+        ifeq ($(PLATFORM), WII)
+            COMMONFLAGS += -g
+        else
+            COMMONFLAGS += -ggdb
+        endif
+    endif
+endif
+
+CONLYFLAGS=-Wimplicit -Wdeclaration-after-statement
+CXXFLAGS= -fno-exceptions -fno-rtti -Wno-write-strings
+ASFORMAT=elf$(SYSBITS)
+ASFLAGS=-s -f $(ASFORMAT) #-g
+LINKERFLAGS=
+LIBS=-lm
+LIBDIRS=
+
 ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     F_NO_STACK_PROTECTOR := -fno-stack-protector
     # there are some link-time issues with stack protectors, so make it possible to override
@@ -241,13 +273,11 @@ ifeq ($(PLATFORM),WINDOWS)
         COMPILERTARGET:=$(strip $(shell $(CC) -dumpmachine))
     endif
 
-    WINBITS=32
     ifeq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
         SYSARCH:=x86_64
-        WINBITS=64
     endif
 
-    WINLIB?=/$(WINBITS)
+    WINLIB?=/$(SYSBITS)
 endif
 
 ifeq ($(PLATFORM),DARWIN)
@@ -258,7 +288,7 @@ ifeq ($(PLATFORM),DARWIN)
         DARWIN9 ?= 1
     endif
 
-#    BASECOMMONFLAGS    += -fno-leading-underscore
+#    COMMONFLAGS    += -fno-leading-underscore
 
     ifeq (1,$(DARWIN9))
         F_JUMP_TABLES :=
@@ -266,16 +296,27 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 
     ifeq (1,$(BUILD32_ON_64))
-        BASECOMMONFLAGS += $(F_NO_STACK_PROTECTOR)
+        COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
     else
         ifeq ($(findstring ppc,$(ARCH)),ppc)
-            BASECOMMONFLAGS += $(F_NO_STACK_PROTECTOR)
+            COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
         endif
     endif
     ifneq (0,$(OSX_STARTUPWINDOW))
-        BASECOMMONFLAGS+= -DOSX_STARTUPWINDOW
+        COMPILERFLAGS+= -DOSX_STARTUPWINDOW
     endif
 endif
+
+
+ifneq (1,$(BUILD32_ON_64))
+    ifeq ($(findstring x86_64,$(ARCH)),x86_64)
+        SYSBITS=64
+    endif
+    ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
+        SYSBITS=64
+    endif
+endif
+
 
 ifndef OPTOPT
     ifeq ($(PLATFORM), WII)
@@ -304,24 +345,17 @@ endif
 
 
 
-# compiler flags etc.
-BASECFLAGS=
-BASECONLYFLAGS=-Wimplicit -Wdeclaration-after-statement
-BASECXXFLAGS= -fno-exceptions -fno-rtti -Wno-write-strings
-BASEASFLAGS=-s #-g
-BASELDFLAGS=
-
 
 ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 1)))
-        BASECFLAGS+= -Wno-attributes
+        COMPILERFLAGS+= -Wno-attributes
     endif
 endif
 
 # XXX: I (Helixhorned) only know that there's no -Wnarrowing on my OS X 10.6 using GCC 4.2.
 ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 3)))
-        BASECXXFLAGS+= -Wno-narrowing
+        CXXFLAGS+= -Wno-narrowing
     endif
 endif
 
@@ -336,29 +370,14 @@ ifeq ($(PLATFORM),DINGOO)
     override USE_LIBVPX = 0
 endif
 
-BASELIBS=-lm
-BASELIBDIRS=
 ifneq (0,$(USE_LIBVPX))
     # On Windows, we link statically to libvpx
-    BASELIBS+= -lvpx
+    LIBS+= -lvpx
 endif
 
-
-ifneq ($(RELEASE)$(DEBUGANYWAY),10)
-    # debug build or DEBUGANYWAY=1 --> -g flag
-    ifneq (0,$(CLANG))
-        debug=-g
-    else ifeq ($(PLATFORM), WII)
-        debug=-g
-    else
-        debug=-ggdb
-    endif
-endif
-
-debug+= -O$(OPTLEVEL)
 
 ifneq ($(ALLOCACHE_AS_MALLOC),0)
-    debug+= -DDEBUG_ALLOCACHE_AS_MALLOC
+    COMPILERFLAGS += -DDEBUG_ALLOCACHE_AS_MALLOC
 endif
 
 # See http://clang.llvm.org/docs/UsersManual.html#controlling-code-generation
@@ -373,7 +392,7 @@ endif
 ifneq (0,$(RELEASE))
     # Debugging disabled
     ifeq (0,$(CLANG))
-        debug+= -funswitch-loops
+        COMMONFLAGS += -funswitch-loops
         ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \< 4)))
             LTO=0
         endif
@@ -384,49 +403,50 @@ ifneq (0,$(RELEASE))
         endif
     endif
     ifeq (0,$(DEBUGANYWAY))
-        debug+= -fomit-frame-pointer -DNDEBUG
+        COMMONFLAGS += -fomit-frame-pointer
+        COMPILERFLAGS += -DNDEBUG
     else
-        debug+= -DDEBUGGINGAIDS
+        COMPILERFLAGS += -DDEBUGGINGAIDS
         ifneq (0,$(CLANG))
-            debug+= $(CLANG_DEBUG_FLAGS)
+            COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
         endif
     endif
     ifneq (0,$(LTO))
-        BASELDFLAGS+= -flto
-        debug+= -DUSING_LTO -flto
-        ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
-            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 9)))
-                BASELDFLAGS+= -ffat-lto-objects
-                debug+= -ffat-lto-objects
-            endif
-        endif
+        COMPILERFLAGS += -DUSING_LTO
+        COMMONFLAGS += -flto
+        # We don't need the following since we don't make intermediate .a files any more.
+#        ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
+#            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 9)))
+#                COMMONFLAGS += -ffat-lto-objects
+#            endif
+#        endif
     endif
 else
     # Debugging enabled
     ifeq (0,$(DEBUGANYWAY))
-        debug+= -DDEBUGGINGAIDS
+        COMPILERFLAGS += -DDEBUGGINGAIDS
     else
-        debug+= -DDEBUGGINGAIDS=2
+        COMPILERFLAGS += -DDEBUGGINGAIDS=2
     endif
 
     ifneq (0,$(CLANG))
-        debug+= $(CLANG_DEBUG_FLAGS)
+        COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
     endif
     ifeq ($(SUBPLATFORM),LINUX)
-        BASELIBS+=-rdynamic
+        LIBS+=-rdynamic
     endif
     ifneq (0,$(MUDFLAP))
-        BASELIBS+= -lmudflapth
-        debug+= -fmudflapth
+        LIBS+= -lmudflapth
+        COMMONFLAGS += -fmudflapth
     endif
     ifneq (0,$(PROFILER))
         ifneq ($(PLATFORM),DARWIN)
-            BASELIBS+= -lprofiler
+            LIBS+= -lprofiler
         endif
-        debug+= -pg
+        COMMONFLAGS += -pg
     endif
     ifneq (0,$(KRANDDEBUG))
-        debug+=-DKRANDDEBUG=1
+        COMPILERFLAGS += -DKRANDDEBUG=1
     endif
 endif
 
@@ -444,48 +464,25 @@ endif
 CWARNS := -W -Wall -Werror-implicit-function-declaration \
     -Wpointer-arith \
     -Wextra \
+    -Wno-char-subscripts \
     #-Wstrict-prototypes \
     #-Waggregate-return \
     #-Wwrite-strings \
     #-Wcast-qual -Wcast-align \
     #-Waddress -Wlogical-op
 
-BASECOMMONFLAGS=$(debug) $(OPTOPT) $(CWARNS) \
-	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
-	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH)
 ifneq (0,$(CLANG))
-    BASECOMMONFLAGS+= -Wno-unused-value -Wno-parentheses
+    CWARNS+= -Wno-unused-value -Wno-parentheses
 endif
-BASECOMMONFLAGS+= -Wno-char-subscripts
+
+COMMONFLAGS+= -funsigned-char -fno-strict-aliasing $(F_JUMP_TABLES)
+
+COMPILERFLAGS+= $(CWARNS) $(W_NO_UNUSED_RESULT) -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2
 
 ifeq (0,$(NETCODE))
-    BASECOMMONFLAGS+= -DNETCODE_DISABLE
+    COMPILERFLAGS+= -DNETCODE_DISABLE
 endif
 
-
-# Set up target-specific headers and libs that work across all Makefiles
-ifeq ($(PLATFORM),WINDOWS)
-    BASELIBDIRS+= -L$(abspath $(MAKEFILE_COMMON_DIR)/platform/Windows/lib$(WINLIB))
-    BASECOMMONFLAGS+= -I$(abspath $(MAKEFILE_COMMON_DIR)/platform/Windows/include)
-    BASELDFLAGS+= -static-libgcc
-endif
-ifeq ($(PLATFORM),DARWIN)
-    # include port and brew
-    BASELIBDIRS+= -L$(abspath $(MAKEFILE_COMMON_DIR)/platform/Apple/lib) \
-        -L/opt/local/lib -L/usr/local/lib
-    BASECOMMONFLAGS+= -I$(abspath $(MAKEFILE_COMMON_DIR)/platform/Apple/include) \
-        -I/opt/local/include -I/sw/include -I/usr/local/include
-endif
-ifeq ($(PLATFORM),WII)
-    BASELIBDIRS+= -L$(abspath $(MAKEFILE_COMMON_DIR)/platform/Wii/lib)
-    BASECOMMONFLAGS+= -I$(abspath $(MAKEFILE_COMMON_DIR)/platform/Wii/include)
-endif
-ifeq ($(PLATFORM),GCW)
-    BASECOMMONFLAGS += -D__OPENDINGUX__
-endif
-ifeq ($(PLATFORM),DINGOO)
-    BASECOMMONFLAGS += -D__OPENDINGUX__
-endif
 
 #### Lunatic development
 # LuaJIT standalone interpreter executable:
@@ -494,10 +491,10 @@ LUAJIT:=luajit
 # the native LuaJIT to emit PE object files.
 ifeq ($(PLATFORM),WINDOWS)
     LUAJIT_BCOPTS := -o windows
-    ifeq (32,$(WINBITS))
+    ifeq (32,$(SYSBITS))
         LUAJIT_BCOPTS += -a x86
     endif
-    ifeq (64,$(WINBITS))
+    ifeq (64,$(SYSBITS))
         LUAJIT_BCOPTS += -a x64
     endif
 endif
@@ -510,76 +507,517 @@ ifneq ($(LUNATIC),0)
     ifneq ($(CPLUSPLUS),0)
         # FIXME: Lunatic C++ doesn't build because otherwise it doesn't find
         # INT32_MIN and the like.
-        BASECFLAGS+= -D__STDC_LIMIT_MACROS
+        COMPILERFLAGS+= -D__STDC_LIMIT_MACROS
     endif
 
-    BASECOMMONFLAGS+= -I$(MAKEFILE_COMMON_DIR)/source/lunatic -DLUNATIC
+    COMPILERFLAGS+= -Isource/lunatic -DLUNATIC
     ifneq ($(USE_LUAJIT_2_1),0)
-        BASECOMMONFLAGS+= -DUSE_LUAJIT_2_1
+        COMPILERFLAGS+= -DUSE_LUAJIT_2_1
     endif
 
     # Determine size of defs.ilua bytecode once.
     ifndef DEFS_BC_SIZE
-        DEFS_BC_SIZE := $(shell $(LUAJIT) -bg -t h $(MAKEFILE_COMMON_DIR)/source/lunatic/defs.ilua -)
+        DEFS_BC_SIZE := $(shell $(LUAJIT) -bg -t h source/lunatic/defs.ilua -)
         DEFS_BC_SIZE := $(word 3, $(DEFS_BC_SIZE))
         # Pass it to the sub-makes, too.
         export DEFS_BC_SIZE
     endif
     # Determine size of defs_m32.ilua bytecode once.
     ifndef DEFS_M32_BC_SIZE
-        DEFS_M32_BC_SIZE := $(shell $(LUAJIT) -bg -t h $(MAKEFILE_COMMON_DIR)/source/lunatic/defs_m32.ilua -)
+        DEFS_M32_BC_SIZE := $(shell $(LUAJIT) -bg -t h source/lunatic/defs_m32.ilua -)
         DEFS_M32_BC_SIZE := $(word 3, $(DEFS_M32_BC_SIZE))
         export DEFS_M32_BC_SIZE
     endif
-    BASECOMMONFLAGS+= -DLUNATIC_DEFS_BC_SIZE=$(DEFS_BC_SIZE) -DLUNATIC_DEFS_M32_BC_SIZE=$(DEFS_M32_BC_SIZE)
+    COMPILERFLAGS+= -DLUNATIC_DEFS_BC_SIZE=$(DEFS_BC_SIZE) -DLUNATIC_DEFS_M32_BC_SIZE=$(DEFS_M32_BC_SIZE)
 
     ifeq ($(PLATFORM),WINDOWS)
-        BASELIBS+= -lluajit
+        LIBS+= -lluajit
     else
-        BASELIBS+= -lluajit-5.1
+        LIBS+= -lluajit-5.1
     endif
 endif
 
 ####
 
 ifneq (0,$(DISABLEINLINING))
-    BASECOMMONFLAGS+= -DDISABLE_INLINING
+    COMPILERFLAGS+= -DDISABLE_INLINING
 endif
 ifneq (0,$(FORCEWARNINGS))
-    BASECOMMONFLAGS+= -DFORCE_WARNINGS
+    COMPILERFLAGS+= -DFORCE_WARNINGS
 endif
 
-BASELDFLAGS+= $(OPTOPT)
+LINKERFLAGS+= $(OPTOPT)
 
 # This should come from the environment:
 ifdef EDUKE32_MY_DEVELOPER_ID
-    BASECOMMONFLAGS+= -DMY_DEVELOPER_ID=$(EDUKE32_MY_DEVELOPER_ID)
+    COMPILERFLAGS+= -DMY_DEVELOPER_ID=$(EDUKE32_MY_DEVELOPER_ID)
 endif
 
 ifneq (0,$(USE_LIBPNG))
-    BASECOMMONFLAGS+= -DUSE_LIBPNG
+    COMPILERFLAGS+= -DUSE_LIBPNG
 endif
 ifneq (0,$(USE_LIBVPX))
-    BASECOMMONFLAGS+= -DUSE_LIBVPX
+    COMPILERFLAGS+= -DUSE_LIBVPX
 endif
 
 ifneq (0,$(EFENCE))
-    BASELIBS+= -lefence
-    BASECOMMONFLAGS+= -DEFENCE
+    LIBS+= -lefence
+    COMPILERFLAGS+= -DEFENCE
 endif
 ifneq (0,$(DMALLOC))
-    BASELIBS+= -ldmalloc
-    BASECOMMONFLAGS+= -DDMALLOC
+    LIBS+= -ldmalloc
+    COMPILERFLAGS+= -DDMALLOC
 endif
 
-# Misc. stuff that is constant between Makefiles
-EROOT:=build
-
-# will be potentially overridden in build/Makefile.shared
+# may be overridden
 EXESUFFIX=
+DLLSUFFIX=.so
 
+
+SDL_TARGET ?= 2
+SDL_FRAMEWORK ?= 1
+
+ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
+    L_SSP := -lssp
+endif
+
+# NOTE: If your setup doesn't have libstdc++, you can try using libsupc++.
+# Search for STDCPPLIB below and change it to -lsupc++.
+
+SDL_INCLUDES=-I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+SDL_LIB=-l$(SDLNAME)
+SDL_MIXER_LIB=-l$(SDLNAME)_mixer
+
+ifeq ($(SUBPLATFORM),LINUX)
+    RENDERTYPE=SDL
+    MIXERTYPE=SDL
+    COMPILERFLAGS+= -DHAVE_INTTYPES
+    GTKCOMPAT32=0
+    SDL_FRAMEWORK=0
+
+    # On Linux, we don't need to specify libstdc++ manually, the linker will
+    # presumably take care for us.
+    STDCPPLIB:=
+
+    ifeq ($(PLATFORM),GCW)
+        override USE_OPENGL=0
+        override NOASM=1
+    endif
+    ifeq ($(PLATFORM),DINGOO)
+        override USE_OPENGL=0
+        override NOASM=1
+    endif
+
+    ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
+        ifeq (1,$(BUILD32_ON_64))
+            # On my 64bit Gentoo these are the 32bit emulation libs
+            LIBS+= -m32
+            LIBDIRS+= -L/emul/linux/x86/usr/lib
+            COMMONFLAGS+= -m32
+            # Override WITHOUT_GTK=0
+            GTKCOMPAT32=1
+        else
+            override NOASM=1
+        endif
+    endif
+endif
+ifeq ($(PLATFORM),DARWIN)
+    COMPILERFLAGS+= -DUNDERSCORES
+    ASFORMAT=macho$(SYSBITS)
+    ASFLAGS+= -DUNDERSCORES
+
+    # include port and brew
+    LIBDIRS+= -Lplatform/Apple/lib -L/opt/local/lib -L/usr/local/lib
+    COMPILERFLAGS+= -Iplatform/Apple/include -I/opt/local/include -I/sw/include -I/usr/local/include
+
+    RENDERTYPE    = SDL
+    MIXERTYPE     = SDL
+    STDCPPLIB:=-lstdc++
+    COMPILERFLAGS    += -DHAVE_INTTYPES
+    DLLSUFFIX=.dylib # ???
+    GTKCOMPAT32    = 0
+
+    ifeq (1,$(SDL_FRAMEWORK))
+        SDL_INCLUDES=-I$(APPLE_FRAMEWORKS)/SDL.framework/Headers -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
+        SDL_LIB=-l$(SDLNAME)main -Wl,-framework,SDL -Wl,-rpath -Wl,"@loader_path/../Frameworks"
+        SDL_MIXER_LIB=-Wl,-framework,SDL_mixer
+    endif
+
+    ifeq (1,$(DARWIN9))
+        COMPILERFLAGS += -DDARWIN9
+    endif
+
+    ifeq (1,$(BUILD32_ON_64))
+        ARCH=-arch i386
+    else
+        # ASM won't work on PowerPC or x86_64
+        override NOASM=1
+    endif
+
+    ifneq ($(findstring x86_64,$(ARCH)),x86_64)
+        ifeq (,$(ARCH))
+            ifneq ($(findstring x86_64,$(SYSARCH)),x86_64)
+                LINKERFLAGS += -read_only_relocs suppress
+            endif
+        else
+            LINKERFLAGS += -read_only_relocs suppress
+        endif
+    endif
+endif
+ifeq ($(PLATFORM),WINDOWS)
+    COMPILERFLAGS+= -DUNDERSCORES -DHAVE_INTTYPES -Iplatform/Windows/include
+    LINKERFLAGS+= -static-libgcc
+    ASFORMAT=win$(SYSBITS)
+    ASFLAGS+= -DUNDERSCORES
+
+    # Windows types can be SDL or WIN
+    RENDERTYPE?=SDL
+    MIXERTYPE?=WIN
+    ifneq ($(RENDERTYPE),SDL)
+        ifeq ($(MIXERTYPE),SDL)
+            MIXERTYPE:=WIN
+        endif
+    endif
+
+    SDL_INCLUDES=
+    ifeq ($(SDL_TARGET),1)
+        SDL_MIXER_LIB=platform/Windows/lib$(WINLIB)/SDL_mixer.lib
+    endif
+
+    WITHOUT_GTK?=1
+    SDLCONFIG=
+    SDL_FRAMEWORK=1
+    EXESUFFIX=.exe
+    DLLSUFFIX=.dll
+    LIBDIRS+= -Lplatform/Windows/lib$(WINLIB)
+    LIBS+= -Wl,--enable-auto-import -lmingwex -lgdi32 -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
+    ifeq (0,$(CLANG))
+        LIBS+= -mwindows
+    endif
+    #-lshfolder
+    STDCPPLIB:=-lstdc++
+    ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
+        ifneq (1,$(BUILD32_ON_64))
+            override NOASM=1
+        endif
+    endif
+endif
+ifeq ($(PLATFORM),BSD)
+    COMPILERFLAGS+= -I/usr/X11R6/include
+
+    RENDERTYPE=SDL
+    MIXERTYPE=SDL
+    COMPILERFLAGS+= -DHAVE_INTTYPES
+    ifneq ($(findstring i386,$(SYSARCH)),i386)
+        override NOASM=1
+    endif
+    STDCPPLIB:=-lstdc++
+endif
+ifeq ($(PLATFORM),BEOS)
+    override NOASM=1
+
+    RENDERTYPE=SDL
+    MIXERTYPE=SDL
+    STDCPPLIB:=-lstdc++
+endif
+ifeq ($(PLATFORM),SKYOS)
+    RENDERTYPE=SDL
+    MIXERTYPE=SDL
+    EXESUFFIX=.app
+    override NOASM=1
+    COMPILERFLAGS+= -DUNDERSCORES -I/boot/programs/sdk/include/sdl
+    SDLCONFIG=
+    LIBS+= -lSDL -lnet
+endif
+ifeq ($(PLATFORM),WII)
+    RENDERTYPE=SDL
+    MIXERTYPE=SDL
+    SDL_INCLUDES=
+    EXESUFFIX=.elf
+    override USE_OPENGL=0
+    override POLYMER=0
+    override NOASM=1
+    override WITHOUT_GTK=1
+    # -msdata=eabi
+    COMMONFLAGS+= -g -mtune=750 -meabi -mhard-float
+    COMPILERFLAGS+= -DGEKKO -DHAVE_INTTYPES -D__POWERPC__ -I$(LIBOGC_INC) -I$(PORTLIBS)/include -Iplatform/Wii/include
+    SDLCONFIG=
+    SDL_TARGET=1
+    SDL_FRAMEWORK=1
+    LIBDIRS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib -Lplatform/Wii/lib
+endif
+ifeq ($(PLATFORM),QNX)
+    RENDERTYPE=SDL
+    MIXERTYPE=SDL
+    override USE_OPENGL=0
+    override NOASM=1
+    STDCPPLIB:=-lstdc++
+    LIBS+= -lsocket
+endif
+ifeq ($(PLATFORM),SUNOS)
+    RENDERTYPE=SDL
+    MIXERTYPE=SDL
+    override USE_OPENGL=0
+    override NOASM=1
+    STDCPPLIB:=-lstdc++
+    LIBS+= -lsocket -lnsl
+endif
+ifeq ($(PLATFORM),SYLLABLE)
+    RENDERTYPE=SDL
+    MIXERTYPE=SDL
+    override USE_OPENGL=0
+    override NOASM=1
+endif
+ifeq ($(PLATFORM),GCW)
+    COMPILERFLAGS += -D__OPENDINGUX__
+endif
+ifeq ($(PLATFORM),DINGOO)
+    COMPILERFLAGS += -D__OPENDINGUX__
+endif
+
+ifneq ($(EXESUFFIX_OVERRIDE),)
+    EXESUFFIX=$(EXESUFFIX_OVERRIDE)
+endif
+
+ifneq (0,$(CLANG))
+    ifneq (,$(STDCPPLIB))
+        STDCPPLIB:=-Xlinker $(STDCPPLIB)
+    endif
+endif
+
+ifeq ($(SDL_TARGET),2)
+    SDLCONFIG ?= sdl2-config
+    SDLNAME ?= SDL2
+endif
+ifeq ($(SDL_TARGET),1)
+    SDLCONFIG ?= sdl-config
+    SDLNAME ?= SDL
+endif
+
+ifneq ($(SDLCONFIG),)
+    SDLVERSION:=$(strip $(shell $(SDLCONFIG) --version))
+    ifneq ($(SDLVERSION),)
+        SDLROOT:=$(strip $(shell $(SDLCONFIG) --prefix))
+    endif
+endif
+
+SDL_STATIC?=1
+
+ifeq ($(RENDERTYPE),SDL)
+    COMPILERFLAGS += -DSDL_TARGET=$(SDL_TARGET)
+
+    ifeq ($(SDL_FRAMEWORK),1)
+        COMPILERFLAGS += -DSDL_FRAMEWORK
+    endif
+
+    ifneq ($(PLATFORM),WINDOWS)
+        ifeq ($(SDL_FRAMEWORK),1)
+            ifeq ($(PLATFORM),DARWIN)
+                LIBS        += -Wl,-framework,SDL
+                COMPILERFLAGS+= -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
+                                -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
+            endif
+        else
+            ifneq ($(SDLCONFIG),)
+                SDLCONFIG_COMMONFLAGS:=$(subst -Dmain=SDL_main,,$(strip $(shell $(SDLCONFIG) --cflags)))
+                SDLCONFIG_LIBS:=$(strip $(shell $(SDLCONFIG) --libs))
+
+                LIBS+= $(SDLCONFIG_LIBS)
+                COMMONFLAGS+= $(SDLCONFIG_COMMONFLAGS)
+            endif
+        endif
+    else
+        COMPILERFLAGS += -D_GNU_SOURCE=1
+        ifneq ($(SDL_STATIC),0)
+            ifneq ($(SDL_TARGET),1) # Since SDL2 is under the zlib license, link statically if possible.
+                LIBS+= -static
+            endif
+        endif
+        LIBS+= -l$(SDLNAME)main -l$(SDLNAME) -lmingw32 -lgdi32 -limm32 -lole32 -loleaut32 -lwinmm -lversion
+    endif
+
+    ifeq (1,$(WITHOUT_GTK))
+        HAVE_GTK2=0
+    else
+        ifneq (No,$(shell pkg-config --exists gtk+-2.0 || echo No))
+            HAVE_GTK2=1
+            # On my 64bit Gentoo box I have Cairo enabled which means the libs list includes
+            # -lpangocairo-1.0 and -lcairo, however the 32bit compatibility libraries don't
+            # include cairo, so we need to filter out those -l switches in order to link
+            ifneq ($(LINKED_GTK),0)
+                ifeq ($(GTKCOMPAT32),1)
+                    LIBS+= $(shell pkg-config --libs gtk+-2.0 | sed 's/\s-l\(pango\)\{0,1\}cairo\S*\s/ /g')
+                else
+                    LIBS+= $(shell pkg-config --libs gtk+-2.0)
+                endif
+            endif
+            COMPILERFLAGS += -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
+        else
+            HAVE_GTK2=0
+        endif
+    endif
+
+    COMPILERFLAGS += $(SDL_INCLUDES)
+    ifneq ($(MIXERTYPE),WIN)
+        LIBS += $(SDL_MIXER_LIB)
+    endif
+    LIBS += $(SDL_LIB)
+endif
+ifeq ($(RENDERTYPE),WIN)
+    LIBS+= -ldxguid
+endif
+
+# SDL depends on these
+ifeq ($(PLATFORM),WINDOWS)
+    ifeq ($(RENDERTYPE),SDL)
+    SDL_LIB:=-l$(SDLNAME)main $(SDL_LIB)
+        ifeq ($(MIXERTYPE),WIN)
+            LIBS+= -ldxguid_sdl
+        endif
+    endif
+endif
+ifeq ($(PLATFORM),WII)
+    LIBS+= -laesnd_tueidj -lpng -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
+endif
+
+COMPILERFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 -DMIXERTYPE$(MIXERTYPE)=1 $(W_STRICT_OVERFLOW)
+
+ifneq (0,$(USE_OPENGL))
+    COMPILERFLAGS+= -DUSE_OPENGL
+endif
+ifneq (0,$(NOASM))
+    COMPILERFLAGS+= -DNOASM
+endif
+ifneq (0,$(USE_ASM64))
+    COMPILERFLAGS+= -DUSE_ASM64
+endif
+ifneq (0,$(LINKED_GTK))
+    COMPILERFLAGS+= -DLINKED_GTK
+endif
+
+ifneq (0,$(POLYMER))
+ ifneq (0,$(USE_OPENGL))
+  COMPILERFLAGS+= -DPOLYMER
+ endif
+endif
+
+STATICSTDCPP?=
+ifeq (1,$(STATICSTDCPP))
+    STATICSTDCPP= -static
+endif
+ifeq (0,$(STATICSTDCPP))
+    STATICSTDCPP= -shared
+endif
+
+
+ifneq ($(PLATFORM),WINDOWS)
+    ifneq ($(PLATFORM),WII)
+        LIBS+= -ldl
+    endif
+    LIBS+= -pthread
+endif
+
+ifeq ($(PLATFORM),WINDOWS)
+    ifneq ($(USE_LIBPNG),0)
+        LIBS+= -lpng_mini -lz_mini
+    endif
+else
+    ifeq ($(PLATFORM),DARWIN)
+        ifneq ($(USE_LIBPNG),0)
+            LIBS+= -lpng # -lz
+        endif
+    else
+        ifneq ($(USE_LIBPNG),0)
+            LIBS+= -lpng -lz
+        endif
+    endif
+endif
+
+
+ifeq ($(PLATFORM),WINDOWS)
+    ifneq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
+        LINKERFLAGS+= -Wl,--large-address-aware
+    endif
+endif
+
+ifneq (0,$(MEMMAP))
+ifeq ($(PLATFORM),DARWIN)
+    LINKERFLAGS+=-Wl,-map -Wl,$@.memmap
+else
+    LINKERFLAGS+=-Wl,-Map=$@.memmap
+endif
+endif
+
+ifneq (0,$(PROFILER))
+    LINKERFLAGS+=-pg
+endif
+ifeq ($(PLATFORM),WII)
+    LINKERFLAGS+= -mrvl -meabi -mhard-float -Wl,--gc-sections
+    # -msdata=eabi
+endif
+
+COMPILER=$(CC) $(CONLYFLAGS)
+LINKER=$(L_CC)
+ifneq ($(CPLUSPLUS),0)
+    COMPILER=$(CXX) $(CXXFLAGS)
+    LINKER=$(L_CXX)
+endif
 
 ifneq (,$(CUSTOMOPT))
-    BASECOMMONFLAGS+= $(CUSTOMOPT)
-    BASELDFLAGS+= $(CUSTOMOPT)
+    COMMONFLAGS+= $(CUSTOMOPT)
+endif
+ifneq (,$(CFLAGS))
+    COMMONFLAGS+= $(CFLAGS)
+endif
+
+ifeq ($(PRETTY_OUTPUT),1)
+RECIPE_IF = if
+BUILD_SETTINGS_COMPILER = \033[1;36mcompiler: \033[0;36m\"$(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS)\"
+BUILD_SETTINGS_ASSEMBLER = \033[1;36massembler: \033[0;36m\"$(AS) $(ASFLAGS)\"
+BUILD_SETTINGS_LINKER = \033[1;36mlinker: \033[0;36m\"$(LINKER) $(COMMONFLAGS) $(LINKERFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB)\"
+ifeq (0,$(NOASM))
+    BUILD_SETTINGS = printf "$(BUILD_SETTINGS_COMPILER)\n$(BUILD_SETTINGS_ASSEMBLER)\n$(BUILD_SETTINGS_LINKER)\033[0m\n"
+else
+    BUILD_SETTINGS = printf "$(BUILD_SETTINGS_COMPILER)\n$(BUILD_SETTINGS_LINKER)\033[0m\n"
+endif
+BUILD_STARTED = printf "\033[K\033[1;36mBuild started using:\033[0m\n"; $(BUILD_SETTINGS)
+BUILD_ECHOFLAGS = printf "\033[K\033[1;36mEnded compilation in this directory using:\n$(BUILD_SETTINGS_COMPILER)\033[0m\n"
+BUILD_FINISHED = printf "\033[K\033[1;36mBuild successful:\033[0m\n"
+COMPILE_STATUS = printf "\033[K\033[0mBuilding object \033[1m$@\033[0m...\033[0m\r"
+COMPILE_OK = printf "\033[K\033[0;32mBuilt object \033[1;32m$@\033[0;32m \033[0m\n"
+COMPILE_FAILED = printf "\033[K\033[0;31mFailed building \033[1;31m$@\033[0;31m from\033[0m \033[1;31m$<\033[0;31m!\033[0m\n"; exit 1
+RECIPE_RESULT_COMPILE = ; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+ONESTEP_STATUS = printf "\033[K\033[0mBuilding executable \033[1m$@\033[0m...\033[0m\r"
+ONESTEP_OK = printf "\033[K\033[0;32mBuilt executable \033[1;32m$@\033[0;32m \033[0m\n"
+ONESTEP_FAILED = printf "\033[K\033[0;31mFailed building executable \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
+RECIPE_RESULT_ONESTEP = ; then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
+ARCHIVE_STATUS = printf "\033[K\033[0mCreating library archive \033[1m$@\033[0m...\033[0m\r"
+ARCHIVE_OK = printf "\033[K\033[0;32mCreated library archive \033[1;32m$@\033[0;32m \033[0m\n"
+ARCHIVE_FAILED = printf "\033[K\033[0;31mFailed creating library archive \033[1;31m$@\033[0;31m from\033[0m \033[1;31m$<\033[0;31m!\033[0m\n"; exit 1
+RECIPE_RESULT_ARCHIVE = ; then $(ARCHIVE_OK); else $(ARCHIVE_FAILED); fi
+LINK_STATUS = printf "\033[K\033[0;0mLinking executable \033[1m$@\033[0;0m...\033[0m\r"
+LINK_OK = printf "\033[K\033[0;32mLinked executable \033[1;32m$@\033[0;32m \033[0m\n"
+LINK_FAILED = printf "\033[K\033[0;31mFailed linking executable \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
+RECIPE_RESULT_LINK = ; then $(LINK_OK); else $(LINK_FAILED); fi
+else
+RECIPE_IF =
+BUILD_STARTED =
+BUILD_ECHOFLAGS =
+BUILD_FINISHED =
+COMPILE_STATUS =
+COMPILE_OK = true
+COMPILE_FAILED = false; exit 1
+RECIPE_RESULT_COMPILE =
+ONESTEP_STATUS =
+ONESTEP_OK = true
+ONESTEP_FAILED = false; exit 1
+RECIPE_RESULT_ONESTEP =
+ARCHIVE_STATUS =
+ARCHIVE_OK = true
+ARCHIVE_FAILED = false; exit 1
+RECIPE_RESULT_ARCHIVE =
+LINK_STATUS =
+LINK_OK = true
+LINK_FAILED = false; exit 1
+RECIPE_RESULT_LINK =
 endif

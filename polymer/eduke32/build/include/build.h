@@ -885,7 +885,7 @@ EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
 
 // In the editor, gotpic is only referenced from inline assembly;
 // the compiler needs that hint or building with LTO will discard it.
-#ifndef __clang__
+#if !defined __clang__ && !defined NOASM
 # define GOTPIC_USED ATTRIBUTE((used))
 #else
 # define GOTPIC_USED

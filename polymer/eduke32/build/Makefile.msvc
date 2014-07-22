@@ -7,11 +7,11 @@
 RENDERTYPE=WIN
 !endif
 
-SRC=src
-!ifndef OBJ
-OBJ=obj.msc
+ENGINE_SRC=src
+!ifndef ENGINE_OBJ
+ENGINE_OBJ=obj.msc
 !endif
-INC=include\ #
+ENGINE_INC=include\ #
 !ifndef CFLAGS
 CFLAGS=/DUSE_OPENGL /DPOLYMER /DUSE_LIBPNG
 !endif
@@ -60,7 +60,7 @@ CC=cl
 AS=ml
 RC=rc
 LINK=link /opt:ref /nologo
-CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC)
+CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(ENGINE_INC)
 ASFLAGS=/nologo /coff /c 
 EXESUFFIX=.exe
 !ifdef DEBUG
@@ -69,44 +69,44 @@ CFLAGS=$(CFLAGS) /DDEBUGGINGAIDS /D "_CRT_SECURE_NO_DEPRECATE"
 
 ENGINEOBJS= \
 !ifdef NOASM
-        $(OBJ)\a-c.$o \
+        $(ENGINE_OBJ)\a-c.$o \
 !else
-        $(OBJ)\a.$o \
+        $(ENGINE_OBJ)\a.$o \
 !endif
-	$(OBJ)\baselayer.$o \
-	$(OBJ)\cache1d.$o \
-	$(OBJ)\compat.$o \
-	$(OBJ)\crc32.$o \
-	$(OBJ)\defs.$o \
-	$(OBJ)\engine.$o \
-	$(OBJ)\polymost.$o \
-	$(OBJ)\texcache.$o \
-	$(OBJ)\dxtfilter.$o \
-	$(OBJ)\hightile.$o \
-	$(OBJ)\mdsprite.$o \
-	$(OBJ)\textfont.$o \
-	$(OBJ)\smalltextfont.$o \
-	$(OBJ)\glbuild.$o \
-	$(OBJ)\kplib.$o \
-	$(OBJ)\lz4.$o \
-	$(OBJ)\lzwnew.$o \
-	$(OBJ)\osd.$o \
-	$(OBJ)\pragmas.$o \
-	$(OBJ)\scriptfile.$o \
-	$(OBJ)\polymer.$o \
-	$(OBJ)\mutex.$o \
-	$(OBJ)\winbits.$o \
-        $(OBJ)\xxhash.$o
+	$(ENGINE_OBJ)\baselayer.$o \
+	$(ENGINE_OBJ)\cache1d.$o \
+	$(ENGINE_OBJ)\compat.$o \
+	$(ENGINE_OBJ)\crc32.$o \
+	$(ENGINE_OBJ)\defs.$o \
+	$(ENGINE_OBJ)\engine.$o \
+	$(ENGINE_OBJ)\polymost.$o \
+	$(ENGINE_OBJ)\texcache.$o \
+	$(ENGINE_OBJ)\dxtfilter.$o \
+	$(ENGINE_OBJ)\hightile.$o \
+	$(ENGINE_OBJ)\mdsprite.$o \
+	$(ENGINE_OBJ)\textfont.$o \
+	$(ENGINE_OBJ)\smalltextfont.$o \
+	$(ENGINE_OBJ)\glbuild.$o \
+	$(ENGINE_OBJ)\kplib.$o \
+	$(ENGINE_OBJ)\lz4.$o \
+	$(ENGINE_OBJ)\lzwnew.$o \
+	$(ENGINE_OBJ)\osd.$o \
+	$(ENGINE_OBJ)\pragmas.$o \
+	$(ENGINE_OBJ)\scriptfile.$o \
+	$(ENGINE_OBJ)\polymer.$o \
+	$(ENGINE_OBJ)\mutex.$o \
+	$(ENGINE_OBJ)\winbits.$o \
+        $(ENGINE_OBJ)\xxhash.$o
 
-EDITOROBJS=$(OBJ)\build.$o \
-	$(OBJ)\startwin.editor.$o \
-	$(OBJ)\config.$o
+EDITOROBJS=$(ENGINE_OBJ)\build.$o \
+	$(ENGINE_OBJ)\startwin.editor.$o \
+	$(ENGINE_OBJ)\config.$o
 
 !if ("$(RENDERTYPE)"=="WIN")
-ENGINEOBJS=$(ENGINEOBJS) $(OBJ)\winlayer.$o $(OBJ)\rawinput.$o
+ENGINEOBJS=$(ENGINEOBJS) $(ENGINE_OBJ)\winlayer.$o $(ENGINE_OBJ)\rawinput.$o
 !endif
 !if ("$(RENDERTYPE)"=="SDL")
-ENGINEOBJS=$(ENGINEOBJS) $(OBJ)\sdlayer.$o
+ENGINEOBJS=$(ENGINEOBJS) $(ENGINE_OBJ)\sdlayer.$o
 !endif
 
 LIBS=$(LIBS) user32.lib gdi32.lib shell32.lib wsock32.lib comctl32.lib dxguid.lib
@@ -115,98 +115,95 @@ CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /DSDL_FRAMEWORK /DSDL_TARGET=2 /W2
 # RULES
 .SUFFIXES: .masm
 
-{$(SRC)}.masm{$(OBJ)}.$o:
+{$(ENGINE_SRC)}.masm{$(ENGINE_OBJ)}.$o:
 	$(AS) /c $(ASFLAGS) /Fo$@ $<
 
-{$(SRC)\tmp}.c{$(OBJ)}.$o:
+{$(ENGINE_SRC)\util}.c{$(ENGINE_OBJ)}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(SRC)\util}.c{$(OBJ)}.$o:
+{$(ENGINE_SRC)\misc}.rc{$(ENGINE_OBJ)}.$(res):
+	$(RC) /i$(ENGINE_INC)\ /fo$@ /r $<
+
+{$(ENGINE_SRC)}.c{$(ENGINE_OBJ)}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(SRC)\misc}.rc{$(OBJ)}.$(res):
-	$(RC) /i$(INC)\ /fo$@ /r $<
-
-{$(SRC)}.c{$(OBJ)}.$o:
+{$(ENGINE_SRC)}.cc{$(ENGINE_OBJ)}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(SRC)}.cc{$(OBJ)}.$o:
+{$(ENGINE_SRC)}.cpp{$(ENGINE_OBJ)}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(SRC)}.cpp{$(OBJ)}.$o:
-	$(CC) /c $(CFLAGS) /Fo$@ $<
-
-{$(SRC)}.cxx{$(OBJ)}.$o:
+{$(ENGINE_SRC)}.cxx{$(ENGINE_OBJ)}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 # TARGETS
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) kmd2tool$(EXESUFFIX) md2tool$(EXESUFFIX) generateicon$(EXESUFFIX) cacheinfo$(EXESUFFIX) arttool$(EXESUFFIX) givedepth$(EXESUFFIX) mkpalette$(EXESUFFIX) unpackssi$(EXESUFFIX) bsuite$(EXESUFFIX)
 
-all: $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB);
+all: $(ENGINE_OBJ)\$(ENGINELIB) $(ENGINE_OBJ)\$(EDITORLIB);
 utils: $(UTILS) ;
 
-enginelib: $(OBJ)\$(ENGINELIB) ;
-$(OBJ)\$(ENGINELIB): $(ENGINEOBJS)
+enginelib: $(ENGINE_OBJ)\$(ENGINELIB) ;
+$(ENGINE_OBJ)\$(ENGINELIB): $(ENGINEOBJS)
 	lib $(flags_lib) /out:$@ /nologo $**
 
-editorlib: $(OBJ)\$(EDITORLIB) ;
-$(OBJ)\$(EDITORLIB): $(EDITOROBJS)
+editorlib: $(ENGINE_OBJ)\$(EDITORLIB) ;
+$(ENGINE_OBJ)\$(EDITORLIB): $(EDITOROBJS)
 	lib $(flags_lib) /out:$@ /nologo $**
 
 # the tools
-kextract$(EXESUFFIX): $(OBJ)\kextract.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o 
+kextract$(EXESUFFIX): $(ENGINE_OBJ)\kextract.$o $(ENGINE_OBJ)\compat.$o $(ENGINE_OBJ)\compat_tools.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 	
-kgroup$(EXESUFFIX): $(OBJ)\kgroup.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o
+kgroup$(EXESUFFIX): $(ENGINE_OBJ)\kgroup.$o $(ENGINE_OBJ)\compat.$o $(ENGINE_OBJ)\compat_tools.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-transpal$(EXESUFFIX): $(OBJ)\transpal.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o
+transpal$(EXESUFFIX): $(ENGINE_OBJ)\transpal.$o $(ENGINE_OBJ)\pragmas.$o $(ENGINE_OBJ)\compat.$o $(ENGINE_OBJ)\compat_tools.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-wad2map$(EXESUFFIX): $(OBJ)\wad2map.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o
+wad2map$(EXESUFFIX): $(ENGINE_OBJ)\wad2map.$o $(ENGINE_OBJ)\pragmas.$o $(ENGINE_OBJ)\compat.$o $(ENGINE_OBJ)\compat_tools.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o
+wad2art$(EXESUFFIX): $(ENGINE_OBJ)\wad2art.$o $(ENGINE_OBJ)\pragmas.$o $(ENGINE_OBJ)\compat.$o $(ENGINE_OBJ)\compat_tools.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-kmd2tool$(EXESUFFIX): $(OBJ)\kmd2tool.$o
+kmd2tool$(EXESUFFIX): $(ENGINE_OBJ)\kmd2tool.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-md2tool$(EXESUFFIX): $(OBJ)\md2tool.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o
+md2tool$(EXESUFFIX): $(ENGINE_OBJ)\md2tool.$o $(ENGINE_OBJ)\compat.$o $(ENGINE_OBJ)\compat_tools.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-generateicon$(EXESUFFIX): $(OBJ)\generateicon.$o $(OBJ)\compat.$o $(OBJ)\pragmas.$o $(OBJ)\kplib.$o $(OBJ)\cache1d.$o $(OBJ)\compat_tools.$o
+generateicon$(EXESUFFIX): $(ENGINE_OBJ)\generateicon.$o $(ENGINE_OBJ)\compat.$o $(ENGINE_OBJ)\pragmas.$o $(ENGINE_OBJ)\kplib.$o $(ENGINE_OBJ)\cache1d.$o $(ENGINE_OBJ)\compat_tools.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-cacheinfo$(EXESUFFIX): $(OBJ)\cacheinfo.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o
+cacheinfo$(EXESUFFIX): $(ENGINE_OBJ)\cacheinfo.$o $(ENGINE_OBJ)\compat.$o $(ENGINE_OBJ)\compat_tools.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-arttool$(EXESUFFIX): $(OBJ)\arttool.$o
+arttool$(EXESUFFIX): $(ENGINE_OBJ)\arttool.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-givedepth$(EXESUFFIX): $(OBJ)\givedepth.$o
+givedepth$(EXESUFFIX): $(ENGINE_OBJ)\givedepth.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-mkpalette$(EXESUFFIX): $(OBJ)\mkpalette.$o
+mkpalette$(EXESUFFIX): $(ENGINE_OBJ)\mkpalette.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-unpackssi$(EXESUFFIX): $(OBJ)\unpackssi.$o
+unpackssi$(EXESUFFIX): $(ENGINE_OBJ)\unpackssi.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-bsuite$(EXESUFFIX): $(OBJ)\bsuite.$o
+bsuite$(EXESUFFIX): $(ENGINE_OBJ)\bsuite.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
@@ -215,7 +212,7 @@ bsuite$(EXESUFFIX): $(OBJ)\bsuite.$o
 
 # PHONIES
 clean:
-	-del /Q $(ENGINEOBJS) $(EDITOROBJS) $(OBJ)\kextract.$o $(OBJ)\kgroup.$o $(OBJ)\transpal.$o $(OBJ)\wad2art.$o $(OBJ)\wad2map.$o $(OBJ)\kmd2tool.$o $(OBJ)\md2tool.$o $(OBJ)\generateicon.$o $(OBJ)\cacheinfo.$o $(OBJ)\arttool.$o $(OBJ)\givedepth.$o $(OBJ)\mkpalette.$o $(OBJ)\unpackssi.$o $(OBJ)\bsuite.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\pragmas.$o $(OBJ)\kplib.$o $(OBJ)\cache1d.$o 
+	-del /Q $(ENGINEOBJS) $(EDITOROBJS) $(ENGINE_OBJ)\kextract.$o $(ENGINE_OBJ)\kgroup.$o $(ENGINE_OBJ)\transpal.$o $(ENGINE_OBJ)\wad2art.$o $(ENGINE_OBJ)\wad2map.$o $(ENGINE_OBJ)\kmd2tool.$o $(ENGINE_OBJ)\md2tool.$o $(ENGINE_OBJ)\generateicon.$o $(ENGINE_OBJ)\cacheinfo.$o $(ENGINE_OBJ)\arttool.$o $(ENGINE_OBJ)\givedepth.$o $(ENGINE_OBJ)\mkpalette.$o $(ENGINE_OBJ)\unpackssi.$o $(ENGINE_OBJ)\bsuite.$o $(ENGINE_OBJ)\compat.$o $(ENGINE_OBJ)\compat_tools.$o $(ENGINE_OBJ)\pragmas.$o $(ENGINE_OBJ)\kplib.$o $(ENGINE_OBJ)\cache1d.$o 
 veryclean: clean
-	-del /Q $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB) $(UTILS) *.map *.manifest *.pdb
+	-del /Q $(ENGINE_OBJ)\$(ENGINELIB) $(ENGINE_OBJ)\$(EDITORLIB) $(UTILS) *.map *.manifest *.pdb
 

@@ -1297,6 +1297,8 @@ next:
                 /* do nothing */
             }
             i-=2;
+            if (i < 0)
+                i = 0;
 
             // if there's a slash at the end, this is a directory entry
             if (toupperlookup[buf[i]] == '/') { ftype = CACHE1D_FIND_DIR; buf[i] = 0; }
