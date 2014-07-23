@@ -296,9 +296,21 @@ ifeq ($(PLATFORM),WINDOWS)
 
     ifeq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
         SYSARCH:=x86_64
+        SYSBITS=64
     endif
 
     WINLIB?=/$(SYSBITS)
+else
+ifneq (1,$(BUILD32_ON_64))
+    ifeq ($(findstring x86_64,$(ARCH)),x86_64)
+        SYSBITS=64
+    endif
+    ifeq ($(ARCH),)
+        ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
+            SYSBITS=64
+        endif
+    endif
+endif
 endif
 
 ifeq ($(PLATFORM),DARWIN)
@@ -325,16 +337,6 @@ ifeq ($(PLATFORM),DARWIN)
     endif
     ifneq (0,$(OSX_STARTUPWINDOW))
         COMPILERFLAGS+= -DOSX_STARTUPWINDOW
-    endif
-endif
-
-
-ifneq (1,$(BUILD32_ON_64))
-    ifeq ($(findstring x86_64,$(ARCH)),x86_64)
-        SYSBITS=64
-    endif
-    ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
-        SYSBITS=64
     endif
 endif
 
