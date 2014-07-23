@@ -231,7 +231,7 @@ ifneq (0,$(LUNATIC))
     ifneq ($(PLATFORM),WINDOWS)
         # On non-Windows, we expect to have liblpeg.a (or a symlink to it) in source/.
         # On Windows, it will reside in platform/Windows/lib/32/ or lib/64/.
-        LIBDIRS+= -L$(DUKE3D_SRC)
+        LIBDIRS+= -L$(abspath $(DUKE3D_SRC))
         ifeq ($(realpath $(DUKE3D_SRC)/liblpeg.a),)
             # XXX: This cripples "make clean" etc. too, but IMO it's better than warning.
             $(error "liblpeg.a not found in $(realpath $(DUKE3D_OBJ)/..)")
@@ -280,7 +280,7 @@ endif
 
 ifeq ($(PLATFORM),DARWIN)
     COMMONFLAGS += -fno-pic
-    LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Apple/lib
+    LIBDIRS += -L$(abspath $(AUDIOLIB_ROOT)/third-party/Apple/lib)
 
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lm \
             -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
@@ -298,7 +298,7 @@ endif
 ifeq ($(PLATFORM),WINDOWS)
     COMMONFLAGS += -fno-pic
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lcompat-from-mingw-w64
-    LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Windows/lib$(WINLIB)
+    LIBDIRS += -L$(abspath $(AUDIOLIB_ROOT)/third-party/Windows/lib$(WINLIB))
     DUKE3D_OBJS+= gameres winbits startwin.game
     DUKE3D_EDITOR_OBJS+= buildres
     ifeq ($(MIXERTYPE),WIN)

@@ -646,7 +646,7 @@ ifeq ($(PLATFORM),DARWIN)
     ASFLAGS+= -DUNDERSCORES
 
     # include port and brew
-    LIBDIRS+= -Lplatform/Apple/lib -L/opt/local/lib -L/usr/local/lib
+    LIBDIRS+= -L$(abspath platform/Apple/lib) -L/opt/local/lib -L/usr/local/lib
     COMPILERFLAGS+= -Iplatform/Apple/include -I/opt/local/include -I/sw/include -I/usr/local/include
 
     RENDERTYPE    = SDL
@@ -709,7 +709,7 @@ ifeq ($(PLATFORM),WINDOWS)
     SDL_FRAMEWORK=1
     EXESUFFIX=.exe
     DLLSUFFIX=.dll
-    LIBDIRS+= -Lplatform/Windows/lib$(WINLIB)
+    LIBDIRS+= -L$(abspath platform/Windows/lib$(WINLIB))
     LIBS+= -Wl,--enable-auto-import -lmingwex -lgdi32 -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
     ifeq (0,$(CLANG))
         LIBS+= -mwindows
@@ -764,7 +764,7 @@ ifeq ($(PLATFORM),WII)
     SDLCONFIG=
     SDL_TARGET=1
     SDL_FRAMEWORK=1
-    LIBDIRS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib -Lplatform/Wii/lib
+    LIBDIRS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib -L$(abspath platform/Wii/lib)
 endif
 ifeq ($(PLATFORM),QNX)
     RENDERTYPE=SDL
