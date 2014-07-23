@@ -90,7 +90,7 @@ CFLAGS= /MT /J /nologo $(flags_cl)  \
  	/I$(PLATFORM)\include /I$(AUDIOINC)\include /DRENDERTYPE$(RENDERTYPE)=1 /DMIXERTYPE$(MIXERTYPE)=1 /DSDL_FRAMEWORK /DSDL_TARGET=2 /DUSE_LIBVPX
 
 ENET_CFLAGS=/I$(ENET_INC) /I$(ENET_SRC)
-AUDIOLIB_CFLAGS=/I$(AUDIOLIB_INC) /I$(AUDIOLIB_INC)\msvc /I$(AUDIOLIB_SRC) /DHAVE_VORBIS /DHAVE_FLAC
+AUDIOLIB_CFLAGS=/I$(AUDIOLIB_INC) /I$(AUDIOLIB_SRC) /DHAVE_VORBIS /DHAVE_FLAC
 
 LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib shlwapi.lib oleaut32.lib ole32.lib imm32.lib version.lib \
      libFLAC.a libogg.a libvorbis.a libvorbisfile.a libvpx.a libpng_mini.a libz_mini.a libcompat-from-mingw-w64.a \

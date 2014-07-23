@@ -1,20 +1,31 @@
-
-# /polymer/eduke32/
 /polymer/eduke32/eduke32
 /polymer/eduke32/mapster32
+/polymer/eduke32/apps
+/polymer/eduke32/*.exe
+/polymer/eduke32/*.dll
+/polymer/eduke32/*.dylib
+/polymer/eduke32/*.so
 /polymer/eduke32/*.con
 /polymer/eduke32/*.sym
-
-# /polymer/eduke32/build/obj.gnu/
-/polymer/eduke32/build/obj.gnu/*.a
-
-# /polymer/eduke32/eobj/
-/polymer/eduke32/eobj/*.a
-
-# /polymer/eduke32/rsrc/
+/polymer/eduke32/*.memmap
+/polymer/eduke32/*.manifest
+/polymer/eduke32/*.log
+/polymer/eduke32/*.map
+/polymer/eduke32/*.pdb
+/polymer/eduke32/*.sdf
+/polymer/eduke32/*.suo
+/polymer/eduke32/*.opensdf
+/polymer/eduke32/*.elf
+/polymer/eduke32/*.dol
+/polymer/eduke32/*.x86
+/polymer/eduke32/*.x64
+/polymer/eduke32/*.ppc
+/polymer/eduke32/*.app
 /polymer/eduke32/rsrc/game_banner.c
 /polymer/eduke32/rsrc/editor_banner.c
-
-# /polymer/eduke32/source/jaudiolib/
-/polymer/eduke32/source/jaudiolib/obj_win
-
+/polymer/eduke32/source/lunatic/eduke32.def
+/polymer/eduke32/source/lunatic/mapster32.def
+/polymer/eduke32/source/obj
+/polymer/eduke32/build/obj
+/polymer/eduke32/source/jaudiolib/obj
+/polymer/eduke32/source/enet/obj
