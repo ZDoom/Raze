@@ -26,10 +26,6 @@
 #define DIRECTSOUND_VERSION  0x0800
 #define CINTERFACE
 
-#ifdef _MSC_VER
-#include <InitGuid.h>
-#endif
-
 #include <windows.h>
 #include <mmsystem.h>
 #include "dx/dsound.h"

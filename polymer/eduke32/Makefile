@@ -13,6 +13,7 @@ ENGINE_SRC=$(ENGINE_ROOT)/src
 ENGINE_INC=$(ENGINE_ROOT)/include
 o=o
 asm=nasm
+obj=obj
 
 
 # BUILD Engine
@@ -20,11 +21,8 @@ asm=nasm
 ENGINE_CFLAGS=-I$(ENGINE_SRC)
 UTIL_LIBS= -lm # -lpthread
 
-ifeq ($(PLATFORM),WINDOWS)
-    ENGINE_OBJ=$(DUKE3D_SRC)/eobj_win
-else
-    ENGINE_OBJ=$(DUKE3D_SRC)/eobj
-endif
+ENGINE_OBJ=$(ENGINE_ROOT)/$(obj)
+
 
 ENGINE_OBJS=baselayer cache1d compat crc32 defs engine polymost texcache dxtfilter hightile textfont smalltextfont kplib lz4 osd pragmas scriptfile mutex xxhash
 ENGINE_EDITOR_OBJS=build config defs
@@ -84,6 +82,7 @@ AUDIOLIB_OBJS=drivers fx_man multivoc mix mixst pitch formats vorbis flac xa dri
 AUDIOLIB_ROOT=$(DUKE3D_SRC)/jaudiolib
 AUDIOLIB_SRC=$(AUDIOLIB_ROOT)/src
 AUDIOLIB_INC=$(AUDIOLIB_ROOT)/include
+AUDIOLIB_OBJ=$(AUDIOLIB_ROOT)/$(obj)
 
 AUDIOLIB_CFLAGS=-I$(AUDIOLIB_ROOT)/third-party/common/include -DHAVE_VORBIS
 ifneq ($(PLATFORM),WII)
@@ -95,10 +94,6 @@ ifeq ($(PLATFORM),WINDOWS)
         AUDIOLIB_CFLAGS+= -DHAVE_DS
         AUDIOLIB_OBJS+= driver_directsound
     endif
-
-    AUDIOLIB_OBJ=$(AUDIOLIB_ROOT)/obj_win
-else
-    AUDIOLIB_OBJ=$(AUDIOLIB_ROOT)/obj
 endif
 
 ifeq ($(MIXERTYPE),SDL)
@@ -123,15 +118,15 @@ ENET_OBJS=callbacks host list packet peer protocol compress
 ENET_ROOT=$(DUKE3D_SRC)/enet
 ENET_SRC=$(ENET_ROOT)/src
 ENET_INC=$(ENET_ROOT)/include
+ENET_OBJ=$(ENET_ROOT)/$(obj)
+
 ENET_CFLAGS=
 
 ifeq ($(PLATFORM),WINDOWS)
     ENET_OBJS += win32
-    ENET_OBJ=$(ENET_ROOT)/obj_win
 else
     ENET_OBJS += unix
     ENET_CFLAGS += -DHAS_SOCKLEN_T
-    ENET_OBJ=$(ENET_ROOT)/obj
 endif
 
 ENET_OBJS_EXP:=$(addprefix $(ENET_OBJ)/,$(addsuffix .$o,$(ENET_OBJS)))
@@ -169,6 +164,7 @@ COMPILERFLAGS += -I$(DUKE3D_INC) -I$(ENGINE_INC) -I$(DUKE3D_SRC)/jmact -I$(AUDIO
 DUKE3D_LINKERFLAGS=
 DUKE3D_EDITOR_LINKERFLAGS=
 
+DUKE3D_OBJ=$(DUKE3D_SRC)/$(obj)
 
 ifeq ($(NETCODE),0)
     ENET_TARGET=
@@ -190,13 +186,8 @@ ifndef EBACKTRACEDLL
 endif
 EBACKTRACEDLL_TARGET:=$(EBACKTRACEDLL)
 
-ifeq ($(PLATFORM),WINDOWS)
-    DUKE3D_OBJ=$(DUKE3D_SRC)/obj_win
-else
-    ifeq ($(SUBPLATFORM),LINUX)
-        LIBS+= -lrt
-    endif
-    DUKE3D_OBJ=$(DUKE3D_SRC)/obj
+ifeq ($(SUBPLATFORM),LINUX)
+    LIBS+= -lrt
 endif
 
 MACT_OBJ=file_lib control keyboard mouse joystick mathutil scriplib animlib
@@ -231,7 +222,7 @@ ifneq (0,$(LUNATIC))
     ifneq ($(PLATFORM),WINDOWS)
         # On non-Windows, we expect to have liblpeg.a (or a symlink to it) in source/.
         # On Windows, it will reside in platform/Windows/lib/32/ or lib/64/.
-        LIBDIRS+= -L$(abspath $(DUKE3D_SRC))
+        LIBDIRS+= -L$(DUKE3D_SRC)
         ifeq ($(realpath $(DUKE3D_SRC)/liblpeg.a),)
             # XXX: This cripples "make clean" etc. too, but IMO it's better than warning.
             $(error "liblpeg.a not found in $(realpath $(DUKE3D_OBJ)/..)")
@@ -280,7 +271,7 @@ endif
 
 ifeq ($(PLATFORM),DARWIN)
     COMMONFLAGS += -fno-pic
-    LIBDIRS += -L$(abspath $(AUDIOLIB_ROOT)/third-party/Apple/lib)
+    LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Apple/lib
 
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lm \
             -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
@@ -298,7 +289,7 @@ endif
 ifeq ($(PLATFORM),WINDOWS)
     COMMONFLAGS += -fno-pic
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lcompat-from-mingw-w64
-    LIBDIRS += -L$(abspath $(AUDIOLIB_ROOT)/third-party/Windows/lib$(WINLIB))
+    LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Windows/lib$(WINLIB)
     DUKE3D_OBJS+= gameres winbits startwin.game
     DUKE3D_EDITOR_OBJS+= buildres
     ifeq ($(MIXERTYPE),WIN)
@@ -424,7 +415,7 @@ arttool$(EXESUFFIX): $(ENGINE_OBJ)/arttool.$o
 	$(ONESTEP_STATUS)
 	$(RECIPE_IF) $(L_CXX) $(CPPONLYFLAGS) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB) $(UTIL_LIBS) $(RECIPE_RESULT_ONESTEP)
 
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/%.c
+$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/%.c | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
@@ -465,56 +456,56 @@ $(DUKE3D_SRC)/lunatic/mapster32.def: $(DUKE3D_SRC)/lunatic/dynsymlist_m32
 
 ####
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.nasm
+$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.nasm | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(AS) $(ASFLAGS) $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.yasm
+$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.yasm | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(AS) $(ASFLAGS) $< -o $@ $(RECIPE_RESULT_COMPILE)
 
 # Comment out the following rule to debug a-c.o
-$(ENGINE_OBJ)/a-c.$o: $(ENGINE_SRC)/a-c.c
+$(ENGINE_OBJ)/a-c.$o: $(ENGINE_SRC)/a-c.c | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(subst -O$(OPTLEVEL),-O2,$(subst $(CLANG_DEBUG_FLAGS),,$(COMMONFLAGS) $(COMPILERFLAGS))) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.c
+$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.c | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/util/%.c
+$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/util/%.c | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.m
+$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.m | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.cpp
+$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.cpp | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(CXX) $(CPPONLYFLAGS) $(COMMONFLAGS) $(COMPILERFLAGS) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/misc/%.c
+$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/misc/%.c | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/misc/%.rc
+$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/misc/%.rc | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(RC) -i $< -o $@ --include-dir=$(ENGINE_INC) --include-dir=$(ENGINE_SRC) $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/util/%.c
+$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/util/%.c | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/util/%.cpp
+$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/util/%.cpp | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(CXX) $(CPPONLYFLAGS) $(COMMONFLAGS) $(COMPILERFLAGS) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/util/%.cc
+$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/util/%.cc | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(CXX) $(CPPONLYFLAGS) $(COMMONFLAGS) $(COMPILERFLAGS) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(DUKE3D_RSRC)/%.c
+$(ENGINE_OBJ)/%.$o: $(DUKE3D_RSRC)/%.c | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
@@ -522,33 +513,27 @@ $(AUDIOLIB_OBJ)/%.o: $(AUDIOLIB_SRC)/%.c | $(AUDIOLIB_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(AUDIOLIB_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(AUDIOLIB_OBJ):
-	mkdir $(AUDIOLIB_OBJ)
-
 $(ENET_OBJ)/%.o: $(ENET_SRC)/%.c $(ENET_INC)/enet/*.h | $(ENET_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(ENET_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENET_OBJ):
-	mkdir $(ENET_OBJ)
-
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/%.m
+$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/%.m | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/%.cpp
+$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/%.cpp | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(CXX) $(CPPONLYFLAGS) $(COMMONFLAGS) $(COMPILERFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/jmact/%.c
+$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/jmact/%.c | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/misc/%.rc
+$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/misc/%.rc | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(RC) -i $< -o $@ --include-dir=$(ENGINE_INC) --include-dir=$(DUKE3D_SRC) -DPOLYMER=$(POLYMER) $(RECIPE_RESULT_COMPILE)
 
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_RSRC)/%.c
+$(DUKE3D_OBJ)/%.$o: $(DUKE3D_RSRC)/%.c | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) -Wno-pointer-sign -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
@@ -560,6 +545,9 @@ $(DUKE3D_RSRC)/editor_banner.c: $(DUKE3D_RSRC)/build.bmp
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@
 	echo "extern const GdkPixdata startbanner_pixdata;" >> $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
+
+$(ENGINE_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(DUKE3D_OBJ):
+	mkdir $@
 
 # PHONIES
 
