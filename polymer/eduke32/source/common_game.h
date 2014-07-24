@@ -69,8 +69,6 @@ extern void G_SetupGlobalPsky(void);
 
 //////////
 
-extern void G_ExtPreInit(void);
-
 extern void G_AddSearchPaths(void);
 extern void G_CleanupSearchPaths(void);
 

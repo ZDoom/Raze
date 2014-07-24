@@ -609,20 +609,29 @@ void system_getcvars(void)
 #endif
 }
 
+
 //
-// initprintf() -- prints a string to the intitialization window
+// initprintf() -- prints a formatted string to the intitialization window
 //
 void initprintf(const char *f, ...)
 {
     va_list va;
     char buf[2048];
-    static char dabuf[2048];
 
     va_start(va, f);
     Bvsnprintf(buf, sizeof(buf), f, va);
     va_end(va);
 
-    OSD_Printf("%s",buf);
+    initputs(buf);
+}
+
+
+//
+// initputs() -- prints a string to the intitialization window
+//
+void initputs(const char *buf)
+{
+    OSD_Puts(buf);
 
     mutex_lock(&m_initprintf);
     if ((Bstrlen(dabuf) + Bstrlen(buf) + 2) > sizeof(dabuf))
@@ -644,7 +653,7 @@ void initprintf(const char *f, ...)
 
 
 //
-// debugprintf() -- sends a debug string to the debugger
+// debugprintf() -- sends a formatted debug string to the debugger
 //
 void debugprintf(const char *f, ...)
 {

@@ -2,8 +2,8 @@
 #include <commctrl.h>
 #include "startwin.editor.h"
 
-RSRC_ICON ICON "rsrc/build_icon.ico"
-RSRC_BMP BITMAP "rsrc/build.bmp"
+RSRC_ICON ICON "build_icon.ico"
+RSRC_BMP BITMAP "build.bmp"
 
 WIN_STARTWIN DIALOGEX DISCARDABLE  20, 40, 260, 200
 STYLE DS_MODALFRAME | DS_CENTER | DS_SETFONT | DS_FIXEDSYS | WS_OVERLAPPED | WS_CAPTION | WS_VISIBLE | WS_SYSMENU
@@ -70,7 +70,7 @@ BEGIN
 END
 
 #if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
-1 24 "rsrc/64/manifest.build.xml"
+1 24 "64/manifest.build.xml"
 #else
-1 24 "rsrc/32/manifest.build.xml"
+1 24 "32/manifest.build.xml"
 #endif

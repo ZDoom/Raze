@@ -43,10 +43,10 @@ ifeq ($(findstring clang,$(CC)),clang)
 endif
 
 ifneq (0,$(CLANG))
-    CC=clang -x c
-    CXX=clang -x c++
-    L_CC=clang
-    L_CXX=clang
+    override CC=clang -x c
+    override CXX=clang -x c++
+    override L_CC=clang
+    override L_CXX=clang
 endif
 
 CCFULLPATH=$(CC)
@@ -340,6 +340,19 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 endif
 
+
+ifneq (0,$(RELEASE))
+    # Debugging disabled
+    COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
+else
+    # Debugging enabled
+    ifneq (0,$(KRANDDEBUG))
+        COMMONFLAGS += -fno-inline -fno-inline-functions -fno-inline-functions-called-once
+    endif
+    ifeq (1,$(SDL_TARGET))
+        COMPILERFLAGS += -DNOSDLPARACHUTE
+    endif
+endif
 
 ifndef OPTOPT
     ifeq ($(PLATFORM), WII)
@@ -641,6 +654,11 @@ ifeq ($(SUBPLATFORM),LINUX)
             override NOASM=1
         endif
     endif
+
+    LIBS+= -lrt
+    ifeq (0,$(CLANG))
+        COMMONFLAGS	+= -fno-pic
+    endif
 endif
 ifeq ($(PLATFORM),DARWIN)
     COMPILERFLAGS+= -DUNDERSCORES
@@ -685,6 +703,8 @@ ifeq ($(PLATFORM),DARWIN)
             LINKERFLAGS += -read_only_relocs suppress
         endif
     endif
+
+    COMMONFLAGS	+= -fno-pic
 endif
 ifeq ($(PLATFORM),WINDOWS)
     COMPILERFLAGS+= -DUNDERSCORES -DHAVE_INTTYPES -Iplatform/Windows/include
@@ -723,6 +743,8 @@ ifeq ($(PLATFORM),WINDOWS)
             override NOASM=1
         endif
     endif
+
+    COMMONFLAGS += -fno-pic
 endif
 ifeq ($(PLATFORM),BSD)
     COMPILERFLAGS+= -I/usr/X11R6/include

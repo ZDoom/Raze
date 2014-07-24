@@ -1531,7 +1531,25 @@ void OSD_Draw(void)
 
 
 //
-// OSD_Printf() -- Print a string to the onscreen display
+// OSD_Printf() -- Print a formatted string to the onscreen display
+//   and write it to the log file
+//
+
+void OSD_Printf(const char *fmt, ...)
+{
+    static char tmpstr[8192];
+    va_list va;
+
+    va_start(va, fmt);
+    Bvsnprintf(tmpstr, sizeof(tmpstr), fmt, va);
+    va_end(va);
+
+    OSD_Puts(tmpstr);
+}
+
+
+//
+// OSD_Puts() -- Print a string to the onscreen display
 //   and write it to the log file
 //
 
@@ -1543,18 +1561,15 @@ static inline void OSD_LineFeed(void)
     Bmemset(osd->text.fmt, osd->draw.textpal, osd->draw.cols);
     if (osd->text.lines < osd->text.maxlines) osd->text.lines++;
 }
+
 #define MAX_ERRORS 4096
-void OSD_Printf(const char *fmt, ...)
+
+void OSD_Puts(const char *tmpstr)
 {
-    static char tmpstr[8192];
-    char *chp, p=osd->draw.textpal, s=osd->draw.textshade;
-    va_list va;
+    const char *chp;
+    char p=osd->draw.textpal, s=osd->draw.textshade;
 
     mutex_lock(&osd->mutex);
-
-    va_start(va, fmt);
-    Bvsnprintf(tmpstr, 8192, fmt, va);
-    va_end(va);
 
     if (tmpstr[0]==0)
     {
@@ -1565,7 +1580,7 @@ void OSD_Printf(const char *fmt, ...)
     if (tmpstr[0]=='^' && tmpstr[1]=='1' && tmpstr[2]=='0' && ++osd->log.errors > MAX_ERRORS)
     {
         if (osd->log.errors == MAX_ERRORS + 1)
-            Bstrcpy(tmpstr, OSD_ERROR "\nToo many errors. Logging errors stopped.\n");
+            tmpstr = "\nToo many errors. Logging errors stopped.\n";
         else
         {
             osd->log.errors = MAX_ERRORS + 2;
@@ -1578,15 +1593,15 @@ void OSD_Printf(const char *fmt, ...)
     {
         if (osdlog && (!osd->log.cutoff || osd->log.lines < osd->log.cutoff))
         {
-            chp = Xstrdup(tmpstr);
-            Bfputs(OSD_StripColors(chp, tmpstr), osdlog);
-            Bprintf("%s", chp);
-            Bfree(chp);
+            char *chp2 = Xstrdup(tmpstr);
+            Bfputs(OSD_StripColors(chp2, tmpstr), osdlog);
+            Bprintf("%s", chp2);
+            Bfree(chp2);
         }
     }
     else if (osd->log.lines == osd->log.cutoff)
     {
-        Bfputs("\nMaximal log size reached. Logging stopped.\nSet the \"osd->log.cutoff\" console variable to a higher value if you need a longer log.\n", osdlog);
+        Bfputs("\nMaximal log size reached. Logging stopped.\nSet the \"osdlogcutoff\" console variable to a higher value if you need a longer log.\n", osdlog);
         osd->log.lines = osd->log.cutoff + 1;
     }
 

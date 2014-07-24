@@ -562,22 +562,32 @@ void system_getcvars(void)
 #endif
 
 //
-// initprintf() -- prints a string to the intitialization window
+// initprintf() -- prints a formatted string to the intitialization window
 //
 void initprintf(const char *f, ...)
 {
     va_list va;
     char buf[2048];
-    static char dabuf[2048];
 
     va_start(va, f);
     Bvsnprintf(buf, sizeof(buf), f, va);
     va_end(va);
 
+    initputs(buf);
+}
+
+
+//
+// initputs() -- prints a string to the intitialization window
+//
+void initputs(const char *buf)
+{
+    static char dabuf[2048];
+
 #ifdef __ANDROID__
     __android_log_print(ANDROID_LOG_INFO,"DUKE", "%s",buf);
 #endif
-    OSD_Printf("%s", buf);
+    OSD_Puts(buf);
 //    Bprintf("%s", buf);
 
     mutex_lock(&m_initprintf);
@@ -603,7 +613,7 @@ void initprintf(const char *f, ...)
 }
 
 //
-// debugprintf() -- prints a debug string to stderr
+// debugprintf() -- prints a formatted debug string to stderr
 //
 void debugprintf(const char *f, ...)
 {

@@ -136,7 +136,7 @@ int32_t editorgridextent = 131072;
 #define MAXYSIZ 256
 #define MAXZSIZ 255
 #define MAXVOXMIPS 5
-static intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
+intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild
 static char voxlock[MAXVOXELS][MAXVOXMIPS];
 int32_t voxscale[MAXVOXELS];
 
@@ -11736,7 +11736,6 @@ intptr_t allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     return waloff[tilenume];
 }
 
-#if 0
 //
 // copytilepiece
 //
@@ -11776,7 +11775,6 @@ void copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, in
         }
     }
 }
-#endif
 
 //
 // qloadkvx

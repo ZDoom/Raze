@@ -729,16 +729,12 @@ void ExtLoadMap(const char *mapname)
 #if M32_UNDO
     map_undoredo_free();
 #endif
-
-    VM_OnEvent(EVENT_LOADMAP, -1);
 }
 
 void ExtSaveMap(const char *mapname)
 {
     UNREFERENCED_PARAMETER(mapname);
     saveboard("backup.map", &pos, ang, cursectnum);
-
-    VM_OnEvent(EVENT_SAVEMAP, -1);
 }
 
 
@@ -8456,8 +8452,6 @@ int32_t ExtPreSaveMap(void)
 {
     int32_t numfixedsprites;
 
-    VM_OnEvent(EVENT_PRESAVEMAP, -1);
-
     numfixedsprites = fixspritesectors();   //Do this before saving!
     updatesectorz(startpos.x,startpos.y,startpos.z,&startsectnum);
     if (startsectnum < 0)
@@ -10345,7 +10339,6 @@ static int32_t loadconsounds(const char *fn)
 
 void ExtPreLoadMap(void)
 {
-    VM_OnEvent(EVENT_PRELOADMAP, -1);
 }
 
 /// ^^^
@@ -11125,8 +11118,6 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
             break;
         }
     }
-
-    VM_OnEvent(EVENT_ANALYZESPRITES, -1);
 }
 
 #define MESSAGEX 3 // (xdimgame>>1)

@@ -117,7 +117,10 @@ void uninitsystem(void);
 void system_getcvars(void);
 
 extern int32_t flushlogwindow;
+void initputs(const char *);
+#define buildputs initputs
 void initprintf(const char *, ...) ATTRIBUTE((format(printf,1,2)));
+#define buildprintf initprintf
 void debugprintf(const char *,...) ATTRIBUTE((format(printf,1,2)));
 
 int32_t handleevents(void);

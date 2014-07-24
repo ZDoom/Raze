@@ -254,6 +254,9 @@ void OSD_Draw(void);
 // just like printf
 void OSD_Printf(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
 
+// just like puts
+void OSD_Puts(const char *str);
+
 // executes buffered commands
 void OSD_DispatchQueued(void);
 

@@ -129,10 +129,7 @@ G_EXTERN int32_t g_screenCapture;
 G_EXTERN int32_t g_noEnemies;
 
 #ifndef __global_c__
-G_EXTERN const char *s_buildRev;
 G_EXTERN const char *s_buildDate;
-G_EXTERN const char *s_buildTimestamp;
-G_EXTERN const char *s_buildInfo;
 G_EXTERN int32_t g_spriteGravity;
 G_EXTERN int16_t g_spriteDeleteQueueSize;
 G_EXTERN char EpisodeNames[MAXVOLUMES][33];

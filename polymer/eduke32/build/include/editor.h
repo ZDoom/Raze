@@ -158,6 +158,7 @@ extern void SetFirstWall(int32_t sectnum, int32_t wallnum, int32_t alsoynw);
 extern int32_t fixspritesectors(void);
 extern void clearkeys(void);
 
+extern const char *ExtGetVer(void);
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);

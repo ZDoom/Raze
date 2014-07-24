@@ -29,7 +29,28 @@
 static int32_t crctable[256];
 static char kensig[64];
 
-extern const char *ExtGetVer(void);
+static const char *CallExtGetVer(void);
+static int32_t CallExtInit(void);
+static int32_t CallExtPreInit(int32_t argc,const char **argv);
+static void CallExtUnInit(void);
+static void CallExtPreCheckKeys(void);
+static void CallExtAnalyzeSprites(int32_t, int32_t, int32_t, int32_t);
+static void CallExtCheckKeys(void);
+static void CallExtPreLoadMap(void);
+static void CallExtSetupMapFilename(const char *mapname);
+static void CallExtLoadMap(const char *mapname);
+static int32_t CallExtPreSaveMap(void);
+static void CallExtSaveMap(const char *mapname);
+static const char *CallExtGetSectorCaption(int16_t sectnum);
+static const char *CallExtGetWallCaption(int16_t wallnum);
+static const char *CallExtGetSpriteCaption(int16_t spritenum);
+static void CallExtShowSectorData(int16_t sectnum);
+static void CallExtShowWallData(int16_t wallnum);
+static void CallExtShowSpriteData(int16_t spritenum);
+static void CallExtEditSectorData(int16_t sectnum);
+static void CallExtEditWallData(int16_t wallnum);
+static void CallExtEditSpriteData(int16_t spritenum);
+// static const char *CallExtGetSectorType(int32_t lotag);
 
 int8_t m32_clipping=2;
 static int32_t m32_rotateang = 0;
@@ -472,9 +493,9 @@ void M32_DrawRoomsAndMasks(void)
 
     yax_preparedrawrooms();
     drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-    yax_drawrooms(ExtAnalyzeSprites, cursectnum, 0, 0);
+    yax_drawrooms(CallExtAnalyzeSprites, cursectnum, 0, 0);
 
-    ExtAnalyzeSprites(0,0,0,0);
+    CallExtAnalyzeSprites(0,0,0,0);
     drawmasks();
     M32_ResetFakeRORTiles();
 
@@ -483,7 +504,7 @@ void M32_DrawRoomsAndMasks(void)
     {
         polymer_editorpick();
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-        ExtAnalyzeSprites(0,0,0,0);
+        CallExtAnalyzeSprites(0,0,0,0);
         drawmasks();
         M32_ResetFakeRORTiles();
     }
@@ -521,7 +542,7 @@ int32_t app_main(int32_t argc, const char **argv)
     editstatus = 1;
     newaspect_enable = 1;
 
-    if ((i = ExtPreInit(argc,argv)) < 0) return -1;
+    if ((i = CallExtPreInit(argc,argv)) < 0) return -1;
 
 #ifdef _WIN32
     backgroundidle = 1;
@@ -564,7 +585,7 @@ int32_t app_main(int32_t argc, const char **argv)
         Bstrcat(boardfilename, ".map");
     //Bcanonicalisefilename(boardfilename,0);
 
-    if ((i = ExtInit()) < 0) return -1;
+    if ((i = CallExtInit()) < 0) return -1;
 #ifdef STARTUP_SETUP_WINDOW
     if (i || forcesetup || cmdsetup)
     {
@@ -677,7 +698,7 @@ int32_t app_main(int32_t argc, const char **argv)
         setbrightness(0,0,0);
         if (setgamemode(fullscreen, xdim2d, ydim2d, 8) < 0)
         {
-            ExtUnInit();
+            CallExtUnInit();
             uninitengine();
             Bprintf("%d * %d not supported in this graphics mode\n",xdim2d,ydim2d);
             Bexit(0);
@@ -703,7 +724,7 @@ int32_t app_main(int32_t argc, const char **argv)
     {
         if (setgamemode(fullscreen, xdimgame, ydimgame, bppgame) < 0)
         {
-            ExtUnInit();
+            CallExtUnInit();
             uninitengine();
             Bprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
             Bexit(0);
@@ -736,7 +757,7 @@ CANCEL:
         synctics = totalclock-lockclock;
         lockclock += synctics;
 
-        ExtPreCheckKeys();
+        CallExtPreCheckKeys();
 
         M32_DrawRoomsAndMasks();
 
@@ -752,7 +773,7 @@ CANCEL:
 
         M32_drawdebug();
 #endif
-        ExtCheckKeys();
+        CallExtCheckKeys();
 
 
         if (keystatus[1])
@@ -823,7 +844,7 @@ CANCEL:
     }
 
 
-    ExtUnInit();
+    CallExtUnInit();
 //    clearfilenames();
     uninitengine();
 
@@ -1295,12 +1316,12 @@ void editinput(void)
             {
             case SEARCH_CEILING:
             case SEARCH_FLOOR:
-                ExtShowSectorData(searchsector); break;
+                CallExtShowSectorData(searchsector); break;
             case SEARCH_WALL:
             case SEARCH_MASKWALL:
-                ExtShowWallData(searchwall); break;
+                CallExtShowWallData(searchwall); break;
             case SEARCH_SPRITE:
-                ExtShowSpriteData(searchwall); break;
+                CallExtShowSpriteData(searchwall); break;
             }
 
             keystatus[0x3f] = keystatus[0x40] = 0;
@@ -1311,12 +1332,12 @@ void editinput(void)
             {
             case SEARCH_CEILING:
             case SEARCH_FLOOR:
-                ExtEditSectorData(searchsector); break;
+                CallExtEditSectorData(searchsector); break;
             case SEARCH_WALL:
             case SEARCH_MASKWALL:
-                ExtEditWallData(searchwall); break;
+                CallExtEditWallData(searchwall); break;
             case SEARCH_SPRITE:
-                ExtEditSpriteData(searchwall); break;
+                CallExtEditSpriteData(searchwall); break;
             }
 
             keystatus[0x41] = keystatus[0x42] = 0;
@@ -3285,7 +3306,7 @@ void overheadeditor(void)
 
             draw2dgrid(pos.x,pos.y,pos.z,cursectnum,ang,zoom,grid);
 
-            ExtPreCheckKeys();
+            CallExtPreCheckKeys();
 
             {
                 int32_t cx, cy;
@@ -3342,7 +3363,7 @@ void overheadeditor(void)
 
                         YAX_SKIPSECTOR(i);
 
-                        dabuffer = ExtGetSectorCaption(i);
+                        dabuffer = CallExtGetSectorCaption(i);
                         if (dabuffer[0] == 0)
                             continue;
 
@@ -3383,7 +3404,7 @@ void overheadeditor(void)
                     //Get average point of wall
 //                    if ((dax > x3) && (dax < x4) && (day > y3) && (day < y4))
                     {
-                        dabuffer = ExtGetWallCaption(i);
+                        dabuffer = CallExtGetWallCaption(i);
                         if (dabuffer[0] == 0)
                             continue;
 
@@ -3414,7 +3435,7 @@ void overheadeditor(void)
                         if ((!m32_sideview || !alwaysshowgray) && sprite[i].sectnum >= 0)
                             YAX_SKIPSECTOR(sprite[i].sectnum);
 
-                        dabuffer = ExtGetSpriteCaption(i);
+                        dabuffer = CallExtGetSpriteCaption(i);
                         if (dabuffer[0] != 0)
                         {
                             int32_t blocking = (sprite[i].cstat&1);
@@ -3701,7 +3722,7 @@ void overheadeditor(void)
         inputchecked = 1;
 
         VM_OnEvent(EVENT_PREKEYS2D, -1);
-        ExtCheckKeys(); // TX 20050101, it makes more sense to have this here so keys can be overwritten with new functions in bstub.c
+        CallExtCheckKeys(); // TX 20050101, it makes more sense to have this here so keys can be overwritten with new functions in bstub.c
 
         // Flip/mirror sector Ed Coolidge
         if (keystatus[0x2d] || keystatus[0x15])  // X or Y (2D)
@@ -3862,7 +3883,7 @@ void overheadeditor(void)
             keystatus[88] = 0;
 //__clearscreen_beforecapture__
 
-            Bsprintf(tempbuf, "Mapster32 %s", ExtGetVer());
+            Bsprintf(tempbuf, "Mapster32 %s", CallExtGetVer());
             screencapture("captxxxx.tga", eitherSHIFT, tempbuf);
 
             showframe(1);
@@ -4011,16 +4032,16 @@ rotate_hlsect_out:
 #if 1
         if (keystatus[0x3f])  //F5
         {
-            ExtShowSectorData(0);
+            CallExtShowSectorData(0);
         }
         if (keystatus[0x40])  //F6
         {
             if (pointhighlight >= 16384)
-                ExtShowSpriteData(pointhighlight-16384);
+                CallExtShowSpriteData(pointhighlight-16384);
             else if (linehighlight >= 0)
-                ExtShowWallData(linehighlight);
+                CallExtShowWallData(linehighlight);
             else
-                ExtShowWallData(0);
+                CallExtShowWallData(0);
         }
         if (keystatus[0x41])  //F7
         {
@@ -4031,7 +4052,7 @@ rotate_hlsect_out:
                 {
                     YAX_SKIPSECTOR(i);
 
-                    ExtEditSectorData(i);
+                    CallExtEditSectorData(i);
                     break;
                 }
         }
@@ -4040,9 +4061,9 @@ rotate_hlsect_out:
             keystatus[0x42] = 0;
 
             if (pointhighlight >= 16384)
-                ExtEditSpriteData(pointhighlight-16384);
+                CallExtEditSpriteData(pointhighlight-16384);
             else if (linehighlight >= 0)
-                ExtEditWallData(linehighlight);
+                CallExtEditWallData(linehighlight);
         }
 #endif
 
@@ -5543,11 +5564,11 @@ end_point_dragging:
                 if (cursectornum < numsectors)
                 {
                     if (pointhighlight >= 16384)
-                        ExtEditSpriteData(pointhighlight-16384);
+                        CallExtEditSpriteData(pointhighlight-16384);
                     else if ((linehighlight >= 0) && ((bstatus&1) || sectorofwall(linehighlight) == cursectornum))
-                        ExtEditWallData(linehighlight);
+                        CallExtEditWallData(linehighlight);
                     else if (cursectornum >= 0)
-                        ExtEditSectorData(cursectornum);
+                        CallExtEditSectorData(cursectornum);
                 }
 
                 bstatus &= ~6;
@@ -7678,7 +7699,7 @@ CANCEL:
                         reset_default_mapstate();
 
                         Bstrcpy(boardfilename,"newboard.map");
-                        ExtLoadMap(boardfilename);
+                        CallExtLoadMap(boardfilename);
 #if M32_UNDO
                         map_undoredo_free();
 #endif
@@ -7820,7 +7841,7 @@ CANCEL:
                         SaveBoardAndPrintMessage(selectedboardfilename);
 
                         Bstrcpy(boardfilename, selectedboardfilename);
-                        ExtSetupMapFilename(boardfilename);
+                        CallExtSetupMapFilename(boardfilename);
                     }
                     bad = 0;
                 }
@@ -7880,7 +7901,7 @@ CANCEL:
                             goto CANCEL;
                         }
 
-                        ExtUnInit();
+                        CallExtUnInit();
 //                        clearfilenames();
                         uninitengine();
 
@@ -7916,7 +7937,7 @@ CANCEL:
     if (setgamemode(fullscreen,xdimgame,ydimgame,bppgame) < 0)
     {
         initprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
-        ExtUnInit();
+        CallExtUnInit();
 //        clearfilenames();
         uninitengine();
         Bexit(1);
@@ -8087,12 +8108,12 @@ const char *SaveBoard(const char *fn, uint32_t flags)
 #endif
 
     saveboard_savedtags = 0;
-    saveboard_fixedsprites = ExtPreSaveMap();
+    saveboard_fixedsprites = CallExtPreSaveMap();
 
     ret = saveboard(f, &startpos, startang, startsectnum);
     if ((flags&M32_SB_NOEXT)==0)
     {
-        ExtSaveMap(f);
+        CallExtSaveMap(f);
         saveboard_savedtags = !taglab_save(f);
     }
 
@@ -8115,7 +8136,7 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     editorzrange[0] = INT32_MIN;
     editorzrange[1] = INT32_MAX;
 
-    ExtPreLoadMap();
+    CallExtPreLoadMap();
     i = loadboard(filename, (flags&4)|loadingflags, &pos, &ang, &cursectnum);
     if (i == -2)
         i = loadoldboard(filename,loadingflags, &pos, &ang, &cursectnum);
@@ -8140,7 +8161,7 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
         loadmhk(0);
 
     tagstat = taglab_load(boardfilename, loadingflags);
-    ExtLoadMap(boardfilename);
+    CallExtLoadMap(boardfilename);
 
     {
         char msgtail[64];
@@ -8773,7 +8794,7 @@ static void clearministatbar16(void)
 
     if (xdim >= 800)
     {
-        Bsprintf(tempbuf, "Mapster32 %s", ExtGetVer());
+        Bsprintf(tempbuf, "Mapster32 %s", CallExtGetVer());
         printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3, ydim2d-STATUS2DSIZ2+10, editorcolors[4],-1, tempbuf, 0);
         printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2, ydim2d-STATUS2DSIZ2+9, editorcolors[12],-1, tempbuf, 0);
     }
@@ -9045,7 +9066,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
         inputchecked = 1;
 
         if ((flags&8)==0)
-            ExtCheckKeys();
+            CallExtCheckKeys();
 
         getnumber_clearline();
 
@@ -10117,7 +10138,7 @@ void showsectordata(int16_t sectnum, int16_t small)
 
     if (small)
     {
-        _printmessage16("^10Sector %d %s ^O(F7 to edit)", sectnum, ExtGetSectorCaption(sectnum));
+        _printmessage16("^10Sector %d %s ^O(F7 to edit)", sectnum, CallExtGetSectorCaption(sectnum));
         return;
     }
 
@@ -10187,7 +10208,7 @@ void showwalldata(int16_t wallnum, int16_t small)
     if (small)
     {
         _printmessage16("^10Wall %d %s ^O(F8 to edit)", wallnum,
-                        ExtGetWallCaption(wallnum));
+                        CallExtGetWallCaption(wallnum));
         return;
     }
 
@@ -10236,7 +10257,7 @@ void showspritedata(int16_t spritenum, int16_t small)
 
     if (small)
     {
-        _printmessage16("^10Sprite %d %s ^O(F8 to edit)",spritenum, ExtGetSpriteCaption(spritenum));
+        _printmessage16("^10Sprite %d %s ^O(F8 to edit)",spritenum, CallExtGetSpriteCaption(spritenum));
         return;
     }
 
@@ -10688,7 +10709,7 @@ void test_map(int32_t mode)
         }
         Bstrcat(fullparam, param);
 
-        ExtPreSaveMap();
+        CallExtPreSaveMap();
         if (mode)
             saveboard(PLAYTEST_MAPNAME, &startpos, startang, startsectnum);
         else
@@ -10731,3 +10752,100 @@ void test_map(int32_t mode)
     else
         printmessage16("Position must be in valid player space to test map!");
 }
+
+// These will be more useful in the future...
+static const char *CallExtGetVer(void)
+{
+    return ExtGetVer();
+}
+static int32_t CallExtInit(void)
+{
+    return ExtInit();
+}
+static int32_t CallExtPreInit(int32_t argc,const char **argv)
+{
+    return ExtPreInit(argc, argv);
+}
+static void CallExtUnInit(void)
+{
+    ExtUnInit();
+}
+static void CallExtPreCheckKeys(void)
+{
+    ExtPreCheckKeys();
+}
+static void CallExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr)
+{
+    ExtAnalyzeSprites(ourx, oury, oura, smoothr);
+    VM_OnEvent(EVENT_ANALYZESPRITES, -1);
+}
+static void CallExtCheckKeys(void)
+{
+    ExtCheckKeys();
+}
+static void CallExtPreLoadMap(void)
+{
+    VM_OnEvent(EVENT_PRELOADMAP, -1);
+    ExtPreLoadMap();
+}
+static void CallExtSetupMapFilename(const char *mapname)
+{
+    ExtSetupMapFilename(mapname);
+}
+static void CallExtLoadMap(const char *mapname)
+{
+    ExtLoadMap(mapname);
+    VM_OnEvent(EVENT_LOADMAP, -1);
+}
+static int32_t CallExtPreSaveMap(void)
+{
+    VM_OnEvent(EVENT_PRESAVEMAP, -1);
+    return ExtPreSaveMap();
+}
+static void CallExtSaveMap(const char *mapname)
+{
+    ExtSaveMap(mapname);
+    VM_OnEvent(EVENT_SAVEMAP, -1);
+}
+static const char *CallExtGetSectorCaption(int16_t sectnum)
+{
+    return ExtGetSectorCaption(sectnum);
+}
+static const char *CallExtGetWallCaption(int16_t wallnum)
+{
+    return ExtGetWallCaption(wallnum);
+}
+static const char *CallExtGetSpriteCaption(int16_t spritenum)
+{
+    return ExtGetSpriteCaption(spritenum);
+}
+static void CallExtShowSectorData(int16_t sectnum)
+{
+    ExtShowSectorData(sectnum);
+}
+static void CallExtShowWallData(int16_t wallnum)
+{
+    ExtShowWallData(wallnum);
+}
+static void CallExtShowSpriteData(int16_t spritenum)
+{
+    ExtShowSpriteData(spritenum);
+}
+static void CallExtEditSectorData(int16_t sectnum)
+{
+    ExtEditSectorData(sectnum);
+}
+static void CallExtEditWallData(int16_t wallnum)
+{
+    ExtEditWallData(wallnum);
+}
+static void CallExtEditSpriteData(int16_t spritenum)
+{
+    ExtEditSpriteData(spritenum);
+}
+#if 0
+static const char *CallExtGetSectorType(int32_t lotag)
+{
+    return ExtGetSectorType(lotag);
+}
+#endif
