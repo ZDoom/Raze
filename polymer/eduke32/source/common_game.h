@@ -7,6 +7,8 @@
 #ifndef EDUKE32_COMMON_GAME_H_
 #define EDUKE32_COMMON_GAME_H_
 
+extern int32_t usecwd;
+
 #define GAMEFLAG_DUKE       0x00000001
 #define GAMEFLAG_NAM        0x00000002
 #define GAMEFLAG_NAPALM     0x00000004
@@ -16,6 +18,9 @@
 #define GAMEFLAG_DUKEBETA   0x00000060 // includes 0x20 since it's a shareware beta
 
 extern int32_t g_gameType;
+
+extern int32_t g_usingAddon;
+extern int32_t g_dependencyCRC;
 
 #define DUKE                (g_gameType & GAMEFLAG_DUKE)
 #define NAM                 (g_gameType & GAMEFLAG_NAM)
@@ -37,6 +42,8 @@ enum instpath_t {
     INSTPATH_GOG,
     NUMINSTPATHS
 };
+
+extern const char *g_gameNamePtr;
 
 extern const char *defaultgamegrp[GAMECOUNT];
 extern const char *defaultdeffilename[GAMECOUNT];
@@ -62,6 +69,9 @@ extern void clearGrpNamePtr(void);
 extern void clearDefNamePtr(void);
 extern void clearScriptNamePtr(void);
 
+extern int32_t loaddefinitions_game(const char *, int32_t);
+extern int32_t g_groupFileHandle;
+
 //////////
 
 extern void G_InitMultiPsky(int32_t CLOUDYOCEAN__DYN, int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__DYN);
@@ -69,8 +79,15 @@ extern void G_SetupGlobalPsky(void);
 
 //////////
 
+extern char g_modDir[BMAX_PATH];
+
 extern void G_AddSearchPaths(void);
 extern void G_CleanupSearchPaths(void);
+
+extern void G_ExtPreInit(int32_t argc,const char **argv);
+extern void G_ExtInit(void);
+extern void G_ExtPreStartupWindow(void);
+extern void G_ExtPostStartupWindow(int32_t autoload);
 
 extern const char * G_GetInstallPath(int32_t insttype);
 

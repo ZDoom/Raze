@@ -93,7 +93,6 @@ G_EXTERN int32_t g_damageCameras,g_freezerSelfDamage;
 G_EXTERN int32_t g_doQuickSave;
 G_EXTERN uint16_t g_earthquakeTime;
 G_EXTERN int32_t g_gameQuit;
-G_EXTERN int32_t g_groupFileHandle;
 G_EXTERN int32_t g_impactDamage,g_maxPlayerHealth;
 G_EXTERN int32_t g_musicSize;
 G_EXTERN int32_t g_numLabels,g_numDefaultLabels;

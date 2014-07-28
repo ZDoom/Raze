@@ -220,7 +220,7 @@ COMMON_OBJS=common rev
 COMMON_EDITOR_OBJS=common m32def m32exec m32vars mathutil rev
 
 DUKE3D_OBJS=game actors anim config demo gamedef gameexec gamevars global input menus namesdyn net player premap savegame sector rts osdfuncs osdcmds grpscan sounds soundsdyn $(MACT_OBJ)
-DUKE3D_EDITOR_OBJS=astub sounds_mapster32
+DUKE3D_EDITOR_OBJS=astub grpscan sounds_mapster32
 
 ifneq ($(USE_LIBVPX),0)
     DUKE3D_OBJS+= animvpx

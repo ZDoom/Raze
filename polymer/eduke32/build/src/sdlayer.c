@@ -287,11 +287,25 @@ void wm_setapptitle(char *name)
 //
 //
 
+#ifdef GEKKO
+#include "gctypes.h" // for bool
+void L2Enhance();
+void CON_EnableGecko(int channel,int safe);
+bool fatInit (uint32_t cacheSize, bool setAsDefaultDevice);
+#endif
+
 int32_t main(int32_t argc, char *argv[])
 {
     int32_t r;
 #ifdef USE_OPENGL
     char *argp;
+#endif
+
+#ifdef GEKKO
+    L2Enhance();
+    CON_EnableGecko(1, 1);
+    Bprintf("Console started\n");
+    fatInit(28, true);
 #endif
 
     buildkeytranslationtable();

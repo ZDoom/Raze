@@ -23,6 +23,8 @@
 
 #include "m32script.h"
 
+char levelname[BMAX_PATH] = {0};
+
 #define TIMERINTSPERSECOND 120
 
 #define updatecrc16(crc,dat) (crc = (((crc<<8)&65535)^crctable[((((uint16_t)crc)>>8)&65535)^dat]))
@@ -32,6 +34,7 @@ static char kensig[64];
 static const char *CallExtGetVer(void);
 static int32_t CallExtInit(void);
 static int32_t CallExtPreInit(int32_t argc,const char **argv);
+static int32_t CallExtPostStartupWindow(void);
 static void CallExtUnInit(void);
 static void CallExtPreCheckKeys(void);
 static void CallExtAnalyzeSprites(int32_t, int32_t, int32_t, int32_t);
@@ -585,7 +588,11 @@ int32_t app_main(int32_t argc, const char **argv)
         Bstrcat(boardfilename, ".map");
     //Bcanonicalisefilename(boardfilename,0);
 
+    if (!getcwd(program_origcwd,BMAX_PATH))
+        program_origcwd[0] = '\0';
+
     if ((i = CallExtInit()) < 0) return -1;
+
 #ifdef STARTUP_SETUP_WINDOW
     if (i || forcesetup || cmdsetup)
     {
@@ -598,6 +605,8 @@ int32_t app_main(int32_t argc, const char **argv)
         }
     }
 #endif
+
+    if (CallExtPostStartupWindow() < 0) return -1;
 
     loadnames(g_namesFileName, 1);
 
@@ -10765,6 +10774,10 @@ static int32_t CallExtInit(void)
 static int32_t CallExtPreInit(int32_t argc,const char **argv)
 {
     return ExtPreInit(argc, argv);
+}
+static int32_t CallExtPostStartupWindow(void)
+{
+    return ExtPostStartupWindow();
 }
 static void CallExtUnInit(void)
 {

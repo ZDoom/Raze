@@ -9,6 +9,7 @@
 #include "kplib.h"
 #include "baselayer.h"
 #include "names.h"
+#include "grpscan.h"
 
 #ifdef _WIN32
 # include "winbits.h"
@@ -40,6 +41,13 @@ const char* s_buildInfo =
 ;
 
 int32_t g_gameType = GAMEFLAG_DUKE;
+
+int32_t g_dependencyCRC = 0;
+int32_t g_usingAddon = 0;
+
+// g_gameNamePtr can point to one of: grpfiles[].name (string literal), string
+// literal, malloc'd block (XXX: possible leak)
+const char *g_gameNamePtr = NULL;
 
 // grp/con/def handling
 
@@ -270,21 +278,269 @@ void G_SetupGlobalPsky(void)
 
 //////////
 
-#ifdef GEKKO
-#include "gctypes.h" // for bool
-void L2Enhance();
-void CON_EnableGecko(int channel,int safe);
-bool fatInit (uint32_t cacheSize, bool setAsDefaultDevice);
-#endif
+static char g_rootDir[BMAX_PATH];
+char g_modDir[BMAX_PATH] = "/";
 
-void G_ExtPreInit(void)
+int32_t kopen4loadfrommod(const char *filename, char searchfirst)
 {
-#ifdef GEKKO
-    L2Enhance();
-    CON_EnableGecko(1, 1);
-    Bprintf("Console started\n");
-    fatInit(28, true);
+    int32_t r=-1;
+
+    if (g_modDir[0]!='/' || g_modDir[1]!=0)
+    {
+        static char fn[BMAX_PATH];
+
+        Bsnprintf(fn, sizeof(fn), "%s/%s",g_modDir,filename);
+        r = kopen4load(fn,searchfirst);
+    }
+
+    if (r < 0)
+        r = kopen4load(filename,searchfirst);
+
+    return r;
+}
+
+int32_t usecwd;
+static void G_LoadAddon(void);
+int32_t g_groupFileHandle;
+
+void G_ExtPreInit(int32_t argc,const char **argv)
+{
+    usecwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
+
+#ifdef _WIN32
+    GetModuleFileName(NULL,g_rootDir,BMAX_PATH);
+    Bcorrectfilename(g_rootDir,1);
+    //chdir(g_rootDir);
+#else
+    getcwd(g_rootDir,BMAX_PATH);
+    strcat(g_rootDir,"/");
 #endif
+}
+
+void G_ExtInit(void)
+{
+    char cwd[BMAX_PATH];
+
+    if (getcwd(cwd,BMAX_PATH))
+    {
+#if defined(__APPLE__)
+        /* Dirty hack on OS X to also look for gamedata inside the application bundle - rhoenie 08/08 */
+        char seekinappcontainer[BMAX_PATH];
+        Bsnprintf(seekinappcontainer,sizeof(seekinappcontainer),"%s/EDuke32.app/", cwd);
+        addsearchpath(seekinappcontainer);
+#endif
+        addsearchpath(cwd);
+    }
+
+    if (CommandPaths)
+    {
+        int32_t i;
+        struct strllist *s;
+        while (CommandPaths)
+        {
+            s = CommandPaths->next;
+            i = addsearchpath(CommandPaths->str);
+            if (i < 0)
+            {
+                initprintf("Failed adding %s for game data: %s\n", CommandPaths->str,
+                           i==-1 ? "not a directory" : "no such directory");
+            }
+
+            Bfree(CommandPaths->str);
+            Bfree(CommandPaths);
+            CommandPaths = s;
+        }
+    }
+
+#if defined(_WIN32)
+    if (!access("user_profiles_enabled", F_OK))
+#else
+    if (usecwd == 0 && access("user_profiles_disabled", F_OK))
+#endif
+    {
+        char *homedir;
+        int32_t asperr;
+
+        if ((homedir = Bgethomedir()))
+        {
+            Bsnprintf(cwd,sizeof(cwd),"%s/"
+#if defined(_WIN32)
+                      "EDuke32 Settings"
+#elif defined(__APPLE__)
+                      "Library/Application Support/EDuke32"
+#elif defined(GEKKO)
+                      "apps/eduke32"
+#else
+                      ".eduke32"
+#endif
+                      ,homedir);
+            asperr = addsearchpath(cwd);
+            if (asperr == -2)
+            {
+                if (Bmkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
+                else asperr = -1;
+            }
+            if (asperr == 0)
+                chdir(cwd);
+            Bfree(homedir);
+        }
+    }
+
+    // JBF 20031220: Because it's annoying renaming GRP files whenever I want to test different game data
+    if (g_grpNamePtr == NULL)
+    {
+        const char *cp = getenv("DUKE3DGRP");
+        if (cp)
+        {
+            clearGrpNamePtr();
+            g_grpNamePtr = dup_filename(cp);
+            initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
+        }
+    }
+}
+
+void G_ExtPreStartupWindow(void)
+{
+    ScanGroups();
+    {
+        // try and identify the 'defaultgamegrp' in the set of GRPs.
+        // if it is found, set up the environment accordingly for the game it represents.
+        // if it is not found, choose the first GRP from the list
+        struct grpfile *fg, *first = NULL;
+
+        for (fg = foundgrps; fg; fg=fg->next)
+        {
+            struct grpfile *grp;
+            for (grp = listgrps; grp; grp=grp->next)
+                if (fg->crcval == grp->crcval) break;
+
+            if (grp == NULL)
+                continue;
+
+            fg->game = grp->game;
+            if (!first) first = fg;
+            if (!Bstrcasecmp(fg->name, G_DefaultGrpFile()))
+            {
+                g_gameType = grp->game;
+                g_gameNamePtr = grp->name;
+                break;
+            }
+        }
+        if (!fg && first)
+        {
+            if (g_grpNamePtr == NULL)
+            {
+                clearGrpNamePtr();
+                g_grpNamePtr = dup_filename(first->name);
+            }
+            g_gameType = first->game;
+            g_gameNamePtr = listgrps->name;
+        }
+        else if (!fg) g_gameNamePtr = NULL;
+    }
+}
+
+void G_ExtPostStartupWindow(int32_t autoload)
+{
+    if (g_modDir[0] != '/')
+    {
+        char cwd[BMAX_PATH];
+
+        Bstrcat(g_rootDir,g_modDir);
+        addsearchpath(g_rootDir);
+//        addsearchpath(mod_dir);
+
+        if (getcwd(cwd,BMAX_PATH))
+        {
+            Bsprintf(cwd,"%s/%s",cwd,g_modDir);
+            if (!Bstrcmp(g_rootDir, cwd))
+            {
+                if (addsearchpath(cwd) == -2)
+                    if (Bmkdir(cwd,S_IRWXU) == 0) addsearchpath(cwd);
+            }
+        }
+
+#ifdef USE_OPENGL
+        Bsprintf(cwd,"%s/%s",g_modDir,TEXCACHEFILE);
+        Bstrcpy(TEXCACHEFILE,cwd);
+#endif
+    }
+
+    if (g_usingAddon)
+        G_LoadAddon();
+
+    {
+        int32_t i;
+        const char *grpfile = G_GrpFile();
+
+        if (g_dependencyCRC)
+        {
+            struct grpfile * grp = FindGroup(g_dependencyCRC);
+            if (grp)
+            {
+                if ((i = initgroupfile(grp->name)) == -1)
+                    initprintf("Warning: could not find main data file \"%s\"!\n",grp->name);
+                else
+                    initprintf("Using \"%s\" as main game data file.\n", grp->name);
+            }
+        }
+
+        if ((i = initgroupfile(grpfile)) == -1)
+            initprintf("Warning: could not find main data file \"%s\"!\n",grpfile);
+        else
+            initprintf("Using \"%s\" as main game data file.\n", grpfile);
+
+        if (autoload)
+        {
+            G_LoadGroupsInDir("autoload");
+
+            if (i != -1)
+                G_DoAutoload(grpfile);
+        }
+    }
+
+    if (g_modDir[0] != '/')
+        G_LoadGroupsInDir(g_modDir);
+
+    if (g_defNamePtr == NULL)
+    {
+        const char *tmpptr = getenv("DUKE3DDEF");
+        if (tmpptr)
+        {
+            clearDefNamePtr();
+            g_defNamePtr = dup_filename(tmpptr);
+            initprintf("Using \"%s\" as definitions file\n", g_defNamePtr);
+        }
+    }
+
+    loaddefinitions_game(G_DefFile(), TRUE);
+
+    {
+        struct strllist *s;
+
+        pathsearchmode = 1;
+        while (CommandGrps)
+        {
+            int32_t j;
+
+            s = CommandGrps->next;
+
+            if ((j = initgroupfile(CommandGrps->str)) == -1)
+                initprintf("Could not find file \"%s\".\n",CommandGrps->str);
+            else
+            {
+                g_groupFileHandle = j;
+                initprintf("Using file \"%s\" as game data.\n",CommandGrps->str);
+                if (autoload)
+                    G_DoAutoload(CommandGrps->str);
+            }
+
+            Bfree(CommandGrps->str);
+            Bfree(CommandGrps);
+            CommandGrps = s;
+        }
+        pathsearchmode = 0;
+    }
 }
 
 #ifdef _WIN32
@@ -323,6 +579,52 @@ const char * G_GetInstallPath(int32_t insttype)
 }
 #endif
 
+static void G_LoadAddon(void)
+{
+    struct grpfile * grp;
+    int32_t crc = 0;  // compiler-happy
+
+    switch (g_usingAddon)
+    {
+    case ADDON_DUKEDC:
+        crc = DUKEDC_CRC;
+        break;
+    case ADDON_NWINTER:
+        crc = DUKENW_CRC;
+        break;
+    case ADDON_CARIBBEAN:
+        crc = DUKECB_CRC;
+        break;
+    }
+
+    if (!crc) return;
+
+    grp = FindGroup(crc);
+
+    if (grp && FindGroup(DUKE15_CRC))
+    {
+        clearGrpNamePtr();
+        g_grpNamePtr = dup_filename(FindGroup(DUKE15_CRC)->name);
+
+        G_AddGroup(grp->name);
+
+        for (grp = listgrps; grp; grp=grp->next)
+            if (crc == grp->crcval) break;
+
+        if (grp != NULL && grp->scriptname)
+        {
+            clearScriptNamePtr();
+            g_scriptNamePtr = dup_filename(grp->scriptname);
+        }
+
+        if (grp != NULL && grp->defname)
+        {
+            clearDefNamePtr();
+            g_defNamePtr = dup_filename(grp->defname);
+        }
+    }
+}
+
 void G_AddSearchPaths(void)
 {
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
@@ -340,10 +642,10 @@ void G_AddSearchPaths(void)
 
     if ((instpath = G_GetInstallPath(INSTPATH_STEAM)))
     {
-        Bsprintf(buf, "%s/gameroot", instpath);
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
         addsearchpath(buf);
 
-        Bsprintf(buf, "%s/gameroot/addons", instpath);
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons", instpath);
         addsearchpath(buf);
     }
 
@@ -360,10 +662,10 @@ void G_CleanupSearchPaths(void)
 
     if ((instpath = G_GetInstallPath(INSTPATH_STEAM)))
     {
-        Bsprintf(buf, "%s/gameroot", instpath);
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
         removesearchpath(buf);
 
-        Bsprintf(buf, "%s/gameroot/addons", instpath);
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons", instpath);
         removesearchpath(buf);
     }
 
@@ -481,6 +783,18 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 }
 
 //////////
+
+int32_t G_CheckCmdSwitch(int32_t argc, const char **argv, const char *str)
+{
+    int32_t i;
+    for (i=0; i<argc; i++)
+    {
+        if (str && !Bstrcasecmp(argv[i], str))
+            return 1;
+    }
+
+    return 0;
+}
 
 // returns: 1 if file could be opened, 0 else
 int32_t testkopen(const char *filename, char searchfirst)

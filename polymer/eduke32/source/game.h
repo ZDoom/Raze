@@ -257,7 +257,7 @@ typedef struct {
 
 // this is checked against http://eduke32.com/VERSION
 extern const char *s_buildDate;
-extern const char *g_gameNamePtr;
+
 extern const char *g_rtsNamePtr;
 
 extern char CheatStrings[][MAXCHEATLEN];
@@ -267,7 +267,6 @@ extern char boardfilename[BMAX_PATH];
 extern const char *defaultrtsfilename[GAMECOUNT];
 extern const char *G_DefaultRtsFile(void);
 
-extern char g_modDir[BMAX_PATH];
 #ifdef LEGACY_ROR
 extern char ror_protectedsectors[MAXSECTORS];
 #endif
@@ -286,7 +285,6 @@ extern int32_t g_cameraClock;
 extern int32_t g_cameraDistance;
 #endif
 extern int32_t g_crosshairSum;
-extern int32_t g_dependencyCRC;
 extern int32_t g_doQuickSave;
 extern int32_t g_forceWeaponChoice;
 extern int32_t g_fakeMultiMode;
@@ -294,7 +292,6 @@ extern int32_t g_levelTextTime;
 extern int32_t g_noSetup;
 extern int32_t g_quitDeadline;
 extern int32_t g_restorePalette;
-extern int32_t g_usingAddon;
 extern int32_t hud_glowingquotes;
 extern int32_t hud_showmapname;
 extern int32_t quotebot;

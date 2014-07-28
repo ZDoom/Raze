@@ -62,6 +62,8 @@ void G_AddClipMap(const char *buffer);
 
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
+int32_t G_CheckCmdSwitch(int32_t argc, const char **argv, const char *str);
+
 int32_t testkopen(const char *filename, char searchfirst);  // full-blown kopen4load
 int32_t check_file_exist(const char *fn);  // findfrompath with pathsearchmode=1 / search in zips
 
@@ -79,8 +81,6 @@ int32_t ldist(const spritetype *s1, const spritetype *s2);
 int32_t dist(const spritetype *s1, const spritetype *s2);
 
 void COMMON_clearbackground(int32_t numcols, int32_t numrows);
-
-extern void G_ExtPreInit(void);
 
 // timer defs for profiling function chunks the simple way
 #define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=getticks();

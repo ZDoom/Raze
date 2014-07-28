@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdfuncs.h"
 #include "names.h"
 
+#include "grpscan.h"
+
 #include "common.h"
 #include "common_game.h"
 #include "mapster32.h"
@@ -79,9 +81,6 @@ const char* AppTechnicalName = "mapster32";
 static int32_t floor_over_floor;
 static int32_t g_fillCurSector = 0;
 
-static char g_modDir[BMAX_PATH];
-static char levelname[BMAX_PATH];
-
 // static char *startwin_labeltext = "Starting Mapster32...";
 char setupfilename[BMAX_PATH] = SETUPFILENAME;
 
@@ -106,8 +105,6 @@ static int16_t g_definedsndnum[MAXSOUNDS];  // maps parse order index to g_sound
 static int16_t g_sndnum[MAXSOUNDS];  // maps current order index to g_sounds index
 int32_t g_numsounds = 0;
 static int32_t lastupdate, mousecol, mouseadd = 1, bstatus;
-
-static int32_t usecwd = 0;
 
 char *scripthist[SCRIPTHISTSIZ];
 int32_t scripthistend = 0;
@@ -682,23 +679,6 @@ static const char *Help3d[]=
     " HOME = PGUP/PGDN MODIFIER (256 UNITS)",
     " END = PGUP/PGDN MODIFIER (512 UNITS)",
 };
-
-int32_t kopen4loadfrommod(const char *filename, char searchfirst)
-{
-    static char fn[BMAX_PATH];
-    int32_t r=-1;
-
-    if (g_modDir[0])
-    {
-        Bsnprintf(fn,sizeof(fn),"%s/%s",g_modDir,filename);
-        r = kopen4load(fn,searchfirst);
-    }
-
-    if (r < 0)
-        r = kopen4load(filename,searchfirst);
-
-    return r;
-}
 
 const char *ExtGetVer(void)
 {
@@ -8594,6 +8574,23 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 Bexit(0);
             }
 
+            if (!Bstrcasecmp(c+1,"addon"))
+            {
+                if (argc > i+1)
+                {
+                    g_usingAddon = Batoi(argv[i+1]);
+
+                    if (!(g_usingAddon > ADDON_NONE && g_usingAddon < NUMADDONS))
+                        g_usingAddon = ADDON_NONE;
+
+                    COPYARG(i);
+                    COPYARG(i+1);
+                    i++;
+                }
+                i++;
+                continue;
+            }
+
             if (!Bstrcasecmp(c+1, "g") || !Bstrcasecmp(c+1, "grp"))
             {
                 if (argc > i+1)
@@ -8611,10 +8608,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             {
                 if (argc > i+1)
                 {
-#ifdef USE_OPENGL
-                    Bsnprintf(tempbuf,sizeof(tempbuf),"%s/%s",argv[i+1],TEXCACHEFILE);
-                    Bstrncpyz(TEXCACHEFILE, tempbuf, sizeof(TEXCACHEFILE));
-#endif
                     Bstrncpyz(g_modDir, argv[i+1], sizeof(g_modDir));
 
                     G_AddPath(argv[i+1]);
@@ -8918,18 +8911,14 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
 {
     wm_setapptitle("Mapster32");
 
-    G_ExtPreInit();
-
 #ifdef _WIN32
     {
         extern int32_t (*check_filename_casing_fn)(void);
         check_filename_casing_fn = check_filename_casing;
     }
-
-    tempbuf[GetModuleFileName(NULL,tempbuf,BMAX_PATH)] = 0;
-    Bcorrectfilename(tempbuf,1);
-    //chdir(tempbuf);
 #endif
+
+    G_ExtPreInit(argc, argv);
 
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersion("Mapster32" " " VERSION,0,2);
@@ -9766,10 +9755,12 @@ static int32_t parsegroupfiles(scriptfile *script)
     return 0;
 }
 
-int32_t loadgroupfiles(const char *fn)
+int32_t loaddefinitions_game(const char *fn, int32_t preload)
 {
     scriptfile *script;
     int32_t i;
+
+    UNREFERENCED_PARAMETER(preload);
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
@@ -10362,149 +10353,13 @@ static void M32_HandleMemErr(int32_t line, const char *file, const char *func)
 int32_t ExtInit(void)
 {
     int32_t rv = 0;
-    int32_t i;
-    char cwd[BMAX_PATH];
 
     set_memerr_handler(&M32_HandleMemErr);
 
-    G_AddSearchPaths();
-
-    if (getcwd(cwd,BMAX_PATH))
-    {
-#if defined(__APPLE__)
-        /* Dirty hack on OS X to also look for gamedata inside the application bundle - rhoenie 08/08 */
-        char seekinappcontainer[BMAX_PATH];
-        Bsnprintf(seekinappcontainer,sizeof(seekinappcontainer),"%s/EDuke32.app/", cwd);
-        addsearchpath(seekinappcontainer);
-#endif
-        addsearchpath(cwd);
-        Bstrcpy(program_origcwd, cwd);
-    }
-    else
-        program_origcwd[0] = '\0';
-
-    if (CommandPaths)
-    {
-        struct strllist *s;
-        while (CommandPaths)
-        {
-            s = CommandPaths->next;
-            i = addsearchpath(CommandPaths->str);
-            if (i < 0)
-            {
-                initprintf("Failed adding %s for game data: %s\n", CommandPaths->str,
-                           i==-1 ? "not a directory" : "no such directory");
-            }
-
-            Bfree(CommandPaths->str);
-            Bfree(CommandPaths);
-            CommandPaths = s;
-        }
-    }
-
-#if defined(_WIN32)
-    if (!access("user_profiles_enabled", F_OK))
-#else
-    if (usecwd == 0 && access("user_profiles_disabled", F_OK))
-#endif
-    {
-        char *homedir;
-        int32_t asperr;
-
-        if ((homedir = Bgethomedir()))
-        {
-            Bsnprintf(cwd,sizeof(cwd),"%s/"
-#if defined(_WIN32)
-                      "EDuke32 Settings"
-#elif defined(__APPLE__)
-                      "Library/Application Support/EDuke32"
-#elif defined(GEKKO)
-                      "apps/eduke32"
-#else
-                      ".eduke32"
-#endif
-                      ,homedir);
-            asperr = addsearchpath(cwd);
-            if (asperr == -2)
-            {
-                if (Bmkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
-                else asperr = -1;
-            }
-            if (asperr == 0)
-                chdir(cwd);
-            Bfree(homedir);
-        }
-    }
-
-    {
-        // JBF 20031220: Because it's annoying renaming GRP files whenever I want to test different game data
-        // (CODEDUP game.c)
-        if (g_grpNamePtr == NULL)
-        {
-            const char *cp = getenv("DUKE3DGRP");
-            if (cp)
-            {
-                clearGrpNamePtr();
-                g_grpNamePtr = dup_filename(cp);
-                initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
-            }
-        }
-
-        {
-            const char *grpfile = G_GrpFile();
-
-            i = initgroupfile(grpfile);
-
-            if (!NoAutoLoad)
-            {
-                G_LoadGroupsInDir("autoload");
-
-                if (i != -1)
-                    G_DoAutoload(grpfile);
-            }
-        }
-    }
-
-    // (CODEDUP game.c)
-    if (g_defNamePtr == NULL)
-    {
-        const char *tmpptr = getenv("DUKE3DDEF");
-        if (tmpptr)
-        {
-            clearDefNamePtr();
-            g_defNamePtr = dup_filename(tmpptr);
-            initprintf("Using \"%s\" as definitions file\n", g_defNamePtr);
-        }
-    }
-
-    loadgroupfiles(G_DefFile()); // the defs are actually loaded in app_main in build.c
-
-    {
-        struct strllist *s;
-        int32_t j;
-
-        pathsearchmode = 1;
-        while (CommandGrps)
-        {
-            s = CommandGrps->next;
-            j = initgroupfile(CommandGrps->str);
-            if (j == -1) initprintf("Could not find group file \"%s\".\n",CommandGrps->str);
-            else
-            {
-                initprintf("Using group file \"%s\".\n",CommandGrps->str);
-                if (!NoAutoLoad)
-                    G_DoAutoload(CommandGrps->str);
-            }
-
-            Bfree(CommandGrps->str);
-            Bfree(CommandGrps);
-            CommandGrps = s;
-        }
-        pathsearchmode = 0;
-    }
-
     if (!usecwd)
-        G_CleanupSearchPaths();
+        G_AddSearchPaths();
+
+    G_ExtInit();
 
     bpp = 32;
 
@@ -10517,24 +10372,11 @@ int32_t ExtInit(void)
 //#endif
     Bmemcpy(buildkeys, default_buildkeys, NUMBUILDKEYS);   //Trick to make build use setup.dat keys
 
-    if (initengine())
-    {
-        initprintf("There was a problem initializing the engine.\n");
-        return -1;
-    }
-    
-    setbasepaltable(basepaltable, BASEPALCOUNT);
-
     kensplayerheight = 40; //32
     zmode = 2;
     zlock = kensplayerheight<<8;
 
     showinvisibility = 1;
-
-    if (ReadPaletteTable())
-        return -1;
-
-    InitCustomColors();
 
     getmessageleng = 0;
     getmessagetimeoff = 0;
@@ -10559,6 +10401,34 @@ int32_t ExtInit(void)
     // backup pathsearchmode so that a later open
     // will hopefully be the same file
     pathsearchmode_oninit = pathsearchmode;
+
+    G_ExtPreStartupWindow();
+
+    signal(SIGINT, m32script_interrupt_handler);
+
+    return rv;
+}
+
+int32_t ExtPostStartupWindow(void)
+{
+    G_ExtPostStartupWindow(!NoAutoLoad);
+
+    if (!usecwd)
+        G_CleanupSearchPaths();
+
+    if (initengine())
+    {
+        initprintf("There was a problem initializing the engine.\n");
+        return -1;
+    }
+
+    setbasepaltable(basepaltable, BASEPALCOUNT);
+
+    if (ReadPaletteTable())
+        return -1;
+
+    InitCustomColors();
+
     loadtilegroups(default_tiles_cfg);
 
     ReadHelpFile("m32help.hlp");
@@ -10581,9 +10451,7 @@ int32_t ExtInit(void)
     }
 #endif
 
-    signal(SIGINT, m32script_interrupt_handler);
-
-    return rv;
+    return 0;
 }
 
 void app_crashhandler(void)

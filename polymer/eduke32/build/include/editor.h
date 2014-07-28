@@ -16,6 +16,8 @@
 #define SETUPFILENAME "mapster32.cfg"
 extern char setupfilename[BMAX_PATH];
 
+extern char levelname[BMAX_PATH];
+
 // Build keys
 #define BK_MOVEFORWARD   0
 #define BK_MOVEBACKWARD  1
@@ -161,6 +163,7 @@ extern void clearkeys(void);
 extern const char *ExtGetVer(void);
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
+extern int32_t ExtPostStartupWindow(void);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
 extern void ExtAnalyzeSprites(int32_t, int32_t, int32_t, int32_t);
