@@ -57,13 +57,11 @@ static char helpon=0;
 //static char onwater=0;
 static uint8_t onnames=4, usedcount=1;
 static int16_t cursprite;
-int32_t mousxplc, mousyplc;
 static int32_t ppointhighlight;
 //static int32_t counter=0;
 static uint8_t nosprites=0,purpleon=0,skill=4;
 static uint8_t framerateon=1,shadepreview=0;
 
-int32_t autosave=180;
 static int32_t autosavetimer;
 
 static void SearchSectors(int32_t dir);
@@ -73,10 +71,6 @@ static inline void SpriteName(int16_t spritenum, char *lo2);
 static void EditSpriteData(int16_t spritenum);
 static void EditWallData(int16_t wallnum);
 static void EditSectorData(int16_t sectnum);
-static void FuncMenu(void);
-#ifdef LUNATIC
-static void LuaFuncMenu(void);
-#endif
 
 #define BASEPALCOUNT 6
 
@@ -93,9 +87,6 @@ static int32_t g_firstFogPal;
 
 static int32_t updownunits=1024;
 
-
-static char getmessage[162], getmessageleng;
-static int32_t getmessagetimeoff; //, charsperline;
 
 //int32_t intro=0;
 

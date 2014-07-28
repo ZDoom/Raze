@@ -224,6 +224,7 @@ DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
 DUKE3D_EDITOR_OBJS=$(DUKE3D_OBJ)\astub.$o \
 	$(DUKE3D_OBJ)\common.$o \
 	$(DUKE3D_OBJ)\mathutil.$o \
+	$(DUKE3D_OBJ)\m32common.$o \
 	$(DUKE3D_OBJ)\m32def.$o \
 	$(DUKE3D_OBJ)\m32vars.$o \
 	$(DUKE3D_OBJ)\m32exec.$o \

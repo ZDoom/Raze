@@ -217,7 +217,7 @@ EDUKE32_TARGET:=$(EDUKE32)
 MAPSTER32_TARGET:=$(MAPSTER32)
 
 COMMON_OBJS=rev
-COMMON_EDITOR_OBJS=m32def m32exec m32vars mathutil rev
+COMMON_EDITOR_OBJS=m32common m32def m32exec m32vars mathutil rev
 
 DUKE3D_OBJS=game actors anim common config demo gamedef gameexec gamevars global input menus namesdyn net player premap savegame sector rts osdfuncs osdcmds grpscan sounds soundsdyn $(MACT_OBJ)
 DUKE3D_EDITOR_OBJS=astub common grpscan sounds_mapster32

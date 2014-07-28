@@ -117,6 +117,8 @@ extern uint8_t graysectbitmap[MAXSECTORS>>3];
 extern uint8_t graywallbitmap[MAXWALLS>>3];
 extern int32_t autogray, showinnergray;
 
+extern void drawgradient(void);
+
 #ifdef YAX_ENABLE
 int32_t yax_is121(int16_t bunchnum, int16_t getfloor);
 #endif
@@ -133,6 +135,28 @@ extern int32_t kopen4loadfrommod(const char *filename, char searchfirst);
 extern int32_t map_revision;
 extern int32_t map_undoredo(int32_t dir);
 extern void map_undoredo_free(void);
+extern void create_map_snapshot(void);
+
+typedef struct mapundo_
+{
+    int32_t revision;
+    int32_t num[3];  // numsectors, numwalls, numsprites
+
+    // These exist temporarily as sector/wall/sprite data, but are compressed
+    // most of the time.  +4 bytes refcount at the beginning.
+    char *sws[3];  // sector, wall, sprite
+
+    uint32_t crc[3];
+
+    struct mapundo_ *next;  // 'redo' loads this
+    struct mapundo_ *prev;  // 'undo' loads this
+} mapundo_t;
+extern mapundo_t *mapstate;
+
+extern void FuncMenu(void);
+#ifdef LUNATIC
+extern void LuaFuncMenu(void);
+#endif
 
 // editor side view
 extern int32_t m32_sideview;
@@ -200,6 +224,7 @@ extern const char *GetSaveBoardFilename(const char *fn);
 extern int32_t corruptlevel, numcorruptthings, corruptthings[MAXCORRUPTTHINGS];
 extern int32_t autocorruptcheck;
 extern int32_t corruptcheck_noalreadyrefd;
+extern int32_t corrupt_tryfix_alt;
 extern int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing);
 
 extern int32_t fixmaponsave_sprites;
@@ -225,13 +250,31 @@ void fade_editor_screen(int32_t keepcol);
 extern int32_t getnumber_internal1(char ch, int32_t *danumptr, int32_t maxnumber, char sign);
 extern int32_t getnumber_autocomplete(const char *namestart, char ch, int32_t *danum, int32_t flags);
 
+// always CRLF for us
+#ifdef _WIN32
+# define OURNEWL "\n"
+#else
+# define OURNEWL "\r\n"
+#endif
+
+#ifdef YAX_ENABLE
+extern const char *yupdownwall[2];
+extern const char *YUPDOWNWALL[2];
+#endif
+
 int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, const char *(func)(int32_t));
 #define getnumber256(namestart, num, maxnumber, sign) _getnumber256(namestart, num, maxnumber, sign, NULL)
 int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, const char *(func)(int32_t));
 #define getnumber16(namestart, num, maxnumber, sign) _getnumber16(namestart, num, maxnumber, sign, NULL)
 void printmessage256(int32_t x, int32_t y, const char *name);
 void message(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
+void silentmessage(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
 extern int32_t AskIfSure(const char *text);
+
+extern char getmessage[162], getmessageleng;
+extern int32_t getmessagetimeoff;
+
+extern int32_t mouseaction;
 
 const char* getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen, int32_t completion);
 
@@ -271,6 +314,7 @@ extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
 
 void test_map(int32_t mode);
 
+extern void M32RunScript(const char *s);
 
 ////////// tag labeling system //////////
 // max (strlen+1), i.e. array length to allocate for a tag label:
