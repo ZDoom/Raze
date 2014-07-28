@@ -3043,7 +3043,7 @@ bulletisdeletedskip: continue;
 		if (sprite[i].extra < 0)
 		{
 			wsayfollow("warp.wav",6144L+(krand()&127)-64,128L,&sprite[i].x,&sprite[i].y,0);
-			sprite[i].cstat &= ~0x8000;
+			sprite[i].cstat &= (uint16_t) ~0x8000;
 			sprite[i].extra = -1;
 			changespritestat((short)i,0);
 		}
@@ -3790,14 +3790,14 @@ void drawscreen(short snum, int dasmoothratio)
 					{
 						sprite[playersprite[snum]].cstat |= 0x8000;
 						drawrooms(cpos.x,cpos.y,cpos.z,cang,choriz,cursectnum[i]);
-						sprite[playersprite[snum]].cstat &= ~0x8000;
+						sprite[playersprite[snum]].cstat &= (uint16_t) ~0x8000;
 						analyzesprites(cpos.x,cpos.y);
 					}
 					else
 					{
 						sprite[playersprite[i]].cstat |= 0x8000;
 						drawrooms(pos[i].x,pos[i].y,pos[i].z,ang[i],horiz[i],cursectnum[i]);
-						sprite[playersprite[i]].cstat &= ~0x8000;
+						sprite[playersprite[i]].cstat &= (uint16_t) ~0x8000;
 						analyzesprites(pos[i].x,pos[i].y);
 					}
 					drawmasks();
@@ -3869,7 +3869,7 @@ void drawscreen(short snum, int dasmoothratio)
 				if (cameradist < 0) sprite[playersprite[snum]].cstat |= 0x8000;
 				drawrooms(cpos.x,cpos.y,(sector[j].floorz<<1)-cpos.z,cang,201-choriz,j); //SOS
 				//drawrooms(cpos.x,cpos.y,cpos.z,cang,choriz,j+MAXSECTORS); //SOS
-				sprite[playersprite[snum]].cstat &= ~0x8000;
+				sprite[playersprite[snum]].cstat &= (uint16_t) ~0x8000;
 				analyzesprites(cpos.x,cpos.y);
 				drawmasks();
 
@@ -3959,7 +3959,7 @@ void drawscreen(short snum, int dasmoothratio)
 
 			if (cameradist < 0) sprite[playersprite[snum]].cstat |= 0x8000;
 			drawrooms(cpos.x,cpos.y,cpos.z,cang,choriz,csect);
-			sprite[playersprite[snum]].cstat &= ~0x8000;
+			sprite[playersprite[snum]].cstat &= (uint16_t) ~0x8000;
 			analyzesprites(cpos.x,cpos.y);
 			drawmasks();
 
