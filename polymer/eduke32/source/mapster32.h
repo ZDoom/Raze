@@ -72,18 +72,6 @@ static void EditSpriteData(int16_t spritenum);
 static void EditWallData(int16_t wallnum);
 static void EditSectorData(int16_t sectnum);
 
-#define BASEPALCOUNT 6
-
-static uint8_t WATERpalette[768], SLIMEpalette[768], TITLEpalette[768];
-static uint8_t REALMSpalette[768], BOSS1palette[768];
-
-uint8_t *basepaltable[BASEPALCOUNT] = {
-    palette, WATERpalette, SLIMEpalette,
-    REALMSpalette, TITLEpalette, BOSS1palette,
-};
-
-
-static int32_t g_firstFogPal;
 
 static int32_t updownunits=1024;
 

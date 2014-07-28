@@ -2343,33 +2343,12 @@ static inline void SpriteName(int16_t spritenum, char *lo2)
 // Returns: did error?
 static int32_t ReadPaletteTable(void)
 {
-    int32_t fp;
-
     // Make base shade table at shade 0 into the identity map.
     // (In the shade table of Duke3D's PALETTE.DAT, palookup[0][239]==143.)
     // This makes it possible to sensibly use Lunatic's engine.saveLookupDat().
     palookup[0][239] = 239;
 
-    if ((fp=kopen4load("lookup.dat",0)) == -1)
-    {
-        if ((fp=kopen4load("lookup.dat",1)) == -1)
-        {
-            initprintf("LOOKUP.DAT not found\n");
-            return 1;
-        }
-    }
-
-    g_firstFogPal = loadlookups(fp, basepaltable);
-    kclose(fp);
-
-    if (g_firstFogPal < 0)
-    {
-        if (g_firstFogPal == -1)
-            initprintf("ERROR loading PALOOKUP.DAT: failed reading enough data\n");
-        return 1;
-    }
-
-    return 0;
+    return G_LoadLookups();
 }
 
 

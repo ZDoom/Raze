@@ -146,6 +146,7 @@ int32_t ExtPostStartupWindow(void)
     }
 
     setbasepaltable(basepaltable, 1);
+    fillemptylookups();
 
     Ken_InitMultiPsky();
 

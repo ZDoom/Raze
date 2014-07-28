@@ -739,3 +739,56 @@ void G_DoAutoload(const char *dirname)
     Bsnprintf(buf, sizeof(buf), "autoload/%s", dirname);
     G_LoadGroupsInDir(buf);
 }
+
+//////////
+
+static uint8_t water_pal[768], slime_pal[768], title_pal[768], dre_alms[768], ending_pal[768];
+
+uint8_t *basepaltable[BASEPALCOUNT] = {
+    palette, water_pal, slime_pal,
+    dre_alms, title_pal, ending_pal,
+    NULL /*anim_pal*/
+};
+
+int32_t g_firstFogPal;
+
+int32_t G_LoadLookups(void)
+{
+    int32_t fp, j;
+
+    if ((fp=kopen4loadfrommod("lookup.dat",0)) == -1)
+    {
+        if ((fp=kopen4loadfrommod("lookup.dat",1)) == -1)
+        {
+            initprintf("ERROR: File \"lookup.dat\" not found.\n");
+            return 1;
+        }
+    }
+
+    j = loadlookups(fp);
+
+    if (j < 0)
+    {
+        if (j == -1)
+            initprintf("ERROR loading \"lookup.dat\": failed reading enough data.\n");
+        return 1;
+    }
+
+    for (j=1; j<=5; j++)
+    {
+        // Account for TITLE and REALMS swap between basepal number and on-disk order.
+        // XXX: this reordering is better off as an argument to us.
+        int32_t basepalnum = (j == 3 || j == 4) ? 4+3-j : j;
+
+        if (kread(fp, basepaltable[basepalnum], 768) != 768)
+            return -1;
+    }
+
+    kclose(fp);
+
+    g_firstFogPal = generatefogpals();
+
+    fillemptylookups();
+
+    return 0;
+}

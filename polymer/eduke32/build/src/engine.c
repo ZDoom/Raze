@@ -8160,20 +8160,15 @@ static int32_t loadpalette(void)
 //
 // <fp>: kopen4load file handle
 //
-// basepaltabptr[j], for 1 <= j <= 5 must point to 768 addressable
-//   bytes each: the additional base palettes (water, slime, ...) will be
-//   written there.
-//
 // Returns:
-//  - if generated fog shade tables, their first palnum P (fog pals are [P .. P+3])
-//  - if didn't (no room), 0
+//  - on success, 0
 //  - on error, -1 (didn't read enough data)
 //  - -2: error, we already wrote an error message ourselves
-int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
+int32_t loadlookups(int32_t fp)
 {
     uint8_t numlookups;
     char remapbuf[256];
-    int32_t j, firstfogpal=0;
+    int32_t j;
 
     if (kread(fp, &numlookups, 1) != 1)
         return -1;
@@ -8197,15 +8192,15 @@ int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
         makepalookup(palnum, remapbuf, 0,0,0, 1);
     }
 
-    for (j=1; j<=5; j++)
-    {
-        // Account for TITLE and REALMS swap between basepal number and on-disk order.
-        // XXX: this reordering is better off as an argument to us.
-        int32_t basepalnum = (j == 3 || j == 4) ? 4+3-j : j;
+    return 0;
+}
 
-        if (kread(fp, basepaltabptr[basepalnum], 768) != 768)
-            return -1;
-    }
+// Returns:
+//  - if generated fog shade tables, their first palnum P (fog pals are [P .. P+3])
+//  - if didn't (no room), 0
+int32_t generatefogpals(void)
+{
+    int32_t j, firstfogpal=0;
 
     // Find a gap of four consecutive unused pal numbers to generate fog shade tables.
     for (j=1; j<=255-3; j++)
@@ -8220,12 +8215,17 @@ int32_t loadlookups(int32_t fp, uint8_t **basepaltabptr)
             break;
         }
 
+    return firstfogpal;
+}
+
+void fillemptylookups(void)
+{
+    int32_t j;
+
     // Alias remaining unused pal numbers to the base shade table.
     for (j=1; j<MAXPALOOKUPS; j++)
         if (!palookup[j])
             makepalookup(j, NULL, 0,0,0, 1);
-
-    return firstfogpal;
 }
 
 // Finds a color index in [0 .. lastokcol] closest to (r, g, b).

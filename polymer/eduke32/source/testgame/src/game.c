@@ -528,6 +528,7 @@ int32_t app_main(int32_t argc, const char **argv)
 	}
 
     setbasepaltable(basepaltable, 1);
+    fillemptylookups();
 
     Ken_InitMultiPsky();
 
