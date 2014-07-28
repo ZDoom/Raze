@@ -21,6 +21,9 @@
 const char* AppProperName = "KenBuild";
 const char* AppTechnicalName = "testgame";
 
+#define SETUPFILENAME "testgame.cfg"
+char setupfilename[BMAX_PATH] = SETUPFILENAME;
+
 #define TIMERINTSPERSECOND 140 //280
 #define MOVESPERSECOND 40
 #define TICSPERFRAME 3
@@ -508,25 +511,25 @@ int32_t app_main(int32_t argc, const char **argv)
 		}
 	}
 
-	initgroupfile("stuff.dat");
-	if (initengine()) {
-		buildprintf("There was a problem initialising the engine: %s.\n", engineerrstr);
-		return -1;
-	}
-
-	if ((i = loadsetup("testgame.cfg")) < 0)
+	if ((i = loadsetup(setupfilename)) < 0)
 		buildputs("Configuration file not found, using defaults.\n");
-
-    setbasepaltable(basepaltable, 1);
-
-    Ken_InitMultiPsky();
 
 #if defined STARTUP_SETUP_WINDOW
 	if (i || forcesetup || cmdsetup) {
 		if (quitevent || !startwin_run()) return -1;
 	}
 #endif
-	writesetup("game.cfg");
+	writesetup(setupfilename);
+
+	initgroupfile(G_GrpFile());
+	if (initengine()) {
+		buildprintf("There was a problem initialising the engine: %s.\n", engineerrstr);
+		return -1;
+	}
+
+    setbasepaltable(basepaltable, 1);
+
+    Ken_InitMultiPsky();
 
 	initinput();
 	if (option[3] != 0) initmouse();
@@ -557,7 +560,7 @@ int32_t app_main(int32_t argc, const char **argv)
 		tiletovox[PLAYER] = nextvoxid++;
 	if (!qloadkvx(nextvoxid,"voxel001.kvx"))
 		tiletovox[BROWNMONSTER] = nextvoxid++;
-	if (!loaddefinitionsfile("kenbuild.def")) buildputs("Definitions file loaded.\n");
+	if (!loaddefinitionsfile(G_DefFile())) buildputs("Definitions file loaded.\n");
 
 		//Here's an example of TRUE ornamented walls
 		//The allocatepermanenttile should be called right after loadpics

@@ -14,6 +14,7 @@
 #include "osd.h"
 #include "cache1d.h"
 #include "common.h"
+#include "m32script.h"
 
 #include "common_game.h"
 
@@ -77,7 +78,6 @@ int averagefps;
 static unsigned int frameval[AVERAGEFRAMES];
 static int framecnt = 0;
 
-const char *defsfilename = "kenbuild.def";
 int nextvoxid = 0;
 
 
@@ -92,15 +92,16 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
     UNREFERENCED_PARAMETER(argv);
 
 	OSD_SetLogFile("testeditor.log");
+    OSD_SetVersion(AppProperName,0,2);
     initprintf("%s %s %s\n", AppProperName, s_buildRev, s_buildInfo);
     initprintf("Compiled %s\n", s_buildTimestamp);
 
     return 0;
 }
 
-int ExtInit(void)
+int32_t ExtInit(void)
 {
-    int i, rv = 0;
+    int rv = 0;
 
     /*printf("------------------------------------------------------------------------------\n");
     printf("   BUILD.EXE copyright(c) 1996 by Ken Silverman.  You are granted the\n");
@@ -112,11 +113,25 @@ int ExtInit(void)
     getch();
     */
 
-    initgroupfile("stuff.dat");
     bpp = 8;
-    if (loadsetup("testeditor.cfg") < 0) buildputs("Configuration file not found, using defaults.\n"), rv = 1;
+    if (loadsetup(setupfilename) < 0) buildputs("Configuration file not found, using defaults.\n"), rv = 1;
     Bmemcpy(buildkeys, default_buildkeys, NUMBUILDKEYS);   //Trick to make build use setup.dat keys
     if (option[4] > 0) option[4] = 0;
+
+    kensplayerheight = 32;
+    zmode = 0;
+
+#ifdef _WIN32
+//  allowtaskswitching(0);
+#endif
+    return rv;
+}
+
+int32_t ExtPostStartupWindow(void)
+{
+    int i;
+
+    initgroupfile(G_GrpFile());
 
         //You can load your own palette lookup tables here if you just
         //copy the right code!
@@ -124,8 +139,11 @@ int ExtInit(void)
         tempbuf[i] = ((i+32)&255);  //remap colors for screwy palette sectors
     makepalookup(16,tempbuf,0,0,0,1);
 
-    kensplayerheight = 32;
-    zmode = 0;
+    if (initengine())
+    {
+        initprintf("There was a problem initializing the engine.\n");
+        return -1;
+    }
 
     setbasepaltable(basepaltable, 1);
 
@@ -134,16 +152,13 @@ int ExtInit(void)
     tiletovox[PLAYER] = nextvoxid++;
     tiletovox[BROWNMONSTER] = nextvoxid++;
 
-#ifdef _WIN32
-//  allowtaskswitching(0);
-#endif
-    return rv;
+    return 0;
 }
 
 void ExtUnInit(void)
 {
     uninitgroupfile();
-    writesetup("build.cfg");
+    writesetup(setupfilename);
 }
 
 //static int daviewingrange, daaspect, horizval1, horizval2;
@@ -573,6 +588,59 @@ void faketimerhandler(void)
 
 void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); }
 void G_Polymer_UnInit(void) { }
+void SetGamePalette(int32_t j) { UNREFERENCED_PARAMETER(j); }
+int32_t AmbienceToggle, MixRate, ParentalLock;
+
+int32_t taglab_linktags(int32_t spritep, int32_t num)
+{
+    int32_t link = 0;
+
+    g_iReturnVar = link;
+    VM_OnEvent(EVENT_LINKTAGS, spritep?num:-1);
+    link = g_iReturnVar;
+
+    return link;
+}
+
+int32_t taglab_getnextfreetag(int32_t *duetoptr)
+{
+    int32_t i, nextfreetag=1;
+    int32_t obj = -1;
+
+    for (i=0; i<MAXSPRITES; i++)
+    {
+        int32_t tag;
+
+        if (sprite[i].statnum == MAXSTATUS)
+            continue;
+
+        tag = select_sprite_tag(i);
+
+        if (tag != INT32_MIN && nextfreetag <= tag)
+        {
+            nextfreetag = tag+1;
+            obj = 32768 + i;
+        }
+    }
+
+    for (i=0; i<numwalls; i++)
+    {
+        int32_t lt = taglab_linktags(0, i);
+
+        if ((lt&1) && nextfreetag <= wall[i].lotag)
+            nextfreetag = wall[i].lotag+1, obj = i;
+        if ((lt&2) && nextfreetag <= wall[i].hitag)
+            nextfreetag = wall[i].hitag+1, obj = i;
+    }
+
+    if (duetoptr != NULL)
+        *duetoptr = obj;
+
+    if (nextfreetag < 32768)
+        return nextfreetag;
+
+    return 0;
+}
 
     //Just thought you might want my getnumber16 code
 /*

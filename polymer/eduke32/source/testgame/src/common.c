@@ -5,20 +5,32 @@
 #include "names.h"
 #include "common_game.h"
 
+static const char *defaultgrpfilename = "stuff.dat";
+static const char *defaultdeffilename = "kenbuild.def";
+
+const char *G_DefaultGrpFile(void)
+{
+    return defaultgrpfilename;
+}
+const char *G_GrpFile(void)
+{
+    return defaultgrpfilename;
+}
+
 const char *G_DefaultDefFile(void)
 {
-    return "kenbuild.def";
+    return defaultdeffilename;
 }
 const char *G_DefFile(void)
 {
-    return "kenbuild.def";
+    return defaultdeffilename;
 }
 
 uint8_t *basepaltable[1] = {
     palette
 };
 
-#define NUMPSKYMULTIS 2
+#define NUMPSKYMULTIS 3
 EDUKE32_STATIC_ASSERT(NUMPSKYMULTIS <= MAXPSKYMULTIS);
 EDUKE32_STATIC_ASSERT(PSKYOFF_MAX <= MAXPSKYTILES);
 
