@@ -631,6 +631,8 @@ void initprintf(const char *f, ...)
 //
 void initputs(const char *buf)
 {
+    static char dabuf[2048];
+
     OSD_Puts(buf);
 
     mutex_lock(&m_initprintf);

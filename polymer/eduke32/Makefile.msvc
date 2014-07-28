@@ -142,6 +142,7 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\kplib.$o \
 	$(ENGINE_OBJ)\lz4.$o \
 	$(ENGINE_OBJ)\lzwnew.$o \
+	$(ENGINE_OBJ)\mmulti_null.$o \
 	$(ENGINE_OBJ)\osd.$o \
 	$(ENGINE_OBJ)\pragmas.$o \
 	$(ENGINE_OBJ)\scriptfile.$o \
@@ -223,6 +224,7 @@ DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
 
 DUKE3D_EDITOR_OBJS=$(DUKE3D_OBJ)\astub.$o \
 	$(DUKE3D_OBJ)\common.$o \
+	$(DUKE3D_OBJ)\grpscan.$o \
 	$(DUKE3D_OBJ)\mathutil.$o \
 	$(DUKE3D_OBJ)\m32common.$o \
 	$(DUKE3D_OBJ)\m32def.$o \
