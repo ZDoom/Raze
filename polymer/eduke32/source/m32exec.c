@@ -2935,14 +2935,7 @@ dodefault:
 
         case CON_SETGAMEPALETTE:
             insptr++;
-            switch (Gv_GetVarX(*insptr++))
-            {
-            default:
-            case 0: SetGAMEPalette(); break;
-            case 1: SetWATERPalette(); break;
-            case 2: SetSLIMEPalette(); break;
-            case 3: SetBOSS1Palette(); break;
-            }
+            SetGamePalette(Gv_GetVarX(*insptr++));
             continue;
 
 // *** sounds

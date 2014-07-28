@@ -84,17 +84,6 @@ enum LogoFlags_t {
     LOGO_NODUKETEAMPIC     = 0x00100000,
 };
 
-typedef enum basepal_ {
-    BASEPAL = 0,
-    WATERPAL,
-    SLIMEPAL,
-    DREALMSPAL,
-    TITLEPAL,
-    ENDINGPAL,  // 5
-    ANIMPAL,
-    BASEPALCOUNT
-} basepal_t; 
-
 enum ScreenTextFlags_t {
     TEXT_XRIGHT          = 0x00000001,
     TEXT_XCENTER         = 0x00000002,

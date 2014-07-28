@@ -53,10 +53,7 @@ extern int32_t __fastcall Gv_GetVarX(register int32_t id);
 extern void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue);
 extern int32_t __fastcall Gv_GetVarN(register int32_t id);  // 'N' for "no side-effects"... vars and locals only!
 
-extern void SetGAMEPalette(void);
-extern void SetWATERPalette(void);
-extern void SetSLIMEPalette(void);
-extern void SetBOSS1Palette(void);
+extern void SetGamePalette(int32_t);
 
 extern int32_t *constants, constants_allocsize;
 extern int32_t g_numSavedConstants;

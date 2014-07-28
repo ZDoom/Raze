@@ -20,6 +20,17 @@
 const char* AppProperName = "KenBuild Editor";
 const char* AppTechnicalName = "testeditor";
 
+#if defined(_WIN32)
+#define DEFAULT_GAME_EXEC "testgame.exe"
+#define DEFAULT_GAME_LOCAL_EXEC "testgame.exe"
+#else
+#define DEFAULT_GAME_EXEC "eduke32"
+#define DEFAULT_GAME_LOCAL_EXEC "./eduke32"
+#endif
+
+const char* DefaultGameExec = DEFAULT_GAME_EXEC;
+const char* DefaultGameLocalExec = DEFAULT_GAME_LOCAL_EXEC;
+
 #define SETUPFILENAME "testeditor.cfg"
 const char *defaultsetupfilename = SETUPFILENAME;
 char setupfilename[BMAX_PATH] = SETUPFILENAME;

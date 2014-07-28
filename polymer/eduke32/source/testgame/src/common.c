@@ -9,6 +9,10 @@ const char *G_DefaultDefFile(void)
 {
     return "kenbuild.def";
 }
+const char *G_DefFile(void)
+{
+    return "kenbuild.def";
+}
 
 uint8_t *basepaltable[1] = {
     palette

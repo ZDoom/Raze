@@ -43,6 +43,17 @@ enum instpath_t {
     NUMINSTPATHS
 };
 
+typedef enum basepal_ {
+    BASEPAL = 0,
+    WATERPAL,
+    SLIMEPAL,
+    DREALMSPAL,
+    TITLEPAL,
+    ENDINGPAL,  // 5
+    ANIMPAL,
+    BASEPALCOUNT
+} basepal_t;
+
 extern const char *g_gameNamePtr;
 
 extern const char *defaultgamegrp[GAMECOUNT];

@@ -6089,15 +6089,15 @@ static void Keys3d(void)
     if (cursectnum>=0 && sector[cursectnum].lotag==2)
     {
         if (sector[cursectnum].ceilingpicnum==FLOORSLIME)
-            SetSLIMEPalette();
+            SetGamePalette(SLIMEPAL);
         else
-            SetWATERPalette();
+            SetGamePalette(WATERPAL);
     }
-    else SetGAMEPalette();
+    else SetGamePalette(BASEPAL);
 
     if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
     {
-        SetGAMEPalette();
+        SetGamePalette(BASEPAL);
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
@@ -11989,32 +11989,22 @@ void faketimerhandler(void)
     sampletimer();
 }
 
-void SetBOSS1Palette(void)
+void SetGamePalette(int32_t j)
 {
-    if (acurpalette==3) return;
-    acurpalette=3;
-    setbrightness(GAMMA_CALC,5,2);
-}
-
-void SetSLIMEPalette(void)
-{
-    if (acurpalette==2) return;
-    acurpalette=2;
-    setbrightness(GAMMA_CALC,2,2);
-}
-
-void SetWATERPalette(void)
-{
-    if (acurpalette==1) return;
-    acurpalette=1;
-    setbrightness(GAMMA_CALC,1,2);
-}
-
-void SetGAMEPalette(void)
-{
-    if (acurpalette==0) return;
-    acurpalette=0;
-    setbrightness(GAMMA_CALC,0,2);
+    switch (j)
+    {
+    default:
+        j=0;
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+        if (acurpalette==j)
+            return;
+        acurpalette=j;
+        setbrightness(GAMMA_CALC,j,2);
+        break;
+    }
 }
 
 static void SearchSectors(int32_t dir)  // <0: backwards, >=0: forwards
