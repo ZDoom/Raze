@@ -199,10 +199,7 @@ if [ -z "$rev" ]; then
     echo "Detected git repository, revision r$rev"
 fi
 
-if [ -n "$rev" ]; then
-    # throw the svn revision into a header.  this is ugly.
-    echo "s_buildRev = \"r$rev\";" > source/rev.h
-else
+if [ -z "$rev" ]; then
     rev=unknown
     vc=none
 fi
@@ -370,13 +367,6 @@ if [ $buildmain == 1 ]; then
 
         dobuildem ppc "ARCH='-arch ppc' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBPNG=0 USE_LIBVPX=0 $makecmd"
     fi
-fi
-
-# clean up, clean up, everybody everywhere, clean up, clean up, everybody do your share
-if [ "$vc" == "svn" ]; then
-    svn revert "source/rev.h"
-elif [ "$vc" == "git" ]; then
-    git checkout "source/rev.h"
 fi
 
 # Duplicating .app bundles for debug build:

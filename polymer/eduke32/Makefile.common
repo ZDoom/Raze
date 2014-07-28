@@ -138,20 +138,6 @@ ifndef SUBPLATFORM
     endif
 endif
 
-# Detect version control revision, if applicable
-ifeq (,$(VC_REV))
-    VC_REV    := $(shell svn info 2>&1 | grep Revision | cut -d' ' -f2)
-    VC_CLEAN  := svn revert
-endif
-ifeq (,$(VC_REV))
-    VC_REV    := $(shell git svn info 2>&1 | grep Revision | cut -d' ' -f2)
-    VC_CLEAN  := git checkout
-endif
-ifneq (,$(VC_REV))
-    DO_REV    :=rev
-    UNDO_REV  :=rev_clean
-endif
-
 # Binary suffix override:
 EXESUFFIX_OVERRIDE ?=
 
@@ -998,6 +984,22 @@ endif
 ifeq ($(PLATFORM),WII)
     LINKERFLAGS+= -mrvl -meabi -mhard-float -Wl,--gc-sections
     # -msdata=eabi
+endif
+
+# Detect version control revision, if applicable
+ifeq (,$(VC_REV))
+    ifneq (,$(wildcard EDUKE32_REVISION))
+        VC_REV    := $(shell cat EDUKE32_REVISION)
+    endif
+endif
+ifeq (,$(VC_REV))
+    VC_REV    := $(shell svn info 2>&1 | grep Revision | cut -d' ' -f2)
+endif
+ifeq (,$(VC_REV))
+    VC_REV    := $(shell git svn info 2>&1 | grep Revision | cut -d' ' -f2)
+endif
+ifneq (,$(VC_REV)$(VC_REV_CUSTOM))
+    REVFLAG += -DREV="\"r$(VC_REV)$(VC_REV_CUSTOM)\""
 endif
 
 COMPILER=$(CC) $(CONLYFLAGS)

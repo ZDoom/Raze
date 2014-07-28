@@ -346,11 +346,11 @@ DUKE3D_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_EDIT
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
 endif
-.PHONY: veryclean clean all test cleanutils utils dxutils sdlutils printutils printsdlutils printdxutils rev rev_clean
+.PHONY: veryclean clean all test cleanutils utils dxutils sdlutils printutils printsdlutils printdxutils rev $(DUKE3D_OBJ)/rev.$o
 
 # TARGETS
 
-all: start $(DO_REV) $(EDUKE32_TARGET) $(MAPSTER32_TARGET) finish
+all: start $(EDUKE32_TARGET) $(MAPSTER32_TARGET) finish
 ifneq (,$(EDUKE32_TARGET))
 	@ls -l $(EDUKE32)
 endif
@@ -565,6 +565,10 @@ $(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/%.c | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
+$(DUKE3D_OBJ)/rev.$o: $(DUKE3D_SRC)/rev.c | $(DUKE3D_OBJ)
+	$(COMPILE_STATUS)
+	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(DUKE3D_CFLAGS) $(REVFLAG) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
+
 $(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/util/%.c | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
@@ -603,7 +607,7 @@ $(ENGINE_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(DUKE3D_OBJ) $(TESTGAME_OBJ):
 
 # PHONIES
 
-clean: $(UNDO_REV)
+clean:
 	-rm -f $(EDUKE32) $(MAPSTER32) $(COMMON_OBJS_EXP) $(DUKE3D_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(DUKE3D_EDITOR_OBJS_EXP) $(DUKE3D_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS) core*
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf EDuke32.app Mapster32.app
@@ -627,8 +631,4 @@ printdxutils:
 printsdlutils:
 	echo "$(addsuffix $(EXESUFFIX),$(SDLUTILS))"
 
-rev:
-	@echo "s_buildRev = \"r$(VC_REV)$(VC_REV_CUSTOM)\";">source/rev.h
-
-rev_clean:
-	@$(VC_CLEAN) source/rev.h
+rev: $(DUKE3D_OBJ)/rev.$o

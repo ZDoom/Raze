@@ -1,6 +1,14 @@
-// This file's main purpose is to be recompiled whenever the Makefile slams rev.h (usually always) so the timestamp gets updated, even for a partial recompile.
+// This file's main purpose is to be recompiled unconditionally so the timestamp gets updated, even for a partial recompile.
 
-const char *
-    #include "rev.h"
+#if !defined REV
+# define REV "r(?)"
+#endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+const char* s_buildRev = REV;
 const char* s_buildTimestamp = __DATE__ " " __TIME__;
+#ifdef __cplusplus
+}
+#endif

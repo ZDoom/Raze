@@ -47,8 +47,14 @@ enum
 //// EXTERN DECLS
 extern struct strllist *CommandPaths, *CommandGrps;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern const char *s_buildRev;
 extern const char *s_buildTimestamp;
+#ifdef __cplusplus
+}
+#endif
 extern const char *s_buildInfo;
 
 //// FUNCTIONS

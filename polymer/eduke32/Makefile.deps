@@ -62,7 +62,6 @@ $(DUKE3D_OBJ)/winbits.$o: $(DUKE3D_SRC)/winbits.c
 $(DUKE3D_OBJ)/osdfuncs.$o: $(DUKE3D_SRC)/names.h $(ENGINE_INC)/build.h $(ENGINE_INC)/osd.h
 $(DUKE3D_OBJ)/osdcmds.$o: $(DUKE3D_SRC)/osdcmds.c $(DUKE3D_INC)/osdcmds.h $(ENGINE_INC)/osd.h $(duke3d_h)
 $(DUKE3D_OBJ)/animvpx.$o: $(DUKE3D_SRC)/animvpx.c $(DUKE3D_SRC)/animvpx.h $(duke3d_h) $(ENGINE_INC)/glbuild.h
-$(DUKE3D_OBJ)/rev.$o: $(DUKE3D_SRC)/rev.h
 
 $(DUKE3D_OBJ)/lunatic_game.$o: $(ENGINE_INC)/lunatic.h $(DUKE3D_SRC)/lunatic/lunatic_game.c $(DUKE3D_SRC)/lunatic/lunatic_game.h $(DUKE3D_SRC)/gamedef.h $(DUKE3D_SRC)/gameexec.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/osd.h
 $(DUKE3D_OBJ)/lunatic_m32.$o: $(ENGINE_INC)/lunatic.h $(DUKE3D_SRC)/lunatic/lunatic_m32.c $(DUKE3D_SRC)/lunatic/lunatic_m32.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/osd.h

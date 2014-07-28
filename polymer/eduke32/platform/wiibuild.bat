@@ -13,7 +13,6 @@ if not "%rev%"=="" set vc=svn
 if "%rev%"=="" for /f "delims=" %%G in ('git svn info 2^>^&1 ^| grep Revision ^| cut -d " " -f 2') do @set rev=%%G
 if not "%rev%"=="" set vc=git
 if "%rev%"=="" set vc=none
-if not "%rev%"=="" echo s_buildRev = "r%rev%";>source\rev.h
 if "%rev%"=="" set rev=XXXX
 
 :: Get the current date:
@@ -42,10 +41,6 @@ xcopy /e /q /y /EXCLUDE:%wiidir%\xcopy_exclude.txt package\sdk apps\mapster32\
 7z.exe a -mx9 -t7z eduke32-wii-r%rev%.7z apps -xr!*.svn*
 
 :end
-
-:: Clean up revision number:
-if "%vc%"=="svn" svn revert source\rev.h
-if "%vc%"=="git" git checkout source\rev.h
 
 endlocal
 goto :eof
