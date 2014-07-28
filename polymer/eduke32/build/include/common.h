@@ -52,6 +52,8 @@ extern const char *s_buildTimestamp;
 extern const char *s_buildInfo;
 
 //// FUNCTIONS
+extern void clearDefNamePtr(void);
+
 void G_AddGroup(const char *buffer);
 void G_AddPath(const char *buffer);
 void G_AddDef(const char *buffer);
@@ -70,9 +72,6 @@ int32_t check_file_exist(const char *fn);  // findfrompath with pathsearchmode=1
 void fnlist_clearnames(fnlist_t *fnl);
 int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,
                         int32_t dirflags, int32_t fileflags);
-
-void G_LoadGroupsInDir(const char *dirname);
-void G_DoAutoload(const char *dirname);
 
 char *dup_filename(const char *fn);
 int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char *ext);

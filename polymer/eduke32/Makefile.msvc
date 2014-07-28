@@ -126,6 +126,7 @@ ENGINE_OBJS= \
 !endif
 	$(ENGINE_OBJ)\baselayer.$o \
 	$(ENGINE_OBJ)\cache1d.$o \
+	$(ENGINE_OBJ)\common.$o \
 	$(ENGINE_OBJ)\compat.$o \
 	$(ENGINE_OBJ)\crc32.$o \
 	$(ENGINE_OBJ)\defs.$o \

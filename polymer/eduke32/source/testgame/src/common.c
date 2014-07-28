@@ -5,6 +5,11 @@
 #include "names.h"
 #include "common_game.h"
 
+const char *G_DefaultDefFile(void)
+{
+    return "kenbuild.def";
+}
+
 uint8_t *basepaltable[1] = {
     palette
 };

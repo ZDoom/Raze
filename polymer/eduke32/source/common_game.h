@@ -66,7 +66,6 @@ extern void G_AddCon(const char *buffer);
 extern void G_AddConModule(const char *buffer);
 
 extern void clearGrpNamePtr(void);
-extern void clearDefNamePtr(void);
 extern void clearScriptNamePtr(void);
 
 extern int32_t loaddefinitions_game(const char *, int32_t);
@@ -90,5 +89,10 @@ extern void G_ExtPreStartupWindow(void);
 extern void G_ExtPostStartupWindow(int32_t autoload);
 
 extern const char * G_GetInstallPath(int32_t insttype);
+
+//////////
+
+void G_LoadGroupsInDir(const char *dirname);
+void G_DoAutoload(const char *dirname);
 
 #endif

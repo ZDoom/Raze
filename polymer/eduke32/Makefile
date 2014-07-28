@@ -35,7 +35,7 @@ UTIL_LIBS= -lm # -lpthread
 
 ENGINE_OBJ=$(ENGINE_ROOT)/$(obj)
 
-ENGINE_OBJS=baselayer cache1d compat crc32 defs engine polymost texcache dxtfilter hightile textfont smalltextfont kplib lz4 osd pragmas scriptfile mmulti_null mutex xxhash
+ENGINE_OBJS=baselayer cache1d common compat crc32 defs engine polymost texcache dxtfilter hightile textfont smalltextfont kplib lz4 osd pragmas scriptfile mmulti_null mutex xxhash
 ENGINE_EDITOR_OBJS=build config defs
 ifeq (0,$(NOASM))
   ENGINE_OBJS+= a
@@ -216,11 +216,11 @@ MAPSTER32 ?= mapster32$(EXESUFFIX)
 EDUKE32_TARGET:=$(EDUKE32)
 MAPSTER32_TARGET:=$(MAPSTER32)
 
-COMMON_OBJS=common rev
-COMMON_EDITOR_OBJS=common m32def m32exec m32vars mathutil rev
+COMMON_OBJS=rev
+COMMON_EDITOR_OBJS=m32def m32exec m32vars mathutil rev
 
-DUKE3D_OBJS=game actors anim config demo gamedef gameexec gamevars global input menus namesdyn net player premap savegame sector rts osdfuncs osdcmds grpscan sounds soundsdyn $(MACT_OBJ)
-DUKE3D_EDITOR_OBJS=astub grpscan sounds_mapster32
+DUKE3D_OBJS=game actors anim common config demo gamedef gameexec gamevars global input menus namesdyn net player premap savegame sector rts osdfuncs osdcmds grpscan sounds soundsdyn $(MACT_OBJ)
+DUKE3D_EDITOR_OBJS=astub common grpscan sounds_mapster32
 
 ifneq ($(USE_LIBVPX),0)
     DUKE3D_OBJS+= animvpx
