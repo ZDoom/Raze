@@ -642,6 +642,17 @@ int32_t taglab_getnextfreetag(int32_t *duetoptr)
     return 0;
 }
 
+int32_t S_InvalidSound(int32_t num) { UNREFERENCED_PARAMETER(num); return 1; };
+int32_t S_CheckSoundPlaying(int32_t i, int32_t num) { UNREFERENCED_PARAMETER(i); UNREFERENCED_PARAMETER(num); return 0; };
+int32_t S_SoundsPlaying(int32_t i) { UNREFERENCED_PARAMETER(i); return -1; }
+int32_t S_SoundFlags(int32_t num) { UNREFERENCED_PARAMETER(num); return 0; };
+int32_t A_PlaySound(uint32_t num, int32_t i) { UNREFERENCED_PARAMETER(num); UNREFERENCED_PARAMETER(i); return 0; };
+void S_StopSound(int32_t num) { UNREFERENCED_PARAMETER(num); };
+#ifdef __cplusplus
+extern "C"
+#endif
+int32_t FX_StopAllSounds(void) { return 0; };
+
     //Just thought you might want my getnumber16 code
 /*
 getnumber16(char namestart[80], short num, int maxnumber)

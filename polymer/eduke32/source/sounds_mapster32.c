@@ -505,3 +505,23 @@ int32_t S_CheckSoundPlaying(int32_t i, int32_t num)
     }
     return(g_sounds[num].num);
 }
+
+int32_t S_SoundsPlaying(int32_t i)
+{
+    int32_t j = MAXSOUNDS-1;
+    for (; j>=0; j--)
+        if (g_sounds[j].SoundOwner[0].ow == i)
+            break;
+
+    return j;
+}
+
+int32_t S_InvalidSound(int32_t num)
+{
+    return (unsigned) num >= MAXSOUNDS;
+}
+
+int32_t S_SoundFlags(int32_t num)
+{
+    return g_sounds[num].m;
+}

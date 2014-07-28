@@ -61,6 +61,9 @@ void S_Update(void);
 int32_t A_CheckSoundPlaying(int32_t i, int32_t num);
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
 void S_ClearSoundLocks(void);
+int32_t S_SoundsPlaying(int32_t i);
+int32_t S_InvalidSound(int32_t num);
+int32_t S_SoundFlags(int32_t num);
 
 #pragma pack(pop)
 

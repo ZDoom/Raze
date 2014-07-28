@@ -2943,7 +2943,7 @@ dodefault:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr);
-                if (j<0 || j>=MAXSOUNDS)
+                if (S_InvalidSound(j))
                 {
                     M32_ERROR("Invalid sound %d", j);
                     insptr++;
@@ -2954,14 +2954,7 @@ dodefault:
             continue;
 
         case CON_IFNOSOUNDS:
-        {
-            int32_t j = MAXSOUNDS-1;
-            for (; j>=0; j--)
-                if (g_sounds[j].SoundOwner[0].ow == vm.g_i)
-                    break;
-
-            VM_DoConditional(j < 0);
-        }
+            VM_DoConditional(S_SoundsPlaying(vm.g_i) < 0);
         continue;
 
         case CON_IFIN3DMODE:
@@ -2986,14 +2979,14 @@ dodefault:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++), var=*insptr++;
-                if (j<0 || j>=MAXSOUNDS)
+                if (S_InvalidSound(j))
                 {
                     M32_ERROR("Invalid sound %d", j);
                     insptr++;
                     continue;
                 }
 
-                Gv_SetVarX(var, g_sounds[j].m);
+                Gv_SetVarX(var, S_SoundFlags(j));
             }
             continue;
 
@@ -3005,7 +2998,7 @@ dodefault:
             {
                 int32_t j=Gv_GetVarX(*insptr++);
 
-                if (j<0 || j>=MAXSOUNDS)
+                if (S_InvalidSound(j))
                 {
                     M32_ERROR("Invalid sound %d", j);
                     continue;
