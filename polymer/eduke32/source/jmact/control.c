@@ -51,7 +51,7 @@ static int32_t   CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS],  CONTROL_JoyBu
 static int32_t CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedState[MAXJOYBUTTONS];
 static int32_t CONTROL_MouseButtonClicked[MAXMOUSEBUTTONS],      CONTROL_JoyButtonClicked[MAXJOYBUTTONS];
 static uint8_t CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedCount[MAXJOYBUTTONS];
-static int32_t(*GetTime)(void);
+static int32_t(*ExtGetTime)(void);
 int32_t CONTROL_Started = FALSE;
 //static int32_t ticrate;
 static int32_t CONTROL_DoubleClickSpeed;
@@ -483,7 +483,7 @@ static void DoGetDeviceButtons(
 
 static void CONTROL_GetDeviceButtons(void)
 {
-    int32_t t = GetTime();
+    int32_t t = ExtGetTime();
 
     if (CONTROL_MouseEnabled)
     {
@@ -821,8 +821,8 @@ int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t
 
     if (CONTROL_Started) return FALSE;
 
-    if (TimeFunction) GetTime = TimeFunction;
-    else GetTime = CONTROL_GetTime;
+    if (TimeFunction) ExtGetTime = TimeFunction;
+    else ExtGetTime = CONTROL_GetTime;
 
 //    ticrate = ticspersecond;
 

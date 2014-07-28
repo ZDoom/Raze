@@ -463,10 +463,17 @@ int32_t app_main(int32_t argc, const char **argv)
     int i, j, k /*, l, fil, waitplayers, x1, y1, x2, y2*/;
 	int /*other, packleng,*/ netparm;
 
-    G_ExtPreInit();
+    OSD_SetFunctions(
+        NULL, NULL, NULL, NULL, NULL,
+        COMMON_clearbackground,
+        BGetTime,
+        NULL
+    );
+
+    OSD_SetParameters(0,2, 0,0, 4,0);
 
 	OSD_SetLogFile("testgame.log");
-    initprintf("KenBuild %s %s\n", s_buildRev, s_buildInfo);
+    initprintf("%s %s %s\n", AppProperName, s_buildRev, s_buildInfo);
     initprintf("Compiled %s\n", s_buildTimestamp);
 
 #ifdef USE_OPENGL
@@ -475,7 +482,7 @@ int32_t app_main(int32_t argc, const char **argv)
 	OSD_RegisterFunction("map", "map [filename]: load a map", osdcmd_map);
 #endif
 
-	wm_setapptitle("KenBuild by Ken Silverman");
+	wm_setapptitle(AppProperName);
 
 	Bstrcpy(boardfilename, "nukeland.map");
 	j = 0; netparm = argc;
@@ -507,12 +514,12 @@ int32_t app_main(int32_t argc, const char **argv)
 		return -1;
 	}
 
-	if ((i = loadsetup("game.cfg")) < 0)
+	if ((i = loadsetup("testgame.cfg")) < 0)
 		buildputs("Configuration file not found, using defaults.\n");
 
     setbasepaltable(basepaltable, 1);
 
-    G_InitMultiPsky();
+    Ken_InitMultiPsky();
 
 #if defined STARTUP_SETUP_WINDOW
 	if (i || forcesetup || cmdsetup) {

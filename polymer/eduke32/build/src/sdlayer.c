@@ -149,7 +149,7 @@ HINSTANCE win_gethinstance(void)
 #endif
 
 
-int32_t wm_msgbox(char *name, char *fmt, ...)
+int32_t wm_msgbox(const char *name, const char *fmt, ...)
 {
     char buf[2048];
     va_list va;
@@ -190,7 +190,7 @@ int32_t wm_msgbox(char *name, char *fmt, ...)
     return 0;
 }
 
-int32_t wm_ynbox(char *name, char *fmt, ...)
+int32_t wm_ynbox(const char *name, const char *fmt, ...)
 {
     char buf[2048];
     char c;
@@ -257,7 +257,7 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
     return 0;
 }
 
-void wm_setapptitle(char *name)
+void wm_setapptitle(const char *name)
 {
 #ifdef __ANDROID__
 	 initprintf("wm_setapptitle called");

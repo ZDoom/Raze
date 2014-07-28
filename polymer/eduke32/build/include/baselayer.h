@@ -198,9 +198,9 @@ extern double vid_gamma, vid_contrast, vid_brightness;
 
 //int32_t switchrendermethod(int32_t,int32_t);    // 0 = software, 1 = opengl | bool = reinit
 
-int32_t wm_msgbox(char *name, char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
-int32_t wm_ynbox(char *name, char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
-void wm_setapptitle(char *name);
+int32_t wm_msgbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
+int32_t wm_ynbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
+void wm_setapptitle(const char *name);
 
 // baselayer.c
 int32_t baselayer_init();

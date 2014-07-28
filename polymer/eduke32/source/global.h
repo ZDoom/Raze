@@ -43,13 +43,12 @@ G_EXTERN int32_t g_interpolationLock;
 G_EXTERN int32_t oldipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t *curipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t bakipos[MAXINTERPOLATIONS];
-G_EXTERN int32_t connectpoint2[MAXPLAYERS];
+
+#include "mmulti.h"
 
 #include "duke3d.h"
 #include "sector.h"
 #include "quotes.h"
-
-G_EXTERN int32_t myconnectindex, numplayers;
 
 G_EXTERN DukeStatus_t sbar;
 G_EXTERN actor_t actor[MAXSPRITES];

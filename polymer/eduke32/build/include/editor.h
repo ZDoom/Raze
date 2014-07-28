@@ -13,7 +13,7 @@
 
 #define VERSION "2.0.0devel"
 
-#define SETUPFILENAME "mapster32.cfg"
+extern const char *defaultsetupfilename;
 extern char setupfilename[BMAX_PATH];
 
 extern char levelname[BMAX_PATH];
@@ -97,6 +97,9 @@ extern int32_t grid, autogrid;
 extern int32_t editorgridextent;	// in engine.c
 
 extern char game_executable[BMAX_PATH];
+extern const char* DefaultGameExec;
+extern const char* DefaultGameLocalExec;
+
 extern char program_origcwd[BMAX_PATH];
 extern const char *mapster32_fullpath;
 extern char *testplay_addparam;
@@ -265,17 +268,6 @@ void inflineintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 void ovhscrcoords(int32_t x, int32_t y, int32_t *scrx, int32_t *scry);
 
 extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
-
-#if defined(_WIN32)
-#define DEFAULT_GAME_EXEC "eduke32.exe"
-#define DEFAULT_GAME_LOCAL_EXEC "eduke32.exe"
-#elif defined(__APPLE__)
-#define DEFAULT_GAME_EXEC "EDuke32.app/Contents/MacOS/eduke32"
-#define DEFAULT_GAME_LOCAL_EXEC "EDuke32.app/Contents/MacOS/eduke32"
-#else
-#define DEFAULT_GAME_EXEC "eduke32"
-#define DEFAULT_GAME_LOCAL_EXEC "./eduke32"
-#endif
 
 void test_map(int32_t mode);
 

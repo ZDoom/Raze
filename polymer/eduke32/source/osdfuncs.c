@@ -107,7 +107,7 @@ void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress
     if (type) ac = SMALLFNTCURSOR;
     else ac = '_'-'!'+STARTALPHANUM;
 
-    if (((GetTime()-lastkeypress) & 0x40)==0)
+    if (((BGetTime()-lastkeypress) & 0x40)==0)
         rotatesprite_fs(OSD_SCALE(9*x<<16),
         OSD_SCALE(((y<<3)+(type?-1:2))<<16),
         OSD_SCALE(65536.f), 0, ac, 0, 8, 8|16);

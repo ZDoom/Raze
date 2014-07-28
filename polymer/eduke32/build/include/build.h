@@ -767,6 +767,8 @@ EXTERN char display_mirror;
 // totalclocklock: the totalclock value that is backed up once on each
 // drawrooms() and is used for animateoffs().
 EXTERN int32_t totalclock, totalclocklock;
+static inline int32_t BGetTime(void) { return totalclock; }
+
 EXTERN int32_t numframes, randomseed;
 EXTERN int16_t sintable[2048];
 EXTERN uint8_t palette[768];

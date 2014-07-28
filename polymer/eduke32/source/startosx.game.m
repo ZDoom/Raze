@@ -2,10 +2,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-#define GetTime xGetTime
 #include "duke3d.h"
 #include "game.h"
-#undef GetTime
 #include "common.h"
 #include "common_game.h"
 #include "build.h"

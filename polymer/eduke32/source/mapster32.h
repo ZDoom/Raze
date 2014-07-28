@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+#define SETUPFILENAME "mapster32.cfg"
+
 #define TICSPERFRAME 3
 
 // #define VULGARITY

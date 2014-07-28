@@ -17,14 +17,18 @@
 
 #include "common_game.h"
 
-const char* AppProperName = "Build Editor";
+const char* AppProperName = "KenBuild Editor";
 const char* AppTechnicalName = "testeditor";
+
+#define SETUPFILENAME "testeditor.cfg"
+const char *defaultsetupfilename = SETUPFILENAME;
+char setupfilename[BMAX_PATH] = SETUPFILENAME;
 
 static char tempbuf[256];
 
 #define NUMOPTIONS 9
 char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
-unsigned char keys[NUMBUILDKEYS] =
+unsigned char default_buildkeys[NUMBUILDKEYS] =
 {
     0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
     0x1e,0x2c,0xd1,0xc9,0x33,0x34,
@@ -32,7 +36,7 @@ unsigned char keys[NUMBUILDKEYS] =
 };
 
 
-static char levelname[BMAX_PATH] = "";
+
 
 
 //static int hang = 0;
@@ -63,21 +67,21 @@ static unsigned int frameval[AVERAGEFRAMES];
 static int framecnt = 0;
 
 const char *defsfilename = "kenbuild.def";
-const char *startwin_labeltext = "Starting Build Editor...";
 int nextvoxid = 0;
 
+
+const char *ExtGetVer(void)
+{
+    return s_buildRev;
+}
 
 int32_t ExtPreInit(int32_t argc,const char **argv)
 {
     UNREFERENCED_PARAMETER(argc);
     UNREFERENCED_PARAMETER(argv);
 
-    wm_setapptitle("BUILD by Ken Silverman");
-
-    G_ExtPreInit();
-
 	OSD_SetLogFile("testeditor.log");
-    initprintf("KenBuild Editor %s %s\n", s_buildRev, s_buildInfo);
+    initprintf("%s %s %s\n", AppProperName, s_buildRev, s_buildInfo);
     initprintf("Compiled %s\n", s_buildTimestamp);
 
     return 0;
@@ -99,16 +103,9 @@ int ExtInit(void)
 
     initgroupfile("stuff.dat");
     bpp = 8;
-    if (loadsetup("build.cfg") < 0) buildputs("Configuration file not found, using defaults.\n"), rv = 1;
-    Bmemcpy((void *)buildkeys,(void *)keys,NUMBUILDKEYS);   //Trick to make build use setup.dat keys
+    if (loadsetup("testeditor.cfg") < 0) buildputs("Configuration file not found, using defaults.\n"), rv = 1;
+    Bmemcpy(buildkeys, default_buildkeys, NUMBUILDKEYS);   //Trick to make build use setup.dat keys
     if (option[4] > 0) option[4] = 0;
-    if (initengine()) {
-        wm_msgbox("Build Engine Initialisation Error",
-                "There was a problem initialising the Build engine: %s", engineerrstr);
-        return -1;
-    }
-    initinput();
-    initmouse();
 
         //You can load your own palette lookup tables here if you just
         //copy the right code!
@@ -121,7 +118,7 @@ int ExtInit(void)
 
     setbasepaltable(basepaltable, 1);
 
-    G_InitMultiPsky();
+    Ken_InitMultiPsky();
 
     tiletovox[PLAYER] = nextvoxid++;
     tiletovox[BROWNMONSTER] = nextvoxid++;
@@ -173,6 +170,20 @@ void ExtPreCheckKeys(void)
             }
             setgamemode(fullscreen,validmode[j].xdim,validmode[j].ydim,bpp);
         }
+    }
+
+    if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
+    {
+        getmessageleng = 0;
+        getmessagetimeoff = 0;
+    }
+
+    if (getmessageleng > 0)
+    {
+        if (!in3dmode())
+            printmessage16("%s", getmessage);
+        if (totalclock > getmessagetimeoff)
+            getmessageleng = 0;
     }
 
 #if 0
@@ -346,17 +357,12 @@ void ExtPreLoadMap(void)
 
 void ExtSetupMapFilename(const char *mapname)
 {
-    char title[256];
-
-    Bstrncpy(levelname, mapname, sizeof(levelname));
-
-    Bsnprintf(title, 256, "BUILD by Ken Silverman - %s", mapname);
-    wm_setapptitle(title);
+    UNREFERENCED_PARAMETER(mapname);
 }
 
 void ExtLoadMap(const char *mapname)
 {
-    ExtSetupMapFilename(mapname);
+    UNREFERENCED_PARAMETER(mapname);
 }
 
 int32_t ExtPreSaveMap(void)
@@ -367,7 +373,6 @@ int32_t ExtPreSaveMap(void)
 void ExtSaveMap(const char *mapname)
 {
     UNREFERENCED_PARAMETER(mapname);
-    saveboard("backup.map", &pos, ang, cursectnum);
 }
 
 const char *ExtGetSectorCaption(short sectnum)
@@ -557,15 +562,6 @@ void faketimerhandler(void)
 
 void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); }
 void G_Polymer_UnInit(void) { }
-
-void app_crashhandler(void)
-{
-    if (levelname[0])
-    {
-        append_ext_UNSAFE(levelname, "_crash.map");
-        SaveBoard(levelname, M32_SB_NOEXT);
-    }
-}
 
     //Just thought you might want my getnumber16 code
 /*

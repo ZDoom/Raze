@@ -103,7 +103,9 @@ int32_t g_maxCacheSize = 8<<20;
 #endif
 
 static int16_t oldmousebstatus = 0;
-char game_executable[BMAX_PATH] = DEFAULT_GAME_LOCAL_EXEC;
+
+char game_executable[BMAX_PATH] = {0};
+
 int32_t zlock = 0x7fffffff, zmode = 0, kensplayerheight = 32;
 //int16_t defaultspritecstat = 0;
 
@@ -540,7 +542,7 @@ int32_t app_main(int32_t argc, const char **argv)
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim>: immediately change the video mode",osdcmd_vidmode);
 #endif
 
-    wm_setapptitle("Mapster32");
+    wm_setapptitle(AppProperName);
 
     editstatus = 1;
     newaspect_enable = 1;
@@ -561,21 +563,20 @@ int32_t app_main(int32_t argc, const char **argv)
 #endif
             if (!Bstrcmp(argv[i], "-help") || !Bstrcmp(argv[i], "--help") || !Bstrcmp(argv[i], "-?"))
             {
-                char *s =
-                    "Mapster32\n"
-                    "Syntax: mapster32 [options] mapname\n"
+#ifdef WM_MSGBOX_WINDOW
+                wm_msgbox(AppProperName,
+#else
+                Bprintf(
+#endif
+                    "%s\n"
+                    "Syntax: %s [options] mapname\n"
                     "Options:\n"
                     "\t-grp\tUse an extra GRP or ZIP file.\n"
                     "\t-g\tSame as above.\n"
 #ifdef STARTUP_SETUP_WINDOW
                     "\t-setup\tDisplays the configuration dialogue box before entering the editor.\n"
 #endif
-                    ;
-#ifdef WM_MSGBOX_WINDOW
-                wm_msgbox("Mapster32","%s",s);
-#else
-                puts(s);
-#endif
+                    , AppProperName, AppTechnicalName);
                 return 0;
             }
             continue;
@@ -588,8 +589,19 @@ int32_t app_main(int32_t argc, const char **argv)
         Bstrcat(boardfilename, ".map");
     //Bcanonicalisefilename(boardfilename,0);
 
+    OSD_SetFunctions(
+        NULL, NULL, NULL, NULL, NULL,
+        COMMON_clearbackground,
+        BGetTime,
+        NULL
+    );
+
+    OSD_SetParameters(0,2, 0,0, 4,0);
+
     if (!getcwd(program_origcwd,BMAX_PATH))
         program_origcwd[0] = '\0';
+
+    Bstrncpy(game_executable, DefaultGameLocalExec, sizeof(game_executable));
 
     if ((i = CallExtInit()) < 0) return -1;
 
@@ -3892,7 +3904,7 @@ void overheadeditor(void)
             keystatus[88] = 0;
 //__clearscreen_beforecapture__
 
-            Bsprintf(tempbuf, "Mapster32 %s", CallExtGetVer());
+            Bsnprintf(tempbuf, sizeof(tempbuf), "%s %s", AppProperName, CallExtGetVer());
             screencapture("captxxxx.tga", eitherSHIFT, tempbuf);
 
             showframe(1);
@@ -8786,7 +8798,6 @@ void clearmidstatbar16(void)
 static void clearministatbar16(void)
 {
     int32_t i, col = whitecol - 21;
-//    static const char *tempbuf = "Mapster32" " " VERSION;
 
     begindrawing();
 
@@ -8803,7 +8814,7 @@ static void clearministatbar16(void)
 
     if (xdim >= 800)
     {
-        Bsprintf(tempbuf, "Mapster32 %s", CallExtGetVer());
+        Bsnprintf(tempbuf, sizeof(tempbuf), "%s %s", AppProperName, CallExtGetVer());
         printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3, ydim2d-STATUS2DSIZ2+10, editorcolors[4],-1, tempbuf, 0);
         printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2, ydim2d-STATUS2DSIZ2+9, editorcolors[12],-1, tempbuf, 0);
     }
@@ -10692,10 +10703,10 @@ void test_map(int32_t mode)
                 slen = fullparam-mapster32_fullpath+1;
                 Bstrncpy(game_executable, mapster32_fullpath, slen);
                 // game_executable is now expected to not be NULL-terminated!
-                Bstrcpy(game_executable+slen, DEFAULT_GAME_EXEC);
+                Bstrncpy(game_executable+slen, DefaultGameExec, sizeof(game_executable));
             }
             else
-                Bstrcpy(game_executable, DEFAULT_GAME_LOCAL_EXEC);
+                Bstrncpy(game_executable, DefaultGameLocalExec, sizeof(game_executable));
         }
 
         if (current_cwd[0] != '\0') // Temporarily changing back,
@@ -10762,6 +10773,15 @@ void test_map(int32_t mode)
         printmessage16("Position must be in valid player space to test map!");
 }
 
+void app_crashhandler(void)
+{
+    if (levelname[0])
+    {
+        append_ext_UNSAFE(levelname, "_crash.map");
+        SaveBoard(levelname, M32_SB_NOEXT);
+    }
+}
+
 // These will be more useful in the future...
 static const char *CallExtGetVer(void)
 {
@@ -10803,10 +10823,16 @@ static void CallExtPreLoadMap(void)
 }
 static void CallExtSetupMapFilename(const char *mapname)
 {
+    Bstrncpy(levelname, mapname, sizeof(levelname));
+
+    Bsnprintf(tempbuf, sizeof(tempbuf), "%s - %s", AppProperName, mapname);
+    wm_setapptitle(tempbuf);
+
     ExtSetupMapFilename(mapname);
 }
 static void CallExtLoadMap(const char *mapname)
 {
+    CallExtSetupMapFilename(mapname);
     ExtLoadMap(mapname);
     VM_OnEvent(EVENT_LOADMAP, -1);
 }
@@ -10818,6 +10844,7 @@ static int32_t CallExtPreSaveMap(void)
 static void CallExtSaveMap(const char *mapname)
 {
     ExtSaveMap(mapname);
+    saveboard("backup.map", &pos, ang, cursectnum);
     VM_OnEvent(EVENT_SAVEMAP, -1);
 }
 static const char *CallExtGetSectorCaption(int16_t sectnum)

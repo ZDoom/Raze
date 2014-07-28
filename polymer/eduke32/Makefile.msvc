@@ -328,7 +328,7 @@ CHECKDIR_AUDIOLIB=@if not exist "$(AUDIOLIB_OBJ)" mkdir "$(AUDIOLIB_OBJ)"
 
 {$(DUKE3D_SRC)\misc}.rc{$(DUKE3D_OBJ)\}.$(res):
 	$(CHECKDIR_DUKE3D)
-	$(RC) /i$(ENGINE_INC)\ /i$(DUKE3D_SRC)\ /DPOLYMER /fo$@ /r $<
+	$(RC) /i$(ENGINE_INC)\ /i$(DUKE3D_SRC)\ /i$(DUKE3D_RSRC)\ /DPOLYMER /fo$@ /r $<
 
 
 # TARGETS

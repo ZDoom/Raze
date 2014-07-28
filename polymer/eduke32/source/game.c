@@ -2934,7 +2934,7 @@ void G_GameExit(const char *msg)
         {
             char titlebuf[256];
             Bsprintf(titlebuf,HEAD2 " %s",s_buildRev);
-            wm_msgbox(titlebuf, "%s", (char *)msg);
+            wm_msgbox(titlebuf, "%s", msg);
         }
     }
 
@@ -11170,7 +11170,7 @@ int32_t app_main(int32_t argc, const char **argv)
         GAME_getcolumnwidth,
         GAME_getrowheight,
         GAME_clearbackground,
-        GetTime,
+        BGetTime,
         GAME_onshowosd
     );
 
@@ -11441,7 +11441,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (CONTROL_Startup(controltype_keyboardandmouse, &GetTime, TICRATE))
+        if (CONTROL_Startup(controltype_keyboardandmouse, &BGetTime, TICRATE))
         {
             ERRprintf("There was an error initializing the CONTROL system.\n");
             uninitengine();
@@ -12950,9 +12950,4 @@ static void G_SetupGameButtons(void)
     CONTROL_DefineFlag(gamefunc_Quick_Kick,FALSE);
     CONTROL_DefineFlag(gamefunc_Next_Weapon,FALSE);
     CONTROL_DefineFlag(gamefunc_Previous_Weapon,FALSE);
-}
-
-int32_t GetTime(void)
-{
-    return totalclock;
 }

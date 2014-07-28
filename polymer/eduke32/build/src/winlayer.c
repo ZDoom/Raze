@@ -222,7 +222,7 @@ HINSTANCE win_gethinstance(void)
 //
 // wm_msgbox/wm_ynbox() -- window-manager-provided message boxes
 //
-int32_t wm_msgbox(char *name, char *fmt, ...)
+int32_t wm_msgbox(const char *name, const char *fmt, ...)
 {
     char buf[2048];
     va_list va;
@@ -236,7 +236,7 @@ int32_t wm_msgbox(char *name, char *fmt, ...)
 }
 
 
-int32_t wm_ynbox(char *name, char *fmt, ...)
+int32_t wm_ynbox(const char *name, const char *fmt, ...)
 {
     char buf[2048];
     va_list va;
@@ -254,7 +254,7 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
 //
 // wm_setapptitle() -- changes the window title
 //
-void wm_setapptitle(char *name)
+void wm_setapptitle(const char *name)
 {
     if (name)
         Bstrncpyz(apptitle, name, sizeof(apptitle));

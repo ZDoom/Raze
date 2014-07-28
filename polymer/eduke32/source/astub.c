@@ -78,10 +78,24 @@ extern const char *s_buildInfo;
 const char* AppProperName = "Mapster32";
 const char* AppTechnicalName = "mapster32";
 
+#if defined(_WIN32)
+#define DEFAULT_GAME_EXEC "eduke32.exe"
+#define DEFAULT_GAME_LOCAL_EXEC "eduke32.exe"
+#elif defined(__APPLE__)
+#define DEFAULT_GAME_EXEC "EDuke32.app/Contents/MacOS/eduke32"
+#define DEFAULT_GAME_LOCAL_EXEC "EDuke32.app/Contents/MacOS/eduke32"
+#else
+#define DEFAULT_GAME_EXEC "eduke32"
+#define DEFAULT_GAME_LOCAL_EXEC "./eduke32"
+#endif
+
+const char* DefaultGameExec = DEFAULT_GAME_EXEC;
+const char* DefaultGameLocalExec = DEFAULT_GAME_LOCAL_EXEC;
+
 static int32_t floor_over_floor;
 static int32_t g_fillCurSector = 0;
 
-// static char *startwin_labeltext = "Starting Mapster32...";
+const char* defaultsetupfilename = SETUPFILENAME;
 char setupfilename[BMAX_PATH] = SETUPFILENAME;
 
 int32_t fixmaponsave_sprites = 1;
@@ -687,18 +701,15 @@ const char *ExtGetVer(void)
 
 void ExtSetupMapFilename(const char *mapname)
 {
-    Bstrcpy(levelname, mapname);
-
-    Bsprintf(tempbuf, "Mapster32 - %s", mapname);
-    wm_setapptitle(tempbuf);
+    UNREFERENCED_PARAMETER(mapname);
 }
 
 void ExtLoadMap(const char *mapname)
 {
+    UNREFERENCED_PARAMETER(mapname);
+
     getmessageleng = 0;
     getmessagetimeoff = 0;
-
-    ExtSetupMapFilename(mapname);
 
     // Old-fashioned multi-psky handling setup.
     G_SetupGlobalPsky();
@@ -714,7 +725,6 @@ void ExtLoadMap(const char *mapname)
 void ExtSaveMap(const char *mapname)
 {
     UNREFERENCED_PARAMETER(mapname);
-    saveboard("backup.map", &pos, ang, cursectnum);
 }
 
 
@@ -8909,8 +8919,6 @@ static int32_t check_filename_casing(void)
 
 int32_t ExtPreInit(int32_t argc,const char **argv)
 {
-    wm_setapptitle("Mapster32");
-
 #ifdef _WIN32
     {
         extern int32_t (*check_filename_casing_fn)(void);
@@ -9622,22 +9630,6 @@ static int32_t registerosdcommands(void)
     return 0;
 }
 
-
-////////// ALL THINGS OSD //////////
-static int32_t GetTime(void)
-{
-    return totalclock;
-}
-
-static void m32_osdsetfunctions(void)
-{
-    OSD_SetFunctions(
-        NULL, NULL, NULL, NULL, NULL,
-        COMMON_clearbackground,
-        GetTime,
-        NULL
-    );
-}
 
 enum
 {
@@ -10384,9 +10376,6 @@ int32_t ExtInit(void)
     Bsprintf(apptitle, "Mapster32 %s %s", VERSION, s_buildRev);
     autosavetimer = totalclock+120*autosave;
 
-    m32_osdsetfunctions();
-
-    OSD_SetParameters(0,2, 0,0, 4,0);
     registerosdcommands();
 
     {
@@ -10452,15 +10441,6 @@ int32_t ExtPostStartupWindow(void)
 #endif
 
     return 0;
-}
-
-void app_crashhandler(void)
-{
-    if (levelname[0])
-    {
-        append_ext_UNSAFE(levelname, "_crash.map");
-        SaveBoard(levelname, M32_SB_NOEXT);
-    }
 }
 
 void ExtUnInit(void)
@@ -11088,8 +11068,6 @@ static void Keys2d3d(void)
     {
         getmessageleng = 0;
         getmessagetimeoff = 0;
-
-        m32_osdsetfunctions();
     }
 
     if (getmessageleng > 0)
@@ -11101,8 +11079,6 @@ static void Keys2d3d(void)
     }
 
 }
-#undef EDUKE32_EXEC
-#undef EDUKE32_LOCALEXEC
 
 void ExtCheckKeys(void)
 {
@@ -11255,7 +11231,7 @@ void ExtCheckKeys(void)
 #else
         extern int16_t capturecount;
 
-        Bsprintf(tempbuf, "Mapster32 %s", ExtGetVer());
+        Bsnprintf(tempbuf, sizeof(tempbuf), "%s %s", AppProperName, ExtGetVer());
         screencapture("captxxxx.tga", eitherSHIFT, tempbuf);
         silentmessage("Saved screenshot %04d", capturecount-1);
 #endif
