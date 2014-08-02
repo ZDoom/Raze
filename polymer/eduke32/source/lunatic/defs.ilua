@@ -1486,6 +1486,14 @@ local user_defs_mt = {
             ud.volume_number = volume_number
         end,
 
+        set_m_volume_number = function(ud, volume_number)
+            -- NOTE: allow volume_number==MAXVOLUMES.
+            if (not (volume_number==con_lang.MAXVOLUMES)) then
+                bcheck.volume_idx(volume_number)
+            end
+            ud.m_volume_number = volume_number
+        end,
+
         set_level_number = function(ud, level_number)
             bcheck.level_idx(level_number)
             ud.level_number = level_number

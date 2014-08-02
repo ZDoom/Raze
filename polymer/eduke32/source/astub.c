@@ -9860,8 +9860,8 @@ int32_t ExtPostStartupWindow(void)
     {
         extern const char luaJIT_BC_defs_m32[];
 
-        i = L_RunString(&g_EmState, (char *)luaJIT_BC_defs_m32, 0,
-                        LUNATIC_DEFS_M32_BC_SIZE, "defs_m32.ilua");
+        int32_t i = L_RunString(&g_EmState, (char *)luaJIT_BC_defs_m32, 0,
+                                LUNATIC_DEFS_M32_BC_SIZE, "defs_m32.ilua");
         if (i != 0)
         {
             Em_DestroyState(&g_EmState);

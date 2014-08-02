@@ -17,7 +17,6 @@ MAXGAMETYPES = 16
 
 MAXSKILLS = 7
 
-MAXEVENTS = 96  -- KEEPINSYNC with EVENT_* list
 MAXSOUNDS = 4096
 
 MAXSESSIONVARS = 8  -- KEEPINSYNC lunatic_game.c
@@ -173,6 +172,8 @@ EVENT = {
     EVENT_ACTIVATECHEAT = 96,
 --    EVENT_ANIMATEALLSPRITES = 97,  -- internal
 }
+
+MAXEVENTS = 97  -- KEEPINSYNC with above EVENT_* list
 
 -- NOTE: negated values are not exported to the ffi.C namespace or CON.
 -- See TWEAK_SFLAG below.
@@ -852,11 +853,12 @@ local UserdefLabels = {
     fta_on = UD".fta_on",
     god = UDRO".god",
     idplayers = UDRO".idplayers",
+    last_level = UDRO".lastlevel",
     level_number = { UD".level_number", UD":set_level_number(%%s)", {0, MAXLEVELS-1} },
     levelstats = UD".levelstats",
     lockout = UDRO".lockout",
     m_player_skill = UDRO".m_player_skill",
-    m_volume_number = UDRO".m_volume_number",
+    m_volume_number = { UD".m_volume_number", UD":set_m_volume_number(%%s)", {0, MAXVOLUMES} },
     mouseaiming = UD".mouseaiming",
     pause_on = UDRO".pause_on",
     player_skill = UD".player_skill",
