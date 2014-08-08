@@ -11156,8 +11156,6 @@ int32_t app_main(int32_t argc, const char **argv)
     if (!usecwd)
         G_AddSearchPaths();
 
-    G_ExtInit();
-
     g_numSkills = 4;
     ud.multimode = 1;
 
@@ -11165,10 +11163,15 @@ int32_t app_main(int32_t argc, const char **argv)
     G_AddDef("duke3d-android.def");
 #endif
 
-    // this needs to happen before G_CheckCommandLine because G_GameExit accesses g_player[0]
+    // This needs to happen before G_CheckCommandLine() because G_GameExit()
+    // accesses g_player[0].
     G_MaybeAllocPlayer(0);
 
     G_CheckCommandLine(argc,argv);
+
+    // This needs to happen afterwards, as G_CheckCommandLine() is where we set
+    // up the command-line-provided search paths (duh).
+    G_ExtInit();
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
     if (forcegl) initprintf("GL driver blacklist disabled.\n");
