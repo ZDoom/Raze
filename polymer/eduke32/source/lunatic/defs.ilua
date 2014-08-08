@@ -1684,7 +1684,7 @@ local function getnumlocals(l)
     -- 200 is the max. number of locals at one level
     for i=1,200 do
         -- level:
-        -- 0 is getlocal() itself.
+        -- 0 is debug.getlocal() itself.
         -- 1 is this function (getnumlocals).
         -- 2 is the function calling getnumlocals()
         -- 3 is the function calling that one.
@@ -2288,12 +2288,14 @@ do
 
         -- XXX: System gamevars? Most of them ought to be saved with C data.
         for modname, modvars in pairs(module_gamevars) do
+            local isCON = (modname==CON_MODULE_NAME)
+
             sb:startmod(modname)
 
             -- Handle global gamevars first.
             for i=1,#modvars do
                 local varname = modvars[i]
-                local excludedVars = modname==CON_MODULE_NAME and varname=="_V" and
+                local excludedVars = isCON and varname=="_V" and
                     package_loaded[CON_MODULE_NAME]._V._IS_NORESET_GAMEVAR or nil
 
                 -- Serialize gamevar named 'varname' from module named 'modname'.
@@ -2303,7 +2305,7 @@ do
                     -- We couldn't serialize that gamevar.
                     slenptr[0] = -1
                     -- Signal which gamevar that was.
-                    return (modname==CON_MODULE_NAME and "<CON>" or modname).."."..varname
+                    return (isCON and "<CON>" or modname).."."..varname
                 end
             end
 
@@ -2335,8 +2337,8 @@ do
         local savecode = sb:getcode()
 
         if (ffiC._DEBUG_LUNATIC ~= 0) then
-            -- Dump the code if Lunatic debugging is enabled and there is a
-            -- LUNATIC_SAVECODE_FN variable in the environment.
+            -- Dump the code if Lunatic debugging is enabled (-Lopts=diag) and
+            -- there is a LUNATIC_SAVECODE_FN variable in the environment.
             local os = require("os")
             local fn = os.getenv("LUNATIC_SAVECODE_FN")
 
@@ -2538,7 +2540,7 @@ if (assert(concode ~= nil)) then
 
     local function protect_con_table(tab)
         -- NOTE: Some of our code specifically excepts the name tables to be
-        -- indexable with nonexistent keys. See e.g. control.c: _A_SpawnGlass()
+        -- indexable with nonexistent keys. See e.g. control.lua: _A_SpawnGlass()
         if (ffiC._LUNATIC_STRICT ~= 0) then
             tab = setmetatable(tab, index_error_mt)
         end
@@ -2587,4 +2589,9 @@ if (not g_firstRun) then
     end
 
     ffiC.g_elFirstTime = 0
+end
+
+if (g_restorefunc) then
+    -- Clear it so that it may be garbage-collected.
+    g_restorefunc = nil
 end

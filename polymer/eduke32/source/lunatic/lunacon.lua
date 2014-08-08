@@ -1476,7 +1476,6 @@ function Cmd.gamevar(identifier, initval, flags)
         return
     end
 
-    -- TODO: handle user bits like NORESET or NODEFAULT
     if (bit.band(flags, bit.bnot(GVFLAG.USER_MASK)) ~= 0) then
         -- TODO: a couple of the presumably safe ones
         errprintf("gamevar flags other than 1, 2, 1024 or 131072: NYI or forbidden")
@@ -1492,6 +1491,7 @@ function Cmd.gamevar(identifier, initval, flags)
     end
 
     local ogv = g_gamevar[identifier]
+    -- handle NORESET or NODEFAULT
     local isSessionVar = (bit.band(flags, GVFLAG.NODEFAULT) ~= 0)
     local storeWithSavegames = (bit.band(flags, GVFLAG.NORESET) == 0)
 
@@ -1573,9 +1573,15 @@ function Cmd.gamevar(identifier, initval, flags)
         end
 
         -- Declare new session gamevar.
-        g_gamevar[identifier] = { name=format("_gv._sessionVar[%d]", g_numSessionVars),
-                                  flags=flags, loc=getLocation(), used=0 }
+        local gv = { name=format("_gv._sessionVar[%d]", g_numSessionVars),
+                     flags=flags, loc=getLocation(), used=0 }
         g_numSessionVars = g_numSessionVars+1
+
+        g_gamevar[identifier] = gv;
+        -- Initialize it (i.e. set to the declared initial value) on first run,
+        -- but not from savegames.
+        addcodef("if _S then %s=%d end", gv.name, initval)
+
         return
     end
 

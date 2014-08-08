@@ -121,8 +121,8 @@ _backtrace_ added. Additionally, errors not caught by a `pcall` result a
 permanent message to appear on the screen, containing the source file name and
 line number.
 
-*`print(...)`*::
-The messages are printed to the OSD and the log. Color codes available in
+*`print(str)`*::
+Prints a single message to the OSD and the log. Color codes available in
 EDuke32 (e.g. `^10` for dark red) are interpreted. Overriding `tostring` has no
 effect on Lunatic's `print` as it uses the initial, built-in `tostring`
 function instead of looking it up in the global environment.
