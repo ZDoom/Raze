@@ -7111,7 +7111,8 @@ check_next_sector: ;
 
                         if (doSectorSplit && k==loopnum)
                             continue;
-                        if (!doSectorSplit && (k == loopnumofsector(ovh.splitsect,ovh.splitstartwall) || k == loopnumofsector(ovh.splitsect,splitendwall)))
+                        if (!doSectorSplit && (k == loopnumofsector(ovh.splitsect,ovh.splitstartwall) ||
+                                               k == loopnumofsector(ovh.splitsect,splitendwall)))
                             continue;
 
                         i = k;
@@ -7180,7 +7181,7 @@ check_next_sector: ;
 
                     numsectors += 1 + doSectorSplit;
 
-                    k = danumwalls-numwalls;  //Back of number of walls of new sector for later
+                    k = danumwalls-numwalls;  //Back up number of walls of new sector for later
                     numwalls = danumwalls;
 
                     //clear out old sector's next pointers for clean deletesector
@@ -8444,21 +8445,22 @@ static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls)
             if ((x1 <= dax && dax <= x2) || (x2 <= dax && dax <= x1))
                 if ((y1 <= day && day <= y2) || (y2 <= day && day <= y1))
                     if ((dax-x1)*(y2-y1) == (day-y1)*(x2-x1))
-                        return(1);          //insertpoint((short)i,dax,day,NULL);
+                        return 1;          //insertpoint((short)i,dax,day,NULL);
     }
 
-    return(0);
+    return 0;
 }
 
-// wallstart has to be the starting wall of a loop!
-static int32_t clockdir(int16_t wallstart)   //Returns: 0 is CW, 1 is CCW
+// <wallstart> has to be the starting (i.e. least index) wall of a loop!
+// Returns: CLOCKDIR_CW or CLOCKDIR_CCW.
+static int32_t clockdir(int32_t wallstart)
 {
-    int16_t i, themin;
-    int32_t minx, tempint, x0, x1, x2, y0, y1, y2;
+    int32_t tempint, x0, x1, x2, y0, y1, y2;
 
-    minx = 0x7fffffff;
-    themin = -1;
-    i = wallstart-1;
+    int32_t minx = 0x7fffffff;
+    int32_t themin = -1;
+    int32_t i = wallstart-1;
+
     do
     {
         i++;
@@ -8468,7 +8470,11 @@ static int32_t clockdir(int16_t wallstart)   //Returns: 0 is CW, 1 is CCW
             themin = i;
         }
     }
-    while ((wall[i].point2 != wallstart) && (i < MAXWALLS));
+    while (wall[i].point2 != wallstart && i < MAXWALLS-1);
+    // NOTE: the i < MAXWALLS-1 check is really only safety against either
+    //  - a really corrupt map, or
+    //  - misuse of clockdir() where <wallstart> is not the starting wall of
+    //    the very last loop
 
     x0 = wall[themin].x;
     y0 = wall[themin].y;
@@ -8477,14 +8483,16 @@ static int32_t clockdir(int16_t wallstart)   //Returns: 0 is CW, 1 is CCW
     x2 = POINT2(wall[themin].point2).x;
     y2 = POINT2(wall[themin].point2).y;
 
-    if (y1 >= y2 && y1 <= y0) return(0);
-    if (y1 >= y0 && y1 <= y2) return(1);
+    if (y1 >= y2 && y1 <= y0)
+        return CLOCKDIR_CW;
+    if (y1 >= y0 && y1 <= y2)
+        return CLOCKDIR_CCW;
 
     tempint = (x0-x1)*(y2-y1) - (x2-x1)*(y0-y1);
     if (tempint < 0)
-        return(0);
+        return CLOCKDIR_CW;
     else
-        return(1);
+        return CLOCKDIR_CCW;
 }
 
 static void flipwalls(int16_t numwalls, int16_t newnumwalls)
@@ -8822,38 +8830,44 @@ static void clearministatbar16(void)
     enddrawing();
 }
 
-// startwall has to be the starting wall of a loop!
-static int16_t loopinside(int32_t x, int32_t y, int16_t startwall)
+// <startwall> has to be the starting wall of a loop!
+//
+// Assuming that <startwall> indicates a CW (outer) loop, the return value can
+// be seen as a boolean of whether (x,y) is inside it.
+//
+// XXX: this function suffers from asymmetry issues in degenerate cases,
+// similar to how inside() did before r3898.
+static int32_t loopinside(int32_t x, int32_t y, int16_t startwall)
 {
-    int32_t x1, y1, x2, y2;
-    int16_t i, cnt;
+    int32_t cnt = clockdir(startwall);
+    int32_t i = startwall;
 
-    cnt = clockdir(startwall);
-    i = startwall;
     do
     {
-        x1 = wall[i].x;
-        x2 = POINT2(i).x;
+        int32_t x1 = wall[i].x;
+        int32_t x2 = POINT2(i).x;
 
-        if (x1 >= x || x2 >= x)
+        if (x <= x1 || x <= x2)
         {
-            y1 = wall[i].y;
-            y2 = POINT2(i).y;
+            int32_t y1 = wall[i].y;
+            int32_t y2 = POINT2(i).y;
 
             if (y1 > y2)
             {
                 swaplong(&x1, &x2);
                 swaplong(&y1, &y2);
             }
-            if (y1 <= y && y2 > y)
+
+            if (y1 <= y && y < y2)
                 if (x1*(y-y2)+x2*(y1-y) <= x*(y1-y2))
                     cnt ^= 1;
         }
+
         i = wall[i].point2;
     }
     while (i != startwall);
 
-    return(cnt);
+    return cnt;
 }
 
 #if 0

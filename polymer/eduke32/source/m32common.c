@@ -577,16 +577,11 @@ int32_t map_undoredo(int32_t dir)
 #define CCHK_CORRECTED OSDTEXT_GREEN " -> "
 
 #ifdef _MSC_VER
-#define CORRUPTCHK_PRINT(errlev, what, fmt, ...) do  \
-{ \
-    bad = max(bad, errlev); \
-    if (numcorruptthings>=MAXCORRUPTTHINGS) \
-        goto too_many_errors; \
-    corruptthings[numcorruptthings++] = (what); \
-    if (errlev >= printfromlev) \
-        OSD_Printf("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
-} while (0)
+# define OSD_Printf_CChk OSD_Printf
 #else
+# define OSD_Printf_CChk OSD_Printf_nowarn
+#endif
+
 #define CORRUPTCHK_PRINT(errlev, what, fmt, ...) do  \
 { \
     bad = max(bad, errlev); \
@@ -594,9 +589,9 @@ int32_t map_undoredo(int32_t dir)
         goto too_many_errors; \
     corruptthings[numcorruptthings++] = (what); \
     if (errlev >= printfromlev) \
-        OSD_Printf_nowarn("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
+        OSD_Printf_CChk("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
 } while (0)
-#endif
+
 #ifdef YAX_ENABLE
 static int32_t walls_have_equal_endpoints(int32_t w1, int32_t w2)
 {
@@ -852,7 +847,7 @@ static int32_t check_spritelist_consistency()
 
 int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 {
-    int32_t i, j, w0, numw, endwall, ns, nw;
+    int32_t i, j;
     int32_t ewall=0;  // expected wall index
 
     int32_t errlevel=0, bad=0;
@@ -892,10 +887,11 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
     for (i=0; i<numsectors; i++)
     {
-        bad = 0;
+        const int32_t w0 = sector[i].wallptr;
+        const int32_t numw = sector[i].wallnum;
+        const int32_t endwall = w0 + numw - 1;  // inclusive
 
-        w0 = sector[i].wallptr;
-        numw = sector[i].wallnum;
+        bad = 0;
 
         if (w0 < 0 || w0 > numwalls)
         {
@@ -915,8 +911,7 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
         ewall += numw;
 
-        endwall = w0 + numw;
-        if (endwall > numwalls)
+        if (endwall >= numwalls)
             CORRUPTCHK_PRINT(5, CORRUPT_SECTOR|i, "SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d", i, endwall, numwalls);
 
         // inconsistent cstat&2 and heinum checker
@@ -952,13 +947,16 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
         errlevel = max(errlevel, bad);
 
-        if (bad<4)
+        if (bad < 4)
         {
-            endwall--;
-
             for (j=w0; j<=endwall; j++)
             {
+                const int32_t nw = wall[j].nextwall;
+                const int32_t ns = wall[j].nextsector;
+
                 bad = 0;
+
+                // First, some basic wall sanity checks.
 
                 if (wall[j].point2 < w0 || wall[j].point2 > endwall)
                 {
@@ -970,11 +968,9 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                          j, TrackerCast(wall[j].point2), w0, endwall);
                 }
 
-                nw = wall[j].nextwall;
-
                 if (nw >= numwalls)
                 {
-                    int32_t onumct = numcorruptthings;
+                    const int32_t onumct = numcorruptthings;
 
                     if (TRYFIX_NONE())
                     {
@@ -993,11 +989,9 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                     }
                 }
 
-                ns = wall[j].nextsector;
-
                 if (ns >= numsectors)
                 {
-                    int32_t onumct = numcorruptthings;
+                    const int32_t onumct = numcorruptthings;
 
                     if (TRYFIX_NONE())
                     {
@@ -1023,12 +1017,14 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                     CORRUPTCHK_PRINT(3, CORRUPT_WALL|j, "WALL[%d] has length 0", j);
 
 #ifdef YAX_ENABLE
+                // Various TROR checks.
                 {
-                    int32_t cf, ynw, ynwp2;
+                    int32_t cf;
 
                     for (cf=0; cf<2; cf++)
                     {
-                        ynw = yax_getnextwall(j, cf);
+                        const int32_t ynw = yax_getnextwall(j, cf);
+
                         if (ynw >= 0)
                         {
                             if (ynw >= numwalls)
@@ -1052,8 +1048,8 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                 }
 
                                 {
-                                    int16_t bunchnum = yax_getbunch(i, cf);
-                                    int32_t onumct = numcorruptthings;
+                                    const int16_t bunchnum = yax_getbunch(i, cf);
+                                    const int32_t onumct = numcorruptthings;
 
                                     if (bunchnum < 0 || bunchnum >= numyaxbunches)
                                     {
@@ -1083,9 +1079,9 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
                                 if (ynextwallok)
                                 {
-                                    int32_t onumct = numcorruptthings;
+                                    const int32_t onumct = numcorruptthings;
+                                    const int32_t ynwp2 = yax_getnextwall(ynw, !cf);
 
-                                    ynwp2 = yax_getnextwall(ynw, !cf);
                                     if (ynwp2 != j)
                                     {
                                         CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's %s=%d's reverse link wrong"
@@ -1105,18 +1101,19 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                             }
                                         }
                                     }
-                                }   // woot!
+                                }   // brace woot!
                             }
                         }
                     }
                 }
 #endif
+                // Check for ".nextsector is its own sector"
                 if (ns == i)
                 {
                     if (!bad)
                     {
-                        int32_t onumct = numcorruptthings;
-                        int32_t safetoclear = (nw==j || (wall[nw].nextwall==-1 && wall[nw].nextsector==-1));
+                        const int32_t onumct = numcorruptthings;
+                        const int32_t safetoclear = (nw==j || (wall[nw].nextwall==-1 && wall[nw].nextsector==-1));
 
                         CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR is its own sector", j);
                         if (onumct < MAXCORRUPTTHINGS)
@@ -1143,20 +1140,23 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                     }
                 }
 
+                // Check for ".nextwall already referenced from wall ..."
                 if (!corruptcheck_noalreadyrefd && nw>=0 && nw<numwalls)
                 {
                     if (seen_nextwalls[nw>>3]&(1<<(nw&7)))
                     {
-                        int16_t nwnw, lnws;
-                        int32_t onumct = numcorruptthings;
+                        const int32_t onumct = numcorruptthings;
 
-                        lnws = lastnextwallsource[nw];
+                        const int16_t lnws = lastnextwallsource[nw];
+                        const int16_t nwnw = wall[nw].nextwall;
+
                         CORRUPTCHK_PRINT(3, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d already referenced from wall %d",
                                          j, nw, lnws);
-                        nwnw = wall[nw].nextwall;
+
                         if (onumct < MAXCORRUPTTHINGS && (nwnw==j || nwnw==lnws))
                         {
-                            int32_t walltoclear = nwnw==j ? lnws : j;
+                            const int32_t walltoclear = nwnw==j ? lnws : j;
+
                             if (tryfixing & (1ull<<onumct))
                             {
                                 wall[walltoclear].nextsector = wall[walltoclear].nextwall = -1;
@@ -1175,9 +1175,11 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                     }
                 }
 
-                if (bad<4)
+                // Various checks of .nextsector and .nextwall
+                if (bad < 4)
                 {
-                    int32_t onumct = numcorruptthings;
+                    const int32_t onumct = numcorruptthings;
+
                     if ((ns^nw)<0)
                     {
                         CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d and .NEXTWALL=%d inconsistent:"
@@ -1240,18 +1242,19 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
         if (klabs(sprite[i].x) > BXY_MAX || klabs(sprite[i].y) > BXY_MAX)
         {
-            int32_t onumct = numcorruptthings;
+            const int32_t onumct = numcorruptthings;
 
             CORRUPTCHK_PRINT(3, CORRUPT_SPRITE|i, "SPRITE %d at [%d, %d] is outside the maximal grid range [%d, %d]",
                              i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), -BXY_MAX, BXY_MAX);
 
             if (onumct < MAXCORRUPTTHINGS)
             {
-                int32_t x=0, y=0, sect=sprite[i].sectnum, ok=0;
+                int32_t x=0, y=0, ok=0;
+                const int32_t sect = sprite[i].sectnum;
 
                 if ((unsigned)sect < (unsigned)numsectors)
                 {
-                    int32_t firstwall = sector[sect].wallptr;
+                    const int32_t firstwall = sector[sect].wallptr;
 
                     if ((unsigned)firstwall < (unsigned)numwalls)
                     {
