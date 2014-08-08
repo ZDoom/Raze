@@ -216,6 +216,33 @@ extern int32_t LoadBoard(const char *filename, uint32_t flags);
 extern const char *SaveBoard(const char *fn, uint32_t flags);
 extern const char *GetSaveBoardFilename(const char *fn);
 
+extern int32_t clockdir(int32_t wallstart);
+extern int32_t loopinside(int32_t x, int32_t y, int16_t startwall);
+
+enum {
+    // NOTE: These must not be changed, see e.g. loopinside().
+    CLOCKDIR_CW = 0,  // outer loop
+    CLOCKDIR_CCW = 1,  // inner loop
+};
+
+// <loopstart> has to be the starting (i.e. least index) wall of a loop!
+//
+// The returned value will be either
+//  - the starting wall of the next loop of this sector,
+//  - the first wall of the next sector, or
+//  - out of bounds (== MAXWALLS).
+// Thus, it MUST be checked for a proper bound!
+static inline int32_t get_nextloopstart(int32_t loopstart)
+{
+    int32_t i = loopstart;
+
+    while (++i)  // sic
+        if (wall[i].point2 == loopstart)
+            return i + 1;
+
+    return MAXWALLS;
+}
+
 #define CORRUPT_SECTOR (1<<17)
 #define CORRUPT_WALL (1<<18)
 #define CORRUPT_SPRITE (1<<19)

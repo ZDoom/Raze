@@ -203,9 +203,6 @@ int32_t g_doScreenShot;
 
 #define DOWN_BK(BuildKey) (keystatus[buildkeys[BK_##BuildKey]])
 
-#define CLOCKDIR_CW 0
-#define CLOCKDIR_CCW 1
-
 int32_t pk_turnaccel=16;
 int32_t pk_turndecel=12;
 int32_t pk_uedaccel=3;
@@ -227,12 +224,10 @@ static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls);
 static void locktogrid(int32_t *dax, int32_t *day);
 static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls);
 static void keytimerstuff(void);
-static int32_t clockdir(int16_t wallstart);
 static void flipwalls(int16_t numwalls, int16_t newnumwalls);
 static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day, int32_t *mapwallnum);
 static void deletepoint(int16_t point, int32_t runi);
 static int32_t deletesector(int16_t sucksect);
-static int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
 static int16_t whitelinescan(int16_t sucksect, int16_t dalinehighlight);
 static void printcoords16(int32_t posxe, int32_t posye, int16_t ange);
 static void overheadeditor(void);
@@ -8453,7 +8448,7 @@ static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls)
 
 // <wallstart> has to be the starting (i.e. least index) wall of a loop!
 // Returns: CLOCKDIR_CW or CLOCKDIR_CCW.
-static int32_t clockdir(int32_t wallstart)
+int32_t clockdir(int32_t wallstart)
 {
     int32_t tempint, x0, x1, x2, y0, y1, y2;
 
@@ -8837,7 +8832,7 @@ static void clearministatbar16(void)
 //
 // XXX: this function suffers from asymmetry issues in degenerate cases,
 // similar to how inside() did before r3898.
-static int32_t loopinside(int32_t x, int32_t y, int16_t startwall)
+int32_t loopinside(int32_t x, int32_t y, int16_t startwall)
 {
     int32_t cnt = clockdir(startwall);
     int32_t i = startwall;

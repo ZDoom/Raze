@@ -102,6 +102,7 @@ $(DUKE3D_OBJ)/m32def.$o: $(DUKE3D_SRC)/m32def.c $(m32_script_hs) $(ENGINE_INC)/c
 $(DUKE3D_OBJ)/m32exec.$o: $(DUKE3D_SRC)/m32exec.c $(m32_script_hs) $(DUKE3D_SRC)/sounds_mapster32.h $(DUKE3D_SRC)/sounds_common.h $(ENGINE_INC)/osd.h $(DUKE3D_SRC)/keys.h $(AUDIOLIB_ROOT)/include/fx_man.h
 $(DUKE3D_OBJ)/m32structures.$o: $(DUKE3D_SRC)/m32structures.c $(m32_script_hs) $(ENGINE_INC)/compat.h $(ENGINE_INC)/prlights.h
 $(DUKE3D_OBJ)/m32vars.$o: $(DUKE3D_SRC)/m32vars.c $(DUKE3D_SRC)/m32structures.c $(m32_script_hs) $(ENGINE_INC)/osd.h $(DUKE3D_SRC)/keys.h $(ENGINE_INC)/polymer.h
+# TODO: m32common.c
 
 # misc objects
 $(DUKE3D_OBJ)/game_icon.$o: $(DUKE3D_RSRC)/game_icon.c

@@ -571,6 +571,8 @@ int32_t map_undoredo(int32_t dir)
 ////
 
 //// port of a.m32's corruptchk ////
+// Compile wall loop checks? 0: no, 1: partial, 2: full.
+#define CCHK_LOOP_CHECKS 1
 // returns value from 0 (all OK) to 5 (panic!)
 #define CCHK_PANIC OSDTEXT_DARKRED "PANIC!!!^O "
 //#define CCHKPREF OSDTEXT_RED "^O"
@@ -841,6 +843,32 @@ static int32_t check_spritelist_consistency()
 
     return 0;
 }
+
+#if CCHK_LOOP_CHECKS
+// Return the least wall index of the outer loop of sector <sectnum>, or
+//  -1 if there is none,
+//  -2 if there is more than one.
+static int32_t determine_outer_loop(int32_t sectnum)
+{
+    int32_t j, outerloopstart = -1;
+
+    const int32_t startwall = sector[sectnum].wallptr;
+    const int32_t endwall = startwall + sector[sectnum].wallnum - 1;
+
+    for (j=startwall; j<=endwall; j=get_nextloopstart(j))
+    {
+        if (clockdir(j) == CLOCKDIR_CW)
+        {
+            if (outerloopstart == -1)
+                outerloopstart = j;
+            else if (outerloopstart >= 0)
+                return -2;
+        }
+    }
+
+    return outerloopstart;
+}
+#endif
 
 #define TRYFIX_NONE() (tryfixing == 0ull)
 #define TRYFIX_CNUM(onumct) (onumct < MAXCORRUPTTHINGS && (tryfixing & (1ull<<onumct)))
@@ -1220,6 +1248,47 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                 errlevel = max(errlevel, bad);
             }
         }
+#if CCHK_LOOP_CHECKS
+        // Wall loop checks.
+        if (bad < 4 && numw >= 4)
+        {
+            const int32_t outerloopstart = determine_outer_loop(i);
+
+            if (outerloopstart == -1)
+                CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR %d contains no outer (clockwise) loop", i);
+            else if (outerloopstart == -2)
+                CORRUPTCHK_PRINT(3, CORRUPT_SECTOR|i, "SECTOR %d contains more than one outer (clockwise) loops", i);
+# if CCHK_LOOP_CHECKS >= 2
+            else
+            {
+                // Now, check for whether every wall-point of every inner loop of
+                // this sector (<i>) is inside the outer one.
+
+                for (j=w0; j<=endwall; /* will step by loops */)
+                {
+                    const int32_t nextloopstart = get_nextloopstart(j);
+
+                    if (j != outerloopstart)
+                    {
+                        int32_t k;
+
+                        for (k=j; k<nextloopstart; k++)
+                            if (!loopinside(wall[k].x, wall[k].y, outerloopstart))
+                            {
+                                CORRUPTCHK_PRINT(4, CORRUPT_WALL|k, "WALL %d (of sector %d) is outside the outer loop", k, i);
+                                goto end_wall_loop_checks;
+                            }
+                    }
+
+                    j = nextloopstart;
+                }
+end_wall_loop_checks:
+                ;
+            }
+# endif
+            errlevel = max(errlevel, bad);
+        }
+#endif
     }
 
     bad = 0;
