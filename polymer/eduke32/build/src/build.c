@@ -8854,7 +8854,7 @@ int32_t loopinside(int32_t x, int32_t y, int16_t startwall)
             }
 
             if (y1 <= y && y < y2)
-                if (x1*(y-y2)+x2*(y1-y) <= x*(y1-y2))
+                if ((uint64_t)x1*(y-y2) + (uint64_t)x2*(y1-y) <= (uint64_t)x*(y1-y2))
                     cnt ^= 1;
         }
 
