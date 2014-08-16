@@ -9807,6 +9807,11 @@ int32_t ExtInit(void)
     Bsprintf(apptitle, "Mapster32 %s %s", VERSION, s_buildRev);
     autosavetimer = totalclock+120*autosave;
 
+    // This must run before the following OSD_Exec() as the cfg may
+    // e.g. contain a vid_gamma setting, resulting in a crash in
+    // setbrightness() which expects basepaltableptr to be initialized.
+    setbasepaltable(basepaltable, BASEPALCOUNT);
+
     registerosdcommands();
 
     {
@@ -9841,8 +9846,6 @@ int32_t ExtPostStartupWindow(void)
         initprintf("There was a problem initializing the engine.\n");
         return -1;
     }
-
-    setbasepaltable(basepaltable, BASEPALCOUNT);
 
     if (ReadPaletteTable())
         return -1;
