@@ -1802,7 +1802,28 @@ int32_t clipmapinfo_load(void)
 
     return 0;
 }
-#endif
+
+
+int32_t clipshape_idx_for_sprite(spritetype *curspr, int32_t curidx)
+{
+    if (curidx < 0)  // per-sprite init
+        curidx = pictoidx[curspr->picnum];
+    else
+        curidx = clipinfo[curidx].next;
+
+    while (curidx>=0 && (curspr->cstat&32) != (sector[sectq[clipinfo[curidx].qbeg]].CM_CSTAT&32))
+        curidx = clipinfo[curidx].next;
+
+    return curidx;
+}
+#else
+int32_t clipshape_idx_for_sprite(spritetype *curspr, int32_t curidx)
+{
+    UNREFERENCED_PARAMETER(curspr);
+    UNREFERENCED_PARAMETER(curidx);
+    return -1;
+}
+#endif  // HAVE_CLIPSHAPE_FEATURE
 ////// //////
 
 #define WALLS_ARE_CONSISTENT(k) ((wall[k].x == x2 && wall[k].y == y2)   \
@@ -12552,14 +12573,7 @@ restart_grand:
                 mapinfo_set(&origmapinfo, &clipmapinfo);  // replace sector and wall with clip map
 
             curspr = &sprite[clipspritelist[clipspritecnt]];
-
-            if (curidx < 0)  // per-sprite init
-                curidx = pictoidx[curspr->picnum];
-            else
-                curidx = clipinfo[curidx].next;
-
-            while (curidx>=0 && (curspr->cstat&32) != (sector[sectq[clipinfo[curidx].qbeg]].CM_CSTAT&32))
-                curidx = clipinfo[curidx].next;
+            curidx = clipshape_idx_for_sprite(curspr, curidx);
 
             if (curidx < 0)
             {
@@ -13372,14 +13386,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             }
 
             curspr = &sprite[clipspritelist[clipspritecnt]];
-
-            if (curidx < 0)  // per-sprite init
-                curidx = pictoidx[curspr->picnum];
-            else
-                curidx = clipinfo[curidx].next;
-
-            while (curidx>=0 && (curspr->cstat&32) != (sector[sectq[clipinfo[curidx].qbeg]].CM_CSTAT&32))
-                curidx = clipinfo[curidx].next;
+            curidx = clipshape_idx_for_sprite(curspr, curidx);
 
             if (curidx < 0)
             {
@@ -14265,14 +14272,7 @@ restart_grand:
             // one set of clip-sprite sectors completed, prepare the next
 
             curspr = &sprite[clipspritelist[clipspritecnt]];
-
-            if (curidx < 0)  // per-sprite init
-                curidx = pictoidx[curspr->picnum];
-            else
-                curidx = clipinfo[curidx].next;
-
-            while (curidx>=0 && (curspr->cstat&32) != (sector[sectq[clipinfo[curidx].qbeg]].CM_CSTAT&32))
-                curidx = clipinfo[curidx].next;
+            curidx = clipshape_idx_for_sprite(curspr, curidx);
 
             if (curidx < 0)
             {

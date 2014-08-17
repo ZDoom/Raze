@@ -1231,6 +1231,8 @@ static inline int32_t E_SpriteIsValid(const int32_t i)
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
 
+int32_t clipshape_idx_for_sprite(spritetype *curspr, int32_t curidx);
+
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t   sectorofwall(int16_t theline);

@@ -4328,7 +4328,8 @@ void P_ProcessInput(int32_t snum)
     {
         j = lz&(MAXSPRITES-1);
 
-        if ((sprite[j].cstat&33) == 33 || (sprite[j].cstat&17) == 17)
+        if ((sprite[j].cstat&33) == 33 || (sprite[j].cstat&17) == 17 ||
+                clipshape_idx_for_sprite(&sprite[j], -1) >= 0)
         {
             if ((sprite[j].xvel&1) == 0)  // EDuke32 extension
             {
