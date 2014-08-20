@@ -961,20 +961,20 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
             int32_t moveScriptOfs = AC_MOVE_ID(vm.g_t);
 #endif
             // fix for flying/jumping monsters getting stuck in water
-            if ((AC_MOVFLAGS(g_sp, &actor[vm.g_i]) & jumptoplayer_bits) == jumptoplayer_only ||
+            if ((AC_MOVFLAGS(g_sp, &actor[vm.g_i]) & jumptoplayer_only) ||
                 (G_HaveActor(g_sp->picnum) &&
 #if !defined LUNATIC
-                 (unsigned)moveScriptOfs < (unsigned)g_scriptSize-1 && script[moveScriptOfs + 1]
+                 (unsigned)moveScriptOfs < (unsigned)g_scriptSize-1 && script[moveScriptOfs + 1] != 0
 #else
                  actor[g_i].mv.vvel != 0
 #endif
                     ))
             {
-//                OSD_Printf("%d\n", script[moveScriptOfs + 1]);
+//                OSD_Printf("%d\n", (int)script[moveScriptOfs + 1]);
                 break;
             }
 
-//            OSD_Printf("hitag: %d\n",g_sp->hitag);
+//            OSD_Printf("movflags: %d | %d\n", AC_MOVFLAGS(g_sp, &actor[vm.g_i]), totalclock);
             g_sp->z += ACTOR_ONWATER_ADDZ;
             break;
         }
