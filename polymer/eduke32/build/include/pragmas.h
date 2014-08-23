@@ -20,6 +20,11 @@ extern int32_t dmval;
 #define dw(x)	((int32_t)(x))		// doubleword cast
 #define by(x)	((uint8_t)(x))		// byte cast
 
+// XXX: Only for testing on x86. Don't use from outside; it doesn't account for
+// whether we're compiling for e.g. x86_64 which will never use asm anyway.
+//#define USE_ASM_DIVSCALE
+
+#if !defined USE_ASM_DIVSCALE
 #ifdef GEKKO
 #include <math.h>
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx)
@@ -57,6 +62,7 @@ _scaler(29)	_scaler(30)	_scaler(31)	_scaler(32)
 #undef dw
 #undef by
 #undef _scaler
+#endif  // !defined USE_ASM_DIVSCALE
 
 #if defined(__GNUC__) && defined(GEKKO)
 
@@ -1163,7 +1169,7 @@ void copybufreverse(const void *S, void *D, int32_t c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __d; })
 
-#if 0
+#ifdef USE_ASM_DIVSCALE
 #define divscale(a,b,c) \
 	({ int32_t __a=(a), __b=(b), __c=(c); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; shll %%cl, %%eax; negb %%cl; sarl %%cl, %%edx; idivl %%ebx" \
@@ -1329,7 +1335,8 @@ void copybufreverse(const void *S, void *D, int32_t c);
 	   __asm__ __volatile__ ("xorl %%eax, %%eax; idivl %%ebx" \
 		: "=a" (__r), "=d" (__d) : "d" (__d), "b" (__b) : "cc"); \
 	 __r; })
-#endif
+#endif  // defined USE_ASM_DIVSCALE
+
 #define readpixel(D) \
 	({ void *__D=(D); int32_t __a; \
 	   __asm__ __volatile__ ("movb (%%edi), %%al" \
@@ -1676,7 +1683,8 @@ static __inline int32_t boundmulscale(int32_t a, int32_t b, int32_t c)
 	skipboundit:
 	}
 }
-#if 0
+
+#ifdef USE_ASM_DIVSCALE
 static __inline int32_t divscale(int32_t a, int32_t b, int32_t c)
 {
 	_asm {
@@ -1748,7 +1756,8 @@ static __inline int32_t divscale32(int32_t d, int32_t b)
 		idiv b
 	}
 }
-#endif
+#endif  // defined USE_ASM_DIVSCALE
+
 static __inline char readpixel(void *d)
 {
 	_asm {
