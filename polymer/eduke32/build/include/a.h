@@ -8,6 +8,17 @@
 
 #include "compat.h"
 
+/** Definitions of high-precision integer types. **/
+// Should be used for values that represent coordinates with which calculations
+// like dot product are carried out. Substituting 32-bit ints for these will
+// very likely yield issues in border cases:
+typedef int64_t coord_t;
+// Should be used for values that may overflow if 32-bit arithmetic were used,
+// but where no other adverse effect (except being undefined behavior,
+// obviously) is expected to result:
+typedef int64_t inthi_t;
+
+
 #if defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
 #if defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__SYLLABLE__)

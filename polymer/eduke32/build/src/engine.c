@@ -2594,7 +2594,7 @@ static void scansector(int16_t startsectnum)
             {
                 int32_t xs = spr->x-globalposx, ys = spr->y-globalposy;
 
-                if ((spr->cstat&48) || ((int64_t)xs*cosglobalang+(int64_t)ys*singlobalang > 0))
+                if ((spr->cstat&48) || ((coord_t)xs*cosglobalang+(coord_t)ys*singlobalang > 0))
                     if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-xs, sintable[spr->ang&2047],-ys) > 0)
                         if (engine_addtsprite(z, sectnum))
                             break;
@@ -2624,7 +2624,7 @@ static void scansector(int16_t startsectnum)
                 if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
                 {
                     // OV: E2L10
-                    int64_t temp = (int64_t)x1*y2-(int64_t)x2*y1;
+                    coord_t temp = (coord_t)x1*y2-(coord_t)x2*y1;
                     tempint = temp;
                     if (((uint64_t)tempint+262144) < 524288)  // BXY_MAX?
                         if (mulscale5(tempint,tempint) <= (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
@@ -2758,7 +2758,7 @@ static WSHELPER_DECL void calc_bufplc(intptr_t *bufplc, int32_t lw, int32_t tsiz
     *bufplc = waloff[globalpicnum] + i;
 }
 
-static WSHELPER_DECL void calc_vplcinc_wall(uint32_t *vplc, int32_t *vinc, int64_t sw, int32_t y1v)
+static WSHELPER_DECL void calc_vplcinc_wall(uint32_t *vplc, int32_t *vinc, inthi_t sw, int32_t y1v)
 {
     *vinc = sw*globalyscale;
     *vplc = globalzd + (uint32_t)(*vinc)*(y1v-globalhoriz+1);
@@ -2767,8 +2767,8 @@ static WSHELPER_DECL void calc_vplcinc_wall(uint32_t *vplc, int32_t *vinc, int64
 #ifdef HIGH_PRECISION_SPRITE
 static WSHELPER_DECL void calc_vplcinc_sprite(uint32_t *vplc, int32_t *vinc, int32_t x, int32_t y1v)
 {
-    int64_t tmpvinc = swallf[x];
-    int64_t tmpvplc = globalzd + tmpvinc*(y1v-globalhoriz+1);
+    inthi_t tmpvinc = swallf[x];
+    inthi_t tmpvplc = globalzd + tmpvinc*(y1v-globalhoriz+1);
 
     *vinc = tmpvinc;
     // Clamp the vertical texture coordinate!
@@ -3073,8 +3073,8 @@ static inline void hline(int32_t xr, int32_t yp)
 
     xl = lastx[yp]; if (xl > xr) return;
     r = horizlookup2[yp-globalhoriz+horizycent];
-    asm1 = (int64_t)globalx1*r;
-    asm2 = (int64_t)globaly2*r;
+    asm1 = (inthi_t)globalx1*r;
+    asm2 = (inthi_t)globaly2*r;
     s = getpalookupsh(mulscale16(r,globvis));
 
     hlineasm4(xr-xl,0,s,(uint32_t)globalx2*r+globalypanning,(uint32_t)globaly1*r+globalxpanning,
@@ -3091,8 +3091,8 @@ static inline void slowhline(int32_t xr, int32_t yp)
 
     xl = lastx[yp]; if (xl > xr) return;
     r = horizlookup2[yp-globalhoriz+horizycent];
-    asm1 = (int64_t)globalx1*r;
-    asm2 = (int64_t)globaly2*r;
+    asm1 = (inthi_t)globalx1*r;
+    asm2 = (inthi_t)globaly2*r;
 
     asm3 = (intptr_t)globalpalwritten + getpalookupsh(mulscale16(r,globvis));
     if (!(globalorientation&256))
@@ -3540,8 +3540,8 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
     {
         globalx1 = singlobalang; globalx2 = singlobalang;
         globaly1 = cosglobalang; globaly2 = cosglobalang;
-        globalxpanning = ((int64_t)globalposx<<20);
-        globalypanning = -((int64_t)globalposy<<20);
+        globalxpanning = ((inthi_t)globalposx<<20);
+        globalypanning = -((inthi_t)globalposy<<20);
     }
     else
     {
@@ -3558,8 +3558,8 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
         i = dmulscale14(oy,cosglobalang,-ox,singlobalang);
         j = dmulscale14(ox,cosglobalang,oy,singlobalang);
         ox = i; oy = j;
-        globalxpanning = (int64_t)globalx1*ox - (int64_t)globaly1*oy;
-        globalypanning = (int64_t)globaly2*ox + (int64_t)globalx2*oy;
+        globalxpanning = (coord_t)globalx1*ox - (coord_t)globaly1*oy;
+        globalypanning = (coord_t)globaly2*ox + (coord_t)globalx2*oy;
     }
     globalx2 = mulscale16(globalx2,viewingrangerecip);
     globaly1 = mulscale16(globaly1,viewingrangerecip);
@@ -3572,8 +3572,8 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
         i = globalx2; globalx2 = -globaly1; globaly1 = -i;
         i = globalx1; globalx1 = globaly2; globaly2 = i;
     }
-    if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalxpanning = -(int64_t)globalxpanning;
-    if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalypanning = -(int64_t)globalypanning;
+    if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalxpanning = -(inthi_t)globalxpanning;
+    if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalypanning = -(inthi_t)globalypanning;
     globalx1 <<= globalxshift; globaly1 <<= globalxshift;
     globalx2 <<= globalyshift;  globaly2 <<= globalyshift;
     globalxpanning <<= globalxshift; globalypanning <<= globalyshift;
@@ -4720,7 +4720,7 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
     globalzd = (uint32_t)globalzd + (globalypanning<<24);
 
     if (globalorientation&256)  // y-flipped
-        globalyscale = -globalyscale, globalzd = -(int64_t)globalzd;
+        globalyscale = -globalyscale, globalzd = -(inthi_t)globalzd;
 }
 
 
@@ -12626,7 +12626,7 @@ restart_grand:
 
             x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
 
-            if ((int64_t)(x1-sv->x)*(y2-sv->y) < (int64_t)(x2-sv->x)*(y1-sv->y)) continue;
+            if ((coord_t)(x1-sv->x)*(y2-sv->y) < (coord_t)(x2-sv->x)*(y1-sv->y)) continue;
             if (rintersect(sv->x,sv->y,sv->z, vx,vy,vz, x1,y1, x2,y2, &intx,&inty,&intz) == -1) continue;
 
             if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
@@ -12727,7 +12727,7 @@ restart_grand:
                 get_wallspr_points(spr, &x1, &x2, &y1, &y2);
 
                 if ((cstat&64) != 0)   //back side of 1-way sprite
-                    if ((int64_t)(x1-sv->x)*(y2-sv->y) < (int64_t)(x2-sv->x)*(y1-sv->y)) continue;
+                    if ((coord_t)(x1-sv->x)*(y2-sv->y) < (coord_t)(x2-sv->x)*(y1-sv->y)) continue;
 
                 ucoefup16 = rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz);
                 if (ucoefup16 == -1) continue;
@@ -12905,7 +12905,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
             if ((tagsearch&2) && wal->hitag) good |= 2;
 
             if ((good == 0) && (nextsector < 0)) continue;
-            if ((int64_t)(x1-xs)*(y2-ys) < (int64_t)(x2-xs)*(y1-ys)) continue;
+            if ((coord_t)(x1-xs)*(y2-ys) < (coord_t)(x2-xs)*(y1-ys)) continue;
 
             if (lintersect(xs,ys,zs,hitv.x,hitv.y,hitv.z,x1,y1,x2,y2,&intx,&inty,&intz) == 1)
             {
