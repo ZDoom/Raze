@@ -7876,8 +7876,12 @@ static void dosetaspect(void)
             radarang2[i] = (int16_t)((radarang[k]+j)>>6);
         }
 
-        for (i=1; i<(int32_t)ARRAY_SIZE(distrecip); i++)
-            distrecip[i] = divscale20(xdimen,i);
+        {
+            EDUKE32_STATIC_ASSERT((uint64_t)MAXXDIM*(ARRAY_SIZE(distrecip)-1) <= INT32_MAX);
+
+            for (i=1; i<(int32_t)ARRAY_SIZE(distrecip); i++)
+                distrecip[i] = (xdimen * i)>>20;
+        }
 
         nytooclose = xdimen*2100;
         nytoofar = 65536*16384-1048576;
