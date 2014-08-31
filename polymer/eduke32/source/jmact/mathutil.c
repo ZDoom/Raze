@@ -31,29 +31,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include <limits.h>
-#include "compat.h"
-#include "pragmas.h"
-
-// I wonder if it's faster to use Ken's functions here...
+#include "common.h"
 
 int32_t FindDistance2D(int32_t x, int32_t y)
 {
-    if ((x=klabs(x)) < (y=klabs(y))) swaplong(&x,&y);
-
-    {
-        int32_t t = y + (y>>1);
-        return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
-    }
+    return sepldist(x, y);
 }
 
 int32_t FindDistance3D(int32_t x, int32_t y, int32_t z)
 {
-    if ((x=klabs(x)) < (y=klabs(y))) swaplong(&x,&y);
-    if (x < (z=klabs(z))) swaplong(&x,&z);
-
-    {
-        int32_t t = y + z;
-        return (x - (x>>4) + (t>>2) + (t>>3));
-    }
+    return sepdist(x, y, z);
 }

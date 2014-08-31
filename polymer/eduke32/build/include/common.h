@@ -7,8 +7,12 @@
 #ifndef EDUKE32_COMMON_H_
 #define EDUKE32_COMMON_H_
 
+#include <stdint.h>
 #include "scriptfile.h"
 #include "cache1d.h"
+#include "pragmas.h"  // klabs
+#include "build.h"
+
 
 #ifdef EXTERNC
 extern "C" {
@@ -81,6 +85,42 @@ int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,
 
 char *dup_filename(const char *fn);
 int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char *ext);
+
+// Approximations to 2D and 3D Euclidean distances. Initial EDuke32 SVN import says
+// in jmact/mathutil.c: "Ken's reverse-engineering job".
+// Note that jmact/mathutil.c contains practically the same code, but where the
+// individual x/y(/z) distances are passed instead.
+static inline int32_t sepldist(const int32_t dx, const int32_t dy)
+{
+    int32_t x = klabs(dx);
+    int32_t y = klabs(dy);
+
+    if (x < y)
+        swaplong(&x, &y);
+
+    {
+        int32_t t = y + (y>>1);
+        return x - (x>>5) - (x>>7) + (t>>2) + (t>>6);
+    }
+}
+
+// dz: in Build coordinates
+static inline int32_t sepdist(int32_t dx, int32_t dy, int32_t dz)
+{
+    int32_t x = klabs(dx);
+    int32_t y = klabs(dy);
+    int32_t z = klabs(dz>>4);
+
+    if (x < y)
+        swaplong(&x, &y);
+    if (x < z)
+        swaplong(&x, &z);
+
+    {
+        int32_t t = y + z;
+        return x - (x>>4) + (t>>2) + (t>>3);
+    }
+}
 
 int32_t ldist(const spritetype *s1, const spritetype *s2);
 int32_t dist(const spritetype *s1, const spritetype *s2);
