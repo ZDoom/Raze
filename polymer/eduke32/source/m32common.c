@@ -1255,9 +1255,9 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
             const int32_t outerloopstart = determine_outer_loop(i);
 
             if (outerloopstart == -1)
-                CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR %d contains no outer (clockwise) loop", i);
+                CORRUPTCHK_PRINT(2, CORRUPT_SECTOR|i, "SECTOR %d contains no outer (clockwise) loop", i);
             else if (outerloopstart == -2)
-                CORRUPTCHK_PRINT(3, CORRUPT_SECTOR|i, "SECTOR %d contains more than one outer (clockwise) loops", i);
+                CORRUPTCHK_PRINT(2, CORRUPT_SECTOR|i, "SECTOR %d contains more than one outer (clockwise) loops", i);
 # if CCHK_LOOP_CHECKS >= 2
             else
             {

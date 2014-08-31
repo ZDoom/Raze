@@ -8478,9 +8478,9 @@ int32_t clockdir(int32_t wallstart)
     x2 = POINT2(wall[themin].point2).x;
     y2 = POINT2(wall[themin].point2).y;
 
-    if (y1 >= y2 && y1 <= y0)
+    if (y2 <= y1 && y1 <= y0)
         return CLOCKDIR_CW;
-    if (y1 >= y0 && y1 <= y2)
+    if (y0 <= y1 && y1 <= y2)
         return CLOCKDIR_CCW;
 
     tempint = (x0-x1)*(y2-y1) - (x2-x1)*(y0-y1);
