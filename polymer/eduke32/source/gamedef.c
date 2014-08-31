@@ -6369,6 +6369,7 @@ void C_Compile(const char *filenam)
     }
     Bfree(g_scriptModules);
     g_scriptModules = NULL;
+    g_scriptModulesNum = 0;
 
     flushlogwindow = 1;
 
