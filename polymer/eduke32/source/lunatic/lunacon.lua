@@ -1513,7 +1513,8 @@ function Cmd.gamevar(identifier, initval, flags)
     end
 
     if (ogv ~= nil) then
-        local oflags = ogv.flags
+        local oflags = bit.band(ogv.flags, bit.bnot(GVFLAG.CON_PERPLAYER))
+
         if (oflags ~= flags) then
             if (bit.band(oflags, GVFLAG.SYSTEM) ~= 0 and not isSessionVar) then
                 -- Attempt to override a system gamevar. See if it's read-only...
@@ -1549,7 +1550,7 @@ function Cmd.gamevar(identifier, initval, flags)
                 return
             end
 
-            errprintf("duplicate definition of gamevar `%s' has different flags", identifier)
+            errprintf("duplicate definition of gamevar `%s' has different flags (new: %x, old: %x)", identifier, flags, oflags)
             inform.oldgv_location(identifier, true)
             return
         else
@@ -1908,7 +1909,10 @@ local patt = {}
 -- will be wrongly accepted at the parsing stage (loogiex is player's member)
 -- because we don't discriminate between actor and player here.
 patt.parm2member = lpeg.C(Pat("htg_t") + "loogiex" + "loogiey" + "ammo_amount" +
-                          "weaprecs" + "gotweapon" + "pals" + "max_ammo_amount") * sp1 * tok.rvar
+                          "weaprecs" + "gotweapon" + "pals" + "Pals" + "max_ammo_amount") * sp1 * tok.rvar
+-- XXX: "pals" + "Pals": this sucks! It means that we for this list of members
+-- requiring second parameters, we will have to enumerate all lower/uppercase
+-- instances encountered in the wild.
 
 -- The member name must match keywords, too (_all), because e.g. cstat is a
 -- member of sprite[].
