@@ -4,6 +4,7 @@
 
 #include "compat.h"
 #include "build.h"
+#include "baselayer.h"
 
 #include "grpscan.h"
 

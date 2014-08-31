@@ -3,7 +3,9 @@
 #include "keys.h"
 #include "build.h"
 #include "cache1d.h"
-#include "polymer.h"
+#ifdef POLYMER
+# include "polymer.h"
+#endif
 #include "editor.h"
 #include "renderlayer.h"
 
