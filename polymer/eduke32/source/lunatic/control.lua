@@ -713,6 +713,33 @@ function _qstrlen(qnum)
     return strlen(bcheck.quote_idx(qnum))
 end
 
+function _qsubstr(qdst, qsrc, start, length)
+    local cstr_dst = bcheck.quote_idx(qdst)
+    local cstr_src = bcheck.quote_idx(qsrc)
+
+    if (not (start >= 0 and start < MAXQUOTELEN)) then
+        error("invalid start position "..start, 2)
+    end
+
+    if (not (length >= 0)) then  -- NOTE: no check for start+length!
+        error("invalid length "..length, 2)
+    end
+
+    local si = 0
+    while (cstr_src[si] ~= 0 and si < start) do
+        si = si+1
+    end
+
+    for i=0,math.huge do
+        cstr_dst[i] = cstr_src[si + i]
+
+        if (si + i == MAXQUOTELEN-1 or i==length or cstr_dst[i] == 0) then
+            cstr_dst[i] = 0
+            break
+        end
+    end
+end
+
 function _qstrcpy(qdst, qsrc)
     local cstr_dst = bcheck.quote_idx(qdst)
     local cstr_src = bcheck.quote_idx(qsrc)

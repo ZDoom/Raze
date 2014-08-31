@@ -2667,7 +2667,7 @@ local Cinner = {
     qstrncat = cmd(R,R)
         / handle.NYI,
     qsubstr = cmd(R,R,R,R)
-        / handle.NYI,
+        / "_con._qsubstr(%1,%2,%3,%4)",
     quote = cmd(D)
         / "_con._quote(_pli,%1)",
     userquote = cmd(R)

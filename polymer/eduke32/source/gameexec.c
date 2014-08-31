@@ -2083,6 +2083,18 @@ skip_check:
                     continue;
                 }
 
+                if ((unsigned)st >= MAXQUOTELEN)
+                {
+                    CON_ERRPRINTF("invalid start position %d\n", st);
+                    continue;
+                }
+
+                if (ln < 0)
+                {
+                    CON_ERRPRINTF("invalid length %d\n", ln);
+                    continue;
+                }
+
                 {
                     char *s1 = ScriptQuotes[q1];
                     char *s2 = ScriptQuotes[q2];

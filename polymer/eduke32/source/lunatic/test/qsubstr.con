@@ -1,0 +1,71 @@
+// Tests for the qsubstr command.
+// This one should be safe to run in C-CON.
+
+// overlong string at definition (should warn)
+define QSRC 400
+definequote QSRC -123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789=123456789
+define QSRC_SHORT 401
+definequote QSRC_SHORT -123456789
+
+define QDST 500
+definequote QDST
+
+// for gettimedate
+gamevar sec 0 0
+gamevar x 0 0
+
+onevent EVENT_ENTERLEVEL
+    // first, a plain, non-border-case call
+    qsubstr QDST QSRC 10 10  // -> "-123456789"
+    userquote QDST
+
+    // length zero yields the empty string
+    qsubstr QDST QSRC 20 0  // -> ""
+    userquote QDST
+
+    // start+length > strlen of source: no error
+    qsubstr QDST QSRC_SHORT 8 6  // -> "89"
+    userquote QDST
+
+    // start == strlen of source
+    qsubstr QDST QSRC_SHORT 10 1  // -> ""
+    userquote QDST
+
+    // Make QDST contain
+    // -123456789<NUL>123456789-...
+    qstrcpy QDST QSRC_SHORT
+    qstrcpy QSRC_SHORT QSRC
+    qstrcpy QSRC_SHORT QDST
+    userquote QSRC_SHORT  // -> "-123456789"
+
+    // start == strlen of source, trailing bytes after source <NUL>
+    qsubstr QDST QSRC_SHORT 10 2  // -> ""
+    userquote QDST
+
+    // start is beyond-<NUL> of the source
+    qsubstr QDST QSRC_SHORT 11 9  // -> ""
+    userquote QDST
+
+    // copy whole string (127 chars + 1 <NUL> == MAXQUOTELEN)
+    qsubstr QDST QSRC 0 1000  // -> "-123456789-123456789-...=123456"
+    userquote QDST
+
+    /** TESTS FOR source == dest **/
+
+    qsubstr QDST QDST 0 20  // -> "-123456789-123456789"
+    userquote QDST
+
+    qsubstr QDST QDST 5 10  // -> "56789-1234"
+    userquote QDST
+
+    /** TESTS FOR invalid input **/
+
+    gettimedate sec x x x x x x x
+    ifvarand sec 1
+        qsubstr QDST QSRC -1 10  // invalid start
+    else
+        qsubstr QDST QSRC 0 -1  // invalid length
+
+    // Reached only in C-CON:
+    qsubstr QDST QSRC 128 0  // invalid start
+endevent
