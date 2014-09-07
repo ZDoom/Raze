@@ -379,14 +379,7 @@ static int32_t osdcmd_restartsound(const osdfuncparm_t *parm)
     S_ClearSoundLocks();
 
     if (ud.config.MusicToggle == 1)
-    {
-        if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
-        {
-            if (MapInfo[g_musicIndex].musicfn != NULL)
-                S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0],g_musicIndex);
-        }
-        else S_PlayMusic(&EnvMusicFilename[0][0],MAXVOLUMES*MAXLEVELS);
-    }
+        S_RestartMusic();
 
     return OSDCMD_OK;
 }

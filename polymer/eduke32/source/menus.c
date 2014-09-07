@@ -2440,14 +2440,7 @@ static void M_MenuEntryLinkActivate(MenuGroup_t *group, MenuEntry_t *entry)
         S_ClearSoundLocks();
 
         if (ud.config.MusicToggle == 1)
-        {
-            if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
-            {
-                if (MapInfo[g_musicIndex].musicfn != NULL)
-                    S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0],g_musicIndex);
-            }
-            else S_PlayMusic(&EnvMusicFilename[0][0],MAXVOLUMES*MAXLEVELS);
-        }
+            S_RestartMusic();
     }
     else if (entry == &ME_COLCORR_RESET)
     {
@@ -2562,13 +2555,7 @@ static int32_t M_MenuEntryOptionModify(MenuGroup_t* group, MenuEntry_t *entry, i
             S_PauseMusic(1);
         else
         {
-            if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
-            {
-                if (MapInfo[g_musicIndex].musicfn != NULL)
-                    S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0], g_musicIndex);
-            }
-            else S_PlayMusic(&EnvMusicFilename[0][0], MAXVOLUMES*MAXLEVELS);
-
+            S_RestartMusic();
             S_PauseMusic(0);
         }
     }

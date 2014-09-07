@@ -8750,22 +8750,22 @@ void G_HandleLocalKeys(void)
             {
                 if (i == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == QUOTE_MUSIC)
                 {
-                    i = (VOLUMEALL?MAXVOLUMES*MAXLEVELS:6);
-                    g_musicIndex = (g_musicIndex+1)%i;
-                    while (MapInfo[g_musicIndex].musicfn == NULL)
+                    i = VOLUMEALL ? MAXVOLUMES*MAXLEVELS : 6;
+
+                    do
                     {
                         g_musicIndex++;
                         if (g_musicIndex >= i)
                             g_musicIndex = 0;
                     }
-                    if (MapInfo[g_musicIndex].musicfn != NULL)
-                    {
-                        if (S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0],g_musicIndex))
-                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s",&MapInfo[g_musicIndex].alt_musicfn[0]);
-                        else
-                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s",&MapInfo[g_musicIndex].musicfn[0]);
-                        P_DoQuote(QUOTE_MUSIC,g_player[myconnectindex].ps);
-                    }
+                    while (MapInfo[g_musicIndex].musicfn == NULL);
+
+                    if (S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex))
+                        Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s", MapInfo[g_musicIndex].alt_musicfn);
+                    else
+                        Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s", MapInfo[g_musicIndex].musicfn);
+                    P_DoQuote(QUOTE_MUSIC,g_player[myconnectindex].ps);
+
                     return;
                 }
 
@@ -9175,7 +9175,7 @@ static void G_ShowDebugHelp(void)
 #endif
 }
 
-static char *S_OggifyFilename(char *outputname, char *newname, const char *origname)
+static char *S_OggifyFilename(char *outputname, const char *newname, const char *origname)
 {
     if (!origname)
         return outputname;
@@ -9192,34 +9192,27 @@ static char *S_OggifyFilename(char *outputname, char *newname, const char *orign
         Bstrcat(outputname, origname);
     }
 
-#if 0
-    // XXX: I don't see why we were previously clobbering the extension regardless of what it is.
-    if ((newname = Bstrchr(outputname, '.')))
-        Bstrcpy(newname, ".ogg");
-    else Bstrcat(outputname, ".ogg");
-#endif
-
     if (Bstrchr(outputname, '.') == NULL)
         Bstrcat(outputname, ".ogg");
 
     return outputname;
 }
 
-static int32_t S_DefineSound(int32_t ID,char *name)
+static int32_t S_DefineSound(int32_t ID, const char *name)
 {
-    if (ID >= MAXSOUNDS)
+    if ((unsigned)ID >= MAXSOUNDS)
         return 1;
-    g_sounds[ID].filename1 = S_OggifyFilename(g_sounds[ID].filename1,name,g_sounds[ID].filename);
+
+    g_sounds[ID].filename1 = S_OggifyFilename(g_sounds[ID].filename1, name, g_sounds[ID].filename);
 //    initprintf("(%s)(%s)(%s)\n",g_sounds[ID].filename1,name,g_sounds[ID].filename);
 //    S_LoadSound(ID);
+
     return 0;
 }
 
-static int32_t S_DefineMusic(char *ID,char *name)
+static int32_t S_DefineMusic(const char *ID, const char *name)
 {
-    int32_t lev, ep;
     int32_t sel = MAXVOLUMES * MAXLEVELS;
-    char b1, b2;
 
     if (!ID)
         return 1;
@@ -9240,19 +9233,24 @@ static int32_t S_DefineMusic(char *ID,char *name)
     }
     else
     {
-        sscanf(ID,"%c%d%c%d",&b1,&ep,&b2,&lev);
+        int32_t lev, ep;
+        char b1, b2;
 
-        if (Btoupper(b1) != 'E' || Btoupper(b2) != 'L' || --lev >= MAXLEVELS || --ep >= MAXVOLUMES)
+        int32_t matches = sscanf(ID,"%c%d%c%d",&b1,&ep,&b2,&lev);
+
+        if (matches != 4 || Btoupper(b1) != 'E' || Btoupper(b2) != 'L' ||
+                (unsigned)--lev >= MAXLEVELS || (unsigned)--ep >= MAXVOLUMES)
             return 1;
 
         sel = (ep * MAXLEVELS) + lev;
         ID = MapInfo[sel].musicfn;
     }
 
-    MapInfo[sel].alt_musicfn = S_OggifyFilename(MapInfo[sel].alt_musicfn,name,ID);
+    MapInfo[sel].alt_musicfn = S_OggifyFilename(MapInfo[sel].alt_musicfn, name, ID);
 //    initprintf("%-15s | ",ID);
 //    initprintf("%3d %2d %2d | %s\n",sel,ep,lev,MapInfo[sel].alt_musicfn);
 //    S_PlayMusic(ID,sel);
+
     return 0;
 }
 
@@ -10384,7 +10382,7 @@ static void G_DisplayLogo(void)
         if (logoflags & LOGO_PLAYMUSIC)
         {
             g_musicIndex = -1; // hack
-            S_PlayMusic(&EnvMusicFilename[0][0],MAXVOLUMES*MAXLEVELS);
+            S_PlayMusic(EnvMusicFilename[0], MAXVOLUMES*MAXLEVELS);
         }
 
         if (!NAM)

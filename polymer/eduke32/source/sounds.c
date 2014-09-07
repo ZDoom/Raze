@@ -166,6 +166,16 @@ void S_MusicVolume(int32_t volume)
     MUSIC_SetVolume(volume);
 }
 
+void S_RestartMusic(void)
+{
+    if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
+    {
+        if (MapInfo[g_musicIndex].musicfn != NULL)
+            S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
+    }
+    else S_PlayMusic(EnvMusicFilename[0], MAXVOLUMES*MAXLEVELS);
+}
+
 void S_MenuSound(void)
 {
     static int32_t SoundNum=0;
@@ -195,7 +205,8 @@ void S_MenuSound(void)
 
 int32_t S_PlayMusic(const char *fn, const int32_t sel)
 {
-    char *ofn = (char *)fn, *testfn, *extension;
+    const char *const ofn = fn;
+    char *testfn, *extension;
     int32_t fp, MusicLen;
     const char *alt = 0;
 
@@ -216,15 +227,14 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
             // we've been asked to load a .mid file, but first let's see
             // if there's a flac or an ogg with the same base name lying around
             strcpy(extension, ".flac");
-            extension[5] = '\0';
             fp = kopen4loadfrommod(testfn, 0);
             if (fp >= 0)
             {
                 Bfree(testfn);
                 break;
             }
+
             strcpy(extension, ".ogg");
-            extension[4] = '\0';
             fp = kopen4loadfrommod(testfn, 0);
             if (fp >= 0)
             {
@@ -236,7 +246,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
         Bfree(testfn);
 
         // just use what we've been given
-        fp = kopen4loadfrommod((char *)fn, 0);
+        fp = kopen4loadfrommod(fn, 0);
 
         if (alt && fp < 0)
             fp = kopen4loadfrommod(ofn, 0);

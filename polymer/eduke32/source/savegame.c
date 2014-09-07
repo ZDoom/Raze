@@ -1957,7 +1957,7 @@ static void postloadplayer(int32_t savegamep)
                 (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].alt_musicfn))
             {
                 S_StopMusic();
-                S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0], g_musicIndex);
+                S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
             }
 
             S_PauseMusic(0);

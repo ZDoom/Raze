@@ -89,6 +89,7 @@ void S_MenuSound(void);
 void S_MusicShutdown(void);
 void S_MusicStartup(void);
 void S_MusicVolume(int32_t volume);
+void S_RestartMusic(void);
 void S_PauseMusic(int32_t onf);
 int32_t S_PlayMusic(const char *fn,const int32_t sel);
 int32_t S_PlaySound(int32_t num);
