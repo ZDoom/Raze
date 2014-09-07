@@ -51,7 +51,7 @@ ifeq (1,$(USE_OPENGL))
         ENGINE_OBJS+= polymer
     endif
 endif
-ifeq (1,$(LUNATIC))
+ifneq (0,$(LUNATIC))
     ENGINE_OBJS+= lunatic
 endif
 ifeq ($(PLATFORM),DARWIN)
@@ -233,11 +233,12 @@ endif
 DUKE3D_MISCDEPS=
 DUKE3D_EDITOR_MISCDEPS=
 
+# Lunatic object base names. These are not used in targets directly.
+LUNATIC_COMMON_OBJS = luaJIT_BC_defs_common luaJIT_BC_engine_maptext luaJIT_BC_engine luaJIT_BC_bcarray luaJIT_BC_bcheck luaJIT_BC_bitar luaJIT_BC_xmath luaJIT_BC_v luaJIT_BC_dump luaJIT_BC_dis_x86 luaJIT_BC_dis_x64
+LUNATIC_GAME_OBJS = luaJIT_BC_con_lang luaJIT_BC_lunacon luaJIT_BC_randgen luaJIT_BC_stat luaJIT_BC_control luaJIT_BC_defs luaJIT_BC_savegame luaJIT_BC_fs
 
 ## Lunatic devel
 ifneq (0,$(LUNATIC))
-    LUNATIC_COMMON_OBJS = luaJIT_BC_defs_common luaJIT_BC_engine_maptext luaJIT_BC_engine luaJIT_BC_bcarray luaJIT_BC_bcheck luaJIT_BC_bitar luaJIT_BC_xmath luaJIT_BC_v luaJIT_BC_dump luaJIT_BC_dis_x86 luaJIT_BC_dis_x64
-
     # TODO: remove debugging modules from release build
 
     DUKE3D_EDITOR_OBJS+= lunatic_m32 $(LUNATIC_COMMON_OBJS)
@@ -255,7 +256,7 @@ ifneq (0,$(LUNATIC))
         endif
     endif
     LIBS+= -llpeg
-    DUKE3D_OBJS+= luaJIT_BC_con_lang luaJIT_BC_lunacon luaJIT_BC_randgen luaJIT_BC_stat luaJIT_BC_control luaJIT_BC_defs luaJIT_BC_savegame luaJIT_BC_fs
+    DUKE3D_OBJS+= $(LUNATIC_GAME_OBJS)
 
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
     # executable no matter what the debugging level
@@ -333,6 +334,7 @@ ifeq ($(MIXERTYPE),SDL)
     DUKE3D_OBJS+= sdlmusic
 endif
 
+## Construct file names of object files
 
 COMMON_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(COMMON_OBJS)))
 COMMON_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(COMMON_EDITOR_OBJS)))
@@ -340,7 +342,9 @@ COMMON_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(COMMON_EDIT
 DUKE3D_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_OBJS)))
 DUKE3D_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_EDITOR_OBJS)))
 
-
+LUNATIC_COMMON_OBJS_EXP := $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(LUNATIC_COMMON_OBJS)))
+LUNATIC_GAME_OBJS_EXP := $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(LUNATIC_GAME_OBJS)))
+LUNATIC_OBJS_EXP := $(LUNATIC_COMMON_OBJS_EXP) $(LUNATIC_GAME_OBJS_EXP)
 
 
 ifeq ($(PRETTY_OUTPUT),1)
@@ -608,7 +612,7 @@ $(ENGINE_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(DUKE3D_OBJ) $(TESTGAME_OBJ):
 # PHONIES
 
 clean:
-	-rm -f $(EDUKE32) $(MAPSTER32) $(COMMON_OBJS_EXP) $(DUKE3D_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(DUKE3D_EDITOR_OBJS_EXP) $(DUKE3D_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS) core*
+	-rm -f $(EDUKE32) $(MAPSTER32) $(LUNATIC_OBJS_EXP) $(COMMON_OBJS_EXP) $(DUKE3D_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(DUKE3D_EDITOR_OBJS_EXP) $(DUKE3D_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS) core*
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf EDuke32.app Mapster32.app
 endif
