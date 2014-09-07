@@ -10285,7 +10285,7 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
 
             // 1st rule
             // Compare with game.c:G_MaybeTakeOnFloorPal()
-            if (fpal > 0 && g_firstFogPal > 0 && !(fpal >= g_firstFogPal && fpal <= g_firstFogPal+3))
+            if (fpal > 0 && (!g_firstFogPal || !(fpal >= g_firstFogPal && fpal <= g_firstFogPal+3)))
                 tspr->pal = fpal;
 
             // 2nd and 3rd rule minus "actor condition"

@@ -7036,7 +7036,7 @@ static int32_t G_MaybeTakeOnFloorPal(spritetype *datspr, int32_t sect)
 {
     int32_t dapal = sector[sect].floorpal;
 
-    if (dapal && g_firstFogPal && !(dapal >= g_firstFogPal && dapal <= g_firstFogPal+3)
+    if (dapal && (!g_firstFogPal || !(dapal >= g_firstFogPal && dapal <= g_firstFogPal+3))
             && !g_noFloorPal[dapal]
             && !A_CheckSpriteFlags(datspr->owner,SFLAG_NOPAL))
     {
