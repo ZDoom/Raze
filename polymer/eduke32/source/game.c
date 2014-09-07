@@ -8532,6 +8532,20 @@ int32_t G_StartRTS(int32_t i, int localp)
     return 0;
 }
 
+void G_StartMusic(void)
+{
+    const int32_t i = g_musicIndex;
+    Bassert(MapInfo[i].musicfn != NULL);
+
+    {
+        int32_t res = S_PlayMusic(MapInfo[i].musicfn, i);
+
+        Bsnprintf(ScriptQuotes[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s",
+                  res ? MapInfo[i].alt_musicfn : MapInfo[i].musicfn);
+        P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
+    }
+}
+
 void G_HandleLocalKeys(void)
 {
     int32_t i;
@@ -8751,7 +8765,6 @@ void G_HandleLocalKeys(void)
                 if (i == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == QUOTE_MUSIC)
                 {
                     const int32_t maxi = VOLUMEALL ? MAXVOLUMES*MAXLEVELS : 6;
-                    int32_t res;
 
                     do
                     {
@@ -8761,12 +8774,7 @@ void G_HandleLocalKeys(void)
                     }
                     while (MapInfo[g_musicIndex].musicfn == NULL);
 
-                    i = g_musicIndex;
-                    res = S_PlayMusic(MapInfo[i].musicfn, i);
-
-                    Bsnprintf(ScriptQuotes[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s",
-                              res ? MapInfo[i].alt_musicfn : MapInfo[i].musicfn);
-                    P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
+                    G_StartMusic();
 
                     return;
                 }
@@ -9216,12 +9224,15 @@ static int32_t S_DefineSound(int32_t ID, const char *name)
     return 0;
 }
 
+// Returns:
+//   0: all OK
+//  -1: ID declaration was invalid:
+//  -2: map has no .musicfn (and hence will not be considered even if it has an .alt_musicfn)
 static int32_t S_DefineMusic(const char *ID, const char *name)
 {
     int32_t sel = MAXVOLUMES * MAXLEVELS;
 
-    if (!ID)
-        return 1;
+    Bassert(ID != NULL);
 
     if (!Bstrcmp(ID,"intro"))
     {
@@ -9239,25 +9250,34 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
     }
     else
     {
-        int32_t lev, ep;
-        char b1, b2;
+        sel = G_GetMusicIdx(ID);
+        if (sel < 0)
+            return -1;
 
-        int32_t matches = sscanf(ID,"%c%d%c%d",&b1,&ep,&b2,&lev);
-
-        if (matches != 4 || Btoupper(b1) != 'E' || Btoupper(b2) != 'L' ||
-                (unsigned)--lev >= MAXLEVELS || (unsigned)--ep >= MAXVOLUMES)
-            return 1;
-
-        sel = (ep * MAXLEVELS) + lev;
         ID = MapInfo[sel].musicfn;
     }
 
-    MapInfo[sel].alt_musicfn = S_OggifyFilename(MapInfo[sel].alt_musicfn, name, ID);
-//    initprintf("%-15s | ",ID);
-//    initprintf("%3d %2d %2d | %s\n",sel,ep,lev,MapInfo[sel].alt_musicfn);
-//    S_PlayMusic(ID,sel);
+    {
+        map_t *map = &MapInfo[sel];
+        const int special = (sel >= MAXVOLUMES*MAXLEVELS);
 
-    return 0;
+        map->alt_musicfn = S_OggifyFilename(map->alt_musicfn, name, ID);
+
+        // If we are given a music file name for a proper level that has no
+        // primary music defined, set it up as both.
+        if (map->alt_musicfn == NULL && !special && ID == 0 && name)
+        {
+            map->musicfn = dup_filename(name);
+            map->alt_musicfn = dup_filename(name);
+        }
+
+
+//        initprintf("%-15s | ",ID);
+//        initprintf("%3d %2d %2d | %s\n",sel,ep,lev,MapInfo[sel].alt_musicfn);
+//        S_PlayMusic(ID,sel);
+
+        return map->musicfn || special ? 0 : -2;
+    }
 }
 
 static int32_t parsedefinitions_game(scriptfile *script, int32_t preload);
@@ -9388,17 +9408,26 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             }
             if (!preload)
             {
+                int32_t res;
+
                 if (ID==NULL)
                 {
-                    initprintf("Error: missing ID for music definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+                    initprintf("Error: missing ID for music definition near line %s:%d\n",
+                               script->filename, scriptfile_getlinum(script,tinttokptr));
                     break;
                 }
 
                 if (check_file_exist(fn))
                     break;
 
-                if (S_DefineMusic(ID,fn))
-                    initprintf("Error: invalid music ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+                res = S_DefineMusic(ID, fn);
+
+                if (res == -1)
+                    initprintf("Error: invalid music ID on line %s:%d\n",
+                               script->filename, scriptfile_getlinum(script,tinttokptr));
+                else if (res == -2)
+                    initprintf("Error: %s has no primary (CON) music on line %s:%d\n",
+                               ID, script->filename, scriptfile_getlinum(script,tinttokptr));
             }
         }
         break;

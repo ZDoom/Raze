@@ -563,4 +563,22 @@ static inline void G_NewGame_EnterLevel(void)
         G_BackToMenu();
 }
 
+static inline int32_t G_GetMusicIdx(const char *str)
+{
+    int32_t lev, ep;
+    char b1, b2;
+
+    int32_t matches = sscanf(str, "%c%d%c%d", &b1,&ep, &b2,&lev);
+
+    if (matches != 4 || Btoupper(b1) != 'E' || Btoupper(b2) != 'L')
+        return -1;
+
+    if ((unsigned)--lev >= MAXLEVELS || (unsigned)--ep >= MAXVOLUMES)
+        return -2;
+
+    return (ep * MAXLEVELS) + lev;
+}
+
+extern void G_StartMusic(void);
+
 #endif

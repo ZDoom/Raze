@@ -384,6 +384,37 @@ static int32_t osdcmd_restartsound(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int32_t osdcmd_music(const osdfuncparm_t *parm)
+{
+    if (parm->numparms == 1)
+    {
+        int32_t sel = G_GetMusicIdx(parm->parms[0]);
+
+        if (sel == -1)
+            return OSDCMD_SHOWHELP;
+
+        if (sel == -2)
+        {
+            OSD_Printf("%s is not a valid episode/level number pair\n", parm->parms[0]);
+            return OSDCMD_OK;
+        }
+
+        if (MapInfo[sel].musicfn != NULL)
+        {
+            g_musicIndex = sel;
+            G_StartMusic();
+        }
+        else
+        {
+            OSD_Printf("No music defined for %s\n", parm->parms[0]);
+        }
+
+        return OSDCMD_OK;
+    }
+
+    return OSDCMD_SHOWHELP;
+}
+
 int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
@@ -1640,6 +1671,7 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
 #endif
+    OSD_RegisterFunction("music","music E<ep>L<lev>: change music", osdcmd_music);
     OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
