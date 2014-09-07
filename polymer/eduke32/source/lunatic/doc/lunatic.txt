@@ -790,6 +790,8 @@ claiming them for oneself.
 `wal:set_picnum(tilenum)`, `wal:set_overpicnum(tilenum)`::
 Set the tile number of the wall or its masked portion.
 
+// TODO: the predicates
+
 ===== `wall` static functions
 
 `wall.dragto(i, pos)`::
@@ -946,6 +948,9 @@ An alternative way to call
 _`index_of_spr`_ is the sprite index corresponding to `spr`.  This method is
 provided for convenience, but may be slower than the static function
 `updatesect`.
+
+`spr:isenemy()`::
+*TODO*
 
 ===== `sprite` iterators
 
@@ -1121,6 +1126,9 @@ index. Otherwise, returns *nil*.
 `actor.fall(i)`::
 Causes the actor with index `i` to fall in a ``hard-coded'', not further
 specified fashion.
+
+`actor.move(i, vec, cliptype [, clipdist])`::
+*TODO*
 
 [[actor_static_data]]
 ===== `actor` static data

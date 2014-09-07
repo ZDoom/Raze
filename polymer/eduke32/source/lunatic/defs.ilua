@@ -413,6 +413,7 @@ end
 
 --- default defines etc.
 local con_lang = require("con_lang")
+local xmath = require("xmath")
 
 ffi.cdef([[
 typedef struct { int32_t _p; } weaponaccess_t;
@@ -672,7 +673,7 @@ char CheatKeys[2];
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
 int32_t G_CheckActivatorMotion(int32_t lotag);
 int32_t A_Dodge(spritetype *s);
-int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype);
+int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t cliptype, int32_t clipdist);
 void P_DoQuote(int32_t q, DukePlayer_t *p);
 void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set);
 void G_AddUserQuote(const char *daquote);
@@ -823,6 +824,7 @@ player_static_members._INPUT_EXT_BITS = defs_c.conststruct
 
 local band = bit.band
 local lsh = bit.lshift
+local ivec3 = xmath.ivec3
 
 do
     -- player.all() iterator
@@ -924,6 +926,13 @@ function actor_static_members.fall(i)
     CF.VM_FallSprite(i)
 end
 
+-- actor.move(i, vec, cliptype [, clipdist])
+function actor_static_members.move(i, vec, cliptype, clipdist)
+    check_sprite_idx(i)
+    local vel = ivec3(vec.x, vec.y, vec.z)
+    return ffiC.A_MoveSpriteClipdist(spritenum, vel, cliptype, clipdist or -1)
+end
+
 -- Delete sprite with index <i>.
 function actor_static_members.delete(i)
     check_sprite_idx(i)
@@ -969,15 +978,19 @@ local g_tile = setmtonce({}, defs_c.GenStructMetatable("g_tile", "MAXTILES", til
 -- Among other things, declares struct action and struct move, and their
 -- ID-wrapped types con_action_t and con_move_t
 local con = require("control")
-local isenemytile = con.isenemytile
 
--- Add game-side metamethods to "spritetype" and register it with "metatype"
-local spr_mt_index_add = {
-    isenemy = function(s)
-        return isenemytile(s.picnum)
-    end,
-}
-defs_c.finish_spritetype(spr_mt_index_add)
+do
+    local isenemytile = con.isenemytile
+
+    -- Add game-side metamethods to "spritetype" and register it with "metatype"
+    local spr_mt_index_add = {
+        isenemy = function(s)
+            return isenemytile(s.picnum)
+        end,
+    }
+
+    defs_c.finish_spritetype(spr_mt_index_add)
+end
 
 -- Check a literal numeric action or move value.
 local function check_literal_am(am, typename)
@@ -1600,7 +1613,7 @@ local allowed_modules = {
     engine = require("engine"),
     stat = require("stat"),
     bitar = require("bitar"),
-    xmath = require("xmath"),
+    xmath = xmath,
     fs = require("fs"),
 
     con = con,
@@ -1623,8 +1636,8 @@ do
         return type(v)=="cdata" and ctype_cansave[tonumber(ffi.typeof(v))]
     end
 
-    reg_serializable_cv(allowed_modules.xmath.vec3())
-    reg_serializable_cv(allowed_modules.xmath.ivec3())
+    reg_serializable_cv(xmath.vec3())
+    reg_serializable_cv(ivec3())
 end
 
 -- Protect base modules.

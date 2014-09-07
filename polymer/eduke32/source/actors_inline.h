@@ -31,7 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # define ACTOR_INLINE_HEADER EXTERN_INLINE_HEADER
 #endif
 
+extern int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t cliptype, int32_t clipdist);
+
 ACTOR_INLINE_HEADER int32_t A_SetSprite(int32_t i,uint32_t cliptype);
+ACTOR_INLINE_HEADER int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype);
 
 EXTERN_INLINE_HEADER void G_UpdateInterpolations(void);
 EXTERN_INLINE_HEADER void G_RestoreInterpolations(void);

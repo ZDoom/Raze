@@ -314,7 +314,6 @@ void                A_DoGutsDir(int32_t sp,int32_t gtype,int32_t n);
 int32_t             A_IncurDamage(int32_t sn);
 void                A_MoveCyclers(void);
 void                A_MoveDummyPlayers(void);
-int32_t             A_MoveSprite(int32_t spritenum,const vec3_t *change,uint32_t cliptype);
 void                A_PlayAlertSound(int32_t i);
 void                A_RadiusDamage(int32_t i,int32_t r,int32_t hp1,int32_t hp2,int32_t hp3,int32_t hp4);
 void                A_SpawnMultiple(int32_t sp,int32_t pic,int32_t n);

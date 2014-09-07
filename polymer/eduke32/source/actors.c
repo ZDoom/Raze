@@ -409,7 +409,7 @@ static int32_t A_CheckNeedZUpdate(int32_t spritenum, int32_t changez, int32_t *d
     return 0;
 }
 
-int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
+int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t cliptype, int32_t clipdist)
 {
     spritetype *const spr = &sprite[spritenum];
     int32_t retval, daz, dozupdate;
@@ -435,9 +435,12 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 
     {
         const int32_t oldz=spr->z;
-        int32_t clipdist;
 
-        if (bg)
+        if (clipdist >= 0)
+        {
+            // use that value
+        }
+        else if (bg)
         {
             if (spr->xrepeat > 60)
                 clipdist = 1024;

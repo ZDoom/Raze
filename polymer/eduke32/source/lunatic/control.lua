@@ -1552,7 +1552,7 @@ end
 function _movesprite(spritenum, x, y, z, cliptype)
     check_sprite_idx(spritenum)
     local vel = ivec3(x, y, z)
-    return ffiC.A_MoveSprite(spritenum, vel, cliptype)
+    return ffiC.A_MoveSpriteClipdist(spritenum, vel, cliptype, -1)
 end
 
 -- Also known as A_SetSprite().
@@ -1563,7 +1563,7 @@ function _ssp(i, cliptype)
     local ivec = vec:toivec3()
     ivec.z = spr.zvel
 
-    return (ffiC.A_MoveSprite(i, ivec, cliptype)==0)
+    return (ffiC.A_MoveSpriteClipdist(i, ivec, cliptype, -1)==0)
 end
 
 -- CON's 'setsprite' function on top of the Lunatic-provided ones.

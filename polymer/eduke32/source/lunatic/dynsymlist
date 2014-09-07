@@ -211,7 +211,7 @@ rand_jkiss_dbl;
 A_IncurDamage;
 G_CheckActivatorMotion;
 A_Dodge;
-A_MoveSprite;
+A_MoveSpriteClipdist;
 P_DoQuote;
 P_SetGamePalette;
 G_AddUserQuote;
