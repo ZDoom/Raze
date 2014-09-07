@@ -2154,6 +2154,30 @@ void G_DoGameStartup(const int32_t *params)
     }
 }
 
+void C_DefineMusic(int32_t vol, int32_t lev, const char *fn)
+{
+    if (vol==-1)
+    {
+        Bassert((unsigned)lev < MAXVOLUMES);
+
+        Bstrncpyz(EnvMusicFilename[lev], fn, BMAX_PATH);
+        check_filename_case(EnvMusicFilename[lev]);
+    }
+    else
+    {
+        Bassert((unsigned)vol < MAXVOLUMES+1);
+        Bassert((unsigned)lev < MAXLEVELS);
+
+        {
+            map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
+
+            Bfree(map->musicfn);
+            map->musicfn = dup_filename(fn);
+            check_filename_case(map->musicfn);
+        }
+    }
+}
+
 #ifdef LUNATIC
 void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
 {
@@ -2176,30 +2200,6 @@ void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
 
         if (sndidx > g_maxSoundPos)
             g_maxSoundPos = sndidx;
-    }
-}
-
-void C_DefineMusic(int32_t vol, int32_t lev, const char *fn)
-{
-    if (vol==-1)
-    {
-        Bassert((unsigned)lev < MAXVOLUMES);
-
-        Bstrncpyz(EnvMusicFilename[lev], fn, BMAX_PATH);
-        check_filename_case(EnvMusicFilename[lev]);
-    }
-    else
-    {
-        Bassert((unsigned)vol < MAXVOLUMES+1);
-        Bassert((unsigned)lev < MAXLEVELS);
-
-        {
-            map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
-
-            Bfree(map->musicfn);
-            map->musicfn = dup_filename(fn);
-            check_filename_case(map->musicfn);
-        }
     }
 }
 
@@ -2961,7 +2961,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 k = *g_scriptPtr-1;
 
-                if (k >= 0) // if it's background music
+                if (k >= 0 && k < MAXVOLUMES) // if it's background music
                 {
                     i = 0;
                     // get the file name...
@@ -2977,21 +2977,14 @@ static int32_t C_ParseCommand(int32_t loop)
                         }
                         tempbuf[j+1] = '\0';
 
-                        if (MapInfo[(k*MAXLEVELS)+i].musicfn == NULL)
-                            MapInfo[(k*MAXLEVELS)+i].musicfn = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
-                        else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[(k*MAXLEVELS)+i].musicfn))
-                            MapInfo[(k*MAXLEVELS)+i].musicfn = (char *)Xrealloc(MapInfo[(k*MAXLEVELS)+i].musicfn,(Bstrlen(tempbuf)+1));
-
-                        Bstrcpy(MapInfo[(k*MAXLEVELS)+i].musicfn,tempbuf);
-
-                        check_filename_case(tempbuf);
+                        C_DefineMusic(k, i, tempbuf);
 
                         textptr += j;
                         if (i > MAXLEVELS-1) break;
                         i++;
                     }
                 }
-                else
+                else if (k == -1)
                 {
                     i = 0;
                     while (C_GetKeyword() == -1)

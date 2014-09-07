@@ -1726,13 +1726,13 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
         initprintf("Loaded map hack file \"%s\"\n",outbuf);
 }
 
-static void realloc_and_copy_musicfn(int32_t level_number, const char *levnamebuf, int32_t altp)
+static void G_ReallocCopyMusicName(int32_t level_number, const char *levnamebuf, int32_t altp)
 {
-    char **musicfn = altp ? &MapInfo[level_number].alt_musicfn : &MapInfo[level_number].musicfn;
+    char **musfn = altp ? &MapInfo[level_number].alt_musicfn : &MapInfo[level_number].musicfn;
     int32_t dastrlen = Bstrlen(levnamebuf);
 
-    *musicfn = (char *)Xrealloc(*musicfn, dastrlen+1);
-    Bstrcpy(*musicfn, levnamebuf);
+    *musfn = (char *)Xrealloc(*musfn, dastrlen+1);
+    Bstrcpy(*musfn, levnamebuf);
 }
 
 // levnamebuf should have at least size BMAX_PATH
@@ -1761,7 +1761,7 @@ void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int3
     {
         kclose(fil);
 
-        realloc_and_copy_musicfn(level_number, levnamebuf, 1);
+        G_ReallocCopyMusicName(level_number, levnamebuf, 1);
     }
     else if (MapInfo[level_number].alt_musicfn != NULL)
     {
@@ -1778,7 +1778,7 @@ void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int3
         Bstrcpy(levnamebuf, "dethtoll.mid");
     else kclose(fil);
 
-    realloc_and_copy_musicfn(level_number, levnamebuf, 0);
+    G_ReallocCopyMusicName(level_number, levnamebuf, 0);
 }
 
 static int G_HaveUserMap(void)

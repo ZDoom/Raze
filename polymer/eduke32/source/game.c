@@ -8750,21 +8750,23 @@ void G_HandleLocalKeys(void)
             {
                 if (i == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == QUOTE_MUSIC)
                 {
-                    i = VOLUMEALL ? MAXVOLUMES*MAXLEVELS : 6;
+                    const int32_t maxi = VOLUMEALL ? MAXVOLUMES*MAXLEVELS : 6;
+                    int32_t res;
 
                     do
                     {
                         g_musicIndex++;
-                        if (g_musicIndex >= i)
+                        if (g_musicIndex >= maxi)
                             g_musicIndex = 0;
                     }
                     while (MapInfo[g_musicIndex].musicfn == NULL);
 
-                    if (S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex))
-                        Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s", MapInfo[g_musicIndex].alt_musicfn);
-                    else
-                        Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s", MapInfo[g_musicIndex].musicfn);
-                    P_DoQuote(QUOTE_MUSIC,g_player[myconnectindex].ps);
+                    i = g_musicIndex;
+                    res = S_PlayMusic(MapInfo[i].musicfn, i);
+
+                    Bsnprintf(ScriptQuotes[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s",
+                              res ? MapInfo[i].alt_musicfn : MapInfo[i].musicfn);
+                    P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
 
                     return;
                 }
@@ -8970,15 +8972,19 @@ FAKE_F3:
 
         if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicDevice >= 0)
         {
+            map_t *map = &MapInfo[g_musicIndex];
+            char *const qmusic = ScriptQuotes[QUOTE_MUSIC];
+
             KB_ClearKeyDown(sc_F5);
-            if (MapInfo[g_musicIndex].alt_musicfn != NULL)
-                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],MapInfo[g_musicIndex].alt_musicfn);
-            else if (MapInfo[g_musicIndex].musicfn != NULL)
-            {
-                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],MapInfo[g_musicIndex].musicfn);
-                Bstrcat(ScriptQuotes[QUOTE_MUSIC],".  Use SHIFT-F5 to change.");
-            }
-            else ScriptQuotes[QUOTE_MUSIC][0] = '\0';
+
+            if (map->alt_musicfn != NULL)
+                Bstrncpyz(qmusic, map->alt_musicfn, MAXQUOTELEN);
+            else if (map->musicfn != NULL)
+                Bsnprintf(qmusic, MAXQUOTELEN, "%s.  Use SHIFT-F5 to change.",
+                          map->musicfn);
+            else
+                qmusic[0] = '\0';
+
             P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
         }
 
