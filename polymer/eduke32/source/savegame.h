@@ -49,7 +49,7 @@ typedef struct
 
     char savename[MAXSAVEGAMENAME];
     uint8_t numplayers, volnum, levnum, skill;
-    char boardfn[256];  // BMAX_PATH
+    char boardfn[BMAX_PATH];
     // 282 bytes
 } savehead_t;
 #pragma pack(pop)
