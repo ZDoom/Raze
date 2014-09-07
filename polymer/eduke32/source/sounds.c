@@ -173,7 +173,10 @@ void S_RestartMusic(void)
         if (MapInfo[g_musicIndex].musicfn != NULL)
             S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
     }
-    else S_PlayMusic(EnvMusicFilename[0], MAXVOLUMES*MAXLEVELS);
+    else if (MapInfo[MUS_INTRO].musicfn != 0)
+    {
+        S_PlayMusic(MapInfo[MUS_INTRO].musicfn, MUS_INTRO);
+    }
 }
 
 void S_MenuSound(void)

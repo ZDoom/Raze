@@ -8764,7 +8764,7 @@ void G_HandleLocalKeys(void)
             {
                 if (i == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == QUOTE_MUSIC)
                 {
-                    const int32_t maxi = VOLUMEALL ? MAXVOLUMES*MAXLEVELS : 6;
+                    const int32_t maxi = VOLUMEALL ? MUS_FIRST_SPECIAL : 6;
 
                     do
                     {
@@ -9230,36 +9230,34 @@ static int32_t S_DefineSound(int32_t ID, const char *name)
 //  -2: map has no .musicfn (and hence will not be considered even if it has an .alt_musicfn)
 static int32_t S_DefineMusic(const char *ID, const char *name)
 {
-    int32_t sel = MAXVOLUMES * MAXLEVELS;
+    int32_t sel = MUS_FIRST_SPECIAL;
 
     Bassert(ID != NULL);
 
     if (!Bstrcmp(ID,"intro"))
     {
-        ID = EnvMusicFilename[0];
+        // nothing
     }
     else if (!Bstrcmp(ID,"briefing"))
     {
         sel++;
-        ID = EnvMusicFilename[1];
     }
     else if (!Bstrcmp(ID,"loading"))
     {
         sel += 2;
-        ID = EnvMusicFilename[2];
     }
     else
     {
         sel = G_GetMusicIdx(ID);
         if (sel < 0)
             return -1;
-
-        ID = MapInfo[sel].musicfn;
     }
+
+    ID = MapInfo[sel].musicfn;
 
     {
         map_t *map = &MapInfo[sel];
-        const int special = (sel >= MAXVOLUMES*MAXLEVELS);
+        const int special = (sel >= MUS_FIRST_SPECIAL);
 
         map->alt_musicfn = S_OggifyFilename(map->alt_musicfn, name, ID);
 
@@ -10416,8 +10414,8 @@ static void G_DisplayLogo(void)
 
         if (logoflags & LOGO_PLAYMUSIC)
         {
-            g_musicIndex = -1; // hack
-            S_PlayMusic(EnvMusicFilename[0], MAXVOLUMES*MAXLEVELS);
+            g_musicIndex = MUS_INTRO;
+            S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
         }
 
         if (!NAM)

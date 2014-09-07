@@ -57,7 +57,6 @@ G_EXTERN tiledata_t g_tile[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
 G_EXTERN char *ScriptQuotes[MAXQUOTES],*ScriptQuoteRedefinitions[MAXQUOTES];
 G_EXTERN char *label;
-G_EXTERN char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
 G_EXTERN int32_t g_musicIndex;
 G_EXTERN char g_loadFromGroupOnly;
 G_EXTERN char g_numSkills;
@@ -109,7 +108,7 @@ G_EXTERN intptr_t *g_parsingActorPtr;
 G_EXTERN intptr_t *g_scriptPtr,*insptr;
 G_EXTERN int32_t *labelcode,*labeltype;
 G_EXTERN intptr_t *script;
-G_EXTERN map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS];  // +1 volume for "intro", "briefing" music
+G_EXTERN map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS];  // +1 volume for "intro", "briefing" and "loading" music
 #pragma pack(push,1)
 G_EXTERN playerdata_t g_player[MAXPLAYERS];
 G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];

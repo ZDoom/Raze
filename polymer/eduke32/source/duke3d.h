@@ -80,6 +80,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MAXLEVELS           64
 #define MAXGAMETYPES        16
 
+enum {
+    MUS_FIRST_SPECIAL = MAXVOLUMES*MAXLEVELS,
+
+    MUS_INTRO = MUS_FIRST_SPECIAL,
+    MUS_BRIEFING = MUS_FIRST_SPECIAL + 1,
+    MUS_LOADING = MUS_FIRST_SPECIAL + 2,
+};
+
 ////////// TIMING CONSTANTS //////////
 // The number of 'totalclock' increments per second:
 #define TICRATE             120

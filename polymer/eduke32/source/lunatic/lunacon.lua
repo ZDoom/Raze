@@ -1403,16 +1403,21 @@ function Cmd.definesound(sndlabel, fn, ...)
 end
 
 function Cmd.music(volnum, ...)
-    local envmusicp = (volnum==0)
-
     if (not (volnum >= 0 and volnum <= conl.MAXVOLUMES+1)) then
-        -- NOTE: Also allow MAXVOLUMES+1.
-        errprintf("volume number must be between 0 and MAXVOLUMES=%d", conl.MAXVOLUMES)
+        -- The passed volume number is 1-based.
+        -- Both 0 and MAXVOLUMES+1 means "special music"
+        errprintf("volume number must be between 0 and MAXVOLUMES+1=%d", conl.MAXVOLUMES+1)
         return
+    elseif (volnum == conl.MAXVOLUMES+1) then
+        warnprintf("volume number MAXVOLUMES+1 is discouraged, use 0 instead")
+    end
+
+    if (volnum == 0) then
+        volnum = conl.MAXVOLUMES+1  -- special music
     end
 
     local filenames = {...}
-    local MAXFNS = envmusicp and conl.MAXVOLUMES or conl.MAXLEVELS
+    local MAXFNS = conl.MAXLEVELS
 
     if (#filenames > MAXFNS) then
         warnprintf("ignoring extraneous %d music file names", #filenames-MAXFNS)

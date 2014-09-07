@@ -436,10 +436,10 @@ void G_CacheMapData(void)
         return;
 
     S_PauseMusic(1);
-    if (MapInfo[MAXVOLUMES*MAXLEVELS+2].alt_musicfn)
+    if (MapInfo[MUS_LOADING].musicfn)
     {
         S_StopMusic();
-        S_PlayMusic(EnvMusicFilename[2], MAXVOLUMES*MAXLEVELS+2); // loadmus
+        S_PlayMusic(MapInfo[MUS_LOADING].musicfn, MUS_LOADING);
     }
 
     starttime = getticks();
@@ -1382,7 +1382,7 @@ void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
     if (ln == 0 && vn == 3 && (!g_netServer && ud.multimode < 2) && ud.lockout == 0
             && (G_GetLogoFlags() & LOGO_NOE4CUTSCENE)==0)
     {
-        S_PlayMusic(EnvMusicFilename[1], MAXVOLUMES*MAXLEVELS+1);
+        S_PlayMusic(MapInfo[MUS_BRIEFING].musicfn, MUS_BRIEFING);
 
         flushperms();
         setview(0,0,xdim-1,ydim-1);

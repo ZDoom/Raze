@@ -2156,25 +2156,15 @@ void G_DoGameStartup(const int32_t *params)
 
 void C_DefineMusic(int32_t vol, int32_t lev, const char *fn)
 {
-    if (vol==-1)
+    Bassert((unsigned)vol < MAXVOLUMES+1);
+    Bassert((unsigned)lev < MAXLEVELS);
+
     {
-        Bassert((unsigned)lev < MAXVOLUMES);
+        map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
 
-        Bstrncpyz(EnvMusicFilename[lev], fn, BMAX_PATH);
-        check_filename_case(EnvMusicFilename[lev]);
-    }
-    else
-    {
-        Bassert((unsigned)vol < MAXVOLUMES+1);
-        Bassert((unsigned)lev < MAXLEVELS);
-
-        {
-            map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
-
-            Bfree(map->musicfn);
-            map->musicfn = dup_filename(fn);
-            check_filename_case(map->musicfn);
-        }
+        Bfree(map->musicfn);
+        map->musicfn = dup_filename(fn);
+        check_filename_case(map->musicfn);
     }
 }
 
@@ -2959,15 +2949,18 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextValue(LABEL_DEFINE); // Volume Number (0/4)
                 g_scriptPtr--;
 
-                k = *g_scriptPtr-1;
+                k = *g_scriptPtr-1;  // 0-based volume number. -1 or MAXVOLUMES: "special"
+                if (k == -1)
+                    k = MAXVOLUMES;
 
-                if (k >= 0 && k < MAXVOLUMES) // if it's background music
+                if (k >= 0 && k < MAXVOLUMES+1) // if it's background or special music
                 {
                     i = 0;
                     // get the file name...
                     while (C_GetKeyword() == -1)
                     {
                         C_SkipComments();
+
                         j = 0;
                         tempbuf[j] = '/';
                         while (isaltok(*(textptr+j)))
@@ -2980,32 +2973,20 @@ static int32_t C_ParseCommand(int32_t loop)
                         C_DefineMusic(k, i, tempbuf);
 
                         textptr += j;
-                        if (i > MAXLEVELS-1) break;
+
+                        if (i >= MAXLEVELS)
+                            break;
                         i++;
                     }
                 }
-                else if (k == -1)
+                else
                 {
-                    i = 0;
-                    while (C_GetKeyword() == -1)
-                    {
-                        C_SkipComments();
-                        j = 0;
-
-                        while (isaltok(*(textptr+j)))
-                        {
-                            EnvMusicFilename[i][j] = textptr[j];
-                            j++;
-                        }
-                        EnvMusicFilename[i][j] = '\0';
-
-                        check_filename_case(EnvMusicFilename[i]);
-
-                        textptr += j;
-                        if (i > MAXVOLUMES-1) break;
-                        i++;
-                    }
+                    g_numCompilerErrors++;
+                    C_ReportError(-1);
+                    initprintf("%s:%d: error: volume number must be between 0 and MAXVOLUMES+1=%d.\n",
+                               g_szScriptFileName, g_lineNumber, MAXVOLUMES+1);
                 }
+
             }
             continue;
 
