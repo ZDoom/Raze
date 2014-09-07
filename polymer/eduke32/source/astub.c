@@ -5005,7 +5005,8 @@ static void Keys3d(void)
                         }
                     }
 
-                    silentmessage("Sector %d visibility %d",searchsector,sector[searchsector].visibility);
+                    silentmessage("Sector %d visibility %d", searchsector,
+                                  TrackerCast(sector[searchsector].visibility));
                     asksave = 1;
                 }
             }
@@ -5357,7 +5358,7 @@ static void Keys3d(void)
 #endif
                         if (k==0)
                         {
-                            silentmessage("Sprite %d z = %d", searchwall, sprite[searchwall].z);
+                            silentmessage("Sprite %d z = %d", searchwall, TrackerCast(sprite[searchwall].z));
                             break;
                         }
                     }
@@ -6068,7 +6069,8 @@ static void Keys3d(void)
                     while (updownunits--)
                         wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat, changedir, smooshyalign, 1);
                     silentmessage("Wall %d repeat: %d, %d", searchwall,
-                                  wall[searchwall].xrepeat, wall[searchwall].yrepeat);
+                                  TrackerCast(wall[searchwall].xrepeat),
+                                  TrackerCast(wall[searchwall].yrepeat));
                 }
                 else
                 {
@@ -6088,7 +6090,8 @@ static void Keys3d(void)
 
                     while (updownunits--)
                         wall[w].xpanning = changechar(wall[w].xpanning, changedir, smooshyalign, 0);
-                    silentmessage("Wall %d panning: %d, %d", w, wall[w].xpanning, wall[w].ypanning);
+                    silentmessage("Wall %d panning: %d, %d", w,
+                                  TrackerCast(wall[w].xpanning), TrackerCast(wall[w].ypanning));
                 }
                 asksave = 1;
             }
@@ -6121,7 +6124,8 @@ static void Keys3d(void)
                     if (sprite[searchwall].xrepeat < 4)
                         sprite[searchwall].xrepeat = 4;
                     silentmessage("Sprite %d repeat: %d, %d", searchwall,
-                                  sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
+                                  TrackerCast(sprite[searchwall].xrepeat),
+                                  TrackerCast(sprite[searchwall].yrepeat));
                 }
             }
             asksave = 1;
@@ -6189,7 +6193,8 @@ static void Keys3d(void)
                     while (updownunits--)
                         wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat, changedir, smooshyalign, 1);
                     silentmessage("Wall %d repeat: %d, %d", searchwall,
-                                  wall[searchwall].xrepeat, wall[searchwall].yrepeat);
+                                  TrackerCast(wall[searchwall].xrepeat),
+                                  TrackerCast(wall[searchwall].yrepeat));
                 }
                 else
                 {
@@ -6198,7 +6203,8 @@ static void Keys3d(void)
                         updownunits *= 8;
                     while (updownunits--)
                         wall[w].ypanning = changechar(wall[w].ypanning, changedir, smooshyalign, 0);
-                    silentmessage("Wall %d panning: %d, %d", w, wall[w].xpanning, wall[w].ypanning);
+                    silentmessage("Wall %d panning: %d, %d", w,
+                                  TrackerCast(wall[w].xpanning), TrackerCast(wall[w].ypanning));
                 }
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
@@ -6225,7 +6231,8 @@ static void Keys3d(void)
                     if (sprite[searchwall].yrepeat < 4)
                         sprite[searchwall].yrepeat = 4;
                     silentmessage("Sprite %d repeat: %d, %d", searchwall,
-                                  sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
+                                  TrackerCast(sprite[searchwall].xrepeat),
+                                  TrackerCast(sprite[searchwall].yrepeat));
                 }
             }
             asksave = 1;
@@ -7433,7 +7440,8 @@ static void Keys2d(void)
                     uint8_t *repeat = (k==0) ? &sprite[cursprite].xrepeat : &sprite[cursprite].yrepeat;
                     *repeat = max(4, changechar(*repeat, changedir, smooshy, 1));
                     silentmessage("Sprite %d repeat: %d, %d", cursprite,
-                                  sprite[cursprite].xrepeat, sprite[cursprite].yrepeat);
+                                  TrackerCast(sprite[cursprite].xrepeat),
+                                  TrackerCast(sprite[cursprite].yrepeat));
                 }
                 else
                 {
@@ -7447,7 +7455,8 @@ static void Keys2d(void)
                             uint8_t *panning = (k==0) ? &sector[i].floorxpanning : &sector[i].floorypanning;
                             *panning = changechar(*panning, changedir, smooshy, 0);
                             silentmessage("Sector %d floor panning: %d, %d", searchsector,
-                                          sector[i].floorxpanning, sector[i].floorypanning);
+                                          TrackerCast(sector[i].floorxpanning),
+                                          TrackerCast(sector[i].floorypanning));
                         }
                 }
 
