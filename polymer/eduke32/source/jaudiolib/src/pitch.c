@@ -57,7 +57,7 @@ void PITCH_Init(void)
             for (detune = 0; detune < MAXDETUNE; detune++)
             {
                 PitchTable[ note ][ detune ] = 0x10000 *
-                                               pow(2, (note * MAXDETUNE + detune) / (12.0 * MAXDETUNE));
+                                               (uint32_t)pow(2, (note * MAXDETUNE + detune) / (12.0 * MAXDETUNE));
             }
         }
 
