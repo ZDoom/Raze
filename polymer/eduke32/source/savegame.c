@@ -242,7 +242,7 @@ int32_t G_LoadPlayer(int32_t spot)
     ready2send = 0;
 
     i = sv_loadheader(fil, spot, &h);
-    if (i && i != 2 || h.numplayers!=ud.multimode)
+    if ((i && i != 2) || h.numplayers != ud.multimode)
     {
         if (i == 2 || i == 3)
             P_DoQuote(QUOTE_SAVE_BAD_VERSION, g_player[myconnectindex].ps);
