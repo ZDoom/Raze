@@ -159,7 +159,13 @@ static void G_DoOrderScreen(void);
 
 int32_t althud_numbertile = 2930;
 int32_t althud_numberpal = 0;
+
+#ifdef __ANDROID__
+int32_t althud_shadows = 0;
+#else
 int32_t althud_shadows = 1;
+#endif
+
 int32_t althud_flashing = 1;
 int32_t hud_glowingquotes = 1;
 int32_t hud_showmapname = 1;
@@ -1803,7 +1809,7 @@ static void G_DrawInventory(const DukePlayer_t *p)
     {
         y = 172<<16;
 
-        if (ud.screen_size == 4 && ud.althud) // modern mini-HUD
+        if (ud.screen_size == 4 && ud.althud == 1) // modern mini-HUD
             y -= invensc(tilesizy[BIGALPHANUM]+10); // slide on the y-axis
     }
     else // full HUD
@@ -1926,6 +1932,20 @@ static int32_t G_GetMorale(int32_t p_i, int32_t snum)
 #endif
 }
 
+static inline void rotatesprite_althud(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,int8_t dashade, char dapalnum, int32_t dastat)
+{
+	if (getrendermode() >= REND_POLYMOST && althud_shadows)
+		rotatesprite_(sbarx(sx+1), sbary(sy+1), z, a, picnum, 127, 4, dastat + POLYMOSTTRANS2, 0, 0, 0, 0, xdim - 1, ydim - 1);
+	rotatesprite_(sbarx(sx), sbary(sy), z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, 0, xdim - 1, ydim - 1);
+}
+
+static inline void rotatesprite_althudr(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat)
+{
+	if (getrendermode() >= REND_POLYMOST && althud_shadows)
+		rotatesprite_(sbarxr(sx + 1), sbary(sy + 1), z, a, picnum, 127, 4, dastat + POLYMOSTTRANS2, 0, 0, 0, 0, xdim - 1, ydim - 1);
+	rotatesprite_(sbarxr(sx), sbary(sy), z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, 0, xdim - 1, ydim - 1);
+}
+
 static void G_DrawStatusBar(int32_t snum)
 {
     const DukePlayer_t *const p = g_player[snum].ps;
@@ -1984,6 +2004,7 @@ static void G_DrawStatusBar(int32_t snum)
         {
             // ALTERNATIVE STATUS BAR
 
+			int32_t hudoffset = althud == 2 ? 32 : 200;
             static int32_t ammo_sprites[MAX_WEAPONS];
 
             if (ammo_sprites[0] == 0)
@@ -2002,54 +2023,41 @@ static void G_DrawStatusBar(int32_t snum)
 
 //            rotatesprite_fs(sbarx(5+1),sbary(200-25+1),sb15h,0,SIXPAK,0,4,10+16+1+32);
 //            rotatesprite_fs(sbarx(5),sbary(200-25),sb15h,0,SIXPAK,0,0,10+16);
-            if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                rotatesprite_fs(sbarx(2+1),sbary(200-21+1),sb15h,0,COLA,127,4,10+16+256+POLYMOSTTRANS2);
-            rotatesprite_fs(sbarx(2),sbary(200-21),sb15h,0,COLA,0,0,10+16+256);
+            rotatesprite_althud(2,hudoffset-21,sb15h,0,COLA,0,0,10+16+256);
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
-                G_DrawAltDigiNum(40,-(200-22),1,-16,10+16+256);
+                G_DrawAltDigiNum(40,-(hudoffset-22),1,-16,10+16+256);
             else if (!althud_flashing || p->last_extra > (p->max_player_health>>2) || totalclock&32)
             {
                 int32_t s = -8;
                 if (althud_flashing && p->last_extra > p->max_player_health)
                     s += (sintable[(totalclock<<5)&2047]>>10);
-                G_DrawAltDigiNum(40,-(200-22),p->last_extra,s,10+16+256);
+                G_DrawAltDigiNum(40,-(hudoffset-22),p->last_extra,s,10+16+256);
             }
 
-            if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                rotatesprite_fs(sbarx(62+1),sbary(200-25+1),sb15h,0,SHIELD,127,4,10+16+POLYMOSTTRANS2+256);
-            rotatesprite_fs(sbarx(62),sbary(200-25),sb15h,0,SHIELD,0,0,10+16+256);
+            rotatesprite_althud(62,hudoffset-25,sb15h,0,SHIELD,0,0,10+16+256);
 
             {
                 int32_t lAmount = G_GetMorale(p->i, snum);
                 if (lAmount == -1)
                     lAmount = p->inv_amount[GET_SHIELD];
-                G_DrawAltDigiNum(105,-(200-22),lAmount,-16,10+16+256);
+                G_DrawAltDigiNum(105,-(hudoffset-22),lAmount,-16,10+16+256);
             }
-
-            if (getrendermode() >= REND_POLYMOST && althud_shadows)
-            {
-                if (p->got_access&1) rotatesprite_fs(sbarxr(39-1),sbary(200-43+1),sb15,0,ACCESSCARD,127,4,10+16+POLYMOSTTRANS2+512);
-                if (p->got_access&4) rotatesprite_fs(sbarxr(34-1),sbary(200-41+1),sb15,0,ACCESSCARD,127,4,10+16+POLYMOSTTRANS2+512);
-                if (p->got_access&2) rotatesprite_fs(sbarxr(29-1),sbary(200-39+1),sb15,0,ACCESSCARD,127,4,10+16+POLYMOSTTRANS2+512);
-            }
-
-            if (p->got_access&1) rotatesprite_fs(sbarxr(39),sbary(200-43),sb15,0,ACCESSCARD,0,0,10+16+512);
-            if (p->got_access&4) rotatesprite_fs(sbarxr(34),sbary(200-41),sb15,0,ACCESSCARD,0,23,10+16+512);
-            if (p->got_access&2) rotatesprite_fs(sbarxr(29),sbary(200-39),sb15,0,ACCESSCARD,0,21,10+16+512);
+			
+            if (p->got_access&1) rotatesprite_althudr(39,hudoffset-43,sb15,0,ACCESSCARD,0,0,10+16+512);
+            if (p->got_access&4) rotatesprite_althudr(34,hudoffset-41,sb15,0,ACCESSCARD,0,23,10+16+512);
+            if (p->got_access&2) rotatesprite_althudr(29,hudoffset-39,sb15,0,ACCESSCARD,0,21,10+16+512);
 
             i = (p->curr_weapon == PISTOL_WEAPON) ? 16384 : 32768;
 
-            if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                rotatesprite_fs(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],127,4,10+POLYMOSTTRANS2+512);
-            rotatesprite_fs(sbarxr(57),sbary(200-15),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512);
+            rotatesprite_althudr(57,hudoffset-15,sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512);
 
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
 
             if (p->curr_weapon != KNEE_WEAPON &&
                     (!althud_flashing || totalclock&32 || p->ammo_amount[i] > (p->max_ammo_amount[i]/10)))
-                G_DrawAltDigiNum(-20,-(200-22),p->ammo_amount[i],-16,10+16+512);
+                G_DrawAltDigiNum(-20,-(hudoffset-22),p->ammo_amount[i],-16,10+16+512);
 
             o = 102;
             permbit = 0;
@@ -2059,40 +2067,37 @@ static void G_DrawStatusBar(int32_t snum)
                 const int32_t orient = 10+16+permbit+256;
 
                 i = ((unsigned)p->inven_icon < ICON_MAX) ? item_icons[p->inven_icon] : -1;
+
                 if (i >= 0)
-                {
-                    if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                        rotatesprite_fs(sbarx(231-o+1),sbary(200-21-2+1),sb16,0,i,127,4, orient+POLYMOSTTRANS2);
-                    rotatesprite_fs(sbarx(231-o),sbary(200-21-2),sb16,0,i,0,0,orient);
-                }
+                    rotatesprite_althud(231-o,hudoffset-21-2,sb16,0,i,0,0,orient);
 
                 if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                    minitextshade(292-30-o+1,190-3+1,"%",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
-                minitext(292-30-o,190-3,"%",6, orient+ROTATESPRITE_MAX);
+                    minitextshade(292-30-o+1,hudoffset-10-3+1,"%",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                minitext(292-30-o,hudoffset-10-3,"%",6, orient+ROTATESPRITE_MAX);
 
                 i = G_GetInvAmount(p);
                 j = G_GetInvOn(p);
 
-                G_DrawInvNum(-(284-30-o),0,200-6-3,(uint8_t)i,0,10+permbit+256);
+                G_DrawInvNum(-(284-30-o),0,hudoffset-6-3,(uint8_t)i,0,10+permbit+256);
 
                 if (j > 0)
                 {
                     if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                        minitextshade(288-30-o+1,180-3+1,"On",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
-                    minitext(288-30-o,180-3,"On",0, orient+ROTATESPRITE_MAX);
+                        minitextshade(288-30-o+1,hudoffset-20-3+1,"On",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                    minitext(288-30-o,hudoffset-20-3,"On",0, orient+ROTATESPRITE_MAX);
                 }
                 else if ((uint32_t)j != 0x80000000)
                 {
                     if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                        minitextshade(284-30-o+1,180-3+1,"Off",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
-                    minitext(284-30-o,180-3,"Off",2, orient+ROTATESPRITE_MAX);
+                        minitextshade(284-30-o+1,hudoffset-20-3+1,"Off",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                    minitext(284-30-o,hudoffset-20-3,"Off",2, orient+ROTATESPRITE_MAX);
                 }
 
                 if (p->inven_icon >= ICON_SCUBA)
                 {
                     if (getrendermode() >= REND_POLYMOST && althud_shadows)
-                        minitextshade(284-35-o+1,180-3+1,"Auto",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
-                    minitext(284-35-o,180-3,"Auto",2, orient+ROTATESPRITE_MAX);
+                        minitextshade(284-35-o+1,hudoffset-20-3+1,"Auto",127,4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                    minitext(284-35-o,hudoffset-20-3,"Auto",2, orient+ROTATESPRITE_MAX);
                 }
             }
         }
@@ -2659,9 +2664,9 @@ void G_PrintGameQuotes(int32_t snum)
 #ifdef GEKKO
             k = 16;
 #elif defined(__ANDROID__)
-            k = 24;
+            k = ud.althud == 2 ? 32 : 24;
 #else
-            k = 0;
+            k = ud.althud == 2 ? 32 : 0;
 #endif
         }
     }
@@ -3792,7 +3797,11 @@ void G_DisplayRest(int32_t smoothratio)
         const DukePlayer_t *myps = g_player[myconnectindex].ps;
 
         if (ud.screen_size == 4)
-            i = sbarsc(ud.althud?tilesizy[BIGALPHANUM]+10:tilesizy[INVENTORYBOX]+2);
+		{
+			if (ud.althud == 2)
+				i = 2;
+			else i = sbarsc(ud.althud?tilesizy[BIGALPHANUM]+10:tilesizy[INVENTORYBOX]+2);
+		}
         else if (ud.screen_size > 2)
             i = sbarsc(tilesizy[BOTTOMSTATUSBAR]+1);
         else
@@ -10463,7 +10472,7 @@ static void G_DisplayLogo(void)
             //g_player[myconnectindex].ps->palette = titlepal;
             P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);   // JBF 20040308
             flushperms();
-            rotatesprite_fs(160<<16,100<<16,65536L,0,BETASCREEN,0,0,2+8);
+            rotatesprite_fs(160<<16,100<<16,65536L,0,BETASCREEN,0,0,2+8+64+(ud.bgstretch?1024:0));
             KB_FlushKeyboardQueue();
             fadepaltile(0,0,0, 63,0,-7,BETASCREEN);
             totalclock = 0;

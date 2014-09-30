@@ -345,9 +345,9 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
     Bassert((unsigned)p < MAXPLAYERS);
 
 #ifdef LUNATIC
-    g_player[p].ps->autoaimang = AUTO_AIM_ANGLE;
+    g_player[p].ps->autoaimang = g_player[p].ps->auto_aim == 3 ? AUTO_AIM_ANGLE<<1 : AUTO_AIM_ANGLE;
 #else
-    Gv_SetVar(g_iAimAngleVarID, AUTO_AIM_ANGLE, i, p);
+    Gv_SetVar(g_iAimAngleVarID, g_player[p].ps->auto_aim == 3 ? AUTO_AIM_ANGLE<<1 : AUTO_AIM_ANGLE, i, p);
 #endif
 
     if (G_HaveEvent(EVENT_GETAUTOAIMANGLE))
