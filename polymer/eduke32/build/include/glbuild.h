@@ -163,6 +163,8 @@ typedef void (APIENTRY * bglVertex3dvProcPtr)( const GLdouble *v );
 extern bglVertex3dvProcPtr bglVertex3dv;
 typedef void (APIENTRY * bglRectdProcPtr)( GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2 );
 extern bglRectdProcPtr bglRectd;
+typedef void (APIENTRY * bglColor3fProcPtr)(GLfloat red, GLfloat green, GLfloat blue);
+extern bglColor3fProcPtr bglColor3f;
 typedef void (APIENTRY * bglColor4fProcPtr)( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha );
 extern bglColor4fProcPtr bglColor4f;
 typedef void (APIENTRY * bglColor4ubProcPtr)( GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha );
@@ -645,6 +647,7 @@ void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *src
 #define bglVertex3fv glVertex3fv
 #define bglVertex3dv glVertex3dv
 #define bglRectd glRectd
+#define bglColor3f glColor3f
 #define bglColor4f glColor4f
 #define bglColor4ub glColor4ub
 #define bglTexCoord2d glTexCoord2d

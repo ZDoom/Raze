@@ -69,6 +69,7 @@ bglVertex3dProcPtr bglVertex3d;
 bglVertex3fvProcPtr bglVertex3fv;
 bglVertex3dvProcPtr bglVertex3dv;
 bglRectdProcPtr bglRectd;
+bglColor3fProcPtr bglColor3f;
 bglColor4fProcPtr bglColor4f;
 bglColor4ubProcPtr bglColor4ub;
 bglTexCoord2dProcPtr bglTexCoord2d;
@@ -441,6 +442,7 @@ int32_t loadgldriver(const char *driver)
     bglVertex3fv = (bglVertex3fvProcPtr) GETPROC("glVertex3fv");
     bglVertex3dv = (bglVertex3dvProcPtr) GETPROC("glVertex3dv");
     bglRectd = (bglRectdProcPtr) GETPROC("glRectd");
+    bglColor3f = (bglColor3fProcPtr) GETPROC("glColor3f");
     bglColor4f = (bglColor4fProcPtr) GETPROC("glColor4f");
     bglColor4ub = (bglColor4ubProcPtr) GETPROC("glColor4ub");
     bglTexCoord2d = (bglTexCoord2dProcPtr) GETPROC("glTexCoord2d");
@@ -730,6 +732,7 @@ int32_t unloadgldriver(void)
     bglVertex3fv = (bglVertex3fvProcPtr) NULL;
     bglVertex3dv = (bglVertex3dvProcPtr) NULL;
     bglRectd = (bglRectdProcPtr) NULL;
+    bglColor3f = (bglColor3fProcPtr) NULL;
     bglColor4f = (bglColor4fProcPtr) NULL;
     bglColor4ub = (bglColor4ubProcPtr) NULL;
     bglTexCoord2d = (bglTexCoord2dProcPtr) NULL;
