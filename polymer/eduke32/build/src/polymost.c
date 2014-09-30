@@ -1383,13 +1383,10 @@ void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
 static int32_t pow2xsplit = 0, skyclamphack = 0;
 static float alpha = 0.f;
 
-static pthtyp *our_texcache_fetch(int32_t dameth)
+static inline pthtyp *our_texcache_fetch(int32_t dameth)
 {
     // r_usetileshades 1 is TX's method.
-    if (r_usetileshades != 1)
-        return texcache_fetch(globalpicnum, globalpal, globalshade, dameth);
-
-    return texcache_fetch(globalpicnum, globalpal, getpalookup(globvis>>3, globalshade), dameth);
+    return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1) ? globvis>>3 : 0, globalshade), dameth);
 }
 
 static void drawpoly(float *dpx, float *dpy, int32_t n, int32_t method)
