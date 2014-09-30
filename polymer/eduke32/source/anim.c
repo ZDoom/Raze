@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "baselayer.h"
+#include "renderlayer.h"
 #include "duke3d.h"
 #include "animlib.h"
 #include "mouse.h"
@@ -381,15 +383,13 @@ int32_t G_PlayAnim(const char *fn, char t)
     kread(handle, animbuf[t-1], length);
     kclose(handle);
 
-    if (ANIM_LoadAnim(animbuf[t-1], length) < 0)
+    if (ANIM_LoadAnim(animbuf[t-1], length) < 0 || (numframes = ANIM_NumFrames()) <= 0)
     {
         // XXX: ANM_LoadAnim() still checks less than the bare minimum,
         // e.g. ANM file could still be too small and not contain any frames.
         OSD_Printf("Error: malformed ANM file \"%s\".\n", fn);
         goto end_anim;
     }
-
-    numframes = ANIM_NumFrames();
 
     basepaltable[ANIMPAL] = ANIM_GetPalette();
 
@@ -404,7 +404,9 @@ int32_t G_PlayAnim(const char *fn, char t)
 
     ototalclock = totalclock + 10;
 
-    for (i=1; i<numframes; i++)
+    i = 1;
+
+    do
     {
         if (i > 4 && totalclock > frametime + 60)
         {
@@ -412,34 +414,34 @@ int32_t G_PlayAnim(const char *fn, char t)
             goto end_anim_restore_gl;
         }
 
-        frametime = totalclock;
+        G_HandleAsync();
 
-        waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
+        if (totalclock < ototalclock-1)
+            continue;
+
+        waloff[TILE_ANIM] = (intptr_t) ANIM_DrawFrame(i);
         invalidatetile(TILE_ANIM, 0, 1<<4);  // JBF 20031228
 
-        I_ClearAllInput();
-
-        while (totalclock < ototalclock)
+        if (I_CheckAllInput())
         {
-            G_HandleAsync();
-
-            if (I_CheckAllInput())
-            {
-                running = 0;
-                goto end_anim_restore_gl;
-            }
-
-            if (g_restorePalette == 1)
-            {
-                P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 0);
-                g_restorePalette = 0;
-            }
-
-            clearallviews(0);
-
-            rotatesprite_fs(0<<16,0<<16,65536L,512,TILE_ANIM,0,0,2+4+8+16+64+(ud.bgstretch?1024:0));
-            nextpage();
+            running = 0;
+            goto end_anim_restore_gl;
         }
+
+        if (g_restorePalette == 1)
+        {
+            P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 0);
+            g_restorePalette = 0;
+        }
+
+        frametime = totalclock;
+
+        clearallviews(0);
+
+        rotatesprite_fs(0<<16, 0<<16, 65536L, 512, TILE_ANIM, 0, 0, 2+4+8+16+64+(ud.bgstretch ? 1024 : 0));
+        nextpage();
+
+        I_ClearAllInput();
 
         if (t == 10) ototalclock += 14;
         else if (t == 9) ototalclock += 10;
@@ -459,7 +461,8 @@ int32_t G_PlayAnim(const char *fn, char t)
         else if (t == 6) first4animsounds(i);
         else if (t == 5) logoanimsounds(i);
         else if (t < 4) endanimsounds(i);
-    }
+        i++;
+    } while (i < numframes);
 
 end_anim_restore_gl:
 #ifdef USE_OPENGL
