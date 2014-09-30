@@ -30,12 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int32_t osdhightile = 1;
 #ifdef __ANDROID__
-double osdscale = 2.0f;
+float osdscale = 2.f;
 #else
-double osdscale = 1.0f;
+float osdscale = 1.f;
 #endif
 
-#define OSD_SCALE(x) (int32_t)(osdscale != 1.f ? lround(osdscale*(double)(x)) : x)
+#define OSD_SCALE(x) (int32_t)(osdscale != 1.f ? lround(osdscale*(x)) : (x))
 #define OSD_SCALEDIV(x) (int32_t)lround((x)/osdscale)
 
 static int32_t GAME_isspace(int32_t ch)

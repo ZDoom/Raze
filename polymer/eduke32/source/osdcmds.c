@@ -1569,7 +1569,7 @@ int32_t registerosdcommands(void)
         { "mus_volume", "controls volume of midi music", (void *)&ud.config.MusicVolume, CVAR_INT, 0, 255 },
 
         { "osdhightile", "enable/disable hires art replacements for console text", (void *)&osdhightile, CVAR_BOOL, 0, 1 },
-        { "osdscale", "adjust console text size", (void *)&osdscale, CVAR_DOUBLE|CVAR_FUNCPTR, 1.f, 4.f },
+        { "osdscale", "adjust console text size", (void *)&osdscale, CVAR_FLOAT|CVAR_FUNCPTR, 1.f, 4.f },
 
         { "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
@@ -1599,9 +1599,9 @@ int32_t registerosdcommands(void)
 
         { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 
-        { "vid_gamma","adjusts gamma component of gamma ramp",(void *)&vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
-        { "vid_contrast","adjusts contrast component of gamma ramp",(void *)&vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
-        { "vid_brightness","adjusts brightness component of gamma ramp",(void *)&vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
+        { "vid_gamma","adjusts gamma component of gamma ramp",(void *)&vid_gamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+        { "vid_contrast","adjusts contrast component of gamma ramp",(void *)&vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+        { "vid_brightness","adjusts brightness component of gamma ramp",(void *)&vid_brightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
     };
 
     osdcmd_cheatsinfo_stat.cheatnum = -1;
