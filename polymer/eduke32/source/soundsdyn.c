@@ -858,7 +858,7 @@ void G_ProcessDynamicSoundMapping(const char *szLabel, int32_t lValue)
     {
         struct dynitem *di = &g_dynSoundList[i];
 #ifdef DEBUGGINGAIDS
-        if (di->staticval != lValue)
+        if (g_scriptDebug && di->staticval != lValue)
             OSD_Printf("REMAP %s (%d) --> %d\n", di->str, di->staticval, lValue);
 #endif
         *di->dynvalptr = lValue;
