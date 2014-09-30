@@ -538,9 +538,9 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     return 1;
 }
 
-void __fastcall A_ResetVars(register int32_t iActor)
+void __fastcall A_ResetVars(int32_t iActor)
 {
-    register int32_t i=(MAXGAMEVARS-1);
+    int32_t i=(MAXGAMEVARS-1);
     do
     {
         if ((aGameVars[i].dwFlags & (GAMEVAR_PERACTOR|GAMEVAR_NODEFAULT)) == GAMEVAR_PERACTOR)
@@ -560,7 +560,7 @@ static int32_t Gv_GetVarIndex(const char *szGameLabel)
     return i;
 }
 
-int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, register int32_t iPlayer)
+int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer)
 {
     if (id == g_iThisActorID)
         return iActor;
@@ -569,13 +569,13 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
         return(*insptr++);
 
     {
-        register intptr_t negateResult = id&(MAXGAMEVARS<<1);
+        intptr_t negateResult = id&(MAXGAMEVARS<<1);
 
         if (id >= g_gameVarCount)
         {
             if (id&(MAXGAMEVARS<<2)) // array
             {
-                register int32_t index=Gv_GetVar(*insptr++,iActor,iPlayer);
+                int32_t index=Gv_GetVar(*insptr++,iActor,iPlayer);
 
                 id &= (MAXGAMEVARS-1);// ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
 
@@ -590,7 +590,7 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
 
             if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
             {
-                register int32_t index=Gv_GetVar(*insptr++, iActor, iPlayer);
+                int32_t index=Gv_GetVar(*insptr++, iActor, iPlayer);
 
                 switch ((id&(MAXGAMEVARS-1)) - g_iSpriteVarID)
                 {
@@ -710,7 +710,7 @@ wtf:
     return -1;
 }
 
-void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register int32_t iActor, register int32_t iPlayer)
+void __fastcall Gv_SetVar(int32_t id, int32_t lValue, int32_t iActor, int32_t iPlayer)
 {
     if ((unsigned)id >= (unsigned)g_gameVarCount) goto badvarid;
 
@@ -754,176 +754,172 @@ badindex:
     return;
 }
 
-int32_t __fastcall Gv_GetVarX(register int32_t id)
+enum {
+    GVX_BADVARID = 0,
+    GVX_BADPLAYER,
+    GVX_BADSPRITE,
+    GVX_BADSECTOR,
+    GVX_BADWALL,
+    GVX_BADINDEX,
+    GVX_WTF,
+    GVX_ARRAYWTF
+} gvxerror_t;
+
+static const char *gvxerrs [] ={ "Gv_GetVarX(): invalid gamevar ID (%d)\n",
+"Gv_GetVarX(): invalid player ID %d\n",
+"Gv_GetVarX(): invalid sprite ID %d\n",
+"Gv_GetVarX(): invalid sector ID %d\n",
+"Gv_GetVarX(): invalid wall ID %d\n",
+"Gv_GetVarX(): invalid array index (%s[%d])\n",
+"Gv_GetVarX(): WTF?\n",
+"Gv_GetVarX() (array): WTF?\n"
+};
+
+int32_t __fastcall Gv_GetVarX(int32_t id)
 {
+    intptr_t negateResult = id&(MAXGAMEVARS<<1);
+
     if (id == g_iThisActorID)
         return vm.g_i;
 
     if (id == MAXGAMEVARS)
         return(*insptr++);
 
+    if (id >= g_gameVarCount && negateResult == 0)
+        goto nastyhacks;
+
+    id &= MAXGAMEVARS-1;
+
+    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
     {
-        register intptr_t negateResult = id&(MAXGAMEVARS<<1);
-
-        if (id >= g_gameVarCount)
+    default:
+        return ((aGameVars[id].val.lValue ^ -negateResult) + negateResult);
+    case GAMEVAR_PERPLAYER:
+        if ((unsigned) vm.g_p >= MAXPLAYERS)
         {
-            if (id&(MAXGAMEVARS<<2)) // array
-            {
-                register int32_t index=Gv_GetVarX(*insptr++);
-                int32_t siz;
-
-                id &= (MAXGAMEVARS-1);// ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
-
-                if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
-                    siz = Gv_GetVarX(aGameArrays[id].size);
-                else
-                    siz = aGameArrays[id].size;
-
-                if (index < 0 || index >= siz)
-                {
-                    negateResult = index;
-                    goto badindex;
-                }
-
-                switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPE_MASK)
-                {
-                case 0:
-                    return ((aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
-                case GAMEARRAY_OFINT:
-                    return (((int32_t *)aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
-                case GAMEARRAY_OFSHORT:
-                    return (((int16_t *)aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
-                case GAMEARRAY_OFCHAR:
-                    return (((uint8_t *)aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
-                default:
-                    goto arraywtf;
-                }
-            }
-
-            if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
-            {
-                int32_t index=Gv_GetVarX(*insptr++);
-
-                switch ((id&(MAXGAMEVARS-1)) - g_iSpriteVarID)
-                {
-                case 0: //if (id == g_iSpriteVarID)
-                {
-                    register int32_t parm2 = 0, label = *insptr++;
-
-                    /*OSD_Printf("%d %d %d\n",__LINE__,index,label);*/
-                    if (ActorLabels[label].flags & LABEL_HASPARM2)
-                        parm2 = Gv_GetVarX(*insptr++);
-
-                    if ((unsigned)index >= MAXSPRITES)
-                    {
-                        id = index;
-                        goto badsprite;
-                    }
-
-                    return ((VM_AccessSpriteX(index, label, parm2) ^ -negateResult) + negateResult);
-                }
-                case 3: //else if (id == g_iPlayerVarID)
-                {
-                    register int32_t parm2 = 0, label = *insptr++;
-
-                    if (PlayerLabels[label].flags & LABEL_HASPARM2)
-                        parm2 = Gv_GetVarX(*insptr++);
-
-                    if (index == vm.g_i) index = vm.g_p;
-
-                    if ((unsigned)index >= MAXPLAYERS)
-                    {
-                        id = index;
-                        goto badplayer;
-                    }
-                    return ((VM_AccessPlayerX(index, label, parm2) ^ -negateResult) + negateResult);
-                }
-                case 4: //else if (id == g_iActorVarID)
-                    return ((Gv_GetVar(*insptr++, index, vm.g_p) ^ -negateResult) + negateResult);
-                case 1: //else if (id == g_iSectorVarID)
-                    if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
-                    if ((unsigned)index >= MAXSECTORS)
-                    {
-                        id = index;
-                        insptr++;
-                        goto badsector;
-                    }
-                    return ((VM_AccessSectorX(index, *insptr++) ^ -negateResult) + negateResult);
-                case 2: //else if (id == g_iWallVarID)
-                    if ((unsigned)index >= MAXWALLS)
-                    {
-                        id = index;
-                        insptr++;
-                        goto badwall;
-                    }
-                    return ((VM_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
-                default:
-                    goto wtf;
-                }
-            }
-
-            id &= (MAXGAMEVARS-1);
-
-            if (!negateResult)
-                goto badvarid;
+            id = vm.g_p;
+            CON_ERRPRINTF("%s", gvxerrs[GVX_BADPLAYER], id);
+            return -1;
         }
-
-        switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
-        {
-        default:
-            return ((aGameVars[id].val.lValue ^ -negateResult) + negateResult);
-        case GAMEVAR_PERPLAYER:
-            if ((unsigned)vm.g_p >= MAXPLAYERS)
-            {
-                id = vm.g_p;
-                goto badplayer;
-            }
-            return ((aGameVars[id].val.plValues[vm.g_p] ^ -negateResult) + negateResult);
-        case GAMEVAR_PERACTOR:
-            return ((aGameVars[id].val.plValues[vm.g_i] ^ -negateResult) + negateResult);
-        case GAMEVAR_INTPTR:
-            return (((*((int32_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
-        case GAMEVAR_SHORTPTR:
-            return (((*((int16_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
-        case GAMEVAR_CHARPTR:
-            return (((*((uint8_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
-        }
-
-badindex:
-        CON_ERRPRINTF("Gv_GetVarX(): invalid array index (%s[%d])\n", aGameArrays[id].szLabel, (int32_t)negateResult);
-        return -1;
-
-badvarid:
-        CON_ERRPRINTF("Gv_GetVarX(): invalid gamevar ID (%d)\n", id);
-        return -1;
-
-badplayer:
-        CON_ERRPRINTF("Gv_GetVarX(): invalid player ID %d\n", id);
-        return -1;
-
-badsprite:
-        CON_ERRPRINTF("Gv_GetVarX(): invalid sprite ID %d\n", id);
-        return -1;
-
-badsector:
-        CON_ERRPRINTF("Gv_GetVarX(): invalid sector ID %d\n", id);
-        return -1;
-
-badwall:
-        CON_ERRPRINTF("Gv_GetVarX(): invalid wall ID %d\n", id);
-        return -1;
-
-arraywtf:
-        CON_ERRPRINTF("Gv_GetVarX() (array): WTF?\n");
-        return -1;
-
-wtf:
-        CON_ERRPRINTF("Gv_GetVarX(): WTF?\n");
-        return -1;
+        return ((aGameVars[id].val.plValues[vm.g_p] ^ -negateResult) + negateResult);
+    case GAMEVAR_PERACTOR:
+        return ((aGameVars[id].val.plValues[vm.g_i] ^ -negateResult) + negateResult);
+    case GAMEVAR_INTPTR:
+        return (((*((int32_t *) aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
+    case GAMEVAR_SHORTPTR:
+        return (((*((int16_t *) aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
+    case GAMEVAR_CHARPTR:
+        return (((*((uint8_t *) aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
     }
+
+nastyhacks:
+    if (id&(MAXGAMEVARS<<2)) // array
+    {
+        int32_t index=Gv_GetVarX(*insptr++);
+        int32_t siz;
+
+        id &= (MAXGAMEVARS-1);// ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
+
+        if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
+            siz = Gv_GetVarX(aGameArrays[id].size);
+        else
+            siz = aGameArrays[id].size;
+
+        if (index < 0 || index >= siz)
+        {
+            negateResult = index;
+            CON_ERRPRINTF("%s", gvxerrs[GVX_BADINDEX], aGameArrays[id].szLabel, (int32_t) negateResult);
+            return -1;
+        }
+
+        switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPE_MASK)
+        {
+        case 0:
+            return ((aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
+        case GAMEARRAY_OFINT:
+            return (((int32_t *) aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
+        case GAMEARRAY_OFSHORT:
+            return (((int16_t *) aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
+        case GAMEARRAY_OFCHAR:
+            return (((uint8_t *) aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
+        default:
+            CON_ERRPRINTF("%s", gvxerrs[GVX_ARRAYWTF]);
+            return -1;
+        }
+    }
+
+    if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
+    {
+        int32_t index=Gv_GetVarX(*insptr++);
+
+        switch ((id&(MAXGAMEVARS-1)) - g_iSpriteVarID)
+        {
+        case 0: //if (id == g_iSpriteVarID)
+        {
+            int32_t parm2 = 0, label = *insptr++;
+
+            /*OSD_Printf("%d %d %d\n",__LINE__,index,label);*/
+            if (ActorLabels[label].flags & LABEL_HASPARM2)
+                parm2 = Gv_GetVarX(*insptr++);
+
+            if ((unsigned) index >= MAXSPRITES)
+            {
+                id = index;
+                CON_ERRPRINTF("%s", gvxerrs[GVX_BADSPRITE], id);
+                return -1;
+            }
+
+            return ((VM_AccessSpriteX(index, label, parm2) ^ -negateResult) + negateResult);
+        }
+        case 3: //else if (id == g_iPlayerVarID)
+        {
+            int32_t parm2 = 0, label = *insptr++;
+
+            if (PlayerLabels[label].flags & LABEL_HASPARM2)
+                parm2 = Gv_GetVarX(*insptr++);
+
+            if (index == vm.g_i) index = vm.g_p;
+
+            if ((unsigned) index >= MAXPLAYERS)
+            {
+                id = index;
+                CON_ERRPRINTF("%s", gvxerrs[GVX_BADPLAYER], id);
+                return -1;
+            }
+            return ((VM_AccessPlayerX(index, label, parm2) ^ -negateResult) + negateResult);
+        }
+        case 4: //else if (id == g_iActorVarID)
+            return ((Gv_GetVar(*insptr++, index, vm.g_p) ^ -negateResult) + negateResult);
+        case 1: //else if (id == g_iSectorVarID)
+            if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
+            if ((unsigned) index >= MAXSECTORS)
+            {
+                id = index;
+                insptr++;
+                CON_ERRPRINTF("%s", gvxerrs[GVX_BADSECTOR], id);
+                return -1;
+            }
+            return ((VM_AccessSectorX(index, *insptr++) ^ -negateResult) + negateResult);
+        case 2: //else if (id == g_iWallVarID)
+            if ((unsigned) index >= MAXWALLS)
+            {
+                id = index;
+                insptr++;
+                CON_ERRPRINTF("%s", gvxerrs[GVX_BADWALL], id);
+                return -1;
+            }
+            return ((VM_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
+        default:
+            CON_ERRPRINTF("Gv_GetVarX(): WTF?\n");
+            return -1;
+        }
+    }
+
+    CON_ERRPRINTF("%s", gvxerrs[GVX_WTF]);
+    return -1;
 }
 
-void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
+void __fastcall Gv_SetVarX(int32_t id, int32_t lValue)
 {
     switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
     {
@@ -1066,6 +1062,25 @@ void Gv_ResetSystemDefaults(void)
     g_iActorVarID=Gv_GetVarIndex("actorvar");
 #endif
     G_InitProjectileData();
+
+    // hackhackhackhackhack
+    i = hash_find(&h_arrays, "tilesizx");
+    if (i >= 0)
+    {
+        int32_t j = 0;
+
+        for (; j<MAXTILES; j++)
+            aGameArrays[i].plValues[j] = tilesiz[j].x;
+    }
+
+    i = hash_find(&h_arrays, "tilesizy");
+    if (i >= 0)
+    {
+        int32_t j = 0;
+
+        for (; j<MAXTILES; j++)
+            aGameArrays[i].plValues[j] = tilesiz[j].y;
+    }
 
     //AddLog("EOF:ResetWeaponDefaults");
 }
@@ -1451,8 +1466,8 @@ static void Gv_AddSystemVars(void)
 # endif
 
     // SYSTEM_GAMEARRAY
-    Gv_NewArray("tilesizx", NULL/*(void *)tilesizx*/, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("tilesizy", NULL/*(void *)tilesizy*/, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("tilesizx", NULL, MAXTILES, GAMEARRAY_READONLY);
+    Gv_NewArray("tilesizy", NULL, MAXTILES, GAMEARRAY_READONLY);
 #endif
 }
 

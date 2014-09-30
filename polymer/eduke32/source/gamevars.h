@@ -96,15 +96,15 @@ extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t g_gameVarCount;
 extern int32_t g_gameArrayCount;
 
-int32_t __fastcall Gv_GetVar(register int32_t id,register int32_t iActor,register int32_t iPlayer);
-void __fastcall Gv_SetVar(register int32_t id,register int32_t lValue,register int32_t iActor,register int32_t iPlayer);
-int32_t __fastcall Gv_GetVarX(register int32_t id);
-void __fastcall Gv_SetVarX(register int32_t id,register int32_t lValue);
+int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer);
+void __fastcall Gv_SetVar(int32_t id, int32_t lValue, int32_t iActor, int32_t iPlayer);
+int32_t __fastcall Gv_GetVarX(int32_t id);
+void __fastcall Gv_SetVarX(int32_t id, int32_t lValue);
 
 int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t lDefault,int32_t iActor,int32_t iPlayer);
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
-void __fastcall A_ResetVars(register int32_t iActor);
+void __fastcall A_ResetVars(int32_t iActor);
 void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
@@ -121,7 +121,7 @@ void Gv_Init(void);
 void Gv_FinalizeWeaponDefaults(void);
 
 #if !defined LUNATIC
-#define GV_VAROP(func, operator) static inline void __fastcall func(register int32_t id, register int32_t lValue) \
+#define GV_VAROP(func, operator) static inline void __fastcall func(int32_t id, int32_t lValue) \
 { \
     switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) \
     { \
