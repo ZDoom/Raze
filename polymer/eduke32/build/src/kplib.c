@@ -1418,6 +1418,14 @@ static void yrbrend(int32_t x, int32_t y, int32_t *ldct)
 }
 void (*kplib_yrbrend_func)(int32_t,int32_t,int32_t *) = yrbrend;
 
+#define KPEG_GETBITS(curbits, minbits, num, kfileptr, kfileend)\
+	while (curbits < minbits)\
+	{\
+		ch = *kfileptr++; num = (num<<8)+((int)ch); curbits += 8;\
+		if (ch == 255) { kfileptr++; if (kfileptr >= kfileend) { num <<= 8; curbits += 8; /*Hack to prevent read overrun on valid JPG by stuffing extra byte*/ } }\
+	}
+
+
 static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                         intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
                         int32_t daglobxoffs, int32_t daglobyoffs)
@@ -1428,11 +1436,12 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
     int32_t eobrun, Ss, Se, Ah, Al, Alut[2], dctx[12], dcty[12], ldctx[12], /* ldcty[12], */ lshx[4], lshy[4];
     int16_t *dctbuf = 0, *dctptr[12], *ldctptr[12], *dcs = NULL;
     uint8_t ch, marker, dcflag;
-    const uint8_t *kfileptr;
+    const uint8_t *kfileptr, *kfileend;
 
     if (!kpeginited) { kpeginited = 1; initkpeg(); }
 
     kfileptr = (uint8_t *)kfilebuf;
+    kfileend = &kfileptr[kfilength];
 
     if (*(uint16_t *)kfileptr == SSWAPIB(0xd8ff)) kfileptr += 2;
     else return(-1); //"%s is not a JPEG file\n",filename
@@ -1636,12 +1645,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                 //Get DC
                                 if (!Ss)
                                 {
-                                    while (curbits < 16) //Getbits
-                                    {
-                                        ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                        num = (num<<8)+((int32_t)ch); curbits += 8;
-                                    }
-
+                                    KPEG_GETBITS(curbits, 16, num, kfileptr, kfileend);
                                     if (!Ah)
                                     {
                                         i = ((num>>(curbits-10))&1023);
@@ -1651,12 +1655,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
 
                                         if (daval)
                                         {
-                                            while (curbits < daval) //Getbits
-                                            {
-                                                ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                                num = (num<<8)+((int32_t)ch); curbits += 8;
-                                            }
-
+                                            KPEG_GETBITS(curbits, daval, num, kfileptr, kfileend);
                                             curbits -= daval; v = ((unsigned)num >> curbits) & pow2mask[daval];
                                             if (v <= pow2mask[daval-1]) v -= pow2mask[daval];
                                             lastdc[c] += v;
@@ -1673,12 +1672,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                 {
                                     for (; z<=Se; z++)
                                     {
-                                        while (curbits < 16) //Getbits
-                                        {
-                                            ch = *kfileptr++;  // BUF_LENG_READ
-                                            if (ch == 255) kfileptr++;
-                                            num = (num<<8)+((int32_t)ch); curbits += 8;
-                                        }
+                                        KPEG_GETBITS(curbits, 16, num, kfileptr, kfileend);
                                         i = ((num>>(curbits-10))&1023);
                                         if (i < hqcnt)
                                             { daval = hqval[i]; curbits -= hqbits[i]; }
@@ -1689,11 +1683,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                         {
                                             if (Ah)
                                             {
-                                                if (curbits < 8) //Getbits
-                                                {
-                                                    ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                                    num = (num<<8)+((long)ch); curbits += 8;
-                                                }
+                                                KPEG_GETBITS(curbits, 8, num, kfileptr, kfileend);
                                                 if (num&(pow2long[--curbits])) daval = Alut[0]; else daval = Alut[1];
                                             }
                                         }
@@ -1702,11 +1692,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                             eobrun = pow2long[zz];
                                             if (zz)
                                             {
-                                                while (curbits < zz) //Getbits
-                                                {
-                                                    ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                                    num = (num<<8)+((int32_t)ch); curbits += 8;
-                                                }
+                                                KPEG_GETBITS(curbits, zz, num, kfileptr, kfileend);
                                                 curbits -= zz; eobrun += ((unsigned)num >> curbits) & pow2mask[zz];
                                             }
                                             if (!Ah) eobrun--;
@@ -1718,11 +1704,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                             {
                                                 if (dcs[z])
                                                 {
-                                                    if (curbits < 8) //Getbits
-                                                    {
-                                                        ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                                        num = (num<<8)+((int32_t)ch); curbits += 8;
-                                                    }
+                                                    KPEG_GETBITS(curbits, 8, num, kfileptr, kfileend);
                                                     if (num&(pow2long[--curbits])) dcs[z] += (int16_t)Alut[dcs[z] < 0];
                                                 }
                                                 else if (--zz < 0) break;
@@ -1735,11 +1717,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                         {
                                             z += zz; if (z > Se) break;
 
-                                            while (curbits < daval) //Getbits
-                                            {
-                                                ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                                num = (num<<8)+((int32_t)ch); curbits += 8;
-                                            }
+                                            KPEG_GETBITS(curbits, daval, num, kfileptr, kfileend);
                                             curbits -= daval; v = ((unsigned)num >> curbits) & pow2mask[daval];
                                             if (daval>=1 /* FIXME ? */ && v <= pow2mask[daval-1]) v -= pow2mask[daval];
                                             dcflag |= dcflagor[z];
@@ -1754,11 +1732,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                     for (; z<=Se; z++)
                                     {
                                         if (!dcs[z]) continue;
-                                        if (curbits < 8) //Getbits
-                                        {
-                                            ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                            num = (num<<8)+((int32_t)ch); curbits += 8;
-                                        }
+                                        KPEG_GETBITS(curbits, 8, num, kfileptr, kfileend);
                                         if (num&(pow2long[--curbits])) dcs[z] += ((int16_t)Alut[dcs[z] < 0]);
                                     }
                                 }
@@ -2619,7 +2593,7 @@ static int32_t filnamcmp(const char *st0, const char *st1)
 //...
 #define KZHASHINITSIZE 8192
 static char *kzhashbuf = 0;
-static int32_t kzhashead[256], kzhashpos, kzlastfnam, kzhashsiz, kzdirnamhead = -1;
+static int32_t kzhashead[256], kzhashpos, kzlastfnam = -1, kzhashsiz, kzdirnamhead = -1;
 
 static int32_t kzcheckhashsiz(int32_t siz)
 {
