@@ -7,30 +7,16 @@
 extern "C" {
 #endif
 
-extern uint32_t crc32table[256];
+#define POLY 0xEDB88320
 
-void initcrc32table(void);
+#ifdef BITNESS64
+extern uint32_t crc32table[8][256];
+#else
+extern uint32_t crc32table[4][256];
+#endif
 
-uint32_t crc32once(uint8_t *blk, uint32_t len);
-
-static inline void crc32init(uint32_t *crcvar)
-{
-    if (!crcvar) return;
-    *crcvar = 0xffffffffl;
-}
-
-static inline void crc32block(uint32_t *crcvar, uint8_t *blk, uint32_t len)
-{
-    uint32_t crc = *crcvar;
-    while (len--) crc = crc32table[(crc ^ *(blk++)) & 0xffl] ^(crc >> 8);
-    *crcvar = crc;
-}
-
-static inline uint32_t crc32finish(uint32_t *crcvar)
-{
-    *crcvar = *crcvar ^ 0xffffffffl;
-    return *crcvar;
-}
+extern uint32_t crc32(const void* data, size_t length, uint32_t crc);
+extern void initcrc32table(void);
 
 #ifdef EXTERNC
 }

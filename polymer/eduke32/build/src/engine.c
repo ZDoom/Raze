@@ -7923,22 +7923,22 @@ static int32_t loadtables(void)
             reciptable[i] = divscale30(2048, i+2048);
 
         for (i=0; i<=512; i++)
-            sintable[i] = (int16_t)(16384*sin(i*BANG2RAD));
+            sintable[i] = (int16_t)(16384.f * sinf((float)i * BANG2RAD));
         for (i=513; i<1024; i++)
             sintable[i] = sintable[1024-i];
         for (i=1024; i<2048; i++)
             sintable[i] = -sintable[i-1024];
 
         for (i=0; i<640; i++)
-            radarang[i] = (int16_t)(-64*atan((640-0.5-i)/160)/BANG2RAD);
+            radarang[i] = (int16_t)(atanf(((float)(640-i)-0.5f) * (1.f/160.f)) * (-64.f * (1.f/BANG2RAD)));
         for (i=0; i<640; i++)
             radarang[1279-i] = -radarang[i];
 
 #ifdef B_LITTLE_ENDIAN
         i = 0;
-        if (crc32once((uint8_t *)sintable, sizeof(sintable)) != 0xee1e7aba)
+        if (crc32((uint8_t *)sintable, sizeof(sintable), 0) != 0xee1e7aba)
             i |= 1;
-        if (crc32once((uint8_t *)radarang, 640*sizeof(radarang[0])) != 0xee893d92)
+        if (crc32((uint8_t *)radarang, 640*sizeof(radarang[0]), 0) != 0xee893d92)
             i |= 2;
 
         if (i != 0)
@@ -8155,7 +8155,7 @@ static int32_t loadpalette(void)
 #endif
 
     // If Duke3D 1.5 GRP or LameDuke, ...
-    if (crc32once((uint8_t *)transluc, 65536)==0x94a1fac6 || lamedukep)
+    if (crc32((uint8_t *)transluc, 65536, 0)==0x94a1fac6 || lamedukep)
     {
         int32_t i;
         // ... fix up translucency table so that transluc(255,x)

@@ -384,21 +384,19 @@ int32_t ScanGroups(void)
 
         {
             int32_t b, fh;
-            int32_t crcval;
+            int32_t crcval = 0;
 
             fh = openfrompath(sidx->name, BO_RDONLY|BO_BINARY, BS_IREAD);
             if (fh < 0) continue;
             if (Bfstat(fh, &st)) continue;
 
             initprintf(" Checksumming %s...", sidx->name);
-            crc32init((uint32_t *)&crcval);
             do
             {
                 b = read(fh, buf, BUFFER_SIZE);
-                if (b > 0) crc32block((uint32_t *)&crcval, (uint8_t *)buf, b);
+                if (b > 0) crcval = crc32((uint8_t *)buf, b, crcval);
             }
             while (b == BUFFER_SIZE);
-            crc32finish((uint32_t *)&crcval);
             close(fh);
             initprintf(" Done\n");
 

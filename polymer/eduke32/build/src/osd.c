@@ -340,14 +340,12 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
     length = kfilelength(i);
 
     crctime = getticks();
-    crc32init(&crc);
     do
     {
         j = kread(i,buf,256);
-        crc32block(&crc,(uint8_t *)buf,j);
+        crc = crc32((uint8_t *)buf,j,crc);
     }
     while (j == 256);
-    crc32finish(&crc);
     crctime = getticks() - crctime;
 
     klseek(i, 0, BSEEK_SET);
