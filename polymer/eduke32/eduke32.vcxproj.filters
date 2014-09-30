@@ -435,6 +435,24 @@
     <ClInclude Include="build\include\sdl_inc.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\hightile.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\pragmas_ppc.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\libdivide.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\pragmas_arm.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\pragmas_x86_gcc.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\pragmas_x86_msvc.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -760,6 +778,9 @@
     </ClCompile>
     <ClCompile Include="build\src\xxhash.c">
       <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\m32common.c">
+      <Filter>eduke32\source\editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

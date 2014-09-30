@@ -254,7 +254,9 @@
     <ClInclude Include="build\include\glbuild.h" />
     <ClInclude Include="build\include\glext.h" />
     <ClInclude Include="build\include\gtkbits.h" />
+    <ClInclude Include="build\include\hightile.h" />
     <ClInclude Include="build\include\kplib.h" />
+    <ClInclude Include="build\include\libdivide.h" />
     <ClInclude Include="build\include\lzwnew.h" />
     <ClInclude Include="build\include\mdsprite.h" />
     <ClInclude Include="build\include\mmulti.h" />
@@ -265,6 +267,10 @@
     <ClInclude Include="build\include\polymer.h" />
     <ClInclude Include="build\include\polymost.h" />
     <ClInclude Include="build\include\pragmas.h" />
+    <ClInclude Include="build\include\pragmas_arm.h" />
+    <ClInclude Include="build\include\pragmas_ppc.h" />
+    <ClInclude Include="build\include\pragmas_x86_gcc.h" />
+    <ClInclude Include="build\include\pragmas_x86_msvc.h" />
     <ClInclude Include="build\include\prlights.h" />
     <ClInclude Include="build\include\lz4.h" />
     <ClInclude Include="build\include\rawinput.h" />
@@ -417,6 +423,7 @@
     <ClCompile Include="source\input.c" />
     <ClCompile Include="source\lunatic\lunatic_game.c" />
     <ClCompile Include="source\lunatic\lunatic_m32.c" />
+    <ClCompile Include="source\m32common.c" />
     <ClCompile Include="source\m32def.c" />
     <ClCompile Include="source\m32exec.c" />
     <ClCompile Include="source\m32structures.c" />
