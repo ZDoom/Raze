@@ -189,7 +189,7 @@ void Net_SpawnPlayer(int32_t player)
 
 static void display_betascreen(void)
 {
-    rotatesprite_fs(160<<16,100<<16,65536,0,BETASCREEN,0,0,2+8+64);
+    rotatesprite_fs(160<<16,100<<16,65536,0,BETASCREEN,0,0,2+8+64+(ud.bgstretch?1024:0));
 
     rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8);
     rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8);
