@@ -15,6 +15,8 @@ extern "C" {
 
 #ifdef WITHKPLIB
 int32_t cache1d_file_fromzip(int32_t fil);
+extern char *kpzbuf;
+extern int32_t kpzbufsiz;
 #endif
 
 void	initcache(intptr_t dacachestart, int32_t dacachesize);

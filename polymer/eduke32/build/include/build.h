@@ -287,11 +287,11 @@ typedef struct {
 
 typedef struct {
     float x, y;
-} fvec2_t;
+} vec2f_t;
 
 typedef struct {
     float x, y, z;
-} fvec3_t;
+} vec3f_t;
 
 // Links to various ABIs specifying (or documenting non-normatively) the
 // alignment requirements of aggregates:

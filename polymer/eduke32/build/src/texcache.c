@@ -9,6 +9,7 @@
 #include "dxtfilter.h"
 #include "scriptfile.h"
 #include "xxhash.h"
+#include "kplib.h"
 
 #define CLEAR_GL_ERRORS() while(bglGetError() != GL_NO_ERROR) { }
 #define TEXCACHE_FREEBUFS() { Bfree(pic), Bfree(packbuf), Bfree(midbuf); }
@@ -70,7 +71,7 @@ pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int3
 
         for (pth2=texcache.list[i]; pth2; pth2=pth2->next)
         {
-            if (pth2->hicr && pth2->hicr->filename && Bstrcasecmp(pth2->hicr->filename, si->filename) == 0)
+            if (pth2->hicr && pth2->hicr->filename && filnamcmp(pth2->hicr->filename, si->filename) == 0)
             {
                 Bmemcpy(pth, pth2, sizeof(pthtyp));
                 pth->picnum = dapicnum;
@@ -151,8 +152,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
 
     // possibly fetch an already loaded multitexture :_)
-    if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS))
-    if (texcache_fetchmulti(pth, si, dapicnum, dameth))
+    if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS) && texcache_fetchmulti(pth, si, dapicnum, dameth))
         return pth;
 
     tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (si->palnum>0) ? 0 : hictinting[dapalnum].f);
@@ -192,7 +192,7 @@ void texcache_freeptrs(void)
 {
     int32_t i;
 
-    for (i = texcache.numentries-1; i >= 0; i--)
+    for (i = 0; i < texcache.numentries; i++)
         if (texcache.ptrs[i])
         {
             int32_t ii;
@@ -760,8 +760,8 @@ int32_t texcache_loadtile(const texcacheheader *head, int32_t *doalloc, pthtyp *
 
     texcache_setuptexture(doalloc, &pth->glpic);
 
-    pth->sizx = head->xdim;
-    pth->sizy = head->ydim;
+    pth->siz.x = head->xdim;
+    pth->siz.y = head->ydim;
 
     CLEAR_GL_ERRORS();
 

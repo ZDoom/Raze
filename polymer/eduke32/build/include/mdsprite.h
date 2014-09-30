@@ -6,13 +6,23 @@
 
 #define SHIFTMOD32(a) ((a)&31)
 
+#define SHARED_MODEL_DATA int32_t mdnum, shadeoff; \
+                  float scale, bscale, zadd, yoffset; \
+                  GLuint *texid; \
+                  int32_t flags;
+
+#define IDMODEL_SHARED_DATA int32_t numframes, cframe, nframe, fpssc, usesalpha; \
+                       float oldtime, curtime, interpol; \
+                       mdanim_t *animations; \
+                       mdskinmap_t *skinmap; \
+                       int32_t numskins, skinloaded;
+
+#define IDP2_MAGIC 0x32504449
+#define IDP3_MAGIC 0x33504449
+
 typedef struct
 {
-    int32_t mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
-    int32_t shadeoff;
-    float scale, bscale, zadd, yoffset;
-    GLuint *texid;	// skins
-    int32_t flags;
+    SHARED_MODEL_DATA;
 } mdmodel_t;
 
 typedef struct _mdanim_t
@@ -21,6 +31,7 @@ typedef struct _mdanim_t
     int32_t fpssc, flags;
     struct _mdanim_t *next;
 } mdanim_t;
+
 #define MDANIM_LOOP 0
 #define MDANIM_ONESHOT 1
 
@@ -40,7 +51,6 @@ typedef struct _mdskinmap_t
 //   Available from http://web.archive.org/web/20030816010242/http://tfc.duke.free.fr/us/tutorials/models/md2.htm
 //   Now at http://tfc.duke.free.fr/coding/md2.html (in French)
 //He probably wouldn't recognize it if he looked at it though :)
-typedef struct { float x, y, z; } point3d;
 
 typedef struct
 {
@@ -52,7 +62,7 @@ typedef struct
 typedef struct { uint8_t v[3], ni; } md2vert_t; //compressed vertex coords (x,y,z)
 typedef struct
 {
-    point3d mul, add; //scale&translation vector
+    vec3f_t mul, add; //scale&translation vector
     char name[16];    //frame name
     md2vert_t verts[1]; //first vertex of this frame
 } md2frame_t;
@@ -66,18 +76,8 @@ typedef struct
 
 typedef struct
 {
-    //WARNING: This top block is a union between md2model&md3model: Make sure it matches!
-    int32_t mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
-    int32_t shadeoff;
-    float scale, bscale, zadd, yoffset;
-    GLuint *texid;   // texture ids for base skin if no mappings defined
-    int32_t flags;
-
-    int32_t numframes, cframe, nframe, fpssc, usesalpha;
-    float oldtime, curtime, interpol;
-    mdanim_t *animations;
-    mdskinmap_t *skinmap;
-    int32_t numskins, skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
+    SHARED_MODEL_DATA;
+    IDMODEL_SHARED_DATA;
 
     //MD2 specific stuff:
     int32_t numverts, numglcmds, framebytes, *glcmds;
@@ -96,7 +96,7 @@ typedef struct { int16_t x, y, z; uint8_t nlat, nlng; } md3xyzn_t; //xyz are [10
 
 typedef struct
 {
-    point3d min, max, cen; //bounding box&origin
+    vec3f_t min, max, cen; //bounding box&origin
     float r; //radius of bounding sphere
     char nam[16]; //ascz frame name
 } md3frame_t;
@@ -104,7 +104,7 @@ typedef struct
 typedef struct
 {
     char nam[64]; //ascz tag name
-    point3d p, x, y, z; //tag object pos&orient
+    vec3f_t p, x, y, z; //tag object pos&orient
 } md3tag_t;
 
 typedef struct
@@ -152,22 +152,12 @@ typedef struct
 
 typedef struct
 {
-    //WARNING: This top block is a union between md2model&md3model: Make sure it matches!
-    int32_t mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
-    int32_t shadeoff;
-    float scale, bscale, zadd, yoffset;
-    uint32_t *texid;   // texture ids for base skin if no mappings defined
-    int32_t flags;
-
-    int32_t numframes, cframe, nframe, fpssc, usesalpha;
-    float oldtime, curtime, interpol;
-    mdanim_t *animations;
-    mdskinmap_t *skinmap;
-    int32_t numskins, skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
+    SHARED_MODEL_DATA;
+    IDMODEL_SHARED_DATA;
 
     //MD3 specific
     md3head_t head;
-    point3d *muladdframes;
+    vec3f_t *muladdframes;
     uint16_t      *indexes;
     uint16_t      *vindexes;
     float               *maxdepths;
@@ -198,8 +188,8 @@ typedef struct
     //VOX specific stuff:
     voxrect_t *quad; int32_t qcnt, qfacind[7];
     int32_t *mytex, mytexx, mytexy;
-    int32_t xsiz, ysiz, zsiz;
-    float xpiv, ypiv, zpiv;
+    vec3_t siz;
+    vec3f_t piv;
     int32_t is8bit;
 } voxmodel_t;
 
@@ -210,9 +200,10 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf);
 void mdinit(void);
 void freeallmodels(void);
 void clearskins(void);
-int32_t mddraw(const spritetype *tspr);
+int32_t polymost_mddraw(const spritetype *tspr);
+EXTERN void md3_vox_calcmat_common(const spritetype *tspr, const vec3f_t *a0, float f, float mat[16]);
 
-typedef struct { float xadd, yadd, zadd; int16_t angadd, flags, fov; } hudtyp;
+typedef struct { vec3f_t add; int16_t angadd, flags, fov; } hudtyp;
 
 EXTERN hudtyp hudmem[2][MAXTILES];
 
@@ -222,10 +213,11 @@ EXTERN voxmodel_t *voxmodels[MAXVOXELS];
 
 void voxfree(voxmodel_t *m);
 voxmodel_t *voxload(const char *filnam);
-int32_t voxdraw(voxmodel_t *m, const spritetype *tspr);
+int32_t polymost_voxdraw(voxmodel_t *m, const spritetype *tspr);
 
 int      md3postload_polymer(md3model_t* m);
 //int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap);
+EXTERN void md_freevbos(void);
 
 #endif // defined USE_OPENGL
 

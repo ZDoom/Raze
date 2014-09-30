@@ -80,11 +80,14 @@ static int32_t nummodelsalloced = 0;
 
 static int32_t maxmodelverts = 0, allocmodelverts = 0;
 static int32_t maxmodeltris = 0, allocmodeltris = 0;
-static point3d *vertlist = NULL; //temp array to store interpolated vertices for drawing
+static vec3f_t *vertlist = NULL; //temp array to store interpolated vertices for drawing
 
 static int32_t allocvbos = 0, curvbo = 0;
 static GLuint *vertvbos = NULL;
 static GLuint *indexvbos = NULL;
+
+static int32_t *tribuf = NULL;
+static int32_t tribufverts = 0;
 
 static mdmodel_t *mdload(const char *);
 static void mdfree(mdmodel_t *);
@@ -92,7 +95,7 @@ int32_t globalnoeffect=0;
 
 extern int32_t timerticspersec;
 
-void freevbos()
+void md_freevbos()
 {
     int32_t i;
 
@@ -139,15 +142,9 @@ void freeallmodels()
         allocmodelverts = maxmodelverts = 0;
         allocmodeltris = maxmodeltris = 0;
     }
-    freevbos();
 
-    /*
-        if (model_data_pool)
-        {
-            neddestroypool(model_data_pool);
-            model_data_pool = NULL;
-        }
-    */
+    md_freevbos();
+    DO_FREE_AND_NULL(tribuf);
 }
 
 
@@ -244,8 +241,6 @@ void mdinit()
 {
     memset(hudmem,0,sizeof(hudmem));
     freeallmodels();
-//    if (!model_data_pool)
-//        model_data_pool = nedcreatepool(MODEL_POOL_SIZE, 0);
     mdinited = 1;
 }
 
@@ -352,7 +347,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
 
     if ((uint32_t)modelid >= (uint32_t)nextmodelid) return(-1);
 
-    memset(&ma, 0, sizeof(ma));
+    Bmemset(&ma, 0, sizeof(ma));
     m = (md2model_t *)models[modelid];
     if (m->mdnum < 2) return 0;
 
@@ -429,7 +424,7 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
         if (otonframe[i]>=0 && otonframe[i] != i)
         {
             if (m->muladdframes)
-                Bmemcpy(&m->muladdframes[2*otonframe[i]], &m->muladdframes[2*i], 2*sizeof(point3d));
+                Bmemcpy(&m->muladdframes[2*otonframe[i]], &m->muladdframes[2*i], 2*sizeof(vec3f_t));
             Bmemcpy(&m->head.frames[otonframe[i]], &m->head.frames[i], sizeof(md3frame_t));
         }
     }
@@ -465,7 +460,7 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
     ////// realloc & change "numframes" everywhere
 
     if (m->muladdframes)
-        m->muladdframes = Xrealloc(m->muladdframes, 2*sizeof(point3d)*usedframes);
+        m->muladdframes = Xrealloc(m->muladdframes, 2*sizeof(vec3f_t)*usedframes);
     m->head.frames = Xrealloc(m->head.frames, sizeof(md3frame_t)*usedframes);
 
     for (surfi=0; surfi < m->head.numsurfs; surfi++)
@@ -529,9 +524,9 @@ int32_t md_definehud(int32_t modelid, int32_t tilex, float xadd, float yadd, flo
     if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
     if ((uint32_t)tilex >= (uint32_t)MAXTILES) return -2;
 
-    hudmem[(flags>>2)&1][tilex].xadd = xadd;
-    hudmem[(flags>>2)&1][tilex].yadd = yadd;
-    hudmem[(flags>>2)&1][tilex].zadd = zadd;
+    hudmem[(flags>>2)&1][tilex].add.x = xadd;
+    hudmem[(flags>>2)&1][tilex].add.y = yadd;
+    hudmem[(flags>>2)&1][tilex].add.z = zadd;
     hudmem[(flags>>2)&1][tilex].angadd = ((int16_t)angadd)|2048;
     hudmem[(flags>>2)&1][tilex].flags = (int16_t)flags;
     hudmem[(flags>>2)&1][tilex].fov = (int16_t)fov;
@@ -604,7 +599,7 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
 
     memset(pic,0,xsiz*ysiz*sizeof(coltype));
 
-    if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0))
+    if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz))
         { Bfree(picfil); Bfree(pic); return -2; }
     Bfree(picfil);
 
@@ -1111,6 +1106,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m->mdnum = 2; m->scale = .01f;
 
     kread(fil,(char *)&head,sizeof(md2head_t));
+#if B_BIG_ENDIAN != 0
     head.id = B_LITTLE32(head.id);                 head.vers = B_LITTLE32(head.vers);
     head.skinxsiz = B_LITTLE32(head.skinxsiz);     head.skinysiz = B_LITTLE32(head.skinysiz);
     head.framebytes = B_LITTLE32(head.framebytes); head.numskins = B_LITTLE32(head.numskins);
@@ -1120,8 +1116,9 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     head.ofsuv = B_LITTLE32(head.ofsuv);           head.ofstris = B_LITTLE32(head.ofstris);
     head.ofsframes = B_LITTLE32(head.ofsframes);   head.ofsglcmds = B_LITTLE32(head.ofsglcmds);
     head.ofseof = B_LITTLE32(head.ofseof);
+#endif
 
-    if ((head.id != 0x32504449) || (head.vers != 8)) { Bfree(m); return(0); } //"IDP2"
+    if ((head.id != IDP2_MAGIC) || (head.vers != 8)) { Bfree(m); return(0); } //"IDP2"
 
     ournumskins = head.numskins ? head.numskins : 1;
     ournumglcmds = head.numglcmds ? head.numglcmds : 1;
@@ -1218,7 +1215,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     //OSD_Printf("Beginning md3 conversion.\n");
     m3 = (md3model_t *)Xcalloc(1, sizeof(md3model_t));
     m3->mdnum = 3; m3->texid = 0; m3->scale = m->scale;
-    m3->head.id = 0x33504449; m3->head.vers = 15;
+    m3->head.id = IDP3_MAGIC; m3->head.vers = 15;
 
 // DO_MD2_MD3_CONV:
 //  1: use the conversion code to do real MD2->MD3 conversion,
@@ -1241,7 +1238,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m3->numframes = m3->head.numframes;
 
     m3->head.frames = (md3frame_t *)Xcalloc(m3->head.numframes, sizeof(md3frame_t));
-    m3->muladdframes = (point3d *)Xcalloc(m->numframes * 2, sizeof(point3d));
+    m3->muladdframes = (vec3f_t *)Xcalloc(m->numframes * 2, sizeof(vec3f_t));
 
     f = (md2frame_t *)(m->frames);
 
@@ -1263,7 +1260,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     s = m3->head.surfs;
 
     // model converting
-    s->id = 0x33504449; s->flags = 0;
+    s->id = IDP3_MAGIC; s->flags = 0;
     s->numframes = m->numframes; s->numshaders = 0;
     s->numtris = head.numtris;
     s->numverts = head.numtris * 3; // oh man talk about memory effectiveness :((((
@@ -1359,16 +1356,12 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 }
 //---------------------------------------- MD2 LIBRARY ENDS ----------------------------------------
 
-// DICHOTOMIC RECURSIVE SORTING - USED BY MD3DRAW - MAY PUT IT IN ITS OWN SOURCE FILE LATER
+// DICHOTOMIC RECURSIVE SORTING - USED BY MD3DRAW
 int32_t partition(uint16_t *indexes, float *depths, int32_t f, int32_t l)
 {
-    int32_t up,down;
-    float tempf;
-    uint16_t tempus;
+    int32_t up = f, down = l;
     float piv = depths[f];
     uint16_t piv2 = indexes[f];
-    up = f;
-    down = l;
     do
     {
         while ((depths[up] <= piv) && (up < l))
@@ -1377,31 +1370,24 @@ int32_t partition(uint16_t *indexes, float *depths, int32_t f, int32_t l)
             down--;
         if (up < down)
         {
-            tempf = depths[up];
-            depths[up] = depths[down];
-            depths[down] = tempf;
-            tempus = indexes[up];
-            indexes[up] = indexes[down];
-            indexes[down] = tempus;
+            swapfloat(&depths[up], &depths[down]);
+            swapshort(&indexes[up], &indexes[down]);
         }
     }
     while (down > up);
-    depths[f] = depths[down];
-    depths[down] = piv;
-    indexes[f] = indexes[down];
-    indexes[down] = piv2;
+    depths[f] = depths[down], depths[down] = piv;
+    indexes[f] = indexes[down], indexes[down] = piv2;
     return down;
 }
 
-void quicksort(uint16_t *indexes, float *depths, int32_t first, int32_t last)
+static inline void quicksort(uint16_t *indexes, float *depths, int32_t first, int32_t last)
 {
-    int32_t pivIndex = 0;
-    if (first < last)
-    {
-        pivIndex = partition(indexes,depths,first, last);
-        quicksort(indexes,depths,first,(pivIndex-1));
-        quicksort(indexes,depths,(pivIndex+1),last);
-    }
+    int32_t pivIndex;
+    if (first >= last) return;
+    pivIndex = partition(indexes, depths, first, last);
+    if (first < (pivIndex-1)) quicksort(indexes, depths, first, (pivIndex-1));
+    if ((pivIndex+1) >= last) return;
+    quicksort(indexes, depths, (pivIndex+1), last);
 }
 // END OF QUICKSORT LIB
 
@@ -1420,14 +1406,17 @@ static md3model_t *md3load(int32_t fil)
     m->muladdframes = NULL;
 
     kread(fil,&m->head,SIZEOF_MD3HEAD_T);
+
+#if B_BIG_ENDIAN != 0
     m->head.id = B_LITTLE32(m->head.id);             m->head.vers = B_LITTLE32(m->head.vers);
     m->head.flags = B_LITTLE32(m->head.flags);       m->head.numframes = B_LITTLE32(m->head.numframes);
     m->head.numtags = B_LITTLE32(m->head.numtags);   m->head.numsurfs = B_LITTLE32(m->head.numsurfs);
     m->head.numskins = B_LITTLE32(m->head.numskins); m->head.ofsframes = B_LITTLE32(m->head.ofsframes);
     m->head.ofstags = B_LITTLE32(m->head.ofstags); m->head.ofssurfs = B_LITTLE32(m->head.ofssurfs);
     m->head.eof = B_LITTLE32(m->head.eof);
+#endif
 
-    if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { Bfree(m); return(0); } //"IDP3"
+    if ((m->head.id != IDP3_MAGIC) && (m->head.vers != 15)) { Bfree(m); return(0); } //"IDP3"
 
     m->numskins = m->head.numskins; //<- dead code?
     m->numframes = m->head.numframes;
@@ -1484,15 +1473,20 @@ static md3model_t *md3load(int32_t fil)
         }
 #endif
 
-        offs[0] = ofsurf+s->ofstris; leng[0] = s->numtris*sizeof(md3tri_t);
-        offs[1] = ofsurf+s->ofsshaders; leng[1] = s->numshaders*sizeof(md3shader_t);
-        offs[2] = ofsurf+s->ofsuv; leng[2] = s->numverts*sizeof(md3uv_t);
-        offs[3] = ofsurf+s->ofsxyzn; leng[3] = s->numframes*s->numverts*sizeof(md3xyzn_t);
+        offs[0] = ofsurf+s->ofstris;
+        offs[1] = ofsurf+s->ofsshaders;
+        offs[2] = ofsurf+s->ofsuv;
+        offs[3] = ofsurf+s->ofsxyzn;
+
+        leng[0] = s->numtris*sizeof(md3tri_t);
+        leng[1] = s->numshaders*sizeof(md3shader_t);
+        leng[2] = s->numverts*sizeof(md3uv_t);
+        leng[3] = s->numframes*s->numverts*sizeof(md3xyzn_t);
+
         //memoryusage += (s->numverts * s->numframes * sizeof(md3xyzn_t));
         //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
 
-
-        s->tris = (md3tri_t *)Xmalloc(leng[0]+leng[1]+leng[2]+leng[3]);
+        s->tris = (md3tri_t *)Xmalloc((leng[0] + leng[1]) + (leng[2] + leng[3]));
 
         s->shaders = (md3shader_t *)(((intptr_t)s->tris)+leng[0]);
         s->uv      = (md3uv_t *)(((intptr_t)s->shaders)+leng[1]);
@@ -1535,32 +1529,6 @@ static md3model_t *md3load(int32_t fil)
         ofsurf += s->ofsend;
     }
 
-#if 0
-    {
-        char *buf, st[BMAX_PATH+2], bst[BMAX_PATH+2];
-        int32_t j, bsc;
-
-        Bstrcpy(st,filnam);
-        for (i=0,j=0; st[i]; i++) if ((st[i] == '/') || (st[i] == '\\')) j = i+1;
-        st[j] = '*'; st[j+1] = 0;
-        kzfindfilestart(st); bsc = -1;
-        while (kzfindfile(st))
-        {
-            if (st[0] == '\\') continue;
-
-            for (i=0,j=0; st[i]; i++) if (st[i] == '.') j = i+1;
-            if ((!stricmp(&st[j],"JPG")) || (!stricmp(&st[j],"PNG")) || (!stricmp(&st[j],"GIF")) ||
-                    (!stricmp(&st[j],"PCX")) || (!stricmp(&st[j],"TGA")) || (!stricmp(&st[j],"BMP")) ||
-                    (!stricmp(&st[j],"CEL")))
-            {
-                for (i=0; st[i]; i++) if (st[i] != filnam[i]) break;
-                if (i > bsc) { bsc = i; Bstrcpy(bst,st); }
-            }
-        }
-        if (!mdloadskin(&m->texid,&m->usesalpha,bst)) ;//bad!
-    }
-#endif
-
     m->indexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * maxtrispersurf);
     m->vindexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * maxtrispersurf * 3);
     m->maxdepths = (float *)Xmalloc(sizeof(float) * maxtrispersurf);
@@ -1574,48 +1542,41 @@ static inline void  invertmatrix(float *m, float *out)
 {
     float det;
 
-    det  = m[0] * (m[4]*m[8] - m[5] * m[7]);
-    det -= m[1] * (m[3]*m[8] - m[5] * m[6]);
-    det += m[2] * (m[3]*m[7] - m[4] * m[6]);
+    det  = (m[0] * (m[4]*m[8] - m[5] * m[7]))
+         - (m[1] * (m[3]*m[8] - m[5] * m[6]))
+         + (m[2] * (m[3]*m[7] - m[4] * m[6]));
 
-    if (det != 0.0f)
+    if (det == 0.0f)
     {
-        det = 1.0f / det;
-
-        out[0] = det * (m[4] * m[8] - m[5] * m[7]);
-        out[3] = det * (m[5] * m[6] - m[3] * m[8]);
-        out[6] = det * (m[3] * m[7] - m[1] * m[6]);
-
-        out[1] = det * (m[2] * m[7] - m[1] * m[8]);
-        out[4] = det * (m[0] * m[8] - m[2] * m[6]);
-        out[7] = det * (m[1] * m[6] - m[0] * m[7]);
-
-        out[2] = det * (m[1] * m[5] - m[2] * m[4]);
-        out[5] = det * (m[2] * m[3] - m[0] * m[5]);
-        out[8] = det * (m[0] * m[4] - m[1] * m[3]);
+        Bmemset(out, 0, sizeof(float) * 9);
+        out[8] = out[4] = out[0] = 1.f;
+        return;
     }
-    else
-    {
-        out[0] = 1.0; out[1] = 0.0; out[2] = 0.0;
-        out[3] = 0.0; out[4] = 1.0; out[5] = 0.0;
-        out[6] = 0.0; out[7] = 0.0; out[8] = 1.0;
-    }
+
+    det = 1.0f / det;
+
+    out[0] = det * (m[4] * m[8] - m[5] * m[7]);
+    out[1] = det * (m[2] * m[7] - m[1] * m[8]);
+    out[2] = det * (m[1] * m[5] - m[2] * m[4]);
+    out[3] = det * (m[5] * m[6] - m[3] * m[8]);
+    out[4] = det * (m[0] * m[8] - m[2] * m[6]);
+    out[5] = det * (m[2] * m[3] - m[0] * m[5]);
+    out[6] = det * (m[3] * m[7] - m[1] * m[6]);
+    out[7] = det * (m[1] * m[6] - m[0] * m[7]);
+    out[8] = det * (m[0] * m[4] - m[1] * m[3]);
 }
 
 static inline void  normalize(float *vec)
 {
-    double norm;
+    float norm;
 
-    norm = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
+    if ((norm = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]) == 0.f)
+        return;
 
-    if (norm != 0.0)
-    {
-        norm = sqrt(norm);
-        norm = 1.0 / norm;
-        vec[0] *= norm;
-        vec[1] *= norm;
-        vec[2] *= norm;
-    }
+    norm = polymost_invsqrt(norm);
+    vec[0] *= norm;
+    vec[1] *= norm;
+    vec[2] *= norm;
 }
 
 static void      md3postload_common(md3model_t *m)
@@ -1623,98 +1584,78 @@ static void      md3postload_common(md3model_t *m)
     int         framei, surfi, verti;
     md3frame_t  *frame;
     md3xyzn_t   *frameverts;
-    float       dist, vec1[5];
 
     // apparently we can't trust loaded models bounding box/sphere information,
     // so let's compute it ourselves
 
     framei = 0;
-
-    while (framei < m->head.numframes)
+    do // while (++framei < m->head.numframes);
     {
         frame = &m->head.frames[framei];
-
-        frame->min.x    = 0.0f;
-        frame->min.y    = 0.0f;
-        frame->min.z    = 0.0f;
-
-        frame->max.x    = 0.0f;
-        frame->max.y    = 0.0f;
-        frame->max.z    = 0.0f;
-
+        Bmemset(&frame->min, 0, sizeof(vec3f_t) * 2);
         frame->r        = 0.0f;
 
         surfi = 0;
-        while (surfi < m->head.numsurfs)
+        do // while (++surfi < m->head.numsurfs);
         {
             frameverts = &m->head.surfs[surfi].xyzn[framei * m->head.surfs[surfi].numverts];
 
             verti = 0;
-            while (verti < m->head.surfs[surfi].numverts)
+
+            if (!surfi)
             {
-                if (!verti && !surfi)
-                {
-                    frame->min.x    = frameverts[verti].x;
-                    frame->min.y    = frameverts[verti].y;
-                    frame->min.z    = frameverts[verti].z;
-
-                    frame->max.x    = frameverts[verti].x;
-                    frame->max.y    = frameverts[verti].y;
-                    frame->max.z    = frameverts[verti].z;
-                }
-                else
-                {
-                    if (frame->min.x > frameverts[verti].x)
-                        frame->min.x = frameverts[verti].x;
-                    if (frame->max.x < frameverts[verti].x)
-                        frame->max.x = frameverts[verti].x;
-
-                    if (frame->min.y > frameverts[verti].y)
-                        frame->min.y = frameverts[verti].y;
-                    if (frame->max.y < frameverts[verti].y)
-                        frame->max.y = frameverts[verti].y;
-
-                    if (frame->min.z > frameverts[verti].z)
-                        frame->min.z = frameverts[verti].z;
-                    if (frame->max.z < frameverts[verti].z)
-                        frame->max.z = frameverts[verti].z;
-                }
-
-                verti++;
+                frame->min.x = (float)frameverts[0].x;
+                frame->min.y = (float)frameverts[0].y;
+                frame->min.z = (float)frameverts[0].z;
+                frame->max = frame->min;
             }
-            surfi++;
-        }
 
-        frame->cen.x = (frame->min.x + frame->max.x) / 2.0f;
-        frame->cen.y = (frame->min.y + frame->max.y) / 2.0f;
-        frame->cen.z = (frame->min.z + frame->max.z) / 2.0f;
+            do // while(++verti < m->head.surfs[surfi].numverts);
+            {
+                vec3f_t f = { frameverts[verti].x, frameverts[verti].y, frameverts[verti].z };
+
+                if (!verti && !surfi)
+                    continue;
+
+                frame->min.x = max(frame->min.x, f.x);
+                frame->min.y = max(frame->min.y, f.y);
+                frame->min.z = max(frame->min.z, f.z);
+                frame->max.x = max(frame->max.x, f.x);
+                frame->max.y = max(frame->max.y, f.y);
+                frame->max.z = max(frame->max.z, f.z);
+            }
+            while(++verti < m->head.surfs[surfi].numverts);
+        }
+        while (++surfi < m->head.numsurfs);
+
+        frame->cen.x = (frame->min.x + frame->max.x) * .5f;
+        frame->cen.y = (frame->min.y + frame->max.y) * .5f;
+        frame->cen.z = (frame->min.z + frame->max.z) * .5f;
 
         surfi = 0;
-        while (surfi < m->head.numsurfs)
+        do // while (++surfi < m->head.numsurfs);
         {
+            float       vec1[4];
+
             frameverts = &m->head.surfs[surfi].xyzn[framei * m->head.surfs[surfi].numverts];
 
             verti = 0;
-            while (verti < m->head.surfs[surfi].numverts)
+            do // while (++verti < m->head.surfs[surfi].numverts);
             {
                 vec1[0] = frameverts[verti].x - frame->cen.x;
                 vec1[1] = frameverts[verti].y - frame->cen.y;
                 vec1[2] = frameverts[verti].z - frame->cen.z;
 
-                dist = vec1[0] * vec1[0] + vec1[1] * vec1[1] + vec1[2] * vec1[2];
+                vec1[3] = (vec1[0] * vec1[0]) + (vec1[1] * vec1[1]) + (vec1[2] * vec1[2]);
 
-                if (dist > frame->r)
-                    frame->r = dist;
-
-                verti++;
+                frame->r = max(vec1[3], frame->r);
             }
-            surfi++;
+            while (++verti < m->head.surfs[surfi].numverts);
         }
-
-        frame->r = sqrt(frame->r);
-
-        framei++;
+        while (++surfi < m->head.numsurfs);
+        frame->r = Bsqrtf(frame->r);
     }
+    while (++framei < m->head.numframes);
 }
 
 #ifdef POLYMER
@@ -1722,54 +1663,52 @@ static void      md3postload_common(md3model_t *m)
 // keep in sync with md3postload_polymer!
 static int md3postload_polymer_check(md3model_t *m)
 {
-    int surfi, trii;
+    uint32_t    surfi, trii;
     md3surf_t   *s;
 
     surfi = 0;
-    while (surfi < m->head.numsurfs)
+    do
     {
         s = &m->head.surfs[surfi];
 
         trii = 0;
-        while (trii < s->numtris)
+        do
         {
             // let the vertices know they're being referenced by a triangle
-            if (s->tris[trii].i[0] >= s->numverts || s->tris[trii].i[0] < 0 ||
-                    s->tris[trii].i[1] >= s->numverts || s->tris[trii].i[1] < 0 ||
-                    s->tris[trii].i[2] >= s->numverts || s->tris[trii].i[2] < 0)
+            if ((unsigned)s->tris[trii].i[0] >= (unsigned)s->numverts ||
+                    (unsigned)s->tris[trii].i[1] >= (unsigned)s->numverts ||
+                    (unsigned)s->tris[trii].i[2] >= (unsigned)s->numverts)
             {
                 // corrupt model
                 OSD_Printf("%s: Triangle index out of bounds!\n", m->head.nam);
-                return 0;
+                return 1;
             }
-
-            trii++;
         }
-
-        surfi++;
+        while (++trii < (unsigned)s->numtris);
     }
+    while (++surfi < (unsigned)m->head.numsurfs);
 
-    return 1;
+    return 0;
 }
 
 // Precalculated cos/sin arrays.
-static double g_mdcos[256], g_mdsin[256];
+static float g_mdcos[256], g_mdsin[256];
+static int32_t mdtrig_init = 0;
 
 static void init_mdtrig_arrays(void)
 {
     int32_t i;
-
-    static int inited;
-    if (inited)
-        return;
-    inited = 1;
+    static const float acc = ((2.f * PI) * (1.f/255.f));
+    float ang = 0.f;
 
     for (i=0; i<256; i++)
     {
-        double ang = i * (2 * PI) / 255.0;
-        g_mdcos[i] = cos(ang);
-        g_mdsin[i] = sin(ang);
+        g_mdcos[i] = cosf(ang);
+        g_mdsin[i] = sinf(ang);
+        ang += acc;
     }
+
+    mdtrig_init = 1;
 }
 #endif
 
@@ -1778,19 +1717,21 @@ int      md3postload_polymer(md3model_t *m)
 #ifdef POLYMER
     int         framei, surfi, verti, trii, i;
     md3surf_t   *s;
-    int         *numtris;
     float       vec1[5], vec2[5], mat[9], r;
 
     if (m->head.surfs[0].geometry)
         return -1;  // already postprocessed
 
-    init_mdtrig_arrays();
+    if (!mdtrig_init)
+        init_mdtrig_arrays();
 
     // let's also repack the geometry to more usable formats
 
     surfi = 0;
-    while (surfi < m->head.numsurfs)
+    do // while (++surfi < m->head.numsurfs)
     {
+        handleevents();
+
         s = &m->head.surfs[surfi];
 #ifdef DEBUG_MODEL_MEM
         i = (m->head.numframes * s->numverts * sizeof(float) * 15);
@@ -1798,71 +1739,77 @@ int      md3postload_polymer(md3model_t *m)
             initprintf("size %d (%d fr, %d v): md %s surf %d/%d\n", i, m->head.numframes, s->numverts,
                        m->head.nam, surfi, m->head.numsurfs);
 #endif
-        s->geometry = (float *)Xcalloc(m->head.numframes * s->numverts * sizeof(float), 15);
+        s->geometry = (float *)Xcalloc(m->head.numframes * s->numverts * 15, sizeof(float));
 
-        numtris = (int *)Xcalloc(s->numverts, sizeof(int));
+        if (s->numverts > tribufverts)
+        {
+            tribuf = (int32_t *) Xrealloc(tribuf, s->numverts * sizeof(int32_t));
+            Bmemset(tribuf, 0, s->numverts * sizeof(int32_t));
+            tribufverts = s->numverts;
+        }
 
         verti = 0;
-        while (verti < (m->head.numframes * s->numverts))
+        do // while (++verti < (m->head.numframes * s->numverts))
         {
             // normal extraction from packed spherical coordinates
             // FIXME: swapping lat and lng because of npherno's compiler
             uint8_t lat = s->xyzn[verti].nlng;
             uint8_t lng = s->xyzn[verti].nlat;
+            uint32_t verti15 = (verti<<4)-verti;
 
-            s->geometry[(verti * 15) + 0] = s->xyzn[verti].x;
-            s->geometry[(verti * 15) + 1] = s->xyzn[verti].y;
-            s->geometry[(verti * 15) + 2] = s->xyzn[verti].z;
+            s->geometry[verti15 + 0] = s->xyzn[verti].x;
+            s->geometry[verti15 + 1] = s->xyzn[verti].y;
+            s->geometry[verti15 + 2] = s->xyzn[verti].z;
 
-            s->geometry[(verti * 15) + 3] = g_mdcos[lat] * g_mdsin[lng];
-            s->geometry[(verti * 15) + 4] = g_mdsin[lat] * g_mdsin[lng];
-            s->geometry[(verti * 15) + 5] = g_mdcos[lng];
-
-            verti++;
+            s->geometry[verti15 + 3] = g_mdcos[lat] * g_mdsin[lng];
+            s->geometry[verti15 + 4] = g_mdsin[lat] * g_mdsin[lng];
+            s->geometry[verti15 + 5] = g_mdcos[lng];
         }
+        while (++verti < (m->head.numframes * s->numverts));
 
         trii = 0;
-        while (trii < s->numtris)
+        do // while (++trii < s->numtris)
         {
+            uint32_t       tris15[3];
+
             // let the vertices know they're being referenced by a triangle
-            if (s->tris[trii].i[0] >= s->numverts || s->tris[trii].i[0] < 0 ||
-                    s->tris[trii].i[1] >= s->numverts || s->tris[trii].i[1] < 0 ||
-                    s->tris[trii].i[2] >= s->numverts || s->tris[trii].i[2] < 0)
+            if ((unsigned) s->tris[trii].i[0] >= (unsigned) s->numverts ||
+                (unsigned) s->tris[trii].i[1] >= (unsigned) s->numverts ||
+                (unsigned) s->tris[trii].i[2] >= (unsigned) s->numverts)
             {
                 // corrupt model
-                Bfree(numtris);
-//                OSD_Printf("Triangle index out of bounds!\n");
                 return 0;
             }
-            numtris[s->tris[trii].i[0]]++;
-            numtris[s->tris[trii].i[1]]++;
-            numtris[s->tris[trii].i[2]]++;
+            tribuf[s->tris[trii].i[0]]++;
+            tribuf[s->tris[trii].i[1]]++;
+            tribuf[s->tris[trii].i[2]]++;
+
+            tris15[0] = (s->tris[trii].i[0]<<4)-s->tris[trii].i[0];
+            tris15[1] = (s->tris[trii].i[1]<<4)-s->tris[trii].i[1];
+            tris15[2] = (s->tris[trii].i[2]<<4)-s->tris[trii].i[2];
+
 
             framei = 0;
-            while (framei < m->head.numframes)
+            do // while (++framei < m->head.numframes)
             {
-                vec1[0] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 0] -
-                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 0];
-                vec1[1] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 1] -
-                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 1];
-                vec1[2] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 2] -
-                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 2];
+                const uint32_t verti15 = framei * s->numverts * 15;
+
+                vec1[0] = s->geometry[verti15 + tris15[1]]     - s->geometry[verti15 + tris15[0]];
+                vec1[1] = s->geometry[verti15 + tris15[1] + 1] - s->geometry[verti15 + tris15[0] + 1];
+                vec1[2] = s->geometry[verti15 + tris15[1] + 2] - s->geometry[verti15 + tris15[0] + 2];
                 vec1[3] = s->uv[s->tris[trii].i[1]].u - s->uv[s->tris[trii].i[0]].u;
                 vec1[4] = s->uv[s->tris[trii].i[1]].v - s->uv[s->tris[trii].i[0]].v;
 
-                vec2[0] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 0] -
-                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 0];
-                vec2[1] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 1] -
-                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 1];
-                vec2[2] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 2] -
-                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 2];
+                vec2[0] = s->geometry[verti15 + tris15[2]    ] - s->geometry[verti15 + tris15[1]];
+                vec2[1] = s->geometry[verti15 + tris15[2] + 1] - s->geometry[verti15 + tris15[1] + 1];
+                vec2[2] = s->geometry[verti15 + tris15[2] + 2] - s->geometry[verti15 + tris15[1] + 2];
                 vec2[3] = s->uv[s->tris[trii].i[2]].u - s->uv[s->tris[trii].i[1]].u;
                 vec2[4] = s->uv[s->tris[trii].i[2]].v - s->uv[s->tris[trii].i[1]].v;
 
                 r = (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
                 if (r != 0.0f)
                 {
-                    r = 1.0 / r;
+                    r = 1.f/r;
 
                     // tangent
                     mat[0] = (vec2[4] * vec1[0] - vec1[4] * vec2[0]) * r;
@@ -1878,42 +1825,39 @@ int      md3postload_polymer(md3model_t *m)
 
                     normalize(&mat[3]);
                 }
-                else
-                {
-                    mat[0] = mat[1] = mat[2] = 0.0f;
-                    mat[3] = mat[4] = mat[5] = 0.0f;
-                }
+                else Bmemset(mat, 0, sizeof(float) * 6);
 
                 // T and B are shared for the three vertices in that triangle
                 i = 0;
-                while (i < 6)
+                do
                 {
-                    s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 6 + i] += mat[i];
-                    s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 6 + i] += mat[i];
-                    s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 6 + i] += mat[i];
-                    i++;
+                    const uint32_t offs = (framei * s->numverts * 15) + i + 6;
+
+                    s->geometry[offs + tris15[0]] += mat[i];
+                    s->geometry[offs + tris15[1]] += mat[i];
+                    s->geometry[offs + tris15[2]] += mat[i];
                 }
-
-                framei++;
+                while (++i < 6);
             }
-
-            trii++;
+            while (++framei < m->head.numframes);
         }
+        while (++trii < s->numtris);
 
         // now that we accumulated the TBNs, average and invert them for each vertex
-        verti = 0;
-        while (verti < (m->head.numframes * s->numverts))
+        verti = (m->head.numframes * s->numverts)-1;
+
+        do // while (verti-- > 0)
         {
-            int32_t curnumtris = numtris[verti % s->numverts];
+            const int32_t curnumtris = tribuf[verti % s->numverts];
+            const uint32_t verti15 = (verti<<4) - verti;
 
             if (curnumtris > 0)
             {
+                const float rfcurnumtris = 1.f/(float)curnumtris;
                 i = 6;
-                while (i < 12)
-                {
-                    s->geometry[(verti * 15) + i] /= curnumtris;
-                    i++;
-                }
+                do {
+                    s->geometry[verti15 + i] *= rfcurnumtris;
+                } while (++i < 12);
             }
 #ifdef DEBUG_MODEL_MEM
             else if (verti == verti%s->numverts)
@@ -1922,20 +1866,13 @@ int      md3postload_polymer(md3model_t *m)
             }
 #endif
             // copy N over
-            s->geometry[(verti * 15) + 12] = s->geometry[(verti * 15) + 3];
-            s->geometry[(verti * 15) + 13] = s->geometry[(verti * 15) + 4];
-            s->geometry[(verti * 15) + 14] = s->geometry[(verti * 15) + 5];
-
-            invertmatrix(&s->geometry[(verti * 15) + 6], mat);
-            memcpy(&s->geometry[(verti * 15) + 6], mat, sizeof(float) * 9);
-
-            verti++;
+            Bmemcpy(&s->geometry[verti15 + 12], &s->geometry[verti15 + 3], sizeof(float) * 3);
+            invertmatrix(&s->geometry[verti15 + 6], mat);
+            Bmemcpy(&s->geometry[verti15 + 6], mat, sizeof(float) * 9);
         }
-
-        Bfree(numtris);
-
-        surfi++;
+        while (verti-- > 0);
     }
+    while (++surfi < m->head.numsurfs);
 
 #else
     UNREFERENCED_PARAMETER(m);
@@ -1945,17 +1882,17 @@ int      md3postload_polymer(md3model_t *m)
 }
 
 
-static void md3_vox_calcmat_common(const spritetype *tspr, const point3d *a0, float f, float mat[16])
+void md3_vox_calcmat_common(const spritetype *tspr, const vec3f_t *a0, float f, float mat[16])
 {
     float g;
     float k0, k1, k2, k3, k4, k5, k6, k7;
 
-    k0 = ((float)(tspr->x-globalposx))*f/1024.0;
-    k1 = ((float)(tspr->y-globalposy))*f/1024.0;
+    k0 = ((float)(tspr->x-globalposx))*f*(1.f/1024.f);
+    k1 = ((float)(tspr->y-globalposy))*f*(1.f/1024.f);
     f = gcosang2*gshang;
     g = gsinang2*gshang;
-    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0;
-    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] / 16384.0;
+    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] * (1.f/16384.f);
+    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] * (1.f/16384.f);
     k2 = k0*(1-k4)+k1*k5;
     k3 = k1*(1-k4)-k0*k5;
     k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
@@ -1965,57 +1902,63 @@ static void md3_vox_calcmat_common(const spritetype *tspr, const point3d *a0, fl
     k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
     mat[2] = k4*k6 + k5*k7; mat[6] =-gshang;        mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
 
-    mat[12] += a0->y*mat[0] + a0->z*mat[4] + a0->x*mat[ 8];
-    mat[13] += a0->y*mat[1] + a0->z*mat[5] + a0->x*mat[ 9];
-    mat[14] += a0->y*mat[2] + a0->z*mat[6] + a0->x*mat[10];
+    mat[12] = (mat[12] + a0->y*mat[0]) + (a0->z*mat[4] + a0->x*mat[ 8]);
+    mat[13] = (mat[13] + a0->y*mat[1]) + (a0->z*mat[5] + a0->x*mat[ 9]);
+    mat[14] = (mat[14] + a0->y*mat[2]) + (a0->z*mat[6] + a0->x*mat[10]);
 }
 
 static inline void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
                                             int32_t texunits, const md3model_t *M)
 {
-    int32_t i, j;
+    int32_t i;
 
     if (r_vertexarrays)
     {
         int32_t k = 0;
+        uint16_t tri;
+
         for (i=s->numtris-1; i>=0; i--)
         {
-            uint16_t tri = M ? M->indexes[i] : i;
+            tri = M ? M->indexes[i] : i;
 
-            for (j=0; j<3; j++)
-                indexhandle[k++] = s->tris[tri].i[j];
+            indexhandle[k]   = s->tris[tri].i[0];
+            indexhandle[k+1] = s->tris[tri].i[1];
+            indexhandle[k+2] = s->tris[tri].i[2];
+
+            k += 3;
         }
+
+        return;
     }
-    else
+
+    bglBegin(GL_TRIANGLES);
+    for (i=s->numtris-1; i>=0; i--)
     {
-        bglBegin(GL_TRIANGLES);
-        for (i=s->numtris-1; i>=0; i--)
+        uint16_t tri = M ? M->indexes[i] : i;
+        int32_t j;
+
+        for (j=0; j<3; j++)
         {
-            uint16_t tri = M ? M->indexes[i] : i;
+            int32_t k = s->tris[tri].i[j];
 
-            for (j=0; j<3; j++)
+            if (texunits > GL_TEXTURE0_ARB)
             {
-                int32_t k = s->tris[tri].i[j];
-
-                if (texunits > GL_TEXTURE0_ARB)
-                {
-                    int32_t l = GL_TEXTURE0_ARB;
-                    while (l <= texunits)
-                        bglMultiTexCoord2fARB(l++, s->uv[k].u,s->uv[k].v);
-                }
-                else
-                    bglTexCoord2f(s->uv[k].u,s->uv[k].v);
-
-                bglVertex3fv((float *)&vertlist[k]);
+                int32_t l = GL_TEXTURE0_ARB;
+                while (l <= texunits)
+                    bglMultiTexCoord2fARB(l++, s->uv[k].u, s->uv[k].v);
             }
+            else
+                bglTexCoord2f(s->uv[k].u, s->uv[k].v);
+
+            bglVertex3fv((float *) &vertlist[k]);
         }
-        bglEnd();
     }
+    bglEnd();
 }
 
-static int32_t md3draw(md3model_t *m, const spritetype *tspr)
+static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
 {
-    point3d m0, m1, a0;
+    vec3f_t m0, m1, a0;
     md3xyzn_t *v0, *v1;
     int32_t i, surfi;
     float f, g, k0, k1, k2=0, k3=0, mat[16];  // inits: compiler-happy
@@ -2048,33 +1991,26 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         OSD_Printf("%s: mdframe oob: c:%d n:%d total:%d interpol:%.02f\n",
                    m->head.nam, m->cframe, m->nframe, m->numframes, m->interpol);
 #endif
-        if (m->interpol < 0)
-            m->interpol = 0;
-        if (m->interpol > 1)
-            m->interpol = 1;
-        if (m->cframe < 0)
-            m->cframe = 0;
-        if (m->cframe >= m->numframes)
-            m->cframe = m->numframes - 1;
-        if (m->nframe < 0)
-            m->nframe = 0;
-        if (m->nframe >= m->numframes)
-            m->nframe = m->numframes - 1;
+
+        m->interpol = fclamp(m->interpol, 0.f, 1.f);
+        m->cframe = clamp(m->cframe, 0, m->numframes-1);
+        m->nframe = clamp(m->nframe, 0, m->numframes-1);
     }
 
     if (MFLAGS_NOCONV(m))
     {
         // md2
-        m0.x = m->scale * g; m1.x = m->scale *f;
-        m0.y = m->scale * g; m1.y = m->scale *f;
-        m0.z = m->scale * g; m1.z = m->scale *f;
+        g *= m->scale;
+        f *= m->scale;
     }
     else
     {
-        m0.x = (1.0/64.0) * m->scale * g; m1.x = (1.0/64.0) * m->scale *f;
-        m0.y = (1.0/64.0) * m->scale * g; m1.y = (1.0/64.0) * m->scale *f;
-        m0.z = (1.0/64.0) * m->scale * g; m1.z = (1.0/64.0) * m->scale *f;
+        g = m->scale * g * (1.f/64.f);
+        f = m->scale * f * (1.f/64.f);
     }
+
+    m0.x = g; m0.y = g; m0.z = g;
+    m1.x = f; m1.y = f; m1.z = f;
 
     a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
 
@@ -2094,10 +2030,11 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     // yoffset differs from zadd in that it does not follow cstat&8 y-flipping
     a0.z += m->yoffset*m->scale;
 
-    f = ((float)tspr->xrepeat)/64*m->bscale;
-    m0.x *= f; m1.x *= f; a0.x *= f; f = -f;   // 20040610: backwards models aren't cool
-    m0.y *= f; m1.y *= f; a0.y *= f;
-    f = ((float)tspr->yrepeat)/64*m->bscale;
+    f = ((float)tspr->xrepeat) * (1.f/64.f) * m->bscale;
+    m0.x *= f; m0.y *= -f;
+    m1.x *= f; m1.y *= -f;
+    a0.x *= f; a0.y *= -f;
+    f = ((float)tspr->yrepeat) * (1.f/64.f) * m->bscale;
     m0.z *= f; m1.z *= f; a0.z *= f;
 
     // floor aligned
@@ -2112,20 +2049,20 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 
     // Note: These SCREEN_FACTORS will be neutralized in axes offset
     // calculations below again, but are needed for the base offsets.
-    f = (65536.0*512.0)/((float)xdimen*viewingrange);
-    g = 32.0/((float)xdimen*gxyaspect);
-    m0.y *= f; m1.y *= f; a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
-    m0.x *=-f; m1.x *=-f; a0.x = (((float)(k1     -globalposy))/ -1024.0 + a0.x)*-f;
-    m0.z *= g; m1.z *= g; a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
+    f = (65536.f*512.f)/((float)xdimen*viewingrange);
+    g = 32.f/((float)xdimen*gxyaspect);
+    m0.y *= f; m1.y *= f; a0.y = (((float)(tspr->x-globalposx))*  (1.f/1024.f) + a0.y)*f;
+    m0.x *=-f; m1.x *=-f; a0.x = (((float)(k1     -globalposy))* -(1.f/1024.f) + a0.x)*-f;
+    m0.z *= g; m1.z *= g; a0.z = (((float)(k0     -globalposz))* -(1.f/16384.f) + a0.z)*g;
 
     md3_vox_calcmat_common(tspr, &a0, f, mat);
 
     // floor aligned
     if ((globalorientation&48)==32)
     {
-        f = mat[4]; mat[4] = mat[8]*16.0; mat[8] = -f*(1.0/16.0);
-        f = mat[5]; mat[5] = mat[9]*16.0; mat[9] = -f*(1.0/16.0);
-        f = mat[6]; mat[6] = mat[10]*16.0; mat[10] = -f*(1.0/16.0);
+        f = mat[4]; mat[4] = mat[8]*16.f; mat[8] = -f*(1.f/16.f);
+        f = mat[5]; mat[5] = mat[9]*16.f; mat[9] = -f*(1.f/16.f);
+        f = mat[6]; mat[6] = mat[10]*16.f; mat[10] = -f*(1.f/16.f);
     }
 
     //Mirrors
@@ -2188,29 +2125,29 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     // PLAG: Cleaner model rotation code
     if (sext->pitch || sext->roll || MFLAGS_NOCONV(m))
     {
+        float f = 1.f/((float)(xdimen*viewingrange)*(m0.x+m1.x)*(2560.f*(1.f/(65536.f*1280.f))));
+        Bmemset(&a0, 0, sizeof(a0));
+
         if (sext->xoff)
-            a0.x = (float)(sext->xoff / (2560 * (m0.x+m1.x) * ((float)xdimen*viewingrange)/(65536.0*1280.0)));
-        else
-            a0.x = 0;
+            a0.x = (float) sext->xoff * f;
+
         if (sext->yoff)  // Compare with SCREEN_FACTORS above
-            a0.y = (float)(sext->yoff / (2560 * (m0.x+m1.x) * ((float)xdimen*viewingrange)/(65536.0*1280.0)));
-        else
-            a0.y = 0;
+            a0.y = (float) sext->yoff * f;
+
         if ((sext->zoff) && !(tspr->cstat&CSTAT_SPRITE_MDHACK))  // Compare with SCREEN_FACTORS above
-            a0.z = (float)(sext->zoff / (655360 * (m0.z+m1.z) * (gxyaspect*xdimen/1280.0)));
-        else
-            a0.z = 0;
-        k0 = (float)sintable[(sext->pitch+512)&2047] / 16384.0;
-        k1 = (float)sintable[sext->pitch&2047] / 16384.0;
-        k2 = (float)sintable[(sext->roll+512)&2047] / 16384.0;
-        k3 = (float)sintable[sext->roll&2047] / 16384.0;
+            a0.z = (float)sext->zoff / (655360.f * (m0.z+m1.z) * (gxyaspect*xdimen*(1.f/1280.f)));
+
+        k0 = (float)sintable[(sext->pitch+512)&2047] * (1.f/16384.f);
+        k1 = (float)sintable[sext->pitch&2047] * (1.f/16384.f);
+        k2 = (float)sintable[(sext->roll+512)&2047] * (1.f/16384.f);
+        k3 = (float)sintable[sext->roll&2047] * (1.f/16384.f);
     }
 
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
         //PLAG : sorting stuff
         void               *vbotemp;
-        point3d            *vertexhandle = NULL;
+        vec3f_t            *vertexhandle = NULL;
         uint16_t     *indexhandle;
 
         const md3surf_t *const s = &m->head.surfs[surfi];
@@ -2225,26 +2162,50 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, vertvbos[curvbo]);
             vbotemp = bglMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
-            vertexhandle = (point3d *)vbotemp;
+            vertexhandle = (vec3f_t *)vbotemp;
         }
 
         for (i=s->numverts-1; i>=0; i--)
         {
-            point3d fp;
+            vec3f_t fp;
 
             if (sext->pitch || sext->roll || MFLAGS_NOCONV(m))
             {
-                point3d fp1, fp2;
+                vec3f_t fp1, fp2;
 
-                fp.z = ((MFLAGS_NOCONV(m)) ? (v0[i].x * m->muladdframes[m->cframe*2].x) + m->muladdframes[m->cframe*2+1].x : v0[i].x) + a0.x;
-                fp.x = ((MFLAGS_NOCONV(m)) ? (v0[i].y * m->muladdframes[m->cframe*2].y) + m->muladdframes[m->cframe*2+1].y : v0[i].y) + a0.y;
-                fp.y = ((MFLAGS_NOCONV(m)) ? (v0[i].z * m->muladdframes[m->cframe*2].z) + m->muladdframes[m->cframe*2+1].z : v0[i].z) + a0.z;
-                fp1.x = fp.x*k2 +       fp.y*k3;
-                fp1.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
-                fp1.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
-                fp.z = ((MFLAGS_NOCONV(m)) ? (v1[i].x * m->muladdframes[m->nframe*2].x) + m->muladdframes[m->nframe*2+1].x : v1[i].x) + a0.x;
-                fp.x = ((MFLAGS_NOCONV(m)) ? (v1[i].y * m->muladdframes[m->nframe*2].y) + m->muladdframes[m->nframe*2+1].y : v1[i].y) + a0.y;
-                fp.y = ((MFLAGS_NOCONV(m)) ? (v1[i].z * m->muladdframes[m->nframe*2].z) + m->muladdframes[m->nframe*2+1].z : v1[i].z) + a0.z;
+                if (MFLAGS_NOCONV(m))
+                {
+                    const int32_t mcf = m->cframe<<1;
+                    const int32_t mnf = m->nframe<<1;
+
+                    fp.z = (v0[i].x * m->muladdframes[mcf].x) + (m->muladdframes[mcf+1].x + a0.x);
+                    fp.x = (v0[i].y * m->muladdframes[mcf].y) + (m->muladdframes[mcf+1].y + a0.y);
+                    fp.y = (v0[i].z * m->muladdframes[mcf].z) + (m->muladdframes[mcf+1].z + a0.z);
+
+                    fp1.x = fp.x*k2 +       fp.y*k3;
+                    fp1.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
+                    fp1.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
+
+                    fp.z = (v1[i].x * m->muladdframes[mnf].x) + (m->muladdframes[mnf+1].x + a0.x);
+                    fp.x = (v1[i].y * m->muladdframes[mnf].y) + (m->muladdframes[mnf+1].y + a0.y);
+                    fp.y = (v1[i].z * m->muladdframes[mnf].z) + (m->muladdframes[mnf+1].z + a0.z);
+
+                }
+                else
+                {
+                    fp.z = v0[i].x + a0.x;
+                    fp.x = v0[i].y + a0.y;
+                    fp.y = v0[i].z + a0.z;
+
+                    fp1.x = fp.x*k2 +       fp.y*k3;
+                    fp1.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
+                    fp1.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
+
+                    fp.z = v1[i].x + a0.x;
+                    fp.x = v1[i].y + a0.y;
+                    fp.y = v1[i].z + a0.z;
+                }
+
                 fp2.x = fp.x*k2 +       fp.y*k3;
                 fp2.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
                 fp2.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
@@ -2260,14 +2221,9 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
             }
 
             if (r_vertexarrays && r_vbos)
-            {
-                vertexhandle[i].x = fp.x;
-                vertexhandle[i].y = fp.y;
-                vertexhandle[i].z = fp.z;
-            }
-            vertlist[i].x = fp.x;
-            vertlist[i].y = fp.y;
-            vertlist[i].z = fp.z;
+                vertexhandle[i] = fp;
+
+            vertlist[i] = fp;
         }
 
         if (r_vertexarrays && r_vbos)
@@ -2328,7 +2284,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         {
             for (i=s->numtris-1; i>=0; i--)
             {
-                point3d fp, fp1, fp2;
+                vec3f_t fp, fp1, fp2;
 
                 // Matrix multiplication - ugly but clear
                 fp.x = (vertlist[s->tris[i].i[0]].x * mat[0]) + (vertlist[s->tris[i].i[0]].y * mat[4]) + (vertlist[s->tris[i].i[0]].z * mat[8]) + mat[12];
@@ -2503,818 +2459,6 @@ static void md3free(md3model_t *m)
 }
 
 //---------------------------------------- MD3 LIBRARY ENDS ----------------------------------------
-//--------------------------------------- VOX LIBRARY BEGINS ---------------------------------------
-
-//For loading/conversion only
-static int32_t xsiz, ysiz, zsiz, yzsiz, *vbit = 0; //vbit: 1 bit per voxel: 0=air,1=solid
-static float xpiv, ypiv, zpiv; //Might want to use more complex/unique names!
-static int32_t *vcolhashead = 0, vcolhashsizm1;
-typedef struct { int32_t p, c, n; } voxcol_t;
-static voxcol_t *vcol = 0; int32_t vnum = 0, vmax = 0;
-typedef struct { int16_t x, y; } spoint2d;
-static spoint2d *shp;
-static int32_t *shcntmal, *shcnt = 0, shcntp;
-static int32_t mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];
-static voxmodel_t *gvox;
-
-//pitch must equal xsiz*4
-uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
-{
-    uint32_t rtexid;
-    int32_t i;
-
-    const char *const cptr = &britable[gammabrightness ? 0 : curbrightness][0];
-
-    // Correct for GL's RGB order; also apply gamma here:
-    const coltype *const pic = (const coltype *)picbuf;
-    coltype *pic2 = (coltype *)Xmalloc(xsiz*ysiz*sizeof(coltype));
-
-    if (!is8bit)
-    {
-        for (i=xsiz*ysiz-1; i>=0; i--)
-        {
-            pic2[i].b = cptr[pic[i].r];
-            pic2[i].g = cptr[pic[i].g];
-            pic2[i].r = cptr[pic[i].b];
-            pic2[i].a = 255;
-        }
-    }
-    else
-    {
-        if (palookup[dapal] == NULL)
-            dapal = 0;
-
-        for (i=xsiz*ysiz-1; i>=0; i--)
-        {
-            const int32_t ii = palookup[dapal][pic[i].a] * 3;
-
-            pic2[i].b = cptr[palette[ii+2]*4];
-            pic2[i].g = cptr[palette[ii+1]*4];
-            pic2[i].r = cptr[palette[ii+0]*4];
-            pic2[i].a = 255;
-        }
-    }
-
-    bglGenTextures(1,(GLuint *)&rtexid);
-    bglBindTexture(GL_TEXTURE_2D,rtexid);
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    bglTexImage2D(GL_TEXTURE_2D,0,4,xsiz,ysiz,0,GL_RGBA,GL_UNSIGNED_BYTE,(char *)pic2);
-
-    Bfree(pic2);
-
-    return rtexid;
-}
-
-static int32_t getvox(int32_t x, int32_t y, int32_t z)
-{
-    z += x*yzsiz + y*zsiz;
-    for (x=vcolhashead[(z*214013)&vcolhashsizm1]; x>=0; x=vcol[x].n)
-        if (vcol[x].p == z) return(vcol[x].c);
-    return(0x808080);
-}
-
-static void putvox(int32_t x, int32_t y, int32_t z, int32_t col)
-{
-    if (vnum >= vmax) { vmax = max(vmax<<1,4096); vcol = (voxcol_t *)Xrealloc(vcol,vmax*sizeof(voxcol_t)); }
-
-    z += x*yzsiz + y*zsiz;
-    vcol[vnum].p = z; z = ((z*214013)&vcolhashsizm1);
-    vcol[vnum].c = col;
-    vcol[vnum].n = vcolhashead[z]; vcolhashead[z] = vnum++;
-}
-
-//Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 0's
-#if 0
-static void setzrange0(int32_t *lptr, int32_t z0, int32_t z1)
-{
-    int32_t z, ze;
-    if (!((z0^z1)&~31)) { lptr[z0>>5] &= ((~(-1<<SHIFTMOD32(z0)))|(-1<<SHIFTMOD32(z1))); return; }
-    z = (z0>>5); ze = (z1>>5);
-    lptr[z] &=~(-1<<SHIFTMOD32(z0)); for (z++; z<ze; z++) lptr[z] = 0;
-    lptr[z] &= (-1<<SHIFTMOD32(z1));
-}
-#endif
-//Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 1's
-static void setzrange1(int32_t *lptr, int32_t z0, int32_t z1)
-{
-    int32_t z, ze;
-    if (!((z0^z1)&~31)) { lptr[z0>>5] |= ((~(-1<<SHIFTMOD32(z1)))&(-1<<SHIFTMOD32(z0))); return; }
-    z = (z0>>5); ze = (z1>>5);
-    lptr[z] |= (-1<<SHIFTMOD32(z0)); for (z++; z<ze; z++) lptr[z] = -1;
-    lptr[z] |=~(-1<<SHIFTMOD32(z1));
-}
-
-static int32_t isrectfree(int32_t x0, int32_t y0, int32_t dx, int32_t dy)
-{
-#if 0
-    int32_t i, j, x;
-    i = y0*gvox->mytexx + x0;
-    for (dy=0; dy; dy--,i+=gvox->mytexx)
-        for (x=0; x<dx; x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
-#else
-    int32_t i, c, m, m1, x;
-
-    i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
-    m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
-    if (!c) { for (m&=m1; dy; dy--,i+=mytexo5) if (zbit[i]&m) return(0); }
-    else
-    {
-        for (; dy; dy--,i+=mytexo5)
-        {
-            if (zbit[i]&m) return(0);
-            for (x=1; x<c; x++) if (zbit[i+x]) return(0);
-            if (zbit[i+x]&m1) return(0);
-        }
-    }
-#endif
-    return(1);
-}
-
-static void setrect(int32_t x0, int32_t y0, int32_t dx, int32_t dy)
-{
-#if 0
-    int32_t i, j, y;
-    i = y0*gvox->mytexx + x0;
-    for (y=0; y<dy; y++,i+=gvox->mytexx)
-        for (x=0; x<dx; x++) { j = i+x; zbit[j>>5] |= (1<<SHIFTMOD32(j)); }
-#else
-    int32_t i, c, m, m1, x;
-
-    i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
-    m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
-    if (!c) { for (m&=m1; dy; dy--,i+=mytexo5) zbit[i] |= m; }
-    else
-    {
-        for (; dy; dy--,i+=mytexo5)
-        {
-            zbit[i] |= m;
-            for (x=1; x<c; x++) zbit[i+x] = -1;
-            zbit[i+x] |= m1;
-        }
-    }
-#endif
-}
-
-static void cntquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t face)
-{
-    int32_t x, y, z;
-
-    UNREFERENCED_PARAMETER(x1);
-    UNREFERENCED_PARAMETER(y1);
-    UNREFERENCED_PARAMETER(z1);
-    UNREFERENCED_PARAMETER(face);
-
-    x = labs(x2-x0); y = labs(y2-y0); z = labs(z2-z0);
-    if (!x) x = z; else if (!y) y = z;
-    if (x < y) { z = x; x = y; y = z; }
-    shcnt[y*shcntp+x]++;
-    if (x > gmaxx) gmaxx = x;
-    if (y > gmaxy) gmaxy = y;
-    garea += (x+(VOXBORDWIDTH<<1))*(y+(VOXBORDWIDTH<<1));
-    gvox->qcnt++;
-}
-
-static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t face)
-{
-    int32_t i, j, x, y, z, xx, yy, nx = 0, ny = 0, nz = 0, *lptr;
-    voxrect_t *qptr;
-
-    x = labs(x2-x0); y = labs(y2-y0); z = labs(z2-z0);
-    if (!x) { x = y; y = z; i = 0; }
-    else if (!y) { y = z; i = 1; }
-    else i = 2;
-    if (x < y) { z = x; x = y; y = z; i += 3; }
-    z = shcnt[y*shcntp+x]++;
-    lptr = &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+(shp[z].x+VOXBORDWIDTH)];
-    switch (face)
-    {
-    case 0:
-        ny = y1; x2 = x0; x0 = x1; x1 = x2; break;
-    case 1:
-        ny = y0; y0++; y1++; y2++; break;
-    case 2:
-        nz = z1; y0 = y2; y2 = y1; y1 = y0; z0++; z1++; z2++; break;
-    case 3:
-        nz = z0; break;
-    case 4:
-        nx = x1; y2 = y0; y0 = y1; y1 = y2; x0++; x1++; x2++; break;
-    case 5:
-        nx = x0; break;
-    }
-    for (yy=0; yy<y; yy++,lptr+=gvox->mytexx)
-        for (xx=0; xx<x; xx++)
-        {
-            switch (face)
-            {
-            case 0:
-                if (i < 3) { nx = x1+x-1-xx; nz = z1+yy;   } //back
-                else { nx = x1+y-1-yy; nz = z1+xx;   }
-                break;
-            case 1:
-                if (i < 3) { nx = x0+xx;     nz = z0+yy;   } //front
-                else { nx = x0+yy;     nz = z0+xx;   }
-                break;
-            case 2:
-                if (i < 3) { nx = x1-x+xx;   ny = y1-1-yy; } //bot
-                else { nx = x1-1-yy;   ny = y1-1-xx; }
-                break;
-            case 3:
-                if (i < 3) { nx = x0+xx;     ny = y0+yy;   } //top
-                else { nx = x0+yy;     ny = y0+xx;   }
-                break;
-            case 4:
-                if (i < 3) { ny = y1+x-1-xx; nz = z1+yy;   } //right
-                else { ny = y1+y-1-yy; nz = z1+xx;   }
-                break;
-            case 5:
-                if (i < 3) { ny = y0+xx;     nz = z0+yy;   } //left
-                else { ny = y0+yy;     nz = z0+xx;   }
-                break;
-            }
-            lptr[xx] = getvox(nx,ny,nz);
-        }
-
-    //Extend borders horizontally
-    for (yy=VOXBORDWIDTH; yy<y+VOXBORDWIDTH; yy++)
-        for (xx=0; xx<VOXBORDWIDTH; xx++)
-        {
-            lptr = &gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x];
-            lptr[xx] = lptr[VOXBORDWIDTH]; lptr[xx+x+VOXBORDWIDTH] = lptr[x-1+VOXBORDWIDTH];
-        }
-    //Extend borders vertically
-    for (yy=0; yy<VOXBORDWIDTH; yy++)
-    {
-        Bmemcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x],
-                &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
-                (x+(VOXBORDWIDTH<<1))<<2);
-        Bmemcpy(&gvox->mytex[(shp[z].y+y+yy+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
-                &gvox->mytex[(shp[z].y+y-1+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
-                (x+(VOXBORDWIDTH<<1))<<2);
-    }
-
-    qptr = &gvox->quad[gvox->qcnt];
-    qptr->v[0].x = x0; qptr->v[0].y = y0; qptr->v[0].z = z0;
-    qptr->v[1].x = x1; qptr->v[1].y = y1; qptr->v[1].z = z1;
-    qptr->v[2].x = x2; qptr->v[2].y = y2; qptr->v[2].z = z2;
-    for (j=0; j<3; j++) { qptr->v[j].u = shp[z].x+VOXBORDWIDTH; qptr->v[j].v = shp[z].y+VOXBORDWIDTH; }
-    if (i < 3) qptr->v[1].u += x; else qptr->v[1].v += y;
-    qptr->v[2].u += x; qptr->v[2].v += y;
-
-    qptr->v[3].u = qptr->v[0].u - qptr->v[1].u + qptr->v[2].u;
-    qptr->v[3].v = qptr->v[0].v - qptr->v[1].v + qptr->v[2].v;
-    qptr->v[3].x = qptr->v[0].x - qptr->v[1].x + qptr->v[2].x;
-    qptr->v[3].y = qptr->v[0].y - qptr->v[1].y + qptr->v[2].y;
-    qptr->v[3].z = qptr->v[0].z - qptr->v[1].z + qptr->v[2].z;
-    if (gvox->qfacind[face] < 0) gvox->qfacind[face] = gvox->qcnt;
-    gvox->qcnt++;
-
-}
-
-static int32_t isolid(int32_t x, int32_t y, int32_t z)
-{
-    if ((uint32_t)x >= (uint32_t)xsiz) return(0);
-    if ((uint32_t)y >= (uint32_t)ysiz) return(0);
-    if ((uint32_t)z >= (uint32_t)zsiz) return(0);
-    z += x*yzsiz + y*zsiz; return(vbit[z>>5]&(1<<SHIFTMOD32(z)));
-}
-
-static voxmodel_t *vox2poly()
-{
-    int32_t i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy,*bx0, *by0;
-    void (*daquad)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
-
-    gvox = (voxmodel_t *)Xmalloc(sizeof(voxmodel_t));
-    memset(gvox,0,sizeof(voxmodel_t));
-
-    //x is largest dimension, y is 2nd largest dimension
-    x = xsiz; y = ysiz; z = zsiz;
-    if ((x < y) && (x < z)) x = z; else if (y < z) y = z;
-    if (x < y) { z = x; x = y; y = z; }
-    shcntp = x; i = x*y*sizeof(int32_t);
-    shcntmal = (int32_t *)Xmalloc(i);
-    memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
-    gmaxx = gmaxy = garea = 0;
-
-    if (pow2m1[32] != -1) { for (i=0; i<32; i++) pow2m1[i] = (1u<<i)-1; pow2m1[32] = -1; }
-    for (i=0; i<7; i++) gvox->qfacind[i] = -1;
-
-    i = ((max(ysiz,zsiz)+1)<<2);
-    bx0 = (int32_t *)Xmalloc(i<<1);
-    by0 = (int32_t *)(((intptr_t)bx0)+i);
-
-    for (cnt=0; cnt<2; cnt++)
-    {
-        if (!cnt) daquad = cntquad;
-        else daquad = addquad;
-        gvox->qcnt = 0;
-
-        memset(by0,-1,(max(ysiz,zsiz)+1)<<2); v = 0;
-
-        for (i=-1; i<=1; i+=2)
-            for (y=0; y<ysiz; y++)
-                for (x=0; x<=xsiz; x++)
-                    for (z=0; z<=zsiz; z++)
-                    {
-                        ov = v; v = (isolid(x,y,z) && (!isolid(x,y+i,z)));
-                        if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
-                            { daquad(bx0[z],y,by0[z],x,y,by0[z],x,y,z,i>=0); by0[z] = -1; }
-                        if (v > ov) oz = z; else if ((v < ov) && (by0[z] != oz)) { bx0[z] = x; by0[z] = oz; }
-                    }
-
-        for (i=-1; i<=1; i+=2)
-            for (z=0; z<zsiz; z++)
-                for (x=0; x<=xsiz; x++)
-                    for (y=0; y<=ysiz; y++)
-                    {
-                        ov = v; v = (isolid(x,y,z) && (!isolid(x,y,z-i)));
-                        if ((by0[y] >= 0) && ((by0[y] != oz) || (v >= ov)))
-                            { daquad(bx0[y],by0[y],z,x,by0[y],z,x,y,z,(i>=0)+2); by0[y] = -1; }
-                        if (v > ov) oz = y; else if ((v < ov) && (by0[y] != oz)) { bx0[y] = x; by0[y] = oz; }
-                    }
-
-        for (i=-1; i<=1; i+=2)
-            for (x=0; x<xsiz; x++)
-                for (y=0; y<=ysiz; y++)
-                    for (z=0; z<=zsiz; z++)
-                    {
-                        ov = v; v = (isolid(x,y,z) && (!isolid(x-i,y,z)));
-                        if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
-                            { daquad(x,bx0[z],by0[z],x,y,by0[z],x,y,z,(i>=0)+4); by0[z] = -1; }
-                        if (v > ov) oz = z; else if ((v < ov) && (by0[z] != oz)) { bx0[z] = y; by0[z] = oz; }
-                    }
-
-        if (!cnt)
-        {
-            shp = (spoint2d *)Xmalloc(gvox->qcnt*sizeof(spoint2d));
-
-            sc = 0;
-            for (y=gmaxy; y; y--)
-                for (x=gmaxx; x>=y; x--)
-                {
-                    i = shcnt[y*shcntp+x]; shcnt[y*shcntp+x] = sc; //shcnt changes from counter to head index
-                    for (; i>0; i--) { shp[sc].x = x; shp[sc].y = y; sc++; }
-                }
-
-            for (gvox->mytexx=32; gvox->mytexx<(gmaxx+(VOXBORDWIDTH<<1)); gvox->mytexx<<=1);
-            for (gvox->mytexy=32; gvox->mytexy<(gmaxy+(VOXBORDWIDTH<<1)); gvox->mytexy<<=1);
-            while (gvox->mytexx*gvox->mytexy*8 < garea*9) //This should be sufficient to fit most skins...
-            {
-skindidntfit:
-                ;
-                if (gvox->mytexx <= gvox->mytexy) gvox->mytexx <<= 1; else gvox->mytexy <<= 1;
-            }
-            mytexo5 = (gvox->mytexx>>5);
-
-            i = (((gvox->mytexx*gvox->mytexy+31)>>5)<<2);
-            zbit = (int32_t *)Xmalloc(i);
-            memset(zbit,0,i);
-
-            v = gvox->mytexx*gvox->mytexy;
-            for (z=0; z<sc; z++)
-            {
-                dx = shp[z].x+(VOXBORDWIDTH<<1); dy = shp[z].y+(VOXBORDWIDTH<<1); i = v;
-                do
-                {
-#if (VOXUSECHAR != 0)
-                    x0 = (((rand()&32767)*(min(gvox->mytexx,255)-dx))>>15);
-                    y0 = (((rand()&32767)*(min(gvox->mytexy,255)-dy))>>15);
-#else
-                    x0 = (((rand()&32767)*(gvox->mytexx+1-dx))>>15);
-                    y0 = (((rand()&32767)*(gvox->mytexy+1-dy))>>15);
-#endif
-                    i--;
-                    if (i < 0) //Time-out! Very slow if this happens... but at least it still works :P
-                    {
-                        Bfree(zbit);
-
-                        //Re-generate shp[].x/y (box sizes) from shcnt (now head indices) for next pass :/
-                        j = 0;
-                        for (y=gmaxy; y; y--)
-                            for (x=gmaxx; x>=y; x--)
-                            {
-                                i = shcnt[y*shcntp+x];
-                                for (; j<i; j++) { shp[j].x = x0; shp[j].y = y0; }
-                                x0 = x; y0 = y;
-                            }
-                        for (; j<sc; j++) { shp[j].x = x0; shp[j].y = y0; }
-
-                        goto skindidntfit;
-                    }
-                }
-                while (!isrectfree(x0,y0,dx,dy));
-                while ((y0) && (isrectfree(x0,y0-1,dx,1))) y0--;
-                while ((x0) && (isrectfree(x0-1,y0,1,dy))) x0--;
-                setrect(x0,y0,dx,dy);
-                shp[z].x = x0; shp[z].y = y0; //Overwrite size with top-left location
-            }
-
-            gvox->quad = (voxrect_t *)Xmalloc(gvox->qcnt*sizeof(voxrect_t));
-            gvox->mytex = (int32_t *)Xmalloc(gvox->mytexx*gvox->mytexy*sizeof(int32_t));
-        }
-    }
-    Bfree(shp); Bfree(zbit); Bfree(bx0);
-    return(gvox);
-}
-
-static int32_t loadvox(const char *filnam)
-{
-    int32_t i, j, k, x, y, z, pal[256], fil;
-    char c[3], *tbuf;
-
-    fil = kopen4load(filnam,0); if (fil < 0) return(-1);
-    kread(fil,&xsiz,4); xsiz = B_LITTLE32(xsiz);
-    kread(fil,&ysiz,4); ysiz = B_LITTLE32(ysiz);
-    kread(fil,&zsiz,4); zsiz = B_LITTLE32(zsiz);
-    xpiv = ((float)xsiz)*.5;
-    ypiv = ((float)ysiz)*.5;
-    zpiv = ((float)zsiz)*.5;
-
-    klseek(fil,-768,SEEK_END);
-    for (i=0; i<256; i++)
-        { kread(fil,c,3); pal[i] = (((int32_t)c[0])<<18)+(((int32_t)c[1])<<10)+(((int32_t)c[2])<<2)+(i<<24); }
-    pal[255] = -1;
-
-    vcolhashsizm1 = 8192-1;
-    vcolhashead = (int32_t *)Xmalloc((vcolhashsizm1+1)*sizeof(int32_t));
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
-
-    yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3)+1;
-    vbit = (int32_t *)Xmalloc(i);
-    memset(vbit,0,i);
-
-    tbuf = (char *)Xmalloc(zsiz*sizeof(uint8_t));
-
-    klseek(fil,12,SEEK_SET);
-    for (x=0; x<xsiz; x++)
-        for (y=0,j=x*yzsiz; y<ysiz; y++,j+=zsiz)
-        {
-            kread(fil,tbuf,zsiz);
-            for (z=zsiz-1; z>=0; z--)
-                { if (tbuf[z] != 255) { i = j+z; vbit[i>>5] |= (1<<SHIFTMOD32(i)); } }
-        }
-
-    klseek(fil,12,SEEK_SET);
-    for (x=0; x<xsiz; x++)
-        for (y=0,j=x*yzsiz; y<ysiz; y++,j+=zsiz)
-        {
-            kread(fil,tbuf,zsiz);
-            for (z=0; z<zsiz; z++)
-            {
-                if (tbuf[z] == 255) continue;
-                if ((!x) || (!y) || (!z) || (x == xsiz-1) || (y == ysiz-1) || (z == zsiz-1))
-                    { putvox(x,y,z,pal[tbuf[z]]); continue; }
-                k = j+z;
-                if ((!(vbit[(k-yzsiz)>>5]&(1<<SHIFTMOD32(k-yzsiz)))) ||
-                        (!(vbit[(k+yzsiz)>>5]&(1<<SHIFTMOD32(k+yzsiz)))) ||
-                        (!(vbit[(k- zsiz)>>5]&(1<<SHIFTMOD32(k- zsiz)))) ||
-                        (!(vbit[(k+ zsiz)>>5]&(1<<SHIFTMOD32(k+ zsiz)))) ||
-                        (!(vbit[(k-    1)>>5]&(1<<SHIFTMOD32(k-    1)))) ||
-                        (!(vbit[(k+    1)>>5]&(1<<SHIFTMOD32(k+    1)))))
-                    { putvox(x,y,z,pal[tbuf[z]]); continue; }
-            }
-        }
-
-    Bfree(tbuf); kclose(fil); return(0);
-}
-
-static int32_t loadkvx(const char *filnam)
-{
-    int32_t i, j, k, x, y, z, pal[256], z0, z1, mip1leng, ysizp1, fil;
-    uint16_t *xyoffs;
-    char c[3], *tbuf, *cptr;
-
-    fil = kopen4load(filnam,0); if (fil < 0) return(-1);
-    kread(fil,&mip1leng,4); mip1leng = B_LITTLE32(mip1leng);
-    kread(fil,&xsiz,4);     xsiz = B_LITTLE32(xsiz);
-    kread(fil,&ysiz,4);     ysiz = B_LITTLE32(ysiz);
-    kread(fil,&zsiz,4);     zsiz = B_LITTLE32(zsiz);
-    kread(fil,&i,4); xpiv = ((float)B_LITTLE32(i))/256.0;
-    kread(fil,&i,4); ypiv = ((float)B_LITTLE32(i))/256.0;
-    kread(fil,&i,4); zpiv = ((float)B_LITTLE32(i))/256.0;
-    klseek(fil,(xsiz+1)<<2,SEEK_CUR);
-
-    ysizp1 = ysiz+1;
-    i = xsiz*ysizp1*sizeof(int16_t);
-    xyoffs = (uint16_t *)Xmalloc(i);
-    kread(fil,xyoffs,i); for (i=i/sizeof(int16_t)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
-
-    klseek(fil,-768,SEEK_END);
-    for (i=0; i<256; i++)
-        { kread(fil,c,3); pal[i] = B_LITTLE32((((int32_t)c[0])<<18)+(((int32_t)c[1])<<10)+(((int32_t)c[2])<<2)+(i<<24)); }
-
-    yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3)+1;
-    vbit = (int32_t *)Xmalloc(i);
-    memset(vbit,0,i);
-
-    for (vcolhashsizm1=4096; vcolhashsizm1<(mip1leng>>1); vcolhashsizm1<<=1)
-    {
-        /* do nothing */
-    }
-    vcolhashsizm1--; //approx to numvoxs!
-    vcolhashead = (int32_t *)Xmalloc((vcolhashsizm1+1)*sizeof(int32_t));
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
-
-    klseek(fil,28+((xsiz+1)<<2)+((ysizp1*xsiz)<<1),SEEK_SET);
-
-    i = kfilelength(fil)-ktell(fil);
-    tbuf = (char *)Xmalloc(i);
-    kread(fil,tbuf,i); kclose(fil);
-
-    cptr = tbuf;
-    for (x=0; x<xsiz; x++) //Set surface voxels to 1 else 0
-        for (y=0,j=x*yzsiz; y<ysiz; y++,j+=zsiz)
-        {
-            i = xyoffs[x*ysizp1+y+1] - xyoffs[x*ysizp1+y]; if (!i) continue;
-            z1 = 0;
-            while (i)
-            {
-                z0 = (int32_t)cptr[0]; k = (int32_t)cptr[1]; cptr += 3;
-                if (!(cptr[-1]&16)) setzrange1(vbit,j+z1,j+z0);
-                i -= k+3; z1 = z0+k;
-                setzrange1(vbit,j+z0,j+z1);  // PK: oob in AMC TC dev if vbit alloc'd w/o +1
-                for (z=z0; z<z1; z++) putvox(x,y,z,pal[*cptr++]);
-            }
-        }
-
-    Bfree(tbuf); Bfree(xyoffs); return(0);
-}
-
-static int32_t loadkv6(const char *filnam)
-{
-    int32_t i, j, x, y, numvoxs, z0, z1, fil;
-    uint16_t *ylen;
-    char c[8];
-
-    fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
-    kread(fil,&i,4); if (B_LITTLE32(i) != 0x6c78764b) { kclose(fil); return(-1); } //Kvxl
-    kread(fil,&xsiz,4);    xsiz = B_LITTLE32(xsiz);
-    kread(fil,&ysiz,4);    ysiz = B_LITTLE32(ysiz);
-    kread(fil,&zsiz,4);    zsiz = B_LITTLE32(zsiz);
-    kread(fil,&i,4);       xpiv = (float)(B_LITTLE32(i));
-    kread(fil,&i,4);       ypiv = (float)(B_LITTLE32(i));
-    kread(fil,&i,4);       zpiv = (float)(B_LITTLE32(i));
-    kread(fil,&numvoxs,4); numvoxs = B_LITTLE32(numvoxs);
-
-    ylen = (uint16_t *)Xmalloc(xsiz*ysiz*sizeof(int16_t));
-
-    klseek(fil,32+(numvoxs<<3)+(xsiz<<2),SEEK_SET);
-    kread(fil,ylen,xsiz*ysiz*sizeof(int16_t)); for (i=xsiz*ysiz-1; i>=0; i--) ylen[i] = B_LITTLE16(ylen[i]);
-    klseek(fil,32,SEEK_SET);
-
-    yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3)+1;
-    vbit = (int32_t *)Xmalloc(i);
-    memset(vbit,0,i);
-
-    for (vcolhashsizm1=4096; vcolhashsizm1<numvoxs; vcolhashsizm1<<=1)
-    {
-        /* do nothing */
-    }
-    vcolhashsizm1--;
-    vcolhashead = (int32_t *)Xmalloc((vcolhashsizm1+1)*sizeof(int32_t));
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
-
-    for (x=0; x<xsiz; x++)
-        for (y=0,j=x*yzsiz; y<ysiz; y++,j+=zsiz)
-        {
-            z1 = zsiz;
-            for (i=ylen[x*ysiz+y]; i>0; i--)
-            {
-                kread(fil,c,8); //b,g,r,a,z_lo,z_hi,vis,dir
-                z0 = B_LITTLE16(*(uint16_t *)&c[4]);
-                if (!(c[6]&16)) setzrange1(vbit,j+z1,j+z0);
-                vbit[(j+z0)>>5] |= (1<<SHIFTMOD32(j+z0));
-                putvox(x,y,z0,B_LITTLE32(*(int32_t *)&c[0])&0xffffff);
-                z1 = z0+1;
-            }
-        }
-    Bfree(ylen); kclose(fil); return(0);
-}
-
-#if 0
-//While this code works, it's way too slow and can only cause trouble.
-static int32_t loadvxl(const char *filnam)
-{
-    int32_t i, j, x, y, z, fil;
-    char *v, *vbuf;
-
-    fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
-    kread(fil,&i,4);
-    kread(fil,&xsiz,4);
-    kread(fil,&ysiz,4);
-    if ((i != 0x09072000) || (xsiz != 1024) || (ysiz != 1024)) { kclose(fil); return(-1); }
-    zsiz = 256;
-    klseek(fil,96,SEEK_CUR); //skip pos&orient
-    xpiv = ((float)xsiz)*.5;
-    ypiv = ((float)ysiz)*.5;
-    zpiv = ((float)zsiz)*.5;
-
-    yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int32_t *)Xmalloc(i);
-    memset(vbit,-1,i);
-
-    vcolhashsizm1 = 1048576-1;
-    vcolhashead = (int32_t *)Xmalloc((vcolhashsizm1+1)*sizeof(int32_t));
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
-
-    //Allocate huge buffer and load rest of file into it...
-    i = kfilelength(fil)-ktell(fil);
-    vbuf = (char *)Xmalloc(i);
-    kread(fil,vbuf,i);
-    kclose(fil);
-
-    v = vbuf;
-    for (y=0; y<ysiz; y++)
-        for (x=0,j=y*zsiz; x<xsiz; x++,j+=yzsiz)
-        {
-            z = 0;
-            while (1)
-            {
-                setzrange0(vbit,j+z,j+v[1]);
-                for (z=v[1]; z<=v[2]; z++) putvox(x,y,z,(*(int32_t *)&v[(z-v[1]+1)<<2])&0xffffff);
-                if (!v[0]) break; z = v[2]-v[1]-v[0]+2; v += v[0]*4;
-                for (z+=v[3]; z<v[3]; z++) putvox(x,y,z,(*(int32_t *)&v[(z-v[3])<<2])&0xffffff);
-            }
-            v += ((((int32_t)v[2])-((int32_t)v[1])+2)<<2);
-        }
-    Bfree(vbuf); return(0);
-}
-#endif
-
-void voxfree(voxmodel_t *m)
-{
-    if (!m) return;
-    if (m->mytex) Bfree(m->mytex);
-    if (m->quad) Bfree(m->quad);
-    if (m->texid) Bfree(m->texid);
-    Bfree(m);
-}
-
-voxmodel_t *voxload(const char *filnam)
-{
-    int32_t i, is8bit, ret;
-    voxmodel_t *vm;
-
-    i = strlen(filnam)-4; if (i < 0) return(0);
-    if (!Bstrcasecmp(&filnam[i],".vox")) { ret = loadvox(filnam); is8bit = 1; }
-    else if (!Bstrcasecmp(&filnam[i],".kvx")) { ret = loadkvx(filnam); is8bit = 1; }
-    else if (!Bstrcasecmp(&filnam[i],".kv6")) { ret = loadkv6(filnam); is8bit = 0; }
-    //else if (!Bstrcasecmp(&filnam[i],".vxl")) { ret = loadvxl(filnam); is8bit = 0; }
-    else return(0);
-    if (ret >= 0) vm = vox2poly(); else vm = 0;
-    if (vm)
-    {
-        vm->mdnum = 1; //VOXel model id
-        vm->scale = vm->bscale = 1.0;
-        vm->xsiz = xsiz; vm->ysiz = ysiz; vm->zsiz = zsiz;
-        vm->xpiv = xpiv; vm->ypiv = ypiv; vm->zpiv = zpiv;
-        vm->is8bit = is8bit;
-
-        vm->texid = (uint32_t *)Xcalloc(MAXPALOOKUPS,sizeof(uint32_t));
-    }
-    if (shcntmal) { Bfree(shcntmal); shcntmal = 0; }
-    if (vbit) { Bfree(vbit); vbit = 0; }
-    if (vcol) { Bfree(vcol); vcol = 0; vnum = 0; vmax = 0; }
-    if (vcolhashead) { Bfree(vcolhashead); vcolhashead = 0; }
-    return(vm);
-}
-
-//Draw voxel model as perfect cubes
-int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
-{
-    point3d m0, a0;
-    int32_t i, j, fi, xx, yy, zz;
-    float ru, rv, phack[2]; //, clut[6] = {1.02,1.02,0.94,1.06,0.98,0.98};
-    float f, g, k0, mat[16], omat[16], pc[4];
-    vert_t *vptr;
-
-    if ((intptr_t)m == (intptr_t)(-1)) // hackhackhack
-        return 0;
-    if ((tspr->cstat&48)==32) return 0;
-
-    //updateanimation((md2model *)m,tspr);
-
-    m0.x = m->scale;
-    m0.y = m->scale;
-    m0.z = m->scale;
-    a0.x = a0.y = 0; a0.z = ((globalorientation&8)?-m->zadd:m->zadd)*m->scale;
-
-    //if (globalorientation&8) //y-flipping
-    //{
-    //   m0.z = -m0.z; a0.z = -a0.z;
-    //      //Add height of 1st frame (use same frame to prevent animation bounce)
-    //   a0.z += m->zsiz*m->scale;
-    //}
-    //if (globalorientation&4) { m0.y = -m0.y; a0.y = -a0.y; } //x-flipping
-
-    f = ((float)tspr->xrepeat)*(256.0/320.0)/64.0*m->bscale;
-    if ((sprite[tspr->owner].cstat&48)==16)
-        f *= 1.25f;
-
-    m0.x *= f; a0.x *= f; f = -f;
-    m0.y *= f; a0.y *= f;
-    f = ((float)tspr->yrepeat)/64.0*m->bscale;
-    m0.z *= f; a0.z *= f;
-
-    k0 = (float)tspr->z;
-    if (globalorientation&128) k0 += (float)((tilesiz[tspr->picnum].y*tspr->yrepeat)<<1);
-
-    f = (65536.0*512.0)/((float)xdimen*viewingrange);
-    g = 32.0/((float)xdimen*gxyaspect);
-    m0.y *= f; a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
-    m0.x *=-f; a0.x = (((float)(tspr->y-globalposy))/ -1024.0 + a0.x)*-f;
-    m0.z *= g; a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
-
-    md3_vox_calcmat_common(tspr, &a0, f, mat);
-
-    //Mirrors
-    if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
-
-    if (tspr->cstat&CSTAT_SPRITE_MDHACK)
-    {
-        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0,0.9999);
-    }
-    bglPushAttrib(GL_POLYGON_BIT);
-    if ((grhalfxdown10x >= 0) /*^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0)*/) bglFrontFace(GL_CW); else bglFrontFace(GL_CCW);
-    bglEnable(GL_CULL_FACE);
-    bglCullFace(GL_BACK);
-
-    bglEnable(GL_TEXTURE_2D);
-
-    pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
-    hictinting_apply(pc, globalpal);
-
-    if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66f; else pc[3] = 0.33f; }
-    else pc[3] = 1.0f;
-    pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
-    if ((tspr->cstat&2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
-    //------------
-
-    //transform to Build coords
-    Bmemcpy(omat,mat,sizeof(omat));
-    f = 1.f/64.f;
-    g = m0.x*f; mat[0] *= g; mat[1] *= g; mat[2] *= g;
-    g = m0.y*f; mat[4] = omat[8]*g; mat[5] = omat[9]*g; mat[6] = omat[10]*g;
-    g =-m0.z*f; mat[8] = omat[4]*g; mat[9] = omat[5]*g; mat[10] = omat[6]*g;
-    mat[12] -= (m->xpiv*mat[0] + m->ypiv*mat[4] + (m->zpiv+m->zsiz*.5)*mat[ 8]);
-    mat[13] -= (m->xpiv*mat[1] + m->ypiv*mat[5] + (m->zpiv+m->zsiz*.5)*mat[ 9]);
-    mat[14] -= (m->xpiv*mat[2] + m->ypiv*mat[6] + (m->zpiv+m->zsiz*.5)*mat[10]);
-    bglMatrixMode(GL_MODELVIEW); //Let OpenGL (and perhaps hardware :) handle the matrix rotation
-    mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
-
-    bglLoadMatrixf(mat);
-
-    ru = 1.f/((float)m->mytexx);
-    rv = 1.f/((float)m->mytexy);
-#if (VOXBORDWIDTH == 0)
-    uhack[0] = ru*.125; uhack[1] = -uhack[0];
-    vhack[0] = rv*.125; vhack[1] = -vhack[0];
-#endif
-    phack[0] = 0; phack[1] = 1.f/256.f;
-
-    if (!m->texid[globalpal]) m->texid[globalpal] = gloadtex(m->mytex,m->mytexx,m->mytexy,m->is8bit,globalpal);
-    else bglBindTexture(GL_TEXTURE_2D,m->texid[globalpal]);
-    bglBegin(GL_QUADS);
-    for (i=0,fi=0; i<m->qcnt; i++)
-    {
-        if (i == m->qfacind[fi]) { f = 1 /*clut[fi++]*/; bglColor4f(pc[0]*f,pc[1]*f,pc[2]*f,pc[3]*f); }
-        vptr = &m->quad[i].v[0];
-
-        xx = vptr[0].x+vptr[2].x;
-        yy = vptr[0].y+vptr[2].y;
-        zz = vptr[0].z+vptr[2].z;
-
-        for (j=0; j<4; j++)
-        {
-            point3d fp;
-#if (VOXBORDWIDTH == 0)
-            bglTexCoord2f(((float)vptr[j].u)*ru+uhack[vptr[j].u!=vptr[0].u],
-                          ((float)vptr[j].v)*rv+vhack[vptr[j].v!=vptr[0].v]);
-#else
-            bglTexCoord2f(((float)vptr[j].u)*ru,((float)vptr[j].v)*rv);
-#endif
-            fp.x = ((float)vptr[j].x) - phack[xx>vptr[j].x*2] + phack[xx<vptr[j].x*2];
-            fp.y = ((float)vptr[j].y) - phack[yy>vptr[j].y*2] + phack[yy<vptr[j].y*2];
-            fp.z = ((float)vptr[j].z) - phack[zz>vptr[j].z*2] + phack[zz<vptr[j].z*2];
-            bglVertex3fv((float *)&fp);
-        }
-    }
-    bglEnd();
-
-    //------------
-    bglDisable(GL_CULL_FACE);
-    bglPopAttrib();
-    if (tspr->cstat&CSTAT_SPRITE_MDHACK)
-    {
-        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0,0.99999);
-    }
-    bglLoadIdentity();
-    return 1;
-}
-
-//---------------------------------------- VOX LIBRARY ENDS ----------------------------------------
 //--------------------------------------- MD LIBRARY BEGINS  ---------------------------------------
 
 mdmodel_t *mdload(const char *filnam)
@@ -3323,23 +2467,31 @@ mdmodel_t *mdload(const char *filnam)
     int32_t fil;
     int32_t i;
 
-    vm = (mdmodel_t *)voxload(filnam); if (vm) return(vm);
+    vm = (mdmodel_t *)voxload(filnam);
+    if (vm) return vm;
 
-    fil = kopen4load((char *)filnam,0); if (fil < 0) return(0);
-    kread(fil,&i,4); klseek(fil,0,SEEK_SET);
+    fil = kopen4load((char *)filnam,0);
+
+    if (fil < 0)
+        return NULL;
+
+    kread(fil,&i,4);
+    klseek(fil,0,SEEK_SET);
 
     switch (B_LITTLE32(i))
     {
-    case 0x32504449:
+    case IDP2_MAGIC:
 //        initprintf("Warning: model \"%s\" is version IDP2; wanted version IDP3\n",filnam);
         vm = (mdmodel_t *)md2load(fil,filnam);
         break; //IDP2
-    case 0x33504449:
+    case IDP3_MAGIC:
         vm = (mdmodel_t *)md3load(fil);
         break; //IDP3
     default:
-        vm = (mdmodel_t *)0; break;
+        vm = NULL;
+        break;
     }
+
     kclose(fil);
 
     if (vm)
@@ -3354,27 +2506,26 @@ mdmodel_t *mdload(const char *filnam)
 
 #ifdef POLYMER
         if (glrendmode != REND_POLYMER)
-            if (!md3postload_polymer_check(vm3))
+            if (md3postload_polymer_check(vm3))
             {
                 mdfree(vm);
-                vm = (mdmodel_t *)0;
+                vm = NULL;
             }
 #endif
     }
 
-    return(vm);
+    return vm;
 }
 
-int32_t mddraw(const spritetype *tspr)
+void md_allocvbos(void)
 {
-    mdmodel_t *vm;
     int32_t i;
 
-    if (r_vbos && (r_vbocount > allocvbos))
-    {
-        indexvbos = (GLuint *)Xrealloc(indexvbos, sizeof(GLuint) * r_vbocount);
-        vertvbos = (GLuint *)Xrealloc(vertvbos, sizeof(GLuint) * r_vbocount);
+    indexvbos = (GLuint *) Xrealloc(indexvbos, sizeof(GLuint) * r_vbocount);
+    vertvbos = (GLuint *) Xrealloc(vertvbos, sizeof(GLuint) * r_vbocount);
 
+    if (r_vbocount != allocvbos)
+    {
         bglGenBuffersARB(r_vbocount - allocvbos, &(indexvbos[allocvbos]));
         bglGenBuffersARB(r_vbocount - allocvbos, &(vertvbos[allocvbos]));
 
@@ -3384,27 +2535,33 @@ int32_t mddraw(const spritetype *tspr)
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[i]);
             bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, maxmodeltris * 3 * sizeof(uint16_t), NULL, GL_STREAM_DRAW_ARB);
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, vertvbos[i]);
-            bglBufferDataARB(GL_ARRAY_BUFFER_ARB, maxmodelverts * sizeof(point3d), NULL, GL_STREAM_DRAW_ARB);
+            bglBufferDataARB(GL_ARRAY_BUFFER_ARB, maxmodelverts * sizeof(vec3f_t), NULL, GL_STREAM_DRAW_ARB);
             i++;
         }
 
-        bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,0);
+        bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
         allocvbos = r_vbocount;
     }
+}
+
+int32_t polymost_mddraw(const spritetype *tspr)
+{
+    mdmodel_t *vm;
+
+    if (r_vbos && (r_vbocount > allocvbos))
+        md_allocvbos();
 
     if (maxmodelverts > allocmodelverts)
     {
-        point3d *vl = (point3d *)Xrealloc(vertlist,sizeof(point3d)*maxmodelverts);
-
-        vertlist = vl;
+        vertlist = (vec3f_t *) Xrealloc(vertlist, sizeof(vec3f_t)*maxmodelverts);
         allocmodelverts = maxmodelverts;
     }
 
     vm = models[tile2model[Ptile2tile(tspr->picnum,(tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal)].modelid];
-    if (vm->mdnum == 1) { return voxdraw((voxmodel_t *)vm,tspr); }
-    if (vm->mdnum == 3) { return md3draw((md3model_t *)vm,tspr); }
+    if (vm->mdnum == 1) { return polymost_voxdraw((voxmodel_t *)vm,tspr); }
+    if (vm->mdnum == 3) { return polymost_md3draw((md3model_t *)vm,tspr); }
     return 0;
 }
 

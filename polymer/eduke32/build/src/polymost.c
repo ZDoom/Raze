@@ -83,24 +83,6 @@ Low priority:
 #include "kplib.h"
 #include "texcache.h"
 
-
-#if defined(_MSC_VER) && defined(_WIN64)
-/*
-#include <emmintrin.h>
-static inline int32_t Blrintf(float const x) {
-    return _mm_cvtss_si32(_mm_load_ss(&x));}*/
-#define Blrintf (int32_t)
-#elif defined (_MSC_VER)
-static inline int32_t Blrintf(const float x)
-{
-    int n;
-    __asm fld x;
-    __asm fistp n;
-    return n;}
-#else 
-#define Blrintf lrintf
-#endif
-
 #ifndef _WIN32
 extern int32_t filelength(int h); // kplib.c
 #endif
@@ -376,7 +358,6 @@ float glox1, gloy1, glox2, gloy2;
 
 //Use this for both initialization and uninitialization of OpenGL.
 static int32_t gltexcacnum = -1;
-extern void freevbos(void);
 
 void polymost_glreset()
 {
@@ -427,7 +408,7 @@ void polymost_glreset()
         bglDeleteTextures(1,&polymosttext);
     polymosttext=0;
 
-    freevbos();
+    md_freevbos();
 
     memset(texcache.list,0,sizeof(texcache.list));
     glox1 = -1;
@@ -710,28 +691,24 @@ static void resizeglcheck(void)
     }
 }
 
-// NOTE: must not use DAPICNUM for indexing into tile arrays.
-static void fixtransparency(const int32_t dapicnum, coltype *dapic, int32_t daxsiz, int32_t daysiz,
-                            const int32_t daxsiz2, const int32_t daysiz2, const int32_t dameth)
+static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t dameth)
 {
     int32_t y, naxsiz2;
-    int32_t dox = daxsiz2-1, doy = daysiz2-1;
+    vec2_t doxy = { dasiz2.x-1, dasiz2.y-1 };
 
-    UNREFERENCED_PARAMETER(dapicnum);
+    if (dameth&4) { doxy.x = min(doxy.x, dasiz.x); doxy.y = min(doxy.y, dasiz.y); }
+    else { dasiz = dasiz2; } //Make repeating textures duplicate top/left parts
 
-    if (dameth&4) { dox = min(dox,daxsiz); doy = min(doy,daysiz); }
-    else { daxsiz = daxsiz2; daysiz = daysiz2; } //Make repeating textures duplicate top/left parts
-
-    daxsiz--; daysiz--; naxsiz2 = -daxsiz2; //Hacks for optimization inside loop
+    dasiz.x--; dasiz.y--; naxsiz2 = -dasiz2.x; //Hacks for optimization inside loop
 
     //Set transparent pixels to average color of neighboring opaque pixels
     //Doing this makes bilinear filtering look much better for masked textures (I.E. sprites)
-    for (y=doy; y>=0; y--)
+    for (y=doxy.y; y>=0; y--)
     {
         int32_t x;
-        coltype * wpptr = &dapic[y*daxsiz2+dox];
+        coltype * wpptr = &dapic[y*dasiz2.x+doxy.x];
 
-        for (x=dox; x>=0; x--,wpptr--)
+        for (x=doxy.x; x>=0; x--,wpptr--)
         {
             int32_t r=0, g=0, b=0, j=0;
 
@@ -739,9 +716,9 @@ static void fixtransparency(const int32_t dapicnum, coltype *dapic, int32_t daxs
 
             r = g = b = j = 0;
             if ((x>     0) && (wpptr[     -1].a)) { r += wpptr[     -1].r; g += wpptr[     -1].g; b += wpptr[     -1].b; j++; }
-            if ((x<daxsiz) && (wpptr[     +1].a)) { r += wpptr[     +1].r; g += wpptr[     +1].g; b += wpptr[     +1].b; j++; }
+            if ((x<dasiz.x) && (wpptr[     +1].a)) { r += wpptr[     +1].r; g += wpptr[     +1].g; b += wpptr[     +1].b; j++; }
             if ((y>     0) && (wpptr[naxsiz2].a)) { r += wpptr[naxsiz2].r; g += wpptr[naxsiz2].g; b += wpptr[naxsiz2].b; j++; }
-            if ((y<daysiz) && (wpptr[daxsiz2].a)) { r += wpptr[daxsiz2].r; g += wpptr[daxsiz2].g; b += wpptr[daxsiz2].b; j++; }
+            if ((y<dasiz.y) && (wpptr[dasiz2.x].a)) { r += wpptr[dasiz2.x].r; g += wpptr[dasiz2.x].g; b += wpptr[dasiz2.x].b; j++; }
             switch (j)
             {
             case 1:
@@ -849,7 +826,17 @@ void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt
                 //if (wpptr->a) wpptr->a = 255;
             }
         }
-        if (tsizx >= 0) fixtransparency(-1, pic,(tsizx+(1<<j)-1)>>j,(tsizy+(1<<j)-1)>>j,x3,y3,dameth);
+
+        if (tsizx >= 0)
+        {
+            vec2_t tsizzle;
+            vec2_t mnizzle = { x3, y3 };
+
+            tsizzle.x = (tsizx+(1<<j)-1)>>j;
+            tsizzle.y = (tsizy+(1<<j)-1)>>j;
+            fixtransparency(pic, tsizzle, mnizzle, dameth);
+        }
+
         if (j >= js)
         {
             if (doalloc&1)
@@ -907,64 +894,63 @@ static void texture_setup(const int32_t dameth)
 void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
     coltype *pic;
-    int32_t xsiz, ysiz, npoty = 0;
+    int32_t npoty = 0;
     char hasalpha = 0, hasfullbright = 0;
 
     static int32_t fullbrightloadingpass = 0;
 
-    int32_t tsizx = tilesiz[dapic].x;
-    int32_t tsizy = tilesiz[dapic].y;
+    vec2_t siz, tsiz = tilesiz[dapic];
 
     if (!glinfo.texnpot)
     {
-        for (xsiz=1; xsiz<tsizx; xsiz+=xsiz);
-        for (ysiz=1; ysiz<tsizy; ysiz+=ysiz);
+        for (siz.x=1; siz.x<tsiz.x; siz.x+=siz.x);
+        for (siz.y=1; siz.y<tsiz.y; siz.y+=siz.y);
     }
     else
     {
-        if ((tsizx|tsizy) == 0)
+        if ((tsiz.x|tsiz.y) == 0)
         {
-            xsiz = ysiz = 1;
+            siz.x = siz.y = 1;
         }
         else
         {
-            xsiz = tsizx;
-            ysiz = tsizy;
+            siz.x = tsiz.x;
+            siz.y = tsiz.y;
         }
     }
 
-    pic = (coltype *)Xmalloc(xsiz*ysiz*sizeof(coltype));
+    pic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
 
     if (!waloff[dapic])
     {
         //Force invalid textures to draw something - an almost purely transparency texture
         //This allows the Z-buffer to be updated for mirrors (which are invalidated textures)
         pic[0].r = pic[0].g = pic[0].b = 0; pic[0].a = 1;
-        tsizx = tsizy = 1; hasalpha = 1;
+        tsiz.x = tsiz.y = 1; hasalpha = 1;
     }
     else
     {
         const int32_t dofullbright = !(picanm[dapic].sf&PICANM_NOFULLBRIGHT_BIT);
         int32_t y;
 
-        for (y=0; y<ysiz; y++)
+        for (y=0; y<siz.y; y++)
         {
-            coltype *wpptr = &pic[y*xsiz];
+            coltype *wpptr = &pic[y*siz.x];
             int32_t x;
-            int32_t y2 = (y < tsizy) ? y : y-tsizy;
+            int32_t y2 = (y < tsiz.y) ? y : y-tsiz.y;
 
-            for (x=0; x<xsiz; x++,wpptr++)
+            for (x=0; x<siz.x; x++,wpptr++)
             {
                 int32_t dacol;
-                int32_t x2 = (x < tsizx) ? x : x-tsizx;
+                int32_t x2 = (x < tsiz.x) ? x : x-tsiz.x;
 
-                if ((dameth & DAMETH_CLAMPED) && (x >= tsizx || y >= tsizy)) //Clamp texture
+                if ((dameth & DAMETH_CLAMPED) && (x >= tsiz.x || y >= tsiz.y)) //Clamp texture
                 {
                     wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0;
                     continue;
                 }
 
-                dacol = *(char *)(waloff[dapic]+x2*tsizy+y2);
+                dacol = *(char *)(waloff[dapic]+x2*tsiz.y+y2);
 
                 if (!fullbrightloadingpass)
                 {
@@ -1007,27 +993,27 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
     if (doalloc) bglGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
     bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
-    fixtransparency(dapic, pic,tsizx,tsizy,xsiz,ysiz,dameth);
+    fixtransparency(pic,tsiz,siz,dameth);
 
-    if (polymost_want_npotytex(dameth, ysiz) &&
-            tsizx==xsiz && tsizy==ysiz)  // XXX
+    if (polymost_want_npotytex(dameth, siz.y) &&
+            tsiz.x==siz.x && tsiz.y==siz.y)  // XXX
     {
         const int32_t nextpoty = 1<<((picsiz[dapic]>>4)+1);
-        const int32_t ydif = nextpoty - ysiz;
+        const int32_t ydif = nextpoty - siz.y;
         coltype *paddedpic;
 
-        Bassert(ydif > 0 && ydif < ysiz);
+        Bassert(ydif > 0 && ydif < siz.y);
 
-        paddedpic = (coltype*) Xrealloc(pic, xsiz*nextpoty*sizeof(coltype));
+        paddedpic = (coltype*) Xrealloc(pic, siz.x*nextpoty*sizeof(coltype));
 
         pic = paddedpic;
-        Bmemcpy(&pic[xsiz*ysiz], pic, xsiz*ydif*sizeof(coltype));
-        ysiz = tsizy = nextpoty;
+        Bmemcpy(&pic[siz.x*siz.y], pic, siz.x*ydif*sizeof(coltype));
+        siz.y = tsiz.y = nextpoty;
 
         npoty = PTH_NPOTWALL;
     }
 
-    uploadtexture(doalloc,xsiz,ysiz,hasalpha?GL_RGBA:GL_RGB,GL_RGBA,pic,tsizx,tsizy,dameth);
+    uploadtexture(doalloc,siz.x,siz.y,hasalpha?GL_RGBA:GL_RGB,GL_RGBA,pic,tsiz.x,tsiz.y,dameth);
 
     texture_setup(dameth);
 
@@ -1059,7 +1045,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                             int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
 {
     coltype *pic = NULL;
-    int32_t xsiz=0, ysiz=0, tsizx, tsizy;
+//    int32_t xsiz=0, ysiz=0, tsizx, tsizy;
+    vec2_t siz ={ 0, 0 };
+    vec2_t tsiz;
 
     char *picfil = NULL, *fn, hasalpha = 255;
     int32_t picfillen, texfmt = GL_RGBA, intexfmt = GL_RGBA, filh;
@@ -1102,8 +1090,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
     if (gotcache && !texcache_loadtile(&cachead, &doalloc, pth))
     {
-        tsizx = cachead.xdim;
-        tsizy = cachead.ydim;
+        tsiz.x = cachead.xdim;
+        tsiz.y = cachead.ydim;
         hasalpha = (cachead.flags & CACHEAD_HASALPHA) ? 0 : 255;
     }
     else
@@ -1127,33 +1115,34 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         // tsizx/y = replacement texture's natural size
         // xsiz/y = 2^x size of replacement
 
-        kpgetdim(picfil,picfillen,&tsizx,&tsizy);
-        if (tsizx == 0 || tsizy == 0) { Bfree(picfil); return -1; }
-        pth->sizx = tsizx;
-        pth->sizy = tsizy;
+        kpgetdim(picfil,picfillen,&tsiz.x,&tsiz.y);
+        if (tsiz.x == 0 || tsiz.y == 0) { Bfree(picfil); return -1; }
+
+        pth->siz.x = tsiz.x;
+        pth->siz.y = tsiz.y;
 
         if (!glinfo.texnpot)
         {
-            for (xsiz=1; xsiz<tsizx; xsiz+=xsiz);
-            for (ysiz=1; ysiz<tsizy; ysiz+=ysiz);
+            for (siz.x=1; siz.x<tsiz.x; siz.x+=siz.x);
+            for (siz.y=1; siz.y<tsiz.y; siz.y+=siz.y);
         }
         else
         {
-            xsiz = tsizx;
-            ysiz = tsizy;
+            siz.x = tsiz.x;
+            siz.y = tsiz.y;
         }
-        pic = (coltype *)Xcalloc(xsiz,ysiz*sizeof(coltype));
+        pic = (coltype *)Xcalloc(siz.x,siz.y*sizeof(coltype));
 
         startticks = getticks();
 
         if (lastpic && lastfn && !Bstrcmp(lastfn,fn))
         {
             willprint=1;
-            Bmemcpy(pic, lastpic, xsiz*ysiz*sizeof(coltype));
+            Bmemcpy(pic, lastpic, siz.x*siz.y*sizeof(coltype));
         }
         else
         {
-            if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { Bfree(picfil); Bfree(pic); return -2; }
+            if (kprender(picfil,picfillen,(intptr_t)pic,siz.x*sizeof(coltype),siz.x,siz.y)) { Bfree(picfil); Bfree(pic); return -2; }
             willprint=2;
 
             if (hicprecaching)
@@ -1161,16 +1150,16 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 lastfn = fn;  // careful...
                 if (!lastpic)
                 {
-                    lastpic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
-                    lastsize = xsiz*ysiz;
+                    lastpic = (coltype *)Bmalloc(siz.x*siz.y*sizeof(coltype));
+                    lastsize = siz.x*siz.y;
                 }
-                else if (lastsize < xsiz*ysiz)
+                else if (lastsize < siz.x*siz.y)
                 {
                     Bfree(lastpic);
-                    lastpic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
+                    lastpic = (coltype *)Bmalloc(siz.x*siz.y*sizeof(coltype));
                 }
                 if (lastpic)
-                    Bmemcpy(lastpic, pic, xsiz*ysiz*sizeof(coltype));
+                    Bmemcpy(lastpic, pic, siz.x*siz.y*sizeof(coltype));
             }
             else if (lastpic)
             {
@@ -1183,7 +1172,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         r=(glinfo.bgra)?hictinting[dapalnum].r:hictinting[dapalnum].b;
         g=hictinting[dapalnum].g;
         b=(glinfo.bgra)?hictinting[dapalnum].b:hictinting[dapalnum].r;
-        for (y=0,j=0; y<tsizy; y++,j+=xsiz)
+        for (y=0,j=0; y<tsiz.y; y++,j+=siz.x)
         {
             coltype tcol;
             char *cptr = britable[gammabrightness ? 0 : curbrightness];
@@ -1191,12 +1180,13 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
             int32_t x;
 
-            for (x=0; x<tsizx; x++)
+            for (x=0; x<tsiz.x; x++)
             {
                 tcol.b = cptr[rpptr[x].b];
                 tcol.g = cptr[rpptr[x].g];
                 tcol.r = cptr[rpptr[x].r];
-                tcol.a = rpptr[x].a; hasalpha &= rpptr[x].a;
+                tcol.a = rpptr[x].a;
+                hasalpha &= rpptr[x].a;
 
                 if (effect & HICTINT_GRAYSCALE)
                 {
@@ -1221,28 +1211,25 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                     tcol.r = min((int32_t)((tcol.r)*b)/64,255);
                 }
 
-                rpptr[x].b = tcol.b;
-                rpptr[x].g = tcol.g;
-                rpptr[x].r = tcol.r;
-                rpptr[x].a = tcol.a;
+                rpptr[x] = tcol;
             }
         }
 
         if ((!(dameth & DAMETH_CLAMPED)) || facen) //Duplicate texture pixels (wrapping tricks for non power of 2 texture sizes)
         {
-            if (xsiz > tsizx) //Copy left to right
+            if (siz.x > tsiz.x) //Copy left to right
             {
                 int32_t *lptr = (int32_t *)pic;
-                for (y=0; y<tsizy; y++,lptr+=xsiz)
-                    Bmemcpy(&lptr[tsizx],lptr,(xsiz-tsizx)<<2);
+                for (y=0; y<tsiz.y; y++,lptr+=siz.x)
+                    Bmemcpy(&lptr[tsiz.x],lptr,(siz.x-tsiz.x)<<2);
             }
-            if (ysiz > tsizy)  //Copy top to bottom
-                Bmemcpy(&pic[xsiz*tsizy],pic,(ysiz-tsizy)*xsiz<<2);
+            if (siz.y > tsiz.y)  //Copy top to bottom
+                Bmemcpy(&pic[siz.x*tsiz.y],pic,(siz.y-tsiz.y)*siz.x<<2);
         }
 
         if (!glinfo.bgra)
         {
-            for (j=xsiz*ysiz-1; j>=0; j--)
+            for (j=siz.x*siz.y-1; j>=0; j--)
             {
                 swapchar(&pic[j].r, &pic[j].b);
             }
@@ -1251,7 +1238,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         Bfree(picfil); picfil = 0;
 
-        if (tsizx>>r_downsize <= tilesiz[dapic].x || tsizy>>r_downsize <= tilesiz[dapic].y)
+        if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
             hicr->flags |= (HICR_NOCOMPRESS + HICR_NOSAVE);
 
         if (glinfo.texcompr && glusetexcompr && !(hicr->flags & HICR_NOSAVE))
@@ -1262,48 +1249,45 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             bglGenTextures(1, &pth->glpic); //# of textures (make OpenGL allocate structure)
         bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
-        fixtransparency(-1, pic,tsizx,tsizy,xsiz,ysiz,dameth);
-        uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,
+        fixtransparency(pic,tsiz,siz,dameth);
+        uploadtexture(doalloc,siz.x,siz.y,intexfmt,texfmt,pic,-1,tsiz.y,
                       dameth | DAMETH_HI | (hicr->flags & HICR_NOCOMPRESS ? DAMETH_NOCOMPRESS : 0));
     }
 
     // precalculate scaling parameters for replacement
     if (facen > 0)
     {
-        pth->scalex = ((float)tsizx) * (1.0f/64.f);
-        pth->scaley = ((float)tsizy) * (1.0f/64.f);
+        pth->scale.x = (float)tsiz.x * (1.0f/64.f);
+        pth->scale.y = (float)tsiz.y * (1.0f/64.f);
     }
     else
     {
-        pth->scalex = ((float)tsizx) / ((float)tilesiz[dapic].x);
-        pth->scaley = ((float)tsizy) / ((float)tilesiz[dapic].y);
+        pth->scale.x = (float)tsiz.x / (float)tilesiz[dapic].x;
+        pth->scale.y = (float)tsiz.y / (float)tilesiz[dapic].y;
     }
 
     texture_setup(dameth);
 
     DO_FREE_AND_NULL(pic);
 
-    if (tsizx>>r_downsize <= tilesiz[dapic].x || tsizy>>r_downsize <= tilesiz[dapic].y)
-        hicr->flags |= (HICR_NOCOMPRESS + HICR_NOSAVE);
+    if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
+        hicr->flags |= HICR_NOCOMPRESS | HICR_NOSAVE;
 
     pth->picnum = dapic;
     pth->effects = effect;
-    pth->flags = TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (facen>0)*PTH_SKYBOX;
-    if (hasalpha != 255)
-        pth->flags |= PTH_HASALPHA;
+    pth->flags = TO_PTH_CLAMPED(dameth) | PTH_HIGHTILE | ((facen>0) * PTH_SKYBOX) | ((hasalpha != 255) ? PTH_HASALPHA : 0);
     pth->skyface = facen;
     pth->hicr = hicr;
 
     if (glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOSAVE))
         if (!gotcache)
         {
-            const int32_t nonpow2 = check_nonpow2(xsiz) || check_nonpow2(ysiz);
+            const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
 
             // save off the compressed version
-            if (hicr->flags & HICR_NOCOMPRESS) cachead.quality = 0;
-            else cachead.quality = r_downsize;
-            cachead.xdim = tsizx>>cachead.quality;
-            cachead.ydim = tsizy>>cachead.quality;
+            cachead.quality = (hicr->flags & HICR_NOCOMPRESS) ? 0 : r_downsize;
+            cachead.xdim = tsiz.x>>cachead.quality;
+            cachead.ydim = tsiz.y>>cachead.quality;
 
             // handle nocompress:
             cachead.flags = nonpow2*CACHEAD_NONPOW2 |
@@ -1402,7 +1386,10 @@ static float alpha = 0.f;
 static pthtyp *our_texcache_fetch(int32_t dameth)
 {
     // r_usetileshades 1 is TX's method.
-    return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1) ? globvis>>3 : 0, globalshade), dameth);
+    if (r_usetileshades != 1)
+        return texcache_fetch(globalpicnum, globalpal, globalshade, dameth);
+
+    return texcache_fetch(globalpicnum, globalpal, getpalookup(globvis>>3, globalshade), dameth);
 }
 
 static void drawpoly(float *dpx, float *dpy, int32_t n, int32_t method)
@@ -1485,7 +1472,6 @@ static void drawpoly(float *dpx, float *dpy, int32_t n, int32_t method)
         pthtyp *pth, *detailpth, *glowpth;
         int32_t texunits = GL_TEXTURE0_ARB;
         int32_t xx, yy;
-        int32_t k;
 
         int32_t jj = j;
 
@@ -1565,10 +1551,10 @@ static void drawpoly(float *dpx, float *dpy, int32_t n, int32_t method)
 
         if (pth && (pth->flags & PTH_HIGHTILE))
         {
-            hackscx = pth->scalex;
-            hackscy = pth->scaley;
-            tsiz.x = pth->sizx;
-            tsiz.y = pth->sizy;
+            hackscx = pth->scale.x;
+            hackscy = pth->scale.y;
+            tsiz.x = pth->siz.x;
+            tsiz.y = pth->siz.y;
         }
 
         xx = tsiz.x;
@@ -2113,7 +2099,7 @@ static void polymost_internal_nonparallaxed(float nx0, float ny0, float nx1, flo
         //relative alignment
         fx = (float)(wall[wall[sec->wallptr].point2].x-wall[sec->wallptr].x);
         fy = (float)(wall[wall[sec->wallptr].point2].y-wall[sec->wallptr].y);
-        r = 1.f/Bsqrtf(fx*fx+fy*fy); fx *= r; fy *= r;
+        r = polymost_invsqrt(fx*fx+fy*fy); fx *= r; fy *= r;
         ft[2] = fcosglobalang*fx + fsinglobalang*fy;
         ft[3] = fsinglobalang*fx - fcosglobalang*fy;
         ft[0] = ((float)(globalposx-wall[sec->wallptr].x))*fx + ((float)(globalposy-wall[sec->wallptr].y))*fy;
@@ -2152,7 +2138,7 @@ static void polymost_internal_nonparallaxed(float nx0, float ny0, float nx1, flo
     fy = global_cf_ypanning*((float)(1<<(picsiz[globalpicnum]>>4)))*(1.0f/256.f);
     if ((globalorientation&(2+64)) == (2+64)) //Hack for panning for slopes w/ relative alignment
     {
-        float r = global_cf_heinum * (1.0f/4096.f); r = 1.f/Bsqrtf(r*r+1);
+        float r = global_cf_heinum * (1.0f/4096.f); r = polymost_invsqrt(r*r+1);
         if (!(globalorientation&4)) fy *= r; else fx *= r;
     }
     guy += gdy*fx; guo += gdo*fx;
@@ -3086,7 +3072,7 @@ void polymost_scansector(int32_t sectnum)
     walltype *wal, *wal2;
     spritetype *spr;
     int32_t z, zz, startwall, endwall, numscansbefore, scanfirst, bunchfrst, nextsectnum, sectorbordercnt;
-    fvec2_t p1, p2, fp1, fp2;
+    vec2f_t p1, p2, fp1, fp2;
     float d;
 
     if (sectnum < 0) return;
@@ -3821,7 +3807,7 @@ void polymost_drawsprite(int32_t snum)
     {
         if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
         {
-            if (mddraw(tspr))
+            if (polymost_mddraw(tspr))
                 return;
 
             break;	// else, render as flat sprite
@@ -3829,14 +3815,14 @@ void polymost_drawsprite(int32_t snum)
 
         if (usevoxels && (tspr->cstat&48)!=48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
         {
-            if (voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr))
+            if (polymost_voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr))
                 return;
             break;	// else, render as flat sprite
         }
 
         if ((tspr->cstat&48)==48 && voxmodels[tspr->picnum])
         {
-            voxdraw(voxmodels[tspr->picnum], tspr);
+            polymost_voxdraw(voxmodels[tspr->picnum], tspr);
             return;
         }
         break;
@@ -3846,7 +3832,7 @@ void polymost_drawsprite(int32_t snum)
     {
         curpolygonoffset += .25f;
         bglEnable(GL_POLYGON_OFFSET_FILL);
-        bglPolygonOffset(-1.f-curpolygonoffset, -1.f);
+        bglPolygonOffset(-1.f, -1.f-curpolygonoffset);
     }
 #endif
 
@@ -4159,7 +4145,7 @@ void polymost_drawsprite(int32_t snum)
         //copied&modified from relative alignment
         xv = (float)tspr->x + s*x1 + c*y1; fx = (float)-(x0+x1)*s;
         yv = (float)tspr->y + s*y1 - c*x1; fy = (float)+(x0+x1)*c;
-        f = 1.f/Bsqrtf(fx*fx+fy*fy); fx *= f; fy *= f;
+        f = polymost_invsqrt(fx*fx+fy*fy); fx *= f; fy *= f;
         ft[2] = singlobalang*fy + cosglobalang*fx;
         ft[3] = singlobalang*fx - cosglobalang*fy;
         ft[0] = ((float)(globalposy-yv))*fy + ((float)(globalposx-xv))*fx;
@@ -4245,7 +4231,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
         {
             int32_t oldviewingrange;
             float ogxyaspect;
-            float x1, y1, z1;
+            vec3f_t vec1;
 
             spritetype tspr;
             memset(&tspr, 0, sizeof(spritetype));
@@ -4262,15 +4248,13 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
             ogxyaspect = gxyaspect; gxyaspect = 1.f;
             oldviewingrange = viewingrange; viewingrange = 65536;
 
-            x1 = hudmem[(dastat&4)>>2][picnum].xadd;
-            y1 = hudmem[(dastat&4)>>2][picnum].yadd;
-            z1 = hudmem[(dastat&4)>>2][picnum].zadd;
+            vec1 = hudmem[(dastat&4)>>2][picnum].add;
 
 #ifdef POLYMER
             if (pr_overridehud) {
-                x1 = pr_hudxadd;
-                y1 = pr_hudyadd;
-                z1 = pr_hudzadd;
+                vec1.x = pr_hudxadd;
+                vec1.y = pr_hudyadd;
+                vec1.z = pr_hudzadd;
             }
 #endif
             if (!(hudmem[(dastat&4)>>2][picnum].flags & HUDFLAG_NOBOB))
@@ -4297,13 +4281,13 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
                 if (!(dastat & RS_AUTO))
                 {
-                    x1 += fx/((float) (xdim<<15))-1.f; //-1: left of screen, +1: right of screen
-                    y1 += fy/((float) (ydim<<15))-1.f; //-1: top of screen, +1: bottom of screen
+                    vec1.x += fx/((float) (xdim<<15))-1.f; //-1: left of screen, +1: right of screen
+                    vec1.y += fy/((float) (ydim<<15))-1.f; //-1: top of screen, +1: bottom of screen
                 }
                 else
                 {
-                    x1 += fx*(1.0f/160.f)-1.f; //-1: left of screen, +1: right of screen
-                    y1 += fy*(1.0f/100.f)-1.f; //-1: top of screen, +1: bottom of screen
+                    vec1.x += fx*(1.0f/160.f)-1.f; //-1: left of screen, +1: right of screen
+                    vec1.y += fy*(1.0f/100.f)-1.f; //-1: top of screen, +1: bottom of screen
                 }
             }
             tspr.ang = hudmem[(dastat&4)>>2][picnum].angadd+globalang;
@@ -4314,30 +4298,28 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
             }
 #endif
 
-            if (dastat & RS_YFLIP) { x1 = -x1; y1 = -y1; }
+            if (dastat & RS_YFLIP) { vec1.x = -vec1.x; vec1.y = -vec1.y; }
 
             // In Polymost, we don't care if the model is very big
             if (getrendermode() < REND_POLYMER)
             {
                 tspr.xrepeat = tspr.yrepeat = 32;
 
-                tspr.x = (int32_t) (((float) gcosang*z1 - (float) gsinang*x1)*16384.f + globalposx);
-                tspr.y = (int32_t) (((float) gsinang*z1 + (float) gcosang*x1)*16384.f + globalposy);
-                tspr.z = (int32_t) (globalposz + y1*16384.f*0.8f);
+                tspr.x = globalposx + Blrintf((gcosang*vec1.z - gsinang*vec1.x)*16384.f);
+                tspr.y = globalposy + Blrintf((gsinang*vec1.z + gcosang*vec1.x)*16384.f);
+                tspr.z = globalposz + Blrintf(vec1.y * (16384.f * 0.8f));
             }
             else
             {
-                float x, y, z;
+                vec3f_t vec2;
 
                 tspr.xrepeat = tspr.yrepeat = 5;
 
-                x = (float) (((float) gcosang*z1 - (float) gsinang*x1)*2560.f + globalposx);
-                y = (float) (((float) gsinang*z1 + (float) gcosang*x1)*2560.f + globalposy);
-                z = (float) (globalposz + y1*2560.f*0.8f);
+                vec2.x = (float)globalposx + (gcosang*vec1.z - gsinang*vec1.x)*2560.f;
+                vec2.y = (float)globalposy + (gsinang*vec1.z + gcosang*vec1.x)*2560.f;
+                vec2.z = (float)globalposz + (vec1.y*(2560.f*0.8f));
 
-                memcpy(&tspr.x, &x, sizeof(float));
-                memcpy(&tspr.y, &y, sizeof(float));
-                memcpy(&tspr.z, &z, sizeof(float));
+                Bmemcpy(&tspr.x, &vec2, sizeof(vec3f_t));
             }
             tspr.picnum = picnum;
             tspr.shade = dashade;
@@ -4346,8 +4328,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
             // 1 -> 1
             // 32 -> 32*16 = 512
             // 4 -> 8
-            globalorientation = (dastat&RS_TRANS1) + ((dastat&RS_TRANS2)<<4) + ((dastat&RS_YFLIP)<<1);
-            tspr.cstat = globalorientation;
+            tspr.cstat = globalorientation = (dastat&RS_TRANS1) | ((dastat&RS_TRANS2)<<4) | ((dastat&RS_YFLIP)<<1);
 
             if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
                 bglViewport(windowx1, yres-(windowy2+1), windowx2-windowx1+1, windowy2-windowy1+1);
@@ -4360,10 +4341,10 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
             if (getrendermode() < REND_POLYMER)
             {
                 bglMatrixMode(GL_PROJECTION);
-                memset(m, 0, sizeof(m));
+                Bmemset(m, 0, sizeof(m));
+
                 if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
                 {
-                    const float ratioratio = 1.f; //(float)xdim/ydim;
                     float f = 1.f;
                     int32_t fov = hudmem[(dastat&4)>>2][picnum].fov;
 #ifdef POLYMER
@@ -4371,16 +4352,11 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
                         fov = pr_hudfov;
 #endif
                     if (fov != -1)
-                    {
-                        // XXX: what's the cause for this (half-guessed /
-                        // empirically determined) factor being necessary?
-                        fov = (fov*512)/400;
-                        f = 1.f / tanf((PI * fov)*(1.0f/2048.f));
-                    }
+                        f = 1.f/tanf(((float)fov * 2.56f) * ((.5f * PI) * (1.0f/2048.f)));
 
-                    m[0][0] = f*(float) ydimen*(ratioratio >= 1.6 ? 1.2 : 1); m[0][2] = 1.f;
+                    m[0][0] = f*(float) ydimen; m[0][2] = 1.f;
                     m[1][1] = f*(float) xdimen; m[1][2] = 1.f;
-                    m[2][2] = 1.f; m[2][3] = (float) ydimen*(ratioratio >= 1.6 ? 1.2 : 1);
+                    m[2][2] = 1.f; m[2][3] = (float) ydimen;
                     m[3][2] =-1.f;
                 }
                 else
@@ -4417,8 +4393,8 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
             bglDisable(GL_FOG);
 
-            if (getrendermode() < REND_POLYMER)
-                mddraw(&tspr);
+            if (getrendermode() == REND_POLYMOST)
+                polymost_mddraw(&tspr);
 # ifdef POLYMER
             else
             {
@@ -4883,7 +4859,7 @@ void polymost_fillpolygon(int32_t npoints)
 
     f = getshadefactor(globalshade);
 
-    if ((globalorientation>>7)&3 > 1)
+    if (((globalorientation>>7)&3) > 1)
     {
         bglEnable(GL_BLEND);
         a = float_trans[(globalorientation>>7)&3];

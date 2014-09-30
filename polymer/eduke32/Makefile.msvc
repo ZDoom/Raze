@@ -131,22 +131,23 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\crc32.$o \
 	$(ENGINE_OBJ)\defs.$o \
 	$(ENGINE_OBJ)\engine.$o \
+        $(ENGINE_OBJ)\glbuild.$o \
+        $(ENGINE_OBJ)\texcache.$o \
+        $(ENGINE_OBJ)\kplib.$o \
+        $(ENGINE_OBJ)\hightile.$o \
 	$(ENGINE_OBJ)\polymost.$o \
-	$(ENGINE_OBJ)\texcache.$o \
+        $(ENGINE_OBJ)\polymer.$o \
+        $(ENGINE_OBJ)\mdsprite.$o \
+        $(ENGINE_OBJ)\voxmodel.$o \
 	$(ENGINE_OBJ)\dxtfilter.$o \
-	$(ENGINE_OBJ)\hightile.$o \
-	$(ENGINE_OBJ)\mdsprite.$o \
 	$(ENGINE_OBJ)\textfont.$o \
 	$(ENGINE_OBJ)\smalltextfont.$o \
-	$(ENGINE_OBJ)\glbuild.$o \
-	$(ENGINE_OBJ)\kplib.$o \
 	$(ENGINE_OBJ)\lz4.$o \
 	$(ENGINE_OBJ)\lzwnew.$o \
 	$(ENGINE_OBJ)\mmulti_null.$o \
 	$(ENGINE_OBJ)\osd.$o \
 	$(ENGINE_OBJ)\pragmas.$o \
 	$(ENGINE_OBJ)\scriptfile.$o \
-	$(ENGINE_OBJ)\polymer.$o \
 	$(ENGINE_OBJ)\mutex.$o \
 	$(ENGINE_OBJ)\winbits.$o \
 	$(ENGINE_OBJ)\xxhash.$o

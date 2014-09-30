@@ -2767,7 +2767,7 @@ static WSHELPER_DECL void calc_vplcinc_wall(uint32_t *vplc, int32_t *vinc, inthi
 #ifdef HIGH_PRECISION_SPRITE
 static WSHELPER_DECL void calc_vplcinc_sprite(uint32_t *vplc, int32_t *vinc, int32_t x, int32_t y1v)
 {
-    inthi_t tmpvinc = swallf[x];
+    inthi_t tmpvinc = Blrintf(swallf[x]);
     inthi_t tmpvplc = globalzd + tmpvinc*(y1v-globalhoriz+1);
 
     *vinc = tmpvinc;
@@ -6897,7 +6897,7 @@ static inline int32_t addscaleclamp(int32_t a, int32_t b, int32_t s1, int32_t s2
     // a + scale(b, s1, s1-s2), but without arithmetic exception when the
     // scale() expression overflows
 
-    double tmp = (double)a + ((double)b*s1)/(s1-s2);
+    int64_t tmp = (int64_t)a + ((int64_t)b*s1)/(s1-s2);
 
     if (tmp <= INT32_MIN+1)
         return INT32_MIN+1;
@@ -7896,18 +7896,20 @@ static void dosetaspect(void)
 //
 static inline void calcbritable(void)
 {
-    int32_t i,j;
-    double a,b;
+    int32_t i, j;
+    float a, b;
+
     for (i=0; i<16; i++)
     {
-        a = (double)8 / ((double)i+8);
-        b = (double)255 / pow((double)255,a);
+        a = 8.f / ((float)i+8.f);
+        b = 255.f / powf(255.f, a);
+
         for (j=0; j<256; j++) // JBF 20040207: full 8bit precision
-            britable[i][j] = (uint8_t)(pow((double)j,a)*b);
+            britable[i][j] = (uint8_t) (powf((float)j, a) * b);
     }
 }
 
-#define BANG2RAD (PI/1024.0)
+#define BANG2RAD ((float)PI * (1.f/1024.f))
 
 static int32_t loadtables(void)
 {
@@ -8290,16 +8292,16 @@ int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
             if (dist < mindist && i <= lastokcol)
             {
                 dist += rdist[pal1[0]+r];
-                if (dist < mindist)
-                {
-                    dist += bdist[pal1[2]+b];
-                    if (dist < mindist) { mindist = dist; retcol = i; }
-                }
+                if (dist >= mindist)
+                    continue;
+                dist += bdist[pal1[2]+b];
+                if (dist >= mindist)
+                    continue;
+                mindist = dist;
+                retcol = i;
             }
-
-            i = colnext[i];
         }
-        while (i >= 0);
+        while ((i = colnext[i]) >= 0);
     }
 
     if (retcol >= 0)
@@ -8609,12 +8611,12 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
     ox = ksgn(-dy); oy = ksgn(dx);
     first = (klabs(dx) <= klabs(dy));
 
-    while (1)
+    do
     {
         if (dx*(*y-y1) > (*x-x1)*dy) return;
         if (first == 0) *x += ox; else *y += oy;
         first ^= 1;
-    }
+    } while (1);
 }
 
 
@@ -8797,6 +8799,7 @@ int32_t preinitengine(void)
     getvalidmodes();
 
     initcrc32table();
+
 #ifdef HAVE_CLIPSHAPE_FEATURE
     clipmapinfo_init();
 #endif
@@ -8920,6 +8923,9 @@ void uninitengine(void)
     DO_FREE_AND_NULL(blockptr);
 #endif
 
+#ifdef WITHKPLIB
+    DO_FREE_AND_NULL(kpzbuf);
+#endif
     uninitsystem();
 }
 
@@ -17511,9 +17517,7 @@ int32_t setrendermode(int32_t renderer)
 #ifdef USE_OPENGL
 void setrollangle(int32_t rolla)
 {
-    UNREFERENCED_PARAMETER(rolla);
-    if (rolla == 0) gtang = 0.0;
-    else gtang = PI * (double)rolla / 1024.0;
+    gtang = (float) rolla * PI * (1.f/1024.f);
 }
 #endif
 

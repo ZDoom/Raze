@@ -46,7 +46,7 @@ else
   endif
 endif
 ifeq (1,$(USE_OPENGL))
-    ENGINE_OBJS+= mdsprite glbuild
+    ENGINE_OBJS+= glbuild voxmodel mdsprite
     ifeq (1,$(POLYMER))
         ENGINE_OBJS+= polymer
     endif
