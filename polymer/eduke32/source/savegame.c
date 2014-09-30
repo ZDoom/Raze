@@ -242,7 +242,7 @@ int32_t G_LoadPlayer(int32_t spot)
     ready2send = 0;
 
     i = sv_loadheader(fil, spot, &h);
-    if (i || h.numplayers!=ud.multimode)
+    if (i && i != 2 || h.numplayers!=ud.multimode)
     {
         if (i == 2 || i == 3)
             P_DoQuote(QUOTE_SAVE_BAD_VERSION, g_player[myconnectindex].ps);
@@ -306,16 +306,22 @@ int32_t G_LoadPlayer(int32_t spot)
 
     Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
 
-    // read the rest...
-    i = sv_loadsnapshot(fil, spot, &h);
-    if (i)
+    if (i == 2)
     {
-        // in theory, we could load into an initial dump first and trivially
-        // recover if things go wrong...
-        Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", fn, i);
-        G_GameExit(tempbuf);
+        G_NewGame_EnterLevel();
     }
-
+    else
+    {
+        // read the rest...
+        i = sv_loadsnapshot(fil, spot, &h);
+        if (i)
+        {
+            // in theory, we could load into an initial dump first and trivially
+            // recover if things go wrong...
+            Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", fn, i);
+            G_GameExit(tempbuf);
+        }
+    }
     sv_postudload();  // ud.m_XXX = ud.XXX
 
     VM_OnEvent(EVENT_LOADGAME, g_player[myconnectindex].ps->i, myconnectindex, -1, 0);
