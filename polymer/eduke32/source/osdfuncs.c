@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "premap.h"
 
 int32_t osdhightile = 1;
+int32_t osdshown = 0;
+
 #ifdef __ANDROID__
 float osdscale = 2.f;
 #else
@@ -127,7 +129,8 @@ void GAME_onshowosd(int32_t shown)
 {
     G_UpdateScreenArea();
 
-    UNREFERENCED_PARAMETER(shown);
+    osdshown = shown;
+
     // XXX: it's weird to fake a keypress like this.
 //    if (numplayers == 1 && ((shown && !ud.pause_on) || (!shown && ud.pause_on)))
 //        KB_KeyDown[sc_Pause] = 1;

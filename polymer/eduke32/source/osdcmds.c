@@ -1569,11 +1569,11 @@ int32_t registerosdcommands(void)
         { "mus_volume", "controls volume of midi music", (void *)&ud.config.MusicVolume, CVAR_INT, 0, 255 },
 
         { "osdhightile", "enable/disable hires art replacements for console text", (void *)&osdhightile, CVAR_BOOL, 0, 1 },
-        { "osdscale", "adjust console text size", (void *)&osdscale, CVAR_FLOAT|CVAR_FUNCPTR, 1.f, 4.f },
+        { "osdscale", "adjust console text size", (void *)&osdscale, CVAR_FLOAT|CVAR_FUNCPTR, 1, 4 },
 
         { "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
-        { "r_showfps", "show the frame rate counter", (void *)&ud.tickrate, CVAR_BOOL, 0, 1 },
+        { "r_showfps", "show the frame rate counter", (void *)&ud.tickrate, CVAR_INT, 0, 2 },
         { "r_shadows", "enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
         { "r_size", "change size of viewable area", (void *)&ud.screen_size, CVAR_INT|CVAR_FUNCPTR, 0, 64 },
         { "r_rotatespritenowidescreen", "pass bit 1024 to all CON rotatesprite calls", (void *)&g_rotatespriteNoWidescreen, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },

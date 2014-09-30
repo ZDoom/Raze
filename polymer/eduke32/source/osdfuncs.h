@@ -29,6 +29,7 @@ void GAME_onshowosd(int32_t shown);
 void GAME_clearbackground(int32_t numcols, int32_t numrows);
 
 extern int32_t osdhightile;
+extern int32_t osdshown;
 extern float osdscale;
 
 #define OSDCHAR_WIDTH 8

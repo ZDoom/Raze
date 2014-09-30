@@ -2436,12 +2436,18 @@ static void G_PrintFPS(void)
 {
     // adapted from ZDoom because I like it better than what we had
     // applicable ZDoom code available under GPL from csDoom
-    static int32_t FrameCount = 0;
-    static int32_t LastCount = 0;
-    static int32_t LastSec = 0;
-    static int32_t LastMS = 0;
+    static int32_t FrameCount = 0, LastCount = 0, LastSec = 0, LastMS = 0;
+    static int32_t MinFrames = INT32_MAX, MaxFrames = 0;
+
     int32_t ms = getticks();
     int32_t howlong = ms - LastMS;
+
+    if (g_player[0].ps->player_par < 2)
+    {
+        MinFrames = INT32_MAX;
+        MaxFrames = 0;
+    }
+
     if (howlong >= 0)
     {
         int32_t thisSec = ms/1000;
@@ -2455,14 +2461,29 @@ static void G_PrintFPS(void)
             printext256(windowx2-(chars<<(3-x)),windowy1+1,
                         (LastCount < LOW_FPS) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
 
+            if (ud.tickrate > 1)
+            {
+                chars = Bsprintf(tempbuf, "max fps: %3u", MaxFrames);
+
+                printext256(windowx2-(chars<<(3-x))+1, windowy1+10+2, 0, -1, tempbuf, x);
+                printext256(windowx2-(chars<<(3-x)), windowy1+10,
+                    (MaxFrames < LOW_FPS) ? COLOR_RED : COLOR_WHITE, -1, tempbuf, x);
+
+                chars = Bsprintf(tempbuf, "min fps: %3u", MinFrames);
+
+                printext256(windowx2-(chars<<(3-x))+1, windowy1+20+2, 0, -1, tempbuf, x);
+                printext256(windowx2-(chars<<(3-x)), windowy1+20,
+                    (MinFrames < LOW_FPS) ? COLOR_RED : COLOR_WHITE, -1, tempbuf, x);
+            }
+
             // lag meter
             if (g_netClientPeer)
             {
                 chars = Bsprintf(tempbuf, "%d +- %d ms", (g_netClientPeer->lastRoundTripTime + g_netClientPeer->roundTripTime)/2,
                                  (g_netClientPeer->lastRoundTripTimeVariance + g_netClientPeer->roundTripTimeVariance)/2);
 
-                printext256(windowx2-(chars<<(3-x))+1,windowy1+10+2,0,-1,tempbuf,x);
-                printext256(windowx2-(chars<<(3-x)),windowy1+10+1,g_netClientPeer->lastRoundTripTime > 200 ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
+                printext256(windowx2-(chars<<(3-x))+1,windowy1+30+2,0,-1,tempbuf,x);
+                printext256(windowx2-(chars<<(3-x)),windowy1+30+1,g_netClientPeer->lastRoundTripTime > 200 ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
             }
         }
 
@@ -2471,6 +2492,12 @@ static void G_PrintFPS(void)
             g_currentFrameRate = LastCount = FrameCount / (thisSec - LastSec);
             LastSec = thisSec;
             FrameCount = 0;
+
+            if (!osdshown)
+            {
+                if (LastCount > MaxFrames) MaxFrames = LastCount;
+                if (LastCount < MinFrames) MinFrames = LastCount;
+            }
         }
         FrameCount++;
     }
@@ -8422,7 +8449,9 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_RATE:
-                    ud.tickrate = !ud.tickrate;
+                    if (ud.tickrate++ > 2)
+                        ud.tickrate = 0;
+
                     end_cheat();
                     return;
 
