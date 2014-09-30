@@ -121,8 +121,8 @@ static inline void drawpixelses(void* s, int32_t a) { *((int32_t*)(s)) = a; }
 static inline int32_t divmod(int32_t a, int32_t b) { uint32_t _a=(uint32_t)a, _b=(uint32_t)b; dmval = _a%_b; return _a/_b; }
 static inline int32_t moddiv(int32_t a, int32_t b) { uint32_t _a=(uint32_t)a, _b=(uint32_t)b; dmval = _a/_b; return _a%_b; }
 
-static inline int32_t klabs(int32_t a) { if (a < 0) return -a; return a; }
-static inline int32_t ksgn(int32_t a)  { if (a > 0) return 1; if (a < 0) return -1; return 0; }
+static inline int32_t klabs(int32_t a) { const uint32_t m = a >> (sizeof(int) * CHAR_BIT - 1); return (a ^ m) - m; }
+static inline int32_t ksgn(int32_t a)  { return (a>0)-(a<0); }
 
 static inline int32_t umin(int32_t a, int32_t b) { if ((uint32_t)a < (uint32_t)b) return a; return b; }
 static inline int32_t umax(int32_t a, int32_t b) { if ((uint32_t)a < (uint32_t)b) return b; return a; }
