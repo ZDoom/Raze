@@ -243,7 +243,8 @@ static int32_t sbarxr(int32_t x)
 
 static int32_t sbary(int32_t y)
 {
-    return (200<<16) - sbarsc(200<<16) + sbarsc(y<<16);
+    if (ud.althud == 2 && ud.screen_size == 4) return sbarsc(y << 16);
+    else return (200<<16) - sbarsc(200<<16) + sbarsc(y<<16);
 }
 
 static int32_t sbarx16(int32_t x)
@@ -832,6 +833,11 @@ vec2_t G_ScreenText(const int32_t font,
             origin.y = -(size.y / 2);
     }
 
+#if defined(USE_OPENGL) && defined(DROIDMENU)
+    gltexfiltermode = 1;
+    gltexapplyprops();
+#endif
+
     // loop through the string
     while ((t = *text) && text != end)
     {
@@ -1109,6 +1115,15 @@ vec2_t G_ScreenText(const int32_t font,
         size.x >>= 16;
         size.y >>= 16;
     }
+
+#if defined(USE_OPENGL) && defined(DROIDMENU)
+    {
+        extern int32_t menufiltermode;
+
+        gltexfiltermode = menufiltermode ? 5 : 2;
+        gltexapplyprops();
+    }
+#endif
 
     return size;
 }
@@ -2044,10 +2059,6 @@ static void G_DrawStatusBar(int32_t snum)
                 G_DrawAltDigiNum(105,-(hudoffset-22),lAmount,-16,10+16+256);
             }
 			
-            if (p->got_access&1) rotatesprite_althudr(39,hudoffset-43,sb15,0,ACCESSCARD,0,0,10+16+512);
-            if (p->got_access&4) rotatesprite_althudr(34,hudoffset-41,sb15,0,ACCESSCARD,0,23,10+16+512);
-            if (p->got_access&2) rotatesprite_althudr(29,hudoffset-39,sb15,0,ACCESSCARD,0,21,10+16+512);
-
             i = (p->curr_weapon == PISTOL_WEAPON) ? 16384 : 32768;
 
             rotatesprite_althudr(57,hudoffset-15,sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512);
@@ -2100,6 +2111,13 @@ static void G_DrawStatusBar(int32_t snum)
                     minitext(284-35-o,hudoffset-20-3,"Auto",2, orient+ROTATESPRITE_MAX);
                 }
             }
+
+            if (ud.althud == 2)
+                hudoffset += 40;
+
+            if (p->got_access&1) rotatesprite_althudr(39, hudoffset-43, sb15, 0, ACCESSCARD, 0, 0, 10+16+512);
+            if (p->got_access&4) rotatesprite_althudr(34, hudoffset-41, sb15, 0, ACCESSCARD, 0, 23, 10+16+512);
+            if (p->got_access&2) rotatesprite_althudr(29, hudoffset-39, sb15, 0, ACCESSCARD, 0, 21, 10+16+512);
         }
         else
         {
@@ -3674,8 +3692,8 @@ void G_DisplayRest(int32_t smoothratio)
         if (MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
         {
             if (currentboardfilename[0] != 0 && ud.volume_number == 0 && ud.level_number == 7)
-                menutext_(160,75,-g_levelTextTime+22/*quotepulseshade*/,0,currentboardfilename,bits);
-            else menutext_(160,75,-g_levelTextTime+22/*quotepulseshade*/,0,MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name,bits);
+                menutext_(160,90+16+8,-g_levelTextTime+22/*quotepulseshade*/,0,currentboardfilename,bits);
+            else menutext_(160,90+16+8,-g_levelTextTime+22/*quotepulseshade*/,0,MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name,bits);
         }
     }
 
@@ -3990,7 +4008,7 @@ void G_DrawBackground(void)
     else
     {
         const int32_t MENUTILE = MENUSCREEN;//(getrendermode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
-        const int32_t fstilep = tilesizx[MENUTILE]==320 && tilesizy[MENUTILE]==200;
+        const int32_t fstilep = tilesizx[MENUTILE]>=320 && tilesizy[MENUTILE]==200;
         int32_t bgtile = (fstilep ? MENUTILE : BIGHOLE);
 
         clearallviews(0);
@@ -4380,22 +4398,11 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     if (g_networkMode == NET_DEDICATED_SERVER) return;
 
-#ifdef __ANDROID__ 
-    // HACK: this is needed or else we get leftover UI texture crap where we'd get HOM on PC
-
-    if (getrendermode() == REND_POLYMOST)
-    {
-        static int32_t col = -1;
-        if (col == -1)
-            col = getclosestcol(4, 4, 4);
-
-        clearallviews(col);
-    }
-#endif
-
     if (pub > 0 || getrendermode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
+#ifndef __ANDROID__
         if (ud.screen_size >= 8)
+#endif
             G_DrawBackground();
         pub = 0;
     }
@@ -8607,7 +8614,7 @@ void G_HandleLocalKeys(void)
 
             if (!SHIFTS_IS_PRESSED)
             {
-                if (ud.screen_size < 64)
+                if (ud.screen_size < 8 || (ud.screen_size == 8 && ud.statusbarmode))
                 {
                     S_PlaySound(THUD);
                     G_SetViewportShrink(+4);
@@ -10400,9 +10407,12 @@ static void G_DisplayLogo(void)
     S_ClearSoundLocks();  // JBF 20031228
     if ((!g_netServer && ud.multimode < 2) && (logoflags & LOGO_ENABLED) && !g_noLogo)
     {
-        if (VOLUMEALL && (logoflags & LOGO_PLAYANIM))
+        if (
+#ifndef __ANDROID__
+            VOLUMEALL && 
+#endif
+            (logoflags & LOGO_PLAYANIM))
         {
-
             if (!I_CheckAllInput() && g_noLogoAnim == 0)
             {
                 Net_GetPackets();
@@ -10431,34 +10441,61 @@ static void G_DisplayLogo(void)
         {
             //g_player[myconnectindex].ps->palette = drealms;
             //G_FadePalette(0,0,0,63);
+
             if (logoflags & LOGO_3DRSCREEN)
             {
-                clearallviews(0);
 
-                P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8+2+1);    // JBF 20040308
-                fadepal(0,0,0, 0,63,7);
-                flushperms();
-                rotatesprite_fs(160<<16,100<<16,65536L,0,DREALMS,0,0,2+8+(ud.bgstretch?1024:0));
-                nextpage();
-                fadepaltile(0,0,0, 63,0,-7,DREALMS);
-                totalclock = 0;
-                while (totalclock < (120*7) && !I_CheckAllInput())
+                if (!I_CheckAllInput() && g_noLogoAnim == 0)
                 {
-                    clearallviews(0);
+                    int32_t i;
+                    Net_GetPackets();
 
-                    rotatesprite_fs(160<<16,100<<16,65536L,0,DREALMS,0,0,2+8+64+(ud.bgstretch?1024:0));
+                    i = kopen4loadfrommod("3dr.ivf", 0);
 
-                    G_HandleAsync();
+                    if (i == -1)
+                        i = kopen4loadfrommod("3dr.anm", 0);
 
-                    if (g_restorePalette)
+                    if (i != -1)
                     {
-                        P_SetGamePalette(g_player[myconnectindex].ps,g_player[myconnectindex].ps->palette,0);
-                        g_restorePalette = 0;
+                        kclose(i);
+                        G_PlayAnim("3dr.anm", 12);
+                        G_FadePalette(0, 0, 0, 63);
+                        I_ClearAllInput();
                     }
-                    nextpage();
+                    else
+                    {
+                        clearallviews(0);
+
+                        P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8 + 2 + 1);    // JBF 20040308
+                        fadepal(0, 0, 0, 0, 63, 7);
+                        flushperms();
+                        rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + (ud.bgstretch ? 1024 : 0));
+                        nextpage();
+                        fadepaltile(0, 0, 0, 63, 0, -7, DREALMS);
+                        totalclock = 0;
+                        while (totalclock < (120 * 7) && !I_CheckAllInput())
+                        {
+                            clearallviews(0);
+
+                            rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + (ud.bgstretch ? 1024 : 0));
+
+                            G_HandleAsync();
+
+                            if (g_restorePalette)
+                            {
+                                P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
+                                g_restorePalette = 0;
+                            }
+                            nextpage();
+                        }
+                        fadepaltile(0, 0, 0, 0, 63, 7, DREALMS);
+                    }
                 }
-                fadepaltile(0,0,0, 0,63,7,DREALMS);
+
+                clearallviews(0L);
+                nextpage();
             }
+
             I_ClearAllInput();
         }
 
@@ -10477,7 +10514,7 @@ static void G_DisplayLogo(void)
             fadepaltile(0,0,0, 63,0,-7,BETASCREEN);
             totalclock = 0;
 
-            while (totalclock < (860+120) && !I_CheckAllInput())
+            while (/*totalclock < (860+120) && */!I_CheckAllInput())
             {
                 clearallviews(0);
 
@@ -11725,7 +11762,15 @@ MAIN_LOOP_RESTART:
 
                 if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
                         (g_player[myconnectindex].ps->gm&MODE_GAME))
+                {
                     G_MoveLoop();
+#ifdef __ANDROID__
+                    inputfifo[0][myconnectindex].fvel = 0;
+                    inputfifo[0][myconnectindex].svel = 0;
+                    inputfifo[0][myconnectindex].avel = 0;
+                    inputfifo[0][myconnectindex].horz = 0;
+#endif
+                }
 
                 sampletimer();
 
