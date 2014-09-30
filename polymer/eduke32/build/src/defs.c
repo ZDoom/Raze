@@ -95,6 +95,8 @@ enum scripttoken_t
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
 static int32_t nextvoxid = 0;
+static char *faketilebuffer = NULL;
+static int32_t faketilebuffersiz = 0;
 
 #ifdef USE_OPENGL
 extern float alphahackarray[MAXTILES];
@@ -171,26 +173,31 @@ static int32_t check_tile(const char *defcmd, int32_t tile, const scriptfile *sc
 
 static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t alphacut)
 {
-    const int32_t xsiz = tilesiz[tile].x, ysiz = tilesiz[tile].y;
-    int32_t i, j;
+    const vec2_t siz = tilesiz[tile];
+    int32_t i, j, tsiz = siz.x * siz.y;
 
-    char *ftd = (char *)Xmalloc(xsiz*ysiz);
-
-    faketiledata[tile] = (char *)Xmalloc(xsiz*ysiz + 400);
-
-    for (i=xsiz-1; i>=0; i--)
+    if (tsiz > faketilebuffersiz)
     {
-        for (j=ysiz-1; j>=0; j--)
+        faketilebuffer = (char *) Xrealloc(faketilebuffer, tsiz);
+        faketilebuffersiz = tsiz;
+    }
+
+    faketiledata[tile] = (char *)Xmalloc(tsiz + 32);
+
+    for (i=siz.x-1; i>=0; i--)
+    {
+        uint32_t ofs = i * siz.y;
+
+        for (j=siz.y-1; j>=0; j--)
         {
-            const palette_t *col = &picptr[j*xsiz+i];
-            if (col->f < alphacut) { ftd[i*ysiz+j] = 255; continue; }
-            ftd[i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
+            const palette_t *col = &picptr[j*siz.x+i];
+            if (col->f < alphacut) { faketilebuffer[ofs+j] = 255; continue; }
+            faketilebuffer[ofs+j] = getclosestcol(col->b>>2, col->g>>2, col->r>>2);
         }
         //                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
     }
 
-    faketilesiz[tile] = LZ4_compress(ftd, faketiledata[tile], xsiz*ysiz);
-    Bfree(ftd);
+    faketilesiz[tile] = LZ4_compress(faketilebuffer, faketiledata[tile], tsiz);
 }
 
 #undef USE_DEF_PROGRESS
@@ -277,6 +284,7 @@ static int32_t defsparser(scriptfile *script)
             iter = 0;
         }
 #endif
+        handleevents();
         if (quitevent) return 0;
         tokn = getatoken(script,basetokens,ARRAY_SIZE(basetokens));
         cmdtokptr = script->ltextptr;
@@ -1586,7 +1594,7 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
 
-                i = kprender(filebuf, filesize, (intptr_t)highpaldata, xsiz*sizeof(coltype), xsiz, ysiz, 0, 0);
+                i = kprender(filebuf, filesize, (intptr_t)highpaldata, xsiz*sizeof(coltype), xsiz, ysiz);
                 Bfree(filebuf);
                 if (i)
                     { Bfree(highpaldata); initprintf("Error: failed rendering \"%s\".\n", fn); break; }
@@ -2166,6 +2174,9 @@ int32_t loaddefinitionsfile(const char *fn)
         scriptfile_close(script);
 
     scriptfile_clearsymbols();
+
+    DO_FREE_AND_NULL(faketilebuffer);
+    faketilebuffersiz = 0;
 
     if (!script) return -1;
 
