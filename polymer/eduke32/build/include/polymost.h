@@ -6,7 +6,7 @@
 #include "glbuild.h"
 #include "hightile.h"
 
-typedef struct { char r, g, b, a; } coltype;
+typedef struct { uint8_t r, g, b, a; } coltype;
 
 extern int32_t rendmode;
 extern float gtang;
@@ -117,6 +117,19 @@ static inline int polymost_is_npotmode(void)
         r_npotwallmode;
 }
 
+static inline float polymost_invsqrt(float x)
+{
+#ifdef B_LITTLE_ENDIAN
+    const float haf = x*.5f;
+    struct conv { union { uint32_t i; float f; } u; } * const n = (struct conv *)&x;
+    n->u.i = 0x5f3759df-(n->u.i>>1);
+    return n->u.f*(1.5f-haf*(n->u.f*n->u.f));
+#else
+    // this is the comment
+    return 1.f/Bsqrtf(x);
+#endif
+}
+
 // Flags of the <dameth> argument of various functions
 enum {
     DAMETH_CLAMPED = 4,
@@ -128,7 +141,7 @@ enum {
 };
 
 // DAMETH_CLAMPED -> PTH_CLAMPED conversion
-#define TO_PTH_CLAMPED(dameth) ((((dameth)&4))>>2)
+#define TO_PTH_CLAMPED(dameth) (((dameth)&DAMETH_CLAMPED)>>2)
 
 // Do we want a NPOT-y-as-classic texture for this <dameth> and <ysiz>?
 static inline int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
@@ -152,18 +165,19 @@ enum {
 typedef struct pthtyp_t
 {
     struct pthtyp_t *next;
-    uint32_t glpic;
-    int16_t picnum;
-    char palnum;
-    char shade;
-    char effects;
-    char flags;      // 1 = clamped (dameth&4), 2 = hightile, 4 = skybox face, 8 = hasalpha, 16 = hasfullbright, 128 = invalidated
-    char skyface;
-    hicreplctyp *hicr;
+    struct pthtyp_t *ofb; // fullbright pixels
+    hicreplctyp     *hicr;
 
-    uint16_t sizx, sizy;
-    float scalex, scaley;
-    struct pthtyp_t *ofb; // only fullbright
+    uint32_t        glpic;
+    vec2f_t         scale;
+    vec2_t          siz;
+    int16_t         picnum;
+
+    char            palnum;
+    char            shade;
+    char            effects;
+    char            flags;      // 1 = clamped (dameth&4), 2 = hightile, 4 = skybox face, 8 = hasalpha, 16 = hasfullbright, 128 = invalidated
+    char            skyface;
 } pthtyp;
 
 extern void gloadtile_art(int32_t,int32_t,int32_t,int32_t,pthtyp *,int32_t);
