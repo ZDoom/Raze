@@ -25,6 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+#if defined(__ANDROID__)
+#define DROIDMENU
+#endif
+
+// #define DROIDMENU
+
 enum MenuIndex_t {
     MENU_NULL           = INT32_MIN, // sentinel for "do nothing"
     MENU_CLOSE          = -2, // sentinel for "close the menu"/"no menu"
@@ -46,17 +52,16 @@ enum MenuIndex_t {
     MENU_MOUSEBTNS      = 210,
     MENU_MOUSEADVANCED  = 212,
     MENU_JOYSTICKAXIS   = 213,
+	MENU_CONTROLS       = 220,
     MENU_RENDERERSETUP  = 230,
     MENU_COLCORR        = 231,
     MENU_COLCORR_INGAME = 232,
+	MENU_SCREENSETUP    = 233,
+	MENU_DISPLAYSETUP   = 234,
     MENU_LOAD           = 300,
     MENU_SAVE           = 350,
     MENU_STORY          = 400,
     MENU_F1HELP         = 401,
-    MENU_ORDERING       = 402,
-    MENU_ORDERING2      = 403,
-    MENU_ORDERING3      = 404,
-    MENU_ORDERING4      = 405,
     MENU_QUIT           = 500,
     MENU_QUITTOTITLE    = 501,
     MENU_QUIT_INGAME    = 502,
@@ -65,6 +70,7 @@ enum MenuIndex_t {
     MENU_NETWAITVOTES   = 603,
     MENU_SOUND          = 700,
     MENU_SOUND_INGAME   = 701,
+	MENU_ADVSOUND       = 702,
     MENU_CREDITS        = 990,
     MENU_CREDITS2       = 991,
     MENU_CREDITS3       = 992,
@@ -73,7 +79,6 @@ enum MenuIndex_t {
     MENU_LOADVERIFY     = 1000,
     MENU_NEWVERIFY      = 1500,
     MENU_SAVEVERIFY     = 2000,
-    MENU_ADULTMODE      = 10000,
     MENU_ADULTPASSWORD  = 10001,
     MENU_RESETPLAYER    = 15000,
     MENU_BUYDUKE        = 20000,
@@ -124,7 +129,7 @@ typedef struct MenuPos_t
     vec2_t pos;
 
     int32_t groupspacing;
-    int32_t entryspacing;
+    int32_t entryspacing; // >=0: space between entries, <0: -total height of group (vertical justification)
     int32_t width; // 0: center, >0: width of the label column (left-aligned options), <0: -width of everything (right-aligned)
     int32_t bottomcutoff;
 
