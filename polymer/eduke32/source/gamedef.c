@@ -6395,6 +6395,7 @@ void C_Compile(const char *filenam)
     {
         int32_t j=0, k=0, l=0;
 
+        hash_free(&h_labels);
         hash_free(&h_keywords);
         freehashnames();
         freesoundhashnames();
