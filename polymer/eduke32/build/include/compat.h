@@ -43,7 +43,7 @@
 #ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
 #endif
-#ifdef HAVE_INTTYPES
+#if defined(HAVE_INTTYPES) || defined(__cplusplus)
 #  include <stdint.h>
 #  include <inttypes.h>
 
@@ -796,10 +796,43 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
 extern void xalloc_set_location(int32_t line, const char *file, const char *func);
 #endif
 void set_memerr_handler(void (*handlerfunc)(int32_t, const char *, const char *));
-char *xstrdup(const char *s);
-void *xmalloc(bsize_t size);
-void *xcalloc(bsize_t nmemb, bsize_t size);
-void *xrealloc(void *ptr, bsize_t size);
+void handle_memerr(void);
+
+static inline char *xstrdup(const char *s)
+{
+    char *ptr = Bstrdup(s);
+    if (ptr == NULL) handle_memerr();
+    return ptr;
+}
+
+static inline void *xmalloc(const bsize_t size)
+{
+    void *ptr = Bmalloc(size);
+    if (ptr == NULL) handle_memerr();
+    return ptr;
+}
+
+static inline void *xcalloc(const bsize_t nmemb, const bsize_t size)
+{
+    void *ptr = Bcalloc(nmemb, size);
+    if (ptr == NULL) handle_memerr();
+    return ptr;
+}
+
+static inline void *xrealloc(void * const ptr, const bsize_t size)
+{
+    void *newptr = Brealloc(ptr, size);
+
+    // According to the C Standard,
+    //  - ptr == NULL makes realloc() behave like malloc()
+    //  - size == 0 make it behave like free() if ptr != NULL
+    // Since we want to catch an out-of-mem in the first case, this leaves:
+    if (newptr == NULL && size != 0)
+        handle_memerr();
+
+    return newptr;
+}
+
 
 #ifdef EXTERNC
 }
