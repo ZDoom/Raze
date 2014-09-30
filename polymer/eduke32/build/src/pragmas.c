@@ -171,33 +171,6 @@ void clearbufbyte(void *d, int32_t c, int32_t a)
 
 #define ASM __asm__ __volatile__
 
-
-int32_t boundmulscale(int32_t a, int32_t b, int32_t c)
-{
-    ASM(
-        "imull %%ebx\n\t"
-        "movl %%edx, %%ebx\n\t"		// mov ebx, edx
-        "shrdl %%cl, %%edx, %%eax\n\t"	// mov eax, edx, cl
-        "sarl %%cl, %%edx\n\t"		// sar edx, cl
-        "xorl %%eax, %%edx\n\t"		// xor edx, eax
-        "js 0f\n\t"			// js checkit
-        "xorl %%eax, %%edx\n\t"		// xor edx, eax
-        "jz 1f\n\t"			// js skipboundit
-        "cmpl $0xffffffff, %%edx\n\t"	// cmp edx, 0xffffffff
-        "je 1f\n\t"			// je skipboundit
-        "0:\n\t"			// checkit:
-        "movl %%ebx, %%eax\n\t"		// mov eax, ebx
-        "sarl $31, %%eax\n\t"		// sar eax, 31
-        "xorl $0x7fffffff, %%eax\n\t"	// xor eax, 0x7fffffff
-        "1:"				// skipboundit:
-    : "+a"(a), "+b"(b), "+c"(c)	// input eax ebx ecx
-            :
-            : "edx", "cc"
-        );
-    return a;
-}
-
-
 void clearbufbyte(void *D, int32_t c, int32_t a)
 {
     ASM(
