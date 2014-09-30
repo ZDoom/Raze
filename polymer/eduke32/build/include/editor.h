@@ -73,7 +73,7 @@ extern char somethingintab;
 extern char names[MAXTILES][25];
 extern uint8_t buildkeys[NUMBUILDKEYS];
 
-extern double vid_gamma_3d, vid_contrast_3d, vid_brightness_3d;
+extern float vid_gamma_3d, vid_contrast_3d, vid_brightness_3d;
 extern double msens;
 
 extern vec3_t startpos;

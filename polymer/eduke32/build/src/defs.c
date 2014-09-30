@@ -1243,8 +1243,8 @@ static int32_t defsparser(scriptfile *script)
                     char happy=1;
                     int32_t tilex = 0;
 #endif
-                    int32_t ftilenume = -1, ltilenume = -1, flags = 0, fov = -1;
-                    double xadd = 0.0, yadd = 0.0, zadd = 0.0, angadd = 0.0;
+                    int32_t ftilenume = -1, ltilenume = -1, flags = 0, fov = -1, angadd = 0;
+                    double xadd = 0.0, yadd = 0.0, zadd = 0.0;
 
                     static const tokenlist modelhudtokens[] =
                     {
@@ -1280,7 +1280,7 @@ static int32_t defsparser(scriptfile *script)
                         case T_ZADD:
                             scriptfile_getdouble(script,&zadd); break;
                         case T_ANGADD:
-                            scriptfile_getdouble(script,&angadd); break;
+                            scriptfile_getsymbol(script,&angadd); break;
                         case T_FOV:
                             scriptfile_getsymbol(script,&fov); break;
                         case T_HIDE:

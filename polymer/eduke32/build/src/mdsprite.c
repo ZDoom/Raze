@@ -522,7 +522,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     return 0;
 }
 
-int32_t md_definehud(int32_t modelid, int32_t tilex, double xadd, double yadd, double zadd, double angadd, int32_t flags, int32_t fov)
+int32_t md_definehud(int32_t modelid, int32_t tilex, float xadd, float yadd, float zadd, int32_t angadd, int32_t flags, int32_t fov)
 {
     if (!mdinited) mdinit();
 

@@ -1330,7 +1330,7 @@ extern int32_t gltexfiltermode;
 extern int32_t glredbluemode;
 extern int32_t glusetexcache, glusememcache;
 extern int32_t glmultisample, glnvmultisamplehint;
-extern int32_t glwidescreen, glprojectionhacks;
+extern int32_t glprojectionhacks;
 extern int32_t gltexmaxsize;
 void gltexapplyprops (void);
 void texcache_invalidate(void);
@@ -1406,8 +1406,8 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
                            int32_t fps, int32_t flags);
 int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum,
                       int32_t surfnum, float param, float specpower, float specfactor);
-int32_t md_definehud (int32_t modelid, int32_t tilex, double xadd, double yadd, double zadd,
-                      double angadd, int32_t flags, int32_t fov);
+int32_t md_definehud (int32_t modelid, int32_t tilex, float xadd, float yadd, float zadd,
+                      int32_t angadd, int32_t flags, int32_t fov);
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);
 
@@ -1423,7 +1423,7 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
 typedef struct _hashitem // size is 12/24 bits.
 {
     char *string;
-    int32_t key;
+    intptr_t key;
     struct _hashitem *next;
 } hashitem_t;
 
@@ -1435,9 +1435,9 @@ typedef struct
 
 void hash_init(hashtable_t *t);
 void hash_free(hashtable_t *t);
-int32_t  hash_findcase(const hashtable_t *t, const char *s);
-int32_t  hash_find(const hashtable_t *t, const char *s);
-void hash_add(hashtable_t *t, const char *s, int32_t key, int32_t replace);
+intptr_t  hash_findcase(const hashtable_t *t, const char *s);
+intptr_t  hash_find(const hashtable_t *t, const char *s);
+void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace);
 void hash_delete(hashtable_t *t, const char *s);
 
 #ifdef POLYMER
