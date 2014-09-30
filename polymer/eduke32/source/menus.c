@@ -81,7 +81,10 @@ static void M_DrawTopBar(void)
 
 static void M_DrawTopBarCaption(const char *caption)
 {
-    menutext(160,24,0,0,caption);
+    char *s = Bstrdup(caption), p = Bstrlen(caption)-1;
+    if (s[p] == ':') s[p] = 0;
+    menutext(160,24,0,0,s);
+    Bfree(s);
 }
 
 extern int32_t g_quitDeadline;
@@ -335,7 +338,7 @@ resolution_t resolution[MAXVALIDMODES];
 
 static char *MEOSN_VIDEOSETUP_RESOLUTION[MAXVALIDMODES];
 static MenuOptionSet_t MEOS_VIDEOSETUP_RESOLUTION = MAKE_MENUOPTIONSETDYN( 0x0, MEOSN_VIDEOSETUP_RESOLUTION, NULL, 0 );
-static MenuOption_t MEO_VIDEOSETUP_RESOLUTION = MAKE_MENUOPTION( &MF_Redfont, &MEOS_VIDEOSETUP_RESOLUTION, &newresolution );
+static MenuOption_t MEO_VIDEOSETUP_RESOLUTION = MAKE_MENUOPTION( &MF_RedfontRt, &MEOS_VIDEOSETUP_RESOLUTION, &newresolution );
 static MenuEntry_t ME_VIDEOSETUP_RESOLUTION = MAKE_MENUENTRY( &MF_Redfont, "Resolution:", Option, &MEO_VIDEOSETUP_RESOLUTION );
 
 #ifdef USE_OPENGL
@@ -353,9 +356,9 @@ static int32_t MEOSV_VIDEOSETUP_RENDERER[] = { REND_CLASSIC, };
 
 static MenuOptionSet_t MEOS_VIDEOSETUP_RENDERER = MAKE_MENUOPTIONSET( 0x2, MEOSN_VIDEOSETUP_RENDERER, MEOSV_VIDEOSETUP_RENDERER );
 
-static MenuOption_t MEO_VIDEOSETUP_RENDERER = MAKE_MENUOPTION( &MF_Redfont, &MEOS_VIDEOSETUP_RENDERER, &newrendermode );
+static MenuOption_t MEO_VIDEOSETUP_RENDERER = MAKE_MENUOPTION( &MF_RedfontRt, &MEOS_VIDEOSETUP_RENDERER, &newrendermode );
 static MenuEntry_t ME_VIDEOSETUP_RENDERER = MAKE_MENUENTRY( &MF_Redfont, "Renderer:", Option, &MEO_VIDEOSETUP_RENDERER );
-static MenuOption_t MEO_VIDEOSETUP_FULLSCREEN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_NoYes, &newfullscreen );
+static MenuOption_t MEO_VIDEOSETUP_FULLSCREEN = MAKE_MENUOPTION( &MF_RedfontRt, &MEOS_NoYes, &newfullscreen );
 static MenuEntry_t ME_VIDEOSETUP_FULLSCREEN = MAKE_MENUENTRY( &MF_Redfont, "Fullscreen:", Option, &MEO_VIDEOSETUP_FULLSCREEN );
 static MenuEntry_t ME_VIDEOSETUP_APPLY = MAKE_MENUENTRY( &MF_Redfont, "Apply Changes", Link, &MEO_NULL );
 
@@ -390,7 +393,7 @@ static MenuEntry_t ME_DISPLAYSETUP_TEXFILTER = MAKE_MENUENTRY( &MF_Redfont, "Tex
 
 static char *MEOSN_DISPLAYSETUP_ANISOTROPY[] = { "None", "2x", "4x", "8x", "16x", };
 static int32_t MEOSV_DISPLAYSETUP_ANISOTROPY[] = { 0, 2, 4, 8, 16, };
-static MenuOptionSet_t MEOS_DISPLAYSETUP_ANISOTROPY = MAKE_MENUOPTIONSET(0x2, MEOSN_DISPLAYSETUP_ANISOTROPY, MEOSV_DISPLAYSETUP_ANISOTROPY);
+static MenuOptionSet_t MEOS_DISPLAYSETUP_ANISOTROPY = MAKE_MENUOPTIONSET(0x0, MEOSN_DISPLAYSETUP_ANISOTROPY, MEOSV_DISPLAYSETUP_ANISOTROPY);
 static MenuOption_t MEO_DISPLAYSETUP_ANISOTROPY = MAKE_MENUOPTION(&MF_Redfont, &MEOS_DISPLAYSETUP_ANISOTROPY, &glanisotropy);
 static MenuEntry_t ME_DISPLAYSETUP_ANISOTROPY = MAKE_MENUENTRY(&MF_Redfont, "Anisotropy:", Option, &MEO_DISPLAYSETUP_ANISOTROPY);
 static char *MEOSN_DISPLAYSETUP_VSYNC[] = { "NVIDIA", "Off", "On", };
@@ -1045,7 +1048,7 @@ static MenuGroup_t *MGL_OPTIONS[] = {
     &MG_OPTIONS,
 };
 
-static MenuGroup_t MG_VIDEOSETUP1 = MAKE_MENUGROUP( MEL_VIDEOSETUP1, &MP_VIDEOSETUP );
+static MenuGroup_t MG_VIDEOSETUP1 = MAKE_MENUGROUP( MEL_VIDEOSETUP1, &MP_BIGOPTIONSRT );
 static MenuGroup_t MG_VIDEOSETUP_APPLY = MAKE_MENUGROUP( MEL_VIDEOSETUP_APPLY, &MP_VIDEOSETUP_APPLY );
 static MenuGroup_t *MGL_VIDEOSETUP[] = {
     &MG_VIDEOSETUP1,
@@ -3964,6 +3967,9 @@ static void M_RunMenu(Menu_t *cm)
 
                 if (currentry->type == Option)
                 {
+                    if (currentry->name)
+                        M_DrawTopBarCaption(currentry->name);
+
                     M_PreMenuOptionListDraw(/*currgroup,*/ currentry);
 
                     M_RunMenu_MenuOptionList((MenuOption_t*)currentry->entry);
@@ -3974,7 +3980,7 @@ static void M_RunMenu(Menu_t *cm)
                 }
             }
 
-            if (menu->title != NoTitle)
+            if ((currentry->type != Option || state != 2) && menu->title != NoTitle)
                 M_DrawTopBarCaption(menu->title);
 
             break;
