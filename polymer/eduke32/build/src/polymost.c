@@ -83,6 +83,24 @@ Low priority:
 #include "kplib.h"
 #include "texcache.h"
 
+
+#if defined(_MSC_VER) && defined(_WIN64)
+/*
+#include <emmintrin.h>
+static inline int32_t Blrintf(float const x) {
+    return _mm_cvtss_si32(_mm_load_ss(&x));}*/
+#define Blrintf (int32_t)
+#elif defined (_MSC_VER)
+static inline int32_t Blrintf(const float x)
+{
+    int n;
+    __asm fld x;
+    __asm fistp n;
+    return n;}
+#else 
+#define Blrintf lrintf
+#endif
+
 #ifndef _WIN32
 extern int32_t filelength(int h); // kplib.c
 #endif
@@ -99,18 +117,15 @@ int32_t usehightile=1;
 int32_t vsync=0;
 
 #include <math.h> //<-important!
+
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 4096 //<- careful!
 static vsptyp vsp[VSPMAX];
 static int32_t gtag;
 
-static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
+static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 
-#define SCISDIST 1.0 //1.0: Close plane clipping distance
-// the following three are for the obsolete rendmodes 1 and 2:
-#define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
-#define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
-#define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
+#define SCISDIST 1.0f  //1.0: Close plane clipping distance
 
 float shadescale = 1.0f;
 int32_t shadescale_unbounded = 0;
@@ -119,22 +134,26 @@ int32_t r_usenewshading = 3;
 int32_t r_usetileshades = 2;
 int32_t r_npotwallmode = 0;
 
-static double gviewxrange, ghoriz;
-double gyxscale, gxyaspect, ghalfx, grhalfxdown10, grhalfxdown10x;
-double gcosang, gsinang, gcosang2, gsinang2;
-double gchang, gshang, gctang, gstang, gvisibility;
-float gtang = 0.0;
-double guo, gux, guy; //Screen-based texture mapping parameters
-double gvo, gvx, gvy;
-double gdo, gdx, gdy;
+static float gviewxrange;
+static float ghoriz;
+float gxyaspect;
+float gyxscale, ghalfx, grhalfxdown10, grhalfxdown10x;
+float gcosang, gsinang, gcosang2, gsinang2;
+float gchang, gshang, gctang, gstang, gvisibility;
+float gtang = 0.f;
+static double guo, gux, guy; //Screen-based texture mapping parameters
+static double gvo, gvx, gvy;
+static double gdo, gdx, gdy;
 
 static int32_t preview_mouseaim=0;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
 
 #ifdef USE_OPENGL
 static int32_t srepeat = 0, trepeat = 0;
 
+#ifdef REDBLUEMODE
 int32_t glredbluemode = 0;
 static int32_t lastglredbluemode = 0, redblueclearcnt = 0;
+#endif
 
 struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 {
@@ -155,7 +174,6 @@ int32_t gltexmaxsize = 0;      // 0 means autodetection on first run
 int32_t gltexmiplevel = 0;		// discards this many mipmap levels
 static int32_t lastglpolygonmode = 0; //FUK
 int32_t glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
-int32_t glwidescreen = 0;
 int32_t glprojectionhacks = 1;
 static GLuint polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;
@@ -223,8 +241,8 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
         if (x0 > x1) { f = x0; x0 = x1; x1 = f; f = y0; y0 = y1; y1 = f; }
         y = (int32_t)(y0*65536.f)+32768;
         inc = (int32_t)(dy/dx*65536.f+.5f);
-        x = (int32_t)(x0+.5); if (x < 0) { y -= inc*x; x = 0; } //if for safety
-        e = (int32_t)(x1+.5); if (e > xdimen) e = xdimen;       //if for safety
+        x = (int32_t)(x0+0.5f); if (x < 0) { y -= inc*x; x = 0; } //if for safety
+        e = (int32_t)(x1+0.5f); if (e > xdimen) e = xdimen;       //if for safety
         up16 = (ydimen<<16);
         for (; x<e; x++,y+=inc) if ((uint32_t)y < up16) *(char *)(ylookup[y>>16]+x+frameoffset) = col;
     }
@@ -233,8 +251,8 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
         if (y0 > y1) { f = x0; x0 = x1; x1 = f; f = y0; y0 = y1; y1 = f; }
         x = (int32_t)(x0*65536.f)+32768;
         inc = (int32_t)(dx/dy*65536.f+.5f);
-        y = (int32_t)(y0+.5); if (y < 0) { x -= inc*y; y = 0; } //if for safety
-        e = (int32_t)(y1+.5); if (e > ydimen) e = ydimen;       //if for safety
+        y = (int32_t)(y0+0.5f); if (y < 0) { x -= inc*y; y = 0; } //if for safety
+        e = (int32_t)(y1+0.5f); if (e > ydimen) e = ydimen;       //if for safety
         up16 = (xdimen<<16);
         for (; y<e; y++,x+=inc) if ((uint32_t)x < up16) *(char *)(ylookup[y]+(x>>16)+frameoffset) = col;
     }
@@ -307,7 +325,7 @@ static void bind_2d_texture(GLuint texture)
     bglBindTexture(GL_TEXTURE_2D, texture);
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[gltexfiltermode].mag);
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[gltexfiltermode].min);
-    if (glinfo.maxanisotropy > 1.0)
+    if (glinfo.maxanisotropy > 1.f)
         bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
 }
 
@@ -319,7 +337,7 @@ void gltexapplyprops(void)
     if (getrendermode() == REND_CLASSIC)
         return;
 
-    if (glinfo.maxanisotropy > 1.0)
+    if (glinfo.maxanisotropy > 1.f)
     {
         if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy)
             glanisotropy = (int32_t)glinfo.maxanisotropy;
@@ -390,8 +408,8 @@ void polymost_glreset()
         gltexcacnum = 0;
 
         //Hack for polymost_dorotatesprite calls before 1st polymost_drawrooms()
-        gcosang = gcosang2 = ((double)16384)/262144.0;
-        gsinang = gsinang2 = ((double)    0)/262144.0;
+        gcosang = gcosang2 = 16384.f/262144.f;
+        gsinang = gsinang2 = 0.f/262144.f;
     }
     else
     {
@@ -529,7 +547,7 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
     Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));
 
     if (getrendermode() == REND_POLYMOST && r_usetileshades == 1 && shade > 0 &&
-        (!usehightile || !hicfindsubst(tile, pal, 0)) &&
+        (!usehightile || !hicfindsubst(tile, pal)) &&
         (!usemodels || md_tilehasmodel(tile, pal) < 0))
         shade >>= 1;
 
@@ -550,13 +568,13 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
             {
                 // beg = -D*shade, end = D*(NUMSHADES-1-shade)
                 //  => end/beg = -(NUMSHADES-1-shade)/shade
-                fogresult = -FULLVIS_BEGIN;
+                fogresult = (float)-FULLVIS_BEGIN;
                 fogresult2 = FULLVIS_BEGIN * (float)(numshades-1-shade)/shade;
             }
             else
             {
-                fogresult = FULLVIS_BEGIN;
-                fogresult2 = FULLVIS_END;
+                fogresult = (float)FULLVIS_BEGIN;
+                fogresult2 = (float)FULLVIS_END;
             }
 
             return;
@@ -609,21 +627,17 @@ void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t
         return;
     }
 
-    bglFogf(GL_FOG_START, FULLVIS_BEGIN);
-    bglFogf(GL_FOG_END, FULLVIS_END);
+    bglFogf(GL_FOG_START, (GLfloat)FULLVIS_BEGIN);
+    bglFogf(GL_FOG_END, (GLfloat)FULLVIS_END);
 }
 ////////////////////
 
 
 static float get_projhack_ratio(void)
 {
-    // Legacy widescreen
-    if (glwidescreen && !r_usenewaspect)
-        return 1.2f;
-
     if (glprojectionhacks == 1)
     {
-        double mul = (gshang*gshang);
+        float mul = (gshang*gshang);
         return 1.05f + mul*mul*mul*mul;
     }
 
@@ -642,6 +656,7 @@ static void resizeglcheck(void)
 {
     float m[4][4];
 
+#ifdef REDBLUEMODE
     if (glredbluemode < lastglredbluemode)
     {
         glox1 = -1;
@@ -652,6 +667,7 @@ static void resizeglcheck(void)
         redblueclearcnt = 0;
     }
     lastglredbluemode = glredbluemode;
+#endif
 
     //FUK
     if (lastglpolygonmode != glpolygonmode)
@@ -689,10 +705,10 @@ static void resizeglcheck(void)
 
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
-        m[0][0] = (float)ydimen / ratio; m[0][2] = 1.0;
-        m[1][1] = (float)xdimen; m[1][2] = 1.0;
-        m[2][2] = 1.0; m[2][3] = (float)ydimen / ratio;
-        m[3][2] =-1.0;
+        m[0][0] = (float)ydimen / ratio; m[0][2] = 1.f;
+        m[1][1] = (float)xdimen; m[1][2] = 1.f;
+        m[2][2] = 1.f; m[2][3] = (float)ydimen / ratio;
+        m[3][2] =-1.f;
         bglLoadMatrixf(&m[0][0]);
 
         bglMatrixMode(GL_MODELVIEW);
@@ -875,7 +891,7 @@ static void texture_setup(int32_t dameth)
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[gltexfiltermode].mag);
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[gltexfiltermode].min);
 
-    if (glinfo.maxanisotropy > 1.0)
+    if (glinfo.maxanisotropy > 1.f)
     {
         if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy)
             glanisotropy = (int32_t)glinfo.maxanisotropy;
@@ -1083,12 +1099,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     {
         OSD_Printf("hightile: %s (pic %d) not found\n", fn, dapic);
 
-        if (facen > 0)
-            hicr->skybox->ignore = 1;
-        else
-            hicr->ignore = 1;
-
-        return -1;
+        return -2;
     }
 
     picfillen = kfilelength(filh);
@@ -1267,8 +1278,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     // precalculate scaling parameters for replacement
     if (facen > 0)
     {
-        pth->scalex = ((float)tsizx) / 64.0;
-        pth->scaley = ((float)tsizy) / 64.0;
+        pth->scalex = ((float)tsizx) * (1.0f/64.f);
+        pth->scaley = ((float)tsizy) * (1.0f/64.f);
     }
     else
     {
@@ -1347,25 +1358,25 @@ static float alpha = 0.f;
 static pthtyp *our_texcache_fetch(int32_t dameth)
 {
     // r_usetileshades 1 is TX's method.
-    int32_t vis = (r_usetileshades == 1) ? globvis>>3 : 0;
-    return texcache_fetch(globalpicnum, globalpal, getpalookup(vis,globalshade), dameth);
+    return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1) ? globvis>>3 : 0, globalshade), dameth);
 }
 
-void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
+static void drawpoly(float *dpx, float *dpy, int32_t n, int32_t method)
 {
-    double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
-    double ngvx = 0.0, ngvy = 0.0, ngvo = 0.0, dp, up, vp, du0 = 0.0, du1 = 0.0, dui, duj;
-    double f, r, ox, oy, oz, ox2, oy2, oz2, dd[16], uu[16], vv[16], px[16], py[16], uoffs;
+    float ngdx = 0.f, ngdy = 0.f, ngdo = 0.f, ngux = 0.f, nguy = 0.f, nguo = 0.f;
+    float ngvx = 0.f, ngvy = 0.f, ngvo = 0.f, dp, up, vp, du0 = 0.f, du1 = 0.f, dui, duj;
+    float f, r, ox, oy, oz, ox2, oy2, oz2, dd[16], uu[16], vv[16], px[16], py[16], uoffs;
     int32_t i, j, k, nn, ix0, ix1, tsizx, tsizy;
-    int32_t xx, yy, dorot;
+    int32_t dorot;
 
     // backup of the n for possible redrawing of fullbright
     const int32_t n_ = n, method_ = method;
 
-    if (method == -1) return;
 #ifdef YAX_ENABLE
     if (g_nodraw) return;
 #endif
+
+    if (method == -1 || (uint32_t)globalpicnum >= MAXTILES) return;
 
     if (n == 3)
     {
@@ -1379,7 +1390,6 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     }
 
     //Load texture (globalpicnum)
-    if ((uint32_t)globalpicnum >= MAXTILES) globalpicnum = 0;
     setgotpic(globalpicnum);
     tsizx = tilesizx[globalpicnum];
     tsizy = tilesizy[globalpicnum];
@@ -1395,7 +1405,9 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         }
     }
 
-    j = 0; dorot = ((gchang != 1.0) || (gctang != 1.0));
+    j = 0;
+    dorot = ((gchang != 1.f) || (gctang != 1.f));
+
     if (dorot)
     {
         for (i=0; i<n; i++)
@@ -1441,9 +1453,10 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
     {
-        float hackscx, hackscy;
+        float hackscx = 1.f, hackscy = 1.f;
         pthtyp *pth, *detailpth, *glowpth;
         int32_t texunits = GL_TEXTURE0_ARB;
+        int32_t xx, yy;
 
         if (skyclamphack) method |= DAMETH_CLAMPED;
         pth = our_texcache_fetch(method&(~3));
@@ -1481,7 +1494,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         }
 
         // texture scale by parkar request
-        if (pth && pth->hicr && ((pth->hicr->xscale != 1.0f) || (pth->hicr->yscale != 1.0f)) && !drawingskybox)
+        if (pth && pth->hicr && !drawingskybox && ((pth->hicr->xscale != 1.0f) || (pth->hicr->yscale != 1.0f)))
         {
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();
@@ -1491,15 +1504,14 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         // detail texture
         detailpth = NULL;
-        if (r_detailmapping && usehightile && !drawingskybox &&
-                hicfindsubst(globalpicnum, DETAILPAL, 0))
+        if (r_detailmapping && usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL))
             detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method&(~3));
 
         if (detailpth && detailpth->hicr && (detailpth->hicr->palnum == DETAILPAL))
         {
             polymost_setupdetailtexture(&texunits, detailpth ? detailpth->glpic : 0);
 
-            f = detailpth ? detailpth->hicr->xscale : 1.0;
+            f = detailpth ? detailpth->hicr->xscale : 1.f;
 
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();
@@ -1515,8 +1527,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         // glow texture
         glowpth = NULL;
-        if (r_glowmapping && usehightile && !drawingskybox &&
-                hicfindsubst(globalpicnum, GLOWPAL, 0))
+        if (r_glowmapping && usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL))
             glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, method&(~3));
 
         if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
@@ -1529,7 +1540,9 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             tsizx = pth->sizx;
             tsizy = pth->sizy;
         }
-        else { hackscx = 1.0; hackscy = 1.0; }
+
+        xx = tsizx;
+        yy = tsizy;
 
         if (!glinfo.texnpot)
         {
@@ -1537,18 +1550,14 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             {
                 /* do nothing */
             }
-            ox2 = (double)1.0/(double)xx;
             for (yy=1; yy<tsizy; yy+=yy)
             {
                 /* do nothing */
             }
-            oy2 = (double)1.0/(double)yy;
         }
-        else
-        {
-            xx = tsizx; ox2 = (double)1.0/(double)xx;
-            yy = tsizy; oy2 = (double)1.0/(double)yy;
-        }
+
+        ox2 = 1.0f/xx;
+        oy2 = 1.0f/yy;
 
         if ((!(method&3)) && (!fullbrightdrawingpass))
         {
@@ -1557,11 +1566,11 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         }
         else
         {
-            float al = 0.0; // PLAG : default alphacut was 0.32 before goodalpha
-            if (pth && pth->hicr && pth->hicr->alphacut >= 0.0) al = pth->hicr->alphacut;
+            float al = 0.f; // PLAG : default alphacut was 0.32 before goodalpha
+            if (pth && pth->hicr && pth->hicr->alphacut >= 0.f) al = pth->hicr->alphacut;
             if (alphahackarray[globalpicnum])
                 al=alphahackarray[globalpicnum];
-            if (!waloff[globalpicnum]) al = 0.0;	// invalid textures ignore the alpha cutoff settings
+            if (!waloff[globalpicnum]) al = 0.f;	// invalid textures ignore the alpha cutoff settings
             bglEnable(GL_BLEND);
             bglEnable(GL_ALPHA_TEST);
             bglAlphaFunc(GL_GREATER,al);
@@ -1581,8 +1590,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             float pc[4];
 
 #ifdef POLYMER
-            if (getrendermode() == REND_POLYMER && pr_artmapping &&
-                    polymer_eligible_for_artmap(globalpicnum, pth))
+            if (getrendermode() == REND_POLYMER && pr_artmapping && polymer_eligible_for_artmap(globalpicnum, pth))
                 pc[0] = pc[1] = pc[2] = 1.0f;
             else
 #endif
@@ -1591,14 +1599,17 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             switch (method&3)
             {
             default:
+                pc[3] = 1.0f;
+                break;
             case 0:
-                pc[3] = 1.0f; break;
             case 1:
-                pc[3] = 1.0f; break;
             case 2:
-                pc[3] = 0.66f; break;
             case 3:
-                pc[3] = 0.33f; break;
+            {
+                const float f[4] = { 1.0f, 1.0f, 0.66f, 0.33f };
+                pc[3] = f[method&3];
+                break;
+            }
             }
 
             // spriteext full alpha control
@@ -1629,14 +1640,14 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         {
             if (!dorot)
             {
-                ngdx = gdx; ngdy = gdy; ngdo = gdo+(ngdx+ngdy)*.5;
-                ngux = gux; nguy = guy; nguo = guo+(ngux+nguy)*.5;
-                ngvx = gvx; ngvy = gvy; ngvo = gvo+(ngvx+ngvy)*.5;
+                ngdx = gdx; ngdy = gdy; ngdo = gdo+(ngdx+ngdy)*0.5f;
+                ngux = gux; nguy = guy; nguo = guo+(ngux+nguy)*0.5f;
+                ngvx = gvx; ngvy = gvy; ngvo = gvo+(ngvx+ngvy)*0.5f;
             }
             else
             {
                 ox = py[1]-py[2]; oy = py[2]-py[0]; oz = py[0]-py[1];
-                r = 1.0 / (ox*px[0] + oy*px[1] + oz*px[2]);
+                r = 1.f / (ox*px[0] + oy*px[1] + oz*px[2]);
                 ngdx = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
                 ngux = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
                 ngvx = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
@@ -1644,7 +1655,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                 ngdy = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
                 nguy = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
                 ngvy = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
-                ox = px[0]-.5; oy = py[0]-.5; //.5 centers texture nicely
+                ox = px[0]-0.5f; oy = py[0]-0.5f; //.5 centers texture nicely
                 ngdo = dd[0] - ox*ngdx - oy*ngdy;
                 nguo = uu[0] - ox*ngux - oy*nguy;
                 ngvo = vv[0] - ox*ngvx - oy*ngvy;
@@ -1652,7 +1663,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
             ngux *= hackscx; nguy *= hackscx; nguo *= hackscx;
             ngvx *= hackscy; ngvy *= hackscy; ngvo *= hackscy;
-            uoffs = ((double)(xx-tsizx)*.5);
+            uoffs = ((float)(xx-tsizx)*0.5f);
             ngux -= ngdx*uoffs;
             nguy -= ngdy*uoffs;
             nguo -= ngdo*uoffs;
@@ -1667,13 +1678,13 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                 else if (f > du1) du1 = f;
             }
 
-            f = 1.0/(double)tsizx;
-            ix0 = (int32_t)floor(du0*f);
-            ix1 = (int32_t)floor(du1*f);
+            f = 1.0f/tsizx;
+            ix0 = Blrintf(floorf(du0*f));
+            ix1 = Blrintf(floorf(du1*f));
             for (; ix0<=ix1; ix0++)
             {
-                du0 = (double)((ix0)*tsizx);   // + uoffs;
-                du1 = (double)((ix0+1)*tsizx); // + uoffs;
+                du0 = (float)(ix0*tsizx);   // + uoffs;
+                du1 = (float)((ix0+1)*tsizx); // + uoffs;
 
                 i = 0; nn = 0;
                 duj = (px[i]*ngux + py[i]*nguy + nguo) / (px[i]*ngdx + py[i]*ngdy + ngdo);
@@ -1681,54 +1692,48 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                 {
                     j = i+1; if (j == n) j = 0;
 
-                    dui = duj; duj = (px[j]*ngux + py[j]*nguy + nguo) / (px[j]*ngdx + py[j]*ngdy + ngdo);
+                    dui = duj;
+                    duj = (px[j]*ngux + py[j]*nguy + nguo) / (px[j]*ngdx + py[j]*ngdy + ngdo);
 
-                    if ((du0 <= dui) && (dui <= du1)) { uu[nn] = px[i]; vv[nn] = py[i]; nn++; }
+                    if ((du0 <= dui) && (dui <= du1))
+                    {
+                        uu[nn] = px[i];
+                        vv[nn] = py[i];
+                        nn++;
+                    }
+
+                    //ox*(ngux-ngdx*du1) + oy*(nguy-ngdy*du1) + (nguo-ngdo*du1) = 0
+                    //(px[j]-px[i])*f + px[i] = ox
+                    //(py[j]-py[i])*f + py[i] = oy
+
+                    ///Solve for f
+                    //((px[j]-px[i])*f + px[i])*(ngux-ngdx*du1) +
+                    //((py[j]-py[i])*f + py[i])*(nguy-ngdy*du1) + (nguo-ngdo*du1) = 0
+
+#define DRAWPOLY_MATH_BULLSHIT(X) do { f = -(px[i] *(ngux-ngdx*X) + py[i] *(nguy-ngdy*X) + (nguo-ngdo*X)) / ((px[j]-px[i])*(ngux-ngdx*X) + (py[j]-py[i])*(nguy-ngdy*X)); \
+                                        uu[nn] = (px[j]-px[i])*f + px[i]; vv[nn] = (py[j]-py[i])*f + py[i]; nn++; } while (0)
+
                     if (duj <= dui)
                     {
                         if ((du1 < duj) != (du1 < dui))
-                        {
-                            //ox*(ngux-ngdx*du1) + oy*(nguy-ngdy*du1) + (nguo-ngdo*du1) = 0
-                            //(px[j]-px[i])*f + px[i] = ox
-                            //(py[j]-py[i])*f + py[i] = oy
-
-                            ///Solve for f
-                            //((px[j]-px[i])*f + px[i])*(ngux-ngdx*du1) +
-                            //((py[j]-py[i])*f + py[i])*(nguy-ngdy*du1) + (nguo-ngdo*du1) = 0
-
-                            f = -(px[i] *(ngux-ngdx*du1) +  py[i]       *(nguy-ngdy*du1) + (nguo-ngdo*du1)) /
-                                ((px[j]-px[i])*(ngux-ngdx*du1) + (py[j]-py[i])*(nguy-ngdy*du1));
-                            uu[nn] = (px[j]-px[i])*f + px[i];
-                            vv[nn] = (py[j]-py[i])*f + py[i]; nn++;
-                        }
+                            DRAWPOLY_MATH_BULLSHIT(du1);
                         if ((du0 < duj) != (du0 < dui))
-                        {
-                            f = -(px[i] *(ngux-ngdx*du0) +        py[i] *(nguy-ngdy*du0) + (nguo-ngdo*du0)) /
-                                ((px[j]-px[i])*(ngux-ngdx*du0) + (py[j]-py[i])*(nguy-ngdy*du0));
-                            uu[nn] = (px[j]-px[i])*f + px[i];
-                            vv[nn] = (py[j]-py[i])*f + py[i]; nn++;
-                        }
+                            DRAWPOLY_MATH_BULLSHIT(du0);
                     }
                     else
                     {
                         if ((du0 < duj) != (du0 < dui))
-                        {
-                            f = -(px[i] *(ngux-ngdx*du0) +        py[i] *(nguy-ngdy*du0) + (nguo-ngdo*du0)) /
-                                ((px[j]-px[i])*(ngux-ngdx*du0) + (py[j]-py[i])*(nguy-ngdy*du0));
-                            uu[nn] = (px[j]-px[i])*f + px[i];
-                            vv[nn] = (py[j]-py[i])*f + py[i]; nn++;
-                        }
+                            DRAWPOLY_MATH_BULLSHIT(du0);
                         if ((du1 < duj) != (du1 < dui))
-                        {
-                            f = -(px[i] *(ngux-ngdx*du1) +  py[i]       *(nguy-ngdy*du1) + (nguo-ngdo*du1)) /
-                                ((px[j]-px[i])*(ngux-ngdx*du1) + (py[j]-py[i])*(nguy-ngdy*du1));
-                            uu[nn] = (px[j]-px[i])*f + px[i];
-                            vv[nn] = (py[j]-py[i])*f + py[i]; nn++;
-                        }
+                            DRAWPOLY_MATH_BULLSHIT(du1);
                     }
                     i = j;
+
+#undef DRAWPOLY_MATH_BULLSHIT
+
                 }
                 while (i);
+
                 if (nn < 3) continue;
 
                 bglBegin(GL_TRIANGLE_FAN);
@@ -1738,16 +1743,16 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                     dp = ox*ngdx + oy*ngdy + ngdo;
                     up = ox*ngux + oy*nguy + nguo;
                     vp = ox*ngvx + oy*ngvy + ngvo;
-                    r = 1.0/dp;
+                    r = 1.f/dp;
                     if (texunits > GL_TEXTURE0_ARB)
                     {
                         j = GL_TEXTURE0_ARB;
                         while (j <= texunits)
-                            bglMultiTexCoord2dARB(j++, (up*r-du0+uoffs)*ox2,vp*r*oy2);
+                            bglMultiTexCoord2fARB(j++, (up*r-du0+uoffs)*ox2,vp*r*oy2);
                     }
                     else
-                        bglTexCoord2d((up*r-du0+uoffs)*ox2,vp*r*oy2);
-                    bglVertex3d((ox-ghalfx)*r*grhalfxdown10x,(ghoriz-oy)*r*grhalfxdown10,r*(1.0/1024.0));
+                        bglTexCoord2f((up*r-du0+uoffs)*ox2,vp*r*oy2);
+                    bglVertex3f((ox-ghalfx)*r*grhalfxdown10x,(ghoriz-oy)*r*grhalfxdown10,r*(1.f/1024.f));
                 }
                 bglEnd();
             }
@@ -1758,16 +1763,16 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             bglBegin(GL_TRIANGLE_FAN);
             for (i=0; i<n; i++)
             {
-                r = 1.0/dd[i];
+                r = 1.f/dd[i];
                 if (texunits > GL_TEXTURE0_ARB)
                 {
                     j = GL_TEXTURE0_ARB;
                     while (j <= texunits)
-                        bglMultiTexCoord2dARB(j++, uu[i]*r*ox2,vv[i]*r*oy2);
+                        bglMultiTexCoord2fARB(j++, uu[i]*r*ox2,vv[i]*r*oy2);
                 }
                 else
-                    bglTexCoord2d(uu[i]*r*ox2,vv[i]*r*oy2);
-                bglVertex3d((px[i]-ghalfx)*r*grhalfxdown10x,(ghoriz-py[i])*r*grhalfxdown10,r*(1.0/1024.0));
+                    bglTexCoord2f(uu[i]*r*ox2,vv[i]*r*oy2);
+                bglVertex3f((px[i]-ghalfx)*r*grhalfxdown10x,(ghoriz-py[i])*r*grhalfxdown10,r*(1.f/1024.f));
             }
             bglEnd();
         }
@@ -1836,7 +1841,7 @@ static void vsp_finalize_init(vsptyp *vsp, int32_t vcnt)
 // (px[3],py[3]).--------------.(px[2],py[2])
 */
 
-void initmosts(double *px, double *py, int32_t n)
+void initmosts(float *px, float *py, int32_t n)
 {
     int32_t i, j, k, imin, vcnt;
 
@@ -1952,7 +1957,7 @@ static int32_t domostpolymethod = 0;
 
 void domost(float x0, float y0, float x1, float y1)
 {
-    double dpx[4], dpy[4];
+    float dpx[4], dpy[4];
     float d, f, n, t, slop, dx, dx0, dx1, nx, nx0, ny0, nx1, ny1;
     float spx[4], /*spy[4],*/ cy[2], cv[2];
     int32_t i, j, k, z, ni, vcnt = 0, scnt, newi, dir, spt[4];
@@ -1967,8 +1972,8 @@ void domost(float x0, float y0, float x1, float y1)
     else
     {
         if (x0 == x1) return;
-        f = x0; x0 = x1; x1 = f;
-        f = y0; y0 = y1; y1 = f;
+        swapfloat(&x0, &x1);
+        swapfloat(&y0, &y1);
         dir = 0; //clip umost (ceiling)
         //y0 += .01; y1 += .01; //necessary?
     }
@@ -2011,9 +2016,9 @@ void domost(float x0, float y0, float x1, float y1)
         //Nice hack to avoid full sort later :)
         if ((scnt >= 2) && (spx[scnt-1] < spx[scnt-2]))
         {
-            f = spx[scnt-1]; spx[scnt-1] = spx[scnt-2]; spx[scnt-2] = f;
+            swapfloat(&spx[scnt-1], &spx[scnt-2]);
+            swaplong(&spt[scnt-1], &spt[scnt-2]);
             /* f = spy[scnt-1]; spy[scnt-1] = spy[scnt-2]; spy[scnt-2] = f; */
-            j = spt[scnt-1]; spt[scnt-1] = spt[scnt-2]; spt[scnt-2] = j;
         }
 
         //Test if right edge requires split
@@ -2059,38 +2064,46 @@ void domost(float x0, float y0, float x1, float y1)
             //     ny0 ?         ny1 ?
 
             k = 1+3;
-            if ((vsp[i].tag == 0) || (ny0 <= vsp[i].cy[0]+.01)) k--;
-            if ((vsp[i].tag == 1) || (ny0 >= vsp[i].fy[0]-.01)) k++;
-            if ((vsp[ni].tag == 0) || (ny1 <= vsp[i].cy[1]+.01)) k -= 3;
-            if ((vsp[ni].tag == 1) || (ny1 >= vsp[i].fy[1]-.01)) k += 3;
+            if ((vsp[i].tag == 0) || (ny0 <= vsp[i].cy[0]+.01f)) k--;
+            if ((vsp[i].tag == 1) || (ny0 >= vsp[i].fy[0]-.01f)) k++;
+            if ((vsp[ni].tag == 0) || (ny1 <= vsp[i].cy[1]+.01f)) k -= 3;
+            if ((vsp[ni].tag == 1) || (ny1 >= vsp[i].fy[1]-.01f)) k += 3;
+
+            dpx[0] = dx0;
+            dpx[1] = dx1;
 
             if (!dir)
             {
-                dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-                dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
+                dpy[0] = vsp[i].cy[0];
+                dpy[1] = vsp[i].cy[1];
 
                 switch (k)
                 {
                 case 1:
                 case 2:
-                    dpx[2] = dx0; dpy[2] = ny0; drawpoly(dpx,dpy,3,domostpolymethod);
-                    vsp[i].cy[0] = ny0; vsp[i].ctag = gtag; break;
+                    dpx[2] = dx0;
+                    dpy[2] = ny0;
+                    drawpoly(dpx,dpy,3,domostpolymethod);
+                    vsp[i].cy[0] = ny0; vsp[i].ctag = gtag; continue;
                 case 3:
                 case 6:
-                    dpx[2] = dx1; dpy[2] = ny1; drawpoly(dpx,dpy,3,domostpolymethod);
-                    vsp[i].cy[1] = ny1; vsp[i].ctag = gtag; break;
+                    dpx[2] = dx1;
+                    dpy[2] = ny1;
+                    drawpoly(dpx,dpy,3,domostpolymethod);
+                    vsp[i].cy[1] = ny1; vsp[i].ctag = gtag; continue;
                 case 4:
                 case 5:
                 case 7:
-                    dpx[2] = dx1; dpy[2] = ny1;
-                    dpx[3] = dx0; dpy[3] = ny0; drawpoly(dpx,dpy,4,domostpolymethod);
-                    vsp[i].cy[0] = ny0; vsp[i].cy[1] = ny1; vsp[i].ctag = gtag; break;
+                    dpx[2] = dx1; dpx[3] = dx0;
+                    dpy[2] = ny1; dpy[3] = ny0;
+                    drawpoly(dpx,dpy,4,domostpolymethod);
+                    vsp[i].cy[0] = ny0; vsp[i].cy[1] = ny1; vsp[i].ctag = gtag; continue;
                 case 8:
                     dpx[2] = dx1; dpy[2] = vsp[i].fy[1];
                     dpx[3] = dx0; dpy[3] = vsp[i].fy[0]; drawpoly(dpx,dpy,4,domostpolymethod);
-                    vsp[i].ctag = vsp[i].ftag = -1; break;
+                    vsp[i].ctag = vsp[i].ftag = -1; continue;
                 default:
-                    break;
+                    continue;
                 }
             }
             else
@@ -2099,32 +2112,30 @@ void domost(float x0, float y0, float x1, float y1)
                 {
                 case 7:
                 case 6:
-                    dpx[0] = dx0; dpy[0] = ny0;
-                    dpx[1] = dx1; dpy[1] = vsp[i].fy[1];
-                    dpx[2] = dx0; dpy[2] = vsp[i].fy[0]; drawpoly(dpx,dpy,3,domostpolymethod);
-                    vsp[i].fy[0] = ny0; vsp[i].ftag = gtag; break;
+                    dpx[2] = dx0;
+                    dpy[0] = ny0; dpy[1] = vsp[i].fy[1]; dpy[2] = vsp[i].fy[0];
+                    drawpoly(dpx,dpy,3,domostpolymethod);
+                    vsp[i].fy[0] = ny0; vsp[i].ftag = gtag; continue;
                 case 5:
                 case 2:
-                    dpx[0] = dx0; dpy[0] = vsp[i].fy[0];
-                    dpx[1] = dx1; dpy[1] = ny1;
-                    dpx[2] = dx1; dpy[2] = vsp[i].fy[1]; drawpoly(dpx,dpy,3,domostpolymethod);
-                    vsp[i].fy[1] = ny1; vsp[i].ftag = gtag; break;
+                    dpx[2] = dx1;
+                    dpy[0] = vsp[i].fy[0]; dpy[1] = ny1; dpy[2] = vsp[i].fy[1]; 
+                    drawpoly(dpx,dpy,3,domostpolymethod);
+                    vsp[i].fy[1] = ny1; vsp[i].ftag = gtag; continue;
                 case 4:
                 case 3:
                 case 1:
-                    dpx[0] = dx0; dpy[0] = ny0;
-                    dpx[1] = dx1; dpy[1] = ny1;
-                    dpx[2] = dx1; dpy[2] = vsp[i].fy[1];
-                    dpx[3] = dx0; dpy[3] = vsp[i].fy[0]; drawpoly(dpx,dpy,4,domostpolymethod);
-                    vsp[i].fy[0] = ny0; vsp[i].fy[1] = ny1; vsp[i].ftag = gtag; break;
+                    dpx[2] = dx1; dpx[3] = dx0;
+                    dpy[0] = ny0; dpy[1] = ny1; dpy[2] = vsp[i].fy[1]; dpy[3] = vsp[i].fy[0];
+                    drawpoly(dpx,dpy,4,domostpolymethod);
+                    vsp[i].fy[0] = ny0; vsp[i].fy[1] = ny1; vsp[i].ftag = gtag; continue;
                 case 0:
-                    dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-                    dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
-                    dpx[2] = dx1; dpy[2] = vsp[i].fy[1];
-                    dpx[3] = dx0; dpy[3] = vsp[i].fy[0]; drawpoly(dpx,dpy,4,domostpolymethod);
-                    vsp[i].ctag = vsp[i].ftag = -1; break;
+                    dpx[2] = dx1; dpx[3] = dx0;
+                    dpy[0] = vsp[i].cy[0]; dpy[1] = vsp[i].cy[1]; dpy[2] = vsp[i].fy[1]; dpy[3] = vsp[i].fy[0];
+                    drawpoly(dpx,dpy,4,domostpolymethod);
+                    vsp[i].ctag = vsp[i].ftag = -1; continue;
                 default:
-                    break;
+                    continue;
                 }
             }
         }
@@ -2161,12 +2172,11 @@ static float global_cf_xpanning, global_cf_ypanning, global_cf_heinum;
 static int32_t global_cf_shade, global_cf_pal, global_cf_fogpal;
 static int32_t (*global_getzofslope_func)(int16_t, int32_t, int32_t);
 
-static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, double ny1, double ryp0, double ryp1,
-                                            double x0, double x1, double cf_y0, double cf_y1, int32_t have_floor,
+static void polymost_internal_nonparallaxed(float nx0, float ny0, float nx1, float ny1, float ryp0, float ryp1,
+                                            float x0, float x1, float cf_y0, float cf_y1, int32_t have_floor,
                                             int32_t sectnum)
 {
-    double ft[4], fx, fy, ox, oy, oz, ox2, oy2;
-    double px[3], py[3], dd[3], uu[3], vv[3], r;
+    float ft[4], fx, fy, ox, oy, oz, ox2, oy2;
     int32_t i;
 
     const sectortype *sec = &sector[sectnum];
@@ -2176,17 +2186,18 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
             //(cosglobalang/ 16384*(sx-ghalfx) + 0*(sy-ghoriz) + (sinviewingrangeglobalang/16384)*ghalfx)*d + globalposy    = v*16
             //(                  0*(sx-ghalfx) + 1*(sy-ghoriz) + (                             0)*ghalfx)*d + globalposz/16 = (sec->floorz/16)
     if (!(globalorientation&64))
-        { ft[0] = globalposx; ft[1] = globalposy; ft[2] = cosglobalang; ft[3] = singlobalang; }
+        { ft[0] = (float)globalposx; ft[1] = (float)globalposy; ft[2] = (float)cosglobalang; ft[3] = (float)singlobalang; }
     else
     {
+        float r;
         //relative alignment
-        fx = (double)(wall[wall[sec->wallptr].point2].x-wall[sec->wallptr].x);
-        fy = (double)(wall[wall[sec->wallptr].point2].y-wall[sec->wallptr].y);
-        r = 1.0/sqrt(fx*fx+fy*fy); fx *= r; fy *= r;
+        fx = (float)(wall[wall[sec->wallptr].point2].x-wall[sec->wallptr].x);
+        fy = (float)(wall[wall[sec->wallptr].point2].y-wall[sec->wallptr].y);
+        r = 1.f/Bsqrtf(fx*fx+fy*fy); fx *= r; fy *= r;
         ft[2] = cosglobalang*fx + singlobalang*fy;
         ft[3] = singlobalang*fx - cosglobalang*fy;
-        ft[0] = ((double)(globalposx-wall[sec->wallptr].x))*fx + ((double)(globalposy-wall[sec->wallptr].y))*fy;
-        ft[1] = ((double)(globalposy-wall[sec->wallptr].y))*fx - ((double)(globalposx-wall[sec->wallptr].x))*fy;
+        ft[0] = ((float)(globalposx-wall[sec->wallptr].x))*fx + ((float)(globalposy-wall[sec->wallptr].y))*fy;
+        ft[1] = ((float)(globalposy-wall[sec->wallptr].y))*fx - ((float)(globalposx-wall[sec->wallptr].x))*fy;
         if (!(globalorientation&4)) globalorientation ^= 32; else globalorientation ^= 16;
     }
     gdx = 0;
@@ -2195,18 +2206,20 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
         if (global_cf_z-globalposz)  // PK 2012: don't allow div by zero
             gdy /= (double)(global_cf_z-globalposz);
     gdo = -ghoriz*gdy;
-    if (globalorientation&8) { ft[0] /= 8; ft[1] /= -8; ft[2] /= 2097152; ft[3] /= 2097152; }
-    else { ft[0] /= 16; ft[1] /= -16; ft[2] /= 4194304; ft[3] /= 4194304; }
-    gux = (double)ft[3]*((double)viewingrange)/-65536.0;
-    gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
-    guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
-    guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
-    guo += (double)(ft[2]-gux)*ghalfx;
-    gvo -= (double)(ft[3]+gvx)*ghalfx;
+    if (globalorientation&8) { ft[0] *= (1.f/8.f); ft[1] *= (-1.f/8.f); ft[2] *= (1.f/2097152.f); ft[3] *= (1.0f/2097152.f); }
+    else { ft[0] *= (1.0f/16.f); ft[1] *= (-1.0f/16.f); ft[2] *= (1.0f/4194304.f); ft[3] *= (1.0f/4194304.f); }
+    gux = ft[3]*((double)viewingrange)*(-1.0/65536.0);
+    gvx = ft[2]*((double)viewingrange)*(-1.0/65536.0);
+    guy = ft[0]*gdy; gvy = ft[1]*gdy;
+    guo = ft[0]*gdo; gvo = ft[1]*gdo;
+    guo += (ft[2]-gux)*ghalfx;
+    gvo -= (ft[3]+gvx)*ghalfx;
 
     //Texture flipping
     if (globalorientation&4)
     {
+        double r;
+
         r = gux; gux = gvx; gvx = r;
         r = guy; guy = gvy; gvy = r;
         r = guo; guo = gvo; gvo = r;
@@ -2215,11 +2228,11 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
     if (globalorientation&32) { gvx = -gvx; gvy = -gvy; gvo = -gvo; }
 
     //Texture panning
-    fx = global_cf_xpanning*((float)(1<<(picsiz[globalpicnum]&15)))/256.0;
-    fy = global_cf_ypanning*((float)(1<<(picsiz[globalpicnum]>>4)))/256.0;
+    fx = global_cf_xpanning*((float)(1<<(picsiz[globalpicnum]&15)))*(1.0f/256.f);
+    fy = global_cf_ypanning*((float)(1<<(picsiz[globalpicnum]>>4)))*(1.0f/256.f);
     if ((globalorientation&(2+64)) == (2+64)) //Hack for panning for slopes w/ relative alignment
     {
-        r = global_cf_heinum / 4096.0; r = 1.0/sqrt(r*r+1);
+        float r = global_cf_heinum * (1.0f/4096.f); r = 1.f/Bsqrtf(r*r+1);
         if (!(globalorientation&4)) fy *= r; else fx *= r;
     }
     guy += gdy*fx; guo += gdo*fx;
@@ -2227,17 +2240,21 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
 
     if (globalorientation&2) //slopes
     {
-        px[0] = x0; py[0] = ryp0 + ghoriz;
-        px[1] = x1; py[1] = ryp1 + ghoriz;
+        double px[3], py[3];
+        float dd[3], uu[3], vv[3];
+        float r;
+
+        px[0] = x0; py[0] = ryp0 + (double)ghoriz;
+        px[1] = x1; py[1] = ryp1 + (double)ghoriz;
 
         //Pick some point guaranteed to be not collinear to the 1st two points
         ox = nx0 + (ny1-ny0);
         oy = ny0 + (nx0-nx1);
-        ox2 = (double)(oy-globalposy)*gcosang  - (double)(ox-globalposx)*gsinang ;
-        oy2 = (double)(ox-globalposx)*gcosang2 + (double)(oy-globalposy)*gsinang2;
-        oy2 = 1.0/oy2;
+        ox2 = (oy-(float)globalposy)*gcosang  - (ox-(float)globalposx)*gsinang ;
+        oy2 = (ox-(float)globalposx)*gcosang2 + (oy-(float)globalposy)*gsinang2;
+        oy2 = 1.f/oy2;
         px[2] = ghalfx*ox2*oy2 + ghalfx; oy2 *= gyxscale;
-        py[2] = oy2 + ghoriz;
+        py[2] = oy2 + (double)ghoriz;
 
         for (i=0; i<3; i++)
         {
@@ -2248,7 +2265,7 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
 
         py[0] = cf_y0;
         py[1] = cf_y1;
-        py[2] = (global_getzofslope_func(sectnum,(int32_t)ox,(int32_t)oy)-globalposz)*oy2 + ghoriz;
+        py[2] = (double)(global_getzofslope_func(sectnum,(int32_t)ox,(int32_t)oy)-globalposz)*oy2 + ghoriz;
 
         ox = py[1]-py[2]; oy = py[2]-py[0]; oz = py[0]-py[1];
         r = 1.0 / (ox*px[0] + oy*px[1] + oz*px[2]);
@@ -2265,40 +2282,45 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
 
         if (globalorientation&64) //Hack for relative alignment on slopes
         {
-            r = global_cf_heinum / 4096.0;
-            r = sqrt(r*r+1);
+            r = global_cf_heinum * (1.0f / 4096.f);
+            r = Bsqrtf(r*r+1);
             if (!(globalorientation&4)) { gvx *= r; gvy *= r; gvo *= r; }
             else { gux *= r; guy *= r; guo *= r; }
         }
     }
-    domostpolymethod = (globalorientation>>7)&3;
-    if (have_floor)
-    {
-        if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
-    }
-    else
-    {
-        if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
-    }
 
-    calc_and_apply_fog(globalpicnum, fogpal_shade(sec, global_cf_shade), sec->visibility,
-                       POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
+    domostpolymethod = (globalorientation>>7)&3;
 
     pow2xsplit = 0;
     alpha = 0.f;
+
+    calc_and_apply_fog(globalpicnum, fogpal_shade(sec, global_cf_shade), sec->visibility,
+        POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
+
     if (have_floor)
-        domost(x0,cf_y0,x1,cf_y1); //flor
+    {
+        if (globalposz >= getflorzofslope(sectnum, globalposx, globalposy))
+            domostpolymethod = -1; //Back-face culling
+
+        domost(x0, cf_y0, x1, cf_y1); //flor
+    }
     else
-        domost(x1,cf_y1,x0,cf_y0); //ceil
+    {
+        if (globalposz <= getceilzofslope(sectnum, globalposx, globalposy))
+            domostpolymethod = -1; //Back-face culling
+
+        domost(x1, cf_y1, x0, cf_y0); //ceil
+    }
+
     domostpolymethod = 0;
 }
 
-static void calc_ypanning(int32_t refposz, double ryp0, double ryp1,
-                          double x0, double x1, uint8_t ypan, uint8_t yrepeat,
+static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
+                          float x0, float x1, uint8_t ypan, uint8_t yrepeat,
                           int32_t dopancor)
 {
     int32_t i;
-    double t0, t1, t, fy;
+    float t0, t1, t, fy;
 
     t0 = ((float)(refposz-globalposz))*ryp0 + ghoriz;
     t1 = ((float)(refposz-globalposz))*ryp1 + ghoriz;
@@ -2312,7 +2334,7 @@ static void calc_ypanning(int32_t refposz, double ryp0, double ryp1,
 #endif
     if (polymost_is_npotmode())
     {
-        t *= (double)tilesizy[globalpicnum] / i;
+        t *= (float)tilesizy[globalpicnum] / i;
         i = tilesizy[globalpicnum];
     }
     else if (dopancor)
@@ -2327,7 +2349,8 @@ static void calc_ypanning(int32_t refposz, double ryp0, double ryp1,
             ypan -= yoffs;
     }
 
-    fy = (float)ypan * ((float)i) / 256.0;
+    fy = (float) (ypan * i) / 256.f;
+//    fy = (float)ypan * ((float)i) / 256.0;
     gvx = (t0-t1)*t;
     gvy = (x1-x0)*t;
     gvo = -gvx*x0 - gvy*t0 + fy*gdo; gvx += fy*gdx; gvy += fy*gdy;
@@ -2338,10 +2361,10 @@ static void polymost_drawalls(int32_t bunch)
 {
     sectortype *sec, *nextsec;
     walltype *wal, *wal2, *nwal;
-    double ox, oy, oz, dd[3], vv[3];
-    double fx, x0, x1, cy0, cy1, fy0, fy1, xp0, yp0, xp1, yp1, ryp0, ryp1, nx0, ny0, nx1, ny1;
-    double t, r, t0, t1, ocy0, ocy1, ofy0, ofy1, oxp0, oyp0, ft[4];
-    double oguo, ogux, oguy;
+    float ox, oy, oz, dd[3], vv[3];
+    float fx, x0, x1, cy0, cy1, fy0, fy1, xp0, yp0, xp1, yp1, ryp0, ryp1, nx0, ny0, nx1, ny1;
+    float t, r, t0, t1, ocy0, ocy1, ofy0, ofy1, oxp0, oyp0, ft[4];
+    float oguo, ogux, oguy;
     int32_t i, x, y, z, cz, fz, wallnum, sectnum, nextsectnum;
 
     int32_t dapskybits;
@@ -2365,11 +2388,11 @@ static void polymost_drawalls(int32_t bunch)
 
         //Offset&Rotate 3D coordinates to screen 3D space
         x = wal->x-globalposx; y = wal->y-globalposy;
-        xp0 = (double)y*gcosang  - (double)x*gsinang;
-        yp0 = (double)x*gcosang2 + (double)y*gsinang2;
+        xp0 = (float)y*gcosang  - (float)x*gsinang;
+        yp0 = (float)x*gcosang2 + (float)y*gsinang2;
         x = wal2->x-globalposx; y = wal2->y-globalposy;
-        xp1 = (double)y*gcosang  - (double)x*gsinang;
-        yp1 = (double)x*gcosang2 + (double)y*gsinang2;
+        xp1 = (float)y*gcosang  - (float)x*gsinang;
+        yp1 = (float)x*gcosang2 + (float)y*gsinang2;
 
         oxp0 = xp0; oyp0 = yp0;
 
@@ -2381,14 +2404,14 @@ static void polymost_drawalls(int32_t bunch)
             nx0 = (wal2->x-wal->x)*t0+wal->x;
             ny0 = (wal2->y-wal->y)*t0+wal->y;
         }
-        else { t0 = 0.f; nx0 = wal->x; ny0 = wal->y; }
+        else { t0 = 0.f; nx0 = (float)wal->x; ny0 = (float)wal->y; }
         if (yp1 < SCISDIST)
         {
             t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0; yp1 = SCISDIST;
             nx1 = (wal2->x-wal->x)*t1+wal->x;
             ny1 = (wal2->y-wal->y)*t1+wal->y;
         }
-        else { t1 = 1.f; nx1 = wal2->x; ny1 = wal2->y; }
+        else { t1 = 1.f; nx1 = (float)wal2->x; ny1 = (float)wal2->y; }
 
         ryp0 = 1.f/yp0; ryp1 = 1.f/yp1;
 
@@ -2399,10 +2422,10 @@ static void polymost_drawalls(int32_t bunch)
 
         ryp0 *= gyxscale; ryp1 *= gyxscale;
 
-        getzsofslope(sectnum,(int32_t)nx0,(int32_t)ny0,&cz,&fz);
+        getzsofslope(sectnum,Blrintf(nx0),Blrintf(ny0),&cz,&fz);
         cy0 = ((float)(cz-globalposz))*ryp0 + ghoriz;
         fy0 = ((float)(fz-globalposz))*ryp0 + ghoriz;
-        getzsofslope(sectnum,(int32_t)nx1,(int32_t)ny1,&cz,&fz);
+        getzsofslope(sectnum,Blrintf(nx1),Blrintf(ny1),&cz,&fz);
         cy1 = ((float)(cz-globalposz))*ryp1 + ghoriz;
         fy1 = ((float)(fz-globalposz))*ryp1 + ghoriz;
 
@@ -2433,7 +2456,7 @@ static void polymost_drawalls(int32_t bunch)
 #ifdef USE_OPENGL
             if (getrendermode() >= REND_POLYMOST)
             {
-                calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005);
+                calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
 
                 //Use clamping for tiled sky textures
                 for (i=(1<<dapskybits)-1; i>0; i--)
@@ -2441,19 +2464,21 @@ static void polymost_drawalls(int32_t bunch)
                         { skyclamphack = r_parallaxskyclamping; break; }
             }
 #endif
-            if (bpp == 8 || !usehightile || !hicfindsubst(globalpicnum,globalpal,1))
+            if (bpp == 8 || !usehightile || !hicfindskybox(globalpicnum, globalpal))
             {
-                dd[0] = (float)xdimen*.0000001; //Adjust sky depth based on screen size!
-                t = (double)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
-                vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
-                vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
+//                g_nodraw = 1;
+
+                dd[0] = (float)xdimen*.0000001f; //Adjust sky depth based on screen size!
+                t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
+                vv[1] = dd[0]*((float)xdimscale*(float)viewingrange)/(65536.f*65536.f);
+                vv[0] = dd[0]*((float)((tilesizy[globalpicnum]>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
 
                 //Hack to draw black rectangle below sky when looking down...
-                gdx = 0; gdy = gxyaspect / 262144.0; gdo = -ghoriz*gdy;
+                gdx = 0; gdy = gxyaspect / 262144.f; gdo = -ghoriz*gdy;
                 gux = 0; guy = 0; guo = 0;
-                gvx = 0; gvy = (double)(tilesizy[globalpicnum]-1)*gdy; gvo = (double)(tilesizy[globalpicnum-1])*gdo;
-                oy = (((double)tilesizy[globalpicnum])*dd[0]-vv[0])/vv[1];
+                gvx = 0; gvy = (float)(tilesizy[globalpicnum]-1)*gdy; gvo = (float)(tilesizy[globalpicnum-1])*gdo;
+                oy = ((float)tilesizy[globalpicnum]*dd[0]-vv[0])/vv[1];
                 if ((oy > fy0) && (oy > fy1)) domost(x0,oy,x1,oy);
                 else if ((oy > fy0) != (oy > fy1))
                 {
@@ -2469,36 +2494,39 @@ static void polymost_drawalls(int32_t bunch)
                 else domost(x0,fy0,x1,fy1);
 
                 if (r_parallaxskypanning)
-                    vv[0] += dd[0]*((double)sec->floorypanning)*((double)i)/256.0;
+                    vv[0] += dd[0]*((float)sec->floorypanning)*((float)i)/256.0;
 
                 gdx = 0; gdy = 0; gdo = dd[0];
-                gux = gdo*(t*((double)xdimscale)*((double)yxaspect)*((double)viewingrange))/(16384.0*65536.0*65536.0*5.0*1024.0);
+                gux = gdo *
+                    (t * (float) ((uint64_t) (xdimscale * yxaspect) * viewingrange)) / (16384.0*65536.0*65536.0*5.0*1024.0);
                 guy = 0; //guo calculated later
                 gvx = 0; gvy = vv[1]; gvo = vv[0];
 
                 i = globalpicnum; r = (fy1-fy0)/(x1-x0); //slope of line
-                oy = ((double)viewingrange)/(ghalfx*256.0); oz = 1/oy;
+                oy = ((float)viewingrange)/(ghalfx*256.0); oz = 1/oy;
 
                 y = ((((int32_t)((x0-ghalfx)*oy))+globalang)>>(11-dapskybits));
                 fx = x0;
                 do
                 {
                     globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                    guo = gdo*(t*((double)(globalang-(y<<(11-dapskybits))))/2048.0 + (double)((r_parallaxskypanning)?sec->floorxpanning:0)) - gux*ghalfx;
+                    guo = gdo*(t*((float)(globalang-(y<<(11-dapskybits))))/2048.0 + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - gux*ghalfx;
                     y++;
-                    ox = fx; fx = ((double)((y<<(11-dapskybits))-globalang))*oz+ghalfx;
+                    ox = fx; fx = ((float)((y<<(11-dapskybits))-globalang))*oz+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
 
                     pow2xsplit = 0; domost(ox,(ox-x0)*r+fy0,fx,(fx-x0)*r+fy0); //flor
                 }
                 while (i >= 0);
+
+//                g_nodraw = 0;
             }
             else  //NOTE: code copied from ceiling code... lots of duplicated stuff :/
             {
                 //Skybox code for parallax ceiling!
-                double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1; // _nx0, _ny0, _nx1, _ny1;
-                double _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
-                double nfy0, nfy1;
+                float _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1; // _nx0, _ny0, _nx1, _ny1;
+                float _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
+                float nfy0, nfy1;
                 int32_t skywalx[4] = {-512,512,512,-512}, skywaly[4] = {-512,-512,512,512};
 
                 pow2xsplit = 0;
@@ -2507,11 +2535,11 @@ static void polymost_drawalls(int32_t bunch)
                 for (i=0; i<4; i++)
                 {
                     x = skywalx[i&3]; y = skywaly[i&3];
-                    _xp0 = (double)y*gcosang  - (double)x*gsinang;
-                    _yp0 = (double)x*gcosang2 + (double)y*gsinang2;
+                    _xp0 = (float)y*gcosang  - (float)x*gsinang;
+                    _yp0 = (float)x*gcosang2 + (float)y*gsinang2;
                     x = skywalx[(i+1)&3]; y = skywaly[(i+1)&3];
-                    _xp1 = (double)y*gcosang  - (double)x*gsinang;
-                    _yp1 = (double)x*gcosang2 + (double)y*gsinang2;
+                    _xp1 = (float)y*gcosang  - (float)x*gsinang;
+                    _yp1 = (float)x*gcosang2 + (float)y*gsinang2;
 
                     _oxp0 = _xp0; _oyp0 = _yp0;
 
@@ -2582,12 +2610,12 @@ static void polymost_drawalls(int32_t bunch)
                     gdx = 0;
                     gdy = gxyaspect*(1.f/4194304.f);
                     gdo = -ghoriz*gdy;
-                    gux = (double)ft[3]*((double)viewingrange)/-65536.0;
-                    gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
-                    guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
-                    guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
-                    guo += (double)(ft[2]-gux)*ghalfx;
-                    gvo -= (double)(ft[3]+gvx)*ghalfx;
+                    gux = (double)ft[3]*((float)viewingrange)*(-1.0/65536.0);
+                    gvx = (double)ft[2]*((float)viewingrange)*(-1.0/65536.0);
+                    guy = ft[0]*gdy; gvy = ft[1]*gdy;
+                    guo = ft[0]*gdo; gvo = ft[1]*gdo;
+                    guo += (ft[2]-gux)*ghalfx;
+                    gvo -= (ft[3]+gvx)*ghalfx;
                     gvx = -gvx; gvy = -gvy; gvo = -gvo; //y-flip skybox floor
 #ifdef USE_OPENGL
                     drawingskybox = 6; //ceiling/5th texture/index 4 of skybox
@@ -2618,8 +2646,8 @@ static void polymost_drawalls(int32_t bunch)
                     gux = (_t0*_ryp0 - _t1*_ryp1)*gxyaspect*(64.f/512.f) / (_ox0-_ox1);
                     guo = _t0*_ryp0*gxyaspect*(64.f/512.f) - gux*_ox0;
                     guy = 0;
-                    _t0 = -8192.0*_ryp0 + ghoriz;
-                    _t1 = -8192.0*_ryp1 + ghoriz;
+                    _t0 = -8192.f*_ryp0 + ghoriz;
+                    _t1 = -8192.f*_ryp1 + ghoriz;
                     t = ((gdx*_ox0 + gdo)*8.f) / ((_ox1-_ox0) * _ryp0 * 2048.f);
                     gvx = (_t0-_t1)*t;
                     gvy = (_ox1-_ox0)*t;
@@ -2651,12 +2679,12 @@ static void polymost_drawalls(int32_t bunch)
                 gdx = 0;
                 gdy = gxyaspect*(-1.f/4194304.f);
                 gdo = -ghoriz*gdy;
-                gux = (double)ft[3]*((double)viewingrange)/-65536.0;
-                gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
-                guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
-                guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
-                guo += (double)(ft[2]-gux)*ghalfx;
-                gvo -= (double)(ft[3]+gvx)*ghalfx;
+                gux = ft[3]*((double)viewingrange)*(-1.0/65536.0);
+                gvx = ft[2]*((double)viewingrange)*(-1.0/65536.0);
+                guy = ft[0]*gdy; gvy = ft[1]*gdy;
+                guo = ft[0]*gdo; gvo = ft[1]*gdo;
+                guo += (ft[2]-gux)*ghalfx;
+                gvo -= (ft[3]+gvx)*ghalfx;
                 domost(x0,fy0,x1,fy1);
 
                 skyclamphack = 0;
@@ -2700,7 +2728,7 @@ static void polymost_drawalls(int32_t bunch)
 #ifdef USE_OPENGL
             if (getrendermode() >= REND_POLYMOST)
             {
-                calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005);
+                calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
 
                 //Use clamping for tiled sky textures
                 for (i=(1<<dapskybits)-1; i>0; i--)
@@ -2709,17 +2737,19 @@ static void polymost_drawalls(int32_t bunch)
             }
 #endif
             //Parallaxing sky...
-            if (bpp == 8 || !usehightile || !hicfindsubst(globalpicnum,globalpal,1))
+            if (bpp == 8 || !usehightile || !hicfindskybox(globalpicnum, globalpal))
             {
+//                g_nodraw = 1;
+
                 //Render for parallaxtype == 0 / paper-sky
-                dd[0] = (float)xdimen*.0000001; //Adjust sky depth based on screen size!
-                t = (double)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
-                vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
-                vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
+                dd[0] = (float)xdimen*.0000001f; //Adjust sky depth based on screen size!
+                t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
+                vv[1] = dd[0]*((float)xdimscale*viewingrange)/(65536.f*65536.f);
+                vv[0] = dd[0]*((float)((tilesizy[globalpicnum]>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
 
                 //Hack to draw black rectangle below sky when looking down...
-                gdx = 0; gdy = gxyaspect / -262144.0; gdo = -ghoriz*gdy;
+                gdx = 0; gdy = gxyaspect / -262144.f; gdo = -ghoriz*gdy;
                 gux = 0; guy = 0; guo = 0;
                 gvx = 0; gvy = 0; gvo = 0;
                 oy = -vv[0]/vv[1];
@@ -2740,35 +2770,38 @@ static void polymost_drawalls(int32_t bunch)
                 else domost(x1,cy1,x0,cy0);
 
                 if (r_parallaxskypanning)
-                    vv[0] += dd[0]*((double)sec->ceilingypanning)*((double)i)/256.0;
-
+                    vv[0] += dd[0]*((float)sec->ceilingypanning)*((float)i)/256.f;
+                
                 gdx = 0; gdy = 0; gdo = dd[0];
-                gux = gdo*(t*((double)xdimscale)*((double)yxaspect)*((double)viewingrange))/(16384.0*65536.0*65536.0*5.0*1024.0);
+                gux = gdo * 
+                    (t * (float) ((uint64_t)(xdimscale * yxaspect) * viewingrange)) / (16384.0*65536.0*65536.0*5.0*1024.0);
                 guy = 0; //guo calculated later
                 gvx = 0; gvy = vv[1]; gvo = vv[0];
 
                 i = globalpicnum; r = (cy1-cy0)/(x1-x0); //slope of line
-                oy = ((double)viewingrange)/(ghalfx*256.0); oz = 1/oy;
+                oy = ((float)viewingrange)/(ghalfx*256.f); oz = 1/oy;
 
                 y = ((((int32_t)((x0-ghalfx)*oy))+globalang)>>(11-dapskybits));
                 fx = x0;
                 do
                 {
                     globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                    guo = gdo*(t*((double)(globalang-(y<<(11-dapskybits))))/2048.0 + (double)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - gux*ghalfx;
+                    guo = gdo*(t*((float)(globalang-(y<<(11-dapskybits))))/2048.0 + (float)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - gux*ghalfx;
                     y++;
-                    ox = fx; fx = ((double)((y<<(11-dapskybits))-globalang))*oz+ghalfx;
+                    ox = fx; fx = ((float)((y<<(11-dapskybits))-globalang))*oz+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
                     pow2xsplit = 0; domost(fx,(fx-x0)*r+cy0,ox,(ox-x0)*r+cy0); //ceil
                 }
                 while (i >= 0);
+
+//                g_nodraw = 0;
             }
             else
             {
                 //Skybox code for parallax ceiling!
-                double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1; // _nx0, _ny0, _nx1, _ny1;
-                double _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
-                double ncy0, ncy1;
+                float _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1; // _nx0, _ny0, _nx1, _ny1;
+                float _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
+                float ncy0, ncy1;
                 int32_t skywalx[4] = {-512,512,512,-512}, skywaly[4] = {-512,-512,512,512};
 
                 pow2xsplit = 0;
@@ -2777,11 +2810,11 @@ static void polymost_drawalls(int32_t bunch)
                 for (i=0; i<4; i++)
                 {
                     x = skywalx[i&3]; y = skywaly[i&3];
-                    _xp0 = (double)y*gcosang  - (double)x*gsinang;
-                    _yp0 = (double)x*gcosang2 + (double)y*gsinang2;
+                    _xp0 = (float)y*gcosang  - (float)x*gsinang;
+                    _yp0 = (float)x*gcosang2 + (float)y*gsinang2;
                     x = skywalx[(i+1)&3]; y = skywaly[(i+1)&3];
-                    _xp1 = (double)y*gcosang  - (double)x*gsinang;
-                    _yp1 = (double)x*gcosang2 + (double)y*gsinang2;
+                    _xp1 = (float)y*gcosang  - (float)x*gsinang;
+                    _yp1 = (float)x*gcosang2 + (float)y*gsinang2;
 
                     _oxp0 = _xp0; _oyp0 = _yp0;
 
@@ -2853,14 +2886,14 @@ static void polymost_drawalls(int32_t bunch)
                     ft[2] = ((float)cosglobalang)*(1.f/2147483648.f);
                     ft[3] = ((float)singlobalang)*(1.f/2147483648.f);
                     gdx = 0;
-                    gdy = gxyaspect*-(1.f/4194304.f);
+                    gdy = gxyaspect*(-1.f/4194304.f);
                     gdo = -ghoriz*gdy;
-                    gux = (double)ft[3]*((double)viewingrange)/-65536.0;
-                    gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
-                    guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
-                    guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
-                    guo += (double)(ft[2]-gux)*ghalfx;
-                    gvo -= (double)(ft[3]+gvx)*ghalfx;
+                    gux = (float)ft[3]*((float)viewingrange)*(-1.0/65536.0);
+                    gvx = (float)ft[2]*((float)viewingrange)*(-1.0/65536.0);
+                    guy = (float)ft[0]*gdy; gvy = (float)ft[1]*gdy;
+                    guo = (float)ft[0]*gdo; gvo = (float)ft[1]*gdo;
+                    guo += (float)(ft[2]-gux)*ghalfx;
+                    gvo -= (float)(ft[3]+gvx)*ghalfx;
                     if ((_cy0 < ncy0) && (_cy1 < ncy1)) domost(_x1,_cy1,_x0,_cy0);
                     else if ((_cy0 < ncy0) != (_cy1 < ncy1))
                     {
@@ -2887,8 +2920,8 @@ static void polymost_drawalls(int32_t bunch)
                     gux = (_t0*_ryp0 - _t1*_ryp1)*gxyaspect*(64.f/512.f) / (_ox0-_ox1);
                     guo = _t0*_ryp0*gxyaspect*(64.f/512.f) - gux*_ox0;
                     guy = 0;
-                    _t0 = -8192.0*_ryp0 + ghoriz;
-                    _t1 = -8192.0*_ryp1 + ghoriz;
+                    _t0 = -8192.f*_ryp0 + ghoriz;
+                    _t1 = -8192.f*_ryp1 + ghoriz;
                     t = ((gdx*_ox0 + gdo)*8.f) / ((_ox1-_ox0) * _ryp0 * 2048.f);
                     gvx = (_t0-_t1)*t;
                     gvy = (_ox1-_ox0)*t;
@@ -2920,12 +2953,12 @@ static void polymost_drawalls(int32_t bunch)
                 gdx = 0;
                 gdy = gxyaspect*(1.f/4194304.f);
                 gdo = -ghoriz*gdy;
-                gux = (double)ft[3]*((double)viewingrange)/-65536.0;
-                gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
-                guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
-                guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
-                guo += (double)(ft[2]-gux)*ghalfx;
-                gvo -= (double)(ft[3]+gvx)*ghalfx;
+                gux = (float)ft[3]*((float)viewingrange)*(-1.0/65536.0);
+                gvx = (float)ft[2]*((float)viewingrange)*(-1.0/65536.0);
+                guy = (float)ft[0]*gdy; gvy = (float)ft[1]*gdy;
+                guo = (float)ft[0]*gdo; gvo = (float)ft[1]*gdo;
+                guo += (float)(ft[2]-gux)*ghalfx;
+                gvo -= (float)(ft[3]+gvx)*ghalfx;
                 gvx = -gvx; gvy = -gvy; gvo = -gvo; //y-flip skybox floor
                 domost(x1,cy1,x0,cy0);
 
@@ -2989,10 +3022,10 @@ static void polymost_drawalls(int32_t bunch)
 
         if (nextsectnum >= 0)
         {
-            getzsofslope(nextsectnum,(int32_t)nx0,(int32_t)ny0,&cz,&fz);
+            getzsofslope(nextsectnum,Blrintf(nx0),Blrintf(ny0),&cz,&fz);
             ocy0 = ((float)(cz-globalposz))*ryp0 + ghoriz;
             ofy0 = ((float)(fz-globalposz))*ryp0 + ghoriz;
-            getzsofslope(nextsectnum,(int32_t)nx1,(int32_t)ny1,&cz,&fz);
+            getzsofslope(nextsectnum,Blrintf(nx1),Blrintf(ny1),&cz,&fz);
             ocy1 = ((float)(cz-globalposz))*ryp1 + ghoriz;
             ofy1 = ((float)(fz-globalposz))*ryp1 + ghoriz;
 
@@ -3101,10 +3134,11 @@ static void polymost_drawalls(int32_t bunch)
     }
 }
 
-static int32_t polymost_bunchfront(int32_t b1, int32_t b2)
+static int32_t polymost_bunchfront(const int32_t b1, const int32_t b2)
 {
-    double x1b1, x1b2, x2b1, x2b2;
+    float x1b1, x1b2, x2b1, x2b2;
     int32_t b1f, b2f, i;
+    static int32_t count1, count2;
 
     b1f = bunchfirst[b1]; x1b1 = dxb1[b1f]; x2b2 = dxb2[bunchlast[b2]]; if (x1b1 >= x2b2) return(-1);
     b2f = bunchfirst[b2]; x1b2 = dxb1[b2f]; x2b1 = dxb2[bunchlast[b1]]; if (x1b2 >= x2b1) return(-1);
@@ -3120,7 +3154,7 @@ static int32_t polymost_bunchfront(int32_t b1, int32_t b2)
 
 void polymost_scansector(int32_t sectnum)
 {
-    double d, xp1, yp1, xp2, yp2;
+    float d, xp1, yp1, xp2, yp2;
     walltype *wal, *wal2;
     spritetype *spr;
     int32_t z, zz, startwall, endwall, numscansbefore, scanfirst, bunchfrst, nextsectnum;
@@ -3171,29 +3205,36 @@ void polymost_scansector(int32_t sectnum)
 #endif
             if ((nextsectnum >= 0) && (!(wal->cstat&32)) && (!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])))
             {
-                d = (double)x1*(double)y2 - (double)x2*(double)y1; xp1 = (double)(x2-x1); yp1 = (double)(y2-y1);
-                if (d*d <= (xp1*xp1 + yp1*yp1)*(SCISDIST*SCISDIST*260.0))
+                d = (float)x1*(float)y2 - (float)x2*(float)y1; xp1 = (float)(x2-x1); yp1 = (float)(y2-y1);
+                if (d*d <= (xp1*xp1 + yp1*yp1)*(SCISDIST*SCISDIST*260.f))
                     sectorborder[sectorbordercnt++] = nextsectnum;
             }
 
             if ((z == startwall) || (wall[z-1].point2 != z))
             {
-                xp1 = ((double)y1*(double)cosglobalang             - (double)x1*(double)singlobalang)/64.0;
-                yp1 = ((double)x1*(double)cosviewingrangeglobalang + (double)y1*(double)sinviewingrangeglobalang)/64.0;
+                xp1 = (float) (((int64_t)y1 * cosglobalang) - ((int64_t)x1 * singlobalang)) * (1.0f/64.f);
+                yp1 = (float) (((int64_t)x1 * cosviewingrangeglobalang) + ((int64_t)y1 * sinviewingrangeglobalang)) * (1.0f/64.f);
+//                xp1 = ((float)y1*(float)cosglobalang             - (float)x1*(float)singlobalang)/64.0;
+//                yp1 = ((float)x1*(float)cosviewingrangeglobalang + (float)y1*(float)sinviewingrangeglobalang)/64.0;
             }
             else { xp1 = xp2; yp1 = yp2; }
-            xp2 = ((double)y2*(double)cosglobalang             - (double)x2*(double)singlobalang)/64.0;
-            yp2 = ((double)x2*(double)cosviewingrangeglobalang + (double)y2*(double)sinviewingrangeglobalang)/64.0;
+
+            xp2 = (float) (((int64_t) y2 * cosglobalang) - ((int64_t) x2 * singlobalang)) * (1.0f/64.f);
+            yp2 = (float) (((int64_t) x2 * cosviewingrangeglobalang) + ((int64_t) y2 * sinviewingrangeglobalang)) * (1.0f/64.f);
+
+//            xp2 = ((float)y2*(float)cosglobalang             - (float)x2*(float)singlobalang)/64.0;
+//            yp2 = ((float)x2*(float)cosviewingrangeglobalang + (float)y2*(float)sinviewingrangeglobalang)/64.0;
+
             if ((yp1 >= SCISDIST) || (yp2 >= SCISDIST))
-                if ((double)xp1*(double)yp2 < (double)xp2*(double)yp1) //if wall is facing you...
+                if (xp1*yp2 < xp2*yp1) //if wall is facing you...
                 {
                     if (yp1 >= SCISDIST)
-                        dxb1[numscans] = (double)xp1*ghalfx/(double)yp1 + ghalfx;
-                    else dxb1[numscans] = -1e32;
+                        dxb1[numscans] = xp1*ghalfx/yp1 + ghalfx;
+                    else dxb1[numscans] = -1e32f;
 
                     if (yp2 >= SCISDIST)
-                        dxb2[numscans] = (double)xp2*ghalfx/(double)yp2 + ghalfx;
-                    else dxb2[numscans] = 1e32;
+                        dxb2[numscans] = xp2*ghalfx/yp2 + ghalfx;
+                    else dxb2[numscans] = 1e32f;
 
                     if (dxb1[numscans] < dxb2[numscans])
                         { thesector[numscans] = sectnum; thewall[numscans] = z; p2[numscans] = numscans+1; numscans++; }
@@ -3225,7 +3266,7 @@ void polymost_scansector(int32_t sectnum)
 void polymost_drawrooms()
 {
     int32_t i, j, n, n2, closest;
-    double ox, oy, oz, ox2, oy2, oz2, r, px[6], py[6], pz[6], px2[6], py2[6], pz2[6], sx[6], sy[6];
+    float ox, oy, oz, ox2, oy2, oz2, r, px[6], py[6], pz[6], px2[6], py2[6], pz2[6], sx[6], sy[6];
 
     if (getrendermode() == REND_CLASSIC) return;
 
@@ -3254,6 +3295,7 @@ void polymost_drawrooms()
         bglDepthRange(0.00001,1.0); //<- this is more widely supported than glPolygonOffset
 
         //Enable this for OpenGL red-blue glasses mode :)
+#ifdef REDBLUEMODE
         if (glredbluemode)
         {
             static int32_t grbfcnt = 0; grbfcnt++;
@@ -3262,52 +3304,57 @@ void polymost_drawrooms()
             {
                 bglViewport(windowx1-16,yres-(windowy2+1),windowx2-(windowx1-16)+1,windowy2-windowy1+1);
                 bglColorMask(1,0,0,1);
-                globalposx += singlobalang/1024;
-                globalposy -= cosglobalang/1024;
+                globalposx += singlobalang>>10;
+                globalposy -= cosglobalang>>10;
             }
             else
             {
                 bglViewport(windowx1,yres-(windowy2+1),windowx2+16-windowx1+1,windowy2-windowy1+1);
                 bglColorMask(0,1,1,1);
-                globalposx -= singlobalang/1024;
-                globalposy += cosglobalang/1024;
+                globalposx -= singlobalang>>10;
+                globalposy += cosglobalang>>10;
             }
         }
+#endif
     }
 #endif
-
+    
     //Polymost supports true look up/down :) Here, we convert horizon to angle.
     //gchang&gshang are cos&sin of this angle (respectively)
-    gyxscale = ((double)xdimenscale)/131072.0;
-    gxyaspect = ((double)xyaspect*(double)viewingrange)*(5.0/(65536.0*262144.0));
-    gviewxrange = ((double)viewingrange)*((double)xdimen)/(32768.0*1024.0);
-    gcosang = ((double)cosglobalang)/262144.0;
-    gsinang = ((double)singlobalang)/262144.0;
-    gcosang2 = gcosang*((double)viewingrange)/65536.0;
-    gsinang2 = gsinang*((double)viewingrange)/65536.0;
-    ghalfx = (double)halfxdimen; grhalfxdown10 = 1.0/(((double)ghalfx)*1024);
-    ghoriz = (double)globalhoriz;
+    gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
+    gxyaspect = ((float)xyaspect*(float)viewingrange)*(5.f/(65536.f*262144.f));
+    gviewxrange = ((float)viewingrange)*((float)xdimen)/(32768.f*1024.f);
+    gcosang = ((float)cosglobalang)*(1.0f/262144.f);
+    gsinang = ((float)singlobalang)*(1.0f/262144.f);
+    gcosang2 = gcosang*((float)viewingrange)*(1.0f/65536.f);
+    gsinang2 = gsinang*((float)viewingrange)*(1.0f/65536.f);
+    ghalfx = (float)halfxdimen;
+    grhalfxdown10 = 1.f/(ghalfx*1024.f);
+    ghoriz = (float)globalhoriz;
 
     gvisibility = ((float)globalvisibility)*FOGSCALE;
 
     //global cos/sin height angle
-    r = (double)((ydimen>>1)-ghoriz);
-    gshang = r/sqrt(r*r+ghalfx*ghalfx);
-    gchang = sqrt(1.0-gshang*gshang);
-    ghoriz = (double)(ydimen>>1);
+    r = ((float)(ydimen>>1)-ghoriz);
+    gshang = r/Bsqrtf(r*r+ghalfx*ghalfx);
+    gchang = Bsqrtf(1.f-gshang*gshang);
+    ghoriz = (float)(ydimen>>1);
 
     //global cos/sin tilt angle
     gctang = cos(gtang);
     gstang = sin(gtang);
-    if (fabs(gstang) < .001) //This hack avoids nasty precision bugs in domost()
-        { gstang = 0; if (gctang > 0) gctang = 1.0; else gctang = -1.0; }
+    if (fabs(gstang) < .001f) //This hack avoids nasty precision bugs in domost()
+        { gstang = 0; if (gctang > 0) gctang = 1.f; else gctang = -1.f; }
 
     if (inpreparemirror)
         gstang = -gstang;
 
     //Generate viewport trapezoid (for handling screen up/down)
-    px[0] = px[3] = 0-1; px[1] = px[2] = windowx2+1-windowx1+2;
-    py[0] = py[1] = 0-1; py[2] = py[3] = windowy2+1-windowy1+2; n = 4;
+    px[0] = px[3] = 0-1; px[1] = px[2] = (float)(windowx2+1-windowx1+2);
+    py[0] = py[1] = 0-1; py[2] = py[3] = (float)(windowy2+1-windowy1+2);
+    
+    n = 4;
+
     for (i=0; i<n; i++)
     {
         ox = px[i]-ghalfx; oy = py[i]-ghoriz; oz = ghalfx;
@@ -3372,7 +3419,7 @@ void polymost_drawrooms()
         //Standard Left/right rotation
         vx = (int32_t)(ox2*((float)cosglobalang) - oy2*((float)singlobalang));
         vy = (int32_t)(ox2*((float)singlobalang) + oy2*((float)cosglobalang));
-        vz = (int32_t)(oz2*16384.0);
+        vz = (int32_t)(oz2*16384.f);
 
         vect.x = globalposx;
         vect.y = globalposy;
@@ -3426,7 +3473,7 @@ void polymost_drawrooms()
                 double dadist, x,y,z;
                 Bmemcpy(tsp, &hit.pos, sizeof(vec3_t));
                 x = tsp->x-globalposx; y=tsp->y-globalposy; z=(tsp->z-globalposz)/16.0;
-                dadist = sqrt(x*x + y*y + z*z);
+                dadist = Bsqrt(x*x + y*y + z*z);
                 tsp->sectnum = hit.sect;
                 tsp->picnum = 2523;  // CROSSHAIR
                 tsp->cstat = 128;
@@ -3555,7 +3602,7 @@ void polymost_drawrooms()
 
 void polymost_drawmaskwall(int32_t damaskwallcnt)
 {
-    double dpx[8], dpy[8], dpx2[8], dpy2[8];
+    float dpx[8], dpy[8], dpx2[8], dpy2[8];
     float x0, x1, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1;
     float r, t, t0, t1, csy[4], fsy[4];
     int32_t i, j, n, n2, z, sectnum, z1, z2, cz[4], fz[4], method;
@@ -3721,7 +3768,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
 
 void polymost_drawsprite(int32_t snum)
 {
-    double px[6], py[6];
+    float px[6], py[6];
     float f, c, s, fx, fy, sx0, sy0, sx1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1, ft[4];
     float x0, y0, x1, y1, sc0, sf0, sc1, sf1, px2[6], py2[6], xv, yv, t0, t1;
     int32_t i, j, spritenum, xoff=0, yoff=0, method, npoints;
@@ -3765,7 +3812,7 @@ void polymost_drawsprite(int32_t snum)
     calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, globalshade),
                        sec->visibility, get_floor_fogpal(sec));
 
-    while (getrendermode() >= REND_POLYMOST && !(spriteext[spritenum].flags&SPREXT_NOTMD))
+    while (!(spriteext[spritenum].flags&SPREXT_NOTMD))
     {
         if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
         {
@@ -3790,11 +3837,11 @@ void polymost_drawsprite(int32_t snum)
         break;
     }
 
-    if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))))
+    if (((tspr->cstat&(2|16)) || (gltexmayhavealpha(tspr->picnum,tspr->pal))))
     {
-        curpolygonoffset += 0.01f;
+        curpolygonoffset -= 0.1f;
         bglEnable(GL_POLYGON_OFFSET_FILL);
-        bglPolygonOffset(-curpolygonoffset, -curpolygonoffset);
+        bglPolygonOffset(-1.0f, curpolygonoffset);
     }
 #endif
 
@@ -3839,31 +3886,31 @@ void polymost_drawsprite(int32_t snum)
         sx0 = ghalfx*xp0*ryp0 + ghalfx;
         sy0 = ((float)(tspr->z-globalposz))*gyxscale*ryp0 + ghoriz;
 
-        f = ryp0*(float)xdimen/160.0;
+        f = ryp0*(float)xdimen*(1.0f/160.f);
         fx = ((float)tspr->xrepeat)*f;
-        fy = ((float)tspr->yrepeat)*f*((float)yxaspect/65536.0);
-        sx0 -= fx*(float)xoff; if (tsizx&1) sx0 += fx*.5;
+        fy = ((float)tspr->yrepeat)*f*((float)yxaspect*(1.0f/65536.f));
+        sx0 -= fx*(float)xoff; if (tsizx&1) sx0 += fx*0.5f;
         sy0 -= fy*(float)yoff;
         fx *= ((float)tsizx);
         fy *= ((float)tsizy);
-
-        px[0] = px[3] = sx0-fx*.5; px[1] = px[2] = sx0+fx*.5;
+        
+        px[0] = px[3] = sx0-fx*0.5f; px[1] = px[2] = sx0+fx*0.5f;
         if (!(globalorientation&128)) { py[0] = py[1] = sy0-fy; py[2] = py[3] = sy0; }
-        else { py[0] = py[1] = sy0-fy*.5; py[2] = py[3] = sy0+fy*.5; }
+        else { py[0] = py[1] = sy0-fy*0.5f; py[2] = py[3] = sy0+fy*0.5f; }
 
         gdx = gdy = guy = gvx = 0; gdo = ryp0*gviewxrange;
         if (!(globalorientation&4))
-            { gux = (float)tsizx*gdo/(px[1]-px[0]+.002); guo = -gux*(px[0]-.001); }
-        else { gux = (float)tsizx*gdo/(px[0]-px[1]-.002); guo = -gux*(px[1]+.001); }
+            { gux = (float)tsizx*gdo/(px[1]-px[0]+.002f); guo = -gux*(px[0]-.001f); }
+        else { gux = (float)tsizx*gdo/(px[0]-px[1]-.002f); guo = -gux*(px[1]+.001f); }
         if (!(globalorientation&8))
-            { gvy = (float)tsizy*gdo/(py[3]-py[0]+.002); gvo = -gvy*(py[0]-.001); }
-        else { gvy = (float)tsizy*gdo/(py[0]-py[3]-.002); gvo = -gvy*(py[3]+.001); }
+            { gvy = (float)tsizy*gdo/(py[3]-py[0]+.002f); gvo = -gvy*(py[0]-.001f); }
+        else { gvy = (float)tsizy*gdo/(py[0]-py[3]-.002f); gvo = -gvy*(py[3]+.001f); }
 
         // sprite panning
-        guy -= gdy*((float)(spriteext[spritenum].xpanning)/255.f)*tsizx;
-        guo -= gdo*((float)(spriteext[spritenum].xpanning)/255.f)*tsizx;
-        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
-        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
+        guy -= gdy*((float)(spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
+        guo -= gdo*((float)(spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
+        gvy -= gdy*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+        gvo -= gdo*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
 
         //Clip sprites to ceilings/floors when no parallaxing and not sloped
         if (!(sector[tspr->sectnum].ceilingstat&3))
@@ -3901,8 +3948,8 @@ void polymost_drawsprite(int32_t snum)
         if (globalorientation&4) xoff = -xoff;
         if (globalorientation&8) yoff = -yoff;
 
-        xv = (float)tspr->xrepeat * (float)sintable[(tspr->ang)&2047] / 65536.0;
-        yv = (float)tspr->xrepeat * (float)sintable[(tspr->ang+1536)&2047] / 65536.0;
+        xv = (float)tspr->xrepeat * (float)sintable[(tspr->ang)&2047] * (1.0f/65536.f);
+        yv = (float)tspr->xrepeat * (float)sintable[(tspr->ang+1536)&2047] * (1.0f/65536.f);
         f = (float)(tsizx>>1) + (float)xoff;
         x0 = (float)(posx-globalposx) - xv*f; x1 = xv*(float)tsizx + x0;
         y0 = (float)(posy-globalposy) - yv*f; y1 = yv*(float)tsizx + y0;
@@ -3922,8 +3969,8 @@ void polymost_drawsprite(int32_t snum)
 
         f = ((float)tspr->yrepeat) * (float)tsizy * 4;
 
-        ryp0 = 1.0/yp0;
-        ryp1 = 1.0/yp1;
+        ryp0 = 1.f/yp0;
+        ryp1 = 1.f/yp1;
         sx0 = ghalfx*xp0*ryp0 + ghalfx;
         sx1 = ghalfx*xp1*ryp1 + ghalfx;
         ryp0 *= gyxscale;
@@ -3959,8 +4006,8 @@ void polymost_drawsprite(int32_t snum)
         if (globalorientation&4) { t0 = 1.f-t0; t1 = 1.f-t1; }
 
         //sprite panning
-        t0 -= ((float)(spriteext[spritenum].xpanning)/255.f);
-        t1 -= ((float)(spriteext[spritenum].xpanning)/255.f);
+        t0 -= ((float)(spriteext[spritenum].xpanning)*(1.0f/255.f));
+        t1 -= ((float)(spriteext[spritenum].xpanning)*(1.0f/255.f));
         gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)tsizx / (sx0-sx1);
         guy = 0;
         guo = t0*ryp0*gxyaspect*(float)tsizx - gux*sx0;
@@ -3983,35 +4030,36 @@ void polymost_drawsprite(int32_t snum)
         }
 
         // sprite panning
-        gvx -= gdx*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
-        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
-        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
+        gvx -= gdx*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+        gvy -= gdy*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+        gvo -= gdo*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
 
         //Clip sprites to ceilings/floors when no parallaxing
         if (!(sector[tspr->sectnum].ceilingstat&1))
         {
-            f = ((float)tspr->yrepeat) * (float)tsizy * 4;
+            f = (float)((tspr->yrepeat * tsizy)<<2);
+
             if (sector[tspr->sectnum].ceilingz > tspr->z-f)
             {
-                sc0 = ((float)(sector[tspr->sectnum].ceilingz-globalposz))*ryp0 + ghoriz;
-                sc1 = ((float)(sector[tspr->sectnum].ceilingz-globalposz))*ryp1 + ghoriz;
+                sc0 = (float)(sector[tspr->sectnum].ceilingz-globalposz)*ryp0 + ghoriz;
+                sc1 = (float)(sector[tspr->sectnum].ceilingz-globalposz)*ryp1 + ghoriz;
             }
         }
         if (!(sector[tspr->sectnum].floorstat&1))
         {
             if (sector[tspr->sectnum].floorz < tspr->z)
             {
-                sf0 = ((float)(sector[tspr->sectnum].floorz-globalposz))*ryp0 + ghoriz;
-                sf1 = ((float)(sector[tspr->sectnum].floorz-globalposz))*ryp1 + ghoriz;
+                sf0 = (float)(sector[tspr->sectnum].floorz-globalposz)*ryp0 + ghoriz;
+                sf1 = (float)(sector[tspr->sectnum].floorz-globalposz)*ryp1 + ghoriz;
             }
         }
 
         if (sx0 > sx1)
         {
             if (globalorientation&64) return; //1-sided sprite
-            f = sx0; sx0 = sx1; sx1 = f;
-            f = sc0; sc0 = sc1; sc1 = f;
-            f = sf0; sf0 = sf1; sf1 = f;
+            swapfloat(&sx0, &sx1);
+            swapfloat(&sc0, &sc1);
+            swapfloat(&sf0, &sf1);
         }
 
         px[0] = sx0; py[0] = sc0;
@@ -4047,8 +4095,8 @@ void polymost_drawsprite(int32_t snum)
         if ((globalorientation&8) > 0) yoff = -yoff;
 
         i = (tspr->ang&2047);
-        c = sintable[(i+512)&2047]/65536.0;
-        s = sintable[i]/65536.0;
+        c = sintable[(i+512)&2047]*(1.0f/65536.f);
+        s = sintable[i]*(1.0f/65536.f);
         x0 = (float)((tsizx>>1)-xoff)*tspr->xrepeat;
         y0 = (float)((tsizy>>1)-yoff)*tspr->yrepeat;
         x1 = (float)((tsizx>>1)+xoff)*tspr->xrepeat;
@@ -4069,10 +4117,10 @@ void polymost_drawsprite(int32_t snum)
 
         if (tspr->z < globalposz) //if floor sprite is above you, reverse order of points
         {
-            f = px[0]; px[0] = px[1]; px[1] = f;
-            f = py[0]; py[0] = py[1]; py[1] = f;
-            f = px[2]; px[2] = px[3]; px[3] = f;
-            f = py[2]; py[2] = py[3]; py[3] = f;
+            swapfloat(&px[0], &px[1]);
+            swapfloat(&px[2], &px[3]);
+            swapfloat(&py[0], &py[1]);
+            swapfloat(&py[2], &py[3]);
         }
 
         //Clip to SCISDIST plane
@@ -4104,21 +4152,21 @@ void polymost_drawsprite(int32_t snum)
         gdy = gxyaspect / (double)(tspr->z-globalposz);
         gdo = -ghoriz*gdy;
         //copied&modified from relative alignment
-        xv = (float)tspr->x + s*x1 + c*y1; fx = (double)-(x0+x1)*s;
-        yv = (float)tspr->y + s*y1 - c*x1; fy = (double)+(x0+x1)*c;
-        f = 1.0/sqrt(fx*fx+fy*fy); fx *= f; fy *= f;
+        xv = (float)tspr->x + s*x1 + c*y1; fx = (float)-(x0+x1)*s;
+        yv = (float)tspr->y + s*y1 - c*x1; fy = (float)+(x0+x1)*c;
+        f = 1.f/Bsqrtf(fx*fx+fy*fy); fx *= f; fy *= f;
         ft[2] = singlobalang*fy + cosglobalang*fx;
         ft[3] = singlobalang*fx - cosglobalang*fy;
-        ft[0] = ((double)(globalposy-yv))*fy + ((double)(globalposx-xv))*fx;
-        ft[1] = ((double)(globalposx-xv))*fy - ((double)(globalposy-yv))*fx;
-        gux = (double)ft[3]*((double)viewingrange)/(-65536.0*262144.0);
-        gvx = (double)ft[2]*((double)viewingrange)/(-65536.0*262144.0);
+        ft[0] = ((float)(globalposy-yv))*fy + ((float)(globalposx-xv))*fx;
+        ft[1] = ((float)(globalposx-xv))*fy - ((float)(globalposy-yv))*fx;
+        gux = (float)ft[3]*((float)viewingrange)/(-65536.f*262144.f);
+        gvx = (float)ft[2]*((float)viewingrange)/(-65536.f*262144.f);
         guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
         guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
-        guo += (double)(ft[2]/262144.0-gux)*ghalfx;
-        gvo -= (double)(ft[3]/262144.0+gvx)*ghalfx;
-        f = 4.0/(float)tspr->xrepeat; gux *= f; guy *= f; guo *= f;
-        f =-4.0/(float)tspr->yrepeat; gvx *= f; gvy *= f; gvo *= f;
+        guo += (double)(ft[2]*(1.0f/262144.f)-gux)*ghalfx;
+        gvo -= (double)(ft[3]*(1.0f/262144.f)+gvx)*ghalfx;
+        f = 4.f/(float)tspr->xrepeat; gux *= f; guy *= f; guo *= f;
+        f =-4.f/(float)tspr->yrepeat; gvx *= f; gvy *= f; gvo *= f;
         if (globalorientation&4)
         {
             gux = ((float)tsizx)*gdx - gux;
@@ -4127,10 +4175,10 @@ void polymost_drawsprite(int32_t snum)
         }
 
         // sprite panning
-        guy -= gdy*((float)(spriteext[spritenum].xpanning)/255.f)*tsizx;
-        guo -= gdo*((float)(spriteext[spritenum].xpanning)/255.f)*tsizx;
-        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
-        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
+        guy -= gdy*((float)(spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
+        guo -= gdo*((float)(spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
+        gvy -= gdy*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+        gvo -= gdo*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
 
 #ifdef USE_OPENGL
         if (spriteext[spritenum].xpanning)
@@ -4181,9 +4229,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     int32_t n, nn, xoff, yoff, xsiz, ysiz, method;
     int32_t ogpicnum, ogshade, ogpal, ofoffset;
-    double ogchang, ogshang, ogctang, ogstang, oghalfx, oghoriz;
-    double ogrhalfxdown10, ogrhalfxdown10x;
-    double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
+    float ogchang, ogshang, ogctang, ogstang, oghalfx, oghoriz;
+    float ogrhalfxdown10, ogrhalfxdown10x;
+    float d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
     float m[4][4];
 
     int32_t ourxyaspect;
@@ -4202,8 +4250,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             tile2model[tilenum].framenum >= 0)
         {
             int32_t oldviewingrange;
-            double ogxyaspect;
-            double x1, y1, z1;
+            float ogxyaspect;
+            float x1, y1, z1;
 
             spritetype tspr;
             memset(&tspr,0,sizeof(spritetype));
@@ -4211,13 +4259,13 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             if (hudmem[(dastat&4)>>2][picnum].flags & HUDFLAG_HIDE)
                 return;
 
-            ogchang = gchang; gchang = 1.0;
-            ogshang = gshang; gshang = 0.0; d = (double)z/(65536.0*16384.0);
-            ogctang = gctang; gctang = (double)sintable[(a+512)&2047]*d;
-            ogstang = gstang; gstang = (double)sintable[a&2047]*d;
+            ogchang = gchang; gchang = 1.f;
+            ogshang = gshang; gshang = 0.f; d = (float)z*(1.0f/(65536.f*16384.f));
+            ogctang = gctang; gctang = (float)sintable[(a+512)&2047]*d;
+            ogstang = gstang; gstang = (float)sintable[a&2047]*d;
             ogshade  = globalshade;  globalshade  = dashade;
             ogpal    = globalpal;    globalpal    = (int32_t)((uint8_t)dapalnum);
-            ogxyaspect = gxyaspect; gxyaspect = 1.0;
+            ogxyaspect = gxyaspect; gxyaspect = 1.f;
             oldviewingrange = viewingrange; viewingrange = 65536;
 
             x1 = hudmem[(dastat&4)>>2][picnum].xadd;
@@ -4233,8 +4281,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 #endif
             if (!(hudmem[(dastat&4)>>2][picnum].flags & HUDFLAG_NOBOB))
             {
-                double fx = ((double)sx)*(1.0/65536.0);
-                double fy = ((double)sy)*(1.0/65536.0);
+                float fx = ((float)sx)*(1.f/65536.f);
+                float fy = ((float)sy)*(1.f/65536.f);
 
                 if (dastat & RS_TOPLEFT)
                 {
@@ -4242,24 +4290,24 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                     xoff = picanm[picnum].xofs + (xsiz>>1);
                     yoff = picanm[picnum].yofs + (ysiz>>1);
 
-                    d = (double)z/(65536.0*16384.0);
-                    cosang2 = cosang = (double)sintable[(a+512)&2047]*d;
-                    sinang2 = sinang = (double)sintable[a&2047]*d;
+                    d = (float)z*(1.0f/(65536.f*16384.f));
+                    cosang2 = cosang = (float)sintable[(a+512)&2047]*d;
+                    sinang2 = sinang = (float)sintable[a&2047]*d;
                     if ((dastat&RS_AUTO) || (!(dastat&RS_NOCLIP))) //Don't aspect unscaled perms
-                        { d = (double)xyaspect/65536.0; cosang2 *= d; sinang2 *= d; }
-                    fx += -(double)xoff*cosang2+ (double)yoff*sinang2;
-                    fy += -(double)xoff*sinang - (double)yoff*cosang;
+                        { d = (float)xyaspect*(1.0f/65536.f); cosang2 *= d; sinang2 *= d; }
+                    fx += -(float)xoff*cosang2+ (float)yoff*sinang2;
+                    fy += -(float)xoff*sinang - (float)yoff*cosang;
                 }
 
                 if (!(dastat & RS_AUTO))
                 {
-                    x1 += fx/((double)(xdim<<15))-1.0; //-1: left of screen, +1: right of screen
-                    y1 += fy/((double)(ydim<<15))-1.0; //-1: top of screen, +1: bottom of screen
+                    x1 += fx/((float)(xdim<<15))-1.f; //-1: left of screen, +1: right of screen
+                    y1 += fy/((float)(ydim<<15))-1.f; //-1: top of screen, +1: bottom of screen
                 }
                 else
                 {
-                    x1 += fx/160.0-1.0; //-1: left of screen, +1: right of screen
-                    y1 += fy/100.0-1.0; //-1: top of screen, +1: bottom of screen
+                    x1 += fx*(1.0f/160.f)-1.f; //-1: left of screen, +1: right of screen
+                    y1 += fy*(1.0f/100.f)-1.f; //-1: top of screen, +1: bottom of screen
                 }
             }
             tspr.ang = hudmem[(dastat&4)>>2][picnum].angadd+globalang;
@@ -4277,9 +4325,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             {
                 tspr.xrepeat = tspr.yrepeat = 32;
 
-                tspr.x = (int32_t)(((double)gcosang*z1 - (double)gsinang*x1)*16384.0 + globalposx);
-                tspr.y = (int32_t)(((double)gsinang*z1 + (double)gcosang*x1)*16384.0 + globalposy);
-                tspr.z = (int32_t)(globalposz + y1*16384.0*0.8);
+                tspr.x = (int32_t)(((float)gcosang*z1 - (float)gsinang*x1)*16384.f + globalposx);
+                tspr.y = (int32_t)(((float)gsinang*z1 + (float)gcosang*x1)*16384.f + globalposy);
+                tspr.z = (int32_t)(globalposz + y1*16384.f*0.8f);
             }
             else
             {
@@ -4287,9 +4335,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
                 tspr.xrepeat = tspr.yrepeat = 5;
 
-                x = (float)(((double)gcosang*z1 - (double)gsinang*x1)*2560.0 + globalposx);
-                y = (float)(((double)gsinang*z1 + (double)gcosang*x1)*2560.0 + globalposy);
-                z = (float)(globalposz + y1*2560.0*0.8);
+                x = (float)(((float)gcosang*z1 - (float)gsinang*x1)*2560.f + globalposx);
+                y = (float)(((float)gsinang*z1 + (float)gcosang*x1)*2560.f + globalposy);
+                z = (float)(globalposz + y1*2560.f*0.8f);
 
                 memcpy(&tspr.x, &x, sizeof(float));
                 memcpy(&tspr.y, &y, sizeof(float));
@@ -4319,8 +4367,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 memset(m,0,sizeof(m));
                 if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
                 {
-                    const float ratioratio = 1.0; //(float)xdim/ydim;
-                    float f = 1.0;
+                    const float ratioratio = 1.f; //(float)xdim/ydim;
+                    float f = 1.f;
                     int32_t fov = hudmem[(dastat&4)>>2][picnum].fov;
 #ifdef POLYMER
                     if (pr_overridehud)
@@ -4331,17 +4379,17 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                         // XXX: what's the cause for this (half-guessed /
                         // empirically determined) factor being necessary?
                         fov = (fov*512)/400;
-                        f = 1.f / tanf((PI * fov)/2048.f);
+                        f = 1.f / tanf((PI * fov)*(1.0f/2048.f));
                     }
 
-                    m[0][0] = f*(float)ydimen*(ratioratio >= 1.6?1.2:1); m[0][2] = 1.0;
-                    m[1][1] = f*(float)xdimen; m[1][2] = 1.0;
-                    m[2][2] = 1.0; m[2][3] = (float)ydimen*(ratioratio >= 1.6?1.2:1);
-                    m[3][2] =-1.0;
+                    m[0][0] = f*(float)ydimen*(ratioratio >= 1.6?1.2:1); m[0][2] = 1.f;
+                    m[1][1] = f*(float)xdimen; m[1][2] = 1.f;
+                    m[2][2] = 1.f; m[2][3] = (float)ydimen*(ratioratio >= 1.6?1.2:1);
+                    m[3][2] =-1.f;
                 }
                 else
                 {
-                    m[0][0] = m[2][3] = 1.0f;
+                    m[0][0] = m[2][3] = 1.f;
                     m[1][1] = ((float)xdim)/((float)ydim);
                     m[2][2] = 1.0001f;
                     m[3][2] = 1-m[2][2];
@@ -4366,9 +4414,10 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             }
 
 #ifdef USE_OPENGL
-            spriteext[tspr.owner].alpha = daalpha / 255.0f;
+            spriteext[tspr.owner].alpha = daalpha * (1.0f / 255.0f);
 
-            if (!nofog) bglDisable(GL_FOG);
+            bglDisable(GL_FOG);
+
             if (getrendermode() < REND_POLYMER)
                 mddraw(&tspr);
 # ifdef POLYMER
@@ -4429,15 +4478,15 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     ogpicnum = globalpicnum; globalpicnum = picnum;
     ogshade  = globalshade;  globalshade  = dashade;
     ogpal    = globalpal;    globalpal    = (int32_t)((uint8_t)dapalnum);
-    oghalfx  = ghalfx;       ghalfx       = (double)(xdim>>1);
-    ogrhalfxdown10 = grhalfxdown10;    grhalfxdown10 = 1.0/(((double)ghalfx)*1024);
+    oghalfx  = ghalfx;       ghalfx       = (float)(xdim>>1);
+    ogrhalfxdown10 = grhalfxdown10;    grhalfxdown10 = 1.f/(((float)ghalfx)*1024);
     ogrhalfxdown10x = grhalfxdown10x;  grhalfxdown10x = grhalfxdown10;
-    oghoriz  = ghoriz;       ghoriz       = (double)(ydim>>1);
+    oghoriz  = ghoriz;       ghoriz       = (float)(ydim>>1);
     ofoffset = frameoffset;  frameoffset  = frameplace;
-    ogchang = gchang; gchang = 1.0;
-    ogshang = gshang; gshang = 0.0;
-    ogctang = gctang; gctang = 1.0;
-    ogstang = gstang; gstang = 0.0;
+    ogchang = gchang; gchang = 1.f;
+    ogshang = gshang; gshang = 0.f;
+    ogctang = gctang; gctang = 1.f;
+    ogstang = gstang; gstang = 0.f;
 
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
@@ -4476,7 +4525,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     }
     method |= 4; //Use OpenGL clamping - dorotatesprite never repeats
 
-    alpha = daalpha / 255.0f;
+    alpha = daalpha * (1.0f / 255.0f);
 
     xsiz = tilesizx[globalpicnum];
     ysiz = tilesizy[globalpicnum];
@@ -4500,33 +4549,33 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         dorotspr_handle_bit2(&sx, &sy, &z, dastat, cx1+cx2, cy1+cy2, &temp, &ourxyaspect);
     }
 
-    d = (double)z/(65536.0*16384.0);
-    cosang2 = cosang = (double)sintable[(a+512)&2047]*d;
-    sinang2 = sinang = (double)sintable[a&2047]*d;
+    d = (float)z*(1.0f/(65536.f*16384.f));
+    cosang2 = cosang = (float)sintable[(a+512)&2047]*d;
+    sinang2 = sinang = (float)sintable[a&2047]*d;
     if ((dastat&RS_AUTO) || (!(dastat&RS_NOCLIP))) //Don't aspect unscaled perms
     {
-        d = (double)ourxyaspect/65536.0;
+        d = (float)ourxyaspect*(1.0f/65536.f);
         cosang2 *= d;
         sinang2 *= d;
     }
 
-    px[0] = (double)sx/65536.0 - (double)xoff*cosang2+ (double)yoff*sinang2;
-    py[0] = (double)sy/65536.0 - (double)xoff*sinang - (double)yoff*cosang;
-    px[1] = px[0] + (double)xsiz*cosang2;
-    py[1] = py[0] + (double)xsiz*sinang;
-    px[3] = px[0] - (double)ysiz*sinang2;
-    py[3] = py[0] + (double)ysiz*cosang;
+    px[0] = (float)sx*(1.0f/65536.f) - (float)xoff*cosang2+ (float)yoff*sinang2;
+    py[0] = (float)sy*(1.0f/65536.f) - (float)xoff*sinang - (float)yoff*cosang;
+    px[1] = px[0] + (float)xsiz*cosang2;
+    py[1] = py[0] + (float)xsiz*sinang;
+    px[3] = px[0] - (float)ysiz*sinang2;
+    py[3] = py[0] + (float)ysiz*cosang;
     px[2] = px[1]+px[3]-px[0];
     py[2] = py[1]+py[3]-py[0];
     n = 4;
 
-    gdx = 0; gdy = 0; gdo = 1.0;
+    gdx = 0; gdy = 0; gdo = 1.f;
     //px[0]*gux + py[0]*guy + guo = 0
     //px[1]*gux + py[1]*guy + guo = xsiz-.0001
     //px[3]*gux + py[3]*guy + guo = 0
-    d = 1.0/(px[0]*(py[1]-py[3]) + px[1]*(py[3]-py[0]) + px[3]*(py[0]-py[1]));
-    gux = (py[3]-py[0])*((double)xsiz-.0001)*d;
-    guy = (px[0]-px[3])*((double)xsiz-.0001)*d;
+    d = 1.f/(px[0]*(py[1]-py[3]) + px[1]*(py[3]-py[0]) + px[3]*(py[0]-py[1]));
+    gux = (py[3]-py[0])*((float)xsiz-.0001f)*d;
+    guy = (px[0]-px[3])*((float)xsiz-.0001f)*d;
     guo = 0 - px[0]*gux - py[0]*guy;
 
     if (!(dastat & RS_YFLIP))
@@ -4534,8 +4583,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         //px[0]*gvx + py[0]*gvy + gvo = 0
         //px[1]*gvx + py[1]*gvy + gvo = 0
         //px[3]*gvx + py[3]*gvy + gvo = ysiz-.0001
-        gvx = (py[0]-py[1])*((double)ysiz-.0001)*d;
-        gvy = (px[1]-px[0])*((double)ysiz-.0001)*d;
+        gvx = (py[0]-py[1])*((float)ysiz-.0001f)*d;
+        gvy = (px[1]-px[0])*((float)ysiz-.0001f)*d;
         gvo = 0 - px[0]*gvx - py[0]*gvy;
     }
     else
@@ -4543,9 +4592,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         //px[0]*gvx + py[0]*gvy + gvo = ysiz-.0001
         //px[1]*gvx + py[1]*gvy + gvo = ysiz-.0001
         //px[3]*gvx + py[3]*gvy + gvo = 0
-        gvx = (py[1]-py[0])*((double)ysiz-.0001)*d;
-        gvy = (px[0]-px[1])*((double)ysiz-.0001)*d;
-        gvo = (double)ysiz-.0001 - px[0]*gvx - py[0]*gvy;
+        gvx = (py[1]-py[0])*((float)ysiz-.0001f)*d;
+        gvy = (px[0]-px[1])*((float)ysiz-.0001f)*d;
+        gvo = (float)ysiz-.0001f - px[0]*gvx - py[0]*gvy;
     }
 
     cx2++; cy2++;
@@ -4553,12 +4602,12 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     nn = z = 0;
     do
     {
-        double fx, x1, x2;
+        float fx, x1, x2;
         int32_t zz = z+1; if (zz == n) zz = 0;
-        x1 = px[z]; x2 = px[zz]-x1; if ((cx1 <= x1) && (x1 <= cx2)) { px2[nn] = x1; py2[nn] = py[z]; nn++; }
-        if (x2 <= 0) fx = cx2; else fx = cx1;  d = fx-x1;
+        x1 = px[z]; x2 = px[zz]-x1; if (((float)cx1 <= x1) && (x1 <= (float)cx2)) { px2[nn] = x1; py2[nn] = py[z]; nn++; }
+        if (x2 <= 0) fx = (float)cx2; else fx = (float)cx1;  d = fx-x1;
         if ((d < x2) != (d < 0)) { px2[nn] = fx; py2[nn] = (py[zz]-py[z])*d/x2 + py[z]; nn++; }
-        if (x2 <= 0) fx = cx1; else fx = cx2;  d = fx-x1;
+        if (x2 <= 0) fx = (float)cx1; else fx = (float)cx2;  d = fx-x1;
         if ((d < x2) != (d < 0)) { px2[nn] = fx; py2[nn] = (py[zz]-py[z])*d/x2 + py[z]; nn++; }
         z = zz;
     }
@@ -4569,19 +4618,19 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         n = z = 0;
         do
         {
-            double fy, y1, y2;
+            float fy, y1, y2;
             int32_t zz = z+1; if (zz == nn) zz = 0;
             y1 = py2[z]; y2 = py2[zz]-y1; if ((cy1 <= y1) && (y1 <= cy2)) { py[n] = y1; px[n] = px2[z]; n++; }
-            if (y2 <= 0) fy = cy2; else fy = cy1;  d = fy-y1;
+            if (y2 <= 0) fy = (float)cy2; else fy = (float)cy1;  d = fy-y1;
             if ((d < y2) != (d < 0)) { py[n] = fy; px[n] = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
-            if (y2 <= 0) fy = cy1; else fy = cy2;  d = fy-y1;
+            if (y2 <= 0) fy = (float)cy1; else fy = (float)cy2;  d = fy-y1;
             if ((d < y2) != (d < 0)) { py[n] = fy; px[n] = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
             z = zz;
         }
         while (z);
 
 #ifdef USE_OPENGL
-        if (!nofog) bglDisable(GL_FOG);
+        bglDisable(GL_FOG);
         pow2xsplit = 0; drawpoly(px,py,n,method);
         if (!nofog) bglEnable(GL_FOG);
 #else
@@ -4783,23 +4832,23 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
 void polymost_fillpolygon(int32_t npoints)
 {
     pthtyp *pth;
-    float f,a=0.0;
+    float f,a=0.f;
     int32_t i;
 
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);
-    gux = ((double)asm1)*(1.0/4294967296.0);
-    gvx = ((double)asm2)*(1.0/4294967296.0);
-    guy = ((double)globalx1)*(1.0/4294967296.0);
-    gvy = ((double)globaly2)*(-1.0/4294967296.0);
-    guo = (((double)xdim)*gux + ((double)ydim)*guy)*-.5 + ((double)globalposx)*(1.0/4294967296.0);
-    gvo = (((double)xdim)*gvx + ((double)ydim)*gvy)*-.5 - ((double)globalposy)*(1.0/4294967296.0);
+    gux = ((float)asm1)*(1.f/4294967296.f);
+    gvx = ((float)asm2)*(1.f/4294967296.f);
+    guy = ((float)globalx1)*(1.f/4294967296.f);
+    gvy = ((float)globaly2)*(-1.f/4294967296.f);
+    guo = (((float)xdim)*gux + ((float)ydim)*guy)*-0.5f + ((float)globalposx)*(1.f/4294967296.f);
+    gvo = (((float)xdim)*gvx + ((float)ydim)*gvy)*-0.5f - ((float)globalposy)*(1.f/4294967296.f);
 
     //Convert int32_t to float (in-place)
     for (i=npoints-1; i>=0; i--)
     {
-        ((float *)rx1)[i] = ((float)rx1[i])/4096.0;
-        ((float *)ry1)[i] = ((float)ry1[i])/4096.0;
+        ((float *)rx1)[i] = ((float)rx1[i])*(1.0f/4096.f);
+        ((float *)ry1)[i] = ((float)ry1[i])*(1.0f/4096.f);
     }
 
     if (gloy1 != -1) setpolymost2dview(); //disables blending, texturing, and depth testing
@@ -4829,7 +4878,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
                                 int32_t usehitile, uint8_t *loadedhitile)
 {
 #ifdef USE_OPENGL
-    float xdime, ydime, xdimepad, ydimepad, scx, scy, ratio = 1.0;
+    float xdime, ydime, xdimepad, ydimepad, scx, scy, ratio = 1.f;
     int32_t i;
     pthtyp *pth;
 
@@ -4887,14 +4936,14 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
         bglDisable(GL_TEXTURE_2D);
         bglBegin(GL_TRIANGLE_FAN);
         if (gammabrightness)
-            bglColor4f((float)curpalette[255].r/255.0,
-                       (float)curpalette[255].g/255.0,
-                       (float)curpalette[255].b/255.0,
+            bglColor4f((float)curpalette[255].r*(1.0f/255.f),
+                       (float)curpalette[255].g*(1.0f/255.f),
+                       (float)curpalette[255].b*(1.0f/255.f),
                        1);
         else
-            bglColor4f((float)britable[curbrightness][ curpalette[255].r ] / 255.0,
-                       (float)britable[curbrightness][ curpalette[255].g ] / 255.0,
-                       (float)britable[curbrightness][ curpalette[255].b ] / 255.0,
+            bglColor4f((float)britable[curbrightness][ curpalette[255].r ] * (1.0f/255.f),
+                       (float)britable[curbrightness][ curpalette[255].g ] * (1.0f/255.f),
+                       (float)britable[curbrightness][ curpalette[255].b ] * (1.0f/255.f),
                        1);
         bglVertex2f((float)tilex            ,(float)tiley);
         bglVertex2f((float)tilex+(scx*ratio),(float)tiley);
@@ -5023,8 +5072,8 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     bglEnable(GL_TEXTURE_2D);
     bglEnable(GL_BLEND);
     bglColor4ub(p.r,p.g,p.b,255);
-    txc = fontsize ? (4.0/256.0) : (8.0/256.0);
-    tyc = fontsize ? (6.0/128.0) : (8.0/128.0);
+    txc = fontsize ? (4.f/256.f) : (8.f/256.f);
+    tyc = fontsize ? (6.f/128.f) : (8.f/128.f);
     bglBegin(GL_QUADS);
     for (c=0; name[c]; c++)
     {
@@ -5047,8 +5096,8 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
             bglColor4ub(p.r,p.g,p.b,255);
             continue;
         }
-        tx = (float)(name[c]%32)/32.0;
-        ty = (float)((name[c]/32) + (fontsize*8))/16.0;
+        tx = (float)(name[c]%32) * (1.0f/32.f);
+        ty = (float)((name[c]/32) + (fontsize*8))*(1.0f/16.f);
 
         bglTexCoord2f(tx,ty);         bglVertex2i(xpos,ypos);
         bglTexCoord2f(tx+txc,ty);     bglVertex2i(xpos+(8>>fontsize),ypos);
@@ -5206,7 +5255,9 @@ void polymost_initosdfuncs(void)
             (void *) &r_parallaxskypanning, CVAR_BOOL, 0, 1
         },
         { "r_polygonmode","debugging feature",(void *) &glpolygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
+#ifdef REDBLUEMODE
         { "r_redbluemode","enable/disable experimental OpenGL red-blue glasses mode",(void *) &glredbluemode, CVAR_BOOL, 0, 1 },
+#endif
         { "r_shadescale","multiplier for shading",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
         { "r_shadescale_unbounded","enable/disable allowance of complete blackness",(void *) &shadescale_unbounded, CVAR_BOOL, 0, 1 },
         { "r_swapinterval","sets the GL swap interval (VSync)",(void *) &vsync, CVAR_INT|CVAR_FUNCPTR, -1, 1 },
@@ -5231,7 +5282,6 @@ void polymost_initosdfuncs(void)
         { "r_vbocount","sets the number of Vertex Buffer Objects to use when drawing models",(void *) &r_vbocount, CVAR_INT, 1, 256 },
         { "r_vbos"," enable/disable using Vertex Buffer Objects when drawing models",(void *) &r_vbos, CVAR_BOOL, 0, 1 },
         { "r_vertexarrays","enable/disable using vertex arrays when drawing models",(void *) &r_vertexarrays, CVAR_BOOL, 0, 1 },
-        { "r_anamorphic", "enable/disable widescreen mode", (void *) &glwidescreen, CVAR_BOOL, 0, 1 },
         { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 2 },
 
 #ifdef POLYMER
@@ -5251,6 +5301,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_verbosity", "verbosity level of the polymer renderer", (void *) &pr_verbosity, CVAR_INT, 0, 3 },
         { "r_pr_wireframe", "toggles wireframe mode", (void *) &pr_wireframe, CVAR_INT | CVAR_NOSAVE, 0, 1 },
         { "r_pr_vbos", "contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void *) &pr_vbos, CVAR_INT | CVAR_RESTARTVID, 0, 2 },
+        { "r_pr_vboupdatemethod", "contols Vertex Buffer Object updates. 0: glBufferSubData. 1: glMapBuffer", (void *) &pr_vboupdatemethod, CVAR_BOOL, 0, 1 },
         { "r_pr_gpusmoothing", "toggles model animation interpolation", (void *) &pr_gpusmoothing, CVAR_INT, 0, 1 },
         { "r_pr_overrideparallax", "overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", (void *) &pr_overrideparallax, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
         { "r_pr_parallaxscale", "overriden parallax mapping offset scale", (void *) &pr_parallaxscale, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },

@@ -2,7 +2,6 @@
 #define HIGHTILE_PRIV_H
 
 struct hicskybox_t {
-    int ignore;
     char *face[6];
 };
 
@@ -10,13 +9,14 @@ typedef struct hicreplc_t {
     struct hicreplc_t *next;
     char *filename;
     struct hicskybox_t *skybox;
-    char palnum, ignore, flags, filler;
+    char palnum, flags;
+    short filler;
     float alphacut, xscale, yscale, specpower, specfactor;
 } hicreplctyp;
 
 extern palette_t hictinting[MAXPALOOKUPS];
 extern hicreplctyp *hicreplc[MAXTILES];
-extern char hicfirstinit;
+extern int32_t hicinitcounter;
 
 typedef struct texcachehead_t
 {
@@ -34,7 +34,8 @@ typedef struct texcachepic_t
     int border, depth;
 } texcachepicture;
 
-hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox);
+hicreplctyp * hicfindsubst(int picnum, int palnum);
+hicreplctyp * hicfindskybox(int picnum, int palnum);
 
 static inline int have_basepal_tint(void)
 {
@@ -45,16 +46,16 @@ static inline int have_basepal_tint(void)
 
 static inline void hictinting_apply(float *color, int32_t palnum)
 {
-    color[0] *= (float)hictinting[palnum].r / 255.0;
-    color[1] *= (float)hictinting[palnum].g / 255.0;
-    color[2] *= (float)hictinting[palnum].b / 255.0;
+    color[0] *= (float)hictinting[palnum].r / 255.f;
+    color[1] *= (float)hictinting[palnum].g / 255.f;
+    color[2] *= (float)hictinting[palnum].b / 255.f;
 }
 
 static inline void hictinting_apply_ub(uint8_t *color, int32_t palnum)
 {
-    color[0] = (uint8_t)(color[0] * (float)hictinting[palnum].r / 255.0);
-    color[1] = (uint8_t)(color[1] * (float)hictinting[palnum].g / 255.0);
-    color[2] = (uint8_t)(color[2] * (float)hictinting[palnum].b / 255.0);
+    color[0] = (uint8_t)(color[0] * (float)hictinting[palnum].r / 255.f);
+    color[1] = (uint8_t)(color[1] * (float)hictinting[palnum].g / 255.f);
+    color[2] = (uint8_t)(color[2] * (float)hictinting[palnum].b / 255.f);
 }
 
 // texcacheheader cachead.flags bits

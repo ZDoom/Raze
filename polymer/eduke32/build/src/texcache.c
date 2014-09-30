@@ -26,98 +26,11 @@ static const char *texcache_errorstr[TEXCACHEERRORS] = {
     "bglGetTexLevelParameteriv failed",
 };
 
-// <dashade>: ignored if not in Polymost+r_usetileshades
-pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
+static pthtyp *texcache_tryart(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
 {
-    int32_t i;
     pthtyp *pth;
-
     const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
-    hicreplctyp *const si = usehightile ? hicfindsubst(dapicnum,dapalnum,drawingskybox) : NULL;
 
-    if (getrendermode() != REND_POLYMOST || !r_usetileshades)
-        dashade = 0;
-
-    if (!si)
-    {
-        if (drawingskybox || dapalnum >= (MAXPALOOKUPS - RESERVEDPALS)) return NULL;
-        goto tryart;
-    }
-
-    /* if palette > 0 && replacement found
-     *    no effects are applied to the texture
-     * else if palette > 0 && no replacement found
-     *    effects are applied to the palette 0 texture if it exists
-     */
-
-    // load a replacement
-    for (pth=texcache.list[j]; pth; pth=pth->next)
-    {
-        if (pth->picnum == dapicnum && pth->palnum == si->palnum &&
-                (si->palnum>0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
-                (pth->flags & (PTH_CLAMPED + PTH_HIGHTILE + PTH_SKYBOX))
-                    == (TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox>0)*PTH_SKYBOX) &&
-                (drawingskybox>0 ? (pth->skyface == drawingskybox) : 1)
-           )
-        {
-            if (pth->flags & PTH_INVALIDATED)
-            {
-                pth->flags &= ~PTH_INVALIDATED;
-
-                if (gloadtile_hi(dapicnum,dapalnum,drawingskybox,si,dameth,pth,0,
-                                 (si->palnum>0) ? 0 : hictinting[dapalnum].f))    // reload tile
-                {
-                    if (drawingskybox) return NULL;
-                    goto tryart;   // failed, so try for ART
-                }
-            }
-
-            return(pth);
-        }
-    }
-
-
-    pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
-
-    // possibly fetch an already loaded multitexture :_)
-    if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS))
-        for (i = (GLTEXCACHEADSIZ - 1); i >= 0; i--)
-        {
-            const pthtyp *pth2;
-
-            for (pth2=texcache.list[i]; pth2; pth2=pth2->next)
-            {
-                if (pth2->hicr && pth2->hicr->filename && Bstrcasecmp(pth2->hicr->filename, si->filename) == 0)
-                {
-                    Bmemcpy(pth, pth2, sizeof(pthtyp));
-                    pth->picnum = dapicnum;
-                    pth->flags = TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox>0)*PTH_SKYBOX;
-                    if (pth2->flags & PTH_HASALPHA)
-                        pth->flags |= PTH_HASALPHA;
-                    pth->hicr = si;
-
-                    pth->next = texcache.list[j];
-                    texcache.list[j] = pth;
-
-                    return(pth);
-                }
-            }
-        }
-
-    if (gloadtile_hi(dapicnum,dapalnum,drawingskybox,si,dameth,pth,1, (si->palnum>0) ? 0 : hictinting[dapalnum].f))
-    {
-        Bfree(pth);
-        if (drawingskybox) return NULL;
-        goto tryart;   // failed, so try for ART
-    }
-
-    pth->palnum = si->palnum;
-    pth->next = texcache.list[j];
-    texcache.list[j] = pth;
-
-    return(pth);
-
-tryart:
     if (hicprecaching) return NULL;
 
     // load from art
@@ -140,6 +53,120 @@ tryart:
 
     gloadtile_art(dapicnum,dapalnum,dashade,dameth,pth,1);
 
+    pth->next = texcache.list[j];
+    texcache.list[j] = pth;
+
+    return(pth);
+}
+
+pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int32_t dameth)
+{
+    int32_t i;
+    const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
+
+    for (i = (GLTEXCACHEADSIZ - 1); i >= 0; i--)
+    {
+        const pthtyp *pth2;
+
+        for (pth2=texcache.list[i]; pth2; pth2=pth2->next)
+        {
+            if (pth2->hicr && pth2->hicr->filename && Bstrcasecmp(pth2->hicr->filename, si->filename) == 0)
+            {
+                Bmemcpy(pth, pth2, sizeof(pthtyp));
+                pth->picnum = dapicnum;
+                pth->flags = TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox>0)*PTH_SKYBOX;
+                if (pth2->flags & PTH_HASALPHA)
+                    pth->flags |= PTH_HASALPHA;
+                pth->hicr = si;
+
+                pth->next = texcache.list[j];
+                texcache.list[j] = pth;
+
+                return pth;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+// <dashade>: ignored if not in Polymost+r_usetileshades
+pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
+{
+    int32_t tilestat;
+    pthtyp *pth;
+
+    const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
+    hicreplctyp *si = usehightile ? hicfindsubst(dapicnum, dapalnum) : NULL;
+
+    if (drawingskybox && usehightile)
+        if ((si = hicfindskybox(dapicnum, dapalnum)) == NULL)
+            return NULL;
+
+    if (!r_usetileshades || getrendermode() != REND_POLYMOST)
+        dashade = 0;
+
+    if (!si)
+    {
+        if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS)) return NULL;
+        return texcache_tryart(dapicnum, dapalnum, dashade, dameth);
+    }
+
+    /* if palette > 0 && replacement found
+     *    no effects are applied to the texture
+     * else if palette > 0 && no replacement found
+     *    effects are applied to the palette 0 texture if it exists
+     */
+
+    // load a replacement
+    for (pth=texcache.list[j]; pth; pth=pth->next)
+    {
+        if (pth->picnum == dapicnum && pth->palnum == si->palnum &&
+                (si->palnum>0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
+                (pth->flags & (PTH_CLAMPED + PTH_HIGHTILE + PTH_SKYBOX))
+                    == (TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox>0)*PTH_SKYBOX) &&
+                (drawingskybox>0 ? (pth->skyface == drawingskybox) : 1)
+           )
+        {
+            if (pth->flags & PTH_INVALIDATED)
+            {
+                pth->flags &= ~PTH_INVALIDATED;
+
+                tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 0,
+                    (si->palnum>0) ? 0 : hictinting[dapalnum].f);    // reload tile
+
+                if (tilestat)
+                {
+                    if (tilestat == -2) // bad filename
+                        hicclearsubst(dapicnum, dapalnum);
+                    if (drawingskybox) return NULL;
+                    return texcache_tryart(dapicnum, dapalnum, dashade, dameth);
+                }
+            }
+
+            return(pth);
+        }
+    }
+
+    pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
+
+    // possibly fetch an already loaded multitexture :_)
+    if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS))
+    if (texcache_fetchmulti(pth, si, dapicnum, dameth))
+        return pth;
+
+    tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (si->palnum>0) ? 0 : hictinting[dapalnum].f);
+
+    if (tilestat)
+    {
+        if (tilestat == -2) // bad filename
+            hicclearsubst(dapicnum, dapalnum);
+        Bfree(pth);
+        if (drawingskybox) return NULL;
+        return texcache_tryart(dapicnum, dapalnum, dashade, dameth);
+    }
+
+    pth->palnum = si->palnum;
     pth->next = texcache.list[j];
     texcache.list[j] = pth;
 

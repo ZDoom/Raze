@@ -11,9 +11,9 @@ typedef struct { char r, g, b, a; } coltype;
 extern int32_t rendmode;
 extern float gtang;
 extern float glox1, gloy1;
-extern double gxyaspect, grhalfxdown10x;
-extern double gcosang, gsinang, gcosang2, gsinang2;
-extern double gchang, gshang, gctang, gstang, gvisibility;
+extern float gxyaspect, grhalfxdown10x;
+extern float gcosang, gsinang, gcosang2, gsinang2;
+extern float gchang, gshang, gctang, gstang, gvisibility;
 
 struct glfiltermodes {
 	const char *name;
@@ -60,7 +60,7 @@ extern int32_t globalpal;
 // Compare with polymer_eligible_for_artmap()
 static inline int32_t eligible_for_tileshades(int32_t picnum, int32_t pal)
 {
-    return (!usehightile || !hicfindsubst(picnum, pal, 0)) &&
+    return (!usehightile || !hicfindsubst(picnum, pal)) &&
         (!usemodels || md_tilehasmodel(picnum, pal) < 0);
 }
 
@@ -172,7 +172,7 @@ extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;
 extern int32_t hicprecaching;
-extern double gyxscale, gxyaspect, ghalfx, grhalfxdown10;
+extern float gyxscale, gxyaspect, ghalfx, grhalfxdown10;
 
 extern char ptempbuf[MAXWALLSB<<1];
 

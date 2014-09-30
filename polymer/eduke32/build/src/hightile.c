@@ -16,36 +16,51 @@
 palette_t hictinting[MAXPALOOKUPS];
 
 hicreplctyp *hicreplc[MAXTILES];
-char hicfirstinit = 0;
+int32_t hicinitcounter = 0;
 
 //
 // find the index into hicreplc[] which contains the replacement tile particulars
 //
-hicreplctyp *hicfindsubst(int32_t picnum, int32_t palnum, int32_t skybox)
+hicreplctyp *hicfindsubst(int32_t picnum, int32_t palnum)
 {
-    if (!hicfirstinit || (uint32_t)picnum >= (uint32_t)MAXTILES) return NULL;
+    if (!hicreplc[picnum] || !hicinitcounter) return NULL;
 
     do
     {
-        if (skybox)
-        {
-            hicreplctyp *hr = hicreplc[picnum];
-            for (; hr; hr = hr->next)
-                if (hr->palnum == palnum && hr->skybox && !hr->skybox->ignore)
-                    return hr;
-        }
-        else
-        {
-            hicreplctyp *hr = hicreplc[picnum];
-            for (; hr; hr = hr->next)
-                if (hr->palnum == palnum && !hr->ignore)
-                    return hr;
-        }
+        hicreplctyp *hr = hicreplc[picnum];
+        for (; hr; hr = hr->next)
+            if (hr->palnum == palnum)
+                return hr;
 
-        if (!palnum || palnum >= (MAXPALOOKUPS - RESERVEDPALS)) break;
+        if (!palnum || palnum >= (MAXPALOOKUPS - RESERVEDPALS))
+            return NULL;
+
         palnum = 0;
-    }
-    while (1);
+    } while (1);
+
+    return NULL;	// no replacement found
+}
+
+//
+// this is separate because it's not worth passing an extra parameter which is "0" in 99.9999% of cases 
+// to the regular hicfindsubst() function
+//
+hicreplctyp *hicfindskybox(int32_t picnum, int32_t palnum)
+{
+    if (!hicreplc[picnum] || !hicinitcounter) return NULL;
+
+    do
+    {
+        hicreplctyp *hr = hicreplc[picnum];
+        for (; hr; hr = hr->next)
+            if (hr->skybox && hr->palnum == palnum)
+                return hr;
+
+        if (!palnum || palnum >= (MAXPALOOKUPS - RESERVEDPALS))
+            return NULL;
+
+        palnum = 0;
+    } while (1);
 
     return NULL;	// no replacement found
 }
@@ -57,8 +72,7 @@ hicreplctyp *hicfindsubst(int32_t picnum, int32_t palnum, int32_t skybox)
 //
 void hicinit(void)
 {
-    int32_t i,j;
-    hicreplctyp *hr, *next;
+    int32_t i;
 
     for (i=0; i<MAXPALOOKUPS; i++)  	// all tints should be 100%
     {
@@ -66,7 +80,11 @@ void hicinit(void)
         hictinting[i].f = 0;
     }
 
-    if (hicfirstinit)
+    if (hicinitcounter)
+    {
+        hicreplctyp *hr, *next;
+        int32_t j;
+
         for (i=MAXTILES-1; i>=0; i--)
         {
             for (hr=hicreplc[i]; hr;)
@@ -89,10 +107,11 @@ void hicinit(void)
                 hr = next;
             }
         }
+    }
 
     Bmemset(hicreplc,0,sizeof(hicreplc));
 
-    hicfirstinit = 1;
+    hicinitcounter++;
 }
 
 
@@ -105,7 +124,7 @@ void hicinit(void)
 void hicsetpalettetint(int32_t palnum, char r, char g, char b, char effect)
 {
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return;
-    if (!hicfirstinit) hicinit();
+    if (!hicinitcounter) hicinit();
 
     hictinting[palnum].r = r;
     hictinting[palnum].g = g;
@@ -124,7 +143,7 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
 
     if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
-    if (!hicfirstinit) hicinit();
+    if (!hicinitcounter) hicinit();
 
     for (hr = hicreplc[picnum]; hr; hr = hr->next)
     {
@@ -144,7 +163,6 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
     if (hrn->filename) Bfree(hrn->filename);
 
     hrn->filename = Xstrdup(filen);
-    hrn->ignore = 0;
     hrn->alphacut = min(alphacut,1.0);
     hrn->xscale = xscale;
     hrn->yscale = yscale;
@@ -187,7 +205,7 @@ int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
     if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
     for (j=5; j>=0; j--) if (!faces[j]) return -1;
-    if (!hicfirstinit) hicinit();
+    if (!hicinitcounter) hicinit();
 
     for (hr = hicreplc[picnum]; hr; hr = hr->next)
     {
@@ -221,7 +239,7 @@ int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
     {
         hrn->skybox->face[j] = Xstrdup(faces[j]);
     }
-    hrn->skybox->ignore = 0;
+
     if (hr == NULL)
     {
         hrn->next = hicreplc[picnum];
@@ -242,7 +260,7 @@ int32_t hicclearsubst(int32_t picnum, int32_t palnum)
 
     if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
-    if (!hicfirstinit) return 0;
+    if (!hicinitcounter) return 0;
 
     for (hr = hicreplc[picnum]; hr; hrn = hr, hr = hr->next)
     {
