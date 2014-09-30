@@ -8,6 +8,42 @@
 
 int32_t scale(int32_t a, int32_t d, int32_t c);
 
+#define _scaler(x) \
+static inline int32_t mulscale##x(int32_t a, int32_t d) \
+{ \
+	int32_t mullo, mulhi; \
+	__asm__ ( \
+		" mullw  %0, %2, %3\n" \
+		" mulhw  %1, %2, %3\n" \
+		" srwi   %0, %0, %4\n" \
+		" insrwi %0, %1, %4, 0\n" \
+		: "=&r"(mullo), "=r"(mulhi) \
+		: "r"(a), "r"(d), "i"(x) \
+	); \
+	return mullo; \
+} \
+static inline int32_t dmulscale##x(int32_t a, int32_t d, int32_t S, int32_t D) \
+{ \
+	int32_t mulhi, mullo, sumhi, sumlo; \
+	__asm__ ( \
+		" mullw  %0, %4, %5\n" \
+		" mulhw  %1, %4, %5\n" \
+		" mullw  %2, %6, %7\n" \
+		" mulhw  %3, %6, %7\n" \
+		" addc   %0, %0, %2\n" \
+		" adde   %1, %1, %3\n" \
+		" srwi   %0, %0, %8\n" \
+		" insrwi %0, %1, %8, 0\n" \
+		: "=&r"(sumlo), "=&r"(sumhi), "=&r"(mullo), "=r"(mulhi) \
+		: "r"(a), "r"(d), "r"(S), "r"(D), "i"(x) \
+		: "xer" \
+	); \
+	return sumlo; \
+}
+
+PRAGMA_FUNCS
+#undef _scaler
+
 static inline int32_t mulscale(int32_t a, int32_t d, int32_t c)
 {
     int32_t mullo, mulhi;
@@ -23,24 +59,6 @@ static inline int32_t mulscale(int32_t a, int32_t d, int32_t c)
         );
     return mullo;
 }
-
-#define _scaler(x) \
-static inline int32_t mulscale##x(int32_t a, int32_t d) \
-{ \
-	int32_t mullo, mulhi; \
-	__asm__ ( \
-		" mullw  %0, %2, %3\n" \
-		" mulhw  %1, %2, %3\n" \
-		" srwi   %0, %0, %4\n" \
-		" insrwi %0, %1, %4, 0\n" \
-		: "=&r"(mullo), "=r"(mulhi) \
-		: "r"(a), "r"(d), "i"(x) \
-	); \
-	return mullo; \
-}
-
-PRAGMA_FUNCS
-#undef _scaler
 
 static inline int32_t mulscale32(int32_t a, int32_t d)
 {
@@ -73,29 +91,6 @@ static inline int32_t dmulscale(int32_t a, int32_t d, int32_t S, int32_t D, int3
     return sumlo;
 }
 
-#define _scaler(x) \
-static inline int32_t dmulscale##x(int32_t a, int32_t d, int32_t S, int32_t D) \
-{ \
-	int32_t mulhi, mullo, sumhi, sumlo; \
-	__asm__ ( \
-		" mullw  %0, %4, %5\n" \
-		" mulhw  %1, %4, %5\n" \
-		" mullw  %2, %6, %7\n" \
-		" mulhw  %3, %6, %7\n" \
-		" addc   %0, %0, %2\n" \
-		" adde   %1, %1, %3\n" \
-		" srwi   %0, %0, %8\n" \
-		" insrwi %0, %1, %8, 0\n" \
-		: "=&r"(sumlo), "=&r"(sumhi), "=&r"(mullo), "=r"(mulhi) \
-		: "r"(a), "r"(d), "r"(S), "r"(D), "i"(x) \
-		: "xer" \
-	); \
-	return sumlo; \
-}
-
-PRAGMA_FUNCS
-#undef _scaler
-
 static inline int32_t dmulscale32(int32_t a, int32_t d, int32_t S, int32_t D)
 {
     int32_t mulhi, mullo, sumhi, sumlo;
@@ -111,30 +106,6 @@ static inline int32_t dmulscale32(int32_t a, int32_t d, int32_t S, int32_t D)
         : "xer"
         );
     return sumhi;
-}
-
-// tmulscale only seems to be used in one place...
-static inline int32_t tmulscale11(int32_t a, int32_t d, int32_t b, int32_t c, int32_t S, int32_t D)
-{
-    int32_t mulhi, mullo, sumhi, sumlo;
-    __asm__(
-        " mullw  %0, %4, %5\n" \
-        " mulhw  %1, %4, %5\n" \
-        " mullw  %2, %6, %7\n" \
-        " mulhw  %3, %6, %7\n" \
-        " addc   %0, %0, %2\n" \
-        " adde   %1, %1, %3\n" \
-        " mullw  %2, %8, %9\n" \
-        " mulhw  %3, %8, %9\n" \
-        " addc   %0, %0, %2\n" \
-        " adde   %1, %1, %3\n" \
-        " srwi   %0, %0, 11\n" \
-        " insrwi %0, %1, 11, 0\n" \
-        : "=&r"(sumlo), "=&r"(sumhi), "=&r"(mullo), "=&r"(mulhi)
-        : "r"(a), "r"(d), "r"(b), "r"(c), "r"(S), "r"(D)
-        : "xer"
-        );
-    return sumlo;
 }
 
 static inline char readpixel(void *d)
@@ -225,21 +196,6 @@ static inline void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t
     }
 }
 
-static inline int32_t mul3(int32_t a)
-{
-    return (a<<1)+a;
-}
-
-static inline int32_t mul5(int32_t a)
-{
-    return (a<<2)+a;
-}
-
-static inline int32_t mul9(int32_t a)
-{
-    return (a<<3)+a;
-}
-
 static inline int32_t klabs(int32_t a)
 {
     int32_t mask;
@@ -294,6 +250,13 @@ static inline void swaplong(void *a, void *b)
     int32_t t = *(int32_t*) a;
     *(int32_t*) a = *(int32_t*) b;
     *(int32_t*) b = t;
+}
+
+static inline void swapfloat(void *a, void *b)
+{
+    float t = *(float*) a;
+    *(float*) a = *(float*) b;
+    *(float*) b = t;
 }
 
 static inline void swap64bit(void *a, void *b)

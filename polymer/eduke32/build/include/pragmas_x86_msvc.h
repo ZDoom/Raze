@@ -35,23 +35,30 @@ static __inline int32_t mulscale(int32_t a, int32_t d, int32_t c)
     }
 }
 
-#define MULSCALE(x) \
+#define _scaler(x) \
 static __inline int32_t mulscale##x (int32_t a, int32_t d) \
 { \
 	_asm mov eax, a \
 	_asm imul d \
 	_asm shrd eax, edx, x \
-}
+} \
+static __inline int32_t dmulscale##x (int32_t a, int32_t d, int32_t S, int32_t D) \
+{ \
+	_asm mov eax, a \
+	_asm imul d \
+	_asm mov ebx, eax \
+	_asm mov eax, S \
+	_asm mov esi, edx \
+	_asm imul D \
+	_asm add eax, ebx \
+	_asm adc edx, esi \
+	_asm shrd eax, edx, x \
+} \
 
-MULSCALE(1)	MULSCALE(2)	MULSCALE(3)	MULSCALE(4)
-MULSCALE(5)	MULSCALE(6)	MULSCALE(7)	MULSCALE(8)
-MULSCALE(9)	MULSCALE(10)	MULSCALE(11)	MULSCALE(12)
-MULSCALE(13)	MULSCALE(14)	MULSCALE(15)	MULSCALE(16)
-MULSCALE(17)	MULSCALE(18)	MULSCALE(19)	MULSCALE(20)
-MULSCALE(21)	MULSCALE(22)	MULSCALE(23)	MULSCALE(24)
-MULSCALE(25)	MULSCALE(26)	MULSCALE(27)	MULSCALE(28)
-MULSCALE(29)	MULSCALE(30)	MULSCALE(31)
-#undef MULSCALE	
+
+PRAGMA_FUNCS 
+#undef _scaler
+
 static __inline int32_t mulscale32(int32_t a, int32_t d)
 {
     _asm {
@@ -77,29 +84,6 @@ static __inline int32_t dmulscale(int32_t a, int32_t d, int32_t S, int32_t D, in
     }
 }
 
-#define DMULSCALE(x) \
-static __inline int32_t dmulscale##x (int32_t a, int32_t d, int32_t S, int32_t D) \
-{ \
-	_asm mov eax, a \
-	_asm imul d \
-	_asm mov ebx, eax \
-	_asm mov eax, S \
-	_asm mov esi, edx \
-	_asm imul D \
-	_asm add eax, ebx \
-	_asm adc edx, esi \
-	_asm shrd eax, edx, x \
-}
-
-DMULSCALE(1)	DMULSCALE(2)	DMULSCALE(3)	DMULSCALE(4)
-DMULSCALE(5)	DMULSCALE(6)	DMULSCALE(7)	DMULSCALE(8)
-DMULSCALE(9)	DMULSCALE(10)	DMULSCALE(11)	DMULSCALE(12)
-DMULSCALE(13)	DMULSCALE(14)	DMULSCALE(15)	DMULSCALE(16)
-DMULSCALE(17)	DMULSCALE(18)	DMULSCALE(19)	DMULSCALE(20)
-DMULSCALE(21)	DMULSCALE(22)	DMULSCALE(23)	DMULSCALE(24)
-DMULSCALE(25)	DMULSCALE(26)	DMULSCALE(27)	DMULSCALE(28)
-DMULSCALE(29)	DMULSCALE(30)	DMULSCALE(31)
-#undef DMULSCALE	
 static __inline int32_t dmulscale32(int32_t a, int32_t d, int32_t S, int32_t D)
 {
     _asm {
@@ -111,54 +95,6 @@ static __inline int32_t dmulscale32(int32_t a, int32_t d, int32_t S, int32_t D)
             imul D
             add eax, ebx
             adc edx, esi
-            mov eax, edx
-    }
-}
-
-#define TMULSCALE(x) \
-static __inline int32_t tmulscale##x (int32_t a, int32_t d, int32_t b, int32_t c, int32_t S, int32_t D) \
-{ \
-	_asm mov eax, a \
-	_asm mov ebx, b \
-	_asm imul d \
-	_asm xchg eax, ebx \
-	_asm mov ecx, c \
-	_asm xchg edx, ecx \
-	_asm imul edx \
-	_asm add ebx, eax \
-	_asm adc ecx, edx \
-	_asm mov eax, S \
-	_asm imul D \
-	_asm add eax, ebx \
-	_asm adc edx, ecx \
-	_asm shrd eax, edx, x \
-}
-
-TMULSCALE(1)	TMULSCALE(2)	TMULSCALE(3)	TMULSCALE(4)
-TMULSCALE(5)	TMULSCALE(6)	TMULSCALE(7)	TMULSCALE(8)
-TMULSCALE(9)	TMULSCALE(10)	TMULSCALE(11)	TMULSCALE(12)
-TMULSCALE(13)	TMULSCALE(14)	TMULSCALE(15)	TMULSCALE(16)
-TMULSCALE(17)	TMULSCALE(18)	TMULSCALE(19)	TMULSCALE(20)
-TMULSCALE(21)	TMULSCALE(22)	TMULSCALE(23)	TMULSCALE(24)
-TMULSCALE(25)	TMULSCALE(26)	TMULSCALE(27)	TMULSCALE(28)
-TMULSCALE(29)	TMULSCALE(30)	TMULSCALE(31)
-#undef TMULSCALE	
-static __inline int32_t tmulscale32(int32_t a, int32_t d, int32_t b, int32_t c, int32_t S, int32_t D)
-{
-    _asm {
-        mov eax, a
-            mov ebx, b
-            imul d
-            xchg eax, ebx
-            mov ecx, c
-            xchg edx, ecx
-            imul edx
-            add ebx, eax
-            adc ecx, edx
-            mov eax, S
-            imul D
-            add eax, ebx
-            adc edx, ecx
             mov eax, edx
     }
 }
@@ -479,30 +415,6 @@ static __inline void qinterpolatedown16short(int32_t a, int32_t c, int32_t d, in
     }
 }
 
-static __inline int32_t mul3(int32_t a)
-{
-    _asm {
-        mov eax, a
-            lea eax, [eax+eax*2]
-    }
-}
-
-static __inline int32_t mul5(int32_t a)
-{
-    _asm {
-        mov eax, a
-            lea eax, [eax+eax*4]
-    }
-}
-
-static __inline int32_t mul9(int32_t a)
-{
-    _asm {
-        mov eax, a
-            lea eax, [eax+eax*8]
-    }
-}
-
 //returns eax/ebx, dmval = eax%edx;
 static __inline int32_t divmod(int32_t a, int32_t b)
 {
@@ -632,6 +544,8 @@ static __inline void swaplong(void *a, void *b)
             mov[eax], edx
     }
 }
+
+#define swapfloat swaplong
 
 static __inline void swapbuf4(void *a, void *b, int32_t c)
 {

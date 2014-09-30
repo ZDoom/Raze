@@ -5,20 +5,16 @@
 #ifndef __pragmas_arm_h__
 #define __pragmas_arm_h__
 
+// TODO: implement libdivide.h
 #define _scaler(a) \
 static inline int32_t mulscale##a(int32_t eax, int32_t edx) \
 { \
-	return dw((qw(eax) * qw(edx)) >> by(a)); \
+	return dw((qw(eax) * edx) >> by(a)); \
 } \
 \
 static inline int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi) \
 { \
-	return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> by(a)); \
-} \
-\
-static inline int32_t tmulscale##a(int32_t eax, int32_t edx, int32_t ebx, int32_t ecx, int32_t esi, int32_t edi) \
-{ \
-	return dw(((qw(eax) * qw(edx)) + (qw(ebx) * qw(ecx)) + (qw(esi) * qw(edi))) >> by(a)); \
+	return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(a)); \
 } \
 
 PRAGMA_FUNCS _scaler(32)
@@ -29,16 +25,13 @@ static inline void swapchar(void* a, void* b)  { char t = *((char*) b); *((char*
 static inline void swapchar2(void* a, void* b, int32_t s) { swapchar(a, b); swapchar((char*) a+1, (char*) b+s); }
 static inline void swapshort(void* a, void* b) { int16_t t = *((int16_t*) b); *((int16_t*) b) = *((int16_t*) a); *((int16_t*) a) = t; }
 static inline void swaplong(void* a, void* b)  { int32_t t = *((int32_t*) b); *((int32_t*) b) = *((int32_t*) a); *((int32_t*) a) = t; }
+static inline void swapfloat(void* a, void* b)  { float t = *((float*) b); *((float*) b) = *((float*) a); *((float*) a) = t; }
 static inline void swap64bit(void* a, void* b) { int64_t t = *((int64_t*) b); *((int64_t*) b) = *((int64_t*) a); *((int64_t*) a) = t; }
 
 static inline char readpixel(void* s)    { return (*((char*) (s))); }
 static inline void drawpixel(void* s, char a)    { *((char*) (s)) = a; }
 static inline void drawpixels(void* s, int16_t a)  { *((int16_t*) (s)) = a; }
 static inline void drawpixelses(void* s, int32_t a) { *((int32_t*) (s)) = a; }
-
-static inline int32_t mul3(int32_t a) { return (a<<1)+a; }
-static inline int32_t mul5(int32_t a) { return (a<<2)+a; }
-static inline int32_t mul9(int32_t a) { return (a<<3)+a; }
 
 static inline int32_t divmod(int32_t a, int32_t b) { uint32_t _a=(uint32_t) a, _b=(uint32_t) b; dmval = _a%_b; return _a/_b; }
 static inline int32_t moddiv(int32_t a, int32_t b) { uint32_t _a=(uint32_t) a, _b=(uint32_t) b; dmval = _a/_b; return _a%_b; }
