@@ -616,7 +616,13 @@ void G_AddSearchPaths(void)
         Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
         addsearchpath(buf);
 
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons", instpath);
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/dc", instpath);
+        addsearchpath(buf);
+
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/nw", instpath);
+        addsearchpath(buf);
+
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/vacation", instpath);
         addsearchpath(buf);
     }
 
@@ -636,7 +642,13 @@ void G_CleanupSearchPaths(void)
         Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
         removesearchpath(buf);
 
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons", instpath);
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/dc", instpath);
+        removesearchpath(buf);
+
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/nw", instpath);
+        removesearchpath(buf);
+
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/vacation", instpath);
         removesearchpath(buf);
     }
 
