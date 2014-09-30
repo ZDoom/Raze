@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdfuncs.h"
 #include "premap.h"
 
-int32_t osdhightile = 0;
+int32_t osdhightile = 1;
 #ifdef __ANDROID__
 double osdscale = 2.0f;
 #else
