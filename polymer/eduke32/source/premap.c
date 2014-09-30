@@ -1945,8 +1945,10 @@ int32_t G_EnterLevel(int32_t g)
     if ((ud.recstat == 1) && (g&MODE_RESTART) != MODE_RESTART)
         G_OpenDemoWrite();
 
+#ifndef __ANDROID__
     if (VOLUMEONE && ud.level_number == 0 && ud.recstat != 2)
         P_DoQuote(QUOTE_F1HELP,g_player[myconnectindex].ps);
+#endif
 
     for (TRAVERSE_CONNECT(i))
         switch (DYNAMICTILEMAP(sector[sprite[g_player[i].ps->i].sectnum].floorpicnum))
