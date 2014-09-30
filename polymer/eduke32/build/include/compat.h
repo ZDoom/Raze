@@ -168,8 +168,24 @@ static inline long lround(double num)
     return (long) (num > 0 ? num + 0.5 : ceil(num - 0.5));
 }
 
+#if defined(_WIN64)
+#include <emmintrin.h>
+static inline int32_t Blrintf(const float x)
+{
+    __m128 xx = _mm_load_ss(&x);
+   return _mm_cvtss_si32(xx);
+}
+#else
+static inline int32_t Blrintf(const float x)
+{
+    int n;
+    __asm fld x;
+    __asm fistp n;
+}    return n;
+#endif
 #else
 # define longlong(x) x##ll
+#define Blrintf lrintf
 #endif
 
 #if defined __OPENDINGUX__
