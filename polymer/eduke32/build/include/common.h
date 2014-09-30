@@ -7,7 +7,7 @@
 #ifndef EDUKE32_COMMON_H_
 #define EDUKE32_COMMON_H_
 
-#include <stdint.h>
+#include "compat.h"
 #include "scriptfile.h"
 #include "cache1d.h"
 #include "pragmas.h"  // klabs
