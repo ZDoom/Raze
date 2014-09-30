@@ -1148,7 +1148,7 @@ LUNATIC_EXTERN void G_ShowView(int32_t x, int32_t y, int32_t z, int32_t a, int32
 #if !defined LUNATIC
 GAMEEXEC_STATIC void VM_Execute(int32_t loop)
 {
-    register int32_t tw = *insptr;
+    int32_t tw = *insptr;
 
     // jump directly into the loop, saving us from the checks during the first iteration
     goto skip_check;
@@ -1629,8 +1629,9 @@ skip_check:
         case CON_ENDS:
             return;
         case CON_RIGHTBRACE:
+            loop--;
             insptr++;
-            return;
+            continue;;
 
         case CON_ADDAMMO:
             insptr++;
@@ -1780,7 +1781,8 @@ skip_check:
 
         case CON_LEFTBRACE:
             insptr++;
-            VM_Execute(1);
+            loop++;
+//            VM_Execute(1);
             continue;
 
         case CON_MOVE:
