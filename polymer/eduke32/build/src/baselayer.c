@@ -15,8 +15,8 @@ char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 char remap[KEYSTATUSSIZ];
 int32_t remapinit=0;
 char key_names[NUMKEYS][24];
-volatile int32_t mousex=0,mousey=0,mouseb=0,mouseabsx=0,mouseabsy=0;
-volatile uint8_t moustat = 0, mousegrab = 0;
+int32_t mousex=0,mousey=0,mouseb=0,mouseabsx=0,mouseabsy=0;
+uint8_t moustat = 0, mousegrab = 0;
 int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 int32_t joyaxespresent=0;
@@ -164,6 +164,7 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
     bglDisable(GL_TEXTURE_2D);
     bglDisable(GL_FOG);
 
+    bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     bglEnable(GL_BLEND);
     bglColor4ub(r, g, b, f);
 

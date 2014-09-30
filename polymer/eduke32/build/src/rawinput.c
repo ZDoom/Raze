@@ -9,7 +9,7 @@
 static BOOL rawinput_started = 0;
 static uint8_t KeyboardState[256] = {0}; // VKeys
 
-extern volatile uint8_t moustat, mousegrab;
+extern uint8_t moustat, mousegrab;
 extern void SetKey(int32_t key, int32_t state);
 
 //#define MASK_DOWN (1<<(i<<1))
