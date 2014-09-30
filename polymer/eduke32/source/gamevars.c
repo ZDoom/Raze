@@ -765,14 +765,14 @@ enum {
     GVX_ARRAYWTF
 } gvxerror_t;
 
-static const char *gvxerrs [] ={ "Gv_GetVarX(): invalid gamevar ID (%d)\n",
-"Gv_GetVarX(): invalid player ID %d\n",
-"Gv_GetVarX(): invalid sprite ID %d\n",
-"Gv_GetVarX(): invalid sector ID %d\n",
-"Gv_GetVarX(): invalid wall ID %d\n",
-"Gv_GetVarX(): invalid array index (%s[%d])\n",
-"Gv_GetVarX(): WTF?\n",
-"Gv_GetVarX() (array): WTF?\n"
+static const char *gvxerrs [] ={ "Gv_GetVarX(): invalid gamevar ID",
+"Gv_GetVarX(): invalid player ID",
+"Gv_GetVarX(): invalid sprite ID",
+"Gv_GetVarX(): invalid sector ID",
+"Gv_GetVarX(): invalid wall ID",
+"Gv_GetVarX(): invalid array index",
+"Gv_GetVarX(): WTF?",
+"Gv_GetVarX() (array): WTF?"
 };
 
 int32_t __fastcall Gv_GetVarX(int32_t id)
@@ -798,7 +798,7 @@ int32_t __fastcall Gv_GetVarX(int32_t id)
         if ((unsigned) vm.g_p >= MAXPLAYERS)
         {
             id = vm.g_p;
-            CON_ERRPRINTF("%s", gvxerrs[GVX_BADPLAYER], id);
+            CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], id);
             return -1;
         }
         return ((aGameVars[id].val.plValues[vm.g_p] ^ -negateResult) + negateResult);
@@ -828,7 +828,7 @@ nastyhacks:
         if (index < 0 || index >= siz)
         {
             negateResult = index;
-            CON_ERRPRINTF("%s", gvxerrs[GVX_BADINDEX], aGameArrays[id].szLabel, (int32_t) negateResult);
+            CON_ERRPRINTF("%s %s[%d]\n", gvxerrs[GVX_BADINDEX], aGameArrays[id].szLabel, index);;
             return -1;
         }
 
@@ -843,7 +843,7 @@ nastyhacks:
         case GAMEARRAY_OFCHAR:
             return (((uint8_t *) aGameArrays[id].plValues)[index] ^ -negateResult) + negateResult;
         default:
-            CON_ERRPRINTF("%s", gvxerrs[GVX_ARRAYWTF]);
+            CON_ERRPRINTF("%s\n", gvxerrs[GVX_ARRAYWTF]);
             return -1;
         }
     }
@@ -865,7 +865,7 @@ nastyhacks:
             if ((unsigned) index >= MAXSPRITES)
             {
                 id = index;
-                CON_ERRPRINTF("%s", gvxerrs[GVX_BADSPRITE], id);
+                CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], id);
                 return -1;
             }
 
@@ -883,7 +883,7 @@ nastyhacks:
             if ((unsigned) index >= MAXPLAYERS)
             {
                 id = index;
-                CON_ERRPRINTF("%s", gvxerrs[GVX_BADPLAYER], id);
+                CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], id);
                 return -1;
             }
             return ((VM_AccessPlayerX(index, label, parm2) ^ -negateResult) + negateResult);
@@ -896,7 +896,7 @@ nastyhacks:
             {
                 id = index;
                 insptr++;
-                CON_ERRPRINTF("%s", gvxerrs[GVX_BADSECTOR], id);
+                CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSECTOR], id);
                 return -1;
             }
             return ((VM_AccessSectorX(index, *insptr++) ^ -negateResult) + negateResult);
@@ -905,7 +905,7 @@ nastyhacks:
             {
                 id = index;
                 insptr++;
-                CON_ERRPRINTF("%s", gvxerrs[GVX_BADWALL], id);
+                CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADWALL], id);
                 return -1;
             }
             return ((VM_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
@@ -915,7 +915,7 @@ nastyhacks:
         }
     }
 
-    CON_ERRPRINTF("%s", gvxerrs[GVX_WTF]);
+    CON_ERRPRINTF("%s\n", gvxerrs[GVX_WTF]);
     return -1;
 }
 
