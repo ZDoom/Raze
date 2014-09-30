@@ -322,7 +322,7 @@ static int32_t _internal_osdfunc_echo(const osdfuncparm_t *parm)
 
 static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
 {
-    uint32_t crc, length;
+    uint32_t crc = 0, length;
     int32_t i,j;
     char buf[256];
     void *xxh;
