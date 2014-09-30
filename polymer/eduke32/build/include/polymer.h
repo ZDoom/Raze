@@ -227,14 +227,16 @@ typedef struct      s_prsector {
     float           floorsproffset;
     // build sector data
     int32_t         ceilingz, floorz;
-    int16_t         ceilingstat, floorstat;
+    uint16_t        ceilingstat, floorstat;
     int16_t         ceilingpicnum, ceilingheinum;
     int8_t          ceilingshade;
-    char            ceilingpal, ceilingxpanning, ceilingypanning;
+    uint8_t         ceilingpal, ceilingxpanning, ceilingypanning;
     int16_t         floorpicnum, floorheinum;
     int8_t          floorshade;
-    char            floorpal, floorxpanning, floorypanning;
+    uint8_t         floorpal, floorxpanning, floorypanning;
     uint8_t         visibility;
+
+    int16_t         floorpicnum_anim, ceilingpicnum_anim;
 
     struct          {
         int32_t     empty       : 1;
@@ -248,17 +250,24 @@ typedef struct      s_prwall {
     _prplane        wall;
     _prplane        over;
     _prplane        mask;
+
     // stuff
     GLfloat*        bigportal;
     GLfloat*        cap;
     GLuint          stuffvbo;
+
     // build wall data
-    int16_t         cstat, nwallcstat;
-    int16_t         picnum, overpicnum, nwallpicnum;
+    uint16_t        cstat;
+    int16_t         picnum, overpicnum;
     int8_t          shade;
-    char            pal, xrepeat, yrepeat, xpanning, ypanning;
-    char            nwallxpanning, nwallypanning;
+    uint8_t         pal, xrepeat, yrepeat, xpanning, ypanning;
+
+    // nextwall data
+    int16_t         nwallpicnum, nwallcstat;
+    int8_t          nwallxpanning, nwallypanning;
     int8_t          nwallshade;
+
+    int16_t         picnum_anim, overpicnum_anim;
 
     char            underover;
     uint32_t        invalidid;
@@ -385,7 +394,7 @@ static void         polymer_loadmodelvbos(md3model_t* m);
 // MATERIALS
 static void         polymer_getscratchmaterial(_prmaterial* material);
 static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int8_t vis, int32_t cmeth);
-static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, int lightcount);
+static int32_t      polymer_bindmaterial(const _prmaterial *material, int16_t* lights, int lightcount);
 static void         polymer_unbindmaterial(int32_t programbits);
 static void         polymer_compileprogram(int32_t programbits);
 // LIGHTS
