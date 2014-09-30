@@ -50,19 +50,18 @@ void PITCH_Init(void)
     int32_t note;
     int32_t detune;
 
-    if (!PITCH_Installed)
-    {
-        for (note = 0; note < 12; note++)
-        {
-            for (detune = 0; detune < MAXDETUNE; detune++)
-            {
-                PitchTable[ note ][ detune ] = 0x10000 *
-                                               (uint32_t)pow(2, (note * MAXDETUNE + detune) / (12.0 * MAXDETUNE));
-            }
-        }
+    if (PITCH_Installed)
+        return;
 
-        PITCH_Installed = 1;
+    for (note = 0; note < 12; note++)
+    {
+        for (detune = 0; detune < MAXDETUNE; detune++)
+        {
+            PitchTable[note][detune] = (uint32_t) (65535.f * powf(2.f, (note * MAXDETUNE + detune) / (12.f * MAXDETUNE)));
+        }
     }
+
+    PITCH_Installed = 1;
 }
 
 
