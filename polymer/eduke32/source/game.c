@@ -10514,7 +10514,11 @@ static void G_DisplayLogo(void)
             fadepaltile(0,0,0, 63,0,-7,BETASCREEN);
             totalclock = 0;
 
-            while (/*totalclock < (860+120) && */!I_CheckAllInput())
+            while (
+#ifndef DROIDMENU
+                totalclock < (860+120) &&
+#endif
+                !I_CheckAllInput())
             {
                 clearallviews(0);
 
