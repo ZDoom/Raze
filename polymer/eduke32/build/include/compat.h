@@ -177,6 +177,14 @@ static inline long lround(double num)
 #define nearbyintf rintf
 #endif
 
+#if defined(__arm__)
+#define Bsqrt __sqrt
+#define Bsqrtf __sqrtf
+#else
+#define Bsqrt sqrt
+#define Bsqrtf sqrtf
+#endif
+
 #ifndef NULL
 # define NULL ((void *)0)
 #endif

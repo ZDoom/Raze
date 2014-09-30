@@ -59,7 +59,10 @@ L_State g_engState;
 # define CLASSIC_NONPOW2_YSIZE_WALLS
 #endif
 
+#if !defined(__arm__) && !defined(GEKKO)
 #define HIGH_PRECISION_SPRITE
+#endif
+
 #define MULTI_COLUMN_VLINE
 //#define DEBUG_TILESIZY_512
 //#define DEBUG_TILEOFFSETS
@@ -156,9 +159,9 @@ uint32_t r_screenxy = 0;
 
 int32_t curbrightness = 0, gammabrightness = 0;
 
-double vid_gamma = DEFAULT_GAMMA;
-double vid_contrast = DEFAULT_CONTRAST;
-double vid_brightness = DEFAULT_BRIGHTNESS;
+float vid_gamma = DEFAULT_GAMMA;
+float vid_contrast = DEFAULT_CONTRAST;
+float vid_brightness = DEFAULT_BRIGHTNESS;
 
 //Textured Map variables
 static char globalpolytype;
@@ -2428,8 +2431,9 @@ static int32_t bakframeplace[4], bakxsiz[4], bakysiz[4];
 static int32_t bakwindowx1[4], bakwindowy1[4];
 static int32_t bakwindowx2[4], bakwindowy2[4];
 #ifdef USE_OPENGL
-static int32_t bakrendmode,baktile;
+static int32_t bakrendmode;
 #endif
+static int32_t baktile;
 
 char apptitle[256] = "Build Engine";
 
@@ -2512,9 +2516,7 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
         }
     }
     else
-#ifdef YAX_ENABLE
         if (yax_nomaskpass==0)
-#endif
     {
         sortcnt = &yax_spritesortcnt[yax_globallev];
         if (*sortcnt >= MAXSPRITESONSCREEN)
@@ -5579,32 +5581,6 @@ static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
 //
 // drawsprite (internal)
 //
-static void drawsprite_opengl(int32_t snum)
-{
-    //============================================================================= //POLYMOST BEGINS
-#ifdef USE_OPENGL
-    if (getrendermode() == REND_POLYMOST)
-    {
-        polymost_drawsprite(snum);
-        bglDisable(GL_POLYGON_OFFSET_FILL);
-    }
-# ifdef POLYMER
-    else if (getrendermode() == REND_POLYMER)
-    {
-        bglEnable(GL_ALPHA_TEST);
-        bglEnable(GL_BLEND);
-
-        polymer_drawsprite(snum);
-
-        bglDisable(GL_BLEND);
-        bglDisable(GL_ALPHA_TEST);
-    }
-# endif
-#else
-    UNREFERENCED_PARAMETER(snum);
-#endif
-    //============================================================================= //POLYMOST ENDS
-}
 
 
 static uint8_t falpha_to_blend(float alpha, int32_t *cstatptr, int32_t transbit1, int32_t transbit2)
@@ -6614,10 +6590,27 @@ draw_as_face_sprite:
 
 static void drawsprite(int32_t snum)
 {
-    if (getrendermode() >= REND_POLYMOST)
-        drawsprite_opengl(snum);
-    else
+    switch (getrendermode())
+    {
+    case REND_CLASSIC:
         drawsprite_classic(snum);
+        return;
+#ifdef USE_OPENGL
+    case REND_POLYMOST:
+        polymost_drawsprite(snum);
+        bglDisable(GL_POLYGON_OFFSET_FILL);
+        return;
+# ifdef POLYMER
+    case REND_POLYMER:
+        bglEnable(GL_ALPHA_TEST);
+        bglEnable(GL_BLEND);
+        polymer_drawsprite(snum);
+        bglDisable(GL_BLEND);
+        bglDisable(GL_ALPHA_TEST);
+        return;
+# endif
+#endif
+    }
 }
 
 
@@ -7851,8 +7844,8 @@ static void dosetaspect(void)
         int32_t k, x, xinc;
 
         no_radarang2 = 0;
-        oxdimen = xdimen;
         oviewingrange = viewingrange;
+        oxdimen = xdimen;
 
         xinc = mulscale32(viewingrange*320,xdimenrecip);
         x = (640<<16)-mulscale1(xinc,xdimen);
@@ -7877,9 +7870,9 @@ static void dosetaspect(void)
         }
 
         {
-            EDUKE32_STATIC_ASSERT((uint64_t)MAXXDIM*(ARRAY_SIZE(distrecip)-1) <= INT32_MAX);
+            EDUKE32_STATIC_ASSERT((uint64_t) MAXXDIM*(ARRAY_SIZE(distrecip)-1) <= INT32_MAX);
 
-            for (i=1; i<(int32_t)ARRAY_SIZE(distrecip); i++)
+            for (i=1; i<(int32_t) ARRAY_SIZE(distrecip); i++)
                 distrecip[i] = (xdimen * i)>>20;
         }
 
@@ -8862,7 +8855,7 @@ int32_t initengine(void)
         return 1;
 
 #ifdef USE_OPENGL
-    if (!hicfirstinit) hicinit();
+    if (!hicinitcounter) hicinit();
     if (!mdinited) mdinit();
 #endif
 
@@ -9357,10 +9350,10 @@ static inline int32_t         sameside(const _equation *eq, const _point2d *p1, 
     if (sign1 > 0)
     {
         //OSD_Printf("SAME SIDE !\n");
-        return (1);
+        return 1;
     }
     //OSD_Printf("OPPOSITE SIDE !\n");
-    return (0);
+    return 0;
 }
 
 // x1, y1: in/out
@@ -9409,6 +9402,7 @@ void drawmasks(void)
 #ifdef USE_OPENGL
         const int32_t modelp = (usemodels && tile2model[tspriteptr[i]->picnum].modelid >= 0);
 #endif
+
         if (yp > (4<<8))
         {
             const int32_t xp = dmulscale6(ys,cosglobalang,-xs,singlobalang);
@@ -15265,14 +15259,19 @@ void setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     bakframeplace[setviewcnt] = frameplace; frameplace = waloff[tilenume];
     bakwindowx1[setviewcnt] = windowx1; bakwindowy1[setviewcnt] = windowy1;
     bakwindowx2[setviewcnt] = windowx2; bakwindowy2[setviewcnt] = windowy2;
-#ifdef USE_OPENGL
+
     if (setviewcnt == 0)
     {
+#ifdef USE_OPENGL
         bakrendmode = rendmode;
+#endif
         baktile = tilenume;
     }
-    rendmode = REND_CLASSIC;//2;
+
+#ifdef USE_OPENGL
+    rendmode = REND_CLASSIC;
 #endif
+
     copybufbyte(&startumost[windowx1],&bakumost[windowx1],(windowx2-windowx1+1)*sizeof(bakumost[0]));
     copybufbyte(&startdmost[windowx1],&bakdmost[windowx1],(windowx2-windowx1+1)*sizeof(bakdmost[0]));
     setviewcnt++;
@@ -17628,7 +17627,7 @@ static inline uint32_t hash_getcode(const char *s)
     return h;
 }
 
-void hash_add(hashtable_t *t, const char *s, int32_t key, int32_t replace)
+void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace)
 {
     hashitem_t *cur, *prev=NULL;
     int32_t code;
@@ -17708,7 +17707,7 @@ void hash_delete(hashtable_t *t, const char *s)
     while ((cur = cur->next));
 }
 
-int32_t hash_find(const hashtable_t *t, const char *s)
+intptr_t hash_find(const hashtable_t *t, const char *s)
 {
     hashitem_t *cur;
 
@@ -17728,7 +17727,7 @@ int32_t hash_find(const hashtable_t *t, const char *s)
     return -1;
 }
 
-int32_t hash_findcase(const hashtable_t *t, const char *s)
+intptr_t hash_findcase(const hashtable_t *t, const char *s)
 {
     hashitem_t *cur;
 

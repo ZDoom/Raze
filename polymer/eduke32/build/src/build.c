@@ -91,7 +91,7 @@ int32_t synctics = 0, lockclock = 0;
 
 // those ones save the respective 3d video vars while in 2d mode
 // so that exiting from mapster32 in 2d mode saves the correct ones
-double vid_gamma_3d=-1, vid_contrast_3d=-1, vid_brightness_3d=-1;
+float vid_gamma_3d=-1, vid_contrast_3d=-1, vid_brightness_3d=-1;
 
 int32_t xdim2d = 640, ydim2d = 480, xdimgame = 640, ydimgame = 480, bppgame = 8;
 int32_t forcesetup = 1;

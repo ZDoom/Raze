@@ -2142,16 +2142,16 @@ int32_t getpalette(int32_t start, int32_t num, char *dapal)
 //
 int32_t setgamma(void)
 {
-	//return 0;
+    //return 0;
 
     int32_t i;
     uint16_t gammaTable[768];
-    float gamma = max(0.1f,min(4.f,vid_gamma));
-    float contrast = max(0.1f,min(3.f,vid_contrast));
-    float bright = max(-0.8f,min(0.8f,vid_brightness));
+    float gamma = max(0.1f, min(4.f, vid_gamma));
+    float contrast = max(0.1f, min(3.f, vid_contrast));
+    float bright = max(-0.8f, min(0.8f, vid_brightness));
 
-    double invgamma = 1 / gamma;
-    double norm = pow(255., invgamma - 1);
+    float invgamma = 1.f / gamma;
+    float norm = powf(255.f, invgamma - 1.f);
 
     if (novideo) return 0;
 
@@ -2162,21 +2162,23 @@ int32_t setgamma(void)
 
     for (i = 0; i < 256; i++)
     {
-        double val = i * contrast - (contrast - 1) * 127;
-        if (gamma != 1) val = pow(val, invgamma) / norm;
-        val += bright * 128;
+        float val = i * contrast - (contrast - 1.f) * 127.f;
+        if (gamma != 1.f)
+            val = powf(val, invgamma) / norm;
 
-        gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (uint16_t)max(0.f,(double)min(0xffff,val*256));
+        val += bright * 128.f;
+
+        gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (uint16_t) max(0.f, min(65535.f, val*256.f));
     }
 
 #if SDL_MAJOR_VERSION==1
-    i = SDL_SetGammaRamp(&gammaTable[0],&gammaTable[256],&gammaTable[512]);
+    i = SDL_SetGammaRamp(&gammaTable[0], &gammaTable[256], &gammaTable[512]);
     if (i != -1)
 #else
     i = INT32_MIN;
+
     if (sdl_window)
-        i = SDL_SetWindowGammaRamp(
-            sdl_window,&gammaTable[0],&gammaTable[256],&gammaTable[512]);
+        i = SDL_SetWindowGammaRamp(sdl_window, &gammaTable[0], &gammaTable[256], &gammaTable[512]);
 
     if (i < 0)
     {

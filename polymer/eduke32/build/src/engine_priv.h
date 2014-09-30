@@ -72,7 +72,7 @@ extern int16_t numscans, numbunches;
 #ifdef USE_OPENGL
 
 // For GL_EXP2 fog:
-#define FOGSCALE 0.0000768
+#define FOGSCALE 0.0000768f
 
 extern palette_t palookupfog[MAXPALOOKUPS];
 void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal);
