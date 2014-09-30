@@ -66,7 +66,7 @@ extern int32_t hitallsprites;
 
 extern int32_t xb1[MAXWALLSB];
 extern int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
-extern int16_t p2[MAXWALLSB];
+extern int16_t bunchp2[MAXWALLSB];
 extern int16_t numscans, numbunches;
 
 #ifdef USE_OPENGL

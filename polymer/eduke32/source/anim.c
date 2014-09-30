@@ -375,8 +375,8 @@ int32_t G_PlayAnim(const char *fn, char t)
     if (!animbuf[t-1])
         allocache((intptr_t *)&animbuf[t-1], length+1, &animlock[t-1]);
 
-    tilesizx[TILE_ANIM] = 200;
-    tilesizy[TILE_ANIM] = 320;
+    tilesiz[TILE_ANIM].x = 200;
+    tilesiz[TILE_ANIM].y = 320;
 
     kread(handle, animbuf[t-1], length);
     kclose(handle);

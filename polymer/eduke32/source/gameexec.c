@@ -1483,7 +1483,7 @@ skip_check:
                 vm.g_sp->xrepeat += ksgn(j);
 
                 if ((vm.g_sp->picnum == APLAYER && vm.g_sp->yrepeat < 36) || *insptr < vm.g_sp->yrepeat ||
-                        ((vm.g_sp->yrepeat*(tilesizy[vm.g_sp->picnum]+8))<<2) < (actor[vm.g_i].floorz - actor[vm.g_i].ceilingz))
+                        ((vm.g_sp->yrepeat*(tilesiz[vm.g_sp->picnum].y+8))<<2) < (actor[vm.g_i].floorz - actor[vm.g_i].ceilingz))
                 {
                     j = ((*insptr)-vm.g_sp->yrepeat)<<1;
                     if (klabs(j)) vm.g_sp->yrepeat += ksgn(j);

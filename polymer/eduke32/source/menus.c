@@ -1765,7 +1765,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
         break;
 
     case MENU_PLAYER:
-        rotatesprite_fs((260)<<16,(24+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,entry == &ME_PLAYER_TEAM ? G_GetTeamPalette(ud.team) : ud.color,10);
+        rotatesprite_fs((260)<<16,(24+(tilesiz[APLAYER].y>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,entry == &ME_PLAYER_TEAM ? G_GetTeamPalette(ud.team) : ud.color,10);
         break;
 
     case MENU_MACROS:
@@ -3548,17 +3548,17 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                     MenuRangeInt32_t *object = (MenuRangeInt32_t*)entry->entry;
 
                     int32_t s, p;
-                    const int32_t z = scale(65536, height, tilesizy[SLIDEBAR]<<16);
+                    const int32_t z = scale(65536, height, tilesiz[SLIDEBAR].y<<16);
                     M_ShadePal(object->font, status, &s, &p);
 
                     if (status & (1<<3))
-                        x -= scale(tilesizx[SLIDEBAR]<<16, height, tilesizy[SLIDEBAR]<<16);
+                        x -= scale(tilesiz[SLIDEBAR].x<<16, height, tilesiz[SLIDEBAR].y<<16);
 
                     rotatesprite_fs(x, y - menu->scrollPos, z, 0, SLIDEBAR, s, entry->disabled ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
 
                     rotatesprite_fs(
-                    x + (1<<16) + scale(scale((tilesizx[SLIDEBAR]-2-tilesizx[SLIDEBAR+1])<<16, height, tilesizy[SLIDEBAR]<<16), *object->variable - object->min, object->max - object->min),
-                    y + scale((tilesizy[SLIDEBAR]-tilesizy[SLIDEBAR+1])<<15, height, tilesizy[SLIDEBAR]<<16) - menu->scrollPos,
+                    x + (1<<16) + scale(scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16), *object->variable - object->min, object->max - object->min),
+                    y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
                     z, 0, SLIDEBAR+1, s, entry->disabled ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
 
                     if (object->displaytype > 0)
@@ -3594,17 +3594,17 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                     MenuRangeFloat_t *object = (MenuRangeFloat_t*)entry->entry;
 
                     int32_t s, p;
-                    const int32_t z = scale(65536, height, tilesizy[SLIDEBAR]<<16);
+                    const int32_t z = scale(65536, height, tilesiz[SLIDEBAR].y<<16);
                     M_ShadePal(object->font, status, &s, &p);
 
                     if (status & (1<<3))
-                        x -= scale(tilesizx[SLIDEBAR]<<16, height, tilesizy[SLIDEBAR]<<16);
+                        x -= scale(tilesiz[SLIDEBAR].x<<16, height, tilesiz[SLIDEBAR].y<<16);
 
                     rotatesprite_fs(x, y - menu->scrollPos, z, 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
                     rotatesprite_fs(
-                    x + (1<<16) + ((float) scale((tilesizx[SLIDEBAR]-2-tilesizx[SLIDEBAR+1])<<16, height, tilesizy[SLIDEBAR]<<16) * (*object->variable - object->min) / (object->max - object->min)),
-                    y + scale((tilesizy[SLIDEBAR]-tilesizy[SLIDEBAR+1])<<15, height, tilesizy[SLIDEBAR]<<16) - menu->scrollPos,
+                    x + (1<<16) + ((float) scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16) * (*object->variable - object->min) / (object->max - object->min)),
+                    y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
                     z, 0, SLIDEBAR+1, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
                     if (object->displaytype > 0)
@@ -3640,17 +3640,17 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                     MenuRangeDouble_t *object = (MenuRangeDouble_t*)entry->entry;
 
                     int32_t s, p;
-                    const int32_t z = scale(65536, height, tilesizy[SLIDEBAR]<<16);
+                    const int32_t z = scale(65536, height, tilesiz[SLIDEBAR].y<<16);
                     M_ShadePal(object->font, status, &s, &p);
 
                     if (status & (1<<3))
-                        x -= scale(tilesizx[SLIDEBAR]<<16, height, tilesizy[SLIDEBAR]<<16);
+                        x -= scale(tilesiz[SLIDEBAR].x<<16, height, tilesiz[SLIDEBAR].y<<16);
 
                     rotatesprite_fs(x, y - menu->scrollPos, z, 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
                     rotatesprite_fs(
-                    x + (1<<16) + ((double) scale((tilesizx[SLIDEBAR]-2-tilesizx[SLIDEBAR+1])<<16, height, tilesizy[SLIDEBAR]<<16) * (*object->variable - object->min) / (object->max - object->min)),
-                    y + scale((tilesizy[SLIDEBAR]-tilesizy[SLIDEBAR+1])<<15, height, tilesizy[SLIDEBAR]<<16) - menu->scrollPos,
+                    x + (1<<16) + ((double) scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16) * (*object->variable - object->min) / (object->max - object->min)),
+                    y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
                     z, 0, SLIDEBAR+1, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
                     if (object->displaytype > 0)
@@ -3690,7 +3690,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                         const vec2_t dim = M_MenuText(x, y + (height>>1), object->font, object->editfield, status | (1<<5));
                         const int32_t h = max(dim.y, entry->font->yline);
 
-                        rotatesprite_fs(x + dim.x + (1<<16) + scale(tilesizx[SPINNINGNUKEICON]<<15, h, tilesizy[SPINNINGNUKEICON]<<16), y + (height>>1) - menu->scrollPos, scale(65536, h, tilesizy[SPINNINGNUKEICON]<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
+                        rotatesprite_fs(x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, h, tilesiz[SPINNINGNUKEICON].y<<16), y + (height>>1) - menu->scrollPos, scale(65536, h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
                     }
                     else
                         M_MenuText(x, y + (height>>1) - menu->scrollPos, object->font, object->variable, status);
@@ -3715,8 +3715,8 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
     // draw indicators if applicable
     if (totalextent > menu->bottomcutoff)
     {
-        rotatesprite((320 - tilesizx[SELECTDIR])<<16, menu->ytop, 65536, 0, SELECTDIR, menu->scrollPos > 0 ? 0 : 20, 0, 26, 0, 0, xdim-1, scale(ydim, menu->ytop + (tilesizy[SELECTDIR]<<15), 200<<16) - 1);
-        rotatesprite((320 - tilesizx[SELECTDIR])<<16, menu->bottomcutoff - (tilesizy[SELECTDIR]<<16), 65536, 0, SELECTDIR, menu->ytop + menu->totalHeight - menu->scrollPos > menu->bottomcutoff ? 0 : 20, 0, 26, 0, scale(ydim, menu->bottomcutoff - (tilesizy[SELECTDIR]<<15), 200<<16), xdim-1, ydim-1);
+        rotatesprite((320 - tilesiz[SELECTDIR].x)<<16, menu->ytop, 65536, 0, SELECTDIR, menu->scrollPos > 0 ? 0 : 20, 0, 26, 0, 0, xdim-1, scale(ydim, menu->ytop + (tilesiz[SELECTDIR].y<<15), 200<<16) - 1);
+        rotatesprite((320 - tilesiz[SELECTDIR].x)<<16, menu->bottomcutoff - (tilesiz[SELECTDIR].y<<16), 65536, 0, SELECTDIR, menu->ytop + menu->totalHeight - menu->scrollPos > menu->bottomcutoff ? 0 : 20, 0, 26, 0, scale(ydim, menu->bottomcutoff - (tilesiz[SELECTDIR].y<<15), 200<<16), xdim-1, ydim-1);
     }
 
     return menu->totalHeight;
@@ -3775,8 +3775,8 @@ static void M_RunMenu_MenuOptionList(MenuOption_t *object)
     // draw indicators if applicable
     if (y > object->options->list->bottomcutoff)
     {
-        rotatesprite((320 - tilesizx[SELECTDIR])<<16, object->options->list->pos.y, 65536, 0, SELECTDIR, object->options->scrollPos > 0 ? 0 : 20, 0, 26, 0, 0, xdim-1, scale(ydim, object->options->list->pos.y + (tilesizy[SELECTDIR]<<15), 200<<16) - 1);
-        rotatesprite((320 - tilesizx[SELECTDIR])<<16, object->options->list->bottomcutoff - (tilesizy[SELECTDIR]<<16), 65536, 0, SELECTDIR, y - object->options->scrollPos > object->options->list->bottomcutoff ? 0 : 20, 0, 26, 0, scale(ydim, object->options->list->bottomcutoff - (tilesizy[SELECTDIR]<<15), 200<<16), xdim-1, ydim-1);
+        rotatesprite((320 - tilesiz[SELECTDIR].x)<<16, object->options->list->pos.y, 65536, 0, SELECTDIR, object->options->scrollPos > 0 ? 0 : 20, 0, 26, 0, 0, xdim-1, scale(ydim, object->options->list->pos.y + (tilesiz[SELECTDIR].y<<15), 200<<16) - 1);
+        rotatesprite((320 - tilesiz[SELECTDIR].x)<<16, object->options->list->bottomcutoff - (tilesiz[SELECTDIR].y<<16), 65536, 0, SELECTDIR, y - object->options->scrollPos > object->options->list->bottomcutoff ? 0 : 20, 0, 26, 0, scale(ydim, object->options->list->bottomcutoff - (tilesiz[SELECTDIR].y<<15), 200<<16), xdim-1, ydim-1);
     }
 }
 

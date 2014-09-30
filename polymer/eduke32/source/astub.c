@@ -2115,15 +2115,15 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
     //		return;
     //	gotpic[FOF>>3] &= ~(1<<(FOF&7));
 
-    if (tilesizx[562])
+    if (tilesiz[562].x)
     {
-        fofsizex = tilesizx[562];
-        tilesizx[562] = 0;
+        fofsizex = tilesiz[562].x;
+        tilesiz[562].x = 0;
     }
-    if (tilesizy[562])
+    if (tilesiz[562].y)
     {
-        fofsizey = tilesizy[562];
-        tilesizy[562] = 0;
+        fofsizey = tilesiz[562].y;
+        tilesiz[562].y = 0;
     }
 
     floor1=spnum;
@@ -2467,7 +2467,7 @@ int32_t AskIfSure(const char *text)
 
 static int32_t IsValidTile(int32_t idTile)
 {
-    return (idTile>=0 && idTile<MAXTILES) && (tilesizx[idTile] && tilesizy[idTile]);
+    return (idTile>=0 && idTile<MAXTILES) && (tilesiz[idTile].x && tilesiz[idTile].y);
 }
 
 static int32_t SelectAllTiles(int32_t iCurrentTile)
@@ -3348,7 +3348,7 @@ static const char *GetTilePixels(int32_t idTile)
 static void classic_drawtilescreen(int32_t x, int32_t y, int32_t idTile, int32_t TileDim,
                                    const char *pRawPixels)
 {
-    int32_t dispxsz = tilesizx[idTile], dispysz = tilesizy[idTile];
+    int32_t dispxsz = tilesiz[idTile].x, dispysz = tilesiz[idTile].y;
     int32_t divinc = 1, mulinc = 1;
 
     int32_t xofs, yofs;
@@ -3378,7 +3378,7 @@ static void classic_drawtilescreen(int32_t x, int32_t y, int32_t idTile, int32_t
             pScreen = (char *)ylookup[y]+x+frameplace;
             for (xofs = 0; xofs < dispxsz; xofs++)
             {
-                pScreen[xofs] = pRawPixels[((yofs*divinc)/mulinc) + (((xofs*divinc)/mulinc)*tilesizy[idTile])];
+                pScreen[xofs] = pRawPixels[((yofs*divinc)/mulinc) + (((xofs*divinc)/mulinc)*tilesiz[idTile].y)];
             }
         }
         y -= yofs;
@@ -3457,7 +3457,7 @@ static void tilescreen_drawrest(int32_t iSelected, int32_t showmsg)
         printext256(xdim-(Bstrlen(names[idTile])<<3)-1,ydim-10,whitecol,-1,names[idTile],0);
 
         // Tile dimensions.
-        Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
+        Bsprintf(szT,"%dx%d",tilesiz[idTile].x,tilesiz[idTile].y);
         printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
 
         // EditArt offset flags.
@@ -3650,7 +3650,7 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
     int32_t small = (xdimgame<=640);
     int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
 
-    if (tilesizx[picnum]>0 && tilesizy[picnum]>0)
+    if (tilesiz[picnum].x>0 && tilesiz[picnum].y>0)
     {
         double scalediv;
         int32_t scale=65536;
@@ -3660,7 +3660,7 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
             x1 /= 2;
 
         x1 = (int32_t)(x1 * 320.0/xdimgame);
-        scalediv = max(tilesizx[picnum],tilesizy[picnum])/24.0;
+        scalediv = max(tilesiz[picnum].x,tilesiz[picnum].y)/24.0;
         scale = (int32_t)((double)scale/scalediv);
 
         setaspect(65536L, (int32_t)divscale16(ydim*320L,xdim*200L));
@@ -3868,7 +3868,7 @@ static void TextEntryMode(int16_t startspr)
                 alphidx = i;
                 basetile = t;
                 if (spcgap[i] == 0)
-                    spcgap[i] = 3*tilesizx[t]/2;
+                    spcgap[i] = 3*tilesiz[t].x/2;
                 goto ENDFOR1;
             }
     }
@@ -3894,8 +3894,8 @@ ENDFOR1:
     Bmemcpy(sp, &sprite[startspr], sizeof(spritetype));
     sp->yoffset = 0;
     sp->picnum = SMALLFNTCURSOR;
-    sp->xrepeat = clamp(sp->xrepeat/tilesizx[sp->picnum], 2, 255);
-    sp->yrepeat = clamp((sp->yrepeat*tilesizy[sprite[startspr].picnum])/tilesizy[sp->picnum], 4, 255);
+    sp->xrepeat = clamp(sp->xrepeat/tilesiz[sp->picnum].x, 2, 255);
+    sp->yrepeat = clamp((sp->yrepeat*tilesiz[sprite[startspr].picnum].y)/tilesiz[sp->picnum].y, 4, 255);
     sp->pal = 0;
     sp->cstat = 18;
 
@@ -3966,7 +3966,7 @@ ENDFOR1:
             daang = sp->ang;
         }
 
-        j = sp->xrepeat*(hgap+tilesizx[sp->picnum]+2);
+        j = sp->xrepeat*(hgap+tilesiz[sp->picnum].x+2);
         {
             vec3_t vect;
             vect.x = dax + ((j*sintable[daang])>>17);
@@ -3981,7 +3981,7 @@ ENDFOR1:
 
             // mapping char->tilenum
             t = alphabets[alphidx].pic[ch-33];
-            j = sp->xrepeat*(hgap+tilesizx[sp->picnum]+tilesizx[t]);
+            j = sp->xrepeat*(hgap+tilesiz[sp->picnum].x+tilesiz[t].x);
 
             dax += (j*sintable[daang])>>17;
             day -= (j*sintable[(daang+512)&2047])>>17;
@@ -4070,13 +4070,13 @@ ENDFOR1:
             }
             else
             {
-                sprite[linebegspr].z -= ((sprite[linebegspr].yrepeat*(vgap+tilesizy[basetile]))<<2);
+                sprite[linebegspr].z -= ((sprite[linebegspr].yrepeat*(vgap+tilesiz[basetile].y))<<2);
                 asksave = 1;
             }
         }
         else if (ch == 13)  // enter
         {
-            sprite[linebegspr].z += ((sprite[linebegspr].yrepeat*(vgap+tilesizy[basetile]))<<2);
+            sprite[linebegspr].z += ((sprite[linebegspr].yrepeat*(vgap+tilesiz[basetile].y))<<2);
             curspr = linebegspr;
             doingspace = 0;
             asksave = 1;
@@ -5082,7 +5082,7 @@ static void Keys3d(void)
                 pic += dir + MAXTILES;
                 pic %= MAXTILES;
             }
-            while (tilesizx[pic]<=0 || tilesizy[pic]<=0);
+            while (tilesiz[pic].x<=0 || tilesiz[pic].y<=0);
             AIMED_SELOVR_PICNUM = pic;
 
             if (AIMING_AT_SPRITE)
@@ -6152,7 +6152,7 @@ static void Keys3d(void)
                 updownunits = klabs(mousey);
 
                 if (!AIMING_AT_SPRITE)
-                    updownunits = klabs((int32_t)(mousey*128./tilesizy[wall[searchwall].picnum]));
+                    updownunits = klabs((int32_t)(mousey*128./tilesiz[wall[searchwall].picnum].y));
             }
         }
         else if (eitherCTRL && !eitherALT)
@@ -6375,7 +6375,7 @@ static void Keys3d(void)
             {
                 // world-aligned texture
 
-                if (tilesizx[tile]<=0 || tilesizy[tile]<=0)
+                if (tilesiz[tile].x<=0 || tilesiz[tile].y<=0)
                 {
                     message("Can't align sector %d's %s, reference sector %d's has void tile",
                             searchsector, typestr[searchstat], tempsectornum);
@@ -6708,11 +6708,11 @@ paste_ceiling_or_floor:
             {
                 sprite[searchwall].picnum = temppicnum;
 
-                if (tilesizx[temppicnum] <= 0 || tilesizy[temppicnum] <= 0)
+                if (tilesiz[temppicnum].x <= 0 || tilesiz[temppicnum].y <= 0)
                 {
                     j = 0;
                     for (k=0; k<MAXTILES; k++)
-                        if (tilesizx[k] > 0 && tilesizy[k] > 0)
+                        if (tilesiz[k].x > 0 && tilesiz[k].y > 0)
                         {
                             j = k;
                             break;
@@ -10181,7 +10181,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     if (frames==5) picnum+=(((totalclock>>5)%5))*5;
                 }
 
-                if (tilesizx[picnum] == 0)
+                if (tilesiz[picnum].x == 0)
                     picnum -= 5;       //Hack, for actors
             }
             break;
@@ -10196,7 +10196,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     shade = 6;
             }
 
-            ovhscrcoords(sprite[i].x, sprite[i].y-(tilesizy[picnum]<<2), &xp1, &yp1);
+            ovhscrcoords(sprite[i].x, sprite[i].y-(tilesiz[picnum].y<<2), &xp1, &yp1);
 
             ydim16 = ydim-STATUS2DSIZ2;  // XXX?
 
@@ -10400,7 +10400,7 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
                 if (frames==4) tspr->picnum += (((4-(totalclock>>5)))&3)*5;
                 if (frames==5) tspr->picnum += ((totalclock>>5)%5)*5;
 
-                if (tilesizx[tspr->picnum] == 0)
+                if (tilesiz[tspr->picnum].x == 0)
                     tspr->picnum -= 5;       //Hack, for actors
             }
             break;

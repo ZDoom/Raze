@@ -2478,7 +2478,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
             if (curxpanning)
             {
                 xpancoef = (float)(pow2long[picsiz[curpicnum] & 15]);
-                xpancoef *= (float)(curxpanning) / (256.0f * (float)(tilesizx[curpicnum]));
+                xpancoef *= (float)(curxpanning) / (256.0f * (float)(tilesiz[curpicnum].x));
             }
             else
                 xpancoef = 0;
@@ -2486,13 +2486,13 @@ static int32_t      polymer_updatesector(int16_t sectnum)
             if (curypanning)
             {
                 ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
-                ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesizy[curpicnum]));
+                ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesiz[curpicnum].y));
             }
             else
                 ypancoef = 0;
 
-            curbuffer[(i*5)+3] = ((float)(tex) / (scalecoef * tilesizx[curpicnum])) + xpancoef;
-            curbuffer[(i*5)+4] = ((float)(tey) / (scalecoef * tilesizy[curpicnum])) + ypancoef;
+            curbuffer[(i*5)+3] = ((float)(tex) / (scalecoef * tilesiz[curpicnum].x)) + xpancoef;
+            curbuffer[(i*5)+4] = ((float)(tey) / (scalecoef * tilesiz[curpicnum].y)) + ypancoef;
 
             j--;
         }
@@ -2817,19 +2817,19 @@ static float calc_ypancoef(char curypanning, int16_t curpicnum, int32_t dopancor
     {
         float ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
 
-        if (ypancoef < tilesizy[curpicnum])
+        if (ypancoef < tilesiz[curpicnum].y)
             ypancoef *= 2;
 
         if (dopancor)
         {
             int32_t yoffs;
 
-            ftol((ypancoef - tilesizy[curpicnum]) * (255.0f / ypancoef), &yoffs);
+            ftol((ypancoef - tilesiz[curpicnum].y) * (255.0f / ypancoef), &yoffs);
             if (curypanning > 256 - yoffs)
                 curypanning -= yoffs;
         }
 
-        ypancoef *= (float)curypanning / (256.0f * (float)tilesizy[curpicnum]);
+        ypancoef *= (float)curypanning / (256.0f * (float)tilesiz[curpicnum].y);
 
         return ypancoef;
     }
@@ -2979,8 +2979,8 @@ static void         polymer_updatewall(int16_t wallnum)
             else
                 dist = (float)(xref == 0);
 
-            w->wall.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesizx[curpicnum]);
-            w->wall.buffer[(i * 5) + 4] = (-(float)(yref + (w->wall.buffer[(i * 5) + 1] * 16)) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
+            w->wall.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesiz[curpicnum].x);
+            w->wall.buffer[(i * 5) + 4] = (-(float)(yref + (w->wall.buffer[(i * 5) + 1] * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
 
             if (wal->cstat & 256) w->wall.buffer[(i * 5) + 4] = -w->wall.buffer[(i * 5) + 4];
 
@@ -3041,8 +3041,8 @@ static void         polymer_updatewall(int16_t wallnum)
                 else
                     dist = (float)(xref == 0);
 
-                w->wall.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + curxpanning) / (float)(tilesizx[curpicnum]);
-                w->wall.buffer[(i * 5) + 4] = (-(float)(yref + (w->wall.buffer[(i * 5) + 1] * 16)) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
+                w->wall.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + curxpanning) / (float)(tilesiz[curpicnum].x);
+                w->wall.buffer[(i * 5) + 4] = (-(float)(yref + (w->wall.buffer[(i * 5) + 1] * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
 
                 if ((!(wal->cstat & 2) && (wal->cstat & 256)) ||
                     ((wal->cstat & 2) && (wall[nwallnum].cstat & 256)))
@@ -3122,8 +3122,8 @@ static void         polymer_updatewall(int16_t wallnum)
                 else
                     dist = (float)(xref == 0);
 
-                w->over.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesizx[curpicnum]);
-                w->over.buffer[(i * 5) + 4] = (-(float)(yref + (w->over.buffer[(i * 5) + 1] * 16)) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
+                w->over.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesiz[curpicnum].x);
+                w->over.buffer[(i * 5) + 4] = (-(float)(yref + (w->over.buffer[(i * 5) + 1] * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
 
                 if (wal->cstat & 256) w->over.buffer[(i * 5) + 4] = -w->over.buffer[(i * 5) + 4];
 
@@ -3168,8 +3168,8 @@ static void         polymer_updatewall(int16_t wallnum)
                     else
                         dist = (float)(xref == 0);
 
-                    w->mask.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesizx[curpicnum]);
-                    w->mask.buffer[(i * 5) + 4] = (-(float)(yref + (w->mask.buffer[(i * 5) + 1] * 16)) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
+                    w->mask.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesiz[curpicnum].x);
+                    w->mask.buffer[(i * 5) + 4] = (-(float)(yref + (w->mask.buffer[(i * 5) + 1] * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
 
                     if (wal->cstat & 256) w->mask.buffer[(i * 5) + 4] = -w->mask.buffer[(i * 5) + 4];
 
@@ -3598,8 +3598,8 @@ void                polymer_updatesprite(int32_t snum)
 
     yratio = (float)(tspr->yrepeat) * 0.25f;
 
-    xsize = tilesizx[curpicnum];
-    ysize = tilesizy[curpicnum];
+    xsize = tilesiz[curpicnum].x;
+    ysize = tilesiz[curpicnum].y;
 
     if (usehightile && h_xsize[curpicnum])
     {
@@ -4073,21 +4073,21 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     }
     if (((tspr->cstat>>4) & 3) == 2)
     {
-        bglTranslatef(0.0f, 0.0, -(float)(tilesizy[tspr->picnum] * tspr->yrepeat) / 8.0f);
+        bglTranslatef(0.0f, 0.0, -(float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 8.0f);
         bglRotatef(90.0f, 0.0f, 0.0f, 1.0f);
     }
     else
         bglRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
 
     if ((tspr->cstat & 128) && (((tspr->cstat>>4) & 3) != 2))
-        bglTranslatef(0.0f, 0.0, -(float)(tilesizy[tspr->picnum] * tspr->yrepeat) / 8.0f);
+        bglTranslatef(0.0f, 0.0, -(float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 8.0f);
 
     // yoffset differs from zadd in that it does not follow cstat&8 y-flipping
     bglTranslatef(0.0f, 0.0, m->yoffset * 64 * scale * tspr->yrepeat);
 
     if (tspr->cstat & 8)
     {
-        bglTranslatef(0.0f, 0.0, (float)(tilesizy[tspr->picnum] * tspr->yrepeat) / 4.0f);
+        bglTranslatef(0.0f, 0.0, (float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 4.0f);
         bglScalef(1.0f, 1.0f, -1.0f);
     }
 
@@ -4533,14 +4533,14 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     if (pr_artmapping && polymer_eligible_for_artmap(tilenum, pth)) {
         if (!prartmaps[tilenum]) {
             char *tilebuffer = (char *)waloff[tilenum];
-            char *tempbuffer = (char *)Xmalloc(tilesizx[tilenum] * tilesizy[tilenum]);
+            char *tempbuffer = (char *)Xmalloc(tilesiz[tilenum].x * tilesiz[tilenum].y);
             int i, j, k;
 
             i = k = 0;
-            while (i < tilesizy[tilenum]) {
+            while (i < tilesiz[tilenum].y) {
                 j = 0;
-                while (j < tilesizx[tilenum]) {
-                    tempbuffer[k] = tilebuffer[(j * tilesizy[tilenum]) + i];
+                while (j < tilesiz[tilenum].x) {
+                    tempbuffer[k] = tilebuffer[(j * tilesiz[tilenum].y) + i];
                     k++;
                     j++;
                 }
@@ -4552,8 +4552,8 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
             bglTexImage2D(GL_TEXTURE_2D,
                           0,
                           GL_R8,
-                          tilesizx[tilenum],
-                          tilesizy[tilenum],
+                          tilesiz[tilenum].x,
+                          tilesiz[tilenum].y,
                           0,
                           GL_RED,
                           GL_UNSIGNED_BYTE,

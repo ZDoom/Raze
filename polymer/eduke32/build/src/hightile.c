@@ -175,7 +175,7 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
         hicreplc[picnum] = hrn;
     }
 
-    if (tilesizx[picnum]<=0 || tilesizy[picnum]<=0)
+    if (tilesiz[picnum].x<=0 || tilesiz[picnum].y<=0)
     {
         static int32_t first=1;
         if (first)

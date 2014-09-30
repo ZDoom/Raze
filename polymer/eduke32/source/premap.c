@@ -553,7 +553,7 @@ void G_CacheMapData(void)
 void G_SetupCamTile(int32_t i,int32_t wn)
 {
     //if (waloff[wn] == 0) loadtile(wn);
-    setviewtotile(wn,tilesizy[wn],tilesizx[wn]);
+    setviewtotile(wn,tilesiz[wn].y, tilesiz[wn].x);
 
     yax_preparedrawrooms();
     drawrooms(SX,SY,SZ,SA,100+sprite[i].shade,SECT);
@@ -601,7 +601,7 @@ void G_UpdateScreenArea(void)
         }
 
         if (ud.screen_size >= 8 && ud.statusbarmode==0)
-            y2 -= (ss+scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100));
+            y2 -= (ss+scale(tilesiz[BOTTOMSTATUSBAR].y,ud.statusbarscale,100));
 
         y1 = scale(y1,ydim,200);
         y2 = scale(y2,ydim,200)+(getrendermode() != REND_CLASSIC);

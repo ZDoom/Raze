@@ -171,7 +171,7 @@ static int32_t check_tile(const char *defcmd, int32_t tile, const scriptfile *sc
 
 static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t alphacut)
 {
-    const int32_t xsiz = tilesizx[tile], ysiz = tilesizy[tile];
+    const int32_t xsiz = tilesiz[tile].x, ysiz = tilesiz[tile].y;
     int32_t i, j;
 
     char *ftd = (char *)Xmalloc(xsiz*ysiz);

@@ -1844,7 +1844,7 @@ void Net_SendMessage(void)
         {
             const vec2_t dim = G_ScreenTextSize(STARTALPHANUM, i, 0, textsc(65536), 0, typebuf, 8|16|ROTATESPRITE_FULL16, 5<<16, 7<<16, 0, 0, TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
 
-            l = i + dim.x + scale(textsc((tilesizx[SPINNINGNUKEICON]+2)<<13), ydim, 200);
+            l = i + dim.x + scale(textsc((tilesiz[SPINNINGNUKEICON].x+2)<<13), ydim, 200);
         }
 
         if (l >= (xdim<<16))
@@ -1853,7 +1853,7 @@ void Net_SendMessage(void)
         {
             const vec2_t dim = G_ScreenText(STARTALPHANUM, i, j, textsc(65536), 0, 0, typebuf, 1, 0, 8|16|ROTATESPRITE_FULL16, 0, 5<<16, 7<<16, 0, 0, TEXT_YCENTER|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
 
-            i += dim.x + scale(textsc((tilesizx[SPINNINGNUKEICON]+1)<<12), ydim, 200);
+            i += dim.x + scale(textsc((tilesiz[SPINNINGNUKEICON].x+1)<<12), ydim, 200);
         }
 
         rotatesprite_fs(i, j, textsc(32768), 0, SPINNINGNUKEICON+((totalclock>>3)%7), 4-(sintable[(totalclock<<4)&2047]>>11), 0, 0);

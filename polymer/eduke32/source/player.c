@@ -366,7 +366,7 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
     if (j >= 0)
     {
         const spritetype *const spr = &sprite[j];
-        int32_t cen = 2*(spr->yrepeat*tilesizy[spr->picnum]) + cen_add;
+        int32_t cen = 2*(spr->yrepeat*tilesiz[spr->picnum].y) + cen_add;
         int32_t dst;
 
         if (flags)
@@ -1049,12 +1049,12 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
             proj->range = 1024;
 
         if (Proj_CheckBlood(srcvect, &hit, proj->range,
-            mulscale3(proj->yrepeat, tilesizy[proj->decal]) << 8))
+            mulscale3(proj->yrepeat, tilesiz[proj->decal].y) << 8))
         {
             const walltype *const hitwal = &wall[hit.wall];
 
             if (FindDistance2D(hitwal->x - wall[hitwal->point2].x, hitwal->y - wall[hitwal->point2].y) >
-                (mulscale3(proj->xrepeat + 8, tilesizx[proj->decal])))
+                (mulscale3(proj->xrepeat + 8, tilesiz[proj->decal].x)))
             {
                 if (SectorContainsSE13(hitwal->nextsector))
                     return -1;
@@ -1136,7 +1136,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
     {
         sa = s->ang;
         Bmemcpy(&srcvect,s,sizeof(vec3_t));
-        srcvect.z -= (((s->yrepeat*tilesizy[s->picnum])<<1)-(4<<8));
+        srcvect.z -= (((s->yrepeat*tilesiz[s->picnum].y)<<1)-(4<<8));
 
         if (s->picnum != ROTATEGUN)
         {
@@ -2003,10 +2003,10 @@ void P_DisplayScuba(int32_t snum)
         g_snum = snum;
 #ifdef USE_OPENGL
         if (getrendermode() >= REND_POLYMOST)
-            G_DrawTileScaled(44, (200-tilesizy[SCUBAMASK]), SCUBAMASK, 0, 2+16+DRAWEAP_CENTER, p);
+            G_DrawTileScaled(44, (200-tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2+16+DRAWEAP_CENTER, p);
 #endif
-        G_DrawTileScaled(43, (200-tilesizy[SCUBAMASK]), SCUBAMASK, 0, 2+16+DRAWEAP_CENTER, p);
-        G_DrawTileScaled(320-43, (200-tilesizy[SCUBAMASK]), SCUBAMASK, 0, 2+4+16+DRAWEAP_CENTER, p);
+        G_DrawTileScaled(43, (200-tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2+16+DRAWEAP_CENTER, p);
+        G_DrawTileScaled(320-43, (200-tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2+4+16+DRAWEAP_CENTER, p);
     }
 }
 

@@ -277,6 +277,22 @@ static inline void sprite_tracker_hook(uintptr_t address);
 
 #endif // __cplusplus
 
+typedef struct {
+    int32_t x, y;
+} vec2_t;
+
+typedef struct {
+    int32_t x, y, z;
+} vec3_t;
+
+typedef struct {
+    float x, y;
+} fvec2_t;
+
+typedef struct {
+    float x, y, z;
+} fvec3_t;
+
 // Links to various ABIs specifying (or documenting non-normatively) the
 // alignment requirements of aggregates:
 //
@@ -829,7 +845,8 @@ EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
-EXTERN int16_t tilesizx[MAXTILES], tilesizy[MAXTILES];
+EXTERN vec2_t tilesiz[MAXTILES];
+
 EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];
 #ifdef __cplusplus
@@ -1045,14 +1062,6 @@ OTHER VARIABLES:
         NUMSECTORS - the total number of existing sectors.  Modified every time
             you call the loadboard function.
 ***************************************************************************/
-
-typedef struct {
-    int32_t x, y;
-} vec2_t;
-
-typedef struct {
-    int32_t x, y, z;
-} vec3_t;
 
 typedef struct {
     vec3_t pos;

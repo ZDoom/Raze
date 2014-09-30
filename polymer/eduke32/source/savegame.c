@@ -195,8 +195,8 @@ int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh)
     walock[TILE_LOADSHOT] = 255;
     if (waloff[TILE_LOADSHOT] == 0)
         allocache(&waloff[TILE_LOADSHOT], 320*200, &walock[TILE_LOADSHOT]);
-    tilesizx[TILE_LOADSHOT] = 200;
-    tilesizy[TILE_LOADSHOT] = 320;
+    tilesiz[TILE_LOADSHOT].x = 200;
+    tilesiz[TILE_LOADSHOT].y = 320;
     if (screenshotofs)
     {
         if (kdfread((char *)waloff[TILE_LOADSHOT], 320, 200, fil) != 200)

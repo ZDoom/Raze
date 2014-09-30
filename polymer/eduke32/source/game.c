@@ -279,8 +279,8 @@ int32_t textsc(int32_t sc)
 static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
     int32_t scl = sbarsc(65536);
-    int32_t tx = sbarx16((160<<16) - (tilesizx[BOTTOMSTATUSBAR]<<15)); // centered
-    int32_t ty = sbary(200-tilesizy[BOTTOMSTATUSBAR]);
+    int32_t tx = sbarx16((160<<16) - (tilesiz[BOTTOMSTATUSBAR].x<<15)); // centered
+    int32_t ty = sbary(200-tilesiz[BOTTOMSTATUSBAR].y);
 
     int32_t clx1 = sbarsc(scale(x1,xdim,320)), cly1 = sbarsc(scale(y1,ydim,200));
     int32_t clx2 = sbarsc(scale(x2,xdim,320)), cly2 = sbarsc(scale(y2,ydim,200));
@@ -524,7 +524,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                         space = '\x7F'; // tile after '~'
                     tile = G_GetStringTile(font, &space, f);
 
-                    extent.x += (tilesizx[tile] * z);
+                    extent.x += (tilesiz[tile].x * z);
                 }
 
                 // prepare the height // near-CODEDUP the other two near-CODEDUPs for this section
@@ -538,7 +538,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                             line = '\x7F'; // tile after '~'
                         tile = G_GetStringTile(font, &line, f);
 
-                        tempyextent += tilesizy[tile] * z;
+                        tempyextent += tilesiz[tile].y * z;
                     }
 
                     SetIfGreater(&extent.y, tempyextent);
@@ -569,7 +569,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                             line = '\x7F'; // tile after '~'
                         tile = G_GetStringTile(font, &line, f);
 
-                        tempyextent += tilesizy[tile] * z;
+                        tempyextent += tilesiz[tile].y * z;
                     }
 
                     SetIfGreater(&extent.y, tempyextent);
@@ -590,17 +590,17 @@ vec2_t G_ScreenTextSize(const int32_t font,
 
             default:
                 // width
-                extent.x = tilesizx[tile] * z;
+                extent.x = tilesiz[tile].x * z;
 
                 // obnoxious hardcoded functionality from gametext
                 if (NUMHACKACTIVE)
                 {
                     char numeral = '0'; // this is subject to change as an implementation detail
-                    extent.x = (tilesizx[G_GetStringTile(font, &numeral, f)]-1) * z;
+                    extent.x = (tilesiz[G_GetStringTile(font, &numeral, f)].x-1) * z;
                 }
 
                 // height
-                SetIfGreater(&extent.y, (tilesizy[tile] * z));
+                SetIfGreater(&extent.y, (tilesiz[tile].y * z));
 
                 break;
         }
@@ -659,7 +659,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                             line = '\x7F'; // tile after '~'
                         tile = G_GetStringTile(font, &line, f);
 
-                        tempyextent += tilesizy[tile] * z;
+                        tempyextent += tilesiz[tile].y * z;
                     }
 
                     SetIfGreater(&extent.y, tempyextent);
@@ -932,7 +932,7 @@ vec2_t G_ScreenText(const int32_t font,
                         space = '\x7F'; // tile after '~'
                     tile = G_GetStringTile(font, &space, f);
 
-                    extent.x += (tilesizx[tile] * z);
+                    extent.x += (tilesiz[tile].x * z);
                 }
 
                 // prepare the height // near-CODEDUP the other two near-CODEDUPs for this section
@@ -946,7 +946,7 @@ vec2_t G_ScreenText(const int32_t font,
                             line = '\x7F'; // tile after '~'
                         tile = G_GetStringTile(font, &line, f);
 
-                        tempyextent += tilesizy[tile] * z;
+                        tempyextent += tilesiz[tile].y * z;
                     }
 
                     SetIfGreater(&extent.y, tempyextent);
@@ -972,7 +972,7 @@ vec2_t G_ScreenText(const int32_t font,
                             line = '\x7F'; // tile after '~'
                         tile = G_GetStringTile(font, &line, f);
 
-                        tempyextent += tilesizy[tile] * z;
+                        tempyextent += tilesiz[tile].y * z;
                     }
 
                     SetIfGreater(&extent.y, tempyextent);
@@ -1016,17 +1016,17 @@ vec2_t G_ScreenText(const int32_t font,
 
             default:
                 // width
-                extent.x = tilesizx[tile] * z;
+                extent.x = tilesiz[tile].x * z;
 
                 // obnoxious hardcoded functionality from gametext
                 if (NUMHACKACTIVE)
                 {
                     char numeral = '0'; // this is subject to change as an implementation detail
-                    extent.x = (tilesizx[G_GetStringTile(font, &numeral, f)]-1) * z;
+                    extent.x = (tilesiz[G_GetStringTile(font, &numeral, f)].x-1) * z;
                 }
 
                 // height
-                SetIfGreater(&extent.y, (tilesizy[tile] * z));
+                SetIfGreater(&extent.y, (tilesiz[tile].y * z));
 
                 break;
         }
@@ -1082,7 +1082,7 @@ vec2_t G_ScreenText(const int32_t font,
                                 line = '\x7F'; // tile after '~'
                             tile = G_GetStringTile(font, &line, f);
 
-                            tempyextent += tilesizy[tile] * z;
+                            tempyextent += tilesiz[tile].y * z;
                         }
 
                         SetIfGreater(&extent.y, tempyextent);
@@ -1764,7 +1764,7 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
     for (k=i-1; k>=0; k--)
     {
         p = althud_numbertile + b[k]-'0';
-        j += tilesizx[p]+1;
+        j += tilesiz[p].x+1;
     }
     c = x-(j>>1);
 
@@ -1776,7 +1776,7 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
             if (shd && getrendermode() >= REND_POLYMOST && althud_shadows)
                 rotatesprite_fs(sbarxr(c+j-1),sbary(y+1),sbscale,0,p,127,4,cs|POLYMOSTTRANS2);
             rotatesprite_fs(sbarxr(c+j),sbary(y),sbscale,0,p,s,althud_numberpal,cs);
-            j -= tilesizx[p]+1;
+            j -= tilesiz[p].x+1;
         }
         return;
     }
@@ -1788,7 +1788,7 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
         if (shd && getrendermode() >= REND_POLYMOST && althud_shadows)
             rotatesprite_fs(sbarx(c+j+1),sbary(y+1),sbscale,0,p,127,4,cs|POLYMOSTTRANS2);
         rotatesprite_fs(sbarx(c+j),sbary(y),sbscale,0,p,s,althud_numberpal,cs);
-        j += tilesizx[p]+1;
+        j += tilesiz[p].x+1;
     }
 }
 
@@ -1825,14 +1825,14 @@ static void G_DrawInventory(const DukePlayer_t *p)
         y = 172<<16;
 
         if (ud.screen_size == 4 && ud.althud == 1) // modern mini-HUD
-            y -= invensc(tilesizy[BIGALPHANUM]+10); // slide on the y-axis
+            y -= invensc(tilesiz[BIGALPHANUM].y+10); // slide on the y-axis
     }
     else // full HUD
     {
-        y = (200<<16) - (sbarsc(tilesizy[BOTTOMSTATUSBAR]<<16) + (12<<16) + (tilesizy[BOTTOMSTATUSBAR]<<(16-1)));
+        y = (200<<16) - (sbarsc(tilesiz[BOTTOMSTATUSBAR].y<<16) + (12<<16) + (tilesiz[BOTTOMSTATUSBAR].y<<(16-1)));
 
         if (!ud.statusbarmode) // original non-overlay mode
-            y += sbarsc(tilesizy[BOTTOMSTATUSBAR]<<16)>>1; // account for the viewport y-size as the HUD scales
+            y += sbarsc(tilesiz[BOTTOMSTATUSBAR].y<<16)>>1; // account for the viewport y-size as the HUD scales
     }
 
     if (ud.screen_size == 4 && !ud.althud) // classic mini-HUD
@@ -1975,7 +1975,7 @@ static void G_DrawStatusBar(int32_t snum)
     const int32_t althud = ud.althud;
 #endif
 
-    const int32_t SBY = (200-tilesizy[BOTTOMSTATUSBAR]);
+    const int32_t SBY = (200-tilesiz[BOTTOMSTATUSBAR].y);
 
     const int32_t sb15 = sbarsc(32768), sb15h = sbarsc(49152);
     const int32_t sb16 = sbarsc(65536);
@@ -3127,7 +3127,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                         l = spr->xrepeat;
                         dax = sintable[k&2047]*l;
                         day = sintable[(k+1536)&2047]*l;
-                        l = tilesizx[tilenum];
+                        l = tilesiz[tilenum].x;
                         k = (l>>1)+xoff;
                         x1 -= mulscale16(dax,k);
                         x2 = x1+mulscale16(dax,l);
@@ -3160,9 +3160,9 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                     k = spr->ang;
                     cosang = sintable[(k+512)&2047];
                     sinang = sintable[k&2047];
-                    xspan = tilesizx[tilenum];
+                    xspan = tilesiz[tilenum].x;
                     xrepeat = spr->xrepeat;
-                    yspan = tilesizy[tilenum];
+                    yspan = tilesiz[tilenum].y;
                     yrepeat = spr->yrepeat;
 
                     dax = ((xspan>>1)+xoff)*xrepeat;
@@ -3232,8 +3232,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         {
             if (wal->nextwall >= 0) continue;
 
-            if (tilesizx[wal->picnum] == 0) continue;
-            if (tilesizy[wal->picnum] == 0) continue;
+            if (tilesiz[wal->picnum].x == 0) continue;
+            if (tilesiz[wal->picnum].y == 0) continue;
 
             if (j == k)
             {
@@ -3320,7 +3320,7 @@ void G_GetCrosshairColor(void)
         ptr = (char *)waloff[CROSSHAIR];
     }
 
-    ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
+    ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
 
     if (ii <= 0) return;
 
@@ -3358,7 +3358,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
         ptr = (char *)waloff[CROSSHAIR];
     }
 
-    ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
+    ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
     if (ii <= 0) return;
 
     if (getrendermode() == REND_CLASSIC)
@@ -3845,10 +3845,10 @@ void G_DisplayRest(int32_t smoothratio)
 		{
 			if (ud.althud == 2)
 				i = 2;
-			else i = sbarsc(ud.althud?tilesizy[BIGALPHANUM]+10:tilesizy[INVENTORYBOX]+2);
+			else i = sbarsc(ud.althud ? tilesiz[BIGALPHANUM].y+10 : tilesiz[INVENTORYBOX].y+2);
 		}
         else if (ud.screen_size > 2)
-            i = sbarsc(tilesizy[BOTTOMSTATUSBAR]+1);
+            i = sbarsc(tilesiz[BOTTOMSTATUSBAR].y+1);
         else
             i = 2;
 
@@ -4016,7 +4016,7 @@ void G_DrawBackground(void)
 
     flushperms();
 
-    if (tilesizx[dapicnum] == 0 || tilesizy[dapicnum] == 0)
+    if (tilesiz[dapicnum].x == 0 || tilesiz[dapicnum].y == 0)
     {
         pus = pub = NUMPAGES;
         return;
@@ -4035,7 +4035,7 @@ void G_DrawBackground(void)
     else
     {
         const int32_t MENUTILE = MENUSCREEN;//(getrendermode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
-        const int32_t fstilep = tilesizx[MENUTILE]>=320 && tilesizy[MENUTILE]==200;
+        const int32_t fstilep = tilesiz[MENUTILE].x>=320 && tilesiz[MENUTILE].y==200;
         int32_t bgtile = (fstilep ? MENUTILE : BIGHOLE);
 
         clearallviews(0);
@@ -4052,35 +4052,35 @@ void G_DrawBackground(void)
 #endif
             {
                 if ((unsigned)bgtile < MAXTILES)
-                    for (y=y1; y<y2; y+=tilesizy[bgtile])
-                        for (x=0; x<xdim; x+=tilesizx[bgtile])
+                    for (y=y1; y<y2; y+=tilesiz[bgtile].y)
+                        for (x=0; x<xdim; x+=tilesiz[bgtile].x)
                             rotatesprite_fs(x<<16,y<<16,65536L,0,bgtile,16,0,8+16+64);
             }
             else rotatesprite_fs(160<<16,100<<16,65536L,0,bgtile,16,0,2+8+64+(ud.bgstretch?1024:0));
         return;
     }
 
-    y2 = scale(ydim,200-sbarsc(tilesizy[BOTTOMSTATUSBAR]),200);
+    y2 = scale(ydim,200-sbarsc(tilesiz[BOTTOMSTATUSBAR].y),200);
 
     if (ud.screen_size > 8)
     {
         // across top
-        for (y=0; y<windowy1; y+=tilesizy[dapicnum])
-            for (x=0; x<xdim; x+=tilesizx[dapicnum])
+        for (y=0; y<windowy1; y+=tilesiz[dapicnum].y)
+            for (x=0; x<xdim; x+=tilesiz[dapicnum].x)
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y1,xdim-1,windowy1-1);
 
         // sides
-        rx = windowx2-windowx2%tilesizx[dapicnum];
-        for (y=windowy1-windowy1%tilesizy[dapicnum]; y<windowy2; y+=tilesizy[dapicnum])
-            for (x=0; x<windowx1 || x+rx<xdim; x+=tilesizx[dapicnum])
+        rx = windowx2-windowx2%tilesiz[dapicnum].x;
+        for (y=windowy1-windowy1%tilesiz[dapicnum].y; y<windowy2; y+=tilesiz[dapicnum].y)
+            for (x=0; x<windowx1 || x+rx<xdim; x+=tilesiz[dapicnum].x)
             {
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,windowy1,windowx1-1,windowy2-1);
                 rotatesprite((x+rx)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,windowx2,windowy1,xdim-1,windowy2-1);
             }
 
         // along bottom
-        for (y=windowy2-(windowy2%tilesizy[dapicnum]); y<y2; y+=tilesizy[dapicnum])
-            for (x=0; x<xdim; x+=tilesizx[dapicnum])
+        for (y=windowy2-(windowy2%tilesiz[dapicnum].y); y<y2; y+=tilesiz[dapicnum].y)
+            for (x=0; x<xdim; x+=tilesiz[dapicnum].x)
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,windowy2,xdim-1,y2-1);
     }
 
@@ -4089,8 +4089,8 @@ void G_DrawBackground(void)
     {
         // when not rendering a game, fullscreen wipe
         x2 = (xdim - sbarsc((int32_t)(ydim*1.333333333333333333f))) >> 1;
-        for (y=y2-y2%tilesizy[dapicnum]; y<ydim; y+=tilesizy[dapicnum])
-            for (x=0; x<xdim>>1; x+=tilesizx[dapicnum])
+        for (y=y2-y2%tilesiz[dapicnum].y; y<ydim; y+=tilesiz[dapicnum].y)
+            for (x=0; x<xdim>>1; x+=tilesiz[dapicnum].x)
             {
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y2,x2,ydim-1);
                 rotatesprite((xdim-x)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,xdim-x2-1,y2,xdim-1,ydim-1);
@@ -4110,7 +4110,7 @@ void G_DrawBackground(void)
         x1 = max(windowx1-4,0);
         y1 = max(windowy1-4,y);
         x2 = min(windowx2+4,xdim-1);
-        y2 = min(windowy2+4,scale(ydim,200-sbarsc(tilesizy[BOTTOMSTATUSBAR]),200)-1);
+        y2 = min(windowy2+4,scale(ydim,200-sbarsc(tilesiz[BOTTOMSTATUSBAR].y),200)-1);
 
         for (y=y1+4; y<y2-4; y+=64)
         {
@@ -4206,10 +4206,10 @@ static void G_SE40(int32_t smoothratio)
             if (level)
             {
                 // renderz = sector[sprite[sprite2].sectnum].ceilingz;
-                renderz = sprite[sprite2].z - (sprite[sprite2].yrepeat * tilesizy[sprite[sprite2].picnum]<<1);
+                renderz = sprite[sprite2].z - (sprite[sprite2].yrepeat * tilesiz[sprite[sprite2].picnum].y<<1);
                 picnum = sector[sprite[sprite2].sectnum].ceilingpicnum;
                 sector[sprite[sprite2].sectnum].ceilingpicnum = 562;
-                tilesizx[562] = tilesizy[562] = 0;
+                tilesiz[562].x = tilesiz[562].y = 0;
 
                 pix_diff = klabs(z) >> 8;
                 newz = - ((pix_diff / 128) + 1) * (128<<8);
@@ -4231,7 +4231,7 @@ static void G_SE40(int32_t smoothratio)
                 renderz = sprite[sprite2].z;
                 picnum = sector[sprite[sprite2].sectnum].floorpicnum;
                 sector[sprite[sprite2].sectnum].floorpicnum = 562;
-                tilesizx[562] = tilesizy[562] = 0;
+                tilesiz[562].x = tilesiz[562].y = 0;
 
                 pix_diff = klabs(z) >> 8;
                 newz = ((pix_diff / 128) + 1) * (128<<8);
@@ -5861,7 +5861,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case EXPLOSION2__STATIC:
             if (sp->yrepeat > 32)
             {
-                G_AddGameLight(0, i, ((sp->yrepeat*tilesizy[sp->picnum])<<1), 32768, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                G_AddGameLight(0, i, ((sp->yrepeat*tilesiz[sp->picnum].y)<<1), 32768, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                 actor[i].lightcount = 2;
             }
         case EXPLOSION2BOT__STATIC:
@@ -7812,7 +7812,7 @@ PALONLY:
             // XXX: t->picnum can be out-of-bounds by bad user code.
 
             if (l > 0)
-                while (tilesizx[t->picnum] == 0 && t->picnum > 0)
+                while (tilesiz[t->picnum].x == 0 && t->picnum > 0)
                     t->picnum -= l;       //Hack, for actors
 
             if (actor[i].dispicnum >= 0)
@@ -11043,7 +11043,7 @@ static void G_Startup(void)
 
     ReadSaveGameHeaders();
 
-    tilesizx[MIRROR] = tilesizy[MIRROR] = 0;
+    tilesiz[MIRROR].x = tilesiz[MIRROR].y = 0;
 
     screenpeek = myconnectindex;
 

@@ -674,8 +674,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewArray("headsectbunchf", (void *)headsectbunch[1], YAX_MAXBUNCHES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
     Gv_NewArray("nextsectbunchf", (void *)nextsectbunch[1], MAXSECTORS, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 #endif
-    Gv_NewArray("tilesizx", (void *)tilesizx, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("tilesizy", (void *)tilesizy, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+//    Gv_NewArray("tilesizx", (void *)tilesizx, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+//    Gv_NewArray("tilesizy", (void *)tilesizy, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 //    Gv_NewArray("picsiz", (void *)picsiz, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
     Gv_NewArray("picanm", (void *)picanm, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFINT);
 

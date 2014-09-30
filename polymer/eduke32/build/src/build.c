@@ -631,7 +631,7 @@ int32_t app_main(int32_t argc, const char **argv)
     // must be after loadpics(), which inits BUILD's cache
 
     i = MAXTILES-1;
-    if (tilesizx[i]==0 && tilesizy[i]==0)
+    if (tilesiz[i].x==0 && tilesiz[i].x==0)
     {
         static char R[8*16] = { //
             0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
@@ -648,7 +648,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
         walock[i] = 255; // permanent tile
         picsiz[i] = 5 + (5<<4);
-        tilesizx[i] = sx; tilesizy[i] = sy;
+        tilesiz[i].x = sx; tilesiz[i].y = sy;
         allocache(&waloff[i], sx*sy, &walock[i]);
         newtile = (char *)waloff[i];
 
@@ -968,11 +968,11 @@ static void handle_sprite_in_clipboard(int32_t i)
         int32_t j, k;
 
         sprite[i].picnum = temppicnum;
-        if (tilesizx[temppicnum] <= 0 || tilesizy[temppicnum] <= 0)
+        if (tilesiz[temppicnum].x <= 0 || tilesiz[temppicnum].y <= 0)
         {
             j = 0;
             for (k=0; k<MAXTILES; k++)
-                if (tilesizx[k] > 0 && tilesizy[k] > 0)
+                if (tilesiz[k].x > 0 && tilesiz[k].y > 0)
                 {
                     j = k;
                     break;
@@ -1313,7 +1313,7 @@ void editinput(void)
                         correct_ornamented_sprite(i, hit.wall);
                     }
                     else
-                        sprite[i].cstat |= (tilesizy[sprite[i].picnum]>=32);
+                        sprite[i].cstat |= (tilesiz[sprite[i].picnum].y>=32);
 
                     correct_sprite_yoffset(i);
 
@@ -2175,7 +2175,7 @@ static int32_t insert_sprite_common(int32_t sectnum, int32_t dax, int32_t day)
 void correct_sprite_yoffset(int32_t i)
 {
     int32_t tileyofs = picanm[sprite[i].picnum].yofs;
-    int32_t tileysiz = tilesizy[sprite[i].picnum];
+    int32_t tileysiz = tilesiz[sprite[i].picnum].y;
 
     if (klabs(tileyofs) >= tileysiz)
     {
@@ -6567,7 +6567,7 @@ end_join_sectors:
                     }
                     else handle_sprite_in_clipboard(i);
 
-                    if (tilesizy[sprite[i].picnum] >= 32)
+                    if (tilesiz[sprite[i].picnum].y >= 32)
                         sprite[i].cstat |= 1;
 
                     correct_sprite_yoffset(i);
@@ -10512,14 +10512,14 @@ static void AlignWalls_(int32_t tilenum, int32_t z0, int32_t z1, int32_t doxpann
 {
     int32_t n;
 
-    if (tilesizx[tilenum]==0 || tilesizy[tilenum]==0)
+    if (tilesiz[tilenum].x==0 || tilesiz[tilenum].y==0)
         return;
 
     //do the x alignment
     if (doxpanning)
-        wall[w1_pan].xpanning = (uint8_t)((wall[w0_pan].xpanning + (wall[w0_rep].xrepeat<<3))%tilesizx[tilenum]);
+        wall[w1_pan].xpanning = (uint8_t)((wall[w0_pan].xpanning + (wall[w0_rep].xrepeat<<3))%tilesiz[tilenum].x);
 
-    for (n=picsiz[tilenum]>>4; (1<<n)<tilesizy[tilenum]; n++);
+    for (n=picsiz[tilenum]>>4; (1<<n)<tilesiz[tilenum].y; n++);
 
     wall[w1_rep].yrepeat = wall[w0_rep].yrepeat;
     wall[w1_pan].ypanning = (uint8_t)(wall[w0_pan].ypanning + (((z1-z0)*wall[w0_rep].yrepeat)>>(n+3)));

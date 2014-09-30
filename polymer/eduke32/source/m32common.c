@@ -1679,7 +1679,7 @@ static int32_t correct_picnum(int16_t *picnumptr)
 {
     int32_t picnum = *picnumptr;
 
-    if ((unsigned)picnum >= MAXTILES || tilesizx[picnum] <= 0)
+    if ((unsigned)picnum >= MAXTILES || tilesiz[picnum].x <= 0)
     {
         *picnumptr = 0;
         return 1;

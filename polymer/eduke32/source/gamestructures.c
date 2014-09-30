@@ -2668,7 +2668,7 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
         return;
 
     case ACTOR_ALPHA:
-        spriteext[iActor].alpha=(float)(lVar1/255.0f);
+        spriteext[iActor].alpha=(float)lVar1 * (1.f/255.0f);
         return;
 
     default:

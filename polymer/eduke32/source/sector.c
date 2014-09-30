@@ -382,7 +382,7 @@ void G_AnimateCamSprite(void)
         else if (OW >= 0 && dist(&sprite[ps->i], &sprite[i]) < 8192)
         {
             if (waloff[TILE_VIEWSCR] == 0)
-                allocatepermanenttile(TILE_VIEWSCR,tilesizx[PN],tilesizy[PN]);
+                allocatepermanenttile(TILE_VIEWSCR,tilesiz[PN].x,tilesiz[PN].y);
             else
                 walock[TILE_VIEWSCR] = 255;
 

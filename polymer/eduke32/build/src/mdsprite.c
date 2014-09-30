@@ -2027,7 +2027,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     // dereferenced unconditionally below anyway.
     const spriteext_t *const sext = ((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? &spriteext[owner] : NULL;
     const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
-    const int32_t sizyrep = tilesizy[tspr->picnum]*tspr->yrepeat;
+    const int32_t sizyrep = tilesiz[tspr->picnum].y*tspr->yrepeat;
 
     if (r_vbos && (m->vbos == NULL))
         mdloadvbos(m);
@@ -2295,7 +2295,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         {
             mdskinmap_t *sk;
 
-            polymost_setupdetailtexture(&texunits, i);
+            polymost_setupdetailtexture(++texunits, i);
 
             for (sk = m->skinmap; sk; sk = sk->next)
                 if ((int32_t)sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum && sk->surfnum == surfi)
@@ -2308,12 +2308,11 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         }
 
         if (r_glowmapping && !(tspr->cstat&CSTAT_SPRITE_MDHACK))
-            i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
-        else
-            i = 0;
-
-        if (i)
-            polymost_setupglowtexture(&texunits, i);
+        {
+            i = mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi);
+            if (i)
+                polymost_setupglowtexture(++texunits, i);
+        }
 
         if (r_vertexarrays && r_vbos)
         {
@@ -3218,7 +3217,7 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
     m0.z *= f; a0.z *= f;
 
     k0 = (float)tspr->z;
-    if (globalorientation&128) k0 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<1);
+    if (globalorientation&128) k0 += (float)((tilesiz[tspr->picnum].y*tspr->yrepeat)<<1);
 
     f = (65536.0*512.0)/((float)xdimen*viewingrange);
     g = 32.0/((float)xdimen*gxyaspect);

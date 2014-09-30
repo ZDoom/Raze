@@ -1451,8 +1451,8 @@ static void Gv_AddSystemVars(void)
 # endif
 
     // SYSTEM_GAMEARRAY
-    Gv_NewArray("tilesizx", (void *)tilesizx, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("tilesizy", (void *)tilesizy, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("tilesizx", NULL/*(void *)tilesizx*/, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("tilesizy", NULL/*(void *)tilesizy*/, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 #endif
 }
 

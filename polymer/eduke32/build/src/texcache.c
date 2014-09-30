@@ -37,7 +37,7 @@ static pthtyp *texcache_tryart(int32_t dapicnum, int32_t dapalnum, int32_t dasha
     for (pth=texcache.list[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && pth->shade == dashade && 
                 (pth->flags & (PTH_CLAMPED+PTH_HIGHTILE)) == TO_PTH_CLAMPED(dameth) &&
-                polymost_want_npotytex(dameth, tilesizy[dapicnum]) == !!(pth->flags&PTH_NPOTWALL)
+                polymost_want_npotytex(dameth, tilesiz[dapicnum].y) == !!(pth->flags&PTH_NPOTWALL)
            )
         {
             if (pth->flags & PTH_INVALIDATED)

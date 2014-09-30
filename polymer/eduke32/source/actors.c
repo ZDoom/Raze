@@ -431,7 +431,7 @@ int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t c
     }
 
     dasectnum = spr->sectnum;
-    daz = spr->z - 2*tilesizy[spr->picnum]*spr->yrepeat;
+    daz = spr->z - 2*tilesiz[spr->picnum].y*spr->yrepeat;
 
     {
         const int32_t oldz=spr->z;
@@ -804,8 +804,8 @@ static void A_MoveSector(int32_t i)
 
 // this is the same crap as in game.c's tspr manipulation.  puke.
 // XXX: may access tilesizy out-of-bounds by bad user code.
-#define LIGHTRAD (s->yrepeat * tilesizy[s->picnum + LIGHTRAD_PICOFS])
-#define LIGHTRAD2 (((s->yrepeat) + (rand()%(s->yrepeat>>2))) * tilesizy[s->picnum + LIGHTRAD_PICOFS])
+#define LIGHTRAD (s->yrepeat * tilesiz[s->picnum + LIGHTRAD_PICOFS].y)
+#define LIGHTRAD2 (((s->yrepeat) + (rand()%(s->yrepeat>>2))) * tilesiz[s->picnum + LIGHTRAD_PICOFS].y)
 
 void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
 {
@@ -2722,7 +2722,7 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
         Bmemcpy(&davect, s, sizeof(vec3_t));
 
         if (proj->flashcolor)
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, proj->flashcolor, PR_LIGHT_PRIO_LOW_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 2048, proj->flashcolor, PR_LIGHT_PRIO_LOW_GAME);
 
         if (proj->workslike & PROJECTILE_BOUNCESOFFWALLS && s->yvel < 1)
         {
@@ -8020,7 +8020,7 @@ static void A_DoLight(int32_t i)
                     s->x += dx>>7;
                     s->y += dy>>7;
 
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024-ii*256,
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 1024-ii*256,
                         ii==0 ? (48+(255<<8)+(48<<16)) : 255+(48<<8)+(48<<16), PR_LIGHT_PRIO_LOW);
 
                     s->x -= dx>>7;
@@ -8033,7 +8033,7 @@ static void A_DoLight(int32_t i)
         switch (DYNAMICTILEMAP(sprite[i].picnum))
         {
         case ATOMICHEALTH__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2 * 3, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD2 * 3, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
 
         case FIRE__STATIC:
@@ -8067,7 +8067,7 @@ static void A_DoLight(int32_t i)
                 if (jj==-1 && numsavedfires<32)
                 {
                     jj = numsavedfires;
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, color, PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD2, color, PR_LIGHT_PRIO_HIGH_GAME);
                     savedfires[jj][0] = s->sectnum;
                     savedfires[jj][1] = s->x>>3;
                     savedfires[jj][2] = s->y>>3;
@@ -8079,12 +8079,12 @@ static void A_DoLight(int32_t i)
 
         case OOZFILTER__STATIC:
             if (s->xrepeat > 4)
-                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 4096, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
         case FLOORFLAME__STATIC:
         case FIREBARREL__STATIC:
         case FIREVASE__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
             break;
 
         case EXPLOSION2__STATIC:
@@ -8097,7 +8097,7 @@ static void A_DoLight(int32_t i)
                 s->x -= x;
                 s->y -= y;
 
-                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD, 255+(95<<8),
                     s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
 
                 s->x += x;
@@ -8106,7 +8106,7 @@ static void A_DoLight(int32_t i)
             break;
         case FORCERIPPLE__STATIC:
         case TRANSPORTERBEAM__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
             break;
         case GROWSPARK__STATIC:
             {
@@ -8116,7 +8116,7 @@ static void A_DoLight(int32_t i)
                 s->x -= x;
                 s->y -= y;
 
-                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 2048, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
 
                 s->x += x;
                 s->y += y;
@@ -8130,26 +8130,26 @@ static void A_DoLight(int32_t i)
                 s->x -= x;
                 s->y -= y;
 
-                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
 
                 s->x += x;
                 s->y += y;
             }
             break;
         case FREEZEBLAST__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
         case COOLEXPLOSION1__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD<<2, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
         case SHRINKSPARK__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
         case FIRELASER__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
             break;
         case RPG__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 128 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 128 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
             break;
         case SHOTSPARK1__STATIC:
             if (actor[i].t_data[2] == 0) // check for first frame of action
@@ -8160,7 +8160,7 @@ static void A_DoLight(int32_t i)
                 s->x -= x;
                 s->y -= y;
 
-                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 16 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 16 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
                 actor[i].lightcount = 1;
 
                 s->x += x;
