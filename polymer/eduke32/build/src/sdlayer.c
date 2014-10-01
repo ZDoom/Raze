@@ -1534,6 +1534,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
             { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
             { SDL_GL_STENCIL_SIZE, 1 },
+            { SDL_GL_ACCELERATED_VISUAL, 1 },
 # if SDL_MAJOR_VERSION == 1
             { SDL_GL_SWAP_CONTROL, vsync_render },
 # endif
