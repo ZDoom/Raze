@@ -343,7 +343,7 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
     do
     {
         j = kread(i,buf,256);
-        crc = crc32((uint8_t *)buf,j,crc);
+        crc = Bcrc32((uint8_t *)buf,j,crc);
     }
     while (j == 256);
     crctime = getticks() - crctime;

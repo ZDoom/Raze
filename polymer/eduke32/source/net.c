@@ -766,7 +766,7 @@ void Net_SendChallenge()
     tempnetbuf[0] = PACKET_AUTH;
     B_BUF16(&tempnetbuf[1], BYTEVERSION);
     B_BUF16(&tempnetbuf[3], NETVERSION);
-    B_BUF32(&tempnetbuf[5], crc32((uint8_t *)g_netPassword, Bstrlen(g_netPassword), 0));
+    B_BUF32(&tempnetbuf[5], Bcrc32((uint8_t *)g_netPassword, Bstrlen(g_netPassword), 0));
     tempnetbuf[9] = myconnectindex;
 
     enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&tempnetbuf[0], 10, ENET_PACKET_FLAG_RELIABLE));
@@ -786,7 +786,7 @@ void Net_ReceiveChallenge(uint8_t *pbuf, int32_t packbufleng, ENetEvent *event)
         initprintf("Bad client protocol: version %u.%u\n", byteVersion, netVersion);
         return;
     }
-    if (crc != crc32((uint8_t *)g_netPassword, Bstrlen(g_netPassword), 0))
+    if (crc != Bcrc32((uint8_t *)g_netPassword, Bstrlen(g_netPassword), 0))
     {
         enet_peer_disconnect_later(event->peer, DISC_BAD_PASSWORD);
         initprintf("Bad password from client.\n");

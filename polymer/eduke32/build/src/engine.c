@@ -7938,9 +7938,9 @@ static int32_t loadtables(void)
 
 #ifdef B_LITTLE_ENDIAN
         i = 0;
-        if (crc32((uint8_t *)sintable, sizeof(sintable), 0) != 0xee1e7aba)
+        if (Bcrc32((uint8_t *)sintable, sizeof(sintable), 0) != 0xee1e7aba)
             i |= 1;
-        if (crc32((uint8_t *)radarang, 640*sizeof(radarang[0]), 0) != 0xee893d92)
+        if (Bcrc32((uint8_t *)radarang, 640*sizeof(radarang[0]), 0) != 0xee893d92)
             i |= 2;
 
         if (i != 0)
@@ -8157,7 +8157,7 @@ static int32_t loadpalette(void)
 #endif
 
     // If Duke3D 1.5 GRP or LameDuke, ...
-    if (crc32((uint8_t *)transluc, 65536, 0)==0x94a1fac6 || lamedukep)
+    if (Bcrc32((uint8_t *)transluc, 65536, 0)==0x94a1fac6 || lamedukep)
     {
         int32_t i;
         // ... fix up translucency table so that transluc(255,x)

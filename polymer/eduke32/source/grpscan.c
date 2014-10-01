@@ -394,7 +394,7 @@ int32_t ScanGroups(void)
             do
             {
                 b = read(fh, buf, BUFFER_SIZE);
-                if (b > 0) crcval = crc32((uint8_t *)buf, b, crcval);
+                if (b > 0) crcval = Bcrc32((uint8_t *)buf, b, crcval);
             }
             while (b == BUFFER_SIZE);
             close(fh);
