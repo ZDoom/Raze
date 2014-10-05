@@ -9498,6 +9498,8 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 // NUM_HARDCODED_ANIMS
             };
 
+            EDUKE32_STATIC_ASSERT(ARRAY_SIZE(hardcoded_anim_tokens) == NUM_HARDCODED_ANIMS);
+
             animnum = getatoken(script, hardcoded_anim_tokens, NUM_HARDCODED_ANIMS);
             if ((unsigned)animnum >= NUM_HARDCODED_ANIMS)
                 initprintf("Error: expected a hardcoded anim file name (sans extension) on line %s:%d\n",
