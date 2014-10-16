@@ -139,21 +139,17 @@ static MenuPos_t MP_BIGOPTIONS =           { { MENU_MARGIN_WIDE<<16,         38<
 static MenuPos_t MP_BIGOPTIONSRT =         { { MENU_MARGIN_WIDE<<16,         38<<16, }, 2<<16, 4<<16,  260<<16, -190<<16,  20<<16, 65536, };
 static MenuPos_t MP_OPTIONS =              { { MENU_MARGIN_WIDE<<16,         37<<16, }, 4<<16, 1<<16,  216<<16, 160<<16,  10<<16, 32768, };
 static MenuPos_t MP_PLAYER_1 =             { { MENU_MARGIN_WIDE<<16,         37<<16, }, 4<<16, 1<<16,   90<<16, 160<<16,  10<<16, 32768, };
-static MenuPos_t MP_PLAYER_2 =             { { MENU_MARGIN_WIDE<<16,         37<<16, }, 8<<16, 1<<16,   90<<16, 160<<16,  10<<16, 32768, };
 static MenuPos_t MP_PLAYER_3 =             { { MENU_MARGIN_WIDE<<16,         37<<16, }, 8<<16, 1<<16,  190<<16, 160<<16,  10<<16, 32768, };
 static MenuPos_t MP_MACROS =               { { 26<<16,                       40<<16, }, 4<<16, 2<<16,    1<<16, 160<<16,  10<<16, 32768, };
 static MenuPos_t MP_VIDEOSETUP =           { { MENU_MARGIN_REGULAR<<16,      38<<16, }, 6<<16, 7<<16,  168<<16, -190<<16,  20<<16, 65536, };
 static MenuPos_t MP_VIDEOSETUP_APPLY =     { { (MENU_MARGIN_REGULAR+16)<<16, 38<<16, }, 6<<16, 7<<16,  168<<16, -190<<16,  36<<16, 65536, };
 static MenuPos_t MP_KEYBOARDSETUPFUNCS =   { { 70<<16,                       34<<16, }, 4<<16, 3<<16,  100<<16, 151<<16,  10<<16, 32768, };
-static MenuPos_t MP_KEYBOARDSETUP =        { { MENU_MARGIN_CENTER<<16,       37<<16, }, 4<<16, 0<<16,  0,       160<<16,  92<<16, 32768, };
 static MenuPos_t MP_MOUSEJOYSETUPBTNS =    { { 76<<16,                       34<<16, }, 4<<16, 3<<16,  100<<16, 143<<16,  10<<16, 32768, };
 static MenuPos_t MP_GAMEFUNCLIST =         { { 100<<16,                      51<<16, }, 4<<16, 3<<16,  100<<16, 152<<16,  10<<16, 32768, };
-static MenuPos_t MP_MOUSESETUP =           { { MENU_MARGIN_REGULAR<<16,      37<<16, }, 4<<16, 2<<16,  200<<16, 160<<16,  10<<16, 32768, };
 static MenuPos_t MP_COLCORR =              { { MENU_MARGIN_REGULAR<<16,      86<<16, }, 8<<16, 2<<16, -240<<16, 190<<16,  20<<16, 65536, };
 static MenuPos_t MP_REDSLIDE =             { { MENU_MARGIN_WIDE<<16,         37<<16, }, 8<<16, 2<<16,  170<<16, 190<<16,  20<<16, 65536, };
 static MenuPos_t MP_LOADSAVE =             { { 223<<16,                      48<<16, }, 4<<16, 7<<16,    1<<16, 320<<16,  20<<16, 65536, };
-static MenuPos_t MP_NETSETUP =             { { (MENU_MARGIN_REGULAR-4)<<16,  38<<16, }, 4<<16, 2<<16,  114<<16, 190<<16,  20<<16, 65536, };
-static MenuPos_t MP_ADULTMODE =            { { (MENU_MARGIN_REGULAR+20)<<16, 54<<16, }, 4<<16, 4<<16,  200<<16, -190<<16,  20<<16, 65536, };
+static MenuPos_t MP_NETSETUP =             { { (MENU_MARGIN_REGULAR-4)<<16,  38<<16, }, 4<<16, 2<<16,  114<<16, 190<<16,  20<<16, 65536, };;
 
 
 // common menu option sets
@@ -289,8 +285,8 @@ static MenuEntry_t ME_GAMESETUP_UPDATES = MAKE_MENUENTRY( &MF_Redfont, "Online u
 
 static MenuOption_t MEO_ADULTMODE = MAKE_MENUOPTION(&MF_RedfontRt, &MEOS_OffOn, &ud.lockout);
 static MenuEntry_t ME_ADULTMODE = MAKE_MENUENTRY(&MF_Redfont, "Parental lock:", Option, &MEO_ADULTMODE);
-static MenuLink_t MEO_ADULTMODE_PASSWORD ={ MENU_ADULTPASSWORD, };
-static MenuEntry_t ME_ADULTMODE_PASSWORD = MAKE_MENUENTRY( &MF_Redfont, "Enter Password", Link, &MEO_ADULTMODE_PASSWORD );
+// static MenuLink_t MEO_ADULTMODE_PASSWORD = { MENU_ADULTPASSWORD, };
+// static MenuEntry_t ME_ADULTMODE_PASSWORD = MAKE_MENUENTRY( &MF_Redfont, "Enter Password", Link, &MEO_ADULTMODE_PASSWORD );
 
 static MenuEntry_t *MEL_GAMESETUP1[] = {
 	&ME_ADULTMODE,
@@ -309,7 +305,6 @@ static MenuEntry_t *MEL_GAMESETUP1[] = {
 
 MAKE_MENU_TOP_ENTRYLINK( OPTIONS_GAMESETUP, MENU_GAMESETUP, "Game Setup" );
 MAKE_MENU_TOP_ENTRYLINK( OPTIONS_SOUNDSETUP, MENU_SOUND, "Sound Setup" );
-MAKE_MENU_TOP_ENTRYLINK( OPTIONS_ADVSOUND, MENU_ADVSOUND, "Sound Setup" );
 MAKE_MENU_TOP_ENTRYLINK( OPTIONS_DISPLAYSETUP, MENU_DISPLAYSETUP, "Display Setup" );
 MAKE_MENU_TOP_ENTRYLINK( OPTIONS_PLAYERSETUP, MENU_PLAYER, "Player Setup" );
 MAKE_MENU_TOP_ENTRYLINK( OPTIONS_CONTROLS, MENU_CONTROLS, "Control Setup" );
@@ -698,9 +693,6 @@ static MenuEntry_t *MEL_JOYSTICKAXIS_DIGITAL[] = {
     &ME_JOYSTICKAXIS_DIGITALPOSITIVE,
 };
 
-static MenuOption_t MEO_RENDERERSETUP_FRAMERATE = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_NoYes, &ud.tickrate);
-static MenuEntry_t ME_RENDERERSETUP_FRAMERATE = MAKE_MENUENTRY(&MF_BluefontRed, "Show framerate:", Option, &MEO_RENDERERSETUP_FRAMERATE);
-
 #ifdef USE_OPENGL
 static MenuOption_t MEO_RENDERERSETUP_HIGHTILE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &usehightile );
 static MenuEntry_t ME_RENDERERSETUP_HIGHTILE = MAKE_MENUENTRY( &MF_BluefontRed, "Hires textures:", Option, &MEO_RENDERERSETUP_HIGHTILE );
@@ -831,7 +823,9 @@ static MenuEntry_t ME_SOUND_NUMVOICES = MAKE_MENUENTRY( &MF_Redfont, "Voices:", 
 static MenuEntry_t ME_SOUND_RESTART = MAKE_MENUENTRY( &MF_Redfont, "Restart sound system", Link, &MEO_NULL );
 
 static MenuLink_t MEO_ADVSOUND = { MENU_ADVSOUND, };
+#ifndef DROIDMENU
 static MenuEntry_t ME_SOUND_ADVSOUND = MAKE_MENUENTRY( &MF_Redfont, "Advanced", Link, &MEO_ADVSOUND );
+#endif
 
 static MenuEntry_t *MEL_SOUND1[] = {
     &ME_SOUND,
@@ -2791,7 +2785,7 @@ static int32_t M_MenuEntryRangeFloatModify(MenuEntry_t *entry, float newValue)
     return 0;
 }
 
-static int32_t M_MenuEntryRangeDoubleModify(MenuEntry_t *entry/*, double newValue*/)
+static int32_t M_MenuEntryRangeDoubleModify(void /*MenuEntry_t *entry, double newValue*/)
 {
 
     return 0;
@@ -4536,7 +4530,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                             temp = interval * step + object->min;
 
-                            if (!M_MenuEntryRangeDoubleModify(currentry/*, temp*/))
+                            if (!M_MenuEntryRangeDoubleModify(/*currentry, temp*/))
                                 *object->variable = temp;
                         }
 
