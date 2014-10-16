@@ -5,13 +5,7 @@
     Feel free to customize this file to suit your needs
 */
 
-#if defined(SDL_FRAMEWORK)
-#  include <SDL/SDL.h>
-#else
-#  include "SDL.h"
-#endif
-
-#include "SDLMain.h"
+#include "sdl_inc.h"
 
 #include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h>

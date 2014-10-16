@@ -53,7 +53,7 @@ Minimum required SDL versions:
 #   endif
 #  else
 #   if (SDL_TARGET == 2)
-#    include <SDL2_mixer/SDL_mixer.h>
+#    include <SDL2/SDL_mixer.h>
 #   else
 #    include <SDL_mixer/SDL_mixer.h>
 #   endif

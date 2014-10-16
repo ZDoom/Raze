@@ -1,3 +1,4 @@
+#include "compat.h"
 #include "osxbits.h"
 #import <Cocoa/Cocoa.h>
 
@@ -5,18 +6,18 @@
 # define MAC_OS_VERSION_10_3 1030
 #endif
 
-int osx_msgbox(char *name, char *msg)
+int osx_msgbox(const char *name, const char *msg)
 {
-	NSString *mmsg = [[NSString alloc] initWithCString: msg];
+	NSString *mmsg = [[NSString alloc] initWithUTF8String:msg];
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3
 	NSAlert *alert = [[NSAlert alloc] init];
 	[alert addButtonWithTitle: @"OK"];
 	[alert setInformativeText: mmsg];
 	[alert setAlertStyle: NSInformationalAlertStyle];
-	
+
 	[alert runModal];
-	
+
 	[alert release];
 
 #else
@@ -24,12 +25,15 @@ int osx_msgbox(char *name, char *msg)
 #endif
 
 	[mmsg release];
+
+	UNREFERENCED_PARAMETER(name);
+
 	return 0;
 }
 
-int osx_ynbox(char *name, char *msg)
+int osx_ynbox(const char *name, const char *msg)
 {
-	NSString *mmsg = [[NSString alloc] initWithCString: msg];
+	NSString *mmsg = [[NSString alloc] initWithUTF8String:msg];
 	int r;
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3
@@ -39,7 +43,7 @@ int osx_ynbox(char *name, char *msg)
 	[alert addButtonWithTitle:@"No"];
 	[alert setInformativeText: mmsg];
 	[alert setAlertStyle: NSInformationalAlertStyle];
-	
+
 	r = ([alert runModal] == NSAlertFirstButtonReturn);
 
 	[alert release];
@@ -48,5 +52,8 @@ int osx_ynbox(char *name, char *msg)
 #endif
 
 	[mmsg release];
+
+	UNREFERENCED_PARAMETER(name);
+
 	return r;
 }

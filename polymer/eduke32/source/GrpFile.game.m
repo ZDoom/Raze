@@ -31,7 +31,7 @@
 }
 - (NSString *)grpname
 {
-    return [NSString stringWithCString:(fg->name)];
+    return [NSString stringWithCString:(fg->name) encoding:NSUTF8StringEncoding];
 }
 - (struct grpfile *)entryptr
 {

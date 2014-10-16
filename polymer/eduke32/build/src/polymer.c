@@ -688,7 +688,15 @@ int16_t         viewangle;
 int32_t         depth;
 _prmirror       mirrors[10];
 
+#if defined __clang__ && defined __APPLE__
+// XXX: OS X 10.9 deprecated GLUtesselator.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 GLUtesselator*  prtess;
+#if defined __clang__ && defined __APPLE__
+#pragma clang diagnostic pop
+#endif
 
 static int16_t  cursky;
 static char     curskypal;

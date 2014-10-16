@@ -11240,6 +11240,7 @@ int32_t app_main(int32_t argc, const char **argv)
 #ifdef __APPLE__
     if (!usecwd)
     {
+    	char cwd[BMAX_PATH];
         char *homedir = Bgethomedir();
         if (homedir)
             Bsnprintf(cwd, sizeof(cwd), "%s/Library/Logs/eduke32.log", homedir);

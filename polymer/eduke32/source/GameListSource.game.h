@@ -7,7 +7,7 @@
  *
  */
 
-@interface GameListSource : NSObject
+@interface GameListSource : NSObject <NSComboBoxDataSource>
 {
     NSMutableArray *list;
 }
@@ -17,7 +17,7 @@
 - (int)findIndexForGrpname:(NSString*)grpname;
 - (id)tableView:(NSTableView *)aTableView
 objectValueForTableColumn:(NSTableColumn *)aTableColumn
-	    row:(int)rowIndex;
+	    row:(NSInteger)rowIndex;
 - (int)numberOfRowsInTableView:(NSTableView *)aTableView;
 @end
 

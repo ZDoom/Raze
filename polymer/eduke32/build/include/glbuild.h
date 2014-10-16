@@ -519,6 +519,12 @@ extern bglDebugMessageCallbackARBProcPtr bglDebugMessageCallbackARB;
 #endif
 
 // GLU
+#if defined __clang__ && defined __APPLE__
+// XXX: OS X 10.9 deprecated GLUtesselator.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 typedef void             (APIENTRY * bgluTessBeginContourProcPtr)(GLUtesselator* tess);
 extern bgluTessBeginContourProcPtr bgluTessBeginContour;
 typedef void             (APIENTRY * bgluTessBeginPolygonProcPtr)(GLUtesselator* tess, GLvoid* data);
@@ -539,6 +545,10 @@ typedef GLUtesselator*   (APIENTRY * bgluNewTessProcPtr)(void);
 extern bgluNewTessProcPtr bgluNewTess;
 typedef void             (APIENTRY * bgluDeleteTessProcPtr)(GLUtesselator* tess);
 extern bgluDeleteTessProcPtr bgluDeleteTess;
+
+#if defined __clang__ && defined __APPLE__
+#pragma clang diagnostic pop
+#endif
 
 typedef void             (APIENTRY * bgluPerspectiveProcPtr)(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 extern bgluPerspectiveProcPtr bgluPerspective;

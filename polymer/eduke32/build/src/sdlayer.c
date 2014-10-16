@@ -106,7 +106,9 @@ static float lastvidgcb[3];
 
 //static SDL_Surface * loadtarga(const char *fn);		// for loading the icon
 static SDL_Surface *appicon = NULL;
+#if !defined(__APPLE__) && !defined(__ANDROID__)
 static SDL_Surface *loadappicon(void);
+#endif
 
 static mutex_t m_initprintf;
 

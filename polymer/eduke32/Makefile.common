@@ -33,21 +33,9 @@ ifeq ($(AS),as)
     override AS=nasm
 endif
 
+COMPILER_OBJC=$(CC)
 L_CC=$(CC)
 L_CXX=$(CXX)
-
-CLANG?=0
-
-ifeq ($(findstring clang,$(CC)),clang)
-    override CLANG=1
-endif
-
-ifneq (0,$(CLANG))
-    override CC=clang -x c
-    override CXX=clang -x c++
-    override L_CC=clang
-    override L_CXX=clang
-endif
 
 CCFULLPATH=$(CC)
 
@@ -62,6 +50,26 @@ ifeq ($(PLATFORM),WII)
 
     RANLIB=powerpc-eabi-ranlib
     STRIP=powerpc-eabi-strip
+endif
+
+CLANG?=0
+
+CLANG_POTENTIAL_VERSION := $(shell $(CCFULLPATH) --version)
+
+ifeq ($(findstring clang,$(CC)),clang)
+    override CLANG=1
+endif
+# detect clang symlinked as gcc, as in OS X
+ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
+    override CLANG=1
+endif
+
+ifneq (0,$(CLANG))
+    override CC=clang -x c
+    override CXX=clang -x c++
+    override COMPILER_OBJC=clang -x objective-c
+    override L_CC=clang
+    override L_CXX=clang
 endif
 
 # GCC version, for conditional selection of flags.
@@ -303,8 +311,14 @@ ifeq ($(PLATFORM),DARWIN)
     ifndef DARWINVERSION
         DARWINVERSION:=$(strip $(shell uname -r | cut -d . -f 1))
     endif
+
+	DARWIN9 ?= 0
+	DARWIN10 ?= 0
     ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 10)))
-        DARWIN9 ?= 1
+        override DARWIN9 := 1
+    endif
+    ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 11)))
+        override DARWIN10 := 1
     endif
 
 #    COMMONFLAGS    += -fno-leading-underscore
@@ -405,11 +419,9 @@ endif
 # See http://clang.llvm.org/docs/UsersManual.html#controlling-code-generation
 # for a list of possible UBSan options.
 # Clang 3.2 does only supports -fsanitize=address for the AddressSanitizer
-ifneq ($(PLATFORM),WINDOWS)
-    CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overflow,object-size
+#    CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overflow,object-size -fsanitize-undefined-trap-on-error
 #    CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),signed-integer-overflow
 #    CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),unsigned-integer-overflow
-endif
 
 ifneq (0,$(RELEASE))
     # Debugging disabled
@@ -429,9 +441,9 @@ ifneq (0,$(RELEASE))
         COMPILERFLAGS += -DNDEBUG
     else
         COMPILERFLAGS += -DDEBUGGINGAIDS
-        ifneq (0,$(CLANG))
-            COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
-        endif
+#        ifneq (0,$(CLANG))
+#            COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
+#        endif
     endif
     ifneq (0,$(LTO))
         COMPILERFLAGS += -DUSING_LTO
@@ -451,9 +463,9 @@ else
         COMPILERFLAGS += -DDEBUGGINGAIDS=2
     endif
 
-    ifneq (0,$(CLANG))
-        COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
-    endif
+#    ifneq (0,$(CLANG))
+#        COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
+#    endif
     ifeq ($(SUBPLATFORM),LINUX)
         LIBS+=-rdynamic
     endif
@@ -595,7 +607,7 @@ DLLSUFFIX=.so
 
 
 SDL_TARGET ?= 2
-SDL_FRAMEWORK ?= 1
+SDL_FRAMEWORK ?= 0
 
 ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     L_SSP := -lssp
@@ -651,15 +663,27 @@ ifeq ($(PLATFORM),DARWIN)
     ASFORMAT=macho$(SYSBITS)
     ASFLAGS+= -DUNDERSCORES
 
-    # include port and brew
-    LIBDIRS+= -Lplatform/Apple/lib -L/opt/local/lib -L/usr/local/lib
-    COMPILERFLAGS+= -Iplatform/Apple/include -I/opt/local/include -I/sw/include -I/usr/local/include
+    LIBDIRS+= -Lplatform/Apple/lib
+    COMPILERFLAGS+= -Iplatform/Apple/include
+
+    ifneq ($(shell port --version &>/dev/null; echo $$?),127)
+        LIBDIRS+= -L/opt/local/lib
+        COMPILERFLAGS+= -I/opt/local/include
+    endif
+    ifneq ($(shell brew --version &>/dev/null; echo $$?),127)
+        LIBDIRS+= -L/usr/local/lib
+        COMPILERFLAGS+= -I/usr/local/include
+    endif
+    ifneq ($(shell fink --version &>/dev/null; echo $$?),127)
+        LIBDIRS+= -L/sw/lib
+        COMPILERFLAGS+= -I/sw/include
+    endif
 
     RENDERTYPE    = SDL
     MIXERTYPE     = SDL
     STDCPPLIB:=-lstdc++
     COMPILERFLAGS    += -DHAVE_INTTYPES
-    DLLSUFFIX=.dylib # ???
+    DLLSUFFIX=.dylib
     GTKCOMPAT32    = 0
     WITHOUT_GTK   ?= 1
 
@@ -944,7 +968,9 @@ ifneq ($(PLATFORM),WINDOWS)
     ifneq ($(PLATFORM),WII)
         LIBS+= -ldl
     endif
-    LIBS+= -pthread
+    ifneq ($(PLATFORM),DARWIN)
+        LIBS+= -pthread
+    endif
 endif
 
 ifeq ($(PLATFORM),WINDOWS)

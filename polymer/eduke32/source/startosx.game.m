@@ -79,7 +79,7 @@ static struct soundQuality_t {
 {
     int i, mode3d, fullscreen = ([fullscreenButton state] == NSOnState);
     int idx3d = -1;
-    int xdim, ydim, bpp;
+    int xdim = 0, ydim = 0, bpp = 0;
 
     if (firstTime) {
         xdim = settings.xdim3d;
@@ -180,20 +180,27 @@ static struct soundQuality_t {
 
 - (IBAction)alwaysShowClicked:(id)sender
 {
+	UNREFERENCED_PARAMETER(sender);
 }
 
 - (IBAction)fullscreenClicked:(id)sender
 {
+	UNREFERENCED_PARAMETER(sender);
+
     [self populateVideoModes:NO];
 }
 
 - (IBAction)cancel:(id)sender
 {
+	UNREFERENCED_PARAMETER(sender);
+
     [nsapp abortModal];
 }
 
 - (IBAction)start:(id)sender
 {
+	UNREFERENCED_PARAMETER(sender);
+
     int mode = [[modeslist3d objectAtIndex:[videoMode3DPUButton indexOfSelectedItem]] intValue];
     if (mode >= 0) {
         settings.xdim3d = validmode[mode].xdim;
@@ -241,7 +248,7 @@ static struct soundQuality_t {
     [[gameList documentView] setDataSource:gamelistsrc];
     [[gameList documentView] deselectAll:nil];
 
-    int row = [gamelistsrc findIndexForGrpname:[NSString stringWithCString:settings.selectedgrp]];
+    int row = [gamelistsrc findIndexForGrpname:[NSString stringWithCString:settings.selectedgrp encoding:NSUTF8StringEncoding]];
     if (row >= 0) {
         [[gameList documentView] scrollRowToVisible:row];
 #if defined(MAC_OS_X_VERSION_10_3) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3)
@@ -308,8 +315,6 @@ static StartupWinController *startwin = nil;
 
 int startwin_open(void)
 {
-    // PK: is this the entry point?
-
     // fix for "ld: absolute address to symbol _NSApp in a different linkage unit not supported"
     // (OS X 10.6) when building for PPC
     nsapp = [NSApplication sharedApplication];
@@ -323,7 +328,7 @@ int startwin_open(void)
         static int soundQualityFrequencies[] = { 48000, 44100, 32000, 24000, 22050 };
         static int soundQualitySampleSizes[] = { 16, 8 };
         static int soundQualityChannels[]    = { 2, 1 };
-        int f, b, c, i;
+        size_t f, b, c, i;
 
         i = sizeof(soundQualityFrequencies) *
             sizeof(soundQualitySampleSizes) *
@@ -373,7 +378,7 @@ int startwin_puts(const char *s)
     if (!s) return -1;
     if (startwin == nil) return 1;
 
-    ns = [[NSString alloc] initWithCString:s];
+    ns = [[NSString alloc] initWithUTF8String:s];
     [startwin putsMessage:ns];
     [ns release];
 
@@ -387,7 +392,7 @@ int startwin_settitle(const char *s)
     if (!s) return -1;
     if (startwin == nil) return 1;
 
-    ns = [[NSString alloc] initWithCString:s];
+    ns = [[NSString alloc] initWithUTF8String:s];
     [startwin setTitle:ns];
     [ns release];
 
@@ -396,6 +401,8 @@ int startwin_settitle(const char *s)
 
 int startwin_idle(void *v)
 {
+	UNREFERENCED_PARAMETER(v);
+	
     if (startwin) [[startwin window] displayIfNeeded];
     return 0;
 }
