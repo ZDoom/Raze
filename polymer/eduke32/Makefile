@@ -291,7 +291,7 @@ ifeq ($(SUBPLATFORM),LINUX)
 endif
 
 ifeq ($(PLATFORM),DARWIN)
-    LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Apple/lib
+    # LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Apple/lib
 
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lm \
             -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \

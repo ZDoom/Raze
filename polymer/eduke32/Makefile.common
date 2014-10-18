@@ -663,8 +663,8 @@ ifeq ($(PLATFORM),DARWIN)
     ASFORMAT=macho$(SYSBITS)
     ASFLAGS+= -DUNDERSCORES
 
-    LIBDIRS+= -Lplatform/Apple/lib
-    COMPILERFLAGS+= -Iplatform/Apple/include
+    # LIBDIRS+= -Lplatform/Apple/lib
+    # COMPILERFLAGS+= -Iplatform/Apple/include
 
     ifneq ($(shell port --version &>/dev/null; echo $$?),127)
         LIBDIRS+= -L/opt/local/lib

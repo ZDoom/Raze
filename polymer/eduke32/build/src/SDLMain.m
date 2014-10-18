@@ -5,7 +5,11 @@
     Feel free to customize this file to suit your needs
 */
 
+#import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
+
 #include "sdl_inc.h"
+#include "SDLMain.h"
 
 #include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h>
@@ -71,7 +75,7 @@ static NSString *getApplicationName(void)
 
 @implementation NSApplication (SDLApplication)
 /* Invoked from the Quit menu item */
-- (void)terminate:(id)sender
+- (void)terminateCall:(id)sender
 {
     /* Post a SDL_QUIT event */
     SDL_Event event;
@@ -80,8 +84,11 @@ static NSString *getApplicationName(void)
 }
 @end
 
+@interface SDLMain (NSObject)
+@end
+
 /* The main class of the application, the application's delegate */
-@implementation SDLMain
+@implementation SDLMain (NSObject)
 
 /* Set the working directory to the .app's parent directory */
 - (void) setupWorkingDirectory:(BOOL)shouldChdir
@@ -153,7 +160,7 @@ static void setApplicationMenu(void)
     [appleMenu addItem:[NSMenuItem separatorItem]];
 
     title = [@"Quit " stringByAppendingString:appName];
-    [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@"q"];
+    [appleMenu addItemWithTitle:title action:@selector(terminateCall:) keyEquivalent:@"q"];
 
 
     /* Put menu into the menubar */
@@ -380,4 +387,3 @@ int main (int argc, char **argv)
 #endif
     return 0;
 }
-

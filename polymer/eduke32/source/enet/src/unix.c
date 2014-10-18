@@ -69,6 +69,9 @@ enet_deinitialize (void)
 {
 }
 
+// Why, Xcode? Why?
+time_t time(time_t *);
+
 enet_uint32
 enet_host_random_seed (void)
 {
