@@ -16,14 +16,14 @@ ifneq ($(CROSS),)
     undefine STRIP
 endif
 
-CC?=$(CROSS)gcc
-CXX?=$(CROSS)g++
-AR?=$(CROSS)ar
-RC?=$(CROSS)windres
-RANLIB?=$(CROSS)ranlib
-STRIP?=$(CROSS)strip
-AS?=nasm
-PKG_CONFIG?=pkg-config
+CC=$(CROSS)gcc
+CXX=$(CROSS)g++
+AR=$(CROSS)ar
+RC=$(CROSS)windres
+RANLIB=$(CROSS)ranlib
+STRIP=$(CROSS)strip
+AS=nasm
+PKG_CONFIG=pkg-config
 
 # Override defaults that absolutely will not work.
 ifeq ($(CC),cc)
@@ -48,6 +48,7 @@ ifeq ($(PLATFORM),WII)
 
     CCFULLPATH=$(DEVKITPPC)/bin/$(CC)
 
+    CROSS=powerpc-eabi-
     RANLIB=powerpc-eabi-ranlib
     STRIP=powerpc-eabi-strip
 endif

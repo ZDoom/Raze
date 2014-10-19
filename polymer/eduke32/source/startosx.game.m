@@ -180,26 +180,26 @@ static struct soundQuality_t {
 
 - (IBAction)alwaysShowClicked:(id)sender
 {
-	UNREFERENCED_PARAMETER(sender);
+    UNREFERENCED_PARAMETER(sender);
 }
 
 - (IBAction)fullscreenClicked:(id)sender
 {
-	UNREFERENCED_PARAMETER(sender);
+    UNREFERENCED_PARAMETER(sender);
 
     [self populateVideoModes:NO];
 }
 
 - (IBAction)cancel:(id)sender
 {
-	UNREFERENCED_PARAMETER(sender);
+    UNREFERENCED_PARAMETER(sender);
 
     [nsapp abortModal];
 }
 
 - (IBAction)start:(id)sender
 {
-	UNREFERENCED_PARAMETER(sender);
+    UNREFERENCED_PARAMETER(sender);
 
     int mode = [[modeslist3d objectAtIndex:[videoMode3DPUButton indexOfSelectedItem]] intValue];
     if (mode >= 0) {
@@ -262,7 +262,7 @@ static struct soundQuality_t {
     [startButton setEnabled:true];
 
     [tabView selectTabViewItemAtIndex:0];
-    [NSCursor unhide];	// Why should I need to do this?
+    [NSCursor unhide]; // Why should I need to do this?
 }
 
 - (void)setupMessagesMode
@@ -401,8 +401,8 @@ int startwin_settitle(const char *s)
 
 int startwin_idle(void *v)
 {
-	UNREFERENCED_PARAMETER(v);
-	
+    UNREFERENCED_PARAMETER(v);
+
     if (startwin) [[startwin window] displayIfNeeded];
     return 0;
 }

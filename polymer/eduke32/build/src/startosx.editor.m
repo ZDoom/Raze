@@ -32,26 +32,26 @@ static id nsapp;
 
 - (IBAction)alwaysShowClicked:(id)sender
 {
-	UNREFERENCED_PARAMETER(sender);
+    UNREFERENCED_PARAMETER(sender);
 }
 
 - (IBAction)fullscreenClicked:(id)sender
 {
-	UNREFERENCED_PARAMETER(sender);
+    UNREFERENCED_PARAMETER(sender);
 
     // XXX: recalculate the video modes list to take into account the fullscreen status
 }
 
 - (IBAction)cancel:(id)sender
 {
-	UNREFERENCED_PARAMETER(sender);
+    UNREFERENCED_PARAMETER(sender);
 
     [nsapp abortModal];
 }
 
 - (IBAction)start:(id)sender
 {
-	UNREFERENCED_PARAMETER(sender);
+    UNREFERENCED_PARAMETER(sender);
 
     // XXX: write the states of the form controls to their respective homes
     [nsapp stopModal];
@@ -176,7 +176,7 @@ int startwin_settitle(const char *s)
 
 int startwin_idle(void *v)
 {
-	UNREFERENCED_PARAMETER(v);
+    UNREFERENCED_PARAMETER(v);
 
     if (startwin) [[startwin window] displayIfNeeded];
     return 0;

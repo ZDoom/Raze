@@ -30,3 +30,5 @@
 /polymer/eduke32/source/jaudiolib/obj
 /polymer/eduke32/source/enet/obj
 /polymer/eduke32/source/testgame/obj
+xcuserdata
+project.xcworkspace

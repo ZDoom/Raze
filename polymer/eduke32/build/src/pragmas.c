@@ -15,7 +15,10 @@ int32_t dmval;
 #if defined(__GNUC__) && defined(GEKKO)
 
 // naked function (no prolog/epilog)
-// FIXME: this function produces unused parameter warnings and a missing return warning
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wreturn-type"
+int32_t scale(int32_t a, int32_t d, int32_t c) ATTRIBUTE((naked));
 int32_t scale(int32_t a, int32_t d, int32_t c)
 {
 //	return ((int64_t)a * d) / c;
@@ -95,6 +98,7 @@ int32_t scale(int32_t a, int32_t d, int32_t c)
 		" blr\n"
 	);
 }
+#pragma GCC diagnostic pop
 
 void clearbufbyte(void *d, int32_t c, int32_t a)
 {

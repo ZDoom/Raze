@@ -137,7 +137,9 @@ static MenuPos_t MP_TOP_OPTIONS =          { { MENU_MARGIN_CENTER<<16,       38<
 static MenuPos_t MP_TOP_JOYSTICK_NETWORK = { { MENU_MARGIN_CENTER<<16,       70<<16, }, 0,     7<<16,  0,       -190<<16, 110<<16, 65536, };
 static MenuPos_t MP_BIGOPTIONS =           { { MENU_MARGIN_WIDE<<16,         38<<16, }, 2<<16, 4<<16,  190<<16, -190<<16,  20<<16, 65536, };
 static MenuPos_t MP_BIGOPTIONSRT =         { { MENU_MARGIN_WIDE<<16,         38<<16, }, 2<<16, 4<<16,  260<<16, -190<<16,  20<<16, 65536, };
+#ifdef USE_OPENGL
 static MenuPos_t MP_OPTIONS =              { { MENU_MARGIN_WIDE<<16,         37<<16, }, 4<<16, 1<<16,  216<<16, 160<<16,  10<<16, 32768, };
+#endif
 static MenuPos_t MP_PLAYER_1 =             { { MENU_MARGIN_WIDE<<16,         37<<16, }, 4<<16, 1<<16,   90<<16, 160<<16,  10<<16, 32768, };
 static MenuPos_t MP_PLAYER_3 =             { { MENU_MARGIN_WIDE<<16,         37<<16, }, 8<<16, 1<<16,  190<<16, 160<<16,  10<<16, 32768, };
 static MenuPos_t MP_MACROS =               { { 26<<16,                       40<<16, }, 4<<16, 2<<16,    1<<16, 160<<16,  10<<16, 32768, };
@@ -149,7 +151,7 @@ static MenuPos_t MP_GAMEFUNCLIST =         { { 100<<16,                      51<
 static MenuPos_t MP_COLCORR =              { { MENU_MARGIN_REGULAR<<16,      86<<16, }, 8<<16, 2<<16, -240<<16, 190<<16,  20<<16, 65536, };
 static MenuPos_t MP_REDSLIDE =             { { MENU_MARGIN_WIDE<<16,         37<<16, }, 8<<16, 2<<16,  170<<16, 190<<16,  20<<16, 65536, };
 static MenuPos_t MP_LOADSAVE =             { { 223<<16,                      48<<16, }, 4<<16, 7<<16,    1<<16, 320<<16,  20<<16, 65536, };
-static MenuPos_t MP_NETSETUP =             { { (MENU_MARGIN_REGULAR-4)<<16,  38<<16, }, 4<<16, 2<<16,  114<<16, 190<<16,  20<<16, 65536, };;
+static MenuPos_t MP_NETSETUP =             { { (MENU_MARGIN_REGULAR-4)<<16,  38<<16, }, 4<<16, 2<<16,  114<<16, 190<<16,  20<<16, 65536, };
 
 
 // common menu option sets
