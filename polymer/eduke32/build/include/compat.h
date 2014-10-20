@@ -10,6 +10,17 @@
 #  include <windows.h>
 # endif
 
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+
+#if !TARGET_OS_IPHONE
+#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
+# include <CoreFoundation/CoreFoundation.h>
+#endif
+# include <CoreServices/CoreServices.h>
+#endif
+#endif
+
 #ifndef UNREFERENCED_PARAMETER
     #define UNREFERENCED_PARAMETER(x) x=x
 #endif

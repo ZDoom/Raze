@@ -7,6 +7,9 @@
  *
  */
 
+#import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
+
 @interface GameListSource : NSObject <NSComboBoxDataSource>
 {
     NSMutableArray *list;

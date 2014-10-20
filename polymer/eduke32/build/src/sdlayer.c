@@ -13,7 +13,7 @@
 #include <signal.h>
 #include "sdl_inc.h"
 #include "compat.h"
-#include "sdlayer.h"
+#include "renderlayer.h"
 #include "cache1d.h"
 //#include "pragmas.h"
 #include "a.h"
@@ -48,7 +48,7 @@
 # include <ogc/lwp_watchdog.h>
 #endif
 
-#if !defined _WIN32 && !defined HAVE_GTK2 && !defined __APPLE__
+#if !defined STARTUP_SETUP_WINDOW
 int32_t startwin_open(void) { return 0; }
 int32_t startwin_close(void) { return 0; }
 int32_t startwin_puts(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
@@ -162,7 +162,7 @@ int32_t wm_msgbox(const char *name, const char *fmt, ...)
     vsnprintf(buf,sizeof(buf),fmt,va);
     va_end(va);
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !TARGET_OS_IPHONE
     return osx_msgbox(name, buf);
 #elif defined HAVE_GTK2
     if (gtkbuild_msgbox(name, buf) >= 0) return 1;
@@ -204,7 +204,7 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
     vsprintf(buf,fmt,va);
     va_end(va);
 
-#if defined __APPLE__
+#if defined __APPLE__ && !TARGET_OS_IPHONE
     return osx_ynbox(name, buf);
 #elif defined HAVE_GTK2
     {

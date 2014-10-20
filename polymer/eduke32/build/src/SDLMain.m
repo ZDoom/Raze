@@ -6,6 +6,10 @@
 */
 
 #import <Foundation/Foundation.h>
+#include <TargetConditionals.h>
+
+#if TARGET_OS_MAC
+
 #import <AppKit/AppKit.h>
 
 #include "sdl_inc.h"
@@ -21,8 +25,6 @@
 - (void)setAppleMenu:(NSMenu *)menu;
 @end
 
-/* Use this flag to determine whether we use SDLMain.nib or not */
-#define		SDL_USE_NIB_FILE	0
 
 /* Use this flag to determine whether we use CPS (docking) or not */
 #define		SDL_USE_CPS
@@ -63,13 +65,6 @@ static NSString *getApplicationName(void)
     return appName;
 }
 
-#if SDL_USE_NIB_FILE
-/* A helper category for NSString */
-@interface NSString (ReplaceSubString)
-- (NSString *)stringByReplacingRange:(NSRange)aRange with:(NSString *)aString;
-@end
-#endif
-
 @interface NSApplication (SDLApplication)
 @end
 
@@ -105,32 +100,6 @@ static NSString *getApplicationName(void)
         CFRelease(url2);
     }
 }
-
-#if SDL_USE_NIB_FILE
-
-/* Fix menu to contain the real app name instead of "SDL App" */
-- (void)fixMenu:(NSMenu *)aMenu withAppName:(NSString *)appName
-{
-    NSRange aRange;
-    NSEnumerator *enumerator;
-    NSMenuItem *menuItem;
-
-    aRange = [[aMenu title] rangeOfString:@"SDL App"];
-    if (aRange.length != 0)
-        [aMenu setTitle: [[aMenu title] stringByReplacingRange:aRange with:appName]];
-
-    enumerator = [[aMenu itemArray] objectEnumerator];
-    while ((menuItem = [enumerator nextObject]))
-    {
-        aRange = [[menuItem title] rangeOfString:@"SDL App"];
-        if (aRange.length != 0)
-            [menuItem setTitle: [[menuItem title] stringByReplacingRange:aRange with:appName]];
-        if ([menuItem hasSubmenu])
-            [self fixMenu:[menuItem submenu] withAppName:appName];
-    }
-}
-
-#else
 
 static void setApplicationMenu(void)
 {
@@ -239,8 +208,6 @@ static void CustomApplicationMain (int argc, char **argv)
     [pool release];
 }
 
-#endif
-
 
 /*
  * Catch document open requests...this lets us notice files when the app
@@ -298,11 +265,6 @@ static void CustomApplicationMain (int argc, char **argv)
 
     /* Set the working directory to the .app's parent directory */
     [self setupWorkingDirectory:gFinderLaunch];
-
-#if SDL_USE_NIB_FILE
-    /* Set the main menu to contain the real app name instead of "SDL App" */
-    [self fixMenu:[nsapp mainMenu] withAppName:getApplicationName()];
-#endif
 
     /* Hand off to main application code */
     gCalledAppMainline = TRUE;
@@ -380,10 +342,9 @@ int main (int argc, char **argv)
         gFinderLaunch = NO;
     }
 
-#if SDL_USE_NIB_FILE
-    NSApplicationMain (argc, argv);
-#else
     CustomApplicationMain (argc, argv);
-#endif
+
     return 0;
 }
+
+#endif

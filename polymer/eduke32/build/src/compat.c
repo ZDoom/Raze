@@ -29,13 +29,6 @@
 // #include <sys/stat.h>
 #include <limits.h>
 
-#ifdef __APPLE__
-#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
-# include <CoreFoundation/CoreFoundation.h>
-# include <CoreServices/CoreServices.h>
-#endif
-#endif
-
 #if defined(_MSC_VER)
 # include <io.h>
 #else

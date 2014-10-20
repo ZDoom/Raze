@@ -1,6 +1,7 @@
 #include "compat.h"
 #include "osxbits.h"
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
 
 #ifndef MAC_OS_VERSION_10_3
 # define MAC_OS_VERSION_10_3 1030
