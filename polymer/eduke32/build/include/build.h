@@ -1287,9 +1287,6 @@ static inline int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 typedef struct  s_equation {
     float       a, b, c;
 }               _equation;
-typedef struct  s_point2d {
-    float       x, y;
-}               _point2d;
 int32_t             wallvisible(int32_t x, int32_t y, int16_t wallnum);
 
 #define STATUS2DSIZ 144

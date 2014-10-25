@@ -173,15 +173,6 @@ int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,
 
 ////
 
-// returns a buffer of size BMAX_PATH
-char *dup_filename(const char *fn)
-{
-    char *buf = (char *)Xmalloc(BMAX_PATH);
-
-    return Bstrncpyz(buf, fn, BMAX_PATH);
-}
-
-
 // Copy FN to WBUF and append an extension if it's not there, which is checked
 // case-insensitively.
 // Returns: 1 if not all characters could be written to WBUF, 0 else.

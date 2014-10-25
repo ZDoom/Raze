@@ -128,8 +128,6 @@ extern void M32_DrawRoomsAndMasks(void);
 extern void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore);  // editor-only
 extern void M32_ResetFakeRORTiles(void);
 
-extern int32_t kopen4loadfrommod(const char *filename, char searchfirst);
-
 // set to 1 to enable:
 #define M32_UNDO 1
 extern int32_t map_revision;

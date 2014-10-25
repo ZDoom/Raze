@@ -828,7 +828,7 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
         }
         else if (i == (int32_t)LSWAPIB(0x45544c50)) //PLTE (must be before IDAT)
         {
-            paleng = tabledivide32(leng, 3);
+            paleng = leng/3;
             for (i=paleng-1; i>=0; i--) palcol[i] = LSWAPIB((LSWAPIL(*(int32_t *)&filptr[i*3])>>8)|0xff000000);
         }
         else if (i == (int32_t)LSWAPIB(0x44474b62)) //bKGD (must be after PLTE and before IDAT)

@@ -2048,31 +2048,6 @@ static inline int32_t msqrtasm(int32_t c)
     }
 }
 
-//0x007ff000 is (11<<13), 0x3f800000 is (127<<23)
-static inline int32_t krecipasm(int32_t a)
-{
-    _asm
-    {
-        push ebx
-        mov eax, a
-        mov fpuasm, eax
-        fild dword ptr fpuasm
-        add eax, eax
-        fstp dword ptr fpuasm
-        sbb ebx, ebx
-        mov eax, fpuasm
-        mov ecx, eax
-        and eax, 0x007ff000
-        shr eax, 10
-        sub ecx, 0x3f800000
-        shr ecx, 23
-        mov eax, dword ptr reciptable[eax]
-        sar eax, cl
-        xor eax, ebx
-        pop ebx
-    }
-}
-
 static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
 {
     _asm
@@ -2163,18 +2138,6 @@ static inline int32_t getkensmessagecrc(void *b)
         : "=a" (__r) : "c" (__c) : "edx","ebx", "cc"); \
      __r; })
 
-#define krecipasm(a) \
-    ({ int32_t __a=(a); \
-       __asm__ __volatile__ ( \
-            "movl %%eax, (" ASMSYM("fpuasm") "); fildl (" ASMSYM("fpuasm") "); " \
-            "addl %%eax, %%eax; fstps (" ASMSYM("fpuasm") "); sbbl %%ebx, %%ebx; " \
-            "movl (" ASMSYM("fpuasm") "), %%eax; movl %%eax, %%ecx; " \
-            "andl $0x007ff000, %%eax; shrl $10, %%eax; subl $0x3f800000, %%ecx; " \
-            "shrl $23, %%ecx; movl " ASMSYM("reciptable") "(%%eax), %%eax; " \
-            "sarl %%cl, %%eax; xorl %%ebx, %%eax" \
-        : "=a" (__a) : "a" (__a) : "ebx", "ecx", "memory", "cc"); \
-     __a; })
-
 #define getclipmask(a,b,c,d) \
     ({ int32_t __a=(a), __b=(b), __c=(c), __d=(d); \
        __asm__ __volatile__ ("sarl $31, %%eax; addl %%ebx, %%ebx; adcl %%eax, %%eax; " \
@@ -2251,14 +2214,6 @@ static inline int32_t msqrtasm(uint32_t c)
     a >>= 1;			// shr eax, 1
     return a;
 }
-
-static inline int32_t krecipasm(int32_t i)
-{
-    // Ken did this
-    float f = (float)i; i = *(int32_t *)&f;
-    return((reciptable[(i>>12)&2047]>>(((i-0x3f800000)>>23)&31))^(i>>31));
-}
-
 
 static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
 {
@@ -2467,9 +2422,7 @@ void fade_screen_black(int32_t moreopaquep)
 {
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
-    {
         fullscreen_tint_gl(0,0,0, moreopaquep ? 168 : 84);
-    }
     else
 #endif
     {
@@ -2481,10 +2434,19 @@ void fade_screen_black(int32_t moreopaquep)
             const char *const trans = getblendtab(0);
             const int32_t shiftamnt = ((!!moreopaquep)*8);
             const int32_t dimprod = xdim*ydim;
+            int32_t i = 0;
 
-            int32_t i;
+#ifdef CLASSIC_SLICE_BY_4
+            for (; i<dimprod-4; i+=4)
+            {
+                p[i] = trans[p[i]<<shiftamnt];
+                p[i+1] = trans[p[i+1]<<shiftamnt];
+                p[i+2] = trans[p[i+2]<<shiftamnt];
+                p[i+3] = trans[p[i+3]<<shiftamnt];
+            }
+#endif
 
-            for (i=0; i<dimprod; i++)
+            for (; i<dimprod; i++)
                 p[i] = trans[p[i]<<shiftamnt];
         }
         enddrawing();
@@ -4181,7 +4143,7 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
 //
 // ceilspritehline (internal)
 //
-static inline void ceilspritehline(int32_t x2, int32_t y)
+static void ceilspritehline(int32_t x2, int32_t y)
 {
     int32_t x1, v, bx, by;
 
@@ -4219,7 +4181,7 @@ static inline void ceilspritehline(int32_t x2, int32_t y)
 //
 // ceilspritescan (internal)
 //
-static inline void ceilspritescan(int32_t x1, int32_t x2)
+static void ceilspritescan(int32_t x1, int32_t x2)
 {
     int32_t x, y1, y2, twall, bwall;
 
@@ -4257,9 +4219,19 @@ static inline void ceilspritescan(int32_t x1, int32_t x2)
 static int32_t gglogx, gglogy, ggpinc;
 static char *ggbuf, *ggpal;
 
-static void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, int32_t pinc)
+#ifdef ENGINE_USING_A_C
+extern int32_t glogx, glogy, gpinc;
+extern char *gbuf;
+#endif
+
+static inline void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, int32_t pinc)
 {
+#ifdef ENGINE_USING_A_C
+    glogx = (logylogx&255); glogy = (logylogx>>8);
+    gbuf = (char *) bufplc; gpinc = pinc;
+#else
     setupslopevlin(logylogx, bufplc, pinc);
+#endif
     gglogx = (logylogx&255); gglogy = (logylogx>>8);
     ggbuf = (char *)bufplc; ggpinc = pinc;
     ggpal = palookup[globalpal] + getpalookupsh(0);
@@ -5310,8 +5282,8 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     daxscale = scale(daxscale,xdimenscale,xdimen<<8);
     dayscale = scale(dayscale,mulscale16(xdimenscale,viewingrangerecip),xdimen<<8);
 
-    daxscalerecip = tabledivide32_noinline(1<<30, daxscale);
-    dayscalerecip = tabledivide32_noinline(1<<30, dayscale);
+    daxscalerecip = divideu32_noinline(1<<30, daxscale);
+    dayscalerecip = divideu32_noinline(1<<30, dayscale);
 
     longptr = (int32_t *)davoxptr;
     daxsiz = B_LITTLE32(longptr[0]); daysiz = B_LITTLE32(longptr[1]); //dazsiz = B_LITTLE32(longptr[2]);
@@ -5772,21 +5744,21 @@ draw_as_face_sprite:
 #ifdef CLASSIC_SLICE_BY_4
         for (; x<=rx-4; x+=4)
         {
-            uwall[x] =   max(startumost[x+windowx1]-windowy1,   (int16_t) startum);
-            uwall[x+1] = max(startumost[x+windowx1+1]-windowy1, (int16_t) startum);
-            uwall[x+2] = max(startumost[x+windowx1+2]-windowy1, (int16_t) startum);
-            uwall[x+3] = max(startumost[x+windowx1+3]-windowy1, (int16_t) startum);
+            uwall[x] =   max(startumost[windowx1+x]-windowy1,   (int16_t) startum);
+            uwall[x+1] = max(startumost[windowx1+x+1]-windowy1, (int16_t) startum);
+            uwall[x+2] = max(startumost[windowx1+x+2]-windowy1, (int16_t) startum);
+            uwall[x+3] = max(startumost[windowx1+x+3]-windowy1, (int16_t) startum);
 
-            dwall[x] =   min(startdmost[x+windowx1]-windowy1,   (int16_t) startdm);
-            dwall[x+1] = min(startdmost[x+windowx1+1]-windowy1, (int16_t) startdm);
-            dwall[x+2] = min(startdmost[x+windowx1+2]-windowy1, (int16_t) startdm);
-            dwall[x+3] = min(startdmost[x+windowx1+3]-windowy1, (int16_t) startdm);
+            dwall[x] =   min(startdmost[windowx1+x]-windowy1,   (int16_t) startdm);
+            dwall[x+1] = min(startdmost[windowx1+x+1]-windowy1, (int16_t) startdm);
+            dwall[x+2] = min(startdmost[windowx1+x+2]-windowy1, (int16_t) startdm);
+            dwall[x+3] = min(startdmost[windowx1+x+3]-windowy1, (int16_t) startdm);
         }
 #endif
         for (; x<=rx; x++)
         {
-            uwall[x] = max(startumost[x+windowx1]-windowy1,(int16_t)startum);
-            dwall[x] = min(startdmost[x+windowx1]-windowy1,(int16_t)startdm);
+            uwall[x] = max(startumost[windowx1+x]-windowy1,(int16_t)startum);
+            dwall[x] = min(startdmost[windowx1+x]-windowy1,(int16_t)startdm);
         }
 
         daclip = 0;
@@ -5814,7 +5786,7 @@ draw_as_face_sprite:
                 k = smoststart[i] - xb1[j];
                 x = dalx2;
 #ifdef CLASSIC_SLICE_BY_4 // ok, this one is really by 2 ;)
-                for (x=dalx2; x<=darx2-2; x+=2)
+                for (; x<=darx2-2; x+=2)
                 {
                     if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                     if (smost[k+x+1] > uwall[x+1]) uwall[x+1] = smost[k+x+1];
@@ -6014,22 +5986,54 @@ draw_as_face_sprite:
         {
             int32_t hplc = divscale19(xdimenscale,sy1);
             const int32_t hplc2 = divscale19(xdimenscale,sy2);
-            int32_t hinc = sx2-sx1 ? (hplc2-hplc)/(sx2-sx1) : 0;
+            const int32_t idiv = sx2-sx1;
+            int32_t hinc[4] ={ idiv ? tabledivide32(hplc2-hplc, idiv) : 0 };
 
 #ifdef HIGH_PRECISION_SPRITE
-            const float cc = ((1<<19)*(float)xdimen*yxaspect)/320.f;
-            float hplcf = cc/sy1;
-            const float hincf = sx2-sx1 ? (cc/sy2 - hplcf)/(sx2-sx1) : 0;
+            const float cc = ((1<<19)*fxdimen*(float)yxaspect) * (1.f/320.f);
             const float loopcc = ((cstat&8) ? -1 : 1)*((float)(1<<30)*(1<<24))
                 / (yspan*tspr->yrepeat);
+            float hplcf = cc/sy1;
+            float hincf[4] = {idiv ? (cc/sy2 - hplcf)/idiv : 0};
+
+#ifdef CLASSIC_SLICE_BY_4
+            hincf[1] = hincf[0] * 2.f;
+            hincf[2] = hincf[0] * 3.f;
+            hincf[3] = hincf[0] * 4.f;
+#endif // CLASSIC_SLICE_BY_4
+#endif // HIGH_PRECISION_SPRITE
+#ifdef CLASSIC_SLICE_BY_4
+            hinc[1] = hinc[0]<<1;
+            hinc[2] = hinc[0]*3;
+            hinc[3] = hinc[0]<<2;
 #endif
-            for (i=sx1; i<=sx2; i++)
+            i = sx1;
+
+#ifdef CLASSIC_SLICE_BY_4
+            for (; i<=sx2-4; i+=4)
             {
                 swall[i] = (krecipasm(hplc)<<2);
-                hplc += hinc;
+                swall[i+1] = (krecipasm(hplc+hinc[0])<<2);
+                swall[i+2] = (krecipasm(hplc+hinc[1])<<2);
+                swall[i+3] = (krecipasm(hplc+hinc[2])<<2);
+                hplc += hinc[3];
+#ifdef HIGH_PRECISION_SPRITE
+                swallf[i] =   loopcc/hplcf;
+                swallf[i+1] = loopcc/(hplcf+hincf[0]);
+                swallf[i+2] = loopcc/(hplcf+hincf[1]);
+                swallf[i+3] = loopcc/(hplcf+hincf[2]);
+                hplcf += hincf[3];
+#endif // HIGH_PRECISION_SPRITE
+            }
+#endif // CLASSIC_SLICE_BY_4
+
+            for (; i<=sx2; i++)
+            {
+                swall[i] = (krecipasm(hplc)<<2);
+                hplc += hinc[0];
 #ifdef HIGH_PRECISION_SPRITE
                 swallf[i] = loopcc/hplcf;
-                hplcf += hincf;
+                hplcf += hincf[0];
 #endif
             }
         }
@@ -6117,12 +6121,30 @@ draw_as_face_sprite:
                         break;
                     case 1:
                         k = smoststart[i] - xb1[j];
-                        for (x=dalx2; x<=darx2; x++)
+                        x = dalx2;
+#ifdef CLASSIC_SLICE_BY_4
+                        for (; x<=darx2-2; x+=2)
+                        {
+                            if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
+                            if (smost[k+x+1] > uwall[x+1]) uwall[x+1] = smost[k+x+1];
+                        }
+#endif
+                        for (; x<=darx2; x++)
                             if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                         break;
                     case 2:
                         k = smoststart[i] - xb1[j];
-                        for (x=dalx2; x<=darx2; x++)
+                        x = dalx2;
+#ifdef CLASSIC_SLICE_BY_4
+                        for (; x<=darx2-4; x+=4)
+                        {
+                            if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
+                            if (smost[k+x+1] < dwall[x+1]) dwall[x+1] = smost[k+x+1];
+                            if (smost[k+x+2] < dwall[x+2]) dwall[x+2] = smost[k+x+2];
+                            if (smost[k+x+3] < dwall[x+3]) dwall[x+3] = smost[k+x+3];
+                        }
+#endif
+                        for (; x<=darx2; x++)
                             if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                         break;
                     }
@@ -6513,12 +6535,30 @@ draw_as_face_sprite:
                 break;
             case 1:
                 k = smoststart[i] - xb1[j];
-                for (x=dalx2; x<=darx2; x++)
+                x = dalx2;
+#ifdef CLASSIC_SLICE_BY_4
+                for (; x<=darx2-2; x+=2)
+                {
+                    if (smost[k+x] > lwall[x]) lwall[x] = smost[k+x];
+                    if (smost[k+x+1] > lwall[x+1]) lwall[x+1] = smost[k+x+1];
+                }
+#endif
+                for (; x<=darx2; x++)
                     if (smost[k+x] > lwall[x]) lwall[x] = smost[k+x];
                 break;
             case 2:
                 k = smoststart[i] - xb1[j];
-                for (x=dalx2; x<=darx2; x++)
+                x = dalx2;
+#ifdef CLASSIC_SLICE_BY_4
+                for (; x<=darx2-4; x+=4)
+                {
+                    if (smost[k+x] < swall[x]) swall[x] = smost[k+x];
+                    if (smost[k+x+1] < swall[x+1]) swall[x+1] = smost[k+x+1];
+                    if (smost[k+x+2] < swall[x+2]) swall[x+2] = smost[k+x+2];
+                    if (smost[k+x+3] < swall[x+3]) swall[x+3] = smost[k+x+3];
+                }
+#endif
+                for (; x<=darx2; x++)
                     if (smost[k+x] < swall[x]) swall[x] = smost[k+x];
                 break;
             }
@@ -7871,37 +7911,13 @@ static void dosetaspect(void)
         oxyaspect = xyaspect;
         j = xyaspect*320;
         horizlookup2[horizycent-1] = divscale26(131072,j);
-        for (i=0; i < horizycent-1-4; i += 4)
-        {
-            horizlookup[i]   = divscale28(1, i  -(horizycent-1));
-            horizlookup[i+1] = divscale28(1, i+1-(horizycent-1));
-            horizlookup[i+2] = divscale28(1, i+2-(horizycent-1));
-            horizlookup[i+3] = divscale28(1, i+3-(horizycent-1));
-
-            horizlookup2[i]   = divscale14(klabs(horizlookup[i]),   j);
-            horizlookup2[i+1] = divscale14(klabs(horizlookup[i+1]), j);
-            horizlookup2[i+2] = divscale14(klabs(horizlookup[i+2]), j);
-            horizlookup2[i+3] = divscale14(klabs(horizlookup[i+3]), j);
-        }
-        for (; i < horizycent-1; i++)
+        for (i=0; i < horizycent-1; i++)
         {
             horizlookup[i] = divscale28(1, i-(horizycent-1));
             horizlookup2[i] = divscale14(klabs(horizlookup[i]), j);
         }
 
-        for (i=horizycent; i < ydim*4-1-4; i += 4)
-        {
-            horizlookup[i]   = divscale28(1, i  -(horizycent-1));
-            horizlookup[i+1] = divscale28(1, i+1-(horizycent-1));
-            horizlookup[i+2] = divscale28(1, i+2-(horizycent-1));
-            horizlookup[i+3] = divscale28(1, i+3-(horizycent-1));
-
-            horizlookup2[i]   = divscale14(klabs(horizlookup[i]),   j);
-            horizlookup2[i+1] = divscale14(klabs(horizlookup[i+1]), j);
-            horizlookup2[i+2] = divscale14(klabs(horizlookup[i+2]), j);
-            horizlookup2[i+3] = divscale14(klabs(horizlookup[i+3]), j);
-        }
-        for (; i < ydim*4-1; i++)
+        for (i=horizycent; i < ydim*4-1; i++)
         {
             horizlookup[i] = divscale28(1, i-(horizycent-1));
             horizlookup2[i] = divscale14(klabs(horizlookup[i]), j);
@@ -9331,21 +9347,23 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 static inline _equation       equation(float x1, float y1, float x2, float y2)
 {
     _equation   ret;
+    const float f = x2-x1;
 
-    if ((x2 - x1) != 0)
-    {
-        ret.a = (float)(y2 - y1)/(float)(x2 - x1);
-        ret.b = -1;
-        ret.c = (y1 - (ret.a * x1));
-    }
-    else // vertical
+    // vertical
+    if (f == 0.f)
     {
         ret.a = 1;
         ret.b = 0;
         ret.c = -x1;
+
+        return ret;
     }
 
-    return (ret);
+    ret.a = (float) (y2 - y1)/f;
+    ret.b = -1;
+    ret.c = (y1 - (ret.a * x1));
+
+    return ret;
 }
 
 int32_t                 wallvisible(int32_t x, int32_t y, int16_t wallnum)
@@ -9436,21 +9454,11 @@ static inline void    drawmaskleaf(_maskleaf* wall)
 }
 #endif
 
-static inline int32_t         sameside(const _equation *eq, const _point2d *p1, const _point2d *p2)
+static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, const vec2f_t *p2)
 {
-    float   sign1, sign2;
-
-    sign1 = eq->a * p1->x + eq->b * p1->y + eq->c;
-    sign2 = eq->a * p2->x + eq->b * p2->y + eq->c;
-
-    sign1 = sign1 * sign2;
-    if (sign1 > 0)
-    {
-        //OSD_Printf("SAME SIDE !\n");
-        return 1;
-    }
-    //OSD_Printf("OPPOSITE SIDE !\n");
-    return 0;
+    const float sign1 = (eq->a * p1->x) + (eq->b * p1->y) + eq->c;
+    const float sign2 = (eq->a * p2->x) + (eq->b * p2->y) + eq->c;
+    return (sign1 * sign2) > 0.f;
 }
 
 // x1, y1: in/out
@@ -9621,7 +9629,7 @@ killsprite:
     }
 #endif
     {
-        _point2d pos;
+        vec2f_t pos;
 
         pos.x = fglobalposx;
         pos.y = fglobalposy;
@@ -9630,7 +9638,7 @@ killsprite:
         // Writing e.g. "while (maskwallcnt--)" is wrong!
         while (maskwallcnt)
         {
-            _point2d dot, dot2, middle;
+            vec2f_t dot, dot2, middle;
             // PLAG: sorting stuff
             _equation maskeq, p1eq, p2eq;
 
@@ -9658,7 +9666,7 @@ killsprite:
                 i--;
                 if (tspriteptr[i] != NULL)
                 {
-                    _point2d spr;
+                    vec2f_t spr;
                     const spritetype *tspr = tspriteptr[i];
 
                     spr.x = (float)tspr->x;
@@ -11551,11 +11559,10 @@ static const char *E_GetArtFileName(int32_t tilefilei)
 //<-1: per-map ART issue
 static int32_t E_ReadArtFile(int32_t tilefilei)
 {
-    int32_t fil;
-
     const char *fn = E_GetArtFileName(tilefilei);
     const int32_t permap = (tilefilei >= MAXARTFILES_BASE);  // is it a per-map ART file?
     int16_t *tilesizx, *tilesizy;
+    int32_t fil;
 
     if ((fil = kopen4load(fn,0)) != -1)
     {
@@ -11742,33 +11749,21 @@ void loadtile(int16_t tilenume)
     }
 #endif
 
-    // dummy tiles for highres replacements and tilefromtexture definitions
-    if (faketilesiz[tilenume])
-    {
-        if (faketilesiz[tilenume] == -1)
-        {
-            walock[tilenume] = 255; // permanent tile
-            allocache(&waloff[tilenume], dasiz, &walock[tilenume]);
-            Bmemset((char *)waloff[tilenume],0,dasiz);
-        }
-        else if (faketiledata[tilenume] != NULL)
-        {
-            walock[tilenume] = 255;
-            allocache(&waloff[tilenume], dasiz, &walock[tilenume]);
-            LZ4_decompress_fast(faketiledata[tilenume], (char *)waloff[tilenume], dasiz);
-            Bfree(faketiledata[tilenume]);
-            faketiledata[tilenume] = NULL;
-        }
-
-        faketimerhandler();
-        return;
-    }
-
     // Allocate storage if necessary.
     if (waloff[tilenume] == 0)
     {
         walock[tilenume] = 199;
         allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
+    }
+
+    // dummy tiles for highres replacements and tilefromtexture definitions
+    if (faketilesiz[tilenume])
+    {
+        if (faketilesiz[tilenume] != -1 && faketiledata[tilenume] != NULL)
+            LZ4_decompress_fast(faketiledata[tilenume], (char *) waloff[tilenume], dasiz);
+
+        faketimerhandler();
+        return;
     }
 
     // Potentially switch open ART file.
@@ -12080,14 +12075,6 @@ int32_t __fastcall getangle(int32_t xvect, int32_t yvect)
 int32_t ksqrt(uint32_t num)
 {
     return nsqrtasm(num);
-}
-
-//
-// krecip
-//
-int32_t krecip(int32_t num)
-{
-    return krecipasm(num);
 }
 
 #ifdef LUNATIC
@@ -13250,14 +13237,14 @@ static int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin,
         if ((spr->cstat&48)!=32)  // face/wall sprite
         {
             int32_t tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
-            maxcorrection = tabledivide32_noinline(maxcorrection * (int32_t)spr->xrepeat, tempint1);
+            maxcorrection = divideu32_noinline(maxcorrection * (int32_t)spr->xrepeat, tempint1);
         }
         else  // floor sprite
         {
             int32_t tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
             int32_t tempint2 = clipmapinfo.sector[k].CM_YREPEAT;
-            maxcorrection = max(tabledivide32_noinline(maxcorrection * (int32_t)spr->xrepeat, tempint1),
-                                tabledivide32_noinline(maxcorrection * (int32_t)spr->yrepeat, tempint2));
+            maxcorrection = max(divideu32_noinline(maxcorrection * (int32_t)spr->xrepeat, tempint1),
+                                divideu32_noinline(maxcorrection * (int32_t)spr->yrepeat, tempint2));
         }
 
         maxcorrection -= MAXCLIPDIST;
@@ -15430,20 +15417,32 @@ void setviewback(void)
 //
 void squarerotatetile(int16_t tilenume)
 {
-    int32_t siz;
+    int32_t siz = tilesiz[tilenume].x;
+    int32_t i, j;
+    char *ptr1, *ptr2;
 
-    //supports square tiles only for rotation part
-    if ((siz = tilesiz[tilenume].x) == tilesiz[tilenume].y)
+    if (siz != tilesiz[tilenume].y)
+        return;
+    
+    for (i=siz-1; i>=3; i-=4)
     {
-        int32_t i = siz-1;
+        ptr2 = ptr1 = (char *) (waloff[tilenume]+i*(siz+1));
+        swapchar(--ptr1, (ptr2 -= siz));
+        j=(i>>1)-1;
+        for (; j>=0; j--) swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
 
-        for (; i>=0; i--)
-        {
-            int32_t j=(i>>1)-1;
-            char *ptr1 = (char *)(waloff[tilenume]+i*(siz+1)), *ptr2 = ptr1;
-            if (i&1) swapchar(--ptr1, (ptr2 -= siz));
-            for (; j>=0; j--) swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
-        }
+        ptr2 = ptr1 = (char *) (waloff[tilenume]+(i-1)*(siz+1));
+        j=((i-1)>>1)-1;
+        for (; j>=0; j--) swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
+
+        ptr2 = ptr1 = (char *) (waloff[tilenume]+(i-2)*(siz+1));
+        swapchar(--ptr1, (ptr2 -= siz));
+        j=((i-2)>>1)-1;
+        for (; j>=0; j--) swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
+
+        ptr2 = ptr1 = (char *) (waloff[tilenume]+(i-3)*(siz+1));
+        j=((i-3)>>1)-1;
+        for (; j>=0; j--) swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
     }
 }
 

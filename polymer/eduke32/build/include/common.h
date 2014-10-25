@@ -72,6 +72,13 @@ void G_AddDefModule(const char *buffer);
 void G_AddClipMap(const char *buffer);
 #endif
 
+// returns a buffer of size BMAX_PATH
+static inline char *dup_filename(const char *fn)
+{
+    char * const buf = (char *) Xmalloc(BMAX_PATH);
+    return Bstrncpyz(buf, fn, BMAX_PATH);
+}
+
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
 int32_t G_CheckCmdSwitch(int32_t argc, const char **argv, const char *str);
@@ -92,34 +99,30 @@ int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char
 // individual x/y(/z) distances are passed instead.
 static inline int32_t sepldist(const int32_t dx, const int32_t dy)
 {
-    int32_t x = klabs(dx);
-    int32_t y = klabs(dy);
+    vec2_t d ={ klabs(dx), klabs(dy) };
 
-    if (x < y)
-        swaplong(&x, &y);
+    if (d.x < d.y)
+        swaplong(&d.x, &d.y);
 
-    {
-        int32_t t = y + (y>>1);
-        return x - (x>>5) - (x>>7) + (t>>2) + (t>>6);
-    }
+    d.y += (d.y>>1);
+
+    return d.x - (d.x>>5) - (d.x>>7) + (d.y>>2) + (d.y>>6);
 }
 
 // dz: in Build coordinates
-static inline int32_t sepdist(int32_t dx, int32_t dy, int32_t dz)
+static inline int32_t sepdist(const int32_t dx, const int32_t dy, const int32_t dz)
 {
-    int32_t x = klabs(dx);
-    int32_t y = klabs(dy);
-    int32_t z = klabs(dz>>4);
+    vec3_t d ={ klabs(dx), klabs(dy), klabs(dz>>4) };
 
-    if (x < y)
-        swaplong(&x, &y);
-    if (x < z)
-        swaplong(&x, &z);
+    if (d.x < d.y)
+        swaplong(&d.x, &d.y);
 
-    {
-        int32_t t = y + z;
-        return x - (x>>4) + (t>>2) + (t>>3);
-    }
+    if (d.x < d.z)
+        swaplong(&d.x, &d.z);
+
+    d.y += d.z;
+
+    return d.x - (d.x>>4) + (d.y>>2) + (d.y>>3);
 }
 
 int32_t ldist(const spritetype *s1, const spritetype *s2);

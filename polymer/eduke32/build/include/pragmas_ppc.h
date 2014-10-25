@@ -249,5 +249,12 @@ static inline int32_t umax(int32_t a, int32_t b) { if ((uint32_t) a < (uint32_t)
 static inline int32_t kmin(int32_t a, int32_t b) { if ((int32_t) a < (int32_t) b) return a; return b; }
 static inline int32_t kmax(int32_t a, int32_t b) { if ((int32_t) a < (int32_t) b) return b; return a; }
 
+static inline int32_t krecipasm(int32_t i)
+{
+    // Ken did this
+    float f = (float) i; i = *(int32_t *) &f;
+    return((reciptable[(i>>12)&2047]>>(((i-0x3f800000)>>23)&31))^(i>>31));
+}
+
 #endif // __pragmas_ppc_h__
 #endif // __pragmas_h__

@@ -29,10 +29,8 @@ static const char *texcache_errorstr[TEXCACHEERRORS] = {
 
 static pthtyp *texcache_tryart(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
 {
-    pthtyp *pth;
     const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
-
-    if (hicprecaching) return NULL;
+    pthtyp *pth;
 
     // load from art
     for (pth=texcache.list[j]; pth; pth=pth->next)
@@ -62,10 +60,10 @@ static pthtyp *texcache_tryart(int32_t dapicnum, int32_t dapalnum, int32_t dasha
 
 pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int32_t dameth)
 {
-    int32_t i;
     const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
+    int32_t i;
 
-    for (i = (GLTEXCACHEADSIZ - 1); i >= 0; i--)
+    for (i = 0; i <= (GLTEXCACHEADSIZ - 1); i++)
     {
         const pthtyp *pth2;
 
@@ -110,7 +108,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     if (!si)
     {
         if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS)) return NULL;
-        return texcache_tryart(dapicnum, dapalnum, dashade, dameth);
+        return hicprecaching ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
     }
 
     /* if palette > 0 && replacement found
@@ -141,7 +139,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
                     if (tilestat == -2) // bad filename
                         hicclearsubst(dapicnum, dapalnum);
                     if (drawingskybox) return NULL;
-                    return texcache_tryart(dapicnum, dapalnum, dashade, dameth);
+                    return hicprecaching ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
                 }
             }
 
@@ -163,7 +161,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
             hicclearsubst(dapicnum, dapalnum);
         Bfree(pth);
         if (drawingskybox) return NULL;
-        return texcache_tryart(dapicnum, dapalnum, dashade, dameth);
+        return hicprecaching ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
     }
 
     pth->palnum = si->palnum;
@@ -180,12 +178,7 @@ static void texcache_closefiles(void)
         Bclose(texcache.filehandle);
         texcache.filehandle = -1;
     }
-
-    if (texcache.index)
-    {
-        Bfclose(texcache.index);
-        texcache.index = NULL;
-    }
+    MAYBE_FCLOSE_AND_NULL(texcache.index);
 }
 
 void texcache_freeptrs(void)
@@ -208,10 +201,9 @@ void texcache_freeptrs(void)
         }
 }
 
-void texcache_clearmemcache(void)
+static inline void texcache_clearmemcache(void)
 {
-    Bfree(texcache.memcache.ptr);
-    texcache.memcache.ptr = NULL;
+    DO_FREE_AND_NULL(texcache.memcache.ptr);
     texcache.memcache.size = -1;
 }
 

@@ -163,11 +163,9 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
     *newhandle = (intptr_t)Xmalloc(newbytes);
 }
 #else
-static void inc_and_check_cacnum(void)
+static inline void inc_and_check_cacnum(void)
 {
-    cacnum++;
-
-    if (cacnum > MAXCACHEOBJECTS)
+    if (++cacnum > MAXCACHEOBJECTS)
         reportandexit("Too many objects in cache! (cacnum > MAXCACHEOBJECTS)");
 }
 

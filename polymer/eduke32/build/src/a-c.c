@@ -11,8 +11,6 @@
 
 #ifdef ENGINE_USING_A_C
 
-int32_t krecip(int32_t num);	// from engine.c
-
 #define BITSOFPRECISION 3
 #define BITSOFPRECISIONPOW 8
 
@@ -23,8 +21,7 @@ int32_t krecip(int32_t num);	// from engine.c
 //#define USE_SATURATE_VPLC_TRANS
 
 extern intptr_t asm1, asm2, asm3, asm4;
-extern int32_t fpuasm, globalx3, globaly3;
-extern void *reciptable;
+extern int32_t globalx3, globaly3;
 
 #ifdef USE_ASM64
 # define A64_ASSIGN(var, val) var=val
@@ -40,8 +37,10 @@ char *a64_gtrans;
 #endif
 
 static int32_t bpl, transmode = 0;
-static int32_t glogx, glogy, gbxinc, gbyinc, gpinc;
-static char *gbuf, *gpal, *ghlinepal, *gtrans;
+int32_t glogx, glogy, gpinc;
+static int32_t gbxinc, gbyinc;
+char *gbuf;
+static char *gpal, *ghlinepal, *gtrans;
 static char *gpal2;
 
 //Global variable functions
@@ -71,24 +70,26 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
         const int32_t bxinc = gbxinc, byinc = gbyinc;
         const int32_t logx = glogx, logy = glogy;
         char *pp = (char *)p;
+        const uint8_t logx32 = 32-logx, logy32 = 32-logy;
 
-        for (; cnt>=4; cnt -= 4)
+#ifdef CLASSIC_SLICE_BY_4
+        for (; cnt>=4; cnt-=4, pp-=4)
         {
-            *pp = palptr[buf[((bx>>(32-logx))<<logy)+(by>>(32-logy))]]; pp--;
-            *pp = palptr[buf[(((bx-bxinc)>>(32-logx))<<logy)+((by-byinc)>>(32-logy))]]; pp--;
-            *pp = palptr[buf[(((bx-(bxinc<<1))>>(32-logx))<<logy)+((by-(byinc<<1))>>(32-logy))]]; pp--;
-            *pp = palptr[buf[(((bx-(bxinc*3))>>(32-logx))<<logy)+((by-(byinc*3))>>(32-logy))]]; pp--;
+            *pp = palptr[buf[((bx>>logx32)<<logy)+(by>>logy32)]];
+            *(pp-1) = palptr[buf[(((bx-bxinc)>>logx32)<<logy)+((by-byinc)>>logy32)]];
+            *(pp-2) = palptr[buf[(((bx-(bxinc<<1))>>logx32)<<logy)+((by-(byinc<<1))>>logy32)]];
+            *(pp-3) = palptr[buf[(((bx-(bxinc*3))>>logx32)<<logy)+((by-(byinc*3))>>logy32)]];
 
             bx -= bxinc<<2;
             by -= byinc<<2;
         }
+#endif
 
-        for (; cnt>=0; cnt--)
+        for (; cnt>=0; cnt--, pp--)
         {
-            *pp = palptr[buf[((bx>>(32-logx))<<logy)+(by>>(32-logy))]];
+            *pp = palptr[buf[((bx>>logx32)<<logy)+(by>>logy32)]];
             bx -= bxinc;
             by -= byinc;
-            pp--;
         }
     }
 }
@@ -96,11 +97,6 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
 
 ///// Sloped ceiling/floor vertical line functions /////
 
-void setupslopevlin(int32_t logylogx, intptr_t bufplc, int32_t pinc)
-{
-    glogx = (logylogx&255); glogy = (logylogx>>8);
-    gbuf = (char *)bufplc; gpinc = pinc;
-}
 void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t bx, int32_t by)
 {
     intptr_t *slopalptr;
@@ -111,7 +107,7 @@ void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t 
     slopalptr = (intptr_t *)slopaloffs;
     for (; cnt>0; cnt--)
     {
-        i = krecip(bz>>6); bz += bzinc;
+        i = krecipasm(bz>>6); bz += bzinc;
         u = bx+(inthi_t)globalx3*i;
         v = by+(inthi_t)globaly3*i;
         (*(char *)p) = *(char *)(((intptr_t)slopalptr[0])+gbuf[((u>>(32-glogx))<<glogy)+(v>>(32-glogy))]);
@@ -225,6 +221,37 @@ typedef uint32_t uint32_vec4 __attribute__ ((vector_size (16)));
 #endif
 
 // cnt >= 1
+void vlineasm4nlogy(int32_t cnt, char *p, char *const *pal, char *const *buf,
+#ifdef USE_VECTOR_EXT
+    uint32_vec4 vplc, const uint32_vec4 vinc)
+#else
+    uint32_t * vplc, const int32_t *vinc)
+#endif
+{
+    const int32_t ourbpl = bpl;
+
+    do
+    {
+        p[0] = pal[0][buf[0][ourmulscale32(vplc[0], globaltilesizy)]];
+        p[1] = pal[1][buf[1][ourmulscale32(vplc[1], globaltilesizy)]];
+        p[2] = pal[2][buf[2][ourmulscale32(vplc[2], globaltilesizy)]];
+        p[3] = pal[3][buf[3][ourmulscale32(vplc[3], globaltilesizy)]];
+
+#if defined USE_VECTOR_EXT
+        vplc += vinc;
+#else
+        vplc[0] += vinc[0];
+        vplc[1] += vinc[1];
+        vplc[2] += vinc[2];
+        vplc[3] += vinc[3];
+#endif
+        p += ourbpl;
+    } while (--cnt);
+
+    Bmemcpy(&vplce[0], &vplc[0], sizeof(uint32_t) * 4);
+}
+
+// cnt >= 1
 void vlineasm4(int32_t cnt, char *p)
 {
     char *const pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
@@ -238,28 +265,10 @@ void vlineasm4(int32_t cnt, char *p)
 #endif
     const int32_t logy = glogy, ourbpl = bpl;
 
-    if (!logy)
+    if (!logy) // I had an assert on logy for quite a while that NEVER triggered...
     {
-        do
-        {
-            p[0] = pal[0][buf[0][ourmulscale32(vplc[0],globaltilesizy)]];
-            p[1] = pal[1][buf[1][ourmulscale32(vplc[1],globaltilesizy)]];
-            p[2] = pal[2][buf[2][ourmulscale32(vplc[2],globaltilesizy)]];
-            p[3] = pal[3][buf[3][ourmulscale32(vplc[3],globaltilesizy)]];
-
-#if defined USE_VECTOR_EXT
-            vplc += vinc;
-#else
-            vplc[0] += vinc[0];
-            vplc[1] += vinc[1];
-            vplc[2] += vinc[2];
-            vplc[3] += vinc[3];
-#endif
-            p += ourbpl;
-        }
-        while (--cnt);
-
-        goto skip;
+        vlineasm4nlogy(cnt, p, pal, buf, vplc, vinc);
+        return;
     }
     
     // just fucking shoot me
@@ -313,11 +322,7 @@ void vlineasm4(int32_t cnt, char *p)
         p += ourbpl;
     }
 
-skip:
-    vplce[0] = vplc[0];
-    vplce[1] = vplc[1];
-    vplce[2] = vplc[2];
-    vplce[3] = vplc[3];
+    Bmemcpy(&vplce[0], &vplc[0], sizeof(uint32_t) * 4);
 }
 
 #ifdef USE_SATURATE_VPLC
@@ -450,10 +455,7 @@ void mvlineasm4(int32_t cnt, char *p)
         while (--cnt);
     }
 
-    vplce[0] = vplc[0];
-    vplce[1] = vplc[1];
-    vplce[2] = vplc[2];
-    vplce[3] = vplc[3];
+    Bmemcpy(&vplce[0], &vplc[0], sizeof(uint32_t) * 4);
 }
 
 #ifdef USE_ASM64

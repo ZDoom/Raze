@@ -585,6 +585,17 @@ void copybufreverse(const void *S, void *D, int32_t c);
 		: "ebx", "edi", "memory", "cc"); \
 	 0; })
 
+#define krecipasm(a) \
+    ({ int32_t __a=(a); \
+       __asm__ __volatile__ ( \
+            "movl %%eax, (" ASMSYM("fpuasm") "); fildl (" ASMSYM("fpuasm") "); " \
+            "addl %%eax, %%eax; fstps (" ASMSYM("fpuasm") "); sbbl %%ebx, %%ebx; " \
+            "movl (" ASMSYM("fpuasm") "), %%eax; movl %%eax, %%ecx; " \
+            "andl $0x007ff000, %%eax; shrl $10, %%eax; subl $0x3f800000, %%ecx; " \
+            "shrl $23, %%ecx; movl " ASMSYM("reciptable") "(%%eax), %%eax; " \
+            "sarl %%cl, %%eax; xorl %%ebx, %%eax" \
+        : "=a" (__a) : "a" (__a) : "ebx", "ecx", "memory", "cc"); \
+     __a; })
 
 //}}}
 

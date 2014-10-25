@@ -474,6 +474,32 @@ static __inline void swapchar2(void *a, void *b, int32_t s)
             mov[eax], dx
     }
 }
+
+//0x007ff000 is (11<<13), 0x3f800000 is (127<<23)
+static inline int32_t krecipasm(int32_t a)
+{
+    _asm
+    {
+        push ebx
+            mov eax, a
+            mov fpuasm, eax
+            fild dword ptr fpuasm
+            add eax, eax
+            fstp dword ptr fpuasm
+            sbb ebx, ebx
+            mov eax, fpuasm
+            mov ecx, eax
+            and eax, 0x007ff000
+            shr eax, 10
+            sub ecx, 0x3f800000
+            shr ecx, 23
+            mov eax, dword ptr reciptable[eax]
+            sar eax, cl
+            xor eax, ebx
+            pop ebx
+    }
+}
+
 //}}}
 
 #endif // __pragmas_x86_h__
