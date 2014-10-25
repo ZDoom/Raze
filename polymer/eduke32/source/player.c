@@ -236,8 +236,8 @@ static int32_t A_FindTargetSprite(const spritetype *s, int32_t aang, int32_t atw
 
     j = -1;
 
-    gotshrinker = (s->picnum == APLAYER && PWEAPON(0, g_player[snum].ps->curr_weapon, WorksLike) == SHRINKER_WEAPON);
-    gotfreezer = (s->picnum == APLAYER && PWEAPON(0, g_player[snum].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
+    gotshrinker = (s->picnum == APLAYER && PWEAPON(snum, g_player[snum].ps->curr_weapon, WorksLike) == SHRINKER_WEAPON);
+    gotfreezer = (s->picnum == APLAYER && PWEAPON(snum, g_player[snum].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
 
     smax = INT32_MAX;
 
@@ -1501,7 +1501,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                     sprite[j].extra >>= 2;
                 }
             }
-            else if (PWEAPON(0, g_player[p].ps->curr_weapon, WorksLike) == DEVISTATOR_WEAPON)
+            else if (PWEAPON(p, g_player[p].ps->curr_weapon, WorksLike) == DEVISTATOR_WEAPON)
             {
                 sprite[j].extra >>= 2;
                 sprite[j].ang += 16-(krand()&31);
@@ -2362,7 +2362,7 @@ void P_DisplayWeapon(int32_t snum)
                         break;
 
                     default:
-                        if (*kb > PWEAPON(0, CHAINGUN_WEAPON, FireDelay) && *kb < PWEAPON(0, CHAINGUN_WEAPON, TotalTime))
+                        if (*kb > PWEAPON(screenpeek, CHAINGUN_WEAPON, FireDelay) && *kb < PWEAPON(screenpeek, CHAINGUN_WEAPON, TotalTime))
                         {
                             i = 0;
                             if (doanim) i = rand()&7;
@@ -2373,7 +2373,7 @@ void P_DisplayWeapon(int32_t snum)
                                 CHAINGUN+5+((*kb-4)/5),gs,o,pal,0);
                         }
 
-                        if (*kb < PWEAPON(0, CHAINGUN_WEAPON, TotalTime)-4)
+                        if (*kb < PWEAPON(screenpeek, CHAINGUN_WEAPON, TotalTime)-4)
                         {
                             i = 0;
                             if (doanim) i = rand()&7;
@@ -2396,12 +2396,12 @@ void P_DisplayWeapon(int32_t snum)
             case PISTOL_WEAPON:
                 if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0) == 0)
                 {
-                    if ((*kb) < PWEAPON(0, PISTOL_WEAPON, TotalTime)+1)
+                    if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, TotalTime)+1)
                     {
                         static uint8_t kb_frames[] = { 0, 1, 2 };
                         int32_t l = 195-12+weapon_xoffset;
 
-                        if ((*kb) == PWEAPON(0, PISTOL_WEAPON, FireDelay))
+                        if ((*kb) == PWEAPON(screenpeek, PISTOL_WEAPON, FireDelay))
                             l -= 3;
 
                         guniqhudid = cw;
@@ -2411,20 +2411,20 @@ void P_DisplayWeapon(int32_t snum)
                     else
                     {
 
-                        if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload)-17)
+                        if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-17)
                         {
                             guniqhudid = cw;
                             G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+230-gun_pos,FIRSTGUN+4,gs,o|512,pal,0);
                             guniqhudid = 0;
                         }
-                        else if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload)-12)
+                        else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-12)
                         {
                             G_DrawWeaponTile(244-((*kb)<<3)-(p->look_ang>>1),looking_arc+130-gun_pos+((*kb)<<4),FIRSTGUN+6,gs,o|512,pal,0);
                             guniqhudid = cw;
                             G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o|512,pal,0);
                             guniqhudid = 0;
                         }
-                        else if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload)-7)
+                        else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-7)
                         {
                             G_DrawWeaponTile(124+((*kb)<<1)-(p->look_ang>>1),looking_arc+430-gun_pos-((*kb)<<3),FIRSTGUN+6,gs,o|512,pal,0);
                             guniqhudid = cw;
@@ -2432,21 +2432,21 @@ void P_DisplayWeapon(int32_t snum)
                             guniqhudid = 0;
                         }
 
-                        else if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload)-4)
+                        else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-4)
                         {
                             G_DrawWeaponTile(184-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+8,gs,o|512,pal,0);
                             guniqhudid = cw;
                             G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+210-gun_pos,FIRSTGUN+5,gs,o|512,pal,0);
                             guniqhudid = 0;
                         }
-                        else if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload)-2)
+                        else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-2)
                         {
                             G_DrawWeaponTile(164-(p->look_ang>>1),looking_arc+245-gun_pos,FIRSTGUN+8,gs,o|512,pal,0);
                             guniqhudid = cw;
                             G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o|512,pal,0);
                             guniqhudid = 0;
                         }
-                        else if ((*kb) < PWEAPON(0, PISTOL_WEAPON, Reload))
+                        else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload))
                         {
                             guniqhudid = cw;
                             G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+5,gs,o|512,pal,0);
@@ -2463,7 +2463,7 @@ void P_DisplayWeapon(int32_t snum)
                     guniqhudid = cw;
                     if ((*kb))
                     {
-                        if ((*kb) < (PWEAPON(0, p->curr_weapon, TotalTime)))
+                        if ((*kb) < (PWEAPON(screenpeek, p->curr_weapon, TotalTime)))
                         {
 
                             static uint8_t throw_frames[] = {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2};
@@ -2505,7 +2505,7 @@ void P_DisplayWeapon(int32_t snum)
             case DEVISTATOR_WEAPON:
                 if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0) == 0)
                 {
-                    if ((*kb) < (PWEAPON(0, DEVISTATOR_WEAPON, TotalTime)+1) && (*kb) > 0)
+                    if ((*kb) < (PWEAPON(screenpeek, DEVISTATOR_WEAPON, TotalTime)+1) && (*kb) > 0)
                     {
                         static uint8_t cycloidy[] = {0,4,12,24,12,4,0};
 
@@ -3652,7 +3652,7 @@ static void P_ProcessWeapon(int32_t snum)
         
         if (VM_OnEvent(EVENT_HOLSTER, p->i, snum, -1, 0) == 0)
         {
-            if (PWEAPON(0, p->curr_weapon, WorksLike) != KNEE_WEAPON)
+            if (PWEAPON(snum, p->curr_weapon, WorksLike) != KNEE_WEAPON)
             {
                 if (p->holster_weapon == 0 && p->weapon_pos == 0)
                 {
@@ -4488,7 +4488,7 @@ void P_ProcessInput(int32_t snum)
         P_UpdatePosWhenViewingCam(p);
         P_DoCounters(snum);
 
-        if (PWEAPON(0, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
+        if (PWEAPON(snum, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
             P_ProcessWeapon(snum);
 
         return;
@@ -4937,8 +4937,8 @@ void P_ProcessInput(int32_t snum)
     }
 
     if (p->fist_incs || p->transporter_hold > 2 || p->hard_landing || p->access_incs > 0 || p->knee_incs > 0 ||
-            (PWEAPON(0, p->curr_weapon, WorksLike) == TRIPBOMB_WEAPON &&
-             *kb > 1 && *kb < PWEAPON(0, p->curr_weapon, FireDelay)))
+            (PWEAPON(snum, p->curr_weapon, WorksLike) == TRIPBOMB_WEAPON &&
+             *kb > 1 && *kb < PWEAPON(snum, p->curr_weapon, FireDelay)))
     {
         doubvel = 0;
         p->vel.x = 0;

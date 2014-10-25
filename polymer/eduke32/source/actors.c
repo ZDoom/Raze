@@ -4772,7 +4772,7 @@ DETONATEB:
                         if ((ps->gotweapon & (1<<HANDBOMB_WEAPON)) == 0 || s->owner == ps->i)
                         {
                             int32_t doswitch = ((ps->weaponswitch & 1) ||
-                                                PWEAPON(0, ps->curr_weapon, WorksLike) == HANDREMOTE_WEAPON);
+                                                PWEAPON(p, ps->curr_weapon, WorksLike) == HANDREMOTE_WEAPON);
                             P_AddWeapon(ps, HANDBOMB_WEAPON, doswitch);
                         }
 
