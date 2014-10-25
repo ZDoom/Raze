@@ -11,7 +11,7 @@
 #include "scancodes.h"
 #include "crc32.h"
 #include "xxhash.h"
-
+#include "common.h"
 
 
 static symbol_t *symbols = NULL;
@@ -195,25 +195,39 @@ const char *OSD_StripColors(char *out, const char *in)
 
 int32_t OSD_Exec(const char *szScript)
 {
-    FILE *fp = fopenfrompath(szScript, "r");
+    int32_t i, len, err = 0;
+    char *buf = NULL, *cp;
 
-    if (fp != NULL)
+    OSD_Printf("Executing \"%s\"\n", szScript);
+
+    if ((i = kopen4load(szScript, 0)) == -1) err = 1;
+    if (!err && (len = kfilelength(i)) <= 0) err = 2; // blank file
+    if (!err && (buf = (char *)Xmalloc(len + 1)) == NULL) err = 3;
+
+    if (err || kread(i, buf, len) != len)
     {
-        char line[256], *cp;
-
-        OSD_Printf("Executing \"%s\"\n", szScript);
-        osd->execdepth++;
-        while (fgets(line, sizeof(line), fp) != NULL)
-        {
-            cp = strtok(line,"\r\n");
-            if (cp)
-                OSD_Dispatch(cp);
-        }
-        osd->execdepth--;
-        fclose(fp);
-        return 0;
+        if (err < 3) // no error message for blank file
+            OSD_Printf("Error executing \"%s\"!\n", szScript);
+        if (i != -1) kclose(i);
+        if (buf != NULL) Bfree(buf);
+        return 1;
     }
-    return 1;
+
+    osd->execdepth++;
+
+    buf[len] = 0;
+    cp = strtok(buf, "\r\n");
+
+    while (cp != NULL)
+    {
+        OSD_Dispatch(cp);
+        cp = strtok(NULL, "\r\n");
+    }
+
+    osd->execdepth--;
+    kclose(i);
+    Bfree(buf);
+    return 0;
 }
 
 int32_t OSD_ParsingScript(void)
@@ -309,13 +323,7 @@ static int32_t _internal_osdfunc_exec(const osdfuncparm_t *parm)
 
 static int32_t _internal_osdfunc_echo(const osdfuncparm_t *parm)
 {
-    int32_t i;
-    for (i = 0; i < parm->numparms; i++)
-    {
-        if (i > 0) OSD_Printf(" ");
-        OSD_Printf("%s", parm->parms[i]);
-    }
-    OSD_Printf("\n");
+    OSD_Printf("%s\n", parm->raw + 5);
 
     return OSDCMD_OK;
 }
@@ -796,6 +804,12 @@ void OSD_Init(void)
 //
 void OSD_SetLogFile(const char *fn)
 {
+#ifdef DEBUGGINGAIDS
+    const int bufmode = _IONBF;
+#else
+    const int bufmode = _IOLBF;
+#endif
+
     if (osdlog)
     {
         Bfclose(osdlog);
@@ -803,7 +817,9 @@ void OSD_SetLogFile(const char *fn)
     }
 
     if (fn) osdlog = Bfopen(fn,"w");
-    if (osdlog) setvbuf(osdlog, (char *)NULL, _IONBF, 0);
+
+    if (osdlog)
+        setvbuf(osdlog, (char *)NULL, bufmode, 0);
 }
 
 
