@@ -463,14 +463,14 @@ static uint64_t libdivide_128_div_64_to_64(uint64_t u1, uint64_t u0, uint64_t v,
     rhat;            // A remainder.
     int s;                  // Shift amount for norm.
     
-    if (u1 >= v) {            // If overflow, set rem.
+    if (EDUKE32_PREDICT_FALSE(u1 >= v)) {            // If overflow, set rem.
         if (r != NULL)         // to an impossible value,
             *r = (uint64_t)(-1);    // and return the largest
         return (uint64_t)(-1);}    // possible quotient.
     
     /* count leading zeros */
     s = libdivide__count_leading_zeros64(v); // 0 <= s <= 63.
-    if (s > 0) {
+    if (EDUKE32_PREDICT_TRUE(s > 0)) {
         v = v << s;           // Normalize divisor.
         un64 = (u1 << s) | ((u0 >> (64 - s)) & (-s >> 31));
         un10 = u0 << s;       // Shift dividend left.
@@ -520,7 +520,7 @@ again2:
 
 libdivide_u32_t libdivide_u32_gen(uint32_t d) {
     libdivide_u32_t result;
-    if ((d & (d - 1)) == 0) {
+    if (EDUKE32_PREDICT_FALSE((d & (d - 1)) == 0)) {
         result.magic = 0;
         result.more = libdivide__count_trailing_zeros32(d) | LIBDIVIDE_U32_SHIFT_PATH;
     }
@@ -555,7 +555,7 @@ libdivide_u32_t libdivide_u32_gen(uint32_t d) {
 
 uint32_t libdivide_u32_do(uint32_t numer, const libdivide_u32_t *denom) {
     uint8_t more = denom->more;
-    if (more & LIBDIVIDE_U32_SHIFT_PATH) {
+    if (EDUKE32_PREDICT_FALSE(more & LIBDIVIDE_U32_SHIFT_PATH)) {
         return numer >> (more & LIBDIVIDE_32_SHIFT_MASK);
     }
     else {
@@ -640,7 +640,7 @@ __m128i libdivide_u32_do_vector_alg2(__m128i numers, const libdivide_u32_t *deno
 
 libdivide_u64_t libdivide_u64_gen(uint64_t d) {
     libdivide_u64_t result;
-    if ((d & (d - 1)) == 0) {
+    if (EDUKE32_PREDICT_FALSE((d & (d - 1)) == 0)) {
         result.more = libdivide__count_trailing_zeros64(d) | LIBDIVIDE_U64_SHIFT_PATH;
         result.magic = 0;
     }
@@ -674,7 +674,7 @@ libdivide_u64_t libdivide_u64_gen(uint64_t d) {
 
 uint64_t libdivide_u64_do(uint64_t numer, const libdivide_u64_t *denom) {
     uint8_t more = denom->more;
-    if (more & LIBDIVIDE_U64_SHIFT_PATH) {
+    if (EDUKE32_PREDICT_FALSE(more & LIBDIVIDE_U64_SHIFT_PATH)) {
         return numer >> (more & LIBDIVIDE_64_SHIFT_MASK);
     }
     else {
@@ -692,7 +692,7 @@ uint64_t libdivide_u64_do(uint64_t numer, const libdivide_u64_t *denom) {
  
 int libdivide_u64_get_algorithm(const libdivide_u64_t *denom) {
     uint8_t more = denom->more;
-    if (more & LIBDIVIDE_U64_SHIFT_PATH) return 0;
+    if (EDUKE32_PREDICT_FALSE(more & LIBDIVIDE_U64_SHIFT_PATH)) return 0;
     else if (! (more & LIBDIVIDE_ADD_MARKER)) return 1;
     else return 2;
 }
@@ -765,7 +765,7 @@ libdivide_s32_t libdivide_s32_gen(int32_t d) {
     
     /* If d is a power of 2, or negative a power of 2, we have to use a shift.  This is especially important because the magic algorithm fails for -1.  To check if d is a power of 2 or its inverse, it suffices to check whether its absolute value has exactly one bit set.  This works even for INT_MIN, because abs(INT_MIN) == INT_MIN, and INT_MIN has one bit set and is a power of 2.  */
     uint32_t absD = (uint32_t)(d < 0 ? -d : d); //gcc optimizes this to the fast abs trick
-    if ((absD & (absD - 1)) == 0) { //check if exactly one bit is set, don't care if absD is 0 since that's divide by zero
+    if (EDUKE32_PREDICT_FALSE((absD & (absD - 1)) == 0)) { //check if exactly one bit is set, don't care if absD is 0 since that's divide by zero
         result.magic = 0;
         result.more = libdivide__count_trailing_zeros32(absD) | (d < 0 ? LIBDIVIDE_NEGATIVE_DIVISOR : 0) | LIBDIVIDE_S32_SHIFT_PATH;
     }
@@ -932,7 +932,7 @@ libdivide_s64_t libdivide_s64_gen(int64_t d) {
     
     /* If d is a power of 2, or negative a power of 2, we have to use a shift.  This is especially important because the magic algorithm fails for -1.  To check if d is a power of 2 or its inverse, it suffices to check whether its absolute value has exactly one bit set.  This works even for INT_MIN, because abs(INT_MIN) == INT_MIN, and INT_MIN has one bit set and is a power of 2.  */
     const uint64_t absD = (uint64_t)(d < 0 ? -d : d); //gcc optimizes this to the fast abs trick
-    if ((absD & (absD - 1)) == 0) { //check if exactly one bit is set, don't care if absD is 0 since that's divide by zero
+    if (EDUKE32_PREDICT_FALSE((absD & (absD - 1)) == 0)) { //check if exactly one bit is set, don't care if absD is 0 since that's divide by zero
         result.more = libdivide__count_trailing_zeros64(absD) | (d < 0 ? LIBDIVIDE_NEGATIVE_DIVISOR : 0);
         result.magic = 0;
     }

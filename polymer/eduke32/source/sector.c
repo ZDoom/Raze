@@ -328,9 +328,9 @@ void G_DoSectorAnimations(void)
 
 int32_t GetAnimationGoal(const int32_t *animptr)
 {
-    int32_t i = g_animateCount-1;
+    int32_t i=0;
 
-    for (; i>=0; i--)
+    for (; i<g_animateCount; i++)
         if (animptr == animateptr[i])
             return i;
     return -1;

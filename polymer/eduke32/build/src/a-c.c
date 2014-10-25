@@ -265,7 +265,7 @@ void vlineasm4(int32_t cnt, char *p)
 #endif
     const int32_t logy = glogy, ourbpl = bpl;
 
-    if (!logy) // I had an assert on logy for quite a while that NEVER triggered...
+    if (EDUKE32_PREDICT_FALSE(!logy)) // I had an assert on logy for quite a while that NEVER triggered...
     {
         vlineasm4nlogy(cnt, p, pal, buf, vplc, vinc);
         return;

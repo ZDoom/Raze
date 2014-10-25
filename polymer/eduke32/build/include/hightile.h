@@ -9,9 +9,9 @@ typedef struct hicreplc_t {
     struct hicreplc_t *next;
     char *filename;
     struct hicskybox_t *skybox;
+    vec2f_t scale;
+    float alphacut, specpower, specfactor;
     char palnum, flags;
-    short filler;
-    float alphacut, xscale, yscale, specpower, specfactor;
 } hicreplctyp;
 
 extern palette_t hictinting[MAXPALOOKUPS];

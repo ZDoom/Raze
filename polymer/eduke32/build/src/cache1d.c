@@ -558,7 +558,7 @@ int32_t findfrompath(const char *fn, char **where)
     return -1;
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(DEBUGGINGAIDS)
 # define FILENAME_CASE_CHECK
 #endif
 

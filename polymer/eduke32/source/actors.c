@@ -596,11 +596,11 @@ void A_DeleteSprite(int32_t s)
         return;
     }
 
-    if (G_HaveEvent(EVENT_KILLIT))
+    if (VM_HaveEvent(EVENT_KILLIT))
     {
         int32_t p, pl=A_FindPlayer(&sprite[s],&p);
 
-        if (VM_OnEvent(EVENT_KILLIT, s, pl, p, 0))
+        if (VM_OnEvent_(EVENT_KILLIT, s, pl, p, 0))
             return;
     }
 
@@ -8295,31 +8295,32 @@ int32_t A_CheckSwitchTile(int32_t i)
 void G_MoveWorld(void)
 {
     extern double g_moveActorsTime;
-    int32_t k = MAXSTATUS-1;
 
-    do
+    if (EDUKE32_PREDICT_FALSE(VM_HaveEvent(EVENT_PREGAME)))
     {
-        int32_t i = headspritestat[k];
+        int32_t i, j, k = 0, p, pl;
 
-        while (i >= 0)
+        do
         {
-            const int32_t j = nextspritestat[i];
+            i = headspritestat[k++];
 
-            if (!G_HaveEvent(EVENT_PREGAME) || A_CheckSpriteFlags(i, SFLAG_NOEVENTCODE))
+            while (i >= 0)
             {
+                j = nextspritestat[i];
+
+                if (A_CheckSpriteFlags(i, SFLAG_NOEVENTCODE))
+                {
+                    i = j;
+                    continue;
+                }
+
+                pl = A_FindPlayer(&sprite[i], &p);
+                VM_OnEvent_(EVENT_PREGAME, i, pl, p, 0);
+
                 i = j;
-                continue;
             }
-
-            {
-                int32_t p, pl = A_FindPlayer(&sprite[i], &p);
-                VM_OnEvent(EVENT_PREGAME, i, pl, p, 0);
-            }
-
-            i = j;
-        }
+        } while (k < MAXSTATUS);
     }
-    while (k--);
 
     G_MoveZombieActors();     //ST 2
     G_MoveWeapons();          //ST 4
@@ -8345,35 +8346,51 @@ void G_MoveWorld(void)
 
     G_MoveStandables();       //ST 6
 
-    k = MAXSTATUS-1;
 
-    do
+    if (EDUKE32_PREDICT_FALSE(VM_HaveEvent(EVENT_GAME)))
     {
-        int32_t i = headspritestat[k];
+        int32_t i, j, k = 0, p, pl;
 
-        while (i >= 0)
+        do
         {
-            const int32_t j = nextspritestat[i];
+            i = headspritestat[k++];
+
+            while (i >= 0)
+            {
+
+                if (A_CheckSpriteFlags(i, SFLAG_NOEVENTCODE))
+                {
+                    i = nextspritestat[i];
+                    continue;
+                }
+
+                j = nextspritestat[i];
+
+                pl = A_FindPlayer(&sprite[i], &p);
+                VM_OnEvent_(EVENT_GAME, i, pl, p, 0);
+
+                i = j;
+            }
+        } while (k < MAXSTATUS);
+    }
 
 #ifdef POLYMER
-            if (getrendermode() == REND_POLYMER)
+    if (getrendermode() == REND_POLYMER)
+    {
+        int32_t i, k = 0;
+
+        do
+        {
+            i = headspritestat[k++];
+
+            while (i >= 0)
+            {
                 A_DoLight(i);
-#endif
-            if (!G_HaveEvent(EVENT_GAME) || A_CheckSpriteFlags(i, SFLAG_NOEVENTCODE))
-            {
-                i = j;
-                continue;
+                i = nextspritestat[i];
             }
-
-            {
-                int32_t p, pl = A_FindPlayer(&sprite[i], &p);
-                VM_OnEvent(EVENT_GAME,i, pl, p, 0);
-            }
-
-            i = j;
-        }
+        } while (k < MAXSTATUS);
     }
-    while (k--);
+#endif
 
     G_DoSectorAnimations();
     G_MoveFX();               //ST 11

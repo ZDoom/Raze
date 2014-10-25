@@ -164,8 +164,8 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
 
     hrn->filename = Xstrdup(filen);
     hrn->alphacut = min(alphacut,1.0);
-    hrn->xscale = xscale;
-    hrn->yscale = yscale;
+    hrn->scale.x = xscale;
+    hrn->scale.y = yscale;
     hrn->specpower = specpower;
     hrn->specfactor = specfactor;
     hrn->flags = flags;

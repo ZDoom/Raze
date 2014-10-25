@@ -8349,7 +8349,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 }
 #undef COPYARG
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(DEBUGGINGAIDS)
 // See FILENAME_CASE_CHECK in cache1d.c
 static int32_t check_filename_casing(void)
 {
@@ -8359,7 +8359,7 @@ static int32_t check_filename_casing(void)
 
 int32_t ExtPreInit(int32_t argc,const char **argv)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(DEBUGGINGAIDS)
     {
         extern int32_t (*check_filename_casing_fn)(void);
         check_filename_casing_fn = check_filename_casing;

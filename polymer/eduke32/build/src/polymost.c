@@ -743,7 +743,7 @@ static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t
             case 4:
                 wpptr->r = ((r   +  2)>>2); wpptr->g = ((g   +  2)>>2); wpptr->b = ((b   +  2)>>2); break;
             default:
-                break;
+                EDUKE32_UNREACHABLE_SECTION(break);
             }
         }
     }
@@ -834,7 +834,7 @@ void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt
                 case 4:
                     wpptr->r = ((r+2)>>2); wpptr->g = ((g+2)>>2); wpptr->b = ((b+2)>>2); wpptr->a = ((a+2)>>2); break;
                 default:
-                    break;
+                    EDUKE32_UNREACHABLE_SECTION(break);
                 }
                 //if (wpptr->a) wpptr->a = 255;
             }
@@ -1088,10 +1088,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         fn = hicr->filename;
     }
 
-    if ((filh = kopen4load(fn, 0)) < 0)
+    if (EDUKE32_PREDICT_FALSE((filh = kopen4load(fn, 0)) < 0))
     {
         OSD_Printf("hightile: %s (pic %d) not found\n", fn, dapic);
-
         return -2;
     }
 
@@ -1117,7 +1116,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
 
         picfil = (char *)Xmalloc(picfillen+1);
-        if (kread(filh, picfil, picfillen) != picfillen)
+        if (EDUKE32_PREDICT_FALSE(kread(filh, picfil, picfillen) != picfillen))
             initprintf("warning: didn't fully read %s\n", fn);
         // prevent
         // Conditional jump or move depends on uninitialised value(s)
@@ -1522,11 +1521,11 @@ static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
         }
 
         // texture scale by parkar request
-        if (pth && pth->hicr && !drawingskybox && ((pth->hicr->xscale != 1.0f) || (pth->hicr->yscale != 1.0f)))
+        if (pth && pth->hicr && !drawingskybox && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
         {
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();
-            bglScalef(pth->hicr->xscale, pth->hicr->yscale, 1.0f);
+            bglScalef(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
             bglMatrixMode(GL_MODELVIEW);
         }
 
@@ -1539,16 +1538,16 @@ static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
         {
             polymost_setupdetailtexture(++texunits, detailpth ? detailpth->glpic : 0);
 
-            f = detailpth ? detailpth->hicr->xscale : 1.f;
+            f = detailpth ? detailpth->hicr->scale.x : 1.f;
 
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();
 
-            if (pth && pth->hicr && ((pth->hicr->xscale != 1.0f) || (pth->hicr->yscale != 1.0f)))
-                bglScalef(pth->hicr->xscale, pth->hicr->yscale, 1.0f);
+            if (pth && pth->hicr && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
+                bglScalef(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
 
-            if (detailpth && detailpth->hicr && ((detailpth->hicr->xscale != 1.0f) || (detailpth->hicr->yscale != 1.0f)))
-                bglScalef(detailpth->hicr->xscale, detailpth->hicr->yscale, 1.0f);
+            if (detailpth && detailpth->hicr && ((detailpth->hicr->scale.x != 1.0f) || (detailpth->hicr->scale.y != 1.0f)))
+                bglScalef(detailpth->hicr->scale.x, detailpth->hicr->scale.y, 1.0f);
 
             bglMatrixMode(GL_MODELVIEW);
         }
@@ -3810,7 +3809,7 @@ void polymost_drawsprite(int32_t snum)
     spritetype *const tspr = tspriteptr[snum];
     const sectortype *sec;
 
-    if (bad_tspr(tspr))
+    if (EDUKE32_PREDICT_FALSE(bad_tspr(tspr)))
         return;
 
     spritenum         = tspr->owner;
@@ -3868,19 +3867,31 @@ void polymost_drawsprite(int32_t snum)
         break;
     }
 
-    if (tspr->cstat & (2|16) || gltexmayhavealpha(tspr->picnum,tspr->pal))
+//    if (tspr->cstat & (2|16|32) || gltexmayhavealpha(tspr->picnum,tspr->pal))
     {
-#ifdef __arm__ // GL ES has a glDepthRangef and the loss of precision is OK there
-        float f = (tspr->cstat & (2|16)) ? (float)(spritenum + 1) * (FLT_EPSILON * 8.0) : 0.0;
-        if (f != 0.0) f *= 1.f/(float)(sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
-        bglDepthFunc(GL_LESS);
+        float f;
+
+        if (tspr->cstat & 16) // push wall sprites away from wall
+        {
+            tspr->x += (sintable[(tspr->ang+512)&2047]>>13);
+            tspr->y += (sintable[tspr->ang&2047]>>13);
+            updatesector(tspr->x, tspr->y, &tspr->sectnum);
+        }
+        else if (tspr->cstat & 32)
+        {
+            if ((tspr->z - sec->ceilingz) < (sec->floorz - tspr->z))
+                tspr->z += snum;
+            else tspr->z -= snum;
+        }
+
+        f = (spritenum * (FLT_EPSILON * 1024.f))/(float)(sepldist(globalposx - tspr->x, globalposy - tspr->y));
+
+#ifdef __arm__
         glDepthRangef(0.f - f, 1.f - f);
 #else
-        double f = (tspr->cstat & (2|16)) ? (double)(spritenum + 1) * (FLT_EPSILON * 8.0) : 0.0;
-        if (f != 0.0) f *= 1.0/(double)(sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
-        bglDepthFunc(GL_LESS);
         bglDepthRange(0.0 - f, 1.0 - f);
 #endif
+        bglDepthFunc(GL_LESS);
     }
 #endif
 
@@ -4159,9 +4170,6 @@ void polymost_drawsprite(int32_t snum)
             pxy[j].x = sy0*gcosang  - sx0*gsinang;
             pxy[j].y = sx0*gcosang2 + sy0*gsinang2;
         }
-
-        if (tspr->z == sec->ceilingz) tspr->z++;
-        if (tspr->z == sec->floorz) tspr->z--;
 
         if (tspr->z < globalposz) //if floor sprite is above you, reverse order of points
         {
@@ -4465,7 +4473,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
                 bglEnable(GL_BLEND);
 
                 spriteext[tspr.owner].roll = a;
-                spriteext[tspr.owner].zoff = z;
+                spriteext[tspr.owner].offset.z = z;
 
                 fov = hudmem[(dastat&4)>>2][picnum].fov;
 
@@ -4481,7 +4489,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
                 polymer_setaspect(pr_fov);
 
-                spriteext[tspr.owner].zoff = 0;
+                spriteext[tspr.owner].offset.z = 0;
                 spriteext[tspr.owner].roll = 0;
 
                 bglDisable(GL_BLEND);

@@ -350,8 +350,7 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
     Gv_SetVar(g_iAimAngleVarID, g_player[p].ps->auto_aim == 3 ? AUTO_AIM_ANGLE<<1 : AUTO_AIM_ANGLE, i, p);
 #endif
 
-    if (G_HaveEvent(EVENT_GETAUTOAIMANGLE))
-        VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
+    VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
 
     {
 #ifdef LUNATIC
@@ -473,8 +472,7 @@ static void P_PreFireHitscan(int32_t i, int32_t p, int32_t atwith,
     Gv_SetVar(g_iZRangeVarID,zRange,i,p);
 #endif
 
-    if (G_HaveEvent(EVENT_GETSHOTRANGE))
-        VM_OnEvent(EVENT_GETSHOTRANGE, i,p, -1, 0);
+    VM_OnEvent(EVENT_GETSHOTRANGE, i, p, -1, 0);
 
 #ifdef LUNATIC
     angRange = ps->angrange;
@@ -783,18 +781,20 @@ static int32_t A_PostFireHitscan(const hitdata_t *hit, int32_t i, int32_t atwith
 static int32_t Proj_CheckBlood(const vec3_t *srcvect, const hitdata_t *hit,
                                int32_t projrange, int32_t minzdiff)
 {
-    if (hit->wall >= 0 && hit->sect >= 0)
-    {
-        const walltype *const hitwal = &wall[hit->wall];
+    const walltype * hitwal;
 
-        if (FindDistance2D(srcvect->x-hit->pos.x, srcvect->y-hit->pos.y) < projrange)
-            if (hitwal->overpicnum != BIGFORCE && (hitwal->cstat&16) == 0)
-                if (sector[hit->sect].lotag == 0)
-                    if (hitwal->nextsector < 0 ||
-                        (sector[hitwal->nextsector].lotag == 0 && sector[hit->sect].lotag == 0 &&
-                         sector[hit->sect].floorz-sector[hitwal->nextsector].floorz > minzdiff))
+    if (hit->wall < 0 || hit->sect < 0)
+        return 0;
+
+    hitwal = &wall[hit->wall];
+
+    if (FindDistance2D(srcvect->x-hit->pos.x, srcvect->y-hit->pos.y) < projrange)
+        if (hitwal->overpicnum != BIGFORCE && (hitwal->cstat&16) == 0)
+            if (sector[hit->sect].lotag == 0)
+                if (hitwal->nextsector < 0 ||
+                    (sector[hitwal->nextsector].lotag == 0 && sector[hit->sect].lotag == 0 &&
+                    sector[hit->sect].floorz-sector[hitwal->nextsector].floorz > minzdiff))
                     return 1;
-    }
 
     return 0;
 }
@@ -868,7 +868,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
     DukePlayer_t *const ps = p >= 0 ? g_player[p].ps : NULL;
 
 #ifdef POLYMER
-    if (proj->flashcolor)
+    if (getrendermode() == REND_POLYMER && proj->flashcolor)
     {
         int32_t x = ((sintable[(s->ang + 512) & 2047]) >> 7), y = ((sintable[(s->ang) & 2047]) >> 7);
 
@@ -2928,10 +2928,10 @@ void P_GetInput(int32_t snum)
     loc.extbits |= (BUTTON(gamefunc_Strafe_Left) || (svel > 0))<<2;
     loc.extbits |= (BUTTON(gamefunc_Strafe_Right) || (svel < 0))<<3;
 
-    if (G_HaveEvent(EVENT_PROCESSINPUT) || G_HaveEvent(EVENT_TURNLEFT))
+    if (VM_HaveEvent(EVENT_PROCESSINPUT) || VM_HaveEvent(EVENT_TURNLEFT))
         loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
 
-    if (G_HaveEvent(EVENT_PROCESSINPUT) || G_HaveEvent(EVENT_TURNRIGHT))
+    if (VM_HaveEvent(EVENT_PROCESSINPUT) || VM_HaveEvent(EVENT_TURNRIGHT))
         loc.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
 
     // used for changing team
@@ -3222,7 +3222,7 @@ static void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
     if (p->reloading)
         return;
 
-    if (p->curr_weapon != weapon && G_HaveEvent(EVENT_CHANGEWEAPON))
+    if (p->curr_weapon != weapon && VM_HaveEvent(EVENT_CHANGEWEAPON))
         i = VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, weapon);
 
     if (i == -1)
@@ -3754,8 +3754,8 @@ static void P_ProcessWeapon(int32_t snum)
 
             if (VM_OnEvent(EVENT_FIRE, p->i, snum, -1, 0) == 0)
             {
-                if (G_HaveEvent(EVENT_FIREWEAPON)) // this event is deprecated
-                    VM_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1, 0);
+                // this event is deprecated
+                VM_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1, 0);
 
                 switch (PWEAPON(snum, p->curr_weapon, WorksLike))
                 {

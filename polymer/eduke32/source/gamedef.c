@@ -1267,7 +1267,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
     {
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
         {
-            if ((intptr_t)script[i] < (intptr_t)&script[0] || (intptr_t)script[i] >= (intptr_t)&script[g_scriptSize])
+            if (EDUKE32_PREDICT_FALSE((intptr_t)script[i] < (intptr_t)&script[0] || (intptr_t)script[i] >= (intptr_t)&script[g_scriptSize]))
             {
                 g_numCompilerErrors++;
                 initprintf("Internal compiler error at %" PRIdPTR " (0x%" PRIxPTR ")\n",i,i);
@@ -1375,7 +1375,7 @@ static int32_t C_SkipComments(void)
                 }
                 while (*textptr && (textptr[0] != '*' || textptr[1] != '/'));
 
-                if (!*textptr)
+                if (EDUKE32_PREDICT_FALSE(!*textptr))
                 {
                     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
                         initprintf("%s:%d: debug: EOF in comment!\n",g_szScriptFileName,g_lineNumber);
@@ -1498,7 +1498,7 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     }
     tempbuf[l] = 0;
 
-    if ((i = hash_find(&h_keywords,tempbuf)) >= 0)
+    if (EDUKE32_PREDICT_TRUE((i = hash_find(&h_keywords,tempbuf)) >= 0))
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
             *g_scriptPtr = i + (IFELSE_MAGIC<<12);
@@ -1516,7 +1516,7 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     textptr += l;
     g_numCompilerErrors++;
 
-    if ((tempbuf[0] == '{' || tempbuf[0] == '}') && tempbuf[1] != 0)
+    if (EDUKE32_PREDICT_FALSE((tempbuf[0] == '{' || tempbuf[0] == '}') && tempbuf[1] != 0))
     {
         C_ReportError(-1);
         initprintf("%s:%d: error: expected whitespace between `%c' and `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf[0],tempbuf+1);
@@ -1531,11 +1531,11 @@ static int32_t parse_decimal_number(void)  // (textptr)
     // decimal constants -- this is finicky business
     int64_t num = strtoll(textptr, NULL, 10);  // assume long long to be int64_t
 
-    if (num >= INT32_MIN && num <= INT32_MAX)
+    if (EDUKE32_PREDICT_TRUE(num >= INT32_MIN && num <= INT32_MAX))
     {
         // all OK
     }
-    else if (num > INT32_MAX && num <= UINT32_MAX)
+    else if (EDUKE32_PREDICT_FALSE(num > INT32_MAX && num <= UINT32_MAX))
     {
         // Number interpreted as uint32, but packed as int32 (on 32-bit archs)
         // (CON code in the wild exists that does this).  Note that such conversion
@@ -1563,7 +1563,7 @@ static int32_t parse_hex_constant(const char *hexnum)
     int64_t x;
     sscanf(hexnum, "%" PRIx64 "", &x);
 
-    if (x > UINT32_MAX)
+    if (EDUKE32_PREDICT_FALSE(x > UINT32_MAX))
     {
         initprintf("%s:%d: warning: number 0x%" PRIx64 " truncated to 32 bits.\n",
                    g_szScriptFileName,g_lineNumber, x);
@@ -1605,13 +1605,7 @@ static void C_GetNextVarType(int32_t type)
     }
     else if ((*textptr == '-')/* && !isdigit(*(textptr+1))*/)
     {
-        if (!type)
-        {
-            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-                initprintf("%s:%d: debug: flagging gamevar as negative.\n",g_szScriptFileName,g_lineNumber); //,Batol(textptr));
-            f = (MAXGAMEVARS<<1);
-        }
-        else
+        if (EDUKE32_PREDICT_FALSE(type))
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_SYNTAXERROR);
@@ -1619,12 +1613,16 @@ static void C_GetNextVarType(int32_t type)
             return;
         }
 
+        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
+            initprintf("%s:%d: debug: flagging gamevar as negative.\n", g_szScriptFileName, g_lineNumber); //,Batol(textptr));
+        f = (MAXGAMEVARS<<1);
+
         textptr++;
     }
 
     C_GetNextLabelName();
 
-    if (!g_skipKeywordCheck && hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
+    if (EDUKE32_PREDICT_FALSE(!g_skipKeywordCheck && hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_ISAKEYWORD);
@@ -1645,7 +1643,7 @@ static void C_GetNextVarType(int32_t type)
             if (i < g_iSpriteVarID || i > g_iActorVarID)
                 i = -1;
 
-            if (i < 0)
+            if (EDUKE32_PREDICT_FALSE(i < 0))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_NOTAGAMEARRAY);
@@ -1660,7 +1658,7 @@ static void C_GetNextVarType(int32_t type)
         C_GetNextVarType(0);
         C_SkipComments();
 
-        if (*textptr != ']')
+        if (EDUKE32_PREDICT_FALSE(*textptr != ']'))
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_GAMEARRAYBNC);
@@ -1670,7 +1668,7 @@ static void C_GetNextVarType(int32_t type)
 
         //writing arrays in this way is not supported because it would require too many changes to other code
 
-        if (type)
+        if (EDUKE32_PREDICT_FALSE(type))
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_INVALIDARRAYWRITE);
@@ -1689,7 +1687,7 @@ static void C_GetNextVarType(int32_t type)
                 textptr++;
             }
 
-            if (*textptr != '.')
+            if (EDUKE32_PREDICT_FALSE(*textptr != '.'))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_SYNTAXERROR);
@@ -1712,7 +1710,7 @@ static void C_GetNextVarType(int32_t type)
                 lLabelID=GetDefID(label+(g_numLabels<<6));
 
             //printf("LabelID is %d\n",lLabelID);
-            if (lLabelID == -1)
+            if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
@@ -1765,9 +1763,9 @@ static void C_GetNextVarType(int32_t type)
             //try looking for a define instead
             Bstrcpy(tempbuf,label+(g_numLabels<<6));
             i = hash_find(&h_labels,tempbuf);
-            if (i>=0)
+            if (EDUKE32_PREDICT_TRUE(i>=0))
             {
-                if (labeltype[i] & LABEL_DEFINE)
+                if (EDUKE32_PREDICT_TRUE(labeltype[i] & LABEL_DEFINE))
                 {
                     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
                         initprintf("%s:%d: debug: accepted defined label `%s' instead of gamevar.\n",g_szScriptFileName,g_lineNumber,label+(i<<6));
@@ -1788,13 +1786,13 @@ static void C_GetNextVarType(int32_t type)
         return;
 
     }
-    if (type == GAMEVAR_READONLY && aGameVars[i].dwFlags & GAMEVAR_READONLY)
+    if (EDUKE32_PREDICT_FALSE(type == GAMEVAR_READONLY && aGameVars[i].dwFlags & GAMEVAR_READONLY))
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_VARREADONLY);
         return;
     }
-    else if (aGameVars[i].dwFlags & type)
+    else if (EDUKE32_PREDICT_FALSE(aGameVars[i].dwFlags & type))
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_VARTYPEMISMATCH);
@@ -1842,7 +1840,7 @@ static int32_t C_GetNextValue(int32_t type)
     }
     tempbuf[l] = 0;
 
-    if (!g_skipKeywordCheck && hash_find(&h_keywords,tempbuf /*label+(g_numLabels<<6)*/)>=0)
+    if (EDUKE32_PREDICT_FALSE(!g_skipKeywordCheck && hash_find(&h_keywords,tempbuf /*label+(g_numLabels<<6)*/)>=0))
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_ISAKEYWORD);
@@ -1854,7 +1852,7 @@ static int32_t C_GetNextValue(int32_t type)
     {
         char *el,*gl;
 
-        if (labeltype[i] & type)
+        if (EDUKE32_PREDICT_TRUE(labeltype[i] & type))
         {
             if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
             {
@@ -1869,6 +1867,7 @@ static int32_t C_GetNextValue(int32_t type)
             textptr += l;
             return labeltype[i];
         }
+
         bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
         *(g_scriptPtr++) = 0;
         textptr += l;
@@ -1882,7 +1881,7 @@ static int32_t C_GetNextValue(int32_t type)
         return -1;  // valid label name, but wrong type
     }
 
-    if (isdigit(*textptr) == 0 && *textptr != '-')
+    if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) == 0 && *textptr != '-'))
     {
         C_ReportError(ERROR_PARAMUNDEFINED);
         g_numCompilerErrors++;
@@ -1893,7 +1892,7 @@ static int32_t C_GetNextValue(int32_t type)
         return -1; // error!
     }
 
-    if (isdigit(*textptr) && g_labelsOnly)
+    if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) && g_labelsOnly))
     {
         C_ReportError(WARNING_LABELSONLY);
         g_numCompilerWarnings++;
@@ -1904,7 +1903,7 @@ static int32_t C_GetNextValue(int32_t type)
     {
         // FIXME: check for 0-9 A-F for hex
         if (textptr[0] == '0' && textptr[1] == 'x') break; // kill the warning for hex
-        if (!isdigit(textptr[i--]))
+        if (EDUKE32_PREDICT_FALSE(!isdigit(textptr[i--])))
         {
             C_ReportError(-1);
             initprintf("%s:%d: warning: invalid character `%c' in definition!\n",g_szScriptFileName,g_lineNumber,textptr[i+1]);
@@ -1985,7 +1984,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
     if ((*(g_scriptPtr) & 0xFFF) != CON_NULLOP || *(g_scriptPtr)>>12 != IFELSE_MAGIC)
         g_ifElseAborted = 0;
 
-    if (g_ifElseAborted)
+    if (EDUKE32_PREDICT_FALSE(g_ifElseAborted))
     {
         C_ReportError(-1);
         g_numCompilerWarnings++;
@@ -2037,7 +2036,7 @@ static void C_Include(const char *confile)
     int32_t fp;
 
     fp = kopen4loadfrommod(confile,g_loadFromGroupOnly);
-    if (fp < 0)
+    if (EDUKE32_PREDICT_FALSE(fp < 0))
     {
         g_numCompilerErrors++;
         initprintf("%s:%d: error: could not find file `%s'.\n",g_szScriptFileName,g_lineNumber,confile);
@@ -2519,17 +2518,17 @@ static int32_t C_ParseCommand(int32_t loop)
 
     do
     {
-        if (quitevent)
+        if (EDUKE32_PREDICT_FALSE(quitevent))
         {
             initprintf("Aborted.\n");
             G_Shutdown();
             Bexit(0);
         }
 
-        if (g_numCompilerErrors > 63 || (*textptr == '\0') || (*(textptr+1) == '\0') || C_SkipComments())
+        if (EDUKE32_PREDICT_FALSE(g_numCompilerErrors > 63 || (*textptr == '\0') || (*(textptr+1) == '\0') || C_SkipComments()))
             return 1;
 
-        if (g_scriptDebug)
+        if (EDUKE32_PREDICT_FALSE(g_scriptDebug))
             C_ReportError(-1);
 
         tempscrptr = NULL; // temptextptr = NULL;
@@ -2552,14 +2551,14 @@ static int32_t C_ParseCommand(int32_t loop)
                 g_processingState = 1;
                 Bsprintf(g_szCurrentBlockName,"%s",label+(g_numLabels<<6));
 
-                if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_ISAKEYWORD);
                     continue;
                 }
 
-                if (hash_find(&h_gamevars,label+(g_numLabels<<6))>=0)
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_gamevars,label+(g_numLabels<<6))>=0))
                 {
                     g_numCompilerWarnings++;
                     C_ReportError(WARNING_NAMEMATCHESVAR);
@@ -2572,43 +2571,39 @@ static int32_t C_ParseCommand(int32_t loop)
 
             C_GetNextLabelName();
 
-            if ((j = hash_find(&h_labels,label+(g_numLabels<<6))) >= 0)
-            {
-                if (labeltype[j] & LABEL_STATE)
-                {
-                    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
-                        initprintf("%s:%d: debug: accepted state label `%s'.\n",g_szScriptFileName,g_lineNumber,label+(j<<6));
-                    *g_scriptPtr = (intptr_t)(script+labelcode[j]);
-
-                    // 'state' type labels are always script addresses, as far as I can see
-                    bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
-
-                    g_scriptPtr++;
-                    continue;
-                }
-                else
-                {
-                    char *gl = (char *)C_GetLabelType(labeltype[j]);
-                    C_ReportError(-1);
-                    initprintf("%s:%d: warning: expected state, found %s.\n",g_szScriptFileName,g_lineNumber,gl);
-                    g_numCompilerWarnings++;
-                    Bfree(gl);
-                    *(g_scriptPtr-1) = CON_NULLOP; // get rid of the state, leaving a nullop to satisfy if conditions
-                    bitptr[(g_scriptPtr-script-1)>>3] &= ~(1<<((g_scriptPtr-script-1)&7));
-                    continue;  // valid label name, but wrong type
-                }
-            }
-            else
+            if (EDUKE32_PREDICT_FALSE((j = hash_find(&h_labels,label+(g_numLabels<<6))) < 0))
             {
                 C_ReportError(-1);
                 initprintf("%s:%d: error: state `%s' not found.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
                 g_numCompilerErrors++;
+                g_scriptPtr++;
+                continue;
             }
+
+            if (EDUKE32_PREDICT_FALSE((labeltype[j] & LABEL_STATE) != LABEL_STATE))
+            {
+                char *gl = (char *) C_GetLabelType(labeltype[j]);
+                C_ReportError(-1);
+                initprintf("%s:%d: warning: expected state, found %s.\n", g_szScriptFileName, g_lineNumber, gl);
+                g_numCompilerWarnings++;
+                Bfree(gl);
+                *(g_scriptPtr-1) = CON_NULLOP; // get rid of the state, leaving a nullop to satisfy if conditions
+                bitptr[(g_scriptPtr-script-1)>>3] &= ~(1<<((g_scriptPtr-script-1)&7));
+                continue;  // valid label name, but wrong type
+            }
+
+            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+                initprintf("%s:%d: debug: accepted state label `%s'.\n", g_szScriptFileName, g_lineNumber, label+(j<<6));
+            *g_scriptPtr = (intptr_t) (script+labelcode[j]);
+
+            // 'state' type labels are always script addresses, as far as I can see
+            bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
+
             g_scriptPtr++;
             continue;
 
         case CON_ENDS:
-            if (g_processingState == 0)
+            if (EDUKE32_PREDICT_FALSE(g_processingState == 0))
             {
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `ends' without open `state'.\n",g_szScriptFileName,g_lineNumber);
@@ -2616,17 +2611,18 @@ static int32_t C_ParseCommand(int32_t loop)
             }
             //            else
             {
-                if (g_numBraces > 0)
+                if (EDUKE32_PREDICT_FALSE(g_numBraces > 0))
                 {
                     C_ReportError(ERROR_OPENBRACKET);
                     g_numCompilerErrors++;
                 }
-                else if (g_numBraces < 0)
+                else if (EDUKE32_PREDICT_FALSE(g_numBraces < 0))
                 {
                     C_ReportError(ERROR_CLOSEBRACKET);
                     g_numCompilerErrors++;
                 }
-                if (g_checkingSwitch > 0)
+
+                if (EDUKE32_PREDICT_FALSE(g_checkingSwitch > 0))
                 {
                     C_ReportError(ERROR_NOENDSWITCH);
                     g_numCompilerErrors++;
@@ -2672,7 +2668,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                     textptr++;
                 }
-                if (*textptr!='.')
+                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYNTAXERROR);
@@ -2685,7 +2681,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 lLabelID=C_GetLabelNameOffset(&projectileH,Bstrtolower(label+(g_numLabels<<6)));
                 //printf("LabelID is %d\n",lLabelID);
-                if (lLabelID == -1)
+                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
@@ -2720,7 +2716,7 @@ static int32_t C_ParseCommand(int32_t loop)
             // (see top of this files for flags)
             //printf("Got gamedef. Getting Label. '%.20s'\n",textptr);
 
-            if (isdigit(*textptr) || (*textptr == '-'))
+            if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) || (*textptr == '-')))
             {
                 C_GetNextLabelName();
                 g_numCompilerErrors++;
@@ -2735,7 +2731,7 @@ static int32_t C_ParseCommand(int32_t loop)
             //printf("Got Label '%.20s'\n",textptr);
             // Check to see it's already defined
 
-            if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
+            if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_ISAKEYWORD);
@@ -2750,7 +2746,7 @@ static int32_t C_ParseCommand(int32_t loop)
             //Bsprintf(g_szBuf,"Adding GameVar=\"%s\", val=%l, flags=%lX",label+(g_numLabels<<6),
             //      *(g_scriptPtr-2), *(g_scriptPtr-1));
             //AddLog(g_szBuf);
-            if ((*(g_scriptPtr-1)&GAMEVAR_USER_MASK)==3)
+            if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr-1)&GAMEVAR_USER_MASK)==3))
             {
                 g_numCompilerWarnings++;
                 *(g_scriptPtr-1)^=GAMEVAR_PERPLAYER;
@@ -2766,7 +2762,7 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case CON_GAMEARRAY:
-            if (isdigit(*textptr) || (*textptr == '-'))
+            if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) || (*textptr == '-')))
             {
                 C_GetNextLabelName();
                 g_numCompilerErrors++;
@@ -2780,7 +2776,7 @@ static int32_t C_ParseCommand(int32_t loop)
             //printf("Got Label '%.20s'\n",textptr);
             // Check to see it's already defined
 
-            if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
+            if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_ISAKEYWORD);
@@ -2788,7 +2784,7 @@ static int32_t C_ParseCommand(int32_t loop)
             }
 
             i = hash_find(&h_gamevars,label+(g_numLabels<<6));
-            if (i>=0)
+            if (EDUKE32_PREDICT_FALSE(i>=0))
             {
                 g_numCompilerWarnings++;
                 C_ReportError(WARNING_NAMEMATCHESVAR);
@@ -2808,7 +2804,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 //printf("Got label. '%.20s'\n",textptr);
                 // Check to see it's already defined
 
-                if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_ISAKEYWORD);
@@ -2816,7 +2812,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 }
 
                 i = hash_find(&h_gamevars,label+(g_numLabels<<6));
-                if (i>=0)
+                if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_numCompilerWarnings++;
                     C_ReportError(WARNING_NAMEMATCHESVAR);
@@ -2832,7 +2828,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 {
                     // if (i >= g_numDefaultLabels)
 
-                    if (labelcode[i] != *(g_scriptPtr-1))
+                    if (EDUKE32_PREDICT_FALSE(labelcode[i] != *(g_scriptPtr-1)))
                     {
                         g_numCompilerWarnings++;
                         initprintf("%s:%d: warning: ignored redefinition of `%s' to %d (old: %d).\n",g_szScriptFileName,
@@ -2872,7 +2868,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_MOVE:
             if (g_parsingActorPtr || g_processingState)
             {
-                if ((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1))
+                if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
                 {
                     C_ReportError(-1);
                     bitptr[(g_scriptPtr-script-1)>>3] &= ~(1<<((g_scriptPtr-script-1)&7));
@@ -2899,20 +2895,20 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextLabelName();
                 // Check to see it's already defined
 
-                if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_ISAKEYWORD);
                     continue;
                 }
 
-                if (hash_find(&h_gamevars,label+(g_numLabels<<6))>=0)
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_gamevars,label+(g_numLabels<<6))>=0))
                 {
                     g_numCompilerWarnings++;
                     C_ReportError(WARNING_NAMEMATCHESVAR);
                 }
 
-                if ((i = hash_find(&h_labels,label+(g_numLabels<<6))) >= 0)
+                if (EDUKE32_PREDICT_FALSE((i = hash_find(&h_labels,label+(g_numLabels<<6))) >= 0))
                 {
                     g_numCompilerWarnings++;
                     initprintf("%s:%d: warning: duplicate move `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
@@ -2953,40 +2949,39 @@ static int32_t C_ParseCommand(int32_t loop)
                 if (k == -1)
                     k = MAXVOLUMES;
 
-                if (k >= 0 && k < MAXVOLUMES+1) // if it's background or special music
-                {
-                    i = 0;
-                    // get the file name...
-                    while (C_GetKeyword() == -1)
-                    {
-                        C_SkipComments();
-
-                        j = 0;
-                        tempbuf[j] = '/';
-                        while (isaltok(*(textptr+j)))
-                        {
-                            tempbuf[j+1] = textptr[j];
-                            j++;
-                        }
-                        tempbuf[j+1] = '\0';
-
-                        C_DefineMusic(k, i, tempbuf);
-
-                        textptr += j;
-
-                        if (i >= MAXLEVELS)
-                            break;
-                        i++;
-                    }
-                }
-                else
+                if (EDUKE32_PREDICT_FALSE((unsigned)k >= MAXVOLUMES+1)) // if it's not background or special music
                 {
                     g_numCompilerErrors++;
                     C_ReportError(-1);
                     initprintf("%s:%d: error: volume number must be between 0 and MAXVOLUMES+1=%d.\n",
                                g_szScriptFileName, g_lineNumber, MAXVOLUMES+1);
+                    continue;
+
                 }
 
+                i = 0;
+                // get the file name...
+                while (C_GetKeyword() == -1)
+                {
+                    C_SkipComments();
+
+                    j = 0;
+                    tempbuf[j] = '/';
+                    while (isaltok(*(textptr+j)))
+                    {
+                        tempbuf[j+1] = textptr[j];
+                        j++;
+                    }
+                    tempbuf[j+1] = '\0';
+
+                    C_DefineMusic(k, i, tempbuf);
+
+                    textptr += j;
+
+                    if (i >= MAXLEVELS)
+                        break;
+                    i++;
+                }
             }
             continue;
 
@@ -3021,7 +3016,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 g_scriptPtr--;
                 C_GetNextLabelName();
 
-                if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_ISAKEYWORD);
@@ -3029,14 +3024,14 @@ static int32_t C_ParseCommand(int32_t loop)
                 }
 
                 i = hash_find(&h_gamevars,label+(g_numLabels<<6));
-                if (i>=0)
+                if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_numCompilerWarnings++;
                     C_ReportError(WARNING_NAMEMATCHESVAR);
                 }
 
                 i = hash_find(&h_labels,label+(g_numLabels<<6));
-                if (i>=0)
+                if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_numCompilerWarnings++;
                     initprintf("%s:%d: warning: duplicate ai `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
@@ -3055,7 +3050,8 @@ static int32_t C_ParseCommand(int32_t loop)
                         C_GetNextValue(LABEL_ACTION);
                     else if (j == 2)
                     {
-                        if ((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1))
+                        if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) &&
+                            (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
                         {
                             C_ReportError(-1);
                             bitptr[(g_scriptPtr-script-1)>>3] &= ~(1<<((g_scriptPtr-script-1)&7));
@@ -3101,7 +3097,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextLabelName();
                 // Check to see it's already defined
 
-                if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_ISAKEYWORD);
@@ -3109,14 +3105,14 @@ static int32_t C_ParseCommand(int32_t loop)
                 }
 
                 i = hash_find(&h_gamevars,label+(g_numLabels<<6));
-                if (i>=0)
+                if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_numCompilerWarnings++;
                     C_ReportError(WARNING_NAMEMATCHESVAR);
                 }
 
                 i = hash_find(&h_labels,label+(g_numLabels<<6));
-                if (i>=0)
+                if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_numCompilerWarnings++;
                     initprintf("%s:%d: warning: duplicate action `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
@@ -3145,7 +3141,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_ACTOR:
         case CON_USERACTOR:
         case CON_EVENTLOADACTOR:
-            if (g_processingState || g_parsingActorPtr)
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_numCompilerErrors++;
@@ -3175,7 +3171,7 @@ static int32_t C_ParseCommand(int32_t loop)
             {
                 j = *g_scriptPtr;
 
-                if (j > 6 || (j&3)==3)
+                if (EDUKE32_PREDICT_FALSE(j > 6 || (j&3)==3))
                 {
                     C_ReportError(-1);
                     initprintf("%s:%d: warning: invalid useractor type. Must be 0, 1, 2"
@@ -3189,7 +3185,7 @@ static int32_t C_ParseCommand(int32_t loop)
             C_GetNextValue(LABEL_DEFINE);
             g_scriptPtr--;
 
-            if ((unsigned)*g_scriptPtr >= MAXTILES)
+            if (EDUKE32_PREDICT_FALSE((unsigned)*g_scriptPtr >= MAXTILES))
             {
                 C_ReportError(ERROR_EXCEEDSMAXTILES);
                 g_numCompilerErrors++;
@@ -3256,7 +3252,8 @@ static int32_t C_ParseCommand(int32_t loop)
                         break;
                     case 2:
                         // XXX: LABEL_MOVE|LABEL_DEFINE, what is this shit? compatibility?
-                        if ((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1))
+                        // yep, it sure is :(
+                        if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
                         {
                             C_ReportError(-1);
                             bitptr[(g_scriptPtr-script-1)>>3] &= ~(1<<((g_scriptPtr-script-1)&7));
@@ -3276,7 +3273,7 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case CON_ONEVENT:
-            if (g_processingState || g_parsingActorPtr)
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_numCompilerErrors++;
@@ -3303,7 +3300,7 @@ static int32_t C_ParseCommand(int32_t loop)
             g_currentEvent = j;
             //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr);
             //AddLog(g_szBuf);
-            if (j > MAXGAMEEVENTS-1 || j < 0)
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXGAMEEVENTS-1))
             {
                 initprintf("%s:%d: error: invalid event ID.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
@@ -3369,14 +3366,14 @@ static int32_t C_ParseCommand(int32_t loop)
             C_GetNextValue(LABEL_DEFINE);
             if (tw == CON_CSTAT)
             {
-                if (*(g_scriptPtr-1) == 32767)
+                if (EDUKE32_PREDICT_FALSE(*(g_scriptPtr-1) == 32767))
                 {
                     *(g_scriptPtr-1) = 32768;
                     C_ReportError(-1);
                     initprintf("%s:%d: warning: tried to set cstat 32767, using 32768 instead.\n",g_szScriptFileName,g_lineNumber);
                     g_numCompilerWarnings++;
                 }
-                else if ((*(g_scriptPtr-1) & 32) && (*(g_scriptPtr-1) & 16))
+                else if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr-1) & 32) && (*(g_scriptPtr-1) & 16)))
                 {
                     i = *(g_scriptPtr-1);
                     *(g_scriptPtr-1) ^= 48;
@@ -3406,7 +3403,29 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case CON_ELSE:
-            if (g_checkingIfElse)
+            if (EDUKE32_PREDICT_FALSE(!g_checkingIfElse))
+            {
+                g_scriptPtr--;
+                tempscrptr = g_scriptPtr;
+                g_numCompilerWarnings++;
+                C_ReportError(-1);
+
+                initprintf("%s:%d: warning: found `else' with no `if'.\n",g_szScriptFileName,g_lineNumber);
+
+                if (C_GetKeyword() == CON_LEFTBRACE)
+                {
+                    C_GetNextKeyword();
+                    g_numBraces++;
+
+                    C_ParseCommand(1);
+                }
+                else C_ParseCommand(0);
+
+                g_scriptPtr = tempscrptr;
+
+                continue;
+            }
+
             {
                 intptr_t offset;
                 intptr_t lastScriptPtr = g_scriptPtr - &script[0] - 1;
@@ -3429,26 +3448,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 *tempscrptr = (intptr_t) g_scriptPtr;
                 bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
             }
-            else
-            {
-                g_scriptPtr--;
-                tempscrptr = g_scriptPtr;
-                g_numCompilerWarnings++;
-                C_ReportError(-1);
-
-                initprintf("%s:%d: warning: found `else' with no `if'.\n",g_szScriptFileName,g_lineNumber);
-
-                if (C_GetKeyword() == CON_LEFTBRACE)
-                {
-                    C_GetNextKeyword();
-                    g_numBraces++;
-
-                    C_ParseCommand(1);
-                }
-                else C_ParseCommand(0);
-
-                g_scriptPtr = tempscrptr;
-            }
+            
             continue;
 
         case CON_SETSECTOR:
@@ -3481,7 +3481,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                     textptr++;
                 }
-                if (*textptr!='.')
+                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYNTAXERROR);
@@ -3494,7 +3494,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 lLabelID=C_GetLabelNameID(SectorLabels,&sectorH,Bstrtolower(label+(g_numLabels<<6)));
 
-                if (lLabelID == -1)
+                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
@@ -3611,7 +3611,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                     textptr++;
                 }
-                if (*textptr!='.')
+                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYNTAXERROR);
@@ -3624,7 +3624,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 lLabelID=C_GetLabelNameID(WallLabels,&wallH,Bstrtolower(label+(g_numLabels<<6)));
 
-                if (lLabelID == -1)
+                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
@@ -3673,7 +3673,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                     textptr++;
                 }
-                if (*textptr!='.')
+                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYNTAXERROR);
@@ -3686,7 +3686,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 lLabelID=C_GetLabelNameOffset(&playerH,Bstrtolower(label+(g_numLabels<<6)));
                 //printf("LabelID is %d\n",lLabelID);
-                if (lLabelID == -1)
+                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
@@ -3749,7 +3749,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                     textptr++;
                 }
-                if (*textptr!='.')
+                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYNTAXERROR);
@@ -3762,7 +3762,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 lLabelID=C_GetLabelNameOffset(&inputH,Bstrtolower(label+(g_numLabels<<6)));
                 //printf("LabelID is %d\n",lLabelID);
-                if (lLabelID == -1)
+                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
@@ -3800,7 +3800,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                     textptr++;
                 }
-                if (*textptr!='.')
+                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYNTAXERROR);
@@ -3813,7 +3813,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 lLabelID=C_GetLabelNameID(UserdefsLabels,&userdefH,Bstrtolower(label+(g_numLabels<<6)));
 
-                if (lLabelID == -1)
+                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
@@ -3862,7 +3862,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                     textptr++;
                 }
-                if (*textptr!='.')
+                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYNTAXERROR);
@@ -3897,7 +3897,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 //printf("found label of \"%s\"\n",   label+(g_numLabels<<6));
 
                 // Check to see if it's a keyword
-                if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_ISAKEYWORD);
@@ -3906,14 +3906,14 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 i=GetDefID(label+(g_numLabels<<6));
                 //printf("Label \"%s\" ID is %d\n",label+(g_numLabels<<6), i);
-                if (i<0)
+                if (EDUKE32_PREDICT_FALSE(i<0))
                 {
                     // not a defined DEF
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_NOTAGAMEVAR);
                     continue;
                 }
-                if (aGameVars[i].dwFlags & GAMEVAR_READONLY)
+                if (EDUKE32_PREDICT_FALSE(aGameVars[i].dwFlags & GAMEVAR_READONLY))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_VARREADONLY);
@@ -3923,8 +3923,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 switch (tw)
                 {
                 case CON_SETACTORVAR:
-                    {
-                        if (!(aGameVars[i].dwFlags & GAMEVAR_PERACTOR))
+                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].dwFlags & GAMEVAR_PERACTOR)))
                         {
                             g_numCompilerErrors++;
                             C_ReportError(-1);
@@ -3932,10 +3931,8 @@ static int32_t C_ParseCommand(int32_t loop)
                             continue;
                         }
                         break;
-                    }
                 case CON_SETPLAYERVAR:
-                    {
-                        if (!(aGameVars[i].dwFlags & GAMEVAR_PERPLAYER))
+                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)))
                         {
                             g_numCompilerErrors++;
                             C_ReportError(-1);
@@ -3943,7 +3940,6 @@ static int32_t C_ParseCommand(int32_t loop)
                             continue;
                         }
                         break;
-                    }
                 }
 
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
@@ -3993,7 +3989,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     textptr++;
                 }
 
-                if (*textptr != '.')
+                if (EDUKE32_PREDICT_FALSE(*textptr != '.'))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYNTAXERROR);
@@ -4007,7 +4003,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 lLabelID=C_GetLabelNameOffset(&actorH,Bstrtolower(label+(g_numLabels<<6)));
                 //printf("LabelID is %d\n",lLabelID);
-                if (lLabelID == -1)
+                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
@@ -4041,7 +4037,7 @@ static int32_t C_ParseCommand(int32_t loop)
             {
                 int32_t lLabelID;
 #if 0
-                if (g_currentEvent != EVENT_ANIMATESPRITES)
+                if (unlikely(g_currentEvent != EVENT_ANIMATESPRITES))
                 {
                     C_ReportError(-1);
                     initprintf("%s:%d: warning: found `%s' outside of EVENT_ANIMATESPRITES\n",g_szScriptFileName,g_lineNumber,tempbuf);
@@ -4073,7 +4069,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                     textptr++;
                 }
-                if (*textptr!='.')
+                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYNTAXERROR);
@@ -4086,7 +4082,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 lLabelID=C_GetLabelNameOffset(&tspriteH,Bstrtolower(label+(g_numLabels<<6)));
                 //printf("LabelID is %d\n",lLabelID);
-                if (lLabelID == -1)
+                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
@@ -4168,7 +4164,7 @@ static int32_t C_ParseCommand(int32_t loop)
             //printf("We are enhanced, baby...\n");
             C_GetNextValue(LABEL_DEFINE);
             g_scriptPtr--;
-            if (*g_scriptPtr > BYTEVERSION_JF)
+            if (EDUKE32_PREDICT_FALSE(*g_scriptPtr > BYTEVERSION_JF))
             {
                 g_numCompilerWarnings++;
                 initprintf("%s:%d: warning: need build %d, found build %d\n",g_szScriptFileName,g_lineNumber,k,BYTEVERSION_JF);
@@ -4177,7 +4173,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
         case CON_DYNAMICREMAP:
             g_scriptPtr--;
-            if (g_dynamicTileMapping)
+            if (EDUKE32_PREDICT_FALSE(g_dynamicTileMapping))
             {
                 initprintf("%s:%d: warning: duplicate dynamicremap statement\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerWarnings++;
@@ -4197,7 +4193,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
         case CON_DYNAMICSOUNDREMAP:
             g_scriptPtr--;
-            if (g_dynamicSoundMapping)
+            if (EDUKE32_PREDICT_FALSE(g_dynamicSoundMapping))
             {
                 initprintf("%s:%d: warning: duplicate dynamicsoundremap statement\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerWarnings++;
@@ -4281,36 +4277,31 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_READARRAYFROMFILE:
             C_GetNextLabelName();
             i=GetADefID(label+(g_numLabels<<6));
-            if (i > (-1))
-            {
-                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                *g_scriptPtr++=i;
-            }
-            else
+            if (EDUKE32_PREDICT_FALSE(i < 0))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_NOTAGAMEARRAY);
                 return 1;
             }
+
+            bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+            *g_scriptPtr++=i;
+
             C_GetNextValue(LABEL_DEFINE);
             continue;
         case CON_COPY:
             C_GetNextLabelName();
             i=GetADefID(label+(g_numLabels<<6));
-            if (i > (-1))
-            {
-                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                *g_scriptPtr++=i;
-            }
-            else
+            if (EDUKE32_PREDICT_FALSE(i < 0))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_NOTAGAMEARRAY);
                 return 1;
             }
+            bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+            *g_scriptPtr++=i;
             C_SkipComments();// skip comments and whitespace
-            if (*textptr != '[')
-
+            if (EDUKE32_PREDICT_FALSE(*textptr != '['))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_GAMEARRAYBNO);
@@ -4319,7 +4310,7 @@ static int32_t C_ParseCommand(int32_t loop)
             textptr++;
             C_GetNextVar();
             C_SkipComments();// skip comments and whitespace
-            if (*textptr != ']')
+            if (EDUKE32_PREDICT_FALSE(*textptr != ']'))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_GAMEARRAYBNC);
@@ -4329,27 +4320,25 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_SETARRAY:
             C_GetNextLabelName();
             i=GetADefID(label+(g_numLabels<<6));
-            if (i > (-1))
-            {
-                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                *g_scriptPtr++=i;
-
-                if (aGameArrays[i].dwFlags & GAMEARRAY_READONLY)
-                {
-                    C_ReportError(ERROR_ARRAYREADONLY);
-                    g_numCompilerErrors++;
-                    return 1;
-                }
-            }
-            else
+            if (EDUKE32_PREDICT_FALSE(i < 0))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_NOTAGAMEARRAY);
                 return 1;
             }
 
+            bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+            *g_scriptPtr++=i;
+
+            if (EDUKE32_PREDICT_FALSE(aGameArrays[i].dwFlags & GAMEARRAY_READONLY))
+            {
+                C_ReportError(ERROR_ARRAYREADONLY);
+                g_numCompilerErrors++;
+                return 1;
+            }
+
             C_SkipComments();// skip comments and whitespace
-            if (*textptr != '[')
+            if (EDUKE32_PREDICT_FALSE(*textptr != '['))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_GAMEARRAYBNO);
@@ -4358,7 +4347,7 @@ static int32_t C_ParseCommand(int32_t loop)
             textptr++;
             C_GetNextVar();
             C_SkipComments();// skip comments and whitespace
-            if (*textptr != ']')
+            if (EDUKE32_PREDICT_FALSE(*textptr != ']'))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_GAMEARRAYBNC);
@@ -4371,21 +4360,19 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_RESIZEARRAY:
             C_GetNextLabelName();
             i=GetADefID(label+(g_numLabels<<6));
-            if (i >= 0)
-            {
-                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                *g_scriptPtr++ = i;
-                if (tw==CON_RESIZEARRAY && (aGameArrays[i].dwFlags & GAMEARRAY_TYPE_MASK))
-                {
-                    C_ReportError(-1);
-                    initprintf("can't resize system array `%s'.", label+(g_numLabels<<6));
-                    return 1;
-                }
-            }
-            else
+            if (EDUKE32_PREDICT_FALSE(i < 0))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_NOTAGAMEARRAY);
+                return 1;
+            }
+
+            bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+            *g_scriptPtr++ = i;
+            if (tw==CON_RESIZEARRAY && (aGameArrays[i].dwFlags & GAMEARRAY_TYPE_MASK))
+            {
+                C_ReportError(-1);
+                initprintf("can't resize system array `%s'.", label+(g_numLabels<<6));
                 return 1;
             }
 
@@ -4462,7 +4449,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_LOADMAPSTATE:
             if (tw != CON_FLASH)
             {
-                if (g_currentEvent == EVENT_ANIMATESPRITES)
+                if (EDUKE32_PREDICT_FALSE(g_currentEvent == EVENT_ANIMATESPRITES))
                 {
                     initprintf("%s:%d: warning: found `%s' inside EVENT_ANIMATESPRITES\n",
                                g_szScriptFileName,g_lineNumber,tempbuf);
@@ -4492,7 +4479,7 @@ static int32_t C_ParseCommand(int32_t loop)
             {
                 int32_t y, z;
 
-                if (g_processingState || g_parsingActorPtr)
+                if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
                 {
                     C_ReportError(ERROR_FOUNDWITHIN);
                     g_numCompilerErrors++;
@@ -4508,7 +4495,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextValue(LABEL_DEFINE);
                 z = *(g_scriptPtr-1);
 
-                if ((unsigned)j >= MAXTILES)
+                if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
                 {
                     C_ReportError(ERROR_EXCEEDSMAXTILES);
                     g_numCompilerErrors++;
@@ -4531,7 +4518,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextValue(LABEL_DEFINE);
                 g_scriptPtr--;
 
-                if ((unsigned)j >= MAXTILES)
+                if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
                 {
                     C_ReportError(ERROR_EXCEEDSMAXTILES);
                     g_numCompilerErrors++;
@@ -4550,7 +4537,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_SPRITENOSHADE:
         case CON_SPRITENOPAL:
         case CON_PRECACHE:
-            if (g_processingState || g_parsingActorPtr)
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_numCompilerErrors++;
@@ -4562,7 +4549,7 @@ static int32_t C_ParseCommand(int32_t loop)
             g_scriptPtr--;
             j = *g_scriptPtr;
 
-            if ((unsigned)j >= MAXTILES)
+            if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
             {
                 C_ReportError(ERROR_EXCEEDSMAXTILES);
                 g_numCompilerErrors++;
@@ -4587,7 +4574,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextValue(LABEL_DEFINE);
                 g_scriptPtr--;
                 i = *g_scriptPtr;
-                if ((unsigned)i >= MAXTILES)
+                if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXTILES))
                 {
                     C_ReportError(ERROR_EXCEEDSMAXTILES);
                     g_numCompilerErrors++;
@@ -4711,7 +4698,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
         case CON_ROTATESPRITE16:
         case CON_ROTATESPRITE:
-            if (g_parsingEventPtr == NULL && g_processingState == 0)
+            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_numCompilerErrors++;
@@ -4727,7 +4714,7 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case CON_ROTATESPRITEA:
-            if (g_parsingEventPtr == NULL && g_processingState == 0)
+            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_numCompilerErrors++;
@@ -4738,7 +4725,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
         case CON_SHOWVIEW:
         case CON_SHOWVIEWUNBIASED:
-            if (g_parsingEventPtr == NULL && g_processingState == 0)
+            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_numCompilerErrors++;
@@ -4824,7 +4811,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_DIGITALNUMBER:
         case CON_DIGITALNUMBERZ:
         case CON_SCREENTEXT:
-            if (g_parsingEventPtr == NULL && g_processingState == 0)
+            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_numCompilerErrors++;
@@ -4858,7 +4845,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_MYOSPAL:
         case CON_MYOSX:
         case CON_MYOSPALX:
-            if (g_parsingEventPtr == NULL && g_processingState == 0)
+            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_numCompilerErrors++;
@@ -4997,7 +4984,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 intptr_t tempoffset = 0;
                 //AddLog("Found Case");
 
-                if (g_checkingSwitch < 1)
+                if (EDUKE32_PREDICT_FALSE(g_checkingSwitch < 1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(-1);
@@ -5023,7 +5010,7 @@ repeatcase:
                 if (g_caseScriptPtr)
                 {
                     for (i=(g_numCases/2)-1; i>=0; i--)
-                        if (g_caseScriptPtr[i*2+1]==j)
+                        if (EDUKE32_PREDICT_FALSE(g_caseScriptPtr[i*2+1]==j))
                         {
                             g_numCompilerWarnings++;
                             C_ReportError(WARNING_DUPLICATECASE);
@@ -5072,14 +5059,14 @@ repeatcase:
             if (*textptr == ':')
                 textptr++;
 
-            if (g_checkingSwitch<1)
+            if (EDUKE32_PREDICT_FALSE(g_checkingSwitch<1))
             {
                 g_numCompilerErrors++;
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `default' statement when not in switch\n",g_szScriptFileName,g_lineNumber);
                 return 1;
             }
-            if (g_caseScriptPtr && g_caseScriptPtr[0]!=0)
+            if (EDUKE32_PREDICT_FALSE(g_caseScriptPtr && g_caseScriptPtr[0]!=0))
             {
                 // duplicate default statement
                 g_numCompilerErrors++;
@@ -5098,7 +5085,7 @@ repeatcase:
 
         case CON_ENDSWITCH:
             //AddLog("End Switch");
-            if (--g_checkingSwitch < 0)
+            if (EDUKE32_PREDICT_FALSE(--g_checkingSwitch < 0))
             {
                 g_numCompilerErrors++;
                 C_ReportError(-1);
@@ -5201,7 +5188,7 @@ repeatcase:
                     C_GetNextValue(LABEL_ACTION);
                     break;
                 case CON_IFMOVE:
-                    if ((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1))
+                    if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
                     {
                         C_ReportError(-1);
                         *(g_scriptPtr-1) = 0;
@@ -5311,7 +5298,7 @@ repeatcase:
             }
 
         case CON_LEFTBRACE:
-            if (!(g_processingState || g_parsingActorPtr || g_parsingEventPtr))
+            if (EDUKE32_PREDICT_FALSE(!(g_processingState || g_parsingActorPtr || g_parsingEventPtr)))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_SYNTAXERROR);
@@ -5343,7 +5330,7 @@ repeatcase:
                 return 1;
             }
 
-            if (g_numBraces < 0)
+            if (EDUKE32_PREDICT_FALSE(g_numBraces < 0))
             {
                 if (g_checkingSwitch)
                 {
@@ -5374,7 +5361,7 @@ repeatcase:
             j = *g_scriptPtr;
             C_SkipComments();
 
-            if (j < 0 || j > MAXVOLUMES-1)
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXVOLUMES-1))
             {
                 initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",
                     g_szScriptFileName,g_lineNumber);
@@ -5389,7 +5376,7 @@ repeatcase:
             {
                 EpisodeNames[j][i] = *textptr;
                 textptr++,i++;
-                if (i >= (signed)sizeof(EpisodeNames[j])-1)
+                if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(EpisodeNames[j])-1))
                 {
                     initprintf("%s:%d: warning: truncating volume name to %d characters.\n",
                         g_szScriptFileName,g_lineNumber,(int32_t)sizeof(EpisodeNames[j])-1);
@@ -5409,7 +5396,7 @@ repeatcase:
             j = *g_scriptPtr;
             C_SkipComments();
 
-            if (j < 0 || j > NUMGAMEFUNCTIONS-1)
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > NUMGAMEFUNCTIONS-1))
             {
                 initprintf("%s:%d: error: function number exceeds number of game functions.\n",
                     g_szScriptFileName,g_lineNumber);
@@ -5425,7 +5412,7 @@ repeatcase:
                 gamefunctions[j][i] = *textptr;
                 keydefaults[j*3][i] = *textptr;
                 textptr++,i++;
-                if (*textptr != 0x0a && *textptr != 0x0d && ispecial(*textptr))
+                if (EDUKE32_PREDICT_FALSE(*textptr != 0x0a && *textptr != 0x0d && ispecial(*textptr)))
                 {
                     initprintf("%s:%d: warning: invalid character in function name.\n",
                         g_szScriptFileName,g_lineNumber);
@@ -5433,7 +5420,7 @@ repeatcase:
                     C_NextLine();
                     break;
                 }
-                if (i >= MAXGAMEFUNCLEN-1)
+                if (EDUKE32_PREDICT_FALSE(i >= MAXGAMEFUNCLEN-1))
                 {
                     initprintf("%s:%d: warning: truncating function name to %d characters.\n",
                         g_szScriptFileName,g_lineNumber,MAXGAMEFUNCLEN);
@@ -5461,7 +5448,7 @@ repeatcase:
             j = *g_scriptPtr;
             C_SkipComments();
 
-            if (j < 0 || j >= MAXSKILLS)
+            if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXSKILLS))
             {
                 initprintf("%s:%d: error: skill number exceeds maximum skill count %d.\n",
                            g_szScriptFileName,g_lineNumber, MAXSKILLS);
@@ -5476,7 +5463,7 @@ repeatcase:
             {
                 SkillNames[j][i] = *textptr;
                 textptr++,i++;
-                if (i >= (signed)sizeof(SkillNames[j])-1)
+                if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(SkillNames[j])-1))
                 {
                     initprintf("%s:%d: warning: truncating skill name to %d characters.\n",
                         g_szScriptFileName,g_lineNumber,(int32_t)sizeof(SkillNames[j])-1);
@@ -5508,7 +5495,7 @@ repeatcase:
                 {
                     gamename[i] = *textptr;
                     textptr++,i++;
-                    if (i >= (signed)sizeof(gamename)-1)
+                    if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(gamename)-1))
                     {
                         initprintf("%s:%d: warning: truncating game name to %d characters.\n",
                             g_szScriptFileName,g_lineNumber,(int32_t)sizeof(gamename)-1);
@@ -5569,7 +5556,7 @@ repeatcase:
 
             C_SkipComments();
 
-            if (j < 0 || j > MAXGAMETYPES-1)
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXGAMETYPES-1))
             {
                 initprintf("%s:%d: error: gametype number exceeds maximum gametype count.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
@@ -5584,7 +5571,7 @@ repeatcase:
             {
                 GametypeNames[j][i] = *textptr;
                 textptr++,i++;
-                if (i >= (signed)sizeof(GametypeNames[j])-1)
+                if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(GametypeNames[j])-1))
                 {
                     initprintf("%s:%d: warning: truncating gametype name to %d characters.\n",
                         g_szScriptFileName,g_lineNumber,(int32_t)sizeof(GametypeNames[j])-1);
@@ -5606,14 +5593,14 @@ repeatcase:
             k = *g_scriptPtr;
             C_SkipComments();
 
-            if (j < 0 || j > MAXVOLUMES-1)
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXVOLUMES-1))
             {
                 initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
                 C_NextLine();
                 continue;
             }
-            if (k < 0 || k > MAXLEVELS-1)
+            if (EDUKE32_PREDICT_FALSE((unsigned)k > MAXLEVELS-1))
             {
                 initprintf("%s:%d: error: level number exceeds maximum number of levels per episode.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
@@ -5629,7 +5616,7 @@ repeatcase:
             {
                 tempbuf[i+1] = *textptr;
                 textptr++,i++;
-                if (i >= BMAX_PATH)
+                if (EDUKE32_PREDICT_FALSE(i >= BMAX_PATH))
                 {
                     initprintf("%s:%d: error: level file name exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH);
                     g_numCompilerErrors++;
@@ -5675,7 +5662,7 @@ repeatcase:
             {
                 tempbuf[i] = *textptr;
                 textptr++,i++;
-                if (i >= 32)
+                if (EDUKE32_PREDICT_FALSE(i >= 32))
                 {
                     initprintf("%s:%d: warning: truncating level name to %d characters.\n",
                         g_szScriptFileName,g_lineNumber,32);
@@ -5709,7 +5696,7 @@ repeatcase:
 
             k = *(g_scriptPtr-1);
 
-            if ((unsigned)k >= MAXQUOTES)
+            if (EDUKE32_PREDICT_FALSE((unsigned)k >= MAXQUOTES))
             {
                 initprintf("%s:%d: error: quote number exceeds limit of %d.\n",g_szScriptFileName,g_lineNumber,MAXQUOTES);
                 g_numCompilerErrors++;
@@ -5749,7 +5736,7 @@ repeatcase:
                 else
                     *(ScriptQuoteRedefinitions[g_numQuoteRedefinitions]+i) = *textptr;
                 textptr++,i++;
-                if (i >= MAXQUOTELEN-1)
+                if (EDUKE32_PREDICT_FALSE(i >= MAXQUOTELEN-1))
                 {
                     initprintf("%s:%d: warning: truncating quote text to %d characters.\n",g_szScriptFileName,g_lineNumber,MAXQUOTELEN-1);
                     g_numCompilerWarnings++;
@@ -5786,7 +5773,7 @@ repeatcase:
             C_GetNextValue(LABEL_DEFINE);
             k = *(g_scriptPtr-1);
 
-            if (k > 25)
+            if (EDUKE32_PREDICT_FALSE(k > 25))
             {
                 initprintf("%s:%d: error: cheat redefinition attempts to redefine nonexistent cheat.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
@@ -5801,7 +5788,7 @@ repeatcase:
             {
                 CheatStrings[k][i] = *textptr;
                 textptr++,i++;
-                if (i >= (signed)sizeof(CheatStrings[k])-1)
+                if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(CheatStrings[k])-1))
                 {
                     initprintf("%s:%d: warning: truncating cheat string to %d characters.\n",
                         g_szScriptFileName,g_lineNumber,(signed)sizeof(CheatStrings[k])-1);
@@ -5822,7 +5809,7 @@ repeatcase:
             j = hash_find(&h_labels,tempbuf);
 
             k = *(g_scriptPtr-1);
-            if ((unsigned)k >= MAXSOUNDS)
+            if (EDUKE32_PREDICT_FALSE((unsigned)k >= MAXSOUNDS))
             {
                 initprintf("%s:%d: error: exceeded sound limit of %d.\n",g_szScriptFileName,g_lineNumber,MAXSOUNDS);
                 g_numCompilerErrors++;
@@ -5840,7 +5827,7 @@ repeatcase:
                 while (*textptr && *textptr != '\"')
                 {
                     g_sounds[k].filename[i++] = *textptr++;
-                    if (i >= BMAX_PATH-1)
+                    if (EDUKE32_PREDICT_FALSE(i >= BMAX_PATH-1))
                     {
                         initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH-1);
                         g_numCompilerErrors++;
@@ -5853,7 +5840,7 @@ repeatcase:
             else while (*textptr != ' ' && *textptr != '\t' && *textptr != '\r' && *textptr != '\n')
             {
                 g_sounds[k].filename[i++] = *textptr++;
-                if (i >= BMAX_PATH-1)
+                if (EDUKE32_PREDICT_FALSE(i >= BMAX_PATH-1))
                 {
                     initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH-1);
                     g_numCompilerErrors++;
@@ -5890,24 +5877,24 @@ repeatcase:
 
         case CON_ENDEVENT:
 
-            if (g_parsingEventPtr == NULL)
+            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL))
             {
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `endevent' without open `onevent'.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
             }
-            if (g_numBraces > 0)
+            if (EDUKE32_PREDICT_FALSE(g_numBraces > 0))
             {
                 C_ReportError(ERROR_OPENBRACKET);
                 g_numCompilerErrors++;
             }
-            if (g_numBraces < 0)
+            else if (EDUKE32_PREDICT_FALSE(g_numBraces < 0))
             {
                 C_ReportError(ERROR_CLOSEBRACKET);
                 g_numCompilerErrors++;
             }
             // if event has already been declared then put a jump in instead
-            if (previous_event)
+            if (EDUKE32_PREDICT_FALSE((intptr_t)previous_event))
             {
                 g_scriptPtr--;
                 *(g_scriptPtr++) = CON_JUMP;
@@ -5922,13 +5909,13 @@ repeatcase:
             continue;
 
         case CON_ENDA:
-            if (g_parsingActorPtr == NULL)
+            if (EDUKE32_PREDICT_FALSE(g_parsingActorPtr == NULL))
             {
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `enda' without open `actor'.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
             }
-            if (g_numBraces != 0)
+            if (EDUKE32_PREDICT_FALSE(g_numBraces != 0))
             {
                 C_ReportError(g_numBraces > 0 ? ERROR_OPENBRACKET : ERROR_CLOSEBRACKET);
                 g_numCompilerErrors++;
@@ -5941,7 +5928,7 @@ repeatcase:
         case CON_BREAK:
             if (g_checkingSwitch)
             {
-                if (otw == CON_BREAK)
+                if (EDUKE32_PREDICT_FALSE(otw == CON_BREAK))
                 {
                     C_ReportError(-1);
                     initprintf("%s:%d: warning: duplicate `break'.\n",g_szScriptFileName, g_lineNumber);
@@ -5986,7 +5973,7 @@ repeatcase:
         case CON_NULLOP:
             if (tw == CON_NULLOP)
             {
-                if (C_GetKeyword() != CON_ELSE)
+                if (EDUKE32_PREDICT_FALSE(C_GetKeyword() != CON_ELSE))
                 {
                     C_ReportError(-1);
                     g_numCompilerWarnings++;

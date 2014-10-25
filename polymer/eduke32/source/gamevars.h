@@ -129,11 +129,11 @@ void Gv_FinalizeWeaponDefaults(void);
         aGameVars[id].val.lValue operator lValue; \
         break; \
     case GAMEVAR_PERPLAYER: \
-        if ((unsigned)vm.g_p > MAXPLAYERS-1) break; \
+        if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_p > MAXPLAYERS-1)) break; \
         aGameVars[id].val.plValues[vm.g_p] operator lValue; \
         break; \
     case GAMEVAR_PERACTOR: \
-        if ((unsigned)vm.g_i > MAXSPRITES-1) break; \
+        if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_i > MAXSPRITES-1)) break; \
         aGameVars[id].val.plValues[vm.g_i] operator lValue; \
         break; \
     case GAMEVAR_INTPTR: \
@@ -158,8 +158,8 @@ static inline void __fastcall Gv_DivVar(int32_t id, int32_t lValue)
     libdivide_s32_t *dptr = &sdiv;
     intptr_t *iptr = &aGameVars[id].val.lValue;
 
-    if ((aGameVars[id].dwFlags & GAMEVAR_PERPLAYER && (unsigned) vm.g_p > MAXPLAYERS-1) ||
-        (aGameVars[id].dwFlags & GAMEVAR_PERACTOR && (unsigned) vm.g_i > MAXSPRITES-1)) return;
+    if (EDUKE32_PREDICT_FALSE((aGameVars[id].dwFlags & GAMEVAR_PERPLAYER && (unsigned) vm.g_p > MAXPLAYERS-1) || 
+        (aGameVars[id].dwFlags & GAMEVAR_PERACTOR && (unsigned) vm.g_i > MAXSPRITES-1))) return;
 
     if ((unsigned) lValue < DIVTABLESIZE)
         dptr = (libdivide_s32_t *)&divtable32[lValue];

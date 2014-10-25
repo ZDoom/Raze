@@ -4059,7 +4059,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         radplayerang = (globalang & 2047) * 2.0f * PI / 2048.0f;
         cosminusradplayerang = cos(-radplayerang);
         sinminusradplayerang = sin(-radplayerang);
-        hudzoom = 65536.0 / spriteext[tspr->owner].zoff;
+        hudzoom = 65536.0 / spriteext[tspr->owner].offset.z;
 
         bglTranslatef(spos[0], spos[1], spos[2]);
         bglRotatef(horizang, -cosminusradplayerang, 0.0f, sinminusradplayerang);
@@ -4114,9 +4114,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         pitchang = (float)(spriteext[tspr->owner].pitch) / (2048.0f / 360.0f);
         rollang = (float)(spriteext[tspr->owner].roll) / (2048.0f / 360.0f);
 
-        offsets[0] = -spriteext[tspr->owner].xoff / (scale * tspr->xrepeat);
-        offsets[1] = -spriteext[tspr->owner].yoff / (scale * tspr->xrepeat);
-        offsets[2] = (float)(spriteext[tspr->owner].zoff) / 16.0f / (scale * tspr->yrepeat);
+        offsets[0] = -spriteext[tspr->owner].offset.x / (scale * tspr->xrepeat);
+        offsets[1] = -spriteext[tspr->owner].offset.y / (scale * tspr->xrepeat);
+        offsets[2] = (float)(spriteext[tspr->owner].offset.z) / 16.0f / (scale * tspr->yrepeat);
 
         bglTranslatef(-offsets[0], -offsets[1], -offsets[2]);
 
@@ -4526,8 +4526,8 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
 
         if (pth->hicr)
         {
-            material->diffusescale[0] = pth->hicr->xscale;
-            material->diffusescale[1] = pth->hicr->yscale;
+            material->diffusescale[0] = pth->hicr->scale.x;
+            material->diffusescale[1] = pth->hicr->scale.y;
         }
     }
 
@@ -4666,8 +4666,8 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         pth->hicr && (pth->hicr->palnum == DETAILPAL))
     {
         material->detailmap = pth->glpic;
-        material->detailscale[0] = pth->hicr->xscale;
-        material->detailscale[1] = pth->hicr->yscale;
+        material->detailscale[0] = pth->hicr->scale.x;
+        material->detailscale[1] = pth->hicr->scale.y;
     }
 
     // PR_BIT_GLOW_MAP

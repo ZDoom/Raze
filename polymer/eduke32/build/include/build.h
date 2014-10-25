@@ -622,7 +622,7 @@ typedef struct {
     uint32_t mdanimtims;
     int16_t mdanimcur;
     int16_t angoff, pitch, roll;
-    int32_t xoff, yoff, zoff;
+    vec3_t offset;
     uint8_t flags;
     uint8_t xpanning, ypanning;
     uint8_t filler;
@@ -705,35 +705,43 @@ static inline void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
 
 static inline void sector_tracker_hook(uintptr_t address)
 {
-    address -= (uintptr_t)(sector);
-    address /= sizeof(sectortype);
+    uintptr_t const usector = (uintptr_t) sector;
 
-    if (address > MAXSECTORS + M32_FIXME_SECTORS) return;
+    if (EDUKE32_PREDICT_FALSE((address - usector) >= (MAXSECTORS+M32_FIXME_SECTORS * sizeof(sectortype))))
+        return;
+
+    address = (address - usector);
+    address /= sizeof(sectortype);
 
     sectorchanged[address]++;
 }
 
 static inline void wall_tracker_hook(uintptr_t address)
 {
-    address -= (uintptr_t)(wall);
-    address /= sizeof(walltype);
+    uintptr_t const uwall = (uintptr_t) wall;
 
-    if (address > MAXWALLS + M32_FIXME_WALLS) return;
+    if (EDUKE32_PREDICT_FALSE((address - uwall) >= (MAXWALLS+M32_FIXME_WALLS * sizeof(walltype))))
+        return;
+
+    address = (address - uwall);
+    address /= sizeof(walltype);
 
     wallchanged[address]++;
 }
 
 static inline void sprite_tracker_hook(uintptr_t address)
 {
-    if (address >= (uintptr_t)(sprite) &&
-        address < (uintptr_t)(sprite) + MAXSPRITES * sizeof(spritetype))
-    {
-        address -= (uintptr_t)(sprite);
-        address /= sizeof(spritetype);
+    uintptr_t const usprite = (uintptr_t)sprite;
 
-        spritechanged[address]++;
-    }
+    if (EDUKE32_PREDICT_FALSE((address - usprite) >= (MAXSPRITES * sizeof(spritetype))))
+        return;
+
+    address = (address - usprite);
+    address /= sizeof(spritetype);
+
+    spritechanged[address]++;
 }
+
 
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];

@@ -3143,8 +3143,7 @@ void M_ChangeMenu(MenuID_t cm)
     Menu_t *search;
     int32_t i;
 
-    if (G_HaveEvent(EVENT_CHANGEMENU))
-        cm = VM_OnEvent(EVENT_CHANGEMENU, g_player[myconnectindex].ps->i, myconnectindex, -1, cm);
+    cm = VM_OnEvent(EVENT_CHANGEMENU, g_player[myconnectindex].ps->i, myconnectindex, -1, cm);
 
     if (cm == MENU_PREVIOUS)
     {
@@ -4816,8 +4815,7 @@ void M_DisplayMenus(void)
         return;
     }
 
-    if (G_HaveEvent(EVENT_DISPLAYMENU))
-        VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+    VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     g_player[myconnectindex].ps->fta = 0;
@@ -4847,7 +4845,7 @@ void M_DisplayMenus(void)
     gltexapplyprops();
 #endif
 
-    if (G_HaveEvent(EVENT_DISPLAYMENUREST))
+    if (VM_HaveEvent(EVENT_DISPLAYMENUREST))
         VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)

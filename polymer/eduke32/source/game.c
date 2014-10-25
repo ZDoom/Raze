@@ -3765,10 +3765,10 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-    if (G_HaveEvent(EVENT_DISPLAYREST))
+    if (VM_HaveEvent(EVENT_DISPLAYREST))
     {
         int32_t vr=viewingrange, asp=yxaspect;
-        VM_OnEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        VM_OnEvent_(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
         setaspect(vr, asp);
     }
 
@@ -4044,8 +4044,7 @@ void G_DrawBackground(void)
 
         // when not rendering a game, fullscreen wipe
 //        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
-        if (G_HaveEvent(EVENT_GETMENUTILE))
-            bgtile = VM_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1, bgtile);
+        bgtile = VM_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1, bgtile);
         // MENU_TILE: is the menu tile tileable?
 #if !defined LUNATIC
         if (Gv_GetVarByLabel("MENU_TILE", !fstilep, -1, -1))
@@ -4705,8 +4704,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         dont_draw = 0;
         // NOTE: might be rendering off-screen here, so CON commands that draw stuff
         //  like showview must cope with that situation or bail out!
-        if (G_HaveEvent(EVENT_DISPLAYROOMS))
-            dont_draw = VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        dont_draw = VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
         CAMERA(horiz) = clamp(CAMERA(horiz), HORIZ_MIN, HORIZ_MAX);
 
@@ -5066,12 +5064,12 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     g_noResetVars = 0;
 #endif
 
-    if (G_HaveEvent(EVENT_EGS))
+    if (VM_HaveEvent(EVENT_EGS))
     {
         int32_t pl=A_FindPlayer(s, &p);
 
         block_deletesprite++;
-        VM_OnEvent(EVENT_EGS, i, pl, p, 0);
+        VM_OnEvent_(EVENT_EGS, i, pl, p, 0);
         block_deletesprite--;
     }
 
@@ -7067,11 +7065,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         }
 
 SPAWN_END:
-    if (G_HaveEvent(EVENT_SPAWN))
+    if (VM_HaveEvent(EVENT_SPAWN))
     {
         int32_t p;
         int32_t pl=A_FindPlayer(&sprite[i],&p);
-        VM_OnEvent(EVENT_SPAWN,i, pl, p, 0);
+        VM_OnEvent_(EVENT_SPAWN,i, pl, p, 0);
     }
 
     return i;
@@ -7196,13 +7194,13 @@ static void G_DoEventAnimSprites(int32_t j)
 {
     const int32_t ow = tsprite[j].owner;
 
-    if (((unsigned)ow < MAXSPRITES && spriteext[ow].flags & SPREXT_TSPRACCESS) || tsprite[j].statnum == TSPR_TEMP)
-    {
-        spriteext[ow].tspr = &tsprite[j];
-        // XXX: wouldn't screenpeek be more meaningful as current player?
-        VM_OnEvent(EVENT_ANIMATESPRITES, ow, myconnectindex, -1, 0);
-        spriteext[ow].tspr = NULL;
-    }
+    if (((unsigned) ow >= MAXSPRITES || (spriteext[ow].flags & SPREXT_TSPRACCESS) != SPREXT_TSPRACCESS) || tsprite[j].statnum != TSPR_TEMP)
+        return;
+
+    spriteext[ow].tspr = &tsprite[j];
+    // XXX: wouldn't screenpeek be more meaningful as current player?
+    VM_OnEvent_(EVENT_ANIMATESPRITES, ow, myconnectindex, -1, 0);
+    spriteext[ow].tspr = NULL;
 }
 
 void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothratio)
@@ -7482,7 +7480,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             else if (g_curViewscreen >= 0 && OW != i && display_mirror != 3 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200 )
             {
                 // this exposes a sprite sorting issue which needs to be debugged further...
-#if 0       
+#if 0
                 if (spritesortcnt < MAXSPRITESONSCREEN)
                 {
                     spritetype *const newt = &tsprite[spritesortcnt++];
@@ -7501,10 +7499,11 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->yrepeat = t->yrepeat & 1 ? (t->yrepeat>>2) + 1 : t->yrepeat>>2;
             }
 
+#if 0 // moved to polymost
             t->x += (sintable[(t->ang+512)&2047]>>13);
             t->y += (sintable[t->ang&2047]>>13);
             updatesector(t->x, t->y, &t->sectnum);
-
+#endif
             break;
 
         case SHRINKSPARK__STATIC:
@@ -8051,15 +8050,14 @@ skip:
         */
     }
 
-    if (G_HaveEvent(EVENT_ANIMATESPRITES))
+    if (VM_HaveEvent(EVENT_ANIMATESPRITES))
     {
         for (j = spritesortcnt-1; j>=0; j--)
             G_DoEventAnimSprites(j);
     }
 
 #ifdef LUNATIC
-    if (G_HaveEvent(EVENT_ANIMATEALLSPRITES))
-        VM_OnEvent(EVENT_ANIMATEALLSPRITES, -1, -1, -1, 0);
+    VM_OnEvent(EVENT_ANIMATEALLSPRITES, -1, -1, -1, 0);
 #endif
 #ifdef DEBUGGINGAIDS
     g_spriteStat.numonscreen = spritesortcnt;
@@ -11191,7 +11189,7 @@ void app_crashhandler(void)
     G_GameQuit();
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(DEBUGGINGAIDS)
 // See FILENAME_CASE_CHECK in cache1d.c
 static int32_t check_filename_casing(void)
 {
@@ -11252,10 +11250,12 @@ int32_t app_main(int32_t argc, const char **argv)
 
     backgroundidle = 0;
 
+#ifdef DEBUGGINGAIDS
     {
         extern int32_t (*check_filename_casing_fn)(void);
         check_filename_casing_fn = check_filename_casing;
     }
+#endif
 #endif
 
     G_ExtPreInit(argc, argv);

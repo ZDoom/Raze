@@ -151,15 +151,6 @@ EDUKE32_STATIC_ASSERT(5 <= MAXTILES-MAXUSERTILES);
 # include "lunatic_game.h"
 #endif
 
-static inline int32_t G_HaveEvent(int32_t iEventID)
-{
-#ifdef LUNATIC
-    return El_HaveEvent(iEventID);
-#else
-    return apScriptGameEvent[iEventID]!=NULL;
-#endif
-}
-
 static inline int32_t G_HaveActor(int32_t actortile)
 {
 #ifdef LUNATIC

@@ -2789,7 +2789,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 
     tweak_tsizes(&tsiz);
 
-    if (palookup[globalpal] == NULL)
+    if (EDUKE32_PREDICT_FALSE(palookup[globalpal] == NULL))
         globalpal = 0;
 
     fpalookup = FP_OFF(palookup[globalpal]);
@@ -5684,7 +5684,7 @@ draw_as_face_sprite:
         xsiz = mulscale30(siz,xv*xspan);
         ysiz = mulscale14(siz,tspr->yrepeat*yspan);
 
-        if ((tilesiz[tilenum].x>>11) >= xsiz || yspan >= (ysiz>>1))
+        if (EDUKE32_PREDICT_FALSE((tilesiz[tilenum].x>>11) >= xsiz || yspan >= (ysiz>>1)))
             return;  //Watch out for divscale overflow
 
         x1 = xb-(xsiz>>1);
@@ -6966,11 +6966,11 @@ static inline int32_t addscaleclamp(int32_t a, int32_t b, int32_t s1, int32_t s2
     // a + scale(b, s1, s1-s2), but without arithmetic exception when the
     // scale() expression overflows
 
-    int64_t tmp = (int64_t)a + ((int64_t)b*s1)/(s1-s2);
+    int64_t tmp = (int64_t)a + tabledivide64((int64_t)b*s1, s1-s2);
 
-    if (tmp <= INT32_MIN+1)
+    if (EDUKE32_PREDICT_FALSE(tmp <= INT32_MIN+1))
         return INT32_MIN+1;
-    if (tmp >= INT32_MAX)
+    if (EDUKE32_PREDICT_FALSE(tmp >= INT32_MAX))
         return INT32_MAX;
     return tmp;
 }
@@ -8353,24 +8353,67 @@ void fillemptylookups(void)
             makepalookup(j, NULL, 0,0,0, 1);
 }
 
+#define COLRESULTSIZ 4096
+
+#define COLRESULT(x) do {  } while (0)
+
+static uint32_t getclosestcol_results[COLRESULTSIZ];
+static int32_t numclosestcolresults;
+
+void getclosestcol_flush(void)
+{
+    Bmemset(getclosestcol_results, 0, COLRESULTSIZ * sizeof(uint32_t));
+    numclosestcolresults = 0;
+}
+
 // Finds a color index in [0 .. lastokcol] closest to (r, g, b).
 // <lastokcol> must be in [0 .. 255].
 int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
 {
     int32_t i, k, retcol = -1;
+    int32_t mindist = -1;
 
     const int32_t j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
         + (g>>3)*FASTPALGRIDSIZ + (b>>3)
         + FASTPALGRIDSIZ*FASTPALGRIDSIZ
         + FASTPALGRIDSIZ+1;
 
-    int32_t mindist = min(rdist[coldist[r&7]+64+8],gdist[coldist[g&7]+64+8]);
-    mindist = min(mindist,bdist[coldist[b&7]+64+8]);
-    mindist++;
-
+    uint32_t col;
+    
     Bassert(lastokcol >= 0 && lastokcol <= 255);
 
-    r = 64-r; g = 64-g; b = 64-b;
+    r = 64-r, g = 64-g, b = 64-b;
+
+    col = (r + (g<<8) + (b<<16));
+
+    if (!numclosestcolresults) goto skip;
+
+    if (col == (getclosestcol_results[(numclosestcolresults-1) & (COLRESULTSIZ-1)] & 0x00ffffff))
+        return getclosestcol_results[(numclosestcolresults-1) & (COLRESULTSIZ-1)]>>24;
+
+    k = (numclosestcolresults > COLRESULTSIZ) ? (COLRESULTSIZ-4) : (numclosestcolresults-4);
+
+    for (i = 0; i < k; i+=4)
+    {
+        if (col == (getclosestcol_results[i]   & 0x00ffffff)) { mindist = i; break; }
+        if (col == (getclosestcol_results[i+1] & 0x00ffffff)) { mindist = i+1; break; }
+        if (col == (getclosestcol_results[i+2] & 0x00ffffff)) { mindist = i+2; break; }
+        if (col == (getclosestcol_results[i+3] & 0x00ffffff)) { mindist = i+3; break; }
+    }
+
+    if (mindist == -1)
+    for (; i < k+4; i++)
+        if (col == (getclosestcol_results[i] & 0x00ffffff)) { mindist = i; break; }
+
+    if (mindist != -1 && getclosestcol_results[mindist]>>24 < (unsigned)lastokcol)
+        return getclosestcol_results[mindist]>>24;
+
+skip:
+    getclosestcol_results[numclosestcolresults & (COLRESULTSIZ-1)] = col;
+
+    mindist = min(rdist[coldist[r&7]+64+8], gdist[coldist[g&7]+64+8]);
+    mindist = min(mindist, bdist[coldist[b&7]+64+8]);
+    mindist++;
 
     for (k=26; k>=0; k--)
     {
@@ -8401,7 +8444,11 @@ int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
     }
 
     if (retcol >= 0)
+    {
+        getclosestcol_results[numclosestcolresults & (COLRESULTSIZ-1)] |= retcol<<24;
+        numclosestcolresults++;
         return retcol;
+    }
 
     mindist = INT32_MAX;
 
@@ -8416,6 +8463,8 @@ int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
         mindist = dist; retcol = i;
     }
 
+    getclosestcol_results[numclosestcolresults & (COLRESULTSIZ-1)] |= retcol<<24;
+    numclosestcolresults++;
     return retcol;
 }
 
@@ -9591,6 +9640,8 @@ killsprite:
                             swaplong(&spritesy[k],&spritesy[l]);
                             swaplong(&spritesz[k],&spritesz[l]);
                         }
+
+
                 for (k=i+1; k<j; k++)
                     for (l=i; l<k; l++)
                         if (tspriteptr[k]->statnum < tspriteptr[l]->statnum)
@@ -9599,6 +9650,7 @@ killsprite:
                             swaplong(&spritesx[k],&spritesx[l]);
                             swaplong(&spritesy[k],&spritesy[l]);
                         }
+
             }
             i = j;
         }
@@ -10968,7 +11020,7 @@ int32_t loadmaphack(const char *filename)
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
-            spriteext[whichsprite].xoff = i;
+            spriteext[whichsprite].offset.x = i;
         }
         break;
         case T_MDYOFF:     // mdyoff <xx>
@@ -10983,7 +11035,7 @@ int32_t loadmaphack(const char *filename)
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
-            spriteext[whichsprite].yoff = i;
+            spriteext[whichsprite].offset.y = i;
         }
         break;
         case T_MDZOFF:     // mdzoff <xx>
@@ -10998,7 +11050,7 @@ int32_t loadmaphack(const char *filename)
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
-            spriteext[whichsprite].zoff = i;
+            spriteext[whichsprite].offset.z = i;
         }
         break;
         case T_AWAY1:      // away1

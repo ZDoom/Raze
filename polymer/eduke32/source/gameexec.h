@@ -155,17 +155,18 @@ void G_SaveMapState();
 
 int32_t VM_OnEvent_(int32_t iEventID,int32_t iActor,int32_t iPlayer,int32_t lDist, int32_t iReturn);
 
-static inline int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
+static inline int32_t VM_HaveEvent(int32_t iEventID)
 {
 #ifdef LUNATIC
-    if (!L_IsInitialized(&g_ElState) || !El_HaveEvent(iEventID))
-        return iReturn;
+    return L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID)
 #else
-    if (!apScriptGameEvent[iEventID])
-        return iReturn;
+    return apScriptGameEvent[iEventID]!=NULL;
 #endif
+}
 
-    return VM_OnEvent_(iEventID, iActor, iPlayer, lDist, iReturn);
+static inline int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
+{
+    return VM_HaveEvent(iEventID) ? VM_OnEvent_(iEventID, iActor, iPlayer, lDist, iReturn) : iReturn;
 }
 
 void VM_ScriptInfo(void);

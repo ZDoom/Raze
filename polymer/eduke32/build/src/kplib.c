@@ -874,6 +874,7 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
                         palcol[i] &= LSWAPIB((((int32_t)filptr[i])<<24)|0xffffff);
                 break;
             default:;
+                EDUKE32_UNREACHABLE_SECTION();
             }
         }
         else if (i == (int32_t)LSWAPIB(0x54414449)) { break; }  //IDAT

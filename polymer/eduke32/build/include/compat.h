@@ -37,6 +37,20 @@
 # define ATTRIBUTE_OPTIMIZE(str)
 #endif
 
+#if defined __GNUC__ || defined __clang__
+#define EDUKE32_PREDICT_TRUE(x)       __builtin_expect(!!(x),1)
+#define EDUKE32_PREDICT_FALSE(x)     __builtin_expect(!!(x),0)
+#define EDUKE32_UNREACHABLE_SECTION(...)   __builtin_unreachable()
+#elif _MSC_VER
+#define EDUKE32_PREDICT_TRUE(x) (x)
+#define EDUKE32_PREDICT_FALSE(x) (x)
+#define EDUKE32_UNREACHABLE_SECTION(...)   __assume(0)
+#else 
+#define EDUKE32_PREDICT_TRUE(x) (x)
+#define EDUKE32_PREDICT_FALSE(x) (x)
+#define EDUKE32_UNREACHABLE_SECTION(...) __VA_ARGS__
+#endif
+
 #ifndef min
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #endif
@@ -150,11 +164,6 @@
 
 #endif
 
-#include <math.h>
-static inline long lround(double num)
-{
-    return (long) (num > 0 ? num + 0.5 : ceil(num - 0.5));
-}
 #else
 # define longlong(x) x##ll
 #endif

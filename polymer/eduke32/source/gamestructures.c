@@ -33,7 +33,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
 {
     int32_t lValue=0;
 
-    if (vm.g_p != myconnectindex)
+    if (EDUKE32_PREDICT_FALSE(vm.g_p != myconnectindex))
     {
         //        if (lVar2 == MAXGAMEVARS)
         //            insptr++;
@@ -920,7 +920,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
     if (lVar1 != g_iThisActorID)
         proj=Gv_GetVarX(lVar1);
 
-    if ((unsigned)proj >= MAXSPRITES)
+    if (EDUKE32_PREDICT_FALSE((unsigned)proj >= MAXSPRITES))
     {
         //        OSD_Printf("VM_AccessActiveProjectile(): invalid projectile (%d)\n",proj);
         CON_ERRPRINTF("tried to %s %s on invalid target projectile (%d) %d %d from %s\n",
@@ -1218,10 +1218,10 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVarX(lVar1);
 
-    if ((unsigned)iPlayer >= (unsigned)playerswhenstarted)
+    if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
         goto badplayer;
 
-    if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && ((unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2))
+    if (EDUKE32_PREDICT_FALSE(PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && ((unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2)))
         goto badpos;
 
     ps = g_player[iPlayer].ps;
@@ -1560,10 +1560,10 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
 
     ps = g_player[iPlayer].ps;
 
-    if ((unsigned)iPlayer >= (unsigned)playerswhenstarted)
+    if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
         goto badplayer;
 
-    if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2)
+    if (EDUKE32_PREDICT_FALSE(PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2))
         goto badpos;
 
     lVar1=Gv_GetVarX(lVar2);
@@ -1911,7 +1911,7 @@ static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVarX(lVar1);
 
-    if ((unsigned)iPlayer >= (unsigned)playerswhenstarted)
+    if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
         goto badplayer;
 
     if (iSet)
@@ -1987,7 +1987,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
     int32_t lValue=0;
     int32_t iWall = Gv_GetVarX(lVar1);
 
-    if ((unsigned)iWall >= (unsigned)numwalls)
+    if (EDUKE32_PREDICT_FALSE((unsigned)iWall >= (unsigned)numwalls))
         goto badwall;
 
     if (iSet)
@@ -2183,7 +2183,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
     if (lVar1 != g_iThisActorID)
         iSector=Gv_GetVarX(lVar1);
 
-    if ((unsigned)iSector >= (unsigned)numsectors)
+    if (EDUKE32_PREDICT_FALSE((unsigned)iSector >= (unsigned)numsectors))
         goto badsector;
 
     if (iSet)
@@ -2445,10 +2445,10 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     if (lVar1 != g_iThisActorID)
         iActor=Gv_GetVarX(lVar1);
 
-    if ((unsigned)iActor >= MAXSPRITES)
+    if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
         goto badactor;
 
-    if (ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2)
+    if (EDUKE32_PREDICT_FALSE(ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2))
         goto badpos;
 
     lVar1=Gv_GetVarX(lVar2);
@@ -2640,15 +2640,15 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
         return;
 
     case ACTOR_MDXOFF:
-        spriteext[iActor].xoff=lVar1;
+        spriteext[iActor].offset.x=lVar1;
         return;
 
     case ACTOR_MDYOFF:
-        spriteext[iActor].yoff=lVar1;
+        spriteext[iActor].offset.y=lVar1;
         return;
 
     case ACTOR_MDZOFF:
-        spriteext[iActor].zoff=lVar1;
+        spriteext[iActor].offset.z=lVar1;
         return;
 
     case ACTOR_MDFLAGS:
@@ -2697,10 +2697,11 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     if (lVar1 != g_iThisActorID)
         iActor=Gv_GetVarX(lVar1);
 
-    if ((unsigned)iActor >= MAXSPRITES)
+    if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
         goto badactor;
 
-    if (ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2)
+    if (EDUKE32_PREDICT_FALSE(ActorLabels[lLabelID].flags & LABEL_HASPARM2 &&
+        (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2))
         goto badpos;
 
     switch (lLabelID)
@@ -2890,15 +2891,15 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
         return;
 
     case ACTOR_MDXOFF:
-        Gv_SetVarX(lVar2,spriteext[iActor].xoff);
+        Gv_SetVarX(lVar2,spriteext[iActor].offset.x);
         return;
 
     case ACTOR_MDYOFF:
-        Gv_SetVarX(lVar2,spriteext[iActor].yoff);
+        Gv_SetVarX(lVar2,spriteext[iActor].offset.y);
         return;
 
     case ACTOR_MDZOFF:
-        Gv_SetVarX(lVar2,spriteext[iActor].zoff);
+        Gv_SetVarX(lVar2,spriteext[iActor].offset.z);
         return;
 
     case ACTOR_MDFLAGS:
@@ -2952,13 +2953,13 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
     if (lVar1 != g_iThisActorID)
         iActor=Gv_GetVarX(lVar1);
 
-    if ((unsigned)iActor >= MAXSPRITES)
+    if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
         goto badsprite;
 
     if (iSet)
         lValue=Gv_GetVarX(lVar2);
 
-    if (!spriteext[iActor].tspr)
+    if (EDUKE32_PREDICT_FALSE(!spriteext[iActor].tspr))
         goto badtspr;
 
     switch (lLabelID)
@@ -3208,7 +3209,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
 {
     int32_t lValue=0;
 
-    if ((unsigned)lVar1 >= MAXTILES)
+    if (EDUKE32_PREDICT_FALSE((unsigned)lVar1 >= MAXTILES))
         goto badtile;
 
     if (iSet)
@@ -3498,7 +3499,8 @@ badtile:
 #else
 static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
 {
-    if (ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2)
+    if (EDUKE32_PREDICT_FALSE(ActorLabels[lLabelID].flags & LABEL_HASPARM2 &&
+        (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2))
         goto badpos;
 
     switch (lLabelID)
@@ -3549,9 +3551,9 @@ static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int
     case ACTOR_ANGOFF: return spriteext[iActor].angoff;
     case ACTOR_PITCH: return spriteext[iActor].pitch;
     case ACTOR_ROLL: return spriteext[iActor].roll;
-    case ACTOR_MDXOFF: return spriteext[iActor].xoff;
-    case ACTOR_MDYOFF: return spriteext[iActor].yoff;
-    case ACTOR_MDZOFF: return spriteext[iActor].zoff;
+    case ACTOR_MDXOFF: return spriteext[iActor].offset.x;
+    case ACTOR_MDYOFF: return spriteext[iActor].offset.y;
+    case ACTOR_MDZOFF: return spriteext[iActor].offset.z;
     case ACTOR_MDFLAGS: return spriteext[iActor].flags;
     case ACTOR_XPANNING: return spriteext[iActor].xpanning;
     case ACTOR_YPANNING: return spriteext[iActor].ypanning;
@@ -3611,7 +3613,8 @@ static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, in
 {
     DukePlayer_t *const ps = g_player[iPlayer].ps;
 
-    if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2)
+    if (EDUKE32_PREDICT_FALSE(PlayerLabels[lLabelID].flags & LABEL_HASPARM2 &&
+        (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2))
         goto badpos;
 
     switch (lLabelID)
