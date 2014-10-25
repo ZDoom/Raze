@@ -7479,10 +7479,32 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->xrepeat += 8;
                 t->yrepeat += 8;
             }
-            else if (g_curViewscreen >= 0 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200)
+            else if (g_curViewscreen >= 0 && OW != i && display_mirror != 3 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200 )
             {
+                // this exposes a sprite sorting issue which needs to be debugged further...
+#if 0       
+                if (spritesortcnt < MAXSPRITESONSCREEN)
+                {
+                    spritetype *const newt = &tsprite[spritesortcnt++];
+
+                    Bmemcpy(newt, t, sizeof(spritetype));
+
+                    newt->cstat |= 2|512;
+                    newt->x += (sintable[(newt->ang+512)&2047]>>12);
+                    newt->y += (sintable[newt->ang&2047]>>12);
+                    updatesector(newt->x, newt->y, &newt->sectnum);
+                }
+#endif
+
                 t->picnum = TILE_VIEWSCR;
+                t->xrepeat = t->xrepeat & 1 ? (t->xrepeat>>2) + 1 : t->xrepeat>>2;
+                t->yrepeat = t->yrepeat & 1 ? (t->yrepeat>>2) + 1 : t->yrepeat>>2;
             }
+
+            t->x += (sintable[(t->ang+512)&2047]>>13);
+            t->y += (sintable[t->ang&2047]>>13);
+            updatesector(t->x, t->y, &t->sectnum);
+
             break;
 
         case SHRINKSPARK__STATIC:

@@ -550,25 +550,6 @@ void G_CacheMapData(void)
     OSD_Printf("Cache time: %dms\n", endtime-starttime);
 }
 
-void G_SetupCamTile(int32_t i,int32_t wn)
-{
-    //if (waloff[wn] == 0) loadtile(wn);
-    setviewtotile(wn,tilesiz[wn].y, tilesiz[wn].x);
-
-    yax_preparedrawrooms();
-    drawrooms(SX,SY,SZ,SA,100+sprite[i].shade,SECT);
-    yax_drawrooms(G_DoSpriteAnimations, SECT, 0, 65536);
-
-    display_mirror = 1;
-    G_DoSpriteAnimations(SX,SY,SA,65536L);
-    display_mirror = 0;
-    drawmasks();
-
-    setviewback();
-    squarerotatetile(wn);
-    invalidatetile(wn,-1,255);
-}
-
 void G_UpdateScreenArea(void)
 {
     if (!in3dmode())

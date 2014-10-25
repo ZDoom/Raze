@@ -363,6 +363,26 @@ int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t
     return j;
 }
 
+void G_SetupCamTile(int32_t i, int32_t wn)
+{
+    int32_t const mir = display_mirror;
+    //if (waloff[wn] == 0) loadtile(wn);
+    setviewtotile(wn, tilesiz[wn].y, tilesiz[wn].x);
+
+    yax_preparedrawrooms();
+    drawrooms(SX, SY, SZ, SA, 100+sprite[i].shade, SECT);
+    yax_drawrooms(G_DoSpriteAnimations, SECT, 0, 65536);
+
+    display_mirror = 3;
+    G_DoSpriteAnimations(SX, SY, SA, 65536L);
+    display_mirror = mir;
+    drawmasks();
+
+    setviewback();
+    squarerotatetile(wn);
+    invalidatetile(wn, -1, 255);
+}
+
 void G_AnimateCamSprite(void)
 {
     int32_t i = g_curViewscreen;
@@ -379,10 +399,11 @@ void G_AnimateCamSprite(void)
 
         if (ps->newowner >= 0)
             OW = ps->newowner;
-        else if (OW >= 0 && dist(&sprite[ps->i], &sprite[i]) < 8192)
+
+        if (OW >= 0 && dist(&sprite[ps->i], &sprite[i]) < 8192)
         {
             if (waloff[TILE_VIEWSCR] == 0)
-                allocatepermanenttile(TILE_VIEWSCR,tilesiz[PN].x,tilesiz[PN].y);
+                allocatepermanenttile(TILE_VIEWSCR,tilesiz[PN].x<<2,tilesiz[PN].y<<2);
             else
                 walock[TILE_VIEWSCR] = 255;
 
