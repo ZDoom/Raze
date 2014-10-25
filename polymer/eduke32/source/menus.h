@@ -129,9 +129,9 @@ typedef struct MenuPos_t
     vec2_t pos;
 
     int32_t groupspacing;
-    int32_t entryspacing; // >=0: space between entries, <0: -total height of group (vertical justification)
+    int32_t entryspacing; // if bottomcutoff < 0, this becomes the *maximum* entry spacing
     int32_t width; // 0: center, >0: width of the label column (left-aligned options), <0: -width of everything (right-aligned)
-    int32_t bottomcutoff;
+    int32_t bottomcutoff; // >0: the bottom edge of the menu before automatic scrolling kicks in, <0: -total height for vertical justification
 
     int32_t cursorPosition, cursorScale;
 } MenuPos_t;

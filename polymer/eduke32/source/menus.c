@@ -116,8 +116,8 @@ static MenuTextType_t MF_Redfont          = { -1, 10, 0,  1,  5<<16, 15<<16,  0<
 static MenuTextType_t MF_RedfontRt        = { -1, 10, 0,  1,  5<<16, 15<<16,  0<<16, 0<<16, TEXT_BIGALPHANUM | TEXT_UPPERCASE | TEXT_XRIGHT, };
 static MenuTextType_t MF_RedfontBlue      = { -1, 10, 1,  1,  5<<16, 15<<16,  0<<16, 0<<16, TEXT_BIGALPHANUM | TEXT_UPPERCASE, };
 static MenuTextType_t MF_RedfontGreen     = { -1, 10, 8,  1,  5<<16, 15<<16,  0<<16, 0<<16, TEXT_BIGALPHANUM | TEXT_UPPERCASE, };
-static MenuTextType_t MF_Bluefont         = { -1, 10, 0,  16, 5<<16,  7<<16, -1<<16, 0<<16, TEXT_YBOTTOM, };
-static MenuTextType_t MF_BluefontRed      = { -1, 10, 10, 16, 5<<16,  7<<16, -1<<16, 0<<16, TEXT_YBOTTOM, };
+static MenuTextType_t MF_Bluefont         = { -1, 10, 0,  16, 5<<16,  7<<16, -1<<16, 0<<16, 0, };
+static MenuTextType_t MF_BluefontRed      = { -1, 10, 10, 16, 5<<16,  7<<16, -1<<16, 0<<16, 0, };
 static MenuTextType_t MF_Minifont         = { -1, 10, 0,  16, 4<<16,  5<<16,  1<<16, 1<<16, 0, };
 static MenuTextType_t MF_MinifontRed      = { -1, 16, 21, 16, 4<<16,  5<<16,  1<<16, 1<<16, 0, };
 static MenuTextType_t MF_MinifontDarkGray = { -1, 10, 13, 16, 4<<16,  5<<16,  1<<16, 1<<16, 0, };
@@ -141,7 +141,9 @@ static MenuPos_t MP_BIGOPTIONSRT =         { { MENU_MARGIN_WIDE<<16,         38<
 static MenuPos_t MP_OPTIONS =              { { MENU_MARGIN_WIDE<<16,         37<<16, }, 4<<16, 1<<16,  216<<16, 160<<16,  10<<16, 32768, };
 #endif
 static MenuPos_t MP_PLAYER_1 =             { { MENU_MARGIN_WIDE<<16,         37<<16, }, 4<<16, 1<<16,   90<<16, 160<<16,  10<<16, 32768, };
+#ifndef DROIDMENU
 static MenuPos_t MP_PLAYER_3 =             { { MENU_MARGIN_WIDE<<16,         37<<16, }, 8<<16, 1<<16,  190<<16, 160<<16,  10<<16, 32768, };
+#endif
 static MenuPos_t MP_MACROS =               { { 26<<16,                       40<<16, }, 4<<16, 2<<16,    1<<16, 160<<16,  10<<16, 32768, };
 static MenuPos_t MP_VIDEOSETUP =           { { MENU_MARGIN_REGULAR<<16,      38<<16, }, 6<<16, 7<<16,  168<<16, -190<<16,  20<<16, 65536, };
 static MenuPos_t MP_VIDEOSETUP_APPLY =     { { (MENU_MARGIN_REGULAR+16)<<16, 38<<16, }, 6<<16, 7<<16,  168<<16, -190<<16,  36<<16, 65536, };
@@ -204,7 +206,9 @@ static MenuLink_t MEO_MAIN_NEWGAME_NETWORK = { MENU_NETWORK, };
 MAKE_MENU_TOP_ENTRYLINK( MAIN_SAVEGAME, MENU_SAVE, "Save Game" );
 MAKE_MENU_TOP_ENTRYLINK( MAIN_LOADGAME, MENU_LOAD, "Load Game" );
 MAKE_MENU_TOP_ENTRYLINK( MAIN_OPTIONS, MENU_OPTIONS, "Options" );
+#ifndef DROIDMENU
 MAKE_MENU_TOP_ENTRYLINK( MAIN_HELP, MENU_STORY, "Help" );
+#endif
 MAKE_MENU_TOP_ENTRYLINK( MAIN_CREDITS, MENU_CREDITS, "Credits" );
 MAKE_MENU_TOP_ENTRYLINK( MAIN_QUITTOTITLE, MENU_QUITTOTITLE, "Quit To Title" );
 MAKE_MENU_TOP_ENTRYLINK( MAIN_QUIT, MENU_QUIT, "Quit" );
@@ -250,10 +254,10 @@ static MenuEntry_t ME_SKILL_TEMPLATE = MAKE_MENUENTRY( &MF_Redfont, NULL, Link, 
 static MenuEntry_t ME_SKILL[MAXSKILLS];
 static MenuEntry_t *MEL_SKILL[MAXSKILLS];
 
-// All NULL MenuEntry_t are to-do.
-
+#ifndef DROIDMENU
 static MenuOption_t MEO_GAMESETUP_STARTWIN = MAKE_MENUOPTION( &MF_RedfontRt, &MEOS_OffOn, &ud.config.ForceSetup );
 static MenuEntry_t ME_GAMESETUP_STARTWIN = MAKE_MENUENTRY( &MF_Redfont, "Startup window:", Option, &MEO_GAMESETUP_STARTWIN );
+#endif
 
 static char *MEOSN_GAMESETUP_AIM_AUTO[] = { "None", "Regular", "Bullets only", 
 #ifdef DROIDMENU
@@ -444,11 +448,13 @@ static MenuLink_t MEO_DISPLAYSETUP_SCREENSETUP = { MENU_SCREENSETUP, };
 static MenuEntry_t ME_DISPLAYSETUP_SCREENSETUP = MAKE_MENUENTRY(&MF_Redfont, "On-screen displays", Link, &MEO_DISPLAYSETUP_SCREENSETUP);
 
 
+#ifndef DROIDMENU
 static MenuLink_t MEO_DISPLAYSETUP_RENDERERSETUP =  { MENU_RENDERERSETUP, };
 static MenuEntry_t ME_DISPLAYSETUP_RENDERERSETUP = MAKE_MENUENTRY( &MF_Redfont, "Advanced", Link, &MEO_DISPLAYSETUP_RENDERERSETUP );
 
 static MenuLink_t MEO_DISPLAYSETUP_VIDEOSETUP = { MENU_VIDEOSETUP, };
 static MenuEntry_t ME_DISPLAYSETUP_VIDEOSETUP = MAKE_MENUENTRY(&MF_Redfont, "Video mode", Link, &MEO_DISPLAYSETUP_VIDEOSETUP);
+#endif
 
 static MenuEntry_t *MEL_OPTIONS[] = {
     &ME_OPTIONS_GAMESETUP,
@@ -753,25 +759,19 @@ static MenuEntry_t *MEL_COLCORR_RESET[] = {
 };
 
 static MenuEntry_t *MEL_SCREENSETUP1[] = {
+#ifndef DROIDMENU
 	&ME_SCREENSETUP_SCREENSIZE,
-};
+#endif
 
-static MenuEntry_t *MEL_SCREENSETUP2[] = {
 	&ME_SCREENSETUP_NEWSTATUSBAR,
 	&ME_SCREENSETUP_SBARSIZE,
-};
 
-static MenuEntry_t *MEL_SCREENSETUP3[] = {
 	&ME_SCREENSETUP_CROSSHAIR,
 	&ME_SCREENSETUP_CROSSHAIRSIZE,
-};
 
-static MenuEntry_t *MEL_SCREENSETUP4[] = {
 	&ME_SCREENSETUP_LEVELSTATS,
 	&ME_SCREENSETUP_TEXTSIZE,
-};
 
-static MenuEntry_t *MEL_SCREENSETUP5[] = {
 	&ME_SCREENSETUP_SHOWPICKUPMESSAGES,
 };
 
@@ -824,8 +824,8 @@ static MenuEntry_t ME_SOUND_NUMVOICES = MAKE_MENUENTRY( &MF_Redfont, "Voices:", 
 
 static MenuEntry_t ME_SOUND_RESTART = MAKE_MENUENTRY( &MF_Redfont, "Restart sound system", Link, &MEO_NULL );
 
-static MenuLink_t MEO_ADVSOUND = { MENU_ADVSOUND, };
 #ifndef DROIDMENU
+static MenuLink_t MEO_ADVSOUND = { MENU_ADVSOUND, };
 static MenuEntry_t ME_SOUND_ADVSOUND = MAKE_MENUENTRY( &MF_Redfont, "Advanced", Link, &MEO_ADVSOUND );
 #endif
 
@@ -879,8 +879,10 @@ static char *MEOSN_PLAYER_TEAM[] = { "Blue", "Red", "Green", "Gray", };
 static MenuOptionSet_t MEOS_PLAYER_TEAM = MAKE_MENUOPTIONSET( 0x2, MEOSN_PLAYER_TEAM, NULL );
 static MenuOption_t MEO_PLAYER_TEAM = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_PLAYER_TEAM, &ud.team );
 static MenuEntry_t ME_PLAYER_TEAM = MAKE_MENUENTRY( &MF_BluefontRed, "Team", Option, &MEO_PLAYER_TEAM );
+#ifndef DROIDMENU
 static MenuLink_t MEO_PLAYER_MACROS = { MENU_MACROS, };
 static MenuEntry_t ME_PLAYER_MACROS = MAKE_MENUENTRY( &MF_BluefontRed, "Multiplayer macros", Link, &MEO_PLAYER_MACROS );
+#endif
 
 static MenuEntry_t *MEL_PLAYER_NAME[] = {
     &ME_PLAYER_NAME,
@@ -891,9 +893,11 @@ static MenuEntry_t *MEL_PLAYER_COLOR[] = {
 static MenuEntry_t *MEL_PLAYER_TEAM[] = {
     &ME_PLAYER_TEAM,
 };
+#ifndef DROIDMENU
 static MenuEntry_t *MEL_PLAYER_MACROS[] = {
     &ME_PLAYER_MACROS,
 };
+#endif
 
 static MenuString_t MEO_MACROS_TEMPLATE = MAKE_MENUSTRING( &MF_Bluefont, NULL, MAXRIDECULELENGTH, 0 );
 static MenuString_t MEO_MACROS[MAXSAVEGAMES];
@@ -997,19 +1001,9 @@ static MenuGroup_t *MGL_SKILL[] = {
 static MenuGroup_t MG_GAMESETUP1 = MAKE_MENUGROUP( MEL_GAMESETUP1, &MP_BIGOPTIONSRT );
 
 static MenuGroup_t MG_SCREENSETUP1 = MAKE_MENUGROUP( MEL_SCREENSETUP1, &MP_BIGOPTIONS );
-static MenuGroup_t MG_SCREENSETUP2 = MAKE_MENUGROUP( MEL_SCREENSETUP2, &MP_BIGOPTIONS );
-static MenuGroup_t MG_SCREENSETUP3 = MAKE_MENUGROUP( MEL_SCREENSETUP3, &MP_BIGOPTIONS );
-static MenuGroup_t MG_SCREENSETUP4 = MAKE_MENUGROUP( MEL_SCREENSETUP4, &MP_BIGOPTIONS );
-static MenuGroup_t MG_SCREENSETUP5 = MAKE_MENUGROUP( MEL_SCREENSETUP5, &MP_BIGOPTIONS );
 
 static MenuGroup_t *MGL_SCREENSETUP[] = {
-#ifndef DROIDMENU
-	&MG_SCREENSETUP1,
-#endif
-	&MG_SCREENSETUP2,
-	&MG_SCREENSETUP3,
-	&MG_SCREENSETUP4,
-	&MG_SCREENSETUP5,
+	&MG_SCREENSETUP1
 };
 
 
@@ -1164,7 +1158,9 @@ static MenuGroup_t *MGL_NETWORK[] = {
 static MenuGroup_t MG_PLAYER_NAME = MAKE_MENUGROUP( MEL_PLAYER_NAME, &MP_PLAYER_1 );
 static MenuGroup_t MG_PLAYER_COLOR = MAKE_MENUGROUP( MEL_PLAYER_COLOR, &MP_PLAYER_1 );
 static MenuGroup_t MG_PLAYER_TEAM = MAKE_MENUGROUP( MEL_PLAYER_TEAM, &MP_PLAYER_1 );
+#ifndef DROIDMENU
 static MenuGroup_t MG_PLAYER_MACROS = MAKE_MENUGROUP( MEL_PLAYER_MACROS, &MP_PLAYER_3 );
+#endif
 static MenuGroup_t *MGL_PLAYER[] = {
     &MG_PLAYER_NAME,
     &MG_PLAYER_COLOR,
