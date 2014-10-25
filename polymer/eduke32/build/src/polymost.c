@@ -191,6 +191,16 @@ int32_t r_parallaxskypanning = 0;
 
 #define MIN_CACHETIME_PRINT 10
 
+// this was faster in MSVC but slower with GCC... currently unknown on ARM where both
+// the FPU and possibly the optimization path in the compiler need improvement
+#if 0
+static inline int32_t __float_as_int(float f) { return *(int32_t *) &f; }
+static inline float __int_as_float(int32_t d) { return *(float *) &d; }
+static inline float Bfabsf(float f) { return __int_as_float(__float_as_int(f)&0x7fffffff); }
+#else
+#define Bfabsf fabsf
+#endif
+
 void drawline2d(float x0, float y0, float x1, float y1, char col)
 {
     float f, dx, dy, fxres, fyres;
@@ -208,7 +218,7 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
     if (y1 >= fyres) {                          x1 += (fyres-y1)*dx/dy; y1 = fyres; }
     else if (y1 <      0) {                          x1 += (0-y1)*dx/dy; y1 =     0; }
 
-    if (fabsf(dx) > fabsf(dy))
+    if (Bfabsf(dx) > Bfabsf(dy))
     {
         if (x0 > x1) { f = x0; x0 = x1; x1 = f; f = y0; y0 = y1; y1 = f; }
         y = (int32_t)(y0*65536.f)+32768;
@@ -411,7 +421,7 @@ void polymost_glreset()
 
     md_freevbos();
 
-    memset(texcache.list,0,sizeof(texcache.list));
+    Bmemset(texcache.list,0,sizeof(texcache.list));
     glox1 = -1;
 
     texcache_freeptrs();
@@ -615,7 +625,7 @@ static float get_projhack_ratio(void)
 
     if (glprojectionhacks == 2)
     {
-        float abs_shang = fabsf(gshang);
+        float abs_shang = Bfabsf(gshang);
         if (abs_shang > 0.7f)
             return 1.05f + 4.f*(abs_shang-0.7f);
     }
@@ -675,7 +685,7 @@ static void resizeglcheck(void)
                     ourxdimen+fovcorrect, windowy2-windowy1+1);
 
         bglMatrixMode(GL_PROJECTION);
-        memset(m,0,sizeof(m));
+        Bmemset(m,0,sizeof(m));
         ratio = 1.f/ratio;
         m[0][0] = fydimen * ratio; m[0][2] = 1.f;
         m[1][1] = fxdimen; m[1][2] = 1.f;
@@ -1855,10 +1865,10 @@ static int32_t domostpolymethod = 0;
 
 void domost(float x0, float y0, float x1, float y1)
 {
-    vec2f_t dpxy[4];
-    float slop, dx, nx0, ny0, nx1, ny1;
+    vec2f_t dpxy[4], n0, n1;
+    float slop, dx;
     float spx[4], /*spy[4],*/ cy[2], cv[2];
-    int32_t i, j, k, z, vcnt = 0, scnt, newi, dir = 0, spt[4];
+    int32_t i, k, z, vcnt = 0, scnt, newi, dir = 0, spt[4];
 
     alpha = 0.f;
 
@@ -1880,39 +1890,51 @@ void domost(float x0, float y0, float x1, float y1)
     slop = (y1-y0)/(x1-x0);
     for (i=vsp[0].n; i; i=newi)
     {
-        newi = vsp[i].n; nx0 = vsp[i].x; nx1 = vsp[newi].x;
-        if ((x0 >= nx1) || (nx0 >= x1) || (vsp[i].ctag <= 0)) continue;
-        dx = nx1-nx0;
+        newi = vsp[i].n; n0.x = vsp[i].x; n1.x = vsp[newi].x;
+        if ((x0 >= n1.x) || (n0.x >= x1) || (vsp[i].ctag <= 0)) continue;
+        dx = n1.x-n0.x;
         cy[0] = vsp[i].cy[0]; cv[0] = vsp[i].cy[1]-cy[0];
         cy[1] = vsp[i].fy[0]; cv[1] = vsp[i].fy[1]-cy[1];
 
         scnt = 0;
 
         //Test if left edge requires split (x0,y0) (nx0,cy(0)),<dx,cv(0)>
-        if ((x0 > nx0) && (x0 < nx1))
+        if ((x0 > n0.x) && (x0 < n1.x))
         {
-            const float t = (x0-nx0)*cv[dir] - (y0-cy[dir])*dx;
+            const float t = (x0-n0.x)*cv[dir] - (y0-cy[dir])*dx;
             if (((!dir) && (t < 0.f)) || ((dir) && (t > 0.f)))
                 { spx[scnt] = x0; /*spy[scnt] = y0;*/ spt[scnt] = -1; scnt++; }
         }
 
-        //Test for intersection on umost (j == 0) and dmost (j == 1)
-        for (j=0; j<2; j++)
+        //Test for intersection on umost (0) and dmost (1)
+
         {
-            const float d = (y0-y1)   * dx - (x0-x1)  * cv[j];
-            const float n = (y0-cy[j])* dx - (x0-nx0) * cv[j];
+            const float d[3] ={
+                ((y0-y1) * dx) - ((x0-x1) * cv[0]),
+                ((y0-y1) * dx) - ((x0-x1) * cv[1]),
+                ((y0-y1) * dx) - ((x0-x1) * cv[2])
+            };
 
-            if ((fabsf(d) > fabsf(n)) && (d * n >= 0.f))
-            {
-                const float t = n/d;
-                const float nx = (x1-x0) * t + x0;
+            const float n[3] ={
+                ((y0-cy[0]) * dx) - ((x0-n0.x) * cv[0]),
+                ((y0-cy[1]) * dx) - ((x0-n0.x) * cv[1]),
+                ((y0-cy[2]) * dx) - ((x0-n0.x) * cv[2])
+            };
 
-                if ((nx > nx0) && (nx < nx1))
-                {
-                    spx[scnt] = nx; /* spy[scnt] = (y1-y0)*t + y0; */
-                    spt[scnt] = j; scnt++;
-                }
-            }
+            const float fnx[3] ={
+                x0 + ((n[0]/d[0]) * (x1-x0)),
+                x0 + ((n[1]/d[1]) * (x1-x0)),
+                x0 + ((n[2]/d[2]) * (x1-x0))
+            };
+
+            if ((Bfabsf(d[0]) > Bfabsf(n[0])) && (d[0] * n[0] >= 0.f) && (fnx[0] > n0.x) && (fnx[0] < n1.x))
+                spx[scnt] = fnx[0], spt[scnt++] = 0;
+
+            if ((Bfabsf(d[1]) > Bfabsf(n[1])) && (d[1] * n[1] >= 0.f) && (fnx[1] > n0.x) && (fnx[1] < n1.x))
+                spx[scnt] = fnx[1], spt[scnt++] = 1;
+
+            if ((Bfabsf(d[2]) > Bfabsf(n[2])) && (d[2] * n[2] >= 0.f) && (fnx[2] > n0.x) && (fnx[2] < n1.x))
+                spx[scnt] = fnx[2], spt[scnt++] = 2;
         }
 
         //Nice hack to avoid full sort later :)
@@ -1924,9 +1946,9 @@ void domost(float x0, float y0, float x1, float y1)
         }
 
         //Test if right edge requires split
-        if ((x1 > nx0) && (x1 < nx1))
+        if ((x1 > n0.x) && (x1 < n1.x))
         {
-            const float t = (x1-nx0)*cv[dir] - (y1-cy[dir])*dx;
+            const float t = (x1-n0.x)*cv[dir] - (y1-cy[dir])*dx;
             if (((!dir) && (t < 0)) || ((dir) && (t > 0)))
                 { spx[scnt] = x1; /* spy[scnt] = y1; */ spt[scnt] = -1; scnt++; }
         }
@@ -1937,26 +1959,27 @@ void domost(float x0, float y0, float x1, float y1)
 
         for (z=0; z<=scnt; z++,i=vcnt)
         {
-            float dx0, dx1;
+            float dx0, dx1, t;
             int32_t ni;
 
-            if (z < scnt)
-            {
-                const float t = (spx[z]-nx0)*dx;
-                vcnt = vsinsaft(vsp, i);
-                vsp[i].cy[1] = t*cv[0] + cy[0];
-                vsp[i].fy[1] = t*cv[1] + cy[1];
-                vsp[vcnt].x = spx[z];
-                vsp[vcnt].cy[0] = vsp[i].cy[1];
-                vsp[vcnt].fy[0] = vsp[i].fy[1];
-                vsp[vcnt].tag = spt[z];
-            }
+            if (z == scnt)
+                goto skip;
 
+            t = (spx[z]-n0.x)*dx;
+            vcnt = vsinsaft(vsp, i);
+            vsp[i].cy[1] = t*cv[0] + cy[0];
+            vsp[i].fy[1] = t*cv[1] + cy[1];
+            vsp[vcnt].x = spx[z];
+            vsp[vcnt].cy[0] = vsp[i].cy[1];
+            vsp[vcnt].fy[0] = vsp[i].fy[1];
+            vsp[vcnt].tag = spt[z];
+
+        skip:
             ni = vsp[i].n; if (!ni) continue; //this 'if' fixes many bugs!
             dx0 = vsp[i].x; if (x0 > dx0) continue;
             dx1 = vsp[ni].x; if (x1 < dx1) continue;
-            ny0 = (dx0-x0)*slop + y0;
-            ny1 = (dx1-x0)*slop + y0;
+            n0.y = (dx0-x0)*slop + y0;
+            n1.y = (dx1-x0)*slop + y0;
 
             //      dx0           dx1
             //       ~             ~
@@ -1972,10 +1995,10 @@ void domost(float x0, float y0, float x1, float y1)
             //     ny0 ?         ny1 ?
 
             k = 1+3;
-            if ((vsp[i].tag == 0) || (ny0 <= vsp[i].cy[0]+.01f)) k--;
-            if ((vsp[i].tag == 1) || (ny0 >= vsp[i].fy[0]-.01f)) k++;
-            if ((vsp[ni].tag == 0) || (ny1 <= vsp[i].cy[1]+.01f)) k -= 3;
-            if ((vsp[ni].tag == 1) || (ny1 >= vsp[i].fy[1]-.01f)) k += 3;
+            if ((vsp[i].tag == 0) || (n0.y <= vsp[i].cy[0]+.01f)) k--;
+            if ((vsp[i].tag == 1) || (n0.y >= vsp[i].fy[0]-.01f)) k++;
+            if ((vsp[ni].tag == 0) || (n1.y <= vsp[i].cy[1]+.01f)) k -= 3;
+            if ((vsp[ni].tag == 1) || (n1.y >= vsp[i].fy[1]-.01f)) k += 3;
 
             dpxy[0].x = dx0;
             dpxy[1].x = dx1;
@@ -1987,27 +2010,27 @@ void domost(float x0, float y0, float x1, float y1)
 
                 switch (k)
                 {
+                case 4:
+                case 5:
+                case 7:
+                    dpxy[2].x = dx1; dpxy[3].x = dx0;
+                    dpxy[2].y = n1.y; dpxy[3].y = n0.y;
+                    vsp[i].cy[0] = n0.y; vsp[i].cy[1] = n1.y; vsp[i].ctag = gtag;
+                    drawpoly(dpxy, 4, domostpolymethod);
+                    break;
                 case 1:
                 case 2:
                     dpxy[2].x = dx0;
-                    dpxy[2].y = ny0;
-                    vsp[i].cy[0] = ny0; vsp[i].ctag = gtag;
+                    dpxy[2].y = n0.y;
+                    vsp[i].cy[0] = n0.y; vsp[i].ctag = gtag;
                     drawpoly(dpxy, 3, domostpolymethod);
                     break;
                 case 3:
                 case 6:
                     dpxy[2].x = dx1;
-                    dpxy[2].y = ny1;
-                    vsp[i].cy[1] = ny1; vsp[i].ctag = gtag;
+                    dpxy[2].y = n1.y;
+                    vsp[i].cy[1] = n1.y; vsp[i].ctag = gtag;
                     drawpoly(dpxy, 3, domostpolymethod);
-                    break;
-                case 4:
-                case 5:
-                case 7:
-                    dpxy[2].x = dx1; dpxy[3].x = dx0;
-                    dpxy[2].y = ny1; dpxy[3].y = ny0;
-                    vsp[i].cy[0] = ny0; vsp[i].cy[1] = ny1; vsp[i].ctag = gtag;
-                    drawpoly(dpxy, 4, domostpolymethod);
                     break;
                 case 8:
                     dpxy[2].x = dx1; dpxy[2].y = vsp[i].fy[1];
@@ -2022,27 +2045,27 @@ void domost(float x0, float y0, float x1, float y1)
             {
                 switch (k)
                 {
+                case 4:
+                case 3:
+                case 1:
+                    dpxy[2].x = dx1; dpxy[3].x = dx0;
+                    dpxy[0].y = n0.y; dpxy[1].y = n1.y; dpxy[2].y = vsp[i].fy[1]; dpxy[3].y = vsp[i].fy[0];
+                    vsp[i].fy[0] = n0.y; vsp[i].fy[1] = n1.y; vsp[i].ftag = gtag;
+                    drawpoly(dpxy, 4, domostpolymethod);
+                    break;
                 case 7:
                 case 6:
                     dpxy[2].x = dx0;
-                    dpxy[0].y = ny0; dpxy[1].y = vsp[i].fy[1]; dpxy[2].y = vsp[i].fy[0];
-                    vsp[i].fy[0] = ny0; vsp[i].ftag = gtag;
+                    dpxy[0].y = n0.y; dpxy[1].y = vsp[i].fy[1]; dpxy[2].y = vsp[i].fy[0];
+                    vsp[i].fy[0] = n0.y; vsp[i].ftag = gtag;
                     drawpoly(dpxy, 3, domostpolymethod);
                     break;
                 case 5:
                 case 2:
                     dpxy[2].x = dx1;
-                    dpxy[0].y = vsp[i].fy[0]; dpxy[1].y = ny1; dpxy[2].y = vsp[i].fy[1]; 
-                    vsp[i].fy[1] = ny1; vsp[i].ftag = gtag;
+                    dpxy[0].y = vsp[i].fy[0]; dpxy[1].y = n1.y; dpxy[2].y = vsp[i].fy[1]; 
+                    vsp[i].fy[1] = n1.y; vsp[i].ftag = gtag;
                     drawpoly(dpxy, 3, domostpolymethod);
-                    break;
-                case 4:
-                case 3:
-                case 1:
-                    dpxy[2].x = dx1; dpxy[3].x = dx0;
-                    dpxy[0].y = ny0; dpxy[1].y = ny1; dpxy[2].y = vsp[i].fy[1]; dpxy[3].y = vsp[i].fy[0];
-                    vsp[i].fy[0] = ny0; vsp[i].fy[1] = ny1; vsp[i].ftag = gtag;
-                    drawpoly(dpxy, 4, domostpolymethod);
                     break;
                 case 0:
                     dpxy[2].x = dx1; dpxy[3].x = dx0;
@@ -3195,19 +3218,30 @@ static void polymost_drawalls(int32_t bunch)
 
 static int32_t polymost_bunchfront(const int32_t b1, const int32_t b2)
 {
-    float x1b1, x1b2, x2b1, x2b2;
-    int32_t b1f, b2f, i;
+    const int32_t b1f = bunchfirst[b1];
+    const float x2b2 = dxb2[bunchlast[b2]];
+    const float x1b1 = dxb1[b1f];
 
-    b1f = bunchfirst[b1]; x1b1 = dxb1[b1f]; x2b2 = dxb2[bunchlast[b2]]; if (x1b1 >= x2b2) return(-1);
-    b2f = bunchfirst[b2]; x1b2 = dxb1[b2f]; x2b1 = dxb2[bunchlast[b1]]; if (x1b2 >= x2b1) return(-1);
+    if (x1b1 >= x2b2)
+        return -1;
 
-    if (x1b1 >= x1b2)
     {
-        for (i=b2f; dxb2[i]<=x1b1; i=bunchp2[i]);
-        return(wallfront(b1f,i));
+        const int32_t b2f = bunchfirst[b2];
+        int32_t i;
+        const float x1b2 = dxb1[b2f];
+
+        if (x1b2 >= dxb2[bunchlast[b1]])
+            return -1;
+
+        if (x1b1 >= x1b2)
+        {
+            for (i=b2f; dxb2[i]<=x1b1; i=bunchp2[i]);
+            return wallfront(b1f, i);
+        }
+
+        for (i=b1f; dxb2[i]<=x1b2; i=bunchp2[i]);
+        return wallfront(i, b2f);
     }
-    for (i=b1f; dxb2[i]<=x1b2; i=bunchp2[i]);
-    return(wallfront(i,b2f));
 }
 
 void polymost_scansector(int32_t sectnum)
@@ -3448,10 +3482,6 @@ void polymost_drawrooms()
     
     //Polymost supports true look up/down :) Here, we convert horizon to angle.
     //gchang&gshang are cos&sin of this angle (respectively)
-    fxdim = (float) xdim;
-    fydim = (float) ydim;
-    fxdimen = (float) xdimen;
-    fydimen = (float) ydimen;
     fviewingrange = (float) viewingrange;
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
     gxyaspect = ((float)xyaspect*fviewingrange)*(5.f/(65536.f*262144.f));
@@ -3477,7 +3507,7 @@ void polymost_drawrooms()
     //global cos/sin tilt angle
     gctang = cos(gtang);
     gstang = sin(gtang);
-    if (fabsf(gstang) < .001f) //This hack avoids nasty precision bugs in domost()
+    if (Bfabsf(gstang) < .001f) //This hack avoids nasty precision bugs in domost()
         { gstang = 0.f; if (gctang > 0.f) gctang = 1.f; else gctang = -1.f; }
 
     if (inpreparemirror)
@@ -3566,7 +3596,7 @@ void polymost_drawrooms()
 
     while (numbunches > 0)
     {
-        memset(ptempbuf,0,numbunches+3); ptempbuf[0] = 1;
+        Bmemset(ptempbuf,0,numbunches+3); ptempbuf[0] = 1;
 
         closest = 0;              //Almost works, but not quite :(
         for (i=1; i<numbunches; i++)
@@ -3891,7 +3921,7 @@ void polymost_drawsprite(int32_t snum)
         xp0 = sy0*gcosang  - sx0*gsinang;
         yp0 = sx0*gcosang2 + sy0*gsinang2;
         if (yp0 <= SCISDIST) return;
-        ryp0 = 1/yp0;
+        ryp0 = 1.f/yp0;
         sx0 = ghalfx*xp0*ryp0 + ghalfx;
         sy0 = ((float)(tspr->z-globalposz))*gyxscale*ryp0 + ghoriz;
 
@@ -4263,7 +4293,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
             vec3f_t vec1;
 
             spritetype tspr;
-            memset(&tspr, 0, sizeof(spritetype));
+            Bmemset(&tspr, 0, sizeof(spritetype));
 
             if (hudmem[(dastat&4)>>2][picnum].flags & HUDFLAG_HIDE)
                 return;
@@ -4524,7 +4554,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     {
         bglViewport(0,0,xdim,ydim); glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
         bglMatrixMode(GL_PROJECTION);
-        memset(m,0,sizeof(m));
+        Bmemset(m,0,sizeof(m));
         m[0][0] = m[2][3] = 1.0f; m[1][1] = fxdim/fydim; m[2][2] = 1.0001f; m[3][2] = 1-m[2][2];
         bglPushMatrix(); bglLoadMatrixf(&m[0][0]);
         bglMatrixMode(GL_MODELVIEW);
@@ -4590,8 +4620,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         sinang2 *= d;
     }
 
-    pxy[0].x = (float)sx*(1.0f/65536.f) - (float)xoff*cosang2+ (float)yoff*sinang2;
-    pxy[0].y = (float)sy*(1.0f/65536.f) - (float)xoff*sinang - (float)yoff*cosang;
+    pxy[0].x = (float)sx*(1.0f/65536.f) - (float)xoff*cosang2 + (float)yoff*sinang2;
+    pxy[0].y = (float)sy*(1.0f/65536.f) - (float)xoff*sinang  - (float)yoff*cosang;
     pxy[1].x = pxy[0].x + (float)xsiz*cosang2;
     pxy[1].y = pxy[0].y + (float)xsiz*sinang;
     pxy[3].x = pxy[0].x - (float)ysiz*sinang2;

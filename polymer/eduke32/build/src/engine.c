@@ -2910,38 +2910,35 @@ do_mvlineasm1:
 //
 int32_t wallfront(int32_t l1, int32_t l2)
 {
-    walltype *wal;
-    int32_t x11, y11, x21, y21, x12, y12, x22, y22, dx, dy, t1, t2;
+    vec2_t l1vect   = *(vec2_t *)&wall[thewall[l1]];
+    vec2_t l1p2vect = *(vec2_t *)&wall[wall[thewall[l1]].point2];
+    vec2_t l2vect   = *(vec2_t *)&wall[thewall[l2]];
+    vec2_t l2p2vect = *(vec2_t *)&wall[wall[thewall[l2]].point2];
+    int32_t dx = l1p2vect.x-l1vect.x;
+    int32_t dy = l1p2vect.y-l1vect.y;
+    int32_t t1 = dmulscale2(l2vect.x-l1vect.x, dy, -dx, l2vect.y-l1vect.y); //p1(l2) vs. l1
+    int32_t t2 = dmulscale2(l2p2vect.x-l1vect.x, dy, -dx, l2p2vect.y-l1vect.y); //p2(l2) vs. l1
 
-    wal = &wall[thewall[l1]]; x11 = wal->x; y11 = wal->y;
-    wal = &wall[wal->point2]; x21 = wal->x; y21 = wal->y;
-    wal = &wall[thewall[l2]]; x12 = wal->x; y12 = wal->y;
-    wal = &wall[wal->point2]; x22 = wal->x; y22 = wal->y;
-
-    dx = x21-x11; dy = y21-y11;
-    t1 = dmulscale2(x12-x11,dy,-dx,y12-y11); //p1(l2) vs. l1
-    t2 = dmulscale2(x22-x11,dy,-dx,y22-y11); //p2(l2) vs. l1
-    if (t1 == 0) { t1 = t2; if (t1 == 0) return(-1); }
+    if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
     if (t2 == 0) t2 = t1;
-    if ((t1^t2) >= 0)
-    {
-        t2 = dmulscale2(globalposx-x11,dy,-dx,globalposy-y11); //pos vs. l1
-        return((t2^t1) >= 0);
-    }
 
-    dx = x22-x12; dy = y22-y12;
-    t1 = dmulscale2(x11-x12,dy,-dx,y11-y12); //p1(l1) vs. l2
-    t2 = dmulscale2(x21-x12,dy,-dx,y21-y12); //p2(l1) vs. l2
-    if (t1 == 0) { t1 = t2; if (t1 == 0) return(-1); }
+    if ((t1^t2) >= 0) //pos vs. l1
+        return (dmulscale2(globalposx-l1vect.x, dy, -dx, globalposy-l1vect.y) ^ t1) >= 0;
+
+    dx = l2p2vect.x-l2vect.x;
+    dy = l2p2vect.y-l2vect.y;
+
+    t1 = dmulscale2(l1vect.x-l2vect.x, dy, -dx, l1vect.y-l2vect.y); //p1(l1) vs. l2
+    t2 = dmulscale2(l1p2vect.x-l2vect.x, dy, -dx, l1p2vect.y-l2vect.y); //p2(l1) vs. l2
+
+    if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
     if (t2 == 0) t2 = t1;
-    if ((t1^t2) >= 0)
-    {
-        t2 = dmulscale2(globalposx-x12,dy,-dx,globalposy-y12); //pos vs. l2
-        return((t2^t1) < 0);
-    }
-    return(-2);
+
+    if ((t1^t2) >= 0) //pos vs. l2
+        return (dmulscale2(globalposx-l2vect.x,dy,-dx,globalposy-l2vect.y) ^ t1) < 0;
+
+    return -2;
 }
-
 
 //
 // spritewallfront (internal)
