@@ -117,56 +117,49 @@ static void VM_KillIt(int32_t iActor, int32_t iPlayer)
 }
 
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
-int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
+int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
 #ifdef LUNATIC
-    if (L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
-    {
-        const double t = gethiticks();
-        int32_t ret = El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist, &iReturn);
+    const double t = gethiticks();
+    int32_t ret = El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist, &iReturn);
 
-        // NOTE: the run times are those of the called event plus any events
-        // called by it, *not* "self" time.
-        g_eventTotalMs[iEventID] += gethiticks()-t;
-        g_eventCalls[iEventID]++;
+    // NOTE: the run times are those of the called event plus any events
+    // called by it, *not* "self" time.
+    g_eventTotalMs[iEventID] += gethiticks()-t;
+    g_eventCalls[iEventID]++;
 
-        if (ret == 1)
-            VM_KillIt(iActor, iPlayer);
-    }
+    if (ret == 1)
+        VM_KillIt(iActor, iPlayer);
 #else
+    intptr_t *oinsptr=insptr;
+    vmstate_t vm_backup;
 
-    if (apScriptGameEvent[iEventID])
-    {
-        intptr_t *oinsptr=insptr;
-        vmstate_t vm_backup;
+    vmstate_t tempvm ={ iActor, iPlayer, lDist,
+        iActor >= 0 ? &actor[iActor].t_data[0] : NULL,
+        iActor >= 0 ? &sprite[iActor] : NULL,
+        0 };
 
-        vmstate_t tempvm = { iActor, iPlayer, lDist,
-                             iActor >= 0 ? &actor[iActor].t_data[0] : NULL,
-                             iActor >= 0 ? &sprite[iActor] : NULL,
-                             0 };
-                             
-        int32_t backupReturnVar = aGameVars[g_iReturnVarID].val.lValue;
-        int32_t backupEventExec = g_currentEventExec;
+    int32_t backupReturnVar = aGameVars[g_iReturnVarID].val.lValue;
+    int32_t backupEventExec = g_currentEventExec;
 
-        aGameVars[g_iReturnVarID].val.lValue = iReturn;
-        g_currentEventExec = iEventID;
-        insptr = apScriptGameEvent[iEventID];
+    aGameVars[g_iReturnVarID].val.lValue = iReturn;
+    g_currentEventExec = iEventID;
+    insptr = apScriptGameEvent[iEventID];
 
-        Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
-        Bmemcpy(&vm, &tempvm, sizeof(vmstate_t));
+    Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
+    Bmemcpy(&vm, &tempvm, sizeof(vmstate_t));
 
-        VM_Execute(1);
+    VM_Execute(1);
 
-        if (vm.g_flags & VM_KILL)
-            VM_KillIt(iActor, iPlayer);
+    if (vm.g_flags & VM_KILL)
+        VM_KillIt(iActor, iPlayer);
 
-        Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
-        insptr = oinsptr;
+    Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
+    insptr = oinsptr;
 
-        g_currentEventExec = backupEventExec;
-        iReturn = aGameVars[g_iReturnVarID].val.lValue;
-        aGameVars[g_iReturnVarID].val.lValue = backupReturnVar;
-    }
+    g_currentEventExec = backupEventExec;
+    iReturn = aGameVars[g_iReturnVarID].val.lValue;
+    aGameVars[g_iReturnVarID].val.lValue = backupReturnVar;
 #endif
 
     return iReturn;
