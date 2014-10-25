@@ -6607,6 +6607,7 @@ static void drawsprite(int32_t snum)
 #ifdef USE_OPENGL
     case REND_POLYMOST:
         polymost_drawsprite(snum);
+        bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
         bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
         return;
@@ -9542,8 +9543,8 @@ killsprite:
     {
         _point2d pos;
 
-        pos.x = (float)globalposx;
-        pos.y = (float)globalposy;
+        pos.x = fglobalposx;
+        pos.y = fglobalposy;
 
         // CAUTION: maskwallcnt and spritesortcnt may be zero!
         // Writing e.g. "while (maskwallcnt--)" is wrong!
@@ -11288,6 +11289,10 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     xdim = daxdim; ydim = daydim;
 
+#ifdef USE_OPENGL
+    fxdim = (float) xdim;
+    fydim = (float) ydim;
+#endif
     if (lookups != NULL)
         Bfree(lookups);
 
@@ -14688,6 +14693,10 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     xdimenrecip = divscale32(1L,xdimen);
     ydimen = (y2-y1)+1;
 
+#ifdef USE_OPENGL
+    fxdimen = (float) xdimen;
+    fydimen = (float) ydimen;
+#endif
     setaspect_new();
 
     for (i=0; i<windowx1; i++) { startumost[i] = 1, startdmost[i] = 0; }

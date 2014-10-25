@@ -14,13 +14,12 @@
 #include "mdsprite.h"
 #include "cache1d.h"
 #include "kplib.h"
+#include "common.h"
 
 #include <math.h>
+#include <float.h>
 
 static int32_t curextra=MAXTILES;
-// nedpool *model_data_pool;
-// #define MODEL_POOL_SIZE 20971520
-#define model_data_pool (nedpool *) 0 // take it out of the system pool
 
 #define MIN_CACHETIME_PRINT 10
 
@@ -1678,7 +1677,7 @@ static int32_t mdtrig_init = 0;
 static void init_mdtrig_arrays(void)
 {
     int32_t i;
-    static const float acc = ((2.f * PI) * (1.f/255.f));
+    static const float acc = ((2.f * (float)PI) * (1.f/255.f));
     float ang = 0.f;
 
     for (i=0; i<256; i++)
@@ -1969,11 +1968,11 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
 
     //create current&next frame's vertex list from whole list
 
-    f = m->interpol; g = 1-f;
+    f = m->interpol; g = 1.f - f;
 
-    if (m->interpol < 0 || m->interpol > 1 ||
-            m->cframe < 0 || m->cframe >= m->numframes ||
-            m->nframe < 0 || m->nframe >= m->numframes)
+    if (m->interpol < 0.f || m->interpol > 1.f ||
+        (unsigned)m->cframe >= (unsigned)m->numframes ||
+            (unsigned)m->nframe >= (unsigned)m->numframes)
     {
 #ifdef DEBUGGINGAIDS
         OSD_Printf("%s: mdframe oob: c:%d n:%d total:%d interpol:%.02f\n",
@@ -1985,13 +1984,11 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
         m->nframe = clamp(m->nframe, 0, m->numframes-1);
     }
 
-    g = m->scale * g * (1.f/64.f);
-    f = m->scale * f * (1.f/64.f);
+    m0.z = m0.y = m0.x = g = m->scale * g * (1.f/64.f);
+    m1.z = m1.y = m1.x = f = m->scale * f * (1.f/64.f);
 
-    m0.x = g; m0.y = g; m0.z = g;
-    m1.x = f; m1.y = f; m1.z = f;
-
-    a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
+    a0.x = a0.y = 0;
+    a0.z = m->zadd * m->scale;
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
     k0 = (float)tspr->z;
@@ -2028,11 +2025,11 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
 
     // Note: These SCREEN_FACTORS will be neutralized in axes offset
     // calculations below again, but are needed for the base offsets.
-    f = (65536.f*512.f)/((float)xdimen*viewingrange);
-    g = 32.f/((float)xdimen*gxyaspect);
+    f = (65536.f*512.f)/(fxdimen*fviewingrange);
+    g = 32.f/(fxdimen*gxyaspect);
     m0.y *= f; m1.y *= f; a0.y = (((float)(tspr->x-globalposx))*  (1.f/1024.f) + a0.y)*f;
-    m0.x *=-f; m1.x *=-f; a0.x = (((float)(k1     -globalposy))* -(1.f/1024.f) + a0.x)*-f;
-    m0.z *= g; m1.z *= g; a0.z = (((float)(k0     -globalposz))* -(1.f/16384.f) + a0.z)*g;
+    m0.x *=-f; m1.x *=-f; a0.x = ((k1     -fglobalposy) * -(1.f/1024.f) + a0.x)*-f;
+    m0.z *= g; m1.z *= g; a0.z = ((k0     -fglobalposz) * -(1.f/16384.f) + a0.z)*g;
 
     md3_vox_calcmat_common(tspr, &a0, f, mat);
 
@@ -2052,11 +2049,23 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
     // to use Z-buffer hacks to hide overdraw problems with the
     // flat-tsprite-on-floor shadows.
     // is this still needed?
+
     if (tspr->cstat&CSTAT_SPRITE_MDHACK)
     {
-        bglDepthFunc(GL_LESS);
-        bglDepthRange(-.0001, .9999);
+#ifdef __arm__ // GL ES has a glDepthRangef and the loss of precision is OK there
+        float f = (float) (tspr->owner + 1) * (FLT_EPSILON * 8.0);
+        if (f != 0.0) f *= 1.f/(float) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
+        bglDepthFunc(GL_LEQUAL);
+        glDepthRangef(0.f - f, 1.f - f);
+#else
+        double f = (double) (tspr->owner + 1) * (FLT_EPSILON * 8.0);
+        if (f != 0.0) f *= 1.0/(double) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
+        bglBlendFunc(GL_SRC_ALPHA, GL_DST_COLOR);
+        bglDepthFunc(GL_LEQUAL);
+        bglDepthRange(0.0 - f, 1.0 - f);
+#endif
     }
+
     bglPushAttrib(GL_POLYGON_BIT);
     if ((grhalfxdown10x >= 0) ^((globalorientation&8) != 0) ^((globalorientation&4) != 0)) bglFrontFace(GL_CW); else bglFrontFace(GL_CCW);
     bglEnable(GL_CULL_FACE);
@@ -2105,7 +2114,7 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
     // PLAG: Cleaner model rotation code
     if (sext->pitch || sext->roll)
     {
-        float f = 1.f/((float)(xdimen*viewingrange)*(m0.x+m1.x)*(2560.f*(1.f/(65536.f*1280.f))));
+        float f = 1.f/(fxdimen * fviewingrange) * (m0.x+m1.x) * (2560.f * (1.f/(65536.f*1280.f)));
         Bmemset(&a0, 0, sizeof(a0));
 
         if (sext->xoff)
@@ -2115,7 +2124,7 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
             a0.y = (float) sext->yoff * f;
 
         if ((sext->zoff) && !(tspr->cstat&CSTAT_SPRITE_MDHACK))  // Compare with SCREEN_FACTORS above
-            a0.z = (float)sext->zoff / (655360.f * (m0.z+m1.z) * (gxyaspect*xdimen*(1.f/1280.f)));
+            a0.z = (float)sext->zoff / (655360.f * (m0.z+m1.z) * (gxyaspect*fxdimen*(1.f/1280.f)));
 
         k0 = (float)sintable[(sext->pitch+512)&2047] * (1.f/16384.f);
         k1 = (float)sintable[sext->pitch&2047] * (1.f/16384.f);
@@ -2208,87 +2217,95 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
-        if (r_detailmapping && !(tspr->cstat&CSTAT_SPRITE_MDHACK))
-            i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
-        else
-            i = 0;
-
-        if (i)
+        if (!(tspr->cstat&CSTAT_SPRITE_MDHACK))
         {
-            mdskinmap_t *sk;
+            i = r_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi) : 0;
 
-            polymost_setupdetailtexture(++texunits, i);
-
-            for (sk = m->skinmap; sk; sk = sk->next)
-                if ((int32_t)sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum && sk->surfnum == surfi)
-                    f = sk->param;
-
-            bglMatrixMode(GL_TEXTURE);
-            bglLoadIdentity();
-            bglScalef(f, f, 1.0f);
-            bglMatrixMode(GL_MODELVIEW);
-        }
-
-        if (r_glowmapping && !(tspr->cstat&CSTAT_SPRITE_MDHACK))
-        {
-            i = mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi);
             if (i)
-                polymost_setupglowtexture(++texunits, i);
-        }
-
-        if (r_vertexarrays && r_vbos)
-        {
-            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[curvbo]);
-            vbotemp = bglMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
-            indexhandle = (uint16_t *)vbotemp;
-        }
-        else
-            indexhandle = m->vindexes;
-
-        //PLAG: delayed polygon-level sorted rendering
-        if (m->usesalpha && !(tspr->cstat & CSTAT_SPRITE_MDHACK))
-        {
-            vec3f_t fp, fp1, fp2, vlt0, vlt1, vlt2;
-
-            for (i=s->numtris-1; i>=0; i--)
             {
-                vlt0 = vertlist[s->tris[i].i[0]];
-                vlt1 = vertlist[s->tris[i].i[1]];
-                vlt2 = vertlist[s->tris[i].i[2]];
+                mdskinmap_t *sk;
 
-                // Matrix multiplication - ugly but clear
-                fp.x = (vlt0.x * mat[0]) + (vlt0.y * mat[4]) + (vlt0.z * mat[8]) + mat[12];
-                fp.y = (vlt0.x * mat[1]) + (vlt0.y * mat[5]) + (vlt0.z * mat[9]) + mat[13];
-                fp.z = (vlt0.x * mat[2]) + (vlt0.y * mat[6]) + (vlt0.z * mat[10]) + mat[14];
+                polymost_setupdetailtexture(++texunits, i);
 
-                fp1.x = (vlt1.x * mat[0]) + (vlt1.y * mat[4]) + (vlt1.z * mat[8]) + mat[12];
-                fp1.y = (vlt1.x * mat[1]) + (vlt1.y * mat[5]) + (vlt1.z * mat[9]) + mat[13];
-                fp1.z = (vlt1.x * mat[2]) + (vlt1.y * mat[6]) + (vlt1.z * mat[10]) + mat[14];
+                for (sk = m->skinmap; sk; sk = sk->next)
+                    if ((int32_t) sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum && sk->surfnum == surfi)
+                        f = sk->param;
 
-                fp2.x = (vlt2.x * mat[0]) + (vlt2.y * mat[4]) + (vlt2.z * mat[8]) + mat[12];
-                fp2.y = (vlt2.x * mat[1]) + (vlt2.y * mat[5]) + (vlt2.z * mat[9]) + mat[13];
-                fp2.z = (vlt2.x * mat[2]) + (vlt2.y * mat[6]) + (vlt2.z * mat[10]) + mat[14];
-
-                f = (fp.x * fp.x) + (fp.y * fp.y) + (fp.z * fp.z);
-
-                g = (fp1.x * fp1.x) + (fp1.y * fp1.y) + (fp1.z * fp1.z);
-                if (f > g)
-                    f = g;
-                g = (fp2.x * fp2.x) + (fp2.y * fp2.y) + (fp2.z * fp2.z);
-                if (f > g)
-                    f = g;
-
-                m->maxdepths[i] = f;
-                m->indexes[i] = i;
+                bglMatrixMode(GL_TEXTURE);
+                bglLoadIdentity();
+                bglScalef(f, f, 1.0f);
+                bglMatrixMode(GL_MODELVIEW);
             }
 
-            // dichotomic recursive sorting - about 100x less iterations than bubblesort
-            quicksort(m->indexes, m->maxdepths, 0, s->numtris - 1);
+            i = r_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi) : 0;
 
-            md3draw_handle_triangles(s, indexhandle, texunits, m);
+            if (i)
+                polymost_setupglowtexture(++texunits, i);
+
+            if (r_vertexarrays && r_vbos)
+            {
+                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[curvbo]);
+                vbotemp = bglMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+                indexhandle = (uint16_t *) vbotemp;
+            }
+            else
+                indexhandle = m->vindexes;
+
+            //PLAG: delayed polygon-level sorted rendering
+
+            if (m->usesalpha)
+            {
+                vec3f_t fp, fp1, fp2, vlt0, vlt1, vlt2;
+
+                for (i=s->numtris-1; i>=0; i--)
+                {
+                    vlt0 = vertlist[s->tris[i].i[0]];
+                    vlt1 = vertlist[s->tris[i].i[1]];
+                    vlt2 = vertlist[s->tris[i].i[2]];
+
+                    // Matrix multiplication - ugly but clear
+                    fp.x = (vlt0.x * mat[0]) + (vlt0.y * mat[4]) + (vlt0.z * mat[8]) + mat[12];
+                    fp.y = (vlt0.x * mat[1]) + (vlt0.y * mat[5]) + (vlt0.z * mat[9]) + mat[13];
+                    fp.z = (vlt0.x * mat[2]) + (vlt0.y * mat[6]) + (vlt0.z * mat[10]) + mat[14];
+
+                    fp1.x = (vlt1.x * mat[0]) + (vlt1.y * mat[4]) + (vlt1.z * mat[8]) + mat[12];
+                    fp1.y = (vlt1.x * mat[1]) + (vlt1.y * mat[5]) + (vlt1.z * mat[9]) + mat[13];
+                    fp1.z = (vlt1.x * mat[2]) + (vlt1.y * mat[6]) + (vlt1.z * mat[10]) + mat[14];
+
+                    fp2.x = (vlt2.x * mat[0]) + (vlt2.y * mat[4]) + (vlt2.z * mat[8]) + mat[12];
+                    fp2.y = (vlt2.x * mat[1]) + (vlt2.y * mat[5]) + (vlt2.z * mat[9]) + mat[13];
+                    fp2.z = (vlt2.x * mat[2]) + (vlt2.y * mat[6]) + (vlt2.z * mat[10]) + mat[14];
+
+                    f = (fp.x * fp.x) + (fp.y * fp.y) + (fp.z * fp.z);
+
+                    g = (fp1.x * fp1.x) + (fp1.y * fp1.y) + (fp1.z * fp1.z);
+                    if (f > g)
+                        f = g;
+                    g = (fp2.x * fp2.x) + (fp2.y * fp2.y) + (fp2.z * fp2.z);
+                    if (f > g)
+                        f = g;
+
+                    m->maxdepths[i] = f;
+                    m->indexes[i] = i;
+                }
+
+                // dichotomic recursive sorting - about 100x less iterations than bubblesort
+                quicksort(m->indexes, m->maxdepths, 0, s->numtris - 1);
+            }
+
+            md3draw_handle_triangles(s, indexhandle, texunits, m->usesalpha ? m : NULL);
         }
         else
         {
+            if (r_vertexarrays && r_vbos)
+            {
+                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[curvbo]);
+                vbotemp = bglMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+                indexhandle = (uint16_t *) vbotemp;
+            }
+            else
+                indexhandle = m->vindexes;
+
             md3draw_handle_triangles(s, indexhandle, texunits, NULL);
         }
 

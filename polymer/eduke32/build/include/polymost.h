@@ -187,6 +187,8 @@ extern int32_t globalnoeffect;
 extern int32_t drawingskybox;
 extern int32_t hicprecaching;
 extern float gyxscale, gxyaspect, ghalfx, grhalfxdown10;
+extern float fcosglobalang, fsinglobalang, fglobalposx, fglobalposy, fglobalposz;
+extern float fxdim, fydim, fxdimen, fydimen, fviewingrange;
 
 extern char ptempbuf[MAXWALLSB<<1];
 

@@ -128,7 +128,8 @@ float gtang = 0.f;
 static double guo, gux, guy; //Screen-based texture mapping parameters
 static double gvo, gvx, gvy;
 static double gdo, gdx, gdy;
-static float fcosglobalang, fsinglobalang, fglobalposx, fglobalposy;
+float fcosglobalang, fsinglobalang, fglobalposx, fglobalposy, fglobalposz;
+float fxdim, fydim, fxdimen, fydimen, fviewingrange;
 static int32_t preview_mouseaim=0;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
 
 #ifdef USE_OPENGL
@@ -197,7 +198,7 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
     uint32_t up16;
 
     dx = x1-x0; dy = y1-y0; if ((dx == 0) && (dy == 0)) return;
-    fxres = (float)xdimen; fyres = (float)ydimen;
+    fxres = fxdimen; fyres = fydimen;
     if (x0 >= fxres) { if (x1 >= fxres) return; y0 += (fxres-x0)*dy/dx; x0 = fxres; }
     else if (x0 <      0) { if (x1 <      0) return; y0 += (0-x0)*dy/dx; x0 =     0; }
     if (x1 >= fxres) {                          y1 += (fxres-x1)*dy/dx; x1 = fxres; }
@@ -674,9 +675,9 @@ static void resizeglcheck(void)
 
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
-        m[0][0] = (float)ydimen / ratio; m[0][2] = 1.f;
-        m[1][1] = (float)xdimen; m[1][2] = 1.f;
-        m[2][2] = 1.f; m[2][3] = (float)ydimen / ratio;
+        m[0][0] = fydimen / ratio; m[0][2] = 1.f;
+        m[1][1] = fxdimen; m[1][2] = 1.f;
+        m[2][2] = 1.f; m[2][3] = fydimen / ratio;
         m[3][2] =-1.f;
         bglLoadMatrixf(&m[0][0]);
 
@@ -2068,7 +2069,8 @@ void domost(float x0, float y0, float x1, float y1)
 
 void polymost_editorfunc(void)
 {
-    vec3_t v, o, o2;
+    vec3_t v;
+    vec3f_t o, o2;
     int32_t cz, fz;
     hitdata_t hit;
     vec3_t vect;
@@ -2089,9 +2091,9 @@ void polymost_editorfunc(void)
     o2.z = o.y*gchang + o.z*gshang;
 
     //Standard Left/right rotation
-    v.x = (int32_t) (o2.x*fcosglobalang - o2.y*fsinglobalang);
-    v.y = (int32_t) (o2.x*fsinglobalang + o2.y*fcosglobalang);
-    v.z = (int32_t) (o2.z*16384.f);
+    v.x = Blrintf (o2.x*fcosglobalang - o2.y*fsinglobalang);
+    v.y = Blrintf (o2.x*fsinglobalang + o2.y*fcosglobalang);
+    v.z = Blrintf (o2.z*16384.f);
 
     vect.x = globalposx;
     vect.y = globalposy;
@@ -2515,9 +2517,9 @@ static void polymost_drawalls(int32_t bunch)
             {
 //                g_nodraw = 1;
 
-                dd[0] = (float)xdimen*.0000001f; //Adjust sky depth based on screen size!
+                dd[0] = fxdimen*.0000001f; //Adjust sky depth based on screen size!
                 t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
-                vv[1] = dd[0]*((float)xdimscale*(float)viewingrange)/(65536.f*65536.f);
+                vv[1] = dd[0]*((float)xdimscale*fviewingrange) * (1.f/(65536.f*65536.f));
                 vv[0] = dd[0]*((float)((tilesiz[globalpicnum].y>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
 
@@ -2550,7 +2552,7 @@ static void polymost_drawalls(int32_t bunch)
                 gvx = 0; gvy = vv[1]; gvo = vv[0];
 
                 i = globalpicnum; r = (fy1-fy0)/(x1-x0); //slope of line
-                oy = ((float)viewingrange)/(ghalfx*256.f); oz = 1.f/oy;
+                oy = fviewingrange/(ghalfx*256.f); oz = 1.f/oy;
 
                 y = ((((int32_t)((x0-ghalfx)*oy))+globalang)>>(11-dapskybits));
                 fx = x0;
@@ -2657,8 +2659,8 @@ static void polymost_drawalls(int32_t bunch)
                     gdx = 0;
                     gdy = gxyaspect*(1.f/4194304.f);
                     gdo = -ghoriz*gdy;
-                    gux = (double)ft[3]*((float)viewingrange)*(-1.0/65536.0);
-                    gvx = (double)ft[2]*((float)viewingrange)*(-1.0/65536.0);
+                    gux = (double)ft[3]*fviewingrange*(-1.0/65536.0);
+                    gvx = (double)ft[2]*fviewingrange*(-1.0/65536.0);
                     guy = ft[0]*gdy; gvy = ft[1]*gdy;
                     guo = ft[0]*gdo; gvo = ft[1]*gdo;
                     guo += (ft[2]-gux)*ghalfx;
@@ -2789,9 +2791,9 @@ static void polymost_drawalls(int32_t bunch)
 //                g_nodraw = 1;
 
                 //Render for parallaxtype == 0 / paper-sky
-                dd[0] = (float)xdimen*.0000001f; //Adjust sky depth based on screen size!
+                dd[0] = fxdimen*.0000001f; //Adjust sky depth based on screen size!
                 t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
-                vv[1] = dd[0]*((float)xdimscale*viewingrange)/(65536.f*65536.f);
+                vv[1] = dd[0]*((float)xdimscale*viewingrange) * (1.f/(65536.f*65536.f));
                 vv[0] = dd[0]*((float)((tilesiz[globalpicnum].y>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
 
@@ -2826,7 +2828,7 @@ static void polymost_drawalls(int32_t bunch)
                 gvx = 0; gvy = vv[1]; gvo = vv[0];
 
                 i = globalpicnum; r = (cy1-cy0)/(x1-x0); //slope of line
-                oy = ((float)viewingrange)/(ghalfx*256.f); oz = 1.f/oy;
+                oy = fviewingrange/(ghalfx*256.f); oz = 1.f/oy;
 
                 y = ((((int32_t)((x0-ghalfx)*oy))+globalang)>>(11-dapskybits));
                 fx = x0;
@@ -2935,8 +2937,8 @@ static void polymost_drawalls(int32_t bunch)
                     gdx = 0;
                     gdy = gxyaspect*(-1.f/4194304.f);
                     gdo = -ghoriz*gdy;
-                    gux = ft[3]*((float)viewingrange)*(-1.0/65536.0);
-                    gvx = ft[2]*((float)viewingrange)*(-1.0/65536.0);
+                    gux = ft[3]*fviewingrange*(-1.0/65536.0);
+                    gvx = ft[2]*fviewingrange*(-1.0/65536.0);
                     guy = ft[0]*gdy; gvy = ft[1]*gdy;
                     guo = ft[0]*gdo; gvo = ft[1]*gdo;
                     guo += (ft[2]-gux)*ghalfx;
@@ -3000,8 +3002,8 @@ static void polymost_drawalls(int32_t bunch)
                 gdx = 0;
                 gdy = gxyaspect*(1.f/4194304.f);
                 gdo = -ghoriz*gdy;
-                gux = ft[3]*((float)viewingrange)*(-1.0/65536.0);
-                gvx = ft[2]*((float)viewingrange)*(-1.0/65536.0);
+                gux = ft[3]*fviewingrange*(-1.0/65536.0);
+                gvx = ft[2]*fviewingrange*(-1.0/65536.0);
                 guy = ft[0]*gdy; gvy = ft[1]*gdy;
                 guo = ft[0]*gdo; gvo = ft[1]*gdo;
                 guo += (ft[2]-gux)*ghalfx;
@@ -3436,28 +3438,34 @@ void polymost_drawrooms()
     
     //Polymost supports true look up/down :) Here, we convert horizon to angle.
     //gchang&gshang are cos&sin of this angle (respectively)
+    fxdim = (float) xdim;
+    fydim = (float) ydim;
+    fxdimen = (float) xdimen;
+    fydimen = (float) ydimen;
     fglobalposx = (float) globalposx;
     fglobalposy = (float) globalposy;
+    fglobalposz = (float) globalposz;
+    fviewingrange = (float) viewingrange;
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
-    gxyaspect = ((float)xyaspect*(float)viewingrange)*(5.f/(65536.f*262144.f));
-    gviewxrange = ((float)viewingrange)*((float)xdimen)/(32768.f*1024.f);
+    gxyaspect = ((float)xyaspect*fviewingrange)*(5.f/(65536.f*262144.f));
+    gviewxrange = fviewingrange * fxdimen * (1.f/(32768.f*1024.f));
     fcosglobalang = (float) cosglobalang;
     gcosang = fcosglobalang*(1.0f/262144.f);
     fsinglobalang = (float) singlobalang;
     gsinang = fsinglobalang*(1.0f/262144.f);
-    gcosang2 = gcosang*((float)viewingrange)*(1.0f/65536.f);
-    gsinang2 = gsinang*((float)viewingrange)*(1.0f/65536.f);
-    ghalfx = (float)halfxdimen;
+    gcosang2 = gcosang * (fviewingrange * (1.0f/65536.f));
+    gsinang2 = gsinang * (fviewingrange * (1.0f/65536.f));
+    ghalfx = fxdimen * .5f;
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ghoriz = (float)globalhoriz;
 
     gvisibility = ((float)globalvisibility)*FOGSCALE;
 
     //global cos/sin height angle
-    r = ((float)(ydimen>>1)-ghoriz);
+    r = fydimen * .5f - ghoriz;
     gshang = r/Bsqrtf(r*r+ghalfx*ghalfx);
     gchang = Bsqrtf(1.f-gshang*gshang);
-    ghoriz = (float)(ydimen>>1);
+    ghoriz = fydimen * .5f;
 
     //global cos/sin tilt angle
     gctang = cos(gtang);
@@ -3879,7 +3887,7 @@ void polymost_drawsprite(int32_t snum)
         sx0 = ghalfx*xp0*ryp0 + ghalfx;
         sy0 = ((float)(tspr->z-globalposz))*gyxscale*ryp0 + ghoriz;
 
-        f = ryp0*(float)xdimen*(1.0f/160.f);
+        f = ryp0*fxdimen*(1.0f/160.f);
         fx = ((float)tspr->xrepeat)*f;
         fy = ((float)tspr->yrepeat)*f*((float)yxaspect*(1.0f/65536.f));
         sx0 -= fx*(float)xoff; if (tsizx&1) sx0 += fx*0.5f;
@@ -4161,8 +4169,8 @@ void polymost_drawsprite(int32_t snum)
         ft[3] = singlobalang*fx - cosglobalang*fy;
         ft[0] = ((float)(globalposy-yv))*fy + ((float)(globalposx-xv))*fx;
         ft[1] = ((float)(globalposx-xv))*fy - ((float)(globalposy-yv))*fx;
-        gux = (float)ft[3]*((float)viewingrange)/(-65536.f*262144.f);
-        gvx = (float)ft[2]*((float)viewingrange)/(-65536.f*262144.f);
+        gux = (float)ft[3]*fviewingrange/(-65536.f*262144.f);
+        gvx = (float)ft[2]*fviewingrange/(-65536.f*262144.f);
         guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
         guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
         guo += (double)(ft[2]*(1.0f/262144.f)-gux)*ghalfx;
@@ -4328,9 +4336,9 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
                 tspr.xrepeat = tspr.yrepeat = 5;
 
-                vec2.x = (float)globalposx + (gcosang*vec1.z - gsinang*vec1.x)*2560.f;
-                vec2.y = (float)globalposy + (gsinang*vec1.z + gcosang*vec1.x)*2560.f;
-                vec2.z = (float)globalposz + (vec1.y*(2560.f*0.8f));
+                vec2.x = fglobalposx + (gcosang*vec1.z - gsinang*vec1.x)*2560.f;
+                vec2.y = fglobalposy + (gsinang*vec1.z + gcosang*vec1.x)*2560.f;
+                vec2.z = fglobalposz + (vec1.y*(2560.f*0.8f));
 
                 Bmemcpy(&tspr.x, &vec2, sizeof(vec3f_t));
             }
@@ -4367,15 +4375,15 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
                     if (fov != -1)
                         f = 1.f/tanf(((float)fov * 2.56f) * ((.5f * PI) * (1.0f/2048.f)));
 
-                    m[0][0] = f*(float) ydimen; m[0][2] = 1.f;
-                    m[1][1] = f*(float) xdimen; m[1][2] = 1.f;
-                    m[2][2] = 1.f; m[2][3] = (float) ydimen;
+                    m[0][0] = f*fydimen; m[0][2] = 1.f;
+                    m[1][1] = f*fxdimen; m[1][2] = 1.f;
+                    m[2][2] = 1.f; m[2][3] = fydimen;
                     m[3][2] =-1.f;
                 }
                 else
                 {
                     m[0][0] = m[2][3] = 1.f;
-                    m[1][1] = ((float) xdim)/((float) ydim);
+                    m[1][1] = fxdim/fydim;
                     m[2][2] = 1.0001f;
                     m[3][2] = 1-m[2][2];
                 }
@@ -4492,10 +4500,10 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     ogpicnum = globalpicnum; globalpicnum = picnum;
     ogshade  = globalshade;  globalshade  = dashade;
     ogpal    = globalpal;    globalpal    = (int32_t)((uint8_t)dapalnum);
-    oghalfx  = ghalfx;       ghalfx       = (float)(xdim>>1);
+    oghalfx  = ghalfx;       ghalfx       = fxdim * .5f;
     ogrhalfxdown10 = grhalfxdown10;    grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ogrhalfxdown10x = grhalfxdown10x;  grhalfxdown10x = grhalfxdown10;
-    oghoriz  = ghoriz;       ghoriz       = (float)(ydim>>1);
+    oghoriz  = ghoriz;       ghoriz       = fydim * .5f;
     ofoffset = frameoffset;  frameoffset  = frameplace;
     ogchang = gchang; gchang = 1.f;
     ogshang = gshang; gshang = 0.f;
@@ -4508,7 +4516,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         bglViewport(0,0,xdim,ydim); glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
-        m[0][0] = m[2][3] = 1.0f; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001f; m[3][2] = 1-m[2][2];
+        m[0][0] = m[2][3] = 1.0f; m[1][1] = fxdim/fydim; m[2][2] = 1.0001f; m[3][2] = 1-m[2][2];
         bglPushMatrix(); bglLoadMatrixf(&m[0][0]);
         bglMatrixMode(GL_MODELVIEW);
         bglPushMatrix();
@@ -4855,8 +4863,8 @@ void polymost_fillpolygon(int32_t npoints)
     gvx = ((float)asm2)*(1.f/4294967296.f);
     guy = ((float)globalx1)*(1.f/4294967296.f);
     gvy = ((float)globaly2)*(-1.f/4294967296.f);
-    guo = (((float) xdim)*gux + ((float) ydim)*guy)*-0.5f + (fglobalposx)*(1.f/4294967296.f);
-    gvo = (((float) xdim)*gvx + ((float) ydim)*gvy)*-0.5f - (fglobalposy)*(1.f/4294967296.f);
+    guo = (fxdim*gux + fydim*guy)*-0.5f + fglobalposx * (1.f/4294967296.f);
+    gvo = (fxdim*gvx + fydim*gvy)*-0.5f - fglobalposy * (1.f/4294967296.f);
     //Convert int32_t to float (in-place)
     for (i=npoints-1; i>=0; i--)
     {
