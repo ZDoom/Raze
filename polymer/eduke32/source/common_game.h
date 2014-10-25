@@ -90,7 +90,7 @@ extern void G_SetupGlobalPsky(void);
 //////////
 
 extern char g_modDir[BMAX_PATH];
-
+extern int32_t kopen4loadfrommod(const char *filename, char searchfirst);
 extern void G_AddSearchPaths(void);
 extern void G_CleanupSearchPaths(void);
 

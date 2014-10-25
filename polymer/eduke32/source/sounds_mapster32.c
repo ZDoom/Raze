@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #include "sounds_mapster32.h"
+#include "common.h"
+#include "common_game.h"
 
 #define LOUDESTVOLUME 150
 #define MUSICANDSFX 5
