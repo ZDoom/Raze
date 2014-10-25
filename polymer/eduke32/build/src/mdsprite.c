@@ -1915,19 +1915,27 @@ static inline void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexh
     if (r_vertexarrays)
     {
         int32_t k = 0;
-        uint16_t tri;
 
-        for (i=s->numtris-1; i>=0; i--)
+        if (M == NULL)
         {
-            tri = M ? M->indexes[i] : i;
+            for (i=s->numtris-1; i>=0; i--, k+=3)
+            {
+                indexhandle[k]   = s->tris[i].i[0];
+                indexhandle[k+1] = s->tris[i].i[1];
+                indexhandle[k+2] = s->tris[i].i[2];
+            }
+            return;
+        }
+
+
+        for (i=s->numtris-1; i>=0; i--, k+=3)
+        {
+            uint16_t tri = M->indexes[i];
 
             indexhandle[k]   = s->tris[tri].i[0];
             indexhandle[k+1] = s->tris[tri].i[1];
             indexhandle[k+2] = s->tris[tri].i[2];
-
-            k += 3;
         }
-
         return;
     }
 
@@ -2072,10 +2080,11 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
     // Bit 10 is an ugly hack in game.c:G_DoSpriteAnimations() telling md2sprite
     // to use Z-buffer hacks to hide overdraw problems with the
     // flat-tsprite-on-floor shadows.
+    // is this still needed?
     if (tspr->cstat&CSTAT_SPRITE_MDHACK)
     {
-        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0,0.9999);
+        bglDepthFunc(GL_LESS);
+        bglDepthRange(-.0001, .9999);
     }
     bglPushAttrib(GL_POLYGON_BIT);
     if ((grhalfxdown10x >= 0) ^((globalorientation&8) != 0) ^((globalorientation&4) != 0)) bglFrontFace(GL_CW); else bglFrontFace(GL_CCW);
@@ -2148,7 +2157,7 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
         //PLAG : sorting stuff
         void               *vbotemp;
         vec3f_t            *vertexhandle = NULL;
-        uint16_t     *indexhandle;
+        uint16_t           *indexhandle;
 
         const md3surf_t *const s = &m->head.surfs[surfi];
 
@@ -2282,22 +2291,26 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
         //PLAG: delayed polygon-level sorted rendering
         if (m->usesalpha && !(tspr->cstat & CSTAT_SPRITE_MDHACK))
         {
+            vec3f_t fp, fp1, fp2, vlt0, vlt1, vlt2;
+
             for (i=s->numtris-1; i>=0; i--)
             {
-                vec3f_t fp, fp1, fp2;
+                vlt0 = vertlist[s->tris[i].i[0]];
+                vlt1 = vertlist[s->tris[i].i[1]];
+                vlt2 = vertlist[s->tris[i].i[2]];
 
                 // Matrix multiplication - ugly but clear
-                fp.x = (vertlist[s->tris[i].i[0]].x * mat[0]) + (vertlist[s->tris[i].i[0]].y * mat[4]) + (vertlist[s->tris[i].i[0]].z * mat[8]) + mat[12];
-                fp.y = (vertlist[s->tris[i].i[0]].x * mat[1]) + (vertlist[s->tris[i].i[0]].y * mat[5]) + (vertlist[s->tris[i].i[0]].z * mat[9]) + mat[13];
-                fp.z = (vertlist[s->tris[i].i[0]].x * mat[2]) + (vertlist[s->tris[i].i[0]].y * mat[6]) + (vertlist[s->tris[i].i[0]].z * mat[10]) + mat[14];
+                fp.x = (vlt0.x * mat[0]) + (vlt0.y * mat[4]) + (vlt0.z * mat[8]) + mat[12];
+                fp.y = (vlt0.x * mat[1]) + (vlt0.y * mat[5]) + (vlt0.z * mat[9]) + mat[13];
+                fp.z = (vlt0.x * mat[2]) + (vlt0.y * mat[6]) + (vlt0.z * mat[10]) + mat[14];
 
-                fp1.x = (vertlist[s->tris[i].i[1]].x * mat[0]) + (vertlist[s->tris[i].i[1]].y * mat[4]) + (vertlist[s->tris[i].i[1]].z * mat[8]) + mat[12];
-                fp1.y = (vertlist[s->tris[i].i[1]].x * mat[1]) + (vertlist[s->tris[i].i[1]].y * mat[5]) + (vertlist[s->tris[i].i[1]].z * mat[9]) + mat[13];
-                fp1.z = (vertlist[s->tris[i].i[1]].x * mat[2]) + (vertlist[s->tris[i].i[1]].y * mat[6]) + (vertlist[s->tris[i].i[1]].z * mat[10]) + mat[14];
+                fp1.x = (vlt1.x * mat[0]) + (vlt1.y * mat[4]) + (vlt1.z * mat[8]) + mat[12];
+                fp1.y = (vlt1.x * mat[1]) + (vlt1.y * mat[5]) + (vlt1.z * mat[9]) + mat[13];
+                fp1.z = (vlt1.x * mat[2]) + (vlt1.y * mat[6]) + (vlt1.z * mat[10]) + mat[14];
 
-                fp2.x = (vertlist[s->tris[i].i[2]].x * mat[0]) + (vertlist[s->tris[i].i[2]].y * mat[4]) + (vertlist[s->tris[i].i[2]].z * mat[8]) + mat[12];
-                fp2.y = (vertlist[s->tris[i].i[2]].x * mat[1]) + (vertlist[s->tris[i].i[2]].y * mat[5]) + (vertlist[s->tris[i].i[2]].z * mat[9]) + mat[13];
-                fp2.z = (vertlist[s->tris[i].i[2]].x * mat[2]) + (vertlist[s->tris[i].i[2]].y * mat[6]) + (vertlist[s->tris[i].i[2]].z * mat[10]) + mat[14];
+                fp2.x = (vlt2.x * mat[0]) + (vlt2.y * mat[4]) + (vlt2.z * mat[8]) + mat[12];
+                fp2.y = (vlt2.x * mat[1]) + (vlt2.y * mat[5]) + (vlt2.z * mat[9]) + mat[13];
+                fp2.z = (vlt2.x * mat[2]) + (vlt2.y * mat[6]) + (vlt2.z * mat[10]) + mat[14];
 
                 f = (fp.x * fp.x) + (fp.y * fp.y) + (fp.z * fp.z);
 
@@ -2385,13 +2398,9 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
     //------------
 
     if (m->usesalpha) bglDisable(GL_ALPHA_TEST);
+
     bglDisable(GL_CULL_FACE);
     bglPopAttrib();
-    if (tspr->cstat&CSTAT_SPRITE_MDHACK)
-    {
-        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0,0.99999);
-    }
     bglLoadIdentity();
 
     globalnoeffect=0;

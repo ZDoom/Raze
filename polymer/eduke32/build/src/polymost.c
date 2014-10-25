@@ -82,6 +82,7 @@ Low priority:
 #include "cache1d.h"
 #include "kplib.h"
 #include "texcache.h"
+#include "common.h"
 
 #ifndef _WIN32
 extern int32_t filelength(int h); // kplib.c
@@ -99,6 +100,7 @@ int32_t usehightile=1;
 int32_t vsync=0;
 
 #include <math.h> //<-important!
+#include <float.h>
 
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 4096 //<- careful!
@@ -107,7 +109,7 @@ static int32_t gtag;
 
 static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 
-#define SCISDIST 1.0f  //1.0: Close plane clipping distance
+#define SCISDIST .9999f  //1.0: Close plane clipping distance
 
 float shadescale = 1.0f;
 int32_t shadescale_unbounded = 0;
@@ -163,8 +165,6 @@ int32_t glrendmode = REND_POLYMOST;
 // This variable, and 'shadeforfullbrightpass' control the drawing of
 // fullbright tiles.  Also see 'fullbrightloadingpass'.
 static int32_t fullbrightdrawingpass = 0;
-
-float curpolygonoffset;    // internal polygon offset stack for drawing flat sprites to avoid depth fighting
 
 int32_t r_detailmapping = 1;
 int32_t r_glowmapping = 1;
@@ -2066,6 +2066,140 @@ void domost(float x0, float y0, float x1, float y1)
     }
 }
 
+void polymost_editorfunc(void)
+{
+    vec3_t v, o, o2;
+    int32_t cz, fz;
+    hitdata_t hit;
+    vec3_t vect;
+    const float ratio = get_projhack_ratio();
+
+    o2.x = (searchx-ghalfx)/ratio;
+    o2.y = (searchy-ghoriz)/ratio;  // ghoriz is (ydimen>>1) here
+    o2.z = ghalfx;
+
+    //Tilt rotation
+    o.x = o2.x*gctang + o2.y*gstang;
+    o.y = o2.y*gctang - o2.x*gstang;
+    o.z = o2.z;
+
+    //Up/down rotation
+    o2.x = o.z*gchang - o.y*gshang;
+    o2.y = o.x;
+    o2.z = o.y*gchang + o.z*gshang;
+
+    //Standard Left/right rotation
+    v.x = (int32_t) (o2.x*fcosglobalang - o2.y*fsinglobalang);
+    v.y = (int32_t) (o2.x*fsinglobalang + o2.y*fcosglobalang);
+    v.z = (int32_t) (o2.z*16384.f);
+
+    vect.x = globalposx;
+    vect.y = globalposy;
+    vect.z = globalposz;
+
+    hitallsprites = 1;
+    hitscan((const vec3_t *) &vect, globalcursectnum, //Start position
+        v.x>>10, v.y>>10, v.z>>6, &hit, 0xffff0030);
+
+    if (hit.sect != -1) // if hitsect is -1, hitscan overflowed somewhere
+    {
+        getzsofslope(hit.sect, hit.pos.x, hit.pos.y, &cz, &fz);
+        hitallsprites = 0;
+
+        searchsector = hit.sect;
+        if (hit.pos.z<cz) searchstat = 1;
+        else if (hit.pos.z>fz) searchstat = 2;
+        else if (hit.wall >= 0)
+        {
+            searchbottomwall = searchwall = hit.wall; searchstat = 0;
+            if (wall[hit.wall].nextwall >= 0)
+            {
+                int32_t cz, fz;
+                getzsofslope(wall[hit.wall].nextsector, hit.pos.x, hit.pos.y, &cz, &fz);
+                if (hit.pos.z > fz)
+                {
+                    searchisbottom = 1;
+                    if (wall[hit.wall].cstat&2) //'2' bottoms of walls
+                        searchbottomwall = wall[hit.wall].nextwall;
+                }
+                else
+                {
+                    searchisbottom = 0;
+                    if ((hit.pos.z > cz) && (wall[hit.wall].cstat&(16+32))) //masking or 1-way
+                        searchstat = 4;
+                }
+            }
+        }
+        else if (hit.sprite >= 0) { searchwall = hit.sprite; searchstat = 3; }
+        else
+        {
+            int32_t cz, fz;
+            getzsofslope(hit.sect, hit.pos.x, hit.pos.y, &cz, &fz);
+            if ((hit.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
+            //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
+        }
+
+        if (preview_mouseaim && spritesortcnt < MAXSPRITESONSCREEN)
+        {
+            spritetype *tsp = &tsprite[spritesortcnt];
+            double dadist, x, y, z;
+            Bmemcpy(tsp, &hit.pos, sizeof(vec3_t));
+            x = tsp->x-globalposx; y=tsp->y-globalposy; z=(tsp->z-globalposz)/16.0;
+            dadist = Bsqrt(x*x + y*y + z*z);
+            tsp->sectnum = hit.sect;
+            tsp->picnum = 2523;  // CROSSHAIR
+            tsp->cstat = 128;
+            tsp->owner = MAXSPRITES-1;
+            tsp->xrepeat = tsp->yrepeat = min(max(1, (int32_t) (dadist*48.0/3200.0)), 255);
+            sprite[tsp->owner].xoffset = sprite[tsp->owner].yoffset = 0;
+            tspriteptr[spritesortcnt++] = tsp;
+        }
+
+        if ((searchstat==1 || searchstat==2) && searchsector>=0)
+        {
+            int32_t scrv[2] ={ (v.x>>12), (v.y>>12) };
+            int32_t scrv_r[2] ={ scrv[1], -scrv[0] };
+            walltype *wal = &wall[sector[searchsector].wallptr];
+            uint64_t wdistsq, bestwdistsq=0x7fffffff;
+            int32_t k, bestk=-1;
+
+            for (k=0; k<sector[searchsector].wallnum; k++)
+            {
+                int32_t w1[2] ={ wal[k].x, wal[k].y };
+                int32_t w2[2] ={ wall[wal[k].point2].x, wall[wal[k].point2].y };
+                int32_t w21[2] ={ w1[0]-w2[0], w1[1]-w2[1] };
+                int32_t pw1[2] ={ w1[0]-hit.pos.x, w1[1]-hit.pos.y };
+                int32_t pw2[2] ={ w2[0]-hit.pos.x, w2[1]-hit.pos.y };
+                float w1d = (float) (scrv_r[0]*pw1[0] + scrv_r[1]*pw1[1]);
+                float w2d = (float) (scrv_r[0]*pw2[0] + scrv_r[1]*pw2[1]);
+                int32_t ptonline[2], scrp[2];
+                int64_t t1, t2;
+
+                w2d = -w2d;
+                if ((w1d==0 && w2d==0) || (w1d<0 || w2d<0))
+                    continue;
+                ptonline[0] = (int32_t) (w2[0]+(w2d/(w1d+w2d))*w21[0]);
+                ptonline[1] = (int32_t) (w2[1]+(w2d/(w1d+w2d))*w21[1]);
+                scrp[0] = ptonline[0]-vect.x;
+                scrp[1] = ptonline[1]-vect.y;
+                if (scrv[0]*scrp[0] + scrv[1]*scrp[1] <= 0)
+                    continue;
+                t1=scrp[0]; t2=scrp[1];
+                wdistsq = t1*t1 + t2*t2;
+                if (wdistsq < bestwdistsq)
+                {
+                    bestk = k;
+                    bestwdistsq = wdistsq;
+                }
+            }
+
+            if (bestk >= 0)
+                searchwall = sector[searchsector].wallptr + bestk;
+        }
+    }
+    searchit = 0;
+}
+
 void polymost_scansector(int32_t sectnum);
 
 // variables that are set to ceiling- or floor-members, depending
@@ -3271,12 +3405,9 @@ void polymost_drawrooms()
 
         bglDisable(GL_BLEND);
         bglEnable(GL_TEXTURE_2D);
-        //bglTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE); //default anyway
         bglEnable(GL_DEPTH_TEST);
-        bglDepthFunc(GL_ALWAYS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-
-        bglPolygonOffset(-1.f, 0.f); //Supposed to make sprites pasted on walls or floors not disappear
-//        bglDepthRange(0.00001,1.0); //<- this is more widely supported than glPolygonOffset
+        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
 
         //Enable this for OpenGL red-blue glasses mode :)
 #ifdef REDBLUEMODE
@@ -3382,139 +3513,7 @@ void polymost_drawrooms()
     initmosts(sx,sy,n2);
 
     if (searchit == 2)
-    {
-        int32_t vx, vy, vz;
-        int32_t cz, fz;
-        hitdata_t hit;
-        vec3_t vect;
-
-        const float ratio = get_projhack_ratio();
-
-        ox2 = (searchx-ghalfx)/ratio;
-        oy2 = (searchy-ghoriz)/ratio;  // ghoriz is (ydimen>>1) here
-        oz2 = ghalfx;
-
-        //Tilt rotation
-        ox = ox2*gctang + oy2*gstang;
-        oy = oy2*gctang - ox2*gstang;
-        oz = oz2;
-
-        //Up/down rotation
-        ox2 = oz*gchang - oy*gshang;
-        oy2 = ox;
-        oz2 = oy*gchang + oz*gshang;
-
-        //Standard Left/right rotation
-        vx = (int32_t)(ox2*fcosglobalang - oy2*fsinglobalang);
-        vy = (int32_t)(ox2*fsinglobalang + oy2*fcosglobalang);
-        vz = (int32_t)(oz2*16384.f);
-
-        vect.x = globalposx;
-        vect.y = globalposy;
-        vect.z = globalposz;
-
-        hitallsprites = 1;
-        hitscan((const vec3_t *)&vect,globalcursectnum, //Start position
-                vx>>10,vy>>10,vz>>6,&hit,0xffff0030);
-
-        if (hit.sect != -1) // if hitsect is -1, hitscan overflowed somewhere
-        {
-            getzsofslope(hit.sect,hit.pos.x,hit.pos.y,&cz,&fz);
-            hitallsprites = 0;
-
-            searchsector = hit.sect;
-            if (hit.pos.z<cz) searchstat = 1;
-            else if (hit.pos.z>fz) searchstat = 2;
-            else if (hit.wall >= 0)
-            {
-                searchbottomwall = searchwall = hit.wall; searchstat = 0;
-                if (wall[hit.wall].nextwall >= 0)
-                {
-                    int32_t cz, fz;
-                    getzsofslope(wall[hit.wall].nextsector,hit.pos.x,hit.pos.y,&cz,&fz);
-                    if (hit.pos.z > fz)
-                    {
-                        searchisbottom = 1;
-                        if (wall[hit.wall].cstat&2) //'2' bottoms of walls
-                            searchbottomwall = wall[hit.wall].nextwall;
-                    }
-                    else
-                    {
-                        searchisbottom = 0;
-                        if ((hit.pos.z > cz) && (wall[hit.wall].cstat&(16+32))) //masking or 1-way
-                            searchstat = 4;
-                    }
-                }
-            }
-            else if (hit.sprite >= 0) { searchwall = hit.sprite; searchstat = 3; }
-            else
-            {
-                int32_t cz, fz;
-                getzsofslope(hit.sect,hit.pos.x,hit.pos.y,&cz,&fz);
-                if ((hit.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
-                //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
-            }
-
-            if (preview_mouseaim && spritesortcnt < MAXSPRITESONSCREEN)
-            {
-                spritetype *tsp = &tsprite[spritesortcnt];
-                double dadist, x,y,z;
-                Bmemcpy(tsp, &hit.pos, sizeof(vec3_t));
-                x = tsp->x-globalposx; y=tsp->y-globalposy; z=(tsp->z-globalposz)/16.0;
-                dadist = Bsqrt(x*x + y*y + z*z);
-                tsp->sectnum = hit.sect;
-                tsp->picnum = 2523;  // CROSSHAIR
-                tsp->cstat = 128;
-                tsp->owner = MAXSPRITES-1;
-                tsp->xrepeat = tsp->yrepeat = min(max(1, (int32_t)(dadist*48.0/3200.0)), 255);
-                sprite[tsp->owner].xoffset = sprite[tsp->owner].yoffset = 0;
-                tspriteptr[spritesortcnt++] = tsp;
-            }
-
-            if ((searchstat==1 || searchstat==2) && searchsector>=0)
-            {
-                int32_t scrv[2] = {(vx>>12), (vy>>12)};
-                int32_t scrv_r[2] = {scrv[1], -scrv[0]};
-                walltype *wal = &wall[sector[searchsector].wallptr];
-                uint64_t wdistsq, bestwdistsq=0x7fffffff;
-                int32_t k, bestk=-1;
-
-                for (k=0; k<sector[searchsector].wallnum; k++)
-                {
-                    int32_t w1[2] = {wal[k].x, wal[k].y};
-                    int32_t w2[2] = {wall[wal[k].point2].x, wall[wal[k].point2].y};
-                    int32_t w21[2] = {w1[0]-w2[0], w1[1]-w2[1]};
-                    int32_t pw1[2] = {w1[0]-hit.pos.x, w1[1]-hit.pos.y};
-                    int32_t pw2[2] = {w2[0]-hit.pos.x, w2[1]-hit.pos.y};
-                    float w1d = (float)(scrv_r[0]*pw1[0] + scrv_r[1]*pw1[1]);
-                    float w2d = (float)(scrv_r[0]*pw2[0] + scrv_r[1]*pw2[1]);
-                    int32_t ptonline[2], scrp[2];
-                    int64_t t1, t2;
-
-                    w2d = -w2d;
-                    if ((w1d==0 && w2d==0) || (w1d<0 || w2d<0))
-                        continue;
-                    ptonline[0] = (int32_t)(w2[0]+(w2d/(w1d+w2d))*w21[0]);
-                    ptonline[1] = (int32_t)(w2[1]+(w2d/(w1d+w2d))*w21[1]);
-                    scrp[0] = ptonline[0]-vect.x;
-                    scrp[1] = ptonline[1]-vect.y;
-                    if (scrv[0]*scrp[0] + scrv[1]*scrp[1] <= 0)
-                        continue;
-                    t1=scrp[0]; t2=scrp[1];
-                    wdistsq = t1*t1 + t2*t2;
-                    if (wdistsq < bestwdistsq)
-                    {
-                        bestk = k;
-                        bestwdistsq = wdistsq;
-                    }
-                }
-
-                if (bestk >= 0)
-                    searchwall = sector[searchsector].wallptr + bestk;
-            }
-        }
-        searchit = 0;
-    }
+        polymost_editorfunc();
 
     numscans = numbunches = 0;
 
@@ -3578,10 +3577,8 @@ void polymost_drawrooms()
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
     {
-        bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-
-        bglPolygonOffset(-1.f, 0.f);
-//        bglDepthRange(0.0,0.99999); //<- this is more widely supported than glPolygonOffset
+        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
     }
 #endif
 
@@ -3827,9 +3824,17 @@ void polymost_drawsprite(int32_t snum)
 
     if (tspr->cstat & (2|16) || gltexmayhavealpha(tspr->picnum,tspr->pal))
     {
-        curpolygonoffset += .25f;
-        bglEnable(GL_POLYGON_OFFSET_FILL);
-        bglPolygonOffset(-1.f, -1.f-curpolygonoffset);
+#ifdef __arm__ // GL ES has a glDepthRangef and the loss of precision is OK there
+        float f = (tspr->cstat & (2|16)) ? (float)(spritenum + 1) * (FLT_EPSILON * 8.0) : 0.0;
+        if (f != 0.0) f *= 1.f/(float)(sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
+        bglDepthFunc(GL_LESS);
+        glDepthRangef(0.f - f, 1.f - f);
+#else
+        double f = (tspr->cstat & (2|16)) ? (double)(spritenum + 1) * (FLT_EPSILON * 8.0) : 0.0;
+        if (f != 0.0) f *= 1.0/(double)(sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
+        bglDepthFunc(GL_LESS);
+        bglDepthRange(0.0 - f, 1.0 - f);
+#endif
     }
 #endif
 
@@ -3895,10 +3900,21 @@ void polymost_drawsprite(int32_t snum)
         else { gvy = (float)tsizy*gdo/(py[0]-py[3]-.002f); gvo = -gvy*(py[3]+.001f); }
 
         // sprite panning
-        guy -= gdy*((float)(spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
-        guo -= gdo*((float)(spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
-        gvy -= gdy*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
-        gvo -= gdo*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+#ifdef USE_OPENGL
+        if (spriteext[spritenum].xpanning)
+        {
+            guy -= gdy*((float) (spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
+            guo -= gdo*((float) (spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
+            srepeat = 1;
+        }
+
+        if (spriteext[spritenum].ypanning)
+        {
+            gvy -= gdy*((float) (spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+            gvo -= gdo*((float) (spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+            trepeat = 1;
+        }
+#endif
 
         //Clip sprites to ceilings/floors when no parallaxing and not sloped
         if (!(sector[tspr->sectnum].ceilingstat&3))
@@ -3912,23 +3928,14 @@ void polymost_drawsprite(int32_t snum)
             if (py[2] > sy0) py[2] = py[3] = sy0;
         }
 
-#ifdef USE_OPENGL
-        if (spriteext[spritenum].xpanning)
-            srepeat = 1;
-        if (spriteext[spritenum].ypanning)
-            trepeat = 1;
-#endif
         tilesiz[globalpicnum].x = tsizx;
         tilesiz[globalpicnum].y = tsizy;
         pow2xsplit = 0; drawpoly(px,py,4,method);
 
 #ifdef USE_OPENGL
-        if (spriteext[spritenum].xpanning)
-            srepeat = 0;
-        if (spriteext[spritenum].ypanning)
-            trepeat = 0;
+        srepeat = 0;
+        trepeat = 0;
 #endif
-
         break;
     case 1: //Wall sprite
 
@@ -3994,9 +4001,16 @@ void polymost_drawsprite(int32_t snum)
         if (globalorientation&4) { t0 = 1.f-t0; t1 = 1.f-t1; }
 
         //sprite panning
-        t0 -= ((float)(spriteext[spritenum].xpanning)*(1.0f/255.f));
-        t1 -= ((float)(spriteext[spritenum].xpanning)*(1.0f/255.f));
-        gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)tsizx / (sx0-sx1);
+#ifdef USE_OPENGL
+        if (spriteext[spritenum].xpanning)
+        {
+            t0 -= ((float) (spriteext[spritenum].xpanning)*(1.0f/255.f));
+            t1 -= ((float) (spriteext[spritenum].xpanning)*(1.0f/255.f));
+            srepeat = 1;
+        }
+#endif
+
+        gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float) tsizx / (sx0-sx1);
         guy = 0;
         guo = t0*ryp0*gxyaspect*(float)tsizx - gux*sx0;
 
@@ -4018,9 +4032,15 @@ void polymost_drawsprite(int32_t snum)
         }
 
         // sprite panning
-        gvx -= gdx*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
-        gvy -= gdy*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
-        gvo -= gdo*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+#ifdef USE_OPENGL
+        if (spriteext[spritenum].ypanning)
+        {
+            gvx -= gdx*((float) (spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+            gvy -= gdy*((float) (spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+            gvo -= gdo*((float) (spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+            trepeat = 1;
+        }
+#endif
 
         //Clip sprites to ceilings/floors when no parallaxing
         if (!(sector[tspr->sectnum].ceilingstat&1))
@@ -4055,22 +4075,13 @@ void polymost_drawsprite(int32_t snum)
         px[2] = sx1; py[2] = sf1;
         px[3] = sx0; py[3] = sf0;
 
-#ifdef USE_OPENGL
-        if (spriteext[spritenum].xpanning)
-            srepeat = 1;
-        if (spriteext[spritenum].ypanning)
-            trepeat = 1;
-#endif
-
         tilesiz[globalpicnum].x = tsizx;
         tilesiz[globalpicnum].y = tsizy;
         pow2xsplit = 0; drawpoly(px,py,4,method);
 
 #ifdef USE_OPENGL
-        if (spriteext[spritenum].xpanning)
-            srepeat = 0;
-        if (spriteext[spritenum].ypanning)
-            trepeat = 0;
+        srepeat = 0;
+        trepeat = 0;
 #endif
 
         break;
@@ -4102,6 +4113,9 @@ void polymost_drawsprite(int32_t snum)
             px[j] = sy0*gcosang  - sx0*gsinang;
             py[j] = sx0*gcosang2 + sy0*gsinang2;
         }
+
+        if (tspr->z == sec->ceilingz) tspr->z++;
+        if (tspr->z == sec->floorz) tspr->z--;
 
         if (tspr->z < globalposz) //if floor sprite is above you, reverse order of points
         {
@@ -4163,16 +4177,20 @@ void polymost_drawsprite(int32_t snum)
         }
 
         // sprite panning
-        guy -= gdy*((float)(spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
-        guo -= gdo*((float)(spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
-        gvy -= gdy*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
-        gvo -= gdo*((float)(spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
-
 #ifdef USE_OPENGL
         if (spriteext[spritenum].xpanning)
+        {
+            guy -= gdy*((float) (spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
+            guo -= gdo*((float) (spriteext[spritenum].xpanning)*(1.0f/255.f))*tsizx;
             srepeat = 1;
+        }
+
         if (spriteext[spritenum].ypanning)
+        {
+            gvy -= gdy*((float) (spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
+            gvo -= gdo*((float) (spriteext[spritenum].ypanning)*(1.0f/255.f))*tsizy;
             trepeat = 1;
+        }
 #endif
 
         tilesiz[globalpicnum].x = tsizx;
@@ -4180,10 +4198,8 @@ void polymost_drawsprite(int32_t snum)
         pow2xsplit = 0; drawpoly(px,py,npoints,method);
 
 #ifdef USE_OPENGL
-        if (spriteext[spritenum].xpanning)
-            srepeat = 0;
-        if (spriteext[spritenum].ypanning)
-            trepeat = 0;
+        srepeat = 0;
+        trepeat = 0;
 #endif
 
         break;

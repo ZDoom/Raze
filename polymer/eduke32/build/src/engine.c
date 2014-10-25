@@ -6607,7 +6607,8 @@ static void drawsprite(int32_t snum)
 #ifdef USE_OPENGL
     case REND_POLYMOST:
         polymost_drawsprite(snum);
-        bglDisable(GL_POLYGON_OFFSET_FILL);
+        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
         return;
 # ifdef POLYMER
     case REND_POLYMER:
@@ -9541,9 +9542,6 @@ killsprite:
     {
         _point2d pos;
 
-#ifdef USE_OPENGL
-        curpolygonoffset = 0.f;
-#endif
         pos.x = (float)globalposx;
         pos.y = (float)globalposy;
 
