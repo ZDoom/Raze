@@ -508,7 +508,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
 
     sndang = S_GetAngle(camang, cam, pos);
 
-    sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z)>>4);
+    sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z));
 
 #ifdef SPLITSCREEN_MOD_HACKS
     if (g_fakeMultiMode==2)
@@ -524,7 +524,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
 
         {
             const vec3_t *cam2 = &g_player[1].ps->pos;
-            int32_t sndist2 = FindDistance3D(cam2->x-pos->x, cam2->y-pos->y, (cam2->z-pos->z)>>4);
+            int32_t sndist2 = FindDistance3D(cam2->x-pos->x, cam2->y-pos->y, (cam2->z-pos->z));
 
             if (sndist2 < sndist)
             {

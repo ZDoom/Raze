@@ -190,7 +190,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     cs = cursectnum;
     ca = ang;
 
-    sndist = FindDistance3D((cx-pos->x),(cy-pos->y),(cz-pos->z)>>4);
+    sndist = FindDistance3D((cx-pos->x),(cy-pos->y),(cz-pos->z));
 
     if (i >= 0 && (g_sounds[num].m & SF_GLOBAL) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
         sndist = divscale14(sndist,(SHT+1));
@@ -403,7 +403,7 @@ void S_Update(void)
 
             sndang = 2048 + ca - getangle(cx-sx,cy-sy);
             sndang &= 2047;
-            sndist = FindDistance3D((cx-sx),(cy-sy),(cz-sz)>>4);
+            sndist = FindDistance3D((cx-sx),(cy-sy),(cz-sz));
             if (i >= 0 && (g_sounds[j].m & SF_GLOBAL) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
                 sndist = divscale14(sndist,(SHT+1));
 
