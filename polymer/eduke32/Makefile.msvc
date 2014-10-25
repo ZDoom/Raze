@@ -143,7 +143,6 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\textfont.$o \
 	$(ENGINE_OBJ)\smalltextfont.$o \
 	$(ENGINE_OBJ)\lz4.$o \
-	$(ENGINE_OBJ)\lzwnew.$o \
 	$(ENGINE_OBJ)\mmulti_null.$o \
 	$(ENGINE_OBJ)\osd.$o \
 	$(ENGINE_OBJ)\pragmas.$o \
