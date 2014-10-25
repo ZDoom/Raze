@@ -1694,7 +1694,7 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
                         intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres)
 {
     int32_t i, x, y, xsiz, ysiz, yinc, xend, xspan, yspan, currstr, numbitgoal;
-    int32_t lzcols, dat, blocklen, bitcnt, xoff, transcol, backcol, *lptr;
+    int32_t lzcols, dat, blocklen, bitcnt, xoff, transcol;
     intptr_t yoff;
     char numbits, startnumbits, chunkind, ilacefirst;
     const uint8_t *ptr, *cptr = NULL;
@@ -1741,21 +1741,6 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
     ysiz = SSWAPIB(*(uint16_t *)&kfilebuf[8]);
     if ((xoff != 0) || (yoff != 0) || (xsiz != xspan) || (ysiz != yspan))
     {
-        int32_t xx[4], yy[4];
-        if (kfilebuf[10]&128) backcol = palcol[(uint8_t)kfilebuf[11]]; else backcol = 0;
-
-        //Fill border to backcol
-        lptr = (int32_t *)(yy[0]*dabytesperline+daframeplace);
-        for (y=yy[0]; y<yy[1]; y++,lptr=(int32_t *)(((intptr_t)lptr)+dabytesperline))
-            for (x=xx[0]; x<xx[3]; x++) lptr[x] = backcol;
-        for (; y<yy[2]; y++,lptr=(int32_t *)(((intptr_t)lptr)+dabytesperline))
-        {
-            for (x=xx[0]; x<xx[1]; x++) lptr[x] = backcol;
-            for (x=xx[2]; x<xx[3]; x++) lptr[x] = backcol;
-        }
-        for (; y<yy[3]; y++,lptr=(int32_t *)(((intptr_t)lptr)+dabytesperline))
-            for (x=xx[0]; x<xx[3]; x++) lptr[x] = backcol;
-
         daglobxoffs += xoff; //Offset bitmap image by extra amount
         daglobyoffs += yoff;
     }
