@@ -152,8 +152,10 @@ void copybufreverse(const void *S, void *D, int32_t c)
 #elif defined(__GNUC__) && defined(GEKKO)
 
 // naked function (no prolog/epilog)
-// FIXME: this function produces unused parameter warnings and a missing return warning
-int32_t scale(int32_t a, int32_t d, int32_t c)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wreturn-type"
+int32_t scale(int32_t a, int32_t d, int32_t c) ATTRIBUTE((naked));
 {
     //	return ((int64_t)a * d) / c;
 
@@ -232,6 +234,7 @@ int32_t scale(int32_t a, int32_t d, int32_t c)
         " blr\n"
         );
 }
+#pragma GCC diagnostic pop
 
 void clearbufbyte(void *d, int32_t c, int32_t a)
 {
