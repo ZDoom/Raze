@@ -220,11 +220,11 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows)
         bglDisable(GL_FOG);
 
         setpolymost2dview();
-        bglColor4f(0,0,0,0.67f);
+        bglColor4f(0.f, 0.f, 0.f, 0.67f);
         bglEnable(GL_BLEND);
-        bglRectd(0,0, xdim,8*numrows+8);
-        bglColor4f(0,0,0,1);
-        bglRectd(0,8*numrows+4, xdim,8*numrows+8);
+        bglRecti(0, 0, xdim, 8*numrows+8);
+        bglColor3f(0.f, 0.f, 0.f);
+        bglRecti(0, 8*numrows+4, xdim, 8*numrows+8);
 
         bglPopAttrib();
 

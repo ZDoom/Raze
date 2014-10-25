@@ -1468,6 +1468,8 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->name, "osdscale"))
     {
+        osdrscale = 1.f/osdscale;
+
         if (xdim && ydim)
             OSD_ResizeDisplay(xdim, ydim);
 

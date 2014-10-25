@@ -32,25 +32,23 @@ int32_t osdhightile = 1;
 int32_t osdshown = 0;
 
 #ifdef __ANDROID__
-float osdscale = 2.f;
+float osdscale = 2.f, osdrscale = 0.5f;
 #else
-float osdscale = 1.f;
+float osdscale = 1.f, osdrscale = 1.f;
 #endif
 
-#define OSD_SCALE(x) (int32_t)(osdscale != 1.f ? lround(osdscale*(x)) : (x))
-#define OSD_SCALEDIV(x) (int32_t)lround((x)/osdscale)
+#define OSD_SCALE(x) (int32_t)(osdscale != 1.f ? Blrintf(osdscale*(float)(x)) : (x))
+#define OSD_SCALEDIV(x) (int32_t)Blrintf((float)(x) * osdrscale)
 
-static int32_t GAME_isspace(int32_t ch)
+static inline int32_t GAME_isspace(int32_t ch)
 {
     return (ch==32 || ch==9);
 }
 
-static int32_t GAME_getchartile(int32_t ch)
+static inline int32_t GAME_getchartile(int32_t ch)
 {
-    int32_t ac = ch-'!'+STARTALPHANUM;
-    if (ac < STARTALPHANUM || ac > ENDALPHANUM)
-        ac = -1;
-    return ac;
+    const int32_t ac = ch-'!'+STARTALPHANUM;
+    return (ac < STARTALPHANUM || ac > ENDALPHANUM) ? -1 : ac;
 }
 
 void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
@@ -143,15 +141,16 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
 # ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST && qsetmode==200)
     {
+        const int32_t i8n8 = OSD_SCALE(8*numrows);
         bglPushAttrib(GL_FOG_BIT);
         bglDisable(GL_FOG);
 
         setpolymost2dview();
-        bglColor4f(0, 0, 0, 0.67f);
+        bglColor4f(0.f, 0.f, 0.f, 0.67f);
         bglEnable(GL_BLEND);
-        bglRectd(0, 0, xdim, OSD_SCALE(8*numrows+8));
-        bglColor4f(0, 0, 0, 1);
-        bglRectd(0, OSD_SCALE(8*numrows+4), xdim, OSD_SCALE(8*numrows+8));
+        bglRecti(0, 0, xdim, i8n8+8);
+        bglColor3f(0.f, 0.f, 0.f);
+        bglRecti(0, i8n8+4, xdim, i8n8+8);
 
         bglPopAttrib();
 
