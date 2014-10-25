@@ -228,12 +228,10 @@ void CONFIG_SetDefaults(void)
     ud.brightness = 8;
     ud.camerasprite = -1;
 
-#ifdef __ANDROID__
-    ud.camera_time = 3;
-#elif defined GEKKO || defined __OPENDINGUX__
+#if defined GEKKO || defined __OPENDINGUX__
     ud.camera_time = 11;
 #else
-    ud.camera_time = 0;
+    ud.camera_time = 4;
 #endif
 
     ud.color = 0;
