@@ -37,6 +37,7 @@ extern spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern intptr_t frameoffset;
 extern int32_t globalposx, globalposy, globalposz, globalhoriz;
+extern float fglobalposx, fglobalposy, fglobalposz;
 extern int16_t globalang, globalcursectnum;
 extern int32_t globalpal, cosglobalang, singlobalang;
 extern int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
@@ -226,4 +227,12 @@ static inline const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t 
 
     return multipsky[j].tileofs;
 }
+
+static inline void set_globalpos(int32_t x, int32_t y, int32_t z)
+{
+    globalposx  = x, fglobalposx = (float)x;
+    globalposy  = y, fglobalposy = (float)y;
+    globalposz  = z, fglobalposz = (float)z;
+}
+
 #endif	/* ENGINE_PRIV_H */

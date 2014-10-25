@@ -128,7 +128,7 @@ float gtang = 0.f;
 static double guo, gux, guy; //Screen-based texture mapping parameters
 static double gvo, gvx, gvy;
 static double gdo, gdx, gdy;
-float fcosglobalang, fsinglobalang, fglobalposx, fglobalposy, fglobalposz;
+float fcosglobalang, fsinglobalang;
 float fxdim, fydim, fxdimen, fydimen, fviewingrange;
 static int32_t preview_mouseaim=0;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
 
@@ -272,7 +272,7 @@ void gltexinvalidatetype(int32_t type)
     int32_t j;
     pthtyp *pth;
 
-    for (j=GLTEXCACHEADSIZ-1; j>=0; j--)
+    for (j=0; j<=GLTEXCACHEADSIZ-1; j++)
     {
         for (pth=texcache.list[j]; pth; pth=pth->next)
         {
@@ -317,7 +317,7 @@ void gltexapplyprops(void)
 
     gltexfiltermode = clamp(gltexfiltermode, 0, NUMGLFILTERMODES-1);
 
-    for (i=GLTEXCACHEADSIZ-1; i>=0; i--)
+    for (i=0; i<=GLTEXCACHEADSIZ-1; i++)
     {
         for (pth=texcache.list[i]; pth; pth=pth->next)
         {
@@ -365,11 +365,11 @@ void polymost_glreset()
     int32_t i;
     pthtyp *pth, *next;
 
-    for (i=MAXPALOOKUPS-1; i>=0; i--)
+    for (i=0; i<=MAXPALOOKUPS-1; i++)
     {
-        fogtable[i<<2] = palookupfog[i].r / 63.f;
-        fogtable[(i<<2)+1] = palookupfog[i].g / 63.f;
-        fogtable[(i<<2)+2] = palookupfog[i].b / 63.f;
+        fogtable[i<<2] = palookupfog[i].r * (1.f/63.f);
+        fogtable[(i<<2)+1] = palookupfog[i].g * (1.f/63.f);
+        fogtable[(i<<2)+2] = palookupfog[i].b * (1.f/63.f);
         fogtable[(i<<2)+3] = 0;
     }
 
@@ -384,7 +384,7 @@ void polymost_glreset()
     }
     else
     {
-        for (i=GLTEXCACHEADSIZ-1; i>=0; i--)
+        for (i=0; i<=GLTEXCACHEADSIZ-1; i++)
         {
             for (pth=texcache.list[i]; pth;)
             {
@@ -2520,7 +2520,7 @@ static void polymost_drawalls(int32_t bunch)
                 dd[0] = fxdimen*.0000001f; //Adjust sky depth based on screen size!
                 t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
                 vv[1] = dd[0]*((float)xdimscale*fviewingrange) * (1.f/(65536.f*65536.f));
-                vv[0] = dd[0]*((float)((tilesiz[globalpicnum].y>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
+                vv[0] = dd[0]*((float) ((tilesiz[globalpicnum].y>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
 
                 //Hack to draw black rectangle below sky when looking down...
@@ -2819,11 +2819,11 @@ static void polymost_drawalls(int32_t bunch)
                 else domost(x1,cy1,x0,cy0);
 
                 if (r_parallaxskypanning)
-                    vv[0] += dd[0]*(float)sec->ceilingypanning*(float)i/256.f;
+                    vv[0] += dd[0]*(float)sec->ceilingypanning*(float)i*(1.f/256.f);
                 
                 gdx = 0; gdy = 0; gdo = dd[0];
                 gux = gdo * 
-                    (t * (float) ((uint64_t)(xdimscale * yxaspect) * viewingrange)) / (16384.0*65536.0*65536.0*5.0*1024.0);
+                    (t * (float) ((uint64_t)(xdimscale * yxaspect) * viewingrange)) * (1.f/(16384.0*65536.0*65536.0*5.0*1024.0));
                 guy = 0; //guo calculated later
                 gvx = 0; gvy = vv[1]; gvo = vv[0];
 
@@ -3442,9 +3442,6 @@ void polymost_drawrooms()
     fydim = (float) ydim;
     fxdimen = (float) xdimen;
     fydimen = (float) ydimen;
-    fglobalposx = (float) globalposx;
-    fglobalposy = (float) globalposy;
-    fglobalposz = (float) globalposz;
     fviewingrange = (float) viewingrange;
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
     gxyaspect = ((float)xyaspect*fviewingrange)*(5.f/(65536.f*262144.f));

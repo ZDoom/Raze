@@ -2270,6 +2270,7 @@ static int32_t xsi[8], ysi[8], horizycent;
 static int32_t *horizlookup=0, *horizlookup2=0;
 
 int32_t globalposx, globalposy, globalposz, globalhoriz;
+float fglobalposx, fglobalposy, fglobalposz;
 int16_t globalang, globalcursectnum;
 int32_t globalpal, cosglobalang, singlobalang;
 static int32_t globalblend;
@@ -9100,7 +9101,7 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     beforedrawrooms = 0;
     indrawroomsandmasks = 1;
 
-    globalposx = daposx; globalposy = daposy; globalposz = daposz;
+    set_globalpos(daposx, daposy, daposz);
     set_globalang(daang);
 
     global100horiz = dahoriz;
@@ -9718,8 +9719,8 @@ killsprite:
 
                             for (jj=0; jj<numpts; jj++)
                             {
-                                spr.x = xx[jj];
-                                spr.y = yy[jj];
+                                spr.x = (float)xx[jj];
+                                spr.y = (float)yy[jj];
 
                                 if (!sameside(&maskeq, &spr, &pos))  // behind the maskwall,
                                     if ((sameside(&p1eq, &middle, &spr) &&  // inside the 'cone',
@@ -9917,8 +9918,9 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             globalpolytype = 0;
             if ((globalorientation&64) == 0)
             {
-                globalposx = dax; globalx1 = bakgxvect; globaly1 = bakgyvect;
-                globalposy = day; globalx2 = bakgxvect; globaly2 = bakgyvect;
+                set_globalpos(dax, day, globalposz);
+                globalx1 = bakgxvect; globaly1 = bakgyvect;
+                globalx2 = bakgxvect; globaly2 = bakgyvect;
             }
             else
             {
@@ -9929,14 +9931,14 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 globalx1 = mulscale10(dmulscale10(ox,bakgxvect,oy,bakgyvect),i);
                 globaly1 = mulscale10(dmulscale10(ox,bakgyvect,-oy,bakgxvect),i);
                 ox = (bakx1>>4)-(xdim<<7); oy = (baky1>>4)-(ydim<<7);
-                globalposx = dmulscale28(-oy,globalx1,-ox,globaly1);
-                globalposy = dmulscale28(-ox,globalx1,oy,globaly1);
+                globalposx = dmulscale28(-oy, globalx1, -ox, globaly1);
+                globalposy = dmulscale28(-ox, globalx1, oy, globaly1);
                 globalx2 = -globalx1;
                 globaly2 = -globaly1;
 
                 daslope = sector[s].floorheinum;
                 i = nsqrtasm(daslope*daslope+16777216);
-                globalposy = mulscale12(globalposy,i);
+                set_globalpos(globalposx, mulscale12(globalposy,i), globalposz);
                 globalx2 = mulscale12(globalx2,i);
                 globaly2 = mulscale12(globaly2,i);
             }
@@ -9957,9 +9959,9 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             asm2 = (globalx2<<globalyshift);
             globalx1 <<= globalxshift;
             globaly2 <<= globalyshift;
-            globalposx = ((int64_t)globalposx<<(20+globalxshift))+(((uint32_t)sec->floorxpanning)<<24);
-            globalposy = ((int64_t)globalposy<<(20+globalyshift))-(((uint32_t)sec->floorypanning)<<24);
-
+            set_globalpos(((int64_t) globalposx<<(20+globalxshift))+(((uint32_t) sec->floorxpanning)<<24),
+                ((int64_t) globalposy<<(20+globalyshift))-(((uint32_t) sec->floorypanning)<<24),
+                globalposz);
             fillpolygon(npoints);
         }
 
@@ -10082,6 +10084,8 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((spr->cstat&0x4) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalposx = -globalposx;
             asm1 = (globaly1<<2); globalx1 <<= 2; globalposx <<= (20+2);
             asm2 = (globalx2<<2); globaly2 <<= 2; globalposy <<= (20+2);
+
+            set_globalpos(globalposx, globalposy, globalposz);
 
             // so polymost can get the translucency. ignored in software mode:
             globalorientation = ((spr->cstat&2)<<7) | ((spr->cstat&512)>>2);

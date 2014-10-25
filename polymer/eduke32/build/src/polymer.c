@@ -2009,9 +2009,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
         pz = (int32_t)(-coeff*mirrorlist[i].plane->plane[2]*2 + pz);
 
         // map back from polymer to build
-        globalposx = -pz;
-        globalposy = px;
-        globalposz = -py * 16;
+        set_globalpos(-pz, px, -py * 16);
 
         mirrors[depth++] = mirrorlist[i];
         polymer_displayrooms(mirrorlist[i].sectnum);
@@ -2020,9 +2018,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
         cursectormasks = localsectormasks;
         cursectormaskcount = localsectormaskcount;
 
-        globalposx = gx;
-        globalposy = gy;
-        globalposz = gz;
+        set_globalpos(gx, gy, gz);
 
         bglDisable(GL_CLIP_PLANE0);
         SWITCH_CULL_DIRECTION;
@@ -5781,9 +5777,7 @@ static void         polymer_prepareshadows(void)
             bglEnable(GL_POLYGON_OFFSET_FILL);
             bglPolygonOffset(5, SHADOW_DEPTH_OFFSET);
 
-            globalposx = prlights[i].x;
-            globalposy = prlights[i].y;
-            globalposz = prlights[i].z;
+            set_globalpos(prlights[i].x, prlights[i].y, prlights[i].z);
 
             // build globals used by rotatesprite
             viewangle = prlights[i].angle;
@@ -5817,9 +5811,7 @@ static void         polymer_prepareshadows(void)
         k++;
     }
 
-    globalposx = gx;
-    globalposy = gy;
-    globalposz = gz;
+    set_globalpos(gx, gy, gz);
 
     viewangle = oviewangle;
     set_globalang(oglobalang);
