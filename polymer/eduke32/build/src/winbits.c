@@ -10,7 +10,7 @@
 
 #include "winbits.h"
 
-#if defined(_M_X64) || defined(__amd64__) || defined(__x86_64__)
+#ifdef BITNESS64
 # define EBACKTRACEDLL "ebacktrace1-64.dll"
 #else
 # define EBACKTRACEDLL "ebacktrace1.dll"
@@ -291,6 +291,6 @@ int32_t addsearchpath_ProgramFiles(const char *p)
 
 
 // Workaround for a bug in mingwrt-4.0.0 and up where a function named main() in misc/src/libcrt/gdtoa/qnan.c takes precedence over the proper one in src/libcrt/crt/main.c.
-#if (defined __MINGW32__ && __GNUC__ == 4 && __GNUC_MINOR__  >= 8) || (defined __clang__ && __clang_major__ == 3 && __clang_minor__ >= 4)
+#if (defined __MINGW32__ && EDUKE32_GCC_PREREQ(4,8)) || EDUKE32_CLANG_PREREQ(3,4)
 # include "mingw_main.c"
 #endif

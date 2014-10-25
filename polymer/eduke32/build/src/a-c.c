@@ -191,14 +191,8 @@ extern uint32_t vplce[4];
 extern int32_t vince[4];
 extern intptr_t bufplce[4];
 
-#if !defined __has_extension
-# define __has_extension(x) 0
-#endif
-
-#if (defined __GNUC__ && __GNUC_MINOR__ >= 7) || (defined __clang__ && __has_extension(attribute_ext_vector_type))
-# if defined _WIN64 || defined __amd64 || defined __x86_64 || defined __x86_64__
-#  define USE_VECTOR_EXT
-# endif
+#if (EDUKE32_GCC_PREREQ(4,7) || __has_extension(attribute_ext_vector_type)) && defined BITNESS64
+# define USE_VECTOR_EXT
 #endif
 
 #ifdef USE_VECTOR_EXT

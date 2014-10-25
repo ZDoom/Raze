@@ -21,6 +21,27 @@
 #endif
 #endif
 
+#ifdef __GNUC__
+# define EDUKE32_GCC_PREREQ(major, minor) (major > __GNUC__ || (major == __GNUC__ && minor >= __GNUC_MINOR__))
+#else
+# define EDUKE32_GCC_PREREQ(major, minor) 0
+#endif
+
+#ifdef __clang__
+# define EDUKE32_CLANG_PREREQ(major, minor) (major > __clang_major__ || (major == __clang_major__ && minor >= __clang_minor__))
+#else
+# define EDUKE32_CLANG_PREREQ(major, minor) 0
+#endif
+#ifndef __has_builtin
+# define __has_builtin(x) 0  // Compatibility with non-clang compilers.
+#endif
+#ifndef __has_feature
+# define __has_feature(x) 0  // Compatibility with non-clang compilers.
+#endif
+#ifndef __has_extension
+# define __has_extension __has_feature // Compatibility with pre-3.0 compilers.
+#endif
+
 #ifndef UNREFERENCED_PARAMETER
     #define UNREFERENCED_PARAMETER(x) x=x
 #endif
@@ -37,17 +58,19 @@
 # define ATTRIBUTE_OPTIMIZE(str)
 #endif
 
-#if defined __GNUC__ || defined __clang__
+#if defined __GNUC__ || __has_builtin(__builtin_expect)
 #define EDUKE32_PREDICT_TRUE(x)       __builtin_expect(!!(x),1)
 #define EDUKE32_PREDICT_FALSE(x)     __builtin_expect(!!(x),0)
+#else
+#define EDUKE32_PREDICT_TRUE(x) (x)
+#define EDUKE32_PREDICT_FALSE(x) (x)
+#endif
+
+#if EDUKE32_GCC_PREREQ(4,5)  || __has_builtin(__builtin_unreachable)
 #define EDUKE32_UNREACHABLE_SECTION(...)   __builtin_unreachable()
 #elif _MSC_VER
-#define EDUKE32_PREDICT_TRUE(x) (x)
-#define EDUKE32_PREDICT_FALSE(x) (x)
 #define EDUKE32_UNREACHABLE_SECTION(...)   __assume(0)
-#else 
-#define EDUKE32_PREDICT_TRUE(x) (x)
-#define EDUKE32_PREDICT_FALSE(x) (x)
+#else
 #define EDUKE32_UNREACHABLE_SECTION(...) __VA_ARGS__
 #endif
 
@@ -377,6 +400,7 @@ static inline int32_t Blrintf(const float x)
     return n;
 }
 #else
+#include <math.h>
 #define Blrintf lrintf
 #endif
 
