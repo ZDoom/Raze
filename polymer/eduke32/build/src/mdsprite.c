@@ -1217,18 +1217,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m3->mdnum = 3; m3->texid = 0; m3->scale = m->scale;
     m3->head.id = IDP3_MAGIC; m3->head.vers = 15;
 
-// DO_MD2_MD3_CONV:
-//  1: use the conversion code to do real MD2->MD3 conversion,
-//     breaking HRP MD2 oozfilter
-//  0: use flags 1337 (reverting to the old, working code)
-#define DO_MD2_MD3_CONV 1
-
-#if DO_MD2_MD3_CONV
-# define MFLAGS_NOCONV(m) (0)
-#else
-# define MFLAGS_NOCONV(m) ((m)->head.flags == 1337)
-#endif
-    m3->head.flags = DO_MD2_MD3_CONV ? 0 : 1337;
+    m3->head.flags = 0;
 
     m3->head.numframes = m->numframes;
     m3->head.numtags = 0; m3->head.numsurfs = 1;
@@ -1304,18 +1293,9 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
             while (k < m->numframes)
             {
                 f = (md2frame_t *)&m->frames[k*m->framebytes];
-                if (MFLAGS_NOCONV(m3))
-                {
-                    s->xyzn[(k*s->numverts) + (i*3) + j].x = f->verts[m->tris[i].v[j]].v[0];
-                    s->xyzn[(k*s->numverts) + (i*3) + j].y = f->verts[m->tris[i].v[j]].v[1];
-                    s->xyzn[(k*s->numverts) + (i*3) + j].z = f->verts[m->tris[i].v[j]].v[2];
-                }
-                else
-                {
-                    s->xyzn[(k*s->numverts) + (i*3) + j].x = (int16_t)(((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x) * 64.f);
-                    s->xyzn[(k*s->numverts) + (i*3) + j].y = (int16_t)(((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y) * 64.f);
-                    s->xyzn[(k*s->numverts) + (i*3) + j].z = (int16_t)(((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z) * 64.f);
-                }
+                s->xyzn[(k*s->numverts) + (i*3) + j].x = (int16_t) (((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x) * 64.f);
+                s->xyzn[(k*s->numverts) + (i*3) + j].y = (int16_t) (((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y) * 64.f);
+                s->xyzn[(k*s->numverts) + (i*3) + j].z = (int16_t) (((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z) * 64.f);
 
                 k++;
             }
@@ -1907,7 +1887,7 @@ void md3_vox_calcmat_common(const spritetype *tspr, const vec3f_t *a0, float f, 
     mat[14] = (mat[14] + a0->y*mat[2]) + (a0->z*mat[6] + a0->x*mat[10]);
 }
 
-static inline void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
+static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
                                             int32_t texunits, const md3model_t *M)
 {
     int32_t i;
@@ -2005,17 +1985,8 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
         m->nframe = clamp(m->nframe, 0, m->numframes-1);
     }
 
-    if (MFLAGS_NOCONV(m))
-    {
-        // md2
-        g *= m->scale;
-        f *= m->scale;
-    }
-    else
-    {
-        g = m->scale * g * (1.f/64.f);
-        f = m->scale * f * (1.f/64.f);
-    }
+    g = m->scale * g * (1.f/64.f);
+    f = m->scale * f * (1.f/64.f);
 
     m0.x = g; m0.y = g; m0.z = g;
     m1.x = f; m1.y = f; m1.z = f;
@@ -2132,7 +2103,7 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
     //------------
 
     // PLAG: Cleaner model rotation code
-    if (sext->pitch || sext->roll || MFLAGS_NOCONV(m))
+    if (sext->pitch || sext->roll)
     {
         float f = 1.f/((float)(xdimen*viewingrange)*(m0.x+m1.x)*(2560.f*(1.f/(65536.f*1280.f))));
         Bmemset(&a0, 0, sizeof(a0));
@@ -2158,6 +2129,7 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
         void               *vbotemp;
         vec3f_t            *vertexhandle = NULL;
         uint16_t           *indexhandle;
+        vec3f_t fp;
 
         const md3surf_t *const s = &m->head.surfs[surfi];
 
@@ -2174,46 +2146,23 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
             vertexhandle = (vec3f_t *)vbotemp;
         }
 
-        for (i=s->numverts-1; i>=0; i--)
+        if (sext->pitch || sext->roll)
         {
-            vec3f_t fp;
+            vec3f_t fp1, fp2;
 
-            if (sext->pitch || sext->roll || MFLAGS_NOCONV(m))
+            for (i=s->numverts-1; i>=0; i--)
             {
-                vec3f_t fp1, fp2;
+                fp.z = v0[i].x + a0.x;
+                fp.x = v0[i].y + a0.y;
+                fp.y = v0[i].z + a0.z;
 
-                if (MFLAGS_NOCONV(m))
-                {
-                    const int32_t mcf = m->cframe<<1;
-                    const int32_t mnf = m->nframe<<1;
+                fp1.x = fp.x*k2 +       fp.y*k3;
+                fp1.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
+                fp1.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
 
-                    fp.z = (v0[i].x * m->muladdframes[mcf].x) + (m->muladdframes[mcf+1].x + a0.x);
-                    fp.x = (v0[i].y * m->muladdframes[mcf].y) + (m->muladdframes[mcf+1].y + a0.y);
-                    fp.y = (v0[i].z * m->muladdframes[mcf].z) + (m->muladdframes[mcf+1].z + a0.z);
-
-                    fp1.x = fp.x*k2 +       fp.y*k3;
-                    fp1.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
-                    fp1.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
-
-                    fp.z = (v1[i].x * m->muladdframes[mnf].x) + (m->muladdframes[mnf+1].x + a0.x);
-                    fp.x = (v1[i].y * m->muladdframes[mnf].y) + (m->muladdframes[mnf+1].y + a0.y);
-                    fp.y = (v1[i].z * m->muladdframes[mnf].z) + (m->muladdframes[mnf+1].z + a0.z);
-
-                }
-                else
-                {
-                    fp.z = v0[i].x + a0.x;
-                    fp.x = v0[i].y + a0.y;
-                    fp.y = v0[i].z + a0.z;
-
-                    fp1.x = fp.x*k2 +       fp.y*k3;
-                    fp1.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
-                    fp1.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
-
-                    fp.z = v1[i].x + a0.x;
-                    fp.x = v1[i].y + a0.y;
-                    fp.y = v1[i].z + a0.z;
-                }
+                fp.z = v1[i].x + a0.x;
+                fp.x = v1[i].y + a0.y;
+                fp.y = v1[i].z + a0.z;
 
                 fp2.x = fp.x*k2 +       fp.y*k3;
                 fp2.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
@@ -2221,18 +2170,26 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
                 fp.z = (fp1.z - a0.x)*m0.x + (fp2.z - a0.x)*m1.x;
                 fp.x = (fp1.x - a0.y)*m0.y + (fp2.x - a0.y)*m1.y;
                 fp.y = (fp1.y - a0.z)*m0.z + (fp2.y - a0.z)*m1.z;
+
+                if (r_vertexarrays && r_vbos)
+                    vertexhandle[i] = fp;
+
+                vertlist[i] = fp;
             }
-            else
+        }
+        else
+        {
+            for (i=s->numverts-1; i>=0; i--)
             {
                 fp.z = v0[i].x*m0.x + v1[i].x*m1.x;
                 fp.y = v0[i].z*m0.z + v1[i].z*m1.z;
                 fp.x = v0[i].y*m0.y + v1[i].y*m1.y;
+
+                if (r_vertexarrays && r_vbos)
+                    vertexhandle[i] = fp;
+
+                vertlist[i] = fp;
             }
-
-            if (r_vertexarrays && r_vbos)
-                vertexhandle[i] = fp;
-
-            vertlist[i] = fp;
         }
 
         if (r_vertexarrays && r_vbos)
@@ -2335,65 +2292,72 @@ static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
             md3draw_handle_triangles(s, indexhandle, texunits, NULL);
         }
 
-        if (r_vertexarrays && r_vbos)
-        {
-            bglUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
-            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-        }
-
         if (r_vertexarrays)
         {
             int32_t l;
-            if (r_vbos)
-                bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->vbos[surfi]);
-            l = GL_TEXTURE0_ARB;
-            while (l <= texunits)
-            {
-                bglClientActiveTextureARB(l++);
-                bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                if (r_vbos)
-                    bglTexCoordPointer(2, GL_FLOAT, 0, 0);
-                else
-                    bglTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
-            }
 
             if (r_vbos)
             {
+                bglUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
+                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+                bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->vbos[surfi]);
+
+                l = GL_TEXTURE0_ARB;
+                do
+                {
+                    bglClientActiveTextureARB(l++);
+                    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    bglTexCoordPointer(2, GL_FLOAT, 0, 0);
+                } while (l <= texunits);
+
                 bglBindBufferARB(GL_ARRAY_BUFFER_ARB, vertvbos[curvbo]);
                 bglVertexPointer(3, GL_FLOAT, 0, 0);
-            }
-            else
-                bglVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
 
-            if (r_vbos)
-            {
                 bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[curvbo]);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, 0);
-            }
-            else
-                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
 
-            if (r_vbos)
-            {
                 bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
                 bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
             }
-        }
-
-        while (texunits > GL_TEXTURE0_ARB)
-        {
-            bglMatrixMode(GL_TEXTURE);
-            bglLoadIdentity();
-            bglMatrixMode(GL_MODELVIEW);
-            bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
-            bglDisable(GL_TEXTURE_2D);
-            if (r_vertexarrays)
+            else // r_vbos
             {
+                l = GL_TEXTURE0_ARB;
+                do
+                {
+                    bglClientActiveTextureARB(l++);
+                    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    bglTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
+                } while (l <= texunits);
+
+                bglVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
+
+                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
+            } // r_vbos
+
+            while (texunits > GL_TEXTURE0_ARB)
+            {
+                bglMatrixMode(GL_TEXTURE);
+                bglLoadIdentity();
+                bglMatrixMode(GL_MODELVIEW);
+                bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
+                bglDisable(GL_TEXTURE_2D);
                 bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 bglClientActiveTextureARB(texunits - 1);
+                bglActiveTextureARB(--texunits);
             }
-            bglActiveTextureARB(--texunits);
         }
+        else // r_vertexarrays
+        {
+            while (texunits > GL_TEXTURE0_ARB)
+            {
+                bglMatrixMode(GL_TEXTURE);
+                bglLoadIdentity();
+                bglMatrixMode(GL_MODELVIEW);
+                bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
+                bglDisable(GL_TEXTURE_2D);
+                bglActiveTextureARB(--texunits);
+            }
+        } // r_vertexarrays
     }
     //------------
 
@@ -2434,15 +2398,6 @@ static void md3free(md3model_t *m)
         {
             s = &m->head.surfs[surfi];
             if (s->tris) Bfree(s->tris);
-            if (MFLAGS_NOCONV(m))
-            {
-                if (s->shaders) Bfree(s->shaders);
-                if (s->uv) Bfree(s->uv);
-                if (s->xyzn) Bfree(s->xyzn);
-                if (s->geometry) Bfree(s->geometry);
-            }
-//            else
-//                if (s->geometry) Bfree(s->geometry);  // this is wrong!
         }
         Bfree(m->head.surfs);
     }
