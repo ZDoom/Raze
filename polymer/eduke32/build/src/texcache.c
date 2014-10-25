@@ -213,7 +213,7 @@ static inline void texcache_clearmemcache(void)
 
 void texcache_syncmemcache(void)
 {
-    size_t len = Bfilelength(texcache.filehandle);
+    int32_t len = Bfilelength(texcache.filehandle);
 
     if (!texcache.memcache.ptr || texcache.filehandle == -1 || len <= (int32_t)texcache.memcache.size)
         return;
@@ -408,7 +408,7 @@ int32_t texcache_readdata(void *dest, int32_t len)
 
     texcache.filepos += len;
 
-    if (texcache.memcache.ptr && texcache.memcache.size >= (bsize_t)ocachepos+len)
+    if (texcache.memcache.ptr && texcache.memcache.size >= ocachepos+len)
     {
         //        initprintf("using memcache!\n");
         Bmemcpy(dest, texcache.memcache.ptr+ocachepos, len);
