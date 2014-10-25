@@ -309,7 +309,6 @@ int32_t G_DoMoveThings(void);
 //int32_t G_EndOfLevel(void);
 int32_t G_GameTextLen(int32_t x,const char *t);
 int32_t G_PrintGameText(int32_t hack,int32_t tile,int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t o,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
-int32_t kopen4loadfrommod(const char *filename,char searchfirst);
 extern int32_t minitext_lowercase;
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb);
 void shadowminitext(int32_t x,int32_t y,const char *t,int32_t p,int32_t sb);
