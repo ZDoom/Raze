@@ -29,14 +29,14 @@ struct texcacheitem_t
 typedef struct texcacheitem_t texcacheindex;
 
 typedef struct {
-    int32_t filehandle, filepos, numentries;
+    int32_t filehandle, filepos, numentries, iptrcnt;
     FILE *index;
     pthtyp *list[GLTEXCACHEADSIZ];
-    texcacheindex *firstindex, *currentindex, *ptrs[MAXTILES<<1];
+    texcacheindex *firstindex, *currentindex, **iptrs;
     hashtable_t hashes;
     struct {
         uint8_t *ptr;
-        size_t size;
+        int32_t size;
         // Set to 1 when we failed (re)allocating space for the memcache or failing to
         // read into it (which would presumably generate followup errors spamming the
         // log otherwise):
@@ -51,7 +51,6 @@ extern char TEXCACHEFILE[BMAX_PATH];
 extern void texcache_freeptrs(void);
 extern void texcache_syncmemcache(void);
 extern void texcache_init(void);
-extern void texcache_clearmemcache(void);
 extern int32_t texcache_loadoffsets(void);
 extern int32_t texcache_readdata(void *dest, int32_t len);
 extern pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth);

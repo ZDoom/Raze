@@ -185,20 +185,24 @@ void texcache_freeptrs(void)
 {
     int32_t i;
 
+    if (texcache.iptrs)
     for (i = 0; i < texcache.numentries; i++)
-        if (texcache.ptrs[i])
+        if (texcache.iptrs[i])
         {
             int32_t ii;
             for (ii = texcache.numentries-1; ii >= 0; ii--)
-                if (i != ii && texcache.ptrs[ii] == texcache.ptrs[i])
+                if (i != ii && texcache.iptrs[ii] == texcache.iptrs[i])
                 {
                     /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
-                    texcache.ptrs[ii] = NULL;
+                    texcache.iptrs[ii] = NULL;
                 }
 
-                Bfree(texcache.ptrs[i]);
-                texcache.ptrs[i] = NULL;
+                Bfree(texcache.iptrs[i]);
+                texcache.iptrs[i] = NULL;
         }
+
+    texcache.iptrcnt = 0;
+    DO_FREE_AND_NULL(texcache.iptrs);
 }
 
 static inline void texcache_clearmemcache(void)
@@ -209,13 +213,10 @@ static inline void texcache_clearmemcache(void)
 
 void texcache_syncmemcache(void)
 {
-    size_t len;
+    size_t len = Bfilelength(texcache.filehandle);
 
-    if (!texcache.memcache.ptr || texcache.filehandle == -1 ||
-            (bsize_t)Bfilelength(texcache.filehandle) <= texcache.memcache.size)
+    if (!texcache.memcache.ptr || texcache.filehandle == -1 || len <= (int32_t)texcache.memcache.size)
         return;
-
-    len = Bfilelength(texcache.filehandle);
 
     texcache.memcache.ptr = (uint8_t *)Brealloc(texcache.memcache.ptr, len);
 
@@ -374,7 +375,7 @@ int32_t texcache_loadoffsets(void)
         if (i > -1)
         {
             // update an existing entry
-            texcacheindex *t = texcache.ptrs[i];
+            texcacheindex *t = texcache.iptrs[i];
             t->offset = foffset;
             t->len = fsize;
             /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, fname,foffset);*/
@@ -386,7 +387,12 @@ int32_t texcache_loadoffsets(void)
             texcache.currentindex->len = fsize;
             texcache.currentindex->next = (texcacheindex *)Xcalloc(1, sizeof(texcacheindex));
             hash_add(&texcache.hashes, fname, texcache.numentries, 1);
-            texcache.ptrs[texcache.numentries++] = texcache.currentindex;
+            if (++texcache.numentries > texcache.iptrcnt)
+            {
+                texcache.iptrcnt += 512;
+                texcache.iptrs = (texcacheindex **) Xrealloc(texcache.iptrs, sizeof(intptr_t) * texcache.iptrcnt);
+            }
+            texcache.iptrs[texcache.numentries-1] = texcache.currentindex;
             texcache.currentindex = texcache.currentindex->next;
         }
     }
@@ -456,10 +462,10 @@ int32_t texcache_readtexheader(const char *fn, int32_t len, int32_t dameth, char
 
     i = hash_find(&texcache.hashes, texcache_calcid(cachefn, fn, len, dameth, effect));
 
-    if (i < 0 || !texcache.ptrs[i])
+    if (i < 0 || !texcache.iptrs[i])
         return 0;  // didn't find it
 
-    texcache.filepos = texcache.ptrs[i]->offset;
+    texcache.filepos = texcache.iptrs[i]->offset;
 //    initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);
 
     if (texcache_readdata(head, sizeof(texcacheheader)))
@@ -587,7 +593,7 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
         {
             pic = (char *)Xrealloc(pic, miplen);
             alloclen = miplen;
-            packbuf = (char *)Xrealloc(packbuf, alloclen+400);
+            packbuf = (char *)Xrealloc(packbuf, alloclen);
             midbuf = (void *)Xrealloc(midbuf, miplen);
         }
 
@@ -603,7 +609,7 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
         if (i > -1)
         {
             // update an existing entry
-            t = texcache.ptrs[i];
+            t = texcache.iptrs[i];
             t->offset = offset;
             t->len = Blseek(texcache.filehandle, 0, BSEEK_CUR) - t->offset;
             /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
@@ -617,7 +623,12 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
             t->next = (texcacheindex *)Xcalloc(1, sizeof(texcacheindex));
 
             hash_add(&texcache.hashes, cachefn, texcache.numentries, 0);
-            texcache.ptrs[texcache.numentries++] = t;
+            if (++texcache.numentries > texcache.iptrcnt)
+            {
+                texcache.iptrcnt += 512;
+                texcache.iptrs = (texcacheindex **) Xrealloc(texcache.iptrs, sizeof(intptr_t) * texcache.iptrcnt);
+            }
+            texcache.iptrs[texcache.numentries-1] = t;
             texcache.currentindex = t->next;
         }
 
