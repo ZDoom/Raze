@@ -2400,7 +2400,7 @@ void P_HandleSharedKeys(int32_t snum)
         p->return_to_center = 9;
 
     if (TEST_SYNC_KEY(sb_snum, SK_QUICK_KICK) && p->quick_kick == 0)
-        if (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0)
+        if (PWEAPON(snum, p->curr_weapon, WorksLike) != KNEE_WEAPON || p->kickback_pic == 0)
         {
             if (VM_OnEvent(EVENT_QUICKKICK,g_player[snum].ps->i,snum, -1, 0) == 0)
             {

@@ -842,7 +842,7 @@ static void P_AddWeaponAmmoCommon(DukePlayer_t *ps, int32_t weap, int32_t amount
 {
     P_AddAmmo(weap, ps, amount);
 
-    if (ps->curr_weapon == KNEE_WEAPON && (ps->gotweapon & (1 << weap)))
+    if (PWEAPON(vm.g_p, ps->curr_weapon, WorksLike) == KNEE_WEAPON && (ps->gotweapon & (1 << weap)))
         P_AddWeaponMaybeSwitch(ps, weap);
 }
 
@@ -3483,7 +3483,7 @@ nullquote:
                 j = 1;
             else if ((l&256) && s <= -8 && TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_RUN))
                 j = 1;
-            else if ((l&512) && (ps->quick_kick > 0 || (ps->curr_weapon == KNEE_WEAPON && ps->kickback_pic > 0)))
+            else if ((l&512) && (ps->quick_kick > 0 || (PWEAPON(vm.g_p, ps->curr_weapon, WorksLike) == KNEE_WEAPON && ps->kickback_pic > 0)))
                 j = 1;
             else if ((l&1024) && sprite[ps->i].xrepeat < 32)
                 j = 1;

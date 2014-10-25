@@ -2059,14 +2059,14 @@ static void G_DrawStatusBar(int32_t snum)
                 G_DrawAltDigiNum(105,-(hudoffset-22),lAmount,-16,10+16+256);
             }
 			
-            i = (p->curr_weapon == PISTOL_WEAPON) ? 16384 : 32768;
+            i = (tilesiz[ammo_sprites[p->curr_weapon]].y > 50) ? 16384 : 32768;
 
             rotatesprite_althudr(57,hudoffset-15,sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512);
 
-            if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
+            if (PWEAPON(snum, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
 
-            if (p->curr_weapon != KNEE_WEAPON &&
+            if (PWEAPON(snum, p->curr_weapon, WorksLike) != KNEE_WEAPON &&
                     (!althud_flashing || totalclock&32 || p->ammo_amount[i] > (p->max_ammo_amount[i]/10)))
                 G_DrawAltDigiNum(-20,-(hudoffset-22),p->ammo_amount[i],-16,10+16+512);
 
@@ -2155,7 +2155,7 @@ static void G_DrawStatusBar(int32_t snum)
 
             rotatesprite_fs(sbarx(37), yofssh+sbary(200-28), sb16, 0, AMMOBOX, 0, 21, orient);
 
-            if (p->curr_weapon == HANDREMOTE_WEAPON)
+            if (PWEAPON(snum, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
                 i = HANDBOMB_WEAPON;
             else
                 i = p->curr_weapon;
@@ -2379,9 +2379,9 @@ static void G_DrawStatusBar(int32_t snum)
     if (u&1024)
     {
         if (u != -1) G_PatchStatusBar(196,SBY+17,219,SBY+17+11);
-        if (p->curr_weapon != KNEE_WEAPON)
+        if (PWEAPON(snum, p->curr_weapon, WorksLike) != KNEE_WEAPON)
         {
-            if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
+            if (PWEAPON(snum, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
             G_DrawDigiNum(230-22,SBY+17,p->ammo_amount[i],-16,10+16);
         }

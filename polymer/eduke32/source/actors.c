@@ -4261,7 +4261,9 @@ ACTOR_STATIC void G_MoveActors(void)
                 s->ang = ps->ang;
 
                 if ((TEST_SYNC_KEY(g_player[p].sync->bits, SK_FIRE) || (ps->quick_kick > 0)) && sprite[ps->i].extra > 0)
-                    if (ps->quick_kick > 0 || (ps->curr_weapon != HANDREMOTE_WEAPON && ps->curr_weapon != HANDBOMB_WEAPON && ps->curr_weapon != TRIPBOMB_WEAPON && ps->ammo_amount[ps->curr_weapon] >= 0))
+                    if (ps->quick_kick > 0 ||
+                        (PWEAPON(p, ps->curr_weapon, WorksLike) != HANDREMOTE_WEAPON && PWEAPON(p, ps->curr_weapon, WorksLike) != HANDBOMB_WEAPON && 
+                        PWEAPON(p, ps->curr_weapon, WorksLike) != TRIPBOMB_WEAPON && ps->ammo_amount[ps->curr_weapon] >= 0))
                     {
                         for (x=0; x<8; x++)
                         {

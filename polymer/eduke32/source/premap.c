@@ -943,7 +943,7 @@ static void resetprestat(int32_t snum,int32_t g)
         P_ResetWeapons(snum);
         P_ResetInventory(snum);
     }
-    else if (p->curr_weapon == HANDREMOTE_WEAPON)
+    else if (PWEAPON(snum, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
     {
         p->ammo_amount[HANDBOMB_WEAPON]++;
         p->curr_weapon = HANDBOMB_WEAPON;
