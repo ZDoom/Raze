@@ -1659,6 +1659,7 @@ static void M_PreMenu(MenuID_t cm)
         break;
 
     case MENU_SOUND:
+    case MENU_SOUND_INGAME:
 	case MENU_ADVSOUND:
         ME_SOUND.disabled = (ud.config.FXDevice < 0);
         ME_SOUND_MUSIC.disabled = (ud.config.MusicDevice < 0);
