@@ -429,11 +429,17 @@ ifneq (0,$(RELEASE))
     ifeq (0,$(CLANG))
         COMMONFLAGS += -funswitch-loops
         ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \< 4)))
-            LTO=0
+            override LTO=0
         endif
         ifeq (1,$(strip $(shell expr $(GCC_MAJOR) = 4)))
-            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 6)))
-                LTO=0
+            ifeq ($(PLATFORM),WII)
+                ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 8)))
+                    override LTO=0
+                endif
+            else
+                ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 6)))
+                    override LTO=0
+                endif
             endif
         endif
     endif
@@ -968,9 +974,9 @@ endif
 ifneq ($(PLATFORM),WINDOWS)
     ifneq ($(PLATFORM),WII)
         LIBS+= -ldl
-    endif
-    ifneq ($(PLATFORM),DARWIN)
-        LIBS+= -pthread
+        ifneq ($(PLATFORM),DARWIN)
+            LIBS+= -pthread
+        endif
     endif
 endif
 
