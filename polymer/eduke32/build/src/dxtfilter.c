@@ -103,7 +103,7 @@ static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
 
     inbuf = (ispacked && cleng < j) ? packbuf : midbuf;
 
-    if (texcache.memcache.ptr && texcache.memcache.size >= (bsize_t)texcache.filepos + cleng)
+    if (texcache.memcache.ptr && texcache.memcache.size >= texcache.filepos + cleng)
     {
         if (ispacked && cleng < j)
         {
