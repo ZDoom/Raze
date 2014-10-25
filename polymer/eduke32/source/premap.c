@@ -1653,6 +1653,8 @@ void G_ResetTimers(uint8_t keepgtics)
     g_levelTextTime = 85;
     if (!keepgtics)
         g_moveThingsCount = 0;
+    if (g_curViewscreen >= 0)
+        actor[g_curViewscreen].t_data[0] = 0;
 }
 
 void G_ClearFIFO(void)
