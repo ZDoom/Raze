@@ -192,7 +192,8 @@ static inline int32_t Blrintf(const float x)
     int n;
     __asm fld x;
     __asm fistp n;
-}    return n;
+    return n;
+}   
 #endif
 #else
 # define longlong(x) x##ll
