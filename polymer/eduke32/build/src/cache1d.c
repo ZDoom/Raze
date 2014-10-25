@@ -1468,8 +1468,17 @@ C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t c
 
     if (dasizeof > LZWSIZE)
     {
-        count *= dasizeof;
-        dasizeof = 1;
+        if (count > LZWSIZE)
+        {
+            count *= dasizeof;
+            dasizeof = 1;
+        }
+        else
+        {
+            i = count;
+            count = dasizeof;
+            dasizeof = i;
+        }
     }
 
     ptr = (char *)buffer;
@@ -1488,7 +1497,18 @@ C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t c
             if (k) return -1;
         }
 
-        for (j=0; j<dasizeof; j++)
+        j = 0;
+
+        if (dasizeof >= 4)
+        {
+            for (; j<dasizeof-4; j+=4)
+            {
+                ptr[j+dasizeof] = ((ptr[j]+lzwrawbuf[j+k])&255);       ptr[j+1+dasizeof] = ((ptr[j+1]+lzwrawbuf[j+1+k])&255);
+                ptr[j+2+dasizeof] = ((ptr[j+2]+lzwrawbuf[j+2+k])&255); ptr[j+3+dasizeof] = ((ptr[j+3]+lzwrawbuf[j+3+k])&255);
+            }
+        }
+
+        for (; j<dasizeof; j++)
             ptr[j+dasizeof] = ((ptr[j]+lzwrawbuf[j+k])&255);
 
         k += dasizeof;
@@ -1521,15 +1541,22 @@ static uint32_t compress_part(uint32_t k, intptr_t f)
 C1D_STATIC void c1d_write_compressed(const void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f)
 {
     uint32_t i, j, k;
-    const char *ptr;
+    const char *ptr = (char*)buffer;
 
-    if (dasizeof > LZWSIZE)
+    if (dasizeof > LZWSIZE && count > LZWSIZE)
     {
-        count *= dasizeof;
-        dasizeof = 1;
+        if (count > LZWSIZE)
+        {
+            count *= dasizeof;
+            dasizeof = 1;
+        }
+        else
+        {
+            i = count;
+            count = dasizeof;
+            dasizeof = i;
+        }
     }
-
-    ptr = (char*)buffer;
 
     Bmemcpy(lzwrawbuf, ptr, (int32_t)dasizeof);
 
@@ -1539,7 +1566,18 @@ C1D_STATIC void c1d_write_compressed(const void *buffer, bsize_t dasizeof, bsize
 
     for (i=1; i<count; i++)
     {
-        for (j=0; j<dasizeof; j++)
+        j = 0;
+
+        if (dasizeof >= 4)
+        {
+            for (; j<dasizeof-4; j+=4)
+            {
+                lzwrawbuf[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);       lzwrawbuf[j+1+k] = ((ptr[j+1+dasizeof]-ptr[j+1])&255);
+                lzwrawbuf[j+2+k] = ((ptr[j+2+dasizeof]-ptr[j+2])&255); lzwrawbuf[j+3+k] = ((ptr[j+3+dasizeof]-ptr[j+3])&255);
+            }
+        }
+
+        for (; j<dasizeof; j++)
             lzwrawbuf[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);
 
         k += dasizeof;
@@ -1569,7 +1607,16 @@ static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwou
     int16_t *const lzwcodehead = lzwbuf2;
     int16_t *const lzwcodenext = lzwbuf3;
 
-    for (i=255; i>=0; i--)
+    for (i=255; i>=4; i-=4)
+    {
+        lzwtmpbuf[i]   = i,   lzwcodenext[i]   = (i+1)&255;
+        lzwtmpbuf[i-1] = i-1, lzwcodenext[i-1] = (i)  &255;
+        lzwtmpbuf[i-2] = i-2, lzwcodenext[i-2] = (i-1)&255;
+        lzwtmpbuf[i-3] = i-3, lzwcodenext[i-3] = (i-2)&255;
+        lzwcodehead[i] = lzwcodehead[i-1] = lzwcodehead[i-2] = lzwcodehead[i-3] = -1;
+    }
+
+    for (; i>=0; i--)
     {
         lzwtmpbuf[i] = i;
         lzwcodenext[i] = (i+1)&255;
@@ -1588,8 +1635,7 @@ static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwou
         {
             int32_t newaddr;
 
-            bytecnt1++;
-            if (bytecnt1 == uncompleng)
+            if (++bytecnt1 == uncompleng)
                 break;  // (*) see XXX below
 
             if (lzwcodehead[addr] < 0)
@@ -1648,7 +1694,16 @@ static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwou
 
     // Failed compressing, mark this in the stream.
     shortptr[1] = 0;
-    for (i=0; i<uncompleng; i++)
+
+    for (i=0; i<uncompleng-4; i+=4)
+    {
+        lzwoutbuf[i+4] = lzwinbuf[i];
+        lzwoutbuf[i+5] = lzwinbuf[i+1];
+        lzwoutbuf[i+6] = lzwinbuf[i+2];
+        lzwoutbuf[i+7] = lzwinbuf[i+3];
+    }
+
+    for (; i<uncompleng; i++)
         lzwoutbuf[i+4] = lzwinbuf[i];
 
     return uncompleng+4;
@@ -1675,11 +1730,17 @@ static int32_t lzwuncompress(const char *lzwinbuf, int32_t compleng, char *lzwou
         return uncompleng;
     }
 
-    for (i=255; i>=0; i--)
+    for (i=255; i>=4; i-=4)
     {
-        lzwbuf2[i] = i;
-        lzwbuf3[i] = i;
+        lzwbuf2[i]   = lzwbuf3[i]   = i;
+        lzwbuf2[i-1] = lzwbuf3[i-1] = i-1;
+        lzwbuf2[i-2] = lzwbuf3[i-2] = i-2;
+        lzwbuf2[i-3] = lzwbuf3[i-3] = i-3;
     }
+
+    lzwbuf2[i]   = lzwbuf3[i]   = i;
+    lzwbuf2[i-1] = lzwbuf3[i-1] = i-1;
+    lzwbuf2[i-2] = lzwbuf3[i-2] = i-2;
 
     currstr = 256; bitcnt = (4<<3); outbytecnt = 0;
     numbits = 8; oneupnumbits = (1<<8);
@@ -1700,7 +1761,16 @@ static int32_t lzwuncompress(const char *lzwinbuf, int32_t compleng, char *lzwou
             lzwtmpbuf[leng] = lzwbuf2[dat];
 
         lzwoutbuf[outbytecnt++] = dat;
-        for (i=leng-1; i>=0; i--)
+
+        for (i=leng-1; i>=4; i-=4, outbytecnt+=4)
+        {
+            lzwoutbuf[outbytecnt]   = lzwtmpbuf[i];
+            lzwoutbuf[outbytecnt+1] = lzwtmpbuf[i-1];
+            lzwoutbuf[outbytecnt+2] = lzwtmpbuf[i-2];
+            lzwoutbuf[outbytecnt+3] = lzwtmpbuf[i-3];
+        }
+
+        for (; i>=0; i--)
             lzwoutbuf[outbytecnt++] = lzwtmpbuf[i];
 
         lzwbuf2[currstr-1] = dat; lzwbuf2[currstr] = dat;
