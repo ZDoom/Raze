@@ -1392,7 +1392,7 @@ static inline pthtyp *our_texcache_fetch(int32_t dameth)
     return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1) ? globvis>>3 : 0, globalshade), dameth);
 }
 
-static void drawpoly(float *dpx, float *dpy, int32_t n, int32_t method)
+static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
 {
     const int32_t method_ = method;
     int32_t i, j, k;
@@ -1407,12 +1407,14 @@ static void drawpoly(float *dpx, float *dpy, int32_t n, int32_t method)
 
     if (n == 3)
     {
-        if ((dpx[0]-dpx[1])*(dpy[2]-dpy[1]) >= (dpx[2]-dpx[1])*(dpy[0]-dpy[1])) return; //for triangle
+        if ((dpxy[0].x-dpxy[1].x) * (dpxy[2].y-dpxy[1].y) >=
+            (dpxy[2].x-dpxy[1].x) * (dpxy[0].y-dpxy[1].y)) return; //for triangle
     }
     else
     {
         f = 0; //f is area of polygon / 2
-        for (i=n-2,j=n-1,k=0; k<n; i=j,j=k,k++) f += (dpx[i]-dpx[k])*dpy[j];
+        for (i=n-2,j=n-1,k=0; k<n; i=j,j=k,k++)
+            f += (dpxy[i].x-dpxy[k].x)*dpxy[j].y;
         if (f <= 0) return;
     }
 
@@ -1437,8 +1439,8 @@ static void drawpoly(float *dpx, float *dpy, int32_t n, int32_t method)
 
     for (i=0; i<n; i++)
     {
-        ox = dpx[i]-ghalfx;
-        oy = dpy[i]-ghoriz;
+        ox = dpxy[i].x-ghalfx;
+        oy = dpxy[i].y-ghoriz;
         oz = ghalfx;
 
         //Up/down rotation
@@ -1453,9 +1455,9 @@ static void drawpoly(float *dpx, float *dpy, int32_t n, int32_t method)
 
         r = ghalfx / oz;
 
-        dd[j] = (dpx[i]*gdx + dpy[i]*gdy + gdo)*r;
-        uu[j] = (dpx[i]*gux + dpy[i]*guy + guo)*r;
-        vv[j] = (dpx[i]*gvx + dpy[i]*gvy + gvo)*r;
+        dd[j] = (dpxy[i].x*gdx + dpxy[i].y*gdy + gdo)*r;
+        uu[j] = (dpxy[i].x*gux + dpxy[i].y*guy + guo)*r;
+        vv[j] = (dpxy[i].x*gvx + dpxy[i].y*gvy + gvo)*r;
 
         px[j] = ox*r + ghalfx;
         py[j] = oy*r + ghoriz;
@@ -1791,7 +1793,7 @@ static void drawpoly(float *dpx, float *dpy, int32_t n, int32_t method)
             fullbrightdrawingpass = 2;
             globalshade = -128; // fullbright
             bglDisable(GL_FOG);
-            drawpoly(dpx, dpy, n, method_); // draw them afterwards, then. :)
+            drawpoly(dpxy, n, method_); // draw them afterwards, then. :)
             bglEnable(GL_FOG);
             globalshade = shadeforfullbrightpass;
             fullbrightdrawingpass = 0;
@@ -1853,10 +1855,10 @@ static int32_t domostpolymethod = 0;
 
 void domost(float x0, float y0, float x1, float y1)
 {
-    float dpx[4], dpy[4];
-    float d, n, t, slop, dx, dx0, dx1, nx, nx0, ny0, nx1, ny1;
+    vec2f_t dpxy[4];
+    float slop, dx, nx0, ny0, nx1, ny1;
     float spx[4], /*spy[4],*/ cy[2], cv[2];
-    int32_t i, j, k, z, ni, vcnt = 0, scnt, newi, dir = 0, spt[4];
+    int32_t i, j, k, z, vcnt = 0, scnt, newi, dir = 0, spt[4];
 
     alpha = 0.f;
 
@@ -1889,7 +1891,7 @@ void domost(float x0, float y0, float x1, float y1)
         //Test if left edge requires split (x0,y0) (nx0,cy(0)),<dx,cv(0)>
         if ((x0 > nx0) && (x0 < nx1))
         {
-            t = (x0-nx0)*cv[dir] - (y0-cy[dir])*dx;
+            const float t = (x0-nx0)*cv[dir] - (y0-cy[dir])*dx;
             if (((!dir) && (t < 0.f)) || ((dir) && (t > 0.f)))
                 { spx[scnt] = x0; /*spy[scnt] = y0;*/ spt[scnt] = -1; scnt++; }
         }
@@ -1897,12 +1899,14 @@ void domost(float x0, float y0, float x1, float y1)
         //Test for intersection on umost (j == 0) and dmost (j == 1)
         for (j=0; j<2; j++)
         {
-            d = (y0-y1)*dx - (x0-x1)*cv[j];
-            n = (y0-cy[j])*dx - (x0-nx0)*cv[j];
+            const float d = (y0-y1)   * dx - (x0-x1)  * cv[j];
+            const float n = (y0-cy[j])* dx - (x0-nx0) * cv[j];
 
             if ((fabsf(d) > fabsf(n)) && (d * n >= 0.f))
             {
-                t = n/d; nx = (x1-x0)*t + x0;
+                const float t = n/d;
+                const float nx = (x1-x0) * t + x0;
+
                 if ((nx > nx0) && (nx < nx1))
                 {
                     spx[scnt] = nx; /* spy[scnt] = (y1-y0)*t + y0; */
@@ -1922,18 +1926,24 @@ void domost(float x0, float y0, float x1, float y1)
         //Test if right edge requires split
         if ((x1 > nx0) && (x1 < nx1))
         {
-            t = (x1-nx0)*cv[dir] - (y1-cy[dir])*dx;
+            const float t = (x1-nx0)*cv[dir] - (y1-cy[dir])*dx;
             if (((!dir) && (t < 0)) || ((dir) && (t > 0)))
                 { spx[scnt] = x1; /* spy[scnt] = y1; */ spt[scnt] = -1; scnt++; }
         }
 
         vsp[i].tag = vsp[newi].tag = -1;
+
+        dx = 1.f/dx;
+
         for (z=0; z<=scnt; z++,i=vcnt)
         {
+            float dx0, dx1;
+            int32_t ni;
+
             if (z < scnt)
             {
+                const float t = (spx[z]-nx0)*dx;
                 vcnt = vsinsaft(vsp, i);
-                t = (spx[z]-nx0)/dx;
                 vsp[i].cy[1] = t*cv[0] + cy[0];
                 vsp[i].fy[1] = t*cv[1] + cy[1];
                 vsp[vcnt].x = spx[z];
@@ -1967,43 +1977,43 @@ void domost(float x0, float y0, float x1, float y1)
             if ((vsp[ni].tag == 0) || (ny1 <= vsp[i].cy[1]+.01f)) k -= 3;
             if ((vsp[ni].tag == 1) || (ny1 >= vsp[i].fy[1]-.01f)) k += 3;
 
-            dpx[0] = dx0;
-            dpx[1] = dx1;
+            dpxy[0].x = dx0;
+            dpxy[1].x = dx1;
 
             if (!dir)
             {
-                dpy[0] = vsp[i].cy[0];
-                dpy[1] = vsp[i].cy[1];
+                dpxy[0].y = vsp[i].cy[0];
+                dpxy[1].y = vsp[i].cy[1];
 
                 switch (k)
                 {
                 case 1:
                 case 2:
-                    dpx[2] = dx0;
-                    dpy[2] = ny0;
+                    dpxy[2].x = dx0;
+                    dpxy[2].y = ny0;
                     vsp[i].cy[0] = ny0; vsp[i].ctag = gtag;
-                    drawpoly(dpx,dpy,3,domostpolymethod);
+                    drawpoly(dpxy, 3, domostpolymethod);
                     break;
                 case 3:
                 case 6:
-                    dpx[2] = dx1;
-                    dpy[2] = ny1;
+                    dpxy[2].x = dx1;
+                    dpxy[2].y = ny1;
                     vsp[i].cy[1] = ny1; vsp[i].ctag = gtag;
-                    drawpoly(dpx, dpy, 3, domostpolymethod);
+                    drawpoly(dpxy, 3, domostpolymethod);
                     break;
                 case 4:
                 case 5:
                 case 7:
-                    dpx[2] = dx1; dpx[3] = dx0;
-                    dpy[2] = ny1; dpy[3] = ny0;
+                    dpxy[2].x = dx1; dpxy[3].x = dx0;
+                    dpxy[2].y = ny1; dpxy[3].y = ny0;
                     vsp[i].cy[0] = ny0; vsp[i].cy[1] = ny1; vsp[i].ctag = gtag;
-                    drawpoly(dpx, dpy, 4, domostpolymethod);
+                    drawpoly(dpxy, 4, domostpolymethod);
                     break;
                 case 8:
-                    dpx[2] = dx1; dpy[2] = vsp[i].fy[1];
-                    dpx[3] = dx0; dpy[3] = vsp[i].fy[0];
+                    dpxy[2].x = dx1; dpxy[2].y = vsp[i].fy[1];
+                    dpxy[3].x = dx0; dpxy[3].y = vsp[i].fy[0];
                     vsp[i].ctag = vsp[i].ftag = -1;
-                    drawpoly(dpx,dpy,4,domostpolymethod);
+                    drawpoly(dpxy, 4, domostpolymethod);
                 default:
                     break;
                 }
@@ -2014,31 +2024,31 @@ void domost(float x0, float y0, float x1, float y1)
                 {
                 case 7:
                 case 6:
-                    dpx[2] = dx0;
-                    dpy[0] = ny0; dpy[1] = vsp[i].fy[1]; dpy[2] = vsp[i].fy[0];
+                    dpxy[2].x = dx0;
+                    dpxy[0].y = ny0; dpxy[1].y = vsp[i].fy[1]; dpxy[2].y = vsp[i].fy[0];
                     vsp[i].fy[0] = ny0; vsp[i].ftag = gtag;
-                    drawpoly(dpx,dpy,3,domostpolymethod);
+                    drawpoly(dpxy, 3, domostpolymethod);
                     break;
                 case 5:
                 case 2:
-                    dpx[2] = dx1;
-                    dpy[0] = vsp[i].fy[0]; dpy[1] = ny1; dpy[2] = vsp[i].fy[1]; 
+                    dpxy[2].x = dx1;
+                    dpxy[0].y = vsp[i].fy[0]; dpxy[1].y = ny1; dpxy[2].y = vsp[i].fy[1]; 
                     vsp[i].fy[1] = ny1; vsp[i].ftag = gtag;
-                    drawpoly(dpx,dpy,3,domostpolymethod);
+                    drawpoly(dpxy, 3, domostpolymethod);
                     break;
                 case 4:
                 case 3:
                 case 1:
-                    dpx[2] = dx1; dpx[3] = dx0;
-                    dpy[0] = ny0; dpy[1] = ny1; dpy[2] = vsp[i].fy[1]; dpy[3] = vsp[i].fy[0];
+                    dpxy[2].x = dx1; dpxy[3].x = dx0;
+                    dpxy[0].y = ny0; dpxy[1].y = ny1; dpxy[2].y = vsp[i].fy[1]; dpxy[3].y = vsp[i].fy[0];
                     vsp[i].fy[0] = ny0; vsp[i].fy[1] = ny1; vsp[i].ftag = gtag;
-                    drawpoly(dpx,dpy,4,domostpolymethod);
+                    drawpoly(dpxy, 4, domostpolymethod);
                     break;
                 case 0:
-                    dpx[2] = dx1; dpx[3] = dx0;
-                    dpy[0] = vsp[i].cy[0]; dpy[1] = vsp[i].cy[1]; dpy[2] = vsp[i].fy[1]; dpy[3] = vsp[i].fy[0];
+                    dpxy[2].x = dx1; dpxy[3].x = dx0;
+                    dpxy[0].y = vsp[i].cy[0]; dpxy[1].y = vsp[i].cy[1]; dpxy[2].y = vsp[i].fy[1]; dpxy[3].y = vsp[i].fy[0];
                     vsp[i].ctag = vsp[i].ftag = -1;
-                    drawpoly(dpx,dpy,4,domostpolymethod);
+                    drawpoly(dpxy, 4, domostpolymethod);
                 default:
                     break;
                 }
@@ -2054,7 +2064,7 @@ void domost(float x0, float y0, float x1, float y1)
 
     while (i)
     {
-        ni = vsp[i].n;
+        int32_t ni = vsp[i].n;
 
         if ((vsp[i].cy[0] >= vsp[i].fy[0]) && (vsp[i].cy[1] >= vsp[i].fy[1]))
             vsp[i].ctag = vsp[i].ftag = -1;
@@ -3592,7 +3602,8 @@ void polymost_drawrooms()
 
 void polymost_drawmaskwall(int32_t damaskwallcnt)
 {
-    float dpx[8], dpy[8], dpx2[8], dpy2[8];
+    vec2f_t dpxy[8];
+    float dpx2[8], dpy2[8];
     float x0, x1, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1;
     float r, t, t0, t1, csy[4], fsy[4];
     int32_t i, j, n, n2, z, sectnum, z1, z2, cz[4], fz[4], method;
@@ -3708,25 +3719,25 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     //   |   /
     // fsy1/
 
-    dpx[0] = x0; dpy[0] = csy[1];
-    dpx[1] = x1; dpy[1] = csy[3];
-    dpx[2] = x1; dpy[2] = fsy[3];
-    dpx[3] = x0; dpy[3] = fsy[1];
+    dpxy[0].x = x0; dpxy[0].y = csy[1];
+    dpxy[1].x = x1; dpxy[1].y = csy[3];
+    dpxy[2].x = x1; dpxy[2].y = fsy[3];
+    dpxy[3].x = x0; dpxy[3].y = fsy[1];
     n = 4;
 
     //Clip to (x0,csy[0])-(x1,csy[2])
-    n2 = 0; t1 = -((dpx[0]-x0)*(csy[2]-csy[0]) - (dpy[0]-csy[0])*(x1-x0));
+    n2 = 0; t1 = -((dpxy[0].x-x0)*(csy[2]-csy[0]) - (dpxy[0].y-csy[0])*(x1-x0));
     for (i=0; i<n; i++)
     {
         j = i+1; if (j >= n) j = 0;
 
-        t0 = t1; t1 = -((dpx[j]-x0)*(csy[2]-csy[0]) - (dpy[j]-csy[0])*(x1-x0));
-        if (t0 >= 0) { dpx2[n2] = dpx[i]; dpy2[n2] = dpy[i]; n2++; }
+        t0 = t1; t1 = -((dpxy[j].x-x0)*(csy[2]-csy[0]) - (dpxy[j].y-csy[0])*(x1-x0));
+        if (t0 >= 0) { dpx2[n2] = dpxy[i].x; dpy2[n2] = dpxy[i].y; n2++; }
         if ((t0 >= 0) != (t1 >= 0))
         {
             r = t0/(t0-t1);
-            dpx2[n2] = (dpx[j]-dpx[i])*r + dpx[i];
-            dpy2[n2] = (dpy[j]-dpy[i])*r + dpy[i];
+            dpx2[n2] = (dpxy[j].x-dpxy[i].x)*r + dpxy[i].x;
+            dpy2[n2] = (dpxy[j].y-dpxy[i].y)*r + dpxy[i].y;
             n2++;
         }
     }
@@ -3739,12 +3750,12 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
         j = i+1; if (j >= n2) j = 0;
 
         t0 = t1; t1 = -((dpx2[j]-x1)*(fsy[0]-fsy[2]) - (dpy2[j]-fsy[2])*(x0-x1));
-        if (t0 >= 0) { dpx[n] = dpx2[i]; dpy[n] = dpy2[i]; n++; }
+        if (t0 >= 0) { dpxy[n].x = dpx2[i]; dpxy[n].y = dpy2[i]; n++; }
         if ((t0 >= 0) != (t1 >= 0))
         {
             r = t0/(t0-t1);
-            dpx[n] = (dpx2[j]-dpx2[i])*r + dpx2[i];
-            dpy[n] = (dpy2[j]-dpy2[i])*r + dpy2[i];
+            dpxy[n].x = (dpx2[j]-dpx2[i])*r + dpx2[i];
+            dpxy[n].y = (dpy2[j]-dpy2[i])*r + dpy2[i];
             n++;
         }
     }
@@ -3753,12 +3764,12 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     pow2xsplit = 0;
     skyclamphack = 0;
     alpha = 0.f;
-    drawpoly(dpx,dpy,n,method);
+    drawpoly(dpxy, n, method);
 }
 
 void polymost_drawsprite(int32_t snum)
 {
-    float px[6], py[6];
+    vec2f_t pxy[6];
     float f, c, s, fx, fy, sx0, sy0, sx1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1, ft[4];
     float x0, y0, x1, y1, sc0, sf0, sc1, sf1, px2[6], py2[6], xv, yv, t0, t1;
     int32_t i, j, spritenum, xoff=0, yoff=0, method, npoints;
@@ -3892,17 +3903,17 @@ void polymost_drawsprite(int32_t snum)
         fx *= ((float)tsizx);
         fy *= ((float)tsizy);
         
-        px[0] = px[3] = sx0-fx*0.5f; px[1] = px[2] = sx0+fx*0.5f;
-        if (!(globalorientation&128)) { py[0] = py[1] = sy0-fy; py[2] = py[3] = sy0; }
-        else { py[0] = py[1] = sy0-fy*0.5f; py[2] = py[3] = sy0+fy*0.5f; }
+        pxy[0].x = pxy[3].x = sx0-fx*0.5f; pxy[1].x = pxy[2].x = sx0+fx*0.5f;
+        if (!(globalorientation&128)) { pxy[0].y = pxy[1].y = sy0-fy; pxy[2].y = pxy[3].y = sy0; }
+        else { pxy[0].y = pxy[1].y = sy0-fy*0.5f; pxy[2].y = pxy[3].y = sy0+fy*0.5f; }
 
         gdx = gdy = guy = gvx = 0; gdo = ryp0*gviewxrange;
         if (!(globalorientation&4))
-            { gux = (float)tsizx*gdo/(px[1]-px[0]+.002f); guo = -gux*(px[0]-.001f); }
-        else { gux = (float)tsizx*gdo/(px[0]-px[1]-.002f); guo = -gux*(px[1]+.001f); }
+            { gux = (float)tsizx*gdo/(pxy[1].x-pxy[0].x+.002f); guo = -gux*(pxy[0].x-.001f); }
+        else { gux = (float)tsizx*gdo/(pxy[0].x-pxy[1].x-.002f); guo = -gux*(pxy[1].x+.001f); }
         if (!(globalorientation&8))
-            { gvy = (float)tsizy*gdo/(py[3]-py[0]+.002f); gvo = -gvy*(py[0]-.001f); }
-        else { gvy = (float)tsizy*gdo/(py[0]-py[3]-.002f); gvo = -gvy*(py[3]+.001f); }
+            { gvy = (float)tsizy*gdo/(pxy[3].y-pxy[0].y+.002f); gvo = -gvy*(pxy[0].y-.001f); }
+        else { gvy = (float)tsizy*gdo/(pxy[0].y-pxy[3].y-.002f); gvo = -gvy*(pxy[3].y+.001f); }
 
         // sprite panning
 #ifdef USE_OPENGL
@@ -3925,17 +3936,17 @@ void polymost_drawsprite(int32_t snum)
         if (!(sector[tspr->sectnum].ceilingstat&3))
         {
             sy0 = ((float)(sector[tspr->sectnum].ceilingz-globalposz))*gyxscale*ryp0 + ghoriz;
-            if (py[0] < sy0) py[0] = py[1] = sy0;
+            if (pxy[0].y < sy0) pxy[0].y = pxy[1].y = sy0;
         }
         if (!(sector[tspr->sectnum].floorstat&3))
         {
             sy0 = ((float)(sector[tspr->sectnum].floorz-globalposz))*gyxscale*ryp0 + ghoriz;
-            if (py[2] > sy0) py[2] = py[3] = sy0;
+            if (pxy[2].y > sy0) pxy[2].y = pxy[3].y = sy0;
         }
 
         tilesiz[globalpicnum].x = tsizx;
         tilesiz[globalpicnum].y = tsizy;
-        pow2xsplit = 0; drawpoly(px,py,4,method);
+        pow2xsplit = 0; drawpoly(pxy, 4, method);
 
 #ifdef USE_OPENGL
         srepeat = 0;
@@ -4075,14 +4086,14 @@ void polymost_drawsprite(int32_t snum)
             swapfloat(&sf0, &sf1);
         }
 
-        px[0] = sx0; py[0] = sc0;
-        px[1] = sx1; py[1] = sc1;
-        px[2] = sx1; py[2] = sf1;
-        px[3] = sx0; py[3] = sf0;
+        pxy[0].x = sx0; pxy[0].y = sc0;
+        pxy[1].x = sx1; pxy[1].y = sc1;
+        pxy[2].x = sx1; pxy[2].y = sf1;
+        pxy[3].x = sx0; pxy[3].y = sf0;
 
         tilesiz[globalpicnum].x = tsizx;
         tilesiz[globalpicnum].y = tsizy;
-        pow2xsplit = 0; drawpoly(px,py,4,method);
+        pow2xsplit = 0; drawpoly(pxy, 4,method);
 
 #ifdef USE_OPENGL
         srepeat = 0;
@@ -4115,8 +4126,8 @@ void polymost_drawsprite(int32_t snum)
             else { sy0 += s*y1; sx0 += c*y1; }
             if ((j+1)&2) { sx0 -= s*x0; sy0 += c*x0; }
             else { sx0 += s*x1; sy0 -= c*x1; }
-            px[j] = sy0*gcosang  - sx0*gsinang;
-            py[j] = sx0*gcosang2 + sy0*gsinang2;
+            pxy[j].x = sy0*gcosang  - sx0*gsinang;
+            pxy[j].y = sx0*gcosang2 + sy0*gsinang2;
         }
 
         if (tspr->z == sec->ceilingz) tspr->z++;
@@ -4124,10 +4135,10 @@ void polymost_drawsprite(int32_t snum)
 
         if (tspr->z < globalposz) //if floor sprite is above you, reverse order of points
         {
-            swapfloat(&px[0], &px[1]);
-            swapfloat(&px[2], &px[3]);
-            swapfloat(&py[0], &py[1]);
-            swapfloat(&py[2], &py[3]);
+            swapfloat(&pxy[0].x, &pxy[1].x);
+            swapfloat(&pxy[2].x, &pxy[3].x);
+            swapfloat(&pxy[0].y, &pxy[1].y);
+            swapfloat(&pxy[2].y, &pxy[3].y);
         }
 
         //Clip to SCISDIST plane
@@ -4135,12 +4146,12 @@ void polymost_drawsprite(int32_t snum)
         for (i=0; i<4; i++)
         {
             j = ((i+1)&3);
-            if (py[i] >= SCISDIST) { px2[npoints] = px[i]; py2[npoints] = py[i]; npoints++; }
-            if ((py[i] >= SCISDIST) != (py[j] >= SCISDIST))
+            if (pxy[i].y >= SCISDIST) { px2[npoints] = pxy[i].x; py2[npoints] = pxy[i].y; npoints++; }
+            if ((pxy[i].y >= SCISDIST) != (pxy[j].y >= SCISDIST))
             {
-                f = (SCISDIST-py[i])/(py[j]-py[i]);
-                px2[npoints] = (px[j]-px[i])*f + px[i];
-                py2[npoints] = (py[j]-py[i])*f + py[i]; npoints++;
+                f = (SCISDIST-pxy[i].y)/(pxy[j].y-pxy[i].y);
+                px2[npoints] = (pxy[j].x-pxy[i].x)*f + pxy[i].x;
+                py2[npoints] = (pxy[j].y-pxy[i].y)*f + pxy[i].y; npoints++;
             }
         }
         if (npoints < 3) return;
@@ -4150,8 +4161,8 @@ void polymost_drawsprite(int32_t snum)
         for (j=0; j<npoints; j++)
         {
             ryp0 = 1/py2[j];
-            px[j] = ghalfx*px2[j]*ryp0 + ghalfx;
-            py[j] = f*ryp0 + ghoriz;
+            pxy[j].x = ghalfx*px2[j]*ryp0 + ghalfx;
+            pxy[j].y = f*ryp0 + ghoriz;
         }
 
         //gd? Copied from floor rendering code
@@ -4200,7 +4211,7 @@ void polymost_drawsprite(int32_t snum)
 
         tilesiz[globalpicnum].x = tsizx;
         tilesiz[globalpicnum].y = tsizy;
-        pow2xsplit = 0; drawpoly(px,py,npoints,method);
+        pow2xsplit = 0; drawpoly(pxy, npoints,method);
 
 #ifdef USE_OPENGL
         srepeat = 0;
@@ -4475,8 +4486,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     int32_t ogpicnum, ogshade, ogpal, ofoffset;
     float ogchang, ogshang, ogctang, ogstang, oghalfx, oghoriz;
     float ogrhalfxdown10, ogrhalfxdown10x;
-    float d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
+    float d, cosang, sinang, cosang2, sinang2, px2[8], py2[8];
     float m[4][4];
+    vec2f_t pxy[8];
 
     int32_t ourxyaspect;
 
@@ -4578,42 +4590,42 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         sinang2 *= d;
     }
 
-    px[0] = (float)sx*(1.0f/65536.f) - (float)xoff*cosang2+ (float)yoff*sinang2;
-    py[0] = (float)sy*(1.0f/65536.f) - (float)xoff*sinang - (float)yoff*cosang;
-    px[1] = px[0] + (float)xsiz*cosang2;
-    py[1] = py[0] + (float)xsiz*sinang;
-    px[3] = px[0] - (float)ysiz*sinang2;
-    py[3] = py[0] + (float)ysiz*cosang;
-    px[2] = px[1]+px[3]-px[0];
-    py[2] = py[1]+py[3]-py[0];
+    pxy[0].x = (float)sx*(1.0f/65536.f) - (float)xoff*cosang2+ (float)yoff*sinang2;
+    pxy[0].y = (float)sy*(1.0f/65536.f) - (float)xoff*sinang - (float)yoff*cosang;
+    pxy[1].x = pxy[0].x + (float)xsiz*cosang2;
+    pxy[1].y = pxy[0].y + (float)xsiz*sinang;
+    pxy[3].x = pxy[0].x - (float)ysiz*sinang2;
+    pxy[3].y = pxy[0].y + (float)ysiz*cosang;
+    pxy[2].x = pxy[1].x+pxy[3].x-pxy[0].x;
+    pxy[2].y = pxy[1].y+pxy[3].y-pxy[0].y;
     n = 4;
 
     gdx = 0; gdy = 0; gdo = 1.f;
     //px[0]*gux + py[0]*guy + guo = 0
     //px[1]*gux + py[1]*guy + guo = xsiz-.0001
     //px[3]*gux + py[3]*guy + guo = 0
-    d = 1.f/(px[0]*(py[1]-py[3]) + px[1]*(py[3]-py[0]) + px[3]*(py[0]-py[1]));
-    gux = (py[3]-py[0])*((float)xsiz-.0001f)*d;
-    guy = (px[0]-px[3])*((float)xsiz-.0001f)*d;
-    guo = 0 - px[0]*gux - py[0]*guy;
+    d = 1.f/(pxy[0].x*(pxy[1].y-pxy[3].y) + pxy[1].x*(pxy[3].y-pxy[0].y) + pxy[3].x*(pxy[0].y-pxy[1].y));
+    gux = (pxy[3].y-pxy[0].y)*((float)xsiz-.0001f)*d;
+    guy = (pxy[0].x-pxy[3].x)*((float)xsiz-.0001f)*d;
+    guo = 0 - pxy[0].x*gux - pxy[0].y*guy;
 
     if (!(dastat & RS_YFLIP))
     {
         //px[0]*gvx + py[0]*gvy + gvo = 0
         //px[1]*gvx + py[1]*gvy + gvo = 0
         //px[3]*gvx + py[3]*gvy + gvo = ysiz-.0001
-        gvx = (py[0]-py[1])*((float)ysiz-.0001f)*d;
-        gvy = (px[1]-px[0])*((float)ysiz-.0001f)*d;
-        gvo = 0 - px[0]*gvx - py[0]*gvy;
+        gvx = (pxy[0].y-pxy[1].y)*((float)ysiz-.0001f)*d;
+        gvy = (pxy[1].x-pxy[0].x)*((float)ysiz-.0001f)*d;
+        gvo = 0 - pxy[0].x*gvx - pxy[0].y*gvy;
     }
     else
     {
         //px[0]*gvx + py[0]*gvy + gvo = ysiz-.0001
         //px[1]*gvx + py[1]*gvy + gvo = ysiz-.0001
         //px[3]*gvx + py[3]*gvy + gvo = 0
-        gvx = (py[1]-py[0])*((float)ysiz-.0001f)*d;
-        gvy = (px[0]-px[1])*((float)ysiz-.0001f)*d;
-        gvo = (float)ysiz-.0001f - px[0]*gvx - py[0]*gvy;
+        gvx = (pxy[1].y-pxy[0].y)*((float)ysiz-.0001f)*d;
+        gvy = (pxy[0].x-pxy[1].x)*((float)ysiz-.0001f)*d;
+        gvo = (float)ysiz-.0001f - pxy[0].x*gvx - pxy[0].y*gvy;
     }
 
     cx2++; cy2++;
@@ -4623,11 +4635,11 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     {
         float fx, x1, x2;
         int32_t zz = z+1; if (zz == n) zz = 0;
-        x1 = px[z]; x2 = px[zz]-x1; if (((float)cx1 <= x1) && (x1 <= (float)cx2)) { px2[nn] = x1; py2[nn] = py[z]; nn++; }
+        x1 = pxy[z].x; x2 = pxy[zz].x-x1; if (((float)cx1 <= x1) && (x1 <= (float)cx2)) { px2[nn] = x1; py2[nn] = pxy[z].y; nn++; }
         if (x2 <= 0) fx = (float)cx2; else fx = (float)cx1;  d = fx-x1;
-        if ((d < x2) != (d < 0)) { px2[nn] = fx; py2[nn] = (py[zz]-py[z])*d/x2 + py[z]; nn++; }
+        if ((d < x2) != (d < 0)) { px2[nn] = fx; py2[nn] = (pxy[zz].y-pxy[z].y)*d/x2 + pxy[z].y; nn++; }
         if (x2 <= 0) fx = (float)cx1; else fx = (float)cx2;  d = fx-x1;
-        if ((d < x2) != (d < 0)) { px2[nn] = fx; py2[nn] = (py[zz]-py[z])*d/x2 + py[z]; nn++; }
+        if ((d < x2) != (d < 0)) { px2[nn] = fx; py2[nn] = (pxy[zz].y-pxy[z].y)*d/x2 + pxy[z].y; nn++; }
         z = zz;
     }
     while (z);
@@ -4639,21 +4651,21 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         {
             float fy, y1, y2;
             int32_t zz = z+1; if (zz == nn) zz = 0;
-            y1 = py2[z]; y2 = py2[zz]-y1; if ((cy1 <= y1) && (y1 <= cy2)) { py[n] = y1; px[n] = px2[z]; n++; }
+            y1 = py2[z]; y2 = py2[zz]-y1; if ((cy1 <= y1) && (y1 <= cy2)) { pxy[n].y = y1; pxy[n].x = px2[z]; n++; }
             if (y2 <= 0) fy = (float)cy2; else fy = (float)cy1;  d = fy-y1;
-            if ((d < y2) != (d < 0)) { py[n] = fy; px[n] = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
+            if ((d < y2) != (d < 0)) { pxy[n].y = fy; pxy[n].x = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
             if (y2 <= 0) fy = (float)cy1; else fy = (float)cy2;  d = fy-y1;
-            if ((d < y2) != (d < 0)) { py[n] = fy; px[n] = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
+            if ((d < y2) != (d < 0)) { pxy[n].y = fy; pxy[n].x = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
             z = zz;
         }
         while (z);
 
 #ifdef USE_OPENGL
         bglDisable(GL_FOG);
-        pow2xsplit = 0; drawpoly(px,py,n,method);
+        pow2xsplit = 0; drawpoly(pxy, n,method);
         if (!nofog) bglEnable(GL_FOG);
 #else
-        pow2xsplit = 0; drawpoly(px,py,n,method);
+        pow2xsplit = 0; drawpoly(pxy, n,method);
 #endif
     }
 
