@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __anim_h__
 #define __anim_h__
 
-#define NUM_HARDCODED_ANIMS 11
+#define NUM_HARDCODED_ANIMS 12
 
 # ifdef USE_LIBVPX
 extern uint16_t anim_hi_numsounds[NUM_HARDCODED_ANIMS], *anim_hi_sounds[NUM_HARDCODED_ANIMS];

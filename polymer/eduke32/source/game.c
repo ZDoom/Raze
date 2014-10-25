@@ -9495,6 +9495,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 { "vol43a", 8 },
                 { "vol4e2", 9 },
                 { "vol4e3", 10 },
+                { "3dr",    11 },
                 // NUM_HARDCODED_ANIMS
             };
 
