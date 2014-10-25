@@ -128,7 +128,7 @@ void initcache(intptr_t dacachestart, int32_t dacachesize)
     int32_t i;
 
     for (i=1; i<200; i++)
-        lockrecip[i] = (1<<28)/(200-i);
+        lockrecip[i] = tabledivide32_noinline(1<<28, 200-i);
 
     // The following code was relocated here from engine.c, since this
     // function is only ever called once (from there), and it seems to

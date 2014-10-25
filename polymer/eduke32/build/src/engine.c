@@ -144,7 +144,8 @@ static char voxlock[MAXVOXELS][MAXVOXMIPS];
 int32_t voxscale[MAXVOXELS];
 
 static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
-static int32_t lowrecip[1024], nytooclose, nytoofar;
+static int32_t lowrecip[1024], nytooclose;
+static const int32_t nytoofar = 65536*16384-1048576;
 static uint32_t distrecip[65536+256];
 
 static int32_t *lookups = NULL;
@@ -3549,7 +3550,7 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
         j = sec->wallptr;
         ox = wall[wall[j].point2].x - wall[j].x;
         oy = wall[wall[j].point2].y - wall[j].y;
-        i = nsqrtasm(uhypsq(ox,oy)); if (i == 0) i = 1024; else i = 1048576/i;
+        i = nsqrtasm(uhypsq(ox,oy)); if (i == 0) i = 1024; else i = tabledivide32(1048576, i);
         globalx1 = mulscale10(dmulscale10(ox,singlobalang,-oy,cosglobalang),i);
         globaly1 = mulscale10(dmulscale10(ox,cosglobalang,oy,singlobalang),i);
         globalx2 = -globalx1;
@@ -4110,6 +4111,7 @@ static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 #endif
 
 // cntup16>>16 iterations
+
 static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, char *p)
 {
     char ch;
@@ -4126,7 +4128,7 @@ static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
 
     for (cntup16>>=16; cntup16>0; cntup16--)
     {
-        ch = buf[(bx/xdiv)*yspan + by/ydiv];
+        ch = buf[(divideu32(bx, xdiv))*yspan + divideu32(by, ydiv)];
 
         if (ch != 255) *p = pal[ch];
         bx += xinc;
@@ -4155,7 +4157,7 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
     {
         for (cntup16>>=16; cntup16>0; cntup16--)
         {
-            ch = buf[(bx/xdiv)*yspan + by/ydiv];
+            ch = buf[divideu32(bx, xdiv)*yspan + divideu32(by, ydiv)];
             if (ch != 255) *p = trans[(*p)|(pal[ch]<<8)];
             bx += xinc;
             by += yinc;
@@ -4166,7 +4168,7 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
     {
         for (cntup16>>=16; cntup16>0; cntup16--)
         {
-            ch = buf[(bx/xdiv)*yspan + by/ydiv];
+            ch = buf[divideu32(bx, xdiv)*yspan + divideu32(by, ydiv)];
             if (ch != 255) *p = trans[((*p)<<8)|pal[ch]];
             bx += xinc;
             by += yinc;
@@ -4287,14 +4289,8 @@ static void tslopevlin(uint8_t *p, int32_t i, const intptr_t *slopalptr, int32_t
         v = by + ytov*i;
         ch = *(uint8_t *)(slopalptr[0] + buf[((u>>(32-logx))<<logy)+(v>>(32-logy))]);
 
-        if (transmode)
-        {
-            if (ch != 255) *p = trans[*p|(pal[ch]<<8)];
-        }
-        else
-        {
-            if (ch != 255) *p = trans[(*p<<8)|pal[ch]];
-        }
+        if (ch != 255)
+            *p = trans[transmode ? *p|(pal[ch]<<8) : (*p<<8)|pal[ch]];
 
         slopalptr--;
         p += pinc;
@@ -5314,8 +5310,8 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     daxscale = scale(daxscale,xdimenscale,xdimen<<8);
     dayscale = scale(dayscale,mulscale16(xdimenscale,viewingrangerecip),xdimen<<8);
 
-    daxscalerecip = (1<<30)/daxscale;
-    dayscalerecip = (1<<30)/dayscale;
+    daxscalerecip = tabledivide32_noinline(1<<30, daxscale);
+    dayscalerecip = tabledivide32_noinline(1<<30, dayscale);
 
     longptr = (int32_t *)davoxptr;
     daxsiz = B_LITTLE32(longptr[0]); daysiz = B_LITTLE32(longptr[1]); //dazsiz = B_LITTLE32(longptr[2]);
@@ -5772,7 +5768,22 @@ draw_as_face_sprite:
         if ((cstat&8) > 0)
             swaplong(&y1, &y2);
 
-        for (x=lx; x<=rx; x++)
+        x = lx;
+#ifdef CLASSIC_SLICE_BY_4
+        for (; x<=rx-4; x+=4)
+        {
+            uwall[x] =   max(startumost[x+windowx1]-windowy1,   (int16_t) startum);
+            uwall[x+1] = max(startumost[x+windowx1+1]-windowy1, (int16_t) startum);
+            uwall[x+2] = max(startumost[x+windowx1+2]-windowy1, (int16_t) startum);
+            uwall[x+3] = max(startumost[x+windowx1+3]-windowy1, (int16_t) startum);
+
+            dwall[x] =   min(startdmost[x+windowx1]-windowy1,   (int16_t) startdm);
+            dwall[x+1] = min(startdmost[x+windowx1+1]-windowy1, (int16_t) startdm);
+            dwall[x+2] = min(startdmost[x+windowx1+2]-windowy1, (int16_t) startdm);
+            dwall[x+3] = min(startdmost[x+windowx1+3]-windowy1, (int16_t) startdm);
+        }
+#endif
+        for (; x<=rx; x++)
         {
             uwall[x] = max(startumost[x+windowx1]-windowy1,(int16_t)startum);
             dwall[x] = min(startdmost[x+windowx1]-windowy1,(int16_t)startdm);
@@ -5801,13 +5812,31 @@ draw_as_face_sprite:
                 break;
             case 1:
                 k = smoststart[i] - xb1[j];
-                for (x=dalx2; x<=darx2; x++)
+                x = dalx2;
+#ifdef CLASSIC_SLICE_BY_4 // ok, this one is really by 2 ;)
+                for (x=dalx2; x<=darx2-2; x+=2)
+                {
+                    if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
+                    if (smost[k+x+1] > uwall[x+1]) uwall[x+1] = smost[k+x+1];
+                }
+#endif
+                for (; x<=darx2; x++)
                     if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                 if ((dalx2 == lx) && (darx2 == rx)) daclip |= 1;
                 break;
             case 2:
                 k = smoststart[i] - xb1[j];
-                for (x=dalx2; x<=darx2; x++)
+                x = dalx2;
+#ifdef CLASSIC_SLICE_BY_4
+                for (; x<=darx2-4; x+=4)
+                {
+                    if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
+                    if (smost[k+x+1] < dwall[x+1]) dwall[x+1] = smost[k+x+1];
+                    if (smost[k+x+2] < dwall[x+2]) dwall[x+2] = smost[k+x+2];
+                    if (smost[k+x+3] < dwall[x+3]) dwall[x+3] = smost[k+x+3];
+                }
+#endif
+                for (; x<=darx2; x++)
                     if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                 if ((dalx2 == lx) && (darx2 == rx)) daclip |= 2;
                 break;
@@ -7842,12 +7871,41 @@ static void dosetaspect(void)
         oxyaspect = xyaspect;
         j = xyaspect*320;
         horizlookup2[horizycent-1] = divscale26(131072,j);
-        for (i=ydim*4-1; i>=0; i--)
-            if (i != (horizycent-1))
-            {
-                horizlookup[i] = divscale28(1,i-(horizycent-1));
-                horizlookup2[i] = divscale14(klabs(horizlookup[i]),j);
-            }
+        for (i=0; i < horizycent-1-4; i += 4)
+        {
+            horizlookup[i]   = divscale28(1, i  -(horizycent-1));
+            horizlookup[i+1] = divscale28(1, i+1-(horizycent-1));
+            horizlookup[i+2] = divscale28(1, i+2-(horizycent-1));
+            horizlookup[i+3] = divscale28(1, i+3-(horizycent-1));
+
+            horizlookup2[i]   = divscale14(klabs(horizlookup[i]),   j);
+            horizlookup2[i+1] = divscale14(klabs(horizlookup[i+1]), j);
+            horizlookup2[i+2] = divscale14(klabs(horizlookup[i+2]), j);
+            horizlookup2[i+3] = divscale14(klabs(horizlookup[i+3]), j);
+        }
+        for (; i < horizycent-1; i++)
+        {
+            horizlookup[i] = divscale28(1, i-(horizycent-1));
+            horizlookup2[i] = divscale14(klabs(horizlookup[i]), j);
+        }
+
+        for (i=horizycent; i < ydim*4-1-4; i += 4)
+        {
+            horizlookup[i]   = divscale28(1, i  -(horizycent-1));
+            horizlookup[i+1] = divscale28(1, i+1-(horizycent-1));
+            horizlookup[i+2] = divscale28(1, i+2-(horizycent-1));
+            horizlookup[i+3] = divscale28(1, i+3-(horizycent-1));
+
+            horizlookup2[i]   = divscale14(klabs(horizlookup[i]),   j);
+            horizlookup2[i+1] = divscale14(klabs(horizlookup[i+1]), j);
+            horizlookup2[i+2] = divscale14(klabs(horizlookup[i+2]), j);
+            horizlookup2[i+3] = divscale14(klabs(horizlookup[i+3]), j);
+        }
+        for (; i < ydim*4-1; i++)
+        {
+            horizlookup[i] = divscale28(1, i-(horizycent-1));
+            horizlookup2[i] = divscale14(klabs(horizlookup[i]), j);
+        }
     }
 
     if (xdimen != oxdimen || viewingrange != oviewingrange)
@@ -7856,7 +7914,6 @@ static void dosetaspect(void)
 
         no_radarang2 = 0;
         oviewingrange = viewingrange;
-        oxdimen = xdimen;
 
         xinc = mulscale32(viewingrange*320,xdimenrecip);
         x = (640<<16)-mulscale1(xinc,xdimen);
@@ -7880,15 +7937,28 @@ static void dosetaspect(void)
             radarang2[i] = (int16_t)((radarang[k]+j)>>6);
         }
 
+        if (xdimen != oxdimen)
         {
             EDUKE32_STATIC_ASSERT((uint64_t) MAXXDIM*(ARRAY_SIZE(distrecip)-1) <= INT32_MAX);
 
-            for (i=1; i<(int32_t) ARRAY_SIZE(distrecip); i++)
+            i = 1;
+
+#ifdef CLASSIC_SLICE_BY_4
+            for (; i<(int32_t) ARRAY_SIZE(distrecip)-4; i+=4)
+            {
                 distrecip[i] = (xdimen * i)>>20;
+                distrecip[i+1] = (xdimen * (i+1))>>20;
+                distrecip[i+2] = (xdimen * (i+2))>>20;
+                distrecip[i+3] = (xdimen * (i+3))>>20;
+            }
+#endif
+            for (; i<(int32_t) ARRAY_SIZE(distrecip); i++)
+                distrecip[i] = (xdimen * i)>>20;
+
+            nytooclose = xdimen*2100;
         }
 
-        nytooclose = xdimen*2100;
-        nytoofar = 65536*16384-1048576;
+        oxdimen = xdimen;
     }
 }
 
@@ -7920,8 +7990,18 @@ static int32_t loadtables(void)
     if (tablesloaded == 0)
     {
         int32_t i;
+        libdivide_s64_t d;
+        libdivide_s32_t d32;
 
         initksqrt();
+
+        for (i=1; i<DIVTABLESIZE; i++)
+        {
+            d = libdivide_s64_gen(i);
+            divtable64[i].magic = d.magic, divtable64[i].more = d.more;
+            d32 = libdivide_s32_gen(i);
+            divtable32[i].magic = d32.magic, divtable32[i].more = d32.more;
+        }
 
         for (i=0; i<2048; i++)
             reciptable[i] = divscale30(2048, i+2048);
@@ -9569,8 +9649,8 @@ killsprite:
             p1eq = equation(pos.x, pos.y, dot.x, dot.y);
             p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
 
-            middle.x = (dot.x + dot2.x) / 2;
-            middle.y = (dot.y + dot2.y) / 2;
+            middle.x = (dot.x + dot2.x) * .5f;
+            middle.y = (dot.y + dot2.y) * .5f;
 
             i = spritesortcnt;
             while (i)
@@ -9963,11 +10043,11 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             //relative alignment stuff
             ox = x2-x1; oy = y2-y1;
-            i = ox*ox+oy*oy; if (i == 0) continue; i = (65536*16384)/i;
+            i = ox*ox+oy*oy; if (i == 0) continue; i = tabledivide32_noinline(65536*16384, i);
             globalx1 = mulscale10(dmulscale10(ox,bakgxvect,oy,bakgyvect),i);
             globaly1 = mulscale10(dmulscale10(ox,bakgyvect,-oy,bakgxvect),i);
             ox = y1-y4; oy = x4-x1;
-            i = ox*ox+oy*oy; if (i == 0) continue; i = (65536*16384)/i;
+            i = ox*ox+oy*oy; if (i == 0) continue; i = tabledivide32_noinline(65536*16384, i);
             globalx2 = mulscale10(dmulscale10(ox,bakgxvect,oy,bakgyvect),i);
             globaly2 = mulscale10(dmulscale10(ox,bakgyvect,-oy,bakgxvect),i);
 
@@ -13170,14 +13250,14 @@ static int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin,
         if ((spr->cstat&48)!=32)  // face/wall sprite
         {
             int32_t tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
-            maxcorrection = (maxcorrection * (int32_t)spr->xrepeat)/tempint1;
+            maxcorrection = tabledivide32_noinline(maxcorrection * (int32_t)spr->xrepeat, tempint1);
         }
         else  // floor sprite
         {
             int32_t tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
             int32_t tempint2 = clipmapinfo.sector[k].CM_YREPEAT;
-            maxcorrection = max((maxcorrection * (int32_t)spr->xrepeat)/tempint1,
-                                (maxcorrection * (int32_t)spr->yrepeat)/tempint2);
+            maxcorrection = max(tabledivide32_noinline(maxcorrection * (int32_t)spr->xrepeat, tempint1),
+                                tabledivide32_noinline(maxcorrection * (int32_t)spr->yrepeat, tempint2));
         }
 
         maxcorrection -= MAXCLIPDIST;
@@ -15140,9 +15220,9 @@ void clearview(int32_t dacol)
     {
         palette_t p = getpal(dacol);
 
-        bglClearColor(((float)p.r)/255.0,
-                      ((float)p.g)/255.0,
-                      ((float)p.b)/255.0,
+        bglClearColor((float)p.r * (1.f/255.f),
+                      (float)p.g * (1.f/255.f),
+                      (float)p.b * (1.f/255.f),
                       0);
         bglClear(GL_COLOR_BUFFER_BIT);
         return;
@@ -15179,9 +15259,9 @@ void clearallviews(int32_t dacol)
         palette_t p = getpal(dacol);
 
         bglViewport(0,0,xdim,ydim); glox1 = -1;
-        bglClearColor(((float)p.r)/255.0,
-                      ((float)p.g)/255.0,
-                      ((float)p.b)/255.0,
+        bglClearColor((float)p.r * (1.f/255.f),
+                      (float)p.g * (1.f/255.f),
+                      (float)p.b * (1.f/255.f),
                       0);
         bglClear(GL_COLOR_BUFFER_BIT);
         return;
@@ -15740,8 +15820,8 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         //bglEnable(GL_BLEND);	// When using line antialiasing, this is needed
         bglBegin(GL_LINES);
         bglColor4ub(p.r,p.g,p.b,255);
-        bglVertex2f((float)x1/4096.0,(float)y1/4096.0);
-        bglVertex2f((float)x2/4096.0,(float)y2/4096.0);
+        bglVertex2f((float)x1 * (1.f/4096.f), (float)y1 * (1.f/4096.f));
+        bglVertex2f((float)x2 * (1.f/4096.f), (float)y2 * (1.f/4096.f));
         bglEnd();
         //bglDisable(GL_BLEND);
 

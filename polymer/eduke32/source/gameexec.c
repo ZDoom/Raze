@@ -266,7 +266,7 @@ int32_t A_GetFurthestAngle(int32_t iActor, int32_t angs)
         int32_t furthest_angle=0;
         int32_t d, j;
         int32_t greatestd = INT32_MIN;
-        int32_t angincs=2048/angs;
+        int32_t angincs=tabledivide32_noinline(2048, angs);
         hitdata_t hit;
 
         for (j=s->ang; j<(2048+s->ang); j+=angincs)
@@ -303,7 +303,7 @@ int32_t A_FurthestVisiblePoint(int32_t iActor, spritetype *ts, int32_t *dax, int
 
         if ((!g_netServer && ud.multimode < 2) && ud.player_skill < 3)
             angincs = 2048/2;
-        else angincs = 2048/(1+(krand()&1));
+        else angincs = tabledivide32_noinline(2048, 1+(krand()&1));
 
         for (j=ts->ang; j<(2048+ts->ang); j+=(angincs-(krand()&511)))
         {
@@ -4447,7 +4447,7 @@ finish_qsprintf:
                             /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
                                 aGameArrays[j].szLabel, aGameArrays[j].size, asize / GAR_ELTSZ);*/
                             aGameArrays[j].plValues = (intptr_t *)Xrealloc(aGameArrays[j].plValues, asize);
-                            aGameArrays[j].size = asize / GAR_ELTSZ;
+                            aGameArrays[j].size = asize/GAR_ELTSZ;
                             kread(fil, aGameArrays[j].plValues, asize);
                         }
 
@@ -5513,7 +5513,11 @@ void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist)
     else if (actor[vm.g_i].timetosleep > 1)
         actor[vm.g_i].timetosleep--;
     else if (actor[vm.g_i].timetosleep == 1)
+    {
+        if (g_scriptVersion == 13 && (vm.g_sp->picnum == FIRE || vm.g_sp->picnum == FIRE2))
+            return;
         changespritestat(vm.g_i, STAT_ZOMBIEACTOR);
+    }
 }
 
 void G_SaveMapState(void)

@@ -5,7 +5,7 @@ $(ENGINE_OBJ)/a.$o: $(ENGINE_SRC)/a.$(asm)
 $(ENGINE_OBJ)/baselayer.$o: $(ENGINE_SRC)/baselayer.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/build.h $(ENGINE_INC)/osd.h
 $(ENGINE_OBJ)/build.$o: $(ENGINE_SRC)/build.c $(ENGINE_INC)/build.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/editor.h
 $(ENGINE_OBJ)/cache1d.$o: $(ENGINE_SRC)/cache1d.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/baselayer.h
-$(ENGINE_OBJ)/compat.$o: $(ENGINE_SRC)/compat.c $(ENGINE_INC)/compat.h
+$(ENGINE_OBJ)/compat.$o: $(ENGINE_SRC)/compat.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/libdivide.h
 $(ENGINE_OBJ)/config.$o: $(ENGINE_SRC)/config.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/editor.h
 $(ENGINE_OBJ)/crc32.$o: $(ENGINE_SRC)/crc32.c $(ENGINE_INC)/crc32.h
 $(ENGINE_OBJ)/defs.$o: $(ENGINE_SRC)/defs.c $(ENGINE_INC)/build.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/scriptfile.h $(ENGINE_INC)/compat.h

@@ -1459,7 +1459,7 @@ void OSD_Draw(void)
             while (j > -1)
             {
                 osdrowscur++;
-                j -= 200/osd->draw.rows;
+                j -= tabledivide32_noinline(200, osd->draw.rows);
                 if (osdrowscur > osd->draw.rows-1)
                     break;
             }
@@ -1470,7 +1470,7 @@ void OSD_Draw(void)
             while (j > -1)
             {
                 osdrowscur--;
-                j -= 200/osd->draw.rows;
+                j -= tabledivide32_noinline(200, osd->draw.rows);
                 if (osdrowscur < 1)
                     break;
             }

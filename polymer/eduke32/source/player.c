@@ -113,9 +113,9 @@ static void A_DoWaterTracers(int32_t x1,int32_t y1,int32_t z1,int32_t x2,int32_t
     int16_t sect = -1;
 
     i = n+1;
-    xv = (x2-x1)/i;
-    yv = (y2-y1)/i;
-    zv = (z2-z1)/i;
+    xv = tabledivide32_noinline(x2-x1, i);
+    yv = tabledivide32_noinline(y2-y1, i);
+    zv = tabledivide32_noinline(z2-z1, i);
 
     if ((klabs(x1-x2)+klabs(y1-y2)) < 3084)
         return;
@@ -147,15 +147,15 @@ static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, 
 
     Bmemcpy(&destvect, dv, sizeof(vec3_t));
 
-    srcvect.x = sv->x + (sintable[(348+ang+512)&2047]/proj->offset);
-    srcvect.y = sv->y + (sintable[(ang+348)&2047]/proj->offset);
+    srcvect.x = sv->x + tabledivide32_noinline(sintable[(348+ang+512)&2047], proj->offset);
+    srcvect.y = sv->y + tabledivide32_noinline(sintable[(ang+348)&2047], proj->offset);
     srcvect.z = sv->z + 1024+(proj->toffset<<8);
 
     n = ((FindDistance2D(srcvect.x-destvect.x,srcvect.y-destvect.y))>>8)+1;
 
-    destvect.x = ((destvect.x-srcvect.x)/n);
-    destvect.y = ((destvect.y-srcvect.y)/n);
-    destvect.z = ((destvect.z-srcvect.z)/n);
+    destvect.x = tabledivide32_noinline((destvect.x-srcvect.x), n);
+    destvect.y = tabledivide32_noinline((destvect.y-srcvect.y), n);
+    destvect.z = tabledivide32_noinline((destvect.z-srcvect.z), n);
 
     srcvect.x += destvect.x>>2;
     srcvect.y += destvect.y>>2;
@@ -379,7 +379,7 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
         }
 
         dst = safeldist(g_player[p].ps->i, &sprite[j]);
-        *zvel = ((spr->z - srcvect->z - cen)*vel) / dst;
+        *zvel = tabledivide32_noinline((spr->z - srcvect->z - cen)*vel, dst);
 
         if (!(flags&2) || sprite[j].picnum != RECON)
             *sa = getangle(spr->x-srcvect->x, spr->y-srcvect->y);
@@ -530,7 +530,7 @@ static void A_PreFireHitscan(const spritetype *s, vec3_t *srcvect, int32_t *zvel
     const DukePlayer_t *targetps = g_player[j].ps;
 
     const int32_t d = safeldist(targetps->i, s);
-    *zvel = ((targetps->pos.z-srcvect->z)<<8) / d;
+    *zvel = tabledivide32_noinline((targetps->pos.z-srcvect->z)<<8, d);
 
     srcvect->z -= (4<<8);
 
@@ -960,7 +960,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
                 sa = getangle(g_player[j].ps->opos.x-srcvect->x, g_player[j].ps->opos.y-srcvect->y);
 
                 l = safeldist(g_player[j].ps->i, s);
-                zvel = ((g_player[j].ps->opos.z - srcvect->z)*vel) / l;
+                zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect->z)*vel, l);
 
                 if (A_CheckEnemySprite(s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
                     sa = s->ang + (krand() & 31) - 16;
@@ -974,8 +974,8 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
 
         zvel = A_GetShootZvel(zvel);
         j = A_InsertSprite(sect,
-            srcvect->x + (sintable[(348 + sa + 512) & 2047] / proj->offset),
-            srcvect->y + (sintable[(sa + 348) & 2047] / proj->offset),
+            srcvect->x + tabledivide32_noinline(sintable[(348 + sa + 512) & 2047], proj->offset),
+            srcvect->y + tabledivide32_noinline(sintable[(sa + 348) & 2047], proj->offset),
             srcvect->z - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, i, 4);
 
         sprite[j].xrepeat = proj->xrepeat;
@@ -1017,7 +1017,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
         {
             int32_t x;
             j = g_player[A_FindPlayer(s, &x)].ps->i;
-            zvel = ((sprite[j].z - srcvect->z) << 8) / (x + 1);
+            zvel = tabledivide32_noinline((sprite[j].z - srcvect->z) << 8, x + 1);
             sa = getangle(sprite[j].x - srcvect->x, sprite[j].y - srcvect->y);
         }
 
@@ -1205,7 +1205,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 {
                     int32_t x;
                     j = g_player[A_FindPlayer(s,&x)].ps->i;
-                    zvel = ((sprite[j].z-srcvect.z)<<8) / (x+1);
+                    zvel = tabledivide32_noinline((sprite[j].z-srcvect.z)<<8, x+1);
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
             }
@@ -1352,7 +1352,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 //                sa = getangle(g_player[j].ps->opos.x-sx,g_player[j].ps->opos.y-sy);
                 sa += 16-(krand()&31);
                 hit.pos.x = safeldist(g_player[j].ps->i, s);
-                zvel = ((g_player[j].ps->opos.z - srcvect.z + (3<<8))*vel) / hit.pos.x;
+                zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect.z + (3<<8))*vel, hit.pos.x);
             }
 
             zvel = A_GetShootZvel(zvel);
@@ -1438,7 +1438,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 }
 
                 l = safeldist(g_player[j].ps->i, s);
-                zvel = ((g_player[j].ps->opos.z - srcvect.z)*vel) / l;
+                zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect.z)*vel, l);
 
                 if (A_CheckEnemySprite(s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
                     sa = s->ang+(krand()&31)-16;
@@ -1635,7 +1635,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             {
                 j = A_FindPlayer(s, NULL);
                 l = safeldist(g_player[j].ps->i, s);
-                zvel = ((g_player[j].ps->opos.z-srcvect.z)*512) / l ;
+                zvel = tabledivide32_noinline((g_player[j].ps->opos.z-srcvect.z)*512, l);
             }
             else zvel = 0;
 
@@ -1830,7 +1830,7 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
                     // HACK: Draw the upper part of the chaingun two screen
                     // pixels (not texels; multiplied by weapon scale) lower
                     // first, preventing ugly horizontal seam.
-                    g_dts_yadd = (65536*2*200)/ydim;
+                    g_dts_yadd = tabledivide32_noinline(65536*2*200, ydim);
                     G_DrawTileScaled(x,y,tilenum,shadef[slot],orientation,p);
                     g_dts_yadd = 0;
                 }
@@ -2753,8 +2753,8 @@ void P_GetInput(int32_t snum)
     if (ud.config.MouseBias)
     {
         if (klabs(info[0].dyaw) > klabs(info[0].dpitch))
-            info[0].dpitch /= ud.config.MouseBias;
-        else info[0].dyaw /= ud.config.MouseBias;
+            info[0].dpitch = tabledivide32_noinline(info[0].dpitch, ud.config.MouseBias);
+        else info[0].dyaw = tabledivide32_noinline(info[0].dyaw, ud.config.MouseBias);
     }
 
     tics = totalclock-lastcontroltime;

@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "midi.h"
 #include "mpu401.h"
 #include "compat.h"
+#include "pragmas.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -297,7 +298,7 @@ static void _MIDI_MetaEvent
         break;
 
     case MIDI_TEMPO_CHANGE :
-        tempo = 60000000L / _MIDI_ReadNumber(Track->pos, 3);
+        tempo = tabledivide32_noinline(60000000L, _MIDI_ReadNumber(Track->pos, 3));
         MIDI_SetTempo(tempo);
         break;
 
@@ -318,7 +319,7 @@ static void _MIDI_MetaEvent
             _MIDI_TimeBase += _MIDI_TimeBase;
             denominator--;
         }
-        _MIDI_TicksPerBeat = (_MIDI_Division * 4) / _MIDI_TimeBase;
+        _MIDI_TicksPerBeat = tabledivide32_noinline(_MIDI_Division * 4, _MIDI_TimeBase);
         break;
     }
 
@@ -794,7 +795,7 @@ static void _MIDI_SetChannelVolume
     {
         remotevolume = volume * _MIDI_TotalVolume;
         remotevolume *= _MIDI_UserChannelVolume[ channel ];
-        remotevolume /= MIDI_MaxVolume;
+        remotevolume = tabledivide32_noinline(remotevolume, MIDI_MaxVolume);
         remotevolume >>= 8;
 
         status = _MIDI_RerouteFunctions[ channel ](0xB0 + channel,
@@ -821,7 +822,7 @@ static void _MIDI_SetChannelVolume
     if (_MIDI_Funcs->SetVolume == NULL)
     {
         volume *= _MIDI_TotalVolume;
-        volume /= MIDI_MaxVolume;
+        volume = tabledivide32_noinline(volume, MIDI_MaxVolume);
     }
 
     // For user volume
@@ -1315,8 +1316,8 @@ void MIDI_SetTempo
     int32_t tickspersecond;
 
     MIDI_Tempo = tempo;
-    tickspersecond = ((tempo) * _MIDI_Division) / 60;
-    _MIDI_FPSecondsPerTick = (1 << TIME_PRECISION) / tickspersecond;
+    tickspersecond = ((tempo) * _MIDI_Division)/60;
+    _MIDI_FPSecondsPerTick = tabledivide32_noinline(1 << TIME_PRECISION, tickspersecond);
     MPU_SetTempo(tempo);
 }
 
@@ -1562,8 +1563,8 @@ void MIDI_SetSongTime
 
     MIDI_PauseSong();
 
-    mil = ((milliseconds % 1000) << TIME_PRECISION) / 1000;
-    sec = (milliseconds / 1000) << TIME_PRECISION;
+    mil = tabledivide32_noinline((milliseconds % 1000) << TIME_PRECISION, 1000);
+    sec = tabledivide32_noinline(milliseconds, 1000) << TIME_PRECISION;
     newtime = sec + mil;
 
     if (newtime < _MIDI_Time)

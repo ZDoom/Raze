@@ -692,7 +692,7 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
     { \
         const UINT(Datbits) *p=(UINT(Datbits) *)ptr;    \
         UINT(Datbits) *op=(UINT(Datbits) *)dump;        \
-        uint32_t i, nelts=(size*cnt)/BYTES(Datbits);    \
+        uint32_t i, nelts=tabledivide32_noinline(size*cnt, BYTES(Datbits));    \
         if (nelts>65536)                                \
             CPELTS(32,Datbits);                         \
         else if (nelts>256)                             \
@@ -831,7 +831,7 @@ readidx_##Idxbits##_##Datbits:               \
 
 #define CPDATA(Datbits) do \
         {                             \
-            uint32_t nelts=(sp->size*cnt)/BYTES(Datbits); \
+            uint32_t nelts=tabledivide32_noinline(sp->size*cnt, BYTES(Datbits)); \
             if (nelts>65536)          \
                 CPELTS(32,Datbits);   \
             else if (nelts>256)       \

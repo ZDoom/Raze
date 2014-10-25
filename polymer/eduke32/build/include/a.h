@@ -8,6 +8,8 @@
 
 #include "compat.h"
 
+#define CLASSIC_SLICE_BY_4
+
 /** Definitions of high-precision integer types. **/
 // Should be used for values that represent coordinates with which calculations
 // like dot product are carried out. Substituting 32-bit ints for these will

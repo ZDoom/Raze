@@ -153,7 +153,7 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
         for (j=stride; (unsigned)j<miplen; j+=stride)
             for (k=0; k<8; k++) *cptr++ = pic[j+k];
 
-        dxt_handle_io(fil, (miplen/stride)<<3, midbuf, packbuf);
+        dxt_handle_io(fil, tabledivide32(miplen, stride)<<3, midbuf, packbuf);
     }
 
     //rgb0,rgb1
@@ -162,7 +162,7 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
         for (j=0; (unsigned)j<miplen; j+=stride)
             { *(int16_t *)cptr = dxt_hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
 
-    dxt_handle_io(fil, (miplen/stride)<<2, midbuf, packbuf);
+    dxt_handle_io(fil, tabledivide32(miplen, stride)<<2, midbuf, packbuf);
 
     //index_4x4
     cptr = (char *)midbuf;
@@ -176,7 +176,7 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
         cptr += 4;
     }
 
-    dxt_handle_io(fil, (miplen/stride)<<2, midbuf, packbuf);
+    dxt_handle_io(fil, tabledivide32(miplen, stride)<<2, midbuf, packbuf);
 
     return 0;
 }
@@ -196,7 +196,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     if (stride == 16) //If DXT3...
     {
         //alpha_4x4
-        if (dedxt_handle_io(fil, (pict->size/stride)*8, midbuf, pict->size, packbuf, ispacked))
+        if (dedxt_handle_io(fil, tabledivide32(pict->size, stride)*8, midbuf, pict->size, packbuf, ispacked))
             return -1;
 
         cptr = (char *)midbuf;
@@ -206,7 +206,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     }
 
     //rgb0,rgb1
-    if (dedxt_handle_io(fil, (pict->size/stride)*4, midbuf, pict->size, packbuf, ispacked))
+    if (dedxt_handle_io(fil, tabledivide32(pict->size, stride)*4, midbuf, pict->size, packbuf, ispacked))
         return -1;
 
     cptr = (char *)midbuf;
@@ -220,7 +220,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     }
 
     //index_4x4:
-    if (dedxt_handle_io(fil, (pict->size/stride)*4, midbuf, pict->size, packbuf, ispacked))
+    if (dedxt_handle_io(fil, tabledivide32(pict->size, stride)*4, midbuf, pict->size, packbuf, ispacked))
         return -1;
 
     cptr = (char *)midbuf;

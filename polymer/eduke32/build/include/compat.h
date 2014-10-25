@@ -92,6 +92,8 @@
 
 #define WITHKPLIB
 
+#include "libdivide.h"
+
 // Define this to rewrite all 'B' versions to library functions. This
 // is for platforms which give us a standard sort of C library so we
 // link directly. Platforms like PalmOS which don't have a standard C
@@ -146,31 +148,6 @@
 #if _MSC_VER < 1800
 # define inline __inline
 
-# ifndef _WIN64
-static inline float nearbyintf(float x) 
-{ 
-    uint32_t w1, w2;
-    __asm fnstcw w1
-    w2 = w1 | 0x00000020;
-    __asm
-    {
-        fldcw w2
-        fld x
-        frndint
-        fclex
-        fldcw w1
-    }
-}
-# else
-#include <math.h>
-static inline float nearbyintf(float x)
-{
-    if (x >= 0.0)
-        return floorf(x + 0.5);
-    else
-        return floorf(x - 0.5);
-}
-# endif
 #endif
 
 #include <math.h>
@@ -178,31 +155,8 @@ static inline long lround(double num)
 {
     return (long) (num > 0 ? num + 0.5 : ceil(num - 0.5));
 }
-
-#if defined(_WIN64)
-#include <emmintrin.h>
-static inline int32_t Blrintf(const float x)
-{
-    __m128 xx = _mm_load_ss(&x);
-   return _mm_cvtss_si32(xx);
-}
-#else
-static inline int32_t Blrintf(const float x)
-{
-    int n;
-    __asm fld x;
-    __asm fistp n;
-    return n;
-}   
-#endif
 #else
 # define longlong(x) x##ll
-#define Blrintf lrintf
-#endif
-
-#if defined __OPENDINGUX__
-//ugly hack
-#define nearbyintf rintf
 #endif
 
 #if defined(__arm__)
@@ -398,60 +352,23 @@ static inline uint16_t B_UNBUF16(const uint8_t *buf) { return (buf[1] << 8) | (b
 static inline uint32_t B_UNBUF32(const uint8_t *buf) { return (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]); }
 static inline uint64_t B_UNBUF64(const uint8_t *buf) { return ((uint64_t)buf[7] << 56) | ((uint64_t)buf[6] << 48) | ((uint64_t)buf[5] << 40) | ((uint64_t)buf[4] << 32) | (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]); }
 
-#if defined(USE_MSC_PRAGMAS)
-static inline void ftol(float f, int32_t *a)
+#if defined(BITNESS64)
+#include <emmintrin.h>
+static inline int32_t Blrintf(const float x)
 {
-    _asm
-    {
-        mov eax, a
-            fld f
-            fistp dword ptr [eax]
-    }
+    __m128 xx = _mm_load_ss(&x);
+    return _mm_cvtss_si32(xx);
 }
-
-static inline void dtol(double d, int32_t *a)
+#elif defined (_MSC_VER)
+static inline int32_t Blrintf(const float x)
 {
-    _asm
-    {
-        mov eax, a
-            fld d
-            fistp dword ptr [eax]
-    }
+    int n;
+    __asm fld x;
+    __asm fistp n;
+    return n;
 }
-#elif defined(USE_GCC_PRAGMAS)
-
-static inline void ftol(float f, int32_t *a)
-{
-    __asm__ __volatile__(
-#if 0 //(__GNUC__ >= 3)
-        "flds %1; fistpl %0;"
 #else
-        "flds %1; fistpl (%0);"
-#endif
-        : "=r"(a) : "m"(f) : "memory","cc");
-}
-
-static inline void dtol(double d, int32_t *a)
-{
-    __asm__ __volatile__(
-#if 0 //(__GNUC__ >= 3)
-        "fldl %1; fistpl %0;"
-#else
-        "fldl %1; fistpl (%0);"
-#endif
-        : "=r"(a) : "m"(d) : "memory","cc");
-}
-
-#else
-static inline void ftol(float f, int32_t *a)
-{
-    *a = (int32_t)f;
-}
-
-static inline void dtol(double d, int32_t *a)
-{
-    *a = (int32_t)d;
-}
+#define Blrintf lrintf
 #endif
 
 #if B_LITTLE_ENDIAN == 1
@@ -792,7 +709,7 @@ char *Bgetsystemdrives(void);
 int32_t Bfilelength(int32_t fd);
 char *Bstrtoken(char *s, const char *delim, char **ptrptr, int32_t chop);
 char *Bstrtolower(char *str);
-int32_t Bwildmatch (const char *i, const char *j);
+#define Bwildmatch wildmatch
 
 #if !defined(_WIN32)
 char *Bstrlwr(char *);

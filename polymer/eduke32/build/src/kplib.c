@@ -37,6 +37,7 @@ credits.
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "pragmas.h"
 
 #if defined(__POWERPC__) || defined(GEKKO)
 #define BIGENDIAN 1
@@ -820,14 +821,14 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
             //Save code by making grayscale look like a palette color scheme
             if ((!kcoltype) || (kcoltype == 4))
             {
-                j = 0xff000000; k = (255 / ((1<<bitdepth)-1))*0x10101;
+                j = 0xff000000; k = (tabledivide32(255, ((1<<bitdepth)-1)))*0x10101;
                 paleng = (1<<bitdepth);
                 for (i=0; i<paleng; i++,j+=k) palcol[i] = LSWAPIB(j);
             }
         }
         else if (i == (int32_t)LSWAPIB(0x45544c50)) //PLTE (must be before IDAT)
         {
-            paleng = leng/3;
+            paleng = tabledivide32(leng, 3);
             for (i=paleng-1; i>=0; i--) palcol[i] = LSWAPIB((LSWAPIL(*(int32_t *)&filptr[i*3])>>8)|0xff000000);
         }
         else if (i == (int32_t)LSWAPIB(0x44474b62)) //bKGD (must be after PLTE and before IDAT)
@@ -835,7 +836,7 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
             switch (kcoltype)
             {
             case 0: case 4:
-                        bakcol = (((int32_t)filptr[0]<<8)+(int32_t)filptr[1])*255/((1<<bitdepth)-1);
+                        bakcol = (((int32_t)filptr[0]<<8)+(int32_t)filptr[1])*tabledivide32(255, ((1<<bitdepth)-1));
                 bakcol = bakcol*0x10101+0xff000000; break;
             case 2: case 6:
                         if (bitdepth == 8)
@@ -843,7 +844,7 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
                         else
                         {
                             for (i=0,bakcol=0xff000000; i<3; i++)
-                                bakcol += ((((((int32_t)filptr[i<<1])<<8)+((int32_t)filptr[(i<<1)+1]))/257)<<(16-(i<<3)));
+                                bakcol += tabledivide32(((((int32_t)filptr[i<<1])<<8)+((int32_t)filptr[(i<<1)+1])), 257)<<(16-(i<<3));
                         }
                 break;
             case 3:
@@ -2202,7 +2203,7 @@ static int32_t kddsrend(const char *buf, int32_t leng,
 
     if (!(dxt&1))
     {
-        for (z=256-1; z>0; z--) lut[z] = (255<<16)/z;
+        for (z=256-1; z>0; z--) lut[z] = tabledivide32_noinline(255<<16, z);
         lut[0] = (1<<16);
     }
     if (dxt == 1) stride = (xsiz<<1); else stride = (xsiz<<2);
@@ -2419,7 +2420,7 @@ int32_t kprender(const char *buf, int32_t leng, intptr_t frameptr, int32_t bpl,
 
 extern char toupperlookup[256];
 
-static int32_t wildmatch(const char *match, const char *wild)
+int32_t wildmatch(const char *match, const char *wild)
 {
     do
     {
@@ -2428,13 +2429,13 @@ static int32_t wildmatch(const char *match, const char *wild)
             wild++, match++;
             continue;
         }
-        else if (*match + *wild == '\0')
+        else if ((*match|*wild) == '\0')
             return 1;
         else if (*wild == '*')
         {
             while (*wild == '*') wild++;
             if (*wild == '\0') return 1;
-            while (toupperlookup[*match] != toupperlookup[*wild] && *match) match++;
+            while (*match && toupperlookup[*match] != toupperlookup[*wild]) match++;
             if (toupperlookup[*match] == toupperlookup[*wild])
                 continue;
         }

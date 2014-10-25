@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "mpu401.h"
 #include "compat.h"
+#include "pragmas.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -441,7 +442,7 @@ void MPU_SetTempo(int32_t tempo)
 {
     MIDIPROPTEMPO prop;
     prop.cbStruct = sizeof(MIDIPROPTEMPO);
-    prop.dwTempo = 60000000l/tempo;
+    prop.dwTempo = tabledivide32_noinline(60000000l, tempo);
     midiStreamProperty(hmido, (LPBYTE)&prop, MIDIPROP_SET|MIDIPROP_TEMPO);
 }
 

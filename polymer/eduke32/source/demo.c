@@ -886,7 +886,7 @@ nextdemo_nomenu:
                     rotatesprite(120<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,(xdim*125)/320,0,(xdim*155)/320,ydim-1);
                     rotatesprite(150<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,(xdim*155)/320,0,xdim-1,ydim-1);
 
-                    j = (182<<16) - ((((120*(g_demo_totalCnt-g_demo_cnt))<<4)/g_demo_totalCnt)<<12);
+                    j = (182<<16) - (tabledivide32_noinline((120*(g_demo_totalCnt-g_demo_cnt))<<4, g_demo_totalCnt)<<12);
                     rotatesprite_fs(j,(16<<16)+(1<<15),32768,0,SLIDEBAR+1,0,0,2+8+16+1024);
 
                     j=(g_demo_totalCnt-g_demo_cnt)/REALGAMETICSPERSEC;

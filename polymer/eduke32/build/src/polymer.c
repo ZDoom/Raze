@@ -2830,9 +2830,7 @@ static float calc_ypancoef(char curypanning, int16_t curpicnum, int32_t dopancor
 
         if (dopancor)
         {
-            int32_t yoffs;
-
-            ftol((ypancoef - tilesiz[curpicnum].y) * (255.0f / ypancoef), &yoffs);
+            int32_t yoffs = Blrintf((ypancoef - tilesiz[curpicnum].y) * (255.0f / ypancoef));
             if (curypanning > 256 - yoffs)
                 curypanning -= yoffs;
         }

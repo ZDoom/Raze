@@ -809,7 +809,7 @@ skip_check:
                 float fval = *((float *)&bits);
 // rounding must absolutely be!
 //OSD_Printf("ftoi: bits:%8x, scale=%d, fval=%f, (int32_t)(fval*scale)=%d\n", bits, scale, fval, (int32_t)(fval*scale));
-                Gv_SetVarX(*insptr, (int32_t)nearbyintf(fval * scale));
+                Gv_SetVarX(*insptr, (int32_t)Blrintf(fval * scale));
             }
             insptr += 2;
             continue;

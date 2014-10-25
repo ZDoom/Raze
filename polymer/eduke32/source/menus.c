@@ -726,17 +726,17 @@ static MenuEntry_t *MEL_RENDERERSETUP_GL3[] = {
 #endif
 
 #ifdef DROIDMENU
-static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &MF_Bluefont, 1.f, 1.f, 2.5f, 39.f, 0.f, &vid_gamma );
+static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &MF_Bluefont, 1, 1.f, 2.5f, 39.f, 0.f, &vid_gamma );
 #else
-static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &MF_Bluefont, 1.f, 0.2f, 4.f, 39.f, 0.f, &vid_gamma );
+static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &MF_Bluefont, 1, 0.2f, 4.f, 39, 0.f, &vid_gamma );
 #endif
 static MenuEntry_t ME_COLCORR_GAMMA = MAKE_MENUENTRY( &MF_Redfont, "Gamma:", RangeFloat, &MEO_COLCORR_GAMMA );
-static MenuRangeFloat_t MEO_COLCORR_CONTRAST = MAKE_MENURANGE( &MF_Bluefont, 1.f, 0.1f, 2.7f, 53.f, 0.f, &vid_contrast );
+static MenuRangeFloat_t MEO_COLCORR_CONTRAST = MAKE_MENURANGE( &MF_Bluefont, 1, 0.1f, 2.7f, 53, 0.f, &vid_contrast );
 static MenuEntry_t ME_COLCORR_CONTRAST = MAKE_MENUENTRY( &MF_Redfont, "Contrast:", RangeFloat, &MEO_COLCORR_CONTRAST );
-static MenuRangeFloat_t MEO_COLCORR_BRIGHTNESS = MAKE_MENURANGE( &MF_Bluefont, 1.f, -0.8f, 0.8f, 33.f, 0.f, &vid_brightness );
+static MenuRangeFloat_t MEO_COLCORR_BRIGHTNESS = MAKE_MENURANGE( &MF_Bluefont, 1, -0.8f, 0.8f, 33, 0.f, &vid_brightness );
 static MenuEntry_t ME_COLCORR_BRIGHTNESS = MAKE_MENUENTRY( &MF_Redfont, "Brightness:", RangeFloat, &MEO_COLCORR_BRIGHTNESS );
 static MenuEntry_t ME_COLCORR_RESET = MAKE_MENUENTRY( &MF_Redfont, "Reset To Defaults", Link, &MEO_NULL );
-static MenuRangeFloat_t MEO_COLCORR_AMBIENT = MAKE_MENURANGE(&MF_Bluefont, 1.f, 0.125f, 4.f, 32.f, 0.f, &r_ambientlight);
+static MenuRangeFloat_t MEO_COLCORR_AMBIENT = MAKE_MENURANGE(&MF_Bluefont, 1, 0.125f, 4.f, 32, 0.f, &r_ambientlight);
 static MenuEntry_t ME_COLCORR_AMBIENT = MAKE_MENUENTRY(&MF_Redfont, "Visibility:", RangeFloat, &MEO_COLCORR_AMBIENT);
 
 static MenuEntry_t *MEL_COLCORR[] = {
@@ -3575,7 +3575,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                             case 2:
                             {
                                 int32_t v;
-                                ftol(((float) *object->variable * 100.) / (float) object->onehundredpercent + 0.5, &v);
+                                v = Blrintf(((float) *object->variable * 100.f) / (float) object->onehundredpercent);
                                 Bsprintf(tempbuf, "%d%%", v);
                                 break;
                             }
@@ -3602,7 +3602,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                     rotatesprite_fs(x, y - menu->scrollPos, z, 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
                     rotatesprite_fs(
-                    x + (1<<16) + ((float) scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16) * (*object->variable - object->min) / (object->max - object->min)),
+                    x + (1<<16) + (int32_t)((float) scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16) * (*object->variable - object->min) / (object->max - object->min)),
                     y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
                     z, 0, SLIDEBAR+1, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
@@ -3621,7 +3621,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                             case 2:
                             {
                                 int32_t v;
-                                ftol((*object->variable * 100.f) / object->onehundredpercent + 0.5f, &v);
+                                v = Blrintf((*object->variable * 100.f) / object->onehundredpercent);
                                 Bsprintf(tempbuf, "%d%%", v);
                                 break;
                             }
@@ -3648,7 +3648,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                     rotatesprite_fs(x, y - menu->scrollPos, z, 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
                     rotatesprite_fs(
-                    x + (1<<16) + ((double) scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16) * (*object->variable - object->min) / (object->max - object->min)),
+                    x + (1<<16) + (int32_t)((double) scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16) * (*object->variable - object->min) / (object->max - object->min)),
                     y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
                     z, 0, SLIDEBAR+1, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
@@ -3667,7 +3667,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                             case 2:
                             {
                                 int32_t v;
-                                dtol((*object->variable * 100.) / object->onehundredpercent + 0.5, &v);
+                                v = Blrintf((*object->variable * 100.) / object->onehundredpercent);
                                 Bsprintf(tempbuf, "%d%%", v);
                                 break;
                             }
@@ -4403,14 +4403,14 @@ static void M_RunMenuInput(Menu_t *cm)
                     case RangeInt32:
                     {
                         MenuRangeInt32_t *object = (MenuRangeInt32_t*)currentry->entry;
-                        const double interval = (double) (object->max - object->min) / (object->steps - 1);
+                        const float interval = (float) (object->max - object->min) / (float) (object->steps - 1);
                         int32_t step;
                         int32_t modification = 0;
 
                         if (currentry->disabled)
                             break;
 
-                        dtol((double) (*object->variable - object->min) / interval + 0.5, &step);
+                        step = Blrintf((float) (*object->variable - object->min) / interval);
 
                         if (I_SliderLeft())
                         {
@@ -4438,7 +4438,7 @@ static void M_RunMenuInput(Menu_t *cm)
                             else if (step >= object->steps)
                                 step = object->steps - 1;
 
-                            dtol(interval * step + object->min + 0.5, &temp);
+                            temp = Blrintf(interval * step + (object->min));
 
                             if (!M_MenuEntryRangeInt32Modify(currentry, temp))
                                 *object->variable = temp;
@@ -4456,7 +4456,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         if (currentry->disabled)
                             break;
 
-                        ftol((*object->variable - object->min) / interval + 0.5, &step);
+                        step = Blrintf((*object->variable - object->min) / interval);
 
                         if (I_SliderLeft())
                         {
@@ -4502,7 +4502,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         if (currentry->disabled)
                             break;
 
-                        dtol((*object->variable - object->min) / interval + 0.5, &step);
+                        step = Blrintf((*object->variable - object->min) / interval);
 
                         if (I_SliderLeft())
                         {

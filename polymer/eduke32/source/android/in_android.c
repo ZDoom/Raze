@@ -243,11 +243,11 @@ void CONTROL_Android_PollDevices(ControlInfo *info)
     //LOGI("CONTROL_Android_PollDevices %f %f",forwardmove,sidemove);
     //LOGI("CONTROL_Android_PollDevices %f %f",droidinput.pitch,droidinput.yaw);
 
-    info->dz     = (int32_t)nearbyintf(-droidinput.forwardmove * ANDROIDFORWARDMOVEFACTOR);
-    info->dx     = (int32_t)nearbyintf(droidinput.sidemove * ANDROIDSIDEMOVEFACTOR);
-    info->dpitch = (int32_t)nearbyint(droidinput.pitch * ANDROIDPITCHFACTOR +
+    info->dz     = (int32_t)Blrintf(-droidinput.forwardmove * ANDROIDFORWARDMOVEFACTOR);
+    info->dx     = (int32_t)Blrintf(droidinput.sidemove * ANDROIDSIDEMOVEFACTOR);
+    info->dpitch = (int32_t)Blrintf(droidinput.pitch * ANDROIDPITCHFACTOR +
             droidinput.pitch_joystick * ANDROIDPITCHFACTORJOYSTICK);
-    info->dyaw   = (int32_t)nearbyint(-droidinput.yaw * ANDROIDYAWFACTOR -
+    info->dyaw   = (int32_t)Blrintf(-droidinput.yaw * ANDROIDYAWFACTOR -
             droidinput.yaw_joystick * ANDROIDYAWFACTORJOYSTICK);
 
     /*

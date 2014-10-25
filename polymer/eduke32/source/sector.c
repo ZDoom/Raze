@@ -571,8 +571,9 @@ void G_OperateSectors(int32_t sn, int32_t ii)
             dax += wall[i].x;
             day += wall[i].y;
         }
-        dax /= (endwall-startwall+1);
-        day /= (endwall-startwall+1);
+
+        dax = tabledivide32_noinline(dax, (endwall-startwall+1));
+        day = tabledivide32_noinline(day, (endwall-startwall+1));
 
         //find any points with either same x or same y coordinate
         //  as center (dax, day) - should be 2 points found.

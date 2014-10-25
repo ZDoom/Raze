@@ -33,13 +33,6 @@ void copybufreverse(const void *S, void *D, int32_t c);
 #define sqr(a) __builtin_sqr(a)
 #endif
 
-#define scale(a,d,c) \
-	({ int32_t __a=(a), __d=(d), __c=(c); \
-	   __asm__ __volatile__ ("imull %%edx; idivl %%ecx" \
-		: "=a" (__a), "=d" (__d) \
-		: "0" (__a), "1" (__d), "c" (__c) : "cc"); \
-	 __a; })
-
 #define mulscale(a,d,c) \
 	({ int32_t __a=(a), __d=(d), __c=(c); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl %%cl, %%edx, %%eax" \
@@ -471,174 +464,6 @@ void copybufreverse(const void *S, void *D, int32_t c);
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __d; })
 
-#ifdef USE_ASM_DIVSCALE
-#define divscale(a,b,c) \
-	({ int32_t __a=(a), __b=(b), __c=(c); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; shll %%cl, %%eax; negb %%cl; sarl %%cl, %%edx; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "c" (__c), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale1(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("addl %%eax, %%eax; sbbl %%edx, %%edx; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale2(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $30, %%edx; leal (,%%eax,4), %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale3(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $29, %%edx; leal (,%%eax,8), %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale4(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $28, %%edx; shll $4, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale5(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $27, %%edx; shll $5, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale6(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $26, %%edx; shll $6, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale7(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $25, %%edx; shll $7, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale8(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $24, %%edx; shll $8, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale9(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $23, %%edx; shll $9, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale10(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $22, %%edx; shll $10, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale11(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $21, %%edx; shll $11, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale12(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $20, %%edx; shll $12, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale13(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $19, %%edx; shll $13, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale14(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $18, %%edx; shll $14, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale15(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $17, %%edx; shll $15, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale16(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $16, %%edx; shll $16, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale17(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $15, %%edx; shll $17, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale18(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $14, %%edx; shll $18, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale19(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $13, %%edx; shll $19, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale20(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $12, %%edx; shll $20, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale21(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $11, %%edx; shll $21, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale22(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $10, %%edx; shll $22, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale23(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $9, %%edx; shll $23, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale24(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $8, %%edx; shll $24, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale25(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $7, %%edx; shll $25, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale26(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $6, %%edx; shll $26, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale27(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $5, %%edx; shll $27, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale28(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $4, %%edx; shll $28, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale29(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $3, %%edx; shll $29, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale30(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $2, %%edx; shll $30, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale31(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $1, %%edx; shll $31, %%eax; idivl %%ebx" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
-	 __a; })
-#define divscale32(d,b) \
-	({ int32_t __d=(d), __b=(b), __r; \
-	   __asm__ __volatile__ ("xorl %%eax, %%eax; idivl %%ebx" \
-		: "=a" (__r), "=d" (__d) : "d" (__d), "b" (__b) : "cc"); \
-	 __r; })
-#endif  // defined USE_ASM_DIVSCALE
-
 #define readpixel(D) \
 	({ void *__D=(D); int32_t __a; \
 	   __asm__ __volatile__ ("movb (%%edi), %%al" \
@@ -647,16 +472,6 @@ void copybufreverse(const void *S, void *D, int32_t c);
 #define drawpixel(D,a) \
 	({ void *__D=(D); int32_t __a=(a); \
 	   __asm__ __volatile__ ("movb %%al, (%%edi)" \
-		: : "D" (__D), "a" (__a) : "memory", "cc"); \
-	 0; })
-#define drawpixels(D,a) \
-	({ void *__D=(D); int32_t __a=(a); \
-	   __asm__ __volatile__ ("movw %%ax, (%%edi)" \
-		: : "D" (__D), "a" (__a) : "memory", "cc"); \
-	 0; })
-#define drawpixelses(D,a) \
-	({ void *__D=(D); int32_t __a=(a); \
-	   __asm__ __volatile__ ("movl %%eax, (%%edi)" \
 		: : "D" (__D), "a" (__a) : "memory", "cc"); \
 	 0; })
 #define clearbuf(D,c,a) \
@@ -669,19 +484,6 @@ void copybufreverse(const void *S, void *D, int32_t c);
 	   __asm__ __volatile__ ("rep; movsl" \
 		: "=&S" (__S), "=&D" (__D), "=&c" (__c) : "0" (__S), "1" (__D), "2" (__c) : "memory", "cc"); \
 	 0; })
-
-//returns eax/ebx, dmval = eax%edx;
-#define divmod(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("xorl %%edx, %%edx; divl %%ebx; movl %%edx, "_DMVAL \
-		: "+a" (__a) : "b" (__b) : "edx", "memory", "cc"); \
-	 __a; })
-//returns eax%ebx, dmval = eax/edx;
-#define moddiv(a,b) \
-	({ int32_t __a=(a), __b=(b), __d; \
-	   __asm__ __volatile__ ("xorl %%edx, %%edx; divl %%ebx; movl %%eax, "_DMVAL \
-		: "=d" (__d) : "a" (__a), "b" (__b) : "eax", "memory", "cc"); \
-	 __d; })
 
 #define klabs(a) \
 	({ int32_t __a=(a); \

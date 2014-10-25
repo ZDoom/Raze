@@ -127,35 +127,79 @@ void Gv_FinalizeWeaponDefaults(void);
     { \
     default: \
         aGameVars[id].val.lValue operator lValue; \
-        return; \
+        break; \
     case GAMEVAR_PERPLAYER: \
-        if ((unsigned)vm.g_p > MAXPLAYERS-1) return; \
+        if ((unsigned)vm.g_p > MAXPLAYERS-1) break; \
         aGameVars[id].val.plValues[vm.g_p] operator lValue; \
-        return; \
+        break; \
     case GAMEVAR_PERACTOR: \
-        if ((unsigned)vm.g_i > MAXSPRITES-1) return; \
+        if ((unsigned)vm.g_i > MAXSPRITES-1) break; \
         aGameVars[id].val.plValues[vm.g_i] operator lValue; \
-        return; \
+        break; \
     case GAMEVAR_INTPTR: \
         *((int32_t *)aGameVars[id].val.lValue) operator (int32_t)lValue; \
-        return; \
+        break; \
     case GAMEVAR_SHORTPTR: \
         *((int16_t *)aGameVars[id].val.lValue) operator (int16_t)lValue; \
-        return; \
+        break; \
     case GAMEVAR_CHARPTR: \
         *((uint8_t *)aGameVars[id].val.lValue) operator (uint8_t)lValue; \
-        return; \
+        break; \
     } \
 }
+
+// even though libdivide is faster than straight division (when using the LUT) the overhead makes this slower on x86
+// ARM, however, has no hardware integer division
+#if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
+static inline void __fastcall Gv_DivVar(int32_t id, int32_t lValue)
+{
+    static libdivide_s32_t sdiv;
+    static int32_t lastlValue;
+    libdivide_s32_t *dptr = &sdiv;
+    intptr_t *iptr = &aGameVars[id].val.lValue;
+
+    if ((aGameVars[id].dwFlags & GAMEVAR_PERPLAYER && (unsigned) vm.g_p > MAXPLAYERS-1) ||
+        (aGameVars[id].dwFlags & GAMEVAR_PERACTOR && (unsigned) vm.g_i > MAXSPRITES-1)) return;
+
+    if ((unsigned) lValue < DIVTABLESIZE)
+        dptr = (libdivide_s32_t *)&divtable32[lValue];
+    else if (lValue != lastlValue)
+        sdiv = libdivide_s32_gen(lValue), lastlValue = lValue;
+
+    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
+    {
+    case GAMEVAR_PERPLAYER:
+        iptr = &aGameVars[id].val.plValues[vm.g_p];
+    default:
+        break;
+    case GAMEVAR_PERACTOR:
+        iptr = &aGameVars[id].val.plValues[vm.g_i];
+        break;
+    case GAMEVAR_INTPTR:
+        *((int32_t *) aGameVars[id].val.lValue) = (int32_t) libdivide_s32_do(*((int32_t *) aGameVars[id].val.lValue), dptr);
+        return;
+    case GAMEVAR_SHORTPTR:
+        *((int16_t *) aGameVars[id].val.lValue) = (int16_t) libdivide_s32_do(*((int16_t *) aGameVars[id].val.lValue), dptr);
+        return;
+    case GAMEVAR_CHARPTR:
+        *((uint8_t *) aGameVars[id].val.lValue) = (uint8_t) libdivide_s32_do(*((uint8_t *) aGameVars[id].val.lValue), dptr);
+        return;
+    }
+
+    *iptr = libdivide_s32_do(*iptr, dptr);
+}
+#else
+GV_VAROP(Gv_DivVar, /=)
+#endif
 
 GV_VAROP(Gv_AddVar, +=)
 GV_VAROP(Gv_SubVar, -=)
 GV_VAROP(Gv_MulVar, *=)
-GV_VAROP(Gv_DivVar, /=)
 GV_VAROP(Gv_ModVar, %=)
 GV_VAROP(Gv_AndVar, &=)
 GV_VAROP(Gv_XorVar, ^=)
 GV_VAROP(Gv_OrVar, |=)
+
 #endif
 
 #endif

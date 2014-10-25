@@ -1004,10 +1004,7 @@ void updateanimation(md2model_t *m, const spritetype *tspr, uint8_t lpal)
         return;
     }
 
-    if (smooth->mdsmooth)  // VERIFY: (smooth->mdsmooth) implies (tile2model[tile].smoothduration!=0) ?
-        ftol((1.0f / (float)(tile2model[tile].smoothduration)) * 66.f, &fps);
-    else
-        fps = anim->fpssc;
+    fps = smooth->mdsmooth ? Blrintf((1.0f / (float) (tile2model[tile].smoothduration)) * 66.f) : anim->fpssc;
 
     i = (mdtims - sprext->mdanimtims)*((fps*timerticspersec)/120);
 

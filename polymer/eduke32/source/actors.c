@@ -5029,7 +5029,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
             case NEON5__STATIC:
             case NEON6__STATIC:
 
-                if ((g_globalRandom/(s->lotag+1)&31) > 4) s->shade = -127;
+                if (tabledivide32_noinline(g_globalRandom, (s->lotag+1)&31) > 4) s->shade = -127;
                 else s->shade = 127;
                 goto BOLT;
 
@@ -6300,7 +6300,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             //    if(t[5] > 0) { t[5]--; break; }
 
-            if ((g_globalRandom/(sh+1)&31) < 4 && !t[2])
+            if (tabledivide32_noinline(g_globalRandom, (sh+1)&31) < 4 && !t[2])
             {
                 //       t[5] = 4+(g_globalRandom&7);
                 sc->ceilingpal = s->owner>>8;
@@ -6337,7 +6337,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         case SE_4_RANDOM_LIGHTS:
 
-            if ((g_globalRandom/(sh+1)&31) < 4)
+            if (tabledivide32_noinline(g_globalRandom, (sh+1)&31) < 4)
             {
                 t[1] = s->shade + (g_globalRandom&15);//Got really bright
                 t[0] = s->shade + (g_globalRandom&15);

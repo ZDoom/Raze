@@ -7,6 +7,7 @@
 // See the included license file "BUILDLIC.TXT" for license info.
 
 #include "a.h"
+#include "pragmas.h"
 
 #ifdef ENGINE_USING_A_C
 
@@ -71,6 +72,17 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
         const int32_t logx = glogx, logy = glogy;
         char *pp = (char *)p;
 
+        for (; cnt>=4; cnt -= 4)
+        {
+            *pp = palptr[buf[((bx>>(32-logx))<<logy)+(by>>(32-logy))]]; pp--;
+            *pp = palptr[buf[(((bx-bxinc)>>(32-logx))<<logy)+((by-byinc)>>(32-logy))]]; pp--;
+            *pp = palptr[buf[(((bx-(bxinc<<1))>>(32-logx))<<logy)+((by-(byinc<<1))>>(32-logy))]]; pp--;
+            *pp = palptr[buf[(((bx-(bxinc*3))>>(32-logx))<<logy)+((by-(byinc*3))>>(32-logy))]]; pp--;
+
+            bx -= bxinc<<2;
+            by -= byinc<<2;
+        }
+
         for (; cnt>=0; cnt--)
         {
             *pp = palptr[buf[((bx>>(32-logx))<<logy)+(by>>(32-logy))]];
@@ -121,10 +133,7 @@ static inline uint32_t ourmulscale32(uint32_t a, uint32_t b)
 
 static inline int32_t getpix(int32_t logy, const char *buf, uint32_t vplc)
 {
-    if (logy != 0)
-        return buf[vplc>>logy];
-    else
-        return buf[ourmulscale32(vplc,globaltilesizy)];
+    return logy ? buf[vplc>>logy] : buf[ourmulscale32(vplc,globaltilesizy)];
 }
 
 void setupvlineasm(int32_t neglogy) { glogy = neglogy; }
@@ -138,18 +147,45 @@ int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, in
 
     cnt++;
 
-    do
+    if (logy)
     {
-        if (logy != 0)
+#ifdef CLASSIC_SLICE_BY_4
+        for (; cnt>=4; cnt-=4)
+        {
             *pp = pal[buf[vplc>>logy]];
-        else
-            *pp = pal[buf[ourmulscale32(vplc,globaltilesizy)]];
-
-        pp += ourbpl;
-        vplc += vinc;
+            *(pp+ourbpl) = pal[buf[(vplc+vinc)>>logy]];
+            *(pp+(ourbpl<<1)) = pal[buf[(vplc+(vinc<<1))>>logy]];
+            *(pp+(ourbpl*3)) = pal[buf[(vplc+(vinc*3))>>logy ]];
+            pp += ourbpl<<2;
+            vplc += vinc<<2;
+        }
+#endif
+        while (cnt--)
+        {
+            *pp = pal[buf[vplc>>logy]];
+            pp += ourbpl;
+            vplc += vinc;
+        }
     }
-    while (--cnt);
-
+    else
+    {
+#ifdef CLASSIC_SLICE_BY_4
+        for (; cnt>=4; cnt-=4)
+        {
+            *pp = pal[buf[ourmulscale32(vplc, globaltilesizy)]];
+            *(pp+ourbpl) = pal[buf[ourmulscale32((vplc+vinc),globaltilesizy)]];
+            *(pp+(ourbpl<<1)) = pal[buf[ourmulscale32((vplc+(vinc<<1)), globaltilesizy)]];
+            *(pp+(ourbpl*3)) = pal[buf[ourmulscale32((vplc+(vinc*3)), globaltilesizy)]];
+            pp += ourbpl<<2;
+            vplc += vinc<<2;
+        }
+#endif
+        while (cnt--)
+        {
+            *pp = pal[buf[ourmulscale32(vplc,globaltilesizy)]], pp += ourbpl;
+            vplc += vinc;
+        }
+    }
     return vplc;
 }
 
@@ -191,9 +227,6 @@ typedef uint32_t uint32_vec4 __attribute__ ((vector_size (16)));
 // cnt >= 1
 void vlineasm4(int32_t cnt, char *p)
 {
-    char ch;
-    int32_t i;
-
     char *const pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
     char *const buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
 #ifdef USE_VECTOR_EXT
@@ -205,25 +238,86 @@ void vlineasm4(int32_t cnt, char *p)
 #endif
     const int32_t logy = glogy, ourbpl = bpl;
 
-    do
+    if (!logy)
     {
-        for (i=0; i<4; i++)
+        do
         {
-            ch = getpix(logy, buf[i], vplc[i]);
-            p[i] = pal[i][ch];
-#if !defined USE_VECTOR_EXT
-            vplc[i] += vinc[i];
+            p[0] = pal[0][buf[0][ourmulscale32(vplc[0],globaltilesizy)]];
+            p[1] = pal[1][buf[1][ourmulscale32(vplc[1],globaltilesizy)]];
+            p[2] = pal[2][buf[2][ourmulscale32(vplc[2],globaltilesizy)]];
+            p[3] = pal[3][buf[3][ourmulscale32(vplc[3],globaltilesizy)]];
+
+#if defined USE_VECTOR_EXT
+            vplc += vinc;
+#else
+            vplc[0] += vinc[0];
+            vplc[1] += vinc[1];
+            vplc[2] += vinc[2];
+            vplc[3] += vinc[3];
 #endif
+            p += ourbpl;
         }
-#ifdef USE_VECTOR_EXT
+        while (--cnt);
+
+        goto skip;
+    }
+    
+    // just fucking shoot me
+#ifdef CLASSIC_SLICE_BY_4
+    for (; cnt>=4;cnt-=4)
+    {
+        p[0]                = pal[0][buf[0][ vplc[0]>>logy ]];
+        p[1]                = pal[1][buf[1][ vplc[1]>>logy ]];
+        p[2]                = pal[2][buf[2][ vplc[2]>>logy ]];
+        p[3]                = pal[3][buf[3][ vplc[3]>>logy ]];
+        (p+ourbpl)[0]       = pal[0][buf[0][ (vplc[0]+vinc[0])>>logy ]];
+        (p+ourbpl)[1]       = pal[1][buf[1][ (vplc[1]+vinc[1])>>logy ]];
+        (p+ourbpl)[2]       = pal[2][buf[2][ (vplc[2]+vinc[2])>>logy ]];
+        (p+ourbpl)[3]       = pal[3][buf[3][ (vplc[3]+vinc[3])>>logy ]];
+        (p+(ourbpl<<1))[0]  = pal[0][buf[0][ (vplc[0]+(vinc[0]<<1))>>logy ]];
+        (p+(ourbpl<<1))[1]  = pal[1][buf[1][ (vplc[1]+(vinc[1]<<1))>>logy ]];
+        (p+(ourbpl<<1))[2]  = pal[2][buf[2][ (vplc[2]+(vinc[2]<<1))>>logy ]];
+        (p+(ourbpl<<1))[3]  = pal[3][buf[3][ (vplc[3]+(vinc[3]<<1))>>logy ]];
+        (p+(ourbpl*3))[0]   = pal[0][buf[0][ (vplc[0]+(vinc[0]*3))>>logy ]];
+        (p+(ourbpl*3))[1]   = pal[1][buf[1][ (vplc[1]+(vinc[1]*3))>>logy ]];
+        (p+(ourbpl*3))[2]   = pal[2][buf[2][ (vplc[2]+(vinc[2]*3))>>logy ]];
+        (p+(ourbpl*3))[3]   = pal[3][buf[3][ (vplc[3]+(vinc[3]*3))>>logy ]];
+
+#if defined USE_VECTOR_EXT
+        vplc += vinc<<2;
+#else
+        vplc[0] += vinc[0]<<2;
+        vplc[1] += vinc[1]<<2;
+        vplc[2] += vinc[2]<<2;
+        vplc[3] += vinc[3]<<2;
+#endif
+        p += ourbpl<<2;
+    }
+#endif
+
+    while (cnt--)
+    {
+        p[0] = pal[0][buf[0][vplc[0]>>logy]];
+        p[1] = pal[1][buf[1][vplc[1]>>logy]];
+        p[2] = pal[2][buf[2][vplc[2]>>logy]];
+        p[3] = pal[3][buf[3][vplc[3]>>logy]];
+
+#if defined USE_VECTOR_EXT
         vplc += vinc;
+#else
+        vplc[0] += vinc[0];
+        vplc[1] += vinc[1];
+        vplc[2] += vinc[2];
+        vplc[3] += vinc[3];
 #endif
         p += ourbpl;
     }
-    while (--cnt);
 
-    for (i=0; i<4; i++)
-        vplce[i] = vplc[i];
+skip:
+    vplce[0] = vplc[0];
+    vplce[1] = vplc[1];
+    vplce[2] = vplc[2];
+    vplce[3] = vplc[3];
 }
 
 #ifdef USE_SATURATE_VPLC
@@ -251,10 +345,26 @@ int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
 
     cnt++;
 
+    if (!logy)
+    {
+        do
+        {
+            ch = buf[ourmulscale32(vplc,globaltilesizy)];
+            if (ch != 255) *pp = pal[ch];
+            pp += ourbpl;
+            vplc += vinc;
+            saturate_vplc(vplc, vinc);
+        }
+        while (--cnt);
+
+        return vplc;
+    }
+
     do
     {
-        ch = getpix(logy, buf, vplc);
-        if (ch != 255) *pp = pal[ch];
+        
+        if (buf[vplc>>logy] != 255)
+            *pp = pal[buf[vplc>>logy]];
         pp += ourbpl;
         vplc += vinc;
         saturate_vplc(vplc, vinc);
@@ -267,9 +377,6 @@ int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
 // cnt >= 1
 void mvlineasm4(int32_t cnt, char *p)
 {
-    char ch;
-    int32_t i;
-
     char *const pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
     char *const buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
 #ifdef USE_VECTOR_EXT
@@ -280,28 +387,73 @@ void mvlineasm4(int32_t cnt, char *p)
     uint32_t vplc[4] = {vplce[0], vplce[1], vplce[2], vplce[3]};
 #endif
     const int32_t logy = glogy, ourbpl = bpl;
+    char ch;
 
-    do
+    if (logy)
     {
-        for (i=0; i<4; i++)
+        do
         {
-            ch = getpix(logy, buf[i], vplc[i]);
-            if (ch != 255) p[i] = pal[i][ch];
-#if !defined USE_VECTOR_EXT
-            vplc[i] += vinc[i];
-            saturate_vplc(vplc[i], vinc[i]);
-#endif
-        }
-#ifdef USE_VECTOR_EXT
-        vplc += vinc;
-        saturate_vplc_vec(vplc, vinc);
-#endif
-        p += ourbpl;
-    }
-    while (--cnt);
+            ch = buf[0][vplc[0]>>logy];
+            if (ch != 255) p[0] = pal[0][ch];
+            ch = buf[1][vplc[1]>>logy];
+            if (ch != 255) p[1] = pal[1][ch];
+            ch = buf[2][vplc[2]>>logy];
+            if (ch != 255) p[2] = pal[2][ch];
+            ch = buf[3][vplc[3]>>logy];
+            if (ch != 255) p[3] = pal[3][ch];
 
-    for (i=0; i<4; i++)
-        vplce[i] = vplc[i];
+#if !defined USE_VECTOR_EXT
+            vplc[0] += vinc[0];
+            vplc[1] += vinc[1];
+            vplc[2] += vinc[2];
+            vplc[3] += vinc[3];
+            saturate_vplc(vplc[0], vinc[0]);
+            saturate_vplc(vplc[1], vinc[1]);
+            saturate_vplc(vplc[2], vinc[2]);
+            saturate_vplc(vplc[3], vinc[3]);
+#else
+            vplc += vinc;
+            saturate_vplc_vec(vplc, vinc);
+#endif
+            p += ourbpl;
+        }
+        while (--cnt);
+    }
+    else
+    {
+        do
+        {
+            ch = buf[0][ourmulscale32(vplc[0],globaltilesizy)];
+            if (ch != 255) p[0] = pal[0][ch];
+            ch = buf[1][ourmulscale32(vplc[1],globaltilesizy)];
+            if (ch != 255) p[1] = pal[1][ch];
+            ch = buf[2][ourmulscale32(vplc[2],globaltilesizy)];
+            if (ch != 255) p[2] = pal[2][ch];
+            ch = buf[3][ourmulscale32(vplc[3],globaltilesizy)];
+            if (ch != 255) p[3] = pal[3][ch];
+
+#if !defined USE_VECTOR_EXT
+            vplc[0] += vinc[0];
+            vplc[1] += vinc[1];
+            vplc[2] += vinc[2];
+            vplc[3] += vinc[3];
+            saturate_vplc(vplc[0], vinc[0]);
+            saturate_vplc(vplc[1], vinc[1]);
+            saturate_vplc(vplc[2], vinc[2]);
+            saturate_vplc(vplc[3], vinc[3]);
+#else
+            vplc += vinc;
+            saturate_vplc_vec(vplc, vinc);
+#endif
+            p += ourbpl;
+        }
+        while (--cnt);
+    }
+
+    vplce[0] = vplc[0];
+    vplce[1] = vplc[1];
+    vplce[2] = vplc[2];
+    vplce[3] = vplc[3];
 }
 
 #ifdef USE_ASM64
@@ -335,7 +487,8 @@ int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
         do
         {
             ch = getpix(logy, buf, vplc);
-            if (ch != 255) *pp = trans[(*pp)|(pal[ch]<<8)];
+            if (ch != 255)
+                *pp = trans[(*pp)|(pal[ch]<<8)];
             pp += ourbpl;
             vplc += vinc;
             saturate_vplc_trans(vplc, vinc);
@@ -374,7 +527,7 @@ void tvlineasm2(uint32_t vplc2, int32_t vinc1, intptr_t bufplc1, intptr_t bufplc
 {
     char ch;
 
-    int32_t cnt = (asm2-p-1)/bpl;  // >= 1
+    int32_t cnt = tabledivide32(asm2-p-1, bpl);  // >= 1
     const int32_t vinc2 = asm1;
 
     const char *const buf1 = (char *)bufplc1;
@@ -533,7 +686,7 @@ void mspritevline(int32_t bx, int32_t by, int32_t cnt, intptr_t bufplc, intptr_t
     for (; cnt>1; cnt--)
     {
         ch = gbuf[(bx>>16)*glogy+(by>>16)];
-        if (ch != 255)(*(char *)p) = gpal[ch];
+        if (ch != 255) (*(char *)p) = gpal[ch];
         bx += gbxinc;
         by += gbyinc;
         p += bpl;
@@ -557,7 +710,7 @@ void tspritevline(int32_t bx, int32_t by, int32_t cnt, intptr_t bufplc, intptr_t
         for (; cnt>1; cnt--)
         {
             ch = gbuf[(bx>>16)*glogy+(by>>16)];
-            if (ch != 255) *((char *)p) = gtrans[(*((char *)p))+(gpal[ch]<<8)];
+            if (ch != 255) *((char *)p) =  gtrans[(*((char *)p))+(gpal[ch]<<8)];
             bx += gbxinc;
             by += gbyinc;
             p += bpl;

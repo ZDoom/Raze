@@ -7,167 +7,19 @@
 // inline versions. I'll eventually convert these to macro-inline
 // equivalents.		--Jonathon
 
-//#include "pragmas.h"
 #include "compat.h"
+#include "pragmas.h"
+
+libdivide_s64pad_t divtable64[DIVTABLESIZE];
+libdivide_s32pad_t divtable32[DIVTABLESIZE];
+
+uint32_t divideu32_noinline(uint32_t n, uint32_t d) { return divideu32(n, d); }
+int32_t tabledivide32_noinline(int32_t n, int32_t d) { return tabledivide32(n, d); }
+int32_t tabledivide64_noinline(int64_t n, int32_t d) { return tabledivide64(n, d); }
 
 int32_t dmval;
 
-#if defined(__GNUC__) && defined(GEKKO)
-
-// naked function (no prolog/epilog)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wreturn-type"
-int32_t scale(int32_t a, int32_t d, int32_t c) ATTRIBUTE((naked));
-int32_t scale(int32_t a, int32_t d, int32_t c)
-{
-//	return ((int64_t)a * d) / c;
-
-	__asm__ __volatile__ (
-		" mullw   6, 3, 4\n"
-		" mulhw   4, 3, 4\n"
-		" mr      3, 6\n"
-
-		" srawi.  0, 5, 31\n"
-		" cmpwi cr1, 4, 0\n"
-		" crxor   7, 0, 4\n"
-
-		" xor     5, 0, 5\n"
-		" subf.   5, 0, 5\n"
-
-		" beq     DivByZero\n"
-		" bge   cr1, Div64Common\n"
-
-		" subfic  3, 3, 0\n"
-		" subfze  4, 4\n"
-
-		"Div64Common:\n"
-		" cmplw   4, 5\n"
-
-		" cntlzw  6, 5\n"
-		" xor     4, 4, 3\n"
-		" slw     5, 5, 6\n"
-		" rotlw   4, 4, 6\n"
-		" slw     3, 3, 6\n"
-		" li      7, 2\n"
-		" xor     4, 4, 3\n"
-
-		" bge DivOverflow\n"
-		" mtctr   7\n"
-
-		"Div64Compute:\n"
-		" srwi    6, 5, 16\n"
-		" divwu   7, 4, 6\n"
-		" mullw   6, 7, 6\n"
-		" subf    4, 6, 4\n"
-		" slwi    4, 4, 16\n"
-		" inslwi  4, 3, 16, 16\n"
-		" slwi    3, 3, 16\n"
-		" clrlwi  6, 5, 16\n"
-		" mullw   6, 7, 6\n"
-		" subfc   4, 6, 4\n"
-		" subfe.  6, 6, 6\n"
-		" add     3, 3, 7\n"
-		" bge Div64Done\n"
-		"Div64Correct:\n"
-		" addc    4, 4, 5\n"
-		" addze.  6, 6\n"
-		" subi    3, 3, 1\n"
-		" blt     Div64Correct\n"
-
-		"Div64Done:\n"
-		" bdnz    Div64Compute\n"
-
-		" cmpwi   3, 0\n"
-		" bso   cr1, Div64QuotientNeg\n"
-
-		" blt     DivOverflow\n"
-		" blr\n"
-
-		"Div64QuotientNeg:\n"
-		" neg.    3, 3\n"
-		" blelr\n"
-
-		"DivOverflow:\n"
-		" cror    4, 7, 7\n"
-
-		"DivByZero:\n"
-		" lis     3, 0x8000\n"
-		" bltlr cr1\n"
-		" subi    3, 3, 1\n"
-		" blr\n"
-	);
-}
-#pragma GCC diagnostic pop
-
-void clearbufbyte(void *d, int32_t c, int32_t a)
-{
-	if (a==0) {
-		uint8_t *dd = (uint8_t*)d;
-		int32_t align = (32 - (int32_t)d) & 31;
-
-		if (align && c >= align) {
-			uint32_t izero = 0;
-			double fzero = 0;
-			c -= align;
-
-			if (align&1) {
-				*dd = izero;
-				dd += 1;
-			}
-			if (align&2) {
-				*(uint16_t*)dd = izero;
-				dd += 2;
-			}
-			if (align&4) {
-				*(uint32_t*)dd = izero;
-				dd += 4;
-			}
-			if (align&8) {
-				*(double*)dd = fzero;
-				dd += 8;
-			}
-			if (align&16) {
-				*(double*)dd = fzero;
-				*(double*)(dd+8) = fzero;
-				dd += 16;
-			}
-		}
-		align = c >> 5;
-		while (align) {
-			__asm__ (
-				" dcbz  0, %0\n"
-				" addi %0, %0, 32\n"
-				: "+r"(dd)
-				:
-				: "memory"
-			);
-			align--;
-		}
-		if ((c &= 31)) {
-			while (c--) {
-				*dd++ = 0;
-			}
-		}
-		return;
-	}
-	__asm__ __volatile__ (
-		" add    %1, %1, %2\n"
-		" neg.   %2, %2\n"
-		" beq 2f\n"
-		"1:\n"
-		" stbx   %0, %1, %2\n"
-		" addic. %2, %2, 1\n"
-		" rotrwi %0, %0, 8\n"
-		" bne 1b\n"
-		"2:\n"
-		: "+r"(a), "+b"(d), "+r"(c)
-		:
-		: "cc", "xer", "memory"
-	);
-}
-
-#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)	// NOASM
+#if defined(__GNUC__) && defined(__i386__) && !defined(NOASM)	// NOASM
 
 //
 // GCC Inline Assembler version
@@ -297,7 +149,158 @@ void copybufreverse(const void *S, void *D, int32_t c)
 // Microsoft C Inline Assembler version
 //
 
-#else				// _MSC_VER
+#elif defined(__GNUC__) && defined(GEKKO)
+
+// naked function (no prolog/epilog)
+// FIXME: this function produces unused parameter warnings and a missing return warning
+int32_t scale(int32_t a, int32_t d, int32_t c)
+{
+    //	return ((int64_t)a * d) / c;
+
+    __asm__ __volatile__ (
+        " mullw   6, 3, 4\n"
+        " mulhw   4, 3, 4\n"
+        " mr      3, 6\n"
+
+        " srawi.  0, 5, 31\n"
+        " cmpwi cr1, 4, 0\n"
+        " crxor   7, 0, 4\n"
+
+        " xor     5, 0, 5\n"
+        " subf.   5, 0, 5\n"
+
+        " beq     DivByZero\n"
+        " bge   cr1, Div64Common\n"
+
+        " subfic  3, 3, 0\n"
+        " subfze  4, 4\n"
+
+        "Div64Common:\n"
+        " cmplw   4, 5\n"
+
+        " cntlzw  6, 5\n"
+        " xor     4, 4, 3\n"
+        " slw     5, 5, 6\n"
+        " rotlw   4, 4, 6\n"
+        " slw     3, 3, 6\n"
+        " li      7, 2\n"
+        " xor     4, 4, 3\n"
+
+        " bge DivOverflow\n"
+        " mtctr   7\n"
+
+        "Div64Compute:\n"
+        " srwi    6, 5, 16\n"
+        " divwu   7, 4, 6\n"
+        " mullw   6, 7, 6\n"
+        " subf    4, 6, 4\n"
+        " slwi    4, 4, 16\n"
+        " inslwi  4, 3, 16, 16\n"
+        " slwi    3, 3, 16\n"
+        " clrlwi  6, 5, 16\n"
+        " mullw   6, 7, 6\n"
+        " subfc   4, 6, 4\n"
+        " subfe.  6, 6, 6\n"
+        " add     3, 3, 7\n"
+        " bge Div64Done\n"
+        "Div64Correct:\n"
+        " addc    4, 4, 5\n"
+        " addze.  6, 6\n"
+        " subi    3, 3, 1\n"
+        " blt     Div64Correct\n"
+
+        "Div64Done:\n"
+        " bdnz    Div64Compute\n"
+
+        " cmpwi   3, 0\n"
+        " bso   cr1, Div64QuotientNeg\n"
+
+        " blt     DivOverflow\n"
+        " blr\n"
+
+        "Div64QuotientNeg:\n"
+        " neg.    3, 3\n"
+        " blelr\n"
+
+        "DivOverflow:\n"
+        " cror    4, 7, 7\n"
+
+        "DivByZero:\n"
+        " lis     3, 0x8000\n"
+        " bltlr cr1\n"
+        " subi    3, 3, 1\n"
+        " blr\n"
+        );
+}
+
+void clearbufbyte(void *d, int32_t c, int32_t a)
+{
+    if (a==0) {
+        uint8_t *dd = (uint8_t*)d;
+        int32_t align = (32 - (int32_t)d) & 31;
+
+        if (align && c >= align) {
+            uint32_t izero = 0;
+            double fzero = 0;
+            c -= align;
+
+            if (align&1) {
+                *dd = izero;
+                dd += 1;
+            }
+            if (align&2) {
+                *(uint16_t*)dd = izero;
+                dd += 2;
+            }
+            if (align&4) {
+                *(uint32_t*)dd = izero;
+                dd += 4;
+            }
+            if (align&8) {
+                *(double*)dd = fzero;
+                dd += 8;
+            }
+            if (align&16) {
+                *(double*)dd = fzero;
+                *(double*)(dd+8) = fzero;
+                dd += 16;
+            }
+        }
+        align = c >> 5;
+        while (align) {
+            __asm__ (
+                " dcbz  0, %0\n"
+                " addi %0, %0, 32\n"
+                : "+r"(dd)
+                :
+                : "memory"
+                );
+            align--;
+        }
+        if ((c &= 31)) {
+            while (c--) {
+                *dd++ = 0;
+            }
+        }
+        return;
+    }
+    __asm__ __volatile__(
+        " add    %1, %1, %2\n"
+        " neg.   %2, %2\n"
+        " beq 2f\n"
+        "1:\n"
+        " stbx   %0, %1, %2\n"
+        " addic. %2, %2, 1\n"
+        " rotrwi %0, %0, 8\n"
+        " bne 1b\n"
+        "2:\n"
+        : "+r"(a), "+b"(d), "+r"(c)
+        :
+        : "cc", "xer", "memory"
+        );
+}
+
+#else
 
 //
 // Generic C version

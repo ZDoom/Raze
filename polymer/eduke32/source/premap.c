@@ -537,7 +537,7 @@ void G_CacheMapData(void)
         if (bpp > 8 && totalclock - tc > TICRATE/4)
         {
             /*Bsprintf(tempbuf,"%d resources remaining\n",g_precacheCount-pc+1);*/
-            tc = min(100,100*pc/g_precacheCount);
+            tc = min(100, tabledivide32_noinline(100 * pc, g_precacheCount));
             Bsprintf(tempbuf,"Loaded %d%% (%d/%d textures)\n",tc,pc,g_precacheCount);
             G_DoLoadScreen(tempbuf, tc);
             tc = totalclock;

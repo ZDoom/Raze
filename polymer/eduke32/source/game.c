@@ -809,7 +809,7 @@ vec2_t G_ScreenText(const int32_t font,
             {
                 size.x = xbetween;
 
-                xbetween = (length == 1) ? 0 : ((xbetween - linewidth) / (length - 1));
+                xbetween = (length == 1) ? 0 : tabledivide32_noinline((xbetween - linewidth), (length - 1));
 
                 linewidth = size.x;
             }
@@ -823,7 +823,7 @@ vec2_t G_ScreenText(const int32_t font,
         if (f & TEXT_YJUSTIFY)
         {
             const int32_t tempswap = ybetween;
-            ybetween = (lines == 1) ? 0 : ((ybetween - size.y) / (lines - 1));
+            ybetween = (lines == 1) ? 0 : tabledivide32_noinline(ybetween - size.y, lines - 1);
             size.y = tempswap;
         }
 
@@ -1001,7 +1001,7 @@ vec2_t G_ScreenText(const int32_t font,
 
                     if (f & TEXT_XJUSTIFY)
                     {
-                        xbetween = (length == 1) ? 0 : ((xbetween - linewidth) / (length - 1));
+                        xbetween = (length == 1) ? 0 : tabledivide32_noinline(xbetween - linewidth, length - 1);
 
                         linewidth = size.x;
                     }
@@ -2489,7 +2489,7 @@ static void G_PrintFPS(void)
 
         if (thisSec - LastSec)
         {
-            g_currentFrameRate = LastCount = FrameCount / (thisSec - LastSec);
+            g_currentFrameRate = LastCount = tabledivide32_noinline(FrameCount, thisSec - LastSec);
             LastSec = thisSec;
             FrameCount = 0;
 
@@ -3483,7 +3483,9 @@ static void palaccum_add(palaccum_t *pa, const palette_t *pal, int32_t f)
 
 static void G_FadePalaccum(const palaccum_t *pa)
 {
-    setpalettefade(pa->r/pa->sumf, pa->g/pa->sumf, pa->b/pa->sumf, pa->maxf);
+    setpalettefade(tabledivide32_noinline(pa->r, pa->sumf),
+                   tabledivide32_noinline(pa->g, pa->sumf),
+                   tabledivide32_noinline(pa->b, pa->sumf), pa->maxf);
 }
 
 
@@ -4502,7 +4504,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         else
         {
             tmpvr = vr;
-            tmpyx = (65536*ydim*8)/(xdim*5);
+            tmpyx = tabledivide32_noinline(65536*ydim*8, xdim*5);
 
             setaspect(mulscale16(tmpvr,viewingrange), yxaspect);
         }
@@ -4581,7 +4583,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 setaspect(mulscale16(oviewingrange,i>>1), yxaspect);
 
                 tmpvr = i>>1;
-                tmpyx = (65536*ydim*8)/(xdim*5);
+                tmpyx = tabledivide32_noinline(65536*ydim*8, xdim*5);
             }
         }
         else if (getrendermode() >= REND_POLYMOST && (ud.screen_tilting
@@ -7646,7 +7648,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 l = s->z-actor[g_player[p].ps->i].floorz+(3<<8);
                 // SET_SPRITE_NOT_TSPRITE
                 if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
-                    s->yoffset = (int8_t)(l/(s->yrepeat<<2));
+                    s->yoffset = (int8_t)tabledivide32_noinline(l, s->yrepeat<<2);
                 else s->yoffset=0;
             }
 
@@ -12908,8 +12910,8 @@ void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n)
     x1 -= ksgn(yv);
     y1 += ksgn(xv);
 
-    xv /= j;
-    yv /= j;
+    xv = tabledivide32_noinline(xv, j);
+    yv = tabledivide32_noinline(yv, j);
 
     for (j=n; j>0; j--)
     {
@@ -12949,8 +12951,8 @@ void A_SpawnCeilingGlass(int32_t i,int32_t sectnum,int32_t n)
         x1 = wall[s].x;
         y1 = wall[s].y;
 
-        xv = (wall[s+1].x-x1)/(n+1);
-        yv = (wall[s+1].y-y1)/(n+1);
+        xv = tabledivide32_noinline(wall[s+1].x-x1, n+1);
+        yv = tabledivide32_noinline(wall[s+1].y-y1, n+1);
 
         for (j=n; j>0; j--)
         {
@@ -12984,8 +12986,8 @@ void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n)
     x1 = wall[wallnum].x;
     y1 = wall[wallnum].y;
 
-    xv = (wall[wall[wallnum].point2].x-wall[wallnum].x)/j;
-    yv = (wall[wall[wallnum].point2].y-wall[wallnum].y)/j;
+    xv = tabledivide32_noinline(wall[wall[wallnum].point2].x-wall[wallnum].x, j);
+    yv = tabledivide32_noinline(wall[wall[wallnum].point2].y-wall[wallnum].y, j);
 
     for (j=n; j>0; j--)
     {

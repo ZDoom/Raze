@@ -2,6 +2,10 @@
 extern "C" {
 #endif
 
+#ifndef __compat_h__
+#include "compat.h"
+#endif
+
 typedef struct
 {
     FILE *fil;    //0:no file open, !=0:open file (either stand-alone or zip)
@@ -52,6 +56,7 @@ static inline int32_t filnamcmp(const char *j, const char *i)
         i++, j++;
     return *i != '\0';
 }
+extern int32_t wildmatch(const char *match, const char *wild);
 
 #ifdef EXTERNC
 }

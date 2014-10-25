@@ -558,8 +558,9 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
         }
         else
         {
-            fogresult = (r_usenewshading == 3 && shade > 0) ? 0 : -(FOGDISTCONST * shade)/combvis;
-            fogresult2 = (FOGDISTCONST * (numshades-1-shade))/combvis;
+            combvis = 1.f/combvis;
+            fogresult = (r_usenewshading == 3 && shade > 0) ? 0 : -(FOGDISTCONST * shade) * combvis;
+            fogresult2 = (FOGDISTCONST * (numshades-1-shade)) * combvis;
         }
     }
 }
@@ -663,7 +664,7 @@ static void resizeglcheck(void)
     if ((glox1 != windowx1) || (gloy1 != windowy1) || (glox2 != windowx2) || (gloy2 != windowy2))
     {
         const int32_t ourxdimen = (windowx2-windowx1+1);
-        const float ratio = get_projhack_ratio();
+        float ratio = get_projhack_ratio();
         const int32_t fovcorrect = (ratio==0) ? 0 : (int32_t)(ourxdimen*ratio - ourxdimen);
         float m[4][4];
 
@@ -675,9 +676,10 @@ static void resizeglcheck(void)
 
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
-        m[0][0] = fydimen / ratio; m[0][2] = 1.f;
+        ratio = 1.f/ratio;
+        m[0][0] = fydimen * ratio; m[0][2] = 1.f;
         m[1][1] = fxdimen; m[1][2] = 1.f;
-        m[2][2] = 1.f; m[2][3] = fydimen / ratio;
+        m[2][2] = 1.f; m[2][3] = fydimen * ratio;
         m[3][2] =-1.f;
         bglLoadMatrixf(&m[0][0]);
 
@@ -2380,9 +2382,7 @@ static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
     {
         // Carry out panning "correction" to make it look like classic in some
         // cases, but failing in the general case.
-        int32_t yoffs;
-
-        ftol((i-tilesiz[globalpicnum].y)*(255.f/i), &yoffs);
+        int32_t yoffs = Blrintf((i-tilesiz[globalpicnum].y)*(255.f/i));
 
         if (ypan > 256-yoffs)
             ypan -= yoffs;
@@ -2543,11 +2543,11 @@ static void polymost_drawalls(int32_t bunch)
                 else domost(x0,fy0,x1,fy1);
 
                 if (r_parallaxskypanning)
-                    vv[0] += dd[0]*((float)sec->floorypanning)*((float)i)/256.0;
+                    vv[0] += dd[0]*((float)sec->floorypanning)*((float)i)*(1.f/256.f);
 
                 gdx = 0; gdy = 0; gdo = dd[0];
                 gux = gdo *
-                    (t * (float) ((uint64_t) (xdimscale * yxaspect) * viewingrange)) / (16384.0*65536.0*65536.0*5.0*1024.0);
+                    (t * (float) ((uint64_t) (xdimscale * yxaspect) * viewingrange)) * (1.f/(16384.0*65536.0*65536.0*5.0*1024.0));
                 guy = 0; //guo calculated later
                 gvx = 0; gvy = vv[1]; gvo = vv[0];
 
@@ -2559,7 +2559,7 @@ static void polymost_drawalls(int32_t bunch)
                 do
                 {
                     globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                    guo = gdo*(t*((float)(globalang-(y<<(11-dapskybits))))/2048.0 + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - gux*ghalfx;
+                    guo = gdo*(t*((float)(globalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - gux*ghalfx;
                     y++;
                     ox = fx; fx = ((float)((y<<(11-dapskybits))-globalang))*oz+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
@@ -2798,7 +2798,7 @@ static void polymost_drawalls(int32_t bunch)
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
 
                 //Hack to draw black rectangle below sky when looking down...
-                gdx = 0; gdy = gxyaspect / -262144.f; gdo = -ghoriz*gdy;
+                gdx = 0; gdy = gxyaspect * (1.f/-262144.f); gdo = -ghoriz*gdy;
                 gux = 0; guy = 0; guo = 0;
                 gvx = 0; gvy = 0; gvo = 0;
                 oy = -vv[0]/vv[1];
@@ -2819,7 +2819,7 @@ static void polymost_drawalls(int32_t bunch)
                 else domost(x1,cy1,x0,cy0);
 
                 if (r_parallaxskypanning)
-                    vv[0] += dd[0]*((float)sec->ceilingypanning)*((float)i)/256.f;
+                    vv[0] += dd[0]*(float)sec->ceilingypanning*(float)i/256.f;
                 
                 gdx = 0; gdy = 0; gdo = dd[0];
                 gux = gdo * 
@@ -2835,7 +2835,7 @@ static void polymost_drawalls(int32_t bunch)
                 do
                 {
                     globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                    guo = gdo*(t*((float)(globalang-(y<<(11-dapskybits))))/2048.0 + (float)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - gux*ghalfx;
+                    guo = gdo*(t*((float)(globalang-(y<<(11-dapskybits)))) * 1.f/2048.f + (float)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - gux*ghalfx;
                     y++;
                     ox = fx; fx = ((float)((y<<(11-dapskybits))-globalang))*oz+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }

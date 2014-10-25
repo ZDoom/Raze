@@ -797,33 +797,32 @@ char *Bstrtolower(char *str)
 //Brute-force case-insensitive, slash-insensitive, * and ? wildcard matcher
 //Given: string i and string j. string j can have wildcards
 //Returns: 1:matches, 0:doesn't match
-int32_t Bwildmatch(const char *i, const char *j)
-{
-    const char *k;
-    char c0, c1;
+#ifndef WITHKPLIB
+extern char toupperlookup[256];
 
-    if (!*j) return(1);
+static int32_t wildmatch(const char *match, const char *wild)
+{
     do
     {
-        if (*j == '*')
+        if (*match && (toupperlookup[*wild] == toupperlookup[*match] || *wild == '?'))
         {
-            for (k=i,j++; *k; k++) if (Bwildmatch(k,j)) return(1);
+            wild++, match++;
             continue;
         }
-        if (!*i) return(0);
-        if (*j == '?') { i++; j++; continue; }
-        c0 = *i; if ((c0 >= 'a') && (c0 <= 'z')) c0 -= 32;
-        c1 = *j; if ((c1 >= 'a') && (c1 <= 'z')) c1 -= 32;
-#ifdef _WIN32
-        if (c0 == '/') c0 = '\\';
-        if (c1 == '/') c1 = '\\';
-#endif
-        if (c0 != c1) return(0);
-        i++; j++;
-    }
-    while (*j);
-    return(!*i);
+        else if ((*match|*wild) == '\0')
+            return 1;
+        else if (*wild == '*')
+        {
+            while (*wild == '*') wild++;
+            if (*wild == '\0') return 1;
+            while (*match && toupperlookup[*match] != toupperlookup[*wild]) match++;
+            if (toupperlookup[*match] == toupperlookup[*wild])
+                continue;
+        }
+        return 0;
+    } while (1);
 }
+#endif
 
 #if !defined(_WIN32)
 char *Bstrlwr(char *s)
@@ -916,4 +915,7 @@ int access(const char *pathname, int mode)
     return 0;
 }
 #endif
+
+#define LIBDIVIDE_BODY
+#include "libdivide.h"
 

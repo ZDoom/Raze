@@ -6,8 +6,6 @@
 
 #define sqr(a) ((a)*(a))
 
-int32_t scale(int32_t a, int32_t d, int32_t c);
-
 #define _scaler(x) \
 static inline int32_t mulscale##x(int32_t a, int32_t d) \
 { \
@@ -116,26 +114,6 @@ static inline char readpixel(void *d)
 static inline void drawpixel(void *d, char a)
 {
     *(char*) d = a;
-}
-
-static inline void drawpixels(void *d, int16_t a)
-{
-    __asm__(
-        " sthbrx %0, 0, %1\n"
-        :
-    : "r"(&a), "r"(d)
-        : "memory"
-        );
-}
-
-static inline void drawpixelses(void *d, int32_t a)
-{
-    __asm__(
-        " stwbrx %0, 0, %1\n"
-        :
-    : "r"(&a), "r"(d)
-        : "memory"
-        );
 }
 
 void clearbufbyte(void *d, int32_t c, int32_t a);
@@ -264,32 +242,6 @@ static inline void swap64bit(void *a, void *b)
     double t = *(double*) a;
     *(double*) a = *(double*) b;
     *(double*) b = t;
-}
-
-static inline int32_t divmod(int32_t a, int32_t b)
-{
-    int32_t div;
-    __asm__(
-        " divwu %0, %2, %3\n"
-        " mullw %1, %0, %3\n"
-        " subf  %1, %1, %2\n"
-        : "=&r"(div), "=&r"(dmval)
-        : "r"(a), "r"(b)
-        );
-    return div;
-}
-
-static inline int32_t moddiv(int32_t a, int32_t b)
-{
-    int32_t mod;
-    __asm__(
-        " divwu %0, %2, %3\n"
-        " mullw %1, %0, %3\n"
-        " subf  %1, %1, %2\n"
-        : "=&r"(dmval), "=&r"(mod)
-        : "r"(a), "r"(b)
-        );
-    return mod;
 }
 
 static inline int32_t umin(int32_t a, int32_t b) { if ((uint32_t) a < (uint32_t) b) return a; return b; }

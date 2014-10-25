@@ -46,16 +46,16 @@ static inline int have_basepal_tint(void)
 
 static inline void hictinting_apply(float *color, int32_t palnum)
 {
-    color[0] *= (float)hictinting[palnum].r / 255.f;
-    color[1] *= (float)hictinting[palnum].g / 255.f;
-    color[2] *= (float)hictinting[palnum].b / 255.f;
+    color[0] *= (float)hictinting[palnum].r * (1.f/255.f);
+    color[1] *= (float)hictinting[palnum].g * (1.f/255.f);
+    color[2] *= (float)hictinting[palnum].b * (1.f/255.f);
 }
 
 static inline void hictinting_apply_ub(uint8_t *color, int32_t palnum)
 {
-    color[0] = (uint8_t)(color[0] * (float)hictinting[palnum].r / 255.f);
-    color[1] = (uint8_t)(color[1] * (float)hictinting[palnum].g / 255.f);
-    color[2] = (uint8_t)(color[2] * (float)hictinting[palnum].b / 255.f);
+    color[0] = (uint8_t)(color[0] * (float)hictinting[palnum].r * (1.f/255.f));
+    color[1] = (uint8_t)(color[1] * (float)hictinting[palnum].g * (1.f/255.f));
+    color[2] = (uint8_t)(color[2] * (float)hictinting[palnum].b * (1.f/255.f));
 }
 
 // texcacheheader cachead.flags bits

@@ -30,39 +30,93 @@ extern int32_t dmval;
 #define wo(x)	((int16_t)(x))		// word cast
 #define by(x)	((uint8_t)(x))		// byte cast
 
-// XXX: Only for testing on x86. Don't use from outside; it doesn't account for
-// whether we're compiling for e.g. x86_64 which will never use asm anyway.
-//#define USE_ASM_DIVSCALE
+#define LIBDIVIDE_ALWAYS
+#define DIVTABLESIZE 16384
 
-#if !defined USE_ASM_DIVSCALE
+extern libdivide_s64pad_t divtable64[DIVTABLESIZE];
+extern libdivide_s32pad_t divtable32[DIVTABLESIZE];
+
+#if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
+static inline uint32_t divideu32(uint32_t n, uint32_t d)
+{
+    static libdivide_u32_t udiv;
+    static uint32_t lastd;
+
+    if (d == lastd)
+        goto skip;
+
+    lastd = d;
+    udiv = libdivide_u32_gen(d);
+skip:
+    return libdivide_u32_do(n, &udiv);
+}
+
+static inline int32_t tabledivide64(int64_t n, int32_t d)
+{
+    static libdivide_s64_t sdiv;
+    static int32_t lastd;
+    libdivide_s64_t *dptr = ((unsigned) d < DIVTABLESIZE) ? (libdivide_s64_t *)&divtable64[d] : &sdiv;
+
+    if (d == lastd || dptr != &sdiv)
+        goto skip;
+
+    lastd = d;
+    sdiv = libdivide_s64_gen(d);
+skip:
+    return libdivide_s64_do(n, dptr);
+}
+
+static inline int32_t tabledivide32(int32_t n, int32_t d)
+{
+    static libdivide_s32_t sdiv;
+    static int32_t lastd;
+    libdivide_s32_t *dptr = ((unsigned) d < DIVTABLESIZE) ? (libdivide_s32_t *)&divtable32[d] : &sdiv;
+
+    if (d == lastd || dptr != &sdiv)
+        goto skip;
+
+    lastd = d;
+    sdiv = libdivide_s32_gen(d);
+skip:
+    return libdivide_s32_do(n, dptr);
+}
+#else
+static inline uint32_t divideu32(uint32_t n, uint32_t d) { return n / d; }
+
+static inline int32_t tabledivide64(int64_t n, int32_t d) { return ((unsigned) d < DIVTABLESIZE) ?
+    libdivide_s64_do(n, (libdivide_s64_t *) &divtable64[d]) : n / d; }
+
+static inline int32_t tabledivide32(int32_t n, int32_t d) { return ((unsigned) d < DIVTABLESIZE) ?
+    libdivide_s32_do(n, (libdivide_s32_t *) &divtable32[d]) : n / d; }
+#endif
+
+extern uint32_t divideu32_noinline(uint32_t n, uint32_t d);
+extern int32_t tabledivide32_noinline(int32_t n, int32_t d);
+extern int32_t tabledivide64_noinline(int64_t n, int32_t d);
+
 #ifdef GEKKO
 #include <math.h>
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx)
 {
-    return ldexp(eax, ecx) / ebx;
+    return tabledivide64(ldexp(eax, ecx), ebx);
 }
-
-# define _scaler(a) \
-    static inline int32_t divscale##a(int32_t eax, int32_t ebx) \
-{ \
-    return divscale(eax, ebx, a); \
-} \
-
 #else
-static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return dw((qw(eax) << by(ecx)) / ebx); }
-
-# define _scaler(a) \
-    static inline int32_t divscale##a(int32_t eax, int32_t ebx) \
-{ \
-    return dw((qw(eax) << by(a)) / ebx); \
-} \
-
+static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx)
+{
+    const int64_t numer = qw(eax) << by(ecx);
+    return dw(tabledivide64(numer, ebx));
+}
 #endif
 
+# define _scaler(a) static inline int32_t divscale##a(int32_t eax, int32_t ebx) { return divscale(eax, ebx, a); }
 PRAGMA_FUNCS _scaler(32)
-
 #undef _scaler
-#endif  // !defined USE_ASM_DIVSCALE
+
+static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
+{
+    const int64_t numer = qw(eax) * edx;
+    return dw(tabledivide64(numer, ecx));
+}
 
 #if defined(__GNUC__) && defined(GEKKO)
 
@@ -115,11 +169,6 @@ static inline void swap64bit(void* a, void* b) { int64_t t = *((int64_t*)b); *((
 
 static inline char readpixel(void* s)    { return (*((char*)(s))); }
 static inline void drawpixel(void* s, char a)    { *((char*)(s)) = a; }
-static inline void drawpixels(void* s, int16_t a)  { *((int16_t*)(s)) = a; }
-static inline void drawpixelses(void* s, int32_t a) { *((int32_t*)(s)) = a; }
-
-static inline int32_t divmod(int32_t a, int32_t b) { uint32_t _a=(uint32_t)a, _b=(uint32_t)b; dmval = _a%_b; return _a/_b; }
-static inline int32_t moddiv(int32_t a, int32_t b) { uint32_t _a=(uint32_t)a, _b=(uint32_t)b; dmval = _a/_b; return _a%_b; }
 
 static inline int32_t klabs(int32_t a) { const uint32_t m = a >> (sizeof(int) * CHAR_BIT - 1); return (a ^ m) - m; }
 static inline int32_t ksgn(int32_t a)  { return (a>0)-(a<0); }
@@ -130,7 +179,6 @@ static inline int32_t kmin(int32_t a, int32_t b) { if ((int32_t)a < (int32_t)b) 
 static inline int32_t kmax(int32_t a, int32_t b) { if ((int32_t)a < (int32_t)b) return b; return a; }
 
 static inline int32_t sqr(int32_t eax) { return (eax) * (eax); }
-static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) / ecx); }
 static inline int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
 static inline int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx) { return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(ecx)); }
 
@@ -155,9 +203,15 @@ void copybufreverse(const void *S, void *D, int32_t c);
 static inline void swapbufreverse(void *s, void *d, int32_t c)
 {
     uint8_t *src = (uint8_t*)s, *dst = (uint8_t*)d;
-    while (c--) {
-        swapchar(dst++, src--);
-    }
+    do
+    {
+        swapchar(dst, src);
+        swapchar(dst+1, src-1);
+        swapchar(dst+2, src-2);
+        swapchar(dst+3, src-3);
+        dst += 4, src -= 4;
+    } while (--c > 4);
+    while (c--) swapchar(dst++, src--);
 }
 
 #ifdef EXTERNC
