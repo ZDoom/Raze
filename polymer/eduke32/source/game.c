@@ -3716,16 +3716,7 @@ void G_DisplayRest(int32_t smoothratio)
         {
             I_EscapeTriggerClear();
             S_PlaySound(EXITMENUSOUND);
-            g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-            {
-                ready2send = 1;
-                totalclock = ototalclock;
-                CAMERACLOCK = totalclock;
-                CAMERADIST = 65536;
-            }
-            walock[TILE_SAVESHOT] = 199;
-            G_UpdateScreenArea();
+            M_ChangeMenu(MENU_CLOSE);
         }
         else if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU &&
                  g_player[myconnectindex].ps->newowner == -1 &&
@@ -3741,7 +3732,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2) ready2send = 0;
 
-            if (g_player[myconnectindex].ps->gm&MODE_GAME) M_ChangeMenu(50);
+            if (g_player[myconnectindex].ps->gm&MODE_GAME) M_ChangeMenu(MENU_MAIN_INGAME);
             else M_ChangeMenu(MENU_MAIN);
             screenpeek = myconnectindex;
         }

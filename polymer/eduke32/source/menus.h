@@ -96,6 +96,14 @@ enum MenuIndex_t {
 typedef int32_t MenuID_t;
 
 
+typedef enum MenuAnimationType_t
+{ // Note: This enum is for logical categories, not visual types.
+    MA_None,
+    MA_Return,
+    MA_Advance,
+} MenuAnimationType_t;
+
+
 
 // a subset of screentext parameters, restricted because menus require accessibility
 typedef struct MenuTextType_t
@@ -140,6 +148,7 @@ typedef struct MenuLink_t
 {
     // traits
     MenuID_t linkID;
+    MenuAnimationType_t animation;
 } MenuLink_t;
 typedef struct MenuOptionSet_t
 {
@@ -300,19 +309,23 @@ typedef struct MenuPanel_t
     const char *title;
 
     MenuID_t previousID;
+    MenuAnimationType_t previousAnimation;
     MenuID_t nextID;
+    MenuAnimationType_t nextAnimation;
 } MenuPanel_t;
 typedef struct MenuVerify_t
 {
     vec2_t cursorpos;
 
     MenuID_t linkID;
+    MenuAnimationType_t animation;
 } MenuVerify_t;
 typedef struct MenuMessage_t
 {
     vec2_t cursorpos;
 
     MenuID_t linkID;
+    MenuAnimationType_t animation;
 } MenuMessage_t;
 typedef struct MenuPassword_t
 {
@@ -343,9 +356,11 @@ typedef struct Menu_t
 {
     MenuID_t menuID;
     MenuID_t parentID;
+    MenuAnimationType_t parentAnimation;
     MenuType_t type;
     void *object;
 } Menu_t;
+
 
 extern MenuID_t g_currentMenu;
 extern Menu_t *m_currentMenu;
@@ -355,6 +370,7 @@ extern int32_t g_quitDeadline;
 extern int32_t voting;
 int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits);
 void M_ChangeMenu(int32_t cm);
+void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype);
 int32_t M_IsTextInput(Menu_t *cm);
 void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 void M_Init(void);
