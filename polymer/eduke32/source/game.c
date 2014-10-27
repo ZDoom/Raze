@@ -1270,24 +1270,6 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
 
     return x;
 }
-void shadowminitext(int32_t x,int32_t y,const char *t,int32_t p,int32_t sb)
-{
-    int32_t f = 0;
-
-    if (!minitext_lowercase)
-        f |= TEXT_UPPERCASE;
-
-    G_ScreenTextShadow(1, 1, MINIFONT, x, y, 65536, 0, 0, t, 0, p, sb, 0, 4, 8, 1, 0, f, 0, 0, xdim-1, ydim-1);
-}
-void creditsminitext(int32_t x,int32_t y,const char *t,int32_t p,int32_t sb)
-{
-    int32_t f = TEXT_XCENTER;
-
-    if (!minitext_lowercase)
-        f |= TEXT_UPPERCASE;
-
-    G_ScreenTextShadow(1, 1, MINIFONT, x, y, 65536, 0, 0, t, 0, p, sb, 0, 4, 8, 1, 0, f, 0, 0, xdim-1, ydim-1);
-}
 
 void G_AddUserQuote(const char *daquote)
 {
