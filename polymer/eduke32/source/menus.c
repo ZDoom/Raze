@@ -40,26 +40,61 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <sys/stat.h>
 
+// common positions
+#define MENU_MARGIN_REGULAR 40
+#define MENU_MARGIN_WIDE    32
+#define MENU_MARGIN_CENTER  160
+#define MENU_HEIGHT_CENTER  100
+
 int32_t g_skillSoundVoice = -1;
 
 extern int32_t voting;
 
 #define USERMAPENTRYLENGTH 25
 
-#define mgametext(x,y,t,s,dabits) G_PrintGameText(2,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
-#define mgametextpal(x,y,t,s,p) G_PrintGameText(2,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)
+#define mgametext(x,y,t) G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, (5<<16), (8<<16), (-1<<16), 0, TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1)
+#define mgametextcenter(x,y,t) G_ScreenText(STARTALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, (5<<16), (8<<16), (-1<<16), 0, TEXT_GAMETEXTNUMHACK|TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
+#define mminitext(x,y,t,p) minitext_(x, y, t, 0, p, 2|8|16|ROTATESPRITE_FULL16)
+#define mmenutext(x,y,t) G_ScreenText(BIGALPHANUM, x, (y) - (12<<16), 65536L, 0, 0, (const char *)OSD_StripColors(menutextbuf,t), 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1)
+#define mmenutextcenter(x,y,t) G_ScreenText(BIGALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), (y) - (12<<16), 65536L, 0, 0, (const char *)OSD_StripColors(menutextbuf,t), 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE|TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
 
+static void shadowminitext(int32_t x, int32_t y, const char *t, int32_t p)
+{
+    int32_t f = 0;
 
+    if (!minitext_lowercase)
+        f |= TEXT_UPPERCASE;
 
-int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits)
+    G_ScreenTextShadow(1, 1, MINIFONT, x, y, 65536, 0, 0, t, 0, p, 2|8|16|ROTATESPRITE_FULL16, 0, 4<<16, 8<<16, 1<<16, 0, f, 0, 0, xdim-1, ydim-1);
+}
+static void creditsminitext(int32_t x, int32_t y, const char *t, int32_t p)
+{
+    int32_t f = TEXT_XCENTER;
+
+    if (!minitext_lowercase)
+        f |= TEXT_UPPERCASE;
+
+    G_ScreenTextShadow(1, 1, MINIFONT, x, y, 65536, 0, 0, t, 0, p, 2|8|16|ROTATESPRITE_FULL16, 0, 4<<16, 8<<16, 1<<16, 0, f, 0, 0, xdim-1, ydim-1);
+}
+
+int32_t menutext_(int32_t x, int32_t y, int32_t s, int32_t p, char *t, int32_t bits)
 {
     vec2_t dim;
     int32_t f = TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE;
 
-    if (x == 160)
+    if (!(bits & ROTATESPRITE_FULL16))
+    {
+        x<<=16;
+        y<<=16;
+    }
+
+    if (x == (160<<16))
         f |= TEXT_XCENTER;
 
-    dim = G_ScreenText(BIGALPHANUM, x, y-12, 65536L, 0, 0, t, s, p, bits, 0, 5, 16, 0, 0, f, 0, 0, xdim-1, ydim-1);
+    dim = G_ScreenText(BIGALPHANUM, x, y - (12<<16), 65536L, 0, 0, t, s, p, bits|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, f, 0, 0, xdim-1, ydim-1);
+
+    if (!(bits & ROTATESPRITE_FULL16))
+        x >>= 16;
 
     return dim.x;
 }
@@ -69,21 +104,21 @@ static savehead_t savehead;
 //static struct savehead_ savehead;
 #pragma pack(pop)
 
-static void M_DrawBackground(void)
+static void M_DrawBackground(const vec2_t origin)
 {
-    rotatesprite_fs(160<<16,100<<16,65536L,0,MENUSCREEN,16,0,10+64);
+    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (100<<16), 65536L,0,MENUSCREEN,16,0,10+64);
 }
 
-static void M_DrawTopBar(void)
+static void M_DrawTopBar(const vec2_t origin)
 {
-    rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
+    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (19<<16), 65536L,0,MENUBAR,16,0,10);
 }
 
-static void M_DrawTopBarCaption(const char *caption)
+static void M_DrawTopBarCaption(const char *caption, const vec2_t origin)
 {
     char *s = Bstrdup(caption), p = Bstrlen(caption)-1;
     if (s[p] == ':') s[p] = 0;
-    menutext(160,24,0,0,s);
+    mmenutextcenter(origin.x, origin.y + (24<<16), s);
     Bfree(s);
 }
 
@@ -121,13 +156,6 @@ static MenuTextType_t MF_BluefontRed      = { -1, 10, 10, 16, 5<<16,  7<<16, -1<
 static MenuTextType_t MF_Minifont         = { -1, 10, 0,  16, 4<<16,  5<<16,  1<<16, 1<<16, 0, };
 static MenuTextType_t MF_MinifontRed      = { -1, 16, 21, 16, 4<<16,  5<<16,  1<<16, 1<<16, 0, };
 static MenuTextType_t MF_MinifontDarkGray = { -1, 10, 13, 16, 4<<16,  5<<16,  1<<16, 1<<16, 0, };
-
-
-// common positions
-#define MENU_MARGIN_REGULAR 40
-#define MENU_MARGIN_WIDE    32
-#define MENU_MARGIN_CENTER  160
-#define MENU_HEIGHT_CENTER  100
 
 
 static MenuPos_t MP_TOP_MAIN =             { { MENU_MARGIN_CENTER<<16,       55<<16, }, 0,     4<<16,  0,       -170<<16, 110<<16, 65536, };
@@ -1248,8 +1276,8 @@ static MenuPanel_t M_CREDITS4 = { "About EDuke32", MENU_CREDITS3, MENU_CREDITS5,
 #endif
 static MenuPanel_t M_CREDITS5 = { "About EDuke32", MENU_CREDITS4, MENU_CREDITS, };
 
-#define CURSOR_CENTER_2LINE { 160<<16, 120<<16, }
-#define CURSOR_CENTER_3LINE { 160<<16, 129<<16, }
+#define CURSOR_CENTER_2LINE { MENU_MARGIN_CENTER<<16, 120<<16, }
+#define CURSOR_CENTER_3LINE { MENU_MARGIN_CENTER<<16, 129<<16, }
 #define CURSOR_BOTTOMRIGHT { 304<<16, 186<<16, }
 
 static MenuVerify_t M_QUIT = { CURSOR_CENTER_2LINE, MENU_CLOSE, };
@@ -1583,7 +1611,7 @@ void M_Init(void)
     }
 }
 
-static void M_RunMenu(Menu_t *cm);
+static void M_RunMenu(Menu_t *cm, vec2_t origin);
 
 
 
@@ -1703,19 +1731,13 @@ static void M_PreMenu(MenuID_t cm)
             MEO_SAVE[i].font = (g_oldverSavegame[i] && MEO_SAVE[i].editfield == NULL) ? &MF_MinifontDarkGray : &MF_MinifontRed;
         break;
 
-    case MENU_LOADVERIFY:
-    case MENU_SAVEVERIFY:
-    case MENU_ADULTPASSWORD:
-        M_RunMenu(m_previousMenu);
-        break;
-
     default:
         break;
     }
 }
 
 
-static void M_PreMenuDrawBackground(MenuID_t cm)
+static void M_PreMenuDrawBackground(MenuID_t cm, const vec2_t origin)
 {
     switch (cm)
     {
@@ -1723,30 +1745,30 @@ static void M_PreMenuDrawBackground(MenuID_t cm)
     case MENU_CREDITS2:
     case MENU_CREDITS3:
         if (!VOLUMEALL || !PLUTOPAK)
-            M_DrawBackground();
+            M_DrawBackground(origin);
         else
-            rotatesprite_fs(160<<16,100<<16,65536L,0,2504+g_currentMenu-MENU_CREDITS,0,0,10+64);
+            rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (100<<16), 65536L,0,2504+g_currentMenu-MENU_CREDITS,0,0,10+64);
         break;
 
     case MENU_LOAD:
     case MENU_SAVE:
     case MENU_CREDITS4:
     case MENU_CREDITS5:
-        M_DrawBackground();
+        M_DrawBackground(origin);
         break;
 
     case MENU_STORY:
-        rotatesprite_fs(160<<16,100<<16,65536L,0,TEXTSTORY,0,0,10+64);
+        rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (100<<16), 65536L,0,TEXTSTORY,0,0,10+64);
         break;
 
     case MENU_F1HELP:
-        rotatesprite_fs(160<<16,100<<16,65536L,0,F1HELP,0,0,10+64);
+        rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (100<<16), 65536L,0,F1HELP,0,0,10+64);
         break;
     }
 }
 
 
-static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
+static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry, const vec2_t origin)
 {
     int32_t i, j, l = 0, m;
 
@@ -1755,62 +1777,69 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
     case MENU_MAIN_INGAME:
         l += 4;
     case MENU_MAIN:
-        rotatesprite_fs(MENU_MARGIN_CENTER<<16,(28+l)<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10);
+        rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + ((28+l)<<16), 65536L,0,INGAMEDUKETHREEDEE,0,0,10);
         if (PLUTOPAK)   // JBF 20030804
-            rotatesprite_fs((MENU_MARGIN_CENTER+100)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,(sintable[(totalclock<<4)&2047]>>11),0,2+8);
+            rotatesprite_fs(origin.x + ((MENU_MARGIN_CENTER+100)<<16), origin.y + (36<<16), 65536L,0,PLUTOPAKSPRITE+2,(sintable[(totalclock<<4)&2047]>>11),0,2+8);
         break;
 
     case MENU_PLAYER:
-        rotatesprite_fs((260)<<16,(24+(tilesiz[APLAYER].y>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,entry == &ME_PLAYER_TEAM ? G_GetTeamPalette(ud.team) : ud.color,10);
+        rotatesprite_fs(origin.x + (260<<16), origin.y + ((24+(tilesiz[APLAYER].y>>1))<<16), 49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,entry == &ME_PLAYER_TEAM ? G_GetTeamPalette(ud.team) : ud.color,10);
         break;
 
     case MENU_MACROS:
-        mgametext(160,144,"Activate in-game with Shift-F#",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (144<<16), "Activate in-game with Shift-F#");
         break;
 
     case MENU_COLCORR:
     case MENU_COLCORR_INGAME:
-        rotatesprite(40<<16,24<<16,24576,0,BONUSSCREEN,0,0,2+8+16,0,scale(ydim,35,200),xdim-1,scale(ydim,80,200)-1);
-        rotatesprite(160<<16,27<<16,24576,0,3290,0,0,2+8+16,0,scale(ydim,35,200),xdim-1,scale(ydim,80,200)-1);
+        // center panel
+        rotatesprite_fs(origin.x + (120<<16), origin.y + (32<<16), 16384, 0, 3290, 0, 0, 2|8|16);
+        rotatesprite_fs(origin.x + (160<<16) - (tilesiz[BOTTOMSTATUSBAR].x<<13), origin.y + (82<<16) - (tilesiz[BOTTOMSTATUSBAR].y<<14), 16384, 0, BOTTOMSTATUSBAR, 0, 0, 2|8|16);
+
+        // left panel
+        rotatesprite_fs(origin.x + (40<<16), origin.y + (32<<16), 16384, 0, BONUSSCREEN, 0, 0, 2|8|16);
+
+        // right panel
+        rotatesprite_fs(origin.x + (200<<16), origin.y + (32<<16), 16384, 0, LOADSCREEN, 0, 0, 2|8|16);
         break;
 
     case MENU_NETSETUP:
     case MENU_NETHOST:
-        minitext(90,90,            "Game Type"    ,2,26);
-        minitext(90,90+8,          "Episode"      ,2,26);
-        minitext(90,90+8+8,        "Level"        ,2,26);
-        minitext(90,90+8+8+8,      "Monsters"     ,2,26);
+        mminitext(origin.x + (90<<16), origin.y + (90<<16), "Game Type", 2);
+        mminitext(origin.x + (90<<16), origin.y + ((90+8)<<16), "Episode", 2);
+        mminitext(origin.x + (90<<16), origin.y + ((90+8+8)<<16), "Level", 2);
+        mminitext(origin.x + (90<<16), origin.y + ((90+8+8+8)<<16), "Monsters", 2);
         if (ud.m_coop == 0)
-            minitext(90,90+8+8+8+8,    "Markers"      ,2,26);
+            mminitext(origin.x + (90<<16), origin.y + ((90+8+8+8+8)<<16), "Markers", 2);
         else if (ud.m_coop == 1)
-            minitext(90,90+8+8+8+8,    "Friendly Fire",2,26);
-        minitext(90,90+8+8+8+8+8,  "User Map"     ,2,26);
+            mminitext(origin.x + (90<<16), origin.y + ((90+8+8+8+8)<<16), "Friendly Fire", 2);
+        mminitext(origin.x + (90<<16), origin.y + ((90+8+8+8+8+8)<<16), "User Map", 2);
 
-        minitext(90+60,90,GametypeNames[ud.m_coop],0,26);
+        mminitext(origin.x + ((90+60)<<16), origin.y + (90<<16), GametypeNames[ud.m_coop], 0);
 
-        minitext(90+60,90+8,      EpisodeNames[ud.m_volume_number],0,26);
-        minitext(90+60,90+8+8,    MapInfo[MAXLEVELS*ud.m_volume_number+ud.m_level_number].name,0,26);
+        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8)<<16), EpisodeNames[ud.m_volume_number], 0);
+        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8)<<16), MapInfo[MAXLEVELS*ud.m_volume_number+ud.m_level_number].name, 0);
         if (ud.m_monsters_off == 0 || ud.m_player_skill > 0)
-            minitext(90+60,90+8+8+8,  SkillNames[ud.m_player_skill],0,26);
-        else minitext(90+60,90+8+8+8,  "None",0,28);
+            mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), SkillNames[ud.m_player_skill], 0);
+        else mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), "None", 0);
         if (ud.m_coop == 0)
         {
-            if (ud.m_marker) minitext(90+60,90+8+8+8+8,"On",0,26);
-            else minitext(90+60,90+8+8+8+8,"Off",0,26);
+            if (ud.m_marker) mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8+8)<<16), "On", 0);
+            else mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8+8)<<16), "Off", 0);
         }
         else if (ud.m_coop == 1)
         {
-            if (ud.m_ffire) minitext(90+60,90+8+8+8+8,"On",0,26);
-            else minitext(90+60,90+8+8+8+8,"Off",0,26);
+            if (ud.m_ffire) mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8+8)<<16), "On", 0);
+            else mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8+8)<<16), "Off", 0);
         }
         break;
 
     case MENU_KEYBOARDKEYS:
         if (group == &MG_KEYBOARDSETUPFUNCS)
         {
-            mgametext(160,144+9+3,"Up/Down = Select Action",0,2+8+16);
-            mgametext(160,144+9+9+3,"Left/Right = Select List",0,2+8+16);
-            mgametext(160,144+9+9+9+3,"Enter = Modify   Delete = Clear",0,2+8+16);
+            mgametextcenter(origin.x, origin.y + ((144+9+3)<<16), "Up/Down = Select Action");
+            mgametextcenter(origin.x, origin.y + ((144+9+9+3)<<16), "Left/Right = Select List");
+            mgametextcenter(origin.x, origin.y + ((144+9+9+9+3)<<16), "Enter = Modify   Delete = Clear");
         }
         break;
 
@@ -1819,8 +1848,8 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
         {
             if (entry->disabled)
             {
-                mgametext(160,140+9+9+9,"Set mouse aim type to toggle on/off",0,2+8+16);
-                mgametext(160,140+9+9+9+9,"in the Player Setup menu to enable",0,2+8+16);
+                mgametextcenter(origin.x, origin.y + ((140+9+9+9)<<16), "Set mouse aim type to toggle on/off");
+                mgametextcenter(origin.x, origin.y + ((140+9+9+9+9)<<16), "in the Player Setup menu to enable");
             }
         }
         break;
@@ -1828,90 +1857,90 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
     case MENU_MOUSEBTNS:
         if (group == &MG_MOUSESETUPBTNS)
         {
-            mgametext(160,160+9,"Up/Down = Select Button",0,2+8+16);
-            mgametext(160,160+9+9,"Enter = Modify",0,2+8+16);
+            mgametextcenter(origin.x, origin.y + ((160+9)<<16), "Up/Down = Select Button");
+            mgametextcenter(origin.x, origin.y + ((160+9+9)<<16), "Enter = Modify");
         }
         break;
 
     case MENU_MOUSEADVANCED:
         if (group == &MG_MOUSEADVANCED_DAXES)
         {
-            mgametext(160,144+9+9,"Digital axes are not for mouse look",0,2+8+16);
-            mgametext(160,144+9+9+9,"or for aiming up and down",0,2+8+16);
+            mgametextcenter(origin.x, origin.y + ((144+9+9)<<16), "Digital axes are not for mouse look");
+            mgametextcenter(origin.x, origin.y + ((144+9+9+9)<<16), "or for aiming up and down");
         }
         break;
 
     case MENU_JOYSTICKBTNS:
         if (group == &MG_JOYSTICKBTNS)
         {
-            mgametext(160,149,"Up/Down = Select Button",0,2+8+16);
-            mgametext(160,149+9,"Enter = Modify",0,2+8+16);
+            mgametextcenter(origin.x, origin.y + (149<<16), "Up/Down = Select Button");
+            mgametextcenter(origin.x, origin.y + ((149+9)<<16), "Enter = Modify");
         }
         break;
 
     case MENU_RESETPLAYER:
 		fade_screen_black(1);
-        mgametext(160,90,"Load last game:",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (90<<16), "Load last game:");
 
         Bsprintf(tempbuf,"\"%s\"",ud.savegame[g_lastSaveSlot]);
-        mgametext(160,99,tempbuf,0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
 
 #ifndef DROIDMENU
-        mgametext(160,99+9,"(Y/N)",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((99+9)<<16), "(Y/N)");
 #endif
         break;
 
     case MENU_LOAD:
         for (i = 0; i <= 108; i += 12)
-            rotatesprite_fs((160+64+91-64)<<16,(i+56)<<16,65536L,0,TEXTBOX,24,0,10);
+            rotatesprite_fs(origin.x + ((160+64+91-64)<<16), origin.y + ((i+56)<<16), 65536L,0,TEXTBOX,24,0,10);
 
-        rotatesprite_fs(22<<16,97<<16,65536L,0,WINDOWBORDER2,24,0,10);
-        rotatesprite_fs(180<<16,97<<16,65536L,1024,WINDOWBORDER2,24,0,10);
-        rotatesprite_fs(99<<16,50<<16,65536L,512,WINDOWBORDER1,24,0,10);
-        rotatesprite_fs(103<<16,144<<16,65536L,1024+512,WINDOWBORDER1,24,0,10);
+        rotatesprite_fs(origin.x + (22<<16), origin.y + (97<<16), 65536L,0,WINDOWBORDER2,24,0,10);
+        rotatesprite_fs(origin.x + (180<<16), origin.y + (97<<16), 65536L,1024,WINDOWBORDER2,24,0,10);
+        rotatesprite_fs(origin.x + (99<<16), origin.y + (50<<16), 65536L,512,WINDOWBORDER1,24,0,10);
+        rotatesprite_fs(origin.x + (103<<16), origin.y + (144<<16), 65536L,1024+512,WINDOWBORDER1,24,0,10);
 
         if (ud.savegame[group->currentEntry][0])
         {
-            rotatesprite_fs(101<<16,97<<16,65536>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
+            rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
 
             if (g_oldverSavegame[group->currentEntry])
             {
-                menutext(53,70,0,0,"Previous");
-                menutext(58,90,0,0,"Version");
+                mmenutext(origin.x + (53<<16), origin.y + (70<<16), "Previous");
+                mmenutext(origin.x + (58<<16), origin.y + (90<<16), "Version");
 
 #ifndef DROIDMENU
                 Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
                          savehead.bytever, 8*savehead.ptrsize);
-                mgametext(31,104,tempbuf,0,2+8+16);
+                mgametext(origin.x + (31<<16), origin.y + (104<<16), tempbuf);
                 Bsprintf(tempbuf,"Our: %d.%d.%d %d-bit", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                          (int32_t)(8*sizeof(intptr_t)));
-                mgametext(31+16,114,tempbuf,0,2+8+16);
+                mgametext(origin.x + ((31+16)<<16), origin.y + (114<<16), tempbuf);
 #endif
             }
 
 			if (savehead.numplayers > 1)
 			{
 				Bsprintf(tempbuf, "Players: %-2d                      ", savehead.numplayers);
-				mgametext(160, 156, tempbuf, 0, 2 + 8 + 16);
+				mgametextcenter(origin.x, origin.y + (156<<16), tempbuf);
 			}
 
             Bsprintf(tempbuf,"%s / %s",MapInfo[(savehead.volnum*MAXLEVELS) + savehead.levnum].name, SkillNames[savehead.skill-1]);
-            mgametext(160,168,tempbuf,0,2+8+16);
+            mgametextcenter(origin.x, origin.y + (168<<16), tempbuf);
             if (savehead.volnum == 0 && savehead.levnum == 7)
-                mgametext(160,180,savehead.boardfn,0,2+8+16);
+                mgametextcenter(origin.x, origin.y + (180<<16), savehead.boardfn);
         }
         else
-            menutext(69,70,0,0,"Empty");
+            mmenutext(origin.x + (69<<16), origin.y + (70<<16), "Empty");
         break;
 
     case MENU_SAVE:
         for (i = 0; i <= 108; i += 12)
-            rotatesprite_fs((160+64+91-64)<<16,(i+56)<<16,65536L,0,TEXTBOX,24,0,10);
+            rotatesprite_fs(origin.x + ((160+64+91-64)<<16), origin.y + ((i+56)<<16), 65536L,0,TEXTBOX,24,0,10);
 
-        rotatesprite_fs(22<<16,97<<16,65536L,0,WINDOWBORDER2,24,0,10);
-        rotatesprite_fs(180<<16,97<<16,65536L,1024,WINDOWBORDER2,24,0,10);
-        rotatesprite_fs(99<<16,50<<16,65536L,512,WINDOWBORDER1,24,0,10);
-        rotatesprite_fs(103<<16,144<<16,65536L,1024+512,WINDOWBORDER1,24,0,10);
+        rotatesprite_fs(origin.x + (22<<16), origin.y + (97<<16), 65536L,0,WINDOWBORDER2,24,0,10);
+        rotatesprite_fs(origin.x + (180<<16), origin.y + (97<<16), 65536L,1024,WINDOWBORDER2,24,0,10);
+        rotatesprite_fs(origin.x + (99<<16), origin.y + (50<<16), 65536L,512,WINDOWBORDER1,24,0,10);
+        rotatesprite_fs(origin.x + (103<<16), origin.y + (144<<16), 65536L,1024+512,WINDOWBORDER1,24,0,10);
 
         if (ud.savegame[group->currentEntry][0])
         {
@@ -1920,43 +1949,43 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
                 if (((MenuString_t*)group->entrylist[i]->entry)->editfield)
                     j |= 1;
 
-            rotatesprite_fs(101<<16,97<<16,65536L>>1,512,j?TILE_SAVESHOT:TILE_LOADSHOT,-32,0,4+10+64);
+            rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536L>>1,512,j?TILE_SAVESHOT:TILE_LOADSHOT,-32,0,4+10+64);
 
             if (g_oldverSavegame[group->currentEntry])
             {
-                menutext(53,70,0,0,"Previous");
-                menutext(58,90,0,0,"Version");
+                mmenutext(origin.x + (53<<16), origin.y + (70<<16), "Previous");
+                mmenutext(origin.x + (58<<16), origin.y + (90<<16), "Version");
 
 #ifndef DROIDMENU
                 Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
                          savehead.bytever, 8*savehead.ptrsize);
-                mgametext(31,104,tempbuf,0,2+8+16);
+                mgametext(origin.x + (31<<16), origin.y + (104<<16), tempbuf);
                 Bsprintf(tempbuf,"Our: %d.%d.%d %d-bit", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                          (int32_t)(8*sizeof(intptr_t)));
-                mgametext(31+16,114,tempbuf,0,2+8+16);
+                mgametext(origin.x + ((31+16)<<16), origin.y + (114<<16), tempbuf);
 #endif
             }
         }
         else
-            menutext(69,70,0,0,"Empty");
+            mmenutext(origin.x + (69<<16), origin.y + (70<<16), "Empty");
 
 		if (ud.multimode > 1)
 		{
 			Bsprintf(tempbuf, "Players: %-2d                      ", ud.multimode);
-			mgametext(160, 156, tempbuf, 0, 2 + 8 + 16);
+			mgametextcenter(origin.x, origin.y + (156<<16), tempbuf);
 		}
 
         Bsprintf(tempbuf,"%s / %s",MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
-        mgametext(160,168,tempbuf,0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (168<<16), tempbuf);
         if (ud.volume_number == 0 && ud.level_number == 7)
-            mgametext(160,180,currentboardfilename,0,2+8+16);
+            mgametextcenter(origin.x, origin.y + (180<<16), currentboardfilename);
         break;
 
 #ifdef DROIDMENU
     case MENU_SKILL:
     {
         char *s[MAXSKILLS] = {"EASY - Few enemies, and lots of stuff.", "MEDIUM - Normal difficulty.", "HARD - For experienced players.", "EXPERTS - Lots of enemies, plus they respawn!" };
-        mgametext(160,168,s[group->currentEntry],0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (168<<16), s[group->currentEntry]);
     }
         break;
 #endif
@@ -1965,86 +1994,86 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
 		fade_screen_black(1);
 		if (g_oldverSavegame[MG_LOAD.currentEntry])
 		{
-			mgametext(160, 90, "Start new game:", 0, 2 + 8 + 16);
+			mgametextcenter(origin.x, origin.y + (90<<16), "Start new game:");
 			Bsprintf(tempbuf,"%s / %s",MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
-			mgametext(160, 99, tempbuf, 0, 2 + 8 + 16);
+			mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
 		}
 		else
 		{
-			mgametext(160, 90, "Load game:", 0, 2 + 8 + 16);
+			mgametextcenter(origin.x, origin.y + (90<<16), "Load game:");
 			Bsprintf(tempbuf, "\"%s\"", ud.savegame[MG_LOAD.currentEntry]);
-			mgametext(160, 99, tempbuf, 0, 2 + 8 + 16);
+			mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
 		}
 #ifndef DROIDMENU
-        mgametext(160,99+9,"(Y/N)",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((99+9)<<16), "(Y/N)");
 #endif
         break;
 
     case MENU_SAVEVERIFY:
 		fade_screen_black(1);
-        mgametext(160,90,"Overwrite previous saved game?",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (90<<16), "Overwrite previous saved game?");
 #ifndef DROIDMENU
-        mgametext(160,90+9,"(Y/N)",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((90+9)<<16), "(Y/N)");
 #endif
         break;
 
     case MENU_NEWVERIFY:
 		fade_screen_black(1);
-        mgametext(160,90,"Abort this game?",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (90<<16), "Abort this game?");
 #ifndef DROIDMENU
-        mgametext(160,90+9,"(Y/N)",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((90+9)<<16), "(Y/N)");
 #endif
         break;
 
     case MENU_QUIT:
     case MENU_QUIT_INGAME:
 		fade_screen_black(1);
-        mgametext(MENU_MARGIN_CENTER,90,"Are you sure you want to quit?",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (90<<16), "Are you sure you want to quit?");
 #ifndef DROIDMENU
-        mgametext(MENU_MARGIN_CENTER,99,"(Y/N)",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (99<<16), "(Y/N)");
 #endif
         break;
 
     case MENU_QUITTOTITLE:
 		fade_screen_black(1);
-        mgametext(MENU_MARGIN_CENTER,90,"Quit to Title?",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (90<<16), "Quit to Title?");
 #ifndef DROIDMENU
-        mgametext(MENU_MARGIN_CENTER,99,"(Y/N)",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (99<<16), "(Y/N)");
 #endif
         break;
 
     case MENU_NETWAITMASTER:
         G_DrawFrags();
-        mgametext(160,50,"Waiting for master",0,2+8+16);
-        mgametext(160,59,"to select level",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (50<<16), "Waiting for master");
+        mgametextcenter(origin.x, origin.y + (59<<16), "to select level");
         break;
 
     case MENU_NETWAITVOTES:
         G_DrawFrags();
-        mgametext(160,90,"Waiting for votes",0,2);
+        mgametextcenter(origin.x, origin.y + (90<<16), "Waiting for votes");
         break;
 
     case MENU_BUYDUKE:
-        mgametext(160,41-8,"You are playing the shareware",0,2+8+16);
-        mgametext(160,50-8,"version of Duke Nukem 3D.  While",0,2+8+16);
-        mgametext(160,59-8,"this version is really cool, you",0,2+8+16);
-        mgametext(160,68-8,"are missing over 75% of the total",0,2+8+16);
-        mgametext(160,77-8,"game, along with other great extras",0,2+8+16);
-        mgametext(160,86-8,"which you'll get when you order",0,2+8+16);
-        mgametext(160,95-8,"the complete version and get",0,2+8+16);
-        mgametext(160,104-8,"the final three episodes.",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((41-8)<<16), "You are playing the shareware");
+        mgametextcenter(origin.x, origin.y + ((50-8)<<16), "version of Duke Nukem 3D.  While");
+        mgametextcenter(origin.x, origin.y + ((59-8)<<16), "this version is really cool, you");
+        mgametextcenter(origin.x, origin.y + ((68-8)<<16), "are missing over 75% of the total");
+        mgametextcenter(origin.x, origin.y + ((77-8)<<16), "game, along with other great extras");
+        mgametextcenter(origin.x, origin.y + ((86-8)<<16), "which you'll get when you order");
+        mgametextcenter(origin.x, origin.y + ((95-8)<<16), "the complete version and get");
+        mgametextcenter(origin.x, origin.y + ((104-8)<<16), "the final three episodes.");
 
 #ifndef DROIDMENU
-        mgametext(160,104+8,"Please visit Steam and purchase",0,2+8+16);
-		mgametext(160,113+8,"Duke Nukem 3D: Megaton Edition",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((104+8)<<16), "Please visit Steam and purchase");
+		mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Duke Nukem 3D: Megaton Edition");
 #else
-		mgametext(160,113+8,"Please visit the Play Store",0,2+8+16);
+		mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Please visit the Play Store");
 #endif
 
-        mgametext(160,122+8,"to upgrade to the full registered",0,2+8+16);
-        mgametext(160,131+8,"version of Duke Nukem 3D.",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((122+8)<<16), "to upgrade to the full registered");
+        mgametextcenter(origin.x, origin.y + ((131+8)<<16), "version of Duke Nukem 3D.");
 
-        mgametext(160,148+16,"Press any key or button...",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((148+16)<<16), "Press any key or button...");
         break;
 
     case MENU_CREDITS:
@@ -2055,119 +2084,118 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
             switch (cm)
             {
             case MENU_CREDITS:
-                m = 20;
-                l = 33;
+                m = origin.x + (20<<16);
+                l = origin.y + (33<<16);
 
-                shadowminitext(m, l, "Original Concept", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Todd Replogle and Allen H. Blum III", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Produced & Directed By", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Greg Malone", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Executive Producer", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "George Broussard", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "BUILD Engine", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Ken Silverman", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Game Programming", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Todd Replogle", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "3D Engine/Tools/Net", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Ken Silverman", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Network Layer/Setup Program", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Mark Dochtermann", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Map Design", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Allen H. Blum III", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Richard Gray", 12, 10+16+128); l += 7;
+                shadowminitext(m, l, "Original Concept", 12); l += 7<<16;
+                shadowminitext(m, l, "Todd Replogle and Allen H. Blum III", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Produced & Directed By", 12); l += 7<<16;
+                shadowminitext(m, l, "Greg Malone", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Executive Producer", 12); l += 7<<16;
+                shadowminitext(m, l, "George Broussard", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "BUILD Engine", 12); l += 7<<16;
+                shadowminitext(m, l, "Ken Silverman", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Game Programming", 12); l += 7<<16;
+                shadowminitext(m, l, "Todd Replogle", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "3D Engine/Tools/Net", 12); l += 7<<16;
+                shadowminitext(m, l, "Ken Silverman", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Network Layer/Setup Program", 12); l += 7<<16;
+                shadowminitext(m, l, "Mark Dochtermann", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Map Design", 12); l += 7<<16;
+                shadowminitext(m, l, "Allen H. Blum III", 12); l += 7<<16;
+                shadowminitext(m, l, "Richard Gray", 12); l += 7<<16;
 
-                m = 180;
-                l = 33;
+                m = origin.x + (180<<16);
+                l = origin.y + (33<<16);
 
-                shadowminitext(m, l, "3D Modeling", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Chuck Jones", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Sapphire Corporation", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Artwork", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Dirk Jones, Stephen Hornback", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "James Storey, David Demaret", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Douglas R. Wood", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Sound Engine", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Jim Dose", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Sound & Music Development", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Robert Prince", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Lee Jackson", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Voice Talent", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Lani Minella - Voice Producer", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Jon St. John as \"Duke Nukem\"", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Graphic Design", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Packaging, Manual, Ads", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Robert M. Atkins", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Michael Hadwin", 12, 10+16+128); l += 7;
+                shadowminitext(m, l, "3D Modeling", 12); l += 7<<16;
+                shadowminitext(m, l, "Chuck Jones", 12); l += 7<<16;
+                shadowminitext(m, l, "Sapphire Corporation", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Artwork", 12); l += 7<<16;
+                shadowminitext(m, l, "Dirk Jones, Stephen Hornback", 12); l += 7<<16;
+                shadowminitext(m, l, "James Storey, David Demaret", 12); l += 7<<16;
+                shadowminitext(m, l, "Douglas R. Wood", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Sound Engine", 12); l += 7<<16;
+                shadowminitext(m, l, "Jim Dose", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Sound & Music Development", 12); l += 7<<16;
+                shadowminitext(m, l, "Robert Prince", 12); l += 7<<16;
+                shadowminitext(m, l, "Lee Jackson", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Voice Talent", 12); l += 7<<16;
+                shadowminitext(m, l, "Lani Minella - Voice Producer", 12); l += 7<<16;
+                shadowminitext(m, l, "Jon St. John as \"Duke Nukem\"", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Graphic Design", 12); l += 7<<16;
+                shadowminitext(m, l, "Packaging, Manual, Ads", 12); l += 7<<16;
+                shadowminitext(m, l, "Robert M. Atkins", 12); l += 7<<16;
+                shadowminitext(m, l, "Michael Hadwin", 12); l += 7<<16;
                 break;
 
             case MENU_CREDITS2:
-                m = 20;
-                l = 33;
+                m = origin.x + (20<<16);
+                l = origin.y + (33<<16);
 
-                shadowminitext(m, l, "Special Thanks To", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Steven Blackburn, Tom Hall", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Scott Miller, Joe Siegler", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Terry Nagy, Colleen Compton", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "HASH, Inc., FormGen, Inc.", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "The 3D Realms Beta Testers", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Nathan Anderson, Wayne Benner", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Glenn Brensinger, Rob Brown", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Erik Harris, Ken Heckbert", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Terry Herrin, Greg Hively", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Hank Leukart, Eric Baker", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Jeff Rausch, Kelly Rogers", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Mike Duncan, Doug Howell", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "Bill Blair", 12, 10+16+128); l += 7;
+                shadowminitext(m, l, "Special Thanks To", 12); l += 7<<16;
+                shadowminitext(m, l, "Steven Blackburn, Tom Hall", 12); l += 7<<16;
+                shadowminitext(m, l, "Scott Miller, Joe Siegler", 12); l += 7<<16;
+                shadowminitext(m, l, "Terry Nagy, Colleen Compton", 12); l += 7<<16;
+                shadowminitext(m, l, "HASH, Inc., FormGen, Inc.", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "The 3D Realms Beta Testers", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Nathan Anderson, Wayne Benner", 12); l += 7<<16;
+                shadowminitext(m, l, "Glenn Brensinger, Rob Brown", 12); l += 7<<16;
+                shadowminitext(m, l, "Erik Harris, Ken Heckbert", 12); l += 7<<16;
+                shadowminitext(m, l, "Terry Herrin, Greg Hively", 12); l += 7<<16;
+                shadowminitext(m, l, "Hank Leukart, Eric Baker", 12); l += 7<<16;
+                shadowminitext(m, l, "Jeff Rausch, Kelly Rogers", 12); l += 7<<16;
+                shadowminitext(m, l, "Mike Duncan, Doug Howell", 12); l += 7<<16;
+                shadowminitext(m, l, "Bill Blair", 12); l += 7<<16;
 
-                m = 160;
-                l = 33;
+                m = origin.x + (160<<16);
+                l = origin.y + (33<<16);
 
-                shadowminitext(m, l, "Company Product Support", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "The following companies were cool", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "enough to give us lots of stuff", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "during the making of Duke Nukem 3D.", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Altec Lansing Multimedia", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "for tons of speakers and the", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "THX-licensed sound system.", 12, 10+16+128); l += 7;
-                shadowminitext(m, l, "For info call 1-800-548-0620", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Creative Labs, Inc.", 12, 10+16+128); l += 7;
-                l += 3;
-                shadowminitext(m, l, "Thanks for the hardware, guys.", 12, 10+16+128); l += 7;
+                shadowminitext(m, l, "Company Product Support", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "The following companies were cool", 12); l += 7<<16;
+                shadowminitext(m, l, "enough to give us lots of stuff", 12); l += 7<<16;
+                shadowminitext(m, l, "during the making of Duke Nukem 3D.", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Altec Lansing Multimedia", 12); l += 7<<16;
+                shadowminitext(m, l, "for tons of speakers and the", 12); l += 7<<16;
+                shadowminitext(m, l, "THX-licensed sound system.", 12); l += 7<<16;
+                shadowminitext(m, l, "For info call 1-800-548-0620", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Creative Labs, Inc.", 12); l += 7<<16;
+                l += 3<<16;
+                shadowminitext(m, l, "Thanks for the hardware, guys.", 12); l += 7<<16;
                 break;
 
             case MENU_CREDITS3:
-                m = MENU_MARGIN_CENTER;
-                mgametext(m,50,        "Duke Nukem 3D is a trademark of",0,2+8+16);
-                mgametext(m,50+9,      "3D Realms Entertainment",0,2+8+16);
+                mgametextcenter(origin.x, origin.y + (50<<16), "Duke Nukem 3D is a trademark of");
+                mgametextcenter(origin.x, origin.y + ((50+9)<<16), "3D Realms Entertainment");
 
-                mgametext(m,50+9+9+9,  "Duke Nukem 3D",0,2+8+16);
-                mgametext(m,50+9+9+9+9,"(C) 1996, 2014 3D Realms Entertainment",0,2+8+16);
+                mgametextcenter(origin.x, origin.y + ((50+9+9+9)<<16), "Duke Nukem 3D");
+                mgametextcenter(origin.x, origin.y + ((50+9+9+9+9)<<16), "(C) 1996, 2014 3D Realms Entertainment");
 
 #ifndef DROIDMENU
                 if (VOLUMEONE)
                 {
-                    mgametext(m,106,   "Please read LICENSE.DOC for shareware",0,2+8+16);
-                    mgametext(m,106+9, "distribution grants and restrictions.",0,2+8+16);
+                    mgametextcenter(origin.x, origin.y + (106<<16), "Please read LICENSE.DOC for shareware");
+                    mgametextcenter(origin.x, origin.y + ((106+9)<<16), "distribution grants and restrictions.");
                 }
 #endif
-                mgametext(m,VOLUMEONE?134:115,       "Made in Dallas, Texas USA",0,2+8+16);
+                mgametextcenter(origin.x, origin.y + ((VOLUMEONE?134:115)<<16), "Made in Dallas, Texas USA");
                 break;
             }
         }
@@ -2175,30 +2203,30 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
     case MENU_CREDITS4:   // JBF 20031220
         l = 7;
 
-        mgametext(160,50-l,"Production, design, and programming",0,2+8+16);
-        creditsminitext(160, 50+10-l, "Richard \"TerminX\" Gobeille", 8, 10+16+128);
+        mgametextcenter(origin.x, origin.y + ((50-l)<<16), "Production, design, and programming");
+        creditsminitext(origin.x + (160<<16), origin.y + ((50+10-l)<<16), "Richard \"TerminX\" Gobeille", 8);
 
 #if !defined(POLYMER) || defined(DROIDMENU)
-        mgametext(160,70-l,"Rendering and support programming",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((70-l)<<16), "Rendering and support programming");
 #else
-        mgametext(160,70-l,"Polymer Rendering System by",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((70-l)<<16), "Polymer Rendering System by");
 #endif
-        creditsminitext(160, 70+10-l, "Pierre-Loup \"Plagman\" Griffais", 8, 10+16+128);
+        creditsminitext(origin.x + (160<<16), origin.y + ((70+10-l)<<16), "Pierre-Loup \"Plagman\" Griffais", 8);
 
-        mgametext(160,90-l,"Engine and game programming",0,2+8+16);
-        creditsminitext(160, 90+10-l, "Philipp \"Helixhorned\" Kutin", 8, 10+16+128);
-        creditsminitext(160, 90+7+10-l, "Evan \"Hendricks266\" Ramos", 8, 10+16+128);
+        mgametextcenter(origin.x, origin.y + ((90-l)<<16), "Engine and game programming");
+        creditsminitext(origin.x + (160<<16), origin.y + ((90+10-l)<<16), "Philipp \"Helixhorned\" Kutin", 8);
+        creditsminitext(origin.x + (160<<16), origin.y + ((90+7+10-l)<<16), "Evan \"Hendricks266\" Ramos", 8);
 
 #ifdef DROIDMENU
-        mgametext(160, 110+7-l, "Android support programming", 0, 2+8+16);
-        creditsminitext(160, 110+7+10-l, "Emile Belanger", 8, 10+16+128);
+        mgametextcenter(origin.x, origin.y + ((110+7-l)<<16), "Android support programming", 0);
+        creditsminitext(origin.x + (160<<16), origin.y + ((110+7+10-l)<<16), "Emile Belanger", 8);
 #endif
 
-        mgametext(160,130+7-l,"Based on \"JFDuke3D\" by",0,2+8+16);
-        creditsminitext(160, 130+7+10-l, "Jonathon \"JonoF\" Fowler", 8, 10+16+128);
+        mgametextcenter(origin.x, origin.y + ((130+7-l)<<16), "Based on \"JFDuke3D\" by");
+        creditsminitext(origin.x + (160<<16), origin.y + ((130+7+10-l)<<16), "Jonathon \"JonoF\" Fowler", 8);
 
-        mgametext(160,150+7-l,"Uses BUILD Engine technology by",0,2+8+16);
-        creditsminitext(160, 150+7+10-l, "Ken \"Awesoken\" Silverman", 8, 10+16+128);
+        mgametextcenter(origin.x, origin.y + ((150+7-l)<<16), "Uses BUILD Engine technology by");
+        creditsminitext(origin.x + (160<<16), origin.y + ((150+7+10-l)<<16), "Ken \"Awesoken\" Silverman", 8);
 
 
         break;
@@ -2206,7 +2234,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
     case MENU_CREDITS5:
         l = 7;
 
-        mgametext(160,38-l,"License and Other Contributors",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((38-l)<<16), "License and Other Contributors");
         {
             const char *header[] =
             {
@@ -2262,17 +2290,17 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry)
 
             i = 0;
             for (m=0; m<header_numlines; m++)
-                creditsminitext(160, 17+10+10+8+4+(m*7)-l, header[m], 8, 10+16+128);
+                creditsminitext(origin.x + (160<<16), origin.y + ((17+10+10+8+4+(m*7)-l)<<16), header[m], 8);
             i += m;
 #define CCOLUMNS 3
 #define CCOLXBUF 20
             for (m=0; m<body_numlines; m++)
-                creditsminitext(CCOLXBUF+((320-CCOLXBUF*2)/(CCOLUMNS*2))  +((320-CCOLXBUF*2)/CCOLUMNS)*(m/(body_numlines/CCOLUMNS)), 17+10+10+8+4+((m%(body_numlines/CCOLUMNS))*7)+(i*7)-l, body[m], 8, 10+16+128);
+                creditsminitext(origin.x + ((CCOLXBUF+((320-CCOLXBUF*2)/(CCOLUMNS*2)) +((320-CCOLXBUF*2)/CCOLUMNS)*(m/(body_numlines/CCOLUMNS)))<<16), origin.y + ((17+10+10+8+4+((m%(body_numlines/CCOLUMNS))*7)+(i*7)-l)<<16), body[m], 8);
             i += m/CCOLUMNS;
             for (m=0; m<footer_numlines; m++)
-                creditsminitext(160, 17+10+10+8+4+(m*7)+(i*7)-l, footer[m], 8, 10+16+128);
+                creditsminitext(origin.x + (160<<16), origin.y + ((17+10+10+8+4+(m*7)+(i*7)-l)<<16), footer[m], 8);
 
-            creditsminitext(160, 138+10+10+10+10+4-l, "Visit www.eduke32.com for news and updates", 8, 10+16+128);
+            creditsminitext(origin.x + (160<<16), origin.y + ((138+10+10+10+10+4-l)<<16), "Visit www.eduke32.com for news and updates", 8);
         }
 
         break;
@@ -2311,7 +2339,7 @@ static void M_PreMenuInput(MenuGroup_t *group, MenuEntry_t *entry)
     }
 }
 
-static void M_PreMenuOptionListDraw(/*MenuGroup_t *group,*/ MenuEntry_t *entry)
+static void M_PreMenuOptionListDraw(/*MenuGroup_t *group,*/ MenuEntry_t *entry, const vec2_t origin)
 {
     switch (g_currentMenu)
     {
@@ -2319,13 +2347,13 @@ static void M_PreMenuOptionListDraw(/*MenuGroup_t *group,*/ MenuEntry_t *entry)
     case MENU_MOUSEADVANCED:
     case MENU_JOYSTICKBTNS:
     case MENU_JOYSTICKAXIS:
-        mgametext(320>>1,31,"Select a function to assign",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (31<<16), "Select a function to assign");
 
         Bsprintf(tempbuf, "to %s", entry->name);
 
-        mgametext(320>>1,31+9,tempbuf,0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((31+9)<<16), tempbuf);
 
-        mgametext(320>>1,161,"Press \"Escape\" To Cancel",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (161<<16), "Press \"Escape\" To Cancel");
         break;
     }
 }
@@ -2358,14 +2386,14 @@ static int32_t M_PreMenuCustom2ColScreen(MenuGroup_t *group, MenuEntry_t *entry)
     return 0;
 }
 
-static void M_PreMenuCustom2ColScreenDraw(MenuGroup_t *group, MenuEntry_t *entry)
+static void M_PreMenuCustom2ColScreenDraw(MenuGroup_t *group, MenuEntry_t *entry, const vec2_t origin)
 {
     if (g_currentMenu == MENU_KEYBOARDKEYS)
     {
-        mgametext(320>>1,90,"Press the key to assign as",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + (90<<16), "Press the key to assign as");
         Bsprintf(tempbuf,"%s for \"%s\"", group->currentColumn?"secondary":"primary", entry->name);
-        mgametext(320>>1,90+9,tempbuf,0,2+8+16);
-        mgametext(320>>1,90+9+9+9,"Press \"Escape\" To Cancel",0,2+8+16);
+        mgametextcenter(origin.x, origin.y + ((90+9)<<16), tempbuf);
+        mgametextcenter(origin.x, origin.y + ((90+9+9+9)<<16), "Press \"Escape\" To Cancel");
     }
 }
 
@@ -3339,6 +3367,38 @@ static inline int32_t M_UpdateScreenOK(MenuID_t cm)
     chances are you should scroll up.
 */
 
+static void M_BlackRectangle(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+    const int32_t xscale = scale(65536, width, tilesiz[0].x<<16), yscale = scale(65536, height, tilesiz[0].y<<16);
+
+    if (xscale >= yscale)
+    {
+        const int32_t patchwidth = scale(tilesiz[0].x<<16, yscale, 65536);
+        const int32_t finalx = x + width - patchwidth;
+
+        while (x < finalx)
+        {
+            rotatesprite_fs(x, y, yscale, 0, 0, 127, 4, 2|8|16|64);
+            x += patchwidth;
+        }
+
+        rotatesprite_fs(finalx, y, yscale, 0, 0, 127, 4, 2|8|16|64);
+    }
+    else
+    {
+        const int32_t patchheight = scale(tilesiz[0].y<<16, xscale, 65536);
+        const int32_t finaly = y + height - patchheight;
+
+        while (y < finaly)
+        {
+            rotatesprite_fs(x, y, xscale, 0, 0, 127, 4, 2|8|16|64);
+            y += patchheight;
+        }
+
+        rotatesprite_fs(x, finaly, xscale, 0, 0, 127, 4, 2|8|16|64);
+    }
+}
+
 static void M_ShadePal(MenuTextType_t *font, uint8_t status, int32_t *s, int32_t *p)
 {
     *s = (status & (1<<0)) ? (sintable[(totalclock<<5)&2047]>>12) : font->shade_deselected;
@@ -3402,7 +3462,7 @@ static int32_t M_FindOptionBinarySearch(MenuOption_t *object, const int32_t quer
     return M_FindOptionBinarySearch(object, query, searchstart, searchend);
 }
 
-static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int32_t state)
+static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int32_t state, const vec2_t origin)
 {
     const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
     int32_t g, rely = INT32_MIN, srcy = INT32_MIN, totalextent = 0;
@@ -3491,7 +3551,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
             dodraw &= menu->ytop <= y - menu->scrollPos && y - menu->scrollPos + entry->font->yline <= menu->bottomcutoff;
 
             if (dodraw)
-            /*textsize =*/ M_MenuText(x, y - menu->scrollPos, entry->font, entry->name, status);
+            /*textsize =*/ M_MenuText(origin.x + x, origin.y + y - menu->scrollPos, entry->font, entry->name, status);
 
             height = entry->font->yline; // max(textsize.y, entry->font->yline); // bluefont Q ruins this
 
@@ -3501,12 +3561,11 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
             {
                 if (status & (1<<2))
                 {
-                    rotatesprite_fs((160<<16) + group->position->cursorPosition, y + (height>>1) - menu->scrollPos, group->position->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
-                    rotatesprite_fs((160<<16) - group->position->cursorPosition, y + (height>>1) - menu->scrollPos, group->position->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
+                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + group->position->cursorPosition, origin.y + y + (height>>1) - menu->scrollPos, group->position->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
+                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - group->position->cursorPosition, origin.y + y + (height>>1) - menu->scrollPos, group->position->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
                 }
                 else
-                    rotatesprite_fs(x - group->position->cursorPosition,
-                    y + (height>>1) - menu->scrollPos, group->position->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
+                    rotatesprite_fs(origin.x + x - group->position->cursorPosition, origin.y + y + (height>>1) - menu->scrollPos, group->position->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
             }
 
             x += klabs(group->position->width);
@@ -3526,7 +3585,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                     if (currentOption >= 0)
                         object->currentOption = currentOption;
 
-                    M_MenuText(x, y + (height>>1) - menu->scrollPos, object->font,
+                    M_MenuText(origin.x + x, origin.y + y + (height>>1) - menu->scrollPos, object->font,
                         currentOption < 0 ? MenuCustom : currentOption < object->options->numOptions ? object->options->optionNames[currentOption] : NULL, 
                         status);
                     break;
@@ -3534,8 +3593,8 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                 case Custom2Col:
                 {
                     MenuCustom2Col_t *object = (MenuCustom2Col_t*)entry->entry;
-                    M_MenuText(x - ((status & (1<<3)) ? object->columnWidth : 0), y + (height>>1) - menu->scrollPos, object->font, object->key[*object->column[0]], status & ~((group->currentColumn != 0)<<0));
-                    M_MenuText(x + ((status & (1<<3)) ? 0 : object->columnWidth), y + (height>>1) - menu->scrollPos, object->font, object->key[*object->column[1]], status & ~((group->currentColumn != 1)<<0));
+                    M_MenuText(origin.x + x - ((status & (1<<3)) ? object->columnWidth : 0), origin.y + y + (height>>1) - menu->scrollPos, object->font, object->key[*object->column[0]], status & ~((group->currentColumn != 0)<<0));
+                    M_MenuText(origin.x + x + ((status & (1<<3)) ? 0 : object->columnWidth), origin.y + y + (height>>1) - menu->scrollPos, object->font, object->key[*object->column[1]], status & ~((group->currentColumn != 1)<<0));
                     break;
                 }
                 case RangeInt32:
@@ -3549,11 +3608,11 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                     if (status & (1<<3))
                         x -= scale(tilesiz[SLIDEBAR].x<<16, height, tilesiz[SLIDEBAR].y<<16);
 
-                    rotatesprite_fs(x, y - menu->scrollPos, z, 0, SLIDEBAR, s, entry->disabled ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
+                    rotatesprite_fs(origin.x + x, origin.y + y - menu->scrollPos, z, 0, SLIDEBAR, s, entry->disabled ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
 
                     rotatesprite_fs(
-                    x + (1<<16) + scale(scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16), *object->variable - object->min, object->max - object->min),
-                    y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
+                    origin.x + x + (1<<16) + scale(scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16), *object->variable - object->min, object->max - object->min),
+                    origin.y + y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
                     z, 0, SLIDEBAR+1, s, entry->disabled ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
 
                     if (object->displaytype > 0)
@@ -3580,7 +3639,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                                 break;
                         }
 
-                        M_MenuText(x - (4<<16), y + (height>>1) - menu->scrollPos, object->font, tempbuf, status);
+                        M_MenuText(origin.x + x - (4<<16), origin.y + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status);
                     }
                     break;
                 }
@@ -3595,11 +3654,11 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                     if (status & (1<<3))
                         x -= scale(tilesiz[SLIDEBAR].x<<16, height, tilesiz[SLIDEBAR].y<<16);
 
-                    rotatesprite_fs(x, y - menu->scrollPos, z, 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16);
+                    rotatesprite_fs(origin.x + x, origin.y + y - menu->scrollPos, z, 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
                     rotatesprite_fs(
-                    x + (1<<16) + (int32_t)((float) scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16) * (*object->variable - object->min) / (object->max - object->min)),
-                    y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
+                    origin.x + x + (1<<16) + (int32_t)((float) scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16) * (*object->variable - object->min) / (object->max - object->min)),
+                    origin.y + y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
                     z, 0, SLIDEBAR+1, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
                     if (object->displaytype > 0)
@@ -3626,7 +3685,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                                 break;
                         }
 
-                        M_MenuText(x - (4<<16), y + (height>>1) - menu->scrollPos, object->font, tempbuf, status);
+                        M_MenuText(origin.x + x - (4<<16), origin.y + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status);
                     }
                     break;
                 }
@@ -3641,11 +3700,11 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                     if (status & (1<<3))
                         x -= scale(tilesiz[SLIDEBAR].x<<16, height, tilesiz[SLIDEBAR].y<<16);
 
-                    rotatesprite_fs(x, y - menu->scrollPos, z, 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16);
+                    rotatesprite_fs(origin.x + x, origin.y + y - menu->scrollPos, z, 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
                     rotatesprite_fs(
-                    x + (1<<16) + (int32_t)((double) scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16) * (*object->variable - object->min) / (object->max - object->min)),
-                    y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
+                    origin.x + x + (1<<16) + (int32_t)((double) scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16) * (*object->variable - object->min) / (object->max - object->min)),
+                    origin.y + y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
                     z, 0, SLIDEBAR+1, s, p, 2|8|16|ROTATESPRITE_FULL16);
 
                     if (object->displaytype > 0)
@@ -3672,7 +3731,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                                 break;
                         }
 
-                        M_MenuText(x - (4<<16), y + (height>>1) - menu->scrollPos, object->font, tempbuf, status);
+                        M_MenuText(origin.x + x - (4<<16), origin.y + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status);
                     }
                     break;
                 }
@@ -3685,10 +3744,10 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                         const vec2_t dim = M_MenuText(x, y + (height>>1), object->font, object->editfield, status | (1<<5));
                         const int32_t h = max(dim.y, entry->font->yline);
 
-                        rotatesprite_fs(x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, h, tilesiz[SPINNINGNUKEICON].y<<16), y + (height>>1) - menu->scrollPos, scale(65536, h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
+                        rotatesprite_fs(origin.x + x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, origin.y + h, tilesiz[SPINNINGNUKEICON].y<<16), y + (height>>1) - menu->scrollPos, scale(65536, h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
                     }
                     else
-                        M_MenuText(x, y + (height>>1) - menu->scrollPos, object->font, object->variable, status);
+                        M_MenuText(origin.x + x, origin.y + y + (height>>1) - menu->scrollPos, object->font, object->variable, status);
                     break;
                 }
             }
@@ -3710,14 +3769,17 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
     // draw indicators if applicable
     if (totalextent > menu->bottomcutoff)
     {
-        rotatesprite((320 - tilesiz[SELECTDIR].x)<<16, menu->ytop, 65536, 0, SELECTDIR, menu->scrollPos > 0 ? 0 : 20, 0, 26, 0, 0, xdim-1, scale(ydim, menu->ytop + (tilesiz[SELECTDIR].y<<15), 200<<16) - 1);
-        rotatesprite((320 - tilesiz[SELECTDIR].x)<<16, menu->bottomcutoff - (tilesiz[SELECTDIR].y<<16), 65536, 0, SELECTDIR, menu->ytop + menu->totalHeight - menu->scrollPos > menu->bottomcutoff ? 0 : 20, 0, 26, 0, scale(ydim, menu->bottomcutoff - (tilesiz[SELECTDIR].y<<15), 200<<16), xdim-1, ydim-1);
+        const int32_t scrollx = origin.x + ((320 - tilesiz[SELECTDIR].x)<<16), scrolly = origin.y + menu->ytop;
+        const int32_t scrollheight = menu->bottomcutoff - menu->ytop;
+        M_BlackRectangle(scrollx, scrolly, tilesiz[SELECTDIR].x<<16, scrollheight);
+
+        rotatesprite_fs(scrollx, scrolly + scale(scrollheight - (tilesiz[SELECTDIR].y<<16), menu->scrollPos, totalextent - menu->bottomcutoff), 65536, 0, SELECTDIR, 0, 0, 26);
     }
 
     return menu->totalHeight;
 }
 
-static void M_RunMenu_MenuOptionList(MenuOption_t *object)
+static void M_RunMenu_MenuOptionList(MenuOption_t *object, const vec2_t origin)
 {
     const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
     int32_t e, y = object->options->list->pos.y;
@@ -3742,7 +3804,7 @@ static void M_RunMenu_MenuOptionList(MenuOption_t *object)
         dodraw &= object->options->list->pos.y <= y - object->options->scrollPos && y - object->options->scrollPos + object->font->yline <= object->options->list->bottomcutoff;
 
         if (dodraw)
-        /*textsize =*/ M_MenuText(x, y - object->options->scrollPos, object->font, object->options->optionNames[e], status);
+        /*textsize =*/ M_MenuText(origin.x + x, origin.y + y - object->options->scrollPos, object->font, object->options->optionNames[e], status);
 
         height = object->font->yline; // max(textsize.y, object->font->yline);
 
@@ -3752,12 +3814,11 @@ static void M_RunMenu_MenuOptionList(MenuOption_t *object)
         {
             if (status & (1<<2))
             {
-                rotatesprite_fs((160<<16) + object->options->list->cursorPosition, y + (height>>1) - object->options->scrollPos, object->options->list->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
-                rotatesprite_fs((160<<16) - object->options->list->cursorPosition, y + (height>>1) - object->options->scrollPos, object->options->list->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
+                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + object->options->list->cursorPosition, origin.y + y + (height>>1) - object->options->scrollPos, object->options->list->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
+                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - object->options->list->cursorPosition, origin.y + y + (height>>1) - object->options->scrollPos, object->options->list->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
             }
             else
-                rotatesprite_fs(x - object->options->list->cursorPosition,
-                y + (height>>1) - object->options->scrollPos, object->options->list->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
+                rotatesprite_fs(origin.x + x - object->options->list->cursorPosition, origin.y + y + (height>>1) - object->options->scrollPos, object->options->list->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
         }
 
         // prepare for the next line
@@ -3770,8 +3831,11 @@ static void M_RunMenu_MenuOptionList(MenuOption_t *object)
     // draw indicators if applicable
     if (y > object->options->list->bottomcutoff)
     {
-        rotatesprite((320 - tilesiz[SELECTDIR].x)<<16, object->options->list->pos.y, 65536, 0, SELECTDIR, object->options->scrollPos > 0 ? 0 : 20, 0, 26, 0, 0, xdim-1, scale(ydim, object->options->list->pos.y + (tilesiz[SELECTDIR].y<<15), 200<<16) - 1);
-        rotatesprite((320 - tilesiz[SELECTDIR].x)<<16, object->options->list->bottomcutoff - (tilesiz[SELECTDIR].y<<16), 65536, 0, SELECTDIR, y - object->options->scrollPos > object->options->list->bottomcutoff ? 0 : 20, 0, 26, 0, scale(ydim, object->options->list->bottomcutoff - (tilesiz[SELECTDIR].y<<15), 200<<16), xdim-1, ydim-1);
+        const int32_t scrollx = origin.x + ((320 - tilesiz[SELECTDIR].x)<<16), scrolly = origin.y + object->options->list->pos.y;
+        const int32_t scrollheight = object->options->list->bottomcutoff - object->options->list->pos.y;
+        M_BlackRectangle(scrollx, scrolly, tilesiz[SELECTDIR].x<<16, scrollheight);
+
+        rotatesprite_fs(scrollx, scrolly + scale(scrollheight - (tilesiz[SELECTDIR].y<<16), object->options->scrollPos, y - object->options->list->bottomcutoff), 65536, 0, SELECTDIR, 0, 0, 26);
     }
 }
 
@@ -3789,9 +3853,25 @@ static void M_RunMenu_AbbreviateNameIntoBuffer(const char* name, int32_t entryle
     tempbuf[len] = 0;
 }
 
-static void M_RunMenu(Menu_t *cm)
+static void M_RunMenuRecurse(MenuID_t cm, const vec2_t origin)
+{
+    switch (cm)
+    {
+    case MENU_LOADVERIFY:
+    case MENU_SAVEVERIFY:
+    case MENU_ADULTPASSWORD:
+        M_RunMenu(m_previousMenu, origin);
+        break;
+    default:
+        break;
+    }
+}
+
+static void M_RunMenu(Menu_t *cm, const vec2_t origin)
 {
     const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
+
+    M_RunMenuRecurse(cm->menuID, origin);
 
     switch (cm->type)
     {
@@ -3801,11 +3881,11 @@ static void M_RunMenu(Menu_t *cm)
 
             M_PreMenu(cm->menuID);
 
-            M_PreMenuDrawBackground(cm->menuID);
+            M_PreMenuDrawBackground(cm->menuID, origin);
 
-            M_PreMenuDraw(cm->menuID, NULL, NULL);
+            M_PreMenuDraw(cm->menuID, NULL, NULL, origin);
 
-            rotatesprite_fs(object->cursorpos.x, object->cursorpos.y, 65536, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
+            rotatesprite_fs(origin.x + object->cursorpos.x, origin.y + object->cursorpos.y, 65536, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
 
             break;
         }
@@ -3816,11 +3896,11 @@ static void M_RunMenu(Menu_t *cm)
 
             M_PreMenu(cm->menuID);
 
-            M_PreMenuDrawBackground(cm->menuID);
+            M_PreMenuDrawBackground(cm->menuID, origin);
 
-            M_PreMenuDraw(cm->menuID, NULL, NULL);
+            M_PreMenuDraw(cm->menuID, NULL, NULL, origin);
 
-            rotatesprite_fs(object->cursorpos.x, object->cursorpos.y, 65536, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
+            rotatesprite_fs(origin.x + object->cursorpos.x, origin.y + object->cursorpos.y, 65536, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
 
             break;
         }
@@ -3828,25 +3908,24 @@ static void M_RunMenu(Menu_t *cm)
         case Password:
         {
             MenuPassword_t *object = (MenuPassword_t*)cm->object;
+            vec2_t textreturn;
             size_t x;
 
             M_PreMenu(cm->menuID);
 
-            M_PreMenuDrawBackground(cm->menuID);
+            M_PreMenuDrawBackground(cm->menuID, origin);
 
-            mgametext(160,50+16+16+16+16-12,"Enter Password",0,2|8|16);
+            mgametextcenter(origin.x, origin.y + ((50+16+16+16+16-12)<<16), "Enter Password");
 
             for (x=0; x < Bstrlen(object->input); ++x)
                 tempbuf[x] = '*';
             tempbuf[x] = 0;
 
-            x = gametext(160,50+16+16+16+16,tempbuf,998,2|8|16);
+            textreturn = mgametextcenter(origin.x, origin.y + ((50+16+16+16+16)<<16), tempbuf);
 
-            x = 160 + ((x - 160)>>1);
+            M_PreMenuDraw(cm->menuID, NULL, NULL, origin);
 
-            M_PreMenuDraw(cm->menuID, NULL, NULL);
-
-            rotatesprite_fs((x + 8) << 16, (50 + 16 + 16 + 16 + 16 + 4) << 16, 32768, 0, SPINNINGNUKEICON + ((totalclock >> 3) % 7), cursorShade, 0, 2 | 8);
+            rotatesprite_fs(origin.x + (168<<16) + (textreturn.x>>1), origin.y + ((50+16+16+16+16+4)<<16), 32768, 0, SPINNINGNUKEICON + ((totalclock >> 3) % 7), cursorShade, 0, 2 | 8);
 
             break;
         }
@@ -3855,26 +3934,25 @@ static void M_RunMenu(Menu_t *cm)
         {
             MenuFileSelect_t *object = (MenuFileSelect_t*)cm->object;
 
-            int32_t i, width = 160 - (40-4);
+            int32_t i;
 
             M_PreMenu(cm->menuID);
 
-            M_PreMenuDrawBackground(cm->menuID);
+            M_PreMenuDrawBackground(cm->menuID, origin);
 
             if (object->title != NoTitle)
-                M_DrawTopBar();
+                M_DrawTopBar(origin);
 
+            
             // black translucent background underneath file lists
-            rotatesprite(0<<16, 0<<16, 65536<<5, 0, /*tile*/ 0, numshades, 0, 10+16+1+32,
-                         xdim/2-scale(width,(ydim*4)/3,320),scale(12+32-2,ydim,200),
-                         xdim/2+scale(width,(ydim*4)/3,320)-1,scale(12+32+112+4,ydim,200)-1);
+            M_BlackRectangle(origin.x + (36<<16), origin.y + (42<<16), 248<<16, 118<<16);
 
             // path
-            minitext(38,45,object->destination,16,26);
+            mminitext(origin.x + (38<<16), origin.y + (45<<16), object->destination, 16);
 
-            mgametext(40+4,32,"Directories",0,2+8+16);
+            mgametext(origin.x + ((40+4)<<16), origin.y + (32<<16), "Directories");
 
-            mgametext(180+4,32,"Files",0,2+8+16);
+            mgametext(origin.x + ((180+4)<<16), origin.y + (32<<16), "Files");
 
             for (i = 0; i < 2; ++i)
             {
@@ -3891,19 +3969,19 @@ static void M_RunMenu(Menu_t *cm)
                         M_RunMenu_AbbreviateNameIntoBuffer(dir->name, USERMAPENTRYLENGTH);
 
                         if (MenuFileSelect_ytop[i] <= y && y <= MenuFileSelect_ybottom)
-                            M_MenuText(MenuFileSelect_startx[i], y, object->font[i], tempbuf, status);
+                            M_MenuText(origin.x + MenuFileSelect_startx[i], origin.y + y, object->font[i], tempbuf, status);
 
                         y += MenuFileSelect_entryheight;
                     }
                 }
             }
 
-            M_PreMenuDraw(cm->menuID, NULL, NULL);
+            M_PreMenuDraw(cm->menuID, NULL, NULL, origin);
 
             if (object->title != NoTitle)
-                M_DrawTopBarCaption(object->title);
+                M_DrawTopBarCaption(object->title, origin);
 
-            rotatesprite_fs(((object->currentList == 0 ? 45 : 185) << 16) - (21 << 15), (32 + 4 + 1 - 2) << 16, 32768, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
+            rotatesprite_fs(origin.x + ((object->currentList == 0 ? 45 : 185)<<16) - (21<<15), origin.y + ((32+4+1-2)<<16), 32768, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
 
             break;
         }
@@ -3914,15 +3992,15 @@ static void M_RunMenu(Menu_t *cm)
 
             M_PreMenu(cm->menuID);
 
-            M_PreMenuDrawBackground(cm->menuID);
+            M_PreMenuDrawBackground(cm->menuID, origin);
 
             if (object->title != NoTitle)
-                M_DrawTopBar();
+                M_DrawTopBar(origin);
 
-            M_PreMenuDraw(cm->menuID, NULL, NULL);
+            M_PreMenuDraw(cm->menuID, NULL, NULL, origin);
 
             if (object->title != NoTitle)
-                M_DrawTopBarCaption(object->title);
+                M_DrawTopBarCaption(object->title, origin);
 
             break;
         }
@@ -3941,39 +4019,39 @@ static void M_RunMenu(Menu_t *cm)
             {
                 M_PreMenu(cm->menuID);
 
-                M_PreMenuDrawBackground(cm->menuID);
+                M_PreMenuDrawBackground(cm->menuID, origin);
 
                 if (menu->title != NoTitle)
-                    M_DrawTopBar();
+                    M_DrawTopBar(origin);
 
-                M_PreMenuDraw(cm->menuID, currgroup, currentry);
+                M_PreMenuDraw(cm->menuID, currgroup, currentry, origin);
 
-                M_RunMenu_MenuMenu(menu, currentry, state);
+                M_RunMenu_MenuMenu(menu, currentry, state, origin);
             }
             else
             {
-                M_PreMenuDrawBackground(cm->menuID);
+                M_PreMenuDrawBackground(cm->menuID, origin);
 
                 if (menu->title != NoTitle)
-                    M_DrawTopBar();
+                    M_DrawTopBar(origin);
 
                 if (currentry->type == Option)
                 {
                     if (currentry->name)
-                        M_DrawTopBarCaption(currentry->name);
+                        M_DrawTopBarCaption(currentry->name, origin);
 
-                    M_PreMenuOptionListDraw(/*currgroup,*/ currentry);
+                    M_PreMenuOptionListDraw(/*currgroup,*/ currentry, origin);
 
-                    M_RunMenu_MenuOptionList((MenuOption_t*)currentry->entry);
+                    M_RunMenu_MenuOptionList((MenuOption_t*)currentry->entry, origin);
                 }
                 else if (currentry->type == Custom2Col)
                 {
-                    M_PreMenuCustom2ColScreenDraw(currgroup, currentry);
+                    M_PreMenuCustom2ColScreenDraw(currgroup, currentry, origin);
                 }
             }
 
             if ((currentry->type != Option || state != 2) && menu->title != NoTitle)
-                M_DrawTopBarCaption(menu->title);
+                M_DrawTopBarCaption(menu->title, origin);
 
             break;
         }
@@ -4803,6 +4881,8 @@ static void M_RunMenuInput(Menu_t *cm)
 // This function MUST NOT RECURSE. That is why M_RunMenu is separate.
 void M_DisplayMenus(void)
 {
+    const vec2_t origin = { 0, 0 }; // { sintable[(scale(2048,totalclock%240,240) + 512) % 2048]<<6, sintable[scale(2048,totalclock%240,240) & 2047]<<6 }; // hehe... circle
+
     Net_GetPackets();
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
@@ -4833,7 +4913,7 @@ void M_DisplayMenus(void)
     gltexapplyprops();
 #endif
 
-    M_RunMenu(m_currentMenu);
+    M_RunMenu(m_currentMenu, origin);
     M_RunMenuInput(m_currentMenu);
 
 #if defined(USE_OPENGL) && defined(DROIDMENU)
