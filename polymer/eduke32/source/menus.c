@@ -3141,11 +3141,11 @@ static MenuAnimation_t m_animation;
 
 int32_t M_Anim_SinRight(void)
 {
-    return sintable[scale(512, totalclock - m_animation.start, m_animation.length) + 512];
+    return sintable[scale(1024, totalclock - m_animation.start, m_animation.length) + 512] + 16384;
 }
 int32_t M_Anim_SinLeft(void)
 {
-    return sintable[scale(512, totalclock - m_animation.start, m_animation.length)];
+    return -sintable[scale(1024, totalclock - m_animation.start, m_animation.length) + 512] + 16384;
 }
 
 void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype)
@@ -4943,7 +4943,7 @@ void M_DisplayMenus(void)
         vec2_t previousOrigin = { 0, 0 };
         const int32_t screenwidth = scale(240<<16, xdim, ydim);
 
-        origin.x = scale(screenwidth, m_animation.func(), 16384);
+        origin.x = scale(screenwidth, m_animation.func(), 32768);
         previousOrigin.x = origin.x - screenwidth;
 
         M_RunMenu(m_animation.a, previousOrigin);
