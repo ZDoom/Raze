@@ -752,7 +752,8 @@ EXTERN int32_t yxaspect, viewingrange;
 #ifdef __cplusplus
 extern "C" {
 #endif
-EXTERN intptr_t ylookup[MAXYDIM+1];
+EXTERN intptr_t *ylookup;
+EXTERN int32_t ylookupsiz;
 #ifdef __cplusplus
 };
 #endif
@@ -804,7 +805,7 @@ EXTERN int32_t g_visibility, parallaxvisibility;
 EXTERN int32_t g_rotatespriteNoWidescreen;
 
 EXTERN int32_t windowx1, windowy1, windowx2, windowy2;
-EXTERN int16_t startumost[MAXXDIM], startdmost[MAXXDIM];
+EXTERN int16_t *startumost, *startdmost;
 
 // The maximum tile offset ever used in any tiled parallaxed multi-sky.
 #define PSKYOFF_MAX 4

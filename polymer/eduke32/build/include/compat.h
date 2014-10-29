@@ -5,6 +5,8 @@
 #ifndef __compat_h__
 #define __compat_h__
 
+#include <malloc.h>
+
 # ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
@@ -811,6 +813,18 @@ static inline void *xrealloc(void * const ptr, const bsize_t size)
     return newptr;
 }
 
+static inline void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
+{
+#ifdef _WIN32
+    void *ptr = _aligned_malloc(size, alignment);
+#else
+    void *ptr = memalign(alignment, size);
+#endif
+
+    if (ptr == NULL) handle_memerr();
+    return ptr;
+}
+
 
 #ifdef EXTERNC
 }
@@ -818,6 +832,10 @@ static inline void *xrealloc(void * const ptr, const bsize_t size)
 
 #define DO_FREE_AND_NULL(var) do { \
     if (var != NULL) { Bfree(var); var = NULL; } \
+} while (0)
+
+#define ALIGNED_FREE_AND_NULL(var) do { \
+    if (var != NULL) { Baligned_free(var); var = NULL; } \
 } while (0)
 
 #define MAYBE_FCLOSE_AND_NULL(fileptr) do { \
@@ -892,14 +910,27 @@ static inline void *xrealloc(void * const ptr, const bsize_t size)
 # define Xmalloc(size) (EDUKE32_PRE_XALLLOC, xmalloc(size))
 # define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLLOC, xcalloc(nmemb, size))
 # define Xrealloc(ptr, size) (EDUKE32_PRE_XALLLOC, xrealloc(ptr, size))
+# define Xaligned_alloc(size, alignment) (EDUKE32_PRE_XALLLOC, xaligned_malloc(size, alignment))
 # define Bexit(status) do { initprintf("exit(%d) at %s:%d in %s()\n", status, __FILE__, __LINE__, EDUKE32_FUNCTION); exit(status); } while (0)
 #else
 # define Xstrdup xstrdup
 # define Xmalloc xmalloc
 # define Xcalloc xcalloc
 # define Xrealloc xrealloc
+#ifdef _WIN32
+# define Xaligned_alloc(alignment, size) _aligned_malloc(size, alignment)
+#else
+# define Xaligned_alloc(alignment, size) memalign(alignment, size)
+#endif
 # define Bexit exit
 #endif
+
+#ifdef _WIN32
+# define Baligned_free(ptr) _aligned_free(ptr)
+#else
+# define Baligned_free(ptr) Bfree(ptr)
+#endif
+
 //////////
 
 #endif // __compat_h__

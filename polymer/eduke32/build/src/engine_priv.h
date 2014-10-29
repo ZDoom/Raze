@@ -5,9 +5,6 @@
 #define MAXPERMS 512
 #define MAXARTFILES_BASE 200
 #define MAXARTFILES_TOTAL 220
-// MAXYSAVES is 983040 (!) right now:
-#define MAXYSAVES ((MAXXDIM*MAXSPRITES)>>7)
-#define MAXNODESPERLINE (MAXYSAVES/MAXYDIM)  // 307
 #define MAXCLIPDIST 1024
 
 // Uncomment to clear the screen before each top-level draw (classic only).

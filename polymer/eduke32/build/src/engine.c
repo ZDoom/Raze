@@ -139,6 +139,7 @@ int32_t editorgridextent = 131072;
 #define MAXYSIZ 256
 #define MAXZSIZ 255
 #define MAXVOXMIPS 5
+#define DISTRECIPSIZ (65536+256)
 intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild
 static char voxlock[MAXVOXELS][MAXVOXMIPS];
 int32_t voxscale[MAXVOXELS];
@@ -146,7 +147,7 @@ int32_t voxscale[MAXVOXELS];
 static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
 static int32_t lowrecip[1024], nytooclose;
 static const int32_t nytoofar = 65536*16384-1048576;
-static uint32_t distrecip[65536+256];
+static uint32_t *distrecip;
 
 static int32_t *lookups = NULL;
 static int32_t dommxoverlay = 1, beforedrawrooms = 1;
@@ -166,7 +167,7 @@ float vid_brightness = DEFAULT_BRIGHTNESS;
 
 //Textured Map variables
 static char globalpolytype;
-static int16_t *dotp1[MAXYDIM], *dotp2[MAXYDIM];
+static int16_t **dotp1, **dotp2;
 
 static int8_t tempbuf[MAXWALLS];
 
@@ -217,7 +218,7 @@ static int32_t cachesize = 0;
 static char *artptrs[MAXARTFILES_TOTAL];
 
 static int32_t no_radarang2 = 0;
-static int16_t radarang[1280], radarang2[MAXXDIM];
+static int16_t radarang[1280], *radarang2;
 
 uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
 const char pow2char[8] = {1,2,4,8,16,32,64,128};
@@ -2239,8 +2240,15 @@ int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
 
 int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
+static int32_t nodesperline, ysavecnt;
+static int16_t *smost, *umost, *dmost, *bakumost, *bakdmost;
+static int16_t *uplc, *dplc, *uwall, *dwall;
+static int32_t *swplc, *lplc, *swall, *lwall;
+#ifdef HIGH_PRECISION_SPRITE
+static float *swallf;
+#endif
+
 static int32_t smostcnt;
-static int16_t smost[MAXYSAVES];
 static int32_t smoststart[MAXWALLSB];
 static char smostwalltype[MAXWALLSB];
 static int32_t smostwall[MAXWALLSB], smostwallcnt = -1;
@@ -2249,15 +2257,6 @@ static int32_t spritesx[MAXSPRITESONSCREEN];
 static int32_t spritesy[MAXSPRITESONSCREEN+1];
 static int32_t spritesz[MAXSPRITESONSCREEN];
 
-static int16_t umost[MAXXDIM], dmost[MAXXDIM];
-static int16_t bakumost[MAXXDIM], bakdmost[MAXXDIM];
-static int16_t uplc[MAXXDIM], dplc[MAXXDIM];
-static int16_t uwall[MAXXDIM], dwall[MAXXDIM];
-static int32_t swplc[MAXXDIM], lplc[MAXXDIM];
-static int32_t swall[MAXXDIM], lwall[MAXXDIM+4];
-#ifdef HIGH_PRECISION_SPRITE
-static float swallf[MAXXDIM];
-#endif
 int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
 int32_t ydimen;
 static int32_t wx1, wy1, wx2, wy2;
@@ -2303,7 +2302,7 @@ static int32_t globaly1, globalx2;
 int16_t sectorborder[256];
 int32_t ydim16, qsetmode = 0;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
-static int32_t lastx[MAXYDIM];
+static int32_t *lastx;
 
 static char paletteloaded = 0;
 
@@ -3165,33 +3164,27 @@ static void prepwall(int32_t z, const walltype *wal)
 //
 int32_t animateoffs(int16_t tilenum, int16_t fakevar)
 {
-    int32_t i, k, offs=0, animnum=picanm[tilenum].num;
+    int i, k, offs = 0;
+    int const animnum = picanm[tilenum].num;
 
     UNREFERENCED_PARAMETER(fakevar);
 
-    i = totalclocklock>>(picanm[tilenum].sf&PICANM_ANIMSPEED_MASK);
+    if (animnum <= 0)
+        return 0;
 
-    if (picanm[tilenum].num > 0)
+    i = totalclocklock >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
+
+    switch (picanm[tilenum].sf & PICANM_ANIMTYPE_MASK)
     {
-        switch (picanm[tilenum].sf&PICANM_ANIMTYPE_MASK)
-        {
         case PICANM_ANIMTYPE_OSC:
-            k = (i%(animnum<<1));
-            if (k < animnum)
-                offs = k;
-            else
-                offs = (animnum<<1)-k;
+            k = (i % (animnum << 1));
+            offs = (k < animnum) ? k : (animnum << 1) - k;
             break;
-        case PICANM_ANIMTYPE_FWD:
-            offs = i%(animnum+1);
-            break;
-        case PICANM_ANIMTYPE_BACK:
-            offs = -(i%(animnum+1));
-            break;
-        }
+        case PICANM_ANIMTYPE_FWD: offs = i % (animnum + 1); break;
+        case PICANM_ANIMTYPE_BACK: offs = -(i % (animnum + 1)); break;
     }
 
-    return(offs);
+    return offs;
 }
 
 
@@ -5005,7 +4998,7 @@ static void drawalls(int32_t bunch)
                 if ((cz[2] < cz[0]) || (cz[3] < cz[1]) || (globalposz < cz[4]))
                 {
                     i = x2-x1+1;
-                    if (smostcnt+i < MAXYSAVES)
+                    if (smostcnt+i < ysavecnt)
                     {
                         smoststart[smostwallcnt] = smostcnt;
                         smostwall[smostwallcnt] = z;
@@ -5094,7 +5087,7 @@ static void drawalls(int32_t bunch)
                 if ((fz[2] > fz[0]) || (fz[3] > fz[1]) || (globalposz > fz[4]))
                 {
                     i = x2-x1+1;
-                    if (smostcnt+i < MAXYSAVES)
+                    if (smostcnt+i < ysavecnt)
                     {
                         smoststart[smostwallcnt] = smostcnt;
                         smostwall[smostwallcnt] = z;
@@ -5188,10 +5181,9 @@ static void drawalls(int32_t bunch)
 # endif
         {
             static char fn[32], tmpbuf[80];
-            static char bakframe[MAXXDIM*MAXYDIM];
-
             char purple = getclosestcol(63, 0, 63);
             char yellow = getclosestcol(63, 63, 0);
+            char *bakframe = (char *)Xaligned_alloc(16, xdim*ydim);
 
             begindrawing();  //{{{
             Bmemcpy(bakframe, (char *)frameplace, xdim*ydim);
@@ -5221,6 +5213,8 @@ static void drawalls(int32_t bunch)
 
             Bmemcpy((char *)frameplace, bakframe, xdim*ydim);
             enddrawing();  //}}}
+
+            Baligned_free(bakframe);
         }
 #endif
     }
@@ -5946,11 +5940,11 @@ draw_as_face_sprite:
         {
             top += topinc; bot += botinc;
             zz = z; z = mulscale20(top,krecipasm(bot));
-            lwall[x] = (z>>8);
             i = ((z+zz)>>1);
-            lwall[x-2] = (i>>8);
             lwall[x-3] = ((i+zz)>>9);
+            lwall[x-2] = (i>>8);
             lwall[x-1] = ((i+z)>>9);
+            lwall[x] = (z>>8);
         }
 
         if (lwall[sx1] < 0) lwall[sx1] = 0;
@@ -6839,8 +6833,8 @@ static void fillpolygon(int32_t npoints)
     for (i=0, y=miny; y<=maxy; y++, i++)
     {
         //They're pointers! - watch how you optimize this thing
-        dotp1[y] = &smost[i*MAXNODESPERLINE];
-        dotp2[y] = &smost[i*MAXNODESPERLINE + (MAXNODESPERLINE>>1)];
+        dotp1[y] = &smost[i*nodesperline];
+        dotp2[y] = &smost[i*nodesperline + (nodesperline>>1)];
     }
 
     for (z=npoints-1; z>=0; z--)
@@ -6897,8 +6891,8 @@ static void fillpolygon(int32_t npoints)
 
     for (i=0, y=miny; y<=maxy; y++, i++)
     {
-        int16_t *const xptr = &smost[i*MAXNODESPERLINE];
-        int16_t *const xptr2 = &smost[i*MAXNODESPERLINE + (MAXNODESPERLINE>>1)];
+        int16_t *const xptr = &smost[i*nodesperline];
+        int16_t *const xptr2 = &smost[i*nodesperline + (nodesperline>>1)];
 
         const int32_t cnt = dotp1[y]-xptr;
 
@@ -7909,6 +7903,7 @@ static void dosetaspect(void)
         oxyaspect = xyaspect;
         j = xyaspect*320;
         horizlookup2[horizycent-1] = divscale26(131072,j);
+
         for (i=0; i < horizycent-1; i++)
         {
             horizlookup[i] = divscale28(1, i-(horizycent-1));
@@ -7951,13 +7946,15 @@ static void dosetaspect(void)
             radarang2[i] = (int16_t)((radarang[k]+j)>>6);
         }
 
-        if (xdimen != oxdimen)
+        if (xdimen != oxdimen && voxlock[0][0])
         {
-            EDUKE32_STATIC_ASSERT((uint64_t) MAXXDIM*(ARRAY_SIZE(distrecip)-1) <= INT32_MAX);
+            EDUKE32_STATIC_ASSERT((uint64_t) MAXXDIM*(DISTRECIPSIZ-1) <= INT32_MAX);
+
+            if (distrecip == NULL)
+                distrecip = (uint32_t *)Xaligned_alloc(16, DISTRECIPSIZ * sizeof(uint32_t));
 
             i = 1;
 
-#ifdef CLASSIC_SLICE_BY_4
             for (; i<(int32_t) ARRAY_SIZE(distrecip)-4; i+=4)
             {
                 distrecip[i] = (xdimen * i)>>20;
@@ -7965,7 +7962,7 @@ static void dosetaspect(void)
                 distrecip[i+2] = (xdimen * (i+2))>>20;
                 distrecip[i+3] = (xdimen * (i+3))>>20;
             }
-#endif
+
             for (; i<(int32_t) ARRAY_SIZE(distrecip); i++)
                 distrecip[i] = (xdimen * i)>>20;
 
@@ -9056,6 +9053,7 @@ void uninitengine(void)
 
     DO_FREE_AND_NULL(pic);
     DO_FREE_AND_NULL(lookups);
+    ALIGNED_FREE_AND_NULL(distrecip);
 
     for (i=0; i<MAXPALOOKUPS; i++)
         if (palookup[i] != NULL && (i==0 || palookup[i] != palookup[0]))
@@ -9067,10 +9065,10 @@ void uninitengine(void)
 #ifdef DYNALLOC_ARRAYS
     DO_FREE_AND_NULL(blockptr);
 #endif
-
 #ifdef WITHKPLIB
     DO_FREE_AND_NULL(kpzbuf);
 #endif
+
     uninitsystem();
 }
 
@@ -11384,6 +11382,51 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
     return -1;
 }
 
+#define YSAVES ((xdim*MAXSPRITES)>>7)
+
+static void initsmost(void)
+{
+    int32_t i;
+
+    struct
+    {
+        void **ptr;
+        size_t size;
+    } dynarray[] = {
+          { (void **)&smost, YSAVES * sizeof(int16_t) },
+          { (void **)&umost, xdim * sizeof(int16_t) },
+          { (void **)&dmost, xdim * sizeof(int16_t) },
+          { (void **)&startumost, xdim * sizeof(int16_t) },
+          { (void **)&startdmost, xdim * sizeof(int16_t) },
+          { (void **)&bakumost, xdim * sizeof(int16_t) },
+          { (void **)&bakdmost, xdim * sizeof(int16_t) },
+          { (void **)&uplc, xdim * sizeof(int16_t) },
+          { (void **)&dplc, xdim * sizeof(int16_t) },
+          { (void **)&uwall, xdim * sizeof(int16_t) },
+          { (void **)&dwall, xdim * sizeof(int16_t) },
+          { (void **)&swplc, xdim * sizeof(int32_t) },
+          { (void **)&lplc, xdim * sizeof(int32_t) },
+          { (void **)&swall, xdim * sizeof(int32_t) },
+          { (void **)&lwall, (xdim + 4) * sizeof(int32_t) },
+          { (void **)&radarang2, xdim * sizeof(int16_t) },
+          { (void **)&ylookup, (ydim + 1) * sizeof(intptr_t) },
+          { (void **)&dotp1, ydim * sizeof(intptr_t) },
+          { (void **)&dotp2, ydim * sizeof(intptr_t) },
+          { (void **)&lastx, ydim * sizeof(int32_t) },
+      };
+
+    for (i = 0; i < (signed)ARRAY_SIZE(dynarray); i++)
+    {
+        if (*dynarray[i].ptr)
+            Baligned_free(*dynarray[i].ptr);
+
+        *dynarray[i].ptr = Xaligned_alloc(16, dynarray[i].size);
+    }
+
+    ysavecnt = YSAVES;
+    nodesperline = tabledivide32_noinline(YSAVES, ydim);
+    ylookupsiz = ydim + 1;
+}
 
 //
 // setgamemode
@@ -11434,6 +11477,13 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     fxdim = (float) xdim;
     fydim = (float) ydim;
 #endif
+
+    initsmost();
+
+#ifdef HIGH_PRECISION_SPRITE
+    swallf = (float *) Xrealloc(swallf, xdim * sizeof(float));
+#endif
+
     if (lookups != NULL)
         Bfree(lookups);
 
@@ -14864,7 +14914,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 
     if ((cx1 > cx2) || (cy1 > cy2)) return;
     if (z <= 16) return;
-    DO_TILE_ANIM(picnum, 0xc000);
+    DO_TILE_ANIM(picnum, (int16_t)0xc000);
     if ((tilesiz[picnum].x <= 0) || (tilesiz[picnum].y <= 0)) return;
 
     // Experimental / development bits. ONLY FOR INTERNAL USE!

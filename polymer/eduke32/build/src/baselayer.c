@@ -138,7 +138,25 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx)
 
     Bassert(lastyidx <= MAXYDIM);
 
-    for (i=0; i<=lastyidx; i++)
+    if (lastyidx > ylookupsiz)
+    {
+        if (ylookup)
+            Baligned_free(ylookup);
+
+        ylookup = (intptr_t *)Xaligned_alloc(16, lastyidx * sizeof(intptr_t));
+        ylookupsiz = lastyidx;
+    }
+
+    for (i=0; i<=lastyidx-4; i+=4)
+    {
+        ylookup[i] = j;
+        ylookup[i + 1] = j + bpl;
+        ylookup[i + 2] = j + (bpl << 1);
+        ylookup[i + 3] = j + (bpl * 3);
+        j += (bpl << 2);
+    }
+
+    for (; i<=lastyidx; i++)
     {
         ylookup[i] = j;
         j += bpl;
