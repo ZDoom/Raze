@@ -584,7 +584,7 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 #  define Bcalloc calloc
 #  define Brealloc realloc
 #  define Bfree free
-#ifdef __cplusplus
+#if defined(__cplusplus) && defined(_MSC_VER)
 #  define Bstrdup _strdup
 # define Bchdir _chdir
 # define Bgetcwd _getcwd
