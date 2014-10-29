@@ -37,8 +37,8 @@ int PortableKeyEvent(int state, int code,int unicode)
     SDL_SendKeyboardKey(state ? SDL_PRESSED : SDL_RELEASED, code);
     SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
 
-    if (code == 42)
-        unicode = 42;
+    // if (code == 42)
+    //    unicode = 42;
 
     if (state)
     {
@@ -94,7 +94,7 @@ void PortableAction(int state, int action)
     else
     {
         //if (PortableRead(READ_SCREEN_MODE) != TOUCH_SCREEN_GAME) //If not in game don't do any of this
-       ///     return;
+        ///     return;
 
 #ifdef GP_LIC
 #define GP_LIC_INC 5
@@ -173,9 +173,14 @@ void PortableInit(int argc, const char ** argv)
     main(argc, argv);
 }
 
+int consoleShown = 0;
+void AndroidSetConsoleShown(int onf)
+{
+    consoleShown = onf;
+}
 
 extern int animation_playing;
-
+extern int inExtraScreens; //In game.c
 int32_t PortableRead(portableread_t r)
 {
     switch (r)
@@ -184,25 +189,32 @@ int32_t PortableRead(portableread_t r)
 
         if (animation_playing)
             return TOUCH_SCREEN_BLANK_TAP;
+        else if (inExtraScreens)
+            return TOUCH_SCREEN_BLANK_TAP;
+        else if (consoleShown)
+            return TOUCH_SCREEN_CONSOLE;
         else if ((g_player[myconnectindex].ps->gm & MODE_MENU) == MODE_MENU)
         {
             //Then check if Yes/No menu
             if ((g_currentMenu == MENU_QUITTOTITLE) ||
                     (g_currentMenu == MENU_RESETPLAYER ) ||
-                    (g_currentMenu == MENU_RESETPLAYER2 ) ||
-                    ((g_currentMenu >= MENU_LOADVERIFY ) && (g_currentMenu <= MENU_LOADVERIFY10 )) ||
+                    ((g_currentMenu == MENU_LOADVERIFY )) ||
                     (g_currentMenu == MENU_NEWVERIFY ) ||
-                    ((g_currentMenu >= MENU_SAVEVERIFY ) &&  (g_currentMenu <= MENU_SAVEVERIFY10 )) ||
+                    ((g_currentMenu == MENU_SAVEVERIFY )) ||
                     (g_currentMenu == MENU_QUIT ) ||
-                    (g_currentMenu == MENU_QUIT2) ||
                     (g_currentMenu == MENU_QUITTOTITLE )
             )
                 return TOUCH_SCREEN_YES_NO;
             else
                 return TOUCH_SCREEN_MENU;
         }
+        else if (ud.overhead_on == 2)
+            return TOUCH_SCREEN_AUTOMAP;
         else if ((g_player[myconnectindex].ps->gm & MODE_GAME))
-            return TOUCH_SCREEN_GAME;
+            if (PortableRead(READ_IS_DEAD))
+                return TOUCH_SCREEN_BLANK_TAP;
+            else
+                return TOUCH_SCREEN_GAME;
         else
             return TOUCH_SCREEN_BLANK_TAP;
 
@@ -218,12 +230,34 @@ int32_t PortableRead(portableread_t r)
         return droidinput.lastWeapon;
     case READ_PAUSED:
         return ud.pause_on != 0;
+    case READ_IS_DEAD:
+        return g_player[myconnectindex].ps->dead_flag;
     default:
         return 0;
     }
 }
 
+static float map_zoom,map_dx,map_dy = 0;
+
+void PortableAutomapControl(float zoom,float dx,float dy)
+{
+    map_zoom += zoom;
+    map_dx += dx;
+    map_dy += dy;
+}
+
 ///This stuff is called from the game/engine
+
+extern void  CONTROL_Android_ScrollMap(int32_t *angle,int32_t *x, int32_t *y, uint16_t *zoom )
+{
+
+    *x += ((int)(map_dx * -30000)*sintable[(512+2048-*angle)&2047])>>14;
+    *y += ((int)(map_dy * -30000)*sintable[(512+1024-512-*angle)&2047])>>14;
+
+    *zoom += map_zoom * 2000;
+    //*angle = 0;
+    map_dx = map_dy = map_zoom = 0;
+}
 
 void CONTROL_Android_SetLastWeapon(int w)
 {
@@ -243,11 +277,11 @@ void CONTROL_Android_PollDevices(ControlInfo *info)
     //LOGI("CONTROL_Android_PollDevices %f %f",forwardmove,sidemove);
     //LOGI("CONTROL_Android_PollDevices %f %f",droidinput.pitch,droidinput.yaw);
 
-    info->dz     = (int32_t)Blrintf(-droidinput.forwardmove * ANDROIDFORWARDMOVEFACTOR);
-    info->dx     = (int32_t)Blrintf(droidinput.sidemove * ANDROIDSIDEMOVEFACTOR);
-    info->dpitch = (int32_t)Blrintf(droidinput.pitch * ANDROIDPITCHFACTOR +
+    info->dz     = (int32_t)nearbyintf(-droidinput.forwardmove * ANDROIDFORWARDMOVEFACTOR);
+    info->dx     = (int32_t)nearbyintf(droidinput.sidemove * ANDROIDSIDEMOVEFACTOR);
+    info->dpitch = (int32_t)nearbyint(droidinput.pitch * ANDROIDPITCHFACTOR +
             droidinput.pitch_joystick * ANDROIDPITCHFACTORJOYSTICK);
-    info->dyaw   = (int32_t)Blrintf(-droidinput.yaw * ANDROIDYAWFACTOR -
+    info->dyaw   = (int32_t)nearbyint(-droidinput.yaw * ANDROIDYAWFACTOR -
             droidinput.yaw_joystick * ANDROIDYAWFACTORJOYSTICK);
 
     /*

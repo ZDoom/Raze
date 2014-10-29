@@ -48,7 +48,8 @@ typedef enum {
     READ_MAPFOLLOWMODE,
     READ_RENDERER,
     READ_LASTWEAPON,
-    READ_PAUSED
+    READ_PAUSED,
+    READ_IS_DEAD
 } portableread_t;
 
 
@@ -94,6 +95,8 @@ extern droidinput_t droidinput;
 extern droidsysinfo_t droidinfo;
 extern char toggleCrouch;
 
+
+
 int PortableKeyEvent(int state, int code, int unicode);
 int PortableRead(portableread_t r);
 
@@ -104,7 +107,12 @@ void PortableLook(double yaw, double pitch);
 void PortableLookJoystick(double yaw, double pitch);
 void PortableCommand(const char * cmd);
 
+void PortableAutomapControl(float zoom,float dx,float dy);
+
 void PortableInit(int argc, const char ** argv);
+
+void AndroidSetConsoleShown(int onf);
+
 
 #ifdef __cplusplus
 }

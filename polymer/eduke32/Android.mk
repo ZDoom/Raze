@@ -23,22 +23,23 @@ LOCAL_MODULE    := duke
 
 # -O2  -fvisibility=hidden
 
-LOCAL_CFLAGS :=  -fvisibility=hidden -fPIC -Wimplicit -Wdeclaration-after-statement -O2 -funswitch-loops -fomit-frame-pointer -DNDEBUG -DUSING_LTO -flto -fno-stack-protector   -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 -fjump-tables -Wno-unused-result  -Wno-char-subscripts -DUSE_LIBPNG   -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT -DRENDERTYPESDL=1 -Wno-strict-overflow -DUSE_OPENGL  -Wno-attributes
+LOCAL_CFLAGS :=  -fvisibility=hidden -fPIC -Wimplicit -Wdeclaration-after-statement -O2 -funswitch-loops -fomit-frame-pointer -DNDEBUG -DUSING_LTO -flto -fno-stack-protector   -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 -fjump-tables -Wno-unused-result  -Wno-char-subscripts    -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT -DRENDERTYPESDL=1 -Wno-strict-overflow -DUSE_OPENGL  -Wno-attributes
 
-#Needed my jaudiolib
-LOCAL_CFLAGS += -DHAVE_SDL
+#-DUSE_LIBPNG
+
+LOCAL_CFLAGS += -DHAVE_SDL -DHAVE_VORBIS -DDROIDMENU
+
+#LOCAL_CFLAGS += -mhard-float -D_NDK_MATH_NO_SOFTFP=1
+
+LOCAL_ARM_NEON = true
 
 LOCAL_LDLIBS += -lGLESv1_CM -lEGL
 
 LOCAL_LDLIBS += -llog
 
-LOCAL_CFLAGS += -march=armv7-a -mfloat-abi=softfp
-LOCAL_LDLIBS += -Wl,--fix-cortex-a8
-
-
 LOCAL_C_INCLUDES :=  $(LOCAL_PATH)/source $(LOCAL_PATH)/source/jmact $(LOCAL_PATH)/source/jaudiolib/include $(LOCAL_PATH)/source/enet/include  $(LOCAL_PATH)/build/include
 
-LOCAL_C_INCLUDES +=    $(TOP_DIR)/  $(TOP_DIR)/Libraries/ $(TOP_DIR)/Libraries/SDL2/include  $(TOP_DIR)/Libraries/SDL2_mixer/include $(TOP_DIR)/Libraries/libpng/include   $(TOP_DIR)/Libraries/TinyXML/include $(TOP_DIR)/TouchControls 
+LOCAL_C_INCLUDES +=    $(TOP_DIR)/ $(TOP_DIR)/Libraries/liboggvorbis/include $(TOP_DIR)/Libraries/ $(TOP_DIR)/Libraries/SDL2/include  $(TOP_DIR)/Libraries/SDL2_mixer/include $(TOP_DIR)/Libraries/libpng/include   $(TOP_DIR)/Libraries/TinyXML/include $(TOP_DIR)/TouchControls 
 
 ANDROID_SRC = \
 	source/android/android-jni.cpp \
@@ -64,7 +65,11 @@ BUILD_SRC = \
 	build/src/pragmas.c \
 	build/src/scriptfile.c \
 	build/src/mutex.c \
-        build/src/xxhash.c
+    build/src/xxhash.c \
+    build/src/mmulti_null.c \
+    build/src/voxmodel.c \
+    build/src/common.c \
+    
 
 GL_SRC = \
  	build/src/mdsprite.c \
@@ -107,6 +112,7 @@ GAME_SRC=source/game.c \
 	source/sounds.c \
 	source/soundsdyn.c \
   	source/sdlmusic.c \
+  	source/rev.c 
  
  JAUDIO_SRC=source/jaudiolib/src/drivers.c \
 	source/jaudiolib/src//fx_man.c \
@@ -134,9 +140,9 @@ GAME_SRC=source/game.c \
 LOCAL_SRC_FILES = $(ANDROID_SRC) $(ENET_SRC) $(JAUDIO_SRC) $(JMACT_SRC) $(GAME_SRC) $(BUILD_SRC)  $(GL_SRC) $(SDL_SRC)  
 
 
-LOCAL_LDLIBS := -lGLESv1_CM -ldl -llog -lOpenSLES -lz
+LOCAL_LDLIBS :=  -lGLESv1_CM -lEGL -ldl -llog -lOpenSLES -lz -L$(TOP_DIR)/openssl/libs/ -lcrypto
 LOCAL_STATIC_LIBRARIES :=  nanogl  SDL2_net libjpeg libpng
-LOCAL_SHARED_LIBRARIES := touchcontrols openal SDL2 SDL2_mixer SDL2_image
+LOCAL_SHARED_LIBRARIES := touchcontrols openal ogg vorbis SDL2 SDL2_mixer SDL2_image
 
 ifeq ($(GP_LIC),1)
 LOCAL_STATIC_LIBRARIES +=  s-setup
