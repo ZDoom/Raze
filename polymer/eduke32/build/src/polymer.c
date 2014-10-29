@@ -4891,7 +4891,7 @@ static int32_t      polymer_bindmaterial(const _prmaterial *material, int16_t* l
 
         texunit++;
 
-        bglUniform1fARB(prprograms[programbits].uniform_shadeOffset, material->shadeoffset);
+        bglUniform1fARB(prprograms[programbits].uniform_shadeOffset, (GLfloat)material->shadeoffset);
         bglUniform1fARB(prprograms[programbits].uniform_visibility, globalvisibility/2048.0 * material->visibility);
     }
 
