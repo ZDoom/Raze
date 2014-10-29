@@ -2653,49 +2653,65 @@ CHECKINV1:
                     j = (j == 10 ? -1 : 1);     // JBF: prev (-1) or next (1) weapon choice
                     i = 0;
 
-                    while ((k >= 0 && k < 10) || (PLUTOPAK && k == GROW_WEAPON && (p->subweapon&(1<<GROW_WEAPON))))         // JBF 20040116: so we don't select grower with v1.3d
+                    while ((k >= 0 && k < 10) || (PLUTOPAK && k == GROW_WEAPON))
                     {
-                        if (k == GROW_WEAPON)   // JBF: this is handling next/previous with the grower selected
+                        // this is handling next/previous with the grower selected
+
+                        switch (k)
                         {
-                            if ((int32_t)j == -1)
-                                k = 5;
-                            else k = 7;
-                        }
-                        else
-                        {
-                            k += j;
-                            if (PLUTOPAK)   // JBF 20040116: so we don't select grower with v1.3d
-                                if (k == SHRINKER_WEAPON && (p->subweapon&(1<<GROW_WEAPON)))    // JBF: activates grower
-                                    k = GROW_WEAPON;                            // if enabled
+                            case DEVISTATOR_WEAPON:
+                                if ((int32_t) j == -1)
+                                {
+                                    if (PLUTOPAK && p->gotweapon & (1 << GROW_WEAPON) && p->ammo_amount[GROW_WEAPON] > 0)
+                                    {
+                                        k = GROW_WEAPON;
+                                        p->subweapon |= (1<<GROW_WEAPON);
+                                    }
+                                    else
+                                    {
+                                        k = SHRINKER_WEAPON;
+                                        p->subweapon &= ~(1 << GROW_WEAPON);
+                                    }
+                                }
+                                else k++;
+                                break;
+                            case GROW_WEAPON:
+                                if ((int32_t)j == -1)
+                                {
+                                    if (PLUTOPAK && p->gotweapon & (1 << SHRINKER_WEAPON) && p->ammo_amount[SHRINKER_WEAPON] > 0)
+                                    {
+                                        k = SHRINKER_WEAPON;
+                                        p->subweapon &= ~(1 << GROW_WEAPON);
+                                    }
+                                    else
+                                        k = HANDBOMB_WEAPON;
+                                }
+                                else k = DEVISTATOR_WEAPON;
+                                break;
+                            case SHRINKER_WEAPON:
+                                if ((int32_t)j == 1)
+                                {
+                                    if (PLUTOPAK && p->gotweapon & (1 << GROW_WEAPON) && p->ammo_amount[GROW_WEAPON] > 0)
+                                    {
+                                        k = GROW_WEAPON;
+                                        p->subweapon |= (1<<GROW_WEAPON);
+                                    }
+                                    else
+                                        k++;
+                                }
+                                else k--;
+                                break;
+                            default: k += j; break;
                         }
 
-                        if (k == -1) k = 9;
-                        else if (k == 10) k = 0;
+                        if (k == -1) k = FREEZE_WEAPON;
+                        else if (k == 10) k = KNEE_WEAPON;
 
                         if ((p->gotweapon & (1<<k)) && p->ammo_amount[k] > 0)
                         {
-                            if (PLUTOPAK)   // JBF 20040116: so we don't select grower with v1.3d
-                                if (k == SHRINKER_WEAPON && (p->subweapon&(1<<GROW_WEAPON)))
-                                    k = GROW_WEAPON;
                             j = k;
                             break;
                         }
-                        else    // JBF: grower with no ammo, but shrinker with ammo, switch to shrink
-                            if (PLUTOPAK && k == GROW_WEAPON && p->ammo_amount[GROW_WEAPON] == 0 &&
-                                    (p->gotweapon & (1<<SHRINKER_WEAPON)) && p->ammo_amount[SHRINKER_WEAPON] > 0)   // JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
-                            {
-                                j = SHRINKER_WEAPON;
-                                p->subweapon &= ~(1<<GROW_WEAPON);
-                                break;
-                            }
-                            else    // JBF: shrinker with no ammo, but grower with ammo, switch to grow
-                                if (PLUTOPAK && k == SHRINKER_WEAPON && p->ammo_amount[SHRINKER_WEAPON] == 0 &&
-                                        (p->gotweapon & (1<<SHRINKER_WEAPON)) && p->ammo_amount[GROW_WEAPON] > 0)   // JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
-                                {
-                                    j = GROW_WEAPON;
-                                    p->subweapon |= (1<<GROW_WEAPON);
-                                    break;
-                                }
 
                         if (++i == 10) // absolutely no weapons, so use foot
                         {

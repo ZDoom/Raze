@@ -750,7 +750,7 @@ enum {
     GVX_BADSECTOR,
     GVX_BADWALL,
     GVX_BADINDEX,
-} gvxerror_t;
+};
 
 static const char *gvxerrs [] ={ "Gv_GetVarX(): invalid gamevar ID",
 "Gv_GetVarX(): invalid player ID",

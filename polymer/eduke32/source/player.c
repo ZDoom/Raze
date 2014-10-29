@@ -2734,9 +2734,7 @@ void P_GetInput(int32_t snum)
     in.avel = clamp(in.avel, -MAXANGVEL, MAXANGVEL);
     in.horz = clamp(in.horz, -MAXHORIZ, MAXHORIZ);
 
-    j=0;
-
-    for (j = gamefunc_Weapon_1; j <= gamefunc_Weapon_10; j++)
+    for (j = gamefunc_Weapon_10; j >= gamefunc_Weapon_1; j--)
     {
         if (BUTTON(j))
         {
@@ -2745,13 +2743,13 @@ void P_GetInput(int32_t snum)
         }
     }
 
+    if (j == gamefunc_Weapon_1-1)
+        j = 0;
+
     if (BUTTON(gamefunc_Previous_Weapon) || (BUTTON(gamefunc_Dpad_Select) && in.fvel < 0))
         j = 11;
     if (BUTTON(gamefunc_Next_Weapon) || (BUTTON(gamefunc_Dpad_Select) && in.fvel > 0))
         j = 12;
-
-    if (j > 12)
-        j = 0;
 
     if (BUTTON(gamefunc_Jump) && p->on_ground)
         g_emuJumpTics = 4;
@@ -2765,8 +2763,7 @@ void P_GetInput(int32_t snum)
     loc.bits |=   BUTTON(gamefunc_Fire)<<SK_FIRE;
     loc.bits |= (BUTTON(gamefunc_Aim_Up) || (BUTTON(gamefunc_Dpad_Aiming) && in.fvel > 0))<<SK_AIM_UP;
     loc.bits |= (BUTTON(gamefunc_Aim_Down) || (BUTTON(gamefunc_Dpad_Aiming) && in.fvel < 0))<<SK_AIM_DOWN;
-    if (ud.runkey_mode) loc.bits |= (ud.auto_run | BUTTON(gamefunc_Run))<<SK_RUN;
-    else loc.bits |= (BUTTON(gamefunc_Run) ^ ud.auto_run)<<SK_RUN;
+    loc.bits |= ((ud.runkey_mode) ? (ud.auto_run | BUTTON(gamefunc_Run)) : (BUTTON(gamefunc_Run) ^ ud.auto_run))<<SK_RUN;
     loc.bits |=   BUTTON(gamefunc_Look_Left)<<SK_LOOK_LEFT;
     loc.bits |=   BUTTON(gamefunc_Look_Right)<<SK_LOOK_RIGHT;
     loc.bits |=   j<<SK_WEAPON_BITS;
@@ -2799,8 +2796,7 @@ void P_GetInput(int32_t snum)
     if (PWEAPON(snum, g_player[snum].ps->curr_weapon, Flags) & WEAPON_SEMIAUTO && BUTTON(gamefunc_Fire))
         CONTROL_ClearButton(gamefunc_Fire);
 
-    loc.extbits = 0;
-    loc.extbits |= (BUTTON(gamefunc_Move_Forward) || (in.fvel > 0));
+    loc.extbits = (BUTTON(gamefunc_Move_Forward) || (in.fvel > 0));
     loc.extbits |= (BUTTON(gamefunc_Move_Backward) || (in.fvel < 0))<<1;
     loc.extbits |= (BUTTON(gamefunc_Strafe_Left) || (in.svel > 0))<<2;
     loc.extbits |= (BUTTON(gamefunc_Strafe_Right) || (in.svel < 0))<<3;
