@@ -2253,9 +2253,7 @@ static int32_t smoststart[MAXWALLSB];
 static char smostwalltype[MAXWALLSB];
 static int32_t smostwall[MAXWALLSB], smostwallcnt = -1;
 
-static int32_t spritesx[MAXSPRITESONSCREEN];
-static int32_t spritesy[MAXSPRITESONSCREEN+1];
-static int32_t spritesz[MAXSPRITESONSCREEN];
+static vec3_t spritesxyz[MAXSPRITESONSCREEN+1];
 
 int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
 int32_t ydimen;
@@ -5584,8 +5582,8 @@ static void drawsprite_classic(int32_t snum)
 
     spritetype *const tspr = tspriteptr[snum];
 
-    const int32_t xb = spritesx[snum];
-    const int32_t yp = spritesy[snum];
+    const int32_t xb = spritesxyz[snum].x;
+    const int32_t yp = spritesxyz[snum].y;
     const int32_t spritenum = tspr->owner;
     const int32_t sectnum = tspr->sectnum;
     const sectortype *const sec = (sectnum>=0) ? &sector[sectnum] : NULL;
@@ -9560,7 +9558,7 @@ void drawmasks(void)
             if (mulscale24(labs(xp+yp),xdimen) >= yp)
                 goto killsprite;
 
-            spritesx[i] = scale(xp+yp,xdimen<<7,yp);
+            spritesxyz[i].x = scale(xp+yp,xdimen<<7,yp);
         }
         else if ((tspriteptr[i]->cstat&48) == 0)
         {
@@ -9573,13 +9571,13 @@ killsprite:
                 if (i != spritesortcnt)
                 {
                     tspriteptr[i] = tspriteptr[spritesortcnt];
-                    spritesx[i] = spritesx[spritesortcnt];
-                    spritesy[i] = spritesy[spritesortcnt];
+                    spritesxyz[i].x = spritesxyz[spritesortcnt].x;
+                    spritesxyz[i].y = spritesxyz[spritesortcnt].y;
                 }
                 continue;
             }
         }
-        spritesy[i] = yp;
+        spritesxyz[i].y = yp;
     }
 
     {
@@ -9590,65 +9588,67 @@ killsprite:
             for (i=0; i<spritesortcnt-gap; i++)
                 for (l=i; l>=0; l-=gap)
                 {
-                    if (spritesy[l] <= spritesy[l+gap]) break;
+                    if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
                     swaplong(&tspriteptr[l],&tspriteptr[l+gap]);
-                    swaplong(&spritesx[l],&spritesx[l+gap]);
-                    swaplong(&spritesy[l],&spritesy[l+gap]);
+                    swaplong(&spritesxyz[l].x,&spritesxyz[l+gap].x);
+                    swaplong(&spritesxyz[l].y,&spritesxyz[l+gap].y);
                 }
 
         if (spritesortcnt > 0)
-            spritesy[spritesortcnt] = (spritesy[spritesortcnt-1]^1);
+            spritesxyz[spritesortcnt].y = (spritesxyz[spritesortcnt-1].y^1);
 
-        ys = spritesy[0]; i = 0;
+        ys = spritesxyz[0].y; i = 0;
         for (j=1; j<=spritesortcnt; j++)
         {
-            if (spritesy[j] == ys)
+            if (spritesxyz[j].y == ys)
                 continue;
 
-            ys = spritesy[j];
+            ys = spritesxyz[j].y;
 
             if (j > i+1)
             {
                 int32_t k;
+                vec3_t tv3;
+                vec2_t tv2;
 
                 for (k=i; k<j; k++)
                 {
                     const spritetype *const s = tspriteptr[k];
 
-                    spritesz[k] = s->z;
+                    spritesxyz[k].z = s->z;
                     if ((s->cstat&48) != 32)
                     {
                         int32_t yoff = picanm[s->picnum].yofs + s->yoffset;
                         int32_t yspan = (tilesiz[s->picnum].y*s->yrepeat<<2);
 
-                        spritesz[k] -= (yoff*s->yrepeat)<<2;
+                        spritesxyz[k].z -= (yoff*s->yrepeat)<<2;
 
                         if (!(s->cstat&128))
-                            spritesz[k] -= (yspan>>1);
-                        if (klabs(spritesz[k]-globalposz) < (yspan>>1))
-                            spritesz[k] = globalposz;
+                            spritesxyz[k].z -= (yspan>>1);
+                        if (klabs(spritesxyz[k].z-globalposz) < (yspan>>1))
+                            spritesxyz[k].z = globalposz;
                     }
                 }
+
                 for (k=i+1; k<j; k++)
                     for (l=i; l<k; l++)
-                        if (klabs(spritesz[k]-globalposz) < klabs(spritesz[l]-globalposz))
+                        if (klabs(spritesxyz[k].z-globalposz) < klabs(spritesxyz[l].z-globalposz))
                         {
                             swaplong(&tspriteptr[k],&tspriteptr[l]);
-                            swaplong(&spritesx[k],&spritesx[l]);
-                            swaplong(&spritesy[k],&spritesy[l]);
-                            swaplong(&spritesz[k],&spritesz[l]);
+                            tv3 = spritesxyz[k];
+                            spritesxyz[k] = spritesxyz[l];
+                            spritesxyz[l] = tv3;
                         }
-
 
                 for (k=i+1; k<j; k++)
                     for (l=i; l<k; l++)
                         if (tspriteptr[k]->statnum < tspriteptr[l]->statnum)
                         {
                             swaplong(&tspriteptr[k],&tspriteptr[l]);
-                            swaplong(&spritesx[k],&spritesx[l]);
-                            swaplong(&spritesy[k],&spritesy[l]);
+                            tv2 = *(vec2_t *)&spritesxyz[k];
+                            *(vec2_t *)&spritesxyz[k] = *(vec2_t *)&spritesxyz[l];
+                            *(vec2_t *)&spritesxyz[l] = tv2;
                         }
-
             }
             i = j;
         }
@@ -9824,7 +9824,7 @@ killsprite:
 
             if (spritep)
             {
-                int32_t sx = spritesx[di]>>8, sy = ydim/2 + 8;
+                int32_t sx = spritesxyz[di].x>>8, sy = ydim/2 + 8;
                 // XXX: printext256 really ought to do bound checking on the
                 // x/y coords!
                 sx = clamp(sx, 0, xdim-8*Bstrlen(numstr)-1);
