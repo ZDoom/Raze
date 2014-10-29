@@ -246,7 +246,7 @@ float alphahackarray[MAXTILES];
 int32_t drawingskybox = 0;
 int32_t hicprecaching = 0;
 
-
+#if 0
 static inline int32_t gltexmayhavealpha(int32_t dapicnum, int32_t dapalnum)
 {
     const int32_t j = (dapicnum&(GLTEXCACHEADSIZ-1));
@@ -258,6 +258,7 @@ static inline int32_t gltexmayhavealpha(int32_t dapicnum, int32_t dapalnum)
 
     return 1;
 }
+#endif
 
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 {
@@ -1908,22 +1909,19 @@ void domost(float x0, float y0, float x1, float y1)
         //Test for intersection on umost (0) and dmost (1)
 
         {
-            const float d[3] ={
+            const float d[2] ={
                 ((y0-y1) * dx) - ((x0-x1) * cv[0]),
-                ((y0-y1) * dx) - ((x0-x1) * cv[1]),
-                ((y0-y1) * dx) - ((x0-x1) * cv[2])
+                ((y0-y1) * dx) - ((x0-x1) * cv[1])
             };
 
-            const float n[3] ={
+            const float n[2] ={
                 ((y0-cy[0]) * dx) - ((x0-n0.x) * cv[0]),
-                ((y0-cy[1]) * dx) - ((x0-n0.x) * cv[1]),
-                ((y0-cy[2]) * dx) - ((x0-n0.x) * cv[2])
+                ((y0-cy[1]) * dx) - ((x0-n0.x) * cv[1])
             };
 
-            const float fnx[3] ={
+            const float fnx[2] ={
                 x0 + ((n[0]/d[0]) * (x1-x0)),
-                x0 + ((n[1]/d[1]) * (x1-x0)),
-                x0 + ((n[2]/d[2]) * (x1-x0))
+                x0 + ((n[1]/d[1]) * (x1-x0))
             };
 
             if ((Bfabsf(d[0]) > Bfabsf(n[0])) && (d[0] * n[0] >= 0.f) && (fnx[0] > n0.x) && (fnx[0] < n1.x))
@@ -1931,9 +1929,6 @@ void domost(float x0, float y0, float x1, float y1)
 
             if ((Bfabsf(d[1]) > Bfabsf(n[1])) && (d[1] * n[1] >= 0.f) && (fnx[1] > n0.x) && (fnx[1] < n1.x))
                 spx[scnt] = fnx[1], spt[scnt++] = 1;
-
-            if ((Bfabsf(d[2]) > Bfabsf(n[2])) && (d[2] * n[2] >= 0.f) && (fnx[2] > n0.x) && (fnx[2] < n1.x))
-                spx[scnt] = fnx[2], spt[scnt++] = 2;
         }
 
         //Nice hack to avoid full sort later :)
@@ -3891,6 +3886,7 @@ void polymost_drawsprite(int32_t snum)
 #else
         bglDepthRange(0.0 - f, 1.0 - f);
 #endif
+
         bglDepthFunc(GL_LESS);
     }
 #endif
