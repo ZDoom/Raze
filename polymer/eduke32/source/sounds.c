@@ -256,7 +256,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     }
     while (0);
 
-    if (fp < 0)
+    if (EDUKE32_PREDICT_FALSE(fp < 0))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open \"%s\" for playback!\n",fn);
         return 0;
@@ -266,7 +266,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
 
     MusicLen = kfilelength(fp);
 
-    if (MusicLen < 4)
+    if (EDUKE32_PREDICT_FALSE(MusicLen < 4))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: empty music file \"%s\"\n", fn);
         kclose(fp);
@@ -277,7 +277,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     MusicPtr = (char *)Xmalloc(MusicLen);
     g_musicSize = kread(fp, (char *)MusicPtr, MusicLen);
 
-    if (g_musicSize != MusicLen)
+    if (EDUKE32_PREDICT_FALSE(g_musicSize != MusicLen))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from \"%s\", expected %d\n",
                    g_musicSize, fn, MusicLen);
@@ -371,7 +371,7 @@ void S_Cleanup(void)
 
             i = g_sounds[num].SoundOwner[j].ow;
 
-            if (g_sounds[num].num > MAXSOUNDINSTANCES)
+            if (EDUKE32_PREDICT_FALSE(g_sounds[num].num > MAXSOUNDINSTANCES))
                 OSD_Printf(OSD_ERROR "S_Cleanup(): num exceeds MAXSOUNDINSTANCES! g_sounds[%d].num %d wtf?\n", num, g_sounds[num].num);
 
             if (g_sounds[num].num > 0)
@@ -399,7 +399,7 @@ int32_t S_LoadSound(uint32_t num)
 
     if (num > (unsigned)g_maxSoundPos || ud.config.SoundToggle == 0 || ud.config.FXDevice < 0) return 0;
 
-    if (g_sounds[num].filename == NULL && g_sounds[num].filename1 == NULL)
+    if (EDUKE32_PREDICT_FALSE(g_sounds[num].filename == NULL && g_sounds[num].filename1 == NULL))
     {
         OSD_Printf(OSD_ERROR "Sound (#%d) not defined!\n",num);
         return 0;
@@ -412,7 +412,7 @@ int32_t S_LoadSound(uint32_t num)
     {
         fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
 
-        if (fp == -1)
+        if (EDUKE32_PREDICT_FALSE(fp == -1))
         {
             OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
             return 0;
@@ -607,7 +607,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice != voice)
             j++;
 
-        if (j >= MAXSOUNDINSTANCES)
+        if (EDUKE32_PREDICT_FALSE(j >= MAXSOUNDINSTANCES))
         {
             OSD_Printf(OSD_ERROR "%s %d: WTF?\n", __FILE__, __LINE__);
             return -1;
@@ -818,7 +818,7 @@ void S_StopEnvSound(int32_t num, int32_t i)
 
     do
     {
-        if (iter++ > MAXSOUNDINSTANCES<<1)
+        if (EDUKE32_PREDICT_FALSE(iter++ > MAXSOUNDINSTANCES<<1))
         {
             initprintf(OSD_ERROR "S_StopEnvSound(): too many iterations! The following IDs are still active for sound %d:\n", num);
             for (j=MAXSOUNDINSTANCES-1; j>=0; j--)
@@ -831,7 +831,7 @@ void S_StopEnvSound(int32_t num, int32_t i)
         {
             if ((i == -1 && g_sounds[num].SoundOwner[j].voice > FX_Ok) || (i != -1 && g_sounds[num].SoundOwner[j].ow == i))
             {
-                if (i >= 0 && g_sounds[num].SoundOwner[j].voice <= FX_Ok)
+                if (EDUKE32_PREDICT_FALSE(i >= 0 && g_sounds[num].SoundOwner[j].voice <= FX_Ok))
                     initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", g_sounds[num].SoundOwner[j].voice, num, j);
                 else if (g_sounds[num].SoundOwner[j].voice > FX_Ok)
                 {
@@ -857,7 +857,7 @@ void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset)
 
         if ((i == -1 && voice > FX_Ok) || (i != -1 && g_sounds[num].SoundOwner[j].ow == i))
         {
-            if (i >= 0 && voice <= FX_Ok)
+            if (EDUKE32_PREDICT_FALSE(i >= 0 && voice <= FX_Ok))
                 initprintf(OSD_ERROR "S_ChangeSoundPitch(): bad voice %d for sound ID %d index %d!\n", voice, num, j);
             else if (voice > FX_Ok && FX_SoundActive(voice))
                 FX_SetPitch(voice, pitchoffset);

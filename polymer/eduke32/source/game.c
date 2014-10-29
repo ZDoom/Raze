@@ -2665,7 +2665,7 @@ void G_PrintGameQuotes(int32_t snum)
     if (ps->fta <= 1)
         return;
 
-    if (ScriptQuotes[ps->ftq] == NULL)
+    if (EDUKE32_PREDICT_FALSE(ScriptQuotes[ps->ftq] == NULL))
     {
         OSD_Printf(OSD_ERROR "%s %d null quote %d\n",__FILE__,__LINE__,ps->ftq);
         return;
@@ -2739,7 +2739,7 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
         q &= ~MAXQUOTES;
     }
 
-    if (ScriptQuotes[q] == NULL)
+    if (EDUKE32_PREDICT_FALSE(ScriptQuotes[q] == NULL))
     {
         OSD_Printf(OSD_ERROR "%s %d null quote %d\n",__FILE__,__LINE__,q);
         return;
@@ -4683,7 +4683,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         if (dont_draw != 1)  // event return values other than 0 and 1 are reserved
         {
-            if (dont_draw != 0)
+            if (EDUKE32_PREDICT_FALSE(dont_draw != 0))
                 OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
                            "other values are reserved.\n");
 
@@ -6005,7 +6005,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
             }
         case WATERBUBBLEMAKER__STATIC:
-            if (sp->hitag && sp->picnum == WATERBUBBLEMAKER)
+            if (EDUKE32_PREDICT_FALSE(sp->hitag && sp->picnum == WATERBUBBLEMAKER))
             {
                 // JBF 20030913: Pisses off X_Move(), eg. in bobsp2
                 OSD_Printf_nowarn(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
@@ -6586,10 +6586,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 T3 = sector[sect].floorz; //Stopping loc
 
                 j = nextsectorneighborz(sect,sector[sect].floorz,-1,-1);
-                if (j >= 0)
-                {
+
+                if (EDUKE32_PREDICT_TRUE(j >= 0))
                     T4 = sector[j].ceilingz;
-                }
                 else
                 {
                     // use elevator sector's ceiling as heuristic
@@ -6600,7 +6599,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 }
 
                 j = nextsectorneighborz(sect,sector[sect].ceilingz,1,1);
-                if (j >= 0)
+
+                if (EDUKE32_PREDICT_TRUE(j >= 0))
                     T5 = sector[j].floorz;
                 else
                 {
@@ -6806,7 +6806,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                                 break;
                             }
                     }
-                    if (j == -1)
+                    if (EDUKE32_PREDICT_FALSE(j == -1))
                     {
                         OSD_Printf_nowarn(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
                             TrackerCast(sp->x),TrackerCast(sp->y));
@@ -6825,7 +6825,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     msx[tempwallptr] = wall[s].x-sp->x;
                     msy[tempwallptr] = wall[s].y-sp->y;
                     tempwallptr++;
-                    if (tempwallptr > 2047)
+                    if (EDUKE32_PREDICT_FALSE(tempwallptr > 2047))
                     {
                         Bsprintf_nowarn(tempbuf, "Too many moving sectors at (%d,%d).\n",
                                         TrackerCast(wall[s].x),TrackerCast(wall[s].y));

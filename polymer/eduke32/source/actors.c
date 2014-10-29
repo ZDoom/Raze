@@ -590,7 +590,7 @@ void G_Polymer_UnInit(void)
 // deletesprite() game wrapper
 void A_DeleteSprite(int32_t s)
 {
-    if (block_deletesprite)
+    if (EDUKE32_PREDICT_FALSE(block_deletesprite))
     {
         OSD_Printf(OSD_ERROR "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n",s);
         return;
@@ -1525,11 +1525,11 @@ ACTOR_STATIC void G_MoveFallers(void)
                     A_SetSprite(i,CLIPMASK0);
                 }
 
-                if (G_CheckForSpaceFloor(s->sectnum))
+                if (EDUKE32_PREDICT_FALSE(G_CheckForSpaceFloor(s->sectnum)))
                     x = 0;
                 else
                 {
-                    if (G_CheckForSpaceCeiling(s->sectnum))
+                    if (EDUKE32_PREDICT_FALSE(G_CheckForSpaceCeiling(s->sectnum)))
                         x = g_spriteGravity/6;
                     else
                         x = g_spriteGravity;
@@ -2978,43 +2978,6 @@ ACTOR_STATIC void G_MoveWeapons(void)
         case RADIUSEXPLOSION__STATIC:
         case KNEE__STATIC:
             KILLIT(i);
-/*
-        case TONGUE__STATIC:
-            T1 = sintable[(T2)&2047]>>9;
-            T2 += 32;
-            if (T2 > 2047)
-                KILLIT(i);
-
-            if (sprite[s->owner].statnum == MAXSTATUS)
-                if (A_CheckEnemySprite(&sprite[s->owner]) == 0)
-                    KILLIT(i);
-
-            s->ang = sprite[s->owner].ang;
-            s->x = sprite[s->owner].x;
-            s->y = sprite[s->owner].y;
-            if (sprite[s->owner].picnum == APLAYER)
-                s->z = sprite[s->owner].z-(34<<8);
-            for (k=0; k<T1; k++)
-            {
-                q = A_InsertSprite(s->sectnum,
-                    s->x+((k*sintable[(s->ang+512)&2047])>>9),
-                    s->y+((k*sintable[s->ang&2047])>>9),
-                    s->z+((k*ksgn(s->zvel))*klabs(s->zvel/12)),TONGUE,-40+(k<<1),
-                    8,8,0,0,0,i,5);
-                sprite[q].cstat = 128;
-                sprite[q].pal = 8;
-            }
-            q = A_InsertSprite(s->sectnum,
-                s->x+((k*sintable[(s->ang+512)&2047])>>9),
-                s->y+((k*sintable[s->ang&2047])>>9),
-                s->z+((k*ksgn(s->zvel))*klabs(s->zvel/12)),INNERJAW,-40,
-                32,32,0,0,0,i,5);
-            sprite[q].cstat = 128;
-            if (T2 > 512 && T2 < (1024))
-                sprite[q].picnum = INNERJAW+1;
-
-            goto BOLT;
-*/
 
         case FREEZEBLAST__STATIC:
             if (s->yvel < 1 || s->extra < 2 || (s->xvel|s->zvel) == 0)

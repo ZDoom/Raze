@@ -67,8 +67,14 @@ GAMEEXEC_STATIC void VM_Execute(int32_t loop);
 # include "gamestructures.c"
 #endif
 
-#define VM_CONDITIONAL(xxx) { if ((xxx) || ((insptr = (intptr_t *)*(insptr+1)) && (((*insptr) & 0xfff) == CON_ELSE))) \
-{ insptr += 2; VM_Execute(0); } }
+#define VM_CONDITIONAL(xxx)                                                                                            \
+    {                                                                                                             \
+        if ((xxx) || ((insptr = (intptr_t *)*(insptr + 1)) && (((*insptr) & 0xfff) == CON_ELSE)))                 \
+        {                                                                                                         \
+            insptr += 2;                                                                                          \
+            VM_Execute(0);                                                                                        \
+        }                                                                                                         \
+    }
 
 void VM_ScriptInfo(void)
 {
@@ -782,7 +788,7 @@ dead:
 
 static void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
 {
-    if ((ps->weaponswitch & 1) && (ps->weaponswitch & 4))
+    if ((ps->weaponswitch & (1|4)) == (1|4))
     {
         const int32_t snum = P_Get(ps->i);
         int32_t i, new_wchoice = -1, curr_wchoice = -1;
@@ -825,7 +831,7 @@ static void P_AddWeaponAmmoCommon(DukePlayer_t *ps, int32_t weap, int32_t amount
 
 static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
 {
-    if ((unsigned)weap >= MAX_WEAPONS)
+    if (EDUKE32_PREDICT_FALSE((unsigned)weap >= MAX_WEAPONS))
     {
         CON_ERRPRINTF("Invalid weapon ID %d\n", weap);
         return 1;
@@ -1425,10 +1431,6 @@ skip_check:
             P_DropWeapon(P_GetP(vm.g_sp));
             continue;
 
-        case CON_NULLOP:
-            insptr++;
-            continue;
-
         case CON_MIKESND:
             insptr++;
             if (EDUKE32_PREDICT_FALSE(((unsigned)vm.g_sp->yvel >= MAXSOUNDS)))
@@ -1607,8 +1609,9 @@ skip_check:
             return;
         case CON_RIGHTBRACE:
             loop--;
+        case CON_NULLOP:
             insptr++;
-            continue;;
+            continue;
 
         case CON_ADDAMMO:
             insptr++;
