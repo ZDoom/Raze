@@ -23,7 +23,7 @@ LOCAL_MODULE    := duke
 
 # -O2  -fvisibility=hidden
 
-LOCAL_CFLAGS :=  -fvisibility=hidden -fPIC -Wimplicit -Wdeclaration-after-statement -O2 -funswitch-loops -fomit-frame-pointer -DNDEBUG -DUSING_LTO -flto -fno-stack-protector   -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 -fjump-tables -Wno-unused-result  -Wno-char-subscripts    -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT -DRENDERTYPESDL=1 -Wno-strict-overflow -DUSE_OPENGL  -Wno-attributes
+LOCAL_CFLAGS :=  -fvisibility=hidden -fPIC -Wimplicit -Wdeclaration-after-statement -O2 -funswitch-loops -fomit-frame-pointer -DNDEBUG -DUSING_LTO -flto -fno-stack-protector   -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -funsigned-char -fno-strict-aliasing -D_FORTIFY_SOURCE=0 -fjump-tables -Wno-unused-result  -Wno-char-subscripts    -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT -DRENDERTYPESDL=1 -Wno-strict-overflow -DUSE_OPENGL  -Wno-attributes
 
 #-DUSE_LIBPNG
 
