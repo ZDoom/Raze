@@ -1393,7 +1393,12 @@ end_vol4a:
 
     ud.last_level = -1;
     g_lastSaveSlot = -1;
+
+#ifdef __ANDROID__
+    p->zoom = 360;
+#else
     p->zoom = 768;
+#endif
     p->gm = 0;
 
 #if !defined LUNATIC
@@ -1730,7 +1735,7 @@ void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int3
         p[0] = '.';
     }
 
-    for (int i = 0; i < ARRAY_SIZE(exts); i++)
+    for (unsigned int i = 0; i < ARRAY_SIZE(exts); i++)
     {
         int32_t fil;
 
