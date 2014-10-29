@@ -20,19 +20,6 @@ void clearbufbyte(void *D, int32_t c, int32_t a);
 void copybufbyte(const void *S, void *D, int32_t c);
 void copybufreverse(const void *S, void *D, int32_t c);
 
-
-#ifdef NO_GCC_BUILTINS
-#define sqr(a) \
-	({ int32_t __a=(a); \
-	   __asm__ __volatile__ ("imull %0, %0" \
-		: "=q" (__a) \
-		: "0" (__a) \
-		: "cc"); \
-	 __a; })
-#else
-#define sqr(a) __builtin_sqr(a)
-#endif
-
 #define mulscale(a,d,c) \
 	({ int32_t __a=(a), __d=(d), __c=(c); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl %%cl, %%edx, %%eax" \
@@ -495,28 +482,6 @@ void copybufreverse(const void *S, void *D, int32_t c);
 	   __asm__ __volatile__ ("addl %%ebx, %%ebx; sbbl %%eax, %%eax; cmpl %%ebx, %%eax; adcb $0, %%al" \
 		: "=a" (__r) : "b" (__b) : "cc"); \
 	 __r; })
-
-#define umin(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("subl %%ebx, %%eax; sbbl %%ecx, %%ecx; andl %%ecx, %%eax; addl %%ebx, %%eax" \
-	   	: "=a" (__a) : "a" (__a), "b" (__b) : "ecx", "cc"); \
-	 __a; })
-#define umax(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("subl %%ebx, %%eax; sbbl %%ecx, %%ecx; xorl $0xffffffff, %%ecx; andl %%ecx, %%eax; addl %%ebx, %%eax" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "ecx", "cc"); \
-	 __a; })
-
-#define kmin(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("cmpl %%ebx, %%eax; jl 0f; movl %%ebx, %%eax; 0:" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "cc"); \
-	 __a; })
-#define kmax(a,b) \
-	({ int32_t __a=(a), __b=(b); \
-	   __asm__ __volatile__ ("cmpl %%ebx, %%eax; jg 0f; movl %%ebx, %%eax; 0:" \
-		: "=a" (__a) : "a" (__a), "b" (__b) : "cc"); \
-	 __a; })
 
 #define swapchar(a,b) \
 	({ void *__a=(a), *__b=(b); \

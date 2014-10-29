@@ -4,9 +4,7 @@
 #ifndef __pragmas_ppc_h__
 #define __pragmas_ppc_h__
 
-#define sqr(a) ((a)*(a))
-
-#define _scaler(x) \
+#define EDUKE32_SCALER_PRAGMA(x) \
 static inline int32_t mulscale##x(int32_t a, int32_t d) \
 { \
 	int32_t mullo, mulhi; \
@@ -39,8 +37,8 @@ static inline int32_t dmulscale##x(int32_t a, int32_t d, int32_t S, int32_t D) \
 	return sumlo; \
 }
 
-PRAGMA_FUNCS
-#undef _scaler
+EDUKE32_GENERATE_PRAGMAS
+#undef EDUKE32_SCALER_PRAGMA
 
 static inline int32_t mulscale(int32_t a, int32_t d, int32_t c)
 {
@@ -243,11 +241,6 @@ static inline void swap64bit(void *a, void *b)
     *(double*) a = *(double*) b;
     *(double*) b = t;
 }
-
-static inline int32_t umin(int32_t a, int32_t b) { if ((uint32_t) a < (uint32_t) b) return a; return b; }
-static inline int32_t umax(int32_t a, int32_t b) { if ((uint32_t) a < (uint32_t) b) return b; return a; }
-static inline int32_t kmin(int32_t a, int32_t b) { if ((int32_t) a < (int32_t) b) return a; return b; }
-static inline int32_t kmax(int32_t a, int32_t b) { if ((int32_t) a < (int32_t) b) return b; return a; }
 
 static inline int32_t krecipasm(int32_t i)
 {

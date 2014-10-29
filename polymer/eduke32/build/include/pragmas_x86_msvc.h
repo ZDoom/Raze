@@ -8,14 +8,6 @@
 #ifndef __pragmas_x86_h__
 #define __pragmas_x86_h__
 
-static __inline int32_t sqr(int32_t a)
-{
-    _asm {
-        mov eax, a
-            imul eax, eax
-    }
-}
-
 static __inline int32_t mulscale(int32_t a, int32_t d, int32_t c)
 {
     _asm {
@@ -26,7 +18,7 @@ static __inline int32_t mulscale(int32_t a, int32_t d, int32_t c)
     }
 }
 
-#define _scaler(x) \
+#define EDUKE32_SCALER_PRAGMA(x) \
 static __inline int32_t mulscale##x (int32_t a, int32_t d) \
 { \
 	_asm mov eax, a \
@@ -47,8 +39,8 @@ static __inline int32_t dmulscale##x (int32_t a, int32_t d, int32_t S, int32_t D
 } \
 
 
-PRAGMA_FUNCS 
-#undef _scaler
+EDUKE32_GENERATE_PRAGMAS 
+#undef EDUKE32_SCALER_PRAGMA
 
 static __inline int32_t mulscale32(int32_t a, int32_t d)
 {
@@ -333,55 +325,6 @@ static __inline int32_t ksgn(int32_t b)
             sbb eax, eax
             cmp eax, ebx
             adc al, 0
-    }
-}
-
-//eax = (unsigned min)umin(eax,ebx)
-static __inline int32_t umin(int32_t a, int32_t b)
-{
-    _asm {
-        mov eax, a
-            sub eax, b
-            sbb ecx, ecx
-            and eax, ecx
-            add eax, b
-    }
-}
-
-//eax = (unsigned max)umax(eax,ebx)
-static __inline int32_t umax(int32_t a, int32_t b)
-{
-    _asm {
-        mov eax, a
-            sub eax, b
-            sbb ecx, ecx
-            xor ecx, 0xffffffff
-            and eax, ecx
-            add eax, b
-    }
-}
-
-static __inline int32_t kmin(int32_t a, int32_t b)
-{
-    _asm {
-        mov eax, a
-            mov ebx, b
-            cmp eax, ebx
-            jl skipit
-            mov eax, ebx
-        skipit :
-    }
-}
-
-static __inline int32_t kmax(int32_t a, int32_t b)
-{
-    _asm {
-        mov eax, a
-            mov ebx, b
-            cmp eax, ebx
-            jg skipit
-            mov eax, ebx
-        skipit :
     }
 }
 

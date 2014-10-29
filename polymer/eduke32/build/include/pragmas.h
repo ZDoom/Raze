@@ -11,14 +11,14 @@ extern "C" {
 
 #include <limits.h>
 
-#define PRAGMA_FUNCS _scaler(1) _scaler(2)	_scaler(3)	_scaler(4)\
-_scaler(5)	_scaler(6)	_scaler(7)	_scaler(8)\
-_scaler(9)	_scaler(10)	_scaler(11)	_scaler(12)\
-_scaler(13)	_scaler(14)	_scaler(15)	_scaler(16)\
-_scaler(17)	_scaler(18)	_scaler(19)	_scaler(20)\
-_scaler(21)	_scaler(22)	_scaler(23)	_scaler(24)\
-_scaler(25)	_scaler(26)	_scaler(27)	_scaler(28)\
-_scaler(29)	_scaler(30)	_scaler(31)
+#define EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(1) EDUKE32_SCALER_PRAGMA(2)	EDUKE32_SCALER_PRAGMA(3)	EDUKE32_SCALER_PRAGMA(4)\
+EDUKE32_SCALER_PRAGMA(5)	EDUKE32_SCALER_PRAGMA(6)	EDUKE32_SCALER_PRAGMA(7)	EDUKE32_SCALER_PRAGMA(8)\
+EDUKE32_SCALER_PRAGMA(9)	EDUKE32_SCALER_PRAGMA(10)	EDUKE32_SCALER_PRAGMA(11)	EDUKE32_SCALER_PRAGMA(12)\
+EDUKE32_SCALER_PRAGMA(13)	EDUKE32_SCALER_PRAGMA(14)	EDUKE32_SCALER_PRAGMA(15)	EDUKE32_SCALER_PRAGMA(16)\
+EDUKE32_SCALER_PRAGMA(17)	EDUKE32_SCALER_PRAGMA(18)	EDUKE32_SCALER_PRAGMA(19)	EDUKE32_SCALER_PRAGMA(20)\
+EDUKE32_SCALER_PRAGMA(21)	EDUKE32_SCALER_PRAGMA(22)	EDUKE32_SCALER_PRAGMA(23)	EDUKE32_SCALER_PRAGMA(24)\
+EDUKE32_SCALER_PRAGMA(25)	EDUKE32_SCALER_PRAGMA(26)	EDUKE32_SCALER_PRAGMA(27)	EDUKE32_SCALER_PRAGMA(28)\
+EDUKE32_SCALER_PRAGMA(29)	EDUKE32_SCALER_PRAGMA(30)	EDUKE32_SCALER_PRAGMA(31)
 
 extern int32_t dmval;
 #if !defined(NOASM) && defined __cplusplus
@@ -115,9 +115,9 @@ static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx)
 }
 #endif
 
-# define _scaler(a) static inline int32_t divscale##a(int32_t eax, int32_t ebx) { return divscale(eax, ebx, a); }
-PRAGMA_FUNCS _scaler(32)
-#undef _scaler
+# define EDUKE32_SCALER_PRAGMA(a) static inline int32_t divscale##a(int32_t eax, int32_t ebx) { return divscale(eax, ebx, a); }
+EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
+#undef EDUKE32_SCALER_PRAGMA
 
 static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
 {
@@ -151,7 +151,7 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
 // Generic C
 //
 
-#define _scaler(a) \
+#define EDUKE32_SCALER_PRAGMA(a) \
 static inline int32_t mulscale##a(int32_t eax, int32_t edx) \
 { \
 	return dw((qw(eax) * qw(edx)) >> by(a)); \
@@ -163,9 +163,9 @@ static inline int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_
 } \
 \
 
-PRAGMA_FUNCS _scaler(32)
+EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 
-#undef _scaler
+#undef EDUKE32_SCALER_PRAGMA
 
 static inline void swapchar(void* a, void* b)  { char t = *((char*)b); *((char*)b) = *((char*)a); *((char*)a) = t; }
 static inline void swapchar2(void* a, void* b, int32_t s) { swapchar(a,b); swapchar((char*)a+1,(char*)b+s); }
@@ -180,12 +180,6 @@ static inline void drawpixel(void* s, char a)    { *((char*)(s)) = a; }
 static inline int32_t klabs(int32_t a) { const uint32_t m = a >> (sizeof(int) * CHAR_BIT - 1); return (a ^ m) - m; }
 static inline int32_t ksgn(int32_t a)  { return (a>0)-(a<0); }
 
-static inline int32_t umin(int32_t a, int32_t b) { if ((uint32_t)a < (uint32_t)b) return a; return b; }
-static inline int32_t umax(int32_t a, int32_t b) { if ((uint32_t)a < (uint32_t)b) return b; return a; }
-static inline int32_t kmin(int32_t a, int32_t b) { if ((int32_t)a < (int32_t)b) return a; return b; }
-static inline int32_t kmax(int32_t a, int32_t b) { if ((int32_t)a < (int32_t)b) return b; return a; }
-
-static inline int32_t sqr(int32_t eax) { return (eax) * (eax); }
 static inline int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
 static inline int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx) { return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(ecx)); }
 
