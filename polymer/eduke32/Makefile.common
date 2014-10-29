@@ -197,7 +197,7 @@ endif
 #  OPTLEVEL	- 0..3 = GCC optimization strategy
 #  LTO - 1 = enable link-time optimization, for GCC 4.5 and up
 #
-CPLUSPLUS?=0
+CPLUSPLUS?=1
 RELEASE?=1
 DEBUGANYWAY?=0
 KRANDDEBUG?=0
@@ -264,7 +264,7 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
     OPTIMIZATIONS += $(DEBUGFLAG)
 endif
 
-CONLYFLAGS=-std=gnu89 -Wimplicit -Wdeclaration-after-statement
+CONLYFLAGS=-std=c99 -Wimplicit -Wdeclaration-after-statement
 CPPONLYFLAGS= -fno-exceptions -fno-rtti -Wno-write-strings
 ASFORMAT=elf$(SYSBITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
