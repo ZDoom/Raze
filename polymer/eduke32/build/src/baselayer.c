@@ -10,8 +10,8 @@
 
 // input
 char inputdevices=0;
-char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
-char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
+char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyasciififo[KEYFIFOSIZ];
+uint8_t keyfifoplc, keyfifoend, keyasciififoplc, keyasciififoend;
 char remap[KEYSTATUSSIZ];
 int32_t remapinit=0;
 char key_names[NUMKEYS][24];

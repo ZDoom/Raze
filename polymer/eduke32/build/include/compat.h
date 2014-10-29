@@ -44,9 +44,11 @@
 # define __has_extension __has_feature // Compatibility with pre-3.0 compilers.
 #endif
 
-#ifndef UNREFERENCED_PARAMETER
-    #define UNREFERENCED_PARAMETER(x) x=x
+#ifdef UNREFERENCED_PARAMETER
+#undef UNREFERENCED_PARAMETER
 #endif
+
+#define UNREFERENCED_PARAMETER(x) x = x
 
 #if defined __GNUC__ || defined __clang__
 # define ATTRIBUTE(attrlist) __attribute__(attrlist)
@@ -582,7 +584,15 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 #  define Bcalloc calloc
 #  define Brealloc realloc
 #  define Bfree free
+#ifdef __cplusplus
+#  define Bstrdup _strdup
+# define Bchdir _chdir
+# define Bgetcwd _getcwd
+#else
 #  define Bstrdup strdup
+# define Bchdir chdir
+# define Bgetcwd getcwd
+#endif
 #  define Bmemalign memalign
 # define Bopen open
 # define Bclose close
@@ -680,7 +690,6 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 #  define Bvsnprintf vsnprintf
 # endif
 # define Bvfprintf vfprintf
-# define Bgetcwd getcwd
 # define Bgetenv getenv
 # define Btime() time(NULL)
 # define Butime utime

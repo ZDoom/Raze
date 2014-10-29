@@ -157,11 +157,12 @@
 /**************************************
    Memory routines
 **************************************/
+#include "compat.h"
 #include <stdlib.h>   /* malloc, calloc, free */
-#define ALLOCATOR(n,s) calloc(n,s)
-#define FREEMEM        free
+#define ALLOCATOR(n,s) Xcalloc(n,s)
+#define FREEMEM        Bfree
 #include <string.h>   /* memset, memcpy */
-#define MEM_INIT       memset
+#define MEM_INIT       Bmemset
 
 
 /**************************************

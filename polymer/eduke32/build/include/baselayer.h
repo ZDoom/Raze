@@ -89,8 +89,8 @@ extern char inputdevices;
 #define NUMKEYS 256
 #define KEYSTATUSSIZ 256
 #define KEYFIFOSIZ 64
-extern char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
-extern char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
+extern char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyasciififo[KEYFIFOSIZ];
+extern uint8_t keyasciififoplc, keyasciififoend, keyfifoplc, keyfifoend;
 extern char scantoasc[128], remap[KEYSTATUSSIZ], key_names[NUMKEYS][24];
 extern int32_t remapinit;
 

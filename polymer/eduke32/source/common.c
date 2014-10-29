@@ -352,7 +352,7 @@ void G_ExtInit(void)
                 else asperr = -1;
             }
             if (asperr == 0)
-                chdir(cwd);
+                Bchdir(cwd);
             Bfree(homedir);
         }
     }

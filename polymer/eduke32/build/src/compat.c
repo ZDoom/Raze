@@ -97,7 +97,7 @@ void *Bmalloc(bsize_t size)
 
 void Bfree(void *ptr)
 {
-    free(ptr);
+    Bfree(ptr);
 }
 
 int32_t Bopen(const char *pathname, int32_t flags, uint32_t mode)

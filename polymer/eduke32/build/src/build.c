@@ -10695,7 +10695,7 @@ void test_map(int32_t mode)
         if ((program_origcwd[0] == '\0') || !getcwd(current_cwd, BMAX_PATH))
             current_cwd[0] = '\0';
         else // Before we check if file exists, for the case there's no absolute path.
-            chdir(program_origcwd);
+            Bchdir(program_origcwd);
 
         fp = fopen(game_executable, "rb"); // File exists?
         if (fp != NULL)
@@ -10719,7 +10719,7 @@ void test_map(int32_t mode)
         }
 
         if (current_cwd[0] != '\0') // Temporarily changing back,
-            chdir(current_cwd);     // after checking if file exists.
+            Bchdir(current_cwd);     // after checking if file exists.
 
         if (testplay_addparam)
             slen = Bstrlen(testplay_addparam);
@@ -10765,10 +10765,10 @@ void test_map(int32_t mode)
 #else
         if (current_cwd[0] != '\0')
         {
-            chdir(program_origcwd);
+            Bchdir(program_origcwd);
             if (system(fullparam))
                 message("Error launching the game!");
-            chdir(current_cwd);
+            Bchdir(current_cwd);
         }
         else system(fullparam);
 #endif
