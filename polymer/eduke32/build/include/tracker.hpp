@@ -80,7 +80,7 @@ enum {
 #undef __TRACKER_RIGHTHAND
 
 template<typename TrackedType>
-__TRACKER_NAME<TrackedType>::operator TrackedType() const
+inline __TRACKER_NAME<TrackedType>::operator TrackedType() const
 {
     return this->TrackedValue;
 }
