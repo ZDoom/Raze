@@ -177,7 +177,11 @@ extern int32_t r_tror_nomaskpass;
 // Moved below declarations of sector, wall, sprite.
 # else
 int16_t yax_getbunch(int16_t i, int16_t cf);
-void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb);
+static inline void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
+{
+    *cb = yax_getbunch(i, YAX_CEILING);
+    *fb = yax_getbunch(i, YAX_FLOOR);
+}
 int16_t yax_getnextwall(int16_t wal, int16_t cf);
 void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall);
 # endif

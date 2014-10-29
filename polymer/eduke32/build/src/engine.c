@@ -393,12 +393,6 @@ int16_t yax_getbunch(int16_t i, int16_t cf)
 
     return YAX_BUNCHNUM(i, cf);
 }
-
-void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
-{
-    *cb = yax_getbunch(i, YAX_CEILING);
-    *fb = yax_getbunch(i, YAX_FLOOR);
-}
 # else
 #  define YAX_PTRBUNCHNUM(Ptr, Sect, Cf) (*((Cf) ? &(Ptr)[Sect].floorbunch : &(Ptr)[Sect].ceilingbunch))
 #  define YAX_BUNCHNUM(Sect, Cf) YAX_PTRBUNCHNUM(sector, Sect, Cf)
