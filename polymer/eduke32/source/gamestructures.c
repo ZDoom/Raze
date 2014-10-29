@@ -1257,9 +1257,9 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
     case PLAYER_INVDISPTIME:
         Gv_SetVarX(lVar2, ps->invdisptime); return;
     case PLAYER_BOBPOSX:
-        Gv_SetVarX(lVar2, ps->bobposx); return;
+        Gv_SetVarX(lVar2, ps->bobpos.x); return;
     case PLAYER_BOBPOSY:
-        Gv_SetVarX(lVar2, ps->bobposy); return;
+        Gv_SetVarX(lVar2, ps->bobpos.y); return;
     case PLAYER_OPOSX:
         Gv_SetVarX(lVar2, ps->opos.x); return;
     case PLAYER_OPOSY:
@@ -1599,9 +1599,9 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
     case PLAYER_INVDISPTIME:
         ps->invdisptime=lVar1; return;
     case PLAYER_BOBPOSX:
-        ps->bobposx=lVar1; return;
+        ps->bobpos.x=lVar1; return;
     case PLAYER_BOBPOSY:
-        ps->bobposy=lVar1; return;
+        ps->bobpos.y=lVar1; return;
     case PLAYER_OPOSX:
         ps->opos.x=lVar1; return;
     case PLAYER_OPOSY:
@@ -3648,9 +3648,9 @@ static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, in
     case PLAYER_INVDISPTIME:
         return ps->invdisptime;
     case PLAYER_BOBPOSX:
-        return ps->bobposx;
+        return ps->bobpos.x;
     case PLAYER_BOBPOSY:
-        return ps->bobposy;
+        return ps->bobpos.y;
     case PLAYER_OPOSX:
         return ps->opos.x;
     case PLAYER_OPOSY:

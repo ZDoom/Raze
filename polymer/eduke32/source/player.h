@@ -142,8 +142,8 @@ enum playeraction_t {
 };
 
 typedef struct {
-    int32_t ox,oy,oz;
-    int16_t oa,os;
+    vec3_t pos;
+    int16_t ang, sect;
 } playerspawn_t;
 
 typedef struct {
@@ -155,10 +155,9 @@ typedef struct {
 } DukeStatus_t;
 
 typedef struct {
-    uint32_t bits; // 4b
-    int16_t fvel, svel; // 4b
-    int8_t avel, horz; // 2b
-    int8_t extbits, filler; // 2b
+    uint32_t bits;
+    int16_t fvel, svel, avel;
+    int8_t horz, extbits;
 } input_t;
 
 #pragma pack(push,1)
@@ -171,7 +170,7 @@ typedef struct {
 // KEEPINSYNC lunatic/defs.ilua
 typedef struct {
     vec3_t pos, opos, vel, npos;
-    int32_t bobposx, bobposy;
+    vec2_t bobpos, fric;
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
     int32_t runspeed, max_player_health, max_shield_amount;
@@ -288,7 +287,6 @@ typedef struct
 } weapondata_t;
 
 extern int8_t             g_numPlayerSprites;
-extern int32_t          fricxv,fricyv;
 
 #ifdef LUNATIC
 # define PWEAPON(Player, Weapon, Wmember) (g_playerWeapon[Player][Weapon].Wmember)

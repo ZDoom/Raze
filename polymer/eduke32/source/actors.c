@@ -3310,8 +3310,8 @@ static void P_FinishWaterChange(int32_t j, DukePlayer_t *ps, int32_t sectlotag, 
     int32_t l;
     vec3_t vect;
 
-    ps->bobposx = ps->opos.x = ps->pos.x;
-    ps->bobposy = ps->opos.y = ps->pos.y;
+    ps->bobpos.x = ps->opos.x = ps->pos.x;
+    ps->bobpos.y = ps->opos.y = ps->pos.y;
 
     if (ow < 0 || sprite[ow].owner != ow)
         ps->transporter_hold = -2;
@@ -3412,8 +3412,8 @@ ACTOR_STATIC void G_MoveTransports(void)
                                 ps->transporter_hold = 13;
                             }
 
-                            ps->bobposx = ps->opos.x = ps->pos.x = sprite[OW].x;
-                            ps->bobposy = ps->opos.y = ps->pos.y = sprite[OW].y;
+                            ps->bobpos.x = ps->opos.x = ps->pos.x = sprite[OW].x;
+                            ps->bobpos.y = ps->opos.y = ps->pos.y = sprite[OW].y;
                             ps->opos.z = ps->pos.z = sprite[OW].z-PHEIGHT;
 
                             changespritesect(j,sprite[OW].sectnum);
@@ -3434,8 +3434,8 @@ ACTOR_STATIC void G_MoveTransports(void)
                         if (!ps->jetpack_on || TEST_SYNC_KEY(g_player[p].sync->bits, SK_JUMP) ||
                                 TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH))
                         {
-                            ps->bobposx = ps->opos.x = ps->pos.x += sprite[OW].x-SX;
-                            ps->bobposy = ps->opos.y = ps->pos.y += sprite[OW].y-SY;
+                            ps->bobpos.x = ps->opos.x = ps->pos.x += sprite[OW].x-SX;
+                            ps->bobpos.y = ps->opos.y = ps->pos.y += sprite[OW].y-SY;
 
                             if (ps->jetpack_on && (TEST_SYNC_KEY(g_player[p].sync->bits, SK_JUMP) || ps->jetpack_on < 11))
                                 ps->pos.z = sprite[OW].z-6144;
@@ -5624,8 +5624,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
     int32_t q=0, j, k, l, m, x;
     int32_t i = headspritestat[STAT_EFFECTOR];
 
-    fricxv = fricyv = 0;
-
     while (i >= 0)
     {
         const int32_t nexti = nextspritestat[i];
@@ -5746,8 +5744,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                         rotatepoint(sprite[j].x,sprite[j].y,ps->pos.x,ps->pos.y,(q*l),&m,&x);
 
-                        ps->bobposx += m-ps->pos.x;
-                        ps->bobposy += x-ps->pos.y;
+                        ps->bobpos.x += m-ps->pos.x;
+                        ps->bobpos.y += x-ps->pos.y;
 
                         ps->pos.x = m;
                         ps->pos.y = x;
@@ -5950,10 +5948,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                     if (sector[ps->cursectnum].lotag != ST_2_UNDERWATER)
                     {
-                        if (g_playerSpawnPoints[p].os == s->sectnum)
+                        if (g_playerSpawnPoints[p].sect == s->sectnum)
                         {
-                            g_playerSpawnPoints[p].ox += m;
-                            g_playerSpawnPoints[p].oy += x;
+                            g_playerSpawnPoints[p].pos.x += m;
+                            g_playerSpawnPoints[p].pos.y += x;
                         }
 
                         if (s->sectnum == sprite[ps->i].sectnum
@@ -5967,8 +5965,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             ps->pos.x += m;
                             ps->pos.y += x;
 
-                            ps->bobposx += m;
-                            ps->bobposy += x;
+                            ps->bobpos.x += m;
+                            ps->bobpos.y += x;
 
                             ps->ang += q;
                             ps->ang &= 2047;
@@ -6138,14 +6136,14 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             ps->opos.y = ps->pos.y;
                         }
 
-                        ps->bobposx += l;
-                        ps->bobposy += x;
+                        ps->bobpos.x += l;
+                        ps->bobpos.y += x;
                     }
 
-                    if (g_playerSpawnPoints[p].os == s->sectnum)
+                    if (g_playerSpawnPoints[p].sect == s->sectnum)
                     {
-                        g_playerSpawnPoints[p].ox += l;
-                        g_playerSpawnPoints[p].oy += x;
+                        g_playerSpawnPoints[p].pos.x += l;
+                        g_playerSpawnPoints[p].pos.y += x;
                     }
                 }
 
@@ -6235,8 +6233,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         ps->pos.x += m;
                         ps->pos.y += x;
 
-                        ps->bobposx += m;
-                        ps->bobposy += x;
+                        ps->bobpos.x += m;
+                        ps->bobpos.y += x;
                     }
                 }
 
@@ -6891,8 +6889,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         actor[k].floorz = sector[sprite[j].sectnum].floorz;
                         actor[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
 
-                        ps->bobposx = ps->opos.x = ps->pos.x;
-                        ps->bobposy = ps->opos.y = ps->pos.y;
+                        ps->bobpos.x = ps->opos.x = ps->pos.x;
+                        ps->bobpos.y = ps->opos.y = ps->pos.y;
                         ps->opos.z = ps->pos.z;
 
                         ps->truefz = actor[k].floorz;
@@ -7279,12 +7277,15 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
 
             p = myconnectindex;
+            g_player[p].ps->fric.x = g_player[p].ps->fric.y = 0;
             if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
+            {
                 if (klabs(g_player[p].ps->pos.z-g_player[p].ps->truefz) < PHEIGHT+(9<<8))
                 {
-                    fricxv += x<<3;
-                    fricyv += l<<3;
+                    g_player[p].ps->fric.x += x<<3;
+                    g_player[p].ps->fric.y += l<<3;
                 }
+            }
 
             sc->floorxpanning += SP>>7;
 
@@ -7382,10 +7383,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
 
             p = myconnectindex;
+            g_player[p].ps->fric.x = g_player[p].ps->fric.y = 0;
             if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
             {
-                fricxv += l<<5;
-                fricyv += x<<5;
+                g_player[p].ps->fric.x += l<<5;
+                g_player[p].ps->fric.y += x<<5;
             }
 
             for (TRAVERSE_CONNECT(p))

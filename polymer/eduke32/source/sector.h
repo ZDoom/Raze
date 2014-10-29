@@ -96,7 +96,7 @@ extern void G_RestoreMapState();
 
 typedef struct {
     int32_t partime, designertime;
-    char *name, *filename, *musicfn, *alt_musicfn;
+    char *name, *filename, *musicfn, *ext_musicfn;
     mapstate_t *savedstate;
 } map_t;
 

@@ -627,7 +627,7 @@ void P_RandomSpawnPoint(int32_t snum)
                 {
                     for (k=0; k<g_numPlayerSprites; k++)
                     {
-                        dist = FindDistance2D(g_player[j].ps->pos.x-g_playerSpawnPoints[k].ox,g_player[j].ps->pos.y-g_playerSpawnPoints[k].oy);
+                        dist = FindDistance2D(g_player[j].ps->pos.x-g_playerSpawnPoints[k].pos.x,g_player[j].ps->pos.y-g_playerSpawnPoints[k].pos.y);
                         if (dist < pdist)
                             i = k, pdist = dist;
                     }
@@ -637,11 +637,11 @@ void P_RandomSpawnPoint(int32_t snum)
         }
     }
 
-    p->bobposx = p->opos.x = p->pos.x = g_playerSpawnPoints[i].ox;
-    p->bobposy = p->opos.y = p->pos.y = g_playerSpawnPoints[i].oy;
-    p->opos.z = p->pos.z = g_playerSpawnPoints[i].oz;
-    p->ang = g_playerSpawnPoints[i].oa;
-    p->cursectnum = g_playerSpawnPoints[i].os;
+    p->bobpos.x = p->opos.x = p->pos.x = g_playerSpawnPoints[i].pos.x;
+    p->bobpos.y = p->opos.y = p->pos.y = g_playerSpawnPoints[i].pos.y;
+    p->opos.z = p->pos.z = g_playerSpawnPoints[i].pos.z;
+    p->ang = g_playerSpawnPoints[i].ang;
+    p->cursectnum = g_playerSpawnPoints[i].sect;
     sprite[p->i].cstat = 1+256;
 }
 
@@ -663,8 +663,8 @@ void P_ResetPlayer(int32_t snum)
     tmpvect.y = pl->pos.y;
     tmpvect.z = pl->pos.z+PHEIGHT;
     P_RandomSpawnPoint(snum);
-    sp->x = actor[pl->i].bpos.x = pl->bobposx = pl->opos.x = pl->pos.x;
-    sp->y = actor[pl->i].bpos.y = pl->bobposy = pl->opos.y = pl->pos.y;
+    sp->x = actor[pl->i].bpos.x = pl->bobpos.x = pl->opos.x = pl->pos.x;
+    sp->y = actor[pl->i].bpos.y = pl->bobpos.y = pl->opos.y = pl->pos.y;
     sp->z = actor[pl->i].bpos.y = pl->opos.z =pl->pos.z;
     updatesector(pl->pos.x,pl->pos.y,&pl->cursectnum);
     setsprite(pl->i,&tmpvect);
@@ -799,8 +799,8 @@ void P_ResetStatus(int32_t snum)
     p->vel.x             = 0;
     p->vel.y             = 0;
     p->vel.z             = 0;
-    fricxv            = 0;
-    fricyv            = 0;
+    p->fric.x        = 0;
+    p->fric.y        = 0;
     p->somethingonplayer =-1;
     p->one_eighty_count  = 0;
     p->cheat_phase       = 0;
@@ -931,7 +931,6 @@ static void resetprestat(int32_t snum,int32_t g)
 
     p->timebeforeexit   = 0;
     p->customexitsound  = 0;
-
 }
 
 // Tweak sprites contained in moving sectors with these SE lotags.
@@ -1000,7 +999,7 @@ static inline int32_t G_CheckExitSprite(int32_t i)
     return (sprite[i].lotag == UINT16_MAX && (sprite[i].cstat&16));
 }
 
-static inline void prelevel(char g)
+static void prelevel(char g)
 {
     int32_t i, nexti, j, startwall, endwall;
     int32_t switchpicnum;
@@ -1119,22 +1118,17 @@ static inline void prelevel(char g)
                 break;
             }
 
-    for (i=0; i < MAXSPRITES; i++)
+    for (i = 0; i < MAXSPRITES; i++)
     {
-        if (sprite[i].statnum < MAXSTATUS)
-        {
-            if (PN == SECTOREFFECTOR && SLT == SE_14_SUBWAY_CAR)
-                continue;
-            A_Spawn(-1,i);
-        }
+        if (sprite[i].statnum < MAXSTATUS && (PN != SECTOREFFECTOR || SLT != SE_14_SUBWAY_CAR))
+            A_Spawn(-1, i);
     }
 
-    for (i=0; i < MAXSPRITES; i++)
-        if (sprite[i].statnum < MAXSTATUS)
-        {
-            if (PN == SECTOREFFECTOR && SLT == SE_14_SUBWAY_CAR)
-                A_Spawn(-1,i);
-        }
+    for (i = 0; i < MAXSPRITES; i++)
+    {
+        if (sprite[i].statnum < MAXSTATUS && PN == SECTOREFFECTOR && SLT == SE_14_SUBWAY_CAR)
+            A_Spawn(-1, i);
+    }
 
     G_SetupRotfixedSprites();
 
@@ -1518,11 +1512,11 @@ static void resetpspritevars(char g)
         if (g_numPlayerSprites == MAXPLAYERS)
             G_GameExit("\nToo many player sprites (max 16.)");
 
-        g_playerSpawnPoints[g_numPlayerSprites].ox = s->x;
-        g_playerSpawnPoints[g_numPlayerSprites].oy = s->y;
-        g_playerSpawnPoints[g_numPlayerSprites].oz = s->z;
-        g_playerSpawnPoints[g_numPlayerSprites].oa = s->ang;
-        g_playerSpawnPoints[g_numPlayerSprites].os = s->sectnum;
+        g_playerSpawnPoints[g_numPlayerSprites].pos.x = s->x;
+        g_playerSpawnPoints[g_numPlayerSprites].pos.y = s->y;
+        g_playerSpawnPoints[g_numPlayerSprites].pos.z = s->z;
+        g_playerSpawnPoints[g_numPlayerSprites].ang = s->ang;
+        g_playerSpawnPoints[g_numPlayerSprites].sect = s->sectnum;
 
         g_numPlayerSprites++;
 
@@ -1592,8 +1586,8 @@ static void resetpspritevars(char g)
                 g_player[j].ps->autostep = (20L<<8);
                 g_player[j].ps->autostep_sbw = (4L<<8);
 
-                actor[i].bpos.x = g_player[j].ps->bobposx = g_player[j].ps->opos.x = g_player[j].ps->pos.x =        s->x;
-                actor[i].bpos.y = g_player[j].ps->bobposy = g_player[j].ps->opos.y = g_player[j].ps->pos.y =        s->y;
+                actor[i].bpos.x = g_player[j].ps->bobpos.x = g_player[j].ps->opos.x = g_player[j].ps->pos.x =        s->x;
+                actor[i].bpos.y = g_player[j].ps->bobpos.y = g_player[j].ps->opos.y = g_player[j].ps->pos.y =        s->y;
                 actor[i].bpos.z = g_player[j].ps->opos.z = g_player[j].ps->pos.z =        s->z;
                 g_player[j].ps->oang  = g_player[j].ps->ang  =        s->ang;
 
@@ -1623,12 +1617,7 @@ static inline void clearfrags(void)
 
 void G_ResetTimers(uint8_t keepgtics)
 {
-    vel = svel = angvel = horiz = 0;
-
-    totalclock = 0;
-    cloudtotalclock = 0;
-    ototalclock = 0;
-    lockclock = 0;
+    totalclock = cloudtotalclock = ototalclock = lockclock = 0;
     ready2send = 1;
     g_levelTextTime = 85;
     if (!keepgtics)
@@ -1658,18 +1647,20 @@ void G_ClearFIFO(void)
 
 int32_t G_FindLevelByFile(const char *fn)
 {
-    int32_t volume, level;
-
-    for (volume=0; volume<MAXVOLUMES; volume++)
+    for (int volume = 0; volume < MAXVOLUMES; volume++)
     {
-        for (level=0; level<MAXLEVELS; level++)
+        const int voloff = volume * MAXLEVELS;
+        for (int level = 0; level < MAXLEVELS; level++)
         {
-            if (MapInfo[(volume*MAXLEVELS)+level].filename != NULL)
-                if (!Bstrcasecmp(fn, MapInfo[(volume*MAXLEVELS)+level].filename))
-                    return ((volume * MAXLEVELS) + level);
+            if (MapInfo[voloff + level].filename == NULL)
+                continue;
+
+            if (!Bstrcasecmp(fn, MapInfo[voloff + level].filename))
+                return voloff + level;
         }
     }
-    return MAXLEVELS*MAXVOLUMES;
+
+    return MAXLEVELS * MAXVOLUMES;
 }
 
 void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t ticwait)
@@ -1710,60 +1701,54 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 
 static void G_ReallocCopyMusicName(int32_t level_number, const char *levnamebuf, int32_t altp)
 {
-    char **musfn = altp ? &MapInfo[level_number].alt_musicfn : &MapInfo[level_number].musicfn;
-    int32_t dastrlen = Bstrlen(levnamebuf);
-
-    *musfn = (char *)Xrealloc(*musfn, dastrlen+1);
-    Bstrcpy(*musfn, levnamebuf);
+    char **musfn = altp ? &MapInfo[level_number].ext_musicfn : &MapInfo[level_number].musicfn;
+    uint8_t len = Bstrlen(levnamebuf) + 1;
+    *musfn = (char *)Xrealloc(*musfn, len);
+    Bstrncpy(*musfn, levnamebuf, len);
 }
 
 // levnamebuf should have at least size BMAX_PATH
-// FIXME: This function should be rolled into a loop, testing .flac, then .ogg, then .mid.
 void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int32_t level_number)
 {
-    char *p;
-    int32_t fil;
+    char *p, *exts[] = {
+#ifdef HAVE_FLAC
+                 "flac",
+#endif
+#ifdef HAVE_VORBIS
+                 "ogg",
+#endif
+                 "mid"
+             };
 
-    Bstrcpy(levnamebuf, boardfilename);
+    Bstrncpy(levnamebuf, boardfilename, BMAX_PATH);
 
-    // usermap music based on map filename
-    Bcorrectfilename(levnamebuf,0);
+    Bcorrectfilename(levnamebuf, 0);
 
-    p = Bstrrchr(levnamebuf,'.');
-    if (!p)
+    if (NULL == (p = Bstrrchr(levnamebuf, '.')))
     {
         p = levnamebuf + Bstrlen(levnamebuf);
         p[0] = '.';
     }
 
-    Bmemcpy(p+1, "ogg", 4);
-    fil = kopen4loadfrommod(levnamebuf,0);
-
-    if (fil > -1)
+    for (int i = 0; i < ARRAY_SIZE(exts); i++)
     {
-        kclose(fil);
+        int32_t fil;
 
-        G_ReallocCopyMusicName(level_number, levnamebuf, 1);
+        Bmemcpy(p+1, exts[i], Bstrlen(exts[i]) + 1);
+
+        if ((fil = kopen4loadfrommod(levnamebuf, 0)) != -1)
+        {
+            kclose(fil);
+            G_ReallocCopyMusicName(level_number, levnamebuf, i < (ARRAY_SIZE(exts) - 1));
+            return;
+        }
     }
-    else if (MapInfo[level_number].alt_musicfn != NULL)
-    {
-        Bfree(MapInfo[level_number].alt_musicfn);
-        MapInfo[level_number].alt_musicfn = NULL;
-    }
 
-    Bmemcpy(p+1, "mid", 4);
-    fil = kopen4loadfrommod(levnamebuf,0);
-
-    // XXX: should pull in a "default user map" song entry, probably E1L8
-    // (which would need to not get clobbered)
-    if (fil == -1)
-        Bstrcpy(levnamebuf, "dethtoll.mid");
-    else kclose(fil);
-
-    G_ReallocCopyMusicName(level_number, levnamebuf, 0);
+    DO_FREE_AND_NULL(MapInfo[level_number].ext_musicfn);
+    G_ReallocCopyMusicName(level_number, "dethtoll.mid", 0);
 }
 
-static int G_HaveUserMap(void)
+static inline int G_HaveUserMap(void)
 {
     return (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0);
 }
