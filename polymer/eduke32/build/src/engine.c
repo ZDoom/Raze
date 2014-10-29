@@ -3195,7 +3195,7 @@ static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
     {
         // PK 20110423: a bit consistency checking is a good thing:
         int32_t tmp = (ix2-ix1 >= 0) ? (ix2-ix1+1) : 1;
-        int32_t yinc = ((scale(z2, xdimenscale, iy2)<<4) - y) / tmp;
+        int32_t yinc = tabledivide32((scale(z2, xdimenscale, iy2)<<4) - y, tmp);
 
         qinterpolatedown16short((intptr_t)&mostbuf[ix1], tmp, y+(globalhoriz<<16), yinc);
     }
@@ -4061,8 +4061,8 @@ static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
 {
     char ch;
 
-    const char *const buf = (char *)bufplc;
-    const char *const pal = (char *)asm3;
+    const char *const A_C_RESTRICT buf = (char *)bufplc;
+    const char *const A_C_RESTRICT pal = (char *)asm3;
 
     const uint32_t xdiv = globalxspan > 1 ? (uint32_t)ourdivscale32(1, globalxspan) : UINT32_MAX;
     const uint32_t ydiv = globalyspan > 1 ? (uint32_t)ourdivscale32(1, globalyspan) : UINT32_MAX;
@@ -4087,9 +4087,9 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
 {
     char ch;
 
-    const char *const buf = (char *)bufplc;
-    const char *const pal = (char *)asm3;
-    const char *const trans = getblendtab(globalblend);
+    const char *const A_C_RESTRICT buf = (char *)bufplc;
+    const char *const A_C_RESTRICT pal = (char *)asm3;
+    const char *const A_C_RESTRICT trans = getblendtab(globalblend);
 
     const uint32_t xdiv = globalxspan > 1 ? (uint32_t)ourdivscale32(1, globalxspan) : UINT32_MAX;
     const uint32_t ydiv = globalyspan > 1 ? (uint32_t)ourdivscale32(1, globalyspan) : UINT32_MAX;
@@ -4223,9 +4223,9 @@ static inline void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, i
 // cnt iterations
 static void tslopevlin(uint8_t *p, int32_t i, const intptr_t *slopalptr, int32_t cnt, int32_t bx, int32_t by)
 {
-    const char *const buf = ggbuf;
-    const char *const pal = ggpal;
-    const char *const trans = getblendtab(0);
+    const char *const A_C_RESTRICT buf = ggbuf;
+    const char *const A_C_RESTRICT pal = ggpal;
+    const char *const A_C_RESTRICT trans = getblendtab(0);
     const int32_t bzinc = (asm1>>3), pinc = ggpinc;
 
     const int32_t transmode = (globalorientation&128);

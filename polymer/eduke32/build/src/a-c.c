@@ -65,8 +65,8 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
     if (!skiploadincs) { gbxinc = asm1; gbyinc = asm2; }
 
     {
-        const char *const palptr = &ghlinepal[paloffs];
-        const char *const buf = gbuf;
+        const char *const A_C_RESTRICT palptr = &ghlinepal[paloffs];
+        const char *const A_C_RESTRICT buf = gbuf;
         const int32_t bxinc = gbxinc, byinc = gbyinc;
         const int32_t logx = glogx, logy = glogy;
         char *pp = (char *)p;
@@ -99,7 +99,7 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
 
 void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t bx, int32_t by)
 {
-    intptr_t *slopalptr;
+    intptr_t * A_C_RESTRICT slopalptr;
     int32_t bz, bzinc;
     uint32_t u, v;
 
@@ -136,8 +136,8 @@ void setupvlineasm(int32_t neglogy) { glogy = neglogy; }
 // cnt+1 loop iterations!
 int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
-    const char *const buf = (char *)bufplc;
-    const char *const pal = (char *)paloffs;
+    const char *const A_C_RESTRICT buf = (char *)bufplc;
+    const char *const A_C_RESTRICT pal = (char *)paloffs;
     const int32_t logy = glogy, ourbpl = bpl;
     char *pp = (char *)p;
 
@@ -215,7 +215,7 @@ typedef uint32_t uint32_vec4 __attribute__ ((vector_size (16)));
 #endif
 
 // cnt >= 1
-void vlineasm4nlogy(int32_t cnt, char *p, char *const *pal, char *const *buf,
+void vlineasm4nlogy(int32_t cnt, char *p, char *const A_C_RESTRICT * pal, char *const A_C_RESTRICT * buf,
 #ifdef USE_VECTOR_EXT
     uint32_vec4 vplc, const uint32_vec4 vinc)
 #else
@@ -248,8 +248,8 @@ void vlineasm4nlogy(int32_t cnt, char *p, char *const *pal, char *const *buf,
 // cnt >= 1
 void vlineasm4(int32_t cnt, char *p)
 {
-    char *const pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
-    char *const buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
+    char * const A_C_RESTRICT pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
+    char * const A_C_RESTRICT buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
 #ifdef USE_VECTOR_EXT
     uint32_vec4 vinc = {vince[0], vince[1], vince[2], vince[3]};
     uint32_vec4 vplc = {vplce[0], vplce[1], vplce[2], vplce[3]};
@@ -337,8 +337,8 @@ int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
 {
     char ch;
 
-    const char *const buf = (char *)bufplc;
-    const char *const pal = (char *)paloffs;
+    const char *const A_C_RESTRICT buf = (char *)bufplc;
+    const char *const A_C_RESTRICT pal = (char *)paloffs;
     const int32_t logy = glogy, ourbpl = bpl;
     char *pp = (char *)p;
 
@@ -376,8 +376,8 @@ int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
 // cnt >= 1
 void mvlineasm4(int32_t cnt, char *p)
 {
-    char *const pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
-    char *const buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
+    char *const A_C_RESTRICT pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
+    char *const A_C_RESTRICT buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
 #ifdef USE_VECTOR_EXT
     uint32_vec4 vinc = {vince[0], vince[1], vince[2], vince[3]};
     uint32_vec4 vplc = {vplce[0], vplce[1], vplce[2], vplce[3]};
@@ -470,9 +470,9 @@ int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
 {
     char ch;
 
-    const char *const buf = (char *)bufplc;
-    const char *const pal = (char *)paloffs;
-    const char *const trans = (char *)gtrans;
+    const char *const A_C_RESTRICT buf = (char *)bufplc;
+    const char *const A_C_RESTRICT pal = (char *)paloffs;
+    const char *const A_C_RESTRICT trans = (char *)gtrans;
     const int32_t logy = glogy, ourbpl = bpl, transm = transmode;
     char *pp = (char *)p;
 
@@ -526,8 +526,8 @@ void tvlineasm2(uint32_t vplc2, int32_t vinc1, intptr_t bufplc1, intptr_t bufplc
     int32_t cnt = tabledivide32(asm2-p-1, bpl);  // >= 1
     const int32_t vinc2 = asm1;
 
-    const char *const buf1 = (char *)bufplc1;
-    const char *const buf2 = (char *)bufplc2;
+    const char *const A_C_RESTRICT buf1 = (char *)bufplc1;
+    const char *const A_C_RESTRICT buf2 = (char *)bufplc2;
     const int32_t logy = glogy, ourbpl = bpl, transm = transmode;
 
     char *pp = (char *)p;

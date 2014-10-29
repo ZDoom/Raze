@@ -9,6 +9,7 @@
 #include "compat.h"
 
 #define CLASSIC_SLICE_BY_4
+#define A_C_RESTRICT __restrict
 
 /** Definitions of high-precision integer types. **/
 // Should be used for values that represent coordinates with which calculations

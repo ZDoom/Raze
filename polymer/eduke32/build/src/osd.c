@@ -154,7 +154,7 @@ static int32_t OSD_CvarModified(const osdcvar_t *cvar)
     case CVAR_DOUBLE:
         return (cvar->dval.d != *(double *)cvar->c.vptr);
     default:
-        return 0;
+        EDUKE32_UNREACHABLE_SECTION(return 0);
     }
 }
 
@@ -2154,7 +2154,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         }
         break;
         default:
-            break;
+            EDUKE32_UNREACHABLE_SECTION(break);
         }
 
 #ifdef USE_OPENGL
@@ -2220,7 +2220,7 @@ void OSD_WriteCvars(FILE *fp)
                 fprintf(fp,"%s \"%s\"\n",osd->cvars[i].c.name,(char *)osd->cvars[i].c.vptr);
                 break;
             default:
-                break;
+                EDUKE32_UNREACHABLE_SECTION(break);
             }
     }
 }
