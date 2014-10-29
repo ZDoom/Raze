@@ -104,7 +104,16 @@ void __fastcall Gv_SetVarX(int32_t id, int32_t lValue);
 int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t lDefault,int32_t iActor,int32_t iPlayer);
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
-void __fastcall A_ResetVars(int32_t iActor);
+static inline void A_ResetVars(int32_t iActor)
+{
+    int32_t i;
+
+    for (i=0; i<g_gameVarCount; i++)
+    {
+        if ((aGameVars[i].dwFlags & (GAMEVAR_PERACTOR|GAMEVAR_NODEFAULT)) == GAMEVAR_PERACTOR)
+            aGameVars[i].val.plValues[iActor]=aGameVars[i].lDefault;
+    }
+}
 void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
@@ -121,35 +130,28 @@ void Gv_Init(void);
 void Gv_FinalizeWeaponDefaults(void);
 
 #if !defined LUNATIC
-#define GV_VAROP(func, operator) static inline void __fastcall func(int32_t id, int32_t lValue) \
-{ \
-    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) \
-    { \
-    default: \
-        aGameVars[id].val.lValue operator lValue; \
-        break; \
-    case GAMEVAR_PERPLAYER: \
-        if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_p > MAXPLAYERS-1)) break; \
-        aGameVars[id].val.plValues[vm.g_p] operator lValue; \
-        break; \
-    case GAMEVAR_PERACTOR: \
-        if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_i > MAXSPRITES-1)) break; \
-        aGameVars[id].val.plValues[vm.g_i] operator lValue; \
-        break; \
-    case GAMEVAR_INTPTR: \
-        *((int32_t *)aGameVars[id].val.lValue) operator (int32_t)lValue; \
-        break; \
-    case GAMEVAR_SHORTPTR: \
-        *((int16_t *)aGameVars[id].val.lValue) operator (int16_t)lValue; \
-        break; \
-    case GAMEVAR_CHARPTR: \
-        *((uint8_t *)aGameVars[id].val.lValue) operator (uint8_t)lValue; \
-        break; \
-    } \
-}
+#define VM_GAMEVAR_OPERATOR(func, operator)                                                                       \
+    static inline void __fastcall func(int32_t id, int32_t lValue)                                                \
+    {                                                                                                             \
+        switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))                                   \
+        {                                                                                                         \
+            default: aGameVars[id].val.lValue operator lValue; break;                                             \
+            case GAMEVAR_PERPLAYER:                                                                               \
+                if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_p > MAXPLAYERS - 1))                                     \
+                    break;                                                                                        \
+                aGameVars[id].val.plValues[vm.g_p] operator lValue;                                               \
+                break;                                                                                            \
+            case GAMEVAR_PERACTOR:                                                                                \
+                if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_i > MAXSPRITES - 1))                                     \
+                    break;                                                                                        \
+                aGameVars[id].val.plValues[vm.g_i] operator lValue;                                               \
+                break;                                                                                            \
+            case GAMEVAR_INTPTR: *((int32_t *)aGameVars[id].val.lValue) operator(int32_t) lValue; break;          \
+            case GAMEVAR_SHORTPTR: *((int16_t *)aGameVars[id].val.lValue) operator(int16_t) lValue; break;        \
+            case GAMEVAR_CHARPTR: *((uint8_t *)aGameVars[id].val.lValue) operator(uint8_t) lValue; break;         \
+        }                                                                                                         \
+    }
 
-// even though libdivide is faster than straight division (when using the LUT) the overhead makes this slower on x86
-// ARM, however, has no hardware integer division
 #if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
 static inline void __fastcall Gv_DivVar(int32_t id, int32_t lValue)
 {
@@ -158,47 +160,49 @@ static inline void __fastcall Gv_DivVar(int32_t id, int32_t lValue)
     libdivide_s32_t *dptr = &sdiv;
     intptr_t *iptr = &aGameVars[id].val.lValue;
 
-    if (EDUKE32_PREDICT_FALSE((aGameVars[id].dwFlags & GAMEVAR_PERPLAYER && (unsigned) vm.g_p > MAXPLAYERS-1) || 
-        (aGameVars[id].dwFlags & GAMEVAR_PERACTOR && (unsigned) vm.g_i > MAXSPRITES-1))) return;
+    if (EDUKE32_PREDICT_FALSE((aGameVars[id].dwFlags & GAMEVAR_PERPLAYER && (unsigned)vm.g_p > MAXPLAYERS - 1) ||
+                              (aGameVars[id].dwFlags & GAMEVAR_PERACTOR && (unsigned)vm.g_i > MAXSPRITES - 1)))
+        return;
 
-    if ((unsigned) lValue < DIVTABLESIZE)
+    if ((unsigned)lValue < DIVTABLESIZE)
         dptr = (libdivide_s32_t *)&divtable32[lValue];
     else if (lValue != lastlValue)
         sdiv = libdivide_s32_gen(lValue), lastlValue = lValue;
 
-    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
+    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))
     {
-    case GAMEVAR_PERPLAYER:
-        iptr = &aGameVars[id].val.plValues[vm.g_p];
-    default:
-        break;
-    case GAMEVAR_PERACTOR:
-        iptr = &aGameVars[id].val.plValues[vm.g_i];
-        break;
-    case GAMEVAR_INTPTR:
-        *((int32_t *) aGameVars[id].val.lValue) = (int32_t) libdivide_s32_do(*((int32_t *) aGameVars[id].val.lValue), dptr);
-        return;
-    case GAMEVAR_SHORTPTR:
-        *((int16_t *) aGameVars[id].val.lValue) = (int16_t) libdivide_s32_do(*((int16_t *) aGameVars[id].val.lValue), dptr);
-        return;
-    case GAMEVAR_CHARPTR:
-        *((uint8_t *) aGameVars[id].val.lValue) = (uint8_t) libdivide_s32_do(*((uint8_t *) aGameVars[id].val.lValue), dptr);
-        return;
+        case GAMEVAR_PERPLAYER: iptr = &aGameVars[id].val.plValues[vm.g_p];
+        default: break;
+        case GAMEVAR_PERACTOR: iptr = &aGameVars[id].val.plValues[vm.g_i]; break;
+        case GAMEVAR_INTPTR:
+            *((int32_t *)aGameVars[id].val.lValue) =
+            (int32_t)libdivide_s32_do(*((int32_t *)aGameVars[id].val.lValue), dptr);
+            return;
+        case GAMEVAR_SHORTPTR:
+            *((int16_t *)aGameVars[id].val.lValue) =
+            (int16_t)libdivide_s32_do(*((int16_t *)aGameVars[id].val.lValue), dptr);
+            return;
+        case GAMEVAR_CHARPTR:
+            *((uint8_t *)aGameVars[id].val.lValue) =
+            (uint8_t)libdivide_s32_do(*((uint8_t *)aGameVars[id].val.lValue), dptr);
+            return;
     }
 
     *iptr = libdivide_s32_do(*iptr, dptr);
 }
 #else
-GV_VAROP(Gv_DivVar, /=)
+VM_GAMEVAR_OPERATOR(Gv_DivVar, /= )
 #endif
 
-GV_VAROP(Gv_AddVar, +=)
-GV_VAROP(Gv_SubVar, -=)
-GV_VAROP(Gv_MulVar, *=)
-GV_VAROP(Gv_ModVar, %=)
-GV_VAROP(Gv_AndVar, &=)
-GV_VAROP(Gv_XorVar, ^=)
-GV_VAROP(Gv_OrVar, |=)
+VM_GAMEVAR_OPERATOR(Gv_AddVar, +=)
+VM_GAMEVAR_OPERATOR(Gv_SubVar, -=)
+VM_GAMEVAR_OPERATOR(Gv_MulVar, *=)
+VM_GAMEVAR_OPERATOR(Gv_ModVar, %=)
+VM_GAMEVAR_OPERATOR(Gv_AndVar, &=)
+VM_GAMEVAR_OPERATOR(Gv_XorVar, ^=)
+VM_GAMEVAR_OPERATOR(Gv_OrVar, |=)
+
+#undef VM_GAMEVAR_OPERATOR
 
 #endif
 
