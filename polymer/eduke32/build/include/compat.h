@@ -7,20 +7,19 @@
 
 #include <malloc.h>
 
-# ifdef _WIN32
-#  define WIN32_LEAN_AND_MEAN
-#  include <windows.h>
-# endif
+#ifdef _WIN32
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+#endif
 
 #ifdef __APPLE__
-#include <TargetConditionals.h>
-
-#if !TARGET_OS_IPHONE
-#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
-# include <CoreFoundation/CoreFoundation.h>
-#endif
-# include <CoreServices/CoreServices.h>
-#endif
+# include <TargetConditionals.h>
+# if !TARGET_OS_IPHONE
+#  if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
+#   include <CoreFoundation/CoreFoundation.h>
+#  endif
+#  include <CoreServices/CoreServices.h>
+# endif
 #endif
 
 #ifdef __GNUC__
@@ -93,24 +92,24 @@
 
 #define __STDC_FORMAT_MACROS
 #ifndef __STDC_LIMIT_MACROS
-#define __STDC_LIMIT_MACROS
+# define __STDC_LIMIT_MACROS
 #endif
 #if defined(HAVE_INTTYPES) || defined(__cplusplus)
-#  include <stdint.h>
-#  include <inttypes.h>
+# include <stdint.h>
+# include <inttypes.h>
 
 // Ghetto. Blame devkitPPC's faulty headers.
-#ifdef GEKKO
+# ifdef GEKKO
 #  undef PRIdPTR
 #  define PRIdPTR "d"
 #  undef PRIxPTR
 #  define PRIxPTR "x"
 #  undef SCNx32
 #  define SCNx32 "x"
-#endif
+# endif
 
 #elif defined(_MSC_VER)
-#  include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
+# include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
 #endif
 
 #ifndef _MSC_VER
@@ -182,25 +181,21 @@
 #endif
 
 #if defined(_MSC_VER)
-#include <direct.h>
-
+# include <direct.h>
 # define longlong(x) x##i64
-
-#if _MSC_VER < 1800
-# define inline __inline
-
-#endif
-
+# if _MSC_VER < 1800
+#  define inline __inline
+# endif
 #else
 # define longlong(x) x##ll
 #endif
 
 #if defined(__arm__)
-#define Bsqrt __sqrt
-#define Bsqrtf __sqrtf
+# define Bsqrt __sqrt
+# define Bsqrtf __sqrtf
 #else
-#define Bsqrt sqrt
-#define Bsqrtf sqrtf
+# define Bsqrt sqrt
+# define Bsqrtf sqrtf
 #endif
 
 #ifndef NULL
@@ -269,7 +264,7 @@
 # define B_SWAP16(x) __bswap16(x)
 
 #elif defined(__APPLE__)
-#if !defined __x86_64__ && defined __GNUC__
+# if !defined __x86_64__ && defined __GNUC__
 // PK 20110617: is*() crashes for me in x86 code compiled from 64-bit, and gives link errors on ppc
 //              This hack patches all occurences.
 #  define isdigit(ch) ({ int32_t c__dontuse_=ch; c__dontuse_>='0' && c__dontuse_<='9'; })
@@ -580,20 +575,20 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # define Bassert assert
 # define Brand rand
 # define Balloca alloca
-#  define Bmalloc malloc
-#  define Bcalloc calloc
-#  define Brealloc realloc
-#  define Bfree free
-#if defined(__cplusplus) && defined(_MSC_VER)
+# define Bmalloc malloc
+# define Bcalloc calloc
+# define Brealloc realloc
+# define Bfree free
+# if defined(__cplusplus) && defined(_MSC_VER)
 #  define Bstrdup _strdup
-# define Bchdir _chdir
-# define Bgetcwd _getcwd
-#else
+#  define Bchdir _chdir
+#  define Bgetcwd _getcwd
+# else
 #  define Bstrdup strdup
-# define Bchdir chdir
-# define Bgetcwd getcwd
-#endif
-#  define Bmemalign memalign
+#  define Bchdir chdir
+#  define Bgetcwd getcwd
+# endif
+# define Bmemalign memalign
 # define Bopen open
 # define Bclose close
 # define Bwrite write
@@ -605,11 +600,11 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 #  define Btell tell
 # endif
 # ifdef _MSC_VER
-# define Bstat stat
-# define Bfstat fstat
+#  define Bstat stat
+#  define Bfstat fstat
 # else
-# define Bstat stat
-# define Bfstat fstat
+#  define Bstat stat
+#  define Bfstat fstat
 # endif
 # define Bfileno fileno
 # define Bferror ferror
@@ -636,14 +631,12 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # if defined(_MSC_VER) 
 #  define Bstrcasecmp _stricmp
 #  define Bstrncasecmp _strnicmp
-# else
-# if defined(__QNX__)
+# elif defined(__QNX__)
 #  define Bstrcasecmp stricmp
 #  define Bstrncasecmp strnicmp
 # else
 #  define Bstrcasecmp strcasecmp
 #  define Bstrncasecmp strncasecmp
-# endif
 # endif
 # if defined(_WIN32)
 #  define Bstrlwr strlwr
@@ -943,4 +936,3 @@ static inline void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 //////////
 
 #endif // __compat_h__
-

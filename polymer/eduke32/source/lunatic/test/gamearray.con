@@ -32,8 +32,15 @@ definequote 505 tile y sizes: 0:%d 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d 7:%d 8:%d
 definequote 506 1: 0x0a0a0d0d==168430861 ? %d
 definequote 507 2: 0x0a0a0d0d==168430861 ? %d
 
+gamevar MINUSONE -1 0
+
 state error
-    setactor[-1].cstat 0
+    setactor[MINUSONE].cstat 0
+
+    // This doesn't work in C-CON:
+//    setactor[-1].cstat 0
+    // source/lunatic/test/gamearray.con: In state `error':
+    // source/lunatic/test/gamearray.con:36: error: symbol `1' is not a game variable.
 ends
 
 onevent EVENT_ENTERLEVEL
