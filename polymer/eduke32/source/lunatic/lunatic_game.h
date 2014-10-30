@@ -4,7 +4,8 @@
 #define EDUKE32_LUNATIC_H_
 
 #include "lunatic.h"
-#include "gameexec.h"  // MAXEVENTS
+#include "events_defs.h"  // MAXEVENTS
+#include "actors.h"  // con_move_t, con_action_t
 
 
 extern L_State g_ElState;

@@ -215,7 +215,7 @@ bcarray.new("int16_t", ffiC.GET_MAX, "inventory", "int16_x_GET_MAX", INV_NAMES)
 local DUKEPLAYER_STRUCT = [[
 __attribute__((packed)) struct {
     vec3_t pos, opos, vel, npos;
-    int32_t bobposx, bobposy;
+    vec2_t bobpos, fric;
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
     int32_t runspeed, max_player_health, max_shield_amount;
@@ -420,9 +420,8 @@ typedef struct { int32_t _p; } weaponaccess_t;
 
 typedef struct {
 ]]..defs_c.bitint_member("UBit32", "bits")..[[
-    int16_t fvel, svel; // 4b
-    int8_t avel, horz; // 2b
-    int8_t extbits, filler; // 2b
+    int16_t fvel, svel, avel;
+    int8_t horz, extbits;
 } input_t;
 
 typedef
@@ -701,9 +700,6 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
 int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const char *t,
                         int32_t s,  int32_t p,    int32_t o,
                         int32_t x1, int32_t y1,   int32_t x2, int32_t y2, int32_t z);
-typedef struct {
-    int32_t x, y;
-} vec2_t;
 vec2_t G_ScreenText(const int32_t font,
                     int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle,
                     const char *str, const int32_t shade, int32_t pal, int32_t o, int32_t alpha,

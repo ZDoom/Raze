@@ -28,13 +28,13 @@ decl[[
 uint32_t rand_jkiss_u32(rng_jkiss_t *s);
 double rand_jkiss_dbl(rng_jkiss_t *s);
 
-uint32_t crc32once(uint8_t *blk, uint32_t len);
+uint32_t Bcrc32(const void* data, size_t length, uint32_t crc);
 ]]
 
 local function get_rand_u32(tin)
     tin.d[0] = ffiC.gethiticks() % 1
     tin.d[1] = ffiC.gethiticks() % 1
-    return ffiC.crc32once(tin.u, 16)
+    return ffiC.Bcrc32(tin.u, 16, 0)
 end
 
 local mt = {

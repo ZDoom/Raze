@@ -1039,6 +1039,7 @@ void Gv_ResetSystemDefaults(void)
 #endif
     G_InitProjectileData();
 
+#ifndef LUNATIC
     // hackhackhackhackhack
     i = hash_find(&h_arrays, "tilesizx");
     if (i >= 0)
@@ -1057,6 +1058,7 @@ void Gv_ResetSystemDefaults(void)
         for (; j<MAXTILES; j++)
             aGameArrays[i].plValues[j] = tilesiz[j].y;
     }
+#endif
 
     //AddLog("EOF:ResetWeaponDefaults");
 }

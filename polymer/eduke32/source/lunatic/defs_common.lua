@@ -259,6 +259,10 @@ typedef $ spritetype;
 typedef struct { spritetype; } tspritetype;
 
 typedef struct {
+    int32_t x, y;
+} vec2_t;
+
+typedef struct {
     int32_t x, y, z;
 } vec3_t;
 
