@@ -140,9 +140,12 @@ int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t l
     intptr_t *oinsptr=insptr;
     vmstate_t vm_backup;
 
-    vmstate_t tempvm ={ iActor, iPlayer, lDist,
-        iActor >= 0 ? &actor[iActor].t_data[0] : NULL,
-        iActor >= 0 ? &sprite[iActor] : NULL,
+    static spritetype dummy_sprite;
+    static int32_t dummy_t[ARRAY_SIZE(actor[0].t_data)];
+
+    vmstate_t tempvm = { iActor, iPlayer, lDist,
+        iActor >= 0 ? &actor[iActor].t_data[0] : dummy_t,
+        iActor >= 0 ? &sprite[iActor] : &dummy_sprite,
         0 };
 
     int32_t backupReturnVar = aGameVars[g_iReturnVarID].val.lValue;
