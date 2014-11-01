@@ -101,7 +101,6 @@ int32_t menutext_(int32_t x, int32_t y, int32_t s, int32_t p, char *t, int32_t b
 
 #pragma pack(push,1)
 static savehead_t savehead;
-//static struct savehead_ savehead;
 #pragma pack(pop)
 
 static void M_DrawBackground(const vec2_t origin)
@@ -1924,7 +1923,11 @@ static void M_PreMenuDraw(MenuID_t cm, MenuGroup_t *group, MenuEntry_t *entry, c
 				mgametextcenter(origin.x, origin.y + (156<<16), tempbuf);
 			}
 
-            Bsprintf(tempbuf,"%s / %s",MapInfo[(savehead.volnum*MAXLEVELS) + savehead.levnum].name, SkillNames[savehead.skill-1]);
+            {
+                const char *name = MapInfo[(savehead.volnum*MAXLEVELS) + savehead.levnum].name;
+                Bsprintf(tempbuf, "%s / %s", name ? name : "^10unnamed^0", SkillNames[savehead.skill-1]);
+            }
+
             mgametextcenter(origin.x, origin.y + (168<<16), tempbuf);
             if (savehead.volnum == 0 && savehead.levnum == 7)
                 mgametextcenter(origin.x, origin.y + (180<<16), savehead.boardfn);
