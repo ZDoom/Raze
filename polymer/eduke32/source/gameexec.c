@@ -142,7 +142,7 @@ int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t l
     int32_t backupEventExec = g_currentEventExec;
     intptr_t *oinsptr=insptr;
 
-    if ((unsigned)iActor >= Numsprites)
+    if ((unsigned)iActor >= (unsigned)Numsprites)
     {
         static spritetype dummy_sprite;
         static int32_t dummy_t[ARRAY_SIZE(actor[0].t_data)];
