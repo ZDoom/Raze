@@ -26,7 +26,7 @@ EXTRN _reciptable : near
 EXTRN _fpuasm : dword
 EXTRN _globalx3 : dword
 EXTRN _globaly3 : dword
-EXTRN _ylookup : near
+EXTRN _ylookup : dword
 
 EXTRN _vplce : near
 EXTRN _vince : near
@@ -834,7 +834,8 @@ CDECLPARAM edi,1,5
 
 	push ebp
 
-	mov eax, dword ptr _ylookup[ecx*4]
+	mov eax, _ylookup
+	mov eax, [eax+ecx*4]
 	add eax, edi
 	mov dword ptr [machvline4end+2], eax
 	sub edi, eax
@@ -987,7 +988,8 @@ CDECLPARAM edi,1,5
 
 	push ebp
 
-	mov eax, dword ptr _ylookup[ecx*4]
+	mov eax, _ylookup
+	mov eax, [eax+ecx*4]
 	add eax, edi
 	mov dword ptr [promachvline4end1+2], eax
 	inc eax

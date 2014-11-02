@@ -11407,7 +11407,6 @@ static void initsmost(void)
           { (void **)&swall, xdim * sizeof(int32_t) },
           { (void **)&lwall, (xdim + 4) * sizeof(int32_t) },
           { (void **)&radarang2, xdim * sizeof(int16_t) },
-          { (void **)&ylookup, (ydim + 1) * sizeof(intptr_t) },
           { (void **)&dotp1, ydim * sizeof(intptr_t) },
           { (void **)&dotp2, ydim * sizeof(intptr_t) },
           { (void **)&lastx, ydim * sizeof(int32_t) },
@@ -11423,7 +11422,6 @@ static void initsmost(void)
 
     ysavecnt = YSAVES;
     nodesperline = tabledivide32_noinline(YSAVES, ydim);
-    ylookupsiz = ydim + 1;
 }
 
 //

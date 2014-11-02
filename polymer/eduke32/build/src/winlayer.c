@@ -788,7 +788,8 @@ int32_t initinput(void)
 //
 void uninitinput(void)
 {
-    switchlayout(defaultlayoutname);
+    if (defaultlayoutname[0])
+        switchlayout(defaultlayoutname);
 
     uninitmouse();
     UninitDirectInput();

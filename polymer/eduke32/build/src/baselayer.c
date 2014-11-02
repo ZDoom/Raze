@@ -131,10 +131,64 @@ void readjoybstatus(int32_t *b)
     *b = joyb;
 }
 
+#if defined _WIN32
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+#elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__
+# include <sys/mman.h>
+#endif
+
+#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
+#ifdef __cplusplus
+extern "C" {
+#endif
+    extern intptr_t dep_begin, dep_end;
+#ifdef __cplusplus
+};
+#endif
+#endif
+
+int32_t nx_unprotect(intptr_t beg, intptr_t end)
+{
+#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
+# if defined _WIN32
+    DWORD oldprot;
+
+    if (!VirtualProtect((LPVOID) beg, (SIZE_T)end - (SIZE_T)beg, PAGE_EXECUTE_READWRITE, &oldprot))
+    {
+        initprintf("VirtualProtect() error! Crashing in 3... 2... 1...\n");
+        return 1;
+    }
+# elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__
+    int32_t pagesize;
+    size_t dep_begin_page;
+    pagesize = sysconf(_SC_PAGE_SIZE);
+    if (pagesize == -1)
+    {
+        initprintf("Error getting system page size\n");
+        return 1;
+    }
+    dep_begin_page = ((size_t)beg) & ~(pagesize-1);
+    if (mprotect((void *) dep_begin_page, (size_t)end - dep_begin_page, PROT_READ|PROT_WRITE) < 0)
+    {
+        initprintf("Error making code writeable (errno=%d)\n", errno);
+        return 1;
+    }
+# else
+#  error "Don't know how to unprotect the self-modifying assembly on this platform!"
+# endif
+#endif
+
+    return 0;
+}
+
+
 // Calculate ylookup[] and call setvlinebpl()
 void calc_ylookup(int32_t bpl, int32_t lastyidx)
 {
     int32_t i, j=0;
+
+    lastyidx++;
 
     Bassert(lastyidx <= MAXYDIM);
 
@@ -144,6 +198,9 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx)
             Baligned_free(ylookup);
 
         ylookup = (intptr_t *)Xaligned_alloc(16, lastyidx * sizeof(intptr_t));
+#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
+        nx_unprotect((intptr_t)ylookup, (intptr_t)ylookup + (lastyidx * sizeof(intptr_t)));
+#endif
         ylookupsiz = lastyidx;
     }
 
@@ -163,6 +220,14 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx)
     }
 
     setvlinebpl(bpl);
+}
+
+
+void makeasmwriteable(void)
+{
+#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
+    nx_unprotect((intptr_t)&dep_begin, (intptr_t)&dep_end);
+#endif
 }
 
 #ifdef USE_OPENGL
@@ -482,56 +547,6 @@ int32_t baselayer_init(void)
 #endif
 
     return 0;
-}
-
-
-#if defined _WIN32
-# define WIN32_LEAN_AND_MEAN
-# include <windows.h>
-#elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__
-# include <sys/mman.h>
-#endif
-
-#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern int32_t dep_begin, dep_end;
-#ifdef __cplusplus
-};
-#endif
-#endif
-
-void makeasmwriteable(void)
-{
-#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
-//    extern int32_t dep_begin, dep_end;
-# if defined _WIN32
-    DWORD oldprot;
-    if (!VirtualProtect((LPVOID)&dep_begin, (SIZE_T)&dep_end - (SIZE_T)&dep_begin, PAGE_EXECUTE_READWRITE, &oldprot))
-    {
-        initprintf("Error making code writeable\n");
-        return;
-    }
-# elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__
-    int32_t pagesize;
-    size_t dep_begin_page;
-    pagesize = sysconf(_SC_PAGE_SIZE);
-    if (pagesize == -1)
-    {
-        initprintf("Error getting system page size\n");
-        return;
-    }
-    dep_begin_page = ((size_t)&dep_begin) & ~(pagesize-1);
-    if (mprotect((void *)dep_begin_page, (size_t)&dep_end - dep_begin_page, PROT_READ|PROT_WRITE) < 0)
-    {
-        initprintf("Error making code writeable (errno=%d)\n", errno);
-        return;
-    }
-# else
-#  error "Don't know how to unprotect the self-modifying assembly on this platform!"
-# endif
-#endif
 }
 
 void maybe_redirect_outputs(void)
