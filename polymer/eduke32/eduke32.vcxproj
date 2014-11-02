@@ -250,7 +250,6 @@
     <ClInclude Include="build\include\dxtfilter.h" />
     <ClInclude Include="build\include\dynamicgtk.h" />
     <ClInclude Include="build\include\editor.h" />
-    <ClInclude Include="build\include\enet_mmulti.h" />
     <ClInclude Include="build\include\glbuild.h" />
     <ClInclude Include="build\include\glext.h" />
     <ClInclude Include="build\include\gtkbits.h" />
