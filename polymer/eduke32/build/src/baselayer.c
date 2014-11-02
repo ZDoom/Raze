@@ -148,9 +148,9 @@ extern "C" {
 #endif
 #endif
 
+#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
 int32_t nx_unprotect(intptr_t beg, intptr_t end)
 {
-#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
 # if defined _WIN32
     DWORD oldprot;
 
@@ -177,10 +177,10 @@ int32_t nx_unprotect(intptr_t beg, intptr_t end)
 # else
 #  error "Don't know how to unprotect the self-modifying assembly on this platform!"
 # endif
-#endif
 
     return 0;
 }
+#endif
 
 
 // Calculate ylookup[] and call setvlinebpl()
