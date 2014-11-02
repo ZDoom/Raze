@@ -21,8 +21,7 @@ typedef int64_t coord_t;
 // obviously) is expected to result:
 typedef int64_t inthi_t;
 
-
-#if defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
+#if !defined(NOASM) && (defined(_MSC_VER) || (defined(__GNUC__) && defined(__i386__)))
 
 #if defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__SYLLABLE__)
 #define __cdecl
@@ -84,65 +83,7 @@ extern void __cdecl stretchhline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t
 }
 #endif
 
-#elif defined(_MSC_VER)	&& !defined(NOASM)	// __GNUC__ && __i386__
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-extern int32_t _cdecl mmxoverlay();
-extern int32_t _cdecl sethlinesizes(int32_t,int32_t,int32_t);
-extern int32_t _cdecl setpalookupaddress(char *);
-extern int32_t _cdecl setuphlineasm4(int32_t,int32_t);
-extern int32_t _cdecl hlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl setuprhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl rhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl setuprmhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl rmhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl setupqrhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl qrhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl setvlinebpl(int32_t);
-extern int32_t _cdecl fixtransluscence(int32_t);
-extern int32_t _cdecl prevlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl vlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl vlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl setuptvlineasm(int32_t,int32_t);
-extern int32_t _cdecl tvlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl tvlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl setuptvlineasm2(int32_t,int32_t,int32_t);
-extern int32_t _cdecl tvlineasm2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl mvlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl mvlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl setupvlineasm(int32_t);
-extern int32_t _cdecl vlineasm4(int32_t,char *);
-extern int32_t _cdecl setupmvlineasm(int32_t,int32_t);
-extern int32_t _cdecl mvlineasm4(int32_t,char *);
-extern int32_t _cdecl setupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl spritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl msetupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl mspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl tsetupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl tspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl mhline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl mhlineskipmodify(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl msethlineshift(int32_t,int32_t);
-extern int32_t _cdecl thline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl thlineskipmodify(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl tsethlineshift(int32_t,int32_t);
-extern int32_t _cdecl setupslopevlin(int32_t,int32_t,int32_t);
-extern int32_t _cdecl slopevlin(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t _cdecl settransnormal();
-extern int32_t _cdecl settransreverse();
-extern int32_t _cdecl setupdrawslab(int32_t,int32_t);
-extern int32_t _cdecl drawslab(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern void _cdecl stretchhline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-
-#ifdef __cplusplus
-}
-#endif
-
-#else				// _MSC_VER
+#else // !defined(NOASM) && (defined(_MSC_VER) || (defined(__GNUC__) && defined(__i386__)))
 
 #define ENGINE_USING_A_C
 #include <stdint.h>
