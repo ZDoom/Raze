@@ -187,6 +187,7 @@ int32_t globalx1, globaly2, globalx3, globaly3;
 };
 #endif
 
+int32_t sloptable[16384];
 static intptr_t slopalookup[16384];    // was 2048
 #if defined(USE_OPENGL)
 palette_t palookupfog[MAXPALOOKUPS];
@@ -4239,7 +4240,7 @@ static void tslopevlin(uint8_t *p, int32_t i, const intptr_t *slopalptr, int32_t
         uint8_t ch;
         uint32_t u, v;
 
-        i = krecipasm(bz>>6); bz += bzinc;
+        i = (sloptable[(bz>>6)+8192]); bz += bzinc;
         u = bx + xtou*i;
         v = by + ytov*i;
         ch = *(uint8_t *)(slopalptr[0] + buf[((u>>(32-logx))<<logy)+(v>>(32-logy))]);
@@ -8008,6 +8009,9 @@ static int32_t loadtables(void)
 
         for (i=0; i<2048; i++)
             reciptable[i] = divscale30(2048, i+2048);
+
+        for (i=0; i<16384; i++)
+        	sloptable[i] = krecipasm(i-8192);
 
         for (i=0; i<=512; i++)
             sintable[i] = (int16_t)(16384.f * sinf((float)i * BANG2RAD));
