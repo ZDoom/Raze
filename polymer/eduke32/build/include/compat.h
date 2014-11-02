@@ -350,9 +350,16 @@ extern "C" {
 	// inline asm using bswap/xchg
 # endif
 #elif defined B_ENDIAN_C_INLINE
-static inline uint16_t B_SWAP16(uint16_t s) { return (s>>8)|(s<<8); }
-static inline uint32_t B_SWAP32(uint32_t l) { return ((l>>8)&0xff00)|((l&0xff00)<<8)|(l<<24)|(l>>24); }
-static inline uint64_t B_SWAP64(uint64_t l) { return (l>>56)|((l>>40)&0xff00)|((l>>24)&0xff0000)|((l>>8)&0xff000000)|((l&255)<<56)|((l&0xff00)<<40)|((l&0xff0000)<<24)|((l&0xff000000)<<8); }
+static inline uint16_t B_SWAP16(uint16_t s) { return (s >> 8) | (s << 8); }
+static inline uint32_t B_SWAP32(uint32_t l)
+{
+    return ((l >> 8) & 0xff00) | ((l & 0xff00) << 8) | (l << 24) | (l >> 24);
+}
+static inline uint64_t B_SWAP64(uint64_t l)
+{
+    return (l >> 56) | ((l >> 40) & 0xff00) | ((l >> 24) & 0xff0000) | ((l >> 8) & 0xff000000) |
+        ((l & 255) << 56) | ((l & 0xff00) << 40) | ((l & 0xff0000) << 24) | ((l & 0xff000000) << 8);
+}
 #endif
 
 static inline void B_BUF16(uint8_t *buf, uint16_t x)
@@ -380,10 +387,17 @@ static inline void B_BUF64(uint8_t *buf, uint64_t x)
 }
 
 static inline uint16_t B_UNBUF16(const uint8_t *buf) { return (buf[1] << 8) | (buf[0]); }
-static inline uint32_t B_UNBUF32(const uint8_t *buf) { return (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]); }
-static inline uint64_t B_UNBUF64(const uint8_t *buf) { return ((uint64_t)buf[7] << 56) | ((uint64_t)buf[6] << 48) | ((uint64_t)buf[5] << 40) | ((uint64_t)buf[4] << 32) | (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]); }
+static inline uint32_t B_UNBUF32(const uint8_t *buf)
+{
+    return (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
+}
+static inline uint64_t B_UNBUF64(const uint8_t *buf)
+{
+    return ((uint64_t)buf[7] << 56) | ((uint64_t)buf[6] << 48) | ((uint64_t)buf[5] << 40) |
+        ((uint64_t)buf[4] << 32) | (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
+}
 
-#if defined(BITNESS64)
+#if defined (BITNESS64)
 #include <emmintrin.h>
 static inline int32_t Blrintf(const float x)
 {
@@ -493,11 +507,11 @@ static inline int32_t Blrintf(const float x)
 #endif
 
 #ifndef min
-# define min(a,b) ( ((a) < (b)) ? (a) : (b) )
+# define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
 #ifndef max
-# define max(a,b) ( ((a) > (b)) ? (a) : (b) )
+# define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
 #if __GNUC__ >= 4
@@ -533,18 +547,19 @@ CLAMP_DECL float fclamp2(float in, float min, float max)
 #define BMAX_PATH 256
 
 
-struct Bdirent {
-	uint16_t namlen;
-	char *name;
-	uint32_t mode;
-	uint32_t size;
-	uint32_t mtime;
+struct Bdirent
+{
+    uint16_t namlen;
+    char *name;
+    uint32_t mode;
+    uint32_t size;
+    uint32_t mtime;
 };
 typedef void BDIR;
 
-BDIR*		Bopendir(const char *name);
-struct Bdirent*	Breaddir(BDIR *dir);
-int32_t		Bclosedir(BDIR *dir);
+BDIR *Bopendir(const char *name);
+struct Bdirent *Breaddir(BDIR *dir);
+int32_t Bclosedir(BDIR *dir);
 
 #ifdef _MSC_VER
 typedef intptr_t ssize_t;
@@ -729,9 +744,9 @@ void *Bmemmove(void *dest, const void *src, bsize_t n);
 void *Bmemchr(const void *s, int32_t c, bsize_t n);
 void *Bmemset(void *s, int32_t c, bsize_t n);
 int32_t Bmemcmp(const void *s1, const void *s2, bsize_t n);
-int32_t Bprintf(const char *format, ...) ATTRIBUTE((format(printf,1,2)));
-int32_t Bsprintf(char *str, const char *format, ...) ATTRIBUTE((format(printf,2,3)));
-int32_t Bsnprintf(char *str, bsize_t size, const char *format, ...) ATTRIBUTE((format(printf,3,4)));
+int32_t Bprintf(const char *format, ...) ATTRIBUTE((format(printf, 1, 2)));
+int32_t Bsprintf(char *str, const char *format, ...) ATTRIBUTE((format(printf, 2, 3)));
+int32_t Bsnprintf(char *str, bsize_t size, const char *format, ...) ATTRIBUTE((format(printf, 3, 4)));
 int32_t Bvsnprintf(char *str, bsize_t size, const char *format, va_list ap);
 char *Bgetcwd(char *buf, bsize_t size);
 char *Bgetenv(const char *name);
