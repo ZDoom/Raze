@@ -812,16 +812,15 @@ void OSD_SetLogFile(const char *fn)
     const int bufmode = _IOLBF;
 #endif
 
-    if (osdlog)
-    {
-        Bfclose(osdlog);
-        osdlog = NULL;
-    }
+    MAYBE_FCLOSE_AND_NULL(osdlog);
 
-    if (fn) osdlog = Bfopen(fn,"w");
+    if (!fn)
+        return;
+
+    osdlog = Bfopen(fn, "w");
 
     if (osdlog)
-        setvbuf(osdlog, (char *)NULL, bufmode, 0);
+        setvbuf(osdlog, (char *)NULL, bufmode, BUFSIZ);
 }
 
 
