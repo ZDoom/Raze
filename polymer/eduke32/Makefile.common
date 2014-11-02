@@ -172,6 +172,8 @@ LINKED_GTK = 0
 BUILD32_ON_64 ?= 0
 USE_LIBPNG ?= 1
 USE_LIBVPX ?= 1
+HAVE_VORBIS ?= 1
+HAVE_FLAC ?= 1
 NETCODE ?= 1
 
 LUNATIC ?= 0
@@ -264,7 +266,7 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
     OPTIMIZATIONS += $(DEBUGFLAG)
 endif
 
-CONLYFLAGS=-std=c99 -Wimplicit -Wdeclaration-after-statement
+CONLYFLAGS=-std=gnu99 -Wimplicit -Wdeclaration-after-statement
 CPPONLYFLAGS= -fno-exceptions -fno-rtti -Wno-write-strings
 ASFORMAT=elf$(SYSBITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
@@ -399,6 +401,7 @@ endif
 ifeq ($(PLATFORM),WII)
     override USE_LIBVPX = 0
     override NETCODE = 0
+    override HAVE_FLAC = 0
 endif
 ifeq ($(PLATFORM),GCW)
     override USE_LIBVPX = 0
@@ -599,6 +602,12 @@ ifneq (0,$(USE_LIBVPX))
     COMPILERFLAGS+= -DUSE_LIBVPX
 endif
 
+ifneq (0,$(HAVE_VORBIS))
+    COMPILERFLAGS+= -DHAVE_VORBIS
+endif
+ifneq (0,$(HAVE_FLAC))
+    COMPILERFLAGS+= -DHAVE_FLAC
+endif
 ifneq (0,$(EFENCE))
     LIBS+= -lefence
     COMPILERFLAGS+= -DEFENCE
