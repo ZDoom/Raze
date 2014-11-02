@@ -137,33 +137,32 @@ int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t l
     if (ret == 1)
         VM_KillIt(iActor, iPlayer);
 #else
-    intptr_t *oinsptr=insptr;
-    vmstate_t vm_backup;
-
-    static spritetype dummy_sprite;
-    static int32_t dummy_t[ARRAY_SIZE(actor[0].t_data)];
-
-    vmstate_t tempvm = { iActor, iPlayer, lDist,
-        iActor >= 0 ? &actor[iActor].t_data[0] : dummy_t,
-        iActor >= 0 ? &sprite[iActor] : &dummy_sprite,
-        0 };
-
+    vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0], &sprite[iActor], 0 }, vm_backup = vm;
     int32_t backupReturnVar = aGameVars[g_iReturnVarID].val.lValue;
     int32_t backupEventExec = g_currentEventExec;
+    intptr_t *oinsptr=insptr;
+
+    if ((unsigned)iActor >= Numsprites)
+    {
+        static spritetype dummy_sprite;
+        static int32_t dummy_t[ARRAY_SIZE(actor[0].t_data)];
+
+        tempvm.g_sp = &dummy_sprite;
+        tempvm.g_t = dummy_t;
+    }
+
+    vm = tempvm;
 
     aGameVars[g_iReturnVarID].val.lValue = iReturn;
     g_currentEventExec = iEventID;
     insptr = apScriptGameEvent[iEventID];
-
-    Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
-    Bmemcpy(&vm, &tempvm, sizeof(vmstate_t));
 
     VM_Execute(1);
 
     if (vm.g_flags & VM_KILL)
         VM_KillIt(iActor, iPlayer);
 
-    Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
+    vm = vm_backup;
     insptr = oinsptr;
 
     g_currentEventExec = backupEventExec;
