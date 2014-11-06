@@ -6384,6 +6384,12 @@ draw_as_face_sprite:
 
         lx = ((lmax+65535)>>16);
         rx = ((rmax+65535)>>16);
+
+        // OOB prevention. Simple test case: have a floor-aligned sprite to the
+        // right of the player. Slowly rotate right toward it. When it just
+        // becomes visible, the condition rx == xdim can occur.
+        rx = min(rx, xdim-1);
+
         for (x=lx; x<=rx; x++)
         {
             uwall[x] = max(uwall[x],startumost[x+windowx1]-windowy1);
