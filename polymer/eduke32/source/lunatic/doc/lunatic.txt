@@ -71,7 +71,7 @@ that may indicate problems in user Lua or CON code. Currently, strict mode
 checks for
 
 * Accesses to <<sprite,sprites>> not in the game world
-* Indexing the tables returned by <<require,`require("DEFS")`>> and the like
+* Indexing the tables returned by <<require,`require("CON.DEFS")`>> and the like
   with nonexistent keys. This may indicate a missing file from a bundle
   belonging together.
 
@@ -198,7 +198,8 @@ values. Values pre-defined by the system are not included.
 * `CON.AI`: returns a table mapping labels of ++ai++s defined from CON
   to immutable <<con_ai,`con.ai`>> objects.
 
-* `end_gamevars`: used to mark the end of a gamevar block, described below.
+* `end_gamevars`: used to mark the end of a gamevar block, described
+  <<game_variables,below>>.
 
 
 ==== The `module()` function
@@ -250,6 +251,7 @@ do return {
 end
 ----------
 
+[[game_variables]]
 ===== Game variables
 
 Lunatic has a special mechanism to mark variables that represent persistent
