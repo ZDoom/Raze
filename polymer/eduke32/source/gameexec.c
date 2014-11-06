@@ -137,7 +137,13 @@ int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t l
     if (ret == 1)
         VM_KillIt(iActor, iPlayer);
 #else
-    vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0], &sprite[iActor], 0 }, vm_backup = vm;
+    const vmstate_t vm_backup = vm;
+    vmstate_t tempvm = {
+        iActor, iPlayer, lDist,
+        NULL, NULL,  // to be set in a moment
+        0
+    };
+
     int32_t backupReturnVar = aGameVars[g_iReturnVarID].val.lValue;
     int32_t backupEventExec = g_currentEventExec;
     intptr_t *oinsptr=insptr;
@@ -149,6 +155,11 @@ int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t l
 
         tempvm.g_sp = &dummy_sprite;
         tempvm.g_t = dummy_t;
+    }
+    else
+    {
+        tempvm.g_sp = &sprite[iActor];
+        tempvm.g_t = &actor[iActor].t_data[0];
     }
 
     vm = tempvm;
