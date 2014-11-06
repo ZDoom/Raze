@@ -1127,7 +1127,7 @@ int32_t OSD_HandleChar(char ch)
 
                 Bmemmove(&osd->history.buf[1], &osd->history.buf[0], sizeof(intptr_t) * osd->history.maxlines-1);
 
-                osd->history.buf[0] = Bstrdup(osd->editor.buf);
+                OSD_SetHistory(0, osd->editor.buf);
 
                 if (osd->history.lines < osd->history.maxlines)
                     osd->history.lines++;

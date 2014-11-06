@@ -274,6 +274,12 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar);
 void OSD_WriteAliases(FILE *fp);
 void OSD_WriteCvars(FILE *fp);
 
+static inline void OSD_SetHistory(int32_t histIdx, const char *src)
+{
+    osd->history.buf[histIdx] = Xmalloc(OSDEDITLENGTH);
+    Bstrncpyz(osd->history.buf[histIdx], src, OSDEDITLENGTH);
+}
+
 // these correspond to the Duke palettes, so they shouldn't really be here
 // ...but I don't care
 
