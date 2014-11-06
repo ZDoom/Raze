@@ -7947,23 +7947,13 @@ static void dosetaspect(void)
 
         if (xdimen != oxdimen && voxlock[0][0])
         {
-            EDUKE32_STATIC_ASSERT((uint64_t) MAXXDIM*(DISTRECIPSIZ-1) <= INT32_MAX);
-
             if (distrecip == NULL)
                 distrecip = (uint32_t *)Xaligned_alloc(16, DISTRECIPSIZ * sizeof(uint32_t));
 
-            i = 1;
-
-            for (; i<(int32_t) ARRAY_SIZE(distrecip)-4; i+=4)
-            {
-                distrecip[i] = (xdimen * i)>>20;
-                distrecip[i+1] = (xdimen * (i+1))>>20;
-                distrecip[i+2] = (xdimen * (i+2))>>20;
-                distrecip[i+3] = (xdimen * (i+3))>>20;
-            }
-
-            for (; i<(int32_t) ARRAY_SIZE(distrecip); i++)
-                distrecip[i] = (xdimen * i)>>20;
+            for (i=1; i<DISTRECIPSIZ; i++)
+                distrecip[i] = (xdimen < 1<<11) ?
+                    tabledivide32(xdimen<<20, i) :
+                    tabledivide64((uint64_t)xdimen<<20, i);
 
             nytooclose = xdimen*2100;
         }
