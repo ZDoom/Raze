@@ -187,15 +187,15 @@ int32_t nx_unprotect(intptr_t beg, intptr_t end)
 void calc_ylookup(int32_t bpl, int32_t lastyidx)
 {
     int32_t i, j=0;
-
-    lastyidx++;
+    static int32_t ylookupsiz;
 
     Bassert(lastyidx <= MAXYDIM);
 
+    lastyidx++;
+
     if (lastyidx > ylookupsiz)
     {
-        if (ylookup)
-            Baligned_free(ylookup);
+        Baligned_free(ylookup);
 
         ylookup = (intptr_t *)Xaligned_alloc(16, lastyidx * sizeof(intptr_t));
 #if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
@@ -213,7 +213,7 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx)
         j += (bpl << 2);
     }
 
-    for (; i<=lastyidx; i++)
+    for (; i<lastyidx; i++)
     {
         ylookup[i] = j;
         j += bpl;

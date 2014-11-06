@@ -757,7 +757,6 @@ EXTERN int32_t yxaspect, viewingrange;
 extern "C" {
 #endif
 EXTERN intptr_t *ylookup;
-EXTERN int32_t ylookupsiz;
 #ifdef __cplusplus
 };
 #endif
