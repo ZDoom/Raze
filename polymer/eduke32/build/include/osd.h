@@ -276,7 +276,7 @@ void OSD_WriteCvars(FILE *fp);
 
 static inline void OSD_SetHistory(int32_t histIdx, const char *src)
 {
-    osd->history.buf[histIdx] = Xmalloc(OSDEDITLENGTH);
+    osd->history.buf[histIdx] = (char *)Xmalloc(OSDEDITLENGTH);
     Bstrncpyz(osd->history.buf[histIdx], src, OSDEDITLENGTH);
 }
 

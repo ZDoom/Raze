@@ -510,7 +510,7 @@ number from 0 to 2^_B_^--1.
 
 4. If the truncated value is outside the range of representable values for the
    corresponding integer type of bit width _B_, the final value is obtained by
-   successively adding or subtracting 2^B^, until the value falls inside that
+   successively adding or subtracting 2^_B_^, until the value falls inside that
    range.
 
 //////////
@@ -989,8 +989,8 @@ Returns the result of the `updatesector` call.
 [[sprite_power]] `spr^zofs`::
 Returns an <<vector_types,`xmath.ivec3`>> object that contains the position of
 this sprite, diminished by `zofs` in the z direction. Because in BUILD, z
-coordinates increase toward the floor, the `^` can be thought of as ``raise the
-sprite by `zofs` units''.
+coordinates increase toward the floor, the `^` can be thought of as the
+position of the sprite ``raised by `zofs` units''.
 
 ===== `sprite` static data
 
