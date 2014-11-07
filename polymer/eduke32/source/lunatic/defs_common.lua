@@ -444,7 +444,7 @@ int32_t guniqhudid;
 const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 const int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 const int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
-const int16_t tilesizx[MAXTILES], tilesizy[MAXTILES];
+const vec2_t tilesiz[MAXTILES];
 
 uint8_t show2dsector[(MAXSECTORS+7)>>3];
 
@@ -849,13 +849,32 @@ end
 
 ---- indirect C array access ----
 
--- create a safe indirection for an ffi.C array
+-- Create a safe indirection for an ffi.C array.
 function creategtab(ctab, maxidx, name)
     local tab = {}
     local tmpmt = {
         __index = function(tab, key)
             if (key>=0 and key < maxidx) then
                 return ctab[key]
+            end
+            error('out-of-bounds '..name..' read access', 2)
+        end,
+        __newindex = function()
+            error('cannot write directly to '..name, 2)
+        end,
+    }
+
+    return setmtonce(tab, tmpmt)
+end
+
+-- Create a a safe indirection for an ffi.C struct array, accessing a given
+-- member.
+function creategtab_membidx(ctab, membname, maxidx, name)
+    local tab = {}
+    local tmpmt = {
+        __index = function(tab, key)
+            if (key>=0 and key < maxidx) then
+                return ctab[key][membname]
             end
             error('out-of-bounds '..name..' read access', 2)
         end,

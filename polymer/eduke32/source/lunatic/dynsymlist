@@ -46,8 +46,7 @@ prevspritesect;
 prevspritestat;
 nextspritesect;
 nextspritestat;
-tilesizx;
-tilesizy;
+tilesiz;
 
 show2dsector;
 

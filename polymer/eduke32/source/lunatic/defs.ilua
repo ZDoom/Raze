@@ -951,8 +951,8 @@ end
 
 local tile_static_members = defs_c.static_members_tab()
 do
-    tile_static_members.sizx = defs_c.creategtab(ffiC.tilesizx, ffiC.MAXTILES, "tilesizx[]")
-    tile_static_members.sizy = defs_c.creategtab(ffiC.tilesizy, ffiC.MAXTILES, "tilesizy[]")
+    tile_static_members.sizx = defs_c.creategtab_membidx(ffiC.tilesiz, "x", ffiC.MAXTILES, "tilesizx[]")
+    tile_static_members.sizy = defs_c.creategtab_membidx(ffiC.tilesiz, "y", ffiC.MAXTILES, "tilesizy[]")
 end
 
 -- XXX: error message will say "g_player_ps"
