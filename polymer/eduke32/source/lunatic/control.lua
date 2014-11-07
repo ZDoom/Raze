@@ -926,7 +926,7 @@ function _qgetsysstr(qdst, what, pli)
         ffi.copy(dst, "multiplayer not yet implemented")  -- TODO_MP
     elseif (what == ffiC.STR_VOLUMENAME) then
         local vol = ffiC.ud.volume_number
-        bcheck.volume_number(vol)
+        bcheck.volume_idx(vol)
         ffi.copy(dst, ffiC.EpisodeNames[vol], ffi.sizeof(ffiC.EpisodeNames[0]))
     else
         error("unknown system string ID "..what, 2)

@@ -646,7 +646,7 @@ local PlayerLabels = {
     access_incs = PL".access_incs",
 
     numloogs = DISABLED_PL".numloogs",
-    loogcnt = DISABLED_PL".loogcnt",
+    loogcnt = PL".loogcnt",
     scream_voice = { PL".scream_voice" },
 
     last_weapon = PL".last_weapon",
@@ -841,6 +841,7 @@ local UserdefLabels = {
     camerasprite = UDRO".camerasprite",
     cashman = UDRO".cashman",
     clipping = UD".noclip",  -- NAME
+    color = UD".color",
     const_visibility = UD".const_visibility",
     crosshair = UD".crosshair",
     crosshairscale = UDRO".crosshairscale",

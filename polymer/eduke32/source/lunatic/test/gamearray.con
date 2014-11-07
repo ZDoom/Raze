@@ -106,6 +106,8 @@ onevent EVENT_ENTERLEVEL
     ifvarn asdsz NEWASDSZ state error
 
     redefinequote 500 [%d]: qwe=%d, qwe1=%d, asd=%d, asd1=%d
+    redefinequote 501 Because C-CON can't qsprintf into an uninitialized one
+
     setvar i 0
     whilevarvarn i -1
     {
