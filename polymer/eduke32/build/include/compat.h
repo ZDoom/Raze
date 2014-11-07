@@ -934,11 +934,7 @@ static inline void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 # define Xmalloc xmalloc
 # define Xcalloc xcalloc
 # define Xrealloc xrealloc
-#ifdef _WIN32
-# define Xaligned_alloc(alignment, size) _aligned_malloc(size, alignment)
-#else
-# define Xaligned_alloc(alignment, size) memalign(alignment, size)
-#endif
+# define Xaligned_alloc xaligned_malloc
 # define Bexit exit
 #endif
 
