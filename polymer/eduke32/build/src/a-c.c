@@ -193,7 +193,11 @@ extern int32_t vince[4];
 extern intptr_t bufplce[4];
 
 #if (EDUKE32_GCC_PREREQ(4,7) || __has_extension(attribute_ext_vector_type)) && defined BITNESS64
-# define USE_VECTOR_EXT
+// XXX: The "Ubuntu clang version 3.5-1ubuntu1 (trunk) (based on LLVM 3.5)"
+// does not compile us with USE_VECTOR_EXT. Maybe a newer one does?
+# if !defined __clang__
+#  define USE_VECTOR_EXT
+# endif
 #endif
 
 #ifdef USE_VECTOR_EXT
