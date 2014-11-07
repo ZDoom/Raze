@@ -1660,22 +1660,22 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 
 static void P_DisplaySpit(int32_t snum)
 {
-    int32_t i, a, x, y, z;
     DukePlayer_t *const ps = g_player[snum].ps;
+    const int32_t loogcnt = ps->loogcnt;
+    const int32_t y = loogcnt<<2;
 
-    if (ps->loogcnt == 0)
+    if (loogcnt == 0)
         return;
 
-    y = (ps->loogcnt<<2);
-
-    for (i=0; i<ps->numloogs; i++)
+    for (int32_t i=0; i < ps->numloogs; i++)
     {
-        a = klabs(sintable[((ps->loogcnt+i)<<5)&2047])>>5;
-        z = 4096+((ps->loogcnt+i)<<9);
-        x = (-g_player[snum].sync->avel>>1)+(sintable[((ps->loogcnt+i)<<6)&2047]>>10);
+        int32_t a = klabs(sintable[((loogcnt+i)<<5)&2047])>>5;
+        int32_t z = 4096 + ((loogcnt+i)<<9);
+        int32_t x = (-g_player[snum].sync->avel>>1) + (sintable[((loogcnt+i)<<6)&2047]>>10);
 
         rotatesprite_fs(
-            (ps->loogiex[i]+x)<<16,(200+ps->loogiey[i]-y)<<16,z-(i<<8),256-a,
+            (ps->loogiex[i]+x)<<16, (200+ps->loogiey[i]-y)<<16,
+            z-(i<<8), 256-a,
             LOOGIE,0,0,2);
     }
 }

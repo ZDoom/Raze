@@ -4430,9 +4430,9 @@ finish_qsprintf:
         case CON_READARRAYFROMFILE:
             insptr++;
             {
-                int32_t j=*insptr++;
+                const int32_t j=*insptr++;
                 {
-                    int q = *insptr++;
+                    const int q = *insptr++;
 
                     if (EDUKE32_PREDICT_FALSE(ScriptQuotes[q] == NULL))
                     {
@@ -4443,21 +4443,34 @@ finish_qsprintf:
                     if (tw == CON_READARRAYFROMFILE)
                     {
                         int32_t fil = kopen4loadfrommod(ScriptQuotes[q], 0);
-                        int32_t asize;
+                        int32_t numelts;
 
                         if (fil < 0)
                             continue;
 
-                        asize = kfilelength(fil);
+                        numelts = kfilelength(fil) / sizeof(int32_t);
 
-                        if (asize > 0)
+                        // NOTE: LunaCON is stricter: if the file has no
+                        // elements, resize the array to size zero.
+                        if (numelts > 0)
                         {
-                            // NOTE: this is broken on 64-bit, e.g. for LNGA2.
                             /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
-                                aGameArrays[j].szLabel, aGameArrays[j].size, asize / GAR_ELTSZ);*/
-                            aGameArrays[j].plValues = (intptr_t *)Xrealloc(aGameArrays[j].plValues, asize);
-                            aGameArrays[j].size = asize/GAR_ELTSZ;
-                            kread(fil, aGameArrays[j].plValues, asize);
+                                aGameArrays[j].szLabel, aGameArrays[j].size, numelts);*/
+                            int32_t numbytes = numelts * sizeof(int32_t);
+#ifdef BITNESS64
+                            int32_t *tmpar = Xmalloc(numbytes);
+                            kread(fil, tmpar, numbytes);
+#endif
+                            aGameArrays[j].plValues = (intptr_t *)Xrealloc(
+                                aGameArrays[j].plValues, numelts * GAR_ELTSZ);
+                            aGameArrays[j].size = numelts;
+#ifdef BITNESS64
+                            for (int32_t i=0; i<numelts; i++)
+                                aGameArrays[j].plValues[i] = tmpar[i];  // int32_t --> int64_t
+                            Bfree(tmpar);
+#else
+                            kread(fil, aGameArrays[j].plValues, numbytes);
+#endif
                         }
 
                         kclose(fil);
