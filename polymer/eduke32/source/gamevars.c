@@ -30,9 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define _gamevars_c_
 
-#define PLAYER_VAR_ALIGNMENT (sizeof(intptr_t))
-#define ACTOR_VAR_ALIGNMENT 16
-
 #ifdef LUNATIC
 int32_t g_noResetVars;
 LUNATIC_CB void (*A_ResetVars)(int32_t iActor);

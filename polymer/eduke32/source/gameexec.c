@@ -4461,8 +4461,9 @@ finish_qsprintf:
                             int32_t *tmpar = Xmalloc(numbytes);
                             kread(fil, tmpar, numbytes);
 #endif
-                            aGameArrays[j].plValues = (intptr_t *)Xrealloc(
-                                aGameArrays[j].plValues, numelts * GAR_ELTSZ);
+                            Baligned_free(aGameArrays[j].plValues);
+                            aGameArrays[j].plValues = (intptr_t *)Xaligned_alloc(
+                                ACTOR_VAR_ALIGNMENT, numelts * GAR_ELTSZ);
                             aGameArrays[j].size = numelts;
 #ifdef BITNESS64
                             for (int32_t i=0; i<numelts; i++)
@@ -4521,7 +4522,8 @@ finish_qsprintf:
                 if (asize > 0)
                 {
                     /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);*/
-                    aGameArrays[j].plValues = (intptr_t *)Xrealloc(aGameArrays[j].plValues, GAR_ELTSZ * asize);
+                    Baligned_free(aGameArrays[j].plValues);
+                    aGameArrays[j].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, GAR_ELTSZ * asize);
                     aGameArrays[j].size = asize;
                 }
                 continue;
