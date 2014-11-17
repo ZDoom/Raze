@@ -3194,23 +3194,7 @@ void M_ChangeMenu(MenuID_t cm)
         g_currentMenu = g_previousMenu;
     }
     else if (cm == MENU_CLOSE)
-    {
-        if (g_player[myconnectindex].ps->gm & MODE_GAME)
-        {
-            g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-            {
-                ready2send = 1;
-                totalclock = ototalclock;
-                CAMERACLOCK = totalclock;
-                CAMERADIST = 65536;
-                m_animation.start = 0;
-                m_animation.length = 0;
-            }
-            walock[TILE_SAVESHOT] = 199;
-            G_UpdateScreenArea();
-        }
-    }
+        M_CloseMenu(myconnectindex);
     else if (cm >= 0)
     {
         if ((g_player[myconnectindex].ps->gm&MODE_GAME) && cm == MENU_MAIN)
@@ -3391,6 +3375,42 @@ static inline int32_t M_UpdateScreenOK(MenuID_t cm)
     so if you want to change or add a menu,
     chances are you should scroll up.
 */
+
+#define M_MOUSETIMEOUT 120
+static int32_t m_mouselastactivity;
+static vec2_t m_prevmousepos, m_mousepos;
+
+void M_OpenMenu(size_t playerID)
+{
+    g_player[playerID].ps->gm |= MODE_MENU;
+
+    readmouseabsxy(&m_prevmousepos.x, &m_prevmousepos.y);
+    m_mouselastactivity = -M_MOUSETIMEOUT;
+
+    AppGrabMouse(0);
+}
+
+void M_CloseMenu(size_t playerID)
+{
+    if (g_player[playerID].ps->gm & MODE_GAME)
+    {
+        // The following lines are here so that you cannot close the menu when no game is running.
+        g_player[playerID].ps->gm &= ~MODE_MENU;
+        AppGrabMouse(1);
+
+        if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
+        {
+            ready2send = 1;
+            totalclock = ototalclock;
+            CAMERACLOCK = totalclock;
+            CAMERADIST = 65536;
+            m_animation.start = 0;
+            m_animation.length = 0;
+        }
+        walock[TILE_SAVESHOT] = 199;
+        G_UpdateScreenArea();
+    }
+}
 
 static void M_BlackRectangle(int32_t x, int32_t y, int32_t width, int32_t height)
 {
@@ -4919,6 +4939,14 @@ void M_DisplayMenus(void)
         return;
     }
 
+    if (!M_IsTextInput(m_currentMenu) && KB_KeyPressed(sc_Q))
+    {
+        g_previousMenu = g_currentMenu;
+        M_ChangeMenuAnimate(MENU_QUIT, MA_Advance);
+    }
+
+    M_RunMenuInput(m_currentMenu);
+
     VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
@@ -4929,12 +4957,6 @@ void M_DisplayMenus(void)
 
     if (M_UpdateScreenOK(g_currentMenu))
         G_UpdateScreenArea();
-
-    if (!M_IsTextInput(m_currentMenu) && KB_KeyPressed(sc_Q))
-    {
-        g_previousMenu = g_currentMenu;
-        M_ChangeMenuAnimate(MENU_QUIT, MA_Advance);
-    }
 
 #if defined(USE_OPENGL) && defined(DROIDMENU)
     gltexfiltermode = 1;
@@ -4955,8 +4977,6 @@ void M_DisplayMenus(void)
     else
         M_RunMenu(m_currentMenu, origin);
 
-    M_RunMenuInput(m_currentMenu);
-
 #if defined(USE_OPENGL) && defined(DROIDMENU)
     gltexfiltermode = menufiltermode ? 5 : 2;
     gltexapplyprops();
@@ -4964,6 +4984,20 @@ void M_DisplayMenus(void)
 
     if (VM_HaveEvent(EVENT_DISPLAYMENUREST))
         VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+
+    if (readmouseabsxy(&m_mousepos.x, &m_mousepos.y))
+    {
+        if (m_mousepos.x != m_prevmousepos.x || m_mousepos.y != m_prevmousepos.y)
+        {
+            m_prevmousepos = m_mousepos;
+            m_mouselastactivity = totalclock;
+        }
+    }
+    else
+        m_mouselastactivity = -M_MOUSETIMEOUT;
+
+    if (totalclock - m_mouselastactivity < M_MOUSETIMEOUT)
+        rotatesprite_win(m_mousepos.x,m_mousepos.y,65536,0,CROSSHAIR,0,CROSSHAIR_PAL,2|1);
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)
     {

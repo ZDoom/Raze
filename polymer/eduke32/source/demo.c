@@ -55,9 +55,9 @@ static int32_t demo_synccompress=1, demorec_seeds=1, demo_hasseeds;
 static void Demo_RestoreModes(int32_t menu)
 {
     if (menu)
-        g_player[myconnectindex].ps->gm |= MODE_MENU;
+        M_OpenMenu(myconnectindex);
     else
-        g_player[myconnectindex].ps->gm &= ~MODE_MENU;
+        M_CloseMenu(myconnectindex);
 
     g_player[myconnectindex].ps->gm &= ~MODE_GAME;
     g_player[myconnectindex].ps->gm |= MODE_DEMO;
@@ -561,7 +561,7 @@ RECHECK:
     {
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        g_player[myconnectindex].ps->gm |= MODE_MENU;
+        M_OpenMenu(myconnectindex);
     }
 
     ready2send = 0;
@@ -702,7 +702,7 @@ RECHECK:
 corrupt:
                         OSD_Printf(OSD_ERROR "Demo %d is corrupt (code %d).\n", g_whichDemo-1, corruptcode);
 nextdemo:
-                        g_player[myconnectindex].ps->gm |= MODE_MENU;
+                        M_OpenMenu(myconnectindex);
 nextdemo_nomenu:
                         foundemo = 0;
                         ud.reccnt = 0;
@@ -913,7 +913,7 @@ nextdemo_nomenu:
             I_EscapeTriggerClear();
             FX_StopAllSounds();
             S_ClearSoundLocks();
-            g_player[myconnectindex].ps->gm |= MODE_MENU;
+            M_OpenMenu(myconnectindex);
             M_ChangeMenu(MENU_MAIN);
             S_MenuSound();
         }
@@ -928,7 +928,10 @@ nextdemo_nomenu:
             Net_SendMessage();
 
             if ((g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
-                g_player[myconnectindex].ps->gm = MODE_MENU;
+            {
+                g_player[myconnectindex].ps->gm = 0;
+                M_OpenMenu(myconnectindex);
+            }
         }
         else
         {

@@ -374,6 +374,8 @@ void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype);
 int32_t M_IsTextInput(Menu_t *cm);
 void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 void M_Init(void);
+void M_OpenMenu(size_t playerID);
+void M_CloseMenu(size_t playerID);
 void M_DisplayMenus(void);
 
 #endif

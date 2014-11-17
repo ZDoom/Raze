@@ -3536,7 +3536,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
             {
                 if (regrabmouse)
                 {
-                    grabmouse(1);
+                    grabmouse(AppMouseGrab);
                     regrabmouse = 0;
                 }
                 ShowWindow(hWindow, SW_RESTORE);

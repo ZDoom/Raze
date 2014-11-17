@@ -136,7 +136,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
             if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                 ud.m_noexits = 0;
 
-            g_player[myconnectindex].ps->gm |= MODE_MENU;
+            M_OpenMenu(myconnectindex);
             M_ChangeMenu(MENU_NETWAITVOTES);
         }
 		*/
@@ -272,7 +272,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
             if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                 ud.m_noexits = 0;
 
-            g_player[myconnectindex].ps->gm |= MODE_MENU;
+            M_OpenMenu(myconnectindex);
             M_ChangeMenu(MENU_NETWAITVOTES);
         }
 		*/

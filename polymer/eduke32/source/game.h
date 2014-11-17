@@ -293,6 +293,8 @@ extern int32_t voting;
 
 //extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
+#define CROSSHAIR_PAL (MAXPALOOKUPS-RESERVEDPALS-1)
+
 extern palette_t CrosshairColors;
 extern palette_t DefaultCrosshairColors;
 

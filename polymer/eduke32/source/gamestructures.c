@@ -1775,6 +1775,10 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
     case PLAYER_SCREAM_VOICE:
         ps->scream_voice=lVar1; return;
     case PLAYER_GM:
+        if (!(ps->gm & MODE_MENU) && (lVar1 & MODE_MENU))
+            M_OpenMenu(iPlayer);
+        else if ((ps->gm & MODE_MENU) && !(lVar1 & MODE_MENU))
+            M_CloseMenu(iPlayer);
         ps->gm=lVar1; return;
     case PLAYER_ON_WARPING_SECTOR:
         ps->on_warping_sector=lVar1; return;

@@ -251,7 +251,7 @@ void RI_PollDevices(BOOL loop)
 int32_t initmouse(void)
 {
     if (moustat) return 0;
-    grabmouse(moustat = 1);
+    grabmouse(moustat = AppMouseGrab);
     return 0;
 }
 
@@ -279,3 +279,7 @@ void grabmouse(char a)
     SetCursorPos(pos.x, pos.y);
 }
 
+void AppGrabMouse(char a)
+{
+    UNREFERENCED_PARAMETER(a);
+}

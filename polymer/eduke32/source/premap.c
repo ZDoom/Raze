@@ -1400,6 +1400,7 @@ end_vol4a:
     p->zoom = 768;
 #endif
     p->gm = 0;
+    M_CloseMenu(0);
 
 #if !defined LUNATIC
     //AddLog("Newgame");

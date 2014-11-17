@@ -910,8 +910,8 @@ const char *getjoyname(int32_t what, int32_t num)
 //
 int32_t initmouse(void)
 {
-    moustat=1;
-    grabmouse(1); // FIXME - SA
+    moustat=AppMouseGrab;
+    grabmouse(AppMouseGrab); // FIXME - SA
     return 0;
 }
 
@@ -966,7 +966,13 @@ void grabmouse(char a)
         mousegrab = a;
     }
     mousex = mousey = 0;
-    mouseabsx = mouseabsy = 0;
+}
+
+void AppGrabMouse(char a)
+{
+    grabmouse(a);
+    AppMouseGrab = mousegrab;
+    SDL_ShowCursor(SDL_DISABLE);
 }
 
 //
@@ -1947,7 +1953,8 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
     //if (c==8) setpalette(0,256,0);
 
-    if (regrab) grabmouse(1);
+    if (regrab)
+        grabmouse(AppMouseGrab);
 
     return 0;
 }
@@ -2375,7 +2382,7 @@ int32_t handleevents(void)
             case SDL_WINDOWEVENT_FOCUS_GAINED:
                 appactive = 1;
                 if (mousegrab && moustat)
-                    grabmouse_low(1);
+                    grabmouse_low(AppMouseGrab);
 #ifdef _WIN32
                 if (backgroundidle)
                     SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
@@ -2396,6 +2403,12 @@ int32_t handleevents(void)
                     windowx = ev.window.data1;
                     windowy = ev.window.data2;
                 }
+                break;
+            case SDL_WINDOWEVENT_ENTER:
+                mouseinwindow = 1;
+                break;
+            case SDL_WINDOWEVENT_LEAVE:
+                mouseinwindow = 0;
                 break;
             }
             break;
@@ -2462,7 +2475,7 @@ int32_t handleevents(void)
                 if (mousegrab && moustat)
                 {
                     if (appactive)
-                        grabmouse_low(1);
+                        grabmouse_low(AppMouseGrab);
                     else
                         grabmouse_low(0);
                 }
@@ -2474,6 +2487,8 @@ int32_t handleevents(void)
 # endif
                 rv=-1;
             }
+            if (ev.active.state & SDL_APPMOUSEFOCUS)
+                mouseinwindow = ev.active.gain;
             break;
 #endif  // SDL version
 
@@ -2536,25 +2551,29 @@ int32_t handleevents(void)
             break;
 
         case SDL_MOUSEMOTION:
+#ifdef GEKKO
+            // check if it's a wiimote pointer pretending to be a mouse
+            if (ev.motion.state & SDL_BUTTON_X2MASK)
+            {
+                // the absolute values are used to draw the crosshair
+                mouseabsx = ev.motion.x;
+                mouseabsy = ev.motion.y;
+                // hack: reduce the scale of the "relative" motions
+                // to make it act more like a real mouse
+                ev.motion.xrel /= 16;
+                ev.motion.yrel /= 12;
+            }
+#else
+            mouseabsx = ev.motion.x;
+            mouseabsy = ev.motion.y;
+#endif
+
             // SDL <VER> doesn't handle relative mouse movement correctly yet as the cursor still clips to the screen edges
             // so, we call SDL_WarpMouse() to center the cursor and ignore the resulting motion event that occurs
             //  <VER> is 1.3 for PK, 1.2 for tueidj
             if (appactive && mousegrab)
             {
-#ifdef GEKKO
-                // check if it's a wiimote pointer pretending to be a mouse
-                if (ev.motion.state & SDL_BUTTON_X2MASK)
-                {
-                    // the absolute values are used to draw the crosshair
-                    mouseabsx = ev.motion.x;
-                    mouseabsy = ev.motion.y;
-                    // hack: reduce the scale of the "relative" motions
-                    // to make it act more like a real mouse
-                    ev.motion.xrel /= 16;
-                    ev.motion.yrel /= 12;
-                }
-#endif
-                if (ev.motion.x != xdim>>1 || ev.motion.y != ydim>>1)
+                if (ev.motion.x != (xdim>>1) || ev.motion.y != (ydim>>1))
                 {
                     mousex += ev.motion.xrel;
                     mousey += ev.motion.yrel;

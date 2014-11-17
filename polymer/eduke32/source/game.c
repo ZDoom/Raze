@@ -3280,7 +3280,6 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     }
 }
 
-#define CROSSHAIR_PAL (MAXPALOOKUPS-RESERVEDPALS-1)
 
 palette_t CrosshairColors = { 255, 255, 255, 0 };
 palette_t DefaultCrosshairColors = { 0, 0, 0, 0 };
@@ -3728,7 +3727,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             S_MenuSound();
 
-            g_player[myconnectindex].ps->gm |= MODE_MENU;
+            M_OpenMenu(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2) ready2send = 0;
 
@@ -3757,20 +3756,14 @@ void G_DisplayRest(int32_t smoothratio)
                 a = CROSSHAIR;
 
 #ifdef GEKKO
-            readmouseabsxy(&x, &y);
-            if (x || y)
-            {
-                x >>= 1;
-                y = (y*5)/12;
-            }
-            else
+            if (!readmouseabsxy(&x, &y))
 #endif
             {
-                x = 160;
-                y = 100;
+                x = 160<<16;
+                y = 100<<16;
             }
 
-            rotatesprite_win((x-(g_player[myconnectindex].ps->look_ang>>1))<<16,y<<16,scale(65536,ud.crosshairscale,100),
+            rotatesprite_win(x-(g_player[myconnectindex].ps->look_ang<<15),y,scale(65536,ud.crosshairscale,100),
                              0,a,0,CROSSHAIR_PAL,2+1);
         }
     }
@@ -8883,7 +8876,7 @@ void G_HandleLocalKeys(void)
             FX_StopAllSounds();
             S_ClearSoundLocks();
 
-            g_player[myconnectindex].ps->gm |= MODE_MENU;
+            M_OpenMenu(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2))
             {
@@ -8936,7 +8929,7 @@ FAKE_F2:
                 S_ClearSoundLocks();
 
                 //                setview(0,0,xdim-1,ydim-1);
-                g_player[myconnectindex].ps->gm |= MODE_MENU;
+                M_OpenMenu(myconnectindex);
 
                 if ((!g_netServer && ud.multimode < 2))
                 {
@@ -8956,7 +8949,7 @@ FAKE_F3:
                 S_ClearSoundLocks();
 
                 //                setview(0,0,xdim-1,ydim-1);
-                g_player[myconnectindex].ps->gm |= MODE_MENU;
+                M_OpenMenu(myconnectindex);
                 if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
                 {
                     ready2send = 0;
@@ -8972,7 +8965,7 @@ FAKE_F3:
             FX_StopAllSounds();
             S_ClearSoundLocks();
 
-            g_player[myconnectindex].ps->gm |= MODE_MENU;
+            M_OpenMenu(myconnectindex);
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 0;
@@ -9073,7 +9066,7 @@ FAKE_F3:
             M_ChangeMenu(MENU_QUIT_INGAME);
             FX_StopAllSounds();
             S_ClearSoundLocks();
-            g_player[myconnectindex].ps->gm |= MODE_MENU;
+            M_OpenMenu(myconnectindex);
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 0;
@@ -9139,7 +9132,7 @@ FAKE_F3:
         M_ChangeMenu(MENU_COLCORR_INGAME);
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        g_player[myconnectindex].ps->gm |= MODE_MENU;
+        M_OpenMenu(myconnectindex);
         if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
         {
             ready2send = 0;
@@ -11090,7 +11083,8 @@ void G_BackToMenu(void)
     boardfilename[0] = 0;
     if (ud.recstat == 1) G_CloseDemoWrite();
     ud.warp_on = 0;
-    g_player[myconnectindex].ps->gm = MODE_MENU;
+    g_player[myconnectindex].ps->gm = 0;
+    M_OpenMenu(myconnectindex);
     M_ChangeMenu(MENU_MAIN);
     KB_FlushKeyboardQueue();
     G_UpdateAppTitle();
@@ -11126,7 +11120,8 @@ static int32_t G_EndOfLevel(void)
             {
                 if (!VOLUMEALL)
                     G_DoOrderScreen();
-                g_player[myconnectindex].ps->gm = MODE_MENU;
+                g_player[myconnectindex].ps->gm = 0;
+                M_OpenMenu(myconnectindex);
                 M_ChangeMenu(MENU_MAIN);
                 return 2;
             }

@@ -16,7 +16,7 @@ char remap[KEYSTATUSSIZ];
 int32_t remapinit=0;
 char key_names[NUMKEYS][24];
 int32_t mousex=0,mousey=0,mouseb=0,mouseabsx=0,mouseabsy=0;
-uint8_t moustat = 0, mousegrab = 0;
+uint8_t moustat = 0, mousegrab = 0, mouseinwindow = 1, AppMouseGrab = 1;
 int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 int32_t joyaxespresent=0;
@@ -104,24 +104,24 @@ void readmousexy(int32_t *x, int32_t *y)
     mousex = mousey = 0;
 }
 
-void readmouseabsxy(int32_t *x, int32_t *y)
+int32_t readmouseabsxy(int32_t *x, int32_t *y)
 {
-    if (!moustat || !mousegrab || !appactive)
-    {
-        // no mouse, centre it
-        *x = xdim >> 1;
-        *y = ydim >> 1;
-    }
-    else
-    {
-        *x = mouseabsx;
-        *y = mouseabsy;
-    }
+    int32_t xwidth;
+
+    if (!moustat || !mouseinwindow)
+        return 0;
+
+    xwidth = max(scale(240<<16, xdim, ydim), 320<<16);
+
+    *x = scale(mouseabsx, xwidth, xdim) - ((xwidth>>1) - (320<<15));
+    *y = scale(mouseabsy, 200<<16, ydim);
+
+    return 1;
 }
 
 void readmousebstatus(int32_t *b)
 {
-    if (!moustat || !mousegrab || !appactive) { *b = 0; return; }
+    if (!moustat || !appactive || !mouseinwindow) { *b = 0; return; }
     *b = mouseb;
 }
 

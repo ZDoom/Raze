@@ -989,7 +989,7 @@ static int32_t VM_ResetPlayer(int32_t g_p, int32_t g_flags)
     {
         if (g_lastSaveSlot >= 0 && ud.recstat != 2)
         {
-            g_player[g_p].ps->gm |= MODE_MENU;
+            M_OpenMenu(g_p);
             KB_ClearKeyDown(sc_Space);
             I_AdvanceTriggerClear();
             M_ChangeMenu(MENU_RESETPLAYER);
