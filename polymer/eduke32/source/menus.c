@@ -3444,13 +3444,13 @@ static void M_BlackRectangle(int32_t x, int32_t y, int32_t width, int32_t height
     }
 }
 
-static void M_ShadePal(MenuTextType_t *font, uint8_t status, int32_t *s, int32_t *p)
+static void M_ShadePal(const MenuTextType_t *font, uint8_t status, int32_t *s, int32_t *p)
 {
     *s = (status & (1<<0)) ? (sintable[(totalclock<<5)&2047]>>12) : font->shade_deselected;
     *p = (status & (1<<1)) ? font->pal_disabled : font->pal;
 }
 
-static vec2_t M_MenuText(int32_t x, int32_t y, MenuTextType_t *font, const char *t, uint8_t status)
+static vec2_t M_MenuText(int32_t x, int32_t y, const MenuTextType_t *font, const char *t, uint8_t status)
 {
     int32_t s, p, ybetween = font->ybetween;
     int32_t f = font->textflags;
@@ -3472,7 +3472,7 @@ static vec2_t M_MenuText(int32_t x, int32_t y, MenuTextType_t *font, const char 
 }
 
 #if 0
-static vec2_t M_MenuTextSize(int32_t x, int32_t y, MenuTextType_t *font, const char *t, uint8_t status)
+static vec2_t M_MenuTextSize(int32_t x, int32_t y, const MenuTextType_t *font, const char *t, uint8_t status)
 {
     int32_t f = font->textflags;
     if (status & (1<<5))
@@ -3827,12 +3827,13 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
 static void M_RunMenu_MenuOptionList(MenuOption_t *object, const vec2_t origin)
 {
     const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
+    const MenuTextType_t *font = &MF_Minifont; // MenuOptionList hardcoded font
     int32_t e, y = object->options->list->pos.y;
     int32_t calculatedentryspacing = object->options->list->entryspacing;
 
     // assumes height == font->yline!
     if (calculatedentryspacing < 0)
-        calculatedentryspacing = (-calculatedentryspacing - object->font->yline) / (object->options->numOptions - 1) - object->font->yline;
+        calculatedentryspacing = (-calculatedentryspacing - font->yline) / (object->options->numOptions - 1) - font->yline;
 
     for (e = 0; e < object->options->numOptions; ++e)
     {
@@ -3846,12 +3847,12 @@ static void M_RunMenu_MenuOptionList(MenuOption_t *object, const vec2_t origin)
         status |= (e == object->options->currentEntry)<<0;
         status |= (object->options->list->width == 0)<<2;
 
-        dodraw &= object->options->list->pos.y <= y - object->options->scrollPos && y - object->options->scrollPos + object->font->yline <= object->options->list->bottomcutoff;
+        dodraw &= object->options->list->pos.y <= y - object->options->scrollPos && y - object->options->scrollPos + font->yline <= object->options->list->bottomcutoff;
 
         if (dodraw)
-        /*textsize =*/ M_MenuText(origin.x + x, origin.y + y - object->options->scrollPos, object->font, object->options->optionNames[e], status);
+        /*textsize =*/ M_MenuText(origin.x + x, origin.y + y - object->options->scrollPos, font, object->options->optionNames[e], status);
 
-        height = object->font->yline; // max(textsize.y, object->font->yline);
+        height = font->yline; // max(textsize.y, font->yline);
 
         status |= (object->options->list->width < 0)<<3 | (1<<4);
 
@@ -4133,6 +4134,7 @@ static void M_RunMenuInput(Menu_t *cm)
                 S_PlaySound(KICK_HIT);
                 M_ChangeMenuAnimate(panel->nextID, panel->nextAnimation);
             }
+            break;
         }
 
         case Password:
@@ -4817,6 +4819,7 @@ static void M_RunMenuInput(Menu_t *cm)
             {
                 if (currentry->type == Option)
                 {
+                    const MenuTextType_t *font = &MF_Minifont; // MenuOptionList hardcoded font
                     MenuOption_t *object = (MenuOption_t*)currentry->entry;
                     int32_t movement = 0;
 
@@ -4896,9 +4899,9 @@ static void M_RunMenuInput(Menu_t *cm)
                     {
                         const int32_t listytop = object->options->list->pos.y;
                         // assumes height == font->yline!
-                        const int32_t unitheight = object->options->list->entryspacing < 0 ? (-object->options->list->entryspacing - object->font->yline) / object->options->numOptions : (object->font->yline + object->options->list->entryspacing);
+                        const int32_t unitheight = object->options->list->entryspacing < 0 ? (-object->options->list->entryspacing - font->yline) / object->options->numOptions : (font->yline + object->options->list->entryspacing);
                         const int32_t ytop = listytop + object->options->currentEntry * unitheight;
-                        const int32_t ybottom = ytop + object->font->yline;
+                        const int32_t ybottom = ytop + font->yline;
 
                         if (ybottom - object->options->scrollPos > object->options->list->bottomcutoff)
                             object->options->scrollPos = ybottom - object->options->list->bottomcutoff;
