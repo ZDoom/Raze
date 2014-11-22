@@ -339,10 +339,6 @@ COMMON_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(COMMON_EDIT
 DUKE3D_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_OBJS)))
 DUKE3D_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_EDITOR_OBJS)))
 
-LUNATIC_COMMON_OBJS_EXP := $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(LUNATIC_COMMON_OBJS)))
-LUNATIC_GAME_OBJS_EXP := $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(LUNATIC_GAME_OBJS)))
-LUNATIC_OBJS_EXP := $(LUNATIC_COMMON_OBJS_EXP) $(LUNATIC_GAME_OBJS_EXP)
-
 
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
@@ -606,10 +602,13 @@ $(DUKE3D_RSRC)/editor_banner.c: $(DUKE3D_RSRC)/build.bmp
 $(ENGINE_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(DUKE3D_OBJ) $(TESTGAME_OBJ):
 	mkdir $@
 
-# PHONIES
+## PHONIES
 
+# Delete executables, object files created from sources in source/, and
+# miscellaneous generated files related to Lunatic on non-Linux.
 clean:
-	-rm -f $(EDUKE32) $(MAPSTER32) $(LUNATIC_OBJS_EXP) $(COMMON_OBJS_EXP) $(DUKE3D_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(DUKE3D_EDITOR_OBJS_EXP) $(DUKE3D_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS) core*
+	echo "rm -f $(EDUKE32) $(MAPSTER32) $(DUKE3D_OBJ)/*.o $(DUKE3D_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)"
+	-rm -f $(EDUKE32) $(MAPSTER32) $(DUKE3D_OBJ)/*.o $(DUKE3D_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf EDuke32.app Mapster32.app
 endif
@@ -621,7 +620,9 @@ cleanutils:
 	-rm -f $(addsuffix $(EXESUFFIX),$(UTILS) $(GAMEUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(UTILS))) $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(GAMEUTILS))) $(addsuffix $(EXESUFFIX),$(DXUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(DXUTILS))) $(addsuffix $(EXESUFFIX),$(SDLUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(SDLUTILS))) $(UTIL_OBJS_EXP)
 
 veryclean: clean cleanutils
-	-rm -f $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(ENET_OBJS_EXP) $(DUKE3D_RSRC)/*banner* $(EBACKTRACEDLL)
+	echo "Removed test game and utils objects."
+	echo "rm -f $(ENGINE_OBJ)/*.o $(AUDIOLIB_OBJ)/*.o $(ENET_OBJ)/*.o $(DUKE3D_RSRC)/*banner* $(EBACKTRACEDLL)"
+	-rm -f $(ENGINE_OBJ)/*.o $(AUDIOLIB_OBJ)/*.o $(ENET_OBJ)/*.o $(DUKE3D_RSRC)/*banner* $(EBACKTRACEDLL)
 
 printutils:
 	echo "$(addsuffix $(EXESUFFIX),$(UTILS) $(GAMEUTILS))"

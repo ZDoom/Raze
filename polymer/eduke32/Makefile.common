@@ -190,7 +190,9 @@ endif
 # Debugging/Build options
 #  CPLUSPLUS - 1 = enable C++ building
 #  RELEASE - 1 = no debugging
-#  DEBUGANYWAY - 1 = include debug symbols even when generating release code
+#  DEBUGANYWAY:
+#    1 = Include debug symbols even when generating release code.
+#    2 = Also enable sanitizers with Clang. On the C side, make 'sprite' etc. be real arrays.
 #  DISABLEINLINING - 1 = compile inline functions as extern __fastcall instead of static inline
 #  FORCEWARNINGS - 1 = do not disable any compiler warnings within the source
 #  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
@@ -379,6 +381,7 @@ ifneq (0,$(KRANDDEBUG))
     RELEASE=0
 endif
 ifneq (0,$(PROFILER))
+    # XXX: Why?
     DEBUGANYWAY=1
 endif
 
@@ -423,12 +426,14 @@ endif
 # See http://clang.llvm.org/docs/UsersManual.html#controlling-code-generation
 # for a list of possible UBSan options.
 # Clang 3.2 does only supports -fsanitize=address for the AddressSanitizer
-#    CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overflow,object-size -fsanitize-undefined-trap-on-error
-#    CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),signed-integer-overflow
-#    CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),unsigned-integer-overflow
+CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overflow,object-size
+#CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),signed-integer-overflow
+#CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),unsigned-integer-overflow
+#CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS) -fsanitize-undefined-trap-on-error
 
 ifneq (0,$(RELEASE))
-    # Debugging disabled
+    ## Debugging disabled
+
     ifeq (0,$(CLANG))
         COMMONFLAGS += -funswitch-loops
         ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \< 4)))
@@ -446,39 +451,39 @@ ifneq (0,$(RELEASE))
             endif
         endif
     endif
+
     ifeq (0,$(DEBUGANYWAY))
         COMMONFLAGS += -fomit-frame-pointer
         COMPILERFLAGS += -DNDEBUG
     else
-        COMPILERFLAGS += -DDEBUGGINGAIDS
-#        ifneq (0,$(CLANG))
-#            COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
-#        endif
+        # Our $(DEBUGANYWAY) -> DEBUGGINGAIDS #define
+        COMPILERFLAGS += -DDEBUGGINGAIDS=$(DEBUGANYWAY)
+        ifneq (0,$(CLANG))
+            ifeq (2,$(DEBUGANYWAY))
+                COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
+            endif
+        endif
     endif
+
     ifneq (0,$(LTO))
         COMPILERFLAGS += -DUSING_LTO
         COMMONFLAGS += -flto
-        # We don't need the following since we don't make intermediate .a files any more.
-#        ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
-#            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 9)))
-#                COMMONFLAGS += -ffat-lto-objects
-#            endif
-#        endif
     endif
 else
-    # Debugging enabled
-    ifeq (0,$(DEBUGANYWAY))
-        COMPILERFLAGS += -DDEBUGGINGAIDS
-    else
-        COMPILERFLAGS += -DDEBUGGINGAIDS=2
+    ## Debugging enabled
+
+    # Our $(DEBUGANYWAY) -> DEBUGGINGAIDS #define
+    COMPILERFLAGS += -DDEBUGGINGAIDS=$(DEBUGANYWAY)
+    ifneq (0,$(CLANG))
+        ifeq (2,$(DEBUGANYWAY))
+            COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
+        endif
     endif
 
-#    ifneq (0,$(CLANG))
-#        COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
-#    endif
     ifeq ($(SUBPLATFORM),LINUX)
         LIBS+=-rdynamic
     endif
+
     ifneq (0,$(MUDFLAP))
         LIBS+= -lmudflapth
         COMMONFLAGS += -fmudflapth
