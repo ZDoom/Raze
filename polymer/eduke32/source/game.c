@@ -833,11 +833,6 @@ vec2_t G_ScreenText(const int32_t font,
             origin.y = -(size.y / 2);
     }
 
-#if defined(USE_OPENGL) && defined(DROIDMENU)
-    gltexfiltermode = 1;
-    gltexapplyprops();
-#endif
-
     // loop through the string
     while ((t = *text) && text != end)
     {
@@ -1115,15 +1110,6 @@ vec2_t G_ScreenText(const int32_t font,
         size.x >>= 16;
         size.y >>= 16;
     }
-
-#if defined(USE_OPENGL) && defined(DROIDMENU)
-    {
-        extern int32_t menufiltermode;
-
-        gltexfiltermode = menufiltermode ? 5 : 2;
-        gltexapplyprops();
-    }
-#endif
 
     return size;
 }

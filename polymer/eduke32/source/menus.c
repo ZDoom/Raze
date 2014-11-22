@@ -4961,11 +4961,6 @@ void M_DisplayMenus(void)
     if (M_UpdateScreenOK(g_currentMenu))
         G_UpdateScreenArea();
 
-#if defined(USE_OPENGL) && defined(DROIDMENU)
-    gltexfiltermode = 1;
-    gltexapplyprops();
-#endif
-
     if (totalclock < m_animation.start + m_animation.length)
     {
         vec2_t previousOrigin = { 0, 0 };
@@ -4979,11 +4974,6 @@ void M_DisplayMenus(void)
     }
     else
         M_RunMenu(m_currentMenu, origin);
-
-#if defined(USE_OPENGL) && defined(DROIDMENU)
-    gltexfiltermode = menufiltermode ? 5 : 2;
-    gltexapplyprops();
-#endif
 
     if (VM_HaveEvent(EVENT_DISPLAYMENUREST))
         VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek);
