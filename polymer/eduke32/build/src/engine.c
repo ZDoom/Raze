@@ -53,11 +53,6 @@ L_State g_engState;
 #endif
 
 #define CACHEAGETIME 16
-#define CLASSIC_NONPOW2_YSIZE_SPRITES
-
-#ifdef LUNATIC
-# define CLASSIC_NONPOW2_YSIZE_WALLS
-#endif
 
 #if !defined(__arm__) && !defined(GEKKO)
 #define HIGH_PRECISION_SPRITE
@@ -4208,15 +4203,14 @@ static int32_t gglogx, gglogy, ggpinc;
 static char *ggbuf, *ggpal;
 
 #ifdef ENGINE_USING_A_C
-extern int32_t glogx, glogy, gpinc;
-extern char *gbuf;
+extern int32_t gpinc;
 #endif
 
 static inline void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, int32_t pinc)
 {
 #ifdef ENGINE_USING_A_C
-    glogx = (logylogx&255); glogy = (logylogx>>8);
-    gbuf = (char *) bufplc; gpinc = pinc;
+    sethlinesizes(logylogx&255, logylogx>>8, bufplc);
+    gpinc = pinc;
 #else
     setupslopevlin(logylogx, bufplc, pinc);
 #endif

@@ -11,6 +11,11 @@
 #define CLASSIC_SLICE_BY_4
 #define A_C_RESTRICT __restrict
 
+#define CLASSIC_NONPOW2_YSIZE_SPRITES
+#ifdef LUNATIC
+# define CLASSIC_NONPOW2_YSIZE_WALLS
+#endif
+
 /** Definitions of high-precision integer types. **/
 // Should be used for values that represent coordinates with which calculations
 // like dot product are carried out. Substituting 32-bit ints for these will

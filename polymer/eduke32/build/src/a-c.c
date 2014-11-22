@@ -37,9 +37,10 @@ char *a64_gtrans;
 #endif
 
 static int32_t bpl, transmode = 0;
-int32_t glogx, glogy, gpinc;
+static char *gbuf;
+static int32_t glogx, glogy;
+int32_t gpinc;
 static int32_t gbxinc, gbyinc;
-char *gbuf;
 static char *gpal, *ghlinepal, *gtrans;
 static char *gpal2;
 
@@ -219,13 +220,14 @@ typedef uint32_t uint32_vec4 __attribute__ ((vector_size (16)));
 # define saturate_vplc_trans(vplc, vinc)
 #endif
 
+#ifdef CLASSIC_NONPOW2_YSIZE_WALLS
 // cnt >= 1
-void vlineasm4nlogy(int32_t cnt, char *p, char *const A_C_RESTRICT * pal, char *const A_C_RESTRICT * buf,
-#ifdef USE_VECTOR_EXT
+static void vlineasm4nlogy(int32_t cnt, char *p, char *const A_C_RESTRICT * pal, char *const A_C_RESTRICT * buf,
+# ifdef USE_VECTOR_EXT
     uint32_vec4 vplc, const uint32_vec4 vinc)
-#else
+# else
     uint32_t * vplc, const int32_t *vinc)
-#endif
+# endif
 {
     const int32_t ourbpl = bpl;
 
@@ -236,19 +238,20 @@ void vlineasm4nlogy(int32_t cnt, char *p, char *const A_C_RESTRICT * pal, char *
         p[2] = pal[2][buf[2][ourmulscale32(vplc[2], globaltilesizy)]];
         p[3] = pal[3][buf[3][ourmulscale32(vplc[3], globaltilesizy)]];
 
-#if defined USE_VECTOR_EXT
+# if defined USE_VECTOR_EXT
         vplc += vinc;
-#else
+# else
         vplc[0] += vinc[0];
         vplc[1] += vinc[1];
         vplc[2] += vinc[2];
         vplc[3] += vinc[3];
-#endif
+# endif
         p += ourbpl;
     } while (--cnt);
 
     Bmemcpy(&vplce[0], &vplc[0], sizeof(uint32_t) * 4);
 }
+#endif
 
 // cnt >= 1
 void vlineasm4(int32_t cnt, char *p)
@@ -264,12 +267,17 @@ void vlineasm4(int32_t cnt, char *p)
 #endif
     const int32_t logy = glogy, ourbpl = bpl;
 
-    if (EDUKE32_PREDICT_FALSE(!logy)) // I had an assert on logy for quite a while that NEVER triggered...
+#ifdef CLASSIC_NONPOW2_YSIZE_WALLS
+    if (EDUKE32_PREDICT_FALSE(!logy))
     {
+        // This should only happen when 'globalshiftval = 0' has been set in engine.c.
         vlineasm4nlogy(cnt, p, pal, buf, vplc, vinc);
         return;
     }
-    
+#else
+    assert(logy);
+#endif
+
     // just fucking shoot me
 #ifdef CLASSIC_SLICE_BY_4
     for (; cnt>=4;cnt-=4)
