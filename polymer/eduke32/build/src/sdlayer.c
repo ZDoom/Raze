@@ -75,22 +75,6 @@ static SDL_Texture *sdl_texture=NULL;
 static SDL_Renderer *sdl_renderer=NULL;
 #endif
 
-struct glattribs
-{
-    SDL_GLattr attr;
-    int32_t value;
-} sdlayer_gl_attributes [] =
-{
-    { SDL_GL_DOUBLEBUFFER, 1 },
-    { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
-    { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
-    { SDL_GL_STENCIL_SIZE, 1 },
-    { SDL_GL_ACCELERATED_VISUAL, 1 },
-#if SDL_MAJOR_VERSION == 1
-    { SDL_GL_SWAP_CONTROL, vsync_render },
-#endif
-};
-
 int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline;
 intptr_t frameplace=0;
 int32_t lockcount=0;
@@ -1339,6 +1323,21 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #ifdef _WIN32
         win_setvideomode(c);
 #endif
+        struct glattribs
+        {
+            SDL_GLattr attr;
+            int32_t value;
+        } sdlayer_gl_attributes [] =
+        {
+            { SDL_GL_DOUBLEBUFFER, 1 },
+            { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
+            { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
+            { SDL_GL_STENCIL_SIZE, 1 },
+            { SDL_GL_ACCELERATED_VISUAL, 1 },
+#if SDL_MAJOR_VERSION == 1
+            { SDL_GL_SWAP_CONTROL, vsync_render },
+#endif
+        };
 
         do
         {
@@ -1722,19 +1721,20 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                 case SDL_BUTTON_RIGHT: j = 1; break;
                 case SDL_BUTTON_MIDDLE: j = 2; break;
 
-#if !defined _WIN32 || SDL_MAJOR_VERSION == 1
-#ifndef _WIN32
+#if SDL_MAJOR_VERSION == 1
                 case SDL_BUTTON_WHEELUP:    // 4
                 case SDL_BUTTON_WHEELDOWN:  // 5
                     j = ev->button.button;
                     break;
 #endif
-                    // NOTE: SDL1 does have SDL_BUTTON_X1, but that's not what is
-                    // generated. Neither with SDL2 on Linux. (Other OSs: not tested.)
+                /* Thumb buttons. */
+#if SDL_MAJOR_VERSION==1 || !defined _WIN32
+                // NOTE: SDL1 does have SDL_BUTTON_X1, but that's not what is
+                // generated. Neither with SDL2 on Linux. (Other OSs: not tested.)
                 case 8: j = 3; break;
                 case 9: j = 6; break;
 #else
-                    // On SDL2/Windows, everything is as it should be.
+                // On SDL2/Windows, everything is as it should be.
                 case SDL_BUTTON_X1: j = 3; break;
                 case SDL_BUTTON_X2: j = 6; break;
 #endif
