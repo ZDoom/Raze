@@ -266,7 +266,7 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
     OPTIMIZATIONS += $(DEBUGFLAG)
 endif
 
-CONLYFLAGS=-std=gnu99 -Wimplicit -Wdeclaration-after-statement
+CONLYFLAGS=-std=gnu99 -Wimplicit 
 CPPONLYFLAGS= -fno-exceptions -fno-rtti -Wno-write-strings
 ASFORMAT=elf$(SYSBITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
