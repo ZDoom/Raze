@@ -598,6 +598,14 @@ int32_t app_main(int32_t argc, const char **argv)
 
     Bstrncpy(game_executable, DefaultGameLocalExec, sizeof(game_executable));
 
+    if (preinitengine())
+    {
+        wm_msgbox("Build Engine Initialization Error",
+                  "There was a problem initializing the Build engine: %s", engineerrstr);
+        ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
+        Bexit(2);
+    }
+
     if ((i = CallExtInit()) < 0) return -1;
 
 #ifdef STARTUP_SETUP_WINDOW
