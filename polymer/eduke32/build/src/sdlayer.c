@@ -75,7 +75,7 @@ static SDL_Texture *sdl_texture=NULL;
 static SDL_Renderer *sdl_renderer=NULL;
 #endif
 
-struct
+struct glattribs
 {
     SDL_GLattr attr;
     int32_t value;
@@ -196,7 +196,6 @@ int32_t wm_msgbox(const char *name, const char *fmt, ...)
 int32_t wm_ynbox(const char *name, const char *fmt, ...)
 {
     char buf[2048];
-    char c;
     va_list va;
 
     UNREFERENCED_PARAMETER(name);
@@ -1320,9 +1319,6 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
 int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
     int32_t regrab = 0, ret;
-#ifdef USE_OPENGL
-    static int32_t warnonce = 0;
-#endif
 
     ret = setvideomode_sdlcommon(&x, &y, c, fs, &regrab);
     if (ret != 1) return ret;
@@ -1706,7 +1702,11 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                     mousex += ev->motion.xrel;
                     mousey += ev->motion.yrel;
 #if !defined DEBUGGINGAIDS || MY_DEVELOPER_ID == 805120924
-                    SDL_WarpMouse(xdim >> 1, ydim >> 1);
+# if SDL_MAJOR_VERSION==1
+                    SDL_WarpMouse(xdim>>1, ydim>>1);
+# else
+                    SDL_WarpMouseInWindow(sdl_window, xdim>>1, ydim>>1);
+# endif
 #endif
                 }
             }
