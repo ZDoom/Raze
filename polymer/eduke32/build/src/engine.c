@@ -2790,7 +2790,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 
 
     x = x1;
-    while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2))
+    while ((x <= x2) && (startumost[x+windowx1] > startdmost[x+windowx1]))
         x++;
 
     p = x+frameoffset;
@@ -3775,7 +3775,9 @@ static void wallscan(int32_t x1, int32_t x2,
     if (globalshiftval < 0)
         return;
 
-    if (x2 >= xdim) x2 = xdim-1;
+    if (x2 >= xdim)
+        x2 = xdim-1;
+    assert((unsigned)x1 < (unsigned)xdim);
 
     tsiz = tilesiz[globalpicnum];
 
@@ -3793,7 +3795,8 @@ static void wallscan(int32_t x1, int32_t x2,
 
 
     x = x1;
-    while ((umost[x] > dmost[x]) && (x <= x2)) x++;
+    while ((x <= x2) && (umost[x] > dmost[x]))
+        x++;
 
 #ifdef NONPOW2_YSIZE_ASM
     if (globalshiftval==0)
@@ -4023,7 +4026,8 @@ static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
     setuptvlineasm(globalshiftval, saturatevplc);
 
     x = x1;
-    while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2)) x++;
+    while ((x <= x2) && (startumost[x+windowx1] > startdmost[x+windowx1]))
+        x++;
 
 #ifndef ENGINE_USING_A_C
     if (globalshiftval==0)
