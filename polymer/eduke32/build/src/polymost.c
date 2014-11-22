@@ -1292,35 +1292,33 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     pth->skyface = facen;
     pth->hicr = hicr;
 
-    if (glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOSAVE))
-        if (!gotcache)
+    if (!gotcache && glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOSAVE))
+    {
+        const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
+
+        // save off the compressed version
+        cachead.quality = (hicr->flags & HICR_NOCOMPRESS) ? 0 : r_downsize;
+        cachead.xdim = tsiz.x >> cachead.quality;
+        cachead.ydim = tsiz.y >> cachead.quality;
+
+        // handle nocompress:
+        cachead.flags = nonpow2 * CACHEAD_NONPOW2 | (hasalpha != 255 ? CACHEAD_HASALPHA : 0) |
+                        (hicr->flags & HICR_NOCOMPRESS ? CACHEAD_NOCOMPRESS : 0);
+
+        ///            OSD_Printf("Caching \"%s\"\n", fn);
+        texcache_writetex(fn, picfillen + (dapalnum << 8), dameth, effect, &cachead);
+
+        if (willprint)
         {
-            const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
-
-            // save off the compressed version
-            cachead.quality = (hicr->flags & HICR_NOCOMPRESS) ? 0 : r_downsize;
-            cachead.xdim = tsiz.x>>cachead.quality;
-            cachead.ydim = tsiz.y>>cachead.quality;
-
-            // handle nocompress:
-            cachead.flags = nonpow2*CACHEAD_NONPOW2 |
-                (hasalpha != 255 ? CACHEAD_HASALPHA : 0) |
-                (hicr->flags & HICR_NOCOMPRESS ? CACHEAD_NOCOMPRESS : 0);
-
-///            OSD_Printf("Caching \"%s\"\n", fn);
-            texcache_writetex(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
-
-            if (willprint)
-            {
-                int32_t etime = getticks()-startticks;
-                if (etime>=MIN_CACHETIME_PRINT)
-                    OSD_Printf("Load tile %4d: p%d-m%d-e%d %s... cached... %d ms\n", dapic, dapalnum, dameth, effect,
-                               willprint==2 ? fn : "", etime);
-                willprint = 0;
-            }
-            else
-                OSD_Printf("Cached \"%s\"\n", fn);
+            int32_t etime = getticks() - startticks;
+            if (etime >= MIN_CACHETIME_PRINT)
+                OSD_Printf("Load tile %4d: p%d-m%d-e%d %s... cached... %d ms\n", dapic, dapalnum, dameth, effect,
+                           willprint == 2 ? fn : "", etime);
+            willprint = 0;
         }
+        else
+            OSD_Printf("Cached \"%s\"\n", fn);
+    }
 
     if (willprint)
     {

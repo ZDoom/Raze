@@ -95,7 +95,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     int32_t tilestat;
     pthtyp *pth;
 
-    const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
+    const int32_t j = dapicnum & (GLTEXCACHEADSIZ - 1);
     hicreplctyp *si = usehightile ? hicfindsubst(dapicnum, dapalnum) : NULL;
 
     if (drawingskybox && usehightile)
@@ -107,8 +107,8 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
 
     if (!si)
     {
-        if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS)) return NULL;
-        return hicprecaching ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
+        return (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS) || hicprecaching) ?
+                NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
     }
 
     /* if palette > 0 && replacement found
@@ -118,57 +118,56 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
      */
 
     // load a replacement
-    for (pth=texcache.list[j]; pth; pth=pth->next)
+    for (pth = texcache.list[j]; pth; pth = pth->next)
     {
         if (pth->picnum == dapicnum && pth->palnum == si->palnum &&
-                (si->palnum>0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
-                (pth->flags & (PTH_CLAMPED + PTH_HIGHTILE + PTH_SKYBOX))
-                    == (TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox>0)*PTH_SKYBOX) &&
-                (drawingskybox>0 ? (pth->skyface == drawingskybox) : 1)
-           )
+            (si->palnum > 0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
+            (pth->flags & (PTH_CLAMPED + PTH_HIGHTILE + PTH_SKYBOX)) ==
+            (TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox > 0) * PTH_SKYBOX) &&
+            (drawingskybox > 0 ? (pth->skyface == drawingskybox) : 1))
         {
             if (pth->flags & PTH_INVALIDATED)
             {
                 pth->flags &= ~PTH_INVALIDATED;
 
                 tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 0,
-                    (si->palnum>0) ? 0 : hictinting[dapalnum].f);    // reload tile
+                                        (si->palnum > 0) ? 0 : hictinting[dapalnum].f);  // reload tile
 
-                if (tilestat)
-                {
-                    if (tilestat == -2) // bad filename
-                        hicclearsubst(dapicnum, dapalnum);
-                    if (drawingskybox) return NULL;
-                    return hicprecaching ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
-                }
+                if (!tilestat)
+                    continue;
+
+                if (tilestat == -2)  // bad filename
+                    hicclearsubst(dapicnum, dapalnum);
+                return (drawingskybox || hicprecaching) ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
             }
 
-            return(pth);
+            return (pth);
         }
     }
 
-    pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
+    pth = (pthtyp *)Xcalloc(1, sizeof(pthtyp));
 
     // possibly fetch an already loaded multitexture :_)
     if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS) && texcache_fetchmulti(pth, si, dapicnum, dameth))
         return pth;
 
-    tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (si->palnum>0) ? 0 : hictinting[dapalnum].f);
+    tilestat =
+    gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (si->palnum > 0) ? 0 : hictinting[dapalnum].f);
 
-    if (tilestat)
+    if (!tilestat)
     {
-        if (tilestat == -2) // bad filename
-            hicclearsubst(dapicnum, dapalnum);
-        Bfree(pth);
-        if (drawingskybox) return NULL;
-        return hicprecaching ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
+        pth->next = texcache.list[j];
+        pth->palnum = si->palnum;
+        texcache.list[j] = pth;
+        return pth;
     }
 
-    pth->palnum = si->palnum;
-    pth->next = texcache.list[j];
-    texcache.list[j] = pth;
+    if (tilestat == -2)  // bad filename
+        hicclearsubst(dapicnum, dapalnum);
 
-    return(pth);
+    Bfree(pth);
+
+    return (drawingskybox || hicprecaching) ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
 }
 
 static void texcache_closefiles(void)
@@ -183,25 +182,25 @@ static void texcache_closefiles(void)
 
 void texcache_freeptrs(void)
 {
-    int32_t i;
+    texcache.iptrcnt = 0;
 
-    if (texcache.iptrs)
-    for (i = 0; i < texcache.numentries; i++)
+    if (!texcache.iptrs)
+        return;
+
+    for (int i = 0; i < texcache.numentries; i++)
         if (texcache.iptrs[i])
         {
-            int32_t ii;
-            for (ii = texcache.numentries-1; ii >= 0; ii--)
+            for (int ii = texcache.numentries - 1; ii >= 0; ii--)
                 if (i != ii && texcache.iptrs[ii] == texcache.iptrs[i])
                 {
                     /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
                     texcache.iptrs[ii] = NULL;
                 }
 
-                Bfree(texcache.iptrs[i]);
-                texcache.iptrs[i] = NULL;
+            Bfree(texcache.iptrs[i]);
+            texcache.iptrs[i] = NULL;
         }
 
-    texcache.iptrcnt = 0;
     DO_FREE_AND_NULL(texcache.iptrs);
 }
 

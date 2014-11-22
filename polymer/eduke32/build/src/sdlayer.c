@@ -1143,8 +1143,6 @@ static void destroy_window_resources()
 #ifdef USE_OPENGL
 void sdlayer_setvideomode_opengl(void)
 {
-    char *p;
-
     polymost_glreset();
 
     bglEnable(GL_TEXTURE_2D);
@@ -1192,31 +1190,32 @@ void sdlayer_setvideomode_opengl(void)
     glinfo.texcompr = 0;
 
     // process the extensions string and flag stuff we recognize
-    p = Bstrdup(glinfo.extensions);
+    glinfo.clamptoedge = !!Bstrstr(glinfo.extensions, "GL_EXT_texture_edge_clamp") ||
+                         !!Bstrstr(glinfo.extensions, "GL_SGIS_texture_edge_clamp");
+    glinfo.bgra = !!Bstrstr(glinfo.extensions, "GL_EXT_bgra");
+    glinfo.texcompr =
+    !!Bstrstr(glinfo.extensions, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor, "ATI Technologies Inc.");
+    glinfo.texnpot = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_non_power_of_two");
+    glinfo.multisample = !!Bstrstr(glinfo.extensions, "GL_ARB_multisample");
+    glinfo.nvmultisamplehint = !!Bstrstr(glinfo.extensions, "GL_NV_multisample_filter_hint");
+    glinfo.arbfp = !!Bstrstr(glinfo.extensions, "GL_ARB_fragment_program");
+    glinfo.depthtex = !!Bstrstr(glinfo.extensions, "GL_ARB_depth_texture");
+    glinfo.shadow = !!Bstrstr(glinfo.extensions, "GL_ARB_shadow");
+    glinfo.fbos = !!Bstrstr(glinfo.extensions, "GL_EXT_framebuffer_object");
+    glinfo.rect =
+    !!Bstrstr(glinfo.extensions, "GL_NV_texture_rectangle") || !!Bstrstr(glinfo.extensions, "GL_EXT_texture_rectangle");
+    glinfo.multitex = !!Bstrstr(glinfo.extensions, "GL_ARB_multitexture");
+    glinfo.envcombine = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_env_combine");
+    glinfo.vbos = !!Bstrstr(glinfo.extensions, "GL_ARB_vertex_buffer_object");
+    glinfo.sm4 = !!Bstrstr(glinfo.extensions, "GL_EXT_gpu_shader4");
+    glinfo.occlusionqueries = !!Bstrstr(glinfo.extensions, "GL_ARB_occlusion_query");
+    glinfo.glsl = !!Bstrstr(glinfo.extensions, "GL_ARB_shader_objects");
+    glinfo.debugoutput = !!Bstrstr(glinfo.extensions, "GL_ARB_debug_output");
 
-    glinfo.clamptoedge = !!Bstrstr(p, "GL_EXT_texture_edge_clamp") || !!Bstrstr(p, "GL_SGIS_texture_edge_clamp");
-    glinfo.bgra = !!Bstrstr(p, "GL_EXT_bgra");
-    glinfo.texcompr = !!Bstrstr(p, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor, "ATI Technologies Inc.");
-    glinfo.texnpot = !!Bstrstr(p, "GL_ARB_texture_non_power_of_two");
-    glinfo.multisample = !!Bstrstr(p, "GL_ARB_multisample");
-    glinfo.nvmultisamplehint = !!Bstrstr(p, "GL_NV_multisample_filter_hint");
-    glinfo.arbfp = !!Bstrstr(p, "GL_ARB_fragment_program");
-    glinfo.depthtex = !!Bstrstr(p, "GL_ARB_depth_texture");
-    glinfo.shadow = !!Bstrstr(p, "GL_ARB_shadow");
-    glinfo.fbos = !!Bstrstr(p, "GL_EXT_framebuffer_object");
-    glinfo.rect = !!Bstrstr(p, "GL_NV_texture_rectangle") || !!Bstrstr(p, "GL_EXT_texture_rectangle");
-    glinfo.multitex = !!Bstrstr(p, "GL_ARB_multitexture");
-    glinfo.envcombine = !!Bstrstr(p, "GL_ARB_texture_env_combine");
-    glinfo.vbos = !!Bstrstr(p, "GL_ARB_vertex_buffer_object");
-    glinfo.sm4 = !!Bstrstr(p, "GL_EXT_gpu_shader4");
-    glinfo.occlusionqueries = !!Bstrstr(p, "GL_ARB_occlusion_query");
-    glinfo.glsl = !!Bstrstr(p, "GL_ARB_shader_objects");
-    glinfo.debugoutput = !!Bstrstr(p, "GL_ARB_debug_output");
-
-    if (Bstrstr(p, "GL_EXT_texture_filter_anisotropic"))
+    if (Bstrstr(glinfo.extensions, "GL_EXT_texture_filter_anisotropic"))
         bglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
 
-    if (Bstrstr(p, "WGL_3DFX_gamma_control"))
+    if (Bstrstr(glinfo.extensions, "WGL_3DFX_gamma_control"))
     {
         static int32_t warnonce;
         // 3dfx cards have issues with fog
@@ -1650,13 +1649,10 @@ int32_t setgamma(void)
 
 #if !defined(__APPLE__) && !defined(__ANDROID__)
 extern struct sdlappicon sdlappicon;
-static SDL_Surface *loadappicon(void)
+static inline SDL_Surface *loadappicon(void)
 {
-    SDL_Surface *surf;
-
-    surf = SDL_CreateRGBSurfaceFrom((void *)sdlappicon.pixels, sdlappicon.width, sdlappicon.height, 32,
-                                    sdlappicon.width * 4, 0xffl, 0xff00l, 0xff0000l, 0xff000000l);
-
+    SDL_Surface *surf = SDL_CreateRGBSurfaceFrom((void *)sdlappicon.pixels, sdlappicon.width, sdlappicon.height, 32,
+                                                 sdlappicon.width * 4, 0xffl, 0xff00l, 0xff0000l, 0xff000000l);
     return surf;
 }
 #endif
