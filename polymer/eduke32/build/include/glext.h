@@ -1,5 +1,5 @@
-#ifndef __glext_h_
-#define __glext_h_
+#ifndef glext_h_
+#define glext_h_
 
 #ifdef EXTERNC
 extern "C" {

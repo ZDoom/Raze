@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 //***************************************************************************
 
-#ifndef __rts_public__
-#define __rts_public__
+#ifndef rts_public_
+#define rts_public_
 
 extern char rts_lumplockbyte[11];
 

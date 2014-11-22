@@ -22,8 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef _m32def_h_
-#define _m32def_h_
+#ifndef m32def_h_
+#define m32def_h_
 
 // the parsing routines aren't good at error recovery yet...
 #define ABORTERRCNT 1

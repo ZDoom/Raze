@@ -1,7 +1,7 @@
 // mmulti.h
 
-#ifndef __mmulti_h__
-#define __mmulti_h__
+#ifndef mmulti_h_
+#define mmulti_h_
 
 #define MAXMULTIPLAYERS 16
 
@@ -25,5 +25,5 @@ void flushpackets(void);
 void genericmultifunction(int other, unsigned char *bufptr, int messleng, int command);
 int isvalidipaddress(const char *st);
 
-#endif  // __mmulti_h__
+#endif  // mmulti_h_
 

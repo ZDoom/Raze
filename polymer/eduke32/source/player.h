@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __player_h__
-#define __player_h__
+#ifndef player_h_
+#define player_h_
 
 extern int32_t playerswhenstarted;
 

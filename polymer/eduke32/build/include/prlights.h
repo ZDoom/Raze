@@ -1,6 +1,6 @@
 // LIGHTS
-#ifndef _prlight_h_
-# define _prlight_h_
+#ifndef prlight_h_
+# define prlight_h_
 
 #define             PR_MAXLIGHTS            1024
 #define             SHADOW_DEPTH_OFFSET     30

@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __premap_h__
-#define __premap_h__
+#ifndef premap_h_
+#define premap_h_
 
 typedef struct {
     int32_t x1, y1;

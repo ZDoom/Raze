@@ -1,5 +1,5 @@
-#ifndef __dynamicgtk_h__
-#define __dynamicgtk_h__
+#ifndef dynamicgtk_h_
+#define dynamicgtk_h_
 
 #include <gdk-pixbuf/gdk-pixdata.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
@@ -401,7 +401,7 @@ extern struct _dynamicgtksyms dynamicgtksyms;
 int32_t dynamicgtk_init(void);
 void dynamicgtk_uninit(void);
 
-#ifndef __dynamicgtkfoo__
+#ifndef dynamicgtkfoo__
 
 // glib.h
 #define g_free dynamicgtksyms.g_free
@@ -625,5 +625,5 @@ void dynamicgtk_uninit(void);
 
 #endif	/* LINKED_GTK */
 
-#endif	/* __dynamicgtk_h__ */
+#endif	/* dynamicgtk_h_ */
 

@@ -1,5 +1,5 @@
-#ifndef _texcache_h_
-# define _texcache_h_
+#ifndef texcache_h_
+# define texcache_h_
 
 #ifdef USE_OPENGL
 

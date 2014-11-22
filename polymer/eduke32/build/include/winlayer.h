@@ -1,8 +1,8 @@
 // Windows DIB/DirectDraw interface layer for the Build Engine
 // Originally by Jonathon Fowler (jf@jonof.id.au)
 
-#ifndef __build_interface_layer__
-#define __build_interface_layer__ WIN
+#ifndef build_interface_layer_
+#define build_interface_layer_ WIN
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -31,8 +31,8 @@ static inline void idle(void)
 #include "baselayer.h"
 
 #else
-#if (__build_interface_layer__ != WIN)
-#error "Already using the " __build_interface_layer__ ". Can't now use Windows."
+#if (build_interface_layer_ != WIN)
+#error "Already using the " build_interface_layer_ ". Can't now use Windows."
 #endif
-#endif // __build_interface_layer__
+#endif // build_interface_layer_
 

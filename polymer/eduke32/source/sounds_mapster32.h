@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __sounds_mapster32_h__
-#define __sounds_mapster32_h__
+#ifndef sounds_mapster32_h_
+#define sounds_mapster32_h_
 
 #include "build.h"
 #include "sounds_common.h"

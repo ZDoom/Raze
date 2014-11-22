@@ -31,8 +31,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef _animlib_public_
-#define _animlib_public_
+#ifndef animlib_public_h_
+#define animlib_public_h_
 #ifdef EXTERNC
 {
 #endif

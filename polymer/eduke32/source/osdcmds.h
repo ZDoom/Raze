@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __osdcmds_h__
-#define __osdcmds_h__
+#ifndef osdcmds_h_
+#define osdcmds_h_
 
 struct osdcmd_cheatsinfo {
 	int32_t cheatnum;	// -1 = none, else = see DoCheats()
@@ -44,5 +44,5 @@ typedef struct {
 extern const keydef_t ConsoleKeys[];
 extern const char *const ConsoleButtons[];
 
-#endif	// __osdcmds_h__
+#endif	// osdcmds_h_
 

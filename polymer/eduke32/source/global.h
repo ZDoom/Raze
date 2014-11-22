@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __global_h__
-#define __global_h__
+#ifndef global_h_
+#define global_h_
 
-#ifdef __global_c__
+#ifdef global_c_
     #define G_EXTERN
 #else
     #define G_EXTERN extern
@@ -124,7 +124,7 @@ G_EXTERN int32_t g_restorePalette;
 G_EXTERN int32_t g_screenCapture;
 G_EXTERN int32_t g_noEnemies;
 
-#ifndef __global_c__
+#ifndef global_c_
 G_EXTERN const char *s_buildDate;
 G_EXTERN int32_t g_spriteGravity;
 G_EXTERN int16_t g_spriteDeleteQueueSize;

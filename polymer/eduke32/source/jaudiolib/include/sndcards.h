@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    (c) Copyright 1994 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
-#ifndef __SNDCARDS_H
-#define __SNDCARDS_H
+#ifndef SNDCARDS_H_
+#define SNDCARDS_H_
 
 typedef enum
 {

@@ -78,7 +78,7 @@ void set_memerr_handler(void(*handlerfunc)(int32_t, const char *, const char *))
 
 //////////
 
-#ifndef __compat_h_macrodef__
+#ifndef compat_h_macrodef__
 
 void Bassert(int expr)
 {

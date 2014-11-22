@@ -25,8 +25,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 */
 //-------------------------------------------------------------------------
 
-#ifndef _keyboard_public
-#define _keyboard_public
+#ifndef keyboard_public_h_
+#define keyboard_public_h_
 #ifdef EXTERNC
 {
 #endif

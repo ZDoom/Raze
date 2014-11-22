@@ -1,5 +1,5 @@
-#ifndef rawinput_h__
-#define rawinput_h__
+#ifndef rawinput_h_
+#define rawinput_h_
 
 #include "compat.h"
 
@@ -20,5 +20,5 @@ BOOL RI_CaptureInput(BOOL grab, HWND target);
 #define VK_MBUTTON        0x04    /* NOT contiguous with L & RBUTTON */
 #endif
 
-#endif // rawinput_h__
+#endif // rawinput_h_
 

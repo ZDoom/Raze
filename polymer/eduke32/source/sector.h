@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __sector_h__
-#define __sector_h__
+#ifndef sector_h_
+#define sector_h_
 
 #include "gamevars.h"
 #include "actors.h"  // actor_t

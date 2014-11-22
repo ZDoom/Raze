@@ -4,8 +4,8 @@
    Modified for EDuke32. zlib license.
 */
 
-#ifndef __libdivide_h__
-#define __libdivide_h__
+#ifndef libdivide_h_
+#define libdivide_h_
 
 #if defined(_WIN32) || defined(WIN32)
 #define LIBDIVIDE_WINDOWS 1

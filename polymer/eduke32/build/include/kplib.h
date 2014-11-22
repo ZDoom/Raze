@@ -2,7 +2,7 @@
 extern "C" {
 #endif
 
-#ifndef __compat_h__
+#ifndef compat_h_
 #include "compat.h"
 #endif
 

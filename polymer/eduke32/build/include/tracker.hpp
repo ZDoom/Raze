@@ -1,38 +1,38 @@
 
 
 template<typename TrackedType>
-class __TRACKER_NAME
+class TRACKER_NAME_
 {
     public:
         TrackedType TrackedValue;
 
         inline TrackedType* operator & ()
         {
-            __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
+            TRACKER_GLOBAL_HOOK_((uintptr_t)&this->TrackedValue);
             return &this->TrackedValue;
         }
 
         inline TrackedType operator ++ ()
         {
-            __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
+            TRACKER_GLOBAL_HOOK_((uintptr_t)&this->TrackedValue);
             return ++this->TrackedValue;
         }
 
         inline TrackedType operator ++ (int)
         {
-            __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
+            TRACKER_GLOBAL_HOOK_((uintptr_t)&this->TrackedValue);
             return this->TrackedValue++;
         }
 
         inline TrackedType operator -- ()
         {
-            __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
+            TRACKER_GLOBAL_HOOK_((uintptr_t)&this->TrackedValue);
             return --this->TrackedValue;
         }
 
         inline TrackedType operator -- (int)
         {
-            __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
+            TRACKER_GLOBAL_HOOK_((uintptr_t)&this->TrackedValue);
             return this->TrackedValue--;
         }
 
@@ -61,13 +61,13 @@ class __TRACKER_NAME
         inline TrackedType cast() const;
 };
 
-#ifndef __tracker_hpp
-#define __tracker_hpp
+#ifndef tracker_hpp_
+#define tracker_hpp_
 
 enum {
-    __TRACKER_NOOP_RIGHTHAND_EQUAL = 0,
-    __TRACKER_NOOP_RIGHTHAND_ZERO,
-    __TRACKER_NOOP_RIGHTHAND_ONE,
+    TRACKER_NOOP_RIGHTHAND_EQUAL_ = 0,
+    TRACKER_NOOP_RIGHTHAND_ZERO_,
+    TRACKER_NOOP_RIGHTHAND_ONE_,
     __TRACKER_NEVER,
 };
 
@@ -80,13 +80,13 @@ enum {
 #undef __TRACKER_RIGHTHAND
 
 template<typename TrackedType>
-inline __TRACKER_NAME<TrackedType>::operator TrackedType() const
+inline TRACKER_NAME_<TrackedType>::operator TrackedType() const
 {
     return this->TrackedValue;
 }
 
 template<typename TrackedType>
-inline TrackedType __TRACKER_NAME<TrackedType>::cast() const
+inline TrackedType TRACKER_NAME_<TrackedType>::cast() const
 {
     return this->TrackedValue;
 }

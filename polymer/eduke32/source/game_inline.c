@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __game_inline_c__
-#define __game_inline_c__
+#ifndef game_inline_c_
+#define game_inline_c_
 
 #include "compat.h"
 #include "duke3d.h"

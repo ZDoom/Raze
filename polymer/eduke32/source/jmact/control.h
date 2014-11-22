@@ -31,8 +31,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 //
 //***************************************************************************
 
-#ifndef _control_public
-#define _control_public
+#ifndef control_public_h_
+#define control_public_h_
 #ifdef EXTERNC
 {
 #endif

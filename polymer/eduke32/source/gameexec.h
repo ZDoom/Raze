@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __gameexec_h__
-#define __gameexec_h__
+#ifndef gameexec_h_
+#define gameexec_h_
 
 #include "build.h"
 #include "sector.h"  // mapstate_t

@@ -32,8 +32,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 //
 //****************************************************************************
 
-#ifndef _control_private
-#define _control_private
+#ifndef control_private_h_
+#define control_private_h_
 #ifdef EXTERNC
 {
 #endif
@@ -78,24 +78,23 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 // NORMAL axis scale
 #define NORMALAXISSCALE 65536
 
-#define BUTTONSET(x,value) (CONTROL_ButtonState |= ((uint64_t)value<<((uint64_t)(x))))
-#define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64_t)1<<((uint64_t)(x))))
+#define BUTTONSET(x, value) (CONTROL_ButtonState |= ((uint64_t)value << ((uint64_t)(x))))
+#define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64_t)1 << ((uint64_t)(x))))
 
-#define BUTTONHELDSET(x,value) (CONTROL_ButtonHeldState |= (uint64_t)(value<<((uint64_t)(x))))
+#define BUTTONHELDSET(x, value) (CONTROL_ButtonHeldState |= (uint64_t)(value << ((uint64_t)(x))))
 
-#define LIMITCONTROL(x)\
-    {\
-    if ((*x)>MAXCONTROLVALUE) \
-       {\
-       (*x) = MAXCONTROLVALUE;\
-       }\
-    if ((*x)<-MAXCONTROLVALUE) \
-       {\
-       (*x) = -MAXCONTROLVALUE;\
-       }\
+#define LIMITCONTROL(x)                                                                                                \
+    {                                                                                                                  \
+        if ((*x) > MAXCONTROLVALUE)                                                                                    \
+        {                                                                                                              \
+            (*x) = MAXCONTROLVALUE;                                                                                    \
+        }                                                                                                              \
+        if ((*x) < -MAXCONTROLVALUE)                                                                                   \
+        {                                                                                                              \
+            (*x) = -MAXCONTROLVALUE;                                                                                   \
+        }                                                                                                              \
     }
-#define SGN(x) \
-    ( ( (x) > 0 ) ? 1 : ( (x) < 0 ) ? -1 : 0 )
+#define SGN(x) (((x) > 0) ? 1 : ((x) < 0) ? -1 : 0)
 
 //****************************************************************************
 //
@@ -104,30 +103,30 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 //****************************************************************************
 
 typedef enum
-   {
-   motion_Left  = -1,
-   motion_Up    = -1,
-   motion_None  = 0,
-   motion_Right = 1,
-   motion_Down  = 1
-   } motion;
+{
+    motion_Left = -1,
+    motion_Up = -1,
+    motion_None = 0,
+    motion_Right = 1,
+    motion_Down = 1
+} motion;
 
 
 typedef struct
-   {
-   int32_t joyMinX;
-   int32_t joyMinY;
-   int32_t threshMinX;
-   int32_t threshMinY;
-   int32_t threshMaxX;
-   int32_t threshMaxY;
-   int32_t joyMaxX;
-   int32_t joyMaxY;
-   int32_t joyMultXL;
-   int32_t joyMultYL;
-   int32_t joyMultXH;
-   int32_t joyMultYH;
-   } JoystickDef;
+{
+    int32_t joyMinX;
+    int32_t joyMinY;
+    int32_t threshMinX;
+    int32_t threshMinY;
+    int32_t threshMaxX;
+    int32_t threshMaxY;
+    int32_t joyMaxX;
+    int32_t joyMaxY;
+    int32_t joyMultXL;
+    int32_t joyMultYL;
+    int32_t joyMultXH;
+    int32_t joyMultYH;
+} JoystickDef;
 
 //   int32_t ThrottleMin;
 //   int32_t RudderMin;
@@ -144,40 +143,40 @@ typedef struct
 
 
 typedef struct
-   {
-   uint8_t active     ;
-   uint8_t used       ;
-   uint8_t toggle     ;
-   uint8_t buttonheld ;
-   int32_t cleared    ;
-   } controlflags;
+{
+    uint8_t active;
+    uint8_t used;
+    uint8_t toggle;
+    uint8_t buttonheld;
+    int32_t cleared;
+} controlflags;
 
 typedef struct
-   {
-   kb_scancode key1;
-   kb_scancode key2;
-   } controlkeymaptype;
+{
+    kb_scancode key1;
+    kb_scancode key2;
+} controlkeymaptype;
 
 typedef struct
-   {
-   uint8_t singleclicked;
-   uint8_t doubleclicked;
-   uint16_t extra;
-   } controlbuttontype;
+{
+    uint8_t singleclicked;
+    uint8_t doubleclicked;
+    uint16_t extra;
+} controlbuttontype;
 
 typedef struct
-   {
-   uint8_t analogmap;
-   uint8_t minmap;
-   uint8_t maxmap;
-   uint8_t extra;
-   } controlaxismaptype;
+{
+    uint8_t analogmap;
+    uint8_t minmap;
+    uint8_t maxmap;
+    uint8_t extra;
+} controlaxismaptype;
 
 typedef struct
-   {
-   int32_t analog;
-   int32_t digital;
-   } controlaxistype;
+{
+    int32_t analog;
+    int32_t digital;
+} controlaxistype;
 
 
 //***************************************************************************

@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __savegame_h__
-#define __savegame_h__
+#ifndef savegame_h_
+#define savegame_h_
 
 #include "game.h"
 

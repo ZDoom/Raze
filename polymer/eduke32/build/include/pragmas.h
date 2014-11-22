@@ -2,8 +2,8 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 
 
-#ifndef __pragmas_h__
-#define __pragmas_h__
+#ifndef pragmas_h_
+#define pragmas_h_
 
 #ifdef EXTERNC
 extern "C" {
@@ -263,4 +263,4 @@ static inline void swapbufreverse(void *s, void *d, int32_t c)
 }
 #endif
 
-#endif  // __pragmas_h__
+#endif  // pragmas_h_

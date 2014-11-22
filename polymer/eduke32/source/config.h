@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef _config_public
-#define _config_public
+#ifndef config_public_h_
+#define config_public_h_
 
 #define SETUPNAMEPARM "SETUPFILE"
 

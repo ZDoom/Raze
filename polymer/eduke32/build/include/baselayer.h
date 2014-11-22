@@ -2,8 +2,8 @@
 // for the Build Engine
 // by Jonathon Fowler (jf@jonof.id.au)
 
-#ifndef __baselayer_h__
-#define __baselayer_h__
+#ifndef baselayer_h_
+#define baselayer_h_
 
 #include "compat.h"
 #include "osd.h"
@@ -213,5 +213,5 @@ void maybe_redirect_outputs(void);
 }
 #endif
 
-#endif // __baselayer_h__
+#endif // baselayer_h_
 

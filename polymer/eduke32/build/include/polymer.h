@@ -1,7 +1,7 @@
 // Here lies the slow as shit renderer!
 
-#ifndef _polymer_h_
-# define _polymer_h_
+#ifndef polymer_h_
+# define polymer_h_
 
 # include "compat.h"
 # include "baselayer.h"
@@ -568,4 +568,4 @@ static inline void relvec2f(GLfloat *v1, GLfloat *v2, GLfloat *out)
 
 # endif // !POLYMER_C
 
-#endif // !_polymer_h_
+#endif // !polymer_h_

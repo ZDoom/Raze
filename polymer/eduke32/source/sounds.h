@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 //****************************************************************************
 
-#ifndef _sounds_public_
-#define _sounds_public_
+#ifndef sounds_public_h_
+#define sounds_public_h_
 
 #include "sounds_common.h"
 

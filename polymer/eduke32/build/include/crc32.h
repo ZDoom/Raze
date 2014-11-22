@@ -1,5 +1,5 @@
-#ifndef __crc32_h__
-#define __crc32_h__
+#ifndef crc32_h_
+#define crc32_h_
 
 #include "compat.h"
 

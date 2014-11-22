@@ -4,9 +4,9 @@
 
 //{{{
 
-#ifdef __pragmas_h__
-#ifndef __pragmas_x86_h__
-#define __pragmas_x86_h__
+#ifdef pragmas_h_
+#ifndef pragmas_x86_h_
+#define pragmas_x86_h_
 
 static __inline int32_t mulscale(int32_t a, int32_t d, int32_t c)
 {
@@ -445,5 +445,5 @@ static inline int32_t krecipasm(int32_t a)
 
 //}}}
 
-#endif // __pragmas_x86_h__
-#endif // __pragmas_h__
+#endif // pragmas_x86_h_
+#endif // pragmas_h_

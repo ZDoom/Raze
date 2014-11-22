@@ -1,5 +1,5 @@
-#ifndef __mutex_h__
-#define __mutex_h__
+#ifndef mutex_h_
+#define mutex_h_
 
 /* Mutual exclusion mechanism wrappers for the different platforms */
 

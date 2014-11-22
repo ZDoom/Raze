@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    (c) Copyright 1994 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
-#ifndef __PITCH_H
-#define __PITCH_H
+#ifndef PITCH_H_
+#define PITCH_H_
 
 #include "inttypes.h"
 

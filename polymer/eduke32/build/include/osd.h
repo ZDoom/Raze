@@ -2,8 +2,8 @@
 // for the Build Engine
 // by Jonathon Fowler (jf@jonof.id.au)
 
-#ifndef __osd_h__
-#define __osd_h__
+#ifndef osd_h_
+#define osd_h_
 
 #ifdef EXTERNC
 extern "C" {
@@ -306,5 +306,5 @@ extern int32_t osdcmd_restartvid(const osdfuncparm_t *parm);
 }
 #endif
 
-#endif // __osd_h__
+#endif // osd_h_
 

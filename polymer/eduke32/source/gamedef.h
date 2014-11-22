@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef _gamedef_h_
-#define _gamedef_h_
+#ifndef gamedef_h_
+#define gamedef_h_
 
 #include "build.h"  // hashtable_t
 #include "common.h"  // tokenlist
@@ -948,6 +948,4 @@ enum ScriptKeywords_t
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua
 #endif
-
-
-#endif
+#endif // gamedef_h_

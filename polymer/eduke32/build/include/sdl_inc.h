@@ -1,5 +1,5 @@
-#ifndef __SDL_INC_H
-#define __SDL_INC_H
+#ifndef SDL_INC_H_
+#define SDL_INC_H_
 
 // Workaround for i686-MinGW-w64.
 #if defined __MINGW64_VERSION_MAJOR && !defined __MINGW64__
@@ -76,5 +76,5 @@ Minimum required SDL versions:
 #endif	/* end of bad version error */
 #endif	/* end of SDL_mixer checks */
 
-#endif	/* __SDL_INC_H */
+#endif	/* SDL_INC_H_ */
 

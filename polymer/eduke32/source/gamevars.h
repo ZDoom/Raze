@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __gamevars_h__
-#define __gamevars_h__
+#ifndef gamevars_h_
+#define gamevars_h_
 
 #include "gamedef.h"
 

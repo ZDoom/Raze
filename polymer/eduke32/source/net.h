@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __netplay_h__
-#define __netplay_h__
+#ifndef netplay_h_
+#define netplay_h_
 
 #include "enet/enet.h"
 
@@ -345,4 +345,4 @@ void    faketimerhandler(void);
 
 #endif
 
-#endif // __netplay_h__
+#endif // netplay_h_

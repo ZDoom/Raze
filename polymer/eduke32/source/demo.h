@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __demo_h__
-#define __demo_h__
+#ifndef demo_h_
+#define demo_h_
 
 #define DEMOFN_FMT "edemo%03d.edm"
 #define MAXDEMOS 1000

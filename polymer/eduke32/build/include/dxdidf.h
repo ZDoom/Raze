@@ -1,5 +1,5 @@
-#ifndef __dxdidf_h__
-#define __dxdidf_h__
+#ifndef dxdidf_h_
+#define dxdidf_h_
 
 // Joystick
 
@@ -52,4 +52,4 @@ static DIOBJECTDATAFORMAT c_dfDIJoystick_odf[] = {
 
 const DIDATAFORMAT c_dfDIJoystick = { sizeof(DIDATAFORMAT), sizeof(DIOBJECTDATAFORMAT), 0x00000001, 80, 44, c_dfDIJoystick_odf };
 
-#endif // __dxdidf_h__
+#endif // dxdidf_h_

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define __dynamicgtkfoo__
+#define dynamicgtkfoo__
 #include "dynamicgtk.h"
 
 static void *handle = NULL;

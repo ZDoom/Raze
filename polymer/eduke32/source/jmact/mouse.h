@@ -25,8 +25,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 */
 //-------------------------------------------------------------------------
 
-#ifndef __mouse_h
-#define __mouse_h
+#ifndef mouse_h_
+#define mouse_h_
 #ifdef EXTERNC
 {
 #endif

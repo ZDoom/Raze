@@ -1,5 +1,5 @@
-#ifndef _polymost_h_
-# define _polymost_h_
+#ifndef polymost_h_
+# define polymost_h_
 
 #ifdef USE_OPENGL
 

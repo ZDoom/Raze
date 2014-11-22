@@ -1,5 +1,5 @@
-#ifndef _mdsprite_h_
-# define _mdsprite_h_
+#ifndef mdsprite_h_
+# define mdsprite_h_
 
 #ifdef USE_OPENGL
 #include "hightile.h"
@@ -228,4 +228,4 @@ enum {
     HUDFLAG_NODEPTH = 8,
 };
 
-#endif // !_mdsprite_h_
+#endif // !mdsprite_h_

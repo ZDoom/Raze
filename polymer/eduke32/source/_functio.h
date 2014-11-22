@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // axis defaults are also included
 
 
-#ifndef _function_private_
-#define _function_private_
+#ifndef function_private_h_
+#define function_private_h_
 #ifdef EXTERNC
 {
 #endif

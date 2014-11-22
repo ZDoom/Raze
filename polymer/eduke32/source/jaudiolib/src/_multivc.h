@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    (c) Copyright 1993 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
-#ifndef ___MULTIVC_H
-#define ___MULTIVC_H
+#ifndef MULTIVC_H_
+#define MULTIVC_H_
 
 #include "limits.h"
 #include "inttypes.h"

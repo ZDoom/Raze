@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // this is all the crap for accessing the game's structs through the CON VM
 // I got a 3-4 fps gain by inlining these...
 
-#ifndef _gamevars_c_
+#ifndef gamevars_c_
 static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
@@ -3980,4 +3980,4 @@ static int32_t __fastcall VM_AccessWallX(int32_t iWall, int32_t lLabelID)
         return -1;
     }
 }
-#endif // _gamevars_c_
+#endif // gamevars_c_

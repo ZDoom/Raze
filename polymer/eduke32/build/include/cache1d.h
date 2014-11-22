@@ -1,7 +1,7 @@
 // cache1d.h
 
-#ifndef __cache1d_h__
-#define __cache1d_h__
+#ifndef cache1d_h_
+#define cache1d_h_
 
 #include "compat.h"
 #include "mutex.h"
@@ -76,5 +76,5 @@ void	dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
 }
 #endif
 
-#endif // __cache1d_h__
+#endif // cache1d_h_
 

@@ -3,8 +3,8 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 
 
-#ifndef __a_h__
-#define __a_h__
+#ifndef a_h_
+#define a_h_
 
 #include "compat.h"
 
@@ -140,4 +140,4 @@ void mmxoverlay();
 
 #endif	// else
 
-#endif // __a_h__
+#endif // a_h_

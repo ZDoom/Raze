@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __android_h__
-#define __android_h__
+#ifndef android_h_
+#define android_h_
 
 #ifdef __ANDROID__
 #include "compat.h"

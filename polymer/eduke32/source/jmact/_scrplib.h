@@ -29,8 +29,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 // scrplib.h
 
-#ifndef _scriplib_private
-#define _scriplib_private
+#ifndef scriplib_private_h_
+#define scriplib_private_h_
 #ifdef EXTERNC
 {
 #endif

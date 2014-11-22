@@ -2,8 +2,8 @@
 // GCC Inline Assembler version (ARM)
 //
 
-#ifndef __pragmas_arm_h__
-#define __pragmas_arm_h__
+#ifndef pragmas_arm_h_
+#define pragmas_arm_h_
 
 #define EDUKE32_SCALER_PRAGMA(a)                                                                                       \
     static inline int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }               \

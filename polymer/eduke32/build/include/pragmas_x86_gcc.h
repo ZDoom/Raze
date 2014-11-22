@@ -4,9 +4,9 @@
 
 //{{{
 
-#ifdef __pragmas_h__
-#ifndef __pragmas_x86_h__
-#define __pragmas_x86_h__
+#ifdef pragmas_h_
+#ifndef pragmas_x86_h_
+#define pragmas_x86_h_
 
 #ifndef UNDERSCORES
 #define _DMVAL "dmval"
@@ -564,5 +564,5 @@ void copybufreverse(const void *S, void *D, int32_t c);
 
 //}}}
 
-#endif // __pragmas_x86_h__
-#endif // __pragmas_h__
+#endif // pragmas_x86_h_
+#endif // pragmas_h_

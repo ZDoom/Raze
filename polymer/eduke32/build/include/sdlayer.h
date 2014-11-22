@@ -2,8 +2,8 @@
 // for the Build Engine
 // by Jonathon Fowler (jf@jonof.id.au)
 
-#ifndef __build_interface_layer__
-#define __build_interface_layer__ SDL
+#ifndef build_interface_layer_
+#define build_interface_layer_ SDL
 
 #include "sdl_inc.h"
 #include "compat.h"
@@ -40,8 +40,8 @@ static inline void idle(void)
 }
 
 #else
-#if (__build_interface_layer__ != SDL)
-#error "Already using the " __build_interface_layer__ ". Can't now use SDL."
+#if (build_interface_layer_ != SDL)
+#error "Already using the " build_interface_layer_ ". Can't now use SDL."
 #endif
-#endif // __build_interface_layer__
+#endif // build_interface_layer_
 

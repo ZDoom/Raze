@@ -2,8 +2,8 @@
 // Ken Silverman's official web site: "http://www.advsys.net/ken"
 // See the included license file "BUILDLIC.TXT" for license info.
 
-#ifndef __editor_h__
-#define __editor_h__
+#ifndef editor_h_
+#define editor_h_
 
 #include <math.h>
 

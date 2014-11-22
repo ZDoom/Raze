@@ -6,8 +6,8 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 
 
-#ifndef __build_h__
-#define __build_h__
+#ifndef build_h_
+#define build_h_
 
 #include "compat.h"
 #include "pragmas.h"
@@ -253,23 +253,23 @@ static inline void sector_tracker_hook(uintptr_t address);
 static inline void wall_tracker_hook(uintptr_t address);
 static inline void sprite_tracker_hook(uintptr_t address);
 
-#define __TRACKER_NAME SectorTracker
-#define __TRACKER_GLOBAL_HOOK sector_tracker_hook
+#define TRACKER_NAME_ SectorTracker
+#define TRACKER_GLOBAL_HOOK_ sector_tracker_hook
 #include "tracker.hpp"
-#undef __TRACKER_NAME
-#undef __TRACKER_GLOBAL_HOOK
+#undef TRACKER_NAME_
+#undef TRACKER_GLOBAL_HOOK_
 
-#define __TRACKER_NAME WallTracker
-#define __TRACKER_GLOBAL_HOOK wall_tracker_hook
+#define TRACKER_NAME_ WallTracker
+#define TRACKER_GLOBAL_HOOK_ wall_tracker_hook
 #include "tracker.hpp"
-#undef __TRACKER_NAME
-#undef __TRACKER_GLOBAL_HOOK
+#undef TRACKER_NAME_
+#undef TRACKER_GLOBAL_HOOK_
 
-#define __TRACKER_NAME SpriteTracker
-#define __TRACKER_GLOBAL_HOOK sprite_tracker_hook
+#define TRACKER_NAME_ SpriteTracker
+#define TRACKER_GLOBAL_HOOK_ sprite_tracker_hook
 #include "tracker.hpp"
-#undef __TRACKER_NAME
-#undef __TRACKER_GLOBAL_HOOK
+#undef TRACKER_NAME_
+#undef TRACKER_GLOBAL_HOOK_
 
 #define Tracker(Container, Type) Container##Tracker<Type>
 #define TrackerCast(x) x.cast()
@@ -1501,4 +1501,4 @@ static inline void pop_nofog(void)
 }
 #endif
 
-#endif // __build_h__
+#endif // build_h_

@@ -1,5 +1,5 @@
-#ifndef __gtkbits_h__
-#define __gtkbits_h__
+#ifndef gtkbits_h_
+#define gtkbits_h_
 
 extern void gtkbuild_init(int32_t *argc, char ***argv);
 extern void gtkbuild_exit(int32_t r);

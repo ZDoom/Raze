@@ -26,8 +26,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 // scriplib.h
 
-#ifndef _scriplib_public
-#define _scriplib_public
+#ifndef scriplib_public_h_
+#define scriplib_public_h_
 #ifdef EXTERNC
 {
 #endif

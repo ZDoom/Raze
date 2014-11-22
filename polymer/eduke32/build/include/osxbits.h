@@ -1,5 +1,5 @@
-#ifndef __osxbits_h__
-#define __osxbits_h__
+#ifndef osxbits_h_
+#define osxbits_h_
 #include <sys/types.h>
 
 int32_t osx_msgbox(const char *name, const char *msg);

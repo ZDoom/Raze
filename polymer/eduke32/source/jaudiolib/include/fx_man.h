@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    (c) Copyright 1994 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
-#ifndef __FX_MAN_H
-#define __FX_MAN_H
+#ifndef FX_MAN_H_
+#define FX_MAN_H_
 
 #include "inttypes.h"
 #include "limits.h"

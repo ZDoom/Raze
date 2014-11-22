@@ -2257,7 +2257,7 @@ DETONATE:
             {
                 A_Fall(i);
                 if (krand()&1) s->zvel -= 256;
-                if (klabs(s->xvel) < 48)
+                if ((s->xvel) < 48)
                     s->xvel += (krand()&3);
             }
             else KILLIT(i);

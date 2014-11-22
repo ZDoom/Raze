@@ -2,8 +2,8 @@
 // certain build environments. It also levels the playing field caused
 // by different platforms.
 
-#ifndef __compat_h__
-#define __compat_h__
+#ifndef compat_h_
+#define compat_h_
 
 #include <malloc.h>
 
@@ -138,11 +138,11 @@
 // is for platforms which give us a standard sort of C library so we
 // link directly. Platforms like PalmOS which don't have a standard C
 // library will need to wrap these functions with suitable emulations.
-#define __compat_h_macrodef__
+#define compat_h_macrodef__
 
 #ifdef EXTERNC
 #  include <cstdarg>
-#  ifdef __compat_h_macrodef__
+#  ifdef compat_h_macrodef__
 #   include <cstdio>
 #   include <cstring>
 #   include <cstdlib>
@@ -153,7 +153,7 @@
 # include <stddef.h>
 #endif
 
-#ifdef __compat_h_macrodef__
+#ifdef compat_h_macrodef__
 # ifndef EXTERNC
 #  include <stdio.h>
 #  include <string.h>
@@ -449,7 +449,7 @@ FORCE_INLINE int32_t Blrintf(const float x)
 # define FP_OFF(__p) ((uintptr_t)(__p))
 #endif
 
-#ifdef __compat_h_macrodef__
+#ifdef compat_h_macrodef__
 
 # ifndef O_BINARY
 #  define O_BINARY 0
@@ -577,7 +577,7 @@ int32_t Bclosedir(BDIR *dir);
 typedef intptr_t ssize_t;
 #endif
 
-#ifdef __compat_h_macrodef__
+#ifdef compat_h_macrodef__
   typedef FILE BFILE;
 # define bsize_t size_t
 # define bssize_t ssize_t
@@ -598,7 +598,7 @@ FORCE_INLINE uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7fff
 #define strtoll _strtoi64
 #endif
 
-#ifdef __compat_h_macrodef__
+#ifdef compat_h_macrodef__
 # define Bassert assert
 # define Brand rand
 # define Balloca alloca
@@ -958,4 +958,4 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 
 //////////
 
-#endif // __compat_h__
+#endif // compat_h_

@@ -1,8 +1,8 @@
 // GCC Inline Assembler version (PowerPC)
 
-#ifdef __pragmas_h__
-#ifndef __pragmas_ppc_h__
-#define __pragmas_ppc_h__
+#ifdef pragmas_h_
+#ifndef pragmas_ppc_h_
+#define pragmas_ppc_h_
 
 #define EDUKE32_SCALER_PRAGMA(x) \
 static inline int32_t mulscale##x(int32_t a, int32_t d) \
@@ -249,5 +249,5 @@ static inline int32_t krecipasm(int32_t i)
     return((reciptable[(i>>12)&2047]>>(((i-0x3f800000)>>23)&31))^(i>>31));
 }
 
-#endif // __pragmas_ppc_h__
-#endif // __pragmas_h__
+#endif // pragmas_ppc_h_
+#endif // pragmas_h_

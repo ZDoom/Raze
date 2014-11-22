@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __game_h__
-#define __game_h__
+#ifndef game_h_
+#define game_h_
 
 #include "premap.h"
 

@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 //****************************************************************************
 
-#ifndef _gamedefs_public_
-#define _gamedefs_public_
+#ifndef gamedefs_public_h_
+#define gamedefs_public_h_
 #ifdef EXTERNC
 {
 #endif

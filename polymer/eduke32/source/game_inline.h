@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __game_inline_h__
-#define __game_inline_h__
+#ifndef game_inline_h_
+#define game_inline_h_
 
 EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
 
