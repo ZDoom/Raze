@@ -206,6 +206,18 @@
 # define DEBUG_MAIN_ARRAYS
 #endif
 
+#ifndef FORCE_INLINE
+# ifdef _MSC_VER    // Visual Studio
+#  define FORCE_INLINE static __forceinline
+# else
+#  ifdef __GNUC__
+#    define FORCE_INLINE static inline __attribute__((always_inline))
+#  else
+#    define FORCE_INLINE static inline
+#  endif
+# endif
+#endif
+
 #ifndef DISABLE_INLINING
 # define EXTERN_INLINE static inline
 # define EXTERN_INLINE_HEADER static inline
@@ -350,31 +362,31 @@ extern "C" {
 	// inline asm using bswap/xchg
 # endif
 #elif defined B_ENDIAN_C_INLINE
-static inline uint16_t B_SWAP16(uint16_t s) { return (s >> 8) | (s << 8); }
-static inline uint32_t B_SWAP32(uint32_t l)
+FORCE_INLINE uint16_t B_SWAP16(uint16_t s) { return (s >> 8) | (s << 8); }
+FORCE_INLINE uint32_t B_SWAP32(uint32_t l)
 {
     return ((l >> 8) & 0xff00) | ((l & 0xff00) << 8) | (l << 24) | (l >> 24);
 }
-static inline uint64_t B_SWAP64(uint64_t l)
+FORCE_INLINE uint64_t B_SWAP64(uint64_t l)
 {
     return (l >> 56) | ((l >> 40) & 0xff00) | ((l >> 24) & 0xff0000) | ((l >> 8) & 0xff000000) |
         ((l & 255) << 56) | ((l & 0xff00) << 40) | ((l & 0xff0000) << 24) | ((l & 0xff000000) << 8);
 }
 #endif
 
-static inline void B_BUF16(uint8_t *buf, uint16_t x)
+FORCE_INLINE void B_BUF16(uint8_t *buf, uint16_t x)
 {
     buf[0] = (x & 0x00FF);
     buf[1] = (x & 0xFF00) >> 8;
 }
-static inline void B_BUF32(uint8_t *buf, uint32_t x)
+FORCE_INLINE void B_BUF32(uint8_t *buf, uint32_t x)
 {
     buf[0] = (x & 0x000000FF);
     buf[1] = (x & 0x0000FF00) >> 8;
     buf[2] = (x & 0x00FF0000) >> 16;
     buf[3] = (x & 0xFF000000) >> 24;
 }
-static inline void B_BUF64(uint8_t *buf, uint64_t x)
+FORCE_INLINE void B_BUF64(uint8_t *buf, uint64_t x)
 {
     buf[0] = (x & 0x00000000000000FF);
     buf[1] = (x & 0x000000000000FF00) >> 8;
@@ -386,12 +398,12 @@ static inline void B_BUF64(uint8_t *buf, uint64_t x)
     buf[7] = (x & 0xFF00000000000000) >> 56;
 }
 
-static inline uint16_t B_UNBUF16(const uint8_t *buf) { return (buf[1] << 8) | (buf[0]); }
-static inline uint32_t B_UNBUF32(const uint8_t *buf)
+FORCE_INLINE uint16_t B_UNBUF16(const uint8_t *buf) { return (buf[1] << 8) | (buf[0]); }
+FORCE_INLINE uint32_t B_UNBUF32(const uint8_t *buf)
 {
     return (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
 }
-static inline uint64_t B_UNBUF64(const uint8_t *buf)
+FORCE_INLINE uint64_t B_UNBUF64(const uint8_t *buf)
 {
     return ((uint64_t)buf[7] << 56) | ((uint64_t)buf[6] << 48) | ((uint64_t)buf[5] << 40) |
         ((uint64_t)buf[4] << 32) | (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
@@ -399,13 +411,13 @@ static inline uint64_t B_UNBUF64(const uint8_t *buf)
 
 #if defined (BITNESS64)
 #include <emmintrin.h>
-static inline int32_t Blrintf(const float x)
+FORCE_INLINE int32_t Blrintf(const float x)
 {
     __m128 xx = _mm_load_ss(&x);
     return _mm_cvtss_si32(xx);
 }
 #elif defined (_MSC_VER)
-static inline int32_t Blrintf(const float x)
+FORCE_INLINE int32_t Blrintf(const float x)
 {
     int n;
     __asm fld x;
@@ -515,9 +527,9 @@ static inline int32_t Blrintf(const float x)
 #endif
 
 #if __GNUC__ >= 4
-# define CLAMP_DECL static inline __attribute__((warn_unused_result))
+# define CLAMP_DECL FORCE_INLINE __attribute__((warn_unused_result))
 #else
-# define CLAMP_DECL static inline
+# define CLAMP_DECL FORCE_INLINE
 #endif
 
 // Clamp <in> to [<min>..<max>]. The case in <= min is handled first.
@@ -576,9 +588,9 @@ typedef intptr_t ssize_t;
 #endif
 
 #if RAND_MAX == 32767
-static inline uint16_t system_15bit_rand(void) { return (uint16_t)rand(); }
+FORCE_INLINE uint16_t system_15bit_rand(void) { return (uint16_t)rand(); }
 #else  // RAND_MAX > 32767, assumed to be of the form 2^k - 1
-static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7fff; }
+FORCE_INLINE uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7fff; }
 #endif
 
 #if defined(_MSC_VER)
@@ -769,7 +781,7 @@ char *Bstrupr(char *);
 #endif
 
 // Copy min(strlen(src)+1, n) characters into dst, always terminate with a NUL.
-static inline char *Bstrncpyz(char *dst, const char *src, bsize_t n)
+FORCE_INLINE char *Bstrncpyz(char *dst, const char *src, bsize_t n)
 {
     Bstrncpy(dst, src, n);
     dst[n-1] = 0;
@@ -795,28 +807,28 @@ extern void xalloc_set_location(int32_t line, const char *file, const char *func
 void set_memerr_handler(void (*handlerfunc)(int32_t, const char *, const char *));
 void handle_memerr(void);
 
-static inline char *xstrdup(const char *s)
+FORCE_INLINE char *xstrdup(const char *s)
 {
     char *ptr = Bstrdup(s);
     if (ptr == NULL) handle_memerr();
     return ptr;
 }
 
-static inline void *xmalloc(const bsize_t size)
+FORCE_INLINE void *xmalloc(const bsize_t size)
 {
     void *ptr = Bmalloc(size);
     if (ptr == NULL) handle_memerr();
     return ptr;
 }
 
-static inline void *xcalloc(const bsize_t nmemb, const bsize_t size)
+FORCE_INLINE void *xcalloc(const bsize_t nmemb, const bsize_t size)
 {
     void *ptr = Bcalloc(nmemb, size);
     if (ptr == NULL) handle_memerr();
     return ptr;
 }
 
-static inline void *xrealloc(void * const ptr, const bsize_t size)
+FORCE_INLINE void *xrealloc(void * const ptr, const bsize_t size)
 {
     void *newptr = Brealloc(ptr, size);
 
@@ -830,7 +842,7 @@ static inline void *xrealloc(void * const ptr, const bsize_t size)
     return newptr;
 }
 
-static inline void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
+FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 {
 #ifdef _WIN32
     void *ptr = _aligned_malloc(size, alignment);
