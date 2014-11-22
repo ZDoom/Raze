@@ -58,6 +58,7 @@ int32_t GetKey(int32_t key)
 {
     return keystatus[remap[key]];
 }
+
 void SetKey(int32_t key, int32_t state)
 {
     keystatus[remap[key]] = state;

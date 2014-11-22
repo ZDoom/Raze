@@ -965,7 +965,7 @@ CDECLPARAM edi,1,5
 	push ebp
 
 	mov eax, dword ylookup
-	mov eax, [eax+ecx*4]
+	mov eax, dword [eax+ecx*4]
 	add eax, edi
 	mov dword [machvline4end+2], eax
 	sub edi, eax
@@ -1116,7 +1116,7 @@ CDECLPARAM edi,1,5
 	push ebp
 
 	mov eax, dword ylookup
-	mov eax, [eax+ecx*4]
+	mov eax, dword [eax+ecx*4]
 	add eax, edi
 	mov dword [promachvline4end1+2], eax
 	inc eax

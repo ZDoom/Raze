@@ -779,6 +779,9 @@
     <ClCompile Include="source\m32common.c">
       <Filter>eduke32\source\editor</Filter>
     </ClCompile>
+    <ClCompile Include="build\src\sdlayer12.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile.msvc">

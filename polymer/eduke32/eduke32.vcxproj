@@ -392,6 +392,7 @@
     <ClCompile Include="build\src\rawinput.c" />
     <ClCompile Include="build\src\scriptfile.c" />
     <ClCompile Include="build\src\sdlayer.c" />
+    <ClCompile Include="build\src\sdlayer12.c" />
     <ClCompile Include="build\src\smalltextfont.c" />
     <ClCompile Include="build\src\startgtk.editor.c" />
     <ClCompile Include="build\src\startwin.editor.c" />

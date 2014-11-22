@@ -1449,7 +1449,7 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
 
 // Hash functions
 
-typedef struct _hashitem // size is 12/24 bits.
+typedef struct _hashitem // size is 12/24 bytes.
 {
     char *string;
     intptr_t key;
