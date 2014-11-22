@@ -1691,6 +1691,10 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
     switch (ev->type)
     {
         case SDL_MOUSEMOTION:
+#ifndef GEKKO
+            mouseabsx = ev->motion.x;
+            mouseabsy = ev->motion.y;
+#endif
             // SDL <VER> doesn't handle relative mouse movement correctly yet as the cursor still clips to the
             // screen edges
             // so, we call SDL_WarpMouse() to center the cursor and ignore the resulting motion event that occurs
@@ -1706,8 +1710,6 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
 #endif
                 }
             }
-            if (ev.active.state & SDL_APPMOUSEFOCUS)
-                mouseinwindow = ev.active.gain;
             break;
 
         case SDL_MOUSEBUTTONDOWN:
@@ -1946,6 +1948,12 @@ int32_t handleevents_pollsdl(void)
                             windowx = ev.window.data1;
                             windowy = ev.window.data2;
                         }
+                        break;
+                    case SDL_WINDOWEVENT_ENTER:
+                        mouseinwindow = 1;
+                        break;
+                    case SDL_WINDOWEVENT_LEAVE:
+                        mouseinwindow = 0;
                         break;
                 }
                 break;

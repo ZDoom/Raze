@@ -514,25 +514,25 @@ int32_t handleevents_pollsdl(void)
                         grabmouse_low(!!appactive);
 #endif
                     rv = -1;
+
+                    if (ev.active.state & SDL_APPMOUSEFOCUS)
+                        mouseinwindow = ev.active.gain;
                 }
                 break;
 
             // SDL_MOUSEMOTION needs to fall through to default... this is just GEKKO processing!
             case SDL_MOUSEMOTION:
 #ifdef GEKKO
-                if (appactive && mousegrab)
+                // check if it's a wiimote pointer pretending to be a mouse
+                if (ev.motion.state & SDL_BUTTON_X2MASK)
                 {
-                    // check if it's a wiimote pointer pretending to be a mouse
-                    if (ev.motion.state & SDL_BUTTON_X2MASK)
-                    {
-                        // the absolute values are used to draw the crosshair
-                        mouseabsx = ev.motion.x;
-                        mouseabsy = ev.motion.y;
-                        // hack: reduce the scale of the "relative" motions
-                        // to make it act more like a real mouse
-                        ev.motion.xrel /= 16;
-                        ev.motion.yrel /= 12;
-                    }
+                    // the absolute values are used to draw the crosshair
+                    mouseabsx = ev.motion.x;
+                    mouseabsy = ev.motion.y;
+                    // hack: reduce the scale of the "relative" motions
+                    // to make it act more like a real mouse
+                    ev.motion.xrel /= 16;
+                    ev.motion.yrel /= 12;
                 }
 #endif
             default: // OSD_Printf("Got event (%d)\n", ev.type); break;
