@@ -1200,7 +1200,18 @@ extern const int16_t *chsecptr_onextwall;
 int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
 void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));
+
+#if !KRANDDEBUG
+FORCE_INLINE int32_t krand(void)
+{
+    //    randomseed = (randomseed*27584621)+1;
+    randomseed = (randomseed * 1664525ul) + 221297ul;
+    return ((uint32_t) randomseed)>>16;
+}
+#else
 int32_t    krand(void);
+#endif
+
 int32_t   ksqrt(uint32_t num);
 int32_t   __fastcall getangle(int32_t xvect, int32_t yvect);
 

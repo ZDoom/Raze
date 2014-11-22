@@ -14358,8 +14358,6 @@ int32_t krd_print(const char *filename)
     fclose(fp);
     return 0;
 }
-#endif  // KRANDDEBUG
-
 
 //
 // krand
@@ -14369,17 +14367,16 @@ int32_t krand(void)
 //    randomseed = (randomseed*27584621)+1;
     randomseed = (randomseed * 1664525ul) + 221297ul;
 
-#if KRANDDEBUG
     if (krd_enabled)
         if (krd_numcalls < KRD_MAXCALLS)
         {
             backtrace(krd_fromwhere[krd_numcalls], KRD_DEPTH);
             krd_numcalls++;
         }
-#endif
 
     return ((uint32_t)randomseed)>>16;
 }
+#endif  // KRANDDEBUG
 
 
 //
