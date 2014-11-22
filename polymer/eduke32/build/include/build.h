@@ -1201,10 +1201,9 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
 void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));
 
-#if !KRANDDEBUG
+#if !KRANDDEBUG && !defined LUNATIC
 FORCE_INLINE int32_t krand(void)
 {
-    //    randomseed = (randomseed*27584621)+1;
     randomseed = (randomseed * 1664525ul) + 221297ul;
     return ((uint32_t) randomseed)>>16;
 }
