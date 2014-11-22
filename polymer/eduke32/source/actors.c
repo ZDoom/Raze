@@ -7276,17 +7276,18 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     }
             }
 
-            p = myconnectindex;
-            g_player[p].ps->fric.x = g_player[p].ps->fric.y = 0;
-            if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
+            for (TRAVERSE_CONNECT(p))
             {
-                if (klabs(g_player[p].ps->pos.z-g_player[p].ps->truefz) < PHEIGHT+(9<<8))
+                if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
                 {
-                    g_player[p].ps->fric.x += x<<3;
-                    g_player[p].ps->fric.y += l<<3;
+                    if (klabs(g_player[p].ps->pos.z-g_player[p].ps->truefz) < PHEIGHT+(9<<8))
+                    {
+                        g_player[p].ps->fric.x += x<<3;
+                        g_player[p].ps->fric.y += l<<3;
+                    }
                 }
-            }
 
+            }
             sc->floorxpanning += SP>>7;
 
             break;
@@ -7382,18 +7383,15 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
             }
 
-            p = myconnectindex;
-            g_player[p].ps->fric.x = g_player[p].ps->fric.y = 0;
-            if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
-            {
-                g_player[p].ps->fric.x += l<<5;
-                g_player[p].ps->fric.y += x<<5;
-            }
-
             for (TRAVERSE_CONNECT(p))
+            {
                 if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
+                {
+                    g_player[p].ps->fric.x += l<<5;
+                    g_player[p].ps->fric.y += x<<5;
                     g_player[p].ps->pos.z += s->zvel;
-
+                }
+            }
             A_MoveSector(i);
             setsprite(i,(vec3_t *)s);
 

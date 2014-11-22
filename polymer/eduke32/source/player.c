@@ -2819,9 +2819,9 @@ void P_GetInput(int32_t snum)
     }
 
     loc.fvel =
-    mulscale9(in.fvel, sintable[(p->ang + 2560) & 2047]) + (mulscale9(in.svel, sintable[(p->ang + 2048) & 2047]) + p->fric.x);
+    mulscale9(in.fvel, sintable[(p->ang + 2560) & 2047]) + (mulscale9(in.svel, sintable[(p->ang + 2048) & 2047]));
     loc.svel =
-    mulscale9(in.fvel, sintable[(p->ang + 2048) & 2047]) + (mulscale9(in.svel, sintable[(p->ang + 1536) & 2047]) + p->fric.y);
+    mulscale9(in.fvel, sintable[(p->ang + 2048) & 2047]) + (mulscale9(in.svel, sintable[(p->ang + 1536) & 2047]));
 
     loc.avel = in.avel;
     loc.horz = in.horz;
@@ -4917,8 +4917,8 @@ void P_ProcessInput(int32_t snum)
         if (p->jetpack_on == 0 && p->inv_amount[GET_STEROIDS] > 0 && p->inv_amount[GET_STEROIDS] < 400)
             doubvel <<= 1;
 
-        p->vel.x += ((g_player[snum].sync->fvel*doubvel)<<6);
-        p->vel.y += ((g_player[snum].sync->svel*doubvel)<<6);
+        p->vel.x += (((g_player[snum].sync->fvel) * doubvel) << 6);
+        p->vel.y += (((g_player[snum].sync->svel) * doubvel) << 6);
 
         j = 0;
 
@@ -4927,8 +4927,8 @@ void P_ProcessInput(int32_t snum)
         else if (p->on_ground && (TEST_SYNC_KEY(sb_snum, SK_CROUCH) || (*kb > 10 && PWEAPON(snum, p->curr_weapon, WorksLike) == KNEE_WEAPON)))
             j = 0x2000;
 
-        p->vel.x = mulscale16(p->vel.x,p->runspeed-j);
-        p->vel.y = mulscale16(p->vel.y,p->runspeed-j);
+        p->vel.x = mulscale16(p->vel.x, p->runspeed - j);
+        p->vel.y = mulscale16(p->vel.y, p->runspeed - j);
 
         if (klabs(p->vel.x) < 2048 && klabs(p->vel.y) < 2048)
             p->vel.x = p->vel.y = 0;
@@ -4975,8 +4975,11 @@ HORIZONLY:
             }
         }
 #endif
-        if ((j = clipmove((vec3_t *)p,&p->cursectnum, p->vel.x,p->vel.y,164L,(4L<<8),i,CLIPMASK0)))
+        if ((j = clipmove((vec3_t *)p, &p->cursectnum, p->vel.x + (p->fric.x << 9), p->vel.y + (p->fric.y << 9), 164L,
+                          (4L << 8), i, CLIPMASK0)))
             P_CheckTouchDamage(p, j);
+
+        p->fric.x = p->fric.y = 0;
     }
 
     // This makes the player view lower when shrunk.  NOTE that it can get the
