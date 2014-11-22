@@ -580,7 +580,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     const DukePlayer_t *const myps = g_player[myconnectindex].ps;
     const DukePlayer_t *peekps;
 
-    j = VM_OnEvent(EVENT_SOUND, i, screenpeek, -1, num);
+    j = VM_OnEventWithReturn(EVENT_SOUND, i, screenpeek, num);
 
     if (j == -1 && num != -1) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
         return -1;
@@ -736,7 +736,7 @@ int32_t S_PlaySound(int32_t num)
     int32_t pitch;
     int32_t voice, j;
 
-    j = VM_OnEvent(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, -1, num);
+    j = VM_OnEventWithReturn(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, num);
 
     if (j == -1 && num != -1) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
         return -1;

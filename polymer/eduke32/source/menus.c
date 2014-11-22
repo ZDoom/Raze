@@ -3186,7 +3186,7 @@ void M_ChangeMenu(MenuID_t cm)
     Menu_t *search;
     int32_t i;
 
-    cm = VM_OnEvent(EVENT_CHANGEMENU, g_player[myconnectindex].ps->i, myconnectindex, -1, cm);
+    cm = VM_OnEventWithReturn(EVENT_CHANGEMENU, g_player[myconnectindex].ps->i, myconnectindex, cm);
 
     if (cm == MENU_PREVIOUS)
     {
@@ -4950,7 +4950,7 @@ void M_DisplayMenus(void)
 
     M_RunMenuInput(m_currentMenu);
 
-    VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+    VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek);
 
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     g_player[myconnectindex].ps->fta = 0;
@@ -4986,7 +4986,7 @@ void M_DisplayMenus(void)
 #endif
 
     if (VM_HaveEvent(EVENT_DISPLAYMENUREST))
-        VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek);
 
     if (readmouseabsxy(&m_mousepos.x, &m_mousepos.y))
     {

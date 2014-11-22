@@ -324,7 +324,7 @@ int32_t G_LoadPlayer(int32_t spot)
     }
     sv_postudload();  // ud.m_XXX = ud.XXX
 
-    VM_OnEvent(EVENT_LOADGAME, g_player[myconnectindex].ps->i, myconnectindex, -1, 0);
+    VM_OnEvent(EVENT_LOADGAME, g_player[myconnectindex].ps->i, myconnectindex);
 
     return 0;
 }
@@ -398,7 +398,7 @@ int32_t G_SavePlayer(int32_t spot)
         polymer_resetlights();
 #endif
 
-    VM_OnEvent(EVENT_SAVEGAME, g_player[myconnectindex].ps->i, myconnectindex, -1, 0);
+    VM_OnEvent(EVENT_SAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
 
     // SAVE!
     sv_saveandmakesnapshot(fil, spot, 0, 0, 0);

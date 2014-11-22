@@ -68,12 +68,12 @@ GAMEEXEC_STATIC void VM_Execute(int32_t loop);
 #endif
 
 #define VM_CONDITIONAL(xxx)                                                                                            \
-    {                                                                                                             \
-        if ((xxx) || ((insptr = (intptr_t *)*(insptr + 1)) && (((*insptr) & 0xfff) == CON_ELSE)))                 \
-        {                                                                                                         \
-            insptr += 2;                                                                                          \
-            VM_Execute(0);                                                                                        \
-        }                                                                                                         \
+    {                                                                                                                  \
+        if ((xxx) || ((insptr = (intptr_t *)*(insptr + 1)) && (((*insptr) & 0xfff) == CON_ELSE)))                      \
+        {                                                                                                              \
+            insptr += 2;                                                                                               \
+            VM_Execute(0);                                                                                             \
+        }                                                                                                              \
     }
 
 void VM_ScriptInfo(void)
@@ -110,7 +110,7 @@ void VM_ScriptInfo(void)
 #endif
 }
 
-static void VM_KillIt(int32_t iActor, int32_t iPlayer)
+static void VM_DeleteSprite(int32_t iActor, int32_t iPlayer)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned) iActor >= MAXSPRITES))
         return;
@@ -123,9 +123,9 @@ static void VM_KillIt(int32_t iActor, int32_t iPlayer)
 }
 
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
-int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
-{
 #ifdef LUNATIC
+FORCE_INLINE int32_t VM_EventCommon_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
+{
     const double t = gethiticks();
     int32_t ret = El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist, &iReturn);
 
@@ -135,53 +135,88 @@ int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t l
     g_eventCalls[iEventID]++;
 
     if (ret == 1)
-        VM_KillIt(iActor, iPlayer);
+        VM_DeleteSprite(iActor, iPlayer);
+
+    return iReturn;
+}
 #else
+FORCE_INLINE int32_t VM_EventCommon_(const int32_t iEventID, const int32_t iActor, const int32_t iPlayer,
+                                     const int32_t lDist, int32_t iReturn)
+{
+    // this is initialized first thing because iActor, iPlayer, lDist, etc are already right there on the stack
+    // from the function call
+    const vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[(unsigned)iActor].t_data[0],
+                               &sprite[(unsigned)iActor], 0 };
+
+    // since we're targeting C99 and C++ now, we can interweave these to avoid
+    // having to load addresses for things twice
+    // for example, because we are loading backupReturnVar with the value of
+    // aGameVars[g_iReturnVarID].val.lValue, the compiler can avoid having to
+    // reload the address of aGameVars[g_iReturnVarID].val.lValue in order to
+    // set it to the value of iReturn (...which should still be on the stack!)
+
+    const int32_t backupReturnVar = aGameVars[g_iReturnVarID].val.lValue;
+    aGameVars[g_iReturnVarID].val.lValue = iReturn;
+
+    const int32_t backupEventExec = g_currentEventExec;
+    g_currentEventExec = iEventID;
+
+    intptr_t *oinsptr = insptr;
+    insptr = apScriptGameEvent[iEventID];
+
     const vmstate_t vm_backup = vm;
-    vmstate_t tempvm = {
-        iActor, iPlayer, lDist,
-        NULL, NULL,  // to be set in a moment
-        0
-    };
+    vm = tempvm;
 
-    int32_t backupReturnVar = aGameVars[g_iReturnVarID].val.lValue;
-    int32_t backupEventExec = g_currentEventExec;
-    intptr_t *oinsptr=insptr;
-
-    if ((unsigned)iActor >= (unsigned)Numsprites)
+    // check tempvm instead of vm... this way, we are not actually loading
+    // FROM vm anywhere until VM_Execute() is called
+    if ((unsigned)tempvm.g_i >= MAXSPRITES)
     {
         static spritetype dummy_sprite;
         static int32_t dummy_t[ARRAY_SIZE(actor[0].t_data)];
 
-        tempvm.g_sp = &dummy_sprite;
-        tempvm.g_t = dummy_t;
+        vm.g_sp = &dummy_sprite;
+        vm.g_t = dummy_t;
     }
-    else
-    {
-        tempvm.g_sp = &sprite[iActor];
-        tempvm.g_t = &actor[iActor].t_data[0];
-    }
-
-    vm = tempvm;
-
-    aGameVars[g_iReturnVarID].val.lValue = iReturn;
-    g_currentEventExec = iEventID;
-    insptr = apScriptGameEvent[iEventID];
 
     VM_Execute(1);
 
     if (vm.g_flags & VM_KILL)
-        VM_KillIt(iActor, iPlayer);
+        VM_DeleteSprite(vm.g_i, vm.g_p);
 
+    // this needs to happen after VM_DeleteSprite() because VM_DeleteSprite()
+    // can trigger additional events
     vm = vm_backup;
     insptr = oinsptr;
-
     g_currentEventExec = backupEventExec;
     iReturn = aGameVars[g_iReturnVarID].val.lValue;
     aGameVars[g_iReturnVarID].val.lValue = backupReturnVar;
-#endif
 
     return iReturn;
+}
+#endif
+
+// the idea here is that the compiler inlines the call to VM_EventCommon_() and gives us a set of full functions
+// which are not only optimized further based on lDist or iReturn (or both) having values known at compile time,
+// but are called faster due to having less parameters
+
+int32_t VM_OnEventWithBoth_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
+{
+    return VM_EventCommon_(iEventID, iActor, iPlayer, lDist, iReturn);
+}
+
+int32_t VM_OnEventWithReturn_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t iReturn)
+{
+    return VM_EventCommon_(iEventID, iActor, iPlayer, -1, iReturn);
+}
+
+int32_t VM_OnEventWithDist_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist)
+{
+    return VM_EventCommon_(iEventID, iActor, iPlayer, lDist, 0);
+}
+
+int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer)
+{
+    return VM_EventCommon_(iEventID, iActor, iPlayer, -1, 0);
 }
 
 static int32_t VM_CheckSquished(void)
@@ -562,8 +597,11 @@ static void VM_FacePlayer(int32_t shr)
 ////////// TROR get*zofslope //////////
 // These rather belong into the engine.
 
-static int32_t yax_getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+static int32_t VM_GetCeilZOfSlope(void)
 {
+    const int dax = vm.g_sp->x, day = vm.g_sp->y;
+    const int sectnum = vm.g_sp->sectnum;
+
 #ifdef YAX_ENABLE
     if ((sector[sectnum].ceilingstat&512)==0)
     {
@@ -575,8 +613,11 @@ static int32_t yax_getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
     return getceilzofslope(sectnum, dax, day);
 }
 
-static int32_t yax_getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+static int32_t VM_GetFlorZOfSlope(void)
 {
+    const int dax = vm.g_sp->x, day = vm.g_sp->y;
+    const int sectnum = vm.g_sp->sectnum;
+
 #ifdef YAX_ENABLE
     if ((sector[sectnum].floorstat&512)==0)
     {
@@ -600,11 +641,10 @@ GAMEEXEC_STATIC void VM_Move(void)
     const uint16_t *movflagsptr = &AC_MOVFLAGS(vm.g_sp, &actor[vm.g_i]);
     const int32_t movflags = /*(*movflagsptr==-1) ? 0 :*/ *movflagsptr;
     const int32_t deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
-    int32_t badguyp, angdif;
+    int32_t badguyp;
 
     AC_COUNT(vm.g_t)++;
 
-    // If the move ID is zero, or the movflags are 0
     if (AC_MOVE_ID(vm.g_t) == 0 || movflags == 0)
     {
         if (deadflag || (actor[vm.g_i].bpos.x != vm.g_sp->x) || (actor[vm.g_i].bpos.y != vm.g_sp->y))
@@ -675,7 +715,8 @@ dead:
 
     if (vm.g_sp->xvel || vm.g_sp->zvel)
     {
-        int32_t daxvel;
+        int32_t daxvel = vm.g_sp->xvel;
+        int32_t angdif = vm.g_sp->ang;
 
         if (badguyp && vm.g_sp->picnum != ROTATEGUN)
         {
@@ -686,14 +727,14 @@ dead:
                     int32_t l;
                     // NOTE: COMMANDER updates both actor[].floorz and
                     // .ceilingz regardless of its zvel.
-                    actor[vm.g_i].floorz = l = yax_getflorzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                    actor[vm.g_i].floorz = l = VM_GetFlorZOfSlope();
                     if (vm.g_sp->z > l-(8<<8))
                     {
                         vm.g_sp->z = l-(8<<8);
                         vm.g_sp->zvel = 0;
                     }
 
-                    actor[vm.g_i].ceilingz = l = yax_getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                    actor[vm.g_i].ceilingz = l = VM_GetCeilZOfSlope();
                     if (vm.g_sp->z < l+(80<<8))
                     {
                         vm.g_sp->z = l+(80<<8);
@@ -706,13 +747,13 @@ dead:
                     // The DRONE updates either .floorz or .ceilingz, not both.
                     if (vm.g_sp->zvel > 0)
                     {
-                        actor[vm.g_i].floorz = l = yax_getflorzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                        actor[vm.g_i].floorz = l = VM_GetFlorZOfSlope();
                         if (vm.g_sp->z > l-(30<<8))
                             vm.g_sp->z = l-(30<<8);
                     }
                     else
                     {
-                        actor[vm.g_i].ceilingz = l = yax_getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                        actor[vm.g_i].ceilingz = l = VM_GetCeilZOfSlope();
                         if (vm.g_sp->z < l+(50<<8))
                         {
                             vm.g_sp->z = l+(50<<8);
@@ -729,7 +770,7 @@ dead:
                     vm.g_sp->z = actor[vm.g_i].floorz;
                 if (vm.g_sp->zvel < 0)
                 {
-                    const int32_t l = yax_getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                    const int32_t l = VM_GetCeilZOfSlope();
 
                     if (vm.g_sp->z < l+(66<<8))
                     {
@@ -738,22 +779,13 @@ dead:
                     }
                 }
             }
-        }
-        else if (vm.g_sp->picnum == APLAYER)
-            if (vm.g_sp->z < actor[vm.g_i].ceilingz+(32<<8))
-                vm.g_sp->z = actor[vm.g_i].ceilingz+(32<<8);
 
-        daxvel = vm.g_sp->xvel;
-        angdif = vm.g_sp->ang;
-
-        if (badguyp && vm.g_sp->picnum != ROTATEGUN)
-        {
             DukePlayer_t *const ps = g_player[vm.g_p].ps;
 
             if (vm.g_x < 960 && vm.g_sp->xrepeat > 16)
             {
-                daxvel = -(1024-vm.g_x);
-                angdif = getangle(ps->pos.x-vm.g_sp->x, ps->pos.y-vm.g_sp->y);
+                daxvel = -(1024 - vm.g_x);
+                angdif = getangle(ps->pos.x - vm.g_sp->x, ps->pos.y - vm.g_sp->y);
 
                 if (vm.g_x < 512)
                 {
@@ -762,8 +794,8 @@ dead:
                 }
                 else
                 {
-                    ps->vel.x = mulscale16(ps->vel.x, ps->runspeed-0x2000);
-                    ps->vel.y = mulscale16(ps->vel.y, ps->runspeed-0x2000);
+                    ps->vel.x = mulscale16(ps->vel.x, ps->runspeed - 0x2000);
+                    ps->vel.y = mulscale16(ps->vel.y, ps->runspeed - 0x2000);
                 }
             }
             else if (vm.g_sp->picnum != DRONE && vm.g_sp->picnum != SHARK && vm.g_sp->picnum != COMMANDER)
@@ -773,30 +805,29 @@ dead:
 
                 if (!A_CheckSpriteFlags(vm.g_i, SFLAG_SMOOTHMOVE))
                 {
-                    if (AC_COUNT(vm.g_t)&1)
+                    if (AC_COUNT(vm.g_t) & 1)
                         return;
                     daxvel <<= 1;
                 }
             }
         }
+        else if (vm.g_sp->picnum == APLAYER)
+            if (vm.g_sp->z < actor[vm.g_i].ceilingz+(32<<8))
+                vm.g_sp->z = actor[vm.g_i].ceilingz+(32<<8);
 
-        {
-            vec3_t tmpvect = { (daxvel*(sintable[(angdif+512)&2047]))>>14,
-                               (daxvel*(sintable[angdif&2047]))>>14,
-                               vm.g_sp->zvel
-                             };
+        vec3_t tmpvect = { (daxvel * (sintable[(angdif + 512) & 2047])) >> 14,
+                           (daxvel * (sintable[angdif & 2047])) >> 14, vm.g_sp->zvel };
 
-            actor[vm.g_i].movflag = A_MoveSprite(
-                vm.g_i,&tmpvect, (A_CheckSpriteFlags(vm.g_i, SFLAG_NOCLIP) ? 0 : CLIPMASK0));
-        }
+        actor[vm.g_i].movflag =
+        A_MoveSprite(vm.g_i, &tmpvect, (A_CheckSpriteFlags(vm.g_i, SFLAG_NOCLIP) ? 0 : CLIPMASK0));
     }
 
     if (!badguyp)
         return;
 
-    if (sector[vm.g_sp->sectnum].ceilingstat&1)
-        vm.g_sp->shade += (sector[vm.g_sp->sectnum].ceilingshade-vm.g_sp->shade)>>1;
-    else vm.g_sp->shade += (sector[vm.g_sp->sectnum].floorshade-vm.g_sp->shade)>>1;
+    vm.g_sp->shade += (sector[vm.g_sp->sectnum].ceilingstat & 1) ?
+                      (sector[vm.g_sp->sectnum].ceilingshade - vm.g_sp->shade) >> 1 :
+                      (sector[vm.g_sp->sectnum].floorshade - vm.g_sp->shade) >> 1;
 }
 
 static void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
@@ -1142,16 +1173,16 @@ LUNATIC_EXTERN void G_ShowView(int32_t x, int32_t y, int32_t z, int32_t a, int32
 }
 
 #if !defined LUNATIC
-GAMEEXEC_STATIC void VM_Execute(int32_t loop)
+GAMEEXEC_STATIC void VM_Execute(int loop)
 {
-    int32_t tw = *insptr;
+    int tw = *insptr;
 
     // jump directly into the loop, saving us from the checks during the first iteration
     goto skip_check;
 
     while (loop)
     {
-        if (vm.g_flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE))
+        if (vm.g_flags & (VM_RETURN | VM_KILL | VM_NOEXECUTE))
             return;
 
         tw = *insptr;
@@ -1161,7 +1192,7 @@ skip_check:
         //      AddLog(g_szBuf);
 
         g_errorLineNum = tw>>12;
-        g_tw = tw &= 0xFFF;
+        g_tw = tw &= 0xfff;
 
         switch (tw)
         {
@@ -1641,7 +1672,7 @@ skip_check:
                 if (ps->ammo_amount[weap] >= ps->max_ammo_amount[weap])
                 {
                     vm.g_flags |= VM_NOEXECUTE;
-                    break;
+                    return;
                 }
 
                 P_AddWeaponAmmoCommon(ps, weap, amount);
@@ -1683,7 +1714,7 @@ skip_check:
         case CON_KILLIT:
             insptr++;
             vm.g_flags |= VM_KILL;
-            continue;
+            return;
 
         case CON_ADDWEAPON:
             insptr++;
@@ -4458,7 +4489,7 @@ finish_qsprintf:
                                 aGameArrays[j].szLabel, aGameArrays[j].size, numelts);*/
                             int32_t numbytes = numelts * sizeof(int32_t);
 #ifdef BITNESS64
-                            int32_t *tmpar = Xmalloc(numbytes);
+                            int32_t *tmpar = (int32_t *)Xmalloc(numbytes);
                             kread(fil, tmpar, numbytes);
 #endif
                             Baligned_free(aGameArrays[j].plValues);
@@ -5368,21 +5399,19 @@ finish_qsprintf:
 // NORECURSE
 void A_LoadActor(int32_t iActor)
 {
-    vm.g_i = iActor;    // Sprite ID
-    vm.g_p = -1; // iPlayer;    // Player ID
-    vm.g_x = -1; // lDist;    // ?
-    vm.g_sp = &sprite[vm.g_i];    // Pointer to sprite structure
-    vm.g_t = &actor[vm.g_i].t_data[0];   // Sprite's 'extra' data
+    vm.g_i = iActor;                    // Sprite ID
+    vm.g_sp = &sprite[iActor];          // Pointer to sprite structure
+    vm.g_t = &actor[iActor].t_data[0];  // Sprite's 'extra' data
+    vm.g_p = -1;                        // Player ID
+    vm.g_x = -1;                        // Distance
 
     if (g_tile[vm.g_sp->picnum].loadPtr == NULL)
         return;
 
-    vm.g_flags &= ~(VM_RETURN|VM_KILL|VM_NOEXECUTE);
+    vm.g_flags &= ~(VM_RETURN | VM_KILL | VM_NOEXECUTE);
 
     if ((unsigned)vm.g_sp->sectnum >= MAXSECTORS)
     {
-        //      if(A_CheckEnemySprite(vm.g_sp))
-        //          g_player[vm.g_p].ps->actors_killed++;
         A_DeleteSprite(vm.g_i);
         return;
     }
@@ -5393,21 +5422,20 @@ void A_LoadActor(int32_t iActor)
 
     if (vm.g_flags & VM_KILL)
         A_DeleteSprite(vm.g_i);
-
 }
 #endif
 
 // NORECURSE
 void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
+    vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0], &sprite[iActor], 0 };
+    vm = tempvm;
+
 #ifdef LUNATIC
     int32_t killit=0;
 #else
     intptr_t actionofs, *actionptr;
 #endif
-    vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
-                         &sprite[iActor], 0
-                       };
 
 /*
     if (g_netClient && A_CheckSpriteFlags(iActor, SFLAG_NULL))
@@ -5420,24 +5448,18 @@ void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist)
     if (g_netServer || g_netClient)
         randomseed = ticrandomseed;
 
-    Bmemcpy(&vm, &tempvm, sizeof(vmstate_t));
-
     if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_sp->sectnum >= MAXSECTORS))
     {
         if (A_CheckEnemySprite(vm.g_sp))
             g_player[vm.g_p].ps->actors_killed++;
+
         A_DeleteSprite(vm.g_i);
         return;
     }
 
-    /* Qbix: Changed variables to be aware of the sizeof *insptr
-     * (whether it is int32_t vs intptr_t), Although it is specifically cast to intptr_t*
-     * which might be corrected if the code is converted to use offsets */
-    /* Helixhorned: let's do away with intptr_t's... */
 #if !defined LUNATIC
     actionofs = AC_ACTION_ID(vm.g_t);
-    actionptr = (actionofs!=0 && actionofs+4u < (unsigned)g_scriptSize) ?
-        &script[actionofs] : NULL;
+    actionptr = (actionofs != 0 && actionofs + 4u < (unsigned)g_scriptSize) ? &script[actionofs] : NULL;
 
     if (actionptr != NULL)
 #endif
@@ -5456,9 +5478,8 @@ void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist)
 
         if (*actionticsptr > action_delay)
         {
-            AC_ACTION_COUNT(vm.g_t)++;
             *actionticsptr = 0;
-
+            AC_ACTION_COUNT(vm.g_t)++;
             AC_CURFRAME(vm.g_t) += action_incval;
         }
 
@@ -5495,43 +5516,46 @@ void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist)
     if (vm.g_flags & VM_KILL)
 #endif
     {
-        VM_KillIt(iActor, iPlayer);
+        VM_DeleteSprite(iActor, iPlayer);
         return;
     }
 
     VM_Move();
 
-    if (vm.g_sp->statnum == STAT_STANDABLE)
-        switch (DYNAMICTILEMAP(vm.g_sp->picnum))
-        {
-        case RUBBERCAN__STATIC:
-        case EXPLODINGBARREL__STATIC:
-        case WOODENHORSE__STATIC:
-        case HORSEONSIDE__STATIC:
-        case CANWITHSOMETHING__STATIC:
-        case FIREBARREL__STATIC:
-        case NUKEBARREL__STATIC:
-        case NUKEBARRELDENTED__STATIC:
-        case NUKEBARRELLEAKED__STATIC:
-        case TRIPBOMB__STATIC:
-        case EGG__STATIC:
-            if (actor[vm.g_i].timetosleep > 1)
-                actor[vm.g_i].timetosleep--;
-            else if (actor[vm.g_i].timetosleep == 1)
-                changespritestat(vm.g_i,STAT_ZOMBIEACTOR);
-        default:
-            return;
-        }
-
     if (vm.g_sp->statnum != STAT_ACTOR)
+    {
+        if (vm.g_sp->statnum == STAT_STANDABLE)
+        {
+            switch (DYNAMICTILEMAP(vm.g_sp->picnum))
+            {
+                case RUBBERCAN__STATIC:
+                case EXPLODINGBARREL__STATIC:
+                case WOODENHORSE__STATIC:
+                case HORSEONSIDE__STATIC:
+                case CANWITHSOMETHING__STATIC:
+                case FIREBARREL__STATIC:
+                case NUKEBARREL__STATIC:
+                case NUKEBARRELDENTED__STATIC:
+                case NUKEBARRELLEAKED__STATIC:
+                case TRIPBOMB__STATIC:
+                case EGG__STATIC:
+                    if (actor[vm.g_i].timetosleep > 1)
+                        actor[vm.g_i].timetosleep--;
+                    else if (actor[vm.g_i].timetosleep == 1)
+                        changespritestat(vm.g_i, STAT_ZOMBIEACTOR);
+                default: return;
+            }
+        }
         return;
+    }
 
     if (A_CheckEnemySprite(vm.g_sp))
     {
-        if (vm.g_sp->xrepeat > 60) return;
-        if (ud.respawn_monsters == 1 && vm.g_sp->extra <= 0) return;
+        if (vm.g_sp->xrepeat > 60 || (ud.respawn_monsters == 1 && vm.g_sp->extra <= 0))
+            return;
     }
-    else if (EDUKE32_PREDICT_FALSE(ud.respawn_items == 1 && (vm.g_sp->cstat&32768))) return;
+    else if (EDUKE32_PREDICT_FALSE(ud.respawn_items == 1 && (vm.g_sp->cstat & 32768)))
+        return;
 
     if (A_CheckSpriteFlags(vm.g_i, SFLAG_USEACTIVATOR) && sector[vm.g_sp->sectnum].lotag & 16384)
         changespritestat(vm.g_i, STAT_ZOMBIEACTOR);

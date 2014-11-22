@@ -592,38 +592,35 @@ void A_DeleteSprite(int32_t s)
 {
     if (EDUKE32_PREDICT_FALSE(block_deletesprite))
     {
-        OSD_Printf(OSD_ERROR "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n",s);
+        OSD_Printf(OSD_ERROR "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n", s);
         return;
     }
 
     if (VM_HaveEvent(EVENT_KILLIT))
     {
-        int32_t p, pl=A_FindPlayer(&sprite[s],&p);
+        int32_t p, pl = A_FindPlayer(&sprite[s], &p);
 
-        if (VM_OnEvent_(EVENT_KILLIT, s, pl, p, 0))
+        if (VM_OnEventWithDist_(EVENT_KILLIT, s, pl, p))
             return;
     }
 
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER && actor[s].lightptr != NULL)
+    if (actor[s].lightptr != NULL && getrendermode() == REND_POLYMER)
         A_DeleteLight(s);
 #endif
 
-    if (sprite[s].picnum == MUSICANDSFX && actor[s].t_data[0]==1)
-    {
-        // AMBIENT_SFX_PLAYING
+    // AMBIENT_SFX_PLAYING
+    if (sprite[s].picnum == MUSICANDSFX && actor[s].t_data[0] == 1)
         S_StopEnvSound(sprite[s].lotag, s);
-    }
 
     // NetAlloc
     if (Net_IsRelevantSprite(s))
     {
         Net_DeleteSprite(s);
+        return;
     }
-    else
-    {
-        deletesprite(s);
-    }
+
+    deletesprite(s);
 }
 
 void A_AddToDeleteQueue(int32_t i)
@@ -727,9 +724,10 @@ LUNATIC_EXTERN int32_t G_ToggleWallInterpolation(int32_t w, int32_t doset)
     }
 }
 
-static void Sect_ToggleInterpolation(int32_t sectnum, int32_t doset)
+void Sect_ToggleInterpolation(int sectnum, int doset)
 {
-    int32_t k, j = sector[sectnum].wallptr, endwall = j+sector[sectnum].wallnum;
+    int k, j = sector[sectnum].wallptr;
+    const int endwall = sector[sectnum].wallptr + sector[sectnum].wallnum;
 
     for (; j<endwall; j++)
     {
@@ -744,24 +742,14 @@ static void Sect_ToggleInterpolation(int32_t sectnum, int32_t doset)
     }
 }
 
-void Sect_SetInterpolation(int32_t sectnum)
-{
-    Sect_ToggleInterpolation(sectnum, 1);
-}
-
-void Sect_ClearInterpolation(int32_t sectnum)
-{
-    Sect_ToggleInterpolation(sectnum, 0);
-}
-
 static int32_t move_rotfixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
 {
     if ((ROTFIXSPR_STATNUMP(sprite[j].statnum) ||
-         ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) &&
-          A_CheckSpriteTileFlags(sprite[j].picnum, SFLAG_ROTFIXED)))
-        && actor[j].t_data[7]==(ROTFIXSPR_MAGIC|pivotspr))
+         ((sprite[j].statnum == STAT_ACTOR || sprite[j].statnum == STAT_ZOMBIEACTOR) &&
+          A_CheckSpriteTileFlags(sprite[j].picnum, SFLAG_ROTFIXED))) &&
+        actor[j].t_data[7] == (ROTFIXSPR_MAGIC | pivotspr))
     {
-        rotatepoint(0,0, actor[j].t_data[8],actor[j].t_data[9], daang&2047, &sprite[j].x,&sprite[j].y);
+        rotatepoint(0, 0, actor[j].t_data[8], actor[j].t_data[9], daang & 2047, &sprite[j].x, &sprite[j].y);
         sprite[j].x += sprite[pivotspr].x;
         sprite[j].y += sprite[pivotspr].y;
         return 0;
@@ -770,42 +758,39 @@ static int32_t move_rotfixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
     return 1;
 }
 
-static void A_MoveSector(int32_t i)
+static void A_MoveSector(int i)
 {
-    //T1,T2 and T3 are used for all the sector moving stuff!!!
+    // T1,T2 and T3 are used for all the sector moving stuff!!!
+    spritetype * const s = &sprite[i];
+    int j = T2, k = T3;
+    int32_t tx, ty;
 
-    int32_t tx,ty;
-    spritetype *s = &sprite[i];
-    int32_t j = T2, k = T3;
+    s->x += (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14;
+    s->y += (s->xvel * (sintable[s->ang & 2047])) >> 14;
 
-    s->x += (s->xvel*(sintable[(s->ang+512)&2047]))>>14;
-    s->y += (s->xvel*(sintable[s->ang&2047]))>>14;
+    const int endwall = sector[s->sectnum].wallptr + sector[s->sectnum].wallnum;
 
+    for (i = sector[s->sectnum].wallptr; i < endwall; i++)
     {
-        int32_t x = sector[s->sectnum].wallptr, endwall = x+sector[s->sectnum].wallnum;
+        rotatepoint(0, 0, msx[j], msy[j], k & 2047, &tx, &ty);
+        dragpoint(i, s->x + tx, s->y + ty, 0);
 
-        for (; x<endwall; x++)
-        {
-            rotatepoint(0,0,msx[j],msy[j],k&2047,&tx,&ty);
-            dragpoint(x,s->x+tx,s->y+ty,0);
-
-            j++;
-        }
+        j++;
     }
 }
 
 #if !defined LUNATIC
 // NOTE: T5 is AC_ACTION_ID
-# define LIGHTRAD_PICOFS (T5 ? *(script+T5) + (*(script+T5+2))*AC_CURFRAME(actor[i].t_data) : 0)
+# define LIGHTRAD_PICOFS (T5 ? *(script + T5) + (*(script + T5 + 2)) * AC_CURFRAME(actor[i].t_data) : 0)
 #else
 // startframe + viewtype*[cyclic counter]
-# define LIGHTRAD_PICOFS (actor[i].ac.startframe + actor[i].ac.viewtype*AC_CURFRAME(actor[i].t_data))
+# define LIGHTRAD_PICOFS (actor[i].ac.startframe + actor[i].ac.viewtype * AC_CURFRAME(actor[i].t_data))
 #endif
 
 // this is the same crap as in game.c's tspr manipulation.  puke.
 // XXX: may access tilesizy out-of-bounds by bad user code.
 #define LIGHTRAD (s->yrepeat * tilesiz[s->picnum + LIGHTRAD_PICOFS].y)
-#define LIGHTRAD2 (((s->yrepeat) + (rand()%(s->yrepeat>>2))) * tilesiz[s->picnum + LIGHTRAD_PICOFS].y)
+#define LIGHTRAD2 (((s->yrepeat) + (rand() % (s->yrepeat >> 2))) * tilesiz[s->picnum + LIGHTRAD_PICOFS].y)
 
 void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
 {
@@ -817,7 +802,7 @@ void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t 
 
     if (actor[srcsprite].lightptr == NULL)
     {
-#pragma pack(push,1)
+#pragma pack(push, 1)
         _prlight mylight;
 #pragma pack(pop)
         Bmemset(&mylight, 0, sizeof(mylight));
@@ -825,10 +810,10 @@ void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t 
         mylight.sector = s->sectnum;
         mylight.x = s->x;
         mylight.y = s->y;
-        mylight.z = s->z-zoffset;
-        mylight.color[0] = color&255;
-        mylight.color[1] = (color>>8)&255;
-        mylight.color[2] = (color>>16)&255;
+        mylight.z = s->z - zoffset;
+        mylight.color[0] = color & 255;
+        mylight.color[1] = (color >> 8) & 255;
+        mylight.color[2] = (color >> 16) & 255;
         mylight.radius = radius;
         actor[srcsprite].lightmaxrange = mylight.range = range;
 
@@ -846,12 +831,11 @@ void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t 
 
     s->z -= zoffset;
 
-    if (range < actor[srcsprite].lightmaxrange>>1)
+    if (range<actor[srcsprite].lightmaxrange>> 1)
         actor[srcsprite].lightmaxrange = 0;
 
-    if (range > actor[srcsprite].lightmaxrange ||
-            priority != actor[srcsprite].lightptr->priority ||
-            Bmemcmp(&sprite[srcsprite], actor[srcsprite].lightptr, sizeof(int32_t) * 3))
+    if (range > actor[srcsprite].lightmaxrange || priority != actor[srcsprite].lightptr->priority ||
+        Bmemcmp(&sprite[srcsprite], actor[srcsprite].lightptr, sizeof(int32_t) * 3))
     {
         if (range > actor[srcsprite].lightmaxrange)
             actor[srcsprite].lightmaxrange = range;
@@ -863,9 +847,9 @@ void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t 
 
     actor[srcsprite].lightptr->priority = priority;
     actor[srcsprite].lightptr->range = range;
-    actor[srcsprite].lightptr->color[0] = color&255;
-    actor[srcsprite].lightptr->color[1] = (color>>8)&255;
-    actor[srcsprite].lightptr->color[2] = (color>>16)&255;
+    actor[srcsprite].lightptr->color[0] = color & 255;
+    actor[srcsprite].lightptr->color[1] = (color >> 8) & 255;
+    actor[srcsprite].lightptr->color[2] = (color >> 16) & 255;
 
     s->z += zoffset;
 
@@ -986,21 +970,19 @@ ACTOR_STATIC void G_MoveZombieActors(void)
 }
 
 // stupid name, but it's what the function does.
-static inline int32_t G_FindExplosionInSector(int32_t sectnum)
+FORCE_INLINE int G_FindExplosionInSector(int sectnum)
 {
-    int32_t i;
-
-    for (SPRITES_OF(STAT_MISC, i))
+    for (int SPRITES_OF(STAT_MISC, i))
         if (PN == EXPLOSION2 && sectnum == SECT)
             return i;
 
     return -1;
 }
 
-static void P_Nudge(int32_t p, int32_t sn, int32_t shl)
+FORCE_INLINE void P_Nudge(int p, int sn, int shl)
 {
-    g_player[p].ps->vel.x += actor[sn].extra*(sintable[(actor[sn].ang+512)&2047])<<shl;
-    g_player[p].ps->vel.y += actor[sn].extra*(sintable[actor[sn].ang&2047])<<shl;
+    g_player[p].ps->vel.x += actor[sn].extra * (sintable[(actor[sn].ang + 512) & 2047]) << shl;
+    g_player[p].ps->vel.y += actor[sn].extra * (sintable[actor[sn].ang & 2047]) << shl;
 }
 
 int32_t A_IncurDamage(int32_t sn)
@@ -1017,9 +999,10 @@ int32_t A_IncurDamage(int32_t sn)
 
     if (targ->picnum == APLAYER)
     {
-        int32_t p = P_GetP(targ);
+        const int p = P_GetP(targ);
 
-        if (ud.god && dmg->picnum != SHRINKSPARK) return -1;
+        if (ud.god && dmg->picnum != SHRINKSPARK)
+            return -1;
 
         if (dmg->owner >= 0 && ud.ffire == 0 && sprite[dmg->owner].picnum == APLAYER &&
             (GametypeFlags[ud.coop] & GAMETYPE_PLAYERSFRIENDLY ||
@@ -1044,30 +1027,31 @@ int32_t A_IncurDamage(int32_t sn)
 
         switch (DYNAMICTILEMAP(dmg->picnum))
         {
-        case RADIUSEXPLOSION__STATIC:
-        case RPG__STATIC:
-        case HYDRENT__STATIC:
-        case HEAVYHBOMB__STATIC:
-        case SEENINE__STATIC:
-        case OOZFILTER__STATIC:
-        case EXPLODINGBARREL__STATIC:
-            P_Nudge(p, sn, 2);
-            break;
-
-        default:
-            if (A_CheckSpriteTileFlags(dmg->picnum, SFLAG_PROJECTILE) && (SpriteProjectile[sn].workslike & PROJECTILE_RPG))
+            case RADIUSEXPLOSION__STATIC:
+            case RPG__STATIC:
+            case HYDRENT__STATIC:
+            case HEAVYHBOMB__STATIC:
+            case SEENINE__STATIC:
+            case OOZFILTER__STATIC:
+            case EXPLODINGBARREL__STATIC:
                 P_Nudge(p, sn, 2);
-            else P_Nudge(p, sn, 1);
-            break;
+                break;
+
+            default:
+                if (A_CheckSpriteTileFlags(dmg->picnum, SFLAG_PROJECTILE) &&
+                    (SpriteProjectile[sn].workslike & PROJECTILE_RPG))
+                    P_Nudge(p, sn, 2);
+                else
+                    P_Nudge(p, sn, 1);
+                break;
         }
 
         dmg->extra = -1;
         return dmg->picnum;
     }
 
-    if (dmg->extra == 0)
-        if (dmg->picnum == SHRINKSPARK && targ->xrepeat < 24)
-            return -1;
+    if (dmg->extra == 0 && dmg->picnum == SHRINKSPARK && targ->xrepeat < 24)
+        return -1;
 
     targ->extra -= dmg->extra;
 
@@ -1075,6 +1059,7 @@ int32_t A_IncurDamage(int32_t sn)
         targ->owner = dmg->owner;
 
     dmg->extra = -1;
+
     return dmg->picnum;
 }
 
@@ -8278,7 +8263,7 @@ void G_MoveWorld(void)
                 }
 
                 pl = A_FindPlayer(&sprite[i], &p);
-                VM_OnEvent_(EVENT_PREGAME, i, pl, p, 0);
+                VM_OnEventWithDist_(EVENT_PREGAME, i, pl, p);
 
                 i = j;
             }
@@ -8330,7 +8315,7 @@ void G_MoveWorld(void)
                 j = nextspritestat[i];
 
                 pl = A_FindPlayer(&sprite[i], &p);
-                VM_OnEvent_(EVENT_GAME, i, pl, p, 0);
+                VM_OnEventWithDist_(EVENT_GAME, i, pl, p);
 
                 i = j;
             }

@@ -3676,7 +3676,7 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (pp->invdisptime > 0) G_DrawInventory(pp);
 
-    if (VM_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek, -1, 0) == 0)
+    if (VM_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek) == 0)
         G_DrawStatusBar(screenpeek);
 
 #ifdef SPLITSCREEN_MOD_HACKS
@@ -3740,13 +3740,13 @@ void G_DisplayRest(int32_t smoothratio)
     if (VM_HaveEvent(EVENT_DISPLAYREST))
     {
         int32_t vr=viewingrange, asp=yxaspect;
-        VM_OnEvent_(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        VM_OnEvent_(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek);
         setaspect(vr, asp);
     }
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
     {
-        int32_t a = VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        int32_t a = VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek);
 
         if (a == 0 || a > 1)
         {
@@ -4010,7 +4010,7 @@ void G_DrawBackground(void)
 
         // when not rendering a game, fullscreen wipe
 //        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
-        bgtile = VM_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1, bgtile);
+        bgtile = VM_OnEventWithReturn(EVENT_GETMENUTILE, -1, myconnectindex, bgtile);
         // MENU_TILE: is the menu tile tileable?
 #if !defined LUNATIC
         if (Gv_GetVarByLabel("MENU_TILE", !fstilep, -1, -1))
@@ -4670,7 +4670,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         dont_draw = 0;
         // NOTE: might be rendering off-screen here, so CON commands that draw stuff
         //  like showview must cope with that situation or bail out!
-        dont_draw = VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        dont_draw = VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek);
 
         CAMERA(horiz) = clamp(CAMERA(horiz), HORIZ_MIN, HORIZ_MAX);
 
@@ -5035,7 +5035,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
         int32_t pl=A_FindPlayer(s, &p);
 
         block_deletesprite++;
-        VM_OnEvent_(EVENT_EGS, i, pl, p, 0);
+        VM_OnEventWithDist_(EVENT_EGS, i, pl, p);
         block_deletesprite--;
     }
 
@@ -7035,7 +7035,7 @@ SPAWN_END:
     {
         int32_t p;
         int32_t pl=A_FindPlayer(&sprite[i],&p);
-        VM_OnEvent_(EVENT_SPAWN,i, pl, p, 0);
+        VM_OnEventWithDist_(EVENT_SPAWN,i, pl, p);
     }
 
     return i;
@@ -7165,7 +7165,7 @@ static void G_DoEventAnimSprites(int32_t j)
 
     spriteext[ow].tspr = &tsprite[j];
     // XXX: wouldn't screenpeek be more meaningful as current player?
-    VM_OnEvent_(EVENT_ANIMATESPRITES, ow, myconnectindex, -1, 0);
+    VM_OnEvent_(EVENT_ANIMATESPRITES, ow, myconnectindex);
     spriteext[ow].tspr = NULL;
 }
 
@@ -8023,7 +8023,7 @@ skip:
     }
 
 #ifdef LUNATIC
-    VM_OnEvent(EVENT_ANIMATEALLSPRITES, -1, -1, -1, 0);
+    VM_OnEvent(EVENT_ANIMATEALLSPRITES, -1, -1);
 #endif
 #ifdef DEBUGGINGAIDS
     g_spriteStat.numonscreen = spritesortcnt;
@@ -8065,7 +8065,7 @@ char CheatStrings[][MAXCHEATLEN] =
 
 static void doinvcheat(int32_t invidx, int32_t defaultnum, int32_t event)
 {
-    defaultnum = VM_OnEvent(event, g_player[myconnectindex].ps->i, myconnectindex, -1, defaultnum);
+    defaultnum = VM_OnEventWithReturn(event, g_player[myconnectindex].ps->i, myconnectindex, defaultnum);
     if (defaultnum >= 0)
         g_player[myconnectindex].ps->inv_amount[invidx] = defaultnum;
 }
@@ -8156,7 +8156,7 @@ GAME_STATIC void G_DoCheats(void)
 
 FOUNDCHEAT:
 
-        i = VM_OnEvent(EVENT_ACTIVATECHEAT, g_player[myconnectindex].ps->i, myconnectindex, -1, k);
+        i = VM_OnEventWithReturn(EVENT_ACTIVATECHEAT, g_player[myconnectindex].ps->i, myconnectindex, k);
         if (k != CHEAT_COMEGETSOME) // Users are not allowed to interfere with TX's debugging cheat.
             k = i;
 
@@ -10603,7 +10603,7 @@ static void G_DisplayLogo(void)
 #ifdef LUNATIC
                 g_elEventError = 0;
 #endif
-                VM_OnEvent(EVENT_LOGO, -1, screenpeek, -1, 0);
+                VM_OnEvent(EVENT_LOGO, -1, screenpeek);
                 G_HandleAsync();
 
                 if (g_restorePalette)
@@ -10755,7 +10755,7 @@ static void G_CompileScripts(void)
     Bmemset(sector, 0, MAXSECTORS*sizeof(sectortype));
     Bmemset(wall, 0, MAXWALLS*sizeof(walltype));
 
-    VM_OnEvent(EVENT_INIT, -1, -1, -1, 0);
+    VM_OnEvent(EVENT_INIT, -1, -1);
     pathsearchmode = psm;
 #endif
 }
@@ -10904,7 +10904,7 @@ static void G_Startup(void)
 #ifdef LUNATIC
     // NOTE: This is only effective for CON-defined EVENT_INIT. See EVENT_INIT
     // not in defs.ilua.
-    VM_OnEvent(EVENT_INIT, -1, -1, -1, 0);
+    VM_OnEvent(EVENT_INIT, -1, -1);
 #endif
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
 
@@ -12827,7 +12827,7 @@ void G_BonusScreen(int32_t bonusonly)
         else
             break;
 
-        VM_OnEvent(EVENT_DISPLAYBONUSSCREEN, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        VM_OnEvent(EVENT_DISPLAYBONUSSCREEN, g_player[screenpeek].ps->i, screenpeek);
         nextpage();
     }
     while (1);

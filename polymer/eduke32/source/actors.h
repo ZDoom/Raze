@@ -326,8 +326,9 @@ int32_t             G_SetInterpolation(int32_t *posptr);
 void                G_StopInterpolation(int32_t *posptr);
 
 // PK 20110701: changed input argument: int32_t i (== sprite, whose sectnum...) --> sectnum directly
-void                Sect_ClearInterpolation(int32_t sectnum);
-void                Sect_SetInterpolation(int32_t sectnum);
+void                Sect_ToggleInterpolation(int sectnum, int doset);
+FORCE_INLINE void   Sect_ClearInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 0); }
+FORCE_INLINE void   Sect_SetInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 1); }
 
 #include "actors_inline.h"
 

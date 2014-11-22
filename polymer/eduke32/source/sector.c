@@ -1802,7 +1802,7 @@ int32_t Sect_DamageCeilingOrFloor(int32_t floorp, int32_t sn)
 
     const int32_t RETURN_in = floorp ? 131072+sn : 65536+sn;
     // NOTE: pass RETURN in the dist argument, too.
-    int32_t ret = VM_OnEvent(EVENT_DAMAGEHPLANE, g_player[screenpeek].ps->i, screenpeek,
+    int32_t ret = VM_OnEventWithBoth(EVENT_DAMAGEHPLANE, g_player[screenpeek].ps->i, screenpeek,
                              RETURN_in, RETURN_in);
 
     if (ret < 0)
@@ -2424,7 +2424,7 @@ void P_HandleSharedKeys(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_QUICK_KICK) && p->quick_kick == 0)
         if (PWEAPON(snum, p->curr_weapon, WorksLike) != KNEE_WEAPON || p->kickback_pic == 0)
         {
-            if (VM_OnEvent(EVENT_QUICKKICK,g_player[snum].ps->i,snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_QUICKKICK,g_player[snum].ps->i,snum) == 0)
             {
                 p->quick_kick = 14;
                 if (p->fta == 0 || p->ftq == 80)
@@ -2467,7 +2467,7 @@ void P_HandleSharedKeys(int32_t snum)
 
         if (TEST_SYNC_KEY(sb_snum, SK_INVENTORY) && p->newowner == -1)	// inventory button generates event for selected item
         {
-            if (VM_OnEvent(EVENT_INVENTORY,g_player[snum].ps->i,snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_INVENTORY,g_player[snum].ps->i,snum) == 0)
             {
                 switch (p->inven_icon)
                 {
@@ -2492,7 +2492,7 @@ void P_HandleSharedKeys(int32_t snum)
 
         if (TEST_SYNC_KEY(sb_snum, SK_NIGHTVISION))
         {
-            if (VM_OnEvent(EVENT_USENIGHTVISION,g_player[snum].ps->i,snum, -1, 0) == 0
+            if (VM_OnEvent(EVENT_USENIGHTVISION,g_player[snum].ps->i,snum) == 0
                     &&  p->inv_amount[GET_HEATS] > 0)
             {
                 p->heat_on = !p->heat_on;
@@ -2505,7 +2505,7 @@ void P_HandleSharedKeys(int32_t snum)
 
         if (TEST_SYNC_KEY(sb_snum, SK_STEROIDS))
         {
-            if (VM_OnEvent(EVENT_USESTEROIDS,g_player[snum].ps->i,snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_USESTEROIDS,g_player[snum].ps->i,snum) == 0)
             {
                 if (p->inv_amount[GET_STEROIDS] == 400)
                 {
@@ -2590,12 +2590,12 @@ CHECKINV1:
             if (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT))   // Inventory_Left
             {
                 /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
-                dainv = VM_OnEvent(EVENT_INVENTORYLEFT,g_player[snum].ps->i,snum, -1, dainv);
+                dainv = VM_OnEventWithReturn(EVENT_INVENTORYLEFT,g_player[snum].ps->i,snum, dainv);
             }
             else if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))   // Inventory_Right
             {
                 /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
-                dainv = VM_OnEvent(EVENT_INVENTORYRIGHT,g_player[snum].ps->i,snum, -1, dainv);
+                dainv = VM_OnEventWithReturn(EVENT_INVENTORYRIGHT,g_player[snum].ps->i,snum, dainv);
             }
 
             if (dainv >= 1)
@@ -2619,13 +2619,13 @@ CHECKINV1:
         case -1:
             break;
         default:
-            j = VM_OnEvent(EVENT_WEAPKEY1+j,p->i,snum, -1, j);
+            j = VM_OnEventWithReturn(EVENT_WEAPKEY1+j,p->i,snum, j);
             break;
         case 10:
-            j = VM_OnEvent(EVENT_PREVIOUSWEAPON,p->i,snum, -1, j);
+            j = VM_OnEventWithReturn(EVENT_PREVIOUSWEAPON,p->i,snum, j);
             break;
         case 11:
-            j = VM_OnEvent(EVENT_NEXTWEAPON,p->i,snum, -1, j);
+            j = VM_OnEventWithReturn(EVENT_NEXTWEAPON,p->i,snum, j);
             break;
         }
 
@@ -2723,7 +2723,7 @@ CHECKINV1:
 
                 P_SetWeaponGamevars(snum, p);
 
-                j = VM_OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1, j);
+                j = VM_OnEventWithReturn(EVENT_SELECTWEAPON,p->i,snum, j);
 
                 // XXX: any signifcance to "<= MAX_WEAPONS" instead of "<"?
                 if ((int32_t)j != -1 && j <= MAX_WEAPONS)
@@ -2817,7 +2817,7 @@ CHECKINV1:
         {
             if (p->holoduke_on == -1)
             {
-                if (VM_OnEvent(EVENT_HOLODUKEON,g_player[snum].ps->i,snum, -1, 0) == 0)
+                if (VM_OnEvent(EVENT_HOLODUKEON,g_player[snum].ps->i,snum) == 0)
                 {
                     if (p->inv_amount[GET_HOLODUKE] > 0)
                     {
@@ -2839,7 +2839,7 @@ CHECKINV1:
             }
             else
             {
-                if (VM_OnEvent(EVENT_HOLODUKEOFF,g_player[snum].ps->i,snum, -1, 0) == 0)
+                if (VM_OnEvent(EVENT_HOLODUKEOFF,g_player[snum].ps->i,snum) == 0)
                 {
                     A_PlaySound(TELEPORTER,p->holoduke_on);
                     p->holoduke_on = -1;
@@ -2850,7 +2850,7 @@ CHECKINV1:
 
         if (TEST_SYNC_KEY(sb_snum, SK_MEDKIT))
         {
-            if (VM_OnEvent(EVENT_USEMEDKIT,g_player[snum].ps->i,snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_USEMEDKIT,g_player[snum].ps->i,snum) == 0)
             {
                 if (p->inv_amount[GET_FIRSTAID] > 0 && sprite[p->i].extra < p->max_player_health)
                 {
@@ -2875,7 +2875,7 @@ CHECKINV1:
 
         if (p->newowner == -1 && TEST_SYNC_KEY(sb_snum, SK_JETPACK))
         {
-            if (VM_OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum) == 0)
             {
                 if (p->inv_amount[GET_JETPACK] > 0)
                 {
@@ -2908,7 +2908,7 @@ CHECKINV1:
         }
 
         if (TEST_SYNC_KEY(sb_snum, SK_TURNAROUND) && p->one_eighty_count == 0)
-            if (VM_OnEvent(EVENT_TURNAROUND,p->i,snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_TURNAROUND,p->i,snum) == 0)
                 p->one_eighty_count = -1024;
     }
 }
@@ -3025,7 +3025,7 @@ void P_CheckSectors(int32_t snum)
 
     if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN))
     {
-        if (VM_OnEvent(EVENT_USE, p->i, snum, -1, 0) != 0)
+        if (VM_OnEvent(EVENT_USE, p->i, snum) != 0)
             g_player[snum].sync->bits &= ~BIT(SK_OPEN);
     }
 

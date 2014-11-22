@@ -52,7 +52,10 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na);
 void G_RestoreMapState();
 void G_SaveMapState();
 
-int32_t VM_OnEvent_(int32_t iEventID,int32_t iActor,int32_t iPlayer,int32_t lDist, int32_t iReturn);
+int32_t VM_OnEventWithBoth_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn);
+int32_t VM_OnEventWithReturn_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t iReturn);
+int32_t VM_OnEventWithDist_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist);
+int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer);
 
 static inline int32_t VM_HaveEvent(int32_t iEventID)
 {
@@ -63,9 +66,24 @@ static inline int32_t VM_HaveEvent(int32_t iEventID)
 #endif
 }
 
-static inline int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
+static inline int32_t VM_OnEventWithBoth(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
-    return VM_HaveEvent(iEventID) ? VM_OnEvent_(iEventID, iActor, iPlayer, lDist, iReturn) : iReturn;
+    return VM_HaveEvent(iEventID) ? VM_OnEventWithBoth_(iEventID, iActor, iPlayer, lDist, iReturn) : iReturn;
+}
+
+static inline int32_t VM_OnEventWithReturn(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t iReturn)
+{
+    return VM_HaveEvent(iEventID) ? VM_OnEventWithReturn_(iEventID, iActor, iPlayer, iReturn) : iReturn;
+}
+
+static inline int32_t VM_OnEventWithDist(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist)
+{
+    return VM_HaveEvent(iEventID) ? VM_OnEventWithDist_(iEventID, iActor, iPlayer, lDist) : 0;
+}
+
+static inline int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer)
+{
+    return VM_HaveEvent(iEventID) ? VM_OnEvent_(iEventID, iActor, iPlayer) : 0;
 }
 
 void VM_ScriptInfo(void);

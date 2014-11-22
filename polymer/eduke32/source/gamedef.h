@@ -76,9 +76,7 @@ extern intptr_t *g_scriptPtr;
 typedef struct
 {
     const char *name;
-    int32_t lId;
-    int32_t flags;
-    int32_t maxParm2;
+    int lId, flags, maxParm2;
 } memberlabel_t;
 
 extern const memberlabel_t SectorLabels[];
@@ -96,10 +94,10 @@ void C_InitQuotes(void);
 void C_InitProjectiles(void);
 
 typedef struct {
-    int32_t g_i, g_p, g_x;
+    int g_i, g_p, g_x;
     int32_t *g_t;
     spritetype *g_sp;
-    int32_t g_flags;
+    int g_flags;
 } vmstate_t;
 
 extern vmstate_t vm;

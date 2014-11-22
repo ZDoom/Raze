@@ -67,7 +67,7 @@ static void P_IncurDamage(DukePlayer_t *p)
 {
     int32_t damage;
 
-    if (VM_OnEvent(EVENT_INCURDAMAGE, p->i, P_Get(p->i), -1, 0) != 0)
+    if (VM_OnEvent(EVENT_INCURDAMAGE, p->i, P_Get(p->i)) != 0)
         return;
 
     sprite[p->i].extra -= p->extra_extra8>>8;
@@ -350,7 +350,7 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
     Gv_SetVar(g_iAimAngleVarID, g_player[p].ps->auto_aim == 3 ? AUTO_AIM_ANGLE<<1 : AUTO_AIM_ANGLE, i, p);
 #endif
 
-    VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
+    VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p);
 
     {
 #ifdef LUNATIC
@@ -472,7 +472,7 @@ static void P_PreFireHitscan(int32_t i, int32_t p, int32_t atwith,
     Gv_SetVar(g_iZRangeVarID,zRange,i,p);
 #endif
 
-    VM_OnEvent(EVENT_GETSHOTRANGE, i, p, -1, 0);
+    VM_OnEvent(EVENT_GETSHOTRANGE, i, p);
 
 #ifdef LUNATIC
     angRange = ps->angrange;
@@ -595,7 +595,7 @@ static int32_t SectorContainsSE13(int32_t sectnum)
 
 // Maybe handle bit 2 (swap wall bottoms).
 // (in that case walltype *hitwal may be stale)
-static void HandleHitWall(hitdata_t *hit)
+static inline void HandleHitWall(hitdata_t *hit)
 {
     const walltype *const hitwal = &wall[hit->wall];
 
@@ -1925,7 +1925,7 @@ static void P_FireWeapon(int32_t snum)
     int32_t i;
     DukePlayer_t *const p = g_player[snum].ps;
 
-    if (VM_OnEvent(EVENT_DOFIRE, p->i, snum, -1, 0) || p->weapon_pos != 0)
+    if (VM_OnEvent(EVENT_DOFIRE, p->i, snum) || p->weapon_pos != 0)
         return;
 
     if (PWEAPON(snum, p->curr_weapon, WorksLike) != KNEE_WEAPON)
@@ -2145,7 +2145,7 @@ void P_DisplayWeapon(int32_t snum)
     hudweap.count=*kb;
     hudweap.lookhalfang=p->look_ang>>1;
 
-    if (VM_OnEvent(EVENT_DISPLAYWEAPON, p->i, screenpeek, -1, 0) == 0)
+    if (VM_OnEvent(EVENT_DISPLAYWEAPON, p->i, screenpeek) == 0)
     {
         j = 14-p->quick_kick;
         if (j != 14 || p->last_quick_kick)
@@ -2194,7 +2194,7 @@ void P_DisplayWeapon(int32_t snum)
             switch (cw)
             {
             case KNEE_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek, -1, 0) || *kb == 0)
+                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek) || *kb == 0)
                     break;
 
                 if (pal == 0)
@@ -2211,7 +2211,7 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case TRIPBOMB_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek, -1, 0))
+                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek))
                     break;
 
                 weapon_xoffset += 8;
@@ -2234,7 +2234,7 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case RPG_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0))
+                if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek))
                     break;
 
                 weapon_xoffset -= sintable[(768 + ((*kb) << 7)) & 2047] >> 11;
@@ -2251,7 +2251,7 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case SHOTGUN_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek, -1, 0))
+                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek))
                     break;
 
                 weapon_xoffset -= 8;
@@ -2324,7 +2324,7 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case CHAINGUN_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek, -1, 0))
+                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek))
                     break;
 
                 if (*kb > 0)
@@ -2374,7 +2374,7 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case PISTOL_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0))
+                if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek))
                     break;
 
                 if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, TotalTime)+1)
@@ -2416,7 +2416,7 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case HANDBOMB_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek, -1, 0))
+                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek))
                     break;
                 else
                 {
@@ -2443,7 +2443,7 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case HANDREMOTE_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0))
+                if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek))
                     break;
                 else
                 {
@@ -2459,7 +2459,7 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case DEVISTATOR_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek, -1, 0))
+                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek))
                     break;
 
                 if ((*kb) < (PWEAPON(screenpeek, DEVISTATOR_WEAPON, TotalTime) + 1) && (*kb) > 0)
@@ -2498,7 +2498,7 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case FREEZE_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0))
+                if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek))
                     break;
 
                 if ((*kb) < (PWEAPON(snum, p->curr_weapon, TotalTime)+1) && (*kb) > 0)
@@ -2523,7 +2523,7 @@ void P_DisplayWeapon(int32_t snum)
 
             case GROW_WEAPON:
             case SHRINKER_WEAPON:
-                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek, -1, 0))
+                if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek))
                     break;
 
                 weapon_xoffset += 28;
@@ -3087,7 +3087,7 @@ static void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
         return;
 
     if (p->curr_weapon != weapon && VM_HaveEvent(EVENT_CHANGEWEAPON))
-        i = VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, weapon);
+        i = VM_OnEventWithReturn(EVENT_CHANGEWEAPON,p->i, snum, weapon);
 
     if (i == -1)
         return;
@@ -3216,7 +3216,7 @@ static void DoWallTouchDamage(const DukePlayer_t *p, int32_t obj)
 
 static void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
 {
-    if ((obj = VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, P_Get(p->i), -1, obj)) == -1)
+    if ((obj = VM_OnEventWithReturn(EVENT_CHECKTOUCHDAMAGE, p->i, P_Get(p->i), obj)) == -1)
         return;
 
     if ((obj&49152) == 49152)
@@ -3277,7 +3277,7 @@ static int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t tex)
 {
     spritetype *s = &sprite[p->i];
 
-    if ((unsigned)(tex = VM_OnEvent(EVENT_CHECKFLOORDAMAGE, p->i, P_Get(p->i), -1, tex)) >= MAXTILES)
+    if ((unsigned)(tex = VM_OnEventWithReturn(EVENT_CHECKFLOORDAMAGE, p->i, P_Get(p->i), tex)) >= MAXTILES)
         return 0;
 
     switch (DYNAMICTILEMAP(tex))
@@ -3506,7 +3506,7 @@ static void P_ProcessWeapon(int32_t snum)
     {
         P_SetWeaponGamevars(snum, p);
         
-        if (VM_OnEvent(EVENT_PRESSEDFIRE, p->i, snum, -1, 0) != 0)
+        if (VM_OnEvent(EVENT_PRESSEDFIRE, p->i, snum) != 0)
             sb_snum &= ~BIT(SK_FIRE);
     }
 
@@ -3514,7 +3514,7 @@ static void P_ProcessWeapon(int32_t snum)
     {
         P_SetWeaponGamevars(snum, p);
         
-        if (VM_OnEvent(EVENT_HOLSTER, p->i, snum, -1, 0) == 0)
+        if (VM_OnEvent(EVENT_HOLSTER, p->i, snum) == 0)
         {
             if (PWEAPON(snum, p->curr_weapon, WorksLike) != KNEE_WEAPON)
             {
@@ -3616,10 +3616,10 @@ static void P_ProcessWeapon(int32_t snum)
         {
             P_SetWeaponGamevars(snum, p);
 
-            if (VM_OnEvent(EVENT_FIRE, p->i, snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_FIRE, p->i, snum) == 0)
             {
                 // this event is deprecated
-                VM_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1, 0);
+                VM_OnEvent(EVENT_FIREWEAPON, p->i, snum);
 
                 switch (PWEAPON(snum, p->curr_weapon, WorksLike))
                 {
@@ -4119,7 +4119,7 @@ void P_ProcessInput(int32_t snum)
 
     p->player_par++;
 
-    VM_OnEvent(EVENT_PROCESSINPUT, p->i, snum, -1, 0);
+    VM_OnEvent(EVENT_PROCESSINPUT, p->i, snum);
 
     if (p->cheat_phase > 0) sb_snum = 0;
 
@@ -4371,7 +4371,7 @@ void P_ProcessInput(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_LOOK_LEFT))
     {
         // look_left
-        if (VM_OnEvent(EVENT_LOOKLEFT,p->i,snum, -1, 0) == 0)
+        if (VM_OnEvent(EVENT_LOOKLEFT,p->i,snum) == 0)
         {
             p->look_ang -= 152;
             p->rotscrnang += 24;
@@ -4381,7 +4381,7 @@ void P_ProcessInput(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_LOOK_RIGHT))
     {
         // look_right
-        if (VM_OnEvent(EVENT_LOOKRIGHT,p->i,snum, -1, 0) == 0)
+        if (VM_OnEvent(EVENT_LOOKRIGHT,p->i,snum) == 0)
         {
             p->look_ang += 152;
             p->rotscrnang -= 24;
@@ -4452,7 +4452,7 @@ void P_ProcessInput(int32_t snum)
 
         if (TEST_SYNC_KEY(sb_snum, SK_JUMP))
         {
-            if (VM_OnEvent(EVENT_SWIMUP,p->i,snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_SWIMUP,p->i,snum) == 0)
             {
                 // jump
                 if (p->vel.z > 0) p->vel.z = 0;
@@ -4462,7 +4462,7 @@ void P_ProcessInput(int32_t snum)
         }
         else if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))
         {
-            if (VM_OnEvent(EVENT_SWIMDOWN,p->i,snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_SWIMDOWN,p->i,snum) == 0)
             {
                 // crouch
                 if (p->vel.z < 0) p->vel.z = 0;
@@ -4538,7 +4538,7 @@ void P_ProcessInput(int32_t snum)
         if (TEST_SYNC_KEY(sb_snum, SK_JUMP))         //A (soar high)
         {
             // jump
-            if (VM_OnEvent(EVENT_SOARUP,p->i,snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_SOARUP,p->i,snum) == 0)
             {
                 p->pos.z -= j;
                 p->crack_time = 777;
@@ -4548,7 +4548,7 @@ void P_ProcessInput(int32_t snum)
         if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))   //Z (soar low)
         {
             // crouch
-            if (VM_OnEvent(EVENT_SOARDOWN,p->i,snum, -1, 0) == 0)
+            if (VM_OnEvent(EVENT_SOARDOWN,p->i,snum) == 0)
             {
                 p->pos.z += j;
                 p->crack_time = 777;
@@ -4735,7 +4735,7 @@ void P_ProcessInput(int32_t snum)
             if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))
             {
                 // crouching
-                if (VM_OnEvent(EVENT_CROUCH,p->i,snum, -1, 0) == 0)
+                if (VM_OnEvent(EVENT_CROUCH,p->i,snum) == 0)
                 {
                     p->pos.z += (2048+768);
                     p->crack_time = 777;
@@ -4750,7 +4750,7 @@ void P_ProcessInput(int32_t snum)
                 if (p->jumping_counter == 0)
                     if ((fz-cz) > (56<<8))
                     {
-                        if (VM_OnEvent(EVENT_JUMP,p->i,snum, -1, 0) == 0)
+                        if (VM_OnEvent(EVENT_JUMP,p->i,snum) == 0)
                         {
                             p->jumping_counter = 1;
                             p->jumping_toggle = 1;
@@ -4856,22 +4856,22 @@ void P_ProcessInput(int32_t snum)
     }
 
     if (g_player[snum].sync->extbits&(1))
-        VM_OnEvent(EVENT_MOVEFORWARD,p->i,snum, -1, 0);
+        VM_OnEvent(EVENT_MOVEFORWARD,p->i,snum);
 
     if (g_player[snum].sync->extbits&(1<<1))
-        VM_OnEvent(EVENT_MOVEBACKWARD,p->i,snum, -1, 0);
+        VM_OnEvent(EVENT_MOVEBACKWARD,p->i,snum);
 
     if (g_player[snum].sync->extbits&(1<<2))
-        VM_OnEvent(EVENT_STRAFELEFT,p->i,snum, -1, 0);
+        VM_OnEvent(EVENT_STRAFELEFT,p->i,snum);
 
     if (g_player[snum].sync->extbits&(1<<3))
-        VM_OnEvent(EVENT_STRAFERIGHT,p->i,snum, -1, 0);
+        VM_OnEvent(EVENT_STRAFERIGHT,p->i,snum);
 
     if (g_player[snum].sync->extbits&(1<<4) || g_player[snum].sync->avel < 0)
-        VM_OnEvent(EVENT_TURNLEFT,p->i,snum, -1, 0);
+        VM_OnEvent(EVENT_TURNLEFT,p->i,snum);
 
     if (g_player[snum].sync->extbits&(1<<5) || g_player[snum].sync->avel > 0)
-        VM_OnEvent(EVENT_TURNRIGHT,p->i,snum, -1, 0);
+        VM_OnEvent(EVENT_TURNRIGHT,p->i,snum);
 
     if (p->vel.x || p->vel.y || g_player[snum].sync->fvel || g_player[snum].sync->svel)
     {
@@ -5056,12 +5056,12 @@ HORIZONLY:
 
     i = 0;
     if (TEST_SYNC_KEY(sb_snum, SK_CENTER_VIEW) || p->hard_landing)
-        if (VM_OnEvent(EVENT_RETURNTOCENTER,p->i,snum, -1, 0) == 0)
+        if (VM_OnEvent(EVENT_RETURNTOCENTER,p->i,snum) == 0)
             p->return_to_center = 9;
 
     if (TEST_SYNC_KEY(sb_snum, SK_LOOK_UP))
     {
-        if (VM_OnEvent(EVENT_LOOKUP,p->i,snum, -1, 0) == 0)
+        if (VM_OnEvent(EVENT_LOOKUP,p->i,snum) == 0)
         {
             p->return_to_center = 9;
             if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz += 12;
@@ -5072,7 +5072,7 @@ HORIZONLY:
 
     if (TEST_SYNC_KEY(sb_snum, SK_LOOK_DOWN))
     {
-        if (VM_OnEvent(EVENT_LOOKDOWN,p->i,snum, -1, 0) == 0)
+        if (VM_OnEvent(EVENT_LOOKDOWN,p->i,snum) == 0)
         {
             p->return_to_center = 9;
             if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz -= 12;
@@ -5083,7 +5083,7 @@ HORIZONLY:
 
     if (TEST_SYNC_KEY(sb_snum, SK_AIM_UP))
     {
-        if (VM_OnEvent(EVENT_AIMUP,p->i,snum, -1, 0) == 0)
+        if (VM_OnEvent(EVENT_AIMUP,p->i,snum) == 0)
         {
             if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz += 6;
             p->horiz += 6;
@@ -5093,7 +5093,7 @@ HORIZONLY:
 
     if (TEST_SYNC_KEY(sb_snum, SK_AIM_DOWN))
     {
-        if (VM_OnEvent(EVENT_AIMDOWN,p->i,snum, -1, 0) == 0)
+        if (VM_OnEvent(EVENT_AIMDOWN,p->i,snum) == 0)
         {
             if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz -= 6;
             p->horiz -= 6;

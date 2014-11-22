@@ -108,16 +108,16 @@ void __fastcall Gv_SetVarX(int32_t id, int32_t lValue);
 int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t lDefault,int32_t iActor,int32_t iPlayer);
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
-static inline void A_ResetVars(int32_t iActor)
-{
-    int32_t i;
 
-    for (i=0; i<g_gameVarCount; i++)
+static inline void A_ResetVars(const int32_t iActor)
+{
+    for (int i = 0; i < g_gameVarCount; i++)
     {
-        if ((aGameVars[i].dwFlags & (GAMEVAR_PERACTOR|GAMEVAR_NODEFAULT)) == GAMEVAR_PERACTOR)
-            aGameVars[i].val.plValues[iActor]=aGameVars[i].lDefault;
+        if ((aGameVars[i].dwFlags & (GAMEVAR_PERACTOR | GAMEVAR_NODEFAULT)) == GAMEVAR_PERACTOR)
+            aGameVars[i].val.plValues[iActor] = aGameVars[i].lDefault;
     }
 }
+
 void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
@@ -134,30 +134,30 @@ void Gv_Init(void);
 void Gv_FinalizeWeaponDefaults(void);
 
 #if !defined LUNATIC
-#define VM_GAMEVAR_OPERATOR(func, operator)                                                                       \
-    static inline void __fastcall func(int32_t id, int32_t lValue)                                                \
-    {                                                                                                             \
-        switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))                                   \
-        {                                                                                                         \
-            default: aGameVars[id].val.lValue operator lValue; break;                                             \
-            case GAMEVAR_PERPLAYER:                                                                               \
-                if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_p > MAXPLAYERS - 1))                                     \
-                    break;                                                                                        \
-                aGameVars[id].val.plValues[vm.g_p] operator lValue;                                               \
-                break;                                                                                            \
-            case GAMEVAR_PERACTOR:                                                                                \
-                if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_i > MAXSPRITES - 1))                                     \
-                    break;                                                                                        \
-                aGameVars[id].val.plValues[vm.g_i] operator lValue;                                               \
-                break;                                                                                            \
-            case GAMEVAR_INTPTR: *((int32_t *)aGameVars[id].val.lValue) operator(int32_t) lValue; break;          \
-            case GAMEVAR_SHORTPTR: *((int16_t *)aGameVars[id].val.lValue) operator(int16_t) lValue; break;        \
-            case GAMEVAR_CHARPTR: *((uint8_t *)aGameVars[id].val.lValue) operator(uint8_t) lValue; break;         \
-        }                                                                                                         \
+#define VM_GAMEVAR_OPERATOR(func, operator)                                                                            \
+    static inline void __fastcall func(const int32_t id, const int32_t lValue)                                         \
+    {                                                                                                                  \
+        switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))                                        \
+        {                                                                                                              \
+            default: aGameVars[id].val.lValue operator lValue; break;                                                  \
+            case GAMEVAR_PERPLAYER:                                                                                    \
+                if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_p > MAXPLAYERS - 1))                                          \
+                    break;                                                                                             \
+                aGameVars[id].val.plValues[vm.g_p] operator lValue;                                                    \
+                break;                                                                                                 \
+            case GAMEVAR_PERACTOR:                                                                                     \
+                if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_i > MAXSPRITES - 1))                                          \
+                    break;                                                                                             \
+                aGameVars[id].val.plValues[vm.g_i] operator lValue;                                                    \
+                break;                                                                                                 \
+            case GAMEVAR_INTPTR: *((int32_t *)aGameVars[id].val.lValue) operator (int32_t) lValue; break;              \
+            case GAMEVAR_SHORTPTR: *((int16_t *)aGameVars[id].val.lValue) operator (int16_t) lValue; break;            \
+            case GAMEVAR_CHARPTR: *((uint8_t *)aGameVars[id].val.lValue) operator (uint8_t) lValue; break;             \
+        }                                                                                                              \
     }
 
 #if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
-static inline void __fastcall Gv_DivVar(int32_t id, int32_t lValue)
+static inline void __fastcall Gv_DivVar(const int32_t id, const int32_t lValue)
 {
     static libdivide_s32_t sdiv;
     static int32_t lastlValue;

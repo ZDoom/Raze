@@ -334,7 +334,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
 
     if (ud.recstat != 2)
     {
-        j = VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1, LOADSCREEN);
+        j = VM_OnEventWithReturn(EVENT_GETLOADTILE, -1, myconnectindex, LOADSCREEN);
 
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
@@ -383,7 +383,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
             rotatesprite(158<<16,144<<16,65536,0,929,0,0,2+8+16,0,0,ii,ydim-1);
         }
 
-        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek);
         nextpage();
 
         if (!statustext)
@@ -403,7 +403,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
         /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
 
-        j = VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1, LOADSCREEN);
+        j = VM_OnEventWithReturn(EVENT_GETLOADTILE, -1, myconnectindex, LOADSCREEN);
 
         if ((uint32_t)j < 2*MAXTILES)
         {
@@ -418,7 +418,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
 
         menutext(160,105,0,0,"Loading...");
         if (statustext) gametext(160,180,statustext,0,2+8+16);
-        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek);
         nextpage();
     }
 }
@@ -718,7 +718,7 @@ void P_ResetPlayer(int32_t snum)
 
     pl->movement_lock = 0;
 
-    VM_OnEvent(EVENT_RESETPLAYER, pl->i, snum, -1, 0);
+    VM_OnEvent(EVENT_RESETPLAYER, pl->i, snum);
 }
 
 void P_ResetStatus(int32_t snum)
@@ -827,7 +827,7 @@ void P_ResetStatus(int32_t snum)
     p->frag_ps          = snum;
 
     P_UpdateScreenPal(p);
-    VM_OnEvent(EVENT_RESETPLAYER, p->i, snum, -1, 0);
+    VM_OnEvent(EVENT_RESETPLAYER, p->i, snum);
 }
 
 void P_ResetWeapons(int32_t snum)
@@ -848,7 +848,7 @@ void P_ResetWeapons(int32_t snum)
     p->show_empty_weapon= 0;
     p->last_pissed_time = 0;
     p->holster_weapon = 0;
-    VM_OnEvent(EVENT_RESETWEAPONS, p->i, snum, -1, 0);
+    VM_OnEvent(EVENT_RESETWEAPONS, p->i, snum);
 }
 
 void P_ResetInventory(int32_t snum)
@@ -863,7 +863,7 @@ void P_ResetInventory(int32_t snum)
     p->holoduke_on = -1;
     p->inv_amount[GET_SHIELD] =      g_startArmorAmount;
     p->inven_icon = ICON_NONE;
-    VM_OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1, 0);
+    VM_OnEvent(EVENT_RESETINVENTORY, p->i, snum);
 }
 
 static void resetprestat(int32_t snum,int32_t g)
@@ -1064,7 +1064,7 @@ static void prelevel(char g)
 #if !defined LUNATIC
         A_LoadActor(i);
 #endif
-        VM_OnEvent(EVENT_LOADACTOR, i, -1, -1, 0);
+        VM_OnEvent(EVENT_LOADACTOR, i, -1);
         if (G_CheckExitSprite(i))
         {
             g_player[0].ps->exitx = SX;
@@ -1447,7 +1447,7 @@ end_vol4a:
     El_CreateGameState();
     G_PostCreateGameState();
 #endif
-    VM_OnEvent(EVENT_NEWGAME, g_player[myconnectindex].ps->i, myconnectindex, -1, 0);
+    VM_OnEvent(EVENT_NEWGAME, g_player[myconnectindex].ps->i, myconnectindex);
 }
 
 static void resetpspritevars(char g)
@@ -1978,7 +1978,7 @@ int32_t G_EnterLevel(int32_t g)
     // variables are set by pointer...
 
     Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
-    VM_OnEvent(EVENT_ENTERLEVEL, -1, -1, -1, 0);
+    VM_OnEvent(EVENT_ENTERLEVEL, -1, -1);
     OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
                MapInfo[mii].name);
 
