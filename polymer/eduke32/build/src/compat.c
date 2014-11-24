@@ -12,22 +12,12 @@
  *    names.
  */
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-//#define _WIN32_IE 0x0400
-#define _WIN32_WINNT 0x0501
-#include <windows.h>
-#include <shlobj.h>
-#include <direct.h>
-#endif
+#include "compat.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/types.h>
-// #include <sys/stat.h>
-#include <limits.h>
+#ifdef _WIN32
+# include <shlobj.h>
+# include <direct.h>
+#endif
 
 #if defined(_MSC_VER)
 # include <io.h>
@@ -35,7 +25,6 @@
 # include <dirent.h>
 #endif
 
-#include "compat.h"
 #include "baselayer.h"
 
 ////////// PANICKING ALLOCATION FUNCTIONS //////////
