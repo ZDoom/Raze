@@ -5,31 +5,14 @@
 #ifndef compat_h_
 #define compat_h_
 
-#include <malloc.h>
-
-#ifdef _WIN32
-# define WIN32_LEAN_AND_MEAN
-# include <windows.h>
-#endif
-
-#ifdef __APPLE__
-# include <TargetConditionals.h>
-# if !TARGET_OS_IPHONE
-#  if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
-#   include <CoreFoundation/CoreFoundation.h>
-#  endif
-#  include <CoreServices/CoreServices.h>
-# endif
-#endif
-
 #ifdef __GNUC__
-# define EDUKE32_GCC_PREREQ(major, minor) (major > __GNUC__ || (major == __GNUC__ && minor >= __GNUC_MINOR__))
+# define EDUKE32_GCC_PREREQ(major, minor) (major < __GNUC__ || (major == __GNUC__ && minor <= __GNUC_MINOR__))
 #else
 # define EDUKE32_GCC_PREREQ(major, minor) 0
 #endif
 
 #ifdef __clang__
-# define EDUKE32_CLANG_PREREQ(major, minor) (major > __clang_major__ || (major == __clang_major__ && minor >= __clang_minor__))
+# define EDUKE32_CLANG_PREREQ(major, minor) (major < __clang_major__ || (major == __clang_major__ && minor <= __clang_minor__))
 #else
 # define EDUKE32_CLANG_PREREQ(major, minor) 0
 #endif
@@ -84,13 +67,34 @@
 #define max(x,y) ((x) > (y) ? (x) : (y))
 #endif
 
+#ifndef __APPLE__
+# include <malloc.h>
+#endif
+
+#ifdef _WIN32
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+#endif
+
+#ifdef __APPLE__
+# include <TargetConditionals.h>
+# if !TARGET_OS_IPHONE
+#  if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
+#   include <CoreFoundation/CoreFoundation.h>
+#  endif
+#  include <CoreServices/CoreServices.h>
+# endif
+#endif
+
 // This gives us access to 'intptr_t' and 'uintptr_t', which are
 // abstractions to the size of a pointer on a given platform
 // (ie, they're guaranteed to be the same size as a pointer)
 
 #undef __USE_MINGW_ANSI_STDIO // Workaround for MinGW-w64.
 
+#ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
+#endif
 #ifndef __STDC_LIMIT_MACROS
 # define __STDC_LIMIT_MACROS
 #endif
@@ -615,7 +619,6 @@ FORCE_INLINE uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7fff
 #  define Bchdir chdir
 #  define Bgetcwd getcwd
 # endif
-# define Bmemalign memalign
 # define Bopen open
 # define Bclose close
 # define Bwrite write
@@ -846,6 +849,9 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 {
 #ifdef _WIN32
     void *ptr = _aligned_malloc(size, alignment);
+#elif defined __APPLE__
+    void *ptr = NULL;
+    posix_memalign(&ptr, alignment, size);
 #else
     void *ptr = memalign(alignment, size);
 #endif

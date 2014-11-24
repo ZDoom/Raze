@@ -268,7 +268,7 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
     OPTIMIZATIONS += $(DEBUGFLAG)
 endif
 
-CONLYFLAGS=-std=gnu99 -Wimplicit 
+CONLYFLAGS=-std=gnu99 -Wimplicit -Werror-implicit-function-declaration
 CPPONLYFLAGS= -fno-exceptions -fno-rtti -Wno-write-strings
 ASFORMAT=elf$(SYSBITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
@@ -510,7 +510,7 @@ ifeq (0,$(CLANG))
     endif
 endif
 
-CWARNS := -W -Wall -Werror-implicit-function-declaration \
+CWARNS := -W -Wall \
     -Wpointer-arith \
     -Wextra \
     -Wno-char-subscripts \

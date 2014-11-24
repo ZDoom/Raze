@@ -111,7 +111,8 @@ int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 
 static inline void A_ResetVars(const int32_t iActor)
 {
-    for (int i = 0; i < g_gameVarCount; i++)
+    int i;
+    for (i = 0; i < g_gameVarCount; i++)
     {
         if ((aGameVars[i].dwFlags & (GAMEVAR_PERACTOR | GAMEVAR_NODEFAULT)) == GAMEVAR_PERACTOR)
             aGameVars[i].val.plValues[iActor] = aGameVars[i].lDefault;
