@@ -4990,7 +4990,7 @@ void M_DisplayMenus(void)
         m_mouselastactivity = -M_MOUSETIMEOUT;
 
     if (totalclock - m_mouselastactivity < M_MOUSETIMEOUT)
-        rotatesprite_win(m_mousepos.x,m_mousepos.y,65536,0,CROSSHAIR,0,CROSSHAIR_PAL,2|1);
+        rotatesprite_fs(m_mousepos.x,m_mousepos.y,65536,0,CROSSHAIR,0,CROSSHAIR_PAL,2|1);
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)
     {
