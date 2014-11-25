@@ -104,7 +104,7 @@ void VM_ScriptInfo(void)
     }
 
     if (vm.g_i)
-        initprintf_nowarn("current actor: %d (%d)\n",vm.g_i,TrackerCast(vm.g_sp->picnum));
+        initprintf("current actor: %d (%d)\n",vm.g_i,TrackerCast(vm.g_sp->picnum));
 
     initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
 #endif
@@ -501,7 +501,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t movflags)
 
     {
         AC_MOVE_ID(vm.g_t) = 0;
-        OSD_Printf_nowarn(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, TrackerCast(vm.g_sp->picnum));
+        OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, TrackerCast(vm.g_sp->picnum));
         return;
     }
 
@@ -689,7 +689,7 @@ dead:
     if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.g_t) >= (unsigned)g_scriptSize-1))
     {
         AC_MOVE_ID(vm.g_t) = 0;
-        OSD_Printf_nowarn(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, TrackerCast(vm.g_sp->picnum));
+        OSD_Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, TrackerCast(vm.g_sp->picnum));
         return;
     }
 
@@ -4445,7 +4445,7 @@ finish_qsprintf:
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)j >= (unsigned)g_gameArrayCount || (unsigned)index >= (unsigned)aGameArrays[j].size))
                 {
-                    OSD_Printf_nowarn(OSD_ERROR "Gv_SetVar(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",
+                    OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",
                         j,vm.g_i,TrackerCast(sprite[vm.g_i].picnum),vm.g_p);
                     continue;
                 }

@@ -580,12 +580,6 @@ int32_t map_undoredo(int32_t dir)
 //#define CCHKPREF OSDTEXT_RED "^O"
 #define CCHK_CORRECTED OSDTEXT_GREEN " -> "
 
-#ifdef _MSC_VER
-# define OSD_Printf_CChk OSD_Printf
-#else
-# define OSD_Printf_CChk OSD_Printf_nowarn
-#endif
-
 #define CORRUPTCHK_PRINT(errlev, what, fmt, ...) do  \
 { \
     bad = max(bad, errlev); \
@@ -593,7 +587,7 @@ int32_t map_undoredo(int32_t dir)
         goto too_many_errors; \
     corruptthings[numcorruptthings++] = (what); \
     if (errlev >= printfromlev) \
-        OSD_Printf_CChk("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
+        OSD_Printf("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
 } while (0)
 
 #ifdef YAX_ENABLE

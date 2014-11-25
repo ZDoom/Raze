@@ -10401,13 +10401,13 @@ static void check_sprite(int32_t i)
 {
     if ((unsigned)sprite[i].statnum >= MAXSTATUS)
     {
-        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d) REMOVED.\n",
+        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d) REMOVED.\n",
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].statnum));
         remove_sprite(i);
     }
     else if ((unsigned)sprite[i].picnum >= MAXTILES)
     {
-        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d) REMOVED.\n",
+        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d) REMOVED.\n",
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].sectnum));
         remove_sprite(i);
     }
@@ -10421,13 +10421,13 @@ static void check_sprite(int32_t i)
         if (sprite[i].sectnum < 0)
             remove_sprite(i);
 
-        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d) ",
+        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d) ",
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), osectnum);
 
         if (sprite[i].statnum != MAXSTATUS)
-            initprintf_nowarn("changed to sector %d.\n", TrackerCast(sprite[i].sectnum));
+            initprintf("changed to sector %d.\n", TrackerCast(sprite[i].sectnum));
         else
-            initprintf_nowarn("REMOVED.\n");
+            initprintf("REMOVED.\n");
     }
 }
 
@@ -11188,14 +11188,14 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
     {
         if ((unsigned)sprite[j].statnum > MAXSTATUS)
         {
-            initprintf_nowarn("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",
+            initprintf("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",
                        j,TrackerCast(sprite[j].x),TrackerCast(sprite[j].y),TrackerCast(sprite[j].statnum));
             changespritestat(j,0);
         }
 
         if ((unsigned)sprite[j].sectnum > MAXSECTORS)
         {
-            initprintf_nowarn("Map error: sprite #%d(%d,%d) with an illegal sectnum(%d)\n",
+            initprintf("Map error: sprite #%d(%d,%d) with an illegal sectnum(%d)\n",
                        j,TrackerCast(sprite[j].x),TrackerCast(sprite[j].y),TrackerCast(sprite[j].sectnum));
             changespritesect(j,0);
         }

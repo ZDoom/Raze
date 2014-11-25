@@ -713,9 +713,9 @@ const char *ExtGetSectorCaption(int16_t sectnum)
     {
         Bstrcpy(lo, ExtGetSectorType(sector[sectnum].lotag));
         if (!in3dmode())
-            Bsprintf_nowarn(tempbuf,"%hu,%hu %s", TrackerCast(sector[sectnum].hitag), TrackerCast(sector[sectnum].lotag), lo);
+            Bsprintf(tempbuf,"%hu,%hu %s", TrackerCast(sector[sectnum].hitag), TrackerCast(sector[sectnum].lotag), lo);
         else
-            Bsprintf_nowarn(tempbuf,"%hu %s", TrackerCast(sector[sectnum].lotag), lo);
+            Bsprintf(tempbuf,"%hu %s", TrackerCast(sector[sectnum].lotag), lo);
     }
     return(tempbuf);
 }
@@ -925,7 +925,7 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
 
             SpriteName(spritenum,lo);
             if (sprite[spritenum].extra != -1)
-                Bsprintf_nowarn(tempbuf,"%s,%s,%d %s", histr, lostr, TrackerCast(sprite[spritenum].extra), lo);
+                Bsprintf(tempbuf,"%s,%s,%d %s", histr, lostr, TrackerCast(sprite[spritenum].extra), lo);
             else
                 Bsprintf(tempbuf,"%s,%s %s", histr, lostr, lo);
         }
@@ -3953,7 +3953,7 @@ ENDFOR1:
         ExtCheckKeys();
 
         printmessage256(0,0,"^251Text entry mode.^31 Navigation keys change vars.");
-        Bsprintf_nowarn(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
+        Bsprintf(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
                  hgap, vgap, spcgap[alphidx], TrackerCast(sprite[linebegspr].shade), TrackerCast(sprite[linebegspr].pal));
         printmessage256(0, 9, buffer);
         showframe(1);
@@ -4330,10 +4330,10 @@ static void Keys3d(void)
                     height3 = sector[nextsect].ceilingz - sector[searchsector].ceilingz;
                 }
 
-                Bsprintf_nowarn(lines[num++],"Panning:%s %d, %d", swappedbot?"^242":"",
+                Bsprintf(lines[num++],"Panning:%s %d, %d", swappedbot?"^242":"",
                                 TrackerCast(wall[w].xpanning), TrackerCast(wall[w].ypanning));
-                Bsprintf_nowarn(lines[num++],"Repeat:  %d, %d", TrackerCast(wall[searchwall].xrepeat), TrackerCast(wall[searchwall].yrepeat));
-                Bsprintf_nowarn(lines[num++],"Overpic: %d", TrackerCast(wall[searchwall].overpicnum));
+                Bsprintf(lines[num++],"Repeat:  %d, %d", TrackerCast(wall[searchwall].xrepeat), TrackerCast(wall[searchwall].yrepeat));
+                Bsprintf(lines[num++],"Overpic: %d", TrackerCast(wall[searchwall].overpicnum));
                 lines[num++][0]=0;
 
                 if (getmessageleng)
@@ -4376,7 +4376,7 @@ static void Keys3d(void)
                     break;
 
                 Bsprintf(lines[num++],"^251Sector %d^31 %s, Lotag:%s", searchsector, typestr[searchstat], ExtGetSectorCaption(searchsector));
-                Bsprintf_nowarn(lines[num++],"Height: %d, Visibility:%d", height2, TrackerCast(sector[searchsector].visibility));
+                Bsprintf(lines[num++],"Height: %d, Visibility:%d", height2, TrackerCast(sector[searchsector].visibility));
                 break;
 
             case SEARCH_SPRITE:
@@ -4384,12 +4384,12 @@ static void Keys3d(void)
                              sprite[searchwall].pal, sprite[searchwall].cstat, sprite[searchwall].lotag,
                              sprite[searchwall].hitag, sprite[searchwall].extra,0);
 
-                Bsprintf_nowarn(lines[num++], "Repeat:  %d,%d",
+                Bsprintf(lines[num++], "Repeat:  %d,%d",
                     TrackerCast(sprite[searchwall].xrepeat), TrackerCast(sprite[searchwall].yrepeat));
-                Bsprintf_nowarn(lines[num++], "PosXY:   %d,%d%s",
+                Bsprintf(lines[num++], "PosXY:   %d,%d%s",
                     TrackerCast(sprite[searchwall].x), TrackerCast(sprite[searchwall].y),
                          sprite[searchwall].xoffset|sprite[searchwall].yoffset ? " ^251*":"");
-                Bsprintf_nowarn(lines[num++], "PosZ: ""   %d", TrackerCast(sprite[searchwall].z));// prevents tab character
+                Bsprintf(lines[num++], "PosZ: ""   %d", TrackerCast(sprite[searchwall].z));// prevents tab character
                 lines[num++][0]=0;
 
                 if (getmessageleng)
@@ -4403,9 +4403,9 @@ static void Keys3d(void)
                     if (sprite[searchwall].picnum==SECTOREFFECTOR)
                         Bsprintf(lines[num++],"^251Sprite %d^31 %s", searchwall, SectorEffectorText(searchwall));
                     else
-                        Bsprintf_nowarn(lines[num++],"^251Sprite %d^31 %s", searchwall, names[sprite[searchwall].picnum]);
+                        Bsprintf(lines[num++],"^251Sprite %d^31 %s", searchwall, names[sprite[searchwall].picnum]);
                 }
-                else Bsprintf_nowarn(lines[num++],"^251Sprite %d^31, picnum %d", searchwall, TrackerCast(sprite[searchwall].picnum));
+                else Bsprintf(lines[num++],"^251Sprite %d^31, picnum %d", searchwall, TrackerCast(sprite[searchwall].picnum));
 
                 Bsprintf(lines[num++], "Elevation:%d",
                          getflorzofslope(searchsector, sprite[searchwall].x, sprite[searchwall].y) - sprite[searchwall].z);
@@ -4527,7 +4527,7 @@ static void Keys3d(void)
 #else
             wall[searchwall].cstat &= YAX_NEXTWALLBITS;
 #endif
-            message_nowarn("Wall %d cstat = %d", searchwall, TrackerCast(wall[searchwall].cstat));
+            message("Wall %d cstat = %d", searchwall, TrackerCast(wall[searchwall].cstat));
         }
         else if (AIMING_AT_SPRITE)
         {
@@ -4699,7 +4699,7 @@ static void Keys3d(void)
         {
             sprite[searchwall].ang += tsign<<(!eitherSHIFT*7);
             sprite[searchwall].ang &= 2047;
-            message_nowarn("Sprite %d angle: %d", searchwall, TrackerCast(sprite[searchwall].ang));
+            message("Sprite %d angle: %d", searchwall, TrackerCast(sprite[searchwall].ang));
         }
     }
 
@@ -7898,7 +7898,7 @@ int32_t ExtPreSaveMap(void)
                 if (wall[j].point2 < startwall)
                     startwall = wall[j].point2;
             if (sector[i].wallptr != startwall)
-                initprintf_nowarn("Warning: set sector %d's wallptr to %d (was %d)\n", i,
+                initprintf("Warning: set sector %d's wallptr to %d (was %d)\n", i,
                            TrackerCast(sector[i].wallptr), startwall);
             sector[i].wallptr = startwall;
         }
@@ -10892,18 +10892,10 @@ static void EditSectorData(int16_t sectnum)
 #endif
                 break;
             case 1:
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",
-                    TrackerCast(sector[sectnum].ceilingxpanning),TrackerCast(sector[sectnum].ceilingypanning));
-                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
-                if (med_editval)
-                {
-                    Bsprintf(med_edittext,"Sector %d Ceiling X Pan: ",sectnum);
-                    printmessage16("%s", med_edittext);
-                    sector[sectnum].ceilingxpanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].ceilingxpanning,255,0);
-                    Bsprintf(med_edittext,"Sector %d Ceiling Y Pan: ",sectnum);
-                    printmessage16("%s", med_edittext);
-                    sector[sectnum].ceilingypanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].ceilingypanning,255,0);
-                }
+                handlemed(0, "X Pan", "Ceiling X Pan", &sector[sectnum].ceilingxpanning,
+                          sizeof(sector[sectnum].ceilingxpanning), 255, 0);
+                handlemed(0, "Y Pan", "Ceiling Y Pan", &sector[sectnum].ceilingypanning,
+                          sizeof(sector[sectnum].ceilingypanning), 255, 0);
                 break;
             case 2:
                 handlemed(0, "Shade byte", "Ceiling Shade", &sector[sectnum].ceilingshade,sizeof(sector[sectnum].ceilingshade), 128, 1);
@@ -10944,18 +10936,10 @@ static void EditSectorData(int16_t sectnum)
                 break;
 
             case 1:
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",
-                    TrackerCast(sector[sectnum].floorxpanning),TrackerCast(sector[sectnum].floorypanning));
-                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
-                if (med_editval)
-                {
-                    Bsprintf(med_edittext,"Sector %d Floor X Pan: ",sectnum);
-                    printmessage16("%s", med_edittext);
-                    sector[sectnum].floorxpanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].floorxpanning,255,0);
-                    Bsprintf(med_edittext,"Sector %d Floor Y Pan: ",sectnum);
-                    printmessage16("%s", med_edittext);
-                    sector[sectnum].floorypanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].floorypanning,255,0);
-                }
+                handlemed(0, "X Pan", "Floor X Pan", &sector[sectnum].floorxpanning,
+                          sizeof(sector[sectnum].floorxpanning), 255, 0);
+                handlemed(0, "Y Pan", "Floor Y Pan", &sector[sectnum].floorypanning,
+                          sizeof(sector[sectnum].floorypanning), 255, 0);
                 break;
 
             case 2:
@@ -11039,32 +11023,16 @@ static void EditWallData(int16_t wallnum)
                       sizeof(wall[wallnum].pal), M32_MAXPALOOKUPS, 0);
             break;
         case 3:
-            Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",
-                TrackerCast(wall[wallnum].xrepeat),TrackerCast(wall[wallnum].yrepeat));
-            for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
-            if (med_editval)
-            {
-                Bsprintf(med_edittext,"Wall %d X Repeat: ",wallnum);
-                printmessage16("%s", med_edittext);
-                wall[wallnum].xrepeat = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].xrepeat,255,0);
-                Bsprintf(med_edittext,"Wall %d Y Repeat: ",wallnum);
-                printmessage16("%s", med_edittext);
-                wall[wallnum].yrepeat = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].yrepeat,255,0);
-            }
+            handlemed(0, "X Repeat", "X Repeat", &wall[wallnum].xrepeat,
+                      sizeof(wall[wallnum].xrepeat), 255, 0);
+            handlemed(0, "Y Repeat", "Y Repeat", &wall[wallnum].yrepeat,
+                      sizeof(wall[wallnum].yrepeat), 255, 0);
             break;
         case 4:
-            Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",
-                TrackerCast(wall[wallnum].xpanning),TrackerCast(wall[wallnum].ypanning));
-            for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
-            if (med_editval)
-            {
-                Bsprintf(med_edittext,"Wall %d X Pan: ",wallnum);
-                printmessage16("%s", med_edittext);
-                wall[wallnum].xpanning = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].xpanning,255,0);
-                Bsprintf(med_edittext,"Wall %d Y Pan: ",wallnum);
-                printmessage16("%s", med_edittext);
-                wall[wallnum].ypanning = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].ypanning,255,0);
-            }
+            handlemed(0, "X Pan", "X Pan", &wall[wallnum].xpanning,
+                      sizeof(wall[wallnum].xpanning), 255, 0);
+            handlemed(0, "Y Pan", "Y Pan", &wall[wallnum].ypanning,
+                      sizeof(wall[wallnum].ypanning), 255, 0);
             break;
         case 5:
             handlemed(0, "Tile number", "Tile number", &wall[wallnum].picnum,
@@ -11237,36 +11205,16 @@ static void EditSpriteData(int16_t spritenum)
                           sizeof(sprite[spritenum].blend), MAXBLENDTABS, 0);
                 break;
             case 4:
-            {
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",
-                    TrackerCast(sprite[spritenum].xrepeat),TrackerCast(sprite[spritenum].yrepeat));
-                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
-                if (med_editval)
-                {
-                    Bsprintf(med_edittext,"Sprite %d X Repeat: ",spritenum);
-                    printmessage16("%s", med_edittext);
-                    sprite[spritenum].xrepeat = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].xrepeat,255,0);
-                    Bsprintf(med_edittext,"Sprite %d Y Repeat: ",spritenum);
-                    printmessage16("%s", med_edittext);
-                    sprite[spritenum].yrepeat = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].yrepeat,255,0);
-                }
-            }
+                handlemed(0, "X Repeat", "X Repeat", &sprite[spritenum].xrepeat,
+                          sizeof(sprite[spritenum].xrepeat), 255, 0);
+                handlemed(0, "Y Repeat", "Y Repeat", &sprite[spritenum].yrepeat,
+                          sizeof(sprite[spritenum].yrepeat), 255, 0);
             break;
             case 5:
-            {
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)offset: %d, %d",
-                    TrackerCast(sprite[spritenum].xoffset),TrackerCast(sprite[spritenum].yoffset));
-                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
-                if (med_editval)
-                {
-                    Bsprintf(med_edittext,"Sprite %d X Offset: ",spritenum);
-                    printmessage16("%s", med_edittext);
-                    sprite[spritenum].xoffset = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].xoffset,128,1);
-                    Bsprintf(med_edittext,"Sprite %d Y Offset: ",spritenum);
-                    printmessage16("%s", med_edittext);
-                    sprite[spritenum].yoffset = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].yoffset,128,1);
-                }
-            }
+                handlemed(0, "X Offset", "X Offset", &sprite[spritenum].xoffset,
+                          sizeof(sprite[spritenum].xoffset), 128, 1);
+                handlemed(0, "Y Offset", "Y Offset", &sprite[spritenum].yoffset,
+                          sizeof(sprite[spritenum].yoffset), 128, 1);
             break;
             case 6:
                 handlemed(0, "Tile number", "Tile number", &sprite[spritenum].picnum,

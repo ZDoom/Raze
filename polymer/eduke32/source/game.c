@@ -2512,7 +2512,7 @@ static void G_PrintCoords(int32_t snum)
     Bsprintf(tempbuf,"OG= %d  SBRIDGE=%d SBS=%d",ps->on_ground, ps->spritebridge, ps->sbs);
     printext256(x,y+27,31,-1,tempbuf,0);
     if (sectnum >= 0)
-        Bsprintf_nowarn(tempbuf,"SECT= %d (LO=%d EX=%d)",sectnum,TrackerCast(sector[sectnum].lotag),TrackerCast(sector[sectnum].extra));
+        Bsprintf(tempbuf,"SECT= %d (LO=%d EX=%d)",sectnum,TrackerCast(sector[sectnum].lotag),TrackerCast(sector[sectnum].extra));
     else
         Bsprintf(tempbuf,"SECT= %d", sectnum);
     printext256(x,y+36,31,-1,tempbuf,0);
@@ -4867,7 +4867,7 @@ static void G_DumpDebugInfo(void)
         j = headspritestat[x];
         while (j >= 0)
         {
-            OSD_Printf_nowarn("Sprite %d (%d,%d,%d) (picnum: %d)\n",j,
+            OSD_Printf("Sprite %d (%d,%d,%d) (picnum: %d)\n",j,
                 TrackerCast(sprite[j].x),TrackerCast(sprite[j].y),TrackerCast(sprite[j].z),TrackerCast(sprite[j].picnum));
             for (i=0; i<g_gameVarCount; i++)
             {
@@ -4976,7 +4976,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     if (i < 0)
     {
         G_DumpDebugInfo();
-        OSD_Printf_nowarn("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
+        OSD_Printf("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
                           s_pn,s_ow < 0 ? -1 : TrackerCast(sprite[s_ow].picnum),s_ow,s_x,s_y,s_z,whatsect);
         G_GameExit("Too many sprites spawned.");
     }
@@ -5987,7 +5987,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (EDUKE32_PREDICT_FALSE(sp->hitag && sp->picnum == WATERBUBBLEMAKER))
             {
                 // JBF 20030913: Pisses off X_Move(), eg. in bobsp2
-                OSD_Printf_nowarn(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
+                OSD_Printf(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
                            i,TrackerCast(sp->x),TrackerCast(sp->y));
                 sp->hitag = 0;
             }
@@ -6584,7 +6584,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 else
                 {
                     // XXX: we should return to the menu for this and similar failures
-                    Bsprintf_nowarn(tempbuf, "SE 17 (warp elevator) setup failed: sprite %d at (%d, %d)",
+                    Bsprintf(tempbuf, "SE 17 (warp elevator) setup failed: sprite %d at (%d, %d)",
                              i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y));
                     G_GameExit(tempbuf);
                 }
@@ -6787,7 +6787,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     }
                     if (EDUKE32_PREDICT_FALSE(j == -1))
                     {
-                        OSD_Printf_nowarn(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
+                        OSD_Printf(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
                             TrackerCast(sp->x),TrackerCast(sp->y));
                         changespritestat(i, STAT_ACTOR);
                         goto SPAWN_END;
@@ -6806,7 +6806,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     tempwallptr++;
                     if (EDUKE32_PREDICT_FALSE(tempwallptr > 2047))
                     {
-                        Bsprintf_nowarn(tempbuf, "Too many moving sectors at (%d,%d).\n",
+                        Bsprintf(tempbuf, "Too many moving sectors at (%d,%d).\n",
                                         TrackerCast(wall[s].x),TrackerCast(wall[s].y));
                         G_GameExit(tempbuf);
                     }
@@ -6865,7 +6865,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 #endif
                     if (j == 0)
                     {
-                        Bsprintf_nowarn(tempbuf,"Subway found no zero'd sectors with locators\nat (%d,%d).\n",
+                        Bsprintf(tempbuf,"Subway found no zero'd sectors with locators\nat (%d,%d).\n",
                             TrackerCast(sp->x),TrackerCast(sp->y));
                         G_GameExit(tempbuf);
                     }
