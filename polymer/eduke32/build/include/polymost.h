@@ -5,6 +5,7 @@
 
 #include "glbuild.h"
 #include "hightile.h"
+#include "baselayer.h"  // glinfo
 
 typedef struct { uint8_t r, g, b, a; } coltype;
 

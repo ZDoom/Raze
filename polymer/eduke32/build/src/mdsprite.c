@@ -85,8 +85,10 @@ static int32_t allocvbos = 0, curvbo = 0;
 static GLuint *vertvbos = NULL;
 static GLuint *indexvbos = NULL;
 
+#ifdef POLYMER
 static int32_t *tribuf = NULL;
 static int32_t tribufverts = 0;
+#endif
 
 static mdmodel_t *mdload(const char *);
 static void mdfree(mdmodel_t *);
@@ -143,7 +145,9 @@ void freeallmodels()
     }
 
     md_freevbos();
+#ifdef POLYMER
     DO_FREE_AND_NULL(tribuf);
+#endif
 }
 
 
