@@ -1,4 +1,4 @@
-#ifdef EXTERNC
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -58,6 +58,6 @@ static inline int32_t filnamcmp(const char *j, const char *i)
 }
 extern int32_t wildmatch(const char *match, const char *wild);
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 }
 #endif

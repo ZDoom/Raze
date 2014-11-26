@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "player.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAXSLEEPDIST        16384
 #define SLEEPTIME           1536
 #define ZOFFSET             (1<<8)
@@ -329,6 +333,14 @@ void                G_StopInterpolation(int32_t *posptr);
 void                Sect_ToggleInterpolation(int sectnum, int doset);
 FORCE_INLINE void   Sect_ClearInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 0); }
 FORCE_INLINE void   Sect_SetInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 1); }
+
+#ifdef LUNATIC
+int32_t G_ToggleWallInterpolation(int32_t w, int32_t doset);
+#endif
+
+#ifdef __cplusplus
+}
+#endif
 
 #include "actors_inline.h"
 

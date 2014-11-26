@@ -1896,6 +1896,15 @@ static void FuncMenu_Process(const StatusBarMenu *m, int32_t col, int32_t row)
 #ifdef LUNATIC
 typedef const char *(*luamenufunc_t)(void);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern void LM_Register(const char *name, luamenufunc_t funcptr, const char *description);
+extern void LM_Clear(void);
+#ifdef __cplusplus
+}
+#endif
+
 static int32_t g_numLuaFuncs = 0;
 static luamenufunc_t g_LuaFuncPtrs[MENU_MAX_ENTRIES];
 

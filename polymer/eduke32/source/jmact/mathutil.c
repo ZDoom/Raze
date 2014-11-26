@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 
 #include "common.h"
+#include "mathutil.h"
 
 int32_t FindDistance2D(int32_t x, int32_t y)
 {

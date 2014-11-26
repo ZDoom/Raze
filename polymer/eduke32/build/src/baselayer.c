@@ -145,7 +145,7 @@ extern "C" {
 #endif
     extern intptr_t dep_begin, dep_end;
 #ifdef __cplusplus
-};
+}
 #endif
 #endif
 

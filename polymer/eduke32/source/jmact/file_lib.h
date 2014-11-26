@@ -26,8 +26,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #ifndef file_lib_public_
 #define file_lib_public_
-#ifdef EXTERNC
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 enum
@@ -254,7 +254,7 @@ int32_t ChangeDrive (char *drive);
 
 #endif
 
-#ifdef EXTERNC
-};
+#ifdef __cplusplus
+}
 #endif
 #endif

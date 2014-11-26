@@ -27,8 +27,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef keyboard_public_h_
 #define keyboard_public_h_
-#ifdef EXTERNC
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include "baselayer.h"	// for the keyboard stuff
@@ -100,7 +100,7 @@ kb_scancode KB_StringToScanCode( const char * string );  // convert a string int
 void    KB_Startup( void );
 void    KB_Shutdown( void );
 
-#ifdef EXTERNC
-};
+#ifdef __cplusplus
+}
 #endif
 #endif

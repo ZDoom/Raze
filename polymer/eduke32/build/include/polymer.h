@@ -13,6 +13,10 @@
 # include "polymost.h"
 # include "pragmas.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PR_LINEAR_FOG
 
 // CVARS
@@ -567,5 +571,9 @@ static inline void relvec2f(GLfloat *v1, GLfloat *v2, GLfloat *out)
 }
 
 # endif // !POLYMER_C
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !polymer_h_

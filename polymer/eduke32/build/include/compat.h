@@ -144,26 +144,14 @@
 // library will need to wrap these functions with suitable emulations.
 #define compat_h_macrodef__
 
-#ifdef EXTERNC
-#  include <cstdarg>
-#  ifdef compat_h_macrodef__
-#   include <cstdio>
-#   include <cstring>
-#   include <cstdlib>
-#   include <ctime>
-#  endif
-#else
-# include <stdarg.h>
-# include <stddef.h>
-#endif
+#include <stdarg.h>
+#include <stddef.h>
 
 #ifdef compat_h_macrodef__
-# ifndef EXTERNC
-#  include <stdio.h>
-#  include <string.h>
-#  include <stdlib.h>
-#  include <time.h>
-# endif
+# include <stdio.h>
+# include <string.h>
+# include <stdlib.h>
+# include <time.h>
 # include <fcntl.h>
 # include <ctype.h>
 # include <sys/types.h>
@@ -350,7 +338,7 @@
 # define BITNESS64
 #endif
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 
 # ifndef SCREWED_UP_CPP
 //   using namespace std;
@@ -861,7 +849,7 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 }
 
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 }
 #endif
 

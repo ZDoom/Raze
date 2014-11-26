@@ -77,9 +77,6 @@ extern int luaopen_lpeg(lua_State *L);
 #endif
 
 
-typedef struct {
-    uint32_t x, y, z, c;
-} rng_jkiss_t;
 
 // See: Good Practice in (Pseudo) Random Number Generation for
 //      Bioinformatics Applications, by David Jones
@@ -283,12 +280,6 @@ LUNATIC_EXTERN void El_OnError(const char *str)
     }
 }
 
-static void El_OnOutOfMem(void)
-{
-    extern void G_GameExit(const char *msg);
-    G_GameExit("Out of memory in Lunatic.");
-}
-
 void El_ClearErrors(void)
 {
     int32_t i;
@@ -360,6 +351,9 @@ static int32_t SetTweakTracebackMsg_CF(lua_State *L)
 // http://www.freelists.org/post/luajit/intermitten-lua-pcall-crash-on-x86-64-linux,1
 
 // Some of these are duplicate declarations:
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap);
 extern void P_CheckWeaponI(int32_t snum);
 extern int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel);
@@ -376,6 +370,10 @@ extern int32_t A_PlaySound(uint32_t num, int32_t i);
 extern void A_DeleteSprite(int32_t s);
 extern void G_ShowView(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t sect,
                        int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp);
+extern void G_GameExit(const char *msg);
+#ifdef __cplusplus
+}
+#endif
 
 #define LARG(index) lua_tointeger(L, index)
 
@@ -485,6 +483,11 @@ static void El_StateSetup(lua_State *L)
 
     // This is for engine-side Lua:
     lua_pushcfunction(L, &our_traceback_CF);
+}
+
+static void El_OnOutOfMem(void)
+{
+    G_GameExit("Out of memory in Lunatic.");
 }
 
 // 0: success, <0: failure

@@ -5,7 +5,7 @@
 #ifndef pragmas_h_
 #define pragmas_h_
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -27,7 +27,7 @@ extern "C" {
 #endif
 extern int32_t reciptable[2048], fpuasm;
 #if !defined(NOASM) && defined __cplusplus
-};
+}
 #endif
 
 // break the C version of divscale out from the others
@@ -259,7 +259,7 @@ static inline void swapbufreverse(void *s, void *d, int32_t c)
     while (c--) swapchar(dst++, src--);
 }
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 }
 #endif
 

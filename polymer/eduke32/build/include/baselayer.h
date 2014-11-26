@@ -8,7 +8,7 @@
 #include "compat.h"
 #include "osd.h"
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -33,6 +33,7 @@ extern int32_t startwin_close(void);
 extern int32_t startwin_puts(const char *);
 extern int32_t startwin_settitle(const char *);
 extern int32_t startwin_idle(void *);
+extern int32_t startwin_run(void);
 
 // video
 extern int32_t r_usenewaspect, newaspect_enable;
@@ -213,7 +214,7 @@ int32_t baselayer_init();
 void makeasmwriteable(void);
 void maybe_redirect_outputs(void);
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 }
 #endif
 

@@ -21,7 +21,7 @@ extern "C" {
     extern intptr_t asm1, asm2, asm3, asm4;
     extern int32_t globalx1, globaly2;
 #if !defined(NOASM) && defined __cplusplus
-};
+}
 #endif
 
 extern uint8_t basepalcount;

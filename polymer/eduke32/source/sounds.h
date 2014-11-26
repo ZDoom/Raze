@@ -31,6 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "sounds_common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // KEEPINSYNC lunatic/con_lang.lua
 #define MAXSOUNDS           4096
 #define MAXSOUNDINSTANCES   8
@@ -105,5 +109,9 @@ static inline int32_t S_IsAmbientSFX(int32_t i)
 {
     return (sprite[i].picnum==MUSICANDSFX && sprite[i].lotag < 999);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

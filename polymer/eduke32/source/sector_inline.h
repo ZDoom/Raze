@@ -23,7 +23,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef sector_inline_h_
 #define sector_inline_h_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 EXTERN_INLINE_HEADER int32_t G_CheckPlayerInSector(int32_t sect);
+
+#ifdef __cplusplus
+}
+#endif
 
 #ifndef DISABLE_INLINING
 #include "sector_inline.c"

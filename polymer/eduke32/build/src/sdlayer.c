@@ -47,6 +47,7 @@ int32_t startwin_close(void) { return 0; }
 int32_t startwin_puts(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_idle(void *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_settitle(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
+int32_t startwin_run(void) { return 0; }
 #endif
 
 /// These can be useful for debugging sometimes...

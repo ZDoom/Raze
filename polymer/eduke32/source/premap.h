@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef premap_h_
 #define premap_h_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     int32_t x1, y1;
     int32_t xdimen, ydimen;
@@ -53,5 +57,9 @@ void P_ResetWeapons(int32_t snum);
 void G_ClearFIFO(void);
 void G_SetupCamTile(int32_t i,int32_t wn);
 void G_ResetInterpolations(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

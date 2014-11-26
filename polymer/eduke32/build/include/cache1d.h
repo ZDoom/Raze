@@ -6,7 +6,7 @@
 #include "compat.h"
 #include "mutex.h"
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -24,6 +24,7 @@ void	allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr);
 void	agecache(void);
 
 extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
+char *listsearchpath(int32_t initp);
 int32_t     addsearchpath(const char *p);
 int32_t     removesearchpath(const char *p);
 int32_t		findfrompath(const char *fn, char **where);
@@ -72,7 +73,7 @@ void	kdfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil);
 #endif
 void	dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 }
 #endif
 

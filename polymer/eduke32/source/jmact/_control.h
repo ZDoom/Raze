@@ -34,8 +34,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #ifndef control_private_h_
 #define control_private_h_
-#ifdef EXTERNC
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 
@@ -185,7 +185,7 @@ typedef struct
 //
 //***************************************************************************
 
-#ifdef EXTERNC
-};
+#ifdef __cplusplus
+}
 #endif
 #endif

@@ -27,8 +27,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef mouse_h_
 #define mouse_h_
-#ifdef EXTERNC
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #define LEFT_MOUSE   1
@@ -50,7 +50,7 @@ int32_t MOUSE_GetButtons( void );
 #define MOUSE_ClearAllButtons() mouseb = 0
 #define MOUSE_GetDelta(x, y) readmousexy(x,y)
 
-#ifdef EXTERNC
-};
+#ifdef __cplusplus
+}
 #endif
 #endif /* __mouse_h */

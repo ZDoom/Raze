@@ -7,6 +7,9 @@
 #include "events_defs.h"  // MAXEVENTS
 #include "actors.h"  // con_move_t, con_action_t
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern L_State g_ElState;
 
@@ -47,5 +50,16 @@ extern int32_t (*El_RestoreGamevars)(const char *savecode);
 
 static inline int32_t El_HaveEvent(int32_t eventidx) { return g_elEvents[eventidx]!=0; }
 static inline int32_t El_HaveActor(int32_t actortile) { return g_elActors[actortile].haveit!=0; }
+
+typedef struct {
+    uint32_t x, y, z, c;
+} rng_jkiss_t;
+
+uint32_t rand_jkiss_u32(rng_jkiss_t *s);
+double rand_jkiss_dbl(rng_jkiss_t *s);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

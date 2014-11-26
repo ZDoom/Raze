@@ -30,8 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef gamedefs_public_h_
 #define gamedefs_public_h_
-#ifdef EXTERNC
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 //****************************************************************************
@@ -128,8 +128,8 @@ enum
    };
 
 
-#ifdef EXTERNC
-};
+#ifdef __cplusplus
+}
 #endif
 #endif
 

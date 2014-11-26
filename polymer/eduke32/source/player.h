@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef player_h_
 #define player_h_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int32_t playerswhenstarted;
 
 #define MOVEFIFOSIZ                 2
@@ -376,6 +380,8 @@ void        P_QuickKill(DukePlayer_t *p);
 void        P_SelectNextInvItem(DukePlayer_t *p);
 void        P_UpdateScreenPal(DukePlayer_t *p);
 
+void P_CheckWeaponI(int32_t snum);
+
 #if !defined LUNATIC
 void        P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p);
 #else
@@ -411,5 +417,9 @@ static inline int32_t P_Get(int32_t spritenum)
 {
     return P_GetP(&sprite[spritenum]);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

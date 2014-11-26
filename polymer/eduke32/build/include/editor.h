@@ -7,8 +7,8 @@
 
 #include <math.h>
 
-#ifdef EXTERNC
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #define VERSION "2.0.0devel"
@@ -394,10 +394,6 @@ enum SaveBoardFlags
     M32_SB_ASKOV = 2,  // for NEW_MAP_FORMAT build, ask whether write map if going from V7/8 to VX
 };
 
-#ifdef EXTERNC
-}
-#endif
-
 // showdebug is now used as a general informational on-screen display
 #define M32_SHOWDEBUG
 
@@ -428,5 +424,9 @@ static inline void inpclamp(int32_t *x, int32_t mi, int32_t ma)
     if (*x>ma) *x=ma;
     if (*x<mi) *x=mi;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

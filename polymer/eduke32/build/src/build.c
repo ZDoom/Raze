@@ -611,8 +611,6 @@ int32_t app_main(int32_t argc, const char **argv)
 #ifdef STARTUP_SETUP_WINDOW
     if (i || forcesetup || cmdsetup)
     {
-        extern int32_t startwin_run(void);
-
         if (quitevent || !startwin_run())
         {
             uninitengine();

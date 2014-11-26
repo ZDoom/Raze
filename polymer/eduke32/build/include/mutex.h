@@ -11,7 +11,7 @@
 # include "sdl_inc.h"
 #endif
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -28,7 +28,7 @@ extern int32_t mutex_lock(mutex_t *mutex);
 extern int32_t mutex_unlock(mutex_t *mutex);
 
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 }
 #endif
 

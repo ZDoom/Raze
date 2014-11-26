@@ -7,6 +7,10 @@
 #ifndef EDUKE32_COMMON_GAME_H_
 #define EDUKE32_COMMON_GAME_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int32_t usecwd;
 
 #define GAMEFLAG_DUKE       0x00000001
@@ -112,5 +116,9 @@ extern uint8_t *basepaltable[BASEPALCOUNT];
 
 extern int32_t g_firstFogPal;
 extern int32_t G_LoadLookups(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

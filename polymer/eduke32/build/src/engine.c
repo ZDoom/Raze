@@ -179,7 +179,7 @@ intptr_t bufplce[4];
 int32_t globaltilesizy;
 int32_t globalx1, globaly2, globalx3, globaly3;
 #if !defined(NOASM) && defined __cplusplus
-};
+}
 #endif
 
 int32_t sloptable[16384];
@@ -249,8 +249,25 @@ static int16_t maphacklight[PR_MAXLIGHTS];
 #endif
 
 // forward refs
+#ifdef __cplusplus
+extern "C" {
+#endif
+void setblendtab(int32_t blend, const char *tab);
+#ifdef LUNATIC
+extern const char *(getblendtab)(int32_t blend);
+int32_t setpalookup(int32_t palnum, const uint8_t *shtab);
+#endif
+void setup_sideview_sincos(void);
 int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
+int32_t scalescreeny(int32_t sy);
+#ifdef YAX_ENABLE
+void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore);
+#endif
+int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz);
+#ifdef __cplusplus
+}
+#endif
 
 static void scansector(int16_t startsectnum);
 static void draw_rainbow_background(void);
@@ -2401,7 +2418,6 @@ char palfadedelta = 0;
 static uint8_t numalphatabs;
 
 static char *blendtable[MAXBLENDTABS];
-void setblendtab(int32_t blend, const char *tab);
 #define getblendtab(blend) (blendtable[blend])
 
 static void setpalettefade_calc(uint8_t offset);
@@ -16360,7 +16376,7 @@ int32_t getscreenvdisp(int32_t bz, int32_t zoome)
     return mulscale32(bz,zoome*m32_sidecos);
 }
 
-void setup_sideview_sincos()
+void setup_sideview_sincos(void)
 {
     if (m32_sideview)
     {

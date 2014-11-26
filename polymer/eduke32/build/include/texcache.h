@@ -1,6 +1,10 @@
 #ifndef texcache_h_
 # define texcache_h_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef USE_OPENGL
 
 #define TEXCACHEMAGIC "LZ40"
@@ -64,4 +68,9 @@ extern void texcache_checkgarbage(void);
 extern void texcache_setupindex(void);
 
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

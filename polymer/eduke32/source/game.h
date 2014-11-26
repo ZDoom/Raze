@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "premap.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Compile game-side legacy Room over Room code?
 #define LEGACY_ROR 1
 
@@ -315,8 +319,6 @@ extern int32_t minitext_lowercase;
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb);
 int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits);
 
-int32_t startwin_run(void);
-
 #ifdef YAX_ENABLE
 void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz);
 #else
@@ -398,10 +400,6 @@ static inline int32_t G_GetTeamPalette(int32_t team)
 
     return pal[team];
 }
-
-#if defined(_WIN32)
-int32_t G_GetVersionFromWebsite(char *buffer);
-#endif
 
 #ifdef USE_OPENGL
 extern char forcegl;
@@ -579,5 +577,15 @@ static inline int32_t G_GetMusicIdx(const char *str)
 }
 
 extern void G_StartMusic(void);
+
+#ifdef LUNATIC
+void El_SetCON(const char *conluacode);
+void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
+                       int32_t shade, int32_t orientation, int32_t p);
+#endif
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

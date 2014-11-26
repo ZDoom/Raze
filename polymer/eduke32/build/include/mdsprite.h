@@ -1,6 +1,10 @@
 #ifndef mdsprite_h_
 # define mdsprite_h_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef USE_OPENGL
 #include "hightile.h"
 
@@ -227,5 +231,9 @@ enum {
     HUDFLAG_FLIPPED = 4,
     HUDFLAG_NODEPTH = 8,
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !mdsprite_h_

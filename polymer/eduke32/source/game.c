@@ -81,7 +81,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 # include <shellapi.h>
-extern int32_t G_GetVersionFromWebsite(char *buffer);
 # define UPDATEINTERVAL 604800 // 1w
 # include "winbits.h"
 #else
@@ -10785,7 +10784,6 @@ static void A_InitEnemyFlags(void)
 }
 #undef SETFLAG
 
-extern int32_t startwin_run(void);
 static void G_SetupGameButtons(void);
 
 #ifdef LUNATIC

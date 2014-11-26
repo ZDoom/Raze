@@ -31,8 +31,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef scriplib_private_h_
 #define scriplib_private_h_
-#ifdef EXTERNC
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #define SCRIPTSECTIONSTART ('[')
@@ -203,7 +203,7 @@ void SCRIPT_AddEntry
 void SCRIPT_DecodeToken ( int32_t scripthandle, char * str );
 
 
-#ifdef EXTERNC
-};
+#ifdef __cplusplus
+}
 #endif
 #endif

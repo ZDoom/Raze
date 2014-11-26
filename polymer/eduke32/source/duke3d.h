@@ -23,10 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef duke3d_h_
 #define duke3d_h_
 
-#ifdef EXTERNC
-{
-#endif
-
 // JBF
 #include "compat.h"
 #include "a.h"
@@ -169,7 +165,4 @@ static inline int32_t G_InitialActorStrength(int32_t actortile)
 #endif
 }
 
-#ifdef EXTERNC
-}
-#endif
 #endif

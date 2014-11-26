@@ -13,7 +13,7 @@
 #include "pragmas.h"
 #include "glbuild.h"
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -253,6 +253,8 @@ static inline void sector_tracker_hook(uintptr_t address);
 static inline void wall_tracker_hook(uintptr_t address);
 static inline void sprite_tracker_hook(uintptr_t address);
 
+}
+
 #define TRACKER_NAME_ SectorTracker
 #define TRACKER_GLOBAL_HOOK_ sector_tracker_hook
 #include "tracker.hpp"
@@ -273,6 +275,8 @@ static inline void sprite_tracker_hook(uintptr_t address);
 
 #define Tracker(Container, Type) Container##Tracker<Type>
 #define TrackerCast(x) x.cast()
+
+extern "C" {
 
 #else
 
@@ -753,13 +757,7 @@ EXTERN spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t xdim, ydim, numpages;
 EXTERN int32_t yxaspect, viewingrange;
-#ifdef __cplusplus
-extern "C" {
-#endif
 EXTERN intptr_t *ylookup;
-#ifdef __cplusplus
-};
-#endif
 
 #ifndef GEKKO
 #define MAXVALIDMODES 256
@@ -861,14 +859,8 @@ EXTERN vec2_t tilesiz[MAXTILES];
 
 EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];
-#ifdef __cplusplus
-extern "C" {
-#endif
 extern const char pow2char[8];
 extern const int32_t pow2long[32];
-#ifdef __cplusplus
-};
-#endif
 
 // picanm[].sf:
 // |bit(1<<7)
@@ -1298,10 +1290,10 @@ static inline int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsoti
 
 int32_t   screencapture(const char *filename, char inverseit, const char *versionstr) ATTRIBUTE((nonnull(1)));
 
+int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol);
+
 static inline int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 {
-    extern int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol);
-
     return getclosestcol_lim(r, g, b, 255);
 }
 
@@ -1495,8 +1487,13 @@ static inline void pop_nofog(void)
 #endif
 }
 
+#ifdef LUNATIC
+extern const int32_t engine_main_arrays_are_static;
+extern const int32_t engine_v8;
+int32_t Mulscale(int32_t a, int32_t b, int32_t sh);
+#endif
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 }
 #endif
 

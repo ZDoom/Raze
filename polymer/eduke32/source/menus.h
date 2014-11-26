@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(__ANDROID__)
 #define DROIDMENU
 #endif
@@ -377,5 +381,9 @@ void M_Init(void);
 void M_OpenMenu(size_t playerID);
 void M_CloseMenu(size_t playerID);
 void M_DisplayMenus(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

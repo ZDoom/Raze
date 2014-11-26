@@ -1,6 +1,10 @@
 #ifndef HIGHTILE_PRIV_H
 #define HIGHTILE_PRIV_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct hicskybox_t {
     char *face[6];
 };
@@ -85,5 +89,9 @@ enum
 
     HICEFFECTMASK = (1|2|4|8),
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

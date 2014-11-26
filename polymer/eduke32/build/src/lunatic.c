@@ -18,6 +18,7 @@ extern "C" {
 }
 #endif
 
+#include "build.h"
 #include "cache1d.h"
 #include "osd.h"
 
@@ -139,7 +140,6 @@ void L_DestroyState(L_State *estate)
 
 static void L_OnOutOfMem(void)
 {
-    extern void uninitengine(void);
     OSD_Printf("Out of memory in Lunatic.\n");
     uninitengine();
     exit(127);

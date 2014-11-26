@@ -10,6 +10,8 @@
 #include "baselayer.h"
 #include "build.h"
 
+#include "gtkbits.h"
+
 int32_t gtkenabled = 0;
 
 static GdkPixbuf *appicon = NULL;

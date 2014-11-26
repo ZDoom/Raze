@@ -26,6 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"  // hashtable_t
 #include "common.h"  // tokenlist
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAXGAMEEVENTS   128
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
@@ -102,7 +106,23 @@ typedef struct {
 
 extern vmstate_t vm;
 
-#if !defined LUNATIC
+void G_DoGameStartup(const int32_t *params);
+void C_DefineMusic(int32_t vol, int32_t lev, const char *fn);
+
+#if defined LUNATIC
+void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5]);
+void C_DefineQuote(int32_t qnum, const char *qstr);
+void C_DefineVolumeName(int32_t vol, const char *name);
+void C_DefineSkillName(int32_t skill, const char *name);
+void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
+                       int32_t partime, int32_t designertime,
+                       const char *levelname);
+void C_DefineGameFuncName(int32_t idx, const char *name);
+void C_DefineGameType(int32_t idx, int32_t flags, const char *name);
+int32_t C_SetDefName(const char *name);
+void C_DefineProjectile(int32_t j, int32_t what, int32_t val);
+void C_SetCfgName(const char *cfgname);
+#else
 void C_ReportError(int32_t iError);
 void C_Compile(const char *filenam);
 
@@ -948,4 +968,9 @@ enum ScriptKeywords_t
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // gamedef_h_

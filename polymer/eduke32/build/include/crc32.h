@@ -3,7 +3,7 @@
 
 #include "compat.h"
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -18,7 +18,7 @@ extern uint32_t crc32table[4][256];
 extern uint32_t Bcrc32(const void* data, size_t length, uint32_t crc);
 extern void initcrc32table(void);
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 }
 #endif
 

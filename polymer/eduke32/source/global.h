@@ -50,6 +50,10 @@ G_EXTERN int32_t bakipos[MAXINTERPOLATIONS];
 #include "sector.h"
 #include "quotes.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 G_EXTERN DukeStatus_t sbar;
 G_EXTERN actor_t actor[MAXSPRITES];
 // g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game
@@ -151,6 +155,10 @@ G_EXTERN int32_t g_bouncemineBlastRadius;
 G_EXTERN int32_t g_seenineBlastRadius;
 G_EXTERN char CheatKeys[2];
 G_EXTERN char setupfilename[BMAX_PATH];
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

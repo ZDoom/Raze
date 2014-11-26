@@ -30,8 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef function_public_h_
 #define function_public_h_
-#ifdef EXTERNC
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #define NUMKEYENTRIES 56
@@ -101,7 +101,7 @@ enum GameFunction_t
    gamefunc_Dpad_Select,
    gamefunc_Dpad_Aiming
    };
-#ifdef EXTERNC
-};
+#ifdef __cplusplus
+}
 #endif
 #endif

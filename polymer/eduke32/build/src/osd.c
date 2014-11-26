@@ -72,7 +72,6 @@ static int32_t (*_getrowheight)(int32_t) = _internal_getrowheight;
 
 static hashtable_t h_cvars      = { OSDMAXSYMBOLS<<1, NULL };
 int32_t m32_osd_tryscript=0;  // whether to try executing m32script on unkown command in the osd
-extern void M32RunScript(const char *s);
 
 int32_t OSD_RegisterCvar(const cvar_t *cvar)
 {

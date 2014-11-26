@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef actors_inline_h_
 #define actors_inline_h_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if KRANDDEBUG
 # define ACTOR_INLINE __fastcall
 # define ACTOR_INLINE_HEADER extern __fastcall
@@ -43,6 +47,10 @@ EXTERN_INLINE_HEADER int32_t G_CheckForSpaceCeiling(int32_t sectnum);
 EXTERN_INLINE_HEADER int32_t G_CheckForSpaceFloor(int32_t sectnum);
 
 EXTERN_INLINE_HEADER int32_t A_CheckEnemySprite(const spritetype *s);
+
+#ifdef __cplusplus
+}
+#endif
 
 #ifndef DISABLE_INLINING
 #include "actors_inline.c"

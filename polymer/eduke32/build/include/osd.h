@@ -5,7 +5,7 @@
 #ifndef osd_h_
 #define osd_h_
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -302,7 +302,10 @@ static inline void OSD_SetHistory(int32_t histIdx, const char *src)
 
 extern int32_t osdcmd_restartvid(const osdfuncparm_t *parm);
 
-#ifdef EXTERNC
+
+extern void M32RunScript(const char *s);
+
+#ifdef __cplusplus
 }
 #endif
 

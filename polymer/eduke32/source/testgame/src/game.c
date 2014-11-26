@@ -456,8 +456,6 @@ static int osdcmd_map(const osdfuncparm_t *parm) {
 	return OSDCMD_OK;
 }
 
-extern int startwin_run(void);
-
 int32_t app_main(int32_t argc, const char **argv)
 {
 #if defined STARTUP_SETUP_WINDOW

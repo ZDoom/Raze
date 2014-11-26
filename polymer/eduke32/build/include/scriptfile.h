@@ -2,7 +2,7 @@
 #ifndef BUILD_SCRIPTFILE_H_
 #define BUILD_SCRIPTFILE_H_
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -34,7 +34,7 @@ int32_t scriptfile_getsymbolvalue(char *name, int32_t *val);
 int32_t scriptfile_addsymbolvalue(char *name, int32_t val);
 void scriptfile_clearsymbols(void);
 
-#ifdef EXTERNC
+#ifdef __cplusplus
 }
 #endif
 

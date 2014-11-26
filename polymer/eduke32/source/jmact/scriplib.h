@@ -28,8 +28,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #ifndef scriplib_public_h_
 #define scriplib_public_h_
-#ifdef EXTERNC
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 /*
@@ -294,7 +294,7 @@ void SCRIPT_PutDouble
    );
 
 
-#ifdef EXTERNC
-};
+#ifdef __cplusplus
+}
 #endif
 #endif

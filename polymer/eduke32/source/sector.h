@@ -28,6 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"  // playerspawn_t
 #include "namesdyn.h"  // for G_GetForcefieldPicnum()
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAXCYCLERS      1024
 #define MAXANIMATES     256
 #define MAXANIMWALLS    512
@@ -142,6 +146,10 @@ static inline int32_t G_GetForcefieldPicnum(int32_t wallnum)
         picnum = W_FORCEFIELD;
     return picnum;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #include "sector_inline.h"
 
