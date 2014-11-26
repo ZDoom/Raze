@@ -10826,7 +10826,10 @@ static void med_handlecommon(int32_t xpos, int32_t ypos, int32_t *row, int32_t r
 
 static void EditSectorData(int16_t sectnum)
 {
-    int32_t col=1, row=0, rowmax = 6, i = -1;
+    int32_t col=1, row=0, rowmax = 6;
+#ifdef YAX_ENABLE__COMPAT
+    int32_t i = -1;
+#endif
     int32_t xpos = 208, ypos = ydim-STATUS2DSIZ+48;
 
     med_editval = 0;
@@ -10982,7 +10985,10 @@ static void EditSectorData(int16_t sectnum)
 
 static void EditWallData(int16_t wallnum)
 {
-    int32_t row=0, i = -1;
+    int32_t row=0;
+#if !defined NEW_MAP_FORMAT
+    int32_t i = -1;
+#endif
     int32_t xpos = 208, ypos = ydim-STATUS2DSIZ+48;
 
     med_editval = 0;

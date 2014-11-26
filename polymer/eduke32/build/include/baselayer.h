@@ -170,7 +170,7 @@ extern int32_t inputchecked;
 int32_t inittimer(int32_t);
 void uninittimer(void);
 void sampletimer(void);
-#ifdef RENDERTYPESDL
+#if defined RENDERTYPESDL && !defined LUNATIC
 static inline uint32_t getticks(void) { return (uint32_t)SDL_GetTicks(); }
 #else
 uint32_t getticks(void);

@@ -901,6 +901,16 @@ void sampletimer(void)
         for (; n > 0; n--) usertimercallback();
 }
 
+#if defined LUNATIC
+//
+// getticks() -- returns the sdl ticks count
+//
+uint32_t getticks(void)
+{
+    return (uint32_t)SDL_GetTicks();
+}
+#endif
+
 // high-resolution timers for profiling
 
 #if SDL_MAJOR_VERSION!=1
