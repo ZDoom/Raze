@@ -378,6 +378,8 @@ FORCE_INLINE void B_BUF32(uint8_t *buf, uint32_t x)
     buf[2] = (x & 0x00FF0000) >> 16;
     buf[3] = (x & 0xFF000000) >> 24;
 }
+#if 0
+// i686-apple-darwin11-llvm-gcc-4.2 complains "integer constant is too large for 'long' type"
 FORCE_INLINE void B_BUF64(uint8_t *buf, uint64_t x)
 {
     buf[0] = (x & 0x00000000000000FF);
@@ -389,6 +391,7 @@ FORCE_INLINE void B_BUF64(uint8_t *buf, uint64_t x)
     buf[6] = (x & 0x00FF000000000000) >> 48;
     buf[7] = (x & 0xFF00000000000000) >> 56;
 }
+#endif
 
 FORCE_INLINE uint16_t B_UNBUF16(const uint8_t *buf) { return (buf[1] << 8) | (buf[0]); }
 FORCE_INLINE uint32_t B_UNBUF32(const uint8_t *buf)

@@ -28,6 +28,8 @@
 # define bREFIID                  &
 #endif
 
+#include <malloc.h>
+
 #ifdef _MSC_VER
 #include <InitGuid.h>
 #endif
@@ -2800,8 +2802,10 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         if (!Bstrcmp(glinfo.vendor,"Microsoft Corporation")) err = 1;
         else if (!Bstrcmp(glinfo.vendor,"SiS")) err = 1;
         else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
+#ifdef POLYMER
         else if (!Bstrcmp(glinfo.vendor, "Intel"))
             pr_ati_fboworkaround = 1;
+#endif
         else
         {
             if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
@@ -2829,8 +2833,10 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
 #endif
         }
 
+#ifdef POLYMER
         if (pr_ati_fboworkaround)
             initprintf("Enabling Intel/ATI FBO color attachment workaround.\n");
+#endif
 
         if (!forcegl && err)
         {

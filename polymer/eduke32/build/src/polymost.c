@@ -129,7 +129,7 @@ static double guo, gux, guy; //Screen-based texture mapping parameters
 static double gvo, gvx, gvy;
 static double gdo, gdx, gdy;
 float fcosglobalang, fsinglobalang;
-float fxdim, fydim, fxdimen, fydimen, fviewingrange;
+float fxdim, fydim, fydimen, fviewingrange;
 static int32_t preview_mouseaim=0;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
 
 #ifdef USE_OPENGL

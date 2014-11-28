@@ -7,6 +7,10 @@
 #include "hightile.h"
 #include "baselayer.h"  // glinfo
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct { uint8_t r, g, b, a; } coltype;
 
 extern int32_t rendmode;
@@ -189,7 +193,7 @@ extern int32_t drawingskybox;
 extern int32_t hicprecaching;
 extern float gyxscale, gxyaspect, ghalfx, grhalfxdown10;
 extern float fcosglobalang, fsinglobalang;
-extern float fxdim, fydim, fxdimen, fydimen, fviewingrange;
+extern float fxdim, fydim, fydimen, fviewingrange;
 
 extern char ptempbuf[MAXWALLSB<<1];
 
@@ -197,6 +201,10 @@ extern char ptempbuf[MAXWALLSB<<1];
 
 extern void polymost_setupglowtexture(int32_t texunits, int32_t tex);
 extern void polymost_setupdetailtexture(int32_t texunits, int32_t tex);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

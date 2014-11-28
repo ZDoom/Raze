@@ -2263,6 +2263,7 @@ static int32_t smostwall[MAXWALLSB], smostwallcnt = -1;
 static vec3_t spritesxyz[MAXSPRITESONSCREEN+1];
 
 int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
+float fxdimen = -1.f;
 int32_t ydimen;
 static int32_t wx1, wy1, wx2, wy2;
 intptr_t frameoffset;
@@ -14867,8 +14868,8 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     xdimenrecip = divscale32(1L,xdimen);
     ydimen = (y2-y1)+1;
 
-#ifdef USE_OPENGL
     fxdimen = (float) xdimen;
+#ifdef USE_OPENGL
     fydimen = (float) ydimen;
 #endif
     setaspect_new();

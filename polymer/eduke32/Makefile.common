@@ -256,7 +256,7 @@ endif
 OPTIMIZATIONS=-O$(OPTLEVEL) $(OPTOPT)
 
 DEBUGFLAG=-g
-ifneq (0,$(CLANG))
+ifeq (0,$(CLANG))
     ifneq ($(PLATFORM),WII)
         DEBUGFLAG=-ggdb
     endif
@@ -678,6 +678,8 @@ ifeq ($(PLATFORM),DARWIN)
     COMPILERFLAGS+= -DUNDERSCORES
     ASFORMAT=macho$(SYSBITS)
     ASFLAGS+= -DUNDERSCORES
+    # ASM on OS X crashes in mmxoverlay()
+    override NOASM=1
 
     # LIBDIRS+= -Lplatform/Apple/lib
     # COMPILERFLAGS+= -Iplatform/Apple/include
@@ -715,9 +717,6 @@ ifeq ($(PLATFORM),DARWIN)
 
     ifeq (1,$(BUILD32_ON_64))
         ARCH=-arch i386
-    else
-        # ASM won't work on PowerPC or x86_64
-        override NOASM=1
     endif
 
     ifneq ($(findstring x86_64,$(ARCH)),x86_64)
@@ -730,7 +729,9 @@ ifeq ($(PLATFORM),DARWIN)
         endif
     endif
 
-    COMMONFLAGS	+= -fno-pic
+    ifeq (0,$(CLANG))
+        COMMONFLAGS	+= -fno-pic
+    endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
     COMPILERFLAGS+= -DUNDERSCORES -DHAVE_INTTYPES -Iplatform/Windows/include

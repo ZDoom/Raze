@@ -24,6 +24,10 @@ extern "C" {
 }
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern uint8_t basepalcount;
 extern uint8_t curbasepal;
 
@@ -32,6 +36,7 @@ extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
 extern spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
+extern float fxdimen;
 extern intptr_t frameoffset;
 extern int32_t globalposx, globalposy, globalposz, globalhoriz;
 extern float fglobalposx, fglobalposy, fglobalposz;
@@ -231,5 +236,9 @@ static inline void set_globalpos(int32_t x, int32_t y, int32_t z)
     globalposy  = y, fglobalposy = (float)y;
     globalposz  = z, fglobalposz = (float)z;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* ENGINE_PRIV_H */
