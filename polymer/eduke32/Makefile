@@ -183,7 +183,7 @@ TESTEDITOR_OBJS=bstub common
 ifeq ($(RENDERTYPE),SDL)
 	ifeq (1,$(HAVE_GTK2))
 		TESTGAME_OBJS+= game_banner startgtk.game
-		TESTEDITOR_OBJS+= editor_banner
+		TESTEDITOR_OBJS+= build_banner
 	endif
 
 	TESTGAME_OBJS+= game_icon
@@ -321,7 +321,7 @@ endif
 ifeq ($(RENDERTYPE),SDL)
     ifeq (1,$(HAVE_GTK2))
         DUKE3D_OBJS+= game_banner startgtk.game
-        DUKE3D_EDITOR_OBJS+= editor_banner
+        DUKE3D_EDITOR_OBJS+= build_banner
     endif
 
     DUKE3D_OBJS+= game_icon
@@ -590,13 +590,12 @@ $(DUKE3D_OBJ)/%.$o: $(DUKE3D_RSRC)/%.c | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(DUKE3D_RSRC)/game_banner.c: $(DUKE3D_RSRC)/game.bmp
-	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@
-	echo "extern const GdkPixdata startbanner_pixdata;" >> $@
+$(DUKE3D_RSRC)/%_banner.c: $(DUKE3D_RSRC)/%.bmp
+	echo "#include \"gtkpixdata_shim.h\"" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
-$(DUKE3D_RSRC)/editor_banner.c: $(DUKE3D_RSRC)/build.bmp
-	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@
-	echo "extern const GdkPixdata startbanner_pixdata;" >> $@
+
+$(TESTGAME_RSRC)/%_banner.c: $(TESTGAME_RSRC)/%.bmp
+	echo "#include \"gtkpixdata_shim.h\"" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
 $(ENGINE_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(DUKE3D_OBJ) $(TESTGAME_OBJ):

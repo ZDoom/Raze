@@ -1,3 +1,6 @@
+
+#include "gtkpixdata.h"
+
 #if defined(LINKED_GTK)
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixdata.h>
@@ -133,8 +136,7 @@ static gboolean on_startwin_delete_event(GtkWidget *widget, GdkEvent *event, gpo
 
 static GdkPixbuf *load_banner(void)
 {
-    extern const GdkPixdata startbanner_pixdata;
-    return gdk_pixbuf_from_pixdata(&startbanner_pixdata, FALSE, NULL);
+    return gdk_pixbuf_from_pixdata((GdkPixdata*)&startbanner_pixdata, FALSE, NULL);
 }
 
 static void SetPage(int32_t n)
