@@ -337,6 +337,20 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         if (nogl)
             return -1;
 
+        struct glattribs
+        {
+            SDL_GLattr attr;
+            int32_t value;
+        } sdlayer_gl_attributes [] =
+        {
+            { SDL_GL_DOUBLEBUFFER, 1 },
+            { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
+            { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
+            { SDL_GL_STENCIL_SIZE, 1 },
+            { SDL_GL_ACCELERATED_VISUAL, 1 },
+            { SDL_GL_SWAP_CONTROL, vsync_render },
+        };
+
         do
         {
             SDL_GL_ATTRIBUTES(i, sdlayer_gl_attributes);
