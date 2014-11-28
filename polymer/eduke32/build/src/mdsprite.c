@@ -1592,7 +1592,7 @@ static void      md3postload_common(md3model_t *m)
 
             do // while(++verti < m->head.surfs[surfi].numverts);
             {
-                vec3f_t f = { frameverts[verti].x, frameverts[verti].y, frameverts[verti].z };
+                vec3f_t f = { (float)frameverts[verti].x, (float)frameverts[verti].y, (float)frameverts[verti].z };
 
                 if (!verti && !surfi)
                     continue;
