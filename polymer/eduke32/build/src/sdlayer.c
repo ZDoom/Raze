@@ -178,6 +178,7 @@ int32_t wm_msgbox(const char *name, const char *fmt, ...)
     return 0;
 }
 
+#if SDL_MAJOR_VERSION != 1
 int32_t wm_ynbox(const char *name, const char *fmt, ...)
 {
     char buf[2048];
@@ -235,6 +236,7 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
     }
 #endif
 }
+#endif
 
 void wm_setapptitle(const char *name)
 {
@@ -271,6 +273,17 @@ void wm_setapptitle(const char *name)
 // ---------------------------------------
 //
 //
+
+#if defined GEKKO
+# define HW_RVL
+# include <ogc/lwp.h>
+# include <ogc/lwp_watchdog.h>
+
+#include "gctypes.h" // for bool
+extern void L2Enhance();
+extern void CON_EnableGecko(int channel,int safe);
+extern bool fatInit(uint32_t cacheSize, bool setAsDefaultDevice);
+#endif
 
 static void attach_debugger_here(void) {}
 
@@ -372,6 +385,8 @@ void setvsync(int32_t sync)
 }
 #endif
 
+int32_t sdlayer_checkversion(void);
+#if SDL_MAJOR_VERSION != 1
 int32_t sdlayer_checkversion(void)
 {
     SDL_version compiled;
@@ -445,6 +460,7 @@ int32_t initsystem(void)
 
     return 0;
 }
+#endif
 
 
 //
@@ -748,6 +764,7 @@ void uninitmouse(void)
 }
 
 
+#if SDL_MAJOR_VERSION != 1
 //
 // grabmouse_low() -- show/hide mouse cursor, lower level (doesn't check state).
 //                    furthermore return 0 if successful.
@@ -766,6 +783,7 @@ static inline char grabmouse_low(char a)
     return 0;
 #endif
 }
+#endif
 
 //
 // grabmouse() -- show/hide mouse cursor
@@ -1823,7 +1841,7 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
     return 0;
 }
 
-
+int32_t handleevents_pollsdl(void);
 #if SDL_MAJOR_VERSION != 1
 // SDL 2.0 specific event handling
 int32_t handleevents_pollsdl(void)

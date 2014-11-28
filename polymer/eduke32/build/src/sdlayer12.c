@@ -2,17 +2,6 @@
 
 #include <SDL/SDL_events.h>
 
-#if defined GEKKO
-# define HW_RVL
-# include <ogc/lwp.h>
-# include <ogc/lwp_watchdog.h>
-
-#include "gctypes.h" // for bool
-extern void L2Enhance();
-extern void CON_EnableGecko(int channel,int safe);
-extern bool fatInit(uint32_t cacheSize, bool setAsDefaultDevice);
-#endif
-
 int32_t wm_ynbox(const char *name, const char *fmt, ...)
 {
     char buf[2048];
