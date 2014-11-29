@@ -1906,7 +1906,10 @@ int32_t G_EnterLevel(int32_t g)
     if (g & (MODE_GAME|MODE_EOL))
     {
         for (TRAVERSE_CONNECT(i))
+        {
             g_player[i].ps->gm = MODE_GAME;
+            M_CloseMenu(i);
+        }
     }
     else if (g & MODE_RESTART)
     {
