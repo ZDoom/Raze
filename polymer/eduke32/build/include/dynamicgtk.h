@@ -608,4 +608,3 @@ void dynamicgtk_uninit(void);
 #endif	/* LINKED_GTK */
 
 #endif	/* dynamicgtk_h_ */
-
