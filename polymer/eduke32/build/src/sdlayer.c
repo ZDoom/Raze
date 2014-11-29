@@ -1778,6 +1778,9 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             if (ev->button.state == SDL_PRESSED)
                 mouseb |= (1 << j);
             else
+#if SDL_MAJOR_VERSION==1
+                if (j != SDL_BUTTON_WHEELUP && j != SDL_BUTTON_WHEELDOWN)
+#endif
                 mouseb &= ~(1 << j);
 
             if (mousepresscallback)
