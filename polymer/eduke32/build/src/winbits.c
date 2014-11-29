@@ -292,5 +292,6 @@ int32_t addsearchpath_ProgramFiles(const char *p)
 
 // Workaround for a bug in mingwrt-4.0.0 and up where a function named main() in misc/src/libcrt/gdtoa/qnan.c takes precedence over the proper one in src/libcrt/crt/main.c.
 #if (defined __MINGW32__ && EDUKE32_GCC_PREREQ(4,8)) || EDUKE32_CLANG_PREREQ(3,4)
+# undef main
 # include "mingw_main.c"
 #endif

@@ -109,6 +109,7 @@ static mutex_t m_initprintf;
 uint16_t *joydead, *joysatur;
 
 #ifdef _WIN32
+# if SDL_MAJOR_VERSION != 1
 //
 // win_gethwnd() -- gets the window handle
 //
@@ -127,6 +128,7 @@ HWND win_gethwnd(void)
 
     return 0;
 }
+# endif
 //
 // win_gethinstance() -- gets the application instance
 //
@@ -245,13 +247,14 @@ void wm_setapptitle(const char *name)
         Bstrncpyz(apptitle, name, sizeof(apptitle));
 
 #if !defined(__APPLE__)
-    appicon = loadappicon();
+    if (!appicon)
+        appicon = loadappicon();
 #endif
 
 #if SDL_MAJOR_VERSION == 1
     SDL_WM_SetCaption(apptitle, NULL);
 
-    if (appicon)
+    if (appicon && sdl_surface)
         SDL_WM_SetIcon(appicon, 0);
 #else
     SDL_SetWindowTitle(sdl_window, apptitle);

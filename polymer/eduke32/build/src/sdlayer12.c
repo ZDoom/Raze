@@ -1,4 +1,4 @@
-// SDL 1.2 compatibility. Not for Windows, Android, iOS or anything with a working port of SDL 2.0
+// SDL 1.2 compatibility.
 
 #include <SDL/SDL_events.h>
 
@@ -32,6 +32,22 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
 
     return 0;
 }
+
+#ifdef _WIN32
+HWND win_gethwnd(void)
+{
+    struct SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+
+    if (SDL_GetWMInfo(&wmInfo) != 1)
+    {
+        initprintf("win_gethwnd: SDL_GetWindowWMInfo() failed: %s\n", SDL_GetError());
+        return 0;
+    }
+
+    return wmInfo.window;
+}
+#endif
 
 #ifdef USE_OPENGL
 void setvsync(int32_t sync)
@@ -174,7 +190,9 @@ static inline char grabmouse_low(char a)
 // high-resolution timers for profiling
 uint64_t getu64ticks(void)
 {
-#if defined __APPLE__
+# if defined _WIN32
+    return win_getu64ticks();
+# elif defined __APPLE__
     return mach_absolute_time();
 # elif _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
     // This is SDL HG's SDL_GetPerformanceCounter() when clock_gettime() is
