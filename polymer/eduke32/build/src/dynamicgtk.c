@@ -9,7 +9,7 @@ static void *handle = NULL;
 struct _dynamicgtksyms dynamicgtksyms;
 
 #define GETDLSYM(x) { \
-	dynamicgtksyms.x = dlsym(handle, (failsym = (const char *)#x)); \
+	dynamicgtksyms.x = (x ## _ptr) dlsym(handle, (failsym = (const char *)#x)); \
 	if (!dynamicgtksyms.x ) { err = 1; break; } \
 }
 
@@ -187,3 +187,4 @@ void dynamicgtk_uninit(void)
     handle = NULL;
     memset(&dynamicgtksyms, 0, sizeof(dynamicgtksyms));
 }
+
