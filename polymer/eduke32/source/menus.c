@@ -1723,32 +1723,32 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         rotatesprite_fs(origin.x + (99<<16), origin.y + (50<<16), 65536L,512,WINDOWBORDER1,24,0,10);
         rotatesprite_fs(origin.x + (103<<16), origin.y + (144<<16), 65536L,1024+512,WINDOWBORDER1,24,0,10);
 
-        if (ud.savegame[M_SAVE.currentEntry][0])
-        {
-            j = 0;
-            for (i = 0; i < 10; ++i)
-                if (((MenuString_t*)M_SAVE.entrylist[i]->entry)->editfield)
-                    j |= 1;
+        j = 0;
+        for (i = 0; i < 10; ++i)
+            if (((MenuString_t*)M_SAVE.entrylist[i]->entry)->editfield)
+                j |= 1;
 
-            rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536L>>1,512,j?TILE_SAVESHOT:TILE_LOADSHOT,-32,0,4+10+64);
-
-            if (g_oldverSavegame[M_SAVE.currentEntry])
-            {
-                mmenutext(origin.x + (53<<16), origin.y + (70<<16), "Previous");
-                mmenutext(origin.x + (58<<16), origin.y + (90<<16), "Version");
-
-#ifndef DROIDMENU
-                Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
-                         savehead.bytever, 8*savehead.ptrsize);
-                mgametext(origin.x + (31<<16), origin.y + (104<<16), tempbuf);
-                Bsprintf(tempbuf,"Our: %d.%d.%d %d-bit", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
-                         (int32_t)(8*sizeof(intptr_t)));
-                mgametext(origin.x + ((31+16)<<16), origin.y + (114<<16), tempbuf);
-#endif
-            }
-        }
+        if (j)
+            rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536L>>1,512,TILE_SAVESHOT,-32,0,4+10+64);
+        else if (ud.savegame[M_SAVE.currentEntry][0])
+            rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
         else
             mmenutext(origin.x + (69<<16), origin.y + (70<<16), "Empty");
+
+        if (ud.savegame[M_SAVE.currentEntry][0] && g_oldverSavegame[M_SAVE.currentEntry])
+        {
+            mmenutext(origin.x + (53<<16), origin.y + (70<<16), "Previous");
+            mmenutext(origin.x + (58<<16), origin.y + (90<<16), "Version");
+
+#ifndef DROIDMENU
+            Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
+                     savehead.bytever, 8*savehead.ptrsize);
+            mgametext(origin.x + (31<<16), origin.y + (104<<16), tempbuf);
+            Bsprintf(tempbuf,"Our: %d.%d.%d %d-bit", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
+                     (int32_t)(8*sizeof(intptr_t)));
+            mgametext(origin.x + ((31+16)<<16), origin.y + (114<<16), tempbuf);
+#endif
+        }
 
 		if (ud.multimode > 1)
 		{

@@ -4343,6 +4343,9 @@ static void G_ReadGLFrame(void)
     const int32_t xf = divscale16(xdim, 320);  // (xdim<<16)/320
     const int32_t yf = divscale16(ydim, 200);  // (ydim<<16)/200
 
+    tilesiz[TILE_SAVESHOT].x = 200;
+    tilesiz[TILE_SAVESHOT].y = 320;
+
     if (!frame)
     {
         Bmemset(pic, 0, 320 * 200);
