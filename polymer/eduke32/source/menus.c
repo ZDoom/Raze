@@ -2396,22 +2396,8 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         pr_customaspect = MEOSV_DISPLAYSETUP_ASPECTRATIO_POLYMER[newOption];
     }
 #endif
-    else if (entry == &ME_DISPLAYSETUP_ANISOTROPY)
-    {
-        glanisotropy = newOption;
-        gltexapplyprops();
-    }
     else if (entry == &ME_DISPLAYSETUP_VSYNC)
         setvsync(newOption);
-    else if (entry == &ME_RENDERERSETUP_TEXQUALITY)
-    {
-        r_downsize = newOption;
-        texcache_invalidate();
-        resetvideomode();
-        if (setgamemode(fullscreen,xdim,ydim,bpp))
-            OSD_Printf("restartvid: Reset failed...\n");
-        r_downsizevar = r_downsize;
-    }
 #endif
     else if (entry == &ME_SOUND)
     {
@@ -2492,9 +2478,6 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         }
     }
 
-    if (entry == &ME_GAMESETUP_AIM_AUTO || entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP)
-        G_UpdatePlayerFromMenu();
-
     switch (g_currentMenu)
     {
     case MENU_MOUSEBTNS:
@@ -2523,6 +2506,26 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     }
 
     return 0;
+}
+
+static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
+{
+    if (entry == &ME_GAMESETUP_AIM_AUTO ||
+        entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP ||
+        entry == &ME_PLAYER_NAME ||
+        entry == &ME_PLAYER_COLOR ||
+        entry == &ME_PLAYER_TEAM)
+        G_UpdatePlayerFromMenu();
+    else if (entry == &ME_DISPLAYSETUP_ANISOTROPY)
+        gltexapplyprops();
+    else if (entry == &ME_RENDERERSETUP_TEXQUALITY)
+    {
+        texcache_invalidate();
+        resetvideomode();
+        if (setgamemode(fullscreen,xdim,ydim,bpp))
+            OSD_Printf("restartvid: Reset failed...\n");
+        r_downsizevar = r_downsize;
+    }
 }
 
 static void M_MenuCustom2ColScreen(/*MenuEntry_t *entry*/)
@@ -2563,32 +2566,22 @@ static int32_t M_MenuEntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
 
 static int32_t M_MenuEntryRangeFloatModify(MenuEntry_t *entry, float newValue)
 {
+    if (entry == &ME_COLCORR_AMBIENT)
+        r_ambientlightrecip = 1.f/newValue;
+
+    return 0;
+}
+
+static int32_t M_MenuEntryRangeFloatDidModify(MenuEntry_t *entry)
+{
     if (entry == &ME_COLCORR_GAMMA)
     {
-        vid_gamma = newValue;
         ud.brightness = GAMMA_CALC<<2;
         setbrightness(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
-        return 0;
     }
-
-    if (entry == &ME_COLCORR_CONTRAST)
+    else if (entry == &ME_COLCORR_CONTRAST || entry == &ME_COLCORR_BRIGHTNESS)
     {
-        vid_contrast = newValue;
         setbrightness(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
-        return 0;
-    }
-
-    if (entry == &ME_COLCORR_BRIGHTNESS)
-    {
-        vid_brightness = newValue;
-        setbrightness(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
-        return 0;
-    }
-
-    if (entry == &ME_COLCORR_AMBIENT)
-    {
-        r_ambientlightrecip = 1.f/newValue;
-        return 0;
     }
 
     return 0;
@@ -4329,6 +4322,8 @@ static void M_RunMenuInput(Menu_t *cm)
                                 object->currentOption = modification;
                                 if ((int32_t*)object->data != NULL)
                                     *((int32_t*)object->data) = temp;
+
+                                M_MenuEntryOptionDidModify(currentry);
                             }
                         }
                     }
@@ -4445,7 +4440,10 @@ static void M_RunMenuInput(Menu_t *cm)
                             temp = interval * (float)step + object->min;
 
                             if (!M_MenuEntryRangeFloatModify(currentry, temp))
+                            {
                                 *object->variable = temp;
+                                M_MenuEntryRangeFloatDidModify(currentry);
+                            }
                         }
 
                         break;
@@ -4620,6 +4618,8 @@ static void M_RunMenuInput(Menu_t *cm)
                             object->currentOption = object->options->currentEntry;
                             if ((int32_t*)object->data != NULL)
                                 *((int32_t*)object->data) = temp;
+
+                            M_MenuEntryOptionDidModify(currentry);
                         }
 
                         object->options->currentEntry = -1;
