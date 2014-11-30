@@ -2978,6 +2978,7 @@ void M_ChangeMenu(MenuID_t cm)
             return;
 
         m_previousMenu = m_currentMenu;
+        g_previousMenu = g_currentMenu;
         m_currentMenu = search;
         g_currentMenu = cm;
     }
@@ -2986,7 +2987,14 @@ void M_ChangeMenu(MenuID_t cm)
 
     switch (g_currentMenu)
     {
+    case MENU_LOAD:
+        if (g_lastSaveSlot >= 0 && g_previousMenu != MENU_LOADVERIFY)
+            M_LOAD.currentEntry = g_lastSaveSlot;
+        break;
+
     case MENU_SAVE:
+        if (g_lastSaveSlot >= 0 && g_previousMenu != MENU_SAVEVERIFY)
+            M_SAVE.currentEntry = g_lastSaveSlot;
         if (g_player[myconnectindex].ps->gm&MODE_GAME)
         {
             g_screenCapture = 1;
@@ -4691,10 +4699,7 @@ void M_DisplayMenus(void)
     }
 
     if (!M_IsTextInput(m_currentMenu) && KB_KeyPressed(sc_Q))
-    {
-        g_previousMenu = g_currentMenu;
         M_ChangeMenuAnimate(MENU_QUIT, MA_Advance);
-    }
 
     M_RunMenuInput(m_currentMenu);
 
