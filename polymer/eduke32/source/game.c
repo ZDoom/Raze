@@ -7144,11 +7144,12 @@ static int32_t G_CheckAdultTile(int32_t pic)
     return 0;
 }
 
-static void G_DoEventAnimSprites(int32_t j)
+static inline void G_DoEventAnimSprites(int32_t j)
 {
     const int32_t ow = tsprite[j].owner;
 
-    if (((unsigned) ow >= MAXSPRITES || (spriteext[ow].flags & SPREXT_TSPRACCESS) != SPREXT_TSPRACCESS) || tsprite[j].statnum != TSPR_TEMP)
+    if ((((unsigned)ow >= MAXSPRITES || (spriteext[ow].flags & SPREXT_TSPRACCESS) != SPREXT_TSPRACCESS)) &&
+        tsprite[j].statnum != TSPR_TEMP)
         return;
 
     spriteext[ow].tspr = &tsprite[j];
