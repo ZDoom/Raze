@@ -110,7 +110,7 @@ typedef enum MenuAnimationType_t
 
 
 // a subset of screentext parameters, restricted because menus require accessibility
-typedef struct MenuTextType_t
+typedef struct MenuFont_t
 {
     int32_t tilenum;
     int32_t shade_deselected; // selected entries are mandated to glow
@@ -118,7 +118,7 @@ typedef struct MenuTextType_t
     int32_t xspace, yline;
     int32_t xbetween, ybetween;
     int32_t textflags;
-} MenuTextType_t;
+} MenuFont_t;
 
 
 
@@ -132,21 +132,24 @@ typedef enum MenuEntryType_t
     RangeFloat,
     RangeDouble,
     String,
+    Spacer,
 } MenuEntryType_t;
 
-
-
-typedef struct MenuPos_t
+typedef struct MenuEntryFormat_t
 {
-    vec2_t pos;
-
-    int32_t groupspacing;
-    int32_t entryspacing; // if bottomcutoff < 0, this becomes the *maximum* entry spacing
+    int32_t marginBottom;
+    int32_t indent;
     int32_t width; // 0: center, >0: width of the label column (left-aligned options), <0: -width of everything (right-aligned)
-    int32_t bottomcutoff; // >0: the bottom edge of the menu before automatic scrolling kicks in, <0: -total height for vertical justification
 
     int32_t cursorPosition, cursorScale;
-} MenuPos_t;
+} MenuEntryFormat_t;
+
+
+typedef struct MenuMenuFormat_t
+{
+    vec2_t pos;
+    int32_t bottomcutoff; // >0: the bottom edge of the menu before automatic scrolling kicks in, <0: -total height for vertical justification
+} MenuMenuFormat_t;
 
 typedef struct MenuLink_t
 {
@@ -156,22 +159,29 @@ typedef struct MenuLink_t
 } MenuLink_t;
 typedef struct MenuOptionSet_t
 {
-    uint8_t features; // bit 1 = disable left/right arrows, bit 2 = disable list
-
     // traits
     char **optionNames;
     int32_t *optionValues; // If NULL, the identity of currentOption is assumed.
+
+    // pop-up list appearance
+    MenuMenuFormat_t *menuFormat;
+    MenuEntryFormat_t *entryFormat;
+    MenuFont_t *font;
+
+    // traits
     int32_t numOptions;
 
-    // specifically for a pop-up list
-    MenuPos_t *list;
+    // pop-up list state
     int32_t currentEntry;
     int32_t scrollPos;
+
+    // appearance
+    uint8_t features; // bit 1 = disable left/right arrows, bit 2 = disable list
 } MenuOptionSet_t;
 typedef struct MenuOption_t
 {
     // appearance
-    MenuTextType_t *font;
+    MenuFont_t *font;
 
     // traits
     MenuOptionSet_t *options; // so that common sets such as Yes/No, On/Off can be reused
@@ -184,107 +194,108 @@ typedef struct MenuOption_t
 } MenuOption_t;
 typedef struct MenuCustom2Col_t
 {
-    // appearance
-    MenuTextType_t *font;
-    int32_t columnWidth;
-
+    // effect
+    uint8_t *column[2];
     char **key;
+
+    // appearance
+    MenuFont_t *font;
+
+    // effect
     size_t numvalid;
 
-    uint8_t *column[2];
+    // appearance
+    int32_t columnWidth;
 
     // state
     int8_t screenOpen;
 } MenuCustom2Col_t;
 typedef struct MenuRangeInt32_t
 {
+    // effect
+    int32_t *variable;
+
     // appearance
-    MenuTextType_t *font;
-    uint8_t displaytype; // 0 = none, 1 = integer, 2 = percent, 3 = normalized decimal
+    MenuFont_t *font;
 
     // traits
     int32_t min;
     int32_t max;
-    int32_t steps;
     int32_t onehundredpercent; // 0 implies max
+    int32_t steps;
 
-    // effect
-    int32_t* variable;
+    uint8_t displaytype; // 0 = none, 1 = integer, 2 = percent, 3 = normalized decimal
 } MenuRangeInt32_t;
 typedef struct MenuRangeFloat_t
 {
+    // effect
+    float *variable;
+
     // appearance
-    MenuTextType_t *font;
-    uint8_t displaytype; // 0 = none, 1 = decimal, 2 = percent, 3 = normalized decimal
+    MenuFont_t *font;
 
     // traits
     float min;
     float max;
-    int32_t steps;
     float onehundredpercent; // 0 implies 1.0
+    int32_t steps;
 
-    // effect
-    float* variable;
+    uint8_t displaytype; // 0 = none, 1 = decimal, 2 = percent, 3 = normalized decimal
 } MenuRangeFloat_t;
 typedef struct MenuRangeDouble_t
 {
+    // effect
+    double *variable;
+
     // appearance
-    MenuTextType_t *font;
-    uint8_t displaytype; // 0 = none, 1 = decimal, 2 = percent
+    MenuFont_t *font;
 
     // traits
     double min;
     double max;
-    int32_t steps;
     double onehundredpercent; // 0 implies 1.0
+    int32_t steps;
 
-    // effect
-    double* variable;
+    uint8_t displaytype; // 0 = none, 1 = decimal, 2 = percent
 } MenuRangeDouble_t;
 typedef struct MenuString_t
 {
-    // appearance
-    MenuTextType_t *font;
+    // state
+    char* editfield;
 
     // effect
     char* variable;
+
+    // appearance
+    MenuFont_t *font;
+
+    // effect
     int32_t maxlength;
-
     int32_t flags;
-
-    // state
-    char* editfield;
 } MenuString_t;
+typedef struct MenuSpacer_t
+{
+    int32_t height;
+} MenuSpacer_t;
 
 
 typedef struct MenuEntry_t
 {
-    // appearance
-    MenuTextType_t *font;
-
     // traits
     const char *name;
 
-    MenuEntryType_t type;
+    // appearance
+    MenuFont_t *font;
+    MenuEntryFormat_t *format;
+
     void *entry;
+    MenuEntryType_t type;
 
     // state
     int32_t disabled;
 
     int32_t ytop, ybottom;
 } MenuEntry_t;
-
-
-typedef struct MenuGroup_t
-{
-    MenuEntry_t **entrylist;
-    int32_t numEntries;
-
-    MenuPos_t *position;
-
-    int32_t currentEntry;
-    int32_t currentColumn; // a little hackish but not too bad
-} MenuGroup_t;
 
 
 typedef enum MenuType_t
@@ -299,14 +310,16 @@ typedef enum MenuType_t
 
 typedef struct MenuMenu_t
 {
-    MenuGroup_t **grouplist;
-    int32_t numGroups;
-
     const char *title;
 
+    MenuMenuFormat_t *format;
+
+    MenuEntry_t **entrylist;
+    int32_t numEntries;
+
     // state
-    int32_t currentGroup;
-    int32_t ytop, bottomcutoff, totalHeight, scrollPos;
+    int32_t currentEntry, currentColumn;
+    int32_t totalHeight, scrollPos;
 } MenuMenu_t;
 typedef struct MenuPanel_t
 {
@@ -333,36 +346,37 @@ typedef struct MenuMessage_t
 } MenuMessage_t;
 typedef struct MenuPassword_t
 {
-    // traits
-    int32_t maxlength;
-
     // state
     char *input;
+
+    // traits
+    int32_t maxlength;
 } MenuPassword_t;
 typedef struct MenuFileSelect_t
 {
     const char *title;
 
     // appearance
-    MenuTextType_t *font[2];
+    MenuFont_t *font[2];
 
     // traits
     const char *pattern;
     char *destination;
 
     // state
-    fnlist_t fnlist;
     CACHE1D_FIND_REC *findhigh[2];
-    int32_t currentList, scrollPos[2];
+    int32_t scrollPos[2];
+    fnlist_t fnlist;
+    int32_t currentList;
 } MenuFileSelect_t;
 
 typedef struct Menu_t
 {
+    void *object;
     MenuID_t menuID;
     MenuID_t parentID;
     MenuAnimationType_t parentAnimation;
     MenuType_t type;
-    void *object;
 } Menu_t;
 
 
