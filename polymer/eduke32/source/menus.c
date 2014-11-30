@@ -2620,7 +2620,7 @@ static int32_t M_MenuEntryStringSubmit(MenuEntry_t *entry, char *input)
     {
     case MENU_SAVE:
         // dirty hack... char 127 in last position indicates an auto-filled name
-        if (ud.savegame[M_SAVE.currentEntry][0] == 0 || (ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] == 127 &&
+        if (input[0] == 0 || (ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] == 127 &&
             save_xxh == XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], 19, 0xDEADBEEF)))
         {
             Bstrncpy(&ud.savegame[M_SAVE.currentEntry][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
