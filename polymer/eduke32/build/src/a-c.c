@@ -259,7 +259,7 @@ void vlineasm4(int32_t cnt, char *p)
     char * const A_C_RESTRICT pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
     char * const A_C_RESTRICT buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
 #ifdef USE_VECTOR_EXT
-    uint32_vec4 vinc = {vince[0], vince[1], vince[2], vince[3]};
+    uint32_vec4 vinc = {(uint32_t)vince[0], (uint32_t)vince[1], (uint32_t)vince[2], (uint32_t)vince[3]};
     uint32_vec4 vplc = {vplce[0], vplce[1], vplce[2], vplce[3]};
 #else
     const int32_t vinc[4] = {vince[0], vince[1], vince[2], vince[3]};
@@ -392,7 +392,7 @@ void mvlineasm4(int32_t cnt, char *p)
     char *const A_C_RESTRICT pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
     char *const A_C_RESTRICT buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
 #ifdef USE_VECTOR_EXT
-    uint32_vec4 vinc = {vince[0], vince[1], vince[2], vince[3]};
+    uint32_vec4 vinc = {(uint32_t)vince[0], (uint32_t)vince[1], (uint32_t)vince[2], (uint32_t)vince[3]};
     uint32_vec4 vplc = {vplce[0], vplce[1], vplce[2], vplce[3]};
 #else
     const int32_t vinc[4] = {vince[0], vince[1], vince[2], vince[3]};
