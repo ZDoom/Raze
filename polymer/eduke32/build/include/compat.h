@@ -26,7 +26,7 @@
 # define __has_extension __has_feature // Compatibility with pre-3.0 compilers.
 #endif
 
-#if defined(_MSC_VER) && _MSC_FULL_VER < 180031101
+#if !defined(_MSC_VER) || _MSC_FULL_VER < 180031101
 #ifdef UNREFERENCED_PARAMETER
 #undef UNREFERENCED_PARAMETER
 #endif
