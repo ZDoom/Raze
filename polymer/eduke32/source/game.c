@@ -10112,6 +10112,19 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     continue;
                 }
 #endif
+                // the following two dummy entries allow us to serve as a drop-in replacement for NAM on Steam
+                if (!Bstrcasecmp(c+1,"noconsole"))
+                {
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"conf"))
+                {
+                    if (argc > i+1)
+                        i++;
+                    i++;
+                    continue;
+                }
             }
 
             if ((*c == '-')
