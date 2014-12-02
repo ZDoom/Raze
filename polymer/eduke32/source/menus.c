@@ -2516,6 +2516,7 @@ static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
         entry == &ME_PLAYER_COLOR ||
         entry == &ME_PLAYER_TEAM)
         G_UpdatePlayerFromMenu();
+#ifdef USE_OPENGL
     else if (entry == &ME_DISPLAYSETUP_ANISOTROPY)
         gltexapplyprops();
     else if (entry == &ME_RENDERERSETUP_TEXQUALITY)
@@ -2526,6 +2527,7 @@ static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
             OSD_Printf("restartvid: Reset failed...\n");
         r_downsizevar = r_downsize;
     }
+#endif
 }
 
 static void M_MenuCustom2ColScreen(/*MenuEntry_t *entry*/)
