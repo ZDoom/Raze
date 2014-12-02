@@ -60,11 +60,6 @@ typedef enum basepal_ {
 
 extern const char *g_gameNamePtr;
 
-extern const char *defaultgamegrp[GAMECOUNT];
-extern const char *defaultdeffilename[GAMECOUNT];
-extern const char *defaultconfilename;
-extern const char *defaultgameconfilename[GAMECOUNT];
-
 extern char *g_grpNamePtr;
 extern char *g_scriptNamePtr;
 
