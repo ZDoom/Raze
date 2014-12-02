@@ -2241,14 +2241,6 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
 
         ud.multimode = 1;
 
-        if (ud.m_volume_number == 3 && (G_GetLogoFlags() & LOGO_NOE4CUTSCENE)==0)
-        {
-            flushperms();
-            setview(0,0,xdim-1,ydim-1);
-            clearview(0L);
-            nextpage();
-        }
-
         G_NewGame_EnterLevel();
         break;
     }
