@@ -518,7 +518,7 @@ void G_ExtPostStartupWindow(int32_t autoload)
 const char * G_GetInstallPath(int32_t insttype)
 {
     static char spath[NUMINSTPATHS][BMAX_PATH];
-    static int32_t success[NUMINSTPATHS] = { -1, -1 };
+    static int32_t success[NUMINSTPATHS] = { -1, -1, -1, -1, -1 };
     int32_t siz = BMAX_PATH;
 
     if (success[insttype] == -1)
@@ -531,11 +531,20 @@ const char * G_GetInstallPath(int32_t insttype)
         {
             switch (insttype)
             {
-            case INSTPATH_STEAM:
+            case INSTPATH_STEAM_DUKE3D:
                 success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", NULL, spath[insttype], (LPDWORD)&siz);
                 break;
-            case INSTPATH_GOG:
+            case INSTPATH_GOG_DUKE3D:
                 success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, spath[insttype], (LPDWORD)&siz);
+                break;
+            case INSTPATH_3DR_DUKE3D:
+                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\3DRealms\\Duke Nukem 3D", NULL, NULL, spath[insttype], (LPDWORD)&siz);
+                break;
+            case INSTPATH_3DR_ANTH:
+                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\3DRealms\\Anthology", NULL, NULL, spath[insttype], (LPDWORD)&siz);
+                break;
+            case INSTPATH_STEAM_NAM:
+                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 329650", "InstallLocation", NULL, spath[insttype], (LPDWORD)&siz);
                 break;
             }
 
@@ -611,7 +620,7 @@ void G_AddSearchPaths(void)
     char buf[BMAX_PATH];
     const char* instpath;
 
-    if ((instpath = G_GetInstallPath(INSTPATH_STEAM)))
+    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D)))
     {
         Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
         addsearchpath(buf);
@@ -626,8 +635,26 @@ void G_AddSearchPaths(void)
         addsearchpath(buf);
     }
 
-    if ((instpath = G_GetInstallPath(INSTPATH_GOG)))
+    if ((instpath = G_GetInstallPath(INSTPATH_GOG_DUKE3D)))
         addsearchpath(instpath);
+
+    if ((instpath = G_GetInstallPath(INSTPATH_3DR_DUKE3D)))
+    {
+        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
+        addsearchpath(buf);
+    }
+
+    if ((instpath = G_GetInstallPath(INSTPATH_3DR_ANTH)))
+    {
+        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
+        addsearchpath(buf);
+    }
+
+    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_NAM)))
+    {
+        Bsnprintf(buf, sizeof(buf), "%s/NAM", instpath);
+        addsearchpath(buf);
+    }
 #endif
 }
 
@@ -637,7 +664,7 @@ void G_CleanupSearchPaths(void)
     char buf[BMAX_PATH];
     const char* instpath;
 
-    if ((instpath = G_GetInstallPath(INSTPATH_STEAM)))
+    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D)))
     {
         Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
         removesearchpath(buf);
@@ -652,8 +679,26 @@ void G_CleanupSearchPaths(void)
         removesearchpath(buf);
     }
 
-    if ((instpath = G_GetInstallPath(INSTPATH_GOG)))
+    if ((instpath = G_GetInstallPath(INSTPATH_GOG_DUKE3D)))
         removesearchpath(instpath);
+
+    if ((instpath = G_GetInstallPath(INSTPATH_3DR_DUKE3D)))
+    {
+        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
+        removesearchpath(buf);
+    }
+
+    if ((instpath = G_GetInstallPath(INSTPATH_3DR_ANTH)))
+    {
+        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
+        removesearchpath(buf);
+    }
+
+    if (g_gameType != GAMEFLAG_NAM && (instpath = G_GetInstallPath(INSTPATH_STEAM_NAM)))
+    {
+        Bsnprintf(buf, sizeof(buf), "%s/NAM", instpath);
+        removesearchpath(buf);
+    }
 #endif
 }
 
