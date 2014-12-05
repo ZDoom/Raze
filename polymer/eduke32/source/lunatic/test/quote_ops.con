@@ -51,6 +51,12 @@ onevent EVENT_ENTERLEVEL
     qstrcat 115 115  // this one is redundant, but must not overflow the quote buffer
     userquote 115
 
+    ////////// qstrncat test
+    redefinequote 300 012345678|
+    qstrncat 300 300 2
+    userquote 300  // "012345678|01"
+    //////////
+
     redefinequote 117 X%s
     qsprintf 117 /*<-*/ 117 /*args:*/ 115
     userquote 117  // result: "X" .. 12 x "012345678|" .. "012345" (= total length 127 = MAXQUOTELEN-1)
@@ -78,7 +84,7 @@ onevent EVENT_ENTERLEVEL
     // qgetsysstr test
     qgetsysstr 401 STR_MAPNAME
     qgetsysstr 402 STR_MAPFILENAME
-    qgetsysstr 403 STR_PLAYERNAME
+//    qgetsysstr 403 STR_PLAYERNAME
     qgetsysstr 404 STR_VERSION
     qgetsysstr 405 STR_GAMETYPE
     qgetsysstr 406 STR_VOLUMENAME

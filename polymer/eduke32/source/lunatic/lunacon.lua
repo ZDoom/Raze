@@ -2669,8 +2669,8 @@ local Cinner = {
         / "_con._qstrcpy(%1,%2)",
     qstrlen = cmd(W,R)
         / "%1=_con._qstrlen(%2)",
-    qstrncat = cmd(R,R)
-        / handle.NYI,
+    qstrncat = cmd(R,R,R)
+        / "_con._qstrcat(%1,%2,%3)",
     qsubstr = cmd(R,R,R,R)
         / "_con._qsubstr(%1,%2,%3,%4)",
     quote = cmd(D)

@@ -747,7 +747,7 @@ function _qstrcpy(qdst, qsrc)
 end
 
 -- NOTE: qdst==qsrc is OK (duplicates the quote)
-function _qstrcat(qdst, qsrc)
+function _qstrcat(qdst, qsrc, n)
     local cstr_dst = bcheck.quote_idx(qdst)
     local cstr_src = bcheck.quote_idx(qsrc)
 
@@ -757,6 +757,12 @@ function _qstrcat(qdst, qsrc)
 
     if (cstr_dst[0]==0) then
         return strcpy(cstr_dst, cstr_src)
+    end
+
+    if (n == nil) then
+        n = 0x7fffffff
+    elseif (n < 0) then
+        error("invalid number of chars to concatenate: "..n, 2)
     end
 
     -- From here on: destination and source quote (potentially aliased) are
@@ -775,10 +781,11 @@ function _qstrcat(qdst, qsrc)
     repeat
         -- NOTE: don't copy the first char yet, so that the qdst==qsrc case
         -- works correctly.
+        n = n-1
         i = i+1
         j = j+1
         cstr_dst[i] = cstr_src[j]
-    until (i >= MAXQUOTELEN-1 or cstr_src[j]==0)
+    until (n == 0 or i >= MAXQUOTELEN-1 or cstr_src[j]==0)
 
     -- Now copy the first char!
     cstr_dst[slen_dst] = cstr_src[0]
