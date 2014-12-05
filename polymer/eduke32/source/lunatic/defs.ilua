@@ -1024,202 +1024,204 @@ local function get_actor_idx(a)
     return i
 end
 
-local actor_mt = {
-    __index = {
-        -- action
-        set_action = function(a, act)
-            a = ffi.cast(actor_ptr_ct, a)
+local actor_methods = {
+    -- action
+    set_action = function(a, act)
+        a = ffi.cast(actor_ptr_ct, a)
 
-            if (ffi.istype(con_action_ct, act)) then
-                a.t_data[4] = act.id
-                a.ac = act.ac
-            else
-                check_literal_am(act, "action")
-                a.t_data[4] = act
-                a.ac = nullac
+        if (ffi.istype(con_action_ct, act)) then
+            a.t_data[4] = act.id
+            a.ac = act.ac
+        else
+            check_literal_am(act, "action")
+            a.t_data[4] = act
+            a.ac = nullac
+        end
+
+        a.t_data[2] = 0
+        a.t_data[3] = 0
+    end,
+
+    has_action = function(a, act)
+        a = ffi.cast(actor_ptr_ct, a)
+
+        if (ffi.istype(con_action_ct, act)) then
+            return (a.t_data[4]==act.id)
+        else
+            check_literal_am(act, "action")
+            return (a.t_data[4]==act)
+        end
+    end,
+
+    -- count
+    set_count = function(a, count)
+        ffi.cast(actor_ptr_ct, a).t_data[0] = count
+    end,
+
+    get_count = function(a)
+        return ffi.cast(actor_ptr_ct, a).t_data[0]
+    end,
+
+    -- action count
+    reset_acount = function(a)
+        ffi.cast(actor_ptr_ct, a).t_data[2] = 0
+    end,
+
+    get_acount = function(a)
+        return ffi.cast(actor_ptr_ct, a).t_data[2]
+    end,
+
+    -- Override action delay. The action ID is kept.
+    set_action_delay = function(a, delay)
+        ffi.cast(actor_ptr_ct, a).ac.delay = delay
+    end,
+
+    -- move
+    set_move = function(a, mov, movflags)
+        a = ffi.cast(actor_ptr_ct, a)
+
+        if (ffi.istype(con_move_ct, mov)) then
+            a.t_data[1] = mov.id
+            a.mv = mov.mv
+        else
+            check_literal_am(mov, "move")
+            a.t_data[1] = mov
+            a.mv = nullmv
+        end
+
+        a.t_data[0] = 0
+        a.movflags = movflags or 0
+        local spr = ffiC.sprite[get_actor_idx(a)]
+
+        if (not spr:isenemy() or spr.extra > 0) then
+            if (bit.band(a.movflags, 8) ~= 0) then  -- random_angle
+                spr.ang = bit.band(ffiC.krand(), 2047)
             end
+        end
+    end,
 
-            a.t_data[2] = 0
-            a.t_data[3] = 0
-        end,
+    has_move = function(a, mov)
+        a = ffi.cast(actor_ptr_ct, a)
 
-        has_action = function(a, act)
-            a = ffi.cast(actor_ptr_ct, a)
+        if (ffi.istype(con_move_ct, mov)) then
+            return (a.t_data[1]==mov.id)
+        else
+            check_literal_am(mov, "move")
+            return (a.t_data[1]==mov)
+        end
+    end,
 
-            if (ffi.istype(con_action_ct, act)) then
-                return (a.t_data[4]==act.id)
-            else
-                check_literal_am(act, "action")
-                return (a.t_data[4]==act)
-            end
-        end,
+    -- Override velocity, keeping move ID.
+    set_hvel = function(a, hvel)
+        ffi.cast(actor_ptr_ct, a).mv.hvel = hvel
+    end,
 
-        -- count
-        set_count = function(a, count)
-            ffi.cast(actor_ptr_ct, a).t_data[0] = count
-        end,
+    set_vvel = function(a, vvel)
+        ffi.cast(actor_ptr_ct, a).mv.vvel = vvel
+    end,
 
-        get_count = function(a)
-            return ffi.cast(actor_ptr_ct, a).t_data[0]
-        end,
+    -- ai
+    set_ai = function(a, ai)
+        local oa = a
+        a = ffi.cast(actor_ptr_ct, a)
 
-        -- action count
-        reset_acount = function(a)
-            ffi.cast(actor_ptr_ct, a).t_data[2] = 0
-        end,
+        -- TODO: literal number AIs?
+        if (not ffi.istype(con_ai_ct, ai)) then
+            error("bad argument: expected ai", 2)
+        end
 
-        get_acount = function(a)
-            return ffi.cast(actor_ptr_ct, a).t_data[2]
-        end,
+        -- NOTE: compare with gameexec.c, "CON_AI:"
+        a.t_data[5] = ai.id
 
-        -- Override action delay. The action ID is kept.
-        set_action_delay = function(a, delay)
-            ffi.cast(actor_ptr_ct, a).ac.delay = delay
-        end,
+        oa:set_action(ai.act)
+        oa:set_move(ai.mov, ai.movflags)
 
-        -- move
-        set_move = function(a, mov, movflags)
-            a = ffi.cast(actor_ptr_ct, a)
+        -- Already reset with set_move():
+--        a.t_data[0] = 0
+    end,
 
-            if (ffi.istype(con_move_ct, mov)) then
-                a.t_data[1] = mov.id
-                a.mv = mov.mv
-            else
-                check_literal_am(mov, "move")
-                a.t_data[1] = mov
-                a.mv = nullmv
-            end
+    has_ai = function(a, ai)
+        a = ffi.cast(actor_ptr_ct, a)
 
-            a.t_data[0] = 0
-            a.movflags = movflags or 0
-            local spr = ffiC.sprite[get_actor_idx(a)]
+        if (ffi.istype(con_ai_ct, ai)) then
+            return (a.t_data[5]==ai.id)
+        else
+            check_literal_am(ai, "ai")
+            return (a.t_data[5]==ai)
+        end
+    end,
 
-            if (not spr:isenemy() or spr.extra > 0) then
-                if (bit.band(a.movflags, 8) ~= 0) then  -- random_angle
-                    spr.ang = bit.band(ffiC.krand(), 2047)
-                end
-            end
-        end,
+    -- Getters/setters.
+    _get_t_data = function(a, idx)
+        if (not (idx >= 0 and idx < 10)) then
+            error("invalid t_data index "..idx, 2)
+        end
+        return ffi.cast(actor_ptr_ct, a).t_data[idx]
+    end,
 
-        has_move = function(a, mov)
-            a = ffi.cast(actor_ptr_ct, a)
+    _set_t_data = function(a, idx, val)
+        if (not (idx >= 0 and idx < 10)) then
+            error("invalid t_data index "..idx, 2)
+        end
+        ffi.cast(actor_ptr_ct, a).t_data[idx] = val
+    end,
 
-            if (ffi.istype(con_move_ct, mov)) then
-                return (a.t_data[1]==mov.id)
-            else
-                check_literal_am(mov, "move")
-                return (a.t_data[1]==mov)
-            end
-        end,
+    set_picnum = function(a, picnum)
+        if (not (picnum < 0)) then
+            check_tile_idx(picnum)
+        end
+        ffi.cast(actor_ptr_ct, a).picnum = picnum
+    end,
 
-        -- Override velocity, keeping move ID.
-        set_hvel = function(a, hvel)
-            ffi.cast(actor_ptr_ct, a).mv.hvel = hvel
-        end,
+    set_owner = function(a, owner)
+        -- XXX: is it permissible to set to -1?
+        check_sprite_idx(owner)
+        ffi.cast(actor_ptr_ct, a).owner = owner
+    end,
 
-        set_vvel = function(a, vvel)
-            ffi.cast(actor_ptr_ct, a).mv.vvel = vvel
-        end,
+    --- Custom methods ---
 
-        -- ai
-        set_ai = function(a, ai)
-            local oa = a
-            a = ffi.cast(actor_ptr_ct, a)
+    -- Checkers for whether the movement update made the actor hit
+    -- something.
 
-            -- TODO: literal number AIs?
-            if (not ffi.istype(con_ai_ct, ai)) then
-                error("bad argument: expected ai", 2)
-            end
+    checkhit = function(a)
+        -- Check whether we hit *anything*, including ceiling/floor.
+        return a._movflagbits:test(49152)
+    end,
 
-            -- NOTE: compare with gameexec.c, "CON_AI:"
-            a.t_data[5] = ai.id
+    checkbump = function(a)
+        -- Check whether we bumped into a wall or sprite.
+        return (a._movflagbits:mask(49152) >= 32768)
+    end,
 
-            oa:set_action(ai.act)
-            oa:set_move(ai.mov, ai.movflags)
+    hitwall = function(a)
+        if (a._movflagbits:mask(49152) == 32768) then
+            return a._movflagbits:mask(32767)
+        end
+    end,
 
-            -- Already reset with set_move():
---            a.t_data[0] = 0
-        end,
+    hitsprite = function(a)
+        if (a._movflagbits:mask(49152) == 49152) then
+            return a._movflagbits:mask(32767)
+        end
+    end,
 
-        has_ai = function(a, ai)
-            a = ffi.cast(actor_ptr_ct, a)
-
-            if (ffi.istype(con_ai_ct, ai)) then
-                return (a.t_data[5]==ai.id)
-            else
-                check_literal_am(ai, "ai")
-                return (a.t_data[5]==ai)
-            end
-        end,
-
-        -- Getters/setters.
-        _get_t_data = function(a, idx)
-            if (not (idx >= 0 and idx < 10)) then
-                error("invalid t_data index "..idx, 2)
-            end
-            return ffi.cast(actor_ptr_ct, a).t_data[idx]
-        end,
-
-        _set_t_data = function(a, idx, val)
-            if (not (idx >= 0 and idx < 10)) then
-                error("invalid t_data index "..idx, 2)
-            end
-            ffi.cast(actor_ptr_ct, a).t_data[idx] = val
-        end,
-
-        set_picnum = function(a, picnum)
-            if (not (picnum < 0)) then
-                check_tile_idx(picnum)
-            end
-            ffi.cast(actor_ptr_ct, a).picnum = picnum
-        end,
-
-        set_owner = function(a, owner)
-            -- XXX: is it permissible to set to -1?
-            check_sprite_idx(owner)
-            ffi.cast(actor_ptr_ct, a).owner = owner
-        end,
-
-        --- Custom methods ---
-
-        -- Checkers for whether the movement update made the actor hit
-        -- something.
-
-        checkhit = function(a)
-            -- Check whether we hit *anything*, including ceiling/floor.
-            return a._movflagbits:test(49152)
-        end,
-
-        checkbump = function(a)
-            -- Check whether we bumped into a wall or sprite.
-            return (a._movflagbits:mask(49152) >= 32768)
-        end,
-
-        hitwall = function(a)
-            if (a._movflagbits:mask(49152) == 32768) then
-                return a._movflagbits:mask(32767)
-            end
-        end,
-
-        hitsprite = function(a)
-            if (a._movflagbits:mask(49152) == 49152) then
-                return a._movflagbits:mask(32767)
-            end
-        end,
-
-        -- NOTE: no 'hitsector' or 'hitceiling' / 'hitfloor' for now because
-        -- more research is needed as to what the best way of checking c/f is.
-    },
+    -- NOTE: no 'hitsector' or 'hitceiling' / 'hitfloor' for now because
+    -- more research is needed as to what the best way of checking c/f is.
 }
 
-local function actor_index_index(a, key)
-    -- actor[].proj gets an actor's projectile ([gs]etthisprojectile in CON)
-    if (key=="proj") then
-        return ffiC.SpriteProjectile[get_actor_idx(a)]
-    end
-end
+local actor_mt = {
+    __index = function(a, key)
+        if (actor_methods[key] ~= nil) then
+            return actor_methods[key]
+        elseif (key == "proj") then
+            return ffiC.SpriteProjectile[get_actor_idx(a)]
+        else
+            error("invalid indexing key to actor object", 2)
+        end
+    end,
+}
 
-setmtonce(actor_mt.__index, { __index = actor_index_index })
 ffi.metatype("actor_t", actor_mt)
 
 
@@ -1319,119 +1321,130 @@ local function clamp0to1(num)
     return clamp(num, 0, 1)
 end
 
+local player_methods = {
+    -- CON-like addammo/addweapon, but without the non-local control flow
+    -- (returns true if weapon's ammo was at the max. instead).
+    addammo = con._addammo,
+    addweapon = con._addweapon,
+
+    stomp = con._pstomp,
+
+    holdskey = function(p, keyname)
+        -- XXX: on invalid <keyname>, error will point to this next line:
+        return player_holdskey(p.weapon._p, keyname)
+    end,
+
+    has_weapon = function(p, weap)
+        return p.gotweaponbits:test(lsh(1,weap))
+    end,
+
+    give_weapon = function(p, weap)
+        p.gotweaponbits:set(lsh(1,weap))
+    end,
+
+    take_weapon = function(p, weap)
+        p.gotweaponbits:clear(lsh(1,weap))
+    end,
+
+    -- Give or take weapon, for implementation of CON's .gotweapon access.
+    _gt_weapon = function(p, weap, give_p)
+        if (give_p ~= 0) then
+            p:give_weapon(weap)
+        else
+            p:take_weapon(weap)
+        end
+    end,
+
+    whack = function(p, no_return_to_center)
+        p.horiz = p.horiz + 64
+        if (not no_return_to_center) then
+            p.return_to_center = 9
+        end
+        local n = bit.arshift(128-band(ffiC.krand(),255), 1)
+        p.rotscrnang = n
+        p.look_ang = n
+    end,
+
+    -- External, improved 'palfrom'.
+    -- <speed>: possibly fractional speed of tint fading, in pals.f decrements per gametic.
+    --          XXX: exposes internals.
+    -- <prio>: a value from -128 to 127, higher ones trump lower or equal ones
+    fadecol = function(p, fadefrac, r, g, b, speed, prio)
+        -- Validate inargs: clamp f,r,g,b to [0 .. 1] first and multiply by
+        -- 63 for the internal handling.
+        fadefrac = clamp0to1(fadefrac)*63
+        -- NOTE: a fadefrac of now <1 is allowed, e.g. for clearing the tint.
+        r = clamp0to1(r)*63
+        g = clamp0to1(g)*63
+        b = clamp0to1(b)*63
+
+        if (speed ~= nil) then
+            check_number(speed)
+            -- Clamp to sensible values; the speed is stored in an int8_t
+            -- (see below).
+            speed = clamp(speed, 1/128, 127)
+        else
+            speed = 1
+        end
+
+        if (prio ~= nil) then
+            check_number(prio)
+
+            if (not (prio >= -128 and prio < 127)) then
+                error("invalid argument #6 (priority): must be in [-128 .. 127]", 2)
+            end
+        else
+            prio = 0
+        end
+
+        -- Check if a currently active tint has higher priority.
+        if (p._pals.f > 0 and p._palsfadeprio > prio) then
+            return
+        end
+
+        -- The passed tint can be applied now.
+        p:_palfrom(fadefrac, r, g, b)
+        p._palsfadeprio = prio
+
+        -- Calculate .palsfade{speed,next}
+        if (speed >= 1) then
+            -- Will round to the nearest integer ("banker's
+            -- rounding"). NOTE: This is not correct for all numbers, see
+            -- http://blog.frama-c.com/index.php?post/2013/05/02/nearbyintf1
+            p._palsfadespeed = speed + 0.5
+            p._palsfadenext = 0
+        else
+            -- NOTE: Values that round to 0 have are equivalent behavior to
+            -- passing a <speed> of 1.
+            local negspeedrecip = -((1/speed) + 0.5)  -- [-128.5 .. 1/127+0.5]
+            p._palsfadespeed = negspeedrecip
+            p._palsfadenext = negspeedrecip
+        end
+    end,
+
+    -- INTERNAL and CON-only.
+    _palfrom = function(p, f, r,g,b)
+        local pals = p._pals
+        -- Assume that CON's palfrom starts with prio 0 and speed 0.
+        if (pals.f == 0 or p._palsfadeprio <= 0) then
+            pals.f = f
+            pals.r, pals.g, pals.b = r, g, b
+            p._palsfadespeed, p._palsfadenext = 0, 0
+        end
+    end,
+}
+
 local player_mt = {
-    __index = {
-        -- CON-like addammo/addweapon, but without the non-local control flow
-        -- (returns true if weapon's ammo was at the max. instead).
-        addammo = con._addammo,
-        addweapon = con._addweapon,
-
-        stomp = con._pstomp,
-
-        holdskey = function(p, keyname)
-            -- XXX: on invalid <keyname>, error will point to this next line:
-            return player_holdskey(p.weapon._p, keyname)
-        end,
-
-        has_weapon = function(p, weap)
-            return p.gotweaponbits:test(lsh(1,weap))
-        end,
-
-        give_weapon = function(p, weap)
-            p.gotweaponbits:set(lsh(1,weap))
-        end,
-
-        take_weapon = function(p, weap)
-            p.gotweaponbits:clear(lsh(1,weap))
-        end,
-
-        -- Give or take weapon, for implementation of CON's .gotweapon access.
-        _gt_weapon = function(p, weap, give_p)
-            if (give_p ~= 0) then
-                p:give_weapon(weap)
-            else
-                p:take_weapon(weap)
-            end
-        end,
-
-        whack = function(p, no_return_to_center)
-            p.horiz = p.horiz + 64
-            if (not no_return_to_center) then
-                p.return_to_center = 9
-            end
-            local n = bit.arshift(128-band(ffiC.krand(),255), 1)
-            p.rotscrnang = n
-            p.look_ang = n
-        end,
-
-        -- External, improved 'palfrom'.
-        -- <speed>: possibly fractional speed of tint fading, in pals.f decrements per gametic.
-        --          XXX: exposes internals.
-        -- <prio>: a value from -128 to 127, higher ones trump lower or equal ones
-        fadecol = function(p, fadefrac, r, g, b, speed, prio)
-            -- Validate inargs: clamp f,r,g,b to [0 .. 1] first and multiply by
-            -- 63 for the internal handling.
-            fadefrac = clamp0to1(fadefrac)*63
-            -- NOTE: a fadefrac of now <1 is allowed, e.g. for clearing the tint.
-            r = clamp0to1(r)*63
-            g = clamp0to1(g)*63
-            b = clamp0to1(b)*63
-
-            if (speed ~= nil) then
-                check_number(speed)
-                -- Clamp to sensible values; the speed is stored in an int8_t
-                -- (see below).
-                speed = clamp(speed, 1/128, 127)
-            else
-                speed = 1
-            end
-
-            if (prio ~= nil) then
-                check_number(prio)
-
-                if (not (prio >= -128 and prio < 127)) then
-                    error("invalid argument #6 (priority): must be in [-128 .. 127]", 2)
-                end
-            else
-                prio = 0
-            end
-
-            -- Check if a currently active tint has higher priority.
-            if (p._pals.f > 0 and p._palsfadeprio > prio) then
-                return
-            end
-
-            -- The passed tint can be applied now.
-            p:_palfrom(fadefrac, r, g, b)
-            p._palsfadeprio = prio
-
-            -- Calculate .palsfade{speed,next}
-            if (speed >= 1) then
-                -- Will round to the nearest integer ("banker's
-                -- rounding"). NOTE: This is not correct for all numbers, see
-                -- http://blog.frama-c.com/index.php?post/2013/05/02/nearbyintf1
-                p._palsfadespeed = speed + 0.5
-                p._palsfadenext = 0
-            else
-                -- NOTE: Values that round to 0 have are equivalent behavior to
-                -- passing a <speed> of 1.
-                local negspeedrecip = -((1/speed) + 0.5)  -- [-128.5 .. 1/127+0.5]
-                p._palsfadespeed = negspeedrecip
-                p._palsfadenext = negspeedrecip
-            end
-        end,
-
-        -- INTERNAL and CON-only.
-        _palfrom = function(p, f, r,g,b)
-            local pals = p._pals
-            -- Assume that CON's palfrom starts with prio 0 and speed 0.
-            if (pals.f == 0 or p._palsfadeprio <= 0) then
-                pals.f = f
-                pals.r, pals.g, pals.b = r, g, b
-                p._palsfadespeed, p._palsfadenext = 0, 0
-            end
-        end,
-    },
+    __index = function(p, key)
+        if (player_methods[key] ~= nil) then
+            return player_methods[key]
+        elseif (key == "_input") then
+            return ffiC.g_player[p.weapon._p].sync[0]
+        else
+            -- Read access to protected player members.
+            return ffi.cast(player_ptr_ct, p)[0][key]
+        end
+    end,
 
     __newindex = function(p, key, val)
         -- Write access to protected player members.
@@ -1446,16 +1459,6 @@ local player_mt = {
     end,
 }
 
-local function player_index_index(p, key)
-    if (key=="_input") then
-        return ffiC.g_player[p.weapon._p].sync[0]
-    end
-
-    -- Read access to protected player members.
-    return ffi.cast(player_ptr_ct, p)[0][key]
-end
-
-setmtonce(player_mt.__index, { __index = player_index_index })
 ffi.metatype("DukePlayer_t", player_mt)
 
 local function GenProjectileSetFunc(Member, checkfunc)
