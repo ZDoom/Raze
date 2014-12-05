@@ -424,6 +424,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
 
     if (!(dwFlags & GAMEARRAY_TYPE_MASK))
     {
+        Baligned_free(aGameArrays[i].plValues);
         aGameArrays[i].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, asize * GAR_ELTSZ);
         Bmemset(aGameArrays[i].plValues, 0, asize * GAR_ELTSZ);
     }
