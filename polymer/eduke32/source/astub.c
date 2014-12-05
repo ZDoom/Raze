@@ -10827,9 +10827,7 @@ static void med_handlecommon(int32_t xpos, int32_t ypos, int32_t *row, int32_t r
 static void EditSectorData(int16_t sectnum)
 {
     int32_t col=1, row=0, rowmax = 6;
-#ifdef YAX_ENABLE__COMPAT
     int32_t i = -1;
-#endif
     int32_t xpos = 208, ypos = ydim-STATUS2DSIZ+48;
 
     med_editval = 0;
@@ -10895,10 +10893,19 @@ static void EditSectorData(int16_t sectnum)
 #endif
                 break;
             case 1:
-                handlemed(0, "X Pan", "Ceiling X Pan", &sector[sectnum].ceilingxpanning,
-                          sizeof(sector[sectnum].ceilingxpanning), 255, 0);
-                handlemed(0, "Y Pan", "Ceiling Y Pan", &sector[sectnum].ceilingypanning,
-                          sizeof(sector[sectnum].ceilingypanning), 255, 0);
+                i = Bsprintf(med_disptext,"(X,Y)pan: %d, %d",
+                             TrackerCast(sector[sectnum].ceilingxpanning),
+                             TrackerCast(sector[sectnum].ceilingypanning));
+                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+                if (med_editval)
+                {
+                    Bsprintf(med_edittext,"Sector %d Ceiling X Pan: ",sectnum);
+                    printmessage16("%s", med_edittext);
+                    sector[sectnum].ceilingxpanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].ceilingxpanning,255,0);
+                    Bsprintf(med_edittext,"Sector %d Ceiling Y Pan: ",sectnum);
+                    printmessage16("%s", med_edittext);
+                    sector[sectnum].ceilingypanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].ceilingypanning,255,0);
+                }
                 break;
             case 2:
                 handlemed(0, "Shade byte", "Ceiling Shade", &sector[sectnum].ceilingshade,sizeof(sector[sectnum].ceilingshade), 128, 1);
@@ -10939,10 +10946,19 @@ static void EditSectorData(int16_t sectnum)
                 break;
 
             case 1:
-                handlemed(0, "X Pan", "Floor X Pan", &sector[sectnum].floorxpanning,
-                          sizeof(sector[sectnum].floorxpanning), 255, 0);
-                handlemed(0, "Y Pan", "Floor Y Pan", &sector[sectnum].floorypanning,
-                          sizeof(sector[sectnum].floorypanning), 255, 0);
+                i = Bsprintf(med_disptext,"(X,Y)pan: %d, %d",
+                             TrackerCast(sector[sectnum].floorxpanning),
+                             TrackerCast(sector[sectnum].floorypanning));
+                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+                if (med_editval)
+                {
+                    Bsprintf(med_edittext,"Sector %d Floor X Pan: ",sectnum);
+                    printmessage16("%s", med_edittext);
+                    sector[sectnum].floorxpanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].floorxpanning,255,0);
+                    Bsprintf(med_edittext,"Sector %d Floor Y Pan: ",sectnum);
+                    printmessage16("%s", med_edittext);
+                    sector[sectnum].floorypanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].floorypanning,255,0);
+                }
                 break;
 
             case 2:
@@ -10986,9 +11002,7 @@ static void EditSectorData(int16_t sectnum)
 static void EditWallData(int16_t wallnum)
 {
     int32_t row=0;
-#if !defined NEW_MAP_FORMAT
     int32_t i = -1;
-#endif
     int32_t xpos = 208, ypos = ydim-STATUS2DSIZ+48;
 
     med_editval = 0;
@@ -11029,16 +11043,34 @@ static void EditWallData(int16_t wallnum)
                       sizeof(wall[wallnum].pal), M32_MAXPALOOKUPS, 0);
             break;
         case 3:
-            handlemed(0, "X Repeat", "X Repeat", &wall[wallnum].xrepeat,
-                      sizeof(wall[wallnum].xrepeat), 255, 0);
-            handlemed(0, "Y Repeat", "Y Repeat", &wall[wallnum].yrepeat,
-                      sizeof(wall[wallnum].yrepeat), 255, 0);
+            i = Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",
+                         TrackerCast(wall[wallnum].xrepeat),
+                         TrackerCast(wall[wallnum].yrepeat));
+            for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+            if (med_editval)
+            {
+                Bsprintf(med_edittext,"Wall %d X Repeat: ",wallnum);
+                printmessage16("%s", med_edittext);
+                wall[wallnum].xrepeat = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].xrepeat,255,0);
+                Bsprintf(med_edittext,"Wall %d Y Repeat: ",wallnum);
+                printmessage16("%s", med_edittext);
+                wall[wallnum].yrepeat = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].yrepeat,255,0);
+            }
             break;
         case 4:
-            handlemed(0, "X Pan", "X Pan", &wall[wallnum].xpanning,
-                      sizeof(wall[wallnum].xpanning), 255, 0);
-            handlemed(0, "Y Pan", "Y Pan", &wall[wallnum].ypanning,
-                      sizeof(wall[wallnum].ypanning), 255, 0);
+            i = Bsprintf(med_disptext,"(X,Y)pan: %d, %d",
+                         TrackerCast(wall[wallnum].xpanning),
+                         TrackerCast(wall[wallnum].ypanning));
+            for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+            if (med_editval)
+            {
+                Bsprintf(med_edittext,"Wall %d X Pan: ",wallnum);
+                printmessage16("%s", med_edittext);
+                wall[wallnum].xpanning = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].xpanning,255,0);
+                Bsprintf(med_edittext,"Wall %d Y Pan: ",wallnum);
+                printmessage16("%s", med_edittext);
+                wall[wallnum].ypanning = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].ypanning,255,0);
+            }
             break;
         case 5:
             handlemed(0, "Tile number", "Tile number", &wall[wallnum].picnum,
@@ -11211,16 +11243,38 @@ static void EditSpriteData(int16_t spritenum)
                           sizeof(sprite[spritenum].blend), MAXBLENDTABS, 0);
                 break;
             case 4:
-                handlemed(0, "X Repeat", "X Repeat", &sprite[spritenum].xrepeat,
-                          sizeof(sprite[spritenum].xrepeat), 255, 0);
-                handlemed(0, "Y Repeat", "Y Repeat", &sprite[spritenum].yrepeat,
-                          sizeof(sprite[spritenum].yrepeat), 255, 0);
+            {
+                i = Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",
+                             TrackerCast(sprite[spritenum].xrepeat),
+                             TrackerCast(sprite[spritenum].yrepeat));
+                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+                if (med_editval)
+                {
+                    Bsprintf(med_edittext,"Sprite %d X Repeat: ",spritenum);
+                    printmessage16("%s", med_edittext);
+                    sprite[spritenum].xrepeat = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].xrepeat,255,0);
+                    Bsprintf(med_edittext,"Sprite %d Y Repeat: ",spritenum);
+                    printmessage16("%s", med_edittext);
+                    sprite[spritenum].yrepeat = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].yrepeat,255,0);
+                }
+            }
             break;
             case 5:
-                handlemed(0, "X Offset", "X Offset", &sprite[spritenum].xoffset,
-                          sizeof(sprite[spritenum].xoffset), 128, 1);
-                handlemed(0, "Y Offset", "Y Offset", &sprite[spritenum].yoffset,
-                          sizeof(sprite[spritenum].yoffset), 128, 1);
+            {
+                i = Bsprintf(med_disptext,"(X,Y)offset: %d, %d",
+                             TrackerCast(sprite[spritenum].xoffset),
+                             TrackerCast(sprite[spritenum].yoffset));
+                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+                if (med_editval)
+                {
+                    Bsprintf(med_edittext,"Sprite %d X Offset: ",spritenum);
+                    printmessage16("%s", med_edittext);
+                    sprite[spritenum].xoffset = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].xoffset,128,1);
+                    Bsprintf(med_edittext,"Sprite %d Y Offset: ",spritenum);
+                    printmessage16("%s", med_edittext);
+                    sprite[spritenum].yoffset = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].yoffset,128,1);
+                }
+            }
             break;
             case 6:
                 handlemed(0, "Tile number", "Tile number", &sprite[spritenum].picnum,
