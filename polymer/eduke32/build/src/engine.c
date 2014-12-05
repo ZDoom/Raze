@@ -5584,7 +5584,6 @@ static uint8_t falpha_to_blend(float alpha, int32_t *cstatptr, int32_t transbit1
 
 static void drawsprite_classic(int32_t snum)
 {
-    int32_t xoff, yoff, xspan, yspan;
     int32_t x1, y1, x2, y2, lx, rx, dalx2, darx2, i, j, k, x;
     int32_t z, zz, z1, z2, xp1, yp1, xp2, yp2;
     int32_t dax, day, dax1, dax2, y;
@@ -5665,28 +5664,28 @@ static void drawsprite_classic(int32_t snum)
     if (cstat&2)
         setup_blend(blendidx, cstat&512);
 
-    xoff = picanm[tilenum].xofs + tspr->xoffset;
-    yoff = picanm[tilenum].yofs + tspr->yoffset;
+    int32_t xoff = picanm[tilenum].xofs + tspr->xoffset;
+    int32_t yoff = picanm[tilenum].yofs + tspr->yoffset;
 
     if ((cstat&48) == 0)
     {
-        int32_t daclip, startum, startdm, siz;
-        int32_t xv, linum, linuminc;
-        int32_t xsiz, ysiz;
+        int32_t daclip, startum, startdm;
+        int32_t linum, linuminc;
 
 draw_as_face_sprite:
         if (yp <= (4<<8)) return;
 
-        siz = divscale19(xdimenscale,yp);
+        const int32_t siz = divscale19(xdimenscale,yp);
 
-        xv = mulscale16(((int32_t)tspr->xrepeat)<<16,xyaspect);
+        const int32_t xv = mulscale16(((int32_t)tspr->xrepeat)<<16,xyaspect);
 
-        xspan = tilesiz[tilenum].x;
-        yspan = tilesiz[tilenum].y;
-        xsiz = mulscale30(siz,xv*xspan);
-        ysiz = mulscale14(siz,tspr->yrepeat*yspan);
+        const int32_t xspan = tilesiz[tilenum].x;
+        const int32_t yspan = tilesiz[tilenum].y;
 
-        if (EDUKE32_PREDICT_FALSE((tilesiz[tilenum].x>>11) >= xsiz || yspan >= (ysiz>>1)))
+        const int32_t xsiz = mulscale30(siz,xv*xspan);
+        const int32_t ysiz = mulscale14(siz,tspr->yrepeat*yspan);
+
+        if (EDUKE32_PREDICT_FALSE((xspan>>11) >= xsiz || yspan >= (ysiz>>1)))
             return;  //Watch out for divscale overflow
 
         x1 = xb-(xsiz>>1);
@@ -5868,7 +5867,8 @@ draw_as_face_sprite:
         if ((cstat&4) > 0) xoff = -xoff;
         if ((cstat&8) > 0) yoff = -yoff;
 
-        xspan = tilesiz[tilenum].x; yspan = tilesiz[tilenum].y;
+        const int32_t xspan = tilesiz[tilenum].x;
+        const int32_t yspan = tilesiz[tilenum].y;
         xv = tspr->xrepeat*sintable[(tspr->ang+2560+1536)&2047];
         yv = tspr->xrepeat*sintable[(tspr->ang+2048+1536)&2047];
         i = (xspan>>1)+xoff;
@@ -6184,8 +6184,9 @@ draw_as_face_sprite:
 
         if ((cstat&4) > 0) xoff = -xoff;
         if ((cstat&8) > 0) yoff = -yoff;
-        xspan = tilesiz[tilenum].x;
-        yspan = tilesiz[tilenum].y;
+
+        const int32_t xspan = tilesiz[tilenum].x;
+        const int32_t yspan = tilesiz[tilenum].y;
 
         //Rotate center point
         dax = tspr->x-globalposx;
@@ -6617,12 +6618,12 @@ draw_as_face_sprite:
         {
             const int32_t siz = divscale19(xdimenscale,yp);
             const int32_t xv = mulscale16(nxrepeat,xyaspect);
-            int32_t xsiz, ysiz;
 
-            xspan = ((B_LITTLE32(longptr[0])+B_LITTLE32(longptr[1]))>>1);
-            yspan = B_LITTLE32(longptr[2]);
-            xsiz = mulscale30(siz,xv*xspan);
-            ysiz = mulscale30(siz,nyrepeat*yspan);
+            const int32_t xspan = ((B_LITTLE32(longptr[0])+B_LITTLE32(longptr[1]))>>1);
+            const int32_t yspan = B_LITTLE32(longptr[2]);
+
+            const int32_t xsiz = mulscale30(siz,xv*xspan);
+            const int32_t ysiz = mulscale30(siz,nyrepeat*yspan);
 
             //Watch out for divscale overflow
             if (((xspan>>11) < xsiz) && (yspan < (ysiz>>1)))
@@ -10036,7 +10037,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
         spr = &sprite[tsprite[s].owner];
         if ((spr->cstat&48) == 32)
         {
-            int32_t xspan;
+            const int32_t xspan = tilesiz[spr->picnum].x;
 
             npoints = 0;
 
@@ -10044,7 +10045,6 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             y1 = spr->y;
             get_floorspr_points(spr, 0, 0, &x1, &x2, &x3, &x4,
                                 &y1, &y2, &y3, &y4);
-            xspan = tilesiz[spr->picnum].x;
 
             xb1[0] = 1; xb1[1] = 2; xb1[2] = 3; xb1[3] = 0;
             npoints = 4;
