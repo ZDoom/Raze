@@ -138,13 +138,11 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
     }
 
     {
-        instype *oinsptr=insptr;
+        instype *const oinsptr=insptr;
         vmstate_t vm_backup;
-        void *olocalvars = aGameArrays[M32_LOCAL_ARRAY_ID].vals;
+        void *const olocalvars = aGameArrays[M32_LOCAL_ARRAY_ID].vals;
 #ifdef M32_LOCALS_VARARRAY
         int32_t localvars[aEventNumLocals[iEventID]];
-#elif defined M32_LOCALS_ALLOCA
-        int32_t *localvars = alloca(aEventNumLocals[iEventID] * sizeof(int32_t));
 #else
         int32_t localvars[M32_LOCALS_FIXEDNUM];
 #endif
@@ -299,7 +297,15 @@ static char *GetMaybeInlineQuote(int32_t quotei)
 
     return quotetext;
 }
- 
+
+static int CheckArray(int aidx)
+{
+    if (!(aidx >= 0 && aidx < g_gameArrayCount))
+        M32_ERROR("Invalid array %d!", aidx);
+
+    return (vm.flags&VMFLAG_ERROR);
+}
+
 int32_t VM_Execute(int32_t once)
 {
     register int32_t tw = *insptr;
@@ -330,13 +336,11 @@ skip_check:
 
         case CON_STATE:
         {
-            instype *tempscrptr = insptr+2;
-            int32_t stateidx = *(insptr+1), o_g_st = vm.g_st, oret=vm.flags&VMFLAG_RETURN;
-            void *olocalvars = aGameArrays[M32_LOCAL_ARRAY_ID].vals;
+            instype *const tempscrptr = insptr+2;
+            const int32_t stateidx = *(insptr+1), o_g_st = vm.g_st, oret=vm.flags&VMFLAG_RETURN;
+            void *const olocalvars = aGameArrays[M32_LOCAL_ARRAY_ID].vals;
 #ifdef M32_LOCALS_VARARRAY
             int32_t localvars[statesinfo[stateidx].numlocals];
-#elif defined M32_LOCALS_ALLOCA
-            int32_t *localvars = alloca(statesinfo[stateidx].numlocals * sizeof(int32_t));
 #else
             int32_t localvars[M32_LOCALS_FIXEDNUM];
 #endif
@@ -475,47 +479,54 @@ skip_check:
         case CON_SETARRAY:
             insptr++;
             {
-                int32_t j=*insptr++;
-                int32_t index = Gv_GetVarX(*insptr++);
-                int32_t value = Gv_GetVarX(*insptr++);
+                const int32_t j=*insptr++;
+                const int32_t index = Gv_GetVarX(*insptr++);
+                const int32_t value = Gv_GetVarX(*insptr++);
 
-                if (j<0 || j >= g_gameArrayCount)
-                {
-                    M32_ERROR("Tried to set invalid array ID (%d)",  j);
-                }
+                CheckArray(j);
+
                 if (aGameArrays[j].dwFlags & GAMEARRAY_READONLY)
-                {
-                    M32_ERROR("Tried to set on read-only array `%s'",  aGameArrays[j].szLabel);
-                }
-                if (index >= aGameArrays[j].size || index < 0)
-                {
-                    M32_ERROR("Array index %d out of bounds",  index);
-                }
-                if (vm.flags&VMFLAG_ERROR) continue;
-                ((int32_t *)aGameArrays[j].vals)[index]=value;  // REM: other array types not implemented, since they're read-only
+                    M32_ERROR("Tried to set on read-only array `%s'", aGameArrays[j].szLabel);
+
+                if (!(index >= 0 && index < aGameArrays[j].size))
+                    M32_ERROR("Array index %d out of bounds", index);
+
+                if (vm.flags&VMFLAG_ERROR)
+                    continue;
+
+                // NOTE: Other array types not implemented, since they're read-only.
+                ((int32_t *)aGameArrays[j].vals)[index] = value;
                 continue;
             }
 
         case CON_GETARRAYSIZE:
             insptr++;
             {
-                int32_t j=*insptr++;
-                Gv_SetVarX(*insptr++, (aGameArrays[j].dwFlags&GAMEARRAY_VARSIZE) ?
-                           Gv_GetVarN(aGameArrays[j].size) : aGameArrays[j].size);
+                const int32_t j=*insptr++;
+
+                if (CheckArray(j))
+                    continue;
+
+                Gv_SetVarX(*insptr++, Gv_GetArraySize(j));
             }
             continue;
 
         case CON_RESIZEARRAY:
             insptr++;
             {
-                int32_t j=*insptr++;
-                int32_t asize = Gv_GetVarX(*insptr++);
+                const int32_t j=*insptr++;
+                const int32_t asize = Gv_GetVarX(*insptr++);
 
-                if (asize<=0 || asize>65536)
-                {
+                CheckArray(j);
+
+                if (aGameArrays[j].dwFlags & GAMEARRAY_READONLY)
+                    M32_ERROR("Tried to resize read-only array `%s'", aGameArrays[j].szLabel);
+
+                if (!(asize >= 1 && asize <= 65536))
                     M32_ERROR("Invalid array size %d (must be between 1 and 65536)", asize);
+
+                if (vm.flags&VMFLAG_ERROR)
                     continue;
-                }
 
 //                OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
                 aGameArrays[j].vals = Xrealloc(aGameArrays[j].vals, sizeof(int32_t) * asize);
@@ -527,34 +538,30 @@ skip_check:
         case CON_COPY:
             insptr++;
             {
-                int32_t si=*insptr++, ssiz;
-                int32_t sidx = Gv_GetVarX(*insptr++); //, vm.g_i, vm.g_p);
-                int32_t di=*insptr++, dsiz;
+                const int32_t si=*insptr++;
+                int32_t sidx = Gv_GetVarX(*insptr++);
+                const int32_t di=*insptr++;
                 int32_t didx = Gv_GetVarX(*insptr++);
                 int32_t numelts = Gv_GetVarX(*insptr++);
 
-                if (si<0 || si>=g_gameArrayCount)
-                {
-                    M32_ERROR("Invalid array %d!", si);
-                }
-                if (di<0 || di>=g_gameArrayCount)
-                {
-                    M32_ERROR("Invalid array %d!", di);
-                }
+                CheckArray(si);
+                CheckArray(di);
+
                 if (aGameArrays[di].dwFlags & GAMEARRAY_READONLY)
-                {
                     M32_ERROR("Array %d is read-only!", di);
-                }
-                if (vm.flags&VMFLAG_ERROR) continue;
 
-                ssiz = (aGameArrays[si].dwFlags&GAMEARRAY_VARSIZE) ?
-                       Gv_GetVarN(aGameArrays[si].size) : aGameArrays[si].size;
-                dsiz = (aGameArrays[di].dwFlags&GAMEARRAY_VARSIZE) ?
-                       Gv_GetVarN(aGameArrays[si].size) : aGameArrays[di].size;
+                if (vm.flags&VMFLAG_ERROR)
+                    continue;
 
-                if (sidx > ssiz || didx > dsiz) continue;
-                if ((sidx+numelts) > ssiz) numelts = ssiz-sidx;
-                if ((didx+numelts) > dsiz) numelts = dsiz-didx;
+                const int32_t ssiz = Gv_GetArraySize(si);
+                const int32_t dsiz = Gv_GetArraySize(di);
+
+                if (sidx > ssiz || didx > dsiz)
+                    continue;
+                if (numelts > ssiz-sidx)
+                    numelts = ssiz-sidx;
+                if (numelts > dsiz-didx)
+                    numelts = dsiz-didx;
 
                 switch (aGameArrays[si].dwFlags & GAMEARRAY_TYPE_MASK)
                 {
@@ -1142,14 +1149,23 @@ skip_check:
         case CON_COLLECTSECTORS:
             insptr++;
             {
-                int32_t aridx=*insptr++, startsectnum=Gv_GetVarX(*insptr++);
-                int32_t numsectsVar=*insptr++, state=*insptr++;
+                const int32_t aridx=*insptr++, startsectnum=Gv_GetVarX(*insptr++);
+                const int32_t numsectsVar=*insptr++, state=*insptr++;
 
-                int32_t o_g_st=vm.g_st, arsize = aGameArrays[aridx].size;
-                instype *end=insptr;
+                if (CheckArray(aridx))
+                    continue;
+
+                gamearray_t *const gar = &aGameArrays[aridx];
+                Bassert((gar->dwFlags & (GAMEARRAY_READONLY|GAMEARRAY_VARSIZE)) == 0);
+
+                const int32_t o_g_st=vm.g_st, arsize = gar->size;
+                instype *const end=insptr;
                 int32_t sectcnt, numsects=0;
-                int16_t *sectlist = (int16_t *)aGameArrays[aridx].vals;  // actually an int32_t array
-                int32_t *sectlist32 = (int32_t *)sectlist;
+
+                // XXX: relies on -fno-strict-aliasing
+                int16_t *const sectlist = (int16_t *)gar->vals;  // actually an int32_t array
+                int32_t *const sectlist32 = (int32_t *)sectlist;
+
                 int32_t j, startwall, endwall, ns;
                 static uint8_t sectbitmap[MAXSECTORS>>3];
 
@@ -1194,26 +1210,35 @@ skip_check:
         case CON_SORT:
             insptr++;
             {
-                int32_t aridx=*insptr++, count=Gv_GetVarX(*insptr++), state=*insptr++;
-                int32_t o_g_st=vm.g_st;
-                instype *end=insptr;
+                const int32_t aridx=*insptr++, count=Gv_GetVarX(*insptr++), state=*insptr++;
+                const int32_t o_g_st = vm.g_st;
+                instype *const end = insptr;
 
-                if (count<=0) continue;
-                if (count > aGameArrays[aridx].size)
+                if (CheckArray(aridx))
+                    continue;
+
+                if (count <= 0)
+                    continue;
+
+                gamearray_t *const gar = &aGameArrays[aridx];
+                Bassert((gar->dwFlags & (GAMEARRAY_READONLY|GAMEARRAY_VARSIZE)) == 0);
+
+                if (count > gar->size)
                 {
-                    M32_ERROR("Count of elements to sort (%d) exceeds array size (%d)!", count,aGameArrays[aridx].size);
+                    M32_ERROR("Count of elements to sort (%d) exceeds array size (%d)!",
+                              count, gar->size);
                     continue;
                 }
 
                 if (state < 0)
                 {
-                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), X_DoSortDefault);
+                    qsort(gar->vals, count, sizeof(int32_t), X_DoSortDefault);
                 }
                 else
                 {
                     x_sortingstateptr = script + statesinfo[state].ofs;
                     vm.g_st = 1+MAXEVENTS+state;
-                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), X_DoSort);
+                    qsort(gar->vals, count, sizeof(int32_t), X_DoSort);
                     vm.g_st = o_g_st;
                     insptr = end;
                 }

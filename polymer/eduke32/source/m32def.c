@@ -1128,7 +1128,7 @@ static void C_GetNextVarType(int32_t type)
         {
             if (!m32_script_expertmode && (type&GV_WRITABLE))
             {
-                int32_t flags = aGameArrays[id].dwFlags;
+                const int32_t flags = aGameArrays[id].dwFlags;
 
                 if (flags & GAMEARRAY_READONLY)
                 {
@@ -1978,11 +1978,8 @@ static int32_t C_ParseCommand(void)
             }
 
             if (aGameArrays[i].dwFlags & GAMEARRAY_TYPE_MASK)
-            {
                 C_CUSTOMERROR("Array for %s must be user-defined.",
                               tw==CON_SORT?"sorting":"collecting sectors");
-                g_numCompilerErrors++;
-            }
         }
         else
         {
@@ -2543,7 +2540,8 @@ repeatcase:
         C_GetNextValue(LABEL_DEFINE);
 
         {
-            int32_t asize = *(g_scriptPtr-1);
+            const int32_t asize = *(g_scriptPtr-1);
+
             if (cs.currentStateIdx < 0 && cs.currentEvent < 0)        
                 Gv_NewArray(tlabel, NULL, asize, GAMEARRAY_NORMAL);
             else  // local array

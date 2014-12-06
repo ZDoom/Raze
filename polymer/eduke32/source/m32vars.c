@@ -57,18 +57,18 @@ static void Gv_Clear(void)
         if (i >= MAXGAMEARRAYS)
             continue;
 
-        if (aGameArrays[i].szLabel)
-            Bfree(aGameArrays[i].szLabel);
+        gamearray_t *const gar = &aGameArrays[i];
 
-        aGameArrays[i].szLabel = NULL;
+        Bfree(gar->szLabel);
+        gar->szLabel = NULL;
 
-        if ((aGameArrays[i].dwFlags & GAMEARRAY_NORMAL) && aGameArrays[i].vals)
+        if ((gar->dwFlags & GAMEARRAY_NORMAL) && gar->vals)
         {
-            Bfree(aGameArrays[i].vals);
-            aGameArrays[i].vals=NULL;
+            Bfree(gar->vals);
+            gar->vals = NULL;
         }
 
-        aGameArrays[i].dwFlags |= GAMEARRAY_RESET;
+        gar->dwFlags |= GAMEARRAY_RESET;
     }
 
     g_gameVarCount = g_gameArrayCount = 0;
@@ -79,9 +79,9 @@ static void Gv_Clear(void)
     return;
 }
 
-int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t dwFlags)
+int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_t dwFlags)
 {
-    int32_t i;
+    Bassert(!(dwFlags&GAMEARRAY_VARSIZE) || (dwFlags&GAMEARRAY_READONLY));
 
     if (g_gameArrayCount >= MAXGAMEARRAYS)
     {
@@ -95,15 +95,15 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
         return 0;
     }
 
-    i = hash_find(&h_arrays, pszLabel);
+    const int32_t i = hash_find(&h_arrays, pszLabel);
+
     if (i>=0 && !(aGameArrays[i].dwFlags & GAMEARRAY_RESET))
     {
         // found it it's a duplicate in error
 
         if (aGameArrays[i].dwFlags&GAMEARRAY_TYPE_MASK)
-        {
             C_CUSTOMWARNING("ignored redefining system array `%s'.", pszLabel);
-        }
+
 //        C_ReportError(WARNING_DUPLICATEDEFINITION);
         return 0;
     }
@@ -112,27 +112,28 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     {
         // the dummy array with index 0 sets the size to 0 so that accidental accesses as array
         // will complain.
-        C_CUSTOMERROR("invalid array size %d. Must be between 1 and 65536", (int32_t)asize);
+        C_CUSTOMERROR("invalid array size %d. Must be between 1 and 65536", asize);
         return 0;
     }
 
-    i = g_gameArrayCount;
+    gamearray_t *const gar = &aGameArrays[g_gameArrayCount];
 
-    if (aGameArrays[i].szLabel == NULL)
-        aGameArrays[i].szLabel = (char *)Xcalloc(MAXARRAYLABEL, sizeof(char));
-    if (aGameArrays[i].szLabel != pszLabel)
-        Bstrcpy(aGameArrays[i].szLabel, pszLabel);
+    if (gar->szLabel == NULL)
+        gar->szLabel = (char *)Xcalloc(MAXARRAYLABEL, sizeof(char));
+    if (gar->szLabel != pszLabel)
+        Bstrcpy(gar->szLabel, pszLabel);
 
     if (!(dwFlags & GAMEARRAY_TYPE_MASK))
-        aGameArrays[i].vals = (int32_t *)Xcalloc(asize, sizeof(int32_t));
+        gar->vals = (int32_t *)Xcalloc(asize, sizeof(int32_t));
     else
-        aGameArrays[i].vals = arrayptr;
+        gar->vals = arrayptr;
 
-    aGameArrays[i].size = asize;
-    aGameArrays[i].dwFlags = dwFlags & ~GAMEARRAY_RESET;
+    gar->size = asize;
+    gar->dwFlags = dwFlags & ~GAMEARRAY_RESET;
 
+    hash_add(&h_arrays, gar->szLabel, g_gameArrayCount, 1);
     g_gameArrayCount++;
-    hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
+
     return 1;
 }
 
@@ -290,7 +291,6 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
     case M32_FLAG_ARRAY:
     {
         register int32_t index;
-        int32_t siz;
 
         index = (int32_t)((id>>16)&0xffff);
         if (!(id&M32_FLAG_CONSTANTINDEX))
@@ -298,26 +298,24 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
 
         id &= (MAXGAMEARRAYS-1);
 
-        if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
-            siz = Gv_GetVarN(aGameArrays[id].size);
-        else
-            siz = aGameArrays[id].size;
+        const int32_t siz = Gv_GetArraySize(id);
+        const gamearray_t *const gar = &aGameArrays[id];
 
         if (index < 0 || index >= siz)
         {
-            M32_ERROR("Gv_GetVarX(): invalid array index (%s[%d])", aGameArrays[id].szLabel, index);
+            M32_ERROR("Gv_GetVarX(): invalid array index (%s[%d])", gar->szLabel, index);
             return -1;
         }
 
-        switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPE_MASK)
+        switch (gar->dwFlags & GAMEARRAY_TYPE_MASK)
         {
         case 0:
         case GAMEARRAY_OFINT:
-            return (((int32_t *)aGameArrays[id].vals)[index] ^ -negateResult) + negateResult;
+            return (((int32_t *)gar->vals)[index] ^ -negateResult) + negateResult;
         case GAMEARRAY_OFSHORT:
-            return (((int16_t *)aGameArrays[id].vals)[index] ^ -negateResult) + negateResult;
+            return (((int16_t *)gar->vals)[index] ^ -negateResult) + negateResult;
         case GAMEARRAY_OFCHAR:
-            return (((uint8_t *)aGameArrays[id].vals)[index] ^ -negateResult) + negateResult;
+            return (((uint8_t *)gar->vals)[index] ^ -negateResult) + negateResult;
         default:
             M32_ERROR("Gv_GetVarX() (array): WTF??");
             return -1;
@@ -392,7 +390,6 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
     case M32_FLAG_ARRAY:
     {
         register int32_t index;
-        int32_t siz;
 
         index = (id>>16)&0xffff;
         if (!(id&M32_FLAG_CONSTANTINDEX))
@@ -400,27 +397,26 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
 
         id &= (MAXGAMEARRAYS-1);
 
-        if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
-            siz = Gv_GetVarN(aGameArrays[id].size);
-        else siz = aGameArrays[id].size;
+        const int32_t siz = Gv_GetArraySize(id);
+        gamearray_t *const gar = &aGameArrays[id];
 
         if (index < 0 || index >= siz)
         {
-            M32_ERROR("Gv_SetVarX(): invalid array index %s[%d], size=%d", aGameArrays[id].szLabel, index, siz);
+            M32_ERROR("Gv_SetVarX(): invalid array index %s[%d], size=%d", gar->szLabel, index, siz);
             return;
         }
 
-        switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPE_MASK)
+        switch (gar->dwFlags & GAMEARRAY_TYPE_MASK)
         {
         case 0:
         case GAMEARRAY_OFINT:
-            ((int32_t *)aGameArrays[id].vals)[index] = lValue;
+            ((int32_t *)gar->vals)[index] = lValue;
             return;
         case GAMEARRAY_OFSHORT:
-            ((int16_t *)aGameArrays[id].vals)[index] = (int16_t)lValue;
+            ((int16_t *)gar->vals)[index] = (int16_t)lValue;
             return;
         case GAMEARRAY_OFCHAR:
-            ((uint8_t *)aGameArrays[id].vals)[index] = (uint8_t)lValue;
+            ((uint8_t *)gar->vals)[index] = (uint8_t)lValue;
             return;
         default:
             M32_ERROR("Gv_SetVarX() (array): WTF??");

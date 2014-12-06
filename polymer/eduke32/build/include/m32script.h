@@ -46,7 +46,7 @@ extern void VM_ScriptInfo(void);
 extern void VM_Disasm(ofstype beg, int32_t size);
 
 extern int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags);
-extern int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t dwFlags);
+extern int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_t dwFlags);
 extern void Gv_Init(void);
 
 extern int32_t __fastcall Gv_GetVarX(register int32_t id);
@@ -124,11 +124,11 @@ enum GamevarFlags_t {
 };
 
 enum GamearrayFlags_t {
-    MAXGAMEARRAYS      = (MAXGAMEVARS>>2), // must be lower than MAXGAMEVARS
+    MAXGAMEARRAYS      = (MAXGAMEVARS>>2), // must be strictly smaller than MAXGAMEVARS
     MAXARRAYLABEL      = MAXVARLABEL,
 
     GAMEARRAY_READONLY = 0x00001000,
-    GAMEARRAY_WARN = 0x00002000,
+    GAMEARRAY_WARN     = 0x00002000,
 
     GAMEARRAY_NORMAL   = 0x00004000,
     GAMEARRAY_OFCHAR   = 0x00000001,
@@ -136,9 +136,9 @@ enum GamearrayFlags_t {
     GAMEARRAY_OFINT    = 0x00000004,
     GAMEARRAY_TYPE_MASK = GAMEARRAY_OFCHAR|GAMEARRAY_OFSHORT|GAMEARRAY_OFINT,
 
-    GAMEARRAY_VARSIZE = 0x00000020,
-
     GAMEARRAY_RESET    = 0x00000008,
+
+    GAMEARRAY_VARSIZE = 0x00000020,
 };
 
 typedef struct {
@@ -235,17 +235,21 @@ extern int32_t mousyplc;
 // uncomment if variable-length arrays are available
 //#define M32_LOCALS_VARARRAY
 
-// uncomment if alloca() is available
-//#define M32_LOCALS_ALLOCA
-
 // if neither is there, use a constant number of them
 #define M32_LOCALS_FIXEDNUM 64
 
-#if defined M32_LOCALS_VARARRAY || defined M32_LOCALS_ALLOCA
+#if defined M32_LOCALS_VARARRAY
 # define M32_MAX_LOCALS MAXGAMEVARS
 #else
 # define M32_MAX_LOCALS M32_LOCALS_FIXEDNUM
 #endif
 
+static inline int32_t Gv_GetArraySize(int32_t id)
+{
+    if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
+        return Gv_GetVarN(aGameArrays[id].size);
+
+    return aGameArrays[id].size;
+}
 
 #endif
