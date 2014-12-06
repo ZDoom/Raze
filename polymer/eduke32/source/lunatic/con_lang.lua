@@ -900,7 +900,7 @@ StructAccessCode2 =
 }
 
 -- NOTE: These MUST be in reverse lexicographical order!
--- Per CON syntax, valid identifiers names are disjunct from keywords,
+-- Per CON syntax, valid identifiers names are disjoint from keywords,
 -- so that a rule like
 --      t_identifier = -con_keyword * (sp1 + "[") * t_identifier_all
 -- (from the final grammar in lunacon.lua) must match the longest

@@ -535,9 +535,9 @@ static int32_t loadkvx(const char *filnam)
     for (i=0; i<256; i++)
     {
         kread(fil, c, 3);
-#if B_BIG_ENDIAN != 0
+//#if B_BIG_ENDIAN != 0
         pal[i] = B_LITTLE32((((int32_t) c[0])<<18)+(((int32_t) c[1])<<10)+(((int32_t) c[2])<<2)+(i<<24));
-#endif
+//#endif
     }
 
     yzsiz = voxsiz.y*voxsiz.z; i = ((voxsiz.x*yzsiz+31)>>3)+1;
@@ -699,7 +699,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, const spritetype *tspr)
     //}
     //if (globalorientation&4) { m0.y = -m0.y; a0.y = -a0.y; } //x-flipping
 
-    k0 = 1.f/(m->bscale * 64.f);
+    k0 = m->bscale / 64.f;
     f = (float) tspr->xrepeat * (256.f/320.f) * k0;
     if ((sprite[tspr->owner].cstat&48)==16)
         f *= 1.25f;

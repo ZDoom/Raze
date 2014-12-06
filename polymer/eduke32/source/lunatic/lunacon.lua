@@ -1701,7 +1701,7 @@ local tok =
     maybe_minus = (Pat("-") * sp0)^-1,
     number = Var("t_number"),
 
-    -- Valid identifier names are disjunct from keywords!
+    -- Valid identifier names are disjoint from keywords!
     -- XXX: CON is more permissive with identifier name characters:
     identifier = Var("t_identifier"),
     -- This one matches keywords, too:
