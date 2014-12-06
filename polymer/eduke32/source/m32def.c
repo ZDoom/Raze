@@ -1126,18 +1126,23 @@ static void C_GetNextVarType(int32_t type)
         }
         else if (id<MAXGAMEARRAYS)  // simple (non-local) gamearrays
         {
-            if (!m32_script_expertmode && (type&GV_WRITABLE))
+            if (type & GV_WRITABLE)
             {
-                const int32_t flags = aGameArrays[id].dwFlags;
+                const int32_t dwFlags = aGameArrays[id].dwFlags;
 
-                if (flags & GAMEARRAY_READONLY)
+                // NOTE: GAMEARRAY_STRIDE2 arrays cannot be written to
+                // regardless of whether we're in expert mode or not.
+                if (!m32_script_expertmode || (dwFlags & GAMEARRAY_STRIDE2))
                 {
-                    C_ReportError(ERROR_ARRAYREADONLY);
-                    g_numCompilerErrors++;
-                }
-                else if (flags & GAMEARRAY_WARN)
-                {
-                    C_CUSTOMWARNING("writing to expert-mode array. Be sure to know what you're doing!");
+                    if (dwFlags & GAMEARRAY_READONLY)
+                    {
+                        C_ReportError(ERROR_ARRAYREADONLY);
+                        g_numCompilerErrors++;
+                    }
+                    else if (dwFlags & GAMEARRAY_WARN)
+                    {
+                        C_CUSTOMWARNING("writing to expert-mode array. Be sure to know what you're doing!");
+                    }
                 }
             }
         }

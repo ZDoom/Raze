@@ -139,6 +139,7 @@ enum GamearrayFlags_t {
     GAMEARRAY_RESET    = 0x00000008,
 
     GAMEARRAY_VARSIZE = 0x00000020,
+    GAMEARRAY_STRIDE2 = 0x00000040,
 };
 
 typedef struct {

@@ -79,9 +79,16 @@ static void Gv_Clear(void)
     return;
 }
 
+#define ASSERT_IMPLIES(x, y) Bassert(!(x) || (y))
+
 int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_t dwFlags)
 {
-    Bassert(!(dwFlags&GAMEARRAY_VARSIZE) || (dwFlags&GAMEARRAY_READONLY));
+    ASSERT_IMPLIES(dwFlags&GAMEARRAY_VARSIZE, dwFlags&GAMEARRAY_READONLY);
+    ASSERT_IMPLIES(dwFlags&GAMEARRAY_STRIDE2, dwFlags&GAMEARRAY_READONLY);
+    ASSERT_IMPLIES(dwFlags&GAMEARRAY_TYPE_MASK,
+                   g_gameArrayCount==0 || (dwFlags&(GAMEARRAY_READONLY|GAMEARRAY_WARN)));
+
+    ASSERT_IMPLIES(dwFlags&GAMEARRAY_STRIDE2, dwFlags&GAMEARRAY_OFINT);
 
     if (g_gameArrayCount >= MAXGAMEARRAYS)
     {
@@ -307,6 +314,9 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
             return -1;
         }
 
+        if (gar->dwFlags & GAMEARRAY_STRIDE2)
+            index <<= 1;
+
         switch (gar->dwFlags & GAMEARRAY_TYPE_MASK)
         {
         case 0:
@@ -405,6 +415,9 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
             M32_ERROR("Gv_SetVarX(): invalid array index %s[%d], size=%d", gar->szLabel, index, siz);
             return;
         }
+
+        // NOTE: GAMEARRAY_READONLY arrays can be modified in expert mode.
+        Bassert((gar->dwFlags & GAMEARRAY_STRIDE2) == 0);
 
         switch (gar->dwFlags & GAMEARRAY_TYPE_MASK)
         {
@@ -670,8 +683,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewArray("headsectbunchf", (void *)headsectbunch[1], YAX_MAXBUNCHES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
     Gv_NewArray("nextsectbunchf", (void *)nextsectbunch[1], MAXSECTORS, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 #endif
-//    Gv_NewArray("tilesizx", (void *)tilesizx, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-//    Gv_NewArray("tilesizy", (void *)tilesizy, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFINT);
+    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFINT);
 //    Gv_NewArray("picsiz", (void *)picsiz, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
     Gv_NewArray("picanm", (void *)picanm, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFINT);
 

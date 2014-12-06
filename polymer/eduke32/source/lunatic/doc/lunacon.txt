@@ -349,8 +349,8 @@ Directives
 Run-time commands
 ^^^^^^^^^^^^^^^^^
 
-*`activatecheat`*, *`qstrncat`*, *`qsubstr`*, *`clearmapstate`*, `save`,
- `savenn`, *`lineintersect`*, *`rayintersect`*, *`sectorofwall`*.
+*`activatecheat`*, *`clearmapstate`*, `save`, `savenn`, *`lineintersect`*,
+ *`rayintersect`*, *`sectorofwall`*.
 
 Additionally, various multiplayer-related commands either unconditionally
 return results as if no multiplayer game is in progress, or are non-functional

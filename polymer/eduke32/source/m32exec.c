@@ -549,33 +549,49 @@ skip_check:
 
                 if (aGameArrays[di].dwFlags & GAMEARRAY_READONLY)
                     M32_ERROR("Array %d is read-only!", di);
-
                 if (vm.flags&VMFLAG_ERROR)
                     continue;
 
                 const int32_t ssiz = Gv_GetArraySize(si);
                 const int32_t dsiz = Gv_GetArraySize(di);
 
-                if (sidx > ssiz || didx > dsiz)
+                if ((uint32_t)sidx >= (uint32_t)ssiz)
+                    M32_ERROR("Invalid source index %d", sidx);
+                if ((uint32_t)didx >= (uint32_t)dsiz)
+                    M32_ERROR("Invalid destination index %d", didx);
+                if (vm.flags&VMFLAG_ERROR)
                     continue;
+
                 if (numelts > ssiz-sidx)
                     numelts = ssiz-sidx;
                 if (numelts > dsiz-didx)
                     numelts = dsiz-didx;
 
-                switch (aGameArrays[si].dwFlags & GAMEARRAY_TYPE_MASK)
+                const gamearray_t *const sar = &aGameArrays[si];
+                gamearray_t *const dar = &aGameArrays[di];
+
+                switch (sar->dwFlags & GAMEARRAY_TYPE_MASK)
                 {
                 case 0:
                 case GAMEARRAY_OFINT:
-                    Bmemcpy((int32_t *)aGameArrays[di].vals + didx, (int32_t *)aGameArrays[si].vals + sidx, numelts * sizeof(int32_t));
+                    if (sar->dwFlags & GAMEARRAY_STRIDE2)
+                    {
+                        for (; numelts>0; numelts--, sidx += 2)
+                            ((int32_t *)dar->vals)[didx++] = ((int32_t *)sar->vals)[sidx];
+                    }
+                    else
+                    {
+                        Bmemcpy((int32_t *)dar->vals + didx, (int32_t *)sar->vals + sidx,
+                                numelts * sizeof(int32_t));
+                    }
                     break;
                 case GAMEARRAY_OFSHORT:
                     for (; numelts>0; numelts--)
-                        ((int32_t *)aGameArrays[di].vals)[didx++] = ((int16_t *)aGameArrays[si].vals)[sidx++];
+                        ((int32_t *)dar->vals)[didx++] = ((int16_t *)sar->vals)[sidx++];
                     break;
                 case GAMEARRAY_OFCHAR:
                     for (; numelts>0; numelts--)
-                        ((int32_t *)aGameArrays[di].vals)[didx++] = ((uint8_t *)aGameArrays[si].vals)[sidx++];
+                        ((int32_t *)dar->vals)[didx++] = ((uint8_t *)sar->vals)[sidx++];
                     break;
                 }
                 continue;
