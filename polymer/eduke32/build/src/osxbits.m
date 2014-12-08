@@ -73,15 +73,15 @@ char *osx_gethomedir(void)
     return returnpath;
 }
 
-char *osx_getsupportdir(void)
+char *osx_getsupportdir(int32_t local)
 {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, local ? NSUserDomainMask : NSLocalDomainMask, YES);
     char *returnpath = NULL;
 
     if ([paths count] > 0)
     {
         const char *Cpath = [[paths objectAtIndex:0] UTF8String];
-        
+
         if (Cpath)
             returnpath = Bstrdup(Cpath);
     }
@@ -98,12 +98,12 @@ char *osx_getappdir(void)
 	CFStringRef str;
     const char *s;
     char *dir = NULL;
-    
+
     mainBundle = CFBundleGetMainBundle();
     if (!mainBundle) {
         return NULL;
     }
-    
+
     resUrl = CFBundleCopyResourcesDirectoryURL(mainBundle);
     CFRelease(mainBundle);
     if (!resUrl) {
@@ -120,25 +120,25 @@ char *osx_getappdir(void)
     if (!str) {
         return NULL;
     }
-    
+
     s = CFStringGetCStringPtr(str, CFStringGetSystemEncoding());
     if (s) {
         dir = strdup(s);
     }
     CFRelease(str);
-    
+
     return dir;
 }
 
-char *osx_getapplicationsdir(void)
+char *osx_getapplicationsdir(int32_t local)
 {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSAllApplicationsDirectory, NSLocalDomainMask, YES);
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSAllApplicationsDirectory, local ? NSUserDomainMask : NSLocalDomainMask, YES);
     char *returnpath = NULL;
 
     if ([paths count] > 0)
     {
         const char *Cpath = [[paths objectAtIndex:0] UTF8String];
-        
+
         if (Cpath)
             returnpath = Bstrdup(Cpath);
     }

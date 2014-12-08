@@ -651,7 +651,7 @@ FORCE_INLINE uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7fff
 # define Bstrncpy strncpy
 # define Bstrcmp strcmp
 # define Bstrncmp strncmp
-# if defined(_MSC_VER) 
+# if defined(_MSC_VER)
 #  define Bstrcasecmp _stricmp
 #  define Bstrncasecmp _strnicmp
 # elif defined(__QNX__)
@@ -761,7 +761,6 @@ char *Bgetenv(const char *name);
 #endif
 
 char *Bgethomedir(void);
-char *Bgetsupportdir(void);
 char *Bgetappdir(void);
 uint32_t Bgetsysmemsize(void);
 int32_t Bcorrectfilename(char *filename, int32_t removefn);

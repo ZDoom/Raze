@@ -801,25 +801,35 @@ void G_AddSearchPaths(void)
     addsearchpath("/usr/local/share/games/eduke32");
 #elif defined(__APPLE__)
     char buf[BMAX_PATH];
-    char *applications = osx_getapplicationsdir();
-    char *support = Bgetsupportdir();
+    int32_t i;
+    char *applications[] = { osx_getapplicationsdir(0), osx_getapplicationsdir(1) };
+    char *support[] = { osx_getsupportdir(0), osx_getsupportdir(1) };
 
-    Bsnprintf(buf, sizeof(buf), "%s/Steam", support);
-    G_AddSteamPathsApple(buf);
+    for (i = 0; i < 2; i++)
+    {
+        Bsnprintf(buf, sizeof(buf), "%s/Steam", support[i]);
+        G_AddSteamPathsApple(buf);
 
-    Bsnprintf(buf, sizeof(buf), "%s/Steam/steamapps/libraryfolders.vdf", support);
-    G_ParseSteamKeyValuesForPaths(buf);
+        Bsnprintf(buf, sizeof(buf), "%s/Steam/steamapps/libraryfolders.vdf", support[i]);
+        G_ParseSteamKeyValuesForPaths(buf);
 
-    Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D.app/Contents/Resources/Duke Nukem 3D.boxer/C.harddisk", applications);
-    addsearchpath(buf);
+        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D.app/Contents/Resources/Duke Nukem 3D.boxer/C.harddisk", applications[i]);
+        addsearchpath(buf);
+    }
 
-    Bsnprintf(buf, sizeof(buf), "%s/JFDuke3D", support);
-    addsearchpath(buf);
-    Bsnprintf(buf, sizeof(buf), "%s/EDuke32", support);
-    addsearchpath(buf);
+    for (i = 0; i < 2; i++)
+    {
+        Bsnprintf(buf, sizeof(buf), "%s/JFDuke3D", support[i]);
+        addsearchpath(buf);
+        Bsnprintf(buf, sizeof(buf), "%s/EDuke32", support[i]);
+        addsearchpath(buf);
+    }
 
-    Bfree(applications);
-    Bfree(support);
+    for (i = 0; i < 2; i++)
+    {
+        Bfree(applications[i]);
+        Bfree(support[i]);
+    }
 #elif defined (_WIN32)
     char buf[BMAX_PATH];
     const char* instpath;

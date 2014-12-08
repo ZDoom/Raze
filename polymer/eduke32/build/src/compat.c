@@ -419,22 +419,13 @@ char *Bgethomedir(void)
 #endif
 }
 
-char *Bgetsupportdir(void)
-{
-#if defined __APPLE__
-    return osx_getsupportdir();
-#else
-    return Bgethomedir();
-#endif
-}
-
 char *Bgetappdir(void)
 {
     char *dir = NULL;
-    
+
 #ifdef _WIN32
 	TCHAR appdir[MAX_PATH];
-    
+
 	if (GetModuleFileName(NULL, appdir, MAX_PATH) > 0) {
 		// trim off the filename
 		char *slash = strrchr(appdir, '\\');
@@ -472,7 +463,7 @@ char *Bgetappdir(void)
         dir = strdup(dirname(buf));
     }
 #endif
-    
+
     return dir;
 }
 
