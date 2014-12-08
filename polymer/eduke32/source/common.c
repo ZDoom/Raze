@@ -603,8 +603,8 @@ static void G_LoadAddon(void)
     }
 }
 
-#ifdef __APPLE__
-static void G_AddSteamPathsApple(const char *basepath)
+#if defined __APPLE__ || defined __linux__
+static void G_AddSteamPaths(const char *basepath)
 {
     char buf[BMAX_PATH];
 
@@ -620,7 +620,11 @@ static void G_AddSteamPathsApple(const char *basepath)
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/vacation", basepath);
     addsearchpath(buf);
 
+#if defined __APPLE__
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM", basepath);
+#else
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/NAM", basepath);
+#endif
     addsearchpath(buf);
 }
 
@@ -785,7 +789,7 @@ static void G_ParseSteamKeyValuesForPaths(const char *vdf)
         char *result;
         vdfbuf++;
         while ((result = KeyValues_FindKeyValue(&vdfbuf, vdfbufend, NULL)) != NULL)
-            G_AddSteamPathsApple(result);
+            G_AddSteamPaths(result);
     }
 
     Bfree(vdfbufstart);
@@ -795,6 +799,17 @@ static void G_ParseSteamKeyValuesForPaths(const char *vdf)
 void G_AddSearchPaths(void)
 {
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+    char buf[BMAX_PATH];
+    char *homepath = Bgethomedir();
+
+    Bsnprintf(buf, sizeof(buf), "%s/.steam/steam", homepath);
+    G_AddSteamPaths(buf);
+
+    Bsnprintf(buf, sizeof(buf), "%s/.steam/steam/steamapps/libraryfolders.vdf", homepath);
+    G_ParseSteamKeyValuesForPaths(buf);
+
+    Bfree(homepath);
+
     addsearchpath("/usr/share/games/jfduke3d");
     addsearchpath("/usr/local/share/games/jfduke3d");
     addsearchpath("/usr/share/games/eduke32");
@@ -808,7 +823,7 @@ void G_AddSearchPaths(void)
     for (i = 0; i < 2; i++)
     {
         Bsnprintf(buf, sizeof(buf), "%s/Steam", support[i]);
-        G_AddSteamPathsApple(buf);
+        G_AddSteamPaths(buf);
 
         Bsnprintf(buf, sizeof(buf), "%s/Steam/steamapps/libraryfolders.vdf", support[i]);
         G_ParseSteamKeyValuesForPaths(buf);
