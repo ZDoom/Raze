@@ -603,7 +603,7 @@ static void G_LoadAddon(void)
     }
 }
 
-#if defined __APPLE__ || defined __linux__
+#if defined __APPLE__ || defined __linux__ || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__
 static void G_AddSteamPaths(const char *basepath)
 {
     char buf[BMAX_PATH];
