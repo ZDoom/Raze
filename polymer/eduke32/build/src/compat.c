@@ -17,12 +17,21 @@
 #ifdef _WIN32
 # include <shlobj.h>
 # include <direct.h>
+#elif __APPLE__
+# include "osxbits.h"
 #endif
 
 #if defined(_MSC_VER)
 # include <io.h>
 #else
 # include <dirent.h>
+#endif
+
+#if defined(__linux) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+# include <libgen.h> // for dirname()
+#endif
+#if defined(__FreeBSD__)
+# include <sys/sysctl.h> // for sysctl() to get path to executable
 #endif
 
 #include "baselayer.h"
@@ -393,22 +402,8 @@ char *Bgethomedir(void)
     if (loaded)
         FreeLibrary(hShell32);
     return NULL;
-#elif defined(__APPLE__) && MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
-    FSRef ref;
-    CFStringRef str;
-    CFURLRef base;
-    char *s;
-
-    if (FSFindFolder(kUserDomain, kVolumeRootFolderType, kDontCreateFolder, &ref) < 0) return NULL;
-    base = CFURLCreateFromFSRef(NULL, &ref);
-    if (!base) return NULL;
-    str = CFURLCopyFileSystemPath(base, kCFURLPOSIXPathStyle);
-    CFRelease(base);
-    if (!str) return NULL;
-    s = (char *)CFStringGetCStringPtr(str,CFStringGetSystemEncoding());
-    if (s) s = Bstrdup(s);
-    CFRelease(str);
-    return s;
+#elif defined __APPLE__
+    return osx_gethomedir();
 #elif defined(GEKKO)
     // return current drive's name
     char *drv, cwd[BMAX_PATH] = {0};
@@ -424,30 +419,61 @@ char *Bgethomedir(void)
 #endif
 }
 
-char *Bgetsupportdir(int32_t global)
+char *Bgetsupportdir(void)
 {
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3_
-    UNREFERENCED_PARAMETER(global);
-    return Bgethomedir();
+#if defined __APPLE__
+    return osx_getsupportdir();
 #else
-    FSRef ref;
-    CFStringRef str;
-    CFURLRef base;
-    char *s;
-
-    if (FSFindFolder(global ? kLocalDomain : kUserDomain,
-                     kApplicationSupportFolderType,
-                     kDontCreateFolder, &ref) < 0) return NULL;
-    base = CFURLCreateFromFSRef(NULL, &ref);
-    if (!base) return NULL;
-    str = CFURLCopyFileSystemPath(base, kCFURLPOSIXPathStyle);
-    CFRelease(base);
-    if (!str) return NULL;
-    s = (char *)CFStringGetCStringPtr(str,CFStringGetSystemEncoding());
-    if (s) s = Bstrdup(s);
-    CFRelease(str);
-    return s;
+    return Bgethomedir();
 #endif
+}
+
+char *Bgetappdir(void)
+{
+    char *dir = NULL;
+    
+#ifdef _WIN32
+	TCHAR appdir[MAX_PATH];
+    
+	if (GetModuleFileName(NULL, appdir, MAX_PATH) > 0) {
+		// trim off the filename
+		char *slash = strrchr(appdir, '\\');
+		if (slash) slash[0] = 0;
+		dir = strdup(appdir);
+    }
+
+#elif defined __APPLE__
+    dir = osx_getappdir();
+#elif defined(__linux) || defined(__NetBSD__) || defined(__OpenBSD__)
+    char buf[PATH_MAX] = {0};
+    char buf2[PATH_MAX] = {0};
+#  ifdef __linux
+    snprintf(buf, sizeof(buf), "/proc/%d/exe", getpid());
+#  else // the BSDs.. except for FreeBSD which has a sysctl
+    snprintf(buf, sizeof(buf), "/proc/%d/file", getpid());
+#  endif
+    int len = readlink(buf, buf2, sizeof(buf2));
+    if (len != -1) {
+        // remove executable name with dirname(3)
+        // on Linux, dirname() will modify buf2 (cutting off executable name) and return it
+        // on FreeBSD it seems to use some internal buffer instead.. anyway, just strdup()
+        dir = strdup(dirname(buf2));
+    }
+#elif defined(__FreeBSD__)
+    // the sysctl should also work when /proc/ is not mounted (which seems to
+    // be common on FreeBSD), so use it..
+    char buf[PATH_MAX] = {0};
+    int name[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+    size_t len = sizeof(buf)-1;
+    int ret = sysctl(name, sizeof(name)/sizeof(name[0]), buf, &len, NULL, 0);
+    if(ret == 0 && buf[0] != '\0') {
+        // again, remove executable name with dirname()
+        // on FreeBSD dirname() seems to use some internal buffer
+        dir = strdup(dirname(buf));
+    }
+#endif
+    
+    return dir;
 }
 
 int32_t Bcorrectfilename(char *filename, int32_t removefn)

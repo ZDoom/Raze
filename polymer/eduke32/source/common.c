@@ -15,6 +15,8 @@
 # ifndef KEY_WOW64_32KEY
 #  define KEY_WOW64_32KEY 0x0200
 # endif
+#elif defined __APPLE__
+# include "osxbits.h"
 #endif
 
 #include "common.h"
@@ -292,16 +294,14 @@ void G_ExtInit(void)
 {
     char cwd[BMAX_PATH];
 
-    if (getcwd(cwd,BMAX_PATH))
-    {
-#if defined(__APPLE__)
-        /* Dirty hack on OS X to also look for gamedata inside the application bundle - rhoenie 08/08 */
-        char seekinappcontainer[BMAX_PATH];
-        Bsnprintf(seekinappcontainer,sizeof(seekinappcontainer),"%s/EDuke32.app/", cwd);
-        addsearchpath(seekinappcontainer);
+#ifdef __APPLE__
+    char *appdir = Bgetappdir();
+    addsearchpath(appdir);
+    Bfree(appdir);
 #endif
+
+    if (getcwd(cwd,BMAX_PATH) && Bstrcmp(cwd,"/") != 0)
         addsearchpath(cwd);
-    }
 
     if (CommandPaths)
     {
@@ -337,8 +337,6 @@ void G_ExtInit(void)
             Bsnprintf(cwd,sizeof(cwd),"%s/"
 #if defined(_WIN32)
                       "EDuke32 Settings"
-#elif defined(__APPLE__)
-                      "Library/Application Support/EDuke32"
 #elif defined(GEKKO)
                       "apps/eduke32"
 #else
@@ -605,6 +603,195 @@ static void G_LoadAddon(void)
     }
 }
 
+#ifdef __APPLE__
+static void G_AddSteamPathsApple(const char *basepath)
+{
+    char buf[BMAX_PATH];
+
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot", basepath);
+    addsearchpath(buf);
+
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/dc", basepath);
+    addsearchpath(buf);
+
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/nw", basepath);
+    addsearchpath(buf);
+
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/vacation", basepath);
+    addsearchpath(buf);
+
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM", basepath);
+    addsearchpath(buf);
+}
+
+// A bare-bones "parser" for Valve's KeyValues VDF format.
+// There is no guarantee this will function properly with ill-formed files.
+static void KeyValues_SkipWhitespace(char **vdfbuf, char * const vdfbufend)
+{
+    while (((*vdfbuf)[0] == ' ' || (*vdfbuf)[0] == '\n' || (*vdfbuf)[0] == '\r' || (*vdfbuf)[0] == '\t' || (*vdfbuf)[0] == '\0') && *vdfbuf < vdfbufend)
+        (*vdfbuf)++;
+
+    // comments
+    if ((*vdfbuf) + 2 < vdfbufend && (*vdfbuf)[0] == '/' && (*vdfbuf)[1] == '/')
+    {
+        while ((*vdfbuf)[0] != '\n' && (*vdfbuf)[0] != '\r' && *vdfbuf < vdfbufend)
+            (*vdfbuf)++;
+
+        KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+    }
+}
+static void KeyValues_SkipToEndOfQuotedToken(char **vdfbuf, char * const vdfbufend)
+{
+    (*vdfbuf)++;
+    while ((*vdfbuf)[0] != '\"' && (*vdfbuf)[-1] != '\\' && *vdfbuf < vdfbufend)
+        (*vdfbuf)++;
+}
+static void KeyValues_SkipToEndOfUnquotedToken(char **vdfbuf, char * const vdfbufend)
+{
+    while ((*vdfbuf)[0] != ' ' && (*vdfbuf)[0] != '\n' && (*vdfbuf)[0] != '\r' && (*vdfbuf)[0] != '\t' && (*vdfbuf)[0] != '\0' && *vdfbuf < vdfbufend)
+        (*vdfbuf)++;
+}
+static void KeyValues_SkipNextWhatever(char **vdfbuf, char * const vdfbufend)
+{
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+
+    if (*vdfbuf == vdfbufend)
+        return;
+
+    if ((*vdfbuf)[0] == '{')
+    {
+        (*vdfbuf)++;
+        do
+        {
+            KeyValues_SkipNextWhatever(vdfbuf, vdfbufend);
+        }
+        while ((*vdfbuf)[0] != '}');
+        (*vdfbuf)++;
+    }
+    else if ((*vdfbuf)[0] == '\"')
+        KeyValues_SkipToEndOfQuotedToken(vdfbuf, vdfbufend);
+    else if ((*vdfbuf)[0] != '}')
+        KeyValues_SkipToEndOfUnquotedToken(vdfbuf, vdfbufend);
+
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+}
+static char* KeyValues_NormalizeToken(char **vdfbuf, char * const vdfbufend)
+{
+    char *token = *vdfbuf;
+
+    if ((*vdfbuf)[0] == '\"' && *vdfbuf < vdfbufend)
+    {
+        token++;
+
+        KeyValues_SkipToEndOfQuotedToken(vdfbuf, vdfbufend);
+        (*vdfbuf)[0] = '\0';
+
+        // account for escape sequences
+        char *writeseeker = token, *readseeker = token;
+        while (readseeker <= *vdfbuf)
+        {
+            if (readseeker[0] == '\\')
+                readseeker++;
+
+            writeseeker[0] = readseeker[0];
+
+            writeseeker++;
+            readseeker++;
+        }
+
+        return token;
+    }
+
+    KeyValues_SkipToEndOfUnquotedToken(vdfbuf, vdfbufend);
+    (*vdfbuf)[0] = '\0';
+
+    return token;
+}
+static void KeyValues_FindKey(char **vdfbuf, char * const vdfbufend, const char *token)
+{
+    char *ParentKey = KeyValues_NormalizeToken(vdfbuf, vdfbufend);
+    if (token != NULL) // pass in NULL to find the next key instead of a specific one
+        while (Bstrcmp(ParentKey, token) != 0 && *vdfbuf < vdfbufend)
+        {
+            KeyValues_SkipNextWhatever(vdfbuf, vdfbufend);
+            ParentKey = KeyValues_NormalizeToken(vdfbuf, vdfbufend);
+        }
+
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+}
+static int32_t KeyValues_FindParentKey(char **vdfbuf, char * const vdfbufend, const char *token)
+{
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+
+    // end of scope
+    if ((*vdfbuf)[0] == '}')
+        return 0;
+
+    KeyValues_FindKey(vdfbuf, vdfbufend, token);
+
+    // ignore the wrong type
+    while ((*vdfbuf)[0] != '{' && *vdfbuf < vdfbufend)
+    {
+        KeyValues_SkipNextWhatever(vdfbuf, vdfbufend);
+        KeyValues_FindKey(vdfbuf, vdfbufend, token);
+    }
+
+    if (*vdfbuf == vdfbufend)
+        return 0;
+
+    return 1;
+}
+static char* KeyValues_FindKeyValue(char **vdfbuf, char * const vdfbufend, const char *token)
+{
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+
+    // end of scope
+    if ((*vdfbuf)[0] == '}')
+        return NULL;
+
+    KeyValues_FindKey(vdfbuf, vdfbufend, token);
+
+    // ignore the wrong type
+    while ((*vdfbuf)[0] == '{' && *vdfbuf < vdfbufend)
+    {
+        KeyValues_SkipNextWhatever(vdfbuf, vdfbufend);
+        KeyValues_FindKey(vdfbuf, vdfbufend, token);
+    }
+
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+
+    if (*vdfbuf == vdfbufend)
+        return NULL;
+
+    return KeyValues_NormalizeToken(vdfbuf, vdfbufend);
+}
+
+static void G_ParseSteamKeyValuesForPaths(const char *vdf)
+{
+    int32_t fd = Bopen(vdf, BO_RDONLY);
+    int32_t size = Bfilelength(fd);
+    char *vdfbufstart, *vdfbuf, *vdfbufend;
+
+    if (size <= 0)
+        return;
+
+    vdfbufstart = vdfbuf = (char*)Bmalloc(size);
+    size = (int32_t)Bread(fd, vdfbuf, size);
+    Bclose(fd);
+    vdfbufend = vdfbuf + size;
+
+    if (KeyValues_FindParentKey(&vdfbuf, vdfbufend, "LibraryFolders"))
+    {
+        char *result;
+        vdfbuf++;
+        while ((result = KeyValues_FindKeyValue(&vdfbuf, vdfbufend, NULL)) != NULL)
+            G_AddSteamPathsApple(result);
+    }
+
+    Bfree(vdfbufstart);
+}
+#endif
+
 void G_AddSearchPaths(void)
 {
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
@@ -613,10 +800,27 @@ void G_AddSearchPaths(void)
     addsearchpath("/usr/share/games/eduke32");
     addsearchpath("/usr/local/share/games/eduke32");
 #elif defined(__APPLE__)
-    addsearchpath("/Library/Application Support/JFDuke3D");
-    addsearchpath("/Library/Application Support/EDuke32");
+    char buf[BMAX_PATH];
+    char *applications = osx_getapplicationsdir();
+    char *support = Bgetsupportdir();
+
+    Bsnprintf(buf, sizeof(buf), "%s/Steam", support);
+    G_AddSteamPathsApple(buf);
+
+    Bsnprintf(buf, sizeof(buf), "%s/Steam/steamapps/libraryfolders.vdf", support);
+    G_ParseSteamKeyValuesForPaths(buf);
+
+    Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D.app/Contents/Resources/Duke Nukem 3D.boxer/C.harddisk", applications);
+    addsearchpath(buf);
+
+    Bsnprintf(buf, sizeof(buf), "%s/JFDuke3D", support);
+    addsearchpath(buf);
+    Bsnprintf(buf, sizeof(buf), "%s/EDuke32", support);
+    addsearchpath(buf);
+
+    Bfree(applications);
+    Bfree(support);
 #elif defined (_WIN32)
-    // detect Steam and GOG versions of Duke3D
     char buf[BMAX_PATH];
     const char* instpath;
 

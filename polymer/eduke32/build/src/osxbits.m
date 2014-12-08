@@ -58,3 +58,92 @@ int osx_ynbox(const char *name, const char *msg)
 
 	return r;
 }
+
+char *osx_gethomedir(void)
+{
+    NSString *path = NSHomeDirectory();
+    const char *Cpath = [path UTF8String];
+    char *returnpath = NULL;
+
+    if (Cpath)
+        returnpath = Bstrdup(Cpath);
+
+    [path release];
+
+    return returnpath;
+}
+
+char *osx_getsupportdir(void)
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+    char *returnpath = NULL;
+
+    if ([paths count] > 0)
+    {
+        const char *Cpath = [[paths objectAtIndex:0] UTF8String];
+        
+        if (Cpath)
+            returnpath = Bstrdup(Cpath);
+    }
+
+    [paths release];
+
+    return returnpath;
+}
+
+char *osx_getappdir(void)
+{
+    CFBundleRef mainBundle;
+    CFURLRef resUrl, fullUrl;
+	CFStringRef str;
+    const char *s;
+    char *dir = NULL;
+    
+    mainBundle = CFBundleGetMainBundle();
+    if (!mainBundle) {
+        return NULL;
+    }
+    
+    resUrl = CFBundleCopyResourcesDirectoryURL(mainBundle);
+    CFRelease(mainBundle);
+    if (!resUrl) {
+        return NULL;
+    }
+    fullUrl = CFURLCopyAbsoluteURL(resUrl);
+    if (fullUrl) {
+        CFRelease(resUrl);
+        resUrl = fullUrl;
+    }
+
+	str = CFURLCopyFileSystemPath(resUrl, kCFURLPOSIXPathStyle);
+    CFRelease(resUrl);
+    if (!str) {
+        return NULL;
+    }
+    
+    s = CFStringGetCStringPtr(str, CFStringGetSystemEncoding());
+    if (s) {
+        dir = strdup(s);
+    }
+    CFRelease(str);
+    
+    return dir;
+}
+
+char *osx_getapplicationsdir(void)
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSAllApplicationsDirectory, NSLocalDomainMask, YES);
+    char *returnpath = NULL;
+
+    if ([paths count] > 0)
+    {
+        const char *Cpath = [[paths objectAtIndex:0] UTF8String];
+        
+        if (Cpath)
+            returnpath = Bstrdup(Cpath);
+    }
+
+    [paths release];
+
+    return returnpath;
+}

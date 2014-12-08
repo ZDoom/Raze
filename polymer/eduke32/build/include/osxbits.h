@@ -9,6 +9,11 @@ extern "C" {
 int32_t osx_msgbox(const char *name, const char *msg);
 int32_t osx_ynbox(const char *name, const char *msg);
 
+char *osx_gethomedir(void);
+char *osx_getsupportdir(void);
+char *osx_getappdir(void);
+char *osx_getapplicationsdir(void);
+
 #ifdef __cplusplus
 }
 #endif
