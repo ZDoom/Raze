@@ -197,8 +197,8 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
 #elif defined HAVE_GTK2
     {
         int32_t r = gtkbuild_ynbox(name, buf);
-        if (r >= 0)
-            return r;
+
+        return r >= 0 ? r : 0;
     }
 #elif defined _WIN32
     return (MessageBox(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL) == IDYES);
