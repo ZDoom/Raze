@@ -283,9 +283,16 @@ void wm_setapptitle(const char *name)
 # include <ogc/lwp_watchdog.h>
 
 #include "gctypes.h" // for bool
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern void L2Enhance();
 extern void CON_EnableGecko(int channel,int safe);
 extern bool fatInit(uint32_t cacheSize, bool setAsDefaultDevice);
+#ifdef __cplusplus
+}
+#endif
 #endif
 
 static void attach_debugger_here(void) {}
@@ -641,9 +648,9 @@ int32_t initinput(void)
         putenv("SDL_HAS3BUTTONMOUSE=1");
 #endif
 
-    if (!remapinit)
-        for (i = 0; i < 256; i++) remap[i] = i;
-    remapinit = 1;
+    if (!keyremapinit)
+        for (i = 0; i < 256; i++) keyremap[i] = i;
+    keyremapinit = 1;
 
     inputdevices = 1 | 2;  // keyboard (1) and mouse (2)
     mousegrab = 0;

@@ -12,8 +12,8 @@
 char inputdevices=0;
 char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyasciififo[KEYFIFOSIZ];
 uint8_t keyfifoplc, keyfifoend, keyasciififoplc, keyasciififoend;
-char remap[KEYSTATUSSIZ];
-int32_t remapinit=0;
+char keyremap[KEYSTATUSSIZ];
+int32_t keyremapinit=0;
 char key_names[NUMKEYS][24];
 int32_t mousex=0,mousey=0,mouseb=0,mouseabsx=0,mouseabsy=0;
 uint8_t moustat = 0, mousegrab = 0, mouseinwindow = 1, AppMouseGrab = 1;
@@ -56,16 +56,16 @@ int32_t defaultres[][2] =
 
 int32_t GetKey(int32_t key)
 {
-    return keystatus[remap[key]];
+    return keystatus[keyremap[key]];
 }
 
 void SetKey(int32_t key, int32_t state)
 {
-    keystatus[remap[key]] = state;
+    keystatus[keyremap[key]] = state;
 
     if (state)
     {
-        keyfifo[keyfifoend] = remap[key];
+        keyfifo[keyfifoend] = keyremap[key];
         keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state;
         keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1));
     }

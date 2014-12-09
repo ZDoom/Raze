@@ -92,8 +92,8 @@ extern char inputdevices;
 #define KEYFIFOSIZ 64
 extern char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyasciififo[KEYFIFOSIZ];
 extern uint8_t keyasciififoplc, keyasciififoend, keyfifoplc, keyfifoend;
-extern char scantoasc[128], remap[KEYSTATUSSIZ], key_names[NUMKEYS][24];
-extern int32_t remapinit;
+extern char scantoasc[128], keyremap[KEYSTATUSSIZ], key_names[NUMKEYS][24];
+extern int32_t keyremapinit;
 
 extern int32_t defaultres[][2];
 

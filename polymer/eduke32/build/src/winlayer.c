@@ -755,11 +755,11 @@ int32_t initinput(void)
     moustat=0;
     memset(keystatus, 0, sizeof(keystatus));
 
-    if (!remapinit)
+    if (!keyremapinit)
         for (i=0; i<256; i++)
-            remap[i]=i;
+            keyremap[i]=i;
 
-    remapinit=1;
+    keyremapinit=1;
     keyfifoplc = keyfifoend = 0;
     keyasciififoplc = keyasciififoend = 0;
 
