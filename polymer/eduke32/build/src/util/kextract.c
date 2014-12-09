@@ -6,6 +6,7 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 
 #include "compat.h"
+#include "kplib.h"
 
 #include <utime.h>
 

@@ -6,6 +6,7 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 
 #include "compat.h"
+#include "kplib.h"
 
 // Glibc doesn't provide this function, so for the sake of less ugliess
 // for all platforms, here's a replacement just for this program.

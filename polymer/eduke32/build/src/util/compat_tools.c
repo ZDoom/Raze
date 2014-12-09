@@ -2,6 +2,10 @@
 
 #include "compat.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //
 // initprintf() -- prints a string
 //
@@ -16,3 +20,7 @@ void initprintf(const char *f, ...)
 }
 
 int32_t editstatus = 1;
+
+#ifdef __cplusplus
+}
+#endif
