@@ -25,6 +25,9 @@ STRIP=$(CROSS)strip
 AS=nasm
 PKG_CONFIG=pkg-config
 
+DONT_PRINT = > /dev/null 2>&1
+DONT_FAIL = ; exit 0
+
 # Override defaults that absolutely will not work.
 ifeq ($(CC),cc)
     override CC=gcc
@@ -97,36 +100,39 @@ SYSBITS=32
 # the outside world. This allows cross-compilation by overriding
 # CC and giving us PLATFORM specifically.
 #
-ifndef PLATFORM
+ifndef HOST
     uname:=$(strip $(shell uname -s))
-    PLATFORM=UNKNOWN
+    HOST=UNKNOWN
     ifeq ($(findstring Linux,$(uname)),Linux)
-        PLATFORM=LINUX
+        HOST=LINUX
     endif
     ifeq ($(findstring BSD,$(uname)),BSD)
-        PLATFORM=BSD
+        HOST=BSD
     endif
     ifeq ($(findstring MINGW,$(uname)),MINGW)
-        PLATFORM=WINDOWS
+        HOST=WINDOWS
     endif
     ifeq ($(findstring Darwin,$(uname)),Darwin)
-        PLATFORM=DARWIN
+        HOST=DARWIN
     endif
     ifeq ($(findstring BeOS,$(uname)),BeOS)
-        PLATFORM=BEOS
+        HOST=BEOS
     endif
     ifeq ($(findstring skyos,$(uname)),skyos)
-        PLATFORM=SKYOS
+        HOST=SKYOS
     endif
     ifeq ($(findstring QNX,$(uname)),QNX)
-        PLATFORM=QNX
+        HOST=QNX
     endif
     ifeq ($(findstring SunOS,$(uname)),SunOS)
-        PLATFORM=SUNOS
+        HOST=SUNOS
     endif
     ifeq ($(findstring syllable,$(uname)),syllable)
-        PLATFORM=SYLLABLE
+        HOST=SYLLABLE
     endif
+endif
+ifndef PLATFORM
+    PLATFORM=$(HOST)
 endif
 
 ifndef SUBPLATFORM
@@ -284,6 +290,10 @@ ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     M_TUNE_GENERIC := -mtune=generic
     M_STACKREALIGN := -mstackrealign
     W_STRICT_OVERFLOW := -Wno-strict-overflow
+endif
+
+ifeq ($(HOST),WINDOWS)
+    DONT_PRINT = > NUL 2>&1
 endif
 
 ifeq ($(PLATFORM),WINDOWS)

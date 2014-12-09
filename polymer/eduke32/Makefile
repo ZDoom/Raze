@@ -599,7 +599,7 @@ $(TESTGAME_RSRC)/%_banner.c: $(TESTGAME_RSRC)/%.bmp
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
 $(ENGINE_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(DUKE3D_OBJ) $(TESTGAME_OBJ):
-	mkdir $@
+	-mkdir $@ $(DONT_PRINT) $(DONT_FAIL)
 
 ## PHONIES
 
