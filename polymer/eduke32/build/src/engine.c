@@ -4183,12 +4183,16 @@ static void ceilspritehline(int32_t x2, int32_t y)
 //
 static void ceilspritescan(int32_t x1, int32_t x2)
 {
-    int32_t x, y1, y2, twall, bwall;
+    int32_t x;
 
-    y1 = uwall[x1]; y2 = y1;
+    int32_t y1 = uwall[x1];
+    int32_t y2 = y1;
+
     for (x=x1; x<=x2; x++)
     {
-        twall = uwall[x]-1; bwall = dwall[x];
+        const int32_t twall = uwall[x]-1;
+        const int32_t bwall = dwall[x];
+
         if (twall < bwall-1)
         {
             if (twall >= y2)
@@ -5584,7 +5588,7 @@ static uint8_t falpha_to_blend(float alpha, int32_t *cstatptr, int32_t transbit1
 
 static void drawsprite_classic(int32_t snum)
 {
-    int32_t x1, y1, x2, y2, lx, rx, dalx2, darx2, i, j, k, x;
+    int32_t x1, y1, x2, y2, i, j, k, x;
     int32_t z, zz, z1, z2, xp1, yp1, xp2, yp2;
     int32_t dax, day, dax1, dax2, y;
     int32_t vtilenum = 0;
@@ -5669,7 +5673,7 @@ static void drawsprite_classic(int32_t snum)
 
     if ((cstat&48) == 0)
     {
-        int32_t daclip, startum, startdm;
+        int32_t startum, startdm;
         int32_t linum, linuminc;
 
 draw_as_face_sprite:
@@ -5706,8 +5710,8 @@ draw_as_face_sprite:
         y2 = y1+ysiz-1;
         if ((y1|255) >= (y2|255)) return;
 
-        lx = (x1>>8)+1; if (lx < 0) lx = 0;
-        rx = (x2>>8); if (rx >= xdimen) rx = xdimen-1;
+        int32_t lx = (x1>>8)+1; if (lx < 0) lx = 0;
+        int32_t rx = (x2>>8); if (rx >= xdimen) rx = xdimen-1;
         if (lx > rx) return;
 
         if ((sec->ceilingstat&3) == 0)
@@ -5760,7 +5764,7 @@ draw_as_face_sprite:
             dwall[x] = min(startdmost[windowx1+x]-windowy1,(int16_t)startdm);
         }
 
-        daclip = 0;
+        int32_t daclip = 0;
         for (i=smostwallcnt-1; i>=0; i--)
         {
             if (smostwalltype[i]&daclip) continue;
@@ -5769,7 +5773,8 @@ draw_as_face_sprite:
             if ((yp <= yb1[j]) && (yp <= yb2[j])) continue;
             if (spritewallfront(tspr,(int32_t)thewall[j]) && ((yp <= yb1[j]) || (yp <= yb2[j]))) continue;
 
-            dalx2 = max(xb1[j],lx); darx2 = min(xb2[j],rx);
+            const int32_t dalx2 = max(xb1[j],lx);
+            const int32_t darx2 = min(xb2[j],rx);
 
             switch (smostwalltype[i])
             {
@@ -5861,16 +5866,15 @@ draw_as_face_sprite:
     }
     else if ((cstat&48) == 16)
     {
-        int32_t swapped, top, bot, topinc, botinc;
-        int32_t xv, yv, sx1, sx2, sy1, sy2;
+        int32_t sx1, sx2, sy1, sy2;
 
         if ((cstat&4) > 0) xoff = -xoff;
         if ((cstat&8) > 0) yoff = -yoff;
 
         const int32_t xspan = tilesiz[tilenum].x;
         const int32_t yspan = tilesiz[tilenum].y;
-        xv = tspr->xrepeat*sintable[(tspr->ang+2560+1536)&2047];
-        yv = tspr->xrepeat*sintable[(tspr->ang+2048+1536)&2047];
+        const int32_t xv = tspr->xrepeat*sintable[(tspr->ang+2560+1536)&2047];
+        const int32_t yv = tspr->xrepeat*sintable[(tspr->ang+2048+1536)&2047];
         i = (xspan>>1)+xoff;
         x1 = tspr->x-globalposx-mulscale16(xv,i); x2 = x1+mulscale16(xv,xspan);
         y1 = tspr->y-globalposy-mulscale16(yv,i); y2 = y1+mulscale16(yv,xspan);
@@ -5884,7 +5888,7 @@ draw_as_face_sprite:
         x1 += globalposx; y1 += globalposy;
         x2 += globalposx; y2 += globalposy;
 
-        swapped = 0;
+        int32_t swapped = 0;
         if (dmulscale32(xp1,yp2,-xp2,yp1) >= 0)  //If wall's NOT facing you
         {
             if ((cstat&64) != 0) return;
@@ -5936,10 +5940,10 @@ draw_as_face_sprite:
         if ((sy1 < 256) || (sy2 < 256) || (sx1 > sx2))
             return;
 
-        topinc = -mulscale10(yp1,xspan);
-        top = (((mulscale10(xp1,xdimen) - mulscale9(sx1-halfxdimen,yp1))*xspan)>>3);
-        botinc = ((yp2-yp1)>>8);
-        bot = mulscale11(xp1-xp2,xdimen) + mulscale2(sx1-halfxdimen,botinc);
+        const int32_t topinc = -mulscale10(yp1,xspan);
+        int32_t top = (((mulscale10(xp1,xdimen) - mulscale9(sx1-halfxdimen,yp1))*xspan)>>3);
+        const int32_t botinc = ((yp2-yp1)>>8);
+        int32_t bot = mulscale11(xp1-xp2,xdimen) + mulscale2(sx1-halfxdimen,botinc);
 
         j = sx2+3;
         z = mulscale20(top,krecipasm(bot));
@@ -5987,7 +5991,7 @@ draw_as_face_sprite:
             int32_t hplc = divscale19(xdimenscale,sy1);
             const int32_t hplc2 = divscale19(xdimenscale,sy2);
             const int32_t idiv = sx2-sx1;
-            int32_t hinc[4] ={ idiv ? tabledivide32(hplc2-hplc, idiv) : 0 };
+            int32_t hinc[4] = { idiv ? tabledivide32(hplc2-hplc, idiv) : 0 };
 
 #ifdef HIGH_PRECISION_SPRITE
             const float cc = ((1<<19)*fxdimen*(float)yxaspect) * (1.f/320.f);
@@ -6044,7 +6048,9 @@ draw_as_face_sprite:
 
             if ((xb1[j] > sx2) || (xb2[j] < sx1)) continue;
 
-            dalx2 = xb1[j]; darx2 = xb2[j];
+            int32_t dalx2 = xb1[j];
+            int32_t darx2 = xb2[j];
+
             if (max(sy1,sy2) > min(yb1[j],yb2[j]))
             {
                 if (min(sy1,sy2) > max(yb1[j],yb2[j]))
@@ -6174,9 +6180,7 @@ draw_as_face_sprite:
     }
     else if ((cstat&48) == 32)
     {
-        int32_t npoints, npoints2;
-        int32_t zsgn, zzsgn, bot;
-        int32_t cosang, sinang, lpoint, lmax, rpoint, rmax;
+        int32_t bot, cosang, sinang;
 
         if ((cstat&64) != 0)
             if ((globalposz > tspr->z) == ((cstat&8)==0))
@@ -6254,11 +6258,11 @@ draw_as_face_sprite:
 
 
         //Clip polygon in 3-space
-        npoints = 4;
+        int32_t npoints = 4;
 
         //Clip edge 1
-        npoints2 = 0;
-        zzsgn = rxi[0]+rzi[0];
+        int32_t npoints2 = 0;
+        int32_t zzsgn = rxi[0]+rzi[0], zsgn;
         for (z=0; z<npoints; z++)
         {
             zz = z+1; if (zz == npoints) zz = 0;
@@ -6353,8 +6357,8 @@ draw_as_face_sprite:
         if (npoints <= 2) return;
 
         //Project onto screen
-        lpoint = -1; lmax = INT32_MAX;
-        rpoint = -1; rmax = INT32_MIN;
+        int32_t lpoint = -1, lmax = INT32_MAX;
+        int32_t rpoint = -1, rmax = INT32_MIN;
         for (z=0; z<npoints; z++)
         {
             xsi[z] = scale(rxi[z],xdimen<<15,rzi[z]) + (xdimen<<15);
@@ -6398,13 +6402,11 @@ draw_as_face_sprite:
         }
 
 
-        lx = ((lmax+65535)>>16);
-        rx = ((rmax+65535)>>16);
-
-        // OOB prevention. Simple test case: have a floor-aligned sprite to the
-        // right of the player. Slowly rotate right toward it. When it just
-        // becomes visible, the condition rx == xdim can occur.
-        rx = min(rx, xdim-1);
+        const int32_t lx = ((lmax+65535)>>16);
+        const int32_t rx = min(((rmax+65535)>>16), xdim-1);
+        // min(): OOB prevention. Simple test case: have a floor-aligned sprite
+        // to the right of the player. Slowly rotate right toward it. When it
+        // just becomes visible, the condition rx == xdim can occur.
 
         for (x=lx; x<=rx; x++)
         {
@@ -6426,7 +6428,8 @@ draw_as_face_sprite:
             if ((yp > yb1[j]) && (yp > yb2[j])) x = -1;
             if ((x >= 0) && ((x != 0) || (wall[thewall[j]].nextsector != tspr->sectnum))) continue;
 
-            dalx2 = max(xb1[j],lx); darx2 = min(xb2[j],rx);
+            const int32_t dalx2 = max(xb1[j],lx);
+            const int32_t darx2 = min(xb2[j],rx);
 
             switch (smostwalltype[i])
             {
@@ -6508,14 +6511,12 @@ draw_as_face_sprite:
     }
     else if ((cstat&48) == 48)
     {
-        int32_t nxrepeat, nyrepeat;
-        int32_t daxrepeat = tspr->xrepeat;
-        const int32_t *longptr;
+        const int32_t daxrepeat = ((sprite[spritenum].cstat&48)==16) ?
+            (tspr->xrepeat * 5) / 4 :
+            tspr->xrepeat;
 
-        if ((sprite[spritenum].cstat&48)==16)
-            daxrepeat = (daxrepeat*5)/4;
+        const int32_t lx = 0, rx = xdim-1;
 
-        lx = 0; rx = xdim-1;
         for (x=lx; x<=rx; x++)
         {
             lwall[x] = startumost[x+windowx1]-windowy1;
@@ -6528,7 +6529,8 @@ draw_as_face_sprite:
             if ((yp <= yb1[j]) && (yp <= yb2[j])) continue;
             if (spritewallfront(tspr,(int32_t)thewall[j]) && ((yp <= yb1[j]) || (yp <= yb2[j]))) continue;
 
-            dalx2 = max(xb1[j],lx); darx2 = min(xb2[j],rx);
+            const int32_t dalx2 = max(xb1[j],lx);
+            const int32_t darx2 = min(xb2[j],rx);
 
             switch (smostwalltype[i])
             {
@@ -6585,13 +6587,15 @@ draw_as_face_sprite:
                 break;
             }
 */
-        longptr = (const int32_t *)voxoff[vtilenum][0];
+        const int32_t *const longptr = (int32_t *)voxoff[vtilenum][0];
         if (longptr == NULL)
         {
             globalshade = 32;
             tspr->xrepeat = tspr->yrepeat = 255;
             goto draw_as_face_sprite;
         }
+
+        int32_t nxrepeat, nyrepeat;
 
         if (voxscale[vtilenum] == 65536)
         {
