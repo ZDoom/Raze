@@ -712,6 +712,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                         const int32_t f,
                         int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
+void G_UpdateScreenArea(void);
 void G_SaveMapState(void);
 void G_RestoreMapState(void);
 ]]
@@ -1486,8 +1487,11 @@ ffi.metatype("projectile_t", projectile_mt)
 local user_defs_mt = {
     __index = {
         set_screen_size = function(ud, screen_size)
-            -- TODO: modify .statusbarmode accordingly
-            ud.screen_size = screen_size
+            if (ud.screen_size ~= screen_size) then
+                -- TODO: modify .statusbarmode accordingly
+                ud.screen_size = screen_size
+                ffiC.G_UpdateScreenArea()
+            end
         end,
 
         set_volume_number = function(ud, volume_number)

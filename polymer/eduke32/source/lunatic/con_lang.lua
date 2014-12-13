@@ -557,7 +557,7 @@ local PlayerLabels = {
     one_parallax_sectnum = DISABLED{ PL".one_parallax_sectnum" },
 
     random_club_frame = PL".random_club_frame",
-    one_eighty_count = DISABLED_PL".one_eighty_count",
+    one_eighty_count = PL".one_eighty_count",
 
     dummyplayersprite = DISABLED_PL".dummyplayersprite",
     extra_extra8 = PL".extra_extra8",
@@ -866,12 +866,14 @@ local UserdefLabels = {
     multimode = { "1" },
     noexits = UDRO".noexits",
     overhead_on = UD".overhead_on",
+    recstat = UDRO".recstat",
     runkey_mode = UD".runkey_mode",
     show_level_text = UD".show_level_text",
     screen_size = { UD".screen_size", UD":set_screen_size(%%s)" },
     screen_tilting = UD".screen_tilting",
     showallmap = UD".showallmap",
     showweapons = UDRO".showweapons",
+    statusbarmode = UDRO".statusbarmode",
     statusbarscale = UDRO".statusbarscale",
     volume_number = { UD".volume_number", UD":set_volume_number(%%s)", {0, MAXVOLUMES} },
     weaponscale = UDRO".weaponscale",

@@ -23,7 +23,7 @@ correctness in a broad sense, which encompasses multiple issues.
 
 * LunaCON more strictly validates the CON source at translation time. For
   example, using labels of mismatched type, such as a ++define++d number where
-  an `move` is expected, issues an translation error.
+  a `move` is expected, issues an translation error.
 
 * Lexically and syntactically, LunaCON accepts only a subset of what the C-CON
   translator would pass through. This includes rejecting clearly erroneous code

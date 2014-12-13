@@ -979,7 +979,7 @@ function check.reserved_bits(flags, allowedbits, suffix)
     end
 end
 
-Define.ALLOWED_VIEWTYPE = truetab { 0, 1, 3,4, 5, 7, 8, -5, -7 }
+Define.ALLOWED_VIEWTYPE = truetab { 0, 1, 2, 3,4, 5, 7, 8, -5, -7 }
 
 function Define.composite(labeltype, identifier, ...)
     local oldtype = g_labeltype[identifier]

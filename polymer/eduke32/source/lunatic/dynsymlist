@@ -237,6 +237,7 @@ G_PrintGameText;
 G_ScreenText;
 G_ScreenTextSize;
 
+G_UpdateScreenArea;
 G_SaveMapState;
 G_RestoreMapState;
 };
