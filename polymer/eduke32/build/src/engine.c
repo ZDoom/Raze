@@ -6408,6 +6408,12 @@ draw_as_face_sprite:
         // to the right of the player. Slowly rotate right toward it. When it
         // just becomes visible, the condition rx == xdim can occur.
 
+        // Don't pointlessly keep going. If the following condition holds, the
+        // ceilspritescan() at the end of our block would not draw any lines,
+        // and moreover may access uwall[] OOB (with x1==xdim).
+        if (rx-1 < lx)
+            return;
+
         for (x=lx; x<=rx; x++)
         {
             uwall[x] = max(uwall[x],startumost[x+windowx1]-windowy1);
