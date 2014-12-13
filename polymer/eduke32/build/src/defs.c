@@ -1686,6 +1686,15 @@ static int32_t defsparser(scriptfile *script)
                 { "remapself", T_REMAPSELF },
             };
 
+            enum {
+                HAVE_PAL = 1,
+                HAVE_REMAPPAL = 2,
+                HAVE_REMAPSELF = 4,
+
+                HAVEPAL_SPECIAL = HAVE_REMAPPAL | HAVE_REMAPSELF,
+                HAVEPAL_ERROR = 8,
+            };
+
             if (scriptfile_getbraces(script,&endtextptr)) break;
             while (script->textptr < endtextptr)
             {
@@ -1693,7 +1702,7 @@ static int32_t defsparser(scriptfile *script)
                 {
                 case T_PAL:
                     scriptfile_getsymbol(script, &pal);
-                    havepal |= 1;
+                    havepal |= HAVE_PAL;
                     break;
                 case T_RED:
                     scriptfile_getnumber(script,&red);
@@ -1709,14 +1718,14 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 case T_REMAPPAL:
                     scriptfile_getsymbol(script,&remappal);
-                    if (havepal&(2+4))
-                        havepal |= 8;
-                    havepal |= 2;
+                    if (havepal & HAVEPAL_SPECIAL)
+                        havepal |= HAVEPAL_ERROR;
+                    havepal |= HAVE_REMAPPAL;
                     break;
                 case T_REMAPSELF:
-                    if (havepal&(2+4))
-                        havepal |= 8;
-                    havepal |= 4;
+                    if (havepal & HAVEPAL_SPECIAL)
+                        havepal |= HAVEPAL_ERROR;
+                    havepal |= HAVE_REMAPSELF;
                     break;
                 }
             }
@@ -1727,7 +1736,7 @@ static int32_t defsparser(scriptfile *script)
                 Bsprintf(msgend, "for palookup definition near line %s:%d",
                          script->filename, scriptfile_getlinum(script,starttokptr));
 
-                if (EDUKE32_PREDICT_FALSE((havepal&1)==0))
+                if (EDUKE32_PREDICT_FALSE((havepal & HAVE_PAL)==0))
                 {
                     initprintf("Error: missing 'palette number' %s\n", msgend);
                     break;
@@ -1738,20 +1747,22 @@ static int32_t defsparser(scriptfile *script)
                                MAXPALOOKUPS-RESERVEDPALS-1, msgend);
                     break;
                 }
-                else if (EDUKE32_PREDICT_FALSE(havepal&8))
+
+                if (EDUKE32_PREDICT_FALSE(havepal & HAVEPAL_ERROR))
                 {
                     // will also disallow multiple remappals or remapselfs
                     initprintf("Error: must have exactly one of either 'remappal' or 'remapself' %s\n", msgend);
                     break;
                 }
-                else if (EDUKE32_PREDICT_FALSE((havepal&4) && (unsigned)remappal >= MAXPALOOKUPS-RESERVEDPALS))
+                else if (EDUKE32_PREDICT_FALSE((havepal & HAVE_REMAPPAL)
+                                               && (unsigned)remappal >= MAXPALOOKUPS-RESERVEDPALS))
                 {
                     initprintf("Error: 'remap palette number' out of range (max=%d) %s\n",
                                MAXPALOOKUPS-RESERVEDPALS-1, msgend);
                     break;
                 }
 
-                if (havepal&4)
+                if (havepal & HAVE_REMAPSELF)
                     remappal = pal;
             }
 
