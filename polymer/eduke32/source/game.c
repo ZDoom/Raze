@@ -114,8 +114,6 @@ double g_moveActorsTime = 0;  // in ms, smoothed
 
 char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
 
-int8_t g_noFloorPal[MAXPALOOKUPS];  // 1 if sprite pal should not be taken over from floor pal
-
 int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
 
@@ -7033,8 +7031,7 @@ static int32_t G_MaybeTakeOnFloorPal(spritetype *datspr, int32_t sect)
 {
     int32_t dapal = sector[sect].floorpal;
 
-    if (dapal && (!g_firstFogPal || !(dapal >= g_firstFogPal && dapal <= g_firstFogPal+3))
-            && !g_noFloorPal[dapal]
+    if (dapal && !g_noFloorPal[dapal]
             && !A_CheckSpriteFlags(datspr->owner,SFLAG_NOPAL))
     {
         datspr->pal = dapal;
@@ -9355,7 +9352,6 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
 #ifdef USE_LIBVPX
         { "animsounds",      T_ANIMSOUNDS       },
 #endif
-        { "nofloorpalrange", T_NOFLOORPALRANGE  },
     };
 
     static const tokenlist sound_musictokens[] =
@@ -9594,20 +9590,6 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         }
         break;
 #endif  // defined USE_LIBVPX
-        case T_NOFLOORPALRANGE:
-        {
-            int32_t b,e,i;
-
-            if (scriptfile_getnumber(script,&b)) break;
-            if (scriptfile_getnumber(script,&e)) break;
-
-            b = max(b, 1);
-            e = min(e, MAXPALOOKUPS-1);
-
-            for (i=b; i<=e; i++)
-                g_noFloorPal[i] = 1;
-        }
-        break;
         case T_SOUND:
         {
             char *tinttokptr = script->ltextptr;

@@ -188,6 +188,11 @@ static intptr_t slopalookup[16384];    // was 2048
 palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
+// For every pal number, whether tsprite pal should not be taken over from
+// floor pal.
+// NOTE: g_noFloorPal[0] is irrelevant as it's never checked.
+int8_t g_noFloorPal[MAXPALOOKUPS];
+
 static void *pic = NULL;
 
 // The tile file number (tilesXXX <- this) of each tile:
@@ -8335,15 +8340,11 @@ int32_t loadlookups(int32_t fp)
     return 0;
 }
 
-// Returns:
-//  - if generated fog shade tables, their first palnum P (fog pals are [P .. P+3])
-//  - if didn't (no room), 0
-int32_t generatefogpals(void)
+void generatefogpals(void)
 {
-    int32_t j, firstfogpal=0;
-
-    // Find a gap of four consecutive unused pal numbers to generate fog shade tables.
-    for (j=1; j<=255-3; j++)
+    // Find a gap of four consecutive unused pal numbers to generate fog shade
+    // tables.
+    for (int32_t j=1; j<=255-3; j++)
         if (!palookup[j] && !palookup[j+1] && !palookup[j+2] && !palookup[j+3])
         {
             makepalookup(j, NULL, 15, 15, 15, 1);
@@ -8351,19 +8352,19 @@ int32_t generatefogpals(void)
             makepalookup(j+2, NULL, 0, 15, 0, 1);
             makepalookup(j+3, NULL, 0, 0, 15, 1);
 
-            firstfogpal = j;
+            g_noFloorPal[j] = 1;
+            g_noFloorPal[j+1] = 1;
+            g_noFloorPal[j+2] = 1;
+            g_noFloorPal[j+3] = 1;
+
             break;
         }
-
-    return firstfogpal;
 }
 
 void fillemptylookups(void)
 {
-    int32_t j;
-
     // Alias remaining unused pal numbers to the base shade table.
-    for (j=1; j<MAXPALOOKUPS; j++)
+    for (int32_t j=1; j<MAXPALOOKUPS; j++)
         if (!palookup[j])
             makepalookup(j, NULL, 0,0,0, 1);
 }

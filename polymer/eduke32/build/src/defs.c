@@ -250,7 +250,7 @@ static int32_t defsparser(scriptfile *script)
         { "music",           T_MUSIC            },
         { "sound",           T_SOUND            },
         { "animsounds",      T_ANIMSOUNDS       },  // dummy
-        { "nofloorpalrange", T_NOFLOORPALRANGE  },  // dummy
+        { "nofloorpalrange", T_NOFLOORPALRANGE  },
         { "texhitscanrange", T_TEXHITSCANRANGE  },
         { "nofullbrightrange", T_NOFULLBRIGHTRANGE },
         // other stuff
@@ -465,6 +465,20 @@ static int32_t defsparser(scriptfile *script)
             b = clamp(b, 0, 63);
 
             makepalookup(p, NULL, r, g, b, 1);
+        }
+        break;
+        case T_NOFLOORPALRANGE:
+        {
+            int32_t b,e,i;
+
+            if (scriptfile_getnumber(script,&b)) break;
+            if (scriptfile_getnumber(script,&e)) break;
+
+            b = max(b, 1);
+            e = min(e, MAXPALOOKUPS-1);
+
+            for (i=b; i<=e; i++)
+                g_noFloorPal[i] = 1;
         }
         break;
         case T_LOADGRP:
@@ -2047,15 +2061,6 @@ static int32_t defsparser(scriptfile *script)
                 // XXX?
                 getatoken(script,dummytokens,sizeof(dummytokens)/sizeof(dummytokens));
             }
-        }
-        break;
-
-        case T_NOFLOORPALRANGE:
-        {
-            int32_t b,e;
-
-            if (EDUKE32_PREDICT_FALSE(scriptfile_getnumber(script,&b))) break;
-            if (EDUKE32_PREDICT_FALSE(scriptfile_getnumber(script,&e))) break;
         }
         break;
 

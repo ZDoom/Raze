@@ -936,6 +936,8 @@ typedef struct {
 extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
 extern char palfadedelta;
 
+extern int8_t g_noFloorPal[MAXPALOOKUPS];
+
 extern int32_t novoxmips;
 
 #ifdef DEBUGGINGAIDS
@@ -1078,7 +1080,7 @@ int32_t    initengine(void);
 void   uninitengine(void);
 void   initspritelists(void);
 int32_t loadlookups(int32_t fp);
-int32_t generatefogpals(void);
+void generatefogpals(void);
 void fillemptylookups(void);
 int32_t   loadboard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadmaphack(const char *filename);

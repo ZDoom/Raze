@@ -1037,8 +1037,6 @@ uint8_t *basepaltable[BASEPALCOUNT] = {
     NULL /*anim_pal*/
 };
 
-int32_t g_firstFogPal;
-
 int32_t G_LoadLookups(void)
 {
     int32_t fp, j;
@@ -1073,7 +1071,7 @@ int32_t G_LoadLookups(void)
 
     kclose(fp);
 
-    g_firstFogPal = generatefogpals();
+    generatefogpals();
 
     fillemptylookups();
 

@@ -10284,17 +10284,15 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
          */
         if (shadepreview)
         {
-            int32_t wallaligned = (tspr->cstat & 16);
-            int32_t fpal;
-
             if (tspr->sectnum<0)
                 continue;
 
-            fpal = sector[tspr->sectnum].floorpal;
+            const int32_t wallaligned = (tspr->cstat & 16);
+            const int32_t fpal = sector[tspr->sectnum].floorpal;
 
             // 1st rule
             // Compare with game.c:G_MaybeTakeOnFloorPal()
-            if (fpal > 0 && (!g_firstFogPal || !(fpal >= g_firstFogPal && fpal <= g_firstFogPal+3)))
+            if (fpal && !g_noFloorPal[fpal])
                 tspr->pal = fpal;
 
             // 2nd and 3rd rule minus "actor condition"

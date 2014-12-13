@@ -112,7 +112,6 @@ void G_DoAutoload(const char *dirname);
 
 extern uint8_t *basepaltable[BASEPALCOUNT];
 
-extern int32_t g_firstFogPal;
 extern int32_t G_LoadLookups(void);
 
 #ifdef __cplusplus

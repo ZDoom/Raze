@@ -304,8 +304,6 @@ extern palette_t DefaultCrosshairColors;
 
 extern uint32_t g_frameDelay;
 
-extern int8_t g_noFloorPal[MAXPALOOKUPS];
-
 extern user_defs ud;
 
 int32_t A_CheckInventorySprite(spritetype *s);
