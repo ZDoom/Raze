@@ -1757,7 +1757,8 @@ static int32_t defsparser(scriptfile *script)
 
             // NOTE: all palookups are initialized, i.e. non-NULL!
             // NOTE2: aliasing (pal==remappal) is OK
-            makepalookup(pal, palookup[remappal], red, green, blue, 1);
+            makepalookup(pal, palookup[remappal], red, green, blue,
+                         remappal==0 ? 1 : g_noFloorPal[remappal]);
         }
         break;
         case T_TEXTURE:

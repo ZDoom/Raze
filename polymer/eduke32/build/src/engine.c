@@ -8334,7 +8334,7 @@ int32_t loadlookups(int32_t fp)
         if (kread(fp, remapbuf, 256) != 256)
             return -1;
 
-        makepalookup(palnum, remapbuf, 0,0,0, 1);
+        makepalookup(palnum, remapbuf, 0,0,0, 0);
     }
 
     return 0;
@@ -8352,11 +8352,6 @@ void generatefogpals(void)
             makepalookup(j+2, NULL, 0, 15, 0, 1);
             makepalookup(j+3, NULL, 0, 0, 15, 1);
 
-            g_noFloorPal[j] = 1;
-            g_noFloorPal[j+1] = 1;
-            g_noFloorPal[j+2] = 1;
-            g_noFloorPal[j+3] = 1;
-
             break;
         }
 }
@@ -8370,8 +8365,6 @@ void fillemptylookups(void)
 }
 
 #define COLRESULTSIZ 4096
-
-#define COLRESULT(x) do {  } while (0)
 
 static uint32_t getclosestcol_results[COLRESULTSIZ];
 static int32_t numclosestcolresults;
@@ -15059,7 +15052,7 @@ int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
 //
 // makepalookup
 //
-void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8_t b, char dastat)
+void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8_t b, char noFloorPal)
 {
     int32_t i, j;
 
@@ -15071,6 +15064,8 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     // NOTE: palnum==0 is allowed
     if ((unsigned)palnum >= MAXPALOOKUPS)
         return;
+
+    g_noFloorPal[palnum] = noFloorPal;
 
     if (remapbuf==NULL)
     {
@@ -15089,8 +15084,8 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
 
     maybe_alloc_palookup(palnum);
 
-    if (dastat == 0) return;
-    if ((r|g|b|63) != 63) return;
+    if ((r|g|b|63) != 63)
+        return;
 
     if ((r|g|b) == 0)
     {
