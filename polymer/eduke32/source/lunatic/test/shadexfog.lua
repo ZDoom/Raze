@@ -570,7 +570,7 @@ formatHelp
 <____________________________________________________________________>
 
 Creates <numtables> blending tables of smooth alpha translucency,
-starting with the blending number <startblend>, with fractions
+starting with the blending number <startblend>, with values of alpha
 
   1/(2\255<numtables>), 2/(2\255<numtables>) ... <numtables>/(2\255<numtables>).
 
@@ -596,9 +596,10 @@ formatHelp
 <____________________________________________________________________>
 
 Creates <numtables> blending tables of smooth additive translucency,
-starting with the blending number <startbl>, with fractions
+starting with the blending number <startbl>, with factors for the
+background color
 
-  1/(2\255<numtables>), 2/(2\255<numtables>) ... <numtables>/(2\255<numtables>).
+  1/<numtables>, 2/<numtables> ... <numtables>/<numtables>.
 
  <numtables> must be a power of two in [1 .. 128].
 

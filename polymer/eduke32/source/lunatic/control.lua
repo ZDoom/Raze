@@ -24,6 +24,8 @@ local band, bor = bit.band, bit.bor
 local rshift = bit.rshift
 local tobit = bit.tobit
 
+local floor = math.floor
+
 local assert = assert
 local error = error
 local ipairs = ipairs
@@ -460,11 +462,11 @@ end
 --- Legacy operators ---
 
 function _rand(x)
-    return tobit((ffiC.krand()*(x+1))/65536)
+    return floor((ffiC.krand()*(x+1))/65536)
 end
 
 function _displayrand(x)
-    return tobit((math.random(0, 32767)*(x+1))/32768)
+    return floor((math.random(0, 32767)*(x+1))/32768)
 end
 
 do
@@ -2100,7 +2102,7 @@ local function gamearray_file_common(qnum, writep)
         end
     end
 
-    return f, math.floor(fsize/4), isnewgar, fn
+    return f, floor(fsize/4), isnewgar, fn
 end
 
 local function check_gamearray_idx(gar, idx, addstr)
@@ -2137,7 +2139,7 @@ local gamearray_methods = {
             error("invalid new array size "..newsize, 2)
         end
 
-        local MAXELTS = math.floor(0x7fffffff/4)
+        local MAXELTS = floor(0x7fffffff/4)
         if (newsize > MAXELTS) then
             -- mainly for some sanity with kread() (which we don't use, but still)
             error("new array size "..newsize.." too large (max="..MAXELTS.." elements)", 2)
