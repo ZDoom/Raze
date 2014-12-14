@@ -787,6 +787,9 @@ nextdemo_nomenu:
         if (foundemo == 0)
         {
             G_DrawBackground();
+#ifdef LUNATIC
+            El_DisplayErrors();
+#endif
         }
         else
         {

@@ -460,11 +460,11 @@ end
 --- Legacy operators ---
 
 function _rand(x)
-    return rshift(ffiC.krand()*(x+1), 16)
+    return tobit((ffiC.krand()*(x+1))/65536)
 end
 
 function _displayrand(x)
-    return rshift(math.random(0, 32767)*(x+1), 15)
+    return tobit((math.random(0, 32767)*(x+1))/32768)
 end
 
 do

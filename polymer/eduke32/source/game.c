@@ -3963,18 +3963,20 @@ static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vs
 void G_DrawBackground(void)
 {
     const int32_t dapicnum = BIGHOLE;
-    int32_t x,y,x1,y1,x2,y2,rx;
+    int32_t x,y,x1,x2;
 
     flushperms();
 
+    // XXX: if dapicnum is not available, this might leave the menu background
+    // not drawn, leading to "HOM".
     if (tilesiz[dapicnum].x == 0 || tilesiz[dapicnum].y == 0)
     {
         pus = pub = NUMPAGES;
         return;
     }
 
-    y1 = 0;
-    y2 = ydim;
+    int32_t y1=0, y2=ydim;
+
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat == 2)
     {
         if (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
@@ -3998,15 +4000,16 @@ void G_DrawBackground(void)
 #if !defined LUNATIC
         if (Gv_GetVarByLabel("MENU_TILE", !fstilep, -1, -1))
 #else
-            if (!fstilep)
+        if (!fstilep)
 #endif
-            {
-                if ((unsigned)bgtile < MAXTILES)
-                    for (y=y1; y<y2; y+=tilesiz[bgtile].y)
-                        for (x=0; x<xdim; x+=tilesiz[bgtile].x)
-                            rotatesprite_fs(x<<16,y<<16,65536L,0,bgtile,16,0,8+16+64);
-            }
-            else rotatesprite_fs(160<<16,100<<16,65536L,0,bgtile,16,0,2+8+64+(ud.bgstretch?1024:0));
+        {
+            if ((unsigned)bgtile < MAXTILES)
+                for (y=y1; y<y2; y+=tilesiz[bgtile].y)
+                    for (x=0; x<xdim; x+=tilesiz[bgtile].x)
+                        rotatesprite_fs(x<<16,y<<16,65536L,0,bgtile,16,0,8+16+64);
+        }
+        else rotatesprite_fs(160<<16,100<<16,65536L,0,bgtile,16,0,2+8+64+(ud.bgstretch?1024:0));
+
         return;
     }
 
@@ -4020,7 +4023,7 @@ void G_DrawBackground(void)
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y1,xdim-1,windowy1-1);
 
         // sides
-        rx = windowx2-windowx2%tilesiz[dapicnum].x;
+        const int32_t rx = windowx2-windowx2%tilesiz[dapicnum].x;
         for (y=windowy1-windowy1%tilesiz[dapicnum].y; y<windowy2; y+=tilesiz[dapicnum].y)
             for (x=0; x<windowx1 || x+rx<xdim; x+=tilesiz[dapicnum].x)
             {
