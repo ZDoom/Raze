@@ -264,7 +264,7 @@ OPTIMIZATIONS=-O$(OPTLEVEL) $(OPTOPT)
 DEBUGFLAG=-g
 ifeq (0,$(CLANG))
     ifneq ($(PLATFORM),WII)
-        DEBUGFLAG=-ggdb
+        DEBUGFLAG=-ggdb -fno-omit-frame-pointer
     endif
 endif
 ifneq ($(RELEASE)$(DEBUGANYWAY),10)

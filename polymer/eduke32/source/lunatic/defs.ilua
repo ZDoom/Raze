@@ -1488,7 +1488,6 @@ local user_defs_mt = {
     __index = {
         set_screen_size = function(ud, screen_size)
             if (ud.screen_size ~= screen_size) then
-                -- TODO: modify .statusbarmode accordingly
                 ud.screen_size = screen_size
                 ffiC.G_UpdateScreenArea()
             end
