@@ -41,6 +41,9 @@
 #include <android/log.h>
 #endif
 #if defined GEKKO
+# include "wiibits.h"
+# include <ogc/lwp.h>
+# include <ogc/lwp_watchdog.h>
 # define SDL_DISABLE_8BIT_BUFFER
 #endif
 
@@ -284,24 +287,6 @@ void wm_setapptitle(const char *name)
 //
 //
 
-#if defined GEKKO
-# define HW_RVL
-# include <ogc/lwp.h>
-# include <ogc/lwp_watchdog.h>
-
-#include "gctypes.h" // for bool
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern void L2Enhance();
-extern void CON_EnableGecko(int channel,int safe);
-extern bool fatInit(uint32_t cacheSize, bool setAsDefaultDevice);
-#ifdef __cplusplus
-}
-#endif
-#endif
-
 static void attach_debugger_here(void) {}
 
 /* XXX: libexecinfo could be used on systems without gnu libc. */
@@ -363,10 +348,7 @@ int32_t main(int32_t argc, char *argv[])
         return -1;
     }
 #elif defined(GEKKO)
-    L2Enhance();
-    CON_EnableGecko(1, 1);
-    Bprintf("Console started\n");
-    fatInit(28, true);
+    wii_open();
 #elif defined(HAVE_GTK2)
     // Pre-initialize SDL video system in order to make sure XInitThreads() is called
     // before GTK starts talking to X11.
@@ -1284,6 +1266,11 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
 
     if (checkvideomode(x, y, c, fs, 0) < 0)
         return -1;
+
+#ifdef GEKKO
+    if (!sdl_surface) // only run this the first time we set a video mode
+        wii_initgamevideo();
+#endif
 
     startwin_close();
 

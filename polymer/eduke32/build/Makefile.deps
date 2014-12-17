@@ -24,13 +24,14 @@ $(ENGINE_OBJ)/lz4.$o: $(ENGINE_SRC)/lz4.c $(ENGINE_INC)/lz4.h
 $(ENGINE_OBJ)/osd.$o: $(ENGINE_SRC)/osd.c $(ENGINE_INC)/build.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h
 $(ENGINE_OBJ)/pragmas.$o: $(ENGINE_SRC)/pragmas.c $(ENGINE_INC)/compat.h
 $(ENGINE_OBJ)/scriptfile.$o: $(ENGINE_SRC)/scriptfile.c $(ENGINE_INC)/scriptfile.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/compat.h
-$(ENGINE_OBJ)/sdlayer.$o: $(ENGINE_SRC)/sdlayer.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/sdlayer.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/a.h $(ENGINE_INC)/build.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/glbuild.h
+$(ENGINE_OBJ)/sdlayer.$o: $(ENGINE_SRC)/sdlayer.c $(ENGINE_SRC)/sdlayer12.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/sdlayer.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/a.h $(ENGINE_INC)/build.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/glbuild.h
 $(ENGINE_OBJ)/winlayer.$o: $(ENGINE_SRC)/winlayer.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/winlayer.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/build.h $(ENGINE_INC)/a.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/dxdidf.h $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/rawinput.h $(ENGINE_INC)/winbits.h
 $(ENGINE_OBJ)/gtkbits.$o: $(ENGINE_SRC)/gtkbits.c $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/build.h $(ENGINE_INC)/dynamicgtk.h
 $(ENGINE_OBJ)/dynamicgtk.$o: $(ENGINE_SRC)/dynamicgtk.c $(ENGINE_INC)/dynamicgtk.h
 $(ENGINE_OBJ)/polymer.$o: $(ENGINE_SRC)/polymer.c $(ENGINE_INC)/polymer.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/build.h $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/mdsprite.h $(ENGINE_INC)/polymost.h
 $(ENGINE_OBJ)/mutex.$o: $(ENGINE_SRC)/mutex.c $(ENGINE_INC)/mutex.h
 $(ENGINE_OBJ)/rawinput.$o: $(ENGINE_SRC)/rawinput.c $(ENGINE_INC)/rawinput.h
+$(ENGINE_OBJ)/wiibits.$o: $(ENGINE_SRC)/wiibits.c $(ENGINE_INC)/wiibits.h
 $(ENGINE_OBJ)/winbits.$o: $(ENGINE_SRC)/winbits.c $(ENGINE_INC)/winbits.h
 $(ENGINE_OBJ)/xxhash.$o: $(ENGINE_SRC)/xxhash.c $(ENGINE_INC)/xxhash.h
 

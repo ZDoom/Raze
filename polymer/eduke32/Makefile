@@ -67,6 +67,9 @@ ifeq ($(PLATFORM),WINDOWS)
     ENGINE_OBJS+= winbits
     ENGINE_EDITOR_OBJS+= startwin.editor
 endif
+ifeq ($(PLATFORM),WII)
+    ENGINE_OBJS+= wiibits
+endif
 ifeq ($(RENDERTYPE),SDL)
     ENGINE_OBJS+= sdlayer
 
