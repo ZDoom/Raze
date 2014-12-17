@@ -69,6 +69,7 @@ ifeq ($(PLATFORM),WINDOWS)
 endif
 ifeq ($(PLATFORM),WII)
     ENGINE_OBJS+= wiibits
+    LINKERFLAGS+= -Wl,-wrap,c_default_exceptionhandler
 endif
 ifeq ($(RENDERTYPE),SDL)
     ENGINE_OBJS+= sdlayer

@@ -168,6 +168,9 @@ typedef struct
 
 extern osdmain_t *osd;
 
+extern BFILE *osdlog;
+extern const char* osdlogfn;
+
 enum osdflags_t 
 {
 //    OSD_INITIALIZED = 0x00000001,

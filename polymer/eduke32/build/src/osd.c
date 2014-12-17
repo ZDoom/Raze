@@ -42,7 +42,8 @@ osdmain_t *osd = NULL;
 static int32_t  osdrowscur=-1;
 static int32_t  osdscroll=0;
 static int32_t  osdmaxrows=20;      // maximum number of lines which can fit on the screen
-static BFILE *osdlog=NULL;      // log filehandle
+BFILE *osdlog;      // log filehandle
+const char* osdlogfn;
 static int32_t  keytime=0;
 static int32_t osdscrtime = 0;
 
@@ -812,6 +813,7 @@ void OSD_SetLogFile(const char *fn)
 #endif
 
     MAYBE_FCLOSE_AND_NULL(osdlog);
+    osdlogfn = NULL;
 
     if (!fn)
         return;
@@ -819,7 +821,10 @@ void OSD_SetLogFile(const char *fn)
     osdlog = Bfopen(fn, "w");
 
     if (osdlog)
+    {
         setvbuf(osdlog, (char *)NULL, bufmode, BUFSIZ);
+        osdlogfn = fn;
+    }
 }
 
 
