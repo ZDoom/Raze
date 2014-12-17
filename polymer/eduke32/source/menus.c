@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
+#include "renderlayer.h"
 #include "net.h"
 #include "player.h"
 #include "mouse.h"
@@ -298,7 +299,7 @@ static MenuEntry_t ME_SKILL_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_C
 static MenuEntry_t ME_SKILL[MAXSKILLS];
 static MenuEntry_t *MEL_SKILL[MAXSKILLS];
 
-#ifndef DROIDMENU
+#if defined STARTUP_SETUP_WINDOW && !defined DROIDMENU
 static MenuOption_t MEO_GAMESETUP_STARTWIN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.config.ForceSetup );
 static MenuEntry_t ME_GAMESETUP_STARTWIN = MAKE_MENUENTRY( "Startup window:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_STARTWIN, Option );
 #endif
@@ -340,7 +341,7 @@ static MenuEntry_t ME_ADULTMODE = MAKE_MENUENTRY( "Parental lock:", &MF_Redfont,
 
 static MenuEntry_t *MEL_GAMESETUP[] = {
 	&ME_ADULTMODE,
-#ifndef DROIDMENU
+#if defined STARTUP_SETUP_WINDOW && !defined DROIDMENU
     &ME_GAMESETUP_STARTWIN,
 #endif
 	&ME_GAMESETUP_AIM_AUTO,

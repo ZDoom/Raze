@@ -3,6 +3,8 @@ setlocal ENABLEEXTENSIONS DISABLEDELAYEDEXPANSION
 
 set targets=eduke32 mapster32
 set PATH=C:\devkitPro\devkitPPC\bin;C:\devkitPro\msys\bin;C:\MinGW\bin;C:\MinGW\msys\1.0\bin;%PATH%
+set DEVKITPPC=C:/devkitPro/devkitPPC
+set DEVKITPRO=C:/devkitPro
 
 pushd "%~dp0.."
 set wiidir=platform\Wii
@@ -19,11 +21,15 @@ if "%rev%"=="" set rev=XXXX
 for /f "delims=" %%G in ('"C:\MinGW\msys\1.0\bin\date.exe" +%%Y%%m%%d') do @set currentdate=%%G
 
 :: Build:
-set commandline=make veryclean all OPTLEVEL=2 LTO=0 PLATFORM=WII %*
+set commandline=make PLATFORM=WII %* STRIP=""
 echo %commandline%
 %commandline%
 
 for %%G in (%targets%) do if not exist "%%~G.elf" goto end
+
+:: Strip:
+for %%G in (%targets%) do for %%H in (.elf) do if exist "%%~G%%~H" copy /y "%%~G%%~H" "%%~G-unstripped%%~H"
+for %%G in (%targets%) do for %%H in (.elf) do if exist "%%~G%%~H" powerpc-eabi-strip "%%~G%%~H"
 
 :: Package data:
 if not exist apps mkdir apps

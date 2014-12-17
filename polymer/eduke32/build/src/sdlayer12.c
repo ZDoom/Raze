@@ -131,6 +131,10 @@ int32_t initsystem(void)
         wm_setapptitle(apptitle);
     }
 
+#if defined GEKKO
+    SDL_ShowCursor(SDL_DISABLE);
+#endif
+
     return 0;
 }
 
@@ -178,7 +182,7 @@ const char *getjoyname(int32_t what, int32_t num)
 
 static inline char grabmouse_low(char a)
 {
-#if (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
+#if (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__) && !defined GEKKO
     SDL_ShowCursor(a ? SDL_DISABLE : SDL_ENABLE);
     return (SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF) != (a ? SDL_GRAB_ON : SDL_GRAB_OFF));
 #else

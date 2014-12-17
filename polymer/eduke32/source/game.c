@@ -2397,6 +2397,12 @@ static void G_DrawStatusBar(int32_t snum)
 #define COLOR_WHITE 31
 #define LOW_FPS 30
 
+#if defined GEKKO
+# define FPS_YOFFSET 16
+#else
+# define FPS_YOFFSET 0
+#endif
+
 static void G_PrintFPS(void)
 {
     // adapted from ZDoom because I like it better than what we had
@@ -2422,22 +2428,22 @@ static void G_PrintFPS(void)
         {
             int32_t chars = Bsprintf(tempbuf, "%d ms (%3u fps)", howlong, LastCount);
 
-            printext256(windowx2-(chars<<(3-x))+1,windowy1+2,0,-1,tempbuf,x);
-            printext256(windowx2-(chars<<(3-x)),windowy1+1,
+            printext256(windowx2-(chars<<(3-x))+1,windowy1+2+FPS_YOFFSET,0,-1,tempbuf,x);
+            printext256(windowx2-(chars<<(3-x)),windowy1+1+FPS_YOFFSET,
                         (LastCount < LOW_FPS) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
 
             if (ud.tickrate > 1)
             {
                 chars = Bsprintf(tempbuf, "max fps: %3u", MaxFrames);
 
-                printext256(windowx2-(chars<<(3-x))+1, windowy1+10+2, 0, -1, tempbuf, x);
-                printext256(windowx2-(chars<<(3-x)), windowy1+10,
+                printext256(windowx2-(chars<<(3-x))+1, windowy1+10+2+FPS_YOFFSET, 0, -1, tempbuf, x);
+                printext256(windowx2-(chars<<(3-x)), windowy1+10+FPS_YOFFSET,
                     (MaxFrames < LOW_FPS) ? COLOR_RED : COLOR_WHITE, -1, tempbuf, x);
 
                 chars = Bsprintf(tempbuf, "min fps: %3u", MinFrames);
 
-                printext256(windowx2-(chars<<(3-x))+1, windowy1+20+2, 0, -1, tempbuf, x);
-                printext256(windowx2-(chars<<(3-x)), windowy1+20,
+                printext256(windowx2-(chars<<(3-x))+1, windowy1+20+2+FPS_YOFFSET, 0, -1, tempbuf, x);
+                printext256(windowx2-(chars<<(3-x)), windowy1+20+FPS_YOFFSET,
                     (MinFrames < LOW_FPS) ? COLOR_RED : COLOR_WHITE, -1, tempbuf, x);
             }
 
@@ -2447,8 +2453,8 @@ static void G_PrintFPS(void)
                 chars = Bsprintf(tempbuf, "%d +- %d ms", (g_netClientPeer->lastRoundTripTime + g_netClientPeer->roundTripTime)/2,
                                  (g_netClientPeer->lastRoundTripTimeVariance + g_netClientPeer->roundTripTimeVariance)/2);
 
-                printext256(windowx2-(chars<<(3-x))+1,windowy1+30+2,0,-1,tempbuf,x);
-                printext256(windowx2-(chars<<(3-x)),windowy1+30+1,g_netClientPeer->lastRoundTripTime > 200 ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
+                printext256(windowx2-(chars<<(3-x))+1,windowy1+30+2+FPS_YOFFSET,0,-1,tempbuf,x);
+                printext256(windowx2-(chars<<(3-x)),windowy1+30+1+FPS_YOFFSET,g_netClientPeer->lastRoundTripTime > 200 ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
             }
         }
 
@@ -3733,21 +3739,18 @@ void G_DisplayRest(int32_t smoothratio)
 
         if (a == 0 || a > 1)
         {
-            int32_t x, y;
+            int32_t x = 160<<16, y = 100<<16;
 
             if (a == 0)
                 a = CROSSHAIR;
 
-#ifdef GEKKO
-            if (!readmouseabsxy(&x, &y))
-#endif
-            {
-                x = 160<<16;
-                y = 100<<16;
-            }
-
             rotatesprite_win(x-(g_player[myconnectindex].ps->look_ang<<15),y,scale(65536,ud.crosshairscale,100),
                              0,a,0,CROSSHAIR_PAL,2+1);
+
+#ifdef GEKKO
+            if (readmouseabsxy(&x, &y))
+                rotatesprite_win(x,y,scale(65536,ud.crosshairscale,100),0,a,0,CROSSHAIR_PAL,2+1);
+#endif
         }
     }
 #if 0
