@@ -40,6 +40,9 @@
 #ifdef __ANDROID__
 #include <android/log.h>
 #endif
+#if defined GEKKO
+# define SDL_DISABLE_8BIT_BUFFER
+#endif
 
 #if !defined STARTUP_SETUP_WINDOW
 int32_t startwin_open(void) { return 0; }
@@ -66,7 +69,11 @@ char quitevent=0, appactive=1, novideo=0;
 
 // video
 static SDL_Surface *sdl_surface/*=NULL*/;
+#if !defined SDL_DISABLE_8BIT_BUFFER
 static SDL_Surface *sdl_buffersurface=NULL;
+#else
+# define sdl_buffersurface sdl_surface
+#endif
 
 #if SDL_MAJOR_VERSION==2
 static SDL_Palette *sdl_palptr=NULL;
@@ -1139,10 +1146,12 @@ static SDL_Color sdlayer_pal[256];
 
 static void destroy_window_resources()
 {
+#if !defined SDL_DISABLE_8BIT_BUFFER
     if (sdl_buffersurface)
         SDL_FreeSurface(sdl_buffersurface);
 
     sdl_buffersurface = NULL;
+#endif
 /* We should NOT destroy the window surface. This is done automatically
    when SDL_DestroyWindow or SDL_SetVideoMode is called.             */
 
@@ -1455,10 +1464,12 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 SDL2_VIDEO_ERR("SDL_GetWindowSurface");
         }
 
+#if !defined SDL_DISABLE_8BIT_BUFFER
         sdl_buffersurface = SDL_CreateRGBSurface(0, x, y, c, 0, 0, 0, 0);
 
         if (!sdl_buffersurface)
             SDL2_VIDEO_ERR("SDL_CreateRGBSurface");
+#endif
 
         if (!sdl_palptr)
             sdl_palptr = SDL_AllocPalette(256);
@@ -1574,7 +1585,9 @@ void showframe(int32_t w)
         needpalupdate = 0;
     }
 
+#if !defined SDL_DISABLE_8BIT_BUFFER
     SDL_BlitSurface(sdl_buffersurface, NULL, sdl_surface, NULL);
+#endif
 
     if (sdl_renderer && sdl_texture)
     {

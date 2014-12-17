@@ -267,8 +267,12 @@ void getvalidmodes(void)
         pf.BitsPerPixel = cdepths[j];
         pf.BytesPerPixel = cdepths[j] >> 3;
 
+#if !defined SDL_DISABLE_8BIT_BUFFER
         // We convert paletted contents to non-paletted
         modes = SDL_ListModes((cdepths[j] == 8) ? NULL : &pf, SURFACE_FLAGS | SDL_FULLSCREEN);
+#else
+        modes = SDL_ListModes(&pf, SURFACE_FLAGS | SDL_FULLSCREEN);
+#endif
 
         if (modes == (SDL_Rect **)0)
         {
@@ -409,19 +413,25 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     else
 #endif  // defined USE_OPENGL
     {
+#if !defined SDL_DISABLE_8BIT_BUFFER
         // We convert paletted contents to non-paletted
         sdl_surface = SDL_SetVideoMode(x, y, 0, SURFACE_FLAGS | ((fs & 1) ? SDL_FULLSCREEN : 0));
+#else
+        sdl_surface = SDL_SetVideoMode(x, y, c, SURFACE_FLAGS | ((fs & 1) ? SDL_FULLSCREEN : 0));
+#endif
         if (!sdl_surface)
         {
             initprintf("Unable to set video mode!\n");
             return -1;
         }
+#if !defined SDL_DISABLE_8BIT_BUFFER
         sdl_buffersurface = SDL_CreateRGBSurface(SURFACE_FLAGS, x, y, c, 0, 0, 0, 0);
         if (!sdl_buffersurface)
         {
             initprintf("Unable to set video mode: SDL_CreateRGBSurface failed: %s\n", SDL_GetError());
             return -1;
         }
+#endif
     }
 
     setvideomode_sdlcommonpost(x, y, c, fs, regrab);
@@ -462,7 +472,9 @@ void showframe(int32_t w)
         needpalupdate = 0;
     }
 
+#if !defined SDL_DISABLE_8BIT_BUFFER
     SDL_BlitSurface(sdl_buffersurface, NULL, sdl_surface, NULL);
+#endif
     SDL_Flip(sdl_surface);
 }
 
