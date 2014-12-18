@@ -188,7 +188,7 @@ typedef struct {
         int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
         int32_t MouseAnalogueAxes[MAXMOUSEAXES];
         int32_t MouseAnalogueScale[MAXMOUSEAXES];
-        int32_t JoystickFunctions[MAXJOYBUTTONS][2];
+        int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
         int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
         int32_t JoystickAnalogueAxes[MAXJOYAXES];
         int32_t JoystickAnalogueScale[MAXJOYAXES];

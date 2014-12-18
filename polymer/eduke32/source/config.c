@@ -322,7 +322,7 @@ void CONFIG_SetDefaults(void)
     CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
 
     memset(ud.config.JoystickFunctions, -1, sizeof(ud.config.JoystickFunctions));
-    for (i=0; i<MAXJOYBUTTONS; i++)
+    for (i=0; i<MAXJOYBUTTONSANDHATS; i++)
     {
         ud.config.JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdefaults[i]);
         ud.config.JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(joystickclickeddefaults[i]);
@@ -489,7 +489,7 @@ void CONFIG_SetupJoystick(void)
 
     if (ud.config.scripthandle < 0) return;
 
-    for (i=0; i<MAXJOYBUTTONS; i++)
+    for (i=0; i<MAXJOYBUTTONSANDHATS; i++)
     {
         Bsprintf(str,"JoystickButton%d",i);
         temp[0] = 0;
@@ -539,7 +539,7 @@ void CONFIG_SetupJoystick(void)
         ud.config.JoystickAnalogueSaturate[i] = scale;
     }
 
-    for (i=0; i<MAXJOYBUTTONS; i++)
+    for (i=0; i<MAXJOYBUTTONSANDHATS; i++)
     {
         CONTROL_MapButton(ud.config.JoystickFunctions[i][0], i, 0, controldevice_joystick);
         CONTROL_MapButton(ud.config.JoystickFunctions[i][1], i, 1,  controldevice_joystick);
@@ -908,7 +908,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     Bsprintf(tempbuf,"%.2f",CONTROL_MouseSensitivity);
     SCRIPT_PutString(ud.config.scripthandle,  "Controls","Mouse_Sensitivity",tempbuf);
 
-    for (dummy=0; dummy<MAXJOYBUTTONS; dummy++)
+    for (dummy=0; dummy<MAXJOYBUTTONSANDHATS; dummy++)
     {
         if (CONFIG_FunctionNumToName(ud.config.JoystickFunctions[dummy][0]))
         {

@@ -66,14 +66,17 @@ extern "C" {
 // Number of Mouse Axes
 // KEEPINSYNC gamedefs.h
 #define MAXMOUSEAXES 2
+#define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
 
 // Number of JOY buttons
-// XXX: out of sync with gamedefs.h
+// KEEPINSYNC gamedefs.h
 #define MAXJOYBUTTONS 32
+#define MAXJOYBUTTONSANDHATS (MAXJOYBUTTONS+4)
 
 // Number of JOY axes
 // KEEPINSYNC gamedefs.h
 #define MAXJOYAXES 8
+#define MAXJOYDIGITAL (MAXJOYAXES*2)
 
 // NORMAL axis scale
 #define NORMALAXISSCALE 65536
