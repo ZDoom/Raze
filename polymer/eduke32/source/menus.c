@@ -1309,7 +1309,7 @@ void M_Init(void)
         MEO_MOUSESETUPBTNS[i] = MEO_MOUSEJOYSETUPBTNS_TEMPLATE;
         MEO_MOUSESETUPBTNS[i].data = &ud.config.MouseFunctions[MenuMouseDataIndex[i][0]][MenuMouseDataIndex[i][1]];
     }
-    for (i = 0; i < 2*joynumbuttons + 2*joynumhats; ++i)
+    for (i = 0; i < 2*joynumbuttons + 8*joynumhats; ++i)
     {
         if (i < 2*joynumbuttons)
         {
@@ -1330,7 +1330,7 @@ void M_Init(void)
         MEO_JOYSTICKBTNS[i] = MEO_MOUSEJOYSETUPBTNS_TEMPLATE;
         MEO_JOYSTICKBTNS[i].data = &ud.config.JoystickFunctions[i>>1][i&1];
     }
-    M_JOYSTICKBTNS.numEntries = 2*joynumbuttons + 2*joynumhats;
+    M_JOYSTICKBTNS.numEntries = 2*joynumbuttons + 8*joynumhats;
     for (i = 0; i < joynumaxes; ++i)
     {
         ME_JOYSTICKAXES[i] = ME_JOYSTICKAXES_TEMPLATE;
