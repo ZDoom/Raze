@@ -64,6 +64,9 @@ int32_t CONFIG_FunctionNameToNum(const char *func)
 {
     int32_t i;
 
+    if (!func)
+        return -1;
+
     i = hash_find(&h_gamefuncs,func);
 
     if (i < 0)
@@ -104,6 +107,8 @@ char *CONFIG_FunctionNumToName(int32_t func)
 
 int32_t CONFIG_AnalogNameToNum(const char *func)
 {
+    if (!func)
+        return -1;
 
     if (!Bstrcasecmp(func,"analog_turning"))
     {

@@ -46,18 +46,18 @@ extern "C" {
 #define SETUPFILENAME "eduke32.cfg"
 
 // Number of JOY buttons
-// KEEPINSYNC jmact/_control.h
+// KEEPINSYNC source/jmact/_control.h, build/src/sdlayer.c
 #define MAXJOYBUTTONS 32
 #define MAXJOYBUTTONSANDHATS (MAXJOYBUTTONS+4)
 
 // Number of Mouse Axes
-// KEEPINSYNC jmact/_control.h
+// KEEPINSYNC source/jmact/_control.h, build/src/sdlayer.c
 #define MAXMOUSEAXES 2
 #define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
 
 // Number of JOY axes
-// KEEPINSYNC jmact/_control.h
-#define MAXJOYAXES 8
+// KEEPINSYNC source/jmact/_control.h, build/src/sdlayer.c
+#define MAXJOYAXES 9
 #define MAXJOYDIGITAL (MAXJOYAXES*2)
 
 // DEFAULT mouse sensitivity scale

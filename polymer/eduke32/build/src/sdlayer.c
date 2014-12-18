@@ -681,9 +681,10 @@ int32_t initinput(void)
             SDL_JoystickEventState(SDL_ENABLE);
             inputdevices |= 4;
 
-            joynumaxes = SDL_JoystickNumAxes(joydev);
+            // KEEPINSYNC source/gamedefs.h, source/jmact/_control.h
+            joynumaxes = min(9, SDL_JoystickNumAxes(joydev));
             joynumbuttons = min(32, SDL_JoystickNumButtons(joydev));
-            joynumhats = SDL_JoystickNumHats(joydev);
+            joynumhats = min((36-joynumbuttons)/4,SDL_JoystickNumHats(joydev));
             initprintf("Joystick 1 has %d axes, %d buttons, and %d hat(s).\n", joynumaxes, joynumbuttons, joynumhats);
 
             joyaxis = (int32_t *)Bcalloc(joynumaxes, sizeof(int32_t));

@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // default button assignments and game function names
 // axis defaults are also included
 
+#include "_control.h"
+#include "control.h"
 
 #ifndef function_private_h_
 #define function_private_h_
@@ -218,7 +220,7 @@ const char oldkeydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
    "Dpad_Aiming", "", "",
    };
 
-static const char * mousedefaults[] =
+static const char * mousedefaults[MAXMOUSEBUTTONS] =
    {
    "Fire",
    "MedKit",
@@ -226,45 +228,27 @@ static const char * mousedefaults[] =
    "",
    "Previous_Weapon",
    "Next_Weapon",
-   "",
-   "",
-   "",
-   ""
    };
 
 
-static const char * mouseclickeddefaults[] =
+static const char * mouseclickeddefaults[MAXMOUSEBUTTONS] =
    {
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   ""
    };
 
 
-static const char * mouseanalogdefaults[] =
+static const char * mouseanalogdefaults[MAXMOUSEAXES] =
    {
    "analog_turning",
    "analog_moving",
    };
 
 
-static const char * mousedigitaldefaults[] =
+static const char * mousedigitaldefaults[MAXMOUSEDIGITAL] =
    {
-   "",
-   "",
-   "",
-   "",
    };
 
 #if defined(GEKKO)
-static const char * joystickdefaults[] =
+static const char * joystickdefaults[MAXJOYBUTTONSANDHATS] =
    {
    "Open", // A
    "Fire", // B
@@ -285,27 +269,10 @@ static const char * joystickdefaults[] =
    "Inventory_Right", // D-Pad Right
    "Inventory", // D-Pad Down
    "Inventory_Left", // D-Pad Left
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
    };
 
 
-static const char * joystickclickeddefaults[] =
+static const char * joystickclickeddefaults[MAXJOYBUTTONSANDHATS] =
    {
    "",
    "",
@@ -320,74 +287,23 @@ static const char * joystickclickeddefaults[] =
    "",
    "",
    "Inventory",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
    };
 
 
-static const char * joystickanalogdefaults[] =
+static const char * joystickanalogdefaults[MAXJOYAXES] =
    {
    "analog_strafing",
    "analog_moving",
    "analog_turning",
    "analog_lookingupanddown",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
    };
 
 
-static const char * joystickdigitaldefaults[] =
+static const char * joystickdigitaldefaults[MAXJOYDIGITAL] =
    {
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
    };
 #else
-static const char * joystickdefaults[] =
+static const char * joystickdefaults[MAXJOYBUTTONSANDHATS] =
    {
    "Fire",
    "Strafe",
@@ -428,61 +344,24 @@ static const char * joystickdefaults[] =
    };
 
 
-static const char * joystickclickeddefaults[] =
+static const char * joystickclickeddefaults[MAXJOYBUTTONSANDHATS] =
    {
    "",
    "Inventory",
    "Jump",
    "Crouch",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
    };
 
 
-static const char * joystickanalogdefaults[] =
+static const char * joystickanalogdefaults[MAXJOYAXES] =
    {
    "analog_turning",
    "analog_moving",
    "analog_strafing",
-   "",
-   "",
-   "",
-   "",
-   "",
    };
 
 
-static const char * joystickdigitaldefaults[] =
+static const char * joystickdigitaldefaults[MAXJOYDIGITAL] =
    {
    "",
    "",
@@ -491,15 +370,6 @@ static const char * joystickdigitaldefaults[] =
    "",
    "",
    "Run",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
    };
 #endif
 
