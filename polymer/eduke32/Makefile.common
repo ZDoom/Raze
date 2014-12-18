@@ -54,6 +54,8 @@ ifeq ($(PLATFORM),WII)
     CROSS=powerpc-eabi-
     RANLIB=powerpc-eabi-ranlib
     STRIP=powerpc-eabi-strip
+    ELF2DOL=elf2dol
+    DOLSUFFIX=.dol
 endif
 
 CLANG?=0
