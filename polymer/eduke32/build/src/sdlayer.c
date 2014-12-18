@@ -182,6 +182,9 @@ int32_t wm_msgbox(const char *name, const char *fmt, ...)
     }
 # endif
     return SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, name, buf, NULL);
+#elif defined GEKKO
+    puts(buf);
+    return 0;
 #endif
     puts(buf);
     puts("   (press Return or Enter to continue)");

@@ -22,6 +22,10 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
         if (r >= 0)
             return r;
     }
+#elif defined GEKKO
+    puts(buf);
+    puts("Assuming yes...");
+    return 1;
 #endif
 
     // NOTE: this is dead code for most #ifdef cases above.
