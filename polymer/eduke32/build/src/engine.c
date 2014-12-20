@@ -10921,6 +10921,7 @@ int32_t loadmaphack(const char *filename)
     else if (fn[0])
     {
         // re-load
+        // XXX: what if we changed between levels? Could a wrong maphack be loaded?
         script = scriptfile_fromfile(fn);
     }
 

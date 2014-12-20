@@ -1,0 +1,31 @@
+
+gamevar tmp 0 0
+gamevar cs 0 0
+
+state setup_animatesprites
+    getactor[THISACTOR].mdflags tmp
+    orvar tmp 16
+    setactor[THISACTOR].mdflags tmp
+ends
+
+onevent EVENT_EGS
+    state setup_animatesprites
+endevent
+
+onevent EVENT_LOADACTOR
+    state setup_animatesprites
+endevent
+
+// Assuming a PALETTE.DAT with e.g.:
+//  blend 0: 50/50 alpha
+//  blend 1: factor 1.0 additive
+//
+// See discussion starting from
+// http://forums.duke4.net/topic/775-eduke32-20-and-polymer/page__view__findpost__p__213408
+onevent EVENT_ANIMATESPRITES
+    getactor[THISACTOR].cstat cs
+    ifvarand cs 2 ifvarand cs 512
+        setactor[THISACTOR].blend 1
+    else
+        setactor[THISACTOR].blend 0
+endevent

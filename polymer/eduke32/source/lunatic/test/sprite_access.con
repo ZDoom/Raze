@@ -67,7 +67,7 @@ endevent
 gamevar alpha 0 0
 gamevar tmp 0 0
 
-onevent EVENT_GAME  // XXX: better: on spawn + loadactor
+onevent EVENT_GAME  // XXX: better: in EVENT_EGS + EVENT_LOADACTOR
     ifactor LIZTROOP
     {
         getactor[THISACTOR].mdflags tmp
