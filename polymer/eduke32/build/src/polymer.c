@@ -1794,7 +1794,12 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
                 }
 
                 if ((wall[sec->wallptr + i].cstat & 48) == 16)
-                    localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
+                {
+                    int pic = wall[sec->wallptr + i].overpicnum;
+
+                    if (tilesiz[pic].x > 0 && tilesiz[pic].y > 0)
+                        localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
+                }
 
                 if (!depth && (overridematerial & prprogrambits[PR_BIT_MIRROR_MAP].bit) &&
                      wall[sec->wallptr + i].overpicnum == 560 &&
