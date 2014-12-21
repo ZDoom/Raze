@@ -2842,6 +2842,9 @@ static float calc_ypancoef(char curypanning, int16_t curpicnum, int32_t dopancor
     }
 }
 
+#define NBYTES_WALL_CSTAT_THROUGH_YPANNING \
+    (offsetof(walltype, ypanning)+sizeof(wall[0].ypanning) - offsetof(walltype, cstat))
+
 static void         polymer_updatewall(int16_t wallnum)
 {
     int16_t         nwallnum, nnwallnum, curpicnum, wallpicnum, walloverpicnum, nwallpicnum;
@@ -2908,7 +2911,7 @@ static void         polymer_updatewall(int16_t wallnum)
             (w->invalidid == invalid) &&
             (wallpicnum == w->picnum_anim) &&
             (walloverpicnum == w->overpicnum_anim) &&
-            !Bmemcmp(&wal->cstat, &w->cstat, offsetof(walltype, ypanning) - offsetof(walltype, cstat)) &&
+            !Bmemcmp(&wal->cstat, &w->cstat, NBYTES_WALL_CSTAT_THROUGH_YPANNING) &&
             ((nwallnum < 0 || nwallnum > numwalls) ||
              ((nwallpicnum == w->nwallpicnum) &&
               (wall[nwallnum].xpanning == w->nwallxpanning) &&
@@ -2923,7 +2926,7 @@ static void         polymer_updatewall(int16_t wallnum)
     {
         w->invalidid = invalid;
 
-        Bmemcpy(&w->cstat, &wal->cstat, offsetof(walltype, ypanning) - offsetof(walltype, cstat));
+        Bmemcpy(&w->cstat, &wal->cstat, NBYTES_WALL_CSTAT_THROUGH_YPANNING);
 
         w->picnum_anim = wallpicnum;
         w->overpicnum_anim = walloverpicnum;
