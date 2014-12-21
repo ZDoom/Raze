@@ -36,6 +36,8 @@ extern "C" {
 #define MAXANIMATES     256
 #define MAXANIMWALLS    512
 
+#define VIEWSCREEN_ACTIVE_DISTANCE 8192
+
 typedef struct {
     int16_t wallnum, tag;
 } animwalltype;

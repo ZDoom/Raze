@@ -959,10 +959,7 @@ nextdemo_nomenu:
             G_PrintGameQuotes(screenpeek);
 
         if (ud.last_camsprite != ud.camerasprite)
-        {
             ud.last_camsprite = ud.camerasprite;
-//            ud.camera_time = totalclock+(TICRATE*2);
-        }
 
         if (VOLUMEONE)
         {

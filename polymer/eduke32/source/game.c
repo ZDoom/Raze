@@ -2526,7 +2526,7 @@ static void G_PrintCoords(int32_t snum)
     y += 7;
     Bsprintf(tempbuf,"THOLD= %d", ps->transporter_hold);
     printext256(x,y+54,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"GAMETIC= %d",g_moveThingsCount);
+    Bsprintf(tempbuf,"GAMETIC= %d, TOTALCLOCK=%d", g_moveThingsCount, totalclock);
     printext256(x,y+63,31,-1,tempbuf,0);
 #ifdef DEBUGGINGAIDS
     Bsprintf(tempbuf,"NUMSPRITES= %d", Numsprites);
@@ -7435,7 +7435,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->xrepeat += 8;
                 t->yrepeat += 8;
             }
-            else if (g_curViewscreen >= 0 && OW != i && display_mirror != 3 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200 )
+            else if (g_curViewscreen >= 0 && OW != i && display_mirror != 3 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200)
             {
                 // this exposes a sprite sorting issue which needs to be debugged further...
 #if 0

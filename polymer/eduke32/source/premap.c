@@ -1626,8 +1626,10 @@ void G_ResetTimers(uint8_t keepgtics)
     totalclock = cloudtotalclock = ototalclock = lockclock = 0;
     ready2send = 1;
     g_levelTextTime = 85;
+
     if (!keepgtics)
         g_moveThingsCount = 0;
+
     if (g_curViewscreen >= 0)
         actor[g_curViewscreen].t_data[0] = 0;
 }

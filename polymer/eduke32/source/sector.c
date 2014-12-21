@@ -363,9 +363,9 @@ int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t
     return j;
 }
 
-void G_SetupCamTile(int32_t i, int32_t wn)
+static void G_SetupCamTile(int32_t i, int32_t wn)
 {
-    int32_t const mir = display_mirror;
+    const int32_t mir = display_mirror;
     //if (waloff[wn] == 0) loadtile(wn);
     setviewtotile(wn, tilesiz[wn].y, tilesiz[wn].x);
 
@@ -385,7 +385,7 @@ void G_SetupCamTile(int32_t i, int32_t wn)
 
 void G_AnimateCamSprite(void)
 {
-    int32_t i = g_curViewscreen;
+    const int32_t i = g_curViewscreen;
 
 #ifdef DEBUG_VALGRIND_NO_SMC
     return;
@@ -395,15 +395,15 @@ void G_AnimateCamSprite(void)
 
     if (totalclock >= T1 + ud.camera_time)
     {
-        const DukePlayer_t *ps = g_player[screenpeek].ps;
+        const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
         if (ps->newowner >= 0)
             OW = ps->newowner;
 
-        if (OW >= 0 && dist(&sprite[ps->i], &sprite[i]) < 8192)
+        if (OW >= 0 && dist(&sprite[ps->i], &sprite[i]) < VIEWSCREEN_ACTIVE_DISTANCE)
         {
             if (waloff[TILE_VIEWSCR] == 0)
-                allocatepermanenttile(TILE_VIEWSCR,tilesiz[PN].x<<2,tilesiz[PN].y<<2);
+                allocatepermanenttile(TILE_VIEWSCR, tilesiz[PN].x<<2, tilesiz[PN].y<<2);
             else
                 walock[TILE_VIEWSCR] = 255;
 

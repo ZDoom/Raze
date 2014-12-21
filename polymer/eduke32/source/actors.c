@@ -2234,7 +2234,7 @@ DETONATE:
 
             A_FindPlayer(s, &x);
 
-            if (x < 2048)
+            if (x < VIEWSCREEN_ACTIVE_DISTANCE)
             {
                 if (SP == 1)
                     g_curViewscreen = i;
