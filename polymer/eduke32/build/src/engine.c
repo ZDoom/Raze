@@ -124,6 +124,9 @@ static void drawpixel_safe(void *s, char a)
 //void loadvoxel(int32_t voxindex) { UNREFERENCED_PARAMATER(voxindex); }
 int16_t tiletovox[MAXTILES];
 int32_t usevoxels = 1;
+#ifdef USE_OPENGL
+static char *voxfilenames[MAXVOXELS], g_haveVoxels=0;  // for deferred voxel->model conversion
+#endif
 //#define kloadvoxel loadvoxel
 
 int32_t novoxmips = 1;
@@ -11468,6 +11471,28 @@ static void initsmost(void)
     nodesperline = tabledivide32_noinline(YSAVES, ydim);
 }
 
+#ifdef USE_OPENGL
+static void PolymostProcessVoxels(void)
+{
+    if (!g_haveVoxels)
+        return;
+
+    g_haveVoxels = 0;
+
+    OSD_Printf("Generating voxel models for Polymost. This may take a while...\n");
+    nextpage();
+
+    for (int32_t i=0; i<MAXVOXELS; i++)
+    {
+        if (voxfilenames[i])
+        {
+            voxmodels[i] = voxload(voxfilenames[i]);
+            DO_FREE_AND_NULL(voxfilenames[i]);
+        }
+    }
+}
+#endif
+
 //
 // setgamemode
 //
@@ -11546,6 +11571,9 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
 #ifdef USE_OPENGL
+    if (getrendermode() == REND_POLYMOST)
+        PolymostProcessVoxels();
+
     if (getrendermode() >= REND_POLYMOST)
     {
         polymost_glreset();
@@ -12072,7 +12100,9 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
         voxmodels[voxindex] = NULL;
     }
 
-    voxmodels[voxindex] = voxload(filename);
+    Bfree(voxfilenames[voxindex]);
+    voxfilenames[voxindex] = Bstrdup(filename);
+    g_haveVoxels = 1;
 #endif
 
     return 0;

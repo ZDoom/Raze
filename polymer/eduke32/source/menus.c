@@ -1461,8 +1461,16 @@ static void M_PreMenu(MenuID_t cm)
 #endif
 
     case MENU_VIDEOSETUP:
-        ME_VIDEOSETUP_APPLY.disabled = ((xdim == resolution[newresolution].xdim && ydim == resolution[newresolution].ydim && getrendermode() == newrendermode && fullscreen == newfullscreen) || (newfullscreen ? !(resolution[newresolution].flags & RES_FS) : !(resolution[newresolution].flags & RES_WIN)) || (newrendermode != REND_CLASSIC && resolution[newresolution].bppmax <= 8));
+    {
+        const int32_t nr = newresolution;
+
+        ME_VIDEOSETUP_APPLY.disabled =
+            ((xdim == resolution[nr].xdim && ydim == resolution[nr].ydim &&
+              getrendermode() == newrendermode && fullscreen == newfullscreen)
+             || (newfullscreen ? !(resolution[nr].flags & RES_FS) : !(resolution[nr].flags & RES_WIN))
+             || (newrendermode != REND_CLASSIC && resolution[nr].bppmax <= 8));
         break;
+    }
 
     case MENU_SOUND:
     case MENU_SOUND_INGAME:
