@@ -7433,8 +7433,8 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             {
                 t->picnum = STATIC;
                 t->cstat |= (rand()&12);
-                t->xrepeat += 8;
-                t->yrepeat += 8;
+                t->xrepeat += 10;
+                t->yrepeat += 9;
             }
             else if (g_curViewscreen == i && display_mirror != 3 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200)
             {
@@ -12828,23 +12828,22 @@ void G_BonusScreen(int32_t bonusonly)
 
 static void G_DrawCameraText(int16_t i)
 {
-    char flipbits;
-    int32_t x , y;
-
     if (!T1)
     {
         rotatesprite_win(24<<16,33<<16,65536L,0,CAMCORNER,0,0,2);
         rotatesprite_win((320-26)<<16,34<<16,65536L,0,CAMCORNER+1,0,0,2);
         rotatesprite_win(22<<16,163<<16,65536L,512,CAMCORNER+1,0,0,2+4);
         rotatesprite_win((310-10)<<16,163<<16,65536L,512,CAMCORNER+1,0,0,2);
+
         if (totalclock&16)
             rotatesprite_win(46<<16,32<<16,65536L,0,CAMLIGHT,0,0,2);
     }
     else
     {
-        flipbits = (totalclock<<1)&48;
-        for (x=0; x<394; x+=64)
-            for (y=0; y<200; y+=64)
+        int32_t flipbits = (totalclock<<1)&48;
+
+        for (int32_t x=-64; x<394; x+=64)
+            for (int32_t y=0; y<200; y+=64)
                 rotatesprite_win(x<<16,y<<16,65536L,0,STATIC,0,0,2+flipbits);
     }
 }
