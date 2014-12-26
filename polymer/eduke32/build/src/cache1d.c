@@ -1467,17 +1467,8 @@ C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t c
 
     if (dasizeof > LZWSIZE)
     {
-        if (count > LZWSIZE)
-        {
-            count *= dasizeof;
-            dasizeof = 1;
-        }
-        else
-        {
-            uint32_t i = count;
-            count = dasizeof;
-            dasizeof = i;
-        }
+        count *= dasizeof;
+        dasizeof = 1;
     }
 
     uint32_t kgoal;
@@ -1485,7 +1476,6 @@ C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t c
     if (decompress_part(f, &kgoal))
         return -1;
 
-    Bassert(dasizeof < sizeof(lzwrawbuf));
     Bmemcpy(ptr, lzwrawbuf, (int32_t)dasizeof);
 
     uint32_t k = (int32_t)dasizeof;
@@ -1545,22 +1535,12 @@ C1D_STATIC void c1d_write_compressed(const void *buffer, bsize_t dasizeof, bsize
 {
     const char *ptr = (char*)buffer;
 
-    if (dasizeof > LZWSIZE && count > LZWSIZE)
+    if (dasizeof > LZWSIZE)
     {
-        if (count > LZWSIZE)
-        {
-            count *= dasizeof;
-            dasizeof = 1;
-        }
-        else
-        {
-            uint32_t i = count;
-            count = dasizeof;
-            dasizeof = i;
-        }
+        count *= dasizeof;
+        dasizeof = 1;
     }
 
-    Bassert(dasizeof < sizeof(lzwrawbuf));
     Bmemcpy(lzwrawbuf, ptr, (int32_t)dasizeof);
 
     uint32_t k = dasizeof;
