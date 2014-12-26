@@ -2828,7 +2828,7 @@ CHECKINV1:
                             p->holoduke_on = i = A_InsertSprite(p->cursectnum,p->pos.x,p->pos.y,
                                                                 p->pos.z+(30<<8),APLAYER,-64,0,0,p->ang,0,0,-1,10);
                             T4 = T5 = 0;
-                            SP = snum;
+                            sprite[i].yvel = snum;
                             sprite[i].extra = 0;
                             P_DoQuote(QUOTE_HOLODUKE_ON,p);
                             A_PlaySound(TELEPORTER,p->holoduke_on);
@@ -3220,11 +3220,12 @@ void P_CheckSectors(int32_t snum)
                 {
                     if (PN == CAMERA1 && SP == 0 && sprite[neartagsprite].hitag == SLT)
                     {
-                        SP = 1; //Using this camera
+                        sprite[i].yvel = 1;  // Using this camera
                         A_PlaySound(MONITOR_ACTIVE,p->i);
 
                         sprite[neartagsprite].owner = i;
-                        sprite[neartagsprite].yvel = 1;
+                        sprite[neartagsprite].yvel = 1;  // VIEWSCREEN_YVEL
+                        g_curViewscreen = neartagsprite;
 
                         {
                             int32_t j = p->cursectnum;

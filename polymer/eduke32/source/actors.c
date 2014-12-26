@@ -2232,20 +2232,24 @@ DETONATE:
             if (s->xrepeat == 0)
                 KILLIT(i);
 
-            A_FindPlayer(s, &x);
+            {
+                const int32_t p = A_FindPlayer(s, &x);
+                const DukePlayer_t *const ps = g_player[p].ps;
 
-            if (x < VIEWSCREEN_ACTIVE_DISTANCE)
-            {
-                if (SP == 1)
-                    g_curViewscreen = i;
-            }
-            else if (g_curViewscreen != -1 && T1 == 1)
-            {
-                g_curViewscreen = -1;
-                T1 = 0;
-                //loadtile(s->picnum);
-                //invalidatetile(s->picnum,-1,255);
-                walock[TILE_VIEWSCR] = 199;
+                if (dist(&sprite[ps->i], s) < VIEWSCREEN_ACTIVE_DISTANCE)
+                {
+#if 0
+                    if (sprite[i].yvel == 1)  // VIEWSCREEN_YVEL
+                        g_curViewscreen = i;
+#endif
+                }
+                else if (g_curViewscreen == i /*&& T1 == 1*/)
+                {
+                    g_curViewscreen = -1;
+                    sprite[i].yvel = 0;  // VIEWSCREEN_YVEL
+                    T1 = 0;
+                    walock[TILE_VIEWSCR] = 199;
+                }
             }
 
             goto BOLT;

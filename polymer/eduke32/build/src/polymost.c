@@ -3872,6 +3872,8 @@ void polymost_drawsprite(int32_t snum)
         }
         else if (tspr->cstat & 32)
         {
+            // XXX: such a z offset can be relatively large; for a given
+            // tsprite, not independent of the rest of the scene.
             if ((tspr->z - sec->ceilingz) < (sec->floorz - tspr->z))
                 tspr->z += snum;
             else tspr->z -= snum;

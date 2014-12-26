@@ -7163,7 +7163,7 @@ static inline void G_DoEventAnimSprites(int32_t j)
 
 void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothratio)
 {
-    int32_t j, k, p, sect;
+    int32_t j, k, p;
     intptr_t l;
 
     if (spritesortcnt == 0)
@@ -7317,6 +7317,8 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         if (t->statnum == TSPR_TEMP)
             continue;
 
+        Bassert(i >= 0);
+
         {
             int32_t snum = P_GetP(s);
             const DukePlayer_t *const ps = g_player[snum].ps;
@@ -7339,9 +7341,8 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             }
         }
 
-        sect = s->sectnum;
+        const int32_t sect = s->sectnum;
 
-        Bassert(i >= 0);
         curframe = AC_CURFRAME(actor[i].t_data);
 #if !defined LUNATIC
         scrofs_action = AC_ACTION_ID(actor[i].t_data);
@@ -7435,7 +7436,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->xrepeat += 8;
                 t->yrepeat += 8;
             }
-            else if (g_curViewscreen >= 0 && OW != i && display_mirror != 3 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200)
+            else if (g_curViewscreen == i && display_mirror != 3 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200)
             {
                 // this exposes a sprite sorting issue which needs to be debugged further...
 #if 0
@@ -7457,11 +7458,6 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->yrepeat = t->yrepeat & 1 ? (t->yrepeat>>2) + 1 : t->yrepeat>>2;
             }
 
-#if 0 // moved to polymost
-            t->x += (sintable[(t->ang+512)&2047]>>13);
-            t->y += (sintable[t->ang&2047]>>13);
-            updatesector(t->x, t->y, &t->sectnum);
-#endif
             break;
 
         case SHRINKSPARK__STATIC:
