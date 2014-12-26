@@ -1305,6 +1305,7 @@ function Cmd.xspriteflags(tilenum, flags, override)
         contprintf(false, "at %s %d:%d", loc[1], loc[2], loc[3])
     end
 
+    -- Mark the last 'spriteflags' or 'sprite*' directive for the given actor.
     g_code.aflagsloc[tilenum] = getLocation(format("'%s' for actor", g_lastkw), pos)
 
     if (ffi and ok) then
@@ -1840,8 +1841,8 @@ local Couter = {
     spriteshadow = cmd(D)
         / function(tilenum, flags) Cmd.xspriteflags(tilenum, conl.SFLAG.SFLAG_SHADOW) end,
 
-    spriteflags = cmd(D,D)  -- also see inner
-        / function(tilenum, flags) Cmd.xspriteflags(tilenum, flags, true) end,
+    spriteflags = (sp1 * tok.define)^2  -- also see inner
+        / function(tilenum, ...) Cmd.xspriteflags(tilenum, bit.bor(...), true) end,
 
     --- 4. Game Variables / Arrays
     gamevar = cmd(I,D,D)

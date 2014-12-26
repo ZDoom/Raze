@@ -4514,8 +4514,10 @@ static int32_t C_ParseCommand(int32_t loop)
                 g_scriptPtr--;
                 j = *g_scriptPtr;
 
-                C_GetNextValue(LABEL_DEFINE);
-                g_scriptPtr--;
+                int32_t flags = 0;
+                do
+                    C_BitOrNextValue(&flags);
+                while (C_GetKeyword() == -1);
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
                 {
@@ -4524,7 +4526,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     continue;
                 }
 
-                g_tile[j].flags = *g_scriptPtr;
+                g_tile[j].flags = flags;
 
                 continue;
             }
