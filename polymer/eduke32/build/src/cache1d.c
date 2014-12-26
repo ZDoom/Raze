@@ -1463,8 +1463,7 @@ static uint32_t decompress_part(intptr_t f, uint32_t *kgoalptr)
 // Read from 'f' into 'buffer'.
 C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f)
 {
-    uint32_t i, j, k, kgoal;
-    char *ptr;
+    char *ptr = (char *)buffer;
 
     if (dasizeof > LZWSIZE)
     {
@@ -1475,21 +1474,23 @@ C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t c
         }
         else
         {
-            i = count;
+            uint32_t i = count;
             count = dasizeof;
             dasizeof = i;
         }
     }
 
-    ptr = (char *)buffer;
+    uint32_t kgoal;
 
-    k = decompress_part(f, &kgoal);
-    if (k) return -1;
+    if (decompress_part(f, &kgoal))
+        return -1;
 
+    Bassert(dasizeof < sizeof(lzwrawbuf));
     Bmemcpy(ptr, lzwrawbuf, (int32_t)dasizeof);
-    k += (int32_t)dasizeof;
 
-    for (i=1; i<count; i++)
+    uint32_t k = (int32_t)dasizeof;
+
+    for (uint32_t i=1; i<count; i++)
     {
         if (k >= kgoal)
         {
@@ -1497,14 +1498,16 @@ C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t c
             if (k) return -1;
         }
 
-        j = 0;
+        uint32_t j = 0;
 
         if (dasizeof >= 4)
         {
             for (; j<dasizeof-4; j+=4)
             {
-                ptr[j+dasizeof] = ((ptr[j]+lzwrawbuf[j+k])&255);       ptr[j+1+dasizeof] = ((ptr[j+1]+lzwrawbuf[j+1+k])&255);
-                ptr[j+2+dasizeof] = ((ptr[j+2]+lzwrawbuf[j+2+k])&255); ptr[j+3+dasizeof] = ((ptr[j+3]+lzwrawbuf[j+3+k])&255);
+                ptr[j+dasizeof] = ((ptr[j]+lzwrawbuf[j+k])&255);
+                ptr[j+1+dasizeof] = ((ptr[j+1]+lzwrawbuf[j+1+k])&255);
+                ptr[j+2+dasizeof] = ((ptr[j+2]+lzwrawbuf[j+2+k])&255);
+                ptr[j+3+dasizeof] = ((ptr[j+3]+lzwrawbuf[j+3+k])&255);
             }
         }
 
@@ -1540,7 +1543,6 @@ static uint32_t compress_part(uint32_t k, intptr_t f)
 // Write from 'buffer' to 'f'.
 C1D_STATIC void c1d_write_compressed(const void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f)
 {
-    uint32_t i, j, k;
     const char *ptr = (char*)buffer;
 
     if (dasizeof > LZWSIZE && count > LZWSIZE)
@@ -1552,28 +1554,31 @@ C1D_STATIC void c1d_write_compressed(const void *buffer, bsize_t dasizeof, bsize
         }
         else
         {
-            i = count;
+            uint32_t i = count;
             count = dasizeof;
             dasizeof = i;
         }
     }
 
+    Bassert(dasizeof < sizeof(lzwrawbuf));
     Bmemcpy(lzwrawbuf, ptr, (int32_t)dasizeof);
 
-    k = dasizeof;
+    uint32_t k = dasizeof;
     if (k > LZWSIZE-dasizeof)
         k = compress_part(k, f);
 
-    for (i=1; i<count; i++)
+    for (uint32_t i=1; i<count; i++)
     {
-        j = 0;
+        uint32_t j = 0;
 
         if (dasizeof >= 4)
         {
             for (; j<dasizeof-4; j+=4)
             {
-                lzwrawbuf[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);       lzwrawbuf[j+1+k] = ((ptr[j+1+dasizeof]-ptr[j+1])&255);
-                lzwrawbuf[j+2+k] = ((ptr[j+2+dasizeof]-ptr[j+2])&255); lzwrawbuf[j+3+k] = ((ptr[j+3+dasizeof]-ptr[j+3])&255);
+                lzwrawbuf[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);
+                lzwrawbuf[j+1+k] = ((ptr[j+1+dasizeof]-ptr[j+1])&255);
+                lzwrawbuf[j+2+k] = ((ptr[j+2+dasizeof]-ptr[j+2])&255);
+                lzwrawbuf[j+3+k] = ((ptr[j+3+dasizeof]-ptr[j+3])&255);
             }
         }
 
