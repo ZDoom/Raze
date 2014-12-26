@@ -17682,6 +17682,35 @@ int32_t screencapture(const char *filename, char inverseit, const char *versions
 }
 
 
+#ifdef POLYMER
+static void PolymerProcessModels(void)
+{
+    // potentially deferred MD3 postprocessing
+    for (int32_t i=0; i<nextmodelid; i++)
+    {
+        if (models[i]->mdnum==3 && ((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
+        {
+            static int32_t warned=0;
+
+            if (!warned)
+            {
+                OSD_Printf("Post-processing MD3 models for Polymer. This may take a while...\n");
+                nextpage();
+                warned = 1;
+            }
+
+            if (!md3postload_polymer((md3model_t *)models[i]))
+                OSD_Printf("INTERNAL ERROR: mdmodel %s failed postprocessing!\n",
+                           ((md3model_t *)models[i])->head.nam);
+
+            if (((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
+                OSD_Printf("INTERNAL ERROR: wtf?\n");
+        }
+//        else
+//            OSD_Printf("mdmodel %d already postprocessed.\n", i);
+    }
+}
+#endif
 
 //
 // setrendermode
@@ -17689,42 +17718,20 @@ int32_t screencapture(const char *filename, char inverseit, const char *versions
 int32_t setrendermode(int32_t renderer)
 {
     UNREFERENCED_PARAMETER(renderer);
+
 #ifdef USE_OPENGL
-    if (bpp == 8) renderer = 0;
+    if (bpp == 8)
+        renderer = REND_CLASSIC;
 # ifdef POLYMER
-    else renderer = min(4,max(3,renderer));
+    else
+        renderer = clamp(renderer, REND_POLYMOST, REND_POLYMER);
 
-    if (renderer == 4)
+    if (renderer == REND_POLYMER)
     {
-        int32_t i;
-
-        // potentially deferred MD3 postprocessing
-        for (i=0; i<nextmodelid; i++)
-        {
-            if (models[i]->mdnum==3 && ((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
-            {
-                static int32_t warned=0;
-
-                if (!warned)
-                {
-                    OSD_Printf("Post-processing MD3 models for Polymer. This can take a while...\n");
-                    nextpage();
-                    warned = 1;
-                }
-
-                if (!md3postload_polymer((md3model_t *)models[i]))
-                    OSD_Printf("INTERNAL ERROR: mdmodel %s failed postprocessing!\n",
-                               ((md3model_t *)models[i])->head.nam);
-
-                if (((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
-                    OSD_Printf("INTERNAL ERROR: wtf?\n");
-            }
-//            else
-//                OSD_Printf("mdmodel %d already postprocessed.\n", i);
-        }
+        PolymerProcessModels();
 
         if (!polymer_init())
-            renderer = 3;
+            renderer = REND_POLYMOST;
     }
     else if (getrendermode() == REND_POLYMER)  // going from Polymer to another renderer
     {
@@ -17732,8 +17739,6 @@ int32_t setrendermode(int32_t renderer)
         G_Polymer_UnInit();
         polymer_uninit();
     }
-# else
-    else renderer = 3;
 # endif
 
     basepalreset = 1;
@@ -17752,7 +17757,7 @@ int32_t setrendermode(int32_t renderer)
 #ifdef USE_OPENGL
 void setrollangle(int32_t rolla)
 {
-    gtang = (float) rolla * PI * (1.f/1024.f);
+    gtang = (float)rolla * PI * (1.f/1024.f);
 }
 #endif
 
@@ -17796,7 +17801,6 @@ void invalidatetile(int16_t tilenume, int32_t pal, int32_t how)
         if (getrendermode() == REND_POLYMER)
             polymer_invalidateartmap(tilenume);
 #endif
-
     }
 #endif
 }

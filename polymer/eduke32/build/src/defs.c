@@ -920,7 +920,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE(nextvoxid == MAXVOXELS))
             {
-                initprintf("Maximum number of voxels already defined.\n");
+                initprintf("Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
                 break;
             }
 
@@ -1421,9 +1421,21 @@ static int32_t defsparser(scriptfile *script)
                 { "scale",  T_SCALE  },
             };
 
-            if (EDUKE32_PREDICT_FALSE(scriptfile_getstring(script,&fn))) break; //voxel filename
-            if (EDUKE32_PREDICT_FALSE(nextvoxid == MAXVOXELS)) { initprintf("Maximum number of voxels already defined.\n"); break; }
-            if (EDUKE32_PREDICT_FALSE(qloadkvx(nextvoxid, fn))) { initprintf("Failure loading voxel file \"%s\"\n",fn); break; }
+            if (EDUKE32_PREDICT_FALSE(scriptfile_getstring(script,&fn)))
+                break; //voxel filename
+
+            if (EDUKE32_PREDICT_FALSE(nextvoxid == MAXVOXELS))
+            {
+                initprintf("Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
+                break;
+            }
+
+            if (EDUKE32_PREDICT_FALSE(qloadkvx(nextvoxid, fn)))
+            {
+                initprintf("Failure loading voxel file \"%s\"\n",fn);
+                break;
+            }
+
             lastvoxid = nextvoxid++;
 
             if (scriptfile_getbraces(script,&modelend)) break;
