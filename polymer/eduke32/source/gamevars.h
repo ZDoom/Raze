@@ -54,7 +54,7 @@ enum GamevarFlags_t {
 #define PLAYER_VAR_ALIGNMENT (sizeof(intptr_t))
 #define ACTOR_VAR_ALIGNMENT 16
 
-# define MAXGAMEARRAYS (MAXGAMEVARS>>2) // must be lower than MAXGAMEVARS
+# define MAXGAMEARRAYS (MAXGAMEVARS>>2) // must be strictly smaller than MAXGAMEVARS
 # define MAXARRAYLABEL MAXVARLABEL
 
 enum GamearrayFlags_t {

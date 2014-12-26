@@ -40,10 +40,7 @@ static void Gv_Clear(void)
 
     for (; i>=0; i--)
     {
-        if (aGameVars[i].szLabel)
-            Bfree(aGameVars[i].szLabel);
-
-        aGameVars[i].szLabel = NULL;
+        DO_FREE_AND_NULL(aGameVars[i].szLabel);
 
         if ((aGameVars[i].dwFlags & GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
         {
@@ -59,8 +56,7 @@ static void Gv_Clear(void)
 
         gamearray_t *const gar = &aGameArrays[i];
 
-        Bfree(gar->szLabel);
-        gar->szLabel = NULL;
+        DO_FREE_AND_NULL(gar->szLabel);
 
         if ((gar->dwFlags & GAMEARRAY_NORMAL) && gar->vals)
         {

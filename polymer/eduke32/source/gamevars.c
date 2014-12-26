@@ -36,51 +36,52 @@ LUNATIC_CB void (*A_ResetVars)(int32_t iActor);
 #else
 # include "gamestructures.c"
 
-static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
+// Frees the memory for the *values* of game variables and arrays. Resets their
+// counts to zero. Call this function as many times as needed.
+//
+// Returns: old g_gameVarCount | (g_gameArrayCount<<16).
+static int32_t Gv_Free(void)
 {
-    // call this function as many times as needed.
-    int32_t i;
-
-    for (i=0; i<g_gameVarCount; i++)
+    for (int32_t i=0; i<g_gameVarCount; i++)
     {
         if (aGameVars[i].dwFlags & GAMEVAR_USER_MASK)
             ALIGNED_FREE_AND_NULL(aGameVars[i].val.plValues);
 
         aGameVars[i].dwFlags |= GAMEVAR_RESET;
+    }
 
-        if (i >= MAXGAMEARRAYS)
-            continue;
-
+    for (int32_t i=0; i<g_gameArrayCount; i++)
+    {
         if (aGameArrays[i].dwFlags & GAMEARRAY_NORMAL)
             ALIGNED_FREE_AND_NULL(aGameArrays[i].plValues);
 
         aGameArrays[i].dwFlags |= GAMEARRAY_RESET;
     }
 
+    EDUKE32_STATIC_ASSERT(MAXGAMEVARS < 32768);
+    int32_t ret = g_gameVarCount | (g_gameArrayCount<<16);
     g_gameVarCount = g_gameArrayCount = 0;
+
     hash_init(&h_gamevars);
     hash_init(&h_arrays);
+
+    return ret;
 }
 
+// Calls Gv_Free() and in addition frees the labels of all game variables and
+// arrays.
+// Only call this function ONCE...
 static void Gv_Clear(void)
 {
-    // only call this function ONCE...
-    int32_t i;
-
-    Gv_Free();
+    int32_t n = Gv_Free();
+    int32_t gameVarCount = n&65535, gameArrayCount = n>>16;
 
     // Now, only do work that Gv_Free() hasn't done.
-    for (i=0; i<g_gameVarCount; i++)
-    {
+    for (int32_t i=0; i<gameVarCount; i++)
         DO_FREE_AND_NULL(aGameVars[i].szLabel);
 
-        aGameVars[i].val.lValue=0;
-
-        if (i >= MAXGAMEARRAYS)
-            continue;
-
+    for (int32_t i=0; i<gameArrayCount; i++)
         DO_FREE_AND_NULL(aGameArrays[i].szLabel);
-    }
 }
 
 int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
@@ -107,9 +108,18 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
     if (kdfread(&g_gameVarCount,sizeof(g_gameVarCount),1,fil) != 1) goto corrupt;
     for (i=0; i<g_gameVarCount; i++)
     {
-        if (kdfread(&(aGameVars[i]),sizeof(gamevar_t),1,fil) != 1) goto corrupt;
-        aGameVars[i].szLabel = (char *)Xmalloc(MAXVARLABEL * sizeof(uint8_t));
-        if (kdfread(aGameVars[i].szLabel,sizeof(uint8_t) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
+        char *const olabel = aGameVars[i].szLabel;
+
+        if (kdfread(&aGameVars[i], sizeof(gamevar_t), 1, fil) != 1)
+            goto corrupt;
+
+        if (olabel == NULL)
+            aGameVars[i].szLabel = (char *)Xmalloc(MAXVARLABEL * sizeof(uint8_t));
+        else
+            aGameVars[i].szLabel = olabel;
+
+        if (kdfread(aGameVars[i].szLabel, MAXVARLABEL, 1, fil) != 1)
+            goto corrupt;
         hash_add(&h_gamevars, aGameVars[i].szLabel,i, 1);
 
         if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
@@ -138,11 +148,19 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         if (aGameArrays[i].dwFlags&GAMEARRAY_READONLY)
             continue;
 
-        // read for .size and .dwFlags (the rest are pointers):
-        if (kdfread(&aGameArrays[i],sizeof(gamearray_t),1,fil) != 1) goto corrupt;
+        char *const olabel = aGameArrays[i].szLabel;
 
-        aGameArrays[i].szLabel = (char *)Xmalloc(MAXARRAYLABEL * sizeof(uint8_t));
-        if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
+        // read for .size and .dwFlags (the rest are pointers):
+        if (kdfread(&aGameArrays[i], sizeof(gamearray_t), 1, fil) != 1)
+            goto corrupt;
+
+        if (olabel == NULL)
+            aGameArrays[i].szLabel = (char *)Xmalloc(MAXARRAYLABEL * sizeof(uint8_t));
+        else
+            aGameArrays[i].szLabel = olabel;
+
+        if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil) != 1)
+            goto corrupt;
         hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
 
         aGameArrays[i].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, aGameArrays[i].size * GAR_ELTSZ);
@@ -417,7 +435,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     i = g_gameArrayCount;
 
     if (aGameArrays[i].szLabel == NULL)
-        aGameArrays[i].szLabel=(char *)Xcalloc(MAXVARLABEL,sizeof(uint8_t));
+        aGameArrays[i].szLabel = (char *)Xcalloc(MAXVARLABEL,sizeof(uint8_t));
 
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
@@ -808,7 +826,7 @@ nastyhacks:
         if (EDUKE32_PREDICT_FALSE(index < 0 || index >= siz))
         {
             negateResult = index;
-            CON_ERRPRINTF("%s %s[%d]\n", gvxerrs[GVX_BADINDEX], aGameArrays[id].szLabel, index);;
+            CON_ERRPRINTF("%s %s[%d]\n", gvxerrs[GVX_BADINDEX], aGameArrays[id].szLabel, index);
             return -1;
         }
 
