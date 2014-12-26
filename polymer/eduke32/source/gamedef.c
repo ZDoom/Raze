@@ -2510,6 +2510,20 @@ LUNATIC_EXTERN void C_SetCfgName(const char *cfgname)
 }
 
 #if !defined LUNATIC
+static void C_BitOrNextValue(int32_t *valptr)
+{
+    C_GetNextValue(LABEL_DEFINE);
+    g_scriptPtr--;
+    *valptr |= *g_scriptPtr;
+}
+
+static void C_FinishBitOr(int32_t value)
+{
+    bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+    *g_scriptPtr = value;
+    g_scriptPtr++;
+}
+
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw, otw;
@@ -2879,15 +2893,9 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 j = 0;
                 while (C_GetKeyword() == -1)
-                {
-                    C_GetNextValue(LABEL_DEFINE);
-                    g_scriptPtr--;
-                    j |= *g_scriptPtr;
-                }
-                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                *g_scriptPtr = j;
+                    C_BitOrNextValue(&j);
 
-                g_scriptPtr++;
+                C_FinishBitOr(j);
             }
             else
             {
@@ -3059,16 +3067,12 @@ static int32_t C_ParseCommand(int32_t loop)
                             initprintf("%s:%d: warning: expected a move, found a constant.\n",g_szScriptFileName,g_lineNumber);
                             g_numCompilerWarnings++;
                         }
+
                         k = 0;
                         while (C_GetKeyword() == -1)
-                        {
-                            C_GetNextValue(LABEL_DEFINE);
-                            g_scriptPtr--;
-                            k |= *g_scriptPtr;
-                        }
-                        bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                        *g_scriptPtr = k;
-                        g_scriptPtr++;
+                            C_BitOrNextValue(&k);
+
+                        C_FinishBitOr(k);
                         j = 666;
                         break;
                     }
@@ -3221,14 +3225,9 @@ static int32_t C_ParseCommand(int32_t loop)
                 {
                     j = 0;
                     while (C_GetKeyword() == -1)
-                    {
-                        C_GetNextValue(LABEL_DEFINE);
-                        g_scriptPtr--;
-                        j |= *g_scriptPtr;
-                    }
-                    bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                    *g_scriptPtr = j;
-                    g_scriptPtr++;
+                        C_BitOrNextValue(&j);
+
+                    C_FinishBitOr(j);
                     break;
                 }
                 else
@@ -5203,15 +5202,9 @@ repeatcase:
                 case CON_IFP:
                     j = 0;
                     do
-                    {
-                        C_GetNextValue(LABEL_DEFINE);
-                        g_scriptPtr--;
-                        j |= *g_scriptPtr;
-                    }
+                        C_BitOrNextValue(&j);
                     while (C_GetKeyword() == -1);
-                    bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                    *g_scriptPtr = j;
-                    g_scriptPtr++;
+                    C_FinishBitOr(j);
                     break;
                 case CON_IFSOUND:
                 case CON_IFACTORSOUND:
