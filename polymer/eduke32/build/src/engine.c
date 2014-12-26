@@ -5448,11 +5448,15 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
 
                 // AMCTC V1 MEGABASE: (ny+y1)>>14 == 65547
                 // (after long corridor with the blinds)
-                int32_t lx = mulscale32(nx>>3, distrecip[(ny+y1)>>14]) + halfxdimen;
+                //
+                // Also, OOB (<0?) in my amcvoxels_crash.map.
+                const int32_t il = clamp((ny+y1)>>14, 1, DISTRECIPSIZ-1);
+                int32_t lx = mulscale32(nx>>3, distrecip[il]) + halfxdimen;
                 if (lx < 0)
                     lx = 0;
 
-                int32_t rx = mulscale32((nx+nxoff)>>3, distrecip[(ny+y2)>>14]) + halfxdimen;
+                const int32_t ir = clamp((ny+y2)>>14, 1, DISTRECIPSIZ-1);
+                int32_t rx = mulscale32((nx+nxoff)>>3, distrecip[ir]) + halfxdimen;
                 if (rx > xdimen)
                     rx = xdimen;
 
@@ -5461,10 +5465,10 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
 
                 rx -= lx;
 
-                const int32_t l1 = distrecip[(ny-yoff)>>14];
+                const int32_t l1 = distrecip[clamp((ny-yoff)>>14, 1, DISTRECIPSIZ-1)];
                 // FIXME! AMCTC RC2/beta shotgun voxel
                 // (e.g. training map right after M16 shooting):
-                const int32_t l2 = distrecip[clamp((ny+yoff)>>14, 0, 65536)];
+                const int32_t l2 = distrecip[clamp((ny+yoff)>>14, 1, DISTRECIPSIZ-1)];
 
                 for (; voxptr<voxend; voxptr+=voxptr[1]+3)
                 {
