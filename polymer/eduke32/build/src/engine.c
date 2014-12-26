@@ -5245,25 +5245,17 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
                     int32_t daxscale, int32_t dayscale, char daindex,
                     int8_t dashade, char dapal, const int32_t *daumost, const int32_t *dadmost)
 {
-    int32_t i, j, k, x, y, syoff, ggxstart, ggystart, nxoff;
-    int32_t cosang, sinang, sprcosang, sprsinang, backx, backy, gxinc, gyinc;
-    int32_t daxsiz, daysiz, /*dazsiz,*/ daxpivot, daypivot, dazpivot;
-    int32_t daxscalerecip, dayscalerecip, cnt, gxstart, gystart, odayscale;
-    int32_t l1, l2, /*slabxoffs,*/ xyvoxoffs, *longptr;
-    intptr_t slabxoffs;
-    int32_t lx, rx, nx, ny, x1=0, y1=0, z1, x2=0, y2=0, z2, yplc, yinc=0;
-    int32_t yoff, xs=0, ys=0, xe, ye, xi=0, yi=0, cbackx, cbacky, dagxinc, dagyinc;
-    int16_t *shortptr;
-    char *voxptr, *voxend, *davoxptr, oand, oand16, oand32;
+    int32_t i, j, k, x, y;
 
-    cosang = sintable[(globalang+512)&2047];
-    sinang = sintable[globalang&2047];
-    sprcosang = sintable[(dasprang+512)&2047];
-    sprsinang = sintable[dasprang&2047];
+    int32_t cosang = sintable[(globalang+512)&2047];
+    int32_t sinang = sintable[globalang&2047];
+    int32_t sprcosang = sintable[(dasprang+512)&2047];
+    int32_t sprsinang = sintable[dasprang&2047];
 
-    i = klabs(dmulscale6(dasprx-globalposx,cosang,daspry-globalposy,sinang));
+    i = klabs(dmulscale6(dasprx-globalposx, cosang, daspry-globalposy, sinang));
     j = getpalookup(mulscale21(globvis,i), dashade)<<8;
-    setupdrawslab(ylookup[1],FP_OFF(palookup[dapal])+j);
+    setupdrawslab(ylookup[1], FP_OFF(palookup[dapal])+j);
+
     j = 1310720;
     j *= min(daxscale,dayscale); j >>= 6;  //New hacks (for sized-down voxels)
     for (k=0; k<MAXVOXMIPS; k++)
@@ -5271,12 +5263,16 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         if (i < j) { i = k; break; }
         j <<= 1;
     }
-    if (k >= MAXVOXMIPS) i = MAXVOXMIPS-1;
+    if (k >= MAXVOXMIPS)
+        i = MAXVOXMIPS-1;
 
-    if (novoxmips) i = 0;
-    davoxptr = (char *)voxoff[daindex][i];
+    if (novoxmips)
+        i = 0;
+
+    char *davoxptr = (char *)voxoff[daindex][i];
     if (!davoxptr && i > 0) { davoxptr = (char *)voxoff[daindex][0]; i = 0; }
-    if (!davoxptr) return;
+    if (!davoxptr)
+        return;
 
     if (voxscale[daindex] == 65536)
         { daxscale <<= (i+8); dayscale <<= (i+8); }
@@ -5286,39 +5282,39 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         dayscale = mulscale8(dayscale<<i,voxscale[daindex]);
     }
 
-    odayscale = dayscale;
+    const int32_t odayscale = dayscale;
     daxscale = mulscale16(daxscale,xyaspect);
-    daxscale = scale(daxscale,xdimenscale,xdimen<<8);
-    dayscale = scale(dayscale,mulscale16(xdimenscale,viewingrangerecip),xdimen<<8);
+    daxscale = scale(daxscale, xdimenscale, xdimen<<8);
+    dayscale = scale(dayscale, mulscale16(xdimenscale,viewingrangerecip), xdimen<<8);
 
-    daxscalerecip = divideu32_noinline(1<<30, daxscale);
-    dayscalerecip = divideu32_noinline(1<<30, dayscale);
+    const int32_t daxscalerecip = divideu32_noinline(1<<30, daxscale);
+    const int32_t dayscalerecip = divideu32_noinline(1<<30, dayscale);
 
-    longptr = (int32_t *)davoxptr;
-    daxsiz = B_LITTLE32(longptr[0]); daysiz = B_LITTLE32(longptr[1]); //dazsiz = B_LITTLE32(longptr[2]);
-    daxpivot = B_LITTLE32(longptr[3]); daypivot = B_LITTLE32(longptr[4]); dazpivot = B_LITTLE32(longptr[5]);
+    int32_t *longptr = (int32_t *)davoxptr;
+    const int32_t daxsiz = B_LITTLE32(longptr[0]), daysiz = B_LITTLE32(longptr[1]); //dazsiz = B_LITTLE32(longptr[2]);
+    const int32_t daxpivot = B_LITTLE32(longptr[3]), daypivot = B_LITTLE32(longptr[4]), dazpivot = B_LITTLE32(longptr[5]);
     davoxptr += (6<<2);
 
-    x = mulscale16(globalposx-dasprx,daxscalerecip);
-    y = mulscale16(globalposy-daspry,daxscalerecip);
-    backx = ((dmulscale10(x,sprcosang,y,sprsinang)+daxpivot)>>8);
-    backy = ((dmulscale10(y,sprcosang,x,-sprsinang)+daypivot)>>8);
-    cbackx = min(max(backx,0),daxsiz-1);
-    cbacky = min(max(backy,0),daysiz-1);
+    x = mulscale16(globalposx-dasprx, daxscalerecip);
+    y = mulscale16(globalposy-daspry, daxscalerecip);
+    const int32_t backx = (dmulscale10(x,sprcosang, y,sprsinang)+daxpivot)>>8;
+    const int32_t backy = (dmulscale10(y,sprcosang, x,-sprsinang)+daypivot)>>8;
+    const int32_t cbackx = min(max(backx,0),daxsiz-1);
+    const int32_t cbacky = min(max(backy,0),daysiz-1);
 
-    sprcosang = mulscale14(daxscale,sprcosang);
-    sprsinang = mulscale14(daxscale,sprsinang);
+    sprcosang = mulscale14(daxscale, sprcosang);
+    sprsinang = mulscale14(daxscale, sprsinang);
 
-    x = (dasprx-globalposx) - dmulscale18(daxpivot,sprcosang,daypivot,-sprsinang);
-    y = (daspry-globalposy) - dmulscale18(daypivot,sprcosang,daxpivot,sprsinang);
+    x = (dasprx-globalposx) - dmulscale18(daxpivot,sprcosang, daypivot,-sprsinang);
+    y = (daspry-globalposy) - dmulscale18(daypivot,sprcosang, daxpivot,sprsinang);
 
-    cosang = mulscale16(cosang,dayscalerecip);
-    sinang = mulscale16(sinang,dayscalerecip);
+    cosang = mulscale16(cosang, dayscalerecip);
+    sinang = mulscale16(sinang, dayscalerecip);
 
-    gxstart = y*cosang - x*sinang;
-    gystart = x*cosang + y*sinang;
-    gxinc = dmulscale10(sprsinang,cosang,sprcosang,-sinang);
-    gyinc = dmulscale10(sprcosang,cosang,sprsinang,sinang);
+    const int32_t gxstart = y*cosang - x*sinang;
+    const int32_t gystart = x*cosang + y*sinang;
+    const int32_t gxinc = dmulscale10(sprsinang,cosang, sprcosang,-sinang);
+    const int32_t gyinc = dmulscale10(sprcosang,cosang, sprsinang,sinang);
 
     x = 0; y = 0; j = max(daxsiz,daysiz);
     for (i=0; i<=j; i++)
@@ -5327,16 +5323,20 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         ggyinc[i] = y; y += gyinc;
     }
 
-    if ((klabs(globalposz-dasprz)>>10) >= klabs(odayscale)) return;
-    syoff = divscale21(globalposz-dasprz,odayscale) + (dazpivot<<7);
-    yoff = ((klabs(gxinc)+klabs(gyinc))>>1);
+    if ((klabs(globalposz-dasprz)>>10) >= klabs(odayscale))
+        return;
+
+    const int32_t syoff = divscale21(globalposz-dasprz,odayscale) + (dazpivot<<7);
+    int32_t yoff = (klabs(gxinc)+klabs(gyinc))>>1;
     longptr = (int32_t *)davoxptr;
-    xyvoxoffs = ((daxsiz+1)<<2);
+    int32_t xyvoxoffs = (daxsiz+1)<<2;
 
     begindrawing(); //{{{
 
-    for (cnt=0; cnt<8; cnt++)
+    for (int32_t cnt=0; cnt<8; cnt++)
     {
+        int32_t xs=0, ys=0, xi=0, yi=0;
+
         switch (cnt)
         {
         case 0:
@@ -5356,7 +5356,9 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         case 7:
             xs = cbackx;   ys = daysiz-1; xi = 2;  yi = -1; break;
         }
-        xe = cbackx; ye = cbacky;
+
+        int32_t xe = cbackx, ye = cbacky;
+
         if (cnt < 4)
         {
             if ((xi < 0) && (xe >= xs)) continue;
@@ -5373,7 +5375,9 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
             xe += xi; ye += yi;
         }
 
-        i = ksgn(ys-backy)+ksgn(xs-backx)*3+4;
+        int32_t x1=0, y1=0, z1, x2=0, y2=0, z2;
+
+        i = ksgn(ys-backy) + ksgn(xs-backx)*3 + 4;
         switch (i)
         {
         case 6:
@@ -5404,51 +5408,65 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         case 3:
             x2 = gxinc+gyinc; y2 = gyinc-gxinc; break;
         }
-        oand = pow2char[(xs<backx)+0]+pow2char[(ys<backy)+2];
-        oand16 = oand+16;
-        oand32 = oand+32;
+
+        const char oand = pow2char[(xs<backx)+0] + pow2char[(ys<backy)+2];
+        const char oand16 = oand+16;
+        const char oand32 = oand+32;
+
+        int32_t dagxinc, dagyinc;
 
         if (yi > 0) { dagxinc = gxinc; dagyinc = mulscale16(gyinc,viewingrangerecip); }
         else { dagxinc = -gxinc; dagyinc = -mulscale16(gyinc,viewingrangerecip); }
 
         //Fix for non 90 degree viewing ranges
-        nxoff = mulscale16(x2-x1,viewingrangerecip);
-        x1 = mulscale16(x1,viewingrangerecip);
+        const int32_t nxoff = mulscale16(x2-x1,viewingrangerecip);
+        x1 = mulscale16(x1, viewingrangerecip);
 
-        ggxstart = gxstart+ggyinc[ys];
-        ggystart = gystart-ggxinc[ys];
+        const int32_t ggxstart = gxstart + ggyinc[ys];
+        const int32_t ggystart = gystart - ggxinc[ys];
 
         for (x=xs; x!=xe; x+=xi)
         {
-            slabxoffs = (intptr_t)&davoxptr[B_LITTLE32(longptr[x])];
-            shortptr = (int16_t *)&davoxptr[((x*(daysiz+1))<<1)+xyvoxoffs];
+            const intptr_t slabxoffs = (intptr_t)&davoxptr[B_LITTLE32(longptr[x])];
+            int16_t *const shortptr = (int16_t *)&davoxptr[((x*(daysiz+1))<<1) + xyvoxoffs];
 
-            nx = mulscale16(ggxstart+ggxinc[x],viewingrangerecip)+x1;
-            ny = ggystart+ggyinc[x];
+            int32_t nx = mulscale16(ggxstart+ggxinc[x], viewingrangerecip) + x1;
+            int32_t ny = ggystart + ggyinc[x];
+
             for (y=ys; y!=ye; y+=yi,nx+=dagyinc,ny-=dagxinc)
             {
-                if ((ny <= nytooclose) || (ny >= nytoofar)) continue;
-                voxptr = (char *)(B_LITTLE16(shortptr[y])+slabxoffs);
-                voxend = (char *)(B_LITTLE16(shortptr[y+1])+slabxoffs);
-                if (voxptr == voxend) continue;
+                if (ny <= nytooclose || ny >= nytoofar)
+                    continue;
+
+                char *voxptr = (char *)(B_LITTLE16(shortptr[y])+slabxoffs);
+                char *const voxend = (char *)(B_LITTLE16(shortptr[y+1])+slabxoffs);
+                if (voxptr == voxend)
+                    continue;
 
                 // AMCTC V1 MEGABASE: (ny+y1)>>14 == 65547
                 // (after long corridor with the blinds)
-                lx = mulscale32(nx>>3,distrecip[(ny+y1)>>14])+halfxdimen;
-                if (lx < 0) lx = 0;
-                rx = mulscale32((nx+nxoff)>>3,distrecip[(ny+y2)>>14])+halfxdimen;
-                if (rx > xdimen) rx = xdimen;
-                if (rx <= lx) continue;
+                int32_t lx = mulscale32(nx>>3, distrecip[(ny+y1)>>14]) + halfxdimen;
+                if (lx < 0)
+                    lx = 0;
+
+                int32_t rx = mulscale32((nx+nxoff)>>3, distrecip[(ny+y2)>>14]) + halfxdimen;
+                if (rx > xdimen)
+                    rx = xdimen;
+
+                if (rx <= lx)
+                    continue;
+
                 rx -= lx;
 
-                l1 = distrecip[(ny-yoff)>>14];
+                const int32_t l1 = distrecip[(ny-yoff)>>14];
                 // FIXME! AMCTC RC2/beta shotgun voxel
                 // (e.g. training map right after M16 shooting):
-                l2 = clamp((ny+yoff)>>14, 0, 65535);
-                l2 = distrecip[l2];
+                const int32_t l2 = distrecip[clamp((ny+yoff)>>14, 0, 65536)];
+
                 for (; voxptr<voxend; voxptr+=voxptr[1]+3)
                 {
                     j = (voxptr[0]<<15)-syoff;
+
                     if (j < 0)
                     {
                         k = j+(voxptr[1]<<15);
@@ -5471,22 +5489,32 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
                         z2 = mulscale32(l1,j+(voxptr[1]<<15)) + globalhoriz;
                     }
 
+                    int32_t yplc, yinc=0;
+
                     if (voxptr[1] == 1)
                     {
                         yplc = 0; yinc = 0;
-                        if (z1 < daumost[lx]) z1 = daumost[lx];
+                        if (z1 < daumost[lx])
+                            z1 = daumost[lx];
                     }
                     else
                     {
-                        if (z2-z1 >= 1024) yinc = divscale16(voxptr[1],z2-z1);
-                        else if (z2 > z1) yinc = (lowrecip[z2-z1]*voxptr[1]>>8);
+                        if (z2-z1 >= 1024)
+                            yinc = divscale16(voxptr[1], z2-z1);
+                        else if (z2 > z1)
+                            yinc = lowrecip[z2-z1]*voxptr[1]>>8;
+
                         if (z1 < daumost[lx]) { yplc = yinc*(daumost[lx]-z1); z1 = daumost[lx]; }
                         else yplc = 0;
                     }
-                    if (z2 > dadmost[lx]) z2 = dadmost[lx];
-                    z2 -= z1; if (z2 <= 0) continue;
 
-                    drawslab(rx,yplc,z2,yinc,(intptr_t)&voxptr[3],ylookup[z1]+lx+frameoffset);
+                    if (z2 > dadmost[lx])
+                        z2 = dadmost[lx];
+                    z2 -= z1;
+                    if (z2 <= 0)
+                        continue;
+
+                    drawslab(rx, yplc, z2, yinc, (intptr_t)&voxptr[3], ylookup[z1]+lx+frameoffset);
                 }
             }
         }
@@ -12011,26 +12039,30 @@ void copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, in
 //
 int32_t qloadkvx(int32_t voxindex, const char *filename)
 {
-    int32_t i, fil, dasiz, lengcnt, lengtot;
-    char *ptr;
+    const int32_t fil = kopen4load(filename,0);
+    if (fil == -1)
+        return -1;
 
-    if ((fil = kopen4load(filename,0)) == -1) return -1;
+    int32_t lengcnt = 0;
+    const int32_t lengtot = kfilelength(fil);
 
-    lengcnt = 0;
-    lengtot = kfilelength(fil);
-
-    for (i=0; i<MAXVOXMIPS; i++)
+    for (int32_t i=0; i<MAXVOXMIPS; i++)
     {
-        kread(fil,&dasiz,4); dasiz = B_LITTLE32(dasiz);
+        int32_t dasiz;
+        kread(fil, &dasiz, 4); dasiz = B_LITTLE32(dasiz);
+
         //Must store filenames to use cacheing system :(
         voxlock[voxindex][i] = 200;
-        allocache(&voxoff[voxindex][i],dasiz,&voxlock[voxindex][i]);
-        ptr = (char *)voxoff[voxindex][i];
-        kread(fil,ptr,dasiz);
+        allocache(&voxoff[voxindex][i], dasiz, &voxlock[voxindex][i]);
+
+        char *ptr = (char *)voxoff[voxindex][i];
+        kread(fil, ptr, dasiz);
 
         lengcnt += dasiz+4;
-        if (lengcnt >= lengtot-768) break;
+        if (lengcnt >= lengtot-768)
+            break;
     }
+
     kclose(fil);
 
 #ifdef USE_OPENGL
@@ -12039,8 +12071,10 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
         voxfree(voxmodels[voxindex]);
         voxmodels[voxindex] = NULL;
     }
+
     voxmodels[voxindex] = voxload(filename);
 #endif
+
     return 0;
 }
 

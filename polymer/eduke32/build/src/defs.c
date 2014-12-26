@@ -915,7 +915,8 @@ static int32_t defsparser(scriptfile *script)
         {
             char *fn;
 
-            if (scriptfile_getstring(script,&fn)) break; //voxel filename
+            if (EDUKE32_PREDICT_FALSE(scriptfile_getstring(script,&fn)))
+                break; //voxel filename
 
             if (EDUKE32_PREDICT_FALSE(nextvoxid == MAXVOXELS))
             {
@@ -1428,7 +1429,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend)
             {
-                switch (getatoken(script,voxeltokens,ARRAY_SIZE(voxeltokens)))
+                switch (getatoken(script, voxeltokens, ARRAY_SIZE(voxeltokens)))
                 {
                     //case T_ERROR: initprintf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
                 case T_TILE:

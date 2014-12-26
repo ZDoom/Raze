@@ -11817,7 +11817,6 @@ MAIN_LOOP_RESTART:
                 }
             }
             while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
-
         }
 
         G_DoCheats();

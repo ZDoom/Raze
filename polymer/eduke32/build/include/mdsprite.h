@@ -162,24 +162,29 @@ typedef struct
     //MD3 specific
     md3head_t head;
     vec3f_t *muladdframes;
-    uint16_t      *indexes;
-    uint16_t      *vindexes;
-    float               *maxdepths;
-    GLuint*             vbos;
+
+    uint16_t *indexes;
+    uint16_t *vindexes;
+
+    float *maxdepths;
+    GLuint *vbos;
     // polymer VBO names after that, allocated per surface
-    GLuint*             indices;
-    GLuint*             texcoords;
-    GLuint*             geometry;
+    GLuint *indices;
+    GLuint *texcoords;
+    GLuint *geometry;
 } md3model_t;
 
 #define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...
 #define VOXUSECHAR 0
+
 #if (VOXUSECHAR != 0)
 typedef struct { uint8_t x, y, z, u, v; } vert_t;
 #else
 typedef struct { uint16_t x, y, z, u, v; } vert_t;
 #endif
+
 typedef struct { vert_t v[4]; } voxrect_t;
+
 typedef struct
 {
     //WARNING: This top block is a union of md2model,md3model,voxmodel: Make sure it matches!
