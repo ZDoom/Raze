@@ -4510,7 +4510,6 @@ finish_qsprintf:
                     }
 
                     {
-                        FILE *fil;
                         char temp[BMAX_PATH];
 
                         if (EDUKE32_PREDICT_FALSE(G_ModDirSnprintf(temp, sizeof(temp), "%s", ScriptQuotes[q])))
@@ -4519,15 +4518,26 @@ finish_qsprintf:
                             continue;
                         }
 
-                        fil = fopen(temp,"wb");
+                        FILE *const fil = fopen(temp,"wb");
 
                         if (EDUKE32_PREDICT_FALSE(fil == NULL))
                         {
-                            CON_ERRPRINTF("couldn't open file");
+                            CON_ERRPRINTF("couldn't open file \"%s\"\n", temp);
                             continue;
                         }
 
-                        fwrite(aGameArrays[j].plValues,1,sizeof(int) * aGameArrays[j].size,fil);
+                        const int32_t n = aGameArrays[j].size;
+#ifdef BITNESS64
+                        int32_t *const array = (int32_t *)Xmalloc(sizeof(int32_t)*n);
+                        for (int32_t k=0; k<n; k++)
+                            array[k] = aGameArrays[j].plValues[k];
+#else
+                        int32_t *const array = aGameArrays[j].plValues;
+#endif
+                        fwrite(array, 1, sizeof(int32_t)*n, fil);
+#ifdef BITNESS64
+                        Bfree(array);
+#endif
                         fclose(fil);
                     }
 
