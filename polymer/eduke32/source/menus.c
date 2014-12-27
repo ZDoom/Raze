@@ -3293,6 +3293,54 @@ static int32_t M_FindOptionBinarySearch(MenuOption_t *object, const int32_t quer
     return M_FindOptionBinarySearch(object, query, searchstart, searchend);
 }
 
+static void M_RunMenu_Scrollbar(MenuMenuFormat_t const * const format, const int32_t totalextent, const int32_t scrollPos, const vec2_t origin)
+{
+    if (totalextent > klabs(format->bottomcutoff))
+    {
+        const int32_t scrollx = origin.x + ((320 - tilesiz[SELECTDIR].x)<<16), scrolly = origin.y + format->pos.y;
+        const int32_t scrollheight = klabs(format->bottomcutoff) - format->pos.y;
+        M_BlackRectangle(scrollx, scrolly, tilesiz[SELECTDIR].x<<16, scrollheight);
+
+        rotatesprite_fs(scrollx, scrolly + scale(scrollheight - (tilesiz[SELECTDIR].y<<16), scrollPos, totalextent - klabs(format->bottomcutoff)), 65536, 0, SELECTDIR, 0, 0, 26);
+    }
+}
+
+typedef enum MenuMovement_t
+{
+    MM_Up = 1,
+    MM_End = 3,
+    MM_Down = 4,
+    MM_Home = 12,
+    MM_Left = 16,
+    MM_AllTheWayLeft = 48,
+    MM_Right = 64,
+    MM_AllTheWayRight = 192,
+    MM_Swap = 80,
+} MenuMovement_t;
+
+static MenuEntry_t *M_RunMenuInput_MenuMenu_MovementVerify(MenuMenu_t *menu);
+static MenuEntry_t *M_RunMenuInput_MenuMenu_Movement(MenuMenu_t *menu, MenuMovement_t direction);
+static void M_RunMenuInput_MenuEntryLink_Activate(MenuEntry_t *entry);
+static void M_RunMenuInput_MenuEntryOptionList_MovementVerify(MenuOption_t *object);
+static void M_RunMenuInput_MenuEntryOptionList_Movement(MenuOption_t *object, MenuMovement_t direction);
+static int32_t M_RunMenuInput_MenuEntryOption_Modify(MenuEntry_t *entry, MenuOption_t *object, int32_t newValueIndex);
+static int32_t M_RunMenuInput_MenuEntryOption_Movement(MenuEntry_t *entry, MenuOption_t *object, MenuMovement_t direction);
+static int32_t M_RunMenuInput_MenuEntryOption_Activate(MenuEntry_t *entry, MenuOption_t *object);
+static int32_t M_RunMenuInput_MenuEntryOptionList_Activate(MenuEntry_t *entry, MenuOption_t *object);
+static void M_RunMenuInput_MenuEntryCustom2Col_Activate(MenuEntry_t *entry);
+static void M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue);
+static void M_RunMenuInput_MenuEntryRangeInt32_Movement(MenuEntry_t *entry, MenuRangeInt32_t *object, MenuMovement_t direction);
+static void M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue);
+static void M_RunMenuInput_MenuEntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction);
+static void M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, int32_t newValue);
+static void M_RunMenuInput_MenuEntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction);
+static void M_RunMenuInput_MenuEntryString_Activate(MenuEntry_t *entry);
+static void M_RunMenuInput_MenuEntryString_Submit(MenuEntry_t *entry, MenuString_t *object);
+static void M_RunMenuInput_MenuEntryString_Cancel(/*MenuEntry_t *entry, */MenuString_t *object);
+static void M_RunMenuInput_FileSelect_MovementVerify(MenuFileSelect_t *object);
+static void M_RunMenuInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMovement_t direction);
+static void M_RunMenuInput_FileSelect_Select(MenuFileSelect_t *object);
+
 static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int32_t state, const vec2_t origin)
 {
     const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
@@ -3559,14 +3607,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
     menu->totalHeight = totalextent - menu->format->pos.y;
 
     // draw indicators if applicable
-    if (totalextent > klabs(menu->format->bottomcutoff))
-    {
-        const int32_t scrollx = origin.x + ((320 - tilesiz[SELECTDIR].x)<<16), scrolly = origin.y + menu->format->pos.y;
-        const int32_t scrollheight = klabs(menu->format->bottomcutoff) - menu->format->pos.y;
-        M_BlackRectangle(scrollx, scrolly, tilesiz[SELECTDIR].x<<16, scrollheight);
-
-        rotatesprite_fs(scrollx, scrolly + scale(scrollheight - (tilesiz[SELECTDIR].y<<16), menu->scrollPos, totalextent - klabs(menu->format->bottomcutoff)), 65536, 0, SELECTDIR, 0, 0, 26);
-    }
+    M_RunMenu_Scrollbar(menu->format, totalextent, menu->scrollPos, origin);
 
     return menu->totalHeight;
 }
@@ -3621,14 +3662,7 @@ static void M_RunMenu_MenuOptionList(MenuOption_t *object, const vec2_t origin)
     y -= calculatedentryspacing;
 
     // draw indicators if applicable
-    if (y > object->options->menuFormat->bottomcutoff)
-    {
-        const int32_t scrollx = origin.x + ((320 - tilesiz[SELECTDIR].x)<<16), scrolly = origin.y + object->options->menuFormat->pos.y;
-        const int32_t scrollheight = object->options->menuFormat->bottomcutoff - object->options->menuFormat->pos.y;
-        M_BlackRectangle(scrollx, scrolly, tilesiz[SELECTDIR].x<<16, scrollheight);
-
-        rotatesprite_fs(scrollx, scrolly + scale(scrollheight - (tilesiz[SELECTDIR].y<<16), object->options->scrollPos, y - object->options->menuFormat->bottomcutoff), 65536, 0, SELECTDIR, 0, 0, 26);
-    }
+    M_RunMenu_Scrollbar(object->options->menuFormat, y, object->options->scrollPos, origin);
 }
 
 static void M_RunMenu_AbbreviateNameIntoBuffer(const char* name, int32_t entrylength)
@@ -3849,55 +3883,14 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
     }
 }
 
-typedef enum MenuMovement_t
-{
-    MM_Verify = 0,
-    MM_Up = 1,
-    MM_End = 3,
-    MM_Down = 4,
-    MM_Home = 12,
-} MenuMovement_t;
-
 /*
 Note: When menus are exposed to scripting, care will need to be taken so that
 a user cannot define an empty MenuEntryList, or one containing only spacers,
 or else this function will recurse infinitely.
 */
-static MenuEntry_t *M_RunMenuInput_MenuMenuMovement(MenuMenu_t *menu, MenuMovement_t direction)
+static MenuEntry_t *M_RunMenuInput_MenuMenu_MovementVerify(MenuMenu_t *menu)
 {
-    MenuEntry_t *currentry;
-
-    switch (direction)
-    {
-        case MM_End:
-            menu->currentEntry = menu->numEntries;
-        case MM_Up:
-                do
-                {
-                    --menu->currentEntry;
-                    if (menu->currentEntry < 0)
-                        return M_RunMenuInput_MenuMenuMovement(menu, MM_End);
-                }
-                while (!menu->entrylist[menu->currentEntry] || menu->entrylist[menu->currentEntry]->type == Spacer);
-            break;
-
-        case MM_Home:
-            menu->currentEntry = -1;
-        case MM_Down:
-                do
-                {
-                    ++menu->currentEntry;
-                    if (menu->currentEntry >= menu->numEntries)
-                        return M_RunMenuInput_MenuMenuMovement(menu, MM_Home);
-                }
-                while (!menu->entrylist[menu->currentEntry] || menu->entrylist[menu->currentEntry]->type == Spacer);
-            break;
-
-        default:
-            break;
-    }
-
-    currentry = menu->entrylist[menu->currentEntry];
+    MenuEntry_t *currentry = menu->entrylist[menu->currentEntry];
 
     M_MenuEntryFocus(/*currentry*/);
 
@@ -3909,7 +3902,69 @@ static MenuEntry_t *M_RunMenuInput_MenuMenuMovement(MenuMenu_t *menu, MenuMoveme
     return currentry;
 }
 
-static void M_RunMenuInput_MenuOptionListMovement(MenuOption_t *object, MenuMovement_t direction)
+static MenuEntry_t *M_RunMenuInput_MenuMenu_Movement(MenuMenu_t *menu, MenuMovement_t direction)
+{
+    switch (direction)
+    {
+        case MM_End:
+            menu->currentEntry = menu->numEntries;
+        case MM_Up:
+                do
+                {
+                    --menu->currentEntry;
+                    if (menu->currentEntry < 0)
+                        return M_RunMenuInput_MenuMenu_Movement(menu, MM_End);
+                }
+                while (!menu->entrylist[menu->currentEntry] || menu->entrylist[menu->currentEntry]->type == Spacer);
+            break;
+
+        case MM_Home:
+            menu->currentEntry = -1;
+        case MM_Down:
+                do
+                {
+                    ++menu->currentEntry;
+                    if (menu->currentEntry >= menu->numEntries)
+                        return M_RunMenuInput_MenuMenu_Movement(menu, MM_Home);
+                }
+                while (!menu->entrylist[menu->currentEntry] || menu->entrylist[menu->currentEntry]->type == Spacer);
+            break;
+
+        case MM_Swap:
+            menu->currentColumn = !menu->currentColumn;
+            break;
+
+        default:
+            break;
+    }
+
+    return M_RunMenuInput_MenuMenu_MovementVerify(menu);
+}
+
+static void M_RunMenuInput_MenuEntryLink_Activate(MenuEntry_t *entry)
+{
+    MenuLink_t *link = (MenuLink_t*)entry->entry;
+
+    M_MenuEntryLinkActivate(entry);
+
+    M_ChangeMenuAnimate(link->linkID, link->animation);
+}
+
+static void M_RunMenuInput_MenuEntryOptionList_MovementVerify(MenuOption_t *object)
+{
+    const int32_t listytop = object->options->menuFormat->pos.y;
+    // assumes height == font->yline!
+    const int32_t unitheight = object->options->entryFormat->marginBottom < 0 ? (-object->options->entryFormat->marginBottom - object->options->font->yline) / object->options->numOptions : (object->options->font->yline + object->options->entryFormat->marginBottom);
+    const int32_t ytop = listytop + object->options->currentEntry * unitheight;
+    const int32_t ybottom = ytop + object->options->font->yline;
+
+    if (ybottom - object->options->scrollPos > object->options->menuFormat->bottomcutoff)
+        object->options->scrollPos = ybottom - object->options->menuFormat->bottomcutoff;
+    else if (ytop - object->options->scrollPos < listytop)
+        object->options->scrollPos = ytop - listytop;
+}
+
+static void M_RunMenuInput_MenuEntryOptionList_Movement(MenuOption_t *object, MenuMovement_t direction)
 {
     switch (direction)
     {
@@ -3933,17 +3988,295 @@ static void M_RunMenuInput_MenuOptionListMovement(MenuOption_t *object, MenuMove
             break;
     }
 
-    {
-        const int32_t listytop = object->options->menuFormat->pos.y;
-        // assumes height == font->yline!
-        const int32_t unitheight = object->options->entryFormat->marginBottom < 0 ? (-object->options->entryFormat->marginBottom - object->options->font->yline) / object->options->numOptions : (object->options->font->yline + object->options->entryFormat->marginBottom);
-        const int32_t ytop = listytop + object->options->currentEntry * unitheight;
-        const int32_t ybottom = ytop + object->options->font->yline;
+    M_RunMenuInput_MenuEntryOptionList_MovementVerify(object);
+}
 
-        if (ybottom - object->options->scrollPos > object->options->menuFormat->bottomcutoff)
-            object->options->scrollPos = ybottom - object->options->menuFormat->bottomcutoff;
-        else if (ytop - object->options->scrollPos < listytop)
-            object->options->scrollPos = ytop - listytop;
+static int32_t M_RunMenuInput_MenuEntryOption_Modify(MenuEntry_t *entry, MenuOption_t *object, int32_t newValueIndex)
+{
+    int32_t newValue = (object->options->optionValues == NULL) ? newValueIndex : object->options->optionValues[newValueIndex];
+    if (!M_MenuEntryOptionModify(entry, newValue))
+    {
+        object->currentOption = newValueIndex;
+
+        if ((int32_t*)object->data != NULL) // NULL implies the functions will handle it
+            *((int32_t*)object->data) = newValue;
+
+        M_MenuEntryOptionDidModify(entry);
+
+        return 0;
+    }
+
+    return -1;
+}
+
+static int32_t M_RunMenuInput_MenuEntryOption_Movement(MenuEntry_t *entry, MenuOption_t *object, MenuMovement_t direction)
+{
+    int32_t newValueIndex = object->currentOption;
+
+    switch (direction)
+    {
+        case MM_Left:
+            --newValueIndex;
+            if (newValueIndex >= 0)
+                break;
+        case MM_AllTheWayRight:
+            newValueIndex = object->options->numOptions-1;
+            break;
+
+        case MM_Right:
+            ++newValueIndex;
+            if (newValueIndex < object->options->numOptions)
+                break;
+       case MM_AllTheWayLeft:
+            newValueIndex = 0;
+            break;
+
+        default:
+            break;
+    }
+
+    return M_RunMenuInput_MenuEntryOption_Modify(entry, object, newValueIndex);
+}
+
+static int32_t M_RunMenuInput_MenuEntryOption_Activate(MenuEntry_t *entry, MenuOption_t *object)
+{
+    if (object->options->features & 2)
+        return M_RunMenuInput_MenuEntryOption_Movement(entry, object, MM_Right);
+    else
+    {
+        object->options->currentEntry = object->currentOption;
+        M_RunMenuInput_MenuEntryOptionList_MovementVerify(object);
+
+        return 0;
+    }
+}
+
+static int32_t M_RunMenuInput_MenuEntryOptionList_Activate(MenuEntry_t *entry, MenuOption_t *object)
+{
+    if (!M_RunMenuInput_MenuEntryOption_Modify(entry, object, object->options->currentEntry))
+    {
+        object->options->currentEntry = -1;
+
+        return 0;
+    }
+
+    return -1;
+}
+
+static void M_RunMenuInput_MenuEntryCustom2Col_Activate(MenuEntry_t *entry)
+{
+    MenuCustom2Col_t *object = (MenuCustom2Col_t*)entry->entry;
+
+    M_MenuCustom2ColScreen(/*entry*/);
+
+    object->screenOpen = 1;
+}
+
+static void M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue)
+{
+    if (!M_MenuEntryRangeInt32Modify(entry, newValue))
+        *object->variable = newValue;
+}
+
+static void M_RunMenuInput_MenuEntryRangeInt32_Movement(MenuEntry_t *entry, MenuRangeInt32_t *object, MenuMovement_t direction)
+{
+    const float interval = ((float) (object->max - object->min)) / (object->steps - 1);
+    int32_t newValueIndex = Blrintf((float) (*object->variable - object->min) / interval);
+
+    switch (direction)
+    {
+        case MM_Left:
+            --newValueIndex;
+            if (newValueIndex >= 0)
+                break;
+        case MM_AllTheWayLeft:
+            newValueIndex = 0;
+            break;
+
+        case MM_Right:
+            ++newValueIndex;
+            if (newValueIndex < object->steps)
+                break;
+        case MM_AllTheWayRight:
+            newValueIndex = object->steps-1;
+            break;
+
+        default:
+            break;
+    }
+
+    M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(entry, object, Blrintf(interval * newValueIndex + (object->min)));
+}
+
+static void M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue)
+{
+    if (!M_MenuEntryRangeFloatModify(entry, newValue))
+    {
+        *object->variable = newValue;
+        M_MenuEntryRangeFloatDidModify(entry);
+    }
+}
+
+static void M_RunMenuInput_MenuEntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction)
+{
+    const float interval = (object->max - object->min) / (object->steps - 1);
+    int32_t newValueIndex = Blrintf((*object->variable - object->min) / interval);
+
+    switch (direction)
+    {
+        case MM_Left:
+            --newValueIndex;
+            if (newValueIndex >= 0)
+                break;
+        case MM_AllTheWayLeft:
+            newValueIndex = 0;
+            break;
+
+        case MM_Right:
+            ++newValueIndex;
+            if (newValueIndex < object->steps)
+                break;
+        case MM_AllTheWayRight:
+            newValueIndex = object->steps-1;
+            break;
+
+        default:
+            break;
+    }
+
+    M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(entry, object, interval * newValueIndex + object->min);
+}
+
+static void M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, int32_t newValue)
+{
+    if (!M_MenuEntryRangeDoubleModify(/*entry, newValue*/))
+        *object->variable = newValue;
+}
+
+static void M_RunMenuInput_MenuEntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction)
+{
+    const double interval = (object->max - object->min) / (object->steps - 1);
+    int32_t newValueIndex = Blrintf((*object->variable - object->min) / interval);
+
+    switch (direction)
+    {
+        case MM_Left:
+            --newValueIndex;
+            if (newValueIndex >= 0)
+                break;
+        case MM_AllTheWayLeft:
+            newValueIndex = 0;
+            break;
+
+        case MM_Right:
+            ++newValueIndex;
+            if (newValueIndex < object->steps)
+                break;
+        case MM_AllTheWayRight:
+            newValueIndex = object->steps-1;
+            break;
+
+        default:
+            break;
+    }
+
+    M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*entry, */object, interval * newValueIndex + object->min);
+}
+
+static void M_RunMenuInput_MenuEntryString_Activate(MenuEntry_t *entry)
+{
+    MenuString_t *object = (MenuString_t*)entry->entry;
+
+    Bstrncpy(typebuf, object->variable, TYPEBUFSIZE);
+    object->editfield = typebuf;
+
+    // this limitation is an arbitrary implementation detail
+    if (object->maxlength > TYPEBUFSIZE)
+        object->maxlength = TYPEBUFSIZE;
+
+    M_MenuEntryStringActivate(/*entry*/);
+}
+
+static void M_RunMenuInput_MenuEntryString_Submit(MenuEntry_t *entry, MenuString_t *object)
+{
+    if (!M_MenuEntryStringSubmit(entry, object->editfield))
+        Bstrncpy(object->variable, object->editfield, object->maxlength);
+
+    object->editfield = NULL;
+}
+
+static void M_RunMenuInput_MenuEntryString_Cancel(/*MenuEntry_t *entry, */MenuString_t *object)
+{
+    M_MenuEntryStringCancel(/*entry*/);
+
+    object->editfield = NULL;
+}
+
+static void M_RunMenuInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
+{
+    int32_t ypos = MenuFileSelect_ytop[object->currentList] + object->findhigh[object->currentList]->type * MenuFileSelect_entryheight;
+    if (ypos - object->scrollPos[object->currentList] > MenuFileSelect_ybottom)
+        object->scrollPos[object->currentList] = ypos - MenuFileSelect_ybottom;
+    else if (ypos - object->scrollPos[object->currentList] < MenuFileSelect_ytop[object->currentList])
+        object->scrollPos[object->currentList] = ypos - MenuFileSelect_ytop[object->currentList];
+}
+
+static void M_RunMenuInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMovement_t direction)
+{
+    switch (direction)
+    {
+        case MM_Up:
+            if (!object->findhigh[object->currentList])
+                break;
+            if (object->findhigh[object->currentList]->prev)
+            {
+                object->findhigh[object->currentList] = object->findhigh[object->currentList]->prev;
+                break;
+            }
+        case MM_End:
+            object->findhigh[object->currentList] = object->findhigh[object->currentList]->userb;
+            break;
+
+        case MM_Down:
+            if (!object->findhigh[object->currentList])
+                break;
+            if (object->findhigh[object->currentList]->next)
+            {
+                object->findhigh[object->currentList] = object->findhigh[object->currentList]->next;
+                break;
+            }
+        case MM_Home:
+            object->findhigh[object->currentList] = object->findhigh[object->currentList]->usera;
+            break;
+
+        case MM_Swap:
+            object->currentList = !object->currentList;
+            break;
+
+        default:
+            break;
+    }
+
+    M_RunMenuInput_FileSelect_MovementVerify(object);
+}
+
+static void M_RunMenuInput_FileSelect_Select(MenuFileSelect_t *object)
+{
+    if (!object->findhigh[object->currentList])
+        return;
+
+    Bstrcat(object->destination, object->findhigh[object->currentList]->name);
+
+    if (object->currentList == 0)
+    {
+        Bstrcat(object->destination, "/");
+        Bcorrectfilename(object->destination, 1);
+
+        M_MenuFileSelectInit(object);
+    }
+    else
+    {
+        M_MenuFileSelect(1);
     }
 }
 
@@ -4007,7 +4340,6 @@ static void M_RunMenuInput(Menu_t *cm)
         case FileSelect:
         {
             MenuFileSelect_t *object = (MenuFileSelect_t*)cm->object;
-            int32_t movement = 0;
 
             if (I_ReturnTrigger())
             {
@@ -4025,42 +4357,23 @@ static void M_RunMenuInput(Menu_t *cm)
             {
                 I_AdvanceTriggerClear();
 
+                M_RunMenuInput_FileSelect_Select(object);
+
                 S_PlaySound(PISTOL_BODYHIT);
-
-                if (object->currentList == 0)
-                {
-                    if (!object->findhigh[0]) break;
-                    Bstrcat(object->destination, object->findhigh[0]->name);
-                    Bstrcat(object->destination, "/");
-                    Bcorrectfilename(object->destination, 1);
-
-                    M_MenuFileSelectInit(object);
-                }
-                else
-                {
-                    if (!object->findhigh[1]) break;
-                    Bstrcat(object->destination, object->findhigh[1]->name);
-
-                    M_MenuFileSelect(1);
-                }
             }
             else if (KB_KeyPressed(sc_Home))
             {
-                movement = 1;
-
-                object->findhigh[object->currentList] = object->findhigh[object->currentList]->usera;
-
                 KB_ClearKeyDown(sc_Home);
+
+                M_RunMenuInput_FileSelect_Movement(object, MM_Home);
 
                 S_PlaySound(KICK_HIT);
             }
             else if (KB_KeyPressed(sc_End))
             {
-                movement = 1;
-
-                object->findhigh[object->currentList] = object->findhigh[object->currentList]->userb;
-
                 KB_ClearKeyDown(sc_End);
+
+                M_RunMenuInput_FileSelect_Movement(object, MM_End);
 
                 S_PlaySound(KICK_HIT);
             }
@@ -4070,6 +4383,8 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 CACHE1D_FIND_REC *seeker = object->findhigh[object->currentList];
 
+                KB_ClearKeyDown(sc_PgUp);
+
                 for (i = 0; i < 6; ++i)
                 {
                     if (seeker && seeker->prev)
@@ -4078,11 +4393,9 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 if (seeker)
                 {
-                    movement = 1;
-
                     object->findhigh[object->currentList] = seeker;
 
-                    KB_ClearKeyDown(sc_PgUp);
+                    M_RunMenuInput_FileSelect_MovementVerify(object);
 
                     S_PlaySound(KICK_HIT);
                 }
@@ -4093,6 +4406,8 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 CACHE1D_FIND_REC *seeker = object->findhigh[object->currentList];
 
+                KB_ClearKeyDown(sc_PgDn);
+
                 for (i = 0; i < 6; ++i)
                 {
                     if (seeker && seeker->next)
@@ -4101,11 +4416,9 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 if (seeker)
                 {
-                    movement = 1;
-
                     object->findhigh[object->currentList] = seeker;
 
-                    KB_ClearKeyDown(sc_PgDn);
+                    M_RunMenuInput_FileSelect_MovementVerify(object);
 
                     S_PlaySound(KICK_HIT);
                 }
@@ -4117,42 +4430,26 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 if ((object->currentList ? object->fnlist.numdirs : object->fnlist.numfiles) > 0)
                 {
-                    object->currentList = !object->currentList;
+                    M_RunMenuInput_FileSelect_Movement(object, MM_Swap);
 
                     S_PlaySound(KICK_HIT);
                 }
             }
             else if (I_MenuUp())
             {
-                movement = 1;
-
                 I_MenuUpClear();
 
-                S_PlaySound(KICK_HIT);
+                M_RunMenuInput_FileSelect_Movement(object, MM_Up);
 
-                if (object->findhigh[object->currentList])
-                {
-                    if (object->findhigh[object->currentList]->prev)
-                        object->findhigh[object->currentList] = object->findhigh[object->currentList]->prev;
-                    else
-                        object->findhigh[object->currentList] = object->findhigh[object->currentList]->userb;
-                }
+                S_PlaySound(KICK_HIT);
             }
             else if (I_MenuDown())
             {
-                movement = 1;
-
                 I_MenuDownClear();
 
-                S_PlaySound(KICK_HIT);
+                M_RunMenuInput_FileSelect_Movement(object, MM_Down);
 
-                if (object->findhigh[object->currentList])
-                {
-                    if (object->findhigh[object->currentList]->next)
-                        object->findhigh[object->currentList] = object->findhigh[object->currentList]->next;
-                    else
-                        object->findhigh[object->currentList] = object->findhigh[object->currentList]->usera;
-                }
+                S_PlaySound(KICK_HIT);
             }
             else
             {
@@ -4175,22 +4472,13 @@ static void M_RunMenuInput(Menu_t *cm)
                     }
                     if (seeker)
                     {
-                        movement = 1;
-
                         object->findhigh[object->currentList] = seeker;
+
+                        M_RunMenuInput_FileSelect_MovementVerify(object);
 
                         S_PlaySound(KICK_HIT);
                     }
                 }
-            }
-
-            if (movement)
-            {
-                int32_t ypos = MenuFileSelect_ytop[object->currentList] + object->findhigh[object->currentList]->type * MenuFileSelect_entryheight;
-                if (ypos - object->scrollPos[object->currentList] > MenuFileSelect_ybottom)
-                    object->scrollPos[object->currentList] = ypos - MenuFileSelect_ybottom;
-                else if (ypos - object->scrollPos[object->currentList] < MenuFileSelect_ytop[object->currentList])
-                    object->scrollPos[object->currentList] = ypos - MenuFileSelect_ytop[object->currentList];
             }
 
             M_PreMenuInput(NULL);
@@ -4273,21 +4561,17 @@ static void M_RunMenuInput(Menu_t *cm)
                             break;
                         if (I_AdvanceTrigger())
                         {
-                            MenuLink_t *link = (MenuLink_t*)currentry->entry;
                             I_AdvanceTriggerClear();
 
-                            M_MenuEntryLinkActivate(currentry);
+                            M_RunMenuInput_MenuEntryLink_Activate(currentry);
 
-                            if (g_currentMenu != MENU_SKILL)
+                            if (g_player[myconnectindex].ps->gm&MODE_MENU) // for skill selection
                                 S_PlaySound(PISTOL_BODYHIT);
-
-                            M_ChangeMenuAnimate(link->linkID, link->animation);
                         }
                         break;
                     case Option:
                     {
                         MenuOption_t *object = (MenuOption_t*)currentry->entry;
-                        int32_t modification = -1;
 
                         if (currentry->disabled)
                             break;
@@ -4296,61 +4580,35 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_AdvanceTriggerClear();
 
-                            S_PlaySound(PISTOL_BODYHIT);
+                            M_RunMenuInput_MenuEntryOption_Activate(currentry, object);
 
-                            if (object->options->features & 2)
-                            {
-                                modification = object->currentOption + 1;
-                                if (modification >= object->options->numOptions)
-                                    modification = 0;
-                            }
-                            else
-                            {
-                                object->options->currentEntry = object->currentOption;
-                            }
+                            S_PlaySound(PISTOL_BODYHIT);
                         }
                         else if (I_MenuRight())
                         {
-                            modification = object->currentOption + 1;
-                            if (modification >= object->options->numOptions)
-                                modification = 0;
-
                             I_MenuRightClear();
+
+                            M_RunMenuInput_MenuEntryOption_Movement(currentry, object, MM_Right);
 
                             S_PlaySound(PISTOL_BODYHIT);
                         }
                         else if (I_MenuLeft())
                         {
-                            modification = object->currentOption - 1;
-                            if (modification < 0)
-                                modification = object->options->numOptions - 1;
-
                             I_MenuLeftClear();
 
+                            M_RunMenuInput_MenuEntryOption_Movement(currentry, object, MM_Left);
+
                             S_PlaySound(PISTOL_BODYHIT);
-                        }
-
-                        if (modification >= 0)
-                        {
-                            int32_t temp = (object->options->optionValues == NULL) ? modification : object->options->optionValues[modification];
-                            if (!M_MenuEntryOptionModify(currentry, temp))
-                            {
-                                object->currentOption = modification;
-                                if ((int32_t*)object->data != NULL)
-                                    *((int32_t*)object->data) = temp;
-
-                                M_MenuEntryOptionDidModify(currentry);
-                            }
                         }
                     }
                         break;
                     case Custom2Col:
                         if (I_MenuLeft() || I_MenuRight())
                         {
-                            menu->currentColumn = !menu->currentColumn;
-
                             I_MenuLeftClear();
                             I_MenuRightClear();
+
+                            M_RunMenuInput_MenuMenu_Movement(menu, MM_Swap);
 
                             S_PlaySound(KICK_HIT);
                         }
@@ -4362,173 +4620,96 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_AdvanceTriggerClear();
 
+                            M_RunMenuInput_MenuEntryCustom2Col_Activate(currentry);
+
                             S_PlaySound(PISTOL_BODYHIT);
-
-                            M_MenuCustom2ColScreen(/*currentry*/);
-
-                            ((MenuCustom2Col_t*)currentry->entry)->screenOpen = 1;
                         }
                         break;
                     case RangeInt32:
                     {
                         MenuRangeInt32_t *object = (MenuRangeInt32_t*)currentry->entry;
-                        const float interval = (float) (object->max - object->min) / (float) (object->steps - 1);
-                        int32_t step;
-                        int32_t modification = 0;
 
                         if (currentry->disabled)
                             break;
-
-                        step = Blrintf((float) (*object->variable - object->min) / interval);
 
                         if (I_SliderLeft())
                         {
                             I_SliderLeftClear();
 
-                            modification = -1;
+                            M_RunMenuInput_MenuEntryRangeInt32_Movement(currentry, object, MM_Left);
+
                             S_PlaySound(KICK_HIT);
                         }
                         else if (I_SliderRight())
                         {
                             I_SliderRightClear();
 
-                            modification = 1;
+                            M_RunMenuInput_MenuEntryRangeInt32_Movement(currentry, object, MM_Right);
+
                             S_PlaySound(KICK_HIT);
                         }
-
-                        if (modification != 0)
-                        {
-                            int32_t temp;
-
-                            step += modification;
-
-                            if (step < 0)
-                                step = 0;
-                            else if (step >= object->steps)
-                                step = object->steps - 1;
-
-                            temp = Blrintf(interval * step + (object->min));
-
-                            if (!M_MenuEntryRangeInt32Modify(currentry, temp))
-                                *object->variable = temp;
-                        }
-
                         break;
                     }
                     case RangeFloat:
                     {
                         MenuRangeFloat_t *object = (MenuRangeFloat_t*)currentry->entry;
-                        const float interval = (object->max - object->min) / (object->steps - 1);
-                        int32_t step;
-                        int32_t modification = 0;
 
                         if (currentry->disabled)
                             break;
-
-                        step = Blrintf((*object->variable - object->min) / interval);
 
                         if (I_SliderLeft())
                         {
                             I_SliderLeftClear();
 
-                            modification = -1;
+                            M_RunMenuInput_MenuEntryRangeFloat_Movement(currentry, object, MM_Left);
+
                             S_PlaySound(KICK_HIT);
                         }
                         else if (I_SliderRight())
                         {
                             I_SliderRightClear();
 
-                            modification = 1;
+                            M_RunMenuInput_MenuEntryRangeFloat_Movement(currentry, object, MM_Right);
+
                             S_PlaySound(KICK_HIT);
                         }
-
-                        if (modification != 0)
-                        {
-                            float temp;
-
-                            step += modification;
-
-                            if (step < 0)
-                                step = 0;
-                            else if (step >= object->steps)
-                                step = object->steps - 1;
-
-                            temp = interval * (float)step + object->min;
-
-                            if (!M_MenuEntryRangeFloatModify(currentry, temp))
-                            {
-                                *object->variable = temp;
-                                M_MenuEntryRangeFloatDidModify(currentry);
-                            }
-                        }
-
                         break;
                     }
                     case RangeDouble:
                     {
                         MenuRangeDouble_t *object = (MenuRangeDouble_t*)currentry->entry;
-                        const double interval = (object->max - object->min) / (object->steps - 1);
-                        int32_t step;
-                        int32_t modification = 0;
 
                         if (currentry->disabled)
                             break;
-
-                        step = Blrintf((*object->variable - object->min) / interval);
 
                         if (I_SliderLeft())
                         {
                             I_SliderLeftClear();
 
-                            modification = -1;
+                            M_RunMenuInput_MenuEntryRangeDouble_Movement(/*currentry, */object, MM_Left);
+
                             S_PlaySound(KICK_HIT);
                         }
                         else if (I_SliderRight())
                         {
                             I_SliderRightClear();
 
-                            modification = 1;
+                            M_RunMenuInput_MenuEntryRangeDouble_Movement(/*currentry, */object, MM_Right);
+
                             S_PlaySound(KICK_HIT);
                         }
-
-                        if (modification != 0)
-                        {
-                            double temp;
-
-                            step += modification;
-
-                            if (step < 0)
-                                step = 0;
-                            else if (step >= object->steps)
-                                step = object->steps - 1;
-
-                            temp = interval * step + object->min;
-
-                            if (!M_MenuEntryRangeDoubleModify(/*currentry, temp*/))
-                                *object->variable = temp;
-                        }
-
                         break;
                     }
 
                     case String:
                     {
-                        MenuString_t *object = (MenuString_t*)currentry->entry;
-
                         if (I_AdvanceTrigger())
                         {
                             I_AdvanceTriggerClear();
 
+                            M_RunMenuInput_MenuEntryString_Activate(currentry);
+
                             S_PlaySound(PISTOL_BODYHIT);
-
-                            Bstrncpy(typebuf, object->variable, TYPEBUFSIZE);
-                            object->editfield = typebuf;
-
-                            // this limitation is an arbitrary implementation detail
-                            if (object->maxlength > TYPEBUFSIZE)
-                                object->maxlength = TYPEBUFSIZE;
-
-                            M_MenuEntryStringActivate(/*currentry*/);
                         }
 
                         break;
@@ -4550,7 +4731,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     S_PlaySound(KICK_HIT);
 
-                    currentry = M_RunMenuInput_MenuMenuMovement(menu, MM_Home);
+                    currentry = M_RunMenuInput_MenuMenu_Movement(menu, MM_Home);
                 }
                 else if (KB_KeyPressed(sc_End))
                 {
@@ -4558,7 +4739,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     S_PlaySound(KICK_HIT);
 
-                    currentry = M_RunMenuInput_MenuMenuMovement(menu, MM_End);
+                    currentry = M_RunMenuInput_MenuMenu_Movement(menu, MM_End);
                 }
                 else if (I_MenuUp())
                 {
@@ -4566,7 +4747,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     S_PlaySound(KICK_HIT);
 
-                    currentry = M_RunMenuInput_MenuMenuMovement(menu, MM_Up);
+                    currentry = M_RunMenuInput_MenuMenu_Movement(menu, MM_Up);
                 }
                 else if (I_MenuDown())
                 {
@@ -4574,7 +4755,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     S_PlaySound(KICK_HIT);
 
-                    currentry = M_RunMenuInput_MenuMenuMovement(menu, MM_Down);
+                    currentry = M_RunMenuInput_MenuMenu_Movement(menu, MM_Down);
                 }
 
                 if (currentry != NULL && !currentry->disabled)
@@ -4590,20 +4771,15 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     if (hitstate == 1)
                     {
+                        M_RunMenuInput_MenuEntryString_Submit(currentry, object);
+
                         S_PlaySound(PISTOL_BODYHIT);
-
-                        if (!M_MenuEntryStringSubmit(currentry, object->editfield))
-                            Bstrncpy(object->variable, object->editfield, object->maxlength);
-
-                        object->editfield = NULL;
                     }
                     else if (hitstate == -1)
                     {
+                        M_RunMenuInput_MenuEntryString_Cancel(/*currentry, */object);
+
                         S_PlaySound(EXITMENUSOUND);
-
-                        M_MenuEntryStringCancel(/*currentry*/);
-
-                        object->editfield = NULL;
                     }
                 }
             }
@@ -4623,22 +4799,10 @@ static void M_RunMenuInput(Menu_t *cm)
                     }
                     else if (I_AdvanceTrigger())
                     {
-                        int32_t temp = (object->options->optionValues == NULL) ? object->options->currentEntry : object->options->optionValues[object->options->currentEntry];
-
                         I_AdvanceTriggerClear();
 
-                        S_PlaySound(PISTOL_BODYHIT);
-
-                        if (!M_MenuEntryOptionModify(currentry, temp))
-                        {
-                            object->currentOption = object->options->currentEntry;
-                            if ((int32_t*)object->data != NULL)
-                                *((int32_t*)object->data) = temp;
-
-                            M_MenuEntryOptionDidModify(currentry);
-                        }
-
-                        object->options->currentEntry = -1;
+                        if (!M_RunMenuInput_MenuEntryOptionList_Activate(currentry, object))
+                            S_PlaySound(PISTOL_BODYHIT);
                     }
                     else if (KB_KeyPressed(sc_Home))
                     {
@@ -4646,7 +4810,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                         S_PlaySound(KICK_HIT);
 
-                        M_RunMenuInput_MenuOptionListMovement(object, MM_Home);
+                        M_RunMenuInput_MenuEntryOptionList_Movement(object, MM_Home);
                     }
                     else if (KB_KeyPressed(sc_End))
                     {
@@ -4654,7 +4818,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                         S_PlaySound(KICK_HIT);
 
-                        M_RunMenuInput_MenuOptionListMovement(object, MM_End);
+                        M_RunMenuInput_MenuEntryOptionList_Movement(object, MM_End);
                     }
                     else if (I_MenuUp())
                     {
@@ -4662,7 +4826,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                         S_PlaySound(KICK_HIT);
 
-                        M_RunMenuInput_MenuOptionListMovement(object, MM_Up);
+                        M_RunMenuInput_MenuEntryOptionList_Movement(object, MM_Up);
                     }
                     else if (I_MenuDown())
                     {
@@ -4670,7 +4834,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                         S_PlaySound(KICK_HIT);
 
-                        M_RunMenuInput_MenuOptionListMovement(object, MM_Down);
+                        M_RunMenuInput_MenuEntryOptionList_Movement(object, MM_Down);
                     }
                 }
                 else if (currentry->type == Custom2Col)
