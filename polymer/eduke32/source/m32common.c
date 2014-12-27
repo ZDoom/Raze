@@ -574,7 +574,7 @@ int32_t map_undoredo(int32_t dir)
 
 //// port of a.m32's corruptchk ////
 // Compile wall loop checks? 0: no, 1: partial, 2: full.
-#define CCHK_LOOP_CHECKS 1
+#define CCHK_LOOP_CHECKS 0
 // returns value from 0 (all OK) to 5 (panic!)
 #define CCHK_PANIC OSDTEXT_DARKRED "PANIC!!!^O "
 //#define CCHKPREF OSDTEXT_RED "^O"
