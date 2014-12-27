@@ -2635,14 +2635,18 @@ static int32_t M_MenuEntryStringSubmit(MenuEntry_t *entry, char *input)
     case MENU_SAVE:
         // dirty hack... char 127 in last position indicates an auto-filled name
         if (input[0] == 0 || (ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] == 127 &&
-            save_xxh == XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], 19, 0xDEADBEEF)))
+            Bstrncmp(&ud.savegame[M_SAVE.currentEntry][0], input, MAXSAVEGAMENAME-3) == 0 &&
+            save_xxh == XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], MAXSAVEGAMENAME-3, 0xDEADBEEF)))
         {
-            Bstrncpy(&ud.savegame[M_SAVE.currentEntry][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
+            Bstrncpy(&ud.savegame[M_SAVE.currentEntry][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME-3);
             ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] = 127;
             returnvar = -1;
         }
         else
+        {
+            ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] = 0;
             Bstrncpy(object->variable, input, object->maxlength);
+        }
 
         G_SavePlayerMaybeMulti(M_SAVE.currentEntry);
 
