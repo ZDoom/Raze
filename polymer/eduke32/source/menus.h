@@ -411,10 +411,13 @@ extern int32_t m_mouselastactivity;
 
 #if defined EDUKE32_TOUCH_DEVICES
 # define MOUSEACTIVECONDITIONAL(condition) (condition)
+# define MOUSEWATCHPOINTCONDITIONAL(condition) (condition)
 #else
+extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 # define MOUSEACTIVECONDITION (totalclock - m_mouselastactivity < M_MOUSETIMEOUT)
 # define MOUSEACTIVECONDITIONAL(condition) (MOUSEACTIVECONDITION && (condition))
 # define MOUSEINACTIVECONDITIONAL(condition) (!MOUSEACTIVECONDITION && (condition))
+# define MOUSEWATCHPOINTCONDITIONAL(condition) ((condition) || m_mousewake_watchpoint || m_menuchange_watchpoint == 3)
 #endif
 
 #ifdef __cplusplus

@@ -401,6 +401,7 @@ int32_t G_GetStringTile(int32_t font, char *t, int32_t f)
                 break;
             default: // unknown character
                 *t = ' '; // whitespace-ize
+            case '\n':
                 return font;
                 break;
         }
