@@ -278,6 +278,11 @@ typedef struct MenuSpacer_t
     int32_t height;
 } MenuSpacer_t;
 
+// For internal use only.
+enum MenuEntryFlags_t
+{
+    Disabled = 1,
+};
 
 typedef struct MenuEntry_t
 {
@@ -292,8 +297,7 @@ typedef struct MenuEntry_t
     MenuEntryType_t type;
 
     // state
-    int32_t disabled;
-
+    int32_t flags;
     int32_t ytop, ybottom;
 } MenuEntry_t;
 

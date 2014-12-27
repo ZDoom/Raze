@@ -1162,6 +1162,13 @@ static MenuID_t g_previousMenu;
         m.numEntries = ARRAY_SIZE(el);\
     } while (0)
 
+static void MenuEntry_DisableOnCondition(MenuEntry_t * const entry, const int32_t condition)
+{
+    if (condition)
+        entry->flags |= Disabled;
+    else
+        entry->flags &= ~Disabled;
+}
 
 /*
 This function prepares data after ART and CON have been processed.
@@ -1379,7 +1386,7 @@ void M_Init(void)
         }
         M_EPISODE.numEntries = g_numVolumes; // remove User Map (and spacer)
         MEOS_NETOPTIONS_EPISODE.numOptions = 1;
-        ME_NETOPTIONS_EPISODE.disabled = 1;
+        MenuEntry_DisableOnCondition(&ME_NETOPTIONS_EPISODE, 1);
     }
 
     // prepare pre-Atomic
@@ -1407,8 +1414,8 @@ static void M_PreMenu(MenuID_t cm)
     switch (cm)
     {
     case MENU_MAIN_INGAME:
-        ME_MAIN_SAVEGAME.disabled = (ud.recstat == 2);
-        ME_MAIN_QUITTOTITLE.disabled = (g_netServer || numplayers > 1);
+        MenuEntry_DisableOnCondition(&ME_MAIN_SAVEGAME, ud.recstat == 2);
+        MenuEntry_DisableOnCondition(&ME_MAIN_QUITTOTITLE, g_netServer || numplayers > 1);
     case MENU_MAIN:
         if ((g_netServer || ud.multimode > 1) && ud.recstat != 2)
         {
@@ -1424,7 +1431,7 @@ static void M_PreMenu(MenuID_t cm)
 
     case MENU_GAMESETUP:
         MEO_GAMESETUP_DEMOREC.options = (ps->gm&MODE_GAME) ? &MEOS_DemoRec : &MEOS_OffOn;
-        ME_GAMESETUP_DEMOREC.disabled = ((ps->gm&MODE_GAME) && ud.m_recstat != 1);
+        MenuEntry_DisableOnCondition(&ME_GAMESETUP_DEMOREC, (ps->gm&MODE_GAME) && ud.m_recstat != 1);
         break;
 
 #ifdef USE_OPENGL
@@ -1450,10 +1457,10 @@ static void M_PreMenu(MenuID_t cm)
         break;
 
     case MENU_RENDERERSETUP:
-        ME_RENDERERSETUP_TEXQUALITY.disabled = !usehightile;
-        ME_RENDERERSETUP_PRECACHE.disabled = !usehightile;
-        ME_RENDERERSETUP_TEXCACHE.disabled = !(glusetexcompr && usehightile);
-        ME_RENDERERSETUP_DETAILTEX.disabled = !usehightile;
+        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXQUALITY, !usehightile);
+        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_PRECACHE, !usehightile);
+        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXCACHE, !(glusetexcompr && usehightile));
+        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_DETAILTEX, !usehightile);
         break;
 #endif
 
@@ -1461,8 +1468,8 @@ static void M_PreMenu(MenuID_t cm)
     {
         const int32_t nr = newresolution;
 
-        ME_VIDEOSETUP_APPLY.disabled =
-            ((xdim == resolution[nr].xdim && ydim == resolution[nr].ydim &&
+        MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_APPLY,
+             (xdim == resolution[nr].xdim && ydim == resolution[nr].ydim &&
               getrendermode() == newrendermode && fullscreen == newfullscreen)
              || (newfullscreen ? !(resolution[nr].flags & RES_FS) : !(resolution[nr].flags & RES_WIN))
              || (newrendermode != REND_CLASSIC && resolution[nr].bppmax <= 8));
@@ -1472,20 +1479,20 @@ static void M_PreMenu(MenuID_t cm)
     case MENU_SOUND:
     case MENU_SOUND_INGAME:
     case MENU_ADVSOUND:
-        ME_SOUND.disabled = (ud.config.FXDevice < 0);
-        ME_SOUND_MUSIC.disabled = (ud.config.MusicDevice < 0);
-        ME_SOUND_VOLUME_MASTER.disabled = (!ud.config.SoundToggle || ud.config.FXDevice < 0) && (!ud.config.MusicToggle || ud.config.MusicDevice < 0);
-        ME_SOUND_VOLUME_EFFECTS.disabled = (!ud.config.SoundToggle || ud.config.FXDevice < 0);
-        ME_SOUND_VOLUME_MUSIC.disabled = (!ud.config.MusicToggle || ud.config.MusicDevice < 0);
-        ME_SOUND_DUKETALK.disabled = (!ud.config.SoundToggle || ud.config.FXDevice < 0);
-        ME_SOUND_SAMPLINGRATE.disabled = (!ud.config.SoundToggle || ud.config.FXDevice < 0) && (!ud.config.MusicToggle || ud.config.MusicDevice < 0);
-        ME_SOUND_SAMPLESIZE.disabled = (!ud.config.SoundToggle || ud.config.FXDevice < 0) && (!ud.config.MusicToggle || ud.config.MusicDevice < 0);
-        ME_SOUND_NUMVOICES.disabled = (!ud.config.SoundToggle || ud.config.FXDevice < 0);
-        ME_SOUND_RESTART.disabled = (soundrate == ud.config.MixRate && soundvoices == ud.config.NumVoices && soundbits == ud.config.NumBits);
+        MenuEntry_DisableOnCondition(&ME_SOUND, ud.config.FXDevice < 0);
+        MenuEntry_DisableOnCondition(&ME_SOUND_MUSIC, ud.config.MusicDevice < 0);
+        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_MASTER, (!ud.config.SoundToggle || ud.config.FXDevice < 0) && (!ud.config.MusicToggle || ud.config.MusicDevice < 0));
+        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_EFFECTS, !ud.config.SoundToggle || ud.config.FXDevice < 0);
+        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_MUSIC, !ud.config.MusicToggle || ud.config.MusicDevice < 0);
+        MenuEntry_DisableOnCondition(&ME_SOUND_DUKETALK, !ud.config.SoundToggle || ud.config.FXDevice < 0);
+        MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLINGRATE, (!ud.config.SoundToggle || ud.config.FXDevice < 0) && (!ud.config.MusicToggle || ud.config.MusicDevice < 0));
+        MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLESIZE, (!ud.config.SoundToggle || ud.config.FXDevice < 0) && (!ud.config.MusicToggle || ud.config.MusicDevice < 0));
+        MenuEntry_DisableOnCondition(&ME_SOUND_NUMVOICES, !ud.config.SoundToggle || ud.config.FXDevice < 0);
+        MenuEntry_DisableOnCondition(&ME_SOUND_RESTART, soundrate == ud.config.MixRate && soundvoices == ud.config.NumVoices && soundbits == ud.config.NumBits);
         break;
 
     case MENU_MOUSESETUP:
-        ME_MOUSESETUP_MOUSEAIMING.disabled = ud.mouseaiming;
+        MenuEntry_DisableOnCondition(&ME_MOUSESETUP_MOUSEAIMING, ud.mouseaiming);
         break;
 
     case MENU_NETOPTIONS:
@@ -1501,8 +1508,8 @@ static void M_PreMenu(MenuID_t cm)
         break;
 
     case MENU_OPTIONS:
-        ME_OPTIONS_PLAYERSETUP.disabled = ud.recstat == 1;
-        ME_OPTIONS_JOYSTICKSETUP.disabled = CONTROL_JoyPresent == 0;
+        MenuEntry_DisableOnCondition(&ME_OPTIONS_PLAYERSETUP, ud.recstat == 1);
+        MenuEntry_DisableOnCondition(&ME_OPTIONS_JOYSTICKSETUP, CONTROL_JoyPresent == 0);
         break;
 
     case MENU_LOAD:
@@ -1630,7 +1637,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_MOUSESETUP:
         if (entry == &ME_MOUSESETUP_MOUSEAIMING)
         {
-            if (entry->disabled)
+            if (entry->flags & Disabled)
             {
                 mgametextcenter(origin.x, origin.y + ((140+9+9+9)<<16), "Set mouse aim type to toggle on/off");
                 mgametextcenter(origin.x, origin.y + ((140+9+9+9+9)<<16), "in the Player Setup menu to enable");
@@ -3390,7 +3397,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
             x = menu->format->pos.x + entry->format->indent;
 
             status |= (e == menu->currentEntry)<<0;
-            status |= (entry->disabled)<<1;
+            status |= (!!(entry->flags & Disabled))<<1;
             status |= (entry->format->width == 0)<<2;
 
             dodraw &= menu->format->pos.y <= y - menu->scrollPos && y - menu->scrollPos + entry->font->yline <= klabs(menu->format->bottomcutoff);
@@ -3453,12 +3460,12 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
                     if (status & (1<<3))
                         x -= scale(tilesiz[SLIDEBAR].x<<16, height, tilesiz[SLIDEBAR].y<<16);
 
-                    rotatesprite_fs(origin.x + x, origin.y + y - menu->scrollPos, z, 0, SLIDEBAR, s, entry->disabled ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
+                    rotatesprite_fs(origin.x + x, origin.y + y - menu->scrollPos, z, 0, SLIDEBAR, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
 
                     rotatesprite_fs(
                     origin.x + x + (1<<16) + scale(scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, height, tilesiz[SLIDEBAR].y<<16), *object->variable - object->min, object->max - object->min),
                     origin.y + y + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, height, tilesiz[SLIDEBAR].y<<16) - menu->scrollPos,
-                    z, 0, SLIDEBAR+1, s, entry->disabled ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
+                    z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
 
                     if (object->displaytype > 0)
                     {
@@ -4564,7 +4571,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     case Spacer:
                         break;
                     case Link:
-                        if (currentry->disabled)
+                        if (currentry->flags & Disabled)
                             break;
                         if (I_AdvanceTrigger())
                         {
@@ -4580,7 +4587,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     {
                         MenuOption_t *object = (MenuOption_t*)currentry->entry;
 
-                        if (currentry->disabled)
+                        if (currentry->flags & Disabled)
                             break;
 
                         if (I_AdvanceTrigger())
@@ -4620,7 +4627,7 @@ static void M_RunMenuInput(Menu_t *cm)
                             S_PlaySound(KICK_HIT);
                         }
 
-                        if (currentry->disabled)
+                        if (currentry->flags & Disabled)
                             break;
 
                         if (I_AdvanceTrigger())
@@ -4636,7 +4643,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     {
                         MenuRangeInt32_t *object = (MenuRangeInt32_t*)currentry->entry;
 
-                        if (currentry->disabled)
+                        if (currentry->flags & Disabled)
                             break;
 
                         if (I_SliderLeft())
@@ -4661,7 +4668,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     {
                         MenuRangeFloat_t *object = (MenuRangeFloat_t*)currentry->entry;
 
-                        if (currentry->disabled)
+                        if (currentry->flags & Disabled)
                             break;
 
                         if (I_SliderLeft())
@@ -4686,7 +4693,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     {
                         MenuRangeDouble_t *object = (MenuRangeDouble_t*)currentry->entry;
 
-                        if (currentry->disabled)
+                        if (currentry->flags & Disabled)
                             break;
 
                         if (I_SliderLeft())
@@ -4765,7 +4772,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     currentry = M_RunMenuInput_MenuMenu_Movement(menu, MM_Down);
                 }
 
-                if (currentry != NULL && !currentry->disabled)
+                if (currentry != NULL && !(currentry->flags & Disabled))
                     M_PreMenuInput(currentry);
             }
             else if (state == 1)
