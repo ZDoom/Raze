@@ -4764,17 +4764,15 @@ static int32_t should_clip_fwall(int32_t x1, int32_t x2)
 //
 static void drawalls(int32_t bunch)
 {
-    sectortype *sec, *nextsec;
-    walltype *wal;
-    int32_t i, x, x1, x2, cz[5], fz[5];
-    int32_t z, wallnum, sectnum, nextsectnum;
-    int32_t startsmostwallcnt, startsmostcnt, gotswall;
-    char andwstat1, andwstat2;
+    int32_t i, x;
 
-    z = bunchfirst[bunch];
-    sectnum = thesector[z]; sec = &sector[sectnum];
+    int32_t z = bunchfirst[bunch];
 
-    andwstat1 = 0xff; andwstat2 = 0xff;
+    const int32_t sectnum = thesector[z];
+    const sectortype *const sec = &sector[sectnum];
+
+    uint8_t andwstat1 = 0xff, andwstat2 = 0xff;
+
     for (; z>=0; z=bunchp2[z]) //uplc/dplc calculation
     {
         andwstat1 &= wallmost(uplc,z,sectnum,(uint8_t)0);
@@ -4791,7 +4789,7 @@ static void drawalls(int32_t bunch)
                              haveymost[yax_globalbunch>>3]&(1<<(yax_globalbunch&7)));
 
         // if (obunchchk)
-        x2 = yax_globalbunch*xdimen;
+        const int32_t x2 = yax_globalbunch*xdimen;
 # endif
         baselevp = (yax_globallev == YAX_MAXDRAWS);
 
@@ -4819,7 +4817,8 @@ static void drawalls(int32_t bunch)
                     }
                 }
 
-                x1 = bn[i]*xdimen;
+                const int32_t x1 = bn[i]*xdimen;
+
                 for (x=x1+xb1[bunchfirst[bunch]]; x<=x1+xb2[bunchlast[bunch]]; x++)
                 {
                     if (i==YAX_CEILING)
@@ -4880,11 +4879,13 @@ static void drawalls(int32_t bunch)
     //DRAW WALLS SECTION!
     for (z=bunchfirst[bunch]; z>=0; z=bunchp2[z])
     {
-        x1 = xb1[z]; x2 = xb2[z];
+        const int32_t x1 = xb1[z], x2 = xb2[z];
+
         if (umost[x2] >= dmost[x2])
         {
             for (x=x1; x<x2; x++)
-                if (umost[x] < dmost[x]) break;
+                if (umost[x] < dmost[x])
+                    break;
             if (x >= x2)
             {
                 smostwall[smostwallcnt] = z;
@@ -4894,16 +4895,18 @@ static void drawalls(int32_t bunch)
             }
         }
 
-        wallnum = thewall[z]; wal = &wall[wallnum];
-        nextsectnum = wal->nextsector;
-        nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
+        const int32_t wallnum = thewall[z];
+        const walltype *const wal = &wall[wallnum];
 
-        gotswall = 0;
+        const int32_t nextsectnum = wal->nextsector;
+        const sectortype *const nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
 
-        startsmostwallcnt = smostwallcnt;
-        startsmostcnt = smostcnt;
+        int32_t gotswall = 0;
 
-        if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
+        const int32_t startsmostwallcnt = smostwallcnt;
+        const int32_t startsmostcnt = smostcnt;
+
+        if (searchit == 2 && (searchx >= x1 && searchx <= x2))
         {
             if (searchy <= uplc[searchx]
 #ifdef YAX_ENABLE
@@ -4938,13 +4941,16 @@ static void drawalls(int32_t bunch)
             //
             //     4 (our pos, z wrt the nextsector!)
 
+            int32_t cz[5], fz[5];
+
             getzsofslope((int16_t)sectnum,wal->x,wal->y,&cz[0],&fz[0]);
             getzsofslope((int16_t)sectnum,wall[wal->point2].x,wall[wal->point2].y,&cz[1],&fz[1]);
             getzsofslope((int16_t)nextsectnum,wal->x,wal->y,&cz[2],&fz[2]);
             getzsofslope((int16_t)nextsectnum,wall[wal->point2].x,wall[wal->point2].y,&cz[3],&fz[3]);
             getzsofslope((int16_t)nextsectnum,globalposx,globalposy,&cz[4],&fz[4]);
 
-            if ((wal->cstat&48) == 16) maskwall[maskwallcnt++] = z;
+            if ((wal->cstat&48) == 16)
+                maskwall[maskwallcnt++] = z;
 
             if (((sec->ceilingstat&1) == 0) || ((nextsec->ceilingstat&1) == 0))
             {
@@ -4967,7 +4973,7 @@ static void drawalls(int32_t bunch)
                     if ((cz[2] > fz[0]) || (cz[3] > fz[1]))
                         for (i=x1; i<=x2; i++) if (dwall[i] > dplc[i]) dwall[i] = dplc[i];
 
-                    if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
+                    if (searchit == 2 && (searchx >= x1 && searchx <= x2))
 #ifdef YAX_ENABLE
                         if (uplc[searchx] <= searchy)
 #endif
@@ -5051,7 +5057,7 @@ static void drawalls(int32_t bunch)
                     if ((fz[2] < cz[0]) || (fz[3] < cz[1]))
                         for (i=x1; i<=x2; i++) if (uwall[i] < uplc[i]) uwall[i] = uplc[i];
 
-                    if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
+                    if (searchit == 2 && (searchx >= x1 && searchx <= x2))
 #ifdef YAX_ENABLE
                         if (dplc[searchx] >= searchy)
 #endif
@@ -5119,8 +5125,10 @@ static void drawalls(int32_t bunch)
                 }
             }
 
-            if (numhits < 0) return;
-            if ((!(wal->cstat&32)) && ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0))
+            if (numhits < 0)
+                return;
+
+            if (!(wal->cstat&32) && (gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
             {
                 if (umost[x2] < dmost[x2])
                     scansector(nextsectnum);
@@ -5144,7 +5152,7 @@ static void drawalls(int32_t bunch)
             }
         }
 
-        if ((nextsectnum < 0) || (wal->cstat&32))   //White/1-way wall
+        if (nextsectnum < 0 || (wal->cstat&32))   //White/1-way wall
         {
             setup_globals_wall1(wal, (nextsectnum < 0) ? wal->picnum : wal->overpicnum);
             setup_globals_wall2(wal, sec->visibility,
@@ -5184,13 +5192,14 @@ static void drawalls(int32_t bunch)
             smostwalltype[smostwallcnt] = 0;
             smostwallcnt++;
 
-            if ((searchit == 2) && (x1 <= searchx) && (searchx <= x2))
+            if (searchit == 2 && (x1 <= searchx && searchx <= x2))
 #ifdef YAX_ENABLE
                 if (uplc[searchx] <= searchy && searchy < dplc[searchx])
 #endif
             {
-                searchit = 1; searchsector = sectnum; searchbottomwall = searchwall = wallnum;
-                if (nextsectnum < 0) searchstat = 0; else searchstat = 4;
+                searchit = 1; searchsector = sectnum;
+                searchbottomwall = searchwall = wallnum;
+                searchstat = (nextsectnum < 0) ? 0 : 4;
             }
         }
 
@@ -5870,8 +5879,8 @@ draw_as_face_sprite:
 #ifdef YAX_ENABLE
         if (yax_globallev==YAX_MAXDRAWS || searchit==2)
 #endif
-        if ((searchit >= 1) && (searchx >= lx) && (searchx <= rx))
-            if ((searchy >= uwall[searchx]) && (searchy < dwall[searchx]))
+        if (searchit >= 1 && (searchx >= lx && searchx <= rx))
+            if (searchy >= uwall[searchx] && searchy < dwall[searchx])
             {
                 searchsector = sectnum; searchwall = spritenum;
                 searchstat = 3; searchit = 1;
@@ -6202,8 +6211,8 @@ draw_as_face_sprite:
 #ifdef YAX_ENABLE
         if (yax_globallev==YAX_MAXDRAWS || searchit==2)
 #endif
-        if ((searchit >= 1) && (searchx >= sx1) && (searchx <= sx2))
-            if ((searchy >= uwall[searchx]) && (searchy <= dwall[searchx]))
+        if (searchit >= 1 && (searchx >= sx1 && searchx <= sx2))
+            if (searchy >= uwall[searchx] && searchy <= dwall[searchx])
             {
                 searchsector = sectnum; searchwall = spritenum;
                 searchstat = 3; searchit = 1;
@@ -6504,8 +6513,8 @@ draw_as_face_sprite:
 #ifdef YAX_ENABLE
         if (yax_globallev==YAX_MAXDRAWS || searchit==2)
 #endif
-        if ((searchit >= 1) && (searchx >= lx) && (searchx <= rx))
-            if ((searchy >= uwall[searchx]) && (searchy <= dwall[searchx]))
+        if (searchit >= 1 && (searchx >= lx && searchx <= rx))
+            if (searchy >= uwall[searchx] && searchy <= dwall[searchx])
             {
                 searchsector = sectnum; searchwall = spritenum;
                 searchstat = 3; searchit = 1;
@@ -6664,7 +6673,7 @@ draw_as_face_sprite:
 #ifdef YAX_ENABLE
         if (yax_globallev==YAX_MAXDRAWS || searchit==2)
 #endif
-        if ((searchit >= 1) && (yp > (4<<8)) && (searchy >= lwall[searchx]) && (searchy < swall[searchx]))
+        if (searchit >= 1 && yp > (4<<8) && (searchy >= lwall[searchx] && searchy < swall[searchx]))
         {
             const int32_t siz = divscale19(xdimenscale,yp);
             const int32_t xv = mulscale16(nxrepeat,xyaspect);
@@ -6834,8 +6843,8 @@ static void drawmaskwall(int16_t damaskwallcnt)
     }
 
     //maskwall
-    if ((searchit >= 1) && (searchx >= xb1[z]) && (searchx <= xb2[z]))
-        if ((searchy >= uwall[searchx]) && (searchy <= dwall[searchx]))
+    if (searchit >= 1 && (searchx >= xb1[z] && searchx <= xb2[z]))
+        if (searchy >= uwall[searchx] && searchy <= dwall[searchx])
         {
             searchsector = sectnum; searchbottomwall = searchwall = thewall[z];
             searchstat = 4; searchit = 1;

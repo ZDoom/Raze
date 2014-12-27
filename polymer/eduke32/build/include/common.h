@@ -99,7 +99,7 @@ int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char
 // individual x/y(/z) distances are passed instead.
 static inline int32_t sepldist(const int32_t dx, const int32_t dy)
 {
-    vec2_t d ={ klabs(dx), klabs(dy) };
+    vec2_t d = { klabs(dx), klabs(dy) };
 
     if (d.x < d.y)
         swaplong(&d.x, &d.y);
@@ -112,7 +112,7 @@ static inline int32_t sepldist(const int32_t dx, const int32_t dy)
 // dz: in Build coordinates
 static inline int32_t sepdist(const int32_t dx, const int32_t dy, const int32_t dz)
 {
-    vec3_t d ={ klabs(dx), klabs(dy), klabs(dz>>4) };
+    vec3_t d = { klabs(dx), klabs(dy), klabs(dz>>4) };
 
     if (d.x < d.y)
         swaplong(&d.x, &d.y);
