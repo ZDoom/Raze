@@ -237,16 +237,7 @@ int32_t G_PlayAnim(const char *fn, char t)
     // 11: vol4e3
     // 12: 3drealms anim
 
-    // this seems to break the episode 3 cutscene...
-#if 0
-    if (I_CheckAllInput())
-    {
-        I_ClearAllInput();
-        FX_StopAllSounds();
-        running = 0;
-        goto end_anim;
-    }
-#endif
+    I_ClearAllInput();
 
 #ifdef USE_LIBVPX
     while (getrendermode() >= REND_POLYMOST && glinfo.glsl)  // if, really
