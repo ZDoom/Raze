@@ -340,16 +340,16 @@ static MenuEntry_t ME_ADULTMODE = MAKE_MENUENTRY( "Parental lock:", &MF_Redfont,
 // static MenuEntry_t ME_ADULTMODE_PASSWORD = MAKE_MENUENTRY( "Enter Password", &MF_Redfont, &, &MEO_ADULTMODE_PASSWORD, Link );
 
 static MenuEntry_t *MEL_GAMESETUP[] = {
-	&ME_ADULTMODE,
+    &ME_ADULTMODE,
 #if defined STARTUP_SETUP_WINDOW && !defined DROIDMENU
     &ME_GAMESETUP_STARTWIN,
 #endif
-	&ME_GAMESETUP_AIM_AUTO,
-	&ME_GAMESETUP_WEAPSWITCH_PICKUP,
+    &ME_GAMESETUP_AIM_AUTO,
+    &ME_GAMESETUP_WEAPSWITCH_PICKUP,
 #ifndef DROIDMENU
     &ME_GAMESETUP_DEMOREC,
 #ifdef _WIN32
-	&ME_GAMESETUP_UPDATES,
+    &ME_GAMESETUP_UPDATES,
 #endif
 #endif
 };
@@ -512,9 +512,9 @@ static MenuEntry_t *MEL_OPTIONS[] = {
 };
 
 static MenuEntry_t *MEL_CONTROLS[] = {
-	&ME_OPTIONS_KEYBOARDSETUP,
-	&ME_OPTIONS_MOUSESETUP,
-	&ME_OPTIONS_JOYSTICKSETUP,
+    &ME_OPTIONS_KEYBOARDSETUP,
+    &ME_OPTIONS_MOUSESETUP,
+    &ME_OPTIONS_JOYSTICKSETUP,
 };
 
 
@@ -531,41 +531,41 @@ static MenuEntry_t *MEL_DISPLAYSETUP[] = {
     &ME_DISPLAYSETUP_SCREENSETUP,
     &ME_DISPLAYSETUP_COLORCORR,
 #ifndef DROIDMENU
-	&ME_DISPLAYSETUP_VIDEOSETUP,
+    &ME_DISPLAYSETUP_VIDEOSETUP,
 #endif
-	&ME_DISPLAYSETUP_ASPECTRATIO,
-	&ME_DISPLAYSETUP_PIXELDOUBLING,
+    &ME_DISPLAYSETUP_ASPECTRATIO,
+    &ME_DISPLAYSETUP_PIXELDOUBLING,
 };
 
 #ifdef USE_OPENGL
 static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
-	&ME_DISPLAYSETUP_SCREENSETUP,
+    &ME_DISPLAYSETUP_SCREENSETUP,
     &ME_DISPLAYSETUP_COLORCORR,
 #ifndef DROIDMENU
-	&ME_DISPLAYSETUP_VIDEOSETUP,
+    &ME_DISPLAYSETUP_VIDEOSETUP,
 #endif
-	&ME_DISPLAYSETUP_ASPECTRATIO,
-	&ME_DISPLAYSETUP_TEXFILTER,
+    &ME_DISPLAYSETUP_ASPECTRATIO,
+    &ME_DISPLAYSETUP_TEXFILTER,
 #ifndef DROIDMENU
-	&ME_DISPLAYSETUP_ANISOTROPY,
-	&ME_DISPLAYSETUP_VSYNC,
+    &ME_DISPLAYSETUP_ANISOTROPY,
+    &ME_DISPLAYSETUP_VSYNC,
     &ME_DISPLAYSETUP_ADVANCED_GL,
 #endif
 };
 
 #ifdef POLYMER
 static MenuEntry_t *MEL_DISPLAYSETUP_GL_POLYMER[] = {
-	&ME_DISPLAYSETUP_SCREENSETUP,
-	&ME_DISPLAYSETUP_COLORCORR,
+    &ME_DISPLAYSETUP_SCREENSETUP,
+    &ME_DISPLAYSETUP_COLORCORR,
 #ifndef DROIDMENU
-	&ME_DISPLAYSETUP_VIDEOSETUP,
+    &ME_DISPLAYSETUP_VIDEOSETUP,
 #endif
-	&ME_DISPLAYSETUP_ASPECTRATIO_POLYMER,
-	&ME_DISPLAYSETUP_TEXFILTER,
+    &ME_DISPLAYSETUP_ASPECTRATIO_POLYMER,
+    &ME_DISPLAYSETUP_TEXFILTER,
 #ifndef DROIDMENU
-	&ME_DISPLAYSETUP_ANISOTROPY,
-	&ME_DISPLAYSETUP_VSYNC,
-	&ME_DISPLAYSETUP_ADVANCED_GL,
+    &ME_DISPLAYSETUP_ANISOTROPY,
+    &ME_DISPLAYSETUP_VSYNC,
+    &ME_DISPLAYSETUP_ADVANCED_GL,
 #endif
 };
 
@@ -654,12 +654,12 @@ static MenuEntry_t ME_MOUSESETUP_ADVANCED = MAKE_MENUENTRY( "Advanced setup", &M
 
 static MenuEntry_t *MEL_MOUSESETUP[] = {
     &ME_MOUSESETUP_SENSITIVITY,
-	&ME_MOUSESETUP_BTNS,
+    &ME_MOUSESETUP_BTNS,
     &ME_Space2,
-	&ME_MOUSESETUP_MOUSEAIMING,
-	&ME_MOUSESETUP_INVERT,
-	&ME_MOUSESETUP_SMOOTH,
-	&ME_MOUSESETUP_ADVANCED,
+    &ME_MOUSESETUP_MOUSEAIMING,
+    &ME_MOUSESETUP_INVERT,
+    &ME_MOUSESETUP_SMOOTH,
+    &ME_MOUSESETUP_ADVANCED,
 };
 
 MAKE_MENU_TOP_ENTRYLINK( "Edit Buttons", MEF_CenterMenu, JOYSTICK_EDITBUTTONS, MENU_JOYSTICKBTNS );
@@ -799,26 +799,26 @@ static MenuEntry_t *MEL_COLCORR[] = {
     &ME_COLCORR_CONTRAST,
     &ME_COLCORR_BRIGHTNESS,
 #endif
-	&ME_COLCORR_AMBIENT,
+    &ME_COLCORR_AMBIENT,
     &ME_Space8,
     &ME_COLCORR_RESET,
 };
 
 static MenuEntry_t *MEL_SCREENSETUP[] = {
 #ifndef DROIDMENU
-	&ME_SCREENSETUP_SCREENSIZE,
+    &ME_SCREENSETUP_SCREENSIZE,
 #endif
 
-	&ME_SCREENSETUP_NEWSTATUSBAR,
-	&ME_SCREENSETUP_SBARSIZE,
+    &ME_SCREENSETUP_NEWSTATUSBAR,
+    &ME_SCREENSETUP_SBARSIZE,
 
-	&ME_SCREENSETUP_CROSSHAIR,
-	&ME_SCREENSETUP_CROSSHAIRSIZE,
+    &ME_SCREENSETUP_CROSSHAIR,
+    &ME_SCREENSETUP_CROSSHAIRSIZE,
 
-	&ME_SCREENSETUP_LEVELSTATS,
-	&ME_SCREENSETUP_TEXTSIZE,
+    &ME_SCREENSETUP_LEVELSTATS,
+    &ME_SCREENSETUP_TEXTSIZE,
 
-	&ME_SCREENSETUP_SHOWPICKUPMESSAGES,
+    &ME_SCREENSETUP_SHOWPICKUPMESSAGES,
 };
 
 // Save and load will be filled in before every viewing of the save/load screen.
@@ -879,23 +879,23 @@ static MenuEntry_t *MEL_SOUND[] = {
     &ME_SOUND,
     &ME_SOUND_MUSIC,
     &ME_Space2,
-	&ME_SOUND_VOLUME_MASTER,
-	&ME_SOUND_VOLUME_EFFECTS,
-	&ME_SOUND_VOLUME_MUSIC,
+    &ME_SOUND_VOLUME_MASTER,
+    &ME_SOUND_VOLUME_EFFECTS,
+    &ME_SOUND_VOLUME_MUSIC,
     &ME_Space2,
     &ME_SOUND_DUKETALK,
 #ifndef DROIDMENU
-	&ME_SOUND_ADVSOUND,
+    &ME_SOUND_ADVSOUND,
 #endif
 };
 
 static MenuEntry_t *MEL_ADVSOUND[] = {
-	&ME_SOUND_SAMPLINGRATE,
-	&ME_SOUND_SAMPLESIZE,
+    &ME_SOUND_SAMPLINGRATE,
+    &ME_SOUND_SAMPLESIZE,
     &ME_Space2,
-	&ME_SOUND_NUMVOICES,
+    &ME_SOUND_NUMVOICES,
     &ME_Space2,
-	&ME_SOUND_RESTART,
+    &ME_SOUND_RESTART,
 };
 
 MAKE_MENU_TOP_ENTRYLINK( "Player Setup", MEF_CenterMenu, NETWORK_PLAYERSETUP, MENU_PLAYER );
@@ -1431,7 +1431,7 @@ static void M_PreMenu(MenuID_t cm)
         break;
 
 #ifdef USE_OPENGL
-	case MENU_DISPLAYSETUP:
+    case MENU_DISPLAYSETUP:
         if (getrendermode() == REND_CLASSIC)
             MenuMenu_ChangeEntryList(M_DISPLAYSETUP, MEL_DISPLAYSETUP);
 #ifdef POLYMER
@@ -1450,9 +1450,9 @@ static void M_PreMenu(MenuID_t cm)
                     break;
                 }
             }
-		break;
+        break;
 
-	case MENU_RENDERERSETUP:
+    case MENU_RENDERERSETUP:
         ME_RENDERERSETUP_TEXQUALITY.disabled = !usehightile;
         ME_RENDERERSETUP_PRECACHE.disabled = !usehightile;
         ME_RENDERERSETUP_TEXCACHE.disabled = !(glusetexcompr && usehightile);
@@ -1474,7 +1474,7 @@ static void M_PreMenu(MenuID_t cm)
 
     case MENU_SOUND:
     case MENU_SOUND_INGAME:
-	case MENU_ADVSOUND:
+    case MENU_ADVSOUND:
         ME_SOUND.disabled = (ud.config.FXDevice < 0);
         ME_SOUND_MUSIC.disabled = (ud.config.MusicDevice < 0);
         ME_SOUND_VOLUME_MASTER.disabled = (!ud.config.SoundToggle || ud.config.FXDevice < 0) && (!ud.config.MusicToggle || ud.config.MusicDevice < 0);
@@ -1664,7 +1664,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
 
     case MENU_RESETPLAYER:
-		fade_screen_black(1);
+        fade_screen_black(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Load last game:");
 
         Bsprintf(tempbuf,"\"%s\"",ud.savegame[g_lastSaveSlot]);
@@ -1703,11 +1703,11 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 #endif
             }
 
-			if (savehead.numplayers > 1)
-			{
-				Bsprintf(tempbuf, "Players: %-2d                      ", savehead.numplayers);
-				mgametextcenter(origin.x, origin.y + (156<<16), tempbuf);
-			}
+            if (savehead.numplayers > 1)
+            {
+                Bsprintf(tempbuf, "Players: %-2d                      ", savehead.numplayers);
+                mgametextcenter(origin.x, origin.y + (156<<16), tempbuf);
+            }
 
             {
                 const char *name = MapInfo[(savehead.volnum*MAXLEVELS) + savehead.levnum].name;
@@ -1758,11 +1758,11 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 #endif
         }
 
-		if (ud.multimode > 1)
-		{
-			Bsprintf(tempbuf, "Players: %-2d                      ", ud.multimode);
-			mgametextcenter(origin.x, origin.y + (156<<16), tempbuf);
-		}
+        if (ud.multimode > 1)
+        {
+            Bsprintf(tempbuf, "Players: %-2d                      ", ud.multimode);
+            mgametextcenter(origin.x, origin.y + (156<<16), tempbuf);
+        }
 
         Bsprintf(tempbuf,"%s / %s",MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
         mgametextcenter(origin.x, origin.y + (168<<16), tempbuf);
@@ -1781,26 +1781,26 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 #endif
 
     case MENU_LOADVERIFY:
-		fade_screen_black(1);
-		if (g_oldverSavegame[M_LOAD.currentEntry])
-		{
-			mgametextcenter(origin.x, origin.y + (90<<16), "Start new game:");
-			Bsprintf(tempbuf,"%s / %s",MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
-			mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
-		}
-		else
-		{
-			mgametextcenter(origin.x, origin.y + (90<<16), "Load game:");
-			Bsprintf(tempbuf, "\"%s\"", ud.savegame[M_LOAD.currentEntry]);
-			mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
-		}
+        fade_screen_black(1);
+        if (g_oldverSavegame[M_LOAD.currentEntry])
+        {
+            mgametextcenter(origin.x, origin.y + (90<<16), "Start new game:");
+            Bsprintf(tempbuf,"%s / %s",MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
+            mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
+        }
+        else
+        {
+            mgametextcenter(origin.x, origin.y + (90<<16), "Load game:");
+            Bsprintf(tempbuf, "\"%s\"", ud.savegame[M_LOAD.currentEntry]);
+            mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
+        }
 #ifndef DROIDMENU
         mgametextcenter(origin.x, origin.y + ((99+9)<<16), "(Y/N)");
 #endif
         break;
 
     case MENU_SAVEVERIFY:
-		fade_screen_black(1);
+        fade_screen_black(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Overwrite previous saved game?");
 #ifndef DROIDMENU
         mgametextcenter(origin.x, origin.y + ((90+9)<<16), "(Y/N)");
@@ -1808,7 +1808,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
 
     case MENU_NEWVERIFY:
-		fade_screen_black(1);
+        fade_screen_black(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Abort this game?");
 #ifndef DROIDMENU
         mgametextcenter(origin.x, origin.y + ((90+9)<<16), "(Y/N)");
@@ -1817,7 +1817,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
     case MENU_QUIT:
     case MENU_QUIT_INGAME:
-		fade_screen_black(1);
+        fade_screen_black(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Are you sure you want to quit?");
 #ifndef DROIDMENU
         mgametextcenter(origin.x, origin.y + (99<<16), "(Y/N)");
@@ -1825,7 +1825,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
 
     case MENU_QUITTOTITLE:
-		fade_screen_black(1);
+        fade_screen_black(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Quit to Title?");
 #ifndef DROIDMENU
         mgametextcenter(origin.x, origin.y + (99<<16), "(Y/N)");
@@ -1855,9 +1855,9 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
 #ifndef DROIDMENU
         mgametextcenter(origin.x, origin.y + ((104+8)<<16), "Please visit Steam and purchase");
-		mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Duke Nukem 3D: Megaton Edition");
+        mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Duke Nukem 3D: Megaton Edition");
 #else
-		mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Please visit the Play Store");
+        mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Please visit the Play Store");
 #endif
 
         mgametextcenter(origin.x, origin.y + ((122+8)<<16), "to upgrade to the full registered");
@@ -2328,7 +2328,7 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
         vid_contrast = DEFAULT_CONTRAST;
         vid_brightness = DEFAULT_BRIGHTNESS;
         ud.brightness = 0;
-		r_ambientlight = r_ambientlightrecip = 1.f;
+        r_ambientlight = r_ambientlightrecip = 1.f;
         setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
     }
     else if (entry == &ME_KEYBOARDSETUP_RESET)
@@ -2761,7 +2761,7 @@ static void M_MenuVerify(int32_t input)
 
     case MENU_NETWAITVOTES:
         if (!input)
-			Net_SendMapVoteCancel(0);
+            Net_SendMapVoteCancel(0);
         break;
 
     default:
@@ -3019,7 +3019,7 @@ void M_ChangeMenu(MenuID_t cm)
         newfullscreen = fullscreen;
         break;
 
-	case MENU_ADVSOUND:
+    case MENU_ADVSOUND:
         soundrate = ud.config.MixRate;
         soundvoices = ud.config.NumVoices;
         soundbits = ud.config.NumBits;
