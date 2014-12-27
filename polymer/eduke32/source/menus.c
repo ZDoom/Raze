@@ -177,6 +177,8 @@ static MenuMenuFormat_t MMF_ColorCorrect =         { { MENU_MARGIN_REGULAR<<16, 
 static MenuMenuFormat_t MMF_BigSliders =           { {    MENU_MARGIN_WIDE<<16, 37<<16, },  190<<16 };
 static MenuMenuFormat_t MMF_LoadSave =             { {                 223<<16, 48<<16, },  320<<16 };
 static MenuMenuFormat_t MMF_NetSetup =             { {                  36<<16, 38<<16, },  190<<16 };
+static MenuMenuFormat_t MMF_FileSelectLeft =       { {                  40<<16, 45<<16, },  162<<16 };
+static MenuMenuFormat_t MMF_FileSelectRight =      { {                 164<<16, 45<<16, },  162<<16 };
 
 static MenuEntryFormat_t MEF_Null =             {     0,      0,        0,  20<<16, 65536 };
 static MenuEntryFormat_t MEF_MainMenu =         { 4<<16,      0,        0, 110<<16, 65536 };
@@ -1081,14 +1083,9 @@ static MenuMessage_t M_BUYDUKE = { CURSOR_BOTTOMRIGHT, MENU_EPISODE, MA_Return, 
 
 static MenuPassword_t M_ADULTPASSWORD = { NULL, MAXPWLOCKOUT };
 
-#define MAKE_MENUFILESELECT(...) { __VA_ARGS__, { NULL, NULL, }, { 0, 0, }, FNLIST_INITIALIZER, 0 }
+#define MAKE_MENUFILESELECT(a, b, c) { a, { &MMF_FileSelectLeft, &MMF_FileSelectRight }, { &MF_Minifont, &MF_MinifontRed }, b, c, { NULL, NULL }, { 0, 0 }, { 3<<16, 3<<16 }, FNLIST_INITIALIZER, 0 }
 
-static MenuFileSelect_t M_USERMAP = MAKE_MENUFILESELECT( "Select A User Map", { &MF_Minifont, &MF_MinifontRed, }, "*.map", boardfilename );
-
-static const int32_t MenuFileSelect_entryheight = 8<<16;
-static const int32_t MenuFileSelect_startx[2] = { 40<<16, 180<<16, };
-static const int32_t MenuFileSelect_ytop[2] = { ((1+12+32+8)<<16), (1+12+32)<<16, };
-static const int32_t MenuFileSelect_ybottom = (1+12+32+8*13)<<16;
+static MenuFileSelect_t M_USERMAP = MAKE_MENUFILESELECT( "Select A User Map", "*.map", boardfilename );
 
 // MUST be in ascending order of MenuID enum values due to binary search
 static Menu_t Menus[] = {
@@ -3293,11 +3290,11 @@ static int32_t M_FindOptionBinarySearch(MenuOption_t *object, const int32_t quer
     return M_FindOptionBinarySearch(object, query, searchstart, searchend);
 }
 
-static void M_RunMenu_Scrollbar(MenuMenuFormat_t const * const format, const int32_t totalextent, const int32_t scrollPos, const vec2_t origin)
+static void M_RunMenu_Scrollbar(MenuMenuFormat_t const * const format, const int32_t totalextent, const int32_t scrollPos, const int32_t rightedge, const vec2_t origin)
 {
     if (totalextent > klabs(format->bottomcutoff))
     {
-        const int32_t scrollx = origin.x + ((320 - tilesiz[SELECTDIR].x)<<16), scrolly = origin.y + format->pos.y;
+        const int32_t scrollx = origin.x + rightedge - (tilesiz[SELECTDIR].x<<16), scrolly = origin.y + format->pos.y;
         const int32_t scrollheight = klabs(format->bottomcutoff) - format->pos.y;
         M_BlackRectangle(scrollx, scrolly, tilesiz[SELECTDIR].x<<16, scrollheight);
 
@@ -3607,7 +3604,7 @@ static int32_t M_RunMenu_MenuMenu(MenuMenu_t *menu, MenuEntry_t *currentry, int3
     menu->totalHeight = totalextent - menu->format->pos.y;
 
     // draw indicators if applicable
-    M_RunMenu_Scrollbar(menu->format, totalextent, menu->scrollPos, origin);
+    M_RunMenu_Scrollbar(menu->format, totalextent, menu->scrollPos, 320<<16, origin);
 
     return menu->totalHeight;
 }
@@ -3662,7 +3659,7 @@ static void M_RunMenu_MenuOptionList(MenuOption_t *object, const vec2_t origin)
     y -= calculatedentryspacing;
 
     // draw indicators if applicable
-    M_RunMenu_Scrollbar(object->options->menuFormat, y, object->options->scrollPos, origin);
+    M_RunMenu_Scrollbar(object->options->menuFormat, y, object->options->scrollPos, 320<<16, origin);
 }
 
 static void M_RunMenu_AbbreviateNameIntoBuffer(const char* name, int32_t entrylength)
@@ -3759,7 +3756,7 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
         case FileSelect:
         {
             MenuFileSelect_t *object = (MenuFileSelect_t*)cm->object;
-
+            const int32_t MenuFileSelect_scrollbar_rightedge[2] = { 160<<16, 284<<16 };
             int32_t i;
 
             M_PreMenu(cm->menuID);
@@ -3771,21 +3768,18 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
 
 
             // black translucent background underneath file lists
-            M_BlackRectangle(origin.x + (36<<16), origin.y + (42<<16), 248<<16, 118<<16);
+            M_BlackRectangle(origin.x + (36<<16), origin.y + (42<<16), 248<<16, 123<<16);
 
             // path
-            mminitext(origin.x + (38<<16), origin.y + (45<<16), object->destination, 16);
-
-            mgametext(origin.x + ((40+4)<<16), origin.y + (32<<16), "Directories");
-
-            mgametext(origin.x + ((180+4)<<16), origin.y + (32<<16), "Files");
+            Bsnprintf(tempbuf, sizeof(tempbuf), "Path: %s", object->destination);
+            M_MenuText(origin.x + object->format[0]->pos.x, origin.y + (32<<16), &MF_Bluefont, tempbuf, 0);
 
             for (i = 0; i < 2; ++i)
             {
                 if (object->findhigh[i])
                 {
                     CACHE1D_FIND_REC *dir;
-                    int32_t y = MenuFileSelect_ytop[i] - object->scrollPos[i];
+                    int32_t y = object->format[i]->pos.y;
                     for (dir = object->findhigh[i]->usera; dir; dir = dir->next)
                     {
                         uint8_t status = (dir == object->findhigh[i] && object->currentList == i)<<0;
@@ -3794,11 +3788,15 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
 
                         M_RunMenu_AbbreviateNameIntoBuffer(dir->name, USERMAPENTRYLENGTH);
 
-                        if (MenuFileSelect_ytop[i] <= y && y <= MenuFileSelect_ybottom)
-                            M_MenuText(origin.x + MenuFileSelect_startx[i], origin.y + y, object->font[i], tempbuf, status);
+                        if (object->format[i]->pos.y <= y - object->scrollPos[i] && y - object->scrollPos[i] + object->font[i]->yline <= klabs(object->format[i]->bottomcutoff))
+                            M_MenuText(origin.x + object->format[i]->pos.x, origin.y + y - object->scrollPos[i], object->font[i], tempbuf, status);
 
-                        y += MenuFileSelect_entryheight;
+                        y += object->font[i]->yline + object->marginBottom[i];
                     }
+
+                    y -= object->marginBottom[i];
+
+                    M_RunMenu_Scrollbar(object->format[i], y, object->scrollPos[i], MenuFileSelect_scrollbar_rightedge[i], origin);
                 }
             }
 
@@ -3806,8 +3804,6 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
 
             if (object->title != NoTitle)
                 M_DrawTopBarCaption(object->title, origin);
-
-            rotatesprite_fs(origin.x + ((object->currentList == 0 ? 45 : 185)<<16) - (21<<15), origin.y + ((32+4+1-2)<<16), 32768, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
 
             break;
         }
@@ -4214,11 +4210,15 @@ static void M_RunMenuInput_MenuEntryString_Cancel(/*MenuEntry_t *entry, */MenuSt
 
 static void M_RunMenuInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
 {
-    int32_t ypos = MenuFileSelect_ytop[object->currentList] + object->findhigh[object->currentList]->type * MenuFileSelect_entryheight;
-    if (ypos - object->scrollPos[object->currentList] > MenuFileSelect_ybottom)
-        object->scrollPos[object->currentList] = ypos - MenuFileSelect_ybottom;
-    else if (ypos - object->scrollPos[object->currentList] < MenuFileSelect_ytop[object->currentList])
-        object->scrollPos[object->currentList] = ypos - MenuFileSelect_ytop[object->currentList];
+    const int32_t listytop = object->format[object->currentList]->pos.y;
+    const int32_t listybottom = klabs(object->format[object->currentList]->bottomcutoff);
+    const int32_t ytop = listytop + object->findhigh[object->currentList]->type * (object->font[object->currentList]->yline + object->marginBottom[object->currentList]);
+    const int32_t ybottom = ytop + object->font[object->currentList]->yline;
+
+    if (ybottom - object->scrollPos[object->currentList] > listybottom)
+        object->scrollPos[object->currentList] = ybottom - listybottom;
+    else if (ytop - object->scrollPos[object->currentList] < listytop)
+        object->scrollPos[object->currentList] = ytop - listytop;
 }
 
 static void M_RunMenuInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMovement_t direction)
