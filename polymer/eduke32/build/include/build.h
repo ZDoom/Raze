@@ -285,22 +285,6 @@ extern "C" {
 
 #endif // __cplusplus
 
-typedef struct {
-    int32_t x, y;
-} vec2_t;
-
-typedef struct {
-    int32_t x, y, z;
-} vec3_t;
-
-typedef struct {
-    float x, y;
-} vec2f_t;
-
-typedef struct {
-    float x, y, z;
-} vec3f_t;
-
 // Links to various ABIs specifying (or documenting non-normatively) the
 // alignment requirements of aggregates:
 //

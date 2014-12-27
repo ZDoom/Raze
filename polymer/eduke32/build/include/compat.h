@@ -590,6 +590,24 @@ typedef intptr_t ssize_t;
   typedef int32_t bssize_t;
 #endif
 
+
+typedef struct {
+    int32_t x, y;
+} vec2_t;
+
+typedef struct {
+    int32_t x, y, z;
+} vec3_t;
+
+typedef struct {
+    float x, y;
+} vec2f_t;
+
+typedef struct {
+    float x, y, z;
+} vec3f_t;
+
+
 #if RAND_MAX == 32767
 FORCE_INLINE uint16_t system_15bit_rand(void) { return (uint16_t)rand(); }
 #else  // RAND_MAX > 32767, assumed to be of the form 2^k - 1

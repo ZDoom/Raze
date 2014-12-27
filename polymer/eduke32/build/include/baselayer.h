@@ -101,8 +101,18 @@ extern int32_t GetKey(int32_t key);
 extern void SetKey(int32_t key, int32_t state);
 
 // mouse
-extern int32_t mousex, mousey, mouseb, mouseabsx, mouseabsy;
+extern int32_t mousex, mousey, mouseb;
+extern vec2_t mouseabs;
+extern uint8_t mousepressstate;
 extern uint8_t mousegrab, moustat, mouseinwindow, AppMouseGrab;
+enum
+{
+    Mouse_Idle = 0,
+    Mouse_Pressed = 1,
+    Mouse_Held = 2,
+    Mouse_Released = 3,
+};
+extern int32_t mousepressstateadvance(void);
 
 // joystick
 extern int32_t *joyaxis, *joyhat, joyb;
@@ -161,7 +171,7 @@ void uninitmouse(void);
 void grabmouse(char a);
 void AppGrabMouse(char a);
 void readmousexy(int32_t *x, int32_t *y);
-int32_t readmouseabsxy(int32_t *x, int32_t *y);
+int32_t readmouseabsxy(vec2_t * const destination, vec2_t const * const source);
 void readmousebstatus(int32_t *b);
 void readjoybstatus(int32_t *b);
 void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur);

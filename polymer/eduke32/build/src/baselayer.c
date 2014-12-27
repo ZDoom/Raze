@@ -15,8 +15,27 @@ uint8_t keyfifoplc, keyfifoend, keyasciififoplc, keyasciififoend;
 char keyremap[KEYSTATUSSIZ];
 int32_t keyremapinit=0;
 char key_names[NUMKEYS][24];
-int32_t mousex=0,mousey=0,mouseb=0,mouseabsx=0,mouseabsy=0;
+int32_t mousex=0,mousey=0,mouseb=0;
+vec2_t mouseabs;
+uint8_t mousepressstate;
 uint8_t moustat = 0, mousegrab = 0, mouseinwindow = 1, AppMouseGrab = 1;
+
+int32_t mousepressstateadvance(void)
+{
+    if (mousepressstate == Mouse_Pressed)
+    {
+        mousepressstate = Mouse_Held;
+        return 1;
+    }
+    else if (mousepressstate == Mouse_Released)
+    {
+        mousepressstate = Mouse_Idle;
+        return 1;
+    }
+
+    return 0;
+}
+
 int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 int32_t joyaxespresent=0;
@@ -105,7 +124,7 @@ void readmousexy(int32_t *x, int32_t *y)
     mousex = mousey = 0;
 }
 
-int32_t readmouseabsxy(int32_t *x, int32_t *y)
+int32_t readmouseabsxy(vec2_t * const destination, vec2_t const * const source)
 {
     int32_t xwidth;
 
@@ -114,8 +133,8 @@ int32_t readmouseabsxy(int32_t *x, int32_t *y)
 
     xwidth = max(scale(240<<16, xdim, ydim), 320<<16);
 
-    *x = scale(mouseabsx, xwidth, xdim) - ((xwidth>>1) - (320<<15));
-    *y = scale(mouseabsy, 200<<16, ydim);
+    destination->x = scale(source->x, xwidth, xdim) - ((xwidth>>1) - (320<<15));
+    destination->y = scale(source->y, 200<<16, ydim);
 
     return 1;
 }

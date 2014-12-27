@@ -1718,6 +1718,11 @@ int32_t handleevents_peekkeys(void)
 #endif
 }
 
+void handleevents_updatemousestate(uint8_t state)
+{
+    mousepressstate = state == SDL_RELEASED ? Mouse_Released : Mouse_Pressed;
+}
+
 
 //
 // handleevents() -- process the SDL message queue
@@ -1732,8 +1737,8 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
     {
         case SDL_MOUSEMOTION:
 #ifndef GEKKO
-            mouseabsx = ev->motion.x;
-            mouseabsy = ev->motion.y;
+            mouseabs.x = ev->motion.x;
+            mouseabs.y = ev->motion.y;
 #endif
             // SDL <VER> doesn't handle relative mouse movement correctly yet as the cursor still clips to the
             // screen edges
@@ -1762,7 +1767,7 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             switch (ev->button.button)
             {
                 default: j = -1; break;
-                case SDL_BUTTON_LEFT: j = 0; break;
+                case SDL_BUTTON_LEFT: j = 0; handleevents_updatemousestate(ev->button.state); break;
                 case SDL_BUTTON_RIGHT: j = 1; break;
                 case SDL_BUTTON_MIDDLE: j = 2; break;
 
@@ -1849,6 +1854,11 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                     joyb |= 1 << ev->jbutton.button;
                 else
                     joyb &= ~(1 << ev->jbutton.button);
+
+#ifdef GEKKO
+                if (ev->jbutton.button == 0) // WII_A
+                    handleevents_updatemousestate(ev->jbutton.state);
+#endif
             }
             break;
 

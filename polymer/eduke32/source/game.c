@@ -3739,17 +3739,17 @@ void G_DisplayRest(int32_t smoothratio)
 
         if (a == 0 || a > 1)
         {
-            int32_t x = 160<<16, y = 100<<16;
+            vec2_t crosshairpos = { 160<<16, 100<<16 };
 
             if (a == 0)
                 a = CROSSHAIR;
 
-            rotatesprite_win(x-(g_player[myconnectindex].ps->look_ang<<15),y,scale(65536,ud.crosshairscale,100),
+            rotatesprite_win(crosshairpos.x-(g_player[myconnectindex].ps->look_ang<<15),crosshairpos.y,scale(65536,ud.crosshairscale,100),
                              0,a,0,CROSSHAIR_PAL,2+1);
 
 #ifdef GEKKO
-            if (readmouseabsxy(&x, &y))
-                rotatesprite_win(x,y,scale(65536,ud.crosshairscale,100),0,a,0,CROSSHAIR_PAL,2+1);
+            if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && readmouseabsxy(&crosshairpos, &mouseabs))
+                rotatesprite_win(crosshairpos.x,crosshairpos.y,scale(65536,ud.crosshairscale,100),0,a,0,CROSSHAIR_PAL,2+1);
 #endif
         }
     }

@@ -568,8 +568,8 @@ int32_t handleevents_pollsdl(void)
                 if (ev.motion.state & SDL_BUTTON_X2MASK)
                 {
                     // the absolute values are used to draw the crosshair
-                    mouseabsx = ev.motion.x;
-                    mouseabsy = ev.motion.y;
+                    mouseabs.x = ev.motion.x;
+                    mouseabs.y = ev.motion.y;
                     // hack: reduce the scale of the "relative" motions
                     // to make it act more like a real mouse
                     ev.motion.xrel /= 16;

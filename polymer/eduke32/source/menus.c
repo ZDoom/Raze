@@ -3163,13 +3163,13 @@ static inline int32_t M_UpdateScreenOK(MenuID_t cm)
 
 #define M_MOUSETIMEOUT 120
 static int32_t m_mouselastactivity;
-static vec2_t m_prevmousepos, m_mousepos;
+static vec2_t m_prevmousepos, m_mousepos, m_mousedownpos;
 
 void M_OpenMenu(size_t playerID)
 {
     g_player[playerID].ps->gm |= MODE_MENU;
 
-    readmouseabsxy(&m_prevmousepos.x, &m_prevmousepos.y);
+    readmouseabsxy(&m_prevmousepos, &mouseabs);
     m_mouselastactivity = -M_MOUSETIMEOUT;
 
     AppGrabMouse(0);
@@ -4881,6 +4881,10 @@ void M_DisplayMenus(void)
     if (!M_IsTextInput(m_currentMenu) && KB_KeyPressed(sc_Q))
         M_ChangeMenuAnimate(MENU_QUIT, MA_Advance);
 
+    int32_t mousestatus = readmouseabsxy(&m_mousepos, &mouseabs);
+    if (mousestatus && mousepressstate == Mouse_Pressed)
+        m_mousedownpos = m_mousepos;
+
     M_RunMenuInput(m_currentMenu);
 
     VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek);
@@ -4911,9 +4915,9 @@ void M_DisplayMenus(void)
     if (VM_HaveEvent(EVENT_DISPLAYMENUREST))
         VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek);
 
-    if (readmouseabsxy(&m_mousepos.x, &m_mousepos.y))
+    if (mousestatus)
     {
-        if (m_mousepos.x != m_prevmousepos.x || m_mousepos.y != m_prevmousepos.y)
+        if (((totalclock - m_mouselastactivity < M_MOUSETIMEOUT) && mousepressstateadvance()) || m_mousepos.x != m_prevmousepos.x || m_mousepos.y != m_prevmousepos.y)
         {
             m_prevmousepos = m_mousepos;
             m_mouselastactivity = totalclock;
