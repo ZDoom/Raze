@@ -85,7 +85,13 @@
 #   include <CoreFoundation/CoreFoundation.h>
 #  endif
 #  include <CoreServices/CoreServices.h>
+# else
+#  define EDUKE32_TOUCH_DEVICES
 # endif
+#endif
+
+#ifdef __ANDROID__
+# define EDUKE32_TOUCH_DEVICES
 #endif
 
 // This gives us access to 'intptr_t' and 'uintptr_t', which are

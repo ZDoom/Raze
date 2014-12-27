@@ -586,7 +586,7 @@ int32_t CONFIG_ReadSetup(void)
     ud.config.setupread = 1;
 
     pathsearchmode = 1;
-#ifndef __ANDROID__
+#ifndef EDUKE32_TOUCH_DEVICES
     if (SafeFileExists(setupfilename) && ud.config.scripthandle < 0)  // JBF 20031211
         ud.config.scripthandle = SCRIPT_Load(setupfilename);
     else if (SafeFileExists(SETUPFILENAME) && ud.config.scripthandle < 0)

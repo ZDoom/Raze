@@ -157,7 +157,7 @@ static void G_DoOrderScreen(void);
 int32_t althud_numbertile = 2930;
 int32_t althud_numberpal = 0;
 
-#ifdef __ANDROID__
+#ifdef EDUKE32_TOUCH_DEVICES
 int32_t althud_shadows = 0;
 #else
 int32_t althud_shadows = 1;
@@ -2679,7 +2679,7 @@ void G_PrintGameQuotes(int32_t snum)
         {
 #ifdef GEKKO
             k = 16;
-#elif defined(__ANDROID__)
+#elif defined EDUKE32_TOUCH_DEVICES
             k = ud.althud == 2 ? 32 : 24;
 #else
             k = ud.althud == 2 ? 32 : 0;
@@ -3862,7 +3862,7 @@ void G_DisplayRest(int32_t smoothratio)
     El_DisplayErrors();
 #endif
 
-#ifndef __ANDROID__
+#ifndef EDUKE32_TOUCH_DEVICES
     if (VOLUMEONE)
     {
         if (ud.show_help == 0 && g_showShareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
@@ -4386,7 +4386,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     if (pub > 0 || getrendermode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
-#ifndef __ANDROID__
+#ifndef EDUKE32_TOUCH_DEVICES
         if (ud.screen_size >= 8)
 #endif
             G_DrawBackground();
@@ -10424,7 +10424,7 @@ static void G_DisplayLogo(void)
     if ((!g_netServer && ud.multimode < 2) && (logoflags & LOGO_ENABLED) && !g_noLogo)
     {
         if (
-#ifndef __ANDROID__
+#ifndef EDUKE32_TOUCH_DEVICES
             VOLUMEALL && 
 #endif
             (logoflags & LOGO_PLAYANIM))

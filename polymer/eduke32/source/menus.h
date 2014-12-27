@@ -29,8 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 #endif
 
-#if defined(__ANDROID__)
-#define DROIDMENU
+#if defined EDUKE32_TOUCH_DEVICES
+# define DROIDMENU
 #endif
 
 // #define DROIDMENU

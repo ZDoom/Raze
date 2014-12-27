@@ -1394,7 +1394,7 @@ end_vol4a:
     ud.last_level = -1;
     g_lastSaveSlot = -1;
 
-#ifdef __ANDROID__
+#ifdef EDUKE32_TOUCH_DEVICES
     p->zoom = 360;
 #else
     p->zoom = 768;
@@ -1923,7 +1923,7 @@ int32_t G_EnterLevel(int32_t g)
     if ((ud.recstat == 1) && (g&MODE_RESTART) != MODE_RESTART)
         G_OpenDemoWrite();
 
-#ifndef __ANDROID__
+#ifndef EDUKE32_TOUCH_DEVICES
     if (VOLUMEONE && ud.level_number == 0 && ud.recstat != 2)
         P_DoQuote(QUOTE_F1HELP,g_player[myconnectindex].ps);
 #endif

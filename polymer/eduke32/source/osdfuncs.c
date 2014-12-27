@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 int32_t osdhightile = 1;
 int32_t osdshown = 0;
 
-#ifdef __ANDROID__
+#ifdef EDUKE32_TOUCH_DEVICES
 float osdscale = 2.f, osdrscale = 0.5f;
 #else
 float osdscale = 1.f, osdrscale = 1.f;

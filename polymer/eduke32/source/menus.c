@@ -1854,7 +1854,11 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         mgametextcenter(origin.x, origin.y + ((104+8)<<16), "Please visit Steam and purchase");
         mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Duke Nukem 3D: Megaton Edition");
 #else
+# if defined __APPLE__ && TARGET_OS_IPHONE
+        mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Please visit the App Store");
+# else
         mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Please visit the Play Store");
+# endif
 #endif
 
         mgametextcenter(origin.x, origin.y + ((122+8)<<16), "to upgrade to the full registered");
@@ -2005,7 +2009,11 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         creditsminitext(origin.x + (160<<16), origin.y + ((90+7+10-l)<<16), "Evan \"Hendricks266\" Ramos", 8);
 
 #ifdef DROIDMENU
+# if defined __APPLE__ && TARGET_OS_IPHONE
+        mgametextcenter(origin.x, origin.y + ((110+7-l)<<16), "iOS support programming");
+# else
         mgametextcenter(origin.x, origin.y + ((110+7-l)<<16), "Android support programming");
+# endif
         creditsminitext(origin.x + (160<<16), origin.y + ((110+7+10-l)<<16), "Emile Belanger", 8);
 #endif
 

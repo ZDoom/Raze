@@ -38,7 +38,7 @@
 # include "gtkbits.h"
 #endif
 #ifdef __ANDROID__
-#include <android/log.h>
+# include <android/log.h>
 #endif
 #if defined GEKKO
 # include "wiibits.h"
@@ -109,7 +109,7 @@ static float lastvidgcb[3];
 #include "sdlkeytrans.c"
 
 static SDL_Surface *appicon = NULL;
-#if !defined(__APPLE__) && !defined(__ANDROID__)
+#if !defined __APPLE__ && !defined EDUKE32_TOUCH_DEVICES
 static SDL_Surface *loadappicon(void);
 #endif
 
@@ -167,7 +167,7 @@ int32_t wm_msgbox(const char *name, const char *fmt, ...)
 #elif defined _WIN32
     MessageBox(win_gethwnd(),buf,name,MB_OK|MB_TASKMODAL);
     return 0;
-#elif defined __ANDROID__
+#elif defined EDUKE32_TOUCH_DEVICES
     initprintf("wm_msgbox called. Message: %s: %s",name,buf);
     return 0;
 #elif SDL_MAJOR_VERSION==2
@@ -215,7 +215,7 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
     }
 #elif defined _WIN32
     return (MessageBox(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL) == IDYES);
-#elif defined __ANDROID__
+#elif defined EDUKE32_TOUCH_DEVICES
     initprintf("wm_ynbox called, this is bad! Message: %s: %s",name,buf);
     initprintf("Returning false..");
     return 0;
@@ -255,7 +255,7 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
 
 void wm_setapptitle(const char *name)
 {
-#ifndef __ANDROID__
+#ifndef EDUKE32_TOUCH_DEVICES
     if (name != apptitle)
         Bstrncpyz(apptitle, name, sizeof(apptitle));
 
@@ -277,6 +277,8 @@ void wm_setapptitle(const char *name)
 #endif
 
     startwin_settitle(apptitle);
+#else
+    UNREFERENCED_PARAMETER(name);
 #endif
 }
 
@@ -293,7 +295,7 @@ void wm_setapptitle(const char *name)
 static void attach_debugger_here(void) {}
 
 /* XXX: libexecinfo could be used on systems without gnu libc. */
-#if !defined _WIN32 && defined __GNUC__ && !defined __OpenBSD__ && !(defined __APPLE__ && defined __BIG_ENDIAN__) && !defined(GEKKO) && !defined(__ANDROID__) && !defined __OPENDINGUX__
+#if !defined _WIN32 && defined __GNUC__ && !defined __OpenBSD__ && !(defined __APPLE__ && defined __BIG_ENDIAN__) && !defined GEKKO && !defined EDUKE32_TOUCH_DEVICES && !defined __OPENDINGUX__
 # define PRINTSTACKONSEGV 1
 # include <execinfo.h>
 #endif
@@ -778,7 +780,7 @@ void uninitmouse(void)
 
 static inline char grabmouse_low(char a)
 {
-#if !defined __ANDROID__ && (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
+#if !defined EDUKE32_TOUCH_DEVICES && (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
     /* FIXME: Maybe it's better to make sure that grabmouse_low
        is called only when a window is ready?                */
     if (sdl_window)
@@ -798,7 +800,7 @@ void grabmouse(char a)
 {
     if (appactive && moustat)
     {
-#if !defined __ANDROID__ && (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
+#if !defined EDUKE32_TOUCH_DEVICES && (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
         if ((a != mousegrab) && !grabmouse_low(a))
 #endif
             mousegrab = a;
@@ -1685,7 +1687,7 @@ int32_t setgamma(void)
     return i;
 }
 
-#if !defined(__APPLE__) && !defined(__ANDROID__)
+#if !defined __APPLE__ && !defined EDUKE32_TOUCH_DEVICES
 extern struct sdlappicon sdlappicon;
 static inline SDL_Surface *loadappicon(void)
 {
