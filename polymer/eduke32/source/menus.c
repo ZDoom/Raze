@@ -3161,8 +3161,7 @@ static inline int32_t M_UpdateScreenOK(MenuID_t cm)
     chances are you should scroll up.
 */
 
-#define M_MOUSETIMEOUT 120
-static int32_t m_mouselastactivity;
+int32_t m_mouselastactivity;
 static vec2_t m_prevmousepos, m_mousepos, m_mousedownpos;
 
 void M_OpenMenu(size_t playerID)
@@ -4898,6 +4897,7 @@ void M_DisplayMenus(void)
     if (M_UpdateScreenOK(g_currentMenu))
         G_UpdateScreenArea();
 
+    // Display the menu, with a transition animation if applicable.
     if (totalclock < m_animation.start + m_animation.length)
     {
         vec2_t previousOrigin = { 0, 0 };
@@ -4917,7 +4917,7 @@ void M_DisplayMenus(void)
 
     if (mousestatus)
     {
-        if (((totalclock - m_mouselastactivity < M_MOUSETIMEOUT) && mousepressstateadvance()) || m_mousepos.x != m_prevmousepos.x || m_mousepos.y != m_prevmousepos.y)
+        if (MOUSEACTIVECONDITIONAL(mousepressstateadvance()) || m_mousepos.x != m_prevmousepos.x || m_mousepos.y != m_prevmousepos.y)
         {
             m_prevmousepos = m_mousepos;
             m_mouselastactivity = totalclock;
@@ -4926,8 +4926,11 @@ void M_DisplayMenus(void)
     else
         m_mouselastactivity = -M_MOUSETIMEOUT;
 
-    if (totalclock - m_mouselastactivity < M_MOUSETIMEOUT)
+#ifndef EDUKE32_TOUCH_DEVICES
+    // Display the mouse cursor, except on touch devices.
+    if (MOUSEACTIVECONDITION)
         rotatesprite_fs(m_mousepos.x,m_mousepos.y,65536,0,CROSSHAIR,0,CROSSHAIR_PAL,2|1);
+#endif
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)
     {

@@ -402,6 +402,17 @@ void M_OpenMenu(size_t playerID);
 void M_CloseMenu(size_t playerID);
 void M_DisplayMenus(void);
 
+#define M_MOUSETIMEOUT 120
+extern int32_t m_mouselastactivity;
+
+#if defined EDUKE32_TOUCH_DEVICES
+# define MOUSEACTIVECONDITIONAL(condition) (condition)
+#else
+# define MOUSEACTIVECONDITION (totalclock - m_mouselastactivity < M_MOUSETIMEOUT)
+# define MOUSEACTIVECONDITIONAL(condition) (MOUSEACTIVECONDITION && (condition))
+# define MOUSEINACTIVECONDITIONAL(condition) (!MOUSEACTIVECONDITION && (condition))
+#endif
+
 #ifdef __cplusplus
 }
 #endif

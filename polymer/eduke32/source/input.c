@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "joystick.h"
 #include "control.h"
 #include "input.h"
+#include "menus.h"
 
 int32_t I_CheckAllInput(void)
 {
@@ -51,12 +52,18 @@ int32_t I_AdvanceTrigger(void)
     return (
             KB_KeyPressed(sc_kpad_Enter) ||
             KB_KeyPressed(sc_Enter) ||
-            (MOUSE_GetButtons()&LEFT_MOUSE) ||
+#if !defined EDUKE32_TOUCH_DEVICES
+            MOUSEINACTIVECONDITIONAL(MOUSE_GetButtons()&LEFT_MOUSE) ||
+#endif
 #if defined(GEKKO)
-            (JOYSTICK_GetButtons()&WII_A)
+            MOUSEINACTIVECONDITIONAL(JOYSTICK_GetButtons()&WII_A)
 #else
             BUTTON(gamefunc_Open) ||
+# if !defined EDUKE32_TOUCH_DEVICES
+            MOUSEINACTIVECONDITIONAL(BUTTON(gamefunc_Fire))
+# else
             BUTTON(gamefunc_Fire)
+# endif
 #endif
             );
 }
@@ -250,7 +257,9 @@ void I_PanelDownClear(void)
 int32_t I_SliderLeft(void)
 {
     return (
-            ((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELUP_MOUSE)) ||
+#if !defined EDUKE32_TOUCH_DEVICES
+            MOUSEINACTIVECONDITIONAL((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELUP_MOUSE)) ||
+#endif
             I_MenuLeft()
             );
 }
@@ -265,7 +274,9 @@ void I_SliderLeftClear(void)
 int32_t I_SliderRight(void)
 {
     return (
-            ((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELDOWN_MOUSE)) ||
+#if !defined EDUKE32_TOUCH_DEVICES
+            MOUSEINACTIVECONDITIONAL((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELDOWN_MOUSE)) ||
+#endif
             I_MenuRight()
             );
 }
