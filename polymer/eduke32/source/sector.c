@@ -363,18 +363,20 @@ int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t
     return j;
 }
 
-static void G_SetupCamTile(int32_t i, int32_t wn)
+static void G_SetupCamTile(int32_t i, int32_t wn, int32_t smoothratio)
 {
+    vec3_t cam = G_GetCameraPosition(i, smoothratio);
+
     const int32_t mir = display_mirror;
     //if (waloff[wn] == 0) loadtile(wn);
     setviewtotile(wn, tilesiz[wn].y, tilesiz[wn].x);
 
     yax_preparedrawrooms();
-    drawrooms(SX, SY, SZ, SA, 100+sprite[i].shade, SECT);
-    yax_drawrooms(G_DoSpriteAnimations, SECT, 0, 65536);
+    drawrooms(cam.x, cam.y, cam.z, SA, 100+sprite[i].shade, SECT);
+    yax_drawrooms(G_DoSpriteAnimations, SECT, 0, smoothratio);
 
     display_mirror = 3;
-    G_DoSpriteAnimations(SX, SY, SA, 65536L);
+    G_DoSpriteAnimations(cam.x, cam.y, SA, smoothratio);
     display_mirror = mir;
     drawmasks();
 
@@ -383,7 +385,7 @@ static void G_SetupCamTile(int32_t i, int32_t wn)
     invalidatetile(wn, -1, 255);
 }
 
-void G_AnimateCamSprite(void)
+void G_AnimateCamSprite(int32_t smoothratio)
 {
     const int32_t i = g_curViewscreen;
 
@@ -407,7 +409,7 @@ void G_AnimateCamSprite(void)
             else
                 walock[TILE_VIEWSCR] = 255;
 
-            G_SetupCamTile(OW, TILE_VIEWSCR);
+            G_SetupCamTile(OW, TILE_VIEWSCR, smoothratio);
 #ifdef POLYMER
             // Force texture update on viewscreen sprite in Polymer!
             if (getrendermode() == REND_POLYMER)

@@ -117,7 +117,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
 int32_t __fastcall A_FindPlayer(const spritetype *s,int32_t *d);
 void G_AlignWarpElevators(void);
 int32_t CheckDoorTile(int32_t dapic);
-void G_AnimateCamSprite(void);
+void G_AnimateCamSprite(int32_t smoothratio);
 void G_AnimateWalls(void);
 int32_t G_ActivateWarpElevators(int32_t s,int32_t d);
 int32_t G_CheckActivatorMotion(int32_t lotag);
@@ -147,6 +147,20 @@ static inline int32_t G_GetForcefieldPicnum(int32_t wallnum)
     if (picnum == W_FORCEFIELD+1)
         picnum = W_FORCEFIELD;
     return picnum;
+}
+
+// Returns the interpolated position of the camera that the player is looking
+// through (using a viewscreen). <i> should be the player's ->newowner member.
+static inline vec3_t G_GetCameraPosition(int32_t i, int32_t smoothratio)
+{
+    const spritetype *const cs = &sprite[i];
+    const actor_t *const ca = &actor[i];
+
+    vec3_t cam = { ca->bpos.x + mulscale16(cs->x - ca->bpos.x, smoothratio),
+                   ca->bpos.y + mulscale16(cs->y - ca->bpos.y, smoothratio),
+                   ca->bpos.z + mulscale16(cs->z - ca->bpos.z, smoothratio)
+                 };
+    return cam;
 }
 
 #ifdef __cplusplus

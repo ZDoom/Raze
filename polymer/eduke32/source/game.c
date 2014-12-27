@@ -4415,7 +4415,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     CAMERA(sect) = p->cursectnum;
 
     G_DoInterpolations(smoothratio);
-    G_AnimateCamSprite();
+    G_AnimateCamSprite(smoothratio);
 
     if (ud.camerasprite >= 0)
     {
@@ -4595,12 +4595,13 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         }
         else
         {
+            vec3_t cam = G_GetCameraPosition(p->newowner, smoothratio);
+
             // looking through viewscreen
-            Bmemcpy(&CAMERA(pos), &p->pos, sizeof(vec3_t));
+            Bmemcpy(&CAMERA(pos), &cam, sizeof(vec3_t));
             CAMERA(ang) = p->ang + p->look_ang;
             CAMERA(horiz) = 100+sprite[p->newowner].shade;
             CAMERA(sect) = sprite[p->newowner].sectnum;
-            smoothratio = 65536;
         }
 
         cz = actor[p->i].ceilingz;
@@ -11641,7 +11642,6 @@ int32_t app_main(int32_t argc, const char **argv)
     //    getpackets();
 
 MAIN_LOOP_RESTART:
-
     M_ChangeMenu(MENU_MAIN);
 
     if (g_networkMode != NET_DEDICATED_SERVER)
