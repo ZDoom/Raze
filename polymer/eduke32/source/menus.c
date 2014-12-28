@@ -5524,7 +5524,11 @@ void M_DisplayMenus(void)
     if (VM_HaveEvent(EVENT_DISPLAYMENUREST))
         VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek);
 
+#if !defined EDUKE32_TOUCH_DEVICES
     if (tilesiz[CROSSHAIR].x > 0 && mousestatus)
+#else
+    if (mousestatus)
+#endif
     {
 #if !defined EDUKE32_TOUCH_DEVICES
         if (!MOUSEACTIVECONDITION)
