@@ -4607,12 +4607,15 @@ static void M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(MenuEntry_t *entry
 static void M_RunMenuInput_MenuEntryRangeInt32_Movement(MenuEntry_t *entry, MenuRangeInt32_t *object, MenuMovement_t direction)
 {
     const float interval = ((float) (object->max - object->min)) / (object->steps - 1);
-    int32_t newValueIndex = Blrintf((float) (*object->variable - object->min) / interval);
+    const float currentPos = (float) (*object->variable - object->min) / interval;
+    int32_t newValueIndex = Blrintf(currentPos);
+    const int32_t newValueProjected = Blrintf(interval * newValueIndex + object->min);
 
     switch (direction)
     {
         case MM_Left:
-            --newValueIndex;
+            if (newValueIndex >= currentPos || *object->variable == newValueProjected)
+                --newValueIndex;
             if (newValueIndex >= 0)
                 break;
         case MM_AllTheWayLeft:
@@ -4620,7 +4623,8 @@ static void M_RunMenuInput_MenuEntryRangeInt32_Movement(MenuEntry_t *entry, Menu
             break;
 
         case MM_Right:
-            ++newValueIndex;
+            if (newValueIndex <= currentPos || *object->variable == newValueProjected)
+                ++newValueIndex;
             if (newValueIndex < object->steps)
                 break;
         case MM_AllTheWayRight:
@@ -4631,7 +4635,7 @@ static void M_RunMenuInput_MenuEntryRangeInt32_Movement(MenuEntry_t *entry, Menu
             break;
     }
 
-    M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(entry, object, Blrintf(interval * newValueIndex + (object->min)));
+    M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(entry, object, Blrintf(interval * newValueIndex + object->min));
 }
 
 static void M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue)
@@ -4646,12 +4650,15 @@ static void M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(MenuEntry_t *entry
 static void M_RunMenuInput_MenuEntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction)
 {
     const float interval = (object->max - object->min) / (object->steps - 1);
-    int32_t newValueIndex = Blrintf((*object->variable - object->min) / interval);
+    const float currentPos = (*object->variable - object->min) / interval;
+    int32_t newValueIndex = Blrintf(currentPos);
+    const float newValueProjected = interval * newValueIndex + object->min;
 
     switch (direction)
     {
         case MM_Left:
-            --newValueIndex;
+            if (newValueIndex >= currentPos || *object->variable == newValueProjected)
+                --newValueIndex;
             if (newValueIndex >= 0)
                 break;
         case MM_AllTheWayLeft:
@@ -4659,7 +4666,8 @@ static void M_RunMenuInput_MenuEntryRangeFloat_Movement(MenuEntry_t *entry, Menu
             break;
 
         case MM_Right:
-            ++newValueIndex;
+            if (newValueIndex <= currentPos || *object->variable == newValueProjected)
+                ++newValueIndex;
             if (newValueIndex < object->steps)
                 break;
         case MM_AllTheWayRight:
@@ -4682,12 +4690,15 @@ static void M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*MenuEntry_t *en
 static void M_RunMenuInput_MenuEntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction)
 {
     const double interval = (object->max - object->min) / (object->steps - 1);
-    int32_t newValueIndex = Blrintf((*object->variable - object->min) / interval);
+    const double currentPos = (*object->variable - object->min) / interval;
+    int32_t newValueIndex = Blrintf(currentPos);
+    const double newValueProjected = interval * newValueIndex + object->min;
 
     switch (direction)
     {
         case MM_Left:
-            --newValueIndex;
+            if (newValueIndex >= currentPos || *object->variable == newValueProjected)
+                --newValueIndex;
             if (newValueIndex >= 0)
                 break;
         case MM_AllTheWayLeft:
@@ -4695,7 +4706,8 @@ static void M_RunMenuInput_MenuEntryRangeDouble_Movement(/*MenuEntry_t *entry, *
             break;
 
         case MM_Right:
-            ++newValueIndex;
+            if (newValueIndex <= currentPos || *object->variable == newValueProjected)
+                ++newValueIndex;
             if (newValueIndex < object->steps)
                 break;
         case MM_AllTheWayRight:
