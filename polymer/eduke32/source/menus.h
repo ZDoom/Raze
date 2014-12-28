@@ -210,6 +210,16 @@ typedef struct MenuCustom2Col_t
     // state
     int8_t screenOpen;
 } MenuCustom2Col_t;
+
+enum MenuRangeFlags_t
+{
+    DisplayTypeInteger = 1,
+    DisplayTypePercent = 2,
+    DisplayTypeNormalizedDecimal = 3,
+    DisplayTypeMask = (1<<0)|(1<<1),
+
+    EnforceIntervals = 1<<7,
+};
 typedef struct MenuRangeInt32_t
 {
     // effect
@@ -224,7 +234,7 @@ typedef struct MenuRangeInt32_t
     int32_t onehundredpercent; // 0 implies max
     int32_t steps;
 
-    uint8_t displaytype; // 0 = none, 1 = integer, 2 = percent, 3 = normalized decimal
+    uint8_t flags;
 } MenuRangeInt32_t;
 typedef struct MenuRangeFloat_t
 {
@@ -240,7 +250,7 @@ typedef struct MenuRangeFloat_t
     float onehundredpercent; // 0 implies 1.0
     int32_t steps;
 
-    uint8_t displaytype; // 0 = none, 1 = decimal, 2 = percent, 3 = normalized decimal
+    uint8_t flags;
 } MenuRangeFloat_t;
 typedef struct MenuRangeDouble_t
 {
@@ -256,7 +266,7 @@ typedef struct MenuRangeDouble_t
     double onehundredpercent; // 0 implies 1.0
     int32_t steps;
 
-    uint8_t displaytype; // 0 = none, 1 = decimal, 2 = percent
+    uint8_t flags;
 } MenuRangeDouble_t;
 typedef struct MenuString_t
 {

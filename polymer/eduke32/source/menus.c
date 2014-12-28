@@ -456,7 +456,7 @@ static MenuRangeInt32_t MEO_SCREENSETUP_CROSSHAIRSIZE = MAKE_MENURANGE( &ud.cros
 static MenuEntry_t ME_SCREENSETUP_CROSSHAIRSIZE = MAKE_MENUENTRY( "Size:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_CROSSHAIRSIZE, RangeInt32 );
 
 static int32_t vpsize;
-static MenuRangeInt32_t MEO_SCREENSETUP_SCREENSIZE = MAKE_MENURANGE( &vpsize, &MF_Redfont, 12, 0, 0, 4, 0 );
+static MenuRangeInt32_t MEO_SCREENSETUP_SCREENSIZE = MAKE_MENURANGE( &vpsize, &MF_Redfont, 12, 0, 0, 4, EnforceIntervals );
 static MenuEntry_t ME_SCREENSETUP_SCREENSIZE = MAKE_MENUENTRY( "Screen size:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_SCREENSIZE, RangeInt32 );
 static MenuRangeInt32_t MEO_SCREENSETUP_TEXTSIZE = MAKE_MENURANGE( &ud.textscale, &MF_Redfont, 100, 400, 0, 7, 2 );
 static MenuEntry_t ME_SCREENSETUP_TEXTSIZE = MAKE_MENUENTRY( "Size:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_TEXTSIZE, RangeInt32 );
@@ -3404,10 +3404,13 @@ static int32_t M_RunMenuInput_MenuEntryOption_Activate(MenuEntry_t *entry, MenuO
 static int32_t M_RunMenuInput_MenuEntryOptionList_Activate(MenuEntry_t *entry, MenuOption_t *object);
 static void M_RunMenuInput_MenuEntryCustom2Col_Activate(MenuEntry_t *entry);
 static void M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue);
+static void M_RunMenuInput_MenuEntryRangeInt32_MovementArbitrary(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue);
 static void M_RunMenuInput_MenuEntryRangeInt32_Movement(MenuEntry_t *entry, MenuRangeInt32_t *object, MenuMovement_t direction);
 static void M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue);
+static void M_RunMenuInput_MenuEntryRangeFloat_MovementArbitrary(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue);
 static void M_RunMenuInput_MenuEntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction);
-static void M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, int32_t newValue);
+static void M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue);
+static void M_RunMenuInput_MenuEntryRangeDouble_MovementArbitrary(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue);
 static void M_RunMenuInput_MenuEntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction);
 static void M_RunMenuInput_MenuEntryString_Activate(MenuEntry_t *entry);
 static void M_RunMenuInput_MenuEntryString_Submit(MenuEntry_t *entry, MenuString_t *object);
@@ -3688,14 +3691,14 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
 
                     rotatesprite_fs(origin.x + slidepointx, origin.y + slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
 
-                    if (object->displaytype > 0)
+                    if (object->flags & DisplayTypeMask)
                     {
                         status |= MT_XRight;
 
                         if (object->onehundredpercent == 0)
                             object->onehundredpercent = object->max;
 
-                        switch (object->displaytype)
+                        switch (object->flags & DisplayTypeMask)
                         {
                             case 1:
                                 Bsprintf(tempbuf, "%d", *object->variable);
@@ -3737,7 +3740,7 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
                             if (M_MouseWithinBounds(&m_mousepos, slideregionx, slidebary, slideregionwidth, height))
                             {
-                                M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(entry, object, Blrintf((float)((object->max - object->min) * (m_mousepos.x - slideregionx)) / slideregionwidth + object->min));
+                                M_RunMenuInput_MenuEntryRangeInt32_MovementArbitrary(entry, object, Blrintf((float)((object->max - object->min) * (m_mousepos.x - slideregionx)) / slideregionwidth + object->min));
 
                                 m_mousecaught = 1;
                             }
@@ -3782,14 +3785,14 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
 
                     rotatesprite_fs(origin.x + slidepointx, origin.y + slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
 
-                    if (object->displaytype > 0)
+                    if (object->flags & DisplayTypeMask)
                     {
                         status |= MT_XRight;
 
                         if (object->onehundredpercent == 0)
                             object->onehundredpercent = 1.f;
 
-                        switch (object->displaytype)
+                        switch (object->flags & DisplayTypeMask)
                         {
                             case 1:
                                 Bsprintf(tempbuf, "%.2f", *object->variable);
@@ -3831,7 +3834,7 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
                             if (M_MouseWithinBounds(&m_mousepos, slideregionx, slidebary, slideregionwidth, height))
                             {
-                                M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(entry, object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
+                                M_RunMenuInput_MenuEntryRangeFloat_MovementArbitrary(entry, object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
 
                                 m_mousecaught = 1;
                             }
@@ -3876,14 +3879,14 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
 
                     rotatesprite_fs(origin.x + slidepointx, origin.y + slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16);
 
-                    if (object->displaytype > 0)
+                    if (object->flags & DisplayTypeMask)
                     {
                         status |= MT_XRight;
 
                         if (object->onehundredpercent == 0)
                             object->onehundredpercent = 1.;
 
-                        switch (object->displaytype)
+                        switch (object->flags & DisplayTypeMask)
                         {
                             case 1:
                                 Bsprintf(tempbuf, "%.2f", *object->variable);
@@ -3925,7 +3928,7 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
                             if (M_MouseWithinBounds(&m_mousepos, slideregionx, slidebary, slideregionwidth, height))
                             {
-                                M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*entry, */object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
+                                M_RunMenuInput_MenuEntryRangeDouble_MovementArbitrary(/*entry, */object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
 
                                 m_mousecaught = 1;
                             }
@@ -4604,6 +4607,19 @@ static void M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(MenuEntry_t *entry
         *object->variable = newValue;
 }
 
+static void M_RunMenuInput_MenuEntryRangeInt32_MovementArbitrary(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue)
+{
+    if (object->flags & EnforceIntervals)
+    {
+        const float interval = ((float) (object->max - object->min)) / (object->steps - 1);
+        const float currentPos = (float) (newValue - object->min) / interval;
+        const int32_t newValueIndex = Blrintf(currentPos);
+        newValue = Blrintf(interval * newValueIndex + object->min);
+    }
+
+    M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(entry, object, newValue);
+}
+
 static void M_RunMenuInput_MenuEntryRangeInt32_Movement(MenuEntry_t *entry, MenuRangeInt32_t *object, MenuMovement_t direction)
 {
     const float interval = ((float) (object->max - object->min)) / (object->steps - 1);
@@ -4647,6 +4663,19 @@ static void M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(MenuEntry_t *entry
     }
 }
 
+static void M_RunMenuInput_MenuEntryRangeFloat_MovementArbitrary(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue)
+{
+    if (object->flags & EnforceIntervals)
+    {
+        const float interval = (object->max - object->min) / (object->steps - 1);
+        const float currentPos = (newValue - object->min) / interval;
+        const int32_t newValueIndex = Blrintf(currentPos);
+        newValue = interval * newValueIndex + object->min;
+    }
+
+    M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(entry, object, newValue);
+}
+
 static void M_RunMenuInput_MenuEntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction)
 {
     const float interval = (object->max - object->min) / (object->steps - 1);
@@ -4681,10 +4710,23 @@ static void M_RunMenuInput_MenuEntryRangeFloat_Movement(MenuEntry_t *entry, Menu
     M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(entry, object, interval * newValueIndex + object->min);
 }
 
-static void M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, int32_t newValue)
+static void M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue)
 {
     if (!M_MenuEntryRangeDoubleModify(/*entry, newValue*/))
         *object->variable = newValue;
+}
+
+static void M_RunMenuInput_MenuEntryRangeDouble_MovementArbitrary(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue)
+{
+    if (object->flags & EnforceIntervals)
+    {
+        const double interval = (object->max - object->min) / (object->steps - 1);
+        const double currentPos = (newValue - object->min) / interval;
+        const int32_t newValueIndex = Blrintf(currentPos);
+        newValue = interval * newValueIndex + object->min;
+    }
+
+    M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*entry, */object, newValue);
 }
 
 static void M_RunMenuInput_MenuEntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction)
