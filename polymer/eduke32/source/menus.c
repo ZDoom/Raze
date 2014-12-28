@@ -1446,6 +1446,9 @@ static void M_PreMenu(MenuID_t cm)
             MenuMenu_ChangeEntryList(M_DISPLAYSETUP, MEL_DISPLAYSETUP_GL);
 
         if (getrendermode() != REND_CLASSIC)
+        {
+            vpsize = ud.screen_size + 4*(ud.screen_size>=8 && ud.statusbarmode==0);
+
             for (i = (int32_t) ARRAY_SIZE(MEOSV_DISPLAYSETUP_ANISOTROPY) - 1; i >= 0; --i)
             {
                 if (MEOSV_DISPLAYSETUP_ANISOTROPY[i] <= glinfo.maxanisotropy)
@@ -1454,6 +1457,7 @@ static void M_PreMenu(MenuID_t cm)
                     break;
                 }
             }
+        }
         break;
 
     case MENU_RENDERERSETUP:
