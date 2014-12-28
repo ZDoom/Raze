@@ -171,6 +171,11 @@ Disable printing out the generated code, but validate whether it is
 syntactically legal Lua code. A failure of this check represents a bug with
 LunaCON itself.
 
+`-fnames` (stand-alone only)::
+Instead of generating Lua code, output all ++define++d names that were ever
+passed as tile number to `actor`, `useractor` or `eventloadactor` in a form
+suitable for the `names.h` file read by Mapster32.
+
 `-ferror-nostate` (default: on)::
 If enabled, an attempt to call a `state` that was not previously defined
 results in an error. Otherwise, a warning is issued and no code is generated

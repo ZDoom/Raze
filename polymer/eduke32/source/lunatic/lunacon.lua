@@ -130,6 +130,13 @@ local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
                   ["error-nonlocal-userdef"]=true,
                   ["error-negative-tag-write"]=false, }
 
+if (string.dump) then
+    g_cgopt["names"] = false
+end
+
+-- For -fnames mode.
+local g_actorTileToName = {}
+
 local function csapp() return g_cgopt["cache-sap"] end
 
 local function handle_cmdline_arg(str)
@@ -537,9 +544,29 @@ for i=4,7 do
 end
 
 
+-- Table of functions doing various lookups (label, gamevar, ...)
+local lookup = {}
+
+-- For -fnames mode.
+function on.fnames_tilenum_label(tilenum)
+    if (g_cgopt["names"] and type(tilenum)=="string") then
+        -- <tilenum> may be a string (define label)
+        -- HANDLE_RAWDEFINE
+        local pos, minus, label = tilenum:match("(.-):(.-):(.+)")
+        local realtilenum = lookup.defined_label(tonumber(pos), minus, label)
+
+        g_actorTileToName[realtilenum] = label
+        return true
+    end
+end
+
 function on.actor_end(pos, usertype, tsamm, codetab)
     local tilenum = tsamm[1]
     local flags = 0
+
+    if (on.fnames_tilenum_label(tilenum)) then
+        return
+    end
 
     if (usertype ~= nil) then  -- useractor
         if (not (bit.band(usertype, bit.bnot(7)) == 0)) then
@@ -631,6 +658,10 @@ function on.event_end(pos, eventidx, codetab)
 end
 
 function on.eventloadactor_end(pos, tilenum, codetab)
+    if (on.fnames_tilenum_label(tilenum)) then
+        return
+    end
+
     -- Translate eventloadactor into a chained EVENT_LOADACTOR block
     paddcodef(pos, "gameevent{'LOADACTOR', function (_aci,_pli,_dist)")
     addcode(get_cache_sap_code())
@@ -798,9 +829,6 @@ function reset.labels()
         end
     end
 end
-
--- Table of functions doing various lookups (label, gamevar, ...)
-local lookup = {}
 
 function lookup.defined_label(pos, maybe_minus_str, identifier)
     local num = g_labeldef[identifier]
@@ -1374,6 +1402,7 @@ function Cmd.definesound(sndlabel, fn, ...)
     local sndnum
 
     if (type(sndlabel)=="string") then
+        -- HANDLE_RAWDEFINE
         local pos, minus, label = sndlabel:match("(.-):(.-):(.+)")
         sndnum = lookup.defined_label(tonumber(pos), minus, label)
 
@@ -1707,8 +1736,11 @@ local tok =
     identifier = Var("t_identifier"),
     -- This one matches keywords, too:
     identifier_all = Var("t_identifier_all"),
+
     define = Var("t_define"),
     rawdefine = Var("t_rawdefine"),
+    actordefine = g_cgopt["names"] and Var("t_rawdefine") or Var("t_define"),
+
     move = Var("t_move"),
     ai = Var("t_ai"),
     action = Var("t_action"),
@@ -3275,7 +3307,7 @@ local stmt_list_nosp_or_eps = lpeg.Ct((stmt_list * (sp1 * stmt_list)^0)^-1)
 local common = {}
 
 -- common to actor and useractor: <name/tilenum> [<strength> [<action> [<move> [<flags>... ]]]]
-common.actor_end = sp1 * lpeg.Ct(tok.define *
+common.actor_end = sp1 * lpeg.Ct(tok.actordefine *
     (sp1 * tok.define *
      (sp1 * tok.action *
       (sp1 * tok.move *
@@ -3303,7 +3335,7 @@ local Cblock = {
     -- useractor <actortype> (...)
     useractor = POS() * sp1 * tok.define * common.actor_end / on.actor_end,
     -- eventloadactor <name/tilenum>
-    eventloadactor = POS() * sp1 * tok.define * sp1 * stmt_list_or_eps * "enda"
+    eventloadactor = POS() * sp1 * tok.actordefine * sp1 * stmt_list_or_eps * "enda"
         / on.eventloadactor_end,
 
     onevent = POS() * sp1 * tok.define * sp1 * stmt_list_or_eps * "endevent"
@@ -3897,7 +3929,13 @@ if (string.dump) then
                                      g_directory, filename, errmsg))
             end
 
-            if (lineinfo) then
+            if (g_cgopt["names"]) then
+                for i=0,C.MAXTILES-1 do
+                    if (g_actorTileToName[i]) then
+                        msgfile:write(format("#define %s %d\n", g_actorTileToName[i], i))
+                    end
+                end
+            elseif (lineinfo) then
                 for i=1,#lineinfo.llines do
                     msgfile:write(format("%d -> %s:%d\n", i, lineinfo:getfline(i)))
                 end
