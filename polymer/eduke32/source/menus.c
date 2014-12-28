@@ -4573,7 +4573,7 @@ static int32_t M_RunMenuInput_MenuEntryOption_Activate(MenuEntry_t *entry, MenuO
         return M_RunMenuInput_MenuEntryOption_Movement(entry, object, MM_Right);
     else
     {
-        object->options->currentEntry = object->currentOption;
+        object->options->currentEntry = object->currentOption >= 0 ? object->currentOption : 0;
         M_RunMenuInput_MenuEntryOptionList_MovementVerify(object);
 
         return 0;
