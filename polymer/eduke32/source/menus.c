@@ -3530,6 +3530,9 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             menu->currentEntry = e;
                             M_RunMenuInput_MenuMenu_MovementVerify(menu);
 
+                            if (entry->flags & Disabled)
+                                break;
+
                             M_RunMenuInput_MenuEntryLink_Activate(entry);
 
                             if (g_player[myconnectindex].ps->gm&MODE_MENU) // for skill selection
@@ -3571,6 +3574,9 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                         {
                             menu->currentEntry = e;
                             M_RunMenuInput_MenuMenu_MovementVerify(menu);
+
+                            if (entry->flags & Disabled)
+                                break;
 
                             M_RunMenuInput_MenuEntryOption_Activate(entry, object);
 
@@ -3620,6 +3626,9 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                                 M_RunMenuInput_MenuMenu_MovementVerify(menu);
                                 menu->currentColumn = 1;
 
+                                if (entry->flags & Disabled)
+                                    break;
+
                                 M_RunMenuInput_MenuEntryCustom2Col_Activate(entry);
 
                                 S_PlaySound(PISTOL_BODYHIT);
@@ -3639,6 +3648,9 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                                 menu->currentEntry = e;
                                 M_RunMenuInput_MenuMenu_MovementVerify(menu);
                                 menu->currentColumn = 0;
+
+                                if (entry->flags & Disabled)
+                                    break;
 
                                 M_RunMenuInput_MenuEntryCustom2Col_Activate(entry);
 
@@ -3718,6 +3730,9 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
 
                             menu->currentEntry = e;
                             M_RunMenuInput_MenuMenu_MovementVerify(menu);
+
+                            if (entry->flags & Disabled)
+                                break;
 
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
                             if (M_MouseWithinBounds(&m_mousepos, slideregionx, slidebary, slideregionwidth, height))
@@ -3810,6 +3825,9 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             menu->currentEntry = e;
                             M_RunMenuInput_MenuMenu_MovementVerify(menu);
 
+                            if (entry->flags & Disabled)
+                                break;
+
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
                             if (M_MouseWithinBounds(&m_mousepos, slideregionx, slidebary, slideregionwidth, height))
                             {
@@ -3901,6 +3919,9 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             menu->currentEntry = e;
                             M_RunMenuInput_MenuMenu_MovementVerify(menu);
 
+                            if (entry->flags & Disabled)
+                                break;
+
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
                             if (M_MouseWithinBounds(&m_mousepos, slideregionx, slidebary, slideregionwidth, height))
                             {
@@ -3975,6 +3996,9 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             {
                                 menu->currentEntry = e;
                                 M_RunMenuInput_MenuMenu_MovementVerify(menu);
+
+                                if (entry->flags & Disabled)
+                                    break;
 
                                 M_RunMenuInput_MenuEntryString_Activate(entry);
 
@@ -5219,6 +5243,9 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     case String:
                     {
+                        if (currentry->flags & Disabled)
+                            break;
+
                         if (I_AdvanceTrigger())
                         {
                             I_AdvanceTriggerClear();
