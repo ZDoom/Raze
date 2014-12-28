@@ -221,6 +221,9 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     if (MapInfo[sel].ext_musicfn != NULL)
         alt = fn = MapInfo[sel].ext_musicfn;
 
+    if (fn == NULL)
+        return 0;
+
     testfn = (char *)Xmalloc(strlen(fn) + 6);
     strcpy(testfn, fn);
     extension = strrchr(testfn, '.');
