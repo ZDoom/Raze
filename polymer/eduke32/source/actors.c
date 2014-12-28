@@ -271,8 +271,7 @@ SKIPWALLCHECK:
                             actor[j].extra = hp1 + (krand()%(hp2-hp1));
                         }
 
-                        if (sprite[j].picnum != TANK && sprite[j].picnum != ROTATEGUN && sprite[j].picnum != RECON && sprite[j].picnum != BOSS1 &&
-                            sprite[j].picnum != BOSS2 && sprite[j].picnum != BOSS3 && sprite[j].picnum != BOSS4)
+                        if (!A_CheckSpriteFlags(j, SFLAG_NODAMAGEPUSH))
                         {
                             if (sj->xvel < 0) sj->xvel = 0;
                             sj->xvel += (s->extra<<2);
