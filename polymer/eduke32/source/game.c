@@ -4245,42 +4245,34 @@ static void G_SE40(int32_t smoothratio)
 
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio)
 {
-    if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
+    if (g_mirrorCount > 0
 #ifdef POLYMER
         && (getrendermode() != REND_POLYMER)
 #endif
         )
     {
-        int32_t j, i = 0, k, dst = INT32_MAX;
+        int32_t i = 0, dst = INT32_MAX;
 
-        if (g_mirrorCount==0)
+        for (int32_t k=g_mirrorCount-1; k>=0; k--)
         {
-            // NOTE: We can have g_mirrorCount==0 but gotpic'd MIRROR,
-            // for example in LNGA2.
-            gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
-#ifdef DEBUGGINGAIDS
-            initprintf("Called G_HandleMirror() with g_mirrorCount==0!\n");
-#endif
-            return;
-        }
+            const int32_t j =
+                klabs(wall[g_mirrorWall[k]].x - x) +
+                klabs(wall[g_mirrorWall[k]].y - y);
 
-        for (k=g_mirrorCount-1; k>=0; k--)
-        {
-            j = klabs(wall[g_mirrorWall[k]].x - x);
-            j += klabs(wall[g_mirrorWall[k]].y - y);
-            if (j < dst) dst = j, i = k;
+            if (j < dst)
+                dst = j, i = k;
         }
 
         if (wall[g_mirrorWall[i]].overpicnum != MIRROR)
         {
-            // try to find a new mirror wall
+            // Try to find a new mirror wall in case the original one was broken.
 
             int32_t startwall = sector[g_mirrorSector[i]].wallptr;
             int32_t endwall = startwall + sector[g_mirrorSector[i]].wallnum;
 
-            for (k=startwall; k<endwall; k++)
+            for (int32_t k=startwall; k<endwall; k++)
             {
-                j = wall[k].nextwall;
+                int32_t j = wall[k].nextwall;
                 if (j >= 0 && (wall[j].cstat&32) && wall[j].overpicnum==MIRROR)  // cmp. premap.c
                 {
                     g_mirrorWall[i] = j;
@@ -4296,7 +4288,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 
             preparemirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
 
-            j = g_visibility;
+            int32_t j = g_visibility;
             g_visibility = (j>>1) + (j>>2);
 
             if (getrendermode() == REND_CLASSIC)
