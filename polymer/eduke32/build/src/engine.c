@@ -5643,23 +5643,24 @@ static void drawsprite_classic(int32_t snum)
     int32_t vtilenum = 0;
 
     spritetype *const tspr = tspriteptr[snum];
-
-    const int32_t xb = spritesxyz[snum].x;
-    const int32_t yp = spritesxyz[snum].y;
-    const int32_t spritenum = tspr->owner;
     const int32_t sectnum = tspr->sectnum;
-    const sectortype *const sec = (sectnum>=0) ? &sector[sectnum] : NULL;
-    int32_t tilenum;
-    int32_t cstat = tspr->cstat;
 
-    uint8_t blendidx = tspr->blend;
-    float alpha = spriteext[spritenum].alpha;
-
-    if (sec == NULL)
+    if (sectnum < 0)
         return;
 
     if (bad_tspr(tspr))
         return;
+
+    uint8_t blendidx = tspr->blend;
+    const int32_t xb = spritesxyz[snum].x;
+    const int32_t yp = spritesxyz[snum].y;
+
+    const int32_t spritenum = tspr->owner;
+    const float alpha = spriteext[spritenum].alpha;
+
+    const sectortype *const sec = &sector[sectnum];
+
+    int32_t cstat=tspr->cstat, tilenum;
 
     DO_TILE_ANIM(tspr->picnum, spritenum+32768);
 
