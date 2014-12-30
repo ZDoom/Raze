@@ -9670,11 +9670,7 @@ static int32_t parseconsounds(scriptfile *script)
             }
             g_sounds[sndnum].filename = (char *)Xcalloc(slen+1,sizeof(uint8_t));
             // Hopefully noone does memcpy(..., g_sounds[].filename, BMAX_PATH)
-            if (!g_sounds[sndnum].filename)
-            {
-                Bfree(definedname);
-                return -1;
-            }
+
             Bmemcpy(g_sounds[sndnum].filename, filename, slen+1);
 
             if (scriptfile_getnumber(script, &ps)) goto BAD;

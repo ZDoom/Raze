@@ -13886,7 +13886,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                             continue;
 
                     rxi[0] = x1;
-                    rxi[1] = y1;
+                    ryi[0] = y1;
                     get_floorspr_points(spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
                                         &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
 
