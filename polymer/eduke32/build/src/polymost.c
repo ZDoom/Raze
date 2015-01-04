@@ -3284,17 +3284,22 @@ void polymost_scansector(int32_t sectnum)
             fp2.x = (float)(wal2->x-globalposx); fp2.y = (float)(wal2->y-globalposy);
 
             nextsectnum = wal->nextsector; //Scan close sectors
+
+            if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < ARRAY_SSIZE(sectorborder))
 #ifdef YAX_ENABLE
             if (yax_nomaskpass==0 || !yax_isislandwall(z, !yax_globalcf) || (yax_nomaskdidit=1, 0))
 #endif
-            if ((nextsectnum >= 0) && (!(wal->cstat&32)) && (!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])))
+            if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
             {
                 d = fp1.x*fp2.y - fp2.x*fp1.y;
                 p1.x = fp2.x-fp1.x;
                 p1.y = fp2.y-fp1.y;
 
                 if (d*d <= (p1.x*p1.x + p1.y*p1.y) * (SCISDIST*SCISDIST*260.f))
+                {
                     sectorborder[sectorbordercnt++] = nextsectnum;
+                    gotsector[nextsectnum>>3] |= pow2char[nextsectnum&7];
+                }
             }
 
             if ((z == startwall) || (wall[z-1].point2 != z))

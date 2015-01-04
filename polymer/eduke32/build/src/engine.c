@@ -2678,8 +2678,15 @@ static void scansector(int16_t startsectnum)
 
             const int32_t x1 = wal->x-globalposx, y1 = wal->y-globalposy;
             const int32_t x2 = wal2->x-globalposx, y2 = wal2->y-globalposy;
+
+            // The following block checks for a potential collection of a
+            // sector that is "thin" in screen space. This is necessary because
+            // not all sectors that are needed to be drawn may be collected via
+            // drawalls() -> scansector() (although those are the majority).
+            // Example: standing at exactly the intersection of a large sector
+            // into four quadrant sub-sectors.
 #if 1
-            if (nextsectnum >= 0 && (wal->cstat&32) == 0)
+            if (nextsectnum >= 0 && (wal->cstat&32) == 0 && sectorbordercnt < ARRAY_SSIZE(sectorborder))
 #ifdef YAX_ENABLE
                 if (yax_nomaskpass==0 || !yax_isislandwall(w, !yax_globalcf) || (yax_nomaskdidit=1, 0))
 #endif
@@ -2690,7 +2697,10 @@ static void scansector(int16_t startsectnum)
                     int32_t tempint = temp;
                     if (((uint64_t)tempint+262144) < 524288)  // BXY_MAX?
                         if (mulscale5(tempint,tempint) <= (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
+                        {
                             sectorborder[sectorbordercnt++] = nextsectnum;
+                            gotsector[nextsectnum>>3] |= pow2char[nextsectnum&7];
+                        }
                 }
 #endif
             if (w == startwall || wall[w-1].point2 != w)
@@ -2743,6 +2753,57 @@ skipitaddwall:
     while (sectorbordercnt > 0);
 }
 
+#if DEBUGGINGAIDS >= 2
+// Printing functions for collected scans (called "wall proxies" by
+// http://fabiensanglard.net/duke3d/build_engine_internals.php) and
+// bunches. For use from within the debugger.
+
+void printscans(void)
+{
+    static uint8_t didscan[(MAXWALLSB+7)>>3];
+
+    Bmemset(didscan, 0, sizeof(didscan));
+
+    for (int s=0; s<numscans; s++)
+    {
+        if (bunchp2[s] >= 0 && (didscan[s>>3] & (1<<(s&7)))==0)
+        {
+            printf("scan ");
+
+            int z = s;
+            do
+            {
+                const int cond = (wall[thewall[z]].point2 != thewall[bunchp2[z]] ||
+                                  xb2[z] >= xb1[bunchp2[z]]);
+
+                printf("%s%d(%d) ", cond ? "!" : "", z, thewall[z]);
+
+                if (didscan[z>>3] & (1<<(z&7)))
+                {
+                    printf("*");
+                    break;
+                }
+
+                didscan[z>>3] |= (1<<(z&7));
+                z = bunchp2[z];
+            } while (z >= 0);
+
+            printf("\n");
+        }
+    }
+}
+
+void printbunches(void)
+{
+    for (int bn=0; bn<numbunches; bn++)
+    {
+        printf("bunch %d: ", bn);
+        for (int s=bunchfirst[bn]; s>=0; s=bunchp2[s])
+            printf("%d(%d) ", s, thewall[s]);
+        printf("\n");
+    }
+}
+#endif
 
 ////////// *WALLSCAN HELPERS //////////
 
