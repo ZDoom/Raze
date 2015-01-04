@@ -65,7 +65,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
-// also uncomment ENGINE_CLEAR_SCREEN in build/include/engine_priv.h.
+// also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
 //#define DEBUG_MIRRORS_ONLY
 
 #if KRANDDEBUG

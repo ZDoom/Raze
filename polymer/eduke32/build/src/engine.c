@@ -2540,14 +2540,96 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
     return 0;
 }
 
+static vec2_t get_rel_coords(int32_t x, int32_t y)
+{
+    vec2_t p = {
+        dmulscale6(y,cosglobalang, -x,singlobalang),
+        dmulscale6(x,cosviewingrangeglobalang, y,sinviewingrangeglobalang)
+    };
+
+    return p;
+}
+
+// Note: the returned y coordinates are not actually screen coordinates, but
+// potentially clipped player-relative y coordinates.
+static int get_screen_coords(const vec2_t p1, const vec2_t p2,
+                             int32_t *sx1ptr, int32_t *sy1ptr,
+                             int32_t *sx2ptr, int32_t *sy2ptr)
+{
+    int32_t sx1, sy1, sx2, sy2;
+
+    // First point.
+
+    if (p1.x >= -p1.y)
+    {
+        if (p1.x > p1.y || p1.y == 0)
+            return 0;
+
+        sx1 = halfxdimen + scale(p1.x, halfxdimen, p1.y)
+            + (p1.x >= 0);  // Fix for SIGNED divide
+        if (sx1 >= xdimen)
+            sx1 = xdimen-1;
+
+        sy1 = p1.y;
+    }
+    else
+    {
+        if (p2.x < -p2.y)
+            return 0;
+
+        sx1 = 0;
+
+        int32_t tempint = (p1.x + p1.y) - (p2.x + p2.y);
+        if (tempint == 0)
+            return 0;
+        sy1 = p1.y + scale(p2.y-p1.y, p1.x+p1.y, tempint);
+    }
+
+    if (sy1 < 256)
+        return 0;
+
+    // Second point.
+
+    if (p2.x <= p2.y)
+    {
+        if (p2.x < -p2.y || p2.y == 0)
+            return 0;
+
+        sx2 = halfxdimen + scale(p2.x,halfxdimen,p2.y) - 1
+            + (p2.x >= 0);  // Fix for SIGNED divide
+        if (sx2 >= xdimen)
+            sx2 = xdimen-1;
+
+        sy2 = p2.y;
+    }
+    else
+    {
+        if (p1.x > p1.y)
+            return 0;
+
+        sx2 = xdimen-1;
+
+        int32_t tempint = (p1.y - p1.x) + (p2.x - p2.y);
+        if (tempint == 0)
+            return 0;
+        sy2 = p1.y + scale(p2.y-p1.y, p1.y-p1.x, tempint);
+    }
+
+    if (sy2 < 256 || sx1 > sx2)
+        return 0;
+
+    *sx1ptr = sx1; *sy1ptr = sy1;
+    *sx2ptr = sx2; *sy2ptr = sy2;
+
+    return 1;
+}
+
 //
 // scansector (internal)
 //
 static void scansector(int16_t startsectnum)
 {
-    int32_t tempint;
     int32_t sectorbordercnt;
-    vec2_t p1, p2 ={ 0, 0 };
 
     if (startsectnum < 0)
         return;
@@ -2556,137 +2638,106 @@ static void scansector(int16_t startsectnum)
 
     do
     {
-        int32_t z, startwall, endwall, numscansbefore, scanfirst, bunchfrst;
         const int32_t sectnum = sectorborder[--sectorbordercnt];
-        walltype *wal;
 
 #ifdef YAX_ENABLE
         if (scansector_collectsprites)
 #endif
-        for (z=headspritesect[sectnum]; z>=0; z=nextspritesect[z])
+        for (int32_t i=headspritesect[sectnum]; i>=0; i=nextspritesect[i])
         {
-            const spritetype *const spr = &sprite[z];
+            const spritetype *const spr = &sprite[i];
 
-            if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) &&
-                    (spr->xrepeat > 0) && (spr->yrepeat > 0))
+            if (((spr->cstat&0x8000) == 0 || showinvisibility) &&
+                    spr->xrepeat > 0 && spr->yrepeat > 0)
             {
                 int32_t xs = spr->x-globalposx, ys = spr->y-globalposy;
 
                 if ((spr->cstat&48) || ((coord_t)xs*cosglobalang+(coord_t)ys*singlobalang > 0))
                     if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-xs, sintable[spr->ang&2047],-ys) > 0)
-                        if (engine_addtsprite(z, sectnum))
+                        if (engine_addtsprite(i, sectnum))
                             break;
             }
         }
 
         gotsector[sectnum>>3] |= pow2char[sectnum&7];
 
-        bunchfrst = numbunches;
-        numscansbefore = numscans;
+        const int32_t onumbunches = numbunches;
+        const int32_t onumscans = numscans;
 
-        startwall = sector[sectnum].wallptr;
-        endwall = startwall + sector[sectnum].wallnum;
-        scanfirst = numscans;
-        for (z=startwall,wal=&wall[z]; z<endwall; z++,wal++)
+        const int32_t startwall = sector[sectnum].wallptr;
+        const int32_t endwall = startwall + sector[sectnum].wallnum;
+        int32_t scanfirst = numscans;
+
+        vec2_t p1, p2 = { 0, 0 };
+
+        for (int32_t w=startwall; w<endwall; w++)
         {
+            const walltype *const wal = &wall[w];
             const int32_t nextsectnum = wal->nextsector;
             const walltype *const wal2 = &wall[wal->point2];
 
             const int32_t x1 = wal->x-globalposx, y1 = wal->y-globalposy;
             const int32_t x2 = wal2->x-globalposx, y2 = wal2->y-globalposy;
-
-            if ((nextsectnum >= 0) && ((wal->cstat&32) == 0))
+#if 1
+            if (nextsectnum >= 0 && (wal->cstat&32) == 0)
 #ifdef YAX_ENABLE
-                if (yax_nomaskpass==0 || !yax_isislandwall(z, !yax_globalcf) || (yax_nomaskdidit=1, 0))
+                if (yax_nomaskpass==0 || !yax_isislandwall(w, !yax_globalcf) || (yax_nomaskdidit=1, 0))
 #endif
                 if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
                 {
                     // OV: E2L10
                     coord_t temp = (coord_t)x1*y2-(coord_t)x2*y1;
-                    tempint = temp;
+                    int32_t tempint = temp;
                     if (((uint64_t)tempint+262144) < 524288)  // BXY_MAX?
                         if (mulscale5(tempint,tempint) <= (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
                             sectorborder[sectorbordercnt++] = nextsectnum;
                 }
-
-            if ((z == startwall) || (wall[z-1].point2 != z))
-            {
-                p1.x = dmulscale6(y1,cosglobalang,-x1,singlobalang);
-                p1.y = dmulscale6(x1,cosviewingrangeglobalang,y1,sinviewingrangeglobalang);
-            }
+#endif
+            if (w == startwall || wall[w-1].point2 != w)
+                p1 = get_rel_coords(x1, y1);
             else
                 p1 = p2;
 
-            p2.x = dmulscale6(y2,cosglobalang,-x2,singlobalang);
-            p2.y = dmulscale6(x2,cosviewingrangeglobalang,y2,sinviewingrangeglobalang);
-            if ((p1.y < 256) && (p2.y < 256)) goto skipitaddwall;
+            p2 = get_rel_coords(x2, y2);
 
-            //If wall's NOT facing you
-            if (dmulscale32(p1.x, p2.y,-p2.x, p1.y) >= 0) goto skipitaddwall;
+            if (p1.y < 256 && p2.y < 256)
+                goto skipitaddwall;
 
-            if (p1.x >= -p1.y)
-            {
-                if ((p1.x > p1.y) || (p1.y == 0)) goto skipitaddwall;
-                xb1[numscans] = halfxdimen + scale(p1.x,halfxdimen,p1.y);
-                if (p1.x >= 0) xb1[numscans]++;   //Fix for SIGNED divide
-                if (xb1[numscans] >= xdimen) xb1[numscans] = xdimen-1;
-                yb1[numscans] = p1.y;
-            }
-            else
-            {
-                if (p2.x < -p2.y) goto skipitaddwall;
-                xb1[numscans] = 0;
-                tempint = (p1.x + p1.y) - (p2.x + p2.y);
-                if (tempint == 0) goto skipitaddwall;
-                yb1[numscans] = p1.y + scale(p2.y-p1.y,p1.x+p1.y,tempint);
-            }
-            if (yb1[numscans] < 256) goto skipitaddwall;
+            // If wall's NOT facing you
+            if (dmulscale32(p1.x, p2.y, -p2.x, p1.y) >= 0)
+                goto skipitaddwall;
 
-            if (p2.x <= p2.y)
+            if (get_screen_coords(p1, p2, &xb1[numscans], &yb1[numscans], &xb2[numscans], &yb2[numscans]))
             {
-                if ((p2.x < -p2.y) || (p2.y == 0)) goto skipitaddwall;
-                xb2[numscans] = halfxdimen + scale(p2.x,halfxdimen,p2.y) - 1;
-                if (p2.x >= 0) xb2[numscans]++;   //Fix for SIGNED divide
-                if (xb2[numscans] >= xdimen) xb2[numscans] = xdimen-1;
-                yb2[numscans] = p2.y;
+                // Made it all the way!
+                thesector[numscans] = sectnum; thewall[numscans] = w;
+                rx1[numscans] = p1.x; ry1[numscans] = p1.y;
+                rx2[numscans] = p2.x; ry2[numscans] = p2.y;
+                bunchp2[numscans] = numscans+1;
+                numscans++;
             }
-            else
-            {
-                if (p1.x > p1.y) goto skipitaddwall;
-                xb2[numscans] = xdimen-1;
-                tempint = (p1.y - p1.x) + (p2.x - p2.y);
-                if (tempint == 0) goto skipitaddwall;
-                yb2[numscans] = p1.y + scale(p2.y-p1.y,p1.y-p1.x,tempint);
-            }
-            if ((yb2[numscans] < 256) || (xb1[numscans] > xb2[numscans])) goto skipitaddwall;
 
-            //Made it all the way!
-            thesector[numscans] = sectnum; thewall[numscans] = z;
-            rx1[numscans] = p1.x; ry1[numscans] = p1.y;
-            rx2[numscans] = p2.x; ry2[numscans] = p2.y;
-            bunchp2[numscans] = numscans+1;
-            numscans++;
 skipitaddwall:
-
-            if ((wall[z].point2 < z) && (scanfirst < numscans))
+            if (wall[w].point2 < w && scanfirst < numscans)
                 bunchp2[numscans-1] = scanfirst, scanfirst = numscans;
         }
 
-        for (z=numscansbefore; z<numscans; z++)
-            if ((wall[thewall[z]].point2 != thewall[bunchp2[z]]) || (xb2[z] >= xb1[bunchp2[z]]))
+        for (int32_t s=onumscans; s<numscans; s++)
+            if (wall[thewall[s]].point2 != thewall[bunchp2[s]] || xb2[s] >= xb1[bunchp2[s]])
             {
-                bunchfirst[numbunches++] = bunchp2[z], bunchp2[z] = -1;
+                bunchfirst[numbunches++] = bunchp2[s], bunchp2[s] = -1;
 #ifdef YAX_ENABLE
                 if (scansector_retfast)
                     return;
 #endif
             }
 
-        for (z=bunchfrst; z<numbunches; z++)
+        for (int32_t bn=onumbunches; bn<numbunches; bn++)
         {
-            int32_t zz;
-            for (zz=bunchfirst[z]; bunchp2[zz]>=0; zz=bunchp2[zz]);
-            bunchlast[z] = zz;
+            int32_t s;
+            for (s=bunchfirst[bn]; bunchp2[s]>=0; s=bunchp2[s])
+                /* do nothing */;
+            bunchlast[bn] = s;
         }
     }
     while (sectorbordercnt > 0);
@@ -5916,84 +5967,49 @@ draw_as_face_sprite:
     }
     else if ((cstat&48) == 16)
     {
-        int32_t sx1, sx2, sy1, sy2;
-
-        if ((cstat&4) > 0) xoff = -xoff;
-        if ((cstat&8) > 0) yoff = -yoff;
-
         const int32_t xspan = tilesiz[tilenum].x;
         const int32_t yspan = tilesiz[tilenum].y;
         const int32_t xv = tspr->xrepeat*sintable[(tspr->ang+2560+1536)&2047];
         const int32_t yv = tspr->xrepeat*sintable[(tspr->ang+2048+1536)&2047];
-        i = (xspan>>1)+xoff;
+
+        if ((cstat&4) > 0) xoff = -xoff;
+        if ((cstat&8) > 0) yoff = -yoff;
+
+        i = (xspan>>1) + xoff;
         x1 = tspr->x-globalposx-mulscale16(xv,i); x2 = x1+mulscale16(xv,xspan);
         y1 = tspr->y-globalposy-mulscale16(yv,i); y2 = y1+mulscale16(yv,xspan);
 
-        yp1 = dmulscale6(x1,cosviewingrangeglobalang,y1,sinviewingrangeglobalang);
-        yp2 = dmulscale6(x2,cosviewingrangeglobalang,y2,sinviewingrangeglobalang);
-        if ((yp1 <= 0) && (yp2 <= 0)) return;
-        xp1 = dmulscale6(y1,cosglobalang,-x1,singlobalang);
-        xp2 = dmulscale6(y2,cosglobalang,-x2,singlobalang);
+        vec2_t p1 = get_rel_coords(x1, y1);
+        vec2_t p2 = get_rel_coords(x2, y2);
+
+        if (p1.y <= 0 && p2.y <= 0)
+            return;
 
         x1 += globalposx; y1 += globalposy;
         x2 += globalposx; y2 += globalposy;
 
         int32_t swapped = 0;
-        if (dmulscale32(xp1,yp2,-xp2,yp1) >= 0)  //If wall's NOT facing you
+        if (dmulscale32(p1.x, p2.y, -p2.x, p1.y) >= 0)  // If wall's NOT facing you
         {
-            if ((cstat&64) != 0) return;
-            i = xp1, xp1 = xp2, xp2 = i;
-            i = yp1, yp1 = yp2, yp2 = i;
+            if ((cstat&64) != 0)
+                return;
+
+            const vec2_t pt = p2;
+            p2 = p1;
+            p1 = pt;
             i = x1, x1 = x2, x2 = i;
             i = y1, y1 = y2, y2 = i;
             swapped = 1;
         }
 
-        if (xp1 >= -yp1)
-        {
-            if (xp1 > yp1) return;
-
-            if (yp1 == 0) return;
-            sx1 = halfxdimen + scale(xp1,halfxdimen,yp1);
-            if (xp1 >= 0) sx1++;   //Fix for SIGNED divide
-            if (sx1 >= xdimen) sx1 = xdimen-1;
-            sy1 = yp1;
-        }
-        else
-        {
-            if (xp2 < -yp2) return;
-            sx1 = 0;
-            i = yp1-yp2+xp1-xp2;
-            if (i == 0) return;
-            sy1 = yp1 + scale(yp2-yp1,xp1+yp1,i);
-        }
-        if (xp2 <= yp2)
-        {
-            if (xp2 < -yp2) return;
-
-            if (yp2 == 0) return;
-            sx2 = halfxdimen + scale(xp2,halfxdimen,yp2) - 1;
-            if (xp2 >= 0) sx2++;   //Fix for SIGNED divide
-            if (sx2 >= xdimen) sx2 = xdimen-1;
-            sy2 = yp2;
-        }
-        else
-        {
-            if (xp1 > yp1) return;
-
-            sx2 = xdimen-1;
-            i = xp2-xp1+yp1-yp2;
-            if (i == 0) return;
-            sy2 = yp1 + scale(yp2-yp1,yp1-xp1,i);
-        }
-
-        if ((sy1 < 256) || (sy2 < 256) || (sx1 > sx2))
+        int32_t sx1, sx2, sy1, sy2;
+        if (!get_screen_coords(p1, p2, &sx1, &sy1, &sx2, &sy2))
             return;
 
-        const int32_t topinc = -mulscale10(yp1,xspan);
-        int32_t top = (((mulscale10(xp1,xdimen) - mulscale9(sx1-halfxdimen,yp1))*xspan)>>3);
-        const int32_t botinc = ((yp2-yp1)>>8);
-        int32_t bot = mulscale11(xp1-xp2,xdimen) + mulscale2(sx1-halfxdimen,botinc);
+        const int32_t topinc = -mulscale10(p1.y,xspan);
+        int32_t top = ((mulscale10(p1.x,xdimen) - mulscale9(sx1-halfxdimen,p1.y))*xspan)>>3;
+        const int32_t botinc = (p2.y-p1.y)>>8;
+        int32_t bot = mulscale11(p1.x-p2.x,xdimen) + mulscale2(sx1-halfxdimen,botinc);
 
         j = sx2+3;
         z = mulscale20(top,krecipasm(bot));
@@ -6020,14 +6036,14 @@ draw_as_face_sprite:
         }
 
         // XXX: UNUSED?
-        rx1[MAXWALLSB-1] = xp1; ry1[MAXWALLSB-1] = yp1;
-        rx2[MAXWALLSB-1] = xp2; ry2[MAXWALLSB-1] = yp2;
+        rx1[MAXWALLSB-1] = p1.x; ry1[MAXWALLSB-1] = p1.y;
+        rx2[MAXWALLSB-1] = p2.x; ry2[MAXWALLSB-1] = p2.y;
 
         setup_globals_sprite1(tspr, sec, yspan, yoff, tilenum, cstat, &z1, &z2);
 
-        if (((sec->ceilingstat&1) == 0) && (z1 < sec->ceilingz))
+        if ((sec->ceilingstat&1) == 0 && z1 < sec->ceilingz)
             z1 = sec->ceilingz;
-        if (((sec->floorstat&1) == 0) && (z2 > sec->floorz))
+        if ((sec->floorstat&1) == 0 && z2 > sec->floorz)
             z2 = sec->floorz;
 
         xb1[MAXWALLSB-1] = sx1;
@@ -6096,7 +6112,8 @@ draw_as_face_sprite:
         {
             j = smostwall[i];
 
-            if ((xb1[j] > sx2) || (xb2[j] < sx1)) continue;
+            if (xb1[j] > sx2 || xb2[j] < sx1)
+                continue;
 
             int32_t dalx2 = xb1[j];
             int32_t darx2 = xb2[j];
@@ -8802,20 +8819,23 @@ int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy,
 //
 static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
 {
-    int32_t dx, dy, ox, oy, x1, y1;
-    char first;
+    const int32_t x1 = clipit[w].x1, dx = clipit[w].x2-x1;
+    const int32_t y1 = clipit[w].y1, dy = clipit[w].y2-y1;
+    const int32_t ox = ksgn(-dy), oy = ksgn(dx);
+    char first = (klabs(dx) <= klabs(dy));
 
-    x1 = clipit[w].x1; dx = clipit[w].x2-x1;
-    y1 = clipit[w].y1; dy = clipit[w].y2-y1;
-    ox = ksgn(-dy); oy = ksgn(dx);
-    first = (klabs(dx) <= klabs(dy));
-
-    do
+    while (1)
     {
-        if (dx*(*y-y1) > (*x-x1)*dy) return;
-        if (first == 0) *x += ox; else *y += oy;
+        if (dx*(*y-y1) > (*x-x1)*dy)
+            return;
+
+        if (first == 0)
+            *x += ox;
+        else
+            *y += oy;
+
         first ^= 1;
-    } while (1);
+    }
 }
 
 
@@ -8824,26 +8844,38 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
 //
 static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
 {
-    int32_t x1, y1, x2, y2, bot, topu, nintx, ninty, cnt, z, hitwall;
-    int32_t x21, y21, x43, y43;
+    int32_t hitwall = -1;
 
-    hitwall = -1;
-    for (z=clipnum-1; z>=0; z--)
+    for (int32_t z=clipnum-1; z>=0; z--)
     {
-        x1 = clipit[z].x1; x2 = clipit[z].x2; x21 = x2-x1;
-        y1 = clipit[z].y1; y2 = clipit[z].y2; y21 = y2-y1;
+        const int32_t x1 = clipit[z].x1, x2 = clipit[z].x2, x21 = x2-x1;
+        const int32_t y1 = clipit[z].y1, y2 = clipit[z].y2, y21 = y2-y1;
 
-        topu = x21*(y3-y1) - (x3-x1)*y21; if (topu <= 0) continue;
-        if (x21*(*y4-y1) > (*x4-x1)*y21) continue;
-        x43 = *x4-x3; y43 = *y4-y3;
-        if (x43*(y1-y3) > (x1-x3)*y43) continue;
-        if (x43*(y2-y3) <= (x2-x3)*y43) continue;
-        bot = x43*y21 - x21*y43; if (bot == 0) continue;
+        int32_t topu = x21*(y3-y1) - (x3-x1)*y21;
+        if (topu <= 0)
+            continue;
 
-        cnt = 256;
+        if (x21*(*y4-y1) > (*x4-x1)*y21)
+            continue;
+
+        const int32_t x43 = *x4-x3;
+        const int32_t y43 = *y4-y3;
+
+        if (x43*(y1-y3) > (x1-x3)*y43)
+            continue;
+
+        if (x43*(y2-y3) <= (x2-x3)*y43)
+            continue;
+
+        const int32_t bot = x43*y21 - x21*y43;
+        if (bot == 0)
+            continue;
+
+        int32_t cnt = 256, nintx, ninty;
+
         do
         {
-            cnt--; if (cnt < 0) { *x4 = x3; *y4 = y3; return(z); }
+            cnt--; if (cnt < 0) { *x4 = x3; *y4 = y3; return z; }
             nintx = x3 + scale(x43,topu,bot);
             ninty = y3 + scale(y43,topu,bot);
             topu--;
@@ -8853,7 +8885,8 @@ static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
         if (klabs(x3-nintx)+klabs(y3-ninty) < klabs(x3-*x4)+klabs(y3-*y4))
             { *x4 = nintx; *y4 = ninty; hitwall = z; }
     }
-    return(hitwall);
+
+    return hitwall;
 }
 
 
@@ -13589,13 +13622,12 @@ int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
                   int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype,
                   uint8_t noslidep)
 {
-    int32_t ret;
     const int32_t oboxtracenum = clipmoveboxtracenum;
 
     if (noslidep)
         clipmoveboxtracenum = 1;
-    ret = clipmove(pos, sectnum, xvect, yvect,
-                   walldist, ceildist, flordist, cliptype);
+    int32_t ret = clipmove(pos, sectnum, xvect, yvect,
+                           walldist, ceildist, flordist, cliptype);
     clipmoveboxtracenum = oboxtracenum;
 
     return ret;
