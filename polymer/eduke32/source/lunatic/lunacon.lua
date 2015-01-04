@@ -3546,6 +3546,8 @@ local Grammar = Pat{
                            + Range("09")^1)
                              ) / parse_number,
 
+    -- TODO: negated gamevars. Currently, "-var" is parsed as a negated label.
+
     t_identifier_all = lpeg.C(t_broken_identifier + t_good_identifier),
     -- NOTE: -conl.keyword alone would be wrong, e.g. "state breakobject":
     -- NOTE 2: The + "[" is so that stuff like

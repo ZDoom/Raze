@@ -1,0 +1,86 @@
+
+// Inputs to "state checknearwall".
+gamevar wd 128 0  // wall distance
+gamevar cfd 1024 0  // ceiling/floor distance
+
+// Outputs of "state checknearwall".
+gamevar hitwall -1 0
+
+// Temporary variables.
+gamevar tmp 0 0
+gamevar ret 0 0
+gamevar x 0 0
+gamevar y 0 0
+gamevar z 0 0
+gamevar sectnum 0 0
+
+define CM_BLK_WAL 1
+
+state getcoords
+    setvarvar x sprite[THISACTOR].x
+    setvarvar y sprite[THISACTOR].y
+    setvarvar z sprite[THISACTOR].z
+    setvarvar sectnum sprite[THISACTOR].sectnum
+ends
+
+// Inputs: (wd, cfd)
+// Returns: hitwall
+//  -1: hit no wall
+// >=0: hit that wall
+state checknearwall
+    setvar hitwall -1
+
+    setvarvar tmp wd, shiftvarl tmp 14
+
+    state getcoords
+    clipmovenoslide ret (x, y, z, sectnum) (tmp, 0) (wd, cfd, cfd) CM_BLK_WAL
+    ifvarn ret 0 { setvarvar hitwall ret, subvar hitwall 32768, break }
+
+    state getcoords
+    clipmovenoslide ret (x, y, z, sectnum) (0, tmp) (wd, cfd, cfd) CM_BLK_WAL
+    ifvarn ret 0 { setvarvar hitwall ret, subvar hitwall 32768, break }
+
+    mulvar tmp -1
+
+    state getcoords
+    clipmovenoslide ret (x, y, z, sectnum) (tmp, 0) (wd, cfd, cfd) CM_BLK_WAL
+    ifvarn ret 0 { setvarvar hitwall ret, subvar hitwall 32768, break }
+
+    state getcoords
+    clipmovenoslide ret (x, y, z, sectnum) (0, tmp) (wd, cfd, cfd) CM_BLK_WAL
+    ifvarn ret 0 { setvarvar hitwall ret, subvar hitwall 32768, break }
+ends
+
+////////// Example usage //////////
+
+onevent EVENT_PROCESSINPUT
+    state checknearwall
+endevent
+
+
+define Q_tmp 500
+definequote Q_tmp <write on me>
+
+define Q_no 501
+definequote Q_no Hit no wall
+
+define Q_yes 502
+definequote Q_yes Hit wall %d
+
+define Q_info 503
+definequote Q_info pos: %d %d %d sect: %d
+
+onevent EVENT_DISPLAYREST
+    qsprintf Q_tmp Q_info, x y z sectnum
+    minitext (100, 8) Q_tmp (0, 0)
+
+    ifvarn hitwall -1
+    {
+        qsprintf Q_tmp Q_yes hitwall
+        minitext (100, 16) Q_tmp (0, 0)
+    }
+    else
+    {
+        minitext (100, 16) Q_no (0, 0)
+    }
+endevent

@@ -2330,8 +2330,8 @@ static int32_t colnext[256];
 static char coldist[8] = {0,1,2,3,4,3,2,1};
 static int32_t colscan[27];
 
-static int16_t clipnum, hitwalls[4];
-const int32_t hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
+static int16_t clipnum;
+static const int32_t hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
 #ifdef USE_OPENGL
 int32_t hitallsprites = 0;
 #endif
@@ -13611,7 +13611,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
     int32_t i, j, k, tempint1, tempint2;
     int32_t x1, y1, x2, y2;
     int32_t dax, day;
-    int32_t hitwall, cnt, retval=0;
+    int32_t retval=0;
 
     spritetype *curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
     int32_t curidx=-1, clipsectcnt, clipspritecnt;
@@ -13933,8 +13933,9 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
     }
 #endif
 
-    hitwall = 0;
-    cnt = clipmoveboxtracenum;
+    int32_t hitwalls[4], hitwall;
+    int32_t cnt = clipmoveboxtracenum;
+
     do
     {
         int32_t intx=goalx, inty=goaly;
@@ -13977,7 +13978,8 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             xvect = (goalx-intx)<<14;
             yvect = (goaly-inty)<<14;
 
-            if (cnt == clipmoveboxtracenum) retval = clipobjectval[hitwall];
+            if (cnt == clipmoveboxtracenum)
+                retval = (uint16_t)clipobjectval[hitwall];
             hitwalls[cnt] = hitwall;
         }
         cnt--;

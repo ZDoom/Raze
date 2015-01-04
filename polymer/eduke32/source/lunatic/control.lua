@@ -1539,7 +1539,7 @@ end
 function _clipmovex(x, y, z, sectnum, xv, yv, wd, cd, fd, clipmask, noslidep)
     check_sector_idx(sectnum)
     local ipos = ivec3(x, y, z)
-    local sect = ffi.new("int16_t [1]")
+    local sect = ffi.new("int16_t [1]", sectnum)
     local ret = ffiC.clipmovex(ipos, sect, xv, yv, wd, cd, fd, clipmask, noslidep)
     -- Return: clipmovex() return value; updated x, y, sectnum
     return ret, ipos.x, ipos.y, sect[0]
