@@ -9673,12 +9673,12 @@ killsprite:
     }
 
     {
-        int32_t j, l, gap, ys;
+        int32_t gap, ys;
 
         gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
         for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
             for (i=0; i<spritesortcnt-gap; i++)
-                for (l=i; l>=0; l-=gap)
+                for (int32_t l=i; l>=0; l-=gap)
                 {
                     if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
                     swaplong(&tspriteptr[l],&tspriteptr[l+gap]);
@@ -9690,7 +9690,7 @@ killsprite:
             spritesxyz[spritesortcnt].y = (spritesxyz[spritesortcnt-1].y^1);
 
         ys = spritesxyz[0].y; i = 0;
-        for (j=1; j<=spritesortcnt; j++)
+        for (int32_t j=1; j<=spritesortcnt; j++)
         {
             if (spritesxyz[j].y == ys)
                 continue;
@@ -9699,11 +9699,7 @@ killsprite:
 
             if (j > i+1)
             {
-                int32_t k;
-                vec3_t tv3;
-                vec2_t tv2;
-
-                for (k=i; k<j; k++)
+                for (int32_t k=i; k<j; k++)
                 {
                     const spritetype *const s = tspriteptr[k];
 
@@ -9722,24 +9718,14 @@ killsprite:
                     }
                 }
 
-                for (k=i+1; k<j; k++)
-                    for (l=i; l<k; l++)
+                for (int32_t k=i+1; k<j; k++)
+                    for (int32_t l=i; l<k; l++)
                         if (klabs(spritesxyz[k].z-globalposz) < klabs(spritesxyz[l].z-globalposz))
                         {
                             swaplong(&tspriteptr[k],&tspriteptr[l]);
-                            tv3 = spritesxyz[k];
+                            vec3_t tv3 = spritesxyz[k];
                             spritesxyz[k] = spritesxyz[l];
                             spritesxyz[l] = tv3;
-                        }
-
-                for (k=i+1; k<j; k++)
-                    for (l=i; l<k; l++)
-                        if (tspriteptr[k]->statnum < tspriteptr[l]->statnum)
-                        {
-                            swaplong(&tspriteptr[k],&tspriteptr[l]);
-                            tv2 = *(vec2_t *)&spritesxyz[k];
-                            *(vec2_t *)&spritesxyz[k] = *(vec2_t *)&spritesxyz[l];
-                            *(vec2_t *)&spritesxyz[l] = tv2;
                         }
             }
             i = j;
