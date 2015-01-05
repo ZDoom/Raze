@@ -4245,12 +4245,20 @@ static void G_SE40(int32_t smoothratio)
 
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio)
 {
-    if (g_mirrorCount > 0
+    if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
 #ifdef POLYMER
         && (getrendermode() != REND_POLYMER)
 #endif
         )
     {
+        if (g_mirrorCount == 0)
+        {
+            // NOTE: We can have g_mirrorCount==0 but gotpic'd MIRROR,
+            // for example in LNGA2.
+            gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+            return;
+        }
+
         int32_t i = 0, dst = INT32_MAX;
 
         for (int32_t k=g_mirrorCount-1; k>=0; k--)
