@@ -1007,6 +1007,7 @@ function check.reserved_bits(flags, allowedbits, suffix)
     end
 end
 
+-- KEEPINSYNC control.lua
 Define.ALLOWED_VIEWTYPE = truetab { 0, 1, 2, 3,4, 5, 7, 8, -5, -7 }
 
 function Define.composite(labeltype, identifier, ...)

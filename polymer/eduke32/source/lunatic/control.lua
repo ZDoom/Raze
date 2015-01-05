@@ -102,8 +102,9 @@ local function truetab(tab)
     end
     return ttab
 end
--- CODEDUP lunacon.lua
-local ALLOWED_VIEWTYPE = truetab { 0, 1, 3,4, 5, 7, 8, -5, -7 }
+
+-- KEEPINSYNC lunacon.lua
+local ALLOWED_VIEWTYPE = truetab { 0, 1, 2, 3,4, 5, 7, 8, -5, -7 }
 
 local function def_action_or_move(what, tab)
     if (lastid[what] <= -(2^31)) then
