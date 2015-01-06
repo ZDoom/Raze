@@ -137,14 +137,18 @@ int32_t editorgridextent = 131072;
 #define MAXYSIZ 256
 #define MAXZSIZ 255
 #define MAXVOXMIPS 5
-#define DISTRECIPSIZ (65536+256)
+#ifdef EDUKE32_TOUCH_DEVICES
+# define DISTRECIPSIZ (65536+256)
+#else
+# define DISTRECIPSIZ 131072
+#endif
 intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild
 static char voxlock[MAXVOXELS][MAXVOXMIPS];
 int32_t voxscale[MAXVOXELS];
 
 static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
 static int32_t lowrecip[1024], nytooclose;
-static const int32_t nytoofar = 65536*16384-1048576;
+static const int32_t nytoofar = DISTRECIPSIZ*16384ull - 1048576;
 static uint32_t *distrecip;
 
 static int32_t *lookups = NULL;
@@ -8107,7 +8111,7 @@ static void dosetaspect(void)
             for (i=1; i<DISTRECIPSIZ; i++)
                 distrecip[i] = (xdimen < 1<<11) ?
                     tabledivide32(xdimen<<20, i) :
-                    tabledivide64((uint64_t)xdimen<<20, i);
+                    tabledivide64((uint64_t)xdimen<<20, i);  // XXX
 
             nytooclose = xdimen*2100;
         }
