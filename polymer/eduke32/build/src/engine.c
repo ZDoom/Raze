@@ -13912,7 +13912,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 {
                     const int32_t daz = spr->z + spriteheightofs(j, &k, 1);
 
-                    if ((pos->z < daz+ceildist) && (pos->z > daz-k-flordist))
+                    if (pos->z > daz-k-flordist && pos->z < daz+ceildist)
                     {
                         int32_t bsz;
                         bsz = (spr->clipdist<<2)+walldist; if (gx < 0) bsz = -bsz;
@@ -13925,10 +13925,9 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
             case 16:
             {
-                const int32_t daz = spr->z + spriteheightofs(j, &k, 1) + ceildist;
-                const int32_t daz2 = daz-k - flordist;
+                const int32_t daz = spr->z + spriteheightofs(j, &k, 1);
 
-                if (pos->z < daz && pos->z > daz2)
+                if (pos->z > daz-k-flordist && pos->z < daz+ceildist)
                 {
                     get_wallspr_points(spr, &x1, &x2, &y1, &y2);
 
@@ -13959,10 +13958,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
             case 32:
             {
-                const int32_t daz = spr->z + ceildist;
-                const int32_t daz2 = spr->z - flordist;
-
-                if (pos->z < daz && pos->z > daz2)
+                if (pos->z > spr->z - flordist && pos->z < spr->z + ceildist)
                 {
                     if ((cstat&64) != 0)
                         if ((pos->z > spr->z) == ((cstat&8)==0))
