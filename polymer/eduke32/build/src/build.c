@@ -489,14 +489,28 @@ void M32_ResetFakeRORTiles(void)
 
 void M32_DrawRoomsAndMasks(void)
 {
+    static int srchwall = -1;
+
     VM_OnEvent(EVENT_PREDRAW3DSCREEN, -1);
 
     yax_preparedrawrooms();
     drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
     yax_drawrooms(CallExtAnalyzeSprites, cursectnum, 0, 0);
 
+    const int osearchwall=searchwall, osearchstat=searchstat;
+    if (srchwall >= 0)
+    {
+        // a.m32 states 'tduprot' and 'tduplin' need searchstat to check for
+        // whether we've hit a sprite, but these would be only set after the
+        // drawmasks(). Hence this hackish workaround.
+        searchstat = 3;
+        searchwall = srchwall;
+    }
     CallExtAnalyzeSprites(0,0,0,0);
+    searchwall = osearchwall, searchstat=osearchstat;
+
     drawmasks();
+    srchwall = (searchstat == 3) ? searchwall : -1;
     M32_ResetFakeRORTiles();
 
 #ifdef POLYMER

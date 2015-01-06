@@ -366,6 +366,7 @@ skip_check:
             return 1;
         case CON_BREAK:
             vm.flags |= VMFLAG_BREAK;
+            // XXX: may not be cleared subsequently?
         case CON_ENDS:
             return 1;
 

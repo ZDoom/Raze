@@ -5021,7 +5021,7 @@ static void Keys3d(void)
                 {
                     if (ASSERT_AIMING)
                     {
-                        if (AIMING_AT_SPRITE && (show2dsprite[searchwall>>3]&(1<<(searchwall&7))))
+                        if (!eitherSHIFT && AIMING_AT_SPRITE && (show2dsprite[searchwall>>3]&(1<<(searchwall&7))))
                         {
                             for (i=0; i<highlightcnt; i++)
                                 if (highlight[i]&16384)

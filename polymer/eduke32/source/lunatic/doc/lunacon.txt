@@ -33,7 +33,7 @@ correctness in a broad sense, which encompasses multiple issues.
 * On the run-time side, most checking is done by Lunatic. For example, indexing
   actor gamevars with out-of-bounds values produces an error that gets
   permanently displayed on the screen. Like with Lua code, the
-  link:lunatic.html/#error[error] entry in the log then contains a traceback
+  link:lunatic.html#error[error] entry in the log then contains a traceback
   annotated with line numbers, making it possible for the CON coder to pinpoint
   its location and context.
 
@@ -313,7 +313,7 @@ Behavior on error
 As LunaCON is implemented by translating all given CON code to a Lunatic
 module, it is the Lunatic runtime that checks for proper use of its services at
 execution time and takes care of error handling and reporting. In Lua, an error
-link:lunatic.html/#nlcf[transfers control] to the end of the innermost
+link:lunatic.html#nlcf[transfers control] to the end of the innermost
 ``protected'' call of a Lua chunk.
 
 This is in contrast to C-CON, which for some errors would print a message to

@@ -1121,7 +1121,7 @@ defstate respawnpreview
     ife showrespawn_always 0
     {
         ifaimingsprite ife sprite[searchwall].picnum RESPAWN nullop
-        else break
+        else return
     }
 
     set onumtspr spritesortcnt
