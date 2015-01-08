@@ -82,6 +82,14 @@ float debug1, debug2;
 
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
+uint8_t g_loadedMapMD4[16];
+
+int32_t compare_usermaphacks(const void *a, const void *b)
+{
+    return Bmemcmp(((usermaphack_t*) a)->md4, ((usermaphack_t*) b)->md4, 16);
+}
+usermaphack_t *usermaphacks;
+int32_t num_usermaphacks;
 
 static int32_t get_mapversion(void);
 
@@ -9225,6 +9233,15 @@ void uninitengine(void)
 #endif
 
     uninitsystem();
+
+    for (i = 0; i < num_usermaphacks; i++)
+    {
+        if (usermaphacks[i].mhkfile)
+            Bfree(usermaphacks[i].mhkfile);
+        if (usermaphacks[i].title)
+            Bfree(usermaphacks[i].title);
+    }
+    Bfree(usermaphacks);
 }
 
 
@@ -10586,6 +10603,8 @@ static void check_sprite(int32_t i)
 LUNATIC_CB int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 #endif
 
+#include "md4.h"
+
 // flags: 1, 2: former parameter "fromwhere"
 //           4: don't call polymer_loadboard
 //           8: don't autoexec <mapname>.cfg
@@ -10733,6 +10752,13 @@ int32_t loadboard(const char *filename, char flags, vec3_t *dapos, int16_t *daan
 #ifdef NEW_MAP_FORMAT
 skip_reading_mapbin:
 #endif
+
+    klseek(fil, 0, SEEK_SET);
+    int32_t boardsize = kfilelength(fil);
+    uint8_t *fullboard = (uint8_t*)Xmalloc(boardsize);
+    kread(fil, fullboard, boardsize);
+    md4once(fullboard, boardsize, g_loadedMapMD4);
+
     kclose(fil);
     // Done reading file.
 
@@ -10782,6 +10808,8 @@ skip_reading_mapbin:
         // Per-map ART
         E_MapArt_Setup(filename);
     }
+
+    // initprintf("Loaded map \"%s\" (md4sum: %08x%08x%08x%08x)\n", filename, B_BIG32(*((int32_t*)&md4out[0])), B_BIG32(*((int32_t*)&md4out[4])), B_BIG32(*((int32_t*)&md4out[8])), B_BIG32(*((int32_t*)&md4out[12])));
 
     return finish_loadboard(dapos, dacursectnum, numsprites, myflags);
 }
@@ -18009,7 +18037,7 @@ void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace)
     hashitem_t *cur, *prev=NULL;
     int32_t code;
 
-    if (t->items == NULL)
+    if (EDUKE32_PREDICT_FALSE(t->items == NULL))
     {
         initprintf("hash_add(): table not initialized!\n");
         return;

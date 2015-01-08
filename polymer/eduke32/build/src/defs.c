@@ -273,7 +273,7 @@ static int32_t defsparser(scriptfile *script)
         { "cachesize",       T_CACHESIZE        },
         { "dummytilefrompic",T_IMPORTTILE       },
         { "tilefromtexture", T_TILEFROMTEXTURE  },
-        { "mapinfo",         T_MAPINFO          },  // dummy
+        { "mapinfo",         T_MAPINFO          },
         { "echo",            T_ECHO             },
     };
 
@@ -2134,7 +2134,7 @@ static int32_t defsparser(scriptfile *script)
 
         case T_MAPINFO:
         {
-            char *dummy, *dummy2;
+            char *mapmd4string = NULL, *title = NULL, *mhkfile = NULL, *mapinfoend, *dummy;
             static const tokenlist mapinfotokens[] =
             {
                 { "mapfile",    T_MAPFILE },
@@ -2142,25 +2142,47 @@ static int32_t defsparser(scriptfile *script)
                 { "mapmd4",     T_MAPMD4 },
                 { "mhkfile",    T_MHKFILE },
             };
+            int32_t previous_usermaphacks = num_usermaphacks;
 
-            if (EDUKE32_PREDICT_FALSE(scriptfile_getbraces(script,&dummy))) break;
-            while (script->textptr < dummy)
+            if (EDUKE32_PREDICT_FALSE(scriptfile_getbraces(script,&mapinfoend))) break;
+            while (script->textptr < mapinfoend)
             {
                 switch (getatoken(script,mapinfotokens,ARRAY_SIZE(mapinfotokens)))
                 {
                 case T_MAPFILE:
-                    scriptfile_getstring(script,&dummy2);
+                    scriptfile_getstring(script,&dummy);
                     break;
                 case T_MAPTITLE:
-                    scriptfile_getstring(script,&dummy2);
+                    scriptfile_getstring(script,&title);
                     break;
                 case T_MAPMD4:
-                    scriptfile_getstring(script,&dummy2);
-                    break;
-                case T_MHKFILE:
-                    scriptfile_getstring(script,&dummy2);
+                {
+                    scriptfile_getstring(script,&mapmd4string);
+
+                    num_usermaphacks++;
+                    usermaphacks = (usermaphack_t *)Xrealloc(usermaphacks, num_usermaphacks*sizeof(usermaphack_t));
+                    usermaphack_t *newusermaphack = &usermaphacks[num_usermaphacks - 1];
+
+                    for (int i = 0; i < 16; i++)
+                    {
+                        char smallbuf[3] = { 0, 0, 0 };
+                        smallbuf[0] = mapmd4string[2*i];
+                        smallbuf[1] = mapmd4string[2*i+1];
+                        newusermaphack->md4[i] = Bstrtol(smallbuf, NULL, 16);
+                    }
+
                     break;
                 }
+                case T_MHKFILE:
+                    scriptfile_getstring(script,&mhkfile);
+                    break;
+                }
+            }
+
+            for (; previous_usermaphacks < num_usermaphacks; previous_usermaphacks++)
+            {
+                usermaphacks[previous_usermaphacks].mhkfile = mhkfile ? Bstrdup(mhkfile) : NULL;
+                usermaphacks[previous_usermaphacks].title = title ? Bstrdup(title) : NULL;
             }
         }
         break;
@@ -2211,6 +2233,8 @@ int32_t loaddefinitionsfile(const char *fn)
 
     DO_FREE_AND_NULL(faketilebuffer);
     faketilebuffersiz = 0;
+
+    qsort(usermaphacks, num_usermaphacks, sizeof(usermaphack_t), compare_usermaphacks);
 
     if (!script) return -1;
 

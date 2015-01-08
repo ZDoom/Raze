@@ -1695,6 +1695,15 @@ void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int
     }
 }
 
+static int32_t G_TryMapHack(const char *mhkfile)
+{
+    int32_t retval = loadmaphack(mhkfile);
+
+    if (!retval)
+        initprintf("Loaded map hack file \"%s\"\n", mhkfile);
+
+    return retval;
+}
 
 static void G_LoadMapHack(char *outbuf, const char *filename)
 {
@@ -1703,8 +1712,12 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 
     append_ext_UNSAFE(outbuf, ".mhk");
 
-    if (!loadmaphack(outbuf))
-        initprintf("Loaded map hack file \"%s\"\n",outbuf);
+    if (G_TryMapHack(outbuf))
+    {
+        usermaphack_t *mapinfo = (usermaphack_t*)bsearch(g_loadedMapMD4 - offsetof(usermaphack_t, md4), usermaphacks, num_usermaphacks, sizeof(usermaphack_t), compare_usermaphacks);
+        if (mapinfo)
+            G_TryMapHack(mapinfo->mhkfile);
+    }
 }
 
 static void G_ReallocCopyMusicName(int32_t level_number, const char *levnamebuf, int32_t altp)
