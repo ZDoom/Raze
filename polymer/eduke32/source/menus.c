@@ -4121,6 +4121,7 @@ static int32_t M_RunMenuInput_MouseAdvance(void)
     return MOUSEACTIVECONDITIONAL(!m_mousecaught && mousepressstate == Mouse_Released);
 }
 
+#if !defined __ANDROID__
 static int32_t M_RunMenuInput_MouseReturn_status;
 
 static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
@@ -4135,9 +4136,11 @@ static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
 
     rotatesprite_fs(origin.x + (1<<16) + (tilesiz[SPINNINGNUKEICON].x<<15), origin.y + (1<<16) + (tilesiz[SPINNINGNUKEICON].y<<15), 65536, 0, SPINNINGNUKEICON+6-((6+(totalclock>>4))%7), M_RunMenuInput_MouseReturn_status ? 4-(sintable[(totalclock<<4)&2047]>>11) : 6, 0, 10|RS_ALIGN_L);
 }
+#endif
 
 static int32_t M_RunMenuInput_MouseReturn(void)
 {
+#if !defined __ANDROID__
 #if !defined EDUKE32_TOUCH_DEVICES
     if (!MOUSEACTIVECONDITION)
     {
@@ -4158,6 +4161,7 @@ static int32_t M_RunMenuInput_MouseReturn(void)
     }
 
     M_RunMenuInput_MouseReturn_status = 0;
+#endif
     return 0;
 }
 
@@ -4413,7 +4417,9 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
         }
     }
 
+#if !defined __ANDROID__
     M_RunMenu_MouseReturn(cm, origin);
+#endif
 }
 
 /*
