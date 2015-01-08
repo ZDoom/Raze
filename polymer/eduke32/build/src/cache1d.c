@@ -334,6 +334,7 @@ typedef struct _searchpath
     struct _searchpath *next;
     char *path;
     size_t pathlen;		// to save repeated calls to strlen()
+    int32_t user;
 } searchpath_t;
 static searchpath_t *searchpathhead = NULL;
 static size_t maxsearchpathlen = 0;
@@ -351,7 +352,7 @@ char *listsearchpath(int32_t initp)
     return sp ? sp->path : NULL;
 }
 
-int32_t addsearchpath(const char *p)
+int32_t addsearchpath_user(const char *p, int32_t user)
 {
     struct Bstat st;
     char *s;
@@ -391,6 +392,8 @@ int32_t addsearchpath(const char *p)
         maxsearchpathlen = srch->pathlen;
 
     Bcorrectfilename(srch->path,0);
+
+    srch->user = user;
 
     initprintf("Using %s for game data\n", srch->path);
 
@@ -448,6 +451,34 @@ int32_t removesearchpath(const char *p)
 
     Bfree(path);
     return 0;
+}
+
+void removesearchpaths_withuser(int32_t usermask)
+{
+    for (searchpath_t *srch = searchpathhead; srch; srch = srch->next)
+    {
+        if (srch->user & usermask)
+        {
+            if (srch == searchpathhead)
+                searchpathhead = srch->next;
+            else
+            {
+                searchpath_t *sp;
+
+                for (sp = searchpathhead; sp; sp = sp->next)
+                {
+                    if (sp->next == srch)
+                    {
+                        sp->next = srch->next;
+                        break;
+                    }
+                }
+            }
+
+            Bfree(srch->path);
+            Bfree(srch);
+        }
+    }
 }
 
 int32_t findfrompath(const char *fn, char **where)

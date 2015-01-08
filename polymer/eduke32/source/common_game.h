@@ -50,6 +50,11 @@ enum instpath_t {
     NUMINSTPATHS
 };
 
+enum searchpathtypes_t {
+    SEARCHPATH_REMOVE = 1<<0,
+    SEARCHPATH_NAM    = 1<<1,
+};
+
 typedef enum basepal_ {
     BASEPAL = 0,
     WATERPAL,

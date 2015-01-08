@@ -609,23 +609,23 @@ static void G_AddSteamPaths(const char *basepath)
     char buf[BMAX_PATH];
 
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot", basepath);
-    addsearchpath(buf);
+    addsearchpath_user(buf, SEARCHPATH_REMOVE);
 
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/dc", basepath);
-    addsearchpath(buf);
+    addsearchpath_user(buf, SEARCHPATH_REMOVE);
 
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/nw", basepath);
-    addsearchpath(buf);
+    addsearchpath_user(buf, SEARCHPATH_REMOVE);
 
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/vacation", basepath);
-    addsearchpath(buf);
+    addsearchpath_user(buf, SEARCHPATH_REMOVE);
 
 #if defined __APPLE__
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM", basepath);
 #else
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/NAM", basepath);
 #endif
-    addsearchpath(buf);
+    addsearchpath_user(buf, SEARCHPATH_NAM);
 }
 
 // A bare-bones "parser" for Valve's KeyValues VDF format.
@@ -829,7 +829,7 @@ void G_AddSearchPaths(void)
         G_ParseSteamKeyValuesForPaths(buf);
 
         Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D.app/Contents/Resources/Duke Nukem 3D.boxer/C.harddisk", applications[i]);
-        addsearchpath(buf);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
     for (i = 0; i < 2; i++)
@@ -852,83 +852,47 @@ void G_AddSearchPaths(void)
     if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D)))
     {
         Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
-        addsearchpath(buf);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
 
         Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/dc", instpath);
-        addsearchpath(buf);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
 
         Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/nw", instpath);
-        addsearchpath(buf);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
 
         Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/vacation", instpath);
-        addsearchpath(buf);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
     if ((instpath = G_GetInstallPath(INSTPATH_GOG_DUKE3D)))
-        addsearchpath(instpath);
+        addsearchpath_user(instpath, SEARCHPATH_REMOVE);
 
     if ((instpath = G_GetInstallPath(INSTPATH_3DR_DUKE3D)))
     {
         Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
-        addsearchpath(buf);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
     if ((instpath = G_GetInstallPath(INSTPATH_3DR_ANTH)))
     {
         Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
-        addsearchpath(buf);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
     if ((instpath = G_GetInstallPath(INSTPATH_STEAM_NAM)))
     {
         Bsnprintf(buf, sizeof(buf), "%s/NAM", instpath);
-        addsearchpath(buf);
+        addsearchpath_user(buf, SEARCHPATH_NAM);
     }
 #endif
 }
 
 void G_CleanupSearchPaths(void)
 {
-#ifdef _WIN32
-    char buf[BMAX_PATH];
-    const char* instpath;
+    removesearchpaths_withuser(SEARCHPATH_REMOVE);
 
-    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D)))
-    {
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
-        removesearchpath(buf);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/dc", instpath);
-        removesearchpath(buf);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/nw", instpath);
-        removesearchpath(buf);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/vacation", instpath);
-        removesearchpath(buf);
-    }
-
-    if ((instpath = G_GetInstallPath(INSTPATH_GOG_DUKE3D)))
-        removesearchpath(instpath);
-
-    if ((instpath = G_GetInstallPath(INSTPATH_3DR_DUKE3D)))
-    {
-        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
-        removesearchpath(buf);
-    }
-
-    if ((instpath = G_GetInstallPath(INSTPATH_3DR_ANTH)))
-    {
-        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
-        removesearchpath(buf);
-    }
-
-    if (g_gameType != GAMEFLAG_NAM && (instpath = G_GetInstallPath(INSTPATH_STEAM_NAM)))
-    {
-        Bsnprintf(buf, sizeof(buf), "%s/NAM", instpath);
-        removesearchpath(buf);
-    }
-#endif
+    if (!(NAM || NAPALM))
+        removesearchpaths_withuser(SEARCHPATH_NAM);
 }
 
 //////////
