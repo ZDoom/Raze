@@ -620,6 +620,15 @@ static void G_AddSteamPaths(const char *basepath)
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/vacation", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
 
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music", basepath);
+    addsearchpath(buf);
+
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music/nwinter", basepath);
+    addsearchpath_user(buf, SEARCHPATH_NWINTER);
+
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music/vacation", basepath);
+    addsearchpath(buf);
+
 #if defined __APPLE__
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM", basepath);
 #else
@@ -862,6 +871,15 @@ void G_AddSearchPaths(void)
 
         Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/vacation", instpath);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
+
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/music", instpath);
+        addsearchpath(buf);
+
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/music/nwinter", instpath);
+        addsearchpath_user(buf, SEARCHPATH_NWINTER);
+
+        Bsnprintf(buf, sizeof(buf), "%s/gameroot/music/vacation", instpath);
+        addsearchpath(buf);
     }
 
     if ((instpath = G_GetInstallPath(INSTPATH_GOG_DUKE3D)))
@@ -893,6 +911,9 @@ void G_CleanupSearchPaths(void)
 
     if (!(NAM || NAPALM))
         removesearchpaths_withuser(SEARCHPATH_NAM);
+
+    if (!(NWINTER))
+        removesearchpaths_withuser(SEARCHPATH_NWINTER);
 }
 
 //////////
