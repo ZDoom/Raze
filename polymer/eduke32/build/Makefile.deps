@@ -21,6 +21,7 @@ $(ENGINE_OBJ)/smalltextfont.$o: $(ENGINE_SRC)/smalltextfont.c
 $(ENGINE_OBJ)/glbuild.$o: $(ENGINE_SRC)/glbuild.c $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/baselayer.h
 $(ENGINE_OBJ)/kplib.$o: $(ENGINE_SRC)/kplib.c $(ENGINE_INC)/compat.h
 $(ENGINE_OBJ)/lz4.$o: $(ENGINE_SRC)/lz4.c $(ENGINE_INC)/lz4.h
+$(ENGINE_OBJ)/md4.$o: $(ENGINE_SRC)/md4.c $(ENGINE_INC)/md4.h
 $(ENGINE_OBJ)/osd.$o: $(ENGINE_SRC)/osd.c $(ENGINE_INC)/build.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h
 $(ENGINE_OBJ)/pragmas.$o: $(ENGINE_SRC)/pragmas.c $(ENGINE_INC)/compat.h
 $(ENGINE_OBJ)/scriptfile.$o: $(ENGINE_SRC)/scriptfile.c $(ENGINE_INC)/scriptfile.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/compat.h
