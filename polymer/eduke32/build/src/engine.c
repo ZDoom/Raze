@@ -13,6 +13,7 @@
 #endif
 #include "compat.h"
 #include "build.h"
+#include "editor.h"
 #include "pragmas.h"
 #include "cache1d.h"
 #include "a.h"
@@ -2396,8 +2397,6 @@ int16_t searchsector, searchwall, searchstat;     //search output
 // SEARCHISBOTTOM:
 //  When aiming at a 2-sided wall, 1 if aiming at the bottom part, 0 else
 int16_t searchbottomwall, searchisbottom;
-
-double msens = 1.0;
 
 static char artfilename[20];
 static char mapartfilename[BMAX_PATH];  // map-specific ART file name

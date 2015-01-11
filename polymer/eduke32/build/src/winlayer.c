@@ -75,6 +75,7 @@
 #include "mutex.h"
 
 #include "winbits.h"
+#include "engine_priv.h"
 
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE

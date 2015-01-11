@@ -12,7 +12,7 @@
 #include "crc32.h"
 #include "xxhash.h"
 #include "common.h"
-
+#include "editor.h"
 
 static symbol_t *symbols = NULL;
 static symbol_t *addnewsymbol(const char *name);

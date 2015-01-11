@@ -19,6 +19,7 @@
 #include "a.h"
 #include "build.h"
 #include "osd.h"
+#include "engine_priv.h"
 
 #ifdef USE_OPENGL
 # include "glbuild.h"

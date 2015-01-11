@@ -270,7 +270,6 @@ extern int32_t althud_flashing;
 extern int32_t althud_numberpal;
 extern int32_t althud_numbertile;
 extern int32_t althud_shadows;
-extern int32_t cacnum;
 
 extern int32_t g_Shareware;
 #if !defined LUNATIC
@@ -398,10 +397,6 @@ static inline int32_t G_GetTeamPalette(int32_t team)
 
     return pal[team];
 }
-
-#ifdef USE_OPENGL
-extern char forcegl;
-#endif
 
 #define minitextshade(x, y, t, s, p, sb) minitext_(x,y,t,s,p,sb)
 #define minitext(x, y, t, p, sb) minitext_(x,y,t,0,p,sb)

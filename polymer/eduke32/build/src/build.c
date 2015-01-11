@@ -83,6 +83,7 @@ static int32_t hvel, vel, svel, angvel;
 int32_t g_doHardcodedMovement = 1;
 
 static int32_t mousexsurp = 0, mouseysurp = 0;
+double msens = 1.0;
 
 int32_t grponlymode = 0;
 int32_t graphicsmode = 0;

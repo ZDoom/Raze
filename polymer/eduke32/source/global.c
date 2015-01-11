@@ -28,6 +28,10 @@ user_defs ud;
 
 const char *s_buildDate = "20120522";
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // JBF: g_spriteGravity modified to default to Atomic ed. default when using 1.3d CONs
 int32_t g_spriteGravity=176;
 
@@ -92,3 +96,8 @@ int32_t g_lastSaveSlot = -1;
 char CheatKeys[2] = { sc_D, sc_N };
 
 char setupfilename[BMAX_PATH] = SETUPFILENAME;
+
+#ifdef __cplusplus
+}
+#endif
+
