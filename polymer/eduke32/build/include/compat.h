@@ -206,24 +206,24 @@
 # define DEBUG_MAIN_ARRAYS
 #endif
 
-#ifndef FORCE_INLINE
-# ifdef _MSC_VER    // Visual Studio
-#  define FORCE_INLINE static __forceinline
-# else
-#  ifdef __GNUC__
-#    define FORCE_INLINE static inline __attribute__((always_inline))
-#  else
-#    define FORCE_INLINE static inline
-#  endif
-# endif
-#endif
-
 #ifndef DISABLE_INLINING
 # define EXTERN_INLINE static inline
 # define EXTERN_INLINE_HEADER static inline
+# ifndef FORCE_INLINE
+#  ifdef _MSC_VER    // Visual Studio
+#   define FORCE_INLINE static __forceinline
+#  else
+#   ifdef __GNUC__
+#     define FORCE_INLINE static inline __attribute__((always_inline))
+#   else
+#     define FORCE_INLINE static inline
+#   endif
+#  endif
+# endif
 #else
 # define EXTERN_INLINE __fastcall
 # define EXTERN_INLINE_HEADER extern __fastcall
+# define FORCE_INLINE
 #endif
 
 #if !defined DEBUG_MAIN_ARRAYS
@@ -342,8 +342,12 @@
 # error Unknown endianness
 #endif
 
-#if defined _LP64 || defined __LP64__ || defined __64BIT__ || _ADDR64 || defined _WIN64 || defined __arch64__ || __WORDSIZE == 64 || (defined __sparc && defined __sparcv9) || defined __x86_64 || defined __amd64 || defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || defined __ia64 || defined __IA64__
+#if defined _LP64 || defined __LP64__ || defined __64BIT__ || _ADDR64 || defined _WIN64 || defined __arch64__ ||       \
+__WORDSIZE == 64 || (defined __sparc && defined __sparcv9) || defined __x86_64 || defined __amd64 ||                   \
+defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || defined __ia64 || defined __IA64__
+
 # define BITNESS64
+
 #endif
 
 #ifdef __cplusplus
@@ -536,28 +540,16 @@ FORCE_INLINE int32_t Blrintf(const float x)
 #endif
 
 // Clamp <in> to [<min>..<max>]. The case in <= min is handled first.
-CLAMP_DECL int32_t clamp(int32_t in, int32_t min, int32_t max)
-{
-    return in <= min ? min : (in >= max ? max : in);
-}
+CLAMP_DECL int32_t clamp(int32_t in, int32_t min, int32_t max) { return in <= min ? min : (in >= max ? max : in); }
 
 // Clamp <in> to [<min>..<max>]. The case in >= max is handled first.
-CLAMP_DECL int32_t clamp2(int32_t in, int32_t min, int32_t max)
-{
-    return in >= max ? max : (in <= min ? min : in);
-}
+CLAMP_DECL int32_t clamp2(int32_t in, int32_t min, int32_t max) { return in >= max ? max : (in <= min ? min : in); }
 
 // Clamp <in> to [<min>..<max>]. The case in <= min is handled first.
-CLAMP_DECL float fclamp(float in, float min, float max)
-{
-    return in <= min ? min : (in >= max ? max : in);
-}
+CLAMP_DECL float fclamp(float in, float min, float max) { return in <= min ? min : (in >= max ? max : in); }
 
 // Clamp <in> to [<min>..<max>]. The case in >= max is handled first.
-CLAMP_DECL float fclamp2(float in, float min, float max)
-{
-    return in >= max ? max : (in <= min ? min : in);
-}
+CLAMP_DECL float fclamp2(float in, float min, float max) { return in >= max ? max : (in <= min ? min : in); }
 
 #define BMAX_PATH 256
 
@@ -791,7 +783,7 @@ int32_t Bcorrectfilename(char *filename, int32_t removefn);
 int32_t Bcanonicalisefilename(char *filename, int32_t removefn);
 char *Bgetsystemdrives(void);
 int32_t Bfilelength(int32_t fd);
-char *Bstrtoken(char *s, const char *delim, char **ptrptr, int32_t chop);
+char *Bstrtoken(char *s, const char *delim, char **ptrptr, int chop);
 char *Bstrtolower(char *str);
 #define Bwildmatch wildmatch
 
