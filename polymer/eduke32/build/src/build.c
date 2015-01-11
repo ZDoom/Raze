@@ -2075,6 +2075,9 @@ void DoSpriteOrnament(int32_t i)
             0,
             &hit,CLIPMASK1);
 
+    if (hit.sect == -1)
+        return;
+
     sprite[i].x = hit.pos.x;
     sprite[i].y = hit.pos.y;
     sprite[i].z = hit.pos.z;
