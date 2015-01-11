@@ -34,7 +34,7 @@ extern uint8_t curbasepal;
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
-extern spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
+extern tspritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern intptr_t frameoffset;
@@ -84,15 +84,22 @@ void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t
 
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
 int32_t wallfront(int32_t l1, int32_t l2);
-int32_t animateoffs(int16_t tilenum, int16_t fakevar);
 
 void set_globalang(int16_t ang);
 
+#ifdef DEBUGGINGAIDS
+int32_t animateoffs(int const tilenum, int fakevar);
 #define DO_TILE_ANIM(Picnum, Fakevar) do { \
         if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum, Fakevar); \
     } while (0)
+#else
+int32_t animateoffs(int const tilenum);
+#define DO_TILE_ANIM(Picnum, Fakevar) do { \
+        if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum); \
+    } while (0)
+#endif
 
-static inline int32_t bad_tspr(const spritetype *tspr)
+FORCE_INLINE int32_t bad_tspr(const tspritetype *tspr)
 {
     // NOTE: tspr->owner >= MAXSPRITES (could be model) has to be handled by
     // caller.
@@ -102,15 +109,12 @@ static inline int32_t bad_tspr(const spritetype *tspr)
 //
 // getpalookup (internal)
 //
-static inline int32_t getpalookup(int32_t davis, int32_t dashade)
+FORCE_INLINE int32_t getpalookup(int32_t davis, int32_t dashade)
 {
-    return(min(max(dashade+(davis>>8),0),numshades-1));
+    return (min(max(dashade + (davis >> 8), 0), numshades - 1));
 }
 
-static inline int32_t getpalookupsh(int32_t davis)
-{
-    return getpalookup(davis, globalshade)<<8;
-}
+FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(davis, globalshade) << 8; }
 
 void dorotspr_handle_bit2(int32_t *sx, int32_t *sy, int32_t *z, int32_t dastat,
                           int32_t cx1_plus_cx2, int32_t cy1_plus_cy2,
@@ -128,10 +132,7 @@ extern int32_t yax_globalcf, yax_nomaskpass, yax_nomaskdidit;
 extern uint8_t haveymost[YAX_MAXBUNCHES>>3];
 extern uint8_t yax_gotsector[MAXSECTORS>>3];
 
-static inline int32_t yax_isislandwall(int32_t line, int32_t cf)
-{
-    return (yax_vnextsec(line, cf)>=0);
-}
+FORCE_INLINE int32_t yax_isislandwall(int32_t line, int32_t cf) { return (yax_vnextsec(line, cf) >= 0); }
 #endif
 
 #ifdef YAX_DEBUG
@@ -192,7 +193,7 @@ skipit:
 
 #else	// __GNUC__ && __i386__
 
-static inline void setgotpic(int32_t tilenume)
+FORCE_INLINE void setgotpic(int32_t tilenume)
 {
 	if (walock[tilenume] < 200) walock[tilenume] = 199;
 	gotpic[tilenume>>3] |= pow2char[tilenume&7];
@@ -230,7 +231,7 @@ static inline const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t 
     return multipsky[j].tileofs;
 }
 
-static inline void set_globalpos(int32_t x, int32_t y, int32_t z)
+FORCE_INLINE void set_globalpos(int32_t const x, int32_t const y, int32_t const z)
 {
     globalposx  = x, fglobalposx = (float)x;
     globalposy  = y, fglobalposy = (float)y;

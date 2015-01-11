@@ -1424,7 +1424,7 @@ void                polymer_drawsprite(int32_t snum)
     int32_t         i, j, cs;
     _prsprite       *s;
 
-    spritetype      *const tspr = tspriteptr[snum];
+    tspritetype      *const tspr = tspriteptr[snum];
     const sectortype *sec;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
@@ -1706,7 +1706,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
     GLfloat         localprojectionmatrix[16];
     float           frustum[5 * 4];
     int32_t         localspritesortcnt;
-    spritetype      localtsprite[MAXSPRITESONSCREEN];
+    tspritetype     localtsprite[MAXSPRITESONSCREEN];
     int16_t         localmaskwall[MAXWALLSB];
     int16_t         localmaskwallcnt;
     _prmirror       mirrorlist[10];
@@ -3509,7 +3509,7 @@ static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum)
     return 1;
 }
 
-static inline void  polymer_scansprites(int16_t sectnum, spritetype* localtsprite, int32_t* localspritesortcnt)
+static inline void  polymer_scansprites(int16_t sectnum, tspritetype* localtsprite, int32_t* localspritesortcnt)
 {
     int32_t         i;
     spritetype      *spr;
@@ -3533,7 +3533,7 @@ void                polymer_updatesprite(int32_t snum)
 {
     int32_t         curpicnum, xsize, ysize, i, j;
     int32_t         tilexoff, tileyoff, xoff, yoff, centeryoff=0;
-    spritetype      *tspr = tspriteptr[snum];
+    tspritetype      *tspr = tspriteptr[snum];
     float           xratio, yratio, ang, f;
     float           spos[3];
     const GLfloat   *inbuffer;
@@ -3993,7 +3993,7 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
 }
 
 // MDSPRITES
-static void         polymer_drawmdsprite(spritetype *tspr)
+static void         polymer_drawmdsprite(tspritetype *tspr)
 {
     md3model_t*     m;
     mdskinmap_t*    sk;

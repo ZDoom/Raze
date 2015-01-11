@@ -1358,10 +1358,12 @@ skip_check:
                 case ITER_DRAWNSPRITES:
                     for (ii=0; ii<spritesortcnt && !vm.flags; ii++)
                     {
-                        vm.g_sp = &tsprite[ii];
+                        vm.g_sp = &sprite[MAXSPRITES-1];
+                        Bmemcpy(&sprite[MAXSPRITES-1], &tsprite[ii], sizeof(tspritetype));
                         Gv_SetVarX(var, ii);
                         insptr = beg;
                         VM_Execute(1);
+                        Bmemcpy(&tsprite[ii], &sprite[MAXSPRITES-1], sizeof(tspritetype));
                     }
                     break;
                 case ITER_SPRITESOFSECTOR:
@@ -1722,8 +1724,10 @@ badindex:
                 {
                     Bmemcpy(&tsprite[spritesortcnt], &sprite[ospritenum], sizeof(spritetype));
                     tsprite[spritesortcnt].owner = ospritenum;
+/* FIXME
                     vm.g_i = -1;
                     vm.g_sp = &tsprite[spritesortcnt];
+*/
                     spritesortcnt++;
                 }
             }

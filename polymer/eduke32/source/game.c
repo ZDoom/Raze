@@ -4954,7 +4954,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     int32_t p;
     int32_t i;
     spritetype *s;
-    spritetype spr_temp;
+    tspritetype spr_temp;
 
     // NetAlloc
     if (Net_IsRelevantStat(s_ss))
@@ -7035,7 +7035,7 @@ SPAWN_END:
     return i;
 }
 
-static int32_t G_MaybeTakeOnFloorPal(spritetype *datspr, int32_t sect)
+static int32_t G_MaybeTakeOnFloorPal(tspritetype *datspr, int32_t sect)
 {
     int32_t dapal = sector[sect].floorpal;
 
@@ -7049,7 +7049,7 @@ static int32_t G_MaybeTakeOnFloorPal(spritetype *datspr, int32_t sect)
     return 0;
 }
 
-static int32_t getofs_viewtype5(const spritetype *s, spritetype *t, int32_t a, uint8_t invertp)
+static int32_t getofs_viewtype5(const tspritetype *s, tspritetype *t, int32_t a, uint8_t invertp)
 {
     int32_t angdif = invertp ? a-s->ang : s->ang-a;
     int32_t k = (((angdif+3072+128)&2047)>>8)&7;
@@ -7064,7 +7064,7 @@ static int32_t getofs_viewtype5(const spritetype *s, spritetype *t, int32_t a, u
     return k;
 }
 
-static int32_t getofs_viewtype7(const spritetype *s, spritetype *t, int32_t a, uint8_t invertp)
+static int32_t getofs_viewtype7(const tspritetype *s, tspritetype *t, int32_t a, uint8_t invertp)
 {
     int32_t angdif = invertp ? a-s->ang : s->ang-a;
     int32_t k = ((angdif+3072+128)&2047)/170;
@@ -7180,7 +7180,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 #endif
     for (j=spritesortcnt-1; j>=0; j--)
     {
-        spritetype *const t = &tsprite[j];
+        tspritetype *const t = &tsprite[j];
         const int32_t i = t->owner;
         const spritetype *const s = &sprite[i];
 
@@ -7209,7 +7209,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
     for (j=spritesortcnt-1; j>=0; j--)
     {
-        spritetype *const t = &tsprite[j];
+        tspritetype *const t = &tsprite[j];
         const int32_t i = t->owner;
         const spritetype *const s = &sprite[i];
 
@@ -7267,7 +7267,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 continue;
             default:
                 // NOTE: wall-aligned sprites will never take on ceiling/floor shade...
-                if ((t->cstat&16) || (A_CheckEnemySprite(t) && t->extra > 0) || t->statnum == STAT_PLAYER)
+                if ((t->cstat&16) || (A_CheckEnemySprite((const spritetype *)t) && t->extra > 0) || t->statnum == STAT_PLAYER)
                     continue;
             }
 
@@ -7298,11 +7298,11 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         int32_t startframe, viewtype;
 #endif
         //is the perfect time to animate sprites
-        spritetype *const t = &tsprite[j];
+        tspritetype *const t = &tsprite[j];
         const int32_t i = t->owner;
         // XXX: what's up with the (i < 0) check?
         // NOTE: not const spritetype because set at SET_SPRITE_NOT_TSPRITE (see below).
-        spritetype *const s = (i < 0) ? &tsprite[j] : &sprite[i];
+        tspritetype *const s = (i < 0) ? &tsprite[j] : (tspritetype *)&sprite[i];
 
         if (ud.lockout && G_CheckAdultTile(DYNAMICTILEMAP(s->picnum)))
         {
@@ -7322,7 +7322,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         Bassert(i >= 0);
 
         {
-            int32_t snum = P_GetP(s);
+            int32_t snum = P_GetP((const spritetype *)s);
             const DukePlayer_t *const ps = g_player[snum].ps;
 
             if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps->newowner == -1 && s->owner >= 0)
@@ -7402,7 +7402,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                         sprite[s->owner].y-t->y);
 
                 if (klabs(G_GetAngleDelta(sqa,sqb)) > 512)
-                    if (ldist(&sprite[s->owner],t) < ldist(&sprite[g_player[screenpeek].ps->i],&sprite[s->owner]))
+                    if (ldist(&sprite[s->owner],(const spritetype *)t) < ldist(&sprite[g_player[screenpeek].ps->i],&sprite[s->owner]))
                         t->xrepeat = t->yrepeat = 0;
             }
             continue;
@@ -7503,7 +7503,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             break;
 
         case APLAYER__STATIC:
-            p = P_GetP(s);
+            p = P_GetP((const spritetype *)s);
 
             if (t->pal == 1) t->z -= (18<<8);
 
@@ -7545,7 +7545,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 if (ud.showweapons && sprite[g_player[p].ps->i].extra > 0 && g_player[p].ps->curr_weapon > 0
                         && spritesortcnt < MAXSPRITESONSCREEN)
                 {
-                    spritetype *const newt = &tsprite[spritesortcnt];
+                    tspritetype *const newt = &tsprite[spritesortcnt];
                     int32_t curweap = g_player[p].ps->curr_weapon;
 
                     Bmemcpy(newt, t, sizeof(spritetype));
@@ -7575,7 +7575,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
                 if (g_player[p].sync->extbits & (1<<7) && !ud.pause_on && spritesortcnt<MAXSPRITESONSCREEN)
                 {
-                    spritetype *const newt = &tsprite[spritesortcnt];
+                    tspritetype *const newt = &tsprite[spritesortcnt];
 
                     Bmemcpy(newt, t, sizeof(spritetype));
 
@@ -7810,14 +7810,14 @@ skip:
         // player has nightvision on.  We should pass stuff like "from which player is this view
         // supposed to be" as parameters ("drawing context") instead of relying on globals.
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
-                (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
+                (A_CheckEnemySprite((const spritetype *)s) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
         {
             t->pal = 6;
             t->shade = 0;
         }
 
         // Fake floor shadow, implemented by inserting a new tsprite.
-        if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
+        if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite((const spritetype *)s) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
             if (t->statnum != TSPR_TEMP && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE && s->picnum != HOTMEAT)
             {
                 if (actor[i].dispicnum < 0)
@@ -7846,7 +7846,7 @@ skip:
 
                     if ((s->z-daz) < (8<<8) && g_player[screenpeek].ps->pos.z < daz)
                     {
-                        spritetype *const newt = &tsprite[spritesortcnt];
+                        tspritetype *const newt = &tsprite[spritesortcnt];
 
                         Bmemcpy(newt, t, sizeof(spritetype));
 

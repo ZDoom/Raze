@@ -908,7 +908,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 }
 
 //Note: even though it says md2model, it works for both md2model&md3model
-void updateanimation(md2model_t *m, const spritetype *tspr, uint8_t lpal)
+void updateanimation(md2model_t *m, const tspritetype *tspr, uint8_t lpal)
 {
     const mdanim_t *anim;
     int32_t i, j, k;
@@ -1861,7 +1861,7 @@ int      md3postload_polymer(md3model_t *m)
 }
 
 
-void md3_vox_calcmat_common(const spritetype *tspr, const vec3f_t *a0, float f, float mat[16])
+void md3_vox_calcmat_common(const tspritetype *tspr, const vec3f_t *a0, float f, float mat[16])
 {
     float g;
     float k0, k1, k2, k3, k4, k5, k6, k7;
@@ -1943,7 +1943,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
     bglEnd();
 }
 
-static int32_t polymost_md3draw(md3model_t *m, const spritetype *tspr)
+static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
 {
     vec3f_t m0, m1, a0;
     md3xyzn_t *v0, *v1;
@@ -2527,7 +2527,7 @@ void md_allocvbos(void)
     }
 }
 
-int32_t polymost_mddraw(const spritetype *tspr)
+int32_t polymost_mddraw(const tspritetype *tspr)
 {
     mdmodel_t *vm;
 

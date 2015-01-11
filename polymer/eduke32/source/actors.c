@@ -8192,11 +8192,6 @@ void A_PlayAlertSound(int32_t i)
         }
 }
 
-int32_t A_CheckEnemyTile(int32_t pn)
-{
-    return ((g_tile[pn].flags & (SFLAG_HARDCODED_BADGUY|SFLAG_BADGUY)) != 0);
-}
-
 int32_t A_CheckSwitchTile(int32_t i)
 {
     int32_t j;

@@ -944,16 +944,14 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
     }
     else
     {
-        const int32_t dofullbright = !(picanm[dapic].sf&PICANM_NOFULLBRIGHT_BIT);
-        int32_t y;
+        const int dofullbright = !(picanm[dapic].sf & PICANM_NOFULLBRIGHT_BIT);
 
-        for (y=0; y<siz.y; y++)
+        for (int y = 0; y < siz.y; y++)
         {
-            coltype *wpptr = &pic[y*siz.x];
-            int32_t x;
-            int32_t y2 = (y < tsiz.y) ? y : y-tsiz.y;
+            coltype *wpptr = &pic[y * siz.x];
+            int32_t y2 = (y < tsiz.y) ? y : y - tsiz.y;
 
-            for (x=0; x<siz.x; x++,wpptr++)
+            for (int x = 0; x < siz.x; x++, wpptr++)
             {
                 int32_t dacol;
                 int32_t x2 = (x < tsiz.x) ? x : x-tsiz.x;
@@ -1809,7 +1807,7 @@ static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
 }
 
 
-static void vsp_finalize_init(vsptyp *vsp, int32_t vcnt)
+static inline void vsp_finalize_init(vsptyp *vsp, int32_t vcnt)
 {
     int32_t i;
 
@@ -1948,8 +1946,7 @@ void domost(float x0, float y0, float x1, float y1)
 
         for (z=0; z<=scnt; z++,i=vcnt)
         {
-            float dx0, dx1, t;
-            int32_t ni;
+            float t;
 
             if (z == scnt)
                 goto skip;
@@ -1964,9 +1961,9 @@ void domost(float x0, float y0, float x1, float y1)
             vsp[vcnt].tag = spt[z];
 
         skip:
-            ni = vsp[i].n; if (!ni) continue; //this 'if' fixes many bugs!
-            dx0 = vsp[i].x; if (x0 > dx0) continue;
-            dx1 = vsp[ni].x; if (x1 < dx1) continue;
+            int32_t ni = vsp[i].n; if (!ni) continue; //this 'if' fixes many bugs!
+            float dx0 = vsp[i].x; if (x0 > dx0) continue;
+            float dx1 = vsp[ni].x; if (x1 < dx1) continue;
             n0.y = (dx0-x0)*slop + y0;
             n1.y = (dx1-x0)*slop + y0;
 
@@ -2167,7 +2164,7 @@ void polymost_editorfunc(void)
 
         if (preview_mouseaim && spritesortcnt < MAXSPRITESONSCREEN)
         {
-            spritetype *tsp = &tsprite[spritesortcnt];
+            tspritetype *tsp = &tsprite[spritesortcnt];
             double dadist, x, y, z;
             Bmemcpy(tsp, &hit.pos, sizeof(vec3_t));
             x = tsp->x-globalposx; y=tsp->y-globalposy; z=(tsp->z-globalposz)/16.0;
@@ -3801,7 +3798,7 @@ void polymost_drawsprite(int32_t snum)
     int32_t oldsizx, oldsizy;
     int32_t tsizx, tsizy;
 
-    spritetype *const tspr = tspriteptr[snum];
+    tspritetype *const tspr = tspriteptr[snum];
     const sectortype *sec;
 
     if (EDUKE32_PREDICT_FALSE(bad_tspr(tspr)))
@@ -4298,7 +4295,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
             float ogxyaspect;
             vec3f_t vec1;
 
-            spritetype tspr;
+            tspritetype tspr;
             Bmemset(&tspr, 0, sizeof(spritetype));
 
             if (hudmem[(dastat&4)>>2][picnum].flags & HUDFLAG_HIDE)

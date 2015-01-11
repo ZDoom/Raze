@@ -177,7 +177,7 @@ extern int32_t r_tror_nomaskpass;
 // Moved below declarations of sector, wall, sprite.
 # else
 int16_t yax_getbunch(int16_t i, int16_t cf);
-static inline void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
+FORCE_INLINE void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
 {
     *cb = yax_getbunch(i, YAX_CEILING);
     *fb = yax_getbunch(i, YAX_FLOOR);
@@ -192,7 +192,7 @@ int16_t yax_vnextsec(int16_t line, int16_t cf);
 void yax_update(int32_t resetstat);
 int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf);
 
-static inline int32_t yax_waltosecmask(int32_t walclipmask)
+FORCE_INLINE int32_t yax_waltosecmask(int32_t walclipmask)
 {
     // blocking: walstat&1 --> secstat&512
     // hitscan: walstat&64 --> secstat&2048
@@ -249,9 +249,9 @@ enum {
 
 #ifdef __cplusplus
 
-static inline void sector_tracker_hook(uintptr_t address);
-static inline void wall_tracker_hook(uintptr_t address);
-static inline void sprite_tracker_hook(uintptr_t address);
+FORCE_INLINE void sector_tracker_hook(uintptr_t address);
+FORCE_INLINE void wall_tracker_hook(uintptr_t address);
+FORCE_INLINE void sprite_tracker_hook(uintptr_t address);
 
 }
 
@@ -410,6 +410,21 @@ typedef struct
     Tracker(Sprite, uint16_t) lotag, hitag;
     Tracker(Sprite, int16_t) extra;
 } spritetype;
+
+typedef struct
+{
+    int32_t x, y, z;
+    uint16_t cstat;
+    int16_t picnum;
+    int8_t shade;
+    uint8_t pal, clipdist, blend;
+    uint8_t xrepeat, yrepeat;
+    int8_t xoffset, yoffset;
+    int16_t sectnum, statnum;
+    int16_t ang, owner, xvel, yvel, zvel;
+    uint16_t lotag, hitag;
+    int16_t extra;
+} tspritetype;
 
 //////////////////// END Version 7 map format ////////////////
 
@@ -620,7 +635,7 @@ typedef struct {
     uint8_t filler;
     float alpha;
     // NOTE: keep 'tspr' on an 8-byte boundary:
-    spritetype *tspr;
+    tspritetype *tspr;
 #if !defined UINTPTR_MAX
 # error Need UINTPTR_MAX define to select between 32- and 64-bit structs
 #endif
@@ -667,7 +682,7 @@ EXTERN spritesmooth_t *spritesmooth;
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
-EXTERN spritetype *tsprite;
+EXTERN tspritetype *tsprite;
 #else
 EXTERN spriteext_t spriteext[MAXSPRITES+MAXUNIQHUDID];
 EXTERN spritesmooth_t spritesmooth[MAXSPRITES+MAXUNIQHUDID];
@@ -683,71 +698,65 @@ EXTERN uint32_t wallchanged[MAXWALLS + M32_FIXME_WALLS];
 EXTERN uint32_t spritechanged[MAXSPRITES];
 
 #ifdef NEW_MAP_FORMAT
-static inline int16_t yax_getbunch(int16_t i, int16_t cf)
+FORCE_INLINE int16_t yax_getbunch(int16_t i, int16_t cf)
 {
     return cf ? sector[i].floorbunch : sector[i].ceilingbunch;
 }
 
-static inline void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
+FORCE_INLINE void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
 {
     *cb = yax_getbunch(i, YAX_CEILING);
     *fb = yax_getbunch(i, YAX_FLOOR);
 }
 
-static inline int16_t yax_getnextwall(int16_t wal, int16_t cf)
+FORCE_INLINE int16_t yax_getnextwall(int16_t wal, int16_t cf)
 {
     return cf ? wall[wal].dnwall : wall[wal].upwall;
 }
 
-static inline void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
+FORCE_INLINE void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
 {
     YAX_NEXTWALL(wal, cf) = thenextwall;
 }
 #endif
 
-static inline void sector_tracker_hook(uintptr_t address)
+FORCE_INLINE void sector_tracker_hook(uintptr_t address)
 {
-    uintptr_t const usector = (uintptr_t) sector;
+    uintptr_t const usector = address - (uintptr_t)sector;
 
-    if (EDUKE32_PREDICT_FALSE((address - usector) >= (MAXSECTORS+M32_FIXME_SECTORS * sizeof(sectortype))))
-        return;
+#if DEBUGGINGAIDS
+    Bassert(usector < ((MAXSECTORS + M32_FIXME_SECTORS) * sizeof(sectortype)));
+#endif
 
-    address = (address - usector);
-    address /= sizeof(sectortype);
-
-    sectorchanged[address]++;
+    sectorchanged[usector / sizeof(sectortype)]++;
 }
 
-static inline void wall_tracker_hook(uintptr_t address)
+FORCE_INLINE void wall_tracker_hook(uintptr_t address)
 {
-    uintptr_t const uwall = (uintptr_t) wall;
+    uintptr_t const uwall = address - (uintptr_t)wall;
 
-    if (EDUKE32_PREDICT_FALSE((address - uwall) >= (MAXWALLS+M32_FIXME_WALLS * sizeof(walltype))))
-        return;
+#if DEBUGGINGAIDS
+    Bassert(uwall < ((MAXWALLS + M32_FIXME_WALLS) * sizeof(walltype)));
+#endif
 
-    address = (address - uwall);
-    address /= sizeof(walltype);
-
-    wallchanged[address]++;
+    wallchanged[uwall / sizeof(walltype)]++;
 }
 
-static inline void sprite_tracker_hook(uintptr_t address)
+FORCE_INLINE void sprite_tracker_hook(uintptr_t address)
 {
-    uintptr_t const usprite = (uintptr_t)sprite;
+    uintptr_t const usprite = address - (uintptr_t)sprite;
 
-    if (EDUKE32_PREDICT_FALSE((address - usprite) >= (MAXSPRITES * sizeof(spritetype))))
-        return;
+#if DEBUGGINGAIDS
+    Bassert(usprite < (MAXSPRITES * sizeof(spritetype)));
+#endif
 
-    address = (address - usprite);
-    address /= sizeof(spritetype);
-
-    spritechanged[address]++;
+    spritechanged[usprite / sizeof(spritetype)]++;
 }
 
 
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];
-EXTERN spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
+EXTERN tspritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t xdim, ydim, numpages;
 EXTERN int32_t yxaspect, viewingrange;
@@ -827,7 +836,7 @@ EXTERN psky_t multipsky[MAXPSKYMULTIS];
 // Mapping of multi-sky index to base sky tile number:
 EXTERN int32_t multipskytile[MAXPSKYMULTIS];
 
-static inline int32_t getpskyidx(int32_t picnum)
+FORCE_INLINE int32_t getpskyidx(int32_t picnum)
 {
     int32_t j;
 
@@ -952,7 +961,7 @@ extern const char *engineerrstr;
 
 EXTERN int32_t editorzrange[2];
 
-static inline int32_t getrendermode(void)
+FORCE_INLINE int32_t getrendermode(void)
 {
 #ifndef USE_OPENGL
     return REND_CLASSIC;
@@ -1133,20 +1142,20 @@ void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
                    const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
-static inline void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                 int8_t dashade, char dapalnum, int32_t dastat,
                                 int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, cx1, cy1, cx2, cy2);
 }
 // Don't clip at all, i.e. the whole screen real estate is available:
-static inline void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+FORCE_INLINE void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                    int8_t dashade, char dapalnum, int32_t dastat)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0,0,xdim-1,ydim-1);
 }
 
-static inline void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+FORCE_INLINE void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                     int8_t dashade, char dapalnum, int32_t dastat)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, windowx1,windowy1,windowx2,windowy2);
@@ -1202,12 +1211,12 @@ int32_t    krand(void);
 int32_t   ksqrt(uint32_t num);
 int32_t   __fastcall getangle(int32_t xvect, int32_t yvect);
 
-static inline uint32_t uhypsq(int32_t dx, int32_t dy)
+FORCE_INLINE uint32_t uhypsq(int32_t dx, int32_t dy)
 {
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
-static inline int32_t logapproach(int32_t val, int32_t targetval)
+FORCE_INLINE int32_t logapproach(int32_t val, int32_t targetval)
 {
     int32_t dif = targetval - val;
     return (dif>>1) ? val + (dif>>1) : targetval;
@@ -1223,29 +1232,29 @@ int32_t   getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day) AT
 void   getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day,
                        int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(1,4,5)));
 
-static inline int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+FORCE_INLINE int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     return getceilzofslopeptr(&sector[sectnum], dax, day);
 }
 
-static inline int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+FORCE_INLINE int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     return getflorzofslopeptr(&sector[sectnum], dax, day);
 }
 
-static inline void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     getzsofslopeptr(&sector[sectnum], dax, day, ceilz, florz);
 }
 
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
 // ".nextsector >= 0 iff .nextwall >= 0" holds.
-static inline int32_t redwallp(const walltype *wal)
+FORCE_INLINE int32_t redwallp(const walltype *wal)
 {
     return (wal->nextwall >= 0 && wal->nextsector >= 0);
 }
 
-static inline int32_t E_SpriteIsValid(const int32_t i)
+FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
 {
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
@@ -1279,7 +1288,7 @@ int32_t   setsprite(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
 int32_t spriteheightofsptr(const spritetype *spr, int32_t *height, int32_t alsotileyofs);
-static inline int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
+FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
 {
     return spriteheightofsptr(&sprite[i], height, alsotileyofs);
 }
@@ -1288,7 +1297,7 @@ int32_t   screencapture(const char *filename, char inverseit, const char *versio
 
 int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol);
 
-static inline int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
+FORCE_INLINE int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 {
     return getclosestcol_lim(r, g, b, 255);
 }
@@ -1409,10 +1418,9 @@ typedef struct
 EXTERN int32_t mdinited;
 EXTERN tile2model_t tile2model[MAXTILES+EXTRATILES];
 
-static inline int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
+FORCE_INLINE int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
 {
-    if (!mdinited) return -1;
-    return tile2model[Ptile2tile(tilenume,pal)].modelid;
+    return mdinited ? tile2model[Ptile2tile(tilenume,pal)].modelid : -1;
 }
 #endif  // defined USE_OPENGL
 
@@ -1464,7 +1472,7 @@ void hash_delete(hashtable_t *t, const char *s);
 # endif
 #endif
 
-static inline void push_nofog(void)
+FORCE_INLINE void push_nofog(void)
 {
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
@@ -1475,7 +1483,7 @@ static inline void push_nofog(void)
 #endif
 }
 
-static inline void pop_nofog(void)
+FORCE_INLINE void pop_nofog(void)
 {
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)

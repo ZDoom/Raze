@@ -3078,7 +3078,7 @@ int32_t wallfront(int32_t l1, int32_t l2)
 //
 // spritewallfront (internal)
 //
-static inline int32_t spritewallfront(const spritetype *s, int32_t w)
+static inline int32_t spritewallfront(const tspritetype *s, int32_t w)
 {
     const walltype *const wal = &wall[w];
     const walltype *wal2 = &wall[wal->point2];
@@ -3298,24 +3298,32 @@ static void prepwall(int32_t z, const walltype *wal)
 //
 // animateoffs (internal)
 //
-int32_t animateoffs(int16_t tilenum, int16_t fakevar)
+#ifdef DEBUGGINGAIDS
+int32_t animateoffs(int const tilenum, int fakevar)
+#else
+int32_t animateoffs(int const tilenum)
+#endif
 {
-    int i, k, offs = 0;
-    int const animnum = picanm[tilenum].num;
-
+#ifdef DEBUGGINGAIDS
     UNREFERENCED_PARAMETER(fakevar);
+#endif
+
+    int const animnum = picanm[tilenum].num;
 
     if (animnum <= 0)
         return 0;
 
-    i = totalclocklock >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
+    int const i = totalclocklock >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
+    int offs = 0;
 
     switch (picanm[tilenum].sf & PICANM_ANIMTYPE_MASK)
     {
         case PICANM_ANIMTYPE_OSC:
-            k = (i % (animnum << 1));
+        {
+            int k = (i % (animnum << 1));
             offs = (k < animnum) ? k : (animnum << 1) - k;
-            break;
+        }
+        break;
         case PICANM_ANIMTYPE_FWD: offs = i % (animnum + 1); break;
         case PICANM_ANIMTYPE_BACK: offs = -(i % (animnum + 1)); break;
     }
@@ -3336,22 +3344,20 @@ static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
     if (ix2-ix1 < 0)
         swaplong(&ix1, &ix2);
 #endif
-    {
-        // PK 20110423: a bit consistency checking is a good thing:
-        int32_t tmp = (ix2-ix1 >= 0) ? (ix2-ix1+1) : 1;
-        int32_t yinc = tabledivide32((scale(z2, xdimenscale, iy2)<<4) - y, tmp);
+    // PK 20110423: a bit consistency checking is a good thing:
+    int32_t tmp = (ix2 - ix1 >= 0) ? (ix2 - ix1 + 1) : 1;
+    int32_t yinc = tabledivide32((scale(z2, xdimenscale, iy2) << 4) - y, tmp);
 
-        qinterpolatedown16short((intptr_t)&mostbuf[ix1], tmp, y+(globalhoriz<<16), yinc);
-    }
+    qinterpolatedown16short((intptr_t)&mostbuf[ix1], tmp, y + (globalhoriz << 16), yinc);
 
     if (mostbuf[ix1] < 0)
         mostbuf[ix1] = 0;
-    if (mostbuf[ix1] > ydimen)
+    else if (mostbuf[ix1] > ydimen)
         mostbuf[ix1] = ydimen;
 
     if (mostbuf[ix2] < 0)
         mostbuf[ix2] = 0;
-    if (mostbuf[ix2] > ydimen)
+    else if (mostbuf[ix2] > ydimen)
         mostbuf[ix2] = ydimen;
 }
 
@@ -5673,7 +5679,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
 }
 
 
-static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
+static void setup_globals_sprite1(const tspritetype *tspr, const sectortype *sec,
                                      int32_t yspan, int32_t yoff, int32_t tilenum,
                                      int32_t cstat, int32_t *z1ptr, int32_t *z2ptr)
 {
@@ -5765,7 +5771,8 @@ static void drawsprite_classic(int32_t snum)
     int32_t dax, day, dax1, dax2, y;
     int32_t vtilenum = 0;
 
-    spritetype *const tspr = tspriteptr[snum];
+    tspritetype *const tspr = tspriteptr[snum];
+
     const int32_t sectnum = tspr->sectnum;
 
     if (sectnum < 0)
@@ -9024,7 +9031,7 @@ static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
 static sectortype sector_s[MAXSECTORS + M32_FIXME_SECTORS];
 static walltype wall_s[MAXWALLS + M32_FIXME_WALLS];
 static spritetype sprite_s[MAXSPRITES];
-static spritetype tsprite_s[MAXSPRITESONSCREEN];
+static tspritetype tsprite_s[MAXSPRITESONSCREEN];
 # endif
 #else
 void *blockptr = NULL;
@@ -9782,7 +9789,7 @@ killsprite:
             {
                 for (int32_t k=i; k<j; k++)
                 {
-                    const spritetype *const s = tspriteptr[k];
+                    const tspritetype *const s = tspriteptr[k];
 
                     spritesxyz[k].z = s->z;
                     if ((s->cstat&48) != 32)
@@ -9874,7 +9881,7 @@ killsprite:
                 if (tspriteptr[i] != NULL)
                 {
                     vec2f_t spr;
-                    const spritetype *tspr = tspriteptr[i];
+                    const tspritetype *tspr = tspriteptr[i];
 
                     spr.x = (float)tspr->x;
                     spr.y = (float)tspr->y;
@@ -9903,7 +9910,7 @@ killsprite:
                             if ((tspr->cstat & 48) == 32)
                             {
                                 numpts = 4;
-                                get_floorspr_points(tspr, 0, 0,
+                                get_floorspr_points((const spritetype *)tspr, 0, 0,
                                                     &xx[0], &xx[1], &xx[2], &xx[3],
                                                     &yy[0], &yy[1], &yy[2], &yy[3]);
                             }
@@ -9917,7 +9924,7 @@ killsprite:
                                 if ((tspr->cstat & 48) != 16)
                                     tspriteptr[i]->ang = globalang;
 
-                                get_wallspr_points(tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
+                                get_wallspr_points((const spritetype *)tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
 
                                 if ((tspr->cstat & 48) == 0)
                                     tspriteptr[i]->ang = oang;

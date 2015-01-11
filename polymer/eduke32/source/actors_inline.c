@@ -29,6 +29,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "actors_inline.h"
 
+ACTOR_INLINE int A_CheckEnemyTile(int32_t pn)
+{
+    return ((g_tile[pn].flags & (SFLAG_HARDCODED_BADGUY | SFLAG_BADGUY)) != 0);
+}
+
 ACTOR_INLINE int32_t A_SetSprite(int32_t i,uint32_t cliptype)
 {
     vec3_t davect = {(sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
@@ -45,10 +50,8 @@ ACTOR_INLINE int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint3
 
 EXTERN_INLINE void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
 {
-    int32_t i=g_numInterpolations-1;
-    for (; i>=0; i--) oldipos[i] = *curipos[i];
+    for (int i=g_numInterpolations-1; i>=0; i--) oldipos[i] = *curipos[i];
 }
-
 
 EXTERN_INLINE void G_RestoreInterpolations(void)  //Stick at end of drawscreen
 {

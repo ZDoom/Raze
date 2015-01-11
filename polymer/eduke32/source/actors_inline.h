@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 extern int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t cliptype, int32_t clipdist);
-
+ACTOR_INLINE_HEADER int A_CheckEnemyTile(int32_t pn);
 ACTOR_INLINE_HEADER int32_t A_SetSprite(int32_t i,uint32_t cliptype);
 ACTOR_INLINE_HEADER int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype);
 

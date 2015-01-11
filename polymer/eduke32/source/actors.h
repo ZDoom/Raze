@@ -310,7 +310,6 @@ extern projectile_t     SpriteProjectile[MAXSPRITES];
 
 
 void                A_AddToDeleteQueue(int32_t i);
-int32_t             A_CheckEnemyTile(int32_t pn);
 int32_t             A_CheckSwitchTile(int32_t i);
 void                A_DeleteSprite(int32_t s);
 void                A_DoGuts(int32_t sp,int32_t gtype,int32_t n);
