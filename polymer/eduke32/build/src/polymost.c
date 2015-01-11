@@ -442,7 +442,7 @@ void polymost_glinit()
     else
         bglHint(GL_FOG_HINT, GL_DONT_CARE);
 
-    bglFogi(GL_FOG_MODE, GL_EXP2);
+    bglFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
 
     bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -489,14 +489,12 @@ void polymost_glinit()
 }
 
 ////////// VISIBILITY FOG ROUTINES //////////
-extern char nofog;  // in windows/SDL layers
+extern int32_t nofog;  // in windows/SDL layers
 
 // only for r_usenewshading < 2 (not preferred)
 static void fogcalc_old(int32_t shade, int32_t vis)
 {
     float f;
-
-    bglFogi(GL_FOG_MODE, GL_EXP2);
 
     if (r_usenewshading==1)
     {
@@ -526,23 +524,18 @@ static void fogcalc_old(int32_t shade, int32_t vis)
 
 static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
-    Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));
-
-    if (getrendermode() == REND_POLYMOST && r_usetileshades == 1 && shade > 0 &&
+    if (shade > 0 && getrendermode() == REND_POLYMOST && r_usetileshades == 1 &&
         (!usehightile || !hicfindsubst(tile, pal)) &&
         (!usemodels || md_tilehasmodel(tile, pal) < 0))
         shade >>= 1;
 
+    Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));
+
     if (r_usenewshading < 2)
-    {
         fogcalc_old(shade, vis);
-        return;
-    }
     else
     {
-        float combvis = (float)globalvisibility * (uint8_t)(vis+16);
-
-        bglFogi(GL_FOG_MODE, GL_LINEAR);
+        float combvis = (float) globalvisibility * (uint8_t) (vis+16);
 
         if (combvis == 0)
         {
@@ -550,19 +543,16 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
             {
                 // beg = -D*shade, end = D*(NUMSHADES-1-shade)
                 //  => end/beg = -(NUMSHADES-1-shade)/shade
-                fogresult = (float)-FULLVIS_BEGIN;
-                fogresult2 = FULLVIS_BEGIN * (float)(numshades-1-shade)/shade;
+                fogresult = (float) -FULLVIS_BEGIN;
+                fogresult2 = FULLVIS_BEGIN * (float) (numshades-1-shade)/shade;
             }
             else
             {
-                fogresult = (float)FULLVIS_BEGIN;
-                fogresult2 = (float)FULLVIS_END;
+                fogresult = (float) FULLVIS_BEGIN;
+                fogresult2 = (float) FULLVIS_END;
             }
-
-            return;
         }
-
-        if (r_usenewshading == 3 && shade >= numshades-1)
+        else if (r_usenewshading == 3 && shade >= numshades-1)
         {
             fogresult = -1;
             fogresult2 = 0;
@@ -578,61 +568,56 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
 
 void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
-    if (nofog)
-        return;
-
     fogcalc(tile, shade, vis, pal);
     bglFogfv(GL_FOG_COLOR, fogcol);
 
     if (r_usenewshading < 2)
-    {
         bglFogf(GL_FOG_DENSITY, fogresult);
-        return;
+    else
+    {
+        bglFogf(GL_FOG_START, fogresult);
+        bglFogf(GL_FOG_END, fogresult2);
     }
-
-    bglFogf(GL_FOG_START, fogresult);
-    bglFogf(GL_FOG_END, fogresult2);
 }
 
 void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t pal, float factor)
 {
-    if (nofog)
-        return;
-
     // NOTE: for r_usenewshading >= 2, the fog beginning/ending distance results are
     // unused.
     fogcalc(tile, shade, vis, pal);
     bglFogfv(GL_FOG_COLOR, fogcol);
 
     if (r_usenewshading < 2)
-    {
         bglFogf(GL_FOG_DENSITY, fogresult*factor);
-        return;
+    else
+    {
+        bglFogf(GL_FOG_START, (GLfloat) FULLVIS_BEGIN);
+        bglFogf(GL_FOG_END, (GLfloat) FULLVIS_END);
     }
-
-    bglFogf(GL_FOG_START, (GLfloat)FULLVIS_BEGIN);
-    bglFogf(GL_FOG_END, (GLfloat)FULLVIS_END);
 }
 ////////////////////
 
 
 static float get_projhack_ratio(void)
 {
+    float rv;
+
     if (glprojectionhacks == 1)
     {
-        float mul = (gshang*gshang);
-        return 1.05f + mul*mul*mul*mul;
+        float const mul = (gshang * gshang);
+        rv = 1.05f + mul * mul * mul * mul;
     }
-
-    if (glprojectionhacks == 2)
+    else if (glprojectionhacks == 2)
     {
-        float abs_shang = Bfabsf(gshang);
+        float const abs_shang = Bfabsf(gshang);
         if (abs_shang > 0.7f)
-            return 1.05f + 4.f*(abs_shang-0.7f);
+            rv = 1.05f + 4.f * (abs_shang - 0.7f);
     }
+    else
+        rv = 1.f;
 
     // No projection hacks (legacy or new-aspect)
-    return 1.0f;
+    return rv;
 }
 
 static void resizeglcheck(void)
@@ -2354,7 +2339,7 @@ static void polymost_internal_nonparallaxed(float nx0, float ny0, float nx1, flo
     pow2xsplit = 0;
     alpha = 0.f;
 
-    calc_and_apply_fog(globalpicnum, fogpal_shade(sec, global_cf_shade), sec->visibility,
+    if (!nofog) calc_and_apply_fog(globalpicnum, fogpal_shade(sec, global_cf_shade), sec->visibility,
         POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
 
     if (have_floor)
@@ -2524,7 +2509,7 @@ static void polymost_drawalls(int32_t bunch)
 #ifdef USE_OPENGL
             if (getrendermode() >= REND_POLYMOST)
             {
-                calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
+                if (!nofog) calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
 
                 //Use clamping for tiled sky textures
                 for (i=(1<<dapskybits)-1; i>0; i--)
@@ -2796,7 +2781,7 @@ static void polymost_drawalls(int32_t bunch)
 #ifdef USE_OPENGL
             if (getrendermode() >= REND_POLYMOST)
             {
-                calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
+                if (!nofog) calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
 
                 //Use clamping for tiled sky textures
                 for (i=(1<<dapskybits)-1; i>0; i--)
@@ -3121,7 +3106,7 @@ static void polymost_drawalls(int32_t bunch)
                 }
                 if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-                calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+                if (!nofog) calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
                 if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
@@ -3156,7 +3141,7 @@ static void polymost_drawalls(int32_t bunch)
                 }
                 if (nwal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-                calc_and_apply_fog(nwal->picnum, fogpal_shade(sec, nwal->shade), sec->visibility, get_floor_fogpal(sec));
+                if (!nofog) calc_and_apply_fog(nwal->picnum, fogpal_shade(sec, nwal->shade), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
                 if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
@@ -3189,7 +3174,7 @@ static void polymost_drawalls(int32_t bunch)
             }
             if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-            calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+            if (!nofog) calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
             pow2xsplit = 1; domost(x0,-10000,x1,-10000);
         }
@@ -3716,7 +3701,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     if (wal->cstat&128) { if (!(wal->cstat&512)) method = 2; else method = 3; }
     method |= DAMETH_WALL;
 
-    calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+    if (!nofog) calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
     for (i=0; i<2; i++)
     {
@@ -3788,6 +3773,104 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     drawpoly(dpxy, n, method);
 }
 
+#define POINT2(i) (wall[wall[i].point2])
+
+
+static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32_t dawall, vec2_t * const n)
+{
+    vec2_t w = { wall[dawall].x, wall[dawall].y };
+    vec2_t p2 = { POINT2(dawall).x, POINT2(dawall).y };
+    vec2_t d = { p2.x - w.x, p2.y - w.y };
+    int64_t i = d.x * (pos->x - w.x) + d.y * (pos->y - w.y);
+
+    if (i < 0)
+        return 1;
+
+    int64_t j = d.x * d.x + d.y * d.y;
+
+    if (i > j)
+        return 1;
+
+    i = tabledivide64((i << 15), j) << 15;
+
+    n->x = w.x + ((d.x * i) >> 30);
+    n->y = w.y + ((d.y * i) >> 30);
+
+    return 0;
+}
+
+typedef struct
+{
+    uint32_t wrev;
+    uint32_t srev;
+    int16_t wall;
+    int8_t wdist;
+    int8_t filler;
+} wallspriteinfo_t;
+
+wallspriteinfo_t wsprinfo[MAXSPRITES];
+
+static inline int32_t polymost_findwall(tspritetype const * const tspr, int32_t * rd)
+{
+    int32_t dist = 8, closest = -1, dst;
+    sectortype const * const sect = &sector[tspr->sectnum];
+    vec2_t n;
+
+    for (int i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
+    {
+        if (!polymost_getclosestpointonwall((const vec2_t *)tspr, i, &n))
+        {
+            dst = klabs(tspr->x - n.x) + klabs(tspr->y - n.y);
+
+            if (dst <= dist)
+            {
+                dist = dst;
+                closest = i;
+            }
+        }
+    }
+
+    *rd = dist;
+    return closest;
+}
+
+int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                            int32_t x3, int32_t y3, int32_t x4, int32_t y4)
+{
+    // p1 to p2 is a line segment
+    int32_t const x21 = x2 - x1, x34 = x3 - x4;
+    int32_t const y21 = y2 - y1, y34 = y3 - y4;
+    int32_t const bot = x21 * y34 - y21 * x34;
+    int32_t const x31 = x3 - x1, y31 = y3 - y1;
+    int32_t const topt = x31 * y34 - y31 * x34;
+
+    if (bot == 0)
+        return 0;
+    else if (bot > 0)
+    {
+        if ((unsigned)topt >= (unsigned)bot)
+            return 0;
+
+        int32_t topu = x21 * y31 - y21 * x31;
+
+        if ((unsigned)topu >= (unsigned)bot)
+            return 0;
+    }
+    else
+    {
+        if ((unsigned)topt <= (unsigned)bot)
+            return 0;
+
+        int32_t topu = x21 * y31 - y21 * x31;
+
+        if ((unsigned)topu <= (unsigned)bot)
+            return 0;
+    }
+
+    return 1;
+}
+
+
 void polymost_drawsprite(int32_t snum)
 {
     vec2f_t pxy[6];
@@ -3831,7 +3914,7 @@ void polymost_drawsprite(int32_t snum)
 
 #ifdef USE_OPENGL
     sec = &sector[tspr->sectnum];
-    calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, globalshade),
+    if (!nofog) calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, globalshade),
                        sec->visibility, get_floor_fogpal(sec));
 
     while (!(spriteext[spritenum].flags&SPREXT_NOTMD))
@@ -3857,36 +3940,6 @@ void polymost_drawsprite(int32_t snum)
             return;
         }
         break;
-    }
-
-//    if (tspr->cstat & (2|16|32) || gltexmayhavealpha(tspr->picnum,tspr->pal))
-    {
-        float f;
-
-        if (tspr->cstat & 16) // push wall sprites away from wall
-        {
-            tspr->x += (sintable[(tspr->ang+512)&2047]>>13);
-            tspr->y += (sintable[tspr->ang&2047]>>13);
-            updatesector(tspr->x, tspr->y, &tspr->sectnum);
-        }
-        else if (tspr->cstat & 32)
-        {
-            // XXX: such a z offset can be relatively large; for a given
-            // tsprite, not independent of the rest of the scene.
-            if ((tspr->z - sec->ceilingz) < (sec->floorz - tspr->z))
-                tspr->z += snum;
-            else tspr->z -= snum;
-        }
-
-        f = (spritenum * (FLT_EPSILON * 1024.f))/(float)(sepldist(globalposx - tspr->x, globalposy - tspr->y));
-
-#ifdef __arm__
-        glDepthRangef(0.f - f, 1.f - f);
-#else
-        bglDepthRange(0.0 - f, 1.0 - f);
-#endif
-
-        bglDepthFunc(GL_LESS);
     }
 #endif
 
@@ -3995,11 +4048,68 @@ void polymost_drawsprite(int32_t snum)
         if (globalorientation&4) xoff = -xoff;
         if (globalorientation&8) yoff = -yoff;
 
+
         xv = (float)tspr->xrepeat * (float)sintable[(tspr->ang)&2047] * (1.0f/65536.f);
         yv = (float)tspr->xrepeat * (float)sintable[(tspr->ang+1536)&2047] * (1.0f/65536.f);
         f = (float)(tsizx>>1) + (float)xoff;
-        x0 = (float)(posx-globalposx) - xv*f; x1 = xv*(float)tsizx + x0;
-        y0 = (float)(posy-globalposy) - yv*f; y1 = yv*(float)tsizx + y0;
+
+#define WSPR_OFFSET .01f
+
+        {
+            vec2f_t vf = { xv * f, yv * f };
+            // this handles wall sprites z-fighting with other wall sprites
+            float const foffs = tspr->owner * (WSPR_OFFSET * 0.05f);
+
+            x0 = (float)(posx - globalposx) - vf.x - foffs;
+            y0 = (float)(posy - globalposy) - vf.y - foffs;
+
+            int32_t const s = tspr->owner;
+            int32_t walldist = 1;
+            int32_t w = (s == -1) ? -1 : wsprinfo[s].wall;
+
+            // find the wall most likely to be what the sprite is supposed to be ornamented against
+            // this is really slow, so cache the result
+            if (s == -1 || !wsprinfo[s].wall || (spritechanged[s] != wsprinfo[s].srev) ||
+                (w != -1 && wallchanged[w] != wsprinfo[s].wrev))
+            {
+                w = polymost_findwall(tspr, &walldist);
+
+                if (s != -1)
+                {
+                    wallspriteinfo_t *ws = &wsprinfo[s];
+
+                    ws->wall = w;
+                    ws->wdist = walldist;
+                    ws->wrev = wallchanged[w];
+                    ws->srev = spritechanged[s];
+                }
+            }
+            else if (s != -1)
+                walldist = wsprinfo[s].wdist;
+
+            // detect if the sprite is either on the wall line or the wall line and sprite intersect
+            if (w != -1)
+            {
+                vec2_t v = { Blrintf(vf.x), Blrintf(vf.y) };
+
+                if (walldist <= 0 || ((posx - v.x) + (posx + v.x)) == (wall[w].x + POINT2(w).x) ||
+                    ((posy - v.y) + (posy + v.y)) == (wall[w].y + POINT2(w).y) ||
+                    polymost_lintersect(posx - v.x, posy - v.y, posx + v.x, posy + v.y,
+                               wall[w].x, wall[w].y, POINT2(w).x, POINT2(w).y))
+                {
+                    int32_t ang = getangle(wall[w].x - POINT2(w).x, wall[w].y - POINT2(w).y);
+                    vec2f_t offs = { (float)(sintable[(ang + 1024) & 2047] >> 6) * WSPR_OFFSET,
+                                     (float)(sintable[(ang + 512) & 2047] >> 6) * WSPR_OFFSET };
+
+                    x0 -= offs.x;
+                    y0 -= offs.y;
+                }
+            }
+
+        }
+
+        x1 = xv * (float)tsizx + x0;
+        y1 = yv * (float)tsizx + y0;
 
         yp0 = x0*gcosang2 + y0*gsinang2;
         yp1 = x1*gcosang2 + y1*gsinang2;
@@ -4158,6 +4268,7 @@ void polymost_drawsprite(int32_t snum)
         {
             sx0 = (float)(tspr->x-globalposx);
             sy0 = (float)(tspr->y-globalposy);
+
             if ((j+0)&2) { sy0 -= s*y0; sx0 -= c*y0; }
             else { sy0 += s*y1; sx0 += c*y1; }
             if ((j+1)&2) { sx0 -= s*x0; sy0 += c*x0; }
@@ -4189,8 +4300,17 @@ void polymost_drawsprite(int32_t snum)
         }
         if (npoints < 3) return;
 
+#define FSPR_OFFSET .5f
+
         //Project rotated 3D points to screen
-        f = ((float)(tspr->z-globalposz))*gyxscale;
+
+        i = 1;
+
+        for (SPRITES_OF_SECT(tspr->sectnum, j), i++)
+            if (j == tspr->owner)
+                break;
+
+        f = ((float)(tspr->z-globalposz) - (i * FSPR_OFFSET))*gyxscale;
         for (j=0; j<npoints; j++)
         {
             ryp0 = 1/py2[j];
@@ -4200,7 +4320,7 @@ void polymost_drawsprite(int32_t snum)
 
         //gd? Copied from floor rendering code
         gdx = 0;
-        gdy = gxyaspect / (double)(tspr->z-globalposz);
+        gdy = gxyaspect / (double)(tspr->z-globalposz - (i * FSPR_OFFSET));
         gdo = -ghoriz*gdy;
         //copied&modified from relative alignment
         xv = (float)tspr->x + s*x1 + c*y1; fx = (float)-(x0+x1)*s;
@@ -5276,6 +5396,11 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
             gltexturemode(parm);
             return r;
         }
+        else if (!Bstrcasecmp(parm->name, "r_usenewshading"))
+        {
+            bglFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
+            return r;
+        }
 #ifdef POLYMER
         else if (!Bstrcasecmp(parm->name, "r_pr_maxlightpasses"))
         {
@@ -5337,7 +5462,7 @@ void polymost_initosdfuncs(void)
 
         { "r_usenewshading",
           "visibility/fog code: 0: orig. Polymost   1: 07/2011   2: linear 12/2012   3: no neg. start 03/2014",
-          (void *) &r_usenewshading, CVAR_INT, 0, 3
+          (void *) &r_usenewshading, CVAR_INT|CVAR_FUNCPTR, 0, 3
         },
 
         { "r_usetileshades", "enable/disable Polymost tile shade textures", (void *) &r_usetileshades, CVAR_INT | CVAR_INVALIDATEART, 0, 2 },
@@ -5388,6 +5513,7 @@ void polymost_initosdfuncs(void)
 #else
         { "r_models","enable/disable model rendering",(void *) &usemodels, CVAR_BOOL, 0, 1 },
 #endif
+        { "r_nofog", "enable/disable GL fog", (void *)&nofog, CVAR_BOOL, 0, 1},
         { "r_hightile","enable/disable hightile texture rendering",(void *) &usehightile, CVAR_BOOL, 0, 1 },
 
         { "r_preview_mouseaim", "toggles mouse aiming preview, use this to calibrate yxaspect in Polymost Mapster32", (void *) &preview_mouseaim, CVAR_BOOL, 0, 1 },

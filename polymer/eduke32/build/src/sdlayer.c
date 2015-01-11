@@ -93,7 +93,7 @@ int32_t lockcount=0;
 char modechange=1;
 char offscreenrendering=0;
 char videomodereset = 0;
-char nofog=0;
+int32_t nofog=0;
 static uint16_t sysgamma[3][256];
 extern int32_t curbrightness, gammabrightness;
 #ifdef USE_OPENGL

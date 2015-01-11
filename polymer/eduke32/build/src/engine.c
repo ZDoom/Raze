@@ -8808,46 +8808,61 @@ int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
     return(0);
 }
 
-
 //
 // lintersect (internal)
 //
-static int32_t lintersect(int32_t x1, int32_t y1, int32_t z1,
-                          int32_t x2, int32_t y2, int32_t z2,
-                          int32_t x3, int32_t y3, int32_t x4, int32_t y4,
-                          int32_t *intx, int32_t *inty, int32_t *intz)
+int32_t lintersect(int32_t x1, int32_t y1, int32_t z1,
+                   int32_t x2, int32_t y2, int32_t z2,
+                   int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+                   int32_t *intx, int32_t *inty, int32_t *intz)
 {
-    //p1 to p2 is a line segment
-    int32_t x21, y21, x34, y34, x31, y31, bot, topt, topu, t;
+    // p1 to p2 is a line segment
+    int32_t x21 = x2 - x1;
+    int32_t x34 = x3 - x4;
+    int32_t y21 = y2 - y1;
+    int32_t y34 = y3 - y4;
+    int32_t bot = x21 * y34 - y21 * x34;
+    int32_t topt;
 
-    x21 = x2-x1; x34 = x3-x4;
-    y21 = y2-y1; y34 = y3-y4;
-    bot = x21*y34 - y21*x34;
-    if (bot >= 0)
+    if (bot == 0)
+        return 0;
+    else if (bot > 0)
     {
-        if (bot == 0) return(0);
-        x31 = x3-x1; y31 = y3-y1;
-        topt = x31*y34 - y31*x34; if ((topt < 0) || (topt >= bot)) return(0);
-        topu = x21*y31 - y21*x31; if ((topu < 0) || (topu >= bot)) return(0);
+        int32_t x31 = x3 - x1;
+        int32_t y31 = y3 - y1;
+
+        topt = x31 * y34 - y31 * x34;
+
+        if ((unsigned)topt >= (unsigned)bot)
+            return 0;
+
+        int32_t topu = x21 * y31 - y21 * x31;
+
+        if ((unsigned)topu >= (unsigned)bot)
+            return 0;
     }
     else
     {
-        x31 = x3-x1; y31 = y3-y1;
-        topt = x31*y34 - y31*x34; if ((topt > 0) || (topt <= bot)) return(0);
-        topu = x21*y31 - y21*x31; if ((topu > 0) || (topu <= bot)) return(0);
+        int32_t x31 = x3 - x1;
+        int32_t y31 = y3 - y1;
+
+        topt = x31 * y34 - y31 * x34;
+
+        if ((unsigned)topt <= (unsigned)bot)
+            return 0;
+
+        int32_t topu = x21 * y31 - y21 * x31;
+
+        if ((unsigned)topu <= (unsigned)bot)
+            return 0;
     }
-    t = divscale24(topt,bot);
-    *intx = x1 + mulscale24(x21,t);
-    *inty = y1 + mulscale24(y21,t);
-    *intz = z1 + mulscale24(z2-z1,t);
-    return(1);
-}
 
+    int32_t t = divscale24(topt, bot);
+    *intx = x1 + mulscale24(x21, t);
+    *inty = y1 + mulscale24(y21, t);
+    *intz = z1 + mulscale24(z2 - z1, t);
 
-int32_t lineintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t x3,
-                      int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
-{
-    return lintersect(x1, y1, z1, x2, y2, z2, x3, y3, x4, y4, intx, inty, intz);
+    return 1;
 }
 
 //
@@ -10462,7 +10477,7 @@ void E_MapArt_Setup(const char *filename)
 
 //////////////////// LOADING AND SAVING ROUTINES ////////////////////
 
-static inline int32_t have_maptext(void)
+FORCE_INLINE int32_t have_maptext(void)
 {
     return (mapversion >= 10);
 }
@@ -10474,6 +10489,9 @@ static void prepare_loadboard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_
     Bmemset(show2dsector, 0, sizeof(show2dsector));
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
     Bmemset(show2dwall, 0, sizeof(show2dwall));
+    Bmemset(sectorchanged, 0, sizeof(sectorchanged));
+    Bmemset(spritechanged, 0, sizeof(spritechanged));
+    Bmemset(wallchanged, 0, sizeof(wallchanged));
 
     if (!have_maptext())
     {
@@ -12376,14 +12394,23 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
 
 int32_t __fastcall getangle(int32_t xvect, int32_t yvect)
 {
-    if ((xvect|yvect) == 0) return(0);
-    if (xvect == 0) return 512+((yvect<0)<<10);
-    if (yvect == 0) return ((xvect<0)<<10);
-    if (xvect == yvect) return 256+((xvect<0)<<10);
-    if (xvect == -yvect) return 768+((xvect>0)<<10);
-    if (klabs(xvect) > klabs(yvect))
-        return ((radarang[640+scale(160,yvect,xvect)]>>6)+((xvect<0)<<10))&2047;
-    return ((radarang[640-scale(160,xvect,yvect)]>>6)+512+((yvect<0)<<10))&2047;
+    int32_t rv;
+
+    if ((xvect | yvect) == 0)
+        rv = 0;
+    else if (xvect == 0)
+        rv = 512 + ((yvect < 0) << 10);
+    else if (yvect == 0)
+        rv = ((xvect < 0) << 10);
+    else if (xvect == yvect)
+        rv = 256 + ((xvect < 0) << 10);
+    else if (xvect == -yvect)
+        rv = 768 + ((xvect > 0) << 10);
+    else if (klabs(xvect) > klabs(yvect))
+        rv = ((radarang[640 + scale(160, yvect, xvect)] >> 6) + ((xvect < 0) << 10)) & 2047;
+    else rv = ((radarang[640 - scale(160, xvect, yvect)] >> 6) + 512 + ((yvect < 0) << 10)) & 2047;
+
+    return rv;
 }
 
 //
@@ -14355,7 +14382,7 @@ void updatesector(int32_t x, int32_t y, int16_t *sectnum)
     if (inside_p(x,y,*sectnum))
         return;
 
-    if (*sectnum >= 0 && *sectnum < numsectors)
+    if ((unsigned)*sectnum < (unsigned)numsectors)
     {
         const walltype *wal = &wall[sector[*sectnum].wallptr];
         int32_t j = sector[*sectnum].wallnum;
