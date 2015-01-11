@@ -383,7 +383,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
             rotatesprite(158<<16,144<<16,65536,0,929,0,0,2+8+16,0,0,ii,ydim-1);
         }
 
-        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek);
+        VM_OnEventWithReturn(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, percent);
         nextpage();
 
         if (!statustext)
@@ -418,7 +418,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
 
         menutext(160,105,0,0,"Loading...");
         if (statustext) gametext(160,180,statustext,0,2+8+16);
-        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek);
+        VM_OnEventWithReturn(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, percent);
         nextpage();
     }
 }
