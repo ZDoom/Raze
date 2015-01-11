@@ -3101,6 +3101,8 @@ static void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
 
     if (p->weapon_pos == 0)
         p->weapon_pos = -1;
+    else if ((unsigned)p->weapon_pos < WEAPON_POS_RAISE)
+        p->weapon_pos = -p->weapon_pos;
     else p->weapon_pos = WEAPON_POS_LOWER;
 
     if (p->holster_weapon)
