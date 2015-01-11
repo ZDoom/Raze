@@ -30,11 +30,18 @@ static OSVERSIONINFOEX osv;
 
 static int32_t togglecomp = 1;
 
+FARPROC pwinever;
+
 //
 // CheckWinVersion() -- check to see what version of Windows we happen to be running under
 //
 BOOL CheckWinVersion(void)
 {
+    HMODULE hntdll = GetModuleHandle("ntdll.dll");
+
+    if (hntdll)
+        pwinever = GetProcAddress(hntdll, "wine_get_version");
+
     ZeroMemory(&osv, sizeof(osv));
     osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
@@ -85,10 +92,23 @@ static void win_printversion(void)
             break;
     }
 
-    initprintf("Windows %s", ver);
+    char *str = (char *)Bcalloc(1, 256);
+    int l;
+
+    if (pwinever)
+        l = Bsprintf(str, "Wine %s identifying as Windows %s", (char *)pwinever(), ver);
+    else
+        l = Bsprintf(str, "Windows %s", ver);
+
+    // service packs
     if (osv.szCSDVersion && osv.szCSDVersion[0])
-        initprintf(" %s", osv.szCSDVersion);
-    initprintf(" (build %lu.%lu.%lu)\n", osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
+    {
+        str[l] = 32;
+        Bstrcat(&str[l], osv.szCSDVersion);
+    }
+
+    initprintf("%s (build %lu.%lu.%lu)\n", str, osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
+    Bfree(str);
 }
 
 //
@@ -97,6 +117,7 @@ static void win_printversion(void)
 void win_allowtaskswitching(int32_t onf)
 {
     if (onf == taskswitching) return;
+    taskswitching = onf;
 
     if (onf)
     {
@@ -109,7 +130,6 @@ void win_allowtaskswitching(int32_t onf)
         RegisterHotKey(0,1,MOD_ALT|MOD_SHIFT,VK_TAB);
     }
 
-    taskswitching = onf;
 }
 
 
