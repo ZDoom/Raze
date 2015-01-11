@@ -192,8 +192,8 @@ typedef struct
     int16_t *ynextwall;  // [numwalls][2]
 #endif
     sectortype *sector;
-    walltype *wall;
-    spritetype *sprite;
+    twalltype *wall;
+    tspritetype *sprite;
 } mapinfofull_t;
 
 int32_t g_doScreenShot;
@@ -1605,7 +1605,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 
     // allocate temp storage
     mapinfo->sector = (sectortype *)Xmalloc(highlightsectorcnt * sizeof(sectortype));
-    mapinfo->wall = (walltype *)Xmalloc(tmpnumwalls * sizeof(walltype));
+    mapinfo->wall = (twalltype *)Xmalloc(tmpnumwalls * sizeof(walltype));
 
 #ifdef YAX_ENABLE
     if (mapinfo->numyaxbunches > 0)
@@ -1621,7 +1621,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 
     if (tmpnumsprites>0)
     {
-        mapinfo->sprite = (spritetype *)Xmalloc(tmpnumsprites * sizeof(spritetype));
+        mapinfo->sprite = (tspritetype *)Xmalloc(tmpnumsprites * sizeof(spritetype));
     }
     else
     {
@@ -1838,7 +1838,7 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal)
     // insert sprites
     for (i=0; i<mapinfo->numsprites; i++)
     {
-        const spritetype *srcspr = &mapinfo->sprite[i];
+        const tspritetype *srcspr = &mapinfo->sprite[i];
         int32_t sect = onumsectors + srcspr->sectnum;
 
         j = insertsprite(sect, srcspr->statnum);
@@ -2245,9 +2245,9 @@ void fade_editor_screen(int32_t keepcol)
 
 static void copy_some_wall_members(int16_t dst, int16_t src, int32_t reset_some)
 {
-    static walltype nullwall;
-    walltype *dstwal=&wall[dst];
-    const walltype *srcwal = src >= 0 ? &wall[src] : &nullwall;
+    static twalltype nullwall;
+    walltype * const dstwal = &wall[dst];
+    const twalltype *srcwal = src >= 0 ? (twalltype *)&wall[src] : &nullwall;
 
     memset(&nullwall, 0, sizeof(nullwall));
     nullwall.yrepeat = 8;
@@ -2472,7 +2472,7 @@ static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, 
 // Context that needs special treatment: suckwall, splitsect, splitstartwall
 static int32_t backup_drawn_walls(int32_t restore)
 {
-    static walltype *tmpwall;
+    static twalltype *tmpwall;
 
     // back up
     if (restore==0)
@@ -2485,7 +2485,7 @@ static int32_t backup_drawn_walls(int32_t restore)
                 return 2;
 
             Bfree(tmpwall);
-            tmpwall = (walltype *)Xmalloc((newnumwalls-numwalls) * sizeof(walltype));
+            tmpwall = (twalltype *)Xmalloc((newnumwalls-numwalls) * sizeof(walltype));
 
             ovh.bak_wallsdrawn = newnumwalls-numwalls;
 
@@ -2636,8 +2636,8 @@ static int32_t sectors_components(int16_t hlsectcnt, const int16_t *hlsector, in
 
 static int cmpgeomwal1(const void *w1, const void *w2)
 {
-    const walltype *wal1 = &wall[*(int16_t *)w1];
-    const walltype *wal2 = &wall[*(int16_t *)w2];
+    twalltype const * const wal1 = (twalltype *)&wall[*(int16_t *)w1];
+    twalltype const * const wal2 = (twalltype *)&wall[*(int16_t *)w2];
 
     if (wal1->x == wal2->x)
         return wal1->y - wal2->y;
@@ -2944,7 +2944,7 @@ static int32_t lineintersect2v(const vec2_t *p1, const vec2_t *p2,  // line segm
                                vec2_t *pint)
 {
     int32_t intz;
-    return lineintersect(p1->x, p1->y, 0, p2->x, p2->y, 0,
+    return lintersect(p1->x, p1->y, 0, p2->x, p2->y, 0,
                          q1->x, q1->y, q2->x, q2->y,
                          &pint->x, &pint->y, &intz);
 }
@@ -3431,7 +3431,7 @@ void overheadeditor(void)
                     i = newnumwalls-1;
                 for (; i>=0; i--)
                 {
-                    const walltype *wal = &wall[i];
+                    walltype const * const wal = &wall[i];
 
                     if (j>=0 && sector[j].wallptr > i)
                         j--;
@@ -3605,7 +3605,7 @@ void overheadeditor(void)
 
                                 if ((highlight[i]&16384)==0)
                                 {
-                                    const walltype *wal = &wall[highlight[i]];
+                                    walltype const * const wal = &wall[highlight[i]];
                                     const int32_t p2=wal->point2, hlp=(show2dwall[p2>>3]&(1<<(p2&7)));
                                     vec3_t v1 = { x, y, 0 }, v2 = { wall[p2].x, wall[p2].y, 0 };
 
@@ -3799,7 +3799,7 @@ void overheadeditor(void)
                     int32_t startofloop, endofloop;
                     int32_t numtoswap = -1;
                     int32_t w=0;
-                    walltype tempwall;
+                    twalltype tempwall;
 
                     startofloop = startwall = sector[highlightsector[i]].wallptr;
                     endofloop = endwall = startwall+sector[highlightsector[i]].wallnum-1;
@@ -5067,7 +5067,7 @@ end_yax: ;
                                     sector[refsect].wallnum += n;
                                     if (refsect != numsectors-1)
                                     {
-                                        walltype *tmpwall = (walltype *)Xmalloc(n * sizeof(walltype));
+                                        twalltype *tmpwall = (twalltype *)Xmalloc(n * sizeof(walltype));
                                         int16_t *tmponw = (int16_t *)Xmalloc(n * sizeof(int16_t));
 
                                         for (m=0; m<numwalls; m++)
@@ -5824,7 +5824,7 @@ end_point_dragging:
 
                 int32_t numouterwalls[2] = {0,0}, numowals;
                 static int16_t outerwall[2][MAXWALLS];
-                const walltype *wal0, *wal1, *wal0p2, *wal1p2;
+                const twalltype *wal0, *wal1, *wal0p2, *wal1p2;
 
                 // join sector ceilings/floors to a new bunch
                 if (numyaxbunches==YAX_MAXBUNCHES)
@@ -5918,11 +5918,11 @@ end_point_dragging:
 
                 for (k=0; k<numowals; k++)
                 {
-                    wal0 = &wall[outerwall[0][k]];
-                    wal1 = &wall[outerwall[1][k]];
+                    wal0 = (twalltype *)&wall[outerwall[0][k]];
+                    wal1 = (twalltype *)&wall[outerwall[1][k]];
 
-                    wal0p2 = &wall[wal0->point2];
-                    wal1p2 = &wall[wal1->point2];
+                    wal0p2 = (twalltype *)&wall[wal0->point2];
+                    wal1p2 = (twalltype *)&wall[wal1->point2];
 
                     if (k==0)
                     {
@@ -5935,14 +5935,14 @@ end_point_dragging:
                     {
                         pos.x = wal0->x + (wal0p2->x - wal0->x)/4;
                         pos.y = wal0->y + (wal0p2->y - wal0->y)/4;
-                        pos.z = getflorzofslope(sectorofwall(wal0-wall), pos.x, pos.y);
+                        pos.z = getflorzofslope(sectorofwall(wal0-(twalltype *)wall), pos.x, pos.y);
 
                         if (!delayerr)
                             message("Outer wall coordinates must coincide for both components");
-                        OSD_Printf("wal0:%d (%d,%d)--(%d,%d)\n",(int)(wal0-wall),
-                                   TrackerCast(wal0->x),TrackerCast(wal0->y), TrackerCast(wal0p2->x),TrackerCast(wal0p2->y));
-                        OSD_Printf("wal1:%d (%d,%d)--(%d,%d)\n",(int)(wal1-wall),
-                                   TrackerCast(wal1->x),TrackerCast(wal1->y), TrackerCast(wal1p2->x),TrackerCast(wal1p2->y));
+                        OSD_Printf("wal0:%d (%d,%d)--(%d,%d)\n",(int)(wal0-(twalltype *)wall),
+                                   wal0->x,wal0->y, wal0p2->x,wal0p2->y);
+                        OSD_Printf("wal1:%d (%d,%d)--(%d,%d)\n",(int)(wal1-(twalltype *)wall),
+                                   wal1->x,wal1->y, wal1p2->x,wal1p2->y);
 
                         goto end_join_sectors;
                     }
@@ -10250,13 +10250,11 @@ void showsectordata(int16_t sectnum, int16_t small)
 
 void showwalldata(int16_t wallnum, int16_t small)
 {
-    walltype *wal;
+    walltype const * const wal = &wall[wallnum];
     int32_t sec;
     char snotbuf[80];
     int32_t col=0; //, row = 0;
     int32_t color = small ? whitecol : editorcolors[11];
-
-    wal = &wall[wallnum];
 
     if (small)
     {

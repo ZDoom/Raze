@@ -1820,7 +1820,7 @@ badindex:
                 int32_t intx, inty, intz, ret;
 
                 if (tw==CON_LINEINTERSECT)
-                    ret = lineintersect(x1, y1, z1, x2, y2, z2, x3, y3, x4, y4, &intx, &inty, &intz);
+                    ret = lintersect(x1, y1, z1, x2, y2, z2, x3, y3, x4, y4, &intx, &inty, &intz);
                 else
                     ret = rayintersect(x1, y1, z1, x2, y2, z2, x3, y3, x4, y4, &intx, &inty, &intz);
 

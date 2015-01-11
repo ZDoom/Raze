@@ -9853,7 +9853,7 @@ int32_t ExtPostStartupWindow(void)
     }
 
     if (ReadPaletteTable())
-        return -1;
+        return 0;
 
     InitCustomColors();
 
