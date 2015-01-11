@@ -54,41 +54,35 @@ static void win_printversion(void)
 
     switch (osv.dwPlatformId)
     {
-    case VER_PLATFORM_WIN32_NT:
-        if (osv.dwMajorVersion == 5)
-        {
-            switch (osv.dwMinorVersion)
+        case VER_PLATFORM_WIN32_NT:
+            switch (osv.dwMajorVersion)
             {
-            case 1:
-                ver = "XP";
-                break;
-            case 2:
-                ver = osv.wProductType == VER_NT_WORKSTATION ? "XP x64" : "Server 2003";
-                break;
-            }
-            break;
-        }
+                case 5:
+                    switch (osv.dwMinorVersion)
+                    {
+                        case 1: ver = "XP"; break;
+                        case 2: ver = osv.wProductType == VER_NT_WORKSTATION ? "XP x64" : "Server 2003"; break;
+                    }
+                    break;
 
-        if (osv.dwMajorVersion == 6)
-        {
-            switch (osv.dwMinorVersion)
-            {
-            case 0:
-                ver = osv.wProductType == VER_NT_WORKSTATION ? "Vista" : "Server 2008";
-                break;
-            case 1:
-                ver = osv.wProductType == VER_NT_WORKSTATION ? "7" : "Server 2008 R2";
-                break;
-            case 2:
-                ver = osv.wProductType == VER_NT_WORKSTATION ? "8" : "Server 2012";
-                break;
-            case 3:
-                ver = osv.wProductType == VER_NT_WORKSTATION ? "8.1" : "Server 2012 R2";
-                break;
+                case 6:
+                    switch (osv.dwMinorVersion)
+                    {
+                        case 0: ver = osv.wProductType == VER_NT_WORKSTATION ? "Vista" : "Server 2008"; break;
+                        case 1: ver = osv.wProductType == VER_NT_WORKSTATION ? "7" : "Server 2008 R2"; break;
+                        case 2: ver = osv.wProductType == VER_NT_WORKSTATION ? "8" : "Server 2012"; break;
+                        case 3: ver = osv.wProductType == VER_NT_WORKSTATION ? "8.1" : "Server 2012 R2"; break;
+                    }
+                    break;
+
+                case 10:
+                    switch (osv.dwMinorVersion)
+                    {
+                        case 0: ver = osv.wProductType == VER_NT_WORKSTATION ? "10" : "Server 10"; break;
+                    }
+                    break;
             }
             break;
-        }
-        break;
     }
 
     initprintf("Windows %s", ver);
