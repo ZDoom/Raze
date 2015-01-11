@@ -90,6 +90,10 @@ enum
     HICEFFECTMASK = (1|2|4|8),
 };
 
+#define GRAYSCALE_COEFF_RED 0.3
+#define GRAYSCALE_COEFF_GREEN 0.59
+#define GRAYSCALE_COEFF_BLUE 0.11
+
 #ifdef __cplusplus
 }
 #endif

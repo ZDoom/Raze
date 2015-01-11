@@ -1203,14 +1203,12 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
                 if (effect & HICTINT_GRAYSCALE)
                 {
-                    // greyscale
-                    tcol.b = max(tcol.b, max(tcol.g, tcol.r));
-                    tcol.g = tcol.r = tcol.b;
+                    tcol.g = tcol.r = tcol.b = (uint8_t) ((tcol.r * GRAYSCALE_COEFF_RED) + (tcol.g * GRAYSCALE_COEFF_GREEN) +
+                                                          (tcol.b * GRAYSCALE_COEFF_BLUE));
                 }
 
                 if (effect & HICTINT_INVERT)
                 {
-                    // invert
                     tcol.b = 255-tcol.b;
                     tcol.g = 255-tcol.g;
                     tcol.r = 255-tcol.r;
@@ -1218,7 +1216,6 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
                 if (effect & HICTINT_COLORIZE)
                 {
-                    // colorize
                     tcol.b = min((int32_t)((tcol.b)*r)/64,255);
                     tcol.g = min((int32_t)((tcol.g)*g)/64,255);
                     tcol.r = min((int32_t)((tcol.r)*b)/64,255);

@@ -622,20 +622,19 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
 
             if (effect & HICTINT_GRAYSCALE)
             {
-                // greyscale
-                tcol.b = max(tcol.b, max(tcol.g, tcol.r));
-                tcol.g = tcol.r = tcol.b;
+                tcol.g = tcol.r = tcol.b = (uint8_t)((tcol.r * GRAYSCALE_COEFF_RED) + (tcol.g * GRAYSCALE_COEFF_GREEN) +
+                                                     (tcol.b * GRAYSCALE_COEFF_BLUE));
             }
+
             if (effect & HICTINT_INVERT)
             {
-                // invert
                 tcol.b = 255-tcol.b;
                 tcol.g = 255-tcol.g;
                 tcol.r = 255-tcol.r;
             }
+
             if (effect & HICTINT_COLORIZE)
             {
-                // colorize
                 tcol.b = min((int32_t)(tcol.b)*b/64,255);
                 tcol.g = min((int32_t)(tcol.g)*g/64,255);
                 tcol.r = min((int32_t)(tcol.r)*r/64,255);
