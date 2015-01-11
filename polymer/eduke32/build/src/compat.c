@@ -78,237 +78,113 @@ void set_memerr_handler(void(*handlerfunc)(int32_t, const char *, const char *))
 
 #ifndef compat_h_macrodef__
 
-void Bassert(int expr)
-{
-    assert(expr);
-}
-
-int32_t Brand(void)
-{
-    return rand();
-}
-
-void *Bmalloc(bsize_t size)
-{
-    return malloc(size);
-}
-
-void Bfree(void *ptr)
-{
-    Bfree(ptr);
-}
+void Bassert(int expr) { assert(expr); }
+int32_t Brand(void) { return rand(); }
+void *Bmalloc(bsize_t size) { return malloc(size); }
+void Bfree(void *ptr) { Bfree(ptr); }
 
 int32_t Bopen(const char *pathname, int32_t flags, uint32_t mode)
 {
-    int32_t n=0,o=0;
+    int32_t n = 0, o = 0;
 
-    if (flags&BO_BINARY) n|=O_BINARY; else n|=O_TEXT;
-    if ((flags&BO_RDWR)==BO_RDWR) n|=O_RDWR;
-    else if ((flags&BO_RDWR)==BO_WRONLY) n|=O_WRONLY;
-    else if ((flags&BO_RDWR)==BO_RDONLY) n|=O_RDONLY;
-    if (flags&BO_APPEND) n|=O_APPEND;
-    if (flags&BO_CREAT) n|=O_CREAT;
-    if (flags&BO_TRUNC) n|=O_TRUNC;
-    if (mode&BS_IREAD) o|=S_IREAD;
-    if (mode&BS_IWRITE) o|=S_IWRITE;
-    if (mode&BS_IEXEC) o|=S_IEXEC;
+    if (flags & BO_BINARY)
+        n |= O_BINARY;
+    else
+        n |= O_TEXT;
+    if ((flags & BO_RDWR) == BO_RDWR)
+        n |= O_RDWR;
+    else if ((flags & BO_RDWR) == BO_WRONLY)
+        n |= O_WRONLY;
+    else if ((flags & BO_RDWR) == BO_RDONLY)
+        n |= O_RDONLY;
+    if (flags & BO_APPEND)
+        n |= O_APPEND;
+    if (flags & BO_CREAT)
+        n |= O_CREAT;
+    if (flags & BO_TRUNC)
+        n |= O_TRUNC;
+    if (mode & BS_IREAD)
+        o |= S_IREAD;
+    if (mode & BS_IWRITE)
+        o |= S_IWRITE;
+    if (mode & BS_IEXEC)
+        o |= S_IEXEC;
 
-    return open(pathname,n,o);
+    return open(pathname, n, o);
 }
 
-int32_t Bclose(int32_t fd)
-{
-    return close(fd);
-}
-
-bssize_t Bwrite(int32_t fd, const void *buf, bsize_t count)
-{
-    return write(fd,buf,count);
-}
-
-bssize_t Bread(int32_t fd, void *buf, bsize_t count)
-{
-    return read(fd,buf,count);
-}
+int32_t Bclose(int32_t fd) { return close(fd); }
+bssize_t Bwrite(int32_t fd, const void *buf, bsize_t count) { return write(fd, buf, count); }
+bssize_t Bread(int32_t fd, void *buf, bsize_t count) { return read(fd, buf, count); }
 
 int32_t Blseek(int32_t fildes, int32_t offset, int32_t whence)
 {
     switch (whence)
     {
-    case BSEEK_SET:
-        whence=SEEK_SET; break;
-    case BSEEK_CUR:
-        whence=SEEK_CUR; break;
-    case BSEEK_END:
-        whence=SEEK_END; break;
+        case BSEEK_SET: whence = SEEK_SET; break;
+        case BSEEK_CUR: whence = SEEK_CUR; break;
+        case BSEEK_END: whence = SEEK_END; break;
     }
-    return lseek(fildes,offset,whence);
+    return lseek(fildes, offset, whence);
 }
 
-BFILE *Bfopen(const char *path, const char *mode)
-{
-    return (BFILE *)fopen(path,mode);
-}
-
-int32_t Bfclose(BFILE *stream)
-{
-    return fclose((FILE *)stream);
-}
-
-void Brewind(BFILE *stream)
-{
-    rewind((FILE *)stream);
-}
-
-int32_t Bfgetc(BFILE *stream)
-{
-    return fgetc((FILE *)stream);
-}
-
-char *Bfgets(char *s, int32_t size, BFILE *stream)
-{
-    return fgets(s,size,(FILE *)stream);
-}
-
-int32_t Bfputc(int32_t c, BFILE *stream)
-{
-    return fputc(c,(FILE *)stream);
-}
-
-int32_t Bfputs(const char *s, BFILE *stream)
-{
-    return fputs(s,(FILE *)stream);
-}
-
-bsize_t Bfread(void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream)
-{
-    return fread(ptr,size,nmemb,(FILE *)stream);
-}
-
-bsize_t Bfwrite(const void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream)
-{
-    return fwrite(ptr,size,nmemb,(FILE *)stream);
-}
-
-
-char *Bstrdup(const char *s)
-{
-    return strdup(s);
-}
-
-char *Bstrcpy(char *dest, const char *src)
-{
-    return strcpy(dest,src);
-}
-
-char *Bstrncpy(char *dest, const char *src, bsize_t n)
-{
-    return Bstrncpy(dest,src,n);
-}
-
-int32_t Bstrcmp(const char *s1, const char *s2)
-{
-    return strcmp(s1,s2);
-}
-
-int32_t Bstrncmp(const char *s1, const char *s2, bsize_t n)
-{
-    return strncmp(s1,s2,n);
-}
+BFILE *Bfopen(const char *path, const char *mode) { return (BFILE *)fopen(path, mode); }
+int32_t Bfclose(BFILE *stream) { return fclose((FILE *)stream); }
+void Brewind(BFILE *stream) { rewind((FILE *)stream); }
+int32_t Bfgetc(BFILE *stream) { return fgetc((FILE *)stream); }
+char *Bfgets(char *s, int32_t size, BFILE *stream) { return fgets(s, size, (FILE *)stream); }
+int32_t Bfputc(int32_t c, BFILE *stream) { return fputc(c, (FILE *)stream); }
+int32_t Bfputs(const char *s, BFILE *stream) { return fputs(s, (FILE *)stream); }
+bsize_t Bfread(void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream) { return fread(ptr, size, nmemb, (FILE *)stream); }
+bsize_t Bfwrite(const void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream) { return fwrite(ptr, size, nmemb, (FILE *)stream); }
+char *Bstrdup(const char *s) { return strdup(s); }
+char *Bstrcpy(char *dest, const char *src) { return strcpy(dest, src); }
+char *Bstrncpy(char *dest, const char *src, bsize_t n) { return Bstrncpy(dest, src, n); }
+int32_t Bstrcmp(const char *s1, const char *s2) { return strcmp(s1, s2); }
+int32_t Bstrncmp(const char *s1, const char *s2, bsize_t n) { return strncmp(s1, s2, n); }
 
 int32_t Bstrcasecmp(const char *s1, const char *s2)
 {
 #ifdef _MSC_VER
-    return _stricmp(s1,s2);
+    return _stricmp(s1, s2);
 #else
-    return strcasecmp(s1,s2);
+    return strcasecmp(s1, s2);
 #endif
 }
 
 int32_t Bstrncasecmp(const char *s1, const char *s2, bsize_t n)
 {
 #ifdef _MSC_VER
-    return _strnicmp(s1,s2,n);
+    return _strnicmp(s1, s2, n);
 #else
-    return strncasecmp(s1,s2,n);
+    return strncasecmp(s1, s2, n);
 #endif
 }
 
-char *Bstrcat(char *dest, const char *src)
-{
-    return strcat(dest,src);
-}
-
-char *Bstrncat(char *dest, const char *src, bsize_t n)
-{
-    return strncat(dest,src,n);
-}
-
-bsize_t Bstrlen(const char *s)
-{
-    return strlen(s);
-}
-
-char *Bstrchr(const char *s, int32_t c)
-{
-    return strchr(s,c);
-}
-
-char *Bstrrchr(const char *s, int32_t c)
-{
-    return strrchr(s,c);
-}
-
-int32_t Batoi(const char *nptr)
-{
-    return strtol(nptr, NULL, 10);
-}
-
-int32_t Batol(const char *nptr)
-{
-    return strtol(nptr, NULL, 10);
-}
-
-int32_t Bstrtol(const char *nptr, char **endptr, int32_t base)
-{
-    return strtol(nptr,endptr,base);
-}
-
-uint32_t Bstrtoul(const char *nptr, char **endptr, int32_t base)
-{
-    return strtoul(nptr,endptr,base);
-}
-
-void *Bmemcpy(void *dest, const void *src, bsize_t n)
-{
-    return memcpy(dest,src,n);
-}
-
-void *Bmemmove(void *dest, const void *src, bsize_t n)
-{
-    return memmove(dest,src,n);
-}
-
-void *Bmemchr(const void *s, int32_t c, bsize_t n)
-{
-    return memchr(s,c,n);
-}
-
-void *Bmemset(void *s, int32_t c, bsize_t n)
-{
-    return memset(s,c,n);
-}
+char *Bstrcat(char *dest, const char *src) { return strcat(dest, src); }
+char *Bstrncat(char *dest, const char *src, bsize_t n) { return strncat(dest, src, n); }
+bsize_t Bstrlen(const char *s) { return strlen(s); }
+char *Bstrchr(const char *s, int32_t c) { return strchr(s, c); }
+char *Bstrrchr(const char *s, int32_t c) { return strrchr(s, c); }
+int32_t Batoi(const char *nptr) { return strtol(nptr, NULL, 10); }
+int32_t Batol(const char *nptr) { return strtol(nptr, NULL, 10); }
+int32_t Bstrtol(const char *nptr, char **endptr, int32_t base) { return strtol(nptr, endptr, base); }
+uint32_t Bstrtoul(const char *nptr, char **endptr, int32_t base) { return strtoul(nptr, endptr, base); }
+void *Bmemcpy(void *dest, const void *src, bsize_t n) { return memcpy(dest, src, n); }
+void *Bmemmove(void *dest, const void *src, bsize_t n) { return memmove(dest, src, n); }
+void *Bmemchr(const void *s, int32_t c, bsize_t n) { return memchr(s, c, n); }
+void *Bmemset(void *s, int32_t c, bsize_t n) { return memset(s, c, n); }
 
 int32_t Bprintf(const char *format, ...)
 {
     va_list ap;
     int32_t r;
 
-    va_start(ap,format);
+    va_start(ap, format);
 #ifdef _MSC_VER
-    r = _vprintf(format,ap);
+    r = _vprintf(format, ap);
 #else
-    r = vprintf(format,ap);
+    r = vprintf(format, ap);
 #endif
     va_end(ap);
     return r;
@@ -319,11 +195,11 @@ int32_t Bsprintf(char *str, const char *format, ...)
     va_list ap;
     int32_t r;
 
-    va_start(ap,format);
+    va_start(ap, format);
 #ifdef _MSC_VER
-    r = _vsprintf(str,format,ap);
+    r = _vsprintf(str, format, ap);
 #else
-    r = vsprintf(str,format,ap);
+    r = vsprintf(str, format, ap);
 #endif
     va_end(ap);
     return r;
@@ -334,11 +210,11 @@ int32_t Bsnprintf(char *str, bsize_t size, const char *format, ...)
     va_list ap;
     int32_t r;
 
-    va_start(ap,format);
+    va_start(ap, format);
 #ifdef _MSC_VER
-    r = _vsnprintf(str,size,format,ap);
+    r = _vsnprintf(str, size, format, ap);
 #else
-    r = vsnprintf(str,size,format,ap);
+    r = vsnprintf(str, size, format, ap);
 #endif
     va_end(ap);
     return r;
@@ -347,21 +223,14 @@ int32_t Bsnprintf(char *str, bsize_t size, const char *format, ...)
 int32_t Bvsnprintf(char *str, bsize_t size, const char *format, va_list ap)
 {
 #ifdef _MSC_VER
-    return _vsnprintf(str,size,format,ap);
+    return _vsnprintf(str, size, format, ap);
 #else
-    return vsnprintf(str,size,format,ap);
+    return vsnprintf(str, size, format, ap);
 #endif
 }
 
-char *Bgetenv(const char *name)
-{
-    return getenv(name);
-}
-
-char *Bgetcwd(char *buf, bsize_t size)
-{
-    return getcwd(buf,size);
-}
+char *Bgetenv(const char *name) { return getenv(name); }
+char *Bgetcwd(char *buf, bsize_t size) { return getcwd(buf, size); }
 
 #endif	// __compat_h_macrodef__
 
@@ -428,9 +297,9 @@ char *Bgetappdir(void)
 
 	if (GetModuleFileName(NULL, appdir, MAX_PATH) > 0) {
 		// trim off the filename
-		char *slash = strrchr(appdir, '\\');
+		char *slash = Bstrrchr(appdir, '\\');
 		if (slash) slash[0] = 0;
-		dir = strdup(appdir);
+		dir = Bstrdup(appdir);
     }
 
 #elif defined __APPLE__
@@ -439,16 +308,16 @@ char *Bgetappdir(void)
     char buf[PATH_MAX] = {0};
     char buf2[PATH_MAX] = {0};
 #  ifdef __linux
-    snprintf(buf, sizeof(buf), "/proc/%d/exe", getpid());
+    Bsnprintf(buf, sizeof(buf), "/proc/%d/exe", getpid());
 #  else // the BSDs.. except for FreeBSD which has a sysctl
-    snprintf(buf, sizeof(buf), "/proc/%d/file", getpid());
+    Bsnprintf(buf, sizeof(buf), "/proc/%d/file", getpid());
 #  endif
     int len = readlink(buf, buf2, sizeof(buf2));
     if (len != -1) {
         // remove executable name with dirname(3)
         // on Linux, dirname() will modify buf2 (cutting off executable name) and return it
         // on FreeBSD it seems to use some internal buffer instead.. anyway, just strdup()
-        dir = strdup(dirname(buf2));
+        dir = Bstrdup(dirname(buf2));
     }
 #elif defined(__FreeBSD__)
     // the sysctl should also work when /proc/ is not mounted (which seems to
@@ -518,38 +387,48 @@ int32_t Bcorrectfilename(char *filename, int32_t removefn)
 
 int32_t Bcanonicalisefilename(char *filename, int32_t removefn)
 {
-    char cwd[BMAX_PATH], fn[BMAX_PATH], *p;
+    char cwd[BMAX_PATH];
     char *fnp = filename;
-#ifdef _WIN32
-    int32_t drv = 0;
-#endif
 
 #ifdef _WIN32
+    int drv = 0;
+
+    if (filename[0] && filename[1] == ':')
     {
-        if (filename[0] && filename[1] == ':')
-        {
-            // filename is prefixed with a drive
-            drv = toupper(filename[0])-'A' + 1;
-            fnp += 2;
-        }
-        if (!_getdcwd(drv, cwd, sizeof(cwd))) return -1;
-        for (p=cwd; *p; p++) if (*p == '\\') *p = '/';
+        // filename is prefixed with a drive
+        drv = toupper(filename[0]) - 'A' + 1;
+        fnp += 2;
     }
-#else
-    if (!getcwd(cwd,sizeof(cwd))) return -1;
-#endif
-    p = strrchr(cwd,'/'); if (!p || p[1]) strcat(cwd, "/");
 
-    strcpy(fn, fnp);
+    if (!_getdcwd(drv, cwd, sizeof(cwd)))
+        return -1;
+
+    for (char *p = cwd; *p; p++)
+        if (*p == '\\')
+            *p = '/';
+#else
+    if (!getcwd(cwd, sizeof(cwd)))
+        return -1;
+#endif
+
+    char *p = Bstrrchr(cwd, '/');
+    if (!p || p[1])
+        Bstrcat(cwd, "/");
+
+    char fn[BMAX_PATH];
+    Bstrcpy(fn, fnp);
+
 #ifdef _WIN32
-    for (p=fn; *p; p++) if (*p == '\\') *p = '/';
+    for (p = fn; *p; p++)
+        if (*p == '\\')
+            *p = '/';
 #endif
 
     if (fn[0] != '/')
     {
         // we are dealing with a path relative to the current directory
-        strcpy(filename, cwd);
-        strcat(filename, fn);
+        Bstrcpy(filename, cwd);
+        Bstrcat(filename, fn);
     }
     else
     {
@@ -557,17 +436,17 @@ int32_t Bcanonicalisefilename(char *filename, int32_t removefn)
         filename[0] = cwd[0];
         filename[1] = ':';
         filename[2] = 0;
+        Bstrcat(filename, fn);
 #else
-        filename[0] = 0;
+        Bstrcpy(filename, fn);
 #endif
-        strcat(filename, fn);
     }
     fnp = filename;
 #ifdef _WIN32
-    fnp += 2;	// skip the drive
+    fnp += 2;  // skip the drive
 #endif
-    UNREFERENCED_PARAMETER(removefn); // change the call below to use removefn instead of 1?
-    return Bcorrectfilename(fnp,1);
+    UNREFERENCED_PARAMETER(removefn);  // change the call below to use removefn instead of 1?
+    return Bcorrectfilename(fnp, 1);
 }
 
 char *Bgetsystemdrives(void)
@@ -575,24 +454,28 @@ char *Bgetsystemdrives(void)
 #ifdef _WIN32
     char *str, *p;
     DWORD drv, mask;
-    int32_t number=0;
+    int32_t number = 0;
 
     drv = GetLogicalDrives();
-    if (drv == 0) return NULL;
+    if (drv == 0)
+        return NULL;
 
-    for (mask=1; mask<0x8000000l; mask<<=1)
+    for (mask = 1; mask < 0x8000000l; mask <<= 1)
     {
-        if ((drv&mask) == 0) continue;
+        if ((drv & mask) == 0)
+            continue;
         number++;
     }
 
-    str = p = (char *)Bmalloc(1 + (3*number));
-    if (!str) return NULL;
+    str = p = (char *)Bmalloc(1 + (3 * number));
+    if (!str)
+        return NULL;
 
     number = 0;
-    for (mask=1; mask<0x8000000l; mask<<=1, number++)
+    for (mask = 1; mask < 0x8000000l; mask <<= 1, number++)
     {
-        if ((drv&mask) == 0) continue;
+        if ((drv & mask) == 0)
+            continue;
         *(p++) = 'A' + number;
         *(p++) = ':';
         *(p++) = 0;
@@ -610,8 +493,7 @@ char *Bgetsystemdrives(void)
 int32_t Bfilelength(int32_t fd)
 {
     struct Bstat st;
-    if (Bfstat(fd, &st) < 0) return -1;
-    return(int32_t)(st.st_size);
+    return (Bfstat(fd, &st) < 0) ? -1 : (int32_t)(st.st_size);
 }
 
 
@@ -632,12 +514,13 @@ BDIR *Bopendir(const char *name)
 {
     BDIR_real *dirr;
 #ifdef _MSC_VER
-    char *t,*tt;
-    t = (char *)Bmalloc(strlen(name)+1+4);
-    if (!t) return NULL;
+    char *t, *tt;
+    t = (char *)Bmalloc(Bstrlen(name) + 1 + 4);
+    if (!t)
+        return NULL;
 #endif
 
-    dirr = (BDIR_real *)Bmalloc(sizeof(BDIR_real) + strlen(name));
+    dirr = (BDIR_real *)Bmalloc(sizeof(BDIR_real) + Bstrlen(name));
     if (!dirr)
     {
 #ifdef _MSC_VER
@@ -647,16 +530,17 @@ BDIR *Bopendir(const char *name)
     }
 
 #ifdef _MSC_VER
-    strcpy(t,name);
-    tt = t+strlen(name)-1;
-    while (*tt == ' ' && tt>t) tt--;
-    if (*tt != '/' && *tt != '\\') *(++tt) = '/';
+    Bstrcpy(t, name);
+    tt = t + Bstrlen(name) - 1;
+    while (*tt == ' ' && tt > t) tt--;
+    if (*tt != '/' && *tt != '\\')
+        *(++tt) = '/';
     *(++tt) = '*';
     *(++tt) = '.';
     *(++tt) = '*';
     *(++tt) = 0;
 
-    dirr->dir = _findfirst(t,&dirr->fid);
+    dirr->dir = _findfirst(t, &dirr->fid);
     Bfree(t);
     if (dirr->dir == -1)
     {
@@ -673,32 +557,29 @@ BDIR *Bopendir(const char *name)
 #endif
 
     dirr->status = 0;
-    strcpy(dirr->name, name);
+    Bstrcpy(dirr->name, name);
 
     return (BDIR *)dirr;
 }
 
-struct Bdirent	*Breaddir(BDIR *dir)
+struct Bdirent *Breaddir(BDIR *dir)
 {
     BDIR_real *dirr = (BDIR_real *)dir;
-    struct dirent *de;
-    struct Bstat st;
-    char *fn;
 
 #ifdef _MSC_VER
     if (dirr->status > 0)
     {
-        if (_findnext(dirr->dir,&dirr->fid) != 0)
+        if (_findnext(dirr->dir, &dirr->fid) != 0)
         {
             dirr->status = -1;
             return NULL;
         }
     }
-    dirr->info.namlen = strlen(dirr->fid.name);
+    dirr->info.namlen = Bstrlen(dirr->fid.name);
     dirr->info.name = dirr->fid.name;
     dirr->status++;
 #else
-    de = readdir(dirr->dir);
+    struct dirent *de = readdir(dirr->dir);
     if (de == NULL)
     {
         dirr->status = -1;
@@ -708,21 +589,18 @@ struct Bdirent	*Breaddir(BDIR *dir)
     {
         dirr->status++;
     }
-    //# if defined(__WATCOMC__) || defined(__linux) || defined(__BEOS__) || defined(__QNX__) || defined(SKYOS)
-    dirr->info.namlen = strlen(de->d_name);
-    //# else
-    //	dirr->info.namlen = de->d_namlen;
-    //# endif
-    dirr->info.name   = de->d_name;
+    dirr->info.namlen = Bstrlen(de->d_name);
+    dirr->info.name = de->d_name;
 #endif
     dirr->info.mode = 0;
     dirr->info.size = 0;
     dirr->info.mtime = 0;
 
-    fn = (char *)Bmalloc(strlen(dirr->name) + 1 + dirr->info.namlen + 1);
+    char *fn = (char *)Bmalloc(Bstrlen(dirr->name) + 1 + dirr->info.namlen + 1);
     if (fn)
     {
-        Bsprintf(fn,"%s/%s",dirr->name,dirr->info.name);
+        Bsprintf(fn, "%s/%s", dirr->name, dirr->info.name);
+        struct Bstat st;
         if (!Bstat(fn, &st))
         {
             dirr->info.mode = st.st_mode;
@@ -750,29 +628,34 @@ int32_t Bclosedir(BDIR *dir)
 }
 
 
-char *Bstrtoken(char *s, const char *delim, char **ptrptr, int32_t chop)
+char *Bstrtoken(char *s, const char *delim, char **ptrptr, int chop)
 {
-    char *p, *start;
+    if (!ptrptr)
+        return NULL;
 
-    if (!ptrptr) return NULL;
+    char *p = s ? s : *ptrptr;
 
-    if (s) p = s;
-    else p = *ptrptr;
+    if (!p)
+        return NULL;
 
-    if (!p) return NULL;
+    while (*p != 0 && Bstrchr(delim, *p)) p++;
 
-    while (*p != 0 && strchr(delim, *p)) p++;
     if (*p == 0)
     {
         *ptrptr = NULL;
         return NULL;
     }
-    start = p;
-    while (*p != 0 && !strchr(delim, *p)) p++;
-    if (*p == 0) *ptrptr = NULL;
+
+    char * const start = p;
+
+    while (*p != 0 && !Bstrchr(delim, *p)) p++;
+
+    if (*p == 0)
+        *ptrptr = NULL;
     else
     {
-        if (chop) *(p++) = 0;
+        if (chop)
+            *(p++) = 0;
         *ptrptr = p;
     }
 
@@ -781,20 +664,21 @@ char *Bstrtoken(char *s, const char *delim, char **ptrptr, int32_t chop)
 
 char *Bstrtolower(char *str)
 {
-    if (!str) return NULL;
+    if (!str)
+        return NULL;
 
+    int len = Bstrlen(str);
+
+    if (len <= 0)
+        return str;
+
+    int i = 0;
+
+    do
     {
-        int32_t i = 0, len = Bstrlen(str);
-
-        if (len <= 0) return str;
-
-        do
-        {
-            *(str+i) = Btolower(*(str+i));
-            i++;
-        }
-        while (--len);
-    }
+        *(str + i) = Btolower(*(str + i));
+        i++;
+    } while (--len);
 
     return str;
 }
@@ -833,16 +717,16 @@ static int32_t wildmatch(const char *match, const char *wild)
 #if !defined(_WIN32)
 char *Bstrlwr(char *s)
 {
-    char *t = s;
     if (!s) return s;
+    char *t = s;
     while (*t) { *t = Btolower(*t); t++; }
     return s;
 }
 
 char *Bstrupr(char *s)
 {
-    char *t = s;
     if (!s) return s;
+    char *t = s;
     while (*t) { *t = Btoupper(*t); t++; }
     return s;
 }
