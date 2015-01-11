@@ -8117,15 +8117,21 @@ static void dosetaspect(void)
             radarang2[i] = (int16_t)((radarang[k]+j)>>6);
         }
 
-        if (xdimen != oxdimen && voxlock[0][0])
+        if (xdimen != oxdimen && voxoff[0][0])
         {
             if (distrecip == NULL)
                 distrecip = (uint32_t *)Xaligned_alloc(16, DISTRECIPSIZ * sizeof(uint32_t));
 
-            for (i=1; i<DISTRECIPSIZ; i++)
-                distrecip[i] = (xdimen < 1<<11) ?
-                    tabledivide32(xdimen<<20, i) :
-                    tabledivide64((uint64_t)xdimen<<20, i);  // XXX
+            if (xdimen < 1 << 11)
+            {
+                for (i = 1; i < DISTRECIPSIZ; i++)
+                    distrecip[i] = tabledivide32(xdimen << 20, i);
+            }
+            else
+            {
+                for (i = 1; i < DISTRECIPSIZ; i++)
+                    distrecip[i] = tabledivide64((uint64_t)xdimen << 20, i);
+            }
 
             nytooclose = xdimen*2100;
         }
