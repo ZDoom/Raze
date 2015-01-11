@@ -31,894 +31,233 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef gamevars_c_
 static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2)
 {
-    int32_t lValue=0;
-
     if (EDUKE32_PREDICT_FALSE(vm.g_p != myconnectindex))
     {
-        //        if (lVar2 == MAXGAMEVARS)
-        //            insptr++;
         insptr += (lVar2 == MAXGAMEVARS);
         return;
     }
 
     if (iSet)
-        lValue=Gv_GetVarX(lVar2);
-
-    switch (lLabelID)
     {
-    case USERDEFS_GOD:
-        if (iSet)
+        iSet = Gv_GetVarX(lVar2);
+
+        switch (lLabelID)
         {
-            ud.god = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.god);
-        return;
-
-    case USERDEFS_WARP_ON:
-        if (iSet)
-        {
-            ud.warp_on = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.warp_on);
-        return;
-
-    case USERDEFS_CASHMAN:
-        if (iSet)
-        {
-            ud.cashman = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.cashman);
-        return;
-
-    case USERDEFS_EOG:
-        if (iSet)
-        {
-            ud.eog = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.eog);
-        return;
-
-    case USERDEFS_SHOWALLMAP:
-        if (iSet)
-        {
-            ud.showallmap = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.showallmap);
-        return;
-
-    case USERDEFS_SHOW_HELP:
-        if (iSet)
-        {
-            ud.show_help = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.show_help);
-        return;
-
-    case USERDEFS_SCROLLMODE:
-        if (iSet)
-        {
-            ud.scrollmode = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.scrollmode);
-        return;
-
-    case USERDEFS_CLIPPING:
-        if (iSet)
-        {
-            ud.noclip = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.noclip);
-        return;
-
-        //  case USERDEFS_USER_NAME:
-        //      if(iSet)
-        //      {
-        //          ud.user_name[MAXPLAYERS][32] = lValue;
-        //          return;
-        //      }
-        //      Gv_SetVarX(lVar2, ud.user_name[MAXPLAYERS][32]);
-        //      return;
-
-        //  case USERDEFS_RIDECULE:
-        //      if(iSet)
-        //      {
-        //          ud.ridecule = lValue;
-        //          return;
-        //      }
-        //      Gv_SetVarX(lVar2, ud.ridecule);
-        //      return;
-
-        //  case USERDEFS_SAVEGAME:
-        //      if(iSet)
-        //      {
-        //          ud.savegame = lValue;
-        //          return;
-        //      }
-        //      Gv_SetVarX(lVar2, ud.savegame);
-        //      return;
-
-        //  case USERDEFS_PWLOCKOUT:
-        //      if(iSet)
-        //      {
-        //          ud.pwlockout = lValue;
-        //          return;
-        //      }
-        //      Gv_SetVarX(lVar2, ud.pwlockout);
-        //      return;
-
-        //  case USERDEFS_RTSNAME:
-        //      if(iSet)
-        //      {
-        //          ud.rtsname = lValue;
-        //          return;
-        //      }
-        //      Gv_SetVarX(lVar2, ud.rtsname);
-        //      return;
-
-    case USERDEFS_OVERHEAD_ON:
-        if (iSet)
-        {
-            ud.overhead_on = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.overhead_on);
-        return;
-
-    case USERDEFS_LAST_OVERHEAD:
-        if (iSet)
-        {
-            ud.last_overhead = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.last_overhead);
-        return;
-
-    case USERDEFS_SHOWWEAPONS:
-        if (iSet)
-        {
-            ud.showweapons = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.showweapons);
-        return;
-
-    case USERDEFS_PAUSE_ON:
-        if (iSet)
-        {
-            ud.pause_on = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.pause_on);
-        return;
-
-    case USERDEFS_FROM_BONUS:
-        if (iSet)
-        {
-            ud.from_bonus = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.from_bonus);
-        return;
-
-    case USERDEFS_CAMERASPRITE:
-        if (iSet)
-        {
-            ud.camerasprite = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.camerasprite);
-        return;
-
-    case USERDEFS_LAST_CAMSPRITE:
-        if (iSet)
-        {
-            ud.last_camsprite = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.last_camsprite);
-        return;
-
-    case USERDEFS_LAST_LEVEL:
-        if (iSet)
-        {
-            ud.last_level = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.last_level);
-        return;
-
-    case USERDEFS_SECRETLEVEL:
-        if (iSet)
-        {
-            ud.secretlevel = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.secretlevel);
-        return;
-
-    case USERDEFS_CONST_VISIBILITY:
-        if (iSet)
-        {
-            ud.const_visibility = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.const_visibility);
-        return;
-
-    case USERDEFS_UW_FRAMERATE:
-        if (iSet)
-        {
-            ud.uw_framerate = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.uw_framerate);
-        return;
-
-    case USERDEFS_CAMERA_TIME:
-        if (iSet)
-        {
-            ud.camera_time = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.camera_time);
-        return;
-
-    case USERDEFS_FOLFVEL:
-        if (iSet)
-        {
-            ud.folfvel = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.folfvel);
-        return;
-
-    case USERDEFS_FOLAVEL:
-        if (iSet)
-        {
-            ud.folavel = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.folavel);
-        return;
-
-    case USERDEFS_FOLX:
-        if (iSet)
-        {
-            ud.folx = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.folx);
-        return;
-
-    case USERDEFS_FOLY:
-        if (iSet)
-        {
-            ud.foly = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.foly);
-        return;
-
-    case USERDEFS_FOLA:
-        if (iSet)
-        {
-            ud.fola = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.fola);
-        return;
-
-    case USERDEFS_RECCNT:
-        if (iSet)
-        {
-            ud.reccnt = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.reccnt);
-        return;
-
-    case USERDEFS_ENTERED_NAME:
-        if (iSet)
-        {
-            ud.entered_name = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.entered_name);
-        return;
-
-    case USERDEFS_SCREEN_TILTING:
-        if (iSet)
-        {
-            ud.screen_tilting = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.screen_tilting);
-        return;
-
-    case USERDEFS_SHADOWS:
-        if (iSet)
-        {
-            ud.shadows = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.shadows);
-        return;
-
-    case USERDEFS_FTA_ON:
-        if (iSet)
-        {
-            ud.fta_on = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.fta_on);
-        return;
-
-    case USERDEFS_EXECUTIONS:
-        if (iSet)
-        {
-            ud.executions = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.executions);
-        return;
-
-    case USERDEFS_AUTO_RUN:
-        if (iSet)
-        {
-            ud.auto_run = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.auto_run);
-        return;
-
-    case USERDEFS_COORDS:
-        if (iSet)
-        {
-            ud.coords = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.coords);
-        return;
-
-    case USERDEFS_TICKRATE:
-        if (iSet)
-        {
-            ud.tickrate = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.tickrate);
-        return;
-
-    case USERDEFS_M_COOP:
-        if (iSet)
-        {
-            ud.m_coop = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_coop);
-        return;
-
-    case USERDEFS_COOP:
-        if (iSet)
-        {
-            ud.coop = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.coop);
-        return;
-
-    case USERDEFS_SCREEN_SIZE:
-        if (iSet)
-        {
-            if (ud.screen_size != lValue)
-            {
-                ud.screen_size = lValue;
-                G_UpdateScreenArea();
-            }
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.screen_size);
-        return;
-
-    case USERDEFS_LOCKOUT:
-        if (iSet)
-        {
-            ud.lockout = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.lockout);
-        return;
-
-    case USERDEFS_CROSSHAIR:
-        if (iSet)
-        {
-            ud.crosshair = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.crosshair);
-        return;
-
-    case USERDEFS_PLAYERAI:
-        if (iSet)
-        {
-            ud.playerai = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.playerai);
-        return;
-
-    case USERDEFS_RESPAWN_MONSTERS:
-        if (iSet)
-        {
-            ud.respawn_monsters = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.respawn_monsters);
-        return;
-
-    case USERDEFS_RESPAWN_ITEMS:
-        if (iSet)
-        {
-            ud.respawn_items = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.respawn_items);
-        return;
-
-    case USERDEFS_RESPAWN_INVENTORY:
-        if (iSet)
-        {
-            ud.respawn_inventory = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.respawn_inventory);
-        return;
-
-    case USERDEFS_RECSTAT:
-        if (iSet)
-        {
-            ud.recstat = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.recstat);
-        return;
-
-    case USERDEFS_MONSTERS_OFF:
-        if (iSet)
-        {
-            ud.monsters_off = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.monsters_off);
-        return;
-
-    case USERDEFS_BRIGHTNESS:
-        if (iSet)
-        {
-            ud.brightness = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.brightness);
-        return;
-
-    case USERDEFS_M_RESPAWN_ITEMS:
-        if (iSet)
-        {
-            ud.m_respawn_items = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_respawn_items);
-        return;
-
-    case USERDEFS_M_RESPAWN_MONSTERS:
-        if (iSet)
-        {
-            ud.m_respawn_monsters = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_respawn_monsters);
-        return;
-
-    case USERDEFS_M_RESPAWN_INVENTORY:
-        if (iSet)
-        {
-            ud.m_respawn_inventory = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_respawn_inventory);
-        return;
-
-    case USERDEFS_M_RECSTAT:
-        if (iSet)
-        {
-            ud.m_recstat = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_recstat);
-        return;
-
-    case USERDEFS_M_MONSTERS_OFF:
-        if (iSet)
-        {
-            ud.m_monsters_off = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_monsters_off);
-        return;
-
-    case USERDEFS_DETAIL:
-        if (iSet)
-        {
+            case USERDEFS_GOD: ud.god = iSet; break;
+            case USERDEFS_WARP_ON: ud.warp_on = iSet; break;
+            case USERDEFS_CASHMAN: ud.cashman = iSet; break;
+            case USERDEFS_EOG: ud.eog = iSet; break;
+            case USERDEFS_SHOWALLMAP: ud.showallmap = iSet; break;
+            case USERDEFS_SHOW_HELP: ud.show_help = iSet; break;
+            case USERDEFS_SCROLLMODE: ud.scrollmode = iSet; break;
+            case USERDEFS_CLIPPING: ud.noclip = iSet; break;
+            //  case USERDEFS_USER_NAME: ud.user_name[MAXPLAYERS][32] = lValue; break;
+            //  case USERDEFS_RIDECULE: ud.ridecule = lValue; break;
+            //  case USERDEFS_SAVEGAME: ud.savegame = lValue; break;
+            //  case USERDEFS_PWLOCKOUT: ud.pwlockout = lValue; break;
+            //  case USERDEFS_RTSNAME: ud.rtsname = lValue; break;
+            case USERDEFS_OVERHEAD_ON: ud.overhead_on = iSet; break;
+            case USERDEFS_LAST_OVERHEAD: ud.last_overhead = iSet; break;
+            case USERDEFS_SHOWWEAPONS: ud.showweapons = iSet; break;
+            case USERDEFS_PAUSE_ON: ud.pause_on = iSet; break;
+            case USERDEFS_FROM_BONUS: ud.from_bonus = iSet; break;
+            case USERDEFS_CAMERASPRITE: ud.camerasprite = iSet; break;
+            case USERDEFS_LAST_CAMSPRITE: ud.last_camsprite = iSet; break;
+            case USERDEFS_LAST_LEVEL: ud.last_level = iSet; break;
+            case USERDEFS_SECRETLEVEL: ud.secretlevel = iSet; break;
+            case USERDEFS_CONST_VISIBILITY: ud.const_visibility = iSet; break;
+            case USERDEFS_UW_FRAMERATE: ud.uw_framerate = iSet; break;
+            case USERDEFS_CAMERA_TIME: ud.camera_time = iSet; break;
+            case USERDEFS_FOLFVEL: ud.folfvel = iSet; break;
+            case USERDEFS_FOLAVEL: ud.folavel = iSet; break;
+            case USERDEFS_FOLX: ud.folx = iSet; break;
+            case USERDEFS_FOLY: ud.foly = iSet; break;
+            case USERDEFS_FOLA: ud.fola = iSet; break;
+            case USERDEFS_RECCNT: ud.reccnt = iSet; break;
+            case USERDEFS_ENTERED_NAME: ud.entered_name = iSet; break;
+            case USERDEFS_SCREEN_TILTING: ud.screen_tilting = iSet; break;
+            case USERDEFS_SHADOWS: ud.shadows = iSet; break;
+            case USERDEFS_FTA_ON: ud.fta_on = iSet; break;
+            case USERDEFS_EXECUTIONS: ud.executions = iSet; break;
+            case USERDEFS_AUTO_RUN: ud.auto_run = iSet; break;
+            case USERDEFS_COORDS: ud.coords = iSet; break;
+            case USERDEFS_TICKRATE: ud.tickrate = iSet; break;
+            case USERDEFS_M_COOP: ud.m_coop = iSet; break;
+            case USERDEFS_COOP: ud.coop = iSet; break;
+            case USERDEFS_SCREEN_SIZE:
+                if (ud.screen_size != iSet)
+                {
+                    ud.screen_size = iSet;
+                    G_UpdateScreenArea();
+                }
+                break;
+            case USERDEFS_LOCKOUT: ud.lockout = iSet; break;
+            case USERDEFS_CROSSHAIR: ud.crosshair = iSet; break;
+            case USERDEFS_PLAYERAI: ud.playerai = iSet; break;
+            case USERDEFS_RESPAWN_MONSTERS: ud.respawn_monsters = iSet; break;
+            case USERDEFS_RESPAWN_ITEMS: ud.respawn_items = iSet; break;
+            case USERDEFS_RESPAWN_INVENTORY: ud.respawn_inventory = iSet; break;
+            case USERDEFS_RECSTAT: ud.recstat = iSet; break;
+            case USERDEFS_MONSTERS_OFF: ud.monsters_off = iSet; break;
+            case USERDEFS_BRIGHTNESS: ud.brightness = iSet; break;
+            case USERDEFS_M_RESPAWN_ITEMS: ud.m_respawn_items = iSet; break;
+            case USERDEFS_M_RESPAWN_MONSTERS: ud.m_respawn_monsters = iSet; break;
+            case USERDEFS_M_RESPAWN_INVENTORY: ud.m_respawn_inventory = iSet; break;
+            case USERDEFS_M_RECSTAT: ud.m_recstat = iSet; break;
+            case USERDEFS_M_MONSTERS_OFF: ud.m_monsters_off = iSet; break;
             // REMINDER: must implement "boolean" setters like this in Lunatic, too.
-            ud.detail = !!lValue;
-            return;
+            case USERDEFS_DETAIL: ud.detail = !!iSet; break;
+            case USERDEFS_M_FFIRE: ud.m_ffire = iSet; break;
+            case USERDEFS_FFIRE: ud.ffire = iSet; break;
+            case USERDEFS_M_PLAYER_SKILL: ud.m_player_skill = iSet; break;
+            case USERDEFS_M_LEVEL_NUMBER: ud.m_level_number = iSet; break;
+            case USERDEFS_M_VOLUME_NUMBER: ud.m_volume_number = iSet; break;
+            case USERDEFS_MULTIMODE: ud.multimode = iSet; break;
+            case USERDEFS_PLAYER_SKILL: ud.player_skill = iSet; break;
+            case USERDEFS_LEVEL_NUMBER: ud.level_number = iSet; break;
+            case USERDEFS_VOLUME_NUMBER: ud.volume_number = iSet; break;
+            case USERDEFS_M_MARKER: ud.m_marker = iSet; break;
+            case USERDEFS_MARKER: ud.marker = iSet; break;
+            case USERDEFS_MOUSEFLIP: ud.mouseflip = iSet; break;
+            case USERDEFS_STATUSBARSCALE: ud.statusbarscale = iSet; break;
+            case USERDEFS_DRAWWEAPON: ud.drawweapon = iSet; break;
+            case USERDEFS_MOUSEAIMING: ud.mouseaiming = iSet; break;
+            case USERDEFS_WEAPONSWITCH: ud.weaponswitch = iSet; break;
+            case USERDEFS_DEMOCAMS: ud.democams = iSet; break;
+            case USERDEFS_COLOR: ud.color = iSet; break;
+            case USERDEFS_MSGDISPTIME: ud.msgdisptime = iSet; break;
+            case USERDEFS_STATUSBARMODE: ud.statusbarmode = iSet; break;
+            case USERDEFS_M_NOEXITS: ud.m_noexits = iSet; break;
+            case USERDEFS_NOEXITS: ud.noexits = iSet; break;
+            case USERDEFS_AUTOVOTE: ud.autovote = iSet; break;
+            case USERDEFS_AUTOMSG: ud.automsg = iSet; break;
+            case USERDEFS_IDPLAYERS: ud.idplayers = iSet; break;
+            case USERDEFS_TEAM: ud.team = iSet; break;
+            case USERDEFS_VIEWBOB: ud.viewbob = iSet; break;
+            case USERDEFS_WEAPONSWAY: ud.weaponsway = iSet; break;
+            case USERDEFS_ANGLEINTERPOLATION: ud.angleinterpolation = iSet; break;
+            case USERDEFS_OBITUARIES: ud.obituaries = iSet; break;
+            case USERDEFS_LEVELSTATS: ud.levelstats = iSet; break;
+            case USERDEFS_CROSSHAIRSCALE: ud.crosshairscale = iSet; break;
+            case USERDEFS_ALTHUD: ud.althud = iSet; break;
+            case USERDEFS_DISPLAY_BONUS_SCREEN: ud.display_bonus_screen = iSet; break;
+            case USERDEFS_SHOW_LEVEL_TEXT: ud.show_level_text = iSet; break;
+            case USERDEFS_WEAPONSCALE: ud.weaponscale = iSet; break;
+            case USERDEFS_TEXTSCALE: ud.textscale = iSet; break;
+            case USERDEFS_RUNKEY_MODE: ud.runkey_mode = iSet; break;
+            default: break;
         }
-        Gv_SetVarX(lVar2, ud.detail);
-        return;
-
-    case USERDEFS_M_FFIRE:
-        if (iSet)
+    }
+    else
+    {
+        switch (lLabelID)
         {
-            ud.m_ffire = lValue;
-            return;
+            case USERDEFS_GOD: lLabelID = ud.god; break;
+            case USERDEFS_WARP_ON: lLabelID = ud.warp_on; break;
+            case USERDEFS_CASHMAN: lLabelID = ud.cashman; break;
+            case USERDEFS_EOG: lLabelID = ud.eog; break;
+            case USERDEFS_SHOWALLMAP: lLabelID = ud.showallmap; break;
+            case USERDEFS_SHOW_HELP: lLabelID = ud.show_help; break;
+            case USERDEFS_SCROLLMODE: lLabelID = ud.scrollmode; break;
+            case USERDEFS_CLIPPING: lLabelID = ud.noclip; break;
+            //  case USERDEFS_USER_NAME: lLabelID= ud.user_name[MAXPLAYERS][32]; break;
+            //  case USERDEFS_RIDECULE: lLabelID= ud.ridecule; break;
+            //  case USERDEFS_SAVEGAME: lLabelID= ud.savegame; break;
+            //  case USERDEFS_PWLOCKOUT: lLabelID= ud.pwlockout; break;
+            //  case USERDEFS_RTSNAME: lLabelID= ud.rtsname; break;
+            case USERDEFS_OVERHEAD_ON: lLabelID = ud.overhead_on; break;
+            case USERDEFS_LAST_OVERHEAD: lLabelID = ud.last_overhead; break;
+            case USERDEFS_SHOWWEAPONS: lLabelID = ud.showweapons; break;
+            case USERDEFS_PAUSE_ON: lLabelID = ud.pause_on; break;
+            case USERDEFS_FROM_BONUS: lLabelID = ud.from_bonus; break;
+            case USERDEFS_CAMERASPRITE: lLabelID = ud.camerasprite; break;
+            case USERDEFS_LAST_CAMSPRITE: lLabelID = ud.last_camsprite; break;
+            case USERDEFS_LAST_LEVEL: lLabelID = ud.last_level; break;
+            case USERDEFS_SECRETLEVEL: lLabelID = ud.secretlevel; break;
+            case USERDEFS_CONST_VISIBILITY: lLabelID = ud.const_visibility; break;
+            case USERDEFS_UW_FRAMERATE: lLabelID = ud.uw_framerate; break;
+            case USERDEFS_CAMERA_TIME: lLabelID = ud.camera_time; break;
+            case USERDEFS_FOLFVEL: lLabelID = ud.folfvel; break;
+            case USERDEFS_FOLAVEL: lLabelID = ud.folavel; break;
+            case USERDEFS_FOLX: lLabelID = ud.folx; break;
+            case USERDEFS_FOLY: lLabelID = ud.foly; break;
+            case USERDEFS_FOLA: lLabelID = ud.fola; break;
+            case USERDEFS_RECCNT: lLabelID = ud.reccnt; break;
+            case USERDEFS_ENTERED_NAME: lLabelID = ud.entered_name; break;
+            case USERDEFS_SCREEN_TILTING: lLabelID = ud.screen_tilting; break;
+            case USERDEFS_SHADOWS: lLabelID = ud.shadows; break;
+            case USERDEFS_FTA_ON: lLabelID = ud.fta_on; break;
+            case USERDEFS_EXECUTIONS: lLabelID = ud.executions; break;
+            case USERDEFS_AUTO_RUN: lLabelID = ud.auto_run; break;
+            case USERDEFS_COORDS: lLabelID = ud.coords; break;
+            case USERDEFS_TICKRATE: lLabelID = ud.tickrate; break;
+            case USERDEFS_M_COOP: lLabelID = ud.m_coop; break;
+            case USERDEFS_COOP: lLabelID = ud.coop; break;
+            case USERDEFS_SCREEN_SIZE: lLabelID = ud.screen_size; break;
+            case USERDEFS_LOCKOUT: lLabelID = ud.lockout; break;
+            case USERDEFS_CROSSHAIR: lLabelID = ud.crosshair; break;
+            case USERDEFS_PLAYERAI: lLabelID = ud.playerai; break;
+            case USERDEFS_RESPAWN_MONSTERS: lLabelID = ud.respawn_monsters; break;
+            case USERDEFS_RESPAWN_ITEMS: lLabelID = ud.respawn_items; break;
+            case USERDEFS_RESPAWN_INVENTORY: lLabelID = ud.respawn_inventory; break;
+            case USERDEFS_RECSTAT: lLabelID = ud.recstat; break;
+            case USERDEFS_MONSTERS_OFF: lLabelID = ud.monsters_off; break;
+            case USERDEFS_BRIGHTNESS: lLabelID = ud.brightness; break;
+            case USERDEFS_M_RESPAWN_ITEMS: lLabelID = ud.m_respawn_items; break;
+            case USERDEFS_M_RESPAWN_MONSTERS: lLabelID = ud.m_respawn_monsters; break;
+            case USERDEFS_M_RESPAWN_INVENTORY: lLabelID = ud.m_respawn_inventory; break;
+            case USERDEFS_M_RECSTAT: lLabelID = ud.m_recstat; break;
+            case USERDEFS_M_MONSTERS_OFF: lLabelID = ud.m_monsters_off; break;
+            case USERDEFS_DETAIL: lLabelID = ud.detail; break;
+            case USERDEFS_M_FFIRE: lLabelID = ud.m_ffire; break;
+            case USERDEFS_FFIRE: lLabelID = ud.ffire; break;
+            case USERDEFS_M_PLAYER_SKILL: lLabelID = ud.m_player_skill; break;
+            case USERDEFS_M_LEVEL_NUMBER: lLabelID = ud.m_level_number; break;
+            case USERDEFS_M_VOLUME_NUMBER: lLabelID = ud.m_volume_number; break;
+            case USERDEFS_MULTIMODE: lLabelID = ud.multimode; break;
+            case USERDEFS_PLAYER_SKILL: lLabelID = ud.player_skill; break;
+            case USERDEFS_LEVEL_NUMBER: lLabelID = ud.level_number; break;
+            case USERDEFS_VOLUME_NUMBER: lLabelID = ud.volume_number; break;
+            case USERDEFS_M_MARKER: lLabelID = ud.m_marker; break;
+            case USERDEFS_MARKER: lLabelID = ud.marker; break;
+            case USERDEFS_MOUSEFLIP: lLabelID = ud.mouseflip; break;
+            case USERDEFS_STATUSBARSCALE: lLabelID = ud.statusbarscale; break;
+            case USERDEFS_DRAWWEAPON: lLabelID = ud.drawweapon; break;
+            case USERDEFS_MOUSEAIMING: lLabelID = ud.mouseaiming; break;
+            case USERDEFS_WEAPONSWITCH: lLabelID = ud.weaponswitch; break;
+            case USERDEFS_DEMOCAMS: lLabelID = ud.democams; break;
+            case USERDEFS_COLOR: lLabelID = ud.color; break;
+            case USERDEFS_MSGDISPTIME: lLabelID = ud.msgdisptime; break;
+            case USERDEFS_STATUSBARMODE: lLabelID = ud.statusbarmode; break;
+            case USERDEFS_M_NOEXITS: lLabelID = ud.m_noexits; break;
+            case USERDEFS_NOEXITS: lLabelID = ud.noexits; break;
+            case USERDEFS_AUTOVOTE: lLabelID = ud.autovote; break;
+            case USERDEFS_AUTOMSG: lLabelID = ud.automsg; break;
+            case USERDEFS_IDPLAYERS: lLabelID = ud.idplayers; break;
+            case USERDEFS_TEAM: lLabelID = ud.team; break;
+            case USERDEFS_VIEWBOB: lLabelID = ud.viewbob; break;
+            case USERDEFS_WEAPONSWAY: lLabelID = ud.weaponsway; break;
+            case USERDEFS_ANGLEINTERPOLATION: lLabelID = ud.angleinterpolation; break;
+            case USERDEFS_OBITUARIES: lLabelID = ud.obituaries; break;
+            case USERDEFS_LEVELSTATS: lLabelID = ud.levelstats; break;
+            case USERDEFS_CROSSHAIRSCALE: lLabelID = ud.crosshairscale; break;
+            case USERDEFS_ALTHUD: lLabelID = ud.althud; break;
+            case USERDEFS_DISPLAY_BONUS_SCREEN: lLabelID = ud.display_bonus_screen; break;
+            case USERDEFS_SHOW_LEVEL_TEXT: lLabelID = ud.show_level_text; break;
+            case USERDEFS_WEAPONSCALE: lLabelID = ud.weaponscale; break;
+            case USERDEFS_TEXTSCALE: lLabelID = ud.textscale; break;
+            case USERDEFS_RUNKEY_MODE: lLabelID = ud.runkey_mode; break;
+            default: lLabelID = -1; break;
         }
-        Gv_SetVarX(lVar2, ud.m_ffire);
-        return;
-
-    case USERDEFS_FFIRE:
-        if (iSet)
-        {
-            ud.ffire = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.ffire);
-        return;
-
-    case USERDEFS_M_PLAYER_SKILL:
-        if (iSet)
-        {
-            ud.m_player_skill = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_player_skill);
-        return;
-
-    case USERDEFS_M_LEVEL_NUMBER:
-        if (iSet)
-        {
-            ud.m_level_number = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_level_number);
-        return;
-
-    case USERDEFS_M_VOLUME_NUMBER:
-        if (iSet)
-        {
-            ud.m_volume_number = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_volume_number);
-        return;
-
-    case USERDEFS_MULTIMODE:
-        if (iSet)
-        {
-            ud.multimode = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.multimode);
-        return;
-
-    case USERDEFS_PLAYER_SKILL:
-        if (iSet)
-        {
-            ud.player_skill = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.player_skill);
-        return;
-
-    case USERDEFS_LEVEL_NUMBER:
-        if (iSet)
-        {
-            ud.level_number = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.level_number);
-        return;
-
-    case USERDEFS_VOLUME_NUMBER:
-        if (iSet)
-        {
-            ud.volume_number = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.volume_number);
-        return;
-
-    case USERDEFS_M_MARKER:
-        if (iSet)
-        {
-            ud.m_marker = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_marker);
-        return;
-
-    case USERDEFS_MARKER:
-        if (iSet)
-        {
-            ud.marker = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.marker);
-        return;
-
-    case USERDEFS_MOUSEFLIP:
-        if (iSet)
-        {
-            ud.mouseflip = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.mouseflip);
-        return;
-
-    case USERDEFS_STATUSBARSCALE:
-        if (iSet)
-        {
-            ud.statusbarscale = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.statusbarscale);
-        return;
-
-    case USERDEFS_DRAWWEAPON:
-        if (iSet)
-        {
-            ud.drawweapon = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.drawweapon);
-        return;
-
-    case USERDEFS_MOUSEAIMING:
-        if (iSet)
-        {
-            ud.mouseaiming = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.mouseaiming);
-        return;
-
-    case USERDEFS_WEAPONSWITCH:
-        if (iSet)
-        {
-            ud.weaponswitch = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.weaponswitch);
-        return;
-
-    case USERDEFS_DEMOCAMS:
-        if (iSet)
-        {
-            ud.democams = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.democams);
-        return;
-
-    case USERDEFS_COLOR:
-        if (iSet)
-        {
-            ud.color = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.color);
-        return;
-
-    case USERDEFS_MSGDISPTIME:
-        if (iSet)
-        {
-            ud.msgdisptime = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.msgdisptime);
-        return;
-
-    case USERDEFS_STATUSBARMODE:
-        if (iSet)
-        {
-            ud.statusbarmode = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.statusbarmode);
-        return;
-
-    case USERDEFS_M_NOEXITS:
-        if (iSet)
-        {
-            ud.m_noexits = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.m_noexits);
-        return;
-
-    case USERDEFS_NOEXITS:
-        if (iSet)
-        {
-            ud.noexits = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.noexits);
-        return;
-
-    case USERDEFS_AUTOVOTE:
-        if (iSet)
-        {
-            ud.autovote = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.autovote);
-        return;
-
-    case USERDEFS_AUTOMSG:
-        if (iSet)
-        {
-            ud.automsg = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.automsg);
-        return;
-
-    case USERDEFS_IDPLAYERS:
-        if (iSet)
-        {
-            ud.idplayers = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.idplayers);
-        return;
-
-    case USERDEFS_TEAM:
-        if (iSet)
-        {
-            ud.team = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.team);
-        return;
-
-    case USERDEFS_VIEWBOB:
-        if (iSet)
-        {
-            ud.viewbob = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.viewbob);
-        return;
-
-    case USERDEFS_WEAPONSWAY:
-        if (iSet)
-        {
-            ud.weaponsway = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.weaponsway);
-        return;
-
-    case USERDEFS_ANGLEINTERPOLATION:
-        if (iSet)
-        {
-            ud.angleinterpolation = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.angleinterpolation);
-        return;
-
-    case USERDEFS_OBITUARIES:
-        if (iSet)
-        {
-            ud.obituaries = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.obituaries);
-        return;
-
-    case USERDEFS_LEVELSTATS:
-        if (iSet)
-        {
-            ud.levelstats = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.levelstats);
-        return;
-
-    case USERDEFS_CROSSHAIRSCALE:
-        if (iSet)
-        {
-            ud.crosshairscale = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.crosshairscale);
-        return;
-
-    case USERDEFS_ALTHUD:
-        if (iSet)
-        {
-            ud.althud = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.althud);
-        return;
-
-    case USERDEFS_DISPLAY_BONUS_SCREEN:
-        if (iSet)
-        {
-            ud.display_bonus_screen = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.display_bonus_screen);
-        return;
-
-    case USERDEFS_SHOW_LEVEL_TEXT:
-        if (iSet)
-        {
-            ud.show_level_text = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.show_level_text);
-        return;
-
-    case USERDEFS_WEAPONSCALE:
-        if (iSet)
-        {
-            ud.weaponscale = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.weaponscale);
-        return;
-
-    case USERDEFS_TEXTSCALE:
-        if (iSet)
-        {
-            ud.textscale = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.textscale);
-        return;
-
-    case USERDEFS_RUNKEY_MODE:
-        if (iSet)
-        {
-            ud.runkey_mode = lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ud.runkey_mode);
-        return;
-
-    default:
-        return;
+        Gv_SetVarX(lVar2, lLabelID);
     }
 }
 
 static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int32_t lValue=0,proj=vm.g_i;
+    register int32_t const proj = (lVar1 != g_iThisActorID) ? Gv_GetVarX(lVar1) : vm.g_i;
 
     // http://forums.duke4.net/topic/775-eduke32-20-and-polymer/page__view__findpost__p__143260
-
-    if (lVar1 != g_iThisActorID)
-        proj=Gv_GetVarX(lVar1);
 
     if (EDUKE32_PREDICT_FALSE((unsigned)proj >= MAXSPRITES))
     {
@@ -931,611 +270,260 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
     }
 
     if (iSet)
-        lValue=Gv_GetVarX(lVar2);
-
-    switch (lLabelID)
     {
-    case PROJ_WORKSLIKE:
-        if (iSet)
-        {
-            SpriteProjectile[proj].workslike=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].workslike);
-        return;
+        iSet=Gv_GetVarX(lVar2);
 
-    case PROJ_SPAWNS:
-        if (iSet)
+        switch (lLabelID)
         {
-            SpriteProjectile[proj].spawns=lValue;
-            return;
+            case PROJ_WORKSLIKE: SpriteProjectile[proj].workslike = iSet; break;
+            case PROJ_SPAWNS: SpriteProjectile[proj].spawns = iSet; break;
+            case PROJ_SXREPEAT: SpriteProjectile[proj].sxrepeat = iSet; break;
+            case PROJ_SYREPEAT: SpriteProjectile[proj].syrepeat = iSet; break;
+            case PROJ_SOUND: SpriteProjectile[proj].sound = iSet; break;
+            case PROJ_ISOUND: SpriteProjectile[proj].isound = iSet; break;
+            case PROJ_VEL: SpriteProjectile[proj].vel = iSet; break;
+            case PROJ_EXTRA: SpriteProjectile[proj].extra = iSet; break;
+            case PROJ_DECAL: SpriteProjectile[proj].decal = iSet; break;
+            case PROJ_TRAIL: SpriteProjectile[proj].trail = iSet; break;
+            case PROJ_TXREPEAT: SpriteProjectile[proj].txrepeat = iSet; break;
+            case PROJ_TYREPEAT: SpriteProjectile[proj].tyrepeat = iSet; break;
+            case PROJ_TOFFSET: SpriteProjectile[proj].toffset = iSet; break;
+            case PROJ_TNUM: SpriteProjectile[proj].tnum = iSet; break;
+            case PROJ_DROP: SpriteProjectile[proj].drop = iSet; break;
+            case PROJ_CSTAT: SpriteProjectile[proj].cstat = iSet; break;
+            case PROJ_CLIPDIST: SpriteProjectile[proj].clipdist = iSet; break;
+            case PROJ_SHADE: SpriteProjectile[proj].shade = iSet; break;
+            case PROJ_XREPEAT: SpriteProjectile[proj].xrepeat = iSet; break;
+            case PROJ_YREPEAT: SpriteProjectile[proj].yrepeat = iSet; break;
+            case PROJ_PAL: SpriteProjectile[proj].pal = iSet; break;
+            case PROJ_EXTRA_RAND: SpriteProjectile[proj].extra_rand = iSet; break;
+            case PROJ_HITRADIUS: SpriteProjectile[proj].hitradius = iSet; break;
+            case PROJ_MOVECNT: SpriteProjectile[proj].movecnt = iSet; break;
+            case PROJ_OFFSET: SpriteProjectile[proj].offset = iSet; break;
+            case PROJ_BOUNCES: SpriteProjectile[proj].bounces = iSet; break;
+            case PROJ_BSOUND: SpriteProjectile[proj].bsound = iSet; break;
+            case PROJ_RANGE: SpriteProjectile[proj].range = iSet; break;
+            case PROJ_FLASH_COLOR: SpriteProjectile[proj].flashcolor = iSet; break;
+            case PROJ_USERDATA: SpriteProjectile[proj].userdata = iSet; break;
+            default: break;
         }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].spawns);
-        return;
-
-    case PROJ_SXREPEAT:
-        if (iSet)
+    }
+    else
+    {
+        switch (lLabelID)
         {
-            SpriteProjectile[proj].sxrepeat=lValue;
-            return;
+            case PROJ_WORKSLIKE: lLabelID = SpriteProjectile[proj].workslike; break;
+            case PROJ_SPAWNS: lLabelID = SpriteProjectile[proj].spawns; break;
+            case PROJ_SXREPEAT: lLabelID = SpriteProjectile[proj].sxrepeat; break;
+            case PROJ_SYREPEAT: lLabelID = SpriteProjectile[proj].syrepeat; break;
+            case PROJ_SOUND: lLabelID = SpriteProjectile[proj].sound; break;
+            case PROJ_ISOUND: lLabelID = SpriteProjectile[proj].isound; break;
+            case PROJ_VEL: lLabelID = SpriteProjectile[proj].vel; break;
+            case PROJ_EXTRA: lLabelID = SpriteProjectile[proj].extra; break;
+            case PROJ_DECAL: lLabelID = SpriteProjectile[proj].decal; break;
+            case PROJ_TRAIL: lLabelID = SpriteProjectile[proj].trail; break;
+            case PROJ_TXREPEAT: lLabelID = SpriteProjectile[proj].txrepeat; break;
+            case PROJ_TYREPEAT: lLabelID = SpriteProjectile[proj].tyrepeat; break;
+            case PROJ_TOFFSET: lLabelID = SpriteProjectile[proj].toffset; break;
+            case PROJ_TNUM: lLabelID = SpriteProjectile[proj].tnum; break;
+            case PROJ_DROP: lLabelID = SpriteProjectile[proj].drop; break;
+            case PROJ_CSTAT: lLabelID = SpriteProjectile[proj].cstat; break;
+            case PROJ_CLIPDIST: lLabelID = SpriteProjectile[proj].clipdist; break;
+            case PROJ_SHADE: lLabelID = SpriteProjectile[proj].shade; break;
+            case PROJ_XREPEAT: lLabelID = SpriteProjectile[proj].xrepeat; break;
+            case PROJ_YREPEAT: lLabelID = SpriteProjectile[proj].yrepeat; break;
+            case PROJ_PAL: lLabelID = SpriteProjectile[proj].pal; break;
+            case PROJ_EXTRA_RAND: lLabelID = SpriteProjectile[proj].extra_rand; break;
+            case PROJ_HITRADIUS: lLabelID = SpriteProjectile[proj].hitradius; break;
+            case PROJ_MOVECNT: lLabelID = SpriteProjectile[proj].movecnt; break;
+            case PROJ_OFFSET: lLabelID = SpriteProjectile[proj].offset; break;
+            case PROJ_BOUNCES: lLabelID = SpriteProjectile[proj].bounces; break;
+            case PROJ_BSOUND: lLabelID = SpriteProjectile[proj].bsound; break;
+            case PROJ_RANGE: lLabelID = SpriteProjectile[proj].range; break;
+            case PROJ_FLASH_COLOR: lLabelID = SpriteProjectile[proj].flashcolor; break;
+            case PROJ_USERDATA: lLabelID = SpriteProjectile[proj].userdata; break;
+            default: lLabelID = -1; break;
         }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].sxrepeat);
-        return;
 
-    case PROJ_SYREPEAT:
-        if (iSet)
-        {
-            SpriteProjectile[proj].syrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].syrepeat);
-        return;
-
-    case PROJ_SOUND:
-        if (iSet)
-        {
-            SpriteProjectile[proj].sound=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].sound);
-        return;
-
-    case PROJ_ISOUND:
-        if (iSet)
-        {
-            SpriteProjectile[proj].isound=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].isound);
-        return;
-
-    case PROJ_VEL:
-        if (iSet)
-        {
-            SpriteProjectile[proj].vel=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].vel);
-        return;
-
-    case PROJ_EXTRA:
-        if (iSet)
-        {
-            SpriteProjectile[proj].extra=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].extra);
-        return;
-
-    case PROJ_DECAL:
-        if (iSet)
-        {
-            SpriteProjectile[proj].decal=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].decal);
-        return;
-
-    case PROJ_TRAIL:
-        if (iSet)
-        {
-            SpriteProjectile[proj].trail=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].trail);
-        return;
-
-    case PROJ_TXREPEAT:
-        if (iSet)
-        {
-            SpriteProjectile[proj].txrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].txrepeat);
-        return;
-
-    case PROJ_TYREPEAT:
-        if (iSet)
-        {
-            SpriteProjectile[proj].tyrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].tyrepeat);
-        return;
-
-    case PROJ_TOFFSET:
-        if (iSet)
-        {
-            SpriteProjectile[proj].toffset=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].toffset);
-        return;
-
-    case PROJ_TNUM:
-        if (iSet)
-        {
-            SpriteProjectile[proj].tnum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].tnum);
-        return;
-
-    case PROJ_DROP:
-        if (iSet)
-        {
-            SpriteProjectile[proj].drop=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].drop);
-        return;
-
-    case PROJ_CSTAT:
-        if (iSet)
-        {
-            SpriteProjectile[proj].cstat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].cstat);
-        return;
-
-    case PROJ_CLIPDIST:
-        if (iSet)
-        {
-            SpriteProjectile[proj].clipdist=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].clipdist);
-        return;
-
-    case PROJ_SHADE:
-        if (iSet)
-        {
-            SpriteProjectile[proj].shade=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].shade);
-        return;
-
-    case PROJ_XREPEAT:
-        if (iSet)
-        {
-            SpriteProjectile[proj].xrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].xrepeat);
-        return;
-
-    case PROJ_YREPEAT:
-        if (iSet)
-        {
-            SpriteProjectile[proj].yrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].yrepeat);
-        return;
-
-    case PROJ_PAL:
-        if (iSet)
-        {
-            SpriteProjectile[proj].pal=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].pal);
-        return;
-
-    case PROJ_EXTRA_RAND:
-        if (iSet)
-        {
-            SpriteProjectile[proj].extra_rand=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].extra_rand);
-        return;
-
-    case PROJ_HITRADIUS:
-        if (iSet)
-        {
-            SpriteProjectile[proj].hitradius=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].hitradius);
-        return;
-
-    case PROJ_MOVECNT:
-        if (iSet)
-        {
-            SpriteProjectile[proj].movecnt=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].movecnt);
-        return;
-
-    case PROJ_OFFSET:
-        if (iSet)
-        {
-            SpriteProjectile[proj].offset=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].offset);
-        return;
-
-    case PROJ_BOUNCES:
-        if (iSet)
-        {
-            SpriteProjectile[proj].bounces=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].bounces);
-        return;
-
-    case PROJ_BSOUND:
-        if (iSet)
-        {
-            SpriteProjectile[proj].bsound=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].bsound);
-        return;
-
-    case PROJ_RANGE:
-        if (iSet)
-        {
-            SpriteProjectile[proj].range=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].range);
-        return;
-
-    case PROJ_FLASH_COLOR:
-        if (iSet)
-        {
-            SpriteProjectile[proj].flashcolor=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].flashcolor);
-        return;
-
-    case PROJ_USERDATA:
-        if (iSet)
-        {
-            SpriteProjectile[proj].userdata=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].userdata);
-        return;
-
-    default:
-        return;
+        Gv_SetVarX(lVar2, lLabelID);
     }
 }
 
 static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLabelID, register int32_t lVar2, int32_t lParm2)
 {
-    register int32_t iPlayer=vm.g_p;
-    DukePlayer_t *ps;
-
-    if (lVar1 != g_iThisActorID)
-        iPlayer=Gv_GetVarX(lVar1);
+    register int32_t const iPlayer = (lVar1 != g_iThisActorID) ? Gv_GetVarX(lVar1) : vm.g_p;
+    DukePlayer_t *const ps = g_player[iPlayer].ps;
 
     if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
         goto badplayer;
 
-    if (EDUKE32_PREDICT_FALSE(PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && ((unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2)))
+    if (EDUKE32_PREDICT_FALSE(PlayerLabels[lLabelID].flags & LABEL_HASPARM2 &&
+       ((unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2)))
         goto badpos;
-
-    ps = g_player[iPlayer].ps;
 
     switch (lLabelID)
     {
-    case PLAYER_ZOOM:
-        Gv_SetVarX(lVar2, ps->zoom); return;
-    case PLAYER_EXITX:
-        Gv_SetVarX(lVar2, ps->exitx); return;
-    case PLAYER_EXITY:
-        Gv_SetVarX(lVar2, ps->exity); return;
-    case PLAYER_LOOGIEX:
-        Gv_SetVarX(lVar2, ps->loogiex[lParm2]); return;
-    case PLAYER_LOOGIEY:
-        Gv_SetVarX(lVar2, ps->loogiey[lParm2]); return;
-    case PLAYER_NUMLOOGS:
-        Gv_SetVarX(lVar2, ps->numloogs); return;
-    case PLAYER_LOOGCNT:
-        Gv_SetVarX(lVar2, ps->loogcnt); return;
-    case PLAYER_POSX:
-        Gv_SetVarX(lVar2, ps->pos.x); return;
-    case PLAYER_POSY:
-        Gv_SetVarX(lVar2, ps->pos.y); return;
-    case PLAYER_POSZ:
-        Gv_SetVarX(lVar2, ps->pos.z); return;
-    case PLAYER_HORIZ:
-        Gv_SetVarX(lVar2, ps->horiz); return;
-    case PLAYER_OHORIZ:
-        Gv_SetVarX(lVar2, ps->ohoriz); return;
-    case PLAYER_OHORIZOFF:
-        Gv_SetVarX(lVar2, ps->ohorizoff); return;
-    case PLAYER_INVDISPTIME:
-        Gv_SetVarX(lVar2, ps->invdisptime); return;
-    case PLAYER_BOBPOSX:
-        Gv_SetVarX(lVar2, ps->bobpos.x); return;
-    case PLAYER_BOBPOSY:
-        Gv_SetVarX(lVar2, ps->bobpos.y); return;
-    case PLAYER_OPOSX:
-        Gv_SetVarX(lVar2, ps->opos.x); return;
-    case PLAYER_OPOSY:
-        Gv_SetVarX(lVar2, ps->opos.y); return;
-    case PLAYER_OPOSZ:
-        Gv_SetVarX(lVar2, ps->opos.z); return;
-    case PLAYER_PYOFF:
-        Gv_SetVarX(lVar2, ps->pyoff); return;
-    case PLAYER_OPYOFF:
-        Gv_SetVarX(lVar2, ps->opyoff); return;
-    case PLAYER_POSXV:
-        Gv_SetVarX(lVar2, ps->vel.x); return;
-    case PLAYER_POSYV:
-        Gv_SetVarX(lVar2, ps->vel.y); return;
-    case PLAYER_POSZV:
-        Gv_SetVarX(lVar2, ps->vel.z); return;
-    case PLAYER_LAST_PISSED_TIME:
-        Gv_SetVarX(lVar2, ps->last_pissed_time); return;
-    case PLAYER_TRUEFZ:
-        Gv_SetVarX(lVar2, ps->truefz); return;
-    case PLAYER_TRUECZ:
-        Gv_SetVarX(lVar2, ps->truecz); return;
-    case PLAYER_PLAYER_PAR:
-        Gv_SetVarX(lVar2, ps->player_par); return;
-    case PLAYER_VISIBILITY:
-        Gv_SetVarX(lVar2, ps->visibility); return;
-    case PLAYER_BOBCOUNTER:
-        Gv_SetVarX(lVar2, ps->bobcounter); return;
-    case PLAYER_WEAPON_SWAY:
-        Gv_SetVarX(lVar2, ps->weapon_sway); return;
-    case PLAYER_PALS_TIME:
-        Gv_SetVarX(lVar2, ps->pals.f); return;
-    case PLAYER_RANDOMFLAMEX:
-        Gv_SetVarX(lVar2, ps->randomflamex); return;
-    case PLAYER_CRACK_TIME:
-        Gv_SetVarX(lVar2, ps->crack_time); return;
-    case PLAYER_AIM_MODE:
-        Gv_SetVarX(lVar2, ps->aim_mode); return;
-    case PLAYER_ANG:
-        Gv_SetVarX(lVar2, ps->ang); return;
-    case PLAYER_OANG:
-        Gv_SetVarX(lVar2, ps->oang); return;
-    case PLAYER_ANGVEL:
-        Gv_SetVarX(lVar2, ps->angvel); return;
-    case PLAYER_CURSECTNUM:
-        Gv_SetVarX(lVar2, ps->cursectnum); return;
-    case PLAYER_LOOK_ANG:
-        Gv_SetVarX(lVar2, ps->look_ang); return;
-    case PLAYER_LAST_EXTRA:
-        Gv_SetVarX(lVar2, ps->last_extra); return;
-    case PLAYER_SUBWEAPON:
-        Gv_SetVarX(lVar2, ps->subweapon); return;
-    case PLAYER_AMMO_AMOUNT:
-        Gv_SetVarX(lVar2, ps->ammo_amount[lParm2]); return;
-    case PLAYER_WACKEDBYACTOR:
-        Gv_SetVarX(lVar2, ps->wackedbyactor); return;
-    case PLAYER_FRAG:
-        Gv_SetVarX(lVar2, ps->frag); return;
-    case PLAYER_FRAGGEDSELF:
-        Gv_SetVarX(lVar2, ps->fraggedself); return;
-    case PLAYER_CURR_WEAPON:
-        Gv_SetVarX(lVar2, ps->curr_weapon); return;
-    case PLAYER_LAST_WEAPON:
-        Gv_SetVarX(lVar2, ps->last_weapon); return;
-    case PLAYER_TIPINCS:
-        Gv_SetVarX(lVar2, ps->tipincs); return;
-    case PLAYER_HORIZOFF:
-        Gv_SetVarX(lVar2, ps->horizoff); return;
-    case PLAYER_WANTWEAPONFIRE:
-        Gv_SetVarX(lVar2, ps->wantweaponfire); return;
-    case PLAYER_HOLODUKE_AMOUNT:
-        Gv_SetVarX(lVar2, ps->inv_amount[GET_HOLODUKE]); return;
-    case PLAYER_NEWOWNER:
-        Gv_SetVarX(lVar2, ps->newowner); return;
-    case PLAYER_HURT_DELAY:
-        Gv_SetVarX(lVar2, ps->hurt_delay); return;
-    case PLAYER_HBOMB_HOLD_DELAY:
-        Gv_SetVarX(lVar2, ps->hbomb_hold_delay); return;
-    case PLAYER_JUMPING_COUNTER:
-        Gv_SetVarX(lVar2, ps->jumping_counter); return;
-    case PLAYER_AIRLEFT:
-        Gv_SetVarX(lVar2, ps->airleft); return;
-    case PLAYER_KNEE_INCS:
-        Gv_SetVarX(lVar2, ps->knee_incs); return;
-    case PLAYER_ACCESS_INCS:
-        Gv_SetVarX(lVar2, ps->access_incs); return;
-    case PLAYER_FTA:
-        Gv_SetVarX(lVar2, ps->fta); return;
-    case PLAYER_FTQ:
-        Gv_SetVarX(lVar2, ps->ftq); return;
-    case PLAYER_ACCESS_WALLNUM:
-        Gv_SetVarX(lVar2, ps->access_wallnum); return;
-    case PLAYER_ACCESS_SPRITENUM:
-        Gv_SetVarX(lVar2, ps->access_spritenum); return;
-    case PLAYER_KICKBACK_PIC:
-        Gv_SetVarX(lVar2, ps->kickback_pic); return;
-    case PLAYER_GOT_ACCESS:
-        Gv_SetVarX(lVar2, ps->got_access); return;
-    case PLAYER_WEAPON_ANG:
-        Gv_SetVarX(lVar2, ps->weapon_ang); return;
-    case PLAYER_FIRSTAID_AMOUNT:
-        Gv_SetVarX(lVar2, ps->inv_amount[GET_FIRSTAID]); return;
-    case PLAYER_SOMETHINGONPLAYER:
-        Gv_SetVarX(lVar2, ps->somethingonplayer); return;
-    case PLAYER_ON_CRANE:
-        Gv_SetVarX(lVar2, ps->on_crane); return;
-    case PLAYER_I:
-        Gv_SetVarX(lVar2, ps->i); return;
-    case PLAYER_ONE_PARALLAX_SECTNUM:
-        Gv_SetVarX(lVar2, ps->one_parallax_sectnum); return;
-    case PLAYER_OVER_SHOULDER_ON:
-        Gv_SetVarX(lVar2, ps->over_shoulder_on); return;
-    case PLAYER_RANDOM_CLUB_FRAME:
-        Gv_SetVarX(lVar2, ps->random_club_frame); return;
-    case PLAYER_FIST_INCS:
-        Gv_SetVarX(lVar2, ps->fist_incs); return;
-    case PLAYER_ONE_EIGHTY_COUNT:
-        Gv_SetVarX(lVar2, ps->one_eighty_count); return;
-    case PLAYER_CHEAT_PHASE:
-        Gv_SetVarX(lVar2, ps->cheat_phase); return;
-    case PLAYER_DUMMYPLAYERSPRITE:
-        Gv_SetVarX(lVar2, ps->dummyplayersprite); return;
-    case PLAYER_EXTRA_EXTRA8:
-        Gv_SetVarX(lVar2, ps->extra_extra8); return;
-    case PLAYER_QUICK_KICK:
-        Gv_SetVarX(lVar2, ps->quick_kick); return;
-    case PLAYER_HEAT_AMOUNT:
-        Gv_SetVarX(lVar2, ps->inv_amount[GET_HEATS]); return;
-    case PLAYER_ACTORSQU:
-        Gv_SetVarX(lVar2, ps->actorsqu); return;
-    case PLAYER_TIMEBEFOREEXIT:
-        Gv_SetVarX(lVar2, ps->timebeforeexit); return;
-    case PLAYER_CUSTOMEXITSOUND:
-        Gv_SetVarX(lVar2, ps->customexitsound); return;
-    case PLAYER_WEAPRECS:
-        Gv_SetVarX(lVar2, ps->weaprecs[lParm2]); return;
-    case PLAYER_WEAPRECCNT:
-        Gv_SetVarX(lVar2, ps->weapreccnt); return;
-    case PLAYER_INTERFACE_TOGGLE_FLAG:
-        Gv_SetVarX(lVar2, ps->interface_toggle_flag); return;
-    case PLAYER_ROTSCRNANG:
-        Gv_SetVarX(lVar2, ps->rotscrnang); return;
-    case PLAYER_DEAD_FLAG:
-        Gv_SetVarX(lVar2, ps->dead_flag); return;
-    case PLAYER_SHOW_EMPTY_WEAPON:
-        Gv_SetVarX(lVar2, ps->show_empty_weapon); return;
-    case PLAYER_SCUBA_AMOUNT:
-        Gv_SetVarX(lVar2, ps->inv_amount[GET_SCUBA]); return;
-    case PLAYER_JETPACK_AMOUNT:
-        Gv_SetVarX(lVar2, ps->inv_amount[GET_JETPACK]); return;
-    case PLAYER_STEROIDS_AMOUNT:
-        Gv_SetVarX(lVar2, ps->inv_amount[GET_STEROIDS]); return;
-    case PLAYER_SHIELD_AMOUNT:
-        Gv_SetVarX(lVar2, ps->inv_amount[GET_SHIELD]); return;
-    case PLAYER_HOLODUKE_ON:
-        Gv_SetVarX(lVar2, ps->holoduke_on); return;
-    case PLAYER_PYCOUNT:
-        Gv_SetVarX(lVar2, ps->pycount); return;
-    case PLAYER_WEAPON_POS:
-        Gv_SetVarX(lVar2, ps->weapon_pos); return;
-    case PLAYER_FRAG_PS:
-        Gv_SetVarX(lVar2, ps->frag_ps); return;
-    case PLAYER_TRANSPORTER_HOLD:
-        Gv_SetVarX(lVar2, ps->transporter_hold); return;
-    case PLAYER_LAST_FULL_WEAPON:
-        Gv_SetVarX(lVar2, ps->last_full_weapon); return;
-    case PLAYER_FOOTPRINTSHADE:
-        Gv_SetVarX(lVar2, ps->footprintshade); return;
-    case PLAYER_BOOT_AMOUNT:
-        Gv_SetVarX(lVar2, ps->inv_amount[GET_BOOTS]); return;
-    case PLAYER_SCREAM_VOICE:
-        Gv_SetVarX(lVar2, ps->scream_voice); return;
-    case PLAYER_GM:
-        Gv_SetVarX(lVar2, ps->gm); return;
-    case PLAYER_ON_WARPING_SECTOR:
-        Gv_SetVarX(lVar2, ps->on_warping_sector); return;
-    case PLAYER_FOOTPRINTCOUNT:
-        Gv_SetVarX(lVar2, ps->footprintcount); return;
-    case PLAYER_HBOMB_ON:
-        Gv_SetVarX(lVar2, ps->hbomb_on); return;
-    case PLAYER_JUMPING_TOGGLE:
-        Gv_SetVarX(lVar2, ps->jumping_toggle); return;
-    case PLAYER_RAPID_FIRE_HOLD:
-        Gv_SetVarX(lVar2, ps->rapid_fire_hold); return;
-    case PLAYER_ON_GROUND:
-        Gv_SetVarX(lVar2, ps->on_ground); return;
-    case PLAYER_INVEN_ICON:
-        Gv_SetVarX(lVar2, ps->inven_icon); return;
-    case PLAYER_BUTTONPALETTE:
-        Gv_SetVarX(lVar2, ps->buttonpalette); return;
-    case PLAYER_JETPACK_ON:
-        Gv_SetVarX(lVar2, ps->jetpack_on); return;
-    case PLAYER_SPRITEBRIDGE:
-        Gv_SetVarX(lVar2, ps->spritebridge); return;
-    case PLAYER_LASTRANDOMSPOT:
-        Gv_SetVarX(lVar2, ps->lastrandomspot); return;
-    case PLAYER_SCUBA_ON:
-        Gv_SetVarX(lVar2, ps->scuba_on); return;
-    case PLAYER_FOOTPRINTPAL:
-        Gv_SetVarX(lVar2, ps->footprintpal); return;
-    case PLAYER_HEAT_ON:
-        Gv_SetVarX(lVar2, ps->heat_on); return;
-    case PLAYER_HOLSTER_WEAPON:
-        Gv_SetVarX(lVar2, ps->holster_weapon); return;
-    case PLAYER_FALLING_COUNTER:
-        Gv_SetVarX(lVar2, ps->falling_counter); return;
-    case PLAYER_GOTWEAPON:
-        Gv_SetVarX(lVar2, (ps->gotweapon & (1<<lParm2)) != 0); return;
-    case PLAYER_REFRESH_INVENTORY:
-        Gv_SetVarX(lVar2, ps->refresh_inventory); return;
-    case PLAYER_PALETTE:  // no set
-        Gv_SetVarX(lVar2, ps->palette); return;
-    case PLAYER_TOGGLE_KEY_FLAG:
-        Gv_SetVarX(lVar2, ps->toggle_key_flag); return;
-    case PLAYER_KNUCKLE_INCS:
-        Gv_SetVarX(lVar2, ps->knuckle_incs); return;
-    case PLAYER_WALKING_SND_TOGGLE:
-        Gv_SetVarX(lVar2, ps->walking_snd_toggle); return;
-    case PLAYER_PALOOKUP:
-        Gv_SetVarX(lVar2, ps->palookup); return;
-    case PLAYER_HARD_LANDING:
-        Gv_SetVarX(lVar2, ps->hard_landing); return;
-    case PLAYER_MAX_SECRET_ROOMS:
-        Gv_SetVarX(lVar2, ps->max_secret_rooms); return;
-    case PLAYER_SECRET_ROOMS:
-        Gv_SetVarX(lVar2, ps->secret_rooms); return;
-    case PLAYER_PALS:
-        switch (lParm2)
-        {
-        case 0:
-            Gv_SetVarX(lVar2, ps->pals.r); return;
-        case 1:
-            Gv_SetVarX(lVar2, ps->pals.g); return;
-        case 2:
-            Gv_SetVarX(lVar2, ps->pals.b); return;
-        }
-        return;
-    case PLAYER_MAX_ACTORS_KILLED:
-        Gv_SetVarX(lVar2, ps->max_actors_killed); return;
-    case PLAYER_ACTORS_KILLED:
-        Gv_SetVarX(lVar2, ps->actors_killed); return;
-    case PLAYER_RETURN_TO_CENTER:
-        Gv_SetVarX(lVar2, ps->return_to_center); return;
-    case PLAYER_RUNSPEED:
-        Gv_SetVarX(lVar2, ps->runspeed); return;
-    case PLAYER_SBS:
-        Gv_SetVarX(lVar2, ps->sbs); return;
-    case PLAYER_RELOADING:
-        Gv_SetVarX(lVar2, ps->reloading); return;
-    case PLAYER_AUTO_AIM:
-        Gv_SetVarX(lVar2, ps->auto_aim); return;
-    case PLAYER_MOVEMENT_LOCK:
-        Gv_SetVarX(lVar2, ps->movement_lock); return;
-    case PLAYER_SOUND_PITCH:
-        Gv_SetVarX(lVar2, ps->sound_pitch); return;
-    case PLAYER_WEAPONSWITCH:
-        Gv_SetVarX(lVar2, ps->weaponswitch); return;
-    case PLAYER_TEAM:
-        Gv_SetVarX(lVar2, ps->team); return;
-    case PLAYER_MAX_PLAYER_HEALTH:
-        Gv_SetVarX(lVar2, ps->max_player_health); return;
-    case PLAYER_MAX_SHIELD_AMOUNT:
-        Gv_SetVarX(lVar2, ps->max_shield_amount); return;
-    case PLAYER_MAX_AMMO_AMOUNT:
-        Gv_SetVarX(lVar2, ps->max_ammo_amount[lParm2]); return;
-    case PLAYER_LAST_QUICK_KICK:
-        Gv_SetVarX(lVar2, ps->last_quick_kick); return;
-    case PLAYER_AUTOSTEP:
-        Gv_SetVarX(lVar2, ps->autostep); return;
-    case PLAYER_AUTOSTEP_SBW:
-        Gv_SetVarX(lVar2, ps->autostep_sbw);
-        return;
-
-    default:
-        return;
+        case PLAYER_ZOOM: lLabelID = ps->zoom; break;
+        case PLAYER_EXITX: lLabelID = ps->exitx; break;
+        case PLAYER_EXITY: lLabelID = ps->exity; break;
+        case PLAYER_LOOGIEX: lLabelID = ps->loogiex[lParm2]; break;
+        case PLAYER_LOOGIEY: lLabelID = ps->loogiey[lParm2]; break;
+        case PLAYER_NUMLOOGS: lLabelID = ps->numloogs; break;
+        case PLAYER_LOOGCNT: lLabelID = ps->loogcnt; break;
+        case PLAYER_POSX: lLabelID = ps->pos.x; break;
+        case PLAYER_POSY: lLabelID = ps->pos.y; break;
+        case PLAYER_POSZ: lLabelID = ps->pos.z; break;
+        case PLAYER_HORIZ: lLabelID = ps->horiz; break;
+        case PLAYER_OHORIZ: lLabelID = ps->ohoriz; break;
+        case PLAYER_OHORIZOFF: lLabelID = ps->ohorizoff; break;
+        case PLAYER_INVDISPTIME: lLabelID = ps->invdisptime; break;
+        case PLAYER_BOBPOSX: lLabelID = ps->bobpos.x; break;
+        case PLAYER_BOBPOSY: lLabelID = ps->bobpos.y; break;
+        case PLAYER_OPOSX: lLabelID = ps->opos.x; break;
+        case PLAYER_OPOSY: lLabelID = ps->opos.y; break;
+        case PLAYER_OPOSZ: lLabelID = ps->opos.z; break;
+        case PLAYER_PYOFF: lLabelID = ps->pyoff; break;
+        case PLAYER_OPYOFF: lLabelID = ps->opyoff; break;
+        case PLAYER_POSXV: lLabelID = ps->vel.x; break;
+        case PLAYER_POSYV: lLabelID = ps->vel.y; break;
+        case PLAYER_POSZV: lLabelID = ps->vel.z; break;
+        case PLAYER_LAST_PISSED_TIME: lLabelID = ps->last_pissed_time; break;
+        case PLAYER_TRUEFZ: lLabelID = ps->truefz; break;
+        case PLAYER_TRUECZ: lLabelID = ps->truecz; break;
+        case PLAYER_PLAYER_PAR: lLabelID = ps->player_par; break;
+        case PLAYER_VISIBILITY: lLabelID = ps->visibility; break;
+        case PLAYER_BOBCOUNTER: lLabelID = ps->bobcounter; break;
+        case PLAYER_WEAPON_SWAY: lLabelID = ps->weapon_sway; break;
+        case PLAYER_PALS_TIME: lLabelID = ps->pals.f; break;
+        case PLAYER_RANDOMFLAMEX: lLabelID = ps->randomflamex; break;
+        case PLAYER_CRACK_TIME: lLabelID = ps->crack_time; break;
+        case PLAYER_AIM_MODE: lLabelID = ps->aim_mode; break;
+        case PLAYER_ANG: lLabelID = ps->ang; break;
+        case PLAYER_OANG: lLabelID = ps->oang; break;
+        case PLAYER_ANGVEL: lLabelID = ps->angvel; break;
+        case PLAYER_CURSECTNUM: lLabelID = ps->cursectnum; break;
+        case PLAYER_LOOK_ANG: lLabelID = ps->look_ang; break;
+        case PLAYER_LAST_EXTRA: lLabelID = ps->last_extra; break;
+        case PLAYER_SUBWEAPON: lLabelID = ps->subweapon; break;
+        case PLAYER_AMMO_AMOUNT: lLabelID = ps->ammo_amount[lParm2]; break;
+        case PLAYER_WACKEDBYACTOR: lLabelID = ps->wackedbyactor; break;
+        case PLAYER_FRAG: lLabelID = ps->frag; break;
+        case PLAYER_FRAGGEDSELF: lLabelID = ps->fraggedself; break;
+        case PLAYER_CURR_WEAPON: lLabelID = ps->curr_weapon; break;
+        case PLAYER_LAST_WEAPON: lLabelID = ps->last_weapon; break;
+        case PLAYER_TIPINCS: lLabelID = ps->tipincs; break;
+        case PLAYER_HORIZOFF: lLabelID = ps->horizoff; break;
+        case PLAYER_WANTWEAPONFIRE: lLabelID = ps->wantweaponfire; break;
+        case PLAYER_HOLODUKE_AMOUNT: lLabelID = ps->inv_amount[GET_HOLODUKE]; break;
+        case PLAYER_NEWOWNER: lLabelID = ps->newowner; break;
+        case PLAYER_HURT_DELAY: lLabelID = ps->hurt_delay; break;
+        case PLAYER_HBOMB_HOLD_DELAY: lLabelID = ps->hbomb_hold_delay; break;
+        case PLAYER_JUMPING_COUNTER: lLabelID = ps->jumping_counter; break;
+        case PLAYER_AIRLEFT: lLabelID = ps->airleft; break;
+        case PLAYER_KNEE_INCS: lLabelID = ps->knee_incs; break;
+        case PLAYER_ACCESS_INCS: lLabelID = ps->access_incs; break;
+        case PLAYER_FTA: lLabelID = ps->fta; break;
+        case PLAYER_FTQ: lLabelID = ps->ftq; break;
+        case PLAYER_ACCESS_WALLNUM: lLabelID = ps->access_wallnum; break;
+        case PLAYER_ACCESS_SPRITENUM: lLabelID = ps->access_spritenum; break;
+        case PLAYER_KICKBACK_PIC: lLabelID = ps->kickback_pic; break;
+        case PLAYER_GOT_ACCESS: lLabelID = ps->got_access; break;
+        case PLAYER_WEAPON_ANG: lLabelID = ps->weapon_ang; break;
+        case PLAYER_FIRSTAID_AMOUNT: lLabelID = ps->inv_amount[GET_FIRSTAID]; break;
+        case PLAYER_SOMETHINGONPLAYER: lLabelID = ps->somethingonplayer; break;
+        case PLAYER_ON_CRANE: lLabelID = ps->on_crane; break;
+        case PLAYER_I: lLabelID = ps->i; break;
+        case PLAYER_ONE_PARALLAX_SECTNUM: lLabelID = ps->one_parallax_sectnum; break;
+        case PLAYER_OVER_SHOULDER_ON: lLabelID = ps->over_shoulder_on; break;
+        case PLAYER_RANDOM_CLUB_FRAME: lLabelID = ps->random_club_frame; break;
+        case PLAYER_FIST_INCS: lLabelID = ps->fist_incs; break;
+        case PLAYER_ONE_EIGHTY_COUNT: lLabelID = ps->one_eighty_count; break;
+        case PLAYER_CHEAT_PHASE: lLabelID = ps->cheat_phase; break;
+        case PLAYER_DUMMYPLAYERSPRITE: lLabelID = ps->dummyplayersprite; break;
+        case PLAYER_EXTRA_EXTRA8: lLabelID = ps->extra_extra8; break;
+        case PLAYER_QUICK_KICK: lLabelID = ps->quick_kick; break;
+        case PLAYER_HEAT_AMOUNT: lLabelID = ps->inv_amount[GET_HEATS]; break;
+        case PLAYER_ACTORSQU: lLabelID = ps->actorsqu; break;
+        case PLAYER_TIMEBEFOREEXIT: lLabelID = ps->timebeforeexit; break;
+        case PLAYER_CUSTOMEXITSOUND: lLabelID = ps->customexitsound; break;
+        case PLAYER_WEAPRECS: lLabelID = ps->weaprecs[lParm2]; break;
+        case PLAYER_WEAPRECCNT: lLabelID = ps->weapreccnt; break;
+        case PLAYER_INTERFACE_TOGGLE_FLAG: lLabelID = ps->interface_toggle_flag; break;
+        case PLAYER_ROTSCRNANG: lLabelID = ps->rotscrnang; break;
+        case PLAYER_DEAD_FLAG: lLabelID = ps->dead_flag; break;
+        case PLAYER_SHOW_EMPTY_WEAPON: lLabelID = ps->show_empty_weapon; break;
+        case PLAYER_SCUBA_AMOUNT: lLabelID = ps->inv_amount[GET_SCUBA]; break;
+        case PLAYER_JETPACK_AMOUNT: lLabelID = ps->inv_amount[GET_JETPACK]; break;
+        case PLAYER_STEROIDS_AMOUNT: lLabelID = ps->inv_amount[GET_STEROIDS]; break;
+        case PLAYER_SHIELD_AMOUNT: lLabelID = ps->inv_amount[GET_SHIELD]; break;
+        case PLAYER_HOLODUKE_ON: lLabelID = ps->holoduke_on; break;
+        case PLAYER_PYCOUNT: lLabelID = ps->pycount; break;
+        case PLAYER_WEAPON_POS: lLabelID = ps->weapon_pos; break;
+        case PLAYER_FRAG_PS: lLabelID = ps->frag_ps; break;
+        case PLAYER_TRANSPORTER_HOLD: lLabelID = ps->transporter_hold; break;
+        case PLAYER_LAST_FULL_WEAPON: lLabelID = ps->last_full_weapon; break;
+        case PLAYER_FOOTPRINTSHADE: lLabelID = ps->footprintshade; break;
+        case PLAYER_BOOT_AMOUNT: lLabelID = ps->inv_amount[GET_BOOTS]; break;
+        case PLAYER_SCREAM_VOICE: lLabelID = ps->scream_voice; break;
+        case PLAYER_GM: lLabelID = ps->gm; break;
+        case PLAYER_ON_WARPING_SECTOR: lLabelID = ps->on_warping_sector; break;
+        case PLAYER_FOOTPRINTCOUNT: lLabelID = ps->footprintcount; break;
+        case PLAYER_HBOMB_ON: lLabelID = ps->hbomb_on; break;
+        case PLAYER_JUMPING_TOGGLE: lLabelID = ps->jumping_toggle; break;
+        case PLAYER_RAPID_FIRE_HOLD: lLabelID = ps->rapid_fire_hold; break;
+        case PLAYER_ON_GROUND: lLabelID = ps->on_ground; break;
+        case PLAYER_INVEN_ICON: lLabelID = ps->inven_icon; break;
+        case PLAYER_BUTTONPALETTE: lLabelID = ps->buttonpalette; break;
+        case PLAYER_JETPACK_ON: lLabelID = ps->jetpack_on; break;
+        case PLAYER_SPRITEBRIDGE: lLabelID = ps->spritebridge; break;
+        case PLAYER_LASTRANDOMSPOT: lLabelID = ps->lastrandomspot; break;
+        case PLAYER_SCUBA_ON: lLabelID = ps->scuba_on; break;
+        case PLAYER_FOOTPRINTPAL: lLabelID = ps->footprintpal; break;
+        case PLAYER_HEAT_ON: lLabelID = ps->heat_on; break;
+        case PLAYER_HOLSTER_WEAPON: lLabelID = ps->holster_weapon; break;
+        case PLAYER_FALLING_COUNTER: lLabelID = ps->falling_counter; break;
+        case PLAYER_GOTWEAPON: lLabelID = (ps->gotweapon & (1 << lParm2)) != 0; break;
+        case PLAYER_REFRESH_INVENTORY: lLabelID = ps->refresh_inventory; break;
+        case PLAYER_PALETTE:  // no set
+            lLabelID = ps->palette;
+            break;
+        case PLAYER_TOGGLE_KEY_FLAG: lLabelID = ps->toggle_key_flag; break;
+        case PLAYER_KNUCKLE_INCS: lLabelID = ps->knuckle_incs; break;
+        case PLAYER_WALKING_SND_TOGGLE: lLabelID = ps->walking_snd_toggle; break;
+        case PLAYER_PALOOKUP: lLabelID = ps->palookup; break;
+        case PLAYER_HARD_LANDING: lLabelID = ps->hard_landing; break;
+        case PLAYER_MAX_SECRET_ROOMS: lLabelID = ps->max_secret_rooms; break;
+        case PLAYER_SECRET_ROOMS: lLabelID = ps->secret_rooms; break;
+        case PLAYER_PALS:
+            switch (lParm2)
+            {
+                case 0: lLabelID = ps->pals.r; break;
+                case 1: lLabelID = ps->pals.g; break;
+                case 2: lLabelID = ps->pals.b; break;
+            }
+            break;
+        case PLAYER_MAX_ACTORS_KILLED: lLabelID = ps->max_actors_killed; break;
+        case PLAYER_ACTORS_KILLED: lLabelID = ps->actors_killed; break;
+        case PLAYER_RETURN_TO_CENTER: lLabelID = ps->return_to_center; break;
+        case PLAYER_RUNSPEED: lLabelID = ps->runspeed; break;
+        case PLAYER_SBS: lLabelID = ps->sbs; break;
+        case PLAYER_RELOADING: lLabelID = ps->reloading; break;
+        case PLAYER_AUTO_AIM: lLabelID = ps->auto_aim; break;
+        case PLAYER_MOVEMENT_LOCK: lLabelID = ps->movement_lock; break;
+        case PLAYER_SOUND_PITCH: lLabelID = ps->sound_pitch; break;
+        case PLAYER_WEAPONSWITCH: lLabelID = ps->weaponswitch; break;
+        case PLAYER_TEAM: lLabelID = ps->team; break;
+        case PLAYER_MAX_PLAYER_HEALTH: lLabelID = ps->max_player_health; break;
+        case PLAYER_MAX_SHIELD_AMOUNT: lLabelID = ps->max_shield_amount; break;
+        case PLAYER_MAX_AMMO_AMOUNT: lLabelID = ps->max_ammo_amount[lParm2]; break;
+        case PLAYER_LAST_QUICK_KICK: lLabelID = ps->last_quick_kick; break;
+        case PLAYER_AUTOSTEP: lLabelID = ps->autostep; break;
+        case PLAYER_AUTOSTEP_SBW: lLabelID = ps->autostep_sbw; break;
+        default: lLabelID = -1; break;
     }
+
+    Gv_SetVarX(lVar2, lLabelID);
+    return;
 
 badplayer:
     //        OSD_Printf("VM_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
@@ -1552,345 +540,192 @@ badpos:
 
 static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
 {
-    register int32_t iPlayer=vm.g_p;
-    DukePlayer_t *ps;
-
-    if (lVar1 != g_iThisActorID)
-        iPlayer=Gv_GetVarX(lVar1);
-
-    ps = g_player[iPlayer].ps;
+    register int32_t const iPlayer = (lVar1 != g_iThisActorID) ? Gv_GetVarX(lVar1) : vm.g_p;
+    DukePlayer_t * const ps = g_player[iPlayer].ps;
 
     if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
         goto badplayer;
 
-    if (EDUKE32_PREDICT_FALSE(PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2))
+    if (EDUKE32_PREDICT_FALSE(PlayerLabels[lLabelID].flags & LABEL_HASPARM2 &&
+                              (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2))
         goto badpos;
 
-    lVar1=Gv_GetVarX(lVar2);
+    lVar1 = Gv_GetVarX(lVar2);
 
     switch (lLabelID)
     {
-    case PLAYER_ZOOM:
-        ps->zoom=lVar1; return;
-    case PLAYER_EXITX:
-        ps->exitx=lVar1; return;
-    case PLAYER_EXITY:
-        ps->exity=lVar1; return;
-    case PLAYER_LOOGIEX:
-        ps->loogiex[lParm2]=lVar1; return;
-    case PLAYER_LOOGIEY:
-        ps->loogiey[lParm2]=lVar1; return;
-    case PLAYER_NUMLOOGS:
-        ps->numloogs=lVar1; return;
-    case PLAYER_LOOGCNT:
-        ps->loogcnt=lVar1; return;
-    case PLAYER_POSX:
-        ps->pos.x=lVar1; return;
-    case PLAYER_POSY:
-        ps->pos.y=lVar1; return;
-    case PLAYER_POSZ:
-        ps->pos.z=lVar1; return;
-    case PLAYER_HORIZ:
-        ps->horiz=lVar1; return;
-    case PLAYER_OHORIZ:
-        ps->ohoriz=lVar1; return;
-    case PLAYER_OHORIZOFF:
-        ps->ohorizoff=lVar1; return;
-    case PLAYER_INVDISPTIME:
-        ps->invdisptime=lVar1; return;
-    case PLAYER_BOBPOSX:
-        ps->bobpos.x=lVar1; return;
-    case PLAYER_BOBPOSY:
-        ps->bobpos.y=lVar1; return;
-    case PLAYER_OPOSX:
-        ps->opos.x=lVar1; return;
-    case PLAYER_OPOSY:
-        ps->opos.y=lVar1; return;
-    case PLAYER_OPOSZ:
-        ps->opos.z=lVar1; return;
-    case PLAYER_PYOFF:
-        ps->pyoff=lVar1; return;
-    case PLAYER_OPYOFF:
-        ps->opyoff=lVar1; return;
-    case PLAYER_POSXV:
-        ps->vel.x=lVar1; return;
-    case PLAYER_POSYV:
-        ps->vel.y=lVar1; return;
-    case PLAYER_POSZV:
-        ps->vel.z=lVar1; return;
-    case PLAYER_LAST_PISSED_TIME:
-        ps->last_pissed_time=lVar1; return;
-    case PLAYER_TRUEFZ:
-        ps->truefz=lVar1; return;
-    case PLAYER_TRUECZ:
-        ps->truecz=lVar1; return;
-    case PLAYER_PLAYER_PAR:
-        ps->player_par=lVar1; return;
-    case PLAYER_VISIBILITY:
-        ps->visibility=lVar1; return;
-    case PLAYER_BOBCOUNTER:
-        ps->bobcounter=lVar1; return;
-    case PLAYER_WEAPON_SWAY:
-        ps->weapon_sway=lVar1; return;
-    case PLAYER_PALS_TIME:
-        ps->pals.f=lVar1; return;
-    case PLAYER_RANDOMFLAMEX:
-        ps->randomflamex=lVar1; return;
-    case PLAYER_CRACK_TIME:
-        ps->crack_time=lVar1; return;
-    case PLAYER_AIM_MODE:
-        ps->aim_mode=lVar1; return;
-    case PLAYER_ANG:
-        ps->ang=lVar1; return;
-    case PLAYER_OANG:
-        ps->oang=lVar1; return;
-    case PLAYER_ANGVEL:
-        ps->angvel=lVar1; return;
-    case PLAYER_CURSECTNUM:
-        ps->cursectnum=lVar1; return;
-    case PLAYER_LOOK_ANG:
-        ps->look_ang=lVar1; return;
-    case PLAYER_LAST_EXTRA:
-        ps->last_extra=lVar1; return;
-    case PLAYER_SUBWEAPON:
-        ps->subweapon=lVar1; return;
-    case PLAYER_AMMO_AMOUNT:
-        ps->ammo_amount[lParm2]=lVar1; return;
-    case PLAYER_WACKEDBYACTOR:
-        ps->wackedbyactor=lVar1; return;
-    case PLAYER_FRAG:
-        ps->frag=lVar1; return;
-    case PLAYER_FRAGGEDSELF:
-        ps->fraggedself=lVar1; return;
-    case PLAYER_CURR_WEAPON:
-        ps->curr_weapon=lVar1; return;
-    case PLAYER_LAST_WEAPON:
-        ps->last_weapon=lVar1; return;
-    case PLAYER_TIPINCS:
-        ps->tipincs=lVar1; return;
-    case PLAYER_HORIZOFF:
-        ps->horizoff=lVar1; return;
-    case PLAYER_WANTWEAPONFIRE:
-        ps->wantweaponfire=lVar1; return;
-    case PLAYER_HOLODUKE_AMOUNT:
-        ps->inv_amount[GET_HOLODUKE]=lVar1; return;
-    case PLAYER_NEWOWNER:
-        ps->newowner=lVar1; return;
-    case PLAYER_HURT_DELAY:
-        ps->hurt_delay=lVar1; return;
-    case PLAYER_HBOMB_HOLD_DELAY:
-        ps->hbomb_hold_delay=lVar1; return;
-    case PLAYER_JUMPING_COUNTER:
-        ps->jumping_counter=lVar1; return;
-    case PLAYER_AIRLEFT:
-        ps->airleft=lVar1; return;
-    case PLAYER_KNEE_INCS:
-        ps->knee_incs=lVar1; return;
-    case PLAYER_ACCESS_INCS:
-        ps->access_incs=lVar1; return;
-    case PLAYER_FTA:
-        ps->fta=lVar1; return;
-    case PLAYER_FTQ:
-        ps->ftq=lVar1; return;
-    case PLAYER_ACCESS_WALLNUM:
-        ps->access_wallnum=lVar1; return;
-    case PLAYER_ACCESS_SPRITENUM:
-        ps->access_spritenum=lVar1; return;
-    case PLAYER_KICKBACK_PIC:
-        ps->kickback_pic=lVar1; return;
-    case PLAYER_GOT_ACCESS:
-        ps->got_access=lVar1; return;
-    case PLAYER_WEAPON_ANG:
-        ps->weapon_ang=lVar1; return;
-    case PLAYER_FIRSTAID_AMOUNT:
-        ps->inv_amount[GET_FIRSTAID]=lVar1; return;
-    case PLAYER_SOMETHINGONPLAYER:
-        ps->somethingonplayer=lVar1; return;
-    case PLAYER_ON_CRANE:
-        ps->on_crane=lVar1; return;
-    case PLAYER_I:
-        ps->i=lVar1; return;
-    case PLAYER_ONE_PARALLAX_SECTNUM:
-        ps->one_parallax_sectnum=lVar1; return;
-    case PLAYER_OVER_SHOULDER_ON:
-        ps->over_shoulder_on=lVar1; return;
-    case PLAYER_RANDOM_CLUB_FRAME:
-        ps->random_club_frame=lVar1; return;
-    case PLAYER_FIST_INCS:
-        ps->fist_incs=lVar1; return;
-    case PLAYER_ONE_EIGHTY_COUNT:
-        ps->one_eighty_count=lVar1; return;
-    case PLAYER_CHEAT_PHASE:
-        ps->cheat_phase=lVar1; return;
-    case PLAYER_DUMMYPLAYERSPRITE:
-        ps->dummyplayersprite=lVar1; return;
-    case PLAYER_EXTRA_EXTRA8:
-        ps->extra_extra8=lVar1; return;
-    case PLAYER_QUICK_KICK:
-        ps->quick_kick=lVar1; return;
-    case PLAYER_HEAT_AMOUNT:
-        ps->inv_amount[GET_HEATS]=lVar1; return;
-    case PLAYER_ACTORSQU:
-        ps->actorsqu=lVar1; return;
-    case PLAYER_TIMEBEFOREEXIT:
-        ps->timebeforeexit=lVar1; return;
-    case PLAYER_CUSTOMEXITSOUND:
-        ps->customexitsound=lVar1; return;
-    case PLAYER_WEAPRECS:
-        ps->weaprecs[lParm2]=lVar1; return;
-    case PLAYER_WEAPRECCNT:
-        ps->weapreccnt=lVar1; return;
-    case PLAYER_INTERFACE_TOGGLE_FLAG:
-        ps->interface_toggle_flag=lVar1; return;
-    case PLAYER_ROTSCRNANG:
-        ps->rotscrnang=lVar1; return;
-    case PLAYER_DEAD_FLAG:
-        ps->dead_flag=lVar1; return;
-    case PLAYER_SHOW_EMPTY_WEAPON:
-        ps->show_empty_weapon=lVar1; return;
-    case PLAYER_SCUBA_AMOUNT:
-        ps->inv_amount[GET_SCUBA]=lVar1; return;
-    case PLAYER_JETPACK_AMOUNT:
-        ps->inv_amount[GET_JETPACK]=lVar1; return;
-    case PLAYER_STEROIDS_AMOUNT:
-        ps->inv_amount[GET_STEROIDS]=lVar1; return;
-    case PLAYER_SHIELD_AMOUNT:
-        ps->inv_amount[GET_SHIELD]=lVar1; return;
-    case PLAYER_HOLODUKE_ON:
-        ps->holoduke_on=lVar1; return;
-    case PLAYER_PYCOUNT:
-        ps->pycount=lVar1; return;
-    case PLAYER_WEAPON_POS:
-        ps->weapon_pos=lVar1; return;
-    case PLAYER_FRAG_PS:
-        ps->frag_ps=lVar1; return;
-    case PLAYER_TRANSPORTER_HOLD:
-        ps->transporter_hold=lVar1; return;
-    case PLAYER_LAST_FULL_WEAPON:
-        ps->last_full_weapon=lVar1; return;
-    case PLAYER_FOOTPRINTSHADE:
-        ps->footprintshade=lVar1; return;
-    case PLAYER_BOOT_AMOUNT:
-        ps->inv_amount[GET_BOOTS]=lVar1; return;
-    case PLAYER_SCREAM_VOICE:
-        ps->scream_voice=lVar1; return;
-    case PLAYER_GM:
-        if (!(ps->gm & MODE_MENU) && (lVar1 & MODE_MENU))
-            M_OpenMenu(iPlayer);
-        else if ((ps->gm & MODE_MENU) && !(lVar1 & MODE_MENU))
-            M_CloseMenu(iPlayer);
-        ps->gm=lVar1; return;
-    case PLAYER_ON_WARPING_SECTOR:
-        ps->on_warping_sector=lVar1; return;
-    case PLAYER_FOOTPRINTCOUNT:
-        ps->footprintcount=lVar1; return;
-    case PLAYER_HBOMB_ON:
-        ps->hbomb_on=lVar1; return;
-    case PLAYER_JUMPING_TOGGLE:
-        ps->jumping_toggle=lVar1; return;
-    case PLAYER_RAPID_FIRE_HOLD:
-        ps->rapid_fire_hold=lVar1; return;
-    case PLAYER_ON_GROUND:
-        ps->on_ground=lVar1; return;
-    case PLAYER_INVEN_ICON:
-        ps->inven_icon=lVar1; return;
-    case PLAYER_BUTTONPALETTE:
-        ps->buttonpalette=lVar1; return;
-    case PLAYER_JETPACK_ON:
-        ps->jetpack_on=lVar1; return;
-    case PLAYER_SPRITEBRIDGE:
-        ps->spritebridge=lVar1; return;
-    case PLAYER_LASTRANDOMSPOT:
-        ps->lastrandomspot=lVar1; return;
-    case PLAYER_SCUBA_ON:
-        ps->scuba_on=lVar1; return;
-    case PLAYER_FOOTPRINTPAL:
-        ps->footprintpal=lVar1; return;
-    case PLAYER_HEAT_ON:
-        if (ps->heat_on != lVar1)
-        {
-            ps->heat_on=lVar1;
-            P_UpdateScreenPal(ps);
-        } return;
-    case PLAYER_HOLSTER_WEAPON:
-        ps->holster_weapon=lVar1; return;
-    case PLAYER_FALLING_COUNTER:
-        ps->falling_counter=lVar1; return;
-    case PLAYER_GOTWEAPON:
-        if (lVar1)
-        {
-            ps->gotweapon |= (1<<lParm2);
-            return;
-        }
-
-        ps->gotweapon &= ~(1<<lParm2);
-        return;
-    case PLAYER_REFRESH_INVENTORY:
-        ps->refresh_inventory=lVar1; return;
-    case PLAYER_TOGGLE_KEY_FLAG:
-        ps->toggle_key_flag=lVar1; return;
-    case PLAYER_KNUCKLE_INCS:
-        ps->knuckle_incs=lVar1; return;
-    case PLAYER_WALKING_SND_TOGGLE:
-        ps->walking_snd_toggle=lVar1; return;
-    case PLAYER_PALOOKUP:
-        ps->palookup=lVar1; return;
-    case PLAYER_HARD_LANDING:
-        ps->hard_landing=lVar1; return;
-    case PLAYER_MAX_SECRET_ROOMS:
-        ps->max_secret_rooms=lVar1; return;
-    case PLAYER_SECRET_ROOMS:
-        ps->secret_rooms=lVar1; return;
-    case PLAYER_PALS:
-        switch (lParm2)
-        {
-        case 0:
-            ps->pals.r = lVar1; return;
-        case 1:
-            ps->pals.g = lVar1; return;
-        case 2:
-            ps->pals.b = lVar1; return;
-        }
-        return;
-    case PLAYER_MAX_ACTORS_KILLED:
-        ps->max_actors_killed=lVar1; return;
-    case PLAYER_ACTORS_KILLED:
-        ps->actors_killed=lVar1; return;
-    case PLAYER_RETURN_TO_CENTER:
-        ps->return_to_center=lVar1; return;
-    case PLAYER_RUNSPEED:
-        ps->runspeed=lVar1; return;
-    case PLAYER_SBS:
-        ps->sbs=lVar1; return;
-    case PLAYER_RELOADING:
-        ps->reloading=lVar1; return;
-    case PLAYER_AUTO_AIM:
-        ps->auto_aim=lVar1; return;
-    case PLAYER_MOVEMENT_LOCK:
-        ps->movement_lock=lVar1; return;
-    case PLAYER_SOUND_PITCH:
-        ps->sound_pitch=lVar1; return;
-    case PLAYER_WEAPONSWITCH:
-        ps->weaponswitch=lVar1; return;
-    case PLAYER_TEAM:
-        ps->team=lVar1; return;
-    case PLAYER_MAX_PLAYER_HEALTH:
-        ps->max_player_health = lVar1; return;
-    case PLAYER_MAX_SHIELD_AMOUNT:
-        ps->max_shield_amount = lVar1; return;
-    case PLAYER_MAX_AMMO_AMOUNT:
-        ps->max_ammo_amount[lParm2]=lVar1; return;
-    case PLAYER_LAST_QUICK_KICK:
-        ps->last_quick_kick=lVar1; return;
-    case PLAYER_AUTOSTEP:
-        ps->autostep=lVar1; return;
-    case PLAYER_AUTOSTEP_SBW:
-        ps->autostep_sbw=lVar1;
-        return;
-
-    default:
-        return;
+        case PLAYER_ZOOM: ps->zoom = lVar1; break;
+        case PLAYER_EXITX: ps->exitx = lVar1; break;
+        case PLAYER_EXITY: ps->exity = lVar1; break;
+        case PLAYER_LOOGIEX: ps->loogiex[lParm2] = lVar1; break;
+        case PLAYER_LOOGIEY: ps->loogiey[lParm2] = lVar1; break;
+        case PLAYER_NUMLOOGS: ps->numloogs = lVar1; break;
+        case PLAYER_LOOGCNT: ps->loogcnt = lVar1; break;
+        case PLAYER_POSX: ps->pos.x = lVar1; break;
+        case PLAYER_POSY: ps->pos.y = lVar1; break;
+        case PLAYER_POSZ: ps->pos.z = lVar1; break;
+        case PLAYER_HORIZ: ps->horiz = lVar1; break;
+        case PLAYER_OHORIZ: ps->ohoriz = lVar1; break;
+        case PLAYER_OHORIZOFF: ps->ohorizoff = lVar1; break;
+        case PLAYER_INVDISPTIME: ps->invdisptime = lVar1; break;
+        case PLAYER_BOBPOSX: ps->bobpos.x = lVar1; break;
+        case PLAYER_BOBPOSY: ps->bobpos.y = lVar1; break;
+        case PLAYER_OPOSX: ps->opos.x = lVar1; break;
+        case PLAYER_OPOSY: ps->opos.y = lVar1; break;
+        case PLAYER_OPOSZ: ps->opos.z = lVar1; break;
+        case PLAYER_PYOFF: ps->pyoff = lVar1; break;
+        case PLAYER_OPYOFF: ps->opyoff = lVar1; break;
+        case PLAYER_POSXV: ps->vel.x = lVar1; break;
+        case PLAYER_POSYV: ps->vel.y = lVar1; break;
+        case PLAYER_POSZV: ps->vel.z = lVar1; break;
+        case PLAYER_LAST_PISSED_TIME: ps->last_pissed_time = lVar1; break;
+        case PLAYER_TRUEFZ: ps->truefz = lVar1; break;
+        case PLAYER_TRUECZ: ps->truecz = lVar1; break;
+        case PLAYER_PLAYER_PAR: ps->player_par = lVar1; break;
+        case PLAYER_VISIBILITY: ps->visibility = lVar1; break;
+        case PLAYER_BOBCOUNTER: ps->bobcounter = lVar1; break;
+        case PLAYER_WEAPON_SWAY: ps->weapon_sway = lVar1; break;
+        case PLAYER_PALS_TIME: ps->pals.f = lVar1; break;
+        case PLAYER_RANDOMFLAMEX: ps->randomflamex = lVar1; break;
+        case PLAYER_CRACK_TIME: ps->crack_time = lVar1; break;
+        case PLAYER_AIM_MODE: ps->aim_mode = lVar1; break;
+        case PLAYER_ANG: ps->ang = lVar1; break;
+        case PLAYER_OANG: ps->oang = lVar1; break;
+        case PLAYER_ANGVEL: ps->angvel = lVar1; break;
+        case PLAYER_CURSECTNUM: ps->cursectnum = lVar1; break;
+        case PLAYER_LOOK_ANG: ps->look_ang = lVar1; break;
+        case PLAYER_LAST_EXTRA: ps->last_extra = lVar1; break;
+        case PLAYER_SUBWEAPON: ps->subweapon = lVar1; break;
+        case PLAYER_AMMO_AMOUNT: ps->ammo_amount[lParm2] = lVar1; break;
+        case PLAYER_WACKEDBYACTOR: ps->wackedbyactor = lVar1; break;
+        case PLAYER_FRAG: ps->frag = lVar1; break;
+        case PLAYER_FRAGGEDSELF: ps->fraggedself = lVar1; break;
+        case PLAYER_CURR_WEAPON: ps->curr_weapon = lVar1; break;
+        case PLAYER_LAST_WEAPON: ps->last_weapon = lVar1; break;
+        case PLAYER_TIPINCS: ps->tipincs = lVar1; break;
+        case PLAYER_HORIZOFF: ps->horizoff = lVar1; break;
+        case PLAYER_WANTWEAPONFIRE: ps->wantweaponfire = lVar1; break;
+        case PLAYER_HOLODUKE_AMOUNT: ps->inv_amount[GET_HOLODUKE] = lVar1; break;
+        case PLAYER_NEWOWNER: ps->newowner = lVar1; break;
+        case PLAYER_HURT_DELAY: ps->hurt_delay = lVar1; break;
+        case PLAYER_HBOMB_HOLD_DELAY: ps->hbomb_hold_delay = lVar1; break;
+        case PLAYER_JUMPING_COUNTER: ps->jumping_counter = lVar1; break;
+        case PLAYER_AIRLEFT: ps->airleft = lVar1; break;
+        case PLAYER_KNEE_INCS: ps->knee_incs = lVar1; break;
+        case PLAYER_ACCESS_INCS: ps->access_incs = lVar1; break;
+        case PLAYER_FTA: ps->fta = lVar1; break;
+        case PLAYER_FTQ: ps->ftq = lVar1; break;
+        case PLAYER_ACCESS_WALLNUM: ps->access_wallnum = lVar1; break;
+        case PLAYER_ACCESS_SPRITENUM: ps->access_spritenum = lVar1; break;
+        case PLAYER_KICKBACK_PIC: ps->kickback_pic = lVar1; break;
+        case PLAYER_GOT_ACCESS: ps->got_access = lVar1; break;
+        case PLAYER_WEAPON_ANG: ps->weapon_ang = lVar1; break;
+        case PLAYER_FIRSTAID_AMOUNT: ps->inv_amount[GET_FIRSTAID] = lVar1; break;
+        case PLAYER_SOMETHINGONPLAYER: ps->somethingonplayer = lVar1; break;
+        case PLAYER_ON_CRANE: ps->on_crane = lVar1; break;
+        case PLAYER_I: ps->i = lVar1; break;
+        case PLAYER_ONE_PARALLAX_SECTNUM: ps->one_parallax_sectnum = lVar1; break;
+        case PLAYER_OVER_SHOULDER_ON: ps->over_shoulder_on = lVar1; break;
+        case PLAYER_RANDOM_CLUB_FRAME: ps->random_club_frame = lVar1; break;
+        case PLAYER_FIST_INCS: ps->fist_incs = lVar1; break;
+        case PLAYER_ONE_EIGHTY_COUNT: ps->one_eighty_count = lVar1; break;
+        case PLAYER_CHEAT_PHASE: ps->cheat_phase = lVar1; break;
+        case PLAYER_DUMMYPLAYERSPRITE: ps->dummyplayersprite = lVar1; break;
+        case PLAYER_EXTRA_EXTRA8: ps->extra_extra8 = lVar1; break;
+        case PLAYER_QUICK_KICK: ps->quick_kick = lVar1; break;
+        case PLAYER_HEAT_AMOUNT: ps->inv_amount[GET_HEATS] = lVar1; break;
+        case PLAYER_ACTORSQU: ps->actorsqu = lVar1; break;
+        case PLAYER_TIMEBEFOREEXIT: ps->timebeforeexit = lVar1; break;
+        case PLAYER_CUSTOMEXITSOUND: ps->customexitsound = lVar1; break;
+        case PLAYER_WEAPRECS: ps->weaprecs[lParm2] = lVar1; break;
+        case PLAYER_WEAPRECCNT: ps->weapreccnt = lVar1; break;
+        case PLAYER_INTERFACE_TOGGLE_FLAG: ps->interface_toggle_flag = lVar1; break;
+        case PLAYER_ROTSCRNANG: ps->rotscrnang = lVar1; break;
+        case PLAYER_DEAD_FLAG: ps->dead_flag = lVar1; break;
+        case PLAYER_SHOW_EMPTY_WEAPON: ps->show_empty_weapon = lVar1; break;
+        case PLAYER_SCUBA_AMOUNT: ps->inv_amount[GET_SCUBA] = lVar1; break;
+        case PLAYER_JETPACK_AMOUNT: ps->inv_amount[GET_JETPACK] = lVar1; break;
+        case PLAYER_STEROIDS_AMOUNT: ps->inv_amount[GET_STEROIDS] = lVar1; break;
+        case PLAYER_SHIELD_AMOUNT: ps->inv_amount[GET_SHIELD] = lVar1; break;
+        case PLAYER_HOLODUKE_ON: ps->holoduke_on = lVar1; break;
+        case PLAYER_PYCOUNT: ps->pycount = lVar1; break;
+        case PLAYER_WEAPON_POS: ps->weapon_pos = lVar1; break;
+        case PLAYER_FRAG_PS: ps->frag_ps = lVar1; break;
+        case PLAYER_TRANSPORTER_HOLD: ps->transporter_hold = lVar1; break;
+        case PLAYER_LAST_FULL_WEAPON: ps->last_full_weapon = lVar1; break;
+        case PLAYER_FOOTPRINTSHADE: ps->footprintshade = lVar1; break;
+        case PLAYER_BOOT_AMOUNT: ps->inv_amount[GET_BOOTS] = lVar1; break;
+        case PLAYER_SCREAM_VOICE: ps->scream_voice = lVar1; break;
+        case PLAYER_GM:
+            if (!(ps->gm & MODE_MENU) && (lVar1 & MODE_MENU))
+                M_OpenMenu(iPlayer);
+            else if ((ps->gm & MODE_MENU) && !(lVar1 & MODE_MENU))
+                M_CloseMenu(iPlayer);
+            ps->gm = lVar1;
+            break;
+        case PLAYER_ON_WARPING_SECTOR: ps->on_warping_sector = lVar1; break;
+        case PLAYER_FOOTPRINTCOUNT: ps->footprintcount = lVar1; break;
+        case PLAYER_HBOMB_ON: ps->hbomb_on = lVar1; break;
+        case PLAYER_JUMPING_TOGGLE: ps->jumping_toggle = lVar1; break;
+        case PLAYER_RAPID_FIRE_HOLD: ps->rapid_fire_hold = lVar1; break;
+        case PLAYER_ON_GROUND: ps->on_ground = lVar1; break;
+        case PLAYER_INVEN_ICON: ps->inven_icon = lVar1; break;
+        case PLAYER_BUTTONPALETTE: ps->buttonpalette = lVar1; break;
+        case PLAYER_JETPACK_ON: ps->jetpack_on = lVar1; break;
+        case PLAYER_SPRITEBRIDGE: ps->spritebridge = lVar1; break;
+        case PLAYER_LASTRANDOMSPOT: ps->lastrandomspot = lVar1; break;
+        case PLAYER_SCUBA_ON: ps->scuba_on = lVar1; break;
+        case PLAYER_FOOTPRINTPAL: ps->footprintpal = lVar1; break;
+        case PLAYER_HEAT_ON:
+            if (ps->heat_on != lVar1)
+            {
+                ps->heat_on = lVar1;
+                P_UpdateScreenPal(ps);
+            }
+            break;
+        case PLAYER_HOLSTER_WEAPON: ps->holster_weapon = lVar1; break;
+        case PLAYER_FALLING_COUNTER: ps->falling_counter = lVar1; break;
+        case PLAYER_GOTWEAPON:
+            if (lVar1) ps->gotweapon |= (1 << lParm2);
+            else ps->gotweapon &= ~(1 << lParm2);
+            break;
+        case PLAYER_REFRESH_INVENTORY: ps->refresh_inventory = lVar1; break;
+        case PLAYER_TOGGLE_KEY_FLAG: ps->toggle_key_flag = lVar1; break;
+        case PLAYER_KNUCKLE_INCS: ps->knuckle_incs = lVar1; break;
+        case PLAYER_WALKING_SND_TOGGLE: ps->walking_snd_toggle = lVar1; break;
+        case PLAYER_PALOOKUP: ps->palookup = lVar1; break;
+        case PLAYER_HARD_LANDING: ps->hard_landing = lVar1; break;
+        case PLAYER_MAX_SECRET_ROOMS: ps->max_secret_rooms = lVar1; break;
+        case PLAYER_SECRET_ROOMS: ps->secret_rooms = lVar1; break;
+        case PLAYER_PALS:
+            switch (lParm2)
+            {
+                case 0: ps->pals.r = lVar1; break;
+                case 1: ps->pals.g = lVar1; break;
+                case 2: ps->pals.b = lVar1; break;
+            }
+            break;
+        case PLAYER_MAX_ACTORS_KILLED: ps->max_actors_killed = lVar1; break;
+        case PLAYER_ACTORS_KILLED: ps->actors_killed = lVar1; break;
+        case PLAYER_RETURN_TO_CENTER: ps->return_to_center = lVar1; break;
+        case PLAYER_RUNSPEED: ps->runspeed = lVar1; break;
+        case PLAYER_SBS: ps->sbs = lVar1; break;
+        case PLAYER_RELOADING: ps->reloading = lVar1; break;
+        case PLAYER_AUTO_AIM: ps->auto_aim = lVar1; break;
+        case PLAYER_MOVEMENT_LOCK: ps->movement_lock = lVar1; break;
+        case PLAYER_SOUND_PITCH: ps->sound_pitch = lVar1; break;
+        case PLAYER_WEAPONSWITCH: ps->weaponswitch = lVar1; break;
+        case PLAYER_TEAM: ps->team = lVar1; break;
+        case PLAYER_MAX_PLAYER_HEALTH: ps->max_player_health = lVar1; break;
+        case PLAYER_MAX_SHIELD_AMOUNT: ps->max_shield_amount = lVar1; break;
+        case PLAYER_MAX_AMMO_AMOUNT: ps->max_ammo_amount[lParm2] = lVar1; break;
+        case PLAYER_LAST_QUICK_KICK: ps->last_quick_kick = lVar1; break;
+        case PLAYER_AUTOSTEP: ps->autostep = lVar1; break;
+        case PLAYER_AUTOSTEP_SBW: ps->autostep_sbw = lVar1; break;
+        default: break;
     }
+
+    return;
 
 badplayer:
     //        OSD_Printf("VM_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
@@ -1909,76 +744,43 @@ badpos:
 
 static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int32_t lValue=0;
-    int32_t iPlayer=vm.g_p;
-
-    if (lVar1 != g_iThisActorID)
-        iPlayer=Gv_GetVarX(lVar1);
+    register int32_t const iPlayer = (lVar1 != g_iThisActorID) ? Gv_GetVarX(lVar1) : vm.g_p;
 
     if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
         goto badplayer;
 
     if (iSet)
-        lValue=Gv_GetVarX(lVar2);
-
-    switch (lLabelID)
     {
-    case INPUT_AVEL:
-        if (iSet)
-        {
-            g_player[iPlayer].sync->avel=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, g_player[iPlayer].sync->avel);
-        return;
+        iSet=Gv_GetVarX(lVar2);
 
-    case INPUT_HORZ:
-        if (iSet)
+        switch (lLabelID)
         {
-            g_player[iPlayer].sync->horz=lValue;
-            return;
+            case INPUT_AVEL: g_player[iPlayer].sync->avel = iSet; break;
+            case INPUT_HORZ: g_player[iPlayer].sync->horz = iSet; break;
+            case INPUT_FVEL: g_player[iPlayer].sync->fvel = iSet; break;
+            case INPUT_SVEL: g_player[iPlayer].sync->svel = iSet; break;
+            case INPUT_BITS: g_player[iPlayer].sync->bits = iSet; break;
+            case INPUT_EXTBITS: g_player[iPlayer].sync->extbits = iSet; break;
+            default: break;
         }
-        Gv_SetVarX(lVar2, g_player[iPlayer].sync->horz);
-        return;
-
-    case INPUT_FVEL:
-        if (iSet)
-        {
-            g_player[iPlayer].sync->fvel=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, g_player[iPlayer].sync->fvel);
-        return;
-
-    case INPUT_SVEL:
-        if (iSet)
-        {
-            g_player[iPlayer].sync->svel=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, g_player[iPlayer].sync->svel);
-        return;
-
-    case INPUT_BITS:
-        if (iSet)
-        {
-            g_player[iPlayer].sync->bits=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, g_player[iPlayer].sync->bits);
-        return;
-
-    case INPUT_EXTBITS:
-        if (iSet)
-        {
-            g_player[iPlayer].sync->extbits=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, g_player[iPlayer].sync->extbits);
-        return;
-    default:
-        return;
     }
+    else
+    {
+        switch (lLabelID)
+        {
+            case INPUT_AVEL: lLabelID = g_player[iPlayer].sync->avel; break;
+            case INPUT_HORZ: lLabelID = g_player[iPlayer].sync->horz; break;
+            case INPUT_FVEL: lLabelID = g_player[iPlayer].sync->fvel; break;
+            case INPUT_SVEL: lLabelID = g_player[iPlayer].sync->svel; break;
+            case INPUT_BITS: lLabelID = g_player[iPlayer].sync->bits; break;
+            case INPUT_EXTBITS: lLabelID = g_player[iPlayer].sync->extbits; break;
+            default: lLabelID = -1; break;
+        }
+
+        Gv_SetVarX(lVar2, lLabelID);
+    }
+
+    return;
 
 badplayer:
     insptr += (lVar2 == MAXGAMEVARS);
@@ -1988,190 +790,67 @@ badplayer:
 
 static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int32_t lValue=0;
-    int32_t iWall = Gv_GetVarX(lVar1);
+    register int32_t const iWall = Gv_GetVarX(lVar1);
 
     if (EDUKE32_PREDICT_FALSE((unsigned)iWall >= (unsigned)numwalls))
         goto badwall;
 
     if (iSet)
-        lValue=Gv_GetVarX(lVar2);
-
-    switch (lLabelID)
     {
-    case WALL_X:
-        if (iSet)
-        {
-            wall[iWall].x=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].x);
-        return;
+        iSet = Gv_GetVarX(lVar2);
 
-    case WALL_Y:
-        if (iSet)
+        switch (lLabelID)
         {
-            wall[iWall].y=lValue;
-            return;
+            case WALL_X: wall[iWall].x = iSet; break;
+            case WALL_Y: wall[iWall].y = iSet; break;
+            case WALL_POINT2: wall[iWall].point2 = iSet; break;
+            case WALL_NEXTWALL: wall[iWall].nextwall = iSet; break;
+            case WALL_NEXTSECTOR: wall[iWall].nextsector = iSet; break;
+            case WALL_CSTAT: wall[iWall].cstat = iSet; break;
+            case WALL_PICNUM: wall[iWall].picnum = iSet; break;
+            case WALL_OVERPICNUM: wall[iWall].overpicnum = iSet; break;
+            case WALL_SHADE: wall[iWall].shade = iSet; break;
+            case WALL_PAL: wall[iWall].pal = iSet; break;
+            case WALL_XREPEAT: wall[iWall].xrepeat = iSet; break;
+            case WALL_YREPEAT: wall[iWall].yrepeat = iSet; break;
+            case WALL_XPANNING: wall[iWall].xpanning = iSet; break;
+            case WALL_YPANNING: wall[iWall].ypanning = iSet; break;
+            case WALL_LOTAG: wall[iWall].lotag = (int16_t)iSet; break;
+            case WALL_HITAG: wall[iWall].hitag = (int16_t)iSet; break;
+            case WALL_ULOTAG: wall[iWall].lotag = iSet; break;
+            case WALL_UHITAG: wall[iWall].hitag = iSet; break;
+            case WALL_EXTRA: wall[iWall].extra = iSet; break;
         }
-        Gv_SetVarX(lVar2, wall[iWall].y);
-        return;
-
-    case WALL_POINT2:
-        if (iSet)
-        {
-            wall[iWall].point2=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].point2);
-        return;
-
-    case WALL_NEXTWALL:
-        if (iSet)
-        {
-            wall[iWall].nextwall=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].nextwall);
-        return;
-
-    case WALL_NEXTSECTOR:
-        if (iSet)
-        {
-            wall[iWall].nextsector=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].nextsector);
-        return;
-
-    case WALL_CSTAT:
-        if (iSet)
-        {
-            wall[iWall].cstat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].cstat);
-        return;
-
-    case WALL_PICNUM:
-        if (iSet)
-        {
-            wall[iWall].picnum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].picnum);
-        return;
-
-    case WALL_OVERPICNUM:
-        if (iSet)
-        {
-            wall[iWall].overpicnum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].overpicnum);
-        return;
-
-    case WALL_SHADE:
-        if (iSet)
-        {
-            wall[iWall].shade=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].shade);
-        return;
-
-    case WALL_PAL:
-        if (iSet)
-        {
-            wall[iWall].pal=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].pal);
-        return;
-
-    case WALL_XREPEAT:
-        if (iSet)
-        {
-            wall[iWall].xrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].xrepeat);
-        return;
-
-    case WALL_YREPEAT:
-        if (iSet)
-        {
-            wall[iWall].yrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].yrepeat);
-        return;
-
-    case WALL_XPANNING:
-        if (iSet)
-        {
-            wall[iWall].xpanning=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].xpanning);
-        return;
-
-    case WALL_YPANNING:
-        if (iSet)
-        {
-            wall[iWall].ypanning=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].ypanning);
-        return;
-
-    case WALL_LOTAG:
-        if (iSet)
-        {
-            wall[iWall].lotag=(int16_t)lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, (int16_t)wall[iWall].lotag);
-        return;
-
-    case WALL_HITAG:
-        if (iSet)
-        {
-            wall[iWall].hitag=(int16_t)lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, (int16_t)wall[iWall].hitag);
-        return;
-
-    case WALL_ULOTAG:
-        if (iSet)
-        {
-            wall[iWall].lotag=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].lotag);
-        return;
-
-    case WALL_UHITAG:
-        if (iSet)
-        {
-            wall[iWall].hitag=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].hitag);
-        return;
-
-    case WALL_EXTRA:
-        if (iSet)
-        {
-            wall[iWall].extra=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, wall[iWall].extra);
-        return;
-    default:
-        return;
     }
+    else
+    {
+        switch (lLabelID)
+        {
+            case WALL_X: lLabelID = wall[iWall].x; break;
+            case WALL_Y: lLabelID = wall[iWall].y; break;
+            case WALL_POINT2: lLabelID = wall[iWall].point2; break;
+            case WALL_NEXTWALL: lLabelID = wall[iWall].nextwall; break;
+            case WALL_NEXTSECTOR: lLabelID = wall[iWall].nextsector; break;
+            case WALL_CSTAT: lLabelID = wall[iWall].cstat; break;
+            case WALL_PICNUM: lLabelID = wall[iWall].picnum; break;
+            case WALL_OVERPICNUM: lLabelID = wall[iWall].overpicnum; break;
+            case WALL_SHADE: lLabelID = wall[iWall].shade; break;
+            case WALL_PAL: lLabelID = wall[iWall].pal; break;
+            case WALL_XREPEAT: lLabelID = wall[iWall].xrepeat; break;
+            case WALL_YREPEAT: lLabelID = wall[iWall].yrepeat; break;
+            case WALL_XPANNING: lLabelID = wall[iWall].xpanning; break;
+            case WALL_YPANNING: lLabelID = wall[iWall].ypanning; break;
+            case WALL_LOTAG: lLabelID = (int16_t) wall[iWall].lotag; break;
+            case WALL_HITAG: lLabelID = (int16_t) wall[iWall].hitag; break;
+            case WALL_ULOTAG: lLabelID = wall[iWall].lotag; break;
+            case WALL_UHITAG: lLabelID = wall[iWall].hitag; break;
+            case WALL_EXTRA: lLabelID = wall[iWall].extra; break;
+        }
+
+        Gv_SetVarX(lVar2, lLabelID);
+    }
+
+    return;
 
 badwall:
     insptr += (lVar2 == MAXGAMEVARS);
@@ -2181,273 +860,100 @@ badwall:
 
 static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int32_t lValue=0;
-    int32_t iSector=sprite[vm.g_i].sectnum;
-
-    if (lVar1 != g_iThisActorID)
-        iSector=Gv_GetVarX(lVar1);
+    register int32_t const iSector = (lVar1 != g_iThisActorID) ? Gv_GetVarX(lVar1) : sprite[vm.g_i].sectnum;
 
     if (EDUKE32_PREDICT_FALSE((unsigned)iSector >= (unsigned)numsectors))
         goto badsector;
 
     if (iSet)
-        lValue=Gv_GetVarX(lVar2);
-
-    switch (lLabelID)
     {
-    case SECTOR_WALLPTR:
-        if (iSet)
-        {
-            sector[iSector].wallptr=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].wallptr);
-        return;
+        iSet = Gv_GetVarX(lVar2);
 
-    case SECTOR_WALLNUM:
-        if (iSet)
+        switch (lLabelID)
         {
-            sector[iSector].wallnum=lValue;
-            return;
+            case SECTOR_WALLPTR: sector[iSector].wallptr = iSet; break;
+            case SECTOR_WALLNUM: sector[iSector].wallnum = iSet; break;
+            case SECTOR_CEILINGZ: sector[iSector].ceilingz = iSet; break;
+            case SECTOR_FLOORZ: sector[iSector].floorz = iSet; break;
+            case SECTOR_CEILINGSTAT: sector[iSector].ceilingstat = iSet; break;
+            case SECTOR_FLOORSTAT: sector[iSector].floorstat = iSet; break;
+            case SECTOR_CEILINGPICNUM: sector[iSector].ceilingpicnum = iSet; break;
+            case SECTOR_CEILINGSLOPE: sector[iSector].ceilingheinum = iSet; break;
+            case SECTOR_CEILINGSHADE: sector[iSector].ceilingshade = iSet; break;
+            case SECTOR_CEILINGPAL: sector[iSector].ceilingpal = iSet; break;
+            case SECTOR_CEILINGXPANNING: sector[iSector].ceilingxpanning = iSet; break;
+            case SECTOR_CEILINGYPANNING: sector[iSector].ceilingypanning = iSet; break;
+            case SECTOR_FLOORPICNUM: sector[iSector].floorpicnum = iSet; break;
+            case SECTOR_FLOORSLOPE: sector[iSector].floorheinum = iSet; break;
+            case SECTOR_FLOORSHADE: sector[iSector].floorshade = iSet; break;
+            case SECTOR_FLOORPAL: sector[iSector].floorpal = iSet; break;
+            case SECTOR_FLOORXPANNING: sector[iSector].floorxpanning = iSet; break;
+            case SECTOR_FLOORYPANNING: sector[iSector].floorypanning = iSet; break;
+            case SECTOR_VISIBILITY: sector[iSector].visibility = iSet; break;
+            case SECTOR_FOGPAL: sector[iSector].fogpal = iSet; break;
+            case SECTOR_LOTAG: sector[iSector].lotag = (int16_t)iSet; break;
+            case SECTOR_HITAG: sector[iSector].hitag = (int16_t)iSet; break;
+            case SECTOR_ULOTAG: sector[iSector].lotag = iSet; break;
+            case SECTOR_UHITAG: sector[iSector].hitag = iSet; break;
+            case SECTOR_EXTRA: sector[iSector].extra = iSet; break;
+            case SECTOR_CEILINGBUNCH:
+            case SECTOR_FLOORBUNCH:
+            default: break;
         }
-        Gv_SetVarX(lVar2, sector[iSector].wallnum);
-        return;
-
-    case SECTOR_CEILINGZ:
-        if (iSet)
-        {
-            sector[iSector].ceilingz=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].ceilingz);
-        return;
-
-    case SECTOR_FLOORZ:
-        if (iSet)
-        {
-            sector[iSector].floorz=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].floorz);
-        return;
-
-    case SECTOR_CEILINGSTAT:
-        if (iSet)
-        {
-            sector[iSector].ceilingstat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].ceilingstat);
-        return;
-
-    case SECTOR_FLOORSTAT:
-        if (iSet)
-        {
-            sector[iSector].floorstat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].floorstat);
-        return;
-
-    case SECTOR_CEILINGPICNUM:
-        if (iSet)
-        {
-            sector[iSector].ceilingpicnum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].ceilingpicnum);
-        return;
-
-    case SECTOR_CEILINGSLOPE:
-        if (iSet)
-        {
-            sector[iSector].ceilingheinum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].ceilingheinum);
-        return;
-
-    case SECTOR_CEILINGSHADE:
-        if (iSet)
-        {
-            sector[iSector].ceilingshade=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].ceilingshade);
-        return;
-
-    case SECTOR_CEILINGPAL:
-        if (iSet)
-        {
-            sector[iSector].ceilingpal=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].ceilingpal);
-        return;
-
-    case SECTOR_CEILINGXPANNING:
-        if (iSet)
-        {
-            sector[iSector].ceilingxpanning=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].ceilingxpanning);
-        return;
-
-    case SECTOR_CEILINGYPANNING:
-        if (iSet)
-        {
-            sector[iSector].ceilingypanning=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].ceilingypanning);
-        return;
-
-    case SECTOR_FLOORPICNUM:
-        if (iSet)
-        {
-            sector[iSector].floorpicnum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].floorpicnum);
-        return;
-
-    case SECTOR_FLOORSLOPE:
-        if (iSet)
-        {
-            sector[iSector].floorheinum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].floorheinum);
-        return;
-
-    case SECTOR_FLOORSHADE:
-        if (iSet)
-        {
-            sector[iSector].floorshade=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].floorshade);
-        return;
-
-    case SECTOR_FLOORPAL:
-        if (iSet)
-        {
-            sector[iSector].floorpal=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].floorpal);
-        return;
-
-    case SECTOR_FLOORXPANNING:
-        if (iSet)
-        {
-            sector[iSector].floorxpanning=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].floorxpanning);
-        return;
-
-    case SECTOR_FLOORYPANNING:
-        if (iSet)
-        {
-            sector[iSector].floorypanning=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].floorypanning);
-        return;
-
-    case SECTOR_VISIBILITY:
-        if (iSet)
-        {
-            sector[iSector].visibility=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].visibility);
-        return;
-
-    case SECTOR_FOGPAL:
-        if (iSet)
-        {
-            sector[iSector].fogpal=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].fogpal);
-        return;
-
-    case SECTOR_LOTAG:
-        if (iSet)
-        {
-            sector[iSector].lotag=(int16_t)lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, (int16_t)sector[iSector].lotag);
-        return;
-
-    case SECTOR_HITAG:
-        if (iSet)
-        {
-            sector[iSector].hitag=(int16_t)lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, (int16_t)sector[iSector].hitag);
-        return;
-
-    case SECTOR_ULOTAG:
-        if (iSet)
-        {
-            sector[iSector].lotag=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].lotag);
-        return;
-
-    case SECTOR_UHITAG:
-        if (iSet)
-        {
-            sector[iSector].hitag=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].hitag);
-        return;
-
-    case SECTOR_EXTRA:
-        if (iSet)
-        {
-            sector[iSector].extra=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, sector[iSector].extra);
-        return;
-
-    case SECTOR_CEILINGBUNCH:
-    case SECTOR_FLOORBUNCH:
-        if (!iSet)
-        {
-#ifdef YAX_ENABLE
-            Gv_SetVarX(lVar2, yax_getbunch(iSector, lLabelID==SECTOR_FLOORBUNCH));
-#else
-            Gv_SetVarX(lVar2, -1);
-#endif
-        }
-        return;
-
-    default:
-        return;
     }
+    else 
+    {
+        switch (lLabelID)
+        {
+            case SECTOR_WALLPTR: lLabelID = sector[iSector].wallptr; break;
+            case SECTOR_WALLNUM: lLabelID = sector[iSector].wallnum; break;
+            case SECTOR_CEILINGZ: lLabelID = sector[iSector].ceilingz; break;
+            case SECTOR_FLOORZ: lLabelID = sector[iSector].floorz; break;
+            case SECTOR_CEILINGSTAT: lLabelID = sector[iSector].ceilingstat; break;
+            case SECTOR_FLOORSTAT: lLabelID = sector[iSector].floorstat; break;
+            case SECTOR_CEILINGPICNUM: lLabelID = sector[iSector].ceilingpicnum; break;
+            case SECTOR_CEILINGSLOPE: lLabelID = sector[iSector].ceilingheinum; break;
+            case SECTOR_CEILINGSHADE: lLabelID = sector[iSector].ceilingshade; break;
+            case SECTOR_CEILINGPAL: lLabelID = sector[iSector].ceilingpal; break;
+            case SECTOR_CEILINGXPANNING: lLabelID = sector[iSector].ceilingxpanning; break;
+            case SECTOR_CEILINGYPANNING: lLabelID = sector[iSector].ceilingypanning; break;
+            case SECTOR_FLOORPICNUM: lLabelID = sector[iSector].floorpicnum; break;
+            case SECTOR_FLOORSLOPE: lLabelID = sector[iSector].floorheinum; break;
+            case SECTOR_FLOORSHADE: lLabelID = sector[iSector].floorshade; break;
+            case SECTOR_FLOORPAL: lLabelID = sector[iSector].floorpal; break;
+            case SECTOR_FLOORXPANNING: lLabelID = sector[iSector].floorxpanning; break;
+            case SECTOR_FLOORYPANNING: lLabelID = sector[iSector].floorypanning; break;
+            case SECTOR_VISIBILITY: lLabelID = sector[iSector].visibility; break;
+            case SECTOR_FOGPAL: lLabelID = sector[iSector].fogpal; break;
+            case SECTOR_LOTAG: lLabelID = (int16_t)sector[iSector].lotag; break;
+            case SECTOR_HITAG: lLabelID = (int16_t)sector[iSector].hitag; break;
+            case SECTOR_ULOTAG: lLabelID = sector[iSector].lotag; break;
+            case SECTOR_UHITAG: lLabelID = sector[iSector].hitag; break;
+            case SECTOR_EXTRA: lLabelID = sector[iSector].extra; break;
+            case SECTOR_CEILINGBUNCH:
+            case SECTOR_FLOORBUNCH:
+#ifdef YAX_ENABLE
+                lLabelID = yax_getbunch(iSector, lLabelID == SECTOR_FLOORBUNCH);
+#else
+                lLabelID = -1;
+#endif
+                break;
+            default: lLabelID = -1; break;
+        }
+
+        Gv_SetVarX(lVar2, lLabelID);
+    }
+
+    return;
 
 badsector:
     CON_ERRPRINTF("Invalid sector %d\n", iSector);
     insptr += (lVar2 == MAXGAMEVARS);
-    return;
 }
 
 static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
 {
-    register int32_t iActor=vm.g_i;
-
-    if (lVar1 != g_iThisActorID)
-        iActor=Gv_GetVarX(lVar1);
+    register int32_t const iActor = (lVar1 != g_iThisActorID) ? Gv_GetVarX(lVar1) : vm.g_i;
 
     if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
         goto badactor;
@@ -2455,229 +961,68 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     if (EDUKE32_PREDICT_FALSE(ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2))
         goto badpos;
 
-    lVar1=Gv_GetVarX(lVar2);
+    lVar1 = Gv_GetVarX(lVar2);
 
     switch (lLabelID)
     {
-    case ACTOR_X:
-        sprite[iActor].x=lVar1;
-        return;
-
-    case ACTOR_Y:
-        sprite[iActor].y=lVar1;
-        return;
-
-    case ACTOR_Z:
-        sprite[iActor].z=lVar1;
-        return;
-
-    case ACTOR_CSTAT:
-        sprite[iActor].cstat=lVar1;
-        return;
-
-    case ACTOR_PICNUM:
-        sprite[iActor].picnum=lVar1;
-        return;
-
-    case ACTOR_SHADE:
-        sprite[iActor].shade=lVar1;
-        return;
-
-    case ACTOR_PAL:
-        sprite[iActor].pal=lVar1;
-        return;
-
-    case ACTOR_CLIPDIST:
-        sprite[iActor].clipdist=lVar1;
-        return;
-
-    case ACTOR_DETAIL:
-        sprite[iActor].blend=lVar1;
-        return;
-
-    case ACTOR_XREPEAT:
-        sprite[iActor].xrepeat=lVar1;
-        return;
-
-    case ACTOR_YREPEAT:
-        sprite[iActor].yrepeat=lVar1;
-        return;
-
-    case ACTOR_XOFFSET:
-        sprite[iActor].xoffset=lVar1;
-        return;
-
-    case ACTOR_YOFFSET:
-        sprite[iActor].yoffset=lVar1;
-        return;
-
-    case ACTOR_SECTNUM:
-        changespritesect(iActor,lVar1);
-        return;
-
-    case ACTOR_STATNUM:
-        changespritestat(iActor,lVar1);
-        return;
-
-    case ACTOR_ANG:
-        sprite[iActor].ang=lVar1;
-        return;
-
-    case ACTOR_OWNER:
-        sprite[iActor].owner=lVar1;
-        return;
-
-    case ACTOR_XVEL:
-        sprite[iActor].xvel=lVar1;
-        return;
-
-    case ACTOR_YVEL:
-        sprite[iActor].yvel=lVar1;
-        return;
-
-    case ACTOR_ZVEL:
-        sprite[iActor].zvel=lVar1;
-        return;
-
-    case ACTOR_LOTAG:
-        sprite[iActor].lotag=(int16_t)lVar1;
-        return;
-
-    case ACTOR_HITAG:
-        sprite[iActor].hitag=(int16_t)lVar1;
-        return;
-
-    case ACTOR_ULOTAG:
-        sprite[iActor].lotag=lVar1;
-        return;
-
-    case ACTOR_UHITAG:
-        sprite[iActor].hitag=lVar1;
-        return;
-
-    case ACTOR_EXTRA:
-        sprite[iActor].extra=lVar1;
-        return;
-
-    case ACTOR_HTCGG:
-        actor[iActor].cgg=lVar1;
-        return;
-
-    case ACTOR_HTPICNUM :
-        actor[iActor].picnum=lVar1;
-        return;
-
-    case ACTOR_HTANG:
-        actor[iActor].ang=lVar1;
-        return;
-
-    case ACTOR_HTEXTRA:
-        actor[iActor].extra=lVar1;
-        return;
-
-    case ACTOR_HTOWNER:
-        actor[iActor].owner=lVar1;
-        return;
-
-    case ACTOR_HTMOVFLAG:
-        actor[iActor].movflag=lVar1;
-        return;
-
-    case ACTOR_HTTEMPANG:
-        actor[iActor].tempang=lVar1;
-        return;
-
-    case ACTOR_HTACTORSTAYPUT:
-        actor[iActor].actorstayput=lVar1;
-        return;
-
-    case ACTOR_HTDISPICNUM:
-        actor[iActor].dispicnum=lVar1;
-        return;
-
-    case ACTOR_HTTIMETOSLEEP:
-        actor[iActor].timetosleep=lVar1;
-        return;
-
-    case ACTOR_HTFLOORZ:
-        actor[iActor].floorz=lVar1;
-        return;
-
-    case ACTOR_HTCEILINGZ:
-        actor[iActor].ceilingz=lVar1;
-        return;
-
-    case ACTOR_HTLASTVX:
-        actor[iActor].lastvx=lVar1;
-        return;
-
-    case ACTOR_HTLASTVY:
-        actor[iActor].lastvy=lVar1;
-        return;
-
-    case ACTOR_HTBPOSX:
-        actor[iActor].bpos.x=lVar1;
-        return;
-
-    case ACTOR_HTBPOSY:
-        actor[iActor].bpos.y=lVar1;
-        return;
-
-    case ACTOR_HTBPOSZ:
-        actor[iActor].bpos.z=lVar1;
-        return;
-
-    case ACTOR_HTG_T:
-        actor[iActor].t_data[lParm2]=lVar1;
-        return;
-
-    case ACTOR_ANGOFF:
-        spriteext[iActor].angoff=lVar1;
-        return;
-
-    case ACTOR_PITCH:
-        spriteext[iActor].pitch=lVar1;
-        return;
-
-    case ACTOR_ROLL:
-        spriteext[iActor].roll=lVar1;
-        return;
-
-    case ACTOR_MDXOFF:
-        spriteext[iActor].offset.x=lVar1;
-        return;
-
-    case ACTOR_MDYOFF:
-        spriteext[iActor].offset.y=lVar1;
-        return;
-
-    case ACTOR_MDZOFF:
-        spriteext[iActor].offset.z=lVar1;
-        return;
-
-    case ACTOR_MDFLAGS:
-        spriteext[iActor].flags=lVar1;
-        return;
-
-    case ACTOR_XPANNING:
-        spriteext[iActor].xpanning=lVar1;
-        return;
-
-    case ACTOR_YPANNING:
-        spriteext[iActor].ypanning=lVar1;
-        return;
-
-    case ACTOR_HTFLAGS:
-        actor[iActor].flags=lVar1;
-        return;
-
-    case ACTOR_ALPHA:
-        spriteext[iActor].alpha=(float)lVar1 * (1.f/255.0f);
-        return;
-
-    default:
-        return;
+        case ACTOR_X: sprite[iActor].x = lVar1; break;
+        case ACTOR_Y: sprite[iActor].y = lVar1; break;
+        case ACTOR_Z: sprite[iActor].z = lVar1; break;
+        case ACTOR_CSTAT: sprite[iActor].cstat = lVar1; break;
+        case ACTOR_PICNUM: sprite[iActor].picnum = lVar1; break;
+        case ACTOR_SHADE: sprite[iActor].shade = lVar1; break;
+        case ACTOR_PAL: sprite[iActor].pal = lVar1; break;
+        case ACTOR_CLIPDIST: sprite[iActor].clipdist = lVar1; break;
+        case ACTOR_DETAIL: sprite[iActor].blend = lVar1; break;
+        case ACTOR_XREPEAT: sprite[iActor].xrepeat = lVar1; break;
+        case ACTOR_YREPEAT: sprite[iActor].yrepeat = lVar1; break;
+        case ACTOR_XOFFSET: sprite[iActor].xoffset = lVar1; break;
+        case ACTOR_YOFFSET: sprite[iActor].yoffset = lVar1; break;
+        case ACTOR_SECTNUM: changespritesect(iActor, lVar1); break;
+        case ACTOR_STATNUM: changespritestat(iActor, lVar1); break;
+        case ACTOR_ANG: sprite[iActor].ang = lVar1; break;
+        case ACTOR_OWNER: sprite[iActor].owner = lVar1; break;
+        case ACTOR_XVEL: sprite[iActor].xvel = lVar1; break;
+        case ACTOR_YVEL: sprite[iActor].yvel = lVar1; break;
+        case ACTOR_ZVEL: sprite[iActor].zvel = lVar1; break;
+        case ACTOR_LOTAG: sprite[iActor].lotag = (int16_t)lVar1; break;
+        case ACTOR_HITAG: sprite[iActor].hitag = (int16_t)lVar1; break;
+        case ACTOR_ULOTAG: sprite[iActor].lotag = lVar1; break;
+        case ACTOR_UHITAG: sprite[iActor].hitag = lVar1; break;
+        case ACTOR_EXTRA: sprite[iActor].extra = lVar1; break;
+        case ACTOR_HTCGG: actor[iActor].cgg = lVar1; break;
+        case ACTOR_HTPICNUM: actor[iActor].picnum = lVar1; break;
+        case ACTOR_HTANG: actor[iActor].ang = lVar1; break;
+        case ACTOR_HTEXTRA: actor[iActor].extra = lVar1; break;
+        case ACTOR_HTOWNER: actor[iActor].owner = lVar1; break;
+        case ACTOR_HTMOVFLAG: actor[iActor].movflag = lVar1; break;
+        case ACTOR_HTTEMPANG: actor[iActor].tempang = lVar1; break;
+        case ACTOR_HTACTORSTAYPUT: actor[iActor].actorstayput = lVar1; break;
+        case ACTOR_HTDISPICNUM: actor[iActor].dispicnum = lVar1; break;
+        case ACTOR_HTTIMETOSLEEP: actor[iActor].timetosleep = lVar1; break;
+        case ACTOR_HTFLOORZ: actor[iActor].floorz = lVar1; break;
+        case ACTOR_HTCEILINGZ: actor[iActor].ceilingz = lVar1; break;
+        case ACTOR_HTLASTVX: actor[iActor].lastvx = lVar1; break;
+        case ACTOR_HTLASTVY: actor[iActor].lastvy = lVar1; break;
+        case ACTOR_HTBPOSX: actor[iActor].bpos.x = lVar1; break;
+        case ACTOR_HTBPOSY: actor[iActor].bpos.y = lVar1; break;
+        case ACTOR_HTBPOSZ: actor[iActor].bpos.z = lVar1; break;
+        case ACTOR_HTG_T: actor[iActor].t_data[lParm2] = lVar1; break;
+        case ACTOR_ANGOFF: spriteext[iActor].angoff = lVar1; break;
+        case ACTOR_PITCH: spriteext[iActor].pitch = lVar1; break;
+        case ACTOR_ROLL: spriteext[iActor].roll = lVar1; break;
+        case ACTOR_MDXOFF: spriteext[iActor].offset.x = lVar1; break;
+        case ACTOR_MDYOFF: spriteext[iActor].offset.y = lVar1; break;
+        case ACTOR_MDZOFF: spriteext[iActor].offset.z = lVar1; break;
+        case ACTOR_MDFLAGS: spriteext[iActor].flags = lVar1; break;
+        case ACTOR_XPANNING: spriteext[iActor].xpanning = lVar1; break;
+        case ACTOR_YPANNING: spriteext[iActor].ypanning = lVar1; break;
+        case ACTOR_HTFLAGS: actor[iActor].flags = lVar1; break;
+        case ACTOR_ALPHA: spriteext[iActor].alpha = (float)lVar1 * (1.f / 255.0f); break;
+        default: break;
     }
+
+    return;
 
 badactor:
     CON_ERRPRINTF("tried to set %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",
@@ -2690,16 +1035,12 @@ badpos:
     CON_ERRPRINTF("tried to set invalid %s position %d on sprite (%d) from spr %d\n",
                   ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
     insptr += (lVar2 == MAXGAMEVARS);
-    return;
 }
 
 
 static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
 {
-    register int32_t iActor=vm.g_i;
-
-    if (lVar1 != g_iThisActorID)
-        iActor=Gv_GetVarX(lVar1);
+    register int32_t const iActor = (lVar1 != g_iThisActorID) ? Gv_GetVarX(lVar1) : vm.g_i;
 
     if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
         goto badactor;
@@ -2710,229 +1051,66 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
 
     switch (lLabelID)
     {
-    case ACTOR_X:
-        Gv_SetVarX(lVar2, sprite[iActor].x);
-        return;
-
-    case ACTOR_Y:
-        Gv_SetVarX(lVar2, sprite[iActor].y);
-        return;
-
-    case ACTOR_Z:
-        Gv_SetVarX(lVar2, sprite[iActor].z);
-        return;
-
-    case ACTOR_CSTAT:
-        Gv_SetVarX(lVar2, sprite[iActor].cstat);
-        return;
-
-    case ACTOR_PICNUM:
-        Gv_SetVarX(lVar2, sprite[iActor].picnum);
-        return;
-
-    case ACTOR_SHADE:
-        Gv_SetVarX(lVar2, sprite[iActor].shade);
-        return;
-
-    case ACTOR_PAL:
-        Gv_SetVarX(lVar2, sprite[iActor].pal);
-        return;
-
-    case ACTOR_CLIPDIST:
-        Gv_SetVarX(lVar2, sprite[iActor].clipdist);
-        return;
-
-    case ACTOR_DETAIL:
-        Gv_SetVarX(lVar2, sprite[iActor].blend);
-        return;
-
-    case ACTOR_XREPEAT:
-        Gv_SetVarX(lVar2, sprite[iActor].xrepeat);
-        return;
-
-    case ACTOR_YREPEAT:
-        Gv_SetVarX(lVar2, sprite[iActor].yrepeat);
-        return;
-
-    case ACTOR_XOFFSET:
-        Gv_SetVarX(lVar2, sprite[iActor].xoffset);
-        return;
-
-    case ACTOR_YOFFSET:
-        Gv_SetVarX(lVar2, sprite[iActor].yoffset);
-        return;
-
-    case ACTOR_SECTNUM:
-        Gv_SetVarX(lVar2, sprite[iActor].sectnum);
-        return;
-
-    case ACTOR_STATNUM:
-        Gv_SetVarX(lVar2, sprite[iActor].statnum);
-        return;
-
-    case ACTOR_ANG:
-        Gv_SetVarX(lVar2, sprite[iActor].ang);
-        return;
-
-    case ACTOR_OWNER:
-        Gv_SetVarX(lVar2, sprite[iActor].owner);
-        return;
-
-    case ACTOR_XVEL:
-        Gv_SetVarX(lVar2, sprite[iActor].xvel);
-        return;
-
-    case ACTOR_YVEL:
-        Gv_SetVarX(lVar2, sprite[iActor].yvel);
-        return;
-
-    case ACTOR_ZVEL:
-        Gv_SetVarX(lVar2, sprite[iActor].zvel);
-        return;
-
-    case ACTOR_LOTAG:
-        Gv_SetVarX(lVar2, (int16_t)sprite[iActor].lotag);
-        return;
-
-    case ACTOR_HITAG:
-        Gv_SetVarX(lVar2, (int16_t)sprite[iActor].hitag);
-        return;
-
-    case ACTOR_ULOTAG:
-        Gv_SetVarX(lVar2, sprite[iActor].lotag);
-        return;
-
-    case ACTOR_UHITAG:
-        Gv_SetVarX(lVar2, sprite[iActor].hitag);
-        return;
-
-    case ACTOR_EXTRA:
-        Gv_SetVarX(lVar2, sprite[iActor].extra);
-        return;
-
-    case ACTOR_HTCGG:
-        Gv_SetVarX(lVar2, actor[iActor].cgg);
-        return;
-
-    case ACTOR_HTPICNUM :
-        Gv_SetVarX(lVar2, actor[iActor].picnum);
-        return;
-
-    case ACTOR_HTANG:
-        Gv_SetVarX(lVar2, actor[iActor].ang);
-        return;
-
-    case ACTOR_HTEXTRA:
-        Gv_SetVarX(lVar2,actor[iActor].extra);
-        return;
-
-    case ACTOR_HTOWNER:
-        Gv_SetVarX(lVar2,actor[iActor].owner);
-        return;
-
-    case ACTOR_HTMOVFLAG:
-        Gv_SetVarX(lVar2,actor[iActor].movflag);
-        return;
-
-    case ACTOR_HTTEMPANG:
-        Gv_SetVarX(lVar2,actor[iActor].tempang);
-        return;
-
-    case ACTOR_HTACTORSTAYPUT:
-        Gv_SetVarX(lVar2,actor[iActor].actorstayput);
-        return;
-
-    case ACTOR_HTDISPICNUM:
-        Gv_SetVarX(lVar2,actor[iActor].dispicnum);
-        return;
-
-    case ACTOR_HTTIMETOSLEEP:
-        Gv_SetVarX(lVar2,actor[iActor].timetosleep);
-        return;
-
-    case ACTOR_HTFLOORZ:
-        Gv_SetVarX(lVar2,actor[iActor].floorz);
-        return;
-
-    case ACTOR_HTCEILINGZ:
-        Gv_SetVarX(lVar2,actor[iActor].ceilingz);
-        return;
-
-    case ACTOR_HTLASTVX:
-        Gv_SetVarX(lVar2,actor[iActor].lastvx);
-        return;
-
-    case ACTOR_HTLASTVY:
-        Gv_SetVarX(lVar2,actor[iActor].lastvy);
-        return;
-
-    case ACTOR_HTBPOSX:
-        Gv_SetVarX(lVar2,actor[iActor].bpos.x);
-        return;
-
-    case ACTOR_HTBPOSY:
-        Gv_SetVarX(lVar2,actor[iActor].bpos.y);
-        return;
-
-    case ACTOR_HTBPOSZ:
-        Gv_SetVarX(lVar2,actor[iActor].bpos.z);
-        return;
-
-    case ACTOR_HTG_T:
-        Gv_SetVarX(lVar2, actor[iActor].t_data[lParm2]);
-        return;
-
-    case ACTOR_ANGOFF:
-        Gv_SetVarX(lVar2,spriteext[iActor].angoff);
-        return;
-
-    case ACTOR_PITCH:
-        Gv_SetVarX(lVar2,spriteext[iActor].pitch);
-        return;
-
-    case ACTOR_ROLL:
-        Gv_SetVarX(lVar2,spriteext[iActor].roll);
-        return;
-
-    case ACTOR_MDXOFF:
-        Gv_SetVarX(lVar2,spriteext[iActor].offset.x);
-        return;
-
-    case ACTOR_MDYOFF:
-        Gv_SetVarX(lVar2,spriteext[iActor].offset.y);
-        return;
-
-    case ACTOR_MDZOFF:
-        Gv_SetVarX(lVar2,spriteext[iActor].offset.z);
-        return;
-
-    case ACTOR_MDFLAGS:
-        Gv_SetVarX(lVar2,spriteext[iActor].flags);
-        return;
-
-    case ACTOR_XPANNING:
-        Gv_SetVarX(lVar2, spriteext[iActor].xpanning);
-        return;
-
-    case ACTOR_YPANNING:
-        Gv_SetVarX(lVar2, spriteext[iActor].ypanning);
-        return;
-
-    case ACTOR_HTFLAGS:
-        Gv_SetVarX(lVar2,actor[iActor].flags);
-        return;
-
-    case ACTOR_ALPHA:
-        Gv_SetVarX(lVar2, (uint8_t)(spriteext[iActor].alpha * 255.0f));
-        return;
-
-    case ACTOR_ISVALID:
-        Gv_SetVarX(lVar2, sprite[iActor].statnum != MAXSTATUS);
-        return;
-
-    default:
-        return;
+        case ACTOR_X: lLabelID = sprite[iActor].x; break;
+        case ACTOR_Y: lLabelID = sprite[iActor].y; break;
+        case ACTOR_Z: lLabelID = sprite[iActor].z; break;
+        case ACTOR_CSTAT: lLabelID = sprite[iActor].cstat; break;
+        case ACTOR_PICNUM: lLabelID = sprite[iActor].picnum; break;
+        case ACTOR_SHADE: lLabelID = sprite[iActor].shade; break;
+        case ACTOR_PAL: lLabelID = sprite[iActor].pal; break;
+        case ACTOR_CLIPDIST: lLabelID = sprite[iActor].clipdist; break;
+        case ACTOR_DETAIL: lLabelID = sprite[iActor].blend; break;
+        case ACTOR_XREPEAT: lLabelID = sprite[iActor].xrepeat; break;
+        case ACTOR_YREPEAT: lLabelID = sprite[iActor].yrepeat; break;
+        case ACTOR_XOFFSET: lLabelID = sprite[iActor].xoffset; break;
+        case ACTOR_YOFFSET: lLabelID = sprite[iActor].yoffset; break;
+        case ACTOR_SECTNUM: lLabelID = sprite[iActor].sectnum; break;
+        case ACTOR_STATNUM: lLabelID = sprite[iActor].statnum; break;
+        case ACTOR_ANG: lLabelID = sprite[iActor].ang; break;
+        case ACTOR_OWNER: lLabelID = sprite[iActor].owner; break;
+        case ACTOR_XVEL: lLabelID = sprite[iActor].xvel; break;
+        case ACTOR_YVEL: lLabelID = sprite[iActor].yvel; break;
+        case ACTOR_ZVEL: lLabelID = sprite[iActor].zvel; break;
+        case ACTOR_LOTAG: lLabelID = (int16_t)sprite[iActor].lotag; break;
+        case ACTOR_HITAG: lLabelID = (int16_t)sprite[iActor].hitag; break;
+        case ACTOR_ULOTAG: lLabelID = sprite[iActor].lotag; break;
+        case ACTOR_UHITAG: lLabelID = sprite[iActor].hitag; break;
+        case ACTOR_EXTRA: lLabelID = sprite[iActor].extra; break;
+        case ACTOR_HTCGG: lLabelID = actor[iActor].cgg; break;
+        case ACTOR_HTPICNUM: lLabelID = actor[iActor].picnum; break;
+        case ACTOR_HTANG: lLabelID = actor[iActor].ang; break;
+        case ACTOR_HTEXTRA: lLabelID = actor[iActor].extra; break;
+        case ACTOR_HTOWNER: lLabelID = actor[iActor].owner; break;
+        case ACTOR_HTMOVFLAG: lLabelID = actor[iActor].movflag; break;
+        case ACTOR_HTTEMPANG: lLabelID = actor[iActor].tempang; break;
+        case ACTOR_HTACTORSTAYPUT: lLabelID = actor[iActor].actorstayput; break;
+        case ACTOR_HTDISPICNUM: lLabelID = actor[iActor].dispicnum; break;
+        case ACTOR_HTTIMETOSLEEP: lLabelID = actor[iActor].timetosleep; break;
+        case ACTOR_HTFLOORZ: lLabelID = actor[iActor].floorz; break;
+        case ACTOR_HTCEILINGZ: lLabelID = actor[iActor].ceilingz; break;
+        case ACTOR_HTLASTVX: lLabelID = actor[iActor].lastvx; break;
+        case ACTOR_HTLASTVY: lLabelID = actor[iActor].lastvy; break;
+        case ACTOR_HTBPOSX: lLabelID = actor[iActor].bpos.x; break;
+        case ACTOR_HTBPOSY: lLabelID = actor[iActor].bpos.y; break;
+        case ACTOR_HTBPOSZ: lLabelID = actor[iActor].bpos.z; break;
+        case ACTOR_HTG_T: lLabelID = actor[iActor].t_data[lParm2]; break;
+        case ACTOR_ANGOFF: lLabelID = spriteext[iActor].angoff; break;
+        case ACTOR_PITCH: lLabelID = spriteext[iActor].pitch; break;
+        case ACTOR_ROLL: lLabelID = spriteext[iActor].roll; break;
+        case ACTOR_MDXOFF: lLabelID = spriteext[iActor].offset.x; break;
+        case ACTOR_MDYOFF: lLabelID = spriteext[iActor].offset.y; break;
+        case ACTOR_MDZOFF: lLabelID = spriteext[iActor].offset.z; break;
+        case ACTOR_MDFLAGS: lLabelID = spriteext[iActor].flags; break;
+        case ACTOR_XPANNING: lLabelID = spriteext[iActor].xpanning; break;
+        case ACTOR_YPANNING: lLabelID = spriteext[iActor].ypanning; break;
+        case ACTOR_HTFLAGS: lLabelID = actor[iActor].flags; break;
+        case ACTOR_ALPHA: lLabelID = (uint8_t)(spriteext[iActor].alpha * 255.0f); break;
+        case ACTOR_ISVALID: lLabelID = sprite[iActor].statnum != MAXSTATUS; break;
+        default: return;
     }
+
+    Gv_SetVarX(lVar2, lLabelID);
+    return;
 
 badactor:
     CON_ERRPRINTF("tried to get %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",
@@ -2948,259 +1126,88 @@ badpos:
     return;
 }
 
-
 static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int32_t lValue=0;
-    int32_t iActor=vm.g_i;
+    lVar1 = (lVar1 != g_iThisActorID) ? Gv_GetVarX(lVar1) : vm.g_i;
 
-    if (lVar1 != g_iThisActorID)
-        iActor=Gv_GetVarX(lVar1);
-
-    if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)lVar1 >= MAXSPRITES))
         goto badsprite;
 
-    if (iSet)
-        lValue=Gv_GetVarX(lVar2);
-
-    if (EDUKE32_PREDICT_FALSE(!spriteext[iActor].tspr))
+    if (EDUKE32_PREDICT_FALSE(!spriteext[lVar1].tspr))
         goto badtspr;
 
-    switch (lLabelID)
+    if (iSet)
     {
-    case ACTOR_X:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->x=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->x);
-        return;
+        iSet = Gv_GetVarX(lVar2);
 
-    case ACTOR_Y:
-        if (iSet)
+        switch (lLabelID)
         {
-            spriteext[iActor].tspr->y=lValue;
-            return;
+            case ACTOR_X: spriteext[lVar1].tspr->x = iSet; break;
+            case ACTOR_Y: spriteext[lVar1].tspr->y = iSet; break;
+            case ACTOR_Z: spriteext[lVar1].tspr->z = iSet; break;
+            case ACTOR_CSTAT: spriteext[lVar1].tspr->cstat = iSet; break;
+            case ACTOR_PICNUM: spriteext[lVar1].tspr->picnum = iSet; break;
+            case ACTOR_SHADE: spriteext[lVar1].tspr->shade = iSet; break;
+            case ACTOR_PAL: spriteext[lVar1].tspr->pal = iSet; break;
+            case ACTOR_CLIPDIST: spriteext[lVar1].tspr->clipdist = iSet; break;
+            case ACTOR_DETAIL: spriteext[lVar1].tspr->blend = iSet; break;
+            case ACTOR_XREPEAT: spriteext[lVar1].tspr->xrepeat = iSet; break;
+            case ACTOR_YREPEAT: spriteext[lVar1].tspr->yrepeat = iSet; break;
+            case ACTOR_XOFFSET: spriteext[lVar1].tspr->xoffset = iSet; break;
+            case ACTOR_YOFFSET: spriteext[lVar1].tspr->yoffset = iSet; break;
+            case ACTOR_SECTNUM: spriteext[lVar1].tspr->sectnum = iSet; break;
+            case ACTOR_STATNUM: spriteext[lVar1].tspr->statnum = iSet; break;
+            case ACTOR_ANG: spriteext[lVar1].tspr->ang = iSet; break;
+            case ACTOR_OWNER: spriteext[lVar1].tspr->owner = iSet; break;
+            case ACTOR_XVEL: spriteext[lVar1].tspr->xvel = iSet; break;
+            case ACTOR_YVEL: spriteext[lVar1].tspr->yvel = iSet; break;
+            case ACTOR_ZVEL: spriteext[lVar1].tspr->zvel = iSet; break;
+            case ACTOR_LOTAG: spriteext[lVar1].tspr->lotag = (int16_t) iSet; break;
+            case ACTOR_HITAG: spriteext[lVar1].tspr->hitag = (int16_t) iSet; break;
+            case ACTOR_ULOTAG: spriteext[lVar1].tspr->lotag = iSet; break;
+            case ACTOR_UHITAG: spriteext[lVar1].tspr->hitag = iSet; break;
+            case ACTOR_EXTRA: spriteext[lVar1].tspr->extra = iSet; break;
         }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->y);
-        return;
-
-    case ACTOR_Z:
-        if (iSet)
+    }
+    else
+    {
+        switch (lLabelID)
         {
-            spriteext[iActor].tspr->z=lValue;
-            return;
+            case ACTOR_X: iSet = spriteext[lVar1].tspr->x; break;
+            case ACTOR_Y: iSet = spriteext[lVar1].tspr->y; break;
+            case ACTOR_Z: iSet = spriteext[lVar1].tspr->z; break;
+            case ACTOR_CSTAT: iSet = spriteext[lVar1].tspr->cstat; break;
+            case ACTOR_PICNUM: iSet = spriteext[lVar1].tspr->picnum; break;
+            case ACTOR_SHADE: iSet = spriteext[lVar1].tspr->shade; break;
+            case ACTOR_PAL: iSet = spriteext[lVar1].tspr->pal; break;
+            case ACTOR_CLIPDIST: iSet = spriteext[lVar1].tspr->clipdist; break;
+            case ACTOR_DETAIL: iSet = spriteext[lVar1].tspr->blend; break;
+            case ACTOR_XREPEAT: iSet = spriteext[lVar1].tspr->xrepeat; break;
+            case ACTOR_YREPEAT: iSet = spriteext[lVar1].tspr->yrepeat; break;
+            case ACTOR_XOFFSET: iSet = spriteext[lVar1].tspr->xoffset; break;
+            case ACTOR_YOFFSET: iSet = spriteext[lVar1].tspr->yoffset; break;
+            case ACTOR_SECTNUM: iSet = spriteext[lVar1].tspr->sectnum; break;
+            case ACTOR_STATNUM: iSet = spriteext[lVar1].tspr->statnum; break;
+            case ACTOR_ANG: iSet = spriteext[lVar1].tspr->ang; break;
+            case ACTOR_OWNER: iSet = spriteext[lVar1].tspr->owner; break;
+            case ACTOR_XVEL: iSet = spriteext[lVar1].tspr->xvel; break;
+            case ACTOR_YVEL: iSet = spriteext[lVar1].tspr->yvel; break;
+            case ACTOR_ZVEL: iSet = spriteext[lVar1].tspr->zvel; break;
+            case ACTOR_LOTAG: iSet = (int16_t) spriteext[lVar1].tspr->lotag; break;
+            case ACTOR_HITAG: iSet = (int16_t) spriteext[lVar1].tspr->hitag; break;
+            case ACTOR_ULOTAG: iSet = spriteext[lVar1].tspr->lotag; break;
+            case ACTOR_UHITAG: iSet = spriteext[lVar1].tspr->hitag; break;
+            case ACTOR_EXTRA: iSet = spriteext[lVar1].tspr->extra; break;
+            default: return;
         }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->z);
-        return;
 
-    case ACTOR_CSTAT:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->cstat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->cstat);
-        return;
-
-    case ACTOR_PICNUM:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->picnum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->picnum);
-        return;
-
-    case ACTOR_SHADE:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->shade=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->shade);
-        return;
-
-    case ACTOR_PAL:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->pal=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->pal);
-        return;
-
-    case ACTOR_CLIPDIST:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->clipdist=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->clipdist);
-        return;
-
-    case ACTOR_DETAIL:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->blend=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->blend);
-        return;
-
-    case ACTOR_XREPEAT:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->xrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->xrepeat);
-        return;
-
-    case ACTOR_YREPEAT:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->yrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->yrepeat);
-        return;
-
-    case ACTOR_XOFFSET:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->xoffset=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->xoffset);
-        return;
-
-    case ACTOR_YOFFSET:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->yoffset=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->yoffset);
-        return;
-
-    case ACTOR_SECTNUM:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->sectnum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->sectnum);
-        return;
-
-    case ACTOR_STATNUM:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->statnum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->statnum);
-        return;
-
-    case ACTOR_ANG:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->ang=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->ang);
-        return;
-
-    case ACTOR_OWNER:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->owner=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->owner);
-        return;
-
-#if 1
-    case ACTOR_XVEL:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->xvel=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->xvel);
-        return;
-
-    case ACTOR_YVEL:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->yvel=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->yvel);
-        return;
-
-    case ACTOR_ZVEL:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->zvel=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->zvel);
-        return;
-
-    case ACTOR_LOTAG:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->lotag=(int16_t)lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, (int16_t)spriteext[iActor].tspr->lotag);
-        return;
-
-    case ACTOR_HITAG:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->hitag=(int16_t)lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, (int16_t)spriteext[iActor].tspr->hitag);
-        return;
-
-    case ACTOR_ULOTAG:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->lotag=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->lotag);
-        return;
-
-    case ACTOR_UHITAG:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->hitag=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->hitag);
-        return;
-
-    case ACTOR_EXTRA:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->extra=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->extra);
-        return;
-#endif
-
-    default:
-        return;
+        Gv_SetVarX(lVar2, iSet);
     }
 
+    return;
+
 badsprite:
-    CON_ERRPRINTF("invalid target sprite (%d) %d %d\n", iActor, vm.g_i, TrackerCast(vm.g_sp->picnum));
+    CON_ERRPRINTF("invalid target sprite (%d) %d %d\n", lVar1, vm.g_i, TrackerCast(vm.g_sp->picnum));
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 
@@ -3211,289 +1218,88 @@ badtspr:
 
 static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int32_t lValue=0;
-
     if (EDUKE32_PREDICT_FALSE((unsigned)lVar1 >= MAXTILES))
         goto badtile;
 
     if (iSet)
-        lValue=Gv_GetVarX(lVar2);
-
-    switch (lLabelID)
     {
-    case PROJ_WORKSLIKE:
-        if (iSet)
-        {
-            ProjectileData[lVar1].workslike=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].workslike);
-        return;
+        iSet=Gv_GetVarX(lVar2);
 
-    case PROJ_SPAWNS:
-        if (iSet)
+        switch (lLabelID)
         {
-            ProjectileData[lVar1].spawns=lValue;
-            return;
+            case PROJ_WORKSLIKE: ProjectileData[lVar1].workslike = iSet; break;
+            case PROJ_SPAWNS: ProjectileData[lVar1].spawns = iSet; break;
+            case PROJ_SXREPEAT: ProjectileData[lVar1].sxrepeat = iSet; break;
+            case PROJ_SYREPEAT: ProjectileData[lVar1].syrepeat = iSet; break;
+            case PROJ_SOUND: ProjectileData[lVar1].sound = iSet; break;
+            case PROJ_ISOUND: ProjectileData[lVar1].isound = iSet; break;
+            case PROJ_VEL: ProjectileData[lVar1].vel = iSet; break;
+            case PROJ_EXTRA: ProjectileData[lVar1].extra = iSet; break;
+            case PROJ_DECAL: ProjectileData[lVar1].decal = iSet; break;
+            case PROJ_TRAIL: ProjectileData[lVar1].trail = iSet; break;
+            case PROJ_TXREPEAT: ProjectileData[lVar1].txrepeat = iSet; break;
+            case PROJ_TYREPEAT: ProjectileData[lVar1].tyrepeat = iSet; break;
+            case PROJ_TOFFSET: ProjectileData[lVar1].toffset = iSet; break;
+            case PROJ_TNUM: ProjectileData[lVar1].tnum = iSet; break;
+            case PROJ_DROP: ProjectileData[lVar1].drop = iSet; break;
+            case PROJ_CSTAT: ProjectileData[lVar1].cstat = iSet; break;
+            case PROJ_CLIPDIST: ProjectileData[lVar1].clipdist = iSet; break;
+            case PROJ_SHADE: ProjectileData[lVar1].shade = iSet; break;
+            case PROJ_XREPEAT: ProjectileData[lVar1].xrepeat = iSet; break;
+            case PROJ_YREPEAT: ProjectileData[lVar1].yrepeat = iSet; break;
+            case PROJ_PAL: ProjectileData[lVar1].pal = iSet; break;
+            case PROJ_EXTRA_RAND: ProjectileData[lVar1].extra_rand = iSet; break;
+            case PROJ_HITRADIUS: ProjectileData[lVar1].hitradius = iSet; break;
+            case PROJ_MOVECNT: ProjectileData[lVar1].movecnt = iSet; break;
+            case PROJ_OFFSET: ProjectileData[lVar1].offset = iSet; break;
+            case PROJ_BOUNCES: ProjectileData[lVar1].bounces = iSet; break;
+            case PROJ_BSOUND: ProjectileData[lVar1].bsound = iSet; break;
+            case PROJ_RANGE: ProjectileData[lVar1].range = iSet; break;
+            case PROJ_FLASH_COLOR: ProjectileData[lVar1].flashcolor = iSet; break;
+            case PROJ_USERDATA: ProjectileData[lVar1].userdata = iSet; break;
         }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].spawns);
-        return;
-
-    case PROJ_SXREPEAT:
-        if (iSet)
-        {
-            ProjectileData[lVar1].sxrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].sxrepeat);
-        return;
-
-    case PROJ_SYREPEAT:
-        if (iSet)
-        {
-            ProjectileData[lVar1].syrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].syrepeat);
-        return;
-
-    case PROJ_SOUND:
-        if (iSet)
-        {
-            ProjectileData[lVar1].sound=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].sound);
-        return;
-
-    case PROJ_ISOUND:
-        if (iSet)
-        {
-            ProjectileData[lVar1].isound=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].isound);
-        return;
-
-    case PROJ_VEL:
-        if (iSet)
-        {
-            ProjectileData[lVar1].vel=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].vel);
-        return;
-
-    case PROJ_EXTRA:
-        if (iSet)
-        {
-            ProjectileData[lVar1].extra=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].extra);
-        return;
-
-    case PROJ_DECAL:
-        if (iSet)
-        {
-            ProjectileData[lVar1].decal=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].decal);
-        return;
-
-    case PROJ_TRAIL:
-        if (iSet)
-        {
-            ProjectileData[lVar1].trail=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].trail);
-        return;
-
-    case PROJ_TXREPEAT:
-        if (iSet)
-        {
-            ProjectileData[lVar1].txrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].txrepeat);
-        return;
-
-    case PROJ_TYREPEAT:
-        if (iSet)
-        {
-            ProjectileData[lVar1].tyrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].tyrepeat);
-        return;
-
-    case PROJ_TOFFSET:
-        if (iSet)
-        {
-            ProjectileData[lVar1].toffset=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].toffset);
-        return;
-
-    case PROJ_TNUM:
-        if (iSet)
-        {
-            ProjectileData[lVar1].tnum=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].tnum);
-        return;
-
-    case PROJ_DROP:
-        if (iSet)
-        {
-            ProjectileData[lVar1].drop=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].drop);
-        return;
-
-    case PROJ_CSTAT:
-        if (iSet)
-        {
-            ProjectileData[lVar1].cstat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].cstat);
-        return;
-
-    case PROJ_CLIPDIST:
-        if (iSet)
-        {
-            ProjectileData[lVar1].clipdist=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].clipdist);
-        return;
-
-    case PROJ_SHADE:
-        if (iSet)
-        {
-            ProjectileData[lVar1].shade=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].shade);
-        return;
-
-    case PROJ_XREPEAT:
-        if (iSet)
-        {
-            ProjectileData[lVar1].xrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].xrepeat);
-        return;
-
-    case PROJ_YREPEAT:
-        if (iSet)
-        {
-            ProjectileData[lVar1].yrepeat=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].yrepeat);
-        return;
-
-    case PROJ_PAL:
-        if (iSet)
-        {
-            ProjectileData[lVar1].pal=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].pal);
-        return;
-
-    case PROJ_EXTRA_RAND:
-        if (iSet)
-        {
-            ProjectileData[lVar1].extra_rand=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].extra_rand);
-        return;
-
-    case PROJ_HITRADIUS:
-        if (iSet)
-        {
-            ProjectileData[lVar1].hitradius=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].hitradius);
-        return;
-
-    case PROJ_MOVECNT:
-        if (iSet)
-        {
-            ProjectileData[lVar1].movecnt=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].movecnt);
-        return;
-
-    case PROJ_OFFSET:
-        if (iSet)
-        {
-            ProjectileData[lVar1].offset=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].offset);
-        return;
-
-    case PROJ_BOUNCES:
-        if (iSet)
-        {
-            ProjectileData[lVar1].bounces=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].bounces);
-        return;
-
-    case PROJ_BSOUND:
-        if (iSet)
-        {
-            ProjectileData[lVar1].bsound=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].bsound);
-        return;
-
-    case PROJ_RANGE:
-        if (iSet)
-        {
-            ProjectileData[lVar1].range=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].range);
-        return;
-
-    case PROJ_FLASH_COLOR:
-        if (iSet)
-        {
-            ProjectileData[lVar1].flashcolor=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].flashcolor);
-        return;
-
-    case PROJ_USERDATA:
-        if (iSet)
-        {
-            ProjectileData[lVar1].userdata=lValue;
-            return;
-        }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].userdata);
-        return;
-
-    default:
-        return;
     }
+    else
+    {
+        switch (lLabelID)
+        {
+            case PROJ_WORKSLIKE: iSet = ProjectileData[lVar1].workslike; break;
+            case PROJ_SPAWNS: iSet = ProjectileData[lVar1].spawns; break;
+            case PROJ_SXREPEAT: iSet = ProjectileData[lVar1].sxrepeat; break;
+            case PROJ_SYREPEAT: iSet = ProjectileData[lVar1].syrepeat; break;
+            case PROJ_SOUND: iSet = ProjectileData[lVar1].sound; break;
+            case PROJ_ISOUND: iSet = ProjectileData[lVar1].isound; break;
+            case PROJ_VEL: iSet = ProjectileData[lVar1].vel; break;
+            case PROJ_EXTRA: iSet = ProjectileData[lVar1].extra; break;
+            case PROJ_DECAL: iSet = ProjectileData[lVar1].decal; break;
+            case PROJ_TRAIL: iSet = ProjectileData[lVar1].trail; break;
+            case PROJ_TXREPEAT: iSet = ProjectileData[lVar1].txrepeat; break;
+            case PROJ_TYREPEAT: iSet = ProjectileData[lVar1].tyrepeat; break;
+            case PROJ_TOFFSET: iSet = ProjectileData[lVar1].toffset; break;
+            case PROJ_TNUM: iSet = ProjectileData[lVar1].tnum; break;
+            case PROJ_DROP: iSet = ProjectileData[lVar1].drop; break;
+            case PROJ_CSTAT: iSet = ProjectileData[lVar1].cstat; break;
+            case PROJ_CLIPDIST: iSet = ProjectileData[lVar1].clipdist; break;
+            case PROJ_SHADE: iSet = ProjectileData[lVar1].shade; break;
+            case PROJ_XREPEAT: iSet = ProjectileData[lVar1].xrepeat; break;
+            case PROJ_YREPEAT: iSet = ProjectileData[lVar1].yrepeat; break;
+            case PROJ_PAL: iSet = ProjectileData[lVar1].pal; break;
+            case PROJ_EXTRA_RAND: iSet = ProjectileData[lVar1].extra_rand; break;
+            case PROJ_HITRADIUS: iSet = ProjectileData[lVar1].hitradius; break;
+            case PROJ_MOVECNT: iSet = ProjectileData[lVar1].movecnt; break;
+            case PROJ_OFFSET: iSet = ProjectileData[lVar1].offset; break;
+            case PROJ_BOUNCES: iSet = ProjectileData[lVar1].bounces; break;
+            case PROJ_BSOUND: iSet = ProjectileData[lVar1].bsound; break;
+            case PROJ_RANGE: iSet = ProjectileData[lVar1].range; break;
+            case PROJ_FLASH_COLOR: iSet = ProjectileData[lVar1].flashcolor; break;
+            case PROJ_USERDATA: iSet = ProjectileData[lVar1].userdata; break;
+            default: iSet = -1; break;
+        }
+
+        Gv_SetVarX(lVar2, iSet);
+    }
+
+    return;
 
 badtile:
     CON_ERRPRINTF("invalid tile (%d)\n", lVar1);
@@ -3509,67 +1315,69 @@ static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int
 
     switch (lLabelID)
     {
-    case ACTOR_X: return sprite[iActor].x;
-    case ACTOR_Y: return sprite[iActor].y;
-    case ACTOR_Z: return sprite[iActor].z;
-    case ACTOR_CSTAT: return sprite[iActor].cstat;
-    case ACTOR_PICNUM: return sprite[iActor].picnum;
-    case ACTOR_SHADE: return sprite[iActor].shade;
-    case ACTOR_PAL: return sprite[iActor].pal;
-    case ACTOR_CLIPDIST: return sprite[iActor].clipdist;
-    case ACTOR_DETAIL: return sprite[iActor].blend;
-    case ACTOR_XREPEAT: return sprite[iActor].xrepeat;
-    case ACTOR_YREPEAT: return sprite[iActor].yrepeat;
-    case ACTOR_XOFFSET: return sprite[iActor].xoffset;
-    case ACTOR_YOFFSET: return sprite[iActor].yoffset;
-    case ACTOR_SECTNUM: return sprite[iActor].sectnum;
-    case ACTOR_STATNUM: return sprite[iActor].statnum;
-    case ACTOR_ANG: return sprite[iActor].ang;
-    case ACTOR_OWNER: return sprite[iActor].owner;
-    case ACTOR_XVEL: return sprite[iActor].xvel;
-    case ACTOR_YVEL: return sprite[iActor].yvel;
-    case ACTOR_ZVEL: return sprite[iActor].zvel;
-    case ACTOR_LOTAG: return (int16_t)sprite[iActor].lotag;
-    case ACTOR_HITAG: return (int16_t)sprite[iActor].hitag;
-    case ACTOR_ULOTAG: return sprite[iActor].lotag;
-    case ACTOR_UHITAG: return sprite[iActor].hitag;
-    case ACTOR_EXTRA: return sprite[iActor].extra;
-    case ACTOR_HTCGG: return actor[iActor].cgg;
-    case ACTOR_HTPICNUM : return actor[iActor].picnum;
-    case ACTOR_HTANG: return actor[iActor].ang;
-    case ACTOR_HTEXTRA: return actor[iActor].extra;
-    case ACTOR_HTOWNER: return actor[iActor].owner;
-    case ACTOR_HTMOVFLAG: return actor[iActor].movflag;
-    case ACTOR_HTTEMPANG: return actor[iActor].tempang;
-    case ACTOR_HTACTORSTAYPUT: return actor[iActor].actorstayput;
-    case ACTOR_HTDISPICNUM: return actor[iActor].dispicnum;
-    case ACTOR_HTTIMETOSLEEP: return actor[iActor].timetosleep;
-    case ACTOR_HTFLOORZ: return actor[iActor].floorz;
-    case ACTOR_HTCEILINGZ: return actor[iActor].ceilingz;
-    case ACTOR_HTLASTVX: return actor[iActor].lastvx;
-    case ACTOR_HTLASTVY: return actor[iActor].lastvy;
-    case ACTOR_HTBPOSX: return actor[iActor].bpos.x;
-    case ACTOR_HTBPOSY: return actor[iActor].bpos.y;
-    case ACTOR_HTBPOSZ: return actor[iActor].bpos.z;
-    case ACTOR_HTG_T: return actor[iActor].t_data[lParm2];
-    case ACTOR_ANGOFF: return spriteext[iActor].angoff;
-    case ACTOR_PITCH: return spriteext[iActor].pitch;
-    case ACTOR_ROLL: return spriteext[iActor].roll;
-    case ACTOR_MDXOFF: return spriteext[iActor].offset.x;
-    case ACTOR_MDYOFF: return spriteext[iActor].offset.y;
-    case ACTOR_MDZOFF: return spriteext[iActor].offset.z;
-    case ACTOR_MDFLAGS: return spriteext[iActor].flags;
-    case ACTOR_XPANNING: return spriteext[iActor].xpanning;
-    case ACTOR_YPANNING: return spriteext[iActor].ypanning;
-    case ACTOR_HTFLAGS: return actor[iActor].flags;
-    case ACTOR_ALPHA: return (uint8_t)(spriteext[iActor].alpha*255.0f);
-    case ACTOR_ISVALID: return (sprite[iActor].statnum != MAXSTATUS);
-    default: return -1;
+        case ACTOR_X: lLabelID = sprite[iActor].x; break;
+        case ACTOR_Y: lLabelID = sprite[iActor].y; break;
+        case ACTOR_Z: lLabelID = sprite[iActor].z; break;
+        case ACTOR_CSTAT: lLabelID = sprite[iActor].cstat; break;
+        case ACTOR_PICNUM: lLabelID = sprite[iActor].picnum; break;
+        case ACTOR_SHADE: lLabelID = sprite[iActor].shade; break;
+        case ACTOR_PAL: lLabelID = sprite[iActor].pal; break;
+        case ACTOR_CLIPDIST: lLabelID = sprite[iActor].clipdist; break;
+        case ACTOR_DETAIL: lLabelID = sprite[iActor].blend; break;
+        case ACTOR_XREPEAT: lLabelID = sprite[iActor].xrepeat; break;
+        case ACTOR_YREPEAT: lLabelID = sprite[iActor].yrepeat; break;
+        case ACTOR_XOFFSET: lLabelID = sprite[iActor].xoffset; break;
+        case ACTOR_YOFFSET: lLabelID = sprite[iActor].yoffset; break;
+        case ACTOR_SECTNUM: lLabelID = sprite[iActor].sectnum; break;
+        case ACTOR_STATNUM: lLabelID = sprite[iActor].statnum; break;
+        case ACTOR_ANG: lLabelID = sprite[iActor].ang; break;
+        case ACTOR_OWNER: lLabelID = sprite[iActor].owner; break;
+        case ACTOR_XVEL: lLabelID = sprite[iActor].xvel; break;
+        case ACTOR_YVEL: lLabelID = sprite[iActor].yvel; break;
+        case ACTOR_ZVEL: lLabelID = sprite[iActor].zvel; break;
+        case ACTOR_LOTAG: lLabelID = (int16_t)sprite[iActor].lotag; break;
+        case ACTOR_HITAG: lLabelID = (int16_t)sprite[iActor].hitag; break;
+        case ACTOR_ULOTAG: lLabelID = sprite[iActor].lotag; break;
+        case ACTOR_UHITAG: lLabelID = sprite[iActor].hitag; break;
+        case ACTOR_EXTRA: lLabelID = sprite[iActor].extra; break;
+        case ACTOR_HTCGG: lLabelID = actor[iActor].cgg; break;
+        case ACTOR_HTPICNUM: lLabelID = actor[iActor].picnum; break;
+        case ACTOR_HTANG: lLabelID = actor[iActor].ang; break;
+        case ACTOR_HTEXTRA: lLabelID = actor[iActor].extra; break;
+        case ACTOR_HTOWNER: lLabelID = actor[iActor].owner; break;
+        case ACTOR_HTMOVFLAG: lLabelID = actor[iActor].movflag; break;
+        case ACTOR_HTTEMPANG: lLabelID = actor[iActor].tempang; break;
+        case ACTOR_HTACTORSTAYPUT: lLabelID = actor[iActor].actorstayput; break;
+        case ACTOR_HTDISPICNUM: lLabelID = actor[iActor].dispicnum; break;
+        case ACTOR_HTTIMETOSLEEP: lLabelID = actor[iActor].timetosleep; break;
+        case ACTOR_HTFLOORZ: lLabelID = actor[iActor].floorz; break;
+        case ACTOR_HTCEILINGZ: lLabelID = actor[iActor].ceilingz; break;
+        case ACTOR_HTLASTVX: lLabelID = actor[iActor].lastvx; break;
+        case ACTOR_HTLASTVY: lLabelID = actor[iActor].lastvy; break;
+        case ACTOR_HTBPOSX: lLabelID = actor[iActor].bpos.x; break;
+        case ACTOR_HTBPOSY: lLabelID = actor[iActor].bpos.y; break;
+        case ACTOR_HTBPOSZ: lLabelID = actor[iActor].bpos.z; break;
+        case ACTOR_HTG_T: lLabelID = actor[iActor].t_data[lParm2]; break;
+        case ACTOR_ANGOFF: lLabelID = spriteext[iActor].angoff; break;
+        case ACTOR_PITCH: lLabelID = spriteext[iActor].pitch; break;
+        case ACTOR_ROLL: lLabelID = spriteext[iActor].roll; break;
+        case ACTOR_MDXOFF: lLabelID = spriteext[iActor].offset.x; break;
+        case ACTOR_MDYOFF: lLabelID = spriteext[iActor].offset.y; break;
+        case ACTOR_MDZOFF: lLabelID = spriteext[iActor].offset.z; break;
+        case ACTOR_MDFLAGS: lLabelID = spriteext[iActor].flags; break;
+        case ACTOR_XPANNING: lLabelID = spriteext[iActor].xpanning; break;
+        case ACTOR_YPANNING: lLabelID = spriteext[iActor].ypanning; break;
+        case ACTOR_HTFLAGS: lLabelID = actor[iActor].flags; break;
+        case ACTOR_ALPHA: lLabelID = (uint8_t)(spriteext[iActor].alpha * 255.0f); break;
+        case ACTOR_ISVALID: lLabelID = (sprite[iActor].statnum != MAXSTATUS); break;
+        default: lLabelID = -1; break;
     }
+
+    return lLabelID;
 
 badpos:
     CON_ERRPRINTF("tried to get invalid %s position %d on sprite (%d) from spr %d\n",
-                  ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
+                  ActorLabels[lLabelID].name, lParm2, iActor, vm.g_i);
     return -1;
 }
 
@@ -3577,40 +1385,43 @@ static int32_t __fastcall VM_AccessSectorX(int32_t iSector, int32_t lLabelID)
 {
     switch (lLabelID)
     {
-    case SECTOR_WALLPTR: return sector[iSector].wallptr;
-    case SECTOR_WALLNUM: return sector[iSector].wallnum;
-    case SECTOR_CEILINGZ: return sector[iSector].ceilingz;
-    case SECTOR_FLOORZ: return sector[iSector].floorz;
-    case SECTOR_CEILINGSTAT: return sector[iSector].ceilingstat;
-    case SECTOR_FLOORSTAT: return sector[iSector].floorstat;
-    case SECTOR_CEILINGPICNUM: return sector[iSector].ceilingpicnum;
-    case SECTOR_CEILINGSLOPE: return sector[iSector].ceilingheinum;
-    case SECTOR_CEILINGSHADE: return sector[iSector].ceilingshade;
-    case SECTOR_CEILINGPAL: return sector[iSector].ceilingpal;
-    case SECTOR_CEILINGXPANNING: return sector[iSector].ceilingxpanning;
-    case SECTOR_CEILINGYPANNING: return sector[iSector].ceilingypanning;
-    case SECTOR_FLOORPICNUM: return sector[iSector].floorpicnum;
-    case SECTOR_FLOORSLOPE: return sector[iSector].floorheinum;
-    case SECTOR_FLOORSHADE: return sector[iSector].floorshade;
-    case SECTOR_FLOORPAL: return sector[iSector].floorpal;
-    case SECTOR_FLOORXPANNING: return sector[iSector].floorxpanning;
-    case SECTOR_FLOORYPANNING: return sector[iSector].floorypanning;
-    case SECTOR_VISIBILITY: return sector[iSector].visibility;
-    case SECTOR_FOGPAL: return sector[iSector].fogpal;
-    case SECTOR_LOTAG: return (int16_t)sector[iSector].lotag;
-    case SECTOR_HITAG: return (int16_t)sector[iSector].hitag;
-    case SECTOR_ULOTAG: return sector[iSector].lotag;
-    case SECTOR_UHITAG: return sector[iSector].hitag;
-    case SECTOR_EXTRA: return sector[iSector].extra;
-    case SECTOR_CEILINGBUNCH:
-    case SECTOR_FLOORBUNCH:
+        case SECTOR_WALLPTR: lLabelID = sector[iSector].wallptr; break;
+        case SECTOR_WALLNUM: lLabelID = sector[iSector].wallnum; break;
+        case SECTOR_CEILINGZ: lLabelID = sector[iSector].ceilingz; break;
+        case SECTOR_FLOORZ: lLabelID = sector[iSector].floorz; break;
+        case SECTOR_CEILINGSTAT: lLabelID = sector[iSector].ceilingstat; break;
+        case SECTOR_FLOORSTAT: lLabelID = sector[iSector].floorstat; break;
+        case SECTOR_CEILINGPICNUM: lLabelID = sector[iSector].ceilingpicnum; break;
+        case SECTOR_CEILINGSLOPE: lLabelID = sector[iSector].ceilingheinum; break;
+        case SECTOR_CEILINGSHADE: lLabelID = sector[iSector].ceilingshade; break;
+        case SECTOR_CEILINGPAL: lLabelID = sector[iSector].ceilingpal; break;
+        case SECTOR_CEILINGXPANNING: lLabelID = sector[iSector].ceilingxpanning; break;
+        case SECTOR_CEILINGYPANNING: lLabelID = sector[iSector].ceilingypanning; break;
+        case SECTOR_FLOORPICNUM: lLabelID = sector[iSector].floorpicnum; break;
+        case SECTOR_FLOORSLOPE: lLabelID = sector[iSector].floorheinum; break;
+        case SECTOR_FLOORSHADE: lLabelID = sector[iSector].floorshade; break;
+        case SECTOR_FLOORPAL: lLabelID = sector[iSector].floorpal; break;
+        case SECTOR_FLOORXPANNING: lLabelID = sector[iSector].floorxpanning; break;
+        case SECTOR_FLOORYPANNING: lLabelID = sector[iSector].floorypanning; break;
+        case SECTOR_VISIBILITY: lLabelID = sector[iSector].visibility; break;
+        case SECTOR_FOGPAL: lLabelID = sector[iSector].fogpal; break;
+        case SECTOR_LOTAG: lLabelID = (int16_t)sector[iSector].lotag; break;
+        case SECTOR_HITAG: lLabelID = (int16_t)sector[iSector].hitag; break;
+        case SECTOR_ULOTAG: lLabelID = sector[iSector].lotag; break;
+        case SECTOR_UHITAG: lLabelID = sector[iSector].hitag; break;
+        case SECTOR_EXTRA: lLabelID = sector[iSector].extra; break;
+        case SECTOR_CEILINGBUNCH:
+        case SECTOR_FLOORBUNCH:
 #ifdef YAX_ENABLE
-        return yax_getbunch(iSector, lLabelID==SECTOR_FLOORBUNCH);
+            lLabelID = yax_getbunch(iSector, lLabelID == SECTOR_FLOORBUNCH);
 #else
-        return -1;
+            lLabelID = -1;
 #endif
-    default: return -1;
+            break;
+        default: lLabelID = -1; break;
     }
+
+    return lLabelID;
 }
 
 static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2)
@@ -3623,310 +1434,164 @@ static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, in
 
     switch (lLabelID)
     {
-    case PLAYER_ZOOM:
-        return ps->zoom;
-    case PLAYER_EXITX:
-        return ps->exitx;
-    case PLAYER_EXITY:
-        return ps->exity;
-    case PLAYER_LOOGIEX:
-        return ps->loogiex[lParm2];
-    case PLAYER_LOOGIEY:
-        return ps->loogiey[lParm2];
-    case PLAYER_NUMLOOGS:
-        return ps->numloogs;
-    case PLAYER_LOOGCNT:
-        return ps->loogcnt;
-    case PLAYER_POSX:
-        return ps->pos.x;
-    case PLAYER_POSY:
-        return ps->pos.y;
-    case PLAYER_POSZ:
-        return ps->pos.z;
-    case PLAYER_HORIZ:
-        return ps->horiz;
-    case PLAYER_OHORIZ:
-        return ps->ohoriz;
-    case PLAYER_OHORIZOFF:
-        return ps->ohorizoff;
-    case PLAYER_INVDISPTIME:
-        return ps->invdisptime;
-    case PLAYER_BOBPOSX:
-        return ps->bobpos.x;
-    case PLAYER_BOBPOSY:
-        return ps->bobpos.y;
-    case PLAYER_OPOSX:
-        return ps->opos.x;
-    case PLAYER_OPOSY:
-        return ps->opos.y;
-    case PLAYER_OPOSZ:
-        return ps->opos.z;
-    case PLAYER_PYOFF:
-        return ps->pyoff;
-    case PLAYER_OPYOFF:
-        return ps->opyoff;
-    case PLAYER_POSXV:
-        return ps->vel.x;
-    case PLAYER_POSYV:
-        return ps->vel.y;
-    case PLAYER_POSZV:
-        return ps->vel.z;
-    case PLAYER_LAST_PISSED_TIME:
-        return ps->last_pissed_time;
-    case PLAYER_TRUEFZ:
-        return ps->truefz;
-    case PLAYER_TRUECZ:
-        return ps->truecz;
-    case PLAYER_PLAYER_PAR:
-        return ps->player_par;
-    case PLAYER_VISIBILITY:
-        return ps->visibility;
-    case PLAYER_BOBCOUNTER:
-        return ps->bobcounter;
-    case PLAYER_WEAPON_SWAY:
-        return ps->weapon_sway;
-    case PLAYER_PALS_TIME:
-        return ps->pals.f;
-    case PLAYER_RANDOMFLAMEX:
-        return ps->randomflamex;
-    case PLAYER_CRACK_TIME:
-        return ps->crack_time;
-    case PLAYER_AIM_MODE:
-        return ps->aim_mode;
-    case PLAYER_ANG:
-        return ps->ang;
-    case PLAYER_OANG:
-        return ps->oang;
-    case PLAYER_ANGVEL:
-        return ps->angvel;
-    case PLAYER_CURSECTNUM:
-        return ps->cursectnum;
-    case PLAYER_LOOK_ANG:
-        return ps->look_ang;
-    case PLAYER_LAST_EXTRA:
-        return ps->last_extra;
-    case PLAYER_SUBWEAPON:
-        return ps->subweapon;
-    case PLAYER_AMMO_AMOUNT:
-        return ps->ammo_amount[lParm2];
-    case PLAYER_WACKEDBYACTOR:
-        return ps->wackedbyactor;
-    case PLAYER_FRAG:
-        return ps->frag;
-    case PLAYER_FRAGGEDSELF:
-        return ps->fraggedself;
-    case PLAYER_CURR_WEAPON:
-        return ps->curr_weapon;
-    case PLAYER_LAST_WEAPON:
-        return ps->last_weapon;
-    case PLAYER_TIPINCS:
-        return ps->tipincs;
-    case PLAYER_HORIZOFF:
-        return ps->horizoff;
-    case PLAYER_WANTWEAPONFIRE:
-        return ps->wantweaponfire;
-    case PLAYER_HOLODUKE_AMOUNT:
-        return ps->inv_amount[GET_HOLODUKE];
-    case PLAYER_NEWOWNER:
-        return ps->newowner;
-    case PLAYER_HURT_DELAY:
-        return ps->hurt_delay;
-    case PLAYER_HBOMB_HOLD_DELAY:
-        return ps->hbomb_hold_delay;
-    case PLAYER_JUMPING_COUNTER:
-        return ps->jumping_counter;
-    case PLAYER_AIRLEFT:
-        return ps->airleft;
-    case PLAYER_KNEE_INCS:
-        return ps->knee_incs;
-    case PLAYER_ACCESS_INCS:
-        return ps->access_incs;
-    case PLAYER_FTA:
-        return ps->fta;
-    case PLAYER_FTQ:
-        return ps->ftq;
-    case PLAYER_ACCESS_WALLNUM:
-        return ps->access_wallnum;
-    case PLAYER_ACCESS_SPRITENUM:
-        return ps->access_spritenum;
-    case PLAYER_KICKBACK_PIC:
-        return ps->kickback_pic;
-    case PLAYER_GOT_ACCESS:
-        return ps->got_access;
-    case PLAYER_WEAPON_ANG:
-        return ps->weapon_ang;
-    case PLAYER_FIRSTAID_AMOUNT:
-        return ps->inv_amount[GET_FIRSTAID];
-    case PLAYER_SOMETHINGONPLAYER:
-        return ps->somethingonplayer;
-    case PLAYER_ON_CRANE:
-        return ps->on_crane;
-    case PLAYER_I:
-        return ps->i;
-    case PLAYER_ONE_PARALLAX_SECTNUM:
-        return ps->one_parallax_sectnum;
-    case PLAYER_OVER_SHOULDER_ON:
-        return ps->over_shoulder_on;
-    case PLAYER_RANDOM_CLUB_FRAME:
-        return ps->random_club_frame;
-    case PLAYER_FIST_INCS:
-        return ps->fist_incs;
-    case PLAYER_ONE_EIGHTY_COUNT:
-        return ps->one_eighty_count;
-    case PLAYER_CHEAT_PHASE:
-        return ps->cheat_phase;
-    case PLAYER_DUMMYPLAYERSPRITE:
-        return ps->dummyplayersprite;
-    case PLAYER_EXTRA_EXTRA8:
-        return ps->extra_extra8;
-    case PLAYER_QUICK_KICK:
-        return ps->quick_kick;
-    case PLAYER_HEAT_AMOUNT:
-        return ps->inv_amount[GET_HEATS];
-    case PLAYER_ACTORSQU:
-        return ps->actorsqu;
-    case PLAYER_TIMEBEFOREEXIT:
-        return ps->timebeforeexit;
-    case PLAYER_CUSTOMEXITSOUND:
-        return ps->customexitsound;
-    case PLAYER_WEAPRECS:
-        return ps->weaprecs[lParm2];
-    case PLAYER_WEAPRECCNT:
-        return ps->weapreccnt;
-    case PLAYER_INTERFACE_TOGGLE_FLAG:
-        return ps->interface_toggle_flag;
-    case PLAYER_ROTSCRNANG:
-        return ps->rotscrnang;
-    case PLAYER_DEAD_FLAG:
-        return ps->dead_flag;
-    case PLAYER_SHOW_EMPTY_WEAPON:
-        return ps->show_empty_weapon;
-    case PLAYER_SCUBA_AMOUNT:
-        return ps->inv_amount[GET_SCUBA];
-    case PLAYER_JETPACK_AMOUNT:
-        return ps->inv_amount[GET_JETPACK];
-    case PLAYER_STEROIDS_AMOUNT:
-        return ps->inv_amount[GET_STEROIDS];
-    case PLAYER_SHIELD_AMOUNT:
-        return ps->inv_amount[GET_SHIELD];
-    case PLAYER_HOLODUKE_ON:
-        return ps->holoduke_on;
-    case PLAYER_PYCOUNT:
-        return ps->pycount;
-    case PLAYER_WEAPON_POS:
-        return ps->weapon_pos;
-    case PLAYER_FRAG_PS:
-        return ps->frag_ps;
-    case PLAYER_TRANSPORTER_HOLD:
-        return ps->transporter_hold;
-    case PLAYER_LAST_FULL_WEAPON:
-        return ps->last_full_weapon;
-    case PLAYER_FOOTPRINTSHADE:
-        return ps->footprintshade;
-    case PLAYER_BOOT_AMOUNT:
-        return ps->inv_amount[GET_BOOTS];
-    case PLAYER_SCREAM_VOICE:
-        return ps->scream_voice;
-    case PLAYER_GM:
-        return ps->gm;
-    case PLAYER_ON_WARPING_SECTOR:
-        return ps->on_warping_sector;
-    case PLAYER_FOOTPRINTCOUNT:
-        return ps->footprintcount;
-    case PLAYER_HBOMB_ON:
-        return ps->hbomb_on;
-    case PLAYER_JUMPING_TOGGLE:
-        return ps->jumping_toggle;
-    case PLAYER_RAPID_FIRE_HOLD:
-        return ps->rapid_fire_hold;
-    case PLAYER_ON_GROUND:
-        return ps->on_ground;
-    case PLAYER_INVEN_ICON:
-        return ps->inven_icon;
-    case PLAYER_BUTTONPALETTE:
-        return ps->buttonpalette;
-    case PLAYER_JETPACK_ON:
-        return ps->jetpack_on;
-    case PLAYER_SPRITEBRIDGE:
-        return ps->spritebridge;
-    case PLAYER_LASTRANDOMSPOT:
-        return ps->lastrandomspot;
-    case PLAYER_SCUBA_ON:
-        return ps->scuba_on;
-    case PLAYER_FOOTPRINTPAL:
-        return ps->footprintpal;
-    case PLAYER_HEAT_ON:
-        return ps->heat_on;
-    case PLAYER_HOLSTER_WEAPON:
-        return ps->holster_weapon;
-    case PLAYER_FALLING_COUNTER:
-        return ps->falling_counter;
-    case PLAYER_GOTWEAPON:
-        return (ps->gotweapon & (1<<lParm2)) != 0;
-    case PLAYER_REFRESH_INVENTORY:
-        return ps->refresh_inventory;
-    case PLAYER_TOGGLE_KEY_FLAG:
-        return ps->toggle_key_flag;
-    case PLAYER_KNUCKLE_INCS:
-        return ps->knuckle_incs;
-    case PLAYER_WALKING_SND_TOGGLE:
-        return ps->walking_snd_toggle;
-    case PLAYER_PALOOKUP:
-        return ps->palookup;
-    case PLAYER_HARD_LANDING:
-        return ps->hard_landing;
-    case PLAYER_MAX_SECRET_ROOMS:
-        return ps->max_secret_rooms;
-    case PLAYER_SECRET_ROOMS:
-        return ps->secret_rooms;
-    case PLAYER_PALS:
-        switch (lParm2)
-        {
-        case 0:
-            return ps->pals.r;
-        case 1:
-            return ps->pals.g;
-        case 2:
-            return ps->pals.b;
-        }
-        return -1;
-    case PLAYER_MAX_ACTORS_KILLED:
-        return ps->max_actors_killed;
-    case PLAYER_ACTORS_KILLED:
-        return ps->actors_killed;
-    case PLAYER_RETURN_TO_CENTER:
-        return ps->return_to_center;
-    case PLAYER_RUNSPEED:
-        return ps->runspeed;
-    case PLAYER_SBS:
-        return ps->sbs;
-    case PLAYER_RELOADING:
-        return ps->reloading;
-    case PLAYER_AUTO_AIM:
-        return ps->auto_aim;
-    case PLAYER_MOVEMENT_LOCK:
-        return ps->movement_lock;
-    case PLAYER_SOUND_PITCH:
-        return ps->sound_pitch;
-    case PLAYER_WEAPONSWITCH:
-        return ps->weaponswitch;
-    case PLAYER_TEAM:
-        return ps->team;
-    case PLAYER_MAX_PLAYER_HEALTH:
-        return ps->max_player_health;
-    case PLAYER_MAX_SHIELD_AMOUNT:
-        return ps->max_shield_amount;
-    case PLAYER_MAX_AMMO_AMOUNT:
-        return ps->max_ammo_amount[lParm2];
-    case PLAYER_LAST_QUICK_KICK:
-        return ps->last_quick_kick;
-    case PLAYER_AUTOSTEP:
-        return ps->autostep;
-    case PLAYER_AUTOSTEP_SBW:
-        return ps->autostep_sbw;
-    default:
-        return -1;
+        case PLAYER_ZOOM: lLabelID = ps->zoom; break;
+        case PLAYER_EXITX: lLabelID = ps->exitx; break;
+        case PLAYER_EXITY: lLabelID = ps->exity; break;
+        case PLAYER_LOOGIEX: lLabelID = ps->loogiex[lParm2]; break;
+        case PLAYER_LOOGIEY: lLabelID = ps->loogiey[lParm2]; break;
+        case PLAYER_NUMLOOGS: lLabelID = ps->numloogs; break;
+        case PLAYER_LOOGCNT: lLabelID = ps->loogcnt; break;
+        case PLAYER_POSX: lLabelID = ps->pos.x; break;
+        case PLAYER_POSY: lLabelID = ps->pos.y; break;
+        case PLAYER_POSZ: lLabelID = ps->pos.z; break;
+        case PLAYER_HORIZ: lLabelID = ps->horiz; break;
+        case PLAYER_OHORIZ: lLabelID = ps->ohoriz; break;
+        case PLAYER_OHORIZOFF: lLabelID = ps->ohorizoff; break;
+        case PLAYER_INVDISPTIME: lLabelID = ps->invdisptime; break;
+        case PLAYER_BOBPOSX: lLabelID = ps->bobpos.x; break;
+        case PLAYER_BOBPOSY: lLabelID = ps->bobpos.y; break;
+        case PLAYER_OPOSX: lLabelID = ps->opos.x; break;
+        case PLAYER_OPOSY: lLabelID = ps->opos.y; break;
+        case PLAYER_OPOSZ: lLabelID = ps->opos.z; break;
+        case PLAYER_PYOFF: lLabelID = ps->pyoff; break;
+        case PLAYER_OPYOFF: lLabelID = ps->opyoff; break;
+        case PLAYER_POSXV: lLabelID = ps->vel.x; break;
+        case PLAYER_POSYV: lLabelID = ps->vel.y; break;
+        case PLAYER_POSZV: lLabelID = ps->vel.z; break;
+        case PLAYER_LAST_PISSED_TIME: lLabelID = ps->last_pissed_time; break;
+        case PLAYER_TRUEFZ: lLabelID = ps->truefz; break;
+        case PLAYER_TRUECZ: lLabelID = ps->truecz; break;
+        case PLAYER_PLAYER_PAR: lLabelID = ps->player_par; break;
+        case PLAYER_VISIBILITY: lLabelID = ps->visibility; break;
+        case PLAYER_BOBCOUNTER: lLabelID = ps->bobcounter; break;
+        case PLAYER_WEAPON_SWAY: lLabelID = ps->weapon_sway; break;
+        case PLAYER_PALS_TIME: lLabelID = ps->pals.f; break;
+        case PLAYER_RANDOMFLAMEX: lLabelID = ps->randomflamex; break;
+        case PLAYER_CRACK_TIME: lLabelID = ps->crack_time; break;
+        case PLAYER_AIM_MODE: lLabelID = ps->aim_mode; break;
+        case PLAYER_ANG: lLabelID = ps->ang; break;
+        case PLAYER_OANG: lLabelID = ps->oang; break;
+        case PLAYER_ANGVEL: lLabelID = ps->angvel; break;
+        case PLAYER_CURSECTNUM: lLabelID = ps->cursectnum; break;
+        case PLAYER_LOOK_ANG: lLabelID = ps->look_ang; break;
+        case PLAYER_LAST_EXTRA: lLabelID = ps->last_extra; break;
+        case PLAYER_SUBWEAPON: lLabelID = ps->subweapon; break;
+        case PLAYER_AMMO_AMOUNT: lLabelID = ps->ammo_amount[lParm2]; break;
+        case PLAYER_WACKEDBYACTOR: lLabelID = ps->wackedbyactor; break;
+        case PLAYER_FRAG: lLabelID = ps->frag; break;
+        case PLAYER_FRAGGEDSELF: lLabelID = ps->fraggedself; break;
+        case PLAYER_CURR_WEAPON: lLabelID = ps->curr_weapon; break;
+        case PLAYER_LAST_WEAPON: lLabelID = ps->last_weapon; break;
+        case PLAYER_TIPINCS: lLabelID = ps->tipincs; break;
+        case PLAYER_HORIZOFF: lLabelID = ps->horizoff; break;
+        case PLAYER_WANTWEAPONFIRE: lLabelID = ps->wantweaponfire; break;
+        case PLAYER_HOLODUKE_AMOUNT: lLabelID = ps->inv_amount[GET_HOLODUKE]; break;
+        case PLAYER_NEWOWNER: lLabelID = ps->newowner; break;
+        case PLAYER_HURT_DELAY: lLabelID = ps->hurt_delay; break;
+        case PLAYER_HBOMB_HOLD_DELAY: lLabelID = ps->hbomb_hold_delay; break;
+        case PLAYER_JUMPING_COUNTER: lLabelID = ps->jumping_counter; break;
+        case PLAYER_AIRLEFT: lLabelID = ps->airleft; break;
+        case PLAYER_KNEE_INCS: lLabelID = ps->knee_incs; break;
+        case PLAYER_ACCESS_INCS: lLabelID = ps->access_incs; break;
+        case PLAYER_FTA: lLabelID = ps->fta; break;
+        case PLAYER_FTQ: lLabelID = ps->ftq; break;
+        case PLAYER_ACCESS_WALLNUM: lLabelID = ps->access_wallnum; break;
+        case PLAYER_ACCESS_SPRITENUM: lLabelID = ps->access_spritenum; break;
+        case PLAYER_KICKBACK_PIC: lLabelID = ps->kickback_pic; break;
+        case PLAYER_GOT_ACCESS: lLabelID = ps->got_access; break;
+        case PLAYER_WEAPON_ANG: lLabelID = ps->weapon_ang; break;
+        case PLAYER_FIRSTAID_AMOUNT: lLabelID = ps->inv_amount[GET_FIRSTAID]; break;
+        case PLAYER_SOMETHINGONPLAYER: lLabelID = ps->somethingonplayer; break;
+        case PLAYER_ON_CRANE: lLabelID = ps->on_crane; break;
+        case PLAYER_I: lLabelID = ps->i; break;
+        case PLAYER_ONE_PARALLAX_SECTNUM: lLabelID = ps->one_parallax_sectnum; break;
+        case PLAYER_OVER_SHOULDER_ON: lLabelID = ps->over_shoulder_on; break;
+        case PLAYER_RANDOM_CLUB_FRAME: lLabelID = ps->random_club_frame; break;
+        case PLAYER_FIST_INCS: lLabelID = ps->fist_incs; break;
+        case PLAYER_ONE_EIGHTY_COUNT: lLabelID = ps->one_eighty_count; break;
+        case PLAYER_CHEAT_PHASE: lLabelID = ps->cheat_phase; break;
+        case PLAYER_DUMMYPLAYERSPRITE: lLabelID = ps->dummyplayersprite; break;
+        case PLAYER_EXTRA_EXTRA8: lLabelID = ps->extra_extra8; break;
+        case PLAYER_QUICK_KICK: lLabelID = ps->quick_kick; break;
+        case PLAYER_HEAT_AMOUNT: lLabelID = ps->inv_amount[GET_HEATS]; break;
+        case PLAYER_ACTORSQU: lLabelID = ps->actorsqu; break;
+        case PLAYER_TIMEBEFOREEXIT: lLabelID = ps->timebeforeexit; break;
+        case PLAYER_CUSTOMEXITSOUND: lLabelID = ps->customexitsound; break;
+        case PLAYER_WEAPRECS: lLabelID = ps->weaprecs[lParm2]; break;
+        case PLAYER_WEAPRECCNT: lLabelID = ps->weapreccnt; break;
+        case PLAYER_INTERFACE_TOGGLE_FLAG: lLabelID = ps->interface_toggle_flag; break;
+        case PLAYER_ROTSCRNANG: lLabelID = ps->rotscrnang; break;
+        case PLAYER_DEAD_FLAG: lLabelID = ps->dead_flag; break;
+        case PLAYER_SHOW_EMPTY_WEAPON: lLabelID = ps->show_empty_weapon; break;
+        case PLAYER_SCUBA_AMOUNT: lLabelID = ps->inv_amount[GET_SCUBA]; break;
+        case PLAYER_JETPACK_AMOUNT: lLabelID = ps->inv_amount[GET_JETPACK]; break;
+        case PLAYER_STEROIDS_AMOUNT: lLabelID = ps->inv_amount[GET_STEROIDS]; break;
+        case PLAYER_SHIELD_AMOUNT: lLabelID = ps->inv_amount[GET_SHIELD]; break;
+        case PLAYER_HOLODUKE_ON: lLabelID = ps->holoduke_on; break;
+        case PLAYER_PYCOUNT: lLabelID = ps->pycount; break;
+        case PLAYER_WEAPON_POS: lLabelID = ps->weapon_pos; break;
+        case PLAYER_FRAG_PS: lLabelID = ps->frag_ps; break;
+        case PLAYER_TRANSPORTER_HOLD: lLabelID = ps->transporter_hold; break;
+        case PLAYER_LAST_FULL_WEAPON: lLabelID = ps->last_full_weapon; break;
+        case PLAYER_FOOTPRINTSHADE: lLabelID = ps->footprintshade; break;
+        case PLAYER_BOOT_AMOUNT: lLabelID = ps->inv_amount[GET_BOOTS]; break;
+        case PLAYER_SCREAM_VOICE: lLabelID = ps->scream_voice; break;
+        case PLAYER_GM: lLabelID = ps->gm; break;
+        case PLAYER_ON_WARPING_SECTOR: lLabelID = ps->on_warping_sector; break;
+        case PLAYER_FOOTPRINTCOUNT: lLabelID = ps->footprintcount; break;
+        case PLAYER_HBOMB_ON: lLabelID = ps->hbomb_on; break;
+        case PLAYER_JUMPING_TOGGLE: lLabelID = ps->jumping_toggle; break;
+        case PLAYER_RAPID_FIRE_HOLD: lLabelID = ps->rapid_fire_hold; break;
+        case PLAYER_ON_GROUND: lLabelID = ps->on_ground; break;
+        case PLAYER_INVEN_ICON: lLabelID = ps->inven_icon; break;
+        case PLAYER_BUTTONPALETTE: lLabelID = ps->buttonpalette; break;
+        case PLAYER_JETPACK_ON: lLabelID = ps->jetpack_on; break;
+        case PLAYER_SPRITEBRIDGE: lLabelID = ps->spritebridge; break;
+        case PLAYER_LASTRANDOMSPOT: lLabelID = ps->lastrandomspot; break;
+        case PLAYER_SCUBA_ON: lLabelID = ps->scuba_on; break;
+        case PLAYER_FOOTPRINTPAL: lLabelID = ps->footprintpal; break;
+        case PLAYER_HEAT_ON: lLabelID = ps->heat_on; break;
+        case PLAYER_HOLSTER_WEAPON: lLabelID = ps->holster_weapon; break;
+        case PLAYER_FALLING_COUNTER: lLabelID = ps->falling_counter; break;
+        case PLAYER_GOTWEAPON: lLabelID = (ps->gotweapon & (1 << lParm2)) != 0; break;
+        case PLAYER_REFRESH_INVENTORY: lLabelID = ps->refresh_inventory; break;
+        case PLAYER_TOGGLE_KEY_FLAG: lLabelID = ps->toggle_key_flag; break;
+        case PLAYER_KNUCKLE_INCS: lLabelID = ps->knuckle_incs; break;
+        case PLAYER_WALKING_SND_TOGGLE: lLabelID = ps->walking_snd_toggle; break;
+        case PLAYER_PALOOKUP: lLabelID = ps->palookup; break;
+        case PLAYER_HARD_LANDING: lLabelID = ps->hard_landing; break;
+        case PLAYER_MAX_SECRET_ROOMS: lLabelID = ps->max_secret_rooms; break;
+        case PLAYER_SECRET_ROOMS: lLabelID = ps->secret_rooms; break;
+        case PLAYER_PALS:
+            switch (lParm2)
+            {
+                case 0: lLabelID = ps->pals.r; break;
+                case 1: lLabelID = ps->pals.g; break;
+                case 2: lLabelID = ps->pals.b; break;
+                default: lLabelID = -1; break;
+            }
+            break;
+        case PLAYER_MAX_ACTORS_KILLED: lLabelID = ps->max_actors_killed; break;
+        case PLAYER_ACTORS_KILLED: lLabelID = ps->actors_killed; break;
+        case PLAYER_RETURN_TO_CENTER: lLabelID = ps->return_to_center; break;
+        case PLAYER_RUNSPEED: lLabelID = ps->runspeed; break;
+        case PLAYER_SBS: lLabelID = ps->sbs; break;
+        case PLAYER_RELOADING: lLabelID = ps->reloading; break;
+        case PLAYER_AUTO_AIM: lLabelID = ps->auto_aim; break;
+        case PLAYER_MOVEMENT_LOCK: lLabelID = ps->movement_lock; break;
+        case PLAYER_SOUND_PITCH: lLabelID = ps->sound_pitch; break;
+        case PLAYER_WEAPONSWITCH: lLabelID = ps->weaponswitch; break;
+        case PLAYER_TEAM: lLabelID = ps->team; break;
+        case PLAYER_MAX_PLAYER_HEALTH: lLabelID = ps->max_player_health; break;
+        case PLAYER_MAX_SHIELD_AMOUNT: lLabelID = ps->max_shield_amount; break;
+        case PLAYER_MAX_AMMO_AMOUNT: lLabelID = ps->max_ammo_amount[lParm2]; break;
+        case PLAYER_LAST_QUICK_KICK: lLabelID = ps->last_quick_kick; break;
+        case PLAYER_AUTOSTEP: lLabelID = ps->autostep; break;
+        case PLAYER_AUTOSTEP_SBW: lLabelID = ps->autostep_sbw; break;
+        default: lLabelID = -1; break;
     }
+
+    return lLabelID;
 
 badpos:
     CON_ERRPRINTF("tried to get invalid %s position %d on player (%d) from spr %d\n",
@@ -3938,46 +1603,28 @@ static int32_t __fastcall VM_AccessWallX(int32_t iWall, int32_t lLabelID)
 {
     switch (lLabelID)
     {
-    case WALL_X:
-        return wall[iWall].x;
-    case WALL_Y:
-        return wall[iWall].y;
-    case WALL_POINT2:
-        return wall[iWall].point2;
-    case WALL_NEXTWALL:
-        return wall[iWall].nextwall;
-    case WALL_NEXTSECTOR:
-        return wall[iWall].nextsector;
-    case WALL_CSTAT:
-        return wall[iWall].cstat;
-    case WALL_PICNUM:
-        return wall[iWall].picnum;
-    case WALL_OVERPICNUM:
-        return wall[iWall].overpicnum;
-    case WALL_SHADE:
-        return wall[iWall].shade;
-    case WALL_PAL:
-        return wall[iWall].pal;
-    case WALL_XREPEAT:
-        return wall[iWall].xrepeat;
-    case WALL_YREPEAT:
-        return wall[iWall].yrepeat;
-    case WALL_XPANNING:
-        return wall[iWall].xpanning;
-    case WALL_YPANNING:
-        return wall[iWall].ypanning;
-    case WALL_LOTAG:
-        return (int16_t)wall[iWall].lotag;
-    case WALL_HITAG:
-        return (int16_t)wall[iWall].hitag;
-    case WALL_ULOTAG:
-        return wall[iWall].lotag;
-    case WALL_UHITAG:
-        return wall[iWall].hitag;
-    case WALL_EXTRA:
-        return wall[iWall].extra;
-    default:
-        return -1;
+        case WALL_X: lLabelID = wall[iWall].x; break;
+        case WALL_Y: lLabelID = wall[iWall].y; break;
+        case WALL_POINT2: lLabelID = wall[iWall].point2; break;
+        case WALL_NEXTWALL: lLabelID = wall[iWall].nextwall; break;
+        case WALL_NEXTSECTOR: lLabelID = wall[iWall].nextsector; break;
+        case WALL_CSTAT: lLabelID = wall[iWall].cstat; break;
+        case WALL_PICNUM: lLabelID = wall[iWall].picnum; break;
+        case WALL_OVERPICNUM: lLabelID = wall[iWall].overpicnum; break;
+        case WALL_SHADE: lLabelID = wall[iWall].shade; break;
+        case WALL_PAL: lLabelID = wall[iWall].pal; break;
+        case WALL_XREPEAT: lLabelID = wall[iWall].xrepeat; break;
+        case WALL_YREPEAT: lLabelID = wall[iWall].yrepeat; break;
+        case WALL_XPANNING: lLabelID = wall[iWall].xpanning; break;
+        case WALL_YPANNING: lLabelID = wall[iWall].ypanning; break;
+        case WALL_LOTAG: lLabelID = (int16_t)wall[iWall].lotag; break;
+        case WALL_HITAG: lLabelID = (int16_t)wall[iWall].hitag; break;
+        case WALL_ULOTAG: lLabelID = wall[iWall].lotag; break;
+        case WALL_UHITAG: lLabelID = wall[iWall].hitag; break;
+        case WALL_EXTRA: lLabelID = wall[iWall].extra; break;
+        default: lLabelID = -1;
     }
+
+    return lLabelID;
 }
 #endif // gamevars_c_
