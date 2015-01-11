@@ -34,6 +34,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 int32_t g_noResetVars;
 LUNATIC_CB void (*A_ResetVars)(int32_t iActor);
 #else
+
+gamevar_t aGameVars[MAXGAMEVARS];
+gamearray_t aGameArrays[MAXGAMEARRAYS];
+int32_t g_gameVarCount=0;
+int32_t g_gameArrayCount=0;
+
+// pointers to weapon gamevar data
+intptr_t *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
+intptr_t *aplWeaponReload[MAX_WEAPONS];     // delay to reload (include fire)
+intptr_t *aplWeaponFireDelay[MAX_WEAPONS];      // delay to fire
+intptr_t *aplWeaponHoldDelay[MAX_WEAPONS];      // delay after release fire button to fire (0 for none)
+intptr_t *aplWeaponTotalTime[MAX_WEAPONS];      // The total time the weapon is cycling before next fire.
+intptr_t *aplWeaponFlags[MAX_WEAPONS];      // Flags for weapon
+intptr_t *aplWeaponShoots[MAX_WEAPONS];     // what the weapon shoots
+intptr_t *aplWeaponSpawnTime[MAX_WEAPONS];      // the frame at which to spawn an item
+intptr_t *aplWeaponSpawn[MAX_WEAPONS];      // the item to spawn
+intptr_t *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst')
+intptr_t *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon works like
+intptr_t *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when weapon starts firing. zero for no sound
+intptr_t *aplWeaponFireSound[MAX_WEAPONS];      // Sound made when firing (each time for automatic)
+intptr_t *aplWeaponSound2Time[MAX_WEAPONS];     // Alternate sound time
+intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
+intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
+intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
+intptr_t *aplWeaponSelectSound[MAX_WEAPONS];     // Sound of weapon being selected
+intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
+
 # include "gamestructures.c"
 
 // Frees the memory for the *values* of game variables and arrays. Resets their

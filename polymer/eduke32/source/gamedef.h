@@ -37,6 +37,7 @@ extern "C" {
 #define MAXCHEATLEN             20
 #define NUMCHEATCODES           (int32_t)ARRAY_SIZE(CheatStrings)
 
+extern intptr_t *insptr;
 extern hashtable_t h_gamefuncs;
 
 #if !defined LUNATIC
@@ -101,6 +102,7 @@ typedef struct {
     int g_i, g_p, g_x;
     int32_t *g_t;
     spritetype *g_sp;
+    DukePlayer_t *g_pp;
     int g_flags;
 } vmstate_t;
 
