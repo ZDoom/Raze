@@ -1413,7 +1413,8 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #endif  // defined USE_OPENGL
     {
         // init
-        sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, x, y,
+        sdl_window = SDL_CreateWindow("", windowpos ? windowx : SDL_WINDOWPOS_CENTERED,
+                                      windowpos ? windowy : SDL_WINDOWPOS_CENTERED, x, y,
                                       ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
         if (!sdl_window)
             SDL2_VIDEO_ERR("SDL_CreateWindow");
