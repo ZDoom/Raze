@@ -728,8 +728,6 @@ static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t
                 wpptr->r = ((r*85+128)>>8); wpptr->g = ((g*85+128)>>8); wpptr->b = ((b*85+128)>>8); break;
             case 4:
                 wpptr->r = ((r   +  2)>>2); wpptr->g = ((g   +  2)>>2); wpptr->b = ((b   +  2)>>2); break;
-            default:
-                EDUKE32_UNREACHABLE_SECTION(break);
             }
         }
     }

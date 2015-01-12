@@ -191,7 +191,7 @@ typedef struct
     int16_t *bunchnum;  // [numsectors][2]
     int16_t *ynextwall;  // [numwalls][2]
 #endif
-    sectortype *sector;
+    tsectortype *sector;
     twalltype *wall;
     tspritetype *sprite;
 } mapinfofull_t;
@@ -1604,7 +1604,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
     }
 
     // allocate temp storage
-    mapinfo->sector = (sectortype *)Xmalloc(highlightsectorcnt * sizeof(sectortype));
+    mapinfo->sector = (tsectortype *)Xmalloc(highlightsectorcnt * sizeof(sectortype));
     mapinfo->wall = (twalltype *)Xmalloc(tmpnumwalls * sizeof(walltype));
 
 #ifdef YAX_ENABLE
@@ -1656,7 +1656,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
                 if (obn >= 0 && nbn < 0)
                 {
                     // A bunch was discarded.
-                    sectortype *const sec = &mapinfo->sector[i];
+                    tsectortype *const sec = &mapinfo->sector[i];
 # if !defined NEW_MAP_FORMAT
                     uint16_t *const cs = j==YAX_CEILING ? &sec->ceilingstat : &sec->floorstat;
                     uint8_t *const xp = j==YAX_CEILING ? &sec->ceilingxpanning : &sec->floorxpanning;

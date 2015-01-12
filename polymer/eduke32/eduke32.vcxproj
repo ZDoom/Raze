@@ -242,6 +242,7 @@
     <ClInclude Include="build\include\a.h" />
     <ClInclude Include="build\include\baselayer.h" />
     <ClInclude Include="build\include\build.h" />
+    <ClInclude Include="build\include\buildtypes.h" />
     <ClInclude Include="build\include\cache1d.h" />
     <ClInclude Include="build\include\compat.h" />
     <ClInclude Include="build\include\common.h" />

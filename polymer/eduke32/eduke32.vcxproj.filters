@@ -450,6 +450,9 @@
     <ClInclude Include="build\include\pragmas_x86_msvc.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\buildtypes.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
