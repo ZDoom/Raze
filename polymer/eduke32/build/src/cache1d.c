@@ -455,10 +455,15 @@ int32_t removesearchpath(const char *p)
 
 void removesearchpaths_withuser(int32_t usermask)
 {
-    for (searchpath_t *srch = searchpathhead; srch; srch = srch->next)
+    searchpath_t *next;
+
+    for (searchpath_t *srch = searchpathhead; srch; srch = next)
     {
+        next = srch->next;
+
         if (srch->user & usermask)
         {
+
             if (srch == searchpathhead)
                 searchpathhead = srch->next;
             else
