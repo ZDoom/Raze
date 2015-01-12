@@ -101,7 +101,7 @@ static void win_printversion(void)
         l = Bsprintf(str, "Windows %s", ver);
 
     // service packs
-    if (osv.szCSDVersion && osv.szCSDVersion[0])
+    if (osv.szCSDVersion[0])
     {
         str[l] = 32;
         Bstrcat(&str[l], osv.szCSDVersion);
