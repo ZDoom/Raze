@@ -155,7 +155,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
 
         vm.g_i = iActor;    // current sprite ID
         if (vm.g_i >= 0)
-            vm.g_sp = &sprite[vm.g_i];
+            vm.g_sp = (tspritetype *)&sprite[vm.g_i];
 
         vm.g_st = 1+iEventID;
 
@@ -237,12 +237,12 @@ static int X_DoSort(const void *lv, const void *rv)
 }
 
 // in interactive execution, allow the current sprite index to be the aimed-at sprite (in 3d mode)
-#define X_ERROR_INVALIDCI()                                             \
-    if ((vm.g_i < 0 || vm.g_i>=MAXSPRITES) &&                           \
-        (vm.g_st!=0 || searchstat!=3 || (vm.g_i=searchwall, vm.g_sp=&sprite[vm.g_i], 0))) \
-    {                                                                   \
-        M32_ERROR("Current sprite index invalid!"); \
-        continue;                                                       \
+#define X_ERROR_INVALIDCI()                                                                                            \
+    if ((vm.g_i < 0 || vm.g_i >= MAXSPRITES) &&                                                                        \
+        (vm.g_st != 0 || searchstat != 3 || (vm.g_i = searchwall, vm.g_sp = (tspritetype *)&sprite[vm.g_i], 0)))       \
+    {                                                                                                                  \
+        M32_ERROR("Current sprite index invalid!");                                                                    \
+        continue;                                                                                                      \
     }
 
 #define X_ERROR_INVALIDSPRI(dasprite)                                   \
@@ -259,11 +259,11 @@ static int X_DoSort(const void *lv, const void *rv)
         continue;                                                       \
     }
 
-#define X_ERROR_INVALIDSP()                                             \
-    if (!vm.g_sp && (vm.g_st!=0 || searchstat!=3 || (vm.g_sp=&sprite[searchwall], 0))) \
-    {                                                                   \
-        M32_ERROR("Current sprite invalid!"); \
-        continue;                                                       \
+#define X_ERROR_INVALIDSP()                                                                                            \
+    if (!vm.g_sp && (vm.g_st != 0 || searchstat != 3 || (vm.g_sp = (tspritetype *)&sprite[searchwall], 0)))            \
+    {                                                                                                                  \
+        M32_ERROR("Current sprite invalid!");                                                                          \
+        continue;                                                                                                      \
     }
 
 #define X_ERROR_INVALIDQUOTE(q, array)                                  \
@@ -1269,7 +1269,7 @@ skip_check:
                 int32_t parm2 = how<=ITER_DRAWNSPRITES ? 0 : Gv_GetVarX(*insptr++);
                 instype *end = insptr + *insptr, *beg = ++insptr;
                 int32_t vm_i_bak = vm.g_i;
-                spritetype *vm_sp_bak = vm.g_sp;
+                tspritetype *vm_sp_bak = vm.g_sp;
                 int16_t endwall;
 
                 if (vm.flags&VMFLAG_ERROR) continue;
@@ -1283,7 +1283,7 @@ skip_check:
                             continue;
                         Gv_SetVarX(var, jj);
                         vm.g_i = jj;
-                        vm.g_sp = &sprite[jj];
+                        vm.g_sp = (tspritetype *)&sprite[jj];
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1329,7 +1329,7 @@ skip_check:
                             jj &= (MAXSPRITES-1);
                             Gv_SetVarX(var, jj);
                             vm.g_i = jj;
-                            vm.g_sp = &sprite[jj];
+                            vm.g_sp = (tspritetype *)&sprite[jj];
                             insptr = beg;
                             VM_Execute(1);
                         }
@@ -1358,7 +1358,7 @@ skip_check:
                 case ITER_DRAWNSPRITES:
                     for (ii=0; ii<spritesortcnt && !vm.flags; ii++)
                     {
-                        vm.g_sp = &sprite[MAXSPRITES-1];
+                        vm.g_sp = (tspritetype *)&sprite[MAXSPRITES-1];
                         Bmemcpy(&sprite[MAXSPRITES-1], &tsprite[ii], sizeof(tspritetype));
                         Gv_SetVarX(var, ii);
                         insptr = beg;
@@ -1373,7 +1373,7 @@ skip_check:
                     {
                         Gv_SetVarX(var, jj);
                         vm.g_i = jj;
-                        vm.g_sp = &sprite[jj];
+                        vm.g_sp = (tspritetype *)&sprite[jj];
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1683,7 +1683,7 @@ badindex:
 
                 ret = insertsprite(dasectnum, 0);
                 vm.g_i = ret;
-                vm.g_sp = &sprite[ret];
+                vm.g_sp = (tspritetype *)&sprite[ret];
             }
             continue;
 
@@ -1718,16 +1718,14 @@ badindex:
 
                     Bmemcpy(&sprite[nspritenum], &sprite[ospritenum], sizeof(spritetype));
                     vm.g_i = nspritenum;
-                    vm.g_sp = &sprite[nspritenum];
+                    vm.g_sp = (tspritetype *)&sprite[nspritenum];
                 }
                 else
                 {
                     Bmemcpy(&tsprite[spritesortcnt], &sprite[ospritenum], sizeof(spritetype));
                     tsprite[spritesortcnt].owner = ospritenum;
-/* FIXME
                     vm.g_i = -1;
                     vm.g_sp = &tsprite[spritesortcnt];
-*/
                     spritesortcnt++;
                 }
             }
@@ -2815,7 +2813,7 @@ dodefault:
             newcurspritei = Gv_GetVarX(*insptr++);
             X_ERROR_INVALIDSPRI(newcurspritei);
             vm.g_i = newcurspritei;
-            vm.g_sp = &sprite[vm.g_i];
+            vm.g_sp = (tspritetype *)&sprite[vm.g_i];
             continue;
         }
 
@@ -2824,36 +2822,42 @@ dodefault:
             X_ERROR_INVALIDSP();
             vm.g_sp->xrepeat = (uint8_t) Gv_GetVarX(*(insptr-2));
             vm.g_sp->yrepeat = (uint8_t) Gv_GetVarX(*(insptr-1));
+            if (vm.g_i != -1) spritechanged[vm.g_i]++;
             continue;
 
         case CON_CSTAT:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.g_sp->cstat = (int16_t) *(insptr-1);
+            if (vm.g_i != -1) spritechanged[vm.g_i]++;
             continue;
 
         case CON_CSTATOR:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.g_sp->cstat |= (int16_t) Gv_GetVarX(*(insptr-1));
+            if (vm.g_i != -1) spritechanged[vm.g_i]++;
             continue;
 
         case CON_CLIPDIST:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.g_sp->clipdist = (uint8_t) Gv_GetVarX(*(insptr-1));
+            if (vm.g_i != -1) spritechanged[vm.g_i]++;
             continue;
 
         case CON_SPRITEPAL:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.g_sp->pal = Gv_GetVarX(*(insptr-1));
+            if (vm.g_i != -1) spritechanged[vm.g_i]++;
             continue;
 
         case CON_CACTOR:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.g_sp->picnum = Gv_GetVarX(*(insptr-1));
+            if (vm.g_i != -1) spritechanged[vm.g_i]++;
             continue;
 
         case CON_SPGETLOTAG:

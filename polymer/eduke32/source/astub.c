@@ -8929,7 +8929,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
         if (in3dmode() && AIMING_AT_SPRITE)
         {
             vm.g_i = searchwall;
-            vm.g_sp = &sprite[vm.g_i];
+            vm.g_sp = (tspritetype *)&sprite[vm.g_i];
         }
 
         // If OSD is down, that would interfere with user input, so don't consider
