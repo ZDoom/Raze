@@ -128,7 +128,7 @@ int32_t readmouseabsxy(vec2_t * const destination, vec2_t const * const source)
 {
     int32_t xwidth;
 
-    if (!moustat || !mouseinwindow)
+    if (!moustat || !appactive || !mouseinwindow || osd && osd->flags & OSD_CAPTURE)
         return 0;
 
     xwidth = max(scale(240<<16, xdim, ydim), 320<<16);
@@ -141,7 +141,7 @@ int32_t readmouseabsxy(vec2_t * const destination, vec2_t const * const source)
 
 void readmousebstatus(int32_t *b)
 {
-    if (!moustat || !appactive || !mouseinwindow) { *b = 0; return; }
+    if (!moustat || !appactive || !mouseinwindow || osd && osd->flags & OSD_CAPTURE) { *b = 0; return; }
     *b = mouseb;
 }
 

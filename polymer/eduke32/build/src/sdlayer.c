@@ -814,9 +814,13 @@ void grabmouse(char a)
 
 void AppGrabMouse(char a)
 {
-    grabmouse(a);
-    AppMouseGrab = mousegrab;
-    SDL_ShowCursor(SDL_DISABLE);
+    if (!(a & 2))
+    {
+        grabmouse(a);
+        AppMouseGrab = mousegrab;
+    }
+
+    SDL_ShowCursor((osd && osd->flags & OSD_CAPTURE) ? SDL_ENABLE : SDL_DISABLE);
 }
 
 //
