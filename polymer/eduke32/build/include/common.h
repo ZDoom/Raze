@@ -125,8 +125,8 @@ static inline int32_t sepdist(const int32_t dx, const int32_t dy, const int32_t 
     return d.x - (d.x>>4) + (d.y>>2) + (d.y>>3);
 }
 
-int32_t ldist(const spritetype *s1, const spritetype *s2);
-int32_t dist(const spritetype *s1, const spritetype *s2);
+int32_t ldist(const void *s1, const void *s2);
+int32_t dist(const void *s1, const void *s2);
 
 void COMMON_clearbackground(int32_t numcols, int32_t numrows);
 

@@ -131,8 +131,6 @@ void P_HandleSharedKeys(int32_t snum);
 int32_t GetAnimationGoal(const int32_t *animptr);
 int32_t isanearoperator(int32_t lotag);
 int32_t isanunderoperator(int32_t lotag);
-int32_t ldist(const spritetype *s1, const spritetype *s2);
-int32_t dist(const spritetype *s1, const spritetype *s2);
 int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite);
 void P_CheckSectors(int32_t snum);
 int32_t Sect_DamageCeilingOrFloor(int32_t floorp, int32_t sn);
