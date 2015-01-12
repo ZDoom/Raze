@@ -610,8 +610,8 @@ static float get_projhack_ratio(void)
     else if (glprojectionhacks == 2)
     {
         float const abs_shang = Bfabsf(gshang);
-        if (abs_shang > 0.7f)
-            rv = 1.05f + 4.f * (abs_shang - 0.7f);
+        rv = (abs_shang > 0.7f) ?
+            1.05f + 4.f * (abs_shang - 0.7f) : 1.f;
     }
     else
         rv = 1.f;
