@@ -3095,15 +3095,23 @@ static void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
     if (i != -2)
         p->curr_weapon = weapon;
 
-    p->last_weapon = curr_weapon;
-
     p->random_club_frame = 0;
 
     if (p->weapon_pos == 0)
+    {
         p->weapon_pos = -1;
+        p->last_weapon = curr_weapon;
+    }
     else if ((unsigned)p->weapon_pos < WEAPON_POS_RAISE)
+    {
         p->weapon_pos = -p->weapon_pos;
-    else p->weapon_pos = WEAPON_POS_LOWER;
+        p->last_weapon = curr_weapon;
+    }
+    else if (p->last_weapon == weapon)
+    {
+        p->last_weapon = -1;
+        p->weapon_pos = -p->weapon_pos;
+    }
 
     if (p->holster_weapon)
     {
