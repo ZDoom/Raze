@@ -3229,6 +3229,11 @@ void M_CloseMenu(size_t playerID)
     }
 }
 
+static int32_t xdim_from_320_16(int32_t x)
+{
+    const int32_t screenwidth = scale(240<<16, xdim, ydim);
+    return scale(x + (screenwidth>>1) - (160<<16), xdim, screenwidth);
+}
 static int32_t ydim_from_200_16(int32_t y)
 {
     return scale(y, ydim, 200<<16);
@@ -3238,32 +3243,7 @@ static void M_BlackRectangle(int32_t x, int32_t y, int32_t width, int32_t height
 {
     const int32_t xscale = scale(65536, width, tilesiz[0].x<<16), yscale = scale(65536, height, tilesiz[0].y<<16);
 
-    if (xscale >= yscale)
-    {
-        const int32_t patchwidth = scale(tilesiz[0].x<<16, yscale, 65536);
-        const int32_t finalx = x + width - patchwidth;
-
-        while (x < finalx)
-        {
-            rotatesprite_fs(x, y, yscale, 0, 0, 127, 4, 2|8|16|64);
-            x += patchwidth;
-        }
-
-        rotatesprite_fs(finalx, y, yscale, 0, 0, 127, 4, 2|8|16|64);
-    }
-    else
-    {
-        const int32_t patchheight = scale(tilesiz[0].y<<16, xscale, 65536);
-        const int32_t finaly = y + height - patchheight;
-
-        while (y < finaly)
-        {
-            rotatesprite_fs(x, y, xscale, 0, 0, 127, 4, 2|8|16|64);
-            y += patchheight;
-        }
-
-        rotatesprite_fs(x, finaly, xscale, 0, 0, 127, 4, 2|8|16|64);
-    }
+    rotatesprite_(x, y, max(xscale, yscale), 0, 0, 127, 4, 1|2|8|16|32, 0, 0, xdim_from_320_16(x), ydim_from_200_16(y), xdim_from_320_16(x + width), ydim_from_200_16(y + height));
 }
 
 enum MenuTextFlags_t
