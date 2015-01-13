@@ -3229,6 +3229,11 @@ void M_CloseMenu(size_t playerID)
     }
 }
 
+static int32_t x_widescreen_left(void)
+{
+    return (320<<15) - scale(240<<15, xdim, ydim);
+}
+
 static int32_t xdim_from_320_16(int32_t x)
 {
     const int32_t screenwidth = scale(240<<16, xdim, ydim);
@@ -4126,7 +4131,7 @@ static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
     if (cm->menuID == MENU_MAIN)
         return;
 
-    rotatesprite_fs(origin.x + (1<<16) + (tilesiz[SPINNINGNUKEICON].x<<15), origin.y + (1<<16) + (tilesiz[SPINNINGNUKEICON].y<<15), 65536, 0, SPINNINGNUKEICON+6-((6+(totalclock>>4))%7), M_RunMenuInput_MouseReturn_status ? 4-(sintable[(totalclock<<4)&2047]>>11) : 6, 0, 10|RS_ALIGN_L);
+    rotatesprite_(origin.x + (tilesiz[SELECTDIR].y<<16), origin.y, 65536, 512, SELECTDIR, M_RunMenuInput_MouseReturn_status ? 4-(sintable[(totalclock<<4)&2047]>>11) : 6, 0, 2|8|16|RS_ALIGN_L, 0, 0, xdim_from_320_16(origin.x + x_widescreen_left()), 0, xdim_from_320_16(origin.x + x_widescreen_left() + (tilesiz[SELECTDIR].y<<15)), ydim-1);;
 }
 #endif
 
@@ -4144,12 +4149,12 @@ static int32_t M_RunMenuInput_MouseReturn(void)
     if (g_currentMenu == MENU_MAIN)
         return 0;
 
-    const int32_t MouseReturnRegionX = (1<<16) + (320<<15) - scale(240<<15, xdim, ydim);
+    const int32_t MouseReturnRegionX = x_widescreen_left();
 
-    if (M_MouseWithinBounds(&m_mousepos, MouseReturnRegionX, 1<<16, tilesiz[SPINNINGNUKEICON].x<<16, tilesiz[SPINNINGNUKEICON].y<<16))
+    if (M_MouseWithinBounds(&m_mousepos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16))
     {
         M_RunMenuInput_MouseReturn_status = 1;
-        return !m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousedownpos, MouseReturnRegionX, 1<<16, tilesiz[SPINNINGNUKEICON].x<<16, tilesiz[SPINNINGNUKEICON].y<<16);
+        return !m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousedownpos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16);
     }
 
     M_RunMenuInput_MouseReturn_status = 0;
