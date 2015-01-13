@@ -54,7 +54,7 @@ extern int32_t voting;
 #define USERMAPENTRYLENGTH 25
 
 #define mgametext(x,y,t) G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, (5<<16), (8<<16), (-1<<16), 0, TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1)
-#define mgametextcenter(x,y,t) G_ScreenText(STARTALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, (5<<16), (8<<16), (-1<<16), 0, TEXT_GAMETEXTNUMHACK|TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
+#define mgametextcenter(x,y,t) G_ScreenText(STARTALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, (5<<16), (8<<16), (-1<<16), (1<<16), TEXT_GAMETEXTNUMHACK|TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
 #define mminitext(x,y,t,p) minitext_(x, y, t, 0, p, 2|8|16|ROTATESPRITE_FULL16)
 #define mmenutext(x,y,t) G_ScreenText(BIGALPHANUM, x, (y) - (12<<16), 65536L, 0, 0, (const char *)OSD_StripColors(menutextbuf,t), 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1)
 #define mmenutextcenter(x,y,t) G_ScreenText(BIGALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), (y) - (12<<16), 65536L, 0, 0, (const char *)OSD_StripColors(menutextbuf,t), 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE|TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
@@ -1633,9 +1633,9 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
 
     case MENU_KEYBOARDKEYS:
-        mgametextcenter(origin.x, origin.y + ((144+9+3)<<16), "Up/Down = Select Action");
-        mgametextcenter(origin.x, origin.y + ((144+9+9+3)<<16), "Left/Right = Select List");
-        mgametextcenter(origin.x, origin.y + ((144+9+9+9+3)<<16), "Enter = Modify   Delete = Clear");
+        mgametextcenter(origin.x, origin.y + (156<<16), "Up/Down = Select Action\n"
+                                                        "Left/Right = Select List\n"
+                                                        "Enter = Modify   Delete = Clear");
         break;
 
     case MENU_MOUSESETUP:
@@ -1643,15 +1643,15 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         {
             if (entry->flags & Disabled)
             {
-                mgametextcenter(origin.x, origin.y + ((140+9+9+9)<<16), "Set mouse aim type to toggle on/off");
-                mgametextcenter(origin.x, origin.y + ((140+9+9+9+9)<<16), "in the Player Setup menu to enable");
+                mgametextcenter(origin.x, origin.y + (167<<16), "Set mouse aim type to toggle on/off\n"
+                                                                "in the Player Setup menu to enable");
             }
         }
         break;
 
     case MENU_MOUSEBTNS:
-        mgametextcenter(origin.x, origin.y + ((160+9)<<16), "Up/Down = Select Button");
-        mgametextcenter(origin.x, origin.y + ((160+9+9)<<16), "Enter = Modify");
+        mgametextcenter(origin.x, origin.y + (169<<16), "Up/Down = Select Button\n"
+                                                        "Enter = Modify");
         break;
 
     case MENU_MOUSEADVANCED:
@@ -1660,15 +1660,15 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         for (i = 0; i < ARRAY_SIZE(MEL_INTERNAL_MOUSEADVANCED_DAXES); i++)
             if (entry == MEL_INTERNAL_MOUSEADVANCED_DAXES[i])
             {
-                mgametextcenter(origin.x, origin.y + ((144+9+9)<<16), "Digital axes are not for mouse look");
-                mgametextcenter(origin.x, origin.y + ((144+9+9+9)<<16), "or for aiming up and down");
+                mgametextcenter(origin.x, origin.y + (162<<16), "Digital axes are not for mouse look\n"
+                                                                "or for aiming up and down");
             }
     }
         break;
 
     case MENU_JOYSTICKBTNS:
-        mgametextcenter(origin.x, origin.y + (149<<16), "Up/Down = Select Button");
-        mgametextcenter(origin.x, origin.y + ((149+9)<<16), "Enter = Modify");
+        mgametextcenter(origin.x, origin.y + (149<<16), "Up/Down = Select Button\n"
+                                                        "Enter = Modify");
         break;
 
     case MENU_RESETPLAYER:
@@ -1842,8 +1842,8 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
     case MENU_NETWAITMASTER:
         G_DrawFrags();
-        mgametextcenter(origin.x, origin.y + (50<<16), "Waiting for master");
-        mgametextcenter(origin.x, origin.y + (59<<16), "to select level");
+        mgametextcenter(origin.x, origin.y + (50<<16), "Waiting for master\n"
+                                                       "to select level");
         break;
 
     case MENU_NETWAITVOTES:
@@ -1852,28 +1852,28 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
 
     case MENU_BUYDUKE:
-        mgametextcenter(origin.x, origin.y + ((41-8)<<16), "You are playing the shareware");
-        mgametextcenter(origin.x, origin.y + ((50-8)<<16), "version of Duke Nukem 3D.  While");
-        mgametextcenter(origin.x, origin.y + ((59-8)<<16), "this version is really cool, you");
-        mgametextcenter(origin.x, origin.y + ((68-8)<<16), "are missing over 75% of the total");
-        mgametextcenter(origin.x, origin.y + ((77-8)<<16), "game, along with other great extras");
-        mgametextcenter(origin.x, origin.y + ((86-8)<<16), "which you'll get when you order");
-        mgametextcenter(origin.x, origin.y + ((95-8)<<16), "the complete version and get");
-        mgametextcenter(origin.x, origin.y + ((104-8)<<16), "the final three episodes.");
+        mgametextcenter(origin.x, origin.y + (33<<16), "You are playing the shareware\n"
+                                                       "version of Duke Nukem 3D.  While\n"
+                                                       "this version is really cool, you\n"
+                                                       "are missing over 75% of the total\n"
+                                                       "game, along with other great extras\n"
+                                                       "which you'll get when you order\n"
+                                                       "the complete version and get\n"
+                                                       "the final three episodes.");
 
 #ifndef DROIDMENU
-        mgametextcenter(origin.x, origin.y + ((104+8)<<16), "Please visit Steam and purchase");
-        mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Duke Nukem 3D: Megaton Edition");
+        mgametextcenter(origin.x, origin.y + (112<<16), "Please visit Steam and purchase\n"
+                                                        "Duke Nukem 3D: Megaton Edition\n"
 #else
 # if defined __APPLE__ && TARGET_OS_IPHONE
-        mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Please visit the App Store");
+        mgametextcenter(origin.x, origin.y + (121<<16), "Please visit the App Store\n"
 # else
-        mgametextcenter(origin.x, origin.y + ((113+8)<<16), "Please visit the Play Store");
+        mgametextcenter(origin.x, origin.y + (121<<16), "Please visit the Play Store\n"
 # endif
 #endif
 
-        mgametextcenter(origin.x, origin.y + ((122+8)<<16), "to upgrade to the full registered");
-        mgametextcenter(origin.x, origin.y + ((131+8)<<16), "version of Duke Nukem 3D.");
+                                                        "to upgrade to the full registered\n"
+                                                        "version of Duke Nukem 3D.");
 
         mgametextcenter(origin.x, origin.y + ((148+16)<<16), "Press any key or button...");
         break;
@@ -1993,8 +1993,8 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 #ifndef DROIDMENU
                 if (VOLUMEONE)
                 {
-                    mgametextcenter(origin.x, origin.y + (106<<16), "Please read LICENSE.DOC for shareware");
-                    mgametextcenter(origin.x, origin.y + ((106+9)<<16), "distribution grants and restrictions.");
+                    mgametextcenter(origin.x, origin.y + (106<<16), "Please read LICENSE.DOC for shareware\n"
+                                                                    "distribution grants and restrictions.");
                 }
 #endif
                 mgametextcenter(origin.x, origin.y + ((VOLUMEONE?134:115)<<16), "Made in Dallas, Texas USA");
