@@ -548,6 +548,8 @@ vec2_t G_ScreenTextSize(const int32_t font,
                 break;
 
             case '\n': // near-CODEDUP "if (wrap)"
+                extent.x = 0;
+
                 // save the position
                 if (!(f & TEXT_XOFFSETZERO)) // we want the entire offset to count as the character width
                     pos.x -= offset.x;
@@ -798,7 +800,7 @@ vec2_t G_ScreenText(const int32_t font,
             {
                 char *line = G_GetSubString(text, end, iter, length);
 
-                linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace, yline, 0, 0, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
+                linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace, yline, (f & TEXT_XJUSTIFY) ? 0 : xbetween, (f & TEXT_YJUSTIFY) ? 0 : ybetween, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
 
                 Bfree(line);
             }
@@ -951,6 +953,8 @@ vec2_t G_ScreenText(const int32_t font,
                 break;
 
             case '\n': // near-CODEDUP "if (wrap)"
+                extent.x = 0;
+
                 // reset the position
                 pos.x = 0;
 
@@ -984,11 +988,11 @@ vec2_t G_ScreenText(const int32_t font,
                 // near-CODEDUP "alignments"
                 if ((f & TEXT_XJUSTIFY) || (f & TEXT_XRIGHT) || (f & TEXT_XCENTER))
                 {
-                    const int32_t length = G_GetStringLineLength(text, end, iter);
+                    const int32_t length = G_GetStringLineLength(text+1, end, iter);
 
-                    char *line = G_GetSubString(text, end, iter, length);
+                    char *line = G_GetSubString(text+1, end, iter, length);
 
-                    int32_t linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace, yline, 0, 0, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
+                    int32_t linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace, yline, (f & TEXT_XJUSTIFY) ? 0 : xbetween, (f & TEXT_YJUSTIFY) ? 0 : ybetween, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
 
                     Bfree(line);
 
