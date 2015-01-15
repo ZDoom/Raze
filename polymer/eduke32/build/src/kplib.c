@@ -2419,9 +2419,20 @@ int32_t wildmatch(const char *match, const char *wild)
             return 1;
         else if (*wild == '*')
         {
-            while (*wild == '*') wild++;
-            if (*wild == '\0') return 1;
-            while (*match && toupperlookup[*match] != toupperlookup[*wild]) match++;
+            do { wild++; } while (*wild == '*');
+            do
+            {
+                if (*wild == '\0')
+                    return 1;
+                while (*match && toupperlookup[*match] != toupperlookup[*wild]) match++;
+                if (*match && *(match+1) && toupperlookup[*(match+1)] != toupperlookup[*(wild+1)])
+                {
+                    match++;
+                    continue;
+                }
+                break;
+            }
+            while (1);
             if (toupperlookup[*match] == toupperlookup[*wild])
                 continue;
         }

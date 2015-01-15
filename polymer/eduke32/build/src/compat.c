@@ -685,7 +685,6 @@ char *Bstrtolower(char *str)
 
 
 //Brute-force case-insensitive, slash-insensitive, * and ? wildcard matcher
-//Given: string i and string j. string j can have wildcards
 //Returns: 1:matches, 0:doesn't match
 #ifndef WITHKPLIB
 extern char toupperlookup[256];
@@ -703,14 +702,26 @@ static int32_t wildmatch(const char *match, const char *wild)
             return 1;
         else if (*wild == '*')
         {
-            while (*wild == '*') wild++;
-            if (*wild == '\0') return 1;
-            while (*match && toupperlookup[*match] != toupperlookup[*wild]) match++;
+            do { wild++; } while (*wild == '*');
+            do
+            {
+                if (*wild == '\0')
+                    return 1;
+                while (*match && toupperlookup[*match] != toupperlookup[*wild]) match++;
+                if (*match && *(match+1) && toupperlookup[*(match+1)] != toupperlookup[*(wild+1)])
+                {
+                    match++;
+                    continue;
+                }
+                break;
+            }
+            while (1);
             if (toupperlookup[*match] == toupperlookup[*wild])
                 continue;
         }
         return 0;
-    } while (1);
+    }
+    while (1);
 }
 #endif
 
