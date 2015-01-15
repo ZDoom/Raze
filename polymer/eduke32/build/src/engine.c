@@ -15103,7 +15103,7 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     setaspect_new();
 
     for (i=0; i<windowx1; i++) { startumost[i] = 1, startdmost[i] = 0; }
-    for (i=windowx1; i<=windowx2; i++)
+    for (i=windowx1; i<windowx2; i++)
         { startumost[i] = windowy1, startdmost[i] = windowy2+1; }
     for (i=windowx2+1; i<xdim; i++) { startumost[i] = 1, startdmost[i] = 0; }
 }
