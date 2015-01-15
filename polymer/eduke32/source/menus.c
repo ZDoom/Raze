@@ -1864,17 +1864,19 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 #ifndef DROIDMENU
         mgametextcenter(origin.x, origin.y + (112<<16), "Please visit Steam and purchase\n"
                                                         "Duke Nukem 3D: Megaton Edition\n"
+                                                        "to upgrade to the full registered\n"
+                                                        "version of Duke Nukem 3D.");
 #else
 # if defined __APPLE__ && TARGET_OS_IPHONE
         mgametextcenter(origin.x, origin.y + (121<<16), "Please visit the App Store\n"
-# else
-        mgametextcenter(origin.x, origin.y + (121<<16), "Please visit the Play Store\n"
-# endif
-#endif
-
                                                         "to upgrade to the full registered\n"
                                                         "version of Duke Nukem 3D.");
-
+# else
+        mgametextcenter(origin.x, origin.y + (121<<16), "Please visit the Play Store\n"
+                                                        "to upgrade to the full registered\n"
+                                                        "version of Duke Nukem 3D.");
+# endif
+#endif
         mgametextcenter(origin.x, origin.y + ((148+16)<<16), "Press any key or button...");
         break;
 
@@ -4131,7 +4133,11 @@ static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
     if (cm->menuID == MENU_MAIN)
         return;
 
-    rotatesprite_(origin.x + (tilesiz[SELECTDIR].y<<16), origin.y, 65536, 512, SELECTDIR, M_RunMenuInput_MouseReturn_status ? 4-(sintable[(totalclock<<4)&2047]>>11) : 6, 0, 2|8|16|RS_ALIGN_L, 0, 0, xdim_from_320_16(origin.x + x_widescreen_left()), 0, xdim_from_320_16(origin.x + x_widescreen_left() + (tilesiz[SELECTDIR].y<<15)), ydim-1);;
+    rotatesprite_(origin.x + (tilesiz[SELECTDIR].y << 16), origin.y, 65536, 512, SELECTDIR,
+                  M_RunMenuInput_MouseReturn_status ? 4 - (sintable[(totalclock << 4) & 2047] >> 11) : 6, 0,
+                  2 | 8 | 16 | RS_ALIGN_L, MOUSEALPHA, 0, xdim_from_320_16(origin.x + x_widescreen_left()), 0,
+                  xdim_from_320_16(origin.x + x_widescreen_left() + (tilesiz[SELECTDIR].y << 15)), ydim - 1);
+    ;
 }
 #endif
 
