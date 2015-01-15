@@ -152,6 +152,13 @@ static void G_DrawCameraText(int16_t i);
 GAME_STATIC GAME_INLINE int32_t G_MoveLoop(void);
 static void G_DoOrderScreen(void);
 
+#define FTAOPAQUETIME 30
+
+#define ftapulseshade                                                                                                  \
+    ((hud_glowingquotes && (getrendermode() == REND_CLASSIC || ps->fta >= FTAOPAQUETIME)) ?                            \
+     (sintable[((uint32_t)ps->fta << 7) & 2047] >> 11) :                                                               \
+     (sintable[((uint32_t)FTAOPAQUETIME << 7) & 2047] >> 11))
+
 #define quotepulseshade (sintable[((uint32_t)totalclock<<5)&2047]>>11)
 
 int32_t althud_numbertile = 2930;
@@ -1155,7 +1162,7 @@ vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy,
 //  4: small font, wrap strings?
 int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x,  int32_t y,  const char *t,
                         int32_t s,    int32_t p,    int32_t o,
-                        int32_t x1,   int32_t y1,   int32_t x2, int32_t y2, int32_t z)
+                        int32_t x1,   int32_t y1,   int32_t x2, int32_t y2, int32_t z, int32_t a)
 {
     vec2_t dim;
     int32_t f = TEXT_GAMETEXTNUMHACK;
@@ -1191,7 +1198,7 @@ int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x,  int32_t y,  cons
     if (x == (160<<16))
         f |= TEXT_XCENTER;
 
-    dim = G_ScreenText(tile, x, y, z, 0, 0, t, s, p, orient|ROTATESPRITE_FULL16, 0, (5<<16), (8<<16), (xbetween<<16), 0, f, x1, y1, x2, y2);
+    dim = G_ScreenText(tile, x, y, z, 0, 0, t, s, p, orient|ROTATESPRITE_FULL16, a, (5<<16), (8<<16), (xbetween<<16), 0, f, x1, y1, x2, y2);
 
     x += dim.x;
 
@@ -2585,6 +2592,19 @@ static inline int32_t texto(int32_t t)
     return 2+8+16+1+32;
 }
 
+static inline int32_t texta(int32_t t)
+{
+    if (getrendermode() == REND_CLASSIC)
+    {
+        if (t > 4) return 0;
+        if (t > 2) return 85;
+        return 169;
+    }
+
+    t = clamp(t<<3, 0, 255);
+    return 255 - t;
+}
+
 static int32_t calc_ybase(int32_t begy)
 {
     int32_t k = begy;
@@ -2673,51 +2693,50 @@ void G_PrintGameQuotes(int32_t snum)
         {
 #ifdef SPLITSCREEN_MOD_HACKS
             if (!g_fakeMultiMode)
-#endif
-                k = 140;//quotebot-8-4;
-#ifdef SPLITSCREEN_MOD_HACKS
+                k = 140;  // quotebot-8-4;
             else
                 k = 50;
+#else
+            k = 140;
 #endif
         }
         else
         {
+            if (ud.althud == 2)
+                k = 32;
+            else
 #ifdef GEKKO
-            k = 16;
+                k = 16;
 #elif defined EDUKE32_TOUCH_DEVICES
-            k = ud.althud == 2 ? 32 : 24;
+                k = 24;
 #else
-            k = ud.althud == 2 ? 32 : 0;
+                k = 1;
 #endif
         }
     }
 
-    {
-        int32_t pal = 0;
+    int32_t pal = 0;
 
 #ifdef SPLITSCREEN_MOD_HACKS
-        if (g_fakeMultiMode)
+    if (g_fakeMultiMode)
+    {
+        pal = g_player[snum].pcolor;
+
+        if (snum == 1)
         {
-            pal = g_player[snum].pcolor;
+            const int32_t sidebyside = (ud.screen_size != 0);
 
-            if (snum==1)
-            {
-                const int32_t sidebyside = (ud.screen_size != 0);
-
-                // NOTE: setting gametext's x -= 80 doesn't do the expected thing.
-                // Needs looking into.
-                if (sidebyside)
-                    k += 9;
-                else
-                    k += 101;
-            }
+            // NOTE: setting gametext's x -= 80 doesn't do the expected thing.
+            // Needs looking into.
+            if (sidebyside)
+                k += 9;
+            else
+                k += 101;
         }
+    }
 #endif
 
-        gametextpalbits(160, k, ScriptQuotes[ps->ftq],
-                        hud_glowingquotes ? quotepulseshade : 0,
-                        pal, texto(ps->fta));
-    }
+    gametextpalbits(160, k, ScriptQuotes[ps->ftq], ftapulseshade, pal, 2 + 8 + 16, texta(ps->fta));
 }
 
 void P_DoQuote(int32_t q, DukePlayer_t *p)
@@ -3820,7 +3839,7 @@ void G_DisplayRest(int32_t smoothratio)
                  ((myps->player_par%REALGAMETICSPERSEC)*33)/10
             );
         G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),
-                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536, 0);
 
         if (ud.player_skill > 3 || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_PLAYERSFRIENDLY)))
             Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY))?
@@ -3838,14 +3857,14 @@ void G_DisplayRest(int32_t smoothratio)
         }
 
         G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(14),
-                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536, 0);
 
         if (myps->secret_rooms == myps->max_secret_rooms)
             Bsprintf(tempbuf,"S:%d/%d", myps->secret_rooms, myps->max_secret_rooms);
         else Bsprintf(tempbuf,"S:^15%d/%d", myps->secret_rooms, myps->max_secret_rooms);
 
         G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(7),
-                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536, 0);
     }
 
     if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
@@ -12705,7 +12724,7 @@ void G_BonusScreen(int32_t bonusonly)
                             gametext((320>>2)+89+(clockpad*24),yy+9,"New record!",0,2+8+16);
                     }
                     else
-                        gametextpalbits((320>>2)+71,yy+9,"Cheated!",0,2,2+8+16);
+                        gametextpalbits((320>>2)+71,yy+9,"Cheated!",0,2,2+8+16,0);
                     yy+=10;
 
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))

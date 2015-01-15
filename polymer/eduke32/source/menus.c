@@ -5567,7 +5567,7 @@ void M_DisplayMenus(void)
 #ifndef EDUKE32_TOUCH_DEVICES
     // Display the mouse cursor, except on touch devices.
     if (MOUSEACTIVECONDITION)
-        rotatesprite_fs(m_mousepos.x,m_mousepos.y,65536,0,CROSSHAIR,0,CROSSHAIR_PAL,2|1);
+        rotatesprite_fs_alpha(m_mousepos.x, m_mousepos.y, 65536, 0, CROSSHAIR, 0, CROSSHAIR_PAL, 2|1, MOUSEALPHA);
     else
         mousepressstate = Mouse_Idle;
 #endif

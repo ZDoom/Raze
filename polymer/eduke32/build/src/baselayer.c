@@ -32,6 +32,8 @@ int32_t mousepressstateadvance(void)
         mousepressstate = Mouse_Idle;
         return 1;
     }
+    else if (mousepressstate == Mouse_Held)
+        return 1;
 
     return 0;
 }

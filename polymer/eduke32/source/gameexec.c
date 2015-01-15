@@ -2829,7 +2829,7 @@ nullquote:
 
                 orientation &= (ROTATESPRITE_MAX-1);
 
-                G_PrintGameText(0,tilenum,x>>1,y,ScriptQuotes[q],shade,pal,orientation,x1,y1,x2,y2,z);
+                G_PrintGameText(0,tilenum,x>>1,y,ScriptQuotes[q],shade,pal,orientation,x1,y1,x2,y2,z,0);
                 continue;
             }
 

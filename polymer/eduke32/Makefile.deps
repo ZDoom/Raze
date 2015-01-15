@@ -47,7 +47,7 @@ $(DUKE3D_OBJ)/gamevars.$o: $(DUKE3D_SRC)/gamevars.c $(DUKE3D_SRC)/gamestructures
 $(DUKE3D_OBJ)/global.$o: $(DUKE3D_SRC)/*.c $(DUKE3D_SRC)/global.c $(duke3d_h)
 $(DUKE3D_OBJ)/input.$o: $(DUKE3D_SRC)/input.c $(duke3d_h) $(DUKE3D_SRC)/input.h
 $(DUKE3D_OBJ)/mdump.$o: $(DUKE3D_SRC)/mdump.cpp $(DUKE3D_SRC)/mdump.h
-$(DUKE3D_OBJ)/menus.$o: $(DUKE3D_SRC)/menus.c $(duke3d_h) $(DUKE3D_SRC)/input.h $(DUKE3D_SRC)/jmact/mouse.h
+$(DUKE3D_OBJ)/menus.$o: $(DUKE3D_SRC)/menus.c $(duke3d_h) $(DUKE3D_SRC)/input.h $(DUKE3D_SRC)/jmact/mouse.h $(DUKE3D_SRC)/menus.h
 $(DUKE3D_OBJ)/namesdyn.$o: $(DUKE3D_SRC)/namesdyn.c $(duke3d_h)
 $(DUKE3D_OBJ)/net.$o: $(DUKE3D_SRC)/net.c $(duke3d_h)
 $(DUKE3D_OBJ)/player.$o: $(DUKE3D_SRC)/player.c $(duke3d_h)
