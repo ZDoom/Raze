@@ -5432,7 +5432,10 @@ void G_SaveMapState(void)
     map_t *mapinfo = &MapInfo[levelnum];
 
     if (mapinfo->savedstate == NULL)
-        mapinfo->savedstate = (mapstate_t *)Xcalloc(1,sizeof(mapstate_t));
+    {
+        mapinfo->savedstate = (mapstate_t *) Xaligned_alloc(16, sizeof(mapstate_t));
+        Bmemset(mapinfo->savedstate, 0, sizeof(mapstate_t));
+    }
     
     mapstate_t *save = mapinfo->savedstate;
 
@@ -5513,13 +5516,13 @@ void G_SaveMapState(void)
         if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
         {
             if (!save->vars[i])
-                save->vars[i] = (intptr_t *)Xcalloc(MAXPLAYERS,sizeof(intptr_t));
+                save->vars[i] = (intptr_t *)Xaligned_alloc(16, MAXPLAYERS * sizeof(intptr_t));
             Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXPLAYERS);
         }
         else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
         {
             if (!save->vars[i])
-                save->vars[i] = (intptr_t *)Xcalloc(MAXSPRITES,sizeof(intptr_t));
+                save->vars[i] = (intptr_t *)Xaligned_alloc(16, MAXSPRITES * sizeof(intptr_t));
             Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXSPRITES);
         }
         else save->vars[i] = (intptr_t *)aGameVars[i].val.lValue;

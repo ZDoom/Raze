@@ -79,10 +79,10 @@ typedef struct {
     actor_t actor[MAXSPRITES];
     playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
     animwalltype animwall[MAXANIMWALLS];
-    sectortype sector[MAXSECTORS];
+    tsectortype sector[MAXSECTORS];
     spriteext_t spriteext[MAXSPRITES];
-    spritetype sprite[MAXSPRITES];
-    walltype wall[MAXWALLS];
+    tspritetype sprite[MAXSPRITES];
+    twalltype wall[MAXWALLS];
 #if !defined LUNATIC
     intptr_t *vars[MAXGAMEVARS];
 #else

@@ -1417,7 +1417,7 @@ end_vol4a:
     for (i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
         if (MapInfo[i].savedstate)
         {
-            Bfree(MapInfo[i].savedstate);
+            Baligned_free(MapInfo[i].savedstate);
             MapInfo[i].savedstate = NULL;
         }
 
@@ -2020,12 +2020,12 @@ void G_FreeMapState(int32_t mapnum)
         if (aGameVars[j].dwFlags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
         {
             if (mapinfo->savedstate->vars[j])
-                Bfree(mapinfo->savedstate->vars[j]);
+                Baligned_free(mapinfo->savedstate->vars[j]);
         }
     }
 #else
     Bfree(mapinfo->savedstate->savecode);
 #endif
-    Bfree(mapinfo->savedstate);
+    Baligned_free(mapinfo->savedstate);
     mapinfo->savedstate = NULL;
 }
