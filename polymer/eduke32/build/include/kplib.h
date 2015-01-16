@@ -52,9 +52,9 @@ extern char toupperlookup[256];
 static inline int32_t filnamcmp(const char *j, const char *i)
 {
     // If we reach at the end of both strings, we are done
-    while (*j && (toupperlookup[*i] == toupperlookup[*j]))
+    while (*i && *j && (toupperlookup[*i] == toupperlookup[*j]))
         i++, j++;
-    return *i != '\0';
+    return *i != '\0' || *j != '\0';
 }
 extern int32_t wildmatch(const char *match, const char *wild);
 
