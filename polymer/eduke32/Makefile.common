@@ -295,7 +295,10 @@ ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
 endif
 
 ifeq ($(HOST),WINDOWS)
-    DONT_PRINT = > NUL 2>&1
+# MSYS2 lets you create files named NUL but has a /dev/null. Go figure.
+    ifeq (,$(wildcard /dev/null))
+        DONT_PRINT = > NUL 2>&1
+	endif
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
