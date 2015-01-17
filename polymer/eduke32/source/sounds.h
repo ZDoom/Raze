@@ -104,6 +104,8 @@ void S_StopEnvSound(int32_t num,int32_t i);
 void S_StopMusic(void);
 void S_Update(void);
 void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset);
+int32_t S_GetMusicPosition(void);
+void S_SetMusicPosition(int32_t position);
 
 static inline int32_t S_IsAmbientSFX(int32_t i)
 {

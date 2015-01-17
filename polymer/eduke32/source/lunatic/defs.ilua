@@ -697,6 +697,8 @@ int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
 void S_StopEnvSound(int32_t num, int32_t i);
 int32_t FX_StopAllSounds(void);
 void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset);
+int32_t S_GetMusicPosition(void);
+void S_SetMusicPosition(int32_t position);
 
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb);
 void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,

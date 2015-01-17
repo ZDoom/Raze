@@ -286,6 +286,21 @@ static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
     xad->blocksize = count;
 }
 
+int32_t MV_GetXAPosition(VoiceNode *voice)
+{
+    xa_data * xad = (xa_data *) voice->extra;
+    return xad->pos;
+}
+
+void MV_SetXAPosition(VoiceNode *voice, int32_t position)
+{
+    xa_data * xad = (xa_data *) voice->extra;
+
+    if (position < XA_DATA_START || position >= xad->length)
+        position = XA_DATA_START;
+
+    xad->pos = position;
+}
 
 /*---------------------------------------------------------------------
 Function: MV_GetNextXABlock

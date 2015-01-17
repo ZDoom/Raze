@@ -230,6 +230,8 @@ S_CheckSoundPlaying;
 S_StopEnvSound;
 FX_StopAllSounds;
 S_ChangeSoundPitch;
+S_GetMusicPosition;
+S_SetMusicPosition;
 
 minitext_;
 G_DrawTXDigiNumZ;

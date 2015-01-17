@@ -275,6 +275,23 @@ void error_flac_stream(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderEr
    // FLAC__stream_decoder_flush(fd->stream);
 }
 
+int32_t MV_GetFLACPosition(VoiceNode *voice)
+{
+    FLAC__uint64 position = 0;
+    flac_data * fd = (flac_data *) voice->extra;
+
+    FLAC__stream_decoder_get_decode_position(fd->stream, &position);
+
+    return position;
+}
+
+void MV_SetFLACPosition(VoiceNode *voice, int32_t position)
+{
+    flac_data * fd = (flac_data *) voice->extra;
+
+    FLAC__stream_decoder_seek_absolute(fd->stream, position);
+}
+
 /*---------------------------------------------------------------------
 Function: MV_GetNextFLACBlock
 

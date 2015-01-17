@@ -122,6 +122,8 @@ int32_t FX_StartDemandFeedPlayback( void ( *function )( char **ptr, uint32_t *le
 int32_t FX_SetVoiceCallback(int32_t handle, uint32_t callbackval);
 int32_t FX_SetPrintf(void (*function)(const char *, ...));
 
+int32_t FX_GetPosition(int32_t handle, int32_t *position);
+int32_t FX_SetPosition(int32_t handle, int32_t position);
 
 #ifdef __cplusplus
 }

@@ -2907,6 +2907,11 @@ local Cinner = {
     starttrackvar = cmd(R)
         / "_con._starttrack(%1)",
 
+    getmusicposition = cmd(W)
+        / "%1=_con._getmusicposition()",
+    setmusicposition = cmd(R)
+        / "_con._setmusicposition(%1)",
+
     setaspect = cmd(R,R)
         / "_con._setaspect(%1,%2)",
     showview = cmd(R,R,R,R,R,R,R,R,R,R)  -- 10R

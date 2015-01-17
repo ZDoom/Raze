@@ -987,6 +987,7 @@ void MV_SetVoiceMixMode(VoiceNode *voice)
 }
 
 
+
 /*---------------------------------------------------------------------
    Function: MV_SetVoiceVolume
 
@@ -1063,6 +1064,77 @@ int32_t MV_PauseVoice
     return MV_Ok;
 }
 
+int32_t MV_GetPosition(int32_t handle, int32_t *position)
+{
+    VoiceNode *voice;
+
+    if (!MV_Installed)
+    {
+        MV_SetErrorCode(MV_NotInstalled);
+        return MV_Error;
+    }
+
+    DisableInterrupts();
+
+    voice = MV_GetVoice(handle);
+    if (voice == NULL)
+    {
+        RestoreInterrupts();
+        MV_SetErrorCode(MV_VoiceNotFound);
+        return MV_Warning;
+    }
+
+#ifdef HAVE_VORBIS
+    if (voice->wavetype == Vorbis)
+        *position = MV_GetVorbisPosition(voice);
+#endif
+#ifdef HAVE_FLAC
+    if (voice->wavetype == FLAC)
+        *position = MV_GetFLACPosition(voice);
+#endif
+    if (voice->wavetype == XA)
+        *position = MV_GetXAPosition(voice);
+
+    RestoreInterrupts();
+
+    return MV_Ok;
+}
+
+int32_t MV_SetPosition(int32_t handle, int32_t position)
+{
+    VoiceNode *voice;
+
+    if (!MV_Installed)
+    {
+        MV_SetErrorCode(MV_NotInstalled);
+        return MV_Error;
+    }
+
+    DisableInterrupts();
+
+    voice = MV_GetVoice(handle);
+    if (voice == NULL)
+    {
+        RestoreInterrupts();
+        MV_SetErrorCode(MV_VoiceNotFound);
+        return MV_Warning;
+    }
+
+#ifdef HAVE_VORBIS
+    if (voice->wavetype == Vorbis)
+        MV_SetVorbisPosition(voice, position);
+#endif
+#ifdef HAVE_FLAC
+    if (voice->wavetype == FLAC)
+        MV_SetFLACPosition(voice, position);
+#endif
+    if (voice->wavetype == XA)
+        MV_SetXAPosition(voice, position);
+
+    RestoreInterrupts();
+
+    return MV_Ok;
+}
 
 /*---------------------------------------------------------------------
    Function: MV_EndLooping

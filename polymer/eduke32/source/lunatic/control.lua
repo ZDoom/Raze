@@ -1889,6 +1889,14 @@ function _starttrack(level)
     end
 end
 
+function _getmusicposition()
+    return ffic.S_GetMusicPosition()
+end
+
+function _setmusicposition(position)
+    ffic.S_SetMusicPosition(position)
+end
+
 function _startlevel(volume, level)
     bcheck.volume_idx(volume)
     bcheck.level_idx(level)

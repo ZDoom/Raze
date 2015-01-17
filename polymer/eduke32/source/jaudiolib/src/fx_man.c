@@ -400,6 +400,33 @@ int32_t FX_PauseVoice
     return status;
 }
 
+int32_t FX_GetPosition(int32_t handle, int32_t *position)
+{
+    int32_t status;
+
+    status = MV_GetPosition(handle, position);
+    if (status == MV_Error)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        status = FX_Warning;
+    }
+
+    return status;
+}
+
+int32_t FX_SetPosition(int32_t handle, int32_t position)
+{
+    int32_t status;
+
+    status = MV_SetPosition(handle, position);
+    if (status == MV_Error)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        status = FX_Warning;
+    }
+
+    return status;
+}
 
 /*---------------------------------------------------------------------
    Function: FX_EndLooping

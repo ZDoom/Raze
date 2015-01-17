@@ -95,6 +95,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_SCREENTEXT, 20130529 },
     { CON_DYNAMICSOUNDREMAP, 20130530 },
     { CON_SCREENSOUND, 20130628 },
+    { CON_SETMUSICPOSITION, 20150115 },
 };
 #endif
 
@@ -549,6 +550,8 @@ const char *keyw[] =
     "screentext",               // 370
     "dynamicsoundremap",        // 371
     "screensound",              // 372
+    "getmusicposition",         // 373
+    "setmusicposition",         // 374
     "<null>"
 };
 #endif
@@ -4095,6 +4098,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_SECTCLEARINTERPOLATION:
         case CON_SETACTORANGLE:
         case CON_SETPLAYERANGLE:
+        case CON_SETMUSICPOSITION:
             C_GetNextVar();
             continue;
 
@@ -4109,6 +4113,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_GETPLAYERANGLE:
         case CON_GETTICKS:
         case CON_GETCURRADDRESS:
+        case CON_GETMUSICPOSITION:
             C_GetNextVarType(GAMEVAR_READONLY);
             continue;
 

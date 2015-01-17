@@ -311,6 +311,22 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     return (alt != 0);
 }
 
+int32_t S_GetMusicPosition(void)
+{
+    int32_t position = 0;
+
+    if (MusicIsWaveform)
+        FX_GetPosition(MusicVoice, &position);
+
+    return position;
+}
+
+void S_SetMusicPosition(int32_t position)
+{
+    if (MusicIsWaveform)
+        FX_SetPosition(MusicVoice, position);
+}
+
 void S_StopMusic(void)
 {
     MusicPaused = 0;

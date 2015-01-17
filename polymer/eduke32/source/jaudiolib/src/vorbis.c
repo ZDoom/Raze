@@ -201,6 +201,20 @@ static ov_callbacks vorbis_callbacks = {
 };
 
 
+int32_t MV_GetVorbisPosition(VoiceNode *voice)
+{
+    vorbis_data * vd = (vorbis_data *) voice->extra;
+
+    return ov_pcm_tell(&vd->vf);
+}
+
+void MV_SetVorbisPosition(VoiceNode *voice, int32_t position)
+{
+    vorbis_data * vd = (vorbis_data *) voice->extra;
+
+    ov_pcm_seek(&vd->vf, position);
+}
+
 /*---------------------------------------------------------------------
 Function: MV_GetNextVorbisBlock
 

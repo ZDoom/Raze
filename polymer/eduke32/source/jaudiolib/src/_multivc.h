@@ -227,6 +227,13 @@ void MV_SetVoiceMixMode( VoiceNode *voice );
 void MV_SetVoiceVolume ( VoiceNode *voice, int32_t vol, int32_t left, int32_t right );
 void MV_SetVoicePitch  ( VoiceNode *voice, uint32_t rate, int32_t pitchoffset );
 
+int32_t MV_GetVorbisPosition(VoiceNode *voice);
+void MV_SetVorbisPosition(VoiceNode *voice, int32_t position);
+int32_t MV_GetFLACPosition(VoiceNode *voice);
+void MV_SetFLACPosition(VoiceNode *voice, int32_t position);
+int32_t MV_GetXAPosition(VoiceNode *voice);
+void MV_SetXAPosition(VoiceNode *voice, int32_t position);
+
 void MV_ReleaseVorbisVoice( VoiceNode * voice );
 void MV_ReleaseFLACVoice( VoiceNode * voice );
 void MV_ReleaseXAVoice( VoiceNode * voice );

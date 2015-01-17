@@ -979,6 +979,7 @@ lpeg.P(false) +
 "setplayervar" +
 "setplayerangle" +
 "setplayer" +
+"setmusicposition" +
 "setinput" +
 "setgamepalette" +
 "setgamename" +
@@ -1162,6 +1163,7 @@ lpeg.P(false) +
 "getplayervar" +
 "getplayerangle" +
 "getplayer" +
+"getmusicposition" +
 "getlastpal" +
 "getkeyname" +
 "getinput" +
