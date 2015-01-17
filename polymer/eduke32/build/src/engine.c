@@ -7552,9 +7552,13 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     // bound clipping rectangle to screen
     if (cx1 < 0) cx1 = 0;
+    else if (cx1 > xres-1) cx1 = xres-1;
     if (cy1 < 0) cy1 = 0;
-    if (cx2 > xres-1) cx2 = xres-1;
-    if (cy2 > yres-1) cy2 = yres-1;
+    else if (cy1 > yres-1) cy1 = yres-1;
+    if (cx2 < 0) cx2 = 0;
+    else if (cx2 > xres-1) cx2 = xres-1;
+    if (cy2 < 0) cy2 = 0;
+    else if (cy2 > yres-1) cy2 = yres-1;
 
     xsiz = tilesiz[picnum].x;
     ysiz = tilesiz[picnum].y;

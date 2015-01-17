@@ -4137,7 +4137,6 @@ static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
                   M_RunMenuInput_MouseReturn_status ? 4 - (sintable[(totalclock << 4) & 2047] >> 11) : 6, 0,
                   2 | 8 | 16 | RS_ALIGN_L, MOUSEALPHA, 0, xdim_from_320_16(origin.x + x_widescreen_left()), 0,
                   xdim_from_320_16(origin.x + x_widescreen_left() + (tilesiz[SELECTDIR].y << 15)), ydim - 1);
-    ;
 }
 #endif
 
