@@ -296,7 +296,7 @@ void MV_SetXAPosition(VoiceNode *voice, int32_t position)
 {
     xa_data * xad = (xa_data *) voice->extra;
 
-    if (position < XA_DATA_START || position >= xad->length)
+    if (position < XA_DATA_START || (size_t)position >= xad->length)
         position = XA_DATA_START;
 
     xad->pos = position;
