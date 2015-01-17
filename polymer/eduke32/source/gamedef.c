@@ -2764,7 +2764,6 @@ static int32_t C_ParseCommand(int32_t loop)
             g_scriptPtr -= 2; // no need to save in script...
             continue;
 
-
         case CON_DEFINE:
             {
                 //printf("Got definition. Getting Label. '%.20s'\n",textptr);
@@ -2789,7 +2788,6 @@ static int32_t C_ParseCommand(int32_t loop)
                 //printf("Translating. '%.20s'\n",textptr);
                 C_GetNextValue(LABEL_DEFINE);
                 //printf("Translated. '%.20s'\n",textptr);
-
 
                 i = hash_find(&h_labels,label+(g_numLabels<<6));
                 if (i>=0)
@@ -3270,9 +3268,6 @@ static int32_t C_ParseCommand(int32_t loop)
 
             continue;
 
-        case CON_INSERTSPRITEQ:
-            continue;
-
         case CON_QSPRINTF:
             C_GetManyVars(2);
 
@@ -3284,6 +3279,42 @@ static int32_t C_ParseCommand(int32_t loop)
             *g_scriptPtr++ = CON_NULLOP + (g_lineNumber<<12);
             continue;
 
+        case CON_CSTAT:
+            C_GetNextValue(LABEL_DEFINE);
+
+            if (EDUKE32_PREDICT_FALSE(*(g_scriptPtr-1) == 32767))
+            {
+                *(g_scriptPtr-1) = 32768;
+                C_ReportError(-1);
+                initprintf("%s:%d: warning: tried to set cstat 32767, using 32768 instead.\n",g_szScriptFileName,g_lineNumber);
+                g_numCompilerWarnings++;
+            }
+            else if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr-1) & 32) && (*(g_scriptPtr-1) & 16)))
+            {
+                i = *(g_scriptPtr-1);
+                *(g_scriptPtr-1) ^= 48;
+                C_ReportError(-1);
+                initprintf("%s:%d: warning: tried to set cstat %d, using %d instead.\n",g_szScriptFileName,g_lineNumber,i,(int32_t)(*(g_scriptPtr-1)));
+                g_numCompilerWarnings++;
+            }
+            continue;
+
+        case CON_HITRADIUSVAR:
+            C_GetManyVars(5);
+            continue;
+
+        case CON_HITRADIUS:
+            C_GetNextValue(LABEL_DEFINE);
+            C_GetNextValue(LABEL_DEFINE);
+            C_GetNextValue(LABEL_DEFINE);
+        case CON_ADDAMMO:
+        case CON_ADDWEAPON:
+        case CON_SIZETO:
+        case CON_SIZEAT:
+        case CON_DEBRIS:
+        case CON_ADDINVENTORY:
+        case CON_GUTS:
+            C_GetNextValue(LABEL_DEFINE);
         case CON_ESPAWN:
         case CON_ESHOOT:
         case CON_QSPAWN:
@@ -3292,7 +3323,6 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_SHOOT:
         case CON_ADDPHEALTH:
         case CON_SPAWN:
-        case CON_CSTAT:
         case CON_COUNT:
         case CON_ENDOFGAME:
         case CON_ENDOFLEVEL:
@@ -3316,42 +3346,6 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_GLOBALSOUND:
         case CON_SOUNDONCE:
         case CON_STOPSOUND:
-            C_GetNextValue(LABEL_DEFINE);
-            if (tw == CON_CSTAT)
-            {
-                if (EDUKE32_PREDICT_FALSE(*(g_scriptPtr-1) == 32767))
-                {
-                    *(g_scriptPtr-1) = 32768;
-                    C_ReportError(-1);
-                    initprintf("%s:%d: warning: tried to set cstat 32767, using 32768 instead.\n",g_szScriptFileName,g_lineNumber);
-                    g_numCompilerWarnings++;
-                }
-                else if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr-1) & 32) && (*(g_scriptPtr-1) & 16)))
-                {
-                    i = *(g_scriptPtr-1);
-                    *(g_scriptPtr-1) ^= 48;
-                    C_ReportError(-1);
-                    initprintf("%s:%d: warning: tried to set cstat %d, using %d instead.\n",g_szScriptFileName,g_lineNumber,i,(int32_t)(*(g_scriptPtr-1)));
-                    g_numCompilerWarnings++;
-                }
-            }
-            continue;
-
-        case CON_HITRADIUSVAR:
-            C_GetManyVars(5);
-            continue;
-        case CON_HITRADIUS:
-            C_GetNextValue(LABEL_DEFINE);
-            C_GetNextValue(LABEL_DEFINE);
-            C_GetNextValue(LABEL_DEFINE);
-        case CON_ADDAMMO:
-        case CON_ADDWEAPON:
-        case CON_SIZETO:
-        case CON_SIZEAT:
-        case CON_DEBRIS:
-        case CON_ADDINVENTORY:
-        case CON_GUTS:
-            C_GetNextValue(LABEL_DEFINE);
             C_GetNextValue(LABEL_DEFINE);
             continue;
 
@@ -3515,19 +3509,6 @@ static int32_t C_ParseCommand(int32_t loop)
                 default:
                     break;
                 }
-                // target var
-                // get the ID of the DEF
-                C_GetNextVarType(GAMEVAR_READONLY);
-                continue;
-            }
-
-        case CON_SQRT:
-            {
-                // syntax sqrt <invar> <outvar>
-                // gets the sqrt of invar into outvar
-
-                // get the ID of the DEF
-                C_GetNextVar();
                 // target var
                 // get the ID of the DEF
                 C_GetNextVarType(GAMEVAR_READONLY);
@@ -4057,24 +4038,29 @@ static int32_t C_ParseCommand(int32_t loop)
                 continue;
             }
 
-        case CON_STOPACTORSOUND:
-            C_GetManyVars(2);
-            continue;
-
-        case CON_SETACTORSOUNDPITCH:
-            C_GetManyVars(3);
-            continue;
-
+        case CON_RANDVARVAR:
+        case CON_SETVARVAR:
+        case CON_ADDVARVAR:
+        case CON_SUBVARVAR:
+        case CON_MULVARVAR:
+        case CON_DIVVARVAR:
+        case CON_MODVARVAR:
+        case CON_ANDVARVAR:
+        case CON_ORVARVAR:
+        case CON_XORVARVAR:
+        case CON_DISPLAYRANDVARVAR:
+        case CON_SIN:
+        case CON_COS:
+        case CON_QSTRLEN:
+        case CON_HEADSPRITESTAT:
+        case CON_PREVSPRITESTAT:
+        case CON_NEXTSPRITESTAT:
+        case CON_HEADSPRITESECT:
+        case CON_PREVSPRITESECT:
+        case CON_NEXTSPRITESECT:
         case CON_SECTOROFWALL:
             C_GetNextVarType(GAMEVAR_READONLY);
-            C_GetNextVar();
-            continue;
-
-        case CON_GETTICKS:
-        case CON_GETCURRADDRESS:
-            C_GetNextVarType(GAMEVAR_READONLY);
-            continue;
-
+        case CON_ADDLOGVAR:
         case CON_ESHOOTVAR:
         case CON_ESPAWNVAR:
         case CON_QSPAWNVAR:
@@ -4105,9 +4091,24 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_CLEARMAPSTATE:
         case CON_ACTIVATECHEAT:
         case CON_SETGAMEPALETTE:
+        case CON_SECTSETINTERPOLATION:
+        case CON_SECTCLEARINTERPOLATION:
+        case CON_SETACTORANGLE:
+        case CON_SETPLAYERANGLE:
             C_GetNextVar();
             continue;
+
+        case CON_SQRT:
+            C_GetNextVar();
+        case CON_FINDPLAYER:
+        case CON_FINDOTHERPLAYER:
+        case CON_DISPLAYRAND:
         case CON_READGAMEVAR:
+        case CON_GETANGLETOTARGET:
+        case CON_GETACTORANGLE:
+        case CON_GETPLAYERANGLE:
+        case CON_GETTICKS:
+        case CON_GETCURRADDRESS:
             C_GetNextVarType(GAMEVAR_READONLY);
             continue;
 
@@ -4226,6 +4227,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 }
             }
             continue;
+
         case CON_WRITEARRAYTOFILE:
         case CON_READARRAYFROMFILE:
             C_GetNextLabelName();
@@ -4242,6 +4244,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
             C_GetNextValue(LABEL_DEFINE);
             continue;
+
         case CON_COPY:
             C_GetNextLabelName();
             i=GetADefID(label+(g_numLabels<<6));
@@ -4309,6 +4312,7 @@ static int32_t C_ParseCommand(int32_t loop)
             textptr++;
             C_GetNextVar();
             continue;
+
         case CON_GETARRAYSIZE:
         case CON_RESIZEARRAY:
             C_GetNextLabelName();
@@ -4331,23 +4335,6 @@ static int32_t C_ParseCommand(int32_t loop)
 
             C_SkipComments();
             C_GetNextVarType(tw==CON_GETARRAYSIZE ? GAMEVAR_READONLY : 0);
-            continue;
-
-        case CON_RANDVARVAR:
-        case CON_SETVARVAR:
-        case CON_ADDVARVAR:
-        case CON_SUBVARVAR:
-        case CON_MULVARVAR:
-        case CON_DIVVARVAR:
-        case CON_MODVARVAR:
-        case CON_ANDVARVAR:
-        case CON_ORVARVAR:
-        case CON_XORVARVAR:
-        case CON_DISPLAYRANDVARVAR:
-        case CON_SIN:
-        case CON_COS:
-            C_GetNextVarType(GAMEVAR_READONLY);
-            C_GetNextVar();
             continue;
 
         case CON_SMAXAMMO:
@@ -4415,11 +4402,6 @@ static int32_t C_ParseCommand(int32_t loop)
             *(g_scriptPtr-1) = CON_OPERATEACTIVATORS;
             C_GetNextValue(LABEL_DEFINE);
             *g_scriptPtr++ = 0;
-            continue;
-
-        case CON_DRAGPOINT:
-        case CON_GETKEYNAME:
-            C_GetManyVars(3);
             continue;
 
         case CON_GETFLORZOFSLOPE:
@@ -4589,15 +4571,6 @@ static int32_t C_ParseCommand(int32_t loop)
                 continue;
             }
 
-        case CON_SPGETLOTAG:
-        case CON_SPGETHITAG:
-        case CON_SECTGETLOTAG:
-        case CON_SECTGETHITAG:
-        case CON_GETTEXTUREFLOOR:
-        case CON_GETTEXTURECEILING:
-            // no paramaters...
-            continue;
-
         case CON_STARTTRACK:
             // one parameter (track#)
             C_GetNextValue(LABEL_DEFINE);
@@ -4647,9 +4620,6 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 continue;
             }
-        case CON_ADDLOGVAR:
-            C_GetNextVar();
-            continue;
 
         case CON_ROTATESPRITE16:
         case CON_ROTATESPRITE:
@@ -4693,11 +4663,6 @@ static int32_t C_ParseCommand(int32_t loop)
             C_GetManyVars(4);
             C_GetManyVarsType(GAMEVAR_READONLY,4);
             C_GetManyVars(2);
-            continue;
-
-        case CON_SECTSETINTERPOLATION:
-        case CON_SECTCLEARINTERPOLATION:
-            C_GetNextVar();
             continue;
 
         case CON_CLIPMOVE:
@@ -4818,17 +4783,6 @@ static int32_t C_ParseCommand(int32_t loop)
                 // get the ID of the DEF
                 C_GetNextVar();
             }
-            continue;
-
-        case CON_FINDPLAYER:
-        case CON_FINDOTHERPLAYER:
-        case CON_DISPLAYRAND:
-
-            // syntax: displayrand <var>
-            // gets rand (not game rand) into <var>
-
-            // Get The ID of the DEF
-            C_GetNextVarType(GAMEVAR_READONLY);
             continue;
 
         case CON_SWITCH:
@@ -5049,8 +5003,12 @@ repeatcase:
             return 1;      // end of block
 
         case CON_QSTRNCAT:
+        case CON_DRAGPOINT:
+        case CON_GETKEYNAME:
+        case CON_SETACTORSOUNDPITCH:
             C_GetManyVars(3);
             continue;
+
         case CON_CHANGESPRITESTAT:
         case CON_CHANGESPRITESECT:
         case CON_ZSHOOTVAR:
@@ -5060,48 +5018,18 @@ repeatcase:
         case CON_QSTRCAT:
         case CON_QSTRCPY:
         case CON_QGETSYSSTR:
+        case CON_STOPACTORSOUND:
             C_GetManyVars(2);
             continue;
-        case CON_QSTRLEN:
-            C_GetNextVarType(GAMEVAR_READONLY);
-            C_GetNextVar();
-            continue;
+
         case CON_QSTRDIM:
             C_GetNextVarType(GAMEVAR_READONLY);
             C_GetNextVarType(GAMEVAR_READONLY);
             C_GetManyVars(16);
             continue;
-        case CON_HEADSPRITESTAT:
-        case CON_PREVSPRITESTAT:
-        case CON_NEXTSPRITESTAT:
-        case CON_HEADSPRITESECT:
-        case CON_PREVSPRITESECT:
-        case CON_NEXTSPRITESECT:
-            C_GetNextVarType(GAMEVAR_READONLY);
-            C_GetNextVar();
-            continue;
+
         case CON_QSUBSTR:
             C_GetManyVars(4);
-            continue;
-        case CON_SETACTORANGLE:
-        case CON_SETPLAYERANGLE:
-            C_GetNextVar();
-            continue;
-        case CON_GETANGLETOTARGET:
-        case CON_GETACTORANGLE:
-        case CON_GETPLAYERANGLE:
-            // Syntax:   <command> <var>
-
-            // get the ID of the DEF
-            C_GetNextVarType(GAMEVAR_READONLY);
-            continue;
-
-        case CON_ADDLOG:
-            // syntax: addlog
-
-            // prints the line number in the log file.
-            /*        *g_scriptPtr=g_lineNumber;
-            g_scriptPtr++; */
             continue;
 
         case CON_IFRND:
@@ -5904,6 +5832,7 @@ repeatcase:
             g_scriptPtr--;
             continue;
 
+        case CON_ADDLOG:
         case CON_FALL:
         case CON_TIP:
             //        case 21:
@@ -5919,20 +5848,27 @@ repeatcase:
         case CON_PKICK:
         case CON_MIKESND:
         case CON_TOSSWEAPON:
-        case CON_NULLOP:
-            if (tw == CON_NULLOP)
-            {
-                if (EDUKE32_PREDICT_FALSE(C_GetKeyword() != CON_ELSE))
-                {
-                    C_ReportError(-1);
-                    g_numCompilerWarnings++;
-                    initprintf("%s:%d: warning: `nullop' found without `else'\n",g_szScriptFileName,g_lineNumber);
-                    g_scriptPtr--;
-                    g_ifElseAborted = 1;
-                }
-            }
+        case CON_SPGETLOTAG:
+        case CON_SPGETHITAG:
+        case CON_SECTGETLOTAG:
+        case CON_SECTGETHITAG:
+        case CON_GETTEXTUREFLOOR:
+        case CON_GETTEXTURECEILING:
+        case CON_INSERTSPRITEQ:
         case CON_STOPALLSOUNDS:
             continue;
+
+        case CON_NULLOP:
+            if (EDUKE32_PREDICT_FALSE(C_GetKeyword() != CON_ELSE))
+            {
+                C_ReportError(-1);
+                g_numCompilerWarnings++;
+                initprintf("%s:%d: warning: `nullop' found without `else'\n",g_szScriptFileName,g_lineNumber);
+                g_scriptPtr--;
+                g_ifElseAborted = 1;
+            }
+            continue;
+
         case CON_GAMESTARTUP:
             {
                 int32_t params[30];
