@@ -550,13 +550,14 @@ typedef struct {
 EXTERN int32_t guniqhudid;
 EXTERN int32_t spritesortcnt;
 extern int32_t g_loadedMapVersion;
-extern uint8_t g_loadedMapMD4[16];
 
 typedef struct {
     char *mhkfile;
     char *title;
     uint8_t md4[16];
 } usermaphack_t;
+
+extern usermaphack_t g_loadedMapHack;
 extern int32_t compare_usermaphacks(const void *, const void *);
 extern usermaphack_t *usermaphacks;
 extern int32_t num_usermaphacks;

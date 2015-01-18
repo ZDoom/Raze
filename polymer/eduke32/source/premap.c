@@ -1714,7 +1714,10 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 
     if (G_TryMapHack(outbuf))
     {
-        usermaphack_t *mapinfo = (usermaphack_t*)bsearch(g_loadedMapMD4 - offsetof(usermaphack_t, md4), usermaphacks, num_usermaphacks, sizeof(usermaphack_t), compare_usermaphacks);
+        usermaphack_t *mapinfo = (usermaphack_t*)bsearch(
+            &g_loadedMapHack, usermaphacks, num_usermaphacks, sizeof(usermaphack_t),
+            compare_usermaphacks);
+
         if (mapinfo)
             G_TryMapHack(mapinfo->mhkfile);
     }

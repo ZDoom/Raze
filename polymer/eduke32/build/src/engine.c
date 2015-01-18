@@ -83,6 +83,7 @@ float debug1, debug2;
 
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
+usermaphack_t g_loadedMapHack;  // used only for the MD4 part
 uint8_t g_loadedMapMD4[16];
 
 int32_t compare_usermaphacks(const void *a, const void *b)
@@ -10791,7 +10792,7 @@ skip_reading_mapbin:
     int32_t boardsize = kfilelength(fil);
     uint8_t *fullboard = (uint8_t*)Xmalloc(boardsize);
     kread(fil, fullboard, boardsize);
-    md4once(fullboard, boardsize, g_loadedMapMD4);
+    md4once(fullboard, boardsize, g_loadedMapHack.md4);
     Bfree(fullboard);
 
     kclose(fil);
