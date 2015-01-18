@@ -1943,7 +1943,7 @@ void domost(float x0, float y0, float x1, float y1)
             vsp[vcnt].fy[0] = vsp[i].fy[1];
             vsp[vcnt].tag = spt[z];
 
-        skip:
+skip: ;
             int32_t ni = vsp[i].n; if (!ni) continue; //this 'if' fixes many bugs!
             float dx0 = vsp[i].x; if (x0 > dx0) continue;
             float dx1 = vsp[ni].x; if (x1 < dx1) continue;
