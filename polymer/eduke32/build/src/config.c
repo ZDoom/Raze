@@ -155,25 +155,25 @@ int32_t loadsetup(const char *fn)
         Bstrcpy(game_executable, val);
 
 #if 1
-    if (readconfig(fp, "keyforward", val, VL) > 0) keys[0] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keybackward", val, VL) > 0) keys[1] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keyturnleft", val, VL) > 0) keys[2] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keyturnright", val, VL) > 0) keys[3] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keyrun", val, VL) > 0) keys[4] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keystrafe", val, VL) > 0) keys[5] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keyfire", val, VL) > 0) keys[6] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keyuse", val, VL) > 0) keys[7] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keystandhigh", val, VL) > 0) keys[8] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keystandlow", val, VL) > 0) keys[9] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keylookup", val, VL) > 0) keys[10] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keylookdown", val, VL) > 0) keys[11] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keystrafeleft", val, VL) > 0) keys[12] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keystraferight", val, VL) > 0) keys[13] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "key2dmode", val, VL) > 0) keys[14] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keyviewcycle", val, VL) > 0) keys[15] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "key2dzoomin", val, VL) > 0) keys[16] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "key2dzoomout", val, VL) > 0) keys[17] = Bstrtol(val, NULL, 16);
-    if (readconfig(fp, "keychat", val, VL) > 0) keys[18] = Bstrtol(val, NULL, 16);
+    if (readconfig(fp, "keyforward", val, VL) > 0) keys[BK_MOVEFORWARD] = Bstrtol(val, NULL, 16);
+    if (readconfig(fp, "keybackward", val, VL) > 0) keys[BK_MOVEBACKWARD] = Bstrtol(val, NULL, 16);
+    if (readconfig(fp, "keyturnleft", val, VL) > 0) keys[BK_TURNLEFT] = Bstrtol(val, NULL, 16);
+    if (readconfig(fp, "keyturnright", val, VL) > 0) keys[BK_TURNRIGHT] = Bstrtol(val, NULL, 16);
+    if (readconfig(fp, "keyrun", val, VL) > 0) keys[BK_RUN] = Bstrtol(val, NULL, 16);
+    if (readconfig(fp, "keystrafe", val, VL) > 0) keys[BK_STRAFE] = Bstrtol(val, NULL, 16);
+//    if (readconfig(fp, "keyfire", val, VL) > 0) keys[BK_SHOOT] = Bstrtol(val, NULL, 16);
+//    if (readconfig(fp, "keyuse", val, VL) > 0) keys[BK_OPEN] = Bstrtol(val, NULL, 16);
+    if (readconfig(fp, "keystandhigh", val, VL) > 0) keys[BK_MOVEUP] = Bstrtol(val, NULL, 16);
+    if (readconfig(fp, "keystandlow", val, VL) > 0) keys[BK_MOVEDOWN] = Bstrtol(val, NULL, 16);
+//    if (readconfig(fp, "keylookup", val, VL) > 0) keys[BK_LOOKUP] = Bstrtol(val, NULL, 16);
+//    if (readconfig(fp, "keylookdown", val, VL) > 0) keys[BK_LOOKDOWN] = Bstrtol(val, NULL, 16);
+//    if (readconfig(fp, "keystrafeleft", val, VL) > 0) keys[BK_STRAFELEFT] = Bstrtol(val, NULL, 16);
+//    if (readconfig(fp, "keystraferight", val, VL) > 0) keys[BK_STRAFERIGHT] = Bstrtol(val, NULL, 16);
+    if (readconfig(fp, "key2dmode", val, VL) > 0) keys[BK_MODE2D_3D] = Bstrtol(val, NULL, 16);
+//    if (readconfig(fp, "keyviewcycle", val, VL) > 0) keys[BK_PLAYERVIEW] = Bstrtol(val, NULL, 16);
+//    if (readconfig(fp, "key2dzoomin", val, VL) > 0) keys[BK_ZOOMIN] = Bstrtol(val, NULL, 16);
+//    if (readconfig(fp, "key2dzoomout", val, VL) > 0) keys[BK_ZOOMOUT] = Bstrtol(val, NULL, 16);
+//    if (readconfig(fp, "keychat", val, VL) > 0) keys[BK_MESSAGE] = Bstrtol(val, NULL, 16);
 #endif
 
     if (readconfig(fp, "windowpositioning", val, VL) > 0) windowpos = atoi_safe(val);
@@ -182,7 +182,11 @@ int32_t loadsetup(const char *fn)
     windowy = -1;
     if (readconfig(fp, "windowposy", val, VL) > 0) windowy = atoi_safe(val);
 
-    if (readconfig(fp, "keyconsole", val, VL) > 0) { keys[19] = Bstrtol(val, NULL, 16); OSD_CaptureKey(keys[19]); }
+    if (readconfig(fp, "keyconsole", val, VL) > 0)
+    {
+        keys[BK_CONSOLE] = Bstrtol(val, NULL, 16);
+        OSD_CaptureKey(keys[BK_CONSOLE]);
+    }
 
     if (readconfig(fp, "mousesensitivity", val, VL) > 0) msens = Bstrtod(val, NULL);
 
@@ -529,19 +533,19 @@ int32_t writesetup(const char *fn)
              "keyturnright = %X\n"
              "keyrun = %X\n"
              "keystrafe = %X\n"
-             "keyfire = %X\n"
-             "keyuse = %X\n"
+//             "keyfire = %X\n"
+//             "keyuse = %X\n"
              "keystandhigh = %X\n"
              "keystandlow = %X\n"
-             "keylookup = %X\n"
-             "keylookdown = %X\n"
-             "keystrafeleft = %X\n"
-             "keystraferight = %X\n"
+//             "keylookup = %X\n"
+//             "keylookdown = %X\n"
+//             "keystrafeleft = %X\n"
+//             "keystraferight = %X\n"
              "key2dmode = %X\n"
-             "keyviewcycle = %X\n"
-             "key2dzoomin = %X\n"
-             "key2dzoomout = %X\n"
-             "keychat = %X\n"
+//             "keyviewcycle = %X\n"
+//             "key2dzoomin = %X\n"
+//             "key2dzoomout = %X\n"
+//             "keychat = %X\n"
 #endif
 //             "; Console key scancode, in hex\n"
              "keyconsole = %X\n"
@@ -597,13 +601,27 @@ int32_t writesetup(const char *fn)
              autogray, //showinnergray,
              graphicsmode,
              MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,
-#if 1
-             keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
-             keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],
-             keys[12], keys[13], keys[14], keys[15], keys[16], keys[17],
-             keys[18],
-#endif
-             keys[19]
+
+             keys[BK_MOVEFORWARD],
+             keys[BK_MOVEBACKWARD],
+             keys[BK_TURNLEFT],
+             keys[BK_TURNRIGHT],
+             keys[BK_RUN],
+             keys[BK_STRAFE],
+//             keys[BK_SHOOT],
+//             keys[BK_OPEN],
+             keys[BK_MOVEUP],
+             keys[BK_MOVEDOWN],
+//             keys[BK_LOOKUP],
+//             keys[BK_LOOKDOWN],
+//             keys[BK_STRAFELEFT],
+//             keys[BK_STRAFERIGHT],
+             keys[BK_MODE2D_3D],
+//             keys[BK_PLAYERVIEW],
+//             keys[BK_ZOOMIN],
+//             keys[BK_ZOOMOUT],
+//             keys[BK_MESSAGE],
+             keys[BK_CONSOLE]
             );
 
     for (i=0; i<256; i++)
