@@ -10792,6 +10792,7 @@ skip_reading_mapbin:
     uint8_t *fullboard = (uint8_t*)Xmalloc(boardsize);
     kread(fil, fullboard, boardsize);
     md4once(fullboard, boardsize, g_loadedMapMD4);
+    Bfree(fullboard);
 
     kclose(fil);
     // Done reading file.
