@@ -4072,7 +4072,7 @@ void polymost_drawsprite(int32_t snum)
             {
                 w = polymost_findwall(tspr, &walldist);
 
-                if (s != -1)
+                if (s != -1 && w != -1)
                 {
                     wallspriteinfo_t *ws = &wsprinfo[s];
 
