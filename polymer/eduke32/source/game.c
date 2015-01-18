@@ -4513,7 +4513,17 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 // To render a tilted screen in high quality, we need at least
                 // 640 pixels of *Y* dimension.
 #if MAXYDIM >= 640
-                if (xres > 320 || yres > 240)
+                // We also need
+                //  * xdim >= 640 since tiltcx will be passed as setview()'s x2
+                //    which must be less than xdim.
+                //  * ydim >= 640 (sic!) since the tile-to-draw-to will be set
+                //    up with dimension 400x640, but the engine's arrays like
+                //    lastx[] are alloc'd with *xdim* elements! (This point is
+                //    the dynamic counterpart of the #if above since we now
+                //    allocate these engine arrays tightly.)
+                // XXX: The engine should be in charge of setting up everything
+                // so that no oob access occur.
+                if (xdim >= 640 && ydim >= 640)
                 {
                     tiltcs = 2;
                     tiltcx = 640;
@@ -4524,8 +4534,12 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 {
                     // JBF 20030807: Increased tilted-screen quality
                     tiltcs = 1;
-                    tiltcx = 320;
-                    tiltcy = 200;
+
+                    // NOTE: The same reflections as above apply here, too.
+                    // XXX: Looking sideways at resolutions like 320x200 will
+                    // render only a squarish portion.
+                    tiltcx = min(320, ydim);
+                    tiltcy = 200*tiltcx/320;
                 }
 
                 {

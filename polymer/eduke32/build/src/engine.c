@@ -84,7 +84,6 @@ float debug1, debug2;
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
 usermaphack_t g_loadedMapHack;  // used only for the MD4 part
-uint8_t g_loadedMapMD4[16];
 
 int32_t compare_usermaphacks(const void *a, const void *b)
 {
@@ -3716,8 +3715,7 @@ static void setup_blend(int32_t blend, int32_t doreverse)
 static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
 {
     int32_t x, y1, y2;
-    int32_t twall, bwall;
-    const sectortype *sec = &sector[sectnum];
+    const sectortype *const sec = &sector[sectnum];
 
     if (setup_globals_cf1(sec, sec->ceilingpal, sec->ceilingz-globalposz,
                           sec->ceilingpicnum, sec->ceilingshade, sec->ceilingstat,
@@ -3729,7 +3727,9 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
         y1 = umost[x1]; y2 = y1;
         for (x=x1; x<=x2; x++)
         {
-            twall = umost[x]-1; bwall = min(uplc[x],dmost[x]);
+            const int32_t twall = umost[x]-1;
+            const int32_t bwall = min(uplc[x],dmost[x]);
+
             if (twall < bwall-1)
             {
                 if (twall >= y2)
@@ -3776,7 +3776,9 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
     y1 = umost[x1]; y2 = y1;
     for (x=x1; x<=x2; x++)
     {
-        twall = umost[x]-1; bwall = min(uplc[x],dmost[x]);
+        const int32_t twall = umost[x]-1;
+        const int32_t bwall = min(uplc[x],dmost[x]);
+
         if (twall < bwall-1)
         {
             if (twall >= y2)
@@ -3811,8 +3813,7 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
 static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
 {
      int32_t x, y1, y2;
-     int32_t twall, bwall;
-     const sectortype *sec = &sector[sectnum];
+     const sectortype *const sec = &sector[sectnum];
 
      if (setup_globals_cf1(sec, sec->floorpal, globalposz-sec->floorz,
                            sec->floorpicnum, sec->floorshade, sec->floorstat,
@@ -3824,7 +3825,9 @@ static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
         y1 = max(dplc[x1],umost[x1]); y2 = y1;
         for (x=x1; x<=x2; x++)
         {
-            twall = max(dplc[x],umost[x])-1; bwall = dmost[x];
+            const int32_t twall = max(dplc[x],umost[x])-1;
+            const int32_t bwall = dmost[x];
+
             if (twall < bwall-1)
             {
                 if (twall >= y2)
@@ -3871,7 +3874,9 @@ static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
     y1 = max(dplc[x1],umost[x1]); y2 = y1;
     for (x=x1; x<=x2; x++)
     {
-        twall = max(dplc[x],umost[x])-1; bwall = dmost[x];
+        const int32_t twall = max(dplc[x],umost[x])-1;
+        const int32_t bwall = dmost[x];
+
         if (twall < bwall-1)
         {
             if (twall >= y2)
@@ -15109,7 +15114,8 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     setaspect_new();
 
     for (i=0; i<windowx1; i++) { startumost[i] = 1, startdmost[i] = 0; }
-    for (i=windowx1; i<windowx2; i++)
+    Bassert(windowx2 < xdim);  // xdim is the number of alloc'd elements in start*most[].
+    for (i=windowx1; i<=windowx2; i++)
         { startumost[i] = windowy1, startdmost[i] = windowy2+1; }
     for (i=windowx2+1; i<xdim; i++) { startumost[i] = 1, startdmost[i] = 0; }
 }
