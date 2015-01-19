@@ -1004,15 +1004,13 @@ void Gv_ResetSystemDefaults(void)
 {
     // call many times...
 #if !defined LUNATIC
-    int32_t i;
-    int32_t j;
     char aszBuf[64];
 
     //AddLog("ResetWeaponDefaults");
 
-    for (j=MAXPLAYERS-1; j>=0; j--)
+    for (int j=MAXPLAYERS-1; j>=0; j--)
     {
-        for (i=MAX_WEAPONS-1; i>=0; i--)
+        for (int i=MAX_WEAPONS-1; i>=0; i--)
         {
             Bsprintf(aszBuf,"WEAPON%d_CLIP",i);
             aplWeaponClip[i][j]=Gv_GetVarByLabel(aszBuf,0, -1, j);
@@ -1075,10 +1073,12 @@ void Gv_ResetSystemDefaults(void)
     g_iActorVarID=Gv_GetVarIndex("actorvar");
 #endif
 
-    for (i = 0; i <= MAXTILES - 1; i++)
+    for (int i = 0; i <= MAXTILES - 1; i++)
         Bmemcpy(&ProjectileData[i], &g_tile[i].defproj, sizeof(projectile_t));
 
 #ifndef LUNATIC
+    int i;
+
     // hackhackhackhackhack
     if (i = hash_find(&h_arrays, "tilesizx"), i >= 0)
     {
@@ -1487,13 +1487,19 @@ static void Gv_AddSystemVars(void)
 
 void Gv_Init(void)
 {
+#if !defined LUNATIC
     // already initialized
     if (aGameVars[0].dwFlags)
         return;
 
-#if !defined LUNATIC
     Gv_Clear();
+#else
+    static int32_t inited=0;
+    if (inited)
+        return;
+    inited = 1;
 #endif
+
     // Set up weapon defaults, g_playerWeapon[][].
     Gv_AddSystemVars();
 #if !defined LUNATIC

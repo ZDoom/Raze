@@ -5736,7 +5736,7 @@ int32_t VM_CheckSquished2(int32_t i, int32_t snum)
     vm.g_i = i;
     vm.g_sp = &sprite[i];
     vm.g_p = snum;
-    vm.g_pp = &g_player[snum].ps;
+    vm.g_pp = g_player[snum].ps;
 
     return VM_CheckSquished();
 }

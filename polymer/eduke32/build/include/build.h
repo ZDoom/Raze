@@ -308,14 +308,18 @@ enum {
     SPR_ALIGN_MASK = 32+16,
 };
 
+#if !defined NEW_MAP_FORMAT
 #include "buildtypes.h"
 #define UNTRACKED_STRUCTS
 #undef buildtypes_h__
 #include "buildtypes.h"
 #undef UNTRACKED_STRUCTS
+#endif
 
 #ifdef NEW_MAP_FORMAT
 //////////////////// Lunatic new-generation map format ////////////////////
+
+#include "buildtypes.h"
 
 // 44 bytes
 typedef struct
@@ -505,6 +509,10 @@ static inline void inplace_vx_tweak_wall(walltypevx *vxwal, int32_t yaxp)
 
 typedef sectortypevx sectortype;
 typedef walltypevx walltype;
+
+typedef sectortype tsectortype;
+typedef walltype twalltype;
+typedef spritetype tspritetype;
 //////////////////// END Lunatic new-generation map format ////////////////
 #else
 typedef sectortypev7 sectortype;

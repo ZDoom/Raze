@@ -17,7 +17,7 @@ index 57a18fb..88e8a60 100644
 +++ b/makefile
 @@ -1,5 +1,8 @@
  LIBNAME = lpeg
--LUADIR = /usr/include/lua5.1/
+-LUADIR = ../lua/
 +# Linux example:
 +LUADIR = /usr/local/include/luajit-2.0
 +# Windows example (from MSYS bash):
@@ -41,10 +41,10 @@ index 57a18fb..88e8a60 100644
 +# 3. Build static lib (for EDuke32/Lunatic)
 +#  $ PIC='' make liblpeg.a
  
--CFLAGS = $(CWARNS) $(COPT) -ansi -I$(LUADIR) -fPIC
+-CFLAGS = $(CWARNS) $(COPT) -std=c99 -I$(LUADIR) -fPIC
 +PIC ?= -fPIC
 +
-+CFLAGS = $(CWARNS) $(COPT) -ansi -I$(LUADIR) $(PIC)
++CFLAGS = $(CWARNS) $(COPT) -std=c99 -I$(LUADIR) $(PIC)
  CC = gcc
  
  FILES = lpvm.o lpcap.o lptree.o lpcode.o lpprint.o

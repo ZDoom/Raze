@@ -6,6 +6,7 @@
 #undef SPRITETYPE
 
 #ifdef UNTRACKED_STRUCTS
+
 #pragma push_macro("Tracker")
 #undef Tracker
 #define Tracker(tracker, type) type
@@ -128,4 +129,5 @@ typedef struct
 #ifdef UNTRACKED_STRUCTS
 #pragma pop_macro("Tracker")
 #endif
+
 #endif // buildtypes_h__

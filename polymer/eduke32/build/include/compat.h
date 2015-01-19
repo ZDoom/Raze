@@ -209,21 +209,21 @@
 #ifndef DISABLE_INLINING
 # define EXTERN_INLINE static inline
 # define EXTERN_INLINE_HEADER static inline
-# ifndef FORCE_INLINE
-#  ifdef _MSC_VER    // Visual Studio
-#   define FORCE_INLINE static __forceinline
-#  else
-#   ifdef __GNUC__
-#     define FORCE_INLINE static inline __attribute__((always_inline))
-#   else
-#     define FORCE_INLINE static inline
-#   endif
-#  endif
-# endif
 #else
 # define EXTERN_INLINE __fastcall
 # define EXTERN_INLINE_HEADER extern __fastcall
-# define FORCE_INLINE
+#endif
+
+#ifndef FORCE_INLINE
+# ifdef _MSC_VER    // Visual Studio
+#  define FORCE_INLINE static __forceinline
+# else
+#  ifdef __GNUC__
+#    define FORCE_INLINE static inline __attribute__((always_inline))
+#  else
+#    define FORCE_INLINE static inline
+#  endif
+# endif
 #endif
 
 #if !defined DEBUG_MAIN_ARRAYS
