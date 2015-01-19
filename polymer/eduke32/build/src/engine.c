@@ -16539,6 +16539,8 @@ void qsetmodeany(int32_t daxdim, int32_t daydim)
         xdim = xres;
         ydim = yres;
 
+        initsmost();
+
         ydim16 = yres - STATUS2DSIZ2;
         halfxdim16 = xres >> 1;
         midydim16 = ydim16 >> 1; // scale(200,yres,480);
