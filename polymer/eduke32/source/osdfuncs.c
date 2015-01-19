@@ -127,7 +127,7 @@ void GAME_onshowosd(int32_t shown)
 {
     G_UpdateScreenArea();
 
-    AppGrabMouse(!shown | 2);
+    AppGrabMouse((!shown) | 2);
 
     osdshown = shown;
 
