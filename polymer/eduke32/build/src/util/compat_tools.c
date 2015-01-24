@@ -19,7 +19,7 @@ void initprintf(const char *f, ...)
     va_end(va);
 }
 
-int32_t editstatus = 1;
+int16_t editstatus = 1;
 
 #ifdef __cplusplus
 }
