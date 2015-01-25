@@ -2656,7 +2656,7 @@ CHECKINV1:
                     j = (j == 10 ? -1 : 1);     // JBF: prev (-1) or next (1) weapon choice
                     i = k;
 
-                    while ((k >= 0 && k < 10) || (PLUTOPAK && k == GROW_WEAPON))
+                    while ((k >= 0 && k < 11) || (PLUTOPAK && k == GROW_WEAPON))
                     {
                         // this accounts for the expander when handling next/previous
 
@@ -2693,6 +2693,8 @@ CHECKINV1:
                                     k--;
                                 break;
 
+                            case HANDREMOTE_WEAPON:
+                                i = k = HANDBOMB_WEAPON;
                             default:
                                 k += j;
                                 break;
