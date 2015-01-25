@@ -2654,57 +2654,48 @@ CHECKINV1:
                 {
                     k = p->curr_weapon;
                     j = (j == 10 ? -1 : 1);     // JBF: prev (-1) or next (1) weapon choice
-                    i = 0;
+                    i = k;
 
                     while ((k >= 0 && k < 10) || (PLUTOPAK && k == GROW_WEAPON))
                     {
-                        // this is handling next/previous with the grower selected
+                        // this accounts for the expander when handling next/previous
 
                         switch (k)
                         {
                             case DEVISTATOR_WEAPON:
                                 if ((int32_t) j == -1)
                                 {
-                                    if (PLUTOPAK && p->gotweapon & (1 << GROW_WEAPON) && p->ammo_amount[GROW_WEAPON] > 0)
-                                    {
+                                    if (PLUTOPAK)
                                         k = GROW_WEAPON;
-                                        p->subweapon |= (1<<GROW_WEAPON);
-                                    }
                                     else
-                                    {
-                                        k = SHRINKER_WEAPON;
-                                        p->subweapon &= ~(1 << GROW_WEAPON);
-                                    }
+                                        k--;
                                 }
-                                else k++;
+                                else
+                                    k++;
                                 break;
+
                             case GROW_WEAPON:
                                 if ((int32_t)j == -1)
-                                {
-                                    if (PLUTOPAK && p->gotweapon & (1 << SHRINKER_WEAPON) && p->ammo_amount[SHRINKER_WEAPON] > 0)
-                                    {
-                                        k = SHRINKER_WEAPON;
-                                        p->subweapon &= ~(1 << GROW_WEAPON);
-                                    }
-                                    else
-                                        k = HANDBOMB_WEAPON;
-                                }
-                                else k = DEVISTATOR_WEAPON;
+                                    k = SHRINKER_WEAPON;
+                                else
+                                    k = DEVISTATOR_WEAPON;
                                 break;
+
                             case SHRINKER_WEAPON:
                                 if ((int32_t)j == 1)
                                 {
-                                    if (PLUTOPAK && p->gotweapon & (1 << GROW_WEAPON) && p->ammo_amount[GROW_WEAPON] > 0)
-                                    {
+                                    if (PLUTOPAK)
                                         k = GROW_WEAPON;
-                                        p->subweapon |= (1<<GROW_WEAPON);
-                                    }
                                     else
                                         k++;
                                 }
-                                else k--;
+                                else
+                                    k--;
                                 break;
-                            default: k += j; break;
+
+                            default:
+                                k += j;
+                                break;
                         }
 
                         if (k == -1) k = FREEZE_WEAPON;
@@ -2716,12 +2707,17 @@ CHECKINV1:
                             break;
                         }
 
-                        if (++i == 10) // absolutely no weapons, so use foot
+                        if (i == k) // absolutely no weapons, so use foot
                         {
                             j = KNEE_WEAPON;
                             break;
                         }
                     }
+
+                    if (j == SHRINKER_WEAPON)
+                        p->subweapon &= ~(1 << GROW_WEAPON);
+                    else if (j == GROW_WEAPON)
+                        p->subweapon |= (1<<GROW_WEAPON);
                 }
 
                 P_SetWeaponGamevars(snum, p);
