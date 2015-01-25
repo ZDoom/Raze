@@ -632,6 +632,7 @@ int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer)
         case GAMEVAR_INTPTR: rv = ((*((int32_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult; break;
         case GAMEVAR_SHORTPTR: rv = ((*((int16_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult; break;
         case GAMEVAR_CHARPTR: rv = ((*((char *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult; break;
+        default: EDUKE32_UNREACHABLE_SECTION(rv = 0; break);
     }
 
     return rv;
