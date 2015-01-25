@@ -410,7 +410,7 @@ int32_t MV_PlayFLAC3D
    right = MV_PanTable[ angle ][ volume ].right;
    mid   = max( 0, 255 - distance );
 
-   status = MV_PlayFLAC(ptr, ptrlength, pitchoffset, loophow, -1, mid, left, right, priority, callbackval);
+   status = MV_PlayFLAC(ptr, ptrlength, loophow, -1, pitchoffset, mid, left, right, priority, callbackval);
 
    return status;
 }
@@ -519,7 +519,7 @@ int32_t MV_PlayFLAC
 
     // parse metadata
     // loop parsing designed with multiple repetitions in mind
-    // In retrospect, it may be possible to MV_GetVorbisCommentLoops(voice, (vorbis_comment *) tags->data.vorbis_comment)
+    // In retrospect, it may be possible to MV_GetVorbisCommentLoops(voice, (vorbis_comment *) &tags->data.vorbis_comment)
     // but libvorbisfile may be confused by the signedness of char* vs FLAC__byte* and this code does not depend on HAVE_VORBIS.
     metadata_chain = FLAC__metadata_chain_new();
     if (metadata_chain != NULL)
@@ -588,7 +588,7 @@ int32_t MV_PlayFLAC
                         }
                     }
 
-                    FLAC__metadata_object_delete(tags); // If it wasn't for this I would assign pointers instead of strdup().
+                    FLAC__metadata_object_delete(tags); // If it were not for this, I would assign pointers instead of strdup().
                 }
                 while (FLAC__metadata_iterator_next(metadata_iterator));
 
