@@ -80,17 +80,18 @@
 
 #ifdef __APPLE__
 # include <TargetConditionals.h>
-# if !TARGET_OS_IPHONE
+# if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+#  define EDUKE32_IOS
+# else
+#  define EDUKE32_OSX
 #  if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
 #   include <CoreFoundation/CoreFoundation.h>
 #  endif
 #  include <CoreServices/CoreServices.h>
-# else
-#  define EDUKE32_TOUCH_DEVICES
 # endif
 #endif
 
-#ifdef __ANDROID__
+#if defined __ANDROID__ || defined EDUKE32_IOS
 # define EDUKE32_TOUCH_DEVICES
 #endif
 

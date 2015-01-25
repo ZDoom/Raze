@@ -161,7 +161,7 @@ int32_t wm_msgbox(const char *name, const char *fmt, ...)
     vsnprintf(buf,sizeof(buf),fmt,va);
     va_end(va);
 
-#if defined(__APPLE__) && !TARGET_OS_IPHONE
+#if defined EDUKE32_OSX
     return osx_msgbox(name, buf);
 #elif defined HAVE_GTK2
     if (gtkbuild_msgbox(name, buf) >= 0) return 1;
@@ -206,7 +206,7 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
     vsprintf(buf,fmt,va);
     va_end(va);
 
-#if defined __APPLE__ && !TARGET_OS_IPHONE
+#if defined EDUKE32_OSX
     return osx_ynbox(name, buf);
 #elif defined HAVE_GTK2
     {

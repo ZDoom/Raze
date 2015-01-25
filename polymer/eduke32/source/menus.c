@@ -1867,7 +1867,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                                                         "to upgrade to the full registered\n"
                                                         "version of Duke Nukem 3D.");
 #else
-# if defined __APPLE__ && TARGET_OS_IPHONE
+# if defined EDUKE32_IOS
         mgametextcenter(origin.x, origin.y + (121<<16), "Please visit the App Store\n"
                                                         "to upgrade to the full registered\n"
                                                         "version of Duke Nukem 3D.");
@@ -2022,7 +2022,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         creditsminitext(origin.x + (160<<16), origin.y + ((90+7+10-l)<<16), "Evan \"Hendricks266\" Ramos", 8);
 
 #ifdef DROIDMENU
-# if defined __APPLE__ && TARGET_OS_IPHONE
+# if defined EDUKE32_IOS
         mgametextcenter(origin.x, origin.y + ((110+7-l)<<16), "iOS support programming");
 # else
         mgametextcenter(origin.x, origin.y + ((110+7-l)<<16), "Android support programming");
