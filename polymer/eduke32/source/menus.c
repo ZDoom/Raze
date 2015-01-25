@@ -3458,7 +3458,6 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
             uint8_t status = 0;
             int32_t height, x;
             vec2_t textsize;
-            int32_t dodraw = entry->type != Spacer;
 
             if (entry == NULL)
                 continue;
@@ -3472,7 +3471,7 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
             if (entry->format->width == 0)
                 status |= MT_XCenter;
 
-            dodraw &= 0 <= y - menu->scrollPos + entry->font->yline && y - menu->scrollPos <= klabs(menu->format->bottomcutoff) - menu->format->pos.y;
+            const int32_t dodraw = entry->type != Spacer && 0 <= y - menu->scrollPos + entry->font->yline && y - menu->scrollPos <= klabs(menu->format->bottomcutoff) - menu->format->pos.y;
 
             if (dodraw)
                 textsize = M_MenuText(origin.x + x, origin.y + y_upper + y - menu->scrollPos, entry->font, entry->name, status, origin.y + y_upper, origin.y + y_lower);
@@ -4048,7 +4047,6 @@ static void M_RunMenu_MenuOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_
         uint8_t status = 0;
         int32_t height, x;
         vec2_t textsize;
-        int32_t dodraw = 1;
 
         x = object->options->menuFormat->pos.x;
 
@@ -4057,7 +4055,7 @@ static void M_RunMenu_MenuOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_
         if (object->options->entryFormat->width == 0)
             status |= MT_XCenter;
 
-        dodraw &= 0 <= y - object->options->scrollPos + object->options->font->yline && y - object->options->scrollPos <= object->options->menuFormat->bottomcutoff - object->options->menuFormat->pos.y;
+        const int32_t dodraw = 0 <= y - object->options->scrollPos + object->options->font->yline && y - object->options->scrollPos <= object->options->menuFormat->bottomcutoff - object->options->menuFormat->pos.y;
 
         if (dodraw)
             textsize = M_MenuText(origin.x + x, origin.y + y_upper + y - object->options->scrollPos, object->options->font, object->options->optionNames[e], status, origin.y + y_upper, origin.y + y_lower);
