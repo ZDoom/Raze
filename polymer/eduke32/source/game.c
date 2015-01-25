@@ -9255,16 +9255,29 @@ static void G_ShowDebugHelp(void)
 #endif
 }
 
+static int32_t S_DefineAudioIfSupported(char **fn, const char *name)
+{
+#if !defined HAVE_FLAC || !defined HAVE_VORBIS
+    const char *extension = Bstrrchr(name, '.');
+# if !defined HAVE_FLAC
+    if (!Bstrcasecmp(extension, ".flac"))
+        return -2;
+# endif
+# if !defined HAVE_VORBIS
+    if (!Bstrcasecmp(extension, ".ogg"))
+        return -2;
+# endif
+#endif
+    realloc_copy(fn, name);
+    return 0;
+}
+
 static int32_t S_DefineSound(int32_t ID, const char *name)
 {
     if ((unsigned)ID >= MAXSOUNDS)
-        return 1;
+        return -1;
 
-    realloc_copy(&g_sounds[ID].filename, name);
-
-//    S_LoadSound(ID);
-
-    return 0;
+    return S_DefineAudioIfSupported(&g_sounds[ID].filename, name);
 }
 
 // Returns:
@@ -9295,9 +9308,7 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
             return -1;
     }
 
-    realloc_copy(&MapInfo[sel].musicfn, name);
-
-    return 0;
+    return S_DefineAudioIfSupported(&MapInfo[sel].musicfn, name);
 }
 
 static int32_t parsedefinitions_game(scriptfile *script, int32_t preload);
@@ -9612,7 +9623,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 if (check_file_exist(fn))
                     break;
 
-                if (S_DefineSound(num,fn))
+                if (S_DefineSound(num,fn) == -1)
                     initprintf("Error: invalid sound ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
             }
         }
