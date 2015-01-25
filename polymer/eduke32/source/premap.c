@@ -286,9 +286,13 @@ static int32_t G_CacheSound(uint32_t num)
     if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
 
-    if (!g_sounds[num].filename && !g_sounds[num].filename1) return 0;
-    if (g_sounds[num].filename1) fp = kopen4loadfrommod(g_sounds[num].filename1,g_loadFromGroupOnly);
-    if (fp == -1) fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
+    if (EDUKE32_PREDICT_FALSE(!g_sounds[num].filename)) return 0;
+
+#if defined HAVE_FLAC || defined HAVE_VORBIS
+    fp = S_UpgradeFormat(g_sounds[num].filename, g_loadFromGroupOnly);
+    if (fp == -1)
+#endif
+        fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
     if (fp == -1)
     {
 //        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
@@ -439,7 +443,7 @@ void G_CacheMapData(void)
     if (MapInfo[MUS_LOADING].musicfn)
     {
         S_StopMusic();
-        S_PlayMusic(MapInfo[MUS_LOADING].musicfn, MUS_LOADING);
+        S_PlayMusic(MapInfo[MUS_LOADING].musicfn);
     }
 
     starttime = getticks();
@@ -1356,7 +1360,7 @@ void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
     if (ln == 0 && vn == 3 && (!g_netServer && ud.multimode < 2) && ud.lockout == 0
             && (G_GetLogoFlags() & LOGO_NOE4CUTSCENE)==0)
     {
-        S_PlayMusic(MapInfo[MUS_BRIEFING].musicfn, MUS_BRIEFING);
+        S_PlayMusic(MapInfo[MUS_BRIEFING].musicfn);
 
         flushperms();
         setview(0,0,xdim-1,ydim-1);
@@ -1723,14 +1727,6 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
     }
 }
 
-static void G_ReallocCopyMusicName(int32_t level_number, const char *levnamebuf, int32_t altp)
-{
-    char **musfn = altp ? &MapInfo[level_number].ext_musicfn : &MapInfo[level_number].musicfn;
-    uint8_t len = Bstrlen(levnamebuf) + 1;
-    *musfn = (char *)Xrealloc(*musfn, len);
-    Bstrncpy(*musfn, levnamebuf, len);
-}
-
 // levnamebuf should have at least size BMAX_PATH
 void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int32_t level_number)
 {
@@ -1763,13 +1759,12 @@ void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int3
         if ((fil = kopen4loadfrommod(levnamebuf, 0)) != -1)
         {
             kclose(fil);
-            G_ReallocCopyMusicName(level_number, levnamebuf, i < (ARRAY_SIZE(exts) - 1));
+            realloc_copy(&MapInfo[level_number].musicfn, levnamebuf);
             return;
         }
     }
 
-    DO_FREE_AND_NULL(MapInfo[level_number].ext_musicfn);
-    G_ReallocCopyMusicName(level_number, "dethtoll.mid", 0);
+    realloc_copy(&MapInfo[level_number].musicfn, "dethtoll.mid");
 }
 
 static inline int G_HaveUserMap(void)
@@ -1918,7 +1913,7 @@ int32_t G_EnterLevel(int32_t g)
     {
         g_musicIndex = mii;
         if (MapInfo[g_musicIndex].musicfn != NULL)
-            S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
+            S_PlayMusic(MapInfo[g_musicIndex].musicfn);
     }
 
     if (g & (MODE_GAME|MODE_EOL))

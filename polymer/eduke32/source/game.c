@@ -8598,10 +8598,9 @@ void G_StartMusic(void)
     Bassert(MapInfo[i].musicfn != NULL);
 
     {
-        int32_t res = S_PlayMusic(MapInfo[i].musicfn, i);
+        S_PlayMusic(MapInfo[i].musicfn);
 
-        Bsnprintf(ScriptQuotes[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s",
-                  res ? MapInfo[i].ext_musicfn : MapInfo[i].musicfn);
+        Bsnprintf(ScriptQuotes[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", MapInfo[i].musicfn);
         P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
     }
 }
@@ -9054,9 +9053,7 @@ FAKE_F3:
 
             KB_ClearKeyDown(sc_F5);
 
-            if (map->ext_musicfn != NULL)
-                Bstrncpyz(qmusic, map->ext_musicfn, MAXQUOTELEN);
-            else if (map->musicfn != NULL)
+            if (map->musicfn != NULL)
                 Bsnprintf(qmusic, MAXQUOTELEN, "%s.  Use SHIFT-F5 to change.",
                           map->musicfn);
             else
@@ -9258,36 +9255,13 @@ static void G_ShowDebugHelp(void)
 #endif
 }
 
-static char *S_OggifyFilename(char *outputname, const char *newname, const char *origname)
-{
-    if (!origname)
-        return outputname;
-
-    outputname = (char *)Xrealloc(outputname, Bstrlen(newname) + Bstrlen(origname) + 1);
-
-    Bstrcpy(outputname, *newname ? newname : origname);
-
-    // a special case for specifying a prefix directory
-    if (*newname && newname[Bstrlen(newname)-1] == '/')
-    {
-        while (*origname == '/')
-            origname++;
-        Bstrcat(outputname, origname);
-    }
-
-    if (Bstrchr(outputname, '.') == NULL)
-        Bstrcat(outputname, ".ogg");
-
-    return outputname;
-}
-
 static int32_t S_DefineSound(int32_t ID, const char *name)
 {
     if ((unsigned)ID >= MAXSOUNDS)
         return 1;
 
-    g_sounds[ID].filename1 = S_OggifyFilename(g_sounds[ID].filename1, name, g_sounds[ID].filename);
-//    initprintf("(%s)(%s)(%s)\n",g_sounds[ID].filename1,name,g_sounds[ID].filename);
+    realloc_copy(&g_sounds[ID].filename, name);
+
 //    S_LoadSound(ID);
 
     return 0;
@@ -9296,7 +9270,6 @@ static int32_t S_DefineSound(int32_t ID, const char *name)
 // Returns:
 //   0: all OK
 //  -1: ID declaration was invalid:
-//  -2: map has no .musicfn (and hence will not be considered even if it has an .alt_musicfn)
 static int32_t S_DefineMusic(const char *ID, const char *name)
 {
     int32_t sel = MUS_FIRST_SPECIAL;
@@ -9322,29 +9295,9 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
             return -1;
     }
 
-    ID = MapInfo[sel].musicfn;
+    realloc_copy(&MapInfo[sel].musicfn, name);
 
-    {
-        map_t *map = &MapInfo[sel];
-        const int special = (sel >= MUS_FIRST_SPECIAL);
-
-        map->ext_musicfn = S_OggifyFilename(map->ext_musicfn, name, ID);
-
-        // If we are given a music file name for a proper level that has no
-        // primary music defined, set it up as both.
-        if (map->ext_musicfn == NULL && !special && ID == 0 && name)
-        {
-            map->musicfn = dup_filename(name);
-            map->ext_musicfn = dup_filename(name);
-        }
-
-
-//        initprintf("%-15s | ",ID);
-//        initprintf("%3d %2d %2d | %s\n",sel,ep,lev,MapInfo[sel].alt_musicfn);
-//        S_PlayMusic(ID,sel);
-
-        return map->musicfn || special ? 0 : -2;
-    }
+    return 0;
 }
 
 static int32_t parsedefinitions_game(scriptfile *script, int32_t preload);
@@ -9491,9 +9444,6 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 if (res == -1)
                     initprintf("Error: invalid music ID on line %s:%d\n",
                                script->filename, scriptfile_getlinum(script,tinttokptr));
-                else if (res == -2)
-                    initprintf("Error: %s has no primary (CON) music on line %s:%d\n",
-                               ID, script->filename, scriptfile_getlinum(script,tinttokptr));
             }
         }
         break;
@@ -10488,7 +10438,7 @@ static void G_DisplayLogo(void)
         if (logoflags & LOGO_PLAYMUSIC)
         {
             g_musicIndex = MUS_INTRO;
-            S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
+            S_PlayMusic(MapInfo[g_musicIndex].musicfn);
         }
 
         if (!NAM)
@@ -10676,7 +10626,6 @@ static void G_Cleanup(void)
         if (MapInfo[i].name != NULL) Bfree(MapInfo[i].name);
         if (MapInfo[i].filename != NULL) Bfree(MapInfo[i].filename);
         if (MapInfo[i].musicfn != NULL) Bfree(MapInfo[i].musicfn);
-        if (MapInfo[i].ext_musicfn != NULL) Bfree(MapInfo[i].ext_musicfn);
 
         G_FreeMapState(i);
     }
@@ -10696,7 +10645,6 @@ static void G_Cleanup(void)
     for (i=MAXSOUNDS-1; i>=0; i--)
     {
         if (g_sounds[i].filename != NULL) Bfree(g_sounds[i].filename);
-        if (g_sounds[i].filename1 != NULL) Bfree(g_sounds[i].filename1);
     }
 #if !defined LUNATIC
     if (label != NULL && label != (char *)&sprite[0]) Bfree(label);

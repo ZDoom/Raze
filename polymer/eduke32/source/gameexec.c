@@ -1105,7 +1105,7 @@ int32_t G_StartTrack(int32_t level)
         {
             // Only set g_musicIndex on success.
             g_musicIndex = musicIndex;
-            S_PlayMusic(MapInfo[musicIndex].musicfn, g_musicIndex);
+            S_PlayMusic(MapInfo[musicIndex].musicfn);
 
             return 0;
         }

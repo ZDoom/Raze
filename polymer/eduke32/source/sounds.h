@@ -60,17 +60,17 @@ int32_t EnumAudioDevs(struct audioenumdrv **wave, struct audioenumdev **midi, st
 
 typedef struct
 {
-    int16_t voice;
-    int16_t ow;
     uint32_t sndist;
     uint32_t clock;
+    int16_t voice;
+    int16_t ow;
 } SOUNDOWNER;
 
 
 typedef struct
 {
+    char *filename, *ptr; // 8b/16b
     int32_t  length, num, soundsiz; // 12b
-    char *filename, *ptr, *filename1; // 12b/24b
     SOUNDOWNER SoundOwner[MAXSOUNDINSTANCES]; // 64b
     int16_t ps,pe,vo; // 6b
     char pr,m; // 2b
@@ -95,7 +95,7 @@ void S_MusicStartup(void);
 void S_MusicVolume(int32_t volume);
 void S_RestartMusic(void);
 void S_PauseMusic(int32_t onf);
-int32_t S_PlayMusic(const char *fn,const int32_t sel);
+int32_t S_PlayMusic(const char *fn);
 int32_t S_PlaySound(int32_t num);
 int32_t S_PlaySound3D(int32_t num,int32_t i,const vec3_t *pos);
 void S_SoundShutdown(void);

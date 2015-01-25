@@ -1062,3 +1062,41 @@ int32_t G_LoadLookups(void)
 
     return 0;
 }
+
+#if defined HAVE_FLAC || defined HAVE_VORBIS
+int32_t S_UpgradeFormat(const char *fn, char searchfirst)
+{
+    char *testfn, *extension;
+    int32_t fp = -1;
+
+    testfn = (char *)Xmalloc(Bstrlen(fn) + 6);
+    Bstrcpy(testfn, fn);
+    extension = Bstrrchr(testfn, '.');
+
+    if (extension)
+    {
+#ifdef HAVE_FLAC
+        Bstrcpy(extension, ".flac");
+        fp = kopen4loadfrommod(testfn, searchfirst);
+        if (fp >= 0)
+        {
+            Bfree(testfn);
+            return fp;
+        }
+#endif
+
+#ifdef HAVE_VORBIS
+        Bstrcpy(extension, ".ogg");
+        fp = kopen4loadfrommod(testfn, searchfirst);
+        if (fp >= 0)
+        {
+            Bfree(testfn);
+            return fp;
+        }
+#endif
+    }
+
+    Bfree(testfn);
+    return -1;
+}
+#endif

@@ -1995,7 +1995,7 @@ static void postloadplayer(int32_t savegamep)
                 S_StopMusic();
 
                 g_musicIndex = musicIdx;
-                S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
+                S_PlayMusic(MapInfo[g_musicIndex].musicfn);
             }
 
             S_PauseMusic(0);

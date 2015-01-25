@@ -79,6 +79,13 @@ static inline char *dup_filename(const char *fn)
     return Bstrncpyz(buf, fn, BMAX_PATH);
 }
 
+static inline void realloc_copy(char **fn, const char *buf)
+{
+    uint8_t len = Bstrlen(buf) + 1;
+    *fn = (char *)Xrealloc(*fn, len);
+    Bstrncpy(*fn, buf, len);
+}
+
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
 int32_t G_CheckCmdSwitch(int32_t argc, const char **argv, const char *str);

@@ -595,7 +595,7 @@ typedef struct {
 
 typedef struct {
     int32_t partime, designertime;
-    char *name, *filename, *musicfn, *alt_musicfn;
+    char *name, *filename, *musicfn;
     void *savedstate;
 } map_t;
 ]])

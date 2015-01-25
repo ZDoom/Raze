@@ -123,6 +123,12 @@ extern uint8_t *basepaltable[BASEPALCOUNT];
 
 extern int32_t G_LoadLookups(void);
 
+//////////
+
+#if defined HAVE_FLAC || defined HAVE_VORBIS
+int32_t S_UpgradeFormat(const char *fn, char searchfirst);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

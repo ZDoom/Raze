@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osd.h"
 #include "sounds.h"
 
+#include "common_game.h"
+
 #ifdef _WIN32
 #include "winlayer.h"
 #endif
@@ -173,11 +175,11 @@ void S_RestartMusic(void)
     if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
     {
         if (MapInfo[g_musicIndex].musicfn != NULL)
-            S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
+            S_PlayMusic(MapInfo[g_musicIndex].musicfn);
     }
     else if (MapInfo[MUS_INTRO].musicfn != 0)
     {
-        S_PlayMusic(MapInfo[MUS_INTRO].musicfn, MUS_INTRO);
+        S_PlayMusic(MapInfo[MUS_INTRO].musicfn);
     }
 }
 
@@ -208,58 +210,20 @@ void S_MenuSound(void)
     S_PlaySound(menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
 }
 
-int32_t S_PlayMusic(const char *fn, const int32_t sel)
+int32_t S_PlayMusic(const char *fn)
 {
-    const char *const ofn = fn;
-    char *testfn, *extension;
     int32_t fp, MusicLen;
-    const char *alt = 0;
 
     if (ud.config.MusicToggle == 0) return 0;
     if (ud.config.MusicDevice < 0) return 0;
 
-    if (MapInfo[sel].ext_musicfn != NULL)
-        alt = fn = MapInfo[sel].ext_musicfn;
-
     if (fn == NULL)
         return 0;
 
-    testfn = (char *)Xmalloc(strlen(fn) + 6);
-    strcpy(testfn, fn);
-    extension = strrchr(testfn, '.');
-
-    do
-    {
-        if (extension && !Bstrcasecmp(extension, ".mid"))
-        {
-            // we've been asked to load a .mid file, but first let's see
-            // if there's a flac or an ogg with the same base name lying around
-            strcpy(extension, ".flac");
-            fp = kopen4loadfrommod(testfn, 0);
-            if (fp >= 0)
-            {
-                Bfree(testfn);
-                break;
-            }
-
-            strcpy(extension, ".ogg");
-            fp = kopen4loadfrommod(testfn, 0);
-            if (fp >= 0)
-            {
-                Bfree(testfn);
-                break;
-            }
-        }
-
-        Bfree(testfn);
-
-        // just use what we've been given
+#if defined HAVE_FLAC || defined HAVE_VORBIS
+    if ((fp = S_UpgradeFormat(fn, 0)) < 0)
+#endif
         fp = kopen4loadfrommod(fn, 0);
-
-        if (alt && fp < 0)
-            fp = kopen4loadfrommod(ofn, 0);
-    }
-    while (0);
 
     if (EDUKE32_PREDICT_FALSE(fp < 0))
     {
@@ -308,7 +272,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
             MusicIsWaveform = 1;
     }
 
-    return (alt != 0);
+    return 0;
 }
 
 int32_t S_GetMusicPosition(void)
@@ -420,16 +384,16 @@ int32_t S_LoadSound(uint32_t num)
 
     if (num > (unsigned)g_maxSoundPos || ud.config.SoundToggle == 0 || ud.config.FXDevice < 0) return 0;
 
-    if (EDUKE32_PREDICT_FALSE(g_sounds[num].filename == NULL && g_sounds[num].filename1 == NULL))
+    if (EDUKE32_PREDICT_FALSE(g_sounds[num].filename == NULL))
     {
         OSD_Printf(OSD_ERROR "Sound (#%d) not defined!\n",num);
         return 0;
     }
 
-    if (g_sounds[num].filename1)
-        fp = kopen4loadfrommod(g_sounds[num].filename1,g_loadFromGroupOnly);
-
+#if defined HAVE_FLAC || defined HAVE_VORBIS
+    fp = S_UpgradeFormat(g_sounds[num].filename, g_loadFromGroupOnly);
     if (fp == -1)
+#endif
     {
         fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
 
@@ -767,7 +731,7 @@ int32_t S_PlaySound(int32_t num)
     if (ud.config.FXDevice < 0) return -1;
     if (ud.config.SoundToggle==0) return -1;
 
-    if ((unsigned)num > (unsigned)g_maxSoundPos || (g_sounds[num].filename == NULL && g_sounds[num].filename1 == NULL))
+    if ((unsigned)num > (unsigned)g_maxSoundPos || g_sounds[num].filename == NULL)
     {
         OSD_Printf("WARNING: invalid sound #%d\n",num);
         return -1;
