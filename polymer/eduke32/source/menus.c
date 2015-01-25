@@ -2929,22 +2929,33 @@ static Menu_t* M_FindMenu(MenuID_t query)
 
 typedef struct MenuAnimation_t
 {
-    int32_t (*func)(void);
-    Menu_t *a;
-    Menu_t *b;
+    int32_t (*out)(MenuAnimation_t *);
+    int32_t (*in)(MenuAnimation_t *);
+
+    Menu_t *previous;
+    Menu_t *current;
+
     int32_t start;
     int32_t length;
 } MenuAnimation_t;
 
 static MenuAnimation_t m_animation;
 
-int32_t M_Anim_SinRight(void)
+int32_t M_Anim_SinOutRight(MenuAnimation_t *animdata)
 {
-    return sintable[scale(1024, totalclock - m_animation.start, m_animation.length) + 512] + 16384;
+    return sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] - 16384;
 }
-int32_t M_Anim_SinLeft(void)
+int32_t M_Anim_SinInRight(MenuAnimation_t *animdata)
 {
-    return -sintable[scale(1024, totalclock - m_animation.start, m_animation.length) + 512] + 16384;
+    return sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] + 16384;
+}
+int32_t M_Anim_SinOutLeft(MenuAnimation_t *animdata)
+{
+    return -sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] + 16384;
+}
+int32_t M_Anim_SinInLeft(MenuAnimation_t *animdata)
+{
+    return -sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] - 16384;
 }
 
 void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype)
@@ -2952,22 +2963,24 @@ void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype)
     switch (animtype)
     {
         case MA_Advance:
-            m_animation.func = M_Anim_SinRight;
+            m_animation.out = M_Anim_SinOutRight;
+            m_animation.in = M_Anim_SinInRight;
             m_animation.start = totalclock;
             m_animation.length = 30;
 
-            m_animation.a = m_currentMenu;
+            m_animation.previous = m_currentMenu;
             M_ChangeMenu(cm);
-            m_animation.b = m_currentMenu;
+            m_animation.current = m_currentMenu;
             break;
         case MA_Return:
-            m_animation.func = M_Anim_SinLeft;
+            m_animation.out = M_Anim_SinOutLeft;
+            m_animation.in = M_Anim_SinInLeft;
             m_animation.start = totalclock;
             m_animation.length = 30;
 
-            m_animation.b = m_currentMenu;
+            m_animation.previous = m_currentMenu;
             M_ChangeMenu(cm);
-            m_animation.a = m_currentMenu;
+            m_animation.current = m_currentMenu;
             break;
         default:
             m_animation.start = 0;
@@ -5518,11 +5531,11 @@ void M_DisplayMenus(void)
         vec2_t previousOrigin = { 0, 0 };
         const int32_t screenwidth = scale(240<<16, xdim, ydim);
 
-        origin.x = scale(screenwidth, m_animation.func(), 32768);
-        previousOrigin.x = origin.x - screenwidth;
+        origin.x = scale(screenwidth, m_animation.in(&m_animation), 32768);
+        previousOrigin.x = scale(screenwidth, m_animation.out(&m_animation), 32768);
 
-        M_RunMenu(m_animation.a, previousOrigin);
-        M_RunMenu(m_animation.b, origin);
+        M_RunMenu(m_animation.previous, previousOrigin);
+        M_RunMenu(m_animation.current, origin);
     }
     else
         M_RunMenu(m_currentMenu, origin);
