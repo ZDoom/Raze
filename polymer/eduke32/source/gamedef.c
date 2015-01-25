@@ -656,6 +656,8 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_CHANGEMENU",
     "EVENT_DAMAGEHPLANE",
     "EVENT_ACTIVATECHEAT",
+    "EVENT_DISPLAYINACTIVEMENU",
+    "EVENT_DISPLAYINACTIVEMENUREST",
 #ifdef LUNATIC
     "EVENT_ANIMATEALLSPRITES",
 #endif
@@ -1053,6 +1055,9 @@ const memberlabel_t UserdefsLabels[]=
     { "foly", USERDEFS_FOLY, 0, 0 },
     { "fola", USERDEFS_FOLA, 0, 0 },
     { "reccnt", USERDEFS_RECCNT, 0, 0 },
+
+    { "m_origin_x", USERDEFS_M_ORIGIN_X, 0, 0 },
+    { "m_origin_y", USERDEFS_M_ORIGIN_Y, 0, 0 },
 
     { "entered_name", USERDEFS_ENTERED_NAME, 0, 0 },
     { "screen_tilting", USERDEFS_SCREEN_TILTING, 0, 0 },

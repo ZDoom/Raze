@@ -512,6 +512,8 @@ typedef struct {
     int32_t m_ffire,ffire,m_player_skill,m_level_number,m_volume_number,multimode;
     int32_t player_skill,level_number,volume_number,m_marker,marker,mouseflip;
 
+    vec2_t m_origin;
+
     int32_t configversion;
 
     int16_t pause_on,from_bonus;

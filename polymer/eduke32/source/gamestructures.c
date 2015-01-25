@@ -145,6 +145,8 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             case USERDEFS_WEAPONSCALE: ud.weaponscale = iSet; break;
             case USERDEFS_TEXTSCALE: ud.textscale = iSet; break;
             case USERDEFS_RUNKEY_MODE: ud.runkey_mode = iSet; break;
+            case USERDEFS_M_ORIGIN_X: ud.m_origin.x = iSet; break;
+            case USERDEFS_M_ORIGIN_Y: ud.m_origin.y = iSet; break;
             default: break;
         }
     }
@@ -247,6 +249,8 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             case USERDEFS_WEAPONSCALE: lLabelID = ud.weaponscale; break;
             case USERDEFS_TEXTSCALE: lLabelID = ud.textscale; break;
             case USERDEFS_RUNKEY_MODE: lLabelID = ud.runkey_mode; break;
+            case USERDEFS_M_ORIGIN_X: lLabelID = ud.m_origin.x; break;
+            case USERDEFS_M_ORIGIN_Y: lLabelID = ud.m_origin.y; break;
             default: lLabelID = -1; break;
         }
         Gv_SetVarX(lVar2, lLabelID);

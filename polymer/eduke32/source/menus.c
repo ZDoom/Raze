@@ -5490,7 +5490,7 @@ static void M_RunMenuInput(Menu_t *cm)
 // This function MUST NOT RECURSE. That is why M_RunMenu is separate.
 void M_DisplayMenus(void)
 {
-    vec2_t origin = { 0, 0 };
+    vec2_t origin = { 0, 0 }, previousOrigin = { 0, 0 };
 
     Net_GetPackets();
 
@@ -5509,7 +5509,22 @@ void M_DisplayMenus(void)
 
     M_RunMenuInput(m_currentMenu);
 
-    VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek);
+    // Determine animation values.
+    if (totalclock < m_animation.start + m_animation.length)
+    {
+        const int32_t screenwidth = scale(240<<16, xdim, ydim);
+
+        origin.x = scale(screenwidth, m_animation.in(&m_animation), 32768);
+        previousOrigin.x = scale(screenwidth, m_animation.out(&m_animation), 32768);
+
+        ud.m_origin = previousOrigin;
+        VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENU, g_player[screenpeek].ps->i, screenpeek, m_animation.previous->menuID);
+        previousOrigin = ud.m_origin;
+    }
+
+    ud.m_origin = origin;
+    VM_OnEventWithReturn(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, g_currentMenu);
+    origin = ud.m_origin;
 
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     g_player[myconnectindex].ps->fta = 0;
@@ -5528,12 +5543,6 @@ void M_DisplayMenus(void)
     // Display the menu, with a transition animation if applicable.
     if (totalclock < m_animation.start + m_animation.length)
     {
-        vec2_t previousOrigin = { 0, 0 };
-        const int32_t screenwidth = scale(240<<16, xdim, ydim);
-
-        origin.x = scale(screenwidth, m_animation.in(&m_animation), 32768);
-        previousOrigin.x = scale(screenwidth, m_animation.out(&m_animation), 32768);
-
         M_RunMenu(m_animation.previous, previousOrigin);
         M_RunMenu(m_animation.current, origin);
     }
@@ -5545,8 +5554,14 @@ void M_DisplayMenus(void)
         m_menuchange_watchpoint = 0;
 #endif
 
-    if (VM_HaveEvent(EVENT_DISPLAYMENUREST))
-        VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek);
+    if (totalclock < m_animation.start + m_animation.length)
+    {
+        ud.m_origin = previousOrigin;
+        VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENUREST, g_player[screenpeek].ps->i, screenpeek, m_animation.previous->menuID);
+    }
+
+    ud.m_origin = origin;
+    VM_OnEventWithReturn(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek, g_currentMenu);
 
 #if !defined EDUKE32_TOUCH_DEVICES
     if (tilesiz[CROSSHAIR].x > 0 && mousestatus)

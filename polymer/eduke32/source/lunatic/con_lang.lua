@@ -170,10 +170,13 @@ EVENT = {
     EVENT_CHANGEMENU = 94,
     EVENT_DAMAGEHPLANE = 95,
     EVENT_ACTIVATECHEAT = 96,
---    EVENT_ANIMATEALLSPRITES = 97,  -- internal
+    EVENT_DISPLAYINACTIVEMENU = 97,
+    EVENT_DISPLAYINACTIVEMENUREST = 98,
+--    EVENT_ANIMATEALLSPRITES = previous+1,  -- internal
+-- KEEPINSYNC with MAXEVENTS below
 }
 
-MAXEVENTS = 97  -- KEEPINSYNC with above EVENT_* list
+MAXEVENTS = 99  -- KEEPINSYNC with above EVENT_* list
 
 -- NOTE: negated values are not exported to the ffi.C namespace or CON.
 -- See TWEAK_SFLAG below.
@@ -857,6 +860,8 @@ local UserdefLabels = {
     level_number = { UD".level_number", UD":set_level_number(%%s)", {0, MAXLEVELS-1} },
     levelstats = UD".levelstats",
     lockout = UDRO".lockout",
+    m_origin_x = UD".m_origin.x",
+    m_origin_y = UD".m_origin.y",
     m_player_skill = UDRO".m_player_skill",
     m_volume_number = { UD".m_volume_number", UD":set_m_volume_number(%%s)", {0, MAXVOLUMES} },
     mouseaiming = UD".mouseaiming",
