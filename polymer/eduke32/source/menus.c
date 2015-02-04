@@ -2929,8 +2929,8 @@ static Menu_t* M_FindMenu(MenuID_t query)
 
 typedef struct MenuAnimation_t
 {
-    int32_t (*out)(MenuAnimation_t *);
-    int32_t (*in)(MenuAnimation_t *);
+    int32_t (*out)(struct MenuAnimation_t *);
+    int32_t (*in)(struct MenuAnimation_t *);
 
     Menu_t *previous;
     Menu_t *current;
