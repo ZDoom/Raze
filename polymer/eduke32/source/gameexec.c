@@ -920,6 +920,46 @@ static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
 }
 #endif
 
+static int32_t A_GetVerticalVel(const actor_t *ac)
+{
+#ifdef LUNATIC
+    return ac->mv.vvel;
+#else
+    int32_t moveScriptOfs = AC_MOVE_ID(ac->t_data);
+
+    if ((unsigned)moveScriptOfs < (unsigned)g_scriptSize-1)
+        return script[moveScriptOfs + 1];
+    else
+        return 0;
+#endif
+}
+
+static int32_t A_GetWaterZOffset(int spritenum)
+{
+    const spritetype *const sp = &sprite[spritenum];
+    const actor_t *const ac = &actor[spritenum];
+
+    if (sector[sp->sectnum].lotag == ST_1_ABOVE_WATER)
+    {
+        switch (DYNAMICTILEMAP(sp->picnum))
+        {
+        case OCTABRAIN__STATIC:
+        case COMMANDER__STATIC:
+        case DRONE__STATIC:
+            return 0;
+        }
+
+        // fix for flying/jumping monsters getting stuck in water
+        if ((AC_MOVFLAGS(sp, ac) & jumptoplayer_only) ||
+            (G_HaveActor(sp->picnum) && A_GetVerticalVel(ac) != 0))
+            return 0;
+
+        return ACTOR_ONWATER_ADDZ;
+    }
+
+    return 0;
+}
+
 static void VM_Fall(int32_t g_i, spritetype *g_sp)
 {
     int32_t grav = g_spriteGravity;
@@ -990,38 +1030,7 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
 
     if (sector[g_sp->sectnum].lotag == ST_1_ABOVE_WATER)
     {
-        switch (DYNAMICTILEMAP(g_sp->picnum))
-        {
-        case OCTABRAIN__STATIC:
-        case COMMANDER__STATIC:
-        case DRONE__STATIC:
-            break;
-
-        default:
-        {
-#if !defined LUNATIC
-            int32_t moveScriptOfs = AC_MOVE_ID(vm.g_t);
-#endif
-            // fix for flying/jumping monsters getting stuck in water
-            if ((AC_MOVFLAGS(g_sp, &actor[vm.g_i]) & jumptoplayer_only) ||
-                (G_HaveActor(g_sp->picnum) &&
-#if !defined LUNATIC
-                 (unsigned)moveScriptOfs < (unsigned)g_scriptSize-1 && script[moveScriptOfs + 1] != 0
-#else
-                 actor[g_i].mv.vvel != 0
-#endif
-                    ))
-            {
-                break;
-            }
-
-
-            z += ACTOR_ONWATER_ADDZ;
-            break;
-        }
-        }
-
-        g_sp->z = z;
+        g_sp->z = z + A_GetWaterZOffset(g_i);
         return;
     }
 
