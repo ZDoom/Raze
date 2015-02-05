@@ -666,7 +666,6 @@ GAMEEXEC_STATIC void VM_Move(void)
     const uint16_t *movflagsptr = &AC_MOVFLAGS(vm.g_sp, &actor[vm.g_i]);
     const int32_t movflags = /*(*movflagsptr==-1) ? 0 :*/ *movflagsptr;
     const int32_t deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
-    int32_t badguyp;
 
     AC_COUNT(vm.g_t)++;
 
@@ -734,7 +733,7 @@ dead:
     if (vm.g_sp->xvel > -6 && vm.g_sp->xvel < 6)
         vm.g_sp->xvel = 0;
 
-    badguyp = A_CheckEnemySprite(vm.g_sp);
+    int badguyp = A_CheckEnemySprite(vm.g_sp);
 
     if (vm.g_sp->xvel || vm.g_sp->zvel)
     {
@@ -789,9 +788,12 @@ dead:
             {
                 // All other actors besides ORGANTIC don't update .floorz or
                 // .ceilingz here.
-                if (vm.g_sp->zvel > 0 && actor[vm.g_i].floorz < vm.g_sp->z)
-                    vm.g_sp->z = actor[vm.g_i].floorz;
-                if (vm.g_sp->zvel < 0)
+                if (vm.g_sp->zvel > 0)
+                {
+                    if (vm.g_sp->z > actor[vm.g_i].floorz)
+                        vm.g_sp->z = actor[vm.g_i].floorz;
+                }
+                else if (vm.g_sp->zvel < 0)
                 {
                     const int32_t l = VM_GetCeilZOfSlope();
 
@@ -840,7 +842,7 @@ dead:
                            (daxvel * (sintable[angdif & 2047])) >> 14, vm.g_sp->zvel };
 
         actor[vm.g_i].movflag =
-        A_MoveSprite(vm.g_i, &tmpvect, (A_CheckSpriteFlags(vm.g_i, SFLAG_NOCLIP) ? 0 : CLIPMASK0));
+            A_MoveSprite(vm.g_i, &tmpvect, (A_CheckSpriteFlags(vm.g_i, SFLAG_NOCLIP) ? 0 : CLIPMASK0));
     }
 
     if (!badguyp)
@@ -939,20 +941,23 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
     {
         // Free fall.
         g_sp->zvel = min(g_sp->zvel+grav, ACTOR_MAXFALLINGZVEL);
-        g_sp->z += g_sp->zvel;
+        int32_t z = g_sp->z + g_sp->zvel;
+
 #ifdef YAX_ENABLE
         if (yax_getbunch(g_sp->sectnum, YAX_FLOOR) >= 0 &&
                 (sector[g_sp->sectnum].floorstat&512)==0)
             setspritez(g_i, (vec3_t *)g_sp);
         else
 #endif
-            if (g_sp->z > actor[g_i].floorz - ZOFFSET)
-                g_sp->z = actor[g_i].floorz - ZOFFSET;
+            if (z > actor[g_i].floorz - ZOFFSET)
+                z = actor[g_i].floorz - ZOFFSET;
+
+        g_sp->z = z;
         return;
     }
 
-    // SET_SPRITE_Z
-    g_sp->z = actor[g_i].floorz - ZOFFSET;
+    // Preliminary new z position of the actor.
+    int32_t z = actor[g_i].floorz - ZOFFSET;
 
     if (A_CheckEnemySprite(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
     {
@@ -983,17 +988,6 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
         }
     }
 
-#if 0
-    if (g_sp->z > actor[g_i].floorz - ZOFFSET)
-    {
-        // Unreachable because of SET_SPRITE_Z.
-        A_GetZLimits(g_i);
-        if (actor[g_i].floorz != sector[g_sp->sectnum].floorz)
-            g_sp->z = (actor[g_i].floorz - ZOFFSET);
-        return;
-    }
-#endif
-
     if (sector[g_sp->sectnum].lotag == ST_1_ABOVE_WATER)
     {
         switch (DYNAMICTILEMAP(g_sp->picnum))
@@ -1018,19 +1012,20 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
 #endif
                     ))
             {
-//                OSD_Printf("%d\n", (int)script[moveScriptOfs + 1]);
                 break;
             }
 
-//            OSD_Printf("movflags: %d | %d\n", AC_MOVFLAGS(g_sp, &actor[vm.g_i]), totalclock);
-            g_sp->z += ACTOR_ONWATER_ADDZ;
+
+            z += ACTOR_ONWATER_ADDZ;
             break;
         }
         }
 
+        g_sp->z = z;
         return;
     }
 
+    g_sp->z = z;
     g_sp->zvel = 0;
 }
 
