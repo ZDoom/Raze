@@ -656,6 +656,8 @@ static int32_t VM_GetFlorZOfSlope(void)
 
 ////////////////////
 
+static int32_t A_GetWaterZOffset(int spritenum);
+
 GAMEEXEC_STATIC void VM_Move(void)
 {
 #if !defined LUNATIC
@@ -792,6 +794,7 @@ dead:
                 {
                     if (vm.g_sp->z > actor[vm.g_i].floorz)
                         vm.g_sp->z = actor[vm.g_i].floorz;
+                    vm.g_sp->z += A_GetWaterZOffset(vm.g_i);
                 }
                 else if (vm.g_sp->zvel < 0)
                 {
