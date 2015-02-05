@@ -1890,11 +1890,11 @@ function _starttrack(level)
 end
 
 function _getmusicposition()
-    return ffic.S_GetMusicPosition()
+    return ffiC.S_GetMusicPosition()
 end
 
 function _setmusicposition(position)
-    ffic.S_SetMusicPosition(position)
+    ffiC.S_SetMusicPosition(position)
 end
 
 function _startlevel(volume, level)
