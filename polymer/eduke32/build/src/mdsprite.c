@@ -1416,7 +1416,7 @@ static md3model_t *md3load(int32_t fil)
 
     klseek(fil,m->head.ofssurfs,SEEK_SET); i = m->head.numsurfs*sizeof(md3surf_t);
     m->head.surfs = (md3surf_t *)Xmalloc(i);
-    m->head.surfs[0].geometry = NULL;  // for deferred polymer model postprocessing (else: crashes)
+    m->head.surfs[0].geometry = NULL;  // for POLYMER_MD_PROCESS_CHECK (else: crashes)
 
 #if B_BIG_ENDIAN != 0
     {
@@ -1695,9 +1695,9 @@ int      md3postload_polymer(md3model_t *m)
 {
 #ifdef POLYMER
     int         framei, surfi, verti, trii, i;
-    md3surf_t   *s;
     float       vec1[5], vec2[5], mat[9], r;
 
+    // POLYMER_MD_PROCESS_CHECK
     if (m->head.surfs[0].geometry)
         return -1;  // already postprocessed
 
@@ -1711,7 +1711,7 @@ int      md3postload_polymer(md3model_t *m)
     {
         handleevents();
 
-        s = &m->head.surfs[surfi];
+        md3surf_t *const s = &m->head.surfs[surfi];
 #ifdef DEBUG_MODEL_MEM
         i = (m->head.numframes * s->numverts * sizeof(float) * 15);
         if (i > 1<<20)
@@ -2392,8 +2392,6 @@ static void md3free(md3model_t *m)
 {
     mdanim_t *anim, *nanim = NULL;
     mdskinmap_t *sk, *nsk = NULL;
-    md3surf_t *s;
-    int32_t surfi;
 
     if (!m) return;
 
@@ -2411,10 +2409,11 @@ static void md3free(md3model_t *m)
 
     if (m->head.surfs)
     {
-        for (surfi=m->head.numsurfs-1; surfi>=0; surfi--)
+        for (int surfi=m->head.numsurfs-1; surfi>=0; surfi--)
         {
-            s = &m->head.surfs[surfi];
-            if (s->tris) Bfree(s->tris);
+            md3surf_t *s = &m->head.surfs[surfi];
+            Bfree(s->tris);
+            Bfree(s->geometry);
         }
         Bfree(m->head.surfs);
     }
