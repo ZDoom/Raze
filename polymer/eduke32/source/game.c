@@ -10784,16 +10784,20 @@ static void A_InitEnemyFlags(void)
         LIZMAN, LIZMANSPITTING, LIZMANJUMP, ORGANTIC,
         BOSS1, BOSS2, BOSS3, BOSS4, RAT, ROTATEGUN };
 
-    int32_t i, SolidEnemies[] = { TANK, BOSS1, BOSS2, BOSS3, BOSS4, RECON, ROTATEGUN };
+    int32_t SolidEnemies[] = { TANK, BOSS1, BOSS2, BOSS3, BOSS4, RECON, ROTATEGUN };
+    int32_t NoWaterDipEnemies[] = { OCTABRAIN, COMMANDER, DRONE };
 
-    for (i=GREENSLIME; i<=GREENSLIME+7; i++)
+    for (int i=GREENSLIME; i<=GREENSLIME+7; i++)
         SETFLAG(i, SFLAG_HARDCODED_BADGUY);
 
-    for (i=ARRAY_SIZE(DukeEnemies)-1; i>=0; i--)
+    for (int i=ARRAY_SIZE(DukeEnemies)-1; i>=0; i--)
         SETFLAG(DukeEnemies[i], SFLAG_HARDCODED_BADGUY);
 
-    for (i=ARRAY_SIZE(SolidEnemies)-1; i>=0; i--)
+    for (int i=ARRAY_SIZE(SolidEnemies)-1; i>=0; i--)
         SETFLAG(SolidEnemies[i], SFLAG_NODAMAGEPUSH);
+
+    for (int i=ARRAY_SIZE(NoWaterDipEnemies)-1; i>=0; i--)
+        SETFLAG(NoWaterDipEnemies[i], SFLAG_NOWATERDIP);
 }
 #undef SETFLAG
 

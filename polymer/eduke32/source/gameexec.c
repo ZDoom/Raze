@@ -944,13 +944,8 @@ static int32_t A_GetWaterZOffset(int spritenum)
 
     if (sector[sp->sectnum].lotag == ST_1_ABOVE_WATER)
     {
-        switch (DYNAMICTILEMAP(sp->picnum))
-        {
-        case OCTABRAIN__STATIC:
-        case COMMANDER__STATIC:
-        case DRONE__STATIC:
+        if (A_CheckSpriteFlags(spritenum, SFLAG_NOWATERDIP))
             return 0;
-        }
 
         // fix for flying/jumping monsters getting stuck in water
         if ((AC_MOVFLAGS(sp, ac) & jumptoplayer_only) ||
