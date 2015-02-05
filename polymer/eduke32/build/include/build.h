@@ -585,7 +585,7 @@ EXTERN spritesmooth_t spritesmooth[MAXSPRITES+MAXUNIQHUDID];
 EXTERN sectortype sector[MAXSECTORS + M32_FIXME_SECTORS];
 EXTERN walltype wall[MAXWALLS + M32_FIXME_WALLS];
 EXTERN spritetype sprite[MAXSPRITES];
-EXTERN spritetype tsprite[MAXSPRITESONSCREEN];
+EXTERN tspritetype tsprite[MAXSPRITESONSCREEN];
 #endif
 
 EXTERN uint32_t sectorchanged[MAXSECTORS + M32_FIXME_SECTORS];
