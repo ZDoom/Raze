@@ -3366,68 +3366,64 @@ static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
 //
 static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
 {
-    int32_t bad, inty, xcross;
-    int32_t s1, s2, s3, s4, ix1, ix2, iy1, iy2, t;
-    int32_t i;
-
     z <<= 7;
-    s1 = mulscale20(globaluclip,yb1[w]); s2 = mulscale20(globaluclip,yb2[w]);
-    s3 = mulscale20(globaldclip,yb1[w]); s4 = mulscale20(globaldclip,yb2[w]);
-    bad = (z<s1)+((z<s2)<<1)+((z>s3)<<2)+((z>s4)<<3);
+    const int32_t s1 = mulscale20(globaluclip,yb1[w]), s2 = mulscale20(globaluclip,yb2[w]);
+    const int32_t s3 = mulscale20(globaldclip,yb1[w]), s4 = mulscale20(globaldclip,yb2[w]);
+    const int32_t bad = (z<s1)+((z<s2)<<1)+((z>s3)<<2)+((z>s4)<<3);
 
-    ix1 = xb1[w]; iy1 = yb1[w];
-    ix2 = xb2[w]; iy2 = yb2[w];
+    int32_t ix1 = xb1[w], iy1 = yb1[w];
+    int32_t ix2 = xb2[w], iy2 = yb2[w];
 
     if ((bad&3) == 3)
     {
-        for (i=ix1; i<=ix2; i++)
+        for (int i=ix1; i<=ix2; i++)
             mostbuf[i] = 0;
         return bad;
     }
 
     if ((bad&12) == 12)
     {
-        for (i=ix1; i<=ix2; i++)
+        for (int i=ix1; i<=ix2; i++)
             mostbuf[i] = ydimen;
         return bad;
     }
 
     if (bad&3)
     {
-        t = divscale30(z-s1,s2-s1);
-        inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
-        xcross = xb1[w] + scale(mulscale30(yb2[w],t),xb2[w]-xb1[w],inty);
+        int32_t t = divscale30(z-s1,s2-s1);
+        int32_t inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
+        int32_t xcross = xb1[w] + scale(mulscale30(yb2[w],t),xb2[w]-xb1[w],inty);
 
         if ((bad&3) == 2)
         {
             if (xb1[w] <= xcross) { iy2 = inty; ix2 = xcross; }
-            for (i=xcross+1; i<=xb2[w]; i++)
+            for (int i=xcross+1; i<=xb2[w]; i++)
                 mostbuf[i] = 0;
         }
         else
         {
             if (xcross <= xb2[w]) { iy1 = inty; ix1 = xcross; }
-            for (i=xb1[w]; i<=xcross; i++)
+            for (int i=xb1[w]; i<=xcross; i++)
                 mostbuf[i] = 0;
         }
     }
 
     if (bad&12)
     {
-        t = divscale30(z-s3,s4-s3);
-        inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
-        xcross = xb1[w] + scale(mulscale30(yb2[w],t),xb2[w]-xb1[w],inty);
+        int32_t t = divscale30(z-s3,s4-s3);
+        int32_t inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
+        int32_t xcross = xb1[w] + scale(mulscale30(yb2[w],t),xb2[w]-xb1[w],inty);
 
         if ((bad&12) == 8)
         {
             if (xb1[w] <= xcross) { iy2 = inty; ix2 = xcross; }
-            for (i=xcross+1; i<=xb2[w]; i++)
+            for (int i=xcross+1; i<=xb2[w]; i++)
                 mostbuf[i] = ydimen;
         }
         else
         {
             if (xcross <= xb2[w]) { iy1 = inty; ix1 = xcross; }
-            for (i=xb1[w]; i<=xcross; i++)
+            for (int i=xb1[w]; i<=xcross; i++)
                 mostbuf[i] = ydimen;
         }
     }
@@ -3457,9 +3453,8 @@ static inline int32_t wallmost_getz(int32_t fw, int32_t t, int32_t z,
 //
 static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat)
 {
-    int32_t bad, i, t, z, inty, intz, xcross, fw;
-    int32_t x1, y1, z1, x2, y2, z2, xv, yv, dx, dy, dasqr, oz1, oz2;
-    int32_t s1, s2, s3, s4, ix1, ix2, iy1, iy2;
+    int32_t t, z;
+    int32_t xv, yv;
 
     if (dastat == 0)
     {
@@ -3474,16 +3469,17 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
             return owallmost(mostbuf,w,z);
     }
 
-    i = thewall[w];
-    if (i == sector[sectnum].wallptr)
+    const int wi = thewall[w];
+    if (wi == sector[sectnum].wallptr)
         return owallmost(mostbuf,w,z);
 
-    x1 = wall[i].x; x2 = wall[wall[i].point2].x-x1;
-    y1 = wall[i].y; y2 = wall[wall[i].point2].y-y1;
+    const walltype *const wal = &wall[wi];
+    const int32_t x1 = wal->x, x2 = wall[wal->point2].x-x1;
+    const int32_t y1 = wal->y, y2 = wall[wal->point2].y-y1;
 
-    fw = sector[sectnum].wallptr; i = wall[fw].point2;
-    dx = wall[i].x-wall[fw].x; dy = wall[i].y-wall[fw].y;
-    dasqr = krecipasm(nsqrtasm(uhypsq(dx,dy)));
+    const int w1 = sector[sectnum].wallptr, w2 = wall[w1].point2;
+    const int32_t dx = wall[w2].x-wall[w1].x, dy = wall[w2].y-wall[w1].y;
+    const int32_t dasqr = krecipasm(nsqrtasm(uhypsq(dx,dy)));
 
     if (dastat == 0)
     {
@@ -3501,34 +3497,34 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
         { xv = cosglobalang+sinviewingrangeglobalang; yv = singlobalang-cosviewingrangeglobalang; }
     else
         { xv = x1-globalposx; yv = y1-globalposy; }
-    z1 = wallmost_getz(fw, t, z, x1, y1, x2, y2, xv, yv, dx, dy);
+    int32_t z1 = wallmost_getz(w1, t, z, x1, y1, x2, y2, xv, yv, dx, dy);
 
 
     if (xb2[w] == xdimen-1)
         { xv = cosglobalang-sinviewingrangeglobalang; yv = singlobalang+cosviewingrangeglobalang; }
     else
         { xv = (x2+x1)-globalposx; yv = (y2+y1)-globalposy; }
-    z2 = wallmost_getz(fw, t, z, x1, y1, x2, y2, xv, yv, dx, dy);
+    int32_t z2 = wallmost_getz(w1, t, z, x1, y1, x2, y2, xv, yv, dx, dy);
 
 
-    s1 = mulscale20(globaluclip,yb1[w]); s2 = mulscale20(globaluclip,yb2[w]);
-    s3 = mulscale20(globaldclip,yb1[w]); s4 = mulscale20(globaldclip,yb2[w]);
-    bad = (z1<s1)+((z2<s2)<<1)+((z1>s3)<<2)+((z2>s4)<<3);
+    const int32_t s1 = mulscale20(globaluclip,yb1[w]), s2 = mulscale20(globaluclip,yb2[w]);
+    const int32_t s3 = mulscale20(globaldclip,yb1[w]), s4 = mulscale20(globaldclip,yb2[w]);
+    const int32_t bad = (z1<s1)+((z2<s2)<<1)+((z1>s3)<<2)+((z2>s4)<<3);
 
-    ix1 = xb1[w]; ix2 = xb2[w];
-    iy1 = yb1[w]; iy2 = yb2[w];
-    oz1 = z1; oz2 = z2;
+    int32_t ix1 = xb1[w], ix2 = xb2[w];
+    int32_t iy1 = yb1[w], iy2 = yb2[w];
+    const int32_t oz1 = z1, oz2 = z2;
 
     if ((bad&3) == 3)
     {
-        for (i=ix1; i<=ix2; i++)
+        for (int i=ix1; i<=ix2; i++)
             mostbuf[i] = 0;
         return bad;
     }
 
     if ((bad&12) == 12)
     {
-        for (i=ix1; i<=ix2; i++)
+        for (int i=ix1; i<=ix2; i++)
             mostbuf[i] = ydimen;
         return bad;
     }
@@ -3537,9 +3533,9 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
     {
         //inty = intz / (globaluclip>>16)
         t = divscale30(oz1-s1,s2-s1+oz1-oz2);
-        inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
-        intz = oz1 + mulscale30(oz2-oz1,t);
-        xcross = xb1[w] + scale(mulscale30(yb2[w],t),xb2[w]-xb1[w],inty);
+        int32_t inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
+        int32_t intz = oz1 + mulscale30(oz2-oz1,t);
+        int32_t xcross = xb1[w] + scale(mulscale30(yb2[w],t),xb2[w]-xb1[w],inty);
 
         //t = divscale30((x1<<4)-xcross*yb1[w],xcross*(yb2[w]-yb1[w])-((x2-x1)<<4));
         //inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
@@ -3548,13 +3544,13 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
         if ((bad&3) == 2)
         {
             if (xb1[w] <= xcross) { z2 = intz; iy2 = inty; ix2 = xcross; }
-            for (i=xcross+1; i<=xb2[w]; i++)
+            for (int i=xcross+1; i<=xb2[w]; i++)
                 mostbuf[i] = 0;
         }
         else
         {
             if (xcross <= xb2[w]) { z1 = intz; iy1 = inty; ix1 = xcross; }
-            for (i=xb1[w]; i<=xcross; i++)
+            for (int i=xb1[w]; i<=xcross; i++)
                 mostbuf[i] = 0;
         }
     }
@@ -3563,9 +3559,9 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
     {
         //inty = intz / (globaldclip>>16)
         t = divscale30(oz1-s3,s4-s3+oz1-oz2);
-        inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
-        intz = oz1 + mulscale30(oz2-oz1,t);
-        xcross = xb1[w] + scale(mulscale30(yb2[w],t),xb2[w]-xb1[w],inty);
+        int32_t inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
+        int32_t intz = oz1 + mulscale30(oz2-oz1,t);
+        int32_t xcross = xb1[w] + scale(mulscale30(yb2[w],t),xb2[w]-xb1[w],inty);
 
         //t = divscale30((x1<<4)-xcross*yb1[w],xcross*(yb2[w]-yb1[w])-((x2-x1)<<4));
         //inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
@@ -3574,13 +3570,13 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
         if ((bad&12) == 8)
         {
             if (xb1[w] <= xcross) { z2 = intz; iy2 = inty; ix2 = xcross; }
-            for (i=xcross+1; i<=xb2[w]; i++)
+            for (int i=xcross+1; i<=xb2[w]; i++)
                 mostbuf[i] = ydimen;
         }
         else
         {
             if (xcross <= xb2[w]) { z1 = intz; iy1 = inty; ix1 = xcross; }
-            for (i=xb1[w]; i<=xcross; i++)
+            for (int i=xb1[w]; i<=xcross; i++)
                 mostbuf[i] = ydimen;
         }
     }
