@@ -55,13 +55,22 @@ L_State g_engState;
 
 #define CACHEAGETIME 16
 
+//////////
+// Compilation switches for optional/extended engine features
+
 #if !defined(__arm__) && !defined(GEKKO)
-#define HIGH_PRECISION_SPRITE
+# define HIGH_PRECISION_SPRITE
+#endif
+
+#if !defined EDUKE32_TOUCH_DEVICES && !defined GEKKO && !defined __OPENDINGUX__
+// Handle absolute z difference of floor/ceiling to camera >= 1<<24.
+# define CLASSIC_Z_DIFF_64
 #endif
 
 #define MULTI_COLUMN_VLINE
 //#define DEBUG_TILESIZY_512
 //#define DEBUG_TILEOFFSETS
+//////////
 
 #ifdef LUNATIC
 # if !defined DEBUG_MAIN_ARRAYS
@@ -3361,14 +3370,32 @@ static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
         mostbuf[ix2] = ydimen;
 }
 
+#ifdef CLASSIC_Z_DIFF_64
+typedef int64_t zint_t;
+
+static inline zint_t mulscale20z(int32_t a, int32_t d)
+{
+    return ((zint_t)a * d)>>20;
+}
+
+static inline zint_t dmulscale24z(int32_t a, int32_t d, int32_t S, int32_t D)
+{
+    return (((zint_t)a * d) + ((zint_t)S * D)) >> 24;
+}
+#else
+typedef int32_t zint_t;
+# define mulscale20z mulscale20
+# define dmulscale24z dmulscale24
+#endif
+
 //
 // owallmost (internal)
 //
-static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
+static int32_t owallmost(int16_t *mostbuf, int32_t w, zint_t z)
 {
     z <<= 7;
-    const int32_t s1 = mulscale20(globaluclip,yb1[w]), s2 = mulscale20(globaluclip,yb2[w]);
-    const int32_t s3 = mulscale20(globaldclip,yb1[w]), s4 = mulscale20(globaldclip,yb2[w]);
+    const zint_t s1 = mulscale20z(globaluclip,yb1[w]), s2 = mulscale20z(globaluclip,yb2[w]);
+    const zint_t s3 = mulscale20z(globaldclip,yb1[w]), s4 = mulscale20z(globaldclip,yb2[w]);
     const int32_t bad = (z<s1)+((z<s2)<<1)+((z>s3)<<2)+((z>s4)<<3);
 
     int32_t ix1 = xb1[w], iy1 = yb1[w];
@@ -3433,9 +3460,9 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
     return bad;
 }
 
-static inline int32_t wallmost_getz(int32_t fw, int32_t t, int32_t z,
-                                    int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                                    int32_t xv, int32_t yv, int32_t dx, int32_t dy)
+static inline zint_t wallmost_getz(int32_t fw, int32_t t, zint_t z,
+                                   int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                                   int32_t xv, int32_t yv, int32_t dx, int32_t dy)
 {
     // XXX: OVERFLOW with huge sectors and sloped ceilngs/floors!
     int32_t i = xv*(y1-globalposy) - yv*(x1-globalposx);
@@ -3444,8 +3471,8 @@ static inline int32_t wallmost_getz(int32_t fw, int32_t t, int32_t z,
     if (klabs(j) > klabs(i>>3))
         i = divscale28(i,j);
 
-    return dmulscale24(dx*t, mulscale20(y2,i)+((y1-wall[fw].y)<<8),
-                       -dy*t, mulscale20(x2,i)+((x1-wall[fw].x)<<8)) + ((z-globalposz)<<7);
+    return dmulscale24z(dx*t, mulscale20z(y2,i)+((y1-wall[fw].y)<<8),
+                        -dy*t, mulscale20z(x2,i)+((x1-wall[fw].x)<<8)) + ((z-globalposz)<<7);
 }
 
 //
@@ -3497,23 +3524,22 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
         { xv = cosglobalang+sinviewingrangeglobalang; yv = singlobalang-cosviewingrangeglobalang; }
     else
         { xv = x1-globalposx; yv = y1-globalposy; }
-    int32_t z1 = wallmost_getz(w1, t, z, x1, y1, x2, y2, xv, yv, dx, dy);
+    zint_t z1 = wallmost_getz(w1, t, z, x1, y1, x2, y2, xv, yv, dx, dy);
 
 
     if (xb2[w] == xdimen-1)
         { xv = cosglobalang-sinviewingrangeglobalang; yv = singlobalang+cosviewingrangeglobalang; }
     else
         { xv = (x2+x1)-globalposx; yv = (y2+y1)-globalposy; }
-    int32_t z2 = wallmost_getz(w1, t, z, x1, y1, x2, y2, xv, yv, dx, dy);
+    zint_t z2 = wallmost_getz(w1, t, z, x1, y1, x2, y2, xv, yv, dx, dy);
 
 
-    const int32_t s1 = mulscale20(globaluclip,yb1[w]), s2 = mulscale20(globaluclip,yb2[w]);
-    const int32_t s3 = mulscale20(globaldclip,yb1[w]), s4 = mulscale20(globaldclip,yb2[w]);
+    const zint_t s1 = mulscale20(globaluclip,yb1[w]), s2 = mulscale20(globaluclip,yb2[w]);
+    const zint_t s3 = mulscale20(globaldclip,yb1[w]), s4 = mulscale20(globaldclip,yb2[w]);
     const int32_t bad = (z1<s1)+((z2<s2)<<1)+((z1>s3)<<2)+((z2>s4)<<3);
 
     int32_t ix1 = xb1[w], ix2 = xb2[w];
     int32_t iy1 = yb1[w], iy2 = yb2[w];
-    const int32_t oz1 = z1, oz2 = z2;
 
     if ((bad&3) == 3)
     {
@@ -3528,6 +3554,8 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
             mostbuf[i] = ydimen;
         return bad;
     }
+
+    const int32_t oz1 = z1, oz2 = z2;
 
     if (bad&3)
     {
