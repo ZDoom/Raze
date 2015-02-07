@@ -1033,7 +1033,7 @@ int32_t OSD_HandleChar(char ch)
         if (!lastmatch)
         {
             for (i=osd->editor.pos; i>0; i--) if (osd->editor.buf[i-1] == ' ') break;
-            for (j=0; osd->editor.buf[i] != ' ' && i < osd->editor.len; j++,i++)
+            for (j=0; i < osd->editor.len && osd->editor.buf[i] != ' '; j++,i++)
                 osd->editor.tmp[j] = osd->editor.buf[i];
             osd->editor.tmp[j] = 0;
 
