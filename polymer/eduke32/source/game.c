@@ -4510,6 +4510,13 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             }
             else
             {
+                // Maximum possible allocation size passed to allocache() below
+                // since there is no equivalent of free() for allocache().
+#if MAXYDIM >= 640
+                const int maxtiltallocsiz = 640*640;
+#else
+                const int maxtileallocsiz = 320*320;
+#endif
                 // To render a tilted screen in high quality, we need at least
                 // 640 pixels of *Y* dimension.
 #if MAXYDIM >= 640
@@ -4536,10 +4543,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                     tiltcs = 1;
 
                     // NOTE: The same reflections as above apply here, too.
-                    // XXX: Looking sideways at resolutions like 320x200 will
-                    // render only a squarish portion.
-                    tiltcx = min(320, ydim);
-                    tiltcy = 200*tiltcx/320;
+                    // TILT_SETVIEWTOTILE_320.
+                    tiltcx = 320;
+                    tiltcy = 200;
                 }
 
                 {
@@ -4551,7 +4557,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
                     walock[TILE_TILT] = 255;
                     if (waloff[TILE_TILT] == 0)
-                        allocache(&waloff[TILE_TILT], viewtilexsiz*viewtileysiz, &walock[TILE_TILT]);
+                        allocache(&waloff[TILE_TILT], maxtiltallocsiz, &walock[TILE_TILT]);
 
                     setviewtotile(TILE_TILT, viewtilexsiz, viewtileysiz);
                 }

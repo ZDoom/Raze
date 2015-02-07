@@ -11619,6 +11619,8 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 static void initsmost(void)
 {
     int32_t i;
+    // Needed for the game's TILT_SETVIEWTOTILE_320.
+    const int32_t clamped_ydim = max(ydim, 320);
 
     struct
     {
@@ -11641,9 +11643,9 @@ static void initsmost(void)
           { (void **)&swall, xdim * sizeof(int32_t) },
           { (void **)&lwall, (xdim + 4) * sizeof(int32_t) },
           { (void **)&radarang2, xdim * sizeof(int16_t) },
-          { (void **)&dotp1, ydim * sizeof(intptr_t) },
-          { (void **)&dotp2, ydim * sizeof(intptr_t) },
-          { (void **)&lastx, ydim * sizeof(int32_t) },
+          { (void **)&dotp1, clamped_ydim * sizeof(intptr_t) },
+          { (void **)&dotp2, clamped_ydim * sizeof(intptr_t) },
+          { (void **)&lastx, clamped_ydim * sizeof(int32_t) },
       };
 
     for (i = 0; i < (signed)ARRAY_SIZE(dynarray); i++)
