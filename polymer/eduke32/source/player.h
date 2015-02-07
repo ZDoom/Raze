@@ -328,7 +328,7 @@ typedef struct {
 
 extern input_t          inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
-extern playerdata_t     g_player[MAXPLAYERS];
+extern playerdata_t     *const g_player;
 extern int16_t          WeaponPickupSprites[MAX_WEAPONS];
 extern hudweapon_t      hudweap;
 extern int32_t          g_levelTextTime;

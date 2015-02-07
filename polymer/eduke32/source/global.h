@@ -112,11 +112,22 @@ G_EXTERN intptr_t *g_scriptPtr;
 G_EXTERN int32_t *labelcode,*labeltype;
 G_EXTERN intptr_t *script;
 G_EXTERN map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS];  // +1 volume for "intro", "briefing" and "loading" music
+
+// XXX: I think this pragma pack is meaningless here.
+// MSDN (https://msdn.microsoft.com/en-us/library/2e70t5y1%28VS.80%29.aspx) says:
+// "pack takes effect at the first struct, union, or class declaration after
+//  the pragma is seen; pack has no effect on definitions."
 #pragma pack(push,1)
-G_EXTERN playerdata_t g_player[MAXPLAYERS];
+#ifdef global_c_
+static playerdata_t g_player_s[1 + MAXPLAYERS];
+playerdata_t *const g_player = &g_player_s[1];
+#else
+extern playerdata_t *const g_player;
+#endif
 G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
 G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 #pragma pack(pop)
+
 G_EXTERN projectile_t ProjectileData[MAXTILES];
 G_EXTERN projectile_t SpriteProjectile[MAXSPRITES];
 G_EXTERN sound_t g_sounds[MAXSOUNDS];
@@ -129,32 +140,32 @@ G_EXTERN int32_t g_screenCapture;
 G_EXTERN int32_t g_noEnemies;
 
 #ifndef global_c_
-G_EXTERN const char *s_buildDate;
-G_EXTERN int32_t g_spriteGravity;
-G_EXTERN int16_t g_spriteDeleteQueueSize;
-G_EXTERN char EpisodeNames[MAXVOLUMES][33];
-G_EXTERN char SkillNames[MAXSKILLS][33];
-G_EXTERN char GametypeNames[MAXGAMETYPES][33];
-G_EXTERN int32_t GametypeFlags[MAXGAMETYPES];
-G_EXTERN char g_numGametypes;
-G_EXTERN char g_numVolumes;
-G_EXTERN int32_t g_timerTicsPerSecond;
-G_EXTERN int32_t g_actorRespawnTime;
-G_EXTERN int32_t g_itemRespawnTime;
-G_EXTERN int32_t g_scriptSize;
-G_EXTERN int16_t BlimpSpawnSprites[15];
-G_EXTERN int32_t g_playerFriction;
-G_EXTERN int32_t g_numFreezeBounces;
-G_EXTERN int32_t g_lastSaveSlot;
-G_EXTERN int32_t g_rpgBlastRadius;
-G_EXTERN int32_t g_pipebombBlastRadius;
-G_EXTERN int32_t g_tripbombBlastRadius;
-G_EXTERN int32_t g_shrinkerBlastRadius;
-G_EXTERN int32_t g_morterBlastRadius;
-G_EXTERN int32_t g_bouncemineBlastRadius;
-G_EXTERN int32_t g_seenineBlastRadius;
-G_EXTERN char CheatKeys[2];
-G_EXTERN char setupfilename[BMAX_PATH];
+extern const char *s_buildDate;
+extern int32_t g_spriteGravity;
+extern int16_t g_spriteDeleteQueueSize;
+extern char EpisodeNames[MAXVOLUMES][33];
+extern char SkillNames[MAXSKILLS][33];
+extern char GametypeNames[MAXGAMETYPES][33];
+extern int32_t GametypeFlags[MAXGAMETYPES];
+extern char g_numGametypes;
+extern char g_numVolumes;
+extern int32_t g_timerTicsPerSecond;
+extern int32_t g_actorRespawnTime;
+extern int32_t g_itemRespawnTime;
+extern int32_t g_scriptSize;
+extern int16_t BlimpSpawnSprites[15];
+extern int32_t g_playerFriction;
+extern int32_t g_numFreezeBounces;
+extern int32_t g_lastSaveSlot;
+extern int32_t g_rpgBlastRadius;
+extern int32_t g_pipebombBlastRadius;
+extern int32_t g_tripbombBlastRadius;
+extern int32_t g_shrinkerBlastRadius;
+extern int32_t g_morterBlastRadius;
+extern int32_t g_bouncemineBlastRadius;
+extern int32_t g_seenineBlastRadius;
+extern char CheatKeys[2];
+extern char setupfilename[BMAX_PATH];
 #endif
 
 #ifdef __cplusplus

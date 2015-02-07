@@ -9079,17 +9079,15 @@ static int32_t preinitcalled = 0;
 
 // #define DYNALLOC_ARRAYS
 
-#ifndef DYNALLOC_ARRAYS
-# if !defined DEBUG_MAIN_ARRAYS
+#ifdef DYNALLOC_ARRAYS
+void *blockptr = NULL;
+#elif !defined DEBUG_MAIN_ARRAYS
 static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
 static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
 static sectortype sector_s[MAXSECTORS + M32_FIXME_SECTORS];
 static walltype wall_s[MAXWALLS + M32_FIXME_WALLS];
 static spritetype sprite_s[MAXSPRITES];
 static tspritetype tsprite_s[MAXSPRITESONSCREEN];
-# endif
-#else
-void *blockptr = NULL;
 #endif
 
 int32_t preinitengine(void)
@@ -9142,15 +9140,13 @@ int32_t preinitengine(void)
         }
     }
 
-#else
-# if !defined DEBUG_MAIN_ARRAYS
+#elif !defined DEBUG_MAIN_ARRAYS
     sector = sector_s;
     wall = wall_s;
     sprite = sprite_s;
     tsprite = tsprite_s;
     spriteext = spriteext_s;
     spritesmooth = spritesmooth_s;
-# endif
 #endif
 
     if ((e = Bgetenv("BUILD_NOP6")) != NULL)

@@ -640,7 +640,7 @@ int32_x_MAXSESSIONVARS g_elSessionVar;
 actor_t actor[MAXSPRITES];
 camera_t g_camera;
 user_defs ud;
-playerdata_t g_player[MAXPLAYERS];
+playerdata_t *const g_player;
 DukePlayer_t *g_player_ps[MAXPLAYERS];
 weapondata_x_MAX_WEAPONS g_playerWeapon[MAXPLAYERS];
 weapondata_t g_weaponOverridden[MAX_WEAPONS];
