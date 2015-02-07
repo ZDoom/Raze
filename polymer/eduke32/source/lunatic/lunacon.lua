@@ -126,7 +126,7 @@ local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=false,
 local g_cgopt = { ["no"]=false, ["debug-lineinfo"]=false, ["gendir"]=nil,
                   ["cache-sap"]=false, ["error-nostate"]=true,
                   ["playervar"]=true, ["trapv"]=false, ["wrapv"]=false,
-                  ["bad-getactorvar-use-pli"]=false,
+                  ["bad-getactorvar-use-pli"]=true,
                   ["error-nonlocal-userdef"]=true,
                   ["error-negative-tag-write"]=false, }
 

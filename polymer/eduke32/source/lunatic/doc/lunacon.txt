@@ -196,7 +196,7 @@ to positive ones and may entail undesired behavior.
 NOTE: From CON as well as Lunatic, `hitag` and `lotag` are seen as *signed*
 16-bit integers.
 
-`-fbad-getactorvar-use-pli` (default: off)::
+`-fbad-getactorvar-use-pli` (default: on)::
 If enabled and `-Werror-bad-getactorvar` is off, a `getactorvar` of a
 per-player variable will result the gamevar being indexed with the current
 player instead of the provided index. This is the (probably unintended)
