@@ -139,7 +139,11 @@ enum SystemString_t {
     STR_PLAYERNAME,
     STR_VERSION,
     STR_GAMETYPE,
-    STR_VOLUMENAME
+    STR_VOLUMENAME,
+    STR_YOURTIME,
+    STR_PARTIME,
+    STR_DESIGNERTIME,
+    STR_BESTTIME,
 };
 
 enum ScriptError_t

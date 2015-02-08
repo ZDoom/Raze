@@ -2237,6 +2237,18 @@ skip_check:
                         }
                         Bstrcpy(ScriptQuotes[i],EpisodeNames[ud.volume_number]);
                         break;
+                    case STR_YOURTIME:
+                        Bstrcpy(ScriptQuotes[i],G_PrintYourTime());
+                        break;
+                    case STR_PARTIME:
+                        Bstrcpy(ScriptQuotes[i],G_PrintParTime());
+                        break;
+                    case STR_DESIGNERTIME:
+                        Bstrcpy(ScriptQuotes[i],G_PrintDesignerTime());
+                        break;
+                    case STR_BESTTIME:
+                        Bstrcpy(ScriptQuotes[i],G_PrintBestTime());
+                        break;
                     default:
                         CON_ERRPRINTF("unknown str ID %d %d\n", i,j);
                     }

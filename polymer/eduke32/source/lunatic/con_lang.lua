@@ -37,6 +37,10 @@ local STR = {
     STR_VERSION = 3,
     STR_GAMETYPE = 4,
     STR_VOLUMENAME = 5,
+    STR_YOURTIME = 6,
+    STR_PARTIME = 7,
+    STR_DESIGNERTIME = 8,
+    STR_BESTTIME = 9,
 }
 
 PROJ = {

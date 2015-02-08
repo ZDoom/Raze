@@ -938,6 +938,14 @@ function _qgetsysstr(qdst, what, pli)
         local vol = ffiC.ud.volume_number
         bcheck.volume_idx(vol)
         ffi.copy(dst, ffiC.EpisodeNames[vol], ffi.sizeof(ffiC.EpisodeNames[0]))
+    elseif (what == ffiC.STR_YOURTIME) then
+        ffi.copy(dst, ffiC.G_PrintYourTime())
+    elseif (what == ffiC.STR_PARTIME) then
+        ffi.copy(dst, ffiC.G_PrintParTime())
+    elseif (what == ffiC.STR_DESIGNERTIME) then
+        ffi.copy(dst, ffiC.G_PrintDesignerTime())
+    elseif (what == ffiC.STR_BESTTIME) then
+        ffi.copy(dst, ffiC.G_PrintBestTime())
     else
         error("unknown system string ID "..what, 2)
     end
