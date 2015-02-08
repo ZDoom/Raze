@@ -411,62 +411,58 @@ static int32_t A_CheckNeedZUpdate(int32_t spritenum, int32_t changez, int32_t *d
 int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t cliptype, int32_t clipdist)
 {
     spritetype *const spr = &sprite[spritenum];
-    int32_t retval, daz, dozupdate;
-    int16_t dasectnum;
-    const int32_t bg = A_CheckEnemySprite(spr);
+    const int32_t badguy = A_CheckEnemySprite(spr);
     const int32_t oldx = spr->x, oldy = spr->y;
-//    const int32_t osectnum = spr->sectnum;
 
-    if (spr->statnum == STAT_MISC || (bg && spr->xrepeat < 4))
+    if (spr->statnum == STAT_MISC || (badguy && spr->xrepeat < 4))
     {
         spr->x += change->x;
         spr->y += change->y;
         spr->z += change->z;
 
-        if (bg)
+        if (badguy)
             setsprite(spritenum, (vec3_t *)spr);
 
         return 0;
     }
 
-    dasectnum = spr->sectnum;
-    daz = spr->z - 2*tilesiz[spr->picnum].y*spr->yrepeat;
+    int16_t dasectnum = spr->sectnum;
+    int32_t daz = spr->z - 2*tilesiz[spr->picnum].y*spr->yrepeat;
+    const int32_t oldz = spr->z;
 
+    if (clipdist >= 0)
     {
-        const int32_t oldz=spr->z;
-
-        if (clipdist >= 0)
-        {
-            // use that value
-        }
-        else if (bg)
-        {
-            if (spr->xrepeat > 60)
-                clipdist = 1024;
-            else if (spr->picnum == LIZMAN)
-                clipdist = 292;
-            else if (A_CheckSpriteTileFlags(spr->picnum, SFLAG_BADGUY))
-                clipdist = spr->clipdist<<2;
-            else
-                clipdist = 192;
-        }
+        // use that value
+    }
+    else if (badguy)
+    {
+        if (spr->xrepeat > 60)
+            clipdist = 1024;
+        else if (spr->picnum == LIZMAN)
+            clipdist = 292;
+        else if (A_CheckSpriteTileFlags(spr->picnum, SFLAG_BADGUY))
+            clipdist = spr->clipdist<<2;
         else
-        {
-            if (spr->statnum == STAT_PROJECTILE && (SpriteProjectile[spritenum].workslike & PROJECTILE_REALCLIPDIST) == 0)
-                clipdist = 8;
-            else
-                clipdist = spr->clipdist<<2;
-        }
-
-        spr->z = daz;
-        retval = clipmove((vec3_t *)spr, &dasectnum,
-                          change->x<<13, change->y<<13,
-                          clipdist, 4<<8, 4<<8, cliptype);
-        spr->z = oldz;
+            clipdist = 192;
+    }
+    else
+    {
+        if (spr->statnum == STAT_PROJECTILE && (SpriteProjectile[spritenum].workslike & PROJECTILE_REALCLIPDIST) == 0)
+            clipdist = 8;
+        else
+            clipdist = spr->clipdist<<2;
     }
 
-    if (bg)
+    // Handle horizontal movement first.
+    spr->z = daz;
+    int32_t retval = clipmove((vec3_t *)spr, &dasectnum,
+                              change->x<<13, change->y<<13,
+                              clipdist, 4<<8, 4<<8, cliptype);
+    spr->z = oldz;
+
+    if (badguy)
     {
+        // Handle potential stayput condition (map-provided or hard-coded).
         if (dasectnum < 0 ||
                 ((actor[spritenum].actorstayput >= 0 && actor[spritenum].actorstayput != dasectnum) ||
                  (spr->picnum == BOSS2 && spr->pal == 0 && sector[dasectnum].lotag != ST_3) ||
@@ -477,12 +473,9 @@ int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t c
         {
             spr->x = oldx;
             spr->y = oldy;
-/*
-            if (dasectnum >= 0 && sector[dasectnum].lotag == ST_1_ABOVE_WATER && spr->picnum == LIZMAN)
-                spr->ang = (krand()&2047);
-            else if ((Actor[spritenum].t_data[0]&3) == 1 && spr->picnum != COMMANDER)
-                spr->ang = (krand()&2047);
-*/
+
+            // NOTE: in Duke3D, LIZMAN on water takes on random angle here.
+
             setsprite(spritenum, (vec3_t *)spr);
 
             if (dasectnum < 0)
@@ -508,7 +501,7 @@ int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t c
 
     Bassert(dasectnum == spr->sectnum);
 
-    dozupdate = A_CheckNeedZUpdate(spritenum, change->z, &daz);
+    int dozupdate = A_CheckNeedZUpdate(spritenum, change->z, &daz);
 
     // Update sprite's z positions and (for TROR) maybe the sector number.
     if (dozupdate)
