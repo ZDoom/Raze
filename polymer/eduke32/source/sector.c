@@ -2380,6 +2380,24 @@ void G_AlignWarpElevators(void)
     }
 }
 
+
+static int32_t P_CheckDetonatorSpecialCase(DukePlayer_t *const p, int32_t weapid)
+{
+    if (weapid == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
+    {
+        int32_t k = headspritestat[STAT_ACTOR];
+        while (k >= 0)
+        {
+            if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
+                return 1;
+
+            k = nextspritestat[k];
+        }
+    }
+
+    return 0;
+}
+
 void P_HandleSharedKeys(int32_t snum)
 {
     int32_t i, k = 0, dainv;
@@ -2703,7 +2721,7 @@ CHECKINV1:
                         if (k == -1) k = FREEZE_WEAPON;
                         else if (k == 10) k = KNEE_WEAPON;
 
-                        if ((p->gotweapon & (1<<k)) && p->ammo_amount[k] > 0)
+                        if (((p->gotweapon & (1<<k)) && p->ammo_amount[k] > 0) || P_CheckDetonatorSpecialCase(p, k))
                         {
                             j = k;
                             break;
@@ -2729,19 +2747,10 @@ CHECKINV1:
                 // XXX: any signifcance to "<= MAX_WEAPONS" instead of "<"?
                 if ((int32_t)j != -1 && j <= MAX_WEAPONS)
                 {
-                    if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
+                    if (P_CheckDetonatorSpecialCase(p, j))
                     {
-                        k = headspritestat[STAT_ACTOR];
-                        while (k >= 0)
-                        {
-                            if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
-                            {
-                                p->gotweapon |= (1<<HANDBOMB_WEAPON);
-                                j = HANDREMOTE_WEAPON;
-                                break;
-                            }
-                            k = nextspritestat[k];
-                        }
+                        p->gotweapon |= (1<<HANDBOMB_WEAPON);
+                        j = HANDREMOTE_WEAPON;
                     }
 
                     if (j == SHRINKER_WEAPON && PLUTOPAK)   // JBF 20040116: so we don't select the grower with v1.3d
@@ -2794,15 +2803,8 @@ CHECKINV1:
                                 p->show_empty_weapon = 32;
                             }
                         case KNEE_WEAPON:
-                            P_AddWeapon(p, j, 1);
-                            break;
                         case HANDREMOTE_WEAPON:
-                            if (k >= 0) // Found in list of [1]'s
-                            {
-                                p->curr_weapon = j;
-                                p->last_weapon = -1;
-                                p->weapon_pos = WEAPON_POS_RAISE;
-                            }
+                            P_AddWeapon(p, j, 1);
                             break;
                         case HANDBOMB_WEAPON:
                         case TRIPBOMB_WEAPON:
