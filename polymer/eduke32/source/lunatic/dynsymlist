@@ -238,6 +238,10 @@ G_DrawTXDigiNumZ;
 G_PrintGameText;
 G_ScreenText;
 G_ScreenTextSize;
+G_PrintYourTime;
+G_PrintParTime;
+G_PrintDesignerTime;
+G_PrintBestTime;
 
 G_UpdateScreenArea;
 G_SaveMapState;

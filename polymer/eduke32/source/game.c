@@ -3377,9 +3377,10 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     invalidatetile(CROSSHAIR, -1, -1);
 }
 
-static inline size_t G_LastMapInfoIndex(void)
+static inline int G_LastMapInfoIndex(void)
 {
-    return ud.volume_number*MAXLEVELS + ud.last_level - 1;
+    Bassert(ud.last_level >= 1);  // NOTE: last_level is 1-based
+    return ud.volume_number*MAXLEVELS + ud.last_level-1;
 }
 
 #define SCORESHEETOFFSET -20
@@ -12502,10 +12503,14 @@ const char* G_PrintYourTime(void)
 }
 const char* G_PrintParTime(void)
 {
+    if (ud.last_level < 1)
+        return "<invalid>";
     return G_PrintTime2(MapInfo[G_LastMapInfoIndex()].partime);
 }
 const char* G_PrintDesignerTime(void)
 {
+    if (ud.last_level < 1)
+        return "<invalid>";
     return G_PrintTime2(MapInfo[G_LastMapInfoIndex()].designertime);
 }
 const char* G_PrintBestTime(void)

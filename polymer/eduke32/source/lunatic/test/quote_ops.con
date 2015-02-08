@@ -36,7 +36,7 @@ onevent EVENT_ENTERLEVEL
 
     redefinequote 117 %s -- %d -- %s -- %d slen=%d
     // test:
-    // - same destination quote as on of the source quotes under %s conversion
+    // - same destination quote as one of the source quotes under %s conversion
     qsprintf 116 /*<-*/ 117 /*args:*/ 116 9999 116 5555 slen
     userquote 116  // "012345678|012345678| -- 9999 -- 012345678|012345678| -- 5555 slen=10"
 

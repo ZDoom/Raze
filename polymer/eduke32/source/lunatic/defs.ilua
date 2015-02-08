@@ -720,6 +720,10 @@ vec2_t G_ScreenTextSize(const int32_t font,
                         int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween,
                         const int32_t f,
                         int32_t x1, int32_t y1, int32_t x2, int32_t y2);
+const char* G_PrintYourTime(void);
+const char* G_PrintParTime(void);
+const char* G_PrintDesignerTime(void);
+const char* G_PrintBestTime(void);
 
 void G_UpdateScreenArea(void);
 void G_SaveMapState(void);
