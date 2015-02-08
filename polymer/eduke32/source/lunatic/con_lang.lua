@@ -875,6 +875,7 @@ local UserdefLabels = {
     playerbest = UDRO".playerbest",
     mouseflip = UDRO".mouseflip",
     multimode = { "1" },
+    musictoggle = UDRO".config.MusicToggle",
     noexits = UDRO".noexits",
     overhead_on = UD".overhead_on",
     recstat = UDRO".recstat",
