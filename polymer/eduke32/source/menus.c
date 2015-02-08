@@ -5510,6 +5510,20 @@ void M_DisplayMenus(void)
 
     M_RunMenuInput(m_currentMenu);
 
+    g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
+    g_player[myconnectindex].ps->fta = 0;
+
+    if (((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && M_BlackTranslucentBackgroundOK(g_currentMenu))
+        fade_screen_black(1);
+
+    if (M_UpdateScreenOK(g_currentMenu))
+        G_UpdateScreenArea();
+
+#if !defined EDUKE32_TOUCH_DEVICES
+    if (m_menuchange_watchpoint > 0)
+        m_menuchange_watchpoint++;
+#endif
+
     // Determine animation values.
     if (totalclock < m_animation.start + m_animation.length)
     {
@@ -5526,20 +5540,6 @@ void M_DisplayMenus(void)
     ud.m_origin = origin;
     VM_OnEventWithReturn(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, g_currentMenu);
     origin = ud.m_origin;
-
-    g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
-    g_player[myconnectindex].ps->fta = 0;
-
-    if (((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && M_BlackTranslucentBackgroundOK(g_currentMenu))
-        fade_screen_black(1);
-
-    if (M_UpdateScreenOK(g_currentMenu))
-        G_UpdateScreenArea();
-
-#if !defined EDUKE32_TOUCH_DEVICES
-    if (m_menuchange_watchpoint > 0)
-        m_menuchange_watchpoint++;
-#endif
 
     // Display the menu, with a transition animation if applicable.
     if (totalclock < m_animation.start + m_animation.length)
