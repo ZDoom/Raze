@@ -5852,11 +5852,7 @@ static void drawsprite_classic(int32_t snum)
 
     if ((cstat&48)==48)
         vtilenum = tilenum; // if the game wants voxels, it gets voxels
-    else if (usevoxels && tiletovox[tilenum] != -1
-#ifdef USE_OPENGL
-             && (!(spriteext[spritenum].flags&SPREXT_NOTMD))
-#endif
-            )
+    else if (usevoxels && tiletovox[tilenum] != -1 && !(spriteext[spritenum].flags&SPREXT_NOTMD))
     {
         vtilenum = tiletovox[tilenum];
         cstat |= 48;
@@ -6852,9 +6848,7 @@ draw_as_face_sprite:
         }
 
         i = (int32_t)tspr->ang+1536;
-#ifdef USE_OPENGL
         i += spriteext[spritenum].angoff;
-#endif
         drawvox(tspr->x,tspr->y,tspr->z,i,daxrepeat,(int32_t)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
     }
 }
@@ -11078,7 +11072,6 @@ void delete_maphack_lights() {}
 //
 int32_t loadmaphack(const char *filename)
 {
-#ifdef USE_OPENGL
     enum
     {
         T_SPRITE = 0,
@@ -11377,10 +11370,6 @@ int32_t loadmaphack(const char *filename)
 
     scriptfile_close(script);
     return 0;
-#else
-    UNREFERENCED_PARAMETER(filename);
-    return -1;
-#endif
 }
 
 
