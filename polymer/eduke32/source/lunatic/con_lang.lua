@@ -868,6 +868,7 @@ local UserdefLabels = {
     mouseaiming = UD".mouseaiming",
     pause_on = UDRO".pause_on",
     player_skill = UD".player_skill",
+    playerbest = UDRO".playerbest",
     mouseflip = UDRO".mouseflip",
     multimode = { "1" },
     noexits = UDRO".noexits",

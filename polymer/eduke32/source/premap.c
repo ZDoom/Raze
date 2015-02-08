@@ -1905,6 +1905,8 @@ int32_t G_EnterLevel(int32_t g)
     G_AlignWarpElevators();
     resetpspritevars(g);
 
+    ud.playerbest = CONFIG_GetMapBestTime(MapInfo[mii].filename);
+
     G_FadeLoad(0,0,0, 63,0, -7, 4);
     G_CacheMapData();
     G_FadeLoad(0,0,0, 0,63, 7, 4);

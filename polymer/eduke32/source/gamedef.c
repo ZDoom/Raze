@@ -1045,6 +1045,7 @@ const memberlabel_t UserdefsLabels[]=
     { "last_camsprite", USERDEFS_LAST_CAMSPRITE, 0, 0 },
     { "last_level", USERDEFS_LAST_LEVEL, 0, 0 },
     { "secretlevel", USERDEFS_SECRETLEVEL, 0, 0 },
+    { "playerbest", USERDEFS_PLAYERBEST, 0, 0 },
 
     { "const_visibility", USERDEFS_CONST_VISIBILITY, 0, 0 },
     { "uw_framerate", USERDEFS_UW_FRAMERATE, 0, 0 },

@@ -513,6 +513,7 @@ typedef struct {
     int32_t player_skill,level_number,volume_number,m_marker,marker,mouseflip;
 
     vec2_t m_origin;
+    int32_t playerbest;
 
     int32_t configversion;
 

@@ -3377,6 +3377,11 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     invalidatetile(CROSSHAIR, -1, -1);
 }
 
+static inline size_t G_LastMapInfoIndex(void)
+{
+    return ud.volume_number*MAXLEVELS + ud.last_level - 1;
+}
+
 #define SCORESHEETOFFSET -20
 static void G_ShowScores(void)
 {
@@ -3385,7 +3390,7 @@ static void G_ShowScores(void)
     if (playerswhenstarted > 1 && (GametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
         gametext(160,SCORESHEETOFFSET+58+2,"Multiplayer Totals",0,2+8+16);
-        gametext(160,SCORESHEETOFFSET+58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
+        gametext(160,SCORESHEETOFFSET+58+10,MapInfo[G_LastMapInfoIndex()].name,0,2+8+16);
 
         t = 0;
         minitext(70,SCORESHEETOFFSET+80,"Name",8,2+8+16+ROTATESPRITE_MAX);
@@ -12400,7 +12405,7 @@ static void G_DisplayMPResultsScreen(void)
     if (PLUTOPAK)   // JBF 20030804
         rotatesprite_fs((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8);
     gametext(160,58+2,"Multiplayer Totals",0,2+8+16);
-    gametext(160,58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
+    gametext(160,58+10,MapInfo[G_LastMapInfoIndex()].name,0,2+8+16);
 
     gametext(160,165,"Press any key or button to continue",quotepulseshade,2+8+16);
 
@@ -12457,13 +12462,63 @@ static void G_DisplayMPResultsScreen(void)
     minitext(45,96+(8*7),"Deaths",8,2+8+16+128);
 }
 
+static int32_t G_PrintTime_ClockPad(void)
+{
+    int32_t clockpad = 2;
+    int32_t ii, ij;
+
+    for (ii=g_player[myconnectindex].ps->player_par/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
+    clockpad = max(clockpad,ij);
+    if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
+    {
+        for (ii=MapInfo[G_LastMapInfoIndex()].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
+        clockpad = max(clockpad,ij);
+        if (!NAM && MapInfo[G_LastMapInfoIndex()].designertime)
+        {
+            for (ii=MapInfo[G_LastMapInfoIndex()].designertime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
+            clockpad = max(clockpad,ij);
+        }
+    }
+    if (ud.playerbest > 0) for (ii=ud.playerbest/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
+    clockpad = max(clockpad,ij);
+
+    return clockpad;
+}
+
+static const char* G_PrintTime2(int32_t time)
+{
+    Bsprintf(tempbuf, "%0*d:%02d", G_PrintTime_ClockPad(), time/(REALGAMETICSPERSEC*60), (time/REALGAMETICSPERSEC)%60);
+    return tempbuf;
+}
+static const char* G_PrintTime3(int32_t time)
+{
+    Bsprintf(tempbuf, "%0*d:%02d.%02d", G_PrintTime_ClockPad(), time/(REALGAMETICSPERSEC*60), (time/REALGAMETICSPERSEC)%60, ((time%REALGAMETICSPERSEC)*33)/10);
+    return tempbuf;
+}
+
+const char* G_PrintYourTime(void)
+{
+    return G_PrintTime3(g_player[myconnectindex].ps->player_par);
+}
+const char* G_PrintParTime(void)
+{
+    return G_PrintTime2(MapInfo[G_LastMapInfoIndex()].partime);
+}
+const char* G_PrintDesignerTime(void)
+{
+    return G_PrintTime2(MapInfo[G_LastMapInfoIndex()].designertime);
+}
+const char* G_PrintBestTime(void)
+{
+    return G_PrintTime3(ud.playerbest);
+}
+
 void G_BonusScreen(int32_t bonusonly)
 {
     int32_t gfx_offset;
     int32_t bonuscnt;
     int32_t clockpad = 2;
     char *lastmapname;
-    int32_t playerbest = -1;
 
     if (g_networkMode == NET_DEDICATED_SERVER)
         return;
@@ -12478,9 +12533,9 @@ void G_BonusScreen(int32_t bonusonly)
     }
     else
     {
-        lastmapname = MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name;
+        lastmapname = MapInfo[G_LastMapInfoIndex()].name;
         if (!lastmapname) // this isn't right but it's better than no name at all
-            lastmapname = MapInfo[(ud.m_volume_number*MAXLEVELS)+ud.last_level-1].name;
+            lastmapname = MapInfo[G_LastMapInfoIndex()].name;
     }
 
 
@@ -12561,29 +12616,8 @@ void G_BonusScreen(int32_t bonusonly)
     bonuscnt = 0;
     totalclock = 0;
 
-    playerbest = CONFIG_GetMapBestTime(MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].filename);
-
-    if (g_player[myconnectindex].ps->player_par > 0 && (g_player[myconnectindex].ps->player_par < playerbest || playerbest < 0))
-        CONFIG_SetMapBestTime(MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].filename, g_player[myconnectindex].ps->player_par);
-
-    {
-        int32_t ii, ij;
-
-        for (ii=g_player[myconnectindex].ps->player_par/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
-        clockpad = max(clockpad,ij);
-        if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
-        {
-            for (ii=MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
-            clockpad = max(clockpad,ij);
-            if (!NAM && MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime)
-            {
-                for (ii=MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
-                clockpad = max(clockpad,ij);
-            }
-        }
-        if (playerbest > 0) for (ii=playerbest/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
-        clockpad = max(clockpad,ij);
-    }
+    if (g_player[myconnectindex].ps->player_par > 0 && (g_player[myconnectindex].ps->player_par < ud.playerbest || ud.playerbest < 0))
+        CONFIG_SetMapBestTime(MapInfo[G_LastMapInfoIndex()].filename, g_player[myconnectindex].ps->player_par);
 
     do
     {
@@ -12665,21 +12699,21 @@ void G_BonusScreen(int32_t bonusonly)
                 yy+=10;
                 if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                 {
-                    if (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime)
+                    if (MapInfo[G_LastMapInfoIndex()].partime)
                     {
                         gametext(10,yy+9,"Par Time:",0,2+8+16);
                         yy+=10;
                     }
-                    if (!NAM && !DUKEBETA && MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime)
+                    if (!NAM && !DUKEBETA && MapInfo[G_LastMapInfoIndex()].designertime)
                     {
                         gametext(10,yy+9,"3D Realms' Time:",0,2+8+16);
                         yy+=10;
                     }
 
                 }
-                if (playerbest > 0)
+                if (ud.playerbest > 0)
                 {
-                    gametext(10,yy+9,(g_player[myconnectindex].ps->player_par > 0 && g_player[myconnectindex].ps->player_par < playerbest)?"Prev Best Time:":"Your Best Time:",0,2+8+16);
+                    gametext(10,yy+9,(g_player[myconnectindex].ps->player_par > 0 && g_player[myconnectindex].ps->player_par < ud.playerbest)?"Prev Best Time:":"Your Best Time:",0,2+8+16);
                     yy += 10;
                 }
 
@@ -12697,13 +12731,9 @@ void G_BonusScreen(int32_t bonusonly)
 
                     if (g_player[myconnectindex].ps->player_par > 0)
                     {
-                        Bsprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
-                                 (g_player[myconnectindex].ps->player_par/(REALGAMETICSPERSEC*60)),
-                                 (g_player[myconnectindex].ps->player_par/REALGAMETICSPERSEC)%60,
-                                 ((g_player[myconnectindex].ps->player_par%REALGAMETICSPERSEC)*33)/10
-                                );
+                        G_PrintYourTime();
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
-                        if (g_player[myconnectindex].ps->player_par < playerbest)
+                        if (g_player[myconnectindex].ps->player_par < ud.playerbest)
                             gametext((320>>2)+89+(clockpad*24),yy+9,"New record!",0,2+8+16);
                     }
                     else
@@ -12712,31 +12742,23 @@ void G_BonusScreen(int32_t bonusonly)
 
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                     {
-                        if (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime)
+                        if (MapInfo[G_LastMapInfoIndex()].partime)
                         {
-                            Bsprintf(tempbuf,"%0*d:%02d",clockpad,
-                                     (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(REALGAMETICSPERSEC*60)),
-                                     (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/REALGAMETICSPERSEC)%60);
+                            G_PrintParTime();
                             gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                             yy+=10;
                         }
-                        if (!NAM && !DUKEBETA && MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime)
+                        if (!NAM && !DUKEBETA && MapInfo[G_LastMapInfoIndex()].designertime)
                         {
-                            Bsprintf(tempbuf,"%0*d:%02d",clockpad,
-                                     (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/(REALGAMETICSPERSEC*60)),
-                                     (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/REALGAMETICSPERSEC)%60);
+                            G_PrintDesignerTime();
                             gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                             yy+=10;
                         }
                     }
 
-                    if (playerbest > 0)
+                    if (ud.playerbest > 0)
                     {
-                        Bsprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
-                                 (playerbest/(REALGAMETICSPERSEC*60)),
-                                 (playerbest/REALGAMETICSPERSEC)%60,
-                                 ((playerbest%REALGAMETICSPERSEC)*33)/10
-                                );
+                        G_PrintBestTime();
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                         yy+=10;
                     }

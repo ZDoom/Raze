@@ -167,6 +167,7 @@ typedef struct {
     int32_t player_skill,level_number,volume_number,m_marker,marker,mouseflip;
 
     vec2_t m_origin;
+    int32_t playerbest;
 
     int32_t configversion;
 #if !defined LUNATIC
@@ -335,6 +336,11 @@ void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n);
 void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n);
 void G_AddUserQuote(const char *daquote);
 void G_BackToMenu(void);
+
+const char* G_PrintYourTime(void);
+const char* G_PrintParTime(void);
+const char* G_PrintDesignerTime(void);
+const char* G_PrintBestTime(void);
 void G_BonusScreen(int32_t bonusonly);
 //void G_CheatGetInv(void);
 void G_DisplayRest(int32_t smoothratio);
