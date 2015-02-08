@@ -540,7 +540,7 @@ int32_t app_main(int32_t argc, const char **argv)
     char cmdsetup = 0;
 #endif
     char quitflag;
-    int32_t i, k;
+    int32_t i;
 
     pathsearchmode = 1;		// unrestrict findfrompath so that full access to the filesystem can be had
 
@@ -700,7 +700,7 @@ int32_t app_main(int32_t argc, const char **argv)
     // Here used to be the 'whitecol' calculation
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
-    k = clipmapinfo_load();
+    int k = clipmapinfo_load();
     if (k>0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", k);
 
@@ -6141,11 +6141,6 @@ end_point_dragging:
             }
             else
             {
-                int32_t joink, s1to0wall, s0to1wall;
-#ifdef YAX_ENABLE
-                int16_t jbn[2][2];  // [join index][c/f]
-                int32_t uneqbn;  // unequal bunchnums (bitmap): 1:above, 2:below
-#endif
                 char *origframe = NULL;
                 int32_t numjoincandidates = 0;
 
@@ -6175,10 +6170,13 @@ end_point_dragging:
                             }
                         }
 
-                        s1to0wall = find_nextwall(i, joinsector[0]);
-                        s0to1wall = wall[s1to0wall].nextwall;
                         joinsector[1] = i;
+
+                        const int s1to0wall = find_nextwall(i, joinsector[0]);
+                        const int s0to1wall = s1to0wall == -1 ? -1 : wall[s1to0wall].nextwall;
 #ifdef YAX_ENABLE
+                        int16_t jbn[2][2];  // [join index][c/f]
+
                         for (k=0; k<2; k++)
                             yax_getbunches(joinsector[k], &jbn[k][YAX_CEILING], &jbn[k][YAX_FLOOR]);
 #endif
@@ -6216,12 +6214,15 @@ end_point_dragging:
                             }
                         }
 #ifdef YAX_ENABLE
-                        uneqbn = (jbn[0][YAX_CEILING]!=jbn[1][YAX_CEILING]) |
-                            ((jbn[0][YAX_FLOOR]!=jbn[1][YAX_FLOOR])<<1);
+                        // unequal bunchnums (bitmap): 1:above, 2:below
+                        int uneqbn =
+                            (jbn[0][YAX_CEILING] != jbn[1][YAX_CEILING]) |
+                            ((jbn[0][YAX_FLOOR] != jbn[1][YAX_FLOOR])<<1);
+
                         if (uneqbn)
                         {
                             const int32_t cf=YAX_FLOOR;
-                            int32_t whybad=0, jsynw[2];
+                            int32_t whybad=0;
 
                             if (uneqbn == 1)
                             {
@@ -6249,10 +6250,15 @@ end_point_dragging:
                                 uneqbn &= ~(1<<cf), whybad|=4;
 
                             // check whether the lower neighbors have a red-wall link to each other
-                            jsynw[1] = yax_getnextwall(s1to0wall, cf);
-                            jsynw[0] = yax_getnextwall(s0to1wall, cf);
+                            const int jsynw[2] = {
+                                yax_getnextwall(s0to1wall, cf),
+                                yax_getnextwall(s1to0wall, cf)
+                            };
+
                             if (jsynw[0]<0 || jsynw[1]<0)  // this shouldn't happen
+                            {
                                 uneqbn &= ~(1<<cf), whybad|=8;
+                            }
                             else if (wall[jsynw[1]].nextwall != jsynw[0])
                             {
 //                                if (find_nextwall(sectorofwall(jsynw[1]), sectorofwall(jsynw[0])) < 0)
@@ -6394,7 +6400,7 @@ end_point_dragging:
 
                         i = j;
                         m = newnumwalls;
-                        joink = k;
+                        int joink = k;
                         do
                         {
                             if (newnumwalls >= MAXWALLS + M32_FIXME_WALLS)
