@@ -1237,6 +1237,8 @@ void M_Init(void)
     MEOS_NETOPTIONS_EPISODE.numOptions = g_numVolumes + 1; // k+1;
     MEOSN_NetEpisodes[g_numVolumes] = MenuUserMap;
     MMF_Top_Episode.pos.y = (48-(g_numVolumes*2))<<16;
+    if (g_numSkills == 0)
+        MEO_EPISODE.linkID = MENU_NULL;
 
     // prepare skills
     k = -1;
@@ -2218,6 +2220,24 @@ static void M_MenuEntryFocus(/*MenuEntry_t *entry*/)
     }
 }
 
+static void M_StartGameWithoutSkill(void)
+{
+    ud.m_player_skill = M_SKILL.currentEntry+1;
+
+    g_skillSoundVoice = S_PlaySound(PISTOL_BODYHIT);
+
+    ud.m_respawn_monsters = 0;
+
+    ud.m_monsters_off = ud.monsters_off = 0;
+
+    ud.m_respawn_items = 0;
+    ud.m_respawn_inventory = 0;
+
+    ud.multimode = 1;
+
+    G_NewGame_EnterLevel();
+}
+
 /*
 Functions where a "newValue" or similar is passed are run *before* the linked variable is actually changed.
 That way you can compare the new and old values and potentially block the change.
@@ -2231,12 +2251,15 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
         {
             ud.m_volume_number = M_EPISODE.currentEntry;
             ud.m_level_number = 0;
+
+            if (g_numSkills == 0)
+                M_StartGameWithoutSkill();
         }
         break;
 
     case MENU_SKILL:
     {
-        int32_t skillsound = 0;
+        int32_t skillsound = PISTOL_BODYHIT;
 
         switch (M_SKILL.currentEntry)
         {
@@ -2254,9 +2277,10 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
             break;
         }
 
+        ud.m_player_skill = M_SKILL.currentEntry+1;
+
         g_skillSoundVoice = S_PlaySound(skillsound);
 
-        ud.m_player_skill = M_SKILL.currentEntry+1;
         if (M_SKILL.currentEntry == 3) ud.m_respawn_monsters = 1;
         else ud.m_respawn_monsters = 0;
 
@@ -2881,7 +2905,11 @@ static void M_MenuFileSelect(int32_t input)
         {
             ud.m_volume_number = 0;
             ud.m_level_number = 7;
-            M_ChangeMenuAnimate(MENU_SKILL, MA_Advance);
+
+            if (g_numSkills > 0)
+                M_ChangeMenuAnimate(MENU_SKILL, MA_Advance);
+            else
+                M_StartGameWithoutSkill();
         }
         break;
 
@@ -3077,8 +3105,22 @@ void M_ChangeMenu(MenuID_t cm)
         M_MenuFileSelectInit((MenuFileSelect_t*)m_currentMenu->object);
     else if (m_currentMenu->type == Menu)
     {
-        // MenuMenu_t *menu = (MenuMenu_t*)m_currentMenu->object;
+        MenuMenu_t *menu = (MenuMenu_t*)m_currentMenu->object;
         // MenuEntry_t* currentry = menu->entrylist[menu->currentEntry];
+
+        // need this for MENU_SKILL
+        if (menu->currentEntry >= menu->numEntries)
+            menu->currentEntry = 0;
+
+        i = menu->currentEntry;
+        while (!menu->entrylist[menu->currentEntry] || ((MenuEntry_t*)menu->entrylist[menu->currentEntry])->type == Spacer)
+        {
+            menu->currentEntry++;
+            if (menu->currentEntry >= menu->numEntries)
+                menu->currentEntry = 0;
+            if (menu->currentEntry == i)
+                G_GameExit("M_ChangeMenu: Attempted to change to a menu with no entries.");
+        }
 
         M_MenuEntryFocus(/*currentry*/);
     }

@@ -937,6 +937,9 @@ lpeg.P(false) +
 "useractor" +
 "updatesectorz" +
 "updatesector" +
+"undefinevolume" +
+"undefineskill" +
+"undefinelevel" +
 "tossweapon" +
 "tip" +
 "time" +

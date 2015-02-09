@@ -1215,8 +1215,23 @@ function Cmd.definelevelname(vol, lev, fn, ptstr, dtstr, levname)
     g_data.level[EPMUL*vol+lev] = map
 end
 
+function Cmd.undefinelevel(vol, lev)
+    if (not (vol >= 0 and vol < conl.MAXVOLUMES)) then
+        errprintf("volume number exceeds maximum volume count.")
+        return
+    end
+
+    if (not (lev >= 0 and lev < conl.MAXLEVELS)) then
+        errprintf("level number exceeds maximum number of levels per episode.")
+        return
+    end
+
+    if (ffi) then
+        ffiC.C_UndefineLevel(vol, lev)
+    end
+end
+
 local function defineXname(what, ffiCfuncname, X, name)
-    name = name:upper()
     if (ffi) then
         ffiC[ffiCfuncname](X, name)
         if (#name > 32) then
@@ -1236,6 +1251,17 @@ function Cmd.defineskillname(skillnum, name)
     g_data.skillname[skillnum] = name
 end
 
+function Cmd.undefineskill(skillnum)
+    if (not (skillnum >= 0 and skillnum < conl.MAXSKILLS)) then
+        errprintf("skill number is negative or exceeds maximum skill count.")
+        return
+    end
+
+    if (ffi) then
+        ffiC.C_UndefineSkill(skillnum)
+    end
+end
+
 function Cmd.definevolumename(vol, name)
     if (not (vol >= 0 and vol < conl.MAXVOLUMES)) then
         errprintf("volume number is negative or exceeds maximum volume count.")
@@ -1244,6 +1270,17 @@ function Cmd.definevolumename(vol, name)
 
     name = defineXname("volume", "C_DefineVolumeName", vol, name)
     g_data.volname[vol] = name
+end
+
+function Cmd.undefinevolume(vol)
+    if (not (vol >= 0 and vol < conl.MAXVOLUMES)) then
+        errprintf("volume number is negative or exceeds maximum volume count.")
+        return
+    end
+
+    if (ffi) then
+        ffiC.C_UndefineVolume(vol)
+    end
 end
 
 function Cmd.definegamefuncname(idx, name)
@@ -1860,6 +1897,13 @@ local Couter = {
     -- NOTE: gamevar.ogg and the like is OK, too
     music = sp1 * tok.define * match_until(sp1 * tok.filename, sp1 * conl.keyword * sp1)
         / Cmd.music,
+
+    undefinelevel = cmd(D,D)
+        / Cmd.undefinelevel,
+    undefineskill = cmd(D)
+        / Cmd.undefineskill,
+    undefinevolume = cmd(D)
+        / Cmd.undefinevolume,
 
     --- 3. Game Settings
     -- gamestartup has 26/30 fixed defines, depending on 1.3D/1.5 version:

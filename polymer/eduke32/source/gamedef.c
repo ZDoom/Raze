@@ -552,6 +552,9 @@ const char *keyw[] =
     "screensound",              // 372
     "getmusicposition",         // 373
     "setmusicposition",         // 374
+    "undefinevolume",           // 375
+    "undefineskill",            // 376
+    "undefinelevel",            // 377
     "<null>"
 };
 #endif
@@ -2218,6 +2221,59 @@ void C_DefineGameType(int32_t idx, int32_t flags, const char *name)
     g_numGametypes = idx+1;
 }
 #endif
+
+void C_UndefineVolume(int32_t vol)
+{
+    Bassert((unsigned)vol < MAXVOLUMES);
+
+    EpisodeNames[vol][0] = '\0';
+
+    g_numVolumes = 0;
+    for (int32_t i = MAXVOLUMES-1; i >= 0; i--)
+    {
+        if (EpisodeNames[i][0])
+        {
+            g_numVolumes = i+1;
+            break;
+        }
+    }
+}
+
+void C_UndefineSkill(int32_t skill)
+{
+    Bassert((unsigned)skill < MAXSKILLS);
+
+    SkillNames[skill][0] = '\0';
+
+    g_numSkills = 0;
+    for (int32_t i = MAXSKILLS-1; i >= 0; i--)
+    {
+        if (SkillNames[i][0])
+        {
+            g_numSkills = i+1;
+            break;
+        }
+    }
+}
+
+void C_UndefineLevel(int32_t vol, int32_t lev)
+{
+    Bassert((unsigned)vol < MAXVOLUMES);
+    Bassert((unsigned)lev < MAXLEVELS);
+
+    {
+        map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
+
+        Bfree(map->filename);
+        map->filename = NULL;
+
+        Bfree(map->name);
+        map->name = NULL;
+
+        map->partime = 0;
+        map->designertime = 0;
+    }
+}
 
 LUNATIC_EXTERN int32_t C_SetDefName(const char *name)
 {
@@ -5240,6 +5296,72 @@ repeatcase:
             g_scriptPtr--;
             j = 0;
             C_NextLine();
+            continue;
+
+
+        case CON_UNDEFINELEVEL:
+            g_scriptPtr--;
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr--;
+            j = *g_scriptPtr;
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr--;
+            k = *g_scriptPtr;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXVOLUMES-1))
+            {
+                initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",g_szScriptFileName,g_lineNumber);
+                g_numCompilerErrors++;
+                C_NextLine();
+                continue;
+            }
+            if (EDUKE32_PREDICT_FALSE((unsigned)k > MAXLEVELS-1))
+            {
+                initprintf("%s:%d: error: level number exceeds maximum number of levels per episode.\n",g_szScriptFileName,g_lineNumber);
+                g_numCompilerErrors++;
+                C_NextLine();
+                continue;
+            }
+
+            C_UndefineLevel(j, k);
+            continue;
+
+        case CON_UNDEFINESKILL:
+            g_scriptPtr--;
+
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr--;
+            j = *g_scriptPtr;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXSKILLS))
+            {
+                initprintf("%s:%d: error: skill number exceeds maximum skill count %d.\n",
+                           g_szScriptFileName,g_lineNumber, MAXSKILLS);
+                g_numCompilerErrors++;
+                C_NextLine();
+                continue;
+            }
+
+            C_UndefineSkill(j);
+            continue;
+
+        case CON_UNDEFINEVOLUME:
+            g_scriptPtr--;
+
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr--;
+            j = *g_scriptPtr;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXVOLUMES-1))
+            {
+                initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",
+                    g_szScriptFileName,g_lineNumber);
+                g_numCompilerErrors++;
+                C_NextLine();
+                continue;
+            }
+
+            C_UndefineVolume(j);
             continue;
 
         case CON_DEFINEVOLUMENAME:
