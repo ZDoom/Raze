@@ -391,7 +391,7 @@ static MenuEntry_t ME_VIDEOSETUP_RESOLUTION = MAKE_MENUENTRY( "Resolution:", &MF
 
 #ifdef USE_OPENGL
 #ifdef POLYMER
-static char *MEOSN_VIDEOSETUP_RENDERER[] = { "Classic", "Polymost.f", "Polymer", };
+static char *MEOSN_VIDEOSETUP_RENDERER[] = { "Classic", "Polymost", "Polymer", };
 static int32_t MEOSV_VIDEOSETUP_RENDERER[] = { REND_CLASSIC, REND_POLYMOST, REND_POLYMER, };
 #else
 static char *MEOSN_VIDEOSETUP_RENDERER[] = { "Classic", "OpenGL", };
@@ -1445,10 +1445,10 @@ static void M_PreMenu(MenuID_t cm)
         else
             MenuMenu_ChangeEntryList(M_DISPLAYSETUP, MEL_DISPLAYSETUP_GL);
 
+        vpsize = ud.screen_size + 4*(ud.screen_size>=8 && ud.statusbarmode==0);
+
         if (getrendermode() != REND_CLASSIC)
         {
-            vpsize = ud.screen_size + 4*(ud.screen_size>=8 && ud.statusbarmode==0);
-
             for (i = (int32_t) ARRAY_SIZE(MEOSV_DISPLAYSETUP_ANISOTROPY) - 1; i >= 0; --i)
             {
                 if (MEOSV_DISPLAYSETUP_ANISOTROPY[i] <= glinfo.maxanisotropy)
