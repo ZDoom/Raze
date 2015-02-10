@@ -1414,9 +1414,12 @@ static md3model_t *md3load(int32_t fil)
         kread(fil,m->head.tags,i);
     }
 
-    klseek(fil,m->head.ofssurfs,SEEK_SET); i = m->head.numsurfs*sizeof(md3surf_t);
-    m->head.surfs = (md3surf_t *)Xmalloc(i);
-    m->head.surfs[0].geometry = NULL;  // for POLYMER_MD_PROCESS_CHECK (else: crashes)
+    klseek(fil,m->head.ofssurfs,SEEK_SET);
+    m->head.surfs = (md3surf_t *)Xcalloc(m->head.numsurfs, sizeof(md3surf_t));
+    // NOTE: We assume that NULL is represented by all-zeros.
+    // surfs[0].geometry is for POLYMER_MD_PROCESS_CHECK (else: crashes).
+    // surfs[i].geometry is for FREE_SURFS_GEOMETRY.
+    Bassert(m->head.surfs[0].geometry == NULL);
 
 #if B_BIG_ENDIAN != 0
     {
@@ -2413,7 +2416,7 @@ static void md3free(md3model_t *m)
         {
             md3surf_t *s = &m->head.surfs[surfi];
             Bfree(s->tris);
-            Bfree(s->geometry);
+            Bfree(s->geometry);  // FREE_SURFS_GEOMETRY
         }
         Bfree(m->head.surfs);
     }
