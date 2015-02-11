@@ -356,7 +356,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
             clearallviews(0);
 
             rotatesprite_fs(320<<15,200<<15,65536L,0, j > MAXTILES-1?j-MAXTILES:j,0,0,
-                            2+8+64+(ud.bgstretch?1024:0));
+                            2+8+64+BGSTRETCH);
         }
         else
         {
@@ -412,7 +412,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         if ((uint32_t)j < 2*MAXTILES)
         {
             rotatesprite_fs(320<<15,200<<15,65536L, 0,j > MAXTILES-1?j-MAXTILES:j,0,0,
-                            2+8+64+(ud.bgstretch?1024:0));
+                            2+8+64+BGSTRETCH);
         }
         else
         {
