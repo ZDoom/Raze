@@ -327,6 +327,46 @@ static void sighandler(int signum)
     }
 }
 
+#ifdef __ANDROID__
+int mobile_halted = 0;
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+void G_Shutdown(void);
+#ifdef __cplusplus
+}
+#endif
+
+int sdlayer_mobilefilter(void *userdata, SDL_Event *event)
+{
+    switch (event->type)
+    {
+        case SDL_APP_TERMINATING:
+            // yes, this calls into the game, ugh
+            G_Shutdown();
+            return 0;
+        case SDL_APP_LOWMEMORY:
+            gltexinvalidatetype(INVALIDATE_ALL);
+            return 0;
+        case SDL_APP_WILLENTERBACKGROUND:
+            mobile_halted = 1;
+            return 0;
+        case SDL_APP_DIDENTERBACKGROUND:
+            // tear down video?
+            return 0;
+        case SDL_APP_WILLENTERFOREGROUND:
+            // restore video?
+            return 0;
+        case SDL_APP_DIDENTERFOREGROUND:
+            mobile_halted = 0;
+            return 0;
+        default:
+            return 1;//!halt;
+    }
+}
+#endif
+
 #ifdef _WIN32
 int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int32_t nCmdShow)
 #else
@@ -344,10 +384,14 @@ int32_t main(int32_t argc, char *argv[])
 
     buildkeytranslationtable();
 
+#ifndef __ANDROID__
     signal(SIGSEGV, sighandler);
     signal(SIGILL, sighandler);  /* clang -fcatch-undefined-behavior uses an ill. insn */
     signal(SIGABRT, sighandler);
     signal(SIGFPE, sighandler);
+#else
+    SDL_SetEventFilter(sdlayer_mobilefilter, NULL);
+#endif
 
 #ifdef _WIN32
     UNREFERENCED_PARAMETER(hInst);
@@ -1200,7 +1244,7 @@ void sdlayer_setvideomode_opengl(void)
     bglShadeModel(GL_SMOOTH);  // GL_FLAT
     bglClearColor(0, 0, 0, 0.5);  // Black Background
     bglHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Use FASTEST for ortho!
-    bglHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+//    bglHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     bglDisable(GL_DITHER);
 
     glinfo.vendor = (const char *) bglGetString(GL_VENDOR);
@@ -1239,32 +1283,35 @@ void sdlayer_setvideomode_opengl(void)
     glinfo.maxanisotropy = 1.0;
     glinfo.bgra = 0;
     glinfo.texcompr = 0;
+    glinfo.clamptoedge = 1;
+    glinfo.multitex = 1;
 
     // process the extensions string and flag stuff we recognize
-    glinfo.clamptoedge = !!Bstrstr(glinfo.extensions, "GL_EXT_texture_edge_clamp") ||
-                         !!Bstrstr(glinfo.extensions, "GL_SGIS_texture_edge_clamp");
-    glinfo.bgra = !!Bstrstr(glinfo.extensions, "GL_EXT_bgra");
-    glinfo.texcompr =
-    !!Bstrstr(glinfo.extensions, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor, "ATI Technologies Inc.");
-    glinfo.texnpot = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_non_power_of_two");
+
+    glinfo.bgra = !!Bstrstr(glinfo.extensions, "GL_EXT_bgra") || !!Bstrstr(glinfo.extensions, "GL_EXT_texture_format_BGRA8888");
+    glinfo.texcompr = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor, "ATI Technologies Inc.");
+    glinfo.texnpot = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_non_power_of_two") || !!Bstrstr(glinfo.extensions, "GL_OES_texture_npot");
     glinfo.multisample = !!Bstrstr(glinfo.extensions, "GL_ARB_multisample");
     glinfo.nvmultisamplehint = !!Bstrstr(glinfo.extensions, "GL_NV_multisample_filter_hint");
     glinfo.arbfp = !!Bstrstr(glinfo.extensions, "GL_ARB_fragment_program");
     glinfo.depthtex = !!Bstrstr(glinfo.extensions, "GL_ARB_depth_texture");
     glinfo.shadow = !!Bstrstr(glinfo.extensions, "GL_ARB_shadow");
-    glinfo.fbos = !!Bstrstr(glinfo.extensions, "GL_EXT_framebuffer_object");
+    glinfo.fbos = !!Bstrstr(glinfo.extensions, "GL_EXT_framebuffer_object") || !!Bstrstr(glinfo.extensions, "GL_OES_framebuffer_object");
+
+#ifndef __ANDROID__
+    glinfo.clamptoedge = !!Bstrstr(glinfo.extensions, "GL_EXT_texture_edge_clamp") ||
+                         !!Bstrstr(glinfo.extensions, "GL_SGIS_texture_edge_clamp");
     glinfo.rect =
     !!Bstrstr(glinfo.extensions, "GL_NV_texture_rectangle") || !!Bstrstr(glinfo.extensions, "GL_EXT_texture_rectangle");
+
     glinfo.multitex = !!Bstrstr(glinfo.extensions, "GL_ARB_multitexture");
+
     glinfo.envcombine = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_env_combine");
     glinfo.vbos = !!Bstrstr(glinfo.extensions, "GL_ARB_vertex_buffer_object");
     glinfo.sm4 = !!Bstrstr(glinfo.extensions, "GL_EXT_gpu_shader4");
     glinfo.occlusionqueries = !!Bstrstr(glinfo.extensions, "GL_ARB_occlusion_query");
     glinfo.glsl = !!Bstrstr(glinfo.extensions, "GL_ARB_shader_objects");
     glinfo.debugoutput = !!Bstrstr(glinfo.extensions, "GL_ARB_debug_output");
-
-    if (Bstrstr(glinfo.extensions, "GL_EXT_texture_filter_anisotropic"))
-        bglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
 
     if (Bstrstr(glinfo.extensions, "WGL_3DFX_gamma_control"))
     {
@@ -1275,6 +1322,10 @@ void sdlayer_setvideomode_opengl(void)
             initprintf("3dfx card detected: OpenGL fog disabled\n");
         warnonce |= 1;
     }
+#endif
+
+//    if (Bstrstr(glinfo.extensions, "GL_EXT_texture_filter_anisotropic"))
+        bglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
 
     if (!glinfo.dumped)
     {
@@ -1369,7 +1420,6 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
 
     if (regrab)
         grabmouse(AppMouseGrab);
-
 }
 
 #if SDL_MAJOR_VERSION!=1
@@ -1400,14 +1450,18 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         {
             SDL_GLattr attr;
             int32_t value;
-        } sdlayer_gl_attributes [] =
+        } sdlayer_gl_attributes[] =
         {
-            { SDL_GL_DOUBLEBUFFER, 1 },
-            { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
-            { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
-            { SDL_GL_STENCIL_SIZE, 1 },
-            { SDL_GL_ACCELERATED_VISUAL, 1 },
-        };
+#ifdef EDUKE32_TOUCH_DEVICES
+              { SDL_GL_CONTEXT_MAJOR_VERSION, 1 },
+              { SDL_GL_CONTEXT_MINOR_VERSION, 1 },
+#endif
+              { SDL_GL_DOUBLEBUFFER, 1 },
+              { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
+              { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
+              { SDL_GL_STENCIL_SIZE, 1 },
+              { SDL_GL_ACCELERATED_VISUAL, 1 },
+          };
 
         do
         {
@@ -1577,9 +1631,18 @@ void enddrawing(void)
 // showframe() -- update the display
 //
 #if SDL_MAJOR_VERSION != 1
+
+#ifdef __ANDROID__
+extern "C" void frameControls();
+#endif
+
 void showframe(int32_t w)
 {
     UNREFERENCED_PARAMETER(w);
+
+#ifdef __ANDROID__
+    if (mobile_halted) return;
+#endif
 
 #ifdef USE_OPENGL
     if (bpp > 8)
@@ -1587,6 +1650,9 @@ void showframe(int32_t w)
         if (palfadedelta)
             fullscreen_tint_gl(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
+#ifdef __ANDROID__
+        frameControls();
+#endif
         SDL_GL_SwapWindow(sdl_window);
         return;
     }
@@ -2058,6 +2124,11 @@ int32_t handleevents_pollsdl(void)
 
 int32_t handleevents(void)
 {
+#ifdef __ANDROID__
+    extern int mobile_halted;
+    if (mobile_halted) return 0;
+#endif
+
     int32_t rv;
 
     if (inputchecked && moustat)
