@@ -3095,6 +3095,7 @@ static void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
     if (i != -2)
         p->curr_weapon = weapon;
 
+
     p->random_club_frame = 0;
 
     if (p->weapon_pos == 0)
@@ -3115,14 +3116,18 @@ static void P_ChangeWeapon(DukePlayer_t *p, int32_t weapon)
 
     if (p->holster_weapon)
     {
-#ifdef __ANDROID__
-        CONTROL_Android_SetLastWeapon(p->last_weapon);
-#endif
-
         p->weapon_pos = WEAPON_POS_RAISE;
         p->holster_weapon = 0;
         p->last_weapon = -1;
     }
+
+#ifdef __ANDROID__
+    if (curr_weapon != p->curr_weapon &&
+//        p->last_weapon != -1 &&
+        !(PWEAPON(snum, curr_weapon, WorksLike) == HANDREMOTE_WEAPON && PWEAPON(snum, p->curr_weapon, WorksLike) == HANDBOMB_WEAPON) &&
+        !(PWEAPON(snum, curr_weapon, WorksLike) == HANDBOMB_WEAPON && PWEAPON(snum, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON))
+        CONTROL_Android_SetLastWeapon(PWEAPON(snum, curr_weapon, WorksLike) == HANDREMOTE_WEAPON ? (int)HANDBOMB_WEAPON : curr_weapon);
+#endif
 
     p->kickback_pic = 0;
 
@@ -4953,6 +4958,11 @@ void P_ProcessInput(int32_t snum)
 HORIZONLY:
     if (psectlotag == ST_1_ABOVE_WATER || p->spritebridge == 1) i = p->autostep_sbw;
     else i = p->autostep;
+
+#ifdef EDUKE32_TOUCH_DEVICES
+    if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))
+        i = p->autostep_sbw;
+#endif
 
     if (p->cursectnum >= 0 && sector[p->cursectnum].lotag == ST_2_UNDERWATER) k = 0;
     else k = 1;
