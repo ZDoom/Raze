@@ -28,13 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define _NEED_SDLMIXER	1
 
+#include "compat.h"
+
 #include <stdio.h>
 #include <errno.h>
-
-#if defined __APPLE__ && defined __BIG_ENDIAN__
-// is* hacks for ppc...
-# include "compat.h"
-#endif
 
 #include "duke3d.h"
 #include "cache1d.h"

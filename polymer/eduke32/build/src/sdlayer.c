@@ -1245,7 +1245,10 @@ void sdlayer_setvideomode_opengl(void)
     bglClearColor(0, 0, 0, 0.5);  // Black Background
     bglHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Use FASTEST for ortho!
 //    bglHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+#ifndef EDUKE32_GLES
     bglDisable(GL_DITHER);
+#endif
 
     glinfo.vendor = (const char *) bglGetString(GL_VENDOR);
     glinfo.renderer = (const char *) bglGetString(GL_RENDERER);
@@ -1288,7 +1291,6 @@ void sdlayer_setvideomode_opengl(void)
 
     // process the extensions string and flag stuff we recognize
 
-    glinfo.bgra = !!Bstrstr(glinfo.extensions, "GL_EXT_bgra") || !!Bstrstr(glinfo.extensions, "GL_EXT_texture_format_BGRA8888");
     glinfo.texcompr = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor, "ATI Technologies Inc.");
     glinfo.texnpot = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_non_power_of_two") || !!Bstrstr(glinfo.extensions, "GL_OES_texture_npot");
     glinfo.multisample = !!Bstrstr(glinfo.extensions, "GL_ARB_multisample");
@@ -1299,6 +1301,7 @@ void sdlayer_setvideomode_opengl(void)
     glinfo.fbos = !!Bstrstr(glinfo.extensions, "GL_EXT_framebuffer_object") || !!Bstrstr(glinfo.extensions, "GL_OES_framebuffer_object");
 
 #ifndef __ANDROID__
+    glinfo.bgra = !!Bstrstr(glinfo.extensions, "GL_EXT_bgra");
     glinfo.clamptoedge = !!Bstrstr(glinfo.extensions, "GL_EXT_texture_edge_clamp") ||
                          !!Bstrstr(glinfo.extensions, "GL_SGIS_texture_edge_clamp");
     glinfo.rect =
@@ -1438,8 +1441,12 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #ifdef USE_OPENGL
     if (c > 8)
     {
-        int32_t i, j, multisamplecheck = (glmultisample > 0);
-
+        int32_t i, j;
+#ifndef EDUKE32_GLES
+        int32_t multisamplecheck = (glmultisample > 0);
+#else
+        int32_t multisamplecheck = 0;
+#endif
         if (nogl)
             return -1;
 
@@ -1457,8 +1464,10 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
               { SDL_GL_CONTEXT_MINOR_VERSION, 1 },
 #endif
               { SDL_GL_DOUBLEBUFFER, 1 },
+#ifndef EDUKE32_GLES
               { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
               { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
+#endif
               { SDL_GL_STENCIL_SIZE, 1 },
               { SDL_GL_ACCELERATED_VISUAL, 1 },
           };

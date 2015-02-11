@@ -362,7 +362,7 @@ int32_t ScanGroups(void)
                 continue;
             } // failed to stat the file
             Bfree(fn);
-            if (fg->size == st.st_size && fg->mtime == st.st_mtime)
+            if (fg->size == (int32_t)st.st_size && fg->mtime == (int32_t)st.st_mtime)
             {
                 grp = (struct grpfile *)Xcalloc(1, sizeof(struct grpfile));
                 grp->name = Xstrdup(sidx->name);

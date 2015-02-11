@@ -954,10 +954,11 @@ int32_t polymost_voxdraw(voxmodel_t *m, const tspritetype *tspr)
     if (tspr->cstat&CSTAT_SPRITE_MDHACK)
     {
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0, 0.9999);
+//        bglDepthRange(0.0, 0.9999);
     }
 
-    bglPushAttrib(GL_POLYGON_BIT);
+//    bglPushAttrib(GL_POLYGON_BIT);
+
     if ((grhalfxdown10x >= 0) /*^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0)*/)
         bglFrontFace(GL_CW);
     else
@@ -1053,11 +1054,11 @@ int32_t polymost_voxdraw(voxmodel_t *m, const tspritetype *tspr)
 
     //------------
     bglDisable(GL_CULL_FACE);
-    bglPopAttrib();
+//    bglPopAttrib();
     if (tspr->cstat&CSTAT_SPRITE_MDHACK)
     {
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0, 0.99999);
+//        bglDepthRange(0.0, 0.99999);
     }
     bglLoadIdentity();
 

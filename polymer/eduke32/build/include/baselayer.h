@@ -42,6 +42,7 @@ extern uint32_t r_screenxy;
 extern int32_t xres, yres, bpp, fullscreen, bytesperline;
 extern intptr_t frameplace;
 extern char offscreenrendering;
+extern int32_t nofog;
 
 void calc_ylookup(int32_t bpl, int32_t lastyidx);
 

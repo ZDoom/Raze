@@ -24,6 +24,7 @@
 
 #include <string.h>
 #define _NEED_SDLMIXER
+#include "compat.h"
 #include "sdl_inc.h"
 #include "driver_sdl.h"
 #include "multivoc.h"

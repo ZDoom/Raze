@@ -97,6 +97,7 @@
 
 #include <android/log.h>
 #define LOG_TAG "JWZGLES"
+#define LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 #define LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
 #undef  Assert
@@ -251,22 +252,22 @@ typedef struct {	/* global state */
 static jwzgles_state *state = 0;
 
 #ifdef DEBUG
-# define LOG(A)                LOGE("jwzgles: " A "\n")
-# define LOG1(A,B)             LOGE("jwzgles: " A "\n",B)
-# define LOG2(A,B,C)           LOGE("jwzgles: " A "\n",B,C)
-# define LOG3(A,B,C,D)         LOGE("jwzgles: " A "\n",B,C,D)
-# define LOG4(A,B,C,D,E)       LOGE("jwzgles: " A "\n",B,C,D,E)
-# define LOG5(A,B,C,D,E,F)     LOGE("jwzgles: " A "\n",B,C,D,E,F)
-# define LOG6(A,B,C,D,E,F,G)   LOGE("jwzgles: " A "\n",B,C,D,E,F,G)
-# define LOG7(A,B,C,D,E,F,G,H) LOGE("jwzgles: " A "\n",B,C,D,E,F,G,H)
+# define LOG(A)                LOGD("jwzgles: " A "\n")
+# define LOG1(A,B)             LOGD("jwzgles: " A "\n",B)
+# define LOG2(A,B,C)           LOGD("jwzgles: " A "\n",B,C)
+# define LOG3(A,B,C,D)         LOGD("jwzgles: " A "\n",B,C,D)
+# define LOG4(A,B,C,D,E)       LOGD("jwzgles: " A "\n",B,C,D,E)
+# define LOG5(A,B,C,D,E,F)     LOGD("jwzgles: " A "\n",B,C,D,E,F)
+# define LOG6(A,B,C,D,E,F,G)   LOGD("jwzgles: " A "\n",B,C,D,E,F,G)
+# define LOG7(A,B,C,D,E,F,G,H) LOGD("jwzgles: " A "\n",B,C,D,E,F,G,H)
 # define LOG8(A,B,C,D,E,F,G,H,I)\
-         LOGE("jwzgles: "A "\n",B,C,D,E,F,G,H,I)
+         LOGD("jwzgles: "A "\n",B,C,D,E,F,G,H,I)
 # define LOG9(A,B,C,D,E,F,G,H,I,J)\
-         LOGE("jwzgles: "A "\n",B,C,D,E,F,G,H,I,J)
+         LOGD("jwzgles: "A "\n",B,C,D,E,F,G,H,I,J)
 # define LOG10(A,B,C,D,E,F,G,H,I,J,K)\
-         LOGE("jwzgles: "A "\n",B,C,D,E,F,G,H,I,J,K)
+         LOGD("jwzgles: "A "\n",B,C,D,E,F,G,H,I,J,K)
 # define LOG17(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)\
-         LOGE("jwzgles: "A "\n",B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)
+         LOGD("jwzgles: "A "\n",B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)
 # define CHECK(S) check_gl_error(S)
 #else
 // "" defeats -Wempty-body
@@ -484,7 +485,8 @@ check_gl_error (const char *s)
 {
   GLenum i = glGetError();
   if (i == GL_NO_ERROR) return;
-  fprintf (stderr, "jwzgles: GL ERROR: %s: %s\n", s, mode_desc(i));
+
+  LOGE("jwzgles: GL ERROR: %s: %s\n", s, mode_desc(i));
 }
 
 #endif /* DEBUG */

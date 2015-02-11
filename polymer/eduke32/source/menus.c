@@ -822,8 +822,10 @@ static char *MEOSN_RENDERERSETUP_TEXCACHE[] = { "Off", "On", "Compress", };
 static MenuOptionSet_t MEOS_RENDERERSETUP_TEXCACHE = MAKE_MENUOPTIONSET( MEOSN_RENDERERSETUP_TEXCACHE, NULL, 0x2 );
 static MenuOption_t MEO_RENDERERSETUP_TEXCACHE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_RENDERERSETUP_TEXCACHE, &glusetexcache );
 static MenuEntry_t ME_RENDERERSETUP_TEXCACHE = MAKE_MENUENTRY( "On disk texture cache", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_TEXCACHE, Option );
+#ifndef EDUKE32_GLES
 static MenuOption_t MEO_RENDERERSETUP_DETAILTEX = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &r_detailmapping );
 static MenuEntry_t ME_RENDERERSETUP_DETAILTEX = MAKE_MENUENTRY( "Detail textures:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_DETAILTEX, Option );
+#endif
 static MenuOption_t MEO_RENDERERSETUP_MODELS = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &usemodels );
 static MenuEntry_t ME_RENDERERSETUP_MODELS = MAKE_MENUENTRY( "Models:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_MODELS, Option );
 #endif
@@ -833,8 +835,10 @@ static MenuEntry_t *MEL_RENDERERSETUP[] = {
     &ME_RENDERERSETUP_HIGHTILE,
     &ME_RENDERERSETUP_TEXQUALITY,
     &ME_RENDERERSETUP_PRECACHE,
+#ifndef EDUKE32_GLES
     &ME_RENDERERSETUP_TEXCACHE,
     &ME_RENDERERSETUP_DETAILTEX,
+#endif
     &ME_Space4,
     &ME_RENDERERSETUP_MODELS,
 };
@@ -1534,8 +1538,10 @@ static void M_PreMenu(MenuID_t cm)
     case MENU_RENDERERSETUP:
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXQUALITY, !usehightile);
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_PRECACHE, !usehightile);
+#ifndef EDUKE32_GLES
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXCACHE, !(glusetexcompr && usehightile));
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_DETAILTEX, !usehightile);
+#endif
         break;
 #endif
 

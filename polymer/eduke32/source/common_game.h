@@ -107,8 +107,8 @@ extern void G_CleanupSearchPaths(void);
 
 extern void G_ExtPreInit(int32_t argc,const char **argv);
 extern void G_ExtInit(void);
-extern void G_ExtPreStartupWindow(void);
-extern void G_ExtPostStartupWindow(int32_t autoload);
+extern void G_ScanGroups(void);
+extern void G_LoadGroups(int32_t autoload);
 
 extern const char * G_GetInstallPath(int32_t insttype);
 

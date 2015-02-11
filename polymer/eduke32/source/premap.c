@@ -446,9 +446,7 @@ void G_CacheMapData(void)
     }
 
 #ifdef EDUKE32_TOUCH_DEVICES
-    gltexinvalidatetype(INVALIDATE_ALL);
-#else
-    gltexinvalidatetype(INVALIDATE_ART);
+    polymost_glreset();
 #endif
 
     starttime = getticks();
@@ -517,10 +515,12 @@ void G_CacheMapData(void)
                                 polymost_precache(i,k,type);
                         }
 
+#ifndef EDUKE32_GLES
                         if (r_detailmapping && !KB_KeyPressed(sc_Space))
                             polymost_precache(i,DETAILPAL,type);
                         if (r_glowmapping && !KB_KeyPressed(sc_Space))
                             polymost_precache(i,GLOWPAL,type);
+#endif
 #ifdef POLYMER
                         if (getrendermode() == REND_POLYMER)
                         {

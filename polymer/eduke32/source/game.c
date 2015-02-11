@@ -2868,7 +2868,7 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
     do
     {
 #ifdef __ANDROID__ //Needed for N7 2013 to stop corruption while fading video
-    	clearallviews(0);
+    	clearview(0);
 #endif
         if (KB_KeyPressed(sc_Space))
         {
@@ -4438,7 +4438,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     {
 #ifdef __ANDROID__
     // HACK: this is needed or else we get leftover UI texture crap where we'd get HOM on PC
-        clearallviews(0L);
+        clearview(0L);
 #endif
 
 #ifndef EDUKE32_TOUCH_DEVICES
@@ -11437,7 +11437,7 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 #endif
 
-#ifdef USE_OPENGL
+#if defined(USE_OPENGL) && !defined(EDUKE32_GLES)
     if (glusetexcache == -1)
     {
         ud.config.useprecache = glusetexcompr = 1;

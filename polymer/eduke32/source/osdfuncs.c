@@ -19,9 +19,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
-#include <math.h>
 #include "compat.h"
+#include <math.h>
 #include "duke3d.h"
 #include "build.h"
 #include "namesdyn.h"
@@ -127,7 +126,7 @@ void GAME_onshowosd(int32_t shown)
 {
     G_UpdateScreenArea();
 
-    AppGrabMouse((!shown) | 2);
+    AppGrabMouse((!shown) + 2);
 
     osdshown = shown;
 
@@ -144,17 +143,18 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
     if (getrendermode() >= REND_POLYMOST && qsetmode==200)
     {
         const int32_t i8n8 = OSD_SCALE(8*numrows);
-        bglPushAttrib(GL_FOG_BIT);
+//        bglPushAttrib(GL_FOG_BIT);
         bglDisable(GL_FOG);
 
         setpolymost2dview();
         bglColor4f(0.f, 0.f, 0.f, 0.67f);
         bglEnable(GL_BLEND);
         bglRecti(0, 0, xdim, i8n8+8);
-        bglColor3f(0.f, 0.f, 0.f);
+        bglColor4f(0.f, 0.f, 0.f, 1.f);
         bglRecti(0, i8n8+4, xdim, i8n8+8);
-
-        bglPopAttrib();
+        if (!nofog)
+            bglEnable(GL_FOG);
+//        bglPopAttrib();
 
         return;
     }

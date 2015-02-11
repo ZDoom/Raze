@@ -5,7 +5,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef EDUKE32_GLES
 #include "jwzgles.h"
+#endif
 
 #ifdef RENDERTYPESDL
 #include "sdl_inc.h"

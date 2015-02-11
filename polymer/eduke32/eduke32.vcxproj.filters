@@ -73,6 +73,15 @@
     <Filter Include="eduke32\source\android">
       <UniqueIdentifier>{d3b67b4f-6b78-43e0-88ab-f081b977499a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="touchcontrols">
+      <UniqueIdentifier>{e7398716-03fa-4baf-b8dc-a8c734386ae7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="touchcontrols\headers">
+      <UniqueIdentifier>{503b9776-fb3e-4abe-a47c-11395b7f249a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="touchcontrols\source">
+      <UniqueIdentifier>{ed032f74-5d34-4314-9579-6a031cf615f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\include\a.h">
@@ -459,6 +468,57 @@
     <ClInclude Include="source\animsounds.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\Button.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\ControlSuper.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\GLLines.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\GLRect.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\Mouse.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\PointF.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\RectF.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchControls.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchControlsConfig.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchJoy.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\WheelSelect.h">
+      <Filter>touchcontrols\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\jwzgles.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\jwzglesI.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -793,6 +853,54 @@
     </ClCompile>
     <ClCompile Include="source\animsounds.c">
       <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\Button.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\ControlSuper.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\GLLines.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\GLRect.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\Mouse.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\RectF.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\TouchControls.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\TouchJoy.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\WheelSelect.cpp">
+      <Filter>touchcontrols\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\voxmodel.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\jwzgles.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\glbuild_android.c">
+      <Filter>eduke32\source\android</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
