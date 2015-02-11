@@ -97,6 +97,9 @@ JavaVM *jvm_;
 
 touchcontrols::Button *inv_buttons[GET_MAX];
 
+std::string obbPath;
+std::string gamePath;
+
 void openGLStart()
 {
     if (curRenderer == REND_GL)
@@ -385,12 +388,12 @@ void touchSettingsButton(int state)
      */
 }
 
-void initControls(int width, int height, const char *graphics_path, const char *settings_file)
+void initControls(int width, int height, const char *graphics_path)
 {
     touchcontrols::GLScaleWidth = (float)width;
-    touchcontrols::GLScaleHeight = (float)height;
+    touchcontrols::GLScaleHeight = (float)-height;
 
-    LOGI("initControls %d x %d,x path = %s, settings = %s", width, height, graphics_path, settings_file);
+    LOGI("initControls %d x %d,x path = %s", width, height, graphics_path);
 
     if (!controlsCreated)
     {
@@ -421,9 +424,9 @@ void initControls(int width, int height, const char *graphics_path, const char *
         ///////////////////////// YES NO SCREEN /////////////////////
 
         tcYesNo->addControl(
-        new touchcontrols::Button("enter", touchcontrols::RectF(16, 8, 19, 11), "yes", SDL_SCANCODE_RETURN));
+        new touchcontrols::Button("enter", touchcontrols::RectF(16, 9, 18, 11), "yes", SDL_SCANCODE_RETURN));
         tcYesNo->addControl(
-        new touchcontrols::Button("esc", touchcontrols::RectF(7, 8, 10, 11), "no", SDL_SCANCODE_ESCAPE));
+        new touchcontrols::Button("esc", touchcontrols::RectF(8, 9, 10, 11), "no", SDL_SCANCODE_ESCAPE));
         tcYesNo->signal_button.connect(sigc::ptr_fun(&menuButton));  // Just reuse the menuButton function
 
 
@@ -440,11 +443,12 @@ void initControls(int width, int height, const char *graphics_path, const char *
         "arrow_right",  SDL_SCANCODE_RIGHT, true));
         tcMenuMain->addControl(new touchcontrols::Button("enter",       touchcontrols::RectF(0,14,2,16),    "enter",
         SDL_SCANCODE_RETURN));
-        tcMenuMain->addControl(new touchcontrols::Button("esc",         touchcontrols::RectF(0,12,2,14),    "esc",
-        SDL_SCANCODE_ESCAPE));
-        tcMenuMain->signal_button.connect(  sigc::ptr_fun(&menuButton) );
         tcMenuMain->setAlpha(1);
          */
+
+        tcMenuMain->addControl(new touchcontrols::Button("arrow_left", touchcontrols::RectF(0, 2, 2, 4), "arrow_left",
+            SDL_SCANCODE_ESCAPE));
+        tcMenuMain->signal_button.connect(sigc::ptr_fun(&menuButton));
 
         touchcontrols::MultitouchMouse *mouseMenu =
         new touchcontrols::MultitouchMouse("mouse", touchcontrols::RectF(0, 0, 26, 16), "");
@@ -460,6 +464,10 @@ void initControls(int width, int height, const char *graphics_path, const char *
         //////////////////////////// GAME SCREEN /////////////////////
         tcGameMain->setAlpha(droidinput.gameControlsAlpha);
         controlsContainer.editButtonAlpha = droidinput.gameControlsAlpha;
+        
+        tcGameMain->addControl(
+        new touchcontrols::Button("game_menu", touchcontrols::RectF(0, 0, 2, 2), "settings_bars", MENU_BACK));
+
         tcGameMain->addControl(
         new touchcontrols::Button("use", touchcontrols::RectF(20, 4, 23, 7), "use", gamefunc_Open));
         tcGameMain->addControl(
@@ -582,10 +590,9 @@ void initControls(int width, int height, const char *graphics_path, const char *
         tcGameWeapons->setAlpha(droidinput.gameControlsAlpha);
         tcMenuMain->setAlpha(droidinput.gameControlsAlpha);
 
-
-        tcGameMain->setXMLFile((std::string)graphics_path + "/game.xml");
-        tcGameWeapons->setXMLFile((std::string)graphics_path + "/weapons.xml");
-        tcAutomap->setXMLFile((std::string)graphics_path + "/automap.xml");
+        tcGameMain->setXMLFile(gamePath + "/control_layout_main.xml");
+        tcGameWeapons->setXMLFile(gamePath + "/control_layout_weapons.xml");
+        tcAutomap->setXMLFile(gamePath + "/control_layout_automap.xml");
         // tcInventory->setXMLFile((std::string)graphics_path +  "/inventory.xml");
 
         setControlsContainer(&controlsContainer);
@@ -748,10 +755,8 @@ JNIEnv *env_;
 
 int argc = 1;
 const char *argv[32];
-std::string graphicpath;
-std::string duke3d_path;
 
-static inline const char *getGamePath() { return duke3d_path.c_str(); }
+static inline const char *getGamePath() { return gamePath.c_str(); }
 
 jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_init(JNIEnv *env, jobject thiz, jstring graphics_dir,
                                                                jint audio_rate, jint audio_buffer_size,
@@ -781,7 +786,7 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_init(JNIEnv *env, jobj
         argc++;
     }
 
-    duke3d_path = (char *)(env)->GetStringUTFChars(jduke3d_path, 0);
+    gamePath = std::string(env->GetStringUTFChars(jduke3d_path, NULL));
 
     // Change working dir, save games etc
     // FIXME: potentially conflicts with chdirs in -game_dir support
@@ -794,10 +799,11 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_init(JNIEnv *env, jobj
     LOGI("duke3d_path = %s", getGamePath());
 
     const char *p = env->GetStringUTFChars(graphics_dir, NULL);
-    graphicpath = std::string(p);
+    obbPath = std::string(p);
 
-    initControls(droidinfo.screen_width, -droidinfo.screen_height, graphicpath.c_str(),
-                 (graphicpath + "/touch_controls.xml").c_str());
+    LOGI("obbPath = %s", obbPath.c_str());
+
+    initControls(droidinfo.screen_width, droidinfo.screen_height, (obbPath + "/assets/").c_str());
 
     PortableInit(argc, argv);
 

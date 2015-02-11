@@ -105,9 +105,9 @@ void PortableAction(int state, int action)
 
     if (action >= MENU_UP && action <= MENU_BACK)
     {
-        if (PortableRead(READ_SCREEN_MODE) == TOUCH_SCREEN_MENU)
+//        if (PortableRead(READ_SCREEN_MODE) == TOUCH_SCREEN_MENU)
         {
-            int sdl_code [] = { SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT,
+            int const sdl_code [] = { SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT,
                     SDL_SCANCODE_RIGHT, SDL_SCANCODE_RETURN, SDL_SCANCODE_ESCAPE };
             PortableKeyEvent(state, sdl_code[action-MENU_UP], 0);
             return;

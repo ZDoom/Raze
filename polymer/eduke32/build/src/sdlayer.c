@@ -344,7 +344,10 @@ int sdlayer_mobilefilter(void *userdata, SDL_Event *event)
     {
         case SDL_APP_TERMINATING:
             // yes, this calls into the game, ugh
-            G_Shutdown();
+            if (mobile_halted == 1)
+                G_Shutdown();
+
+            mobile_halted = 1;
             return 0;
         case SDL_APP_LOWMEMORY:
             gltexinvalidatetype(INVALIDATE_ALL);

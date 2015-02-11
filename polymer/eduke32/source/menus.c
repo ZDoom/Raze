@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "compat.h"
 #include "duke3d.h"
 #include "renderlayer.h"
 #include "net.h"
@@ -259,6 +260,9 @@ static MenuEntry_t ME_ ## EntryName = MAKE_MENUENTRY( Title, &MF_Redfont, &Forma
 
 
 MAKE_MENU_TOP_ENTRYLINK( "New Game", MEF_MainMenu, MAIN_NEWGAME, MENU_EPISODE );
+#ifdef DROIDMENU
+MAKE_MENU_TOP_ENTRYLINK( "Resume Game", MEF_MainMenu, MAIN_RESUMEGAME, MENU_CLOSE );
+#endif
 MAKE_MENU_TOP_ENTRYLINK( "New Game", MEF_MainMenu, MAIN_NEWGAME_INGAME, MENU_NEWVERIFY );
 static MenuLink_t MEO_MAIN_NEWGAME_NETWORK = { MENU_NETWORK, MA_Advance, };
 MAKE_MENU_TOP_ENTRYLINK( "Save Game", MEF_MainMenu, MAIN_SAVEGAME, MENU_SAVE );
@@ -284,15 +288,21 @@ static MenuEntry_t *MEL_MAIN[] = {
 };
 
 static MenuEntry_t *MEL_MAIN_INGAME[] = {
+#ifdef DROIDMENU
+    &ME_MAIN_RESUMEGAME,
+#else
     &ME_MAIN_NEWGAME_INGAME,
+#endif
     &ME_MAIN_SAVEGAME,
     &ME_MAIN_LOADGAME,
     &ME_MAIN_OPTIONS,
 #ifndef DROIDMENU
     &ME_MAIN_HELP,
-#endif
     &ME_MAIN_QUITTOTITLE,
     &ME_MAIN_QUITGAME,
+#else
+    &ME_MAIN_QUITTOTITLE,
+#endif
 };
 
 // Episode and Skill will be dynamically generated after CONs are parsed
@@ -4254,15 +4264,13 @@ static int32_t M_RunMenuInput_MouseAdvance(void)
     return MOUSEACTIVECONDITIONAL(!m_mousecaught && mousepressstate == Mouse_Released);
 }
 
-#if !defined __ANDROID__
+#if !defined EDUKE32_TOUCH_DEVICES
 static int32_t M_RunMenuInput_MouseReturn_status;
 
 static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
 {
-#if !defined EDUKE32_TOUCH_DEVICES
     if (!MOUSEACTIVECONDITION)
         return;
-#endif
 
     if (cm->menuID == MENU_MAIN)
         return;
@@ -4276,14 +4284,12 @@ static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
 
 static int32_t M_RunMenuInput_MouseReturn(void)
 {
-#if !defined __ANDROID__
 #if !defined EDUKE32_TOUCH_DEVICES
     if (!MOUSEACTIVECONDITION)
     {
         M_RunMenuInput_MouseReturn_status = 0;
         return 0;
     }
-#endif
 
     if (g_currentMenu == MENU_MAIN)
         return 0;
@@ -4298,6 +4304,7 @@ static int32_t M_RunMenuInput_MouseReturn(void)
 
     M_RunMenuInput_MouseReturn_status = 0;
 #endif
+
     return 0;
 }
 
@@ -4559,7 +4566,7 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
         }
     }
 
-#if !defined __ANDROID__
+#if !defined EDUKE32_TOUCH_DEVICES
     M_RunMenu_MouseReturn(cm, origin);
 #endif
 }
