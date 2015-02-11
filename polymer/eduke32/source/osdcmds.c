@@ -43,6 +43,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "lunatic_game.h"
 #endif
 
+#ifdef EDUKE32_TOUCH_DEVICES
+#include "android/in_android.h"
+#endif
+
 extern int32_t voting, g_doQuickSave;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
@@ -1553,6 +1557,10 @@ int32_t registerosdcommands(void)
         { "hud_weaponscale","changes the weapon scale", (void *)&ud.weaponscale, CVAR_INT, 10, 100 },
         { "hud_statusbarmode", "change overlay mode of status bar", (void *)&ud.statusbarmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
+#ifdef EDUKE32_TOUCH_DEVICES
+        { "hud_hidestick", "hide the touch input stick", (void *)&droidinput.hideStick, CVAR_BOOL, 0, 1 },
+#endif
+
         { "in_joystick","enables input from the joystick if it is present",(void *)&ud.config.UseJoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "in_mouse","enables input from the mouse if it is present",(void *)&ud.config.UseMouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
@@ -1599,6 +1607,14 @@ int32_t registerosdcommands(void)
         { "snd_reversestereo", "reverses the stereo channels", (void *)&ud.config.ReverseStereo, CVAR_BOOL, 0, 16 },
 
         { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
+
+#ifdef EDUKE32_TOUCH_DEVICES
+        { "touch_sens_move_x","touch input sensitivity for moving froward/back", (void *)&droidinput.forward_sens, CVAR_FLOAT, 0, 10 },
+        { "touch_sens_move_y","touch input sensitivity for strafing", (void *)&droidinput.strafe_sens, CVAR_FLOAT, 0, 10 },
+        { "touch_sens_look_x", "touch input sensitivity for turning left/right", (void *) &droidinput.yaw_sens, CVAR_FLOAT, 0, 10 },
+        { "touch_sens_move_y", "touch input sensitivity for looking up/down", (void *) &droidinput.pitch_sens, CVAR_FLOAT, 0, 10 },
+        { "touch_invert", "invert look up/down touch input", (void *) &droidinput.invertLook, CVAR_INT, 0, 1 },
+#endif
 
         { "vid_gamma","adjusts gamma component of gamma ramp",(void *)&vid_gamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
         { "vid_contrast","adjusts contrast component of gamma ramp",(void *)&vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },

@@ -41,6 +41,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <sys/stat.h>
 
+#include "android/in_android.h"
+#ifndef __ANDROID__
+droidinput_t droidinput;
+#endif
+
+#define DROIDMENU
+
 // common positions
 #define MENU_MARGIN_REGULAR 40
 #define MENU_MARGIN_WIDE    32
@@ -341,6 +348,12 @@ static MenuEntry_t ME_ADULTMODE = MAKE_MENUENTRY( "Parental lock:", &MF_Redfont,
 // static MenuLink_t MEO_ADULTMODE_PASSWORD = { MENU_ADULTPASSWORD, MA_None, };
 // static MenuEntry_t ME_ADULTMODE_PASSWORD = MAKE_MENUENTRY( "Enter Password", &MF_Redfont, &, &MEO_ADULTMODE_PASSWORD, Link );
 
+static MenuOption_t MEO_GAMESETUP_CROUCHLOCK = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &droidinput.toggleCrouch);
+static MenuEntry_t ME_GAMESETUP_CROUCHLOCK = MAKE_MENUENTRY("Crouch lock:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_CROUCHLOCK, Option);
+
+static MenuOption_t MEO_GAMESETUP_QUICKSWITCH = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &droidinput.quickSelectWeapon);
+static MenuEntry_t ME_GAMESETUP_QUICKSWITCH = MAKE_MENUENTRY("Quick weapon switch:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_QUICKSWITCH, Option);
+
 static MenuEntry_t *MEL_GAMESETUP[] = {
     &ME_ADULTMODE,
 #if defined STARTUP_SETUP_WINDOW && !defined DROIDMENU
@@ -348,6 +361,8 @@ static MenuEntry_t *MEL_GAMESETUP[] = {
 #endif
     &ME_GAMESETUP_AIM_AUTO,
     &ME_GAMESETUP_WEAPSWITCH_PICKUP,
+    &ME_GAMESETUP_QUICKSWITCH,
+    &ME_GAMESETUP_CROUCHLOCK,
 #ifndef DROIDMENU
     &ME_GAMESETUP_DEMOREC,
 #ifdef _WIN32
@@ -364,7 +379,9 @@ MAKE_MENU_TOP_ENTRYLINK( "Control Setup", MEF_CenterMenu, OPTIONS_CONTROLS, MENU
 MAKE_MENU_TOP_ENTRYLINK( "Keyboard Setup", MEF_CenterMenu, OPTIONS_KEYBOARDSETUP, MENU_KEYBOARDSETUP );
 MAKE_MENU_TOP_ENTRYLINK( "Mouse Setup", MEF_CenterMenu, OPTIONS_MOUSESETUP, MENU_MOUSESETUP );
 MAKE_MENU_TOP_ENTRYLINK( "Joystick Setup", MEF_CenterMenu, OPTIONS_JOYSTICKSETUP, MENU_JOYSTICKSETUP );
-
+#ifdef DROIDMENU
+MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_CenterMenu, OPTIONS_TOUCHSETUP, MENU_TOUCHSETUP );
+#endif
 
 static int32_t newresolution, newrendermode, newfullscreen;
 
@@ -448,6 +465,14 @@ static MenuOptionSet_t MEOS_DISPLAYSETUP_VSYNC = MAKE_MENUOPTIONSET( MEOSN_DISPL
 static MenuOption_t MEO_DISPLAYSETUP_VSYNC = MAKE_MENUOPTION(&MF_Redfont, &MEOS_DISPLAYSETUP_VSYNC, &vsync);
 static MenuEntry_t ME_DISPLAYSETUP_VSYNC = MAKE_MENUENTRY( "VSync:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_VSYNC, Option );
 
+#ifdef DROIDMENU
+static MenuOption_t MEO_DISPLAYSETUP_HIDEDPAD = MAKE_MENUOPTION(&MF_Redfont, &MEOS_NoYes, &droidinput.hideStick);
+static MenuEntry_t ME_DISPLAYSETUP_HIDEDPAD = MAKE_MENUENTRY("Hide touch d-pad:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_HIDEDPAD, Option);
+
+static MenuRangeFloat_t MEO_DISPLAYSETUP_TOUCHALPHA = MAKE_MENURANGE(&droidinput.gameControlsAlpha, &MF_Redfont, 0, 1, 0, 16, 2);
+static MenuEntry_t ME_DISPLAYSETUP_TOUCHALPHA = MAKE_MENUENTRY("UI opacity:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_TOUCHALPHA, RangeFloat);
+#endif
+
 #endif
 
 static MenuOption_t MEO_SCREENSETUP_CROSSHAIR = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &ud.crosshair);
@@ -490,7 +515,7 @@ static MenuEntry_t ME_SCREENSETUP_SBARSIZE = MAKE_MENUENTRY( "Size:", &MF_Redfon
 
 
 static MenuLink_t MEO_DISPLAYSETUP_SCREENSETUP = { MENU_SCREENSETUP, MA_Advance, };
-static MenuEntry_t ME_DISPLAYSETUP_SCREENSETUP = MAKE_MENUENTRY( "On-screen displays", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_SCREENSETUP, Link );
+static MenuEntry_t ME_DISPLAYSETUP_SCREENSETUP = MAKE_MENUENTRY( "Status and crosshair", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_SCREENSETUP, Link );
 
 
 #ifndef DROIDMENU
@@ -509,14 +534,20 @@ static MenuEntry_t *MEL_OPTIONS[] = {
     &ME_OPTIONS_DISPLAYSETUP,
 #ifndef DROIDMENU
     &ME_OPTIONS_PLAYERSETUP,
-#endif
     &ME_OPTIONS_CONTROLS,
+#else
+    &ME_OPTIONS_TOUCHSETUP
+#endif
 };
 
 static MenuEntry_t *MEL_CONTROLS[] = {
+#ifndef DROIDMENU
     &ME_OPTIONS_KEYBOARDSETUP,
     &ME_OPTIONS_MOUSESETUP,
     &ME_OPTIONS_JOYSTICKSETUP,
+#else
+    &ME_OPTIONS_TOUCHSETUP
+#endif
 };
 
 
@@ -548,6 +579,8 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
 #endif
     &ME_DISPLAYSETUP_ASPECTRATIO,
     &ME_DISPLAYSETUP_TEXFILTER,
+    &ME_DISPLAYSETUP_HIDEDPAD,
+    &ME_DISPLAYSETUP_TOUCHALPHA,
 #ifndef DROIDMENU
     &ME_DISPLAYSETUP_ANISOTROPY,
     &ME_DISPLAYSETUP_VSYNC,
@@ -663,6 +696,32 @@ static MenuEntry_t *MEL_MOUSESETUP[] = {
     &ME_MOUSESETUP_SMOOTH,
     &ME_MOUSESETUP_ADVANCED,
 };
+
+#ifdef DROIDMENU
+static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_MOVE = MAKE_MENURANGE(&droidinput.forward_sens, &MF_Redfont, 1.f, 10.f, 0.f, 20, 1 + EnforceIntervals);
+static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_MOVE = MAKE_MENUENTRY("Run sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_MOVE, RangeFloat);
+
+static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_STRAFE = MAKE_MENURANGE(&droidinput.strafe_sens, &MF_Redfont, 1.f, 10.f, 0.f, 20, 1 + EnforceIntervals);
+static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_STRAFE = MAKE_MENUENTRY("Strafe sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_STRAFE, RangeFloat);
+
+static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_LOOK = MAKE_MENURANGE(&droidinput.pitch_sens, &MF_Redfont, 1.f, 10.f, 0.f, 20, 1 + EnforceIntervals);
+static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_LOOK = MAKE_MENUENTRY("Look sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_LOOK, RangeFloat);
+
+static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_TURN = MAKE_MENURANGE(&droidinput.yaw_sens, &MF_Redfont, 1.f, 10.f, 0.f, 20, 1 + EnforceIntervals);
+static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_TURN = MAKE_MENUENTRY("Turn sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_TURN, RangeFloat);
+
+static MenuOption_t MEO_TOUCHSETUP_INVERT = MAKE_MENUOPTION(&MF_Redfont, &MEOS_NoYes, &droidinput.invertLook);
+static MenuEntry_t ME_TOUCHSETUP_INVERT = MAKE_MENUENTRY("Invert look:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_INVERT, Option);
+
+static MenuEntry_t *MEL_TOUCHSETUP [] ={
+    &ME_TOUCHSETUP_SENSITIVITY_MOVE,
+    &ME_TOUCHSETUP_SENSITIVITY_STRAFE,
+    &ME_TOUCHSETUP_SENSITIVITY_LOOK,
+    &ME_TOUCHSETUP_SENSITIVITY_TURN,
+    &ME_Space2,
+    &ME_TOUCHSETUP_INVERT,
+};
+#endif
 
 MAKE_MENU_TOP_ENTRYLINK( "Edit Buttons", MEF_CenterMenu, JOYSTICK_EDITBUTTONS, MENU_JOYSTICKBTNS );
 MAKE_MENU_TOP_ENTRYLINK( "Edit Axes", MEF_CenterMenu, JOYSTICK_EDITAXES, MENU_JOYSTICKAXES );
@@ -792,7 +851,12 @@ static MenuEntry_t ME_COLCORR_CONTRAST = MAKE_MENUENTRY( "Contrast:", &MF_Redfon
 static MenuRangeFloat_t MEO_COLCORR_BRIGHTNESS = MAKE_MENURANGE( &vid_brightness, &MF_Bluefont, -0.8f, 0.8f, 0.f, 33, 1 );
 static MenuEntry_t ME_COLCORR_BRIGHTNESS = MAKE_MENUENTRY( "Brightness:", &MF_Redfont, &MEF_ColorCorrect, &MEO_COLCORR_BRIGHTNESS, RangeFloat );
 static MenuEntry_t ME_COLCORR_RESET = MAKE_MENUENTRY( "Reset To Defaults", &MF_Redfont, &MEF_ColorCorrect, &MEO_NULL, Link );
-static MenuRangeFloat_t MEO_COLCORR_AMBIENT = MAKE_MENURANGE( &r_ambientlight, &MF_Bluefont, 0.125f, 4.f, 0.f, 32, 1 );
+#ifdef DROIDMENU
+#define MINVIS 1.f
+#else
+#define MINVIS 0.125f
+#endif
+static MenuRangeFloat_t MEO_COLCORR_AMBIENT = MAKE_MENURANGE( &r_ambientlight, &MF_Bluefont, MINVIS, 4.f, 0.f, 32, 1 );
 static MenuEntry_t ME_COLCORR_AMBIENT = MAKE_MENUENTRY( "Visibility:", &MF_Redfont, &MEF_ColorCorrect, &MEO_COLCORR_AMBIENT, RangeFloat );
 
 static MenuEntry_t *MEL_COLCORR[] = {
@@ -1024,6 +1088,9 @@ static MenuMenu_t M_VIDEOSETUP = MAKE_MENUMENU( "Video Mode", &MMF_BigOptions, M
 static MenuMenu_t M_KEYBOARDSETUP = MAKE_MENUMENU( "Keyboard Setup", &MMF_Top_Options, MEL_KEYBOARDSETUP );
 static MenuMenu_t M_CONTROLS = MAKE_MENUMENU( "Control Setup", &MMF_Top_Options, MEL_CONTROLS );
 static MenuMenu_t M_MOUSESETUP = MAKE_MENUMENU( "Mouse Setup", &MMF_BigOptions, MEL_MOUSESETUP );
+#ifdef DROIDMENU
+static MenuMenu_t M_TOUCHSETUP = MAKE_MENUMENU( "Touch Setup", &MMF_BigOptions, MEL_TOUCHSETUP );
+#endif
 static MenuMenu_t M_JOYSTICKSETUP = MAKE_MENUMENU( "Joystick Setup", &MMF_Top_Joystick_Network, MEL_JOYSTICKSETUP );
 static MenuMenu_t M_JOYSTICKBTNS = MAKE_MENUMENU( "Joystick Buttons", &MMF_MouseJoySetupBtns, MEL_JOYSTICKBTNS );
 static MenuMenu_t M_JOYSTICKAXES = MAKE_MENUMENU( "Joystick Axes", &MMF_BigSliders, MEL_JOYSTICKAXES );
@@ -1035,7 +1102,7 @@ static MenuMenu_t M_JOYSTICKAXIS = MAKE_MENUMENU( NULL, &MMF_BigSliders, MEL_JOY
 static MenuMenu_t M_RENDERERSETUP = MAKE_MENUMENU( "Advanced Video", &MMF_SmallOptions, MEL_RENDERERSETUP );
 #endif
 static MenuMenu_t M_COLCORR = MAKE_MENUMENU( "Color Correction", &MMF_ColorCorrect, MEL_COLCORR );
-static MenuMenu_t M_SCREENSETUP = MAKE_MENUMENU( "On-Screen Displays", &MMF_BigOptions, MEL_SCREENSETUP );
+static MenuMenu_t M_SCREENSETUP = MAKE_MENUMENU( "Status and crosshair", &MMF_BigOptions, MEL_SCREENSETUP );
 static MenuMenu_t M_DISPLAYSETUP = MAKE_MENUMENU( "Display Setup", &MMF_BigOptions, MEL_DISPLAYSETUP );
 static MenuMenu_t M_LOAD = MAKE_MENUMENU( "Load Game", &MMF_LoadSave, MEL_LOAD );
 static MenuMenu_t M_SAVE = MAKE_MENUMENU( "Save Game", &MMF_LoadSave, MEL_SAVE );
@@ -1106,6 +1173,9 @@ static Menu_t Menus[] = {
     { &M_MOUSEBTNS, MENU_MOUSEBTNS, MENU_MOUSESETUP, MA_Return, Menu },
     { &M_MOUSEADVANCED, MENU_MOUSEADVANCED, MENU_MOUSESETUP, MA_Return, Menu },
     { &M_JOYSTICKAXIS, MENU_JOYSTICKAXIS, MENU_JOYSTICKAXES, MA_Return, Menu },
+#ifdef DROIDMENU
+    { &M_TOUCHSETUP, MENU_TOUCHSETUP, MENU_OPTIONS, MA_Return, Menu },
+#endif
     { &M_CONTROLS, MENU_CONTROLS, MENU_OPTIONS, MA_Return, Menu },
 #ifdef USE_OPENGL
     { &M_RENDERERSETUP, MENU_RENDERERSETUP, MENU_DISPLAYSETUP, MA_Return, Menu },
@@ -1154,7 +1224,6 @@ static Menu_t *m_previousMenu = &Menus[0];
 
 MenuID_t g_currentMenu;
 static MenuID_t g_previousMenu;
-
 
 #define MenuMenu_ChangeEntryList(m, el)\
     do {\
@@ -2664,9 +2733,13 @@ static int32_t M_MenuEntryStringSubmit(MenuEntry_t *entry, char *input)
     {
     case MENU_SAVE:
         // dirty hack... char 127 in last position indicates an auto-filled name
+#ifdef __ANDROID__
+        if (1)
+#else
         if (input[0] == 0 || (ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] == 127 &&
             Bstrncmp(&ud.savegame[M_SAVE.currentEntry][0], input, MAXSAVEGAMENAME-3) == 0 &&
             save_xxh == XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], MAXSAVEGAMENAME-3, 0xDEADBEEF)))
+#endif
         {
             Bstrncpy(&ud.savegame[M_SAVE.currentEntry][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME-3);
             ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] = 127;
@@ -4042,7 +4115,9 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             M_RunMenuInput_MenuMenu_MovementVerify(menu);
                         }
 
+#ifndef EDUKE32_TOUCH_DEVICES
                         if (!m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, h) && M_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
+#endif
                         {
                             if (entry == currentry && object->editfield != NULL)
                             {
@@ -5641,7 +5716,17 @@ void M_DisplayMenus(void)
 #ifndef EDUKE32_TOUCH_DEVICES
     // Display the mouse cursor, except on touch devices.
     if (MOUSEACTIVECONDITION)
-        rotatesprite_fs_alpha(m_mousepos.x, m_mousepos.y, 65536, 0, CROSSHAIR, 0, CROSSHAIR_PAL, 2|1, MOUSEALPHA);
+    {
+        int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
+
+        if ((unsigned) a < MAXTILES)
+        {
+            if (a == 0)
+                a = CROSSHAIR;
+
+            rotatesprite_fs_alpha(m_mousepos.x, m_mousepos.y, 65536, 0, a, 0, CROSSHAIR_PAL, 2|1, MOUSEALPHA);
+        }
+    }
     else
         mousepressstate = Mouse_Idle;
 #endif

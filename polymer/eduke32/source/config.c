@@ -184,6 +184,15 @@ void CONFIG_SetDefaults(void)
 
     ud.config.scripthandle = -1;
 #ifdef __ANDROID__
+    droidinput.forward_sens = 5.f;
+    droidinput.strafe_sens = 5.f;
+    droidinput.pitch_sens = 5.f;
+    droidinput.yaw_sens = 5.f;
+    droidinput.hideStick = 0;
+    droidinput.gameControlsAlpha = 0.5;
+    droidinput.toggleCrouch = 1;
+    droidinput.quickSelectWeapon = 1;
+
     ud.config.ScreenWidth = droidinfo.screen_width;
     ud.config.ScreenHeight = droidinfo.screen_height;
 #else
@@ -233,6 +242,8 @@ void CONFIG_SetDefaults(void)
 
 #if defined GEKKO || defined __OPENDINGUX__
     ud.camera_time = 11;
+#elif defined(__ANDROID__)
+    ud.camera_time = 7;
 #else
     ud.camera_time = 4;
 #endif
