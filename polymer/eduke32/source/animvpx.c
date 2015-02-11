@@ -295,42 +295,67 @@ read_ivf_frame:
 
     t[1] = getticks();
 
-    /*** 3 planes --> packed conversion ***/
+    uint8_t *const dstpic = codec->pic;
+
+    uint8_t const *const yplane = img->planes[VPX_PLANE_Y];
+    uint8_t const *const uplane = img->planes[VPX_PLANE_U];
+    uint8_t const *const vplane = img->planes[VPX_PLANE_V];
+
+    const int32_t ystride = img->stride[VPX_PLANE_Y];
+    const int32_t ustride = img->stride[VPX_PLANE_U];
+    const int32_t vstride = img->stride[VPX_PLANE_V];
+
+    if (glinfo.glsl) /*** 3 planes --> packed conversion ***/
     {
-        uint8_t *const dstpic = codec->pic;
-
-        const uint8_t *const yplane = img->planes[VPX_PLANE_Y];
-        const uint8_t *const uplane = img->planes[VPX_PLANE_U];
-        const uint8_t *const vplane = img->planes[VPX_PLANE_V];
-
-        int32_t ystride = img->stride[VPX_PLANE_Y];
-        int32_t ustride = img->stride[VPX_PLANE_U];
-        int32_t vstride = img->stride[VPX_PLANE_V];
-
         int32_t x, y;
-        const int32_t width=img->d_w, height = img->d_h;
+        const int32_t width = img->d_w, height = img->d_h;
 
-        for (y=0; y<height; y+=2)
+        for (y = 0; y < height; y += 2)
         {
-            for (x=0; x<width; x+=2)
+            for (x = 0; x < width; x += 2)
             {
-                uint8_t u = uplane[ustride*(y>>1) + (x>>1)];
-                uint8_t v = vplane[vstride*(y>>1) + (x>>1)];
+                uint8_t u = uplane[ustride * (y >> 1) + (x >> 1)];
+                uint8_t v = vplane[vstride * (y >> 1) + (x >> 1)];
 
-                dstpic[(width*y + x)<<2] = yplane[ystride*y + x];
-                dstpic[(width*y + x+1)<<2] = yplane[ystride*y + x+1];
-                dstpic[(width*(y+1) + x)<<2] = yplane[ystride*(y+1) + x];
-                dstpic[(width*(y+1) + x+1)<<2] = yplane[ystride*(y+1) + x+1];
+                dstpic[(width * y + x) << 2] = yplane[ystride * y + x];
+                dstpic[(width * y + x + 1) << 2] = yplane[ystride * y + x + 1];
+                dstpic[(width * (y + 1) + x) << 2] = yplane[ystride * (y + 1) + x];
+                dstpic[(width * (y + 1) + x + 1) << 2] = yplane[ystride * (y + 1) + x + 1];
 
-                dstpic[((width*y + x)<<2) + 1] = u;
-                dstpic[((width*y + x+1)<<2) + 1] = u;
-                dstpic[((width*(y+1) + x)<<2) + 1] = u;
-                dstpic[((width*(y+1) + x+1)<<2) + 1] = u;
+                dstpic[((width * y + x) << 2) + 1] = u;
+                dstpic[((width * y + x + 1) << 2) + 1] = u;
+                dstpic[((width * (y + 1) + x) << 2) + 1] = u;
+                dstpic[((width * (y + 1) + x + 1) << 2) + 1] = u;
 
-                dstpic[((width*y + x)<<2) + 2] = v;
-                dstpic[((width*y + x+1)<<2) + 2] = v;
-                dstpic[((width*(y+1) + x)<<2) + 2] = v;
-                dstpic[((width*(y+1) + x+1)<<2) + 2] = v;
+                dstpic[((width * y + x) << 2) + 2] = v;
+                dstpic[((width * y + x + 1) << 2) + 2] = v;
+                dstpic[((width * (y + 1) + x) << 2) + 2] = v;
+                dstpic[((width * (y + 1) + x + 1) << 2) + 2] = v;
+            }
+        }
+    }
+    else /*** 3 planes --> packed conversion (RGB) ***/
+    {
+        int i = 0;
+
+        for (unsigned int imgY = 0; imgY < img->d_h; imgY++)
+        {
+            for (unsigned int imgX = 0; imgX < img->d_w; imgX++)
+            {
+                uint8_t const y = yplane[imgY * ystride + imgX];
+                uint8_t const u = uplane[(imgY >> 1) * ustride + (imgX >> 1)];
+                uint8_t const v = vplane[(imgY >> 1) * vstride + (imgX >> 1)];
+
+                int const c = y - 16;
+                int const d = (u + -128);
+                int const e = (v + -128);
+                int const c298 = c * 298;
+
+                dstpic[i + 0] = (uint8_t)clamp((c298 + 409 * e - -128) >> 8, 0, 255);
+                dstpic[i + 1] = (uint8_t)clamp((c298 - 100 * d - 208 * e - -128) >> 8, 0, 255);
+                dstpic[i + 2] = (uint8_t)clamp((c298 + 516 * d - -128) >> 8, 0, 255);
+
+                i += 3;
             }
         }
     }
@@ -383,36 +408,39 @@ static char *fragprog_src =
 
 void animvpx_setup_glstate(void)
 {
-    GLint gli;
-    GLhandleARB FSHandle, PHandle;
-    static char logbuf[512];
+    if (glinfo.glsl)
+    {
+        GLint gli;
+        GLhandleARB FSHandle, PHandle;
+        static char logbuf[512];
 
-    // first, compile the fragment shader
-    /* Set up program objects. */
-    PHandle = bglCreateProgramObjectARB();
-    FSHandle = bglCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+        // first, compile the fragment shader
+        /* Set up program objects. */
+        PHandle = bglCreateProgramObjectARB();
+        FSHandle = bglCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 
-    /* Compile the shader. */
-    bglShaderSourceARB(FSHandle, 1, (const GLcharARB **)&fragprog_src, NULL);
-    bglCompileShaderARB(FSHandle);
+        /* Compile the shader. */
+        bglShaderSourceARB(FSHandle, 1, (const GLcharARB **)&fragprog_src, NULL);
+        bglCompileShaderARB(FSHandle);
 
-    /* Print the compilation log. */
-    bglGetObjectParameterivARB(FSHandle, GL_OBJECT_COMPILE_STATUS_ARB, &gli);
-    bglGetInfoLogARB(FSHandle, sizeof(logbuf), NULL, logbuf);
-    if (logbuf[0])
-        OSD_Printf("animvpx compile log: %s\n", logbuf);
+        /* Print the compilation log. */
+        bglGetObjectParameterivARB(FSHandle, GL_OBJECT_COMPILE_STATUS_ARB, &gli);
+        bglGetInfoLogARB(FSHandle, sizeof(logbuf), NULL, logbuf);
+        if (logbuf[0])
+            OSD_Printf("animvpx compile log: %s\n", logbuf);
 
-    /* Create a complete program object. */
-    bglAttachObjectARB(PHandle, FSHandle);
-    bglLinkProgramARB(PHandle);
+        /* Create a complete program object. */
+        bglAttachObjectARB(PHandle, FSHandle);
+        bglLinkProgramARB(PHandle);
 
-    /* And print the link log. */
-    bglGetInfoLogARB(PHandle, sizeof(logbuf), NULL, logbuf);
-    if (logbuf[0])
-        OSD_Printf("animvpx link log: %s\n", logbuf);
+        /* And print the link log. */
+        bglGetInfoLogARB(PHandle, sizeof(logbuf), NULL, logbuf);
+        if (logbuf[0])
+            OSD_Printf("animvpx link log: %s\n", logbuf);
 
-    /* Finally, use the program. */
-    bglUseProgramObjectARB(PHandle);
+        /* Finally, use the program. */
+        bglUseProgramObjectARB(PHandle);
+    }
 
     ////////// GL STATE //////////
 
@@ -425,26 +453,18 @@ void animvpx_setup_glstate(void)
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
 
-    bglMatrixMode(GL_COLOR);
-    bglLoadIdentity();
-
     bglMatrixMode(GL_TEXTURE);
     bglLoadIdentity();
 
-    bglPushAttrib(GL_ENABLE_BIT);
+//    bglPushAttrib(GL_ENABLE_BIT);
     bglDisable(GL_ALPHA_TEST);
-//    bglDisable(GL_LIGHTING);
     bglDisable(GL_DEPTH_TEST);
     bglDisable(GL_BLEND);
     bglDisable(GL_CULL_FACE);
-//    bglDisable(GL_SCISSOR_TEST);
     bglEnable(GL_TEXTURE_2D);
-
 
     bglActiveTextureARB(GL_TEXTURE0_ARB);
     bglGenTextures(1, &texname);
-//    gli = bglGetUniformLocationARB(PHandle,"tex");
-//    bglUniform1iARB(gli,0);  // 0: texture unit
     bglBindTexture(GL_TEXTURE_2D, texname);
 
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
@@ -461,9 +481,10 @@ void animvpx_setup_glstate(void)
 
 void animvpx_restore_glstate(void)
 {
-    bglUseProgramObjectARB(0);
+    if (glinfo.glsl)
+        bglUseProgramObjectARB(0);
 
-    bglPopAttrib();
+//    bglPopAttrib();
 
     bglDeleteTextures(1, &texname);
     texname = 0;
@@ -480,50 +501,53 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec)
     if (codec->pic == NULL)
         return 2;  // shouldn't happen
 
+    int fmt = glinfo.glsl ? GL_RGBA : GL_RGB;
+
     if (!texuploaded)
     {
-        bglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, codec->width,codec->height,
-                     0, GL_RGBA, GL_UNSIGNED_BYTE, codec->pic);
+        bglTexImage2D(GL_TEXTURE_2D, 0, fmt, codec->width,codec->height,
+                     0, fmt, GL_UNSIGNED_BYTE, codec->pic);
         texuploaded = 1;
     }
     else
     {
         bglTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, codec->width,codec->height,
-                        GL_RGBA, GL_UNSIGNED_BYTE, codec->pic);
+                        fmt, GL_UNSIGNED_BYTE, codec->pic);
     }
 
-    {
-        float vid_wbyh = ((float)codec->width)/codec->height;
-        float scr_wbyh = ((float)xdim)/ydim;
+    float vid_wbyh = ((float)codec->width)/codec->height;
+    float scr_wbyh = ((float)xdim)/ydim;
 
-        float x=1.0, y=1.0;
+    float x=1.0, y=1.0;
 #if 1
-        // aspect correction by pillarboxing/letterboxing
-        // TODO: fullscreen? can't assume square pixels there
-        if (vid_wbyh != scr_wbyh)
-        {
-            if (vid_wbyh < scr_wbyh)
-                x = vid_wbyh/scr_wbyh;
-            else
-                y = scr_wbyh/vid_wbyh;
-        }
-#endif
-        bglBegin(GL_QUADS);
-
-        bglTexCoord2f(0.0,1.0);
-        bglVertex3f(-x, -y, 0.0);
-
-        bglTexCoord2f(0.0,0.0);
-        bglVertex3f(-x, y, 0.0);
-
-        bglTexCoord2f(1.0,0.0);
-        bglVertex3f(x, y, 0.0);
-
-        bglTexCoord2f(1.0,1.0);
-        bglVertex3f(x, -y, 0.0);
-
-        bglEnd();
+    // aspect correction by pillarboxing/letterboxing
+    // TODO: fullscreen? can't assume square pixels there
+    if (vid_wbyh != scr_wbyh)
+    {
+        if (vid_wbyh < scr_wbyh)
+            x = vid_wbyh/scr_wbyh;
+        else
+            y = scr_wbyh/vid_wbyh;
     }
+#endif
+    bglBegin(GL_QUADS);
+
+    if (!glinfo.glsl)
+        bglColor3f(1.0, 1.0, 1.0);
+
+    bglTexCoord2f(0.0,1.0);
+    bglVertex3f(-x, -y, 0.0);
+
+    bglTexCoord2f(0.0,0.0);
+    bglVertex3f(-x, y, 0.0);
+
+    bglTexCoord2f(1.0,0.0);
+    bglVertex3f(x, y, 0.0);
+
+    bglTexCoord2f(1.0,1.0);
+    bglVertex3f(x, -y, 0.0);
+
+    bglEnd();
 
     t = getticks()-t;
     codec->sumtimes[2] += t;
@@ -540,6 +564,9 @@ void animvpx_print_stats(const animvpx_codec_ctx *codec)
         const int32_t *s = codec->sumtimes;
         const int32_t *m = codec->maxtimes;
         int32_t n = codec->numframes;
+
+        if (glinfo.glsl)
+            initprintf("animvpx: GLSL mode\n");
 
         initprintf("VP8 timing stats (mean, max) [ms] for %d frames:\n"
                    " read and decode frame: %.02f, %d\n"

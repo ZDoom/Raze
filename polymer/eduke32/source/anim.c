@@ -96,7 +96,7 @@ int32_t G_PlayAnim(const char *fn)
     I_ClearAllInput();
 
 #ifdef USE_LIBVPX
-    while (getrendermode() >= REND_POLYMOST && glinfo.glsl)  // if, really
+    while (getrendermode() >= REND_POLYMOST)  // if, really
     {
         char vpxfn[BMAX_PATH];
         Bstrncpyz(vpxfn, fn, BMAX_PATH);
