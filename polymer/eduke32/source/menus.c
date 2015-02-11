@@ -5728,15 +5728,10 @@ void M_DisplayMenus(void)
     // Display the mouse cursor, except on touch devices.
     if (MOUSEACTIVECONDITION)
     {
-        int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
+        int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYCURSOR, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
 
         if ((unsigned) a < MAXTILES)
-        {
-            if (a == 0)
-                a = CROSSHAIR;
-
             rotatesprite_fs_alpha(m_mousepos.x, m_mousepos.y, 65536, 0, a, 0, CROSSHAIR_PAL, 2|1, MOUSEALPHA);
-        }
     }
     else
         mousepressstate = Mouse_Idle;
