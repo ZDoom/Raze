@@ -211,17 +211,18 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows)
 # ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST && qsetmode==200)
     {
-        bglPushAttrib(GL_FOG_BIT);
+//        bglPushAttrib(GL_FOG_BIT);
         bglDisable(GL_FOG);
 
         setpolymost2dview();
         bglColor4f(0.f, 0.f, 0.f, 0.67f);
         bglEnable(GL_BLEND);
         bglRecti(0, 0, xdim, 8*numrows+8);
-        bglColor3f(0.f, 0.f, 0.f);
+        bglColor4f(0.f, 0.f, 0.f, 1.f);
         bglRecti(0, 8*numrows+4, xdim, 8*numrows+8);
 
-        bglPopAttrib();
+//        bglPopAttrib();
+        bglEnable(GL_FOG);
 
         return;
     }

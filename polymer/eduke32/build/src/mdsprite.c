@@ -866,8 +866,10 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
+#ifndef EDUKE32_GLES
     if (glinfo.maxanisotropy > 1.0)
         bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
+#endif
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
@@ -2058,18 +2060,16 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
 #ifdef __arm__ // GL ES has a glDepthRangef and the loss of precision is OK there
         float f = (float) (tspr->owner + 1) * (FLT_EPSILON * 8.0);
         if (f != 0.0) f *= 1.f/(float) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
-        bglDepthFunc(GL_LEQUAL);
-        glDepthRangef(0.f - f, 1.f - f);
 #else
         double f = (double) (tspr->owner + 1) * (FLT_EPSILON * 8.0);
         if (f != 0.0) f *= 1.0/(double) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
-        bglBlendFunc(GL_SRC_ALPHA, GL_DST_COLOR);
-        bglDepthFunc(GL_LEQUAL);
-        bglDepthRange(0.0 - f, 1.0 - f);
+//        bglBlendFunc(GL_SRC_ALPHA, GL_DST_COLOR);
 #endif
+        bglDepthFunc(GL_LEQUAL);
+//        bglDepthRange(0.0 - f, 1.0 - f);
     }
 
-    bglPushAttrib(GL_POLYGON_BIT);
+//    bglPushAttrib(GL_POLYGON_BIT);
     if ((grhalfxdown10x >= 0) ^((globalorientation&8) != 0) ^((globalorientation&4) != 0)) bglFrontFace(GL_CW); else bglFrontFace(GL_CCW);
     bglEnable(GL_CULL_FACE);
     bglCullFace(GL_BACK);
@@ -2222,6 +2222,7 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
 
         if (!(tspr->cstat&CSTAT_SPRITE_MDHACK))
         {
+#ifndef EDUKE32_GLES
             i = r_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi) : 0;
 
             if (i)
@@ -2244,6 +2245,7 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
 
             if (i)
                 polymost_setupglowtexture(++texunits, i);
+#endif
 
             if (r_vertexarrays && r_vbos)
             {
@@ -2384,7 +2386,7 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
     if (m->usesalpha) bglDisable(GL_ALPHA_TEST);
 
     bglDisable(GL_CULL_FACE);
-    bglPopAttrib();
+//    bglPopAttrib();
     bglLoadIdentity();
 
     globalnoeffect=0;

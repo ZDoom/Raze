@@ -1261,8 +1261,11 @@ extern int32_t gltexmaxsize;
 void gltexapplyprops (void);
 void texcache_invalidate(void);
 
+#ifndef EDUKE32_GLES
 extern int32_t r_detailmapping;
 extern int32_t r_glowmapping;
+#endif
+
 extern int32_t r_vertexarrays;
 extern int32_t r_vbos;
 extern int32_t r_vbocount;
@@ -1378,7 +1381,6 @@ FORCE_INLINE void push_nofog(void)
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
     {
-        bglPushAttrib(GL_ENABLE_BIT);
         bglDisable(GL_FOG);
     }
 #endif
@@ -1387,8 +1389,8 @@ FORCE_INLINE void push_nofog(void)
 FORCE_INLINE void pop_nofog(void)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
-        bglPopAttrib();
+    if (getrendermode() >= REND_POLYMOST && !nofog)
+        bglEnable(GL_FOG);
 #endif
 }
 

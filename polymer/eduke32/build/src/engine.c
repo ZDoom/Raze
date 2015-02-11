@@ -6849,7 +6849,7 @@ static void drawsprite(int32_t snum)
         polymost_drawsprite(snum);
         bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
+//        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
         return;
 # ifdef POLYMER
     case REND_POLYMER:
@@ -16158,15 +16158,27 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
     {
         palette_t p = getpal(col);
 
-        setpolymost2dview();	// JBF 20040205: more efficient setup
+//        setpolymost2dview();	// JBF 20040205: more efficient setup
 
-        //bglEnable(GL_BLEND);	// When using line antialiasing, this is needed
+        bglViewport(0, 0, xres, yres);
+        bglMatrixMode(GL_PROJECTION);
+        bglLoadIdentity();
+        bglOrtho(0, xres, yres, 0, -1, 1);
+//        bglMatrixMode(GL_MODELVIEW);
+//        bglLoadIdentity();
+
+        gloy1 = -1;
+        bglDisable(GL_ALPHA_TEST);
+        bglDisable(GL_DEPTH_TEST);
+        bglDisable(GL_TEXTURE_2D);
+        bglEnable(GL_BLEND);	// When using line antialiasing, this is needed
+
         bglBegin(GL_LINES);
-        bglColor4ub(p.r,p.g,p.b,255);
+        bglColor4ub(p.r, p.g, p.b, 255);
         bglVertex2f((float)x1 * (1.f/4096.f), (float)y1 * (1.f/4096.f));
         bglVertex2f((float)x2 * (1.f/4096.f), (float)y2 * (1.f/4096.f));
+
         bglEnd();
-        //bglDisable(GL_BLEND);
 
         return;
     }

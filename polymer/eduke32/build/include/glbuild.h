@@ -111,8 +111,8 @@ typedef void (APIENTRY * bglDepthFuncProcPtr)( GLenum func );
 extern bglDepthFuncProcPtr bglDepthFunc;
 typedef void (APIENTRY * bglDepthMaskProcPtr)( GLboolean flag );
 extern bglDepthMaskProcPtr bglDepthMask;
-typedef void (APIENTRY * bglDepthRangeProcPtr)( GLclampd near_val, GLclampd far_val );
-extern bglDepthRangeProcPtr bglDepthRange;
+//typedef void (APIENTRY * bglDepthRangeProcPtr)( GLclampd near_val, GLclampd far_val );
+//extern bglDepthRangeProcPtr bglDepthRange;
 
 // Matrix
 typedef void (APIENTRY * bglMatrixModeProcPtr)( GLenum mode );
@@ -629,7 +629,7 @@ void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *src
 // Depth
 #define bglDepthFunc glDepthFunc
 #define bglDepthMask glDepthMask
-#define bglDepthRange glDepthRange
+//#define bglDepthRange glDepthRange
 
 // Matrix
 #define bglMatrixMode glMatrixMode

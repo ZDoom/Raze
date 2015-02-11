@@ -1,68 +1,6 @@
 /**************************************************************************************************
-"POLYMOST" code written by Ken Silverman
+"POLYMOST" code originally written by Ken Silverman
 Ken Silverman's official web site: http://www.advsys.net/ken
-
-Motivation:
-When 3D Realms released the Duke Nukem 3D source code, I thought somebody would do a OpenGL or
-Direct3D port. Well, after a few months passed, I saw no sign of somebody working on a true
-hardware-accelerated port of Build, just people saying it wasn't possible. Eventually, I realized
-the only way this was going to happen was for me to do it myself. First, I needed to port Build to
-Windows. I could have done it myself, but instead I thought I'd ask my Australian buddy, Jonathon
-Fowler, if he would upgrade his Windows port to my favorite compiler (MSVC) - which he did. Once
-that was done, I was ready to start the "POLYMOST" project.
-
-About:
-This source file is basically a complete rewrite of the entire rendering part of the Build engine.
-There are small pieces in ENGINE.C to activate this code, and other minor hacks in other source
-files, but most of it is in here. If you're looking for polymost-related code in the other source
-files, you should find most of them by searching for either "polymost" or "rendmode". Speaking of
-rendmode, there are now 4 rendering modes in Build:
-
-    rendmode 0: The original code I wrote from 1993-1997
-    rendmode 1: Solid-color rendering: my debug code before I did texture mapping
-    rendmode 2: Software rendering before I started the OpenGL code (Note: this is just a quick
-                        hack to make testing easier - it's not optimized to my usual standards!)
-    rendmode 3: The OpenGL code
-
-The original Build engine did hidden surface removal by using a vertical span buffer on the tops
-and bottoms of walls. This worked nice back in the day, but it it's not suitable for a polygon
-engine. So I decided to write a brand new hidden surface removal algorithm - using the same idea
-as the original Build - but one that worked with vectors instead of already rasterized data.
-
-Brief history:
-06/20/2000: I release Build Source code
-04/01/2003: 3D Realms releases Duke Nukem 3D source code
-10/04/2003: Jonathon Fowler gets his Windows port working in Visual C
-10/04/2003: I start writing POLYMOST.BAS, a new hidden surface removal algorithm for Build that
-                    works on a polygon level instead of spans.
-10/16/2003: Ported POLYMOST.BAS to C inside JonoF KenBuild's ENGINE.C; later this code was split
-                    out of ENGINE.C and put in this file, POLYMOST.C.
-12/10/2003: Started OpenGL code for POLYMOST (rendmode 3)
-12/23/2003: 1st public release
-01/01/2004: 2nd public release: fixed stray lines, status bar, mirrors, sky, and lots of other bugs.
-
-----------------------------------------------------------------------------------------------------
-
-Todo list (in approximate chronological order):
-
-High priority:
-    *   BOTH: Do accurate software sorting/chopping for sprites: drawing in wrong order is bad :/
-    *   BOTH: Fix hall of mirrors near "zenith". Call polymost_drawrooms twice?
-    * OPENGL: drawmapview()
-
-Low priority:
-    * SOFT6D: Do back-face culling of sprites during up/down/tilt transformation (top of drawpoly)
-    * SOFT6D: Fix depth shading: use saturation&LUT
-    * SOFT6D: Optimize using hyperbolic mapping (similar to KUBE algo)
-    * SOFT6D: Slab6-style voxel sprites. How to accelerate? :/
-    * OPENGL: KENBUILD: Write flipping code for floor mirrors
-    *   BOTH: KENBUILD: Parallaxing sky modes 1&2
-    *   BOTH: Masked/1-way walls don't clip correctly to sectors of intersecting ceiling/floor slopes
-    *   BOTH: Editart x-center is not working correctly with Duke's camera/turret sprites
-    *   BOTH: Get rid of horizontal line above Duke full-screen status bar
-    *   BOTH: Combine ceilings/floors into a single triangle strip (should lower poly count by 2x)
-    *   BOTH: Optimize/clean up texture-map setup equations
-
 **************************************************************************************************/
 
 
@@ -83,6 +21,10 @@ Low priority:
 #include "kplib.h"
 #include "texcache.h"
 #include "common.h"
+
+#ifdef EDUKE32_GLES
+#include "jwzgles.h"
+#endif
 
 #ifndef _WIN32
 extern int32_t filelength(int h); // kplib.c
@@ -151,14 +93,23 @@ struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 };
 
 int32_t glanisotropy = 1;            // 0 = maximum supported by card
-int32_t glusetexcompr = 1;
 int32_t gltexfiltermode = 2; // GL_NEAREST_MIPMAP_NEAREST
+
+#ifdef EDUKE32_GLES
+int32_t glusetexcompr = 0;
+int32_t glusetexcache = 0, glusememcache = 0;
+#else
+int32_t glusetexcompr = 1;
 int32_t glusetexcache = 2, glusememcache = 1;
+int32_t glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 int32_t glmultisample = 0, glnvmultisamplehint = 0;
+static int32_t lastglpolygonmode = 0; //FUK
+int32_t r_detailmapping = 1;
+int32_t r_glowmapping = 1;
+#endif
+
 int32_t gltexmaxsize = 0;      // 0 means autodetection on first run
 int32_t gltexmiplevel = 0;		// discards this many mipmap levels
-static int32_t lastglpolygonmode = 0; //FUK
-int32_t glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 int32_t glprojectionhacks = 1;
 static GLuint polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;
@@ -167,8 +118,6 @@ int32_t glrendmode = REND_POLYMOST;
 // fullbright tiles.  Also see 'fullbrightloadingpass'.
 static int32_t fullbrightdrawingpass = 0;
 
-int32_t r_detailmapping = 1;
-int32_t r_glowmapping = 1;
 int32_t r_vertexarrays = 1;
 int32_t r_vbos = 1;
 int32_t r_vbocount = 64;
@@ -200,45 +149,6 @@ static inline float Bfabsf(float f) { return __int_as_float(__float_as_int(f)&0x
 #else
 #define Bfabsf fabsf
 #endif
-
-void drawline2d(float x0, float y0, float x1, float y1, char col)
-{
-    float f, dx, dy, fxres, fyres;
-    int32_t e, inc, x, y;
-    uint32_t up16;
-
-    dx = x1-x0; dy = y1-y0; if ((dx == 0) && (dy == 0)) return;
-    fxres = fxdimen; fyres = fydimen;
-    if (x0 >= fxres) { if (x1 >= fxres) return; y0 += (fxres-x0)*dy/dx; x0 = fxres; }
-    else if (x0 <      0) { if (x1 <      0) return; y0 += (0-x0)*dy/dx; x0 =     0; }
-    if (x1 >= fxres) {                          y1 += (fxres-x1)*dy/dx; x1 = fxres; }
-    else if (x1 <      0) {                          y1 += (0-x1)*dy/dx; x1 =     0; }
-    if (y0 >= fyres) { if (y1 >= fyres) return; x0 += (fyres-y0)*dx/dy; y0 = fyres; }
-    else if (y0 <      0) { if (y1 <      0) return; x0 += (0-y0)*dx/dy; y0 =     0; }
-    if (y1 >= fyres) {                          x1 += (fyres-y1)*dx/dy; y1 = fyres; }
-    else if (y1 <      0) {                          x1 += (0-y1)*dx/dy; y1 =     0; }
-
-    if (Bfabsf(dx) > Bfabsf(dy))
-    {
-        if (x0 > x1) { f = x0; x0 = x1; x1 = f; f = y0; y0 = y1; y1 = f; }
-        y = (int32_t)(y0*65536.f)+32768;
-        inc = (int32_t)(dy/dx*65536.f+.5f);
-        x = (int32_t)(x0+0.5f); if (x < 0) { y -= inc*x; x = 0; } //if for safety
-        e = (int32_t)(x1+0.5f); if (e > xdimen) e = xdimen;       //if for safety
-        up16 = (ydimen<<16);
-        for (; x<e; x++,y+=inc) if ((uint32_t)y < up16) *(char *)(ylookup[y>>16]+x+frameoffset) = col;
-    }
-    else
-    {
-        if (y0 > y1) { f = x0; x0 = x1; x1 = f; f = y0; y0 = y1; y1 = f; }
-        x = (int32_t)(x0*65536.f)+32768;
-        inc = (int32_t)(dx/dy*65536.f+.5f);
-        y = (int32_t)(y0+0.5f); if (y < 0) { x -= inc*y; y = 0; } //if for safety
-        e = (int32_t)(y1+0.5f); if (e > ydimen) e = ydimen;       //if for safety
-        up16 = (xdimen<<16);
-        for (; y<e; y++,x+=inc) if ((uint32_t)x < up16) *(char *)(ylookup[y]+(x>>16)+frameoffset) = col;
-    }
-}
 
 #ifdef USE_OPENGL
 int32_t mdtims, omdtims;
@@ -303,13 +213,18 @@ void gltexinvalidatetype(int32_t type)
 #endif
 }
 
-static void bind_2d_texture(GLuint texture)
+static void bind_2d_texture(GLuint texture, int filter)
 {
+    if (filter == -1)
+        filter = gltexfiltermode;
+
     bglBindTexture(GL_TEXTURE_2D, texture);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[gltexfiltermode].mag);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[gltexfiltermode].min);
+    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[filter].mag);
+    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[filter].min);
+#ifndef EDUKE32_GLES
     if (glinfo.maxanisotropy > 1.f)
         bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
+#endif
 }
 
 void gltexapplyprops(void)
@@ -332,35 +247,40 @@ void gltexapplyprops(void)
     {
         for (pth=texcache.list[i]; pth; pth=pth->next)
         {
-            bind_2d_texture(pth->glpic);
+#ifndef EDUKE32_TOUCH_DEVICES
+            bind_2d_texture(pth->glpic, -1);
 
             if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)
-                bind_2d_texture(pth->ofb->glpic);
+                bind_2d_texture(pth->ofb->glpic, -1);
+#else
+            bind_2d_texture(pth->glpic, pth->flags & PTH_HIGHTILE ? 5 : -1);
+
+            if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)
+                bind_2d_texture(pth->ofb->glpic, pth->flags & PTH_HIGHTILE ? 5 : -1);
+#endif
         }
     }
 
+    int32_t j;
+    mdskinmap_t *sk;
+    md2model_t *m;
+
+    for (i=0; i<nextmodelid; i++)
     {
-        int32_t j;
-        mdskinmap_t *sk;
-        md2model_t *m;
-
-        for (i=0; i<nextmodelid; i++)
+        m = (md2model_t *)models[i];
+        if (m->mdnum < 2) continue;
+        for (j=0; j<m->numskins*(HICEFFECTMASK+1); j++)
         {
-            m = (md2model_t *)models[i];
-            if (m->mdnum < 2) continue;
-            for (j=0; j<m->numskins*(HICEFFECTMASK+1); j++)
-            {
-                if (!m->texid[j]) continue;
-                bind_2d_texture(m->texid[j]);
-            }
-
-            for (sk=m->skinmap; sk; sk=sk->next)
-                for (j=0; j<(HICEFFECTMASK+1); j++)
-                {
-                    if (!sk->texid[j]) continue;
-                    bind_2d_texture(sk->texid[j]);
-                }
+            if (!m->texid[j]) continue;
+            bind_2d_texture(m->texid[j], -1);
         }
+
+        for (sk=m->skinmap; sk; sk=sk->next)
+            for (j=0; j<(HICEFFECTMASK+1); j++)
+            {
+                if (!sk->texid[j]) continue;
+                bind_2d_texture(sk->texid[j], -1);
+            }
     }
 }
 
@@ -426,8 +346,8 @@ void polymost_glreset()
     glox1 = -1;
 
     texcache_freeptrs();
-
     texcache_syncmemcache();
+
 #ifdef DEBUGGINGAIDS
     OSD_Printf("polymost_glreset()\n");
 #endif
@@ -437,13 +357,8 @@ void polymost_glreset()
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
 {
-    if (!Bstrcmp(glinfo.vendor, "NVIDIA Corporation"))
-        bglHint(GL_FOG_HINT, GL_NICEST);
-    else
-        bglHint(GL_FOG_HINT, GL_DONT_CARE);
-
+    bglHint(GL_FOG_HINT, GL_NICEST);
     bglFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
-
     bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     bglPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -452,6 +367,7 @@ void polymost_glinit()
     //bglHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     //bglEnable(GL_LINE_SMOOTH);
 
+#ifndef EDUKE32_GLES
     if (glmultisample > 0 && glinfo.multisample)
     {
         if (glinfo.nvmultisamplehint)
@@ -470,6 +386,7 @@ void polymost_glinit()
         OSD_Printf("Your OpenGL implementation doesn't support glow mapping. Disabling...\n");
         r_glowmapping = 0;
     }
+#endif
 
     if (r_vbos && (!glinfo.vbos))
     {
@@ -635,6 +552,7 @@ static void resizeglcheck(void)
     lastglredbluemode = glredbluemode;
 #endif
 
+#ifndef EDUKE32_GLES
     //FUK
     if (lastglpolygonmode != glpolygonmode)
     {
@@ -656,6 +574,9 @@ static void resizeglcheck(void)
         bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
         bglDisable(GL_TEXTURE_2D);
     }
+#else
+    bglPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+#endif
 
     if ((glox1 != windowx1) || (gloy1 != windowy1) || (glox2 != windowx2) || (gloy2 != windowy2))
     {
@@ -857,23 +778,28 @@ static int32_t tile_is_sky(int32_t tilenum)
 # define tile_is_sky(x) (0)
 #endif
 
-static void texture_setup(const int32_t dameth)
+static void texture_setup(const int32_t dameth, int filter)
 {
     const GLuint clamp_mode = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
 
-    gltexfiltermode = clamp(gltexfiltermode, 0, NUMGLFILTERMODES-1);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[gltexfiltermode].mag);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[gltexfiltermode].min);
+    if (filter == -1)
+        filter = gltexfiltermode;
 
+    gltexfiltermode = clamp(gltexfiltermode, 0, NUMGLFILTERMODES - 1);
+    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[filter].mag);
+    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[filter].min);
+
+#ifndef EDUKE32_GLES
     if (glinfo.maxanisotropy > 1.f)
     {
-        uint32_t i = (unsigned) Blrintf(glinfo.maxanisotropy);
+        uint32_t i = (unsigned)Blrintf(glinfo.maxanisotropy);
 
         if ((unsigned)glanisotropy > i)
             glanisotropy = i;
 
         bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
     }
+#endif
 
     if (!(dameth & DAMETH_CLAMPED))
     {
@@ -882,7 +808,7 @@ static void texture_setup(const int32_t dameth)
     }
     else
     {
-        //For sprite textures, clamping looks better than wrapping
+        // For sprite textures, clamping looks better than wrapping
         bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
         bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
     }
@@ -890,25 +816,19 @@ static void texture_setup(const int32_t dameth)
 
 void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
-    coltype *pic;
-    int32_t npoty = 0;
-    char hasalpha = 0, hasfullbright = 0;
-
     static int32_t fullbrightloadingpass = 0;
 
     vec2_t siz, tsiz = tilesiz[dapic];
 
     if (!glinfo.texnpot)
     {
-        for (siz.x=1; siz.x<tsiz.x; siz.x+=siz.x);
-        for (siz.y=1; siz.y<tsiz.y; siz.y+=siz.y);
+        for (siz.x = 1; siz.x < tsiz.x; siz.x += siz.x);
+        for (siz.y = 1; siz.y < tsiz.y; siz.y += siz.y);
     }
     else
     {
         if ((tsiz.x|tsiz.y) == 0)
-        {
             siz.x = siz.y = 1;
-        }
         else
         {
             siz.x = tsiz.x;
@@ -916,7 +836,8 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
         }
     }
 
-    pic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
+    coltype *pic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
+    char hasalpha = 0, hasfullbright = 0;
 
     if (!waloff[dapic])
     {
@@ -990,6 +911,8 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
 
     fixtransparency(pic,tsiz,siz,dameth);
 
+    int32_t npoty = 0;
+
     if (polymost_want_npotytex(dameth, siz.y) &&
             tsiz.x==siz.x && tsiz.y==siz.y)  // XXX
     {
@@ -1008,11 +931,11 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
         npoty = PTH_NPOTWALL;
     }
 
-    uploadtexture(doalloc,siz.x,siz.y,hasalpha?GL_RGBA:GL_RGB,GL_RGBA,pic,tsiz.x,tsiz.y,dameth);
-
-    texture_setup(dameth);
+    uploadtexture(doalloc, siz.x, siz.y, hasalpha ? GL_RGBA : GL_RGB, GL_RGBA, pic, tsiz.x, tsiz.y, dameth);
 
     Bfree(pic);
+
+    texture_setup(dameth, -1);
 
     pth->picnum = dapic;
     pth->palnum = dapal;
@@ -1039,24 +962,15 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
                             int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
 {
+    if (!hicr) return -1;
+
     coltype *pic = NULL;
-//    int32_t xsiz=0, ysiz=0, tsizx, tsizy;
-    vec2_t siz ={ 0, 0 };
-    vec2_t tsiz;
 
-    char *picfil = NULL, *fn, hasalpha = 255;
-    int32_t picfillen, texfmt = GL_RGBA, intexfmt = GL_RGBA, filh;
-
-    int32_t gotcache;
-    texcacheheader cachead;
-
-    static coltype *lastpic = NULL;
-    static char *lastfn = NULL;
-    static int32_t lastsize = 0;
+    char *picfil = NULL, *fn;
+    int32_t picfillen, intexfmt = GL_RGBA, filh;
 
     int32_t startticks=0, willprint=0;
 
-    if (!hicr) return -1;
     if (facen > 0)
     {
         if (!hicr->skybox) return -1;
@@ -1080,7 +994,10 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
-    gotcache = texcache_readtexheader(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead, 0);
+    char hasalpha = 255;
+    texcacheheader cachead;
+    int32_t gotcache = texcache_readtexheader(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead, 0);
+    vec2_t siz ={ 0, 0 }, tsiz;
 
     if (gotcache && !texcache_loadtile(&cachead, &doalloc, pth))
     {
@@ -1128,6 +1045,10 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         pic = (coltype *)Xcalloc(siz.x,siz.y*sizeof(coltype));
 
         startticks = getticks();
+
+        static coltype *lastpic = NULL;
+        static char *lastfn = NULL;
+        static int32_t lastsize = 0;
 
         if (lastpic && lastfn && !Bstrcmp(lastfn,fn))
         {
@@ -1218,12 +1139,14 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 Bmemcpy(&pic[siz.x*tsiz.y],pic,(siz.y-tsiz.y)*siz.x<<2);
         }
 
+        int32_t texfmt;
+
         if (!glinfo.bgra)
         {
+            texfmt = GL_RGBA;
+
             for (j=siz.x*siz.y-1; j>=0; j--)
-            {
                 swapchar(&pic[j].r, &pic[j].b);
-            }
         }
         else texfmt = GL_BGRA;
 
@@ -1257,7 +1180,11 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         pth->scale.y = (float)tsiz.y / (float)tilesiz[dapic].y;
     }
 
-    texture_setup(dameth);
+#ifdef EDUKE32_TOUCH_DEVICES
+    texture_setup(dameth, 5);
+#else
+    texture_setup(dameth, -1);
+#endif
 
     DO_FREE_AND_NULL(pic);
 
@@ -1457,14 +1384,13 @@ static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
     if (getrendermode() >= REND_POLYMOST)
     {
         float hackscx = 1.f, hackscy = 1.f;
-        pthtyp *pth, *detailpth, *glowpth;
         int32_t texunits = GL_TEXTURE0_ARB;
         int32_t xx, yy;
 
         int32_t jj = j;
 
         if (skyclamphack) method |= DAMETH_CLAMPED;
-        pth = our_texcache_fetch(method&(~3));
+        pthtyp *pth = our_texcache_fetch(method&(~3));
 
         if (!pth)
         {
@@ -1506,8 +1432,9 @@ static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
             bglMatrixMode(GL_MODELVIEW);
         }
 
+#ifndef EDUKE32_GLES
         // detail texture
-        detailpth = NULL;
+        pthtyp *detailpth = NULL;
         if (r_detailmapping && usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL))
             detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method&(~3));
 
@@ -1530,12 +1457,13 @@ static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
         }
 
         // glow texture
-        glowpth = NULL;
+        pthtyp *glowpth = NULL;
         if (r_glowmapping && usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL))
             glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, method&(~3));
 
         if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
             polymost_setupglowtexture(++texunits, glowpth ? glowpth->glpic : 0);
+#endif
 
         if (pth && (pth->flags & PTH_HIGHTILE))
         {
@@ -1780,7 +1708,7 @@ static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
             globalshade = -128; // fullbright
             bglDisable(GL_FOG);
             drawpoly(dpxy, n, method_); // draw them afterwards, then. :)
-            bglEnable(GL_FOG);
+            if (!nofog) bglEnable(GL_FOG);
             globalshade = shadeforfullbrightpass;
             fullbrightdrawingpass = 0;
         }
@@ -3427,7 +3355,7 @@ void polymost_drawrooms()
         bglEnable(GL_TEXTURE_2D);
         bglEnable(GL_DEPTH_TEST);
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
+//        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
 
         //Enable this for OpenGL red-blue glasses mode :)
 #ifdef REDBLUEMODE
@@ -3597,7 +3525,7 @@ void polymost_drawrooms()
     if (getrendermode() >= REND_POLYMOST)
     {
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
+//        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
     }
 #endif
 
@@ -4051,7 +3979,7 @@ void polymost_drawsprite(int32_t snum)
         yv = (float)tspr->xrepeat * (float)sintable[(tspr->ang+1536)&2047] * (1.0f/65536.f);
         f = (float)(tsizx>>1) + (float)xoff;
 
-#define WSPR_OFFSET .01f
+#define WSPR_OFFSET .025f
 
         {
             vec2f_t vf = { xv * f, yv * f };
@@ -4328,8 +4256,8 @@ void polymost_drawsprite(int32_t snum)
         ft[3] = singlobalang*fx - cosglobalang*fy;
         ft[0] = ((float)(globalposy-yv))*fy + ((float)(globalposx-xv))*fx;
         ft[1] = ((float)(globalposx-xv))*fy - ((float)(globalposy-yv))*fx;
-        gux = (float)ft[3]*fviewingrange/(-65536.f*262144.f);
-        gvx = (float)ft[2]*fviewingrange/(-65536.f*262144.f);
+        gux = (float)ft[3]*fviewingrange * (1.f/(-65536.f*262144.f));
+        gvx = (float)ft[2]*fviewingrange * (1.f/(-65536.f*262144.f));
         guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
         guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
         guo += (double)(ft[2]*(1.0f/262144.f)-gux)*ghalfx;
@@ -4831,8 +4759,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             pr_normalmapping = oldnormalmapping;
         }
 # endif
+        bglPopMatrix();
         bglMatrixMode(GL_PROJECTION); bglPopMatrix();
-        bglMatrixMode(GL_MODELVIEW); bglPopMatrix();
     }
 #endif
 
@@ -5230,7 +5158,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     bglDisable(GL_ALPHA_TEST);
     bglDepthMask(GL_FALSE);	// disable writing to the z-buffer
 
-    bglPushAttrib(GL_POLYGON_BIT|GL_ENABLE_BIT);
+//    bglPushAttrib(GL_POLYGON_BIT|GL_ENABLE_BIT);
     // XXX: Don't fogify the OSD text in Mapster32 with r_usenewshading >= 2.
     bglDisable(GL_FOG);
     // We want to have readable text in wireframe mode, too:
@@ -5289,7 +5217,8 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     bglEnd();
 
     bglDepthMask(GL_TRUE);	// re-enable writing to the z-buffer
-    bglPopAttrib();
+//    bglPopAttrib();
+    if (!nofog) bglEnable(GL_FOG);
 
     return 0;
 #endif
@@ -5423,36 +5352,30 @@ void polymost_initosdfuncs(void)
     {
 #ifdef USE_OPENGL
         { "r_animsmoothing","enable/disable model animation smoothing",(void *) &r_animsmoothing, CVAR_BOOL, 0, 1 },
-        { "r_detailmapping","enable/disable detail mapping",(void *) &r_detailmapping, CVAR_BOOL, 0, 1 },
         { "r_downsize","controls downsizing factor (quality) for hires textures",(void *) &r_downsize, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
         { "r_fullbrights","enable/disable fullbright textures",(void *) &r_fullbrights, CVAR_BOOL, 0, 1 },
+        { "r_parallaxskyclamping","enable/disable parallaxed floor/ceiling sky texture clamping", (void *) &r_parallaxskyclamping, CVAR_BOOL, 0, 1 },
+        { "r_parallaxskypanning","enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky", (void *) &r_parallaxskypanning, CVAR_BOOL, 0, 1 },
+
+#ifndef EDUKE32_GLES
+        { "r_detailmapping","enable/disable detail mapping",(void *) &r_detailmapping, CVAR_BOOL, 0, 1 },
         { "r_glowmapping","enable/disable glow mapping",(void *) &r_glowmapping, CVAR_BOOL, 0, 1 },
-        /*
-          { "r_multisample","sets the number of samples used for antialiasing (0 = off)",(void *)&glmultisample, CVAR_BOOL, 0, 1 },
-          { "r_nvmultisamplehint","enable/disable Nvidia multisampling hinting",(void *)&glnvmultisamplehint, CVAR_BOOL, 0, 1 },
-        */
-        {
-            "r_parallaxskyclamping","enable/disable parallaxed floor/ceiling sky texture clamping",
-            (void *) &r_parallaxskyclamping, CVAR_BOOL, 0, 1
-        },
-        {
-            "r_parallaxskypanning","enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",
-            (void *) &r_parallaxskypanning, CVAR_BOOL, 0, 1
-        },
         { "r_polygonmode","debugging feature",(void *) &glpolygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
+        { "r_texcache","enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
+        { "r_memcache","enable/disable texture cache memory cache",(void *) &glusememcache, CVAR_BOOL, 0, 1 },
+        { "r_texcompr","enable/disable OpenGL texture compression",(void *) &glusetexcompr, CVAR_BOOL, 0, 1 },
+#endif
+
 #ifdef REDBLUEMODE
         { "r_redbluemode","enable/disable experimental OpenGL red-blue glasses mode",(void *) &glredbluemode, CVAR_BOOL, 0, 1 },
 #endif
         { "r_shadescale","multiplier for shading",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
         { "r_shadescale_unbounded","enable/disable allowance of complete blackness",(void *) &shadescale_unbounded, CVAR_BOOL, 0, 1 },
         { "r_swapinterval","sets the GL swap interval (VSync)",(void *) &vsync, CVAR_INT|CVAR_FUNCPTR, -1, 1 },
-        { "r_texcache","enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
-        { "r_memcache","enable/disable texture cache memory cache",(void *) &glusememcache, CVAR_BOOL, 0, 1 },
         {
             "r_npotwallmode", "enable/disable emulation of walls with non-power-of-two height textures (Polymost, r_hightile 0)",
             (void *) &r_npotwallmode, CVAR_BOOL, 0, 1
         },
-        { "r_texcompr","enable/disable OpenGL texture compression",(void *) &glusetexcompr, CVAR_BOOL, 0, 1 },
         { "r_textureanisotropy", "changes the OpenGL texture anisotropy setting", (void *) &glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 16 },
         { "r_texturemaxsize","changes the maximum OpenGL texture size limit",(void *) &gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },
         { "r_texturemiplevel","changes the highest OpenGL mipmap level used",(void *) &gltexmiplevel, CVAR_INT, 0, 6 },

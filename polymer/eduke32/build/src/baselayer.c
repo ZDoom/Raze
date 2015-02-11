@@ -253,6 +253,8 @@ void makeasmwriteable(void)
 }
 
 #ifdef USE_OPENGL
+extern int32_t nofog;
+
 void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
 {
     bglMatrixMode(GL_PROJECTION);
@@ -261,8 +263,6 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
     bglMatrixMode(GL_MODELVIEW);
     bglPushMatrix();
     bglLoadIdentity();
-
-    bglPushAttrib(GL_ENABLE_BIT);
 
     bglDisable(GL_DEPTH_TEST);
     bglDisable(GL_ALPHA_TEST);
@@ -279,7 +279,10 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
     bglVertex2f(.0f, -2.5f);
     bglEnd();
 
-    bglPopAttrib();
+    bglEnable(GL_DEPTH_TEST);
+    bglEnable(GL_ALPHA_TEST);
+    bglEnable(GL_TEXTURE_2D);
+    if (!nofog) bglEnable(GL_FOG);
 
     bglPopMatrix();
     bglMatrixMode(GL_PROJECTION);
@@ -407,17 +410,12 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
 
     if (bpp == 8)
     {
-        initprintf("glinfo: Not in OpenGL mode.\n");
+        initprintf("glinfo: not in OpenGL mode!\n");
         return OSDCMD_OK;
     }
 
-    initprintf("OpenGL Information:\n"
-               " Version:  %s\n"
-               " Vendor:   %s\n"
-               " Renderer: %s\n",
-               glinfo.version,
-               glinfo.vendor,
-               glinfo.renderer);
+    initprintf("OpenGL information\n %s %s %s\n",
+               glinfo.vendor, glinfo.renderer, glinfo.version);
 
     if (!glinfo.dumped)
         return OSDCMD_OK;
@@ -425,42 +423,46 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
     initprintf(" Maximum anisotropy:      %.1f%s\n"
                " BGRA textures:           %s\n"
                " Non-power-of-2 textures: %s\n"
-               " Texure compression:      %s\n"
                " Clamp-to-edge:           %s\n"
+               " Multitexturing:          %s\n"
+               " Frame Buffer Objects:    %s\n"
+               " Texure compression:      %s\n"
+#ifndef EDUKE32_GLES
                " Multisampling:           %s\n"
-               " Nvidia multisample hint: %s\n"
+               " NVIDIA multisample hint: %s\n"
                " ARBfp fragment programs: %s\n"
                " Depth textures:          %s\n"
                " Shadow textures:         %s\n"
-               " Frame Buffer Objects:    %s\n"
                " Rectangle textures:      %s\n"
-               " Multitexturing:          %s\n"
                " env_combine:             %s\n"
                " Vertex Buffer Objects:   %s\n"
                " Shader Model 4:          %s\n"
                " Occlusion queries:       %s\n"
                " GLSL:                    %s\n"
                " Debug Output:            %s\n"
+#endif
                " Extensions:\n",
                glinfo.maxanisotropy, glinfo.maxanisotropy>1.0?"":" (no anisotropic filtering)",
                glinfo.bgra ? "supported": "not supported",
                glinfo.texnpot ? "supported": "not supported",
-               glinfo.texcompr ? "supported": "not supported",
                glinfo.clamptoedge ? "supported": "not supported",
-               glinfo.multisample ? "supported": "not supported",
+               glinfo.multitex ? "supported": "not supported",
+               glinfo.fbos ? "supported": "not supported",
+               glinfo.texcompr ? "supported": "not supported"
+#ifndef EDUKE32_GLES
+               ,glinfo.multisample ? "supported": "not supported",
                glinfo.nvmultisamplehint ? "supported": "not supported",
                glinfo.arbfp ? "supported": "not supported",
                glinfo.depthtex ? "supported": "not supported",
                glinfo.shadow ? "supported": "not supported",
-               glinfo.fbos ? "supported": "not supported",
                glinfo.rect ? "supported": "not supported",
-               glinfo.multitex ? "supported": "not supported",
                glinfo.envcombine ? "supported": "not supported",
                glinfo.vbos ? "supported": "not supported",
                glinfo.sm4 ? "supported": "not supported",
                glinfo.occlusionqueries ? "supported": "not supported",
                glinfo.glsl ? "supported": "not supported",
                glinfo.debugoutput ? "supported": "not supported"
+#endif
               );
 
     s = Bstrdup(glinfo.extensions);

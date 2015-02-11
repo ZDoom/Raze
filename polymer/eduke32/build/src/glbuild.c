@@ -41,7 +41,7 @@ bglClipPlaneProcPtr bglClipPlane;
 // Depth
 bglDepthFuncProcPtr bglDepthFunc;
 bglDepthMaskProcPtr bglDepthMask;
-bglDepthRangeProcPtr bglDepthRange;
+//bglDepthRangeProcPtr bglDepthRange;
 
 // Matrix
 bglMatrixModeProcPtr bglMatrixMode;
@@ -414,7 +414,7 @@ int32_t loadgldriver(const char *driver)
     // Depth
     bglDepthFunc = (bglDepthFuncProcPtr) GETPROC("glDepthFunc");
     bglDepthMask = (bglDepthMaskProcPtr) GETPROC("glDepthMask");
-    bglDepthRange = (bglDepthRangeProcPtr) GETPROC("glDepthRange");
+//    bglDepthRange = (bglDepthRangeProcPtr) GETPROC("glDepthRange");
 
     // Matrix
     bglMatrixMode = (bglMatrixModeProcPtr) GETPROC("glMatrixMode");
@@ -704,7 +704,7 @@ int32_t unloadgldriver(void)
     // Depth
     bglDepthFunc = (bglDepthFuncProcPtr) NULL;
     bglDepthMask = (bglDepthMaskProcPtr) NULL;
-    bglDepthRange = (bglDepthRangeProcPtr) NULL;
+//    bglDepthRange = (bglDepthRangeProcPtr) NULL;
 
     // Matrix
     bglMatrixMode = (bglMatrixModeProcPtr) NULL;
