@@ -1312,7 +1312,7 @@ static void ShowFileText(const char *name)
 typedef struct helppage_
 {
     int32_t numlines;
-    char line[][80];  // C99 flexible array member
+    char line[1][80];  // C99 flexible array member
 } helppage_t;
 
 static helppage_t **helppage=NULL;
@@ -9832,7 +9832,7 @@ int32_t ExtInit(void)
     // will hopefully be the same file
     pathsearchmode_oninit = pathsearchmode;
 
-    G_ExtPreStartupWindow();
+    G_ScanGroups();
 
     signal(SIGINT, m32script_interrupt_handler);
 
@@ -9841,7 +9841,7 @@ int32_t ExtInit(void)
 
 int32_t ExtPostStartupWindow(void)
 {
-    G_ExtPostStartupWindow(!NoAutoLoad);
+    G_LoadGroups(!NoAutoLoad);
 
     if (!usecwd)
         G_CleanupSearchPaths();
