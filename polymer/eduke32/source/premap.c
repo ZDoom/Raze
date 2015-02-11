@@ -435,12 +435,21 @@ void G_CacheMapData(void)
     if (ud.recstat == 2)
         return;
 
+#ifndef EDUKE32_TOUCH_DEVICES
     S_PauseMusic(1);
+#endif
+
     if (MapInfo[MUS_LOADING].musicfn)
     {
         S_StopMusic();
         S_PlayMusic(MapInfo[MUS_LOADING].musicfn);
     }
+
+#ifdef EDUKE32_TOUCH_DEVICES
+    gltexinvalidatetype(INVALIDATE_ALL);
+#else
+    gltexinvalidatetype(INVALIDATE_ART);
+#endif
 
     starttime = getticks();
 
@@ -1960,7 +1969,6 @@ int32_t G_EnterLevel(int32_t g)
     //g_player[myconnectindex].ps->palette = palette;
     //G_FadePalette(0,0,0,0);
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-
     P_UpdateScreenPal(g_player[myconnectindex].ps);
     flushperms();
 
@@ -1975,7 +1983,6 @@ int32_t G_EnterLevel(int32_t g)
 
     g_restorePalette = -1;
 
-    G_FadePalette(0,0,0,0);
     G_UpdateScreenArea();
     clearview(0L);
     G_DrawBackground();
