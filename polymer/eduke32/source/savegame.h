@@ -55,10 +55,19 @@ typedef struct
     uint8_t numplayers, volnum, levnum, skill;
     char boardfn[BMAX_PATH];
     // 282 bytes
+#ifdef __ANDROID__
+    char skillname[32], volname[32];
+#endif
 } savehead_t;
 #pragma pack(pop)
 
-EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == 310);
+#ifdef __ANDROID__
+#define SAVEHEAD_SIZE 374
+#else
+#define SAVEHEAD_SIZE 310
+#endif
+
+EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == SAVEHEAD_SIZE);
 
 int32_t sv_updatestate(int32_t frominit);
 int32_t sv_readdiff(int32_t fil);
@@ -100,6 +109,11 @@ void G_Util_PtrToIdx2(void *ptr, int32_t count, size_t stride, const void *base,
 #ifdef LUNATIC
 extern const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
 void El_FreeSaveCode(void);
+#endif
+
+#ifdef __ANDROID__
+char const * G_GetStringFromSavegame(const char *filename, int type);
+int32_t G_GetScreenshotFromSavegame(const char *filename, char *pal, char *data);
 #endif
 
 #ifdef __cplusplus

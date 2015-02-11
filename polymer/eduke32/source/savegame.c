@@ -44,46 +44,54 @@ uint8_t g_oldverSavegame[MAXSAVEGAMES];
 //  mode: see enum in savegame.h
 void G_Util_PtrToIdx(void *ptr, int32_t count, const void *base, int32_t mode)
 {
-    int32_t i;
     intptr_t *iptr = (intptr_t *)ptr;
-    intptr_t ibase = (intptr_t)base;
-    int32_t back_p = mode&P2I_BACK_BIT;
-    int32_t onlynon0_p = mode&P2I_ONLYNON0_BIT;
+    intptr_t const ibase = (intptr_t)base;
+    int32_t const onlynon0_p = mode&P2I_ONLYNON0_BIT;
 
     // TODO: convert to proper offsets/indices for (a step towards) cross-
     //       compatibility between 32- and 64-bit systems in the netplay.
     //       REMEMBER to bump BYTEVERSION then.
 
-    for (i=0; i<count; i++)
-        // WARNING: C std doesn't say that bit pattern of NULL is necessarily 0!
-        if (!onlynon0_p || iptr[i])
-        {
-            if (!back_p)
+    // WARNING: C std doesn't say that bit pattern of NULL is necessarily 0!
+    if ((mode & P2I_BACK_BIT) == 0)
+    {
+        for (int i = 0; i < count; i++)
+            if (!onlynon0_p || iptr[i])
                 iptr[i] -= ibase;
-            else
+    }
+    else
+    {
+        for (int i = 0; i < count; i++)
+            if (!onlynon0_p || iptr[i])
                 iptr[i] += ibase;
-        }
+    }
 }
 
 void G_Util_PtrToIdx2(void *ptr, int32_t count, size_t stride, const void *base, int32_t mode)
 {
-    int32_t i;
     uint8_t *iptr = (uint8_t *)ptr;
-    intptr_t ibase = (intptr_t)base;
-    int32_t back_p = mode&P2I_BACK_BIT;
-    int32_t onlynon0_p = mode&P2I_ONLYNON0_BIT;
+    intptr_t const ibase = (intptr_t)base;
+    int32_t const onlynon0_p = mode&P2I_ONLYNON0_BIT;
 
-    for (i=0; i<count; i++)
+    if ((mode & P2I_BACK_BIT) == 0)
     {
-        if (!onlynon0_p || *(intptr_t *)iptr)
+        for (int i = 0; i < count; ++i)
         {
-            if (!back_p)
+            if (!onlynon0_p || *(intptr_t *)iptr)
                 *(intptr_t *)iptr -= ibase;
-            else
-                *(intptr_t *)iptr += ibase;
-        }
 
-        iptr += stride;
+            iptr += stride;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < count; ++i)
+        {
+            if (!onlynon0_p || *(intptr_t *)iptr)
+                *(intptr_t *)iptr += ibase;
+
+            iptr += stride;
+        }
     }
 }
 
@@ -356,11 +364,43 @@ static void G_RestoreTimers(void)
 
 //////////
 
+#ifdef __ANDROID__
+static void G_SavePalette(void)
+{
+    int32_t pfil;
+
+    if ((pfil = kopen4load("palette.dat", 0)) != -1)
+    {
+        int len = kfilelength(pfil);
+
+        FILE *fil = fopen("palette.dat", "rb");
+
+        if (!fil)
+        {
+            fil = fopen("palette.dat", "wb");
+
+            if (fil)
+            {
+                char *buf = (char *) Xaligned_alloc(16, len);
+
+                kread(pfil, buf, len);
+                fwrite(buf, len, 1, fil);
+                fclose(fil);
+            }
+        }
+        else fclose(fil);
+    }
+}
+#endif
+
 int32_t G_SavePlayer(int32_t spot)
 {
     char fn[16];
-//    char mpfn[16];
     FILE *fil;
+
+#ifdef __ANDROID__
+    G_SavePalette();
+#endif
 
     Bassert(spot < MAXSAVEGAMES);
 
@@ -493,23 +533,22 @@ static uint8_t savegame_comprthres;
 
 static int32_t ds_getcnt(const dataspec_t *sp)
 {
-    switch (sp->flags&DS_CNTMASK)
+    int rv = -1;
+
+    switch (sp->flags & DS_CNTMASK)
     {
-    case 0: return sp->cnt;
-    case DS_CNT16: return *((int16_t *)sp->cnt);
-    case DS_CNT32: return *((int32_t *)sp->cnt);
-    default: return -1;
+        case 0: rv = sp->cnt; break;
+        case DS_CNT16: rv = *((int16_t *)sp->cnt); break;
+        case DS_CNT32: rv = *((int32_t *)sp->cnt); break;
     }
+
+    return rv;
 }
 
-static void ds_get(const dataspec_t *sp, void **ptr, int32_t *cnt)
+static inline void ds_get(const dataspec_t *sp, void **ptr, int32_t *cnt)
 {
     *cnt = ds_getcnt(sp);
-
-    if (sp->flags&DS_DYNAMIC)
-        *ptr = *((void **)sp->ptr);
-    else
-        *ptr = sp->ptr;
+    *ptr = (sp->flags&DS_DYNAMIC) ? *((void **)sp->ptr) : sp->ptr;
 }
 
 // write state to file and/or to dump
@@ -1176,12 +1215,9 @@ static void sv_makevarspec()
 
 void sv_freemem()
 {
-    if (svsnapshot)
-        Bfree(svsnapshot), svsnapshot=NULL;
-    if (svinitsnap)
-        Bfree(svinitsnap), svinitsnap=NULL;
-    if (svdiff)
-        Bfree(svdiff), svdiff=NULL;
+    DO_FREE_AND_NULL(svsnapshot);
+    DO_FREE_AND_NULL(svinitsnap);
+    DO_FREE_AND_NULL(svdiff);
 }
 
 static void SV_AllocSnap(int32_t allocinit)
@@ -1195,8 +1231,7 @@ static void SV_AllocSnap(int32_t allocinit)
     svdiff = (uint8_t *)Xmalloc(svdiffsiz);
 }
 
-
-EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == 310);
+EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == SAVEHEAD_SIZE);
 
 // make snapshot only if spot < 0 (demo)
 int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress)
@@ -1259,6 +1294,10 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
     {
         // savegame
         Bstrncpyz(h.savename, ud.savegame[spot], sizeof(h.savename));
+#ifdef __ANDROID__
+        Bstrncpyz(h.volname, EpisodeNames[ud.volume_number], sizeof(h.volname));
+        Bstrncpyz(h.skillname, SkillNames[ud.player_skill], sizeof(h.skillname));
+#endif
     }
     else
     {
@@ -1332,8 +1371,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
     return 0;
 }
 
-
-EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == 310);
+EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == SAVEHEAD_SIZE);
 
 // if file is not an EDuke32 savegame/demo, h->headerstr will be all zeros
 int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
@@ -2116,3 +2154,111 @@ static void postloadplayer(int32_t savegamep)
 }
 
 ////////// END GENERIC SAVING/LOADING SYSTEM //////////
+
+#ifdef __ANDROID__
+#include <jni.h>
+#include <android/log.h>
+
+#ifndef LOGI
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO,"DUKE", __VA_ARGS__))
+#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "DUKE", __VA_ARGS__))
+#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR,"DUKE", __VA_ARGS__))
+#endif
+
+char const * G_GetStringFromSavegame(const char *filename, int type)
+{
+    LOGI("getSavegameText %s", filename);
+    int32_t fil = kopen4load(filename, 0);
+
+    if (fil == -1)
+    {
+        LOGE("couldn't load %s", filename);
+        return "";
+    }
+
+    savehead_t saveh;
+
+    int32_t i = sv_loadheader(fil, 0, &saveh);
+
+    if (i && (i != 2 && i != 3))
+        goto corrupt;
+
+    kclose(fil);
+
+    static char tempbuf[64];
+
+    switch (type)
+    {
+        case 0: Bstrncpyz(tempbuf, saveh.savename, sizeof(saveh.savename) - 1); break;
+        case 1: Bstrncpyz(tempbuf, saveh.volname, sizeof(saveh.volname) - 1); break;
+        case 2: Bstrncpyz(tempbuf, saveh.skillname, sizeof(saveh.skillname) - 1); break;
+    }
+    return tempbuf;
+
+corrupt:
+    kclose(fil);
+    LOGE("couldn't load %s", filename);
+    return "";
+}
+
+int32_t G_GetScreenshotFromSavegame(const char *filename, char *pal, char *data)
+{
+    LOGI("getSavegameScreenshot %s", filename);
+
+    int32_t fil = kopen4load(filename, 0);
+
+    if (fil == -1)
+        return -1;
+
+    savehead_t saveh;
+
+    int32_t i = sv_loadheader(fil, 0, &saveh);
+
+    if (i && (i != 2 && i != 3))
+        goto corrupt;
+
+    int32_t screenshotofs;
+
+    if (kread(fil, &screenshotofs, 4) != 4)
+        goto corrupt;
+
+    if (screenshotofs)
+    {
+        if (kdfread(data, 320, 200, fil) != 200)
+        {
+            // OSD_Printf("G_LoadSaveHeaderNew(%d): failed reading screenshot\n", spot);
+            goto corrupt;
+        }
+    }
+    else
+    {
+        kclose(fil);
+        return -1;
+    }
+
+    kclose(fil);
+
+    char pstr[BMAX_PATH];
+
+    Bstrcpy(pstr, filename);
+    Bcorrectfilename(pstr, 1);
+    Bstrcat(pstr, "palette.dat");
+
+    int32_t pfil;
+
+    if ((pfil = kopen4load(pstr, 0)) == -1)
+    {
+        LOGE("couldn't load %s", pstr);
+        return -1;
+    }
+
+    kread(pfil, pal, 768);
+    kclose(pfil);
+
+    return 0;
+
+corrupt:
+    kclose(fil);
+    return 1;
+}
+#endif
