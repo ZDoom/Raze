@@ -327,7 +327,11 @@ static void sighandler(int signum)
     }
 }
 
+#ifdef _WIN32
+int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int32_t nCmdShow)
+#else
 int32_t main(int32_t argc, char *argv[])
+#endif
 {
     int32_t r;
 
@@ -346,6 +350,11 @@ int32_t main(int32_t argc, char *argv[])
     signal(SIGFPE, sighandler);
 
 #ifdef _WIN32
+    UNREFERENCED_PARAMETER(hInst);
+    UNREFERENCED_PARAMETER(hPrevInst);
+    UNREFERENCED_PARAMETER(lpCmdLine);
+    UNREFERENCED_PARAMETER(nCmdShow);
+
     win_open();
 
     if (!CheckWinVersion())
@@ -366,7 +375,23 @@ int32_t main(int32_t argc, char *argv[])
     maybe_redirect_outputs();
     baselayer_init();
 
+#ifdef _WIN32
+    char *argvbuf;
+    int32_t buildargc = win_buildargs(&argvbuf);
+    const char **buildargv = (const char **) Bmalloc(sizeof(char *)*(buildargc+1));
+    char *wp = argvbuf;
+
+    for (int i=0; i<buildargc; i++, wp++)
+    {
+        buildargv[i] = wp;
+        while (*wp) wp++;
+    }
+    buildargv[buildargc] = NULL;
+
+    r = app_main(buildargc, (const char **)buildargv);
+#else
     r = app_main(argc, (const char **)argv);
+#endif
 
     startwin_close();
 

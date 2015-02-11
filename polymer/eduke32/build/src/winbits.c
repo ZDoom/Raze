@@ -303,6 +303,69 @@ int32_t addsearchpath_ProgramFiles(const char *p)
     return returncode;
 }
 
+int32_t win_buildargs(char **argvbuf)
+{
+    int32_t buildargc = 0;
+
+    *argvbuf = Bstrdup(GetCommandLine());
+
+    if (*argvbuf)
+    {
+        char quoted = 0, instring = 0, swallownext = 0;
+        char *wp;
+        for (const char *p = wp = *argvbuf; *p; p++)
+        {
+            if (*p == ' ')
+            {
+                if (instring)
+                {
+                    if (!quoted)
+                    {
+                        // end of a string
+                        *(wp++) = 0;
+                        instring = 0;
+                    }
+                    else
+                        *(wp++) = *p;
+                }
+            }
+            else if (*p == '"' && !swallownext)
+            {
+                if (instring)
+                {
+                    if (quoted && p[1] == ' ')
+                    {
+                        // end of a string
+                        *(wp++) = 0;
+                        instring = 0;
+                    }
+                    quoted = !quoted;
+                }
+                else
+                {
+                    instring = 1;
+                    quoted = 1;
+                    buildargc++;
+                }
+            }
+            else if (*p == '\\' && p[1] == '"' && !swallownext)
+                swallownext = 1;
+            else
+            {
+                if (!instring)
+                    buildargc++;
+
+                instring = 1;
+                *(wp++) = *p;
+                swallownext = 0;
+            }
+        }
+        *wp = 0;
+    }
+
+    return buildargc;
+}
+
 
 // Workaround for a bug in mingwrt-4.0.0 and up where a function named main() in misc/src/libcrt/gdtoa/qnan.c takes precedence over the proper one in src/libcrt/crt/main.c.
 #if (defined __MINGW32__ && EDUKE32_GCC_PREREQ(4,8)) || EDUKE32_CLANG_PREREQ(3,4)
