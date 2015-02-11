@@ -417,7 +417,7 @@ uint8_t yax_gotsector[MAXSECTORS>>3];  // engine internal
 int16_t yax_bunchnum[MAXSECTORS][2];
 int16_t yax_nextwall[MAXWALLS][2];
 
-static int32_t yax_islockededge(int32_t line, int32_t cf)
+static inline int32_t yax_islockededge(int32_t line, int32_t cf)
 {
     return !!(wall[line].cstat&(YAX_NEXTWALLBIT(cf)));
 }
@@ -441,7 +441,7 @@ int16_t yax_getbunch(int16_t i, int16_t cf)
 #  define YAX_BUNCHNUM(Sect, Cf) YAX_PTRBUNCHNUM(sector, Sect, Cf)
 
 #  if !defined NEW_MAP_FORMAT
-static int32_t yax_islockededge(int32_t line, int32_t cf)
+static inline int32_t yax_islockededge(int32_t line, int32_t cf)
 {
     return (yax_getnextwall(line, cf) >= 0);
 }
@@ -545,12 +545,8 @@ void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
 // is red, return its nextsector.
 int16_t yax_vnextsec(int16_t line, int16_t cf)
 {
-    int16_t ynw = yax_getnextwall(line, cf);
-
-    if (ynw < 0)
-        return -1;
-
-    return wall[ynw].nextsector;
+    int16_t const ynw = yax_getnextwall(line, cf);
+    return (ynw < 0) ? -1 : wall[ynw].nextsector;
 }
 
 
@@ -1309,8 +1305,8 @@ static vec3_t m32_viewplane;
 typedef struct
 {
     int16_t numsectors, numwalls;
-    sectortype *sector;
-    walltype *wall;
+    tsectortype *sector;
+    twalltype *wall;
 } mapinfo_t;
 
 static void mapinfo_set(mapinfo_t *bak, mapinfo_t *newmap)
@@ -1319,16 +1315,16 @@ static void mapinfo_set(mapinfo_t *bak, mapinfo_t *newmap)
     {
         bak->numsectors = numsectors;
         bak->numwalls = numwalls;
-        bak->sector = sector;
-        bak->wall = wall;
+        bak->sector = (tsectortype *)sector;
+        bak->wall = (twalltype *)wall;
     }
 
     if (newmap)
     {
         numsectors = newmap->numsectors;
         numwalls = newmap->numwalls;
-        sector = newmap->sector;
-        wall = newmap->wall;
+        sector = (sectortype *)newmap->sector;
+        wall = (walltype *)newmap->wall;
     }
 }
 
@@ -1353,9 +1349,9 @@ static int16_t *sectoidx, *sectq;  // [numsectors]
 static int16_t pictoidx[MAXTILES];  // maps tile num to clipinfo[] index
 static int16_t *tempictoidx;
 
-static sectortype *loadsector;
-static walltype *loadwall, *loadwallinv;
-static spritetype *loadsprite;
+static tsectortype *loadsector;
+static twalltype *loadwall, *loadwallinv;
+static tspritetype *loadsprite;
 
 // sectoidx bits
 #undef CM_NONE
@@ -1384,26 +1380,20 @@ static spritetype *loadsprite;
 
 static void clipmapinfo_init()
 {
-    int32_t i;
-
     numclipmaps = 0;
     numclipsects = 0;
 
-    if (sectq) { Bfree(sectq); sectq=NULL; }
-    if (sectoidx) { Bfree(sectoidx); sectoidx=NULL; }
-    if (tempictoidx) { Bfree(tempictoidx); tempictoidx=NULL; }
+    DO_FREE_AND_NULL(sectq);
+    DO_FREE_AND_NULL(sectoidx);
+    DO_FREE_AND_NULL(tempictoidx);
+    DO_FREE_AND_NULL(loadsector);
+    DO_FREE_AND_NULL(loadwall);
+    DO_FREE_AND_NULL(loadwallinv);
+    DO_FREE_AND_NULL(loadsprite);
 
-    for (i=0; i<MAXTILES; i++)
-        pictoidx[i]=-1;
-
-    if (loadsector) { Bfree(loadsector); loadsector=NULL; }
-    if (loadwall) { Bfree(loadwall); loadwall=NULL; }
-    if (loadwallinv) { Bfree(loadwallinv); loadwallinv=NULL; }
-    if (loadsprite) { Bfree(loadsprite); loadsprite=NULL; }
-
-    clipmapinfo.numsectors = clipmapinfo.numwalls = 0;
-    clipmapinfo.sector=NULL;
-    clipmapinfo.wall=NULL;
+    // two's complement trick, -1 = 0xff
+    Bmemset(&pictoidx, -1, sizeof(pictoidx));
+    Bmemset(&clipmapinfo, 0, sizeof(mapinfo_t));
 
     numsectors = 0;
     numwalls = 0;
@@ -1425,9 +1415,9 @@ int32_t clipmapinfo_load(void)
 
     clipmapinfo_init();
 
-    loadsector = (sectortype *)Xmalloc(MAXSECTORS * sizeof(sectortype));
-    loadwall = (walltype *)Xmalloc(MAXWALLS * sizeof(walltype));
-    loadsprite = (spritetype *)Xmalloc(MAXSPRITES * sizeof(spritetype));
+    loadsector = (tsectortype *)Xmalloc(MAXSECTORS * sizeof(sectortype));
+    loadwall = (twalltype *)Xmalloc(MAXWALLS * sizeof(walltype));
+    loadsprite = (tspritetype *)Xmalloc(MAXSPRITES * sizeof(spritetype));
 
     if (g_clipMapFilesNum)
         fisec = (int32_t *)Xcalloc(g_clipMapFilesNum, sizeof (int32_t));
@@ -1495,8 +1485,8 @@ int32_t clipmapinfo_load(void)
     }
 
     // shrink
-    loadsector = (sectortype *)Xrealloc(loadsector, ournumsectors*sizeof(sectortype));
-    loadwall = (walltype *)Xrealloc(loadwall, ournumwalls*sizeof(walltype));
+    loadsector = (tsectortype *)Xrealloc(loadsector, ournumsectors*sizeof(sectortype));
+    loadwall = (twalltype *)Xrealloc(loadwall, ournumwalls*sizeof(walltype));
 
     Bmemcpy(sector, loadsector, ournumsectors*sizeof(sectortype));
     Bmemcpy(wall, loadwall, ournumwalls*sizeof(walltype));
@@ -1772,7 +1762,7 @@ int32_t clipmapinfo_load(void)
     Bmemcpy(loadwall, wall, ournumwalls*sizeof(walltype));
 
     // loadwallinv will contain all walls with inverted orientation for x/y-flip handling
-    loadwallinv = (walltype *)Xmalloc(ournumwalls*sizeof(walltype));
+    loadwallinv = (twalltype *)Xmalloc(ournumwalls*sizeof(walltype));
 
     {
         int32_t j, loopstart, loopend, numloopwalls;
@@ -1872,8 +1862,6 @@ int32_t clipshape_idx_for_sprite(spritetype *curspr, int32_t curidx)
 
 static int32_t getscore(int32_t w1c, int32_t w1f, int32_t w2c, int32_t w2f)
 {
-    int32_t minflor, maxceil;
-
     if (w1c > w1f)
         swaplong(&w1c, &w1f);
     if (w2c > w2f)
@@ -1881,8 +1869,8 @@ static int32_t getscore(int32_t w1c, int32_t w1f, int32_t w2c, int32_t w2f)
 
     // now: c <= f for each "wall-vline"
 
-    maxceil = max(w1c, w2c);
-    minflor = min(w1f, w2f);
+    int32_t maxceil = max(w1c, w2c);
+    int32_t minflor = min(w1f, w2f);
 
     return minflor-maxceil;
 }
@@ -2256,7 +2244,7 @@ static inline int32_t msqrtasm(uint32_t c)
 static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
 {
     // Ken did this
-    d = ((a<0)*8) + ((b<0)*4) + ((c<0)*2) + (d<0);
+    d = ((a<0)<<3) + ((b<0)<<2) + ((c<0)<<1) + (d<0);
     return(((d<<4)^0xf0)|d);
 }
 
@@ -2560,9 +2548,9 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
     return 0;
 }
 
-static vec2_t get_rel_coords(int32_t x, int32_t y)
+static inline vec2_t get_rel_coords(int32_t const x, int32_t const y)
 {
-    vec2_t p = {
+    vec2_t const p = {
         dmulscale6(y,cosglobalang, -x,singlobalang),
         dmulscale6(x,cosviewingrangeglobalang, y,sinviewingrangeglobalang)
     };
@@ -2723,11 +2711,7 @@ static void scansector(int16_t startsectnum)
                         }
                 }
 #endif
-            if (w == startwall || wall[w-1].point2 != w)
-                p1 = get_rel_coords(x1, y1);
-            else
-                p1 = p2;
-
+            p1 = (w == startwall || wall[w - 1].point2 != w) ? get_rel_coords(x1, y1) : p2;
             p2 = get_rel_coords(x2, y2);
 
             if (p1.y < 256 && p2.y < 256)
@@ -10365,16 +10349,15 @@ static void set_picsiz(int32_t picnum);
 static const char *E_GetArtFileName(int32_t tilefilei);
 static int32_t E_ReadArtFile(int32_t tilefilei);
 
-static void clearmapartfilename(void)
+static inline void clearmapartfilename(void)
 {
     Bmemset(mapartfilename, 0, sizeof(mapartfilename));
     mapartfnXXofs = 0;
 }
 
-static void E_RecalcPicSiz(void)
+static inline void E_RecalcPicSiz(void)
 {
-    int32_t i;
-    for (i=0; i<MAXTILES; i++)
+    for (int i=0; i<MAXTILES; i++)
         set_picsiz(i);
 }
 
@@ -13665,7 +13648,7 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
     {
         flipmul = flipx*flipy;
         if (flipmul==-1)
-            wall = loadwallinv;
+            wall = (walltype *)loadwallinv;
     }
 
     if ((curspr->cstat&128) != (sector[j].CM_CSTAT&128))
