@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osd.h"
 #include "menus.h"
 #include "input.h"
+#include "anim.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"
@@ -2709,6 +2710,31 @@ nullquote:
                         A_PlaySound(j, -1);
                         continue;
                 }
+            }
+            continue;
+
+        case CON_CUTSCENE:
+        case CON_IFCUTSCENE:
+            insptr++;
+            {
+                int32_t j = Gv_GetVarX(*insptr++);
+
+                if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXQUOTES || ScriptQuotes[j] == NULL))
+                {
+                    CON_ERRPRINTF("invalid quote ID %d for anim!\n", j);
+                    continue;
+                }
+
+                if (tw == CON_IFCUTSCENE)
+                {
+                    VM_CONDITIONAL(g_animPtr == G_FindAnim(ScriptQuotes[j]));
+                    continue;
+                }
+
+                tw = ps->palette;
+                G_PlayAnim(ScriptQuotes[j]);
+                P_SetGamePalette(ps, tw, 2 + 16);
+                continue;
             }
             continue;
 

@@ -96,6 +96,8 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_DYNAMICSOUNDREMAP, 20130530 },
     { CON_SCREENSOUND, 20130628 },
     { CON_SETMUSICPOSITION, 20150115 },
+    { CON_CUTSCENE, 20150117 },
+    { CON_IFCUTSCENE, 20150117 },
 };
 #endif
 
@@ -555,6 +557,8 @@ const char *keyw[] =
     "undefinevolume",           // 375
     "undefineskill",            // 376
     "undefinelevel",            // 377
+    "cutscene",                 // 378
+    "ifcutscene",               // 379
     "<null>"
 };
 #endif
@@ -661,6 +665,7 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_ACTIVATECHEAT",
     "EVENT_DISPLAYINACTIVEMENU",
     "EVENT_DISPLAYINACTIVEMENUREST",
+    "EVENT_CUTSCENE",
 #ifdef LUNATIC
     "EVENT_ANIMATEALLSPRITES",
 #endif
@@ -4162,6 +4167,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_SETACTORANGLE:
         case CON_SETPLAYERANGLE:
         case CON_SETMUSICPOSITION:
+        case CON_CUTSCENE:
             C_GetNextVar();
             continue;
 
@@ -5124,6 +5130,7 @@ repeatcase:
         case CON_IFP:
         case CON_IFPINVENTORY:
         case CON_IFPLAYERSL:
+        case CON_IFCUTSCENE:
             {
                 intptr_t offset;
                 intptr_t lastScriptPtr = (g_scriptPtr-&script[0]-1);
@@ -5132,6 +5139,9 @@ repeatcase:
 
                 switch (tw)
                 {
+                case CON_IFCUTSCENE:
+                    C_GetNextVar();
+                    break;
                 case CON_IFAI:
                     C_GetNextValue(LABEL_AI);
                     break;

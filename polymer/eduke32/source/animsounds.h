@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2015 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -20,26 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef anim_h_
-#define anim_h_
-
-#define NUM_HARDCODED_ANIMS 12
-
-typedef struct
-{
-    uint8_t* animbuf;
-    void (*sound_func)(int32_t);
-    uint16_t *sounds;
-    int16_t numsounds;
-    uint8_t framedelay;
-    char animlock;
-} dukeanim_t;
-
-extern dukeanim_t * g_animPtr;
-extern hashtable_t h_dukeanim;
-extern dukeanim_t * G_FindAnim(const char *s);
-extern dukeanim_t * G_DefineAnim(const char *fn, uint8_t framerate, void (*sound_func)(int32_t));
-int32_t G_PlayAnim(const char *fn);
-void G_InitAnim(void);
-
-#endif
+#ifndef animsounds_h__
+#define animsounds_h__
+void endanimsounds(int32_t fr);
+void logoanimsounds(int32_t fr);
+void intro4animsounds(int32_t fr);
+void endanimvol43(int32_t fr);
+void endanimvol42(int32_t fr);
+void endanimvol41(int32_t fr);
+void intro42animsounds(int32_t fr);
+void first4animsounds(int32_t fr);
+#endif // animsounds_h__

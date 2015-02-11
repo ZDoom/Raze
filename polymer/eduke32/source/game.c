@@ -222,9 +222,11 @@ enum gametokens
     T_MUSIC,
     T_SOUND,
     T_FILE,
+    T_CUTSCENE,
     T_ANIMSOUNDS,
     T_NOFLOORPALRANGE,
-    T_ID
+    T_ID,
+    T_DELAY
 };
 
 
@@ -3767,12 +3769,12 @@ void G_DisplayRest(int32_t smoothratio)
     {
         int32_t a = VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek);
 
-        if (a == 0 || a > 1)
+        if ((unsigned)a < MAXTILES)
         {
-            vec2_t crosshairpos = { 160<<16, 100<<16 };
-
             if (a == 0)
                 a = CROSSHAIR;
+
+            vec2_t crosshairpos = { 160<<16, 100<<16 };
 
             rotatesprite_win(crosshairpos.x-(g_player[myconnectindex].ps->look_ang<<15),crosshairpos.y,scale(65536,ud.crosshairscale,100),
                              0,a,0,CROSSHAIR_PAL,2+1);
@@ -3809,13 +3811,8 @@ void G_DisplayRest(int32_t smoothratio)
 #endif
 
 #ifdef USE_OPENGL
-    {
-        extern int32_t mdpause;
-
-        mdpause = 0;
-        if (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2))
-            mdpause = 1;
-    }
+    extern int32_t mdpause;
+    mdpause = (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
 #endif
 
     G_PrintFPS();
@@ -3823,7 +3820,7 @@ void G_DisplayRest(int32_t smoothratio)
     // JBF 20040124: display level stats in screen corner
     if ((ud.overhead_on != 2 && ud.levelstats) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
     {
-        const DukePlayer_t *myps = g_player[myconnectindex].ps;
+        DukePlayer_t const * const myps = g_player[myconnectindex].ps;
 
         if (ud.screen_size == 4)
 		{
@@ -9366,15 +9363,19 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         { "noautoload",      T_NOAUTOLOAD       },
         { "music",           T_MUSIC            },
         { "sound",           T_SOUND            },
-#ifdef USE_LIBVPX
+        { "cutscene",        T_CUTSCENE         },
         { "animsounds",      T_ANIMSOUNDS       },
-#endif
     };
 
     static const tokenlist sound_musictokens[] =
     {
         { "id",   T_ID  },
         { "file", T_FILE },
+    };
+
+    static const tokenlist animtokens [] =
+    {
+        { "delay", T_DELAY },
     };
 
     while (1)
@@ -9471,50 +9472,75 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         }
         break;
 
-#ifdef USE_LIBVPX
+        case T_CUTSCENE:
+        {
+            int32_t delay = 10;
+            char *animend;
+            dukeanim_t *anim = NULL;
+            char *animname = NULL;
+
+            scriptfile_getstring(script, &animname);
+
+            if (scriptfile_getbraces(script, &animend))
+                break;
+
+            while (script->textptr < animend)
+            {
+                switch (getatoken(script, animtokens, ARRAY_SIZE(animtokens)))
+                {
+                    case T_DELAY: scriptfile_getnumber(script, &delay); break;
+                }
+            }
+
+//            if (!preload)
+            {
+/*
+                if (check_file_exist(animname))
+                    break;
+*/
+
+                anim = G_FindAnim(animname);
+
+                if (!anim)
+                    anim = G_DefineAnim(animname, delay, NULL);
+                else
+                    anim->framedelay = delay;
+            }
+        }
+        break;
         case T_ANIMSOUNDS:
         {
             char *otokptr = script->ltextptr;
             char *animsoundsend = NULL;
-            int32_t animnum, numpairs=0, allocsz=4, bad=1, lastframenum=INT32_MIN;
+            int32_t numpairs = 0, allocsz = 4, bad = 1, lastframenum = INT32_MIN;
+            dukeanim_t *anim = NULL;
+            char *animname = NULL;
 
-            static const tokenlist hardcoded_anim_tokens[] =
+            scriptfile_getstring(script, &animname);
+
+            if (animname)
+                anim = G_FindAnim(animname);
+
+            if (!anim)
             {
-                { "cineov2", 0 },
-                { "cineov3", 1 },
-                { "RADLOGO", 2 },
-                { "DUKETEAM", 3 },
-                { "logo", 4 },
-                { "vol41a", 5 },
-                { "vol42a", 6 },
-                { "vol4e1", 7 },
-                { "vol43a", 8 },
-                { "vol4e2", 9 },
-                { "vol4e3", 10 },
-                { "3dr",    11 },
-                // NUM_HARDCODED_ANIMS
-            };
-
-            EDUKE32_STATIC_ASSERT(ARRAY_SIZE(hardcoded_anim_tokens) == NUM_HARDCODED_ANIMS);
-
-            animnum = getatoken(script, hardcoded_anim_tokens, NUM_HARDCODED_ANIMS);
-            if ((unsigned)animnum >= NUM_HARDCODED_ANIMS)
                 initprintf("Error: expected a hardcoded anim file name (sans extension) on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script, otokptr));
+                break;
+            }
 
-            if (scriptfile_getbraces(script, &animsoundsend)) break;
+            if (scriptfile_getbraces(script, &animsoundsend))
+                break;
 
-            if (anim_hi_sounds[animnum])
+            if (anim->sounds)
             {
-                initprintf("Warning: overwriting already defined hi-anim %s's sounds on line %s:%d\n",
-                           hardcoded_anim_tokens[animnum].text, script->filename,
-                           scriptfile_getlinum(script, otokptr));
-                Bfree(anim_hi_sounds[animnum]);
-                anim_hi_numsounds[animnum] = 0;
+                initprintf("Warning: overwriting already defined hi-anim %s's sounds on line %s:%d\n", animname,
+                           script->filename, scriptfile_getlinum(script, otokptr));
+                Bfree(anim->sounds);
+                anim->numsounds = 0;
             }
 
             if (!preload)
-                anim_hi_sounds[animnum] = (uint16_t *)Xcalloc(allocsz, 2*sizeof(anim_hi_sounds[0]));
+                anim->sounds = (uint16_t *)Xcalloc(allocsz, 2 * sizeof(uint16_t));
             while (script->textptr < animsoundsend)
             {
                 int32_t framenum, soundnum;
@@ -9522,7 +9548,10 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 if (preload)
                 {
                     // dummy
-                    getatoken(script, hardcoded_anim_tokens, NUM_HARDCODED_ANIMS);
+                    scriptfile_getstring(script, &animname);
+
+                    if (animname)
+                        anim = G_FindAnim(animname);
                     continue;
                 }
 
@@ -9534,21 +9563,23 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
 
                 // would produce error when it encounters the closing '}'
                 // without the above hack
-                if (scriptfile_getnumber(script, &framenum)) break;
-
-                bad=1;
-
-                // TODO: look carefully at whether this can be removed.
-                if (anim_hi_sounds[animnum]==NULL)  // Bcalloc check
+                if (scriptfile_getnumber(script, &framenum))
                     break;
 
-                if (scriptfile_getsymbol(script, &soundnum)) break;
+                bad = 1;
+
+                // TODO: look carefully at whether this can be removed.
+                if (anim->sounds == NULL)  // Bcalloc check
+                    break;
+
+                if (scriptfile_getsymbol(script, &soundnum))
+                    break;
 
                 // frame numbers start at 1 for us
                 if (framenum <= 0)
                 {
-                    initprintf("Error: frame number must be greater zero on line %s:%d\n",
-                               script->filename, scriptfile_getlinum(script, script->ltextptr));
+                    initprintf("Error: frame number must be greater zero on line %s:%d\n", script->filename,
+                               scriptfile_getlinum(script, script->ltextptr));
                     break;
                 }
 
@@ -9563,8 +9594,8 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
 
                 if ((unsigned)soundnum >= MAXSOUNDS)
                 {
-                    initprintf("Error: sound number #%d invalid on line %s:%d\n", soundnum,
-                               script->filename, scriptfile_getlinum(script, script->ltextptr));
+                    initprintf("Error: sound number #%d invalid on line %s:%d\n", soundnum, script->filename,
+                               scriptfile_getlinum(script, script->ltextptr));
                     break;
                 }
 
@@ -9573,15 +9604,15 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     void *newptr;
 
                     allocsz *= 2;
-                    newptr = Xrealloc(anim_hi_sounds[animnum], allocsz*2*sizeof(anim_hi_sounds[0]));
+                    newptr = Xrealloc(anim->sounds, allocsz * 2 * sizeof(uint16_t));
 
-                    anim_hi_sounds[animnum] = (uint16_t *)newptr;
+                    anim->sounds = (uint16_t *)newptr;
                 }
 
-                bad=0;
+                bad = 0;
 
-                anim_hi_sounds[animnum][2*numpairs] = framenum;
-                anim_hi_sounds[animnum][2*numpairs+1] = soundnum;
+                anim->sounds[2 * numpairs] = framenum;
+                anim->sounds[2 * numpairs + 1] = soundnum;
                 numpairs++;
             }
 
@@ -9589,21 +9620,20 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             {
                 if (!bad)
                 {
-                    anim_hi_numsounds[animnum] = numpairs;
+                    anim->numsounds = numpairs;
                     // initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
                     //           hardcoded_anim_tokens[animnum].text, numpairs);
                 }
                 else
                 {
-                    Bfree(anim_hi_sounds[animnum]);
-                    anim_hi_sounds[animnum] = NULL;
+                    DO_FREE_AND_NULL(anim->sounds);
                     initprintf("Failed defining sound sequence for hi-anim \"%s\".\n",
-                               hardcoded_anim_tokens[animnum].text);
+                               animname);
                 }
             }
         }
         break;
-#endif  // defined USE_LIBVPX
+
         case T_SOUND:
         {
             char *tinttokptr = script->ltextptr;
@@ -10443,7 +10473,7 @@ static void G_DisplayLogo(void)
             if (!I_CheckAllInput() && g_noLogoAnim == 0)
             {
                 Net_GetPackets();
-                G_PlayAnim("logo.anm",5);
+                G_PlayAnim("logo.anm");
                 G_FadePalette(0,0,0,63);
                 I_ClearAllInput();
             }
@@ -10485,7 +10515,7 @@ static void G_DisplayLogo(void)
                     if (i != -1)
                     {
                         kclose(i);
-                        G_PlayAnim("3dr.anm", 12);
+                        G_PlayAnim("3dr.anm");
                         G_FadePalette(0, 0, 0, 63);
                         I_ClearAllInput();
                     }
@@ -10682,6 +10712,8 @@ static void G_Cleanup(void)
     hash_free(&h_labels);
     hash_free(&h_gamefuncs);
 #endif
+
+    hash_free(&h_dukeanim); // TODO: free the dukeanim_t structs the hash table entries point to
 }
 
 /*
@@ -11476,15 +11508,15 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if (quitevent) return 4;
 
+    G_InitAnim();
+
+    const char *defsfile = G_DefFile();
+    uint32_t stime = getticks();
+    if (!loaddefinitionsfile(defsfile))
     {
-        const char *defsfile = G_DefFile();
-        uint32_t stime = getticks();
-        if (!loaddefinitionsfile(defsfile))
-        {
-            uint32_t etime = getticks();
-            initprintf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
-            loaddefinitions_game(defsfile, FALSE);
-        }
+        uint32_t etime = getticks();
+        initprintf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
+        loaddefinitions_game(defsfile, FALSE);
     }
 
     for (i=0; i < g_defModulesNum; ++i)
@@ -12211,7 +12243,7 @@ VOL1_END:
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE2BONUSSCENE))
         {
             fadepal(0,0,0, 63,0,-1);
-            G_PlayAnim("cineov2.anm",1);
+            G_PlayAnim("cineov2.anm");
             I_ClearAllInput();
             clearallviews(0L);
             nextpage();
@@ -12247,19 +12279,19 @@ VOL1_END:
             fadepal(0,0,0, 63,0,-1);
 
             I_ClearAllInput();
-            t = G_PlayAnim("vol4e1.anm",8);
+            t = G_PlayAnim("vol4e1.anm");
             clearallviews(0L);
             nextpage();
             if (t)
                 goto end_vol4e;
 
-            t = G_PlayAnim("vol4e2.anm",10);
+            t = G_PlayAnim("vol4e2.anm");
             clearallviews(0L);
             nextpage();
             if (t)
                 goto end_vol4e;
 
-            G_PlayAnim("vol4e3.anm",11);
+            G_PlayAnim("vol4e3.anm");
             clearallviews(0L);
             nextpage();
         }
@@ -12300,7 +12332,7 @@ VOL4_DUKETEAM:
         clearallviews(0L);
         nextpage();
 
-        G_PlayAnim("DUKETEAM.ANM",4);
+        G_PlayAnim("DUKETEAM.ANM");
 
         I_ClearAllInput();
         G_HandleEventsWhileNoInput();
@@ -12326,7 +12358,7 @@ VOL4_END:
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE3BONUSSCENE))
         {
             fadepal(0,0,0, 63,0,-1);
-            G_PlayAnim("cineov3.anm",2);
+            G_PlayAnim("cineov3.anm");
             I_ClearAllInput();
             ototalclock = totalclock+200;
             while (totalclock < ototalclock)
@@ -12341,7 +12373,7 @@ VOL4_END:
         if (G_GetLogoFlags() & LOGO_NOE3RADLOGO)
             goto ENDANM;
 
-        G_PlayAnim("RADLOGO.ANM",3);
+        G_PlayAnim("RADLOGO.ANM");
 
         if (ud.lockout == 0 && !I_CheckAllInput())
         {
@@ -12377,7 +12409,7 @@ ENDANM:
             clearallviews(0L);
             nextpage();
 
-            G_PlayAnim("DUKETEAM.ANM",4);
+            G_PlayAnim("DUKETEAM.ANM");
 
             I_ClearAllInput();
             G_HandleEventsWhileNoInput();

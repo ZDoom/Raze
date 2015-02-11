@@ -363,6 +363,9 @@
     <ClInclude Include="source\demo.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
+    <ClInclude Include="source\events_defs.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
     <ClInclude Include="source\quotes.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
@@ -452,6 +455,9 @@
     </ClInclude>
     <ClInclude Include="build\include\buildtypes.h">
       <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\animsounds.h">
+      <Filter>eduke32\headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -784,6 +790,9 @@
     </ClCompile>
     <ClCompile Include="build\src\sdlayer12.c">
       <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\animsounds.c">
+      <Filter>eduke32\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1363,19 +1363,19 @@ void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
         clearview(0L);
         nextpage();
 
-        i = G_PlayAnim("vol41a.anm",6);
+        i = G_PlayAnim("vol41a.anm");
         clearview(0L);
         nextpage();
         if (i)
             goto end_vol4a;
 
-        i = G_PlayAnim("vol42a.anm",7);
+        i = G_PlayAnim("vol42a.anm");
         clearview(0L);
         nextpage();
         if (i)
             goto end_vol4a;
 
-        G_PlayAnim("vol43a.anm",9);
+        G_PlayAnim("vol43a.anm");
         clearview(0L);
         nextpage();
 

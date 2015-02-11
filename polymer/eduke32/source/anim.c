@@ -32,228 +32,77 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifdef USE_LIBVPX
 # include "animvpx.h"
-
-uint16_t anim_hi_numsounds[NUM_HARDCODED_ANIMS], *anim_hi_sounds[NUM_HARDCODED_ANIMS];
 #endif
 
-static void endanimsounds(int32_t fr)
+#include "animsounds.h"
+
+hashtable_t h_dukeanim = { 8, NULL };
+dukeanim_t * g_animPtr;
+
+dukeanim_t *G_FindAnim(const char *s)
 {
-    switch (ud.volume_number)
-    {
-    case 0:
-        break;
-    case 1:
-        switch (fr)
-        {
-        case 1:
-            S_PlaySound(WIND_AMBIENCE);
-            break;
-        case 26:
-            S_PlaySound(ENDSEQVOL2SND1);
-            break;
-        case 36:
-            S_PlaySound(ENDSEQVOL2SND2);
-            break;
-        case 54:
-            S_PlaySound(THUD);
-            break;
-        case 62:
-            S_PlaySound(ENDSEQVOL2SND3);
-            break;
-        case 75:
-            S_PlaySound(ENDSEQVOL2SND4);
-            break;
-        case 81:
-            S_PlaySound(ENDSEQVOL2SND5);
-            break;
-        case 115:
-            S_PlaySound(ENDSEQVOL2SND6);
-            break;
-        case 124:
-            S_PlaySound(ENDSEQVOL2SND7);
-            break;
-        }
-        break;
-    case 2:
-        switch (fr)
-        {
-        case 1:
-            S_PlaySound(WIND_REPEAT);
-            break;
-        case 98:
-            S_PlaySound(DUKE_GRUNT);
-            break;
-        case 82+20:
-            S_PlaySound(THUD);
-            S_PlaySound(SQUISHED);
-            break;
-        case 104+20:
-            S_PlaySound(ENDSEQVOL3SND3);
-            break;
-        case 114+20:
-            S_PlaySound(ENDSEQVOL3SND2);
-            break;
-        case 158:
-            S_PlaySound(PIPEBOMB_EXPLODE);
-            break;
-        }
-        break;
-    }
+    intptr_t ptr = hash_findcase(&h_dukeanim, s);
+    return (dukeanim_t *)(ptr == -1 ? NULL : (dukeanim_t *)ptr);
 }
 
-static void logoanimsounds(int32_t fr)
+dukeanim_t * G_DefineAnim(const char *fn, uint8_t fdelay, void (*sound_func)(int32_t))
 {
-    switch (fr)
-    {
-    case 1:
-        S_PlaySound(FLY_BY);
-        break;
-    case 19:
-        S_PlaySound(PIPEBOMB_EXPLODE);
-        break;
-    }
+    dukeanim_t * anim = G_FindAnim(fn);
+    
+    if (!anim)
+        anim = (dukeanim_t *)Xcalloc(1, sizeof(dukeanim_t));
+
+    hash_add(&h_dukeanim, fn, (intptr_t)anim, 0);
+
+    if (sound_func)
+        anim->sound_func = sound_func;
+
+    anim->framedelay = fdelay;
+
+    return anim;
 }
 
-static void intro4animsounds(int32_t fr)
+void G_InitAnim(void)
 {
-    switch (fr)
-    {
-    case 1:
-        S_PlaySound(INTRO4_B);
-        break;
-    case 12:
-    case 34:
-        S_PlaySound(SHORT_CIRCUIT);
-        break;
-    case 18:
-        S_PlaySound(INTRO4_5);
-        break;
-    }
+    hash_init(&h_dukeanim);
+
+    G_DefineAnim("logo.anm", 9, logoanimsounds);
+    G_DefineAnim("3dr.anm", 10, NULL);
+    G_DefineAnim("vol4e1.anm", 10, endanimvol41);
+    G_DefineAnim("vol4e2.anm", 14, endanimvol42);
+    G_DefineAnim("vol4e3.anm", 10, endanimvol43);
+    G_DefineAnim("vol41a.anm", 14, first4animsounds);
+    G_DefineAnim("vol42a.anm", 18, intro4animsounds);
+    G_DefineAnim("vol43a.anm", 10, intro42animsounds);
+    G_DefineAnim("duketeam.anm", 10, NULL);
+    G_DefineAnim("radlogo.anm", 10, NULL);
+    G_DefineAnim("cineov2.anm", 18, endanimsounds);
+    G_DefineAnim("cineov3.anm", 10, endanimsounds);
 }
 
-static void first4animsounds(int32_t fr)
+int32_t G_PlayAnim(const char *fn)
 {
-    switch (fr)
+    dukeanim_t *anim = G_FindAnim(fn);
+
+    if (!anim)
     {
-    case 1:
-        S_PlaySound(INTRO4_1);
-        break;
-    case 12:
-        S_PlaySound(INTRO4_2);
-        break;
-    case 7:
-        S_PlaySound(INTRO4_3);
-        break;
-    case 26:
-        S_PlaySound(INTRO4_4);
-        break;
+        OSD_Printf("Animation %s is undefined!\n", fn);
+        return 0;
     }
-}
 
-static void intro42animsounds(int32_t fr)
-{
-    switch (fr)
-    {
-    case 10:
-        S_PlaySound(INTRO4_6);
-        break;
-    }
-}
-
-static void endanimvol41(int32_t fr)
-{
-    switch (fr)
-    {
-    case 3:
-        S_PlaySound(DUKE_UNDERWATER);
-        break;
-    case 35:
-        S_PlaySound(VOL4ENDSND1);
-        break;
-    }
-}
-
-static void endanimvol42(int32_t fr)
-{
-    switch (fr)
-    {
-    case 11:
-        S_PlaySound(DUKE_UNDERWATER);
-        break;
-    case 20:
-        S_PlaySound(VOL4ENDSND1);
-        break;
-    case 39:
-        S_PlaySound(VOL4ENDSND2);
-        break;
-    case 50:
-        FX_StopAllSounds();
-        break;
-    }
-}
-
-static void endanimvol43(int32_t fr)
-{
-    switch (fr)
-    {
-    case 1:
-        S_PlaySound(BOSS4_DEADSPEECH);
-        break;
-    case 40:
-        S_PlaySound(VOL4ENDSND1);
-        S_PlaySound(DUKE_UNDERWATER);
-        break;
-    case 50:
-        S_PlaySound(BIGBANG);
-        break;
-    }
-}
-
-static uint8_t* animbuf[NUM_HARDCODED_ANIMS];
-static char animlock[NUM_HARDCODED_ANIMS];
-
-int32_t G_PlayAnim(const char *fn, char t)
-{
-    int32_t i, length=0, numframes=0;
-#ifdef USE_OPENGL
-    int32_t ogltexfiltermode=gltexfiltermode;
-#endif
-    int32_t handle=-1;
-    int32_t frametime = 0;
-    int32_t running = 1;
-
-    // t parameter:
-    //
-    // 1: cineov2
-    // 2: cineov3
-    // 3: RADLOGO
-    // 4: DUKETEAM
-    // 5: logo
-    // 6: vol41a
-    // 7: vol42a
-    // 8: vol4e1
-    // 9: vol43a
-    // 10: vol4e2
-    // 11: vol4e3
-    // 12: 3drealms anim
+    int32_t framenum = 0, soundidx = 0;  // custom anim sounds
+    int32_t running = 1, i;
 
     I_ClearAllInput();
 
 #ifdef USE_LIBVPX
     while (getrendermode() >= REND_POLYMOST && glinfo.glsl)  // if, really
     {
-        char vpxfn[BMAX_PATH], *dot;
-        animvpx_ivf_header_t info;
-
-        animvpx_codec_ctx codec;
-        uint8_t *pic;
-        uint32_t msecsperframe, nextframetime;
-        int32_t animidx, framenum=0, soundidx=0, numtotalsounds=0;  // custom anim sounds
-
+        char vpxfn[BMAX_PATH];
         Bstrncpyz(vpxfn, fn, BMAX_PATH);
 
-        dot = Bstrrchr(vpxfn, '.');
-        if (!dot || (dot-vpxfn)+4 >= BMAX_PATH)
+        char *dot = Bstrrchr(vpxfn, '.');
+        if (!dot || (dot - vpxfn) + 4 >= BMAX_PATH)
             break;
 
         dot[1] = 'i';
@@ -261,20 +110,24 @@ int32_t G_PlayAnim(const char *fn, char t)
         dot[3] = 'f';
         dot[4] = 0;
 
-        handle = kopen4loadfrommod(vpxfn, 0);
+        int32_t handle = kopen4loadfrommod(vpxfn, 0);
         if (handle == -1)
             break;
 
+        animvpx_ivf_header_t info;
         i = animvpx_read_ivf_header(handle, &info);
+
         if (i)
         {
-            OSD_Printf("Failed reading IVF file: %s\n",
-                       animvpx_read_ivf_header_errmsg[i]);
+            OSD_Printf("Failed reading IVF file: %s\n", animvpx_read_ivf_header_errmsg[i]);
             kclose(handle);
             return 0;
         }
 
         animvpx_setup_glstate();
+
+        animvpx_codec_ctx codec;
+
         if (animvpx_init_codec(&info, handle, &codec))
         {
             OSD_Printf("Error initializing VPX codec.\n");
@@ -282,24 +135,20 @@ int32_t G_PlayAnim(const char *fn, char t)
             return 0;
         }
 
-        animidx = t-1;
-        if ((unsigned)animidx < NUM_HARDCODED_ANIMS && anim_hi_sounds[animidx])
-            numtotalsounds = anim_hi_numsounds[animidx];
+        uint32_t msecsperframe = ((uint64_t)info.fpsdenom * 1000) / info.fpsnumer;
+        uint32_t nextframetime = getticks();
+        uint8_t *pic;
 
-        msecsperframe = ((uint64_t)info.fpsdenom*1000)/info.fpsnumer;
-//        OSD_Printf("msecs per frame: %d\n", msecsperframe);
+        //        OSD_Printf("msecs per frame: %d\n", msecsperframe);
 
-        nextframetime = getticks();
-
-        while (running)
+        do
         {
             nextframetime += msecsperframe;
 
             i = animvpx_nextpic(&codec, &pic);
             if (i)
             {
-                OSD_Printf("Failed getting next pic: %s\n",
-                           animvpx_nextpic_errmsg[i]);
+                OSD_Printf("Failed getting next pic: %s\n", animvpx_nextpic_errmsg[i]);
                 if (codec.errmsg)
                 {
                     OSD_Printf("  %s\n", codec.errmsg);
@@ -316,9 +165,9 @@ int32_t G_PlayAnim(const char *fn, char t)
 
             // after rendering the frame but before displaying: maybe play sound...
             framenum++;
-            while (soundidx < numtotalsounds && anim_hi_sounds[animidx][2*soundidx] == framenum)
+            while (soundidx < anim->numsounds && anim->sounds[soundidx << 1] == framenum)
             {
-                S_PlaySound(anim_hi_sounds[animidx][2*soundidx+1]);
+                S_PlaySound(anim->sounds[(soundidx << 1) + 1]);
                 soundidx++;
             }
 
@@ -327,7 +176,7 @@ int32_t G_PlayAnim(const char *fn, char t)
             palfadedelta = 0;
             showframe(0);
 
-//            I_ClearAllInput();
+            //            I_ClearAllInput();
 
             do
             {
@@ -338,9 +187,8 @@ int32_t G_PlayAnim(const char *fn, char t)
                     running = 0;
                     break;
                 }
-            }
-            while (getticks() < nextframetime);
-        }
+            } while (getticks() < nextframetime);
+        } while (running);
 
         animvpx_print_stats(&codec);
 
@@ -353,32 +201,39 @@ int32_t G_PlayAnim(const char *fn, char t)
         return !running;  // done with playing VP8!
     }
 #endif
-    // ANM playback --- v v v ---
+// ANM playback --- v v v ---
 
-    handle = kopen4load(fn, 0);
+#ifdef USE_OPENGL
+    int32_t ogltexfiltermode = gltexfiltermode;
+#endif
+    int32_t handle = kopen4load(fn, 0);
+
     if (handle == -1)
         return 0;
 
-    length = kfilelength(handle);
+    int32_t length = kfilelength(handle);
+
     if (length == 0)
     {
         OSD_Printf("Warning: skipping playback of empty ANM file \"%s\".\n", fn);
         goto end_anim;
     }
 
-    walock[TILE_ANIM] = 219+t;
-    animlock[t-1] = 1;
+    walock[TILE_ANIM] = 219;
+    anim->animlock = 1;
 
-    if (!animbuf[t-1])
-        allocache((intptr_t *)&animbuf[t-1], length+1, &animlock[t-1]);
+    if (!anim->animbuf)
+        allocache((intptr_t *)&anim->animbuf, length + 1, &anim->animlock);
 
     tilesiz[TILE_ANIM].x = 200;
     tilesiz[TILE_ANIM].y = 320;
 
-    kread(handle, animbuf[t-1], length);
+    kread(handle, anim->animbuf, length);
     kclose(handle);
 
-    if (ANIM_LoadAnim(animbuf[t-1], length) < 0 || (numframes = ANIM_NumFrames()) <= 0)
+    int32_t numframes;
+
+    if (ANIM_LoadAnim(anim->animbuf, length) < 0 || (numframes = ANIM_NumFrames()) <= 0)
     {
         // XXX: ANM_LoadAnim() still checks less than the bare minimum,
         // e.g. ANM file could still be too small and not contain any frames.
@@ -388,9 +243,9 @@ int32_t G_PlayAnim(const char *fn, char t)
 
     basepaltable[ANIMPAL] = ANIM_GetPalette();
 
-    //setpalette(0L,256L,tempbuf);
-    //setbrightness(ud.brightness>>2,tempbuf,2);
-    P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 8+2);
+    // setpalette(0L,256L,tempbuf);
+    // setbrightness(ud.brightness>>2,tempbuf,2);
+    P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 8 + 2);
 
 #ifdef USE_OPENGL
     gltexfiltermode = 0;
@@ -400,6 +255,7 @@ int32_t G_PlayAnim(const char *fn, char t)
     ototalclock = totalclock + 10;
 
     i = 1;
+    int32_t frametime; frametime = 0;
 
     do
     {
@@ -411,11 +267,11 @@ int32_t G_PlayAnim(const char *fn, char t)
 
         G_HandleAsync();
 
-        if (totalclock < ototalclock-1)
+        if (totalclock < ototalclock - 1)
             continue;
 
-        waloff[TILE_ANIM] = (intptr_t) ANIM_DrawFrame(i);
-        invalidatetile(TILE_ANIM, 0, 1<<4);  // JBF 20031228
+        waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
+        invalidatetile(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
         if (I_CheckAllInput())
         {
@@ -433,30 +289,28 @@ int32_t G_PlayAnim(const char *fn, char t)
 
         clearallviews(0);
 
-        rotatesprite_fs(0<<16, 0<<16, 65536L, 512, TILE_ANIM, 0, 0, 2+4+8+16+64+(ud.bgstretch ? 1024 : 0));
+        rotatesprite_fs(0 << 16, 0 << 16, 65536L, 512, TILE_ANIM, 0, 0, 2 + 4 + 8 + 16 + 64 + BGSTRETCH);
+
+        g_animPtr = anim;
+        i = VM_OnEventWithReturn(EVENT_CUTSCENE, -1, myconnectindex, i);
+        g_animPtr = NULL;
+
         nextpage();
 
         I_ClearAllInput();
 
-        if (t == 10) ototalclock += 14;
-        else if (t == 9) ototalclock += 10;
-        else if (t == 7) ototalclock += 18;
-        else if (t == 6) ototalclock += 14;
-        else if (t == 5) ototalclock += 9;
-        else if (ud.volume_number == 3) ototalclock += 10;
-        else if (ud.volume_number == 2) ototalclock += 10;
-        else if (ud.volume_number == 1) ototalclock += 18;
-        else                           ototalclock += 10;
+        ototalclock += anim->framedelay;
 
-        if (t == 8) endanimvol41(i);
-        else if (t == 10) endanimvol42(i);
-        else if (t == 11) endanimvol43(i);
-        else if (t == 9) intro42animsounds(i);
-        else if (t == 7) intro4animsounds(i);
-        else if (t == 6) first4animsounds(i);
-        else if (t == 5) logoanimsounds(i);
-        else if (t < 4) endanimsounds(i);
-        i++;
+        if (!anim->numsounds && anim->sound_func)
+            anim->sound_func(i);
+
+        framenum = i++;
+
+        while (soundidx < anim->numsounds && anim->sounds[soundidx << 1] == framenum)
+        {
+            S_PlaySound(anim->sounds[(soundidx << 1) + 1]);
+            soundidx++;
+        }
     } while (i < numframes);
 
 end_anim_restore_gl:
@@ -468,7 +322,7 @@ end_anim:
     I_ClearAllInput();
     ANIM_FreeAnim();
     walock[TILE_ANIM] = 1;
-    animlock[t-1] = 0;
+    anim->animlock = 0;
 
     return !running;
 }

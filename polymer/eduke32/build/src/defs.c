@@ -86,6 +86,7 @@ enum scripttoken_t
     T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET, T_TEXHITSCAN, T_NOFULLBRIGHT,
     T_INCLUDEDEFAULT,
     T_ANIMSOUNDS,
+    T_CUTSCENE,
     T_NOFLOORPALRANGE,
     T_TEXHITSCANRANGE,
     T_NOFULLBRIGHTRANGE,
@@ -250,6 +251,7 @@ static int32_t defsparser(scriptfile *script)
         { "music",           T_MUSIC            },
         { "sound",           T_SOUND            },
         { "animsounds",      T_ANIMSOUNDS       },  // dummy
+        { "cutscene",        T_CUTSCENE         },
         { "nofloorpalrange", T_NOFLOORPALRANGE  },
         { "texhitscanrange", T_TEXHITSCANRANGE  },
         { "nofullbrightrange", T_NOFULLBRIGHTRANGE },
@@ -2073,6 +2075,7 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
 
+        case T_CUTSCENE:
         case T_ANIMSOUNDS:
         {
             char *dummy;
