@@ -65,7 +65,7 @@ int32_t g_tw;
 int32_t g_errorLineNum;
 int32_t g_currentEventExec = -1;
 
-intptr_t *insptr;
+intptr_t const *insptr;
 
 int32_t g_iReturnVarID = -1;     // var ID of "RETURN"
 int32_t g_iWeaponVarID = -1;     // var ID of "WEAPON"
@@ -109,7 +109,7 @@ void VM_ScriptInfo(void)
     {
         initprintf("\n");
 
-        for (intptr_t *p = insptr - 32; p < insptr + 32; p++)
+        for (intptr_t const *p = insptr - 32; p < insptr + 32; p++)
         {
             if ((int32_t)(p - script) >= g_scriptSize)
                 break;
@@ -185,7 +185,7 @@ FORCE_INLINE int32_t VM_EventCommon_(const int32_t iEventID, const int32_t iActo
     const int32_t backupEventExec = g_currentEventExec;
     g_currentEventExec = iEventID;
 
-    intptr_t *oinsptr = insptr;
+    intptr_t const *oinsptr = insptr;
     insptr = apScriptGameEvent[iEventID];
 
     const vmstate_t vm_backup = vm;
@@ -364,7 +364,7 @@ int32_t A_GetFurthestAngle(int32_t iActor, int32_t angs)
     }
 }
 
-int32_t A_FurthestVisiblePoint(int32_t iActor, spritetype *ts, int32_t *dax, int32_t *day)
+int32_t A_FurthestVisiblePoint(int32_t iActor, tspritetype * const ts, int32_t *dax, int32_t *day)
 {
     if (AC_COUNT(actor[iActor].t_data)&63)
         return -1;
@@ -1230,8 +1230,8 @@ skip_check:
         }
         else if (tw == CON_RIGHTBRACE)
         {
-            loop--;
             insptr++;
+            loop--;
             continue;
         }
         else if (tw == CON_ELSE)
@@ -1241,7 +1241,7 @@ skip_check:
         }
         else if (tw == CON_STATE)
         {
-            intptr_t * const tempscrptr = insptr + 2;
+            intptr_t const * const tempscrptr = insptr + 2;
             insptr = (intptr_t *)*(insptr + 1);
             VM_Execute(1);
             insptr = tempscrptr;
@@ -1290,9 +1290,8 @@ skip_check:
             if (vm.g_x > 1024)
             {
                 int16_t temphit;
-                int32_t j;
 
-                if ((j = A_CheckHitSprite(vm.g_i, &temphit)) == (1 << 30))
+                if ((tw = A_CheckHitSprite(vm.g_i, &temphit)) == (1 << 30))
                 {
                     VM_CONDITIONAL(1);
                     continue;
@@ -1306,38 +1305,22 @@ skip_check:
                     angdif = 48;
                 }
 
-                if (j > sclip)
+#define CHECK(x) if (x >= 0 && sprite[x].picnum == vm.g_sp->picnum) { VM_CONDITIONAL(0); continue; }
+#define CHECK2(x) do { vm.g_sp->ang += x; tw = A_CheckHitSprite(vm.g_i, &temphit); vm.g_sp->ang -= x; } while(0)
+
+                if (tw > sclip)
                 {
-                    if (temphit >= 0 && sprite[temphit].picnum == vm.g_sp->picnum)
+                    CHECK(temphit);
+                    CHECK2(angdif);
+
+                    if (tw > sclip)
                     {
-                        VM_CONDITIONAL(0);
-                        continue;
-                    }
+                        CHECK(temphit);
+                        CHECK2(-angdif);
 
-                    vm.g_sp->ang += angdif;
-                    j = A_CheckHitSprite(vm.g_i, &temphit);
-                    vm.g_sp->ang -= angdif;
-
-                    if (j > sclip)
-                    {
-                        if (temphit >= 0 && sprite[temphit].picnum == vm.g_sp->picnum)
+                        if (tw > 768)
                         {
-                            VM_CONDITIONAL(0);
-                            continue;
-                        }
-
-                        vm.g_sp->ang -= angdif;
-                        j = A_CheckHitSprite(vm.g_i, &temphit);
-                        vm.g_sp->ang += angdif;
-
-                        if (j > 768)
-                        {
-                            if (temphit >= 0 && sprite[temphit].picnum == vm.g_sp->picnum)
-                            {
-                                VM_CONDITIONAL(0);
-                                continue;
-                            }
-
+                            CHECK(temphit);
                             VM_CONDITIONAL(1);
                             continue;
                         }
@@ -1362,39 +1345,38 @@ skip_check:
 
         case CON_IFCANSEE:
         {
-            spritetype *s = &sprite[ps->i];
-            int32_t j;
+            tspritetype *s = (tspritetype *)&sprite[ps->i];
 
             // select sprite for monster to target
             // if holoduke is on, let them target holoduke first.
             //
             if (ps->holoduke_on >= 0)
             {
-                s = &sprite[ps->holoduke_on];
-                j = cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(krand()&((32<<8)-1)),vm.g_sp->sectnum,
+                s = (tspritetype *)&sprite[ps->holoduke_on];
+                tw = cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(krand()&((32<<8)-1)),vm.g_sp->sectnum,
                            s->x,s->y,s->z,s->sectnum);
 
-                if (j == 0)
+                if (tw == 0)
                 {
                     // they can't see player's holoduke
                     // check for player...
-                    s = &sprite[ps->i];
+                    s = (tspritetype *)&sprite[ps->i];
                 }
             }
 
             // can they see player, (or player's holoduke)
-            j = cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(krand()&((47<<8))),vm.g_sp->sectnum,
+            tw = cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(krand()&((47<<8))),vm.g_sp->sectnum,
                        s->x,s->y,s->z-(24<<8),s->sectnum);
 
-            if (j == 0)
+            if (tw == 0)
             {
                 // search around for target player
 
                 // also modifies 'target' x&y if found..
 
-                j = 1;
+                tw = 1;
                 if (A_FurthestVisiblePoint(vm.g_i,s,&actor[vm.g_i].lastvx,&actor[vm.g_i].lastvy) == -1)
-                    j = 0;
+                    tw = 0;
             }
             else
             {
@@ -1404,10 +1386,10 @@ skip_check:
                 actor[vm.g_i].lastvy = s->y;
             }
 
-            if (j && (vm.g_sp->statnum == STAT_ACTOR || vm.g_sp->statnum == STAT_STANDABLE))
+            if (tw && (vm.g_sp->statnum == STAT_ACTOR || vm.g_sp->statnum == STAT_STANDABLE))
                 actor[vm.g_i].timetosleep = SLEEPTIME;
 
-            VM_CONDITIONAL(j);
+            VM_CONDITIONAL(tw);
             continue;
         }
 
@@ -2416,7 +2398,7 @@ nullquote:
                 // script offset to default case (null if none)
                 // For each case: value, ptr to code
                 int32_t lValue = Gv_GetVarX(*insptr++), lEnd = *insptr++, lCases = *insptr++;
-                intptr_t *lpDefault = insptr++, *lpCases = insptr;
+                intptr_t const *lpDefault = insptr++, *lpCases = insptr;
                 int32_t lCheckCase, left = 0, right = lCases - 1;
                 insptr += lCases << 1;
 
@@ -3861,7 +3843,7 @@ finish_qsprintf:
                         //                    FIXME FIXME FIXME
                         if ((lVarID & (MAXGAMEVARS-1)) == g_iActorVarID)
                         {
-                            intptr_t *oinsptr = insptr++;
+                            intptr_t const *oinsptr = insptr++;
                             int32_t index = Gv_GetVarX(*insptr++);
                             insptr = oinsptr;
                             if (EDUKE32_PREDICT_FALSE((unsigned)index >= MAXSPRITES-1))
@@ -4152,93 +4134,105 @@ finish_qsprintf:
 
         case CON_FINDPLAYER:
             insptr++;
-            {
-                int32_t j;
-                aGameVars[g_iReturnVarID].val.lValue = A_FindPlayer(&sprite[vm.g_i],&j);
-                Gv_SetVarX(*insptr++, j);
-            }
+            aGameVars[g_iReturnVarID].val.lValue = A_FindPlayer(&sprite[vm.g_i], &tw);
+            Gv_SetVarX(*insptr++, tw);
             continue;
 
         case CON_FINDOTHERPLAYER:
             insptr++;
-            {
-                int32_t j;
-                //            Gv_SetVarX(g_iReturnVarID, P_FindOtherPlayer(vm.g_p,&j));
-                aGameVars[g_iReturnVarID].val.lValue = P_FindOtherPlayer(vm.g_p,&j);
-                Gv_SetVarX(*insptr++, j);
-            }
+            aGameVars[g_iReturnVarID].val.lValue = P_FindOtherPlayer(vm.g_p,&tw);
+            Gv_SetVarX(*insptr++, tw);
             continue;
 
         case CON_SETPLAYER:
             insptr++;
             {
-                // syntax [gs]etplayer[<var>].x <VAR>
-                // <varid> <xxxid> <varid>
-                int32_t lVar1=*insptr++, lLabelID=*insptr++;
+                tw=*insptr++;
+                int32_t lLabelID=*insptr++;
                 int32_t lParm2 = (PlayerLabels[lLabelID].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
-
-                VM_SetPlayer(lVar1, lLabelID, *insptr++, lParm2);
+                VM_SetPlayer(tw, lLabelID, *insptr++, lParm2);
                 continue;
             }
-
 
         case CON_GETPLAYER:
             insptr++;
             {
-                // syntax [gs]etplayer[<var>].x <VAR>
-                // <varid> <xxxid> <varid>
-                int32_t lVar1=*insptr++, lLabelID=*insptr++;
+                tw=*insptr++;
+                int32_t lLabelID=*insptr++;
                 int32_t lParm2 = (PlayerLabels[lLabelID].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
+                VM_GetPlayer(tw, lLabelID, *insptr++, lParm2);
+                continue;
+            }
 
-                VM_GetPlayer(lVar1, lLabelID, *insptr++, lParm2);
+        case CON_GETINPUT:
+            insptr++;
+            {
+                tw=*insptr++;
+                int32_t lLabelID=*insptr++, lVar2=*insptr++;
+                VM_AccessPlayerInput(0, tw, lLabelID, lVar2);
                 continue;
             }
 
         case CON_SETINPUT:
-        case CON_GETINPUT:
             insptr++;
             {
-                // syntax [gs]etplayer[<var>].x <VAR>
-                // <varid> <xxxid> <varid>
-                int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
-
-                VM_AccessPlayerInput(tw==CON_SETINPUT, lVar1, lLabelID, lVar2);
+                tw=*insptr++;
+                int32_t lLabelID=*insptr++, lVar2=*insptr++;
+                VM_AccessPlayerInput(1, tw, lLabelID, lVar2);
                 continue;
             }
 
         case CON_GETUSERDEF:
+            insptr++;
+            {
+                tw=*insptr++;
+                int32_t lVar2=*insptr++;
+                VM_AccessUserdef(0, tw, lVar2);
+                continue;
+            }
+
         case CON_SETUSERDEF:
             insptr++;
             {
-                // syntax [gs]etuserdef.xxx <VAR>
-                //  <xxxid> <varid>
-                int32_t lLabelID=*insptr++, lVar2=*insptr++;
-
-                VM_AccessUserdef(tw==CON_SETUSERDEF, lLabelID, lVar2);
+                tw=*insptr++;
+                int32_t lVar2=*insptr++;
+                VM_AccessUserdef(1, tw, lVar2);
                 continue;
             }
 
         case CON_GETPROJECTILE:
+            insptr++;
+            {
+                tw = Gv_GetVarX(*insptr++);
+                int32_t lLabelID = *insptr++, lVar2 = *insptr++;
+                VM_AccessProjectile(0, tw, lLabelID, lVar2);
+                continue;
+            }
+
         case CON_SETPROJECTILE:
             insptr++;
             {
-                // syntax [gs]etplayer[<var>].x <VAR>
-                // <varid> <xxxid> <varid>
-                int32_t lVar1=Gv_GetVarX(*insptr++), lLabelID=*insptr++, lVar2=*insptr++;
-
-                VM_AccessProjectile(tw==CON_SETPROJECTILE,lVar1,lLabelID,lVar2);
+                tw = Gv_GetVarX(*insptr++);
+                int32_t lLabelID = *insptr++, lVar2 = *insptr++;
+                VM_AccessProjectile(1, tw, lLabelID, lVar2);
                 continue;
             }
 
         case CON_SETWALL:
+            insptr++;
+            {
+                tw=*insptr++;
+                int32_t lLabelID=*insptr++, lVar2=*insptr++;
+                VM_AccessWall(1, tw, lLabelID, lVar2);
+                continue;
+            }
+
         case CON_GETWALL:
             insptr++;
             {
-                // syntax [gs]etwall[<var>].x <VAR>
-                // <varid> <xxxid> <varid>
-                int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
-
-                VM_AccessWall(tw==CON_SETWALL, lVar1, lLabelID, lVar2);
+                tw=*insptr++;
+                int32_t lLabelID=*insptr++, lVar2=*insptr++;
+                VM_AccessWall(0, tw, lLabelID, lVar2);
                 continue;
             }
 
@@ -4347,35 +4341,40 @@ finish_qsprintf:
 
         case CON_ANGOFFVAR:
             insptr++;
-            spriteext[vm.g_i].angoff=Gv_GetVarX(*insptr++);
+            spriteext[vm.g_i].angoff = Gv_GetVarX(*insptr++);
             continue;
 
         case CON_LOCKPLAYER:
             insptr++;
-            ps->transporter_hold=Gv_GetVarX(*insptr++);
+            ps->transporter_hold = Gv_GetVarX(*insptr++);
             continue;
 
         case CON_CHECKAVAILWEAPON:
+            insptr++;
+            tw = (*insptr != g_iThisActorID) ? Gv_GetVarX(*insptr) : vm.g_p;
+            insptr++;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= (unsigned)playerswhenstarted))
+            {
+                CON_ERRPRINTF("Invalid player ID %d\n", tw);
+                continue;
+            }
+
+            P_CheckWeapon(g_player[tw].ps);
+            continue;
+
         case CON_CHECKAVAILINVEN:
             insptr++;
+            tw = (*insptr != g_iThisActorID) ? Gv_GetVarX(*insptr) : vm.g_p;
+            insptr++;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= (unsigned)playerswhenstarted))
             {
-                int32_t j = vm.g_p;
-
-                if (*insptr != g_iThisActorID)
-                    j=Gv_GetVarX(*insptr);
-
-                insptr++;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)j >= (unsigned)playerswhenstarted))
-                {
-                    CON_ERRPRINTF("Invalid player ID %d\n", j);
-                    continue;
-                }
-
-                if (tw == CON_CHECKAVAILWEAPON)
-                    P_CheckWeapon(g_player[j].ps);
-                else P_SelectNextInvItem(g_player[j].ps);
+                CON_ERRPRINTF("Invalid player ID %d\n", tw);
+                continue;
             }
+
+            P_SelectNextInvItem(g_player[tw].ps);
             continue;
 
         case CON_GETPLAYERANGLE:
@@ -4383,53 +4382,49 @@ finish_qsprintf:
             Gv_SetVarX(*insptr++, ps->ang);
             continue;
 
-        case CON_SETPLAYERANGLE:
-            insptr++;
-            ps->ang=Gv_GetVarX(*insptr++);
-            ps->ang &= 2047;
-            continue;
-
         case CON_GETACTORANGLE:
             insptr++;
             Gv_SetVarX(*insptr++, vm.g_sp->ang);
             continue;
 
+        case CON_SETPLAYERANGLE:
+            insptr++;
+            ps->ang = Gv_GetVarX(*insptr++) & 2047;
+            continue;
+
         case CON_SETACTORANGLE:
             insptr++;
-            vm.g_sp->ang=Gv_GetVarX(*insptr++);
-            vm.g_sp->ang &= 2047;
+            vm.g_sp->ang = Gv_GetVarX(*insptr++) & 2047;
             continue;
 
         case CON_SETVAR:
             insptr++;
-
             if ((aGameVars[*insptr].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
                 aGameVars[*insptr].val.lValue = *(insptr + 1);
             else
                 Gv_SetVarX(*insptr, *(insptr + 1));
-
             insptr += 2;
             continue;
 
         case CON_SETARRAY:
             insptr++;
             {
-                int32_t j=*insptr++;
+                tw=*insptr++;
                 int32_t index = Gv_GetVarX(*insptr++);
                 int32_t value = Gv_GetVarX(*insptr++);
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)j >= (unsigned)g_gameArrayCount || (unsigned)index >= (unsigned)aGameArrays[j].size))
+                if (EDUKE32_PREDICT_FALSE((unsigned)tw >= (unsigned)g_gameArrayCount || (unsigned)index >= (unsigned)aGameArrays[tw].size))
                 {
                     OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",
-                        j,vm.g_i,TrackerCast(sprite[vm.g_i].picnum),vm.g_p);
+                        tw,vm.g_i,TrackerCast(sprite[vm.g_i].picnum),vm.g_p);
                     continue;
                 }
-                if (EDUKE32_PREDICT_FALSE(aGameArrays[j].dwFlags & GAMEARRAY_READONLY))
+                if (EDUKE32_PREDICT_FALSE(aGameArrays[tw].dwFlags & GAMEARRAY_READONLY))
                 {
-                    OSD_Printf("Tried to set on read-only array `%s'", aGameArrays[j].szLabel);
+                    OSD_Printf("Tried to set on read-only array `%s'", aGameArrays[tw].szLabel);
                     continue;
                 }
-                aGameArrays[j].plValues[index]=value;
+                aGameArrays[tw].plValues[index]=value;
                 continue;
             }
         case CON_WRITEARRAYTOFILE:
@@ -4437,110 +4432,101 @@ finish_qsprintf:
             insptr++;
             {
                 const int32_t j=*insptr++;
+                const int q = *insptr++;
+
+                if (EDUKE32_PREDICT_FALSE(ScriptQuotes[q] == NULL))
                 {
-                    const int q = *insptr++;
-
-                    if (EDUKE32_PREDICT_FALSE(ScriptQuotes[q] == NULL))
-                    {
-                        CON_ERRPRINTF("null quote %d\n", q);
-                        continue;
-                    }
-
-                    if (tw == CON_READARRAYFROMFILE)
-                    {
-                        int32_t fil = kopen4loadfrommod(ScriptQuotes[q], 0);
-                        int32_t numelts;
-
-                        if (fil < 0)
-                            continue;
-
-                        numelts = kfilelength(fil) / sizeof(int32_t);
-
-                        // NOTE: LunaCON is stricter: if the file has no
-                        // elements, resize the array to size zero.
-                        if (numelts > 0)
-                        {
-                            /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
-                                aGameArrays[j].szLabel, aGameArrays[j].size, numelts);*/
-                            int32_t numbytes = numelts * sizeof(int32_t);
-#ifdef BITNESS64
-                            int32_t *tmpar = (int32_t *)Xmalloc(numbytes);
-                            kread(fil, tmpar, numbytes);
-#endif
-                            Baligned_free(aGameArrays[j].plValues);
-                            aGameArrays[j].plValues = (intptr_t *)Xaligned_alloc(
-                                ACTOR_VAR_ALIGNMENT, numelts * GAR_ELTSZ);
-                            aGameArrays[j].size = numelts;
-#ifdef BITNESS64
-                            for (int32_t i=0; i<numelts; i++)
-                                aGameArrays[j].plValues[i] = tmpar[i];  // int32_t --> int64_t
-                            Bfree(tmpar);
-#else
-                            kread(fil, aGameArrays[j].plValues, numbytes);
-#endif
-                        }
-
-                        kclose(fil);
-                        continue;
-                    }
-
-                    {
-                        char temp[BMAX_PATH];
-
-                        if (EDUKE32_PREDICT_FALSE(G_ModDirSnprintf(temp, sizeof(temp), "%s", ScriptQuotes[q])))
-                        {
-                            CON_ERRPRINTF("file name too long\n");
-                            continue;
-                        }
-
-                        FILE *const fil = fopen(temp,"wb");
-
-                        if (EDUKE32_PREDICT_FALSE(fil == NULL))
-                        {
-                            CON_ERRPRINTF("couldn't open file \"%s\"\n", temp);
-                            continue;
-                        }
-
-                        const int32_t n = aGameArrays[j].size;
-#ifdef BITNESS64
-                        int32_t *const array = (int32_t *)Xmalloc(sizeof(int32_t)*n);
-                        for (int32_t k=0; k<n; k++)
-                            array[k] = aGameArrays[j].plValues[k];
-#else
-                        int32_t *const array = aGameArrays[j].plValues;
-#endif
-                        fwrite(array, 1, sizeof(int32_t)*n, fil);
-#ifdef BITNESS64
-                        Bfree(array);
-#endif
-                        fclose(fil);
-                    }
-
+                    CON_ERRPRINTF("null quote %d\n", q);
                     continue;
                 }
+
+                if (tw == CON_READARRAYFROMFILE)
+                {
+                    int32_t fil = kopen4loadfrommod(ScriptQuotes[q], 0);
+
+                    if (fil < 0)
+                        continue;
+
+                    int32_t numelts = kfilelength(fil) / sizeof(int32_t);
+
+                    // NOTE: LunaCON is stricter: if the file has no
+                    // elements, resize the array to size zero.
+                    if (numelts > 0)
+                    {
+                        /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
+                            aGameArrays[j].szLabel, aGameArrays[j].size, numelts);*/
+                        int32_t numbytes = numelts * sizeof(int32_t);
+#ifdef BITNESS64
+                        int32_t *tmpar = (int32_t *)Xmalloc(numbytes);
+                        kread(fil, tmpar, numbytes);
+#endif
+                        Baligned_free(aGameArrays[j].plValues);
+                        aGameArrays[j].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, numelts * GAR_ELTSZ);
+                        aGameArrays[j].size = numelts;
+#ifdef BITNESS64
+                        for (int32_t i = 0; i < numelts; i++)
+                            aGameArrays[j].plValues[i] = tmpar[i];  // int32_t --> int64_t
+                        Bfree(tmpar);
+#else
+                        kread(fil, aGameArrays[j].plValues, numbytes);
+#endif
+                    }
+
+                    kclose(fil);
+                    continue;
+                }
+
+                char temp[BMAX_PATH];
+
+                if (EDUKE32_PREDICT_FALSE(G_ModDirSnprintf(temp, sizeof(temp), "%s", ScriptQuotes[q])))
+                {
+                    CON_ERRPRINTF("file name too long\n");
+                    continue;
+                }
+
+                FILE *const fil = fopen(temp, "wb");
+
+                if (EDUKE32_PREDICT_FALSE(fil == NULL))
+                {
+                    CON_ERRPRINTF("couldn't open file \"%s\"\n", temp);
+                    continue;
+                }
+
+                const int32_t n = aGameArrays[j].size;
+#ifdef BITNESS64
+                int32_t *const array = (int32_t *)Xmalloc(sizeof(int32_t) * n);
+                for (int32_t k = 0; k < n; k++) array[k] = aGameArrays[j].plValues[k];
+#else
+                int32_t *const array = aGameArrays[j].plValues;
+#endif
+                fwrite(array, 1, sizeof(int32_t) * n, fil);
+#ifdef BITNESS64
+                Bfree(array);
+#endif
+                fclose(fil);
+
+                continue;
             }
 
         case CON_GETARRAYSIZE:
             insptr++;
-            {
-                int32_t j=*insptr++;
-                Gv_SetVarX(*insptr++, (aGameArrays[j].dwFlags&GAMEARRAY_VARSIZE) ?
-                           Gv_GetVarX(aGameArrays[j].size) : aGameArrays[j].size);
-            }
+            tw = *insptr++;
+            Gv_SetVarX(*insptr++,(aGameArrays[tw].dwFlags & GAMEARRAY_VARSIZE) ?
+                       Gv_GetVarX(aGameArrays[tw].size) : aGameArrays[tw].size);
             continue;
 
         case CON_RESIZEARRAY:
             insptr++;
             {
-                int32_t j=*insptr++;
+                tw=*insptr++;
                 int32_t asize = Gv_GetVarX(*insptr++);
 
                 if (asize > 0)
                 {
                     /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);*/
-                    Baligned_free(aGameArrays[j].plValues);
-                    aGameArrays[j].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, GAR_ELTSZ * asize);
-                    aGameArrays[j].size = asize;
+                    Baligned_free(aGameArrays[tw].plValues);
+                    aGameArrays[tw].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, GAR_ELTSZ * asize);
+                    aGameArrays[tw].size = asize;
                 }
                 continue;
             }
@@ -4548,32 +4534,35 @@ finish_qsprintf:
         case CON_COPY:
             insptr++;
             {
-                int32_t si=*insptr++, ssiz = 0;
+                int32_t si=*insptr++;
                 int32_t sidx = Gv_GetVarX(*insptr++); //, vm.g_i, vm.g_p);
-                int32_t di=*insptr++, dsiz = 0;
+                int32_t di=*insptr++;
                 int32_t didx = Gv_GetVarX(*insptr++);
                 int32_t numelts = Gv_GetVarX(*insptr++);
+
+                tw = 0;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)si>=(unsigned)g_gameArrayCount))
                 {
                     CON_ERRPRINTF("Invalid array %d!", si);
-                    dsiz = 1;
+                    tw = 1;
                 }
                 if (EDUKE32_PREDICT_FALSE((unsigned)di>=(unsigned)g_gameArrayCount))
                 {
                     CON_ERRPRINTF("Invalid array %d!", di);
-                    dsiz = 1;
+                    tw = 1;
                 }
                 if (EDUKE32_PREDICT_FALSE(aGameArrays[di].dwFlags & GAMEARRAY_READONLY))
                 {
                     CON_ERRPRINTF("Array %d is read-only!", di);
-                    dsiz = 1;
+                    tw = 1;
                 }
-                if (EDUKE32_PREDICT_FALSE(dsiz)) continue; // dirty replacement for VMFLAG_ERROR
 
-                ssiz = (aGameArrays[si].dwFlags&GAMEARRAY_VARSIZE) ?
+                if (EDUKE32_PREDICT_FALSE(tw)) continue; // dirty replacement for VMFLAG_ERROR
+
+                int32_t ssiz = (aGameArrays[si].dwFlags&GAMEARRAY_VARSIZE) ?
                        Gv_GetVarX(aGameArrays[si].size) : aGameArrays[si].size;
-                dsiz = (aGameArrays[di].dwFlags&GAMEARRAY_VARSIZE) ?
+                int32_t dsiz = (aGameArrays[di].dwFlags&GAMEARRAY_VARSIZE) ?
                        Gv_GetVarX(aGameArrays[si].size) : aGameArrays[di].size;
 
                 if (EDUKE32_PREDICT_FALSE(sidx > ssiz || didx > dsiz)) continue;
@@ -4610,13 +4599,13 @@ finish_qsprintf:
 
         case CON_RANDVAR:
             insptr++;
-            Gv_SetVarX(*insptr, mulscale16(krand(), *(insptr+1)+1));
+            Gv_SetVarX(*insptr, mulscale16(krand(), *(insptr + 1) + 1));
             insptr += 2;
             continue;
 
         case CON_DISPLAYRANDVAR:
             insptr++;
-            Gv_SetVarX(*insptr, mulscale15(system_15bit_rand(), *(insptr+1)+1));
+            Gv_SetVarX(*insptr, mulscale15(system_15bit_rand(), *(insptr + 1) + 1));
             insptr += 2;
             continue;
 
@@ -4630,60 +4619,64 @@ finish_qsprintf:
 
         case CON_MULVAR:
             insptr++;
-            Gv_MulVar(*insptr, *(insptr+1));
+            Gv_MulVar(*insptr, *(insptr + 1));
             insptr += 2;
             continue;
 
         case CON_DIVVAR:
             insptr++;
-            if (EDUKE32_PREDICT_FALSE(*(insptr+1) == 0))
+            if (EDUKE32_PREDICT_FALSE(*(insptr + 1) == 0))
             {
                 CON_ERRPRINTF("divide by zero!\n");
                 insptr += 2;
                 continue;
             }
-            Gv_DivVar(*insptr, *(insptr+1));
+            Gv_DivVar(*insptr, *(insptr + 1));
             insptr += 2;
             continue;
 
         case CON_MODVAR:
             insptr++;
-            if (EDUKE32_PREDICT_FALSE(*(insptr+1) == 0))
+            if (EDUKE32_PREDICT_FALSE(*(insptr + 1) == 0))
             {
                 CON_ERRPRINTF("mod by zero!\n");
                 insptr += 2;
                 continue;
             }
 
-            Gv_ModVar(*insptr,*(insptr+1));
+            Gv_ModVar(*insptr, *(insptr + 1));
             insptr += 2;
             continue;
 
         case CON_ANDVAR:
             insptr++;
-            Gv_AndVar(*insptr,*(insptr+1));
+            Gv_AndVar(*insptr, *(insptr + 1));
             insptr += 2;
             continue;
 
         case CON_ORVAR:
             insptr++;
-            Gv_OrVar(*insptr,*(insptr+1));
+            Gv_OrVar(*insptr, *(insptr + 1));
             insptr += 2;
             continue;
 
         case CON_XORVAR:
             insptr++;
-            Gv_XorVar(*insptr,*(insptr+1));
+            Gv_XorVar(*insptr, *(insptr + 1));
             insptr += 2;
             continue;
 
         case CON_SETVARVAR:
             insptr++;
-            tw = *insptr++;
-            if ((aGameVars[tw].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
-                aGameVars[tw].val.lValue = Gv_GetVarX(*insptr++);
-            else
-                Gv_SetVarX(tw, Gv_GetVarX(*insptr++));
+            {
+                tw = *insptr++;
+                int32_t const gv = Gv_GetVarX(*insptr++);
+
+                if ((aGameVars[tw].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
+                    aGameVars[tw].val.lValue = gv;
+                else
+                    Gv_SetVarX(tw, gv);
+            }
             continue;
 
         case CON_RANDVARVAR:
@@ -4694,52 +4687,45 @@ finish_qsprintf:
 
         case CON_DISPLAYRANDVARVAR:
             insptr++;
-            {
-                int32_t j=*insptr++;
-                Gv_SetVarX(j,mulscale15(system_15bit_rand(), Gv_GetVarX(*insptr++)+1));
-            }
+            tw = *insptr++;
+            Gv_SetVarX(tw, mulscale15(system_15bit_rand(), Gv_GetVarX(*insptr++) + 1));
             continue;
 
         case CON_GMAXAMMO:
             insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= MAX_WEAPONS))
             {
-                int32_t j=Gv_GetVarX(*insptr++);
-                if (EDUKE32_PREDICT_FALSE((unsigned)j>=MAX_WEAPONS))
-                {
-                    CON_ERRPRINTF("Invalid weapon ID %d\n", j);
-                    insptr++;
-                    continue;
-                }
-                Gv_SetVarX(*insptr++, ps->max_ammo_amount[j]);
+                CON_ERRPRINTF("Invalid weapon ID %d\n", tw);
+                insptr++;
+                continue;
             }
+            Gv_SetVarX(*insptr++, ps->max_ammo_amount[tw]);
             continue;
 
         case CON_SMAXAMMO:
             insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= MAX_WEAPONS))
             {
-                int32_t j=Gv_GetVarX(*insptr++);
-                if (EDUKE32_PREDICT_FALSE((unsigned)j>=MAX_WEAPONS))
-                {
-                    CON_ERRPRINTF("Invalid weapon ID %d\n", j);
-                    insptr++;
-                    continue;
-                }
-                ps->max_ammo_amount[j]=Gv_GetVarX(*insptr++);
+                CON_ERRPRINTF("Invalid weapon ID %d\n", tw);
+                insptr++;
+                continue;
             }
+            ps->max_ammo_amount[tw] = Gv_GetVarX(*insptr++);
             continue;
 
         case CON_MULVARVAR:
             insptr++;
-                tw=*insptr++;
-
-                Gv_MulVar(tw, Gv_GetVarX(*insptr++));
+            tw = *insptr++;
+            Gv_MulVar(tw, Gv_GetVarX(*insptr++));
             continue;
 
         case CON_DIVVARVAR:
             insptr++;
             {
                 tw=*insptr++;
-                int32_t l2=Gv_GetVarX(*insptr++);
+                int32_t const l2=Gv_GetVarX(*insptr++);
 
                 if (EDUKE32_PREDICT_FALSE(!l2))
                 {
@@ -4755,7 +4741,7 @@ finish_qsprintf:
             insptr++;
             {
                 tw=*insptr++;
-                int32_t l2=Gv_GetVarX(*insptr++);
+                int32_t const l2=Gv_GetVarX(*insptr++);
 
                 if (EDUKE32_PREDICT_FALSE(!l2))
                 {
@@ -4875,7 +4861,7 @@ finish_qsprintf:
         case CON_STARTTRACKVAR:
             insptr++;
             {
-                int32_t level = (tw == CON_STARTTRACK) ? *(insptr++) :
+                int32_t const level = (tw == CON_STARTTRACK) ? *(insptr++) :
                     Gv_GetVarX(*(insptr++));
 
                 if (EDUKE32_PREDICT_FALSE(G_StartTrack(level)))
@@ -4896,15 +4882,13 @@ finish_qsprintf:
 
         case CON_ACTIVATECHEAT:
             insptr++;
+            tw = Gv_GetVarX(*(insptr++));
+            if (EDUKE32_PREDICT_FALSE(numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME)))
             {
-                int32_t j=Gv_GetVarX(*(insptr++));
-                if (EDUKE32_PREDICT_FALSE(numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME)))
-                {
-                    CON_ERRPRINTF("not in a single-player game.\n");
-                    continue;
-                }
-                osdcmd_cheatsinfo_stat.cheatnum = j;
+                CON_ERRPRINTF("not in a single-player game.\n");
+                continue;
             }
+            osdcmd_cheatsinfo_stat.cheatnum = tw;
             continue;
 
         case CON_SETGAMEPALETTE:
@@ -4989,11 +4973,11 @@ finish_qsprintf:
 
         case CON_WHILEVARN:
         {
-            intptr_t *savedinsptr=insptr+2;
+            intptr_t const *const savedinsptr = insptr + 2;
             do
             {
-                insptr=savedinsptr;
-                tw = (Gv_GetVarX(*(insptr-1)) != *insptr);
+                insptr = savedinsptr;
+                tw = (Gv_GetVarX(*(insptr - 1)) != *insptr);
                 VM_CONDITIONAL(tw);
             }
             while (tw);
@@ -5002,11 +4986,11 @@ finish_qsprintf:
 
         case CON_WHILEVARVARN:
         {
-            intptr_t *savedinsptr=insptr+2;
+            intptr_t const *const savedinsptr = insptr + 2;
             do
             {
-                insptr=savedinsptr;
-                tw = Gv_GetVarX(*(insptr-1));
+                insptr = savedinsptr;
+                tw = Gv_GetVarX(*(insptr - 1));
                 tw = (tw != Gv_GetVarX(*insptr++));
                 insptr--;
                 VM_CONDITIONAL(tw);
@@ -5058,58 +5042,30 @@ finish_qsprintf:
 
         case CON_IFPINVENTORY:
             insptr++;
-            {
-                int32_t j = 0;
 
-                switch (*insptr++)
-                {
-                case GET_STEROIDS:
-                    if (ps->inv_amount[GET_STEROIDS] != *insptr)
-                        j = 1;
-                    break;
-                case GET_SHIELD:
-                    if (ps->inv_amount[GET_SHIELD] != ps->max_shield_amount)
-                        j = 1;
-                    break;
-                case GET_SCUBA:
-                    if (ps->inv_amount[GET_SCUBA] != *insptr) j = 1;
-                    break;
-                case GET_HOLODUKE:
-                    if (ps->inv_amount[GET_HOLODUKE] != *insptr) j = 1;
-                    break;
-                case GET_JETPACK:
-                    if (ps->inv_amount[GET_JETPACK] != *insptr) j = 1;
-                    break;
+            switch (*insptr++)
+            {
+                case GET_STEROIDS: tw = (ps->inv_amount[GET_STEROIDS] != *insptr); break;
+                case GET_SHIELD: tw = (ps->inv_amount[GET_SHIELD] != ps->max_shield_amount); break;
+                case GET_SCUBA: tw = (ps->inv_amount[GET_SCUBA] != *insptr); break;
+                case GET_HOLODUKE: tw = (ps->inv_amount[GET_HOLODUKE] != *insptr); break;
+                case GET_JETPACK: tw = (ps->inv_amount[GET_JETPACK] != *insptr); break;
                 case GET_ACCESS:
                     switch (vm.g_sp->pal)
                     {
-                    case  0:
-                        if (ps->got_access&1) j = 1;
-                        break;
-                    case 21:
-                        if (ps->got_access&2) j = 1;
-                        break;
-                    case 23:
-                        if (ps->got_access&4) j = 1;
-                        break;
+                        case 0: tw = (ps->got_access & 1); break;
+                        case 21: tw = (ps->got_access & 2); break;
+                        case 23: tw = (ps->got_access & 4); break;
                     }
                     break;
-                case GET_HEATS:
-                    if (ps->inv_amount[GET_HEATS] != *insptr) j = 1;
-                    break;
-                case GET_FIRSTAID:
-                    if (ps->inv_amount[GET_FIRSTAID] != *insptr) j = 1;
-                    break;
-                case GET_BOOTS:
-                    if (ps->inv_amount[GET_BOOTS] != *insptr) j = 1;
-                    break;
-                default:
-                    CON_ERRPRINTF("invalid inventory ID: %d\n", (int32_t)*(insptr-1));
-                }
-
-                VM_CONDITIONAL(j);
-                continue;
+                case GET_HEATS: tw = (ps->inv_amount[GET_HEATS] != *insptr); break;
+                case GET_FIRSTAID: tw = (ps->inv_amount[GET_FIRSTAID] != *insptr); break;
+                case GET_BOOTS: tw = (ps->inv_amount[GET_BOOTS] != *insptr); break;
+                default: tw = 0; CON_ERRPRINTF("invalid inventory ID: %d\n", (int32_t) * (insptr - 1));
             }
+
+            VM_CONDITIONAL(tw);
+            continue;
 
         case CON_PSTOMP:
             insptr++;
@@ -5138,25 +5094,27 @@ finish_qsprintf:
 
         case CON_IFAWAYFROMWALL:
         {
-            int16_t s1=vm.g_sp->sectnum;
-            int32_t j = 0;
+            int16_t s1 = vm.g_sp->sectnum;
+            tw = 0;
 
-            updatesector(vm.g_sp->x+108,vm.g_sp->y+108,&s1);
+#define IFAWAYDIST 108
+
+            updatesector(vm.g_sp->x + IFAWAYDIST, vm.g_sp->y + IFAWAYDIST, &s1);
             if (s1 == vm.g_sp->sectnum)
             {
-                updatesector(vm.g_sp->x-108,vm.g_sp->y-108,&s1);
+                updatesector(vm.g_sp->x - IFAWAYDIST, vm.g_sp->y - IFAWAYDIST, &s1);
                 if (s1 == vm.g_sp->sectnum)
                 {
-                    updatesector(vm.g_sp->x+108,vm.g_sp->y-108,&s1);
+                    updatesector(vm.g_sp->x + IFAWAYDIST, vm.g_sp->y - IFAWAYDIST, &s1);
                     if (s1 == vm.g_sp->sectnum)
                     {
-                        updatesector(vm.g_sp->x-108,vm.g_sp->y+108,&s1);
+                        updatesector(vm.g_sp->x - IFAWAYDIST, vm.g_sp->y + IFAWAYDIST, &s1);
                         if (s1 == vm.g_sp->sectnum)
-                            j = 1;
+                            tw = 1;
                     }
                 }
             }
-            VM_CONDITIONAL(j);
+            VM_CONDITIONAL(tw);
         }
         continue;
 
@@ -5182,32 +5140,28 @@ finish_qsprintf:
 
         case CON_USERQUOTE:
             insptr++;
+            tw = Gv_GetVarX(*insptr++);
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= MAXQUOTES || ScriptQuotes[tw] == NULL))
             {
-                int32_t i=Gv_GetVarX(*insptr++);
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXQUOTES || ScriptQuotes[i] == NULL))
-                {
-                    CON_ERRPRINTF("invalid quote ID %d\n", i);
-                    continue;
-                }
-
-                G_AddUserQuote(ScriptQuotes[i]);
+                CON_ERRPRINTF("invalid quote ID %d\n", tw);
+                continue;
             }
+
+            G_AddUserQuote(ScriptQuotes[tw]);
             continue;
 
         case CON_ECHO:
             insptr++;
+            tw = Gv_GetVarX(*insptr++);
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= MAXQUOTES || ScriptQuotes[tw] == NULL))
             {
-                int32_t i=Gv_GetVarX(*insptr++);
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXQUOTES || ScriptQuotes[i] == NULL))
-                {
-                    CON_ERRPRINTF("invalid quote ID %d\n", i);
-                    continue;
-                }
-
-                OSD_Printf("%s\n",ScriptQuotes[i]);
+                CON_ERRPRINTF("invalid quote ID %d\n", tw);
+                continue;
             }
+
+            OSD_Printf("%s\n", ScriptQuotes[tw]);
             continue;
 
         case CON_IFINOUTERSPACE:
@@ -5252,18 +5206,13 @@ finish_qsprintf:
 
         case CON_IFANGDIFFL:
             insptr++;
-            {
-                int32_t j = klabs(G_GetAngleDelta(ps->ang,vm.g_sp->ang));
-                VM_CONDITIONAL(j <= *insptr);
-            }
+            tw = klabs(G_GetAngleDelta(ps->ang, vm.g_sp->ang));
+            VM_CONDITIONAL(tw <= *insptr);
             continue;
 
         case CON_IFNOSOUNDS:
-        {
-            int32_t j = !A_CheckAnySoundPlaying(vm.g_i);
-            VM_CONDITIONAL(j);
-        }
-        continue;
+            VM_CONDITIONAL(!A_CheckAnySoundPlaying(vm.g_i));
+            continue;
 
         case CON_SPRITEFLAGS:
             insptr++;
@@ -5277,18 +5226,14 @@ finish_qsprintf:
 
         case CON_GETCURRADDRESS:
             insptr++;
-            {
-                int32_t j=*insptr++;
-                Gv_SetVarX(j, (intptr_t)(insptr-script));
-            }
+            tw = *insptr++;
+            Gv_SetVarX(tw, (intptr_t)(insptr - script));
             continue;
 
         case CON_JUMP:  // XXX XXX XXX
             insptr++;
-            {
-                int32_t j = Gv_GetVarX(*insptr++);
-                insptr = (intptr_t *)(j+script);
-            }
+            tw = Gv_GetVarX(*insptr++);
+            insptr = (intptr_t *)(tw + script);
             continue;
 
         default:

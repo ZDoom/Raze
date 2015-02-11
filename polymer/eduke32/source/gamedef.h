@@ -37,7 +37,7 @@ extern "C" {
 #define MAXCHEATLEN             20
 #define NUMCHEATCODES           (int32_t)ARRAY_SIZE(CheatStrings)
 
-extern intptr_t *insptr;
+extern intptr_t const * insptr;
 extern hashtable_t h_gamefuncs;
 
 #if !defined LUNATIC
