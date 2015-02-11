@@ -2376,17 +2376,17 @@ void C_InitQuotes(void)
 {
     for (int i = 0; i < 128; i++) C_AllocQuote(i);
 
-#if defined(__ANDROID__)
-    Bsprintf(ScriptQuotes[13], "TOUCH ANYWHERE TO CONTINUE");
+#ifdef EDUKE32_TOUCH_DEVICES
+    ScriptQuotes[QUOTE_DEAD] = 0;
 #else
     for (int i = MAXQUOTELEN - 7; i >= 0; i--)
-        if (Bstrncmp(&ScriptQuotes[13][i], "SPACE", 5) == 0)
+        if (Bstrncmp(&ScriptQuotes[QUOTE_DEAD][i], "SPACE", 5) == 0)
         {
             Bmemset(tempbuf, 0, sizeof(tempbuf));
-            Bstrncpy(tempbuf, ScriptQuotes[13], i);
+            Bstrncpy(tempbuf, ScriptQuotes[QUOTE_DEAD], i);
             Bstrcat(tempbuf, "USE");
-            Bstrcat(tempbuf, &ScriptQuotes[13][i + 5]);
-            Bstrncpy(ScriptQuotes[13], tempbuf, MAXQUOTELEN - 1);
+            Bstrcat(tempbuf, &ScriptQuotes[QUOTE_DEAD][i + 5]);
+            Bstrncpy(ScriptQuotes[QUOTE_DEAD], tempbuf, MAXQUOTELEN - 1);
             i = MAXQUOTELEN - 7;
         }
 #endif

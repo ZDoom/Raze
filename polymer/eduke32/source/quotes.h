@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define QUOTE_FOUND_SECRET          9
 #define QUOTE_SQUISHED              10
 #define QUOTE_USED_STEROIDS         NOBETAQUOTE(12)
+#define QUOTE_DEAD                  13
 #define QUOTE_DEACTIVATED           15
 #define QUOTE_CHEAT_GODMODE_ON      17
 #define QUOTE_CHEAT_GODMODE_OFF     18
