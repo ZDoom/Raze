@@ -372,7 +372,9 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
                 menutext(160,90+16+8,0,0,MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
         }
 
+#ifndef EDUKE32_TOUCH_DEVICES
         if (statustext) gametext(160,180,statustext,0,2+8+16);
+#endif
 
         if (percent != -1)
         {
@@ -482,6 +484,8 @@ void G_CacheMapData(void)
     tc = totalclock;
     j = 0;
 
+    int lpc = -1;
+
     for (i=0; i<MAXTILES; i++)
     {
         if (!(i&7) && !gotpic[i>>3])
@@ -546,9 +550,23 @@ void G_CacheMapData(void)
         if (bpp > 8 && totalclock - tc > TICRATE/4)
         {
             /*Bsprintf(tempbuf,"%d resources remaining\n",g_precacheCount-pc+1);*/
-            tc = min(100, tabledivide32_noinline(100 * pc, g_precacheCount));
-            Bsprintf(tempbuf,"Loaded %d%% (%d/%d textures)\n",tc,pc,g_precacheCount);
-            G_DoLoadScreen(tempbuf, tc);
+            int percentage = min(100, tabledivide32_noinline(100 * pc, g_precacheCount));
+
+            while (percentage > lpc)
+            {
+                Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", lpc, pc, g_precacheCount);
+                G_DoLoadScreen(tempbuf, lpc);
+                sampletimer();
+
+                if (totalclock - tc >= 1)
+                {
+                    tc = totalclock;
+                    lpc++;
+                }
+
+                OSD_Printf("percentage %d lpc %d\n", percentage, lpc);
+            }
+
             tc = totalclock;
         }
     }
