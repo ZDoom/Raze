@@ -8588,7 +8588,7 @@ static int32_t g_RTSPlaying;
 // Returns: started playing?
 int32_t G_StartRTS(int32_t i, int localp)
 {
-    if (!ud.lockout && ud.config.FXDevice >= 0 && ud.config.SoundToggle &&
+    if (!ud.lockout && ud.config.SoundToggle &&
         RTS_IsInitialized() && g_RTSPlaying == 0 && (ud.config.VoiceToggle & (localp ? 1 : 4)))
     {
         char *sndptr = (char *)RTS_GetSound(i-1);
@@ -8997,7 +8997,7 @@ FAKE_F3:
             }
         }
 
-        if (KB_UnBoundKeyPressed(sc_F4) && ud.config.FXDevice >= 0)
+        if (KB_UnBoundKeyPressed(sc_F4))
         {
             KB_ClearKeyDown(sc_F4);
             FX_StopAllSounds();
@@ -9058,7 +9058,7 @@ FAKE_F3:
             P_DoQuote(QUOTE_VIEW_MODE_OFF+g_player[myconnectindex].ps->over_shoulder_on,g_player[myconnectindex].ps);
         }
 
-        if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicDevice >= 0)
+        if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicToggle)
         {
             map_t *map = &MapInfo[g_musicIndex];
             char *const qmusic = ScriptQuotes[QUOTE_MUSIC];
@@ -12573,7 +12573,7 @@ void G_BonusScreen(int32_t bonusonly)
         clearallviews(0);
         G_DisplayMPResultsScreen();
 
-        if (!(ud.config.MusicToggle == 0 || ud.config.MusicDevice < 0))
+        if (ud.config.MusicToggle)
             S_PlaySound(BONUSMUSIC);
 
         nextpage();
@@ -12612,7 +12612,7 @@ void G_BonusScreen(int32_t bonusonly)
 
     gametext(160,192,"Press any key or button to continue",quotepulseshade,2+8+16);
 
-    if (!(ud.config.MusicToggle == 0 || ud.config.MusicDevice < 0))
+    if (ud.config.MusicToggle)
         S_PlaySound(BONUSMUSIC);
 
     nextpage();

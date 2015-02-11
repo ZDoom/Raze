@@ -283,8 +283,7 @@ static int32_t G_CacheSound(uint32_t num)
     int16_t fp = -1;
     int32_t   l;
 
-    if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
-    if (ud.config.FXDevice < 0) return 0;
+    if (num >= MAXSOUNDS || !ud.config.SoundToggle) return 0;
 
     if (EDUKE32_PREDICT_FALSE(!g_sounds[num].filename)) return 0;
 
@@ -316,10 +315,7 @@ static int32_t G_CacheSound(uint32_t num)
 
 static void G_PrecacheSounds(void)
 {
-    int32_t i, j;
-
-    if (ud.config.FXDevice < 0) return;
-    j = 0;
+    int32_t i, j = 0;
 
     for (i=MAXSOUNDS-1; i>=0; i--)
         if (g_sounds[i].ptr == 0)
@@ -1344,7 +1340,7 @@ void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
 
     G_HandleAsync();
 
-    if (g_skillSoundVoice >= 0 && ud.config.FXDevice >= 0 && ud.config.SoundToggle)
+    if (g_skillSoundVoice >= 0 && ud.config.SoundToggle)
     {
         while (FX_SoundActive(g_skillSoundVoice))
             G_HandleAsync();

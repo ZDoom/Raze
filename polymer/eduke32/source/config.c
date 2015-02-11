@@ -203,7 +203,6 @@ void CONFIG_SetDefaults(void)
     ud.config.NoAutoLoad = 1;
     ud.config.AmbienceToggle = 1;
     ud.config.AutoAim = 1;
-    ud.config.FXDevice = 0;
     ud.config.MasterVolume = 255;
     ud.config.FXVolume = 225;
 #if defined(_WIN32)
@@ -215,7 +214,6 @@ void CONFIG_SetDefaults(void)
 #endif
     ud.config.MouseBias = 0;
     ud.config.MouseDeadZone = 0;
-    ud.config.MusicDevice = 0;
     ud.config.MusicToggle = 1;
     ud.config.MusicVolume = 195;
     g_myAimMode = g_player[0].ps->aim_mode = 1;

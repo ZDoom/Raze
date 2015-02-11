@@ -60,10 +60,10 @@ int32_t EnumAudioDevs(struct audioenumdrv **wave, struct audioenumdev **midi, st
 
 typedef struct
 {
+    int16_t ow;
+    int16_t voice;
     uint32_t sndist;
     uint32_t clock;
-    int16_t voice;
-    int16_t ow;
 } SOUNDOWNER;
 
 

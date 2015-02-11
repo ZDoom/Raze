@@ -1485,16 +1485,16 @@ static void M_PreMenu(MenuID_t cm)
     case MENU_SOUND:
     case MENU_SOUND_INGAME:
     case MENU_ADVSOUND:
-        MenuEntry_DisableOnCondition(&ME_SOUND, ud.config.FXDevice < 0);
-        MenuEntry_DisableOnCondition(&ME_SOUND_MUSIC, ud.config.MusicDevice < 0);
-        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_MASTER, (!ud.config.SoundToggle || ud.config.FXDevice < 0) && (!ud.config.MusicToggle || ud.config.MusicDevice < 0));
-        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_EFFECTS, !ud.config.SoundToggle || ud.config.FXDevice < 0);
-        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_MUSIC, !ud.config.MusicToggle || ud.config.MusicDevice < 0);
-        MenuEntry_DisableOnCondition(&ME_SOUND_DUKETALK, !ud.config.SoundToggle || ud.config.FXDevice < 0);
-        MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLINGRATE, (!ud.config.SoundToggle || ud.config.FXDevice < 0) && (!ud.config.MusicToggle || ud.config.MusicDevice < 0));
-        MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLESIZE, (!ud.config.SoundToggle || ud.config.FXDevice < 0) && (!ud.config.MusicToggle || ud.config.MusicDevice < 0));
-        MenuEntry_DisableOnCondition(&ME_SOUND_NUMVOICES, !ud.config.SoundToggle || ud.config.FXDevice < 0);
-        MenuEntry_DisableOnCondition(&ME_SOUND_RESTART, soundrate == ud.config.MixRate && soundvoices == ud.config.NumVoices && soundbits == ud.config.NumBits);
+        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_MASTER, !ud.config.SoundToggle && !ud.config.MusicToggle);
+        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_EFFECTS, !ud.config.SoundToggle);
+        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_MUSIC, !ud.config.MusicToggle);
+        MenuEntry_DisableOnCondition(&ME_SOUND_DUKETALK, !ud.config.SoundToggle);
+        MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLINGRATE, !ud.config.SoundToggle && !ud.config.MusicToggle);
+        MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLESIZE, !ud.config.SoundToggle && !ud.config.MusicToggle);
+        MenuEntry_DisableOnCondition(&ME_SOUND_NUMVOICES, !ud.config.SoundToggle);
+        MenuEntry_DisableOnCondition(&ME_SOUND_RESTART, soundrate == ud.config.MixRate &&
+                                                        soundvoices == ud.config.NumVoices &&
+                                                        soundbits == ud.config.NumBits);
         break;
 
     case MENU_MOUSESETUP:
@@ -2361,7 +2361,7 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        if (ud.config.MusicToggle == 1)
+        if (ud.config.MusicToggle)
             S_RestartMusic();
     }
     else if (entry == &ME_COLCORR_RESET)

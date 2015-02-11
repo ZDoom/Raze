@@ -42,24 +42,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "winlayer.h"
 #endif
 
+#define DQSIZE 128
+
 int32_t g_numEnvSoundsPlaying, g_maxSoundPos = 0;
 
 static int32_t MusicIsWaveform = 0;
-static char *MusicPtr = 0;
+static char *MusicPtr = NULL;
 static int32_t MusicVoice = -1;
 static int32_t MusicPaused = 0;
 
 static mutex_t s_mutex;
-static volatile uint32_t dq[128], dnum = 0;
+static volatile uint32_t dq[DQSIZE], dnum = 0;
 
 void S_SoundStartup(void)
 {
-    int32_t fxdevicetype, i;
-    void *initdata = 0;
-
-    if (ud.config.FXDevice >= 0)
-        fxdevicetype = ASS_AutoDetect;
-    else return;
+    void *initdata = NULL;
 
 #ifdef MIXERTYPEWIN
     initdata = (void *) win_gethwnd(); // used for DirectSound
@@ -67,7 +64,7 @@ void S_SoundStartup(void)
 
     initprintf("Initializing sound... ");
 
-    if (FX_Init(fxdevicetype, ud.config.NumVoices, ud.config.NumChannels, ud.config.NumBits, ud.config.MixRate, initdata) != FX_Ok)
+    if (FX_Init(ASS_AutoDetect, ud.config.NumVoices, ud.config.NumChannels, ud.config.NumBits, ud.config.MixRate, initdata) != FX_Ok)
     {
         initprintf("failed! %s\n", FX_ErrorString(FX_Error));
         return;
@@ -76,11 +73,9 @@ void S_SoundStartup(void)
     initprintf("%d voices, %d channels, %d-bit %d Hz\n", ud.config.NumVoices, ud.config.NumChannels,
         ud.config.NumBits, ud.config.MixRate);
 
-    for (i=g_maxSoundPos; i >= 0 ; i--)
+    for (int i=0; i<g_maxSoundPos; ++i)
     {
-        int32_t j = MAXSOUNDINSTANCES-1;
-
-        for (; j>=0; j--)
+        for (int j = 0; j<MAXSOUNDINSTANCES; ++j)
         {
             g_sounds[i].num = 0;
             g_sounds[i].SoundOwner[j].voice = 0;
@@ -103,9 +98,6 @@ void S_SoundStartup(void)
 
 void S_SoundShutdown(void)
 {
-    if (ud.config.FXDevice < 0)
-        return;
-
     if (MusicVoice >= 0)
         S_MusicShutdown();
 
@@ -118,12 +110,9 @@ void S_SoundShutdown(void)
 
 void S_MusicStartup(void)
 {
-    if (ud.config.MusicDevice < 0)
-        return;
-
     initprintf("Initializing music...\n");
 
-    if (MUSIC_Init(ud.config.MusicDevice, 0) == MUSIC_Ok || MUSIC_Init((ud.config.MusicDevice = 0), 0) == MUSIC_Ok)
+    if (MUSIC_Init(0, 0) == MUSIC_Ok || MUSIC_Init(1, 0) == MUSIC_Ok)
     {
         MUSIC_SetVolume(MASTER_VOLUME(ud.config.MusicVolume));
         return;
@@ -134,9 +123,6 @@ void S_MusicStartup(void)
 
 void S_MusicShutdown(void)
 {
-    if (ud.config.MusicDevice < 0)
-        return;
-
     S_StopMusic();
 
     if (MUSIC_Shutdown() != MUSIC_Ok)
@@ -185,40 +171,21 @@ void S_RestartMusic(void)
 
 void S_MenuSound(void)
 {
-    static int32_t SoundNum=0;
-    int32_t menusnds[] =
-    {
-        LASERTRIP_EXPLODE,
-        DUKE_GRUNT,
-        DUKE_LAND_HURT,
-        CHAINGUN_FIRE,
-        SQUISHED,
-        KICK_HIT,
-        PISTOL_RICOCHET,
-        PISTOL_BODYHIT,
-        PISTOL_FIRE,
-        SHOTGUN_FIRE,
-        BOS1_WALK,
-        RPG_EXPLODE,
-        PIPEBOMB_BOUNCE,
-        PIPEBOMB_EXPLODE,
-        NITEVISION_ONOFF,
-        RPG_SHOOT,
-        SELECT_WEAPON,
+    static int32_t SoundNum;
+    int32_t const menusnds[] = {
+        LASERTRIP_EXPLODE, DUKE_GRUNT,       DUKE_LAND_HURT,   CHAINGUN_FIRE, SQUISHED,      KICK_HIT,
+        PISTOL_RICOCHET,   PISTOL_BODYHIT,   PISTOL_FIRE,      SHOTGUN_FIRE,  BOS1_WALK,     RPG_EXPLODE,
+        PIPEBOMB_BOUNCE,   PIPEBOMB_EXPLODE, NITEVISION_ONOFF, RPG_SHOOT,     SELECT_WEAPON,
     };
-
     S_PlaySound(menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
 }
 
 int32_t S_PlayMusic(const char *fn)
 {
-    int32_t fp, MusicLen;
-
-    if (ud.config.MusicToggle == 0) return 0;
-    if (ud.config.MusicDevice < 0) return 0;
-
-    if (fn == NULL)
+    if (!ud.config.MusicToggle || fn == NULL)
         return 0;
+
+    int32_t fp;
 
 #if defined HAVE_FLAC || defined HAVE_VORBIS
     if ((fp = S_UpgradeFormat(fn, 0)) < 0)
@@ -233,7 +200,7 @@ int32_t S_PlayMusic(const char *fn)
 
     S_StopMusic();
 
-    MusicLen = kfilelength(fp);
+    int32_t MusicLen = kfilelength(fp);
 
     if (EDUKE32_PREDICT_FALSE(MusicLen < 4))
     {
@@ -242,8 +209,8 @@ int32_t S_PlayMusic(const char *fn)
         return 0;
     }
 
-    Bfree(MusicPtr);  // in case the following allocation was never freed
-    MusicPtr = (char *)Xmalloc(MusicLen);
+    ALIGNED_FREE_AND_NULL(MusicPtr);  // in case the following allocation was never freed
+    MusicPtr = (char *)Xaligned_alloc(16, MusicLen);
     g_musicSize = kread(fp, (char *)MusicPtr, MusicLen);
 
     if (EDUKE32_PREDICT_FALSE(g_musicSize != MusicLen))
@@ -264,7 +231,7 @@ int32_t S_PlayMusic(const char *fn)
     }
     else
     {
-        int32_t mvol = MASTER_VOLUME(ud.config.MusicVolume);
+        int32_t const mvol = MASTER_VOLUME(ud.config.MusicVolume);
         MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0,
                                        0, mvol, mvol, mvol,
                                        FX_MUSIC_PRIORITY, MUSIC_ID);
@@ -304,16 +271,15 @@ void S_StopMusic(void)
 
     MUSIC_StopSong();
 
-    Bfree(MusicPtr);
-    MusicPtr = NULL;
+    ALIGNED_FREE_AND_NULL(MusicPtr);
     g_musicSize = 0;
 }
 
 void S_Cleanup(void)
 {
-    // process from our own local copy of the delete queue so we don't hold the lock long
-    uint32_t ldq[128], ldnum;
+    static uint32_t ldq[DQSIZE];
 
+    // process from our own local copy of the delete queue so we don't hold the lock long
     mutex_lock(&s_mutex);
 
     if (!dnum)
@@ -322,15 +288,16 @@ void S_Cleanup(void)
         return;
     }
 
-    ldnum = dnum;
-    Bmemcpy(ldq, (void *)dq, ldnum*sizeof(int32_t));
+    Bmemcpy(ldq, (void *)dq, dnum * sizeof(int32_t));
+
+    uint32_t ldnum = dnum-1;
     dnum = 0;
 
     mutex_unlock(&s_mutex);
 
     do
     {
-        uint32_t num = ldq[--ldnum];
+        uint32_t num = ldq[ldnum];
 
         // negative index is RTS playback
         if ((int32_t)num < 0)
@@ -348,41 +315,38 @@ void S_Cleanup(void)
             continue;
         }
 
-        {
-            int32_t j = num & (MAXSOUNDINSTANCES-1);
-            int32_t i;
+        int32_t j = num & (MAXSOUNDINSTANCES-1);
 
-            num = (num - j) / MAXSOUNDINSTANCES;
+        num = (num - j) / MAXSOUNDINSTANCES;
 
-            i = g_sounds[num].SoundOwner[j].ow;
+        int32_t i = g_sounds[num].SoundOwner[j].ow;
 
-            if (EDUKE32_PREDICT_FALSE(g_sounds[num].num > MAXSOUNDINSTANCES))
-                OSD_Printf(OSD_ERROR "S_Cleanup(): num exceeds MAXSOUNDINSTANCES! g_sounds[%d].num %d wtf?\n", num, g_sounds[num].num);
+        if (EDUKE32_PREDICT_FALSE(g_sounds[num].num > MAXSOUNDINSTANCES))
+            OSD_Printf(OSD_ERROR "S_Cleanup(): num exceeds MAXSOUNDINSTANCES! g_sounds[%d].num %d wtf?\n", num, g_sounds[num].num);
 
-            if (g_sounds[num].num > 0)
-                g_sounds[num].num--;
+        if (g_sounds[num].num > 0)
+            g_sounds[num].num--;
 
-            // MUSICANDSFX uses t_data[0] to control restarting the sound
-            // CLEAR_SOUND_T0
-            if (i != -1 && S_IsAmbientSFX(i) && sector[sprite[i].sectnum].lotag < 3)  // ST_2_UNDERWATER
-                actor[i].t_data[0] = 0;
+        // MUSICANDSFX uses t_data[0] to control restarting the sound
+        // CLEAR_SOUND_T0
+        if (i != -1 && S_IsAmbientSFX(i) && sector[sprite[i].sectnum].lotag < 3)  // ST_2_UNDERWATER
+            actor[i].t_data[0] = 0;
 
-            g_sounds[num].SoundOwner[j].ow = -1;
-            g_sounds[num].SoundOwner[j].voice = 0;
-            g_sounds[num].SoundOwner[j].sndist = UINT32_MAX;
-            g_sounds[num].SoundOwner[j].clock = 0;
-        }
+        g_sounds[num].SoundOwner[j].ow = -1;
+        g_sounds[num].SoundOwner[j].voice = 0;
+        g_sounds[num].SoundOwner[j].sndist = UINT32_MAX;
+        g_sounds[num].SoundOwner[j].clock = 0;
+
         g_soundlocks[num]--;
     }
-    while (ldnum);
+    while (ldnum--);
 }
 
 // returns number of bytes read
 int32_t S_LoadSound(uint32_t num)
 {
-    int32_t   fp = -1, l;
 
-    if (num > (unsigned)g_maxSoundPos || ud.config.SoundToggle == 0 || ud.config.FXDevice < 0) return 0;
+    if (num > (unsigned)g_maxSoundPos || !ud.config.SoundToggle ) return 0;
 
     if (EDUKE32_PREDICT_FALSE(g_sounds[num].filename == NULL))
     {
@@ -390,6 +354,7 @@ int32_t S_LoadSound(uint32_t num)
         return 0;
     }
 
+    int32_t fp;
 #if defined HAVE_FLAC || defined HAVE_VORBIS
     fp = S_UpgradeFormat(g_sounds[num].filename, g_loadFromGroupOnly);
     if (fp == -1)
@@ -404,10 +369,9 @@ int32_t S_LoadSound(uint32_t num)
         }
     }
 
-    g_sounds[num].soundsiz = l = kfilelength(fp);
-
+    int32_t l = kfilelength(fp);
     g_soundlocks[num] = 200;
-
+    g_sounds[num].soundsiz = l;
     allocache((intptr_t *)&g_sounds[num].ptr, l, (char *)&g_soundlocks[num]);
     l = kread(fp, g_sounds[num].ptr, l);
     kclose(fp);
@@ -416,22 +380,18 @@ int32_t S_LoadSound(uint32_t num)
 }
 
 
-static int32_t S_GetPitch(int32_t num)
+static inline int32_t S_GetPitch(int32_t num)
 {
-    int32_t j = klabs(g_sounds[num].pe-g_sounds[num].ps);
-
-    if (j == 0)
-        return g_sounds[num].ps;
-
-    return min(g_sounds[num].ps, g_sounds[num].pe) + rand()%j;
+    int32_t const range = klabs(g_sounds[num].pe - g_sounds[num].ps);
+    return (range == 0) ? g_sounds[num].ps : min(g_sounds[num].ps, g_sounds[num].pe) + rand() % range;
 }
 
 static int32_t S_TakeSlot(int32_t num)
 {
+    S_Cleanup();
+
     uint32_t dist = 0, clock = UINT32_MAX;
     int32_t i = 0, j = 0;
-
-    S_Cleanup();
 
     while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
     {
@@ -467,10 +427,7 @@ static int32_t S_GetSlot(int32_t num)
     while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
         j++;
 
-    if (j == MAXSOUNDINSTANCES)
-        j = S_TakeSlot(num);
-
-    return j;
+    return j == MAXSOUNDINSTANCES ? S_TakeSlot(num) : j;
 }
 
 static inline int32_t S_GetAngle(int32_t camang, const vec3_t *cam, const vec3_t *pos)
@@ -482,17 +439,13 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
                                 const vec3_t *cam, const vec3_t *pos,
                                 int32_t *sndistptr, int32_t *sndangptr)
 {
-    int32_t sndang, sndist;
+    int32_t sndang = 0, sndist = 0;
     int32_t explosion = 0;
 
     if (PN == APLAYER && P_Get(i) == screenpeek)
-    {
-        sndang = sndist = 0;
         goto sound_further_processing;
-    }
 
     sndang = S_GetAngle(camang, cam, pos);
-
     sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z));
 
 #ifdef SPLITSCREEN_MOD_HACKS
@@ -558,30 +511,21 @@ sound_further_processing:
 
 int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 {
-    int32_t j;
-    int32_t sndist, sndang, explosionp;
-    int32_t voice, pitch;
-
-    const DukePlayer_t *const myps = g_player[myconnectindex].ps;
-    const DukePlayer_t *peekps;
-
-    j = VM_OnEventWithReturn(EVENT_SOUND, i, screenpeek, num);
+    int32_t j = VM_OnEventWithReturn(EVENT_SOUND, i, screenpeek, num);
 
     if (j == -1 && num != -1) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
         return -1;
 
     num = j;
 
-    if ((unsigned)num > (unsigned)g_maxSoundPos ||
-            ud.config.FXDevice < 0 ||
-            ((g_sounds[num].m & SF_ADULT) && ud.lockout) ||
-            ud.config.SoundToggle == 0 ||
-//            g_sounds[num].num >= MAXSOUNDINSTANCES ||
-            (unsigned)i >= MAXSPRITES ||
-            FX_VoiceAvailable(g_sounds[num].pr) == 0 ||
-            (myps->timebeforeexit > 0 && myps->timebeforeexit <= GAMETICSPERSEC*3) ||
-            (myps->gm&MODE_MENU))
+    const DukePlayer_t *const myps = g_player[myconnectindex].ps;
+
+    if ((unsigned)num > (unsigned)g_maxSoundPos || ((g_sounds[num].m & SF_ADULT) && ud.lockout) ||
+        !ud.config.SoundToggle || (unsigned)i >= MAXSPRITES || !FX_VoiceAvailable(g_sounds[num].pr) ||
+        (myps->timebeforeexit > 0 && myps->timebeforeexit <= GAMETICSPERSEC * 3) || (myps->gm & MODE_MENU))
         return -1;
+
+    int32_t voice;
 
     if (g_sounds[num].m & SF_DTAG)  // Duke-Tag sound
     {
@@ -615,15 +559,15 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             return -1;
 
         // don't play if any Duke talk sounds are already playing
-        for (j=g_maxSoundPos; j>=0; j--)
+        for (j=0; j<g_maxSoundPos; ++j)
             if ((g_sounds[j].m & SF_TALK) && g_sounds[j].num > 0)
                 return -1;
     }
 
-    explosionp = S_CalcDistAndAng(i, num, CAMERA(sect), CAMERA(ang), &CAMERA(pos), pos, &sndist, &sndang);
-
-    pitch = S_GetPitch(num);
-    peekps = g_player[screenpeek].ps;
+    int32_t sndist, sndang;
+    int32_t explosionp = S_CalcDistAndAng(i, num, CAMERA(sect), CAMERA(ang), &CAMERA(pos), pos, &sndist, &sndang);
+    int32_t pitch = S_GetPitch(num);
+    const DukePlayer_t *peekps = g_player[screenpeek].ps;
 
 #ifdef SPLITSCREEN_MOD_HACKS
     if (g_fakeMultiMode==2)
@@ -728,26 +672,22 @@ int32_t S_PlaySound(int32_t num)
 
     num = j;
 
-    if (ud.config.FXDevice < 0) return -1;
-    if (ud.config.SoundToggle==0) return -1;
+    if (!ud.config.SoundToggle) return -1;
 
-    if ((unsigned)num > (unsigned)g_maxSoundPos || g_sounds[num].filename == NULL)
+    if (EDUKE32_PREDICT_FALSE((unsigned)num > (unsigned)g_maxSoundPos || (g_sounds[num].filename == NULL)))
     {
         OSD_Printf("WARNING: invalid sound #%d\n",num);
         return -1;
     }
 
-    if (!(ud.config.VoiceToggle&1) && (g_sounds[num].m & SF_TALK)) return -1;
-    if ((g_sounds[num].m & SF_ADULT) && ud.lockout) return -1;
-    if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return -1;
+    if (!ud.config.SoundToggle || (!(ud.config.VoiceToggle & 1) && (g_sounds[num].m & SF_TALK)) ||
+        ((g_sounds[num].m & SF_ADULT) && ud.lockout) || !FX_VoiceAvailable(g_sounds[num].pr))
+        return -1;
 
     pitch = S_GetPitch(num);
 
-    if (g_sounds[num].ptr == 0)
-    {
-        if (S_LoadSound(num) == 0)
-            return -1;
-    }
+    if (g_sounds[num].ptr == NULL && !S_LoadSound(num))
+        return -1;
     else
     {
         if (g_soundlocks[num] < 200)
@@ -788,31 +728,23 @@ int32_t S_PlaySound(int32_t num)
 
 int32_t A_PlaySound(uint32_t num, int32_t i)
 {
-    if ((unsigned)num > (unsigned)g_maxSoundPos) return -1;
+    if (EDUKE32_PREDICT_FALSE((unsigned)num > (unsigned)g_maxSoundPos)) return -1;
 
-    return i < 0 ? S_PlaySound(num) : 
+    return (unsigned)i >= MAXSPRITES ? S_PlaySound(num) : 
         S_PlaySound3D(num, i, (vec3_t *)&sprite[i]);
 }
 
 void S_StopEnvSound(int32_t num, int32_t i)
 {
-    int32_t j, iter = 0;
 
-    if ((unsigned)num > (unsigned)g_maxSoundPos || g_sounds[num].num <= 0)
+    if (EDUKE32_PREDICT_FALSE((unsigned)num > (unsigned)g_maxSoundPos) || g_sounds[num].num <= 0)
         return;
+
+    int32_t j;
 
     do
     {
-        if (EDUKE32_PREDICT_FALSE(iter++ > MAXSOUNDINSTANCES<<1))
-        {
-            initprintf(OSD_ERROR "S_StopEnvSound(): too many iterations! The following IDs are still active for sound %d:\n", num);
-            for (j=MAXSOUNDINSTANCES-1; j>=0; j--)
-                if (g_sounds[num].SoundOwner[j].ow == i)
-                    initprintf(OSD_ERROR "slot %d, voice %d, sprite %d\n", j, g_sounds[num].SoundOwner[j].voice, g_sounds[num].SoundOwner[j].ow);
-            return;
-        }
-
-        for (j=MAXSOUNDINSTANCES-1; j>=0; j--)
+        for (j=0; j<MAXSOUNDINSTANCES; ++j)
         {
             if ((i == -1 && g_sounds[num].SoundOwner[j].voice > FX_Ok) || (i != -1 && g_sounds[num].SoundOwner[j].ow == i))
             {
@@ -821,22 +753,22 @@ void S_StopEnvSound(int32_t num, int32_t i)
                 else if (g_sounds[num].SoundOwner[j].voice > FX_Ok)
                 {
                     FX_StopSound(g_sounds[num].SoundOwner[j].voice);
-                    return;
+                    S_Cleanup();
+                    break;
                 }
             }
         }
     }
-    while (j >= 0);
+    while (j < MAXSOUNDINSTANCES);
 }
 
 void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset)
 {
-    int32_t j;
 
     if ((unsigned)num > (unsigned)g_maxSoundPos || g_sounds[num].num <= 0)
         return;
 
-    for (j=MAXSOUNDINSTANCES-1; j>=0; j--)
+    for (int j=0; j<MAXSOUNDINSTANCES; ++j)
     {
         int32_t voice = g_sounds[num].SoundOwner[j].voice;
 
@@ -853,16 +785,15 @@ void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset)
 
 void S_Update(void)
 {
-    const vec3_t *c;
-    int32_t ca,cs;
-    int32_t num;  // the sound index...
-
     S_Cleanup();
 
     if ((g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO)) == 0)
         return;
 
     g_numEnvSoundsPlaying = 0;
+
+    const vec3_t *c;
+    int32_t ca,cs;
 
     if (ud.camerasprite == -1)
     {
@@ -877,28 +808,19 @@ void S_Update(void)
         ca = sprite[ud.camerasprite].ang;
     }
 
-    num = g_maxSoundPos;
+    int32_t num = g_maxSoundPos;
 
     do
     {
-        int32_t k;
-
-        for (k=MAXSOUNDINSTANCES-1; k>=0; k--)
+        for (int k=0; k<MAXSOUNDINSTANCES; ++k)
         {
             int32_t i = g_sounds[num].SoundOwner[k].ow;
+
+            if ((unsigned)i >= MAXSPRITES || g_sounds[num].num == 0 || g_sounds[num].SoundOwner[k].voice <= FX_Ok ||
+                !FX_SoundActive(g_sounds[num].SoundOwner[k].voice))
+                continue;
+
             int32_t sndist, sndang;
-
-            if ((unsigned)i >= MAXSPRITES || g_sounds[num].num == 0 || g_sounds[num].SoundOwner[k].voice <= FX_Ok)
-                continue;
-
-            if (!FX_SoundActive(g_sounds[num].SoundOwner[k].voice))
-            {
-                /*
-                  OSD_Printf("S_Update(): stale voice %d from sound %d position %d sprite %d\n",
-                  g_sounds[num].SoundOwner[k].voice, num, k, g_sounds[num].SoundOwner[k].ow);
-                */
-                continue;
-            }
 
             S_CalcDistAndAng(i, num, cs, ca, c, (const vec3_t *)&sprite[i], &sndist, &sndang);
 
@@ -926,25 +848,25 @@ void S_Callback(uint32_t num)
 void S_ClearSoundLocks(void)
 {
     int32_t i;
+    int32_t const msp = g_maxSoundPos;
 
-    for (i=g_maxSoundPos; i >= 0 ; i--)
+    for (i = 0; i < 11; ++i)
+        if (rts_lumplockbyte[i] >= 200)
+            rts_lumplockbyte[i] = 199;
+
+    for (i = 0; i < msp; ++i)
         if (g_soundlocks[i] >= 200)
             g_soundlocks[i] = 199;
 
-    for (i=0; i<11; i++)
-        if (rts_lumplockbyte[i] >= 200)
-            rts_lumplockbyte[i] = 199;
 }
 
 int32_t A_CheckSoundPlaying(int32_t i, int32_t num)
 {
-    if (num > g_maxSoundPos || num < 0) return 0;
+    if (EDUKE32_PREDICT_FALSE((unsigned)num > (unsigned)g_maxSoundPos)) return 0;
 
     if (g_sounds[num].num > 0 && i >= 0)
     {
-        int32_t j=MAXSOUNDINSTANCES-1;
-
-        for (; j>=0; j--)
+        for (int32_t j=0; j<MAXSOUNDINSTANCES; ++j)
             if (g_sounds[num].SoundOwner[j].ow == i)
                 return 1;
     }
@@ -955,13 +877,12 @@ int32_t A_CheckSoundPlaying(int32_t i, int32_t num)
 // Check if actor <i> is playing any sound.
 int32_t A_CheckAnySoundPlaying(int32_t i)
 {
-    int32_t j;
+    int32_t const msp = g_maxSoundPos;
+    int32_t k;
 
-    for (j=g_maxSoundPos; j>=0; j--)
+    for (int32_t j=0; j<msp; ++j)
     {
-        int32_t k;
-
-        for (k=0; k<MAXSOUNDINSTANCES; k++)
+        for (k=0; k<MAXSOUNDINSTANCES; ++k)
             if (g_sounds[j].SoundOwner[k].ow == i)
                 return 1;
     }
@@ -971,6 +892,6 @@ int32_t A_CheckAnySoundPlaying(int32_t i)
 
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num)
 {
-    if (num > g_maxSoundPos || num < 0) return 0;
+    if (EDUKE32_PREDICT_FALSE((unsigned)num > (unsigned)g_maxSoundPos)) return 0;
     return (i == -1) ? (g_soundlocks[num] >= 200) : g_sounds[num].num;
 }
