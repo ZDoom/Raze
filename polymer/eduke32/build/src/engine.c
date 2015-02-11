@@ -12601,7 +12601,7 @@ restart_grand:
 #endif
         for (cnt=sec->wallnum,wal=&wall[sec->wallptr]; cnt>0; cnt--,wal++)
         {
-            const walltype *const wal2 = &wall[wal->point2];
+            const twalltype *const wal2 = (twalltype *)&wall[wal->point2];
             const int32_t x31 = wal->x-x1, x34 = wal->x-wal2->x;
             const int32_t y31 = wal->y-y1, y34 = wal->y-wal2->y;
 

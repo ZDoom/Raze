@@ -108,7 +108,7 @@ void G_ClearCameraView(DukePlayer_t *ps)
 }
 
 // Manhattan distance between wall-point and sprite.
-static int32_t G_WallSpriteDist(const walltype *wal, const spritetype *spr)
+static inline int32_t G_WallSpriteDist(const twalltype *wal, const spritetype *spr)
 {
     return klabs(wal->x - spr->x) + klabs(wal->y - spr->y);
 }
@@ -139,7 +139,7 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
 
         do
         {
-            const walltype *wal;
+            const twalltype *wal;
             const int32_t dasect = sectorlist[sectcnt++];
             const int32_t startwall = sector[dasect].wallptr;
             const int32_t endwall = startwall+sector[dasect].wallnum;
@@ -149,8 +149,8 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
 
             // Check if "hit" 1st or 3rd wall-point. This mainly makes sense
             // for rectangular "ceiling light"-style sectors.
-            if (G_WallSpriteDist(&wall[startwall], s) < r ||
-                    G_WallSpriteDist(&wall[wall[w2].point2], s) < r)
+            if (G_WallSpriteDist((twalltype *)&wall[startwall], s) < r ||
+                    G_WallSpriteDist((twalltype *)&wall[wall[w2].point2], s) < r)
             {
                 if (((sector[dasect].ceilingz-s->z)>>8) < r)
                     Sect_DamageCeilingOrFloor(0, dasect);
@@ -158,7 +158,7 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
                     Sect_DamageCeilingOrFloor(1, dasect);
             }
 
-            for (w=startwall,wal=&wall[startwall]; w<endwall; w++,wal++)
+            for (w=startwall,wal=(twalltype *)&wall[startwall]; w<endwall; w++,wal++)
                 if (G_WallSpriteDist(wal, s) < r)
                 {
                     int16_t sect = -1;
