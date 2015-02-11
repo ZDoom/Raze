@@ -93,6 +93,7 @@
 
 #if defined __ANDROID__ || defined EDUKE32_IOS
 # define EDUKE32_TOUCH_DEVICES
+# define EDUKE32_GLES
 #endif
 
 // This gives us access to 'intptr_t' and 'uintptr_t', which are
@@ -192,8 +193,8 @@
 #endif
 
 #if defined(__arm__)
-# define Bsqrt __sqrt
-# define Bsqrtf __sqrtf
+# define Bsqrt __builtin_sqrt
+# define Bsqrtf __builtin_sqrtf
 #else
 # define Bsqrt sqrt
 # define Bsqrtf sqrtf

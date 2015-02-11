@@ -14,36 +14,33 @@
 #
 LOCAL_PATH := $(call my-dir)
 
-
-
 include $(CLEAR_VARS)
-
 
 LOCAL_MODULE    := duke
 
 # -O2  -fvisibility=hidden
 
-LOCAL_CFLAGS :=  -fvisibility=hidden -fPIC -Wimplicit -O2 -funswitch-loops -fomit-frame-pointer -DNDEBUG -DUSING_LTO -flto -fno-stack-protector   -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -funsigned-char -fno-strict-aliasing -D_FORTIFY_SOURCE=0 -fjump-tables -Wno-unused-result  -Wno-char-subscripts    -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT -DRENDERTYPESDL=1 -Wno-strict-overflow -DUSE_OPENGL  -Wno-attributes
+LOCAL_CFLAGS :=   -x c++ -std=gnu++03 -fvisibility=hidden -fPIC -O2 -funswitch-loops -fomit-frame-pointer -DNDEBUG -DUSING_LTO -flto -fno-stack-protector   -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=0 -fjump-tables -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT
+LOCAL_CFLAGS += -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -Wno-unused-result  -Wno-char-subscripts -Wno-strict-overflow -Wno-attributes -Wno-write-strings
+LOCAL_CPPFLAGS := -std=gnu++03
 
 #-DUSE_LIBPNG
 
-LOCAL_CFLAGS += -DHAVE_SDL -DHAVE_VORBIS -DDROIDMENU
+LOCAL_CFLAGS += -DHAVE_SDL -DHAVE_VORBIS -DHAVE_JWZGLES -DHAVE_ANDROID -DRENDERTYPESDL=1  -DUSE_OPENGL -DNETCODE_DISABLE
 
 #LOCAL_CFLAGS += -mhard-float -D_NDK_MATH_NO_SOFTFP=1
 
+LOCAL_LDFLAGS := -fuse-ld=bfd
 LOCAL_ARM_NEON = true
 
-LOCAL_LDLIBS += -lGLESv1_CM -lEGL
-
-LOCAL_LDLIBS += -llog
-
 LOCAL_C_INCLUDES :=  $(LOCAL_PATH)/source $(LOCAL_PATH)/source/jmact $(LOCAL_PATH)/source/jaudiolib/include $(LOCAL_PATH)/source/enet/include  $(LOCAL_PATH)/build/include
-
-LOCAL_C_INCLUDES +=    $(TOP_DIR)/ $(TOP_DIR)/Libraries/liboggvorbis/include $(TOP_DIR)/Libraries/ $(TOP_DIR)/Libraries/SDL2/include  $(TOP_DIR)/Libraries/SDL2_mixer/include $(TOP_DIR)/Libraries/libpng/include   $(TOP_DIR)/Libraries/TinyXML/include $(TOP_DIR)/TouchControls 
+LOCAL_C_INCLUDES +=    $(TOP_DIR)/ $(TOP_DIR)/Libraries/liboggvorbis/include $(TOP_DIR)/Libraries/ $(TOP_DIR)/Libraries/SDL2/include  $(TOP_DIR)/Libraries/SDL2_mixer/include $(TOP_DIR)/Libraries/libpng/include   $(TOP_DIR)/Libraries/TinyXML/include $(TOP_DIR)/TouchControls
 
 ANDROID_SRC = \
 	source/android/android-jni.cpp \
-	source/android/in_android.c
+	source/android/in_android.c \
+        build/src/glbuild_android.c \
+        build/src/jwzgles.c
 
 BUILD_SRC = \
 	build/src/a-c.c \
@@ -54,6 +51,7 @@ BUILD_SRC = \
 	build/src/defs.c \
 	build/src/engine.c \
 	build/src/polymost.c \
+        build/src/mdsprite.c \
 	build/src/texcache.c \
 	build/src/dxtfilter.c \
 	build/src/hightile.c \
@@ -62,21 +60,15 @@ BUILD_SRC = \
 	build/src/kplib.c \
 	build/src/lz4.c \
 	build/src/osd.c \
+	build/src/md4.c \
 	build/src/pragmas.c \
 	build/src/scriptfile.c \
 	build/src/mutex.c \
-    build/src/xxhash.c \
-    build/src/mmulti_null.c \
-    build/src/voxmodel.c \
-    build/src/common.c \
-    
-
-GL_SRC = \
- 	build/src/mdsprite.c \
- 	build/src/glbuild_android.c \
-
-SDL_SRC = \
-	build/src/sdlayer.c \
+        build/src/xxhash.c \
+        build/src/mmulti_null.c \
+        build/src/voxmodel.c \
+        build/src/common.c \
+        build/src/sdlayer.c
 
 JMACT_SRC=source/jmact/file_lib.c \
 	source/jmact//control.c \
@@ -90,6 +82,7 @@ JMACT_SRC=source/jmact/file_lib.c \
 GAME_SRC=source/game.c \
 	source/actors.c \
 	source/anim.c \
+	source/animsounds.c \
 	source/common.c \
 	source/config.c \
 	source/demo.c \
@@ -137,12 +130,12 @@ GAME_SRC=source/game.c \
 	source/enet/src/compress.c \
     source/enet/src/unix.c
  
-LOCAL_SRC_FILES = $(ANDROID_SRC) $(ENET_SRC) $(JAUDIO_SRC) $(JMACT_SRC) $(GAME_SRC) $(BUILD_SRC)  $(GL_SRC) $(SDL_SRC)  
+LOCAL_SRC_FILES = $(ANDROID_SRC) $(JAUDIO_SRC) $(JMACT_SRC) $(GAME_SRC) $(BUILD_SRC)  
 
-
-LOCAL_LDLIBS :=  -lGLESv1_CM -lEGL -ldl -llog -lOpenSLES -lz -L$(TOP_DIR)/openssl/libs/ -lcrypto
-LOCAL_STATIC_LIBRARIES :=  nanogl  SDL2_net libjpeg libpng
-LOCAL_SHARED_LIBRARIES := touchcontrols openal ogg vorbis SDL2 SDL2_mixer SDL2_image
+LOCAL_LDLIBS :=  -lGLESv1_CM -lEGL -ldl -llog -lOpenSLES -lz -L$(TOP_DIR)/openssl/libs/ 
+LOCAL_STATIC_LIBRARIES :=   libpng crypto  
+LOCAL_SHARED_LIBRARIES := touchcontrols ogg vorbis SDL2 SDL2_mixer 
+# SDL2_image
 
 ifeq ($(GP_LIC),1)
 LOCAL_STATIC_LIBRARIES +=  s-setup

@@ -405,7 +405,7 @@ void G_AnimateCamSprite(int32_t smoothratio)
         if (OW >= 0 && dist(&sprite[ps->i], &sprite[i]) < VIEWSCREEN_ACTIVE_DISTANCE)
         {
             if (waloff[TILE_VIEWSCR] == 0)
-                allocatepermanenttile(TILE_VIEWSCR, tilesiz[PN].x<<2, tilesiz[PN].y<<2);
+                allocatepermanenttile(TILE_VIEWSCR, tilesiz[PN].x<<VIEWSCREENFACTOR, tilesiz[PN].y<<VIEWSCREENFACTOR);
             else
                 walock[TILE_VIEWSCR] = 255;
 

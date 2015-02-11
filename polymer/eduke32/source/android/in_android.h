@@ -24,8 +24,8 @@ extern "C"
 #define KEY_QUICK_KEY3    0x1013
 #define KEY_QUICK_KEY4    0x1014
 
-#define BUTTONSET(x,value) (CONTROL_ButtonState |= ((uint64_t)value<<((uint64_t)(x))))
-#define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64_t)1<<((uint64_t)(x))))
+// #define BUTTONSET(x,value) (CONTROL_ButtonState |= ((uint64_t)value<<((uint64_t)(x))))
+// #define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64_t)1<<((uint64_t)(x))))
 
 #define PRECISIONSHOOTFACTOR        0.3f
 
@@ -49,7 +49,9 @@ typedef enum {
     READ_RENDERER,
     READ_LASTWEAPON,
     READ_PAUSED,
-    READ_IS_DEAD
+    READ_IS_DEAD,
+    READ_INVENTORY,
+    READ_SOMETHINGONPLAYER
 } portableread_t;
 
 
@@ -68,12 +70,16 @@ typedef struct
 {
     int32_t crouchToggleState;
     int32_t lastWeapon;
+    int32_t toggleCrouch;
+    int32_t quickSelectWeapon;
 
     uint64_t functionSticky; //To let at least one tick
     uint64_t functionHeld;
 
     int32_t left_double_action;
     int32_t right_double_action;
+
+    int32_t invertLook, hideStick;
 
     double pitch, yaw;
     double pitch_joystick, yaw_joystick;
@@ -82,6 +88,8 @@ typedef struct
     // set by configuration UI
     float strafe_sens, forward_sens;
     float pitch_sens, yaw_sens;
+
+    float gameControlsAlpha;
 } droidinput_t;
 
 typedef struct  
@@ -93,14 +101,15 @@ typedef struct
 
 extern droidinput_t droidinput;
 extern droidsysinfo_t droidinfo;
-extern char toggleCrouch;
-
 
 
 int PortableKeyEvent(int state, int code, int unicode);
 int PortableRead(portableread_t r);
 
 void PortableAction(int state, int action);
+
+void PortableMouseMenu(float x,float y);
+void PortableMouseMenuButton(int state,int button);
 
 void PortableMove(float fwd, float strafe);
 void PortableLook(double yaw, double pitch);

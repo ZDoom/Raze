@@ -60,6 +60,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "input.h"
 #include "compat.h"
 
+#ifdef __ANDROID__
+#include "android.h"
+#endif
+
 #ifdef LUNATIC
 # include "lunatic_game.h"
 #endif
@@ -2884,6 +2888,10 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
 int32_t g_logoFlags = 255;
 #endif
 
+#ifdef __ANDROID__
+int inExtraScreens = 0;
+#endif
+
 static void G_DisplayExtraScreens(void)
 {
     int32_t flags = G_GetLogoFlags();
@@ -2893,6 +2901,9 @@ static void G_DisplayExtraScreens(void)
 
     if (!DUKEBETA && (!VOLUMEALL || flags & LOGO_SHAREWARESCREENS))
     {
+#ifdef __ANDROID__
+        inExtraScreens = 1;
+#endif
         setview(0,0,xdim-1,ydim-1);
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
@@ -2910,10 +2921,17 @@ static void G_DisplayExtraScreens(void)
         fadepaltile(0,0,0, 63,0,-7,3290);
         while (!I_CheckAllInput())
             G_HandleAsync();
+
+#ifdef __ANDROID__
+        inExtraScreens = 0;
+#endif
     }
 
     if (flags & LOGO_TENSCREEN)
     {
+#ifdef __ANDROID__
+        inExtraScreens = 1;
+#endif
         setview(0,0,xdim-1,ydim-1);
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
@@ -2928,6 +2946,9 @@ static void G_DisplayExtraScreens(void)
 
         fadepaltile(0,0,0, 0,63,7, TENSCREEN);
         I_ClearAllInput();
+#ifdef __ANDROID__
+        inExtraScreens = 0;
+#endif
     }
 }
 
@@ -2975,8 +2996,6 @@ void G_GameExit(const char *msg)
             wm_msgbox(titlebuf, "%s", msg);
         }
     }
-
-    uninitgroupfile();
 
     Bfflush(NULL);
 
@@ -3666,12 +3685,16 @@ void G_DisplayRest(int32_t smoothratio)
             }
             else
             {
+#ifdef __ANDROID__
+                CONTROL_Android_ScrollMap(&ud.fola,& ud.folx,&ud.foly,&pp->zoom);
+#else
                 if (!ud.pause_on)
                 {
                     ud.fola += ud.folavel>>3;
                     ud.folx += (ud.folfvel*sintable[(512+2048-ud.fola)&2047])>>14;
                     ud.foly += (ud.folfvel*sintable[(512+1024-512-ud.fola)&2047])>>14;
                 }
+#endif
                 cposx = ud.folx;
                 cposy = ud.foly;
                 cang = ud.fola;
@@ -4413,6 +4436,11 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     if (pub > 0 || getrendermode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
+#ifdef __ANDROID__
+    // HACK: this is needed or else we get leftover UI texture crap where we'd get HOM on PC
+        clearallviews(0L);
+#endif
+
 #ifndef EDUKE32_TOUCH_DEVICES
         if (ud.screen_size >= 8)
 #endif
@@ -7502,8 +7530,11 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 #endif
 
                 t->picnum = TILE_VIEWSCR;
-                t->xrepeat = t->xrepeat & 1 ? (t->xrepeat>>2) + 1 : t->xrepeat>>2;
-                t->yrepeat = t->yrepeat & 1 ? (t->yrepeat>>2) + 1 : t->yrepeat>>2;
+
+#if VIEWSCREENFACTOR > 0
+                t->xrepeat = (t->xrepeat>>VIEWSCREENFACTOR) + (t->xrepeat & 1);
+                t->yrepeat = (t->yrepeat>>VIEWSCREENFACTOR) + (t->yrepeat & 1);
+#endif
             }
 
             break;
@@ -9164,6 +9195,18 @@ FAKE_F3:
             if (ud.overhead_on == 3) ud.overhead_on = 0;
             ud.last_overhead = ud.overhead_on;
         }
+
+#ifdef __ANDROID__
+        if (ud.overhead_on == 1)
+            ud.scrollmode = 0;
+        else if (ud.overhead_on == 2)
+        {
+            ud.scrollmode = 1;
+            ud.folx = g_player[screenpeek].ps->opos.x;
+            ud.foly = g_player[screenpeek].ps->opos.y;
+            ud.fola = g_player[screenpeek].ps->oang;
+        }
+#endif
         g_restorePalette = 1;
         G_UpdateScreenArea();
     }
@@ -10735,6 +10778,7 @@ void G_Shutdown(void)
     G_Cleanup();
     FreeGroups();
     OSD_Cleanup();
+    uninitgroupfile();
     Bfflush(NULL);
 }
 
@@ -11067,7 +11111,10 @@ static void G_Startup(void)
                     G_GameExit("Failed loading art.");
             }
             Bchdir(cwd);
+#ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
             Bfree(cwd);
+#endif
+
         }
         else if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
             G_GameExit("Failed loading art.");
@@ -11409,7 +11456,7 @@ int32_t app_main(int32_t argc, const char **argv)
     if (Bstrcmp(setupfilename, SETUPFILENAME))
         initprintf("Using config file \"%s\".\n",setupfilename);
 
-    G_ExtPreStartupWindow();
+    G_ScanGroups();
 
 #ifdef STARTUP_SETUP_WINDOW
     if (i < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_JF || ud.config.ForceSetup)) || g_commandSetup)
@@ -11429,7 +11476,7 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 
     flushlogwindow = 0;
-    G_ExtPostStartupWindow(!g_noAutoLoad && !ud.config.NoAutoLoad);
+    G_LoadGroups(!g_noAutoLoad && !ud.config.NoAutoLoad);
 //    flushlogwindow = 1;
 
     if (!usecwd)

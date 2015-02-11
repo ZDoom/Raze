@@ -36,6 +36,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern void  CONTROL_Android_ClearButton(int32_t whichbutton);
 extern void  CONTROL_Android_PollDevices(ControlInfo *info);
 extern void  CONTROL_Android_SetLastWeapon(int w);
+
+extern void  CONTROL_Android_ScrollMap(int32_t *angle,int32_t *x, int32_t *y, uint16_t *zoom );
+
 #endif
 
 #endif

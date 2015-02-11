@@ -368,104 +368,102 @@ void G_ExtInit(void)
     }
 }
 
-void G_ExtPreStartupWindow(void)
+void G_ScanGroups(void)
 {
     ScanGroups();
+
+    // try and identify the 'defaultgamegrp' in the set of GRPs.
+    // if it is found, set up the environment accordingly for the game it represents.
+    // if it is not found, choose the first GRP from the list
+    struct grpfile *fg, *first = NULL;
+
+    for (fg = foundgrps; fg; fg=fg->next)
     {
-        // try and identify the 'defaultgamegrp' in the set of GRPs.
-        // if it is found, set up the environment accordingly for the game it represents.
-        // if it is not found, choose the first GRP from the list
-        struct grpfile *fg, *first = NULL;
+        struct grpfile *grp;
+        for (grp = listgrps; grp; grp=grp->next)
+            if (fg->crcval == grp->crcval) break;
 
-        for (fg = foundgrps; fg; fg=fg->next)
+        if (grp == NULL)
+            continue;
+
+        fg->game = grp->game;
+        if (!first) first = fg;
+        if (!Bstrcasecmp(fg->name, G_DefaultGrpFile()))
         {
-            struct grpfile *grp;
-            for (grp = listgrps; grp; grp=grp->next)
-                if (fg->crcval == grp->crcval) break;
-
-            if (grp == NULL)
-                continue;
-
-            fg->game = grp->game;
-            if (!first) first = fg;
-            if (!Bstrcasecmp(fg->name, G_DefaultGrpFile()))
-            {
-                g_gameType = grp->game;
-                g_gameNamePtr = grp->name;
-                break;
-            }
+            g_gameType = grp->game;
+            g_gameNamePtr = grp->name;
+            break;
         }
-        if (!fg && first)
-        {
-            if (g_grpNamePtr == NULL)
-            {
-                clearGrpNamePtr();
-                g_grpNamePtr = dup_filename(first->name);
-            }
-            g_gameType = first->game;
-            g_gameNamePtr = listgrps->name;
-        }
-        else if (!fg) g_gameNamePtr = NULL;
     }
+    if (!fg && first)
+    {
+        if (g_grpNamePtr == NULL)
+        {
+            clearGrpNamePtr();
+            g_grpNamePtr = dup_filename(first->name);
+        }
+        g_gameType = first->game;
+        g_gameNamePtr = listgrps->name;
+    }
+    else if (!fg) g_gameNamePtr = NULL;
 }
 
-void G_ExtPostStartupWindow(int32_t autoload)
+void G_LoadGroups(int32_t autoload)
 {
     if (g_modDir[0] != '/')
     {
         char cwd[BMAX_PATH];
 
-        Bstrcat(g_rootDir,g_modDir);
+        Bstrcat(g_rootDir, g_modDir);
         addsearchpath(g_rootDir);
-//        addsearchpath(mod_dir);
+        //        addsearchpath(mod_dir);
 
-        if (getcwd(cwd,BMAX_PATH))
+        if (getcwd(cwd, BMAX_PATH))
         {
-            Bsprintf(cwd,"%s/%s",cwd,g_modDir);
+            Bsprintf(cwd, "%s/%s", cwd, g_modDir);
             if (!Bstrcmp(g_rootDir, cwd))
             {
                 if (addsearchpath(cwd) == -2)
-                    if (Bmkdir(cwd,S_IRWXU) == 0) addsearchpath(cwd);
+                    if (Bmkdir(cwd, S_IRWXU) == 0)
+                        addsearchpath(cwd);
             }
         }
 
 #ifdef USE_OPENGL
-        Bsprintf(cwd,"%s/%s",g_modDir,TEXCACHEFILE);
-        Bstrcpy(TEXCACHEFILE,cwd);
+        Bsprintf(cwd, "%s/%s", g_modDir, TEXCACHEFILE);
+        Bstrcpy(TEXCACHEFILE, cwd);
 #endif
     }
 
     if (g_usingAddon)
         G_LoadAddon();
 
+    int32_t i;
+    const char *grpfile = G_GrpFile();
+
+    if (g_dependencyCRC)
     {
-        int32_t i;
-        const char *grpfile = G_GrpFile();
-
-        if (g_dependencyCRC)
+        struct grpfile *grp = FindGroup(g_dependencyCRC);
+        if (grp)
         {
-            struct grpfile * grp = FindGroup(g_dependencyCRC);
-            if (grp)
-            {
-                if ((i = initgroupfile(grp->name)) == -1)
-                    initprintf("Warning: could not find main data file \"%s\"!\n",grp->name);
-                else
-                    initprintf("Using \"%s\" as main game data file.\n", grp->name);
-            }
+            if ((i = initgroupfile(grp->name)) == -1)
+                initprintf("Warning: could not find main data file \"%s\"!\n", grp->name);
+            else
+                initprintf("Using \"%s\" as main game data file.\n", grp->name);
         }
+    }
 
-        if ((i = initgroupfile(grpfile)) == -1)
-            initprintf("Warning: could not find main data file \"%s\"!\n",grpfile);
-        else
-            initprintf("Using \"%s\" as main game data file.\n", grpfile);
+    if ((i = initgroupfile(grpfile)) == -1)
+        initprintf("Warning: could not find main data file \"%s\"!\n", grpfile);
+    else
+        initprintf("Using \"%s\" as main game data file.\n", grpfile);
 
-        if (autoload)
-        {
-            G_LoadGroupsInDir("autoload");
+    if (autoload)
+    {
+        G_LoadGroupsInDir("autoload");
 
-            if (i != -1)
-                G_DoAutoload(grpfile);
-        }
+        if (i != -1)
+            G_DoAutoload(grpfile);
     }
 
     if (g_modDir[0] != '/')
@@ -484,32 +482,30 @@ void G_ExtPostStartupWindow(int32_t autoload)
 
     loaddefinitions_game(G_DefFile(), TRUE);
 
+    struct strllist *s;
+
+    pathsearchmode = 1;
+    while (CommandGrps)
     {
-        struct strllist *s;
+        int32_t j;
 
-        pathsearchmode = 1;
-        while (CommandGrps)
+        s = CommandGrps->next;
+
+        if ((j = initgroupfile(CommandGrps->str)) == -1)
+            initprintf("Could not find file \"%s\".\n", CommandGrps->str);
+        else
         {
-            int32_t j;
-
-            s = CommandGrps->next;
-
-            if ((j = initgroupfile(CommandGrps->str)) == -1)
-                initprintf("Could not find file \"%s\".\n",CommandGrps->str);
-            else
-            {
-                g_groupFileHandle = j;
-                initprintf("Using file \"%s\" as game data.\n",CommandGrps->str);
-                if (autoload)
-                    G_DoAutoload(CommandGrps->str);
-            }
-
-            Bfree(CommandGrps->str);
-            Bfree(CommandGrps);
-            CommandGrps = s;
+            g_groupFileHandle = j;
+            initprintf("Using file \"%s\" as game data.\n", CommandGrps->str);
+            if (autoload)
+                G_DoAutoload(CommandGrps->str);
         }
-        pathsearchmode = 0;
+
+        Bfree(CommandGrps->str);
+        Bfree(CommandGrps);
+        CommandGrps = s;
     }
+    pathsearchmode = 0;
 }
 
 #ifdef _WIN32

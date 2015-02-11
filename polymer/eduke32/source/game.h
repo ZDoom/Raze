@@ -42,6 +42,14 @@ extern "C" {
 #define MAXPWLOCKOUT 128
 #define MAXRTSNAME 128
 
+#if defined(GEKKO) || defined(__OPENDINGUX__)
+# define VIEWSCREENFACTOR 0
+#elif defined(__ANDROID__)
+# define VIEWSCREENFACTOR 1
+#else
+# define VIEWSCREENFACTOR 2
+#endif
+
 enum GametypeFlags_t {
     GAMETYPE_COOP                   = 0x00000001,
     GAMETYPE_WEAPSTAY               = 0x00000002,
