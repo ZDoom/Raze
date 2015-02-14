@@ -7395,11 +7395,10 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
         Bassert(i >= 0);
 
+        if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && s->owner >= 0)
         {
-            int32_t snum = P_GetP((const spritetype *)s);
-            const DukePlayer_t *const ps = g_player[snum].ps;
-
-            if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps->newowner == -1 && s->owner >= 0)
+            const DukePlayer_t *const ps = g_player[P_GetP((const spritetype *)s)].ps;
+            if (ps->newowner == -1)
             {
                 t->x -= mulscale16(65536-smoothratio,ps->pos.x-ps->opos.x);
                 t->y -= mulscale16(65536-smoothratio,ps->pos.y-ps->opos.y);
@@ -7408,13 +7407,13 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->z += mulscale16(smoothratio,ps->pos.z-ps->opos.z) -
                     (ps->dead_flag ? 0 : PHEIGHT) + PHEIGHT;
             }
-            else if ((s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER ||
-                     s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR)
-            {
-                t->x -= mulscale16(65536-smoothratio,s->x-actor[i].bpos.x);
-                t->y -= mulscale16(65536-smoothratio,s->y-actor[i].bpos.y);
-                t->z -= mulscale16(65536-smoothratio,s->z-actor[i].bpos.z);
-            }
+        }
+        else if ((s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER ||
+                 s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR)
+        {
+            t->x -= mulscale16(65536-smoothratio,s->x-actor[i].bpos.x);
+            t->y -= mulscale16(65536-smoothratio,s->y-actor[i].bpos.y);
+            t->z -= mulscale16(65536-smoothratio,s->z-actor[i].bpos.z);
         }
 
         const int32_t sect = s->sectnum;
