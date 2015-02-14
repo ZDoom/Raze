@@ -79,7 +79,7 @@ static NSString *getApplicationName(void)
 }
 @end
 
-@interface SDLMain (NSObject)
+@interface SDLMain (NSObject) <NSFileManagerDelegate>
 @end
 
 /* The main class of the application, the application's delegate */

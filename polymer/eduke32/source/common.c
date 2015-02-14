@@ -294,7 +294,7 @@ void G_ExtInit(void)
 {
     char cwd[BMAX_PATH];
 
-#ifdef __APPLE__
+#ifdef EDUKE32_OSX
     char *appdir = Bgetappdir();
     addsearchpath(appdir);
     Bfree(appdir);
@@ -599,7 +599,7 @@ static void G_LoadAddon(void)
     }
 }
 
-#if defined __APPLE__ || defined __linux__ || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__
+#if defined EDUKE32_OSX || defined __linux__ || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__
 static void G_AddSteamPaths(const char *basepath)
 {
     char buf[BMAX_PATH];
@@ -625,7 +625,7 @@ static void G_AddSteamPaths(const char *basepath)
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music/vacation", basepath);
     addsearchpath(buf);
 
-#if defined __APPLE__
+#if defined EDUKE32_OSX
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM", basepath);
 #else
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/NAM", basepath);
@@ -819,7 +819,7 @@ void G_AddSearchPaths(void)
     addsearchpath("/usr/local/share/games/jfduke3d");
     addsearchpath("/usr/share/games/eduke32");
     addsearchpath("/usr/local/share/games/eduke32");
-#elif defined(__APPLE__)
+#elif defined EDUKE32_OSX
     char buf[BMAX_PATH];
     int32_t i;
     char *applications[] = { osx_getapplicationsdir(0), osx_getapplicationsdir(1) };

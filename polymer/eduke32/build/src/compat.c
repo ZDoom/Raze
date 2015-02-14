@@ -271,7 +271,7 @@ char *Bgethomedir(void)
     if (loaded)
         FreeLibrary(hShell32);
     return NULL;
-#elif defined __APPLE__
+#elif defined EDUKE32_OSX
     return osx_gethomedir();
 #elif defined(GEKKO)
     // return current drive's name
@@ -302,7 +302,7 @@ char *Bgetappdir(void)
 		dir = Bstrdup(appdir);
     }
 
-#elif defined __APPLE__
+#elif defined EDUKE32_OSX
     dir = osx_getappdir();
 #elif defined(__linux) || defined(__NetBSD__) || defined(__OpenBSD__)
     char buf[PATH_MAX] = {0};

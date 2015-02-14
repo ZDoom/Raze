@@ -4496,7 +4496,7 @@ finish_qsprintf:
                 int32_t *const array = (int32_t *)Xmalloc(sizeof(int32_t) * n);
                 for (int32_t k = 0; k < n; k++) array[k] = aGameArrays[j].plValues[k];
 #else
-                int32_t *const array = aGameArrays[j].plValues;
+                int32_t *const array = (int32_t *)aGameArrays[j].plValues;
 #endif
                 fwrite(array, 1, sizeof(int32_t) * n, fil);
 #ifdef BITNESS64

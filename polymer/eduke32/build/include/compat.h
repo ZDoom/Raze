@@ -418,7 +418,7 @@ FORCE_INLINE uint64_t B_UNBUF64(const uint8_t *buf)
         ((uint64_t)buf[4] << 32) | (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
 }
 
-#if defined (BITNESS64)
+#if defined BITNESS64 && defined __SSE2__
 #include <emmintrin.h>
 FORCE_INLINE int32_t Blrintf(const float x)
 {

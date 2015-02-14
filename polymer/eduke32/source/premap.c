@@ -447,7 +447,7 @@ void G_CacheMapData(void)
         S_PlayMusic(MapInfo[MUS_LOADING].musicfn);
     }
 
-#ifdef EDUKE32_TOUCH_DEVICES
+#if defined EDUKE32_TOUCH_DEVICES && defined USE_OPENGL
     polymost_glreset();
 #endif
 

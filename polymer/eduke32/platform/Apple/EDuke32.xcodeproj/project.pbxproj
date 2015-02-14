@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -79,7 +79,6 @@
 		0008E93119F1AC540091588D /* hightile.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8AF19F1AC530091588D /* hightile.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E93219F1AC540091588D /* kplib.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8B019F1AC530091588D /* kplib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E93419F1AC540091588D /* lz4.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8B219F1AC530091588D /* lz4.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0008E93519F1AC540091588D /* lzwnew.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8B319F1AC530091588D /* lzwnew.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E93619F1AC540091588D /* m32script.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8B419F1AC530091588D /* m32script.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E93719F1AC540091588D /* mdsprite.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8B519F1AC530091588D /* mdsprite.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E93819F1AC540091588D /* mmulti.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8B619F1AC530091588D /* mmulti.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -121,7 +120,6 @@
 		0008E96819F1AC540091588D /* hightile.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8EB19F1AC540091588D /* hightile.c */; };
 		0008E96919F1AC540091588D /* kplib.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8EC19F1AC540091588D /* kplib.c */; };
 		0008E96B19F1AC540091588D /* lz4.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8EE19F1AC540091588D /* lz4.c */; };
-		0008E96C19F1AC540091588D /* lzwnew.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8EF19F1AC540091588D /* lzwnew.c */; };
 		0008E96D19F1AC540091588D /* mdsprite.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8F019F1AC540091588D /* mdsprite.c */; };
 		0008E97219F1AC540091588D /* mmulti_null.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8F619F1AC540091588D /* mmulti_null.c */; };
 		0008E97319F1AC540091588D /* mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8F719F1AC540091588D /* mutex.c */; };
@@ -264,7 +262,6 @@
 		0013829219F361B60007DA6C /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8DF19F1AC530091588D /* common.c */; };
 		0013829319F361B60007DA6C /* mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8F719F1AC540091588D /* mutex.c */; };
 		0013829519F361B60007DA6C /* crc32.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8E219F1AC530091588D /* crc32.c */; };
-		0013829619F361B60007DA6C /* lzwnew.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8EF19F1AC540091588D /* lzwnew.c */; };
 		0013829719F361B60007DA6C /* texcache.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E90619F1AC540091588D /* texcache.c */; };
 		0013829819F361B60007DA6C /* cache1d.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E8DE19F1AC530091588D /* cache1d.c */; };
 		0013829919F361B60007DA6C /* smalltextfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E90219F1AC540091588D /* smalltextfont.c */; };
@@ -314,7 +311,6 @@
 		001382CA19F361B60007DA6C /* dxtfilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8A919F1AC530091588D /* dxtfilter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382CB19F361B60007DA6C /* kplib.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8B019F1AC530091588D /* kplib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382CC19F361B60007DA6C /* lz4.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8B219F1AC530091588D /* lz4.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		001382CD19F361B60007DA6C /* lzwnew.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8B319F1AC530091588D /* lzwnew.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382CE19F361B60007DA6C /* dxdidf.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8A819F1AC530091588D /* dxdidf.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382CF19F361B60007DA6C /* baselayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8A219F1AC530091588D /* baselayer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382D019F361B60007DA6C /* scriptfile.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8C919F1AC530091588D /* scriptfile.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -421,6 +417,17 @@
 		00CAC13319F4E0EA00317AE6 /* driver_sdl.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6D819F1AAFF0091588D /* driver_sdl.c */; };
 		00CAC13419F4E12400317AE6 /* libSDL2_mixer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 000C48F019F35DD7006E6B52 /* libSDL2_mixer.a */; };
 		00CD003219F374ED00636963 /* duke3d.grp in Resources */ = {isa = PBXBuildFile; fileRef = 00CD003119F374ED00636963 /* duke3d.grp */; };
+		2038AE961A8F122D0093B7B2 /* libdivide.h in Headers */ = {isa = PBXBuildFile; fileRef = 2038AE951A8F122D0093B7B2 /* libdivide.h */; };
+		2038AE971A8F122D0093B7B2 /* libdivide.h in Headers */ = {isa = PBXBuildFile; fileRef = 2038AE951A8F122D0093B7B2 /* libdivide.h */; };
+		2038AE991A8F12590093B7B2 /* md4.h in Headers */ = {isa = PBXBuildFile; fileRef = 2038AE981A8F12590093B7B2 /* md4.h */; };
+		2038AE9A1A8F12590093B7B2 /* md4.h in Headers */ = {isa = PBXBuildFile; fileRef = 2038AE981A8F12590093B7B2 /* md4.h */; };
+		2038AE9C1A8F126C0093B7B2 /* md4.c in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9B1A8F126C0093B7B2 /* md4.c */; };
+		2038AE9D1A8F126C0093B7B2 /* md4.c in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9B1A8F126C0093B7B2 /* md4.c */; };
+		2038AEA01A8F12B60093B7B2 /* animsounds.c in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9E1A8F12B60093B7B2 /* animsounds.c */; };
+		2038AEA11A8F12B60093B7B2 /* animsounds.c in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9E1A8F12B60093B7B2 /* animsounds.c */; };
+		2038AEA31A8F137E0093B7B2 /* DUKE.RTS in Resources */ = {isa = PBXBuildFile; fileRef = 2038AEA21A8F137E0093B7B2 /* DUKE.RTS */; };
+		2085BEBA1A8F23B9002BF4CE /* libSystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2085BEB91A8F23B9002BF4CE /* libSystem.dylib */; };
+		20F70F131A8F25CE00F71870 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0013832819F366720007DA6C /* libc++.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -567,7 +574,6 @@
 		0008E8AF19F1AC530091588D /* hightile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hightile.h; path = ../../build/include/hightile.h; sourceTree = SOURCE_ROOT; };
 		0008E8B019F1AC530091588D /* kplib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kplib.h; path = ../../build/include/kplib.h; sourceTree = SOURCE_ROOT; };
 		0008E8B219F1AC530091588D /* lz4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lz4.h; path = ../../build/include/lz4.h; sourceTree = SOURCE_ROOT; };
-		0008E8B319F1AC530091588D /* lzwnew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lzwnew.h; path = ../../build/include/lzwnew.h; sourceTree = SOURCE_ROOT; };
 		0008E8B419F1AC530091588D /* m32script.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = m32script.h; path = ../../build/include/m32script.h; sourceTree = SOURCE_ROOT; };
 		0008E8B519F1AC530091588D /* mdsprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdsprite.h; path = ../../build/include/mdsprite.h; sourceTree = SOURCE_ROOT; };
 		0008E8B619F1AC530091588D /* mmulti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mmulti.h; path = ../../build/include/mmulti.h; sourceTree = SOURCE_ROOT; };
@@ -611,7 +617,6 @@
 		0008E8EB19F1AC540091588D /* hightile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hightile.c; path = ../../build/src/hightile.c; sourceTree = SOURCE_ROOT; };
 		0008E8EC19F1AC540091588D /* kplib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = kplib.c; path = ../../build/src/kplib.c; sourceTree = SOURCE_ROOT; };
 		0008E8EE19F1AC540091588D /* lz4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lz4.c; path = ../../build/src/lz4.c; sourceTree = SOURCE_ROOT; };
-		0008E8EF19F1AC540091588D /* lzwnew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lzwnew.c; path = ../../build/src/lzwnew.c; sourceTree = SOURCE_ROOT; };
 		0008E8F019F1AC540091588D /* mdsprite.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mdsprite.c; path = ../../build/src/mdsprite.c; sourceTree = SOURCE_ROOT; };
 		0008E8F619F1AC540091588D /* mmulti_null.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mmulti_null.c; path = ../../build/src/mmulti_null.c; sourceTree = SOURCE_ROOT; };
 		0008E8F719F1AC540091588D /* mutex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mutex.c; path = ../../build/src/mutex.c; sourceTree = SOURCE_ROOT; };
@@ -754,16 +759,16 @@
 		000C487719F35517006E6B52 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		000C487F19F35517006E6B52 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		000C48CE19F35D6E006E6B52 /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = "../../../../../SDL/Xcode-iOS/SDL/SDL.xcodeproj"; sourceTree = "<group>"; };
-		000C48D619F35D92006E6B52 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		000C48D619F35D92006E6B52 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		000C48EB19F35DD7006E6B52 /* SDL_mixer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL_mixer.xcodeproj; path = "../../../../../SDL_mixer/Xcode-iOS/SDL_mixer.xcodeproj"; sourceTree = "<group>"; };
 		001382DE19F361B60007DA6C /* libBUILD-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libBUILD-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		001382F819F361B80007DA6C /* libMACT-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMACT-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0013831B19F361BB0007DA6C /* libAudioLib-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libAudioLib-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		0013831F19F362E30007DA6C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/System/Library/Frameworks/MobileCoreServices.framework; sourceTree = DEVELOPER_DIR; };
-		0013832219F365D20007DA6C /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
-		0013832419F366280007DA6C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
-		0013832619F366440007DA6C /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/System/Library/Frameworks/CoreMotion.framework; sourceTree = DEVELOPER_DIR; };
-		0013832819F366720007DA6C /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/usr/lib/libc++.dylib"; sourceTree = DEVELOPER_DIR; };
+		0013831F19F362E30007DA6C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		0013832219F365D20007DA6C /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		0013832419F366280007DA6C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		0013832619F366440007DA6C /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		0013832819F366720007DA6C /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		00970E1B19F2076B00873EB9 /* libFLAC.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFLAC.a; path = /usr/local/lib/libFLAC.a; sourceTree = "<absolute>"; };
 		00970E1C19F2076B00873EB9 /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = /usr/local/lib/libogg.a; sourceTree = "<absolute>"; };
 		00970E1D19F2076B00873EB9 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = /usr/local/lib/libpng.a; sourceTree = "<absolute>"; };
@@ -779,7 +784,14 @@
 		00970E5A19F2139500873EB9 /* ForceFeedback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ForceFeedback.framework; path = System/Library/Frameworks/ForceFeedback.framework; sourceTree = SDKROOT; };
 		00970E5D19F213B300873EB9 /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		00970E6019F2142400873EB9 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
-		00CD003119F374ED00636963 /* duke3d.grp */ = {isa = PBXFileReference; lastKnownFileType = file; name = duke3d.grp; path = ../../../../../../../Downloads/duke3d.grp; sourceTree = "<group>"; };
+		00CD003119F374ED00636963 /* duke3d.grp */ = {isa = PBXFileReference; lastKnownFileType = file; name = duke3d.grp; path = ../../../../../duke3d.grp; sourceTree = SOURCE_ROOT; };
+		2038AE951A8F122D0093B7B2 /* libdivide.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libdivide.h; sourceTree = "<group>"; };
+		2038AE981A8F12590093B7B2 /* md4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = md4.h; sourceTree = "<group>"; };
+		2038AE9B1A8F126C0093B7B2 /* md4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = md4.c; sourceTree = "<group>"; };
+		2038AE9E1A8F12B60093B7B2 /* animsounds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = animsounds.c; path = ../../source/animsounds.c; sourceTree = SOURCE_ROOT; };
+		2038AE9F1A8F12B60093B7B2 /* animsounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = animsounds.h; path = ../../source/animsounds.h; sourceTree = SOURCE_ROOT; };
+		2038AEA21A8F137E0093B7B2 /* DUKE.RTS */ = {isa = PBXFileReference; lastKnownFileType = file; name = DUKE.RTS; path = ../../../../../DUKE.RTS; sourceTree = SOURCE_ROOT; };
+		2085BEB91A8F23B9002BF4CE /* libSystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSystem.dylib; path = usr/lib/libSystem.dylib; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -888,8 +900,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2085BEBA1A8F23B9002BF4CE /* libSystem.dylib in Frameworks */,
 				00CAC13419F4E12400317AE6 /* libSDL2_mixer.a in Frameworks */,
 				0013832719F366440007DA6C /* CoreMotion.framework in Frameworks */,
+				20F70F131A8F25CE00F71870 /* libc++.dylib in Frameworks */,
 				0013832519F366280007DA6C /* QuartzCore.framework in Frameworks */,
 				0013832319F365D20007DA6C /* OpenGLES.framework in Frameworks */,
 				0013832019F362E30007DA6C /* MobileCoreServices.framework in Frameworks */,
@@ -934,6 +948,7 @@
 			isa = PBXGroup;
 			children = (
 				00CD003119F374ED00636963 /* duke3d.grp */,
+				2038AEA21A8F137E0093B7B2 /* DUKE.RTS */,
 				00970E1A19F2074300873EB9 /* Libraries */,
 				0008E6BB19F1A9470091588D /* BUILD */,
 				0008E65419F1A66E0091588D /* EDuke32 */,
@@ -965,6 +980,7 @@
 		0008E64D19F1A66E0091588D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2085BEB91A8F23B9002BF4CE /* libSystem.dylib */,
 				0013832819F366720007DA6C /* libc++.dylib */,
 				0013832619F366440007DA6C /* CoreMotion.framework */,
 				0013832419F366280007DA6C /* QuartzCore.framework */,
@@ -1030,6 +1046,8 @@
 				0008E99F19F1AD9B0091588D /* actors.h */,
 				0008E9A019F1AD9B0091588D /* anim.c */,
 				0008E9A119F1AD9B0091588D /* anim.h */,
+				2038AE9E1A8F12B60093B7B2 /* animsounds.c */,
+				2038AE9F1A8F12B60093B7B2 /* animsounds.h */,
 				0008E9A219F1AD9B0091588D /* animvpx.c */,
 				0008E9A319F1AD9B0091588D /* animvpx.h */,
 				0008E9A419F1AD9B0091588D /* config.c */,
@@ -1198,9 +1216,10 @@
 				0008E8AD19F1AC530091588D /* glext.h */,
 				0008E8AF19F1AC530091588D /* hightile.h */,
 				0008E8B019F1AC530091588D /* kplib.h */,
+				2038AE951A8F122D0093B7B2 /* libdivide.h */,
 				0008E8B219F1AC530091588D /* lz4.h */,
-				0008E8B319F1AC530091588D /* lzwnew.h */,
 				0008E8B419F1AC530091588D /* m32script.h */,
+				2038AE981A8F12590093B7B2 /* md4.h */,
 				0008E8B519F1AC530091588D /* mdsprite.h */,
 				0008E8B619F1AC530091588D /* mmulti.h */,
 				0008E8BA19F1AC530091588D /* mutex.h */,
@@ -1254,7 +1273,7 @@
 				0008E8EB19F1AC540091588D /* hightile.c */,
 				0008E8EC19F1AC540091588D /* kplib.c */,
 				0008E8EE19F1AC540091588D /* lz4.c */,
-				0008E8EF19F1AC540091588D /* lzwnew.c */,
+				2038AE9B1A8F126C0093B7B2 /* md4.c */,
 				0008E8F019F1AC540091588D /* mdsprite.c */,
 				0008E8F619F1AC540091588D /* mmulti_null.c */,
 				0008E8F719F1AC540091588D /* mutex.c */,
@@ -1408,10 +1427,10 @@
 				0008E92B19F1AC540091588D /* dxtfilter.h in Headers */,
 				0008E93219F1AC540091588D /* kplib.h in Headers */,
 				0008E93419F1AC540091588D /* lz4.h in Headers */,
-				0008E93519F1AC540091588D /* lzwnew.h in Headers */,
 				0008E92A19F1AC540091588D /* dxdidf.h in Headers */,
 				0008E92419F1AC540091588D /* baselayer.h in Headers */,
 				0008E94A19F1AC540091588D /* scriptfile.h in Headers */,
+				2038AE991A8F12590093B7B2 /* md4.h in Headers */,
 				0008E92D19F1AC540091588D /* editor.h in Headers */,
 				0008E93719F1AC540091588D /* mdsprite.h in Headers */,
 				0008E95319F1AC540091588D /* tracker_operators.hpp in Headers */,
@@ -1420,6 +1439,7 @@
 				0008E94319F1AC540091588D /* pragmas_ppc.h in Headers */,
 				0008E94019F1AC540091588D /* polymost.h in Headers */,
 				0008E94D19F1AC540091588D /* sdlayer.h in Headers */,
+				2038AE961A8F122D0093B7B2 /* libdivide.h in Headers */,
 				0008E92619F1AC540091588D /* cache1d.h in Headers */,
 				0008E93819F1AC540091588D /* mmulti.h in Headers */,
 			);
@@ -1511,10 +1531,10 @@
 				001382CA19F361B60007DA6C /* dxtfilter.h in Headers */,
 				001382CB19F361B60007DA6C /* kplib.h in Headers */,
 				001382CC19F361B60007DA6C /* lz4.h in Headers */,
-				001382CD19F361B60007DA6C /* lzwnew.h in Headers */,
 				001382CE19F361B60007DA6C /* dxdidf.h in Headers */,
 				001382CF19F361B60007DA6C /* baselayer.h in Headers */,
 				001382D019F361B60007DA6C /* scriptfile.h in Headers */,
+				2038AE9A1A8F12590093B7B2 /* md4.h in Headers */,
 				001382D119F361B60007DA6C /* editor.h in Headers */,
 				001382D219F361B60007DA6C /* mdsprite.h in Headers */,
 				001382D319F361B60007DA6C /* tracker_operators.hpp in Headers */,
@@ -1523,6 +1543,7 @@
 				001382D619F361B60007DA6C /* pragmas_ppc.h in Headers */,
 				001382D719F361B60007DA6C /* polymost.h in Headers */,
 				001382D819F361B60007DA6C /* sdlayer.h in Headers */,
+				2038AE971A8F122D0093B7B2 /* libdivide.h in Headers */,
 				001382D919F361B60007DA6C /* cache1d.h in Headers */,
 				001382DA19F361B60007DA6C /* mmulti.h in Headers */,
 			);
@@ -1749,11 +1770,11 @@
 		0008E64119F1A5AA0091588D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = Voidpoint;
 			};
 			buildConfigurationList = 0008E64419F1A5AA0091588D /* Build configuration list for PBXProject "EDuke32" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -1832,6 +1853,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2038AEA31A8F137E0093B7B2 /* DUKE.RTS in Resources */,
 				000C487819F35517006E6B52 /* InfoPlist.strings in Resources */,
 				000C488019F35517006E6B52 /* Images.xcassets in Resources */,
 				00CD003219F374ED00636963 /* duke3d.grp in Resources */,
@@ -1848,6 +1870,7 @@
 				0008E9F519F1AD9B0091588D /* namesdyn.c in Sources */,
 				0008E9EB19F1AD9B0091588D /* gamedef.c in Sources */,
 				0008EA0219F1AD9B0091588D /* soundsdyn.c in Sources */,
+				2038AEA01A8F12B60093B7B2 /* animsounds.c in Sources */,
 				0008E9EF19F1AD9B0091588D /* gamevars.c in Sources */,
 				0008E9EC19F1AD9B0091588D /* gameexec.c in Sources */,
 				0008E9FB19F1AD9B0091588D /* rev.c in Sources */,
@@ -1910,9 +1933,9 @@
 				0008E97819F1AC540091588D /* pragmas.c in Sources */,
 				0008E95C19F1AC540091588D /* common.c in Sources */,
 				0008E97319F1AC540091588D /* mutex.c in Sources */,
+				2038AE9C1A8F126C0093B7B2 /* md4.c in Sources */,
 				0008E97519F1AC540091588D /* osxbits.m in Sources */,
 				0008E95F19F1AC540091588D /* crc32.c in Sources */,
-				0008E96C19F1AC540091588D /* lzwnew.c in Sources */,
 				0008E98219F1AC540091588D /* texcache.c in Sources */,
 				0008E95B19F1AC540091588D /* cache1d.c in Sources */,
 				0008E97E19F1AC540091588D /* smalltextfont.c in Sources */,
@@ -2008,6 +2031,7 @@
 				000C48AF19F35601006E6B52 /* rts.c in Sources */,
 				000C489D19F35601006E6B52 /* demo.c in Sources */,
 				000C48A719F35601006E6B52 /* menus.c in Sources */,
+				2038AEA11A8F12B60093B7B2 /* animsounds.c in Sources */,
 				000C48A919F35601006E6B52 /* net.c in Sources */,
 				000C48A819F35601006E6B52 /* namesdyn.c in Sources */,
 				000C48B219F35601006E6B52 /* sector.c in Sources */,
@@ -2030,13 +2054,13 @@
 				0013829219F361B60007DA6C /* common.c in Sources */,
 				0013829319F361B60007DA6C /* mutex.c in Sources */,
 				0013829519F361B60007DA6C /* crc32.c in Sources */,
-				0013829619F361B60007DA6C /* lzwnew.c in Sources */,
 				0013829719F361B60007DA6C /* texcache.c in Sources */,
 				0013829819F361B60007DA6C /* cache1d.c in Sources */,
 				0013829919F361B60007DA6C /* smalltextfont.c in Sources */,
 				0013829A19F361B60007DA6C /* polymer.c in Sources */,
 				0013829B19F361B60007DA6C /* mmulti_null.c in Sources */,
 				0013829C19F361B60007DA6C /* a-c.c in Sources */,
+				2038AE9D1A8F126C0093B7B2 /* md4.c in Sources */,
 				0013829D19F361B60007DA6C /* textfont.c in Sources */,
 				0013829E19F361B60007DA6C /* mdsprite.c in Sources */,
 				0013829F19F361B60007DA6C /* defs.c in Sources */,
@@ -2152,6 +2176,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Debug;
 		};
@@ -2527,6 +2552,7 @@
 				CLANG_WARN_INT_CONVERSION = NO;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
@@ -2609,6 +2635,7 @@
 				CLANG_WARN_INT_CONVERSION = NO;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2685,6 +2712,7 @@
 				CLANG_WARN_INT_CONVERSION = NO;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
@@ -2764,6 +2792,7 @@
 				CLANG_WARN_INT_CONVERSION = NO;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2890,7 +2919,7 @@
 					"-DNOASM",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = "iphoneos7.1\nmacosx10.9";
+				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 				WARNING_CFLAGS = (
@@ -2963,7 +2992,7 @@
 					"-DNOASM",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 				WARNING_CFLAGS = (
@@ -3109,6 +3138,7 @@
 				CLANG_WARN_INT_CONVERSION = NO;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
@@ -3188,6 +3218,7 @@
 				CLANG_WARN_INT_CONVERSION = NO;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -3297,7 +3328,10 @@
 					../../../../../SDL_mixer,
 				);
 				INFOPLIST_FILE = iOS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/usr/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3315,7 +3349,7 @@
 				OTHER_LDFLAGS = "";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos7.1;
+				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3376,7 +3410,10 @@
 					../../../../../SDL_mixer,
 				);
 				INFOPLIST_FILE = iOS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/usr/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3394,7 +3431,7 @@
 				OTHER_LDFLAGS = "";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos7.1;
+				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -3477,7 +3514,7 @@
 				OTHER_LDFLAGS = "";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_NAME = "BUILD-iOS";
-				SDKROOT = iphoneos7.1;
+				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -3557,7 +3594,7 @@
 				OTHER_LDFLAGS = "";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_NAME = "BUILD-iOS";
-				SDKROOT = iphoneos7.1;
+				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3638,7 +3675,7 @@
 				OTHER_LDFLAGS = "";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_NAME = "MACT-iOS";
-				SDKROOT = iphoneos7.1;
+				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -3715,7 +3752,7 @@
 				OTHER_LDFLAGS = "";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_NAME = "MACT-iOS";
-				SDKROOT = iphoneos7.1;
+				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3796,7 +3833,7 @@
 				OTHER_LDFLAGS = "";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_NAME = "AudioLib-iOS";
-				SDKROOT = iphoneos7.1;
+				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -3873,7 +3910,7 @@
 				OTHER_LDFLAGS = "";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_NAME = "AudioLib-iOS";
-				SDKROOT = iphoneos7.1;
+				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				TARGETED_DEVICE_FAMILY = "1,2";
