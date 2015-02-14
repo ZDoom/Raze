@@ -7395,18 +7395,15 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
         Bassert(i >= 0);
 
-        if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && s->owner >= 0)
+        const DukePlayer_t *const ps = (s->statnum != STAT_ACTOR && s->picnum == APLAYER && s->owner >= 0) ? g_player[P_GetP((const spritetype *)s)].ps : NULL;
+        if (ps && ps->newowner == -1)
         {
-            const DukePlayer_t *const ps = g_player[P_GetP((const spritetype *)s)].ps;
-            if (ps->newowner == -1)
-            {
-                t->x -= mulscale16(65536-smoothratio,ps->pos.x-ps->opos.x);
-                t->y -= mulscale16(65536-smoothratio,ps->pos.y-ps->opos.y);
-                // dirty hack
-                if (ps->dead_flag) t->z = ps->opos.z;
-                t->z += mulscale16(smoothratio,ps->pos.z-ps->opos.z) -
-                    (ps->dead_flag ? 0 : PHEIGHT) + PHEIGHT;
-            }
+            t->x -= mulscale16(65536-smoothratio,ps->pos.x-ps->opos.x);
+            t->y -= mulscale16(65536-smoothratio,ps->pos.y-ps->opos.y);
+            // dirty hack
+            if (ps->dead_flag) t->z = ps->opos.z;
+            t->z += mulscale16(smoothratio,ps->pos.z-ps->opos.z) -
+                (ps->dead_flag ? 0 : PHEIGHT) + PHEIGHT;
         }
         else if ((s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER ||
                  s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR)
