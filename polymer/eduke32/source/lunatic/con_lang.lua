@@ -1140,6 +1140,7 @@ lpeg.P(false) +
 "ifgapzl" +
 "iffloordistl" +
 "ifdead" +
+"ifcutscene" +
 "ifcount" +
 "ifclient" +
 "ifceilingdistl" +
@@ -1257,6 +1258,7 @@ lpeg.P(false) +
 "default" +
 "debug" +
 "debris" +
+"cutscene" +
 "cstator" +
 "cstat" +
 "count" +

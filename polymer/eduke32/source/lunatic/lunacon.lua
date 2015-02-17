@@ -2951,6 +2951,8 @@ local Cinner = {
     starttrackvar = cmd(R)
         / "_con._starttrack(%1)",
 
+    cutscene = cmd(R)
+        / handle.NYI,
     getmusicposition = cmd(W)
         / "%1=_con._getmusicposition()",
     setmusicposition = cmd(R)
@@ -3083,6 +3085,11 @@ local Cif = {
 
     ifactorsound = cmd(R,R)
         / "_con._soundplaying(%1,%2)",
+    ifcutscene = cmd(R)
+        / function (cs)
+            handle.NYI()
+            return "false"
+          end,
 
     ifp = (sp1 * tok.define)^1
         / function (...) return format("_con._ifp(%d,_pli,_aci)", bit.bor(...)) end,
