@@ -564,7 +564,7 @@ void G_CacheMapData(void)
                     lpc++;
                 }
 
-                OSD_Printf("percentage %d lpc %d\n", percentage, lpc);
+//                OSD_Printf("percentage %d lpc %d\n", percentage, lpc);
             }
 
             tc = totalclock;

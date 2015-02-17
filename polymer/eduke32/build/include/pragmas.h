@@ -248,6 +248,8 @@ static inline int32_t krecipasm(int32_t i)
 static inline void swapbufreverse(void *s, void *d, int32_t c)
 {
     uint8_t *src = (uint8_t *)s, *dst = (uint8_t *)d;
+    Bassert(c >= 4);
+
     do
     {
         swapchar(dst, src);
@@ -255,8 +257,10 @@ static inline void swapbufreverse(void *s, void *d, int32_t c)
         swapchar(dst + 2, src - 2);
         swapchar(dst + 3, src - 3);
         dst += 4, src -= 4;
-    } while (--c > 4);
-    while (c--) swapchar(dst++, src--);
+    } while ((c -= 4) > 4);
+
+    while (c--)
+        swapchar(dst++, src--);
 }
 
 #ifdef __cplusplus
