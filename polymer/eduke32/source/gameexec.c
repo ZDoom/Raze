@@ -788,21 +788,18 @@ dead:
             }
             else if (vm.g_sp->picnum != ORGANTIC)
             {
-                int32_t l;
-
-                // In Duke3D, all other actors don't update .floorz or
-                // .ceilingz here. In EDuke32, they do.
-
+                // All other actors besides ORGANTIC don't update .floorz or
+                // .ceilingz here.
                 if (vm.g_sp->zvel > 0)
                 {
-                    actor[vm.g_i].floorz = l = VM_GetFlorZOfSlope();
-                    if (vm.g_sp->z > l)
-                        vm.g_sp->z = l;
+                    if (vm.g_sp->z > actor[vm.g_i].floorz)
+                        vm.g_sp->z = actor[vm.g_i].floorz;
                     vm.g_sp->z += A_GetWaterZOffset(vm.g_i);
                 }
                 else if (vm.g_sp->zvel < 0)
                 {
-                    actor[vm.g_i].ceilingz = l = VM_GetCeilZOfSlope();
+                    const int32_t l = VM_GetCeilZOfSlope();
+
                     if (vm.g_sp->z < l+(66<<8))
                     {
                         vm.g_sp->z = l+(66<<8);
