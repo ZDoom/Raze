@@ -366,7 +366,7 @@ static int32_t defsparser(scriptfile *script)
             }
             if (i < 6 || !happy) break;
 #ifdef USE_OPENGL
-            hicsetskybox(tile,pal,fn);
+            hicsetskybox(tile,pal,fn, 0);
 #endif
         }
         break;
@@ -1186,6 +1186,7 @@ static int32_t defsparser(scriptfile *script)
                         { "detailscale",   T_PARAM      },
                         { "specpower",     T_SPECPOWER  }, { "specularpower",  T_SPECPOWER  }, { "parallaxscale", T_SPECPOWER },
                         { "specfactor",    T_SPECFACTOR }, { "specularfactor", T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
+
                     };
 
                     if (scriptfile_getbraces(script,&skinend)) break;
@@ -1490,7 +1491,7 @@ static int32_t defsparser(scriptfile *script)
             char *skyboxtokptr = script->ltextptr;
             char *fn[6] = {0,0,0,0,0,0};
             char *modelend;
-            int32_t i, tile = -1, pal = 0, happy = 1;
+            int32_t i, tile = -1, pal = 0, happy = 1, flags = 0;
 
             static const tokenlist skyboxtokens[] =
             {
@@ -1501,7 +1502,9 @@ static int32_t defsparser(scriptfile *script)
                 { "bk"     ,T_BACK   },{ "back"   ,T_BACK   },
                 { "lf"     ,T_LEFT   },{ "left"   ,T_LEFT   },{ "lt"     ,T_LEFT   },
                 { "up"     ,T_TOP    },{ "top"    ,T_TOP    },{ "ceiling",T_TOP    },{ "ceil"   ,T_TOP    },
-                { "dn"     ,T_BOTTOM },{ "bottom" ,T_BOTTOM },{ "floor"  ,T_BOTTOM },{ "down"   ,T_BOTTOM }
+                { "dn"     ,T_BOTTOM },{ "bottom" ,T_BOTTOM },{ "floor"  ,T_BOTTOM },{ "down"   ,T_BOTTOM },
+                { "nocompress", T_NOCOMPRESS },
+                { "nodownsize", T_NODOWNSIZE },
             };
 
             if (scriptfile_getbraces(script,&modelend)) break;
@@ -1526,6 +1529,12 @@ static int32_t defsparser(scriptfile *script)
                     scriptfile_getstring(script,&fn[4]); break;
                 case T_BOTTOM:
                     scriptfile_getstring(script,&fn[5]); break;
+#ifdef USE_OPENGL
+                case T_NOCOMPRESS:
+                    flags |= 1; break;
+                case T_NODOWNSIZE:
+                    flags |= 16; break;
+#endif
                 }
             }
 
@@ -1540,7 +1549,7 @@ static int32_t defsparser(scriptfile *script)
             if (!happy) break;
 
 #ifdef USE_OPENGL
-            hicsetskybox(tile,pal,fn);
+            hicsetskybox(tile,pal,fn, flags);
 #endif
         }
         break;

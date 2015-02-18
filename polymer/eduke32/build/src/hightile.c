@@ -197,7 +197,7 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
 // hicsetskybox(picnum,pal,faces[6])
 //   Specifies a graphic files making up a skybox.
 //
-int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
+int32_t hicsetskybox( int32_t picnum, int32_t palnum, char *faces[6], int32_t flags )
 {
     hicreplctyp *hr, *hrn;
     int32_t j;
@@ -222,23 +222,18 @@ int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
     else hrn = hr;
 
     if (!hrn->skybox)
-    {
         hrn->skybox = (struct hicskybox_t *)Xcalloc(1,sizeof(struct hicskybox_t));
-    }
     else
     {
-        for (j=5; j>=0; j--)
-        {
-            if (hrn->skybox->face[j])
-                Bfree(hrn->skybox->face[j]);
-        }
+        for (j=0; j<6; j++)
+            DO_FREE_AND_NULL(hrn->skybox->face[j]);
     }
 
     // store each face's filename
     for (j=0; j<6; j++)
-    {
         hrn->skybox->face[j] = Xstrdup(faces[j]);
-    }
+
+    hrn->flags = flags;
 
     if (hr == NULL)
     {
@@ -307,11 +302,12 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
     UNREFERENCED_PARAMETER(alphacut);
     return 0;
 }
-int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
+int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6], int32_t flags)
 {
     UNREFERENCED_PARAMETER(picnum);
     UNREFERENCED_PARAMETER(palnum);
     UNREFERENCED_PARAMETER(faces);
+    UNREFERENCED_PARAMETER(flags);
     return 0;
 }
 int32_t hicclearsubst(int32_t picnum, int32_t palnum)
