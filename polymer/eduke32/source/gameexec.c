@@ -298,69 +298,66 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *p)
 
 int32_t A_Dodge(spritetype *s)
 {
-    int32_t bx,by,bxvect,byvect,i;
-    int32_t mx = s->x, my = s->y;
-    int32_t mxvect = sintable[(s->ang+512)&2047];
-    int32_t myvect = sintable[s->ang&2047];
+    const int32_t mx = s->x, my = s->y;
+    const int32_t mxvect = sintable[(s->ang+512)&2047];
+    const int32_t myvect = sintable[s->ang&2047];
 
     if (A_CheckEnemySprite(s) && s->extra <= 0) // hack
         return 0;
 
-    for (i=headspritestat[STAT_PROJECTILE]; i>=0; i=nextspritestat[i]) //weapons list
+    for (int32_t i=headspritestat[STAT_PROJECTILE]; i>=0; i=nextspritestat[i]) //weapons list
     {
         if (OW == i)
             continue;
 
-        bx = SX-mx;
-        by = SY-my;
-        bxvect = sintable[(SA+512)&2047];
-        byvect = sintable[SA&2047];
+        int32_t bx = SX-mx;
+        int32_t by = SY-my;
+        int32_t bxvect = sintable[(SA+512)&2047];
+        int32_t byvect = sintable[SA&2047];
 
-        if ((mxvect * bx) + (myvect * by) >= 0 && (bxvect * bx) + (byvect * by) < 0)
+        if (mxvect*bx + myvect*by >= 0 && bxvect*bx + byvect*by < 0)
         {
-            if (klabs((bxvect * by) - (byvect * bx)) < 65536<<6)
+            if (klabs(bxvect*by - byvect*bx) < 65536<<6)
             {
                 s->ang -= 512+(krand()&1024);
                 return 1;
             }
         }
     }
+
     return 0;
 }
 
 int32_t A_GetFurthestAngle(int32_t iActor, int32_t angs)
 {
-    spritetype *s = &sprite[iActor];
+    spritetype *const s = &sprite[iActor];
 
     if (s->picnum != APLAYER && (AC_COUNT(actor[iActor].t_data)&63) > 2)
         return s->ang + 1024;
 
+    int32_t furthest_angle = 0, greatestd = INT32_MIN;
+    const int32_t angincs = tabledivide32_noinline(2048, angs);
+    hitdata_t hit;
+
+    for (int32_t j=s->ang; j<(2048+s->ang); j+=angincs)
     {
-        int32_t furthest_angle=0;
-        int32_t d, j;
-        int32_t greatestd = INT32_MIN;
-        int32_t angincs=tabledivide32_noinline(2048, angs);
-        hitdata_t hit;
+        s->z -= (8<<8);
+        hitscan((const vec3_t *)s, s->sectnum,
+                sintable[(j+512)&2047],
+                sintable[j&2047], 0,
+                &hit, CLIPMASK1);
+        s->z += (8<<8);
 
-        for (j=s->ang; j<(2048+s->ang); j+=angincs)
+        const int32_t d = klabs(hit.pos.x-s->x) + klabs(hit.pos.y-s->y);
+
+        if (d > greatestd)
         {
-            s->z -= (8<<8);
-            hitscan((const vec3_t *)s, s->sectnum,
-                    sintable[(j+512)&2047],
-                    sintable[j&2047],0,
-                    &hit,CLIPMASK1);
-            s->z += (8<<8);
-            d = klabs(hit.pos.x-s->x) + klabs(hit.pos.y-s->y);
-
-            if (d > greatestd)
-            {
-                greatestd = d;
-                furthest_angle = j;
-            }
+            greatestd = d;
+            furthest_angle = j;
         }
-
-        return furthest_angle&2047;
     }
+
+    return furthest_angle&2047;
 }
 
 int32_t A_FurthestVisiblePoint(int32_t iActor, tspritetype * const ts, int32_t *dax, int32_t *day)
@@ -368,76 +365,83 @@ int32_t A_FurthestVisiblePoint(int32_t iActor, tspritetype * const ts, int32_t *
     if (AC_COUNT(actor[iActor].t_data)&63)
         return -1;
 
+    const spritetype *const s = &sprite[iActor];
+
+    const int32_t angincs =
+        ((!g_netServer && ud.multimode < 2) && ud.player_skill < 3) ? 2048/2 :
+        tabledivide32_noinline(2048, 1+(krand()&1));
+
+    hitdata_t hit;
+
+    for (int32_t j=ts->ang; j<(2048+ts->ang); j+=(angincs-(krand()&511)))
     {
-        int32_t d, da;//, d, cd, ca,tempx,tempy,cx,cy;
-        int32_t j, angincs;
-        spritetype *s = &sprite[iActor];
-        hitdata_t hit;
+        ts->z -= (16<<8);
+        hitscan((const vec3_t *)ts, ts->sectnum,
+                sintable[(j+512)&2047],
+                sintable[j&2047], 16384-(krand()&32767),
+                &hit, CLIPMASK1);
 
-        if ((!g_netServer && ud.multimode < 2) && ud.player_skill < 3)
-            angincs = 2048/2;
-        else angincs = tabledivide32_noinline(2048, 1+(krand()&1));
+        ts->z += (16<<8);
 
-        for (j=ts->ang; j<(2048+ts->ang); j+=(angincs-(krand()&511)))
-        {
-            ts->z -= (16<<8);
-            hitscan((const vec3_t *)ts, ts->sectnum,
-                    sintable[(j+512)&2047],
-                    sintable[j&2047],16384-(krand()&32767),
-                    &hit,CLIPMASK1);
+        const int32_t d = klabs(hit.pos.x-ts->x)+klabs(hit.pos.y-ts->y);
+        const int32_t da = klabs(hit.pos.x-s->x)+klabs(hit.pos.y-s->y);
 
-            ts->z += (16<<8);
-
-            d = klabs(hit.pos.x-ts->x)+klabs(hit.pos.y-ts->y);
-            da = klabs(hit.pos.x-s->x)+klabs(hit.pos.y-s->y);
-
-            if (d < da && hit.sect > -1)
-                if (cansee(hit.pos.x,hit.pos.y,hit.pos.z,
-                           hit.sect,s->x,s->y,s->z-(16<<8),s->sectnum))
-                {
-                    *dax = hit.pos.x;
-                    *day = hit.pos.y;
-                    return hit.sect;
-                }
-        }
-        return -1;
+        if (d < da && hit.sect > -1)
+            if (cansee(hit.pos.x,hit.pos.y,hit.pos.z,
+                       hit.sect,s->x,s->y,s->z-(16<<8),s->sectnum))
+            {
+                *dax = hit.pos.x;
+                *day = hit.pos.y;
+                return hit.sect;
+            }
     }
+
+    return -1;
+}
+
+static void VM_GetZRange(int32_t iActor, int32_t *ceilhit, int32_t *florhit, int walldist)
+{
+    spritetype *const s = &sprite[iActor];
+    const int32_t ocstat = s->cstat;
+
+    s->cstat = 0;
+    s->z -= ZOFFSET;
+
+    getzrange((vec3_t *)s, s->sectnum,
+              &actor[iActor].ceilingz, ceilhit,
+              &actor[iActor].floorz, florhit,
+              walldist, CLIPMASK0);
+
+    s->z += ZOFFSET;
+    s->cstat = ocstat;
 }
 
 void A_GetZLimits(int32_t iActor)
 {
-    spritetype *s = &sprite[iActor];
+    spritetype *const s = &sprite[iActor];
 
-    int32_t hz,lz,zr = 127;
-    int32_t cstat = s->cstat;
+    int32_t ceilhit, florhit;
+    const int walldist = (s->statnum == STAT_PROJECTILE) ? 4 : 127;
 
-    s->cstat = 0;
-
-    if (s->statnum == STAT_PROJECTILE)
-        zr = 4;
-
-    s->z -= ZOFFSET;
-    getzrange((vec3_t *)s,s->sectnum,&actor[iActor].ceilingz,&hz,&actor[iActor].floorz,&lz,zr,CLIPMASK0);
-    s->z += ZOFFSET;
-
-    s->cstat = cstat;
+    VM_GetZRange(iActor, &ceilhit, &florhit, walldist);
 
     actor[iActor].flags &= ~SFLAG_NOFLOORSHADOW;
 
-    if ((lz&49152) == 49152 && (sprite[lz&(MAXSPRITES-1)].cstat&48) == 0)
+    if ((florhit&49152) == 49152 && (sprite[florhit&(MAXSPRITES-1)].cstat&48) == 0)
     {
-        const spritetype *hitspr = &sprite[lz&(MAXSPRITES-1)];
+        const spritetype *hitspr = &sprite[florhit&(MAXSPRITES-1)];
 
-        lz &= (MAXSPRITES-1);
+        florhit &= (MAXSPRITES-1);
 
+        // If a non-projectile would fall onto non-frozen enemy OR an enemy onto a player...
         if ((A_CheckEnemySprite(hitspr) && hitspr->pal != 1 && s->statnum != STAT_PROJECTILE)
                 || (hitspr->picnum == APLAYER && A_CheckEnemySprite(s)))
         {
             actor[iActor].flags |= SFLAG_NOFLOORSHADOW;  // No shadows on actors
             s->xvel = -256;
-            A_SetSprite(iActor,CLIPMASK0);
+            A_SetSprite(iActor, CLIPMASK0);
         }
-        else if (s->statnum == STAT_PROJECTILE && hitspr->picnum == APLAYER && s->owner==lz)
+        else if (s->statnum == STAT_PROJECTILE && hitspr->picnum == APLAYER && s->owner==florhit)
         {
             actor[iActor].ceilingz = sector[s->sectnum].ceilingz;
             actor[iActor].floorz   = sector[s->sectnum].floorz;
@@ -447,11 +451,9 @@ void A_GetZLimits(int32_t iActor)
 
 void A_Fall(int32_t iActor)
 {
-    spritetype *s = &sprite[iActor];
-    int32_t hz,lz,c = g_spriteGravity;
-#ifdef YAX_ENABLE
-    int16_t fbunch;
-#endif
+    spritetype *const s = &sprite[iActor];
+    int c = g_spriteGravity;
+
     if (EDUKE32_PREDICT_FALSE(G_CheckForSpaceFloor(s->sectnum)))
         c = 0;
     else if (sector[s->sectnum].lotag == ST_2_UNDERWATER || EDUKE32_PREDICT_FALSE(G_CheckForSpaceCeiling(s->sectnum)))
@@ -459,12 +461,8 @@ void A_Fall(int32_t iActor)
 
     if (s->statnum == STAT_ACTOR || s->statnum == STAT_PLAYER || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_STANDABLE)
     {
-        int32_t cstat = s->cstat;
-        s->cstat = 0;
-        s->z -= ZOFFSET;
-        getzrange((vec3_t *)s,s->sectnum,&actor[iActor].ceilingz,&hz,&actor[iActor].floorz,&lz,127L,CLIPMASK0);
-        s->z += ZOFFSET;
-        s->cstat = cstat;
+        int32_t ceilhit, florhit;
+        VM_GetZRange(iActor, &ceilhit, &florhit, 127);
     }
     else
     {
@@ -473,7 +471,7 @@ void A_Fall(int32_t iActor)
     }
 
 #ifdef YAX_ENABLE
-    fbunch = (sector[s->sectnum].floorstat&512) ? -1 : yax_getbunch(s->sectnum, YAX_FLOOR);
+    int16_t fbunch = (sector[s->sectnum].floorstat&512) ? -1 : yax_getbunch(s->sectnum, YAX_FLOOR);
 #endif
 
     if (s->z < actor[iActor].floorz-ZOFFSET
