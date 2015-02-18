@@ -4210,7 +4210,8 @@ void P_ProcessInput(int32_t snum)
         if ((sprite[j].cstat&33) == 33 || (sprite[j].cstat&17) == 17 ||
                 clipshape_idx_for_sprite(&sprite[j], -1) >= 0)
         {
-            if ((sprite[j].xvel&1) == 0)  // EDuke32 extension
+            // EDuke32 extension: xvel of 1 makes a sprite be never regarded as a bridge.
+            if ((sprite[j].xvel&1) == 0)
             {
                 psectlotag = 0;
                 p->footprintcount = 0;
@@ -4220,7 +4221,9 @@ void P_ProcessInput(int32_t snum)
         }
         else if (A_CheckEnemySprite(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(s->z-sprite[j].z) < (84<<8))
         {
-            // I think this is what makes the player slide off enemies... might be a good sprite flag to add later
+            // TX: I think this is what makes the player slide off enemies... might
+            // be a good sprite flag to add later.
+            // Helix: there's also SLIDE_ABOVE_ENEMY.
             j = getangle(sprite[j].x-p->pos.x,sprite[j].y-p->pos.y);
             p->vel.x -= sintable[(j+512)&2047]<<4;
             p->vel.y -= sintable[j&2047]<<4;
