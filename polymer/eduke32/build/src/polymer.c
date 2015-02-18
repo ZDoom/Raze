@@ -917,6 +917,7 @@ void                polymer_glinit(void)
 
     culledface = GL_BACK;
     bglCullFace(GL_BACK);
+    bglFrontFace(GL_CCW);
 
     bglEnable(GL_CULL_FACE);
 }
