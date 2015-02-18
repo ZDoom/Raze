@@ -2380,7 +2380,13 @@ static void m32_showmouse(void)
         break;
     }
 
-    push_nofog();
+#ifdef USE_OPENGL
+    if (getrendermode() >= REND_POLYMOST)
+    {
+        push_nofog();
+        bglDisable(GL_TEXTURE_2D);
+    }
+#endif
 
     if (col != whitecol)
     {
@@ -2419,7 +2425,10 @@ static void m32_showmouse(void)
         }
     }
 
-    pop_nofog();
+#ifdef USE_OPENGL
+    if (getrendermode() >= REND_POLYMOST)
+        pop_nofog();
+#endif
 }
 
 int32_t AskIfSure(const char *text)
