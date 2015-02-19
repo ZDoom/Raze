@@ -64,6 +64,7 @@ L_State g_engState;
 
 #if !defined EDUKE32_TOUCH_DEVICES && !defined GEKKO && !defined __OPENDINGUX__
 // Handle absolute z difference of floor/ceiling to camera >= 1<<24.
+// Also: higher precision view-relative x and y for drawvox().
 # define CLASSIC_Z_DIFF_64
 #endif
 
@@ -3357,6 +3358,12 @@ static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
 #ifdef CLASSIC_Z_DIFF_64
 typedef int64_t zint_t;
 
+// For drawvox()
+static inline zint_t mulscale16z(int32_t a, int32_t d)
+{
+    return ((zint_t)a * d)>>16;
+}
+
 static inline zint_t mulscale20z(int32_t a, int32_t d)
 {
     return ((zint_t)a * d)>>20;
@@ -3368,6 +3375,7 @@ static inline zint_t dmulscale24z(int32_t a, int32_t d, int32_t S, int32_t D)
 }
 #else
 typedef int32_t zint_t;
+# define mulscale16z mulscale16
 # define mulscale20z mulscale20
 # define dmulscale24z dmulscale24
 #endif
@@ -5392,6 +5400,8 @@ static void drawalls(int32_t bunch)
     }
 }
 
+// High-precision integer type for view-relative x and y in drawvox().
+typedef zint_t voxint_t;
 
 //
 // drawvox
@@ -5466,8 +5476,8 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     cosang = mulscale16(cosang, dayscalerecip);
     sinang = mulscale16(sinang, dayscalerecip);
 
-    const int32_t gxstart = y*cosang - x*sinang;
-    const int32_t gystart = x*cosang + y*sinang;
+    const voxint_t gxstart = (voxint_t)y*cosang - (voxint_t)x*sinang;
+    const voxint_t gystart = (voxint_t)x*cosang + (voxint_t)y*sinang;
     const int32_t gxinc = dmulscale10(sprsinang,cosang, sprcosang,-sinang);
     const int32_t gyinc = dmulscale10(sprcosang,cosang, sprsinang,sinang);
 
@@ -5577,16 +5587,16 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         const int32_t nxoff = mulscale16(x2-x1,viewingrangerecip);
         x1 = mulscale16(x1, viewingrangerecip);
 
-        const int32_t ggxstart = gxstart + ggyinc[ys];
-        const int32_t ggystart = gystart - ggxinc[ys];
+        const voxint_t ggxstart = gxstart + ggyinc[ys];
+        const voxint_t ggystart = gystart - ggxinc[ys];
 
         for (x=xs; x!=xe; x+=xi)
         {
             const intptr_t slabxoffs = (intptr_t)&davoxptr[B_LITTLE32(longptr[x])];
             int16_t *const shortptr = (int16_t *)&davoxptr[((x*(daysiz+1))<<1) + xyvoxoffs];
 
-            int32_t nx = mulscale16(ggxstart+ggxinc[x], viewingrangerecip) + x1;
-            int32_t ny = ggystart + ggyinc[x];
+            voxint_t nx = mulscale16z(ggxstart+ggxinc[x], viewingrangerecip) + x1;
+            voxint_t ny = ggystart + ggyinc[x];
 
             for (y=ys; y!=ye; y+=yi,nx+=dagyinc,ny-=dagxinc)
             {
@@ -5776,6 +5786,11 @@ static uint8_t falpha_to_blend(float alpha, int32_t *cstatptr, int32_t transbit1
 
     *cstatptr = cstat;
     return blendidx;
+}
+
+static inline int32_t mulscale_triple30(int32_t a, int32_t b, int32_t c)
+{
+    return ((int64_t)a * b * c)>>30;
 }
 
 static void drawsprite_classic(int32_t snum)
@@ -6788,8 +6803,8 @@ draw_as_face_sprite:
             const int32_t xspan = ((B_LITTLE32(longptr[0])+B_LITTLE32(longptr[1]))>>1);
             const int32_t yspan = B_LITTLE32(longptr[2]);
 
-            const int32_t xsiz = mulscale30(siz,xv*xspan);
-            const int32_t ysiz = mulscale30(siz,nyrepeat*yspan);
+            const int32_t xsiz = mulscale_triple30(siz, xv, xspan);
+            const int32_t ysiz = mulscale_triple30(siz, nyrepeat, yspan);
 
             //Watch out for divscale overflow
             if (((xspan>>11) < xsiz) && (yspan < (ysiz>>1)))
