@@ -1356,16 +1356,30 @@ skip_check:
                     }
                     break;
                 case ITER_DRAWNSPRITES:
+                {
+                    tspritetype lastSpriteBackup;
+                    tspritetype *const lastSpritePtr = (tspritetype *)&sprite[MAXSPRITES-1];
+
+                    // Back up sprite MAXSPRITES-1.
+                    Bmemcpy(&lastSpriteBackup, lastSpritePtr, sizeof(tspritetype));
+
                     for (int ii=0; ii<spritesortcnt && !vm.flags; ii++)
                     {
-                        vm.g_sp = (tspritetype *)&sprite[MAXSPRITES-1];
-                        Bmemcpy(&sprite[MAXSPRITES-1], &tsprite[ii], sizeof(tspritetype));
+                        vm.g_sp = lastSpritePtr;
+                        Bmemcpy(lastSpritePtr, &tsprite[ii], sizeof(tspritetype));
+
                         Gv_SetVarX(var, ii);
                         insptr = beg;
                         VM_Execute(1);
-                        Bmemcpy(&tsprite[ii], &sprite[MAXSPRITES-1], sizeof(tspritetype));
+
+                        // Copy over potentially altered tsprite.
+                        Bmemcpy(&tsprite[ii], lastSpritePtr, sizeof(tspritetype));
                     }
+
+                    // Restore sprite MAXSPRITES-1.
+                    Bmemcpy(lastSpritePtr, &lastSpriteBackup, sizeof(tspritetype));
                     break;
+                }
                 case ITER_SPRITESOFSECTOR:
                     if (parm2 < 0 || parm2 >= MAXSECTORS)
                         goto badindex;
