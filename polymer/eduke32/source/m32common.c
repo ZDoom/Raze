@@ -730,7 +730,7 @@ static int32_t csc_s, csc_i;
 // 1: corrupt, 0: OK
 static int32_t check_spritelist_consistency()
 {
-    int32_t s, i, ournumsprites=0;
+    int32_t ournumsprites=0;
     static uint8_t havesprite[MAXSPRITES>>3];
 
     csc_s = csc_i = -1;
@@ -738,7 +738,7 @@ static int32_t check_spritelist_consistency()
     if (Numsprites < 0 || Numsprites > MAXSPRITES)
         return 1;
 
-    for (i=0; i<MAXSPRITES; i++)
+    for (int i=0; i<MAXSPRITES; i++)
     {
         const int32_t sectnum=sprite[i].sectnum, statnum=sprite[i].statnum;
 
@@ -764,8 +764,9 @@ static int32_t check_spritelist_consistency()
 
     Bmemset(havesprite, 0, (Numsprites+7)>>3);
 
-    for (s=0; s<numsectors; s++)
+    for (int s=0; s<numsectors; s++)
     {
+        int i;
         csc_s = s;
 
         for (i=headspritesect[s]; i>=0; i=nextspritesect[i])
@@ -789,7 +790,7 @@ static int32_t check_spritelist_consistency()
     }
 
     csc_s = -1;
-    for (i=0; i<MAXSPRITES; i++)
+    for (int i=0; i<MAXSPRITES; i++)
     {
         csc_i = i;
 
@@ -800,8 +801,9 @@ static int32_t check_spritelist_consistency()
 
     // STATUS LIST -- we now clear havesprite[] bits
 
-    for (s=0; s<MAXSTATUS; s++)
+    for (int s=0; s<MAXSTATUS; s++)
     {
+        int i;
         csc_s = s;
 
         for (i=headspritestat[s]; i>=0; i=nextspritestat[i])
@@ -827,7 +829,7 @@ static int32_t check_spritelist_consistency()
     }
 
     csc_s = -1;
-    for (i=0; i<Numsprites; i++)
+    for (int i=0; i<Numsprites; i++)
     {
         csc_i = i;
 
