@@ -9408,7 +9408,6 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     globalcisibility = mulscale8(globalhisibility,320);
 
     globalcursectnum = dacursectnum;
-    totalclocklock = totalclock;
 
     if ((xyaspect != oxyaspect) || (xdimen != oxdimen) || (viewingrange != oviewingrange))
         dosetaspect();

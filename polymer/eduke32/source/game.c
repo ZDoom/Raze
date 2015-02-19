@@ -4434,6 +4434,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     if (g_networkMode == NET_DEDICATED_SERVER) return;
 
+    totalclocklock = totalclock;
+
     if (pub > 0 || getrendermode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
 #ifdef __ANDROID__
