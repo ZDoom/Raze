@@ -426,10 +426,6 @@ int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t c
         return 0;
     }
 
-    int16_t dasectnum = spr->sectnum;
-    int32_t daz = spr->z - 2*tilesiz[spr->picnum].y*spr->yrepeat;
-    const int32_t oldz = spr->z;
-
     if (clipdist >= 0)
     {
         // use that value
@@ -453,6 +449,11 @@ int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t c
             clipdist = spr->clipdist<<2;
     }
 
+    int16_t dasectnum = spr->sectnum;
+    const int16_t osectnum = dasectnum;
+    int32_t daz = spr->z - 2*tilesiz[spr->picnum].y*spr->yrepeat;
+    const int32_t oldz = spr->z;
+
     // Handle horizontal movement first.
     spr->z = daz;
     int32_t retval = clipmove((vec3_t *)spr, &dasectnum,
@@ -467,7 +468,8 @@ int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t c
                 ((actor[spritenum].actorstayput >= 0 && actor[spritenum].actorstayput != dasectnum) ||
                  (spr->picnum == BOSS2 && spr->pal == 0 && sector[dasectnum].lotag != ST_3) ||
                  ((spr->picnum == BOSS1 || spr->picnum == BOSS2) && sector[dasectnum].lotag == ST_1_ABOVE_WATER)
-//                 || (sector[dasectnum].lotag == ST_1_ABOVE_WATER && (spr->picnum == LIZMAN || (spr->picnum == LIZTROOP && spr->zvel == 0)))
+                 || (sector[osectnum].lotag != ST_1_ABOVE_WATER && sector[dasectnum].lotag == ST_1_ABOVE_WATER &&
+                     (spr->picnum == LIZMAN || (spr->picnum == LIZTROOP && spr->zvel == 0)))
                 )
             )
         {
