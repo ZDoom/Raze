@@ -649,7 +649,7 @@ end
 function on.event_end(pos, eventidx, codetab)
     assert(type(codetab)=="table")
     -- 0x20000000: actor.FLAGS.chain_beg
-    paddcodef(pos, "gameevent{%d,0x20000000,function (_aci,_pli,_dist)", eventidx)
+    paddcodef(pos, "gameevent{%d,0x20000000,function(_aci,_pli,_dist)", eventidx)
     addcode(get_cache_sap_code())
     addcode(codetab)
     addcode("end}")
@@ -663,7 +663,7 @@ function on.eventloadactor_end(pos, tilenum, codetab)
     end
 
     -- Translate eventloadactor into a chained EVENT_LOADACTOR block
-    paddcodef(pos, "gameevent{'LOADACTOR', function (_aci,_pli,_dist)")
+    paddcodef(pos, "gameevent{'LOADACTOR',function(_aci,_pli,_dist)")
     addcode(get_cache_sap_code())
     addcodef("if (%s==%d) then", SPS".picnum", tilenum)
     addcode(codetab)
@@ -3086,13 +3086,13 @@ local Cif = {
     ifactorsound = cmd(R,R)
         / "_con._soundplaying(%1,%2)",
     ifcutscene = cmd(R)
-        / function (cs)
+        / function(cs)
             handle.NYI()
             return "false"
           end,
 
     ifp = (sp1 * tok.define)^1
-        / function (...) return format("_con._ifp(%d,_pli,_aci)", bit.bor(...)) end,
+        / function(...) return format("_con._ifp(%d,_pli,_aci)", bit.bor(...)) end,
     ifsquished = cmd()
         / "_con._squished(_aci,_pli)",
     ifserver = cmd()
