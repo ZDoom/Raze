@@ -369,9 +369,10 @@ static MenuEntry_t *MEL_GAMESETUP[] = {
 #endif
     &ME_GAMESETUP_AIM_AUTO,
     &ME_GAMESETUP_WEAPSWITCH_PICKUP,
+#ifdef DROIDMENU
     &ME_GAMESETUP_QUICKSWITCH,
     &ME_GAMESETUP_CROUCHLOCK,
-#ifndef DROIDMENU
+#else
     &ME_GAMESETUP_DEMOREC,
 #ifdef _WIN32
     &ME_GAMESETUP_UPDATES,
@@ -708,16 +709,16 @@ static MenuEntry_t *MEL_MOUSESETUP[] = {
 };
 
 #ifdef DROIDMENU
-static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_MOVE = MAKE_MENURANGE(&droidinput.forward_sens, &MF_Redfont, 1.f, 10.f, 0.f, 20, 1 + EnforceIntervals);
+static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_MOVE = MAKE_MENURANGE(&droidinput.forward_sens, &MF_Redfont, 1.f, 9.f, 0.f, 17, 1 + EnforceIntervals);
 static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_MOVE = MAKE_MENUENTRY("Run sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_MOVE, RangeFloat);
 
-static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_STRAFE = MAKE_MENURANGE(&droidinput.strafe_sens, &MF_Redfont, 1.f, 10.f, 0.f, 20, 1 + EnforceIntervals);
+static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_STRAFE = MAKE_MENURANGE(&droidinput.strafe_sens, &MF_Redfont, 1.f, 9.f, 0.f, 17, 1 + EnforceIntervals);
 static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_STRAFE = MAKE_MENUENTRY("Strafe sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_STRAFE, RangeFloat);
 
-static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_LOOK = MAKE_MENURANGE(&droidinput.pitch_sens, &MF_Redfont, 1.f, 10.f, 0.f, 20, 1 + EnforceIntervals);
+static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_LOOK = MAKE_MENURANGE(&droidinput.pitch_sens, &MF_Redfont, 1.f, 9.f, 0.f, 17, 1 + EnforceIntervals);
 static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_LOOK = MAKE_MENUENTRY("Look sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_LOOK, RangeFloat);
 
-static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_TURN = MAKE_MENURANGE(&droidinput.yaw_sens, &MF_Redfont, 1.f, 10.f, 0.f, 20, 1 + EnforceIntervals);
+static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_TURN = MAKE_MENURANGE(&droidinput.yaw_sens, &MF_Redfont, 1.f, 9.f, 0.f, 17, 1 + EnforceIntervals);
 static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_TURN = MAKE_MENUENTRY("Turn sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_TURN, RangeFloat);
 
 static MenuOption_t MEO_TOUCHSETUP_INVERT = MAKE_MENUOPTION(&MF_Redfont, &MEOS_NoYes, &droidinput.invertLook);
@@ -1141,7 +1142,7 @@ static MenuPanel_t M_CREDITS = { NoTitle, MENU_CREDITS5, MA_Return, MENU_CREDITS
 static MenuPanel_t M_CREDITS2 = { NoTitle, MENU_CREDITS, MA_Return, MENU_CREDITS3, MA_Advance, };
 static MenuPanel_t M_CREDITS3 = { NoTitle, MENU_CREDITS2, MA_Return, MENU_CREDITS4, MA_Advance, };
 #ifdef DROIDMENU
-static MenuPanel_t M_CREDITS4 = { "Meltdown Collection", MENU_CREDITS3, MA_Return, MENU_CREDITS5, MA_Advance, };
+static MenuPanel_t M_CREDITS4 = { "Hail to the King", MENU_CREDITS3, MA_Return, MENU_CREDITS5, MA_Advance, };
 #else
 static MenuPanel_t M_CREDITS4 = { "About EDuke32", MENU_CREDITS3, MA_Return, MENU_CREDITS5, MA_Advance, };
 #endif
@@ -2108,14 +2109,6 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         creditsminitext(origin.x + (160<<16), origin.y + ((90+10-l)<<16), "Philipp \"Helixhorned\" Kutin", 8);
         creditsminitext(origin.x + (160<<16), origin.y + ((90+7+10-l)<<16), "Evan \"Hendricks266\" Ramos", 8);
 
-#ifdef DROIDMENU
-# if defined EDUKE32_IOS
-        mgametextcenter(origin.x, origin.y + ((110+7-l)<<16), "iOS support programming");
-# else
-        mgametextcenter(origin.x, origin.y + ((110+7-l)<<16), "Android support programming");
-# endif
-        creditsminitext(origin.x + (160<<16), origin.y + ((110+7+10-l)<<16), "Emile Belanger", 8);
-#endif
 
         mgametextcenter(origin.x, origin.y + ((130+7-l)<<16), "Based on \"JFDuke3D\" by");
         creditsminitext(origin.x + (160<<16), origin.y + ((130+7+10-l)<<16), "Jonathon \"JonoF\" Fowler", 8);
@@ -2149,6 +2142,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                 "Dan Gaskill",       // "DeeperThought" - testing
                 "David Koenig",      // "Bargle" - Merged a couple of things from duke3d_w32
                 "Ed Coolidge",       // Mapster32 improvements
+                "Emile Belanger",    // original Android work
                 "Ferry Landzaat",    // ? (listed on the wiki page)
                 "Hunter_rus",        // tons of stuff
                 "James Bentler",     // Mapster32 improvements
