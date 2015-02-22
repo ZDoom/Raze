@@ -2232,6 +2232,9 @@ void C_UndefineVolume(int32_t vol)
 {
     Bassert((unsigned)vol < MAXVOLUMES);
 
+    for (int32_t i = 0; i < MAXLEVELS; i++)
+        C_UndefineLevel(vol, i);
+
     EpisodeNames[vol][0] = '\0';
 
     g_numVolumes = 0;
@@ -2270,10 +2273,12 @@ void C_UndefineLevel(int32_t vol, int32_t lev)
     {
         map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
 
-        Bfree(map->filename);
+        if (map->filename)
+            Bfree(map->filename);
         map->filename = NULL;
 
-        Bfree(map->name);
+        if (map->name)
+            Bfree(map->name);
         map->name = NULL;
 
         map->partime = 0;

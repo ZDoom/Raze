@@ -111,17 +111,17 @@ extern vmstate_t vm;
 void G_DoGameStartup(const int32_t *params);
 void C_DefineMusic(int32_t vol, int32_t lev, const char *fn);
 
+void C_UndefineVolume(int32_t vol);
+void C_UndefineSkill(int32_t skill);
+void C_UndefineLevel(int32_t vol, int32_t lev);
 #if defined LUNATIC
 void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5]);
 void C_DefineQuote(int32_t qnum, const char *qstr);
 void C_DefineVolumeName(int32_t vol, const char *name);
-void C_UndefineVolume(int32_t vol);
 void C_DefineSkillName(int32_t skill, const char *name);
-void C_UndefineSkill(int32_t skill);
 void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
                        int32_t partime, int32_t designertime,
                        const char *levelname);
-void C_UndefineLevel(int32_t vol, int32_t lev);
 void C_DefineGameFuncName(int32_t idx, const char *name);
 void C_DefineGameType(int32_t idx, int32_t flags, const char *name);
 int32_t C_SetDefName(const char *name);
