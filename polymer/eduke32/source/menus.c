@@ -356,11 +356,13 @@ static MenuEntry_t ME_ADULTMODE = MAKE_MENUENTRY( "Parental lock:", &MF_Redfont,
 // static MenuLink_t MEO_ADULTMODE_PASSWORD = { MENU_ADULTPASSWORD, MA_None, };
 // static MenuEntry_t ME_ADULTMODE_PASSWORD = MAKE_MENUENTRY( "Enter Password", &MF_Redfont, &, &MEO_ADULTMODE_PASSWORD, Link );
 
+#ifdef DROIDMENU
 static MenuOption_t MEO_GAMESETUP_CROUCHLOCK = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &droidinput.toggleCrouch);
 static MenuEntry_t ME_GAMESETUP_CROUCHLOCK = MAKE_MENUENTRY("Crouch lock:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_CROUCHLOCK, Option);
 
 static MenuOption_t MEO_GAMESETUP_QUICKSWITCH = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &droidinput.quickSelectWeapon);
 static MenuEntry_t ME_GAMESETUP_QUICKSWITCH = MAKE_MENUENTRY("Quick weapon switch:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_QUICKSWITCH, Option);
+#endif
 
 static MenuEntry_t *MEL_GAMESETUP[] = {
     &ME_ADULTMODE,
