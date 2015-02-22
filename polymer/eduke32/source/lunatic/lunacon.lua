@@ -1272,6 +1272,17 @@ function Cmd.definevolumename(vol, name)
     g_data.volname[vol] = name
 end
 
+function Cmd.definevolumeflags(vol, flags)
+    if (not (vol >= 0 and vol < conl.MAXVOLUMES)) then
+        errprintf("volume number is negative or exceeds maximum volume count.")
+        return
+    end
+
+    if (ffi) then
+        ffiC.C_DefineVolumeFlags(vol, flags)
+    end
+end
+
 function Cmd.undefinevolume(vol)
     if (not (vol >= 0 and vol < conl.MAXVOLUMES)) then
         errprintf("volume number is negative or exceeds maximum volume count.")
@@ -1897,6 +1908,9 @@ local Couter = {
     -- NOTE: gamevar.ogg and the like is OK, too
     music = sp1 * tok.define * match_until(sp1 * tok.filename, sp1 * conl.keyword * sp1)
         / Cmd.music,
+
+    definevolumeflags = cmd(D,D)
+        / Cmd.definevolumeflags,
 
     undefinelevel = cmd(D,D)
         / Cmd.undefinelevel,

@@ -143,6 +143,7 @@ C_DefineSound;
 C_DefineMusic;
 C_DefineQuote;
 C_DefineVolumeName;
+C_DefineVolumeFlags;
 C_UndefineVolume;
 C_DefineSkillName;
 C_UndefineSkill;

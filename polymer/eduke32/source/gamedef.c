@@ -98,6 +98,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_SETMUSICPOSITION, 20150116 },
     { CON_UNDEFINELEVEL, 20150208 },
     { CON_IFCUTSCENE, 20150210 },
+    { CON_DEFINEVOLUMEFLAGS, 20150222 },
 };
 #endif
 
@@ -559,6 +560,7 @@ const char *keyw[] =
     "undefinelevel",            // 377
     "startcutscene",            // 378
     "ifcutscene",               // 379
+    "definevolumeflags",        // 380
     "<null>"
 };
 #endif
@@ -2227,6 +2229,13 @@ void C_DefineGameType(int32_t idx, int32_t flags, const char *name)
     g_numGametypes = idx+1;
 }
 #endif
+
+void C_DefineVolumeFlags(int32_t vol, int32_t flags)
+{
+    Bassert((unsigned)vol < MAXVOLUMES);
+
+    EpisodeFlags[vol] = flags;
+}
 
 void C_UndefineVolume(int32_t vol)
 {
@@ -5414,6 +5423,26 @@ repeatcase:
             }
             g_numVolumes = j+1;
             EpisodeNames[j][i] = '\0';
+            continue;
+
+        case CON_DEFINEVOLUMEFLAGS:
+            g_scriptPtr--;
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr--;
+            j = *g_scriptPtr;
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr--;
+            k = *g_scriptPtr;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXVOLUMES-1))
+            {
+                initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",g_szScriptFileName,g_lineNumber);
+                g_numCompilerErrors++;
+                C_NextLine();
+                continue;
+            }
+
+            C_DefineVolumeFlags(j, k);
             continue;
 
         case CON_DEFINEGAMEFUNCNAME:

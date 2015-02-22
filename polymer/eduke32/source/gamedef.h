@@ -111,6 +111,7 @@ extern vmstate_t vm;
 void G_DoGameStartup(const int32_t *params);
 void C_DefineMusic(int32_t vol, int32_t lev, const char *fn);
 
+void C_DefineVolumeFlags(int32_t vol, int32_t flags);
 void C_UndefineVolume(int32_t vol);
 void C_UndefineSkill(int32_t skill);
 void C_UndefineLevel(int32_t vol, int32_t lev);
@@ -984,6 +985,7 @@ enum ScriptKeywords_t
     CON_UNDEFINELEVEL,      // 377
     CON_STARTCUTSCENE,      // 378
     CON_IFCUTSCENE,         // 379
+    CON_DEFINEVOLUMEFLAGS,  // 380
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

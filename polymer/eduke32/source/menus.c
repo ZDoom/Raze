@@ -1030,6 +1030,7 @@ static char *MenuSkillNone = "None";
 
 static char *MEOSN_NetGametypes[MAXGAMETYPES];
 static char *MEOSN_NetEpisodes[MAXVOLUMES+1];
+static int32_t MEOSV_NetEpisodes[MAXVOLUMES+1];
 static char *MEOSN_NetLevels[MAXVOLUMES][MAXLEVELS];
 static char *MEOSN_NetSkills[MAXSKILLS+1];
 
@@ -1045,8 +1046,9 @@ static MenuEntry_t *MEL_NETHOST[] = {
 static MenuOptionSet_t MEOS_NETOPTIONS_GAMETYPE = MAKE_MENUOPTIONSET( MEOSN_NetGametypes, NULL, 0x0 );
 static MenuOption_t MEO_NETOPTIONS_GAMETYPE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NETOPTIONS_GAMETYPE, &ud.m_coop );
 static MenuEntry_t ME_NETOPTIONS_GAMETYPE = MAKE_MENUENTRY( "Game Type", &MF_Redfont, &MEF_NetSetup, &MEO_NETOPTIONS_GAMETYPE, Option );
-static MenuOptionSet_t MEOS_NETOPTIONS_EPISODE = MAKE_MENUOPTIONSET( MEOSN_NetEpisodes, NULL, 0x0 );
-static MenuOption_t MEO_NETOPTIONS_EPISODE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NETOPTIONS_EPISODE, NULL );
+static MenuOptionSet_t MEOS_NETOPTIONS_EPISODE = MAKE_MENUOPTIONSET( MEOSN_NetEpisodes, MEOSV_NetEpisodes, 0x0 );
+static int32_t NetEpisode;
+static MenuOption_t MEO_NETOPTIONS_EPISODE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NETOPTIONS_EPISODE, &NetEpisode );
 static MenuEntry_t ME_NETOPTIONS_EPISODE = MAKE_MENUENTRY( "Episode", &MF_Redfont, &MEF_NetSetup, &MEO_NETOPTIONS_EPISODE, Option );
 static MenuOptionSet_t MEOS_NETOPTIONS_LEVEL[MAXVOLUMES];
 static MenuOption_t MEO_NETOPTIONS_LEVEL = MAKE_MENUOPTION( &MF_Bluefont, NULL, &ud.m_level_number );
@@ -1293,18 +1295,25 @@ void M_Init(void)
 
 
     // prepare episodes
-    k = -1;
+    k = 0;
     for (i = 0; i < g_numVolumes; ++i)
     {
         if (EpisodeNames[i][0])
         {
-            MEL_EPISODE[i] = &ME_EPISODE[i];
-            ME_EPISODE[i] = ME_EPISODE_TEMPLATE;
-            ME_EPISODE[i].name = EpisodeNames[i];
+            if (!(EpisodeFlags[i] & EF_HIDEFROMSP))
+            {
+                MEL_EPISODE[i] = &ME_EPISODE[i];
+                ME_EPISODE[i] = ME_EPISODE_TEMPLATE;
+                ME_EPISODE[i].name = EpisodeNames[i];
+            }
 
-            MEOSN_NetEpisodes[i] = EpisodeNames[i];
+            if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
+            {
+                MEOSN_NetEpisodes[k] = EpisodeNames[i];
+                MEOSV_NetEpisodes[k] = i;
 
-            k = i;
+                k++;
+            }
         }
 
         // prepare levels
@@ -1316,12 +1325,13 @@ void M_Init(void)
         }
         MEOS_NETOPTIONS_LEVEL[i].optionNames = MEOSN_NetLevels[i];
     }
-    ++k;
-    M_EPISODE.numEntries = g_numVolumes+2; // k;
+    M_EPISODE.numEntries = g_numVolumes+2;
     MEL_EPISODE[g_numVolumes] = &ME_Space4;
     MEL_EPISODE[g_numVolumes+1] = &ME_EPISODE_USERMAP;
-    MEOS_NETOPTIONS_EPISODE.numOptions = g_numVolumes + 1; // k+1;
-    MEOSN_NetEpisodes[g_numVolumes] = MenuUserMap;
+    MEOS_NETOPTIONS_EPISODE.numOptions = k + 1;
+    MEOSN_NetEpisodes[k] = MenuUserMap;
+    MEOSV_NetEpisodes[k] = MAXVOLUMES;
+    NetEpisode = MEOSV_NetEpisodes[0];
     MMF_Top_Episode.pos.y = (48-(g_numVolumes*2))<<16;
     if (g_numSkills == 0)
         MEO_EPISODE.linkID = MENU_NULL;
@@ -1590,12 +1600,12 @@ static void M_PreMenu(MenuID_t cm)
         break;
 
     case MENU_NETOPTIONS:
-        if (MEO_NETOPTIONS_EPISODE.currentOption == MEOS_NETOPTIONS_EPISODE.numOptions-1)
+        if (MEOSV_NetEpisodes[MEO_NETOPTIONS_EPISODE.currentOption] == MAXVOLUMES)
             MEL_NETOPTIONS[2] = &ME_NETOPTIONS_USERMAP;
         else
         {
             MEL_NETOPTIONS[2] = &ME_NETOPTIONS_LEVEL;
-            MEO_NETOPTIONS_LEVEL.options = &MEOS_NETOPTIONS_LEVEL[MEO_NETOPTIONS_EPISODE.currentOption];
+            MEO_NETOPTIONS_LEVEL.options = &MEOS_NETOPTIONS_LEVEL[MEOSV_NetEpisodes[MEO_NETOPTIONS_EPISODE.currentOption]];
         }
         MEL_NETOPTIONS[4] = (GametypeFlags[ud.m_coop] & GAMETYPE_MARKEROPTION) ? &ME_NETOPTIONS_MARKERS : &ME_NETOPTIONS_MARKERS_DISABLED;
         MEL_NETOPTIONS[5] = (GametypeFlags[ud.m_coop] & (GAMETYPE_PLAYERSFRIENDLY|GAMETYPE_TDM)) ? &ME_NETOPTIONS_FRFIRE : &ME_NETOPTIONS_MAPEXITS;
@@ -2550,7 +2560,7 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         CONTROL_MapAnalogAxis(M_JOYSTICKAXES.currentEntry, newOption, controldevice_joystick);
     else if (entry == &ME_NETOPTIONS_EPISODE)
     {
-        if (newOption < g_numVolumes)
+        if ((unsigned)newOption < g_numVolumes)
             ud.m_volume_number = newOption;
     }
     else if (entry == &ME_NETOPTIONS_MONSTERS)
@@ -2814,8 +2824,6 @@ static int32_t M_MenuEntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
 #endif
     else if (entry == &ME_SOUND_DUKETALK)
         return ud.config.VoiceToggle & 1;
-    else if (entry == &ME_NETOPTIONS_EPISODE)
-        return (currentValue < g_numVolumes ? ud.m_volume_number : g_numVolumes);
     else if (entry == &ME_NETOPTIONS_MONSTERS)
         return (ud.m_monsters_off ? g_numSkills : ud.m_player_skill);
 

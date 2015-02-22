@@ -38,6 +38,8 @@ int32_t g_spriteGravity=176;
 int16_t g_spriteDeleteQueueSize = 64;
 
 char EpisodeNames[MAXVOLUMES][33] = { "L.A. Meltdown", "Lunar Apocalypse", "Shrapnel City" };
+int32_t EpisodeFlags[MAXVOLUMES]; // all initialize to zero
+
 char SkillNames[MAXSKILLS][33] = { "Piece Of Cake", "Let's Rock", "Come Get Some", "Damn I'm Good" };
 
 char GametypeNames[MAXGAMETYPES][33] = { "DukeMatch (Spawn)", "Cooperative Play", "DukeMatch (No Spawn)", "Team DM (Spawn)", "Team DM (No Spawn)" };

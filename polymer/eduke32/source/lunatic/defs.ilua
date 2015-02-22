@@ -741,6 +741,7 @@ int32_t C_DefineSound(int32_t sndidx, const char *fn, int32_t args [5]);
 void C_DefineMusic(int32_t vol, int32_t lev, const char *fn);
 void C_DefineQuote(int32_t qnum, const char *qstr);
 void C_DefineVolumeName(int32_t vol, const char *name);
+void C_DefineVolumeFlags(int32_t vol, int32_t flags);
 void C_UndefineVolume(int32_t vol);
 void C_DefineSkillName(int32_t skill, const char *name);
 void C_UndefineSkill(int32_t skill);

@@ -144,6 +144,7 @@ extern const char *s_buildDate;
 extern int32_t g_spriteGravity;
 extern int16_t g_spriteDeleteQueueSize;
 extern char EpisodeNames[MAXVOLUMES][33];
+extern int32_t EpisodeFlags[MAXVOLUMES];
 extern char SkillNames[MAXSKILLS][33];
 extern char GametypeNames[MAXGAMETYPES][33];
 extern int32_t GametypeFlags[MAXGAMETYPES];
@@ -167,6 +168,12 @@ extern int32_t g_seenineBlastRadius;
 extern char CheatKeys[2];
 extern char setupfilename[BMAX_PATH];
 #endif
+
+enum
+{
+    EF_HIDEFROMSP = 1<<0,
+    EF_HIDEFROMMP = 1<<1,
+};
 
 #ifdef __cplusplus
 }
