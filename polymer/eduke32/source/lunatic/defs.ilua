@@ -21,6 +21,7 @@ local getmetatable = getmetatable
 local ipairs = ipairs
 local loadstring = loadstring
 local pairs = pairs
+local pcall = pcall
 local rawget = rawget
 local rawset = rawset
 local select = select
@@ -943,7 +944,7 @@ end
 function actor_static_members.move(i, vec, cliptype, clipdist)
     check_sprite_idx(i)
     local vel = ivec3(vec.x, vec.y, vec.z)
-    return ffiC.A_MoveSpriteClipdist(spritenum, vel, cliptype, clipdist or -1)
+    return ffiC.A_MoveSpriteClipdist(i, vel, cliptype, clipdist or -1)
 end
 
 -- Delete sprite with index <i>.
@@ -2049,7 +2050,7 @@ local function animate_all_sprites()
 end
 
 
-function check_arg_number(name, argpos, val)
+local function check_arg_number(name, argpos, val)
     if (type(val) ~= "number") then
         errorf(3, "invalid '%s' argument (#%d) to gameactor: must be a number", name, argpos)
     end

@@ -111,7 +111,7 @@ function bcheck.quote_idx(qnum, onlyidx)
     return cstr
 end
 
-function bcheck.top_level(funcname)
+function bcheck.top_level(funcname, errlev)
     if (ffiC.g_elCallDepth > 0) then
         error("Invalid use of "..funcname..": must be called from top level", errlev or 3)
     end

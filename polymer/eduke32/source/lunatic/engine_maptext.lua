@@ -4,6 +4,8 @@
 local ffi = require("ffi")
 local ffiC = ffi.C
 
+local assert = assert
+local loadstring = loadstring
 local pairs = pairs
 local pcall = pcall
 local print = print
