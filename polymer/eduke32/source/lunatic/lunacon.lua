@@ -2951,8 +2951,8 @@ local Cinner = {
     starttrackvar = cmd(R)
         / "_con._starttrack(%1)",
 
-    cutscene = cmd(R)
-        / handle.NYI,
+--    cutscene = cmd(R)
+--        / handle.NYI,
     getmusicposition = cmd(W)
         / "%1=_con._getmusicposition()",
     setmusicposition = cmd(R)
