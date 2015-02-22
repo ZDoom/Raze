@@ -202,11 +202,12 @@ static MenuEntryFormat_t MEF_FuncList =         { 3<<16,      0,  100<<16,  10<<
 static MenuEntryFormat_t MEF_ColorCorrect =     { 2<<16,      0, -240<<16,  20<<16, 65536 };
 static MenuEntryFormat_t MEF_BigSliders =       { 2<<16,      0,  170<<16,  20<<16, 65536 };
 static MenuEntryFormat_t MEF_LoadSave =         { 7<<16,     -1,   78<<16,  20<<16, 65536 };
-static MenuEntryFormat_t MEF_NetSetup =         { 4<<16,      0,    2<<16,  20<<16, 65536 };
+static MenuEntryFormat_t MEF_NetSetup =         { 4<<16,      0,  112<<16,  20<<16, 65536 };
 
 // common menu option sets
 #define MAKE_MENUOPTIONSET(optionNames, optionValues, features) { optionNames, optionValues, &MMF_FuncList, &MEF_FuncList, &MF_Minifont, ARRAY_SIZE(optionNames), -1, 0, features }
 #define MAKE_MENUOPTIONSETDYN(optionNames, optionValues, numOptions, features) { optionNames, optionValues, &MMF_FuncList, &MEF_FuncList, &MF_Minifont, numOptions, -1, 0, features }
+#define MAKE_MENUOPTIONSETNULL { NULL, NULL, &MMF_FuncList, &MEF_FuncList, &MF_Minifont, 0, -1, 0, 0 }
 
 static char *MEOSN_OffOn[] = { "Off", "On", };
 static MenuOptionSet_t MEOS_OffOn = MAKE_MENUOPTIONSET( MEOSN_OffOn, NULL, 0x3 );
@@ -1050,6 +1051,7 @@ static MenuOptionSet_t MEOS_NETOPTIONS_EPISODE = MAKE_MENUOPTIONSET( MEOSN_NetEp
 static int32_t NetEpisode;
 static MenuOption_t MEO_NETOPTIONS_EPISODE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NETOPTIONS_EPISODE, &NetEpisode );
 static MenuEntry_t ME_NETOPTIONS_EPISODE = MAKE_MENUENTRY( "Episode", &MF_Redfont, &MEF_NetSetup, &MEO_NETOPTIONS_EPISODE, Option );
+static MenuOptionSet_t MEOS_NETOPTIONS_LEVEL_TEMPLATE = MAKE_MENUOPTIONSETNULL;
 static MenuOptionSet_t MEOS_NETOPTIONS_LEVEL[MAXVOLUMES];
 static MenuOption_t MEO_NETOPTIONS_LEVEL = MAKE_MENUOPTION( &MF_Bluefont, NULL, &ud.m_level_number );
 static MenuEntry_t ME_NETOPTIONS_LEVEL = MAKE_MENUENTRY( "Level", &MF_Redfont, &MEF_NetSetup, &MEO_NETOPTIONS_LEVEL, Option );
@@ -1317,6 +1319,7 @@ void M_Init(void)
         }
 
         // prepare levels
+        MEOS_NETOPTIONS_LEVEL[i] = MEOS_NETOPTIONS_LEVEL_TEMPLATE;
         for (j = 0; j < MAXLEVELS; ++j)
         {
             MEOSN_NetLevels[i][j] = MapInfo[MAXLEVELS*i+j].name;
