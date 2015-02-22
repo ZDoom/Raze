@@ -3468,15 +3468,6 @@ void polymost_drawrooms()
     // Fixes access of stale maskwall[maskwallcnt] (a "scan" index, in BUILD lingo):
     maskwallcnt = 0;
 
-    if (globalcursectnum >= MAXSECTORS)
-        globalcursectnum -= MAXSECTORS;
-    else
-    {
-        i = globalcursectnum;
-        updatesector(globalposx,globalposy,&globalcursectnum);
-        if (globalcursectnum < 0) globalcursectnum = i;
-    }
-
     polymost_scansector(globalcursectnum);
 
     if (inpreparemirror)

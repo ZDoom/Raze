@@ -9456,6 +9456,21 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     }
 # endif
 
+    // Update starting sector number (common to classic and Polymost).
+    if (globalcursectnum >= MAXSECTORS)
+        globalcursectnum -= MAXSECTORS;
+    else
+    {
+        i = globalcursectnum;
+        updatesectorbreadth(globalposx,globalposy,&globalcursectnum);
+        if (globalcursectnum < 0) globalcursectnum = i;
+
+        // PK 20110123: I'm not sure what the line above is supposed to do, but 'i'
+        //              *can* be negative, so let's just quit here in that case...
+        if (globalcursectnum<0)
+            return 0;
+    }
+
     //============================================================================= //POLYMOST BEGINS
     polymost_drawrooms();
 
@@ -9499,22 +9514,6 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     }
 #endif
 
-    if (globalcursectnum >= MAXSECTORS)
-        globalcursectnum -= MAXSECTORS;
-    else
-    {
-        i = globalcursectnum;
-        updatesector(globalposx,globalposy,&globalcursectnum);
-        if (globalcursectnum < 0) globalcursectnum = i;
-
-        // PK 20110123: I'm not sure what the line above is supposed to do, but 'i'
-        //              *can* be negative, so let's just quit here in that case...
-        if (globalcursectnum<0)
-        {
-            enddrawing();  //!!!
-            return 0;
-        }
-    }
 /*
     globparaceilclip = 1;
     globparaflorclip = 1;
