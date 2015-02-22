@@ -354,7 +354,7 @@ Directives
 Run-time commands
 ^^^^^^^^^^^^^^^^^
 
-*`activatecheat`*, *`clearmapstate`*, *`cutscene`*, *`ifcutscene`*, `save`,
+*`activatecheat`*, *`clearmapstate`*, *`startcutscene`*, *`ifcutscene`*, `save`,
 `savenn`, *`lineintersect`*, *`rayintersect`*, *`sectorofwall`*.
 
 Additionally, various multiplayer-related commands either unconditionally

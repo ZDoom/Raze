@@ -557,7 +557,7 @@ const char *keyw[] =
     "undefinevolume",           // 375
     "undefineskill",            // 376
     "undefinelevel",            // 377
-    "cutscene",                 // 378
+    "startcutscene",            // 378
     "ifcutscene",               // 379
     "<null>"
 };
@@ -4168,7 +4168,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_SETACTORANGLE:
         case CON_SETPLAYERANGLE:
         case CON_SETMUSICPOSITION:
-        case CON_CUTSCENE:
+        case CON_STARTCUTSCENE:
             C_GetNextVar();
             continue;
 

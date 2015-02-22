@@ -2689,7 +2689,7 @@ nullquote:
             }
             continue;
 
-        case CON_CUTSCENE:
+        case CON_STARTCUTSCENE:
         case CON_IFCUTSCENE:
             insptr++;
             {

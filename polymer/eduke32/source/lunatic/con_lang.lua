@@ -957,6 +957,7 @@ lpeg.P(false) +
 "starttrackvar" +
 "starttrack" +
 "startlevel" +
+"startcutscene" +
 "ssp" +
 "sqrt" +
 "spriteshadow" +
@@ -1258,7 +1259,6 @@ lpeg.P(false) +
 "default" +
 "debug" +
 "debris" +
---"cutscene" +
 "cstator" +
 "cstat" +
 "count" +

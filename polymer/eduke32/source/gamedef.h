@@ -982,7 +982,7 @@ enum ScriptKeywords_t
     CON_UNDEFINEVOLUME,     // 375
     CON_UNDEFINESKILL,      // 376
     CON_UNDEFINELEVEL,      // 377
-    CON_CUTSCENE,           // 378
+    CON_STARTCUTSCENE,      // 378
     CON_IFCUTSCENE,         // 379
     CON_END
 };
