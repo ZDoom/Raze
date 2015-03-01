@@ -1247,6 +1247,7 @@ lpeg.P(false) +
 "digitalnumberz" +
 "digitalnumber" +
 "definevolumename" +
+"definevolumeflags" +
 "definesound" +
 "defineskillname" +
 "definequote" +

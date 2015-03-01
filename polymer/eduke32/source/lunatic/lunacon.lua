@@ -1383,7 +1383,7 @@ function Cmd.xspriteflags(tilenum, flags, override)
     end
 
     -- Mark the last 'spriteflags' or 'sprite*' directive for the given actor.
-    g_code.aflagsloc[tilenum] = getLocation(format("'%s' for actor", g_lastkw), pos)
+    g_code.aflagsloc[tilenum] = getLocation(format("'%s' for actor", g_lastkw))
 
     if (ffi and ok) then
         local tile = ffiC.g_tile[tilenum]
@@ -2964,9 +2964,9 @@ local Cinner = {
         / "_con._starttrack(%1)",
     starttrackvar = cmd(R)
         / "_con._starttrack(%1)",
-
     startcutscene = cmd(R)
         / handle.NYI,
+
     getmusicposition = cmd(W)
         / "%1=_con._getmusicposition()",
     setmusicposition = cmd(R)
@@ -3906,7 +3906,7 @@ function parse(contents)  -- local
             end
         end
 
-        function compare_gv(gva, gvb)
+        local function compare_gv(gva, gvb)
             if (gva.loc[1] ~= gvb.loc[1]) then
                 return gva.loc[1] < gvb.loc[1]
             end
