@@ -14649,9 +14649,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                int32_t walldist, uint32_t cliptype)
 {
     int32_t clipsectcnt;
-    int32_t dax, day, daz, daz2;
-    int32_t i, j, k, dx, dy;
-    int32_t x1, y1, x2, y2;
+    int32_t daz, daz2, i, j, x1, y1, x2, y2;
 
 #ifdef YAX_ENABLE
     // YAX round, -1:center, 0:ceiling, 1:floor
@@ -14702,10 +14700,6 @@ restart_grand:
 #endif
     do  //Collect sectors inside your square first
     {
-        const walltype *wal;
-        const sectortype *sec;
-        int32_t startwall, endwall;
-
 #ifdef HAVE_CLIPSHAPE_FEATURE
         if (clipsectcnt>=clipsectnum)
         {
@@ -14725,15 +14719,15 @@ restart_grand:
 
             for (i=0; i<clipsectnum; i++)
             {
-                int32_t fz,cz, hitwhat;
-                k = clipsectorlist[i];
+                const int k = clipsectorlist[i];
 
                 if (k==sectq[clipinfo[curidx].qend])
                     continue;
 
-                getzsofslope((int16_t)k,pos->x,pos->y,&daz,&daz2);
+                int32_t fz, cz;
+                getzsofslope(k,pos->x,pos->y,&daz,&daz2);
                 getzsofslope(sectq[clipinfo[curidx].qend],pos->x,pos->y,&cz,&fz);
-                hitwhat = (curspr-sprite)+49152;
+                const int hitwhat = (curspr-sprite)+49152;
 
                 if ((sector[k].ceilingstat&1)==0)
                 {
@@ -14750,11 +14744,15 @@ restart_grand:
 #endif
         ////////// Walls //////////
 
-        sec = &sector[clipsectorlist[clipsectcnt]];
-        startwall = sec->wallptr; endwall = startwall + sec->wallnum;
+        const walltype *wal;
+        const sectortype *const startsec = &sector[clipsectorlist[clipsectcnt]];
+        const int startwall = startsec->wallptr;
+        const int endwall = startwall + startsec->wallnum;
+
         for (j=startwall,wal=&wall[startwall]; j<endwall; j++,wal++)
         {
-            k = wal->nextsector;
+            const int k = wal->nextsector;
+
             if (k >= 0)
             {
                 const walltype *const wal2 = &wall[wal->point2];
@@ -14766,14 +14764,16 @@ restart_grand:
                 if ((y1 < ymin) && (y2 < ymin)) continue;
                 if ((y1 > ymax) && (y2 > ymax)) continue;
 
-                dx = x2-x1; dy = y2-y1;
+                const int32_t dx = x2-x1, dy = y2-y1;
                 if (dx*(pos->y-y1) < (pos->x-x1)*dy) continue; //back
-                if (dx > 0) dax = dx*(ymin-y1); else dax = dx*(ymax-y1);
-                if (dy > 0) day = dy*(xmax-x1); else day = dy*(xmin-x1);
-                if (dax >= day) continue;
+
+                int32_t dax = (dx > 0) ? dx*(ymin-y1) : dx*(ymax-y1);
+                int32_t day = (dy > 0) ? dy*(xmax-x1) : dy*(xmin-x1);
+                if (dax >= day)
+                    continue;
 
                 if (wal->cstat&dawalclipmask) continue;  // XXX?
-                sec = &sector[k];
+                const sectortype *const sec = &sector[k];
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
                 if (curspr)
@@ -14799,9 +14799,11 @@ restart_grand:
                 if ((x1 > xmax-MAXCLIPDIST) && (x2 > xmax-MAXCLIPDIST)) continue;
                 if ((y1 < ymin+MAXCLIPDIST) && (y2 < ymin+MAXCLIPDIST)) continue;
                 if ((y1 > ymax-MAXCLIPDIST) && (y2 > ymax-MAXCLIPDIST)) continue;
+
                 if (dx > 0) dax += dx*MAXCLIPDIST; else dax -= dx*MAXCLIPDIST;
                 if (dy > 0) day -= dy*MAXCLIPDIST; else day += dy*MAXCLIPDIST;
-                if (dax >= day) continue;
+                if (dax >= day)
+                    continue;
 #ifdef YAX_ENABLE
                 if (mcf==-1 && curspr==NULL)
                     origclipsectorlist[origclipsectnum++] = k;
@@ -14884,7 +14886,8 @@ restart_grand:
                 switch (cstat&48)
                 {
                 case 0:
-                    k = walldist+(spr->clipdist<<2)+1;
+                {
+                    int32_t k = walldist+(spr->clipdist<<2)+1;
                     if ((klabs(x1-pos->x) <= k) && (klabs(y1-pos->y) <= k))
                     {
                         daz = spr->z + spriteheightofs(j, &k, 1);
@@ -14892,6 +14895,7 @@ restart_grand:
                         clipyou = 1;
                     }
                     break;
+                }
 
                 case 16:
                 {
@@ -14899,6 +14903,7 @@ restart_grand:
 
                     if (clipinsideboxline(pos->x,pos->y,x1,y1,x2,y2,walldist+1) != 0)
                     {
+                        int32_t k;
                         daz = spr->z + spriteheightofs(j, &k, 1);
                         daz2 = daz-k;
                         clipyou = 1;
@@ -14913,13 +14918,14 @@ restart_grand:
                     daz = spr->z; daz2 = daz;
 
                     if ((cstat&64) != 0)
-                        if ((pos->z > daz) == ((cstat&8)==0)) continue;
+                        if ((pos->z > daz) == ((cstat&8)==0))
+                            continue;
 
                     get_floorspr_points(spr, pos->x, pos->y, &x1, &x2, &x3, &x4,
                                         &y1, &y2, &y3, &y4);
 
-                    dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist+4);
-                    day = mulscale14(sintable[(spr->ang-256)&2047],walldist+4);
+                    const int32_t dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist+4);
+                    const int32_t day = mulscale14(sintable[(spr->ang-256)&2047],walldist+4);
                     x1 += dax; x2 -= day; x3 -= dax; x4 += day;
                     y1 += day; y2 += dax; y3 -= day; y4 -= dax;
 
