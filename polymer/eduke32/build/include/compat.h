@@ -69,6 +69,10 @@
 #define max(x,y) ((x) > (y) ? (x) : (y))
 #endif
 
+#if defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __bsdi__ || defined __DragonFly__
+# define EDUKE32_BSD
+#endif
+
 #if !defined __APPLE__ && (!defined EDUKE32_BSD || !__STDC__)
 # include <malloc.h>
 #endif
@@ -89,10 +93,6 @@
 #  endif
 #  include <CoreServices/CoreServices.h>
 # endif
-#endif
-
-#if defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __bsdi__ || defined __DragonFly__
-# define EDUKE32_BSD
 #endif
 
 #if defined __ANDROID__ || defined EDUKE32_IOS
