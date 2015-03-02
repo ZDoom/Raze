@@ -599,7 +599,7 @@ static void G_LoadAddon(void)
     }
 }
 
-#if defined EDUKE32_OSX || defined __linux__ || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__
+#if defined EDUKE32_OSX || defined __linux__ || defined EDUKE32_BSD
 static void G_AddSteamPaths(const char *basepath)
 {
     char buf[BMAX_PATH];
@@ -803,7 +803,7 @@ static void G_ParseSteamKeyValuesForPaths(const char *vdf)
 
 void G_AddSearchPaths(void)
 {
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#if defined __linux__ || defined EDUKE32_BSD
     char buf[BMAX_PATH];
     char *homepath = Bgethomedir();
 

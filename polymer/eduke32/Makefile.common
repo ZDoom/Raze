@@ -102,39 +102,39 @@ SYSBITS=32
 # the outside world. This allows cross-compilation by overriding
 # CC and giving us PLATFORM specifically.
 #
-ifndef HOST
+ifndef HOSTPLATFORM
     uname:=$(strip $(shell uname -s))
-    HOST=UNKNOWN
+    HOSTPLATFORM=UNKNOWN
     ifeq ($(findstring Linux,$(uname)),Linux)
-        HOST=LINUX
+        HOSTPLATFORM=LINUX
     endif
     ifeq ($(findstring BSD,$(uname)),BSD)
-        HOST=BSD
+        HOSTPLATFORM=BSD
     endif
     ifeq ($(findstring MINGW,$(uname)),MINGW)
-        HOST=WINDOWS
+        HOSTPLATFORM=WINDOWS
     endif
     ifeq ($(findstring Darwin,$(uname)),Darwin)
-        HOST=DARWIN
+        HOSTPLATFORM=DARWIN
     endif
     ifeq ($(findstring BeOS,$(uname)),BeOS)
-        HOST=BEOS
+        HOSTPLATFORM=BEOS
     endif
     ifeq ($(findstring skyos,$(uname)),skyos)
-        HOST=SKYOS
+        HOSTPLATFORM=SKYOS
     endif
     ifeq ($(findstring QNX,$(uname)),QNX)
-        HOST=QNX
+        HOSTPLATFORM=QNX
     endif
     ifeq ($(findstring SunOS,$(uname)),SunOS)
-        HOST=SUNOS
+        HOSTPLATFORM=SUNOS
     endif
     ifeq ($(findstring syllable,$(uname)),syllable)
-        HOST=SYLLABLE
+        HOSTPLATFORM=SYLLABLE
     endif
 endif
 ifndef PLATFORM
-    PLATFORM=$(HOST)
+    PLATFORM=$(HOSTPLATFORM)
 endif
 
 ifndef SUBPLATFORM
@@ -205,7 +205,7 @@ endif
 #  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
 #  MEMMAP - 1 = produce .memmap file when linking
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
-#  OPTLEVEL	- 0..3 = GCC optimization strategy
+#  OPTLEVEL - 0..3 = GCC optimization strategy
 #  LTO - 1 = enable link-time optimization, for GCC 4.5 and up
 #
 CPLUSPLUS?=1
@@ -298,11 +298,11 @@ ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     W_STRICT_OVERFLOW := -Wno-strict-overflow
 endif
 
-ifeq ($(HOST),WINDOWS)
+ifeq ($(HOSTPLATFORM),WINDOWS)
 # MSYS2 lets you create files named NUL but has a /dev/null. Go figure.
     ifeq (,$(wildcard /dev/null))
         DONT_PRINT = > NUL 2>&1
-	endif
+    endif
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
@@ -334,8 +334,8 @@ ifeq ($(PLATFORM),DARWIN)
         DARWINVERSION:=$(strip $(shell uname -r | cut -d . -f 1))
     endif
 
-	DARWIN9 ?= 0
-	DARWIN10 ?= 0
+    DARWIN9 ?= 0
+    DARWIN10 ?= 0
     ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 10)))
         override DARWIN9 := 1
     endif
@@ -683,7 +683,7 @@ ifeq ($(SUBPLATFORM),LINUX)
 
     LIBS+= -lrt
     ifeq (0,$(CLANG))
-        COMMONFLAGS	+= -fno-pic
+        COMMONFLAGS += -fno-pic
     endif
 endif
 ifeq ($(PLATFORM),DARWIN)
@@ -742,7 +742,7 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 
     ifeq (0,$(CLANG))
-        COMMONFLAGS	+= -fno-pic
+        COMMONFLAGS += -fno-pic
     endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
@@ -786,7 +786,7 @@ ifeq ($(PLATFORM),WINDOWS)
     COMMONFLAGS += -fno-pic
 endif
 ifeq ($(PLATFORM),BSD)
-    COMPILERFLAGS+= -I/usr/X11R6/include
+    COMPILERFLAGS+= -I/usr/local/include
 
     RENDERTYPE=SDL
     MIXERTYPE=SDL
@@ -995,7 +995,9 @@ endif
 
 ifneq ($(PLATFORM),WINDOWS)
     ifneq ($(PLATFORM),WII)
-        LIBS+= -ldl
+        ifneq ($(PLATFORM),BSD)
+            LIBS+= -ldl
+        endif
         ifneq ($(PLATFORM),DARWIN)
             LIBS+= -pthread
         endif

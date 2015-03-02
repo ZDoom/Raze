@@ -69,7 +69,7 @@
 #define max(x,y) ((x) > (y) ? (x) : (y))
 #endif
 
-#ifndef __APPLE__
+#if !defined __APPLE__ && (!defined EDUKE32_BSD || !__STDC__)
 # include <malloc.h>
 #endif
 
@@ -89,6 +89,10 @@
 #  endif
 #  include <CoreServices/CoreServices.h>
 # endif
+#endif
+
+#if defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __bsdi__ || defined __DragonFly__
+# define EDUKE32_BSD
 #endif
 
 #if defined __ANDROID__ || defined EDUKE32_IOS
@@ -264,7 +268,7 @@
 # define B_SWAP32(x) __swap32(x)
 # define B_SWAP16(x) __swap16(x)
 
-#elif defined(__FreeBSD__) || defined(__NetBSD__)
+#elif defined EDUKE32_BSD
 # include <sys/endian.h>
 # if _BYTE_ORDER == _LITTLE_ENDIAN
 #  define B_LITTLE_ENDIAN 1
@@ -860,7 +864,7 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 {
 #ifdef _WIN32
     void *ptr = _aligned_malloc(size, alignment);
-#elif defined __APPLE__
+#elif defined __APPLE__ || defined EDUKE32_BSD
     void *ptr = NULL;
     posix_memalign(&ptr, alignment, size);
 #else

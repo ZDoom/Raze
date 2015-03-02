@@ -27,10 +27,11 @@
 # include <dirent.h>
 #endif
 
-#if defined(__linux) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#if defined __linux || defined EDUKE32_BSD
 # include <libgen.h> // for dirname()
 #endif
-#if defined(__FreeBSD__)
+#if defined __FreeBSD__
+# include <limits.h> // for PATH_MAX
 # include <sys/sysctl.h> // for sysctl() to get path to executable
 #endif
 
@@ -304,7 +305,19 @@ char *Bgetappdir(void)
 
 #elif defined EDUKE32_OSX
     dir = osx_getappdir();
-#elif defined(__linux) || defined(__NetBSD__) || defined(__OpenBSD__)
+#elif defined __FreeBSD__
+    // the sysctl should also work when /proc/ is not mounted (which seems to
+    // be common on FreeBSD), so use it..
+    char buf[PATH_MAX] = {0};
+    int name[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+    size_t len = sizeof(buf)-1;
+    int ret = sysctl(name, sizeof(name)/sizeof(name[0]), buf, &len, NULL, 0);
+    if(ret == 0 && buf[0] != '\0') {
+        // again, remove executable name with dirname()
+        // on FreeBSD dirname() seems to use some internal buffer
+        dir = strdup(dirname(buf));
+    }
+#elif defined __linux || defined EDUKE32_BSD
     char buf[PATH_MAX] = {0};
     char buf2[PATH_MAX] = {0};
 #  ifdef __linux
@@ -318,18 +331,6 @@ char *Bgetappdir(void)
         // on Linux, dirname() will modify buf2 (cutting off executable name) and return it
         // on FreeBSD it seems to use some internal buffer instead.. anyway, just strdup()
         dir = Bstrdup(dirname(buf2));
-    }
-#elif defined(__FreeBSD__)
-    // the sysctl should also work when /proc/ is not mounted (which seems to
-    // be common on FreeBSD), so use it..
-    char buf[PATH_MAX] = {0};
-    int name[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
-    size_t len = sizeof(buf)-1;
-    int ret = sysctl(name, sizeof(name)/sizeof(name[0]), buf, &len, NULL, 0);
-    if(ret == 0 && buf[0] != '\0') {
-        // again, remove executable name with dirname()
-        // on FreeBSD dirname() seems to use some internal buffer
-        dir = strdup(dirname(buf));
     }
 #endif
 

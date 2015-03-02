@@ -288,7 +288,11 @@ ifneq (0,$(LUNATIC))
 endif
 
 ifeq ($(SUBPLATFORM),LINUX)
-    LIBS		+= -lFLAC -lvorbisfile -lvorbis -logg
+    LIBS += -lFLAC -lvorbisfile -lvorbis -logg
+endif
+
+ifeq ($(PLATFORM),BSD)
+    LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lexecinfo
 endif
 
 ifeq ($(PLATFORM),DARWIN)

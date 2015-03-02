@@ -28,7 +28,7 @@ typedef int64_t inthi_t;
 
 #if !defined(NOASM) && (defined(_MSC_VER) || (defined(__GNUC__) && defined(__i386__)))
 
-#if defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__SYLLABLE__)
+#if defined __linux || defined __APPLE__ || defined EDUKE32_BSD || defined __SYLLABLE__
 #define __cdecl
 #endif
 

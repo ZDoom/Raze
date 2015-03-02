@@ -156,7 +156,7 @@ void readjoybstatus(int32_t *b)
 #if defined _WIN32
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
-#elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__
+#elif defined __linux || defined EDUKE32_BSD || defined __APPLE__
 # include <sys/mman.h>
 #endif
 
@@ -181,7 +181,7 @@ int32_t nx_unprotect(intptr_t beg, intptr_t end)
         initprintf("VirtualProtect() error! Crashing in 3... 2... 1...\n");
         return 1;
     }
-# elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__
+# elif defined __linux || defined EDUKE32_BSD || defined __APPLE__
     int32_t pagesize;
     size_t dep_begin_page;
     pagesize = sysconf(_SC_PAGE_SIZE);
