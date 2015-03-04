@@ -1034,12 +1034,12 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
     g_sp->zvel = 0;
 }
 
-static int32_t VM_ResetPlayer(int32_t g_p, int32_t g_flags)
+static int32_t VM_ResetPlayer(int32_t g_p, int32_t g_flags, int32_t flags)
 {
     //AddLog("resetplayer");
     if (!g_netServer && ud.multimode < 2)
     {
-        if (g_lastSaveSlot >= 0 && ud.recstat != 2)
+        if (g_lastSaveSlot >= 0 && ud.recstat != 2 && !(flags & 1))
         {
             M_OpenMenu(g_p);
             KB_ClearKeyDown(sc_Space);
@@ -3362,11 +3362,14 @@ nullquote:
             continue;
 
         case CON_RESETPLAYER:
-        {
             insptr++;
-            vm.g_flags = VM_ResetPlayer(vm.g_p, vm.g_flags);
-        }
-        continue;
+            vm.g_flags = VM_ResetPlayer(vm.g_p, vm.g_flags, 0);
+            continue;
+
+        case CON_RESETPLAYERFLAGS:
+            insptr++;
+            vm.g_flags = VM_ResetPlayer(vm.g_p, vm.g_flags, Gv_GetVarX(*insptr++));
+            continue;
 
         case CON_IFONWATER:
             VM_CONDITIONAL(sector[vm.g_sp->sectnum].lotag == ST_1_ABOVE_WATER && klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8));
@@ -5708,9 +5711,9 @@ void VM_FallSprite(int32_t i)
     VM_Fall(i, &sprite[i]);
 }
 
-int32_t VM_ResetPlayer2(int32_t snum)
+int32_t VM_ResetPlayer2(int32_t snum, int32_t flags)
 {
-    return VM_ResetPlayer(snum, 0);
+    return VM_ResetPlayer(snum, 0, flags);
 }
 
 int32_t VM_CheckSquished2(int32_t i, int32_t snum)

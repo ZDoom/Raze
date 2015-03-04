@@ -1187,9 +1187,9 @@ function _pkick(ps, spr)
     end
 end
 
-function _VM_ResetPlayer2(snum)
+function _VM_ResetPlayer2(snum, flags)
     check_player_idx(snum)
-    return (CF.VM_ResetPlayer2(snum)~=0)
+    return (CF.VM_ResetPlayer2(snum, flags)~=0)
 end
 
 local PALBITS = { [0]=1, [21]=2, [23]=4 }

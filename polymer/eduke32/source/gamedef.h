@@ -986,6 +986,7 @@ enum ScriptKeywords_t
     CON_STARTCUTSCENE,      // 378
     CON_IFCUTSCENE,         // 379
     CON_DEFINEVOLUMEFLAGS,  // 380
+    CON_RESETPLAYERFLAGS,   // 381
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

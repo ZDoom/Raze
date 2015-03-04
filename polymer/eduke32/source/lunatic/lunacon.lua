@@ -2710,7 +2710,9 @@ local Cinner = {
     resetcount = cmd()
         / ACS":set_count(0)",
     resetplayer = cmd()  -- NLCF
-        / "if (_con._VM_ResetPlayer2(_pli,_aci)) then _con.longjmp() end",
+        / "if (_con._VM_ResetPlayer2(_pli,0)) then _con.longjmp() end",
+    resetplayerflags = cmd(R)  -- NLCF
+        / "if (_con._VM_ResetPlayer2(_pli,%1)) then _con.longjmp() end",
     respawnhitag = cmd()
         / format("_con._respawnhitag(%s)", SPS""),
     tip = cmd()

@@ -359,7 +359,7 @@ extern void P_CheckWeaponI(int32_t snum);
 extern int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel);
 extern int32_t A_Spawn(int32_t j, int32_t pn);
 extern void VM_FallSprite(int32_t i);
-extern int32_t VM_ResetPlayer2(int32_t snum);
+extern int32_t VM_ResetPlayer2(int32_t snum, int32_t flags);
 extern void A_RadiusDamage(int32_t i, int32_t r, int32_t, int32_t, int32_t, int32_t);
 extern void G_OperateSectors(int32_t sn, int32_t ii);
 extern void G_OperateActivators(int32_t low,int32_t snum);
@@ -410,7 +410,7 @@ DEFINE_VOID_CFUNC(P_CheckWeaponI, ONE_ARG)
 DEFINE_RET_CFUNC(A_ShootWithZvel, THREE_ARGS)
 DEFINE_RET_CFUNC(A_Spawn, TWO_ARGS)
 DEFINE_VOID_CFUNC(VM_FallSprite, ONE_ARG)
-DEFINE_RET_CFUNC(VM_ResetPlayer2, ONE_ARG)
+DEFINE_RET_CFUNC(VM_ResetPlayer2, TWO_ARGS)
 DEFINE_VOID_CFUNC(A_RadiusDamage, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LARG(6))
 DEFINE_VOID_CFUNC(G_OperateSectors, TWO_ARGS)
 DEFINE_VOID_CFUNC(G_OperateActivators, TWO_ARGS)

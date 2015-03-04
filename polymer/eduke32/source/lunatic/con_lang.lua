@@ -1028,6 +1028,7 @@ lpeg.P(false) +
 "return" +
 "respawnhitag" +
 "resizearray" +
+"resetplayerflags" +
 "resetplayer" +
 "resetcount" +
 "resetactioncount" +

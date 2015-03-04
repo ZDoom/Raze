@@ -99,6 +99,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_UNDEFINELEVEL, 20150208 },
     { CON_IFCUTSCENE, 20150210 },
     { CON_DEFINEVOLUMEFLAGS, 20150222 },
+    { CON_RESETPLAYERFLAGS, 20150303 },
 };
 #endif
 
@@ -561,6 +562,7 @@ const char *keyw[] =
     "startcutscene",            // 378
     "ifcutscene",               // 379
     "definevolumeflags",        // 380
+    "resetplayerflags",         // 381
     "<null>"
 };
 #endif
@@ -4183,6 +4185,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_SETPLAYERANGLE:
         case CON_SETMUSICPOSITION:
         case CON_STARTCUTSCENE:
+        case CON_RESETPLAYERFLAGS:
             C_GetNextVar();
             continue;
 

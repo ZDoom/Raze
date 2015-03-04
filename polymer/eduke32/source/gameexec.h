@@ -104,7 +104,7 @@ void G_ShowView(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32
                 int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp);
 void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap);
 void VM_FallSprite(int32_t i);
-int32_t VM_ResetPlayer2(int32_t snum);
+int32_t VM_ResetPlayer2(int32_t snum, int32_t flags);
 int32_t VM_CheckSquished2(int32_t i, int32_t snum);
 #endif
 
