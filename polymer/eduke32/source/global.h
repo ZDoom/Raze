@@ -172,7 +172,7 @@ extern char setupfilename[BMAX_PATH];
 enum
 {
     EF_HIDEFROMSP = 1<<0,
-    EF_HIDEFROMMP = 1<<1,
+    // EF_HIDEFROMMP = 1<<1,
 };
 
 #ifdef __cplusplus

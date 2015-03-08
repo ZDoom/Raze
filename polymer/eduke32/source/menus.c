@@ -1309,7 +1309,7 @@ void M_Init(void)
                 ME_EPISODE[i].name = EpisodeNames[i];
             }
 
-            if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
+            // if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
             {
                 MEOSN_NetEpisodes[k] = EpisodeNames[i];
                 MEOSV_NetEpisodes[k] = i;
