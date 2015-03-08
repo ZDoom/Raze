@@ -486,6 +486,10 @@ int32_t G_PlaybackDemo(void)
     static int32_t in_menu = 0;
     //    static int32_t tmpdifftime=0;
 
+    totalclock = 0;
+    ototalclock = 0;
+    lockclock = 0;
+
     if (ready2send)
         return 0;
 

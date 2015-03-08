@@ -11749,6 +11749,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
 MAIN_LOOP_RESTART:
     totalclock = 0;
+    ototalclock = 0;
+    lockclock = 0;
 
     M_ChangeMenu(MENU_MAIN);
 
