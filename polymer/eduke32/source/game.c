@@ -11748,6 +11748,8 @@ int32_t app_main(int32_t argc, const char **argv)
     //    getpackets();
 
 MAIN_LOOP_RESTART:
+    totalclock = 0;
+
     M_ChangeMenu(MENU_MAIN);
 
     if (g_networkMode != NET_DEDICATED_SERVER)
