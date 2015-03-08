@@ -1143,6 +1143,8 @@ const memberlabel_t UserdefsLabels[]=
     { "textscale", USERDEFS_TEXTSCALE, 0, 0 },
     { "runkey_mode", USERDEFS_RUNKEY_MODE, 0, 0 },
     { "musictoggle", USERDEFS_MUSICTOGGLE, 0, 0 },
+    { "gametypeflags", USERDEFS_GAMETYPEFLAGS, 0, 0 },
+    { "m_gametypeflags", USERDEFS_M_GAMETYPEFLAGS, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 

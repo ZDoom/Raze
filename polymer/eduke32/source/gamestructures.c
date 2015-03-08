@@ -266,6 +266,8 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
                 lLabelID = 0;
 #endif
                 break;
+            case USERDEFS_GAMETYPEFLAGS: lLabelID = GametypeFlags[ud.coop]; break;
+            case USERDEFS_M_GAMETYPEFLAGS: lLabelID = GametypeFlags[ud.m_coop]; break;
             default: lLabelID = -1; break;
         }
         Gv_SetVarX(lVar2, lLabelID);
