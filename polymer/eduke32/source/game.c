@@ -3841,7 +3841,7 @@ void G_DisplayRest(int32_t smoothratio)
     G_PrintFPS();
 
     // JBF 20040124: display level stats in screen corner
-    if ((ud.overhead_on != 2 && ud.levelstats) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+    if ((ud.overhead_on != 2 && ud.levelstats) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[myconnectindex].ps->i, myconnectindex) == 0)
     {
         DukePlayer_t const * const myps = g_player[myconnectindex].ps;
 

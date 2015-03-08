@@ -178,11 +178,12 @@ EVENT = {
     EVENT_DISPLAYINACTIVEMENUREST = 98,
     EVENT_CUTSCENE = 99,
     EVENT_DISPLAYCURSOR = 100,
+    EVENT_DISPLAYLEVELSTATS = 101,
 --    EVENT_ANIMATEALLSPRITES = previous+1,  -- internal
 -- KEEPINSYNC with MAXEVENTS below
 }
 
-MAXEVENTS = 101  -- KEEPINSYNC with above EVENT_* list
+MAXEVENTS = 102  -- KEEPINSYNC with above EVENT_* list
 
 -- NOTE: negated values are not exported to the ffi.C namespace or CON.
 -- See TWEAK_SFLAG below.
