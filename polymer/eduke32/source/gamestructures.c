@@ -253,6 +253,19 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             case USERDEFS_M_ORIGIN_Y: lLabelID = ud.m_origin.y; break;
             case USERDEFS_PLAYERBEST: lLabelID = ud.playerbest; break;
             case USERDEFS_MUSICTOGGLE: lLabelID = ud.config.MusicToggle; break;
+            case USERDEFS_USEVOXELS: lLabelID = usevoxels; break;
+            case USERDEFS_USEHIGHTILE:
+#ifdef USE_OPENGL
+                lLabelID = usehightile;
+                break;
+#endif
+            case USERDEFS_USEMODELS:
+#ifdef USE_OPENGL
+                lLabelID = usemodels;
+#else
+                lLabelID = 0;
+#endif
+                break;
             default: lLabelID = -1; break;
         }
         Gv_SetVarX(lVar2, lLabelID);

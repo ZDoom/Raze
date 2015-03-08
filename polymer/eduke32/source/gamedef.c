@@ -1073,6 +1073,10 @@ const memberlabel_t UserdefsLabels[]=
     { "m_origin_x", USERDEFS_M_ORIGIN_X, 0, 0 },
     { "m_origin_y", USERDEFS_M_ORIGIN_Y, 0, 0 },
 
+    { "usevoxels", USERDEFS_USEVOXELS, 0, 0 },
+    { "usehightile", USERDEFS_USEHIGHTILE, 0, 0 },
+    { "usemodels", USERDEFS_USEMODELS, 0, 0 },
+
     { "entered_name", USERDEFS_ENTERED_NAME, 0, 0 },
     { "screen_tilting", USERDEFS_SCREEN_TILTING, 0, 0 },
     { "shadows", USERDEFS_SHADOWS, 0, 0 },
