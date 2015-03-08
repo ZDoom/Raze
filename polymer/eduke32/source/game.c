@@ -12944,6 +12944,9 @@ void G_BonusScreen(int32_t bonusonly)
 
 static void G_DrawCameraText(int16_t i)
 {
+    if (VM_OnEvent(EVENT_DISPLAYCAMERAOSD, i, screenpeek) != 0)
+        return;
+
     if (!T1)
     {
         rotatesprite_win(24<<16,33<<16,65536L,0,CAMCORNER,0,0,2);
