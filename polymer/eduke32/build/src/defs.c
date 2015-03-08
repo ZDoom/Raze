@@ -1491,7 +1491,10 @@ static int32_t defsparser(scriptfile *script)
             char *skyboxtokptr = script->ltextptr;
             char *fn[6] = {0,0,0,0,0,0};
             char *modelend;
-            int32_t i, tile = -1, pal = 0, happy = 1, flags = 0;
+            int32_t i, tile = -1, pal = 0, happy = 1;
+#ifdef USE_OPENGL
+            int32_t flags = 0;
+#endif
 
             static const tokenlist skyboxtokens[] =
             {
