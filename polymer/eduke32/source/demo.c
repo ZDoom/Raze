@@ -862,6 +862,8 @@ nextdemo_nomenu:
 
                 framewaiting++;
             }
+            else
+                totalclocklock = totalclock;
 
             if (!Demo_IsProfiling() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             {
