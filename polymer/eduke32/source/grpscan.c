@@ -68,11 +68,18 @@ static void LoadList(const char * filename)
 
     scriptfile_addsymbolvalue("GAMEFLAG_DUKE", GAMEFLAG_DUKE);
     scriptfile_addsymbolvalue("GAMEFLAG_ADDON", GAMEFLAG_DUKE|GAMEFLAG_ADDON);
+    scriptfile_addsymbolvalue("GAMEFLAG_NAM", GAMEFLAG_NAM);
+    scriptfile_addsymbolvalue("GAMEFLAG_NAPALM", GAMEFLAG_NAM|GAMEFLAG_NAPALM);
+    scriptfile_addsymbolvalue("GAMEFLAG_WW2GI", GAMEFLAG_NAM|GAMEFLAG_WW2GI);
     scriptfile_addsymbolvalue("DUKE15_CRC", DUKE15_CRC);
+    scriptfile_addsymbolvalue("DUKEPP_CRC", DUKEPP_CRC);
     scriptfile_addsymbolvalue("DUKE13_CRC", DUKE13_CRC);
     scriptfile_addsymbolvalue("DUKEDC_CRC", DUKEDC_CRC);
     scriptfile_addsymbolvalue("DUKECB_CRC", DUKECB_CRC);
     scriptfile_addsymbolvalue("DUKENW_CRC", DUKENW_CRC);
+    scriptfile_addsymbolvalue("NAM_CRC", NAM_CRC);
+    scriptfile_addsymbolvalue("NAPALM_CRC", NAPALM_CRC);
+    scriptfile_addsymbolvalue("WW2GI_CRC", WW2GI_CRC);
 
     while (!scriptfile_eof(script))
     {
@@ -129,7 +136,7 @@ static void LoadList(const char * filename)
                     scriptfile_getstring(script,&gdef); break;
 
                 case T_FLAGS:
-                    scriptfile_getsymbol(script,&gflags); break;
+                    scriptfile_getsymbol(script,&gflags); gflags &= GAMEFLAGMASK; break;
                 case T_DEPCRC:
                     scriptfile_getsymbol(script,&gdepcrc); break;
                 case T_CRC:

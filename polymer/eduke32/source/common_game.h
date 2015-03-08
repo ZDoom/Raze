@@ -20,6 +20,7 @@ extern int32_t usecwd;
 #define GAMEFLAG_ADDON      0x00000010
 #define GAMEFLAG_SHAREWARE  0x00000020
 #define GAMEFLAG_DUKEBETA   0x00000060 // includes 0x20 since it's a shareware beta
+#define GAMEFLAGMASK        0x0000007F // flags allowed from grpinfo
 #define GAMEFLAG_NWINTER    0x00000080
 
 extern int32_t g_gameType;
