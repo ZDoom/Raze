@@ -4450,6 +4450,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         pub = 0;
     }
 
+    VM_OnEvent(EVENT_DISPLAYSTART, p->i, snum);
+
     if (ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && getrendermode() != REND_CLASSIC))
         return;
 
@@ -4459,7 +4461,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         setaspect_new();
     }
 
-    if (ud.pause_on || g_player[snum].ps->on_crane > -1)
+    if (ud.pause_on || p->on_crane > -1)
         smoothratio = 65536;
     else
         smoothratio = calc_smoothratio(totalclock, ototalclock);
@@ -4484,18 +4486,28 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         CAMERA(ang) = actor[ud.camerasprite].tempang +
             mulscale16(((s->ang+1024-actor[ud.camerasprite].tempang)&2047)-1024, smoothratio);
+
+        dont_draw = VM_OnEvent(EVENT_DISPLAYROOMSCAMERA, p->i, snum);
+
+        if (dont_draw != 1)  // event return values other than 0 and 1 are reserved
+        {
+            if (EDUKE32_PREDICT_FALSE(dont_draw != 0))
+                OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMSCAMERA return value must be 0 or 1, "
+                           "other values are reserved.\n");
+
 #ifdef LEGACY_ROR
-        G_SE40(smoothratio);
+            G_SE40(smoothratio);
 #endif
 #ifdef POLYMER
-        if (getrendermode() == REND_POLYMER)
-            polymer_setanimatesprites(G_DoSpriteAnimations, s->x, s->y, CAMERA(ang), smoothratio);
+            if (getrendermode() == REND_POLYMER)
+                polymer_setanimatesprites(G_DoSpriteAnimations, s->x, s->y, CAMERA(ang), smoothratio);
 #endif
-        yax_preparedrawrooms();
-        drawrooms(s->x,s->y,s->z-(4<<8),CAMERA(ang),s->yvel,s->sectnum);
-        yax_drawrooms(G_DoSpriteAnimations, s->sectnum, 0, smoothratio);
-        G_DoSpriteAnimations(s->x,s->y,CAMERA(ang),smoothratio);
-        drawmasks();
+            yax_preparedrawrooms();
+            drawrooms(s->x,s->y,s->z-(4<<8),CAMERA(ang),s->yvel,s->sectnum);
+            yax_drawrooms(G_DoSpriteAnimations, s->sectnum, 0, smoothratio);
+            G_DoSpriteAnimations(s->x,s->y,CAMERA(ang),smoothratio);
+            drawmasks();
+        }
     }
     else
     {
@@ -4737,10 +4749,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             break;
         }
 
-        dont_draw = 0;
         // NOTE: might be rendering off-screen here, so CON commands that draw stuff
         //  like showview must cope with that situation or bail out!
-        dont_draw = VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek);
+        dont_draw = VM_OnEvent(EVENT_DISPLAYROOMS, p->i, snum);
 
         CAMERA(horiz) = clamp(CAMERA(horiz), HORIZ_MIN, HORIZ_MAX);
 
