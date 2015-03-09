@@ -544,6 +544,9 @@ int32_t md_undefinetile(int32_t tile)
 
     tile2model[tile].modelid = -1;
     tile2model[tile].next=-1;
+    hudmem[0][tile].angadd = 0;
+    hudmem[1][tile].angadd = 0;
+
     return 0;
 }
 
