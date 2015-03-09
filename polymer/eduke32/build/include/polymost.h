@@ -77,6 +77,7 @@ static inline float getshadefactor(int32_t shade)
     // 8-bit tiles, i.e. non-hightiles and non-models, don't get additional
     // glColor() shading with r_usetileshades!
     if (getrendermode() == REND_POLYMOST && r_usetileshades &&
+            !(globalflags & GLOBAL_NO_GL_TILESHADES) &&
             eligible_for_tileshades(globalpicnum, globalpal))
         return 1.f;
 

@@ -442,6 +442,7 @@ static void fogcalc_old(int32_t shade, int32_t vis)
 static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
     if (shade > 0 && getrendermode() == REND_POLYMOST && r_usetileshades == 1 &&
+        !(globalflags & GLOBAL_NO_GL_TILESHADES) &&
         (!usehightile || !hicfindsubst(tile, pal)) &&
         (!usemodels || md_tilehasmodel(tile, pal) < 0))
         shade >>= 1;
@@ -848,7 +849,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
     }
     else
     {
-        const int dofullbright = !(picanm[dapic].sf & PICANM_NOFULLBRIGHT_BIT);
+        const int dofullbright = !(picanm[dapic].sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT);
 
         for (int y = 0; y < siz.y; y++)
         {
@@ -1302,7 +1303,7 @@ static float alpha = 0.f;
 static inline pthtyp *our_texcache_fetch(int32_t dameth)
 {
     // r_usetileshades 1 is TX's method.
-    return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1) ? globvis>>3 : 0, globalshade), dameth);
+    return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1 && !(globalflags & GLOBAL_NO_GL_TILESHADES)) ? globvis>>3 : 0, globalshade), dameth);
 }
 
 static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
@@ -1512,7 +1513,7 @@ static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
             float pc[4];
 
 #ifdef POLYMER
-            if (getrendermode() == REND_POLYMER && pr_artmapping && polymer_eligible_for_artmap(globalpicnum, pth))
+            if (getrendermode() == REND_POLYMER && pr_artmapping && !(globalflags & GLOBAL_NO_GL_TILESHADES) && polymer_eligible_for_artmap(globalpicnum, pth))
                 pc[0] = pc[1] = pc[2] = 1.0f;
             else
 #endif

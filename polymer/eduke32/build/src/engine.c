@@ -180,6 +180,8 @@ static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 int32_t r_usenewaspect = 1, newaspect_enable=0;
 uint32_t r_screenxy = 0;
 
+int32_t globalflags;
+
 int32_t curbrightness = 0, gammabrightness = 0;
 
 float vid_gamma = DEFAULT_GAMMA;

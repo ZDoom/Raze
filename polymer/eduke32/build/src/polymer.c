@@ -4541,7 +4541,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // Lazily fill in all the textures we need, move this to precaching later
-    if (pr_artmapping && polymer_eligible_for_artmap(tilenum, pth)) {
+    if (pr_artmapping && !(globalflags & GLOBAL_NO_GL_TILESHADES) && polymer_eligible_for_artmap(tilenum, pth)) {
         if (!prartmaps[tilenum]) {
             char *tilebuffer = (char *)waloff[tilenum];
             char *tempbuffer = (char *)Xmalloc(tilesiz[tilenum].x * tilesiz[tilenum].y);
@@ -4722,6 +4722,7 @@ static int32_t      polymer_bindmaterial(const _prmaterial *material, int16_t* l
 
     // PR_BIT_ART_MAP
     if (pr_artmapping && material->artmap &&
+        !(globalflags & GLOBAL_NO_GL_TILESHADES) &&
         (overridematerial & prprogrambits[PR_BIT_ART_MAP].bit)) {
         programbits |= prprogrambits[PR_BIT_ART_MAP].bit;
     } else

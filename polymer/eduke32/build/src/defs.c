@@ -92,6 +92,7 @@ enum scripttoken_t
     T_NOFULLBRIGHTRANGE,
     T_MAPINFO, T_MAPFILE, T_MAPTITLE, T_MAPMD4, T_MHKFILE,
     T_ECHO,
+    T_GLOBALFLAGS,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -277,6 +278,7 @@ static int32_t defsparser(scriptfile *script)
         { "tilefromtexture", T_TILEFROMTEXTURE  },
         { "mapinfo",         T_MAPINFO          },
         { "echo",            T_ECHO             },
+        { "globalflags",     T_GLOBALFLAGS      },
     };
 
     while (1)
@@ -2207,6 +2209,12 @@ static int32_t defsparser(scriptfile *script)
             char *string = NULL;
             scriptfile_getstring(script,&string);
             initprintf("%s\n",string);
+        }
+        break;
+
+        case T_GLOBALFLAGS:
+        {
+            if (scriptfile_getnumber(script,&globalflags)) break;
         }
         break;
 

@@ -109,7 +109,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
         if ((si = hicfindskybox(dapicnum, dapalnum)) == NULL)
             return NULL;
 
-    if (!r_usetileshades || getrendermode() != REND_POLYMOST)
+    if (!r_usetileshades || (globalflags & GLOBAL_NO_GL_TILESHADES) || getrendermode() != REND_POLYMOST)
         dashade = 0;
 
     if (!si)
