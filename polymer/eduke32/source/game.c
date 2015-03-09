@@ -285,6 +285,10 @@ int32_t textsc(int32_t sc)
     else if (xdim <= 1024) return scale(sc,min(350,ud.textscale),100);
     return scale(sc,ud.textscale,100);
 }
+static int32_t gtextsc(int32_t sc)
+{
+    return scale(sc,ud.textscale,400);
+}
 
 static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
@@ -3841,31 +3845,26 @@ void G_DisplayRest(int32_t smoothratio)
     G_PrintFPS();
 
     // JBF 20040124: display level stats in screen corner
-    if ((ud.overhead_on != 2 && ud.levelstats) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[myconnectindex].ps->i, myconnectindex) == 0)
+    if (ud.overhead_on != 2 && ud.levelstats && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[myconnectindex].ps->i, myconnectindex) == 0)
     {
         DukePlayer_t const * const myps = g_player[myconnectindex].ps;
 
+        i = 198<<16;
+
         if (ud.screen_size == 4)
-		{
-			if (ud.althud == 2)
-				i = 2;
-			else i = sbarsc(ud.althud ? tilesiz[BIGALPHANUM].y+10 : tilesiz[INVENTORYBOX].y+2);
-		}
+        {
+            if (ud.althud != 2)
+                i -= sbarsc(ud.althud ? (tilesiz[BIGALPHANUM].y+8)<<16 : tilesiz[INVENTORYBOX].y<<16);
+        }
         else if (ud.screen_size > 2)
-            i = sbarsc(tilesiz[BOTTOMSTATUSBAR].y+1);
-        else
-            i = 2;
-
-        j = scale(2,ud.config.ScreenWidth,320);
-
+            i -= sbarsc(tilesiz[BOTTOMSTATUSBAR].y<<16);
 
         Bsprintf(tempbuf,"T:^15%d:%02d.%02d",
                  (myps->player_par/(REALGAMETICSPERSEC*60)),
                  (myps->player_par/REALGAMETICSPERSEC)%60,
                  ((myps->player_par%REALGAMETICSPERSEC)*33)/10
             );
-        G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),
-                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536, 0);
+        G_ScreenText(STARTALPHANUM, 2<<16, i-gtextsc(21<<16), gtextsc(65536), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, 8<<16, 0, TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
 
         if (ud.player_skill > 3 || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_PLAYERSFRIENDLY)))
             Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY))?
@@ -3881,16 +3880,12 @@ void G_DisplayRest(int32_t smoothratio)
                          myps->max_actors_killed>myps->actors_killed?
                          myps->max_actors_killed:myps->actors_killed);
         }
-
-        G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(14),
-                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536, 0);
+        G_ScreenText(STARTALPHANUM, 2<<16, i-gtextsc(14<<16), gtextsc(65536), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, 8<<16, 0, TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
 
         if (myps->secret_rooms == myps->max_secret_rooms)
             Bsprintf(tempbuf,"S:%d/%d", myps->secret_rooms, myps->max_secret_rooms);
         else Bsprintf(tempbuf,"S:^15%d/%d", myps->secret_rooms, myps->max_secret_rooms);
-
-        G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(7),
-                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536, 0);
+        G_ScreenText(STARTALPHANUM, 2<<16, i-gtextsc(7<<16), gtextsc(65536), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, 8<<16, 0, TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
     }
 
     if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
