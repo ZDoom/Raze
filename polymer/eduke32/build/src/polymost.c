@@ -1527,7 +1527,7 @@ static void drawpoly(vec2f_t *dpxy, int32_t n, int32_t method)
             {
                 if (pth && (pth->flags & PTH_HIGHTILE))
                 {
-                    if (pth->palnum != globalpal)
+                    if (pth->palnum != globalpal || (hictinting[globalpal].f & HICTINT_APPLYOVERALTPAL))
                         hictinting_apply(pc, globalpal);
 
                     if (have_basepal_tint())

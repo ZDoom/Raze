@@ -36,6 +36,9 @@ static pthtyp *texcache_tryart(int32_t dapicnum, int32_t dapalnum, int32_t dasha
     const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
     pthtyp *pth;
 
+    if ((hictinting[dapalnum].f & HICTINT_USEONART) && !(hictinting[dapalnum].f & HICTINT_APPLYOVERPALSWAP))
+        dapalnum = 0;
+
     // load from art
     for (pth=texcache.list[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && pth->shade == dashade && 
