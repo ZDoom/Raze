@@ -2009,14 +2009,14 @@ static void G_DrawStatusBar(int32_t snum)
 			int32_t hudoffset = althud == 2 ? 32 : 200;
             static int32_t ammo_sprites[MAX_WEAPONS];
 
-            if (ammo_sprites[0] == 0)
+            if (EDUKE32_PREDICT_FALSE(ammo_sprites[0] == 0))
             {
                 /* this looks stupid but it lets us initialize static memory to dynamic values
                    these values can be changed from the CONs with dynamic tile remapping
                    but we don't want to have to recreate the values in memory every time
                    the HUD is drawn */
 
-                int32_t asprites[MAX_WEAPONS] = { BOOTS, AMMO, SHOTGUNAMMO, BATTERYAMMO,
+                int32_t asprites[MAX_WEAPONS] = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO,
                                                   RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO,
                                                   TRIPBOMBSPRITE, FREEZEAMMO+1, HBOMBAMMO, GROWAMMO
                                                 };
@@ -2045,10 +2045,12 @@ static void G_DrawStatusBar(int32_t snum)
                     lAmount = p->inv_amount[GET_SHIELD];
                 G_DrawAltDigiNum(105,-(hudoffset-22),lAmount,-16,10+16+256);
             }
-			
-            i = (tilesiz[ammo_sprites[p->curr_weapon]].y > 50) ? 16384 : 32768;
 
-            rotatesprite_althudr(57,hudoffset-15,sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512);
+			if (ammo_sprites[p->curr_weapon] >= 0)
+            {
+                i = (tilesiz[ammo_sprites[p->curr_weapon]].y >= 50) ? 16384 : 32768;
+                rotatesprite_althudr(57,hudoffset-15,sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512);
+            }
 
             if (PWEAPON(snum, p->curr_weapon, WorksLike) == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
