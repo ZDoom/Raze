@@ -650,6 +650,18 @@ BFILE *fopenfrompath(const char *fn, const char *mode)
     return h;
 }
 
+#define MAXGROUPFILES 8     // Warning: Fix groupfil if this is changed
+#define MAXOPENFILES 64     // Warning: Fix filehan if this is changed
+
+enum {
+    GRP_RESERVED_ID_START = 254,
+
+    GRP_ZIP = GRP_RESERVED_ID_START,
+    GRP_FILESYSTEM = GRP_RESERVED_ID_START + 1,
+};
+
+EDUKE32_STATIC_ASSERT(MAXGROUPFILES <= GRP_RESERVED_ID_START);
+
 int32_t numgroupfiles = 0;
 static int32_t gnumfiles[MAXGROUPFILES];
 static int32_t groupfil[MAXGROUPFILES] = {-1,-1,-1,-1,-1,-1,-1,-1};
@@ -657,7 +669,7 @@ static int32_t groupfilpos[MAXGROUPFILES];
 static char *gfilelist[MAXGROUPFILES];
 static int32_t *gfileoffs[MAXGROUPFILES];
 
-static char filegrp[MAXOPENFILES];
+static uint8_t filegrp[MAXOPENFILES];
 static int32_t filepos[MAXOPENFILES];
 static intptr_t filehan[MAXOPENFILES] =
 {
@@ -666,13 +678,14 @@ static intptr_t filehan[MAXOPENFILES] =
     -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
     -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
 };
+
 #ifdef WITHKPLIB
 static char filenamsav[MAXOPENFILES][260];
 static int32_t kzcurhand = -1;
 
 int32_t cache1d_file_fromzip(int32_t fil)
 {
-    return (filegrp[fil] == 254);
+    return (filegrp[fil] == GRP_ZIP);
 }
 #endif
 
@@ -777,7 +790,7 @@ void uninitsinglegroupfile(int32_t grphandle)
     // fix up the open files that need attention
     for (i=0; i<MAXOPENFILES; i++)
     {
-        if (filegrp[i] >= 254)         // external file (255) or ZIPped file (254)
+        if (filegrp[i] >= GRP_RESERVED_ID_START)         // external file or ZIPped file
             continue;
         else if (filegrp[i] == grpnum)   // close file in group we closed
             filehan[i] = -1;
@@ -803,7 +816,7 @@ void uninitgroupfile(void)
     // JBF 20040111: "close" any files open in groups
     for (i=0; i<MAXOPENFILES; i++)
     {
-        if (filegrp[i] < 254)   // JBF 20040130: not external or ZIPped
+        if (filegrp[i] < GRP_RESERVED_ID_START)   // JBF 20040130: not external or ZIPped
             filehan[i] = -1;
     }
 }
@@ -921,7 +934,7 @@ int32_t kopen4load(const char *filename, char searchfirst)
             lastpfn=NULL;
         }
 #endif
-        filegrp[newhandle] = 255;
+        filegrp[newhandle] = GRP_FILESYSTEM;
         filehan[newhandle] = fil;
         filepos[newhandle] = 0;
         return(newhandle);
@@ -942,7 +955,7 @@ int32_t kopen4load(const char *filename, char searchfirst)
     if (searchfirst != 1 && (i = kzipopen(filename)) != 0)
     {
         kzcurhand = newhandle;
-        filegrp[newhandle] = 254;
+        filegrp[newhandle] = GRP_ZIP;
         filehan[newhandle] = i;
         filepos[newhandle] = 0;
         strcpy(filenamsav[newhandle],filename);
@@ -989,9 +1002,9 @@ int32_t kread(int32_t handle, void *buffer, int32_t leng)
     int32_t filenum = filehan[handle];
     int32_t groupnum = filegrp[handle];
 
-    if (groupnum == 255) return(Bread(filenum,buffer,leng));
+    if (groupnum == GRP_FILESYSTEM) return(Bread(filenum,buffer,leng));
 #ifdef WITHKPLIB
-    else if (groupnum == 254)
+    else if (groupnum == GRP_ZIP)
     {
         if (kzcurhand != handle)
         {
@@ -1028,9 +1041,9 @@ int32_t klseek(int32_t handle, int32_t offset, int32_t whence)
 
     groupnum = filegrp[handle];
 
-    if (groupnum == 255) return(Blseek(filehan[handle],offset,whence));
+    if (groupnum == GRP_FILESYSTEM) return(Blseek(filehan[handle],offset,whence));
 #ifdef WITHKPLIB
-    else if (groupnum == 254)
+    else if (groupnum == GRP_ZIP)
     {
         if (kzcurhand != handle)
         {
@@ -1066,13 +1079,13 @@ int32_t kfilelength(int32_t handle)
     int32_t i, groupnum;
 
     groupnum = filegrp[handle];
-    if (groupnum == 255)
+    if (groupnum == GRP_FILESYSTEM)
     {
         // return(filelength(filehan[handle]))
         return Bfilelength(filehan[handle]);
     }
 #ifdef WITHKPLIB
-    else if (groupnum == 254)
+    else if (groupnum == GRP_ZIP)
     {
         if (kzcurhand != handle)
         {
@@ -1092,9 +1105,9 @@ int32_t ktell(int32_t handle)
 {
     int32_t groupnum = filegrp[handle];
 
-    if (groupnum == 255) return(Blseek(filehan[handle],0,BSEEK_CUR));
+    if (groupnum == GRP_FILESYSTEM) return(Blseek(filehan[handle],0,BSEEK_CUR));
 #ifdef WITHKPLIB
-    else if (groupnum == 254)
+    else if (groupnum == GRP_ZIP)
     {
         if (kzcurhand != handle)
         {
@@ -1114,9 +1127,9 @@ int32_t ktell(int32_t handle)
 void kclose(int32_t handle)
 {
     if (handle < 0) return;
-    if (filegrp[handle] == 255) Bclose(filehan[handle]);
+    if (filegrp[handle] == GRP_FILESYSTEM) Bclose(filehan[handle]);
 #ifdef WITHKPLIB
-    else if (filegrp[handle] == 254)
+    else if (filegrp[handle] == GRP_ZIP)
     {
         kzclose();
         kzcurhand = -1;
