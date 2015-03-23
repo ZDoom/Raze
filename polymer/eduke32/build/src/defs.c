@@ -93,6 +93,7 @@ enum scripttoken_t
     T_MAPINFO, T_MAPFILE, T_MAPTITLE, T_MAPMD4, T_MHKFILE,
     T_ECHO,
     T_GLOBALFLAGS,
+    T_RENAMEFILE,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -279,6 +280,7 @@ static int32_t defsparser(scriptfile *script)
         { "mapinfo",         T_MAPINFO          },
         { "echo",            T_ECHO             },
         { "globalflags",     T_GLOBALFLAGS      },
+        { "renamefile",      T_RENAMEFILE       },
     };
 
     while (1)
@@ -2215,6 +2217,15 @@ static int32_t defsparser(scriptfile *script)
         case T_GLOBALFLAGS:
         {
             if (scriptfile_getnumber(script,&globalflags)) break;
+        }
+        break;
+
+        case T_RENAMEFILE:
+        {
+            char *filename = NULL, *newname = NULL;
+            if (scriptfile_getstring(script,&filename)) break;
+            if (scriptfile_getstring(script,&newname)) break;
+            krename(filename, newname);
         }
         break;
 

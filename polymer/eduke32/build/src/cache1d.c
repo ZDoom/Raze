@@ -1039,6 +1039,40 @@ static int32_t kopen_internal(const char *filename, char **lastpfn, char searchf
     return -1;
 }
 
+void krename(const char *filename, const char *newname)
+{
+    int32_t i, j, k;
+    char bad, *gfileptr;
+
+    for (k=numgroupfiles-1; k>=0; k--)
+    {
+        if (groupfil[k] >= 0)
+        {
+            for (i=gnumfiles[k]-1; i>=0; i--)
+            {
+                gfileptr = (char *)&gfilelist[k][i<<4];
+
+                bad = 0;
+                for (j=0; j<13; j++)
+                {
+                    if (!filename[j]) break;
+                    if (toupperlookup[filename[j]] != toupperlookup[gfileptr[j]])
+                    {
+                        bad = 1;
+                        break;
+                    }
+                }
+                if (bad) continue;
+                if (j<13 && gfileptr[j]) continue;   // JBF: because e1l1.map might exist before e1l1
+                if (j==13 && filename[j]) continue;   // JBF: long file name
+
+                Bstrncpy(gfileptr, newname, 12);
+                return;
+            }
+        }
+    }
+}
+
 int32_t kopen4load(const char *filename, char searchfirst)
 {
     int32_t newhandle = MAXOPENFILES-1;
