@@ -598,25 +598,21 @@ int32_t findfrompath(const char *fn, char **where)
 # define FILENAME_CASE_CHECK
 #endif
 
-#ifdef FILENAME_CASE_CHECK
-// don't free pfn if !=0 AND we Bopen()'ed the file successfully
-static int32_t dont_free_pfn;
-static char *lastpfn;
-#endif
+static int32_t openfrompath_internal(const char *fn, char **where, int32_t flags, int32_t mode)
+{
+    if (findfrompath(fn, where) < 0)
+        return -1;
+
+    return Bopen(*where, flags, mode);
+}
 
 int32_t openfrompath(const char *fn, int32_t flags, int32_t mode)
 {
-    char *pfn;
-    int32_t h;
+    char *pfn = NULL;
 
-    if (findfrompath(fn, &pfn) < 0) return -1;
+    int32_t h = openfrompath_internal(fn, &pfn, flags, mode);
 
-    h = Bopen(pfn, flags, mode);
-#ifdef FILENAME_CASE_CHECK
-    if (h>=0 && dont_free_pfn)
-        lastpfn = pfn;
-    else
-#endif
+    if (pfn)
         Bfree(pfn);
 
     return h;
@@ -664,8 +660,9 @@ EDUKE32_STATIC_ASSERT(MAXGROUPFILES <= GRP_RESERVED_ID_START);
 
 int32_t numgroupfiles = 0;
 static int32_t gnumfiles[MAXGROUPFILES];
-static int32_t groupfil[MAXGROUPFILES] = {-1,-1,-1,-1,-1,-1,-1,-1};
+static intptr_t groupfil[MAXGROUPFILES] = {-1,-1,-1,-1,-1,-1,-1,-1};
 static int32_t groupfilpos[MAXGROUPFILES];
+static uint8_t groupfilgrp[MAXGROUPFILES];
 static char *gfilelist[MAXGROUPFILES];
 static int32_t *gfileoffs[MAXGROUPFILES];
 
@@ -689,60 +686,66 @@ int32_t cache1d_file_fromzip(int32_t fil)
 }
 #endif
 
+static int32_t kopen_internal(const char *filename, char **lastpfn, char searchfirst, char checkcase, char tryzip, int32_t newhandle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos);
+static int32_t kread_grp(int32_t handle, void *buffer, int32_t leng);
+static int32_t klseek_grp(int32_t handle, int32_t offset, int32_t whence);
+static void kclose_grp(int32_t handle);
+
 int32_t initgroupfile(const char *filename)
 {
     char buf[16];
-    int32_t i, j, k;
-#ifdef WITHKPLIB
-    char *zfn;
-#endif
 
     // translate all backslashes (0x5c) to forward slashes (0x2f)
     toupperlookup[0x5c] = 0x2f;
 
+    if (filename == NULL)
+        return -1;
+
+    // Technically you should be able to load more zips even if your GRPs are maxed out,
+    // but this system is already enough of a disaster.
+    if (numgroupfiles >= MAXGROUPFILES)
+        return -1;
+
+    char *zfn = NULL;
+
+    if (kopen_internal(filename, &zfn, 0, 0, 0, numgroupfiles, groupfilgrp, groupfil, groupfilpos) < 0)
+        return -1;
+
 #ifdef WITHKPLIB
-    if (findfrompath(filename, &zfn) < 0) return -1;
-
-    // check to see if the file passed is a ZIP and pass it on to kplib if it is
-    i = Bopen(zfn,BO_BINARY|BO_RDONLY,BS_IREAD);
-    if (i < 0) { Bfree(zfn); return -1; }
-
-    Bread(i, buf, 4);
-    if (buf[0] == 0x50 && buf[1] == 0x4B && buf[2] == 0x03 && buf[3] == 0x04)
+    // check if ZIP
+    if (zfn)
     {
-        Bclose(i);
-        j = kzaddstack(zfn);
-        Bfree(zfn);
-        return j;
-    }
-    Bfree(zfn);
-
-    if (numgroupfiles >= MAXGROUPFILES) return(-1);
-
-    Blseek(i,0,BSEEK_SET);
-    groupfil[numgroupfiles] = i;
-#else
-    groupfil[numgroupfiles] = openfrompath(filename,BO_BINARY|BO_RDONLY,BS_IREAD);
-    if (groupfil[numgroupfiles] != -1)
-#endif
-    {
-        groupfilpos[numgroupfiles] = 0;
-        Bread(groupfil[numgroupfiles],buf,16);
-        if (Bmemcmp(buf, "KenSilverman", 12))
+        kread_grp(numgroupfiles, buf, 4);
+        if (buf[0] == 0x50 && buf[1] == 0x4B && buf[2] == 0x03 && buf[3] == 0x04)
         {
-            Bclose(groupfil[numgroupfiles]);
-            groupfil[numgroupfiles] = -1;
-            return(-1);
+            kclose_grp(numgroupfiles);
+
+            kzaddstack(zfn);
+            Bfree(zfn);
+            return 0;
         }
+        klseek_grp(numgroupfiles,0,BSEEK_SET);
+
+        Bfree(zfn);
+    }
+#else
+    if (zfn)
+        Bfree(zfn);
+#endif
+
+    // check if GRP
+    kread_grp(numgroupfiles,buf,16);
+    if (!Bmemcmp(buf, "KenSilverman", 12))
+    {
         gnumfiles[numgroupfiles] = B_LITTLE32(*((int32_t *)&buf[12]));
 
         gfilelist[numgroupfiles] = (char *)Xmalloc(gnumfiles[numgroupfiles]<<4);
         gfileoffs[numgroupfiles] = (int32_t *)Xmalloc((gnumfiles[numgroupfiles]+1)<<2);
 
-        Bread(groupfil[numgroupfiles],gfilelist[numgroupfiles],gnumfiles[numgroupfiles]<<4);
+        kread_grp(numgroupfiles,gfilelist[numgroupfiles],gnumfiles[numgroupfiles]<<4);
 
-        j = 0;
-        for (i=0; i<gnumfiles[numgroupfiles]; i++)
+        int32_t j = (gnumfiles[numgroupfiles]+1)<<4, k;
+        for (int32_t i=0; i<gnumfiles[numgroupfiles]; i++)
         {
             k = B_LITTLE32(*((int32_t *)&gfilelist[numgroupfiles][(i<<4)+12]));
             gfilelist[numgroupfiles][(i<<4)+12] = 0;
@@ -750,53 +753,12 @@ int32_t initgroupfile(const char *filename)
             j += k;
         }
         gfileoffs[numgroupfiles][gnumfiles[numgroupfiles]] = j;
+        numgroupfiles++;
+        return 0;
     }
-    numgroupfiles++;
-    return(groupfil[numgroupfiles-1]);
-}
 
-void uninitsinglegroupfile(int32_t grphandle)
-{
-    int32_t i, grpnum = -1;
-
-    for (i=numgroupfiles-1; i>=0; i--)
-        if (groupfil[i] != -1 && groupfil[i] == grphandle)
-        {
-            Bfree(gfilelist[i]);
-            Bfree(gfileoffs[i]);
-            Bclose(groupfil[i]);
-            groupfil[i] = -1;
-            grpnum = i;
-            break;
-        }
-
-    if (grpnum == -1) return;
-
-    // JBF 20040111
-    numgroupfiles--;
-
-    // move any group files following this one back
-    for (i=grpnum+1; i<MAXGROUPFILES; i++)
-        if (groupfil[i] != -1)
-        {
-            groupfil[i-1]    = groupfil[i];
-            gnumfiles[i-1]   = gnumfiles[i];
-            groupfilpos[i-1] = groupfilpos[i];
-            gfilelist[i-1]   = gfilelist[i];
-            gfileoffs[i-1]   = gfileoffs[i];
-            groupfil[i] = -1;
-        }
-
-    // fix up the open files that need attention
-    for (i=0; i<MAXOPENFILES; i++)
-    {
-        if (filegrp[i] >= GRP_RESERVED_ID_START)         // external file or ZIPped file
-            continue;
-        else if (filegrp[i] == grpnum)   // close file in group we closed
-            filehan[i] = -1;
-        else if (filegrp[i] > grpnum)   // move back a file in a group after the one we closed
-            filegrp[i]--;
-    }
+    kclose_grp(numgroupfiles);
+    return -1;
 }
 
 void uninitgroupfile(void)
@@ -869,56 +831,33 @@ static int32_t check_filename_mismatch(const char *filename, int32_t ofs)
 }
 #endif
 
-int32_t kopen4load(const char *filename, char searchfirst)
+static int32_t kopen_internal(const char *filename, char **lastpfn, char searchfirst, char checkcase, char tryzip, int32_t newhandle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
-    int32_t  j, k, fil, newhandle = MAXOPENFILES-1;
+    int32_t j, k, fil;
     char bad, *gfileptr;
     intptr_t i;
 
-#ifdef FILENAME_CASE_CHECK
-    const int32_t do_case_check = check_filename_casing_fn && check_filename_casing_fn();
-#endif
-
-    if (filename==NULL)
-        return -1;
-
-    while (filehan[newhandle] != -1)
-    {
-        newhandle--;
-        if (newhandle < 0)
-        {
-            Bprintf("TOO MANY FILES OPEN IN FILE GROUPING SYSTEM!");
-            Bexit(0);
-        }
-    }
-
-#ifdef FILENAME_CASE_CHECK
-    dont_free_pfn = do_case_check;
-#endif
-
-    if (searchfirst == 0 && (fil = openfrompath(filename,BO_BINARY|BO_RDONLY,BS_IREAD)) >= 0)
+    if (searchfirst == 0 && (fil = openfrompath_internal(filename, lastpfn, BO_BINARY|BO_RDONLY, BS_IREAD)) >= 0)
     {
 #ifdef FILENAME_CASE_CHECK
-        if (check_filename_casing_fn && check_filename_casing_fn())
+        if (checkcase && check_filename_casing_fn && check_filename_casing_fn())
         {
             int32_t status;
             char *cp, *lastslash;
 
             // convert all slashes to backslashes because SHGetFileInfo()
             // complains else!
-            lastslash = lastpfn;
-            for (cp=lastpfn; *cp; cp++)
+            lastslash = *lastpfn;
+            for (cp=*lastpfn; *cp; cp++)
                 if (*cp=='/')
                 {
                     *cp = '\\';
                     lastslash = cp;
                 }
-            if (lastslash != lastpfn)
+            if (lastslash != *lastpfn)
                 lastslash++;
 
-            status = check_filename_mismatch(lastpfn, lastslash-lastpfn);
-
-            dont_free_pfn = 0;
+            status = check_filename_mismatch(*lastpfn, lastslash-*lastpfn);
 
             if (status == -1)
             {
@@ -929,38 +868,38 @@ int32_t kopen4load(const char *filename, char searchfirst)
                 initprintf("warning: case mismatch: passed \"%s\", real \"%s\"\n",
                            lastslash, shinf.szDisplayName);
             }
-
-            Bfree(lastpfn);
-            lastpfn=NULL;
         }
+#else
+        UNREFERENCED_PARAMETER(checkcase);
 #endif
-        filegrp[newhandle] = GRP_FILESYSTEM;
-        filehan[newhandle] = fil;
-        filepos[newhandle] = 0;
-        return(newhandle);
+        arraygrp[newhandle] = GRP_FILESYSTEM;
+        arrayhan[newhandle] = fil;
+        arraypos[newhandle] = 0;
+        return newhandle;
     }
-
-#ifdef FILENAME_CASE_CHECK
-    dont_free_pfn = 0;
-#endif
 
     for (; toupperlookup[*filename] == '/'; filename++);
 
 #ifdef WITHKPLIB
-    if ((kzcurhand != newhandle) && (kztell() >= 0))
+    if (tryzip)
     {
-        if (kzcurhand >= 0) filepos[kzcurhand] = kztell();
-        kzclose();
+        if ((kzcurhand != newhandle) && (kztell() >= 0))
+        {
+            if (kzcurhand >= 0) arraypos[kzcurhand] = kztell();
+            kzclose();
+        }
+        if (searchfirst != 1 && (i = kzipopen(filename)) != 0)
+        {
+            kzcurhand = newhandle;
+            arraygrp[newhandle] = GRP_ZIP;
+            arrayhan[newhandle] = i;
+            arraypos[newhandle] = 0;
+            strcpy(filenamsav[newhandle],filename);
+            return newhandle;
+        }
     }
-    if (searchfirst != 1 && (i = kzipopen(filename)) != 0)
-    {
-        kzcurhand = newhandle;
-        filegrp[newhandle] = GRP_ZIP;
-        filehan[newhandle] = i;
-        filepos[newhandle] = 0;
-        strcpy(filenamsav[newhandle],filename);
-        return newhandle;
-    }
+#else
+    UNREFERENCED_PARAMETER(tryzip);
 #endif
 
     for (k=numgroupfiles-1; k>=0; k--)
@@ -986,21 +925,48 @@ int32_t kopen4load(const char *filename, char searchfirst)
                 if (j<13 && gfileptr[j]) continue;   // JBF: because e1l1.map might exist before e1l1
                 if (j==13 && filename[j]) continue;   // JBF: long file name
 
-                filegrp[newhandle] = k;
-                filehan[newhandle] = i;
-                filepos[newhandle] = 0;
-                return(newhandle);
+                arraygrp[newhandle] = k;
+                arrayhan[newhandle] = i;
+                arraypos[newhandle] = 0;
+                return newhandle;
             }
         }
     }
-    return(-1);
+
+    return -1;
 }
 
-int32_t kread(int32_t handle, void *buffer, int32_t leng)
+int32_t kopen4load(const char *filename, char searchfirst)
 {
-    int32_t i;
-    int32_t filenum = filehan[handle];
-    int32_t groupnum = filegrp[handle];
+    int32_t newhandle = MAXOPENFILES-1;
+
+    if (filename==NULL)
+        return -1;
+
+    while (filehan[newhandle] != -1)
+    {
+        newhandle--;
+        if (newhandle < 0)
+        {
+            Bprintf("TOO MANY FILES OPEN IN FILE GROUPING SYSTEM!");
+            Bexit(0);
+        }
+    }
+
+    char *lastpfn = NULL;
+
+    int32_t h = kopen_internal(filename, &lastpfn, searchfirst, 1, 1, newhandle, filegrp, filehan, filepos);
+
+    if (lastpfn)
+        Bfree(lastpfn);
+
+    return h;
+}
+
+int32_t kread_internal(int32_t handle, void *buffer, int32_t leng, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
+{
+    int32_t filenum = arrayhan[handle];
+    int32_t groupnum = arraygrp[handle];
 
     if (groupnum == GRP_FILESYSTEM) return(Bread(filenum,buffer,leng));
 #ifdef WITHKPLIB
@@ -1008,49 +974,59 @@ int32_t kread(int32_t handle, void *buffer, int32_t leng)
     {
         if (kzcurhand != handle)
         {
-            if (kztell() >= 0) { filepos[kzcurhand] = kztell(); kzclose(); }
+            if (kztell() >= 0) { arraypos[kzcurhand] = kztell(); kzclose(); }
             kzcurhand = handle;
             kzipopen(filenamsav[handle]);
-            kzseek(filepos[handle],SEEK_SET);
+            kzseek(arraypos[handle],SEEK_SET);
         }
         return(kzread(buffer,leng));
     }
 #endif
 
-    if (groupfil[groupnum] != -1)
+    if (EDUKE32_PREDICT_FALSE(groupfil[groupnum] == -1))
+        return 0;
+
+    int32_t rootgroupnum = groupnum;
+    int32_t i = 0;
+    while (groupfilgrp[rootgroupnum] != GRP_FILESYSTEM)
     {
-        i = gfileoffs[groupnum][filenum]+filepos[handle];
-        if (i != groupfilpos[groupnum])
+        i += gfileoffs[groupfilgrp[rootgroupnum]][groupfil[rootgroupnum]];
+        rootgroupnum = groupfilgrp[rootgroupnum];
+    }
+    if (EDUKE32_PREDICT_TRUE(groupfil[rootgroupnum] != -1))
+    {
+        i += gfileoffs[groupnum][filenum]+arraypos[handle];
+        if (i != groupfilpos[rootgroupnum])
         {
-            Blseek(groupfil[groupnum],i+((gnumfiles[groupnum]+1)<<4),BSEEK_SET);
-            groupfilpos[groupnum] = i;
+            Blseek(groupfil[rootgroupnum],i,BSEEK_SET);
+            groupfilpos[rootgroupnum] = i;
         }
-        leng = min(leng,(gfileoffs[groupnum][filenum+1]-gfileoffs[groupnum][filenum])-filepos[handle]);
-        leng = Bread(groupfil[groupnum],buffer,leng);
-        filepos[handle] += leng;
-        groupfilpos[groupnum] += leng;
+        leng = min(leng,(gfileoffs[groupnum][filenum+1]-gfileoffs[groupnum][filenum])-arraypos[handle]);
+        leng = Bread(groupfil[rootgroupnum],buffer,leng);
+        arraypos[handle] += leng;
+        groupfilpos[rootgroupnum] += leng;
         return(leng);
     }
 
     return(0);
 }
 
-int32_t klseek(int32_t handle, int32_t offset, int32_t whence)
+int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
     int32_t i, groupnum;
 
-    groupnum = filegrp[handle];
+    groupnum = arraygrp[handle];
 
-    if (groupnum == GRP_FILESYSTEM) return(Blseek(filehan[handle],offset,whence));
+    if (groupnum == GRP_FILESYSTEM) return(Blseek(arrayhan[handle],offset,whence));
 #ifdef WITHKPLIB
     else if (groupnum == GRP_ZIP)
     {
         if (kzcurhand != handle)
         {
-            if (kztell() >= 0) { filepos[kzcurhand] = kztell(); kzclose(); }
+            if (kztell() >= 0) { arraypos[kzcurhand] = kztell(); kzclose(); }
             kzcurhand = handle;
             kzipopen(filenamsav[handle]);
-            kzseek(filepos[handle],SEEK_SET);
+            kzseek(arraypos[handle],SEEK_SET);
         }
         return(kzseek(offset,whence));
     }
@@ -1061,81 +1037,115 @@ int32_t klseek(int32_t handle, int32_t offset, int32_t whence)
         switch (whence)
         {
         case BSEEK_SET:
-            filepos[handle] = offset; break;
+            arraypos[handle] = offset; break;
         case BSEEK_END:
-            i = filehan[handle];
-            filepos[handle] = (gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i])+offset;
+            i = arrayhan[handle];
+            arraypos[handle] = (gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i])+offset;
             break;
         case BSEEK_CUR:
-            filepos[handle] += offset; break;
+            arraypos[handle] += offset; break;
         }
-        return(filepos[handle]);
+        return(arraypos[handle]);
     }
     return(-1);
 }
 
-int32_t kfilelength(int32_t handle)
+int32_t kfilelength_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
     int32_t i, groupnum;
 
-    groupnum = filegrp[handle];
+    groupnum = arraygrp[handle];
     if (groupnum == GRP_FILESYSTEM)
     {
-        // return(filelength(filehan[handle]))
-        return Bfilelength(filehan[handle]);
+        // return(filelength(arrayhan[handle]))
+        return Bfilelength(arrayhan[handle]);
     }
 #ifdef WITHKPLIB
     else if (groupnum == GRP_ZIP)
     {
         if (kzcurhand != handle)
         {
-            if (kztell() >= 0) { filepos[kzcurhand] = kztell(); kzclose(); }
+            if (kztell() >= 0) { arraypos[kzcurhand] = kztell(); kzclose(); }
             kzcurhand = handle;
             kzipopen(filenamsav[handle]);
-            kzseek(filepos[handle],SEEK_SET);
+            kzseek(arraypos[handle],SEEK_SET);
         }
         return kzfilelength();
     }
 #endif
-    i = filehan[handle];
+    i = arrayhan[handle];
     return(gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i]);
 }
 
-int32_t ktell(int32_t handle)
+int32_t ktell_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
-    int32_t groupnum = filegrp[handle];
+    int32_t groupnum = arraygrp[handle];
 
-    if (groupnum == GRP_FILESYSTEM) return(Blseek(filehan[handle],0,BSEEK_CUR));
+    if (groupnum == GRP_FILESYSTEM) return(Blseek(arrayhan[handle],0,BSEEK_CUR));
 #ifdef WITHKPLIB
     else if (groupnum == GRP_ZIP)
     {
         if (kzcurhand != handle)
         {
-            if (kztell() >= 0) { filepos[kzcurhand] = kztell(); kzclose(); }
+            if (kztell() >= 0) { arraypos[kzcurhand] = kztell(); kzclose(); }
             kzcurhand = handle;
             kzipopen(filenamsav[handle]);
-            kzseek(filepos[handle],SEEK_SET);
+            kzseek(arraypos[handle],SEEK_SET);
         }
         return kztell();
     }
 #endif
     if (groupfil[groupnum] != -1)
-        return filepos[handle];
+        return arraypos[handle];
     return(-1);
 }
 
-void kclose(int32_t handle)
+void kclose_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan)
 {
     if (handle < 0) return;
-    if (filegrp[handle] == GRP_FILESYSTEM) Bclose(filehan[handle]);
+    if (arraygrp[handle] == GRP_FILESYSTEM) Bclose(arrayhan[handle]);
 #ifdef WITHKPLIB
-    else if (filegrp[handle] == GRP_ZIP)
+    else if (arraygrp[handle] == GRP_ZIP)
     {
         kzclose();
         kzcurhand = -1;
     }
 #endif
-    filehan[handle] = -1;
+    arrayhan[handle] = -1;
+}
+
+int32_t kread(int32_t handle, void *buffer, int32_t leng)
+{
+    return kread_internal(handle, buffer, leng, filegrp, filehan, filepos);
+}
+int32_t klseek(int32_t handle, int32_t offset, int32_t whence)
+{
+    return klseek_internal(handle, offset, whence, filegrp, filehan, filepos);
+}
+int32_t kfilelength(int32_t handle)
+{
+    return kfilelength_internal(handle, filegrp, filehan, filepos);
+}
+int32_t ktell(int32_t handle)
+{
+    return ktell_internal(handle, filegrp, filehan, filepos);
+}
+void kclose(int32_t handle)
+{
+    return kclose_internal(handle, filegrp, filehan);
+}
+
+static int32_t kread_grp(int32_t handle, void *buffer, int32_t leng)
+{
+    return kread_internal(handle, buffer, leng, groupfilgrp, groupfil, groupfilpos);
+}
+static int32_t klseek_grp(int32_t handle, int32_t offset, int32_t whence)
+{
+    return klseek_internal(handle, offset, whence, groupfilgrp, groupfil, groupfilpos);
+}
+static void kclose_grp(int32_t handle)
+{
+    return kclose_internal(handle, groupfilgrp, groupfil);
 }
 
 static int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, int32_t source)
