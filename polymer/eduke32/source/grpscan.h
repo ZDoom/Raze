@@ -63,7 +63,7 @@ typedef struct grpfile {
     int32_t dependency;
     char *scriptname;
     char *defname;
-    void (*postprocessing)(void);
+    void (*postprocessing)(int32_t);
 	struct grpfile *next;
 } grpfile_type;
 

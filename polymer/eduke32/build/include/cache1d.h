@@ -39,7 +39,7 @@ int32_t	kfilelength(int32_t handle);
 int32_t	ktell(int32_t handle);
 void	kclose(int32_t handle);
 
-void krename(const char *filename, const char *newname);
+void krename(int32_t crcval, int32_t filenum, const char *newname);
 
 typedef struct { intptr_t *hand; int32_t leng; char *lock ; } cactype;
 

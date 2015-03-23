@@ -805,6 +805,7 @@ int32_t startwin_run(void)
             {
                 g_gameNamePtr = grp->name;
                 g_dependencyCRC = grp->dependency;
+                g_groupCRC = grp->crcval;
                 g_postprocessing = grp->postprocessing;
 
                 if (grp->scriptname && g_scriptNamePtr == NULL)

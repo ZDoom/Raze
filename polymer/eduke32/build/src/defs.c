@@ -2222,10 +2222,12 @@ static int32_t defsparser(scriptfile *script)
 
         case T_RENAMEFILE:
         {
-            char *filename = NULL, *newname = NULL;
-            if (scriptfile_getstring(script,&filename)) break;
+            int32_t crcval = 0, filenum = -1;
+            char *newname = NULL;
+            if (scriptfile_getnumber(script,&crcval)) break;
+            if (scriptfile_getnumber(script,&filenum)) break;
             if (scriptfile_getstring(script,&newname)) break;
-            krename(filename, newname);
+            krename(crcval, filenum, newname);
         }
         break;
 
