@@ -2399,6 +2399,22 @@ int32_t C_AllocQuote(int32_t qnum)
     return 0;
 }
 
+static void C_ReplaceQuoteSubstring(const size_t q, char const * const query, char const * const replacement)
+{
+    size_t querylength = Bstrlen(query);
+
+    for (int i = MAXQUOTELEN - querylength - 2; i >= 0; i--)
+        if (Bstrncmp(&ScriptQuotes[q][i], query, querylength) == 0)
+        {
+            Bmemset(tempbuf, 0, sizeof(tempbuf));
+            Bstrncpy(tempbuf, ScriptQuotes[q], i);
+            Bstrcat(tempbuf, replacement);
+            Bstrcat(tempbuf, &ScriptQuotes[q][i + querylength]);
+            Bstrncpy(ScriptQuotes[q], tempbuf, MAXQUOTELEN - 1);
+            i = MAXQUOTELEN - querylength - 2;
+        }
+}
+
 void C_InitQuotes(void)
 {
     for (int i = 0; i < 128; i++) C_AllocQuote(i);
@@ -2406,16 +2422,13 @@ void C_InitQuotes(void)
 #ifdef EDUKE32_TOUCH_DEVICES
     ScriptQuotes[QUOTE_DEAD] = 0;
 #else
-    for (int i = MAXQUOTELEN - 7; i >= 0; i--)
-        if (Bstrncmp(&ScriptQuotes[QUOTE_DEAD][i], "SPACE", 5) == 0)
-        {
-            Bmemset(tempbuf, 0, sizeof(tempbuf));
-            Bstrncpy(tempbuf, ScriptQuotes[QUOTE_DEAD], i);
-            Bstrcat(tempbuf, "USE");
-            Bstrcat(tempbuf, &ScriptQuotes[QUOTE_DEAD][i + 5]);
-            Bstrncpy(ScriptQuotes[QUOTE_DEAD], tempbuf, MAXQUOTELEN - 1);
-            i = MAXQUOTELEN - 7;
-        }
+    char const * const replacement_USE = "USE";
+    if (!Bstrstr(ScriptQuotes[QUOTE_DEAD], replacement_USE))
+    {
+        C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", replacement_USE);
+        C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", replacement_USE);
+        C_ReplaceQuoteSubstring(QUOTE_DEAD, "ANY BUTTON", replacement_USE);
+    }
 #endif
 
     // most of these are based on Blood, obviously
