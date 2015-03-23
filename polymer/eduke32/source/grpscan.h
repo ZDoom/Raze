@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MAXLISTNAMELEN 32
 
 // List of internally-known GRP files
-#define NUMGRPFILES 15
-
 #define DUKE13_CRC  (int32_t)0xBBC9CE44
 #define DUKEKR_CRC  (int32_t)0xAA4F6A40
 #define DUKE15_CRC  (int32_t)0xFD3DCFF1
@@ -37,7 +35,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define DUKE11_CRC  (int32_t)0x912E1E8D
 #define DUKESW_CRC  (int32_t)0x983AD923
 #define DUKEMD_CRC  (int32_t)0xC5F71561
+#define DUKEDC13_CRC (int32_t)0xA9242158
+#define DUKEDCPP_CRC (int32_t)0xB79D997F
 #define DUKEDC_CRC  (int32_t)0xA8CF80DA
+#define VACA13_CRC  (int32_t)0x4A2DBB62
+#define VACAPP_CRC  (int32_t)0x2F4FCCEE
+#define VACA15_CRC  (int32_t)0xB62B42FD
 #define DUKECB_CRC  (int32_t)0x18F01C5B
 #define DUKENW_CRC  (int32_t)0xF1CAE8E4
 #define NAM_CRC     (int32_t)0x75C1F07B
@@ -60,11 +63,11 @@ typedef struct grpfile {
     int32_t dependency;
     char *scriptname;
     char *defname;
+    void (*postprocessing)(void);
 	struct grpfile *next;
 } grpfile_type;
 
-// extern struct grpfile grpfiles[NUMGRPFILES];
-extern struct grpfile internalgrpfiles[NUMGRPFILES];
+extern struct grpfile internalgrpfiles[];
 extern struct grpfile *foundgrps;
 extern struct grpfile *listgrps;
 

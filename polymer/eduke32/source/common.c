@@ -26,6 +26,7 @@ int32_t g_gameType = GAMEFLAG_DUKE;
 
 int32_t g_dependencyCRC = 0;
 int32_t g_usingAddon = 0;
+void (*g_postprocessing)(void);
 
 // g_gameNamePtr can point to one of: grpfiles[].name (string literal), string
 // literal, malloc'd block (XXX: possible leak)
@@ -457,6 +458,9 @@ void G_LoadGroups(int32_t autoload)
         initprintf("Warning: could not find main data file \"%s\"!\n", grpfile);
     else
         initprintf("Using \"%s\" as main game data file.\n", grpfile);
+
+    if (g_postprocessing)
+        g_postprocessing();
 
     if (autoload)
     {

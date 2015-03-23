@@ -27,6 +27,7 @@ extern int32_t g_gameType;
 
 extern int32_t g_usingAddon;
 extern int32_t g_dependencyCRC;
+extern void (*g_postprocessing)(void);
 
 #define DUKE                (g_gameType & GAMEFLAG_DUKE)
 #define NAM                 (g_gameType & GAMEFLAG_NAM)

@@ -31,26 +31,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "grpscan.h"
 
+static void process_vaca13(void);
+static void process_vacapp15(void);
+
 // custom GRP support for the startup window, file format reflects the structure below
 #define GAMELISTFILE "games.list"
-//    name                                     crc          size      flags                         dependency  scriptname     defname
-struct grpfile internalgrpfiles[NUMGRPFILES] =
+//    name                                     crc          size      flags                         dependency  scriptname     defname           postprocessing
+struct grpfile internalgrpfiles[] =
 {
-    { "Duke Nukem 3D",                         DUKE13_CRC,  26524524, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D (South Korean Censored)", DUKEKR_CRC,  26385383, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D: Atomic Edition",         DUKE15_CRC,  44356548, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D: Plutonium Pak",          DUKEPP_CRC,  44348015, GAMEFLAG_DUKE,                         0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D Shareware 0.99",          DUKE099_CRC, 9690241,  GAMEFLAG_DUKE|GAMEFLAG_DUKEBETA,       0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D Shareware 1.0",           DUKE10_CRC,  10429258, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D Shareware 1.1",           DUKE11_CRC,  10442980, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D Shareware 1.3D",          DUKESW_CRC,  11035779, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL,          NULL,        NULL },
-    { "Duke Nukem 3D Mac Demo",                DUKEMD_CRC,  10444391, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL,          NULL,        NULL },
-    { "Duke it out in D.C.",                   DUKEDC_CRC,  8410183 , GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL,          NULL,        NULL },
-    { "Duke Caribbean: Life's a Beach",        DUKECB_CRC,  22213819, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL,          NULL,        NULL },
-    { "Duke: Nuclear Winter",                  DUKENW_CRC,  16169365, GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_NWINTER, DUKE15_CRC, "NWINTER.CON", NULL,        NULL },
-    { "NAM",                                   NAM_CRC,     43448927, GAMEFLAG_NAM,                          0, NULL,          NULL,        NULL },
-    { "NAPALM",                                NAPALM_CRC,  44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,          0, NULL,          NULL,        NULL },
-    { "WWII GI",                               WW2GI_CRC,   77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,           0, NULL,          NULL,        NULL },
+    { "Duke Nukem 3D",                         DUKE13_CRC,  26524524, GAMEFLAG_DUKE,                         0, NULL, NULL, NULL, NULL },
+    { "Duke Nukem 3D (South Korean Censored)", DUKEKR_CRC,  26385383, GAMEFLAG_DUKE,                         0, NULL, NULL, NULL, NULL },
+    { "Duke Nukem 3D: Atomic Edition",         DUKE15_CRC,  44356548, GAMEFLAG_DUKE,                         0, NULL, NULL, NULL, NULL },
+    { "Duke Nukem 3D: Plutonium Pak",          DUKEPP_CRC,  44348015, GAMEFLAG_DUKE,                         0, NULL, NULL, NULL, NULL },
+    { "Duke Nukem 3D Shareware 0.99",          DUKE099_CRC, 9690241,  GAMEFLAG_DUKE|GAMEFLAG_DUKEBETA,       0, NULL, NULL, NULL, NULL },
+    { "Duke Nukem 3D Shareware 1.0",           DUKE10_CRC,  10429258, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL, NULL, NULL, NULL },
+    { "Duke Nukem 3D Shareware 1.1",           DUKE11_CRC,  10442980, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL, NULL, NULL, NULL },
+    { "Duke Nukem 3D Shareware 1.3D",          DUKESW_CRC,  11035779, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL, NULL, NULL, NULL },
+    { "Duke Nukem 3D Mac Demo",                DUKEMD_CRC,  10444391, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL, NULL, NULL, NULL },
+    { "Duke it out in D.C. (1.3D)",            DUKEDC13_CRC, 7926624, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE13_CRC, NULL, NULL, NULL, NULL },
+    { "Duke it out in D.C.",                   DUKEDCPP_CRC, 8225517, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, NULL, NULL, NULL },
+    { "Duke it out in D.C.",                   DUKEDC_CRC,  8410183,  GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, NULL, NULL, NULL },
+    { "Duke Caribbean: Life's a Beach (1.3D)", VACA13_CRC,  23559381, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE13_CRC, NULL, NULL, process_vaca13, NULL },
+    { "Duke Caribbean: Life's a Beach (PPak)", VACAPP_CRC,  22551333, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKEPP_CRC, NULL, NULL, process_vacapp15, NULL },
+    { "Duke Caribbean: Life's a Beach",        VACA15_CRC,  22521880, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, NULL, process_vacapp15, NULL },
+    { "Duke Caribbean: Life's a Beach",        DUKECB_CRC,  22213819, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, NULL, NULL, NULL },
+    { "Duke: Nuclear Winter",                  DUKENW_CRC,  16169365, GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_NWINTER, DUKE15_CRC, "NWINTER.CON", NULL, NULL, NULL },
+    { "NAM",                                   NAM_CRC,     43448927, GAMEFLAG_NAM,                          0, NULL, NULL, NULL, NULL },
+    { "NAPALM",                                NAPALM_CRC,  44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,          0, NULL, NULL, NULL, NULL },
+    { "WWII GI",                               WW2GI_CRC,   77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,           0, NULL, NULL, NULL, NULL },
 };
 struct grpfile *foundgrps = NULL;
 struct grpfile *listgrps = NULL;
@@ -74,7 +82,12 @@ static void LoadList(const char * filename)
     scriptfile_addsymbolvalue("DUKE15_CRC", DUKE15_CRC);
     scriptfile_addsymbolvalue("DUKEPP_CRC", DUKEPP_CRC);
     scriptfile_addsymbolvalue("DUKE13_CRC", DUKE13_CRC);
+    scriptfile_addsymbolvalue("DUKEDC13_CRC", DUKEDC13_CRC);
+    scriptfile_addsymbolvalue("DUKEDCPP_CRC", DUKEDCPP_CRC);
     scriptfile_addsymbolvalue("DUKEDC_CRC", DUKEDC_CRC);
+    scriptfile_addsymbolvalue("VACA13_CRC", VACA13_CRC);
+    scriptfile_addsymbolvalue("VACAPP_CRC", VACAPP_CRC);
+    scriptfile_addsymbolvalue("VACA15_CRC", VACA15_CRC);
     scriptfile_addsymbolvalue("DUKECB_CRC", DUKECB_CRC);
     scriptfile_addsymbolvalue("DUKENW_CRC", DUKENW_CRC);
     scriptfile_addsymbolvalue("NAM_CRC", NAM_CRC);
@@ -181,10 +194,8 @@ static void LoadGameList(void)
 {
     struct grpfile *fg;
     CACHE1D_FIND_REC *srch, *sidx;
-    
-    int32_t i;
 
-    for (i = 0; i<NUMGRPFILES; i++)
+    for (size_t i = 0; i < ARRAY_SIZE(internalgrpfiles); i++)
     {
         fg = (struct grpfile *)Xcalloc(1, sizeof(struct grpfile));
 
@@ -199,6 +210,8 @@ static void LoadGameList(void)
 
         if (internalgrpfiles[i].defname)
             fg->defname = dup_filename(internalgrpfiles[i].defname);
+
+        fg->postprocessing = internalgrpfiles[i].postprocessing;
 
         fg->next = listgrps;
         listgrps = fg;
@@ -336,22 +349,16 @@ struct grpfile * FindGroup(int32_t crcval)
     return NULL;
 }
 
-int32_t ScanGroups(void)
+static void ProcessGroups(CACHE1D_FIND_REC *srch)
 {
-    CACHE1D_FIND_REC *srch, *sidx;
+    CACHE1D_FIND_REC *sidx;
     struct grpcache *fg, *fgg;
     struct grpfile *grp;
     char *fn;
     struct Bstat st;
+
 #define BUFFER_SIZE (1024 * 1024 * 8)
     uint8_t *buf = (uint8_t *)Xmalloc(BUFFER_SIZE);
-
-    initprintf("Searching for game data...\n");
-
-    LoadGameList();
-    LoadGroupsCache();
-
-    srch = klistpath("/", "*.grp", CACHE1D_FIND_FILE);
 
     for (sidx = srch; sidx; sidx = sidx->next)
     {
@@ -424,7 +431,28 @@ int32_t ScanGroups(void)
         }
     }
 
+    Bfree(buf);
+}
+
+int32_t ScanGroups(void)
+{
+    CACHE1D_FIND_REC *srch;
+    struct grpcache *fg, *fgg;
+    struct grpfile *grp;
+
+    initprintf("Searching for game data...\n");
+
+    LoadGameList();
+    LoadGroupsCache();
+
+    srch = klistpath("/", "*.grp", CACHE1D_FIND_FILE);
+    ProcessGroups(srch);
     klistfree(srch);
+
+    srch = klistpath("/", "*.ssi", CACHE1D_FIND_FILE);
+    ProcessGroups(srch);
+    klistfree(srch);
+
     FreeGroupsCache();
 
     for (grp = foundgrps; grp; /*grp=grp->next*/)
@@ -480,13 +508,11 @@ int32_t ScanGroups(void)
         }
 //        initprintf("Found %d recognized GRP %s.\n",i,i>1?"files":"file");
 
-        Bfree(buf);
         return 0;
     }
 
     initprintf("Found no recognized game data!\n");
 
-    Bfree(buf);
     return 0;
 }
 
@@ -506,3 +532,144 @@ void FreeGroups(void)
     FreeGameList();
 }
 
+static void process_vaca13(void)
+{
+    krename("ADDREE.COV", "ADDREE.VOC");
+    krename("BALLBOOM.COV", "BALLBOOM.VOC");
+    krename("BARMUSIC.COV", "BARMUSIC.VOC");
+    krename("BCHBALL.COV", "BCHBALL.VOC");
+    krename("BOING.COV", "BOING.VOC");
+    krename("CHACHA.COV", "CHACHA.VOC");
+    krename("CHAINDRV.COV", "CHAINDRV.VOC");
+    krename("CHEAP01.COV", "CHEAP01.VOC");
+    krename("CHEER.COV", "CHEER.VOC");
+    krename("CHNSQRT.COV", "CHNSQRT.VOC");
+    krename("COCOANUT.COV", "COCOANUT.VOC");
+    krename("CRUSH2.COV", "CRUSH2.VOC");
+    krename("DEFLATE2.COV", "DEFLATE2.VOC");
+    krename("DRAGHURT.COV", "DRAGHURT.VOC");
+    krename("DRAGROAM.COV", "DRAGROAM.VOC");
+    krename("DRAGSHOT.COV", "DRAGSHOT.VOC");
+    krename("DUKE01.COV", "DUKE01.VOC");
+    krename("ELEV1.COV", "ELEV1.VOC");
+    krename("GMEOVR05.COV", "GMEOVR05.VOC");
+    krename("GULLDIE.COV", "GULLDIE.VOC");
+    krename("GULLHURT.COV", "GULLHURT.VOC");
+    krename("GULLROAM.COV", "GULLROAM.VOC");
+    krename("GULLSHIT.COV", "GULLSHIT.VOC");
+    krename("HELP04.COV", "HELP04.VOC");
+    krename("ICECONCH.COV", "ICECONCH.VOC");
+    krename("IDLEBOAT.COV", "IDLEBOAT.VOC");
+    krename("KICKHEAD.COV", "KICKHEAD.VOC");
+    krename("LANI05.COV", "LANI05.VOC");
+    krename("LANI08.COV", "LANI08.VOC");
+    krename("LANIDUK2.COV", "LANIDUK2.VOC");
+    krename("MUSCLE01.COV", "MUSCLE01.VOC");
+    krename("MUSCLE04.COV", "MUSCLE04.VOC");
+    krename("MUZAK.COV", "MUZAK.VOC");
+    krename("PINEFALL.COV", "PINEFALL.VOC");
+    krename("POINT07.COV", "POINT07.VOC");
+    krename("POINT08.COV", "POINT08.VOC");
+    krename("RADIO.COV", "RADIO.VOC");
+    krename("RUIN01.COV", "RUIN01.VOC");
+    krename("SCREAM.COV", "SCREAM.VOC");
+    krename("SCREAM04.COV", "SCREAM04.VOC");
+    krename("SCREAM9.COV", "SCREAM9.VOC");
+    krename("SHIPHORN.COV", "SHIPHORN.VOC");
+    krename("SNGLGULL.COV", "SNGLGULL.VOC");
+    krename("SQRT4.COV", "SQRT4.VOC");
+    krename("SQUIRT1.COV", "SQUIRT1.VOC");
+    krename("SSCOOL1.COV", "SSCOOL1.VOC");
+    krename("SSCOOL2.COV", "SSCOOL2.VOC");
+    krename("SSCOOL3.COV", "SSCOOL3.VOC");
+    krename("SSDIE1.COV", "SSDIE1.VOC");
+    krename("SSDIE2.COV", "SSDIE2.VOC");
+    krename("SSNORM01.COV", "SSNORM01.VOC");
+    krename("SSNORM02.COV", "SSNORM02.VOC");
+    krename("SSNORM03.COV", "SSNORM03.VOC");
+    krename("SSNORM04.COV", "SSNORM04.VOC");
+    krename("SSNORM05.COV", "SSNORM05.VOC");
+    krename("SSNORM06.COV", "SSNORM06.VOC");
+    krename("SSNORM07.COV", "SSNORM07.VOC");
+    krename("SSNORM08.COV", "SSNORM08.VOC");
+    krename("SSNORM10.COV", "SSNORM10.VOC");
+    krename("SSNORM11.COV", "SSNORM11.VOC");
+    krename("SSNORM12.COV", "SSNORM12.VOC");
+    krename("SSNORM13.COV", "SSNORM13.VOC");
+    krename("SSNORM14.COV", "SSNORM14.VOC");
+    krename("SSNORM15.COV", "SSNORM15.VOC");
+    krename("SSNORM16.COV", "SSNORM16.VOC");
+    krename("SSNORM17.COV", "SSNORM17.VOC");
+    krename("SSNORM18.COV", "SSNORM18.VOC");
+    krename("SSNORM19.COV", "SSNORM19.VOC");
+    krename("SSNORM20.COV", "SSNORM20.VOC");
+    krename("SSTAUNT1.COV", "SSTAUNT1.VOC");
+    krename("SSTAUNT2.COV", "SSTAUNT2.VOC");
+    krename("SSTAUNT3.COV", "SSTAUNT3.VOC");
+    krename("SSTAUNT4.COV", "SSTAUNT4.VOC");
+    krename("SSTAUNT5.COV", "SSTAUNT5.VOC");
+    krename("SSTAUNT6.COV", "SSTAUNT6.VOC");
+    krename("SSTAUNT7.COV", "SSTAUNT7.VOC");
+    krename("SSTAUNT8.COV", "SSTAUNT8.VOC");
+    krename("SURF.COV", "SURF.VOC");
+    krename("TAN01.COV", "TAN01.VOC");
+    krename("TAN04.COV", "TAN04.VOC");
+    krename("VINESNAP.COV", "VINESNAP.VOC");
+    krename("VOODRUMS.COV", "VOODRUMS.VOC");
+    krename("WIND54.COV", "WIND54.VOC");
+    krename("DOOMSDAY.DIM", "DOOMSDAY.MID");
+    krename("DUKE-O.DIM", "DUKE-O.MID");
+    krename("IRIEPRTY.DIM", "IRIEPRTY.MID");
+    krename("JUNGVEIN.DIM", "JUNGVEIN.MID");
+    krename("PRTYCRUZ.DIM", "PRTYCRUZ.MID");
+    krename("SOL-MAN1.DIM", "SOL-MAN1.MID");
+    krename("CINEOV3.MNA", "CINEOV3.ANM");
+    krename("DUKETEAM.MNA", "DUKETEAM.ANM");
+    krename("BEACHBAB.NOC", "BEACHBAB.CON");
+    krename("BEACHBAL.NOC", "BEACHBAL.CON");
+    krename("BEACHBTH.NOC", "BEACHBTH.CON");
+    krename("DEFS.NOC", "DEFS.CON");
+    krename("DRAGON.NOC", "DRAGON.CON");
+    krename("GAME.NOC", "GAME.CON");
+    krename("SEAGULL.NOC", "SEAGULL.CON");
+    krename("SOUNDS.NOC", "SOUNDS.CON");
+    krename("USER.NOC", "USER.CON");
+    krename("DEMO1.OMD", "DEMO1.DMO");
+    krename("DEMO2.OMD", "DEMO2.DMO");
+    krename("DEMO3.OMD", "DEMO3.DMO");
+    krename("VACA1.PAM", "VACA1.MAP");
+    krename("VACA2.PAM", "VACA2.MAP");
+    krename("VACA3.PAM", "VACA3.MAP");
+    krename("VACA4.PAM", "VACA4.MAP");
+    krename("VACA5.PAM", "VACA5.MAP");
+    krename("VACA6.PAM", "VACA6.MAP");
+    krename("VACA7.PAM", "VACA7.MAP");
+    krename("VACADM1.PAM", "VACADM1.MAP");
+    krename("VACADM2.PAM", "VACADM2.MAP");
+    krename("VACADM3.PAM", "VACADM3.MAP");
+    krename("VACADM4.PAM", "VACADM4.MAP");
+    krename("VACASL.PAM", "VACASL.MAP");
+    krename("TILES000.TRA", "TILES000.ART");
+    krename("TILES001.TRA", "TILES001.ART");
+    krename("TILES003.TRA", "TILES003.ART");
+    krename("TILES005.TRA", "TILES005.ART");
+    krename("TILES006.TRA", "TILES006.ART");
+    krename("TILES007.TRA", "TILES007.ART");
+    krename("TILES008.TRA", "TILES008.ART");
+    krename("TILES009.TRA", "TILES009.ART");
+    krename("TILES010.TRA", "TILES010.ART");
+    krename("TILES012.TRA", "TILES012.ART");
+    krename("TILES014.TRA", "TILES014.ART");
+}
+
+static void process_vacapp15(void)
+{
+    krename("DEFS.NOC", "DEFS.CON");
+    krename("GAME.NOC", "GAME.CON");
+    krename("USER.NOC", "USER.CON");
+    krename("DEMO1.OMD", "DEMO1.DMO");
+    krename("DEMO2.OMD", "DEMO2.DMO");
+    krename("DEMO3.OMD", "DEMO3.DMO");
+
+    initgroupfile("VACATION.PRG");
+}
