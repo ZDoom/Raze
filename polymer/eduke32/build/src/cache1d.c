@@ -693,7 +693,7 @@ static void kclose_grp(int32_t handle);
 
 int32_t initgroupfile(const char *filename)
 {
-    char buf[16];
+    char buf[70];
 
     // translate all backslashes (0x5c) to forward slashes (0x2f)
     toupperlookup[0x5c] = 0x2f;
@@ -751,6 +751,109 @@ int32_t initgroupfile(const char *filename)
             gfilelist[numgroupfiles][(i<<4)+12] = 0;
             gfileoffs[numgroupfiles][i] = j;
             j += k;
+        }
+        gfileoffs[numgroupfiles][gnumfiles[numgroupfiles]] = j;
+        numgroupfiles++;
+        return 0;
+    }
+    klseek_grp(numgroupfiles, 0, BSEEK_SET);
+
+    // check if SSI
+    // this performs several checks because there is no "SSI" magic
+    int32_t version;
+    kread_grp(numgroupfiles, &version, 4);
+    version = B_LITTLE32(version);
+    while (version == 1 || version == 2) // if
+    {
+        char zerobuf[70];
+        Bmemset(zerobuf, 0, 70);
+
+        int32_t numfiles;
+        kread_grp(numgroupfiles, &numfiles, 4);
+        numfiles = B_LITTLE32(numfiles);
+
+        uint8_t temp, temp2;
+
+        // get the string length
+        kread_grp(numgroupfiles, &temp, 1);
+        if (temp > 31) // 32 bytes allocated for the string
+            break;
+        // seek to the end of the string
+        klseek_grp(numgroupfiles, temp, BSEEK_CUR);
+        // verify everything remaining is a null terminator
+        temp = 32 - temp;
+        kread_grp(numgroupfiles, buf, temp);
+        if (Bmemcmp(buf, zerobuf, temp))
+            break;
+
+        if (version == 2)
+        {
+            // get the string length
+            kread_grp(numgroupfiles, &temp, 1);
+            if (temp > 11) // 12 bytes allocated for the string
+                break;
+            // seek to the end of the string
+            klseek_grp(numgroupfiles, temp, BSEEK_CUR);
+            // verify everything remaining is a null terminator
+            temp = 12 - temp;
+            kread_grp(numgroupfiles, buf, temp);
+            if (Bmemcmp(buf, zerobuf, temp))
+                break;
+        }
+
+        temp2 = 0;
+        for (uint8_t i=0;i<3;i++)
+        {
+            // get the string length
+            kread_grp(numgroupfiles, &temp, 1);
+            if (temp > 70) // 70 bytes allocated for the string
+            {
+                temp2 = 1;
+                break;
+            }
+            // seek to the end of the string
+            klseek_grp(numgroupfiles, temp, BSEEK_CUR);
+            // verify everything remaining is a null terminator
+            temp = 70 - temp;
+            if (temp == 0)
+                continue;
+            kread_grp(numgroupfiles, buf, temp);
+            temp2 |= Bmemcmp(buf, zerobuf, temp);
+        }
+        if (temp2)
+            break;
+
+        // Passed all the tests: read data.
+
+        gnumfiles[numgroupfiles] = numfiles;
+
+        gfilelist[numgroupfiles] = (char *)Xmalloc(gnumfiles[numgroupfiles]<<4);
+        gfileoffs[numgroupfiles] = (int32_t *)Xmalloc((gnumfiles[numgroupfiles]+1)<<2);
+
+        int32_t j = (version == 2 ? 267 : 254) + (numfiles * 121), k;
+        for (int32_t i = 0; i < numfiles; i++)
+        {
+            // get the string length
+            kread_grp(numgroupfiles, &temp, 1);
+            if (temp > 12)
+                temp = 12;
+            // read the file name
+            kread_grp(numgroupfiles, &gfilelist[numgroupfiles][i<<4], temp);
+            gfilelist[numgroupfiles][(i<<4)+temp] = 0;
+
+            // skip to the end of the 12 bytes
+            klseek_grp(numgroupfiles, 12-temp, BSEEK_CUR);
+
+            // get the file size
+            kread_grp(numgroupfiles, &k, 4);
+            k = B_LITTLE32(k);
+
+            // record the offset of the file in the SSI
+            gfileoffs[numgroupfiles][i] = j;
+            j += k;
+
+            // skip unknown data
+            klseek_grp(numgroupfiles, 104, BSEEK_CUR);
         }
         gfileoffs[numgroupfiles][gnumfiles[numgroupfiles]] = j;
         numgroupfiles++;
