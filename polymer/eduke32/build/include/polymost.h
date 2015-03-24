@@ -28,7 +28,7 @@ struct glfiltermodes {
 extern struct glfiltermodes glfiltermodes[NUMGLFILTERMODES];
 
 //void phex(char v, char *s);
-void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt, int32_t texfmt, coltype *pic, int32_t tsizx, int32_t tsizy, int32_t dameth);
+void uploadtexture(int32_t doalloc, vec2_t siz, int32_t intexfmt, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
 void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
@@ -53,7 +53,7 @@ extern float curpolygonoffset;
 
 extern float shadescale;
 extern int32_t shadescale_unbounded;
-extern float alphahackarray[MAXTILES];
+extern uint8_t alphahackarray[MAXTILES];
 
 extern int32_t r_usenewshading;
 extern int32_t r_usetileshades;
@@ -63,16 +63,16 @@ extern int16_t globalpicnum;
 extern int32_t globalpal;
 
 // Compare with polymer_eligible_for_artmap()
-static inline int32_t eligible_for_tileshades(int32_t picnum, int32_t pal)
+static inline int32_t eligible_for_tileshades(int32_t const picnum, int32_t const pal)
 {
     return (!usehightile || !hicfindsubst(picnum, pal)) &&
         (!usemodels || md_tilehasmodel(picnum, pal) < 0);
 }
 
-static inline float getshadefactor(int32_t shade)
+static inline float getshadefactor(int32_t const shade)
 {
-    int32_t shadebound = (shadescale_unbounded || shade>=numshades) ? numshades : numshades-1;
-    float clamped_shade = min(max(shade*shadescale, 0), shadebound);
+    int32_t const shadebound = (shadescale_unbounded || shade>=numshades) ? numshades : numshades-1;
+    float const clamped_shade = min(max(shade*shadescale, 0), shadebound);
 
     // 8-bit tiles, i.e. non-hightiles and non-models, don't get additional
     // glColor() shading with r_usetileshades!
@@ -86,22 +86,22 @@ static inline float getshadefactor(int32_t shade)
 
 #define POLYMOST_CHOOSE_FOG_PAL(fogpal, pal) \
     ((fogpal) ? (fogpal) : (pal))
-static inline int32_t get_floor_fogpal(const sectortype *sec)
+static inline int32_t get_floor_fogpal(tsectortype const * const sec)
 {
     return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->floorpal);
 }
-static inline int32_t get_ceiling_fogpal(const sectortype *sec)
+static inline int32_t get_ceiling_fogpal(tsectortype const * const sec)
 {
     return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->ceilingpal);
 }
-static inline int32_t fogpal_shade(const sectortype *sec, int32_t shade)
+static inline int32_t fogpal_shade(tsectortype const * const sec, int32_t const shade)
 {
     // When fogging is due to sector[].fogpal, don't make the fog parameters
     // depend on the shade of the object.
     return sec->fogpal ? 0 : shade;
 }
 
-static inline int check_nonpow2(int32_t x)
+static inline int check_nonpow2(int32_t const x)
 {
     return (x > 1 && (x&(x-1)));
 }
@@ -123,16 +123,16 @@ static inline int polymost_is_npotmode(void)
         r_npotwallmode;
 }
 
-static inline float polymost_invsqrt(float x)
+static inline float polymost_invsqrt_approximation(float x)
 {
 #ifdef B_LITTLE_ENDIAN
-    const float haf = x*.5f;
+    float const haf = x * .5f;
     struct conv { union { uint32_t i; float f; } u; } * const n = (struct conv *)&x;
-    n->u.i = 0x5f3759df-(n->u.i>>1);
-    return n->u.f*(1.5f-haf*(n->u.f*n->u.f));
+    n->u.i = 0x5f3759df - (n->u.i >> 1);
+    return n->u.f * (1.5f - haf * (n->u.f * n->u.f));
 #else
     // this is the comment
-    return 1.f/Bsqrtf(x);
+    return 1.f / Bsqrtf(x);
 #endif
 }
 
@@ -144,6 +144,7 @@ enum {
 
     DAMETH_NOCOMPRESS = 4096,
     DAMETH_HI = 8192,
+    DAMETH_NOFIX = 16384,
 };
 
 // DAMETH_CLAMPED -> PTH_CLAMPED conversion

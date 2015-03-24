@@ -559,6 +559,16 @@ CLAMP_DECL float fclamp2(float in, float min, float max) { return in >= max ? ma
 
 #define BMAX_PATH 256
 
+/* Static assertions, based on source found in LuaJIT's src/lj_def.h. */
+#define EDUKE32_ASSERT_NAME2(name, line) name ## line
+#define EDUKE32_ASSERT_NAME(line) EDUKE32_ASSERT_NAME2(eduke32_assert_, line)
+#ifdef __COUNTER__
+# define EDUKE32_STATIC_ASSERT(cond) \
+    extern void EDUKE32_ASSERT_NAME(__COUNTER__)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
+#else
+# define EDUKE32_STATIC_ASSERT(cond) \
+    extern void EDUKE32_ASSERT_NAME(__LINE__)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
+#endif
 
 struct Bdirent
 {
@@ -602,9 +612,20 @@ typedef struct {
 } vec2f_t;
 
 typedef struct {
-    float x, y, z;
+    union { float x; float d; };
+    union { float y; float u; };
+    union { float z; float v; };
 } vec3f_t;
 
+EDUKE32_STATIC_ASSERT(sizeof(vec3f_t) == sizeof(float) * 3);
+
+typedef struct {
+    union { double x; double d; };
+    union { double y; double u; };
+    union { double z; double v; };
+} vec3d_t;
+
+EDUKE32_STATIC_ASSERT(sizeof(vec3d_t) == sizeof(double) * 3);
 
 #if RAND_MAX == 32767
 FORCE_INLINE uint16_t system_15bit_rand(void) { return (uint16_t)rand(); }
@@ -891,17 +912,6 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 #define MAYBE_FCLOSE_AND_NULL(fileptr) do { \
     if (fileptr) { Bfclose(fileptr); fileptr=NULL; } \
 } while (0)
-
-/* Static assertions, based on source found in LuaJIT's src/lj_def.h. */
-#define EDUKE32_ASSERT_NAME2(name, line) name ## line
-#define EDUKE32_ASSERT_NAME(line) EDUKE32_ASSERT_NAME2(eduke32_assert_, line)
-#ifdef __COUNTER__
-# define EDUKE32_STATIC_ASSERT(cond) \
-    extern void EDUKE32_ASSERT_NAME(__COUNTER__)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
-#else
-# define EDUKE32_STATIC_ASSERT(cond) \
-    extern void EDUKE32_ASSERT_NAME(__LINE__)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
-#endif
 
 #define ARRAY_SIZE(Ar) (sizeof(Ar)/sizeof((Ar)[0]))
 #define ARRAY_SSIZE(Ar) (bssize_t)ARRAY_SIZE(Ar)

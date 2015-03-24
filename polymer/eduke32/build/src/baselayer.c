@@ -279,11 +279,6 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
     bglVertex2f(.0f, -2.5f);
     bglEnd();
 
-    bglEnable(GL_DEPTH_TEST);
-    bglEnable(GL_ALPHA_TEST);
-    bglEnable(GL_TEXTURE_2D);
-    if (!nofog) bglEnable(GL_FOG);
-
     bglPopMatrix();
     bglMatrixMode(GL_PROJECTION);
     bglPopMatrix();

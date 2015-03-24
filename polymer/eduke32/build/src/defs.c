@@ -102,7 +102,7 @@ static char *faketilebuffer = NULL;
 static int32_t faketilebuffersiz = 0;
 
 #ifdef USE_OPENGL
-extern float alphahackarray[MAXTILES];
+extern uint8_t alphahackarray[MAXTILES];
 #endif
 
 static const char *skyfaces[6] =
@@ -397,7 +397,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getdouble(script,&alpha)) break;
 #ifdef USE_OPENGL
             if ((uint32_t)tile < MAXTILES)
-                alphahackarray[tile] = alpha;
+                alphahackarray[tile] = alpha * UINT8_MAX;
 #endif
         }
         break;
@@ -418,7 +418,7 @@ static int32_t defsparser(scriptfile *script)
 
 #ifdef USE_OPENGL
             for (i=tilenume1; i<=tilenume2; i++)
-                alphahackarray[i] = alpha;
+                alphahackarray[i] = alpha * UINT8_MAX;
 #endif
         }
         break;

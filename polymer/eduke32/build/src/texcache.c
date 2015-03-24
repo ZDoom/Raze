@@ -99,9 +99,6 @@ pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int3
 // <dashade>: ignored if not in Polymost+r_usetileshades
 pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
 {
-    int32_t tilestat;
-    pthtyp *pth;
-
     const int32_t j = dapicnum & (GLTEXCACHEADSIZ - 1);
     hicreplctyp *si = usehightile ? hicfindsubst(dapicnum, dapalnum) : NULL;
 
@@ -125,7 +122,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
      */
 
     // load a replacement
-    for (pth = texcache.list[j]; pth; pth = pth->next)
+    for (pthtyp *pth = texcache.list[j]; pth; pth = pth->next)
     {
         if (pth->picnum == dapicnum && pth->palnum == si->palnum &&
             (si->palnum > 0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
@@ -137,7 +134,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
             {
                 pth->flags &= ~PTH_INVALIDATED;
 
-                tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 0,
+                int32_t tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 0,
                                         (si->palnum > 0) ? 0 : hictinting[dapalnum].f);  // reload tile
 
                 if (!tilestat)
@@ -148,17 +145,17 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
                 return (drawingskybox || hicprecaching) ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
             }
 
-            return (pth);
+            return pth;
         }
     }
 
-    pth = (pthtyp *)Xcalloc(1, sizeof(pthtyp));
+    pthtyp *pth = (pthtyp *)Xcalloc(1, sizeof(pthtyp));
 
     // possibly fetch an already loaded multitexture :_)
     if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS) && texcache_fetchmulti(pth, si, dapicnum, dameth))
         return pth;
 
-    tilestat =
+    int32_t tilestat =
     gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (si->palnum > 0) ? 0 : hictinting[dapalnum].f);
 
     if (!tilestat)
@@ -531,13 +528,14 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
     char cachefn[BMAX_PATH];
     char *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
-    uint32_t alloclen=0, level;
+    uint32_t alloclen=0, level=0;
     uint32_t padx=0, pady=0;
     GLint gi;
     int32_t offset = 0;
 
     if (!texcache_enabled()) return;
 
+#ifndef EDUKE32_GLES
     gi = GL_FALSE;
     bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &gi);
     if (gi != GL_TRUE)
@@ -549,6 +547,7 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
         }
         return;
     }
+#endif
 
     Blseek(texcache.filehandle, 0, BSEEK_END);
 
@@ -570,11 +569,14 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
 
     CLEAR_GL_ERRORS();
 
+#ifndef EDUKE32_GLES
     for (level = 0; level==0 || (padx > 1 || pady > 1); level++)
+#endif
     {
         uint32_t miplen;
         texcachepicture pict;
 
+#ifndef EDUKE32_GLES
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_ARB, &gi); WRITEX_FAIL_ON_ERROR();
         if (gi != GL_TRUE) goto failure;   // an uncompressed mipmap
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &gi); WRITEX_FAIL_ON_ERROR();
@@ -594,7 +596,13 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
         pict.depth = B_LITTLE32(gi);
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &gi); WRITEX_FAIL_ON_ERROR();
         miplen = gi; pict.size = B_LITTLE32(gi);
-
+#else // TODO: actually code this ;)
+//        pict.format = GL_ETC1_RGB8_OES;
+        pict.xdim = head->xdim;
+        pict.ydim = head->ydim;
+        pict.border = 0;
+        pict.depth = 16;
+#endif
         if (alloclen < miplen)
         {
             pic = (char *)Xrealloc(pic, miplen);
@@ -632,9 +640,9 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
             if (++texcache.numentries > texcache.iptrcnt)
             {
                 texcache.iptrcnt += 512;
-                texcache.iptrs = (texcacheindex **) Xrealloc(texcache.iptrs, sizeof(intptr_t) * texcache.iptrcnt);
+                texcache.iptrs = (texcacheindex **)Xrealloc(texcache.iptrs, sizeof(intptr_t) * texcache.iptrcnt);
             }
-            texcache.iptrs[texcache.numentries-1] = t;
+            texcache.iptrs[texcache.numentries - 1] = t;
             texcache.currentindex = t->next;
         }
 
@@ -643,7 +651,8 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
             fseek(texcache.index, 0, BSEEK_END);
             Bfprintf(texcache.index, "%s %d %d\n", t->name, t->offset, t->len);
         }
-        else OSD_Printf("wtf?\n");
+        else
+            OSD_Printf("wtf?\n");
     }
 
     goto success;
@@ -671,13 +680,15 @@ static void texcache_setuptexture(int32_t *doalloc, GLuint *glpic)
 
 static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int32_t *xsiz, int32_t *ysiz)
 {
-    int32_t level;
+    int32_t level = 0;
     texcachepicture pict;
     char *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
     int32_t alloclen=0;
 
+#ifndef EDUKE32_GLES
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
+#endif
     {
         GLint format;
 
@@ -723,6 +734,7 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
             return TEXCACHERR_COMPTEX;
         }
 
+#ifndef EDUKE32_GLES
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);
         if ((*glerr = bglGetError()) != GL_NO_ERROR)
         {
@@ -736,6 +748,7 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
             TEXCACHE_FREEBUFS();
             return -1;
         }
+#endif
     }
 
     TEXCACHE_FREEBUFS();

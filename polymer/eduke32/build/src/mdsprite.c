@@ -674,7 +674,7 @@ static inline int32_t hicfxmask(int32_t pal)
 //Note: even though it says md2model, it works for both md2model&md3model
 int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 {
-    int32_t i, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
+    int32_t i, bpl, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
     char *skinfile, hasalpha, fn[BMAX_PATH];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
@@ -683,6 +683,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     texcacheheader cachead;
 
     int32_t startticks, willprint=0;
+    vec2_t siz = { 0, 0 };
 
     if (m->mdnum == 2)
         surf = 0;
@@ -776,7 +777,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     gotcache = texcache_readtexheader(fn, picfillen, pal<<8, hicfxmask(pal), &cachead, 1);
 
-    if (gotcache && !texcache_loadskin(&cachead, &doalloc, texidx, &xsiz, &ysiz))
+    if (gotcache && !texcache_loadskin(&cachead, &doalloc, texidx, &siz.x, &siz.y))
     {
         osizx = cachead.xdim;
         osizy = cachead.ydim;
@@ -795,7 +796,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         if ((filh = kopen4load(fn, 0)) < 0)
             return -1;
 
-        ret = daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,hicfxmask(pal));
+        ret = daskinloader(filh,&fptr,&bpl,&siz.x,&siz.y,&osizx,&osizy,&hasalpha,pal,hicfxmask(pal));
 
         if (ret)
         {
@@ -827,17 +828,17 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         if (glinfo.bgra)
             texfmt = GL_BGRA;
 
-        uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype *)fptr, xsiz, ysiz, DAMETH_HI);
+        uploadtexture((doalloc&1), siz, intexfmt, texfmt, (coltype *)fptr, siz, DAMETH_HI);
         Bfree((void *)fptr);
     }
 
     if (!m->skinloaded)
     {
-        if (xsiz != osizx || ysiz != osizy)
+        if (siz.x != osizx || siz.y != osizy)
         {
             float fx, fy;
-            fx = ((float)osizx)/((float)xsiz);
-            fy = ((float)osizy)/((float)ysiz);
+            fx = ((float)osizx)/((float)siz.x);
+            fy = ((float)osizy)/((float)siz.y);
             if (m->mdnum == 2)
             {
                 int32_t *lptr;
@@ -879,7 +880,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     if (glinfo.texcompr && glusetexcompr && glusetexcache)
         if (!gotcache)
         {
-            const int32_t nonpow2 = check_nonpow2(xsiz) || check_nonpow2(ysiz);
+            const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
 
             // save off the compressed version
             cachead.quality = r_downsize;
@@ -1560,7 +1561,7 @@ static inline void  normalize(float *vec)
     if ((norm = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]) == 0.f)
         return;
 
-    norm = polymost_invsqrt(norm);
+    norm = polymost_invsqrt_approximation(norm);
     vec[0] *= norm;
     vec[1] *= norm;
     vec[2] *= norm;
@@ -2103,7 +2104,7 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
         // PLAG : default cutoff removed
         float al = 0.0;
         if (alphahackarray[globalpicnum] != 0)
-            al=alphahackarray[globalpicnum];
+            al=alphahackarray[globalpicnum] * (1.f/255.f);
         bglEnable(GL_BLEND);
         bglEnable(GL_ALPHA_TEST);
         bglAlphaFunc(GL_GREATER,al);
