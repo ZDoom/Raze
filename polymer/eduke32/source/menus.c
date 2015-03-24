@@ -277,8 +277,8 @@ MAKE_MENU_TOP_ENTRYLINK( "Quit Game", MEF_MainMenu, MAIN_QUITGAME, MENU_QUIT );
 
 static MenuEntry_t *MEL_MAIN[] = {
     &ME_MAIN_NEWGAME,
-    &ME_MAIN_OPTIONS,
     &ME_MAIN_LOADGAME,
+    &ME_MAIN_OPTIONS,
 #ifndef DROIDMENU
     &ME_MAIN_HELP,
 #endif
