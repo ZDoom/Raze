@@ -11835,12 +11835,9 @@ void nextpage(void)
 #ifdef USE_OPENGL
     omdtims = mdtims; mdtims = getticks();
 
-    {
-        int32_t i;
-        for (i=0; i<MAXSPRITES; i++)
-            if ((mdpause&&spriteext[i].mdanimtims)||(spriteext[i].flags & SPREXT_NOMDANIM))
-                spriteext[i].mdanimtims+=mdtims-omdtims;
-    }
+    for (int i = 0; i < Numsprites; i++)
+        if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
+            spriteext[i].mdanimtims += mdtims - omdtims;
 #endif
 
     beforedrawrooms = 1;
@@ -17988,7 +17985,7 @@ int32_t setrendermode(int32_t renderer)
 #ifdef USE_OPENGL
 void setrollangle(int32_t rolla)
 {
-    gtang = (float)rolla * PI * (1.f/1024.f);
+    gtang = (float)rolla * (PI * (1.f/1024.f));
 }
 #endif
 
@@ -18016,15 +18013,13 @@ void invalidatetile(int16_t tilenume, int32_t pal, int32_t how)
 #else
     if (getrendermode() >= REND_POLYMOST)
     {
-        int32_t hp, np;
-
         const int32_t firstpal = (pal < 0) ? 0 : pal;
         const int32_t numpals = (pal < 0) ? MAXPALOOKUPS : 1;
 
-        for (hp = 0; hp <= 4; hp+=4)
+        for (int hp = 0; hp <= 4; hp+=4)
         {
             if (how & pow2long[hp])
-                for (np = firstpal; np < firstpal+numpals; np++)
+                for (int np = firstpal; np < firstpal+numpals; np++)
                     gltexinvalidate(tilenume, np, hp);
         }
 
@@ -18047,11 +18042,16 @@ void setpolymost2dview(void)
     if (getrendermode() < REND_POLYMOST) return;
 
     bglViewport(0,0,xres,yres);
+
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
     bglOrtho(0,xres,yres,0,-1,1);
-    bglMatrixMode(GL_MODELVIEW);
-    bglLoadIdentity();
+
+    if (getrendermode() == REND_POLYMER)
+    {
+        bglMatrixMode(GL_MODELVIEW);
+        bglLoadIdentity();
+    }
 
     gloy1 = -1;
 
@@ -18069,23 +18069,22 @@ void hash_init(hashtable_t *t)
 
 void hash_free(hashtable_t *t)
 {
-    hashitem_t *cur, *tmp;
-    int32_t i;
-    int32_t num;
-
     if (t->items == NULL)
         return;
-//    initprintf("*free, num:%d\n",t->size);
-    i= t->size-1;
+
+    int remaining = t->size - 1;
+
     do
     {
-        cur = t->items[i];
-        num = 0;
+        hashitem_t *cur = t->items[remaining];
+
+        int num = 0;
+
         while (cur)
         {
-            tmp = cur;
+            hashitem_t * const tmp = cur;
             cur = cur->next;
-//          initprintf("Free %4d \"%s\"\n",tmp->key,(tmp->string)?tmp->string:".");
+
             if (tmp->string)
             {
                 Bfree(tmp->string);
@@ -18094,9 +18093,8 @@ void hash_free(hashtable_t *t)
             Bfree(tmp);
             num++;
         }
-//        initprintf("#%4d: %3d\t",i,num);
-    }
-    while (--i > -1);
+    } while (--remaining >= 0);
+
     Bfree(t->items);
     t->items = 0;
 }
@@ -18115,17 +18113,14 @@ static inline uint32_t hash_getcode(const char *s)
 
 void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace)
 {
-    hashitem_t *cur, *prev=NULL;
-    int32_t code;
-
     if (EDUKE32_PREDICT_FALSE(t->items == NULL))
     {
         initprintf("hash_add(): table not initialized!\n");
         return;
     }
 
-    code = hash_getcode(s) % t->size;
-    cur = t->items[code];
+    uint32_t code = hash_getcode(s) % t->size;
+    hashitem_t *cur = t->items[code];
 
     if (!cur)
     {
@@ -18136,6 +18131,8 @@ void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace)
         t->items[code] = cur;
         return;
     }
+
+    hashitem_t *prev = NULL;
 
     do
     {
@@ -18158,24 +18155,23 @@ void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace)
 // delete at most once
 void hash_delete(hashtable_t *t, const char *s)
 {
-    hashitem_t *cur, *prev=NULL;
-    int32_t code;
-
     if (t->items == NULL)
     {
         initprintf("hash_delete(): table not initialized!\n");
         return;
     }
 
-    code = hash_getcode(s) % t->size;
-    cur = t->items[code];
+    uint32_t code = hash_getcode(s) % t->size;
+    hashitem_t *cur = t->items[code];
 
     if (!cur)
         return;
 
+    hashitem_t *prev = NULL;
+
     do
     {
-        if (Bstrcmp(s,cur->string) == 0)
+        if (Bstrcmp(s, cur->string) == 0)
         {
             Bfree(cur->string);
 
@@ -18186,7 +18182,7 @@ void hash_delete(hashtable_t *t, const char *s)
 
             Bfree(cur);
 
-            return;
+            break;
         }
         prev = cur;
     }
@@ -18195,18 +18191,19 @@ void hash_delete(hashtable_t *t, const char *s)
 
 intptr_t hash_find(const hashtable_t *t, const char *s)
 {
-    hashitem_t *cur;
-
     if (t->items == NULL)
     {
         initprintf("hash_find(): table not initialized!\n");
         return -1;
     }
 
-    if ((cur = t->items[hash_getcode(s) % t->size]) == NULL) return -1;
+    hashitem_t *cur = t->items[hash_getcode(s) % t->size];
+
+    if (!cur)
+        return -1;
 
     do
-        if (Bstrcmp(s,cur->string) == 0)
+        if (Bstrcmp(s, cur->string) == 0)
             return cur->key;
     while ((cur = cur->next));
 
@@ -18215,7 +18212,6 @@ intptr_t hash_find(const hashtable_t *t, const char *s)
 
 intptr_t hash_findcase(const hashtable_t *t, const char *s)
 {
-    hashitem_t *cur;
 
     if (t->items == NULL)
     {
@@ -18223,12 +18219,15 @@ intptr_t hash_findcase(const hashtable_t *t, const char *s)
         return -1;
     }
 
-    if ((cur=t->items[hash_getcode(s)%t->size]) == NULL) return -1;
+    hashitem_t *cur = t->items[hash_getcode(s) % t->size];
+
+    if (!cur)
+        return -1;
 
     do
-        if (Bstrcasecmp(s,cur->string) == 0)
+        if (Bstrcasecmp(s, cur->string) == 0)
             return cur->key;
-    while ((cur=cur->next));
+    while ((cur = cur->next));
 
     return -1;
 }
