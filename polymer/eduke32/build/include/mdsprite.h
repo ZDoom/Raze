@@ -212,10 +212,6 @@ void clearskins(void);
 int32_t polymost_mddraw(const tspritetype *tspr);
 EXTERN void md3_vox_calcmat_common(const tspritetype *tspr, const vec3f_t *a0, float f, float mat[16]);
 
-typedef struct { vec3f_t add; int16_t angadd, flags, fov; } hudtyp;
-
-EXTERN hudtyp hudmem[2][MAXTILES];
-
 EXTERN int32_t mdpause;
 EXTERN int32_t nextmodelid;
 EXTERN voxmodel_t *voxmodels[MAXVOXELS];

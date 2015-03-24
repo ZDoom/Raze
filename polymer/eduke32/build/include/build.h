@@ -817,7 +817,7 @@ EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char editorcolors[256];
 
-EXTERN int32_t faketilesiz[MAXTILES];
+EXTERN char faketile[(MAXTILES+7)>>3];
 EXTERN char *faketiledata[MAXTILES];
 
 EXTERN char spritecol2d[MAXTILES][2];
@@ -849,7 +849,7 @@ extern int32_t usevoxels, voxscale[MAXVOXELS];
 extern int32_t usemodels, usehightile;
 extern int32_t rendmode;
 #endif
-EXTERN int32_t h_xsize[MAXTILES], h_ysize[MAXTILES];
+EXTERN uint16_t h_xsize[MAXTILES], h_ysize[MAXTILES];
 EXTERN int8_t h_xoffs[MAXTILES], h_yoffs[MAXTILES];
 
 enum {
@@ -1313,15 +1313,20 @@ extern int32_t g_clipMapFilesNum;
 #endif
 
 #ifdef USE_OPENGL
+// TODO: dynamically allocate this
+
+typedef struct { vec3f_t add; int16_t angadd, flags, fov; } hudtyp;
+
 typedef struct
 {
     // maps build tiles to particular animation frames of a model
-    int32_t     modelid;
-    int32_t     skinnum;
-    int32_t     framenum;   // calculate the number from the name when declaring
-    float   smoothduration;
-    int32_t     next;
-    char    pal;
+    int16_t     modelid;
+    int16_t     framenum;   // calculate the number from the name when declaring
+    int16_t     nexttile;
+    uint16_t    smoothduration;
+    hudtyp      *hudmem[2];
+    int8_t      skinnum;
+    char        pal;
 } tile2model_t;
 
 # define EXTRATILES (MAXTILES/8)
@@ -1341,7 +1346,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
                            int32_t fps, int32_t flags);
 int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum,
                       int32_t surfnum, float param, float specpower, float specfactor);
-int32_t md_definehud (int32_t modelid, int32_t tilex, float xadd, float yadd, float zadd,
+int32_t md_definehud (int32_t modelid, int32_t tilex, vec3f_t add,
                       int32_t angadd, int32_t flags, int32_t fov);
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);

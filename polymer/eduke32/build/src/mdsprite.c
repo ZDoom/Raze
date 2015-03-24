@@ -52,25 +52,28 @@ static int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
     if (tile2model[tile].pal==pallet)
         return tile;
 
-    while (tile2model[tile].next!=-1)
+    while (tile2model[tile].nexttile!=-1)
     {
-        tile=tile2model[tile].next;
+        tile=tile2model[tile].nexttile;
         if (tile2model[tile].pal==pallet)
             return tile;
     }
 
-    tile2model[tile].next=curextra;
+    tile2model[tile].nexttile=curextra;
     tile2model[curextra].pal=pallet;
 
     return curextra++;
 }
-int32_t Ptile2tile(int32_t tile,int32_t pallet)
+
+int32_t Ptile2tile(int32_t tile,int32_t palette)
 {
-    int32_t t=tile;
-//  if(tile>=1550&&tile<=1589){initprintf("(%d, %d)\n",tile,pallet);pallet=0;}
-    while ((tile=tile2model[tile].next)!=-1)
-        if (tile2model[tile].pal==pallet)
-            return tile;
+    int t = tile;
+    while ((tile = tile2model[tile].nexttile) != -1)
+        if (tile2model[tile].pal == palette)
+        {
+            t = tile;
+            break;
+        }
     return t;
 }
 
@@ -133,7 +136,10 @@ void freeallmodels()
         nextmodelid = 0;
     }
 
-    memset(tile2model,-1,sizeof(tile2model));
+    Bmemset(tile2model,-1,sizeof(tile2model));
+    for (i=0; i<MAXTILES; i++)
+        Bmemset(tile2model[i].hudmem, 0, sizeof(tile2model[i].hudmem));
+
     curextra=MAXTILES;
 
     if (vertlist)
@@ -242,7 +248,6 @@ void clearskins()
 
 void mdinit()
 {
-    memset(hudmem,0,sizeof(hudmem));
     freeallmodels();
     mdinited = 1;
 }
@@ -335,7 +340,7 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
     tile2model[tilenume].modelid = modelid;
     tile2model[tilenume].framenum = i;
     tile2model[tilenume].skinnum = skinnum;
-    tile2model[tilenume].smoothduration = smoothduration;
+    tile2model[tilenume].smoothduration = Blrintf((float)UINT16_MAX * smoothduration);
 
     return i;
 }
@@ -520,19 +525,21 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     return 0;
 }
 
-int32_t md_definehud(int32_t modelid, int32_t tilex, float xadd, float yadd, float zadd, int32_t angadd, int32_t flags, int32_t fov)
+int32_t md_definehud(int32_t modelid, int32_t tilex, vec3f_t add, int32_t angadd, int32_t flags, int32_t fov)
 {
     if (!mdinited) mdinit();
 
     if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
     if ((uint32_t)tilex >= (uint32_t)MAXTILES) return -2;
 
-    hudmem[(flags>>2)&1][tilex].add.x = xadd;
-    hudmem[(flags>>2)&1][tilex].add.y = yadd;
-    hudmem[(flags>>2)&1][tilex].add.z = zadd;
-    hudmem[(flags>>2)&1][tilex].angadd = ((int16_t)angadd)|2048;
-    hudmem[(flags>>2)&1][tilex].flags = (int16_t)flags;
-    hudmem[(flags>>2)&1][tilex].fov = (int16_t)fov;
+    tile2model[tilex].hudmem[(flags>>2)&1] = (hudtyp *)Xmalloc(sizeof(hudtyp));
+
+    hudtyp * const hud = tile2model[tilex].hudmem[(flags>>2)&1];
+
+    hud->add = add;
+    hud->angadd = ((int16_t)angadd)|2048;
+    hud->flags = (int16_t)flags;
+    hud->fov = (int16_t)fov;
 
     return 0;
 }
@@ -543,10 +550,7 @@ int32_t md_undefinetile(int32_t tile)
     if ((unsigned)tile >= (unsigned)MAXTILES) return -1;
 
     tile2model[tile].modelid = -1;
-    tile2model[tile].next=-1;
-    hudmem[0][tile].angadd = 0;
-    hudmem[1][tile].angadd = 0;
-
+    tile2model[tile].nexttile = -1;
     return 0;
 }
 
@@ -560,7 +564,11 @@ int32_t md_undefinemodel(int32_t modelid)
 
     for (i=MAXTILES+EXTRATILES-1; i>=0; i--)
         if (tile2model[i].modelid == modelid)
+        {
             tile2model[i].modelid = -1;
+            DO_FREE_AND_NULL(tile2model[i].hudmem[0]);
+            DO_FREE_AND_NULL(tile2model[i].hudmem[1]);
+        }
 
     if (models)
     {
@@ -1013,7 +1021,9 @@ void updateanimation(md2model_t *m, const tspritetype *tspr, uint8_t lpal)
         return;
     }
 
-    fps = smooth->mdsmooth ? Blrintf((1.0f / (float) (tile2model[tile].smoothduration)) * 66.f) : anim->fpssc;
+    fps = smooth->mdsmooth ?
+          Blrintf((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f) :
+          anim->fpssc;
 
     i = (mdtims - sprext->mdanimtims)*((fps*timerticspersec)/120);
 
@@ -2537,8 +2547,6 @@ void md_allocvbos(void)
 
 int32_t polymost_mddraw(const tspritetype *tspr)
 {
-    mdmodel_t *vm;
-
     if (r_vbos && (r_vbocount > allocvbos))
         md_allocvbos();
 
@@ -2548,7 +2556,8 @@ int32_t polymost_mddraw(const tspritetype *tspr)
         allocmodelverts = maxmodelverts;
     }
 
-    vm = models[tile2model[Ptile2tile(tspr->picnum,(tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal)].modelid];
+    mdmodel_t const *const vm = models[tile2model[Ptile2tile(tspr->picnum, 
+    (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal)].modelid];
     if (vm->mdnum == 1) { return polymost_voxdraw((voxmodel_t *)vm,tspr); }
     if (vm->mdnum == 3) { return polymost_md3draw((md3model_t *)vm,tspr); }
     return 0;

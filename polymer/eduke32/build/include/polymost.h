@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 typedef struct { uint8_t r, g, b, a; } coltype;
+typedef struct { float r, g, b, a; } coltypef;
 
 extern int32_t rendmode;
 extern float gtang;

@@ -3041,32 +3041,31 @@ do_mvlineasm1:
 //
 int32_t wallfront(int32_t l1, int32_t l2)
 {
-    vec2_t l1vect   = *(vec2_t *)&wall[thewall[l1]];
-    vec2_t l1p2vect = *(vec2_t *)&wall[wall[thewall[l1]].point2];
-    vec2_t l2vect   = *(vec2_t *)&wall[thewall[l2]];
-    vec2_t l2p2vect = *(vec2_t *)&wall[wall[thewall[l2]].point2];
-    int32_t dx = l1p2vect.x-l1vect.x;
-    int32_t dy = l1p2vect.y-l1vect.y;
-    int32_t t1 = dmulscale2(l2vect.x-l1vect.x, dy, -dx, l2vect.y-l1vect.y); //p1(l2) vs. l1
-    int32_t t2 = dmulscale2(l2p2vect.x-l1vect.x, dy, -dx, l2p2vect.y-l1vect.y); //p2(l2) vs. l1
+    vec2_t const l1vect   = *(vec2_t *)&wall[thewall[l1]];
+    vec2_t const l1p2vect = *(vec2_t *)&wall[wall[thewall[l1]].point2];
+    vec2_t const l2vect   = *(vec2_t *)&wall[thewall[l2]];
+    vec2_t const l2p2vect = *(vec2_t *)&wall[wall[thewall[l2]].point2];
+    vec2_t d = { l1p2vect.x - l1vect.x, l1p2vect.y - l1vect.y };
+    int32_t t1 = dmulscale2(l2vect.x-l1vect.x, d.y, -d.x, l2vect.y-l1vect.y); //p1(l2) vs. l1
+    int32_t t2 = dmulscale2(l2p2vect.x-l1vect.x, d.y, -d.x, l2p2vect.y-l1vect.y); //p2(l2) vs. l1
 
     if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
     if (t2 == 0) t2 = t1;
 
     if ((t1^t2) >= 0) //pos vs. l1
-        return (dmulscale2(globalposx-l1vect.x, dy, -dx, globalposy-l1vect.y) ^ t1) >= 0;
+        return (dmulscale2(globalposx-l1vect.x, d.y, -d.x, globalposy-l1vect.y) ^ t1) >= 0;
 
-    dx = l2p2vect.x-l2vect.x;
-    dy = l2p2vect.y-l2vect.y;
+    d.x = l2p2vect.x-l2vect.x;
+    d.y = l2p2vect.y-l2vect.y;
 
-    t1 = dmulscale2(l1vect.x-l2vect.x, dy, -dx, l1vect.y-l2vect.y); //p1(l1) vs. l2
-    t2 = dmulscale2(l1p2vect.x-l2vect.x, dy, -dx, l1p2vect.y-l2vect.y); //p2(l1) vs. l2
+    t1 = dmulscale2(l1vect.x-l2vect.x, d.y, -d.x, l1vect.y-l2vect.y); //p1(l1) vs. l2
+    t2 = dmulscale2(l1p2vect.x-l2vect.x, d.y, -d.x, l1p2vect.y-l2vect.y); //p2(l1) vs. l2
 
     if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
     if (t2 == 0) t2 = t1;
 
     if ((t1^t2) >= 0) //pos vs. l2
-        return (dmulscale2(globalposx-l2vect.x,dy,-dx,globalposy-l2vect.y) ^ t1) < 0;
+        return (dmulscale2(globalposx-l2vect.x,d.y,-d.x,globalposy-l2vect.y) ^ t1) < 0;
 
     return -2;
 }
@@ -3076,11 +3075,11 @@ int32_t wallfront(int32_t l1, int32_t l2)
 //
 static inline int32_t spritewallfront(const tspritetype *s, int32_t w)
 {
-    const walltype *const wal = &wall[w];
-    const walltype *wal2 = &wall[wal->point2];
-    const int32_t x1 = wal->x, y1 = wal->y;
+    const twalltype *const wal = (twalltype *)&wall[w];
+    const twalltype *wal2 = (twalltype *)&wall[wal->point2];
+    const vec2_t v = { wal->x, wal->y };
 
-    return (dmulscale32(wal2->x-x1, s->y-y1, -(s->x-x1), wal2->y-y1) >= 0);
+    return dmulscale32(wal2->x - v.x, s->y - v.y, -(s->x - v.x), wal2->y - v.y) >= 0;
 }
 
 //
@@ -3140,20 +3139,28 @@ static int32_t spriteobstructswall(spritetype *s, int32_t w)
 //
 static inline int32_t bunchfront(int32_t b1, int32_t b2)
 {
-    int32_t x1b1, x2b1, x1b2, x2b2, b1f, b2f, i;
+    int b1f = bunchfirst[b1];
+    int const x1b1 = xb1[b1f];
+    int const x2b2 = xb2[bunchlast[b2]] + 1;
 
-    b1f = bunchfirst[b1]; x1b1 = xb1[b1f]; x2b2 = xb2[bunchlast[b2]]+1;
-    if (x1b1 >= x2b2) return(-1);
-    b2f = bunchfirst[b2]; x1b2 = xb1[b2f]; x2b1 = xb2[bunchlast[b1]]+1;
-    if (x1b2 >= x2b1) return(-1);
+    if (x1b1 >= x2b2)
+        return (-1);
+
+    int b2f = bunchfirst[b2];
+    int const x1b2 = xb1[b2f];
+    int const x2b1 = xb2[bunchlast[b1]] + 1;
+
+    if (x1b2 >= x2b1)
+        return (-1);
 
     if (x1b1 >= x1b2)
     {
-        for (i=b2f; xb2[i]<x1b1; i=bunchp2[i]);
-        return(wallfront(b1f,i));
+        for (; xb2[b2f] < x1b1; b2f = bunchp2[b2f]);
+        return wallfront(b1f, b2f);
     }
-    for (i=b1f; xb2[i]<x1b2; i=bunchp2[i]);
-    return(wallfront(i,b2f));
+
+    for (; xb2[b1f] < x1b2; b1f = bunchp2[b1f]);
+    return wallfront(b1f, b2f);
 }
 
 
@@ -8555,30 +8562,30 @@ void getclosestcol_flush(void)
 // <lastokcol> must be in [0 .. 255].
 int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
 {
-    int32_t i, k, retcol = -1;
-    int32_t mindist = -1;
-
-    const int32_t j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
+    const int j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
         + (g>>3)*FASTPALGRIDSIZ + (b>>3)
         + FASTPALGRIDSIZ*FASTPALGRIDSIZ
         + FASTPALGRIDSIZ+1;
 
-    uint32_t col;
-    
+#ifdef DEBUGGINGAIDS
     Bassert(lastokcol >= 0 && lastokcol <= 255);
+#endif
 
     r = 64-r, g = 64-g, b = 64-b;
 
-    col = (r + (g<<8) + (b<<16));
+    uint32_t col = (r + (g<<8) + (b<<16));
+    int mindist = -1;
+
+    int const k = (numclosestcolresults > COLRESULTSIZ) ? (COLRESULTSIZ-4) : (numclosestcolresults-4);
 
     if (!numclosestcolresults) goto skip;
 
     if (col == (getclosestcol_results[(numclosestcolresults-1) & (COLRESULTSIZ-1)] & 0x00ffffff))
         return getclosestcol_results[(numclosestcolresults-1) & (COLRESULTSIZ-1)]>>24;
 
-    k = (numclosestcolresults > COLRESULTSIZ) ? (COLRESULTSIZ-4) : (numclosestcolresults-4);
+    int i;
 
-    for (i = 0; i < k; i+=4)
+    for (i = 0; i < k+4; i+=4)
     {
         if (col == (getclosestcol_results[i]   & 0x00ffffff)) { mindist = i; break; }
         if (col == (getclosestcol_results[i+1] & 0x00ffffff)) { mindist = i+1; break; }
@@ -8587,7 +8594,7 @@ int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
     }
 
     if (mindist == -1)
-    for (; i < k+4; i++)
+    for (; i < k; i++)
         if (col == (getclosestcol_results[i] & 0x00ffffff)) { mindist = i; break; }
 
     if (mindist != -1 && getclosestcol_results[mindist]>>24 < (unsigned)lastokcol)
@@ -8597,12 +8604,14 @@ skip:
     getclosestcol_results[numclosestcolresults & (COLRESULTSIZ-1)] = col;
 
     mindist = min(rdist[coldist[r&7]+64+8], gdist[coldist[g&7]+64+8]);
-    mindist = min(mindist, bdist[coldist[b&7]+64+8]);
-    mindist++;
+    mindist = min(mindist, bdist[coldist[b&7]+64+8]) + 1;
 
-    for (k=26; k>=0; k--)
+    int retcol = -1;
+
+    for (int k=26; k>=0; k--)
     {
         i = colscan[k]+j;
+
         if ((colhere[i>>3]&pow2char[i&7]) == 0)
             continue;
 
@@ -8610,28 +8619,22 @@ skip:
 
         do
         {
-            const char *pal1 = (char *)&palette[i*3];
-            int32_t dist = gdist[pal1[1]+g];
+            char const * const pal1 = (char *)&palette[i*3];
+            int dist = gdist[pal1[1]+g];
 
-            if (dist < mindist && i <= lastokcol)
-            {
-                dist += rdist[pal1[0]+r];
-                if (dist >= mindist)
-                    continue;
-                dist += bdist[pal1[2]+b];
-                if (dist >= mindist)
-                    continue;
-                mindist = dist;
-                retcol = i;
-            }
+            if (dist >= mindist || i > lastokcol) continue;
+            if ((dist += rdist[pal1[0]+r]) >= mindist) continue;
+            if ((dist += bdist[pal1[2]+b]) >= mindist) continue;
+
+            mindist = dist;
+            retcol = i;
         }
         while ((i = colnext[i]) >= 0);
     }
 
     if (retcol >= 0)
     {
-        getclosestcol_results[numclosestcolresults & (COLRESULTSIZ-1)] |= retcol<<24;
-        numclosestcolresults++;
+        getclosestcol_results[numclosestcolresults++ & (COLRESULTSIZ-1)] |= retcol<<24;
         return retcol;
     }
 
@@ -8639,17 +8642,18 @@ skip:
 
     for (i=lastokcol; i>=0; i--)
     {
-        const char *pal1 = (char *)&palette[i*3];
+        char const * const pal1 = (char *)&palette[i*3];
+        int dist = gdist[pal1[1]+g];
 
-        int32_t dist = gdist[pal1[1]+g]; if (dist >= mindist) continue;
-        dist += rdist[pal1[0]+r]; if (dist >= mindist) continue;
-        dist += bdist[pal1[2]+b]; if (dist >= mindist) continue;
+        if (dist >= mindist) continue;
+        if ((dist += rdist[pal1[0]+r]) >= mindist) continue;
+        if ((dist += bdist[pal1[2]+b]) >= mindist) continue;
 
-        mindist = dist; retcol = i;
+        mindist = dist;
+        retcol = i;
     }
 
-    getclosestcol_results[numclosestcolresults & (COLRESULTSIZ-1)] |= retcol<<24;
-    numclosestcolresults++;
+    getclosestcol_results[numclosestcolresults++ & (COLRESULTSIZ-1)] |= retcol<<24;
     return retcol;
 }
 
@@ -11956,7 +11960,7 @@ static int32_t E_ReadArtFile(int32_t tilefilei)
             {
                 // Tiles having dummytile replacements or those that are
                 // cache1d-locked can't be replaced.
-                if (faketilesiz[i] || walock[i] >= 200)
+                if (faketile[i>>3] & pow2char[i&7] || walock[i] >= 200)
                 {
                     initprintf("loadpics: per-map ART file \"%s\": "
                                "tile %d has dummytile or is locked\n", fn, i);
@@ -12102,9 +12106,10 @@ void loadtile(int16_t tilenume)
     }
 
     // dummy tiles for highres replacements and tilefromtexture definitions
-    if (faketilesiz[tilenume])
+
+    if (faketile[tilenume>>3] & pow2char[tilenume&7])
     {
-        if (faketilesiz[tilenume] != -1 && faketiledata[tilenume] != NULL)
+        if (faketiledata[tilenume] != NULL)
             LZ4_decompress_fast(faketiledata[tilenume], (char *) waloff[tilenume], dasiz);
 
         faketimerhandler();

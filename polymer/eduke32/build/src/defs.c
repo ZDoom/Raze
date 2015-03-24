@@ -183,7 +183,7 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
 
     if (tsiz > faketilebuffersiz)
     {
-        faketilebuffer = (char *) Xrealloc(faketilebuffer, tsiz);
+        faketilebuffer = (char *)Xrealloc(faketilebuffer, tsiz);
         faketilebuffersiz = tsiz;
     }
 
@@ -191,20 +191,24 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
 
     faketiledata[tile] = (char *)Xmalloc(tsiz + 32);
 
-    for (i=siz.x-1; i>=0; i--)
+    for (j = 0; j < siz.y; ++j)
     {
-        uint32_t ofs = i * siz.y;
-
-        for (j=siz.y-1; j>=0; j--)
+        int const ofs = j * siz.x;
+        for (i = 0; i < siz.x; ++i)
         {
-            const palette_t *col = &picptr[j*siz.x+i];
-            if (col->f < alphacut) { faketilebuffer[ofs+j] = 255; continue; }
-            faketilebuffer[ofs+j] = getclosestcol(col->b>>2, col->g>>2, col->r>>2);
+            palette_t const *const col = &picptr[ofs + i];
+            faketilebuffer[(i * siz.y) + j] =
+            (col->f < alphacut) ? 255 : getclosestcol(col->b >> 2, col->g >> 2, col->r >> 2);
         }
-        //                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
     }
 
-    faketilesiz[tile] = LZ4_compress(faketilebuffer, faketiledata[tile], tsiz);
+    if (LZ4_compress(faketilebuffer, faketiledata[tile], tsiz) != -1)
+        faketile[tile>>3] |= pow2char[tile&7];
+    else
+    {
+        DO_FREE_AND_NULL(faketiledata[tile]);
+        faketile[tile>>3] &= ~pow2char[tile&7];
+    }
 }
 
 #undef USE_DEF_PROGRESS
@@ -397,7 +401,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getdouble(script,&alpha)) break;
 #ifdef USE_OPENGL
             if ((uint32_t)tile < MAXTILES)
-                alphahackarray[tile] = alpha * UINT8_MAX;
+                alphahackarray[tile] = Blrintf(alpha * (float)UINT8_MAX);
 #endif
         }
         break;
@@ -418,7 +422,7 @@ static int32_t defsparser(scriptfile *script)
 
 #ifdef USE_OPENGL
             for (i=tilenume1; i<=tilenume2; i++)
-                alphahackarray[i] = alpha * UINT8_MAX;
+                alphahackarray[i] = Blrintf(alpha * (float)UINT8_MAX);
 #endif
         }
         break;
@@ -506,8 +510,10 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if ((unsigned)tile >= MAXUSERTILES) break;
-            if (scriptfile_getsymbol(script,&h_xsize[tile])) break;  // XXX
-            if (scriptfile_getsymbol(script,&h_ysize[tile])) break;
+            if (scriptfile_getsymbol(script,&tmp)) break;  // XXX
+            h_xsize[tile] = tmp;
+            if (scriptfile_getsymbol(script,&tmp)) break;
+            h_ysize[tile] = tmp;
             if (scriptfile_getsymbol(script,&tmp)) break;
             h_xoffs[tile]=tmp;
             if (scriptfile_getsymbol(script,&tmp)) break;
@@ -717,7 +723,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 set_tilesiz(tile, xsiz, ysiz);
                 Bmemset(&picanm[tile], 0, sizeof(picanm_t));
-                faketilesiz[tile] = -1;
+                faketile[tile>>3] |= pow2char[tile&7];
             }
 
             break;
@@ -741,7 +747,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 set_tilesiz(i, xsiz, ysiz);
                 Bmemset(&picanm[i], 0, sizeof(picanm_t));
-                faketilesiz[i] = -1;
+                faketile[i>>3] |= pow2char[i&7];
             }
 
             break;
@@ -1074,6 +1080,12 @@ static int32_t defsparser(scriptfile *script)
 #endif
                         break;
                     }
+
+                    if (smoothduration > 1.0)
+                    {
+                        initprintf("Warning: smoothduration out of range.\n");
+                        smoothduration = 1.0;
+                    }
 #ifdef USE_OPENGL
                     for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
                     {
@@ -1344,7 +1356,8 @@ static int32_t defsparser(scriptfile *script)
 #ifdef USE_OPENGL
                     for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
                     {
-                        switch (md_definehud(lastmodelid, tilex, xadd, yadd, zadd, angadd, flags, fov))
+                        vec3f_t const add = { (float)xadd, (float)yadd, (float)zadd };
+                        switch (md_definehud(lastmodelid, tilex, add, angadd, flags, fov))
                         {
                         case 0:
                             break;
@@ -1903,7 +1916,7 @@ static int32_t defsparser(scriptfile *script)
                     {
                         set_tilesiz(tile, xsiz, ysiz);
                         Bmemset(&picanm[tile], 0, sizeof(picanm_t));
-                        faketilesiz[tile] = -1;
+                        faketile[tile>>3] |= pow2char[tile&7];
                     }
 #ifdef USE_OPENGL
                     xscale = 1.0f / xscale;
