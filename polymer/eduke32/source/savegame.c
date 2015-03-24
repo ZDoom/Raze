@@ -959,6 +959,12 @@ static void sv_quoteredefload();
 static void sv_postquoteredef();
 static void sv_restsave();
 static void sv_restload();
+static void sv_preprojectilesave();
+static void sv_postprojectilesave();
+static void sv_preprojectileload();
+static void sv_postprojectileload();
+
+static projectile_t *ProjectileData;
 
 #define SVARDATALEN \
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
@@ -1062,7 +1068,6 @@ static const dataspec_t svgm_secwsp[] =
     { DS_NOCHK, &g_mirrorSector[0], sizeof(g_mirrorSector[0]), ARRAY_SIZE(g_mirrorSector) },
 // projectiles
     { 0, &SpriteProjectile[0], sizeof(projectile_t), MAXSPRITES },
-    { 0, &ProjectileData[0], sizeof(projectile_t), MAXTILES },
     { 0, &everyothertime, sizeof(everyothertime), 1 },
     { DS_END, 0, 0, 0 }
 };
@@ -1078,6 +1083,11 @@ static const dataspec_t svgm_script[] =
     { DS_SAVEFN|DS_NOCHK, (void *)&sv_prescriptsave_once, 0, 1 },
 #endif
     { DS_NOCHK, &g_tile[0], sizeof(tiledata_t), MAXTILES },
+    { DS_SAVEFN, (void *) &sv_preprojectilesave, 0, 1 },
+    { DS_LOADFN, (void *) &sv_preprojectileload, 0, 1 },
+    { DS_DYNAMIC|DS_CNT(g_numProjectiles), &ProjectileData, sizeof(projectile_t), (intptr_t)&g_numProjectiles },
+    { DS_SAVEFN, (void *) &sv_postprojectilesave, 0, 1 },
+    { DS_LOADFN, (void *) &sv_postprojectileload, 0, 1 },
 #if !defined LUNATIC
     { DS_LOADFN|DS_NOCHK, (void *)&sv_prescriptload_once, 0, 1 },
     { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &script, sizeof(script[0]), (intptr_t)&g_scriptSize },
@@ -1711,6 +1721,59 @@ static void sv_quoteload()
         }
     }
 }
+
+static void sv_preprojectilesave()
+{
+    ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
+
+    int onumprojectiles = g_numProjectiles;
+    g_numProjectiles = 0;
+
+    for (int i=0; i<MAXTILES; i++)
+    {
+        if (g_tile[i].proj)
+        {
+            Bmemcpy(&ProjectileData[g_numProjectiles], g_tile[i].proj, sizeof(projectile_t));
+            Bmemcpy(&ProjectileData[g_numProjectiles+1], g_tile[i].defproj, sizeof(projectile_t));
+            g_numProjectiles += 2;
+        }
+    }
+
+    Bassert(g_numProjectiles == onumprojectiles);
+}
+
+static void sv_postprojectilesave()
+{
+//    DO_FREE_AND_NULL(ProjectileData);
+}
+
+static void sv_preprojectileload()
+{
+    ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
+}
+
+static void sv_postprojectileload()
+{
+    int onumprojectiles = g_numProjectiles;
+    g_numProjectiles = 0;
+
+    for (int i=0; i<MAXTILES; i++)
+    {
+        if (g_tile[i].proj)
+        {
+            g_tile[i].proj = (projectile_t *) Xmalloc(sizeof(projectile_t));
+            g_tile[i].defproj = (projectile_t *) Xmalloc(sizeof(projectile_t));
+            Bmemcpy(g_tile[i].proj, &ProjectileData[g_numProjectiles], sizeof(projectile_t));
+            Bmemcpy(g_tile[i].defproj, &ProjectileData[g_numProjectiles+1], sizeof(projectile_t));
+            g_numProjectiles += 2;
+        }
+    }
+
+    Bassert(g_numProjectiles == onumprojectiles);
+
+//    DO_FREE_AND_NULL(ProjectileData);
+}
+
 static void sv_prequoteredef()
 {
     // "+1" needed for dfwrite which doesn't handle the src==NULL && cnt==0 case

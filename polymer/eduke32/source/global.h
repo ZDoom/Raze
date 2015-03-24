@@ -128,7 +128,6 @@ G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
 G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 #pragma pack(pop)
 
-G_EXTERN projectile_t ProjectileData[MAXTILES];
 G_EXTERN projectile_t SpriteProjectile[MAXSPRITES];
 G_EXTERN sound_t g_sounds[MAXSOUNDS];
 G_EXTERN uint32_t everyothertime;

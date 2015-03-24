@@ -2316,72 +2316,91 @@ LUNATIC_EXTERN int32_t C_SetDefName(const char *name)
     return (g_defNamePtr==NULL);
 }
 
+defaultprojectile_t DefaultProjectile;
+int32_t g_numProjectiles = 0;
+
+EDUKE32_STATIC_ASSERT(sizeof(projectile_t) == sizeof(DefaultProjectile));
+
 LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
 {
+    if (g_tile[j].proj == NULL)
+    {
+        g_tile[j].proj = (projectile_t *) Xmalloc(sizeof(projectile_t));
+        *g_tile[j].proj = *(projectile_t *)&DefaultProjectile;
+        g_numProjectiles += 2;
+    }
+
+    projectile_t * const proj = g_tile[j].proj;
+
     switch (what)
     {
     case PROJ_WORKSLIKE:
-        g_tile[j].defproj.workslike = ProjectileData[j].workslike = val; break;
+        proj->workslike = val; break;
     case PROJ_SPAWNS:
-        g_tile[j].defproj.spawns = ProjectileData[j].spawns = val; break;
+        proj->spawns = val; break;
     case PROJ_SXREPEAT:
-        g_tile[j].defproj.sxrepeat = ProjectileData[j].sxrepeat = val; break;
+        proj->sxrepeat = val; break;
     case PROJ_SYREPEAT:
-        g_tile[j].defproj.syrepeat = ProjectileData[j].syrepeat = val; break;
+        proj->syrepeat = val; break;
     case PROJ_SOUND:
-        g_tile[j].defproj.sound = ProjectileData[j].sound = val; break;
+        proj->sound = val; break;
     case PROJ_ISOUND:
-        g_tile[j].defproj.isound = ProjectileData[j].isound = val; break;
+        proj->isound = val; break;
     case PROJ_VEL:
-        g_tile[j].defproj.vel = ProjectileData[j].vel = val; break;
+        proj->vel = val; break;
     case PROJ_EXTRA:
-        g_tile[j].defproj.extra = ProjectileData[j].extra = val; break;
+        proj->extra = val; break;
     case PROJ_DECAL:
-        g_tile[j].defproj.decal = ProjectileData[j].decal = val; break;
+        proj->decal = val; break;
     case PROJ_TRAIL:
-        g_tile[j].defproj.trail = ProjectileData[j].trail = val; break;
+        proj->trail = val; break;
     case PROJ_TXREPEAT:
-        g_tile[j].defproj.txrepeat = ProjectileData[j].txrepeat = val; break;
+        proj->txrepeat = val; break;
     case PROJ_TYREPEAT:
-        g_tile[j].defproj.tyrepeat = ProjectileData[j].tyrepeat = val; break;
+        proj->tyrepeat = val; break;
     case PROJ_TOFFSET:
-        g_tile[j].defproj.toffset = ProjectileData[j].toffset = val; break;
+        proj->toffset = val; break;
     case PROJ_TNUM:
-        g_tile[j].defproj.tnum = ProjectileData[j].tnum = val; break;
+        proj->tnum = val; break;
     case PROJ_DROP:
-        g_tile[j].defproj.drop = ProjectileData[j].drop = val; break;
+        proj->drop = val; break;
     case PROJ_CSTAT:
-        g_tile[j].defproj.cstat = ProjectileData[j].cstat = val; break;
+        proj->cstat = val; break;
     case PROJ_CLIPDIST:
-        g_tile[j].defproj.clipdist = ProjectileData[j].clipdist = val; break;
+        proj->clipdist = val; break;
     case PROJ_SHADE:
-        g_tile[j].defproj.shade = ProjectileData[j].shade = val; break;
+        proj->shade = val; break;
     case PROJ_XREPEAT:
-        g_tile[j].defproj.xrepeat = ProjectileData[j].xrepeat = val; break;
+        proj->xrepeat = val; break;
     case PROJ_YREPEAT: 
-        g_tile[j].defproj.yrepeat = ProjectileData[j].yrepeat = val; break;
+        proj->yrepeat = val; break;
     case PROJ_PAL:
-        g_tile[j].defproj.pal = ProjectileData[j].pal = val; break;
+        proj->pal = val; break;
     case PROJ_EXTRA_RAND:
-        g_tile[j].defproj.extra_rand = ProjectileData[j].extra_rand = val; break;
+        proj->extra_rand = val; break;
     case PROJ_HITRADIUS:
-        g_tile[j].defproj.hitradius = ProjectileData[j].hitradius = val; break;
+        proj->hitradius = val; break;
     case PROJ_MOVECNT:
-        g_tile[j].defproj.movecnt = ProjectileData[j].movecnt = val; break;
+        proj->movecnt = val; break;
     case PROJ_OFFSET:
-        g_tile[j].defproj.offset = ProjectileData[j].offset = val; break;
+        proj->offset = val; break;
     case PROJ_BOUNCES:
-        g_tile[j].defproj.bounces = ProjectileData[j].bounces = val; break;
+        proj->bounces = val; break;
     case PROJ_BSOUND:
-        g_tile[j].defproj.bsound = ProjectileData[j].bsound = val; break;
+        proj->bsound = val; break;
     case PROJ_RANGE:
-        g_tile[j].defproj.range = ProjectileData[j].range = val; break;
+        proj->range = val; break;
     case PROJ_FLASH_COLOR:
-        g_tile[j].defproj.flashcolor = ProjectileData[j].flashcolor = val; break;
+        proj->flashcolor = val; break;
     case PROJ_USERDATA:
-        g_tile[j].defproj.userdata = ProjectileData[j].userdata = val; break;
+        proj->userdata = val; break;
     default: break;
     }
+
+    if (g_tile[j].defproj == NULL)
+        g_tile[j].defproj = (projectile_t *)Xmalloc(sizeof(projectile_t));
+
+    *g_tile[j].defproj = *proj;
 
     g_tile[j].flags |= SFLAG_PROJECTILE;
 }
@@ -6258,38 +6277,22 @@ static void C_AddDefaultDefinitions(void)
 
 void C_InitProjectiles(void)
 {
-    int32_t i;
-
-    typedef struct
+    defaultprojectile_t const Projectile =
     {
-        int32_t workslike, cstat; // 8b
-        int32_t hitradius, range, flashcolor; // 12b
-        int16_t spawns, sound, isound, vel; // 8b
-        int16_t decal, trail, tnum, drop; // 8b
-        int16_t offset, bounces, bsound; // 6b
-        int16_t toffset; // 2b
-        int16_t extra, extra_rand; // 4b
-        int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
-        int8_t shade, xrepeat, yrepeat, pal; // 4b
-        int8_t movecnt; // 1b
-        uint8_t clipdist; // 1b
-        int8_t filler[2]; // 2b
-        int32_t userdata; // 4b
-    } defaultprojectile_t;
-
-    defaultprojectile_t DefaultProjectile =
-    {
-        1, -1, 2048, 0, 0, (int16_t)SMALLSMOKE, -1, -1, 600, (int16_t)BULLETHOLE, -1, 0, 0, 448,
-        (int16_t)g_numFreezeBounces, (int16_t)PIPEBOMB_BOUNCE, 1, 100, -1, -1, -1, -1, -1, -96, 18, 18,
-        0, 1, 32, {0,0}, 0,
+        1, -1, 2048, 0, 0, (int16_t) SMALLSMOKE, -1, -1, 600, (int16_t) BULLETHOLE, -1, 0, 0, 448,
+        (int16_t) g_numFreezeBounces, (int16_t) PIPEBOMB_BOUNCE, 1, 100, -1, -1, -1, -1, -1, -96, 18, 18,
+        0, 1, 32, { 0, 0 }, 0,
     };
 
-    EDUKE32_STATIC_ASSERT(sizeof(projectile_t) == sizeof(DefaultProjectile));
+    DefaultProjectile = Projectile;
 
-    for (i=MAXTILES-1; i>=0; i--)
+    for (int i=MAXTILES-1; i>=0; i--)
     {
-        Bmemcpy(&ProjectileData[i], &DefaultProjectile, sizeof(projectile_t));
-        Bmemcpy(&g_tile[i].defproj, &DefaultProjectile, sizeof(projectile_t));
+        if (g_tile[i].proj)
+            *g_tile[i].proj = *(projectile_t *)&DefaultProjectile;
+
+        if (g_tile[i].defproj)
+            *g_tile[i].defproj = *(projectile_t *)&DefaultProjectile;
     }
 }
 

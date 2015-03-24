@@ -368,7 +368,7 @@ extern int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s
 extern void A_AddToDeleteQueue(int32_t i);
 extern int32_t A_PlaySound(uint32_t num, int32_t i);
 extern void A_DeleteSprite(int32_t s);
-extern void G_ShowView(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t sect,
+extern void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sect,
                        int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp);
 extern void G_GameExit(const char *msg);
 #ifdef __cplusplus
@@ -420,7 +420,7 @@ DEFINE_VOID_CFUNC(A_AddToDeleteQueue, ONE_ARG)
 DEFINE_RET_CFUNC(A_PlaySound, TWO_ARGS)
 DEFINE_VOID_CFUNC(A_DeleteSprite, ONE_ARG)
 DEFINE_VOID_CFUNC(G_ShowView, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LARG(6),
-                  LARG(7), LARG(8), LARG(9), LARG(10), LARG(11))
+                  LARG(7), LARG(8), LARG(9))
 
 #define CFUNC_REG(Name) { #Name, Name##_CF }
 

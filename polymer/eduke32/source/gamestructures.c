@@ -1239,6 +1239,8 @@ badtspr:
 
 static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
+    projectile_t * const proj = g_tile[lVar1].proj;
+
     if (EDUKE32_PREDICT_FALSE((unsigned)lVar1 >= MAXTILES))
         goto badtile;
 
@@ -1248,72 +1250,72 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
 
         switch (lLabelID)
         {
-            case PROJ_WORKSLIKE: ProjectileData[lVar1].workslike = iSet; break;
-            case PROJ_SPAWNS: ProjectileData[lVar1].spawns = iSet; break;
-            case PROJ_SXREPEAT: ProjectileData[lVar1].sxrepeat = iSet; break;
-            case PROJ_SYREPEAT: ProjectileData[lVar1].syrepeat = iSet; break;
-            case PROJ_SOUND: ProjectileData[lVar1].sound = iSet; break;
-            case PROJ_ISOUND: ProjectileData[lVar1].isound = iSet; break;
-            case PROJ_VEL: ProjectileData[lVar1].vel = iSet; break;
-            case PROJ_EXTRA: ProjectileData[lVar1].extra = iSet; break;
-            case PROJ_DECAL: ProjectileData[lVar1].decal = iSet; break;
-            case PROJ_TRAIL: ProjectileData[lVar1].trail = iSet; break;
-            case PROJ_TXREPEAT: ProjectileData[lVar1].txrepeat = iSet; break;
-            case PROJ_TYREPEAT: ProjectileData[lVar1].tyrepeat = iSet; break;
-            case PROJ_TOFFSET: ProjectileData[lVar1].toffset = iSet; break;
-            case PROJ_TNUM: ProjectileData[lVar1].tnum = iSet; break;
-            case PROJ_DROP: ProjectileData[lVar1].drop = iSet; break;
-            case PROJ_CSTAT: ProjectileData[lVar1].cstat = iSet; break;
-            case PROJ_CLIPDIST: ProjectileData[lVar1].clipdist = iSet; break;
-            case PROJ_SHADE: ProjectileData[lVar1].shade = iSet; break;
-            case PROJ_XREPEAT: ProjectileData[lVar1].xrepeat = iSet; break;
-            case PROJ_YREPEAT: ProjectileData[lVar1].yrepeat = iSet; break;
-            case PROJ_PAL: ProjectileData[lVar1].pal = iSet; break;
-            case PROJ_EXTRA_RAND: ProjectileData[lVar1].extra_rand = iSet; break;
-            case PROJ_HITRADIUS: ProjectileData[lVar1].hitradius = iSet; break;
-            case PROJ_MOVECNT: ProjectileData[lVar1].movecnt = iSet; break;
-            case PROJ_OFFSET: ProjectileData[lVar1].offset = iSet; break;
-            case PROJ_BOUNCES: ProjectileData[lVar1].bounces = iSet; break;
-            case PROJ_BSOUND: ProjectileData[lVar1].bsound = iSet; break;
-            case PROJ_RANGE: ProjectileData[lVar1].range = iSet; break;
-            case PROJ_FLASH_COLOR: ProjectileData[lVar1].flashcolor = iSet; break;
-            case PROJ_USERDATA: ProjectileData[lVar1].userdata = iSet; break;
+            case PROJ_WORKSLIKE: proj->workslike = iSet; break;
+            case PROJ_SPAWNS: proj->spawns = iSet; break;
+            case PROJ_SXREPEAT: proj->sxrepeat = iSet; break;
+            case PROJ_SYREPEAT: proj->syrepeat = iSet; break;
+            case PROJ_SOUND: proj->sound = iSet; break;
+            case PROJ_ISOUND: proj->isound = iSet; break;
+            case PROJ_VEL: proj->vel = iSet; break;
+            case PROJ_EXTRA: proj->extra = iSet; break;
+            case PROJ_DECAL: proj->decal = iSet; break;
+            case PROJ_TRAIL: proj->trail = iSet; break;
+            case PROJ_TXREPEAT: proj->txrepeat = iSet; break;
+            case PROJ_TYREPEAT: proj->tyrepeat = iSet; break;
+            case PROJ_TOFFSET: proj->toffset = iSet; break;
+            case PROJ_TNUM: proj->tnum = iSet; break;
+            case PROJ_DROP: proj->drop = iSet; break;
+            case PROJ_CSTAT: proj->cstat = iSet; break;
+            case PROJ_CLIPDIST: proj->clipdist = iSet; break;
+            case PROJ_SHADE: proj->shade = iSet; break;
+            case PROJ_XREPEAT: proj->xrepeat = iSet; break;
+            case PROJ_YREPEAT: proj->yrepeat = iSet; break;
+            case PROJ_PAL: proj->pal = iSet; break;
+            case PROJ_EXTRA_RAND: proj->extra_rand = iSet; break;
+            case PROJ_HITRADIUS: proj->hitradius = iSet; break;
+            case PROJ_MOVECNT: proj->movecnt = iSet; break;
+            case PROJ_OFFSET: proj->offset = iSet; break;
+            case PROJ_BOUNCES: proj->bounces = iSet; break;
+            case PROJ_BSOUND: proj->bsound = iSet; break;
+            case PROJ_RANGE: proj->range = iSet; break;
+            case PROJ_FLASH_COLOR: proj->flashcolor = iSet; break;
+            case PROJ_USERDATA: proj->userdata = iSet; break;
         }
     }
     else
     {
         switch (lLabelID)
         {
-            case PROJ_WORKSLIKE: iSet = ProjectileData[lVar1].workslike; break;
-            case PROJ_SPAWNS: iSet = ProjectileData[lVar1].spawns; break;
-            case PROJ_SXREPEAT: iSet = ProjectileData[lVar1].sxrepeat; break;
-            case PROJ_SYREPEAT: iSet = ProjectileData[lVar1].syrepeat; break;
-            case PROJ_SOUND: iSet = ProjectileData[lVar1].sound; break;
-            case PROJ_ISOUND: iSet = ProjectileData[lVar1].isound; break;
-            case PROJ_VEL: iSet = ProjectileData[lVar1].vel; break;
-            case PROJ_EXTRA: iSet = ProjectileData[lVar1].extra; break;
-            case PROJ_DECAL: iSet = ProjectileData[lVar1].decal; break;
-            case PROJ_TRAIL: iSet = ProjectileData[lVar1].trail; break;
-            case PROJ_TXREPEAT: iSet = ProjectileData[lVar1].txrepeat; break;
-            case PROJ_TYREPEAT: iSet = ProjectileData[lVar1].tyrepeat; break;
-            case PROJ_TOFFSET: iSet = ProjectileData[lVar1].toffset; break;
-            case PROJ_TNUM: iSet = ProjectileData[lVar1].tnum; break;
-            case PROJ_DROP: iSet = ProjectileData[lVar1].drop; break;
-            case PROJ_CSTAT: iSet = ProjectileData[lVar1].cstat; break;
-            case PROJ_CLIPDIST: iSet = ProjectileData[lVar1].clipdist; break;
-            case PROJ_SHADE: iSet = ProjectileData[lVar1].shade; break;
-            case PROJ_XREPEAT: iSet = ProjectileData[lVar1].xrepeat; break;
-            case PROJ_YREPEAT: iSet = ProjectileData[lVar1].yrepeat; break;
-            case PROJ_PAL: iSet = ProjectileData[lVar1].pal; break;
-            case PROJ_EXTRA_RAND: iSet = ProjectileData[lVar1].extra_rand; break;
-            case PROJ_HITRADIUS: iSet = ProjectileData[lVar1].hitradius; break;
-            case PROJ_MOVECNT: iSet = ProjectileData[lVar1].movecnt; break;
-            case PROJ_OFFSET: iSet = ProjectileData[lVar1].offset; break;
-            case PROJ_BOUNCES: iSet = ProjectileData[lVar1].bounces; break;
-            case PROJ_BSOUND: iSet = ProjectileData[lVar1].bsound; break;
-            case PROJ_RANGE: iSet = ProjectileData[lVar1].range; break;
-            case PROJ_FLASH_COLOR: iSet = ProjectileData[lVar1].flashcolor; break;
-            case PROJ_USERDATA: iSet = ProjectileData[lVar1].userdata; break;
+            case PROJ_WORKSLIKE: iSet = proj->workslike; break;
+            case PROJ_SPAWNS: iSet = proj->spawns; break;
+            case PROJ_SXREPEAT: iSet = proj->sxrepeat; break;
+            case PROJ_SYREPEAT: iSet = proj->syrepeat; break;
+            case PROJ_SOUND: iSet = proj->sound; break;
+            case PROJ_ISOUND: iSet = proj->isound; break;
+            case PROJ_VEL: iSet = proj->vel; break;
+            case PROJ_EXTRA: iSet = proj->extra; break;
+            case PROJ_DECAL: iSet = proj->decal; break;
+            case PROJ_TRAIL: iSet = proj->trail; break;
+            case PROJ_TXREPEAT: iSet = proj->txrepeat; break;
+            case PROJ_TYREPEAT: iSet = proj->tyrepeat; break;
+            case PROJ_TOFFSET: iSet = proj->toffset; break;
+            case PROJ_TNUM: iSet = proj->tnum; break;
+            case PROJ_DROP: iSet = proj->drop; break;
+            case PROJ_CSTAT: iSet = proj->cstat; break;
+            case PROJ_CLIPDIST: iSet = proj->clipdist; break;
+            case PROJ_SHADE: iSet = proj->shade; break;
+            case PROJ_XREPEAT: iSet = proj->xrepeat; break;
+            case PROJ_YREPEAT: iSet = proj->yrepeat; break;
+            case PROJ_PAL: iSet = proj->pal; break;
+            case PROJ_EXTRA_RAND: iSet = proj->extra_rand; break;
+            case PROJ_HITRADIUS: iSet = proj->hitradius; break;
+            case PROJ_MOVECNT: iSet = proj->movecnt; break;
+            case PROJ_OFFSET: iSet = proj->offset; break;
+            case PROJ_BOUNCES: iSet = proj->bounces; break;
+            case PROJ_BSOUND: iSet = proj->bsound; break;
+            case PROJ_RANGE: iSet = proj->range; break;
+            case PROJ_FLASH_COLOR: iSet = proj->flashcolor; break;
+            case PROJ_USERDATA: iSet = proj->userdata; break;
             default: iSet = -1; break;
         }
 
@@ -1323,7 +1325,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
     return;
 
 badtile:
-    CON_ERRPRINTF("invalid tile (%d)\n", lVar1);
+    CON_ERRPRINTF("invalid projectile (%d)\n", lVar1);
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 }

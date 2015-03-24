@@ -100,7 +100,7 @@ void G_GetTimeDate(int32_t *vals);
 int32_t G_StartTrack(int32_t level);
 int32_t A_Dodge(spritetype *s);
 #ifdef LUNATIC
-void G_ShowView(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t sect,
+void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sect,
                 int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp);
 void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap);
 void VM_FallSprite(int32_t i);

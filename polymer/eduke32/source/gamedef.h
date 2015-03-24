@@ -94,9 +94,29 @@ extern const memberlabel_t InputLabels[];
 extern const memberlabel_t TsprLabels[];
 #endif
 
+typedef struct
+{
+    int32_t workslike, cstat; // 8b
+    int32_t hitradius, range, flashcolor; // 12b
+    int16_t spawns, sound, isound, vel; // 8b
+    int16_t decal, trail, tnum, drop; // 8b
+    int16_t offset, bounces, bsound; // 6b
+    int16_t toffset; // 2b
+    int16_t extra, extra_rand; // 4b
+    int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
+    int8_t shade, xrepeat, yrepeat, pal; // 4b
+    int8_t movecnt; // 1b
+    uint8_t clipdist; // 1b
+    int8_t filler[2]; // 2b
+    int32_t userdata; // 4b
+} defaultprojectile_t;
+
+extern defaultprojectile_t DefaultProjectile;
 int32_t C_AllocQuote(int32_t qnum);
 void C_InitQuotes(void);
 void C_InitProjectiles(void);
+
+extern int32_t g_numProjectiles;
 
 typedef struct {
     int g_i, g_p, g_x;

@@ -240,7 +240,8 @@ typedef struct {
     int32_t cacherange; // formerly SpriteCache
 
     // todo: make this a pointer and allocate at runtime
-    projectile_t defproj;
+    projectile_t *proj;
+    projectile_t *defproj;
 } tiledata_t;
 
 

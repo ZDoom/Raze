@@ -103,6 +103,7 @@ extern int32_t g_gameArrayCount;
 int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer);
 void __fastcall Gv_SetVar(int32_t const id, int32_t const lValue, int32_t const iActor, int32_t const iPlayer);
 int32_t __fastcall Gv_GetVarX(int32_t id);
+void __fastcall Gv_GetManyVars(int32_t const count, int32_t * const rv);
 void __fastcall Gv_SetVarX(int32_t const id, int32_t const lValue);
 
 int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t const lDefault,int32_t const iActor,int32_t const iPlayer);

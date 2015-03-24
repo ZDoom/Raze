@@ -136,6 +136,11 @@ static void A_DoWaterTracers(int32_t x1,int32_t y1,int32_t z1,int32_t x2,int32_t
     }
 }
 
+static inline projectile_t * Proj_GetProjectile(int tile)
+{
+    return ((unsigned)tile < MAXTILES && g_tile[tile].proj) ? g_tile[tile].proj : (projectile_t *) &DefaultProjectile;
+}
+
 static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, int32_t atwith)
 {
     int32_t n, j, i;
@@ -143,7 +148,7 @@ static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, 
     vec3_t srcvect;
     vec3_t destvect;
 
-    const projectile_t *const proj = &ProjectileData[atwith];
+    const projectile_t *const proj = Proj_GetProjectile(atwith);
 
     Bmemcpy(&destvect, dv, sizeof(vec3_t));
 
@@ -212,7 +217,7 @@ static int32_t A_FindTargetSprite(const spritetype *s, int32_t aang, int32_t atw
 
         if (g_player[snum].ps->auto_aim == 2)
         {
-            if (A_CheckSpriteTileFlags(atwith,SFLAG_PROJECTILE) && (ProjectileData[atwith].workslike & PROJECTILE_RPG))
+            if (A_CheckSpriteTileFlags(atwith,SFLAG_PROJECTILE) && (Proj_GetProjectile(atwith)->workslike & PROJECTILE_RPG))
                 return -1;
 
             switch (DYNAMICTILEMAP(atwith))
@@ -390,7 +395,8 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
 static void Proj_MaybeSpawn(int32_t k, int32_t atwith, const hitdata_t *hit)
 {
     // atwith < 0 is for hard-coded projectiles
-    int32_t spawntile = atwith < 0 ? -atwith : ProjectileData[atwith].spawns;
+    projectile_t * const proj = Proj_GetProjectile(atwith);
+    int32_t spawntile = atwith < 0 ? -atwith : proj->spawns;
 
     if (spawntile >= 0)
     {
@@ -398,10 +404,10 @@ static void Proj_MaybeSpawn(int32_t k, int32_t atwith, const hitdata_t *hit)
 
         if (atwith >= 0)
         {
-            if (ProjectileData[atwith].sxrepeat > 4)
-                sprite[wh].xrepeat = ProjectileData[atwith].sxrepeat;
-            if (ProjectileData[atwith].syrepeat > 4)
-                sprite[wh].yrepeat = ProjectileData[atwith].syrepeat;
+            if (proj->sxrepeat > 4)
+                sprite[wh].xrepeat = proj->sxrepeat;
+            if (proj->syrepeat > 4)
+                sprite[wh].yrepeat = proj->syrepeat;
         }
 
         A_SetHitData(wh, hit);
@@ -424,9 +430,10 @@ static int32_t Proj_InsertShotspark(const hitdata_t *hit, int32_t i, int32_t atw
 
 static int32_t Proj_GetExtra(int32_t atwith)
 {
-    int32_t extra = ProjectileData[atwith].extra;
-    if (ProjectileData[atwith].extra_rand > 0)
-        extra += (krand()%ProjectileData[atwith].extra_rand);
+    projectile_t * const proj = Proj_GetProjectile(atwith);
+    int32_t extra = proj->extra;
+    if (proj->extra_rand > 0)
+        extra += (krand() % proj->extra_rand);
     return extra;
 }
 
@@ -566,7 +573,7 @@ static int32_t Proj_DoHitscan(int32_t i, int32_t cstatmask,
 
 static void Proj_DoRandDecalSize(int32_t spritenum, int32_t atwith)
 {
-    const projectile_t *const proj = &ProjectileData[atwith];
+    const projectile_t *const proj = Proj_GetProjectile(atwith);
 
     if (proj->workslike & PROJECTILE_RANDDECALSIZE)
     {
@@ -811,7 +818,7 @@ static void Proj_HandleKnee(hitdata_t *hit, int32_t i, int32_t p, int32_t atwith
     if (proj != NULL)
     {
         // Custom projectiles.
-        SpriteProjectile[j].workslike = ProjectileData[sprite[j].picnum].workslike;
+        SpriteProjectile[j].workslike = Proj_GetProjectile(sprite[j].picnum)->workslike;
         sprite[j].extra = proj->extra;
     }
 
@@ -858,7 +865,7 @@ static void Proj_HandleKnee(hitdata_t *hit, int32_t i, int32_t p, int32_t atwith
 static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, vec3_t * const srcvect)
 {
     /* Custom projectiles */
-    projectile_t *const proj = &ProjectileData[atwith];
+    projectile_t *const proj = Proj_GetProjectile(atwith);
     int32_t j, k = -1, l;
     int32_t vel, zvel = 0;
     hitdata_t hit;
@@ -999,10 +1006,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
         if (proj->clipdist != 255) sprite[j].clipdist = proj->clipdist;
         else sprite[j].clipdist = 40;
 
-        {
-            int32_t picnum = sprite[j].picnum; // why?
-            Bmemcpy(&SpriteProjectile[j], &ProjectileData[picnum], sizeof(projectile_t));
-        }
+        SpriteProjectile[j] = *Proj_GetProjectile(sprite[j].picnum);
 
         return j;
 

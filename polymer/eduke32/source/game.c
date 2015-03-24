@@ -1703,7 +1703,7 @@ static void G_DrawWeapAmounts(const DukePlayer_t *p,int32_t x,int32_t y,int32_t 
 }
 
 // yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords.
-static void G_DrawDigiNum_(int32_t x, int32_t yofs, int32_t y, int32_t n, char s, int32_t cs)
+static inline void G_DrawDigiNum_(int32_t x, int32_t yofs, int32_t y, int32_t n, char s, int32_t cs)
 {
     if (!(cs & ROTATESPRITE_FULL16))
     {
