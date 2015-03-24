@@ -622,13 +622,13 @@ static inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
 
 #else
 
-static inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
+static inline int32_t Paeth686(int32_t const a, int32_t const b, int32_t c)
 {
-    const int32_t *ptr = &abstab10[(c-a)-(b-512)];
-    const int32_t esi = *(ptr+b);
-    int32_t edi = *(ptr+c);
+    int32_t const * const ptr = &abstab10[(c - a) - (b - 512)];
+    int32_t const esi = *(ptr + b);
+    int32_t edi = *(ptr + c);
     if (edi >= esi) edi = esi, c = b;
-    return (edi < *(ptr+a)) ? c : a;
+    return (edi < *(ptr + a)) ? c : a;
 }
 
 static inline void rgbhlineasm(int32_t x, int32_t xr1, intptr_t p, int32_t ixstp)
@@ -683,32 +683,32 @@ static void putbuf(const uint8_t *buf, int32_t leng)
         switch (filt)
         {
         case 0:
-                while (i < x) { olinbuf[xplc] = buf[i]; xplc--; i++; }
+                while (i < x) { olinbuf[xplc--] = buf[i++]; }
             break;
         case 1:
                 while (i < x)
                 {
-                    olinbuf[xplc] = (uint8_t)(opixbuf1[xm] += buf[i]);
-                    xm = xmn[xm]; xplc--; i++;
+                    olinbuf[xplc--] = (uint8_t)(opixbuf1[xm] += buf[i++]);
+                    xm = xmn[xm];
                 }
             break;
         case 2:
-                while (i < x) { olinbuf[xplc] += (uint8_t)buf[i]; xplc--; i++; }
+                while (i < x) { olinbuf[xplc--] += (uint8_t)buf[i++]; }
             break;
         case 3:
                 while (i < x)
                 {
-                    opixbuf1[xm] = olinbuf[xplc] = (uint8_t)(((opixbuf1[xm]+olinbuf[xplc])>>1)+buf[i]);
-                    xm = xmn[xm]; xplc--; i++;
+                    opixbuf1[xm] = olinbuf[xplc] = (uint8_t)(((opixbuf1[xm]+olinbuf[xplc])>>1)+buf[i++]);
+                    xm = xmn[xm]; xplc--;
                 }
             break;
         case 4:
                 while (i < x)
                 {
-                    opixbuf1[xm] = (uint8_t)(Paeth686(opixbuf1[xm],olinbuf[xplc],opixbuf0[xm])+buf[i]);
+                    opixbuf1[xm] = (uint8_t)(Paeth686(opixbuf1[xm],olinbuf[xplc],opixbuf0[xm])+buf[i++]);
                     opixbuf0[xm] = olinbuf[xplc];
-                    olinbuf[xplc] = opixbuf1[xm];
-                    xm = xmn[xm]; xplc--; i++;
+                    olinbuf[xplc--] = opixbuf1[xm];
+                    xm = xmn[xm];
                 }
             break;
         }
@@ -2410,21 +2410,24 @@ int32_t wildmatch(const char *match, const char *wild)
 {
     do
     {
-        if (*match && (toupperlookup[*wild] == toupperlookup[*match] || *wild == '?'))
+        int const match_deref = *match, wild_deref = *wild;
+
+        if (match_deref && (toupperlookup[wild_deref] == toupperlookup[match_deref] || wild_deref == '?'))
         {
             wild++, match++;
             continue;
         }
-        else if ((*match|*wild) == '\0')
+        else if ((match_deref|wild_deref) == '\0')
             return 1;
-        else if (*wild == '*')
+        else if (wild_deref == '*')
         {
             do { wild++; } while (*wild == '*');
+            int const wild_deref = *wild;
             do
             {
-                if (*wild == '\0')
+                if (wild_deref == '\0')
                     return 1;
-                while (*match && toupperlookup[*match] != toupperlookup[*wild]) match++;
+                while (*match && toupperlookup[*match] != toupperlookup[wild_deref]) match++;
                 if (*match && *(match+1) && toupperlookup[*(match+1)] != toupperlookup[*(wild+1)])
                 {
                     match++;
@@ -2433,7 +2436,7 @@ int32_t wildmatch(const char *match, const char *wild)
                 break;
             }
             while (1);
-            if (toupperlookup[*match] == toupperlookup[*wild])
+            if (toupperlookup[*match] == toupperlookup[wild_deref])
                 continue;
         }
         return 0;
