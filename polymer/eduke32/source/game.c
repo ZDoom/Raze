@@ -4435,11 +4435,6 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     if (pub > 0 || getrendermode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
-#ifdef __ANDROID__
-    // HACK: this is needed or else we get leftover UI texture crap where we'd get HOM on PC
-        clearview(0L);
-#endif
-
 #ifndef EDUKE32_TOUCH_DEVICES
         if (ud.screen_size >= 8)
 #endif
@@ -9047,6 +9042,22 @@ FAKE_F3:
 
         }
 
+        if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicToggle)
+        {
+            map_t *map = &MapInfo[g_musicIndex];
+            char *const qmusic = ScriptQuotes[QUOTE_MUSIC];
+
+            KB_ClearKeyDown(sc_F5);
+
+            if (map->musicfn != NULL)
+                Bsnprintf(qmusic, MAXQUOTELEN, "%s.  Use SHIFT-F5 to change.",
+                map->musicfn);
+            else
+                qmusic[0] = '\0';
+
+            P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
+        }
+
         if ((KB_UnBoundKeyPressed(sc_F6) || g_doQuickSave == 1) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
             KB_ClearKeyDown(sc_F6);
@@ -9092,22 +9103,6 @@ FAKE_F3:
             P_DoQuote(QUOTE_VIEW_MODE_OFF+g_player[myconnectindex].ps->over_shoulder_on,g_player[myconnectindex].ps);
         }
 
-        if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicToggle)
-        {
-            map_t *map = &MapInfo[g_musicIndex];
-            char *const qmusic = ScriptQuotes[QUOTE_MUSIC];
-
-            KB_ClearKeyDown(sc_F5);
-
-            if (map->musicfn != NULL)
-                Bsnprintf(qmusic, MAXQUOTELEN, "%s.  Use SHIFT-F5 to change.",
-                          map->musicfn);
-            else
-                qmusic[0] = '\0';
-
-            P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
-        }
-
         if (KB_UnBoundKeyPressed(sc_F8))
         {
             KB_ClearKeyDown(sc_F8);
@@ -9143,6 +9138,20 @@ FAKE_F3:
         {
             KB_ClearKeyDown(sc_F10);
             M_ChangeMenu(MENU_QUIT_INGAME);
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
+            M_OpenMenu(myconnectindex);
+            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
+            {
+                ready2send = 0;
+                totalclock = ototalclock;
+            }
+        }
+
+        if (KB_UnBoundKeyPressed(sc_F11))
+        {
+            KB_ClearKeyDown(sc_F11);
+            M_ChangeMenu(MENU_COLCORR_INGAME);
             FX_StopAllSounds();
             S_ClearSoundLocks();
             M_OpenMenu(myconnectindex);
@@ -9215,20 +9224,6 @@ FAKE_F3:
 #endif
         g_restorePalette = 1;
         G_UpdateScreenArea();
-    }
-
-    if (KB_UnBoundKeyPressed(sc_F11))
-    {
-        KB_ClearKeyDown(sc_F11);
-        M_ChangeMenu(MENU_COLCORR_INGAME);
-        FX_StopAllSounds();
-        S_ClearSoundLocks();
-        M_OpenMenu(myconnectindex);
-        if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-        {
-            ready2send = 0;
-            totalclock = ototalclock;
-        }
     }
 }
 
@@ -9809,6 +9804,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     g_player[0].wchoice[7] = 2;
     g_player[0].wchoice[8] = 9;
     g_player[0].wchoice[9] = 1;
+    Bsprintf(ud.wchoice, "3457860291");
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
     // pre-form the default 10 clipmaps
@@ -10352,15 +10348,23 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         while (*c)
                         {
                             g_player[0].wchoice[j] = *c-'0';
+                            ud.wchoice[j] = *c;
                             c++;
                             j++;
                         }
+
                         while (j < 10)
                         {
                             if (j == 9)
+                            {
                                 g_player[0].wchoice[9] = 1;
+                                ud.wchoice[9] = '1';
+                            }
                             else
+                            {
                                 g_player[0].wchoice[j] = 2;
+                                ud.wchoice[j] = '2';
+                            }
 
                             j++;
                         }
@@ -10378,6 +10382,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         g_player[0].wchoice[7] = 2;
                         g_player[0].wchoice[8] = 9;
                         g_player[0].wchoice[9] = 1;
+
+                        Bsprintf(ud.wchoice, "3457860291");
                     }
                     break;
                 case 'v':

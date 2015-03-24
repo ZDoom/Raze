@@ -142,20 +142,26 @@ static int32_t OSD_CvarModified(const osdcvar_t *cvar)
         return 0;
     }
 
-    switch (cvar->c.type & (CVAR_BOOL|CVAR_INT|CVAR_UINT|CVAR_FLOAT|CVAR_DOUBLE))
+    int rv = 0;
+
+    switch (cvar->c.type & (CVAR_BOOL|CVAR_INT|CVAR_UINT|CVAR_FLOAT|CVAR_DOUBLE|CVAR_STRING))
     {
     case CVAR_BOOL:
     case CVAR_INT:
-        return (cvar->dval.i != *(int32_t *)cvar->c.vptr);
+        rv = (cvar->dval.i != *(int32_t *)cvar->c.vptr); break;
     case CVAR_UINT:
-        return (cvar->dval.uint != *(uint32_t *)cvar->c.vptr);
+        rv = (cvar->dval.uint != *(uint32_t *)cvar->c.vptr); break;
     case CVAR_FLOAT:
-        return (cvar->dval.f != *(float *)cvar->c.vptr);
+        rv = (cvar->dval.f != *(float *)cvar->c.vptr); break;
     case CVAR_DOUBLE:
-        return (cvar->dval.d != *(double *)cvar->c.vptr);
+        rv = (cvar->dval.d != *(double *)cvar->c.vptr); break;
+    case CVAR_STRING:
+        rv = 1; break;
     default:
-        EDUKE32_UNREACHABLE_SECTION(return 0);
+        EDUKE32_UNREACHABLE_SECTION(break);
     }
+
+    return rv;
 }
 
 // color code format is as follows:

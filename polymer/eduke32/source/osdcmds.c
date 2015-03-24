@@ -864,6 +864,7 @@ static int32_t osdcmd_name(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+
 static int32_t osdcmd_button(const osdfuncparm_t *parm)
 {
     char *p = (char *)parm->name+9;  // skip "gamefunc_"
@@ -1402,56 +1403,40 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
     {
         ud.statusbarmode = (ud.screen_size < 8);
         G_UpdateScreenArea();
-
-        return r;
     }
     else if (!Bstrcasecmp(parm->name, "r_maxfps"))
     {
         g_frameDelay = r_maxfps ? Blrintf(1000.f/(float)r_maxfps) : 0;
-
-        return r;
     }
     else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
     {
         if (r_ambientlight == 0)
             r_ambientlightrecip = 256.f;
         else r_ambientlightrecip = 1.f/r_ambientlight;
-
-        return r;
     }
     else if (!Bstrcasecmp(parm->name, "in_mouse"))
     {
         CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
-
-        return r;
     }
     else if (!Bstrcasecmp(parm->name, "in_joystick"))
     {
         CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
-
-        return r;
     }
     else if (!Bstrcasecmp(parm->name, "vid_gamma"))
     {
         ud.brightness = GAMMA_CALC;
         ud.brightness <<= 2;
         setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
-
-        return r;
     }
     else if (!Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
     {
         setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
-
-        return r;
     }
     else if (!Bstrcasecmp(parm->name, "hud_scale")
              || !Bstrcasecmp(parm->name, "hud_statusbarmode")
              || !Bstrcasecmp(parm->name, "r_rotatespritenowidescreen"))
     {
         G_UpdateScreenArea();
-
-        return r;
     }
     else if (!Bstrcasecmp(parm->name, "skill"))
     {
@@ -1459,15 +1444,11 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
             return r;
 
         ud.player_skill = ud.m_player_skill;
-
-        return r;
     }
     else if (!Bstrcasecmp(parm->name, "color"))
     {
         G_CheckPlayerColor((int32_t *)&ud.color,-1);
         g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
-
-        return r;
     }
     else if (!Bstrcasecmp(parm->name, "osdscale"))
     {
@@ -1475,8 +1456,54 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 
         if (xdim && ydim)
             OSD_ResizeDisplay(xdim, ydim);
+    }
+    else if (!Bstrcasecmp(parm->name, "wchoice"))
+    {
+        if (parm->numparms == 1)
+        {
+            if (g_forceWeaponChoice) // rewrite ud.wchoice because osdcmd_cvar_set already changed it
+            {
+                int j = 0;
 
-        return r;
+                while (j < 10)
+                {
+                    ud.wchoice[j] = g_player[myconnectindex].wchoice[j] + '0';
+                    j++;
+                }
+
+                ud.wchoice[j] = 0;
+            }
+            else
+            {
+                char const *c = parm->parms[0];
+
+                if (*c)
+                {
+                    int j = 0;
+
+                    while (*c && j < 10)
+                    {
+                        g_player[myconnectindex].wchoice[j] = *c - '0';
+                        c++;
+                        j++;
+                    }
+
+                    while (j < 10)
+                    {
+                        if (j == 9)
+                            g_player[myconnectindex].wchoice[9] = 1;
+                        else
+                            g_player[myconnectindex].wchoice[j] = 2;
+
+                        j++;
+                    }
+                }
+            }
+
+            g_forceWeaponChoice = 0;
+        }
+
+        /*    Net_SendClientInfo();*/
     }
 
     return r;
@@ -1609,16 +1636,17 @@ int32_t registerosdcommands(void)
         { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 
 #ifdef EDUKE32_TOUCH_DEVICES
-        { "touch_sens_move_x","touch input sensitivity for moving froward/back", (void *)&droidinput.forward_sens, CVAR_FLOAT, 0, 10 },
-        { "touch_sens_move_y","touch input sensitivity for strafing", (void *)&droidinput.strafe_sens, CVAR_FLOAT, 0, 10 },
-        { "touch_sens_look_x", "touch input sensitivity for turning left/right", (void *) &droidinput.yaw_sens, CVAR_FLOAT, 0, 10 },
-        { "touch_sens_move_y", "touch input sensitivity for looking up/down", (void *) &droidinput.pitch_sens, CVAR_FLOAT, 0, 10 },
+        { "touch_sens_move_x","touch input sensitivity for moving froward/back", (void *)&droidinput.forward_sens, CVAR_FLOAT, 1, 9 },
+        { "touch_sens_move_y","touch input sensitivity for strafing", (void *)&droidinput.strafe_sens, CVAR_FLOAT, 1, 9 },
+        { "touch_sens_look_x", "touch input sensitivity for turning left/right", (void *) &droidinput.yaw_sens, CVAR_FLOAT, 1, 9 },
+        { "touch_sens_look_y", "touch input sensitivity for looking up/down", (void *) &droidinput.pitch_sens, CVAR_FLOAT, 1, 9 },
         { "touch_invert", "invert look up/down touch input", (void *) &droidinput.invertLook, CVAR_INT, 0, 1 },
 #endif
 
         { "vid_gamma","adjusts gamma component of gamma ramp",(void *)&vid_gamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
         { "vid_contrast","adjusts contrast component of gamma ramp",(void *)&vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
         { "vid_brightness","adjusts brightness component of gamma ramp",(void *)&vid_brightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+        { "wchoice","sets weapon autoselection order", (void *)ud.wchoice, CVAR_STRING|CVAR_FUNCPTR, 0, MAX_WEAPONS },
     };
 
     osdcmd_cheatsinfo_stat.cheatnum = -1;
