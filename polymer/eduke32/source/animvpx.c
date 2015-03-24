@@ -507,12 +507,14 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec)
     {
         bglTexImage2D(GL_TEXTURE_2D, 0, fmt, codec->width,codec->height,
                      0, fmt, GL_UNSIGNED_BYTE, codec->pic);
+        if (bglGetError() != GL_NO_ERROR) return 1;
         texuploaded = 1;
     }
     else
     {
         bglTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, codec->width,codec->height,
                         fmt, GL_UNSIGNED_BYTE, codec->pic);
+        if (bglGetError() != GL_NO_ERROR) return 1;
     }
 
     float vid_wbyh = ((float)codec->width)/codec->height;
