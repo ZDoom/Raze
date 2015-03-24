@@ -38,14 +38,12 @@ extern int32_t g_noEnemies;
 
 int32_t otherp;
 
-int32_t G_SetInterpolation(int32_t *posptr)
+int32_t G_SetInterpolation(int32_t * const posptr)
 {
-    int32_t i=g_numInterpolations-1;
-
     if (g_numInterpolations >= MAXINTERPOLATIONS)
         return 1;
 
-    for (; i>=0; i--)
+    for (int i = 0; i < g_numInterpolations; ++i)
         if (curipos[i] == posptr)
             return 0;
 
@@ -55,11 +53,9 @@ int32_t G_SetInterpolation(int32_t *posptr)
     return 0;
 }
 
-void G_StopInterpolation(int32_t *posptr)
+void G_StopInterpolation(int32_t * const posptr)
 {
-    int32_t i=g_numInterpolations-1;
-
-    for (; i>=startofdynamicinterpolations; i--)
+    for (int i = startofdynamicinterpolations; i < g_numInterpolations; ++i)
         if (curipos[i] == posptr)
         {
             g_numInterpolations--;
@@ -71,20 +67,19 @@ void G_StopInterpolation(int32_t *posptr)
 
 void G_DoInterpolations(int32_t smoothratio)       //Stick at beginning of drawscreen
 {
-    int32_t i=g_numInterpolations-1, j = 0, odelta, ndelta = 0;
-
     if (g_interpolationLock++)
-    {
         return;
-    }
 
-    for (; i>=0; i--)
+    int32_t odelta, ndelta = 0;
+
+    for (int i = 0, j = 0; i < g_numInterpolations; ++i)
     {
-        bakipos[i] = *curipos[i];
         odelta = ndelta;
-        ndelta = (*curipos[i])-oldipos[i];
-        if (odelta != ndelta) j = mulscale16(ndelta,smoothratio);
-        *curipos[i] = oldipos[i]+j;
+        bakipos[i] = *curipos[i];
+        ndelta = (*curipos[i]) - oldipos[i];
+        if (odelta != ndelta)
+            j = mulscale16(ndelta, smoothratio);
+        *curipos[i] = oldipos[i] + j;
     }
 }
 
@@ -93,10 +88,7 @@ void G_ClearCameraView(DukePlayer_t *ps)
     int32_t k;
 
     ps->newowner = -1;
-
-    ps->pos.x = ps->opos.x;
-    ps->pos.y = ps->opos.y;
-    ps->pos.z = ps->opos.z;
+    ps->pos = ps->opos;
     ps->ang = ps->oang;
 
     updatesector(ps->pos.x, ps->pos.y, &ps->cursectnum);
@@ -313,29 +305,28 @@ BOLT:
 // <spritenum>: the projectile
 // <i>: the SE7
 // <fromunderp>: below->above change?
-static int32_t Proj_MaybeDoTransport(int32_t spritenum, int32_t i, int32_t fromunderp, int32_t daz)
+static int32_t Proj_MaybeDoTransport(int32_t spritenum, const tspritetype * const effector, int32_t fromunderp, int32_t daz)
 {
-    if (totalclock > actor[spritenum].lasttransport)
-    {
-        spritetype *const spr = &sprite[spritenum];
-        const spritetype *const otherse = &sprite[OW];
+    if (totalclock <= actor[spritenum].lasttransport)
+        return 0;
 
-        actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
+    spritetype *const spr = &sprite[spritenum];
+    const tspritetype *const otherse = (tspritetype *)&sprite[effector->owner];
 
-        spr->x += (otherse->x-SX);
-        spr->y += (otherse->y-SY);
-        if (!fromunderp)  // above->below
-            spr->z = sector[otherse->sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
-        else  // below->above
-            spr->z = sector[otherse->sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
+    actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
 
-        Bmemcpy(&actor[spritenum].bpos, &sprite[spritenum], sizeof(vec3_t));
-        changespritesect(spritenum, otherse->sectnum);
+    spr->x += (otherse->x - effector->x);
+    spr->y += (otherse->y - effector->y);
 
-        return 1;
-    }
+                             // above->below
+    spr->z = (!fromunderp) ? sector[otherse->sectnum].ceilingz - daz + sector[effector->sectnum].floorz :
+                             sector[otherse->sectnum].floorz - daz + sector[effector->sectnum].ceilingz;
+                             // below->above
 
-    return 0;
+    actor[spritenum].bpos = *(vec3_t *)&sprite[spritenum];
+    changespritesect(spritenum, otherse->sectnum);
+
+    return 1;
 }
 
 // Check whether sprite <s> is on/in a non-SE7 water sector.
@@ -548,12 +539,12 @@ int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t c
 
                     if (lotag == ST_1_ABOVE_WATER)
                         if (daz >= actor[spritenum].floorz)
-                            if (Proj_MaybeDoTransport(spritenum, i, 0, daz))
+                            if (Proj_MaybeDoTransport(spritenum, (tspritetype *)&sprite[i], 0, daz))
                                 return 0;
 
                     if (lotag == ST_2_UNDERWATER)
                         if (daz <= actor[spritenum].ceilingz)
-                            if (Proj_MaybeDoTransport(spritenum, i, 1, daz))
+                            if (Proj_MaybeDoTransport(spritenum, (tspritetype *)&sprite[i], 1, daz))
                                 return 0;
                 }
         }
