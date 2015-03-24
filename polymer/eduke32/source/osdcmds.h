@@ -48,6 +48,8 @@ typedef struct {
 extern const keydef_t ConsoleKeys[];
 extern const char *const ConsoleButtons[];
 
+extern uint32_t cl_cheatmask;
+
 #ifdef __cplusplus
 }
 #endif

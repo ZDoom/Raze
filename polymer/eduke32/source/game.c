@@ -8131,6 +8131,64 @@ char CheatStrings[][MAXCHEATLEN] =
     "cgs",          // 26
 };
 
+const uint32_t CheatFunctionFlags[] =
+{
+    1 << CHEATFUNC_GOD,
+    1 << CHEATFUNC_GIVEEVERYTHING,
+    1 << CHEATFUNC_WARP,
+    1 << CHEATFUNC_COORDS,
+    1 << CHEATFUNC_VIEW,
+    0,
+    1 << CHEATFUNC_UNLOCK,
+    1 << CHEATFUNC_CASHMAN,
+    1 << CHEATFUNC_GIVEALLITEMS,
+    1 << CHEATFUNC_FRAMERATE,
+    1 << CHEATFUNC_SKILL,
+    1 << CHEATFUNC_QUOTEBETA,
+    1 << CHEATFUNC_HYPER,
+    1 << CHEATFUNC_MONSTERS,
+    0,
+    0,
+    1 << CHEATFUNC_QUOTETODD,
+    1 << CHEATFUNC_SHOWMAP,
+    1 << CHEATFUNC_GOD,
+    1 << CHEATFUNC_QUOTEALLEN,
+    1 << CHEATFUNC_CLIP,
+    1 << CHEATFUNC_GIVEWEAPONS,
+    1 << CHEATFUNC_GIVEINVENTORY,
+    1 << CHEATFUNC_GIVEKEYS,
+    1 << CHEATFUNC_DEBUG,
+    0,
+    (1 << CHEATFUNC_GOD) | (1 << CHEATFUNC_GIVEEVERYTHING),
+};
+
+// KEEPINSYNC game.h: enum CheatCodeFunctions
+// KEEPINSYNC menus.c: MenuEntry_t ME_CheatCodes[]
+const uint8_t CheatFunctionIDs[] =
+{
+    CHEAT_CASHMAN,
+    CHEAT_CORNHOLIO,
+    CHEAT_STUFF,
+    CHEAT_WEAPONS,
+    CHEAT_ITEMS,
+    CHEAT_INVENTORY,
+    CHEAT_KEYS,
+    CHEAT_HYPER,
+    CHEAT_VIEW,
+    CHEAT_SHOWMAP,
+    CHEAT_UNLOCK,
+    CHEAT_CLIP,
+    CHEAT_SCOTTY,
+    CHEAT_SKILL,
+    CHEAT_MONSTERS,
+    CHEAT_RATE,
+    CHEAT_BETA,
+    CHEAT_TODD,
+    CHEAT_ALLEN,
+    CHEAT_COORDS,
+    CHEAT_DEBUG,
+};
+
 static void doinvcheat(int32_t invidx, int32_t defaultnum, int32_t event)
 {
     defaultnum = VM_OnEventWithReturn(event, g_player[myconnectindex].ps->i, myconnectindex, defaultnum);
@@ -8167,14 +8225,18 @@ GAME_STATIC void G_DoCheats(void)
 
     if (osdcmd_cheatsinfo_stat.cheatnum != -1)
     {
+        if (ud.player_skill == 4)
+        {
+            P_DoQuote(QUOTE_CHEATS_DISABLED,g_player[myconnectindex].ps);
+            osdcmd_cheatsinfo_stat.cheatnum = -1;
+            return;
+        }
+
         // JBF 20030914
         k = osdcmd_cheatsinfo_stat.cheatnum;
         osdcmd_cheatsinfo_stat.cheatnum = -1;
         consolecheat = 1;
     }
-
-    if (g_player[myconnectindex].ps->gm & (MODE_TYPE|MODE_MENU))
-        return;
 
     if (VOLUMEONE && !vol1inited)
     {
@@ -8185,6 +8247,9 @@ GAME_STATIC void G_DoCheats(void)
 
     if (consolecheat && numplayers < 2 && ud.recstat == 0)
         goto FOUNDCHEAT;
+
+    if (g_player[myconnectindex].ps->gm & (MODE_TYPE|MODE_MENU))
+        return;
 
     if (g_player[myconnectindex].ps->cheat_phase == 1)
     {
@@ -8417,8 +8482,15 @@ FOUNDCHEAT:
                     }
                     else
                     {
-                        i = Bstrlen(CheatStrings[k])-1;
-                        ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
+                        if (!consolecheat)
+                        {
+                            i = Bstrlen(CheatStrings[k])-1;
+                            ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
+                        }
+                        else
+                        {
+                            ud.m_player_skill = ud.player_skill = osdcmd_cheatsinfo_stat.volume;
+                        }
                     }
                     /*if (numplayers > 1 && g_netServer)
                         Net_NewGame(ud.m_volume_number,ud.m_level_number);

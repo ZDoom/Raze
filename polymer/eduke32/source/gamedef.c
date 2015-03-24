@@ -5887,7 +5887,7 @@ repeatcase:
                 textptr++;
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ')
             {
-                CheatStrings[k][i] = *textptr;
+                CheatStrings[k][i] = Btolower(*textptr);
                 textptr++,i++;
                 if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(CheatStrings[k])-1))
                 {

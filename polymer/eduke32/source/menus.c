@@ -173,7 +173,7 @@ static MenuMenuFormat_t MMF_Top_Skill =            { {  MENU_MARGIN_CENTER<<16, 
 static MenuMenuFormat_t MMF_Top_Options =          { {  MENU_MARGIN_CENTER<<16, 38<<16, }, -190<<16 };
 static MenuMenuFormat_t MMF_Top_Joystick_Network = { {  MENU_MARGIN_CENTER<<16, 70<<16, }, -190<<16 };
 static MenuMenuFormat_t MMF_BigOptions =           { {    MENU_MARGIN_WIDE<<16, 38<<16, }, -190<<16 };
-static MenuMenuFormat_t MMF_SmallOptions =         { {    MENU_MARGIN_WIDE<<16, 37<<16, },  160<<16 };
+static MenuMenuFormat_t MMF_SmallOptions =         { {    MENU_MARGIN_WIDE<<16, 37<<16, },  170<<16 };
 static MenuMenuFormat_t MMF_Macros =               { {                  26<<16, 40<<16, },  160<<16 };
 static MenuMenuFormat_t MMF_SmallOptionsNarrow  =  { { MENU_MARGIN_REGULAR<<16, 38<<16, }, -190<<16 };
 static MenuMenuFormat_t MMF_KeyboardSetupFuncs =   { {                  70<<16, 34<<16, },  151<<16 };
@@ -195,6 +195,8 @@ static MenuEntryFormat_t MEF_BigOptionsRt =     { 4<<16,      0, -260<<16,  20<<
 #if defined USE_OPENGL || !defined DROIDMENU
 static MenuEntryFormat_t MEF_SmallOptions =     { 1<<16,      0,  216<<16,  10<<16, 32768 };
 #endif
+static MenuEntryFormat_t MEF_BigCheats =        { 3<<16,      0, -260<<16,  20<<16, 65536 };
+static MenuEntryFormat_t MEF_Cheats =           { 2<<16,      0, -260<<16,  10<<16, 32768 };
 static MenuEntryFormat_t MEF_PlayerNarrow =     { 1<<16,      0,   90<<16,  10<<16, 32768 };
 static MenuEntryFormat_t MEF_Macros =           { 2<<16,     -1,  268<<16,  10<<16, 32768 };
 static MenuEntryFormat_t MEF_VideoSetup =       { 4<<16,      0,  168<<16,  20<<16, 65536 };
@@ -394,6 +396,7 @@ MAKE_MENU_TOP_ENTRYLINK( "Joystick Setup", MEF_CenterMenu, OPTIONS_JOYSTICKSETUP
 #ifdef DROIDMENU
 MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_CenterMenu, OPTIONS_TOUCHSETUP, MENU_TOUCHSETUP );
 #endif
+MAKE_MENU_TOP_ENTRYLINK( "Cheats", MEF_CenterMenu, OPTIONS_CHEATS, MENU_CHEATS );
 
 static int32_t newresolution, newrendermode, newfullscreen;
 
@@ -540,6 +543,39 @@ static MenuLink_t MEO_DISPLAYSETUP_VIDEOSETUP = { MENU_VIDEOSETUP, MA_Advance, }
 static MenuEntry_t ME_DISPLAYSETUP_VIDEOSETUP = MAKE_MENUENTRY( "Video mode", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_VIDEOSETUP, Link );
 #endif
 
+
+static MenuLink_t MEO_ENTERCHEAT = { MENU_CHEATENTRY, MA_None, };
+static MenuEntry_t ME_ENTERCHEAT = MAKE_MENUENTRY( "Enter Cheat Code", &MF_Redfont, &MEF_BigCheats, &MEO_ENTERCHEAT, Link );
+
+static MenuLink_t MEO_CHEAT_WARP = { MENU_CHEAT_WARP, MA_None, };
+static MenuLink_t MEO_CHEAT_SKILL = { MENU_CHEAT_SKILL, MA_None, };
+// KEEPINSYNC game.h: enum CheatCodeFunctions
+// KEEPINSYNC game.c: uint8_t CheatFunctionIDs[]
+#define MAKE_MENUCHEAT( Name ) MAKE_MENUENTRY( Name, &MF_Bluefont, &MEF_Cheats, &MEO_NULL, Link )
+static MenuEntry_t ME_CheatCodes[] = {
+    MAKE_MENUCHEAT( "Toggle Cashman" ),
+    MAKE_MENUCHEAT( "Toggle God Mode" ),
+    MAKE_MENUCHEAT( "Give Everything" ),
+    MAKE_MENUCHEAT( "Give Weapons" ),
+    MAKE_MENUCHEAT( "Give All Items" ),
+    MAKE_MENUCHEAT( "Give Inventory" ),
+    MAKE_MENUCHEAT( "Give Keys" ),
+    MAKE_MENUCHEAT( "Toggle Hyper" ),
+    MAKE_MENUCHEAT( "Toggle 3rd-Person View" ),
+    MAKE_MENUCHEAT( "Toggle Show All Map" ),
+    MAKE_MENUCHEAT( "Toggle All Locks" ),
+    MAKE_MENUCHEAT( "Toggle Clipping" ),
+    MAKE_MENUENTRY( "Level Warp", &MF_Bluefont, &MEF_Cheats, &MEO_CHEAT_WARP, Link ),
+    MAKE_MENUENTRY( "Change Skill", &MF_Bluefont, &MEF_Cheats, &MEO_CHEAT_SKILL, Link ),
+    MAKE_MENUCHEAT( "Toggle Monsters" ),
+    MAKE_MENUCHEAT( "Toggle Framerate Display" ),
+    MAKE_MENUCHEAT( NULL ),
+    MAKE_MENUCHEAT( NULL ),
+    MAKE_MENUCHEAT( NULL ),
+    MAKE_MENUCHEAT( "Toggle Coordinate Display" ),
+    MAKE_MENUCHEAT( "Toggle Debug Data Dump" ),
+};
+
 static MenuEntry_t *MEL_OPTIONS[] = {
     &ME_OPTIONS_GAMESETUP,
     &ME_OPTIONS_SOUNDSETUP,
@@ -548,8 +584,9 @@ static MenuEntry_t *MEL_OPTIONS[] = {
     &ME_OPTIONS_PLAYERSETUP,
     &ME_OPTIONS_CONTROLS,
 #else
-    &ME_OPTIONS_TOUCHSETUP
+    &ME_OPTIONS_TOUCHSETUP,
 #endif
+    &ME_OPTIONS_CHEATS
 };
 
 static MenuEntry_t *MEL_CONTROLS[] = {
@@ -562,6 +599,9 @@ static MenuEntry_t *MEL_CONTROLS[] = {
 #endif
 };
 
+static MenuEntry_t *MEL_CHEATS[ARRAY_SIZE(ME_CheatCodes)+1] = {
+    &ME_ENTERCHEAT,
+};
 
 static MenuEntry_t *MEL_VIDEOSETUP[] = {
     &ME_VIDEOSETUP_RESOLUTION,
@@ -1108,6 +1148,7 @@ static MenuMenu_t M_OPTIONS = MAKE_MENUMENU( "Options", &MMF_Top_Options, MEL_OP
 static MenuMenu_t M_VIDEOSETUP = MAKE_MENUMENU( "Video Mode", &MMF_BigOptions, MEL_VIDEOSETUP );
 static MenuMenu_t M_KEYBOARDSETUP = MAKE_MENUMENU( "Keyboard Setup", &MMF_Top_Options, MEL_KEYBOARDSETUP );
 static MenuMenu_t M_CONTROLS = MAKE_MENUMENU( "Control Setup", &MMF_Top_Options, MEL_CONTROLS );
+static MenuMenu_t M_CHEATS = MAKE_MENUMENU( "Cheats", &MMF_SmallOptions, MEL_CHEATS );
 static MenuMenu_t M_MOUSESETUP = MAKE_MENUMENU( "Mouse Setup", &MMF_BigOptions, MEL_MOUSESETUP );
 #ifdef DROIDMENU
 static MenuMenu_t M_TOUCHSETUP = MAKE_MENUMENU( "Touch Setup", &MMF_BigOptions, MEL_TOUCHSETUP );
@@ -1170,6 +1211,9 @@ static MenuMessage_t M_NETWAITVOTES = { CURSOR_BOTTOMRIGHT, MENU_NULL, MA_None, 
 static MenuMessage_t M_BUYDUKE = { CURSOR_BOTTOMRIGHT, MENU_EPISODE, MA_Return, };
 
 static MenuTextForm_t M_ADULTPASSWORD = { NULL, "Enter Password:", MAXPWLOCKOUT, MTF_Password };
+static MenuTextForm_t M_CHEATENTRY = { NULL, "Enter Cheat Code:", MAXCHEATLEN, 0 };
+static MenuTextForm_t M_CHEAT_WARP = { NULL, "Enter Warp #:", 3, 0 };
+static MenuTextForm_t M_CHEAT_SKILL = { NULL, "Enter Skill #:", 1, 0 };
 
 #define MAKE_MENUFILESELECT(a, b, c) { a, { &MMF_FileSelectLeft, &MMF_FileSelectRight }, { &MF_Minifont, &MF_MinifontRed }, b, c, { NULL, NULL }, { 0, 0 }, { 3<<16, 3<<16 }, FNLIST_INITIALIZER, 0 }
 
@@ -1218,6 +1262,10 @@ static Menu_t Menus[] = {
     { &M_SOUND, MENU_SOUND, MENU_OPTIONS, MA_Return, Menu },
     { &M_SOUND, MENU_SOUND_INGAME, MENU_CLOSE, MA_Return, Menu },
     { &M_ADVSOUND, MENU_ADVSOUND, MENU_SOUND, MA_Return, Menu },
+    { &M_CHEATS, MENU_CHEATS, MENU_OPTIONS, MA_Return, Menu },
+    { &M_CHEATENTRY, MENU_CHEATENTRY, MENU_CHEATS, MA_None, TextForm },
+    { &M_CHEAT_WARP, MENU_CHEAT_WARP, MENU_CHEATS, MA_None, TextForm },
+    { &M_CHEAT_SKILL, MENU_CHEAT_SKILL, MENU_CHEATS, MA_None, TextForm },
     { &M_CREDITS, MENU_CREDITS, MENU_MAIN, MA_Return, Panel },
     { &M_CREDITS2, MENU_CREDITS2, MENU_MAIN, MA_Return, Panel },
     { &M_CREDITS3, MENU_CREDITS3, MENU_MAIN, MA_Return, Panel },
@@ -1631,6 +1679,29 @@ static void M_PreMenu(MenuID_t cm)
         for (i = 0; i < MAXSAVEGAMES; ++i)
             MEO_SAVE[i].font = (g_oldverSavegame[i] && MEO_SAVE[i].editfield == NULL) ? &MF_MinifontDarkGray : &MF_MinifontRed;
         break;
+
+    case MENU_CHEATS:
+    case MENU_CHEATENTRY:
+    case MENU_CHEAT_WARP:
+    case MENU_CHEAT_SKILL:
+    {
+        const int32_t menucheatsdisabled = numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME);
+
+        for (i = 0; i < NUMCHEATFUNCS; i++)
+        {
+            // only show cheats that have been typed in before
+            MEL_CHEATS[i+1] = (cl_cheatmask & (1<<i)) ? &ME_CheatCodes[i] : NULL;
+
+            // disable outside of a single-player game
+            MenuEntry_DisableOnCondition(&ME_CheatCodes[i], menucheatsdisabled);
+        }
+
+        // fix display names of quote cheats
+        ME_CheatCodes[CHEATFUNC_QUOTEBETA].name = ScriptQuotes[QUOTE_CHEAT_BETA];
+        ME_CheatCodes[CHEATFUNC_QUOTETODD].name = ScriptQuotes[QUOTE_CHEAT_TODD];
+        ME_CheatCodes[CHEATFUNC_QUOTEALLEN].name = ScriptQuotes[QUOTE_CHEAT_ALLEN];
+        break;
+    }
 
     default:
         break;
@@ -2332,6 +2403,60 @@ static void M_StartGameWithoutSkill(void)
     G_NewGame_EnterLevel();
 }
 
+static void M_Cheat(int32_t cheatID)
+{
+    if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
+        return;
+
+    osdcmd_cheatsinfo_stat.cheatnum = cheatID;
+}
+
+static int32_t M_Cheat_Warp(char const * const numbers)
+{
+    if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
+        return 0;
+
+    if (numbers == NULL || !numbers[0] || !numbers[1] || (VOLUMEALL && !numbers[2]))
+        return 1;
+
+    if (VOLUMEALL)
+    {
+        osdcmd_cheatsinfo_stat.volume = numbers[0] - '0';
+        osdcmd_cheatsinfo_stat.level = (numbers[1] - '0')*10+(numbers[2]-'0');
+    }
+    else
+    {
+        osdcmd_cheatsinfo_stat.volume =  numbers[0] - '0';
+        osdcmd_cheatsinfo_stat.level =  numbers[1] - '0';
+    }
+
+    osdcmd_cheatsinfo_stat.volume--;
+    osdcmd_cheatsinfo_stat.level--;
+
+    if ((VOLUMEONE && osdcmd_cheatsinfo_stat.volume > 0) || osdcmd_cheatsinfo_stat.volume > g_numVolumes-1 ||
+            osdcmd_cheatsinfo_stat.level >= MAXLEVELS || MapInfo[osdcmd_cheatsinfo_stat.volume *MAXLEVELS+osdcmd_cheatsinfo_stat.level].filename == NULL)
+        return 1;
+
+    osdcmd_cheatsinfo_stat.cheatnum = CHEAT_SCOTTY;
+
+    return 0;
+}
+
+static int32_t M_Cheat_Skill(char const * const number)
+{
+    if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
+        return 0;
+
+    if (number == NULL || !number[0])
+        return 1;
+
+    osdcmd_cheatsinfo_stat.volume = number[0] - '1';
+
+    osdcmd_cheatsinfo_stat.cheatnum = CHEAT_SKILL;
+
+    return 0;
+}
+
 /*
 Functions where a "newValue" or similar is passed are run *before* the linked variable is actually changed.
 That way you can compare the new and old values and potentially block the change.
@@ -2398,6 +2523,22 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
         MEO_JOYSTICKAXIS_DIGITALNEGATIVE.data = &ud.config.JoystickDigitalFunctions[M_JOYSTICKAXES.currentEntry][0];
         MEO_JOYSTICKAXIS_DIGITALPOSITIVE.data = &ud.config.JoystickDigitalFunctions[M_JOYSTICKAXES.currentEntry][1];
         break;
+
+    case MENU_CHEATS:
+    {
+        const int32_t cheatFuncID = M_CHEATS.currentEntry - 1;
+        switch (cheatFuncID)
+        {
+            case -1:
+            case CHEATFUNC_WARP:
+            case CHEATFUNC_SKILL:
+                break;
+            default:
+                M_Cheat(CheatFunctionIDs[cheatFuncID]);
+                break;
+        }
+        break;
+    }
 
     default:
         break;
@@ -2934,6 +3075,77 @@ static void M_MenuTextFormSubmit(char *input)
 
         S_PlaySound(PISTOL_BODYHIT);
         M_ChangeMenu(MENU_GAMESETUP);
+        break;
+
+    case MENU_CHEATENTRY:
+    {
+        const size_t inputlength = Bstrlen(input);
+        Bstrcpy(tempbuf, input);
+        const char *numberpos = NULL;
+        for (size_t i = 0; i < inputlength; i++)
+        {
+            tempbuf[i] = Btolower(tempbuf[i]);
+            if (Bisdigit(tempbuf[i]))
+            {
+                if (numberpos == NULL)
+                    numberpos = &input[i];
+                tempbuf[i] = '#';
+            }
+        }
+
+        int8_t cheatID = -1;
+
+        if (inputlength > 2 && tempbuf[0] == scantoasc[CheatKeys[0]] && tempbuf[1] == scantoasc[CheatKeys[1]])
+        {
+            for (size_t i = 0; i < NUMCHEATS; i++)
+                if (!Bstrcmp(tempbuf+2, CheatStrings[i]))
+                {
+                    cheatID = i;
+                    break;
+                }
+        }
+
+        switch (cheatID)
+        {
+            case -1:
+                S_PlaySound(KICK_HIT);
+                break;
+            case CHEAT_SCOTTY:
+                M_Cheat_Warp(numberpos);
+                if (g_player[myconnectindex].ps->gm&MODE_MENU)
+                    S_PlaySound(DUKE_GET);
+                break;
+            case CHEAT_SKILL:
+                M_Cheat_Skill(numberpos);
+                if (g_player[myconnectindex].ps->gm&MODE_MENU)
+                    S_PlaySound(DUKE_GET);
+                break;
+            default:
+                M_Cheat(cheatID);
+                S_PlaySound(DUKE_GET);
+                break;
+        }
+
+        if (cheatID >= 0)
+            cl_cheatmask |= CheatFunctionFlags[cheatID];
+
+        if ((cl_cheatmask & (1<<CHEATFUNC_QUOTEBETA)) && (cl_cheatmask & (1<<CHEATFUNC_QUOTETODD)) && (cl_cheatmask & (1<<CHEATFUNC_QUOTEALLEN)))
+            cl_cheatmask = ~0;
+
+        M_ChangeMenu(MENU_CHEATS);
+        break;
+    }
+
+    case MENU_CHEAT_WARP:
+        if (M_Cheat_Warp(input))
+            S_PlaySound(KICK_HIT);
+        M_ChangeMenu(MENU_CHEATS);
+        break;
+
+    case MENU_CHEAT_SKILL:
+        if (M_Cheat_Skill(input))
+            S_PlaySound(KICK_HIT);
+        M_ChangeMenu(MENU_CHEATS);
         break;
 
     default:
@@ -4338,6 +4550,9 @@ static void M_RunMenuRecurse(MenuID_t cm, const vec2_t origin)
     case MENU_LOADVERIFY:
     case MENU_SAVEVERIFY:
     case MENU_ADULTPASSWORD:
+    case MENU_CHEATENTRY:
+    case MENU_CHEAT_WARP:
+    case MENU_CHEAT_SKILL:
         M_RunMenu(m_previousMenu, origin);
         break;
     default:
@@ -5656,7 +5871,7 @@ void M_DisplayMenus(void)
     M_RunMenuInput(m_currentMenu);
 
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
-    g_player[myconnectindex].ps->fta = 0;
+    // g_player[myconnectindex].ps->fta = 0;
 
     if (((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && M_BlackTranslucentBackgroundOK(g_currentMenu))
         fade_screen_black(1);

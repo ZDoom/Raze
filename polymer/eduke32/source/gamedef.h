@@ -66,6 +66,8 @@ extern intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
 
 extern int32_t otherp;
 extern char CheatStrings[][MAXCHEATLEN];
+extern const uint32_t CheatFunctionFlags[];
+extern const uint8_t CheatFunctionIDs[];
 extern char g_szScriptFileName[BMAX_PATH];
 extern int32_t g_totalLines,g_lineNumber;
 extern int32_t g_numCompilerErrors,g_numCompilerWarnings,g_numQuoteRedefinitions;

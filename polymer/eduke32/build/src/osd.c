@@ -2131,14 +2131,14 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             int32_t val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%d\"\n%s: %s\n",osd->cvars[i].c.name,*(int32_t *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,(char *)osd->cvars[i].c.desc);
+                OSD_Printf((osd->cvars[i].c.type & CVAR_UINT) ? "\"%s\" is \"%u\"\n%s: %s\n" : "\"%s\" is \"%d\"\n%s: %s\n",osd->cvars[i].c.name,*(int32_t *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,(char *)osd->cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
             val = Batoi(parm->parms[0]);
             if (osd->cvars[i].c.type & CVAR_BOOL) val = val != 0;
 
-            if (val < osd->cvars[i].c.min || val > osd->cvars[i].c.max)
+            if (val < osd->cvars[i].c.min || ((osd->cvars[i].c.type & CVAR_UINT) ? ((unsigned) val > (unsigned) osd->cvars[i].c.max) : (val > osd->cvars[i].c.max)))
             {
                 OSD_Printf("%s value out of range\n",osd->cvars[i].c.name);
                 return OSDCMD_OK;
@@ -2221,9 +2221,11 @@ void OSD_WriteCvars(FILE *fp)
                 fprintf(fp,"%s \"%f\"\n",osd->cvars[i].c.name,*(double *)osd->cvars[i].c.vptr);
                 break;
             case CVAR_INT:
-            case CVAR_UINT:
             case CVAR_BOOL:
                 fprintf(fp,"%s \"%d\"\n",osd->cvars[i].c.name,*(int32_t *)osd->cvars[i].c.vptr);
+                break;
+            case CVAR_UINT:
+                fprintf(fp,"%s \"%u\"\n",osd->cvars[i].c.name,*(uint32_t *)osd->cvars[i].c.vptr);
                 break;
             case CVAR_STRING:
                 fprintf(fp,"%s \"%s\"\n",osd->cvars[i].c.name,(char *)osd->cvars[i].c.vptr);
