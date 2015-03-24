@@ -42,7 +42,7 @@ uint8_t g_oldverSavegame[MAXSAVEGAMES];
 //  back_p==1: "small int" -> ptr
 //
 //  mode: see enum in savegame.h
-void G_Util_PtrToIdx(void *ptr, int32_t count, const void *base, int32_t mode)
+void G_Util_PtrToIdx(void *ptr, int32_t const count, const void *base, int32_t const mode)
 {
     intptr_t *iptr = (intptr_t *)ptr;
     intptr_t const ibase = (intptr_t)base;
@@ -67,7 +67,7 @@ void G_Util_PtrToIdx(void *ptr, int32_t count, const void *base, int32_t mode)
     }
 }
 
-void G_Util_PtrToIdx2(void *ptr, int32_t count, size_t stride, const void *base, int32_t mode)
+void G_Util_PtrToIdx2(void *ptr, int32_t const count, size_t const stride, const void *base, int32_t const mode)
 {
     uint8_t *iptr = (uint8_t *)ptr;
     intptr_t const ibase = (intptr_t)base;
