@@ -1725,8 +1725,9 @@ static void sv_quoteload()
 static void sv_preprojectilesave()
 {
     ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
-
+#ifdef DEBUGGINGAIDS
     int onumprojectiles = g_numProjectiles;
+#endif
     g_numProjectiles = 0;
 
     for (int i=0; i<MAXTILES; i++)
@@ -1739,7 +1740,9 @@ static void sv_preprojectilesave()
         }
     }
 
+#ifdef DEBUGGINGAIDS
     Bassert(g_numProjectiles == onumprojectiles);
+#endif
 }
 
 static void sv_postprojectilesave()
@@ -1754,7 +1757,9 @@ static void sv_preprojectileload()
 
 static void sv_postprojectileload()
 {
+#ifdef DEBUGGINGAIDS
     int onumprojectiles = g_numProjectiles;
+#endif
     g_numProjectiles = 0;
 
     for (int i=0; i<MAXTILES; i++)
@@ -1769,7 +1774,9 @@ static void sv_postprojectileload()
         }
     }
 
+#ifdef DEBUGGINGAIDS
     Bassert(g_numProjectiles == onumprojectiles);
+#endif
 
 //    DO_FREE_AND_NULL(ProjectileData);
 }

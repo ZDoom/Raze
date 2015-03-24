@@ -1539,6 +1539,10 @@ static void drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method
               nguy = (opxy[1].x*uu[0] + opxy[1].y*uu[1] + opxy[1].z*uu[2])*r,
               ngvy = (opxy[1].x*vv[0] + opxy[1].y*vv[1] + opxy[1].z*vv[2])*r;
 
+        float ngdo = dd[0] - opxy[2].x * ngdx - opxy[2].y * ngdy,
+              nguo = uu[0] - opxy[2].x * ngux - opxy[2].y * nguy,
+              ngvo = vv[0] - opxy[2].x * ngvx - opxy[2].y * ngvy;
+
         ngux *= hacksc.x; nguy *= hacksc.x; nguo *= hacksc.x;
         ngvx *= hacksc.y; ngvy *= hacksc.y; ngvo *= hacksc.y;
 
