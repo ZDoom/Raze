@@ -198,9 +198,9 @@ static inline void swapfloat(void *a, void *b)
 }
 static inline void swap64bit(void *a, void *b)
 {
-    int64_t t = *((int64_t *)b);
-    *((int64_t *)b) = *((int64_t *)a);
-    *((int64_t *)a) = t;
+    uint64_t t = *((uint64_t *)b);
+    *((uint64_t *)b) = *((uint64_t *)a);
+    *((uint64_t *)a) = t;
 }
 
 static inline char readpixel(void *s) { return (*((char *)(s))); }
