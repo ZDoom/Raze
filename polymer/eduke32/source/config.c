@@ -800,7 +800,6 @@ void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_settings.cfg
 void CONFIG_WriteSetup(uint32_t flags)
 {
     int32_t dummy;
-    char tempbuf[1024];
 
     if (!ud.config.setupread) return;
 
