@@ -30,10 +30,8 @@ extern "C"
 #define PRECISIONSHOOTFACTOR        0.3f
 
 // where do these numbers come from?
-#define ANDROIDFORWARDMOVEFACTOR    5000
-#define ANDROIDSIDEMOVEFACTOR       200
-#define ANDROIDPITCHFACTOR          100000
-#define ANDROIDYAWFACTOR            160000
+#define ANDROIDMOVEFACTOR           6400
+#define ANDROIDLOOKFACTOR          160000
 
 #define ANDROIDPITCHFACTORJOYSTICK          2000
 #define ANDROIDYAWFACTORJOYSTICK            4000
@@ -112,8 +110,8 @@ void PortableMouseMenu(float x,float y);
 void PortableMouseMenuButton(int state,int button);
 
 void PortableMove(float fwd, float strafe);
-void PortableLook(double yaw, double pitch);
-void PortableLookJoystick(double yaw, double pitch);
+void PortableLook(float yaw, float pitch);
+void PortableLookJoystick(float yaw, float pitch);
 void PortableCommand(const char * cmd);
 
 void PortableAutomapControl(float zoom,float dx,float dy);

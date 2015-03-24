@@ -20,8 +20,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-// #include "../src/video/android/SDL_androidkeyboard.h" // FIXME: include header locally if necessary
-//#include "../src/events/SDL_mouse_c.h"
 extern int SDL_SendKeyboardKey(Uint8 state, SDL_Scancode scancode);
 extern int SDL_SendKeyboardText(const char *text);
 extern int SDL_SendMouseMotion(SDL_Window * window, Uint32 mouseID, int relative, int x, int y);
@@ -171,6 +169,18 @@ void PortableAction(int state, int action)
     }
 }
 
+int const deadRegion = 0.3;
+
+float analogCalibrate(float v)
+{
+    float rv = 0;
+
+    if (v > deadRegion) rv = (v - deadRegion) * (v - deadRegion);
+    else if (-v > deadRegion) rv = -(-v - deadRegion) * (-v - deadRegion);
+
+    return rv;
+}
+
 //Need these NAN check as not cumulative.
 void PortableMove(float fwd, float strafe)
 {
@@ -181,26 +191,25 @@ void PortableMove(float fwd, float strafe)
     }
 
     if (!isnan(fwd))
-        droidinput.forwardmove = fclamp2(fwd, -1.f, 1.f);
+        droidinput.forwardmove = fclamp2(analogCalibrate(fwd), -1.f, 1.f);
 
     if (!isnan(strafe))
-        droidinput.sidemove    = fclamp2(strafe,    -1.f, 1.f);
+        droidinput.sidemove    = fclamp2(analogCalibrate(strafe),    -1.f, 1.f);
 }
 
-void PortableLook(double yaw, double pitch)
+void PortableLook(float yaw, float pitch)
 {
-    // LOGI("PortableLookPitch %f %f",yaw, pitch);
     droidinput.pitch += pitch;
     droidinput.yaw   += yaw;
 }
 
-void PortableLookJoystick(double yaw, double pitch)
+void PortableLookJoystick(float yaw, float pitch)
 {
     if (!isnan(pitch))
-        droidinput.pitch_joystick = pitch;
+        droidinput.pitch_joystick = analogCalibrate(pitch);
 
     if (!isnan(yaw))
-        droidinput.yaw_joystick   = yaw;
+        droidinput.yaw_joystick   = analogCalibrate(yaw);
 }
 
 void PortableCommand(const char * cmd)
@@ -233,8 +242,10 @@ int32_t PortableRead(portableread_t r)
             rv = TOUCH_SCREEN_CONSOLE;
         else if ((g_player[myconnectindex].ps->gm & MODE_MENU) == MODE_MENU)
             rv = (m_currentMenu->type == Verify) ? TOUCH_SCREEN_YES_NO : TOUCH_SCREEN_MENU;
+/*
         else if (ud.overhead_on == 2)
             rv = TOUCH_SCREEN_AUTOMAP;
+*/
         else if ((g_player[myconnectindex].ps->gm & MODE_GAME))
             if (PortableRead(READ_IS_DEAD))
                 rv = TOUCH_SCREEN_BLANK_TAP;
@@ -246,7 +257,7 @@ int32_t PortableRead(portableread_t r)
     case READ_WEAPONS:
         rv = g_player[myconnectindex].ps->gotweapon; break;
     case READ_AUTOMAP:
-        rv = ud.overhead_on != 0;  break;// ud.overhead_on ranges from 0-2
+        rv = 0; break;//ud.overhead_on != 0;  break;// ud.overhead_on ranges from 0-2
     case READ_MAPFOLLOWMODE:
         rv = ud.scrollmode; break;
     case READ_RENDERER:
@@ -302,7 +313,6 @@ extern void  CONTROL_Android_ScrollMap(int32_t *angle,int32_t *x, int32_t *y, ui
 
 void CONTROL_Android_SetLastWeapon(int w)
 {
-    LOGI("setLastWeapon %d",w);
     droidinput.lastWeapon = w;
 }
 
@@ -312,36 +322,20 @@ void CONTROL_Android_ClearButton(int32_t whichbutton)
     droidinput.functionHeld  &= ~((uint64_t)1<<((uint64_t)(whichbutton)));
 }
 
-int clearCtrl=1;
 void CONTROL_Android_PollDevices(ControlInfo *info)
 {
     //LOGI("CONTROL_Android_PollDevices %f %f",forwardmove,sidemove);
     //LOGI("CONTROL_Android_PollDevices %f %f",droidinput.pitch,droidinput.yaw);
 
-    info->dz     = (int32_t)nearbyintf(-droidinput.forwardmove * ANDROIDFORWARDMOVEFACTOR);
-    info->dx     = (int32_t)nearbyintf(droidinput.sidemove * ANDROIDSIDEMOVEFACTOR);
-    info->dpitch = (int32_t)nearbyint(droidinput.pitch * ANDROIDPITCHFACTOR +
-            droidinput.pitch_joystick * ANDROIDPITCHFACTORJOYSTICK);
-    info->dyaw   = (int32_t)nearbyint(-droidinput.yaw * ANDROIDYAWFACTOR -
-            droidinput.yaw_joystick * ANDROIDYAWFACTORJOYSTICK);
-
-    /*
-    if (clearCtrl == 0)
-        clearCtrl = 1;
-
-    LOGI("ctrl = %d",clearCtrl);
-    info->dpitch *= clearCtrl;
-    info->dyaw  *= clearCtrl;
-     */
+    info->dz = (int32_t)nearbyintf(-droidinput.forwardmove * ANDROIDMOVEFACTOR);
+    info->dx = (int32_t)nearbyintf(droidinput.sidemove * ANDROIDMOVEFACTOR) >> 5;
+    info->dpitch =
+    (int32_t)nearbyint(droidinput.pitch * ANDROIDLOOKFACTOR + droidinput.pitch_joystick * ANDROIDPITCHFACTORJOYSTICK);
+    info->dyaw =
+    (int32_t)nearbyint(-droidinput.yaw * ANDROIDLOOKFACTOR - droidinput.yaw_joystick * ANDROIDYAWFACTORJOYSTICK);
 
     droidinput.pitch = droidinput.yaw = 0.f;
-
-    clearCtrl = 0;
-
-    CONTROL_ButtonState = 0;
-    CONTROL_ButtonState |= droidinput.functionSticky;
-    CONTROL_ButtonState |= droidinput.functionHeld;
-
+    CONTROL_ButtonState = droidinput.functionSticky | droidinput.functionHeld;
     droidinput.functionSticky = 0;
 
     //LOGI("poll state = 0x%016llX",CONTROL_ButtonState);

@@ -24,9 +24,6 @@ extern "C" {
 #define DEFAULT_FADE_FRAMES 10
 
 extern void SDL_Android_Init(JNIEnv *env, jclass cls);
-// This is a new function I put into SDL2, file SDL_androidgl.c
-extern void SDL_SetSwapBufferCallBack(void (*pt2Func)(void));
-
 extern char const *G_GetStringFromSavegame(const char *filename, int type);
 extern int32_t G_GetScreenshotFromSavegame(const char *filename, char *pal, char *data);
 
@@ -80,13 +77,13 @@ static int weaponWheelVisible = false;
 static int controlsCreated = 0;
 touchcontrols::TouchControlsContainer controlsContainer;
 
-touchcontrols::TouchControls *tcBlankTap = 0;
-touchcontrols::TouchControls *tcYesNo = 0;
-touchcontrols::TouchControls *tcMenuMain = 0;
-touchcontrols::TouchControls *tcGameMain = 0;
-touchcontrols::TouchControls *tcGameWeapons = 0;
-// touchcontrols::TouchControls *tcInventory=0;
-touchcontrols::TouchControls *tcAutomap = 0;
+touchcontrols::TouchControls *tcBlankTap;
+touchcontrols::TouchControls *tcYesNo;
+touchcontrols::TouchControls *tcMenuMain;
+touchcontrols::TouchControls *tcGameMain;
+touchcontrols::TouchControls *tcGameWeapons;
+// touchcontrols::TouchControls *tcInventory;
+touchcontrols::TouchControls *tcAutomap;
 
 
 touchcontrols::TouchJoy *touchJoyLeft;
@@ -97,8 +94,7 @@ JavaVM *jvm_;
 
 touchcontrols::Button *inv_buttons[GET_MAX];
 
-std::string obbPath;
-std::string gamePath;
+std::string obbPath, gamePath;
 
 void openGLStart()
 {
@@ -204,9 +200,7 @@ void showWeaponsInventory(bool show)
     if (show)
     {
         for (int n = 0; n < 10; n++)
-        {
             weaponWheel->setSegmentEnabled(n, (PortableRead(READ_WEAPONS) >> n) & 0x1);
-        }
 
         // Show inventory buttons
         tcGameWeapons->setAllButtonsEnable(true);

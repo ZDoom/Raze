@@ -20,11 +20,9 @@ LOCAL_MODULE    := duke
 
 # -O2  -fvisibility=hidden
 
-LOCAL_CFLAGS :=   -x c++ -std=gnu++03 -fvisibility=hidden -fPIC -O2 -funswitch-loops -fomit-frame-pointer -DNDEBUG -DUSING_LTO -flto -fno-stack-protector   -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=0 -fjump-tables -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT
+LOCAL_CFLAGS :=   -x c++ -std=gnu++03 -fvisibility=hidden -fPIC -O2 -DNDEBUG -DUSING_LTO -flto -fno-stack-protector -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=0 -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT
 LOCAL_CFLAGS += -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -Wno-unused-result  -Wno-char-subscripts -Wno-strict-overflow -Wno-attributes -Wno-write-strings
 LOCAL_CPPFLAGS := -std=gnu++03
-
-#-DUSE_LIBPNG
 
 LOCAL_CFLAGS += -DHAVE_SDL -DHAVE_VORBIS -DHAVE_JWZGLES -DHAVE_ANDROID -DRENDERTYPESDL=1  -DUSE_OPENGL -DNETCODE_DISABLE -DUSE_LIBVPX
 
@@ -40,7 +38,8 @@ ANDROID_SRC = \
 	source/android/android-jni.cpp \
 	source/android/in_android.c \
         build/src/glbuild_android.c \
-        build/src/jwzgles.c
+        build/src/jwzgles.c \
+        source/android/rg_etc1.cpp
 
 BUILD_SRC = \
 	build/src/a-c.c \
