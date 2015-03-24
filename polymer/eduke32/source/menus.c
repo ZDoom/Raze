@@ -1169,7 +1169,7 @@ static MenuMessage_t M_NETWAITMASTER = { CURSOR_BOTTOMRIGHT, MENU_NULL, MA_None,
 static MenuMessage_t M_NETWAITVOTES = { CURSOR_BOTTOMRIGHT, MENU_NULL, MA_None, };
 static MenuMessage_t M_BUYDUKE = { CURSOR_BOTTOMRIGHT, MENU_EPISODE, MA_Return, };
 
-static MenuPassword_t M_ADULTPASSWORD = { NULL, MAXPWLOCKOUT };
+static MenuTextForm_t M_ADULTPASSWORD = { NULL, "Enter Password:", MAXPWLOCKOUT, MTF_Password };
 
 #define MAKE_MENUFILESELECT(a, b, c) { a, { &MMF_FileSelectLeft, &MMF_FileSelectRight }, { &MF_Minifont, &MF_MinifontRed }, b, c, { NULL, NULL }, { 0, 0 }, { 3<<16, 3<<16 }, FNLIST_INITIALIZER, 0 }
 
@@ -1226,7 +1226,7 @@ static Menu_t Menus[] = {
     { &M_LOADVERIFY, MENU_LOADVERIFY, MENU_LOAD, MA_None, Verify },
     { &M_NEWVERIFY, MENU_NEWVERIFY, MENU_MAIN, MA_Return, Verify },
     { &M_SAVEVERIFY, MENU_SAVEVERIFY, MENU_SAVE, MA_None, Verify },
-    { &M_ADULTPASSWORD, MENU_ADULTPASSWORD, MENU_GAMESETUP, MA_None, Password },
+    { &M_ADULTPASSWORD, MENU_ADULTPASSWORD, MENU_GAMESETUP, MA_None, TextForm },
     { &M_RESETPLAYER, MENU_RESETPLAYER, MENU_CLOSE, MA_None, Verify },
     { &M_BUYDUKE, MENU_BUYDUKE, MENU_EPISODE, MA_Return, Message },
     { &M_NETWORK, MENU_NETWORK, MENU_MAIN, MA_Return, Menu },
@@ -2911,16 +2911,16 @@ static void M_MenuVerify(int32_t input)
     }
 }
 
-static void M_MenuPasswordSubmit(char *input)
+static void M_MenuTextFormSubmit(char *input)
 {
     switch (g_currentMenu)
     {
     case MENU_ADULTPASSWORD:
         if (Bstrlen(input) && (ud.pwlockout[0] == 0 || ud.lockout == 0))
             Bstrcpy(&ud.pwlockout[0], input);
+#if 0
         else if (Bstrcmp(input, &ud.pwlockout[0]) == 0)
         {
-            ud.lockout = 0;
 #if 0
             for (x=0; x<g_numAnimWalls; x++)
                 if (wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
@@ -2930,7 +2930,9 @@ static void M_MenuPasswordSubmit(char *input)
                         wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
 #endif
         }
+#endif
 
+        S_PlaySound(PISTOL_BODYHIT);
         M_ChangeMenu(MENU_GAMESETUP);
         break;
 
@@ -3192,10 +3194,10 @@ void M_ChangeMenu(MenuID_t cm)
     m_menuchange_watchpoint = 1;
 #endif
 
-    if (m_currentMenu->type == Password)
+    if (m_currentMenu->type == TextForm)
     {
         typebuf[0] = 0;
-        ((MenuPassword_t*)m_currentMenu->object)->input = typebuf;
+        ((MenuTextForm_t*)m_currentMenu->object)->input = typebuf;
     }
     else if (m_currentMenu->type == FileSelect)
         M_MenuFileSelectInit((MenuFileSelect_t*)m_currentMenu->object);
@@ -3272,7 +3274,7 @@ int32_t M_IsTextInput(Menu_t *cm)
     switch (m_currentMenu->type)
     {
         case Verify:
-        case Password:
+        case TextForm:
         case FileSelect:
         case Message:
             return 1;
@@ -3397,11 +3399,11 @@ static int32_t ydim_from_200_16(int32_t y)
     return scale(y, ydim, 200<<16);
 }
 
-static void M_BlackRectangle(int32_t x, int32_t y, int32_t width, int32_t height)
+static void M_BlackRectangle(int32_t x, int32_t y, int32_t width, int32_t height, int32_t orientation)
 {
     const int32_t xscale = scale(65536, width, tilesiz[0].x<<16), yscale = scale(65536, height, tilesiz[0].y<<16);
 
-    rotatesprite_(x, y, max(xscale, yscale), 0, 0, 127, 4, 1|2|8|16|32, 0, 0, xdim_from_320_16(x), ydim_from_200_16(y), xdim_from_320_16(x + width), ydim_from_200_16(y + height));
+    rotatesprite_(x, y, max(xscale, yscale), 0, 0, 127, 4, (orientation&(1|32))|2|8|16, 0, 0, xdim_from_320_16(x), ydim_from_200_16(y), xdim_from_320_16(x + width), ydim_from_200_16(y + height));
 }
 
 enum MenuTextFlags_t
@@ -3502,7 +3504,7 @@ static void M_RunMenu_Scrollbar(Menu_t *cm, MenuMenuFormat_t const * const forma
         const int32_t scrollregionheight = scrollheight - (tilesiz[SELECTDIR].y<<16);
         const int32_t scrollPosMax = totalextent - klabs(format->bottomcutoff);
 
-        M_BlackRectangle(scrollx, scrolly, scrollwidth, scrollheight);
+        M_BlackRectangle(scrollx, scrolly, scrollwidth, scrollheight, 1|32);
 
         rotatesprite_fs(scrollx, scrolly + scale(scrollregionheight, *scrollPos, scrollPosMax), 65536, 0, SELECTDIR, 0, 0, 26);
 
@@ -4381,27 +4383,35 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
             break;
         }
 
-        case Password:
+        case TextForm:
         {
-            MenuPassword_t *object = (MenuPassword_t*)cm->object;
-            vec2_t textreturn;
-            size_t x;
+            MenuTextForm_t *object = (MenuTextForm_t*)cm->object;
 
             M_PreMenu(cm->menuID);
 
             M_PreMenuDrawBackground(cm->menuID, origin);
 
-            mgametextcenter(origin.x, origin.y + ((50+16+16+16+16-12)<<16), "Enter Password");
+            M_BlackRectangle(origin.x + (60<<16), origin.y + (86<<16), 200<<16, 28<<16, 0);
 
-            for (x=0; x < Bstrlen(object->input); ++x)
-                tempbuf[x] = '*';
-            tempbuf[x] = 0;
+            G_ScreenText(STARTALPHANUM, origin.x + (160<<16), origin.y + (98<<16), 65536, 0, 0, object->instructions, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, -1<<16, 1<<16, TEXT_XCENTER|TEXT_YBOTTOM, 0, 0, xdim-1, ydim-1);
 
-            textreturn = mgametextcenter(origin.x, origin.y + ((50+16+16+16+16)<<16), tempbuf);
+            const char *displaytext = object->input;
+
+            if (object->flags & MTF_Password)
+            {
+                size_t x;
+                for (x = 0; x < Bstrlen(object->input); ++x)
+                    tempbuf[x] = '*';
+                tempbuf[x] = 0;
+
+                displaytext = tempbuf;
+            }
+
+            const vec2_t textreturn = G_ScreenText(STARTALPHANUM, origin.x + (160<<16), origin.y + (102<<16), 65536, 0, 0, displaytext, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, -1<<16, 1<<16, TEXT_XCENTER, 0, 0, xdim-1, ydim-1);
 
             M_PreMenuDraw(cm->menuID, NULL, origin);
 
-            rotatesprite_fs(origin.x + (168<<16) + (textreturn.x>>1), origin.y + ((50+16+16+16+16+4)<<16), 32768, 0, SPINNINGNUKEICON + ((totalclock >> 3) % 7), cursorShade, 0, 2 | 8);
+            rotatesprite_fs(origin.x + (168<<16) + (textreturn.x>>1), origin.y + (106<<16), 32768, 0, SPINNINGNUKEICON + ((totalclock >> 3) % 7), cursorShade, 0, 2 | 8);
 
             break;
         }
@@ -4421,7 +4431,7 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
 
 
             // black translucent background underneath file lists
-            M_BlackRectangle(origin.x + (36<<16), origin.y + (42<<16), 248<<16, 123<<16);
+            M_BlackRectangle(origin.x + (36<<16), origin.y + (42<<16), 248<<16, 123<<16, 1|32);
 
             // path
             Bsnprintf(tempbuf, sizeof(tempbuf), "Path: %s", object->destination);
@@ -5065,9 +5075,9 @@ static void M_RunMenuInput(Menu_t *cm)
             break;
         }
 
-        case Password:
+        case TextForm:
         {
-            MenuPassword_t *object = (MenuPassword_t*)cm->object;
+            MenuTextForm_t *object = (MenuTextForm_t*)cm->object;
             int32_t hitstate = I_EnterText(object->input, object->maxlength, 0);
 
             if (hitstate == -1 || M_RunMenuInput_MouseReturn())
@@ -5084,9 +5094,7 @@ static void M_RunMenuInput(Menu_t *cm)
             {
                 m_mousecaught = 1;
 
-                S_PlaySound(PISTOL_BODYHIT);
-
-                M_MenuPasswordSubmit(object->input);
+                M_MenuTextFormSubmit(object->input);
 
                 object->input = NULL;
             }

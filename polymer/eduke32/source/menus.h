@@ -319,7 +319,7 @@ typedef enum MenuType_t
     Panel,
     Verify,
     Message,
-    Password,
+    TextForm,
     FileSelect,
 } MenuType_t;
 
@@ -359,14 +359,20 @@ typedef struct MenuMessage_t
     MenuID_t linkID;
     MenuAnimationType_t animation;
 } MenuMessage_t;
-typedef struct MenuPassword_t
+enum MenuTextFormFlags_t
+{
+    MTF_Password = 1<<0,
+};
+typedef struct MenuTextForm_t
 {
     // state
     char *input;
 
     // traits
+    const char *instructions;
     int32_t maxlength;
-} MenuPassword_t;
+    uint8_t flags;
+} MenuTextForm_t;
 typedef struct MenuFileSelect_t
 {
     const char *title;
