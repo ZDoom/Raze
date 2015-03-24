@@ -914,44 +914,43 @@ void uninitgroupfile(void)
 // http://stackoverflow.com/questions/74451/getting-actual-file-name-with-proper-casing-on-windows
 // for relevant discussion.
 
-static SHFILEINFO shinf;
+static char fnbuf[BMAX_PATH];
+int fnofs;
 
 int32_t (*check_filename_casing_fn)(void) = NULL;
 
 // -1: failure, 0: match, 1: mismatch
-static int32_t check_filename_mismatch(const char *filename, int32_t ofs)
+static int32_t check_filename_mismatch(const char * const filename, int ofs)
 {
-    const char *fn = filename+ofs;
-    int32_t len;
+    if (!GetShortPathNameA(filename, fnbuf, BMAX_PATH)) return -1;
+    if (!GetLongPathNameA(fnbuf, fnbuf, BMAX_PATH)) return -1;
 
-    // we assume that UNICODE is not #defined, winlayer.c errors out else
-    if (!SHGetFileInfo(filename, -1, &shinf, sizeof(shinf), SHGFI_DISPLAYNAME))
-        return -1;
+    fnofs = ofs;
 
-    len = Bstrlen(shinf.szDisplayName);
+    int len = Bstrlen(fnbuf+ofs);
 
-    if (!Bstrncmp(shinf.szDisplayName, fn, len))
+    char const * const fn = filename+ofs;
+
+    if (!Bstrncmp(fnbuf+ofs, fn, len))
         return 0;
 
+    char * const tfn = Bstrtolower(Xstrdup(fn));
+
+    if (!Bstrncmp(fnbuf+ofs, tfn, len))
     {
-        char *tfn = Bstrtolower(Xstrdup(fn));
-
-        if (!Bstrncmp(shinf.szDisplayName, tfn, len))
-        {
-            Bfree(tfn);
-            return 0;
-        }
-
-        Bstrupr(tfn);
-
-        if (!Bstrncmp(shinf.szDisplayName, tfn, len))
-        {
-            Bfree(tfn);
-            return 0;
-        }
-
         Bfree(tfn);
+        return 0;
     }
+
+    Bstrupr(tfn);
+
+    if (!Bstrncmp(fnbuf+ofs, tfn, len))
+    {
+        Bfree(tfn);
+        return 0;
+    }
+
+    Bfree(tfn);
 
     return 1;
 }
@@ -992,7 +991,7 @@ static int32_t kopen_internal(const char *filename, char **lastpfn, char searchf
             else if (status == 1)
             {
                 initprintf("warning: case mismatch: passed \"%s\", real \"%s\"\n",
-                           lastslash, shinf.szDisplayName);
+                           lastslash, fnbuf+fnofs);
             }
         }
 #else
