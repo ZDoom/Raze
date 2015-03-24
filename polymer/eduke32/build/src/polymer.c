@@ -1397,14 +1397,14 @@ static void         polymer_drawsearchplane(_prplane *plane, GLubyte *oldcolor, 
 
 void                polymer_drawmaskwall(int32_t damaskwallcnt)
 {
-    sectortype      *sec;
+    tsectortype     *sec;
     walltype        *wal;
     _prwall         *w;
     GLubyte         oldcolor[4];
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Masked wall %i...\n", damaskwallcnt);
 
-    sec = &sector[sectorofwall(maskwall[damaskwallcnt])];
+    sec = (tsectortype *)&sector[sectorofwall(maskwall[damaskwallcnt])];
     wal = &wall[maskwall[damaskwallcnt]];
     w = prwalls[maskwall[damaskwallcnt]];
 
@@ -1426,7 +1426,7 @@ void                polymer_drawsprite(int32_t snum)
     _prsprite       *s;
 
     tspritetype      *const tspr = tspriteptr[snum];
-    const sectortype *sec;
+    const tsectortype *sec;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
@@ -1441,9 +1441,9 @@ void                polymer_drawsprite(int32_t snum)
 
     DO_TILE_ANIM(tspr->picnum, tspr->owner+32768);
 
-    sec = &sector[tspr->sectnum];
+    sec = (tsectortype *)&sector[tspr->sectnum];
     calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, tspr->shade), sec->visibility,
-                       get_floor_fogpal(&sector[tspr->sectnum]));
+                       get_floor_fogpal((tsectortype *)&sector[tspr->sectnum]));
 
     if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 &&
         tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0 &&
@@ -1694,7 +1694,7 @@ int32_t             polymer_havehighpalookup(int32_t basepalnum, int32_t palnum)
 // CORE
 static void         polymer_displayrooms(const int16_t dacursectnum)
 {
-    sectortype      *sec;
+    tsectortype      *sec;
     int32_t         i;
     int16_t         bunchnum;
     int16_t         ns;
@@ -1752,7 +1752,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
 
     while (front != back)
     {
-        sec = &sector[sectorqueue[front]];
+        sec = (tsectortype *)&sector[sectorqueue[front]];
 
         polymer_pokesector(sectorqueue[front]);
         polymer_drawsector(sectorqueue[front], FALSE);
@@ -2298,12 +2298,12 @@ static void         polymer_freeboard(void)
 // SECTORS
 static int32_t      polymer_initsector(int16_t sectnum)
 {
-    sectortype      *sec;
+    tsectortype      *sec;
     _prsector*      s;
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initializing sector %i...\n", sectnum);
 
-    sec = &sector[sectnum];
+    sec = (tsectortype *)&sector[sectnum];
     s = (_prsector *)Xcalloc(1, sizeof(_prsector));
 
     s->verts = (GLdouble *)Xcalloc(sec->wallnum, sizeof(GLdouble) * 3);
@@ -2337,7 +2337,7 @@ static int32_t      polymer_initsector(int16_t sectnum)
 static int32_t      polymer_updatesector(int16_t sectnum)
 {
     _prsector*      s;
-    sectortype      *sec;
+    tsectortype      *sec;
     walltype        *wal;
     int32_t         i, j;
     int32_t         ceilz, florz;
@@ -2349,7 +2349,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     GLfloat*        curbuffer;
 
     s = prsectors[sectnum];
-    sec = &sector[sectnum];
+    sec = (tsectortype *)&sector[sectnum];
 
     secangcos = secangsin = 2;
 
@@ -2635,13 +2635,13 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
 {
     // This function tesselates the floor/ceiling of a sector and stores the triangles in a display list.
     _prsector*      s;
-    sectortype      *sec;
+    tsectortype     *sec;
     intptr_t        i;
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Tesselating floor of sector %i...\n", sectnum);
 
     s = prsectors[sectnum];
-    sec = &sector[sectnum];
+    sec = (tsectortype *)&sector[sectnum];
 
     if (s == NULL)
         return (-1);
@@ -2694,7 +2694,7 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
 
 static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
 {
-    sectortype      *sec;
+    tsectortype     *sec;
     _prsector*      s;
     GLubyte         oldcolor[4];
     int32_t         draw;
@@ -2702,7 +2702,7 @@ static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing sector %i...\n", sectnum);
 
-    sec = &sector[sectnum];
+    sec = (tsectortype *)&sector[sectnum];
     s = prsectors[sectnum];
 
     queuedmask = FALSE;
@@ -3240,7 +3240,7 @@ static void         polymer_updatewall(int16_t wallnum)
 
 static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
 {
-    sectortype      *sec;
+    tsectortype     *sec;
     walltype        *wal;
     _prwall         *w;
     GLubyte         oldcolor[4];
@@ -3248,7 +3248,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing wall %i...\n", wallnum);
 
-    sec = &sector[sectnum];
+    sec = (tsectortype *)&sector[sectnum];
     wal = &wall[wallnum];
     w = prwalls[wallnum];
 
