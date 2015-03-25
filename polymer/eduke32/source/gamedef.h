@@ -75,6 +75,7 @@ enum QuickStructureAccess_t {
 extern int32_t g_iStructVarIDs;
 
 extern intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
+extern intptr_t *apScriptGameEventEnd[MAXGAMEEVENTS];
 #endif
 
 extern int32_t otherp;
@@ -1027,6 +1028,7 @@ enum ScriptKeywords_t
     CON_IFCUTSCENE,         // 379
     CON_DEFINEVOLUMEFLAGS,  // 380
     CON_RESETPLAYERFLAGS,   // 381
+    CON_APPENDEVENT,        // 382
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

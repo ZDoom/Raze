@@ -1288,6 +1288,7 @@ lpeg.P(false) +
 "cactor" +
 "break" +
 "betaname" +
+"appendevent" +
 "angoffvar" +
 "angoff" +
 "andvarvar" +

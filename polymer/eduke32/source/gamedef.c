@@ -100,6 +100,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_IFCUTSCENE, 20150210 },
     { CON_DEFINEVOLUMEFLAGS, 20150222 },
     { CON_RESETPLAYERFLAGS, 20150303 },
+    { CON_APPENDEVENT, 20150325 },
 };
 #endif
 
@@ -563,6 +564,7 @@ const char *keyw[] =
     "ifcutscene",               // 379
     "definevolumeflags",        // 380
     "resetplayerflags",         // 381
+    "appendevent",              // 382
     "<null>"
 };
 #endif
@@ -3422,6 +3424,7 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case CON_ONEVENT:
+        case CON_APPENDEVENT:
             if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
@@ -3456,11 +3459,22 @@ static int32_t C_ParseCommand(int32_t loop)
                 continue;
             }
             // if event has already been declared then store previous script location
-            if (apScriptGameEvent[j])
+            if (!apScriptGameEvent[j])
             {
-                previous_event =apScriptGameEvent[j];
+                apScriptGameEvent[j] = g_parsingEventPtr;
             }
-            apScriptGameEvent[j]=g_parsingEventPtr;
+            else if (tw == CON_ONEVENT)
+            {
+                previous_event = apScriptGameEvent[j];
+                apScriptGameEvent[j] = g_parsingEventPtr;
+            }
+            else // if (tw == CON_APPENDEVENT)
+            {
+                intptr_t *previous_event_end = apScriptGameEventEnd[j];
+                *(previous_event_end++) = CON_JUMP;
+                *(previous_event_end++) = MAXGAMEVARS;
+                *(previous_event_end++) = g_parsingEventPtr-script;
+            }
 
             g_checkingIfElse = 0;
 
@@ -6072,6 +6086,14 @@ repeatcase:
                 *(g_scriptPtr++) = previous_event-script;
                 *(g_scriptPtr++) = CON_ENDEVENT;
                 previous_event = NULL;
+            }
+            else
+            {
+                // pad space for the next potential appendevent
+                apScriptGameEventEnd[g_currentEvent] = g_scriptPtr-1;
+                *(g_scriptPtr++) = CON_ENDEVENT;
+                *(g_scriptPtr++) = CON_ENDEVENT;
+                *(g_scriptPtr++) = CON_ENDEVENT;
             }
             g_parsingEventPtr = g_parsingActorPtr = NULL;
             g_currentEvent = -1;

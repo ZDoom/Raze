@@ -657,6 +657,18 @@ function on.event_end(pos, eventidx, codetab)
     g_code.event[eventidx] = codetab
 end
 
+function on.appendevent_end(pos, eventidx, codetab)
+    assert(type(codetab)=="table")
+    -- 0x40000000: actor.FLAGS.chain_end
+    paddcodef(pos, "gameevent{%d,0x40000000,function(_aci,_pli,_dist)", eventidx)
+    addcode(get_cache_sap_code())
+    addcode(codetab)
+    addcode("end}")
+
+    -- XXX: appendevent needs different behavior? g_code.event doesn't appear to be used anywhere, for now.
+    g_code.event[eventidx] = codetab
+end
+
 function on.eventloadactor_end(pos, tilenum, codetab)
     if (on.fnames_tilenum_label(tilenum)) then
         return
@@ -3413,6 +3425,8 @@ local Cblock = {
 
     onevent = POS() * sp1 * tok.define * sp1 * stmt_list_or_eps * "endevent"
         / on.event_end,
+    appendevent = POS() * sp1 * tok.define * sp1 * stmt_list_or_eps * "endevent"
+        / on.appendevent_end,
 
     state = POS() * sp1 * (lpeg.Cmt(tok.identifier, on.state_begin_Cmt))
                   * sp1 * stmt_list_or_eps * tok.state_ends

@@ -140,6 +140,7 @@ static void VM_DeleteSprite(int32_t iActor, int32_t iPlayer)
 }
 
 intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
+intptr_t *apScriptGameEventEnd[MAXGAMEEVENTS];
 
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
 #ifdef LUNATIC
