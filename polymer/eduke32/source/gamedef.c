@@ -1328,7 +1328,17 @@ static int32_t ispecial(const char c)
     return 0;
 }
 
-#define C_NextLine() while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++
+static void C_NextLine(void)
+{
+    while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+        textptr++;
+}
+
+static void C_SkipSpace(void)
+{
+    while (*textptr == ' ' || *textptr == '\t')
+        textptr++;
+}
 
 static int32_t C_SkipComments(void)
 {
@@ -5498,7 +5508,8 @@ repeatcase:
             C_GetNextValue(LABEL_DEFINE);
             g_scriptPtr--;
             j = *g_scriptPtr;
-            C_SkipComments();
+
+            C_SkipSpace();
 
             if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXVOLUMES-1))
             {
@@ -5553,7 +5564,8 @@ repeatcase:
             C_GetNextValue(LABEL_DEFINE);
             g_scriptPtr--;
             j = *g_scriptPtr;
-            C_SkipComments();
+
+            C_SkipSpace();
 
             if (EDUKE32_PREDICT_FALSE((unsigned)j > NUMGAMEFUNCTIONS-1))
             {
@@ -5605,7 +5617,8 @@ repeatcase:
             C_GetNextValue(LABEL_DEFINE);
             g_scriptPtr--;
             j = *g_scriptPtr;
-            C_SkipComments();
+
+            C_SkipSpace();
 
             if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXSKILLS))
             {
@@ -5779,7 +5792,7 @@ repeatcase:
                 {
                     initprintf("%s:%d: error: level file name exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH);
                     g_numCompilerErrors++;
-                    while (*textptr != ' ' && *textptr != '\t') textptr++;
+                    C_SkipSpace();
                     break;
                 }
             }
@@ -5801,7 +5814,7 @@ repeatcase:
                 (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
             textptr += 5;
-            while (*textptr == ' '  || *textptr == '\t') textptr++;
+            C_SkipSpace();
 
             // cheap hack, 0.99 doesn't have the 3D Realms time
             if (*(textptr+2) == ':')
@@ -5811,7 +5824,7 @@ repeatcase:
                     (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
                 textptr += 5;
-                while (*textptr == ' '  || *textptr == '\t') textptr++;
+                C_SkipSpace();
             }
             else if (g_scriptVersion == 10) g_scriptVersion = 9;
 
@@ -5870,8 +5883,7 @@ repeatcase:
 
             i = 0;
 
-            while (*textptr == ' ' || *textptr == '\t')
-                textptr++;
+            C_SkipSpace();
 
             if (tw == CON_REDEFINEQUOTE)
             {
@@ -5941,8 +5953,7 @@ repeatcase:
             }
             g_scriptPtr--;
             i = 0;
-            while (*textptr == ' ' || *textptr == '\t')
-                textptr++;
+            C_SkipSpace();
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ')
             {
                 CheatStrings[k][i] = Btolower(*textptr);
