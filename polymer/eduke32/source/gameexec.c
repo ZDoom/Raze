@@ -76,11 +76,7 @@ int32_t g_iLoTagID = -1;         // var ID of "LOTAG"
 int32_t g_iHiTagID = -1;         // var ID of "HITAG"
 int32_t g_iTextureID = -1;       // var ID of "TEXTURE"
 int32_t g_iThisActorID = -1;     // var ID of "THISACTOR"
-int32_t g_iSpriteVarID = -1;
-int32_t g_iSectorVarID = -1;
-int32_t g_iWallVarID = -1;
-int32_t g_iPlayerVarID = -1;
-int32_t g_iActorVarID = -1;
+int32_t g_iStructVarIDs = -1;
 
 GAMEEXEC_STATIC void VM_Execute(int32_t loop);
 
@@ -3927,7 +3923,7 @@ finish_qsprintf:
                     else if (*insptr&(MAXGAMEVARS<<3))
                     {
                         //                    FIXME FIXME FIXME
-                        if ((lVarID & (MAXGAMEVARS-1)) == g_iActorVarID)
+                        if ((lVarID & (MAXGAMEVARS-1)) == g_iStructVarIDs + STRUCT_ACTORVAR)
                         {
                             intptr_t const *oinsptr = insptr++;
                             int32_t index = Gv_GetVarX(*insptr++);

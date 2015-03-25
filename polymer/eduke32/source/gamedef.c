@@ -1628,7 +1628,7 @@ static void C_GetNextVarType(int32_t type)
         if (i < 0)
         {
             i=GetDefID(label+(g_numLabels<<6));
-            if (i < g_iSpriteVarID || i > g_iActorVarID)
+            if ((unsigned) (i - g_iStructVarIDs) >= NUMQUICKSTRUCTS)
                 i = -1;
 
             if (EDUKE32_PREDICT_FALSE(i < 0))
@@ -1686,16 +1686,24 @@ static void C_GetNextVarType(int32_t type)
             C_GetNextLabelName();
             /*initprintf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));*/
 
-            if (i == g_iSpriteVarID)
+            switch (i - g_iStructVarIDs)
+            {
+            case STRUCT_SPRITE:
                 lLabelID=C_GetLabelNameOffset(&actorH,Bstrtolower(label+(g_numLabels<<6)));
-            else if (i == g_iSectorVarID)
+                break;
+            case STRUCT_SECTOR:
                 lLabelID=C_GetLabelNameOffset(&sectorH,Bstrtolower(label+(g_numLabels<<6)));
-            else if (i == g_iWallVarID)
+                break;
+            case STRUCT_WALL:
                 lLabelID=C_GetLabelNameOffset(&wallH,Bstrtolower(label+(g_numLabels<<6)));
-            else if (i == g_iPlayerVarID)
+                break;
+            case STRUCT_PLAYER:
                 lLabelID=C_GetLabelNameOffset(&playerH,Bstrtolower(label+(g_numLabels<<6)));
-            else if (i == g_iActorVarID)
+                break;
+            case STRUCT_ACTORVAR:
                 lLabelID=GetDefID(label+(g_numLabels<<6));
+                break;
+            }
 
             //printf("LabelID is %d\n",lLabelID);
             if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
@@ -1707,8 +1715,9 @@ static void C_GetNextVarType(int32_t type)
 
             bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
 
-            if (i == g_iSpriteVarID)
+            switch (i - g_iStructVarIDs)
             {
+            case STRUCT_SPRITE:
                 *g_scriptPtr++=ActorLabels[lLabelID].lId;
 
                 //printf("member's flags are: %02Xh\n",ActorLabels[lLabelID].flags);
@@ -1719,13 +1728,14 @@ static void C_GetNextVarType(int32_t type)
                     // get the ID of the DEF
                     C_GetNextVarType(0);
                 }
-            }
-            else if (i == g_iSectorVarID)
+                break;
+            case STRUCT_SECTOR:
                 *g_scriptPtr++=SectorLabels[lLabelID].lId;
-            else if (i == g_iWallVarID)
-                *g_scriptPtr++=SectorLabels[lLabelID].lId;
-            else if (i == g_iPlayerVarID)
-            {
+                break;
+            case STRUCT_WALL:
+                *g_scriptPtr++=WallLabels[lLabelID].lId;
+                break;
+            case STRUCT_PLAYER:
                 *g_scriptPtr++=PlayerLabels[lLabelID].lId;
 
                 //printf("member's flags are: %02Xh\n",ActorLabels[lLabelID].flags);
@@ -1736,9 +1746,11 @@ static void C_GetNextVarType(int32_t type)
                     // get the ID of the DEF
                     C_GetNextVarType(0);
                 }
-            }
-            else if (i == g_iActorVarID)
+                break;
+            case STRUCT_ACTORVAR:
                 *g_scriptPtr++=lLabelID;
+                break;
+            }
         }
         return;
     }

@@ -55,11 +55,18 @@ extern int32_t g_iLoTagID;          // var ID of "LOTAG"
 extern int32_t g_iHiTagID;          // var ID of "HITAG"
 extern int32_t g_iTextureID;        // var ID of "TEXTURE"
 extern int32_t g_iThisActorID;      // var ID of "THISACTOR"
-extern int32_t g_iSpriteVarID;
-extern int32_t g_iSectorVarID;
-extern int32_t g_iWallVarID;
-extern int32_t g_iPlayerVarID;
-extern int32_t g_iActorVarID;
+
+// KEEPINSYNC gamevars.c: "special vars for struct access"
+enum QuickStructureAccess_t {
+    STRUCT_SPRITE,
+    STRUCT_SECTOR,
+    STRUCT_WALL,
+    STRUCT_PLAYER,
+    STRUCT_ACTORVAR,
+    NUMQUICKSTRUCTS,
+};
+
+extern int32_t g_iStructVarIDs;
 
 extern intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
 #endif

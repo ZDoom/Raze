@@ -653,9 +653,9 @@ nastyhacks:
         int indexvar = *insptr;
         int32_t index=Gv_GetVar(*insptr++, iActor, iPlayer);
 
-        switch ((id&(MAXGAMEVARS-1)) - g_iSpriteVarID)
+        switch ((id&(MAXGAMEVARS-1)) - g_iStructVarIDs)
         {
-        case 0: //if (id == g_iSpriteVarID)
+        case STRUCT_SPRITE:
         {
             int const label = *insptr++;
 
@@ -673,7 +673,7 @@ nastyhacks:
             break;
         }
 
-        case 3: //else if (id == g_iPlayerVarID)
+        case STRUCT_PLAYER:
         {
             int const label = *insptr++;
 
@@ -692,11 +692,11 @@ nastyhacks:
             break;
         }
 
-        case 4: //else if (id == g_iActorVarID)
+        case STRUCT_ACTORVAR:
             rv = Gv_GetVar(*insptr++, index, iPlayer);
             break;
 
-        case 1: //else if (id == g_iSectorVarID)
+        case STRUCT_SECTOR:
             if (indexvar == g_iThisActorID) index = sprite[vm.g_i].sectnum;
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXSECTORS))
             {
@@ -707,7 +707,7 @@ nastyhacks:
             rv = VM_GetSector(index, *insptr++);
             break;
 
-        case 2: //else if (id == g_iWallVarID)
+        case STRUCT_WALL:
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXWALLS))
             {
                 iPlayer = index;
@@ -840,9 +840,9 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
         int indexvar = *insptr;
         int index = Gv_GetVarX(*insptr++);
 
-        switch ((id & (MAXGAMEVARS - 1)) - g_iSpriteVarID)
+        switch ((id & (MAXGAMEVARS - 1)) - g_iStructVarIDs)
         {
-            case 0:  // if (id == g_iSpriteVarID)
+            case STRUCT_SPRITE:
             {
                 int const label = *insptr++;
 
@@ -861,7 +861,7 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                 break;
             }
 
-            case 3:  // else if (id == g_iPlayerVarID)
+            case STRUCT_PLAYER:
             {
                 int const label = *insptr++;
 
@@ -882,11 +882,11 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                 break;
             }
 
-            case 4:  // else if (id == g_iActorVarID)
+            case STRUCT_ACTORVAR:
                 rv = Gv_GetVar(*insptr++, index, vm.g_p);
                 break;
 
-            case 1:  // else if (id == g_iSectorVarID)
+            case STRUCT_SECTOR:
                 if (indexvar == g_iThisActorID)
                     index = sprite[vm.g_i].sectnum;
 
@@ -900,7 +900,7 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                 rv = VM_GetSector(index, *insptr++);
                 break;
 
-            case 2:  // else if (id == g_iWallVarID)
+            case STRUCT_WALL:
                 if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXWALLS))
                 {
                     id = index;
@@ -1140,11 +1140,7 @@ void Gv_ResetSystemDefaults(void)
     g_iTextureID = Gv_GetVarIndex("TEXTURE");
     g_iThisActorID = Gv_GetVarIndex("THISACTOR");
 
-    g_iSpriteVarID = Gv_GetVarIndex("sprite");
-    g_iSectorVarID = Gv_GetVarIndex("sector");
-    g_iWallVarID = Gv_GetVarIndex("wall");
-    g_iPlayerVarID = Gv_GetVarIndex("player");
-    g_iActorVarID = Gv_GetVarIndex("actorvar");
+    g_iStructVarIDs = Gv_GetVarIndex("sprite");
 #endif
 
     for (int i = 0; i <= MAXTILES - 1; i++)
@@ -1467,6 +1463,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("THISACTOR", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
 
     // special vars for struct access
+    // KEEPINSYNC gamedef.h: enum QuickStructureAccess_t
     Gv_NewVar("sprite", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("sector", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("wall", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
