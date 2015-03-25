@@ -604,7 +604,7 @@ int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer)
 
     int negateResult = !!(id & (MAXGAMEVARS << 1));
 
-    if (EDUKE32_PREDICT_FALSE(id >= g_gameVarCount && !negateResult))
+    if (EDUKE32_PREDICT_FALSE((id & ~(MAXGAMEVARS << 1)) >= g_gameVarCount))
         goto nastyhacks;
 
     id &= (MAXGAMEVARS - 1);
@@ -650,8 +650,8 @@ nastyhacks:
     }
     else if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
     {
-        int indexvar = *insptr;
-        int32_t index=Gv_GetVar(*insptr++, iActor, iPlayer);
+        int indexvar = *insptr++;
+        int32_t index = Gv_GetVar(indexvar, iActor, iPlayer);
 
         switch ((id&(MAXGAMEVARS-1)) - g_iStructVarIDs)
         {
@@ -659,7 +659,6 @@ nastyhacks:
         {
             int const label = *insptr++;
 
-            /*OSD_Printf("%d %d %d\n",__LINE__,index,label);*/
             indexvar = (EDUKE32_PREDICT_FALSE(ActorLabels[label].flags & LABEL_HASPARM2)) ?
                         Gv_GetVar(*insptr++, iActor, iPlayer) : 0;
 
@@ -669,7 +668,47 @@ nastyhacks:
                 goto badsprite;
             }
 
-            rv = VM_GetSprite(index, label, indexvar) ^ -negateResult;
+            rv = VM_GetSprite(index, label, indexvar);
+            break;
+        }
+        case STRUCT_TSPR:
+        {
+            int const label = *insptr++;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXSPRITES))
+            {
+                iActor = index;
+                goto badsprite;
+            }
+
+            rv = VM_GetTsprite(index, label);
+            break;
+        }
+        case STRUCT_THISPROJECTILE:
+        {
+            int const label = *insptr++;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXSPRITES))
+            {
+                iActor = index;
+                goto badsprite;
+            }
+
+            rv = VM_GetActiveProjectile(index, label);
+            break;
+        }
+
+        case STRUCT_PROJECTILE:
+        {
+            int const label = *insptr++;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXTILES))
+            {
+                iActor = index;
+                goto badtile;
+            }
+
+            rv = VM_GetProjectile(index, label);
             break;
         }
 
@@ -691,8 +730,24 @@ nastyhacks:
             rv = VM_GetPlayer(index, label, indexvar);
             break;
         }
+        case STRUCT_INPUT:
+        {
+            int const label = *insptr++;
+
+            if (indexvar == g_iThisActorID) index = vm.g_p;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXPLAYERS))
+            {
+                iPlayer = index;
+                goto badplayer;
+            }
+
+            rv = VM_GetPlayerInput(index, label);
+            break;
+        }
 
         case STRUCT_ACTORVAR:
+        case STRUCT_PLAYERVAR:
             rv = Gv_GetVar(*insptr++, index, iPlayer);
             break;
 
@@ -715,6 +770,10 @@ nastyhacks:
                 goto badwall;
             }
             rv = VM_GetWall(index, *insptr++);
+            break;
+
+        case STRUCT_USERDEF:
+            rv = VM_GetUserdef(*insptr++);
             break;
 
         default:
@@ -747,6 +806,10 @@ badsector:
 
 badwall:
     CON_ERRPRINTF("Gv_GetVar(): invalid wall ID %d\n", iPlayer);
+    return -1;
+
+badtile:
+    CON_ERRPRINTF("Gv_GetVar(): invalid tile ID %d\n", iActor);
     return -1;
 }
 
@@ -797,6 +860,7 @@ enum {
     GVX_BADSECTOR,
     GVX_BADWALL,
     GVX_BADINDEX,
+    GVX_BADTILE,
 };
 
 static const char *gvxerrs[] = {
@@ -806,6 +870,7 @@ static const char *gvxerrs[] = {
     "Gv_GetVarX(): invalid sector ID",
     "Gv_GetVarX(): invalid wall ID",
     "Gv_GetVarX(): invalid array index",
+    "Gv_GetVarX(): invalid tile ID",
 };
 
 int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
@@ -837,8 +902,8 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
     }
     else if (id & (MAXGAMEVARS << 3))  // struct shortcut vars
     {
-        int indexvar = *insptr;
-        int index = Gv_GetVarX(*insptr++);
+        int indexvar = *insptr++;
+        int index = Gv_GetVarX(indexvar);
 
         switch ((id & (MAXGAMEVARS - 1)) - g_iStructVarIDs)
         {
@@ -846,7 +911,6 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
             {
                 int const label = *insptr++;
 
-                /*OSD_Printf("%d %d %d\n",__LINE__,index,label);*/
                 indexvar = (EDUKE32_PREDICT_FALSE(ActorLabels[label].flags & LABEL_HASPARM2)) ?
                     Gv_GetVarX(*insptr++) : 0;
 
@@ -858,6 +922,49 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                 }
 
                 rv = VM_GetSprite(index, label, indexvar);
+                break;
+            }
+            case STRUCT_TSPR:
+            {
+                int const label = *insptr++;
+
+                if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXSPRITES))
+                {
+                    id = index;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], id);
+                    return -1;
+                }
+
+                rv = VM_GetTsprite(index, label);
+                break;
+            }
+            case STRUCT_THISPROJECTILE:
+            {
+                int const label = *insptr++;
+
+                if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXSPRITES))
+                {
+                    id = index;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], id);
+                    return -1;
+                }
+
+                rv = VM_GetActiveProjectile(index, label);
+                break;
+            }
+
+            case STRUCT_PROJECTILE:
+            {
+                int const label = *insptr++;
+
+                if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXTILES))
+                {
+                    id = index;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADTILE], id);
+                    return -1;
+                }
+
+                rv = VM_GetProjectile(index, label);
                 break;
             }
 
@@ -881,8 +988,26 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                 rv = VM_GetPlayer(index, label, indexvar);
                 break;
             }
+            case STRUCT_INPUT:
+            {
+                int const label = *insptr++;
+
+                if (indexvar == g_iThisActorID)
+                    index = vm.g_p;
+
+                if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXPLAYERS))
+                {
+                    id = index;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], id);
+                    return -1;
+                }
+
+                rv = VM_GetPlayerInput(index, label);
+                break;
+            }
 
             case STRUCT_ACTORVAR:
+            case STRUCT_PLAYERVAR:
                 rv = Gv_GetVar(*insptr++, index, vm.g_p);
                 break;
 
@@ -909,6 +1034,10 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                     return -1;
                 }
                 rv = VM_GetWall(index, *insptr++);
+                break;
+
+            case STRUCT_USERDEF:
+                rv = VM_GetUserdef(*insptr++);
                 break;
 
             default: EDUKE32_UNREACHABLE_SECTION(return -1);
@@ -1469,6 +1598,12 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("wall", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("player", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("actorvar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("playervar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("tspr", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("projectile", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("thisprojectile", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("userdef", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("input", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
 
     Gv_NewVar("myconnectindex", (intptr_t)&myconnectindex, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("screenpeek", (intptr_t)&screenpeek, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);

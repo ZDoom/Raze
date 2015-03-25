@@ -1643,8 +1643,26 @@ static void C_GetNextVarType(int32_t type)
 
         bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
         *g_scriptPtr++=(i|f);
-        C_GetNextVarType(0);
-        C_SkipComments();
+
+        if ((f & (MAXGAMEVARS<<3)) && i - g_iStructVarIDs == STRUCT_USERDEF)
+        {
+            // userdef doesn't really have an array index
+            while (*textptr != ']')
+            {
+                if (*textptr == 0xa)
+                    break;
+                if (!*textptr)
+                    break;
+
+                textptr++;
+            }
+            *g_scriptPtr++ = g_iThisActorID; // help out the VM by inserting a dummy index
+        }
+        else
+        {
+            C_GetNextVarType(0);
+            C_SkipComments();
+        }
 
         if (EDUKE32_PREDICT_FALSE(*textptr != ']'))
         {
@@ -1701,7 +1719,21 @@ static void C_GetNextVarType(int32_t type)
                 lLabelID=C_GetLabelNameOffset(&playerH,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_ACTORVAR:
+            case STRUCT_PLAYERVAR:
                 lLabelID=GetDefID(label+(g_numLabels<<6));
+                break;
+            case STRUCT_TSPR:
+                lLabelID=C_GetLabelNameOffset(&tspriteH,Bstrtolower(label+(g_numLabels<<6)));
+                break;
+            case STRUCT_PROJECTILE:
+            case STRUCT_THISPROJECTILE:
+                lLabelID=C_GetLabelNameOffset(&projectileH,Bstrtolower(label+(g_numLabels<<6)));
+                break;
+            case STRUCT_USERDEF:
+                lLabelID=C_GetLabelNameOffset(&userdefH,Bstrtolower(label+(g_numLabels<<6)));
+                break;
+            case STRUCT_INPUT:
+                lLabelID=C_GetLabelNameOffset(&inputH,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             }
 
@@ -1748,7 +1780,21 @@ static void C_GetNextVarType(int32_t type)
                 }
                 break;
             case STRUCT_ACTORVAR:
+            case STRUCT_PLAYERVAR:
                 *g_scriptPtr++=lLabelID;
+                break;
+            case STRUCT_TSPR:
+                *g_scriptPtr++=TsprLabels[lLabelID].lId;
+                break;
+            case STRUCT_PROJECTILE:
+            case STRUCT_THISPROJECTILE:
+                *g_scriptPtr++=ProjectileLabels[lLabelID].lId;
+                break;
+            case STRUCT_USERDEF:
+                *g_scriptPtr++=UserdefsLabels[lLabelID].lId;
+                break;
+            case STRUCT_INPUT:
+                *g_scriptPtr++=InputLabels[lLabelID].lId;
                 break;
             }
         }
