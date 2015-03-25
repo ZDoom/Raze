@@ -3911,7 +3911,7 @@ finish_qsprintf:
                         {
                             OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n", keyw[g_tw], g_errorLineNum,
                                        aGameArrays[lVarID].szLabel, index,
-                                       (int32_t)(m*aGameArrays[lVarID].plValues[index]));
+                                       (int32_t)(m*Gv_GetGameArrayValue(lVarID, index)));
                             continue;
                         }
                         else
@@ -4631,16 +4631,10 @@ finish_qsprintf:
                 }
 
                 const int32_t n = aGameArrays[j].size;
-#ifdef BITNESS64
                 int32_t *const array = (int32_t *)Xmalloc(sizeof(int32_t) * n);
-                for (int32_t k = 0; k < n; k++) array[k] = aGameArrays[j].plValues[k];
-#else
-                int32_t *const array = (int32_t *)aGameArrays[j].plValues;
-#endif
+                for (int32_t k = 0; k < n; k++) array[k] = Gv_GetGameArrayValue(j, k);
                 fwrite(array, 1, sizeof(int32_t) * n, fil);
-#ifdef BITNESS64
                 Bfree(array);
-#endif
                 fclose(fil);
 
                 continue;
@@ -4715,22 +4709,46 @@ finish_qsprintf:
                 {
                 case 0:
                     // CON array to CON array.
+                    if (EDUKE32_PREDICT_FALSE(aGameArrays[si].dwFlags & GAMEARRAY_STRIDE2))
+                    {
+                        for (; numelts>0; --numelts)
+                            (aGameArrays[di].plValues)[didx++] = ((int32_t *)aGameArrays[si].plValues)[sidx+=2];
+                        break;
+                    }
                     Bmemcpy(aGameArrays[di].plValues+didx, aGameArrays[si].plValues+sidx, numelts*GAR_ELTSZ);
                     break;
                 case GAMEARRAY_OFINT:
                     // From int32-sized array. Note that the CON array element
                     // type is intptr_t, so it is different-sized on 64-bit
                     // archs, but same-sized on 32-bit ones.
+                    if (EDUKE32_PREDICT_FALSE(aGameArrays[si].dwFlags & GAMEARRAY_STRIDE2))
+                    {
+                        for (; numelts>0; --numelts)
+                            (aGameArrays[di].plValues)[didx++] = ((int32_t *)aGameArrays[si].plValues)[sidx+=2];
+                        break;
+                    }
                     for (; numelts>0; --numelts)
                         (aGameArrays[di].plValues)[didx++] = ((int32_t *)aGameArrays[si].plValues)[sidx++];
                     break;
                 case GAMEARRAY_OFSHORT:
                     // From int16_t array. Always different-sized.
+                    if (EDUKE32_PREDICT_FALSE(aGameArrays[si].dwFlags & GAMEARRAY_STRIDE2))
+                    {
+                        for (; numelts>0; --numelts)
+                            (aGameArrays[di].plValues)[didx++] = ((int16_t *)aGameArrays[si].plValues)[sidx+=2];
+                        break;
+                    }
                     for (; numelts>0; --numelts)
                         (aGameArrays[di].plValues)[didx++] = ((int16_t *)aGameArrays[si].plValues)[sidx++];
                     break;
                 case GAMEARRAY_OFCHAR:
                     // From char array. Always different-sized.
+                    if (EDUKE32_PREDICT_FALSE(aGameArrays[si].dwFlags & GAMEARRAY_STRIDE2))
+                    {
+                        for (; numelts>0; --numelts)
+                            (aGameArrays[di].plValues)[didx++] = ((uint8_t *)aGameArrays[si].plValues)[sidx+=2];
+                        break;
+                    }
                     for (; numelts>0; --numelts)
                         (aGameArrays[di].plValues)[didx++] = ((uint8_t *)aGameArrays[si].plValues)[sidx++];
                     break;

@@ -70,6 +70,8 @@ enum GamearrayFlags_t {
 
     GAMEARRAY_VARSIZE = 0x00000020,
 
+    GAMEARRAY_STRIDE2 = 0x00000100,
+
     GAMEARRAY_RESET    = 0x00000008,
 ///    GAMEARRAY_NORESET  = 0x00000001,
 };
@@ -100,6 +102,7 @@ extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t g_gameVarCount;
 extern int32_t g_gameArrayCount;
 
+int32_t __fastcall Gv_GetGameArrayValue(register int32_t const id, register int32_t index);
 int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer);
 void __fastcall Gv_SetVar(int32_t const id, int32_t const lValue, int32_t const iActor, int32_t const iPlayer);
 int32_t __fastcall Gv_GetVarX(int32_t id);

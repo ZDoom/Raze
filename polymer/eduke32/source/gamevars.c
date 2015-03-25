@@ -594,6 +594,24 @@ static int32_t Gv_GetVarIndex(const char *szGameLabel)
     return i;
 }
 
+int32_t __fastcall Gv_GetGameArrayValue(register int32_t const id, register int32_t index)
+{
+    int rv = -1;
+
+    if (aGameArrays[id].dwFlags & GAMEARRAY_STRIDE2)
+        index <<= 1;
+
+    switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPE_MASK)
+    {
+        case 0: rv = (aGameArrays[id].plValues)[index]; break;
+        case GAMEARRAY_OFINT: rv = ((int32_t *) aGameArrays[id].plValues)[index]; break;
+        case GAMEARRAY_OFSHORT: rv = ((int16_t *) aGameArrays[id].plValues)[index]; break;
+        case GAMEARRAY_OFCHAR: rv = ((uint8_t *) aGameArrays[id].plValues)[index]; break;
+    }
+
+    return rv;
+}
+
 int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer)
 {
     if (id == g_iThisActorID)
@@ -646,7 +664,7 @@ nastyhacks:
             goto badindex;
         }
 
-        rv = aGameArrays[id].plValues[index];
+        rv = Gv_GetGameArrayValue(id, index);
     }
     else if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
     {
@@ -892,13 +910,7 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
             return -1;
         }
 
-        switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPE_MASK)
-        {
-            case 0: rv = (aGameArrays[id].plValues)[index]; break;
-            case GAMEARRAY_OFINT: rv = ((int32_t *) aGameArrays[id].plValues)[index]; break;
-            case GAMEARRAY_OFSHORT: rv = ((int16_t *) aGameArrays[id].plValues)[index]; break;
-            case GAMEARRAY_OFCHAR: rv = ((uint8_t *) aGameArrays[id].plValues)[index]; break;
-        }
+        rv = Gv_GetGameArrayValue(id, index);
     }
     else if (id & (MAXGAMEVARS << 3))  // struct shortcut vars
     {
@@ -1275,23 +1287,6 @@ void Gv_ResetSystemDefaults(void)
     for (int i = 0; i <= MAXTILES - 1; i++)
         if (g_tile[i].defproj)
             *g_tile[i].proj = *g_tile[i].defproj;
-
-#ifndef LUNATIC
-    int i;
-
-    // hackhackhackhackhack
-    if (i = hash_find(&h_arrays, "tilesizx"), i >= 0)
-    {
-        for (int j = 0; j < MAXTILES; j++)
-            aGameArrays[i].plValues[j] = tilesiz[j].x;
-    }
-
-    if (i = hash_find(&h_arrays, "tilesizy"), i >= 0)
-    {
-        for (int j = 0; j < MAXTILES; j++) 
-            aGameArrays[i].plValues[j] = tilesiz[j].y;
-    }
-#endif
 
     //AddLog("EOF:ResetWeaponDefaults");
 }
@@ -1682,6 +1677,8 @@ static void Gv_AddSystemVars(void)
 # endif
 
     // SYSTEM_GAMEARRAY
+    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFINT);
+    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFINT);
     Gv_NewArray("tilesizx", NULL, MAXTILES, GAMEARRAY_READONLY);
     Gv_NewArray("tilesizy", NULL, MAXTILES, GAMEARRAY_READONLY);
 #endif
