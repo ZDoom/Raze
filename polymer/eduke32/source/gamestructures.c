@@ -50,9 +50,6 @@ void __fastcall VM_SetProjectile(register int32_t const iTile, register int32_t 
 #else
 int32_t __fastcall VM_GetUserdef(register int32_t lLabelID)
 {
-    if (EDUKE32_PREDICT_FALSE(vm.g_p != myconnectindex))
-        return -1;
-
     switch (lLabelID)
     {
         case USERDEFS_GOD: lLabelID = ud.god; break;
@@ -177,9 +174,6 @@ int32_t __fastcall VM_GetUserdef(register int32_t lLabelID)
 
 void __fastcall VM_SetUserdef(register int32_t const lLabelID, register int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE(vm.g_p != myconnectindex))
-        return;
-
     switch (lLabelID)
     {
         case USERDEFS_GOD: ud.god = iSet; break;
