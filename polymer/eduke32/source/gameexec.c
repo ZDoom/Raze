@@ -4241,8 +4241,9 @@ finish_qsprintf:
             insptr++;
             {
                 tw=*insptr++;
-                int const lLabelID=*insptr++, lVar2 = *insptr++;
+                int const lLabelID=*insptr++;
                 int const lParm2 = (PlayerLabels[lLabelID].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
+                int const lVar2 = *insptr++;
 
                 register int32_t const iPlayer = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_p;
                 register int32_t const iSet = Gv_GetVarX(lVar2);
