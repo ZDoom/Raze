@@ -505,9 +505,7 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
         case PLAYER_FALLING_COUNTER: lLabelID = ps->falling_counter; break;
         case PLAYER_GOTWEAPON: lLabelID = (ps->gotweapon & (1 << lParm2)) != 0; break;
         case PLAYER_REFRESH_INVENTORY: lLabelID = ps->refresh_inventory; break;
-        case PLAYER_PALETTE:  // no set
-            lLabelID = ps->palette;
-            break;
+        case PLAYER_PALETTE: lLabelID = ps->palette; break;
         case PLAYER_TOGGLE_KEY_FLAG: lLabelID = ps->toggle_key_flag; break;
         case PLAYER_KNUCKLE_INCS: lLabelID = ps->knuckle_incs; break;
         case PLAYER_WALKING_SND_TOGGLE: lLabelID = ps->walking_snd_toggle; break;
@@ -711,6 +709,7 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
             else ps->gotweapon &= ~(1 << lParm2);
             break;
         case PLAYER_REFRESH_INVENTORY: ps->refresh_inventory = lVar1; break;
+        case PLAYER_PALETTE: P_SetGamePalette(ps, lVar1, 2+16); break;
         case PLAYER_TOGGLE_KEY_FLAG: ps->toggle_key_flag = lVar1; break;
         case PLAYER_KNUCKLE_INCS: ps->knuckle_incs = lVar1; break;
         case PLAYER_WALKING_SND_TOGGLE: ps->walking_snd_toggle = lVar1; break;
@@ -1578,6 +1577,7 @@ static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, in
         case PLAYER_FALLING_COUNTER: lLabelID = ps->falling_counter; break;
         case PLAYER_GOTWEAPON: lLabelID = (ps->gotweapon & (1 << lParm2)) != 0; break;
         case PLAYER_REFRESH_INVENTORY: lLabelID = ps->refresh_inventory; break;
+        case PLAYER_PALETTE: lLabelID = ps->palette; break;
         case PLAYER_TOGGLE_KEY_FLAG: lLabelID = ps->toggle_key_flag; break;
         case PLAYER_KNUCKLE_INCS: lLabelID = ps->knuckle_incs; break;
         case PLAYER_WALKING_SND_TOGGLE: lLabelID = ps->walking_snd_toggle; break;
