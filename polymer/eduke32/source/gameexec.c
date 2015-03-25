@@ -1262,14 +1262,27 @@ skip_check:
             }
 
         case CON_GETTHISPROJECTILE:
+            insptr++;
+            {
+                tw = *insptr++;
+                int32_t lLabelID=*insptr++, lVar2=*insptr++;
+
+                register int32_t const iActor = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_i;
+
+                Gv_SetVarX(lVar2, VM_GetActiveProjectile(iActor, lLabelID));
+                continue;
+            }
+
         case CON_SETTHISPROJECTILE:
             insptr++;
             {
-                // syntax [gs]etplayer[<var>].x <VAR>
-                // <varid> <xxxid> <varid>
-                int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
+                tw = *insptr++;
+                int32_t lLabelID=*insptr++, lVar2=*insptr++;
 
-                VM_AccessActiveProjectile(tw==CON_SETTHISPROJECTILE,lVar1,lLabelID,lVar2);
+                register int32_t const iActor = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_i;
+                register int32_t const iSet = Gv_GetVarX(lVar2);
+
+                VM_SetActiveProjectile(iActor, lLabelID, iSet);
                 continue;
             }
 
@@ -3971,14 +3984,27 @@ finish_qsprintf:
             }
 
         case CON_SETSECTOR:
+            insptr++;
+            {
+                tw = *insptr++;
+                int const lLabelID=*insptr++, lVar2=*insptr++;
+
+                register int32_t const iSector = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : sprite[vm.g_i].sectnum;
+                register int32_t const iSet = Gv_GetVarX(lVar2);
+
+                VM_SetSector(iSector, lLabelID, iSet);
+                continue;
+            }
+
         case CON_GETSECTOR:
             insptr++;
             {
-                // syntax [gs]etsector[<var>].x <VAR>
-                // <varid> <xxxid> <varid>
-                int const lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
+                tw = *insptr++;
+                int const lLabelID=*insptr++, lVar2=*insptr++;
 
-                VM_AccessSector(tw==CON_SETSECTOR, lVar1, lLabelID, lVar2);
+                register int32_t const iSector = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : sprite[vm.g_i].sectnum;
+
+                Gv_SetVarX(lVar2, VM_GetSector(iSector, lLabelID));
                 continue;
             }
 
@@ -4219,9 +4245,13 @@ finish_qsprintf:
             insptr++;
             {
                 tw=*insptr++;
-                int const lLabelID=*insptr++;
+                int const lLabelID=*insptr++, lVar2 = *insptr++;
                 int const lParm2 = (PlayerLabels[lLabelID].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
-                VM_SetPlayer(tw, lLabelID, *insptr++, lParm2);
+
+                register int32_t const iPlayer = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_p;
+                register int32_t const iSet = Gv_GetVarX(lVar2);
+
+                VM_SetPlayer(iPlayer, lLabelID, lParm2, iSet);
                 continue;
             }
 
@@ -4231,7 +4261,11 @@ finish_qsprintf:
                 tw=*insptr++;
                 int const lLabelID=*insptr++;
                 int const lParm2 = (PlayerLabels[lLabelID].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
-                VM_GetPlayer(tw, lLabelID, *insptr++, lParm2);
+                int const lVar2 = *insptr++;
+
+                register int32_t const iPlayer = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_p;
+
+                Gv_SetVarX(lVar2, VM_GetPlayer(iPlayer, lLabelID, lParm2));
                 continue;
             }
 
@@ -4240,7 +4274,10 @@ finish_qsprintf:
             {
                 tw=*insptr++;
                 int const lLabelID=*insptr++, lVar2=*insptr++;
-                VM_AccessPlayerInput(0, tw, lLabelID, lVar2);
+
+                register int32_t const iPlayer = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_p;
+
+                Gv_SetVarX(lVar2, VM_GetPlayerInput(iPlayer, lLabelID));
                 continue;
             }
 
@@ -4249,7 +4286,11 @@ finish_qsprintf:
             {
                 tw=*insptr++;
                 int const lLabelID=*insptr++, lVar2=*insptr++;
-                VM_AccessPlayerInput(1, tw, lLabelID, lVar2);
+
+                register int32_t const iPlayer = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_p;
+                register int32_t const iSet = Gv_GetVarX(lVar2);
+
+                VM_SetPlayerInput(iPlayer, lLabelID, iSet);
                 continue;
             }
 
@@ -4258,7 +4299,8 @@ finish_qsprintf:
             {
                 tw=*insptr++;
                 int const lVar2=*insptr++;
-                VM_AccessUserdef(0, tw, lVar2);
+
+                Gv_SetVarX(lVar2, VM_GetUserdef(tw));
                 continue;
             }
 
@@ -4267,7 +4309,10 @@ finish_qsprintf:
             {
                 tw=*insptr++;
                 int const lVar2=*insptr++;
-                VM_AccessUserdef(1, tw, lVar2);
+
+                register int32_t const iSet = Gv_GetVarX(lVar2);
+
+                VM_SetUserdef(tw, iSet);
                 continue;
             }
 
@@ -4276,7 +4321,10 @@ finish_qsprintf:
             {
                 tw = Gv_GetVarX(*insptr++);
                 int const lLabelID = *insptr++, lVar2 = *insptr++;
-                VM_AccessProjectile(0, tw, lLabelID, lVar2);
+
+                register int32_t const iTile = Gv_GetVarX(tw);
+
+                Gv_SetVarX(lVar2, VM_GetProjectile(iTile, lLabelID));
                 continue;
             }
 
@@ -4285,7 +4333,11 @@ finish_qsprintf:
             {
                 tw = Gv_GetVarX(*insptr++);
                 int const lLabelID = *insptr++, lVar2 = *insptr++;
-                VM_AccessProjectile(1, tw, lLabelID, lVar2);
+
+                register int32_t const iTile = Gv_GetVarX(tw);
+                register int32_t const iSet = Gv_GetVarX(lVar2);
+
+                VM_SetProjectile(iTile, lLabelID, iSet);
                 continue;
             }
 
@@ -4294,7 +4346,11 @@ finish_qsprintf:
             {
                 tw=*insptr++;
                 int const lLabelID=*insptr++, lVar2=*insptr++;
-                VM_AccessWall(1, tw, lLabelID, lVar2);
+
+                register int32_t const iWall = Gv_GetVarX(tw);
+                register int32_t const iSet = Gv_GetVarX(lVar2);
+
+                VM_SetWall(iWall, lLabelID, iSet);
                 continue;
             }
 
@@ -4303,7 +4359,10 @@ finish_qsprintf:
             {
                 tw=*insptr++;
                 int const lLabelID=*insptr++, lVar2=*insptr++;
-                VM_AccessWall(0, tw, lLabelID, lVar2);
+
+                register int32_t const iWall = Gv_GetVarX(tw);
+
+                Gv_SetVarX(lVar2, VM_GetWall(iWall, lLabelID));
                 continue;
             }
 
@@ -4311,9 +4370,6 @@ finish_qsprintf:
         case CON_GETACTORVAR:
             insptr++;
             {
-                // syntax [gs]etactorvar[<var>].<varx> <VAR>
-                // gets the value of the per-actor variable varx into VAR
-                // <var> <varx> <VAR>
                 int const lSprite=Gv_GetVarX(*insptr++), lVar1=*insptr++;
                 int const lVar2=*insptr++;
 
@@ -4368,39 +4424,54 @@ finish_qsprintf:
         case CON_SETACTOR:
             insptr++;
             {
-                // syntax [gs]etactor[<var>].x <VAR>
-                // <varid> <xxxid> <varid>
-
-                int const lVar1 = *insptr++, lLabelID = *insptr++;
+                tw = *insptr++;
+                int const lLabelID = *insptr++;
                 int const lParm2 = (ActorLabels[lLabelID].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
+                int const lVar2 = *insptr++;
 
-                VM_SetSprite(lVar1, lLabelID, *insptr++, lParm2);
+                register int32_t const iActor = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_i;
+                register int32_t const iSet = Gv_GetVarX(lVar2);
+
+                VM_SetSprite(iActor, lLabelID, lParm2, iSet);
                 continue;
             }
 
         case CON_GETACTOR:
             insptr++;
             {
-                // syntax [gs]etactor[<var>].x <VAR>
-                // <varid> <xxxid> <varid>
-
-                int const lVar1=*insptr++, lLabelID=*insptr++;
+                tw = *insptr++;
+                int const lLabelID = *insptr++;
                 int const lParm2 = (ActorLabels[lLabelID].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
+                int const lVar2 = *insptr++;
 
-                VM_GetSprite(lVar1, lLabelID, *insptr++, lParm2);
+                register int32_t const iActor = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_i;
+
+                Gv_SetVarX(lVar2, VM_GetSprite(iActor, lLabelID, lParm2));
                 continue;
             }
 
         case CON_SETTSPR:
+            insptr++;
+            {
+                tw = *insptr++;
+                int const lLabelID=*insptr++, lVar2=*insptr++;
+
+                register int32_t const iActor = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_i;
+                register int32_t const iSet = Gv_GetVarX(lVar2);
+
+                VM_SetTsprite(iActor, lLabelID, iSet);
+                continue;
+            }
+
         case CON_GETTSPR:
             insptr++;
             {
-                // syntax [gs]etactor[<var>].x <VAR>
-                // <varid> <xxxid> <varid>
+                tw = *insptr++;
+                int const lLabelID=*insptr++, lVar2=*insptr++;
 
-                int const lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
+                register int32_t const iActor = (tw != g_iThisActorID) ? Gv_GetVarX(tw) : vm.g_i;
 
-                VM_AccessTsprite(tw==CON_SETTSPR, lVar1, lLabelID, lVar2);
+                Gv_SetVarX(lVar2, VM_GetTsprite(iActor, lLabelID));
                 continue;
             }
 

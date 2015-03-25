@@ -669,7 +669,7 @@ nastyhacks:
                 goto badsprite;
             }
 
-            rv = VM_AccessSpriteX(index, label, indexvar) ^ -negateResult;
+            rv = VM_GetSprite(index, label, indexvar) ^ -negateResult;
             break;
         }
 
@@ -688,7 +688,7 @@ nastyhacks:
                 goto badplayer;
             }
 
-            rv = VM_AccessPlayerX(index, label, indexvar);
+            rv = VM_GetPlayer(index, label, indexvar);
             break;
         }
 
@@ -704,7 +704,7 @@ nastyhacks:
                 insptr++;
                 goto badsector;
             }
-            rv = VM_AccessSectorX(index, *insptr++);
+            rv = VM_GetSector(index, *insptr++);
             break;
 
         case 2: //else if (id == g_iWallVarID)
@@ -714,7 +714,7 @@ nastyhacks:
                 insptr++;
                 goto badwall;
             }
-            rv = VM_AccessWallX(index, *insptr++);
+            rv = VM_GetWall(index, *insptr++);
             break;
 
         default:
@@ -857,7 +857,7 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                     return -1;
                 }
 
-                rv = VM_AccessSpriteX(index, label, indexvar);
+                rv = VM_GetSprite(index, label, indexvar);
                 break;
             }
 
@@ -878,7 +878,7 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                     return -1;
                 }
 
-                rv = VM_AccessPlayerX(index, label, indexvar);
+                rv = VM_GetPlayer(index, label, indexvar);
                 break;
             }
 
@@ -897,7 +897,7 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                     CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSECTOR], id);
                     return -1;
                 }
-                rv = VM_AccessSectorX(index, *insptr++);
+                rv = VM_GetSector(index, *insptr++);
                 break;
 
             case 2:  // else if (id == g_iWallVarID)
@@ -908,7 +908,7 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                     CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADWALL], id);
                     return -1;
                 }
-                rv = VM_AccessWallX(index, *insptr++);
+                rv = VM_GetWall(index, *insptr++);
                 break;
 
             default: EDUKE32_UNREACHABLE_SECTION(return -1);
