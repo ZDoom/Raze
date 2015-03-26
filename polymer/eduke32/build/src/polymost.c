@@ -3466,7 +3466,7 @@ void polymost_drawrooms()
 
     for (int i=0; i<4; i++)
     {
-        int const j = i < n ? i + 1 : 0;
+        int const j = i < 3 ? i + 1 : 0;
 
         if (p[i].z >= SCISDIST)
             p2[n++] = p[i];
