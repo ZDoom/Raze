@@ -20,17 +20,17 @@
     self = [super init];
     if (self) {
         struct grpfile *p;
-        int i;
-        
+
         list = [[NSMutableArray alloc] init];
-        
+
         for (p = foundgrps; p; p=p->next) {
-            for (i=0; i<NUMGRPFILES; i++) if (p->crcval == internalgrpfiles[i].crcval) break;
-            if (i == NUMGRPFILES) continue;
-            [list addObject:[[GrpFile alloc] initWithGrpfile:p andName:[NSString stringWithCString:internalgrpfiles[i].name encoding:NSUTF8StringEncoding]]];
+            struct grpfile const * const group = GetInternalGroup(p->crcval);
+            if (group == NULL)
+                continue;
+            [list addObject:[[GrpFile alloc] initWithGrpfile:p andName:[NSString stringWithCString:group->name encoding:NSUTF8StringEncoding]]];
         }
     }
-    
+
     return self;
 }
 

@@ -60,6 +60,16 @@ struct grpfile internalgrpfiles[] =
     { "NAPALM",                                NAPALM_CRC,  44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,          0, NULL, NULL, NULL, NULL },
     { "WWII GI",                               WW2GI_CRC,   77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,           0, NULL, NULL, NULL, NULL },
 };
+
+struct grpfile const * GetInternalGroup(int32_t crcval)
+{
+    for (size_t i = 0; i < ARRAY_SIZE(internalgrpfiles); i++)
+        if (crcval == internalgrpfiles[i].crcval)
+            return &internalgrpfiles[i];
+
+    return NULL;
+}
+
 struct grpfile *foundgrps = NULL;
 struct grpfile *listgrps = NULL;
 
