@@ -107,6 +107,7 @@ static struct
 
 static struct
 {
+    grpfile_t const * grp;
     int32_t fullscreen;
 #ifdef POLYMER
     int32_t polymer;
@@ -115,10 +116,7 @@ static struct
     int32_t forcesetup;
     int32_t autoload;
     int32_t usemouse, usejoy;
-    int32_t game;
-    int32_t crcval;
     char *custommoddir;
-    char selectedgrp[BMAX_PATH];
 } settings;
 
 static int32_t retval = -1, mode = TAB_MESSAGES;
@@ -235,15 +233,13 @@ static void on_gamelist_selection_changed(GtkTreeSelection *selection, gpointer 
 {
     GtkTreeIter iter;
     GtkTreeModel *model;
-    struct grpfile *fg;
     UNREFERENCED_PARAMETER(user_data);
 
     if (gtk_tree_selection_get_selected(selection, &model, &iter))
     {
+        grpfile_t const *fg;
         gtk_tree_model_get(model, &iter, 2, (gpointer)&fg, -1);
-        strcpy(settings.selectedgrp, fg->name);
-        settings.game = fg->game;
-        settings.crcval = fg->crcval;
+        settings.grp = fg;
     }
 }
 
@@ -437,7 +433,6 @@ static void PopulateForm(unsigned char pgs)
 
     if ((pgs == ALL) || (pgs == POPULATE_GAME))
     {
-        struct grpfile *fg;
         GtkListStore *list;
         GtkTreeIter iter;
         GtkTreeView *gamelist;
@@ -446,18 +441,11 @@ static void PopulateForm(unsigned char pgs)
         list = GTK_LIST_STORE(gtk_tree_view_get_model(gamelist));
         gtk_list_store_clear(list);
 
-        for (fg = foundgrps; fg; fg=fg->next)
+        for (grpfile_t const * fg = foundgrps; fg; fg=fg->next)
         {
-            struct grpfile *grp;
-            for (grp = listgrps; grp; grp=grp->next)
-                if (fg->crcval == grp->crcval) break;
-
-            if (grp == NULL)
-                continue;
-
             gtk_list_store_append(list, &iter);
-            gtk_list_store_set(list, &iter, 0, grp->name, 1, fg->name, 2, (gpointer)fg, -1);
-            if (!Bstrcasecmp(fg->name, settings.selectedgrp))
+            gtk_list_store_set(list, &iter, 0, fg->type->name, 1, fg->filename, 2, (gpointer)fg, -1);
+            if (settings.grp == fg)
             {
                 GtkTreeSelection *sel = gtk_tree_view_get_selection(gamelist);
                 g_signal_handlers_block_by_func(sel, (gpointer)on_gamelist_selection_changed, NULL);
@@ -890,8 +878,7 @@ int32_t startwin_run(void)
     settings.usejoy = ud.config.UseJoystick;
     settings.custommoddir = g_modDir;
     settings.forcesetup = ud.config.ForceSetup;
-    settings.game = g_gameType;
-    Bstrncpyz(settings.selectedgrp, G_GrpFile(), BMAX_PATH);
+    settings.grp = g_selectedGrp;
     if (ud.config.NoAutoLoad) settings.autoload = FALSE;
     else settings.autoload = TRUE;
 #ifdef POLYMER
@@ -915,37 +902,14 @@ int32_t startwin_run(void)
         ud.config.UseMouse = settings.usemouse;
         ud.config.UseJoystick = settings.usejoy;
         ud.config.ForceSetup = settings.forcesetup;
+        g_selectedGrp = settings.grp;
 
-        clearGrpNamePtr();
-        g_grpNamePtr = dup_filename(settings.selectedgrp);
-
-        g_gameType = settings.game;
         if (settings.custommoddir != NULL)
             Bstrcpy(g_modDir, settings.custommoddir);
         else Bsprintf(g_modDir, "/");
 
         if (settings.autoload) ud.config.NoAutoLoad = FALSE;
         else ud.config.NoAutoLoad = TRUE;
-
-        {
-            struct grpfile *grp;
-            for (grp = listgrps; grp; grp=grp->next)
-                if (settings.crcval == grp->crcval) break;
-
-            if (grp)
-            {
-                g_gameNamePtr = grp->name;
-                g_dependencyCRC = grp->dependency;
-                g_groupCRC = grp->crcval;
-                g_postprocessing = grp->postprocessing;
-
-                if (grp->scriptname && g_scriptNamePtr == NULL)
-                    g_scriptNamePtr = dup_filename(grp->scriptname);
-
-                if (grp->defname && g_defNamePtr == NULL)
-                    g_defNamePtr = dup_filename(grp->defname);
-            }
-        }
     }
 
     return retval;

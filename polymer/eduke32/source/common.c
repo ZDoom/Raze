@@ -22,12 +22,11 @@
 #include "common.h"
 #include "common_game.h"
 
+struct grpfile_t const *g_selectedGrp;
+
 int32_t g_gameType = GAMEFLAG_DUKE;
 
-int32_t g_dependencyCRC = 0;
-int32_t g_groupCRC;
 int32_t g_usingAddon = 0;
-void (*g_postprocessing)(int32_t);
 
 // g_gameNamePtr can point to one of: grpfiles[].name (string literal), string
 // literal, malloc'd block (XXX: possible leak)
@@ -374,40 +373,46 @@ void G_ScanGroups(void)
 {
     ScanGroups();
 
-    // try and identify the 'defaultgamegrp' in the set of GRPs.
-    // if it is found, set up the environment accordingly for the game it represents.
-    // if it is not found, choose the first GRP from the list
-    struct grpfile *fg, *first = NULL;
+    g_selectedGrp = NULL;
 
-    for (fg = foundgrps; fg; fg=fg->next)
+    char const * const currentGrp = G_GrpFile();
+
+    for (grpfile_t const *fg = foundgrps; fg; fg=fg->next)
     {
-        struct grpfile *grp;
-        for (grp = listgrps; grp; grp=grp->next)
-            if (fg->crcval == grp->crcval) break;
-
-        if (grp == NULL)
-            continue;
-
-        fg->game = grp->game;
-        if (!first) first = fg;
-        if (!Bstrcasecmp(fg->name, G_DefaultGrpFile()))
+        if (!Bstrcasecmp(fg->filename, currentGrp))
         {
-            g_gameType = grp->game;
-            g_gameNamePtr = grp->name;
+            g_selectedGrp = fg;
             break;
         }
     }
-    if (!fg && first)
-    {
-        if (g_grpNamePtr == NULL)
-        {
-            clearGrpNamePtr();
-            g_grpNamePtr = dup_filename(first->name);
-        }
-        g_gameType = first->game;
-        g_gameNamePtr = listgrps->name;
-    }
-    else if (!fg) g_gameNamePtr = NULL;
+}
+
+static int32_t G_TryLoadingGrp(char const * const grpfile)
+{
+    int32_t i;
+
+    if ((i = initgroupfile(grpfile)) == -1)
+        initprintf("Warning: could not find main data file \"%s\"!\n", grpfile);
+    else
+        initprintf("Using \"%s\" as main game data file.\n", grpfile);
+
+    return i;
+}
+
+static int32_t G_LoadGrpDependencyChain(grpfile_t const * const grp)
+{
+    if (!grp)
+        return -1;
+
+    if (grp->type->dependency)
+        G_LoadGrpDependencyChain(FindGroup(grp->type->dependency));
+
+    int32_t const i = G_TryLoadingGrp(grp->filename);
+
+    if (grp->type->postprocessing)
+        grp->type->postprocessing(grp->type->crcval);
+
+    return i;
 }
 
 void G_LoadGroups(int32_t autoload)
@@ -440,28 +445,32 @@ void G_LoadGroups(int32_t autoload)
     if (g_usingAddon)
         G_LoadAddon();
 
+    const char *grpfile;
     int32_t i;
-    const char *grpfile = G_GrpFile();
 
-    if (g_dependencyCRC)
+    if ((i = G_LoadGrpDependencyChain(g_selectedGrp)) != -1)
     {
-        struct grpfile *grp = FindGroup(g_dependencyCRC);
-        if (grp)
-        {
-            if ((i = initgroupfile(grp->name)) == -1)
-                initprintf("Warning: could not find main data file \"%s\"!\n", grp->name);
-            else
-                initprintf("Using \"%s\" as main game data file.\n", grp->name);
-        }
+        grpfile = g_selectedGrp->filename;
+
+        clearGrpNamePtr();
+        g_grpNamePtr = dup_filename(grpfile);
+
+        grpinfo_t const * const type = g_selectedGrp->type;
+
+        g_gameType = type->game;
+        g_gameNamePtr = type->name;
+
+        if (type->scriptname && g_scriptNamePtr == NULL)
+            g_scriptNamePtr = dup_filename(type->scriptname);
+
+        if (type->defname && g_defNamePtr == NULL)
+            g_defNamePtr = dup_filename(type->defname);
     }
-
-    if ((i = initgroupfile(grpfile)) == -1)
-        initprintf("Warning: could not find main data file \"%s\"!\n", grpfile);
     else
-        initprintf("Using \"%s\" as main game data file.\n", grpfile);
-
-    if (g_postprocessing)
-        g_postprocessing(g_groupCRC);
+    {
+        grpfile = G_GrpFile();
+        i = G_TryLoadingGrp(grpfile);
+    }
 
     if (autoload)
     {
@@ -560,7 +569,6 @@ const char * G_GetInstallPath(int32_t insttype)
 
 static void G_LoadAddon(void)
 {
-    struct grpfile * grp;
     int32_t crc = 0;  // compiler-happy
 
     switch (g_usingAddon)
@@ -578,30 +586,10 @@ static void G_LoadAddon(void)
 
     if (!crc) return;
 
-    grp = FindGroup(crc);
+    grpfile_t const * const grp = FindGroup(crc);
 
-    if (grp && FindGroup(DUKE15_CRC))
-    {
-        clearGrpNamePtr();
-        g_grpNamePtr = dup_filename(FindGroup(DUKE15_CRC)->name);
-
-        G_AddGroup(grp->name);
-
-        for (grp = listgrps; grp; grp=grp->next)
-            if (crc == grp->crcval) break;
-
-        if (grp != NULL && grp->scriptname)
-        {
-            clearScriptNamePtr();
-            g_scriptNamePtr = dup_filename(grp->scriptname);
-        }
-
-        if (grp != NULL && grp->defname)
-        {
-            clearDefNamePtr();
-            g_defNamePtr = dup_filename(grp->defname);
-        }
-    }
+    if (grp)
+        g_selectedGrp = grp;
 }
 
 #if defined EDUKE32_OSX || defined __linux__ || defined EDUKE32_BSD

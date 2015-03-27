@@ -19,15 +19,10 @@
 {
     self = [super init];
     if (self) {
-        struct grpfile *p;
-
         list = [[NSMutableArray alloc] init];
 
-        for (p = foundgrps; p; p=p->next) {
-            struct grpfile const * const group = GetInternalGroup(p->crcval);
-            if (group == NULL)
-                continue;
-            [list addObject:[[GrpFile alloc] initWithGrpfile:p andName:[NSString stringWithCString:group->name encoding:NSUTF8StringEncoding]]];
+        for (grpfile_t const *p = foundgrps; p; p=p->next) {
+            [list addObject:[[GrpFile alloc] initWithGrpfile:p]];
         }
     }
 

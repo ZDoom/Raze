@@ -37,7 +37,7 @@ static void process_vacapp15(int32_t crcval);
 // custom GRP support for the startup window, file format reflects the structure below
 #define GAMELISTFILE "games.list"
 //    name                                     crc          size      flags                         dependency  scriptname     defname           postprocessing
-struct grpfile internalgrpfiles[] =
+static grpinfo_t const internalgrpfiles[] =
 {
     { "Duke Nukem 3D",                         DUKE13_CRC,  26524524, GAMEFLAG_DUKE,                         0, NULL, NULL, NULL, NULL },
     { "Duke Nukem 3D (South Korean Censored)", DUKEKR_CRC,  26385383, GAMEFLAG_DUKE,                         0, NULL, NULL, NULL, NULL },
@@ -61,24 +61,11 @@ struct grpfile internalgrpfiles[] =
     { "WWII GI",                               WW2GI_CRC,   77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,           0, NULL, NULL, NULL, NULL },
 };
 
-struct grpfile const * GetInternalGroup(int32_t crcval)
-{
-    for (size_t i = 0; i < ARRAY_SIZE(internalgrpfiles); i++)
-        if (crcval == internalgrpfiles[i].crcval)
-            return &internalgrpfiles[i];
-
-    return NULL;
-}
-
-struct grpfile *foundgrps = NULL;
-struct grpfile *listgrps = NULL;
+struct grpfile_t *foundgrps = NULL;
+struct grpinfo_t *listgrps = NULL;
 
 static void LoadList(const char * filename)
 {
-    struct grpfile *fg;
-
-    char *grpend = NULL;
-
     scriptfile *script = scriptfile_fromfile(filename);
 
     if (!script)
@@ -130,6 +117,7 @@ static void LoadList(const char * filename)
         {
             int32_t gsize = 0, gcrcval = 0, gflags = GAMEFLAG_DUKE, gdepcrc = DUKE15_CRC;
             char *gname = NULL, *gscript = NULL, *gdef = NULL;
+            char *grpend = NULL;
 
             static const tokenlist grpinfotokens[] =
             {
@@ -170,7 +158,7 @@ static void LoadList(const char * filename)
                     break;
                 }
 
-                fg = (struct grpfile *)Xcalloc(1, sizeof(struct grpfile));
+                grpinfo_t * const fg = (grpinfo_t *)Xcalloc(1, sizeof(grpinfo_t));
                 fg->next = listgrps;
                 listgrps = fg;
 
@@ -202,12 +190,9 @@ static void LoadList(const char * filename)
 
 static void LoadGameList(void)
 {
-    struct grpfile *fg;
-    CACHE1D_FIND_REC *srch, *sidx;
-
     for (size_t i = 0; i < ARRAY_SIZE(internalgrpfiles); i++)
     {
-        fg = (struct grpfile *)Xcalloc(1, sizeof(struct grpfile));
+        grpinfo_t * const fg = (grpinfo_t *)Xcalloc(1, sizeof(grpinfo_t));
 
         fg->name = Xstrdup(internalgrpfiles[i].name);
         fg->crcval = internalgrpfiles[i].crcval;
@@ -227,21 +212,18 @@ static void LoadGameList(void)
         listgrps = fg;
     }
 
-    srch = klistpath("/", "*.grpinfo", CACHE1D_FIND_FILE);
+    CACHE1D_FIND_REC * const srch = klistpath("/", "*.grpinfo", CACHE1D_FIND_FILE);
 
-    for (sidx = srch; sidx; sidx = sidx->next)
-        LoadList(srch->name);
+    for (CACHE1D_FIND_REC *sidx = srch; sidx; sidx = sidx->next)
+        LoadList(sidx->name);
 
     klistfree(srch);
 }
 
 static void FreeGameList(void)
 {
-    struct grpfile *fg;
-
     while (listgrps)
     {
-        fg = listgrps->next;
         Bfree(listgrps->name);
 
         if (listgrps->scriptname)
@@ -250,6 +232,7 @@ static void FreeGameList(void)
         if (listgrps->defname)
             Bfree(listgrps->defname);
 
+        grpinfo_t * const fg = listgrps->next;
         Bfree(listgrps);
         listgrps = fg;
     }
@@ -302,58 +285,56 @@ static int32_t LoadGroupsCache(void)
 
 static void FreeGroupsCache(void)
 {
-    struct grpcache *fg;
-
     while (grpcache)
     {
-        fg = grpcache->next;
+        struct grpcache * const fg = grpcache->next;
         Bfree(grpcache);
         grpcache = fg;
     }
 }
 
-void RemoveGroup(int32_t crcval)
+static void RemoveGroup(grpfile_t *igrp)
 {
-    struct grpfile *grp;
-
-    for (grp = foundgrps; grp; grp=grp->next)
+    for (grpfile_t *prev = NULL, *grp = foundgrps; grp; grp=grp->next)
     {
-        if (grp->crcval == crcval)
+        if (grp == igrp)
         {
             if (grp == foundgrps)
                 foundgrps = grp->next;
             else
-            {
-                struct grpfile *fg;
+                prev->next = grp->next;
 
-                for (fg = foundgrps; fg; fg=fg->next)
-                {
-                    if (fg->next == grp)
-                    {
-                        fg->next = grp->next;
-                        break;
-                    }
-                }
-            }
-
-            Bfree((char *)grp->name);
+            Bfree((char *)grp->filename);
             Bfree(grp);
 
-            RemoveGroup(crcval);
-
-            break;
+            return;
         }
+
+        prev = grp;
     }
 }
 
-struct grpfile * FindGroup(int32_t crcval)
+grpfile_t * FindGroup(int32_t crcval)
 {
-    struct grpfile *grp;
+    grpfile_t *grp;
 
     for (grp = foundgrps; grp; grp=grp->next)
     {
-        if (grp->crcval == crcval)
+        if (grp->type->crcval == crcval)
             return grp;
+    }
+
+    return NULL;
+}
+
+static grpinfo_t const * FindGrpInfo(int32_t crcval, int32_t size)
+{
+    grpinfo_t *grpinfo;
+
+    for (grpinfo = listgrps; grpinfo; grpinfo=grpinfo->next)
+    {
+        if (grpinfo->crcval == crcval && grpinfo->size == size)
+            return grpinfo;
     }
 
     return NULL;
@@ -363,7 +344,6 @@ static void ProcessGroups(CACHE1D_FIND_REC *srch)
 {
     CACHE1D_FIND_REC *sidx;
     struct grpcache *fg, *fgg;
-    struct grpfile *grp;
     char *fn;
     struct Bstat st;
 
@@ -388,12 +368,15 @@ static void ProcessGroups(CACHE1D_FIND_REC *srch)
             Bfree(fn);
             if (fg->size == (int32_t)st.st_size && fg->mtime == (int32_t)st.st_mtime)
             {
-                grp = (struct grpfile *)Xcalloc(1, sizeof(struct grpfile));
-                grp->name = Xstrdup(sidx->name);
-                grp->crcval = fg->crcval;
-                grp->size = fg->size;
-                grp->next = foundgrps;
-                foundgrps = grp;
+                grpinfo_t const * const grptype = FindGrpInfo(fg->crcval, fg->size);
+                if (grptype)
+                {
+                    grpfile_t * const grp = (grpfile_t *)Xcalloc(1, sizeof(grpfile_t));
+                    grp->filename = Xstrdup(sidx->name);
+                    grp->type = grptype;
+                    grp->next = foundgrps;
+                    foundgrps = grp;
+                }
 
                 fgg = (struct grpcache *)Xcalloc(1, sizeof(struct grpcache));
                 strcpy(fgg->name, fg->name);
@@ -424,12 +407,15 @@ static void ProcessGroups(CACHE1D_FIND_REC *srch)
             close(fh);
             initprintf(" Done\n");
 
-            grp = (struct grpfile *)Xcalloc(1, sizeof(struct grpfile));
-            grp->name = Xstrdup(sidx->name);
-            grp->crcval = crcval;
-            grp->size = st.st_size;
-            grp->next = foundgrps;
-            foundgrps = grp;
+            grpinfo_t const * const grptype = FindGrpInfo(crcval, st.st_size);
+            if (grptype)
+            {
+                grpfile_t * const grp = (grpfile_t *)Xcalloc(1, sizeof(grpfile_t));
+                grp->filename = Xstrdup(sidx->name);
+                grp->type = grptype;
+                grp->next = foundgrps;
+                foundgrps = grp;
+            }
 
             fgg = (struct grpcache *)Xcalloc(1, sizeof(struct grpcache));
             Bstrncpy(fgg->name, sidx->name, BMAX_PATH);
@@ -448,7 +434,6 @@ int32_t ScanGroups(void)
 {
     CACHE1D_FIND_REC *srch;
     struct grpcache *fg, *fgg;
-    struct grpfile *grp;
 
     initprintf("Searching for game data...\n");
 
@@ -465,39 +450,19 @@ int32_t ScanGroups(void)
 
     FreeGroupsCache();
 
-    for (grp = foundgrps; grp; /*grp=grp->next*/)
+    for (grpfile_t *grp = foundgrps; grp; grp=grp->next)
     {
-        struct grpfile *igrp;
-        for (igrp = listgrps; igrp; igrp=igrp->next)
-            if (grp->crcval == igrp->crcval) break;
-
-        if (igrp == NULL)
+        if (grp->type->dependency)
         {
-            grp = grp->next;
-            continue;
-        }
-
-        if (igrp->dependency)
-        {
-            struct grpfile *depgrp;
-
-            //initprintf("found grp with dep\n");
-            for (depgrp = foundgrps; depgrp; depgrp=depgrp->next)
-                if (depgrp->crcval == igrp->dependency) break;
-
-            if (depgrp == NULL || depgrp->crcval != igrp->dependency) // couldn't find dependency
+            if (FindGroup(grp->type->dependency) == NULL) // couldn't find dependency
             {
                 //initprintf("removing %s\n", grp->name);
-                RemoveGroup(igrp->crcval);
+                RemoveGroup(grp);
                 grp = foundgrps;
+                // start from the beginning so we can remove anything that depended on this grp
                 continue;
             }
         }
-
-        if (igrp->game && !grp->game)
-            grp->game = igrp->game;
-
-        grp=grp->next;
     }
 
     if (usedgrpcache)
@@ -529,12 +494,10 @@ int32_t ScanGroups(void)
 
 void FreeGroups(void)
 {
-    struct grpfile *fg;
-
     while (foundgrps)
     {
-        fg = foundgrps->next;
-        Bfree((char *)foundgrps->name);
+        Bfree((char *)foundgrps->filename);
+        grpfile_t * const fg = foundgrps->next;
         Bfree(foundgrps);
         foundgrps = fg;
     }

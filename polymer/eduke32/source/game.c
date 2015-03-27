@@ -11553,15 +11553,15 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 #endif
 
+    flushlogwindow = 0;
+    G_LoadGroups(!g_noAutoLoad && !ud.config.NoAutoLoad);
+//    flushlogwindow = 1;
+
     if (WW2GI || NAM)
     {
         Bstrcpy(GametypeNames[0],"GruntMatch (Spawn)");
         Bstrcpy(GametypeNames[2],"GruntMatch (No Spawn)");
     }
-
-    flushlogwindow = 0;
-    G_LoadGroups(!g_noAutoLoad && !ud.config.NoAutoLoad);
-//    flushlogwindow = 1;
 
     if (!usecwd)
         G_CleanupSearchPaths();

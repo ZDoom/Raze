@@ -59,7 +59,7 @@ enum addon_t {
     NUMADDONS
 };
 
-typedef struct grpfile {
+typedef struct grpinfo_t {
 	char *name;
 	int32_t crcval;
 	int32_t size;
@@ -68,16 +68,20 @@ typedef struct grpfile {
     char *scriptname;
     char *defname;
     void (*postprocessing)(int32_t);
-	struct grpfile *next;
-} grpfile_type;
+	struct grpinfo_t *next;
+} grpinfo_t;
 
-extern struct grpfile internalgrpfiles[];
-extern struct grpfile *foundgrps;
-extern struct grpfile *listgrps;
+typedef struct grpfile_t {
+	char *filename;
+	struct grpinfo_t const *type;
+	struct grpfile_t *next;
+} grpfile_t;
 
-extern struct grpfile const * GetInternalGroup(int32_t crcval);
+extern grpfile_t *foundgrps;
+extern grpinfo_t *listgrps;
 
-extern struct grpfile * FindGroup(int32_t crcval);
+extern grpfile_t * FindGroup(int32_t crcval);
+
 int32_t ScanGroups(void);
 void FreeGroups(void);
 

@@ -7,6 +7,8 @@
 #ifndef EDUKE32_COMMON_GAME_H_
 #define EDUKE32_COMMON_GAME_H_
 
+#include "grpscan.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -23,12 +25,11 @@ extern int32_t usecwd;
 #define GAMEFLAGMASK        0x0000007F // flags allowed from grpinfo
 #define GAMEFLAG_NWINTER    0x00000080
 
+extern struct grpfile_t const *g_selectedGrp;
+
 extern int32_t g_gameType;
 
 extern int32_t g_usingAddon;
-extern int32_t g_dependencyCRC;
-extern int32_t g_groupCRC;
-extern void (*g_postprocessing)(int32_t);
 
 #define DUKE                (g_gameType & GAMEFLAG_DUKE)
 #define NAM                 (g_gameType & GAMEFLAG_NAM)

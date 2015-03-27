@@ -10,30 +10,33 @@
 #include "GrpFile.game.h"
 
 @implementation GrpFile
-- (id)initWithGrpfile:(struct grpfile *)grpfile andName:(NSString*)aName
+- (id)initWithGrpfile:(grpfile_t const *)grpfile
 {
     self = [super init];
     if (self) {
         fg = grpfile;
-        name = aName;
-        [aName retain];
+        namestring = [NSString stringWithCString:fg->type->name encoding:NSUTF8StringEncoding];
+        [namestring retain];
+        grpnamestring = [NSString stringWithCString:fg->filename encoding:NSUTF8StringEncoding];
+        [grpnamestring retain];
     }
     return self;
 }
 - (void)dealloc
 {
-    [name release];
+    [namestring release];
+    [grpnamestring release];
     [super dealloc];
 }
 - (NSString *)name
 {
-    return name;
+    return namestring;
 }
 - (NSString *)grpname
 {
-    return [NSString stringWithCString:(fg->name) encoding:NSUTF8StringEncoding];
+    return grpnamestring;
 }
-- (struct grpfile *)entryptr
+- (grpfile_t const *)entryptr
 {
     return fg;
 }

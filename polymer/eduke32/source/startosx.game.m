@@ -17,11 +17,10 @@
 static id nsapp;
 
 static struct {
+    grpfile_t const * grp;
     int fullscreen;
     int xdim3d, ydim3d, bpp3d;
     int forcesetup;
-    char selectedgrp[BMAX_PATH+1];
-    int game;
     int samplerate, bitspersample, channels;
 } settings;
 
@@ -218,11 +217,7 @@ static struct soundQuality_t {
 
     int row = [[gameList documentView] selectedRow];
     if (row >= 0) {
-        struct grpfile *p = [[gamelistsrc grpAtIndex:row] entryptr];
-        if (p) {
-            strcpy(settings.selectedgrp, p->name);
-            settings.game = p->game;
-        }
+        settings.grp = [[gamelistsrc grpAtIndex:row] entryptr];
     }
 
     settings.forcesetup = [alwaysShowButton state] == NSOnState;
@@ -248,7 +243,7 @@ static struct soundQuality_t {
     [[gameList documentView] setDataSource:gamelistsrc];
     [[gameList documentView] deselectAll:nil];
 
-    int row = [gamelistsrc findIndexForGrpname:[NSString stringWithCString:settings.selectedgrp encoding:NSUTF8StringEncoding]];
+    int row = [gamelistsrc findIndexForGrpname:[NSString stringWithCString:settings.grp->filename encoding:NSUTF8StringEncoding]];
     if (row >= 0) {
         [[gameList documentView] scrollRowToVisible:row];
 #if defined(MAC_OS_X_VERSION_10_3) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3)
@@ -422,8 +417,7 @@ int startwin_run(void)
     settings.bitspersample = ud.config.NumBits;
     settings.channels = ud.config.NumChannels;
     settings.forcesetup = ud.config.ForceSetup;
-//    settings.game = gametype;
-    strncpy(settings.selectedgrp, G_GrpFile(), BMAX_PATH);
+    settings.grp = g_selectedGrp;
 
     [startwin setupRunMode];
 
@@ -444,9 +438,7 @@ int startwin_run(void)
         ud.config.NumBits = settings.bitspersample;
         ud.config.NumChannels = settings.channels;
         ud.config.ForceSetup = settings.forcesetup;
-        clearGrpNamePtr();
-        g_grpNamePtr = dup_filename(settings.selectedgrp);
-//        gametype = settings.game;
+        g_selectedGrp = settings.grp;
     }
 
     return retval;

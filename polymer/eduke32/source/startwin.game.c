@@ -56,14 +56,12 @@ static struct audioenumdrv *wavedevs = NULL;
 
 static struct
 {
+    struct grpfile_t const * grp;
     int32_t flags; // bitfield
     int32_t xdim, ydim, bpp;
     int32_t forcesetup;
     int32_t usemouse, usejoy;
-    int32_t game;
-    int32_t crcval; // for finding the grp in the list again
     char *gamedir;
-    char selectedgrp[BMAX_PATH];
 }
 settings;
 
@@ -249,29 +247,19 @@ static void PopulateForm(int32_t pgs)
 
     if (pgs & POPULATE_GAME)
     {
-        struct grpfile *fg;
         int32_t j;
         char buf[1024];
 
         hwnd = GetDlgItem(pages[TAB_CONFIG], IDCDATA);
 
-        for (fg = foundgrps; fg; fg=fg->next)
+        for (grpfile_t const * fg = foundgrps; fg; fg=fg->next)
         {
-            struct grpfile *grp;
-            for (grp = listgrps; grp; grp=grp->next)
-                if (fg->crcval == grp->crcval) break;
-
-            if (grp == NULL)
-                continue;
-
-            Bsprintf(buf, "%s\t%s", grp->name, fg->name);
+            Bsprintf(buf, "%s\t%s", fg->type->name, fg->filename);
             j = ListBox_AddString(hwnd, buf);
             (void)ListBox_SetItemData(hwnd, j, (LPARAM)fg);
-            if (!Bstrcasecmp(fg->name, settings.selectedgrp))
+            if (settings.grp == fg)
             {
                 (void)ListBox_SetCurSel(hwnd, j);
-                settings.game = fg->game;
-                settings.crcval = fg->crcval;
             }
         }
     }
@@ -377,9 +365,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
             if (i != CB_ERR)
             {
-                strcpy(settings.selectedgrp, ((struct grpfile *)i)->name);
-                settings.game = ((struct grpfile *)i)->game;
-                settings.crcval = ((struct grpfile *)i)->crcval;
+                settings.grp = (grpfile_t const *)i;
             }
             return TRUE;
         }
@@ -746,9 +732,7 @@ int32_t startwin_run(void)
     settings.forcesetup = ud.config.ForceSetup;
     settings.usemouse = ud.config.UseMouse;
     settings.usejoy = ud.config.UseJoystick;
-    settings.game = g_gameType;
-//    settings.crcval = 0;
-    Bstrncpyz(settings.selectedgrp, G_GrpFile(), BMAX_PATH);
+    settings.grp = g_selectedGrp;
     settings.gamedir = g_modDir;
     PopulateForm(-1);
 
@@ -786,35 +770,11 @@ int32_t startwin_run(void)
         ud.config.ForceSetup = settings.forcesetup;
         ud.config.UseMouse = settings.usemouse;
         ud.config.UseJoystick = settings.usejoy;
-
-        clearGrpNamePtr();
-        g_grpNamePtr = dup_filename(settings.selectedgrp);
-
-        g_gameType = settings.game;
+        g_selectedGrp = settings.grp;
 
         if (g_noSetup == 0 && settings.gamedir != NULL)
             Bstrcpy(g_modDir,settings.gamedir);
         else Bsprintf(g_modDir,"/");
-
-        {
-            struct grpfile *grp;
-            for (grp = listgrps; grp; grp=grp->next)
-                if (settings.crcval == grp->crcval) break;
-
-            if (grp)
-            {
-                g_gameNamePtr = grp->name;
-                g_dependencyCRC = grp->dependency;
-                g_groupCRC = grp->crcval;
-                g_postprocessing = grp->postprocessing;
-
-                if (grp->scriptname && g_scriptNamePtr == NULL)
-                    g_scriptNamePtr = dup_filename(grp->scriptname);
-
-                if (grp->defname && g_defNamePtr == NULL)
-                    g_defNamePtr = dup_filename(grp->defname);
-            }
-        }
     }
 
     if (wavedevs)

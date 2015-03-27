@@ -13,13 +13,14 @@
 
 @interface GrpFile : NSObject
 {
-    NSString *name;
-    struct grpfile *fg;
+    NSString *namestring;
+    NSString *grpnamestring;
+    grpfile_t const *fg;
 }
-- (id)initWithGrpfile:(struct grpfile *)grpfile andName:(NSString*)aName;
+- (id)initWithGrpfile:(grpfile_t const *)grpfile;
 - (void)dealloc;
 - (NSString *)name;
 - (NSString *)grpname;
-- (struct grpfile *)entryptr;
+- (grpfile_t const *)entryptr;
 @end
 
