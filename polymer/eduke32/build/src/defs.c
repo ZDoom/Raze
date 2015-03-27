@@ -69,6 +69,7 @@ enum scripttoken_t
     T_HIGHPALOOKUP,
     T_TINT,
     T_MAKEPALOOKUP, T_REMAPPAL, T_REMAPSELF,
+    T_NOFLOORPAL,
     T_RED,T_GREEN,T_BLUE,
     T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_SPECPOWER,T_SPECFACTOR,T_NOCOMPRESS,T_NODOWNSIZE,
     T_ORIGSIZEX,T_ORIGSIZEY,
@@ -1718,6 +1719,7 @@ static int32_t defsparser(scriptfile *script)
             char *const starttokptr = script->ltextptr;
             int32_t red=0, green=0, blue=0, pal=-1;
             int32_t havepal=0, remappal=0;
+            int32_t nofloorpal=-1;
             char *endtextptr;
 
             static const tokenlist palookuptokens[] =
@@ -1728,6 +1730,7 @@ static int32_t defsparser(scriptfile *script)
                 { "blue",  T_BLUE  }, { "b", T_BLUE },
                 { "remappal", T_REMAPPAL },
                 { "remapself", T_REMAPSELF },
+                { "nofloorpal", T_NOFLOORPAL },
             };
 
             enum {
@@ -1771,6 +1774,10 @@ static int32_t defsparser(scriptfile *script)
                         havepal |= HAVEPAL_ERROR;
                     havepal |= HAVE_REMAPSELF;
                     break;
+                case T_NOFLOORPAL:
+                    scriptfile_getsymbol(script, &nofloorpal);
+                    nofloorpal = clamp(nofloorpal, 0, 1);
+                    break;
                 }
             }
 
@@ -1813,7 +1820,7 @@ static int32_t defsparser(scriptfile *script)
             // NOTE: all palookups are initialized, i.e. non-NULL!
             // NOTE2: aliasing (pal==remappal) is OK
             makepalookup(pal, palookup[remappal], red, green, blue,
-                         remappal==0 ? 1 : g_noFloorPal[remappal]);
+                         remappal==0 ? 1 : (nofloorpal == -1 ? g_noFloorPal[remappal] : nofloorpal));
         }
         break;
         case T_TEXTURE:
