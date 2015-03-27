@@ -134,6 +134,7 @@ weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
 
 #if !defined LUNATIC
 static intptr_t *g_parsingEventPtr=NULL;
+static intptr_t *g_parsingEventBreakPtr=NULL;
 static char *textptr;
 #endif
 
@@ -2678,6 +2679,16 @@ static void C_FinishBitOr(int32_t value)
     g_scriptPtr++;
 }
 
+static void C_FillEventBreakStackWithJump(intptr_t *breakPtr, intptr_t destination)
+{
+    while (breakPtr)
+    {
+        intptr_t const tempPtr = *breakPtr;
+        *breakPtr = destination;
+        breakPtr = (intptr_t*)tempPtr;
+    }
+}
+
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw, otw;
@@ -3470,10 +3481,12 @@ static int32_t C_ParseCommand(int32_t loop)
             }
             else // if (tw == CON_APPENDEVENT)
             {
+                intptr_t const destination = g_parsingEventPtr - script;
                 intptr_t *previous_event_end = apScriptGameEventEnd[j];
                 *(previous_event_end++) = CON_JUMP;
                 *(previous_event_end++) = MAXGAMEVARS;
-                *(previous_event_end++) = g_parsingEventPtr-script;
+                C_FillEventBreakStackWithJump((intptr_t*)*previous_event_end, destination);
+                *(previous_event_end++) = destination;
             }
 
             g_checkingIfElse = 0;
@@ -6080,22 +6093,28 @@ repeatcase:
             // if event has already been declared then put a jump in instead
             if (EDUKE32_PREDICT_FALSE((intptr_t)previous_event))
             {
+                intptr_t const destination = previous_event - script;
+
                 g_scriptPtr--;
                 *(g_scriptPtr++) = CON_JUMP;
                 *(g_scriptPtr++) = MAXGAMEVARS;
-                *(g_scriptPtr++) = previous_event-script;
+                *(g_scriptPtr++) = destination;
                 *(g_scriptPtr++) = CON_ENDEVENT;
                 previous_event = NULL;
+
+                C_FillEventBreakStackWithJump(g_parsingEventBreakPtr, destination);
             }
             else
             {
                 // pad space for the next potential appendevent
                 apScriptGameEventEnd[g_currentEvent] = g_scriptPtr-1;
+                g_parsingEventPtr = (intptr_t*)(g_scriptPtr - script - 1);
                 *(g_scriptPtr++) = CON_ENDEVENT;
-                *(g_scriptPtr++) = CON_ENDEVENT;
+                *(g_scriptPtr++) = (intptr_t)g_parsingEventBreakPtr;
                 *(g_scriptPtr++) = CON_ENDEVENT;
             }
-            g_parsingEventPtr = g_parsingActorPtr = NULL;
+
+            g_parsingEventBreakPtr = g_parsingEventPtr = g_parsingActorPtr = NULL;
             g_currentEvent = -1;
             Bsprintf(g_szCurrentBlockName,"(none)");
             continue;
@@ -6129,6 +6148,14 @@ repeatcase:
                     continue;
                 }
                 return 1;
+            }
+            else if (g_parsingEventPtr)
+            {
+                g_scriptPtr--;
+                *(g_scriptPtr++) = CON_JUMP;
+                *(g_scriptPtr++) = MAXGAMEVARS;
+                *g_scriptPtr = (intptr_t)g_parsingEventBreakPtr;
+                g_parsingEventBreakPtr = g_scriptPtr++;
             }
             continue;
 
@@ -6570,6 +6597,21 @@ void C_Compile(const char *filenam)
     else
     {
         int32_t j=0, k=0, l=0;
+
+        for (i = 0; i < MAXEVENTS; ++i)
+        {
+            intptr_t *eventEnd = apScriptGameEventEnd[i];
+            if (eventEnd)
+            {
+                // C_FillEventBreakStackWithEndEvent
+                intptr_t *breakPtr = (intptr_t*)*(eventEnd + 2);
+                while (breakPtr)
+                {
+                    *(breakPtr-2) = CON_ENDEVENT;
+                    breakPtr = (intptr_t*)*breakPtr;
+                }
+            }
+        }
 
         hash_free(&h_labels);
         hash_free(&h_keywords);
