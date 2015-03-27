@@ -182,11 +182,14 @@ EVENT = {
     EVENT_DISPLAYCAMERAOSD = 102,
     EVENT_DISPLAYROOMSCAMERA = 103,
     EVENT_DISPLAYSTART = 104,
+    EVENT_WORLD = 105,
+    EVENT_PREWORLD = 106,
+    EVENT_PRELEVEL = 107,
 --    EVENT_ANIMATEALLSPRITES = previous+1,  -- internal
 -- KEEPINSYNC with MAXEVENTS below
 }
 
-MAXEVENTS = 105  -- KEEPINSYNC with above EVENT_* list
+MAXEVENTS = 108  -- KEEPINSYNC with above EVENT_* list
 
 -- NOTE: negated values are not exported to the ffi.C namespace or CON.
 -- See TWEAK_SFLAG below.

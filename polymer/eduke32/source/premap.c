@@ -1041,6 +1041,8 @@ static void prelevel(char g)
 
     G_SetupGlobalPsky();
 
+    VM_OnEvent(EVENT_PRELEVEL, -1, -1);
+
     for (i=0; i<numsectors; i++)
     {
         sector[i].extra = 256;

@@ -8228,6 +8228,8 @@ void G_MoveWorld(void)
 {
     extern double g_moveActorsTime;
 
+    VM_OnEvent(EVENT_PREWORLD, -1, -1);
+
     if (EDUKE32_PREDICT_FALSE(VM_HaveEvent(EVENT_PREGAME)))
     {
         int32_t i, j, k = 0, p, pl;
@@ -8278,6 +8280,8 @@ void G_MoveWorld(void)
 
     G_MoveStandables();       //ST 6
 
+
+    VM_OnEvent(EVENT_WORLD, -1, -1);
 
     if (EDUKE32_PREDICT_FALSE(VM_HaveEvent(EVENT_GAME)))
     {
