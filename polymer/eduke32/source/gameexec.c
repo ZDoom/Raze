@@ -4316,7 +4316,7 @@ finish_qsprintf:
         case CON_GETPROJECTILE:
             insptr++;
             {
-                tw = Gv_GetVarX(*insptr++);
+                tw = *insptr++;
                 int const lLabelID = *insptr++, lVar2 = *insptr++;
 
                 register int32_t const iTile = Gv_GetVarX(tw);
@@ -4328,7 +4328,7 @@ finish_qsprintf:
         case CON_SETPROJECTILE:
             insptr++;
             {
-                tw = Gv_GetVarX(*insptr++);
+                tw = *insptr++;
                 int const lLabelID = *insptr++, lVar2 = *insptr++;
 
                 register int32_t const iTile = Gv_GetVarX(tw);
