@@ -381,6 +381,7 @@ void        P_SelectNextInvItem(DukePlayer_t *p);
 void        P_UpdateScreenPal(DukePlayer_t *p);
 
 void P_CheckWeaponI(int32_t snum);
+int32_t P_GetHudPal(const DukePlayer_t *p);
 
 #if !defined LUNATIC
 void        P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p);

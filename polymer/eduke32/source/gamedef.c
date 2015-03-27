@@ -1004,6 +1004,7 @@ const memberlabel_t PlayerLabels[]=
     { "last_quick_kick", PLAYER_LAST_QUICK_KICK, 0, 0 },
     { "autostep", PLAYER_AUTOSTEP, 0, 0 },
     { "autostep_sbw", PLAYER_AUTOSTEP_SBW, 0, 0 },
+    { "hudpal", PLAYER_HUDPAL, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 

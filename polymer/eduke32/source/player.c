@@ -1684,7 +1684,7 @@ static void P_DisplaySpit(int32_t snum)
     }
 }
 
-static int32_t P_GetHudPal(const DukePlayer_t *p)
+int32_t P_GetHudPal(const DukePlayer_t *p)
 {
     if (sprite[p->i].pal == 1)
         return 1;
