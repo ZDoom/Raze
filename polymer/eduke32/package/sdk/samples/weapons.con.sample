@@ -57,27 +57,6 @@ gamevar playerid 0 1
 
 // preliminary functions
 
-state G_DrawTile
-    getplayer[THISACTOR].cursectnum hud_G_Draw_temp2
-    ifvarg hud_G_Draw_temp2 -1
-        getsector[hud_G_Draw_temp2].floorpal hud_G_Draw_temp2
-    else
-        setvar hud_G_Draw_temp2 0
-
-    ifvarand hud_orientation 4
-        addvar hud_angle 1024
-
-    orvar hud_orientation 2
-
-    rotatesprite hud_x hud_y hud_scale hud_angle hud_tilenum hud_shade hud_G_Draw_temp2 hud_orientation windowx1 windowy1 windowx2 windowy2
-
-    ifvarand hud_orientation 2
-        xorvar hud_orientation 2
-
-    ifvarand hud_orientation 4
-        subvar hud_angle 1024
-ends
-
 state G_DrawTilePal
     ifvarand hud_orientation 4
         addvar hud_angle 1024
@@ -283,7 +262,7 @@ state draw_shrunk_fists // Shrunk Running Fists
 
     setvar hud_tilenum FIST
 
-    state G_DrawTile
+    state G_DrawTilePal
 
     // cleanup
     subvar hud_x 250
@@ -300,7 +279,7 @@ state draw_shrunk_fists // Shrunk Running Fists
 
     orvar hud_orientation 4
 
-    state G_DrawTile
+    state G_DrawTilePal
 
     // cleanup
     setvar hud_orientation 0
@@ -317,15 +296,9 @@ state draw_quick_kick // Quick Kick
     ifvarn player[THISACTOR].last_quick_kick 0 setvar hud_temp2 1
     ifvare hud_temp2 1
     {
-        getactor[playerid].pal hud_pal
-        ifvarn hud_pal 1
-        {
-            getplayer[THISACTOR].cursectnum hud_temp2
-            ifvarg hud_temp2 -1
-                getsector[hud_temp2].floorpal hud_pal
-            ifvare hud_pal 0
-                getplayer[THISACTOR].palookup hud_pal
-        }
+        getplayer[THISACTOR].hudpal hud_pal
+        ifvare hud_pal 0
+            getplayer[THISACTOR].palookup hud_pal
 
         guniqhudid 100
 
@@ -372,15 +345,8 @@ state draw_kick // KNEE_WEAPON:
 
         state reset_hud_weapon_coordinates
 
-        getactor[playerid].pal hud_pal
-        ifvarn hud_pal 1
-        {
-            getplayer[THISACTOR].cursectnum hud_temp2
-            ifvarg hud_temp2 -1
-                getsector[hud_temp2].floorpal hud_pal
-            ifvare hud_pal 0
-                getplayer[THISACTOR].palookup hud_pal
-        }
+        ifvare hud_pal 0
+            getplayer[THISACTOR].palookup hud_pal
 
         setvar hud_tilenum KNEE
 
@@ -1679,21 +1645,13 @@ onevent EVENT_DISPLAYWEAPON // P_DisplayWeapon
     setvar hud_angle 0
     guniqhudid 0
 
+    getplayer[THISACTOR].hudpal hud_pal
+
     getactor[playerid].xrepeat hud_temp
     ifvarl hud_temp 40
         state draw_shrunk_fists
     else
     {
-        getactor[playerid].pal hud_pal
-        ifvarn hud_pal 1
-        {
-            getplayer[THISACTOR].cursectnum hud_temp2
-            ifvarg hud_temp2 -1
-                getsector[hud_temp2].floorpal hud_pal
-            else
-                setvar hud_pal 0
-        }
-
         switch currentweapon
             case KNEE_WEAPON
                 setvarvar hud_totaltime WEAPON0_TOTALTIME
