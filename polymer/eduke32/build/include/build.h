@@ -1260,6 +1260,12 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 extern int32_t glanisotropy;
 extern int32_t glusetexcompr;
 extern int32_t gltexfiltermode;
+
+enum {
+    TEXFILTER_OFF = 2, // GL_NEAREST_MIPMAP_NEAREST
+    TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
+};
+
 extern int32_t glredbluemode;
 extern int32_t glusetexcache, glusememcache;
 extern int32_t glmultisample, glnvmultisamplehint;

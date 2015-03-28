@@ -75,6 +75,7 @@ enum
 enum
 {
     HICR_NOSAVE = 1,
+    HICR_FORCEFILTER = 2,
 
     HICR_NOCOMPRESS = 16,
 };

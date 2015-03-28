@@ -166,6 +166,7 @@ enum {
     PTH_HASALPHA = 8,
     PTH_HASFULLBRIGHT = 16,
     PTH_NPOTWALL = DAMETH_WALL,  // r_npotwallmode=1 generated texture
+    PTH_FORCEFILTER = 64,
 
     PTH_INVALIDATED = 128,
 };

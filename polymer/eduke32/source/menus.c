@@ -2660,7 +2660,7 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
 #ifdef USE_OPENGL
     else if (entry == &ME_DISPLAYSETUP_TEXFILTER)
     {
-        gltexfiltermode = newOption ? 5 : 2;
+        gltexfiltermode = newOption ? TEXFILTER_ON : TEXFILTER_OFF;
         gltexapplyprops();
     }
     else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO)

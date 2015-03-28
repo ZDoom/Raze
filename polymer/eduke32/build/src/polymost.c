@@ -92,7 +92,7 @@ struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 };
 
 int32_t glanisotropy = 1;            // 0 = maximum supported by card
-int32_t gltexfiltermode = 2; // GL_NEAREST_MIPMAP_NEAREST
+int32_t gltexfiltermode = TEXFILTER_OFF;
 
 #ifdef EDUKE32_GLES
 int32_t glusetexcompr = 0;
@@ -241,17 +241,12 @@ void gltexapplyprops(void)
     {
         for (pthtyp *pth=texcache.list[i]; pth; pth=pth->next)
         {
-#ifndef EDUKE32_TOUCH_DEVICES
-            bind_2d_texture(pth->glpic, -1);
+            int32_t const filter = pth->flags & PTH_FORCEFILTER ? TEXFILTER_ON : -1;
+
+            bind_2d_texture(pth->glpic, filter);
 
             if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)
-                bind_2d_texture(pth->ofb->glpic, -1);
-#else
-            bind_2d_texture(pth->glpic, pth->flags & PTH_HIGHTILE ? 5 : -1);
-
-            if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)
-                bind_2d_texture(pth->ofb->glpic, pth->flags & PTH_HIGHTILE ? 5 : -1);
-#endif
+                bind_2d_texture(pth->ofb->glpic, filter);
         }
     }
 
@@ -274,7 +269,7 @@ void gltexapplyprops(void)
             {
                 if (!sk->texid[j])
                     continue;
-                bind_2d_texture(sk->texid[j], -1);
+                bind_2d_texture(sk->texid[j], sk->flags & HICR_FORCEFILTER ? TEXFILTER_ON : -1);
             }
     }
 }
@@ -1171,11 +1166,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         pth->scale.y = (float)tsiz.y / (float)tilesiz[dapic].y;
     }
 
-#ifdef EDUKE32_TOUCH_DEVICES
-    polymost_setuptexture(dameth, 5);
-#else
-    polymost_setuptexture(dameth, -1);
-#endif
+    polymost_setuptexture(dameth, hicr->flags & HICR_FORCEFILTER ? TEXFILTER_ON : -1);
 
     DO_FREE_AND_NULL(pic);
 
@@ -1184,7 +1175,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
     pth->picnum = dapic;
     pth->effects = effect;
-    pth->flags = TO_PTH_CLAMPED(dameth) | PTH_HIGHTILE | ((facen>0) * PTH_SKYBOX) | ((hasalpha != 255) ? PTH_HASALPHA : 0);
+    pth->flags = TO_PTH_CLAMPED(dameth) | PTH_HIGHTILE | ((facen>0) * PTH_SKYBOX) | ((hasalpha != 255) ? PTH_HASALPHA : 0) |
+                 (hicr->flags & HICR_FORCEFILTER ? PTH_FORCEFILTER : 0);
     pth->skyface = facen;
     pth->hicr = hicr;
 
