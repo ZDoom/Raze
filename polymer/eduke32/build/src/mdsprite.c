@@ -486,7 +486,7 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
 }
 #endif
 
-int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param, float specpower, float specfactor)
+int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param, float specpower, float specfactor, int32_t flags)
 {
     mdskinmap_t *sk, *skl;
     md2model_t *m;
@@ -515,6 +515,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     else if (sk->fn) Bfree(sk->fn);
 
     sk->palette = (uint8_t)palnum;
+    sk->flags = (uint8_t)flags;
     sk->skinnum = skinnum;
     sk->surfnum = surfnum;
     sk->param = param;
@@ -830,7 +831,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         bglBindTexture(GL_TEXTURE_2D, *texidx);
 
         //gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,xsiz,ysiz,GL_BGRA_EXT,GL_UNSIGNED_BYTE,(char *)fptr);
-        if (glinfo.texcompr && glusetexcompr)
+        if (glinfo.texcompr && glusetexcompr && !(sk->flags & HICR_NOSAVE))
             intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
         else if (!hasalpha)
             intexfmt = GL_RGB;
@@ -838,7 +839,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         if (glinfo.bgra)
             texfmt = GL_BGRA;
 
-        uploadtexture((doalloc&1), siz, intexfmt, texfmt, (coltype *)fptr, siz, DAMETH_HI);
+        uploadtexture((doalloc&1), siz, intexfmt, texfmt, (coltype *)fptr, siz, DAMETH_HI | (sk->flags & HICR_NOCOMPRESS ? DAMETH_NOCOMPRESS : 0));
         Bfree((void *)fptr);
     }
 
@@ -888,16 +889,17 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
     if (glinfo.texcompr && glusetexcompr && glusetexcache)
-        if (!gotcache)
+        if (!gotcache && !(sk->flags & HICR_NOSAVE))
         {
             const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
 
             // save off the compressed version
-            cachead.quality = r_downsize;
+            cachead.quality = (sk->flags & HICR_NOCOMPRESS) ? 0 : r_downsize;
             cachead.xdim = osizx>>cachead.quality;
             cachead.ydim = osizy>>cachead.quality;
 
-            cachead.flags = nonpow2*CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0);
+            cachead.flags = nonpow2*CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0) |
+                            (sk->flags & HICR_NOCOMPRESS ? CACHEAD_NOCOMPRESS : 0);
 
 ///            OSD_Printf("Caching \"%s\"\n",fn);
             texcache_writetex(fn, picfillen, pal<<8, hicfxmask(pal), &cachead);

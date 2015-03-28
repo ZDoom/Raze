@@ -1345,7 +1345,7 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
 int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *frameend,
                            int32_t fps, int32_t flags);
 int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum,
-                      int32_t surfnum, float param, float specpower, float specfactor);
+                      int32_t surfnum, float param, float specpower, float specfactor, int32_t flags);
 int32_t md_definehud (int32_t modelid, int32_t tilex, vec3f_t add,
                       int32_t angadd, int32_t flags, int32_t fov);
 int32_t md_undefinetile(int32_t tile);

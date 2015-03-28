@@ -16,6 +16,10 @@
 #include "common.h"
 #include "mdsprite.h"  // md3model_t
 
+#ifdef USE_OPENGL
+# include "hightile.h"
+#endif
+
 enum scripttoken_t
 {
     T_INCLUDE = 0,
@@ -897,7 +901,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
 #ifdef USE_OPENGL
-            switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f, 1.0f, 1.0f))
+            switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f, 1.0f, 1.0f, 0))
             {
             case 0:
                 break;
@@ -1191,6 +1195,9 @@ static int32_t defsparser(scriptfile *script)
                     char *skinend, *skinfn = 0;
                     int32_t palnum = 0, surfnum = 0;
                     double param = 1.0, specpower = 1.0, specfactor = 1.0;
+#ifdef USE_OPENGL
+                    int32_t flags = 0;
+#endif
 
                     static const tokenlist modelskintokens[] =
                     {
@@ -1203,7 +1210,8 @@ static int32_t defsparser(scriptfile *script)
                         { "detailscale",   T_PARAM      },
                         { "specpower",     T_SPECPOWER  }, { "specularpower",  T_SPECPOWER  }, { "parallaxscale", T_SPECPOWER },
                         { "specfactor",    T_SPECFACTOR }, { "specularfactor", T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
-
+                        { "nocompress",    T_NOCOMPRESS },
+                        { "nodownsize",    T_NODOWNSIZE },
                     };
 
                     if (scriptfile_getbraces(script,&skinend)) break;
@@ -1223,6 +1231,12 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getstring(script,&skinfn); break; //skin filename
                         case T_SURF:
                             scriptfile_getnumber(script,&surfnum); break;
+#ifdef USE_OPENGL
+                        case T_NOCOMPRESS:
+                            flags |= HICR_NOSAVE; break;
+                        case T_NODOWNSIZE:
+                            flags |= HICR_NOCOMPRESS; break;
+#endif
                         }
                     }
 
@@ -1257,7 +1271,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
 
 #ifdef USE_OPENGL
-                    switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param, specpower, specfactor))
+                    switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param, specpower, specfactor, flags))
                     {
                     case 0:
                         break;
@@ -1552,9 +1566,9 @@ static int32_t defsparser(scriptfile *script)
                     scriptfile_getstring(script,&fn[5]); break;
 #ifdef USE_OPENGL
                 case T_NOCOMPRESS:
-                    flags |= 1; break;
+                    flags |= HICR_NOSAVE; break;
                 case T_NODOWNSIZE:
-                    flags |= 16; break;
+                    flags |= HICR_NOCOMPRESS; break;
 #endif
                 }
             }
@@ -1887,9 +1901,9 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&specfactor); break;
 #ifdef USE_OPENGL
                         case T_NOCOMPRESS:
-                            flags |= 1; break;
+                            flags |= HICR_NOSAVE; break;
                         case T_NODOWNSIZE:
-                            flags |= 16; break;
+                            flags |= HICR_NOCOMPRESS; break;
 #endif
                         case T_ORIGSIZEX:
                             scriptfile_getnumber(script, &xsiz);
@@ -1972,9 +1986,9 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&specfactor); break;
 #ifdef USE_OPENGL
                         case T_NOCOMPRESS:
-                            flags |= 1; break;
+                            flags |= HICR_NOSAVE; break;
                         case T_NODOWNSIZE:
-                            flags |= 16; break;
+                            flags |= HICR_NOCOMPRESS; break;
 #endif
                         default:
                             break;
