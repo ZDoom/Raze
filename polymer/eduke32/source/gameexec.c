@@ -4316,25 +4316,22 @@ finish_qsprintf:
         case CON_GETPROJECTILE:
             insptr++;
             {
-                tw = *insptr++;
+                tw = Gv_GetVarX(*insptr++);
                 int const lLabelID = *insptr++, lVar2 = *insptr++;
 
-                register int32_t const iTile = Gv_GetVarX(tw);
-
-                Gv_SetVarX(lVar2, VM_GetProjectile(iTile, lLabelID));
+                Gv_SetVarX(lVar2, VM_GetProjectile(tw, lLabelID));
                 continue;
             }
 
         case CON_SETPROJECTILE:
             insptr++;
             {
-                tw = *insptr++;
+                tw=Gv_GetVarX(*insptr++);
                 int const lLabelID = *insptr++, lVar2 = *insptr++;
 
-                register int32_t const iTile = Gv_GetVarX(tw);
                 register int32_t const iSet = Gv_GetVarX(lVar2);
 
-                VM_SetProjectile(iTile, lLabelID, iSet);
+                VM_SetProjectile(tw, lLabelID, iSet);
                 continue;
             }
 
