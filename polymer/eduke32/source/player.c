@@ -894,7 +894,8 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
     switch (proj->workslike & PROJECTILE_TYPE_MASK)
     {
     case PROJECTILE_HITSCAN:
-        if (s->extra >= 0) s->shade = proj->shade;
+        if (!(proj->workslike & PROJECTILE_NOSETOWNERSHADE) && s->extra >= 0)
+            s->shade = proj->shade;
 
         if (p >= 0)
             P_PreFireHitscan(i, p, atwith, srcvect, &zvel, &sa,
@@ -941,7 +942,8 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
         return -1;
 
     case PROJECTILE_RPG:
-        if (s->extra >= 0) s->shade = proj->shade;
+        if (!(proj->workslike & PROJECTILE_NOSETOWNERSHADE) && s->extra >= 0)
+            s->shade = proj->shade;
 
         vel = proj->vel;
 
