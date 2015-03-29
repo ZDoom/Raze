@@ -1218,6 +1218,12 @@ int32_t __fastcall VM_GetProjectile(register int32_t const iTile, register int32
 
     projectile_t * const proj = g_tile[iTile].proj;
 
+    if (EDUKE32_PREDICT_FALSE(!proj))
+    {
+        CON_ERRPRINTF("VM_GetProjectile: no projectile defined for tile %d\n", iTile);
+        return -1;
+    }
+
     switch (lLabelID)
     {
         case PROJ_WORKSLIKE: lLabelID = proj->workslike; break;
@@ -1265,6 +1271,12 @@ void __fastcall VM_SetProjectile(register int32_t const iTile, register int32_t 
     }
 
     projectile_t * const proj = g_tile[iTile].proj;
+
+    if (EDUKE32_PREDICT_FALSE(!proj))
+    {
+        CON_ERRPRINTF("VM_SetProjectile: no projectile defined for tile %d\n", iTile);
+        return;
+    }
 
     switch (lLabelID)
     {
