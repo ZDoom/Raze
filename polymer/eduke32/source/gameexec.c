@@ -2455,6 +2455,7 @@ nullquote:
             }
 
         case CON_ENDSWITCH:
+            insptr++;
         case CON_ENDEVENT:
             return;
 
