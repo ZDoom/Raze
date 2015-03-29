@@ -579,6 +579,9 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
         ds_get(sp, &ptr, &cnt);
         if (cnt < 0) { OSD_Printf("wsd: cnt=%d, f=0x%x.\n",cnt,sp->flags); continue; }
 
+        if (!ptr || !cnt)
+            continue;
+
         if (fil)
         {
             if (((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=savegame_comprthres)
@@ -643,6 +646,9 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
 
         ds_get(sp, &ptr, &cnt);
         if (cnt < 0) { OSD_Printf("rsd: cnt<0... wtf?\n"); return -1; }
+
+        if (!ptr || !cnt)
+            continue;
 
         if (fil>=0)
         {
