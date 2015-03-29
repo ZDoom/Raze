@@ -1724,7 +1724,8 @@ static void sv_quoteload()
 
 static void sv_preprojectilesave()
 {
-    ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
+    if (ProjectileData != NULL || g_numProjectiles > 0)
+        ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
 #ifdef DEBUGGINGAIDS
     int onumprojectiles = g_numProjectiles;
 #endif
@@ -1752,7 +1753,8 @@ static void sv_postprojectilesave()
 
 static void sv_preprojectileload()
 {
-    ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
+    if (ProjectileData != NULL || g_numProjectiles > 0)
+        ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
 }
 
 static void sv_postprojectileload()
