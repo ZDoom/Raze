@@ -3652,17 +3652,27 @@ void G_DisplayRest(int32_t smoothratio)
                 G_DrawCameraText(pp->newowner);
             else
             {
-                P_DisplayWeapon(screenpeek);
+                P_DisplayWeapon();
 #ifdef SPLITSCREEN_MOD_HACKS
                 if (pp2)  // HACK
-                    P_DisplayWeapon(1);
+                {
+                    const int32_t oscreenpeek = screenpeek;
+                    screenpeek = 1;
+                    P_DisplayWeapon();
+                    screenpeek = oscreenpeek;
+                }
 #endif
 
                 if (pp->over_shoulder_on == 0)
-                    P_DisplayScuba(screenpeek);
+                    P_DisplayScuba();
 #ifdef SPLITSCREEN_MOD_HACKS
                 if (pp2 && pp2->over_shoulder_on == 0)  // HACK
-                    P_DisplayScuba(1);
+                {
+                    const int32_t oscreenpeek = screenpeek;
+                    screenpeek = 1;
+                    P_DisplayScuba();
+                    screenpeek = oscreenpeek;
+                }
 #endif
             }
             G_MoveClouds();

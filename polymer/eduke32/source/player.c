@@ -34,7 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 int32_t lastvisinc;
 hudweapon_t hudweap;
 
+#ifdef SPLITSCREEN_MOD_HACKS
 static int32_t g_snum;
+#endif
 
 extern int32_t g_levelTextTime, ticrandomseed;
 
@@ -1664,9 +1666,9 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 
 //////////////////// HUD WEAPON / MISC. DISPLAY CODE ////////////////////
 
-static void P_DisplaySpit(int32_t snum)
+static void P_DisplaySpit(void)
 {
-    DukePlayer_t *const ps = g_player[snum].ps;
+    DukePlayer_t *const ps = g_player[screenpeek].ps;
     const int32_t loogcnt = ps->loogcnt;
     const int32_t y = loogcnt<<2;
 
@@ -1677,7 +1679,7 @@ static void P_DisplaySpit(int32_t snum)
     {
         int32_t a = klabs(sintable[((loogcnt+i)<<5)&2047])>>5;
         int32_t z = 4096 + ((loogcnt+i)<<9);
-        int32_t x = (-g_player[snum].sync->avel>>1) + (sintable[((loogcnt+i)<<6)&2047]>>10);
+        int32_t x = (-g_player[screenpeek].sync->avel>>1) + (sintable[((loogcnt+i)<<6)&2047]>>10);
 
         rotatesprite_fs(
             (ps->loogiex[i]+x)<<16, (200+ps->loogiey[i]-y)<<16,
@@ -1701,14 +1703,14 @@ int32_t P_GetHudPal(const DukePlayer_t *p)
     return 0;
 }
 
-static int32_t P_DisplayFist(int32_t gs,int32_t snum)
+static int32_t P_DisplayFist(int32_t gs)
 {
     int32_t looking_arc,fisti,fistpal;
     int32_t fistzoom, fistz;
 
     int32_t wx[2] = { windowx1, windowx2 };
 
-    const DukePlayer_t *const ps = g_player[snum].ps;
+    const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
     fisti = ps->fist_incs;
     if (fisti > 32) fisti = 32;
@@ -1730,7 +1732,7 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
 #endif
 
     rotatesprite(
-        (-fisti+222+(g_player[snum].sync->avel>>5))<<16,
+        (-fisti+222+(g_player[screenpeek].sync->avel>>5))<<16,
         (looking_arc+fistz)<<16,
         fistzoom,0,FIST,gs,fistpal,2,
         wx[0],windowy1,wx[1],windowy2);
@@ -1868,12 +1870,12 @@ static inline void G_DrawWeaponTileWithID(int32_t id, int32_t x, int32_t y, int3
     guniqhudid = oldid;
 }
 
-static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
+static int32_t P_DisplayKnee(int32_t gs)
 {
     static const int8_t knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
     int32_t looking_arc, pal;
 
-    const DukePlayer_t *const ps = g_player[snum].ps;
+    const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
     if (ps->knee_incs == 0 || ps->knee_incs >= ARRAY_SIZE(knee_y) || sprite[ps->i].extra <= 0)
         return 0;
@@ -1886,18 +1888,18 @@ static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
     if (pal == 0)
         pal = ps->palookup;
 
-    G_DrawTileScaled(105+(g_player[snum].sync->avel>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
+    G_DrawTileScaled(105+(g_player[screenpeek].sync->avel>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
                      looking_arc+280-((ps->horiz-ps->horizoff)>>4),KNEE,gs,4+DRAWEAP_CENTER,pal);
 
     return 1;
 }
 
-static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
+static int32_t P_DisplayKnuckles(int32_t gs)
 {
     static const int8_t knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
     int32_t looking_arc, pal;
 
-    const DukePlayer_t *const ps = g_player[snum].ps;
+    const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
     if (ps->knuckle_incs == 0 || (unsigned) (ps->knuckle_incs>>1) >= ARRAY_SIZE(knuckle_frames) || sprite[ps->i].extra <= 0)
         return 0;
@@ -1908,7 +1910,7 @@ static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
 
     pal = P_GetHudPal(ps);
 
-    G_DrawTileScaled(160+(g_player[snum].sync->avel>>5)-(ps->look_ang>>1),
+    G_DrawTileScaled(160+(g_player[screenpeek].sync->avel>>5)-(ps->look_ang>>1),
                      looking_arc+180-((ps->horiz-ps->horizoff)>>4),
                      CRACKKNUCKLES+knuckle_frames[ps->knuckle_incs>>1],gs,4+DRAWEAP_CENTER,pal);
 
@@ -2009,13 +2011,15 @@ static void P_DoWeaponSpawn(int32_t snum)
 
 }
 
-void P_DisplayScuba(int32_t snum)
+void P_DisplayScuba(void)
 {
-    if (g_player[snum].ps->scuba_on)
+    if (g_player[screenpeek].ps->scuba_on)
     {
-        int32_t p = P_GetHudPal(g_player[snum].ps);
+        int32_t p = P_GetHudPal(g_player[screenpeek].ps);
 
-        g_snum = snum;
+#ifdef SPLITSCREEN_MOD_HACKS
+        g_snum = screenpeek;
+#endif
 #ifdef USE_OPENGL
         if (getrendermode() >= REND_POLYMOST)
             G_DrawTileScaled(44, (200-tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2+16+DRAWEAP_CENTER, p);
@@ -2031,9 +2035,9 @@ static const int8_t access_tip_y [] ={
     // At y coord 64, the hand is already not shown.
 };
 
-static int32_t P_DisplayTip(int32_t gs, int32_t snum)
+static int32_t P_DisplayTip(int32_t gs)
 {
-    const DukePlayer_t *const ps = g_player[snum].ps;
+    const DukePlayer_t *const ps = g_player[screenpeek].ps;
     int y, looking_arc, p = 0;
 
     if (ps->tipincs == 0)
@@ -2052,7 +2056,7 @@ static int32_t P_DisplayTip(int32_t gs, int32_t snum)
 
     guniqhudid = 201;
 
-    G_DrawTileScaled(170 + (g_player[snum].sync->avel >> 5) - (ps->look_ang >> 1),
+    G_DrawTileScaled(170 + (g_player[screenpeek].sync->avel >> 5) - (ps->look_ang >> 1),
                      y + looking_arc + 240 - ((ps->horiz - ps->horizoff) >> 4), TIP + ((26 - ps->tipincs) >> 4), gs,
                      DRAWEAP_CENTER, p);
 
@@ -2061,9 +2065,9 @@ static int32_t P_DisplayTip(int32_t gs, int32_t snum)
     return 1;
 }
 
-static int32_t P_DisplayAccess(int32_t gs, int32_t snum)
+static int32_t P_DisplayAccess(int32_t gs)
 {
-    const DukePlayer_t *const ps = g_player[snum].ps;
+    const DukePlayer_t *const ps = g_player[screenpeek].ps;
     int y, looking_arc, p = 0;
 
     if (ps->access_incs == 0)
@@ -2083,13 +2087,13 @@ static int32_t P_DisplayAccess(int32_t gs, int32_t snum)
 
     if ((ps->access_incs - 3) > 0 && (ps->access_incs - 3) >> 3)
     {
-        G_DrawTileScaled(170 + (g_player[snum].sync->avel >> 5) - (ps->look_ang >> 1) + y,
+        G_DrawTileScaled(170 + (g_player[screenpeek].sync->avel >> 5) - (ps->look_ang >> 1) + y,
                          looking_arc + 266 - ((ps->horiz - ps->horizoff) >> 4),
                          HANDHOLDINGLASER + (ps->access_incs >> 3), gs, DRAWEAP_CENTER, p);
     }
     else
     {
-        G_DrawTileScaled(170 + (g_player[snum].sync->avel >> 5) - (ps->look_ang >> 1) + y,
+        G_DrawTileScaled(170 + (g_player[screenpeek].sync->avel >> 5) - (ps->look_ang >> 1) + y,
                          looking_arc + 266 - ((ps->horiz - ps->horizoff) >> 4), HANDHOLDINGACCESS, gs,
                          4 + DRAWEAP_CENTER, p);
     }
@@ -2102,16 +2106,18 @@ static int32_t P_DisplayAccess(int32_t gs, int32_t snum)
 
 static int32_t fistsign;
 
-void P_DisplayWeapon(int32_t snum)
+void P_DisplayWeapon(void)
 {
     int32_t gun_pos, looking_arc, cw;
     int32_t weapon_xoffset, i, j;
     int32_t o = 0,pal = 0;
-    DukePlayer_t *const p = g_player[snum].ps;
+    DukePlayer_t *const p = g_player[screenpeek].ps;
     const uint8_t *const kb = &p->kickback_pic;
     int32_t gs;
 
-    g_snum = snum;
+#ifdef SPLITSCREEN_MOD_HACKS
+    g_snum = screenpeek;
+#endif
 
     looking_arc = klabs(p->look_ang)/9;
 
@@ -2119,10 +2125,10 @@ void P_DisplayWeapon(int32_t snum)
     if (gs > 24) gs = 24;
 
     if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) ||
-            P_DisplayFist(gs,snum) || P_DisplayKnuckles(gs,snum) || P_DisplayTip(gs,snum) || P_DisplayAccess(gs,snum))
+            P_DisplayFist(gs) || P_DisplayKnuckles(gs) || P_DisplayTip(gs) || P_DisplayAccess(gs))
         return;
 
-    P_DisplayKnee(gs,snum);
+    P_DisplayKnee(gs);
 
     gun_pos = 80-(p->weapon_pos*p->weapon_pos);
 
@@ -2141,7 +2147,7 @@ void P_DisplayWeapon(int32_t snum)
     weapon_xoffset -= 58 + p->weapon_ang;
     gun_pos -= (p->hard_landing<<3);
 
-    cw = PWEAPON(snum, (p->last_weapon >= 0) ? p->last_weapon : p->curr_weapon, WorksLike);
+    cw = PWEAPON(screenpeek, (p->last_weapon >= 0) ? p->last_weapon : p->curr_weapon, WorksLike);
 
     hudweap.gunposy=gun_pos;
     hudweap.lookhoriz=looking_arc;
@@ -2507,7 +2513,7 @@ void P_DisplayWeapon(int32_t snum)
                 if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek))
                     break;
 
-                if ((*kb) < (PWEAPON(snum, p->curr_weapon, TotalTime)+1) && (*kb) > 0)
+                if ((*kb) < (PWEAPON(screenpeek, p->curr_weapon, TotalTime)+1) && (*kb) > 0)
                 {
                     static uint8_t cat_frames[] = { 0,0,1,1,2,2 };
 
@@ -2535,7 +2541,7 @@ void P_DisplayWeapon(int32_t snum)
                 weapon_xoffset += 28;
                 looking_arc += 18;
 
-                if ((*kb) < PWEAPON(snum, p->curr_weapon, TotalTime) && (*kb) > 0)
+                if ((*kb) < PWEAPON(screenpeek, p->curr_weapon, TotalTime) && (*kb) > 0)
                 {
                     if (doanim)
                     {
@@ -2561,7 +2567,7 @@ void P_DisplayWeapon(int32_t snum)
         }
     }
 
-    P_DisplaySpit(snum);
+    P_DisplaySpit();
 }
 
 #define TURBOTURNTIME (TICRATE/8) // 7
