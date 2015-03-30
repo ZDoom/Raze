@@ -1670,10 +1670,14 @@ static void P_DisplaySpit(void)
 {
     DukePlayer_t *const ps = g_player[screenpeek].ps;
     const int32_t loogcnt = ps->loogcnt;
-    const int32_t y = loogcnt<<2;
 
     if (loogcnt == 0)
         return;
+
+    if (VM_OnEvent(EVENT_DISPLAYSPIT, ps->i, screenpeek) != 0)
+        return;
+
+    const int32_t y = loogcnt<<2;
 
     for (int32_t i=0; i < ps->numloogs; i++)
     {
@@ -1715,6 +1719,14 @@ static int32_t P_DisplayFist(int32_t gs)
     fisti = ps->fist_incs;
     if (fisti > 32) fisti = 32;
     if (fisti <= 0) return 0;
+
+    switch (VM_OnEvent(EVENT_DISPLAYFIST, ps->i, screenpeek))
+    {
+        case 1:
+            return 1;
+        case -1:
+            return 0;
+    }
 
     looking_arc = klabs(ps->look_ang)/9;
 
@@ -1856,12 +1868,24 @@ static inline void G_DrawWeaponTileWithID(int32_t id, int32_t x, int32_t y, int3
 static int32_t P_DisplayKnee(int32_t gs)
 {
     static const int8_t knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
-    int32_t looking_arc, pal;
 
     const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
-    if (ps->knee_incs == 0 || ps->knee_incs >= ARRAY_SIZE(knee_y) || sprite[ps->i].extra <= 0)
+    if (ps->knee_incs == 0)
         return 0;
+
+    switch (VM_OnEvent(EVENT_DISPLAYKNEE, ps->i, screenpeek))
+    {
+        case 1:
+            return 1;
+        case -1:
+            return 0;
+    }
+
+    if (ps->knee_incs >= ARRAY_SIZE(knee_y) || sprite[ps->i].extra <= 0)
+        return 0;
+
+    int32_t looking_arc, pal;
 
     looking_arc = knee_y[ps->knee_incs] + klabs(ps->look_ang)/9;
 
@@ -1880,12 +1904,23 @@ static int32_t P_DisplayKnee(int32_t gs)
 static int32_t P_DisplayKnuckles(int32_t gs)
 {
     static const int8_t knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
-    int32_t looking_arc, pal;
-
     const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
-    if (ps->knuckle_incs == 0 || (unsigned) (ps->knuckle_incs>>1) >= ARRAY_SIZE(knuckle_frames) || sprite[ps->i].extra <= 0)
+    if (ps->knuckle_incs == 0)
         return 0;
+
+    switch (VM_OnEvent(EVENT_DISPLAYKNUCKLES, ps->i, screenpeek))
+    {
+        case 1:
+            return 1;
+        case -1:
+            return 0;
+    }
+
+    if ((unsigned) (ps->knuckle_incs>>1) >= ARRAY_SIZE(knuckle_frames) || sprite[ps->i].extra <= 0)
+        return 0;
+
+    int32_t looking_arc, pal;
 
     looking_arc = klabs(ps->look_ang)/9;
 
@@ -1998,7 +2033,12 @@ void P_DisplayScuba(void)
 {
     if (g_player[screenpeek].ps->scuba_on)
     {
-        int32_t p = P_GetHudPal(g_player[screenpeek].ps);
+        const DukePlayer_t *const ps = g_player[screenpeek].ps;
+
+        if (VM_OnEvent(EVENT_DISPLAYSCUBA, ps->i, screenpeek) != 0)
+            return;
+
+        int32_t p = P_GetHudPal(ps);
 
 #ifdef SPLITSCREEN_MOD_HACKS
         g_snum = screenpeek;
@@ -2021,15 +2061,24 @@ static const int8_t access_tip_y [] ={
 static int32_t P_DisplayTip(int32_t gs)
 {
     const DukePlayer_t *const ps = g_player[screenpeek].ps;
-    int y, looking_arc, p = 0;
 
     if (ps->tipincs == 0)
         return 0;
+
+    switch (VM_OnEvent(EVENT_DISPLAYTIP, ps->i, screenpeek))
+    {
+        case 1:
+            return 1;
+        case -1:
+            return 0;
+    }
 
     // Report that the tipping hand has been drawn so that the otherwise
     // selected weapon is not drawn.
     if ((unsigned)ps->tipincs >= ARRAY_SIZE(access_tip_y))
         return 1;
+
+    int y, looking_arc, p = 0;
 
     looking_arc = (klabs(ps->look_ang) / 9) - (ps->hard_landing << 3);
 
@@ -2051,13 +2100,22 @@ static int32_t P_DisplayTip(int32_t gs)
 static int32_t P_DisplayAccess(int32_t gs)
 {
     const DukePlayer_t *const ps = g_player[screenpeek].ps;
-    int y, looking_arc, p = 0;
 
     if (ps->access_incs == 0)
         return 0;
 
+    switch (VM_OnEvent(EVENT_DISPLAYACCESS, ps->i, screenpeek))
+    {
+        case 1:
+            return 1;
+        case -1:
+            return 0;
+    }
+
     if ((unsigned)ps->access_incs >= ARRAY_SIZE(access_tip_y)-4 || sprite[ps->i].extra <= 0)
         return 1;
+
+    int y, looking_arc, p = 0;
 
     looking_arc = access_tip_y[ps->access_incs] + (klabs(ps->look_ang) / 9) - (ps->hard_landing << 3);
 

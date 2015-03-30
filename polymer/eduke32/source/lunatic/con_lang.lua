@@ -185,11 +185,18 @@ EVENT = {
     EVENT_WORLD = 105,
     EVENT_PREWORLD = 106,
     EVENT_PRELEVEL = 107,
+    EVENT_DISPLAYSPIT = 108,
+    EVENT_DISPLAYFIST = 109,
+    EVENT_DISPLAYKNEE = 110,
+    EVENT_DISPLAYKNUCKLES = 111,
+    EVENT_DISPLAYSCUBA = 112,
+    EVENT_DISPLAYTIP = 113,
+    EVENT_DISPLAYACCESS = 114,
 --    EVENT_ANIMATEALLSPRITES = previous+1,  -- internal
 -- KEEPINSYNC with MAXEVENTS below
 }
 
-MAXEVENTS = 108  -- KEEPINSYNC with above EVENT_* list
+MAXEVENTS = 115  -- KEEPINSYNC with above EVENT_* list
 
 -- NOTE: negated values are not exported to the ffi.C namespace or CON.
 -- See TWEAK_SFLAG below.
