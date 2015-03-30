@@ -1606,14 +1606,11 @@ onevent EVENT_DISPLAYWEAPON // P_DisplayWeapon
             case SHOTGUN_WEAPON
                 setvar hud_tilenum SHOTGUNSPRITE
                 break
+            case KNEE_WEAPON
+                break
             default
                 addlogvar currentweapon
                 break
-                /*
-            case KNEE_WEAPON
-                setvar hud_tilenum -1
-                break
-                */
         endswitch
 
         ifvarn hud_tilenum -1

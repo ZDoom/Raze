@@ -1827,37 +1827,20 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
 
     palf[slot] = p;
 
-    switch (ud.drawweapon)
-    {
-        case 1:
 #ifdef USE_OPENGL
-            if (getrendermode() >= REND_POLYMOST)
-                if (tilenum >= CHAINGUN + 1 && tilenum <= CHAINGUN + 4)
-                    if (!usemodels || md_tilehasmodel(tilenum, p) < 0)
-                    {
-                        // HACK: Draw the upper part of the chaingun two screen
-                        // pixels (not texels; multiplied by weapon scale) lower
-                        // first, preventing ugly horizontal seam.
-                        g_dts_yadd = tabledivide32_noinline(65536 * 2 * 200, ydim);
-                        G_DrawTileScaled(x, y, tilenum, shadef[slot], orientation, p);
-                        g_dts_yadd = 0;
-                    }
+    if (getrendermode() >= REND_POLYMOST)
+        if (tilenum >= CHAINGUN + 1 && tilenum <= CHAINGUN + 4)
+            if (!usemodels || md_tilehasmodel(tilenum, p) < 0)
+            {
+                // HACK: Draw the upper part of the chaingun two screen
+                // pixels (not texels; multiplied by weapon scale) lower
+                // first, preventing ugly horizontal seam.
+                g_dts_yadd = tabledivide32_noinline(65536 * 2 * 200, ydim);
+                G_DrawTileScaled(x, y, tilenum, shadef[slot], orientation, p);
+                g_dts_yadd = 0;
+            }
 #endif
-            G_DrawTileScaled(x, y, tilenum, shadef[slot], orientation, p);
-            return;
-
-        case 2:
-        {
-            const DukePlayer_t *const ps = g_player[screenpeek].ps;
-            const int32_t sc = scale(65536, ud.statusbarscale, 100);
-
-            if ((unsigned)hudweap.cur < MAX_WEAPONS && hudweap.cur != KNEE_WEAPON)
-                rotatesprite_win(160 << 16, (180 + (ps->weapon_pos * ps->weapon_pos)) << 16, sc, 0,
-                                 hudweap.cur == GROW_WEAPON ? GROWSPRITEICON : WeaponPickupSprites[hudweap.cur], 0,
-                                 0, 2);
-            return;
-        }
-    }
+    G_DrawTileScaled(x, y, tilenum, shadef[slot], orientation, p);
 }
 
 static inline void G_DrawWeaponTileWithID(int32_t id, int32_t x, int32_t y, int32_t tilenum, int32_t shade,
@@ -2160,7 +2143,7 @@ void P_DisplayWeapon(void)
     if (VM_OnEvent(EVENT_DISPLAYWEAPON, p->i, screenpeek) == 0)
     {
         j = 14-p->quick_kick;
-        if (j != 14 || p->last_quick_kick)
+        if ((j != 14 || p->last_quick_kick) && ud.drawweapon == 1)
         {
             pal = P_GetHudPal(p);
             if (pal == 0)
@@ -2198,6 +2181,20 @@ void P_DisplayWeapon(void)
         }
         else
         {
+            switch (ud.drawweapon)
+            {
+                case 1:
+                    break;
+
+                case 2:
+                    if ((unsigned)hudweap.cur < MAX_WEAPONS && hudweap.cur != KNEE_WEAPON)
+                        rotatesprite_win(160 << 16, (180 + (p->weapon_pos * p->weapon_pos)) << 16, scale(65536, ud.statusbarscale, 100), 0,
+                                         hudweap.cur == GROW_WEAPON ? GROWSPRITEICON : WeaponPickupSprites[hudweap.cur], 0,
+                                         0, 2);
+                default:
+                    goto enddisplayweapon;
+            }
+
             const int doanim = !(sprite[p->i].pal == 1 || ud.pause_on || g_player[myconnectindex].ps->gm&MODE_MENU);
             const int hla = p->look_ang >> 1;
 
@@ -2567,6 +2564,7 @@ void P_DisplayWeapon(void)
         }
     }
 
+enddisplayweapon:
     P_DisplaySpit();
 }
 
