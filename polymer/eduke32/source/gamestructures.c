@@ -47,6 +47,8 @@ int32_t __fastcall VM_GetTsprite(register int32_t const iActor, register int32_t
 void __fastcall VM_SetTsprite(register int32_t const iActor, register int32_t const lLabelID, register int32_t const iSet);
 int32_t __fastcall VM_GetProjectile(register int32_t const iTile, register int32_t lLabelID);
 void __fastcall VM_SetProjectile(register int32_t const iTile, register int32_t const lLabelID, register int32_t const iSet);
+int32_t __fastcall VM_GetTileData(register int32_t const iTile, register int32_t lLabelID);
+int32_t __fastcall VM_GetPalData(register int32_t const iPal, register int32_t lLabelID);
 #else
 int32_t __fastcall VM_GetUserdef(register int32_t lLabelID)
 {
@@ -1312,4 +1314,50 @@ void __fastcall VM_SetProjectile(register int32_t const iTile, register int32_t 
         case PROJ_USERDATA: proj->userdata = iSet; break;
     }
 }
+
+int32_t __fastcall VM_GetTileData(register int32_t const iTile, register int32_t lLabelID)
+{
+    if (EDUKE32_PREDICT_FALSE((unsigned)iTile >= MAXTILES))
+    {
+        CON_ERRPRINTF("VM_GetTileData: invalid tile (%d)\n", iTile);
+        return -1;
+    }
+
+    switch (lLabelID)
+    {
+        case TILEDATA_XSIZE: lLabelID = tilesiz[iTile].x; break;
+        case TILEDATA_YSIZE: lLabelID = tilesiz[iTile].y; break;
+
+        case TILEDATA_ANIMFRAMES: lLabelID = picanm[iTile].num; break;
+        case TILEDATA_XOFFSET: lLabelID = picanm[iTile].xofs; break;
+        case TILEDATA_YOFFSET: lLabelID = picanm[iTile].yofs; break;
+        case TILEDATA_ANIMSPEED: lLabelID = picanm[iTile].sf & PICANM_ANIMSPEED_MASK; break;
+        case TILEDATA_ANIMTYPE: lLabelID = (picanm[iTile].sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT; break;
+
+        case TILEDATA_GAMEFLAGS: lLabelID = g_tile[iTile].flags; break;
+
+        default: lLabelID = -1; break;
+    }
+
+    return lLabelID;
+}
+
+int32_t __fastcall VM_GetPalData(register int32_t const iPal, register int32_t lLabelID)
+{
+    if (EDUKE32_PREDICT_FALSE((unsigned)iPal >= MAXPALOOKUPS))
+    {
+        CON_ERRPRINTF("VM_GetPalData: invalid pal (%d)\n", iPal);
+        return -1;
+    }
+
+    switch (lLabelID)
+    {
+        case PALDATA_NOFLOORPAL: lLabelID = g_noFloorPal[iPal]; break;
+
+        default: lLabelID = -1; break;
+    }
+
+    return lLabelID;
+}
+
 #endif

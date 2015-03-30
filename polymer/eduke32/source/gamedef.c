@@ -1170,6 +1170,33 @@ const memberlabel_t InputLabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
+const memberlabel_t TileDataLabels[]=
+{
+    // tilesiz[]
+    { "xsize", TILEDATA_XSIZE, 0, 0 },
+    { "ysize", TILEDATA_YSIZE, 0, 0 },
+
+    // picanm[]
+    { "animframes", TILEDATA_ANIMFRAMES, 0, 0 },
+    { "xoffset", TILEDATA_XOFFSET, 0, 0 },
+    { "yoffset", TILEDATA_YOFFSET, 0, 0 },
+    { "animspeed", TILEDATA_ANIMSPEED, 0, 0 },
+    { "animtype", TILEDATA_ANIMTYPE, 0, 0 },
+
+    // g_tile[]
+    { "gameflags", TILEDATA_GAMEFLAGS, 0, 0 },
+
+    { "", -1, 0, 0  }     // END OF LIST
+};
+
+const memberlabel_t PalDataLabels[]=
+{
+    // g_noFloorPal[]
+    { "nofloorpal", PALDATA_NOFLOORPAL, 0, 0 },
+
+    { "", -1, 0, 0  }     // END OF LIST
+};
+
 #endif
 
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
@@ -1192,6 +1219,9 @@ static hashtable_t inputH      = { INPUT_END>>1, NULL };
 static hashtable_t actorH      = { ACTOR_END>>1, NULL };
 static hashtable_t tspriteH    = { ACTOR_END>>1, NULL };
 
+static hashtable_t tiledataH   = { TILEDATA_END>>1, NULL };
+static hashtable_t paldataH    = { PALDATA_END>>1, NULL };
+
 void C_InitHashes()
 {
     int32_t i;
@@ -1211,6 +1241,8 @@ void C_InitHashes()
     hash_init(&inputH);
     hash_init(&actorH);
     hash_init(&tspriteH);
+    hash_init(&tiledataH);
+    hash_init(&paldataH);
 
     g_scriptLastKeyword = NUMKEYWORDS-1;
     // determine last CON keyword for backward compatibility with older mods
@@ -1238,6 +1270,8 @@ void C_InitHashes()
     for (i=0; InputLabels[i].lId >= 0; i++) hash_add(&inputH,InputLabels[i].name,i,0);
     for (i=0; ActorLabels[i].lId >= 0; i++) hash_add(&actorH,ActorLabels[i].name,i,0);
     for (i=0; TsprLabels[i].lId >= 0; i++) hash_add(&tspriteH,TsprLabels[i].name,i,0);
+    for (i=0; TileDataLabels[i].lId >= 0; i++) hash_add(&tiledataH,TileDataLabels[i].name,i,0);
+    for (i=0; PalDataLabels[i].lId >= 0; i++) hash_add(&paldataH,PalDataLabels[i].name,i,0);
 }
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
@@ -1752,6 +1786,12 @@ static void C_GetNextVarType(int32_t type)
             case STRUCT_INPUT:
                 lLabelID=C_GetLabelNameOffset(&inputH,Bstrtolower(label+(g_numLabels<<6)));
                 break;
+            case STRUCT_TILEDATA:
+                lLabelID=C_GetLabelNameOffset(&tiledataH,Bstrtolower(label+(g_numLabels<<6)));
+                break;
+            case STRUCT_PALDATA:
+                lLabelID=C_GetLabelNameOffset(&paldataH,Bstrtolower(label+(g_numLabels<<6)));
+                break;
             }
 
             //printf("LabelID is %d\n",lLabelID);
@@ -1812,6 +1852,12 @@ static void C_GetNextVarType(int32_t type)
                 break;
             case STRUCT_INPUT:
                 *g_scriptPtr++=InputLabels[lLabelID].lId;
+                break;
+            case STRUCT_TILEDATA:
+                *g_scriptPtr++=TileDataLabels[lLabelID].lId;
+                break;
+            case STRUCT_PALDATA:
+                *g_scriptPtr++=PalDataLabels[lLabelID].lId;
                 break;
             }
         }

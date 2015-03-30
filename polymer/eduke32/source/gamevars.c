@@ -729,6 +729,33 @@ nastyhacks:
             rv = VM_GetProjectile(index, label);
             break;
         }
+        case STRUCT_TILEDATA:
+        {
+            int const label = *insptr++;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXTILES))
+            {
+                iActor = index;
+                goto badtile;
+            }
+
+            rv = VM_GetTileData(index, label);
+            break;
+        }
+
+        case STRUCT_PALDATA:
+        {
+            int const label = *insptr++;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXPALOOKUPS))
+            {
+                iActor = index;
+                goto badpal;
+            }
+
+            rv = VM_GetPalData(index, label);
+            break;
+        }
 
         case STRUCT_PLAYER:
         {
@@ -829,6 +856,10 @@ badwall:
 badtile:
     CON_ERRPRINTF("Gv_GetVar(): invalid tile ID %d\n", iActor);
     return -1;
+
+badpal:
+    CON_ERRPRINTF("Gv_GetVar(): invalid pal ID %d\n", iActor);
+    return -1;
 }
 
 void __fastcall Gv_SetVar(int32_t const id, int32_t const lValue, int32_t const iActor, int32_t const iPlayer)
@@ -879,6 +910,7 @@ enum {
     GVX_BADWALL,
     GVX_BADINDEX,
     GVX_BADTILE,
+    GVX_BADPAL,
 };
 
 static const char *gvxerrs[] = {
@@ -889,6 +921,7 @@ static const char *gvxerrs[] = {
     "Gv_GetVarX(): invalid wall ID",
     "Gv_GetVarX(): invalid array index",
     "Gv_GetVarX(): invalid tile ID",
+    "Gv_GetVarX(): invalid pal ID",
 };
 
 int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
@@ -977,6 +1010,35 @@ int32_t __fastcall Gv_GetSpecialVarX(int32_t id)
                 }
 
                 rv = VM_GetProjectile(index, label);
+                break;
+            }
+            case STRUCT_TILEDATA:
+            {
+                int const label = *insptr++;
+
+                if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXTILES))
+                {
+                    id = index;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADTILE], id);
+                    return -1;
+                }
+
+                rv = VM_GetTileData(index, label);
+                break;
+            }
+
+            case STRUCT_PALDATA:
+            {
+                int const label = *insptr++;
+
+                if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXPALOOKUPS))
+                {
+                    id = index;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPAL], id);
+                    return -1;
+                }
+
+                rv = VM_GetPalData(index, label);
                 break;
             }
 
@@ -1599,6 +1661,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("thisprojectile", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("userdef", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("input", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("tiledata", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("paldata", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
 
     Gv_NewVar("myconnectindex", (intptr_t)&myconnectindex, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("screenpeek", (intptr_t)&screenpeek, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);

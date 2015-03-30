@@ -69,6 +69,8 @@ enum QuickStructureAccess_t {
     STRUCT_THISPROJECTILE,
     STRUCT_USERDEF,
     STRUCT_INPUT,
+    STRUCT_TILEDATA,
+    STRUCT_PALDATA,
     NUMQUICKSTRUCTS,
 };
 
@@ -105,9 +107,11 @@ extern const memberlabel_t WallLabels[];
 extern const memberlabel_t ActorLabels[];
 extern const memberlabel_t PlayerLabels[];
 extern const memberlabel_t ProjectileLabels[];
-extern const memberlabel_t userdeflabels[];
+extern const memberlabel_t UserdefsLabels[];
 extern const memberlabel_t InputLabels[];
 extern const memberlabel_t TsprLabels[];
+extern const memberlabel_t TileDataLabels[];
+extern const memberlabel_t PalDataLabels[];
 #endif
 
 typedef struct
@@ -605,6 +609,26 @@ enum InputLabel_t
     INPUT_BITS,
     INPUT_EXTBITS,
     INPUT_END
+};
+
+enum TileDataLabel_t
+{
+    TILEDATA_XSIZE,
+    TILEDATA_YSIZE,
+    TILEDATA_ANIMFRAMES,
+    TILEDATA_XOFFSET,
+    TILEDATA_YOFFSET,
+    TILEDATA_ANIMSPEED,
+    TILEDATA_ANIMTYPE,
+    TILEDATA_GAMEFLAGS,
+    TILEDATA_END
+};
+
+enum PalDataLabel_t
+{
+    PALDATA_NOFLOORPAL,
+    PALDATA_DUMMY, // so the hash table is size 1. remove when another member is added.
+    PALDATA_END
 };
 
 #endif
