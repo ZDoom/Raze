@@ -2755,7 +2755,7 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
 {
     int32_t cq = 0;
 
-    if (ud.fta_on == 0 || q < 0)
+    if (ud.fta_on == 0 || q < 0 || !(p->gm & MODE_GAME))
         return;
 
     if (q & MAXQUOTES)
