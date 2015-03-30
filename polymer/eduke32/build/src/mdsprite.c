@@ -771,6 +771,10 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                     return sk->texid[f];
                 }
 
+    // for sk->flags below
+    if (!sk)
+        sk = skzero;
+
     *texidx = 0;
 
     if ((filh = kopen4load(fn, 0)) < 0)
