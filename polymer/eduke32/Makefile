@@ -157,7 +157,7 @@ endif
 
 # Tools
 
-UTIL_OBJS=compat pragmas kplib cache1d compat_tools
+UTIL_OBJS=compat pragmas kplib cache1d crc32 compat_tools
 UTILS=kextract kgroup transpal wad2art wad2map kmd2tool md2tool generateicon cacheinfo arttool givedepth mkpalette unpackssi bsuite
 GAMEUTILS=ivfrate
 DXUTILS=enumdisplay getdxdidf
