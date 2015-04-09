@@ -73,22 +73,17 @@ static HWND pages[3] =
 static int32_t done = -1, mode = TAB_CONFIG;
 
 static CACHE1D_FIND_REC *finddirs=NULL;
-static int32_t numdirs=0;
 
 static inline void clearfilenames(void)
 {
     klistfree(finddirs);
     finddirs = NULL;
-    numdirs = 0;
 }
 
 static inline int32_t getfilenames(char *path)
 {
-    CACHE1D_FIND_REC *r;
-
     clearfilenames();
     finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
-    for (r = finddirs; r; r=r->next) numdirs++;
     return(0);
 }
 
@@ -127,12 +122,17 @@ static void PopulateForm(int32_t pgs)
         j = ComboBox_AddString(hwnd, "None");
         (void)ComboBox_SetItemData(hwnd, j, 0);
         (void)ComboBox_SetCurSel(hwnd, j);
-        for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next,i++)
+        for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next)
         {
+            if (Bstrcasecmp(dirs->name, "autoload") == 0)
+                continue;
+
             (void)ComboBox_AddString(hwnd, dirs->name);
             (void)ComboBox_SetItemData(hwnd, i, i);
             if (Bstrcasecmp(dirs->name,settings.gamedir) == 0)
                 (void)ComboBox_SetCurSel(hwnd, i);
+
+            i++;
         }
     }
 
