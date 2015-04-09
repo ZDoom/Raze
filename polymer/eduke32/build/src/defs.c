@@ -85,6 +85,7 @@ enum scripttoken_t
     T_LOADGRP,
     T_DUMMYTILE,T_DUMMYTILERANGE,
     T_SETUPTILE,T_SETUPTILERANGE,
+    T_UNDEFINETILE,T_UNDEFINETILERANGE,
     T_ANIMTILERANGE,
     T_CACHESIZE,
     T_IMPORTTILE,
@@ -217,6 +218,19 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
     }
 }
 
+static void undefinetile(int32_t tile)
+{
+    tilesiz[tile].x = 0;
+    tilesiz[tile].y = 0;
+    picsiz[tile] = 0;
+    // CACHE1D_FREE
+    walock[tile] = 1;
+    waloff[tile] = 0;
+    DO_FREE_AND_NULL(faketiledata[tile]);
+    faketile[tile>>3] &= ~pow2char[tile&7];
+    Bmemset(&picanm[tile], 0, sizeof(picanm_t));
+}
+
 #undef USE_DEF_PROGRESS
 #if defined _WIN32 || defined HAVE_GTK2
 # define USE_DEF_PROGRESS
@@ -283,6 +297,8 @@ static int32_t defsparser(scriptfile *script)
         { "dummytilerange",  T_DUMMYTILERANGE   },
         { "setuptile",       T_SETUPTILE        },
         { "setuptilerange",  T_SETUPTILERANGE   },
+        { "undefinetile",    T_UNDEFINETILE		},
+        { "undefinetilrange",T_UNDEFINETILERANGE },
         { "animtilerange",   T_ANIMTILERANGE    },
         { "cachesize",       T_CACHESIZE        },
         { "dummytilefrompic",T_IMPORTTILE       },
@@ -725,6 +741,14 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&xsiz)) break;
             if (scriptfile_getsymbol(script,&ysiz)) break;
 
+            if ((unsigned)tile >= (unsigned)MAXUSERTILES) break;
+
+            if ((int16_t) xsiz == 0 || (int16_t) ysiz == 0)
+            {
+                undefinetile(tile);
+                break;
+            }
+
             if (xsiz > 0 && ysiz > 0)
             {
                 set_tilesiz(tile, xsiz, ysiz);
@@ -746,8 +770,15 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile_range("dummytilerange", &tile1, &tile2, script, cmdtokptr))
                 break;
 
-            if (xsiz <= 0 || ysiz <= 0)
+            if (xsiz < 0 || ysiz < 0)
                 break;  // TODO: message
+
+            if ((int16_t) xsiz == 0 || (int16_t) ysiz == 0)
+            {
+                for (i=tile1; i<=tile2; i++)
+                    undefinetile(i);
+                break;
+            }
 
             for (i=tile1; i<=tile2; i++)
             {
@@ -755,6 +786,34 @@ static int32_t defsparser(scriptfile *script)
                 Bmemset(&picanm[i], 0, sizeof(picanm_t));
                 faketile[i>>3] |= pow2char[i&7];
             }
+
+            break;
+        }
+
+        case T_UNDEFINETILE:
+        {
+            int32_t tile;
+
+            if (scriptfile_getsymbol(script,&tile)) break;
+
+            if ((unsigned)tile >= (unsigned)MAXUSERTILES) break;
+
+            undefinetile(tile);
+
+            break;
+        }
+        case T_UNDEFINETILERANGE:
+        {
+            int32_t tile1, tile2;
+
+            if (scriptfile_getnumber(script,&tile1)) break;
+            if (scriptfile_getnumber(script,&tile2)) break;
+
+            if (check_tile_range("undefinetilerange", &tile1, &tile2, script, cmdtokptr))
+                break;
+
+            for (int32_t i = tile1; i <= tile2; i++)
+                undefinetile(i);
 
             break;
         }
