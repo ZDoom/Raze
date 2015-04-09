@@ -11838,6 +11838,8 @@ MAIN_LOOP_RESTART:
     ototalclock = 0;
     lockclock = 0;
 
+    g_player[myconnectindex].ps->fta = 0;
+
     M_ChangeMenu(MENU_MAIN);
 
     if (g_networkMode != NET_DEDICATED_SERVER)
