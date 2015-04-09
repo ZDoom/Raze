@@ -435,7 +435,8 @@ extern int32_t m_mouselastactivity;
 # define MOUSEWATCHPOINTCONDITIONAL(condition) (condition)
 #else
 extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
-# define MOUSEALPHA (getrendermode() == REND_CLASSIC ? 0 : clamp((totalclock - m_mouselastactivity - 90)*3, 0, 255))
+// alpha increments of 3 --> 255 / 3 = 85 --> round up to power of 2 --> 128 --> divide by 2 --> 64 alphatabs required
+# define MOUSEALPHA ((getrendermode() == REND_CLASSIC && numalphatabs < 64) ? 0 : clamp((totalclock - m_mouselastactivity - 90)*3, 0, 255))
 # define MOUSEACTIVECONDITION (totalclock - m_mouselastactivity < M_MOUSETIMEOUT)
 # define MOUSEACTIVECONDITIONAL(condition) (MOUSEACTIVECONDITION && (condition))
 # define MOUSEINACTIVECONDITIONAL(condition) (!MOUSEACTIVECONDITION && (condition))

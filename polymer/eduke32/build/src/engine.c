@@ -2432,11 +2432,6 @@ char palfadedelta = 0;
 //
 // Internal Engine Functions
 //
-
-// blendtable[1] to blendtable[numalphatabs] are considered to be
-// alpha-blending tables:
-static uint8_t numalphatabs;
-
 static char *blendtable[MAXBLENDTABS];
 #define getblendtab(blend) (blendtable[blend])
 

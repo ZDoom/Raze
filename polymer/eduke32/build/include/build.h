@@ -703,6 +703,10 @@ EXTERN char showinvisibility;
 EXTERN int32_t g_visibility, parallaxvisibility;
 EXTERN int32_t g_rotatespriteNoWidescreen;
 
+// blendtable[1] to blendtable[numalphatabs] are considered to be
+// alpha-blending tables:
+EXTERN uint8_t numalphatabs;
+
 EXTERN int32_t windowx1, windowy1, windowx2, windowy2;
 EXTERN int16_t *startumost, *startdmost;
 
