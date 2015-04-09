@@ -59,8 +59,8 @@ extern int32_t voting;
 
 #define USERMAPENTRYLENGTH 25
 
-#define mgametext(x,y,t) G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, (5<<16), (8<<16), (-1<<16), 0, TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1)
-#define mgametextcenter(x,y,t) G_ScreenText(STARTALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, (5<<16), (8<<16), (-1<<16), (1<<16), TEXT_GAMETEXTNUMHACK|TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
+#define mgametext(x,y,t) G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, -1<<16, 0, 0, 0, 0, xdim-1, ydim-1)
+#define mgametextcenter(x,y,t) G_ScreenText(STARTALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, -1<<16, 1<<16, TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
 #define mminitext(x,y,t,p) minitext_(x, y, t, 0, p, 2|8|16|ROTATESPRITE_FULL16)
 #define mmenutext(x,y,t) G_ScreenText(BIGALPHANUM, x, (y) - (12<<16), 65536L, 0, 0, (const char *)OSD_StripColors(menutextbuf,t), 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1)
 #define mmenutextcenter(x,y,t) G_ScreenText(BIGALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), (y) - (12<<16), 65536L, 0, 0, (const char *)OSD_StripColors(menutextbuf,t), 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE|TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
