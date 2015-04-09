@@ -298,7 +298,7 @@ static int32_t defsparser(scriptfile *script)
         { "setuptile",       T_SETUPTILE        },
         { "setuptilerange",  T_SETUPTILERANGE   },
         { "undefinetile",    T_UNDEFINETILE		},
-        { "undefinetilrange",T_UNDEFINETILERANGE },
+        { "undefinetilerange", T_UNDEFINETILERANGE },
         { "animtilerange",   T_ANIMTILERANGE    },
         { "cachesize",       T_CACHESIZE        },
         { "dummytilefrompic",T_IMPORTTILE       },
