@@ -505,7 +505,7 @@ static MenuEntry_t ME_SCREENSETUP_LEVELSTATS = MAKE_MENUENTRY( "Level stats:", &
 
 
 static MenuOption_t MEO_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &ud.fta_on);
-static MenuEntry_t ME_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUENTRY( "Pickup messages:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_SHOWPICKUPMESSAGES, Option );
+static MenuEntry_t ME_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUENTRY( "Game messages:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_SHOWPICKUPMESSAGES, Option );
 
 static char *MEOSN_SCREENSETUP_NEWSTATUSBAR[] = { "Classic", "New",
 #ifdef DROIDMENU
