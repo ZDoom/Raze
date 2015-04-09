@@ -2165,9 +2165,11 @@ void P_DisplayWeapon(void)
     gs = sprite[p->i].shade;
     if (gs > 24) gs = 24;
 
-    if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) ||
-            P_DisplayFist(gs) || P_DisplayKnuckles(gs) || P_DisplayTip(gs) || P_DisplayAccess(gs))
+    if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0))
         return;
+
+    if (P_DisplayFist(gs) || P_DisplayKnuckles(gs) || P_DisplayTip(gs) || P_DisplayAccess(gs))
+        goto enddisplayweapon;
 
     P_DisplayKnee(gs);
 
