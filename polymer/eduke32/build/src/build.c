@@ -10188,12 +10188,11 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
 
 void showsectordata(int16_t sectnum, int16_t small)
 {
-    sectortype *sec;
     char snotbuf[80];
     int32_t col=0;  //,row = 0;
     int32_t color = small ? whitecol : editorcolors[11];
 
-    sec = &sector[sectnum];
+    const sectortype *const sec = &sector[sectnum];
 
     if (small)
     {
@@ -10218,7 +10217,7 @@ void showsectordata(int16_t sectnum, int16_t small)
     {
         int32_t xp=sec->ceilingxpanning, yp=sec->ceilingypanning;
 #ifdef YAX_ENABLE__COMPAT
-        if (yax_getbunch(searchsector, YAX_CEILING) >= 0)
+        if (yax_getbunch(sectnum, YAX_CEILING) >= 0)
             xp = yp = 0;
 #endif
         DOPRINT(56, "(X,Y)pan: %d, %d", xp, yp);
@@ -10239,7 +10238,7 @@ void showsectordata(int16_t sectnum, int16_t small)
     {
         int32_t xp=sec->floorxpanning, yp=sec->floorypanning;
 #ifdef YAX_ENABLE__COMPAT
-        if (yax_getbunch(searchsector, YAX_FLOOR) >= 0)
+        if (yax_getbunch(sectnum, YAX_FLOOR) >= 0)
             xp = yp = 0;
 #endif
         DOPRINT(56, "(X,Y)pan: %d, %d", xp, yp);
