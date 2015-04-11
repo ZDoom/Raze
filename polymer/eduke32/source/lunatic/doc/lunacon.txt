@@ -333,8 +333,11 @@ Quote behavior
 Miscellaneous
 ^^^^^^^^^^^^^
 
+:r5097: http://svn.eduke32.com/listing.php?repname=eduke32&rev=5097
+
 * Issuing `break` inside a part of an event chain (defined using multiple
-  `onevent` blocks for one event kind) does not abort the whole chain.
+  `onevent` blocks for one event kind) does not abort the whole chain. (Since
+  EDuke32 {r5097}[r5097], this is the behavior of C-CON as well.)
 
 
 Unavailable functionality

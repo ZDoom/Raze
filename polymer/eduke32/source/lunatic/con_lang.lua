@@ -859,6 +859,7 @@ local UD = function(memb) return "_gud(_pli)"..memb end
 local UDRO = function(memb) return { UD(memb) } end
 
 -- NOTE: Only members that actually encountered in existing mods are added here.
+-- TODO: r5043, r5044
 local UserdefLabels = {
     althud = UD".althud",
     auto_run = UD".auto_run",
