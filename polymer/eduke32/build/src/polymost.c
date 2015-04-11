@@ -4787,7 +4787,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         sinang2 *= d;
     }
 
-    vec2f_t pxy[4];
+    vec2f_t pxy[8];
 
     pxy[0].x = (float)sx*(1.0f/65536.f) - (float)ofs.x*cosang2 + (float)ofs.y*sinang2;
     pxy[0].y = (float)sy*(1.0f/65536.f) - (float)ofs.x*sinang  - (float)ofs.y*cosang;
