@@ -531,7 +531,7 @@ CWARNS := -W -Wall \
     #-Waddress -Wlogical-op
 
 ifneq (0,$(CLANG))
-    CWARNS+= -Wno-unused-value -Wno-parentheses
+    CWARNS+= -Wno-unused-value -Wno-parentheses -Wno-missing-braces
 endif
 
 COMMONFLAGS+= -funsigned-char -fno-strict-aliasing $(F_JUMP_TABLES)
