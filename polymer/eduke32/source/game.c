@@ -9824,14 +9824,15 @@ int32_t loaddefinitions_game(const char *fn, int32_t preload)
     int32_t i;
 
     script = scriptfile_fromfile(fn);
-    if (!script) return -1;
-
-    parsedefinitions_game(script, preload);
+    if (script)
+        parsedefinitions_game(script, preload);
 
     for (i=0; i < g_defModulesNum; ++i)
         parsedefinitions_game_include(g_defModules[i], NULL, "null", preload);
 
-    scriptfile_close(script);
+    if (script)
+        scriptfile_close(script);
+
     scriptfile_clearsymbols();
 
     return 0;

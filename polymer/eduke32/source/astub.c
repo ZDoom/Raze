@@ -9217,14 +9217,15 @@ int32_t loaddefinitions_game(const char *fn, int32_t preload)
     UNREFERENCED_PARAMETER(preload);
 
     script = scriptfile_fromfile(fn);
-    if (!script) return -1;
-
-    parsegroupfiles(script);
+    if (script)
+        parsegroupfiles(script);
 
     for (i=0; i < g_defModulesNum; ++i)
         parsegroupfiles_include(g_defModules[i], NULL, "null");
 
-    scriptfile_close(script);
+    if (script)
+        scriptfile_close(script);
+
     scriptfile_clearsymbols();
 
     return 0;
