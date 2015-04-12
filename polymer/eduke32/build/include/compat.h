@@ -949,6 +949,15 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 # define Baligned_free(ptr) Bfree(ptr)
 #endif
 
+static inline void maybe_grow_buffer(char ** const buffer, int32_t * const buffersize, int32_t const newsize)
+{
+    if (newsize > *buffersize)
+    {
+        *buffer = (char *)Xrealloc(*buffer, newsize);
+        *buffersize = newsize;
+    }
+}
+
 //////////
 
 #endif // compat_h_

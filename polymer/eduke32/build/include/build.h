@@ -1013,6 +1013,7 @@ int32_t   loadpics(const char *filename, int32_t askedsize);
 void E_MapArt_Clear(void);
 void E_MapArt_Setup(const char *filename);
 void   loadtile(int16_t tilenume);
+void E_LoadTileIntoBuffer(int16_t tilenume, int32_t dasiz, char *buffer);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 intptr_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);

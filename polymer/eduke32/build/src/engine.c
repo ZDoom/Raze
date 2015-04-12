@@ -11981,11 +11981,8 @@ void E_ReadArtFileIntoFakeData(int32_t const fil, artheader_t const * const loca
             E_UndefineTile(i);
             continue;
         }
-        else if (dasiz > buffersize)
-        {
-            buffer = (char *)Xrealloc(buffer, dasiz);
-            buffersize = dasiz;
-        }
+
+        maybe_grow_buffer(&buffer, &buffersize, dasiz);
 
         kread(fil, buffer, dasiz);
 
@@ -12146,14 +12143,14 @@ int32_t loadpics(const char *filename, int32_t askedsize)
 //
 // loadtile
 //
+static void postloadtile(int16_t tilenume);
+
 void loadtile(int16_t tilenume)
 {
-    int32_t i, dasiz;
+    int32_t dasiz;
 
     if ((unsigned)tilenume >= (unsigned)MAXTILES) return;
     if ((dasiz = tilesiz[tilenume].x*tilesiz[tilenume].y) <= 0) return;
-
-    i = tilefilenum[tilenume];
 
     // Allocate storage if necessary.
     if (waloff[tilenume] == 0)
@@ -12162,16 +12159,25 @@ void loadtile(int16_t tilenume)
         allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
     }
 
+    E_LoadTileIntoBuffer(tilenume, dasiz, (char *)waloff[tilenume]);
+
+    postloadtile(tilenume);
+}
+
+void E_LoadTileIntoBuffer(int16_t tilenume, int32_t dasiz, char *buffer)
+{
     // dummy tiles for highres replacements and tilefromtexture definitions
 
     if (faketile[tilenume>>3] & pow2char[tilenume&7])
     {
         if (faketiledata[tilenume] != NULL)
-            LZ4_decompress_fast(faketiledata[tilenume], (char *) waloff[tilenume], dasiz);
+            LZ4_decompress_fast(faketiledata[tilenume], buffer, dasiz);
 
         faketimerhandler();
         return;
     }
+
+    int32_t const i = tilefilenum[tilenume];
 
     // Potentially switch open ART file.
     if (i != artfilnum)
@@ -12204,10 +12210,16 @@ void loadtile(int16_t tilenume)
         faketimerhandler();
     }
 
-    kread(artfil, (char *)waloff[tilenume], dasiz);
+    kread(artfil, buffer, dasiz);
     faketimerhandler();
     artfilplc = tilefileoffs[tilenume]+dasiz;
+}
 
+static void postloadtile(int16_t tilenume)
+{
+#if !defined DEBUG_TILESIZY_512 && !defined DEBUG_TILEOFFSETS
+    UNREFERENCED_PARAMETER(tilenume);
+#endif
 #ifdef DEBUG_TILESIZY_512
     if (tilesizy[tilenume] >= 512)
     {

@@ -101,6 +101,7 @@ enum scripttoken_t
     T_ECHO,
     T_GLOBALFLAGS,
     T_RENAMEFILE,
+    T_COPYTILE,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -188,11 +189,7 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
     const vec2_t siz = tilesiz[tile];
     int32_t i, j, tsiz = siz.x * siz.y;
 
-    if (tsiz > faketilebuffersiz)
-    {
-        faketilebuffer = (char *)Xrealloc(faketilebuffer, tsiz);
-        faketilebuffersiz = tsiz;
-    }
+    maybe_grow_buffer(&faketilebuffer, &faketilebuffersiz, tsiz);
 
     getclosestcol_flush();
 
@@ -208,6 +205,27 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
     }
 
     E_CreateFakeTile(tile, tsiz, faketilebuffer);
+}
+
+static int32_t Defs_LoadTileIntoBuffer(int32_t const tile)
+{
+    vec2_t const siz = tilesiz[tile];
+    int32_t const tsiz = siz.x * siz.y;
+
+    if (EDUKE32_PREDICT_FALSE(tilesiz[tile].x <= 0 || tilesiz[tile].y <= 0))
+        return 0;
+
+    maybe_grow_buffer(&faketilebuffer, &faketilebuffersiz, tsiz);
+
+    E_LoadTileIntoBuffer(tile, tsiz, faketilebuffer);
+
+    return tsiz;
+}
+
+static void Defs_ApplyPaletteToTileBuffer(int32_t const tsiz, int32_t const pal)
+{
+    for (int32_t i = 0; i < tsiz; i++)
+        faketilebuffer[i] = palookup[pal][faketilebuffer[i]];
 }
 
 #undef USE_DEF_PROGRESS
@@ -286,6 +304,7 @@ static int32_t defsparser(scriptfile *script)
         { "echo",            T_ECHO             },
         { "globalflags",     T_GLOBALFLAGS      },
         { "renamefile",      T_RENAMEFILE       },
+        { "copytile",        T_COPYTILE         },
     };
 
     while (1)
@@ -681,6 +700,117 @@ static int32_t defsparser(scriptfile *script)
 
                 Bfree(picptr);
             }
+        }
+        break;
+        case T_COPYTILE:
+        {
+            char *blockend;
+            int32_t tile = -1, source;
+            int32_t havetile = 0, havexoffset = 0, haveyoffset = 0;
+            int32_t xoffset = 0, yoffset = 0;
+            int32_t flags = 0;
+            int32_t tsiz = 0;
+
+            static const tokenlist copytiletokens[] =
+            {
+                { "tile",            T_TILE },
+                { "pal",             T_PAL },
+                { "xoffset",         T_XOFFSET },
+                { "xoff",            T_XOFFSET },
+                { "yoffset",         T_YOFFSET },
+                { "yoff",            T_YOFFSET },
+                { "texhitscan",      T_TEXHITSCAN },
+                { "nofullbright",    T_NOFULLBRIGHT },
+            };
+
+            if (scriptfile_getsymbol(script,&tile)) break;
+            source = tile; // without a "tile" token, we still palettize self by default
+            if (scriptfile_getbraces(script,&blockend)) break;
+            while (script->textptr < blockend)
+            {
+                int32_t token = getatoken(script,copytiletokens,ARRAY_SIZE(copytiletokens));
+                switch (token)
+                {
+                case T_TILE:
+                {
+                    int32_t tempsource;
+                    scriptfile_getsymbol(script,&tempsource);
+
+                    if (check_tile("copytile", tempsource, script, cmdtokptr))
+                        break;
+                    if ((tsiz = Defs_LoadTileIntoBuffer(tempsource)) <= 0)
+                        break;
+                    source = tempsource;
+
+                    havetile = 1;
+                    break;
+                }
+                case T_PAL:
+                {
+                    int32_t temppal;
+                    scriptfile_getsymbol(script,&temppal);
+
+                    // palettize self case
+                    if (!havetile)
+                    {
+                        if (check_tile("copytile", source, script, cmdtokptr))
+                            break;
+                        if ((tsiz = Defs_LoadTileIntoBuffer(source)) <= 0)
+                            break;
+                        havetile = 1;
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)temppal >= MAXPALOOKUPS-RESERVEDPALS))
+                    {
+                        initprintf("Error: copytile 'palette number' out of range (max=%d)\n",
+                                   MAXPALOOKUPS-RESERVEDPALS-1);
+                        break;
+                    }
+
+                    Defs_ApplyPaletteToTileBuffer(tsiz, temppal);
+                    break;
+                }
+                case T_XOFFSET:
+                    havexoffset = 1;
+                    scriptfile_getsymbol(script,&xoffset); break;
+                case T_YOFFSET:
+                    haveyoffset = 1;
+                    scriptfile_getsymbol(script,&yoffset); break;
+                case T_TEXHITSCAN:
+                    flags |= PICANM_TEXHITSCAN_BIT;
+                    break;
+                case T_NOFULLBRIGHT:
+                    flags |= PICANM_NOFULLBRIGHT_BIT;
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            if (check_tile("copytile", tile, script, cmdtokptr))
+                break;
+
+            if (havetile)
+            {
+                E_CreateFakeTile(tile, tsiz, faketilebuffer);
+            }
+            else // if !havetile, we have never confirmed a valid source
+            {
+                if (check_tile("copytile", source, script, cmdtokptr))
+                    break;
+            }
+
+            if (tsiz <= 0)
+            {
+                E_UndefineTile(tile);
+                break;
+            }
+
+            set_tilesiz(tile, tilesiz[source].x, tilesiz[source].y);
+            picanm[tile].xofs = havexoffset ? clamp(xoffset, -128, 127) : picanm[source].xofs;
+            picanm[tile].yofs = haveyoffset ? clamp(yoffset, -128, 127) : picanm[source].yofs;
+            picanm[tile].sf = (picanm[tile].sf & ~PICANM_MISC_MASK) | (picanm[source].sf & PICANM_MISC_MASK) | flags;
+
         }
         break;
         case T_IMPORTTILE:
