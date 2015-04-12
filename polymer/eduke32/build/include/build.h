@@ -983,6 +983,9 @@ typedef struct {
     int16_t sprite, wall, sect;
 } hitdata_t;
 
+typedef struct artheader_t {
+    int32_t tilestart, tileend, numtiles;
+} artheader_t;
 
 int32_t    preinitengine(void);	// a partial setup of the engine used for launch windows
 int32_t    initengine(void);
@@ -998,12 +1001,19 @@ void delete_maphack_lights();
 int32_t clipmapinfo_load(void);
 #endif
 int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
+
+void E_CreateFakeTile(int32_t const tile, int32_t tsiz, char const * const buffer);
+void E_UndefineTile(int32_t const tile);
 void set_tilesiz(int32_t picnum, int16_t dasizx, int16_t dasizy);
 int32_t tile_exists(int32_t picnum);
+int32_t E_ReadArtFileHeader(int32_t const fil, char const * const fn, artheader_t * const local);
+void E_ReadArtFileTileInfo(int32_t const fil, artheader_t const * const local);
+void E_ReadArtFileIntoFakeData(int32_t const fil, artheader_t const * const local);
 int32_t   loadpics(const char *filename, int32_t askedsize);
 void E_MapArt_Clear(void);
 void E_MapArt_Setup(const char *filename);
 void   loadtile(int16_t tilenume);
+
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 intptr_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);

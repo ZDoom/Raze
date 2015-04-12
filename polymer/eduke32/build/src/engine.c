@@ -243,9 +243,6 @@ static picanm_t *g_bakPicAnm;
 //static int32_t artsize = 0;
 static int32_t cachesize = 0;
 
-// Whole ART file contents loaded from ZIPs in memory.
-static char *artptrs[MAXARTFILES_TOTAL];
-
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280], *radarang2;
 
@@ -9261,10 +9258,6 @@ void uninitengine(void)
     if (artfil != -1)
         kclose(artfil);
 
-    // this leaves a bunch of invalid pointers in waloff... fixme?
-    for (i=0; i<MAXARTFILES_TOTAL; i++)
-        DO_FREE_AND_NULL(artptrs[i]);
-
     DO_FREE_AND_NULL(pic);
     DO_FREE_AND_NULL(lookups);
     ALIGNED_FREE_AND_NULL(distrecip);
@@ -10362,7 +10355,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 // Some forward declarations.
 static void set_picsiz(int32_t picnum);
 static const char *E_GetArtFileName(int32_t tilefilei);
-static int32_t E_ReadArtFile(int32_t tilefilei);
+static int32_t E_ReadArtFileOfID(int32_t tilefilei);
 
 static inline void clearmapartfilename(void)
 {
@@ -10473,7 +10466,7 @@ void E_MapArt_Setup(const char *filename)
 
     for (i=MAXARTFILES_BASE; i<MAXARTFILES_TOTAL; i++)
     {
-        int32_t ret = E_ReadArtFile(i);
+        int32_t ret = E_ReadArtFileOfID(i);
 
         if (ret != 0)
         {
@@ -11843,6 +11836,42 @@ void nextpage(void)
     numframes++;
 }
 
+//
+// ART loading
+//
+
+void E_CreateFakeTile(int32_t const tile, int32_t tsiz, char const * const buffer)
+{
+    faketiledata[tile] = (char *)Xrealloc(faketiledata[tile], tsiz + 32);
+
+    if ((tsiz = LZ4_compress(buffer, faketiledata[tile], tsiz)) != -1)
+    {
+        faketiledata[tile] = (char *)Xrealloc(faketiledata[tile], tsiz);
+        faketile[tile>>3] |= pow2char[tile&7];
+    }
+    else
+    {
+        DO_FREE_AND_NULL(faketiledata[tile]);
+        faketile[tile>>3] &= ~pow2char[tile&7];
+    }
+}
+
+void E_UndefineTile(int32_t const tile)
+{
+    tilesiz[tile].x = 0;
+    tilesiz[tile].y = 0;
+    picsiz[tile] = 0;
+
+    // CACHE1D_FREE
+    walock[tile] = 1;
+    waloff[tile] = 0;
+
+    DO_FREE_AND_NULL(faketiledata[tile]);
+    faketile[tile>>3] &= ~pow2char[tile&7];
+
+    Bmemset(&picanm[tile], 0, sizeof(picanm_t));
+}
+
 static void set_picsiz(int32_t picnum)
 {
     int32_t j;
@@ -11874,6 +11903,98 @@ int32_t tile_exists(int32_t picnum)
     return (waloff[picnum] != 0 && tilesiz[picnum].x > 0 && tilesiz[picnum].y > 0);
 }
 
+int32_t E_ReadArtFileHeader(int32_t const fil, char const * const fn, artheader_t * const local)
+{
+    int32_t artversion;
+    kread(fil,&artversion,4); artversion = B_LITTLE32(artversion);
+    if (artversion != 1)
+    {
+        initprintf("loadpics: Invalid art file version in %s\n", fn);
+        kclose(fil);
+        return 1;
+    }
+
+    int32_t numtiles_dummy;
+    kread(fil,&numtiles_dummy,4);
+
+    kread(fil,&local->tilestart,4); local->tilestart = B_LITTLE32(local->tilestart);
+    kread(fil,&local->tileend,4);   local->tileend   = B_LITTLE32(local->tileend);
+
+    if ((uint32_t)local->tilestart >= MAXUSERTILES || (uint32_t)local->tileend >= MAXUSERTILES)
+    {
+        initprintf("loadpics: Invalid localtilestart or localtileend in %s\n", fn);
+        kclose(fil);
+        return 1;
+    }
+    if (local->tileend <= local->tilestart)
+    {
+        initprintf("loadpics: localtileend <= localtilestart in %s\n", fn);
+        kclose(fil);
+        return 1;
+    }
+
+    local->numtiles = (local->tileend-local->tilestart+1);
+
+    return 0;
+}
+
+void E_ReadArtFileTileInfo(int32_t const fil, artheader_t const * const local)
+{
+    int16_t *tilesizx = (int16_t *)Xmalloc(local->numtiles * sizeof(int16_t));
+    int16_t *tilesizy = (int16_t *)Xmalloc(local->numtiles * sizeof(int16_t));
+    kread(fil, tilesizx, local->numtiles*sizeof(int16_t));
+    kread(fil, tilesizy, local->numtiles*sizeof(int16_t));
+    kread(fil, &picanm[local->tilestart], local->numtiles*sizeof(picanm_t));
+
+    for (int32_t i=local->tilestart; i<=local->tileend; i++)
+    {
+        EDUKE32_STATIC_ASSERT(sizeof(picanm_t) == 4);
+        EDUKE32_STATIC_ASSERT(PICANM_ANIMTYPE_MASK == 192);
+
+        tilesiz[i].x = B_LITTLE16(tilesizx[i-local->tilestart]);
+        tilesiz[i].y = B_LITTLE16(tilesizy[i-local->tilestart]);
+
+        // Old on-disk format: anim type is in the 2 highest bits of the lowest byte.
+        picanm[i].sf &= ~192;
+        picanm[i].sf |= picanm[i].num&192;
+        picanm[i].num &= ~192;
+
+        // don't allow setting texhitscan/nofullbright from ART
+        picanm[i].sf &= ~PICANM_MISC_MASK;
+    }
+
+    DO_FREE_AND_NULL(tilesizx);
+    DO_FREE_AND_NULL(tilesizy);
+}
+
+void E_ReadArtFileIntoFakeData(int32_t const fil, artheader_t const * const local)
+{
+    char *buffer = NULL;
+    int32_t buffersize = 0;
+
+    for (int32_t i=local->tilestart; i<=local->tileend; i++)
+    {
+        int32_t dasiz = tilesiz[i].x * tilesiz[i].y;
+
+        if (dasiz == 0)
+        {
+            E_UndefineTile(i);
+            continue;
+        }
+        else if (dasiz > buffersize)
+        {
+            buffer = (char *)Xrealloc(buffer, dasiz);
+            buffersize = dasiz;
+        }
+
+        kread(fil, buffer, dasiz);
+
+        E_CreateFakeTile(i, dasiz, buffer);
+    }
+
+    DO_FREE_AND_NULL(buffer);
+}
+
 static const char *E_GetArtFileName(int32_t tilefilei)
 {
     if (tilefilei >= MAXARTFILES_BASE)
@@ -11901,17 +12022,14 @@ static const char *E_GetArtFileName(int32_t tilefilei)
 // >0: error with the ART file
 // -1: ART file does not exist
 //<-1: per-map ART issue
-static int32_t E_ReadArtFile(int32_t tilefilei)
+static int32_t E_ReadArtFileOfID(int32_t tilefilei)
 {
     const char *fn = E_GetArtFileName(tilefilei);
     const int32_t permap = (tilefilei >= MAXARTFILES_BASE);  // is it a per-map ART file?
-    int16_t *tilesizx, *tilesizy;
     int32_t fil;
 
     if ((fil = kopen4load(fn,0)) != -1)
     {
-        int32_t localtilestart, localtileend, localnumtiles;
-        int32_t i, offscount, numtiles_dummy, artversion;
 #ifdef WITHKPLIB
         if (permap && cache1d_file_fromzip(fil))
         {
@@ -11920,38 +12038,17 @@ static int32_t E_ReadArtFile(int32_t tilefilei)
             return -2;
         }
 #endif
-        kread(fil,&artversion,4); artversion = B_LITTLE32(artversion);
-        if (artversion != 1)
-        {
-            initprintf("loadpics: Invalid art file version in %s\n", fn);
-            kclose(fil);
-            return 1;
-        }
 
-        kread(fil,&numtiles_dummy,4);
-        kread(fil,&localtilestart,4); localtilestart = B_LITTLE32(localtilestart);
-        kread(fil,&localtileend,4);   localtileend   = B_LITTLE32(localtileend);
-
-        if ((uint32_t)localtilestart >= MAXUSERTILES || (uint32_t)localtileend >= MAXUSERTILES)
-        {
-            initprintf("loadpics: Invalid localtilestart or localtileend in %s\n", fn);
-            kclose(fil);
-            return 1;
-        }
-        if (localtileend <= localtilestart)
-        {
-            initprintf("loadpics: localtileend <= localtilestart in %s\n", fn);
-            kclose(fil);
-            return 1;
-        }
-
-        localnumtiles = (localtileend-localtilestart+1);
+        artheader_t local;
+        int32_t headerval = E_ReadArtFileHeader(fil, fn, &local);
+        if (headerval != 0)
+            return headerval;
 
         if (permap)
         {
             // Check whether we can evict existing tiles to make place for
             // per-map ART ones.
-            for (i=localtilestart; i<=localtileend; i++)
+            for (int32_t i=local.tilestart; i<=local.tileend; i++)
             {
                 // Tiles having dummytile replacements or those that are
                 // cache1d-locked can't be replaced.
@@ -11965,57 +12062,32 @@ static int32_t E_ReadArtFile(int32_t tilefilei)
             }
 
             // Free existing tiles from the cache1d. CACHE1D_FREE
-            Bmemset(&waloff[localtilestart], 0, localnumtiles*sizeof(intptr_t));
-            Bmemset(&walock[localtilestart], 1, localnumtiles*sizeof(walock[0]));
+            Bmemset(&waloff[local.tilestart], 0, local.numtiles*sizeof(intptr_t));
+            Bmemset(&walock[local.tilestart], 1, local.numtiles*sizeof(walock[0]));
         }
 
-        tilesizx = (int16_t *)Xmalloc(localnumtiles * sizeof(int16_t));
-        tilesizy = (int16_t *)Xmalloc(localnumtiles * sizeof(int16_t));
-        kread(fil, tilesizx, localnumtiles*sizeof(int16_t));
-        kread(fil, tilesizy, localnumtiles*sizeof(int16_t));
-        kread(fil, &picanm[localtilestart], localnumtiles*sizeof(picanm_t));
+        E_ReadArtFileTileInfo(fil, &local);
 
-        for (i=localtilestart; i<=localtileend; i++)
+        if (cache1d_file_fromzip(fil))
         {
-            EDUKE32_STATIC_ASSERT(sizeof(picanm_t) == 4);
-            EDUKE32_STATIC_ASSERT(PICANM_ANIMTYPE_MASK == 192);
-
-            tilesiz[i].x = B_LITTLE16(tilesizx[i-localtilestart]);
-            tilesiz[i].y = B_LITTLE16(tilesizy[i-localtilestart]);
-
-            // Old on-disk format: anim type is in the 2 highest bits of the lowest byte.
-            picanm[i].sf &= ~192;
-            picanm[i].sf |= picanm[i].num&192;
-            picanm[i].num &= ~192;
-
-            // don't allow setting texhitscan/nofullbright from ART (yet?)
-            picanm[i].sf &= ~PICANM_MISC_MASK;
+            E_ReadArtFileIntoFakeData(fil, &local);
         }
-
-        DO_FREE_AND_NULL(tilesizx);
-        DO_FREE_AND_NULL(tilesizy);
-
-        offscount = 4+4+4+4+(localnumtiles<<3);
-        for (i=localtilestart; i<=localtileend; i++)
+        else
         {
-            int32_t dasiz = tilesiz[i].x * tilesiz[i].y;
+            int32_t offscount = 4+4+4+4+(local.numtiles<<3);
 
-            tilefilenum[i] = tilefilei;
-            tilefileoffs[i] = offscount;
+            for (int32_t i=local.tilestart; i<=local.tileend; i++)
+            {
+                int32_t dasiz = tilesiz[i].x * tilesiz[i].y;
 
-            offscount += dasiz;
-//                artsize += ((dasiz+15)&0xfffffff0);
+                tilefilenum[i] = tilefilei;
+                tilefileoffs[i] = offscount;
+
+                offscount += dasiz;
+               // artsize += ((dasiz+15)&0xfffffff0);
+            }
         }
 
-#ifdef WITHKPLIB
-        if (cache1d_file_fromzip(fil)) // from zip
-        {
-            i = kfilelength(fil);
-            artptrs[tilefilei] = (char *)Xrealloc(artptrs[tilefilei], i);
-            klseek(fil, 0, BSEEK_SET);
-            kread(fil, artptrs[tilefilei], i);
-        }
-#endif
 #ifdef DEBUGGINGAIDS
         if (permap)
             initprintf("Read in per-map ART file \"%s\"\n", fn);
@@ -12042,7 +12114,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
 //    artsize = 0;
 
     for (tilefilei=0; tilefilei<MAXARTFILES_BASE; tilefilei++)
-        E_ReadArtFile(tilefilei);
+        E_ReadArtFileOfID(tilefilei);
 
     Bmemset(gotpic, 0, sizeof(gotpic));
 
@@ -12082,16 +12154,6 @@ void loadtile(int16_t tilenume)
     if ((dasiz = tilesiz[tilenume].x*tilesiz[tilenume].y) <= 0) return;
 
     i = tilefilenum[tilenume];
-
-#ifdef WITHKPLIB
-    if (artptrs[i]) // from zip
-    {
-        waloff[tilenume] = (intptr_t)(artptrs[i]) + tilefileoffs[tilenume];
-        faketimerhandler();
-        // OSD_Printf("loaded tile %d from zip\n", tilenume);
-        return;
-    }
-#endif
 
     // Allocate storage if necessary.
     if (waloff[tilenume] == 0)

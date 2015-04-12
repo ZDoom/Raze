@@ -196,8 +196,6 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
 
     getclosestcol_flush();
 
-    faketiledata[tile] = (char *)Xmalloc(tsiz + 32);
-
     for (j = 0; j < siz.y; ++j)
     {
         int const ofs = j * siz.x;
@@ -209,26 +207,7 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
         }
     }
 
-    if (LZ4_compress(faketilebuffer, faketiledata[tile], tsiz) != -1)
-        faketile[tile>>3] |= pow2char[tile&7];
-    else
-    {
-        DO_FREE_AND_NULL(faketiledata[tile]);
-        faketile[tile>>3] &= ~pow2char[tile&7];
-    }
-}
-
-static void undefinetile(int32_t tile)
-{
-    tilesiz[tile].x = 0;
-    tilesiz[tile].y = 0;
-    picsiz[tile] = 0;
-    // CACHE1D_FREE
-    walock[tile] = 1;
-    waloff[tile] = 0;
-    DO_FREE_AND_NULL(faketiledata[tile]);
-    faketile[tile>>3] &= ~pow2char[tile&7];
-    Bmemset(&picanm[tile], 0, sizeof(picanm_t));
+    E_CreateFakeTile(tile, tsiz, faketilebuffer);
 }
 
 #undef USE_DEF_PROGRESS
@@ -747,7 +726,7 @@ static int32_t defsparser(scriptfile *script)
 
             if ((int16_t) xsiz == 0 || (int16_t) ysiz == 0)
             {
-                undefinetile(tile);
+                E_UndefineTile(tile);
                 break;
             }
 
@@ -778,7 +757,7 @@ static int32_t defsparser(scriptfile *script)
             if ((int16_t) xsiz == 0 || (int16_t) ysiz == 0)
             {
                 for (i=tile1; i<=tile2; i++)
-                    undefinetile(i);
+                    E_UndefineTile(i);
                 break;
             }
 
@@ -801,7 +780,7 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile("undefinetile", tile, script, cmdtokptr))
                 break;
 
-            undefinetile(tile);
+            E_UndefineTile(tile);
 
             break;
         }
@@ -816,7 +795,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
             for (int32_t i = tile1; i <= tile2; i++)
-                undefinetile(i);
+                E_UndefineTile(i);
 
             break;
         }
