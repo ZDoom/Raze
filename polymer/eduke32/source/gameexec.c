@@ -3420,7 +3420,7 @@ nullquote:
                     time_t curtime = time(NULL);
                     struct tm *timeptr = localtime(&curtime);
                     Bsnprintf(ud.savegame[g_lastSaveSlot], sizeof(ud.savegame[g_lastSaveSlot]), "Auto %.4d%.2d%.2d %.2d%.2d%.2d\n",
-                    timeptr->tm_year + 1900, timeptr->tm_mon, timeptr->tm_mday,
+                    timeptr->tm_year + 1900, timeptr->tm_mon + 1, timeptr->tm_mday,
                     timeptr->tm_hour, timeptr->tm_min, timeptr->tm_sec);
                 }
 
