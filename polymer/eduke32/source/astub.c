@@ -9103,6 +9103,8 @@ enum
 
     T_DEFINESOUND,
     T_INCLUDEDEFAULT,
+
+    T_RENAMEFILE,
 };
 
 static int32_t parsegroupfiles(scriptfile *script);
@@ -9139,7 +9141,8 @@ static int32_t parsegroupfiles(scriptfile *script)
         { "includedefault",  T_INCLUDEDEFAULT },
         { "#includedefault", T_INCLUDEDEFAULT },
         { "loadgrp",         T_LOADGRP },
-        { "noautoload",      T_NOAUTOLOAD }
+        { "noautoload",      T_NOAUTOLOAD },
+        { "renamefile",      T_RENAMEFILE },
     };
 
     while (1)
@@ -9187,6 +9190,16 @@ static int32_t parsegroupfiles(scriptfile *script)
         case T_NOAUTOLOAD:
             NoAutoLoad = 1;
             break;
+        case T_RENAMEFILE:
+        {
+            int32_t crcval = 0, filenum = -1;
+            char *newname = NULL;
+            if (scriptfile_getnumber(script,&crcval)) break;
+            if (scriptfile_getnumber(script,&filenum)) break;
+            if (scriptfile_getstring(script,&newname)) break;
+            krename(crcval, filenum, newname);
+        }
+        break;
         case T_EOF:
             return(0);
         default:

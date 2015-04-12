@@ -231,7 +231,8 @@ enum gametokens
     T_ANIMSOUNDS,
     T_NOFLOORPALRANGE,
     T_ID,
-    T_DELAY
+    T_DELAY,
+    T_RENAMEFILE,
 };
 
 
@@ -9492,6 +9493,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         { "sound",           T_SOUND            },
         { "cutscene",        T_CUTSCENE         },
         { "animsounds",      T_ANIMSOUNDS       },
+        { "renamefile",      T_RENAMEFILE       },
     };
 
     static const tokenlist sound_musictokens[] =
@@ -9795,6 +9797,16 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 if (S_DefineSound(num,fn) == -1)
                     initprintf("Error: invalid sound ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
             }
+        }
+        break;
+        case T_RENAMEFILE:
+        {
+            int32_t crcval = 0, filenum = -1;
+            char *newname = NULL;
+            if (scriptfile_getnumber(script,&crcval)) break;
+            if (scriptfile_getnumber(script,&filenum)) break;
+            if (scriptfile_getstring(script,&newname)) break;
+            krename(crcval, filenum, newname);
         }
         break;
         case T_EOF:
