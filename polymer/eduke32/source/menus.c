@@ -1696,10 +1696,13 @@ static void M_PreMenu(MenuID_t cm)
             MenuEntry_DisableOnCondition(&ME_CheatCodes[i], menucheatsdisabled);
         }
 
-        // fix display names of quote cheats
-        ME_CheatCodes[CHEATFUNC_QUOTEBETA].name = ScriptQuotes[QUOTE_CHEAT_BETA];
-        ME_CheatCodes[CHEATFUNC_QUOTETODD].name = ScriptQuotes[QUOTE_CHEAT_TODD];
-        ME_CheatCodes[CHEATFUNC_QUOTEALLEN].name = ScriptQuotes[QUOTE_CHEAT_ALLEN];
+        // refresh display names of quote cheats
+        if (!DUKEBETA)
+        {
+            ME_CheatCodes[CHEATFUNC_QUOTEBETA].name = ScriptQuotes[QUOTE_CHEAT_BETA];
+            ME_CheatCodes[CHEATFUNC_QUOTETODD].name = ScriptQuotes[QUOTE_CHEAT_TODD];
+            ME_CheatCodes[CHEATFUNC_QUOTEALLEN].name = ScriptQuotes[QUOTE_CHEAT_ALLEN];
+        }
         break;
     }
 
