@@ -531,7 +531,8 @@ static int32_t defsparser(scriptfile *script)
             int32_t tile, tmp;
 
             if (scriptfile_getsymbol(script,&tile)) break;
-            if ((unsigned)tile >= MAXUSERTILES) break;
+            if (check_tile("setuptile", tile, script, cmdtokptr))
+                break;
             if (scriptfile_getsymbol(script,&tmp)) break;  // XXX
             h_xsize[tile] = tmp;
             if (scriptfile_getsymbol(script,&tmp)) break;
@@ -741,7 +742,8 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&xsiz)) break;
             if (scriptfile_getsymbol(script,&ysiz)) break;
 
-            if ((unsigned)tile >= (unsigned)MAXUSERTILES) break;
+            if (check_tile("dummytile", tile, script, cmdtokptr))
+                break;
 
             if ((int16_t) xsiz == 0 || (int16_t) ysiz == 0)
             {
@@ -796,7 +798,8 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&tile)) break;
 
-            if ((unsigned)tile >= (unsigned)MAXUSERTILES) break;
+            if (check_tile("undefinetile", tile, script, cmdtokptr))
+                break;
 
             undefinetile(tile);
 
