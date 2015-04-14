@@ -2103,7 +2103,7 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
     pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
     if (!(hictinting[globalpal].f & HICTINT_COLORIZE))
     {
-        if (!(m->flags&1) || (((unsigned)owner < MAXSPRITES) && sector[sprite[owner].sectnum].floorpal!=0))
+        if (!(m->flags&1))
         {
             hictinting_apply(pc, globalpal);
 

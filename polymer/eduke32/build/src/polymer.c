@@ -4190,7 +4190,7 @@ static void         polymer_drawmdsprite(tspritetype *tspr)
     // alternate skins if they exist later, though.
     if (!usinghighpal && !(hictinting[tspr->pal].f & HICTINT_COLORIZE))
     {
-        if (!(m->flags&1) || (!(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0))
+        if (!(m->flags&1))
             hictinting_apply_ub(color, tspr->pal);
         else globalnoeffect=1; //mdloadskin reads this
     }
