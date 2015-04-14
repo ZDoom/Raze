@@ -121,11 +121,13 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
      *    effects are applied to the palette 0 texture if it exists
      */
 
+    const int32_t checktintpal = (hictinting[si->palnum].f & HICTINT_APPLYOVERALTPAL) ? 0 : si->palnum;
+
     // load a replacement
     for (pthtyp *pth = texcache.list[j]; pth; pth = pth->next)
     {
         if (pth->picnum == dapicnum && pth->palnum == si->palnum &&
-            (si->palnum > 0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
+            (checktintpal > 0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
             (pth->flags & (PTH_CLAMPED + PTH_HIGHTILE + PTH_SKYBOX)) ==
             (TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox > 0) * PTH_SKYBOX) &&
             (drawingskybox > 0 ? (pth->skyface == drawingskybox) : 1))
@@ -135,7 +137,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
                 pth->flags &= ~PTH_INVALIDATED;
 
                 int32_t tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 0,
-                                        (si->palnum > 0) ? 0 : hictinting[dapalnum].f);  // reload tile
+                                        (checktintpal > 0) ? 0 : hictinting[dapalnum].f);  // reload tile
 
                 if (!tilestat)
                     continue;
@@ -156,7 +158,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
         return pth;
 
     int32_t tilestat =
-    gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (si->palnum > 0) ? 0 : hictinting[dapalnum].f);
+    gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (checktintpal > 0) ? 0 : hictinting[dapalnum].f);
 
     if (!tilestat)
     {
