@@ -1136,9 +1136,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
                 if (effect & HICTINT_GRAYSCALE)
                 {
-                    tcol.g = tcol.r = tcol.b = (uint8_t) ((tcol.r * GRAYSCALE_COEFF_RED) + 
+                    tcol.g = tcol.r = tcol.b = (uint8_t) ((tcol.b * GRAYSCALE_COEFF_RED) +
                                                           (tcol.g * GRAYSCALE_COEFF_GREEN) +
-                                                          (tcol.b * GRAYSCALE_COEFF_BLUE));
+                                                          (tcol.r * GRAYSCALE_COEFF_BLUE));
                 }
 
                 if (effect & HICTINT_INVERT)
