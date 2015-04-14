@@ -129,12 +129,13 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
      *    effects are applied to the palette 0 texture if it exists
      */
 
-    const int32_t checktintpal = (hictinting[si->palnum].f & HICTINT_APPLYOVERALTPAL) ? 0 : si->palnum;
+    const int32_t checktintpal = (hictinting[dapalnum].f & HICTINT_APPLYOVERALTPAL) ? 0 : si->palnum;
+    const int32_t checkcachepal = (hictinting[dapalnum].f & HICTINT_IN_MEMORY) || ((hictinting[dapalnum].f & HICTINT_APPLYOVERALTPAL) && si->palnum > 0) ? dapalnum : si->palnum;
 
     // load a replacement
     for (pthtyp *pth = texcache.list[j]; pth; pth = pth->next)
     {
-        if (pth->picnum == dapicnum && pth->palnum == si->palnum &&
+        if (pth->picnum == dapicnum && pth->palnum == checkcachepal &&
             (checktintpal > 0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
             (pth->flags & (PTH_CLAMPED + PTH_HIGHTILE + PTH_SKYBOX)) ==
             (TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox > 0) * PTH_SKYBOX) &&
@@ -171,7 +172,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     if (!tilestat)
     {
         pth->next = texcache.list[j];
-        pth->palnum = si->palnum;
+        pth->palnum = checkcachepal;
         texcache.list[j] = pth;
         return pth;
     }

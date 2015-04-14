@@ -3883,7 +3883,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
 
         if (pth && (pth->flags & PTH_HIGHTILE))
         {
-            if (pth->palnum != palnum || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
+            if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
                 hictinting_apply(glcolors[i], palnum);
 
             if (have_basepal_tint())
@@ -3966,7 +3966,7 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
 
         if (pth && (pth->flags & PTH_HIGHTILE))
         {
-            if (pth->palnum != palnum || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
+            if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
                 hictinting_apply(color, palnum);
 
             if (have_basepal_tint())
@@ -4661,7 +4661,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
 
         if (pth->flags & PTH_HIGHTILE)
         {
-            if (pth->palnum != pal || (hictinting[pal].f & HICTINT_APPLYOVERALTPAL))
+            if (pth->palnum != pal || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[pal].f & HICTINT_APPLYOVERALTPAL))
                 hictinting_apply_ub(material->diffusemodulation, pal);
 
             // fullscreen tint on global palette change... this is used for nightvision and underwater tinting
