@@ -912,6 +912,25 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                         wpptr->g = min((int32_t)((wpptr->g) * g) >> 6, 255);
                         wpptr->r = min((int32_t)((wpptr->r) * r) >> 6, 255);
                     }
+
+                    switch (effect & HICTINT_BLENDMASK)
+                    {
+                        case HICTINT_BLEND_SCREEN:
+                            wpptr->b = 255 - (((255 - wpptr->b) * (255 - b)) >> 8);
+                            wpptr->g = 255 - (((255 - wpptr->g) * (255 - g)) >> 8);
+                            wpptr->r = 255 - (((255 - wpptr->r) * (255 - r)) >> 8);
+                            break;
+                        case HICTINT_BLEND_OVERLAY:
+                            wpptr->b = wpptr->b < 128 ? (wpptr->b * b) >> 7 : 255 - (((255 - wpptr->b) * (255 - b)) >> 7);
+                            wpptr->g = wpptr->g < 128 ? (wpptr->g * g) >> 7 : 255 - (((255 - wpptr->g) * (255 - g)) >> 7);
+                            wpptr->r = wpptr->r < 128 ? (wpptr->r * r) >> 7 : 255 - (((255 - wpptr->r) * (255 - r)) >> 7);
+                            break;
+                        case HICTINT_BLEND_HARDLIGHT:
+                            wpptr->b = b < 128 ? (wpptr->b * b) >> 7 : 255 - (((255 - wpptr->b) * (255 - b)) >> 7);
+                            wpptr->g = g < 128 ? (wpptr->g * g) >> 7 : 255 - (((255 - wpptr->g) * (255 - g)) >> 7);
+                            wpptr->r = r < 128 ? (wpptr->r * r) >> 7 : 255 - (((255 - wpptr->r) * (255 - r)) >> 7);
+                            break;
+                    }
                 }
             }
         }
@@ -1134,6 +1153,25 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                     tcol.b = min((int32_t)((tcol.b) * r) >> 6, 255);
                     tcol.g = min((int32_t)((tcol.g) * g) >> 6, 255);
                     tcol.r = min((int32_t)((tcol.r) * b) >> 6, 255);
+                }
+
+                switch (effect & HICTINT_BLENDMASK)
+                {
+                    case HICTINT_BLEND_SCREEN:
+                        tcol.b = 255 - (((255 - tcol.b) * (255 - r)) >> 8);
+                        tcol.g = 255 - (((255 - tcol.g) * (255 - g)) >> 8);
+                        tcol.r = 255 - (((255 - tcol.r) * (255 - b)) >> 8);
+                        break;
+                    case HICTINT_BLEND_OVERLAY:
+                        tcol.b = tcol.b < 128 ? (tcol.b * r) >> 7 : 255 - (((255 - tcol.b) * (255 - r)) >> 7);
+                        tcol.g = tcol.g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
+                        tcol.r = tcol.r < 128 ? (tcol.r * b) >> 7 : 255 - (((255 - tcol.r) * (255 - b)) >> 7);
+                        break;
+                    case HICTINT_BLEND_HARDLIGHT:
+                        tcol.b = r < 128 ? (tcol.b * r) >> 7 : 255 - (((255 - tcol.b) * (255 - r)) >> 7);
+                        tcol.g = g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
+                        tcol.r = b < 128 ? (tcol.r * b) >> 7 : 255 - (((255 - tcol.r) * (255 - b)) >> 7);
+                        break;
                 }
 
                 rpptr[x] = tcol;
@@ -1526,7 +1564,7 @@ static void drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method
     // tinting happens only to hightile textures, and only if the texture we're
     // rendering isn't for the same palette as what we asked for
 
-    if (!(hictinting[globalpal].f & HICTINT_COLORIZE))
+    if (!(hictinting[globalpal].f & HICTINT_PRECOMPUTED))
     {
         if (pth && (pth->flags & PTH_HIGHTILE))
         {

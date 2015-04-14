@@ -654,6 +654,25 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
                 tcol.r = min((int32_t)(tcol.r)*r/64,255);
             }
 
+            switch (effect & HICTINT_BLENDMASK)
+            {
+                case HICTINT_BLEND_SCREEN:
+                    tcol.b = 255 - (((255 - tcol.b) * (255 - b)) >> 8);
+                    tcol.g = 255 - (((255 - tcol.g) * (255 - g)) >> 8);
+                    tcol.r = 255 - (((255 - tcol.r) * (255 - r)) >> 8);
+                    break;
+                case HICTINT_BLEND_OVERLAY:
+                    tcol.b = tcol.b < 128 ? (tcol.b * b) >> 7 : 255 - (((255 - tcol.b) * (255 - b)) >> 7);
+                    tcol.g = tcol.g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
+                    tcol.r = tcol.r < 128 ? (tcol.r * r) >> 7 : 255 - (((255 - tcol.r) * (255 - r)) >> 7);
+                    break;
+                case HICTINT_BLEND_HARDLIGHT:
+                    tcol.b = b < 128 ? (tcol.b * b) >> 7 : 255 - (((255 - tcol.b) * (255 - b)) >> 7);
+                    tcol.g = g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
+                    tcol.r = r < 128 ? (tcol.r * r) >> 7 : 255 - (((255 - tcol.r) * (255 - r)) >> 7);
+                    break;
+            }
+
             rpptr[x].b = tcol.b;
             rpptr[x].g = tcol.g;
             rpptr[x].r = tcol.r;
@@ -2101,7 +2120,7 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
     bglEnable(GL_TEXTURE_2D);
 
     pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
-    if (!(hictinting[globalpal].f & HICTINT_COLORIZE))
+    if (!(hictinting[globalpal].f & HICTINT_PRECOMPUTED))
     {
         if (!(m->flags&1))
         {

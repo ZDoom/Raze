@@ -4188,7 +4188,7 @@ static void         polymer_drawmdsprite(tspritetype *tspr)
 
     // If that palette has a highpalookup, we'll never use tinting. We might use
     // alternate skins if they exist later, though.
-    if (!usinghighpal && !(hictinting[tspr->pal].f & HICTINT_COLORIZE))
+    if (!usinghighpal && !(hictinting[tspr->pal].f & HICTINT_PRECOMPUTED))
     {
         if (!(m->flags&1))
             hictinting_apply_ub(color, tspr->pal);
