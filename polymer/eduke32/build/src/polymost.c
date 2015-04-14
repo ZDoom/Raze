@@ -1561,22 +1561,23 @@ static void drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method
     // spriteext full alpha control
     pc[3] = float_trans[method & 3] * (1.f - drawpoly_alpha);
 
-    // tinting happens only to hightile textures, and only if the texture we're
-    // rendering isn't for the same palette as what we asked for
-
-    if (!(hictinting[globalpal].f & HICTINT_PRECOMPUTED))
+    if (pth)
     {
-        if (pth && (pth->flags & PTH_HIGHTILE))
+        // tinting
+        if (!(hictinting[globalpal].f & HICTINT_PRECOMPUTED))
         {
-            if (pth->palnum != globalpal || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[globalpal].f & HICTINT_APPLYOVERALTPAL))
+            if (pth->flags & PTH_HIGHTILE)
+            {
+                if (pth->palnum != globalpal || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[globalpal].f & HICTINT_APPLYOVERALTPAL))
+                    hictinting_apply(pc, globalpal);
+            }
+            else if (hictinting[globalpal].f & HICTINT_USEONART)
                 hictinting_apply(pc, globalpal);
-
-            if (have_basepal_tint())
-                hictinting_apply(pc, MAXPALOOKUPS-1);
         }
-        // hack: this is for drawing the 8-bit crosshair recolored in polymost
-        else if (hictinting[globalpal].f & HICTINT_USEONART)
-            hictinting_apply(pc, globalpal);
+
+        // global tinting
+        if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
+            hictinting_apply(pc, MAXPALOOKUPS-1);
     }
 
     bglColor4f(pc[0], pc[1], pc[2], pc[3]);

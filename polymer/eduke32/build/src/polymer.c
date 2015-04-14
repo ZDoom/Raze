@@ -3881,16 +3881,24 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
 
         glcolors[i][0] = glcolors[i][1] = glcolors[i][2] = getshadefactor(shade);
 
-        if (pth && (pth->flags & PTH_HIGHTILE))
+        if (pth)
         {
-            if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
-                hictinting_apply(glcolors[i], palnum);
+            // tinting
+            if (!(hictinting[palnum].f & HICTINT_PRECOMPUTED))
+            {
+                if (pth->flags & PTH_HIGHTILE)
+                {
+                    if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
+                        hictinting_apply(glcolors[i], palnum);
+                }
+                else if (hictinting[palnum].f & HICTINT_USEONART)
+                    hictinting_apply(glcolors[i], palnum);
+            }
 
-            if (have_basepal_tint())
+            // global tinting
+            if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
                 hictinting_apply(glcolors[i], MAXPALOOKUPS-1);
         }
-        else if (hictinting[palnum].f & HICTINT_USEONART)
-            hictinting_apply(glcolors[i], palnum);
 
         i++;
     }
@@ -3964,16 +3972,24 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
 
         color[0] = color[1] = color[2] = getshadefactor(shade);
 
-        if (pth && (pth->flags & PTH_HIGHTILE))
+        if (pth)
         {
-            if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
-                hictinting_apply(color, palnum);
+            // tinting
+            if (!(hictinting[palnum].f & HICTINT_PRECOMPUTED))
+            {
+                if (pth->flags & PTH_HIGHTILE)
+                {
+                    if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
+                        hictinting_apply(color, palnum);
+                }
+                else if (hictinting[palnum].f & HICTINT_USEONART)
+                    hictinting_apply(color, palnum);
+            }
 
-            if (have_basepal_tint())
+            // global tinting
+            if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
                 hictinting_apply(color, MAXPALOOKUPS-1);
         }
-        else if (hictinting[palnum].f & HICTINT_USEONART)
-            hictinting_apply(color, palnum);
 
         bglColor4f(color[0], color[1], color[2], 1.0);
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
@@ -4186,8 +4202,7 @@ static void         polymer_drawmdsprite(tspritetype *tspr)
     usinghighpal = (pr_highpalookups &&
                     prhighpalookups[curbasepal][tspr->pal].map);
 
-    // If that palette has a highpalookup, we'll never use tinting. We might use
-    // alternate skins if they exist later, though.
+    // tinting
     if (!usinghighpal && !(hictinting[tspr->pal].f & HICTINT_PRECOMPUTED))
     {
         if (!(m->flags&1))
@@ -4195,7 +4210,7 @@ static void         polymer_drawmdsprite(tspritetype *tspr)
         else globalnoeffect=1; //mdloadskin reads this
     }
 
-    // fullscreen tint on global palette change
+    // global tinting
     if (!usinghighpal && have_basepal_tint())
         hictinting_apply_ub(color, MAXPALOOKUPS-1);
 
@@ -4659,17 +4674,21 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
             material->diffusemodulation[2] =
             (GLubyte)(getshadefactor(shade) * 0xFF);
 
-        if (pth->flags & PTH_HIGHTILE)
+        // tinting
+        if (!(hictinting[pal].f & HICTINT_PRECOMPUTED))
         {
-            if (pth->palnum != pal || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[pal].f & HICTINT_APPLYOVERALTPAL))
+            if (pth->flags & PTH_HIGHTILE)
+            {
+                if (pth->palnum != pal || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[pal].f & HICTINT_APPLYOVERALTPAL))
+                    hictinting_apply_ub(material->diffusemodulation, pal);
+            }
+            else if (hictinting[pal].f & HICTINT_USEONART)
                 hictinting_apply_ub(material->diffusemodulation, pal);
-
-            // fullscreen tint on global palette change... this is used for nightvision and underwater tinting
-            if (!usinghighpal && have_basepal_tint())
-                hictinting_apply_ub(material->diffusemodulation, MAXPALOOKUPS-1);
         }
-        else if (hictinting[pal].f & HICTINT_USEONART)
-            hictinting_apply_ub(material->diffusemodulation, pal);
+
+        // global tinting
+        if ((pth->flags & PTH_HIGHTILE) && !usinghighpal && have_basepal_tint())
+            hictinting_apply_ub(material->diffusemodulation, MAXPALOOKUPS-1);
 
         // PR_BIT_GLOW_MAP
         if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)

@@ -2119,18 +2119,18 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
 
     bglEnable(GL_TEXTURE_2D);
 
+    // tinting
     pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
     if (!(hictinting[globalpal].f & HICTINT_PRECOMPUTED))
     {
         if (!(m->flags&1))
-        {
             hictinting_apply(pc, globalpal);
-
-            if (have_basepal_tint())
-                hictinting_apply(pc, MAXPALOOKUPS-1);
-        }
         else globalnoeffect=1;
     }
+
+    // global tinting
+    if (have_basepal_tint())
+        hictinting_apply(pc, MAXPALOOKUPS-1);
 
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66f; else pc[3] = 0.33f; }
     else pc[3] = 1.0f;
