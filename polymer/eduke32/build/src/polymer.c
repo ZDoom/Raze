@@ -3883,12 +3883,14 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
 
         if (pth && (pth->flags & PTH_HIGHTILE))
         {
-            if (pth->palnum != palnum)
+            if (pth->palnum != palnum || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
                 hictinting_apply(glcolors[i], palnum);
 
             if (have_basepal_tint())
                 hictinting_apply(glcolors[i], MAXPALOOKUPS-1);
         }
+        else if (hictinting[palnum].f & HICTINT_USEONART)
+            hictinting_apply(glcolors[i], palnum);
 
         i++;
     }
@@ -3964,12 +3966,14 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
 
         if (pth && (pth->flags & PTH_HIGHTILE))
         {
-            if (pth->palnum != palnum)
+            if (pth->palnum != palnum || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
                 hictinting_apply(color, palnum);
 
             if (have_basepal_tint())
                 hictinting_apply(color, MAXPALOOKUPS-1);
         }
+        else if (hictinting[palnum].f & HICTINT_USEONART)
+            hictinting_apply(color, palnum);
 
         bglColor4f(color[0], color[1], color[2], 1.0);
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
@@ -4657,13 +4661,15 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
 
         if (pth->flags & PTH_HIGHTILE)
         {
-            if (pth->palnum != pal)
+            if (pth->palnum != pal || (hictinting[pal].f & HICTINT_APPLYOVERALTPAL))
                 hictinting_apply_ub(material->diffusemodulation, pal);
 
             // fullscreen tint on global palette change... this is used for nightvision and underwater tinting
             if (!usinghighpal && have_basepal_tint())
                 hictinting_apply_ub(material->diffusemodulation, MAXPALOOKUPS-1);
         }
+        else if (hictinting[pal].f & HICTINT_USEONART)
+            hictinting_apply_ub(material->diffusemodulation, pal);
 
         // PR_BIT_GLOW_MAP
         if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)
