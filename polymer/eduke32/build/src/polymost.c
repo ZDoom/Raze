@@ -799,7 +799,7 @@ static void polymost_setuptexture(const int32_t dameth, int filter)
     }
 }
 
-void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth, pthtyp *pth, int32_t doalloc)
+void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t dashade, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
     static int32_t fullbrightloadingpass = 0;
 
@@ -884,6 +884,35 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
                 }
 
                 bricolor((palette_t *)wpptr, dacol);
+
+                if (!fullbrightloadingpass && tintpalnum >= 0)
+                {
+                    uint8_t const r = hictinting[tintpalnum].r;
+                    uint8_t const g = hictinting[tintpalnum].g;
+                    uint8_t const b = hictinting[tintpalnum].b;
+                    uint8_t const effect = hictinting[tintpalnum].f;
+
+                    if (effect & HICTINT_GRAYSCALE)
+                    {
+                        wpptr->g = wpptr->r = wpptr->b = (uint8_t) ((wpptr->r * GRAYSCALE_COEFF_RED) +
+                                                              (wpptr->g * GRAYSCALE_COEFF_GREEN) +
+                                                              (wpptr->b * GRAYSCALE_COEFF_BLUE));
+                    }
+
+                    if (effect & HICTINT_INVERT)
+                    {
+                        wpptr->b = 255 - wpptr->b;
+                        wpptr->g = 255 - wpptr->g;
+                        wpptr->r = 255 - wpptr->r;
+                    }
+
+                    if (effect & HICTINT_COLORIZE)
+                    {
+                        wpptr->b = min((int32_t)((wpptr->b) * b) >> 6, 255);
+                        wpptr->g = min((int32_t)((wpptr->g) * g) >> 6, 255);
+                        wpptr->r = min((int32_t)((wpptr->r) * r) >> 6, 255);
+                    }
+                }
             }
         }
     }
@@ -934,7 +963,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t dashade, int32_t dameth
         pth->ofb = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
         pth->flags |= PTH_HASFULLBRIGHT;
 
-        gloadtile_art(dapic, dapal, 0, dameth, pth->ofb, 1);
+        gloadtile_art(dapic, dapal, -1, 0, dameth, pth->ofb, 1);
 
         fullbrightloadingpass = 0;
     }

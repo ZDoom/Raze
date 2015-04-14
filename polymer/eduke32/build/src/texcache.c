@@ -31,13 +31,19 @@ static const char *texcache_errorstr[TEXCACHEERRORS] = {
     "bglGetTexLevelParameteriv failed",
 };
 
-static pthtyp *texcache_tryart(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
+static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, int32_t const dashade, int32_t const dameth)
 {
     const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
     pthtyp *pth;
+    int32_t tintpalnum = -1;
+    int32_t searchpalnum = dapalnum;
 
-    if ((hictinting[dapalnum].f & HICTINT_USEONART) && !(hictinting[dapalnum].f & HICTINT_APPLYOVERPALSWAP))
-        dapalnum = 0;
+    if (hictinting[dapalnum].f & HICTINT_USEONART)
+    {
+        tintpalnum = dapalnum;
+        if (!(hictinting[dapalnum].f & HICTINT_APPLYOVERPALSWAP))
+            searchpalnum = 0;
+    }
 
     // load from art
     for (pth=texcache.list[j]; pth; pth=pth->next)
@@ -49,7 +55,8 @@ static pthtyp *texcache_tryart(int32_t dapicnum, int32_t dapalnum, int32_t dasha
             if (pth->flags & PTH_INVALIDATED)
             {
                 pth->flags &= ~PTH_INVALIDATED;
-                gloadtile_art(dapicnum, dapalnum, dashade, dameth, pth, 0);
+                gloadtile_art(dapicnum, searchpalnum, tintpalnum, dashade, dameth, pth, 0);
+                pth->palnum = dapalnum;
             }
 
             return(pth);
@@ -57,8 +64,9 @@ static pthtyp *texcache_tryart(int32_t dapicnum, int32_t dapalnum, int32_t dasha
 
     pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
 
-    gloadtile_art(dapicnum,dapalnum,dashade,dameth,pth,1);
+    gloadtile_art(dapicnum, searchpalnum, tintpalnum, dashade, dameth, pth, 1);
 
+    pth->palnum = dapalnum;
     pth->next = texcache.list[j];
     texcache.list[j] = pth;
 
