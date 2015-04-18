@@ -1920,14 +1920,15 @@ badindex:
         case CON_ROTATEPOINT:
             insptr++;
             {
-                int32_t xpivot=Gv_GetVarX(*insptr++), ypivot=Gv_GetVarX(*insptr++);
-                int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), daang=Gv_GetVarX(*insptr++);
+                vec2_t pivot = { Gv_GetVarX(*insptr++), Gv_GetVarX(*insptr++) };
+                vec2_t p = { Gv_GetVarX(*insptr++), Gv_GetVarX(*insptr++) } ;
+                int32_t daang=Gv_GetVarX(*insptr++);
                 int32_t x2var=*insptr++, y2var=*insptr++;
-                int32_t x2, y2;
+                vec2_t p2;
 
-                rotatepoint(xpivot,ypivot,x,y,daang,&x2,&y2);
-                Gv_SetVarX(x2var, x2);
-                Gv_SetVarX(y2var, y2);
+                rotatepoint(pivot,p,daang,&p2);
+                Gv_SetVarX(x2var, p2.x);
+                Gv_SetVarX(y2var, p2.y);
                 continue;
             }
 

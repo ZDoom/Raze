@@ -2995,9 +2995,9 @@ nullquote:
 
                 Gv_GetManyVars(3, (int32_t *)&vect);
 
-                int32_t sectnum = Gv_GetVarX(*insptr++);
-                int32_t ceilzvar = *insptr++, ceilhitvar = *insptr++, florzvar = *insptr++, florhitvar = *insptr++;
-                int32_t walldist = Gv_GetVarX(*insptr++), clipmask = Gv_GetVarX(*insptr++);
+                int const sectnum = Gv_GetVarX(*insptr++);
+                int const ceilzvar = *insptr++, ceilhitvar = *insptr++, florzvar = *insptr++, florhitvar = *insptr++;
+                int const walldist = Gv_GetVarX(*insptr++), clipmask = Gv_GetVarX(*insptr++);
                 int32_t ceilz, ceilhit, florz, florhit;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)sectnum >= (unsigned)numsectors))
@@ -3041,7 +3041,7 @@ nullquote:
                 int32_t retvar=*insptr++;
                 vec2_t da;
                 Gv_GetManyVars(2, (int32_t *)&da);
-                int64_t hypsq = (int64_t)da.x*da.x + (int64_t)da.y*da.y;
+                int64_t const hypsq = (int64_t)da.x*da.x + (int64_t)da.y*da.y;
 
                 if (hypsq > (int64_t)INT32_MAX)
                     Gv_SetVarX(retvar, (int32_t)sqrt((double)hypsq));
@@ -3092,14 +3092,14 @@ nullquote:
                     int32_t w, f, c;
                 } vec3dist_t;
 
-                int32_t retvar=*insptr++, xvar=*insptr++, yvar=*insptr++;
+                int const retvar = *insptr++, xvar = *insptr++, yvar = *insptr++;
 
                 insptr -= 2;
 
                 vec3_t vec3;
                 Gv_GetManyVars(3, (int32_t *)&vec3);
 
-                int32_t sectnumvar=*insptr++;
+                int const sectnumvar = *insptr++;
 
                 vec2_t vec2;
                 Gv_GetManyVars(2, (int32_t *)&vec2);
@@ -3107,7 +3107,7 @@ nullquote:
                 vec3dist_t dist;
                 Gv_GetManyVars(3, (int32_t *)&dist);
 
-                int32_t clipmask = Gv_GetVarX(*insptr++);
+                int const clipmask = Gv_GetVarX(*insptr++);
                 int16_t sectnum = Gv_GetVarX(sectnumvar);
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)sectnum >= (unsigned)numsectors))
@@ -3117,8 +3117,7 @@ nullquote:
                     continue;
                 }
 
-                Gv_SetVarX(retvar, clipmovex(&vec3, &sectnum, vec2.x, vec2.y, dist.w, dist.f, dist.c,
-                                             clipmask, (tw==CON_CLIPMOVENOSLIDE)));
+                Gv_SetVarX(retvar, clipmovex(&vec3, &sectnum, vec2.x, vec2.y, dist.w, dist.f, dist.c, clipmask, (tw == CON_CLIPMOVENOSLIDE)));
                 Gv_SetVarX(sectnumvar, sectnum);
                 Gv_SetVarX(xvar, vec3.x);
                 Gv_SetVarX(yvar, vec3.y);
@@ -3132,7 +3131,7 @@ nullquote:
                 vec3_t vect;
                 Gv_GetManyVars(3, (int32_t *)&vect);
 
-                int32_t sectnum = Gv_GetVarX(*insptr++);
+                int const sectnum = Gv_GetVarX(*insptr++);
 
                 vec3_t v;
                 Gv_GetManyVars(3, (int32_t *) &v);
@@ -3169,7 +3168,7 @@ nullquote:
                 vec3_t vec2;
                 Gv_GetManyVars(3, (int32_t *) &vec2);
 
-                int32_t sect2=Gv_GetVarX(*insptr++), rvar=*insptr++;
+                int const sect2 = Gv_GetVarX(*insptr++), rvar = *insptr++;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)sect1 >= (unsigned)numsectors || (unsigned)sect2 >= (unsigned)numsectors))
                 {
@@ -3192,7 +3191,7 @@ nullquote:
 
                 vec2_t result;
 
-                rotatepoint(point[0].x, point[0].y, point[1].x, point[1].y, angle, &result.x, &result.y);
+                rotatepoint(point[0], point[1], angle, &result);
 
                 Gv_SetVarX(x2var, result.x);
                 Gv_SetVarX(y2var, result.y);
