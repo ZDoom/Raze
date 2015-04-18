@@ -1014,7 +1014,7 @@ void editinput(void)
     int32_t mousz, bstatus;
     int32_t i, tempint=0;
     int32_t goalz, xvect, yvect, hiz, loz, oposz;
-    int32_t hihit, lohit, omlook=mlook;
+    int32_t dax, day, hihit, lohit, omlook=mlook;
 
 // 3B  3C  3D  3E   3F  40  41  42   43  44  57  58          46
 // F1  F2  F3  F4   F5  F6  F7  F8   F9 F10 F11 F12        SCROLL
@@ -1293,27 +1293,27 @@ void editinput(void)
         {
             hitdata_t hit;
 
-            vec2_t da = { 16384, divscale14(searchx-(xdim>>1), xdim>>1) };
-
-            rotatepoint(zerovec, da, ang, &da);
+            dax = 16384;
+            day = divscale14(searchx-(xdim>>1), xdim>>1);
+            rotatepoint(0,0, dax,day, ang, &dax,&day);
 
             hitscan((const vec3_t *)&pos,cursectnum,              //Start position
-                    da.x,da.y,(scale(searchy,200,ydim)-horiz)*2000, //vector of 3D ang
+                    dax,day,(scale(searchy,200,ydim)-horiz)*2000, //vector of 3D ang
                     &hit,CLIPMASK1);
 
             if (hit.sect >= 0)
             {
-                da.x = hit.pos.x;
-                da.y = hit.pos.y;
+                dax = hit.pos.x;
+                day = hit.pos.y;
                 if (gridlock && grid > 0)
                 {
                     if (AIMING_AT_WALL || AIMING_AT_MASKWALL)
                         hit.pos.z &= 0xfffffc00;
                     else
-                        locktogrid(&da.x, &da.y);
+                        locktogrid(&dax, &day);
                 }
 
-                i = insert_sprite_common(hit.sect, da.x, da.y);
+                i = insert_sprite_common(hit.sect, dax, day);
 
                 if (i < 0)
                     message("Couldn't insert sprite.");
@@ -3145,7 +3145,7 @@ static void draw_square(int32_t dax, int32_t day, int32_t ps, int32_t col)
 //// Interactive Scaling
 static struct {
     int8_t active, rotatep;
-    vec2_t piv;  // pivot point
+    int32_t pivx, pivy;  // pivot point
     int32_t dragx, dragy;  // dragged point
     int32_t xsc, ysc, ang;
 } isc;
@@ -3154,15 +3154,12 @@ static void isc_transform(int32_t *x, int32_t *y)
 {
     if (!isc.rotatep)
     {
-        *x = isc.piv.x + mulscale16(*x-isc.piv.x, isc.xsc);
-        *y = isc.piv.y + mulscale16(*y-isc.piv.y, isc.ysc);
+        *x = isc.pivx + mulscale16(*x-isc.pivx, isc.xsc);
+        *y = isc.pivy + mulscale16(*y-isc.pivy, isc.ysc);
     }
     else
     {
-        vec2_t v = { *x, *y };
-        rotatepoint(isc.piv, v, isc.ang, &v);
-        *x = v.x;
-        *y = v.y;
+        rotatepoint(isc.pivx, isc.pivy, *x, *y, isc.ang, x, y);
     }
 }
 
@@ -3545,8 +3542,8 @@ void overheadeditor(void)
                                 maxy = max(maxy, HLMEMBER(i, y));
                             }
 
-                            isc.piv.x = (minx+maxx)/2;
-                            isc.piv.y = (miny+maxy)/2;
+                            isc.pivx = (minx+maxx)/2;
+                            isc.pivy = (miny+maxy)/2;
 
                             isc.dragx = HLMEMBERX(pointhighlight, x);
                             isc.dragy = HLMEMBERX(pointhighlight, y);
@@ -3562,7 +3559,7 @@ void overheadeditor(void)
                         if (bstatus&3)
                         {
                             // drag/rotate the reference point
-                            const int32_t pivx=isc.piv.x, pivy=isc.piv.y;
+                            const int32_t pivx=isc.pivx, pivy=isc.pivy;
                             const int32_t dragx=isc.dragx, dragy=isc.dragy;
                             int32_t mxplc=mousxplc, myplc=mousyplc, xsc=1<<16, ysc=1<<16;
 
@@ -3996,7 +3993,6 @@ void overheadeditor(void)
             if (highlightsectorcnt > 0)
             {
                 int32_t smoothRotation = eitherSHIFT, manualAngle = eitherALT;
-                vec2_t da = { dax, day };
 
                 if (manualAngle)
                 {
@@ -4012,25 +4008,24 @@ void overheadeditor(void)
                     smoothRotation = 1;
                 }
 
-                get_sectors_center(highlightsector, highlightsectorcnt, &da.x, &da.y);
+                get_sectors_center(highlightsector, highlightsectorcnt, &dax, &day);
 
                 if (!smoothRotation)
                 {
                     if (gridlock && grid > 0)
-                        locktogrid(&da.x, &da.y);
+                        locktogrid(&dax, &day);
 
                     tsign *= 512;
                 }
 
-
                 for (i=0; i<highlightsectorcnt; i++)
                 {
                     for (WALLS_OF_SECTOR(highlightsector[i], j))
-                        rotatepoint(da, *(vec2_t *)&wall[j], tsign&2047, (vec2_t *)&wall[j].x);
+                        rotatepoint(dax,day, wall[j].x,wall[j].y, tsign&2047, &wall[j].x,&wall[j].y);
 
                     for (j=headspritesect[highlightsector[i]]; j != -1; j=nextspritesect[j])
                     {
-                        rotatepoint(da, *(vec2_t *)&sprite[j], tsign&2047, (vec2_t *)&sprite[j].x);
+                        rotatepoint(dax,day, sprite[j].x,sprite[j].y, tsign&2047, &sprite[j].x,&sprite[j].y);
                         sprite[j].ang = (sprite[j].ang+tsign)&2047;
                     }
                 }
@@ -8249,17 +8244,15 @@ void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
     searchxe -= halfxdim16;
     searchye -= midydim16;
 
-    vec2_t svec = { searchxe ,searchye };
-
     if (m32_sideview)
     {
         if (m32_sidesin!=0)
-            svec.y = divscale14(svec.y, m32_sidesin);
-        rotatepoint(zerovec, svec, -m32_sideang, &svec);
+            searchye = divscale14(searchye, m32_sidesin);
+        rotatepoint(0,0, searchxe,searchye, -m32_sideang, &searchxe,&searchye);
     }
 
-    *x = pos.x + divscale14(svec.x,zoom);
-    *y = pos.y + divscale14(svec.y,zoom);
+    *x = pos.x + divscale14(searchxe,zoom);
+    *y = pos.y + divscale14(searchye,zoom);
 
     inpclamp(x, -editorgridextent, editorgridextent);
     inpclamp(y, -editorgridextent, editorgridextent);

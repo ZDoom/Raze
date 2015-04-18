@@ -734,7 +734,7 @@ static int32_t move_rotfixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
           A_CheckSpriteTileFlags(sprite[j].picnum, SFLAG_ROTFIXED))) &&
         actor[j].t_data[7] == (ROTFIXSPR_MAGIC | pivotspr))
     {
-        rotatepoint(zerovec, *(vec2_t *)&actor[j].t_data[8], daang & 2047, (vec2_t *)&sprite[j].x);
+        rotatepoint(0, 0, actor[j].t_data[8], actor[j].t_data[9], daang & 2047, &sprite[j].x, &sprite[j].y);
         sprite[j].x += sprite[pivotspr].x;
         sprite[j].y += sprite[pivotspr].y;
         return 0;
@@ -748,6 +748,7 @@ static void A_MoveSector(int i)
     // T1,T2 and T3 are used for all the sector moving stuff!!!
     spritetype * const s = &sprite[i];
     int j = T2, k = T3;
+    int32_t tx, ty;
 
     s->x += (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14;
     s->y += (s->xvel * (sintable[s->ang & 2047])) >> 14;
@@ -756,9 +757,8 @@ static void A_MoveSector(int i)
 
     for (i = sector[s->sectnum].wallptr; i < endwall; i++)
     {
-        vec2_t t;
-        rotatepoint(zerovec, *(vec2_t *)&msx[j], k & 2047, &t);
-        dragpoint(i, s->x + t.x, s->y + t.y, 0);
+        rotatepoint(0, 0, msx[j], msy[j], k & 2047, &tx, &ty);
+        dragpoint(i, s->x + tx, s->y + ty, 0);
 
         j++;
     }
@@ -5716,16 +5716,19 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                         ps->pos.z += zchange;
 
-                        vec2_t r;
-                        rotatepoint(*(vec2_t *)&sprite[j],*(vec2_t *)&ps->pos,(q*l),&r);
+                        rotatepoint(sprite[j].x,sprite[j].y,ps->pos.x,ps->pos.y,(q*l),&m,&x);
 
-                        ps->bobpos.x += r.x-ps->pos.x;
-                        ps->bobpos.y += r.y-ps->pos.y;
+                        ps->bobpos.x += m-ps->pos.x;
+                        ps->bobpos.y += x-ps->pos.y;
 
-                        *(vec2_t *)&ps->pos = r;
+                        ps->pos.x = m;
+                        ps->pos.y = x;
 
                         if (sprite[ps->i].extra <= 0)
-                            *(vec2_t *)&sprite[ps->i] = r;
+                        {
+                            sprite[ps->i].x = m;
+                            sprite[ps->i].y = x;
+                        }
                     }
                 }
 
@@ -5748,7 +5751,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             actor[p].bpos.y = sprite[p].y;
 
                             if (move_rotfixed_sprite(p, j, t[2]))
-                                rotatepoint(*(vec2_t *)&sprite[j], *(vec2_t *)&sprite[p], (q * l), (vec2_t *)&sprite[p].x);
+                                rotatepoint(sprite[j].x,sprite[j].y,sprite[p].x,sprite[p].y,(q*l),&sprite[p].x,&sprite[p].y);
                         }
                 }
 
@@ -5931,7 +5934,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 #endif
                             )
                         {
-                            rotatepoint(*(vec2_t *)s, *(vec2_t *)&ps->pos, q, (vec2_t *)&ps->pos);
+                            rotatepoint(s->x,s->y,ps->pos.x,ps->pos.y,q,&ps->pos.x,&ps->pos.y);
 
                             ps->pos.x += m;
                             ps->pos.y += x;
@@ -5974,7 +5977,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         }
 
                         if (move_rotfixed_sprite(j, s-sprite, t[2]))
-                            rotatepoint(*(vec2_t *)s,*(vec2_t *)&sprite[j],q,(vec2_t *)&sprite[j].x);
+                            rotatepoint(s->x,s->y,sprite[j].x,sprite[j].y,q,&sprite[j].x,&sprite[j].y);
 
                         sprite[j].x+= m;
                         sprite[j].y+= x;
