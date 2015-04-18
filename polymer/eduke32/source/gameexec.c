@@ -5643,8 +5643,8 @@ void G_SaveMapState(void)
     Bmemcpy(&save->show2dsector[0],&show2dsector[0],sizeof(show2dsector));
     Bmemcpy(&save->g_numClouds,&g_numClouds,sizeof(g_numClouds));
     Bmemcpy(&save->clouds[0],&clouds[0],sizeof(clouds));
-    Bmemcpy(&save->cloudx[0],&cloudx[0],sizeof(cloudx));
-    Bmemcpy(&save->cloudy[0],&cloudy[0],sizeof(cloudy));
+    Bmemcpy(&save->cloudx,&cloudx,sizeof(cloudx));
+    Bmemcpy(&save->cloudy,&cloudy,sizeof(cloudy));
     Bmemcpy(&save->pskyidx,&g_pskyidx,sizeof(g_pskyidx));
     Bmemcpy(&save->animategoal[0],&animategoal[0],sizeof(animategoal));
     Bmemcpy(&save->animatevel[0],&animatevel[0],sizeof(animatevel));
@@ -5767,8 +5767,8 @@ void G_RestoreMapState(void)
         Bmemcpy(&show2dsector[0],&save->show2dsector[0],sizeof(show2dsector));
         Bmemcpy(&g_numClouds,&save->g_numClouds,sizeof(g_numClouds));
         Bmemcpy(&clouds[0],&save->clouds[0],sizeof(clouds));
-        Bmemcpy(&cloudx[0],&save->cloudx[0],sizeof(cloudx));
-        Bmemcpy(&cloudy[0],&save->cloudy[0],sizeof(cloudy));
+        Bmemcpy(&cloudx,&save->cloudx,sizeof(cloudx));
+        Bmemcpy(&cloudy,&save->cloudy,sizeof(cloudy));
         Bmemcpy(&g_pskyidx,&save->pskyidx,sizeof(g_pskyidx));
         Bmemcpy(&animategoal[0],&save->animategoal[0],sizeof(animategoal));
         Bmemcpy(&animatevel[0],&save->animatevel[0],sizeof(animatevel));

@@ -1128,8 +1128,8 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &show2dsector[0], sizeof(uint8_t), MAXSECTORS>>3 },
     { DS_NOCHK, &g_numClouds, sizeof(g_numClouds), 1 },
     { 0, &clouds[0], sizeof(clouds), 1 },
-    { 0, &cloudx[0], sizeof(cloudx), 1 },
-    { 0, &cloudy[0], sizeof(cloudy), 1 },
+    { 0, &cloudx, sizeof(cloudx), 1 },
+    { 0, &cloudy, sizeof(cloudy), 1 },
     { 0, &g_pskyidx, sizeof(g_pskyidx), 1 },  // DS_NOCHK?
     { 0, &g_earthquakeTime, sizeof(g_earthquakeTime), 1 },
 

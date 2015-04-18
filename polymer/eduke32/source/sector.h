@@ -57,7 +57,7 @@ typedef struct {
     int16_t cyclers[MAXCYCLERS][6];
     int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
     int16_t g_numAnimWalls;
-    int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
+    int16_t g_numClouds,clouds[256],cloudx,cloudy;
     int16_t g_numCyclers;
 
     int32_t numsprites;

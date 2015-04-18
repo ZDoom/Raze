@@ -3020,13 +3020,13 @@ static inline void G_MoveClouds(void)
 
     cloudtotalclock = totalclock+6;
 
+    cloudx += sintable[(g_player[screenpeek].ps->ang+512)&2047]>>9;
+    cloudy += sintable[g_player[screenpeek].ps->ang&2047]>>9;
+
     for (i=g_numClouds-1; i>=0; i--)
     {
-        cloudx[i] += (sintable[(g_player[screenpeek].ps->ang+512)&2047]>>9);
-        cloudy[i] += (sintable[g_player[screenpeek].ps->ang&2047]>>9);
-
-        sector[clouds[i]].ceilingxpanning = cloudx[i]>>6;
-        sector[clouds[i]].ceilingypanning = cloudy[i]>>6;
+        sector[clouds[i]].ceilingxpanning = cloudx>>6;
+        sector[clouds[i]].ceilingypanning = cloudy>>6;
     }
 }
 

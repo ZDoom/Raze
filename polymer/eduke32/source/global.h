@@ -83,7 +83,7 @@ G_EXTERN int16_t cyclers[MAXCYCLERS][6],g_numCyclers;
 G_EXTERN int16_t g_globalRandom;
 G_EXTERN int16_t g_mirrorWall[64],g_mirrorSector[64],g_mirrorCount;
 G_EXTERN int16_t g_numAnimWalls;
-G_EXTERN int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
+G_EXTERN int16_t g_numClouds,clouds[256],cloudx,cloudy;
 G_EXTERN int16_t myang,omyang,mycursectnum,myjumpingcounter;
 G_EXTERN int16_t myhoriz,omyhoriz,myhorizoff,omyhorizoff;
 G_EXTERN int32_t *animateptr[MAXANIMATES];

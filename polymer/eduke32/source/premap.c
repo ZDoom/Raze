@@ -1043,6 +1043,8 @@ static void prelevel(char g)
 
     VM_OnEvent(EVENT_PRELEVEL, -1, -1);
 
+    int missedCloudSectors = 0;
+
     for (i=0; i<numsectors; i++)
     {
         sector[i].extra = 256;
@@ -1065,8 +1067,13 @@ static void prelevel(char g)
                         tloadtile(sector[i].ceilingpicnum+j, 0);
             }
 
-            if (sector[i].ceilingpicnum == CLOUDYSKIES && g_numClouds < 127)
-                clouds[g_numClouds++] = i;
+            if (sector[i].ceilingpicnum == CLOUDYSKIES)
+            {
+                if (g_numClouds < ARRAY_SSIZE(clouds))
+                    clouds[g_numClouds++] = i;
+                else
+                    missedCloudSectors++;
+            }
 
             if (g_player[0].ps->one_parallax_sectnum == -1)
                 g_player[0].ps->one_parallax_sectnum = i;
@@ -1085,6 +1092,9 @@ static void prelevel(char g)
             continue;
         }
     }
+
+    if (missedCloudSectors > 0)
+        OSD_Printf(OSDTEXT_RED "Map warning: have %d unhandled CLOUDYSKIES ceilings.\n", missedCloudSectors);
 
     // NOTE: must be safe loop because callbacks could delete sprites.
     for (SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nexti))
