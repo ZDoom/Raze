@@ -63,7 +63,7 @@ static inline int32_t tabledivide64(int64_t n, int32_t d)
 {
     static libdivide_s64_t sdiv;
     static int32_t lastd;
-    libdivide_s64_t *dptr = ((unsigned)d < DIVTABLESIZE) ? (libdivide_s64_t *)&divtable64[d] : &sdiv;
+    libdivide_s64_t const * const dptr = ((unsigned)d < DIVTABLESIZE) ? (libdivide_s64_t *)&divtable64[d] : &sdiv;
 
     if (d == lastd || dptr != &sdiv)
         goto skip;
@@ -78,7 +78,7 @@ static inline int32_t tabledivide32(int32_t n, int32_t d)
 {
     static libdivide_s32_t sdiv;
     static int32_t lastd;
-    libdivide_s32_t *dptr = ((unsigned)d < DIVTABLESIZE) ? (libdivide_s32_t *)&divtable32[d] : &sdiv;
+    libdivide_s32_t const * const dptr = ((unsigned)d < DIVTABLESIZE) ? (libdivide_s32_t *)&divtable32[d] : &sdiv;
 
     if (d == lastd || dptr != &sdiv)
         goto skip;
