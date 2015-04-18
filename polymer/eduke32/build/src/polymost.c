@@ -4425,8 +4425,10 @@ void polymost_drawsprite(int32_t snum)
                     if (j == tspr->owner)
                         break;
 
+                const int foff_sign = (tspr->z > globalposz) ? -1 : 1;
+
                 {
-                    float const f = ((float) (tspr->z - globalposz) - (i * r_fspr_offset)) * gyxscale;
+                    float const f = ((float) (tspr->z - globalposz) + foff_sign*(i * r_fspr_offset)) * gyxscale;
 
                     for (int j = 0; j < npoints; j++)
                     {
@@ -4439,7 +4441,7 @@ void polymost_drawsprite(int32_t snum)
                 // gd? Copied from floor rendering code
 
                 xtex.d = 0;
-                ytex.d = gxyaspect / (double)(tspr->z - globalposz - (i * r_fspr_offset));
+                ytex.d = gxyaspect / (double)(tspr->z - globalposz + foff_sign*(i * r_fspr_offset));
                 otex.d = -ghoriz * ytex.d;
 
                 // copied&modified from relative alignment
