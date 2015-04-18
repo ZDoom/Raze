@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"  // hashtable_t
 #include "common.h"  // tokenlist
+#include "player.h"  // projectile_t
 
 #ifdef __cplusplus
 extern "C" {
@@ -114,22 +115,7 @@ extern const memberlabel_t TileDataLabels[];
 extern const memberlabel_t PalDataLabels[];
 #endif
 
-typedef struct
-{
-    int32_t workslike, cstat; // 8b
-    int32_t hitradius, range, flashcolor; // 12b
-    int16_t spawns, sound, isound, vel; // 8b
-    int16_t decal, trail, tnum, drop; // 8b
-    int16_t offset, bounces, bsound; // 6b
-    int16_t toffset; // 2b
-    int16_t extra, extra_rand; // 4b
-    int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
-    int8_t shade, xrepeat, yrepeat, pal; // 4b
-    int8_t movecnt; // 1b
-    uint8_t clipdist; // 1b
-    int8_t filler[2]; // 2b
-    int32_t userdata; // 4b
-} defaultprojectile_t;
+typedef projectile_t defaultprojectile_t;
 
 extern defaultprojectile_t DefaultProjectile;
 int32_t C_AllocQuote(int32_t qnum);

@@ -6454,9 +6454,21 @@ void C_InitProjectiles(void)
 {
     defaultprojectile_t const Projectile =
     {
-        1, -1, 2048, 0, 0, (int16_t) SMALLSMOKE, -1, -1, 600, (int16_t) BULLETHOLE, -1, 0, 0, 448,
-        (int16_t) g_numFreezeBounces, (int16_t) PIPEBOMB_BOUNCE, 1, 100, -1, -1, -1, -1, -1, -96, 18, 18,
-        0, 1, 32, { 0, 0 }, 0,
+        // workslike, cstat, hitradius, range, flashcolor;
+        // spawns, sound, isound, vel, decal, trail, tnum, drop;
+        // offset, bounces, bsound, toffset, extra, extra_rand;
+        // sxrepeat, syrepeat, txrepeat, tyrepeat;
+        // shade, xrepeat, yrepeat, pal;
+        // movecnt, clipdist, filler[2], userdata;
+
+        // XXX: The default projectie seems to mimic a union of hard-coded ones.
+
+        1, -1, 2048, 0, 0,
+        (int16_t)SMALLSMOKE, -1, -1, 600, (int16_t)BULLETHOLE, -1, 0, 0,
+        448, (int16_t)g_numFreezeBounces, (int16_t)PIPEBOMB_BOUNCE, 1, 100, -1,
+        -1, -1, -1, -1,
+        -96, 18, 18, 0,
+        1, 32, { 0, 0 }, 0,
     };
 
     DefaultProjectile = Projectile;
@@ -6464,10 +6476,10 @@ void C_InitProjectiles(void)
     for (int i=MAXTILES-1; i>=0; i--)
     {
         if (g_tile[i].proj)
-            *g_tile[i].proj = *(projectile_t *)&DefaultProjectile;
+            *g_tile[i].proj = DefaultProjectile;
 
         if (g_tile[i].defproj)
-            *g_tile[i].defproj = *(projectile_t *)&DefaultProjectile;
+            *g_tile[i].defproj = DefaultProjectile;
     }
 }
 

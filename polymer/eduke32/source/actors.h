@@ -111,22 +111,6 @@ typedef struct { int32_t id; struct action ac; } con_action_t;
 #pragma pack(pop)
 #endif
 
-typedef struct {
-    int32_t workslike, cstat; // 8b
-    int32_t hitradius, range, flashcolor; // 12b
-    int16_t spawns, sound, isound, vel; // 8b
-    int16_t decal, trail, tnum, drop; // 8b
-    int16_t offset, bounces, bsound; // 6b
-    int16_t toffset; // 2b
-    int16_t extra, extra_rand; // 4b
-    int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
-    int8_t shade, xrepeat, yrepeat, pal; // 4b
-    int8_t movecnt; // 1b
-    uint8_t clipdist; // 1b
-    int8_t filler[2]; // 2b
-    int32_t userdata; // 4b
-} projectile_t;
-
 // Select an actor's actiontics and movflags locations depending on
 // whether we compile the Lunatic build.
 // <spr>: sprite pointer

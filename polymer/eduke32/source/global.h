@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // duke3d global soup :(
 
+// XXX: we don't #include everything we need.
 #include "compat.h"
 #include "build.h"
 
