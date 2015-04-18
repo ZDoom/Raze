@@ -893,5 +893,5 @@ int32_t A_CheckAnySoundPlaying(int32_t i)
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)num > (unsigned)g_maxSoundPos)) return 0;
-    return (i == -1) ? (g_soundlocks[num] >= 200) : g_sounds[num].num;
+    return (i == -1) ? (g_soundlocks[num] > 200) : g_sounds[num].num;
 }
