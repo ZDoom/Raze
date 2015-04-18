@@ -2553,7 +2553,7 @@ static void polymost_drawalls(int32_t const bunch)
         DO_TILE_ANIM(globalpicnum, sectnum);
 
         int32_t dapskybits;
-        int8_t const * const dapskyoff = getpsky(globalpicnum, NULL, &dapskybits);
+        int8_t const * dapskyoff = getpsky(globalpicnum, NULL, &dapskybits);
 
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT
@@ -2816,7 +2816,7 @@ static void polymost_drawalls(int32_t const bunch)
 
         DO_TILE_ANIM(globalpicnum, sectnum);
 
-//        dapskyoff = getpsky(globalpicnum, NULL, &dapskybits);
+        dapskyoff = getpsky(globalpicnum, NULL, &dapskybits);
 
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
