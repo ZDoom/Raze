@@ -293,21 +293,20 @@ int32_t G_LoadPlayer(int32_t spot)
     ud.m_level_number = h.levnum;
     ud.m_player_skill = h.skill;
 
-    {
-        // NOTE: Bmemcpy needed for SAVEGAME_MUSIC.
-        EDUKE32_STATIC_ASSERT(sizeof(boardfilename) == sizeof(h.boardfn));
-        Bmemcpy(boardfilename, h.boardfn, sizeof(boardfilename));
-    }
+    // NOTE: Bmemcpy needed for SAVEGAME_MUSIC.
+    EDUKE32_STATIC_ASSERT(sizeof(boardfilename) == sizeof(h.boardfn));
+    Bmemcpy(boardfilename, h.boardfn, sizeof(boardfilename));
 
-    E_MapArt_Setup(h.boardfn);  // XXX: Better after the following filename tweaking?
+    const int mapIdx = h.volnum*MAXLEVELS + h.levnum;
 
     if (boardfilename[0])
         Bstrcpy(currentboardfilename, boardfilename);
-    else if (MapInfo[h.volnum*MAXLEVELS + h.levnum].filename)
-        Bstrcpy(currentboardfilename, MapInfo[h.volnum*MAXLEVELS + h.levnum].filename);
+    else if (MapInfo[mapIdx].filename)
+        Bstrcpy(currentboardfilename, MapInfo[mapIdx].filename);
 
     if (currentboardfilename[0])
     {
+        E_MapArt_Setup(currentboardfilename);
         append_ext_UNSAFE(currentboardfilename, ".mhk");
         loadmaphack(currentboardfilename);
     }
@@ -1290,13 +1289,12 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
     h.levnum = ud.level_number;
     h.skill = ud.player_skill;
 
+    const uint32_t BSZ = sizeof(h.boardfn);
+    EDUKE32_STATIC_ASSERT(BSZ == sizeof(currentboardfilename));
+    Bstrncpy(h.boardfn, currentboardfilename, BSZ);
+
     if (currentboardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
     {
-        const uint32_t BSZ = sizeof(h.boardfn);
-        EDUKE32_STATIC_ASSERT(BSZ == sizeof(currentboardfilename));
-
-        Bstrncpy(h.boardfn, currentboardfilename, BSZ);
-
         // Shoehorn currently playing music into last bytes of board name buffer.
         // SAVEGAME_MUSIC.
         if (g_musicIndex != (0*MAXLEVELS+7) && Bstrlen(h.boardfn) < BSZ-2)

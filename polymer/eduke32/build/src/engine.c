@@ -10436,10 +10436,10 @@ void E_MapArt_Setup(const char *filename)
 {
     int32_t i;
 
+    E_MapArt_Clear();
+
     if (Bstrlen(filename) + 7 >= sizeof(mapartfilename))
         return;
-
-    E_MapArt_Clear();
 
     Bstrcpy(mapartfilename, filename);
     append_ext_UNSAFE(mapartfilename, "_XX.art");
