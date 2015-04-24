@@ -450,13 +450,12 @@ int32_t MV_PlayFLAC
       return MV_Error;
    }
 
-   fd = (flac_data *) malloc( sizeof(flac_data) );
+   fd = (flac_data *) calloc( 1, sizeof(flac_data) );
    if (!fd) {
       MV_SetErrorCode( MV_InvalidFLACFile );
       return MV_Error;
    }
 
-   memset(fd, 0, sizeof(flac_data));
    fd->ptr = ptr;
    fd->pos = 0;
    fd->blocksize = 0;

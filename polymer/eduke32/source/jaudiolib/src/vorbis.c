@@ -406,13 +406,12 @@ int32_t MV_PlayVorbis
       return MV_Error;
    }
    
-   vd = (vorbis_data *) malloc( sizeof(vorbis_data) );
+   vd = (vorbis_data *) calloc( 1, sizeof(vorbis_data) );
    if (!vd) {
       MV_SetErrorCode( MV_InvalidVorbisFile );
       return MV_Error;
    }
    
-   memset(vd, 0, sizeof(vorbis_data));
    vd->ptr = ptr;
    vd->pos = 0;
    vd->length = ptrlength;

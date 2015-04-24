@@ -458,13 +458,12 @@ int32_t MV_PlayXA
       return MV_Error;
    }
 
-   xad = (xa_data *) malloc( sizeof(xa_data) );
+   xad = (xa_data *) calloc( 1, sizeof(xa_data) );
    if (!xad) {
       MV_SetErrorCode( MV_InvalidXAFile );
       return MV_Error;
    }
 
-   memset(xad, 0, sizeof(xa_data));
    xad->ptr = ptr;
    xad->pos = XA_DATA_START;
    xad->blocksize = 0;

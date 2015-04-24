@@ -185,8 +185,7 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *sampleb
     // dummy channel 2 runs our fillData() callback as an effect
     Mix_RegisterEffect(2, fillData, NULL, NULL);
 
-    DummyBuffer = (uint8_t *) malloc(chunksize);
-    memset(DummyBuffer, 0, chunksize);
+    DummyBuffer = (uint8_t *) calloc(1, chunksize);
 
     DummyChunk = Mix_QuickLoad_RAW(DummyBuffer, chunksize);
 
