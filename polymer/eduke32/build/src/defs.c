@@ -102,6 +102,7 @@ enum scripttoken_t
     T_GLOBALFLAGS,
     T_RENAMEFILE,
     T_COPYTILE,
+    T_GLOBALGAMEFLAGS,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -305,6 +306,7 @@ static int32_t defsparser(scriptfile *script)
         { "globalflags",     T_GLOBALFLAGS      },
         { "renamefile",      T_RENAMEFILE       },
         { "copytile",        T_COPYTILE         },
+        { "globalgameflags", T_GLOBALGAMEFLAGS  },  // dummy
     };
 
     while (1)
@@ -2435,6 +2437,13 @@ static int32_t defsparser(scriptfile *script)
         case T_GLOBALFLAGS:
         {
             if (scriptfile_getnumber(script,&globalflags)) break;
+        }
+        break;
+
+        case T_GLOBALGAMEFLAGS:
+        {
+            int32_t dummy;
+            if (scriptfile_getnumber(script,&dummy)) break;
         }
         break;
 

@@ -55,6 +55,12 @@ G_EXTERN int32_t bakipos[MAXINTERPOLATIONS];
 extern "C" {
 #endif
 
+G_EXTERN int32_t duke3d_globalflags;
+
+enum {
+    DUKE3D_NO_WIDESCREEN_PINNING = 1<<0,
+};
+
 G_EXTERN DukeStatus_t sbar;
 G_EXTERN actor_t actor[MAXSPRITES];
 // g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game

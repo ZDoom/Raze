@@ -233,6 +233,7 @@ enum gametokens
     T_ID,
     T_DELAY,
     T_RENAMEFILE,
+    T_GLOBALGAMEFLAGS,
 };
 
 
@@ -9494,6 +9495,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         { "cutscene",        T_CUTSCENE         },
         { "animsounds",      T_ANIMSOUNDS       },
         { "renamefile",      T_RENAMEFILE       },
+        { "globalgameflags", T_GLOBALGAMEFLAGS  },
     };
 
     static const tokenlist sound_musictokens[] =
@@ -9807,6 +9809,11 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             if (scriptfile_getnumber(script,&filenum)) break;
             if (scriptfile_getstring(script,&newname)) break;
             krename(crcval, filenum, newname);
+        }
+        break;
+        case T_GLOBALGAMEFLAGS:
+        {
+            if (scriptfile_getnumber(script,&duke3d_globalflags)) break;
         }
         break;
         case T_EOF:

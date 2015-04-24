@@ -2309,14 +2309,17 @@ void P_DisplayWeapon(void)
                 weapon_xoffset -= sintable[(768 + ((*kb) << 7)) & 2047] >> 11;
                 gun_pos += sintable[(768 + ((*kb) << 7)) & 2047] >> 11;
 
+                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
+                    o |= 512;
+
                 if (*kb > 0 && *kb < 8)
                 {
                     G_DrawWeaponTileWithID(cw << 1, weapon_xoffset + 164, (looking_arc << 1) + 176 - gun_pos,
-                                           RPGGUN + ((*kb) >> 1), gs, o | 512, pal, 0);
+                                           RPGGUN + ((*kb) >> 1), gs, o, pal, 0);
                 }
 
                 G_DrawWeaponTileWithID(cw, weapon_xoffset + 164, (looking_arc << 1) + 176 - gun_pos, RPGGUN, gs,
-                                       o | 512, pal, 0);
+                                       o, pal, 0);
                 break;
 
             case SHOTGUN_WEAPON:
@@ -2455,32 +2458,38 @@ void P_DisplayWeapon(void)
                         l -= 3;
 
                     G_DrawWeaponTileWithID(cw, (l-(p->look_ang>>1)), (looking_arc+244-gun_pos), FIRSTGUN+kb_frames[*kb>2 ? 0 : *kb], gs, 2, pal, 0);
+
+                    break;
                 }
-                else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-17)
-                    G_DrawWeaponTileWithID(cw, 194-(p->look_ang>>1), looking_arc+230-gun_pos, FIRSTGUN+4, gs, o|512, pal, 0);
+
+                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
+                    o |= 512;
+
+                if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-17)
+                    G_DrawWeaponTileWithID(cw, 194-(p->look_ang>>1), looking_arc+230-gun_pos, FIRSTGUN+4, gs, o, pal, 0);
                 else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-12)
                 {
-                    G_DrawWeaponTileWithID(cw<<1, 244-((*kb)<<3)-(p->look_ang>>1), looking_arc+130-gun_pos+((*kb)<<4), FIRSTGUN+6, gs, o|512, pal, 0);
-                    G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+220-gun_pos, FIRSTGUN+5, gs, o|512, pal, 0);
+                    G_DrawWeaponTileWithID(cw<<1, 244-((*kb)<<3)-(p->look_ang>>1), looking_arc+130-gun_pos+((*kb)<<4), FIRSTGUN+6, gs, o, pal, 0);
+                    G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+220-gun_pos, FIRSTGUN+5, gs, o, pal, 0);
                 }
                 else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-7)
                 {
-                    G_DrawWeaponTileWithID(cw<<1, 124+((*kb)<<1)-(p->look_ang>>1), looking_arc+430-gun_pos-((*kb)<<3), FIRSTGUN+6, gs, o|512, pal, 0);
-                    G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+220-gun_pos, FIRSTGUN+5, gs, o|512, pal, 0);
+                    G_DrawWeaponTileWithID(cw<<1, 124+((*kb)<<1)-(p->look_ang>>1), looking_arc+430-gun_pos-((*kb)<<3), FIRSTGUN+6, gs, o, pal, 0);
+                    G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+220-gun_pos, FIRSTGUN+5, gs, o, pal, 0);
                 }
 
                 else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-4)
                 {
-                    G_DrawWeaponTileWithID(cw<<2, 184-(p->look_ang>>1), looking_arc+235-gun_pos, FIRSTGUN+8, gs, o|512, pal, 0);
-                    G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+210-gun_pos, FIRSTGUN+5, gs, o|512, pal, 0);
+                    G_DrawWeaponTileWithID(cw<<2, 184-(p->look_ang>>1), looking_arc+235-gun_pos, FIRSTGUN+8, gs, o, pal, 0);
+                    G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+210-gun_pos, FIRSTGUN+5, gs, o, pal, 0);
                 }
                 else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-2)
                 {
-                    G_DrawWeaponTileWithID(cw<<2, 164-(p->look_ang>>1), looking_arc+245-gun_pos, FIRSTGUN+8, gs, o|512, pal, 0);
-                    G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+220-gun_pos, FIRSTGUN+5, gs, o|512, pal, 0);
+                    G_DrawWeaponTileWithID(cw<<2, 164-(p->look_ang>>1), looking_arc+245-gun_pos, FIRSTGUN+8, gs, o, pal, 0);
+                    G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+220-gun_pos, FIRSTGUN+5, gs, o, pal, 0);
                 }
                 else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload))
-                    G_DrawWeaponTileWithID(cw, 194-(p->look_ang>>1), looking_arc+235-gun_pos, FIRSTGUN+5, gs, o|512, pal, 0);
+                    G_DrawWeaponTileWithID(cw, 194-(p->look_ang>>1), looking_arc+235-gun_pos, FIRSTGUN+5, gs, o, pal, 0);
 
                 break;
 
@@ -2570,6 +2579,9 @@ void P_DisplayWeapon(void)
                 if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek))
                     break;
 
+                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
+                    o |= 512;
+
                 if ((*kb) < (PWEAPON(screenpeek, p->curr_weapon, TotalTime)+1) && (*kb) > 0)
                 {
                     static uint8_t cat_frames[] = { 0,0,1,1,2,2 };
@@ -2583,11 +2595,11 @@ void P_DisplayWeapon(void)
                         looking_arc += rand()&3;
                     }
                     gun_pos -= 16;
-                    G_DrawWeaponTileWithID(cw<<1, weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE+2,-32,o|512,pal,0);
-                    G_DrawWeaponTileWithID(cw, weapon_xoffset+210-(p->look_ang>>1),looking_arc+235-gun_pos,FREEZE+3+cat_frames[*kb%6],-32,o|512,pal,0);
+                    G_DrawWeaponTileWithID(cw<<1, weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE+2,-32,o,pal,0);
+                    G_DrawWeaponTileWithID(cw, weapon_xoffset+210-(p->look_ang>>1),looking_arc+235-gun_pos,FREEZE+3+cat_frames[*kb%6],-32,o,pal,0);
                 }
                 else
-                    G_DrawWeaponTileWithID(cw, weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE,gs,o|512,pal,0);
+                    G_DrawWeaponTileWithID(cw, weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE,gs,o,pal,0);
                 break;
 
             case GROW_WEAPON:
