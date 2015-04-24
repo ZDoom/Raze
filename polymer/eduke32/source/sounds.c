@@ -163,8 +163,9 @@ void S_RestartMusic(void)
         if (MapInfo[g_musicIndex].musicfn != NULL)
             S_PlayMusic(MapInfo[g_musicIndex].musicfn);
     }
-    else if (MapInfo[MUS_INTRO].musicfn != 0)
+    else if (MapInfo[MUS_INTRO].musicfn != 0 && (G_GetLogoFlags() & LOGO_PLAYMUSIC))
     {
+        g_musicIndex = MUS_INTRO;
         S_PlayMusic(MapInfo[MUS_INTRO].musicfn);
     }
 }
