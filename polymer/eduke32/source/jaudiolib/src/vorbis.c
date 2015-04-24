@@ -242,9 +242,11 @@ static playbackstatus MV_GetNextVorbisBlock
 #endif
        //fprintf(stderr, "ov_read = %d\n", bytes);
        if (bytes > 0) {
+           ogg_int64_t currentPosition;
            bytesread += bytes;
            if ((ogg_int64_t)(intptr_t)voice->LoopEnd > 0
-                && ov_pcm_tell(&vd->vf) >= (ogg_int64_t)(intptr_t)voice->LoopEnd) {
+                && (currentPosition = ov_pcm_tell(&vd->vf)) >= (ogg_int64_t)(intptr_t)voice->LoopEnd) {
+                   bytesread -= (currentPosition - (ogg_int64_t)(intptr_t)voice->LoopEnd) * voice->channels * 2; // (voice->bits>>3)
                    err = ov_pcm_seek(&vd->vf,(ogg_int64_t)(intptr_t)voice->LoopStart);
                    if (err != 0) {
                        MV_Printf("MV_GetNextVorbisBlock ov_pcm_seek: LOOP_START %l, LOOP_END %l, err %d\n",

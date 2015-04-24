@@ -208,13 +208,26 @@ FLAC__StreamDecoderWriteStatus write_flac_stream(const FLAC__StreamDecoder *deco
 {
     flac_data * fd = (flac_data *) client_data;
     VoiceNode *voice = fd->owner;
-    const FLAC__uint64 samples = frame->header.blocksize;
+    FLAC__uint64 samples = frame->header.blocksize;
 
     UNREFERENCED_PARAMETER(decoder);
 
     voice->channels     = frame->header.channels;
     voice->bits         = frame->header.bits_per_sample;
     voice->SamplingRate = frame->header.sample_rate;
+
+    if (frame->header.number_type == FLAC__FRAME_NUMBER_TYPE_FRAME_NUMBER)
+        fd->sample_pos = frame->header.number.frame_number;
+    else if (frame->header.number_type == FLAC__FRAME_NUMBER_TYPE_SAMPLE_NUMBER)
+        fd->sample_pos = frame->header.number.sample_number;
+
+    if ((FLAC__uint64)(uintptr_t)voice->LoopEnd > 0 && fd->sample_pos + samples >= (FLAC__uint64)(uintptr_t)voice->LoopEnd)
+    {
+        samples = (FLAC__uint64)(uintptr_t)voice->LoopEnd - fd->sample_pos;
+        if (!FLAC__stream_decoder_seek_absolute(fd->stream, (FLAC__uint64)(uintptr_t)voice->LoopStart))
+            MV_Printf("MV_GetNextFLACBlock FLAC__stream_decoder_seek_absolute: LOOP_START %ul, LOOP_END %ul\n",
+                (FLAC__uint64)(uintptr_t)voice->LoopStart, (FLAC__uint64)(uintptr_t)voice->LoopEnd);
+    }
 
     voice->length       = ((samples * (voice->bits/8))/2)<<voice->bits;
     voice->position     = 0;
@@ -223,11 +236,6 @@ FLAC__StreamDecoderWriteStatus write_flac_stream(const FLAC__StreamDecoder *deco
     voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
     voice->FixedPointBufferSize = ( voice->RateScale * MV_MIXBUFFERSIZE ) - voice->RateScale;
     MV_SetVoiceMixMode( voice );
-
-    if (frame->header.number_type == FLAC__FRAME_NUMBER_TYPE_FRAME_NUMBER)
-        fd->sample_pos = frame->header.number.frame_number;
-    else if (frame->header.number_type == FLAC__FRAME_NUMBER_TYPE_SAMPLE_NUMBER)
-        fd->sample_pos = frame->header.number.sample_number;
 
     {
         const size_t size = samples * voice->channels * (voice->bits/8);
