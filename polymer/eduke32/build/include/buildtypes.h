@@ -7,15 +7,15 @@
 
 #ifdef UNTRACKED_STRUCTS
 
-#pragma push_macro("Tracker")
-#undef Tracker
-#define Tracker(tracker, type) type
+#define StructTracker(tracker, type) type
 
 #define WALLTYPE twalltype
 #define SECTORTYPE tsectortype
 #define SPRITETYPE tspritetype
 
 #else
+
+#define StructTracker Tracker
 
 #define WALLTYPE walltypev7
 #define SECTORTYPE sectortypev7
@@ -46,18 +46,18 @@
 //40 bytes
 typedef struct
 {
-    Tracker(Sector, int16_t) wallptr, wallnum;
-    Tracker(Sector, int32_t) ceilingz, floorz;
-    Tracker(Sector, uint16_t) ceilingstat, floorstat;
-    Tracker(Sector, int16_t) ceilingpicnum, ceilingheinum;
-    Tracker(Sector, int8_t) ceilingshade;
-    Tracker(Sector, uint8_t) ceilingpal, /*CM_FLOORZ:*/ ceilingxpanning, ceilingypanning;
-    Tracker(Sector, int16_t) floorpicnum, floorheinum;
-    Tracker(Sector, int8_t) floorshade;
-    Tracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
-    Tracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
-    Tracker(Sector, uint16_t) lotag, hitag;
-    Tracker(Sector, int16_t) extra;
+    StructTracker(Sector, int16_t) wallptr, wallnum;
+    StructTracker(Sector, int32_t) ceilingz, floorz;
+    StructTracker(Sector, uint16_t) ceilingstat, floorstat;
+    StructTracker(Sector, int16_t) ceilingpicnum, ceilingheinum;
+    StructTracker(Sector, int8_t) ceilingshade;
+    StructTracker(Sector, uint8_t) ceilingpal, /*CM_FLOORZ:*/ ceilingxpanning, ceilingypanning;
+    StructTracker(Sector, int16_t) floorpicnum, floorheinum;
+    StructTracker(Sector, int8_t) floorshade;
+    StructTracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
+    StructTracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
+    StructTracker(Sector, uint16_t) lotag, hitag;
+    StructTracker(Sector, int16_t) extra;
 } SECTORTYPE;
 
 //cstat:
@@ -77,14 +77,14 @@ typedef struct
 //32 bytes
 typedef struct
 {
-    Tracker(Wall, int32_t) x, y;
-    Tracker(Wall, int16_t) point2, nextwall, nextsector;
-    Tracker(Wall, uint16_t) cstat;
-    Tracker(Wall, int16_t) picnum, overpicnum;
-    Tracker(Wall, int8_t) shade;
-    Tracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
-    Tracker(Wall, uint16_t) lotag, hitag;
-    Tracker(Wall, int16_t) extra;
+    StructTracker(Wall, int32_t) x, y;
+    StructTracker(Wall, int16_t) point2, nextwall, nextsector;
+    StructTracker(Wall, uint16_t) cstat;
+    StructTracker(Wall, int16_t) picnum, overpicnum;
+    StructTracker(Wall, int8_t) shade;
+    StructTracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
+    StructTracker(Wall, uint16_t) lotag, hitag;
+    StructTracker(Wall, int16_t) extra;
 } WALLTYPE;
 
 //cstat:
@@ -111,23 +111,21 @@ typedef struct
 //44 bytes
 typedef struct
 {
-    Tracker(Sprite, int32_t) x, y, z;
-    Tracker(Sprite, uint16_t) cstat;
-    Tracker(Sprite, int16_t) picnum;
-    Tracker(Sprite, int8_t) shade;
-    Tracker(Sprite, uint8_t) pal, clipdist, blend;
-    Tracker(Sprite, uint8_t) xrepeat, yrepeat;
-    Tracker(Sprite, int8_t) xoffset, yoffset;
-    Tracker(Sprite, int16_t) sectnum, statnum;
-    Tracker(Sprite, int16_t) ang, owner, xvel, yvel, zvel;
-    Tracker(Sprite, uint16_t) lotag, hitag;
-    Tracker(Sprite, int16_t) extra;
+    StructTracker(Sprite, int32_t) x, y, z;
+    StructTracker(Sprite, uint16_t) cstat;
+    StructTracker(Sprite, int16_t) picnum;
+    StructTracker(Sprite, int8_t) shade;
+    StructTracker(Sprite, uint8_t) pal, clipdist, blend;
+    StructTracker(Sprite, uint8_t) xrepeat, yrepeat;
+    StructTracker(Sprite, int8_t) xoffset, yoffset;
+    StructTracker(Sprite, int16_t) sectnum, statnum;
+    StructTracker(Sprite, int16_t) ang, owner, xvel, yvel, zvel;
+    StructTracker(Sprite, uint16_t) lotag, hitag;
+    StructTracker(Sprite, int16_t) extra;
 } SPRITETYPE;
 
 //////////////////// END Version 7 map format ////////////////
 
-#ifdef UNTRACKED_STRUCTS
-#pragma pop_macro("Tracker")
-#endif
+#undef StructTracker
 
 #endif // buildtypes_h__
