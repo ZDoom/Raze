@@ -778,14 +778,6 @@ local WallLabels = {
     uhitag = S2U(WAL".hitag"),
 }
 
-StructAccessCode =
-{
-    sector = SectorLabels,
-    wall = WallLabels,
-    sprite = ActorLabels,
-    player = PlayerLabels,
-}
-
 local function tonegtag(LabelsTab, member, funcname)
     local memb = LabelsTab[member]
     LabelsTab[member] = { memb, memb.."="..funcname.."(%%s)" }
@@ -921,14 +913,18 @@ local InputLabels = {
     extbits = INP".extbits",
 }
 
--- These structs cannot be accessed by inline array exprs in CON:
-StructAccessCode2 =
+StructAccessCode =
 {
+    sector = SectorLabels,
+    wall = WallLabels,
+    sprite = ActorLabels,
+    player = PlayerLabels,
     tspr = TspriteLabels,
     projectile = ProjectileLabels,
     thisprojectile = SpriteProjectileLabels,
     userdef = UserdefLabels,
     input = InputLabels,
+-- TODO: tiledata, paldata
 }
 
 -- NOTE: These MUST be in reverse lexicographical order!
