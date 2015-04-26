@@ -577,6 +577,7 @@ local PlayerLabels = {
     on_crane = PL".on_crane",
 
     i = { PL".i" },
+    index = { "%s" },
 
     one_parallax_sectnum = DISABLED{ PL".one_parallax_sectnum" },
 

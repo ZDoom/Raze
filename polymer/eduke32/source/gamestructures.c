@@ -555,6 +555,7 @@ int32_t __fastcall VM_GetPlayer(register int32_t const iPlayer, register int32_t
         case PLAYER_AUTOSTEP: lLabelID = ps->autostep; break;
         case PLAYER_AUTOSTEP_SBW: lLabelID = ps->autostep_sbw; break;
         case PLAYER_HUDPAL: lLabelID = P_GetHudPal(ps); break;
+        case PLAYER_INDEX: lLabelID = iPlayer; break;
         default: lLabelID = -1; break;
     }
 
