@@ -36,7 +36,7 @@ ifeq ($(AS),as)
     override AS=nasm
 endif
 
-COMPILER_OBJC=$(CC)
+COBJC=$(CC)
 L_CC=$(CC)
 L_CXX=$(CXX)
 
@@ -73,7 +73,7 @@ endif
 ifneq (0,$(CLANG))
     override CC=clang -x c
     override CXX=clang -x c++
-    override COMPILER_OBJC=clang -x objective-c
+    override COBJC=clang -x objective-c
     override L_CC=clang
     override L_CXX=clang
 endif
@@ -1060,6 +1060,7 @@ ifneq (,$(VC_REV)$(VC_REV_CUSTOM))
 endif
 
 COMPILER=$(CC) $(CONLYFLAGS)
+COMPILER_OBJC=$(COBJC) $(CONLYFLAGS)
 LINKER=$(L_CC)
 ifneq ($(CPLUSPLUS),0)
     COMPILER=$(CXX) $(CPPONLYFLAGS)
