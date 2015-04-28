@@ -431,6 +431,7 @@ void M_DisplayMenus(void);
 extern int32_t m_mouselastactivity;
 
 #if defined EDUKE32_TOUCH_DEVICES
+# define MOUSEALPHA 0
 # define MOUSEACTIVECONDITIONAL(condition) (condition)
 # define MOUSEWATCHPOINTCONDITIONAL(condition) (condition)
 #else

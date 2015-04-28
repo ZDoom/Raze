@@ -708,7 +708,7 @@ int32_t initinput(void)
     W_SetKeyboardLayoutUS(0);
 #endif
 
-#ifdef __APPLE__
+#if defined EDUKE32_OSX
     // force OS X to operate in >1 button mouse mode so that LMB isn't adulterated
     if (!getenv("SDL_HAS3BUTTONMOUSE"))
         putenv("SDL_HAS3BUTTONMOUSE=1");
@@ -1839,10 +1839,9 @@ void handleevents_updatemousestate(uint8_t state)
 
 int32_t handleevents_sdlcommon(SDL_Event *ev)
 {
-    int32_t j;
-
     switch (ev->type)
     {
+#if !defined EDUKE32_IOS
         case SDL_MOUSEMOTION:
 #ifndef GEKKO
             mouseabs.x = ev->motion.x;
@@ -1871,6 +1870,9 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
 
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
+        {
+            int32_t j;
+            
             // some of these get reordered to match winlayer
             switch (ev->button.button)
             {
@@ -1912,6 +1914,20 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             if (mousepresscallback)
                 mousepresscallback(j+1, ev->button.state == SDL_PRESSED);
             break;
+        }
+#else
+# if SDL_MAJOR_VERSION != 1
+        case SDL_FINGERUP:
+            mousepressstate = Mouse_Released;
+            break;
+        case SDL_FINGERDOWN:
+            mousepressstate = Mouse_Pressed;
+        case SDL_FINGERMOTION:
+            mouseabs.x = Blrintf(ev->tfinger.x * xdim);
+            mouseabs.y = Blrintf(ev->tfinger.y * ydim);
+            break;
+# endif
+#endif
 
         case SDL_JOYAXISMOTION:
             if (appactive && ev->jaxis.axis < joynumaxes)

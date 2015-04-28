@@ -33,6 +33,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 int32_t I_CheckAllInput(void)
 {
     return (
+#if defined EDUKE32_IOS
+            mousepressstate == Mouse_Pressed ||
+#endif
             KB_KeyWaiting() ||
             MOUSE_GetButtons() ||
             JOYSTICK_GetButtons()
@@ -40,6 +43,9 @@ int32_t I_CheckAllInput(void)
 }
 void I_ClearAllInput(void)
 {
+#if defined EDUKE32_IOS
+    mousepressstateadvance();
+#endif
     KB_FlushKeyboardQueue();
     KB_ClearKeysDown();
     MOUSE_ClearAllButtons();

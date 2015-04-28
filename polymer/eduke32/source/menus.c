@@ -4491,13 +4491,14 @@ static int32_t M_RunMenuInput_MouseAdvance(void)
     return MOUSEACTIVECONDITIONAL(!m_mousecaught && mousepressstate == Mouse_Released);
 }
 
-#if !defined EDUKE32_TOUCH_DEVICES
 static int32_t M_RunMenuInput_MouseReturn_status;
 
 static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
 {
+#if !defined EDUKE32_TOUCH_DEVICES
     if (!MOUSEACTIVECONDITION)
         return;
+#endif
 
     if (cm->menuID == MENU_MAIN)
         return;
@@ -4507,7 +4508,6 @@ static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
                   2 | 8 | 16 | RS_ALIGN_L, MOUSEALPHA, 0, xdim_from_320_16(origin.x + x_widescreen_left()), 0,
                   xdim_from_320_16(origin.x + x_widescreen_left() + (tilesiz[SELECTDIR].y << 15)), ydim - 1);
 }
-#endif
 
 static int32_t M_RunMenuInput_MouseReturn(void)
 {
@@ -4517,6 +4517,7 @@ static int32_t M_RunMenuInput_MouseReturn(void)
         M_RunMenuInput_MouseReturn_status = 0;
         return 0;
     }
+#endif
 
     if (g_currentMenu == MENU_MAIN)
         return 0;
@@ -4525,12 +4526,16 @@ static int32_t M_RunMenuInput_MouseReturn(void)
 
     if (M_MouseWithinBounds(&m_mousepos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16))
     {
+#if !defined EDUKE32_TOUCH_DEVICES
         M_RunMenuInput_MouseReturn_status = 1;
+#else
+        M_RunMenuInput_MouseReturn_status = (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held);
+#endif
+
         return !m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousedownpos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16);
     }
 
     M_RunMenuInput_MouseReturn_status = 0;
-#endif
 
     return 0;
 }
@@ -4804,9 +4809,7 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
         }
     }
 
-#if !defined EDUKE32_TOUCH_DEVICES
     M_RunMenu_MouseReturn(cm, origin);
-#endif
 }
 
 /*
