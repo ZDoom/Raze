@@ -229,6 +229,63 @@ static void Defs_ApplyPaletteToTileBuffer(int32_t const tsiz, int32_t const pal)
         faketilebuffer[i] = palookup[pal][faketilebuffer[i]];
 }
 
+static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const tile, int32_t const alphacut)
+{
+    if (check_file_exist(fn))
+        return -1;
+
+    int32_t xsiz = 0, ysiz = 0, bpl;
+    palette_t *picptr = NULL;
+
+    int32_t const length = kpzbufload(fn);
+#ifdef WITHKPLIB
+    kpzdecode(length, (intptr_t *)&picptr, &bpl, &xsiz, &ysiz);
+#endif
+
+    if (!picptr)
+    {
+        int32_t const artstatus = E_CheckUnitArtFileHeader((uint8_t *)kpzbuf, length);
+        if (artstatus < 0)
+            return artstatus<<8;
+
+        Bmemcpy(&picanm[tile], &kpzbuf[20], sizeof(picanm_t));
+        E_ConvertARTv1picanmToMemory(tile);
+
+        int32_t const xsiz = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
+        int32_t const ysiz = B_LITTLE16(B_UNBUF16(&kpzbuf[18]));
+
+        if (EDUKE32_PREDICT_FALSE(xsiz <= 0 || ysiz <= 0))
+        {
+            E_UndefineTile(tile);
+            return 2;
+        }
+
+        set_tilesiz(tile, xsiz, ysiz);
+        int32_t const dasiz = xsiz * ysiz;
+
+        if (EDUKE32_PREDICT_FALSE(ARTv1_UNITOFFSET + dasiz > length))
+        {
+            E_CreateDummyTile(tile);
+            return 3;
+        }
+
+        E_CreateFakeTile(tile, dasiz, &kpzbuf[ARTv1_UNITOFFSET]);
+
+        return 1;
+    }
+
+    if (EDUKE32_PREDICT_FALSE(xsiz <= 0 || ysiz <= 0))
+        return -2;
+
+    set_tilesiz(tile, xsiz, ysiz);
+
+    tile_from_truecolpic(tile, picptr, alphacut);
+
+    Bfree(picptr);
+
+    return 0;
+}
+
 #undef USE_DEF_PROGRESS
 #if defined _WIN32 || defined HAVE_GTK2
 # define USE_DEF_PROGRESS
@@ -633,15 +690,22 @@ static int32_t defsparser(scriptfile *script)
                 switch (token)
                 {
                 case T_FILE:
-                    scriptfile_getstring(script,&fn); break;
+                    scriptfile_getstring(script,&fn);
+                    break;
                 case T_ALPHACUT:
-                    scriptfile_getsymbol(script,&alphacut); break;
+                    scriptfile_getsymbol(script,&alphacut);
+                    alphacut = clamp(alphacut, 0, 255);
+                    break;
                 case T_XOFFSET:
                     havexoffset = 1;
-                    scriptfile_getsymbol(script,&xoffset); break;
+                    scriptfile_getsymbol(script,&xoffset);
+                    xoffset = clamp(xoffset, -128, 127);
+                    break;
                 case T_YOFFSET:
                     haveyoffset = 1;
-                    scriptfile_getsymbol(script,&yoffset); break;
+                    scriptfile_getsymbol(script,&yoffset);
+                    yoffset = clamp(yoffset, -128, 127);
+                    break;
                 case T_TEXHITSCAN:
                     flags |= PICANM_TEXHITSCAN_BIT;
                     break;
@@ -665,9 +729,9 @@ static int32_t defsparser(scriptfile *script)
                 // tilefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
                 picanm[tile].sf |= flags;
                 if (havexoffset)
-                    picanm[tile].xofs = clamp(xoffset, -128, 127);
+                    picanm[tile].xofs = xoffset;
                 if (haveyoffset)
-                    picanm[tile].yofs = clamp(yoffset, -128, 127);
+                    picanm[tile].yofs = yoffset;
 
                 if (EDUKE32_PREDICT_FALSE(flags == 0 && !havexoffset && !haveyoffset))
                     initprintf("\nError: missing 'file name' for tilefromtexture definition near line %s:%d",
@@ -675,33 +739,24 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (check_file_exist(fn))
+            int32_t const texstatus = Defs_ImportTileFromTexture(fn, tile, alphacut);
+            if (texstatus == (-3)<<8)
+                initprintf("Error: \"%s\" has more than one tile, in tilefromtexture definition near line %s:%d\n",
+                           fn, script->filename, scriptfile_getlinum(script,texturetokptr));
+            if (texstatus < 0)
                 break;
 
-            alphacut = clamp(alphacut, 0, 255);
+            picanm[tile].sf |= flags;
 
-            {
-                int32_t xsiz, ysiz, j;
-                palette_t *picptr = NULL;
+            if (havexoffset)
+                picanm[tile].xofs = xoffset;
+            else if (texstatus == 0)
+                picanm[tile].xofs = 0;
 
-                kpzload(fn, (intptr_t *)&picptr, &j, &xsiz, &ysiz);
-//                initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
-
-                if (!picptr)
-                    break;
-
-                if (xsiz <= 0 || ysiz <= 0)
-                    break;
-
-                set_tilesiz(tile, xsiz, ysiz);
-                picanm[tile].xofs = havexoffset ? clamp(xoffset, -128, 127) : 0;
-                picanm[tile].yofs = haveyoffset ? clamp(yoffset, -128, 127) : 0;
-                picanm[tile].sf |= flags;
-
-                tile_from_truecolpic(tile, picptr, alphacut);
-
-                Bfree(picptr);
-            }
+            if (haveyoffset)
+                picanm[tile].yofs = yoffset;
+            else if (texstatus == 0)
+                picanm[tile].yofs = 0;
         }
         break;
         case T_COPYTILE:
@@ -817,32 +872,24 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_IMPORTTILE:
         {
-            int32_t tile, xsiz, ysiz;
-            palette_t *picptr = NULL;
-            int32_t bpl;
+            int32_t tile;
             char *fn;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getstring(script,&fn))  break;
 
-            kpzload(fn, (intptr_t *)&picptr, &bpl, &xsiz, &ysiz);
-//            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
-
-            if (!picptr)
-                break;  // TODO: message
-
-            if (xsiz <= 0 || ysiz <= 0)  // XXX: kpzload isn't robust against that!
-                break;
-
             if (check_tile("importtile", tile, script, cmdtokptr))
                 break;
 
-            set_tilesiz(tile, xsiz, ysiz);
+            int32_t const texstatus = Defs_ImportTileFromTexture(fn, tile, 255);
+            if (texstatus == (-3)<<8)
+                initprintf("Error: \"%s\" has more than one tile, in importtile definition near line %s:%d\n",
+                           fn, script->filename, scriptfile_getlinum(script,cmdtokptr));
+            if (texstatus < 0)
+                break;
+
             Bmemset(&picanm[tile], 0, sizeof(picanm_t));
 
-            tile_from_truecolpic(tile, picptr, 255);
-
-            Bfree(picptr);
             break;
         }
         case T_DUMMYTILE:
