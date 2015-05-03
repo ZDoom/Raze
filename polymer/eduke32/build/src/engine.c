@@ -11930,9 +11930,9 @@ int32_t E_ReadArtFileHeader(int32_t const fil, char const * const fn, artheader_
         kclose(fil);
         return 1;
     }
-    if (local->tileend <= local->tilestart)
+    if (local->tileend < local->tilestart)
     {
-        initprintf("loadpics: localtileend <= localtilestart in %s\n", fn);
+        initprintf("loadpics: localtileend < localtilestart in %s\n", fn);
         kclose(fil);
         return 1;
     }
@@ -11940,6 +11940,65 @@ int32_t E_ReadArtFileHeader(int32_t const fil, char const * const fn, artheader_
     local->numtiles = (local->tileend-local->tilestart+1);
 
     return 0;
+}
+
+int32_t E_ReadArtFileHeaderFromBuffer(uint8_t const * const buf, artheader_t * const local)
+{
+    int32_t const artversion = B_LITTLE32(B_UNBUF32(&buf[0]));
+    if (EDUKE32_PREDICT_FALSE(artversion != 1))
+    {
+        initprintf("loadpics: Invalid art file version\n");
+        return 1;
+    }
+
+    local->tilestart = B_LITTLE32(B_UNBUF32(&buf[8]));
+    local->tileend   = B_LITTLE32(B_UNBUF32(&buf[12]));
+
+    if (EDUKE32_PREDICT_FALSE((unsigned)local->tilestart >= MAXUSERTILES || (unsigned)local->tileend >= MAXUSERTILES))
+    {
+        initprintf("loadpics: Invalid localtilestart or localtileend\n");
+        return 1;
+    }
+    if (EDUKE32_PREDICT_FALSE(local->tileend < local->tilestart))
+    {
+        initprintf("loadpics: localtileend < localtilestart\n");
+        return 1;
+    }
+
+    local->numtiles = (local->tileend-local->tilestart+1);
+
+    return 0;
+}
+
+int32_t E_CheckUnitArtFileHeader(uint8_t const * const buf, int32_t length)
+{
+    if (EDUKE32_PREDICT_FALSE(length <= ARTv1_UNITOFFSET))
+        return -1;
+
+    artheader_t local;
+    if (EDUKE32_PREDICT_FALSE(E_ReadArtFileHeaderFromBuffer(buf, &local) != 0))
+        return -2;
+
+    if (EDUKE32_PREDICT_FALSE(local.numtiles != 1))
+        return -3;
+
+    return 0;
+}
+
+void E_ConvertARTv1picanmToMemory(int32_t const picnum)
+{
+    EDUKE32_STATIC_ASSERT(sizeof(picanm_t) == 4);
+    EDUKE32_STATIC_ASSERT(PICANM_ANIMTYPE_MASK == 192);
+
+    picanm_t * const thispicanm = &picanm[picnum];
+
+    // Old on-disk format: anim type is in the 2 highest bits of the lowest byte.
+    thispicanm->sf &= ~192;
+    thispicanm->sf |= thispicanm->num&192;
+    thispicanm->num &= ~192;
+
+    // don't allow setting texhitscan/nofullbright from ART
+    thispicanm->sf &= ~PICANM_MISC_MASK;
 }
 
 void E_ReadArtFileTileInfo(int32_t const fil, artheader_t const * const local)
@@ -11952,19 +12011,10 @@ void E_ReadArtFileTileInfo(int32_t const fil, artheader_t const * const local)
 
     for (int32_t i=local->tilestart; i<=local->tileend; i++)
     {
-        EDUKE32_STATIC_ASSERT(sizeof(picanm_t) == 4);
-        EDUKE32_STATIC_ASSERT(PICANM_ANIMTYPE_MASK == 192);
-
         tilesiz[i].x = B_LITTLE16(tilesizx[i-local->tilestart]);
         tilesiz[i].y = B_LITTLE16(tilesizy[i-local->tilestart]);
 
-        // Old on-disk format: anim type is in the 2 highest bits of the lowest byte.
-        picanm[i].sf &= ~192;
-        picanm[i].sf |= picanm[i].num&192;
-        picanm[i].num &= ~192;
-
-        // don't allow setting texhitscan/nofullbright from ART
-        picanm[i].sf &= ~PICANM_MISC_MASK;
+        E_ConvertARTv1picanmToMemory(i);
     }
 
     DO_FREE_AND_NULL(tilesizx);
@@ -12251,6 +12301,31 @@ static void postloadtile(int16_t tilenume)
         picanm[tilenume].yofs = 12;
     }
 #endif
+}
+
+// Assumes pic has been initialized to zero.
+void E_RenderArtDataIntoBuffer(palette_t * const pic, uint8_t const * const buf, int32_t const bufsizx, int32_t const sizx, int32_t const sizy)
+{
+    for (int32_t y = 0; y < sizy; y++)
+    {
+        palette_t * const picrow = &pic[bufsizx * y];
+
+        for (int32_t x = 0; x < sizx; x++)
+        {
+            uint8_t index = buf[sizy * x + y];
+
+            if (index != 255)
+            {
+                index *= 3;
+
+                // pic is BGRA
+                picrow[x].r = palette[index+2]<<2;
+                picrow[x].g = palette[index+1]<<2;
+                picrow[x].b = palette[index]<<2;
+                picrow[x].f = 255;
+            }
+        }
+    }
 }
 
 //

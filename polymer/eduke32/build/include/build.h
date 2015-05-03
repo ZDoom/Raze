@@ -986,6 +986,7 @@ typedef struct {
 typedef struct artheader_t {
     int32_t tilestart, tileend, numtiles;
 } artheader_t;
+#define ARTv1_UNITOFFSET ((signed)(4*sizeof(int32_t) + 2*sizeof(int16_t) + sizeof(picanm_t)))
 
 int32_t    preinitengine(void);	// a partial setup of the engine used for launch windows
 int32_t    initengine(void);
@@ -1008,6 +1009,9 @@ void E_UndefineTile(int32_t const tile);
 void set_tilesiz(int32_t picnum, int16_t dasizx, int16_t dasizy);
 int32_t tile_exists(int32_t picnum);
 int32_t E_ReadArtFileHeader(int32_t const fil, char const * const fn, artheader_t * const local);
+int32_t E_ReadArtFileHeaderFromBuffer(uint8_t const * const buf, artheader_t * const local);
+int32_t E_CheckUnitArtFileHeader(uint8_t const * const buf, int32_t length);
+void E_ConvertARTv1picanmToMemory(int32_t const picnum);
 void E_ReadArtFileTileInfo(int32_t const fil, artheader_t const * const local);
 void E_ReadArtFileIntoFakeData(int32_t const fil, artheader_t const * const local);
 int32_t   loadpics(const char *filename, int32_t askedsize);
@@ -1015,6 +1019,7 @@ void E_MapArt_Clear(void);
 void E_MapArt_Setup(const char *filename);
 void   loadtile(int16_t tilenume);
 void E_LoadTileIntoBuffer(int16_t tilenume, int32_t dasiz, char *buffer);
+void E_RenderArtDataIntoBuffer(palette_t * pic, uint8_t const * buf, int32_t bufsizx, int32_t sizx, int32_t sizy);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 intptr_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
