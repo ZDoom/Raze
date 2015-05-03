@@ -358,7 +358,7 @@ int32_t scriptfile_getsymbolvalue(char *name, int32_t *val)
     {
         if (!Bstrcasecmp(name, scanner))
         {
-            *val = *(int32_t *)(scanner + strlen(scanner) + 1);
+            *val = B_UNBUF32(scanner + strlen(scanner) + 1);
             return 1;
         }
 
@@ -380,7 +380,7 @@ int32_t scriptfile_addsymbolvalue(char *name, int32_t val)
         {
             if (!Bstrcasecmp(name, scanner))
             {
-                *(int32_t *)(scanner + strlen(scanner) + 1) = val;
+                B_BUF32(scanner + strlen(scanner) + 1, val);
                 return 1;
             }
 
@@ -392,7 +392,7 @@ int32_t scriptfile_addsymbolvalue(char *name, int32_t val)
     if (!sp) return 0;
     strcpy(sp, name);
     sp += strlen(name)+1;
-    *(int32_t *)sp = val;
+    B_BUF32(sp, val);
     return 1;   // added
 }
 

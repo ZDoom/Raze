@@ -2636,8 +2636,8 @@ static int32_t sectors_components(int16_t hlsectcnt, const int16_t *hlsector, in
 
 static int cmpgeomwal1(const void *w1, const void *w2)
 {
-    twalltype const * const wal1 = (twalltype *)&wall[*(int16_t *)w1];
-    twalltype const * const wal2 = (twalltype *)&wall[*(int16_t *)w2];
+    twalltype const * const wal1 = (twalltype *)&wall[B_UNBUF16(w1)];
+    twalltype const * const wal2 = (twalltype *)&wall[B_UNBUF16(w2)];
 
     if (wal1->x == wal2->x)
         return wal1->y - wal2->y;
@@ -8323,8 +8323,8 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line, int8_t
 
         i = wall[closest].nextwall;
         if (!m32_sideview ||
-            ((*(int64_t *)m32_wallscreenxy[closest]==*(int64_t *)m32_wallscreenxy[wall[j].point2]) &&
-             (*(int64_t *)m32_wallscreenxy[wall[closest].point2]==*(int64_t *)m32_wallscreenxy[j])))
+            ((B_UNBUF64(m32_wallscreenxy[closest]) == B_UNBUF64(m32_wallscreenxy[wall[j].point2])) &&
+             (B_UNBUF64(m32_wallscreenxy[wall[closest].point2]) == B_UNBUF64(m32_wallscreenxy[j]))))
             if (dmulscale32(daxplc-x1,y2-y1,-(x2-x1),dayplc-y1) >= 0)
                 closest = j;
     }

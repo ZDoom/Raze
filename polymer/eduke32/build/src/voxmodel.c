@@ -828,14 +828,14 @@ static int32_t loadkv6(const char *filnam)
                 char c[8];
                 kread(fil, c, 8); //b,g,r,a,z_lo,z_hi,vis,dir
 
-                const int32_t z0 = B_LITTLE16(*(uint16_t *)&c[4]);
+                const int32_t z0 = B_LITTLE16(B_UNBUF16(&c[4]));
 
                 if (!(c[6]&16))
                     setzrange1(vbit, j+z1, j+z0);
 
                 vbit[(j+z0)>>5] |= (1<<SHIFTMOD32(j+z0));
 
-                putvox(x, y, z0, B_LITTLE32(*(int32_t *)&c[0])&0xffffff);
+                putvox(x, y, z0, B_LITTLE32(B_UNBUF32(&c[0]))&0xffffff);
                 z1 = z0+1;
             }
         }

@@ -160,7 +160,7 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     cptr = (char *)midbuf;
     for (k=0; k<=2; k+=2)
         for (j=0; (unsigned)j<miplen; j+=stride)
-            { *(int16_t *)cptr = dxt_hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
+            { B_BUF16(cptr, dxt_hicosub(B_UNBUF16(&pic[offs+j+k]))); cptr += 2; }
 
     dxt_handle_io(fil, tabledivide32(miplen, stride)<<2, midbuf, packbuf);
 
@@ -214,7 +214,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     {
         for (j=0; j<pict->size; j+=stride)
         {
-            *(int16_t *)(&pic[offs+j+k]) = dedxt_hicoadd(*(int16_t *)cptr);
+            B_BUF16(&pic[offs+j+k], dedxt_hicoadd(B_UNBUF16(cptr)));
             cptr += 2;
         }
     }

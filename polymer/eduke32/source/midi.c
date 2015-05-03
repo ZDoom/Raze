@@ -1213,7 +1213,7 @@ int32_t MIDI_PlaySong
         return(MIDI_NullMidiModule);
     }
 
-    if (*(uint32_t *)song != MIDI_HEADER_SIGNATURE)
+    if (B_UNBUF32(song) != MIDI_HEADER_SIGNATURE)
     {
         return(MIDI_InvalidMidiFile);
     }
@@ -1250,7 +1250,7 @@ int32_t MIDI_PlaySong
     numtracks    = _MIDI_NumTracks;
     while (numtracks--)
     {
-        if (*(uint32_t *)ptr != MIDI_TRACK_SIGNATURE)
+        if (B_UNBUF32(ptr) != MIDI_TRACK_SIGNATURE)
         {
             Bfree(_MIDI_TrackPtr);
 

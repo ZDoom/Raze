@@ -837,7 +837,7 @@ static void yax_scanbunches(int32_t bbeg, int32_t numhere, const uint8_t *lastgo
 
 static int yax_cmpbunches(const void *b1, const void *b2)
 {
-    return (bunchdist[*(int16_t *)b2] - bunchdist[*(int16_t *)b1]);
+    return (bunchdist[B_UNBUF16(b2)] - bunchdist[B_UNBUF16(b1)]);
 }
 
 
@@ -16757,8 +16757,8 @@ static void sideview_getdist(int16_t sw, int16_t sect)
 
 static int sideview_cmppoints(const void *sw1, const void *sw2)
 {
-    int32_t dist1 = m32_sidedist[*(int16_t *)sw1];
-    int32_t dist2 = m32_sidedist[*(int16_t *)sw2];
+    int32_t dist1 = m32_sidedist[B_UNBUF16(sw1)];
+    int32_t dist2 = m32_sidedist[B_UNBUF16(sw2)];
 
     if (dist2>dist1)
         return 1;

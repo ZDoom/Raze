@@ -4879,7 +4879,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                         uint8_t pixr = f[ylsrc+x1+((dx+3)>>1)];
                         uint8_t pixl = f[ylsrc+x1+((dx+1)>>1)];
 
-                        *(uint32_t *)&f[yldst+x1+dx] = pixl|(pixl<<8)|(pixr<<16)|(pixr<<24);
+                        B_BUF32(&f[yldst+x1+dx], pixl|(pixl<<8)|(pixr<<16)|(pixr<<24));
                     }
             }
             enddrawing();

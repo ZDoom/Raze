@@ -3487,7 +3487,7 @@ void P_FragPlayer(int32_t snum)
             packbuf[1] = snum;
             packbuf[2] = p->frag_ps;
             packbuf[3] = actor[p->i].picnum;
-            *(int32_t *)&packbuf[4] = ticrandomseed;
+            B_BUF32(&packbuf[4], ticrandomseed);
             packbuf[8] = myconnectindex;
 
             enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 9, ENET_PACKET_FLAG_RELIABLE));

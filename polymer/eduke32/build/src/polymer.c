@@ -1225,7 +1225,7 @@ void                polymer_editorpick(void)
 
     bglReadPixels(searchx, ydim - searchy, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, picked);
 
-    num = *(int16_t *)(&picked[1]);
+    num = B_UNBUF16(&picked[1]);
 
     searchstat = picked[0];
 

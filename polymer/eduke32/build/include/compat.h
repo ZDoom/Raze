@@ -389,6 +389,7 @@ FORCE_INLINE uint32_t B_SWAP32(uint32_t l)
     return ((l >> 8) & 0xff00) | ((l & 0xff00) << 8) | (l << 24) | (l >> 24);
 }
 # endif
+
 FORCE_INLINE uint64_t B_SWAP64(uint64_t l)
 {
     return (l >> 56) | ((l >> 40) & 0xff00) | ((l >> 24) & 0xff0000) | ((l >> 8) & 0xff000000) |
@@ -396,22 +397,41 @@ FORCE_INLINE uint64_t B_SWAP64(uint64_t l)
 }
 #endif
 
-FORCE_INLINE void B_BUF16(uint8_t *buf, uint16_t x)
+// The purpose of these functions, as opposed to macros, is to prevent them from being used as lvalues.
+FORCE_INLINE uint16_t B_PASS16(uint16_t const x) { return x; }
+FORCE_INLINE uint32_t B_PASS32(uint32_t const x) { return x; }
+FORCE_INLINE uint64_t B_PASS64(uint64_t const x) { return x; }
+
+// TODO: Determine when, if ever, we should use the bit-shift-and-mask variants
+// due to alignment issues or performance gains.
+#if 1
+FORCE_INLINE void B_BUF16(void * const buf, uint16_t const x) { *(uint16_t *) buf = x; }
+FORCE_INLINE void B_BUF32(void * const buf, uint32_t const x) { *(uint32_t *) buf = x; }
+FORCE_INLINE void B_BUF64(void * const buf, uint64_t const x) { *(uint64_t *) buf = x; }
+
+FORCE_INLINE uint16_t B_UNBUF16(void const * const buf) { return *(uint16_t const *) buf; }
+FORCE_INLINE uint32_t B_UNBUF32(void const * const buf) { return *(uint32_t const *) buf; }
+FORCE_INLINE uint64_t B_UNBUF64(void const * const buf) { return *(uint64_t const *) buf; }
+#else
+FORCE_INLINE void B_BUF16(void * const vbuf, uint16_t const x)
 {
+    uint8_t * const buf = (uint8_t *) vbuf;
     buf[0] = (x & 0x00FF);
     buf[1] = (x & 0xFF00) >> 8;
 }
-FORCE_INLINE void B_BUF32(uint8_t *buf, uint32_t x)
+FORCE_INLINE void B_BUF32(void * const vbuf, uint32_t const x)
 {
+    uint8_t * const buf = (uint8_t *) vbuf;
     buf[0] = (x & 0x000000FF);
     buf[1] = (x & 0x0000FF00) >> 8;
     buf[2] = (x & 0x00FF0000) >> 16;
     buf[3] = (x & 0xFF000000) >> 24;
 }
-#if 0
+# if 0
 // i686-apple-darwin11-llvm-gcc-4.2 complains "integer constant is too large for 'long' type"
-FORCE_INLINE void B_BUF64(uint8_t *buf, uint64_t x)
+FORCE_INLINE void B_BUF64(void * const vbuf, uint64_t const x)
 {
+    uint8_t * const buf = (uint8_t *) vbuf;
     buf[0] = (x & 0x00000000000000FF);
     buf[1] = (x & 0x000000000000FF00) >> 8;
     buf[2] = (x & 0x0000000000FF0000) >> 16;
@@ -421,18 +441,25 @@ FORCE_INLINE void B_BUF64(uint8_t *buf, uint64_t x)
     buf[6] = (x & 0x00FF000000000000) >> 48;
     buf[7] = (x & 0xFF00000000000000) >> 56;
 }
-#endif
+# endif
 
-FORCE_INLINE uint16_t B_UNBUF16(const uint8_t *buf) { return (buf[1] << 8) | (buf[0]); }
-FORCE_INLINE uint32_t B_UNBUF32(const uint8_t *buf)
+FORCE_INLINE uint16_t B_UNBUF16(void const * const vbuf)
 {
+    uint8_t const * const buf = (uint8_t const *) vbuf;
+    return (buf[1] << 8) | (buf[0]);
+}
+FORCE_INLINE uint32_t B_UNBUF32(void const * const vbuf)
+{
+    uint8_t const * const buf = (uint8_t const *) vbuf;
     return (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
 }
-FORCE_INLINE uint64_t B_UNBUF64(const uint8_t *buf)
+FORCE_INLINE uint64_t B_UNBUF64(void const * const vbuf)
 {
+    uint8_t const * const buf = (uint8_t const *) vbuf;
     return ((uint64_t)buf[7] << 56) | ((uint64_t)buf[6] << 48) | ((uint64_t)buf[5] << 40) |
         ((uint64_t)buf[4] << 32) | (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
 }
+#endif
 
 #if defined BITNESS64 && (defined __SSE2__ || defined _MSC_VER)
 #include <emmintrin.h>
@@ -455,19 +482,19 @@ FORCE_INLINE int32_t Blrintf(const float x)
 #endif
 
 #if B_LITTLE_ENDIAN == 1
-# define B_LITTLE64(x) (x)
+# define B_LITTLE64(x) B_PASS64(x)
 # define B_BIG64(x)    B_SWAP64(x)
-# define B_LITTLE32(x) (x)
+# define B_LITTLE32(x) B_PASS32(x)
 # define B_BIG32(x)    B_SWAP32(x)
-# define B_LITTLE16(x) (x)
+# define B_LITTLE16(x) B_PASS16(x)
 # define B_BIG16(x)    B_SWAP16(x)
 #elif B_BIG_ENDIAN == 1
 # define B_LITTLE64(x) B_SWAP64(x)
-# define B_BIG64(x)    (x)
+# define B_BIG64(x)    B_PASS64(x)
 # define B_LITTLE32(x) B_SWAP32(x)
-# define B_BIG32(x)    (x)
+# define B_BIG32(x)    B_PASS32(x)
 # define B_LITTLE16(x) B_SWAP16(x)
-# define B_BIG16(x)    (x)
+# define B_BIG16(x)    B_PASS16(x)
 #endif
 
 #ifndef FP_OFF
