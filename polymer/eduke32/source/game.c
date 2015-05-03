@@ -4565,7 +4565,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 #if MAXYDIM >= 640
                 const int maxtiltallocsiz = 640*640;
 #else
-                const int maxtileallocsiz = 320*320;
+                const int maxtiltallocsiz = 320*320;
 #endif
                 // To render a tilted screen in high quality, we need at least
                 // 640 pixels of *Y* dimension.
