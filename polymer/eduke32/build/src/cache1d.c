@@ -40,9 +40,6 @@
 #ifdef WITHKPLIB
 #include "kplib.h"
 
-char *kpzbuf = NULL;
-int32_t kpzbufsiz = 0;
-
 //Insert '|' in front of filename
 //Doing this tells kzopen to load the file only if inside a .ZIP file
 static intptr_t kzipopen(const char *filnam)
@@ -58,6 +55,39 @@ static intptr_t kzipopen(const char *filnam)
 
 #endif
 
+char *kpzbuf = NULL;
+
+int32_t kpzbufloadfil(int32_t const handle)
+{
+    static int32_t kpzbufsiz = 0;
+
+    int32_t const leng = kfilelength(handle);
+    if (leng > kpzbufsiz)
+    {
+        kpzbuf = (char *) Xrealloc(kpzbuf, leng+1);
+        kpzbufsiz = leng;
+        if (!kpzbuf)
+            return 0;
+    }
+
+    kpzbuf[leng] = 0;  // FIXME: buf[leng] read in kpegrend(), see BUF_LENG_READ
+    kread(handle, kpzbuf, leng);
+
+    return leng;
+}
+
+int32_t kpzbufload(char const * const filnam)
+{
+    int32_t const handle = kopen4load(filnam, 0);
+    if (handle < 0)
+        return 0;
+
+    int32_t const leng = kpzbufloadfil(handle);
+
+    kclose(handle);
+
+    return leng;
+}
 
 //   This module keeps track of a standard linear cacheing system.
 //   To use this module, here's all you need to do:

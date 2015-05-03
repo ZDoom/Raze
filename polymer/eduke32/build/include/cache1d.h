@@ -12,9 +12,11 @@ extern "C" {
 
 #ifdef WITHKPLIB
 int32_t cache1d_file_fromzip(int32_t fil);
-extern char *kpzbuf;
-extern int32_t kpzbufsiz;
 #endif
+
+extern char *kpzbuf;
+extern int32_t kpzbufloadfil(int32_t);
+extern int32_t kpzbufload(const char *);
 
 void	initcache(intptr_t dacachestart, int32_t dacachesize);
 void	allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr);

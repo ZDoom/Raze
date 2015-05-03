@@ -9272,9 +9272,7 @@ void uninitengine(void)
 #ifdef DYNALLOC_ARRAYS
     DO_FREE_AND_NULL(blockptr);
 #endif
-#ifdef WITHKPLIB
     DO_FREE_AND_NULL(kpzbuf);
-#endif
 
     uninitsystem();
 

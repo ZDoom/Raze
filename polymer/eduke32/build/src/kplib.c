@@ -3061,28 +3061,29 @@ int32_t kzseek(int32_t offset, int32_t whence)
 //===================== HANDY PICTURE function begins ========================
 #include "cache1d.h"
 
-void kpzload(const char *filnam, intptr_t *pic, int32_t *bpl, int32_t *xsiz, int32_t *ysiz)
+void kpzdecode(int32_t const leng, intptr_t * const pic, int32_t * const bpl, int32_t * const xsiz, int32_t * const ysiz)
 {
-    int32_t leng;
-    int32_t handle = kopen4load((char *)filnam, 0);
+    *pic = 0;
 
-    (*pic) = 0;
-    if (handle < 0) return;
-    leng = kfilelength(handle);
+    kpgetdim(kpzbuf, leng, xsiz, ysiz);
+    *bpl = (*xsiz)<<2;
 
-    if (leng+1 > kpzbufsiz)
+    *pic = (intptr_t)Xmalloc(*ysiz * *bpl);
+    if (!*pic)
+        return;
+
+    if (kprender(kpzbuf, leng, *pic, *bpl, *xsiz, *ysiz) < 0)
     {
-        kpzbuf = (char *) Xrealloc(kpzbuf, leng+1);
-        kpzbufsiz = leng+1;
-        if (!kpzbuf) { kclose(handle); return; }
+        if (*pic)
+        {
+            Bfree((void *) *pic);
+            *pic = 0;
+        }
     }
-    kpzbuf[leng]=0;  // FIXME: buf[leng] read in kpegrend(), see BUF_LENG_READ
-    kread(handle,kpzbuf,leng);
-    kclose(handle);
+}
 
-    kpgetdim(kpzbuf,leng,xsiz,ysiz);
-    (*bpl) = ((*xsiz)<<2);
-    (*pic) = (intptr_t)Xmalloc((*ysiz)*(*bpl)); if (!(*pic)) { return; }
-    if (kprender(kpzbuf, leng, *pic, *bpl, *xsiz, *ysiz) < 0) { if (*pic) { Bfree((void *) *pic), *pic = 0; return; } }
+void kpzload(const char * const filnam, intptr_t * const pic, int32_t * const bpl, int32_t * const xsiz, int32_t * const ysiz)
+{
+    kpzdecode(kpzbufload(filnam), pic, bpl, xsiz, ysiz);
 }
 //====================== HANDY PICTURE function ends =========================
