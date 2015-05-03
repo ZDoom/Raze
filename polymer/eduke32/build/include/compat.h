@@ -248,12 +248,12 @@
 #  define B_LITTLE_ENDIAN 0
 #  define B_BIG_ENDIAN    1
 # endif
-# define B_ENDIAN_C_INLINE 1
+# define B_USE_COMPAT_SWAP 1
 
 #elif defined(GEKKO) || defined(__ANDROID__)
 # define B_LITTLE_ENDIAN 0
 # define B_BIG_ENDIAN 1
-# define B_ENDIAN_C_INLINE 1
+# define B_USE_COMPAT_SWAP 1
 
 #elif defined(__OpenBSD__)
 # include <machine/endian.h>
@@ -316,7 +316,7 @@
 #  define B_LITTLE_ENDIAN 0
 #  define B_BIG_ENDIAN    1
 # endif
-# define B_ENDIAN_C_INLINE 1
+# define B_USE_COMPAT_SWAP 1
 
 #elif defined(__QNX__)
 # if defined __LITTLEENDIAN__
@@ -326,7 +326,7 @@
 #  define B_LITTLE_ENDIAN 0
 #  define B_BIG_ENDIAN    1
 # endif
-# define B_ENDIAN_C_INLINE 1
+# define B_USE_COMPAT_SWAP 1
 
 #elif defined(__sun)
 # if defined _LITTLE_ENDIAN
@@ -336,12 +336,12 @@
 #  define B_LITTLE_ENDIAN 0
 #  define B_BIG_ENDIAN    1
 # endif
-# define B_ENDIAN_C_INLINE 1
+# define B_USE_COMPAT_SWAP 1
 
 #elif defined(_WIN32) || defined(SKYOS) || defined(__SYLLABLE__)
 # define B_LITTLE_ENDIAN 1
 # define B_BIG_ENDIAN    0
-# define B_ENDIAN_C_INLINE 1
+# define B_USE_COMPAT_SWAP 1
 #endif
 
 #if !defined(B_LITTLE_ENDIAN) || !defined(B_BIG_ENDIAN)
@@ -365,18 +365,30 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 extern "C" {
 #endif
 
-#if defined B_ENDIAN_X86_INLINE
-# if defined(_MSC_VER)
-	// inline asm using bswap/xchg
-# elif defined(__GNUC__)
-	// inline asm using bswap/xchg
-# endif
-#elif defined B_ENDIAN_C_INLINE
+#if defined B_USE_COMPAT_SWAP
 FORCE_INLINE uint16_t B_SWAP16(uint16_t s) { return (s >> 8) | (s << 8); }
+
+# if !defined NOASM && defined __i386__ && defined _MSC_VER
+FORCE_INLINE uint32_t B_SWAP32(uint32_t a)
+{
+    _asm
+    {
+        mov eax, a
+        bswap eax
+    }
+}
+# elif !defined NOASM && defined __i386__ && defined __GNUC__
+FORCE_INLINE uint32_t B_SWAP32(uint32_t a)
+{
+    __asm__ __volatile__("bswap %0" : "+r"(a) : : "cc");
+    return a;
+}
+# else
 FORCE_INLINE uint32_t B_SWAP32(uint32_t l)
 {
     return ((l >> 8) & 0xff00) | ((l & 0xff00) << 8) | (l << 24) | (l >> 24);
 }
+# endif
 FORCE_INLINE uint64_t B_SWAP64(uint64_t l)
 {
     return (l >> 56) | ((l >> 40) & 0xff00) | ((l >> 24) & 0xff0000) | ((l >> 8) & 0xff000000) |

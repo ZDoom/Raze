@@ -72,11 +72,6 @@ static __inline int32_t _lrotl(int32_t i, int sh)
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#if defined __clang__ && __clang_major__==3 && __clang_minor__==1
-// clang 3.1 SVN r149129, assertion failure with inline asm
-# define NOASM 1
-#endif
-
 #if defined(__GNUC__)
 #undef _inline
 #define _inline inline
@@ -177,17 +172,6 @@ static uint8_t qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
 
 #if defined(_MSC_VER) && !defined(NOASM)
 
-#if B_BIG_ENDIAN == 1
-static _inline uint32_t bswap(uint32_t a)
-{
-    _asm
-    {
-        mov eax, a
-        bswap eax
-    }
-}
-#endif
-
 static _inline int32_t bitrev(int32_t b, int32_t c)
 {
     _asm
@@ -204,14 +188,6 @@ static _inline int32_t bitrev(int32_t b, int32_t c)
 
 #elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
-#if B_BIG_ENDIAN == 1
-static inline uint32_t bswap(uint32_t a)
-{
-    __asm__ __volatile__("bswap %0" : "+r"(a) : : "cc");
-    return a;
-}
-#endif
-
 static inline int32_t bitrev(int32_t b, int32_t c)
 {
     int32_t a = 0;
@@ -222,13 +198,6 @@ static inline int32_t bitrev(int32_t b, int32_t c)
 }
 
 #else
-
-#if B_BIG_ENDIAN == 1
-static inline uint32_t bswap(uint32_t a)
-{
-    return(((a&0xff0000)>>8) + ((a&0xff00)<<8) + (a<<24) + (a>>24));
-}
-#endif
 
 static inline int32_t bitrev(int32_t b, int32_t c)
 {
@@ -1120,9 +1089,9 @@ static void initkpeg()
 #if B_BIG_ENDIAN == 1
     for (i=0; i<1024; i++)
     {
-        colclip[i] = bswap(colclip[i]);
-        colclipup8[i] = bswap(colclipup8[i]);
-        colclipup16[i] = bswap(colclipup16[i]);
+        colclip[i] = B_SWAP32(colclip[i]);
+        colclipup8[i] = B_SWAP32(colclipup8[i]);
+        colclipup16[i] = B_SWAP32(colclipup16[i]);
     }
 #endif
 
