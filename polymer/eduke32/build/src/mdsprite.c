@@ -585,21 +585,35 @@ int32_t md_undefinemodel(int32_t modelid)
 static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy,
                             int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect)
 {
-    int32_t picfillen, j,y,x;
-    char *picfil,*cptr,al=255;
+    char *cptr,al=255;
     coltype *pic;
-    int32_t xsiz, ysiz, tsizx, tsizy;
+    int32_t xsiz, ysiz, tsizx = 0, tsizy = 0;
     int32_t r, g, b;
+    int32_t j, y, x;
+    int32_t isart = 0;
 
-    picfillen = kfilelength(filh);
-    picfil = (char *)Xmalloc(picfillen+1);
-    kread(filh, picfil, picfillen);
+    int32_t const picfillen = kpzbufloadfil(filh);
 
     // tsizx/y = replacement texture's natural size
     // xsiz/y = 2^x size of replacement
 
-    kpgetdim(picfil,picfillen,&tsizx,&tsizy);
-    if (tsizx == 0 || tsizy == 0) { Bfree(picfil); return -2; }
+#ifdef WITHKPLIB
+    kpgetdim(kpzbuf,picfillen,&tsizx,&tsizy);
+#endif
+
+    if (tsizx == 0 || tsizy == 0)
+    {
+        if (E_CheckUnitArtFileHeader((uint8_t *)kpzbuf, picfillen))
+            return -2;
+
+        tsizx = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
+        tsizy = B_LITTLE16(B_UNBUF16(&kpzbuf[18]));
+
+        if (tsizx == 0 || tsizy == 0)
+            return -2;
+
+        isart = 1;
+    }
 
     if (!glinfo.texnpot)
     {
@@ -612,13 +626,30 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
         ysiz = tsizy;
     }
     *osizx = tsizx; *osizy = tsizy;
-    pic = (coltype *)Xmalloc(xsiz*ysiz*sizeof(coltype));
 
-    memset(pic,0,xsiz*ysiz*sizeof(coltype));
+    if (isart)
+    {
+        if (tsizx * tsizy + ARTv1_UNITOFFSET > picfillen)
+            return -2;
+    }
 
-    if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz))
-        { Bfree(picfil); Bfree(pic); return -2; }
-    Bfree(picfil);
+    int32_t const bytesperline = xsiz * sizeof(coltype);
+    pic = (coltype *)Xcalloc(ysiz, bytesperline);
+
+    if (isart)
+    {
+        E_RenderArtDataIntoBuffer((palette_t *)pic, (uint8_t *)&kpzbuf[ARTv1_UNITOFFSET], xsiz, tsizx, tsizy);
+    }
+#ifdef WITHKPLIB
+    else
+    {
+        if (kprender(kpzbuf,picfillen,(intptr_t)pic,bytesperline,xsiz,ysiz))
+        {
+            Bfree(pic);
+            return -2;
+        }
+    }
+#endif
 
     cptr = &britable[gammabrightness ? 0 : curbrightness][0];
     r=(glinfo.bgra)?hictinting[pal].b:hictinting[pal].r;

@@ -995,7 +995,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
     coltype *pic = NULL;
 
-    char *picfil = NULL, *fn;
+    char *fn;
     int32_t picfillen, intexfmt = GL_RGBA, filh;
 
     int32_t startticks=0, willprint=0;
@@ -1028,7 +1028,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     char hasalpha = 255;
     texcacheheader cachead;
     int32_t gotcache = texcache_readtexheader(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead, 0);
-    vec2_t siz ={ 0, 0 }, tsiz;
+    vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
 
     if (gotcache && !texcache_loadtile(&cachead, &doalloc, pth))
     {
@@ -1040,27 +1040,34 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     {
         int32_t r, g, b;
         int32_t j, y;
+        int32_t isart = 0;
 
         gotcache = 0;	// the compressed version will be saved to disk
 
-        if ((filh = kopen4load(fn, 0)) < 0) return -1;
-
-        picfil = (char *)Xmalloc(picfillen+1);
-
-        if (EDUKE32_PREDICT_FALSE(kread(filh, picfil, picfillen) != picfillen))
-            initprintf("warning: didn't fully read %s\n", fn);
-
-        // prevent
-        // Conditional jump or move depends on uninitialised value(s)
-        //  at kpegrend (kplib.c:1655)
-        picfil[picfillen] = 0;
-        kclose(filh);
+        int32_t const length = kpzbufload(fn);
+        if (length == 0)
+            return -1;
 
         // tsizx/y = replacement texture's natural size
         // xsiz/y = 2^x size of replacement
 
-        kpgetdim(picfil,picfillen,&tsiz.x,&tsiz.y);
-        if (tsiz.x == 0 || tsiz.y == 0) { Bfree(picfil); return -1; }
+#ifdef WITHKPLIB
+        kpgetdim(kpzbuf,picfillen,&tsiz.x,&tsiz.y);
+#endif
+
+        if (tsiz.x == 0 || tsiz.y == 0)
+        {
+            if (E_CheckUnitArtFileHeader((uint8_t *)kpzbuf, picfillen))
+                return -1;
+
+            tsiz.x = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
+            tsiz.y = B_LITTLE16(B_UNBUF16(&kpzbuf[18]));
+
+            if (tsiz.x == 0 || tsiz.y == 0)
+                return -1;
+
+            isart = 1;
+        }
 
         pth->siz = tsiz;
 
@@ -1072,7 +1079,14 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         else
             siz = tsiz;
 
-        pic = (coltype *)Xcalloc(siz.x,siz.y*sizeof(coltype));
+        if (isart)
+        {
+            if (tsiz.x * tsiz.y + ARTv1_UNITOFFSET > picfillen)
+                return -2;
+        }
+
+        int32_t const bytesperline = siz.x * sizeof(coltype);
+        pic = (coltype *)Xcalloc(siz.x, bytesperline);
 
         startticks = getticks();
 
@@ -1087,7 +1101,21 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         }
         else
         {
-            if (kprender(picfil,picfillen,(intptr_t)pic,siz.x*sizeof(coltype),siz.x,siz.y)) { Bfree(picfil); Bfree(pic); return -2; }
+            if (isart)
+            {
+                E_RenderArtDataIntoBuffer((palette_t *)pic, (uint8_t *)&kpzbuf[ARTv1_UNITOFFSET], siz.x, tsiz.x, tsiz.y);
+            }
+#ifdef WITHKPLIB
+            else
+            {
+                if (kprender(kpzbuf,picfillen,(intptr_t)pic,bytesperline,siz.x,siz.y))
+                {
+                    Bfree(pic);
+                    return -2;
+                }
+            }
+#endif
+
             willprint=2;
 
             if (hicprecaching)
@@ -1202,8 +1230,6 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 swapchar(&pic[j].r, &pic[j].b);
         }
         else texfmt = GL_BGRA;
-
-        Bfree(picfil); picfil = 0;
 
         if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
             hicr->flags |= (HICR_NOCOMPRESS + HICR_NOSAVE);
