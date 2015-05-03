@@ -91,6 +91,7 @@ enum scripttoken_t
     T_IMPORTTILE,
     T_MUSIC,T_ID,T_SOUND,
     T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET, T_TEXHITSCAN, T_NOFULLBRIGHT,
+    T_ARTFILE,
     T_INCLUDEDEFAULT,
     T_ANIMSOUNDS,
     T_CUTSCENE,
@@ -358,6 +359,7 @@ static int32_t defsparser(scriptfile *script)
         { "cachesize",       T_CACHESIZE        },
         { "dummytilefrompic",T_IMPORTTILE       },
         { "tilefromtexture", T_TILEFROMTEXTURE  },
+        { "artfile",         T_ARTFILE          },
         { "mapinfo",         T_MAPINFO          },
         { "echo",            T_ECHO             },
         { "globalflags",     T_GLOBALFLAGS      },
@@ -581,6 +583,66 @@ static int32_t defsparser(scriptfile *script)
             int32_t j;
 
             if (scriptfile_getnumber(script,&j)) break;
+        }
+        break;
+        case T_ARTFILE:
+        {
+            char *blockend, *fn = NULL;
+            int32_t tile = -1, havetile = 0;
+
+            static const tokenlist artfiletokens[] =
+            {
+                { "file",            T_FILE },
+                { "tile",            T_TILE },
+            };
+
+            if (scriptfile_getbraces(script,&blockend)) break;
+            while (script->textptr < blockend)
+            {
+                int32_t token = getatoken(script,artfiletokens,ARRAY_SIZE(artfiletokens));
+                switch (token)
+                {
+                case T_FILE:
+                    scriptfile_getstring(script,&fn);
+                    break;
+                case T_TILE:
+                    havetile = 1;
+                    scriptfile_getsymbol(script,&tile);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            if (EDUKE32_PREDICT_FALSE(!fn))
+            {
+                initprintf("Error: missing 'file name' for artfile definition near line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+
+            int32_t const fil = kopen4load(fn, 0);
+            if (fil == -1)
+                break;
+
+            artheader_t local;
+            int32_t headerval = E_ReadArtFileHeader(fil, fn, &local);
+            if (headerval != 0)
+                break;
+
+            if (havetile)
+            {
+                if (!check_tile("artfile", tile, script, cmdtokptr))
+                {
+                    local.tilestart = tile;
+                    local.tileend = tile + local.numtiles - 1;
+                }
+            }
+
+            E_ReadArtFileTileInfo(fil, &local);
+            E_ReadArtFileIntoFakeData(fil, &local);
+
+            kclose(fil);
         }
         break;
         case T_SETUPTILE:
