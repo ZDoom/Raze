@@ -11838,6 +11838,12 @@ void nextpage(void)
 // ART loading
 //
 
+void E_CreateDummyTile(int32_t const tile)
+{
+    faketile[tile>>3] |= pow2char[tile&7];
+    DO_FREE_AND_NULL(faketiledata[tile]);
+}
+
 void E_CreateFakeTile(int32_t const tile, int32_t tsiz, char const * const buffer)
 {
     faketiledata[tile] = (char *)Xrealloc(faketiledata[tile], tsiz + 32);

@@ -866,7 +866,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 set_tilesiz(tile, xsiz, ysiz);
                 Bmemset(&picanm[tile], 0, sizeof(picanm_t));
-                faketile[tile>>3] |= pow2char[tile&7];
+                E_CreateDummyTile(tile);
             }
 
             break;
@@ -897,7 +897,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 set_tilesiz(i, xsiz, ysiz);
                 Bmemset(&picanm[i], 0, sizeof(picanm_t));
-                faketile[i>>3] |= pow2char[i&7];
+                E_CreateDummyTile(i);
             }
 
             break;
@@ -2120,7 +2120,7 @@ static int32_t defsparser(scriptfile *script)
                     {
                         set_tilesiz(tile, xsiz, ysiz);
                         Bmemset(&picanm[tile], 0, sizeof(picanm_t));
-                        faketile[tile>>3] |= pow2char[tile&7];
+                        E_CreateDummyTile(tile);
                     }
 #ifdef USE_OPENGL
                     xscale = 1.0f / xscale;
