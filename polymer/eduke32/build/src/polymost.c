@@ -1086,7 +1086,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         }
 
         int32_t const bytesperline = siz.x * sizeof(coltype);
-        pic = (coltype *)Xcalloc(siz.x, bytesperline);
+        pic = (coltype *)Xcalloc(siz.y, bytesperline);
 
         startticks = getticks();
 
