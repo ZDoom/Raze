@@ -491,6 +491,13 @@ void M32_ResetFakeRORTiles(void)
 void M32_DrawRoomsAndMasks(void)
 {
     static int srchwall = -1;
+    const int32_t tmpyx=yxaspect, tmpvr=viewingrange;
+
+    if (r_usenewaspect)
+    {
+        newaspect_enable = 1;
+        setaspect_new();
+    }
 
     VM_OnEvent(EVENT_PREDRAW3DSCREEN, -1);
 
@@ -532,6 +539,12 @@ void M32_DrawRoomsAndMasks(void)
         screencapture("mcapxxxx.tga", 0, "Mapster32, from script");
         g_doScreenShot = 0;
     }
+
+    if (r_usenewaspect)
+    {
+        newaspect_enable = 0;
+        setaspect(tmpvr, tmpyx);
+    }
 }
 
 int32_t app_main(int32_t argc, const char **argv)
@@ -555,7 +568,6 @@ int32_t app_main(int32_t argc, const char **argv)
     wm_setapptitle(AppProperName);
 
     editstatus = 1;
-    newaspect_enable = 1;
 
     if ((i = CallExtPreInit(argc,argv)) < 0) return -1;
 

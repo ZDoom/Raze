@@ -3657,22 +3657,20 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
 {
     char buf[64];
     int32_t small = (xdimgame<=640);
-    int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
 
     if (tilesiz[picnum].x>0 && tilesiz[picnum].y>0)
     {
-        double scalediv;
-        int32_t scale=65536;
         int32_t x1 = x+80;
 
         if (small)
             x1 /= 2;
 
         x1 = (int32_t)(x1 * 320.0/xdimgame);
-        scalediv = max(tilesiz[picnum].x,tilesiz[picnum].y)/24.0;
-        scale = (int32_t)((double)scale/scalediv);
+        const double scalediv = max(tilesiz[picnum].x,tilesiz[picnum].y)/24.0;
+        const int32_t scale = (int32_t)(65536.0/scalediv);
 
-        setaspect(65536L, (int32_t)divscale16(ydim*320L,xdim*200L));
+        const int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
+        setaspect(65536, divscale16(ydim*320, xdim*200));
         // +1024: prevents rotatesprite from setting aspect itself
         rotatesprite_fs((x1+13)<<16,(y+11)<<16,scale,0, picnum,shade,pal, 2+1024);
         setaspect(oviewingrange, oyxaspect);
