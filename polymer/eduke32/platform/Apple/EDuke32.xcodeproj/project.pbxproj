@@ -427,6 +427,8 @@
 		2038AEA11A8F12B60093B7B2 /* animsounds.c in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9E1A8F12B60093B7B2 /* animsounds.c */; };
 		2038AEA31A8F137E0093B7B2 /* DUKE.RTS in Resources */ = {isa = PBXBuildFile; fileRef = 2038AEA21A8F137E0093B7B2 /* DUKE.RTS */; };
 		2085BEBA1A8F23B9002BF4CE /* libSystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2085BEB91A8F23B9002BF4CE /* libSystem.dylib */; };
+		20C2146A1B02C19800917E58 /* game.png in Resources */ = {isa = PBXBuildFile; fileRef = 20C214691B02C19800917E58 /* game.png */; };
+		20C2146F1B02C1D800917E58 /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 20C2146E1B02C1D800917E58 /* build.png */; };
 		20F70F131A8F25CE00F71870 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0013832819F366720007DA6C /* libc++.dylib */; };
 /* End PBXBuildFile section */
 
@@ -792,6 +794,8 @@
 		2038AE9F1A8F12B60093B7B2 /* animsounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = animsounds.h; path = ../../source/animsounds.h; sourceTree = SOURCE_ROOT; };
 		2038AEA21A8F137E0093B7B2 /* DUKE.RTS */ = {isa = PBXFileReference; lastKnownFileType = file; name = DUKE.RTS; path = ../../../../../DUKE.RTS; sourceTree = SOURCE_ROOT; };
 		2085BEB91A8F23B9002BF4CE /* libSystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSystem.dylib; path = usr/lib/libSystem.dylib; sourceTree = SDKROOT; };
+		20C214691B02C19800917E58 /* game.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = game.png; path = bundles/EDuke32.app/Contents/Resources/game.png; sourceTree = SOURCE_ROOT; };
+		20C2146E1B02C1D800917E58 /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = build.png; path = bundles/Mapster32.app/Contents/Resources/build.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1023,6 +1027,7 @@
 			children = (
 				000C487319F35517006E6B52 /* iOS */,
 				0008EA1D19F1AEFC0091588D /* eduke32.icns */,
+				20C214691B02C19800917E58 /* game.png */,
 				0008EA1E19F1AEFC0091588D /* game.osxmain.nib */,
 				0008EA1F19F1AEFC0091588D /* startwin.game.nib */,
 				0008EA0D19F1AE820091588D /* astub.c */,
@@ -1255,6 +1260,7 @@
 			isa = PBXGroup;
 			children = (
 				00970E3319F207F000873EB9 /* a-c.c */,
+				20C2146E1B02C1D800917E58 /* build.png */,
 				0008EA2419F1AF220091588D /* build.osxmain.nib */,
 				0008EA2519F1AF220091588D /* startwin.editor.nib */,
 				0008E8DC19F1AC530091588D /* baselayer.c */,
@@ -1834,6 +1840,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0008EA2119F1AEFC0091588D /* game.osxmain.nib in Resources */,
+				20C2146A1B02C19800917E58 /* game.png in Resources */,
 				0008EA2219F1AEFC0091588D /* startwin.game.nib in Resources */,
 				0008EA2019F1AEFC0091588D /* eduke32.icns in Resources */,
 			);
@@ -1843,6 +1850,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				20C2146F1B02C1D800917E58 /* build.png in Resources */,
 				0008EA2719F1AF220091588D /* startwin.editor.nib in Resources */,
 				0008EA2319F1AF010091588D /* eduke32.icns in Resources */,
 				0008EA2619F1AF220091588D /* build.osxmain.nib in Resources */,
