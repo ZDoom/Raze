@@ -51,11 +51,16 @@ static grpinfo_t const internalgrpfiles[] =
     { "Duke it out in D.C. (1.3D)",            DUKEDC13_CRC, 7926624, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE13_CRC, NULL, NULL, NULL, NULL },
     { "Duke it out in D.C.",                   DUKEDCPP_CRC, 8225517, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, NULL, NULL, NULL },
     { "Duke it out in D.C.",                   DUKEDC_CRC,  8410183,  GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, NULL, NULL, NULL },
+    { "Duke it out in D.C.",                   (int32_t)0x39A692BF,  8410187, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "DUKEDC.CON", NULL, NULL, NULL },
     { "Duke Caribbean: Life's a Beach (1.3D)", VACA13_CRC,  23559381, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE13_CRC, NULL, NULL, process_vaca13, NULL },
     { "Duke Caribbean: Life's a Beach (PPak)", VACAPP_CRC,  22551333, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKEPP_CRC, NULL, NULL, process_vacapp15, NULL },
     { "Duke Caribbean: Life's a Beach",        VACA15_CRC,  22521880, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, NULL, process_vacapp15, NULL },
     { "Duke Caribbean: Life's a Beach",        DUKECB_CRC,  22213819, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, NULL, NULL, NULL },
+    { "Duke Caribbean: Life's a Beach",        (int32_t)0x65B5F690, 22397273, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "VACATION.CON", NULL, NULL, NULL },
     { "Duke: Nuclear Winter",                  DUKENW_CRC,  16169365, GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_NWINTER, DUKE15_CRC, "NWINTER.CON", NULL, NULL, NULL },
+    { "Duke!ZONE II (1.3D)",                   DZ2_13_CRC,  26135388, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE13_CRC, "DZ-GAME.CON", NULL, NULL, NULL },
+    { "Duke!ZONE II",                          DZ2_PP_CRC,  44100411, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "DZ-GAME.CON", NULL, NULL, NULL },
+    { "Duke!ZONE II",                          (int32_t)0x1E9516F1,  3186656, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "DZ-GAME.CON", NULL, NULL, NULL },
     { "NAM",                                   NAM_CRC,     43448927, GAMEFLAG_NAM,                          0, NULL, NULL, NULL, NULL },
     { "NAPALM",                                NAPALM_CRC,  44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,          0, NULL, NULL, NULL, NULL },
     { "WWII GI",                               WW2GI_CRC,   77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,           0, NULL, NULL, NULL, NULL },
@@ -87,6 +92,8 @@ static void LoadList(const char * filename)
     scriptfile_addsymbolvalue("VACA15_CRC", VACA15_CRC);
     scriptfile_addsymbolvalue("DUKECB_CRC", DUKECB_CRC);
     scriptfile_addsymbolvalue("DUKENW_CRC", DUKENW_CRC);
+    scriptfile_addsymbolvalue("DZ2_13_CRC", DZ2_13_CRC);
+    scriptfile_addsymbolvalue("DZ2_PP_CRC", DZ2_PP_CRC);
     scriptfile_addsymbolvalue("NAM_CRC", NAM_CRC);
     scriptfile_addsymbolvalue("NAPALM_CRC", NAPALM_CRC);
     scriptfile_addsymbolvalue("WW2GI_CRC", WW2GI_CRC);

@@ -47,6 +47,8 @@ extern "C" {
 #define VACA15_CRC  (int32_t)0xB62B42FD
 #define DUKECB_CRC  (int32_t)0x18F01C5B
 #define DUKENW_CRC  (int32_t)0xF1CAE8E4
+#define DZ2_13_CRC  (int32_t)0x82C1B47F
+#define DZ2_PP_CRC  (int32_t)0x7FB6117C
 #define NAM_CRC     (int32_t)0x75C1F07B
 #define NAPALM_CRC  (int32_t)0x3DE1589A
 #define WW2GI_CRC   (int32_t)0x907B82BF
