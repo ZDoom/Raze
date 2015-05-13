@@ -539,8 +539,11 @@ const char * G_GetInstallPath(int32_t insttype)
         {
             switch (insttype)
             {
-            case INSTPATH_STEAM_DUKE3D:
+            case INSTPATH_STEAM_DUKE3D_MEGATON:
                 success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", NULL, spath[insttype], (LPDWORD)&siz);
+                break;
+            case INSTPATH_STEAM_DUKE3D_3DR:
+                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 359850", "InstallLocation", NULL, spath[insttype], (LPDWORD)&siz);
                 break;
             case INSTPATH_GOG_DUKE3D:
                 success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, spath[insttype], (LPDWORD)&siz);
@@ -617,6 +620,11 @@ static void G_AddSteamPaths(const char *basepath)
 
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music/vacation", basepath);
     addsearchpath(buf);
+
+#if defined EDUKE32_OSX
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/Duke Nukem 3D.app/drive_c/Program Files/Duke Nukem 3D", basepath);
+    addsearchpath_user(buf, SEARCHPATH_REMOVE);
+#endif
 
 #if defined EDUKE32_OSX
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM", basepath);
@@ -847,7 +855,7 @@ void G_AddSearchPaths(void)
     char buf[BMAX_PATH];
     const char* instpath;
 
-    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D)))
+    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D_MEGATON)))
     {
         Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
@@ -869,6 +877,12 @@ void G_AddSearchPaths(void)
 
         Bsnprintf(buf, sizeof(buf), "%s/gameroot/music/vacation", instpath);
         addsearchpath(buf);
+    }
+
+    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D_3DR)))
+    {
+        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
     if ((instpath = G_GetInstallPath(INSTPATH_GOG_DUKE3D)))
