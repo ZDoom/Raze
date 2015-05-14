@@ -910,20 +910,24 @@ end
 
 local inform = {}
 
-function inform.common(loc, iserr)
+function inform.common(loc, iserr, prefix)
     if (loc) then
-        contprintf(iserr, "Old definition is at %s %d:%d", loc[1], loc[2], loc[3])
+        contprintf(iserr, prefix.." is at %s %d:%d", loc[1], loc[2], loc[3])
     else
-        contprintf(iserr, "Old definition is built-in")
+        contprintf(iserr, prefix.." is built-in")
     end
 end
 
 function inform.olddef_location(identifier, iserr)
-    inform.common(g_labelloc[identifier], iserr)
+    inform.common(g_labelloc[identifier], iserr, "Old definition")
 end
 
 function inform.oldgv_location(identifier, iserr)
-    inform.common(g_gamevar[identifier].loc, iserr)
+    inform.common(g_gamevar[identifier].loc, iserr, "Old definition")
+end
+
+function inform.gv_location(identifier, iserr)
+    inform.common(g_gamevar[identifier].loc, iserr, "Definition")
 end
 
 
@@ -2128,6 +2132,7 @@ function lookup.array_expr(writep, structname, index, membertab)
                 local gv = g_gamevar[structname]
                 if (gv and bit.band(gv.flags, GVFLAG.PERX_MASK)~=GVFLAG.PERACTOR) then
                     errprintf("gamevar `%s' is not per-actor", structname, "actor")
+                    -- TODO: inform.gv_location()?
                 end
 
                 if (membertab == nil) then
@@ -2239,6 +2244,7 @@ local function GetOrSetPerxvarCmd(Setp, Actorp)
             local xprintf = warnp and warnprintf or errprintf
 
             xprintf("gamevar `%s' is not per-%s", perxvarname, Actorp and "actor" or "player")
+            inform.gv_location(perxvarname, not warnp)
 
             if (warnp and bit.band(gv.flags, GVFLAG.PERX_MASK)==GVFLAG.PERPLAYER
                     and g_cgopt["bad-getactorvar-use-pli"]) then
@@ -3612,6 +3618,10 @@ function on.switch_end(testvar, blocks)
     return code
 end
 
+function on.case_colon(pos)
+    pwarnprintf(pos, "encountered deprecated ':' after 'case'")
+end
+
 
 --- The final grammar!
 local Grammar = Pat{
@@ -3687,7 +3697,8 @@ local Grammar = Pat{
         / on.switch_end,
 
     -- NOTE: some old DNWMD has "case: PIGCOP".  I don't think I'll allow that.
-    case_block = lpeg.Ct((sp1 * Keyw("case") * sp1 * tok.define * (sp0*":")^-1)^1 * sp1 *
+    case_block = lpeg.Ct((sp1 * Keyw("case") * (POS()*Pat(":") / on.case_colon)^-1
+                         * sp1 * tok.define * (sp0*":")^-1)^1 * sp1 *
                          stmt_list_nosp_or_eps), -- * "break",
 
     default_block = lpeg.Ct(sp1 * Keyw("default") * (sp0*":"*sp0 + sp1) *
