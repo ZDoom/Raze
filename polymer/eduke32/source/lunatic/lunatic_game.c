@@ -375,6 +375,13 @@ extern void G_GameExit(const char *msg);
 }
 #endif
 
+static void G_ShowViewXYZ(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t sect,
+                          int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp)
+{
+    vec3_t vec = { x, y, z };
+    G_ShowView(vec, a, horiz, sect, x1, y1, x2, y2, unbiasedp);
+}
+
 #define LARG(index) lua_tointeger(L, index)
 
 #define ONE_ARG LARG(1)
@@ -419,8 +426,8 @@ DEFINE_RET_CFUNC(A_InsertSprite, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LA
 DEFINE_VOID_CFUNC(A_AddToDeleteQueue, ONE_ARG)
 DEFINE_RET_CFUNC(A_PlaySound, TWO_ARGS)
 DEFINE_VOID_CFUNC(A_DeleteSprite, ONE_ARG)
-DEFINE_VOID_CFUNC(G_ShowView, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LARG(6),
-                  LARG(7), LARG(8), LARG(9))
+DEFINE_VOID_CFUNC(G_ShowViewXYZ, LARG(1), LARG(2), LARG(3), LARG(4), LARG(5), LARG(6),
+                  LARG(7), LARG(8), LARG(9), LARG(10), LARG(11))
 
 #define CFUNC_REG(Name) { #Name, Name##_CF }
 
@@ -440,7 +447,7 @@ static struct { const char *name; lua_CFunction func; } cfuncs[] =
     CFUNC_REG(A_AddToDeleteQueue),
     CFUNC_REG(A_PlaySound),
     CFUNC_REG(A_DeleteSprite),
-    CFUNC_REG(G_ShowView),
+    CFUNC_REG(G_ShowViewXYZ),
 };
 
 // Creates a global table "CF" containing the functions from cfuncs[].

@@ -1041,9 +1041,7 @@ function _showview(x, y, z, a, horiz, sect, x1, y1, x2, y2, unbiasedp)
         error("invalid coordinates "..str, 2)
     end
 
-    local pos = vec3(x, y, z)
-
-    CF.G_ShowView(pos, a, horiz, sect, x1, y1, x2, y2, unbiasedp);
+    CF.G_ShowViewXYZ(x, y, z, a, horiz, sect, x1, y1, x2, y2, unbiasedp);
 end
 
 
