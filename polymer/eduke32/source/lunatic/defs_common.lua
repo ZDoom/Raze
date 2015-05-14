@@ -886,6 +886,30 @@ function creategtab_membidx(ctab, membname, maxidx, name)
     return setmtonce(tab, tmpmt)
 end
 
+-- Create a a safe indirection for an ffi.C struct array, accessing a given
+-- pointer member, which either points to one element, or is NULL.
+function creategtab_membidx_ptr(ctab, membname, maxidx, name)
+    local tab = {}
+    local tmpmt = {
+        __index = function(tab, key)
+            if (key>=0 and key < maxidx) then
+                local ptr = ctab[key][membname]
+                if (ptr ~= nil) then
+                    return ctab[key][membname][0]
+                end
+                return nil
+--                error(name .. '[' .. key .. '] is null', 2)
+            end
+            error('out-of-bounds '..name..'[] read access', 2)
+        end,
+        __newindex = function()
+            error('cannot write directly to '..name..'[]', 2)
+        end,
+    }
+
+    return setmtonce(tab, tmpmt)
+end
+
 -- Construct const struct from table
 function conststruct(tab)
     local strtab = { "struct {" }

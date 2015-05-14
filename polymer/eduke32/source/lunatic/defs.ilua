@@ -465,7 +465,8 @@ projectile_t;
 typedef struct {
     uint32_t _flags;  // XXX: do we want to have this accessible at game time?
     int32_t _cacherange;
-    const projectile_t _defproj;
+    projectile_t *_proj;
+    const projectile_t *_defproj;
 } tiledata_t;
 
 typedef struct {
@@ -647,7 +648,6 @@ weapondata_x_MAX_WEAPONS g_playerWeapon[MAXPLAYERS];
 weapondata_t g_weaponOverridden[MAX_WEAPONS];
 int16_t WeaponPickupSprites[MAX_WEAPONS];
 tiledata_t g_tile[MAXTILES];
-projectile_t ProjectileData[MAXTILES];
 projectile_t SpriteProjectile[MAXSPRITES];
 
 int32_t g_noResetVars;
@@ -985,7 +985,7 @@ local BNOT = {
     CHAIN_MASK_EVENT = bit.bnot(actor.FLAGS._CHAIN_MASK_EVENT),
 }
 
-local projectile = defs_c.creategtab(ffiC.ProjectileData, ffiC.MAXTILES, "projectile[]")
+local projectile = defs_c.creategtab_membidx_ptr(ffiC.g_tile, "_proj", ffiC.MAXTILES, "projectile")
 local g_tile = setmtonce({}, defs_c.GenStructMetatable("g_tile", "MAXTILES", tile_static_members))
 
 --== Custom operations for BUILD data structures ==--

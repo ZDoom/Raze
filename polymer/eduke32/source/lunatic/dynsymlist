@@ -167,7 +167,6 @@ g_playerWeapon;
 g_weaponOverridden;
 WeaponPickupSprites;
 g_tile;
-ProjectileData;
 SpriteProjectile;
 
 g_noResetVars;

@@ -395,10 +395,16 @@ gameevent
         pl.ammo_amount.SHRINKER = 2
 
         -- MORTER2 from test/weaponvars.con
-        player[0].weapon.SHOTGUN.shoots = 1653
-        local proj = projectile[1653]
-        proj.drop = 0
-        proj:set_trail(D.SMALLSMOKE)
+        local PNUM = 1653
+        local proj = projectile[PNUM]
+        if (proj ~= nil) then
+            printf('Have projectile %d', PNUM)
+            player[0].weapon.SHOTGUN.shoots = PNUM
+            proj.drop = 0
+            proj:set_trail(D.SMALLSMOKE)
+        else
+            printf('^10Do NOT have projectile %d, test/weaponvars.con not loaded?', PNUM)
+        end
 
         if (gv._LUNATIC_STRICT == 0) then
             t = gv.gethiticks()
