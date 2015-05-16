@@ -248,7 +248,7 @@ __attribute__((packed)) struct {
     int16_t pyoff, opyoff;
 
     int16_t horiz, horizoff, ohoriz, ohorizoff;
-    const int16_t newowner;
+    const<I-> int16_t newowner;
     int16_t jumping_counter, airleft;
     int16_t fta;
     const<Q> int16_t ftq;
@@ -1470,7 +1470,7 @@ local player_mt = {
         local allowneg = DukePlayer_prot_allowneg[key]
         assert(type(allowneg)=="boolean")
 
-        if (allowneg==false or not (val < 0)) then
+        if (allowneg==false or not (val == -1)) then
             DukePlayer_prot_chkfunc[key](val)
         end
         ffi.cast(player_ptr_ct, p)[key] = val

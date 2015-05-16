@@ -559,7 +559,7 @@ local PlayerLabels = {
     ohoriz = PL".ohoriz",
     ohorizoff = PL".ohorizoff",
 
-    newowner = { PL".newowner" },
+    newowner = PL".newowner",
 
     jumping_counter = PL".jumping_counter",
     airleft = PL".airleft",
