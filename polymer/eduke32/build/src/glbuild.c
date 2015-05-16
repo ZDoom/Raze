@@ -371,7 +371,7 @@ int32_t loadgldriver(const char *driver)
     {
 #ifdef _WIN32
         driver = "opengl32.dll";
-#elif defined __APPLE__
+#elif defined EDUKE32_OSX
         driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
 #elif defined __OpenBSD__
         driver = "libGL.so";
@@ -380,7 +380,7 @@ int32_t loadgldriver(const char *driver)
 #endif
     }
 
-#if defined RENDERTYPESDL
+#if defined RENDERTYPESDL && !defined EDUKE32_IOS
     if (SDL_GL_LoadLibrary(driver))
     {
         initprintf("Failed loading \"%s\": %s\n", driver, SDL_GetError());

@@ -885,10 +885,13 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         bglBindTexture(GL_TEXTURE_2D, *texidx);
 
         //gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,xsiz,ysiz,GL_BGRA_EXT,GL_UNSIGNED_BYTE,(char *)fptr);
+#if !defined EDUKE32_GLES
         if (glinfo.texcompr && glusetexcompr && !(sk->flags & HICR_NOSAVE))
             intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
-        else if (!hasalpha)
-            intexfmt = GL_RGB;
+        else
+#endif
+            if (!hasalpha)
+                intexfmt = GL_RGB;
 
         if (glinfo.bgra)
             texfmt = GL_BGRA;

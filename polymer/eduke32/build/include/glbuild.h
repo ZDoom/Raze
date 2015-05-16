@@ -21,9 +21,11 @@
 // Tell gl.h to not include glext.h, we'll include our own copy in a minute
 #define GL_GLEXT_LEGACY
 
-#if defined(__APPLE__)
+#if defined EDUKE32_OSX
 # include <OpenGL/gl.h>
 # include <OpenGL/glu.h>
+#elif defined EDUKE32_IOS
+# include <OpenGLES/ES1/gl.h>
 #else
 # include <GL/gl.h>
 # include <GL/glu.h>
@@ -36,8 +38,23 @@
 // get this header from http://oss.sgi.com/projects/ogl-sample/registry/
 // if you are missing it
 //#include <GL/glext.h>
-#if defined(__APPLE__)
+#if defined EDUKE32_OSX
 # include <OpenGL/glext.h>
+#elif defined EDUKE32_IOS
+typedef double GLdouble;
+# include <OpenGLES/ES1/glext.h>
+typedef GLintptr GLintptrARB;
+typedef GLsizeiptr GLsizeiptrARB;
+typedef GLchar GLcharARB;
+typedef void* GLhandleARB;
+typedef unsigned int GLenum;
+# define GL_TEXTURE0_ARB GL_TEXTURE0
+# define GL_RGB_SCALE_ARB GL_RGB_SCALE
+# define GL_ELEMENT_ARRAY_BUFFER_ARB GL_ELEMENT_ARRAY_BUFFER
+# define GL_ARRAY_BUFFER_ARB GL_ARRAY_BUFFER
+# define GL_WRITE_ONLY_ARB                 0x88B9
+# define GL_STREAM_DRAW_ARB                0x88E0
+# define GL_STATIC_DRAW_ARB                0x88E4
 #else
 # include "glext.h"
 #endif

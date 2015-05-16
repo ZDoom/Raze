@@ -426,6 +426,9 @@
 		2038AEA01A8F12B60093B7B2 /* animsounds.c in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9E1A8F12B60093B7B2 /* animsounds.c */; };
 		2038AEA11A8F12B60093B7B2 /* animsounds.c in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9E1A8F12B60093B7B2 /* animsounds.c */; };
 		2038AEA31A8F137E0093B7B2 /* DUKE.RTS in Resources */ = {isa = PBXBuildFile; fileRef = 2038AEA21A8F137E0093B7B2 /* DUKE.RTS */; };
+		206B3A081B074F3800E5DBD0 /* jwzglesI.h in Headers */ = {isa = PBXBuildFile; fileRef = 206B3A061B074F3000E5DBD0 /* jwzglesI.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		206B3A0A1B074F4300E5DBD0 /* jwzgles.h in Headers */ = {isa = PBXBuildFile; fileRef = 206B3A051B074F3000E5DBD0 /* jwzgles.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		206B3A0C1B074F6400E5DBD0 /* jwzgles.c in Sources */ = {isa = PBXBuildFile; fileRef = 206B3A0B1B074F6400E5DBD0 /* jwzgles.c */; };
 		2085BEBA1A8F23B9002BF4CE /* libSystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2085BEB91A8F23B9002BF4CE /* libSystem.dylib */; };
 		20C2146A1B02C19800917E58 /* game.png in Resources */ = {isa = PBXBuildFile; fileRef = 20C214691B02C19800917E58 /* game.png */; };
 		20C2146F1B02C1D800917E58 /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 20C2146E1B02C1D800917E58 /* build.png */; };
@@ -793,6 +796,9 @@
 		2038AE9E1A8F12B60093B7B2 /* animsounds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = animsounds.c; path = ../../source/animsounds.c; sourceTree = SOURCE_ROOT; };
 		2038AE9F1A8F12B60093B7B2 /* animsounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = animsounds.h; path = ../../source/animsounds.h; sourceTree = SOURCE_ROOT; };
 		2038AEA21A8F137E0093B7B2 /* DUKE.RTS */ = {isa = PBXFileReference; lastKnownFileType = file; name = DUKE.RTS; path = ../../../../../DUKE.RTS; sourceTree = SOURCE_ROOT; };
+		206B3A051B074F3000E5DBD0 /* jwzgles.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jwzgles.h; sourceTree = "<group>"; };
+		206B3A061B074F3000E5DBD0 /* jwzglesI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jwzglesI.h; sourceTree = "<group>"; };
+		206B3A0B1B074F6400E5DBD0 /* jwzgles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jwzgles.c; sourceTree = "<group>"; };
 		2085BEB91A8F23B9002BF4CE /* libSystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSystem.dylib; path = usr/lib/libSystem.dylib; sourceTree = SDKROOT; };
 		20C214691B02C19800917E58 /* game.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = game.png; path = bundles/EDuke32.app/Contents/Resources/game.png; sourceTree = SOURCE_ROOT; };
 		20C2146E1B02C1D800917E58 /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = build.png; path = bundles/Mapster32.app/Contents/Resources/build.png; sourceTree = SOURCE_ROOT; };
@@ -1220,6 +1226,8 @@
 				0008E8AC19F1AC530091588D /* glbuild.h */,
 				0008E8AD19F1AC530091588D /* glext.h */,
 				0008E8AF19F1AC530091588D /* hightile.h */,
+				206B3A051B074F3000E5DBD0 /* jwzgles.h */,
+				206B3A061B074F3000E5DBD0 /* jwzglesI.h */,
 				0008E8B019F1AC530091588D /* kplib.h */,
 				2038AE951A8F122D0093B7B2 /* libdivide.h */,
 				0008E8B219F1AC530091588D /* lz4.h */,
@@ -1277,6 +1285,7 @@
 				0008E8E819F1AC540091588D /* engine_priv.h */,
 				0008E8E919F1AC540091588D /* glbuild.c */,
 				0008E8EB19F1AC540091588D /* hightile.c */,
+				206B3A0B1B074F6400E5DBD0 /* jwzgles.c */,
 				0008E8EC19F1AC540091588D /* kplib.c */,
 				0008E8EE19F1AC540091588D /* lz4.c */,
 				2038AE9B1A8F126C0093B7B2 /* md4.c */,
@@ -1527,6 +1536,7 @@
 				001382C019F361B60007DA6C /* SDLMain.h in Headers */,
 				001382C119F361B60007DA6C /* pragmas.h in Headers */,
 				001382C219F361B60007DA6C /* sdlappicon.h in Headers */,
+				206B3A0A1B074F4300E5DBD0 /* jwzgles.h in Headers */,
 				001382C319F361B60007DA6C /* tracker.hpp in Headers */,
 				001382C419F361B60007DA6C /* hightile.h in Headers */,
 				001382C519F361B60007DA6C /* glbuild.h in Headers */,
@@ -1537,6 +1547,7 @@
 				001382CA19F361B60007DA6C /* dxtfilter.h in Headers */,
 				001382CB19F361B60007DA6C /* kplib.h in Headers */,
 				001382CC19F361B60007DA6C /* lz4.h in Headers */,
+				206B3A081B074F3800E5DBD0 /* jwzglesI.h in Headers */,
 				001382CE19F361B60007DA6C /* dxdidf.h in Headers */,
 				001382CF19F361B60007DA6C /* baselayer.h in Headers */,
 				001382D019F361B60007DA6C /* scriptfile.h in Headers */,
@@ -2059,6 +2070,7 @@
 				0013828E19F361B60007DA6C /* engine.c in Sources */,
 				0013828F19F361B60007DA6C /* voxmodel.c in Sources */,
 				0013829119F361B60007DA6C /* pragmas.c in Sources */,
+				206B3A0C1B074F6400E5DBD0 /* jwzgles.c in Sources */,
 				0013829219F361B60007DA6C /* common.c in Sources */,
 				0013829319F361B60007DA6C /* mutex.c in Sources */,
 				0013829519F361B60007DA6C /* crc32.c in Sources */,
@@ -3349,6 +3361,8 @@
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
 					"-DMIXERTYPESDL=1",
+					"-DUSE_OPENGL",
+					"-DHAVE_JWZGLES",
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
@@ -3431,6 +3445,8 @@
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
 					"-DMIXERTYPESDL=1",
+					"-DUSE_OPENGL",
+					"-DHAVE_JWZGLES",
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
@@ -3514,6 +3530,8 @@
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
 					"-DMIXERTYPESDL=1",
+					"-DUSE_OPENGL",
+					"-DHAVE_JWZGLES",
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
@@ -3594,6 +3612,8 @@
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
 					"-DMIXERTYPESDL=1",
+					"-DUSE_OPENGL",
+					"-DHAVE_JWZGLES",
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
@@ -3675,6 +3695,8 @@
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
 					"-DMIXERTYPESDL=1",
+					"-DUSE_OPENGL",
+					"-DHAVE_JWZGLES",
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
@@ -3752,6 +3774,8 @@
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
 					"-DMIXERTYPESDL=1",
+					"-DUSE_OPENGL",
+					"-DHAVE_JWZGLES",
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
@@ -3833,6 +3857,8 @@
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
 					"-DMIXERTYPESDL=1",
+					"-DUSE_OPENGL",
+					"-DHAVE_JWZGLES",
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
@@ -3910,6 +3936,8 @@
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
 					"-DMIXERTYPESDL=1",
+					"-DUSE_OPENGL",
+					"-DHAVE_JWZGLES",
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",

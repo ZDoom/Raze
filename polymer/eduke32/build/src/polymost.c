@@ -22,10 +22,6 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "texcache.h"
 #include "common.h"
 
-#ifdef EDUKE32_GLES
-#include "jwzgles.h"
-#endif
-
 #ifndef _WIN32
 extern int32_t filelength(int h); // kplib.c
 #endif
@@ -1234,9 +1230,12 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
             hicr->flags |= (HICR_NOCOMPRESS + HICR_NOSAVE);
 
+#if !defined EDUKE32_GLES
         if (glinfo.texcompr && glusetexcompr && !(hicr->flags & HICR_NOSAVE))
             intexfmt = (hasalpha == 255) ? GL_COMPRESSED_RGB_ARB : GL_COMPRESSED_RGBA_ARB;
-        else if (hasalpha == 255) intexfmt = GL_RGB;
+        else
+#endif
+            if (hasalpha == 255) intexfmt = GL_RGB;
 
         if ((doalloc&3)==1)
             bglGenTextures(1, &pth->glpic); //# of textures (make OpenGL allocate structure)
@@ -1312,6 +1311,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     return 0;
 }
 
+#if !defined EDUKE32_GLES
 void polymost_setupdetailtexture(const int32_t texunits, const int32_t tex)
 {
     bglActiveTextureARB(texunits);
@@ -1364,6 +1364,7 @@ void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
+#endif
 
 
 //(dpx,dpy) specifies an n-sided polygon. The polygon must be a convex clockwise loop.

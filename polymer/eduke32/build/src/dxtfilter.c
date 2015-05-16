@@ -139,11 +139,14 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     uint32_t j, k, offs, stride;
     char *cptr;
 
+#if !defined EDUKE32_GLES
     if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
             (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
     else if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)) ||
              (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
-    else { offs = 0; stride = 8; }
+    else
+#endif
+        { offs = 0; stride = 8; }
 
     if (stride == 16) //If DXT3...
     {
@@ -187,11 +190,14 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     int32_t j, k, offs, stride;
     char *cptr;
 
+#if !defined EDUKE32_GLES
     if ((pict->format == GL_COMPRESSED_RGB_S3TC_DXT1_EXT) ||
             (pict->format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)) { offs = 0; stride = 8; }
     else if ((pict->format == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT) ||
              (pict->format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)) { offs = 8; stride = 16; }
-    else { offs = 0; stride = 8; }
+    else
+#endif
+        { offs = 0; stride = 8; }
 
     if (stride == 16) //If DXT3...
     {

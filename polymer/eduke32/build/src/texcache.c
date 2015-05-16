@@ -11,10 +11,6 @@
 #include "xxhash.h"
 #include "kplib.h"
 
-#ifdef EDUKE32_GLES
-#include "jwzgles.h"
-#endif
-
 #define CLEAR_GL_ERRORS() while(bglGetError() != GL_NO_ERROR) { }
 #define TEXCACHE_FREEBUFS() { Bfree(pic), Bfree(packbuf), Bfree(midbuf); }
 

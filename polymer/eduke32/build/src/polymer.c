@@ -1,6 +1,6 @@
 // blah
 
-#ifdef USE_OPENGL
+#if defined USE_OPENGL && defined POLYMER
 
 #include <math.h>
 

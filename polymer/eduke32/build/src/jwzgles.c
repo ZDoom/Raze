@@ -72,6 +72,14 @@
 # include <unistd.h>
 #endif /* HAVE_UNISTD_H */
 
+
+#ifdef __APPLE__
+# include <TargetConditionals.h>
+# if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+#  define USE_IPHONE
+# endif
+#endif
+
 #if defined(USE_IPHONE)
 # include <OpenGLES/ES1/gl.h>
 # include <OpenGLES/ES1/glext.h>
@@ -95,16 +103,20 @@
 #undef countof
 #define countof(x) (signed)((signed)sizeof((x))/(signed)sizeof((*x)))
 
+#ifndef USE_IPHONE
 #include <android/log.h>
 #define LOG_TAG "JWZGLES"
 #define LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 #define LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#endif
 
 #undef  Assert
 
 #ifdef HAVE_COCOA
   extern void jwxyz_abort (const char *fmt, ...) __dead2;
 # define Assert(C,S) do { if (!(C)) { jwxyz_abort ("%s",S); }} while(0)
+#elif defined USE_IPHONE
+# define Assert(C,S)
 #else
 # define Assert(C,S) do { \
     if (!(C)) { \
