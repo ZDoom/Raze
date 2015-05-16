@@ -1595,20 +1595,20 @@ function Cmd.gamevar(identifier, initval, flags)
     local isSessionVar = (bit.band(flags, GVFLAG.NODEFAULT) ~= 0)
     local storeWithSavegames = (bit.band(flags, GVFLAG.NORESET) == 0)
 
-    if (isSessionVar and (perPlayer or perActor)) then
-        if (ogv == nil) then  -- warn only once per gamevar
-            warnprintf("per-%s session gamevar `%s': NYI, made %s",
-                       perPlayer and "player" or "actor",
-                       identifier,
-                       perPlayer and "global" or "non-session")
-        end
+    local actorVarSuffix = ""
 
+    if (isSessionVar and (perPlayer or perActor)) then
         if (perActor) then
-            flags = bit.band(flags, bit.bnot(GVFLAG.NODEFAULT))
+            actorVarSuffix = ",nil,true"
+--            flags = bit.band(flags, bit.bnot(GVFLAG.NODEFAULT))
             isSessionVar = false
         elseif (perPlayer) then
             flags = bit.band(flags, bit.bnot(GVFLAG.PERPLAYER))
             perPlayer = false
+
+            if (ogv == nil) then  -- warn only once per gamevar
+                warnprintf("per-player session gamevar `%s': NYI, made global", identifier)
+            end
         end
     end
 
@@ -1694,7 +1694,7 @@ function Cmd.gamevar(identifier, initval, flags)
     end
 
     if (perActor) then
-        addcodef("%s=_con.actorvar(%d)", gv.name, initval)
+        addcodef("%s=_con.actorvar(%d%s)", gv.name, initval, actorVarSuffix)
     elseif (perPlayer and g_cgopt["playervar"]) then
         gv.flags = bit.bor(gv.flags, GVFLAG.CON_PERPLAYER)
         addcodef("%s=_con.playervar(%d)", gv.name, initval)

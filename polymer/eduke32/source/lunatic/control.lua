@@ -234,7 +234,7 @@ local function check_allnumbers(...)
 end
 
 
--- Table of all per-actor gamevars active in the system.
+-- Table of all non-NODEFAULT per-actor gamevars active in the system.
 -- [<actorvar reference>] = true
 local g_actorvar = setmetatable({}, { __mode="k" })
 
@@ -2060,12 +2060,12 @@ local function serialize_value(strtab, i, v)
 end
 
 -- Common serialization function for gamearray and actorvar.
-local function serialize_array(ar, strtab, maxnum)
+local function serialize_array(ar, strtab, maxnum, suffix)
     for i=0,maxnum-1 do
         serialize_value(strtab, i, rawget(ar, i))
     end
 
-    strtab[#strtab+1] = "})"
+    strtab[#strtab+1] = "}"..(suffix or "")..")"
 
     return table.concat(strtab)
 end
@@ -2316,11 +2316,13 @@ end
 local actorvar_methods = {
     --- Internal routines ---
 
-    --  * All values for sprites not in the game world are cleared.
+    --  * All values for sprites not in the game world are cleared (non-NODEFAULT only).
     --  * All values equal to the default one are cleared.
     _cleanup = function(acv)
         for i=0,ffiC.MAXSPRITES-1 do
-            if (ffiC.sprite[i].statnum == ffiC.MAXSTATUS or rawget(acv, i)==acv._defval) then
+            -- NOTE: NODEFAULT per-actor gamevars are used in a non-actor fashion
+            if ((not acv:_is_nodefault() and ffiC.sprite[i].statnum == ffiC.MAXSTATUS)
+                    or rawget(acv, i)==acv._defval) then
                 acv:_clear(i)
             end
         end
@@ -2328,6 +2330,10 @@ local actorvar_methods = {
 
     _clear = function(acv, i)
         rawset(acv, i, nil)
+    end,
+
+    _is_nodefault = function(acv, i)
+        return rawget(acv, '_nodefault')
     end,
 
 
@@ -2339,7 +2345,8 @@ local actorvar_methods = {
         -- A_ResetVars() and related functions above.)
         acv:_cleanup()
         local strtab = { "_av(", tostring(acv._defval), ",{" }
-        return serialize_array(acv, strtab, ffiC.MAXSPRITES)
+        return serialize_array(acv, strtab, ffiC.MAXSPRITES,
+                               acv:_is_nodefault() and ",true")
     end,
 }
 
@@ -2364,10 +2371,12 @@ local actorvar_mt = {
 
 -- <initval>: default value for per-actor variable.
 -- <values>: optional, a table of <spritenum>=value
-function actorvar(initval, values)
+function actorvar(initval, values, nodefault)
     check_perxval_type(initval)
-    local acv = setmetatable({ _defval=initval }, actorvar_mt)
-    g_actorvar[acv] = true
+    local acv = setmetatable({ _defval=initval, _nodefault=nodefault }, actorvar_mt)
+    if (not nodefault) then
+        g_actorvar[acv] = true
+    end
     return set_values_from_table(acv, values)
 end
 
