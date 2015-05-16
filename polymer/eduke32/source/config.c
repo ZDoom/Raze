@@ -983,45 +983,42 @@ void CONFIG_WriteSetup(uint32_t flags)
     Bfflush(NULL);
 }
 
-
-int32_t CONFIG_GetMapBestTime(char *mapname)
+static const char *CONFIG_GetMapEntryName(char m[], const char *mapname)
 {
-    int32_t t = -1;
-    char m[BMAX_PATH], *p;
-
     strcpy(m, mapname);
-    p = strrchr(m, '/');
+
+    char *p = strrchr(m, '/');
     if (!p) p = strrchr(m, '\\');
-    if (p) Bmemmove(m, p, Bstrlen(p)+1);//strcpy(m, p);
+    if (p) Bmemmove(m, p, Bstrlen(p)+1);
     for (p=m; *p; p++) *p = tolower(*p);
 
     // cheap hack because SCRIPT_GetNumber doesn't like the slashes
     p = m;
     while (*p == '/') p++;
 
+    return p;
+}
+
+int32_t CONFIG_GetMapBestTime(const char *mapname)
+{
     if (!ud.config.setupread) return -1;
     if (ud.config.scripthandle < 0) return -1;
 
+    char m[BMAX_PATH];
+    const char *p = CONFIG_GetMapEntryName(m, mapname);
+
+    int32_t t = -1;
     SCRIPT_GetNumber(ud.config.scripthandle, "MapTimes", p, &t);
     return t;
 }
 
-int32_t CONFIG_SetMapBestTime(char *mapname, int32_t tm)
+int32_t CONFIG_SetMapBestTime(const char *mapname, int32_t tm)
 {
-    char m[BMAX_PATH], *p;
-
-    strcpy(m, mapname);
-    p = strrchr(m, '/');
-    if (!p) p = strrchr(m, '\\');
-    if (p) strcpy(m, p);
-    for (p=m; *p; p++) *p = tolower(*p);
-
-    // cheap hack because SCRIPT_GetNumber doesn't like the slashes
-    p = m;
-    while (*p == '/') p++;
-
     if (ud.config.scripthandle < 0) ud.config.scripthandle = SCRIPT_Init(setupfilename);
     if (ud.config.scripthandle < 0) return -1;
+
+    char m[BMAX_PATH];
+    const char *p = CONFIG_GetMapEntryName(m, mapname);
 
     SCRIPT_PutNumber(ud.config.scripthandle, "MapTimes", p, tm, FALSE, FALSE);
     return 0;

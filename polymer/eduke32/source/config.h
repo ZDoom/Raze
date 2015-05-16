@@ -32,8 +32,8 @@ void CONFIG_SetupMouse( void );
 void CONFIG_SetupJoystick( void );
 void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN]);
 
-int32_t CONFIG_GetMapBestTime(char *mapname);
-int32_t CONFIG_SetMapBestTime(char *mapname, int32_t tm);
+int32_t CONFIG_GetMapBestTime(const char *mapname);
+int32_t CONFIG_SetMapBestTime(const char *mapname, int32_t tm);
 
 void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
 
