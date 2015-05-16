@@ -15785,7 +15785,8 @@ void clearallviews(int32_t dacol)
 //
 void plotpixel(int32_t x, int32_t y, char col)
 {
-#ifdef USE_OPENGL
+    // XXX: if we ever want the editor to work under GL ES, find a replacement for the raster functions
+#if defined USE_OPENGL && !defined EDUKE32_GLES
     if (getrendermode() >= REND_POLYMOST && in3dmode())
     {
         palette_t p = getpal(col);

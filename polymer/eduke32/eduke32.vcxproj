@@ -398,7 +398,6 @@
     <ClCompile Include="build\src\dynamicgtk.c" />
     <ClCompile Include="build\src\engine.c" />
     <ClCompile Include="build\src\glbuild.c" />
-    <ClCompile Include="build\src\glbuild_android.c" />
     <ClCompile Include="build\src\gtkbits.c" />
     <ClCompile Include="build\src\hightile.c" />
     <ClCompile Include="build\src\jwzgles.c" />

@@ -7,10 +7,24 @@
 
 #if defined USE_OPENGL
 
+#ifdef RENDERTYPESDL
+# include "sdlayer.h"
+#endif
+
+
 #if defined DYNAMIC_GL
 
-#ifdef RENDERTYPESDL
-#include "sdlayer.h"
+#ifdef _WIN32
+bwglCreateContextProcPtr bwglCreateContext;
+bwglDeleteContextProcPtr bwglDeleteContext;
+bwglGetProcAddressProcPtr bwglGetProcAddress;
+bwglMakeCurrentProcPtr bwglMakeCurrent;
+
+bwglSwapBuffersProcPtr bwglSwapBuffers;
+bwglChoosePixelFormatProcPtr bwglChoosePixelFormat;
+bwglDescribePixelFormatProcPtr bwglDescribePixelFormat;
+bwglGetPixelFormatProcPtr bwglGetPixelFormat;
+bwglSetPixelFormatProcPtr bwglSetPixelFormat;
 #endif
 
 bglClearColorProcPtr bglClearColor;
@@ -18,7 +32,6 @@ bglClearProcPtr bglClear;
 bglColorMaskProcPtr bglColorMask;
 bglAlphaFuncProcPtr bglAlphaFunc;
 bglBlendFuncProcPtr bglBlendFunc;
-bglBlendEquationProcPtr bglBlendEquation;
 bglCullFaceProcPtr bglCullFace;
 bglFrontFaceProcPtr bglFrontFace;
 bglPolygonOffsetProcPtr bglPolygonOffset;
@@ -93,7 +106,6 @@ bglGenTexturesProcPtr bglGenTextures;
 bglDeleteTexturesProcPtr bglDeleteTextures;
 bglBindTextureProcPtr bglBindTexture;
 bglTexImage2DProcPtr bglTexImage2D;
-bglTexImage3DProcPtr bglTexImage3D;
 bglCopyTexImage2DProcPtr bglCopyTexImage2D;
 bglCopyTexSubImage2DProcPtr bglCopyTexSubImage2D;
 bglTexSubImage2DProcPtr bglTexSubImage2D;
@@ -101,8 +113,6 @@ bglTexParameterfProcPtr bglTexParameterf;
 bglTexParameteriProcPtr bglTexParameteri;
 bglGetTexParameterivProcPtr bglGetTexParameteriv;
 bglGetTexLevelParameterivProcPtr bglGetTexLevelParameteriv;
-bglCompressedTexImage2DARBProcPtr bglCompressedTexImage2DARB;
-bglGetCompressedTexImageARBProcPtr bglGetCompressedTexImageARB;
 bglTexGenfvProcPtr bglTexGenfv;
 
 // Fog
@@ -129,6 +139,16 @@ bglDrawElementsProcPtr bglDrawElements;
 bglClearStencilProcPtr bglClearStencil;
 bglStencilOpProcPtr bglStencilOp;
 bglStencilFuncProcPtr bglStencilFunc;
+
+#endif
+
+#if defined DYNAMIC_GLEXT
+
+bglBlendEquationProcPtr bglBlendEquation;
+
+bglTexImage3DProcPtr bglTexImage3D;
+bglCompressedTexImage2DARBProcPtr bglCompressedTexImage2DARB;
+bglGetCompressedTexImageARBProcPtr bglGetCompressedTexImageARB;
 
 // GPU Programs
 bglGenProgramsARBProcPtr bglGenProgramsARB;
@@ -263,6 +283,15 @@ bglDebugMessageControlARBProcPtr bglDebugMessageControlARB;
 bglDebugMessageCallbackARBProcPtr bglDebugMessageCallbackARB;
 #endif
 
+#ifdef _WIN32
+bwglSwapIntervalEXTProcPtr bwglSwapIntervalEXT;
+bwglCreateContextAttribsARBProcPtr bwglCreateContextAttribsARB;
+#endif
+
+#endif
+
+#if defined DYNAMIC_GLU
+
 // GLU
 bgluTessBeginContourProcPtr bgluTessBeginContour;
 bgluTessBeginPolygonProcPtr bgluTessBeginPolygon;
@@ -282,36 +311,22 @@ bgluErrorStringProcPtr bgluErrorString;
 bgluProjectProcPtr bgluProject;
 bgluUnProjectProcPtr bgluUnProject;
 
-
-#ifdef _WIN32
-// Windows
-bwglCreateContextProcPtr bwglCreateContext;
-bwglDeleteContextProcPtr bwglDeleteContext;
-bwglGetProcAddressProcPtr bwglGetProcAddress;
-bwglMakeCurrentProcPtr bwglMakeCurrent;
-
-bwglSwapBuffersProcPtr bwglSwapBuffers;
-bwglChoosePixelFormatProcPtr bwglChoosePixelFormat;
-bwglDescribePixelFormatProcPtr bwglDescribePixelFormat;
-bwglGetPixelFormatProcPtr bwglGetPixelFormat;
-bwglSetPixelFormatProcPtr bwglSetPixelFormat;
-bwglSwapIntervalEXTProcPtr bwglSwapIntervalEXT;
-bwglCreateContextAttribsARBProcPtr bwglCreateContextAttribsARB;
-#else
-#include <dlfcn.h>
 #endif
+
+
+#if defined DYNAMIC_GL || defined DYNAMIC_GLEXT || defined DYNAMIC_GLU
+# if !defined _WIN32
+#  include <dlfcn.h>
+# endif
+#endif
+
+#if defined DYNAMIC_GL || defined DYNAMIC_GLEXT
 
 #if !defined RENDERTYPESDL && defined _WIN32
 static HMODULE hGLDLL;
 #endif
 
-#if defined _WIN32
-static HMODULE hGLUDLL;
-#else
-static void *gluhandle = NULL;
-#endif
-
-char *gldriver = NULL, *glulibrary = NULL;
+char *gldriver = NULL;
 
 static void *getproc_(const char *s, int32_t *err, int32_t fatal, int32_t extension)
 {
@@ -337,8 +352,15 @@ static void *getproc_(const char *s, int32_t *err, int32_t fatal, int32_t extens
 #define GETPROCEXT(s)     getproc_(s,&err,1,1)
 #define GETPROCEXTSOFT(s) getproc_(s,&err,0,1)
 
+#endif
+
 int32_t loadgldriver(const char *driver)
 {
+#if defined EDUKE32_GLES
+    jwzgles_reset();
+#endif
+
+#if defined DYNAMIC_GL || defined DYNAMIC_GLEXT
     int32_t err=0;
 
 #if !defined RENDERTYPESDL && defined _WIN32
@@ -373,7 +395,9 @@ int32_t loadgldriver(const char *driver)
     }
 #endif
     gldriver = Bstrdup(driver);
+#endif
 
+#if defined DYNAMIC_GL
 #ifdef _WIN32
     bwglCreateContext = (bwglCreateContextProcPtr) GETPROC("wglCreateContext");
     bwglDeleteContext = (bwglDeleteContextProcPtr) GETPROC("wglDeleteContext");
@@ -499,16 +523,23 @@ int32_t loadgldriver(const char *driver)
     bglClearStencil = (bglClearStencilProcPtr) GETPROC("glClearStencil");
     bglStencilOp = (bglStencilOpProcPtr) GETPROC("glStencilOp");
     bglStencilFunc = (bglStencilFuncProcPtr) GETPROC("glStencilFunc");
+#endif
 
     loadglextensions();
     loadglulibrary(getenv("BUILD_GLULIB"));
 
+#if defined DYNAMIC_GL || defined DYNAMIC_GLEXT
     if (err) unloadgldriver();
     return err;
+#else
+    UNREFERENCED_PARAMETER(driver);
+    return 0;
+#endif
 }
 
 int32_t loadglextensions(void)
 {
+#if defined DYNAMIC_GLEXT
     int32_t err = 0;
 #if !defined RENDERTYPESDL && defined _WIN32
     if (!hGLDLL) return 0;
@@ -657,13 +688,28 @@ int32_t loadglextensions(void)
     bwglSwapIntervalEXT = (bwglSwapIntervalEXTProcPtr) GETPROCEXTSOFT("wglSwapIntervalEXT");
     bwglCreateContextAttribsARB = (bwglCreateContextAttribsARBProcPtr) GETPROCEXTSOFT("wglCreateContextAttribsARB");
 #endif
+
+#if defined EDUKE32_GLES
+    // XXX: Replace with a proper GL ES solution,
+    // along with the following "unkludgeable" functions that are used in POLYMER=0 builds:
+    // glDeleteBuffersARB, glGenBuffersARB, glBindBufferARB,
+    // glMapBufferARB, glUnmapBufferARB, glBufferDataARB,
+    // glClientActiveTextureARB,
+    // glGetCompressedTexImageARB, glCompressedTexImage2DARB
+    bglActiveTextureARB = (bglActiveTextureARBProcPtr) glActiveTexture;
+#endif
+
     return err;
+#else
+    return 0;
+#endif
 }
 
 int32_t unloadgldriver(void)
 {
     unloadglulibrary();
 
+#if defined DYNAMIC_GL || defined DYNAMIC_GLEXT
 #if !defined RENDERTYPESDL && defined _WIN32
     if (!hGLDLL) return 0;
 #endif
@@ -675,13 +721,27 @@ int32_t unloadgldriver(void)
     FreeLibrary(hGLDLL);
     hGLDLL = NULL;
 #endif
+#endif
+
+#if defined DYNAMIC_GL
+#ifdef _WIN32
+    bwglCreateContext = (bwglCreateContextProcPtr) NULL;
+    bwglDeleteContext = (bwglDeleteContextProcPtr) NULL;
+    bwglGetProcAddress = (bwglGetProcAddressProcPtr) NULL;
+    bwglMakeCurrent = (bwglMakeCurrentProcPtr) NULL;
+
+    bwglSwapBuffers = (bwglSwapBuffersProcPtr) NULL;
+    bwglChoosePixelFormat = (bwglChoosePixelFormatProcPtr) NULL;
+    bwglDescribePixelFormat = (bwglDescribePixelFormatProcPtr) NULL;
+    bwglGetPixelFormat = (bwglGetPixelFormatProcPtr) NULL;
+    bwglSetPixelFormat = (bwglSetPixelFormatProcPtr) NULL;
+#endif
 
     bglClearColor = (bglClearColorProcPtr) NULL;
     bglClear = (bglClearProcPtr) NULL;
     bglColorMask = (bglColorMaskProcPtr) NULL;
     bglAlphaFunc = (bglAlphaFuncProcPtr) NULL;
     bglBlendFunc = (bglBlendFuncProcPtr) NULL;
-    bglBlendEquation = (bglBlendEquationProcPtr) NULL;
     bglCullFace = (bglCullFaceProcPtr) NULL;
     bglFrontFace = (bglFrontFaceProcPtr) NULL;
     bglPolygonOffset = (bglPolygonOffsetProcPtr) NULL;
@@ -756,7 +816,6 @@ int32_t unloadgldriver(void)
     bglDeleteTextures = (bglDeleteTexturesProcPtr) NULL;
     bglBindTexture = (bglBindTextureProcPtr) NULL;
     bglTexImage2D = (bglTexImage2DProcPtr) NULL;
-    bglTexImage3D = (bglTexImage3DProcPtr) NULL;
     bglCopyTexImage2D = (bglCopyTexImage2DProcPtr) NULL;
     bglCopyTexSubImage2D = (bglCopyTexSubImage2DProcPtr) NULL;
     bglTexSubImage2D = (bglTexSubImage2DProcPtr) NULL;
@@ -764,8 +823,7 @@ int32_t unloadgldriver(void)
     bglTexParameteri = (bglTexParameteriProcPtr) NULL;
     bglGetTexParameteriv = (bglGetTexParameterivProcPtr) NULL;
     bglGetTexLevelParameteriv = (bglGetTexLevelParameterivProcPtr) NULL;
-    bglCompressedTexImage2DARB = (bglCompressedTexImage2DARBProcPtr) NULL;
-    bglGetCompressedTexImageARB = (bglGetCompressedTexImageARBProcPtr) NULL;
+    bglTexGenfv = (bglTexGenfvProcPtr) NULL;
 
     // Fog
     bglFogf = (bglFogfProcPtr) NULL;
@@ -784,12 +842,21 @@ int32_t unloadgldriver(void)
     bglVertexPointer = (bglVertexPointerProcPtr) NULL;
     bglNormalPointer = (bglNormalPointerProcPtr) NULL;
     bglTexCoordPointer = (bglTexCoordPointerProcPtr) NULL;
+    bglDrawArrays = (bglDrawArraysProcPtr) NULL;
     bglDrawElements = (bglDrawElementsProcPtr) NULL;
 
     // Stencil Buffer
     bglClearStencil = (bglClearStencilProcPtr) NULL;
     bglStencilOp = (bglStencilOpProcPtr) NULL;
     bglStencilFunc = (bglStencilFuncProcPtr) NULL;
+#endif
+
+#if defined DYNAMIC_GLEXT
+    bglBlendEquation = (bglBlendEquationProcPtr) NULL;
+
+    bglTexImage3D = (bglTexImage3DProcPtr) NULL;
+    bglCompressedTexImage2DARB = (bglCompressedTexImage2DARBProcPtr) NULL;
+    bglGetCompressedTexImageARB = (bglGetCompressedTexImageARBProcPtr) NULL;
 
     // GPU Programs
     bglGenProgramsARB = (bglGenProgramsARBProcPtr) NULL;
@@ -918,22 +985,29 @@ int32_t unloadgldriver(void)
     bglGetActiveAttribARB = (bglGetActiveAttribARBProcPtr) NULL;
     bglGetAttribLocationARB = (bglGetAttribLocationARBProcPtr) NULL;
 
-#ifdef _WIN32
-    bwglCreateContext = (bwglCreateContextProcPtr) NULL;
-    bwglDeleteContext = (bwglDeleteContextProcPtr) NULL;
-    bwglGetProcAddress = (bwglGetProcAddressProcPtr) NULL;
-    bwglMakeCurrent = (bwglMakeCurrentProcPtr) NULL;
+    // Debug Output
+#ifndef __APPLE__
+    bglDebugMessageControlARB = (bglDebugMessageControlARBProcPtr) NULL;
+    bglDebugMessageCallbackARB = (bglDebugMessageCallbackARBProcPtr) NULL;
+#endif
 
-    bwglSwapBuffers = (bwglSwapBuffersProcPtr) NULL;
-    bwglChoosePixelFormat = (bwglChoosePixelFormatProcPtr) NULL;
-    bwglDescribePixelFormat = (bwglDescribePixelFormatProcPtr) NULL;
-    bwglGetPixelFormat = (bwglGetPixelFormatProcPtr) NULL;
-    bwglSetPixelFormat = (bwglSetPixelFormatProcPtr) NULL;
+#ifdef _WIN32
     bwglSwapIntervalEXT = (bwglSwapIntervalEXTProcPtr) NULL;
+    bwglCreateContextAttribsARB = (bwglCreateContextAttribsARBProcPtr) NULL;
+#endif
 #endif
 
     return 0;
 }
+
+#if defined DYNAMIC_GLU
+#if defined _WIN32
+static HMODULE hGLUDLL;
+#else
+static void *gluhandle = NULL;
+#endif
+
+char *glulibrary = NULL;
 
 static void *glugetproc_(const char *s, int32_t *err, int32_t fatal)
 {
@@ -952,9 +1026,11 @@ static void *glugetproc_(const char *s, int32_t *err, int32_t fatal)
 }
 #define GLUGETPROC(s)        glugetproc_(s,&err,1)
 #define GLUGETPROCSOFT(s)    glugetproc_(s,&err,0)
+#endif
 
 int32_t loadglulibrary(const char *driver)
 {
+#if defined DYNAMIC_GLU
     int32_t err=0;
 
 #if defined _WIN32
@@ -976,11 +1052,16 @@ int32_t loadglulibrary(const char *driver)
 
 #if defined _WIN32
     hGLUDLL = LoadLibrary(driver);
-    if (!hGLUDLL) goto fail;
+    if (!hGLUDLL)
 #else
     gluhandle = dlopen(driver, RTLD_NOW|RTLD_GLOBAL);
-    if (!gluhandle) goto fail;
+    if (!gluhandle)
 #endif
+    {
+        initprintf("Failed loading \"%s\"\n",driver);
+        return -1;
+    }
+
     glulibrary = Bstrdup(driver);
 
     bgluTessBeginContour = (bgluTessBeginContourProcPtr) GLUGETPROC("gluTessBeginContour");
@@ -1003,14 +1084,15 @@ int32_t loadglulibrary(const char *driver)
 
     if (err) unloadglulibrary();
     return err;
-
-fail:
-    initprintf("Failed loading \"%s\"\n",driver);
-    return -1;
+#else
+    UNREFERENCED_PARAMETER(driver);
+    return 0;
+#endif
 }
 
 int32_t unloadglulibrary(void)
 {
+#if defined DYNAMIC_GLU
 #if defined _WIN32
     if (!hGLUDLL) return 0;
 #endif
@@ -1043,6 +1125,7 @@ int32_t unloadglulibrary(void)
 
     bgluProject = (bgluProjectProcPtr) NULL;
     bgluUnProject = (bgluUnProjectProcPtr) NULL;
+#endif
 
     return 0;
 }
@@ -1141,17 +1224,5 @@ void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *src
         }
 }
 # endif  // defined DEBUGGINGAIDS
-
-
-#else
-
-int32_t loadgldriver(const char *driver) { UNREFERENCED_PARAMETER(driver); return 0; };
-int32_t loadglextensions(void) { return 0; };
-int32_t unloadgldriver(void) { return 0; };
-
-int32_t loadglulibrary(const char *driver) { UNREFERENCED_PARAMETER(driver); return 0; };
-int32_t unloadglulibrary(void) { return 0; };
-
-#endif
 
 #endif

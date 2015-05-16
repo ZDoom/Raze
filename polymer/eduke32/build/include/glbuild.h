@@ -4,8 +4,13 @@
 
 #ifdef USE_OPENGL
 
-#if !defined GEKKO
+#if !defined GEKKO && !defined EDUKE32_GLES
 # define DYNAMIC_GL
+# define DYNAMIC_GLU
+#endif
+
+#if !defined GEKKO
+# define DYNAMIC_GLEXT
 #endif
 
 #ifdef _WIN32
@@ -24,6 +29,10 @@
 # include <GL/glu.h>
 #endif
 
+#if !defined DYNAMIC_GLEXT
+# define GL_GLEXT_PROTOTYPES
+#endif
+
 // get this header from http://oss.sgi.com/projects/ogl-sample/registry/
 // if you are missing it
 //#include <GL/glext.h>
@@ -35,6 +44,10 @@
 
 #ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
 #error You should get an updated copy of glext.h from http://oss.sgi.com/projects/ogl-sample/registry/
+#endif
+
+#if defined EDUKE32_GLES
+# include "jwzgles.h"
 #endif
 
 #ifndef APIENTRY
@@ -55,7 +68,32 @@
 
 #define GL_TEXTURE_RECTANGLE                    0x84F5
 
+
+//////// dynamic/static API wrapping ////////
+
 #if defined DYNAMIC_GL
+
+#ifdef _WIN32
+typedef HGLRC (WINAPI * bwglCreateContextProcPtr)(HDC);
+extern bwglCreateContextProcPtr bwglCreateContext;
+typedef BOOL (WINAPI * bwglDeleteContextProcPtr)(HGLRC);
+extern bwglDeleteContextProcPtr bwglDeleteContext;
+typedef PROC (WINAPI * bwglGetProcAddressProcPtr)(LPCSTR);
+extern bwglGetProcAddressProcPtr bwglGetProcAddress;
+typedef BOOL (WINAPI * bwglMakeCurrentProcPtr)(HDC,HGLRC);
+extern bwglMakeCurrentProcPtr bwglMakeCurrent;
+
+typedef BOOL (WINAPI * bwglSwapBuffersProcPtr)(HDC);
+extern bwglSwapBuffersProcPtr bwglSwapBuffers;
+typedef int32_t (WINAPI * bwglChoosePixelFormatProcPtr)(HDC,CONST PIXELFORMATDESCRIPTOR*);
+extern bwglChoosePixelFormatProcPtr bwglChoosePixelFormat;
+typedef int32_t (WINAPI * bwglDescribePixelFormatProcPtr)(HDC,int32_t,UINT,LPPIXELFORMATDESCRIPTOR);
+extern bwglDescribePixelFormatProcPtr bwglDescribePixelFormat;
+typedef int32_t (WINAPI * bwglGetPixelFormatProcPtr)(HDC);
+extern bwglGetPixelFormatProcPtr bwglGetPixelFormat;
+typedef BOOL (WINAPI * bwglSetPixelFormatProcPtr)(HDC,int32_t,const PIXELFORMATDESCRIPTOR*);
+extern bwglSetPixelFormatProcPtr bwglSetPixelFormat;
+#endif
 
 typedef void (APIENTRY * bglClearColorProcPtr)( GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha );
 extern bglClearColorProcPtr bglClearColor;
@@ -67,8 +105,6 @@ typedef void (APIENTRY * bglAlphaFuncProcPtr)( GLenum func, GLclampf ref );
 extern bglAlphaFuncProcPtr bglAlphaFunc;
 typedef void (APIENTRY * bglBlendFuncProcPtr)( GLenum sfactor, GLenum dfactor );
 extern bglBlendFuncProcPtr bglBlendFunc;
-typedef void (APIENTRY * bglBlendEquationProcPtr)( GLenum mode );
-extern bglBlendEquationProcPtr bglBlendEquation;
 typedef void (APIENTRY * bglCullFaceProcPtr)( GLenum mode );
 extern bglCullFaceProcPtr bglCullFace;
 typedef void (APIENTRY * bglFrontFaceProcPtr)( GLenum mode );
@@ -205,8 +241,6 @@ typedef void (APIENTRY * bglBindTextureProcPtr)( GLenum target, GLuint texture )
 extern bglBindTextureProcPtr bglBindTexture;
 typedef void (APIENTRY * bglTexImage2DProcPtr)( GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
 extern bglTexImage2DProcPtr bglTexImage2D;
-typedef void (APIENTRY * bglTexImage3DProcPtr)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
-extern bglTexImage3DProcPtr bglTexImage3D;
 typedef void (APIENTRY * bglCopyTexImage2DProcPtr)( GLenum	target, GLint level, GLenum	internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border );
 extern bglCopyTexImage2DProcPtr bglCopyTexImage2D;
 typedef void (APIENTRY * bglCopyTexSubImage2DProcPtr)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
@@ -221,10 +255,6 @@ typedef void (APIENTRY * bglGetTexParameterivProcPtr)( GLenum target, GLenum pna
 extern bglGetTexParameterivProcPtr bglGetTexParameteriv;
 typedef void (APIENTRY * bglGetTexLevelParameterivProcPtr)( GLenum target, GLint level, GLenum pname, GLint *params );
 extern bglGetTexLevelParameterivProcPtr bglGetTexLevelParameteriv;
-typedef void (APIENTRY * bglCompressedTexImage2DARBProcPtr)(GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *);
-extern bglCompressedTexImage2DARBProcPtr bglCompressedTexImage2DARB;
-typedef void (APIENTRY * bglGetCompressedTexImageARBProcPtr)(GLenum, GLint, GLvoid *);
-extern bglGetCompressedTexImageARBProcPtr bglGetCompressedTexImageARB;
 typedef void (APIENTRY * bglTexGenfvProcPtr)(GLenum coord, GLenum pname, const GLfloat *params);
 extern bglTexGenfvProcPtr bglTexGenfv;
 
@@ -269,6 +299,133 @@ typedef void (APIENTRY * bglStencilOpProcPtr)(GLenum fail, GLenum zfail, GLenum 
 extern bglStencilOpProcPtr bglStencilOp;
 typedef void (APIENTRY * bglStencilFuncProcPtr)(GLenum func, GLint ref, GLuint mask);
 extern bglStencilFuncProcPtr bglStencilFunc;
+
+#else
+
+#define bglClearColor glClearColor
+#define bglClear glClear
+#define bglColorMask glColorMask
+#define bglAlphaFunc glAlphaFunc
+#define bglBlendFunc glBlendFunc
+#define bglCullFace glCullFace
+#define bglFrontFace glFrontFace
+#define bglPolygonOffset glPolygonOffset
+#define bglPolygonMode glPolygonMode
+#define bglEnable glEnable
+#define bglDisable glDisable
+#define bglGetDoublev glGetDoublev
+#define bglGetFloatv glGetFloatv
+#define bglGetIntegerv glGetIntegerv
+#define bglPushAttrib glPushAttrib
+#define bglPopAttrib glPopAttrib
+#define bglGetError glGetError
+#define bglGetString glGetString
+#define bglHint glHint
+#define bglDrawBuffer glDrawBuffer
+#define bglReadBuffer glReadBuffer
+#define bglScissor glScissor
+#define bglClipPlane glClipPlane
+
+// Depth
+#define bglDepthFunc glDepthFunc
+#define bglDepthMask glDepthMask
+//#define bglDepthRange glDepthRange
+
+// Matrix
+#define bglMatrixMode glMatrixMode
+#define bglOrtho glOrtho
+#define bglFrustum glFrustum
+#define bglViewport glViewport
+#define bglPushMatrix glPushMatrix
+#define bglPopMatrix glPopMatrix
+#define bglLoadIdentity glLoadIdentity
+#define bglLoadMatrixf glLoadMatrixf
+#define bglLoadMatrixd glLoadMatrixd
+#define bglMultMatrixf glMultMatrixf
+#define bglMultMatrixd glMultMatrixd
+#define bglRotatef glRotatef
+#define bglScalef glScalef
+#define bglTranslatef glTranslatef
+
+// Drawing
+#define bglBegin glBegin
+#define bglEnd glEnd
+#define bglVertex2f glVertex2f
+#define bglVertex2i glVertex2i
+#define bglVertex3f glVertex3f
+#define bglVertex3d glVertex3d
+#define bglVertex3fv glVertex3fv
+#define bglVertex3dv glVertex3dv
+#define bglRecti glRecti
+#define bglColor3f glColor3f
+#define bglColor4f glColor4f
+#define bglColor4ub glColor4ub
+#define bglTexCoord2d glTexCoord2d
+#define bglTexCoord2f glTexCoord2f
+#define bglTexCoord2i glTexCoord2i
+#define bglNormal3f glNormal3f
+
+// Lighting
+#define bglShadeModel glShadeModel
+#define bglLightfv glLightfv
+
+// Raster funcs
+#define bglReadPixels glReadPixels
+#define bglRasterPos4i glRasterPos4i
+#define bglDrawPixels glDrawPixels
+#define bglPixelStorei glPixelStorei
+
+// Texture mapping
+#define bglTexEnvf glTexEnvf
+#define bglGenTextures glGenTextures
+#define bglDeleteTextures glDeleteTextures
+#define bglBindTexture glBindTexture
+#define bglTexImage2D glTexImage2D
+#define bglCopyTexImage2D glCopyTexImage2D
+#define bglCopyTexSubImage2D glCopyTexSubImage2D;
+#define bglTexSubImage2D glTexSubImage2D
+#define bglTexParameterf glTexParameterf
+#define bglTexParameteri glTexParameteri
+#define bglGetTexParameteriv glGetTexParameteriv
+#define bglGetTexLevelParameteriv glGetTexLevelParameteriv
+
+// Fog
+#define bglFogf glFogf
+#define bglFogi glFogi
+#define bglFogfv glFogfv
+
+// Display Lists
+#define bglNewList glNewList
+#define bglEndList glEndList
+#define bglCallList glCallList
+#define bglDeleteLists glDeleteLists
+
+// Vertex Arrays
+#define bglEnableClientState glEnableClientState
+#define bglDisableClientState glDisableClientState
+#define bglVertexPointer glVertexPointer
+#define bglNormalPointer glNormalPointer
+#define bglTexCoordPointer glTexCoordPointer
+#define bglDrawElements glDrawElements
+
+// Stencil Buffer
+#define bglClearStencil glClearStencil
+#define bglStencilOp glStencilOp
+#define bglStencilFunc glStencilFunc
+
+#endif
+
+#if defined DYNAMIC_GLEXT
+
+typedef void (APIENTRY * bglBlendEquationProcPtr)( GLenum mode );
+extern bglBlendEquationProcPtr bglBlendEquation;
+
+typedef void (APIENTRY * bglTexImage3DProcPtr)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+extern bglTexImage3DProcPtr bglTexImage3D;
+typedef void (APIENTRY * bglCompressedTexImage2DARBProcPtr)(GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *);
+extern bglCompressedTexImage2DARBProcPtr bglCompressedTexImage2DARB;
+typedef void (APIENTRY * bglGetCompressedTexImageARBProcPtr)(GLenum, GLint, GLvoid *);
+extern bglGetCompressedTexImageARBProcPtr bglGetCompressedTexImageARB;
 
 // GPU Programs
 typedef void (APIENTRY * bglGenProgramsARBProcPtr)(GLsizei, GLuint *);
@@ -518,203 +675,20 @@ typedef void (APIENTRY * bglDebugMessageCallbackARBProcPtr)(GLDEBUGPROCARB callb
 extern bglDebugMessageCallbackARBProcPtr bglDebugMessageCallbackARB;
 #endif
 
-// GLU
-#if defined __clang__ && defined __APPLE__
-// XXX: OS X 10.9 deprecated GLUtesselator.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-typedef void             (APIENTRY * bgluTessBeginContourProcPtr)(GLUtesselator* tess);
-extern bgluTessBeginContourProcPtr bgluTessBeginContour;
-typedef void             (APIENTRY * bgluTessBeginPolygonProcPtr)(GLUtesselator* tess, GLvoid* data);
-extern bgluTessBeginPolygonProcPtr bgluTessBeginPolygon;
-typedef void             (APIENTRY * bgluTessCallbackProcPtr)(GLUtesselator* tess, GLenum which, void (PR_CALLBACK CallBackFuncProcPtr)());
-extern bgluTessCallbackProcPtr bgluTessCallback;
-typedef void             (APIENTRY * bgluTessEndContourProcPtr)(GLUtesselator* tess);
-extern bgluTessEndContourProcPtr bgluTessEndContour;
-typedef void             (APIENTRY * bgluTessEndPolygonProcPtr)(GLUtesselator* tess);
-extern bgluTessEndPolygonProcPtr bgluTessEndPolygon;
-typedef void             (APIENTRY * bgluTessNormalProcPtr)(GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);
-extern bgluTessNormalProcPtr bgluTessNormal;
-typedef void             (APIENTRY * bgluTessPropertyProcPtr)(GLUtesselator* tess, GLenum which, GLdouble data);
-extern bgluTessPropertyProcPtr bgluTessProperty;
-typedef void             (APIENTRY * bgluTessVertexProcPtr)(GLUtesselator* tess, GLdouble *location, GLvoid* data);
-extern bgluTessVertexProcPtr bgluTessVertex;
-typedef GLUtesselator*   (APIENTRY * bgluNewTessProcPtr)(void);
-extern bgluNewTessProcPtr bgluNewTess;
-typedef void             (APIENTRY * bgluDeleteTessProcPtr)(GLUtesselator* tess);
-extern bgluDeleteTessProcPtr bgluDeleteTess;
-
-#if defined __clang__ && defined __APPLE__
-#pragma clang diagnostic pop
-#endif
-
-typedef void             (APIENTRY * bgluPerspectiveProcPtr)(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
-extern bgluPerspectiveProcPtr bgluPerspective;
-
-typedef const GLubyte *  (APIENTRY * bgluErrorStringProcPtr)(GLenum error);
-extern bgluErrorStringProcPtr bgluErrorString;
-
-typedef GLint            (APIENTRY * bgluProjectProcPtr)(GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint	*view, GLdouble* winX, GLdouble* winY, GLdouble* winZ);
-extern bgluProjectProcPtr bgluProject;
-typedef GLint            (APIENTRY * bgluUnProjectProcPtr)(GLdouble winX, GLdouble winY, GLdouble winZ, const GLdouble * model, const GLdouble * proj, const GLint * view, GLdouble* objX, GLdouble* objY, GLdouble* objZ);
-extern bgluUnProjectProcPtr bgluUnProject;
-
 #ifdef _WIN32
-// Windows
-typedef HGLRC (WINAPI * bwglCreateContextProcPtr)(HDC);
-extern bwglCreateContextProcPtr bwglCreateContext;
-typedef BOOL (WINAPI * bwglDeleteContextProcPtr)(HGLRC);
-extern bwglDeleteContextProcPtr bwglDeleteContext;
-typedef PROC (WINAPI * bwglGetProcAddressProcPtr)(LPCSTR);
-extern bwglGetProcAddressProcPtr bwglGetProcAddress;
-typedef BOOL (WINAPI * bwglMakeCurrentProcPtr)(HDC,HGLRC);
-extern bwglMakeCurrentProcPtr bwglMakeCurrent;
-
-typedef BOOL (WINAPI * bwglSwapBuffersProcPtr)(HDC);
-extern bwglSwapBuffersProcPtr bwglSwapBuffers;
-typedef int32_t (WINAPI * bwglChoosePixelFormatProcPtr)(HDC,CONST PIXELFORMATDESCRIPTOR*);
-extern bwglChoosePixelFormatProcPtr bwglChoosePixelFormat;
-typedef int32_t (WINAPI * bwglDescribePixelFormatProcPtr)(HDC,int32_t,UINT,LPPIXELFORMATDESCRIPTOR);
-extern bwglDescribePixelFormatProcPtr bwglDescribePixelFormat;
-typedef int32_t (WINAPI * bwglGetPixelFormatProcPtr)(HDC);
-extern bwglGetPixelFormatProcPtr bwglGetPixelFormat;
-typedef BOOL (WINAPI * bwglSetPixelFormatProcPtr)(HDC,int32_t,const PIXELFORMATDESCRIPTOR*);
-extern bwglSetPixelFormatProcPtr bwglSetPixelFormat;
 typedef BOOL (WINAPI * bwglSwapIntervalEXTProcPtr)(int32_t);
 extern bwglSwapIntervalEXTProcPtr bwglSwapIntervalEXT;
 typedef HGLRC (WINAPI * bwglCreateContextAttribsARBProcPtr)(HDC hDC, HGLRC hShareContext, const int *attribList);
 extern bwglCreateContextAttribsARBProcPtr bwglCreateContextAttribsARB;
 #endif
 
-//////// glGenTextures/glDeleteTextures debugging ////////
-void texdbg_bglGenTextures(GLsizei n, GLuint *textures, const char *srcfn);
-void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *srcfn);
-
-//#define DEBUG_TEXTURE_NAMES
-
-# if defined DEBUGGINGAIDS && defined DEBUG_TEXTURE_NAMES
-#  define bglGenTextures(numtexs, texnamear) texdbg_bglGenTextures(numtexs, texnamear, __FILE__)
-#  define bglDeleteTextures(numtexs, texnamear) texdbg_bglDeleteTextures(numtexs, texnamear, __FILE__)
-# endif
-
 #else
 
-#define bglClearColor glClearColor
-#define bglClear glClear
-#define bglColorMask glColorMask
-#define bglAlphaFunc glAlphaFunc
-#define bglBlendFunc glBlendFunc
 #define bglBlendEquation glBlendEquation
-#define bglCullFace glCullFace
-#define bglFrontFace glFrontFace
-#define bglPolygonOffset glPolygonOffset
-#define bglPolygonMode glPolygonMode
-#define bglEnable glEnable
-#define bglDisable glDisable
-#define bglGetDoublev glGetDoublev
-#define bglGetFloatv glGetFloatv
-#define bglGetIntegerv glGetIntegerv
-#define bglPushAttrib glPushAttrib
-#define bglPopAttrib glPopAttrib
-#define bglGetError glGetError
-#define bglGetString glGetString
-#define bglHint glHint
-#define bglDrawBuffer glDrawBuffer
-#define bglReadBuffer glReadBuffer
-#define bglScissor glScissor
-#define bglClipPlane glClipPlane
 
-// Depth
-#define bglDepthFunc glDepthFunc
-#define bglDepthMask glDepthMask
-//#define bglDepthRange glDepthRange
-
-// Matrix
-#define bglMatrixMode glMatrixMode
-#define bglOrtho glOrtho
-#define bglFrustum glFrustum
-#define bglViewport glViewport
-#define bglPushMatrix glPushMatrix
-#define bglPopMatrix glPopMatrix
-#define bglLoadIdentity glLoadIdentity
-#define bglLoadMatrixf glLoadMatrixf
-#define bglLoadMatrixd glLoadMatrixd
-#define bglMultMatrixf glMultMatrixf
-#define bglMultMatrixd glMultMatrixd
-#define bglRotatef glRotatef
-#define bglScalef glScalef
-#define bglTranslatef glTranslatef
-
-// Drawing
-#define bglBegin glBegin
-#define bglEnd glEnd
-#define bglVertex2f glVertex2f
-#define bglVertex2i glVertex2i
-#define bglVertex3f glVertex3f
-#define bglVertex3d glVertex3d
-#define bglVertex3fv glVertex3fv
-#define bglVertex3dv glVertex3dv
-#define bglRecti glRecti
-#define bglColor3f glColor3f
-#define bglColor4f glColor4f
-#define bglColor4ub glColor4ub
-#define bglTexCoord2d glTexCoord2d
-#define bglTexCoord2f glTexCoord2f
-#define bglTexCoord2i glTexCoord2i
-#define bglNormal3f glNormal3f
-
-// Lighting
-#define bglShadeModel glShadeModel
-#define bglLightfv glLightfv
-
-// Raster funcs
-#define bglReadPixels glReadPixels
-#define bglRasterPos4i glRasterPos4i
-#define bglDrawPixels glDrawPixels
-#define bglPixelStorei glPixelStorei
-
-// Texture mapping
-#define bglTexEnvf glTexEnvf
-#define bglGenTextures glGenTextures
-#define bglDeleteTextures glDeleteTextures
-#define bglBindTexture glBindTexture
-#define bglTexImage2D glTexImage2D
 #define bglTexImage3D glTexImage3D
-#define bglCopyTexImage2D glCopyTexImage2D
-#define bglCopyTexSubImage2D glCopyTexSubImage2D;
-#define bglTexSubImage2D glTexSubImage2D
-#define bglTexParameterf glTexParameterf
-#define bglTexParameteri glTexParameteri
-#define bglGetTexParameteriv glGetTexParameteriv
-#define bglGetTexLevelParameteriv glGetTexLevelParameteriv
 #define bglCompressedTexImage2DARB glCompressedTexImage2DARB
 #define bglGetCompressedTexImageARB glGetCompressedTexImageARB
-
-// Fog
-#define bglFogf glFogf
-#define bglFogi glFogi
-#define bglFogfv glFogfv
-
-// Display Lists
-#define bglNewList glNewList
-#define bglEndList glEndList
-#define bglCallList glCallList
-#define bglDeleteLists glDeleteLists
-
-// Vertex Arrays
-#define bglEnableClientState glEnableClientState
-#define bglDisableClientState glDisableClientState
-#define bglVertexPointer glVertexPointer
-#define bglNormalPointer glNormalPointer
-#define bglTexCoordPointer glTexCoordPointer
-#define bglDrawElements glDrawElements
-
-// Stencil Buffer
-#define bglClearStencil glClearStencil
-#define bglStencilOp glStencilOp
-#define bglStencilFunc glStencilFunc
 
 // GPU Programs
 #define bglGenProgramsARB glGenProgramsARB
@@ -843,6 +817,55 @@ void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *src
 #define bglGetActiveAttribARB glGetActiveAttribARB
 #define bglGetAttribLocationARB glGetAttribLocationARB
 
+#endif
+
+#if defined DYNAMIC_GLU
+
+// GLU
+#if defined __clang__ && defined __APPLE__
+// XXX: OS X 10.9 deprecated GLUtesselator.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+typedef void             (APIENTRY * bgluTessBeginContourProcPtr)(GLUtesselator* tess);
+extern bgluTessBeginContourProcPtr bgluTessBeginContour;
+typedef void             (APIENTRY * bgluTessBeginPolygonProcPtr)(GLUtesselator* tess, GLvoid* data);
+extern bgluTessBeginPolygonProcPtr bgluTessBeginPolygon;
+typedef void             (APIENTRY * bgluTessCallbackProcPtr)(GLUtesselator* tess, GLenum which, void (PR_CALLBACK CallBackFuncProcPtr)());
+extern bgluTessCallbackProcPtr bgluTessCallback;
+typedef void             (APIENTRY * bgluTessEndContourProcPtr)(GLUtesselator* tess);
+extern bgluTessEndContourProcPtr bgluTessEndContour;
+typedef void             (APIENTRY * bgluTessEndPolygonProcPtr)(GLUtesselator* tess);
+extern bgluTessEndPolygonProcPtr bgluTessEndPolygon;
+typedef void             (APIENTRY * bgluTessNormalProcPtr)(GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);
+extern bgluTessNormalProcPtr bgluTessNormal;
+typedef void             (APIENTRY * bgluTessPropertyProcPtr)(GLUtesselator* tess, GLenum which, GLdouble data);
+extern bgluTessPropertyProcPtr bgluTessProperty;
+typedef void             (APIENTRY * bgluTessVertexProcPtr)(GLUtesselator* tess, GLdouble *location, GLvoid* data);
+extern bgluTessVertexProcPtr bgluTessVertex;
+typedef GLUtesselator*   (APIENTRY * bgluNewTessProcPtr)(void);
+extern bgluNewTessProcPtr bgluNewTess;
+typedef void             (APIENTRY * bgluDeleteTessProcPtr)(GLUtesselator* tess);
+extern bgluDeleteTessProcPtr bgluDeleteTess;
+
+#if defined __clang__ && defined __APPLE__
+#pragma clang diagnostic pop
+#endif
+
+typedef void             (APIENTRY * bgluPerspectiveProcPtr)(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+extern bgluPerspectiveProcPtr bgluPerspective;
+
+typedef const GLubyte *  (APIENTRY * bgluErrorStringProcPtr)(GLenum error);
+extern bgluErrorStringProcPtr bgluErrorString;
+
+typedef GLint            (APIENTRY * bgluProjectProcPtr)(GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint	*view, GLdouble* winX, GLdouble* winY, GLdouble* winZ);
+extern bgluProjectProcPtr bgluProject;
+typedef GLint            (APIENTRY * bgluUnProjectProcPtr)(GLdouble winX, GLdouble winY, GLdouble winZ, const GLdouble * model, const GLdouble * proj, const GLint * view, GLdouble* objX, GLdouble* objY, GLdouble* objZ);
+extern bgluUnProjectProcPtr bgluUnProject;
+
+#else
+
 #define bgluTessBeginContour gluTessBeginContour
 #define bgluTessBeginPolygon gluTessBeginPolygon
 #define bgluTessCallback gluTessCallback
@@ -861,6 +884,20 @@ void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *src
 #define bgluProject gluProject
 #define bgluUnProject gluUnProject
 
+#endif
+
+
+//////// glGenTextures/glDeleteTextures debugging ////////
+void texdbg_bglGenTextures(GLsizei n, GLuint *textures, const char *srcfn);
+void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *srcfn);
+
+//#define DEBUG_TEXTURE_NAMES
+
+#if defined DEBUGGINGAIDS && defined DEBUG_TEXTURE_NAMES
+# undef bglGenTextures
+# undef bglDeleteTextures
+# define bglGenTextures(numtexs, texnamear) texdbg_bglGenTextures(numtexs, texnamear, __FILE__)
+# define bglDeleteTextures(numtexs, texnamear) texdbg_bglDeleteTextures(numtexs, texnamear, __FILE__)
 #endif
 
 #endif //USE_OPENGL

@@ -37,7 +37,6 @@ LOCAL_C_INCLUDES +=    $(TOP_DIR)/ $(TOP_DIR)/Libraries/liboggvorbis/include $(T
 ANDROID_SRC = \
 	source/android/android-jni.cpp \
 	source/android/in_android.c \
-        build/src/glbuild_android.c \
         build/src/jwzgles.c \
         source/android/rg_etc1.cpp
 
@@ -49,6 +48,7 @@ BUILD_SRC = \
 	build/src/crc32.c \
 	build/src/defs.c \
 	build/src/engine.c \
+	build/src/glbuild.c \
 	build/src/polymost.c \
         build/src/mdsprite.c \
 	build/src/texcache.c \
