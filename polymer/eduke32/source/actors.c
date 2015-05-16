@@ -3461,14 +3461,15 @@ ACTOR_STATIC void G_MoveTransports(void)
             {
                 if (totalclock > actor[j].lasttransport)
                 {
-                    const int32_t ll = klabs(sprite[j].zvel);
+                    const int32_t zvel = sprite[j].zvel;
+                    const int32_t ll = klabs(zvel);
                     int32_t warpspriteto = 0;
 
                     if (ll != 0)
                     {
-                        if (sectlotag == ST_2_UNDERWATER && sprite[j].z < (sector[sect].ceilingz+ll))
+                        if (sectlotag == ST_2_UNDERWATER && sprite[j].z < (sector[sect].ceilingz+ll) && zvel < 0)
                             warpspriteto = 1;
-                        if (sectlotag == ST_1_ABOVE_WATER && sprite[j].z > (sector[sect].floorz-ll))
+                        if (sectlotag == ST_1_ABOVE_WATER && sprite[j].z > (sector[sect].floorz-ll) && zvel > 0)
                             warpspriteto = 1;
                     }
 
