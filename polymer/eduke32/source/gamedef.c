@@ -2450,12 +2450,25 @@ int32_t g_numProjectiles = 0;
 
 EDUKE32_STATIC_ASSERT(sizeof(projectile_t) == sizeof(DefaultProjectile));
 
+void C_AllocProjectile(int32_t j)
+{
+    g_tile[j].proj = (projectile_t *)Xmalloc(2*sizeof(projectile_t));
+    g_tile[j].defproj = g_tile[j].proj + 1;
+}
+
+void C_FreeProjectile(int32_t j)
+{
+    Bfree(g_tile[j].proj);
+    g_tile[j].proj = g_tile[j].defproj = NULL;
+}
+
+
 LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
 {
     if (g_tile[j].proj == NULL)
     {
-        g_tile[j].proj = (projectile_t *) Xmalloc(sizeof(projectile_t));
-        *g_tile[j].proj = *(projectile_t *)&DefaultProjectile;
+        C_AllocProjectile(j);
+        *g_tile[j].proj = DefaultProjectile;
         g_numProjectiles += 2;
     }
 
@@ -2525,9 +2538,6 @@ LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
         proj->userdata = val; break;
     default: break;
     }
-
-    if (g_tile[j].defproj == NULL)
-        g_tile[j].defproj = (projectile_t *)Xmalloc(sizeof(projectile_t));
 
     *g_tile[j].defproj = *proj;
 

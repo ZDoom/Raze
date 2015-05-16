@@ -1087,9 +1087,9 @@ static const dataspec_t svgm_script[] =
 
     { DS_SAVEFN|DS_NOCHK, (void *)&sv_prescriptsave_once, 0, 1 },
 #endif
-    { DS_NOCHK, &g_tile[0], sizeof(tiledata_t), MAXTILES },
     { DS_SAVEFN, (void *) &sv_preprojectilesave, 0, 1 },
     { DS_LOADFN, (void *) &sv_preprojectileload, 0, 1 },
+    { DS_NOCHK, &g_tile[0], sizeof(tiledata_t), MAXTILES },
     { DS_DYNAMIC|DS_CNT(g_numProjectiles), &ProjectileData, sizeof(projectile_t), (intptr_t)&g_numProjectiles },
     { DS_SAVEFN, (void *) &sv_postprojectilesave, 0, 1 },
     { DS_LOADFN, (void *) &sv_postprojectileload, 0, 1 },
@@ -1759,6 +1759,9 @@ static void sv_preprojectileload()
 {
     if (ProjectileData != NULL || g_numProjectiles > 0)
         ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
+
+    for (int i=0; i<MAXTILES; i++)
+        C_FreeProjectile(i);
 }
 
 static void sv_postprojectileload()
@@ -1772,8 +1775,7 @@ static void sv_postprojectileload()
     {
         if (g_tile[i].proj)
         {
-            g_tile[i].proj = (projectile_t *) Xmalloc(sizeof(projectile_t));
-            g_tile[i].defproj = (projectile_t *) Xmalloc(sizeof(projectile_t));
+            C_AllocProjectile(i);
             Bmemcpy(g_tile[i].proj, &ProjectileData[g_numProjectiles], sizeof(projectile_t));
             Bmemcpy(g_tile[i].defproj, &ProjectileData[g_numProjectiles+1], sizeof(projectile_t));
             g_numProjectiles += 2;

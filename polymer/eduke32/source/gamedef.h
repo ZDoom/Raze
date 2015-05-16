@@ -119,6 +119,8 @@ typedef projectile_t defaultprojectile_t;
 
 extern defaultprojectile_t DefaultProjectile;
 int32_t C_AllocQuote(int32_t qnum);
+void C_AllocProjectile(int32_t j);
+void C_FreeProjectile(int32_t j);
 void C_InitQuotes(void);
 void C_InitProjectiles(void);
 
