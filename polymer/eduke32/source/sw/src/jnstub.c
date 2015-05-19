@@ -1358,13 +1358,32 @@ PrintStatus(char *string, int num, char x, char y, char color)
     printext16(x * 8, ydim16+y * 8, color, -1, tempbuf, 0);
 }
 
+
+static int32_t sw_getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign)
+{
+    return _getnumber256(namestart, num, maxnumber, sign, NULL);
+}
+static int32_t sw_getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign)
+{
+    return _getnumber16(namestart, num, maxnumber, sign, NULL);
+}
+static void sw_printmessage256(const char *text)
+{
+    printmessage256(0, 0, text);
+}
+static void sw_printmessage16(const char *text)
+{
+    lastpm16time = totalclock;
+    _printmessage16(text);
+}
+
 void
 MoreKeys(short searchstat, short searchwall, short searchsector, short pointhighlight)
 {
 
-    typedef short GET_NUM_FUNC (char *, short, int, char);
+    typedef int32_t GET_NUM_FUNC (const char *, int32_t, int32_t, char);
     typedef GET_NUM_FUNC *GET_NUM_FUNCp;
-    typedef void PRINT_MSG_FUNC (char *);
+    typedef void PRINT_MSG_FUNC (const char *);
     typedef PRINT_MSG_FUNC *PRINT_MSG_FUNCp;
     SPRITEp sp;
 
@@ -1376,13 +1395,13 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
 
     if (qsetmode == MODE_3D)
     {
-        getnumber = getnumber256;
-        printmessage = printmessage256;
+        getnumber = sw_getnumber256;
+        printmessage = sw_printmessage256;
     }
     else
     {
-        getnumber = getnumber16;
-        printmessage = printmessage16;
+        getnumber = sw_getnumber16;
+        printmessage = sw_printmessage16;
 
         if (TEST(pointhighlight, SPRITE_FLAG))
         {
