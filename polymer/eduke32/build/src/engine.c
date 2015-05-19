@@ -13735,7 +13735,7 @@ int32_t lastwall(int16_t point)
 
 ////////// CLIPMOVE //////////
 
-static int32_t clipmoveboxtracenum = 3;
+int32_t clipmoveboxtracenum = 3;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
 static int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)

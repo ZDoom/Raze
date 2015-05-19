@@ -2147,8 +2147,6 @@ void COVERupdatesector(int32_t x, int32_t y, int16_t* newsector);
 
 void updatesectorz(int,int,int,int16_t*);
 
-extern int clipmoveboxtracenum;
-
 
 void short_setinterpolation(short *posptr);
 void short_stopinterpolation(short *posptr);
