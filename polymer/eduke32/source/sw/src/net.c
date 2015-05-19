@@ -434,7 +434,7 @@ ResumeAction(void)
 }
 
 void
-SendMessage(short pnum, char *text)
+SW_SendMessage(short pnum, char *text)
 {
     if (!CommEnabled)
         return;
@@ -561,12 +561,12 @@ CheckVersion(int GameVersion)
 
                 if (!Player[pnum].PlayerVersion)
                 {
-                    SendMessage(pnum, VERSION_MSG);
-                    SendMessage(pnum, VERSION_MSG);
-                    SendMessage(pnum, VERSION_MSG);
-                    SendMessage(pnum, VERSION_MSG);
-                    SendMessage(pnum, VERSION_MSG);
-                    SendMessage(pnum, VERSION_MSG);
+                    SW_SendMessage(pnum, VERSION_MSG);
+                    SW_SendMessage(pnum, VERSION_MSG);
+                    SW_SendMessage(pnum, VERSION_MSG);
+                    SW_SendMessage(pnum, VERSION_MSG);
+                    SW_SendMessage(pnum, VERSION_MSG);
+                    SW_SendMessage(pnum, VERSION_MSG);
                 }
             }
         }
@@ -795,7 +795,7 @@ SWBOOL MenuCommPlayerQuit(short quit_player)
         if (pnum != quit_player)
         {
             sprintf(ds,"%s has quit the game.",Player[myconnectindex].PlayerName);
-            SendMessage(pnum, ds);
+            SW_SendMessage(pnum, ds);
         }
     }
 

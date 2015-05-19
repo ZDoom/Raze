@@ -4538,7 +4538,7 @@ FunctionKeys(PLAYERp pp)
                     if (pnum != myconnectindex)
                     {
                         sprintf(ds,"%s: %s",pp->PlayerName, WangBangMacro[fn_key-1]);
-                        SendMessage(pnum, ds);
+                        SW_SendMessage(pnum, ds);
                     }
                 }
             }
@@ -4838,9 +4838,9 @@ SEND_MESSAGE:
                         if (pnum != myconnectindex)
                         {
                             if (TeamSendAll)
-                                SendMessage(pnum, ds);
+                                SW_SendMessage(pnum, ds);
                             else if (User[pp->PlayerSprite]->spal == User[Player[pnum].PlayerSprite]->spal)
-                                SendMessage(pnum, ds);
+                                SW_SendMessage(pnum, ds);
                         }
                     }
                 }
@@ -4849,7 +4849,7 @@ SEND_MESSAGE:
                     {
                         if (pnum != myconnectindex)
                         {
-                            SendMessage(pnum, ds);
+                            SW_SendMessage(pnum, ds);
                         }
                     }
                     adduserquote(MessageInputString);

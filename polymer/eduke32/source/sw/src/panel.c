@@ -1123,7 +1123,7 @@ SwordBlur(PANEL_SPRITEp psp)
 
     psp->shade += 10;
     // change sprites priority
-    DELETE(psp);
+    REMOVE(psp);
     psp->priority--;
     InsertPanelSprite(psp->PlayerP, psp);
 }
@@ -6361,7 +6361,7 @@ FistBlur(PANEL_SPRITEp psp)
 
     psp->shade += 10;
     // change sprites priority
-    DELETE(psp);
+    REMOVE(psp);
     psp->priority--;
     InsertPanelSprite(psp->PlayerP, psp);
 }
@@ -7252,7 +7252,7 @@ pKillSprite(PANEL_SPRITEp psp)
     PRODUCTION_ASSERT(psp);
     ASSERT(ValidPtr(psp));
 
-    DELETE(psp);
+    REMOVE(psp);
 
     FreeMem(psp);
 }

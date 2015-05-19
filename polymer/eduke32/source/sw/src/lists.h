@@ -54,7 +54,7 @@ typedef
                                     ((LIST)  list)->Prev = (LIST) nodep,        \
                                     ((LIST) nodep)->Prev->Next = (LIST) nodep)
 
-#define DELETE(nodep)        ( ((LIST) nodep)->Prev->Next = ((LIST) nodep)->Next, \
+#define REMOVE(nodep)        ( ((LIST) nodep)->Prev->Next = ((LIST) nodep)->Next, \
                                ((LIST) nodep)->Next->Prev = ((LIST) nodep)->Prev)
 
 

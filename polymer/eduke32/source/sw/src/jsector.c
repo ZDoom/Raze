@@ -1167,7 +1167,7 @@ KillOrgTile(OrgTileP tp)
     ASSERT(tp);
     ASSERT(ValidPtr(tp));
 
-    DELETE(tp);
+    REMOVE(tp);
 
     FreeMem(tp);
 }

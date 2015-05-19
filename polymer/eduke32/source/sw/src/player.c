@@ -6491,7 +6491,7 @@ DoPlayerDeathMessage(PLAYERp pp, PLAYERp killer)
             if (pnum == myconnectindex)
                 adduserquote(ds);
             else
-                SendMessage(pnum, ds);
+                SW_SendMessage(pnum, ds);
         }
     }
 
