@@ -91,10 +91,10 @@ void ScreenTileLock(void);
 void ScreenTileUnLock(void);
 
 int ScreenSaveSetup(PLAYERp pp);
-void ScreenSave(FILE *fout);
+void ScreenSave(MFILE_WRITE fout);
 
 int ScreenLoadSaveSetup(PLAYERp pp);
-void ScreenLoad(FILE *fin);
+void ScreenLoad(MFILE_READ fin);
 
 #define PANEL_SAVE 1
 #define ANIM_SAVE 1
@@ -150,7 +150,7 @@ PanelNdxToSprite(PLAYERp pp, int ndx)
     return NULL;
 }
 
-int SaveSymDataInfo(MFILE fil, void *ptr)
+int SaveSymDataInfo(MFILE_WRITE fil, void *ptr)
 {
     saveddatasym sym;
 
@@ -171,7 +171,7 @@ int SaveSymDataInfo(MFILE fil, void *ptr)
 
     return 0;
 }
-int SaveSymCodeInfo(MFILE fil, void *ptr)
+int SaveSymCodeInfo(MFILE_WRITE fil, void *ptr)
 {
     savedcodesym sym;
 
@@ -193,7 +193,7 @@ int SaveSymCodeInfo(MFILE fil, void *ptr)
     return 0;
 }
 
-int LoadSymDataInfo(MFILE fil, void **ptr)
+int LoadSymDataInfo(MFILE_READ fil, void **ptr)
 {
     saveddatasym sym;
 
@@ -201,7 +201,7 @@ int LoadSymDataInfo(MFILE fil, void **ptr)
 
     return Saveable_RestoreDataSym(&sym, ptr);
 }
-int LoadSymCodeInfo(MFILE fil, void **ptr)
+int LoadSymCodeInfo(MFILE_READ fil, void **ptr)
 {
     savedcodesym sym;
 
@@ -213,7 +213,7 @@ int LoadSymCodeInfo(MFILE fil, void **ptr)
 
 int SaveGame(short save_num)
 {
-    MFILE fil;
+    MFILE_WRITE fil;
     int i,j;
     short ndx;
     SPRITE tsp;
@@ -238,7 +238,7 @@ int SaveGame(short save_num)
     Saveable_Init();
 
     sprintf(game_name,"game%d.sav",save_num);
-    if ((fil = MOPEN_WRITE(game_name)) == MF_ERR)
+    if ((fil = MOPEN_WRITE(game_name)) == MOPEN_WRITE_ERR)
         return -1;
 
     MWRITE(&GameVersion,sizeof(GameVersion),1,fil);
@@ -676,7 +676,7 @@ int SaveGame(short save_num)
     MWRITE(BossSpriteNum, sizeof(BossSpriteNum), 1, fil);
     //MWRITE(&Zombies, sizeof(Zombies), 1, fil);
 
-    MCLOSE(fil);
+    MCLOSE_WRITE(fil);
 
     ////DSPRINTF(ds, "done saving");
     //MONO_PRINT(ds);
@@ -689,19 +689,19 @@ int SaveGame(short save_num)
 
 int LoadGameFullHeader(short save_num, char *descr, short *level, short *skill)
 {
-    MFILE fil;
+    MFILE_READ fil;
     char game_name[80];
     short tile;
     int ver;
 
     sprintf(game_name,"game%d.sav",save_num);
-    if ((fil = MOPEN_READ(game_name)) == MF_ERR)
+    if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
         return -1;
 
     MREAD(&ver,sizeof(ver),1,fil);
     if (ver != GameVersion)
     {
-        MCLOSE(fil);
+        MCLOSE_READ(fil);
         return -1;
     }
 
@@ -713,38 +713,38 @@ int LoadGameFullHeader(short save_num, char *descr, short *level, short *skill)
     tile = ScreenLoadSaveSetup(Player + myconnectindex);
     ScreenLoad(fil);
 
-    MCLOSE(fil);
+    MCLOSE_READ(fil);
 
     return tile;
 }
 
 void LoadGameDescr(short save_num, char *descr)
 {
-    MFILE fil;
+    MFILE_READ fil;
     char game_name[80];
     short tile;
     int ver;
 
     sprintf(game_name,"game%d.sav",save_num);
-    if ((fil = MOPEN_READ(game_name)) == MF_ERR)
+    if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
         return;
 
     MREAD(&ver,sizeof(ver),1,fil);
     if (ver != GameVersion)
     {
-        MCLOSE(fil);
+        MCLOSE_READ(fil);
         return;
     }
 
     MREAD(descr, sizeof(SaveGameDescr[0]),1,fil);
 
-    MCLOSE(fil);
+    MCLOSE_READ(fil);
 }
 
 
 int LoadGame(short save_num)
 {
-    MFILE fil;
+    MFILE_READ fil;
     int i,j,saveisshot=0;
     short ndx,SpriteNum,sectnum;
     PLAYERp pp = NULL;
@@ -770,13 +770,13 @@ int LoadGame(short save_num)
     Saveable_Init();
 
     sprintf(game_name,"game%d.sav",save_num);
-    if ((fil = MOPEN_READ(game_name)) == MF_ERR)
+    if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
         return -1;
 
     MREAD(&i,sizeof(i),1,fil);
     if (i != GameVersion)
     {
-        MCLOSE(fil);
+        MCLOSE_READ(fil);
         return -1;
     }
 
@@ -830,7 +830,7 @@ int LoadGame(short save_num)
         saveisshot |= LoadSymCodeInfo(fil, (void **)&pp->DoPlayerAction);
         saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop_control);
         saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop_riding);
-        if (saveisshot) { MCLOSE(fil); return -1; }
+        if (saveisshot) { MCLOSE_READ(fil); return -1; }
     }
 
 
@@ -862,12 +862,12 @@ int LoadGame(short save_num)
             saveisshot |= LoadSymDataInfo(fil, (void **)&psp->ActionState);
             saveisshot |= LoadSymDataInfo(fil, (void **)&psp->RestState);
             saveisshot |= LoadSymCodeInfo(fil, (void **)&psp->PanelSpriteFunc);
-            if (saveisshot) { MCLOSE(fil); return -1; }
+            if (saveisshot) { MCLOSE_READ(fil); return -1; }
 
             for (j = 0; j < (int)SIZ(psp->over); j++)
             {
                 saveisshot |= LoadSymDataInfo(fil, (void **)&psp->over[j].State);
-                if (saveisshot) { MCLOSE(fil); return -1; }
+                if (saveisshot) { MCLOSE_READ(fil); return -1; }
             }
 
         }
@@ -957,7 +957,7 @@ int LoadGame(short save_num)
         saveisshot |= LoadSymDataInfo(fil, (void **)&u->SpriteP);
         saveisshot |= LoadSymDataInfo(fil, (void **)&u->PlayerP);
         saveisshot |= LoadSymDataInfo(fil, (void **)&u->tgt_sp);
-        if (saveisshot) { MCLOSE(fil); return -1; }
+        if (saveisshot) { MCLOSE_READ(fil); return -1; }
 
         MREAD(&SpriteNum,sizeof(SpriteNum),1,fil);
     }
@@ -973,7 +973,7 @@ int LoadGame(short save_num)
         saveisshot |= LoadSymCodeInfo(fil, (void **)&sop->Animator);
         saveisshot |= LoadSymDataInfo(fil, (void **)&sop->controller);
         saveisshot |= LoadSymDataInfo(fil, (void **)&sop->sp_child);
-        if (saveisshot) { MCLOSE(fil); return -1; }
+        if (saveisshot) { MCLOSE_READ(fil); return -1; }
     }
 
     MREAD(SineWaveFloor, sizeof(SineWaveFloor),1,fil);
@@ -1045,7 +1045,7 @@ int LoadGame(short save_num)
 
         saveisshot |= LoadSymCodeInfo(fil, (void **)&a->callback);
         saveisshot |= LoadSymDataInfo(fil, (void **)&a->callbackdata);
-        if (saveisshot) { MCLOSE(fil); return -1; }
+        if (saveisshot) { MCLOSE_READ(fil); return -1; }
     }
 #else
     AnimCnt = 0;
@@ -1065,7 +1065,7 @@ int LoadGame(short save_num)
         saveisshot |= LoadSymDataInfo(fil, (void **)&a->ptr);
         saveisshot |= LoadSymCodeInfo(fil, (void **)&a->callback);
         saveisshot |= LoadSymDataInfo(fil, (void **)&a->callbackdata);
-        if (saveisshot) { MCLOSE(fil); return -1; }
+        if (saveisshot) { MCLOSE_READ(fil); return -1; }
     }
 #endif
 #endif
@@ -1094,7 +1094,7 @@ int LoadGame(short save_num)
     MREAD(bakipos,sizeof(bakipos),1,fil);
     for (i = numinterpolations - 1; i >= 0; i--)
         saveisshot |= LoadSymDataInfo(fil, (void **)&curipos[i]);
-    if (saveisshot) { MCLOSE(fil); return -1; }
+    if (saveisshot) { MCLOSE_READ(fil); return -1; }
 
     // short interpolations
     MREAD(&short_numinterpolations,sizeof(short_numinterpolations),1,fil);
@@ -1103,7 +1103,7 @@ int LoadGame(short save_num)
     MREAD(short_bakipos,sizeof(short_bakipos),1,fil);
     for (i = short_numinterpolations - 1; i >= 0; i--)
         saveisshot |= LoadSymDataInfo(fil, (void **)&short_curipos[i]);
-    if (saveisshot) { MCLOSE(fil); return -1; }
+    if (saveisshot) { MCLOSE_READ(fil); return -1; }
 
     // parental lock
     for (i = 0; i < (int)SIZ(otlist); i++)
@@ -1192,7 +1192,7 @@ int LoadGame(short save_num)
     MREAD(BossSpriteNum, sizeof(BossSpriteNum), 1, fil);
     //MREAD(&Zombies, sizeof(Zombies), 1, fil);
 
-    MCLOSE(fil);
+    MCLOSE_READ(fil);
 
 
     //!!IMPORTANT - this POST stuff will not work here now becaus it does actual reads
@@ -1301,15 +1301,15 @@ int LoadGame(short save_num)
 }
 
 void
-ScreenSave(MFILE fout)
+ScreenSave(MFILE_WRITE fout)
 {
-    int num;
-    num = MWRITE((void *)waloff[SAVE_SCREEN_TILE], SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, 1, fout);
-    ASSERT(num == 1);
+    // int num;
+    MWRITE((void *)waloff[SAVE_SCREEN_TILE], SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, 1, fout);
+    // ASSERT(num == 1);
 }
 
 void
-ScreenLoad(MFILE fin)
+ScreenLoad(MFILE_READ fin)
 {
     int num;
 
