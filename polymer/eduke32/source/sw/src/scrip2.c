@@ -50,29 +50,6 @@ ParentalStruct aVoxelArray[MAXTILES];
 /*
 =============================================================================
 
-                        ABNORMAL TERMINATION
-
-=============================================================================
-*/
-#ifdef RENDERTYPEWIN
-void Error(char *error, ...)
-{
-    va_list argptr;
-
-    va_start(argptr,error);
-    vprintf(error,argptr);
-    va_end(argptr);
-    printf("\n");
-    exit(1);
-}
-#else
-void Error(char *,...);
-#endif
-
-
-/*
-=============================================================================
-
                         PARSING STUFF
 
 =============================================================================
@@ -174,7 +151,7 @@ void GetToken(SWBOOL crossline)
     if (script_p >= scriptend_p)
     {
         if (!crossline)
-            Error("Line %i is incomplete\n",scriptline);
+            buildprintf("Error: Line %i is incomplete\n",scriptline);
         endofscript = TRUE;
         return;
     }
@@ -188,14 +165,14 @@ skipspace:
         if (script_p >= scriptend_p)
         {
             if (!crossline)
-                Error("Line %i is incomplete\n",scriptline);
+                buildprintf("Error: Line %i is incomplete\n",scriptline);
             endofscript = TRUE;
             return;
         }
         if (*script_p++ == '\n')
         {
             if (!crossline)
-                Error("Line %i is incomplete\n",scriptline);
+                buildprintf("Error: Line %i is incomplete\n",scriptline);
             scriptline++;
         }
     }
@@ -203,7 +180,7 @@ skipspace:
     if (script_p >= scriptend_p)
     {
         if (!crossline)
-            Error("Line %i is incomplete\n",scriptline);
+            buildprintf("Error: Line %i is incomplete\n",scriptline);
         endofscript = TRUE;
         return;
     }
@@ -211,7 +188,7 @@ skipspace:
     if (*script_p == '#')   // # is comment field
     {
         if (!crossline)
-            Error("Line %i is incomplete\n",scriptline);
+            buildprintf("Error: Line %i is incomplete\n",scriptline);
         while (*script_p++ != '\n')
             if (script_p >= scriptend_p)
             {
@@ -232,7 +209,7 @@ skipspace:
         if (script_p == scriptend_p)
             break;
         ASSERT(token_p != &token[MAXTOKEN]);
-//          Error ("Token too large on line %i\n",scriptline);
+//          buildprintf("Error: Token too large on line %i\n",scriptline);
     }
 
     *token_p = 0;
