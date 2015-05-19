@@ -939,7 +939,7 @@ static const char *deffile = "sw.def";
 extern int startwin_run(void);
 
 void
-InitGame(void)
+InitGame(int32_t argc, const char **argv)
 {
     extern int MovesPerPacket;
     //void *ReserveMem=NULL;
@@ -975,7 +975,7 @@ InitGame(void)
 
     if (!firstnet)
         initmultiplayers(0, NULL, 0, 0, 0);
-    else if (initmultiplayersparms(_buildargc - firstnet, &_buildargv[firstnet]))
+    else if (initmultiplayersparms(argc - firstnet, &argv[firstnet]))
     {
         buildputs("Waiting for players...\n");
         while (initmultiplayerscycle())
@@ -2918,10 +2918,10 @@ GameIntro(void)
 }
 
 void
-Control(void)
+Control(int32_t argc, const char **argv)
 {
 
-    InitGame();
+    InitGame(argc, argv);
 
     MONO_PRINT("InitGame done");
     MNU_InitMenus();
@@ -3413,7 +3413,7 @@ int DetectShareware(void)
 }
 
 
-void CommandLineHelp(void)
+void CommandLineHelp(const char **argv)
 {
     int i;
 #ifdef RENDERTYPEWIN
@@ -3445,9 +3445,9 @@ void CommandLineHelp(void)
     }
 #else
     if (SW_SHAREWARE)
-        printf("Usage: %s [options]\n", _buildargv[0]);
+        printf("Usage: %s [options]\n", argv[0]);
     else
-        printf("Usage: %s [options] [map]\n", _buildargv[0]);
+        printf("Usage: %s [options] [map]\n", argv[0]);
     printf("options:  ('/' may be used instead of '-', <> text is optional)\n\n");
 
     for (i = 0; i < (int)SIZ(cli_arg); i++)
@@ -3461,7 +3461,7 @@ void CommandLineHelp(void)
 }
 
 char *grpfile = "sw.grp";
-int app_main(int argc, char const *const argv[])
+int32_t app_main(int32_t argc, const char **argv)
 {
     int i;
     int stat, nexti;
@@ -3488,7 +3488,7 @@ int app_main(int argc, char const *const argv[])
         }
         else if (!Bstrcasecmp(argv[i]+1, "?"))
         {
-            CommandLineHelp();
+            CommandLineHelp(argv);
             return 0;
         }
     }
@@ -3580,7 +3580,7 @@ int app_main(int argc, char const *const argv[])
         }
     }
 
-    buildsetlogfile("sw.log");
+    OSD_SetLogFile("sw.log");
     {
         char *newgrp;
         newgrp = getenv("SWGRP");
@@ -4109,7 +4109,7 @@ int app_main(int argc, char const *const argv[])
         }
     }
 
-    Control();
+    Control(argc, argv);
 
     return 0;
 }
