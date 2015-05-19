@@ -116,7 +116,7 @@ void PrintStatus(char *string, int num, char x, char y, char color);
 
 #define NUMOPTIONS 8
 char option[NUMOPTIONS] = {0, 0, 0, 0, 0, 0, 1, 0};
-char keys[NUMBUILDKEYS] =
+char default_buildkeys[NUMBUILDKEYS] =
 {
     0xc8, 0xd0, 0xcb, 0xcd, 0x2a, 0x9d, 0x1d, 0x39,
     0x1e, 0x2c, 0xd1, 0xc9, 0x33, 0x34,
@@ -611,8 +611,8 @@ ExtInit(void)
     if ((fil = open("setup.dat", O_BINARY | O_RDWR, S_IREAD)) != -1)
     {
         read(fil, &option[0], NUMOPTIONS);
-        read(fil, &keys[0], NUMKEYS);
-        memcpy((void *) buildkeys, (void *) keys, NUMKEYS);     // Trick to make build
+        read(fil, &default_buildkeys[0], NUMKEYS);
+        memcpy((void *) buildkeys, (void *) default_buildkeys, NUMKEYS);     // Trick to make build
         // use setup.dat keys
         close(fil);
     }
@@ -739,15 +739,15 @@ ExtInit(void)
         if ((fil = open("setup.dat", O_BINARY | O_RDWR, S_IREAD)) != -1)
             {
             read(fil, &option[0], NUMOPTIONS);
-            read(fil, &keys[0], NUMKEYS);
-            memcpy((void *) buildkeys, (void *) keys, NUMKEYS); // Trick to make build
+            read(fil, &default_buildkeys[0], NUMKEYS);
+            memcpy((void *) buildkeys, (void *) default_buildkeys, NUMKEYS); // Trick to make build
             // use setup.dat keys
             close(fil);
             }
         */
     bpp = 8;
     if (loadsetup("build.cfg") < 0) buildputs("Configuration file not found, using defaults.\n"), rv = 1;
-    Bmemcpy((void *)buildkeys,(void *)keys,NUMBUILDKEYS);       //Trick to make build use setup.dat keys
+    Bmemcpy((void *)buildkeys,(void *)default_buildkeys,NUMBUILDKEYS);       //Trick to make build use setup.dat keys
     if (option[4] > 0)
         option[4] = 0;
     if (initengine())
