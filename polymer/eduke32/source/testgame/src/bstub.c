@@ -253,7 +253,7 @@ void ExtPreCheckKeys(void)
         horizval2 = dy*(320>>1)/dx+1;
 
         daviewingrange = scale(65536,16384*(xdim>>1),mindx-16);
-        daaspect = scale(daviewingrange,scale(320,tilesizx[4094],tilesizy[4094]),horizval2+6-horizval1);
+        daaspect = scale(daviewingrange,scale(320,tilesiz[4094].x,tilesiz[4094].y),horizval2+6-horizval1);
         setaspect(daviewingrange,scale(daaspect,ydim*320,xdim*i));
         horiz = 100-divscale15(horizval1+horizval2,daviewingrange);
     }
@@ -321,7 +321,7 @@ void ExtCheckKeys(void)
 #if 0
         if (hang != 0)
         {
-            bufplc = waloff[4094]+(mulscale16(horiz-100,xdimenscale)+(tilesizx[4094]>>1))*tilesizy[4094];
+            bufplc = waloff[4094]+(mulscale16(horiz-100,xdimenscale)+(tilesiz[4094].x>>1))*tilesiz[4094].y;
             setviewback();
             cosang = sintable[(hang+512)&2047];
             sinang = sintable[hang&2047];
@@ -329,7 +329,7 @@ void ExtCheckKeys(void)
             dy = dmulscale1(-ydim,cosang,xdim,sinang);
 
             begindrawing();
-            tsizy = tilesizy[4094];
+            tsizy = tilesiz[4094].y;
             tsizyup15 = (tsizy<<15);
             dx = mulscale14(dx,daviewingrange);
             dy = mulscale14(dy,daaspect);

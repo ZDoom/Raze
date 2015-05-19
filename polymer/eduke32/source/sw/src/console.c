@@ -683,131 +683,131 @@ int TileRangeMem(int start)
     {
     case 4096: // Evil Ninja
         for (i=4096; i<=4239; i++)
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 800:  // Hornet
         for (i=800; i<=811; i++)
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 817:
         for (i=817; i<=819; i++) // Bouncing Betty
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 820: // Skull
         for (i=820; i<=854; i++)
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 960:
         for (i=960; i<=1016; i++) // Serpent God
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         for (i=1300; i<=1314; i++)
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 1024:
         for (i=1024; i<=1175; i++) // LoWang
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 1320:
         for (i=1320; i<=1396; i++) // Skeletor Priest
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 1400:
         for (i=1400; i<=1440; i++) // Coolie
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         for (i=4260; i<=4266; i++)
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 1441:
         for (i=1441; i<=1450; i++) // Coolie Ghost
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         for (i=4267; i<=4312; i++)
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 1469:
         for (i=1469; i<=1497; i++) // Guardian
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         for (i=1504; i<=1518; i++)
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 1580:
         for (i=1580; i<=1644; i++) // Little Ripper
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 4320:
         for (i=4320; i<=4427; i++) // Big Ripper
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2540:
         for (i=2540; i<=2546; i++) // Trashcan
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 4430:
         for (i=4430; i<=4479; i++) // Fish
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 4490:
         for (i=4490; i<=4544; i++) // Sumo
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 5023:
         for (i=5023; i<=5026; i++) // Toilet Girl
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 5032:
         for (i=5032; i<=5035; i++) // Wash Girl
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2000:
         for (i=2000; i<=2002; i++) // Chop Stick Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2004:
         for (i=2004; i<=2009; i++) // Uzi Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         for (i=2040; i<=2043; i++) // Uzi Overlays
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2010:
         for (i=2010; i<=2019; i++) // Rail Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2130:
         for (i=2130; i<=2137; i++) // Shuriken Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2050:
         for (i=2050; i<=2053; i++) // Heart Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2054:
         for (i=2054; i<=2057; i++) // HotHead Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2070:
         for (i=2070; i<=2077; i++) // Rocket Launcher Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2080:
         for (i=2080; i<=2083; i++) // Sword Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 4090:
         for (i=4090; i<=4093; i++) // Bloody Sword Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2121:
         for (i=2121; i<=2126; i++) // 40MM Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2211:
         for (i=2211; i<=2216; i++) // Shotgun Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         for (i=2225; i<=2227; i++) // Shotgun Quad-Mode Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     case 2220:
         for (i=2220; i<=2224; i++) // Sticky Bomb Panel
-            total += tilesizx[i]*tilesizy[i];
+            total += tilesiz[i].x*tilesiz[i].y;
         break;
     }
 
@@ -839,7 +839,7 @@ void CON_Cache(void)
     tottiles = 0;
     for (i=0; i<8192; i++)
         if (incache[i] > 0)
-            tottiles += tilesizx[i]*tilesizy[i];
+            tottiles += tilesiz[i].x*tilesiz[i].y;
 
     //////////////////////////////////////////////
 
@@ -976,7 +976,7 @@ void CON_Cache(void)
                 incache[2220]=0;
                 break;
 
-            default: totsprites += tilesizx[i]*tilesizy[i];
+            default: totsprites += tilesiz[i].x*tilesiz[i].y;
             }
         }
     }

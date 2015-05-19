@@ -5726,7 +5726,7 @@ SHOWSPRITE:
                     l = spr->xrepeat;
                     dax = sintable[k & 2047] * l;
                     day = sintable[(k + 1536) & 2047] * l;
-                    l = tilesizx[tilenum];
+                    l = tilesiz[tilenum].x;
                     k = (l >> 1) + xoff;
                     x1 -= mulscale(dax, k, 16);
                     x2 = x1 + mulscale(dax, l, 16);
@@ -5761,9 +5761,9 @@ SHOWSPRITE:
                         k = spr->ang;
                         cosang = sintable[(k + 512) & 2047];
                         sinang = sintable[k];
-                        xspan = tilesizx[tilenum];
+                        xspan = tilesiz[tilenum].x;
                         xrepeat = spr->xrepeat;
-                        yspan = tilesizy[tilenum];
+                        yspan = tilesiz[tilenum].y;
                         yrepeat = spr->yrepeat;
 
                         dax = ((xspan >> 1) + xoff) * xrepeat;
@@ -5832,9 +5832,9 @@ SHOWSPRITE:
             if ((show2dwall[j >> 3] & (1 << (j & 7))) == 0)
                 continue;
 
-            if (tilesizx[wal->picnum] == 0)
+            if (tilesiz[wal->picnum].x == 0)
                 continue;
-            if (tilesizy[wal->picnum] == 0)
+            if (tilesiz[wal->picnum].y == 0)
                 continue;
 
             ox = wal->x - cposx;

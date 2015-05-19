@@ -94,7 +94,7 @@ int gametext(int x,int y,char *t,char s,short dabits)
 
             if (*t >= '0' && *t <= '9')
                 newx += 8;
-            else newx += tilesizx[ac];
+            else newx += tilesiz[ac].x;
             t++;
         }
 
@@ -114,7 +114,7 @@ int gametext(int x,int y,char *t,char s,short dabits)
 
         if (*t >= '0' && *t <= '9')
             x += 8;
-        else x += tilesizx[ac];
+        else x += tilesiz[ac].x;
 
         t++;
     }
@@ -142,7 +142,7 @@ int minigametext(int x,int y,char *t,char s,short dabits)
 
             if (*t > asc_Space && *t < 127)
             {
-                newx += tilesizx[ac];
+                newx += tilesiz[ac].x;
             }
             else
                 x += 4;
@@ -164,7 +164,7 @@ int minigametext(int x,int y,char *t,char s,short dabits)
         if (*t > asc_Space && *t < 127)
         {
             rotatesprite(x<<16,y<<16,65536L,0,ac,-128,17,dabits,0,0,xdim-1,ydim-1);
-            x += tilesizx[ac];
+            x += tilesiz[ac].x;
         }
         else
             x += 4;
@@ -186,7 +186,7 @@ int minitext(int x,int y,char *t,char p,char sb)
         else ac = *t - '!' + MINIFONT;
 
         rotatesprite(x<<16,y<<16,65536L,0,ac,0,p,sb,0,0,xdim-1,ydim-1);
-        x += 4; // tilesizx[ac]+1;
+        x += 4; // tilesiz[ac].x+1;
 
         t++;
     }
@@ -204,7 +204,7 @@ int minitextshade(int x,int y,char *t,char s,char p,char sb)
         else ac = *t - '!' + MINIFONT;
 
         rotatesprite(x<<16,y<<16,65536L,0,ac,s,p,sb,0,0,xdim-1,ydim-1);
-        x += 4; // tilesizx[ac]+1;
+        x += 4; // tilesiz[ac].x+1;
 
         t++;
     }

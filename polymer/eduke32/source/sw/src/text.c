@@ -91,7 +91,7 @@ DisplaySummaryString(PLAYERp pp, short xs, short ys, short color, short shade, c
         font_pic = font_base[color] + (ch - '0');
         nsp = pSpawnFullScreenSprite(pp, font_pic, PRI_FRONT_MAX, x, ys);
         nsp->shade = shade;
-        size = tilesizx[font_pic] + 1;
+        size = tilesiz[font_pic].x + 1;
     }
 }
 
@@ -203,7 +203,7 @@ PutStringTimer(PLAYERp pp, short x, short y, const char *string, short seconds)
             nsp->PanelSpriteFunc = func;
             nsp->kill_tics = kill_tics;
             nsp->ID = id;
-            offset += tilesizx[ac];
+            offset += tilesiz[ac].x;
         }
         else if (c == asc_Space)
             offset += 4;                // Special case for space char
@@ -266,7 +266,7 @@ DisplayPanelNumber(PLAYERp pp, short xs, short ys, int number)
 
         pSpawnFullScreenSprite(pp, PANEL_FONT_G + (*ptr - '0'), PRI_FRONT_MAX, x, ys);
 
-        size = tilesizx[PANEL_FONT_G + (*ptr - '0')] + 1;
+        size = tilesiz[PANEL_FONT_G + (*ptr - '0')].x + 1;
     }
 }
 
@@ -294,7 +294,7 @@ DisplayMiniBarNumber(PLAYERp pp, short xs, short ys, int number)
                      pic, 0, 0,
                      ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
 
-        size = tilesizx[PANEL_FONT_G + (*ptr - '0')] + 1;
+        size = tilesiz[PANEL_FONT_G + (*ptr - '0')].x + 1;
     }
 }
 
@@ -407,7 +407,7 @@ DisplayFragNumbers(PLAYERp pp)
     // frag bar 0 or 1
     frag_bar = ((pnum)/4);
     // move y down according to frag bar number
-    ys = ys + (tilesizy[FRAG_BAR]-2) * frag_bar;
+    ys = ys + (tilesiz[FRAG_BAR].y-2) * frag_bar;
 
     // move x over according to the number of players
     xs = xoffs[MOD4(pnum)];
@@ -441,7 +441,7 @@ DisplayFragNames(PLAYERp pp)
     // frag bar 0 or 1
     frag_bar = ((pnum)/4);
     // move y down according to frag bar number
-    ys = ys + (tilesizy[FRAG_BAR]-2) * frag_bar;
+    ys = ys + (tilesiz[FRAG_BAR].y-2) * frag_bar;
 
     // move x over according to the number of players
     xs = xoffs[MOD4(pnum)];

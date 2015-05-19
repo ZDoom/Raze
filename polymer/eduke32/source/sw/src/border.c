@@ -199,7 +199,7 @@ SetFragBar(PLAYERp pp)
 
     for (i = windowx1; i <= windowx2; i++)
     {
-        y = (tilesizy[FRAG_BAR] * num_frag_bars) - (2 * (num_frag_bars-1));
+        y = (tilesiz[FRAG_BAR].y * num_frag_bars) - (2 * (num_frag_bars-1));
         y = y * (ydim/200.0);
 
         if (windowy1 < y)
@@ -209,7 +209,7 @@ SetFragBar(PLAYERp pp)
     for (i = 0, y = 0; i < num_frag_bars; i++)
     {
         pSpawnFullScreenSprite(pp, FRAG_BAR, PRI_MID, 0, y);
-        y += tilesizy[FRAG_BAR] - 2;
+        y += tilesiz[FRAG_BAR].y - 2;
     }
 
     // write each persons kill info to everybody
@@ -239,12 +239,12 @@ void DrawBorderShade(PLAYERp pp, short shade_num, short wx1, short wy1, short wx
     int dark_shade = 27 - (shade_num * 6);
     int light_shade = 20 - (shade_num * 6);
 
-    for (i = 0; i < xdim; i += tilesizx[BORDER_TILE])
+    for (i = 0; i < xdim; i += tilesiz[BORDER_TILE].x)
     {
-        for (j = 0; j < ydim; j += tilesizy[BORDER_TILE])
+        for (j = 0; j < ydim; j += tilesiz[BORDER_TILE].y)
         {
-            k = i + tilesizx[BORDER_TILE];
-            l = j + tilesizy[BORDER_TILE];
+            k = i + tilesiz[BORDER_TILE].x;
+            l = j + tilesiz[BORDER_TILE].y;
 
             if (RectOverlap(i, j, k, l, wx1 - 1, wy1 - 1, wx2 + 1, wy1))
             {
@@ -349,12 +349,12 @@ void DrawBorder(PLAYERp pp, short x, short y, short x2, short y2)
     short i,j,k,l;
     short count = 0;
 
-    for (i = 0; i < xdim; i += tilesizx[BORDER_TILE])
+    for (i = 0; i < xdim; i += tilesiz[BORDER_TILE].x)
     {
-        for (j = 0; j < ydim; j += tilesizy[BORDER_TILE])
+        for (j = 0; j < ydim; j += tilesiz[BORDER_TILE].y)
         {
-            k = i + tilesizx[BORDER_TILE];
-            l = j + tilesizy[BORDER_TILE];
+            k = i + tilesiz[BORDER_TILE].x;
+            l = j + tilesiz[BORDER_TILE].y;
 
             if (RectOverlap(i, j, k, l, x, y, windowx1-1, y2))
             {
@@ -392,12 +392,12 @@ void DrawPanelBorderSides(PLAYERp pp, short x, short y, short x2, short y2, shor
     short i,j,k,l;
     short count = 0;
 
-    for (i = 0; i < xdim; i += tilesizx[BORDER_TILE])
+    for (i = 0; i < xdim; i += tilesiz[BORDER_TILE].x)
     {
-        for (j = 0; j < ydim; j += tilesizy[BORDER_TILE])
+        for (j = 0; j < ydim; j += tilesiz[BORDER_TILE].y)
         {
-            k = i + tilesizx[BORDER_TILE];
-            l = j + tilesizy[BORDER_TILE];
+            k = i + tilesiz[BORDER_TILE].x;
+            l = j + tilesiz[BORDER_TILE].y;
 
             if (RectOverlap(i, j, k, l, x, y, panl, y2))
             {
@@ -551,7 +551,7 @@ void SetBorder(PLAYERp pp, int value)
         if (gs.BorderNum == BORDER_BAR)
             SetConsoleDmost();
 
-        pSpawnFullScreenSprite(pp, STATUS_BAR, PRI_FRONT, 0, 200 - tilesizy[STATUS_BAR]);
+        pSpawnFullScreenSprite(pp, STATUS_BAR, PRI_FRONT, 0, 200 - tilesiz[STATUS_BAR].y);
         PlayerUpdatePanelInfo(Player + screenpeek);
     }
 

@@ -332,13 +332,13 @@ JS_InitMirrors(void)
 
     // Scan wall tags for mirrors
     mirrorcnt = 0;
-    tilesizx[MIRROR] = 0;
-    tilesizy[MIRROR] = 0;
+    tilesiz[MIRROR].x = 0;
+    tilesiz[MIRROR].y = 0;
 
     for (i = 0; i < MAXMIRRORS; i++)
     {
-        tilesizx[i + MIRRORLABEL] = 0;
-        tilesizy[i + MIRRORLABEL] = 0;
+        tilesiz[i + MIRRORLABEL].x = 0;
+        tilesiz[i + MIRRORLABEL].y = 0;
         mirror[i].campic = -1;
         mirror[i].camsprite = -1;
         mirror[i].camera = -1;
@@ -420,7 +420,7 @@ JS_InitMirrors(void)
                                 mirror[mirrorcnt].camsprite = SpriteNum;
 
                                 // JBF: commenting out this line results in the screen in $BULLET being visible
-                                tilesizx[mirror[mirrorcnt].campic] = tilesizy[mirror[mirrorcnt].campic] = 0;
+                                tilesiz[mirror[mirrorcnt].campic].x = tilesiz[mirror[mirrorcnt].campic].y = 0;
 
                                 Found_Cam = TRUE;
                             }
@@ -492,7 +492,7 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 
     PRODUCTION_ASSERT(waloff[tilenume]);
 
-    setviewtotile(tilenume, tilesizx[tilenume], tilesizy[tilenume]);
+    setviewtotile(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
     drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
     analyzesprites(daposx, daposy, daposz, FALSE);
@@ -516,8 +516,8 @@ drawroomstotile(int daposx, int daposy, int daposz,
     char *ptr1, *ptr2;
 
     // DRAWROOMS TO TILE BACKUP&SET CODE
-    xsiz = tilesizx[tilenume];
-    ysiz = tilesizy[tilenume];
+    xsiz = tilesiz[tilenume].x;
+    ysiz = tilesiz[tilenume].y;
     // bakchainnumpages = chainnumpages;
     bakchainnumpages = numpages;
     // chainnumpages = 0;
@@ -784,12 +784,12 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                     // you are outside of it!
                     if (!mirror[cnt].mstate == m_viewon)
                     {
-                        tilesizx[MIRROR] = tilesizy[MIRROR] = 0;
+                        tilesiz[MIRROR].x = tilesiz[MIRROR].y = 0;
                         // Set TV camera sprite size to 0 to show mirror
                         // behind in this case!
 
                         if (mirror[cnt].campic != -1)
-                            tilesizx[mirror[cnt].campic] = tilesizy[mirror[cnt].campic] = 0;
+                            tilesiz[mirror[cnt].campic].x = tilesiz[mirror[cnt].campic].y = 0;
                         drawrooms(dx, dy, dz, tpang, tphoriz, sp->sectnum + MAXSECTORS);
                         analyzesprites(dx, dy, dz, FALSE);
                         drawmasks();
@@ -861,7 +861,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 
 
                         // Set up the tile for drawing
-                        tilesizx[mirror[cnt].campic] = tilesizy[mirror[cnt].campic] = 128;
+                        tilesiz[mirror[cnt].campic].x = tilesiz[mirror[cnt].campic].y = 128;
 
                         if (MirrorMoveSkip16 == 0 || (DoCam && (MoveSkip4 == 0)))
                         {
@@ -909,7 +909,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                 // drawrooms(tx, ty, tz, tpang, tphoriz, pp->cursectnum);
                 // Clean up anything that the camera view might have done
                 SetFragBar(pp);
-                tilesizx[MIRROR] = tilesizy[MIRROR] = 0;
+                tilesiz[MIRROR].x = tilesiz[MIRROR].y = 0;
                 wall[mirror[cnt].mirrorwall].overpicnum = MIRRORLABEL + cnt;
             }
             else

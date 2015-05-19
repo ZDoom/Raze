@@ -2300,9 +2300,9 @@ MNU_MeasureStringLarge(const char *string, short *w, short *h)
             continue;
         }
 
-        width += tilesizx[pic]+1;
-        if (height < tilesizy[pic])
-            height = tilesizy[pic];
+        width += tilesiz[pic].x+1;
+        if (height < tilesiz[pic].y)
+            height = tilesiz[pic].y;
     }
 
     *w = width;
@@ -2343,7 +2343,7 @@ MNU_DrawStringLarge(short x, short y, const char *string)
         }
 
         rotatesprite(offset << 16, y << 16, MZ, 0, pic, MenuTextShade, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
-        offset += tilesizx[pic] + 1;
+        offset += tilesiz[pic].x + 1;
     }
 
 }
@@ -2376,9 +2376,9 @@ MNU_MeasureString(const char *string, short *w, short *h)
 
         if (c > asc_Space && c < 127)
         {
-            width += tilesizx[ac];
-            if (height < tilesizy[ac])
-                height = tilesizy[ac];
+            width += tilesiz[ac].x;
+            if (height < tilesiz[ac].y)
+                height = tilesiz[ac].y;
         }
         else if (c == asc_Space)
             width += 4;                 // Special case for space char
@@ -2417,7 +2417,7 @@ MNU_DrawString(short x, short y, const char *string, short shade, short pal)
         if (c > asc_Space && c < 127)
         {
             rotatesprite(offset<<16,y<<16,MZ,0,ac, shade, pal, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
-            offset += tilesizx[ac];
+            offset += tilesiz[ac].x;
         }
         else if (c == asc_Space)
             offset += 4;                // Special case for space char
@@ -2444,7 +2444,7 @@ MNU_DrawString(short x, short y, char *string)
         if (c > asc_Space && c < 127)
         {
             rotatesprite(offset << 16, y << 16, MZ, 0, xlatfont[c], MenuTextShade, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
-            offset += tilesizx[xlatfont[c]];
+            offset += tilesiz[xlatfont[c]].x;
         } else
         if (c == asc_Space)
             offset += 4;                // Special case for space char
@@ -2474,9 +2474,9 @@ MNU_MeasureSmallString(const char *string, short *w, short *h)
 
         if (c > asc_Space && c < 127)
         {
-            width += tilesizx[ac];
-            if (height < tilesizy[ac])
-                height = tilesizy[ac];
+            width += tilesiz[ac].x;
+            if (height < tilesiz[ac].y)
+                height = tilesiz[ac].y;
         }
         else if (c == asc_Space)
             width += 4;                 // Special case for space char
@@ -2509,7 +2509,7 @@ MNU_DrawSmallString(short x, short y, const char *string, short shade, short pal
         {
             rotatesprite(offset<<16,y<<16,MZ,0,ac, shade, pal, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
 
-            offset += tilesizx[ac];
+            offset += tilesiz[ac].x;
 
         }
         else if (c == asc_Space)
@@ -3587,7 +3587,7 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
         MNU_DrawString(x, y, item->text, MenuTextShade, 16);
 
         if (extra_text)
-            MNU_DrawString(OPT_XSIDE + tilesizx[pic_radiobuttn1] + 6, y, extra_text, MenuTextShade, 16);
+            MNU_DrawString(OPT_XSIDE + tilesiz[pic_radiobuttn1].x + 6, y, extra_text, MenuTextShade, 16);
         MenuTextShade = MENU_SHADE_DEFAULT;
     }
     else
@@ -3597,7 +3597,7 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
         else
             rotatesprite(x << 16, y << 16, MZ, 0, pic_radiobuttn1, 2, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
 
-        x += tilesizx[pic_radiobuttn1] + 4;
+        x += tilesiz[pic_radiobuttn1].x + 4;
 
         // Draw the menu item text
         rotatesprite(x << 16, y << 16, MZ, 0, item->pic, 2, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
@@ -3902,7 +3902,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         }
 
         sprintf(tmp_text, "%d bpp", validbpps[offset]);
-        MNU_DrawString(OPT_XSIDE+tilesizx[pic_slidelend]+tilesizx[pic_sliderend]+(barwidth+1)*tilesizx[pic_slidebar], item->y, tmp_text, 1, 16);
+        MNU_DrawString(OPT_XSIDE+tilesiz[pic_slidelend].x+tilesiz[pic_sliderend].x+(barwidth+1)*tilesiz[pic_slidebar].x, item->y, tmp_text, 1, 16);
     } break;
 
     case sldr_mousescalex:
@@ -3924,7 +3924,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         }
 
         sprintf(tmp_text, "%.2f", (float)(slidersettings[item->slider]<<13) / 65535.f);
-        MNU_DrawSmallString(OPT_XSIDE+tilesizx[pic_slidelend]+tilesizx[pic_sliderend]+(MAX_SLDR_WIDTH+1)*tilesizx[pic_slidebar], item->y+4, tmp_text, 1, 16);
+        MNU_DrawSmallString(OPT_XSIDE+tilesiz[pic_slidelend].x+tilesiz[pic_sliderend].x+(MAX_SLDR_WIDTH+1)*tilesiz[pic_slidebar].x, item->y+4, tmp_text, 1, 16);
         break;
 
     case sldr_joyaxisscale:
@@ -3945,7 +3945,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         }
 
         sprintf(tmp_text, "%.2f", (float)(slidersettings[item->slider]<<13) / 65535.f);
-        MNU_DrawSmallString(OPT_XSIDE+tilesizx[pic_slidelend]+tilesizx[pic_sliderend]+(MAX_SLDR_WIDTH+1)*tilesizx[pic_slidebar], item->y+4, tmp_text, 1, 16);
+        MNU_DrawSmallString(OPT_XSIDE+tilesiz[pic_slidelend].x+tilesiz[pic_sliderend].x+(MAX_SLDR_WIDTH+1)*tilesiz[pic_slidebar].x, item->y+4, tmp_text, 1, 16);
         break;
 
     case sldr_joyaxisanalog:
@@ -3971,7 +3971,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         p = CONFIG_AnalogNumToName(MNU_ControlAxisNum(offset));
         while (*p != 0 && *p != '_') p++;
         if (*p == '_') p++;
-        MNU_DrawSmallString(OPT_XSIDE+tilesizx[pic_slidelend]+tilesizx[pic_sliderend]+(barwidth+1)*tilesizx[pic_slidebar], item->y+4, p, 1, 16);
+        MNU_DrawSmallString(OPT_XSIDE+tilesiz[pic_slidelend].x+tilesiz[pic_sliderend].x+(barwidth+1)*tilesiz[pic_slidebar].x, item->y+4, p, 1, 16);
     }
     break;
 
@@ -4002,7 +4002,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         }
 
         sprintf(tmp_text, "%.2f%%", (float)(slidersettings[item->slider]<<10) / 32767.f);
-        MNU_DrawSmallString(OPT_XSIDE+tilesizx[pic_slidelend]+tilesizx[pic_sliderend]+(MAX_SLDR_WIDTH+1)*tilesizx[pic_slidebar], item->y+4, tmp_text, 1, 16);
+        MNU_DrawSmallString(OPT_XSIDE+tilesiz[pic_slidelend].x+tilesiz[pic_sliderend].x+(MAX_SLDR_WIDTH+1)*tilesiz[pic_slidebar].x, item->y+4, tmp_text, 1, 16);
         break;
 
     default:
@@ -4020,14 +4020,14 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
     // Draw the left end cap of the bar
     rotatesprite(x << 16, y << 16, MZ, 0, pic_slidelend, shade, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
 
-    x += tilesizx[pic_slidelend];
+    x += tilesiz[pic_slidelend].x;
     knobx = x;
 
     // Draw the in between sections
     for (i = 0; i < min(barwidth,MAX_SLDR_WIDTH); i++)
     {
         rotatesprite(x << 16, y << 16, MZ, 0, pic_slidebar, shade, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
-        x += tilesizx[pic_slidebar];
+        x += tilesiz[pic_slidebar].x;
     }
 
     // Draw the right end cap
@@ -4036,11 +4036,11 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
     // Draw the knob, compressing the X coordinate if the bar is too wide
     if (barwidth > MAX_SLDR_WIDTH)
     {
-        knobx += offset * (MAX_SLDR_WIDTH*tilesizx[pic_slidebar]-tilesizx[pic_sliderknob]) / (barwidth-1);
+        knobx += offset * (MAX_SLDR_WIDTH*tilesiz[pic_slidebar].x-tilesiz[pic_sliderknob].x) / (barwidth-1);
     }
     else
     {
-        knobx += tilesizx[pic_slidebar] * offset;
+        knobx += tilesiz[pic_slidebar].x * offset;
     }
     rotatesprite(knobx << 16, (y + 2) << 16, MZ, 0, pic_sliderknob, shade, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
 }
@@ -4298,13 +4298,13 @@ MNU_DrawItemIcon(MenuItem *item)
     if (item->text)
     {
         scale /= 2;
-        x -= mulscale17(tilesizx[pic_yinyang],scale) + 2;
+        x -= mulscale17(tilesiz[pic_yinyang].x,scale) + 2;
         y += 4;
     }
     else
     {
         scale -= (1<<13);
-        x -= ((tilesizx[pic_yinyang]) / 2) - 3;
+        x -= ((tilesiz[pic_yinyang].x) / 2) - 3;
         y += 8;
     }
 
@@ -4343,7 +4343,7 @@ MNU_DrawItem(MenuItem *item)
                          -30 + STD_RANDOM_RANGE(50), PALETTE_MENU_HIGHLIGHT, MenuDrawFlags,
                          0, 0, xdim - 1, ydim - 1);
         else
-            rotatesprite((item->x + tilesizx[pic_radiobuttn1] + 4) << 16, item->y << 16,
+            rotatesprite((item->x + tilesiz[pic_radiobuttn1].x + 4) << 16, item->y << 16,
                          MZ, 0, item->pic, item->shade, PALETTE_MENU_HIGHLIGHT, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
     }
     else
@@ -4353,7 +4353,7 @@ MNU_DrawItem(MenuItem *item)
             rotatesprite(item->x << 16, item->y << 16, MZ, 0, item->pic,
                          item->shade, 0, MenuDrawFlags, 0, 319, 199, 0);
         else
-            rotatesprite((item->x + tilesizx[pic_radiobuttn1] + 4) << 16, item->y << 16,
+            rotatesprite((item->x + tilesiz[pic_radiobuttn1].x + 4) << 16, item->y << 16,
                          MZ, 0, item->pic, item->shade, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
     }
 }

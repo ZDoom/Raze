@@ -2605,7 +2605,7 @@ DrawCompass(PLAYERp pp)
 #define NORM_CANG(ang) (((ang) + 32) & 31)
 
     short start_ang,ang;
-    short x_size = tilesizx[COMPASS_NORTH];
+    short x_size = tilesiz[COMPASS_NORTH].x;
     short x;
     short i;
     int flags;
@@ -2698,8 +2698,8 @@ ScreenLoadSaveSetup(PLAYERp pp)
     if (!waloff[SAVE_SCREEN_TILE])
         allocache((void **)&waloff[SAVE_SCREEN_TILE], SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, &walock[SAVE_SCREEN_TILE]);
 
-    tilesizx[SAVE_SCREEN_TILE] = SAVE_SCREEN_XSIZE;
-    tilesizx[SAVE_SCREEN_TILE] = SAVE_SCREEN_YSIZE;
+    tilesiz[SAVE_SCREEN_TILE].x = SAVE_SCREEN_XSIZE;
+    tilesiz[SAVE_SCREEN_TILE].x = SAVE_SCREEN_YSIZE;
 
     return SAVE_SCREEN_TILE;
 }

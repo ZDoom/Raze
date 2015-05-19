@@ -402,8 +402,8 @@ int StdRandomRange(int range);
 
 #define DIST(x1, y1, x2, y2) ksqrt( SQ((x1) - (x2)) + SQ((y1) - (y2)) )
 
-#define PIC_SIZX(sn) (tilesizx[sprite[sn].picnum])
-#define PIC_SIZY(sn) (tilesizy[sprite[sn].picnum])
+#define PIC_SIZX(sn) (tilesiz[sprite[sn].picnum].x)
+#define PIC_SIZY(sn) (tilesiz[sprite[sn].picnum].y)
 
 // Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
 // that uses this macro
@@ -416,40 +416,40 @@ int StdRandomRange(int range);
     }
 
 #define SPRITE_SIZE_X(sp_num)   ((sprite[sp_num].xrepeat == 64) ?                         \
-                                 tilesizx[sprite[sp_num].picnum] :                   \
-                                 ((sprite[sp_num].xrepeat * tilesizx[sprite[sp_num].picnum]) >> 6) \
+                                 tilesiz[sprite[sp_num].picnum].x :                   \
+                                 ((sprite[sp_num].xrepeat * tilesiz[sprite[sp_num].picnum].x) >> 6) \
                                  )
 
 #define SPRITE_SIZE_Y(sp_num)   ((sprite[sp_num].yrepeat == 64) ?                          \
-                                 tilesizy[sprite[sp_num].picnum] :                    \
-                                 ((sprite[sp_num].yrepeat * tilesizy[sprite[sp_num].picnum]) >> 6) \
+                                 tilesiz[sprite[sp_num].picnum].y :                    \
+                                 ((sprite[sp_num].yrepeat * tilesiz[sprite[sp_num].picnum].y) >> 6) \
                                  )
 
 #define SPRITE_SIZE_Z(sp_num)   ((sprite[sp_num].yrepeat == 64) ?                          \
-                                 Z(tilesizy[sprite[sp_num].picnum]) :                 \
-                                 ((sprite[sp_num].yrepeat * tilesizy[sprite[sp_num].picnum]) << 2) \
+                                 Z(tilesiz[sprite[sp_num].picnum].y) :                 \
+                                 ((sprite[sp_num].yrepeat * tilesiz[sprite[sp_num].picnum].y) << 2) \
                                  )
 
 #define SPRITEp_SIZE_X(sp)   (((sp)->xrepeat == 64) ?                         \
-                              tilesizx[(sp)->picnum] :                   \
-                              (((sp)->xrepeat * tilesizx[(sp)->picnum]) >> 6) \
+                              tilesiz[(sp)->picnum].x :                   \
+                              (((sp)->xrepeat * tilesiz[(sp)->picnum].x) >> 6) \
                               )
 
 #define SPRITEp_SIZE_Y(sp)   (((sp)->yrepeat == 64) ?                          \
-                              tilesizy[(sp)->picnum] :                    \
-                              (((sp)->yrepeat * tilesizy[(sp)->picnum]) >> 6) \
+                              tilesiz[(sp)->picnum].y :                    \
+                              (((sp)->yrepeat * tilesiz[(sp)->picnum].y) >> 6) \
                               )
 
 #define SPRITEp_SIZE_Z(sp)   (((sp)->yrepeat == 64) ?                          \
-                              Z(tilesizy[(sp)->picnum]) :                 \
-                              (((sp)->yrepeat * tilesizy[(sp)->picnum]) << 2) \
+                              Z(tilesiz[(sp)->picnum].y) :                 \
+                              (((sp)->yrepeat * tilesiz[(sp)->picnum].y) << 2) \
                               )
 
 // Given a z height and sprite return the correct x repeat value
-#define SPRITEp_SIZE_X_2_XREPEAT(sp, x) (((x)*64)/tilesizx[(sp)->picnum])
+#define SPRITEp_SIZE_X_2_XREPEAT(sp, x) (((x)*64)/tilesiz[(sp)->picnum].x)
 // Given a z height and sprite return the correct y repeat value
-#define SPRITEp_SIZE_Z_2_YREPEAT(sp, zh) ((zh)/(4*tilesizy[(sp)->picnum]))
-#define SPRITEp_SIZE_Y_2_YREPEAT(sp, y) (((y)*64)/tilesizy[(sp)->picnum])
+#define SPRITEp_SIZE_Z_2_YREPEAT(sp, zh) ((zh)/(4*tilesiz[(sp)->picnum].y))
+#define SPRITEp_SIZE_Y_2_YREPEAT(sp, y) (((y)*64)/tilesiz[(sp)->picnum].y)
 
 
 // x & y offset of tile

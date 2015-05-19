@@ -4771,9 +4771,9 @@ getzrangepoint(int x, int y, int z, short sectnum,
         // These points will already have (x,y) subtracted from them
         cosang = sintable[NORM_ANGLE(spr->ang + 512)];
         sinang = sintable[spr->ang];
-        xspan = tilesizx[tilenum];
+        xspan = tilesiz[tilenum].x;
         dax = ((xspan >> 1) + xoff) * spr->xrepeat;
-        yspan = tilesizy[tilenum];
+        yspan = tilesiz[tilenum].y;
         day = ((yspan >> 1) + yoff) * spr->yrepeat;
         x1 = spr->x + dmulscale16(sinang, dax, cosang, day) - x;
         y1 = spr->y + dmulscale16(sinang, day, -cosang, dax) - y;

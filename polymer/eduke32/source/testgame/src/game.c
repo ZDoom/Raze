@@ -1215,8 +1215,8 @@ void prepareboard(char *daboardfilename)
 	subwaytrackcnt = 0;     //Make a list of subways
 
 	floormirrorcnt = 0;
-	tilesizx[FLOORMIRROR] = 0;
-	tilesizy[FLOORMIRROR] = 0;
+	tilesiz[FLOORMIRROR].x = 0;
+	tilesiz[FLOORMIRROR].y = 0;
 
 	for(i=0;i<numsectors;i++)
 	{
@@ -1465,12 +1465,12 @@ void prepareboard(char *daboardfilename)
 		//Scan wall tags
 
 	mirrorcnt = 0;
-	tilesizx[MIRROR] = 0;
-	tilesizy[MIRROR] = 0;
+	tilesiz[MIRROR].x = 0;
+	tilesiz[MIRROR].y = 0;
 	for(i=0;i<MAXMIRRORS;i++)
 	{
-		tilesizx[i+MIRRORLABEL] = 0;
-		tilesizy[i+MIRRORLABEL] = 0;
+		tilesiz[i+MIRRORLABEL].x = 0;
+		tilesiz[i+MIRRORLABEL].y = 0;
 	}
 
 	ypanningwallcnt = 0;
@@ -1521,11 +1521,11 @@ void prepareboard(char *daboardfilename)
 				case BROWNMONSTER:              //All cases here put the sprite
 					if ((sprite[i].cstat&128) == 0)
 					{
-						sprite[i].z -= ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+						sprite[i].z -= ((tilesiz[sprite[i].picnum].y*sprite[i].yrepeat)<<1);
 						sprite[i].cstat |= 128;
 					}
 					sprite[i].extra = sprite[i].ang;
-					sprite[i].clipdist = mulscale7(sprite[i].xrepeat,tilesizx[sprite[i].picnum]);
+					sprite[i].clipdist = mulscale7(sprite[i].xrepeat,tilesiz[sprite[i].picnum].x);
 					if (sprite[i].statnum != 1) changespritestat(i,2);   //on waiting for you (list 2)
 					sprite[i].lotag = mulscale5(sprite[i].xrepeat,sprite[i].yrepeat);
 					sprite[i].cstat |= 0x101;    //Set the hitscan sensitivity bit
@@ -1576,7 +1576,7 @@ void checktouchsprite(short snum, short sectnum)
 	{
 		nexti = nextspritesect[i];
 		if (sprite[i].cstat&0x8000) continue;
-		if ((klabs(pos[snum].x-sprite[i].x)+klabs(pos[snum].y-sprite[i].y) < 512) && (klabs((pos[snum].z>>8)-((sprite[i].z>>8)-(tilesizy[sprite[i].picnum]>>1))) <= 40))
+		if ((klabs(pos[snum].x-sprite[i].x)+klabs(pos[snum].y-sprite[i].y) < 512) && (klabs((pos[snum].z>>8)-((sprite[i].z>>8)-(tilesiz[sprite[i].picnum].y>>1))) <= 40))
 		{
 			switch(sprite[i].picnum)
 			{
@@ -1682,7 +1682,7 @@ void checkgrabbertouchsprite(short snum, short sectnum)   // Andy did this
 	{
 		nexti = nextspritesect[i];
 		if (sprite[i].cstat&0x8000) continue;
-		if ((klabs(sprite[snum].x-sprite[i].x)+klabs(sprite[snum].y-sprite[i].y) < 512) && (klabs((sprite[snum].z>>8)-((sprite[i].z>>8)-(tilesizy[sprite[i].picnum]>>1))) <= 40))
+		if ((klabs(sprite[snum].x-sprite[i].x)+klabs(sprite[snum].y-sprite[i].y) < 512) && (klabs((sprite[snum].z>>8)-((sprite[i].z>>8)-(tilesiz[sprite[i].picnum].y>>1))) <= 40))
 		{
 			switch(sprite[i].picnum)
 			{
@@ -1824,7 +1824,7 @@ void shootgun(short snum, const vec3_t *vector,
 							else
 							{
 								wsayfollow("mondie.wav",4096L+(krand()&127)-64,256L,&hitinfo.pos.x,&hitinfo.pos.y,0);
-								sprite[hitinfo.sprite].z += ((tilesizy[sprite[hitinfo.sprite].picnum]*sprite[hitinfo.sprite].yrepeat)<<1);
+								sprite[hitinfo.sprite].z += ((tilesiz[sprite[hitinfo.sprite].picnum].y*sprite[hitinfo.sprite].yrepeat)<<1);
 								sprite[hitinfo.sprite].picnum = GIFTBOX;
 								sprite[hitinfo.sprite].cstat &= ~0x83;    //Should not clip, foot-z
 								changespritestat(hitinfo.sprite,12);
@@ -2300,7 +2300,7 @@ void statuslistcode(void)
 			//brown monster decides to shoot bullet
 		if ((k&63) == 23)
 		{
-			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,pos[target].x,pos[target].y,pos[target].z,cursectnum[target]) == 0)
+			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesiz[sprite[i].picnum].y<<7),sprite[i].sectnum,pos[target].x,pos[target].y,pos[target].z,cursectnum[target]) == 0)
 			{
 				if ((k&0xf00) == 0xb00) changespritestat(i,2);
 			}
@@ -2369,7 +2369,7 @@ void statuslistcode(void)
 		if (globloz > sprite[i].z+(48<<8))
 			{ sprite[i].x = dax; sprite[i].y = day; movestat = 1; }
 		else
-			sprite[i].z = globloz-((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+			sprite[i].z = globloz-((tilesiz[sprite[i].picnum].y*sprite[i].yrepeat)<<1);
 
 		if ((sprite[i].sectnum != osectnum) && (sector[sprite[i].sectnum].lotag == 10))
 			{ warpsprite((short)i); movestat = 0; }
@@ -2424,7 +2424,7 @@ void statuslistcode(void)
 			l = 0;
 			if ((sprite[i].lotag&64) && (k < 2))  //Give him a chance to reproduce without seeing you
 				l = 1;
-			else if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,pos[target].x,pos[target].y,pos[target].z,cursectnum[target]) == 1)
+			else if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesiz[sprite[i].picnum].y<<7),sprite[i].sectnum,pos[target].x,pos[target].y,pos[target].z,cursectnum[target]) == 1)
 				l = 1;
 			if (l != 0)
 			{
@@ -2445,7 +2445,7 @@ void statuslistcode(void)
 		}
 		if (k >= 208+((sprite[i].lotag&128)>>2))    //Al decides to shoot bullet
 		{
-			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,pos[target].x,pos[target].y,pos[target].z,cursectnum[target]) == 1)
+			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesiz[sprite[i].picnum].y<<7),sprite[i].sectnum,pos[target].x,pos[target].y,pos[target].z,cursectnum[target]) == 1)
 			{
 				wsayfollow("zipguns.wav",5144L+(krand()&127)-64,256L,&sprite[i].x,&sprite[i].y,1);
 
@@ -2482,7 +2482,7 @@ void statuslistcode(void)
 
 		if (sprite[i].lotag&16)
 		{
-			if (((k&124) >= 120) && (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,pos[target].x,pos[target].y,pos[target].z,cursectnum[target]) == 1))
+			if (((k&124) >= 120) && (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesiz[sprite[i].picnum].y<<7),sprite[i].sectnum,pos[target].x,pos[target].y,pos[target].z,cursectnum[target]) == 1))
 				sprite[i].ang = getangle(pos[target].x-sprite[i].x,pos[target].y-sprite[i].y);
 			else
 				sprite[i].ang = (krand()&2047);
@@ -2490,7 +2490,7 @@ void statuslistcode(void)
 
 		if (movestat != 0)
 		{
-			if ((k&2) && (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,pos[target].x,pos[target].y,pos[target].z,cursectnum[target]) == 1))
+			if ((k&2) && (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesiz[sprite[i].picnum].y<<7),sprite[i].sectnum,pos[target].x,pos[target].y,pos[target].z,cursectnum[target]) == 1))
 				sprite[i].ang = getangle(pos[target].x-sprite[i].x,pos[target].y-sprite[i].y);
 			else
 				sprite[i].ang = (krand()&2047);
@@ -2622,14 +2622,14 @@ void statuslistcode(void)
 			{
 				sprite[i].z += sprite[i].zvel;
 				sprite[i].zvel += (TICSPERFRAME<<7);
-				if (sprite[i].z < globhiz+(tilesizy[BOMB]<<6))
+				if (sprite[i].z < globhiz+(tilesiz[BOMB].y<<6))
 				{
-					sprite[i].z = globhiz+(tilesizy[BOMB]<<6);
+					sprite[i].z = globhiz+(tilesiz[BOMB].y<<6);
 					sprite[i].zvel = -(sprite[i].zvel>>1);
 				}
-				if (sprite[i].z > globloz-(tilesizy[BOMB]<<6))
+				if (sprite[i].z > globloz-(tilesiz[BOMB].y<<6))
 				{
-					sprite[i].z = globloz-(tilesizy[BOMB]<<6);
+					sprite[i].z = globloz-(tilesiz[BOMB].y<<6);
 					sprite[i].zvel = -(sprite[i].zvel>>1);
 				}
 				dax = sprite[i].xvel; day = sprite[i].yvel;
@@ -2856,7 +2856,7 @@ void statuslistcode(void)
 								else
 								{
 									wsayfollow("mondie.wav",4096L+(krand()&127)-64,256L,&sprite[i].x,&sprite[i].y,0);
-									sprite[j].z += ((tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<1);
+									sprite[j].z += ((tilesiz[sprite[j].picnum].y*sprite[j].yrepeat)<<1);
 									sprite[j].picnum = GIFTBOX;
 									sprite[j].cstat &= ~0x83;    //Should not clip, foot-z
 
@@ -2914,7 +2914,7 @@ bulletisdeletedskip: continue;
 			//Use dot product to see if monster's angle is towards a player
 		for(p=connecthead;p>=0;p=connectpoint2[p])
 			if (sintable[(sprite[i].ang+512)&2047]*(pos[p].x-sprite[i].x) + sintable[sprite[i].ang&2047]*(pos[p].y-sprite[i].y) >= 0)
-				if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,pos[p].x,pos[p].y,pos[p].z,cursectnum[p]) == 1)
+				if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesiz[sprite[i].picnum].y<<7),sprite[i].sectnum,pos[p].x,pos[p].y,pos[p].z,cursectnum[p]) == 1)
 				{
 					changespritestat(i,1);
 					//if (sprite[i].lotag == 100)
@@ -3070,7 +3070,7 @@ void bombexplode(int i)
 		dist += (pos[j].y-sprite[i].y)*(pos[j].y-sprite[i].y);
 		dist += ((pos[j].z-sprite[i].z)>>4)*((pos[j].z-sprite[i].z)>>4);
 		if (dist < 4194304)
-			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,pos[j].x,pos[j].y,pos[j].z,cursectnum[j]) == 1)
+			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesiz[sprite[i].picnum].y<<7),sprite[i].sectnum,pos[j].x,pos[j].y,pos[j].z,cursectnum[j]) == 1)
 			{
 				k = ((32768/((dist>>16)+4))>>5);
 				if (j == myconnectindex)
@@ -3095,11 +3095,11 @@ void bombexplode(int i)
 			dist += (sprite[j].y-sprite[i].y)*(sprite[j].y-sprite[i].y);
 			dist += ((sprite[j].z-sprite[i].z)>>4)*((sprite[j].z-sprite[i].z)>>4);
 			if (dist >= 4194304) continue;
-			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,sprite[j].x,sprite[j].y,sprite[j].z-(tilesizy[sprite[j].picnum]<<7),sprite[j].sectnum) == 0)
+			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesiz[sprite[i].picnum].y<<7),sprite[i].sectnum,sprite[j].x,sprite[j].y,sprite[j].z-(tilesiz[sprite[j].picnum].y<<7),sprite[j].sectnum) == 0)
 				continue;
 			if (sprite[j].picnum == BROWNMONSTER)
 			{
-				sprite[j].z += ((tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<1);
+				sprite[j].z += ((tilesiz[sprite[j].picnum].y*sprite[j].yrepeat)<<1);
 				sprite[j].picnum = GIFTBOX;
 				sprite[j].cstat &= ~0x83;    //Should not clip, foot-z
 				changespritestat(j,12);
@@ -3115,7 +3115,7 @@ void bombexplode(int i)
 		dist += (sprite[j].y-sprite[i].y)*(sprite[j].y-sprite[i].y);
 		dist += ((sprite[j].z-sprite[i].z)>>4)*((sprite[j].z-sprite[i].z)>>4);
 		if (dist >= 4194304) continue;
-		if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,sprite[j].x,sprite[j].y,sprite[j].z-(tilesizy[sprite[j].picnum]<<7),sprite[j].sectnum) == 0)
+		if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesiz[sprite[i].picnum].y<<7),sprite[i].sectnum,sprite[j].x,sprite[j].y,sprite[j].z-(tilesiz[sprite[j].picnum].y<<7),sprite[j].sectnum) == 0)
 			continue;
 
 		sprite[j].picnum = EVILALGRAVE;
@@ -3963,8 +3963,8 @@ void drawscreen(short snum, int dasmoothratio)
 					//Reset startdmost to bottom of screen
 				if ((windowx1 == 0) && (windowx2 == 319) && (yxaspect == 65536) && (tiltlock == 0))
 				{
-					x1 = 160L-(tilesizx[GUNONBOTTOM]>>1); y1 = windowy2+1;
-					for(i=0;i<tilesizx[GUNONBOTTOM];i++)
+					x1 = 160L-(tilesiz[GUNONBOTTOM].x>>1); y1 = windowy2+1;
+					for(i=0;i<tilesiz[GUNONBOTTOM].x;i++)
 						startdmost[i+x1] = y1;
 				}
 				rotatesprite(160<<16,184L<<16,65536,0,GUNONBOTTOM,sector[cursectnum[screenpeek]].floorshade,0,2,windowx1,windowy1,windowx2,windowy2);
@@ -5930,7 +5930,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 						if ((spr->cstat&4) > 0) xoff = -xoff;
 						k = spr->ang; l = spr->xrepeat;
 						dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
-						l = tilesizx[tilenum]; k = (l>>1)+xoff;
+						l = tilesiz[tilenum].x; k = (l>>1)+xoff;
 						x1 -= mulscale16(dax,k); x2 = x1+mulscale16(dax,l);
 						y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
 
@@ -5957,8 +5957,8 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 
 							k = spr->ang;
 							cosang = sintable[(k+512)&2047]; sinang = sintable[k];
-							xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
-							yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
+							xspan = tilesiz[tilenum].x; xrepeat = spr->xrepeat;
+							yspan = tilesiz[tilenum].y; yrepeat = spr->yrepeat;
 
 							dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
 							x1 = sprx + dmulscale16(sinang,dax,cosang,day);
@@ -6016,8 +6016,8 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 
 			if ((show2dwall[j>>3]&(1<<(j&7))) == 0) continue;
 
-			if (tilesizx[wal->picnum] == 0) continue;
-			if (tilesizy[wal->picnum] == 0) continue;
+			if (tilesiz[wal->picnum].x == 0) continue;
+			if (tilesiz[wal->picnum].y == 0) continue;
 
 			if (j == k)
 				{ x1 = x2; y1 = y2; }
@@ -6051,7 +6051,7 @@ int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordi
 	spr = &sprite[spritenum];
 
 	if ((spr->cstat&128) == 0)
-		zoffs = -((tilesizy[spr->picnum]*spr->yrepeat)<<1);
+		zoffs = -((tilesiz[spr->picnum].y*spr->yrepeat)<<1);
 	else
 		zoffs = 0;
 
@@ -6288,8 +6288,8 @@ void drawtilebackground (/*int thex, int they,*/ short tilenum,
 {
 	int x, y, xsiz, ysiz, tx1, ty1, tx2, ty2;
 
-	xsiz = tilesizx[tilenum]; tx1 = cx1/xsiz; tx2 = cx2/xsiz;
-	ysiz = tilesizy[tilenum]; ty1 = cy1/ysiz; ty2 = cy2/ysiz;
+	xsiz = tilesiz[tilenum].x; tx1 = cx1/xsiz; tx2 = cx2/xsiz;
+	ysiz = tilesiz[tilenum].y; ty1 = cy1/ysiz; ty2 = cy2/ysiz;
 
 	for(x=tx1;x<=tx2;x++)
 		for(y=ty1;y<=ty2;y++)

@@ -299,8 +299,8 @@ playanm(short anim_num)
     for (i = 0; i < 768; i++)
         ANIMvesapal[i] = palptr[i]>>2;
 
-    tilesizx[ANIM_TILE(ANIMnum)] = 200;
-    tilesizy[ANIM_TILE(ANIMnum)] = 320;
+    tilesiz[ANIM_TILE(ANIMnum)].x = 200;
+    tilesiz[ANIM_TILE(ANIMnum)].y = 320;
 
     clearview(0);
 
