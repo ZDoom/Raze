@@ -58,7 +58,7 @@ struct NODETREEstruct
 {
     short SpriteNum;        // Sprite number in sprite array of goal item
     NODEp tree;             // This is the node tree used to navigate to goal
-    BOOL Locked;            // If list is locked, a bot is using/modifying it and
+    SWBOOL Locked;            // If list is locked, a bot is using/modifying it and
     // other bots cannot modify it while it's locked
 };
 

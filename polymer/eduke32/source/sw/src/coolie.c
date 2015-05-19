@@ -403,7 +403,7 @@ ACTOR_ACTION_SET CoolieActionSet =
     NULL
 };
 
-VOID EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person)
+void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
@@ -411,7 +411,7 @@ VOID EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
     short wpn_cnt;
     short depth = 0;
     extern short TotalKillable;
-    extern BOOL DebugSecret;
+    extern SWBOOL DebugSecret;
 
     switch (u->ID)
     {

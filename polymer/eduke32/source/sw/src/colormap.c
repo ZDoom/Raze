@@ -33,7 +33,7 @@ short f_c = 3;
 static unsigned char tempbuf[256];
 unsigned char DefaultPalette[256 * 32];
 #if 1
-VOID
+void
 MapColors(short num, COLOR_MAP cm, short create)
 {
     int i;
@@ -56,7 +56,7 @@ MapColors(short num, COLOR_MAP cm, short create)
         tempbuf[i + cm.FromColor] = (i*inc) + cm.ToColor;
 }
 #else
-VOID
+void
 MapColors(short num, COLOR_MAP cm, short create)
 {
     int i;
@@ -155,8 +155,8 @@ static COLOR_MAP PlayerColorMap[PLAYER_COLOR_MAPS][1] =
 
 };
 
-VOID
-InitPalette(VOID)
+void
+InitPalette(void)
 {
     static COLOR_MAP AllToRed[] =
     {
@@ -415,7 +415,7 @@ VBE_setPalette(0, 256, mypalette);
 #define NRED 2
 #define NRESERVED 3
 
-VOID SetPaletteToVESA(unsigned char *pal)
+void SetPaletteToVESA(unsigned char *pal)
 {
     /*
     char pal_buff[1024];
@@ -435,12 +435,12 @@ VOID SetPaletteToVESA(unsigned char *pal)
     //  fprintf(stderr,"SetPaletteToVESA() called\n");
 }
 
-VOID set_pal(unsigned char *pal)
+void set_pal(unsigned char *pal)
 {
     SetPaletteToVESA(pal);
 }
 
-VOID GetPaletteFromVESA(unsigned char *pal)
+void GetPaletteFromVESA(unsigned char *pal)
 {
     /*
     char pal_buff[1024];

@@ -73,8 +73,8 @@ char    token[MAXTOKEN];
 char    *scriptbuffer,*script_p,*scriptend_p;
 int     grabbed;
 int     scriptline;
-BOOL    endofscript;
-BOOL    tokenready;                     // only TRUE if UnGetToken was just called
+SWBOOL    endofscript;
+SWBOOL    tokenready;                     // only TRUE if UnGetToken was just called
 
 /*
 ==============
@@ -84,7 +84,7 @@ BOOL    tokenready;                     // only TRUE if UnGetToken was just call
 ==============
 */
 
-BOOL LoadScriptFile(char *filename)
+SWBOOL LoadScriptFile(char *filename)
 {
     int size, readsize;
     int fp;
@@ -152,7 +152,7 @@ void UnGetToken(void)
 ==============
 */
 
-void GetToken(BOOL crossline)
+void GetToken(SWBOOL crossline)
 {
     char    *token_p;
 
@@ -240,7 +240,7 @@ skipspace:
 ==============
 */
 
-BOOL TokenAvailable(void)
+SWBOOL TokenAvailable(void)
 {
     char    *search_p;
 
@@ -455,7 +455,7 @@ void LoadKVXFromScript(char *filename)
 extern int idleclock,slackerclock;
 
 // Watch dog function.  Tracks user's work times.
-void LogUserTime( BOOL bIsLoggingIn )
+void LogUserTime( SWBOOL bIsLoggingIn )
 {
     int size, readsize;
     time_t time_of_day;

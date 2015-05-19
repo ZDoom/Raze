@@ -37,7 +37,7 @@ int InitSpriteGrenade(short SpriteNum);
 int InitSpriteChemBomb(short SpriteNum);
 int InitFlashBomb(short SpriteNum);
 int InitCaltrops(short SpriteNum);
-int InitPhosphorus(SHORT SpriteNum);
+int InitPhosphorus(int16_t SpriteNum);
 
 //////////////////////
 //
@@ -260,11 +260,11 @@ SetupSkull(short SpriteNum)
 }
 
 int
-DoSkullMove(SHORT SpriteNum)
+DoSkullMove(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
@@ -277,11 +277,11 @@ DoSkullMove(SHORT SpriteNum)
 }
 
 int
-DoSkullBeginDeath(SHORT SpriteNum)
+DoSkullBeginDeath(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    SHORT i,num_ord=0;
+    int16_t i,num_ord=0;
     //extern short *DamageRadiusSkull;
 
     // Decrease for Serp God
@@ -386,7 +386,7 @@ int DoSkullJump(short SpriteNum)
         // jump/fall type
         if (sp->xvel)
         {
-            BOOL SpriteOverlapZ(SHORT, SHORT, int);
+            SWBOOL SpriteOverlapZ(int16_t, int16_t, int);
 
             int dist,a,b,c;
 
@@ -680,11 +680,11 @@ SetupBetty(short SpriteNum)
 }
 
 int
-DoBettyMove(SHORT SpriteNum)
+DoBettyMove(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
@@ -697,11 +697,11 @@ DoBettyMove(SHORT SpriteNum)
 }
 
 int
-DoBettyBeginDeath(SHORT SpriteNum)
+DoBettyBeginDeath(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    SHORT i,num_ord=0;
+    int16_t i,num_ord=0;
     //extern short *DamageRadiusBetty;
 
     // starts the explosion that does the actual damage
@@ -801,7 +801,7 @@ int DoBettyJump(short SpriteNum)
         // jump/fall type
         if (sp->xvel)
         {
-            BOOL SpriteOverlapZ(SHORT, SHORT, int);
+            SWBOOL SpriteOverlapZ(int16_t, int16_t, int);
 
             int dist,a,b,c;
 

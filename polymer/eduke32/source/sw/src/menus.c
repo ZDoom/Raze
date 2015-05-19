@@ -59,40 +59,40 @@ short TimeLimitTable[9] = {0,3,5,10,15,20,30,45,60};
 
 short QuickLoadNum = -1;
 char QuickLoadDescrDialog[32];
-BOOL QuickSaveMode = FALSE;
-BOOL SavePrompt = FALSE;
-extern BOOL InMenuLevel, LoadGameOutsideMoveLoop, LoadGameFromDemo;
-extern BYTE RedBookSong[40];
-extern BOOL ExitLevel, NewGame;
+SWBOOL QuickSaveMode = FALSE;
+SWBOOL SavePrompt = FALSE;
+extern SWBOOL InMenuLevel, LoadGameOutsideMoveLoop, LoadGameFromDemo;
+extern uint8_t RedBookSong[40];
+extern SWBOOL ExitLevel, NewGame;
 extern short Level, Skill;
-extern BOOL MusicInitialized, FxInitialized;
-BOOL MNU_CheckUserMap(MenuItem *item);
-BOOL MNU_SaveGameCheck(MenuItem_p item);
-BOOL MNU_TeamPlayCheck(MenuItem *item);
-BOOL MNU_CoopPlayCheck(MenuItem *item);
-BOOL MNU_StatCheck(MenuItem *item);
-BOOL MNU_LoadGameCheck(MenuItem *item);
-BOOL MNU_TenCheck(MenuItem *item);
-static BOOL MNU_TryMusicInit(void);
+extern SWBOOL MusicInitialized, FxInitialized;
+SWBOOL MNU_CheckUserMap(MenuItem *item);
+SWBOOL MNU_SaveGameCheck(MenuItem_p item);
+SWBOOL MNU_TeamPlayCheck(MenuItem *item);
+SWBOOL MNU_CoopPlayCheck(MenuItem *item);
+SWBOOL MNU_StatCheck(MenuItem *item);
+SWBOOL MNU_LoadGameCheck(MenuItem *item);
+SWBOOL MNU_TenCheck(MenuItem *item);
+static SWBOOL MNU_TryMusicInit(void);
 static void MNU_UpLevel(void);
 
-BOOL MNU_LoadSaveDraw(UserCall call, MenuItem *item);
-BOOL MNU_LoadSaveMove(UserCall call, MenuItem *item);
+SWBOOL MNU_LoadSaveDraw(UserCall call, MenuItem *item);
+SWBOOL MNU_LoadSaveMove(UserCall call, MenuItem *item);
 
-BOOL MenuButtonAutoRun = FALSE;
-BOOL MenuButtonAutoAim = FALSE;
+SWBOOL MenuButtonAutoRun = FALSE;
+SWBOOL MenuButtonAutoAim = FALSE;
 // misc load-save vars
 short LastSaveNum = 99;
 char SaveGameDescr[10][80];
 char BackupSaveGameDescr[80];
 short screen_tile = -1;
 
-BOOL MenuInputMode = FALSE;
-SHORT MenuTextShade = 0;
-BOOL passwordvalid = FALSE;
+SWBOOL MenuInputMode = FALSE;
+int16_t MenuTextShade = 0;
+SWBOOL passwordvalid = FALSE;
 
-BOOL MNU_HurtTeammateCheck(MenuItem *item);
-BOOL MNU_TeamPlayChange(void);
+SWBOOL MNU_HurtTeammateCheck(MenuItem *item);
+SWBOOL MNU_TeamPlayChange(void);
 
 // Font pic table
 unsigned short xlatfont[] =
@@ -123,7 +123,7 @@ short buttonsettings[btn_max];
 #define XDIM    320
 #define YDIM    200
 extern char DefaultPalette[];
-extern BOOL QuitFlag;
+extern SWBOOL QuitFlag;
 
 void TerminateGame(void);
 void ResetKeys(void);
@@ -158,7 +158,7 @@ static void UpdateValidModes(int bpp, int fs)
         numvalidresolutions++;
     }
 }
-static BOOL ApplyModeSettings(void)
+static SWBOOL ApplyModeSettings(void)
 {
     int lastx, lasty, lastbpp, lastfs;
     int newx, newy, newbpp, newfs;
@@ -175,7 +175,7 @@ static BOOL ApplyModeSettings(void)
         setgamemode(lastfs, lastx, lasty, lastbpp);
     else
     {
-        extern int32 ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP; // Because I'm too lazy to include config.h
+        extern int32_t ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP; // Because I'm too lazy to include config.h
         ScreenMode = newfs;
         ScreenWidth = newx;
         ScreenHeight = newy;
@@ -253,9 +253,9 @@ MenuGroup mousegroup = {65, 5, "^Mouse", mouse_i, pic_newgametitl, 0, m_defshade
 MenuGroup keysetupgroup = {0, 0, NULL, NULL, 0, 0, m_defshade, MNU_KeySetupCustom, NULL, 0};
 
 static char MouseButtonFunctions[10][MAXFUNCTIONLENGTH];
-static BOOL MNU_SetMouseButtonFunctions(MenuItem_p item);
-static BOOL MNU_MouseButtonPostProcess(MenuItem_p item);
-static BOOL MNU_MouseButtonSetupCustom(UserCall call, MenuItem_p item);
+static SWBOOL MNU_SetMouseButtonFunctions(MenuItem_p item);
+static SWBOOL MNU_MouseButtonPostProcess(MenuItem_p item);
+static SWBOOL MNU_MouseButtonSetupCustom(UserCall call, MenuItem_p item);
 MenuGroup mousebuttongroup = {0, 0, NULL, NULL, 0, 0, m_defshade, MNU_MouseButtonSetupCustom, NULL, 0};
 MenuItem mousesetup_i[] =
 {
@@ -289,11 +289,11 @@ static char JoystickButtonPageName[MAXJOYSTICKBUTTONPAGES][64];
 static char JoystickButtonFunctions[MAXJOYBUTTONS*2][MAXFUNCTIONLENGTH];
 static char JoystickButtonNames[MAXJOYBUTTONS*2][64];
 static int JoystickButtonPage = 0;
-static BOOL MNU_JoystickButtonsInitialise(MenuItem_p item);
-static BOOL MNU_SetJoystickButtonFunctions(MenuItem_p item);
-static BOOL MNU_JoystickButtonPostProcess(MenuItem_p item);
-static BOOL MNU_JoystickButtonSetupCustom(UserCall call, MenuItem_p item);
-static BOOL MNU_JoystickButtonNextPage(void);
+static SWBOOL MNU_JoystickButtonsInitialise(MenuItem_p item);
+static SWBOOL MNU_SetJoystickButtonFunctions(MenuItem_p item);
+static SWBOOL MNU_JoystickButtonPostProcess(MenuItem_p item);
+static SWBOOL MNU_JoystickButtonSetupCustom(UserCall call, MenuItem_p item);
+static SWBOOL MNU_JoystickButtonNextPage(void);
 MenuGroup joybuttonsgroup = {0, 0, NULL, NULL, 0, 0, m_defshade, MNU_JoystickButtonSetupCustom, NULL, 0};
 MenuItem joybuttons_i[MAXJOYSTICKBUTTONPAGES][JOYSTICKITEMSPERPAGE*2+3] =    // itemsperpage * Layer/Inert + Pagetext + Next + DefNone
 {
@@ -306,11 +306,11 @@ static char JoystickAxisName[64];
 static char JoystickAxisPageName[64];
 static char JoystickAxisFunctions[2][MAXFUNCTIONLENGTH];
 static int JoystickAxisPage = 0;
-static BOOL MNU_JoystickAxesInitialise(MenuItem_p item);
-static BOOL MNU_SetJoystickAxisFunctions(MenuItem_p item);
-static BOOL MNU_JoystickAxisPostProcess(MenuItem_p item);
-static BOOL MNU_JoystickAxisSetupCustom(UserCall call, MenuItem_p item);
-static BOOL MNU_JoystickAxisNextPage(void);
+static SWBOOL MNU_JoystickAxesInitialise(MenuItem_p item);
+static SWBOOL MNU_SetJoystickAxisFunctions(MenuItem_p item);
+static SWBOOL MNU_JoystickAxisPostProcess(MenuItem_p item);
+static SWBOOL MNU_JoystickAxisSetupCustom(UserCall call, MenuItem_p item);
+static SWBOOL MNU_JoystickAxisNextPage(void);
 MenuGroup joyaxesgroup = {0, 0, NULL, NULL, 0, 0, m_defshade, MNU_JoystickAxisSetupCustom, NULL, 0};
 MenuItem joyaxes_i[] =
 {
@@ -340,9 +340,9 @@ MenuGroup joyaxessetupgroup = {65, 5, "^Joystick Axes", joyaxes_i, pic_newgameti
 
 
 static char AdvancedMouseAxisFunctions[4][MAXAXISFUNCTIONLENGTH] = { "", "", "", "" };
-static BOOL MNU_SetAdvancedMouseFunctions(MenuItem_p item);
-static BOOL MNU_MouseDigitalPostProcess(MenuItem_p item);
-static BOOL MNU_MouseDigitalSetupCustom(UserCall call, MenuItem_p item);
+static SWBOOL MNU_SetAdvancedMouseFunctions(MenuItem_p item);
+static SWBOOL MNU_MouseDigitalPostProcess(MenuItem_p item);
+static SWBOOL MNU_MouseDigitalSetupCustom(UserCall call, MenuItem_p item);
 MenuGroup advancedmousedigigroup = {0, 0, NULL, NULL, 0, 0, m_defshade, MNU_MouseDigitalSetupCustom, NULL, 0};
 MenuItem advancedmouse_i[] =
 {
@@ -536,7 +536,7 @@ CTLType ControlPanelType;
 #define MaxLayers    10         // Maximum layers deep a menu can go
 short       menuarrayptr;       // Index into menuarray
 MenuGroup   *menuarray[MaxLayers], *currentmenu;
-BOOL UsingMenus = FALSE;
+SWBOOL UsingMenus = FALSE;
 
 #define MAXDIALOG       2       // Maximum number of dialog strings allowed
 char *dialog[MAXDIALOG];
@@ -556,18 +556,18 @@ int SENSITIVITY = SENSE_MIN + (SENSE_DEFAULT *SENSE_MUL);
 UserInput mnu_input, mnu_input_buffered, order_input_buffered;
 
 // Menu function call back pointer for multiplay menus
-BOOL(*cust_callback)(UserCall call, MenuItem_p item);
+SWBOOL(*cust_callback)(UserCall call, MenuItem_p item);
 UserCall cust_callback_call;
 MenuItem_p cust_callback_item;
 
 // Prototypes ///////////////////////////////////////////////////////////////////////////////////
 
 static void MNU_ClearDialog(void);
-static BOOL MNU_Dialog(void);
-VOID LoadSaveMsg(char *msg);
-static VOID MNU_ItemPreProcess(MenuGroup *group);
-static void MNU_SelectItem(MenuGroup *group, short index, BOOL draw);
-static void MNU_PushItem(MenuItem *item, BOOL draw);
+static SWBOOL MNU_Dialog(void);
+void LoadSaveMsg(char *msg);
+static void MNU_ItemPreProcess(MenuGroup *group);
+static void MNU_SelectItem(MenuGroup *group, short index, SWBOOL draw);
+static void MNU_PushItem(MenuItem *item, SWBOOL draw);
 
 static int MNU_ControlAxisOffset(int num);
 static int MNU_ControlAxisNum(int offset);
@@ -578,7 +578,7 @@ static int MNU_ControlAxisNum(int offset);
 // CUSTOM ROUTINES ////////////////////////////////////////////////////////////////////////////////
 // CTW REMOVED
 /*
-BOOL
+SWBOOL
 MNU_Ten(void)
     {
     TEN_Setup();
@@ -587,7 +587,7 @@ MNU_Ten(void)
     }
 */
 // CTW REMOVED END
-BOOL
+SWBOOL
 MNU_DoEpisodeSelect(UserCall call, MenuItem *item)
 {
     short w,h;
@@ -604,12 +604,12 @@ MNU_DoEpisodeSelect(UserCall call, MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_DoParentalPassword(UserCall call, MenuItem_p item)
 {
     short w,h;
     signed char MNU_InputString(char *, short);
-    static BOOL cur_show;
+    static SWBOOL cur_show;
     char TempString[80];
     char *extra_text;
 
@@ -727,7 +727,7 @@ MNU_DoParentalPassword(UserCall call, MenuItem_p item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_ParentalCustom(void)
 {
 
@@ -753,7 +753,7 @@ MNU_ParentalCustom(void)
     return TRUE;
 }
 
-BOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
+SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
 {
     static int currentkey = 0, currentcol = 0;
     static int currentmode = 0;
@@ -1067,13 +1067,13 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
 
 static MenuItem_p mouse_button_item = NULL;
 
-static BOOL MNU_MouseButtonPostProcess(MenuItem_p item)
+static SWBOOL MNU_MouseButtonPostProcess(MenuItem_p item)
 {
     mouse_button_item = item;
     return TRUE;
 }
 
-BOOL MNU_MouseButtonSetupCustom(UserCall call, MenuItem_p item)
+SWBOOL MNU_MouseButtonSetupCustom(UserCall call, MenuItem_p item)
 {
     static int currentfunc = 0;
 
@@ -1136,7 +1136,7 @@ BOOL MNU_MouseButtonSetupCustom(UserCall call, MenuItem_p item)
     return TRUE;
 }
 
-static BOOL MNU_SetMouseButtonFunctions(MenuItem_p item)
+static SWBOOL MNU_SetMouseButtonFunctions(MenuItem_p item)
 {
     int button, clicked, function;
     char *p;
@@ -1173,13 +1173,13 @@ static BOOL MNU_SetMouseButtonFunctions(MenuItem_p item)
 
 static MenuItem_p mouse_digital_item = NULL;
 
-static BOOL MNU_MouseDigitalPostProcess(MenuItem_p item)
+static SWBOOL MNU_MouseDigitalPostProcess(MenuItem_p item)
 {
     mouse_digital_item = item;
     return TRUE;
 }
 
-static BOOL MNU_MouseDigitalSetupCustom(UserCall call, MenuItem_p item)
+static SWBOOL MNU_MouseDigitalSetupCustom(UserCall call, MenuItem_p item)
 {
     static int currentfunc = 0;
 
@@ -1227,7 +1227,7 @@ static BOOL MNU_MouseDigitalSetupCustom(UserCall call, MenuItem_p item)
     return TRUE;
 }
 
-static BOOL MNU_SetAdvancedMouseFunctions(MenuItem_p item)
+static SWBOOL MNU_SetAdvancedMouseFunctions(MenuItem_p item)
 {
     int axis;
     char *p;
@@ -1254,7 +1254,7 @@ static BOOL MNU_SetAdvancedMouseFunctions(MenuItem_p item)
 
 static MenuItem_p joystick_button_item = NULL;
 
-static BOOL MNU_JoystickButtonsInitialise(MenuItem_p mitem)
+static SWBOOL MNU_JoystickButtonsInitialise(MenuItem_p mitem)
 {
     MenuItem_p item;
     MenuItem templayer = { DefLayer(0, JoystickButtonNames[0], &joybuttonsgroup), OPT_XS, OPT_LINE(0), 1, m_defshade, 0, NULL, NULL, MNU_JoystickButtonPostProcess };
@@ -1364,13 +1364,13 @@ static BOOL MNU_JoystickButtonsInitialise(MenuItem_p mitem)
     return TRUE;
 }
 
-static BOOL MNU_JoystickButtonPostProcess(MenuItem_p item)
+static SWBOOL MNU_JoystickButtonPostProcess(MenuItem_p item)
 {
     joystick_button_item = item;
     return TRUE;
 }
 
-static BOOL MNU_JoystickButtonSetupCustom(UserCall call, MenuItem *item)
+static SWBOOL MNU_JoystickButtonSetupCustom(UserCall call, MenuItem *item)
 {
     static int currentfunc = 0;
 
@@ -1434,7 +1434,7 @@ static BOOL MNU_JoystickButtonSetupCustom(UserCall call, MenuItem *item)
     return TRUE;
 }
 
-static BOOL MNU_JoystickButtonNextPage(void)
+static SWBOOL MNU_JoystickButtonNextPage(void)
 {
     JoystickButtonPage = (JoystickButtonPage + 1) % (((joynumbuttons * 2 + (joynumhats > 0) * 4) / JOYSTICKITEMSPERPAGE) + 1);
     joybuttonssetupgroup.items = &joybuttons_i[JoystickButtonPage][0];
@@ -1443,7 +1443,7 @@ static BOOL MNU_JoystickButtonNextPage(void)
     return TRUE;
 }
 
-static BOOL MNU_SetJoystickButtonFunctions(MenuItem_p item)
+static SWBOOL MNU_SetJoystickButtonFunctions(MenuItem_p item)
 {
     int button, clicked, function;
     char *p;
@@ -1479,7 +1479,7 @@ static BOOL MNU_SetJoystickButtonFunctions(MenuItem_p item)
 
 static MenuItem_p joystick_axis_item = NULL;
 
-static BOOL MNU_JoystickAxesInitialise(MenuItem_p mitem)
+static SWBOOL MNU_JoystickAxesInitialise(MenuItem_p mitem)
 {
     if (!CONTROL_JoyPresent)
     {
@@ -1500,13 +1500,13 @@ static BOOL MNU_JoystickAxesInitialise(MenuItem_p mitem)
     return TRUE;
 }
 
-static BOOL MNU_JoystickAxisPostProcess(MenuItem_p item)
+static SWBOOL MNU_JoystickAxisPostProcess(MenuItem_p item)
 {
     joystick_axis_item = item;
     return TRUE;
 }
 
-static BOOL MNU_JoystickAxisSetupCustom(UserCall call, MenuItem *item)
+static SWBOOL MNU_JoystickAxisSetupCustom(UserCall call, MenuItem *item)
 {
     static int currentfunc = 0;
 
@@ -1555,7 +1555,7 @@ static BOOL MNU_JoystickAxisSetupCustom(UserCall call, MenuItem *item)
     return TRUE;
 }
 
-static BOOL MNU_JoystickAxisNextPage(void)
+static SWBOOL MNU_JoystickAxisNextPage(void)
 {
     JoystickAxisPage = (JoystickAxisPage + 1) % MNU_ControlAxisOffset(analog_maxtype);
     joyaxessetupgroup.cursor = 1;
@@ -1564,7 +1564,7 @@ static BOOL MNU_JoystickAxisNextPage(void)
     return TRUE;
 }
 
-static BOOL MNU_SetJoystickAxisFunctions(MenuItem_p item)
+static SWBOOL MNU_SetJoystickAxisFunctions(MenuItem_p item)
 {
     int function;
     char *p;
@@ -1587,16 +1587,16 @@ static BOOL MNU_SetJoystickAxisFunctions(MenuItem_p item)
 }
 
 
-BOOL
+SWBOOL
 MNU_OrderCustom(UserCall call, MenuItem *item)
 {
     static signed char on_screen = 0,last_screen = 0;
     UserInput order_input;
     static int limitmove=0;
     UserInput tst_input;
-    BOOL select_held = FALSE;
+    SWBOOL select_held = FALSE;
     int zero = 0;
-    static BOOL DidOrderSound = FALSE;
+    static SWBOOL DidOrderSound = FALSE;
     short choose_snd;
     static int wanghandle;
 
@@ -1858,14 +1858,14 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
     return TRUE;
 }
 
-BOOL MNU_LoadModernDefaults(void)
+SWBOOL MNU_LoadModernDefaults(void)
 {
     SetDefaultKeyDefinitions(1);
     SetMouseDefaults(1);
     return TRUE;
 }
 
-BOOL MNU_LoadClassicDefaults(void)
+SWBOOL MNU_LoadClassicDefaults(void)
 {
     SetDefaultKeyDefinitions(0);
     SetMouseDefaults(0);
@@ -1888,7 +1888,7 @@ ExitMenus(void)
     SetRedrawScreen(&Player[myconnectindex]);
 }
 
-BOOL
+SWBOOL
 MNU_StartGame(void)
 {
     PLAYERp pp = Player + screenpeek;
@@ -1930,16 +1930,16 @@ MNU_StartGame(void)
     return TRUE;
 }
 
-VOID ResetMenuInput(VOID)
+void ResetMenuInput(void)
 {
     cust_callback = NULL;
     InputMode = FALSE;
 }
 
-BOOL
+SWBOOL
 MNU_StartNetGame(void)
 {
-    extern BOOL ExitLevel, ShortGameMode, DemoInitOnce, FirstTimeIntoGame;
+    extern SWBOOL ExitLevel, ShortGameMode, DemoInitOnce, FirstTimeIntoGame;
     extern short Level, Skill;
     // CTW REMOVED
     //extern int gTenActivated;
@@ -2010,7 +2010,7 @@ MNU_StartNetGame(void)
         p.TimeLimit = gs.NetTimeLimit;
         p.Nuke = gs.NetNuke;
 
-        netbroadcastpacket((BYTEp)(&p), sizeof(p));            // TENSW
+        netbroadcastpacket((uint8_t*)(&p), sizeof(p));            // TENSW
     }
 
 
@@ -2018,7 +2018,7 @@ MNU_StartNetGame(void)
 }
 
 
-BOOL
+SWBOOL
 MNU_EpisodeCustom(void)
 {
     EpisodeMenuSelection = currentmenu->cursor;
@@ -2026,12 +2026,12 @@ MNU_EpisodeCustom(void)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_QuitCustom(UserCall call, MenuItem_p item)
 {
     int select;
     int ret;
-    extern BOOL DrawScreen;
+    extern SWBOOL DrawScreen;
 
     // Ignore the special touchup calls
     if (call == uc_touchup)
@@ -2087,15 +2087,15 @@ MNU_QuitCustom(UserCall call, MenuItem_p item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_QuickLoadCustom(UserCall call, MenuItem_p item)
 {
     int select;
-    extern BOOL ReloadPrompt;
+    extern SWBOOL ReloadPrompt;
     int bak;
     PLAYERp pp = Player + myconnectindex;
     extern short GlobInfoStringTime;
-    extern BOOL DrawScreen;
+    extern SWBOOL DrawScreen;
     int ret;
 
     if (cust_callback == NULL)
@@ -2595,7 +2595,7 @@ MNU_InputSmallString(char *name, short pix_width)
 ////////////////////////////////////////////////
 // Draw dialog text on screen
 ////////////////////////////////////////////////
-static BOOL
+static SWBOOL
 MNU_Dialog(void)
 {
     short ndx, linecnt, w[MAXDIALOG], h, x, y;
@@ -2695,7 +2695,7 @@ MNU_InputString(char *name, short pix_width)
 #define SS_YSTART SD_YSTART
 #define SS_BORDER_SIZE 5L
 
-VOID LoadSaveMsg(char *msg)
+void LoadSaveMsg(char *msg)
 {
     short w,h;
 
@@ -2716,7 +2716,7 @@ VOID LoadSaveMsg(char *msg)
 //  I'm figuring it need to do the following:
 //  . Load the game if there is one by calling: MNU_LoadGameCustom.
 ////////////////////////////////////////////////
-BOOL
+SWBOOL
 MNU_GetLoadCustom(void)
 {
     short load_num;
@@ -2783,11 +2783,11 @@ MNU_GetLoadCustom(void)
 //  . Call MNU_GetInput to allow string input of description.
 //  . Save the game if there is one by calling: MNU_SaveGameCustom.
 ////////////////////////////////////////////////
-BOOL
+SWBOOL
 MNU_GetSaveCustom(void)
 {
     short save_num;
-    extern BOOL InMenuLevel, LoadGameOutsideMoveLoop;
+    extern SWBOOL InMenuLevel, LoadGameOutsideMoveLoop;
 
     save_num = currentmenu->cursor;
 
@@ -2837,7 +2837,7 @@ MNU_GetSaveCustom(void)
 //  This function gets called each frame by DrawMenus
 ////////////////////////////////////////////////
 
-static BOOL
+static SWBOOL
 MNU_DrawLoadSave(short game_num)
 {
     // screen border
@@ -2858,14 +2858,14 @@ MNU_DrawLoadSave(short game_num)
 static char SaveGameInfo1[80];
 static char SaveGameInfo2[80];
 
-BOOL
+SWBOOL
 MNU_LoadSaveMove(UserCall call, MenuItem_p item)
 {
     short i;
     short game_num;
     short tile;
     static short SaveGameEpisode, SaveGameLevel, SaveGameSkill;
-    BOOL GotInput = FALSE;
+    SWBOOL GotInput = FALSE;
 
     if (!UsingMenus)
         return TRUE;
@@ -2967,7 +2967,7 @@ MNU_LoadSaveMove(UserCall call, MenuItem_p item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_LoadSaveDraw(UserCall call, MenuItem_p item)
 {
     short i;
@@ -2984,7 +2984,7 @@ MNU_LoadSaveDraw(UserCall call, MenuItem_p item)
     {
         if (i == game_num && MenuInputMode && !SavePrompt)
         {
-            static BOOL cur_show;
+            static SWBOOL cur_show;
             char tmp[sizeof(SaveGameDescr[0])];
 
             //cur_show ^= 1;
@@ -3034,7 +3034,7 @@ MNU_LoadSaveDraw(UserCall call, MenuItem_p item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_ShareWareCheck(MenuItem *item)
 {
     if (SW_SHAREWARE)
@@ -3045,7 +3045,7 @@ MNU_ShareWareCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_CheckUserMap(MenuItem *item)
 {
     if (UserMapName[0] == '\0')
@@ -3055,7 +3055,7 @@ MNU_CheckUserMap(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_ShareWareMessage(MenuItem *item)
 {
     char *extra_text;
@@ -3086,11 +3086,11 @@ MNU_ShareWareMessage(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_SaveGameCheck(MenuItem *item)
 {
-    extern BOOL InMenuLevel;
-    extern BOOL DemoMode;
+    extern SWBOOL InMenuLevel;
+    extern SWBOOL DemoMode;
 
     if (0)      // JBF: Until we fix the symbol table dilemma, saving is off limits
     {
@@ -3118,7 +3118,7 @@ MNU_SaveGameCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_TenCheck(MenuItem *item)
 {
     if (CommEnabled || numplayers > 1)
@@ -3130,7 +3130,7 @@ MNU_TenCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_LoadGameCheck(MenuItem *item)
 {
 
@@ -3149,7 +3149,7 @@ MNU_LoadGameCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_StatCheck(MenuItem *item)
 {
     if (CommEnabled || numplayers > 1)
@@ -3161,7 +3161,7 @@ MNU_StatCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_HurtTeammateCheck(MenuItem *item)
 {
     switch (gs.NetGameType+1)
@@ -3183,7 +3183,7 @@ MNU_HurtTeammateCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_TeamPlayCheck(MenuItem *item)
 {
     switch (gs.NetGameType+1)
@@ -3200,7 +3200,7 @@ MNU_TeamPlayCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_CoopPlayCheck(MenuItem *item)
 {
     switch (gs.NetGameType+1)
@@ -3217,7 +3217,7 @@ MNU_CoopPlayCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_TeamPlayChange(void)
 {
     // if team play changes then do a pre process again
@@ -3225,7 +3225,7 @@ MNU_TeamPlayChange(void)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_MouseCheck(MenuItem *item)
 {
     if (!CONTROL_MousePresent)
@@ -3240,7 +3240,7 @@ MNU_MouseCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_JoystickCheck(MenuItem *item)
 {
     if (!CONTROL_JoyPresent)
@@ -3256,7 +3256,7 @@ MNU_JoystickCheck(MenuItem *item)
 }
 
 // This is only called when Enter is pressed
-static BOOL
+static SWBOOL
 MNU_TryMusicInit(void)
 {
     if (PlaySong(0, RedBookSong[Level], TRUE, FALSE))
@@ -3268,7 +3268,7 @@ MNU_TryMusicInit(void)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_MusicCheck(MenuItem *item)
 {
     if (SW_SHAREWARE)
@@ -3299,7 +3299,7 @@ MNU_MusicCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_FxCheck(MenuItem *item)
 {
     if (FXDevice < 0 || !FxInitialized)
@@ -3314,7 +3314,7 @@ MNU_FxCheck(MenuItem *item)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 MNU_MusicFxCheck(MenuItem *item)
 {
     if (FXDevice < 0 && MusicDevice < 0)
@@ -3333,10 +3333,10 @@ MNU_MusicFxCheck(MenuItem *item)
 // Do a toggle button
 ////////////////////////////////////////////////
 void
-MNU_DoButton(MenuItem_p item, BOOL draw)
+MNU_DoButton(MenuItem_p item, SWBOOL draw)
 {
     int x, y;
-    BOOL state;
+    SWBOOL state;
     int last_value;
     short shade = MENU_SHADE_DEFAULT;
     extern char LevelSong[];
@@ -3344,7 +3344,7 @@ MNU_DoButton(MenuItem_p item, BOOL draw)
     PLAYERp pp = &Player[myconnectindex];
     int button_x,zero=0;
     int handle=0;
-    extern BOOL MusicInitialized,FxInitialized;
+    extern SWBOOL MusicInitialized,FxInitialized;
 
     button_x = OPT_XSIDE;
 
@@ -3430,7 +3430,7 @@ MNU_DoButton(MenuItem_p item, BOOL draw)
             gs.MusicOn = state = buttonsettings[item->button];
             if (gs.MusicOn != last_value)
             {
-                BOOL bak;
+                SWBOOL bak;
 
                 if (gs.MusicOn)
                 {
@@ -3611,7 +3611,7 @@ char *playercolors[] = {"Brown","Gray","Purple","Red","Yellow","Olive","Green","
 char *monsterskills[] = {"No Monsters","Easy","Normal","Hard","Insane!"};
 
 void
-MNU_DoSlider(short dir, MenuItem_p item, BOOL draw)
+MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
 {
     short offset, i, barwidth;
     int x, y, knobx;
@@ -4154,7 +4154,7 @@ MNU_SetupGroup(void)
     MNU_DrawMenu();
 }
 
-static VOID
+static void
 MNU_ItemPreProcess(MenuGroup *group)
 {
     MenuItem *item;
@@ -4171,7 +4171,7 @@ MNU_ItemPreProcess(MenuGroup *group)
     }
 }
 
-VOID
+void
 MNU_ItemPostProcess(MenuGroup *group)
 {
     MenuItem *item;
@@ -4445,7 +4445,7 @@ MNU_DrawMenu(void)
 // Select a menu item
 ////////////////////////////////////////////////
 void
-MNU_SelectItem(MenuGroup *group, short index, BOOL draw)
+MNU_SelectItem(MenuGroup *group, short index, SWBOOL draw)
 {
     MenuItem *item;
 
@@ -4468,7 +4468,7 @@ MNU_SelectItem(MenuGroup *group, short index, BOOL draw)
 // Toggle a menu radio button on/off
 ////////////////////////////////////////////////
 static void
-MNU_PushItem(MenuItem *item, BOOL draw)
+MNU_PushItem(MenuItem *item, SWBOOL draw)
 {
     if (item->type != mt_button)
         return;
@@ -4526,7 +4526,7 @@ MNU_PrevItem(void)
 ////////////////////////////////////////////////
 // Find hotkey press on current menu, if any.
 ////////////////////////////////////////////////
-static BOOL
+static SWBOOL
 MNU_DoHotkey(void)
 {
     MenuItem_p item;
@@ -4575,12 +4575,12 @@ SetupMenu(void)
 
 void MNU_DoMenu(CTLType type, PLAYERp pp)
 {
-    BOOL resetitem;
+    SWBOOL resetitem;
     UCHAR key;
     int zero = 0;
     static int handle2 = 0;
     static int limitmove=0;
-    static BOOL select_held=FALSE;
+    static SWBOOL select_held=FALSE;
 
     resetitem = TRUE;
 
@@ -4602,7 +4602,7 @@ void MNU_DoMenu(CTLType type, PLAYERp pp)
     if (!MenuInputMode)
     {
         UserInput tst_input;
-        BOOL select_held = FALSE;
+        SWBOOL select_held = FALSE;
 
 
         // Zero out the input structure
@@ -4720,7 +4720,7 @@ void MNU_DoMenu(CTLType type, PLAYERp pp)
 void
 MNU_CheckForMenus(void)
 {
-    extern BOOL GamePaused;
+    extern SWBOOL GamePaused;
 
     if (UsingMenus)
     {
@@ -5263,7 +5263,7 @@ DoPaletteFlash(PLAYERp pp)
 
 }
 
-VOID ResetPalette(PLAYERp pp)
+void ResetPalette(PLAYERp pp)
 {
     if (getrendermode() < 3)
         COVERsetbrightness(gs.Brightness,&palette_data[0][0]);

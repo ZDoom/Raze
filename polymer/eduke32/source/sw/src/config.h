@@ -35,44 +35,44 @@ extern "C" {
 #define SETUPNAMEPARM "SETUPFILE"
 
 // screen externs
-extern int32 ScreenMode; // Screen mode
-extern int32 ScreenWidth;
-extern int32 ScreenHeight;
-extern int32 ScreenBPP;
-extern int32 ScreenBufferMode;
-extern int32 VesaBufferMode;
-extern int32 ForceSetup;
+extern int32_t ScreenMode; // Screen mode
+extern int32_t ScreenWidth;
+extern int32_t ScreenHeight;
+extern int32_t ScreenBPP;
+extern int32_t ScreenBufferMode;
+extern int32_t VesaBufferMode;
+extern int32_t ForceSetup;
 
 // sound externs
-extern int32 FXDevice; // Sound FX Card number
-extern int32 MusicDevice; // Music Card number
-extern int32 FXVolume; // FX Volume
-extern int32 MusicVolume; // Music Volume
-extern int32 NumVoices; // Number of voices
-extern int32 NumChannels; // Number of channels
-extern int32 NumBits; // Number of bits
-extern int32 MixRate; // Mixing rate
-extern int32 MidiPort; // Midi Port
-extern int32 ReverseStereo; // Reverse Stereo Channels
+extern int32_t FXDevice; // Sound FX Card number
+extern int32_t MusicDevice; // Music Card number
+extern int32_t FXVolume; // FX Volume
+extern int32_t MusicVolume; // Music Volume
+extern int32_t NumVoices; // Number of voices
+extern int32_t NumChannels; // Number of channels
+extern int32_t NumBits; // Number of bits
+extern int32_t MixRate; // Mixing rate
+extern int32_t MidiPort; // Midi Port
+extern int32_t ReverseStereo; // Reverse Stereo Channels
 
 // comm externs
-extern int32 ComPort;
-extern int32 IrqNumber;
-extern int32 UartAddress;
-extern int32 PortSpeed;
+extern int32_t ComPort;
+extern int32_t IrqNumber;
+extern int32_t UartAddress;
+extern int32_t PortSpeed;
 
-extern int32 ToneDial;
+extern int32_t ToneDial;
 extern char  ModemName[MAXMODEMSTRING];
 extern char  InitString[MAXMODEMSTRING];
 extern char  HangupString[MAXMODEMSTRING];
 extern char  DialoutString[MAXMODEMSTRING];
-extern int32 SocketNumber;
+extern int32_t SocketNumber;
 extern char  CommbatMacro[MAXMACROS][MAXMACROLENGTH];
 extern char  PhoneNames[MAXPHONEENTRIES][PHONENAMELENGTH];
 extern char  PhoneNumbers[MAXPHONEENTRIES][PHONENUMBERLENGTH];
 extern char  PhoneNumber[PHONENUMBERLENGTH];
-extern int32 NumberPlayers;
-extern int32 ConnectType;
+extern int32_t NumberPlayers;
+extern int32_t ConnectType;
 extern char  PlayerName[MAXPLAYERNAMELENGTH];
 extern char  RTSName[MAXRTSNAMELENGTH];
 extern char  UserLevel[MAXUSERLEVELNAMELENGTH];
@@ -80,31 +80,31 @@ extern char  RTSPath[MAXRTSPATHLENGTH];
 extern char  UserPath[MAXUSERLEVELPATHLENGTH];
 
 // controller externs
-extern int32 UseMouse, UseJoystick;
-extern int32 JoystickPort;
-extern int32 MouseSensitivity;
-extern int32 MouseAiming;
-extern int32 MouseAimingFlipped;
+extern int32_t UseMouse, UseJoystick;
+extern int32_t JoystickPort;
+extern int32_t MouseSensitivity;
+extern int32_t MouseAiming;
+extern int32_t MouseAimingFlipped;
 
-extern byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
+extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 
-extern int32 MouseButtons[MAXMOUSEBUTTONS];
-extern int32 MouseButtonsClicked[MAXMOUSEBUTTONS];
+extern int32_t MouseButtons[MAXMOUSEBUTTONS];
+extern int32_t MouseButtonsClicked[MAXMOUSEBUTTONS];
 
-extern int32 JoystickButtons[MAXJOYBUTTONS];
-extern int32 JoystickButtonsClicked[MAXJOYBUTTONS];
+extern int32_t JoystickButtons[MAXJOYBUTTONS];
+extern int32_t JoystickButtonsClicked[MAXJOYBUTTONS];
 
-extern int32 MouseAnalogAxes[MAXMOUSEAXES];
-extern int32 JoystickAnalogAxes[MAXJOYAXES];
-extern int32 MouseAnalogScale[MAXMOUSEAXES];
-extern int32 JoystickAnalogScale[MAXJOYAXES];
-extern int32 JoystickAnalogDead[MAXJOYAXES];
-extern int32 JoystickAnalogSaturate[MAXJOYAXES];
+extern int32_t MouseAnalogAxes[MAXMOUSEAXES];
+extern int32_t JoystickAnalogAxes[MAXJOYAXES];
+extern int32_t MouseAnalogScale[MAXMOUSEAXES];
+extern int32_t JoystickAnalogScale[MAXJOYAXES];
+extern int32_t JoystickAnalogDead[MAXJOYAXES];
+extern int32_t JoystickAnalogSaturate[MAXJOYAXES];
 
-extern int32 EnableRudder;
+extern int32_t EnableRudder;
 
-extern int32 MouseDigitalAxes[MAXMOUSEAXES][2];
-extern int32 JoystickDigitalAxes[MAXJOYAXES][2];
+extern int32_t MouseDigitalAxes[MAXMOUSEAXES][2];
+extern int32_t JoystickDigitalAxes[MAXJOYAXES][2];
 
 extern char setupfilename[64];
 extern char ExternalControlFilename[64];
@@ -115,17 +115,17 @@ void SetMouseDefaults(int style);
 void SetJoystickDefaults(void);
 void SetDefaultKeyDefinitions(int style);
 
-int32 CONFIG_ReadSetup(void);
+int32_t CONFIG_ReadSetup(void);
 void CONFIG_SetupMouse(void);
 void CONFIG_SetupJoystick(void);
 void CONFIG_WriteSetup(void);
-void WriteCommitFile(int32 gametype);
+void WriteCommitFile(int32_t gametype);
 void CONFIG_GetSetupFilename(void);
 
-const char *CONFIG_FunctionNumToName(int32 func);
-int32 CONFIG_FunctionNameToNum(const char *func);
-const char *CONFIG_AnalogNumToName(int32 func);
-int32 CONFIG_AnalogNameToNum(const char *func);
+const char *CONFIG_FunctionNumToName(int32_t func);
+int32_t CONFIG_FunctionNameToNum(const char *func);
+const char *CONFIG_AnalogNumToName(int32_t func);
+int32_t CONFIG_AnalogNameToNum(const char *func);
 
 #ifdef __cplusplus
 };

@@ -79,7 +79,7 @@ void RTS_Shutdown(void);
 ====================
 */
 
-int32 RTS_NumSounds(void);
+int32_t RTS_NumSounds(void);
 /*
 ====================
 =
@@ -90,7 +90,7 @@ int32 RTS_NumSounds(void);
 ====================
 */
 
-int32 RTS_SoundLength(int32 lump);
+int32_t RTS_SoundLength(int32_t lump);
 /*
 ====================
 =
@@ -99,7 +99,7 @@ int32 RTS_SoundLength(int32 lump);
 ====================
 */
 
-char *RTS_GetSoundName(int32 i);
+char *RTS_GetSoundName(int32_t i);
 /*
 ====================
 =
@@ -107,5 +107,5 @@ char *RTS_GetSoundName(int32 i);
 =
 ====================
 */
-void *RTS_GetSound(int32 lump);
+void *RTS_GetSound(int32_t lump);
 #endif

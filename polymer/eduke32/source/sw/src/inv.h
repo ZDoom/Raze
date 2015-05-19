@@ -39,8 +39,8 @@ enum InventoryNames
 typedef struct
 {
     char *Name;
-    VOID (*Init)(PLAYERp);
-    VOID (*Stop)(PLAYERp, short);
+    void (*Init)(PLAYERp);
+    void (*Stop)(PLAYERp, short);
     PANEL_STATEp State;
     short DecPerSec;
     short MaxInv;

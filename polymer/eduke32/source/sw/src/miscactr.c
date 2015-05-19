@@ -156,7 +156,7 @@ int DoToiletGirl(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short rnd_range = 0;
     static int handle=0;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -217,7 +217,7 @@ int NullToiletGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
@@ -404,7 +404,7 @@ int DoWashGirl(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short rnd_range = 0;
     static int handle=0;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -472,7 +472,7 @@ int NullWashGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
@@ -745,7 +745,7 @@ int PachinkoLightOperate(short SpriteNum)
 // PACHINKO MACHINE #1
 ////////////////////////////////////////////////////////////////////
 
-BOOL Pachinko_Win_Cheat = FALSE;
+SWBOOL Pachinko_Win_Cheat = FALSE;
 
 ATTRIBUTE Pachinko1Attrib =
 {
@@ -1291,7 +1291,7 @@ int DoCarGirl(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short rnd_range = 0;
     static int handle=0;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -1342,7 +1342,7 @@ int NullCarGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
@@ -1518,7 +1518,7 @@ int DoMechanicGirl(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short rnd_range = 0;
     static int handle=0;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -1569,7 +1569,7 @@ int NullMechanicGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
@@ -1746,7 +1746,7 @@ int DoSailorGirl(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short rnd_range = 0;
     static int handle=0;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -1801,7 +1801,7 @@ int NullSailorGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
     static short alreadythrew = 0;
 
     DoActorPickClosePlayer(SpriteNum);
@@ -1966,7 +1966,7 @@ int DoPruneGirl(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short rnd_range = 0;
     static int madhandle=0,coyhandle=0;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -2031,7 +2031,7 @@ int NullPruneGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);

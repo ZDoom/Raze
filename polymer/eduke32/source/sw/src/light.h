@@ -26,10 +26,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 
 void SectorLightShade(SPRITEp sp, short intensity);
-VOID DiffuseLighting(SPRITEp sp);
-VOID DoLightingMatch(short match, short state);
-VOID InitLighting(VOID);
-VOID DoLighting(VOID);
+void DiffuseLighting(SPRITEp sp);
+void DoLightingMatch(short match, short state);
+void InitLighting(void);
+void DoLighting(void);
 
 // Descriptive Light variables mapped from other variables
 

@@ -60,7 +60,7 @@ short ADJUST=120;
 int ADJUSTV=1<<16;
 
 FOOT_TYPE FootMode=WATER_FOOT;
-BOOL left_foot = FALSE;
+SWBOOL left_foot = FALSE;
 int FinishTimer = 0;
 
 // This is how many bullet shells have been spawned since the beginning of the game.
@@ -81,7 +81,7 @@ short LoWangsQueueHead=0;
 short LoWangsQueue[MAX_LOWANGS_QUEUE];
 int SpawnBreakStaticFlames(short);
 
-BOOL GlobalSkipZrange = FALSE;
+SWBOOL GlobalSkipZrange = FALSE;
 
 int WeaponIsAmmo = BIT(WPN_STAR) | BIT(WPN_SWORD) | BIT(WPN_MINE) | BIT(WPN_FIST);
 
@@ -95,23 +95,23 @@ ANIMATOR DoShrapJumpFall;
 ANIMATOR DoFastShrapJumpFall;
 
 int SpawnSmokePuff(short SpriteNum);
-BOOL WarpToUnderwater(short *sectnum, int *x, int *y, int *z);
-BOOL WarpToSurface(short *sectnum, int *x, int *y, int *z);
+SWBOOL WarpToUnderwater(short *sectnum, int *x, int *y, int *z);
+SWBOOL WarpToSurface(short *sectnum, int *x, int *y, int *z);
 short ElectroFindClosestEnemy(short SpriteNum);
 int InitElectroJump(SPRITEp wp, SPRITEp sp);
-BOOL TestDontStickSector(short hitsect);
+SWBOOL TestDontStickSector(short hitsect);
 int SpawnShrapX(short SpriteNum);
-BOOL WeaponMoveHit(short SpriteNum);
-int HelpMissileLateral(SHORT Weapon, int dist);
+SWBOOL WeaponMoveHit(short SpriteNum);
+int HelpMissileLateral(int16_t Weapon, int dist);
 void SpawnMidSplash(short SpriteNum);
 
 int SopDamage(SECTOR_OBJECTp sop,short amt);
 int SopCheckKill(SECTOR_OBJECTp sop);
 int QueueStar(short SpriteNum);
-int DoBlurExtend(SHORT Weapon,SHORT interval,SHORT blur_num);
+int DoBlurExtend(int16_t Weapon,int16_t interval,int16_t blur_num);
 int SpawnDemonFist(short Weapon);
-int SpawnTankShellExp(SHORT Weapon);
-int SpawnMicroExp(SHORT Weapon);
+int SpawnTankShellExp(int16_t Weapon);
+int SpawnMicroExp(int16_t Weapon);
 void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize);
 int BulletHitSprite(SPRITEp sp,short hitsprite,short hitsect,short hitwall,int hitx,int hity,int hitz,short ID);
 int SpawnSplashXY(int hitx,int hity,int hitz,short);
@@ -2636,7 +2636,7 @@ STATE s_PaperShrapC[] =
 };
 
 #if 1
-BOOL MissileHitMatch(short Weapon, short WeaponNum, short hitsprite)
+SWBOOL MissileHitMatch(short Weapon, short WeaponNum, short hitsprite)
 {
     SPRITEp hsp = &sprite[hitsprite];
     SPRITEp wp = &sprite[Weapon];
@@ -2756,7 +2756,7 @@ int DoLavaErupt(short SpriteNum)
     short i,nexti,pnum;
     PLAYERp pp;
     SPRITEp tsp;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
 
     if (TEST_BOOL1(sp))
     {
@@ -2829,7 +2829,7 @@ int DoLavaErupt(short SpriteNum)
 }
 
 
-VOID UserShrapSetup(SHRAPp shrap, STATEp state, int num_shrap)
+void UserShrapSetup(SHRAPp shrap, STATEp state, int num_shrap)
 {
     shrap->state = state;
     shrap->num = num_shrap;
@@ -3399,7 +3399,7 @@ AutoShrap:
                 short size;
                 SPRITEp ep;
                 USERp eu;
-                int SpawnLittleExp(SHORT Weapon);
+                int SpawnLittleExp(int16_t Weapon);
 
                 spnum = SpawnLittleExp(ParentNum);
                 ASSERT(spnum >= 0);
@@ -3866,7 +3866,7 @@ AutoShrap:
 }
 
 int
-DoShrapMove(SHORT SpriteNum)
+DoShrapMove(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -4030,7 +4030,7 @@ DoShrapJumpFall(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    SHORT rnd_num;
+    int16_t rnd_num;
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
@@ -4355,14 +4355,14 @@ SpawnBlood(short SpriteNum, short Weapon, short hitang, int hitx, int hity, int 
 }
 
 
-BOOL
+SWBOOL
 VehicleMoveHit(short SpriteNum)
 {
     USERp u = User[SpriteNum],cu;
     SPRITEp sp = User[SpriteNum]->SpriteP,cp;
     SECTOR_OBJECTp sop;
     SECTOR_OBJECTp hsop;
-    BOOL TestKillSectorObject(SECTOR_OBJECTp);
+    SWBOOL TestKillSectorObject(SECTOR_OBJECTp);
     short controller;
 
     short hitsect, hitwall;
@@ -4477,7 +4477,7 @@ VehicleMoveHit(short SpriteNum)
 }
 
 
-BOOL
+SWBOOL
 WeaponMoveHit(short SpriteNum)
 {
     USERp u = User[SpriteNum];
@@ -4778,7 +4778,7 @@ DoFireballFlames(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum],ap;
     USERp u = User[SpriteNum];
-    BOOL jumping = FALSE;
+    SWBOOL jumping = FALSE;
 
     // if no owner then stay where you are
     if (u->Attach >= 0)
@@ -4875,7 +4875,7 @@ DoBreakFlames(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum],ap;
     USERp u = User[SpriteNum];
-    BOOL jumping = FALSE;
+    SWBOOL jumping = FALSE;
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
@@ -5005,13 +5005,13 @@ DoRipperGrow(short SpriteNum)
     return 0;
 }
 
-VOID UpdateSinglePlayKills(short SpriteNum)
+void UpdateSinglePlayKills(short SpriteNum)
 {
     // single play and coop kill count
     if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
     {
 #if DEBUG
-        extern BOOL DebugSecret;
+        extern SWBOOL DebugSecret;
         if (DebugSecret)
         {
             SPRITEp sp = &sprite[SpriteNum];
@@ -5347,8 +5347,8 @@ ActorHealth(short SpriteNum, short amt)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    extern BOOL FinishAnim;
-    extern BOOL FinishedLevel;
+    extern SWBOOL FinishAnim;
+    extern SWBOOL FinishedLevel;
 
     if (u->ID == TRASHCAN && amt > -75)
     {
@@ -5466,8 +5466,8 @@ SopCheckKill(SECTOR_OBJECTp sop)
 {
     SPRITEp sp = sop->sp_child;
     USERp u = User[sp - sprite];
-    BOOL killed = FALSE;
-    VOID VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator);
+    SWBOOL killed = FALSE;
+    void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator);
 
     if (TEST(sop->flags, SOBJ_BROKEN))
         return FALSE;
@@ -5775,7 +5775,7 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
 
     if (u->Health <= 0 && !TEST(pp->Flags, PF_DEAD))
     {
-        VOID DoPlayerBeginDie(PLAYERp);
+        void DoPlayerBeginDie(PLAYERp);
 
         // pick a death type
         if (u->LastDamage >= PLAYER_DEATH_EXPLODE_DAMMAGE_AMT)
@@ -5831,7 +5831,7 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
     return FALSE;
 }
 
-BOOL
+SWBOOL
 PlayerTakeDamage(PLAYERp pp, short Weapon)
 {
     SPRITEp sp = pp->SpriteP;
@@ -7727,7 +7727,7 @@ short StatBreakList[] =
     STAT_DEAD_ACTOR,
 };
 
-VOID TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, int radius)
+void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, int radius)
 {
     int WallBreakPosition(short hitwall, short *sectnum, int *x, int *y, int *z, short *ang);
     int i, j, k;
@@ -7951,7 +7951,7 @@ int DoExpDamageTest(short Weapon)
         }
         else
         {
-            BOOL once = FALSE;
+            SWBOOL once = FALSE;
 
             if (DoWallMoveMatch(SP_TAG2(found_sp)))
             {
@@ -8007,11 +8007,11 @@ int DoMineExpMine(short Weapon)
 }
 
 int
-DoStar(SHORT Weapon)
+DoStar(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG enemy, next_enemy, dax, day, daz, nextj;
+    int32_t enemy, next_enemy, dax, day, daz, nextj;
     short NewWeapon, pnum;
     USERp su;
     PLAYERp pp;
@@ -8127,7 +8127,7 @@ DoStar(SHORT Weapon)
 
         case HIT_SECTOR:
         {
-            BOOL hitwall;
+            SWBOOL hitwall;
             short hitsect = NORM_SECTOR(u->ret);
 
             if (sp->z > DIV2(u->hiz + u->loz))
@@ -8238,11 +8238,11 @@ DoStar(SHORT Weapon)
 }
 
 int
-DoCrossBolt(SHORT Weapon)
+DoCrossBolt(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     short NewWeapon;
 
     int offset;
@@ -8281,7 +8281,7 @@ DoCrossBolt(SHORT Weapon)
 
 
 int
-DoPlasmaDone(SHORT Weapon)
+DoPlasmaDone(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -8320,7 +8320,7 @@ int PickEnemyTarget(SPRITEp sp, short aware_range)
 }
 
 int
-MissileSeek(SHORT Weapon, SHORT delay_tics, SHORT aware_range, SHORT dang_shift, SHORT turn_limit, SHORT z_limit)
+MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range, int16_t dang_shift, int16_t turn_limit, int16_t z_limit)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -8407,7 +8407,7 @@ MissileSeek(SHORT Weapon, SHORT delay_tics, SHORT aware_range, SHORT dang_shift,
 
 // combination of vector manipulation
 int
-ComboMissileSeek(SHORT Weapon, SHORT delay_tics, SHORT aware_range, SHORT dang_shift, SHORT turn_limit, SHORT z_limit)
+ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range, int16_t dang_shift, int16_t turn_limit, int16_t z_limit)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -8477,7 +8477,7 @@ ComboMissileSeek(SHORT Weapon, SHORT delay_tics, SHORT aware_range, SHORT dang_s
 
 // completely vector manipulation
 int
-VectorMissileSeek(SHORT Weapon, SHORT delay_tics, SHORT turn_speed, SHORT aware_range1, SHORT aware_range2)
+VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_t aware_range1, int16_t aware_range2)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -8577,7 +8577,7 @@ VectorMissileSeek(SHORT Weapon, SHORT delay_tics, SHORT turn_speed, SHORT aware_
 
 // completely vector manipulation
 int
-VectorWormSeek(SHORT Weapon, SHORT delay_tics, SHORT aware_range1, SHORT aware_range2)
+VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t aware_range2)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -8648,7 +8648,7 @@ VectorWormSeek(SHORT Weapon, SHORT delay_tics, SHORT aware_range1, SHORT aware_r
 }
 
 int
-DoBlurExtend(SHORT Weapon, SHORT interval, SHORT blur_num)
+DoBlurExtend(int16_t Weapon, int16_t interval, int16_t blur_num)
 {
     USERp u = User[Weapon];
 
@@ -8698,7 +8698,7 @@ InitPlasmaFountain(SPRITEp wp, SPRITEp sp)
 }
 
 int
-DoPlasmaFountain(SHORT Weapon)
+DoPlasmaFountain(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     SPRITEp ap;
@@ -8747,18 +8747,18 @@ DoPlasmaFountain(SHORT Weapon)
 }
 
 int
-DoPlasma(SHORT Weapon)
+DoPlasma(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     int ox,oy,oz;
 
     ox = sp->x;
     oy = sp->y;
     oz = sp->z;
 
-//MissileSeek(SHORT Weapon, SHORT delay_tics, SHORT aware_range, SHORT dang_shift, SHORT turn_limit, SHORT z_limit)
+//MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range, int16_t dang_shift, int16_t turn_limit, int16_t z_limit)
     //MissileSeek(Weapon, 20, 1024, 6, 80, 6);
     DoBlurExtend(Weapon, 0, 4);
 
@@ -8826,7 +8826,7 @@ DoPlasma(SHORT Weapon)
 
 
 int
-DoCoolgFire(SHORT Weapon)
+DoCoolgFire(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -8870,7 +8870,7 @@ DoEelFire(short Weapon)
 }
 
 
-VOID ScaleSpriteVector(short SpriteNum, int scale)
+void ScaleSpriteVector(short SpriteNum, int scale)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
@@ -8880,7 +8880,7 @@ VOID ScaleSpriteVector(short SpriteNum, int scale)
     u->zchange = mulscale16(u->zchange, scale);
 }
 
-VOID WallBounce(short SpriteNum, short ang)
+void WallBounce(short SpriteNum, short ang)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
@@ -8923,7 +8923,7 @@ VOID WallBounce(short SpriteNum, short ang)
 }
 
 
-BOOL SlopeBounce(short SpriteNum, BOOL *hitwall)
+SWBOOL SlopeBounce(short SpriteNum, SWBOOL *hitwall)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
@@ -8996,11 +8996,11 @@ BOOL SlopeBounce(short SpriteNum, BOOL *hitwall)
 extern STATE s_Phosphorus[];
 
 int
-DoGrenade(SHORT Weapon)
+DoGrenade(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     short i;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -9106,7 +9106,7 @@ DoGrenade(SHORT Weapon)
 
         case HIT_SECTOR:
         {
-            BOOL hitwall;
+            SWBOOL hitwall;
             if (SlopeBounce(Weapon, &hitwall))
             {
                 if (hitwall)
@@ -9246,11 +9246,11 @@ DoGrenade(SHORT Weapon)
 }
 
 int
-DoVulcanBoulder(SHORT Weapon)
+DoVulcanBoulder(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     u->Counter += 40;
     u->zchange += u->Counter;
@@ -9330,7 +9330,7 @@ DoVulcanBoulder(SHORT Weapon)
 
         case HIT_SECTOR:
         {
-            BOOL hitwall;
+            SWBOOL hitwall;
 
             if (SlopeBounce(Weapon, &hitwall))
             {
@@ -9401,7 +9401,7 @@ DoVulcanBoulder(SHORT Weapon)
     return FALSE;
 }
 
-BOOL
+SWBOOL
 OwnerIsPlayer(short Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
@@ -9426,7 +9426,7 @@ DoMineRangeTest(short Weapon, short range)
     unsigned stat;
     int dist, tx, ty;
     int tmin;
-    BOOL ownerisplayer = FALSE;
+    SWBOOL ownerisplayer = FALSE;
 
     ownerisplayer = OwnerIsPlayer(Weapon);
 
@@ -9473,7 +9473,7 @@ DoMineRangeTest(short Weapon, short range)
 
 
 int
-DoMineStuck(SHORT Weapon)
+DoMineStuck(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -9636,7 +9636,7 @@ DoMineStuck(SHORT Weapon)
 }
 
 int
-SetMineStuck(SHORT Weapon)
+SetMineStuck(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -9655,7 +9655,7 @@ SetMineStuck(SHORT Weapon)
 }
 
 int
-DoMine(SHORT Weapon)
+DoMine(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -9843,11 +9843,11 @@ DoRailPuff(short SpriteNum)
 }
 
 int
-DoBoltThinMan(SHORT Weapon)
+DoBoltThinMan(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     short NewWeapon;
 
     DoBlurExtend(Weapon, 0, 4);
@@ -9883,7 +9883,7 @@ DoBoltThinMan(SHORT Weapon)
 }
 
 int
-DoTracer(SHORT Weapon)
+DoTracer(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -9915,7 +9915,7 @@ DoTracer(SHORT Weapon)
 }
 
 int
-DoEMP(SHORT Weapon)
+DoEMP(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -9958,7 +9958,7 @@ DoEMP(SHORT Weapon)
 }
 
 int
-DoEMPBurst(SHORT Weapon)
+DoEMPBurst(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -10012,7 +10012,7 @@ DoEMPBurst(SHORT Weapon)
 }
 
 int
-DoTankShell(SHORT Weapon)
+DoTankShell(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -10044,7 +10044,7 @@ DoTankShell(SHORT Weapon)
 }
 
 int
-DoTracerStart(SHORT Weapon)
+DoTracerStart(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -10072,7 +10072,7 @@ DoTracerStart(SHORT Weapon)
 }
 
 int
-DoLaser(SHORT Weapon)
+DoLaser(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -10121,7 +10121,7 @@ DoLaser(SHORT Weapon)
 }
 
 int
-DoLaserStart(SHORT Weapon)
+DoLaserStart(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -10148,11 +10148,11 @@ DoLaserStart(SHORT Weapon)
 }
 
 int
-DoRail(SHORT Weapon)
+DoRail(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     short NewWeapon;
     SPRITEp np;
     USERp nu;
@@ -10241,11 +10241,11 @@ DoRail(SHORT Weapon)
 }
 
 int
-DoRailStart(SHORT Weapon)
+DoRailStart(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     SPRITEp np;
     USERp nu;
     short new;
@@ -10271,11 +10271,11 @@ DoRailStart(SHORT Weapon)
 }
 
 int
-DoRocket(SHORT Weapon)
+DoRocket(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     short NewWeapon;
     int dist,a,b,c;
 
@@ -10362,7 +10362,7 @@ DoRocket(SHORT Weapon)
 }
 
 int
-DoMicroMini(SHORT Weapon)
+DoMicroMini(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -10393,7 +10393,7 @@ DoMicroMini(SHORT Weapon)
 }
 
 int
-SpawnExtraMicroMini(SHORT Weapon)
+SpawnExtraMicroMini(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -10432,11 +10432,11 @@ SpawnExtraMicroMini(SHORT Weapon)
 }
 
 int
-DoMicro(SHORT Weapon)
+DoMicro(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     short new;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
@@ -10510,11 +10510,11 @@ DoMicro(SHORT Weapon)
 }
 
 int
-DoUziBullet(SHORT Weapon)
+DoUziBullet(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], newp;
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     int sx,sy;
     short NewWeapon;
     short i;
@@ -10583,11 +10583,11 @@ DoUziBullet(SHORT Weapon)
 
 
 int
-DoBoltSeeker(SHORT Weapon)
+DoBoltSeeker(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], newp;
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     short NewWeapon;
 
     MissileSeek(Weapon, 30, 768, 4, 48, 6);
@@ -10619,23 +10619,23 @@ DoBoltSeeker(SHORT Weapon)
 }
 
 int
-DoBoltShrapnel(SHORT Weapon)
+DoBoltShrapnel(int16_t Weapon)
 {
     return 0;
 }
 
 int
-DoBoltFatMan(SHORT Weapon)
+DoBoltFatMan(int16_t Weapon)
 {
     return 0;
 }
 
 int
-DoElectro(SHORT Weapon)
+DoElectro(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], newp;
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     DoBlurExtend(Weapon, 0, 4);
 
@@ -10688,11 +10688,11 @@ DoElectro(SHORT Weapon)
 }
 
 int
-DoLavaBoulder(SHORT Weapon)
+DoLavaBoulder(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], newp;
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10719,11 +10719,11 @@ DoLavaBoulder(SHORT Weapon)
 }
 
 int
-DoSpear(SHORT Weapon)
+DoSpear(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], newp;
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10792,7 +10792,7 @@ int SpawnCoolieExp(short SpriteNum)
 
 
 int
-SpawnBasicExp(SHORT Weapon)
+SpawnBasicExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -10835,7 +10835,7 @@ SpawnBasicExp(SHORT Weapon)
 }
 
 int
-SpawnFireballFlames(SHORT SpriteNum, SHORT enemy)
+SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -10967,7 +10967,7 @@ SpawnFireballFlames(SHORT SpriteNum, SHORT enemy)
 
 
 int
-SpawnBreakFlames(SHORT SpriteNum, SHORT enemy)
+SpawnBreakFlames(int16_t SpriteNum, int16_t enemy)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -11011,7 +11011,7 @@ SpawnBreakFlames(SHORT SpriteNum, SHORT enemy)
 
 
 int
-SpawnBreakStaticFlames(SHORT SpriteNum)
+SpawnBreakStaticFlames(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -11061,7 +11061,7 @@ SpawnBreakStaticFlames(SHORT SpriteNum)
 
 
 int
-SpawnFireballExp(SHORT Weapon)
+SpawnFireballExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11104,7 +11104,7 @@ SpawnFireballExp(SHORT Weapon)
 }
 
 int
-SpawnGoroFireballExp(SHORT Weapon)
+SpawnGoroFireballExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11143,7 +11143,7 @@ SpawnGoroFireballExp(SHORT Weapon)
 }
 
 int
-SpawnBoltExp(SHORT Weapon)
+SpawnBoltExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11185,7 +11185,7 @@ SpawnBoltExp(SHORT Weapon)
 }
 
 int
-SpawnBunnyExp(SHORT Weapon)
+SpawnBunnyExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11210,7 +11210,7 @@ SpawnBunnyExp(SHORT Weapon)
 }
 
 int
-SpawnTankShellExp(SHORT Weapon)
+SpawnTankShellExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11250,7 +11250,7 @@ SpawnTankShellExp(SHORT Weapon)
 
 
 int
-SpawnNuclearSecondaryExp(SHORT Weapon, short ang)
+SpawnNuclearSecondaryExp(int16_t Weapon, short ang)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11298,7 +11298,7 @@ SpawnNuclearSecondaryExp(SHORT Weapon, short ang)
 }
 
 int
-SpawnNuclearExp(SHORT Weapon)
+SpawnNuclearExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11392,7 +11392,7 @@ SpawnNuclearExp(SHORT Weapon)
 }
 
 int
-SpawnTracerExp(SHORT Weapon)
+SpawnTracerExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11438,7 +11438,7 @@ SpawnTracerExp(SHORT Weapon)
 }
 
 int
-SpawnMicroExp(SHORT Weapon)
+SpawnMicroExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11515,7 +11515,7 @@ AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
 }
 
 int
-SpawnBigGunFlames(SHORT Weapon, SHORT Operator, SECTOR_OBJECTp sop)
+SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
 {
     SPRITEp sp,shp;
     USERp u,shu;
@@ -11523,7 +11523,7 @@ SpawnBigGunFlames(SHORT Weapon, SHORT Operator, SECTOR_OBJECTp sop)
     USERp eu;
     short explosion,shoot_pt;
     unsigned sn;
-    BOOL smallflames = FALSE;
+    SWBOOL smallflames = FALSE;
 
     if (Weapon < 0)
     {
@@ -11595,7 +11595,7 @@ SpawnBigGunFlames(SHORT Weapon, SHORT Operator, SECTOR_OBJECTp sop)
 }
 
 int
-SpawnGrenadeSecondaryExp(SHORT Weapon, short ang)
+SpawnGrenadeSecondaryExp(int16_t Weapon, short ang)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11646,7 +11646,7 @@ SpawnGrenadeSecondaryExp(SHORT Weapon, short ang)
 }
 
 int
-SpawnGrenadeSmallExp(SHORT Weapon)
+SpawnGrenadeSmallExp(int16_t Weapon)
 {
     short ang;
 
@@ -11656,7 +11656,7 @@ SpawnGrenadeSmallExp(SHORT Weapon)
 }
 
 int
-SpawnGrenadeExp(SHORT Weapon)
+SpawnGrenadeExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11782,7 +11782,7 @@ void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize
     eu->oz = exp->z;
 }
 int
-SpawnMineExp(SHORT Weapon)
+SpawnMineExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11898,7 +11898,7 @@ int DoMineExp(short SpriteNum)
 }
 
 int
-DoSectorExp(SHORT SpriteNum)
+DoSectorExp(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -11910,7 +11910,7 @@ DoSectorExp(SHORT SpriteNum)
 }
 
 int
-SpawnSectorExp(SHORT Weapon)
+SpawnSectorExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -11947,7 +11947,7 @@ SpawnSectorExp(SHORT Weapon)
 
 // called from SpawnShrap
 int
-SpawnLargeExp(SHORT Weapon)
+SpawnLargeExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     SPRITEp exp;
@@ -11981,7 +11981,7 @@ SpawnLargeExp(SHORT Weapon)
 }
 
 int
-SpawnMeteorExp(SHORT Weapon)
+SpawnMeteorExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -12032,7 +12032,7 @@ SpawnMeteorExp(SHORT Weapon)
 }
 
 int
-SpawnLittleExp(SHORT Weapon)
+SpawnLittleExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     SPRITEp exp;
@@ -12059,11 +12059,11 @@ SpawnLittleExp(SHORT Weapon)
 }
 
 int
-DoFireball(SHORT Weapon)
+DoFireball(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     short NewWeapon;
 
     int offset;
@@ -12153,13 +12153,13 @@ DoFireball(SHORT Weapon)
 }
 
 int
-DoFindGround(SHORT SpriteNum)
+DoFindGround(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], hsp;
     USERp u = User[SpriteNum];
     int ceilhit, florhit;
     short save_cstat;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
     short bak_cstat;
 
     // recursive routine to find the ground - either sector or floor sprite
@@ -12213,13 +12213,13 @@ DoFindGround(SHORT SpriteNum)
 }
 
 int
-DoFindGroundPoint(SHORT SpriteNum)
+DoFindGroundPoint(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], hsp;
     USERp u = User[SpriteNum];
     int ceilhit, florhit;
     short save_cstat;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
     short bak_cstat;
 
     // recursive routine to find the ground - either sector or floor sprite
@@ -12273,7 +12273,7 @@ DoFindGroundPoint(SHORT SpriteNum)
 }
 
 int
-DoNapalm(SHORT Weapon)
+DoNapalm(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], exp;
     USERp u = User[Weapon];
@@ -12390,12 +12390,12 @@ DoNapalm(SHORT Weapon)
 
 #if WORM == 1
 int
-DoBloodWorm(SHORT Weapon)
+DoBloodWorm(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], exp;
     USERp u = User[Weapon];
     int offset;
-    int move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, ULONG cliptype, int numtics);
+    int move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
     short ang;
     int x,y,z,xvect,yvect;
     int bx,by;
@@ -12484,12 +12484,12 @@ DoBloodWorm(SHORT Weapon)
 
 #if WORM == 2
 int
-DoBloodWorm(SHORT Weapon)
+DoBloodWorm(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], exp;
     USERp u = User[Weapon];
     int offset;
-    int move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, ULONG cliptype, int numtics);
+    int move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
     short ang;
     int x,y,z,xvect,yvect;
     int bx,by;
@@ -12616,13 +12616,13 @@ DoBloodWorm(SHORT Weapon)
 #endif
 
 int
-DoMeteor(SHORT Weapon)
+DoMeteor(int16_t Weapon)
 {
     return FALSE;
 }
 
 int
-DoSerpMeteor(SHORT Weapon)
+DoSerpMeteor(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], exp;
     USERp u = User[Weapon];
@@ -12682,7 +12682,7 @@ DoSerpMeteor(SHORT Weapon)
 
 
 int
-DoMirvMissile(SHORT Weapon)
+DoMirvMissile(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], exp;
     USERp u = User[Weapon];
@@ -12717,7 +12717,7 @@ DoMirvMissile(SHORT Weapon)
 }
 
 int
-DoMirv(SHORT Weapon)
+DoMirv(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], np;
     USERp u = User[Weapon], nu;
@@ -12822,7 +12822,7 @@ DoMirv(SHORT Weapon)
     return FALSE;
 }
 
-BOOL
+SWBOOL
 MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
 {
     SPRITEp wp = &sprite[Weapon];
@@ -12868,7 +12868,7 @@ MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
     return retval;
 }
 
-BOOL
+SWBOOL
 TestMissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist, int zvel)
 {
     SPRITEp wp = &sprite[Weapon];
@@ -12915,7 +12915,7 @@ TestMissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist, int zvel)
 }
 
 int
-DoRing(SHORT Weapon)
+DoRing(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -13012,7 +13012,7 @@ DoRing(SHORT Weapon)
 
 
 
-VOID
+void
 InitSpellRing(PLAYERp pp)
 {
     short ang, ang_diff, ang_start, ang_finish, SpriteNum, missiles;
@@ -13080,7 +13080,7 @@ InitSpellRing(PLAYERp pp)
 }
 
 int
-DoSerpRing(SHORT Weapon)
+DoSerpRing(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -13550,7 +13550,7 @@ InitSerpRing2(short SpriteNum)
 }
 #endif
 
-VOID
+void
 InitSpellNapalm(PLAYERp pp)
 {
     short SpriteNum;
@@ -13849,7 +13849,7 @@ InitSwordAttack(PLAYERp pp)
         int nx,ny;
         short random_amt;
 
-        static SHORT dangs[] =
+        static int16_t dangs[] =
         {
             -256, -128, 0, 128, 256
         };
@@ -14028,7 +14028,7 @@ InitFistAttack(PLAYERp pp)
         int nx,ny;
         short random_amt;
 
-        static SHORT dangs[] =
+        static int16_t dangs[] =
         {
             -128,128
         };
@@ -14441,7 +14441,7 @@ InitMiniSumoClap(short SpriteNum)
 }
 
 int
-WeaponAutoAim(SPRITEp sp, short Missile, short ang, BOOL test)
+WeaponAutoAim(SPRITEp sp, short Missile, short ang, SWBOOL test)
 {
     USERp wu = User[Missile];
     USERp u = User[sp - sprite];
@@ -14511,7 +14511,7 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, BOOL test)
 }
 
 int
-WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, BOOL test)
+WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, SWBOOL test)
 {
     USERp wu = User[Missile];
     USERp u = User[sp - sprite];
@@ -14639,7 +14639,7 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
 }
 
 int
-WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, BOOL test)
+WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, SWBOOL test)
 {
     USERp u = User[sp - sprite];
     short hitsprite = -1;
@@ -14692,7 +14692,7 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, BOOL test)
     return hitsprite;
 }
 
-VOID
+void
 WeaponHitscanShootFeet(SPRITEp sp, SPRITEp hp, int *zvect)
 {
     int dist;
@@ -14745,7 +14745,7 @@ InitStar(PLAYERp pp)
     SPRITEp np;
     USERp nu;
     short nw;
-    BOOL AutoAim = FALSE;
+    SWBOOL AutoAim = FALSE;
 #define STAR_REPEAT  26
 #define STAR_HORIZ_ADJ 100L
     //#define STAR_HORIZ_ADJ 0
@@ -14860,7 +14860,7 @@ InitStar(PLAYERp pp)
 }
 
 #if WORM == 1
-VOID
+void
 InitHeartAttack(PLAYERp pp)
 {
     short SpriteNum;
@@ -14933,7 +14933,7 @@ InitHeartAttack(PLAYERp pp)
 #endif
 
 #if WORM == 2
-VOID
+void
 InitHeartAttack(PLAYERp pp)
 {
     short SpriteNum;
@@ -16200,7 +16200,7 @@ InitSerpSlash(short SpriteNum)
     return 0;
 }
 
-BOOL
+SWBOOL
 WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
 {
     int x1, y1, x2, y2;
@@ -16522,7 +16522,7 @@ InitSerpSpell(short SpriteNum)
 }
 
 int
-SpawnDemonFist(SHORT Weapon)
+SpawnDemonFist(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -17850,7 +17850,7 @@ int SpawnWallHole(short hitsect, short hitwall, int hitx, int hity, int hitz)
     return SpriteNum;
 }
 
-BOOL
+SWBOOL
 HitscanSpriteAdjust(short SpriteNum, short hitwall)
 {
     SPRITEp sp = &sprite[SpriteNum];
@@ -17904,14 +17904,14 @@ InitUzi(PLAYERp pp)
     int nx,ny;
     int xvect,yvect,zvect;
     short cstat = 0;
-    BYTE pal = 0;
+    uint8_t pal = 0;
     //static char alternate=0;
     static int uziclock=0;
     int clockdiff=0;
-    BOOL FireSnd = FALSE;
+    SWBOOL FireSnd = FALSE;
 #define UZIFIRE_WAIT 20
 
-    VOID InitUziShell(PLAYERp);
+    void InitUziShell(PLAYERp);
 
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
@@ -18117,7 +18117,7 @@ InitEMP(PLAYERp pp)
     int hitx, hity, hitz, daz, nz;
     int nx,ny;
     short cstat = 0;
-    BYTE pal = 0;
+    uint8_t pal = 0;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
@@ -18773,7 +18773,7 @@ InitSobjGun(PLAYERp pp)
     USERp u = User[pp->PlayerSprite];
     short i;
     SPRITEp sp;
-    BOOL first = FALSE;
+    SWBOOL first = FALSE;
 
     for (i = 0; pp->sop->sp_num[i] != -1; i++)
     {
@@ -18792,7 +18792,7 @@ InitSobjGun(PLAYERp pp)
             }
 
             // inert shoot point
-            if ((BYTE)SP_TAG3(sp) == 255)
+            if ((uint8_t)SP_TAG3(sp) == 255)
                 return 0;
 
             if (!first)
@@ -19224,7 +19224,7 @@ InitEnemyUzi(short SpriteNum)
     int ret = -2;
     int hitx = -2, hity = -2, hitz = -2, daz;
     int zh;
-    VOID InitUziShell(PLAYERp);
+    void InitUziShell(PLAYERp);
     static short alternate;
 
 
@@ -19385,7 +19385,7 @@ InitGrenade(PLAYERp pp)
     short oclipdist;
     int dist;
     int zvel;
-    BOOL auto_aim = FALSE;
+    SWBOOL auto_aim = FALSE;
 
     DoPlayerBeginRecoil(pp, GRENADE_RECOIL_AMT);
 
@@ -19687,7 +19687,7 @@ InitEnemyMine(short SpriteNum)
 }
 
 int
-HelpMissileLateral(SHORT Weapon, int dist)
+HelpMissileLateral(int16_t Weapon, int dist)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -19899,7 +19899,7 @@ InitEnemyFireball(short SpriteNum)
 // for hitscans or other uses
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOL
+SWBOOL
 WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 {
     short i, nexti;
@@ -19971,7 +19971,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 WarpToSurface(short *sectnum, int *x, int *y, int *z)
 {
     short i, nexti;
@@ -20043,7 +20043,7 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
 }
 
 
-BOOL
+SWBOOL
 SpriteWarpToUnderwater(SPRITEp sp)
 {
     USERp u = User[sp - sprite];
@@ -20121,7 +20121,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 SpriteWarpToSurface(SPRITEp sp)
 {
     USERp u = User[sp - sprite];
@@ -20316,7 +20316,7 @@ SpawnUnderSplash(short SpriteNum)
     return 0;
 }
 
-BOOL
+SWBOOL
 MissileHitDiveArea(short SpriteNum)
 {
     USERp u = User[SpriteNum];
@@ -20587,7 +20587,7 @@ DoBubble(short SpriteNum)
 // this needs to be called before killsprite
 // whenever killing a sprite that you aren't completely sure what it is, like
 // with the drivables, copy sectors, break sprites, etc
-VOID
+void
 SpriteQueueDelete(short SpriteNum)
 {
     int i;
@@ -20648,7 +20648,7 @@ void QueueReset(void)
         LoWangsQueue[i] = -1;
 }
 
-BOOL TestDontStick(short SpriteNum, short hitsect, short hitwall, int hitz)
+SWBOOL TestDontStick(short SpriteNum, short hitsect, short hitwall, int hitz)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -20673,7 +20673,7 @@ BOOL TestDontStick(short SpriteNum, short hitsect, short hitwall, int hitz)
     return FALSE;
 }
 
-BOOL TestDontStickSector(short hitsect)
+SWBOOL TestDontStickSector(short hitsect)
 {
     if (TEST(sector[hitsect].extra, SECTFX_DYNAMIC_AREA|SECTFX_SECTOR_OBJECT))
         return TRUE;
@@ -20876,7 +20876,7 @@ int QueueFootPrint(short hitsprite)
     USERp u = User[hitsprite];
     USERp nu;
     short rnd_num=0;
-    BOOL Found=FALSE;
+    SWBOOL Found=FALSE;
     SPRITEp under_sp;
     short i, nexti;
     SECT_USERp sectu = SectUser[hsp->sectnum];
@@ -21318,7 +21318,7 @@ DoShellShrap(short SpriteNum)
 int
 SpawnShell(short SpriteNum, short ShellNum)
 {
-    extern int InitShell(SHORT SpriteNum, SHORT ShellNum);
+    extern int InitShell(int16_t SpriteNum, int16_t ShellNum);
 
     //ShellCount++;
     //SpawnShrap(SpriteNum,ShellNum);         // -2 signifies right Uzi shell
@@ -21331,11 +21331,11 @@ SpawnShell(short SpriteNum, short ShellNum)
 
 
 int
-DoShrapVelocity(SHORT SpriteNum)
+DoShrapVelocity(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(sp))
     {
@@ -21401,7 +21401,7 @@ DoShrapVelocity(SHORT SpriteNum)
 
         case HIT_SECTOR:
         {
-            BOOL hitwall;
+            SWBOOL hitwall;
 
             if (SlopeBounce(SpriteNum, &hitwall))
             {
@@ -21635,7 +21635,7 @@ ShrapKillSprite(short SpriteNum)
     return 0;
 }
 
-BOOL CheckBreakToughness(BREAK_INFOp break_info, short ID)
+SWBOOL CheckBreakToughness(BREAK_INFOp break_info, short ID)
 {
     ////DSPRINTF(ds,"CheckBreakToughness called with %d",ID);
     //CON_Message(ds);
@@ -21671,11 +21671,11 @@ BOOL CheckBreakToughness(BREAK_INFOp break_info, short ID)
 }
 
 int
-DoItemFly(SHORT SpriteNum)
+DoItemFly(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -21741,7 +21741,7 @@ DoItemFly(SHORT SpriteNum)
 
         case HIT_SECTOR:
         {
-            BOOL hitwall;
+            SWBOOL hitwall;
             // hit floor
             if (sp->z > DIV2(u->hiz + u->loz))
             {

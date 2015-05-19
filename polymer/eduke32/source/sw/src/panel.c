@@ -45,7 +45,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //#define UK_VERSION TRUE
 
 #define PANF_UZI_XFLIP (BIT(21))
-extern BOOL UsingMenus;
+extern SWBOOL UsingMenus;
 
 #define XDIM 320
 #define YDIM 200
@@ -58,17 +58,17 @@ typedef struct
 } PANEL_SHRAP, *PANEL_SHRAPp;
 
 PANEL_SPRITEp pSpawnFullScreenSprite(PLAYERp pp, short pic, short pri, int x, int y);
-VOID DisplayFragNumbers(PLAYERp pp_kill_chg);
-VOID PanelInvTestSuicide(PANEL_SPRITEp psp);
+void DisplayFragNumbers(PLAYERp pp_kill_chg);
+void PanelInvTestSuicide(PANEL_SPRITEp psp);
 
 void InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp);
-VOID pKillSprite(PANEL_SPRITEp psp);
+void pKillSprite(PANEL_SPRITEp psp);
 void pWeaponBob(PANEL_SPRITEp psp, short condition);
 void pSuicide(PANEL_SPRITEp psp);
-VOID pNextState(PANEL_SPRITEp psp);
-VOID pStatePlusOne(PANEL_SPRITEp psp);
-VOID pSetState(PANEL_SPRITEp psp, PANEL_STATEp panel_state);
-VOID pStateControl(PANEL_SPRITEp psp);
+void pNextState(PANEL_SPRITEp psp);
+void pStatePlusOne(PANEL_SPRITEp psp);
+void pSetState(PANEL_SPRITEp psp, PANEL_STATEp panel_state);
+void pStateControl(PANEL_SPRITEp psp);
 
 int DoPanelFall(PANEL_SPRITEp psp);
 int DoBeginPanelFall(PANEL_SPRITEp psp);
@@ -78,13 +78,13 @@ void SpawnHeartBlood(PANEL_SPRITEp psp);
 void SpawnUziShell(PANEL_SPRITEp psp);
 void PlayerUpdateWeaponSummary(PLAYERp pp,short UpdateWeaponNum);
 
-BOOL pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
-BOOL pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
+SWBOOL pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
+SWBOOL pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
 void pHotHeadOverlays(PANEL_SPRITEp psp, short mode);
 
 char UziRecoilYadj = 0;
 
-extern BOOL QuitFlag;
+extern SWBOOL QuitFlag;
 extern short screenpeek;
 
 BORDER_INFO BorderInfo;
@@ -149,12 +149,12 @@ pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pri)
     return NULL;
 }
 
-BOOL
+SWBOOL
 pKillScreenSpiteIDs(PLAYERp pp, short id)
 {
     PANEL_SPRITEp nsp=NULL;
     PANEL_SPRITEp psp=NULL, next;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
 
     // Kill ALL sprites with the correct id
     TRAVERSE(&pp->PanelSpriteList, psp, next)
@@ -227,7 +227,7 @@ void pSetSuicide(PANEL_SPRITEp psp)
     psp->PanelSpriteFunc = pSuicide;
 }
 
-VOID pToggleCrosshair(PLAYERp pp)
+void pToggleCrosshair(PLAYERp pp)
 {
     if (gs.Crosshair)
         gs.Crosshair = FALSE;
@@ -236,7 +236,7 @@ VOID pToggleCrosshair(PLAYERp pp)
 }
 
 // Player has a chance of yelling out during combat, when firing a weapon.
-VOID DoPlayerChooseYell(PLAYERp pp)
+void DoPlayerChooseYell(PLAYERp pp)
 {
     int choose_snd = 0;
     short weapon;
@@ -255,7 +255,7 @@ VOID DoPlayerChooseYell(PLAYERp pp)
         PlayerSound(PlayerYellVocs[choose_snd],&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
 }
 
-VOID ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
+void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
 {
     int damage_percent;
 
@@ -275,7 +275,7 @@ VOID ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
 }
 
 
-VOID
+void
 PlayerUpdateHealth(PLAYERp pp, short value)
 {
     USERp u = User[pp->PlayerSprite];
@@ -301,8 +301,8 @@ PlayerUpdateHealth(PLAYERp pp, short value)
 
     if (value < 0)
     {
-        BOOL IsChem = FALSE;
-        BOOL NoArmor = FALSE;
+        SWBOOL IsChem = FALSE;
+        SWBOOL NoArmor = FALSE;
 
         if (value <= -2000)
         {
@@ -402,7 +402,7 @@ PlayerUpdateHealth(PLAYERp pp, short value)
 }
 
 
-VOID
+void
 PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 {
     USERp u = User[pp->PlayerSprite];
@@ -469,7 +469,7 @@ PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
     DisplayPanelNumber(pp, x, y, pp->WpnAmmo[WeaponNum]);
 }
 
-VOID
+void
 PlayerUpdateWeaponSummary(PLAYERp pp, short UpdateWeaponNum)
 {
     USERp u = User[pp->PlayerSprite];
@@ -536,7 +536,7 @@ PlayerUpdateWeaponSummary(PLAYERp pp, short UpdateWeaponNum)
     DisplaySummaryString(pp, x+6, y, color, shade, ds);
 }
 
-VOID PlayerUpdateWeaponSummaryAll(PLAYERp pp)
+void PlayerUpdateWeaponSummaryAll(PLAYERp pp)
 {
     short i;
 
@@ -549,7 +549,7 @@ VOID PlayerUpdateWeaponSummaryAll(PLAYERp pp)
     }
 }
 
-VOID
+void
 PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
 {
     USERp u = User[pp->PlayerSprite];
@@ -567,7 +567,7 @@ PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
     PlayerUpdateWeaponSummaryAll(pp);
 }
 
-VOID
+void
 PlayerUpdateKills(PLAYERp pp, short value)
 {
     USERp u = User[pp->PlayerSprite];
@@ -616,7 +616,7 @@ PlayerUpdateKills(PLAYERp pp, short value)
         DisplayFragNumbers(pp);
 }
 
-VOID
+void
 PlayerUpdateArmor(PLAYERp pp, short value)
 {
     USERp u = User[pp->PlayerSprite];
@@ -652,7 +652,7 @@ PlayerUpdateArmor(PLAYERp pp, short value)
 }
 
 
-VOID
+void
 PlayerUpdateKeys(PLAYERp pp)
 {
 #define PANEL_KEYS_BOX_X 276
@@ -735,7 +735,7 @@ PlayerUpdateKeys(PLAYERp pp)
     }
 }
 
-VOID
+void
 PlayerUpdateTimeLimit(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
@@ -762,7 +762,7 @@ PlayerUpdateTimeLimit(PLAYERp pp)
     DisplaySummaryString(pp, PANEL_KEYS_BOX_X+1, PANEL_BOX_Y+6, 0, 0, ds);
 }
 
-VOID
+void
 PlayerUpdatePanelInfo(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
@@ -995,7 +995,7 @@ WeaponOperate(PLAYERp pp)
     return 0;
 }
 
-BOOL
+SWBOOL
 WeaponOK(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
@@ -1233,7 +1233,7 @@ PANEL_STATE ps_RetractSword[] =
 #define SWORD_POWER_VEL 2500
 
 
-VOID SpecialUziRetractFunc(PANEL_SPRITEp psp)
+void SpecialUziRetractFunc(PANEL_SPRITEp psp)
 {
     psp->y += 4 * synctics;
 
@@ -1243,7 +1243,7 @@ VOID SpecialUziRetractFunc(PANEL_SPRITEp psp)
     }
 }
 
-VOID
+void
 RetractCurWpn(PLAYERp pp)
 {
     // Retract old weapon
@@ -1280,7 +1280,7 @@ RetractCurWpn(PLAYERp pp)
     }
 }
 
-VOID
+void
 InitWeaponSword(PLAYERp pp)
 {
     PANEL_SPRITEp psp;
@@ -1558,7 +1558,7 @@ pSwordHide(PANEL_SPRITEp psp)
 void
 pSwordRest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
 #if 0
     if (KEY_PRESSED(KEYSC_SEMI))
@@ -1729,7 +1729,7 @@ PANEL_STATE ps_RetractStar[] =
 void
 pStarRestTest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT))
     {
@@ -1748,7 +1748,7 @@ pStarRestTest(PANEL_SPRITEp psp)
     pSetState(psp, psp->RestState);
 }
 
-VOID
+void
 InitWeaponStar(PLAYERp pp)
 {
     PANEL_SPRITEp psp = NULL;
@@ -1877,7 +1877,7 @@ pStarHide(PANEL_SPRITEp psp)
 void
 pStarRest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_StarHide))
         return;
@@ -1954,19 +1954,19 @@ void pUziRest(PANEL_SPRITEp);
 void pUziHide(PANEL_SPRITEp);
 void pUziPresentReload(PANEL_SPRITEp);
 
-VOID pSpawnUziClip(PANEL_SPRITEp);
-VOID pSpawnUziReload(PANEL_SPRITEp);
-VOID pUziReload(PANEL_SPRITEp);
-VOID pUziReloadRetract(PANEL_SPRITEp);
-VOID pUziClip(PANEL_SPRITEp);
-VOID pUziDoneReload(PANEL_SPRITEp);
+void pSpawnUziClip(PANEL_SPRITEp);
+void pSpawnUziReload(PANEL_SPRITEp);
+void pUziReload(PANEL_SPRITEp);
+void pUziReloadRetract(PANEL_SPRITEp);
+void pUziClip(PANEL_SPRITEp);
+void pUziDoneReload(PANEL_SPRITEp);
 
-VOID pUziEjectDown(PANEL_SPRITEp);
-VOID pUziEjectUp(PANEL_SPRITEp);
+void pUziEjectDown(PANEL_SPRITEp);
+void pUziEjectUp(PANEL_SPRITEp);
 
 // CTW MODIFICATION
-//VOID SetVisNorm(VOID);
-int SetVisNorm(VOID);
+//void SetVisNorm(void);
+int SetVisNorm(void);
 // CTW MODIFICATION END
 pANIMATOR pSetVisNorm;
 
@@ -2144,7 +2144,7 @@ pUziOverlays(PANEL_SPRITEp psp, short mode)
 // Uzi Reload
 //
 
-VOID
+void
 pUziEjectDown(PANEL_SPRITEp gun)
 {
     gun->y += 5 * synctics;
@@ -2156,7 +2156,7 @@ pUziEjectDown(PANEL_SPRITEp gun)
     }
 }
 
-VOID
+void
 pUziEjectUp(PANEL_SPRITEp gun)
 {
 
@@ -2172,7 +2172,7 @@ pUziEjectUp(PANEL_SPRITEp gun)
 }
 
 
-VOID
+void
 pSpawnUziClip(PANEL_SPRITEp gun)
 {
     PANEL_SPRITEp new;
@@ -2201,7 +2201,7 @@ pSpawnUziClip(PANEL_SPRITEp gun)
     new->sibling = gun;
 }
 
-VOID
+void
 pSpawnUziReload(PANEL_SPRITEp oclip)
 {
     PANEL_SPRITEp nclip;
@@ -2220,7 +2220,7 @@ pSpawnUziReload(PANEL_SPRITEp oclip)
     nclip->sibling = oclip->sibling;
 }
 
-VOID
+void
 pUziReload(PANEL_SPRITEp nclip)
 {
     int nx, ny;
@@ -2288,7 +2288,7 @@ pUziReload(PANEL_SPRITEp nclip)
     }
 }
 
-VOID
+void
 pUziReloadRetract(PANEL_SPRITEp nclip)
 {
     int nx, ny;
@@ -2328,7 +2328,7 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
     }
 }
 
-VOID
+void
 pUziDoneReload(PANEL_SPRITEp psp)
 {
     PANEL_SPRITEp InitWeaponUziSecondaryReload(PANEL_SPRITEp);
@@ -2374,7 +2374,7 @@ pUziDoneReload(PANEL_SPRITEp psp)
     }
 }
 
-VOID
+void
 pUziClip(PANEL_SPRITEp oclip)
 {
     int nx, ny, ox, oy;
@@ -2430,7 +2430,7 @@ pUziClip(PANEL_SPRITEp oclip)
 // Uzi Basic Stuff
 //
 
-VOID
+void
 InitWeaponUzi(PLAYERp pp)
 {
     PANEL_SPRITEp InitWeaponUzi2(PANEL_SPRITEp);
@@ -2673,7 +2673,7 @@ void
 pUziRest(PANEL_SPRITEp psp)
 {
     char shooting;
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
 
     // If you have two uzi's, but one didn't come up, spawn it
@@ -2725,7 +2725,7 @@ void
 pUziAction(PANEL_SPRITEp psp)
 {
     char shooting;
-    static BOOL alternate = FALSE;
+    static SWBOOL alternate = FALSE;
 
     shooting = TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) && FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT);
 
@@ -3077,7 +3077,7 @@ void pShotgunBobSetup(PANEL_SPRITEp psp);
 void pShotgunRecoilUp(PANEL_SPRITEp psp);
 void pShotgunRecoilDown(PANEL_SPRITEp psp);
 
-BOOL pShotgunReloadTest(PANEL_SPRITEp psp);
+SWBOOL pShotgunReloadTest(PANEL_SPRITEp psp);
 
 extern PANEL_STATE ps_ShotgunReload[];
 
@@ -3172,7 +3172,7 @@ PANEL_STATE ps_RetractShotgun[] =
 #define SHOTGUN_YOFF 200
 #define SHOTGUN_XOFF (160+42)
 
-VOID
+void
 InitWeaponShotgun(PLAYERp pp)
 {
     PANEL_SPRITEp psp = NULL;
@@ -3362,7 +3362,7 @@ pShotgunBobSetup(PANEL_SPRITEp psp)
     psp->bob_height_shift = 3;
 }
 
-BOOL
+SWBOOL
 pShotgunOverlays(PANEL_SPRITEp psp)
 {
 #define SHOTGUN_AUTO_XOFF 28
@@ -3422,7 +3422,7 @@ pShotgunHide(PANEL_SPRITEp psp)
 }
 
 #if 1
-BOOL
+SWBOOL
 pShotgunReloadTest(PANEL_SPRITEp psp)
 {
     //short ammo = psp->PlayerP->WpnAmmo[psp->PlayerP->WeaponType];
@@ -3444,7 +3444,7 @@ pShotgunReloadTest(PANEL_SPRITEp psp)
 void
 pShotgunRest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
     //short ammo = psp->PlayerP->WpnAmmo[psp->PlayerP->WeaponType];
     short ammo = psp->PlayerP->WpnAmmo[WPN_SHOTGUN];
     char lastammo = psp->PlayerP->WpnShotgunLastShell;
@@ -3493,7 +3493,7 @@ pShotgunRest(PANEL_SPRITEp psp)
 void
 pShotgunRestTest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (psp->PlayerP->WpnShotgunType == 1 && !pShotgunReloadTest(psp))
         force = TRUE;
@@ -3576,7 +3576,7 @@ void pRailRecoilDown(PANEL_SPRITEp psp);
 
 void pRailBobSetup(PANEL_SPRITEp psp);
 
-BOOL pRailReloadTest(PANEL_SPRITEp psp);
+SWBOOL pRailReloadTest(PANEL_SPRITEp psp);
 
 #define Rail_BEAT_RATE 24
 #define Rail_ACTION_RATE 3  // !JIM! Was 10
@@ -3688,7 +3688,7 @@ PANEL_STATE ps_RetractRail[] =
 
 static int railvochandle=0;
 
-VOID
+void
 InitWeaponRail(PLAYERp pp)
 {
     PANEL_SPRITEp psp = NULL;
@@ -3864,7 +3864,7 @@ void
 pRailRest(PANEL_SPRITEp psp)
 {
     int InitLaserSight(PLAYERp pp);
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (SW_SHAREWARE) return;
 
@@ -3899,7 +3899,7 @@ pRailRest(PANEL_SPRITEp psp)
 void
 pRailRestTest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_RailHide))
         return;
@@ -4145,7 +4145,7 @@ pHotHeadOverlays(PANEL_SPRITEp psp, short mode)
 #define HOTHEAD_XOFF (200 + HOTHEAD_BOB_X_AMT + 6)
 #define HOTHEAD_YOFF 200
 
-VOID
+void
 InitWeaponHothead(PLAYERp pp)
 {
     PANEL_SPRITEp psp = NULL;
@@ -4200,7 +4200,7 @@ InitWeaponHothead(PLAYERp pp)
 void
 pHotheadRestTest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT))
     {
@@ -4281,7 +4281,7 @@ pHotheadHide(PANEL_SPRITEp psp)
 void
 pHotheadRest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (SW_SHAREWARE) return;
 
@@ -4589,7 +4589,7 @@ pMicroSetRecoil(PANEL_SPRITEp psp)
     psp->ang = NORM_ANGLE(-256);
 }
 
-VOID
+void
 InitWeaponMicro(PLAYERp pp)
 {
     PANEL_SPRITEp psp;
@@ -4759,7 +4759,7 @@ pMicroHide(PANEL_SPRITEp psp)
     }
 }
 
-BOOL
+SWBOOL
 pMicroOverlays(PANEL_SPRITEp psp)
 {
     //#define MICRO_SIGHT_XOFF 29
@@ -4859,7 +4859,7 @@ void
 pMicroRest(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_MicroHide))
         return;
@@ -5097,7 +5097,7 @@ PANEL_STATE ps_RetractHeart[] =
 
 #define HEART_YOFF 212
 
-VOID
+void
 InitWeaponHeart(PLAYERp pp)
 {
     PANEL_SPRITEp psp;
@@ -5191,7 +5191,7 @@ pHeartHide(PANEL_SPRITEp psp)
 void
 pHeartRest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_HeartHide))
         return;
@@ -5596,7 +5596,7 @@ pGrenadePresentSetup(PANEL_SPRITEp psp)
     psp->vel = 680;
 }
 
-VOID
+void
 InitWeaponGrenade(PLAYERp pp)
 {
     PANEL_SPRITEp psp;
@@ -5769,7 +5769,7 @@ pGrenadeHide(PANEL_SPRITEp psp)
 void
 pGrenadeRest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_GrenadeHide))
         return;
@@ -5884,7 +5884,7 @@ PANEL_STATE ps_RetractMine[] =
 //#define MINE_XOFF (160+20)
 #define MINE_XOFF (160+50)
 
-VOID
+void
 InitWeaponMine(PLAYERp pp)
 {
     PANEL_SPRITEp psp;
@@ -6015,7 +6015,7 @@ pMineHide(PANEL_SPRITEp psp)
 void
 pMineRest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_MineHide))
         return;
@@ -6164,7 +6164,7 @@ PANEL_STATE ps_ChopsRetract[] =
 #define CHOPS_YOFF 200
 #define CHOPS_XOFF (160+20)
 
-VOID
+void
 InitChops(PLAYERp pp)
 {
     PANEL_SPRITEp psp;
@@ -6197,7 +6197,7 @@ InitChops(PLAYERp pp)
 void
 pChopsClick(PANEL_SPRITEp psp)
 {
-    SHORT rnd_rng;
+    int16_t rnd_rng;
     PlaySound(DIGI_CHOP_CLICK,&psp->PlayerP->posx,&psp->PlayerP->posy,&psp->PlayerP->posz,v3df_none);
 
     rnd_rng = RANDOM_RANGE(1000);
@@ -6260,7 +6260,7 @@ pChopsShake(PANEL_SPRITEp psp)
 void
 pChopsWait(PANEL_SPRITEp psp)
 {
-    //extern BOOL GamePaused;
+    //extern SWBOOL GamePaused;
 
     //if (!GamePaused && RANDOM_P2(1024) < 10)
     if (RANDOM_P2(1024) < 10)
@@ -6550,7 +6550,7 @@ PANEL_STATE ps_RetractFist[] =
 #define FIST_VEL 3000
 #define FIST_POWER_VEL 3000
 
-VOID
+void
 InitWeaponFist(PLAYERp pp)
 {
     PANEL_SPRITEp psp;
@@ -6929,7 +6929,7 @@ pFistHide(PANEL_SPRITEp psp)
 void
 pFistRest(PANEL_SPRITEp psp)
 {
-    BOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_FistHide))
         return;
@@ -7063,13 +7063,13 @@ pFistBlock(PANEL_SPRITEp psp)
 
 
 
-VOID
+void
 pWeaponForceRest(PLAYERp pp)
 {
     pSetState(pp->CurWpn, pp->CurWpn->RestState);
 }
 
-BOOL
+SWBOOL
 pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
 {
     // initing the other weapon will take care of this
@@ -7117,7 +7117,7 @@ pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
     return FALSE;
 }
 
-BOOL
+SWBOOL
 pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
 {
     if (TEST(psp->PlayerP->Flags, PF_DEAD))
@@ -7197,7 +7197,7 @@ InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp)
 
 
 PANEL_SPRITEp
-pSpawnSprite(PLAYERp pp, PANEL_STATEp state, BYTE priority, int x, int y)
+pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, int x, int y)
 {
     unsigned i;
     PANEL_SPRITEp psp;
@@ -7239,13 +7239,13 @@ pSpawnSprite(PLAYERp pp, PANEL_STATEp state, BYTE priority, int x, int y)
     return psp;
 }
 
-VOID
+void
 pSuicide(PANEL_SPRITEp psp)
 {
     pKillSprite(psp);
 }
 
-VOID
+void
 pKillSprite(PANEL_SPRITEp psp)
 {
     PRODUCTION_ASSERT(psp);
@@ -7256,7 +7256,7 @@ pKillSprite(PANEL_SPRITEp psp)
     FreeMem(psp);
 }
 
-VOID
+void
 pClearSpriteList(PLAYERp pp)
 {
     PANEL_SPRITEp psp=NULL, next_psp=NULL;
@@ -7332,8 +7332,8 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
 //
 //////////////////////////////////////////////////////////////////////////////////////////
 
-BOOL DrawBeforeView = FALSE;
-VOID
+SWBOOL DrawBeforeView = FALSE;
+void
 pDisplaySprites(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
@@ -7345,7 +7345,7 @@ pDisplaySprites(PLAYERp pp)
     unsigned i;
 
     SECT_USERp sectu = SectUser[pp->cursectnum];
-    BYTE pal = 0;
+    uint8_t pal = 0;
     short ang;
     int flags;
     int x1,y1,x2,y2;
@@ -7634,7 +7634,7 @@ pDisplaySprites(PLAYERp pp)
     }
 }
 
-VOID pFlushPerms(PLAYERp pp)
+void pFlushPerms(PLAYERp pp)
 {
     PANEL_SPRITEp psp=NULL, next=NULL;
 
@@ -7650,7 +7650,7 @@ VOID pFlushPerms(PLAYERp pp)
     }
 }
 
-VOID
+void
 pSpriteControl(PLAYERp pp)
 {
     PANEL_SPRITEp psp=NULL, next=NULL;
@@ -7662,7 +7662,7 @@ pSpriteControl(PLAYERp pp)
         // RULE: Sprites can only kill themselves
         PRODUCTION_ASSERT(psp);
         ASSERT(ValidPtr(psp));
-        ASSERT((ULONG) psp->Next != 0xCCCCCCCC);
+        ASSERT((uint32_t) psp->Next != 0xCCCCCCCC);
 
         if (psp->State)
             pStateControl(psp);
@@ -7676,7 +7676,7 @@ pSpriteControl(PLAYERp pp)
     }
 }
 
-VOID
+void
 pSetState(PANEL_SPRITEp psp, PANEL_STATEp panel_state)
 {
     PRODUCTION_ASSERT(psp);
@@ -7687,7 +7687,7 @@ pSetState(PANEL_SPRITEp psp, PANEL_STATEp panel_state)
 }
 
 
-VOID
+void
 pNextState(PANEL_SPRITEp psp)
 {
     // Transition to the next state
@@ -7700,7 +7700,7 @@ pNextState(PANEL_SPRITEp psp)
     }
 }
 
-VOID
+void
 pStatePlusOne(PANEL_SPRITEp psp)
 {
     psp->tics = 0;
@@ -7714,7 +7714,7 @@ pStatePlusOne(PANEL_SPRITEp psp)
 }
 
 
-VOID
+void
 pStateControl(PANEL_SPRITEp psp)
 {
     unsigned i;
@@ -7761,11 +7761,11 @@ pStateControl(PANEL_SPRITEp psp)
 }
 
 
-VOID
+void
 UpdatePanel(void)
 {
     short pnum;
-    extern BOOL DebugPanel,PanelUpdateMode;
+    extern SWBOOL DebugPanel,PanelUpdateMode;
 
     if (!PanelUpdateMode)
         return;
@@ -7780,11 +7780,11 @@ UpdatePanel(void)
     }
 }
 
-VOID
+void
 PreUpdatePanel(void)
 {
     short pnum;
-    extern BOOL DebugPanel,PanelUpdateMode;
+    extern SWBOOL DebugPanel,PanelUpdateMode;
 
     if (!PanelUpdateMode)
         return;

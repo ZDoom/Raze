@@ -35,10 +35,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interp.h"
 #include "sprite.h"
 
-short DoRotatorMatch(PLAYERp pp, short match, BOOL);
-BOOL TestRotatorMatchActive(short match);
-VOID InterpSectorSprites(short sectnum, BOOL state);
-VOID DoMatchEverything(PLAYERp pp, short match, short state);
+short DoRotatorMatch(PLAYERp pp, short match, SWBOOL);
+SWBOOL TestRotatorMatchActive(short match);
+void InterpSectorSprites(short sectnum, SWBOOL state);
+void DoMatchEverything(PLAYERp pp, short match, short state);
 void DoRotatorSetInterp(short SpriteNum);
 void DoRotatorStopInterp(short SpriteNum);
 
@@ -71,12 +71,12 @@ void ReverseRotator(short SpriteNum)
     r->vel = -r->vel;
 }
 
-BOOL
+SWBOOL
 RotatorSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -154,7 +154,7 @@ short DoRotatorOperate(PLAYERp pp, short sectnum)
 // called from switches and triggers
 // returns first vator found
 short
-DoRotatorMatch(PLAYERp pp, short match, BOOL manual)
+DoRotatorMatch(PLAYERp pp, short match, SWBOOL manual)
 {
     USERp fu;
     SPRITEp fsp;
@@ -174,7 +174,7 @@ DoRotatorMatch(PLAYERp pp, short match, BOOL manual)
             fu = User[i];
 
             // single play only vator
-            // BOOL 8 must be set for message to display
+            // SWBOOL 8 must be set for message to display
             if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
                 if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp,"This only opens in single play.");
@@ -233,7 +233,7 @@ DoRotatorMatch(PLAYERp pp, short match, BOOL manual)
 }
 
 
-BOOL
+SWBOOL
 TestRotatorMatchActive(short match)
 {
     USERp fu;
@@ -311,7 +311,7 @@ int DoRotatorMove(short SpriteNum)
     int i, nexti;
     int nx,ny;
     int dist,closest;
-    BOOL kill = FALSE;
+    SWBOOL kill = FALSE;
 
     r = u->rotator;
 

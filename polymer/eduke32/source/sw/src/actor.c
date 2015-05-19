@@ -280,7 +280,7 @@ DoActorDie(short SpriteNum, short weapon)
     return 0;
 }
 
-VOID
+void
 DoDebrisCurrent(SPRITEp sp)
 {
     int xvect, yvect;
@@ -515,7 +515,7 @@ DoGenerateSewerDebris(short SpriteNum)
 
 // !AIC - Tries to keep actors correctly on the floor.  More that a bit messy.
 
-VOID
+void
 KeepActorOnFloor(short SpriteNum)
 {
     USERp u = User[SpriteNum];

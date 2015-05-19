@@ -55,27 +55,27 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sector.h"
 
 static int OverlapDraw = FALSE;
-extern BOOL QuitFlag, LocationInfo, ConPanel, SpriteInfo, PauseKeySet;
-extern BOOL Voxel;
+extern SWBOOL QuitFlag, LocationInfo, ConPanel, SpriteInfo, PauseKeySet;
+extern SWBOOL Voxel;
 extern char tempbuf[];
 extern char buffer[];
-BOOL DrawScreen;
+SWBOOL DrawScreen;
 extern short f_c;
 
-extern BOOL HelpInputMode;
+extern SWBOOL HelpInputMode;
 extern short HelpPage;
 extern short HelpPagePic[];
 extern ParentalStruct aVoxelArray[MAXTILES];
-extern BOOL RedrawScreen;
-BOOL RedrawCompass=FALSE;
+extern SWBOOL RedrawScreen;
+SWBOOL RedrawCompass=FALSE;
 extern int Follow_posx,Follow_posy;
 
 int ConnectCopySprite(SPRITEp tsp);
 void PreDrawStackedWater(void);
-VOID DrawCompass(PLAYERp pp);
+void DrawCompass(PLAYERp pp);
 
 #if 1
-VOID
+void
 ShadeSprite(SPRITEp tsp)
 {
     // set shade of sprite
@@ -236,7 +236,7 @@ DoShadowFindGroundPoint(SPRITEp sp)
     int ceilhit, florhit;
     int hiz, loz = u->loz;
     short save_cstat, bak_cstat;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
 
     // recursive routine to find the ground - either sector or floor sprite
     // skips over enemy and other types of sprites
@@ -290,8 +290,8 @@ DoShadowFindGroundPoint(SPRITEp sp)
 
 #if 0
 #define GENERIC_SHADOW_PIC 66
-extern BOOL bVoxelsOn;
-VOID
+extern SWBOOL bVoxelsOn;
+void
 DoVoxelShadow(SPRITEp tspr)
 {
     // Check for voxels
@@ -365,7 +365,7 @@ DoVoxelShadow(SPRITEp tspr)
 }
 #endif
 
-VOID
+void
 DoShadows(SPRITEp tsp, int viewz)
 {
     SPRITEp new = &tsprite[spritesortcnt];
@@ -460,7 +460,7 @@ DoShadows(SPRITEp tsp, int viewz)
     spritesortcnt++;
 }
 
-VOID
+void
 DoMotionBlur(SPRITEp tsp)
 {
     SPRITEp new;
@@ -557,13 +557,13 @@ DoMotionBlur(SPRITEp tsp)
 
 }
 
-VOID SetVoxelSprite(SPRITEp sp, short pic)
+void SetVoxelSprite(SPRITEp sp, short pic)
 {
     SET(sp->cstat, CSTAT_SPRITE_SLAB);
     sp->picnum = pic;
 }
 
-VOID WarpCopySprite(VOID)
+void WarpCopySprite(void)
 {
     SPRITEp new, sp1, sp2, sp;
     short sn, nsn;
@@ -642,7 +642,7 @@ VOID WarpCopySprite(VOID)
     }
 }
 
-VOID DoStarView(SPRITEp tsp, USERp tu, int viewz)
+void DoStarView(SPRITEp tsp, USERp tu, int viewz)
 {
     extern STATE s_Star[], s_StarDown[];
     extern STATE s_StarStuck[], s_StarDownStuck[];
@@ -665,8 +665,8 @@ VOID DoStarView(SPRITEp tsp, USERp tu, int viewz)
     }
 }
 
-VOID
-analyzesprites(int viewx, int viewy, int viewz, BOOL mirror)
+void
+analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 {
     int tSpriteNum, j, k;
     short SpriteNum, pnum;
@@ -807,8 +807,8 @@ analyzesprites(int viewx, int viewy, int viewz, BOOL mirror)
                 {
                     // if sector pal is something other than default
                     SECT_USERp sectu = SectUser[tsp->sectnum];
-                    BYTE pal = sector[tsp->sectnum].floorpal;
-                    BOOL nosectpal=FALSE;
+                    uint8_t pal = sector[tsp->sectnum].floorpal;
+                    SWBOOL nosectpal=FALSE;
 
                     // sprite does not take on the new pal if sector flag is set
                     if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
@@ -987,7 +987,7 @@ get_tsprite(short SpriteNum)
     return NULL;
 }
 
-VOID
+void
 post_analyzesprites(void)
 {
     int tSpriteNum;
@@ -1035,7 +1035,7 @@ post_analyzesprites(void)
 }
 #endif
 
-VOID
+void
 ResizeView(PLAYERp pp)
 {
     if (MenuInputMode || InputMode || HelpInputMode || ConPanel || ConInputMode || PauseKeySet)
@@ -1055,7 +1055,7 @@ ResizeView(PLAYERp pp)
 
         if (KEY_PRESSED(KEYSC_ESC))
         {
-            extern BOOL ScrollMode2D;
+            extern SWBOOL ScrollMode2D;
 
             KEY_PRESSED(KEYSC_ESC) = 0;
             dimensionmode = 3;
@@ -1085,11 +1085,11 @@ ResizeView(PLAYERp pp)
 }
 
 // !JIM! 08/06
-extern BOOL UsingMenus;
+extern SWBOOL UsingMenus;
 
 #if 0
-VOID
-ViewOutsidePlayerRecurse(PLAYERp pp, LONGp vx, LONGp vy, LONGp vz, SHORTp ang, SHORTp vsectnum)
+void
+ViewOutsidePlayerRecurse(PLAYERp pp, int32_t* vx, int32_t* vy, int32_t* vz, int16_t* ang, int16_t* vsectnum)
 {
     int nx, ny;
     int ret;
@@ -1370,7 +1370,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
     *nang = ang;
 }
 
-VOID PrintLocationInfo(PLAYERp pp)
+void PrintLocationInfo(PLAYERp pp)
 {
 #define Y_STEP 7
 #define AVERAGEFRAMES 16
@@ -1405,15 +1405,15 @@ VOID PrintLocationInfo(PLAYERp pp)
             sprintf(buffer, "POSZ:%d", pp->posz);
             printext256(x, y, 1, -1, buffer, 1);
             y += Y_STEP;
-            sprintf(buffer, "ANG:%d", (LONG) pp->pang);
+            sprintf(buffer, "ANG:%d", (int32_t) pp->pang);
             printext256(x, y, 1, -1, buffer, 1);
             y += Y_STEP;
         }
     }
 }
 
-BOOL DebugSecret = FALSE;
-VOID SecretInfo(PLAYERp pp)
+SWBOOL DebugSecret = FALSE;
+void SecretInfo(PLAYERp pp)
 {
 #define Y_STEP 7
 #define AVERAGEFRAMES 16
@@ -1437,7 +1437,7 @@ VOID SecretInfo(PLAYERp pp)
     }
 }
 
-VOID PrintSpriteInfo(PLAYERp pp)
+void PrintSpriteInfo(PLAYERp pp)
 {
 #define Y_STEP 7
     int x = windowx1+2;
@@ -1500,7 +1500,7 @@ VOID PrintSpriteInfo(PLAYERp pp)
             sprintf(buffer, "POSZ:%d", sp->z);
             printext256(x, y, 1, -1, buffer, 1);
             y += Y_STEP;
-            sprintf(buffer, "ANG:%d", (LONG) sp->ang);
+            sprintf(buffer, "ANG:%d", (int32_t) sp->ang);
             printext256(x, y, 1, -1, buffer, 1);
             y += Y_STEP;
         }
@@ -1508,7 +1508,7 @@ VOID PrintSpriteInfo(PLAYERp pp)
 }
 
 
-VOID SpriteSortList2D(int tx, int ty)
+void SpriteSortList2D(int tx, int ty)
 {
     SPRITEp sp;
     int i;
@@ -1666,7 +1666,7 @@ void ResChange(void)
 }
 #endif
 
-VOID ScreenCaptureKeys(VOID)
+void ScreenCaptureKeys(void)
 {
     if (ConPanel)
         return;
@@ -1682,10 +1682,10 @@ VOID ScreenCaptureKeys(VOID)
     }
 }
 
-VOID DrawCheckKeys(PLAYERp pp)
+void DrawCheckKeys(PLAYERp pp)
 {
-    extern BOOL ResCheat;
-    extern BOOL PauseKeySet;
+    extern SWBOOL ResCheat;
+    extern SWBOOL PauseKeySet;
 
     /* JonoF: Who really needs this now?
     if (KEY_PRESSED(KEYSC_F5) && !(KEY_PRESSED(KEYSC_RSHIFT) || KEY_PRESSED(KEYSC_LSHIFT) || KEY_PRESSED(KEYSC_ALT) || KEY_PRESSED(KEYSC_RALT)) && !PauseKeySet)
@@ -1710,10 +1710,10 @@ VOID DrawCheckKeys(PLAYERp pp)
 }
 
 #if 0
-VOID DrawMessageInput(PLAYERp pp)
+void DrawMessageInput(PLAYERp pp)
 {
     short w,h;
-    static BOOL cur_show;
+    static SWBOOL cur_show;
     short c;
 
     // Used to make cursor fade in and out
@@ -1739,10 +1739,10 @@ VOID DrawMessageInput(PLAYERp pp)
     }
 }
 #else
-VOID DrawMessageInput(PLAYERp pp)
+void DrawMessageInput(PLAYERp pp)
 {
     short w,h;
-    static BOOL cur_show;
+    static SWBOOL cur_show;
     short c;
 
     // Used to make cursor fade in and out
@@ -1767,12 +1767,12 @@ VOID DrawMessageInput(PLAYERp pp)
 }
 #endif
 
-VOID DrawConInput(PLAYERp pp)
+void DrawConInput(PLAYERp pp)
 {
 #define PANELINPUTX 30
 #define PANELINPUTY 100
     short w,h;
-    static BOOL cur_show;
+    static SWBOOL cur_show;
     short c;
 
     // Used to make cursor fade in and out
@@ -1798,10 +1798,10 @@ VOID DrawConInput(PLAYERp pp)
     }
 }
 
-VOID DrawCrosshair(PLAYERp pp)
+void DrawCrosshair(PLAYERp pp)
 {
     extern int CrosshairX, CrosshairY;
-    extern BOOL DemoMode,CameraTestMode;
+    extern SWBOOL DemoMode,CameraTestMode;
 
     if (!gs.Crosshair)
         return;
@@ -1891,10 +1891,10 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, short *t
     int i,nexti;
     short ang;
     SPRITEp sp;
-    BOOL found_camera = FALSE;
-    BOOL player_in_camera = FALSE;
-    BOOL FAFcansee_test;
-    BOOL ang_test;
+    SWBOOL found_camera = FALSE;
+    SWBOOL player_in_camera = FALSE;
+    SWBOOL FAFcansee_test;
+    SWBOOL ang_test;
 
     if (pp == &Player[screenpeek])
     {
@@ -2002,8 +2002,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, short *t
     }
 }
 
-VOID
-PreDraw(VOID)
+void
+PreDraw(void)
 {
     short i, nexti;
 
@@ -2015,8 +2015,8 @@ PreDraw(VOID)
     }
 }
 
-VOID
-PostDraw(VOID)
+void
+PostDraw(void)
 {
     short i, nexti;
     short sectnum,statnum;
@@ -2243,10 +2243,10 @@ void FAF_DrawRooms(int x, int y, int z, short ang, int horiz, short sectnum)
 
 short ScreenSavePic = FALSE;
 
-VOID
+void
 drawscreen(PLAYERp pp)
 {
-    extern BOOL DemoMode,CameraTestMode;
+    extern SWBOOL DemoMode,CameraTestMode;
     int tx, ty, tz,thoriz,pp_siz;
     short tang,tsectnum;
     short i,j;
@@ -2255,10 +2255,10 @@ drawscreen(PLAYERp pp)
     int bob_amt = 0;
     int quake_z, quake_x, quake_y;
     short quake_ang;
-    BOOL PicInView(short, BOOL);
-    extern BOOL FAF_DebugView;
+    SWBOOL PicInView(short, SWBOOL);
+    extern SWBOOL FAF_DebugView;
     PLAYERp camerapp;                       // prediction player if prediction is on, else regular player
-    VOID DoPlayerDiveMeter(PLAYERp pp);
+    void DoPlayerDiveMeter(PLAYERp pp);
 
     // last valid stuff
     static short lv_sectnum = -1;
@@ -2479,8 +2479,8 @@ drawscreen(PLAYERp pp)
 
     if ((dimensionmode == 5 || dimensionmode == 6) && pp == Player+myconnectindex)
     {
-        VOID MoveScrollMode2D(PLAYERp pp);
-        extern BOOL ScrollMode2D;
+        void MoveScrollMode2D(PLAYERp pp);
+        extern SWBOOL ScrollMode2D;
 
         if (ScrollMode2D)
         {
@@ -2575,7 +2575,7 @@ drawscreen(PLAYERp pp)
     DrawScreen = FALSE;
 }
 
-VOID
+void
 DrawCompass(PLAYERp pp)
 {
 #define COMPASS_TIC     2380
@@ -2637,7 +2637,7 @@ DrawCompass(PLAYERp pp)
         25, 19, 15, 9, 1, 1, 9, 15, 19, 25
     };
 
-    extern BOOL PanelUpdateMode;
+    extern SWBOOL PanelUpdateMode;
 
     if (!PanelUpdateMode)
         return;
@@ -2671,12 +2671,12 @@ DrawCompass(PLAYERp pp)
 }
 
 
-VOID ScreenTileLock(void)
+void ScreenTileLock(void)
 {
     walock[SAVE_SCREEN_TILE] = CACHE_LOCK_MAX;
 }
 
-VOID ScreenTileUnLock(void)
+void ScreenTileUnLock(void)
 {
     walock[SAVE_SCREEN_TILE] = CACHE_UNLOCK_MAX;
 }

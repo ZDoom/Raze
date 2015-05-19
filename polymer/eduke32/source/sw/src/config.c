@@ -48,57 +48,57 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "_functio.h"
 #include "_config.h"
 
-extern void ReadGameSetup(int32 scripthandle);
-extern void WriteGameSetup(int32 scripthandle);
+extern void ReadGameSetup(int32_t scripthandle);
+extern void WriteGameSetup(int32_t scripthandle);
 
 //
 // Comm variables
 //
 
 char CommPlayerName[32];
-int32 NumberPlayers,CommPort,PortSpeed,IrqNumber,UartAddress;
+int32_t NumberPlayers,CommPort,PortSpeed,IrqNumber,UartAddress;
 
 //
 // Sound variables
 //
-int32 FXDevice    = 0;
-int32 MusicDevice = 0;
-int32 NumVoices   = 32;
-int32 NumChannels = 2;
-int32 NumBits     = 16;
-int32 MixRate     = 44100;
+int32_t FXDevice    = 0;
+int32_t MusicDevice = 0;
+int32_t NumVoices   = 32;
+int32_t NumChannels = 2;
+int32_t NumBits     = 16;
+int32_t MixRate     = 44100;
 
-int32 UseMouse = 1, UseJoystick = 0;
+int32_t UseMouse = 1, UseJoystick = 0;
 
-byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
-int32 MouseButtons[MAXMOUSEBUTTONS];
-int32 MouseButtonsClicked[MAXMOUSEBUTTONS];
-int32 MouseDigitalAxes[MAXMOUSEAXES][2];
-int32 MouseAnalogAxes[MAXMOUSEAXES];
-int32 MouseAnalogScale[MAXMOUSEAXES];
-int32 JoystickButtons[MAXJOYBUTTONS];
-int32 JoystickButtonsClicked[MAXJOYBUTTONS];
-int32 JoystickDigitalAxes[MAXJOYAXES][2];
-int32 JoystickAnalogAxes[MAXJOYAXES];
-int32 JoystickAnalogScale[MAXJOYAXES];
-int32 JoystickAnalogDead[MAXJOYAXES];
-int32 JoystickAnalogSaturate[MAXJOYAXES];
+uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
+int32_t MouseButtons[MAXMOUSEBUTTONS];
+int32_t MouseButtonsClicked[MAXMOUSEBUTTONS];
+int32_t MouseDigitalAxes[MAXMOUSEAXES][2];
+int32_t MouseAnalogAxes[MAXMOUSEAXES];
+int32_t MouseAnalogScale[MAXMOUSEAXES];
+int32_t JoystickButtons[MAXJOYBUTTONS];
+int32_t JoystickButtonsClicked[MAXJOYBUTTONS];
+int32_t JoystickDigitalAxes[MAXJOYAXES][2];
+int32_t JoystickAnalogAxes[MAXJOYAXES];
+int32_t JoystickAnalogScale[MAXJOYAXES];
+int32_t JoystickAnalogDead[MAXJOYAXES];
+int32_t JoystickAnalogSaturate[MAXJOYAXES];
 
 //
 // Screen variables
 //
 
-int32 ScreenMode = 1;
-int32 ScreenWidth = 640;
-int32 ScreenHeight = 480;
-int32 ScreenBPP = 8;
-int32 ForceSetup = 1;
+int32_t ScreenMode = 1;
+int32_t ScreenWidth = 640;
+int32_t ScreenHeight = 480;
+int32_t ScreenBPP = 8;
+int32_t ForceSetup = 1;
 
 extern char WangBangMacro[10][64];
 char  RTSName[MAXRTSNAMELENGTH];
 //static char setupfilename[64]={SETUPFILENAME};
 char setupfilename[64]= {SETUPFILENAME};
-static int32 scripthandle = -1;
+static int32_t scripthandle = -1;
 
 
 
@@ -110,9 +110,9 @@ static int32 scripthandle = -1;
 ===================
 */
 
-int32 CONFIG_FunctionNameToNum(const char *func)
+int32_t CONFIG_FunctionNameToNum(const char *func)
 {
-    int32 i;
+    int32_t i;
 
     if (!func) return -1;
     for (i=0; i<NUMGAMEFUNCTIONS; i++)
@@ -133,7 +133,7 @@ int32 CONFIG_FunctionNameToNum(const char *func)
 ===================
 */
 
-const char *CONFIG_FunctionNumToName(int32 func)
+const char *CONFIG_FunctionNumToName(int32_t func)
 {
     if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
     {
@@ -152,7 +152,7 @@ const char *CONFIG_FunctionNumToName(int32 func)
 =
 ===================
 */
-int32 CONFIG_AnalogNameToNum(const char *func)
+int32_t CONFIG_AnalogNameToNum(const char *func)
 {
     if (!Bstrcasecmp(func,"analog_turning"))
     {
@@ -173,7 +173,7 @@ int32 CONFIG_AnalogNameToNum(const char *func)
     return -1;
 }
 
-const char *CONFIG_AnalogNumToName(int32 func)
+const char *CONFIG_AnalogNumToName(int32_t func)
 {
     switch (func)
     {
@@ -202,8 +202,8 @@ const char *CONFIG_AnalogNumToName(int32 func)
 void CONFIG_SetDefaults(void)
 {
     // JBF 20031211
-    int32 i,f;
-    byte k1,k2;
+    int32_t i,f;
+    uint8_t k1,k2;
 
     ScreenMode = 1;
     ScreenWidth = 640;
@@ -248,14 +248,14 @@ void CONFIG_SetDefaults(void)
 
     memset(JoystickButtons, -1, sizeof(JoystickButtons));
     memset(JoystickButtonsClicked, -1, sizeof(JoystickButtonsClicked));
-    for (i=0; i < (int32)(sizeof(joystickdefaults)/sizeof(char *)); i++)
+    for (i=0; i < (int32_t)(sizeof(joystickdefaults)/sizeof(char *)); i++)
     {
         JoystickButtons[i] = CONFIG_FunctionNameToNum(joystickdefaults[i]);
         JoystickButtonsClicked[i] = CONFIG_FunctionNameToNum(joystickclickeddefaults[i]);
     }
 
     memset(JoystickDigitalAxes, -1, sizeof(JoystickDigitalAxes));
-    for (i=0; i < (int32)(sizeof(joystickanalogdefaults)/sizeof(char *)); i++)
+    for (i=0; i < (int32_t)(sizeof(joystickanalogdefaults)/sizeof(char *)); i++)
     {
         JoystickAnalogScale[i] = 65536;
         JoystickAnalogDead[i] = 1024;
@@ -342,11 +342,11 @@ void SetMouseDefaults(int style)
 ===================
 */
 
-void CONFIG_ReadKeys(int32 scripthandle)
+void CONFIG_ReadKeys(int32_t scripthandle)
 {
-    int32 i;
-    int32 numkeyentries;
-    int32 function;
+    int32_t i;
+    int32_t numkeyentries;
+    int32_t function;
     char keyname1[80];
     char keyname2[80];
     kb_scancode key1,key2;
@@ -374,11 +374,11 @@ void CONFIG_ReadKeys(int32 scripthandle)
             key2 = 0xff;
             if (keyname1[0])
             {
-                key1 = (byte) KB_StringToScanCode(keyname1);
+                key1 = (uint8_t) KB_StringToScanCode(keyname1);
             }
             if (keyname2[0])
             {
-                key2 = (byte) KB_StringToScanCode(keyname2);
+                key2 = (uint8_t) KB_StringToScanCode(keyname2);
             }
             KeyboardKeys[function][0] = key1;
             KeyboardKeys[function][1] = key2;
@@ -404,10 +404,10 @@ void CONFIG_ReadKeys(int32 scripthandle)
 
 void CONFIG_SetupMouse(void)
 {
-    int32 i;
+    int32_t i;
     char str[80],*p;
     char temp[80];
-    int32 function, scale;
+    int32_t function, scale;
 
     if (scripthandle < 0) return;
 
@@ -473,10 +473,10 @@ void CONFIG_SetupMouse(void)
 
 void CONFIG_SetupJoystick(void)
 {
-    int32 i;
+    int32_t i;
     char str[80],*p;
     char temp[80];
-    int32 function, scale;
+    int32_t function, scale;
 
     if (scripthandle < 0) return;
 
@@ -546,9 +546,9 @@ void CONFIG_SetupJoystick(void)
 ===================
 */
 
-int32 CONFIG_ReadSetup(void)
+int32_t CONFIG_ReadSetup(void)
 {
-    int32 dummy;
+    int32_t dummy;
     char ret;
     extern char ds[];
     extern char PlayerNameArg[32];
@@ -570,7 +570,7 @@ int32 CONFIG_ReadSetup(void)
     if (ScreenBPP < 8) ScreenBPP = 8;
 
 #ifdef RENDERTYPEWIN
-    SCRIPT_GetNumber(scripthandle, "Screen Setup", "MaxRefreshFreq", (int32 *)&maxrefreshfreq);
+    SCRIPT_GetNumber(scripthandle, "Screen Setup", "MaxRefreshFreq", (int32_t *)&maxrefreshfreq);
 #endif
 
     SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLTextureMode", &gltexfiltermode);
@@ -627,7 +627,7 @@ int32 CONFIG_ReadSetup(void)
 
 void CONFIG_WriteSetup(void)
 {
-    int32 dummy;
+    int32_t dummy;
     char buf[80];
 
     if (scripthandle < 0)

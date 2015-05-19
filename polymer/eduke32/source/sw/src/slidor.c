@@ -66,12 +66,12 @@ void ReverseSlidor(short SpriteNum)
 }
 
 
-BOOL
+SWBOOL
 SlidorSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -150,7 +150,7 @@ short DoSlidorOperate(PLAYERp pp, short sectnum)
 // called from switches and triggers
 // returns first vator found
 short
-DoSlidorMatch(PLAYERp pp, short match, BOOL manual)
+DoSlidorMatch(PLAYERp pp, short match, SWBOOL manual)
 {
     USERp fu;
     SPRITEp fsp;
@@ -170,7 +170,7 @@ DoSlidorMatch(PLAYERp pp, short match, BOOL manual)
             fu = User[i];
 
             // single play only vator
-            // BOOL 8 must be set for message to display
+            // SWBOOL 8 must be set for message to display
             if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
                 if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp,"This only opens in single play.");
@@ -229,7 +229,7 @@ DoSlidorMatch(PLAYERp pp, short match, BOOL manual)
 }
 
 
-BOOL
+SWBOOL
 TestSlidorMatchActive(short match)
 {
     USERp fu;
@@ -540,7 +540,7 @@ int DoSlidorMove(short SpriteNum)
     int nx,ny;
     int dist,closest;
     int old_pos;
-    BOOL kill = FALSE;
+    SWBOOL kill = FALSE;
 
     r = u->rotator;
 
@@ -625,7 +625,7 @@ int DoSlidorMove(short SpriteNum)
             int i,nexti;
             SPRITEp bsp;
             USERp bu;
-            BOOL found = FALSE;
+            SWBOOL found = FALSE;
 
             TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
             {

@@ -82,8 +82,8 @@ char    token[MAXTOKEN];
 char    *scriptbuffer,*script_p,*scriptend_p;
 int     grabbed;
 int     scriptline;
-BOOL    endofscript;
-BOOL    tokenready;                     // only TRUE if UnGetToken was just called
+SWBOOL    endofscript;
+SWBOOL    tokenready;                     // only TRUE if UnGetToken was just called
 
 /*
 ==============
@@ -93,7 +93,7 @@ BOOL    tokenready;                     // only TRUE if UnGetToken was just call
 ==============
 */
 
-BOOL LoadScriptFile(char *filename)
+SWBOOL LoadScriptFile(char *filename)
 {
     int size, readsize;
     int fp;
@@ -161,7 +161,7 @@ void UnGetToken(void)
 ==============
 */
 
-void GetToken(BOOL crossline)
+void GetToken(SWBOOL crossline)
 {
     char    *token_p;
 
@@ -249,7 +249,7 @@ skipspace:
 ==============
 */
 
-BOOL TokenAvailable(void)
+SWBOOL TokenAvailable(void)
 {
     char    *search_p;
 

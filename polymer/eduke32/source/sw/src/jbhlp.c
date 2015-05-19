@@ -48,8 +48,8 @@ static char tempbuf[256];
 
 void Message(char *string, char color);
 long GetAToken(char *name, char *tc, long length);
-BYTEp BKeyPressed(VOID);
-VOID ResetKeys(VOID);
+uint8_t* BKeyPressed(void);
+void ResetKeys(void);
 
 
 // Functions

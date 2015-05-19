@@ -86,9 +86,9 @@ int DoWallMove(SPRITEp sp)
     short shade1,shade2,ang,picnum1,picnum2;
     WALLp wallp;
     short prev_wall;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
     short dang;
-    BOOL SOsprite = FALSE;
+    SWBOOL SOsprite = FALSE;
 
     dist = SP_TAG13(sp);
     ang = SP_TAG4(sp);
@@ -162,10 +162,10 @@ int DoWallMove(SPRITEp sp)
     return found;
 }
 
-BOOL CanSeeWallMove(SPRITEp wp, short match)
+SWBOOL CanSeeWallMove(SPRITEp wp, short match)
 {
     short i,nexti;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
     SPRITEp sp;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALL_MOVE_CANSEE], i, nexti)
@@ -193,7 +193,7 @@ int DoWallMoveMatch(short match)
 {
     SPRITEp sp;
     short i,nexti;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
 
     // just all with the same matching tags
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALL_MOVE], i, nexti)

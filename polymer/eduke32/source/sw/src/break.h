@@ -46,9 +46,9 @@ void SortBreakInfo(void);
 BREAK_INFOp SetupWallForBreak(WALLp wallp);
 BREAK_INFOp SetupSpriteForBreak(SPRITEp sp);
 short FindBreakSpriteMatch(short match);
-BOOL HitBreakWall(WALLp wp, int, int, int, short ang, short type);
+SWBOOL HitBreakWall(WALLp wp, int, int, int, short ang, short type);
 int HitBreakSprite(short BreakSprite, short type);
-BOOL CheckBreakToughness(BREAK_INFOp break_info, short ID);
+SWBOOL CheckBreakToughness(BREAK_INFOp break_info, short ID);
 int WallBreakPosition(short hitwall, short *sectnum, int *x, int *y, int *z, short *ang);
 void SortBreakInfo(void);
 

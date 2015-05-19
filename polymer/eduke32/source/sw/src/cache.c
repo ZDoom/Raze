@@ -46,7 +46,7 @@ not load" error messages.
 // It will save out the tile and sound number every time one caches.
 //
 // sw -map $bullet -cacheprint > foofile
-extern BOOL PreCaching;
+extern SWBOOL PreCaching;
 
 // player weaponry, item usage, etc. Precache every time.
 short Player_SCTable[] =
@@ -159,7 +159,7 @@ short Pachinko_SCTable[] =
 
 void PreCacheSoundList(short table[], int num);
 void PreCacheTable(short table[], int num);
-VOID PreCacheGhost(VOID);
+void PreCacheGhost(void);
 
 void
 SetupPreCache(void)
@@ -251,19 +251,19 @@ SetupPreCache(void)
     }
 }
 
-VOID PreCacheRipper(VOID)
+void PreCacheRipper(void)
 {
     PreCacheSoundList(Ripper_SCTable, SIZ(Ripper_SCTable));
     PreCacheRange(1580, 1644);
 }
 
-VOID PreCacheRipper2(VOID)
+void PreCacheRipper2(void)
 {
     PreCacheSoundList(Ripper2_SCTable, SIZ(Ripper2_SCTable));
     PreCacheRange(4320, 4427);
 }
 
-VOID PreCacheCoolie(VOID)
+void PreCacheCoolie(void)
 {
     PreCacheGhost();
     PreCacheSoundList(Coolie_SCTable, SIZ(Coolie_SCTable));
@@ -271,125 +271,125 @@ VOID PreCacheCoolie(VOID)
     PreCacheRange(4260, 4276); // coolie explode
 }
 
-VOID PreCacheGhost(VOID)
+void PreCacheGhost(void)
 {
     PreCacheSoundList(Ghost_SCTable, SIZ(Ghost_SCTable));
     PreCacheRange(4277, 4312);
 }
 
-VOID PreCacheSerpent(VOID)
+void PreCacheSerpent(void)
 {
     PreCacheSoundList(Serpent_SCTable, SIZ(Serpent_SCTable));
     PreCacheRange(960, 1016);
     PreCacheRange(1300, 1314);
 }
 
-VOID PreCacheGuardian(VOID)
+void PreCacheGuardian(void)
 {
     PreCacheSoundList(Guardian_SCTable, SIZ(Guardian_SCTable));
     PreCacheRange(1469,1497);
 }
 
-VOID PreCacheNinja(VOID)
+void PreCacheNinja(void)
 {
     PreCacheSoundList(Ninja_SCTable, SIZ(Ninja_SCTable));
     PreCacheRange(4096, 4239);
 }
 
-VOID PreCacheNinjaGirl(VOID)
+void PreCacheNinjaGirl(void)
 {
     //PreCacheSoundList(NinjaGirl_SCTable, SIZ(NinjaGirl_SCTable));
     PreCacheRange(5162, 5260);
 }
 
-VOID PreCacheSumo(VOID)
+void PreCacheSumo(void)
 {
     PreCacheSoundList(Sumo_SCTable, SIZ(Sumo_SCTable));
     PreCacheRange(4490, 4544);
 }
 
-VOID PreCacheZilla(VOID)
+void PreCacheZilla(void)
 {
     PreCacheSoundList(Sumo_SCTable, SIZ(Sumo_SCTable));
     PreCacheRange(4490, 4544);
 }
 
-VOID PreCacheEel(VOID)
+void PreCacheEel(void)
 {
     PreCacheRange(4430, 4479);
 }
 
-VOID PreCacheToiletGirl(VOID)
+void PreCacheToiletGirl(void)
 {
     PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(5023, 5027);
 }
 
-VOID PreCacheWashGirl(VOID)
+void PreCacheWashGirl(void)
 {
     PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(5032, 5035);
 }
 
-VOID PreCacheCarGirl(VOID)
+void PreCacheCarGirl(void)
 {
     PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(4594,4597);
 }
 
-VOID PreCacheMechanicGirl(VOID)
+void PreCacheMechanicGirl(void)
 {
     PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(4590,4593);
 }
 
-VOID PreCacheSailorGirl(VOID)
+void PreCacheSailorGirl(void)
 {
     PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(4600,4602);
 }
 
-VOID PreCachePruneGirl(VOID)
+void PreCachePruneGirl(void)
 {
     PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(4604,4604);
 }
 
-VOID PreCacheTrash(VOID)
+void PreCacheTrash(void)
 {
     PreCacheSoundList(Trash_SCTable, SIZ(Trash_SCTable));
     PreCacheRange(2540, 2546);
 }
 
-VOID PreCacheBunny(VOID)
+void PreCacheBunny(void)
 {
     PreCacheSoundList(Bunny_SCTable, SIZ(Bunny_SCTable));
     PreCacheRange(4550, 4584);
 }
 
-VOID PreCacheSkel(VOID)
+void PreCacheSkel(void)
 {
     PreCacheRange(1320, 1396);
 }
 
-VOID PreCacheHornet(VOID)
+void PreCacheHornet(void)
 {
     PreCacheSoundList(Hornet_SCTable, SIZ(Hornet_SCTable));
     PreCacheRange(800, 811);
 }
 
-VOID PreCacheSkull(VOID)
+void PreCacheSkull(void)
 {
     PreCacheSoundList(Head_SCTable, SIZ(Head_SCTable));
     PreCacheRange(820, 854);
 }
 
-VOID PreCacheBetty(VOID)
+void PreCacheBetty(void)
 {
     PreCacheRange(817, 819);
 }
 
-VOID PreCachePachinko(VOID)
+void PreCachePachinko(void)
 {
     PreCacheRange(618,623);
     PreCacheRange(618,623);
@@ -433,7 +433,7 @@ PreCacheRange(short start_pic, short end_pic)
     }
 }
 
-VOID PreCacheAmbient(VOID)
+void PreCacheAmbient(void)
 {
     int i,nexti;
     int num;
@@ -451,7 +451,7 @@ VOID PreCacheAmbient(VOID)
     }
 }
 
-VOID PreCacheOverride(VOID)
+void PreCacheOverride(void)
 {
     int i,nexti;
 
@@ -463,7 +463,7 @@ VOID PreCacheOverride(VOID)
 }
 
 
-VOID PreCacheSoundSpot(VOID)
+void PreCacheSoundSpot(void)
 {
     int i,nexti;
     int num;
@@ -489,8 +489,8 @@ VOID PreCacheSoundSpot(VOID)
     }
 }
 
-VOID
-PreCacheActor(VOID)
+void
+PreCacheActor(void)
 {
     int i;
     short pic;

@@ -33,41 +33,41 @@ typedef struct
     int MouseSpeed;
     int MusicVolume;
     int SoundVolume;
-    CHAR BorderNum;
-    CHAR Brightness;
-    CHAR BorderTile;
-    BOOL MouseAimingType;
-    BOOL MouseLook;
-    BOOL MouseInvert;
-    BOOL Bobbing;
-    BOOL Tilting;
-    BOOL Shadows;
-    BOOL AutoRun;
-    BOOL Crosshair;
-    BOOL AutoAim;
-    BOOL Messages;
-    BOOL FxOn;
-    BOOL MusicOn;
-    BOOL Talking;
-    BOOL Ambient;
-    BOOL FlipStereo;
+    int8_t BorderNum;
+    int8_t Brightness;
+    int8_t BorderTile;
+    SWBOOL MouseAimingType;
+    SWBOOL MouseLook;
+    SWBOOL MouseInvert;
+    SWBOOL Bobbing;
+    SWBOOL Tilting;
+    SWBOOL Shadows;
+    SWBOOL AutoRun;
+    SWBOOL Crosshair;
+    SWBOOL AutoAim;
+    SWBOOL Messages;
+    SWBOOL FxOn;
+    SWBOOL MusicOn;
+    SWBOOL Talking;
+    SWBOOL Ambient;
+    SWBOOL FlipStereo;
 // Net Options from Menus
-    BYTE NetGameType;   // 0=DeathMatch [spawn], 1=Cooperative 2=DeathMatch [no spawn]
-    BYTE NetLevel;      // 1-28
-    BYTE NetMonsters;   // Cycle skill levels
-    BOOL NetHurtTeammate;  // Allow friendly kills
-    BOOL NetSpawnMarkers;    // Respawn markers on/off
-    BOOL NetTeamPlay;   // Team play
-    BYTE NetKillLimit;  // Number of frags at which game ends
-    BYTE NetTimeLimit;  // Limit time of game
-    BYTE NetColor;      // Chosen color for player
-    BYTE ParentalLock;  // Parental Lock on/off
+    uint8_t NetGameType;   // 0=DeathMatch [spawn], 1=Cooperative 2=DeathMatch [no spawn]
+    uint8_t NetLevel;      // 1-28
+    uint8_t NetMonsters;   // Cycle skill levels
+    SWBOOL NetHurtTeammate;  // Allow friendly kills
+    SWBOOL NetSpawnMarkers;    // Respawn markers on/off
+    SWBOOL NetTeamPlay;   // Team play
+    uint8_t NetKillLimit;  // Number of frags at which game ends
+    uint8_t NetTimeLimit;  // Limit time of game
+    uint8_t NetColor;      // Chosen color for player
+    uint8_t ParentalLock;  // Parental Lock on/off
     char Password[20];  // Parental Lock password
-    BOOL NetNuke;
-    BOOL Voxels;
-    BOOL Stats;
-    BOOL MouseAimingOn; // whether it was on or off - NOT the type of mouse aiming
-    BOOL PlayCD;
+    SWBOOL NetNuke;
+    SWBOOL Voxels;
+    SWBOOL Stats;
+    SWBOOL MouseAimingOn; // whether it was on or off - NOT the type of mouse aiming
+    SWBOOL PlayCD;
     char OggTrackName[MAXOGGTRACKLENGTH];
 } GAME_SET, *GAME_SETp;
 

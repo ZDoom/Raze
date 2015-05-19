@@ -52,7 +52,7 @@ typedef struct
     short spawnspots[MAXMIRRORMONSTERS]; // One spot for each possible skill
     // level for a
     // max of up to 4 coolie ghosts to spawn.
-    BOOL ismagic;                       // Is this a magic mirror?
+    SWBOOL ismagic;                       // Is this a magic mirror?
     MIRRORSTATE mstate;                 // What state the mirror is currently
     // in
     int maxtics;                       // Tic count used to time mirror
@@ -65,7 +65,7 @@ extern MIRRORTYPE mirror[MAXMIRRORS];
 
 extern short mirrorcnt, floormirrorcnt;
 extern short floormirrorsector[MAXMIRRORS];
-extern BOOL mirrorinview;
+extern SWBOOL mirrorinview;
 extern short NormalVisibility;
 
 void JAnalyzeSprites(SPRITEp tspr);

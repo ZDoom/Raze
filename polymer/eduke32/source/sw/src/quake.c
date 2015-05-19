@@ -48,7 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 // only for timed quakes
 #define QUAKE_WaitForTrigger(sp) (TEST_BOOL3(sp))
 
-extern BOOL GamePaused;
+extern SWBOOL GamePaused;
 
 short CopyQuakeSpotToOn(SPRITEp sp)
 {
@@ -274,7 +274,7 @@ int SpawnQuake(short sectnum, int x, int y, int z,
     return SpriteNum;
 }
 
-BOOL
+SWBOOL
 SetQuake(PLAYERp pp, short tics, short amt)
 {
     SpawnQuake(pp->cursectnum, pp->posx, pp->posy, pp->posz,  tics, amt, 30000);
@@ -282,7 +282,7 @@ SetQuake(PLAYERp pp, short tics, short amt)
 }
 
 int
-SetExpQuake(SHORT Weapon)
+SetExpQuake(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
 
@@ -291,7 +291,7 @@ SetExpQuake(SHORT Weapon)
 }
 
 int
-SetGunQuake(SHORT SpriteNum)
+SetGunQuake(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -310,7 +310,7 @@ SetPlayerQuake(PLAYERp pp)
 }
 
 int
-SetNuclearQuake(SHORT Weapon)
+SetNuclearQuake(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
 
@@ -319,7 +319,7 @@ SetNuclearQuake(SHORT Weapon)
 }
 
 int
-SetSumoQuake(SHORT SpriteNum)
+SetSumoQuake(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
 
@@ -328,7 +328,7 @@ SetSumoQuake(SHORT SpriteNum)
 }
 
 int
-SetSumoFartQuake(SHORT SpriteNum)
+SetSumoFartQuake(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
 

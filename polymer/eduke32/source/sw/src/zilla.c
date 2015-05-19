@@ -36,7 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "fx_man.h"
 
-extern BYTE RedBookSong[40];
+extern uint8_t RedBookSong[40];
 extern short BossSpriteNum[3];
 
 ANIMATOR InitZillaCharge;
@@ -759,13 +759,13 @@ int DoZillaStomp(short SpriteNum)
     return 0;
 }
 
-extern int SpawnGrenadeExp(SHORT Weapon);
+extern int SpawnGrenadeExp(int16_t Weapon);
 
 int DoZillaDeathMelt(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    static BOOL alreadydid = FALSE;
+    static SWBOOL alreadydid = FALSE;
 
     if (RANDOM_RANGE(1000) > 800)
         SpawnGrenadeExp(SpriteNum);

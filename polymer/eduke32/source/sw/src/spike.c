@@ -33,9 +33,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sprite.h"
 
 short DoSpikeMatch(PLAYERp pp, short match);
-BOOL TestSpikeMatchActive(short match);
+SWBOOL TestSpikeMatchActive(short match);
 int DoVatorMove(short SpriteNum, int *lptr);
-VOID InterpSectorSprites(short sectnum, BOOL state);
+void InterpSectorSprites(short sectnum, SWBOOL state);
 
 void ReverseSpike(short SpriteNum)
 {
@@ -69,12 +69,12 @@ void ReverseSpike(short SpriteNum)
     u->vel_rate = -u->vel_rate;
 }
 
-BOOL
+SWBOOL
 SpikeSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -213,7 +213,7 @@ DoSpikeMatch(PLAYERp pp, short match)
 }
 
 
-BOOL
+SWBOOL
 TestSpikeMatchActive(short match)
 {
     USERp fu;
@@ -281,13 +281,13 @@ int DoSpikeMove(short SpriteNum, int *lptr)
     return 0;
 }
 
-VOID SpikeAlign(short SpriteNum)
+void SpikeAlign(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
 
     // either work on single sector or all tagged in SOBJ
-    if ((CHAR)SP_TAG7(sp) < 0)
+    if ((int8_t)SP_TAG7(sp) < 0)
     {
         if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
             alignceilslope(sp->sectnum, sp->x, sp->y, u->zclip);
@@ -303,7 +303,7 @@ VOID SpikeAlign(short SpriteNum)
     }
 }
 
-VOID MoveSpritesWithSpike(short sectnum)
+void MoveSpritesWithSpike(short sectnum)
 {
     SECTORp sectp = &sector[sectnum];
     SPRITEp sp;
@@ -406,7 +406,7 @@ int DoSpike(short SpriteNum)
             int i,nexti;
             SPRITEp bsp;
             USERp bu;
-            BOOL found = FALSE;
+            SWBOOL found = FALSE;
 
             TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
             {

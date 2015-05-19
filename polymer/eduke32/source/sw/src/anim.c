@@ -67,7 +67,7 @@ char *ANIMname[] =
 
 #define ANIM_TILE(num) (MAXTILES-11 + (num))
 
-VOID AnimShareIntro(int frame, int numframes)
+void AnimShareIntro(int frame, int numframes)
 {
     int zero=0;
 
@@ -91,7 +91,7 @@ VOID AnimShareIntro(int frame, int numframes)
     }
 }
 
-VOID AnimSerp(int frame, int numframes)
+void AnimSerp(int frame, int numframes)
 {
     int zero=0;
     ototalclock += 16;
@@ -124,7 +124,7 @@ VOID AnimSerp(int frame, int numframes)
     }
 }
 
-VOID AnimSumo(int frame, int numframes)
+void AnimSumo(int frame, int numframes)
 {
     int zero=0;
     ototalclock += 10;
@@ -154,7 +154,7 @@ VOID AnimSumo(int frame, int numframes)
     }
 }
 
-VOID AnimZilla(int frame, int numframes)
+void AnimZilla(int frame, int numframes)
 {
     int zero=0;
     ototalclock += 16;
@@ -265,7 +265,7 @@ playanm(short anim_num)
 {
     unsigned char *animbuf, *palptr;
     int i, j, k, length = 0, numframes = 0;
-    int32 handle = -1;
+    int32_t handle = -1;
     unsigned char ANIMvesapal[4*256];
     unsigned char tempbuf[256];
     unsigned char *palook_bak = palookup[0];

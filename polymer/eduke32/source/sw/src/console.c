@@ -60,13 +60,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define MAX_CONSOLE_COMMANDS    100
 #define MAX_HISTORY             20
 
-BOOL SpriteInfo = FALSE;
-extern BOOL QuitFlag;
+SWBOOL SpriteInfo = FALSE;
+extern SWBOOL QuitFlag;
 
 // FUNCTION PROTOTYPES ///////////////////////////////////////////////////////////////////////
 void CON_ProcessOptions(void);
 void CON_ClearConsole(void);
-BYTE CON_CommandCmp(const char *str1, const char *str2, int len);
+uint8_t CON_CommandCmp(const char *str1, const char *str2, int len);
 void CheatInput(void);
 
 // Modify actor routines
@@ -167,15 +167,15 @@ CON_COMMAND pre_commands[] =
 CON_COMMAND commandlist[MAX_CONSOLE_COMMANDS];  // Console command array
 CON_COMMANDp commandptr;    // Pointer to a command
 
-SHORT numcommands=0;    // Total number of commands in the command list
+int16_t numcommands=0;    // Total number of commands in the command list
 
 char command_history[MAX_HISTORY][256]; // History of what has been typed in lately
-SHORT curr_history=0; // Line currently being pointed to in the history array
-SHORT numhistory=0;
+int16_t curr_history=0; // Line currently being pointed to in the history array
+int16_t numhistory=0;
 
 // Array which stores all the user arguments passed into the game.
 static char user_args[MAX_USER_ARGS][256];
-static BYTE con_argnum=0;   // Total number of arguments that were passed into the game
+static uint8_t con_argnum=0;   // Total number of arguments that were passed into the game
 
 char con_message[80]; // Holds the current console message to send to adduserquote
 
@@ -185,7 +185,7 @@ char con_message[80]; // Holds the current console message to send to adduserquo
 //
 // Frank's neato input string checker, useful for my stuff too.
 //
-BYTE CON_CommandCmp(const char *str1, const char *str2, int len)
+uint8_t CON_CommandCmp(const char *str1, const char *str2, int len)
 {
     const char *cp1 = str1;
     const char *cp2 = str2;
@@ -208,7 +208,7 @@ BYTE CON_CommandCmp(const char *str1, const char *str2, int len)
     return TRUE;
 }
 
-BOOL IsCommand(char *str)
+SWBOOL IsCommand(char *str)
 {
     int i;
     char first[512];
@@ -279,9 +279,9 @@ void CON_StoreArg(const char *userarg)
 //
 // Checkes the user command array to see if user did in fact pass in a particular argument
 //
-BOOL CON_CheckParm(const char *userarg)
+SWBOOL CON_CheckParm(const char *userarg)
 {
-    SHORT i;
+    int16_t i;
 
     for (i=0; i<con_argnum; i++)
     {
@@ -322,7 +322,7 @@ void CON_AddHistory(const char *commandstr)
 //
 // Adds a command name to the command list and assigns the appropriate function pointer
 //
-BOOL CON_AddCommand(const char *command, void (*function)(void))
+SWBOOL CON_AddCommand(const char *command, void (*function)(void))
 {
     if (command != NULL && function != NULL && numcommands < MAX_CONSOLE_COMMANDS)
     {
@@ -347,7 +347,7 @@ BOOL CON_AddCommand(const char *command, void (*function)(void))
 //
 void CON_ProcessUserCommand(void)
 {
-    SHORT i=0;
+    int16_t i=0;
     char temp_message[256],command_str[256];
 
     strcpy(temp_message,MessageInputString);
@@ -414,7 +414,7 @@ void CON_ClearConsole(void)
 // The user console programming function library ////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-BOOL CheckValidSprite(short SpriteNum)
+SWBOOL CheckValidSprite(short SpriteNum)
 {
     if (SpriteNum < 0 || SpriteNum > 6144)
     {
@@ -467,7 +467,7 @@ void CON_GetHelp(void)
 void CON_ModXrepeat(void)
 {
     char base[80];
-    SHORT op1=64,op2=-1,op3=-1;
+    int16_t op1=64,op2=-1,op3=-1;
     short i;
 
 
@@ -515,7 +515,7 @@ void CON_ModXrepeat(void)
 void CON_ModYrepeat(void)
 {
     char base[80];
-    SHORT op1=64,op2=-1,op3=-1;
+    int16_t op1=64,op2=-1,op3=-1;
     short i;
 
 
@@ -563,7 +563,7 @@ void CON_ModYrepeat(void)
 void CON_ModTranslucent(void)
 {
     char base[80];
-    SHORT op1=0;
+    int16_t op1=0;
     SPRITEp sp;
     USERp u;
 
@@ -597,7 +597,7 @@ void CON_SoundTest(void)
     int handle;
     int zero=0;
     char base[80];
-    SHORT op1=0;
+    int16_t op1=0;
 
     // Format: sound [number]
     if (sscanf(MessageInputString,"%s %hd",base,&op1) < 2)
@@ -620,7 +620,7 @@ void CON_SoundTest(void)
 void CON_Reverb(void)
 {
     char base[80];
-    SHORT op1=0;
+    int16_t op1=0;
     PLAYERp pp = Player + screenpeek;
 
     // Format: reverb [number]
@@ -1008,7 +1008,7 @@ void CON_SpriteInfo(void)
 void CON_KillSprite(void)
 {
     char base[80];
-    SHORT op1=0;
+    int16_t op1=0;
     SPRITEp sp;
     short i;
     USERp u;
@@ -1044,7 +1044,7 @@ void CON_KillSprite(void)
 void CON_SpriteDetail(void)
 {
     char base[80];
-    SHORT op1=0;
+    int16_t op1=0;
     SPRITEp sp;
     short i;
 
@@ -1073,7 +1073,7 @@ void CON_SpriteDetail(void)
 void CON_UserDetail(void)
 {
     char base[80];
-    SHORT op1=0;
+    int16_t op1=0;
     SPRITEp sp;
     short i;
     USERp u;
@@ -1195,7 +1195,7 @@ void CON_DamageData(void)
 {
 
     char base[80],field[80];
-    SHORT op1=0;
+    int16_t op1=0;
     unsigned int op2, i;
     SPRITEp sp;
     USERp u;
@@ -1263,7 +1263,7 @@ void CON_DamageData(void)
 
 void CON_WinPachinko(void)
 {
-    extern BOOL Pachinko_Win_Cheat;
+    extern SWBOOL Pachinko_Win_Cheat;
     PLAYERp pp = Player + myconnectindex;
     extern void CheckSndData(char *file, int line);
 
@@ -1389,7 +1389,7 @@ void CON_DumpHeap(void)
 void CON_ShowMirror(void)
 {
     char base[80];
-    SHORT op1=0;
+    int16_t op1=0;
 
     // Format: showmirror [SpriteNum]
     if (sscanf(MessageInputString,"%s %hd",base,&op1) < 2)

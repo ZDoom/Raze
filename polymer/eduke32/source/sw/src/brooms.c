@@ -40,8 +40,8 @@ extern short ang;
 extern int horiz;
 extern int qsetmode;
 
-BOOL FindCeilingView(short match, LONGp x, LONGp y, LONG z, SHORTp sectnum);
-BOOL FindFloorView(short match, LONGp x, LONGp y, LONG z, SHORTp sectnum);
+SWBOOL FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum);
+SWBOOL FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum);
 short ViewSectorInScene(short cursectnum, short type, short level);
 void Message(char *string, char color);
 
@@ -65,24 +65,24 @@ _Assert(char *expr, char *strFile, unsigned uLine)
 #define ZMAX 400
 typedef struct
 {
-    LONG zval[ZMAX];
-    SHORT sectnum[ZMAX];
-    SHORT pic[ZMAX];
-    SHORT slope[ZMAX];
-    SHORT zcount;
+    int32_t zval[ZMAX];
+    int16_t sectnum[ZMAX];
+    int16_t pic[ZMAX];
+    int16_t slope[ZMAX];
+    int16_t zcount;
 } SAVE, *SAVEp;
 
 SAVE save;
 
-BOOL FAF_DebugView = 0;
-BOOL FAFon = 0;
-BOOL FAF_DontMoveSectors = FALSE;
+SWBOOL FAF_DebugView = 0;
+SWBOOL FAFon = 0;
+SWBOOL FAF_DontMoveSectors = FALSE;
 
 short bak_searchsector, bak_searchwall, bak_searchstat;
 extern short searchsector, searchwall, searchstat, searchit;
 
-VOID SetupBuildFAF(VOID);
-VOID ResetBuildFAF(VOID);
+void SetupBuildFAF(void);
+void ResetBuildFAF(void);
 
 void ToggleFAF(void)
 {
@@ -174,8 +174,8 @@ void FAF_AfterDrawRooms(void)
     }
 }
 
-VOID
-SetupBuildFAF(VOID)
+void
+SetupBuildFAF(void)
 {
     short i, nexti;
     SPRITEp sp,vc_sp,vf_sp,vl_sp;
@@ -315,8 +315,8 @@ SetupBuildFAF(VOID)
 
 }
 
-VOID
-ResetBuildFAF(VOID)
+void
+ResetBuildFAF(void)
 {
     short i, nexti;
     SPRITEp sp;
@@ -354,8 +354,8 @@ ResetBuildFAF(VOID)
 }
 
 
-BOOL
-PicInView(short tile_num, BOOL reset)
+SWBOOL
+PicInView(short tile_num, SWBOOL reset)
 {
     if (TEST(gotpic[tile_num >> 3], 1 << (tile_num & 7)))
     {
@@ -385,7 +385,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
         {
             if (inside(x, y, (short) i) == 1)
             {
-                BOOL found = FALSE;
+                SWBOOL found = FALSE;
 
                 TRAVERSE_SPRITE_SECT(headspritesect[i], SpriteNum, Next)
                 {
@@ -448,8 +448,8 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     }
 }
 
-BOOL
-FindCeilingView(short match, LONGp x, LONGp y, LONG z, SHORTp sectnum)
+SWBOOL
+FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 {
     int xoff = 0;
     int yoff = 0;
@@ -538,8 +538,8 @@ FindCeilingView(short match, LONGp x, LONGp y, LONG z, SHORTp sectnum)
     return TRUE;
 }
 
-BOOL
-FindFloorView(short match, LONGp x, LONGp y, LONG z, SHORTp sectnum)
+SWBOOL
+FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 {
     int xoff = 0;
     int yoff = 0;
@@ -631,7 +631,7 @@ FindFloorView(short match, LONGp x, LONGp y, LONG z, SHORTp sectnum)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 SectorInScene(short tile_num)
 {
     if (TEST(gotsector[tile_num >> 3], 1 << (tile_num & 7)))
@@ -677,7 +677,7 @@ ViewSectorInScene(short cursectnum, short type, short level)
     return -1;
 }
 
-VOID
+void
 DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
 {
     short i;

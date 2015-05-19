@@ -77,22 +77,22 @@ void PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags);
 void DeleteNoSoundOwner(short spritenum);
 void DeleteNoFollowSoundOwner(short spritenum);
 
-BOOL CacheSound(int num, int type);
+SWBOOL CacheSound(int num, int type);
 void COVER_SetReverb(int amt);
-VOID UnInitSound(VOID);
+void UnInitSound(void);
 void InitFX(void);
-VOID InitMusic(VOID);
-VOID StopFX(VOID);
+void InitMusic(void);
+void StopFX(void);
 void FlipStereo(void);
 void StopSong(void);
-void PauseSong(BOOL pauseon);
+void PauseSong(SWBOOL pauseon);
 void StopSound(void);
 void StartAmbientSound(void);
 void StopAmbientSound(void);
-BOOL PlaySong(char *song_file_name, int cdaudio_track, BOOL loop, BOOL restart);
+SWBOOL PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart);
 void SetSongVolume(int volume);
-BOOL SongIsPlaying(void);
-VOID PlaySoundRTS(int rts_num);
+SWBOOL SongIsPlaying(void);
+void PlaySoundRTS(int rts_num);
 
 //
 // Standard VOC format information - generally don't need this
@@ -100,20 +100,20 @@ VOID PlaySoundRTS(int rts_num);
 
 typedef struct
 {
-    BYTE filler[0x1a];
-    BYTE type;
-    WORD length;
-    BYTE filler2;
-    BYTE freq;
-    BYTE pack;
-    BYTE data[1];
+    uint8_t filler[0x1a];
+    uint8_t type;
+    uint32_t length;
+    uint8_t filler2;
+    uint8_t freq;
+    uint8_t pack;
+    uint8_t data[1];
 } *VOC_HDRp;
 
 // Ambient Sound Structure
 struct ambientstruct
 {
-    SHORT name;
-    SHORT diginame;
+    int16_t name;
+    int16_t diginame;
     Voc3D_Flags ambient_flags;
     int maxtics;                       // When tics reaches this number next
     // sound happens
@@ -137,16 +137,16 @@ typedef enum
 struct VOCstruct
 {
     char name[14];                      // name of voc file on disk
-    BYTEp data;                         // pointer to voc data
+    uint8_t* data;                         // pointer to voc data
     int datalen;                        // length of voc data
-    SHORT pitch_lo;                     // lo pitch value
-    SHORT pitch_hi;                     // hi pitch value
-    BYTE priority;                      // priority at which vocs are played
-    SHORT voc_num;                      // Backward reference to parent sound
+    int16_t pitch_lo;                     // lo pitch value
+    int16_t pitch_hi;                     // hi pitch value
+    uint8_t priority;                      // priority at which vocs are played
+    int16_t voc_num;                      // Backward reference to parent sound
     int voc_distance;                   // Sound's distance effectiveness
     Voc_Flags voc_flags;                // Various allowable flag settings for voc
-    BYTE lock;                          // locking byte for caching
-    BYTE playing;                       // number of this type of sound currently playing
+    uint8_t lock;                          // locking byte for caching
+    uint8_t playing;                       // number of this type of sound currently playing
 };
 
 
@@ -169,12 +169,12 @@ struct VOC3Dstruct
     // callback of looping sounds
     // If sound is active but user == 0, stop the sound
     short dist;                         // Current distance of sound from player
-    BYTE priority;                      // Used to force a higher priority based on distance
+    uint8_t priority;                      // Used to force a higher priority based on distance
     int tics;                          // Tics used to count to next sound occurance
     int maxtics;                       // Tics until next sound occurance
     // for intermittent sounds
-    BOOL deleted;                       // Has sound been marked for deletion?
-    BOOL FX_Ok;                         // Did this sound play ok?
+    SWBOOL deleted;                       // Has sound been marked for deletion?
+    SWBOOL FX_Ok;                         // Did this sound play ok?
 };
 
 extern VOC_INFO voc[];

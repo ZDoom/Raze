@@ -39,11 +39,11 @@ typedef enum
     ct_quitmenu, ct_ordermenu, ct_episodemenu, ct_max
 } CTLType;
 
-extern BOOL UsingMenus;
+extern SWBOOL UsingMenus;
 extern int SENSITIVITY;
 extern CTLType ControlPanelType;
-extern SHORT MenuTextShade;
-extern SHORT MenuTextPalette;
+extern int16_t MenuTextShade;
+extern int16_t MenuTextPalette;
 
 // Prototypes
 //void MNU_DoMenu( CTLType type, PLAYERp pp );
@@ -67,10 +67,10 @@ void MNU_DrawStringLarge(short x, short y, const char *string);
 //void Fade_Timer(int clicks);
 void FadeIn(unsigned char targetcolor, unsigned int clicks);
 void FadeOut(unsigned char targetcolor, unsigned int clicks);
-VOID ResetPalette(PLAYERp pp);
+void ResetPalette(PLAYERp pp);
 
 void ExitMenus(void);
-VOID ResetMenuInput(VOID);
+void ResetMenuInput(void);
 
 #define BUTTONSET(x,value) \
     ( \
@@ -79,9 +79,9 @@ VOID ResetMenuInput(VOID);
         (CONTROL_ButtonState1 |= (value<<(x))) \
     )
 
-extern BOOL BorderAdjust;
+extern SWBOOL BorderAdjust;
 extern int FXDevice,MusicDevice;
-extern BOOL MultiPlayQuitFlag;
+extern SWBOOL MultiPlayQuitFlag;
 
 // Make memcpy an intrinsic function for an easy frame rate boost
 //#pragma intrinsic( memcpy );
@@ -259,10 +259,10 @@ typedef struct MENU_ITEM
     short pic;                        // Startpic to use
     char shade;                         // Shade of pic
     int tics;                          // Ticcount for item
-    BOOL(*custom)(void);               // Work function on item select
+    SWBOOL(*custom)(void);               // Work function on item select
 
-    BOOL (*preprocess)(struct MENU_ITEM *);
-    BOOL (*postprocess)(struct MENU_ITEM *); // Can do things on items select
+    SWBOOL (*preprocess)(struct MENU_ITEM *);
+    SWBOOL (*postprocess)(struct MENU_ITEM *); // Can do things on items select
 } MenuItem, *MenuItem_p;
 
 typedef struct
@@ -275,8 +275,8 @@ typedef struct
     // anim sequence if animated.
     char shade;                         // Title pic shade
 
-    BOOL(*draw_custom)(UserCall, MenuItem *);       // Custom routine
-    BOOL(*move_custom)(UserCall, MenuItem *);       // Custom routine
+    SWBOOL(*draw_custom)(UserCall, MenuItem *);       // Custom routine
+    SWBOOL(*move_custom)(UserCall, MenuItem *);       // Custom routine
 
     short cursor;                       // This is the current menu item the
     // cursor is resting on.
@@ -284,37 +284,37 @@ typedef struct
 
 // Custom Routine Prototypes ////////////////////////////////////////////////////////////////////
 
-BOOL MNU_QuitCustom(UserCall call, MenuItem *item);
-BOOL MNU_QuickLoadCustom(UserCall call, MenuItem *item);
-BOOL MNU_LoadSaveTouchupCustom(UserCall call, MenuItem *item);
-BOOL MNU_DoParentalPassword(UserCall call, MenuItem *item);
-BOOL MNU_OrderCustom(UserCall call, MenuItem *item);
-BOOL MNU_DoEpisodeSelect(UserCall call, MenuItem *item);
+SWBOOL MNU_QuitCustom(UserCall call, MenuItem *item);
+SWBOOL MNU_QuickLoadCustom(UserCall call, MenuItem *item);
+SWBOOL MNU_LoadSaveTouchupCustom(UserCall call, MenuItem *item);
+SWBOOL MNU_DoParentalPassword(UserCall call, MenuItem *item);
+SWBOOL MNU_OrderCustom(UserCall call, MenuItem *item);
+SWBOOL MNU_DoEpisodeSelect(UserCall call, MenuItem *item);
 
-BOOL MNU_MusicFxCheck(MenuItem_p item);
-BOOL MNU_MusicCheck(MenuItem_p item);
-BOOL MNU_FxCheck(MenuItem_p item);
-BOOL MNU_MouseCheck(MenuItem_p item);
-BOOL MNU_JoystickCheck(MenuItem_p item);
-BOOL MNU_BorderCheck(MenuItem_p item);
-BOOL MNU_ShareWareCheck(MenuItem_p item);
-BOOL MNU_MenuLevelCheck(MenuItem_p item);
-BOOL MNU_ShareWareMessage(MenuItem_p item);
+SWBOOL MNU_MusicFxCheck(MenuItem_p item);
+SWBOOL MNU_MusicCheck(MenuItem_p item);
+SWBOOL MNU_FxCheck(MenuItem_p item);
+SWBOOL MNU_MouseCheck(MenuItem_p item);
+SWBOOL MNU_JoystickCheck(MenuItem_p item);
+SWBOOL MNU_BorderCheck(MenuItem_p item);
+SWBOOL MNU_ShareWareCheck(MenuItem_p item);
+SWBOOL MNU_MenuLevelCheck(MenuItem_p item);
+SWBOOL MNU_ShareWareMessage(MenuItem_p item);
 
 // Custom MenuItem Routines /////////////////////////////////////////////////////////////////////
 
-BOOL MNU_StartGame(void);
-BOOL MNU_StartNetGame(void);
-BOOL MNU_EpisodeCustom(void);
-BOOL MNU_GetDescripCustom(void);
-BOOL MNU_LoadGameCustom(void);
-BOOL MNU_SaveGameCustom(void);
-BOOL MNU_GetLoadCustom(void);
-BOOL MNU_GetSaveCustom(void);
-BOOL MNU_ParentalCustom(void);
-BOOL MNU_KeySetupCustom(UserCall call, MenuItem *item);
-BOOL MNU_LoadModernDefaults(void);
-BOOL MNU_LoadClassicDefaults(void);
+SWBOOL MNU_StartGame(void);
+SWBOOL MNU_StartNetGame(void);
+SWBOOL MNU_EpisodeCustom(void);
+SWBOOL MNU_GetDescripCustom(void);
+SWBOOL MNU_LoadGameCustom(void);
+SWBOOL MNU_SaveGameCustom(void);
+SWBOOL MNU_GetLoadCustom(void);
+SWBOOL MNU_GetSaveCustom(void);
+SWBOOL MNU_ParentalCustom(void);
+SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item);
+SWBOOL MNU_LoadModernDefaults(void);
+SWBOOL MNU_LoadClassicDefaults(void);
 
 // Menu Definitions /////////////////////////////////////////////////////////////////////////////
 

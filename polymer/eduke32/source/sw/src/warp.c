@@ -37,9 +37,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-extern BOOL Prediction;
+extern SWBOOL Prediction;
 
-BOOL
+SWBOOL
 WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
 {
     int i,nexti;
@@ -79,7 +79,7 @@ WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
 }
 
 SPRITEp
-WarpPlane(LONGp x, LONGp y, LONGp z, SHORTp sectnum)
+WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 {
     SPRITEp sp_floor, sp_ceiling;
 
@@ -109,7 +109,7 @@ WarpPlane(LONGp x, LONGp y, LONGp z, SHORTp sectnum)
 }
 
 SPRITEp
-WarpToArea(SPRITEp sp_from, LONGp x, LONGp y, LONGp z, SHORTp sectnum)
+WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 {
     int xoff;
     int yoff;
@@ -207,7 +207,7 @@ WarpToArea(SPRITEp sp_from, LONGp x, LONGp y, LONGp z, SHORTp sectnum)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOL
+SWBOOL
 WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
 {
     int i,nexti;
@@ -239,7 +239,7 @@ WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
 }
 
 SPRITEp
-Warp(LONGp x, LONGp y, LONGp z, SHORTp sectnum)
+Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 {
     SPRITEp sp_warp;
 

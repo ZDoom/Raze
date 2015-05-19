@@ -28,40 +28,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define TYPES_H
 
-// CTW ADDITION (from Duke 3d TYPES.H)
-typedef unsigned char           uint8;
-typedef uint8                   byte;
-typedef signed char             int8;
-
-typedef unsigned short int      uint16;
-typedef uint16                  word;
-typedef short int               int16;
-
-typedef unsigned int            uint32;
-typedef int                     int32;
-typedef uint32                  dword;
-
-typedef int32                   fixed;
-typedef int32                   boolean;
-typedef float                   float32;
-typedef double                  float64;
-//typedef long double             float128;
-typedef float64                 appfloat;
-
-#define MAXINT32                0x7fffffff
-#define MININT32                -0x80000000
-#define MAXUINT32               0xffffffff
-#define MINUINT32               0
-
-#define MAXINT16                0x7fff
-#define MININT16                -0x8000
-#define MAXUINT16               0xffff
-#define MINUINT16               0
-// CTW ADDITION END
-
+#ifndef FALSE
 #define FALSE   0
+#endif
+#ifndef TRUE
 #define TRUE    (!FALSE)
-
+#endif
 #ifndef NULL
 #define NULL 0
 #endif
@@ -69,135 +41,7 @@ typedef float64                 appfloat;
 #define OFF     0
 #define ON     (!OFF)
 
-typedef unsigned char BOOL;
-typedef BOOL     *BOOLp;
-typedef BOOL     *fBOOLp;
-
-
-typedef signed char CHAR;
-typedef CHAR   *CHARp;
-typedef CHAR   *fCHARp;
-
-#define MINCHAR ((CHAR) -128)
-#define MAXCHAR ((CHAR)  127)
-
-
-typedef short SHORT;
-typedef SHORT  *SHORTp;
-typedef SHORT  *fSHORTp;
-
-typedef unsigned short USHORT;
-typedef USHORT  *USHORTp;
-typedef USHORT  *fUSHORTp;
-
-typedef unsigned char UCHAR;
-typedef UCHAR    *UCHARp;
-typedef UCHAR    *fUCHARp;
-
-#define MINUCHAR ((UCHAR) 0)
-#define MAXUCHAR ((UCHAR) 255)
-
-
-typedef  UCHARp  TEXT;
-typedef fUCHARp fTEXT;
-
-
-typedef UCHAR      BYTE;
-typedef BYTE  *BYTEp;
-typedef BYTE  *fBYTEp;
-
-#define MINBYTE ((BYTE) 0)
-#define MAXBYTE ((BYTE) 255)
-
-
-typedef int       INT;
-typedef int  *INTp;
-typedef int  *fINTp;
-
-#define MININT (-32768)
-#define MAXINT   32767
-
-typedef unsigned int WORD;
-typedef WORD    *WORDp;
-typedef WORD    *fWORDp;
-
-#define MINWORD ((WORD)     0)
-#define MAXWORD ((WORD) 65535U)
-
-
-typedef int       LONG;
-typedef LONG  *LONGp;
-typedef LONG  *fLONGp;
-
-typedef
-    union
-{
-    LONG l;
-    struct
-    {
-        WORD lsw;
-        WORD msw;
-    } w;
-} DD, * DDp,  * fDDp;
-
-#define MINLONG (-2147483648L)
-#define MAXLONG  (2147483647L)
-
-
-typedef unsigned int ULONG;
-typedef ULONG    *ULONGp;
-typedef ULONG    *fULONGp;
-
-#define MINULONG (0L)
-#define MAXULONG (ULONG(-1))
-
-typedef float       FLOAT;
-typedef FLOAT  *FLOATp;
-typedef FLOAT  *fFLOATp;
-
-
-#define VOID void
-
-typedef VOID  *nPTR;
-typedef VOID   *fPTR;
-
-#if 0
-#define  FN   pascal
-#define fFN    pascal
-#define cFN   cdecl
-#define fcFN  cdecl
-#else
-#define FN
-#define fFN
-#define cFN
-#define fcFN
-#endif
-
-typedef VOID   FN VOIDfn (VOID);
-typedef BOOL   FN BOOLfn (VOID);
-typedef CHAR   FN CHARfn (VOID);
-typedef SHORT  FN SHORTfn (VOID);
-typedef UCHAR  FN UCHARfn (VOID);
-typedef TEXT   FN TEXTfn (VOID);
-typedef fTEXT  FN fTEXTfn (VOID);
-typedef BYTE   FN BYTEfn (VOID);
-typedef int    FN INTfn (VOID);
-typedef WORD   FN WORDfn (VOID);
-typedef LONG   FN LONGfn (VOID);
-typedef ULONG  FN ULONGfn (VOID);
-
-typedef VOID  fFN VOIDfFN (VOID);
-typedef BOOL  fFN BOOLfFN (VOID);
-typedef CHAR  fFN CHARfFN (VOID);
-typedef SHORT fFN SHORTfFN (VOID);
-typedef UCHAR fFN UCHARfFN (VOID);
-typedef TEXT  fFN TEXTfFN (VOID);
-typedef fTEXT fFN fTEXTfFN (VOID);
-typedef BYTE  fFN BYTEfFN (VOID);
-typedef int   fFN INTfFN (VOID);
-typedef WORD  fFN WORDfFN (VOID);
-typedef LONG  fFN LONGfFN (VOID);
-typedef ULONG fFN ULONGfFN (VOID);
+typedef unsigned char SWBOOL;
 
 /*
 ===========================

@@ -935,7 +935,7 @@ DoPickCloseBunny(short SpriteNum)
 
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
-    BOOL ICanSee = FALSE;
+    SWBOOL ICanSee = FALSE;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
     {

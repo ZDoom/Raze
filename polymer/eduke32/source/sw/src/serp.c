@@ -34,7 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "sector.h"
 
-extern BYTE RedBookSong[40];
+extern uint8_t RedBookSong[40];
 extern short BossSpriteNum[3];
 
 DECISION SerpBattle[] =
@@ -811,7 +811,7 @@ int DoDeathSpecial(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    static BOOL alreadydid = FALSE;
+    static SWBOOL alreadydid = FALSE;
 
     DoMatchEverything(NULL, sp->lotag, ON);
 

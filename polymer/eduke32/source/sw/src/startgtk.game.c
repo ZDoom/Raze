@@ -714,7 +714,7 @@ int startwin_idle(void *s)
     return 0;
 }
 
-extern int32 ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, ForceSetup, UseMouse, UseJoystick;
+extern int32_t ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, ForceSetup, UseMouse, UseJoystick;
 extern char *grpfile;   // game.c
 
 int startwin_run(void)

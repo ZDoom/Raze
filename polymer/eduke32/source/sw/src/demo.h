@@ -25,21 +25,21 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //-------------------------------------------------------------------------
 
 extern FILE *DemoFile;
-extern BOOL DemoPlaying;
-extern BOOL DemoRecording;
-extern BOOL DemoEdit;
-extern BOOL DemoMode;
-extern BOOL DemoOverride;
+extern SWBOOL DemoPlaying;
+extern SWBOOL DemoRecording;
+extern SWBOOL DemoEdit;
+extern SWBOOL DemoMode;
+extern SWBOOL DemoOverride;
 extern char DemoFileName[16];
 extern char DemoLevelName[16];
 
 extern FILE *DemoSyncFile;
-extern BOOL DemoSyncTest;
-extern BOOL DemoSyncRecord;
+extern SWBOOL DemoSyncTest;
+extern SWBOOL DemoSyncRecord;
 extern char DemoTmpName[16];
 
-extern BOOL DemoDebugMode;
-extern BOOL DemoInitOnce;
+extern SWBOOL DemoDebugMode;
+extern SWBOOL DemoInitOnce;
 extern short DemoDebugBufferMax;
 
 #define DEMO_BUFFER_MAX 2048

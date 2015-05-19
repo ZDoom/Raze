@@ -48,8 +48,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "player.h"
 
 
-BOOL FAF_Sector(short sectnum);
-BOOL MoveSkip4, MoveSkip2, MoveSkip8;
+SWBOOL FAF_Sector(short sectnum);
+SWBOOL MoveSkip4, MoveSkip2, MoveSkip8;
 
 extern STATE s_CarryFlag[];
 extern STATE s_CarryFlagNoDet[];
@@ -57,10 +57,10 @@ extern STATE s_CarryFlagNoDet[];
 static int globhiz, globloz, globhihit, globlohit;
 short wait_active_check_offset;
 int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
-void SetSectorWallBits(short sectnum, int bit_mask, BOOL set_sectwall, BOOL set_nextwall);
+void SetSectorWallBits(short sectnum, int bit_mask, SWBOOL set_sectwall, SWBOOL set_nextwall);
 int DoActorDebris(short SpriteNum);
 void ActorWarpUpdatePos(short SpriteNum,short sectnum);
-VOID ActorWarpType(SPRITEp sp, SPRITEp sp_warp);
+void ActorWarpType(SPRITEp sp, SPRITEp sp_warp);
 int MissileZrange(short SpriteNum);
 
 #define ACTIVE_CHECK_TIME (3*120)
@@ -68,7 +68,7 @@ int MissileZrange(short SpriteNum);
 /*
 short GetDeltaAngle(short ang1, short ang2);
 short GetRotation(short sn);
-int StateControl(SHORT SpriteNum);
+int StateControl(int16_t SpriteNum);
 void PreCacheRange(short, short);
 */
 
@@ -100,7 +100,7 @@ STATE s_DebrisStarFish[] =
     {426, 100, DoActorDebris, &s_DebrisStarFish[0]},
 };
 
-extern BOOL DebugActor;
+extern SWBOOL DebugActor;
 extern int score;
 
 ANIMATOR DoGet, DoKey, DoSpriteFade;
@@ -542,7 +542,7 @@ STATE s_IconFlag[] =
     {ICON_FLAG + 2, 32, DoGet, &s_IconFlag[0]}
 };
 
-VOID
+void
 SetOwner(short owner, short child)
 {
     SPRITEp op;
@@ -569,7 +569,7 @@ SetOwner(short owner, short child)
     cp->owner = owner;
 }
 
-VOID
+void
 SetAttach(short owner, short child)
 {
     SPRITEp op = &sprite[owner];
@@ -583,8 +583,8 @@ SetAttach(short owner, short child)
     cu->Attach = owner;
 }
 
-VOID
-KillSprite(SHORT SpriteNum)
+void
+KillSprite(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -770,7 +770,7 @@ KillSprite(SHORT SpriteNum)
     sp->sectnum = sectnum;
 }
 
-VOID ChangeState(short SpriteNum, STATEp statep)
+void ChangeState(short SpriteNum, STATEp statep)
 {
     USERp u = User[SpriteNum];
 
@@ -780,7 +780,7 @@ VOID ChangeState(short SpriteNum, STATEp statep)
     PicAnimOff(u->State->Pic);
 }
 
-VOID
+void
 change_sprite_stat(short SpriteNum, short stat)
 {
     USERp u = User[SpriteNum];
@@ -909,11 +909,11 @@ GetSectUser(short sectnum)
 }
 
 
-SHORT
+int16_t
 SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int init_ang, int vel)
 {
     SPRITEp sp;
-    SHORT SpriteNum;
+    int16_t SpriteNum;
     USERp u;
 
     ASSERT(!Prediction);
@@ -959,7 +959,7 @@ SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int
     return SpriteNum;
 }
 
-VOID
+void
 PicAnimOff(short picnum)
 {
     int i;
@@ -984,7 +984,7 @@ PicAnimOff(short picnum)
     RESET(picanm[picnum], TILE_ANIM_TYPE);
 }
 
-BOOL
+SWBOOL
 IconSpawn(SPRITEp sp)
 {
     // if multi item and not a modem game
@@ -997,7 +997,7 @@ IconSpawn(SPRITEp sp)
     return TRUE;
 }
 
-BOOL
+SWBOOL
 ActorTestSpawn(SPRITEp sp)
 {
     if (sp->statnum == STAT_DEFAULT && sp->lotag == TAG_SPAWN_ACTOR)
@@ -1054,25 +1054,25 @@ ActorTestSpawn(SPRITEp sp)
 }
 
 
-VOID PreCacheRipper(VOID);
-VOID PreCacheRipper2(VOID);
-VOID PreCacheCoolie(VOID);
-VOID PreCacheSerpent(VOID);
-VOID PreCacheGuardian(VOID);
-VOID PreCacheNinja(VOID);
-VOID PreCacheSumo(VOID);
-VOID PreCacheEel(VOID);
-VOID PreCacheToiletGirl(VOID);
-VOID PreCacheWashGirl(VOID);
-VOID PreCacheTrash(VOID);
-VOID PreCacheBunny(VOID);
-VOID PreCacheSkel(VOID);
-VOID PreCacheHornet(VOID);
-VOID PreCacheSkull(VOID);
-VOID PreCacheBetty(VOID);
-VOID PreCachePachinko(VOID);
+void PreCacheRipper(void);
+void PreCacheRipper2(void);
+void PreCacheCoolie(void);
+void PreCacheSerpent(void);
+void PreCacheGuardian(void);
+void PreCacheNinja(void);
+void PreCacheSumo(void);
+void PreCacheEel(void);
+void PreCacheToiletGirl(void);
+void PreCacheWashGirl(void);
+void PreCacheTrash(void);
+void PreCacheBunny(void);
+void PreCacheSkel(void);
+void PreCacheHornet(void);
+void PreCacheSkull(void);
+void PreCacheBetty(void);
+void PreCachePachinko(void);
 
-BOOL
+SWBOOL
 ActorSpawn(SPRITEp sp)
 {
     int ret = TRUE;
@@ -1550,7 +1550,7 @@ ActorSpawn(SPRITEp sp)
 }
 
 
-VOID
+void
 IconDefault(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
@@ -1565,13 +1565,13 @@ IconDefault(short SpriteNum)
     DoActorZrange(SpriteNum);
 }
 
-VOID PreMapCombineFloors(VOID)
+void PreMapCombineFloors(void)
 {
 #define MAX_FLOORS 32
     SPRITEp sp;
     int xoff,yoff;
     int i, j, k;
-    SHORT SpriteNum, NextSprite;
+    int16_t SpriteNum, NextSprite;
     WALLp wp;
     int base_offset;
     PLAYERp pp = &Player[myconnectindex];
@@ -1678,7 +1678,7 @@ VOID PreMapCombineFloors(VOID)
 
 #if 0
 // example of way to traverse through sectors from closest to farthest
-VOID TraverseSectors(short start_sect)
+void TraverseSectors(short start_sect)
 {
     int i, j, k;
     short sectlist[MAXSECTORS];
@@ -1729,8 +1729,8 @@ VOID TraverseSectors(short start_sect)
 #endif
 
 
-VOID
-SpriteSetupPost(VOID)
+void
+SpriteSetupPost(void)
 {
     SPRITEp ds;
     USERp u;
@@ -1774,8 +1774,8 @@ SpriteSetupPost(VOID)
 }
 
 
-VOID
-SpriteSetup(VOID)
+void
+SpriteSetup(void)
 {
     SPRITEp sp;
     short SpriteNum = 0, NextSprite, ndx;
@@ -2565,7 +2565,7 @@ SpriteSetup(VOID)
                     short w, startwall, endwall;
                     short wallcount;
                     void *void_ptr;
-                    CHARp wall_shade;
+                    int8_t* wall_shade;
                     USERp u;
 
                     LIGHT_Tics(sp) = 0;
@@ -2622,7 +2622,7 @@ SpriteSetup(VOID)
                     short w, startwall, endwall;
                     short wallcount;
                     void *void_ptr;
-                    CHARp wall_shade;
+                    int8_t* wall_shade;
                     USERp u;
 
                     LIGHT_Tics(sp) = 0;
@@ -3804,9 +3804,9 @@ NUKE_REPLACEMENT:
     }
 }
 
-BOOL ItemSpotClear(SPRITEp sip, short statnum, short id)
+SWBOOL ItemSpotClear(SPRITEp sip, short statnum, short id)
 {
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
     short i,nexti;
 
     if (TEST_BOOL2(sip))
@@ -3824,7 +3824,7 @@ BOOL ItemSpotClear(SPRITEp sip, short statnum, short id)
     return !found;
 }
 
-VOID SetupItemForJump(SPRITEp sip, short SpriteNum)
+void SetupItemForJump(SPRITEp sip, short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -4143,7 +4143,7 @@ int SpawnItemsMatch(short match)
     short SpriteNum;
     short si, nextsi;
     SPRITEp sp,sip;
-    BOOL found;
+    SWBOOL found;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPAWN_ITEMS],si,nextsi)
     {
@@ -4555,7 +4555,7 @@ int SpawnItemsMatch(short match)
             short num;
             USERp u;
 
-            BYTE KeyPal[] =
+            uint8_t KeyPal[] =
             {
                 PALETTE_PLAYER9,
                 PALETTE_PLAYER7,
@@ -4611,7 +4611,7 @@ int SpawnItemsMatch(short match)
 }
 
 // CTW MODIFICATION
-//VOID
+//void
 int
 // CTW MODIFICATION END
 NewStateGroup(short SpriteNum, STATEp StateGroup[])
@@ -4645,8 +4645,8 @@ NewStateGroup(short SpriteNum, STATEp StateGroup[])
 }
 
 
-BOOL
-SpriteOverlap(SHORT spritenum_a, SHORT spritenum_b)
+SWBOOL
+SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b)
 {
     SPRITEp spa = &sprite[spritenum_a], spb = &sprite[spritenum_b];
 
@@ -4686,8 +4686,8 @@ SpriteOverlap(SHORT spritenum_a, SHORT spritenum_b)
 
 }
 
-BOOL
-SpriteOverlapZ(SHORT spritenum_a, SHORT spritenum_b, int z_overlap)
+SWBOOL
+SpriteOverlapZ(int16_t spritenum_a, int16_t spritenum_b, int z_overlap)
 {
     SPRITEp spa = &sprite[spritenum_a], spb = &sprite[spritenum_b];
 
@@ -4719,9 +4719,9 @@ SpriteOverlapZ(SHORT spritenum_a, SHORT spritenum_b, int z_overlap)
 
 }
 
-VOID
+void
 getzrangepoint(int x, int y, int z, short sectnum,
-               LONGp ceilz, LONGp ceilhit, LONGp florz, LONGp florhit)
+               int32_t* ceilz, int32_t* ceilhit, int32_t* florz, int32_t* florhit)
 {
     spritetype *spr;
     int i, j, k, l, dax, day, daz, xspan, yspan, xoff, yoff;
@@ -4844,7 +4844,7 @@ getzrangepoint(int x, int y, int z, short sectnum,
 }
 
 
-VOID
+void
 DoActorZrange(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
@@ -4926,7 +4926,7 @@ DoActorGlobZ(short SpriteNum)
 }
 
 
-BOOL
+SWBOOL
 ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_height)
 {
     SPRITEp sp = &sprite[SpriteNum];
@@ -4997,7 +4997,7 @@ ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_heig
 }
 
 // Primarily used in ai.c for now - need to get rid of
-BOOL
+SWBOOL
 DropAhead(short SpriteNum, short min_height)
 {
 
@@ -5142,7 +5142,7 @@ int
 DoGrating(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SHORT x, y;
+    int16_t x, y;
     int dir;
 #define GRATE_FACTOR 3
 
@@ -5511,7 +5511,7 @@ char *ReadFortune[MAX_FORTUNES] =
 };
 
 
-BOOL CanGetWeapon(PLAYERp pp, short SpriteNum, int WPN)
+SWBOOL CanGetWeapon(PLAYERp pp, short SpriteNum, int WPN)
 {
     USERp u = User[SpriteNum], pu;
     SPRITEp sp = User[SpriteNum]->SpriteP;
@@ -5583,9 +5583,9 @@ DoGet(short SpriteNum)
     PLAYERp pp;
     short pnum, key_num;
     int dist, a,b,c;
-    VOID InitWeaponRocket(PLAYERp);
-    VOID InitWeaponUzi(PLAYERp);
-    BOOL can_see;
+    void InitWeaponRocket(PLAYERp);
+    void InitWeaponUzi(PLAYERp);
+    SWBOOL can_see;
     int cstat_bak;
 
     // For flag stuff
@@ -5742,7 +5742,7 @@ KeyMain:
         case ICON_SM_MEDKIT:
             if (pu->Health < 100)
             {
-                BOOL putbackmax=FALSE;
+                SWBOOL putbackmax=FALSE;
 
                 PutStringInfo(Player+pnum, InventoryDecls[InvDecl_SmMedkit].name);
 
@@ -6378,7 +6378,7 @@ KeyMain:
 
 #define TEXT_SPELL_INFO_LINE 20
 
-            static CHARp SpellName[] =
+            static int8_t* SpellName[] =
             {
                 "Icon of Flight",
                 "EnvironSuit Skin",
@@ -6474,7 +6474,7 @@ KeyMain:
 
 */
 
-VOID
+void
 SetEnemyActive(short SpriteNum)
 {
     USERp u = User[SpriteNum];
@@ -6484,7 +6484,7 @@ SetEnemyActive(short SpriteNum)
     u->inactive_time = 0;
 }
 
-VOID
+void
 SetEnemyInactive(short SpriteNum)
 {
     USERp u = User[SpriteNum];
@@ -6496,7 +6496,7 @@ SetEnemyInactive(short SpriteNum)
 
 // This function mostly only adjust the active_range field
 
-VOID
+void
 ProcessActiveVars(short SpriteNum)
 {
     USERp u = User[SpriteNum];
@@ -6519,7 +6519,7 @@ ProcessActiveVars(short SpriteNum)
     u->wait_active_check += ACTORMOVETICS;
 }
 
-VOID
+void
 AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
 {
     USERp u = User[SpriteNum];
@@ -6657,7 +6657,7 @@ AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
 */
 
 int
-StateControl(SHORT SpriteNum)
+StateControl(int16_t SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
@@ -6750,16 +6750,16 @@ StateControl(SHORT SpriteNum)
 
 
 
-VOID
-SpriteControl(VOID)
+void
+SpriteControl(void)
 {
-    LONG i, nexti, stat;
+    int32_t i, nexti, stat;
     SPRITEp sp;
     USERp u;
     short pnum, CloseToPlayer;
     PLAYERp pp;
     int tx, ty, tmin, dist;
-    extern BOOL DebugActorFreeze;
+    extern SWBOOL DebugActorFreeze;
     short StateTics;
 
     if (DebugActorFreeze)
@@ -7016,7 +7016,7 @@ SpriteControl(VOID)
 */
 
 int
-move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, ULONG cliptype, int numtics)
+move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     int daz;
     int retval=0, zh;
@@ -7169,7 +7169,7 @@ int pushmove_sprite(short SpriteNum)
     return 0;
 }
 
-VOID MissileWarpUpdatePos(short SpriteNum, short sectnum)
+void MissileWarpUpdatePos(short SpriteNum, short sectnum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
@@ -7180,7 +7180,7 @@ VOID MissileWarpUpdatePos(short SpriteNum, short sectnum)
     MissileZrange(SpriteNum);
 }
 
-VOID ActorWarpUpdatePos(short SpriteNum, short sectnum)
+void ActorWarpUpdatePos(short SpriteNum, short sectnum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
@@ -7191,7 +7191,7 @@ VOID ActorWarpUpdatePos(short SpriteNum, short sectnum)
     DoActorZrange(SpriteNum);
 }
 
-VOID MissileWarpType(SPRITEp sp, SPRITEp sp_warp)
+void MissileWarpType(SPRITEp sp, SPRITEp sp_warp)
 {
     switch (SP_TAG1(sp_warp))
     {
@@ -7212,7 +7212,7 @@ VOID MissileWarpType(SPRITEp sp, SPRITEp sp_warp)
     }
 }
 
-VOID ActorWarpType(SPRITEp sp, SPRITEp sp_warp)
+void ActorWarpType(SPRITEp sp, SPRITEp sp_warp)
 {
     switch (SP_TAG3(sp_warp))
     {
@@ -7267,7 +7267,7 @@ MissileZrange(short SpriteNum)
 
 
 int
-move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, ULONG cliptype, int numtics)
+move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     int daz;
     int retval, zh;
@@ -7406,7 +7406,7 @@ move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildis
 
 
 int
-move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, ULONG cliptype, int numtics)
+move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     int daz;
     int retval=0, zh;

@@ -67,7 +67,7 @@ TO DO
 */
 
 extern int lastUpdate;
-extern BYTE RedBookSong[40];
+extern uint8_t RedBookSong[40];
 extern char UserMapName[80];
 extern char LevelSong[16];
 extern char SaveGameDescr[10][80];
@@ -75,26 +75,26 @@ extern int PlayClock;
 extern short TotalKillable;
 extern short LevelSecrets;
 extern short Bunny_Count;
-extern BOOL NewGame;
+extern SWBOOL NewGame;
 extern char CacheLastLevel[];
 extern short PlayingLevel;
 extern int GodMode;
 extern int GameVersion;
 //extern short Zombies;
 
-extern BOOL serpwasseen;
-extern BOOL sumowasseen;
-extern BOOL zillawasseen;
+extern SWBOOL serpwasseen;
+extern SWBOOL sumowasseen;
+extern SWBOOL zillawasseen;
 extern short BossSpriteNum[3];
 
-VOID ScreenTileLock(void);
-VOID ScreenTileUnLock(void);
+void ScreenTileLock(void);
+void ScreenTileUnLock(void);
 
 int ScreenSaveSetup(PLAYERp pp);
-VOID ScreenSave(FILE *fout);
+void ScreenSave(FILE *fout);
 
 int ScreenLoadSaveSetup(PLAYERp pp);
-VOID ScreenLoad(FILE *fin);
+void ScreenLoad(FILE *fin);
 
 #define PANEL_SAVE 1
 #define ANIM_SAVE 1
@@ -225,9 +225,9 @@ int SaveGame(short save_num)
     USERp u;
     ANIM tanim;
     ANIMp a;
-    CHAR code;
-    BYTE data_code;
-    SHORT data_ndx;
+    int8_t code;
+    uint8_t data_code;
+    int16_t data_ndx;
     PANEL_SPRITE tpanel_sprite;
     PANEL_SPRITEp psp,cur,next;
     SECTOR_OBJECTp sop;
@@ -512,11 +512,11 @@ int SaveGame(short save_num)
         {
             if (User[j])
             {
-                BYTEp bp = (BYTEp)User[j];
+                uint8_t* bp = (uint8_t*)User[j];
 
-                if ((BYTEp)a->ptr >= bp && (BYTEp)a->ptr < bp + sizeof(USER))
+                if ((uint8_t*)a->ptr >= bp && (uint8_t*)a->ptr < bp + sizeof(USER))
                 {
-                    offset = (intptr_t)((BYTEp)a->ptr - bp); // offset from user data
+                    offset = (intptr_t)((uint8_t*)a->ptr - bp); // offset from user data
                     a->ptr = (int *)-2;
                     break;
                 }
@@ -529,11 +529,11 @@ int SaveGame(short save_num)
             {
                 if (SectUser[j])
                 {
-                    BYTEp bp = (BYTEp)SectUser[j];
+                    uint8_t* bp = (uint8_t*)SectUser[j];
 
-                    if ((BYTEp)a->ptr >= bp && (BYTEp)a->ptr < bp + sizeof(SECT_USER))
+                    if ((uint8_t*)a->ptr >= bp && (uint8_t*)a->ptr < bp + sizeof(SECT_USER))
                     {
-                        offset = (intptr_t)((BYTEp)a->ptr - bp); // offset from user data
+                        offset = (intptr_t)((uint8_t*)a->ptr - bp); // offset from user data
                         a->ptr = (int *)-3;
                         break;
                     }
@@ -752,10 +752,10 @@ int LoadGame(short save_num)
     USERp u;
     SECTOR_OBJECTp sop;
     SECT_USERp sectu;
-    CHAR code;
+    int8_t code;
     ANIMp a;
-    BYTE data_code;
-    SHORT data_ndx;
+    uint8_t data_code;
+    int16_t data_ndx;
     PANEL_SPRITEp psp,next,cur;
     PANEL_SPRITE tpanel_sprite;
     char game_name[80];
@@ -765,7 +765,7 @@ int LoadGame(short save_num)
     int StateStartNdx;
     int StateNdx;
     int StateEndNdx;
-    extern BOOL InMenuLevel;
+    extern SWBOOL InMenuLevel;
 
     Saveable_Init();
 
@@ -1157,9 +1157,9 @@ int LoadGame(short save_num)
     MREAD(palette_data,sizeof(palette_data),1,fil);
 
     {
-        BOOL AmbBak = gs.Ambient;
-        BOOL MusicBak = gs.MusicOn;
-        BOOL FxBak = gs.FxOn;
+        SWBOOL AmbBak = gs.Ambient;
+        SWBOOL MusicBak = gs.MusicOn;
+        SWBOOL FxBak = gs.FxOn;
         short SndVolBak = gs.SoundVolume;
         short MusVolBak = gs.MusicVolume;
         MREAD(&gs,sizeof(gs),1,fil);
@@ -1300,7 +1300,7 @@ int LoadGame(short save_num)
     return 0;
 }
 
-VOID
+void
 ScreenSave(MFILE fout)
 {
     int num;
@@ -1308,7 +1308,7 @@ ScreenSave(MFILE fout)
     ASSERT(num == 1);
 }
 
-VOID
+void
 ScreenLoad(MFILE fin)
 {
     int num;

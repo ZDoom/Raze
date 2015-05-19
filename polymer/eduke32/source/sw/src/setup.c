@@ -99,9 +99,9 @@ void CenterRudder(void)
 ===================
 */
 
-static int32 timert;
+static int32_t timert;
 
-int32 GetTime(void)
+int32_t GetTime(void)
 {
     return totalclock;
     //return timert++;
@@ -170,8 +170,8 @@ void TermSetup(void)
 #include "rts.h"
 #include "timer.h"
 
-int32 timerhandle=0;
-volatile int32 timer;
+int32_t timerhandle=0;
+volatile int32_t timer;
 /*
 ===================
 =
@@ -250,7 +250,7 @@ void SetupGameButtons(void)
 ===================
 */
 
-int32 GetTime(void)
+int32_t GetTime(void)
 {
     return timer;
 }
@@ -324,7 +324,7 @@ void main()
 {
     char *song;
     char *voc;
-    volatile int32 lasttime;
+    volatile int32_t lasttime;
 
     RegisterShutdownFunction(ShutDown);
     KB_Startup();
@@ -351,7 +351,7 @@ void main()
     lasttime = timer;
     while (1)
     {
-        int32 i;
+        int32_t i;
         ControlInfo info;
 
         while (lasttime==timer)
@@ -384,7 +384,7 @@ void main()
         {
             if (KB_KeyPressed(sc_F1+i))
             {
-                byte *ptr;
+                uint8_t *ptr;
                 KB_ClearKeyDown(sc_F1+i);
                 ptr = RTS_GetSound(i);
                 FX_PlayVOC(ptr, 0, 255, 255, 255, 255, 0);

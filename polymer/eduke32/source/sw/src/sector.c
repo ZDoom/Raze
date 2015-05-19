@@ -52,19 +52,19 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 short FindNextSectorByTag(short sectnum, int tag);
 short LevelSecrets;
-BOOL TestVatorMatchActive(short match);
-BOOL TestSpikeMatchActive(short match);
-BOOL TestRotatorMatchActive(short match);
-BOOL TestSlidorMatchActive(short match);
+SWBOOL TestVatorMatchActive(short match);
+SWBOOL TestSpikeMatchActive(short match);
+SWBOOL TestRotatorMatchActive(short match);
+SWBOOL TestSlidorMatchActive(short match);
 int PlayerCheckDeath(PLAYERp, short);
 short DoVatorOperate(PLAYERp, short);
 short DoVatorMatch(PLAYERp pp, short match);
 short DoRotatorOperate(PLAYERp, short);
-short DoRotatorMatch(PLAYERp pp, short match, BOOL);
+short DoRotatorMatch(PLAYERp pp, short match, SWBOOL);
 short DoSlidorOperate(PLAYERp, short);
-short DoSlidorMatch(PLAYERp pp, short match, BOOL);
+short DoSlidorMatch(PLAYERp pp, short match, SWBOOL);
 
-VOID KillMatchingCrackSprites(short match);
+void KillMatchingCrackSprites(short match);
 int DoTrapReset(short match);
 int DoTrapMatch(short match);
 
@@ -88,7 +88,7 @@ SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 SPRING_BOARD SpringBoard[20];
 int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
-void SetSectorWallBits(short sectnum, int bit_mask, BOOL set_sectwall, BOOL set_nextwall)
+void SetSectorWallBits(short sectnum, int bit_mask, SWBOOL set_sectwall, SWBOOL set_nextwall)
 {
     short wall_num, start_wall;
 
@@ -108,7 +108,7 @@ void SetSectorWallBits(short sectnum, int bit_mask, BOOL set_sectwall, BOOL set_
 
 }
 
-VOID WallSetupDontMove(VOID)
+void WallSetupDontMove(void)
 {
     int i,j,nexti,nextj;
     SPRITEp spu, spl;
@@ -135,8 +135,8 @@ VOID WallSetupDontMove(VOID)
     }
 }
 
-VOID
-WallSetup(VOID)
+void
+WallSetup(void)
 {
     short i = 0;
     short NextSineWall = 0;
@@ -423,7 +423,7 @@ WallSetup(VOID)
 }
 
 
-VOID
+void
 SectorLiquidSet(short i)
 {
     SECT_USERp sectu;
@@ -468,8 +468,8 @@ SectorLiquidSet(short i)
     }
 }
 
-VOID
-SectorSetup(VOID)
+void
+SectorSetup(void)
 {
     short i = 0, k, tag;
     short NextSineWave = 0, rotcnt = 0, swingcnt = 0;
@@ -706,7 +706,7 @@ SectorSetup(VOID)
     }
 }
 
-VOID
+void
 SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
 {
     short startwall, endwall, j;
@@ -729,12 +729,12 @@ SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
 }
 
 
-VOID
+void
 DoSpringBoard(PLAYERp pp, short sectnum)
 {
     int sb;
     int i;
-    VOID DoPlayerBeginForceJump(PLAYERp);
+    void DoPlayerBeginForceJump(PLAYERp);
 
 #if 0
     i = AnimGetGoal(&sector[sectnum].floorz);
@@ -768,8 +768,8 @@ DoSpringBoard(PLAYERp pp, short sectnum)
 }
 
 
-VOID
-DoSpringBoardDown(VOID)
+void
+DoSpringBoardDown(void)
 {
     unsigned sb;
     SPRING_BOARD *sbp;
@@ -1120,7 +1120,7 @@ AnimateSwitch(SPRITEp sp, short tgt_value)
 }
 
 
-VOID
+void
 SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
 {
     SPRITEp sp = &sprite[SpriteNum];
@@ -1163,7 +1163,7 @@ SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
 }
 
 
-VOID
+void
 DoExplodeSector(short match)
 {
     short orig_ang;
@@ -1239,7 +1239,7 @@ int DoSpawnSpot(short SpriteNum)
 }
 
 // spawns shrap when killing an object
-VOID
+void
 DoSpawnSpotsForKill(short match)
 {
     short sn, next_sn;
@@ -1268,7 +1268,7 @@ DoSpawnSpotsForKill(short match)
 }
 
 // spawns shrap when damaging an object
-VOID
+void
 DoSpawnSpotsForDamage(short match)
 {
     short sn, next_sn;
@@ -1296,7 +1296,7 @@ DoSpawnSpotsForDamage(short match)
     }
 }
 
-VOID
+void
 DoSoundSpotMatch(short match, short sound_num, short sound_type)
 {
     short sn, next_sn;
@@ -1384,7 +1384,7 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
     }
 }
 
-VOID
+void
 DoSoundSpotStopSound(short match)
 {
     short sn, next_sn;
@@ -1402,7 +1402,7 @@ DoSoundSpotStopSound(short match)
     }
 }
 
-VOID
+void
 DoStopSoundSpotMatch(short match)
 {
     short sn, next_sn;
@@ -1420,7 +1420,7 @@ DoStopSoundSpotMatch(short match)
 }
 
 
-BOOL TestKillSectorObject(SECTOR_OBJECTp sop)
+SWBOOL TestKillSectorObject(SECTOR_OBJECTp sop)
 {
     if (TEST(sop->flags, SOBJ_KILLABLE))
     {
@@ -1453,7 +1453,7 @@ DoSectorObjectKillMatch(short match)
 }
 
 
-BOOL
+SWBOOL
 SearchExplodeSectorMatch(short match)
 {
     short i,nexti;
@@ -1474,7 +1474,7 @@ SearchExplodeSectorMatch(short match)
     return FALSE;
 }
 
-VOID
+void
 KillMatchingCrackSprites(short match)
 {
     short i,nexti;
@@ -1494,7 +1494,7 @@ KillMatchingCrackSprites(short match)
     }
 }
 
-VOID
+void
 WeaponExplodeSectorInRange(short weapon)
 {
     short i, nexti;
@@ -1540,7 +1540,7 @@ WeaponExplodeSectorInRange(short weapon)
 }
 
 
-VOID
+void
 ShootableSwitch(short SpriteNum, short Weapon)
 {
     SPRITEp sp = &sprite[SpriteNum];
@@ -1561,7 +1561,7 @@ ShootableSwitch(short SpriteNum, short Weapon)
     }
 }
 
-VOID DoDeleteSpriteMatch(short match)
+void DoDeleteSpriteMatch(short match)
 {
     static short StatList[] =
     {
@@ -1629,7 +1629,7 @@ VOID DoDeleteSpriteMatch(short match)
     }
 }
 
-VOID
+void
 DoChangorMatch(short match)
 {
     short sn, next_sn;
@@ -1683,7 +1683,7 @@ DoChangorMatch(short match)
     }
 }
 
-VOID DoMatchEverything(PLAYERp pp, short match, short state)
+void DoMatchEverything(PLAYERp pp, short match, short state)
 {
     PLAYERp bak;
 
@@ -1733,11 +1733,11 @@ VOID DoMatchEverything(PLAYERp pp, short match, short state)
     DoDeleteSpriteMatch(match);
 }
 
-BOOL ComboSwitchTest(short combo_type, short match)
+SWBOOL ComboSwitchTest(short combo_type, short match)
 {
     short i,nexti;
     SPRITEp sp;
-    BOOL state;
+    SWBOOL state;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -2002,7 +2002,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
     case TAG_LEVEL_EXIT_SWITCH:
     {
         extern short Level;
-        extern BOOL QuitFlag, ExitLevel, FinishedLevel;
+        extern SWBOOL QuitFlag, ExitLevel, FinishedLevel;
 
         AnimateSwitch(sp, -1);
 
@@ -2173,7 +2173,7 @@ int DoTrapMatch(short match)
 }
 
 
-VOID
+void
 OperateTripTrigger(PLAYERp pp)
 {
     SECTORp sectp = &sector[pp->cursectnum];
@@ -2211,7 +2211,7 @@ OperateTripTrigger(PLAYERp pp)
     case TAG_LEVEL_EXIT_SWITCH:
     {
         extern short Level;
-        extern BOOL QuitFlag, ExitLevel, FinishedLevel;
+        extern SWBOOL QuitFlag, ExitLevel, FinishedLevel;
 
         if (sectp->hitag)
             Level = sectp->hitag;
@@ -2332,7 +2332,7 @@ OperateTripTrigger(PLAYERp pp)
     }
 }
 
-VOID
+void
 OperateContinuousTrigger(PLAYERp pp)
 {
     if (Prediction)
@@ -2418,7 +2418,7 @@ short PlayerTakeSectorDamage(PLAYERp pp)
 // Needed in order to see if Player should grunt if he can't find a wall to operate on
 // If player is too far away, don't grunt
 #define PLAYER_SOUNDEVENT_TAG 900
-BOOL NearThings(PLAYERp pp)
+SWBOOL NearThings(PLAYERp pp)
 {
     short sectnum;
     short rndnum;
@@ -2680,12 +2680,12 @@ int DoPlayerGrabStar(PLAYERp pp)
 
 
 
-VOID
+void
 PlayerOperateEnv(PLAYERp pp)
 {
     SECT_USERp sectu = SectUser[pp->cursectnum];
     SECTORp sectp = &sector[pp->cursectnum];
-    BOOL found;
+    SWBOOL found;
 
     if (Prediction)
         return;
@@ -2869,8 +2869,8 @@ PlayerOperateEnv(PLAYERp pp)
 
 
 
-VOID
-DoSineWaveFloor(VOID)
+void
+DoSineWaveFloor(void)
 {
     SINE_WAVE_FLOOR *swf;
     int newz;
@@ -2934,8 +2934,8 @@ DoSineWaveFloor(VOID)
 }
 
 
-VOID
-DoSineWaveWall(VOID)
+void
+DoSineWaveWall(void)
 {
     SINE_WALL *sw;
     int new;
@@ -2964,7 +2964,7 @@ DoSineWaveWall(VOID)
     }
 }
 
-VOID
+void
 DoAnim(int numtics)
 {
     int i, animval;
@@ -3024,8 +3024,8 @@ DoAnim(int numtics)
     }
 }
 
-VOID
-AnimClear(VOID)
+void
+AnimClear(void)
 {
     int i, animval;
 
@@ -3320,8 +3320,8 @@ void movelava(char *dapic)
 }
 
 
-VOID
-DoPanning(VOID)
+void
+DoPanning(void)
 {
     int nx, ny;
     short i,nexti;
@@ -3376,13 +3376,13 @@ DoPanning(VOID)
 }
 
 
-VOID
-DoSector(VOID)
+void
+DoSector(void)
 {
     short i;
     SECTOR_OBJECTp sop;
-    BOOL riding;
-    extern BOOL DebugActorFreeze;
+    SWBOOL riding;
+    extern SWBOOL DebugActorFreeze;
     int sync_flag;
     short pnum;
     int min_dist,dist,a,b,c;

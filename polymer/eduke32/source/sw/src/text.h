@@ -32,14 +32,14 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define TEXT_INFO_LINE(line) (TEXT_INFO_Y + ((line) * TEXT_INFO_YOFF))
 //#define TEXT_INFO_LINE(line) (TEXT_INFO_Y + ((line) * TEXT_INFO_YOFF) + GlobalInfoLineOffset)
 
-VOID DisplayFragNames(PLAYERp pp);
-VOID DisplayMiniBarSmString(PLAYERp pp,short xs,short ys, short pal, const char *buffer);
-VOID DisplaySmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer);
-VOID DisplayMiniBarNumber(PLAYERp pp,short xs,short ys,int number);
+void DisplayFragNames(PLAYERp pp);
+void DisplayMiniBarSmString(PLAYERp pp,short xs,short ys, short pal, const char *buffer);
+void DisplaySmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer);
+void DisplayMiniBarNumber(PLAYERp pp,short xs,short ys,int number);
 void DisplaySummaryString(PLAYERp pp,short xs,short ys,short color,short shade,const char *buffer);
 void DisplayPanelNumber(PLAYERp pp,short xs,short ys,int number);
-VOID PutStringInfo(PLAYERp pp, const char *string);
-VOID PutStringInfoLine(PLAYERp pp, const char *string);
-VOID PutStringInfoLine2(PLAYERp pp, const char *string);
+void PutStringInfo(PLAYERp pp, const char *string);
+void PutStringInfoLine(PLAYERp pp, const char *string);
+void PutStringInfoLine2(PLAYERp pp, const char *string);
 void pClearTextLine(PLAYERp pp,long y);
 void pMenuClearTextLine(PLAYERp pp);

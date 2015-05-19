@@ -59,20 +59,20 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 typedef struct
 {
     char name[8];
-    int32 handle,position,size;
+    int32_t handle,position,size;
 } lumpinfo_t;
 
 typedef struct
 {
     char identification[4];              // should be IWAD
-    int32 numlumps;
-    int32 infotableofs;
+    int32_t numlumps;
+    int32_t infotableofs;
 } wadinfo_t;
 
 typedef struct
 {
-    int32 filepos;
-    int32 size;
+    int32_t filepos;
+    int32_t size;
     char name[8];
 } filelump_t;
 

@@ -62,9 +62,9 @@ SYNC BUG NOTES:
 
 //#undef MAXSYNCBYTES
 //#define MAXSYNCBYTES 16
-BYTE tempbuf[576], packbuf[576];
+uint8_t tempbuf[576], packbuf[576];
 int PlayClock;
-extern BOOL PauseKeySet;
+extern SWBOOL PauseKeySet;
 extern char CommPlayerName[32];
 
 gNET gNet;
@@ -80,16 +80,16 @@ SW_PACKET loc;
 
 //SW_PACKET oloc;
 
-BOOL ready2send = 0;
+SWBOOL ready2send = 0;
 
-BOOL CommEnabled = FALSE;
-BYTE CommPlayers = 0;
+SWBOOL CommEnabled = FALSE;
+uint8_t CommPlayers = 0;
 int movefifoplc, movefifosendplc; //, movefifoend[MAX_SW_PLAYERS];
 unsigned int MoveThingsCount;
 
 //int myminlag[MAX_SW_PLAYERS];
 int mymaxlag, otherminlag, bufferjitter = 1;
-extern CHAR sync_first[MAXSYNCBYTES][60];
+extern int8_t sync_first[MAXSYNCBYTES][60];
 extern int sync_found;
 
 //
@@ -97,21 +97,21 @@ extern int sync_found;
 //
 typedef struct
 {
-    LONG vel;
-    LONG svel;
-    LONG angvel;
-    LONG aimvel;
-    LONG bits;
+    int32_t vel;
+    int32_t svel;
+    int32_t angvel;
+    int32_t aimvel;
+    int32_t bits;
 } SW_AVERAGE_PACKET;
 
 int MovesPerPacket = 1;
 SW_AVERAGE_PACKET AveragePacket;
 
 // GAME.C sync state variables
-BYTE syncstat[MAXSYNCBYTES];
+uint8_t syncstat[MAXSYNCBYTES];
 //int syncvalhead[MAX_SW_PLAYERS];
 int syncvaltail, syncvaltottail;
-void GetSyncInfoFromPacket(BYTEp packbuf, int packbufleng, int *j, int otherconnectindex);
+void GetSyncInfoFromPacket(uint8_t* packbuf, int packbufleng, int *j, int otherconnectindex);
 
 // when you set totalclock to 0 also set this one
 int ototalclock;
@@ -120,14 +120,14 @@ int save_totalclock;
 
 // must start out as 0
 
-BOOL GamePaused = FALSE;
-BOOL NetBroadcastMode = TRUE;
-BOOL NetModeOverride = FALSE;
+SWBOOL GamePaused = FALSE;
+SWBOOL NetBroadcastMode = TRUE;
+SWBOOL NetModeOverride = FALSE;
 
 
-void netsendpacket(int ind, BYTEp buf, int len)
+void netsendpacket(int ind, uint8_t* buf, int len)
 {
-    BYTE bbuf[sizeof(packbuf) + sizeof(PACKET_PROXY)];
+    uint8_t bbuf[sizeof(packbuf) + sizeof(PACKET_PROXY)];
     PACKET_PROXYp prx = (PACKET_PROXYp)bbuf;
     int i;
 
@@ -146,7 +146,7 @@ void netsendpacket(int ind, BYTEp buf, int len)
         buildputs("\n");
 
         prx->PacketType = PACKET_TYPE_PROXY;
-        prx->PlayerIndex = (BYTE)ind;
+        prx->PlayerIndex = (uint8_t)ind;
         memcpy(&prx[1], buf, len);  // &prx[1] == (char*)prx + sizeof(PACKET_PROXY)
         len += sizeof(PACKET_PROXY);
 
@@ -162,10 +162,10 @@ void netsendpacket(int ind, BYTEp buf, int len)
     buildputs("\n");
 }
 
-void netbroadcastpacket(BYTEp buf, int len)
+void netbroadcastpacket(uint8_t* buf, int len)
 {
     int i;
-    BYTE bbuf[sizeof(packbuf) + sizeof(PACKET_PROXY)];
+    uint8_t bbuf[sizeof(packbuf) + sizeof(PACKET_PROXY)];
     PACKET_PROXYp prx = (PACKET_PROXYp)bbuf;
 
     // broadcast via master if in M/S mode and we are not the master
@@ -183,7 +183,7 @@ void netbroadcastpacket(BYTEp buf, int len)
         buildputs("\n");
 
         prx->PacketType = PACKET_TYPE_PROXY;
-        prx->PlayerIndex = (BYTE)(-1);
+        prx->PlayerIndex = (uint8_t)(-1);
         memcpy(&prx[1], buf, len);
         len += sizeof(PACKET_PROXY);
 
@@ -203,7 +203,7 @@ void netbroadcastpacket(BYTEp buf, int len)
     buildputs("\n");
 }
 
-int netgetpacket(int *ind, BYTEp buf)
+int netgetpacket(int *ind, uint8_t* buf)
 {
     int i;
     int len;
@@ -233,12 +233,12 @@ int netgetpacket(int *ind, BYTEp buf)
     {
         // I am the master
 
-        if (prx->PlayerIndex == (BYTE)(-1))
+        if (prx->PlayerIndex == (uint8_t)(-1))
         {
             // broadcast
 
             // Rewrite the player index to be the sender's connection number
-            prx->PlayerIndex = (BYTE)*ind;
+            prx->PlayerIndex = (uint8_t)*ind;
 
             // Transmit to all the other players except ourselves and the sender
             for (i = connecthead; i >= 0; i = connectpoint2[i])
@@ -260,7 +260,7 @@ int netgetpacket(int *ind, BYTEp buf)
             i = prx->PlayerIndex;
 
             // Rewrite the player index to be the sender's connection number
-            prx->PlayerIndex = (BYTE)*ind;
+            prx->PlayerIndex = (uint8_t)*ind;
 
             // Transmit to the intended recipient
             if (i == myconnectindex)
@@ -291,9 +291,9 @@ int netgetpacket(int *ind, BYTEp buf)
 }
 
 
-int EncodeBits(SW_PACKET *pak, SW_PACKET *old_pak, BYTEp buf)
+int EncodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
 {
-    BYTEp base_ptr = buf;
+    uint8_t* base_ptr = buf;
     unsigned i;
 
     // skipping the bits field sync test fake byte (Ed. Ken)
@@ -342,9 +342,9 @@ int EncodeBits(SW_PACKET *pak, SW_PACKET *old_pak, BYTEp buf)
     return buf - base_ptr;
 }
 
-int DecodeBits(SW_PACKET *pak, SW_PACKET *old_pak, BYTEp buf)
+int DecodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
 {
-    BYTEp base_ptr = buf;
+    uint8_t* base_ptr = buf;
     unsigned i;
 
     // skipping the bits field sync test fake byte (Ed. Ken)
@@ -390,8 +390,8 @@ int DecodeBits(SW_PACKET *pak, SW_PACKET *old_pak, BYTEp buf)
     return buf - base_ptr;
 }
 
-VOID
-PauseGame(VOID)
+void
+PauseGame(void)
 {
     if (PauseKeySet)
         return;
@@ -406,8 +406,8 @@ PauseGame(VOID)
         GamePaused = TRUE;
 }
 
-VOID
-ResumeGame(VOID)
+void
+ResumeGame(void)
 {
     if (PauseKeySet)
         return;
@@ -419,21 +419,21 @@ ResumeGame(VOID)
         GamePaused = FALSE;
 }
 
-VOID
-PauseAction(VOID)
+void
+PauseAction(void)
 {
     ready2send = 0;
     save_totalclock = totalclock;
 }
 
-VOID
-ResumeAction(VOID)
+void
+ResumeAction(void)
 {
     ready2send = 1;
     totalclock = save_totalclock;
 }
 
-VOID
+void
 SendMessage(short pnum, char *text)
 {
     if (!CommEnabled)
@@ -445,8 +445,8 @@ SendMessage(short pnum, char *text)
 }
 
 
-VOID
-InitNetPlayerOptions(VOID)
+void
+InitNetPlayerOptions(void)
 {
     short pnum;
     PLAYERp pp = Player + myconnectindex;
@@ -476,13 +476,13 @@ InitNetPlayerOptions(VOID)
             //if (pnum != myconnectindex)
             {
                 //netsendpacket(pnum, (char *)(&p), sizeof(p));
-                netbroadcastpacket((BYTEp)(&p), sizeof(p));
+                netbroadcastpacket((uint8_t*)(&p), sizeof(p));
             }
         }
     }
 }
 
-VOID
+void
 SendMulitNameChange(char *new_name)
 {
     short pnum;
@@ -504,12 +504,12 @@ SendMulitNameChange(char *new_name)
             p.PacketType = PACKET_TYPE_NAME_CHANGE;
             strcpy(p.PlayerName, pp->PlayerName);
             //netsendpacket(pnum, (char *)(&p), sizeof(p));
-            netbroadcastpacket((BYTEp)(&p), sizeof(p));
+            netbroadcastpacket((uint8_t*)(&p), sizeof(p));
         }
     }
 }
 
-VOID
+void
 SendVersion(int version)
 {
     short pnum;
@@ -528,12 +528,12 @@ SendVersion(int version)
             p.PacketType = PACKET_TYPE_VERSION;
             p.Version = version;
             //netsendpacket(pnum, (char *)(&p), sizeof(p));
-            netbroadcastpacket((BYTEp)(&p), sizeof(p));
+            netbroadcastpacket((uint8_t*)(&p), sizeof(p));
         }
     }
 }
 
-VOID
+void
 CheckVersion(int GameVersion)
 {
     short pnum;
@@ -573,8 +573,8 @@ CheckVersion(int GameVersion)
     }
 }
 
-VOID
-Connect(VOID)
+void
+Connect(void)
 {
     int players_found, i, yline;
     short other;
@@ -602,7 +602,7 @@ Connect(VOID)
 }
 
 int wfe_Clock;
-BOOL (*wfe_ExitCallback)(VOID);
+SWBOOL (*wfe_ExitCallback)(void);
 
 void
 waitforeverybody(void)
@@ -699,12 +699,12 @@ waitforeverybody(void)
 }
 
 
-BOOL MyCommPlayerQuit(void)
+SWBOOL MyCommPlayerQuit(void)
 {
     PLAYERp pp;
     short i;
     short prev_player = 0;
-    extern BOOL QuitFlag;
+    extern SWBOOL QuitFlag;
     short found = FALSE;
     short quit_player_index = 0;
 
@@ -782,7 +782,7 @@ BOOL MyCommPlayerQuit(void)
     return FALSE;
 }
 
-BOOL MenuCommPlayerQuit(short quit_player)
+SWBOOL MenuCommPlayerQuit(short quit_player)
 {
     PLAYERp pp;
     short i;
@@ -833,7 +833,7 @@ BOOL MenuCommPlayerQuit(short quit_player)
     return FALSE;
 }
 
-VOID ErrorCorrectionQuit(VOID)
+void ErrorCorrectionQuit(void)
 {
     int oldtotalclock;
     short i,j;
@@ -855,8 +855,8 @@ VOID ErrorCorrectionQuit(VOID)
     }
 }
 
-VOID
-InitNetVars(VOID)
+void
+InitNetVars(void)
 {
     short pnum;
     PLAYERp pp;
@@ -889,8 +889,8 @@ InitNetVars(VOID)
     otherminlag = mymaxlag = 0;
 }
 
-VOID
-InitTimingVars(VOID)
+void
+InitTimingVars(void)
 {
     PlayClock = 0;
 
@@ -939,7 +939,7 @@ faketimerhandler(void)
     PLAYERp pp;
     short pnum;
     void getinput(SW_PACKET *);
-    extern BOOL BotMode;
+    extern SWBOOL BotMode;
 
 #if 0
     if (KEY_PRESSED(KEYSC_PERIOD))
@@ -1247,13 +1247,13 @@ faketimerhandler(void)
     }
 }
 
-VOID
-checkmasterslaveswitch(VOID)
+void
+checkmasterslaveswitch(void)
 {
 }
 
-VOID
-getpackets(VOID)
+void
+getpackets(void)
 {
     int otherconnectindex, packbufleng;
     int i, j, k, l, fifoCheck, sb;
@@ -1473,7 +1473,7 @@ getpackets(VOID)
 
         case PACKET_TYPE_NEW_GAME:
         {
-            extern BOOL NewGame, ShortGameMode, DemoInitOnce;
+            extern SWBOOL NewGame, ShortGameMode, DemoInitOnce;
             PACKET_NEW_GAMEp p;
             extern short TimeLimitTable[];
 

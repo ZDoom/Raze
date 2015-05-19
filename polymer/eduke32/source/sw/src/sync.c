@@ -32,7 +32,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "net.h"
 #include "menus.h"
 
-BOOL SyncPrintMode = TRUE;
+SWBOOL SyncPrintMode = TRUE;
 short NumSyncBytes = 1;
 char sync_first[MAXSYNCBYTES][60];
 int sync_found = FALSE;
@@ -60,8 +60,8 @@ void initsynccrc(void)
 }
 
 #if SYNC_TEST
-BYTE
-PlayerSync(VOID)
+uint8_t
+PlayerSync(void)
 {
     short i, j;
     unsigned short crc = 0;
@@ -76,11 +76,11 @@ PlayerSync(VOID)
         updatecrc(crc, pp->pang & 255);
     }
 
-    return (BYTE) crc & 255;
+    return (uint8_t) crc & 255;
 }
 
-BYTE
-PlayerSync2(VOID)
+uint8_t
+PlayerSync2(void)
 {
     short i, j;
     unsigned short crc = 0;
@@ -95,11 +95,11 @@ PlayerSync2(VOID)
         updatecrc(crc, pp->bcnt & 255);
     }
 
-    return (BYTE) crc & 255;
+    return (uint8_t) crc & 255;
 }
 
-BYTE
-SOSync(VOID)
+uint8_t
+SOSync(void)
 {
     unsigned short crc = 0;
     SECTOR_OBJECTp sop;
@@ -118,12 +118,12 @@ SOSync(VOID)
         updatecrc(crc, (sop->spin_ang) & 255);
     }
 
-    return (BYTE) crc & 255;
+    return (uint8_t) crc & 255;
 }
 
 
-BYTE
-EnemySync(VOID)
+uint8_t
+EnemySync(void)
 {
     unsigned short crc = 0;
     short j, nextj;
@@ -165,11 +165,11 @@ EnemySync(VOID)
     }
 #endif
 
-    return (BYTE) crc & 255;
+    return (uint8_t) crc & 255;
 }
 
-BYTE
-MissileSync(VOID)
+uint8_t
+MissileSync(void)
 {
     unsigned short crc = 0;
     short j, nextj;
@@ -184,11 +184,11 @@ MissileSync(VOID)
         updatecrc(crc, (spr->ang) & 255);
     }
 
-    return (BYTE) crc & 255;
+    return (uint8_t) crc & 255;
 }
 
-BYTE
-MissileSkip4Sync(VOID)
+uint8_t
+MissileSkip4Sync(void)
 {
     unsigned short crc = 0;
     short j, nextj;
@@ -203,11 +203,11 @@ MissileSkip4Sync(VOID)
         updatecrc(crc, (spr->ang) & 255);
     }
 
-    return (BYTE) crc & 255;
+    return (uint8_t) crc & 255;
 }
 
-BYTE
-ShrapSync(VOID)
+uint8_t
+ShrapSync(void)
 {
     unsigned short crc = 0;
     short j, nextj;
@@ -222,11 +222,11 @@ ShrapSync(VOID)
         updatecrc(crc, (spr->ang) & 255);
     }
 
-    return (BYTE) crc & 255;
+    return (uint8_t) crc & 255;
 }
 
-BYTE
-MiscSync(VOID)
+uint8_t
+MiscSync(void)
 {
     unsigned short crc = 0;
     short j, nextj;
@@ -241,11 +241,11 @@ MiscSync(VOID)
         updatecrc(crc, (spr->ang) & 255);
     }
 
-    return (BYTE) crc & 255;
+    return (uint8_t) crc & 255;
 }
 
-BYTE
-RandomSync(VOID)
+uint8_t
+RandomSync(void)
 {
     unsigned short crc = 0;
 
@@ -259,7 +259,7 @@ RandomSync(VOID)
         updatecrc(crc,MissileSync() & 255);
     }
 
-    return (BYTE) crc & 255;
+    return (uint8_t) crc & 255;
 }
 
 /*
@@ -291,7 +291,7 @@ char *SyncNames[] =
     NULL
 };
 
-static BYTE(*SyncFunc[MAXSYNCBYTES + 1]) (VOID) =
+static uint8_t(*SyncFunc[MAXSYNCBYTES + 1]) (void) =
 {
     RandomSync,
     PlayerSync,
@@ -424,7 +424,7 @@ GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconnectin
     int sb, i;
     extern int syncvaltail, syncvaltottail;
     PLAYERp ppo = &Player[otherconnectindex];
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
 
     // have had problems with this routine crashing when players quit
     // games.
@@ -504,7 +504,7 @@ void
 demosync_record(void)
 {
     int i;
-    BYTE sync_val;
+    uint8_t sync_val;
 
     for (i = 0; SyncFunc[i]; i++)
     {
@@ -517,7 +517,7 @@ void
 demosync_test(int cnt)
 {
     int i;
-    BYTE sync_val;
+    uint8_t sync_val;
 
     for (i = 0; SyncFunc[i]; i++)
     {

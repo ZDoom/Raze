@@ -66,50 +66,50 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 // Master->Slave: PlayerIndex = who sent the packet originally
 typedef struct PACKED
 {
-    BYTE PacketType;  // first byte is always packet type
-    BYTE PlayerIndex;
+    uint8_t PacketType;  // first byte is always packet type
+    uint8_t PlayerIndex;
 } PACKET_PROXY,*PACKET_PROXYp;
 
 typedef struct PACKED
 {
-    BYTE PacketType;  // first byte is always packet type
-    BYTE FirstPlayerIndex;
-    BOOL AutoAim;
-    BYTE Level;
-    BYTE Episode;
-    CHAR Skill;
-    BYTE GameType;
-    BOOL HurtTeammate;
-    BOOL SpawnMarkers;
-    BOOL TeamPlay;
-    BYTE KillLimit;
-    BYTE TimeLimit;
-    BOOL Nuke;
+    uint8_t PacketType;  // first byte is always packet type
+    uint8_t FirstPlayerIndex;
+    SWBOOL AutoAim;
+    uint8_t Level;
+    uint8_t Episode;
+    int8_t Skill;
+    uint8_t GameType;
+    SWBOOL HurtTeammate;
+    SWBOOL SpawnMarkers;
+    SWBOOL TeamPlay;
+    uint8_t KillLimit;
+    uint8_t TimeLimit;
+    SWBOOL Nuke;
 } PACKET_NEW_GAME,*PACKET_NEW_GAMEp;
 
 typedef struct PACKED
 {
-    BYTE PacketType;  // first byte is always packet type
-    BOOL AutoRun;
-    BYTE Color;
+    uint8_t PacketType;  // first byte is always packet type
+    SWBOOL AutoRun;
+    uint8_t Color;
     char PlayerName[32];
 } PACKET_OPTIONS,*PACKET_OPTIONSp;
 
 typedef struct PACKED
 {
-    BYTE PacketType;  // first byte is always packet type
+    uint8_t PacketType;  // first byte is always packet type
     char PlayerName[32];
 } PACKET_NAME_CHANGE,*PACKET_NAME_CHANGEp;
 
 typedef struct PACKED
 {
-    BYTE PacketType;  // first byte is always packet type
-    BYTE RTSnum;
+    uint8_t PacketType;  // first byte is always packet type
+    uint8_t RTSnum;
 } PACKET_RTS,*PACKET_RTSp;
 
 typedef struct PACKED
 {
-    BYTE PacketType;  // first byte is always packet type
+    uint8_t PacketType;  // first byte is always packet type
     int Version;
 } PACKET_VERSION,*PACKET_VERSIONp;
 
@@ -121,13 +121,13 @@ typedef struct PACKED
 # pragma pack(pop);
 #endif
 
-extern BYTE syncstat[MAXSYNCBYTES];
-extern BOOL PredictionOn;
+extern uint8_t syncstat[MAXSYNCBYTES];
+extern SWBOOL PredictionOn;
 extern PLAYER PredictPlayer;
 extern PLAYERp ppp;
 extern short predictangpos[MOVEFIFOSIZ];
 extern int predictmovefifoplc;
-extern BOOL Prediction;
+extern SWBOOL Prediction;
 extern short NumSyncBytes;
 
 void InitPrediction(PLAYERp pp);
@@ -135,9 +135,9 @@ void DoPrediction(PLAYERp ppp);
 void CorrectPrediction(int actualfifoplc);
 
 //TENSW: safe packet senders
-void netsendpacket(int ind, BYTEp buf, int len);
-void netbroadcastpacket(BYTEp buf, int len);
-int netgetpacket(int *ind, BYTEp buf);
+void netsendpacket(int ind, uint8_t* buf, int len);
+void netbroadcastpacket(uint8_t* buf, int len);
+int netgetpacket(int *ind, uint8_t* buf);
 
 
 enum MultiGameTypes
@@ -149,23 +149,23 @@ enum MultiGameTypes
     MULTI_GAME_AI_BOTS
 };
 
-//extern SHORT MultiGameType;    // defaults to NONE
+//extern int16_t MultiGameType;    // defaults to NONE
 
 // global net vars
 // not saved in .CFG file
 // used for current game
 typedef struct
 {
-    LONG KillLimit;
-    LONG TimeLimit;
-    LONG TimeLimitClock;
-    SHORT MultiGameType; // used to be a stand alone global
-    BOOL TeamPlay;
-    BOOL HurtTeammate;
-    BOOL SpawnMarkers;
-    BOOL AutoAim;
-    BOOL NoRespawn; // for commbat type games
-    BOOL Nuke;
+    int32_t KillLimit;
+    int32_t TimeLimit;
+    int32_t TimeLimitClock;
+    int16_t MultiGameType; // used to be a stand alone global
+    SWBOOL TeamPlay;
+    SWBOOL HurtTeammate;
+    SWBOOL SpawnMarkers;
+    SWBOOL AutoAim;
+    SWBOOL NoRespawn; // for commbat type games
+    SWBOOL Nuke;
 } gNET,*gNETp;
 
 extern gNET gNet;
@@ -185,22 +185,22 @@ typedef struct
 } AUTO_NET, *AUTO_NETp;
 
 extern AUTO_NET Auto;
-extern BOOL AutoNet;
+extern SWBOOL AutoNet;
 
-VOID getpackets(VOID);
-VOID SendMulitNameChange(char *new_name);
-VOID InitNetVars(void);
-VOID InitTimingVars(void);
-VOID PauseAction(void);
-VOID ResumeAction(void);
+void getpackets(void);
+void SendMulitNameChange(char *new_name);
+void InitNetVars(void);
+void InitTimingVars(void);
+void PauseAction(void);
+void ResumeAction(void);
 void ErrorCorrectionQuit(void);
 void Connect(void);
 void waitforeverybody(void);
-BOOL MenuCommPlayerQuit(short quit_player);
-VOID SendVersion(int version);
-VOID InitNetPlayerOptions(void);
-VOID CheckVersion(int GameVersion);
-VOID SendMessage(short pnum,char *text);
+SWBOOL MenuCommPlayerQuit(short quit_player);
+void SendVersion(int version);
+void InitNetPlayerOptions(void);
+void CheckVersion(int GameVersion);
+void SendMessage(short pnum,char *text);
 void PauseGame(void);
 void ResumeGame(void);
 

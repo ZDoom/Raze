@@ -63,7 +63,7 @@ int PLocked_Sounds[] =
     558,557
 };
 
-BYTE RedBookSong[40] =
+uint8_t RedBookSong[40] =
 {
     2,4,9,12,10, // Title and ShareWare levels
     5,6,8,11,12,5,10,4,6,9,7,10,8,7,9,10,11,5, // Registered levels
@@ -73,15 +73,15 @@ BYTE RedBookSong[40] =
 
 // Global vars used by ambient sounds to set spritenum of ambient sounds for later lookups in
 // the sprite array so FAFcansee can know the sound sprite's current sector location
-BOOL Use_SoundSpriteNum = FALSE;
-SHORT SoundSpriteNum = -1;  // Always set this back to -1 for proper validity checking!
+SWBOOL Use_SoundSpriteNum = FALSE;
+int16_t SoundSpriteNum = -1;  // Always set this back to -1 for proper validity checking!
 
-BOOL CDInitialized = FALSE;
-BOOL MusicInitialized = FALSE;
-BOOL FxInitialized = FALSE;
+SWBOOL CDInitialized = FALSE;
+SWBOOL MusicInitialized = FALSE;
+SWBOOL FxInitialized = FALSE;
 
 void SoundCallBack(unsigned int num);
-BOOL LoadSong(const char *track);
+SWBOOL LoadSong(const char *track);
 
 #define MUSIC_ID -65536
 
@@ -128,7 +128,7 @@ char *SongName = NULL;
 int SongTrack = 0;
 SongType_t SongType = SongTypeNone;
 int SongVoice = -1;
-extern BOOL DemoMode;
+extern SWBOOL DemoMode;
 
 //
 // Includes digi.h to build the table
@@ -156,7 +156,7 @@ AMB_INFO ambarray[] =
 
 #define MAXSONGS        10              // This is the max songs per episode
 
-BOOL OpenSound(VOC_INFOp vp, int *handle, int *length);
+SWBOOL OpenSound(VOC_INFOp vp, int *handle, int *length);
 int ReadSound(int handle, VOC_INFOp vp, int length);
 
 // 3d sound engine function prototype
@@ -321,15 +321,15 @@ ClearSoundLocks(void)
     }
 }
 
-VOID
-UnInitSound(VOID)
+void
+UnInitSound(void)
 {
     SoundShutdown();
     MusicShutdown();
 }
 
-VOID
-InitFX(VOID)
+void
+InitFX(void)
 {
     VOC_INFOp vp;
     short i;
@@ -360,16 +360,16 @@ InitFX(VOID)
     FX_SetCallBack(SoundCallBack);
 }
 
-VOID
-InitMusic(VOID)
+void
+InitMusic(void)
 {
     // Select which cards to use
     MusicStartup();
     //SendGeneralMidiSysX();
 }
 
-VOID
-ExternalSoundMod(VOID)
+void
+ExternalSoundMod(void)
 {
     FILE *fin;
     VOC_INFOp vp;
@@ -411,8 +411,8 @@ ExternalSoundMod(VOID)
 
 extern short Level;
 
-BOOL
-PlaySong(char *song_file_name, int cdaudio_track, BOOL loop, BOOL restart)
+SWBOOL
+PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
 {
     if (!gs.MusicOn)
     {
@@ -531,14 +531,14 @@ PlaySong(char *song_file_name, int cdaudio_track, BOOL loop, BOOL restart)
     return FALSE;
 }
 
-VOID
-StopFX(VOID)
+void
+StopFX(void)
 {
     FX_StopAllSounds();
 }
 
 void
-StopSong(VOID)
+StopSong(void)
 {
     if (DemoMode)
         return;
@@ -572,8 +572,8 @@ StopSong(VOID)
     }
 }
 
-VOID
-PauseSong(BOOL pauseon)
+void
+PauseSong(SWBOOL pauseon)
 {
     if (!gs.MusicOn) return;
 
@@ -592,14 +592,14 @@ SetSongVolume(int volume)
 {
 }
 
-BOOL
+SWBOOL
 SongIsPlaying(void)
 {
     return FALSE;
 }
 
-VOID
-StopSound(VOID)
+void
+StopSound(void)
 {
     StopFX();
     StopSong();
@@ -759,7 +759,7 @@ void LockSound(int num)
     }
 }
 
-BOOL CacheSound(int num, int type)
+SWBOOL CacheSound(int num, int type)
 {
     VOC_INFOp vp = &voc[num];
     extern char cachedebug;
@@ -841,11 +841,11 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
     int pitch = 0;
     short angle, sound_dist;
     int tx, ty, tz;
-    BYTE priority;
+    uint8_t priority;
     SPRITEp sp=NULL;
 
     // DEBUG
-    //extern BOOL Pachinko_Win_Cheat;
+    //extern SWBOOL Pachinko_Win_Cheat;
 
 
     // Don't play game sounds when in menus
@@ -1090,7 +1090,7 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
     return voice;
 }
 
-VOID PlaySoundRTS(int rts_num)
+void PlaySoundRTS(int rts_num)
 {
     char *rtsptr;
     int voice=-1;
@@ -1112,7 +1112,7 @@ VOID PlaySoundRTS(int rts_num)
 
 ///////////////////////////////////////////////
 
-BOOL
+SWBOOL
 OpenSound(VOC_INFOp vp, int *handle, int *length)
 {
     *handle = kopen4load(vp->name, 0);
@@ -1144,7 +1144,7 @@ ReadSound(int handle, VOC_INFOp vp, int length)
     return 0;
 }
 
-BOOL
+SWBOOL
 LoadSong(const char *filename)
 {
     int handle;
@@ -1189,7 +1189,7 @@ void FlipStereo(void)
 void
 SoundStartup(void)
 {
-    int32 status;
+    int32_t status;
     void *initdata = 0;
     int fxdevicetype;
 
@@ -1248,7 +1248,7 @@ SoundStartup(void)
 void
 SoundShutdown(void)
 {
-    int32 status;
+    int32_t status;
 
     // if they chose None lets return
     if (FXDevice < 0)
@@ -1292,7 +1292,7 @@ void loadtmb(void)
 
 void MusicStartup(void)
 {
-    int32 status;
+    int32_t status;
     int devicetype;
 
     // if they chose None lets return
@@ -1354,7 +1354,7 @@ void COVER_SetReverb(int amt)
 void
 MusicShutdown(void)
 {
-    int32 status;
+    int32_t status;
 
     if (CDInitialized)
         CD_Shutdown();
@@ -1596,7 +1596,7 @@ Delete3DSounds(void)
             else    // JBF: added null check
             if (vp->vp->priority == PRI_PLAYERVOICE || vp->vp->priority == PRI_PLAYERDEATH)
             {
-                SHORT pnum;
+                int16_t pnum;
 
                 TRAVERSE_CONNECT(pnum)
                 {
@@ -1709,7 +1709,7 @@ void
 StopAmbientSound(void)
 {
     VOC3D_INFOp p;
-    extern BOOL InMenuLevel;
+    extern SWBOOL InMenuLevel;
 
     if (InMenuLevel) return;
 
@@ -1740,7 +1740,7 @@ StartAmbientSound(void)
 {
     VOC3D_INFOp p;
     short i,nexti;
-    extern BOOL InMenuLevel;
+    extern SWBOOL InMenuLevel;
 
     if (InMenuLevel) return; // Don't restart ambience if no level is active! Will crash game.
 
@@ -1761,22 +1761,22 @@ typedef struct
 {
     VOC3D_INFOp p;
     short dist;
-    BYTE priority;
+    uint8_t priority;
 } TVOC_INFO, *TVOC_INFOp;
 
 void
 DoUpdateSounds3D(void)
 {
     VOC3D_INFOp p;
-    BOOL looping;
+    SWBOOL looping;
     int pitch = 0, pitchmax;
     int delta;
     short dist, angle;
-    BOOL deletesound = FALSE;
+    SWBOOL deletesound = FALSE;
 
     TVOC_INFO TmpVocArray[32];
     int i;
-    static BOOL MoveSkip8 = 0;
+    static SWBOOL MoveSkip8 = 0;
 
     if (UsingMenus) return;
 

@@ -24,8 +24,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
-BOOL WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor);
-SPRITEp WarpPlane(LONGp x, LONGp y, LONGp z, SHORTp sectnum);
-SPRITEp WarpToArea(SPRITEp sp_from, LONGp x, LONGp y, LONGp z, SHORTp sectnum);
-BOOL WarpSectorInfo(short sectnum, SPRITEp *sp_warp);
-SPRITEp Warp(LONGp x, LONGp y, LONGp z, SHORTp sectnum);
+SWBOOL WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor);
+SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
+SPRITEp WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
+SWBOOL WarpSectorInfo(short sectnum, SPRITEp *sp_warp);
+SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);

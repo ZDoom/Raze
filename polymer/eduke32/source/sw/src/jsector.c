@@ -52,17 +52,17 @@ MIRRORTYPE mirror[MAXMIRRORS];
 
 short mirrorcnt; //, floormirrorcnt;
 //short floormirrorsector[MAXMIRRORS];
-BOOL mirrorinview;
+SWBOOL mirrorinview;
 
 static char tempbuf[/*max(576, */ MAXXDIM /*)*/];
 
-BOOL MirrorMoveSkip16 = 0;
+SWBOOL MirrorMoveSkip16 = 0;
 
 // Voxel stuff
-//BOOL bVoxelsOn = TRUE;                  // Turn voxels on by default
-BOOL bSpinBobVoxels = FALSE;            // Do twizzly stuff to voxels, but
+//SWBOOL bVoxelsOn = TRUE;                  // Turn voxels on by default
+SWBOOL bSpinBobVoxels = FALSE;            // Do twizzly stuff to voxels, but
 // not by default
-BOOL bAutoSize = TRUE;                  // Autosizing on/off
+SWBOOL bAutoSize = TRUE;                  // Autosizing on/off
 
 //extern int chainnumpages;
 extern AMB_INFO ambarray[];
@@ -76,7 +76,7 @@ extern ParentalStruct aVoxelArray[MAXTILES];
 /////////////////////////////////////////////////////
 //  SpawnWallSound
 /////////////////////////////////////////////////////
-VOID
+void
 SpawnWallSound(short sndnum, short i)
 {
     short SpriteNum;
@@ -321,7 +321,7 @@ JS_InitMirrors(void)
     short SpriteNum = 0, NextSprite;
     SPRITEp sp;
     static short on_cam = 0;
-    BOOL Found_Cam = FALSE;
+    SWBOOL Found_Cam = FALSE;
 
 
     // Set all the mirror struct values to -1
@@ -601,8 +601,8 @@ JS_ProcessEchoSpot()
     SPRITEp tp;
     int j,dist;
     PLAYERp pp = Player+screenpeek;
-    SHORT reverb;
-    BOOL reverb_set = FALSE;
+    int16_t reverb;
+    SWBOOL reverb_set = FALSE;
 
     // Process echo sprites
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_ECHO], i, nexti)
@@ -654,7 +654,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 
 //    long tx, ty, tz, tpang;             // Interpolate so mirror doesn't
     // drift!
-    BOOL bIsWallMirror = FALSE;
+    SWBOOL bIsWallMirror = FALSE;
 
     MirrorMoveSkip16 = (MirrorMoveSkip16 + 1) & 15;
 
@@ -796,7 +796,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                     }
                     else
                     {
-                        BOOL DoCam = FALSE;
+                        SWBOOL DoCam = FALSE;
 
                         if (mirror[cnt].campic == -1)
                         {
@@ -1161,7 +1161,7 @@ InitOrgTile(OrgTileListP thelist)
     return tp;
 }
 
-VOID
+void
 KillOrgTile(OrgTileP tp)
 {
     ASSERT(tp);
@@ -1190,7 +1190,7 @@ FindOrgTile(short index, OrgTileListP thelist)
 }
 
 // Call this at terminate game time
-VOID
+void
 JS_UnInitLockouts(void)
 {
     OrgTileP tp=NULL, next_tp=NULL;

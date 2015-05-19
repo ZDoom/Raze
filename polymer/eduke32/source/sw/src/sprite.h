@@ -28,9 +28,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define SPRITE_H
 
-VOID KillSprite(SHORT SpriteNum);
-SHORT SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel);
-VOID SpriteSetup(VOID);
+void KillSprite(int16_t SpriteNum);
+int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel);
+void SpriteSetup(void);
 int move_actor(short SpriteNum, int xchange, int ychange, int zchange);
 short GetSpriteDir(short sn);
 short GetDirToPlayer(short sn);
@@ -41,21 +41,21 @@ short SpriteCanGoForward(short SpriteNum, short range);
 void  SpriteFindNewDirection(short SpriteNum, short range);
 int DoWalk(short SpriteNum);
 int DoBody(short SpriteNum);
-BOOL CanMoveHere(SHORT spritenum);
-BOOL SpriteOverlap(SHORT spritenum_a, SHORT spritenum_b);
+SWBOOL CanMoveHere(int16_t spritenum);
+SWBOOL SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b);
 int DoActorDie(short SpriteNum, short weapon);
 int DoGet(short SpriteNum);
-VOID SpriteControl(VOID);
-VOID SetEnemyInactive(short SpriteNum);
-VOID DoActorZrange(short SpriteNum);
+void SpriteControl(void);
+void SetEnemyInactive(short SpriteNum);
+void DoActorZrange(short SpriteNum);
 void PreMapCombineFloors(void);
 void SpriteSetupPost(void);
 int ActorCoughItem(short SpriteNum);
-BOOL ActorSpawn(SPRITEp sp);
+SWBOOL ActorSpawn(SPRITEp sp);
 int SpawnItemsMatch(short match);
 void PicAnimOff(short picnum);
 int MissileWaterAdjust(short SpriteNum);
-BOOL SpriteOverlapZ(SHORT spritenum_a,SHORT spritenum_b,int z_overlap);
+SWBOOL SpriteOverlapZ(int16_t spritenum_a,int16_t spritenum_b,int z_overlap);
 
 enum
 {

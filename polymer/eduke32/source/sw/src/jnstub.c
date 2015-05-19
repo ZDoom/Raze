@@ -42,7 +42,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 void ToggleFAF(void);       // brooms.c
 void FAF_AfterDrawRooms(void);  // brooms.c
-VOID ResetBuildFAF(VOID);   // brooms.c
+void ResetBuildFAF(void);   // brooms.c
 
 
 // Jim's Vars
@@ -66,12 +66,12 @@ short siNextEndTag = 1;                 // Shows the hightest possible next
 
 int loaded_numwalls;
 // Boolean flags used for sprite searching
-BOOL bFindPicNum = TRUE;                // Default
-BOOL bFindHiTag = FALSE;
-BOOL bFindLowTag = FALSE;
-BOOL bVoxelsOn = TRUE;                  // Turn voxels on by default
-BOOL bSpinBobVoxels = TRUE;             // Do twizzly stuff to voxels
-BOOL bAutoSize = TRUE;                  // Autosizing on/off
+SWBOOL bFindPicNum = TRUE;                // Default
+SWBOOL bFindHiTag = FALSE;
+SWBOOL bFindLowTag = FALSE;
+SWBOOL bVoxelsOn = TRUE;                  // Turn voxels on by default
+SWBOOL bSpinBobVoxels = TRUE;             // Do twizzly stuff to voxels
+SWBOOL bAutoSize = TRUE;                  // Autosizing on/off
 
 int nextvoxid = 0;
 char *defsfilename = "sw.def";
@@ -84,7 +84,7 @@ short FindSpriteNum = 0;
 void ContextHelp(short spritenum);
 void LoadKVXFromScript(char *filename);
 
-//void LogUserTime( BOOL bIsLoggingIn );
+//void LogUserTime( SWBOOL bIsLoggingIn );
 
 // voxelarray format is:
 //      spritenumber, voxelnumber
@@ -161,7 +161,7 @@ extern short temppicnum, tempcstat, templotag, temphitag, tempextra;
 void SectorMoveFloorZ(int);
 void SectorMoveCeilingZ(int);
 
-VOID BuildStagTable(VOID);
+void BuildStagTable(void);
 void Message(char *string, char color);
 void ShowMessage(void);
 void ShadeMenu(void);
@@ -170,7 +170,7 @@ void ShowNextTag(void);
 void FindSprite(short picnum, short findspritenum);
 void FindNextSprite(short picnum);
 void SetClipdist2D(void);
-VOID DrawClipBox(short spritenum);
+void DrawClipBox(short spritenum);
 
 //printext16 parameters:
 //printext16(int xpos, int ypos, short col, short backcol,
@@ -207,8 +207,8 @@ VOID DrawClipBox(short spritenum);
 //   searchwall is the sprite if searchstat = 3 (Yeah, I know - it says wall,
 //                                      but trust me, it's the sprite number)
 
-VOID
-ResetKeys(VOID)
+void
+ResetKeys(void)
 {
     unsigned i;
 
@@ -225,7 +225,7 @@ void ExtPreCheckKeys(void)
 
 
 // Toggle sprites on/off.  Good for frame rate checks.
-BOOL DebugActorFreeze = 0;
+SWBOOL DebugActorFreeze = 0;
 
 void
 ToggleSprites()
@@ -559,12 +559,12 @@ ExtAnalyzeSprites(void)
 
 }
 
-BYTEp
-BKeyPressed(VOID)
+uint8_t*
+BKeyPressed(void)
 {
-    BYTEp k;
+    uint8_t* k;
 
-    for (k = (BYTEp) & KEY_PRESSED(0); k < (BYTEp) &KEY_PRESSED(SIZ(keystatus)); k++)
+    for (k = (uint8_t*) & KEY_PRESSED(0); k < (uint8_t*) &KEY_PRESSED(SIZ(keystatus)); k++)
     {
         if (*k)
             return k;
@@ -573,10 +573,10 @@ BKeyPressed(VOID)
     return NULL;
 }
 
-BYTEp
-KeyPressedRange(BYTEp kb, BYTEp ke)
+uint8_t*
+KeyPressedRange(uint8_t* kb, uint8_t* ke)
 {
-    BYTEp k;
+    uint8_t* k;
 
     for (k = kb; k <= ke; k++)
     {
@@ -587,10 +587,10 @@ KeyPressedRange(BYTEp kb, BYTEp ke)
     return NULL;
 }
 
-VOID
-ResetKeyRange(BYTEp kb, BYTEp ke)
+void
+ResetKeyRange(uint8_t* kb, uint8_t* ke)
 {
-    BYTEp k;
+    uint8_t* k;
 
     for (k = kb; k <= ke; k++)
     {
@@ -602,7 +602,7 @@ ResetKeyRange(BYTEp kb, BYTEp ke)
 void
 ExtInit(void)
 {
-    VOID InitPalette(VOID);
+    void InitPalette(void);
     int i, fil;
 
     initgroupfile("sw.grp");
@@ -682,7 +682,7 @@ ExtInit(void)
 #endif
 
 
-    VOID InitPalette(VOID);
+    void InitPalette(void);
     int i, fil;
 
     // Store user log in time
@@ -785,8 +785,8 @@ ExtUnInit(void)
     // now.
 }
 
-VOID
-SetSpriteExtra(VOID)
+void
+SetSpriteExtra(void)
 {
     SPRITEp sp;
     int i;
@@ -826,8 +826,8 @@ SetSpriteExtra(VOID)
     loaded_numwalls = numwalls;
 }
 
-VOID
-ResetSpriteFound(VOID)
+void
+ResetSpriteFound(void)
 {
     SPRITEp sp;
 
@@ -839,8 +839,8 @@ ResetSpriteFound(VOID)
 
 
 // imported from allen code
-VOID
-Keys3D(VOID)
+void
+Keys3D(void)
 {
     int i;
 
@@ -907,7 +907,7 @@ Keys3D(VOID)
     // '+  = Shade down a floor ceiling while keeping sprites constant
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_GPLUS])
     {
-        BOOL dospriteshade = FALSE;
+        SWBOOL dospriteshade = FALSE;
 
         keystatus[KEYSC_GPLUS] = 0;
 
@@ -945,7 +945,7 @@ Keys3D(VOID)
     // '-  = Shade down a floor ceiling while keeping sprites constant
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_GMINUS])
     {
-        BOOL dospriteshade = FALSE;
+        SWBOOL dospriteshade = FALSE;
 
         keystatus[KEYSC_GMINUS] = 0;
 
@@ -1359,7 +1359,7 @@ PrintStatus(char *string, int num, char x, char y, char color)
     printext16(x * 8, ydim16+y * 8, color, -1, tempbuf, 0);
 }
 
-VOID
+void
 MoreKeys(short searchstat, short searchwall, short searchsector, short pointhighlight)
 {
 
@@ -2258,7 +2258,7 @@ ExtGetSpriteCaption(short spritenum)
     char name[64];
     char tp[30];
     char multi_str[30] = "";
-    SHORT data;
+    int16_t data;
 
     data = TEST(sp->extra, SPRX_SKILL);
 
@@ -2695,7 +2695,7 @@ ExtGetSpriteCaption(short spritenum)
     return tempbuf;
 }
 
-VOID
+void
 SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
 {
     short startwall, endwall, j;
@@ -2717,7 +2717,7 @@ SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
     *zmid = DIV2(sector[sectnum].floorz + sector[sectnum].ceilingz);
 }
 
-VOID
+void
 DrawClipBox(short spritenum)
 {
     int x, y, z;
@@ -2974,7 +2974,7 @@ ExtEditWallData(short wallnum)          // F8
 void
 ExtEditSpriteData(short spritenum)      // F8
 {
-    BYTEp key;
+    uint8_t* key;
     short data;
     SPRITEp sp;
 
@@ -2999,7 +2999,7 @@ ExtEditSpriteData(short spritenum)      // F8
 
     while ((key = BKeyPressed()) == NULL) handleevents();
 
-    if (key == (BYTEp)&KEY_PRESSED(KEYSC_1) || key == (BYTEp)&KEY_PRESSED(KEYSC_F8))
+    if (key == (uint8_t*)&KEY_PRESSED(KEYSC_1) || key == (uint8_t*)&KEY_PRESSED(KEYSC_F8))
     {
         *key = FALSE;
 
@@ -3015,13 +3015,13 @@ ExtEditSpriteData(short spritenum)      // F8
         RESET(sp->extra, SPRX_SKILL);
         SET(sp->extra, data);
     }
-    else if (key == (BYTEp)&KEY_PRESSED(KEYSC_2) || key == (BYTEp)&KEY_PRESSED(KEYSC_F9))
+    else if (key == (uint8_t*)&KEY_PRESSED(KEYSC_2) || key == (uint8_t*)&KEY_PRESSED(KEYSC_F9))
     {
         *key = FALSE;
 
         FLIP(sprite[spritenum].extra, SPRX_MULTI_ITEM);
     }
-    else if (key == (BYTEp)&KEY_PRESSED(KEYSC_3) || key == (BYTEp)&KEY_PRESSED(KEYSC_F10))
+    else if (key == (uint8_t*)&KEY_PRESSED(KEYSC_3) || key == (uint8_t*)&KEY_PRESSED(KEYSC_F10))
     {
         *key = FALSE;
 
@@ -3064,17 +3064,17 @@ DISPLAY:
 
             while ((key = BKeyPressed()) == NULL) handleevents();
 
-            if (key == (BYTEp)&KEY_PRESSED(KEYSC_1))
+            if (key == (uint8_t*)&KEY_PRESSED(KEYSC_1))
             {
                 *key = FALSE;
                 bFindPicNum = !bFindPicNum;
             }
-            else if (key == (BYTEp)&KEY_PRESSED(KEYSC_2))
+            else if (key == (uint8_t*)&KEY_PRESSED(KEYSC_2))
             {
                 *key = FALSE;
                 bFindHiTag = !bFindHiTag;
             }
-            else if (key == (BYTEp)&KEY_PRESSED(KEYSC_3))
+            else if (key == (uint8_t*)&KEY_PRESSED(KEYSC_3))
             {
                 *key = FALSE;
                 bFindLowTag = !bFindLowTag;
@@ -3087,7 +3087,7 @@ DISPLAY:
 
         FindSprite(sprite[spritenum].picnum, spritenum);
     }
-    else if (key == (BYTEp)&KEY_PRESSED(KEYSC_4))
+    else if (key == (uint8_t*)&KEY_PRESSED(KEYSC_4))
     {
         *key = FALSE;
         FLIP(sprite[spritenum].extra, SPRX_BLOCK);
@@ -3359,7 +3359,7 @@ FindSprite(short picnum, short findspritenum)
     short SpriteNum, NextSprite;
     SPRITEp sp;
 
-    BOOL bFoundPicNum, bFoundHiTag, bFoundLowTag, bFoundIt;
+    SWBOOL bFoundPicNum, bFoundHiTag, bFoundLowTag, bFoundIt;
 
 
     if (qsetmode == 200)                // In 3D mode
@@ -3432,7 +3432,7 @@ FindNextSprite(short picnum)
     SPRITEp sp;
     short animlen;
 
-    BOOL bFoundPicNum, bFoundHiTag, bFoundLowTag, bFoundIt;
+    SWBOOL bFoundPicNum, bFoundHiTag, bFoundLowTag, bFoundIt;
 
     if (qsetmode == 200)                // In 3D mode
         return;
@@ -3486,7 +3486,7 @@ short tagcheck[] = {0, 1, 3, 5, 16, 23, 25, 27, 29, 30, 31, 32, 33, 34, 37, 38, 
                     72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 90, 94, 97, 98, 99, 100,
                     101, 102, 135, 110, 111, 112, 113, 114, 115, 9002};
 
-BOOL
+SWBOOL
 DoMatchCheck(SPRITEp sp)
 {
     unsigned i;
@@ -3554,7 +3554,7 @@ FindNextTag(void)
 void
 ShadeMenu(void)                         // F8
 {
-    BYTEp key;
+    uint8_t* key;
 
     if (qsetmode == 200)                // In 3D mode
         return;
@@ -3569,22 +3569,22 @@ ShadeMenu(void)                         // F8
 
     while ((key = BKeyPressed()) == NULL) ;
 
-    if (key == (BYTEp)&KEY_PRESSED(KEYSC_1))
+    if (key == (uint8_t*)&KEY_PRESSED(KEYSC_1))
     {
         *key = FALSE;
         PlaxSetShade();
     }
-    else if (key == (BYTEp)&KEY_PRESSED(KEYSC_2))
+    else if (key == (uint8_t*)&KEY_PRESSED(KEYSC_2))
     {
         *key = FALSE;
         PlaxAdjustShade();
     }
-    else if (key == (BYTEp)&KEY_PRESSED(KEYSC_3))
+    else if (key == (uint8_t*)&KEY_PRESSED(KEYSC_3))
     {
         *key = FALSE;
         AdjustShade();
     }
-    else if (key == (BYTEp)&KEY_PRESSED(KEYSC_4))
+    else if (key == (uint8_t*)&KEY_PRESSED(KEYSC_4))
     {
         *key = FALSE;
         AdjustVisibility();
@@ -3706,8 +3706,8 @@ dsprintf_null(char *str, char *format, ...)
 }
 
 
-VOID
-BuildStagTable(VOID)
+void
+BuildStagTable(void)
 {
 #define MAKE_STAG_TABLE
 #include "stag.h"

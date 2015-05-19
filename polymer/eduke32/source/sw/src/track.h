@@ -1,6 +1,6 @@
 int ActorFollowTrack(short SpriteNum,short locktics);
 void ActorLeaveTrack(short SpriteNum);
-void RefreshPoints(SECTOR_OBJECTp sop,int nx,int ny,BOOL dynamic);
+void RefreshPoints(SECTOR_OBJECTp sop,int nx,int ny,SWBOOL dynamic);
 void TrackSetup(void);
 void PlaceSectorObject(SECTOR_OBJECTp sop,short newang,int newx,int newy);
 void PlaceSectorObjectsOnTracks(void);

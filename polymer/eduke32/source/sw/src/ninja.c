@@ -2140,8 +2140,8 @@ DoNinjaCeiling(short SpriteNum)
 // too convienent to put it here.
 //
 
-VOID
-InitAllPlayerSprites(VOID)
+void
+InitAllPlayerSprites(void)
 {
     short i, sp_num;
     USERp u;
@@ -2153,7 +2153,7 @@ InitAllPlayerSprites(VOID)
 }
 
 
-VOID
+void
 PlayerLevelReset(PLAYERp pp)
 {
     SPRITEp sp = &sprite[pp->PlayerSprite];
@@ -2195,7 +2195,7 @@ PlayerLevelReset(PLAYERp pp)
     DamageData[u->WeaponNum].Init(pp);
 }
 
-VOID
+void
 PlayerDeathReset(PLAYERp pp)
 {
     SPRITEp sp = &sprite[pp->PlayerSprite];
@@ -2265,8 +2265,8 @@ PlayerDeathReset(PLAYERp pp)
     DamageData[u->WeaponNum].Init(pp);
 }
 
-VOID
-PlayerPanelSetup(VOID)
+void
+PlayerPanelSetup(void)
 {
     short pnum;
     PLAYERp pp;
@@ -2289,7 +2289,7 @@ PlayerPanelSetup(VOID)
     }
 }
 
-VOID
+void
 PlayerGameReset(PLAYERp pp)
 {
     SPRITEp sp = &sprite[pp->PlayerSprite];
@@ -2356,7 +2356,7 @@ PlayerGameReset(PLAYERp pp)
 
 extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 
-VOID
+void
 PlayerSpriteLoadLevel(short SpriteNum)
 {
     USERp u = User[SpriteNum];
@@ -2367,14 +2367,14 @@ PlayerSpriteLoadLevel(short SpriteNum)
     u->ActorActionSet = &PlayerNinjaActionSet;
 }
 
-VOID
+void
 InitPlayerSprite(PLAYERp pp)
 {
     short i, sp_num;
     SPRITE *sp;
     USERp u;
     int pnum = pp - Player;
-    extern BOOL NewGame;
+    extern SWBOOL NewGame;
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
@@ -2450,7 +2450,7 @@ InitPlayerSprite(PLAYERp pp)
     PlayerUpdatePanelInfo(pp);
 }
 
-VOID
+void
 SpawnPlayerUnderSprite(PLAYERp pp)
 {
     USERp pu = User[pp->PlayerSprite], u;

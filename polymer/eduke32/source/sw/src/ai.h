@@ -61,8 +61,8 @@ typedef enum
 struct ATTRIBUTEstruct
 {
     short Speed[MAX_SPEED];
-    CHAR TicAdjust[MAX_SPEED];
-    BYTE MaxWeapons;
+    int8_t TicAdjust[MAX_SPEED];
+    uint8_t MaxWeapons;
     /*ATTRIB_SNDS*/ int Sounds[MAXATTRIBSNDS];  // JBF: ATTRIB_SNDS? Somehow I don't think this is what was intended...
 };
 
@@ -70,9 +70,9 @@ extern ATTRIBUTE DefaultAttrib;
 
 // AI.C functions
 void DebugMoveHit(short SpriteNum);
-BOOL ActorMoveHitReact(short SpriteNum);
-BOOL ActorFlaming(short SpriteNum);
-void DoActorSetSpeed(short SpriteNum,BYTE speed);
+SWBOOL ActorMoveHitReact(short SpriteNum);
+SWBOOL ActorFlaming(short SpriteNum);
+void DoActorSetSpeed(short SpriteNum,uint8_t speed);
 short ChooseActionNumber(short decision[]);
 int DoActorNoise(ANIMATORp Action,short SpriteNum);
 int CanSeePlayer(short SpriteNum);
@@ -161,6 +161,6 @@ DoActorExtra5Noise,
 DoActorExtra6Noise;
 */
 
-VOID DoActorSetSpeed(short SpriteNum, BYTE speed);
+void DoActorSetSpeed(short SpriteNum, uint8_t speed);
 
 #endif

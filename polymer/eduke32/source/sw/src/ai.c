@@ -38,9 +38,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "net.h"
 
-BOOL PlayerTakeDamage(PLAYERp, short);
+SWBOOL PlayerTakeDamage(PLAYERp, short);
 ANIMATOR InitActorRunToward;
-BOOL FAF_Sector(short);
+SWBOOL FAF_Sector(short);
 
 short FindTrackToPlayer(USERp u);
 ANIMATORp ChooseAction(DECISION decision[]);
@@ -54,11 +54,11 @@ short AttackOrRun = 200;
 #define CHOOSE2(value) (RANDOM_P2(1024) < (value))
 
 
-VOID DebugMoveHit(short SpriteNum)
+void DebugMoveHit(short SpriteNum)
 {
     SPRITEp sp;
     USERp u = User[SpriteNum];
-    extern BOOL DebugActor;
+    extern SWBOOL DebugActor;
 
     return;
 
@@ -93,7 +93,7 @@ VOID DebugMoveHit(short SpriteNum)
 }
 
 
-BOOL ActorMoveHitReact(short SpriteNum)
+SWBOOL ActorMoveHitReact(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
@@ -143,7 +143,7 @@ BOOL ActorMoveHitReact(short SpriteNum)
 }
 
 
-BOOL ActorFlaming(short SpriteNum)
+SWBOOL ActorFlaming(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
@@ -165,8 +165,8 @@ BOOL ActorFlaming(short SpriteNum)
     return FALSE;
 }
 
-VOID
-DoActorSetSpeed(short SpriteNum, BYTE speed)
+void
+DoActorSetSpeed(short SpriteNum, uint8_t speed)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
@@ -385,8 +385,8 @@ DoActorPickClosePlayer(short SpriteNum)
     PLAYERp pp,tp;
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
-    BOOL ICanSee = FALSE;
-    BOOL found = FALSE;
+    SWBOOL ICanSee = FALSE;
+    SWBOOL found = FALSE;
     int i,nexti;
 
     if (u->ID == ZOMBIE_RUN_R0 && gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
@@ -629,7 +629,7 @@ DoActorActionDecide(short SpriteNum)
     ANIMATORp action;
     PLAYERp pp;
     USERp pu=NULL;
-    BOOL ICanSee=FALSE;
+    SWBOOL ICanSee=FALSE;
 
     // REMINDER: This function is not even called if SpriteControl doesn't let
     // it get called
@@ -1705,7 +1705,7 @@ int move_scan(short SpriteNum, short ang, int dist, int *stopx, int *stopy, int 
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     int nx,ny;
-    ULONG cliptype = CLIPMASK_ACTOR;
+    uint32_t cliptype = CLIPMASK_ACTOR;
     int ret;
 
     short sang,ss;
@@ -1769,7 +1769,7 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    BOOL DropAhead(short SpriteNum, short min_height);
+    SWBOOL DropAhead(short SpriteNum, short min_height);
 
     static short toward_angle_delta[4][9] =
     {
@@ -1788,7 +1788,7 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
     };
 
 
-    SHORTp adp = NULL;
+    int16_t* adp = NULL;
 
     short new_ang, oang;
     short save_ang = -1;

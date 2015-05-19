@@ -56,7 +56,7 @@ void SetGameDefaults(void)
 {
 }
 
-extern BOOL DrawScreen;
+extern SWBOOL DrawScreen;
 
 void EncodePassword(char *pw)
 {
@@ -106,7 +106,7 @@ void DecodePassword(char *pw)
 ===================
 */
 
-void ReadGameSetup(int32 scripthandle)
+void ReadGameSetup(int32_t scripthandle)
 {
     int dummy;
     int ret;
@@ -270,7 +270,7 @@ void ReadGameSetup(int32 scripthandle)
 ===================
 */
 
-void WriteGameSetup(int32 scripthandle)
+void WriteGameSetup(int32_t scripthandle)
 {
     int dummy;
 
@@ -353,7 +353,7 @@ void WriteGameSetup(int32 scripthandle)
 
 void TermSetup(void)
 {
-    extern BOOL BotMode;
+    extern SWBOOL BotMode;
     CONFIG_WriteSetup();
     RTS_Shutdown();
 }

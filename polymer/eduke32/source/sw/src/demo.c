@@ -46,29 +46,29 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 DFILE DemoFileIn = DF_ERR;
 FILE *DemoFileOut;
-BOOL DemoPlaying = FALSE;
-BOOL DemoRecording = FALSE;
-BOOL DemoEdit = FALSE;
-BOOL DemoMode = FALSE;
-BOOL DemoModeMenuState = FALSE;
-BOOL DemoOverride = FALSE;
+SWBOOL DemoPlaying = FALSE;
+SWBOOL DemoRecording = FALSE;
+SWBOOL DemoEdit = FALSE;
+SWBOOL DemoMode = FALSE;
+SWBOOL DemoModeMenuState = FALSE;
+SWBOOL DemoOverride = FALSE;
 char DemoFileName[16] = "demo.dmo";
 char DemoLevelName[16] = "";
-extern BOOL NewGame;
+extern SWBOOL NewGame;
 
 // Demo sync stuff
 FILE *DemoSyncFile;
-BOOL DemoSyncTest = FALSE, DemoSyncRecord = FALSE;
+SWBOOL DemoSyncTest = FALSE, DemoSyncRecord = FALSE;
 char DemoTmpName[16] = "";
 
 SW_PACKET DemoBuffer[DEMO_BUFFER_MAX];
 int DemoRecCnt = 0;                    // Can only record 1-player game
 
-BOOL DemoDone;
+SWBOOL DemoDone;
 
-VOID DemoWriteHeader(VOID);
-VOID DemoReadHeader(VOID);
-VOID DemoReadBuffer(VOID);
+void DemoWriteHeader(void);
+void DemoReadHeader(void);
+void DemoReadBuffer(void);
 
 
 //
@@ -76,15 +76,15 @@ VOID DemoReadBuffer(VOID);
 //
 
 // DemoDebugMode will close the file after every write
-BOOL DemoDebugMode = FALSE;
-//BOOL DemoDebugMode = TRUE;
-BOOL DemoInitOnce = FALSE;
+SWBOOL DemoDebugMode = FALSE;
+//SWBOOL DemoDebugMode = TRUE;
+SWBOOL DemoInitOnce = FALSE;
 short DemoDebugBufferMax = 1;
 
 extern char LevelName[];
 extern char LevelSong[16];
-extern BYTE FakeMultiNumPlayers;
-extern BOOL QuitFlag;
+extern uint8_t FakeMultiNumPlayers;
+extern SWBOOL QuitFlag;
 
 ///////////////////////////////////////////
 //
@@ -92,7 +92,7 @@ extern BOOL QuitFlag;
 //
 ///////////////////////////////////////////
 
-char *DemoSyncFileName(VOID)
+char *DemoSyncFileName(void)
 {
     static char file_name[32];
     char *ptr;
@@ -110,8 +110,8 @@ char *DemoSyncFileName(VOID)
     return file_name;
 }
 
-VOID
-DemoSetup(VOID)
+void
+DemoSetup(void)
 {
     if (DemoRecording)
     {
@@ -135,8 +135,8 @@ DemoSetup(VOID)
     }
 }
 
-VOID
-DemoRecordSetup(VOID)
+void
+DemoRecordSetup(void)
 {
     if (DemoRecording)
     {
@@ -148,8 +148,8 @@ DemoRecordSetup(VOID)
     }
 }
 
-VOID
-DemoPlaySetup(VOID)
+void
+DemoPlaySetup(void)
 {
     if (DemoPlaying)
     {
@@ -164,8 +164,8 @@ DemoPlaySetup(VOID)
     }
 }
 
-VOID
-DemoWriteHeader(VOID)
+void
+DemoWriteHeader(void)
 {
     DEMO_HEADER dh;
     DEMO_START_POS dsp;
@@ -207,8 +207,8 @@ DemoWriteHeader(VOID)
     }
 }
 
-VOID
-DemoReadHeader(VOID)
+void
+DemoReadHeader(void)
 {
     DEMO_HEADER dh;
     DEMO_START_POS dsp;
@@ -262,8 +262,8 @@ DemoReadHeader(VOID)
     DREAD(&gNet, sizeof(gNet), 1, DemoFileIn);
 }
 
-VOID
-DemoDebugWrite(VOID)
+void
+DemoDebugWrite(void)
 {
     int size;
 
@@ -278,22 +278,22 @@ DemoDebugWrite(VOID)
     fclose(DemoFileOut);
 }
 
-VOID
-DemoWriteBuffer(VOID)
+void
+DemoWriteBuffer(void)
 {
     fwrite(&DemoBuffer, sizeof(DemoBuffer), 1, DemoFileOut);
     memset(&DemoBuffer, -1, sizeof(DemoBuffer));
 }
 
-VOID
-DemoReadBuffer(VOID)
+void
+DemoReadBuffer(void)
 {
     memset(&DemoBuffer, -1, sizeof(DemoBuffer));
     DREAD(&DemoBuffer, sizeof(DemoBuffer), 1, DemoFileIn);
 }
 
-VOID
-DemoBackupBuffer(VOID)
+void
+DemoBackupBuffer(void)
 {
 #if DEMO_FILE_TYPE != DEMO_FILE_GROUP
     FILE *NewDemoFile;
@@ -324,8 +324,8 @@ DemoBackupBuffer(VOID)
 #endif
 }
 
-VOID
-DemoTerm(VOID)
+void
+DemoTerm(void)
 {
     if (DemoRecording)
     {
@@ -379,8 +379,8 @@ DemoTerm(VOID)
 ///////////////////////////////////////////
 
 
-VOID
-DemoPlayBack(VOID)
+void
+DemoPlayBack(void)
 {
     int pnum, cnt;
     static int buf_ndx;
@@ -582,8 +582,8 @@ DemoPlayBack(VOID)
 // Still using old method of playback - this was for opening demo
 //
 
-VOID
-ScenePlayBack(VOID)
+void
+ScenePlayBack(void)
 {
     int buf_ndx, pnum, cnt;
     PLAYERp pp;

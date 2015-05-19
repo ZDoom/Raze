@@ -60,9 +60,9 @@ struct PANEL_STATEstruct
     int tics;
     void (*Animator)(PANEL_SPRITEp);    // JBF: return type was long
     PANEL_STATEp NextState;
-    ULONG flags;
-    BYTE xvel;
-    BYTE yvel;
+    uint32_t flags;
+    uint8_t xvel;
+    uint8_t yvel;
 };
 
 #define PANF_PRIMARY         (BIT(0)) // denotes primary weapon
@@ -91,7 +91,7 @@ struct PANEL_STATEstruct
 #define PANF_DRAW_BEFORE_VIEW (BIT(30)) // draw before drawrooms
 #define PANF_NOT_ALL_PAGES       (BIT(31)) // DONT use permanentwritesprite bit for rotatesprite
 
-typedef VOID (*PANEL_SPRITE_FUNCp)(PANEL_SPRITEp);
+typedef void (*PANEL_SPRITE_FUNCp)(PANEL_SPRITEp);
 
 typedef struct
 {
@@ -110,10 +110,10 @@ struct PANEL_SPRITEstruct
     PANEL_STATEp State, RetractState, PresentState, ActionState, RestState;
     PLAYERp PlayerP;
     // Do not change the order of this line
-    USHORT xfract;
-    SHORT x;
-    USHORT yfract;
-    SHORT y;                            // Do not change the order of this
+    uint16_t xfract;
+    int16_t x;
+    uint16_t yfract;
+    int16_t y;                            // Do not change the order of this
     // line
 
     PANEL_SPRITE_OVERLAY over[8];
@@ -182,13 +182,13 @@ enum BorderTypes
 #define SHOTGUN_AUTO_NUM 0
 #define SHOTGUN_AUTO 2078
 
-PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, BYTE priority, int x, int y);
+PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, int x, int y);
 PANEL_SPRITEp pSpawnFullScreenSprite(PLAYERp pp, short pic, short pri, int x, int y);
 PANEL_SPRITEp pSpawnFullViewSprite(PLAYERp pp,short pic,short pri,int x,int y);
 void pSetSuicide(PANEL_SPRITEp psp);
-BOOL pKillScreenSpiteIDs(PLAYERp pp, short id);
-VOID pFlushPerms(PLAYERp pp);
-VOID PreUpdatePanel(void);
+SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id);
+void pFlushPerms(PLAYERp pp);
+void PreUpdatePanel(void);
 void UpdatePanel(void);
 void PlayerUpdateKeys(PLAYERp pp);
 void PlayerUpdateArmor(PLAYERp pp,short value);
@@ -196,6 +196,6 @@ void pToggleCrosshair(PLAYERp pp);
 void pKillSprite(PANEL_SPRITEp psp);
 void InitChops(PLAYERp pp);
 void ChopsSetRetract(PLAYERp pp);
-VOID PlayerUpdateTimeLimit(PLAYERp pp);
+void PlayerUpdateTimeLimit(PLAYERp pp);
 
 #endif

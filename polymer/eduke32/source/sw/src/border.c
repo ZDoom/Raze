@@ -65,19 +65,19 @@ short SWBorderTest[] =
 #define X_TO_FIXED(val) (x_aspect_mul*(val))
 #define Y_TO_FIXED(val) (y_aspect_mul*(val))
 
-BOOL RedrawScreen = FALSE;
+SWBOOL RedrawScreen = FALSE;
 
 int f_xdim, f_ydim, x_pix_size, y_pix_size, x_aspect_mul, y_aspect_mul;
 int CrosshairX, CrosshairY;
 
-extern BOOL BorderAdjust;
-BOOL GlobSpriteBoxUpdateEveryFrame = FALSE;
+extern SWBOOL BorderAdjust;
+SWBOOL GlobSpriteBoxUpdateEveryFrame = FALSE;
 
 PANEL_SPRITEp
 pSpawnFullScreenSpriteBox(PLAYERp pp, short id, short pic, short pri, int x, int y, short x1, short y1, short x2, short y2)
 {
     PANEL_SPRITEp psp;
-    extern BOOL DrawBeforeView;
+    extern SWBOOL DrawBeforeView;
 
     psp = pSpawnSprite(pp, NULL, pri, x, y);
 
@@ -104,7 +104,7 @@ pSpawnFullScreenSpriteBox(PLAYERp pp, short id, short pic, short pri, int x, int
     return psp;
 }
 
-VOID SetCrosshair(VOID)
+void SetCrosshair(void)
 {
     int wdx,wdy,x,y;
 
@@ -122,8 +122,8 @@ VOID SetCrosshair(VOID)
 }
 
 
-VOID
-SetupAspectRatio(VOID)
+void
+SetupAspectRatio(void)
 {
     f_xdim = FIXED(xdim, 0);
     f_ydim = FIXED(ydim, 0);
@@ -135,8 +135,8 @@ SetupAspectRatio(VOID)
     y_aspect_mul = (f_ydim / 200);
 }
 
-VOID
-SetConsoleDmost(VOID)
+void
+SetConsoleDmost(void)
 {
     int ystart;
     int xstart;
@@ -166,7 +166,7 @@ SetConsoleDmost(VOID)
     }
 }
 
-VOID ClearStartMost(VOID)
+void ClearStartMost(void)
 {
     int i;
 
@@ -176,12 +176,12 @@ VOID ClearStartMost(VOID)
     memset(startumost, 0, sizeof(startumost));
 }
 
-VOID
+void
 SetFragBar(PLAYERp pp)
 {
     short i, num_frag_bars;
     int y;
-    extern SHORT OrigCommPlayers;
+    extern int16_t OrigCommPlayers;
 
     if (numplayers <= 1)
         return;
@@ -221,7 +221,7 @@ SetFragBar(PLAYERp pp)
     }
 }
 
-BOOL RectOverlap(short tx1, short ty1, short bx1, short by1, short tx2, short ty2, short bx2, short by2)
+SWBOOL RectOverlap(short tx1, short ty1, short bx1, short by1, short tx2, short ty2, short bx2, short by2)
 {
     if (bx1 >= tx2)
         if (tx1 <= bx2)
@@ -232,7 +232,7 @@ BOOL RectOverlap(short tx1, short ty1, short bx1, short by1, short tx2, short ty
     return FALSE;
 }
 
-VOID DrawBorderShade(PLAYERp pp, short shade_num, short wx1, short wy1, short wx2, short wy2)
+void DrawBorderShade(PLAYERp pp, short shade_num, short wx1, short wy1, short wx2, short wy2)
 {
     short i,j,k,l;
     PANEL_SPRITEp psp;
@@ -279,12 +279,12 @@ VOID DrawBorderShade(PLAYERp pp, short shade_num, short wx1, short wy1, short wx
     }
 }
 
-VOID
-BorderShade(PLAYERp pp, BOOL refresh)
+void
+BorderShade(PLAYERp pp, SWBOOL refresh)
 {
     int i, j, k, l, wx1, wx2, wy1, wy2;
     PANEL_SPRITEp psp;
-    BYTE lines;
+    uint8_t lines;
 
     wx1 = windowx1 - 1;
     wy1 = windowy1 - 1;
@@ -344,7 +344,7 @@ BORDER_INFO BorderInfoValues[] =
 };
 
 
-VOID DrawBorder(PLAYERp pp, short x, short y, short x2, short y2)
+void DrawBorder(PLAYERp pp, short x, short y, short x2, short y2)
 {
     short i,j,k,l;
     short count = 0;
@@ -387,7 +387,7 @@ VOID DrawBorder(PLAYERp pp, short x, short y, short x2, short y2)
     }
 }
 
-VOID DrawPanelBorderSides(PLAYERp pp, short x, short y, short x2, short y2, short panl, short panr)
+void DrawPanelBorderSides(PLAYERp pp, short x, short y, short x2, short y2, short panl, short panr)
 {
     short i,j,k,l;
     short count = 0;
@@ -415,7 +415,7 @@ VOID DrawPanelBorderSides(PLAYERp pp, short x, short y, short x2, short y2, shor
 }
 
 static
-VOID BorderSetView(PLAYERp UNUSED(pp), int *Xdim, int *Ydim, int *ScreenSize)
+void BorderSetView(PLAYERp UNUSED(pp), int *Xdim, int *Ydim, int *ScreenSize)
 {
     void setview(int scrx1, int scry1, int scrx2, int scry2);
     int x, x2, y, y2;
@@ -450,7 +450,7 @@ VOID BorderSetView(PLAYERp UNUSED(pp), int *Xdim, int *Ydim, int *ScreenSize)
 // Redraw the border without changing the view
 //
 
-static VOID
+static void
 BorderRefresh(PLAYERp pp)
 {
     int i, j;
@@ -515,11 +515,11 @@ BorderRefresh(PLAYERp pp)
 // Redraw the whole screen
 //
 
-VOID SetBorder(PLAYERp pp, int value)
+void SetBorder(PLAYERp pp, int value)
 {
     int diff;
     int Xdim, Ydim, ScreenSize;
-    BOOL set_view = TRUE;
+    SWBOOL set_view = TRUE;
 
     if (pp != Player + myconnectindex)
         return;
@@ -558,7 +558,7 @@ VOID SetBorder(PLAYERp pp, int value)
     SetFragBar(pp);
 }
 
-VOID
+void
 SetRedrawScreen(PLAYERp pp)
 {
     int i, j;

@@ -36,8 +36,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //#define PokeByte(a,b,c)      (*((char far *)MK_FP((a),(b)))=(char)(c))
 
 //#if DEBUG
-VOID
-PokeStringMono(BYTE Attr, BYTEp String)
+void
+PokeStringMono(uint8_t Attr, uint8_t* String)
 {
     fprintf(stderr,"MONO: %s\n",String);
 #if 0
@@ -46,8 +46,8 @@ PokeStringMono(BYTE Attr, BYTEp String)
 
     // EXAMPLE: PokeStringMono(MDA_NORMAL, "Hello, world.");
 
-    BYTEp Src, Dest;
-    LONGp s,d;
+    uint8_t* Src, Dest;
+    int32_t* s,d;
     static char MonoBuf[4000];
 
 #define BASE (MonoBuf)
@@ -56,8 +56,8 @@ PokeStringMono(BYTE Attr, BYTEp String)
 
     // First scroll the screen up one line.
     // copy lines 1-24 up to 0
-    s = (LONGp)(BASE + LINE_SIZE);
-    d = (LONGp)BASE;
+    s = (int32_t*)(BASE + LINE_SIZE);
+    d = (int32_t*)BASE;
     memmove(d,s,LINE_OFFSET(24));
 
     // clear bottom line

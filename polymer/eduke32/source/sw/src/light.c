@@ -51,7 +51,7 @@ void SectorLightShade(SPRITEp sp, short intensity)
 {
     short w, startwall, endwall;
     void *void_ptr;
-    CHARp wall_shade;
+    int8_t* wall_shade;
     short base_shade;
     short wallcount;
 
@@ -102,7 +102,7 @@ void SectorLightShade(SPRITEp sp, short intensity)
 }
 
 
-VOID DiffuseLighting(SPRITEp sp)
+void DiffuseLighting(SPRITEp sp)
 {
     short i, nexti;
     short count;
@@ -133,7 +133,7 @@ VOID DiffuseLighting(SPRITEp sp)
     }
 }
 
-VOID DoLightingMatch(short match, short state)
+void DoLightingMatch(short match, short state)
 {
     short i,nexti;
     SPRITEp sp;
@@ -255,7 +255,7 @@ VOID DoLightingMatch(short match, short state)
     }
 }
 
-VOID InitLighting(VOID)
+void InitLighting(void)
 {
     short i,nexti;
     SPRITEp sp;
@@ -274,7 +274,7 @@ VOID InitLighting(VOID)
     }
 }
 
-VOID DoLighting(VOID)
+void DoLighting(void)
 {
     short i,nexti;
     SPRITEp sp;

@@ -52,7 +52,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "bots.h"
 
-BOOL WeaponOK(PLAYERp pp);
+SWBOOL WeaponOK(PLAYERp pp);
 
 #define MAXANGVEL 80
 
@@ -424,7 +424,7 @@ void computergetinput(int snum, SW_PACKET *syn)
     int myx, myy, myz, myang, mycursectnum;
     USERp u;
     short weap;
-    //extern BOOL Pachinko_Win_Cheat;
+    //extern SWBOOL Pachinko_Win_Cheat;
 
     if (!MoveSkip4) return; // Make it so the bots don't slow the game down so bad!
 

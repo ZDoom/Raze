@@ -37,11 +37,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "sector.h"
 
-extern BYTE RedBookSong[40];
-extern BYTE playTrack;
-BOOL serpwasseen = FALSE;
-BOOL sumowasseen = FALSE;
-BOOL zillawasseen = FALSE;
+extern uint8_t RedBookSong[40];
+extern uint8_t playTrack;
+SWBOOL serpwasseen = FALSE;
+SWBOOL sumowasseen = FALSE;
+SWBOOL zillawasseen = FALSE;
 
 short BossSpriteNum[3] = {-1,-1,-1};
 
@@ -790,7 +790,7 @@ int DoSumoDeathMelt(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    static BOOL alreadydid = FALSE;
+    static SWBOOL alreadydid = FALSE;
 
     PlaySound(DIGI_SUMOFART, &sp->x, &sp->y, &sp->z, v3df_follow);
 
@@ -811,7 +811,7 @@ int DoSumoDeathMelt(short SpriteNum)
 }
 
 
-VOID
+void
 BossHealthMeter(void)
 {
     SPRITEp sp;
@@ -820,10 +820,10 @@ BossHealthMeter(void)
     short color=0,i=0,nexti,metertics,meterunit;
     int y;
     extern char buffer[];
-    extern BOOL NoMeters;
+    extern SWBOOL NoMeters;
     short health;
-    BOOL bosswasseen;
-    static BOOL triedplay = FALSE;
+    SWBOOL bosswasseen;
+    static SWBOOL triedplay = FALSE;
 
     if (NoMeters) return;
 

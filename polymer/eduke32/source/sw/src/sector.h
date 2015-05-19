@@ -28,16 +28,16 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define SECTOR_H
 
 
-VOID SectorSetup(VOID);
+void SectorSetup(void);
 DOOR_AUTO_CLOSEp SetDoorAutoClose(short SectorNum, short Type);
-VOID DoDragging(VOID);
+void DoDragging(void);
 int MoveDoorVert(short door_sector, short dir, short door_speed);
 int MoveDoorUp(short door_sector, short auto_close, short door_speed);
 int MoveDoorDown(short door_sector, short dir, short door_speed);
 int MoveDoorHoriz(short door_sector, short dir, short door_speed);
-VOID DoDoorsClose(VOID);
+void DoDoorsClose(void);
 short Switch(short SwitchSector);
-VOID PlayerOperateEnv(PLAYERp pp);
+void PlayerOperateEnv(PLAYERp pp);
 int TeleportToSector(PLAYERp pp, int newsector);
 int OperateSector(short sectnum,short player_is_operating);
 int OperateSprite(short SpriteNum, short player_is_operating);
@@ -63,15 +63,15 @@ typedef struct
 } NEAR_TAG_INFO, *NEAR_TAG_INFOp;
 extern short nti_cnt;
 
-VOID DoSpawnSpotsForKill(short match);
-VOID DoSpawnSpotsForDamage(short match);
-VOID DoMatchEverything(PLAYERp pp, short match, short state);
-BOOL ComboSwitchTest(short combo_type,short match);
+void DoSpawnSpotsForKill(short match);
+void DoSpawnSpotsForDamage(short match);
+void DoMatchEverything(PLAYERp pp, short match, short state);
+SWBOOL ComboSwitchTest(short combo_type,short match);
 void DoSoundSpotStopSound(short match);
 void DoSector(void);
 short AnimateSwitch(SPRITEp sp,short tgt_value);
 void ShootableSwitch(short SpriteNum,short Weapon);
-BOOL TestKillSectorObject(SECTOR_OBJECTp sop);
+SWBOOL TestKillSectorObject(SECTOR_OBJECTp sop);
 void WeaponExplodeSectorInRange(short weapon);
 
 void initlava(void);

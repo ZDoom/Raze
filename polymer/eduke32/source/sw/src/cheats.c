@@ -37,50 +37,50 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //#include "inv.h"
 
 
-BOOL CheatInputMode = FALSE;
+SWBOOL CheatInputMode = FALSE;
 char CheatInputString[256];
-BOOL EveryCheat = FALSE;
-BOOL ResCheat = FALSE;
+SWBOOL EveryCheat = FALSE;
+SWBOOL ResCheat = FALSE;
 
-VOID ResCheatOn(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
+void ResCheatOn(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 {
     ResCheat = TRUE;
 }
 
-VOID VoxCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
+void VoxCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 {
     //gs.Voxel ^= 1;
 }
 
-VOID RestartCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
+void RestartCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 {
     ExitLevel = TRUE;
 }
 
-VOID RoomCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
+void RoomCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 {
-    extern BOOL FAF_DebugView;
+    extern SWBOOL FAF_DebugView;
     FAF_DebugView ^= 1;
 }
 
-VOID SecretCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
+void SecretCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 {
     gs.Stats = !gs.Stats;
 }
 
-VOID NextCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
+void NextCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 {
     Level++;
     ExitLevel = TRUE;
 }
 
-VOID PrevCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
+void PrevCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 {
     Level--;
     ExitLevel = TRUE;
 }
 
-VOID MapCheat(PLAYERp pp, char *UNUSED(cheat_string))
+void MapCheat(PLAYERp pp, char *UNUSED(cheat_string))
 {
     automapping ^= 1;
 
@@ -94,16 +94,16 @@ VOID MapCheat(PLAYERp pp, char *UNUSED(cheat_string))
 }
 
 
-VOID LocCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
+void LocCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 {
-    extern BOOL LocationInfo;
+    extern SWBOOL LocationInfo;
     LocationInfo++;
     if (LocationInfo > 2)
         LocationInfo = 0;
 }
 
 
-VOID WeaponCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
+void WeaponCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 {
     PLAYERp p;
     short pnum;
@@ -131,7 +131,7 @@ VOID WeaponCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 }
 
 
-VOID GodCheat(PLAYERp pp, char *UNUSED(cheat_string))
+void GodCheat(PLAYERp pp, char *UNUSED(cheat_string))
 {
     //
     // GOD mode
@@ -142,7 +142,7 @@ VOID GodCheat(PLAYERp pp, char *UNUSED(cheat_string))
     PutStringInfo(pp, ds);
 }
 
-VOID ClipCheat(PLAYERp pp, char *UNUSED(cheat_string))
+void ClipCheat(PLAYERp pp, char *UNUSED(cheat_string))
 {
     FLIP(pp->Flags, PF_CLIP_CHEAT);
 
@@ -150,7 +150,7 @@ VOID ClipCheat(PLAYERp pp, char *UNUSED(cheat_string))
     PutStringInfo(pp, ds);
 }
 
-VOID WarpCheat(PLAYERp pp, char *cheat_string)
+void WarpCheat(PLAYERp pp, char *cheat_string)
 {
     char *cp = cheat_string;
     int episode_num;
@@ -180,7 +180,7 @@ VOID WarpCheat(PLAYERp pp, char *cheat_string)
     PutStringInfo(pp, ds);
 }
 
-VOID ItemCheat(PLAYERp pp, char *cheat_string)
+void ItemCheat(PLAYERp pp, char *cheat_string)
 {
     //
     // Get all ITEMS
@@ -231,7 +231,7 @@ VOID ItemCheat(PLAYERp pp, char *cheat_string)
     PlayerUpdateKeys(pp);
 }
 
-VOID EveryCheatToggle(PLAYERp pp, char *cheat_string)
+void EveryCheatToggle(PLAYERp pp, char *cheat_string)
 {
     EveryCheat ^= 1;
 
@@ -243,18 +243,18 @@ VOID EveryCheatToggle(PLAYERp pp, char *cheat_string)
     PutStringInfo(pp, ds);
 }
 
-VOID SaveCheat(PLAYERp pp, char *UNUSED(cheat_string))
+void SaveCheat(PLAYERp pp, char *UNUSED(cheat_string))
 {
     saveboard("swsave.map", &pp->posx, &pp->posy, &pp->posz,
               &pp->pang, &pp->cursectnum);
 }
 
-VOID GeorgeFunc(PLAYERp pp, char *UNUSED(cheat_string))
+void GeorgeFunc(PLAYERp pp, char *UNUSED(cheat_string))
 {
     PlayerSound(DIGI_TAUNTAI9,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_doppler|v3df_follow,pp);
 }
 
-VOID BlackburnFunc(PLAYERp pp, char *UNUSED(cheat_string))
+void BlackburnFunc(PLAYERp pp, char *UNUSED(cheat_string))
 {
     PlayerSound(DIGI_TAUNTAI3,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_doppler|v3df_follow,pp);
 }
@@ -316,9 +316,9 @@ CHEAT_INFO ci[] =
 // !JIM! My simplified version of CheatInput which simply processes MessageInputString
 void CheatInput(void)
 {
-    static BOOL cur_show;
+    static SWBOOL cur_show;
     int ret;
-    BOOL match = FALSE;
+    SWBOOL match = FALSE;
     unsigned int i;
 
     //if (CommEnabled)
@@ -382,10 +382,10 @@ void CheatInput(void)
 /*    OLD CODE
 void CheatInput(void)
     {
-    static BOOL cur_show;
+    static SWBOOL cur_show;
     signed char MNU_InputString(char *, short);
     int ret;
-    BOOL match = FALSE;
+    SWBOOL match = FALSE;
     short i;
 
     // don't use InputMode here - its set for CheatInputMode

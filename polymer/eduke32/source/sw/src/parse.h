@@ -32,13 +32,13 @@ extern  char    token[MAXTOKEN];
 extern  char    *scriptbuffer,*script_p,*scriptend_p;
 extern  int     grabbed;
 extern  int     scriptline;
-extern  BOOL    endofscript;
+extern  SWBOOL    endofscript;
 
 
-BOOL LoadScriptFile(char *filename);
-void GetToken(BOOL crossline);
+SWBOOL LoadScriptFile(char *filename);
+void GetToken(SWBOOL crossline);
 void UnGetToken(void);
-BOOL TokenAvailable(void);
+SWBOOL TokenAvailable(void);
 
 void DefaultExtension(char *path, char *extension);
 void DefaultPath(char *path, char *basepath);

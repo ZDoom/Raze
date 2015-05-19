@@ -39,7 +39,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 
 
-VOID DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny);
+void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny);
 void DoAutoTurretObject(SECTOR_OBJECTp sop);
 void DoTornadoObject(SECTOR_OBJECTp sop);
 
@@ -118,7 +118,7 @@ point to the sprite.
 */
 
 short
-ActorFindTrack(short SpriteNum, CHAR player_dir, int track_type, short *track_point_num, short *track_dir)
+ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_point_num, short *track_dir)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
@@ -272,7 +272,7 @@ ActorFindTrack(short SpriteNum, CHAR player_dir, int track_type, short *track_po
 }
 
 
-VOID
+void
 NextTrackPoint(SECTOR_OBJECTp sop)
 {
     sop->point += sop->dir;
@@ -285,7 +285,7 @@ NextTrackPoint(SECTOR_OBJECTp sop)
 }
 
 
-VOID
+void
 NextActorTrackPoint(short SpriteNum)
 {
     USERp u = User[SpriteNum];
@@ -299,7 +299,7 @@ NextActorTrackPoint(short SpriteNum)
         u->point = Track[u->track].NumPoints - 1;
 }
 
-VOID
+void
 TrackAddPoint(TRACKp t, TRACK_POINTp tp, short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
@@ -585,8 +585,8 @@ void QuickLadderSetup(short stat, short lotag, short type)
 }
 
 
-VOID
-TrackSetup(VOID)
+void
+TrackSetup(void)
 {
     short SpriteNum = 0, NextSprite, ndx;
     TRACK_POINTp tp;
@@ -715,15 +715,15 @@ FindBoundSprite(short tag)
 }
 
 
-VOID
+void
 SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 {
     int xlow, ylow, xhigh, yhigh;
     short sp_num, next_sp_num, sn, startwall, endwall;
     int i, k, j;
     SPRITEp BoundSprite;
-    BOOL FoundOutsideLoop = FALSE, FoundSector = FALSE;
-    BOOL SectorInBounds;
+    SWBOOL FoundOutsideLoop = FALSE, FoundSector = FALSE;
+    SWBOOL SectorInBounds;
     SECTORp *sectp;
     PLAYERp pp;
     short pnum;
@@ -1025,7 +1025,7 @@ cont:
 }
 
 
-VOID
+void
 SetupSectorObject(short sectnum, short tag)
 {
     SPRITEp sp;
@@ -1045,11 +1045,11 @@ SetupSectorObject(short sectnum, short tag)
     // initialize stuff first time through
     if (sop->num_sectors == -1)
     {
-        VOID DoTornadoObject(SECTOR_OBJECTp sop);
-        VOID MorphTornado(SECTOR_OBJECTp sop);
-        VOID MorphFloor(SECTOR_OBJECTp sop);
-        VOID ScaleSectorObject(SECTOR_OBJECTp sop);
-        VOID DoAutoTurretObject(SECTOR_OBJECTp sop);
+        void DoTornadoObject(SECTOR_OBJECTp sop);
+        void MorphTornado(SECTOR_OBJECTp sop);
+        void MorphFloor(SECTOR_OBJECTp sop);
+        void ScaleSectorObject(SECTOR_OBJECTp sop);
+        void DoAutoTurretObject(SECTOR_OBJECTp sop);
 
         memset(sop->sectp, 0, sizeof(sop->sectp));
         sop->crush_z = 0;
@@ -1151,7 +1151,7 @@ SetupSectorObject(short sectnum, short tag)
                     }
 
                     if (SP_TAG4(sp))
-                        sop->scale_point_rand_freq = (BYTE)SP_TAG4(sp);
+                        sop->scale_point_rand_freq = (uint8_t)SP_TAG4(sp);
                     else
                         sop->scale_point_rand_freq = 64;
 
@@ -1170,7 +1170,7 @@ SetupSectorObject(short sectnum, short tag)
                     sop->scale_active_type = SP_TAG7(sp);
 
                     if (SP_TAG8(sp))
-                        sop->scale_rand_freq = (BYTE)SP_TAG8(sp);
+                        sop->scale_rand_freq = (uint8_t)SP_TAG8(sp);
                     else
                         sop->scale_rand_freq = 64>>3;
 
@@ -1414,8 +1414,8 @@ SetupSectorObject(short sectnum, short tag)
 
 }
 
-VOID
-PostSetupSectorObject(VOID)
+void
+PostSetupSectorObject(void)
 {
     SECTOR_OBJECTp sop;
 
@@ -1456,11 +1456,11 @@ PlayerOnObject(short sectnum_match)
 }
 
 
-VOID
-PlaceSectorObjectsOnTracks(VOID)
+void
+PlaceSectorObjectsOnTracks(void)
 {
     short i, j, k, startwall, endwall;
-    BOOL found;
+    SWBOOL found;
 
     // place each sector object on the track
     for (i = 0; i < MAX_SECTOR_OBJECTS; i++)
@@ -1534,8 +1534,8 @@ PlaceSectorObjectsOnTracks(VOID)
 }
 
 
-VOID
-PlaceActorsOnTracks(VOID)
+void
+PlaceActorsOnTracks(void)
 {
     short i, nexti, j, tag, htag, new_ang;
     SPRITEp sp;
@@ -1595,10 +1595,10 @@ PlaceActorsOnTracks(VOID)
 }
 
 
-VOID
+void
 MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 {
-    VOID DoPlayerZrange(PLAYERp pp);
+    void DoPlayerZrange(PLAYERp pp);
 
     // make sure your standing on the so
     if (TEST(pp->Flags, PF_JUMPING | PF_FALLING | PF_FLYING))
@@ -1672,7 +1672,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     UpdatePlayerSprite(pp);
 }
 
-VOID
+void
 MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 {
     int j, k, c, rx, ry;
@@ -1683,7 +1683,7 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
     WALLp wp;
     USERp u;
     short i, nexti, rot_ang;
-    BOOL PlayerMove = TRUE;
+    SWBOOL PlayerMove = TRUE;
 
     if (sop->xmid >= (int)MAXSO)
         PlayerMove = FALSE;
@@ -1771,7 +1771,7 @@ PlayerPart:
             {
 #if 0
                 short nr, nextnr;
-                BOOL skip = TRUE;
+                SWBOOL skip = TRUE;
                 TRAVERSE_SPRITE_STAT(headspritestat[STAT_NO_RIDE], nr, nextnr)
                 {
                     if (sprite[nr].lotag == sop - SectorObject)
@@ -1928,8 +1928,8 @@ PlayerPart:
     }
 }
 
-VOID
-RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, BOOL dynamic)
+void
+RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, SWBOOL dynamic)
 {
     short wallcount = 0, j, k, startwall, endwall, delta_ang_from_orig;
     SECTORp *sectp;
@@ -2018,7 +2018,7 @@ RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, BOOL dynamic)
         (*sop->PostMoveAnimator)(sop);
 }
 
-VOID KillSectorObjectSprites(SECTOR_OBJECTp sop)
+void KillSectorObjectSprites(SECTOR_OBJECTp sop)
 {
     SPRITEp sp;
     USERp u;
@@ -2042,7 +2042,7 @@ VOID KillSectorObjectSprites(SECTOR_OBJECTp sop)
     sop->sp_num[0] = -1;
 }
 
-VOID UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
+void UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
 {
     SPRITEp sp;
     USERp u;
@@ -2124,7 +2124,7 @@ DetectSectorObjectByWall(WALLp wph)
 }
 
 
-VOID
+void
 CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
 {
     short j, k, startwall, endwall;
@@ -2161,7 +2161,7 @@ CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
 }
 
 
-VOID
+void
 MoveZ(SECTOR_OBJECTp sop)
 {
     short i;
@@ -2337,7 +2337,7 @@ void CallbackSOsink(ANIMp ap, void *data)
 }
 
 
-VOID
+void
 MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
 {
     int j, k, c, nx, ny, nz, rx, ry, dx, dy, dz;
@@ -2422,7 +2422,7 @@ MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
     }
 }
 
-VOID DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
+void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 {
     TRACK_POINTp tpoint;
     int dx, dy, dz;
@@ -2768,7 +2768,7 @@ VOID DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 }
 
 
-VOID
+void
 OperateSectorObject(SECTOR_OBJECTp sop, short newang, int newx, int newy)
 {
     int i, nx, ny;
@@ -2815,13 +2815,13 @@ OperateSectorObject(SECTOR_OBJECTp sop, short newang, int newx, int newy)
     RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, FALSE);
 }
 
-VOID
+void
 PlaceSectorObject(SECTOR_OBJECTp sop, short newang, int newx, int newy)
 {
     RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, FALSE);
 }
 
-VOID VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
+void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
 {
     short SpriteNum, NextSprite;
     SECTORp *sectp;
@@ -2865,7 +2865,7 @@ VOID VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
 }
 
 
-VOID
+void
 KillSectorObject(SECTOR_OBJECTp sop)
 {
     int nx, ny, nz;
@@ -2895,7 +2895,7 @@ KillSectorObject(SECTOR_OBJECTp sop)
 }
 
 
-VOID TornadoSpin(SECTOR_OBJECTp sop)
+void TornadoSpin(SECTOR_OBJECTp sop)
 {
     short delta_ang, speed;
     short locktics = synctics;
@@ -2927,7 +2927,7 @@ VOID TornadoSpin(SECTOR_OBJECTp sop)
     }
 }
 
-VOID
+void
 DoTornadoObject(SECTOR_OBJECTp sop)
 {
     short delta_ang;
@@ -2962,7 +2962,7 @@ DoTornadoObject(SECTOR_OBJECTp sop)
     RefreshPoints(sop, x - sop->xmid, y - sop->ymid, TRUE);
 }
 
-VOID
+void
 DoAutoTurretObject(SECTOR_OBJECTp sop)
 {
     short SpriteNum = sop->sp_child - sprite;
@@ -3146,7 +3146,7 @@ ScanToWall
 */
 
 
-BOOL
+SWBOOL
 ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 {
     SPRITEp sp;

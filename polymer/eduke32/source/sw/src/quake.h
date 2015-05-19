@@ -29,11 +29,11 @@ void ProcessQuakeOn(void);
 void ProcessQuakeSpot(void);
 void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *ang_diff);
 void DoQuake(PLAYERp pp);
-BOOL SetQuake(PLAYERp pp, short tics, short amt);
-int SetExpQuake(SHORT Weapon);
-int SetGunQuake(SHORT SpriteNum);
+SWBOOL SetQuake(PLAYERp pp, short tics, short amt);
+int SetExpQuake(int16_t Weapon);
+int SetGunQuake(int16_t SpriteNum);
 int SetPlayerQuake(PLAYERp mpp);
-int SetNuclearQuake(SHORT Weapon);
-int SetSumoQuake(SHORT SpriteNum);
-int SetSumoFartQuake(SHORT SpriteNum);
+int SetNuclearQuake(int16_t Weapon);
+int SetSumoQuake(int16_t SpriteNum);
+int SetSumoFartQuake(int16_t SpriteNum);
 

@@ -41,8 +41,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "net.h"
 //#include "symutil.h"
 
-BOOL PredictionOn = TRUE;
-BOOL Prediction = FALSE;
+SWBOOL PredictionOn = TRUE;
+SWBOOL Prediction = FALSE;
 PLAYER PredictPlayer;
 USER PredictUser;
 PLAYERp ppp = &PredictPlayer;
@@ -56,15 +56,15 @@ typedef struct
 PREDICT Predict[MOVEFIFOSIZ];
 int predictmovefifoplc;
 
-VOID DoPlayerSectorUpdatePreMove(PLAYERp);
-VOID DoPlayerSectorUpdatePostMove(PLAYERp);
+void DoPlayerSectorUpdatePreMove(PLAYERp);
+void DoPlayerSectorUpdatePostMove(PLAYERp);
 
-extern BOOL GamePaused;
+extern SWBOOL GamePaused;
 
 #define PREDICT_DEBUG 0
 
 #if PREDICT_DEBUG
-VOID (*pred_last_func)(PLAYERp) = NULL;
+void (*pred_last_func)(PLAYERp) = NULL;
 #endif
 
 void
@@ -102,10 +102,10 @@ PredictDebug(PLAYERp ppp)
 
     if (ppp->DoPlayerAction != pred_last_func)
     {
-        extern ULONG MoveThingsCount;
+        extern uint32_t MoveThingsCount;
         SYM_TABLEp st_ptr;
-        ULONG unrelocated_offset;
-        ULONG offset_from_symbol;
+        uint32_t unrelocated_offset;
+        uint32_t offset_from_symbol;
 
         unrelocated_offset = SymCodePtrToOffset((void *)ppp->DoPlayerAction);
         st_ptr = SearchSymTableByOffset(SymTableCode, SymCountCode, unrelocated_offset, &offset_from_symbol);

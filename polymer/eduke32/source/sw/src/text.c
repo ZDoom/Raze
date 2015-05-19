@@ -58,7 +58,7 @@ char *KeyDoorMessage[MAX_KEYS] =
     "You need a RED key for this door."
 };
 
-VOID
+void
 DisplaySummaryString(PLAYERp pp, short xs, short ys, short color, short shade, const char *buffer)
 {
     short size,x;
@@ -247,7 +247,7 @@ pClearSpriteID(PLAYERp pp, short id)
 }
 
 
-VOID
+void
 DisplayPanelNumber(PLAYERp pp, short xs, short ys, int number)
 {
     char buffer[32];
@@ -270,7 +270,7 @@ DisplayPanelNumber(PLAYERp pp, short xs, short ys, int number)
     }
 }
 
-VOID
+void
 DisplayMiniBarNumber(PLAYERp pp, short xs, short ys, int number)
 {
     char buffer[32];
@@ -298,7 +298,7 @@ DisplayMiniBarNumber(PLAYERp pp, short xs, short ys, int number)
     }
 }
 
-VOID
+void
 DisplayMiniBarSmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer)
 {
     short size=4,x;
@@ -324,7 +324,7 @@ DisplayMiniBarSmString(PLAYERp pp, short xs, short ys, short pal, const char *bu
     }
 }
 
-VOID
+void
 DisplaySmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer)
 {
     short size=4,x;
@@ -349,7 +349,7 @@ DisplaySmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer)
     }
 }
 
-VOID
+void
 DisplayFragString(PLAYERp pp, short xs, short ys, const char *buffer)
 {
     short size=4,x;
@@ -380,7 +380,7 @@ DisplayFragString(PLAYERp pp, short xs, short ys, const char *buffer)
     }
 }
 
-VOID
+void
 DisplayFragNumbers(PLAYERp pp)
 {
     char buffer[32];
@@ -420,7 +420,7 @@ DisplayFragNumbers(PLAYERp pp)
     DisplayFragString(pp, xs, ys, buffer);
 }
 
-VOID
+void
 DisplayFragNames(PLAYERp pp)
 {
     char *ptr;
@@ -453,7 +453,7 @@ DisplayFragNames(PLAYERp pp)
 }
 
 short GlobInfoStringTime = TEXT_INFO_TIME;
-VOID PutStringInfo(PLAYERp pp, const char *string)
+void PutStringInfo(PLAYERp pp, const char *string)
 {
     if (pp-Player != myconnectindex)
         return;
@@ -465,7 +465,7 @@ VOID PutStringInfo(PLAYERp pp, const char *string)
     PutStringInfoLine(pp, string);
 }
 
-VOID PutStringInfoLine(PLAYERp pp, const char *string)
+void PutStringInfoLine(PLAYERp pp, const char *string)
 {
     short x,y;
     short w,h;
@@ -489,7 +489,7 @@ VOID PutStringInfoLine(PLAYERp pp, const char *string)
     //PutStringInfoLine2(pp, "");
 }
 
-VOID PutStringInfoLine2(PLAYERp pp, const char *string)
+void PutStringInfoLine2(PLAYERp pp, const char *string)
 {
     short x,y;
     short w,h;
@@ -515,7 +515,7 @@ pMenuClearTextLine(PLAYERp pp)
 #define TEXT_PLAYER_INFO_TIME (3)
 #define TEXT_PLAYER_INFO_Y (200 - 40)
 
-VOID PutStringPlayerInfo(PLAYERp pp, const char *string)
+void PutStringPlayerInfo(PLAYERp pp, const char *string)
 {
     short x,y;
     short w,h;

@@ -121,10 +121,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 int SetVisHigh(void);
 int SetVisNorm(void);
-VOID DoWeapon(VOID);
-VOID HeadBobStateControl(VOID);
-int DoPickTarget(SPRITEp sp, WORD max_delta_ang, BOOL skip_targets);
-VOID DoPlayer(VOID);
+void DoWeapon(void);
+void HeadBobStateControl(void);
+int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, SWBOOL skip_targets);
+void DoPlayer(void);
 void domovethings(void);
 void InitAllPlayers(void);
 void InitMultiPlayerInfo(void);
@@ -139,7 +139,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp);
 void DoPlayerWarpTeleporter(PLAYERp pp);
 void UpdatePlayerSprite(PLAYERp pp);
 void PlaySOsound(short sectnum,short sound_num);
-VOID DoSpawnTeleporterEffectPlace(SPRITEp sp);
+void DoSpawnTeleporterEffectPlace(SPRITEp sp);
 void FindMainSector(SECTOR_OBJECTp sop);
 
 #endif

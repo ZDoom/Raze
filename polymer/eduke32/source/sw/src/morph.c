@@ -34,7 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "player.h"
 #include "game.h"
 
-VOID ScaleSectorObject(SECTOR_OBJECTp);
+void ScaleSectorObject(SECTOR_OBJECTp);
 
 short
 DoSectorObjectSetScale(short match)
@@ -185,7 +185,7 @@ DoSOevent(short match, short state)
 // SCALING - PreAnimator
 //
 
-VOID ScaleSectorObject(SECTOR_OBJECTp sop)
+void ScaleSectorObject(SECTOR_OBJECTp sop)
 {
     switch (sop->scale_type)
     {
@@ -252,7 +252,7 @@ VOID ScaleSectorObject(SECTOR_OBJECTp sop)
     }
 }
 
-VOID ScaleRandomPoint(SECTOR_OBJECTp sop, short k, short ang, int x, int y, int *dx, int *dy)
+void ScaleRandomPoint(SECTOR_OBJECTp sop, short k, short ang, int x, int y, int *dx, int *dy)
 {
     int xmul,ymul;
 
@@ -293,7 +293,7 @@ VOID ScaleRandomPoint(SECTOR_OBJECTp sop, short k, short ang, int x, int y, int 
 // Morph point - move point around
 //
 
-VOID
+void
 MorphTornado(SECTOR_OBJECTp sop)
 {
     int mx, my;
@@ -375,7 +375,7 @@ MorphTornado(SECTOR_OBJECTp sop)
 }
 
 // moves center point around and aligns slope
-VOID
+void
 MorphFloor(SECTOR_OBJECTp sop)
 {
     int mx, my;
@@ -455,7 +455,7 @@ MorphFloor(SECTOR_OBJECTp sop)
     }
 }
 
-VOID
+void
 SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 {
     SECTORp *sectp;
@@ -471,7 +471,7 @@ SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
     }
 }
 
-VOID
+void
 SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 {
     SECTORp *sectp;
@@ -487,7 +487,7 @@ SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
     }
 }
 
-VOID
+void
 SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 {
     SECTORp *sectp;
@@ -505,7 +505,7 @@ SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 }
 
 // moves center point around and aligns slope
-VOID
+void
 SpikeFloor(SECTOR_OBJECTp sop)
 {
     int mx, my;

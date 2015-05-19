@@ -45,14 +45,14 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 ANIMATOR NullAnimator,DoSuicide;
 ANIMATOR DoBloodSpray;
-int SpawnFlashBombOnActor(SHORT enemy);
+int SpawnFlashBombOnActor(int16_t enemy);
 
 ANIMATOR DoPuff, BloodSprayFall;
 extern STATE s_Puff[];
 extern STATE s_FireballFlames[];
 extern STATE s_GoreFloorSplash[];
 extern STATE s_GoreSplash[];
-extern BOOL GlobalSkipZrange;
+extern SWBOOL GlobalSkipZrange;
 
 #define CHEMTICS SEC(40)
 
@@ -370,11 +370,11 @@ SpawnFloorSplash(short SpriteNum)
 
 
 int
-DoBloodSpray(SHORT Weapon)
+DoBloodSpray(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
     int cz,fz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -519,7 +519,7 @@ DoBloodSpray(SHORT Weapon)
 
         case HIT_SECTOR:
         {
-            BOOL hitwall;
+            SWBOOL hitwall;
 
             // hit floor
             if (sp->z > DIV2(u->hiz + u->loz))
@@ -608,11 +608,11 @@ DoBloodSpray(SHORT Weapon)
 
 
 int
-DoPhosphorus(SHORT Weapon)
+DoPhosphorus(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -706,7 +706,7 @@ DoPhosphorus(SHORT Weapon)
 
         case HIT_SECTOR:
         {
-            BOOL hitwall;
+            SWBOOL hitwall;
 
             if (SlopeBounce(Weapon, &hitwall))
             {
@@ -835,11 +835,11 @@ DoPhosphorus(SHORT Weapon)
 }
 
 int
-DoChemBomb(SHORT Weapon)
+DoChemBomb(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -935,7 +935,7 @@ DoChemBomb(SHORT Weapon)
 
         case HIT_SECTOR:
         {
-            BOOL hitwall;
+            SWBOOL hitwall;
 
             if (SlopeBounce(Weapon, &hitwall))
             {
@@ -1084,7 +1084,7 @@ DoChemBomb(SHORT Weapon)
 }
 
 int
-DoCaltropsStick(SHORT Weapon)
+DoCaltropsStick(int16_t Weapon)
 {
     USERp u = User[Weapon];
 
@@ -1097,11 +1097,11 @@ DoCaltropsStick(SHORT Weapon)
 }
 
 int
-DoCaltrops(SHORT Weapon)
+DoCaltrops(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    LONG dax, day, daz;
+    int32_t dax, day, daz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -1182,7 +1182,7 @@ DoCaltrops(SHORT Weapon)
 
         case HIT_SECTOR:
         {
-            BOOL hitwall;
+            SWBOOL hitwall;
 
             if (SlopeBounce(Weapon, &hitwall))
             {
@@ -1462,7 +1462,7 @@ PlayerInitChemBomb(PLAYERp pp)
 }
 
 int
-InitSpriteChemBomb(SHORT SpriteNum)
+InitSpriteChemBomb(int16_t SpriteNum)
 {
     USERp u = User[SpriteNum];
     USERp wu;
@@ -1666,7 +1666,7 @@ PlayerInitFlashBomb(PLAYERp pp)
 }
 
 int
-InitFlashBomb(SHORT SpriteNum)
+InitFlashBomb(int16_t SpriteNum)
 {
     short pnum, i, nexti;
     unsigned int stat;
@@ -1731,7 +1731,7 @@ InitFlashBomb(SHORT SpriteNum)
 
 // This is a sneaky function to make actors look blinded by flashbomb while using flaming code
 int
-SpawnFlashBombOnActor(SHORT enemy)
+SpawnFlashBombOnActor(int16_t enemy)
 {
     SPRITEp ep = &sprite[enemy];
     USERp eu = User[enemy];
@@ -1904,7 +1904,7 @@ PlayerInitCaltrops(PLAYERp pp)
 }
 
 int
-InitCaltrops(SHORT SpriteNum)
+InitCaltrops(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -1957,7 +1957,7 @@ InitCaltrops(SHORT SpriteNum)
 }
 
 int
-InitPhosphorus(SHORT SpriteNum)
+InitPhosphorus(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -2017,7 +2017,7 @@ InitPhosphorus(SHORT SpriteNum)
 }
 
 int
-InitBloodSpray(SHORT SpriteNum, BOOL dogib, short velocity)
+InitBloodSpray(int16_t SpriteNum, SWBOOL dogib, short velocity)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -2107,7 +2107,7 @@ InitBloodSpray(SHORT SpriteNum, BOOL dogib, short velocity)
 }
 
 int
-BloodSprayFall(SHORT SpriteNum)
+BloodSprayFall(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
@@ -2127,8 +2127,8 @@ BloodSprayFall(SHORT SpriteNum)
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 // Update the scoreboard for team color that just scored.
-VOID
-DoFlagScore(SHORT pal)
+void
+DoFlagScore(int16_t pal)
 {
     SPRITEp sp;
     int SpriteNum = 0, NextSprite = 0;
@@ -2199,7 +2199,7 @@ DoFlagRangeTest(short Weapon, short range)
 }
 
 int
-DoCarryFlag(SHORT Weapon)
+DoCarryFlag(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -2354,7 +2354,7 @@ DoCarryFlag(SHORT Weapon)
 }
 
 int
-DoCarryFlagNoDet(SHORT Weapon)
+DoCarryFlagNoDet(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -2422,7 +2422,7 @@ DoCarryFlagNoDet(SHORT Weapon)
 
 
 int
-SetCarryFlag(SHORT Weapon)
+SetCarryFlag(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -2444,11 +2444,11 @@ SetCarryFlag(SHORT Weapon)
 }
 
 int
-DoFlag(SHORT Weapon)
+DoFlag(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    SHORT hitsprite = -1;
+    int16_t hitsprite = -1;
 
     hitsprite = DoFlagRangeTest(Weapon, 1000);
 
@@ -2474,7 +2474,7 @@ DoFlag(SHORT Weapon)
 
 
 int
-InitShell(SHORT SpriteNum, SHORT ShellNum)
+InitShell(int16_t SpriteNum, int16_t ShellNum)
 {
     USERp u = User[SpriteNum];
     USERp wu;

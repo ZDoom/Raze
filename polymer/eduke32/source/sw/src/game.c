@@ -107,61 +107,61 @@ char DemoName[15][16];
 //#define PLOCK_VERSION TRUE
 
 #if PLOCK_VERSION
-BOOL Global_PLock = TRUE;
+SWBOOL Global_PLock = TRUE;
 #else
-BOOL Global_PLock = FALSE;
+SWBOOL Global_PLock = FALSE;
 #endif
 
 int GameVersion = 13;   // 12 was original source release. For future releases increment by two.
 char DemoText[3][64];
 int DemoTextYstart = 0;
 
-BOOL DoubleInitAWE32 = FALSE;
+SWBOOL DoubleInitAWE32 = FALSE;
 int Follow_posx=0,Follow_posy=0;
 
-BOOL NoMeters = FALSE;
+SWBOOL NoMeters = FALSE;
 short IntroAnimCount = 0;
 short PlayingLevel = -1;
-BOOL GraphicsMode = FALSE;
+SWBOOL GraphicsMode = FALSE;
 char CacheLastLevel[32] = "";
 char PlayerNameArg[32] = "";
-BOOL CleanExit = FALSE;
+SWBOOL CleanExit = FALSE;
 extern char cachedebug;
-BOOL DemoModeMenuInit = FALSE;
-BOOL FinishAnim = 0;
-BOOL CachePrintMode = FALSE;
-BOOL ShortGameMode = FALSE;
-BOOL ReloadPrompt = FALSE;
-BOOL ReloadPromptMode = FALSE;
-BOOL NewGame = TRUE;
-BOOL InMenuLevel = FALSE;
-BOOL LoadGameOutsideMoveLoop = FALSE;
-BOOL LoadGameFromDemo = FALSE;
-BOOL ArgCheat = FALSE;
-extern BOOL NetBroadcastMode, NetModeOverride;
-BOOL MultiPlayQuitFlag = FALSE;
+SWBOOL DemoModeMenuInit = FALSE;
+SWBOOL FinishAnim = 0;
+SWBOOL CachePrintMode = FALSE;
+SWBOOL ShortGameMode = FALSE;
+SWBOOL ReloadPrompt = FALSE;
+SWBOOL ReloadPromptMode = FALSE;
+SWBOOL NewGame = TRUE;
+SWBOOL InMenuLevel = FALSE;
+SWBOOL LoadGameOutsideMoveLoop = FALSE;
+SWBOOL LoadGameFromDemo = FALSE;
+SWBOOL ArgCheat = FALSE;
+extern SWBOOL NetBroadcastMode, NetModeOverride;
+SWBOOL MultiPlayQuitFlag = FALSE;
 //Miscellaneous variables
 char MessageInputString[256];
 char MessageOutputString[256];
-BOOL MessageInputMode = FALSE;
-BOOL ConInputMode = FALSE;
-BOOL ConPanel = FALSE;
-BOOL FinishedLevel = FALSE;
-BOOL HelpInputMode = FALSE;
-BOOL PanelUpdateMode = TRUE;
+SWBOOL MessageInputMode = FALSE;
+SWBOOL ConInputMode = FALSE;
+SWBOOL ConPanel = FALSE;
+SWBOOL FinishedLevel = FALSE;
+SWBOOL HelpInputMode = FALSE;
+SWBOOL PanelUpdateMode = TRUE;
 short HelpPage = 0;
 short HelpPagePic[] = { 5115, 5116, 5117 };
-BOOL InputMode = FALSE;
-BOOL MessageInput = FALSE;
-extern BOOL GamePaused;
+SWBOOL InputMode = FALSE;
+SWBOOL MessageInput = FALSE;
+extern SWBOOL GamePaused;
 short screenpeek = 0;
-BOOL NoDemoStartup = FALSE;
-BOOL FirstTimeIntoGame;
-extern BYTE RedBookSong[40];
+SWBOOL NoDemoStartup = FALSE;
+SWBOOL FirstTimeIntoGame;
+extern uint8_t RedBookSong[40];
 
-BOOL BorderAdjust = TRUE;
-BOOL LocationInfo = 0;
-VOID drawoverheadmap(int cposx, int cposy, int czoom, short cang);
+SWBOOL BorderAdjust = TRUE;
+SWBOOL LocationInfo = 0;
+void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 int DispFrameRate = FALSE;
 int DispMono = TRUE;
 int Fog = FALSE;
@@ -174,9 +174,9 @@ short BetaVersion = 900;
 short TotalKillable;
 
 AUTO_NET Auto;
-BOOL AutoNet = FALSE;
-BOOL HasAutoColor = FALSE;
-BYTE AutoColor;
+SWBOOL AutoNet = FALSE;
+SWBOOL HasAutoColor = FALSE;
+uint8_t AutoColor;
 
 const GAME_SET gs_defaults =
 {
@@ -224,36 +224,36 @@ const GAME_SET gs_defaults =
 GAME_SET gs;
 
 char PlaxBits = 0;
-BOOL PlayerTrackingMode = FALSE;
-BOOL PauseMode = FALSE;
-BOOL PauseKeySet = FALSE;
-BOOL SlowMode = FALSE;
-BOOL FrameAdvanceTics = 3;
-BOOL ScrollMode2D = FALSE;
+SWBOOL PlayerTrackingMode = FALSE;
+SWBOOL PauseMode = FALSE;
+SWBOOL PauseKeySet = FALSE;
+SWBOOL SlowMode = FALSE;
+SWBOOL FrameAdvanceTics = 3;
+SWBOOL ScrollMode2D = FALSE;
 
-BOOL DebugSO = FALSE;
-BOOL DebugPanel = FALSE;
-BOOL DebugSector = FALSE;
-BOOL DebugActor = FALSE;
-BOOL DebugAnim = FALSE;
-BOOL DebugOperate = FALSE;
-BOOL DebugActorFreeze = FALSE;
-VOID LoadingLevelScreen(char *level_name);
+SWBOOL DebugSO = FALSE;
+SWBOOL DebugPanel = FALSE;
+SWBOOL DebugSector = FALSE;
+SWBOOL DebugActor = FALSE;
+SWBOOL DebugAnim = FALSE;
+SWBOOL DebugOperate = FALSE;
+SWBOOL DebugActorFreeze = FALSE;
+void LoadingLevelScreen(char *level_name);
 
-BYTE FakeMultiNumPlayers;
+uint8_t FakeMultiNumPlayers;
 
 int totalsynctics;
 int turn_scale = 256;
 int move_scale = 256;
 
 short Level = 0;
-BOOL ExitLevel = FALSE;
-SHORT OrigCommPlayers=0;
-extern BYTE CommPlayers;
-extern BOOL CommEnabled;
+SWBOOL ExitLevel = FALSE;
+int16_t OrigCommPlayers=0;
+extern uint8_t CommPlayers;
+extern SWBOOL CommEnabled;
 extern int bufferjitter;
 
-BOOL CameraTestMode = FALSE;
+SWBOOL CameraTestMode = FALSE;
 
 char ds[256];                           // debug string
 
@@ -267,32 +267,32 @@ extern unsigned char palette_data[256][3];             // Global palette array
 #define ACT_STATUE 0
 
 int score;
-BOOL QuitFlag = FALSE;
-BOOL InGame = FALSE;
+SWBOOL QuitFlag = FALSE;
+SWBOOL InGame = FALSE;
 
-BOOL CommandSetup = FALSE;
+SWBOOL CommandSetup = FALSE;
 
 char UserMapName[80]="", buffer[80], ch;
 char LevelName[20];
 
-BYTE DebugPrintColor = 255;
+uint8_t DebugPrintColor = 255;
 
 int krandcount;
 
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
 void BOT_DeleteAllBots(void);
-VOID BotPlayerInsert(PLAYERp pp);
-VOID SybexScreen(VOID);
-VOID DosScreen(VOID);
-VOID MenuLevel(VOID);
-VOID StatScreen(PLAYERp mpp);
-VOID InitRunLevel(VOID);
-VOID RunLevel(VOID);
+void BotPlayerInsert(PLAYERp pp);
+void SybexScreen(void);
+void DosScreen(void);
+void MenuLevel(void);
+void StatScreen(PLAYERp mpp);
+void InitRunLevel(void);
+void RunLevel(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 static FILE *debug_fout = NULL;
 
-VOID DebugWriteString(char *string)
+void DebugWriteString(char *string)
 {
 
 #if BETA || !DEBUG
@@ -313,7 +313,7 @@ VOID DebugWriteString(char *string)
     fflush(debug_fout);
 }
 
-VOID DebugWriteLoc(char *fname, int line)
+void DebugWriteLoc(char *fname, int line)
 {
 
 #if BETA || !DEBUG
@@ -340,16 +340,16 @@ void Mono_Print(char *str)
 }
 
 
-extern BOOL DrawScreen;
+extern SWBOOL DrawScreen;
 #if RANDOM_DEBUG
 FILE *fout_err;
-BOOL RandomPrint;
+SWBOOL RandomPrint;
 int krand1(char *file, unsigned line)
 {
     ASSERT(!DrawScreen);
     if (RandomPrint && !Prediction)
     {
-        extern ULONG MoveThingsCount;
+        extern uint32_t MoveThingsCount;
         sprintf(ds,"mtc %d, %s, line %d, %d",MoveThingsCount,file,line,randomseed);
         DebugWriteString(ds);
     }
@@ -375,7 +375,7 @@ int krand1(void)
 
 #endif
 
-VOID *
+void *
 CacheAlloc(void **ptr, int size, unsigned char *lock_byte)
 {
     if (*ptr == NULL)
@@ -394,7 +394,7 @@ CacheAlloc(void **ptr, int size, unsigned char *lock_byte)
     return *ptr;
 }
 
-VOID
+void
 CacheFree(void **ptr, unsigned char *lock_byte)
 {
     if (*ptr == NULL)
@@ -440,15 +440,15 @@ void HeapCheck(char *file, int line)
     */
 
 #if DEBUG
-BOOL
-ValidPtr(VOID *ptr)
+SWBOOL
+ValidPtr(void *ptr)
 {
     MEM_HDRp mhp;
-    BYTEp check;
+    uint8_t* check;
 
     ASSERT(ptr != NULL);
 
-    mhp = (MEM_HDRp)(((BYTEp) ptr) - sizeof(MEM_HDR));
+    mhp = (MEM_HDRp)(((uint8_t*) ptr) - sizeof(MEM_HDR));
 
     if (mhp->size == 0 || mhp->checksum == 0)
     {
@@ -456,7 +456,7 @@ ValidPtr(VOID *ptr)
         return FALSE;
     }
 
-    check = (BYTEp) & mhp->size;
+    check = (uint8_t*) & mhp->size;
 
     if (mhp->checksum == check[0] + check[1] + check[2] + check[3])
         return TRUE;
@@ -465,32 +465,32 @@ ValidPtr(VOID *ptr)
     return FALSE;
 }
 
-VOID
-PtrCheckSum(VOID *ptr, unsigned int *stored, unsigned int *actual)
+void
+PtrCheckSum(void *ptr, unsigned int *stored, unsigned int *actual)
 {
     MEM_HDRp mhp;
-    BYTEp check;
+    uint8_t* check;
 
     ASSERT(ptr != NULL);
 
-    mhp = (MEM_HDRp)(((BYTEp) ptr) - sizeof(MEM_HDR));
+    mhp = (MEM_HDRp)(((uint8_t*) ptr) - sizeof(MEM_HDR));
 
-    check = (BYTEp) & mhp->size;
+    check = (uint8_t*) & mhp->size;
 
     *stored = mhp->checksum;
     *actual = check[0] + check[1] + check[2] + check[3];
 }
 
-VOID *
+void *
 AllocMem(int size)
 {
-    BYTEp bp;
+    uint8_t* bp;
     MEM_HDRp mhp;
-    BYTEp check;
+    uint8_t* check;
 
     ASSERT(size != 0);
 
-    bp = (BYTEp) malloc(size + sizeof(MEM_HDR));
+    bp = (uint8_t*) malloc(size + sizeof(MEM_HDR));
 
     // Used for debugging, we can remove this at ship time
     if (bp == NULL)
@@ -505,7 +505,7 @@ AllocMem(int size)
     mhp = (MEM_HDRp) bp;
 
     mhp->size = size;
-    check = (BYTEp) & mhp->size;
+    check = (uint8_t*) & mhp->size;
     mhp->checksum = check[0] + check[1] + check[2] + check[3];
 
     bp += sizeof(MEM_HDR);
@@ -513,27 +513,27 @@ AllocMem(int size)
     return bp;
 }
 
-VOID *
-ReAllocMem(VOID *ptr, int size)
+void *
+ReAllocMem(void *ptr, int size)
 {
-    BYTEp bp;
+    uint8_t* bp;
     MEM_HDRp mhp;
-    BYTEp check;
+    uint8_t* check;
 
     ASSERT(size != 0);
 
     ASSERT(ValidPtr(ptr));
 
-    mhp = (MEM_HDRp)(((BYTEp) ptr) - sizeof(MEM_HDR));
+    mhp = (MEM_HDRp)(((uint8_t*) ptr) - sizeof(MEM_HDR));
 
-    bp = (BYTEp) realloc(mhp, size + sizeof(MEM_HDR));
+    bp = (uint8_t*) realloc(mhp, size + sizeof(MEM_HDR));
 
     ASSERT(bp != NULL);
 
     mhp = (MEM_HDRp) bp;
 
     mhp->size = size;
-    check = (BYTEp) & mhp->size;
+    check = (uint8_t*) & mhp->size;
     mhp->checksum = check[0] + check[1] + check[2] + check[3];
 
     bp += sizeof(MEM_HDR);
@@ -544,18 +544,18 @@ ReAllocMem(VOID *ptr, int size)
 }
 
 
-VOID *
+void *
 CallocMem(int size, int num)
 {
-    BYTEp bp;
+    uint8_t* bp;
     MEM_HDRp mhp;
-    BYTEp check;
+    uint8_t* check;
     int num_bytes;
 
     ASSERT(size != 0 && num != 0);
 
     num_bytes = (size * num) + sizeof(MEM_HDR);
-    bp = (BYTEp) calloc(num_bytes, 1);
+    bp = (uint8_t*) calloc(num_bytes, 1);
 
     // Used for debugging, we can remove this at ship time
     if (bp == NULL)
@@ -570,7 +570,7 @@ CallocMem(int size, int num)
     mhp = (MEM_HDRp) bp;
 
     mhp->size = size;
-    check = (BYTEp) & mhp->size;
+    check = (uint8_t*) & mhp->size;
     mhp->checksum = check[0] + check[1] + check[2] + check[3];
 
     bp += sizeof(MEM_HDR);
@@ -578,18 +578,18 @@ CallocMem(int size, int num)
     return bp;
 }
 
-VOID
-FreeMem(VOID *ptr)
+void
+FreeMem(void *ptr)
 {
     MEM_HDRp mhp;
-    BYTEp check;
+    uint8_t* check;
 
     ASSERT(ptr != NULL);
 
     ASSERT(ValidPtr(ptr));
 
-    mhp = (MEM_HDRp)(((BYTEp) ptr) - sizeof(MEM_HDR));
-    check = (BYTEp)&mhp->size;
+    mhp = (MEM_HDRp)(((uint8_t*) ptr) - sizeof(MEM_HDR));
+    check = (uint8_t*)&mhp->size;
 
     memset(mhp, 0xCC, mhp->size + sizeof(MEM_HDR));
 
@@ -597,32 +597,32 @@ FreeMem(VOID *ptr)
 }
 
 #else
-BOOL
-ValidPtr(VOID *ptr)
+SWBOOL
+ValidPtr(void *ptr)
 {
     return TRUE;
 }
 
-VOID *
+void *
 AllocMem(int size)
 {
     return malloc(size);
 }
 
-VOID *
+void *
 CallocMem(int size, int num)
 {
     return calloc(size, num);
 }
 
-VOID *
-ReAllocMem(VOID *ptr, int size)
+void *
+ReAllocMem(void *ptr, int size)
 {
     return realloc(ptr, size);
 }
 
-VOID
-FreeMem(VOID *ptr)
+void
+FreeMem(void *ptr)
 {
     free(ptr);
 }
@@ -654,8 +654,8 @@ Distance(int x1, int y1, int x2, int y2)
     return x2 + y2 - DIV2(min);
 }
 
-VOID
-MapSetAll2D(BYTE fill)
+void
+MapSetAll2D(uint8_t fill)
 {
     int i;
 
@@ -673,8 +673,8 @@ MapSetAll2D(BYTE fill)
     }
 }
 
-VOID
-MapSetup(VOID)
+void
+MapSetup(void)
 {
 #define NO_AUTO_MAPPING FALSE
 
@@ -685,16 +685,16 @@ MapSetup(VOID)
 #endif
 }
 
-VOID
-setup2dscreen(VOID)
+void
+setup2dscreen(void)
 {
     // qsetmode640350();
 }
 
 
 
-VOID
-TerminateGame(VOID)
+void
+TerminateGame(void)
 {
     int i,j;
     int oldtotalclock;
@@ -729,7 +729,7 @@ TerminateGame(VOID)
     uninitgroupfile();
 }
 
-VOID
+void
 LoadLevel(char *filename)
 {
     int pos;
@@ -750,7 +750,7 @@ LoadLevel(char *filename)
     }
 }
 
-VOID
+void
 LoadImages(char *filename)
 {
     short ndx;
@@ -884,7 +884,7 @@ void MultiSharewareCheck(void)
 int TotalMemory = 0;
 int ActualHeap = 0;
 
-VOID InitAutoNet(VOID)
+void InitAutoNet(void)
 {
     if (!AutoNet)
         return;
@@ -938,8 +938,8 @@ static const char *deffile = "sw.def";
 
 extern int startwin_run(void);
 
-VOID
-InitGame(VOID)
+void
+InitGame(void)
 {
     extern int MovesPerPacket;
     //void *ReserveMem=NULL;
@@ -1189,7 +1189,7 @@ char SkillNames[4][MAX_SKILL_NAME_LEN+2] =
     "^No Pain, No Gain"
 };
 
-VOID InitNewGame(VOID)
+void InitNewGame(void)
 {
     int i, ready_bak;
     int ver_bak;
@@ -1233,16 +1233,16 @@ void FindLevelInfo(char *map_name, short *level)
 }
 
 int ChopTics;
-VOID InitLevelGlobals(VOID)
+void InitLevelGlobals(void)
 {
     extern char PlayerGravity;
     extern short wait_active_check_offset;
     //extern short Zombies;
     extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
-    extern BOOL left_foot;
-    extern BOOL serpwasseen;
-    extern BOOL sumowasseen;
-    extern BOOL zillawasseen;
+    extern SWBOOL left_foot;
+    extern SWBOOL serpwasseen;
+    extern SWBOOL sumowasseen;
+    extern SWBOOL zillawasseen;
     extern short BossSpriteNum[3];
 
     // A few IMPORTANT GLOBAL RESETS
@@ -1270,7 +1270,7 @@ VOID InitLevelGlobals(VOID)
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
 }
 
-VOID InitLevelGlobals2(VOID)
+void InitLevelGlobals2(void)
 {
     extern short Bunny_Count;
     // GLOBAL RESETS NOT DONE for LOAD GAME
@@ -1280,8 +1280,8 @@ VOID InitLevelGlobals2(VOID)
     Bunny_Count = 0;
 }
 
-VOID
-InitLevel(VOID)
+void
+InitLevel(void)
 {
     static int DemoNumber = 0;
 
@@ -1407,7 +1407,7 @@ InitLevel(VOID)
     // fake Multi-player game setup
     if (FakeMultiNumPlayers && !BotMode)
     {
-        BYTE i;
+        uint8_t i;
 
         // insert all needed players except the first one - its already tere
         for (i = 0; i < FakeMultiNumPlayers - 1; i++)
@@ -1423,7 +1423,7 @@ InitLevel(VOID)
     // Put in the BOTS if called for
     if (FakeMultiNumPlayers && BotMode)
     {
-        BYTE i;
+        uint8_t i;
 
         // insert all needed players except the first one - its already tere
         for (i = 0; i < FakeMultiNumPlayers; i++)
@@ -1476,7 +1476,7 @@ InitLevel(VOID)
 
     if (ArgCheat)
     {
-        BOOL bak = gs.Messages;
+        SWBOOL bak = gs.Messages;
         gs.Messages = FALSE;
         EveryCheatToggle(&Player[0],NULL);
         gs.Messages = bak;
@@ -1503,10 +1503,10 @@ InitLevel(VOID)
 }
 
 
-VOID
-TerminateLevel(VOID)
+void
+TerminateLevel(void)
 {
-    VOID pClearSpriteList(PLAYERp pp);
+    void pClearSpriteList(PLAYERp pp);
     int i, nexti, stat, pnum, ndx;
     SECT_USERp *sectu;
 
@@ -1609,8 +1609,8 @@ TerminateLevel(VOID)
 //HEAP_CHECK();
 }
 
-VOID
-NewLevel(VOID)
+void
+NewLevel(void)
 {
 
     DSPRINTF(ds,"NewLevel");
@@ -1683,8 +1683,8 @@ NewLevel(VOID)
     FinishAnim = 0;
 }
 
-VOID
-ResetKeys(VOID)
+void
+ResetKeys(void)
 {
     int i;
 
@@ -1694,8 +1694,8 @@ ResetKeys(VOID)
     }
 }
 
-BOOL
-KeyPressed(VOID)
+SWBOOL
+KeyPressed(void)
 {
     int i;
 
@@ -1708,10 +1708,10 @@ KeyPressed(VOID)
     return FALSE;
 }
 
-BYTEp
-KeyPressedRange(BYTEp kb, BYTEp ke)
+uint8_t*
+KeyPressedRange(uint8_t* kb, uint8_t* ke)
 {
-    BYTEp k;
+    uint8_t* k;
 
     for (k = kb; k <= ke; k++)
     {
@@ -1722,10 +1722,10 @@ KeyPressedRange(BYTEp kb, BYTEp ke)
     return NULL;
 }
 
-VOID
-ResetKeyRange(BYTEp kb, BYTEp ke)
+void
+ResetKeyRange(uint8_t* kb, uint8_t* ke)
 {
-    BYTEp k;
+    uint8_t* k;
 
     for (k = kb; k <= ke; k++)
     {
@@ -1734,8 +1734,8 @@ ResetKeyRange(BYTEp kb, BYTEp ke)
 }
 
 
-VOID
-LogoLevel(VOID)
+void
+LogoLevel(void)
 {
     char called;
     int fin;
@@ -1830,15 +1830,15 @@ LogoLevel(VOID)
 
 }
 
-VOID
-CreditsLevel(VOID)
+void
+CreditsLevel(void)
 {
     char called;
     int fin;
     int i;
     int curpic;
     int handle;
-    ULONG timer = 0;
+    uint32_t timer = 0;
     int zero=0;
     short save;
 #define CREDITS1_PIC 5111
@@ -1921,8 +1921,8 @@ CreditsLevel(VOID)
 }
 
 
-VOID
-SybexScreen(VOID)
+void
+SybexScreen(void)
 {
     if (!SW_SHAREWARE) return;
 
@@ -1938,8 +1938,8 @@ SybexScreen(VOID)
 
 // CTW REMOVED
 /*
-VOID
-TenScreen(VOID)
+void
+TenScreen(void)
     {
     char called;
     int fin;
@@ -1948,7 +1948,7 @@ TenScreen(VOID)
     char tempbuf[256];
     char *palook_bak = palookup[0];
     int i;
-    ULONG bak;
+    uint32_t bak;
     int bakready2send;
 
     if (CommEnabled)
@@ -2007,8 +2007,8 @@ TenScreen(VOID)
 */
 // CTW REMOVED END
 
-VOID
-TitleLevel(VOID)
+void
+TitleLevel(void)
 {
     char called;
     int fin;
@@ -2091,21 +2091,21 @@ TitleLevel(VOID)
 }
 
 
-VOID DrawMenuLevelScreen(VOID)
+void DrawMenuLevelScreen(void)
 {
     flushperms();
     clearview(0);
     rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 20, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 }
 
-VOID DrawStatScreen(VOID)
+void DrawStatScreen(void)
 {
     flushperms();
     clearview(0);
     rotatesprite(0, 0, RS_SCALE, 0, STAT_SCREEN_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 }
 
-VOID DrawLoadLevelScreen(VOID)
+void DrawLoadLevelScreen(void)
 {
     flushperms();
     clearview(0);
@@ -2114,18 +2114,18 @@ VOID DrawLoadLevelScreen(VOID)
 
 short PlayerQuitMenuLevel = -1;
 
-VOID
-IntroAnimLevel(VOID)
+void
+IntroAnimLevel(void)
 {
     DSPRINTF(ds,"IntroAnimLevel");
     MONO_PRINT(ds);
     playanm(0);
 }
 
-VOID
-MenuLevel(VOID)
+void
+MenuLevel(void)
 {
-    BOOL MNU_StartNetGame(void);
+    SWBOOL MNU_StartNetGame(void);
     char called;
     int fin;
     extern int totalclocklock;
@@ -2254,7 +2254,7 @@ MenuLevel(VOID)
             if (MultiPlayQuitFlag)
             {
                 short pnum;
-                BYTE pbuf[1];
+                uint8_t pbuf[1];
                 QuitFlag = TRUE;
                 pbuf[0] = PACKET_TYPE_MENU_LEVEL_QUIT;
                 netbroadcastpacket(pbuf, 1);                      // TENSW
@@ -2311,11 +2311,11 @@ MenuLevel(VOID)
     nextpage();
 }
 
-VOID
-SceneLevel(VOID)
+void
+SceneLevel(void)
 {
-    BOOL dp_bak;
-    BOOL dm_bak;
+    SWBOOL dp_bak;
+    SWBOOL dm_bak;
     FILE *fin;
 #define CINEMATIC_DEMO_FILE "$scene.dmo"
 
@@ -2342,11 +2342,11 @@ SceneLevel(VOID)
     DemoPlaying = dp_bak;
 }
 
-VOID
+void
 LoadingLevelScreen(char *level_name)
 {
     short w,h;
-    extern BOOL DemoMode;
+    extern SWBOOL DemoMode;
     extern char *MNU_LevelName[28];
     DrawLoadLevelScreen();
 
@@ -2369,7 +2369,7 @@ LoadingLevelScreen(char *level_name)
     nextpage();
 }
 
-VOID
+void
 gNextState(STATEp *State)
 {
     // Transition to the next state
@@ -2383,7 +2383,7 @@ gNextState(STATEp *State)
 }
 
 // Generic state control
-VOID
+void
 gStateControl(STATEp *State, int *tics)
 {
     *tics += synctics;
@@ -2422,11 +2422,11 @@ int BonusGrabSound(short SpriteNum)
     return 0;
 }
 
-VOID
+void
 BonusScreen(PLAYERp pp)
 {
     int minutes,seconds,second_tics;
-    extern BOOL FinishedLevel;
+    extern SWBOOL FinishedLevel;
     extern int PlayClock;
     extern short LevelSecrets;
     extern short TotalKillable;
@@ -2535,7 +2535,7 @@ BonusScreen(PLAYERp pp)
 
     int Tics = 0;
     int line = 0;
-    BOOL BonusDone;
+    SWBOOL BonusDone;
     UserInput uinfo = { FALSE, FALSE, dir_None };
 
     if (Level < 0) Level = 0;
@@ -2661,9 +2661,9 @@ BonusScreen(PLAYERp pp)
     Terminate3DSounds();
 }
 
-VOID EndGameSequence(VOID)
+void EndGameSequence(void)
 {
-    BOOL anim_ok = TRUE;
+    SWBOOL anim_ok = TRUE;
     FadeOut(0, 5);
 
     if ((gs.ParentalLock || Global_PLock) && FinishAnim == ANIM_SUMO)
@@ -2702,11 +2702,11 @@ VOID EndGameSequence(VOID)
     }
 }
 
-VOID
+void
 StatScreen(PLAYERp mpp)
 {
     int minutes,seconds,second_tics;
-    extern BOOL FinishedLevel;
+    extern SWBOOL FinishedLevel;
     extern int PlayClock;
     extern short LevelSecrets;
     extern short TotalKillable;
@@ -2884,8 +2884,8 @@ StatScreen(PLAYERp mpp)
     Terminate3DSounds();
 }
 
-VOID
-GameIntro(VOID)
+void
+GameIntro(void)
 {
 
     DSPRINTF(ds,"GameIntro...");
@@ -2917,8 +2917,8 @@ GameIntro(VOID)
     MenuLevel();
 }
 
-VOID
-Control(VOID)
+void
+Control(void)
 {
 
     InitGame();
@@ -3092,7 +3092,7 @@ void InitPlayerGameSettings(void)
 }
 
 
-VOID InitRunLevel(VOID)
+void InitRunLevel(void)
 {
     int i;
     if (DemoEdit)
@@ -3182,8 +3182,8 @@ VOID InitRunLevel(VOID)
         StartAmbientSound();
 }
 
-VOID
-RunLevel(VOID)
+void
+RunLevel(void)
 {
     int i;
     InitRunLevel();
@@ -3228,7 +3228,7 @@ void swexit(int exitval)
     exit(exitval);
 }
 
-VOID DosScreen(VOID)
+void DosScreen(void)
 {
 #if 0
 #ifdef SW_SHAREWARE
@@ -3256,7 +3256,7 @@ VOID DosScreen(VOID)
 }
 
 #if 0 //PLOCK_VERSION
-VOID AlphaMessage(VOID)
+void AlphaMessage(void)
 {
     Global_PLock = TRUE; // Set the hardwired parental lock mode!
     buildputs(""
@@ -3273,7 +3273,7 @@ VOID AlphaMessage(VOID)
 #endif
 
 #if 0 //UK_VERSION
-VOID AlphaMessage(VOID)
+void AlphaMessage(void)
 {
     buildputs(""
               "                    SHADOW WARRIOR(tm) Version 1.2 (UK Version)               \n"
@@ -3288,7 +3288,7 @@ VOID AlphaMessage(VOID)
 #endif
 
 #if 1 //!UK_VERSION && !PLOCK_VERSION
-VOID AlphaMessage(VOID)
+void AlphaMessage(void)
 {
     if (SW_SHAREWARE)
     {
@@ -3467,10 +3467,10 @@ int app_main(int argc, char const *const argv[])
     int stat, nexti;
     char type;
     extern int MovesPerPacket;
-    VOID DoSector(VOID);
-    VOID gameinput(VOID);
+    void DoSector(void);
+    void gameinput(void);
     int cnt = 0;
-    ULONG TotalMemory;
+    uint32_t TotalMemory;
 
     for (i=1; i<argc; i++)
     {
@@ -3833,7 +3833,7 @@ int app_main(int argc, char const *const argv[])
         }
         else if (Bstrncasecmp(arg, "nopredict",6) == 0)
         {
-            extern BOOL PredictionOn;
+            extern SWBOOL PredictionOn;
             PredictionOn = FALSE;
         }
         else if (Bstrncasecmp(arg, "col", 3) == 0)
@@ -4013,7 +4013,7 @@ int app_main(int argc, char const *const argv[])
         }
         else if (Bstrncasecmp(arg, "debugsecret", 10) == 0)
         {
-            extern BOOL DebugSecret;
+            extern SWBOOL DebugSecret;
             DebugSecret = TRUE;
         }
         else if (Bstrncasecmp(arg, "debugactor", 10) == 0)
@@ -4030,7 +4030,7 @@ int app_main(int argc, char const *const argv[])
         }
         else if (Bstrncasecmp(arg, "nosyncprint",10) == 0)
         {
-            extern BOOL SyncPrintMode;
+            extern SWBOOL SyncPrintMode;
             SyncPrintMode = FALSE;
         }
         else if (Bstrncasecmp(arg, "debuganim", 9) == 0)
@@ -4114,7 +4114,7 @@ int app_main(int argc, char const *const argv[])
     return 0;
 }
 
-VOID
+void
 ManualPlayerInsert(PLAYERp pp)
 {
     PLAYERp npp = Player + numplayers;
@@ -4146,7 +4146,7 @@ ManualPlayerInsert(PLAYERp pp)
 
 }
 
-VOID
+void
 BotPlayerInsert(PLAYERp pp)
 {
     PLAYERp npp = Player + numplayers;
@@ -4179,7 +4179,7 @@ BotPlayerInsert(PLAYERp pp)
 //    SetFragBar(pp);
 }
 
-VOID
+void
 ManualPlayerDelete(PLAYERp cur_pp)
 {
     short i, nexti;
@@ -4214,11 +4214,11 @@ ManualPlayerDelete(PLAYERp cur_pp)
 }
 
 #if DEBUG
-VOID
+void
 SinglePlayInput(PLAYERp pp)
 {
     int pnum = myconnectindex;
-    BYTEp kp;
+    uint8_t* kp;
 
     if (BUTTON(gamefunc_See_Co_Op_View) && !UsingMenus && !ConPanel && dimensionmode == 3)
     {
@@ -4257,7 +4257,7 @@ SinglePlayInput(PLAYERp pp)
 
     if (!SW_SHAREWARE && KEY_PRESSED(KEYSC_M))
     {
-        extern BOOL DebugActorFreeze;
+        extern SWBOOL DebugActorFreeze;
 
         KEY_PRESSED(KEYSC_M) = 0;
         DebugActorFreeze++;
@@ -4362,7 +4362,7 @@ SinglePlayInput(PLAYERp pp)
     }
 }
 
-VOID
+void
 DebugKeys(PLAYERp pp)
 {
     short w, h;
@@ -4431,7 +4431,7 @@ DebugKeys(PLAYERp pp)
 
 #endif
 
-VOID
+void
 ConKey(void)
 {
 #if DEBUG
@@ -4474,10 +4474,10 @@ ConKey(void)
 
 char WangBangMacro[10][64];
 
-VOID
+void
 FunctionKeys(PLAYERp pp)
 {
-    extern BOOL GamePaused;
+    extern SWBOOL GamePaused;
     extern short QuickLoadNum;
     static int rts_delay = 0;
     int fn_key = 0;
@@ -4513,7 +4513,7 @@ FunctionKeys(PLAYERp pp)
                 p.PacketType = PACKET_TYPE_RTS;
                 p.RTSnum = fn_key;
 
-                netbroadcastpacket((BYTEp)(&p), sizeof(p));            // TENSW
+                netbroadcastpacket((uint8_t*)(&p), sizeof(p));            // TENSW
             }
         }
 
@@ -4575,7 +4575,7 @@ FunctionKeys(PLAYERp pp)
         // F6 option menu
         if (KEY_PRESSED(KEYSC_F6))
         {
-            extern BOOL QuickSaveMode;
+            extern SWBOOL QuickSaveMode;
             KEY_PRESSED(KEYSC_F6) = 0;
             if (!TEST(pp->Flags, PF_DEAD))
             {
@@ -4685,11 +4685,11 @@ FunctionKeys(PLAYERp pp)
 
 }
 
-VOID PauseKey(PLAYERp pp)
+void PauseKey(PLAYERp pp)
 {
-    extern BOOL GamePaused,CheatInputMode;
+    extern SWBOOL GamePaused,CheatInputMode;
     extern short QuickLoadNum;
-    extern BOOL enabled;
+    extern SWBOOL enabled;
 
     if (KEY_PRESSED(sc_Pause) && !CommEnabled && !InputMode && !UsingMenus && !CheatInputMode && !ConPanel)
     {
@@ -4736,18 +4736,18 @@ VOID PauseKey(PLAYERp pp)
 
 
 
-VOID GetMessageInput(PLAYERp pp)
+void GetMessageInput(PLAYERp pp)
 {
     int pnum = myconnectindex;
     short w,h;
     signed char MNU_InputSmallString(char *, short);
     signed char MNU_InputString(char *, short);
-    static BOOL cur_show;
-    static BOOL TeamSendAll, TeamSendTeam;
+    static SWBOOL cur_show;
+    static SWBOOL TeamSendAll, TeamSendTeam;
 #define TEAM_MENU "A - Send to ALL,  T - Send to TEAM"
     static char HoldMessageInputString[256];
     int i;
-    BOOL IsCommand(char *str);
+    SWBOOL IsCommand(char *str);
 
     if (!MessageInputMode && !ConInputMode)
     {
@@ -4889,13 +4889,13 @@ SEND_MESSAGE:
     }
 }
 
-VOID GetConInput(PLAYERp pp)
+void GetConInput(PLAYERp pp)
 {
     int pnum = myconnectindex;
     short w,h;
     signed char MNU_InputSmallString(char *, short);
     signed char MNU_InputString(char *, short);
-    static BOOL cur_show;
+    static SWBOOL cur_show;
 
     if (MessageInputMode || HelpInputMode)
         return;
@@ -4946,9 +4946,9 @@ VOID GetConInput(PLAYERp pp)
 }
 
 
-VOID GetHelpInput(PLAYERp pp)
+void GetHelpInput(PLAYERp pp)
 {
-    extern BOOL GamePaused;
+    extern SWBOOL GamePaused;
 
     if (KEY_PRESSED(KEYSC_ALT) || KEY_PRESSED(KEYSC_RALT))
         return;
@@ -5028,10 +5028,10 @@ VOID GetHelpInput(PLAYERp pp)
 short MirrorDelay;
 int MouseYAxisMode = -1;
 
-VOID
+void
 getinput(SW_PACKET *loc)
 {
-    BOOL found = FALSE;
+    SWBOOL found = FALSE;
     int i;
     PLAYERp pp = Player + myconnectindex;
     PLAYERp newpp = Player + myconnectindex;
@@ -5049,16 +5049,16 @@ getinput(SW_PACKET *loc)
 #define SET_LOC_KEY(loc, sync_num, key_test) SET(loc, ((!!(key_test)) << (sync_num)))
 
     ControlInfo info;
-    boolean running;
-    int32 turnamount;
-    static int32 turnheldtime;
-    int32 keymove;
-    int32 momx, momy;
+    int32_t running;
+    int32_t turnamount;
+    static int32_t turnheldtime;
+    int32_t keymove;
+    int32_t momx, momy;
     int aimvel;
     int mouseaxis;
 
-    extern BOOL MenuButtonAutoRun;
-    extern BOOL MenuButtonAutoAim;
+    extern SWBOOL MenuButtonAutoRun;
+    extern SWBOOL MenuButtonAutoAim;
 
     if (Prediction && CommEnabled)
     {
@@ -5527,7 +5527,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     spritetype *spr;
     short p;
     static int pspr_ndx[8]= {0,0,0,0,0,0,0,0};
-    BOOL sprisplayer = FALSE;
+    SWBOOL sprisplayer = FALSE;
     short txt_x, txt_y;
 
     // draw location text
@@ -5902,10 +5902,10 @@ loadtile(short tilenume)
 int
 RandomRange(int range, char *file, unsigned line)
 {
-    ULONG rand_num;
-    ULONG value;
+    uint32_t rand_num;
+    uint32_t value;
     extern FILE *fout_err;
-    extern ULONG MoveThingsCount;
+    extern uint32_t MoveThingsCount;
 
     if (RandomPrint && !Prediction)
     {
@@ -5933,8 +5933,8 @@ RandomRange(int range, char *file, unsigned line)
 int
 RandomRange(int range)
 {
-    ULONG rand_num;
-    ULONG value;
+    uint32_t rand_num;
+    uint32_t value;
 
     if (range <= 0)
         return 0;
@@ -5947,7 +5947,7 @@ RandomRange(int range)
     // shift values to give more precision
     value = (rand_num << 14) / ((65535UL << 14) / range);
 
-    if (value >= (ULONG)range)
+    if (value >= (uint32_t)range)
         value = range - 1;
 
     return value;
@@ -5957,8 +5957,8 @@ RandomRange(int range)
 int
 StdRandomRange(int range)
 {
-    ULONG rand_num;
-    ULONG value;
+    uint32_t rand_num;
+    uint32_t value;
 
     if (range <= 0)
         return 0;
@@ -5975,7 +5975,7 @@ StdRandomRange(int range)
     value = (rand_num << 14) / ((((int)RAND_MAX) << 14) / range);
 #endif
 
-    if (value >= (ULONG)range)
+    if (value >= (uint32_t)range)
         value = range - 1;
 
     return value;
