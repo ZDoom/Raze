@@ -1253,7 +1253,7 @@ void RipperHatch(short Weapon)
     short rip_ang[MAX_RIPPERS];
 
     rip_ang[0] = RANDOM_P2(2048);
-    rip_ang[1] = NORM_ANGLE(rip_ang[0] + 1024 + (RANDOM_P2(512) - 256));
+    // rip_ang[1] = NORM_ANGLE(rip_ang[0] + 1024 + (RANDOM_P2(512) - 256));
 
     for (i = 0; i < MAX_RIPPERS; i++)
     {

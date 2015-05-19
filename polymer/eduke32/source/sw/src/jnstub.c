@@ -1424,7 +1424,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
 
 
 
-    if (KEY_PRESSED(KEYSC_RALT + 128) && KEY_PRESSED(KEYSC_RCTRL + 128))
+    if (KEY_PRESSED(KEYSC_RALT) && KEY_PRESSED(KEYSC_RCTRL))
     {
         if (KEY_PRESSED(KEYSC_KPMINUS))
         {
