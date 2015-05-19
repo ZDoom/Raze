@@ -145,7 +145,7 @@ struct VOCstruct
     int16_t voc_num;                      // Backward reference to parent sound
     int voc_distance;                   // Sound's distance effectiveness
     Voc_Flags voc_flags;                // Various allowable flag settings for voc
-    uint8_t lock;                          // locking byte for caching
+    char lock;                          // locking byte for caching
     uint8_t playing;                       // number of this type of sound currently playing
 };
 

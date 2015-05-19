@@ -377,39 +377,6 @@ int krand1(void)
 
 #endif
 
-void *
-CacheAlloc(void **ptr, int size, unsigned char *lock_byte)
-{
-    if (*ptr == NULL)
-    {
-        *lock_byte = CACHE_LOCK_START;
-        allocache(ptr, size, lock_byte);
-    }
-    else
-    {
-        if (*lock_byte < CACHE_LOCK_START)
-            *lock_byte = CACHE_LOCK_START;
-        else
-            (*lock_byte)++;
-    }
-
-    return *ptr;
-}
-
-void
-CacheFree(void **ptr, unsigned char *lock_byte)
-{
-    if (*ptr == NULL)
-    {
-        ASSERT(*lock_byte == NULL);
-    }
-    else
-    {
-        if (*lock_byte < CACHE_LOCK_START)
-            *lock_byte = CACHE_UNLOCK_START;
-    }
-}
-
 /*
 void HeapCheck(char *file, int line)
 {

@@ -2696,7 +2696,7 @@ ScreenLoadSaveSetup(PLAYERp pp)
     ScreenTileLock();
 
     if (!waloff[SAVE_SCREEN_TILE])
-        allocache((void **)&waloff[SAVE_SCREEN_TILE], SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, &walock[SAVE_SCREEN_TILE]);
+        allocache((intptr_t*)&waloff[SAVE_SCREEN_TILE], SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, &walock[SAVE_SCREEN_TILE]);
 
     tilesiz[SAVE_SCREEN_TILE].x = SAVE_SCREEN_XSIZE;
     tilesiz[SAVE_SCREEN_TILE].x = SAVE_SCREEN_YSIZE;
