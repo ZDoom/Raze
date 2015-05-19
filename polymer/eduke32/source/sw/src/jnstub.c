@@ -1490,7 +1490,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     break;
                 }
 
-                printmessage("");
+                printmessage(" ");
             }
 
             if (keystatus[KEYSC_2])
@@ -1507,7 +1507,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     break;
                 }
 
-                printmessage("");
+                printmessage(" ");
             }
 
             if (keystatus[KEYSC_3])
@@ -1523,7 +1523,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     break;
                 }
 
-                printmessage("");
+                printmessage(" ");
             }
 
             if (keystatus[KEYSC_4])
@@ -1539,7 +1539,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     break;
                 }
 
-                printmessage("");
+                printmessage(" ");
             }
 
             if (keystatus[KEYSC_5])
@@ -1555,7 +1555,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     break;
                 }
 
-                printmessage("");
+                printmessage(" ");
             }
         }
 
@@ -1584,7 +1584,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_2])
@@ -1617,7 +1617,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 }
                 break;
             }
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_3])
@@ -1645,7 +1645,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
 
                 break;
             }
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_4])
@@ -1672,7 +1672,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     getnumber(tempbuf, SPRITE_TAG4(searchwall), 65536L, 0);
                 break;
             }
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_5])
@@ -1696,7 +1696,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     getnumber(tempbuf, SPRITE_TAG5(searchwall), 65536L, 0);
                 break;
             }
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_6])
@@ -1720,7 +1720,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     getnumber(tempbuf, SPRITE_TAG6(searchwall), 65536L, 0);
                 break;
             }
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_7])
@@ -1744,7 +1744,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     getnumber(tempbuf, SPRITE_TAG7(searchwall), 65536L, 0);
                 break;
             }
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_8])
@@ -1765,7 +1765,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     getnumber(tempbuf, SPRITE_TAG8(searchwall), 65536L, 0);
                 break;
             }
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_9])
@@ -1786,7 +1786,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     getnumber(tempbuf, SPRITE_TAG9(searchwall), 65536L, 0);
                 break;
             }
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_0])
@@ -1807,7 +1807,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                     getnumber(tempbuf, SPRITE_TAG10(searchwall), 65536L, 0);
                 break;
             }
-            printmessage("");
+            printmessage(" ");
         }
 
     }
@@ -1836,7 +1836,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
     }
     else
@@ -1860,7 +1860,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_2])
@@ -1882,7 +1882,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
 
 
@@ -1905,7 +1905,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_4])
@@ -1927,7 +1927,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_5])
@@ -1949,7 +1949,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_6])
@@ -1971,7 +1971,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_7])
@@ -1993,7 +1993,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_8])
@@ -2015,7 +2015,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_9])
@@ -2037,7 +2037,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
 
         if (keystatus[KEYSC_0])
@@ -2059,7 +2059,7 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
                 break;
             }
 
-            printmessage("");
+            printmessage(" ");
         }
     }
 }
@@ -2992,7 +2992,7 @@ ExtEditWallData(short wallnum)          // F8
 //    nickdata = 0;
 //    nickdata = getnumber16(tempbuf, nickdata, 65536L);
 
-//    printmessage16("");                 // Clear message box (top right of
+//    printmessage16(" ");                 // Clear message box (top right of
     // status bar)
 //    ExtShowWallData(wallnum);
 }
@@ -3119,7 +3119,7 @@ DISPLAY:
         FLIP(sprite[spritenum].extra, SPRX_BLOCK);
     }
 
-    printmessage16("");
+    printmessage16(" ");
 
     clearmidstatbar16();                // Clear middle of status bar
 
@@ -3162,7 +3162,7 @@ PlaxSetShade(void)
         }
     }
 
-    printmessage16("");
+    printmessage16(" ");
 
     clearmidstatbar16();                // Clear middle of status bar
 
@@ -3200,7 +3200,7 @@ PlaxAdjustShade(void)
         }
     }
 
-    printmessage16("");
+    printmessage16(" ");
 
     clearmidstatbar16();                // Clear middle of status bar
 
@@ -3290,7 +3290,7 @@ AdjustShade(void)
         }
     }
 
-    printmessage16("");
+    printmessage16(" ");
 
     clearmidstatbar16();                // Clear middle of status bar
 }
@@ -3321,7 +3321,7 @@ SetClipdist2D(void)
         }
     }
 
-    printmessage16("");
+    printmessage16(" ");
 
     clearmidstatbar16();                // Clear middle of status bar
 }
@@ -3370,7 +3370,7 @@ AdjustVisibility(void)
             }
         }
 
-    printmessage16("");
+    printmessage16(" ");
 
     clearmidstatbar16();                // Clear middle of status bar
 
@@ -3445,7 +3445,7 @@ FindSprite(short picnum, short findspritenum)
         }
     }
 
-    printmessage16("");
+    printmessage16(" ");
 
     clearmidstatbar16();                // Clear middle of status bar
 }
@@ -3532,7 +3532,7 @@ ShowNextTag(void)
     if (qsetmode == 200)                // In 3D mode
         return;
 
-    printmessage16("");
+    printmessage16(" ");
 
     sprintf(tempbuf, "Next tag = %d", siNextEndTag);
     printmessage16(tempbuf);
