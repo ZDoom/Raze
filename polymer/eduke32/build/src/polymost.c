@@ -2619,7 +2619,7 @@ static void polymost_drawalls(int32_t const bunch)
                 float vv[2];
                 float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
                 vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(65536.f*65536.f));
-                vv[0] = dd*((float) ((tilesiz[globalpicnum].y>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
+                vv[0] = dd*((float) ((tilesiz[globalpicnum].y>>1)+parallaxyoffs_override/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
 
                 //Hack to draw black rectangle below sky when looking down...
@@ -2885,7 +2885,7 @@ static void polymost_drawalls(int32_t const bunch)
                 float vv[2];
                 float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
                 vv[1] = dd*((float)xdimscale*viewingrange) * (1.f/(65536.f*65536.f));
-                vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
+                vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+parallaxyoffs_override/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
 
                 //Hack to draw black rectangle below sky when looking down...

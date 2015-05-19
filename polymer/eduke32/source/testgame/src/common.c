@@ -64,7 +64,7 @@ void Ken_InitMultiPsky(void)
     multipsky[1].lognumtiles = 1;
     multipsky[1].horizfrac = 65536;
 
-    // DAYSKY
+    // NIGHTSKY
     multipsky[2].lognumtiles = 3;
     multipsky[2].horizfrac = 65536;
 

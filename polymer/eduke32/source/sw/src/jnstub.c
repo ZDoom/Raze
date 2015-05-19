@@ -36,6 +36,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "tags.h"
 #include "pal.h"
 
+#include "common_game.h"
+
 #define M_RED 102
 #define M_BLUE 198
 
@@ -754,6 +756,7 @@ ExtInit(void)
     initmouse();
 
     InitPalette();
+    SW_InitMultiPsky();
 
     defaultspritecstat = 0;             // use old centering mode
     kensplayerheight = 58;

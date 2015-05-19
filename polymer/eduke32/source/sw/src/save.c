@@ -587,9 +587,9 @@ int SaveGame(short save_num)
     MWRITE(&NormalVisibility,sizeof(NormalVisibility),1,fil);
     MWRITE(&g_visibility,sizeof(g_visibility),1,fil);
     MWRITE(&parallaxtype,sizeof(parallaxtype),1,fil);
-    MWRITE(&parallaxyoffs,sizeof(parallaxyoffs),1,fil);
-    MWRITE(pskyoff,sizeof(pskyoff),1,fil);
-    MWRITE(&pskybits,sizeof(pskybits),1,fil);
+    MWRITE(&parallaxyoffs_override,sizeof(parallaxyoffs_override),1,fil);
+    MWRITE(&parallaxyscale_override,sizeof(parallaxyscale_override),1,fil);
+    MWRITE(&pskybits_override,sizeof(pskybits_override),1,fil);
 
     MWRITE(&BorderInfo,sizeof(BorderInfo),1,fil);
     MWRITE(&MoveSkip2,sizeof(MoveSkip2),1,fil);
@@ -1078,9 +1078,9 @@ int LoadGame(short save_num)
     MREAD(&NormalVisibility,sizeof(NormalVisibility),1,fil);
     MREAD(&g_visibility,sizeof(g_visibility),1,fil);
     MREAD(&parallaxtype,sizeof(parallaxtype),1,fil);
-    MREAD(&parallaxyoffs,sizeof(parallaxyoffs),1,fil);
-    MREAD(pskyoff,sizeof(pskyoff),1,fil);
-    MREAD(&pskybits,sizeof(pskybits),1,fil);
+    MREAD(&parallaxyoffs_override,sizeof(parallaxyoffs_override),1,fil);
+    MREAD(&parallaxyscale_override,sizeof(parallaxyscale_override),1,fil);
+    MREAD(&pskybits_override,sizeof(pskybits_override),1,fil);
 
     MREAD(&BorderInfo,sizeof(BorderInfo),1,fil);
     MREAD(&MoveSkip2,sizeof(MoveSkip2),1,fil);

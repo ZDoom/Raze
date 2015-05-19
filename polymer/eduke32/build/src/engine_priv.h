@@ -224,9 +224,9 @@ static inline const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t 
     int32_t j = getpskyidx(picnum);
 
     if (dapskybits)
-        *dapskybits = multipsky[j].lognumtiles;
+        *dapskybits = (pskybits_override == -1 ? multipsky[j].lognumtiles : pskybits_override);
     if (dapyscale)
-        *dapyscale = multipsky[j].horizfrac;
+        *dapyscale = (parallaxyscale_override == 0 ? multipsky[j].horizfrac : parallaxyscale_override);
 
     return multipsky[j].tileofs;
 }

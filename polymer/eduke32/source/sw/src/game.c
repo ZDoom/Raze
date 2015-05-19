@@ -89,6 +89,8 @@ Things required to make savegames work:
 #include "text.h"
 #include "music.h"
 
+#include "common_game.h"
+
 #include "crc32.h"
 
 #if DEBUG
@@ -223,7 +225,6 @@ const GAME_SET gs_defaults =
 };
 GAME_SET gs;
 
-char PlaxBits = 0;
 SWBOOL PlayerTrackingMode = FALSE;
 SWBOOL PauseMode = FALSE;
 SWBOOL PauseKeySet = FALSE;
@@ -1048,13 +1049,8 @@ InitGame(int32_t argc, const char **argv)
 
     Connect();
     SortBreakInfo();
-    //parallaxyoffs = 40;
-    parallaxyoffs = 0;
     parallaxtype = 1;
-    pskyoff[0] = 0;
-    pskybits = PlaxBits;
-    // Default scale value for parallax skies
-    parallaxyscale = 8192;
+    SW_InitMultiPsky();
 
     memset(Track, 0, sizeof(Track));
 
@@ -1249,8 +1245,6 @@ void InitLevelGlobals(void)
     PlayerGravity = 24;
     wait_active_check_offset = 0;
     PlaxCeilGlobZadjust = PlaxFloorGlobZadjust = Z(500);
-    pskyoff[0] = 0;
-    pskybits = PlaxBits;
     FinishedLevel = FALSE;
     AnimCnt = 0;
     left_foot = FALSE;
@@ -4408,10 +4402,10 @@ DebugKeys(PLAYERp pp)
             KEY_PRESSED(KEYSC_LSHIFT) = FALSE;
             KEY_PRESSED(KEYSC_X) = 0;
 
-            parallaxyoffs += 10;
+            parallaxyoffs_override += 10;
 
-            if (parallaxyoffs > 100)
-                parallaxyoffs = 0;
+            if (parallaxyoffs_override > 100)
+                parallaxyoffs_override = 0;
         }
         else
         {

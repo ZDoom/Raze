@@ -371,8 +371,8 @@ SW_EDITOR ?= voidsw-editor
 SW_TARGET:=$(SW)$(EXESUFFIX)
 SW_EDITOR_TARGET:=$(SW_EDITOR)$(EXESUFFIX)
 
-SW_OBJS=actor ai anim border break bunny cache cheats colormap config console coolg coolie copysect demo draw eel game girlninj goro grpscan hornet interp interpsh inv jplayer jsector jweapon lava light mclip mdastr menus miscactr morph net ninja panel player predict quake ripper ripper2 rooms rotator rts save scrip2 sector serp setup skel skull slidor sounds spike sprite sumo swconfig sync text track vator vis wallmove warp weapon zilla zombie saveable
-SW_EDITOR_OBJS=jnstub brooms bldscript jbhlp colormap grpscan
+SW_OBJS=actor ai anim border break bunny cache cheats colormap common config console coolg coolie copysect demo draw eel game girlninj goro grpscan hornet interp interpsh inv jplayer jsector jweapon lava light mclip mdastr menus miscactr morph net ninja panel player predict quake ripper ripper2 rooms rotator rts save scrip2 sector serp setup skel skull slidor sounds spike sprite sumo swconfig sync text track vator vis wallmove warp weapon zilla zombie saveable
+SW_EDITOR_OBJS=jnstub brooms bldscript jbhlp colormap grpscan common
 
 ifeq ($(RENDERTYPE),SDL)
     ifeq (1,$(HAVE_GTK2))

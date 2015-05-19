@@ -131,6 +131,10 @@ extern "C" {
 #define MACRO9  "Hope you were paying attention."
 #define MACRO10 "ITTAIIIUUU!!!"
 
+
+
+void SW_InitMultiPsky(void);
+
 #ifdef __cplusplus
 };
 #endif

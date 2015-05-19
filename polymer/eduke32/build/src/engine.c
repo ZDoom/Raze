@@ -140,6 +140,8 @@ static void drawpixel_safe(void *s, char a)
 #endif
 }
 
+int16_t pskybits_override = -1;
+
 //void loadvoxel(int32_t voxindex) { UNREFERENCED_PARAMATER(voxindex); }
 int16_t tiletovox[MAXTILES];
 int32_t usevoxels = 1;
@@ -4679,14 +4681,14 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
         globaltilesizy = tsizy;
         globalyscale = 65536 / tsizy;
         globalshiftval = 0;
-        globalzd = divscale32(((tsizy>>1)/*+g_psky.yoffs*/), tsizy) + ((uint32_t)globalypanning<<24);
+        globalzd = divscale32(((tsizy>>1)+parallaxyoffs_override/*+g_psky.yoffs*/), tsizy) + ((uint32_t)globalypanning<<24);
     }
     else
 #endif
     {
         globalshiftval = 32-globalshiftval;
         globalyscale = (8<<(globalshiftval-19));
-        globalzd = (((tsizy>>1)/*+g_psky.yoffs*/)<<globalshiftval) + ((uint32_t)globalypanning<<24);
+        globalzd = (((tsizy>>1)+parallaxyoffs_override/*+g_psky.yoffs*/)<<globalshiftval) + ((uint32_t)globalypanning<<24);
     }
 
     //if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;

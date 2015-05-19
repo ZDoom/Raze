@@ -1797,6 +1797,10 @@ SpriteSetup(void)
         sector[i].extra = 0;
     }
 
+    // Clear PARALLAX_LEVEL overrides
+    parallaxyscale_override = 0;
+    pskybits_override = -1;
+
     // Call my little sprite setup routine first
     JS_SpriteSetup();
 
@@ -2053,9 +2057,10 @@ SpriteSetup(void)
 
                 case PARALLAX_LEVEL:
                 {
-                    pskybits = sp->lotag;
+                    parallaxyscale_override = 8192;
+                    pskybits_override = sp->lotag;
                     if (SP_TAG4(sp) > 2048)
-                        parallaxyscale = SP_TAG4(sp);
+                        parallaxyscale_override = SP_TAG4(sp);
                     KillSprite(SpriteNum);
                     break;
                 }
