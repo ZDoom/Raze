@@ -129,10 +129,8 @@ SWBOOL GraphicsMode = FALSE;
 char CacheLastLevel[32] = "";
 char PlayerNameArg[32] = "";
 SWBOOL CleanExit = FALSE;
-extern char cachedebug;
 SWBOOL DemoModeMenuInit = FALSE;
 SWBOOL FinishAnim = 0;
-SWBOOL CachePrintMode = FALSE;
 SWBOOL ShortGameMode = FALSE;
 SWBOOL ReloadPrompt = FALSE;
 SWBOOL ReloadPromptMode = FALSE;
@@ -3092,9 +3090,6 @@ void InitRunLevel(void)
     if (Bstrcasecmp(CacheLastLevel, LevelName) != 0)
         DoTheCache();
 
-    if (CachePrintMode)
-        cachedebug = TRUE;
-
     // auto aim / auto run / etc
     InitPlayerGameSettings();
 
@@ -3694,10 +3689,6 @@ int32_t app_main(int32_t argc, const char **argv)
         {
             move_scale *= 5;
             turn_scale *= 5;
-        }
-        else if (Bstrncasecmp(arg, "cacheprint",10) == 0)
-        {
-            CachePrintMode = TRUE;
         }
         else if (Bstrncasecmp(arg, "setupfile",8) == 0)
         {

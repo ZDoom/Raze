@@ -126,7 +126,6 @@ char default_buildkeys[NUMBUILDKEYS] =
 #define MODE_3D 200
 
 extern short pointhighlight, linehighlight;
-extern short defaultspritecstat;
 extern short asksave;
 short ExtSectorTag[MAXSECTORS][4];
 static char tempbuf[256];
@@ -641,7 +640,6 @@ ExtInit(void)
 
     InitPalette();
 
-    defaultspritecstat = 0;             // use old centering mode
     kensplayerheight = 58;
     zmode = 0;
 
@@ -766,7 +764,6 @@ ExtInit(void)
     InitPalette();
     SW_InitMultiPsky();
 
-    defaultspritecstat = 0;             // use old centering mode
     kensplayerheight = 58;
     zmode = 0;
 

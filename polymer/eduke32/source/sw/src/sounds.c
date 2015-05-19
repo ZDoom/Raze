@@ -744,7 +744,6 @@ void LockSound(int num)
 SWBOOL CacheSound(int num, int type)
 {
     VOC_INFOp vp = &voc[num];
-    extern char cachedebug;
 
     PRODUCTION_ASSERT(num >= 0 && num < DIGI_MAX);
 
@@ -764,9 +763,6 @@ SWBOOL CacheSound(int num, int type)
         if (vp != NULL)
         {
             //FILE *fp;
-
-            if (cachedebug)
-                printf("Sound %s, %d\n",vp->name,num);
 
             /*
             if (type == CACHE_SOUND_PLAY)
