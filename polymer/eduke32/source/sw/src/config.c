@@ -551,7 +551,7 @@ int32_t CONFIG_ReadSetup(void)
     extern char ds[];
     extern char PlayerNameArg[32];
 
-    char oggtrackname[MAXOGGTRACKLENGTH] = {0};
+    char waveformtrackname[MAXWAVEFORMTRACKLENGTH] = {0};
 
     CONTROL_ClearAssignments();
     CONFIG_SetDefaults();
@@ -590,9 +590,9 @@ int32_t CONFIG_ReadSetup(void)
     gs.FlipStereo = dummy;
     if (gs.FlipStereo) gs.FlipStereo = 1;
 
-    SCRIPT_GetString(scripthandle, "Sound Setup", "OggTrackName", oggtrackname);
-    if (oggtrackname[0] != '\0')
-        memcpy(gs.OggTrackName, oggtrackname, MAXOGGTRACKLENGTH);
+    SCRIPT_GetString(scripthandle, "Sound Setup", "WaveformTrackName", waveformtrackname);
+    if (waveformtrackname[0] != '\0')
+        memcpy(gs.WaveformTrackName, waveformtrackname, MAXWAVEFORMTRACKLENGTH);
 
     SCRIPT_GetNumber(scripthandle, "Setup", "ForceSetup",&ForceSetup);
     SCRIPT_GetNumber(scripthandle, "Controls","UseMouse",&UseMouse);
@@ -652,7 +652,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "MusicVolume",gs.MusicVolume,FALSE,FALSE);
     dummy = gs.FlipStereo;
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "ReverseStereo",dummy,FALSE,FALSE);
-    SCRIPT_PutString(scripthandle, "Sound Setup", "OggTrackName", gs.OggTrackName);
+    SCRIPT_PutString(scripthandle, "Sound Setup", "WaveformTrackName", gs.WaveformTrackName);
 
     SCRIPT_PutNumber(scripthandle, "Setup", "ForceSetup",ForceSetup,FALSE,FALSE);
     SCRIPT_PutNumber(scripthandle, "Controls","UseMouse",UseMouse,FALSE,FALSE);

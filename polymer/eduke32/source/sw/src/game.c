@@ -221,7 +221,7 @@ const GAME_SET gs_defaults =
     FALSE, // stats
     FALSE, // mouse aiming on
     FALSE, // play cd
-    "track??.ogg", // ogg track name
+    "Track??", // waveform track name
 };
 GAME_SET gs;
 
@@ -2681,8 +2681,6 @@ void EndGameSequence(void)
     {
         if (Level == 4 || Level == 20)
         {
-            //CDAudio_Stop();
-            //CDAudio_Play(2,TRUE); // Play theme after game ends
             Level=0;
         }
         else

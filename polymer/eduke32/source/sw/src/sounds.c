@@ -74,7 +74,6 @@ uint8_t RedBookSong[40] =
 SWBOOL Use_SoundSpriteNum = FALSE;
 int16_t SoundSpriteNum = -1;  // Always set this back to -1 for proper validity checking!
 
-SWBOOL CDInitialized = FALSE;
 SWBOOL MusicInitialized = FALSE;
 SWBOOL FxInitialized = FALSE;
 
@@ -116,8 +115,7 @@ typedef enum
 {
     SongTypeNone,
     SongTypeMIDI,
-    SongTypeVoc,
-    SongTypeCDA
+    SongTypeWave,
 } SongType_t;
 
 char *SongPtr = NULL;
@@ -422,11 +420,7 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
 
     if (!restart)
     {
-        if (SongType == SongTypeCDA && cdaudio_track == SongTrack)
-        {
-            return TRUE;
-        }
-        else if (SongType == SongTypeVoc)
+        if (SongType == SongTypeWave)
         {
             if (SongTrack > 0 && SongTrack == cdaudio_track)
             {
@@ -451,53 +445,47 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
 
     if (!SW_SHAREWARE)
     {
-        if (CD_GetCurrentDriver() != ASS_NoSound && CDInitialized)
-        {
-            int status;
-            status = CD_Play(cdaudio_track, TRUE);
-            if (status == CD_Ok)
-            {
-                SongType = SongTypeCDA;
-                SongTrack = cdaudio_track;
-                return TRUE;
-            }
-
-            buildprintf("CD play error: %s\n", CD_ErrorString(status));
-        }
-
         if (cdaudio_track >= 0)
         {
-            char oggtrack[MAXOGGTRACKLENGTH];
-            memcpy(oggtrack, gs.OggTrackName, MAXOGGTRACKLENGTH);
+            char waveformtrack[MAXWAVEFORMTRACKLENGTH];
+            Bstrncpy(waveformtrack, gs.WaveformTrackName, MAXWAVEFORMTRACKLENGTH - 1);
 
-            char *numPos = strstr(oggtrack, "??");
+            char *numPos = Bstrstr(waveformtrack, "??");
 
-            if (numPos && (numPos-oggtrack) < MAXOGGTRACKLENGTH - 1)
+            if (numPos && (numPos-waveformtrack) < MAXWAVEFORMTRACKLENGTH - 2)
             {
+                static const char *tracktypes[] = { ".flac", ".ogg" };
+                const size_t tracknamebaselen = Bstrlen(waveformtrack);
+                size_t i;
+
                 numPos[0] = '0' + (cdaudio_track / 10) % 10;
                 numPos[1] = '0' + cdaudio_track % 10;
 
-                if (LoadSong(oggtrack))
+                for (i = 0; i < ARRAY_SIZE(tracktypes); ++i)
                 {
-                    SongVoice = FX_PlayLoopedAuto(SongPtr, SongLength, 0, 0, 0,
-                                                  255, 255, 255, FX_MUSIC_PRIORITY, MUSIC_ID);
-                    if (SongVoice > FX_Ok)
+                    waveformtrack[tracknamebaselen] = '\0';
+                    Bstrncat(waveformtrack, tracktypes[i], MAXWAVEFORMTRACKLENGTH);
+
+                    if (LoadSong(waveformtrack))
                     {
-                        SongType = SongTypeVoc;
-                        SongTrack = cdaudio_track;
-                        SongName = strdup(oggtrack);
-                        return TRUE;
+                        SongVoice = FX_PlayLoopedAuto(SongPtr, SongLength, 0, 0, 0,
+                                                      255, 255, 255, FX_MUSIC_PRIORITY, MUSIC_ID);
+                        if (SongVoice > FX_Ok)
+                        {
+                            SongType = SongTypeWave;
+                            SongTrack = cdaudio_track;
+                            SongName = Bstrdup(waveformtrack);
+                            return TRUE;
+                        }
                     }
                 }
-                else
-                {
-                    buildprintf("Can't play OGG music track: %s\n", oggtrack);
-                }
+
+                buildprintf("Can't find CD track %i!\n", cdaudio_track);
             }
             else
             {
-                buildprintf("Make sure to have \"??\" as a placeholder for the track number in your OggTrackName!\n");
-                buildprintf("  e.g. OggTrackName = \"MUSIC/Track??.ogg\"\n");
+                buildprintf("Make sure to have \"??\" as a placeholder for the track number in your WaveformTrackName!\n");
+                buildprintf("  e.g. WaveformTrackName = \"MUSIC/Track??\"\n");
             }
         }
     }
@@ -520,7 +508,7 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
                                       255, 255, 255, FX_MUSIC_PRIORITY, MUSIC_ID);
         if (SongVoice > FX_Ok)
         {
-            SongType = SongTypeVoc;
+            SongType = SongTypeWave;
             SongName = strdup(song_file_name);
             return TRUE;
         }
@@ -541,17 +529,13 @@ StopSong(void)
     if (DemoMode)
         return;
 
-    if (SongType == SongTypeVoc && SongVoice >= 0)
+    if (SongType == SongTypeWave && SongVoice >= 0)
     {
         FX_StopSound(SongVoice);
     }
     else if (SongType == SongTypeMIDI)
     {
         MUSIC_StopSong();
-    }
-    else if (SongType == SongTypeCDA)
-    {
-        CD_Stop();
     }
     SongType = SongTypeNone;
 
@@ -575,13 +559,9 @@ PauseSong(SWBOOL pauseon)
 {
     if (!gs.MusicOn) return;
 
-    if (SongType == SongTypeVoc && SongVoice >= 0)
+    if (SongType == SongTypeWave && SongVoice >= 0)
     {
         FX_PauseSound(SongVoice, pauseon);
-    }
-    else if (SongType == SongTypeCDA)
-    {
-        CD_Pause(pauseon);
     }
 }
 
@@ -1308,17 +1288,6 @@ void MusicStartup(void)
         devicetype = MusicDevice - 1;
     }
 
-    status = CD_Init(devicetype);
-
-    if (status != CD_Ok)
-    {
-        buildprintf("CD error: %s\n", CD_ErrorString(status));
-    }
-    else
-    {
-        CDInitialized = TRUE;
-    }
-
     status = MUSIC_Init(devicetype, 0);
 
     if (status == MUSIC_Ok)
@@ -1353,9 +1322,6 @@ void
 MusicShutdown(void)
 {
     int32_t status;
-
-    if (CDInitialized)
-        CD_Shutdown();
 
     // if they chose None lets return
     if (MusicDevice < 0)

@@ -1,4 +1,4 @@
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 /*
 Copyright (C) 1997, 2005 - 3D Realms Entertainment
 
@@ -68,7 +68,7 @@ typedef struct
     SWBOOL Stats;
     SWBOOL MouseAimingOn; // whether it was on or off - NOT the type of mouse aiming
     SWBOOL PlayCD;
-    char OggTrackName[MAXOGGTRACKLENGTH];
+    char WaveformTrackName[MAXWAVEFORMTRACKLENGTH];
 } GAME_SET, *GAME_SETp;
 
 extern const GAME_SET gs_defaults;
