@@ -90,7 +90,7 @@ void LoadKVXFromScript(char *filename);
 
 // voxelarray format is:
 //      spritenumber, voxelnumber
-extern int aVoxelArray[MAXSPRITES];
+extern int aVoxelArray[MAXTILES];
 
 // Ken ALT highlighted array
 extern short highlightsector[MAXSECTORS];

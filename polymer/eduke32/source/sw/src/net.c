@@ -89,7 +89,7 @@ unsigned int MoveThingsCount;
 
 //int myminlag[MAX_SW_PLAYERS];
 int mymaxlag, otherminlag, bufferjitter = 1;
-extern int8_t sync_first[MAXSYNCBYTES][60];
+extern char sync_first[MAXSYNCBYTES][60];
 extern int sync_found;
 
 //

@@ -14295,14 +14295,14 @@ InitSumoSkull(short SpriteNum)
     short max_missiles;
 
     extern STATE s_SkullExplode[];
-    extern STATE s_SkullWait[];
+    extern STATE s_SkullWait[5][1];
     extern STATEp sg_SkullWait[];
     extern ATTRIBUTE SkullAttrib;
 
 
     PlaySound(DIGI_SERPSUMMONHEADS, &sp->x, &sp->y, &sp->z, v3df_none);
 
-    new = SpawnSprite(STAT_ENEMY, SKULL_R0, &s_SkullWait[0], sp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
+    new = SpawnSprite(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], sp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
     np = &sprite[new];
     nu = User[new];

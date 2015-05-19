@@ -163,7 +163,7 @@ void CopySectorMatch(short match)
                         if (TEST(sector[dest_sp->sectnum].extra, SECTFX_SECTOR_OBJECT))
                         {
                             SECTOR_OBJECTp sop;
-                            extern short GlobSpeedSO;
+                            extern int GlobSpeedSO;
 
                             // find and add sprite to SO
                             sop = DetectSectorObject(&sector[sprite[src_move].sectnum]);
