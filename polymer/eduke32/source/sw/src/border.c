@@ -478,9 +478,9 @@ BorderRefresh(PLAYERp pp)
     // minus the border if necessary
 
     // fill in the sides of the panel when the screen is wide
-    if (gs.BorderNum >= BORDER_BAR && widescreen)
+    if (gs.BorderNum >= BORDER_BAR && r_usenewaspect)
     {
-        int sidew = (xdim - scale(320, ydim, mulscale16(200, pixelaspect))) / 2;
+        const int sidew = (xdim - scale(4, ydim, 3)) / 2;
 
         x = 0;
         x2 = xdim - 1;
