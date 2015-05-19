@@ -30,6 +30,8 @@ uint8_t *basepaltable[1] = {
     palette
 };
 
+uint32_t PaletteIndexFullbrights[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
 #define NUMPSKYMULTIS 3
 EDUKE32_STATIC_ASSERT(NUMPSKYMULTIS <= MAXPSKYMULTIS);
 EDUKE32_STATIC_ASSERT(PSKYOFF_MAX <= MAXPSKYTILES);

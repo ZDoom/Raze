@@ -1017,6 +1017,8 @@ void G_DoAutoload(const char *dirname)
 
 //////////
 
+uint32_t PaletteIndexFullbrights[8] = { 0, 0, 0, 0, 0, 0, 0, 2147418112 };
+
 static uint8_t water_pal[768], slime_pal[768], title_pal[768], dre_alms[768], ending_pal[768];
 
 uint8_t *basepaltable[BASEPALCOUNT] = {
