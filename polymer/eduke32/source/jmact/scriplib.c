@@ -680,7 +680,7 @@ int32_t SCRIPT_GetString(int32_t scripthandle, char * sectionname, char * entryn
     return SCRIPT_GetStringPtr(scripthandle, sectionname, entryname, &dest);
 }
 
-int32_t SCRIPT_GetDoubleString(int32_t scripthandle, char * sectionname, char * entryname, char * dest1, char * dest2)
+int32_t SCRIPT_GetDoubleString(int32_t scripthandle, const char * sectionname, const char * entryname, char * dest1, char * dest2)
 {
     ScriptSectionType *s;
     ScriptEntryType *e;
@@ -820,13 +820,14 @@ void SCRIPT_PutString
 void SCRIPT_PutDoubleString
 (
     int32_t scripthandle,
-    char * sectionname,
-    char * entryname,
-    char * string1,
-    char * string2
+    const char * sectionname,
+    const char * entryname,
+    const char * string1,
+    const char * string2
 )
 {
-    char *raw,*q,*p;
+    const char *q;
+    char *raw,*p;
     int32_t len = 6;
     if (!string1) string1 = "";
     if (!string2) string2 = "";
