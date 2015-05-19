@@ -48,6 +48,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "rts.h"
 #include "menus.h"
 
+#ifdef _WIN32
+#include "winlayer.h"
+#endif
+
 extern USERp User[MAXSPRITES];
 void DumpSounds(void);
 
@@ -497,7 +501,7 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
 
     if (!memcmp(SongPtr, "MThd", 4))
     {
-        MUSIC_PlaySong(SongPtr, SongLength, MUSIC_LoopSong);
+        MUSIC_PlaySong(SongPtr, /*SongLength,*/  MUSIC_LoopSong);
         SongType = SongTypeMIDI;
         SongName = strdup(song_file_name);
         return TRUE;
@@ -561,7 +565,7 @@ PauseSong(SWBOOL pauseon)
 
     if (SongType == SongTypeWave && SongVoice >= 0)
     {
-        FX_PauseSound(SongVoice, pauseon);
+        FX_PauseVoice(SongVoice, pauseon);
     }
 }
 
@@ -1041,7 +1045,7 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
     {
         if (sound_dist < 255)
         {
-            voice = FX_PlayAuto3D((char *)vp->data, vp->datalen, pitch, angle, sound_dist, priority, num);
+            voice = FX_PlayAuto3D((char *)vp->data, vp->datalen, FX_ONESHOT, pitch, angle, sound_dist, priority, num);
         }
         else
             voice = -1;
@@ -1080,7 +1084,7 @@ void PlaySoundRTS(int rts_num)
 
     ASSERT(rtsptr);
 
-    voice = FX_PlayAuto3D(rtsptr, RTS_SoundLength(rts_num - 1), 0, 0, 0, 255, -rts_num);
+    voice = FX_PlayAuto3D(rtsptr, RTS_SoundLength(rts_num - 1), FX_ONESHOT, 0, 0, 0, 255, -rts_num);
 
     if (voice <= FX_Ok)
     {
@@ -1186,13 +1190,13 @@ SoundStartup(void)
         fxdevicetype = FXDevice - 1;
     }
 
-#ifdef WIN32
+#ifdef MIXERTYPEWIN
     initdata = (void *) win_gethwnd();
 #endif
 
     //gs.FxOn = TRUE;
 
-    status = FX_Init(fxdevicetype, NumVoices, &NumChannels, &NumBits, &MixRate, initdata);
+    status = FX_Init(fxdevicetype, NumVoices, NumChannels, NumBits, MixRate, initdata);
     if (status == FX_Ok)
     {
         FxInitialized = TRUE;
@@ -1255,14 +1259,14 @@ SoundShutdown(void)
 
 void loadtmb(void)
 {
-    unsigned char tmb[8000];
+    char tmb[8000];
     int fil, l;
 
     fil = kopen4load("swtimbr.tmb",0);
     if (fil == -1)
         return;
 
-    l = kfilelength(fil);
+    l = min(kfilelength(fil), sizeof(tmb));
     kread(fil,tmb,l);
     MUSIC_RegisterTimbreBank(tmb);
     kclose(fil);
